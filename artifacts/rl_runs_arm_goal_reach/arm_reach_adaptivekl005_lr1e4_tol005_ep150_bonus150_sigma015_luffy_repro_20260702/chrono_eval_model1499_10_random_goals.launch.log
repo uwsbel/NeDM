@@ -1,0 +1,304 @@
+Actor MLP: Sequential(
+  (0): Linear(in_features=26, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=4, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=26, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+{"steps": 42, "done_reason": "success", "final_done_reason": "success", "first_done_step": 42, "first_success_step": 42, "fixed_duration_steps": null, "success": true, "reached_tolerance": true, "final_ee_error_m": 0.020170986652374268, "min_ee_error_m": 0.020170986652374268, "mean_ee_error_m": 3.6949687004089355, "reward_sum": 152.05299377441406, "unsafe_action_rate": 0.0, "min_clearance_m": 0.13348466157913208, "goal_base": [2.1243362426757812, 5.024244785308838, -0.2333393692970276], "contact_kind": null, "contact_links": [], "joint_limit_labels": [], "rollout_index": 0}
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+{"steps": 40, "done_reason": "success", "final_done_reason": "success", "first_done_step": 40, "first_success_step": 40, "fixed_duration_steps": null, "success": true, "reached_tolerance": true, "final_ee_error_m": 0.04717322066426277, "min_ee_error_m": 0.04717322066426277, "mean_ee_error_m": 1.4801545143127441, "reward_sum": 156.80014038085938, "unsafe_action_rate": 0.0, "min_clearance_m": 0.13044637441635132, "goal_base": [4.7408246994018555, 2.6892521381378174, -1.4585611820220947], "contact_kind": null, "contact_links": [], "joint_limit_labels": [], "rollout_index": 1}
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+{"steps": 36, "done_reason": "success", "final_done_reason": "success", "first_done_step": 36, "first_success_step": 36, "fixed_duration_steps": null, "success": true, "reached_tolerance": true, "final_ee_error_m": 0.01727955788373947, "min_ee_error_m": 0.01727955788373947, "mean_ee_error_m": 2.46688175201416, "reward_sum": 152.4001007080078, "unsafe_action_rate": 0.0, "min_clearance_m": 0.12837404012680054, "goal_base": [3.7930123805999756, -3.5892012119293213, -2.2765145301818848], "contact_kind": null, "contact_links": [], "joint_limit_labels": [], "rollout_index": 2}
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+{"steps": 45, "done_reason": "success", "final_done_reason": "success", "first_done_step": 45, "first_success_step": 45, "fixed_duration_steps": null, "success": true, "reached_tolerance": true, "final_ee_error_m": 0.0488661453127861, "min_ee_error_m": 0.0488661453127861, "mean_ee_error_m": 2.0904457569122314, "reward_sum": 156.482666015625, "unsafe_action_rate": 0.0, "min_clearance_m": 0.12964409589767456, "goal_base": [3.7998805046081543, 3.705904960632324, -1.905461311340332], "contact_kind": null, "contact_links": [], "joint_limit_labels": [], "rollout_index": 3}
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+{"steps": 66, "done_reason": "success", "final_done_reason": "success", "first_done_step": 66, "first_success_step": 66, "fixed_duration_steps": null, "success": true, "reached_tolerance": true, "final_ee_error_m": 0.017276369035243988, "min_ee_error_m": 0.017276369035243988, "mean_ee_error_m": 1.4549301862716675, "reward_sum": 161.67649841308594, "unsafe_action_rate": 0.0, "min_clearance_m": 0.13162308931350708, "goal_base": [3.9923272132873535, -3.7696027755737305, -0.7758353352546692], "contact_kind": null, "contact_links": [], "joint_limit_labels": [], "rollout_index": 4}
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+{"steps": 37, "done_reason": "success", "final_done_reason": "success", "first_done_step": 37, "first_success_step": 37, "fixed_duration_steps": null, "success": true, "reached_tolerance": true, "final_ee_error_m": 0.034535057842731476, "min_ee_error_m": 0.034535057842731476, "mean_ee_error_m": 3.4267525672912598, "reward_sum": 151.2727508544922, "unsafe_action_rate": 0.0, "min_clearance_m": 0.12853068113327026, "goal_base": [2.8141465187072754, -4.573246002197266, -1.81938898563385], "contact_kind": null, "contact_links": [], "joint_limit_labels": [], "rollout_index": 5}
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+{"steps": 61, "done_reason": "success", "final_done_reason": "success", "first_done_step": 61, "first_success_step": 61, "fixed_duration_steps": null, "success": true, "reached_tolerance": true, "final_ee_error_m": 0.026040518656373024, "min_ee_error_m": 0.026040518656373024, "mean_ee_error_m": 0.6298272609710693, "reward_sum": 165.31356811523438, "unsafe_action_rate": 0.0, "min_clearance_m": 0.12840265035629272, "goal_base": [4.886597633361816, -0.8078309297561646, -2.962925434112549], "contact_kind": null, "contact_links": [], "joint_limit_labels": [], "rollout_index": 6}
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+{"steps": 24, "done_reason": "success", "final_done_reason": "success", "first_done_step": 24, "first_success_step": 24, "fixed_duration_steps": null, "success": true, "reached_tolerance": true, "final_ee_error_m": 0.040909864008426666, "min_ee_error_m": 0.040909864008426666, "mean_ee_error_m": 0.43138858675956726, "reward_sum": 154.05323791503906, "unsafe_action_rate": 0.0, "min_clearance_m": 0.1288164258003235, "goal_base": [5.477251052856445, -0.3176184892654419, -1.2911213636398315], "contact_kind": null, "contact_links": [], "joint_limit_labels": [], "rollout_index": 7}
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+{"steps": 51, "done_reason": "success", "final_done_reason": "success", "first_done_step": 51, "first_success_step": 51, "fixed_duration_steps": null, "success": true, "reached_tolerance": true, "final_ee_error_m": 0.035290878266096115, "min_ee_error_m": 0.035290878266096115, "mean_ee_error_m": 2.723339319229126, "reward_sum": 155.18466186523438, "unsafe_action_rate": 0.0, "min_clearance_m": 0.13311618566513062, "goal_base": [2.7128946781158447, 4.77349853515625, -1.2890279293060303], "contact_kind": null, "contact_links": [], "joint_limit_labels": [], "rollout_index": 8}
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+{"steps": 36, "done_reason": "success", "final_done_reason": "success", "first_done_step": 36, "first_success_step": 36, "fixed_duration_steps": null, "success": true, "reached_tolerance": true, "final_ee_error_m": 0.019907444715499878, "min_ee_error_m": 0.019907444715499878, "mean_ee_error_m": 2.826108932495117, "reward_sum": 151.73175048828125, "unsafe_action_rate": 0.0, "min_clearance_m": 0.12872964143753052, "goal_base": [3.6299877166748047, -4.07430362701416, -1.2677204608917236], "contact_kind": null, "contact_links": [], "joint_limit_labels": [], "rollout_index": 9}
+{
+  "backend": "chrono_arm_reaching",
+  "policy_checkpoint": "/home/harry/NeDM/artifacts/rl_runs_arm_goal_reach/arm_reach_adaptivekl005_lr1e4_tol005_ep150_bonus150_sigma015_luffy_repro_20260702/model_1499.pt",
+  "pre_roll_time_s": 6.0,
+  "consecutive_goals": false,
+  "goal_duration_s": null,
+  "goal_duration_steps": null,
+  "requested_goals": 10,
+  "num_rollouts": 10,
+  "success_rate": 1.0,
+  "reached_tolerance_rate": 1.0,
+  "mean_final_ee_error_m": 0.030745004303753376,
+  "mean_min_ee_error_m": 0.030745004303753376,
+  "rollouts": [
+    {
+      "steps": 42,
+      "done_reason": "success",
+      "final_done_reason": "success",
+      "first_done_step": 42,
+      "first_success_step": 42,
+      "fixed_duration_steps": null,
+      "success": true,
+      "reached_tolerance": true,
+      "final_ee_error_m": 0.020170986652374268,
+      "min_ee_error_m": 0.020170986652374268,
+      "mean_ee_error_m": 3.6949687004089355,
+      "reward_sum": 152.05299377441406,
+      "unsafe_action_rate": 0.0,
+      "min_clearance_m": 0.13348466157913208,
+      "goal_base": [
+        2.1243362426757812,
+        5.024244785308838,
+        -0.2333393692970276
+      ],
+      "contact_kind": null,
+      "contact_links": [],
+      "joint_limit_labels": [],
+      "rollout_index": 0
+    },
+    {
+      "steps": 40,
+      "done_reason": "success",
+      "final_done_reason": "success",
+      "first_done_step": 40,
+      "first_success_step": 40,
+      "fixed_duration_steps": null,
+      "success": true,
+      "reached_tolerance": true,
+      "final_ee_error_m": 0.04717322066426277,
+      "min_ee_error_m": 0.04717322066426277,
+      "mean_ee_error_m": 1.4801545143127441,
+      "reward_sum": 156.80014038085938,
+      "unsafe_action_rate": 0.0,
+      "min_clearance_m": 0.13044637441635132,
+      "goal_base": [
+        4.7408246994018555,
+        2.6892521381378174,
+        -1.4585611820220947
+      ],
+      "contact_kind": null,
+      "contact_links": [],
+      "joint_limit_labels": [],
+      "rollout_index": 1
+    },
+    {
+      "steps": 36,
+      "done_reason": "success",
+      "final_done_reason": "success",
+      "first_done_step": 36,
+      "first_success_step": 36,
+      "fixed_duration_steps": null,
+      "success": true,
+      "reached_tolerance": true,
+      "final_ee_error_m": 0.01727955788373947,
+      "min_ee_error_m": 0.01727955788373947,
+      "mean_ee_error_m": 2.46688175201416,
+      "reward_sum": 152.4001007080078,
+      "unsafe_action_rate": 0.0,
+      "min_clearance_m": 0.12837404012680054,
+      "goal_base": [
+        3.7930123805999756,
+        -3.5892012119293213,
+        -2.2765145301818848
+      ],
+      "contact_kind": null,
+      "contact_links": [],
+      "joint_limit_labels": [],
+      "rollout_index": 2
+    },
+    {
+      "steps": 45,
+      "done_reason": "success",
+      "final_done_reason": "success",
+      "first_done_step": 45,
+      "first_success_step": 45,
+      "fixed_duration_steps": null,
+      "success": true,
+      "reached_tolerance": true,
+      "final_ee_error_m": 0.0488661453127861,
+      "min_ee_error_m": 0.0488661453127861,
+      "mean_ee_error_m": 2.0904457569122314,
+      "reward_sum": 156.482666015625,
+      "unsafe_action_rate": 0.0,
+      "min_clearance_m": 0.12964409589767456,
+      "goal_base": [
+        3.7998805046081543,
+        3.705904960632324,
+        -1.905461311340332
+      ],
+      "contact_kind": null,
+      "contact_links": [],
+      "joint_limit_labels": [],
+      "rollout_index": 3
+    },
+    {
+      "steps": 66,
+      "done_reason": "success",
+      "final_done_reason": "success",
+      "first_done_step": 66,
+      "first_success_step": 66,
+      "fixed_duration_steps": null,
+      "success": true,
+      "reached_tolerance": true,
+      "final_ee_error_m": 0.017276369035243988,
+      "min_ee_error_m": 0.017276369035243988,
+      "mean_ee_error_m": 1.4549301862716675,
+      "reward_sum": 161.67649841308594,
+      "unsafe_action_rate": 0.0,
+      "min_clearance_m": 0.13162308931350708,
+      "goal_base": [
+        3.9923272132873535,
+        -3.7696027755737305,
+        -0.7758353352546692
+      ],
+      "contact_kind": null,
+      "contact_links": [],
+      "joint_limit_labels": [],
+      "rollout_index": 4
+    },
+    {
+      "steps": 37,
+      "done_reason": "success",
+      "final_done_reason": "success",
+      "first_done_step": 37,
+      "first_success_step": 37,
+      "fixed_duration_steps": null,
+      "success": true,
+      "reached_tolerance": true,
+      "final_ee_error_m": 0.034535057842731476,
+      "min_ee_error_m": 0.034535057842731476,
+      "mean_ee_error_m": 3.4267525672912598,
+      "reward_sum": 151.2727508544922,
+      "unsafe_action_rate": 0.0,
+      "min_clearance_m": 0.12853068113327026,
+      "goal_base": [
+        2.8141465187072754,
+        -4.573246002197266,
+        -1.81938898563385
+      ],
+      "contact_kind": null,
+      "contact_links": [],
+      "joint_limit_labels": [],
+      "rollout_index": 5
+    },
+    {
+      "steps": 61,
+      "done_reason": "success",
+      "final_done_reason": "success",
+      "first_done_step": 61,
+      "first_success_step": 61,
+      "fixed_duration_steps": null,
+      "success": true,
+      "reached_tolerance": true,
+      "final_ee_error_m": 0.026040518656373024,
+      "min_ee_error_m": 0.026040518656373024,
+      "mean_ee_error_m": 0.6298272609710693,
+      "reward_sum": 165.31356811523438,
+      "unsafe_action_rate": 0.0,
+      "min_clearance_m": 0.12840265035629272,
+      "goal_base": [
+        4.886597633361816,
+        -0.8078309297561646,
+        -2.962925434112549
+      ],
+      "contact_kind": null,
+      "contact_links": [],
+      "joint_limit_labels": [],
+      "rollout_index": 6
+    },
+    {
+      "steps": 24,
+      "done_reason": "success",
+      "final_done_reason": "success",
+      "first_done_step": 24,
+      "first_success_step": 24,
+      "fixed_duration_steps": null,
+      "success": true,
+      "reached_tolerance": true,
+      "final_ee_error_m": 0.040909864008426666,
+      "min_ee_error_m": 0.040909864008426666,
+      "mean_ee_error_m": 0.43138858675956726,
+      "reward_sum": 154.05323791503906,
+      "unsafe_action_rate": 0.0,
+      "min_clearance_m": 0.1288164258003235,
+      "goal_base": [
+        5.477251052856445,
+        -0.3176184892654419,
+        -1.2911213636398315
+      ],
+      "contact_kind": null,
+      "contact_links": [],
+      "joint_limit_labels": [],
+      "rollout_index": 7
+    },
+    {
+      "steps": 51,
+      "done_reason": "success",
+      "final_done_reason": "success",
+      "first_done_step": 51,
+      "first_success_step": 51,
+      "fixed_duration_steps": null,
+      "success": true,
+      "reached_tolerance": true,
+      "final_ee_error_m": 0.035290878266096115,
+      "min_ee_error_m": 0.035290878266096115,
+      "mean_ee_error_m": 2.723339319229126,
+      "reward_sum": 155.18466186523438,
+      "unsafe_action_rate": 0.0,
+      "min_clearance_m": 0.13311618566513062,
+      "goal_base": [
+        2.7128946781158447,
+        4.77349853515625,
+        -1.2890279293060303
+      ],
+      "contact_kind": null,
+      "contact_links": [],
+      "joint_limit_labels": [],
+      "rollout_index": 8
+    },
+    {
+      "steps": 36,
+      "done_reason": "success",
+      "final_done_reason": "success",
+      "first_done_step": 36,
+      "first_success_step": 36,
+      "fixed_duration_steps": null,
+      "success": true,
+      "reached_tolerance": true,
+      "final_ee_error_m": 0.019907444715499878,
+      "min_ee_error_m": 0.019907444715499878,
+      "mean_ee_error_m": 2.826108932495117,
+      "reward_sum": 151.73175048828125,
+      "unsafe_action_rate": 0.0,
+      "min_clearance_m": 0.12872964143753052,
+      "goal_base": [
+        3.6299877166748047,
+        -4.07430362701416,
+        -1.2677204608917236
+      ],
+      "contact_kind": null,
+      "contact_links": [],
+      "joint_limit_labels": [],
+      "rollout_index": 9
+    }
+  ]
+}
