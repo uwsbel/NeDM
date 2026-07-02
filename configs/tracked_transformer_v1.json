@@ -1,0 +1,40 @@
+{
+  "processed_dataset_dir": "artifacts/training_datasets/tracked_drive_v2_seq16_v1",
+  "output_dir": "artifacts/training_runs/tracked_transformer_v1",
+  "validation_dataset_name": "tracked",
+  "model": {
+    "block_size": 16,
+    "n_layer": 3,
+    "n_head": 4,
+    "n_embd": 96,
+    "dropout": 0.0,
+    "bias": false,
+    "head_hidden_dim": 96
+  },
+  "optimizer": {
+    "lr": 0.0003,
+    "min_lr": 3e-05,
+    "weight_decay": 0.1,
+    "betas": [0.9, 0.95],
+    "warmup_steps": 500,
+    "grad_clip_norm": 1.0
+  },
+  "training": {
+    "seed": 20260702,
+    "device": "auto",
+    "batch_size": 256,
+    "num_workers": 0,
+    "num_epochs": 40,
+    "steps_per_epoch": 1500,
+    "max_val_batches": 200,
+    "load_dataset_into_memory": true,
+    "pin_memory": false,
+    "checkpoint_metric": "val_loss",
+    "compile": false
+  },
+  "rollout_eval": {
+    "horizons_s": [1.0, 2.0, 5.0],
+    "num_episodes": 30,
+    "selection_horizon_s": 5.0
+  }
+}

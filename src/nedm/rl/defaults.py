@@ -22,3 +22,10 @@ DEFAULT_ARM_PROCESSED_DATASET_DIR = Path(
 DEFAULT_ARM_GEOMETRY_PATH = Path(
     "artifacts/arm_geometry/arm_geometry_v1.json"
 )
+
+DEFAULT_TRACKED_DYNAMICS_CHECKPOINT = Path(
+    "artifacts/training_runs/tracked_transformer_v1/checkpoints/best_val.pt"
+)
+DEFAULT_TRACKED_PROCESSED_DATASET_DIR = Path(
+    "artifacts/training_datasets/tracked_drive_v2_seq16_v1"
+)

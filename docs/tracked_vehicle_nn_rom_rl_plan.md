@@ -1157,3 +1157,117 @@ RL objective:   reach local 2D goal region first, add heading later
 ```
 
 This gives a clean base-motion model that is much simpler than a full HMMWV-style model, while still containing the minimum dynamics needed for tracked-vehicle goal reaching.
+
+---
+
+## 17. ROM Training with the Transformer Stack (implementation, supersedes §3.1/§6 MLP baseline)
+
+Sections 3–7 above describe an MLP baseline. For consistency with the rest of the
+project we instead reuse the **existing GPT-style causal continuous-token transformer**
+that already trains the HMMWV and arm dynamics models (`src/nedm/training/*`), only
+shrinking it for this 6→3 problem. This section is the source of truth for the ROM
+training implementation.
+
+### 17.1 Why no new code is needed
+
+The training stack is fully field-driven and already supports this model:
+
+- State/action/rollout fields are chosen by name at preprocess time. The tracked-vehicle
+  CSVs expose exactly the fields the defaults expect:
+  - action = `DEFAULT_ACTION_FIELDS` = `[driver_steering, driver_throttle, driver_braking]`
+  - rollout = `DEFAULT_ROLLOUT_FIELDS` = `[pos_x_m, pos_y_m, yaw_rad]`
+  - state = explicit `--state-fields vel_body_x_mps vel_body_y_mps yaw_rate_radps`
+- `preprocess.build_split_buffers` builds the residual target automatically:
+  `targets = states[1:] - states[:-1]`, so the model learns `Δ[vx, vy, r]` and the ROM
+  integrates `next = current + Δ` — i.e. exactly `[vx,vy,r,steer,thr,brake] → next[vx,vy,r]`.
+- `trainer._integrate_pose` reads `vel_body_x_mps`, `vel_body_y_mps`, `yaw_rate_radps`
+  **by name**, so the open-loop rollout / pose-integration eval works unchanged.
+- The two `preprocess.py` edits the arm case needed (dt fallback, `scenario_family`
+  default) are already merged. The tracked CSVs also carry
+  `collector_config.resolved.json`, so `compute_dt_s` reads dt = 0.02 s directly.
+
+### 17.2 Model definition
+
+```text
+per-token input : [vx, vy, r, steer, throttle, brake]      (state_dim 3 + action_dim 3 = 6)
+context window  : 16 steps  (0.32 s @ dt=0.02 s)
+output (target) : [Δvx, Δvy, Δr]  in normalized space      (target_dim 3)
+update          : next = current + Δ
+```
+
+**Size (relative to the two existing models):**
+
+| Model | block_size / n_layer / n_embd | Params |
+|---|---|---|
+| HMMWV base | 128 / 6 / 256 | 4.82 M |
+| Arm | 16 / 4 / 128 | 0.81 M |
+| **Tracked TV-A (default)** | **16 / 3 / 96** | **0.34 M** |
+| Tracked TV-B (fallback = arm-size) | 16 / 4 / 128 | 0.81 M |
+
+`ctx=16` matches the arm model and the RL-rollout sweet spot (dynamics is ~Markovian).
+Start at **TV-A**; if val RMSE or open-loop drift is worse than an arm-sized run, promote
+to TV-B (a one-line config change).
+
+### 17.3 Loss / normalization
+
+Plain **MSE in normalized target space** (default). Because targets are normalized by
+per-channel `target_std`, `Δvx / Δvy / Δr` are each unit-variance and automatically
+balanced — the §6.2 worry about the network ignoring `vy`/`r` is already handled, and the
+CRM-style channel reweighting is **not** needed here (that was only for the ~30× tire
+normal-force scale gap). Keep Huber off for v1.
+
+### 17.4 Commands
+
+Build the processed cache (all 60 shards passed as roots; merged + dedup-checked, split by
+the per-episode `split` field = 1808 train / 352 val):
+
+```bash
+conda activate nedm   # numpy only; rl env also works
+python scripts/build_hmmwv_training_dataset.py \
+  --dataset-root artifacts/datasets/tracked_vehicle_drive_v2_shards/shard_* \
+  --output-dir  artifacts/training_datasets/tracked_drive_v2_seq16_v1 \
+  --state-fields vel_body_x_mps vel_body_y_mps yaw_rate_radps
+```
+
+Train (`configs/tracked_transformer_v1.json`, mirrors `arm_transformer_v1.json` shrunk,
+with open-loop rollout eval enabled):
+
+```bash
+python -m nedm.training.trainer --config configs/tracked_transformer_v1.json
+```
+
+Smoke test first (1 epoch, capped windows) to validate wiring before the full run:
+
+```bash
+python -m nedm.training.trainer --config configs/tracked_transformer_v1.json \
+  --num-epochs 1 --steps-per-epoch 50 --max-train-windows 20000 --max-val-windows 4000
+```
+
+### 17.5 Validation / selection
+
+Logged to `metrics.jsonl` every epoch:
+
+- **one-step per-channel RMSE** — `val_rmse[vel_body_x_mps | vel_body_y_mps | yaw_rate_radps]`
+- **open-loop rollout** — `rollout_tracked_{1,2,5}s` distance-normalized `errdist` + xy/yaw RMSE.
+  This is the RL-relevant metric (RL rolls the ROM forward).
+
+Selection: keep `checkpoint_metric: val_loss` for v1. If open-loop rollouts drift (the
+failure mode seen in the CRM/bumpy work), switch `checkpoint_metric` to `"rollout_sel"`
+(the trainer already emits it). Qualitatively confirm steering>0 ⇒ yaw_rate>0 (data corr +0.41).
+
+### 17.6 Coverage caveat (carries into RL, not training)
+
+Dataset quality is clean, but coverage is narrow: ~71.5% of rows are near-straight,
+throttle is capped at 0.6, and the high-throttle×high-steer corner is empty (see the v2
+quality scan). The ROM is accurate inside that envelope and extrapolates outside it, so the
+mitigation lives at the RL boundary (§8.2), not in ROM training:
+
+- constrain the RL action space to the covered envelope: `throttle ∈ [0, 0.6]`, forward-only
+  (no reverse; vx min ≈ −0.18), no expectation of turning authority at high throttle;
+- add an OOD / ensemble-disagreement guard if the policy exploits the empty corner;
+- if real hard-turn authority is required, collect a **v3 supplement** (throttle 0.6–1.0 +
+  high-throttle×high-steer maneuvers) — a data change, not a training change.
+
+Optional: the 1 s warmup leaves a small deterministic start transient (row 0 identical
+across all episodes). Physically consistent, so v1 ignores it; if one-step RMSE looks
+inflated, add a 5–10 row head-trim in `preprocess.read_episode_csv`.
