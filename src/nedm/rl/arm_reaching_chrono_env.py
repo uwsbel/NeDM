@@ -167,6 +167,11 @@ class ArmReachingChronoEnv(VecEnv):
         self.max_goal_sample_attempts = int(self.cfg["goal"].get("max_sample_attempts", 16))
         close_thresholds = self.cfg.get("logging", {}).get("close_thresholds_m", [0.04, 0.1, 0.2, 0.5])
         self.close_thresholds_m = [float(value) for value in close_thresholds]
+        self.reach_reward_type = str(self.cfg["reward"].get("reach_reward_type", "exponential")).lower()
+        if self.reach_reward_type not in {"exponential", "progress"}:
+            raise ValueError(
+                f"reward.reach_reward_type must be 'exponential' or 'progress', got {self.reach_reward_type!r}"
+            )
 
         state_dim = len(self.state_fields)
         action_dim = len(self.action_fields)
@@ -596,6 +601,7 @@ class ArmReachingChronoEnv(VecEnv):
         ee = self.current_ee_base()
         error_vec = self.goal_base - ee
         ee_error = torch.linalg.norm(error_vec, dim=-1)
+        previous_ee_error = self.ee_error_buf
         self.ee_error_buf = ee_error
         reached = ee_error < float(reward_cfg["success_tolerance_m"])
         self.success_count_buf = torch.where(reached, self.success_count_buf + 1, torch.zeros_like(self.success_count_buf))
@@ -604,7 +610,10 @@ class ArmReachingChronoEnv(VecEnv):
         action_norm = self.actions / torch.clamp(self.dq_max.view(1, 4), min=1.0e-6)
         last_action_norm = self.last_actions / torch.clamp(self.dq_max.view(1, 4), min=1.0e-6)
         action_rate = torch.sum(torch.square(action_norm - last_action_norm), dim=-1)
-        reach_reward = torch.exp(-ee_error / float(reward_cfg["ee_error_scale_m"]))
+        if self.reach_reward_type == "progress":
+            reach_reward = previous_ee_error - ee_error
+        else:
+            reach_reward = torch.exp(-ee_error / float(reward_cfg["ee_error_scale_m"]))
         action_rate_penalty = -float(reward_cfg["action_rate_weight"]) * action_rate
         success_bonus = float(reward_cfg["success_bonus"]) * success.float()
 

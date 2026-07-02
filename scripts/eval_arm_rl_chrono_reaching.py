@@ -68,6 +68,7 @@ def rollout_one_goal(
     max_steps: int,
     ignore_dones: bool = False,
     reset_scene: bool = True,
+    fixed_duration_steps: int | None = None,
 ) -> dict[str, Any]:
     env_id = torch.tensor([0], dtype=torch.long, device=env.device)
     if reset_scene:
@@ -86,9 +87,12 @@ def rollout_one_goal(
     dones = []
     clearances = []
     unsafe_actions = []
+    first_done_reason = None
+    first_done_step = None
+    first_success_step = None
 
     with torch.no_grad():
-        for _ in range(max_steps):
+        for step_index in range(max_steps):
             action = policy(obs.to(env.device))
             obs, reward, done, _ = env.step(action)
             ee_values.append(tensor_to_numpy(env.current_ee_base()[0]))
@@ -97,12 +101,22 @@ def rollout_one_goal(
             errors.append(float(np.linalg.norm(goal - ee_values[-1])))
             actions.append(tensor_to_numpy(env.actions[0]))
             rewards.append(float(reward[0].item()))
-            dones.append(bool(done[0].item()))
+            is_done = bool(done[0].item())
+            dones.append(is_done)
             clearances.append(float(env.clearance_buf[0].item()))
             unsafe_actions.append(bool(env.unsafe_action_buf[0].item()))
-            if bool(done[0].item()) and not ignore_dones:
+            current_done_reason = done_reason(env) if is_done else None
+            if current_done_reason == "success" and first_success_step is None:
+                first_success_step = step_index + 1
+            if current_done_reason is not None and first_done_reason is None:
+                first_done_reason = current_done_reason
+                first_done_step = step_index + 1
+            if is_done and not ignore_dones:
+                if fixed_duration_steps is not None and current_done_reason == "success":
+                    continue
                 break
 
+    final_done_reason = done_reason(env)
     return {
         "ee_base": np.stack(ee_values, axis=0).astype(np.float32),
         "q": np.stack(q_values, axis=0).astype(np.float32),
@@ -114,7 +128,11 @@ def rollout_one_goal(
         "done": np.asarray(dones, dtype=np.bool_),
         "clearance_m": np.asarray(clearances, dtype=np.float32),
         "unsafe_action": np.asarray(unsafe_actions, dtype=np.bool_),
-        "done_reason": done_reason(env),
+        "done_reason": first_done_reason or final_done_reason,
+        "final_done_reason": final_done_reason,
+        "first_done_step": first_done_step,
+        "first_success_step": first_success_step,
+        "fixed_duration_steps": fixed_duration_steps,
         "contact_kind": env.contact_kinds[0],
         "contact_links": list(env.contact_links[0]),
         "joint_limit_labels": list(env.joint_limit_labels[0]),
@@ -145,11 +163,17 @@ def compute_metrics(record: dict[str, Any], success_tolerance_m: float) -> dict[
     errors = record["error_m"]
     rewards = record["reward"]
     steps = int(rewards.shape[0])
+    reached_tolerance = bool(np.min(errors) < success_tolerance_m)
+    success = bool(record.get("first_success_step") is not None or record["done_reason"] == "success")
     return {
         "steps": steps,
         "done_reason": record["done_reason"],
-        "success": bool(record["done_reason"] == "success"),
-        "reached_tolerance": bool(np.min(errors) < success_tolerance_m),
+        "final_done_reason": record.get("final_done_reason"),
+        "first_done_step": record.get("first_done_step"),
+        "first_success_step": record.get("first_success_step"),
+        "fixed_duration_steps": record.get("fixed_duration_steps"),
+        "success": success,
+        "reached_tolerance": reached_tolerance,
         "final_ee_error_m": float(errors[-1]),
         "min_ee_error_m": float(np.min(errors)),
         "mean_ee_error_m": float(np.mean(errors)),
@@ -210,6 +234,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--device", type=str, default="auto", help="Policy/obs tensor device; Chrono remains CPU-bound.")
     parser.add_argument("--num-goals", type=int, default=10)
     parser.add_argument("--max-steps", type=int, default=None)
+    parser.add_argument(
+        "--goal-duration-s",
+        type=float,
+        default=None,
+        help="Run each goal segment for this duration. Success does not end the segment; hard failures still do.",
+    )
     parser.add_argument(
         "--pre-roll-time-s",
         type=float,
@@ -294,7 +324,13 @@ def main(argv: list[str] | None = None) -> int:
     runner = OnPolicyRunner(env, train_cfg, log_dir=None, device=device)
     load_runner_checkpoint(runner, checkpoint_path, device=device)
     policy = runner.get_inference_policy(device=device)
+    goal_duration_steps = None
+    if args.goal_duration_s is not None:
+        step_dt_s = float(env.dt_s) * int(env.action_repeat)
+        goal_duration_steps = max(1, int(round(float(args.goal_duration_s) / step_dt_s)))
     max_steps = int(args.max_steps) if args.max_steps is not None else int(env.max_episode_length)
+    if goal_duration_steps is not None:
+        max_steps = max(max_steps if args.max_steps is not None else 0, goal_duration_steps)
     success_tolerance_m = float(env.cfg["reward"]["success_tolerance_m"])
 
     summary = []
@@ -305,6 +341,7 @@ def main(argv: list[str] | None = None) -> int:
             max_steps=max_steps,
             ignore_dones=bool(args.ignore_dones),
             reset_scene=(rollout_index == 0 or not bool(args.consecutive_goals)),
+            fixed_duration_steps=goal_duration_steps,
         )
         metrics = compute_metrics(record, success_tolerance_m=success_tolerance_m)
         metrics["rollout_index"] = rollout_index
@@ -321,6 +358,11 @@ def main(argv: list[str] | None = None) -> int:
             done=record["done"],
             clearance_m=record["clearance_m"],
             unsafe_action=record["unsafe_action"],
+            first_done_step=np.asarray(record["first_done_step"] if record["first_done_step"] is not None else -1, dtype=np.int32),
+            first_success_step=np.asarray(
+                record["first_success_step"] if record["first_success_step"] is not None else -1,
+                dtype=np.int32,
+            ),
         )
         if not args.no_plots:
             plot_record(
@@ -347,6 +389,8 @@ def main(argv: list[str] | None = None) -> int:
         "policy_checkpoint": str(checkpoint_path),
         "pre_roll_time_s": float(env.cfg.get("pre_roll_time_s", 0.0)),
         "consecutive_goals": bool(args.consecutive_goals),
+        "goal_duration_s": float(args.goal_duration_s) if args.goal_duration_s is not None else None,
+        "goal_duration_steps": goal_duration_steps,
         "requested_goals": int(args.num_goals),
         "num_rollouts": len(summary),
         "success_rate": float(np.mean([row["success"] for row in summary])) if summary else None,

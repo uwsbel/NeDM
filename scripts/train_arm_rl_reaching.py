@@ -79,6 +79,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--success-bonus", type=float, default=None)
     parser.add_argument("--success-tolerance-m", type=float, default=None)
     parser.add_argument("--success-steps", type=int, default=None)
+    parser.add_argument(
+        "--reach-reward-type",
+        choices=["exponential", "progress"],
+        default=None,
+        help="Reach shaping reward: exponential uses exp(-error / scale), progress uses previous_error - current_error.",
+    )
     parser.add_argument("--init-noise-std", type=float, default=0.6)
     parser.add_argument("--output-root", type=Path, default=Path("artifacts/rl_runs"))
     parser.add_argument("--run-name", type=str, default=None)
@@ -167,6 +173,8 @@ def get_env_cfg(args: argparse.Namespace) -> dict[str, Any]:
         cfg["reward"]["success_tolerance_m"] = float(args.success_tolerance_m)
     if args.success_steps is not None:
         cfg["reward"]["success_steps"] = int(args.success_steps)
+    if args.reach_reward_type is not None:
+        cfg["reward"]["reach_reward_type"] = args.reach_reward_type
     return merge_env_cfg(cfg)
 
 
