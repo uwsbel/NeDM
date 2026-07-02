@@ -27,6 +27,7 @@ from nedm.arm_data import (
     build_and_prepare,
     gripper_center,
     joint_limit_violation,
+    RenderFrameRecorder,
     _substep,
 )
 from nedm.rl.arm_kinematics import ArmKinematics
@@ -46,6 +47,7 @@ class ChronoArmSim:
     collision_links: Any
     driver_inputs: Any
     vis: Any = None
+    frame_recorder: Any = None
     ee_marker: Any = None
     goal_marker: Any = None
 
@@ -58,6 +60,9 @@ def default_chrono_env_cfg() -> dict[str, Any]:
             "device": "cpu",
             "auto_reset": False,
             "render": False,
+            "save_render_frames": False,
+            "frame_output_dir": None,
+            "render_steps": 1,
             "warm_start_context": True,
             "defer_reset": False,
             "pre_roll_time_s": 6.0,
@@ -101,6 +106,18 @@ class ArmReachingChronoEnv(VecEnv):
         self.auto_reset = bool(self.cfg.get("auto_reset", False))
         self.warm_start_context = bool(self.cfg.get("warm_start_context", True))
         self.render = bool(self.cfg.get("render", False))
+        self.save_render_frames = bool(self.cfg.get("save_render_frames", False))
+        self.render_steps = int(self.cfg.get("render_steps", 1))
+        self.frame_recorder = None
+        if self.save_render_frames:
+            if not self.render:
+                raise ValueError("save_render_frames requires render=True")
+            if self.cfg.get("frame_output_dir") is None:
+                raise ValueError("save_render_frames requires frame_output_dir")
+            self.frame_recorder = RenderFrameRecorder(
+                Path(self.cfg["frame_output_dir"]),
+                render_steps=self.render_steps,
+            )
         self.pre_roll_time_s = float(self.cfg.get("pre_roll_time_s", 6.0))
         marker_cfg = self.cfg.get("visual_markers", {})
         self.visual_markers_enabled = bool(marker_cfg.get("enabled", True))
@@ -366,6 +383,7 @@ class ArmReachingChronoEnv(VecEnv):
             ee_marker.SetPos(ee_world)
             goal_marker.SetPos(ee_world)
             self._bind_marker_visuals(vis, system)
+        frame_recorder = self.frame_recorder if render else None
         return ChronoArmSim(
             m113=m113,
             vehicle=vehicle,
@@ -375,6 +393,7 @@ class ArmReachingChronoEnv(VecEnv):
             collision_links=collision_links,
             driver_inputs=driver_inputs,
             vis=vis,
+            frame_recorder=frame_recorder,
             ee_marker=ee_marker,
             goal_marker=goal_marker,
         )
@@ -538,6 +557,7 @@ class ArmReachingChronoEnv(VecEnv):
                         sim.driver_inputs,
                         self.chrono_steps_per_nn_step,
                         vis=sim.vis,
+                        frame_recorder=sim.frame_recorder,
                     )
 
                     state_np = self._capture_state_np(sim)

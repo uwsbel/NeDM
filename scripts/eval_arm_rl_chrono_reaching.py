@@ -257,6 +257,23 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--no-plots", action="store_true")
     parser.add_argument("--render", action="store_true", help="Open the Chrono Irrlicht viewer during rollout.")
     parser.add_argument(
+        "--save-render-frames",
+        action="store_true",
+        help="Save Irrlicht PNG frames while rendering. Defaults to <output-dir>/frames.",
+    )
+    parser.add_argument(
+        "--frame-output-dir",
+        type=Path,
+        default=None,
+        help="Directory for --save-render-frames PNGs.",
+    )
+    parser.add_argument(
+        "--render-steps",
+        type=int,
+        default=1,
+        help="Save one render frame every N policy/control steps when --save-render-frames is enabled.",
+    )
+    parser.add_argument(
         "--consecutive-goals",
         action="store_true",
         help="Use one Chrono scene and reset only the goal after each completed attempt.",
@@ -319,6 +336,15 @@ def main(argv: list[str] | None = None) -> int:
     checkpoint_path = args.policy_checkpoint.resolve() if args.policy_checkpoint else latest_policy_checkpoint(run_dir)
     output_dir = args.output_dir.resolve() if args.output_dir else (run_dir / "chrono_eval_reaching").resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
+    if args.save_render_frames or args.frame_output_dir is not None:
+        if not args.render:
+            raise ValueError("--save-render-frames/--frame-output-dir requires --render")
+        if int(args.render_steps) < 1:
+            raise ValueError(f"--render-steps must be >= 1, got {args.render_steps}")
+        frame_output_dir = args.frame_output_dir.resolve() if args.frame_output_dir else (output_dir / "frames").resolve()
+        env_cfg["save_render_frames"] = True
+        env_cfg["frame_output_dir"] = str(frame_output_dir)
+        env_cfg["render_steps"] = int(args.render_steps)
 
     env = ArmReachingChronoEnv(env_cfg, device=device)
     runner = OnPolicyRunner(env, train_cfg, log_dir=None, device=device)
@@ -388,6 +414,10 @@ def main(argv: list[str] | None = None) -> int:
         "backend": "chrono_arm_reaching",
         "policy_checkpoint": str(checkpoint_path),
         "pre_roll_time_s": float(env.cfg.get("pre_roll_time_s", 0.0)),
+        "render": bool(args.render),
+        "save_render_frames": bool(env.cfg.get("save_render_frames", False)),
+        "frame_output_dir": env.cfg.get("frame_output_dir"),
+        "render_steps": int(env.cfg.get("render_steps", 1)),
         "consecutive_goals": bool(args.consecutive_goals),
         "goal_duration_s": float(args.goal_duration_s) if args.goal_duration_s is not None else None,
         "goal_duration_steps": goal_duration_steps,

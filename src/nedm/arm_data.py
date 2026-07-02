@@ -296,8 +296,10 @@ def make_vis(vehicle, title="Arm data collection"):
     vis = veh.ChTrackedVehicleVisualSystemIrrlicht()
     vis.SetWindowTitle(title)
     vis.SetWindowSize(1280, 1024)
-    vis.SetChaseCamera(chrono.ChVector3d(0.0, 0.0, 1.0), 12.0, 3.0)
+    vis.SetChaseCamera(chrono.ChVector3d(0.0, -2.0, 2.25), -9.0, 1.5)
     vis.Initialize()
+    vis.AddLogo(chrono.GetChronoDataFile("logo_chrono_alpha.png"))
+    vis.AddSkyBox()
     vis.AddLightWithShadow(INIT_LOC + chrono.ChVector3d(0, 0, 30), INIT_LOC, 20, 1, 60, 50)
     vis.AddTypicalLights()
     vis.AttachVehicle(vehicle)
@@ -593,6 +595,33 @@ class EpisodeResult:
     start_qcmd: list[float]
 
 
+@dataclass
+class RenderFrameRecorder:
+    output_dir: Path
+    render_steps: int = 1
+    step_index: int = 0
+    frame_index: int = 0
+
+    def __post_init__(self) -> None:
+        self.output_dir = Path(self.output_dir).expanduser().resolve()
+        self.render_steps = int(self.render_steps)
+        if self.render_steps < 1:
+            raise ValueError(f"render_steps must be >= 1, got {self.render_steps}")
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+
+    def render(self, vis) -> None:
+        if self.step_index % self.render_steps == 0:
+            vis.BeginScene()
+            try:
+                vis.Render()
+                frame_path = self.output_dir / f"frame_{self.frame_index:06d}.png"
+                vis.WriteImageToFile(str(frame_path))
+                self.frame_index += 1
+            finally:
+                vis.EndScene()
+        self.step_index += 1
+
+
 CSV_FIELDS = (
     ["episode_id", "split", "sample_index", "time_s", "collision",
      "collision_kind", "contact_force_n"]
@@ -614,7 +643,7 @@ def assign_split(episode_id, validation_ratio):
     return "val" if int(digest[:8], 16) / 0xFFFFFFFF < validation_ratio else "train"
 
 
-def _substep(m113, terrain, actuator, driver_inputs, n_substeps, vis=None):
+def _substep(m113, terrain, actuator, driver_inputs, n_substeps, vis=None, frame_recorder=None):
     """Advance the physics ``n_substeps`` while holding the PD command + brakes.
 
     When a visual system is attached, draw one frame per call (~one frame per
@@ -624,9 +653,12 @@ def _substep(m113, terrain, actuator, driver_inputs, n_substeps, vis=None):
     system = m113.GetSystem()
     if vis is not None:
         vis.Run()
-        vis.BeginScene()
-        vis.Render()
-        vis.EndScene()
+        if frame_recorder is not None:
+            frame_recorder.render(vis)
+        else:
+            vis.BeginScene()
+            vis.Render()
+            vis.EndScene()
     for _ in range(n_substeps):
         t = system.GetChTime()
         actuator.apply_pd()
