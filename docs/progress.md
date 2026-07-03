@@ -2,7 +2,7 @@
 
 A living log of the overall project state, so both of us can see at a glance what is done, what the headline numbers are, and what is next. Update this file whenever a milestone lands or a headline metric changes.
 
-Last updated: 2026-06-30 (started the **Arm Mobile-Manipulator Study (case 2)**: trained the reach-mode arm dynamics NN `f_arm` — `arm_transformer_v1`, 15-D state, context 16, `val_loss` 0.00181, open-loop EE drift ~2% `errdist` @0.5 s — and laid out the reaching-RL (Phase 4) plan; see the new "Arm Mobile-Manipulator Study" section. Prior 2026-06-29 HMMWV steering-rate-limit entry unchanged)
+Last updated: 2026-07-03 (brought the **Arm Mobile-Manipulator Study (case 2)** up to date: arm reach-mode now has a trained PPO policy with 10/10 random-goal and 10/10 consecutive-goal Chrono success; the tracked base now has a v2 drive dataset, compact NN-ROM, far-goal PPO policy, and 4/4 Chrono spot-goal reaches. HMMWV/CRM entries unchanged since the 2026-06-29/2026-06-24 subsections.)
 
 ## Status At A Glance
 
@@ -12,7 +12,8 @@ Last updated: 2026-06-30 (started the **Arm Mobile-Manipulator Study (case 2)**:
 | 2 | NN dynamics model for HMMWV | Done | Upgraded from 7-D state to 15-D tire-normal-force/omega state; current RL backbone is `hmmwv_transformer_v07_tire_normal_force_omega_300g` |
 | 3 | RL tracking on NN dynamics + Chrono eval | Done (first pass) | 15-D policy eval now covers flat and bumpy rest-start refs; bumpy terrain degrades Chrono transfer substantially |
 | 4 | CRM (deformable soil) generalist dynamics NN | Generalist + ablations trained on 20× CRM (`crm_2000`) with one-hot terrain conditioning | One-hot 75/25 generalist hits **flat 9.1% / CRM 5.8%** open-loop 10s err/dist — improving the `crm_100` incumbent on **both** (flat 15.4%→9.1%, CRM 9.4%→5.8%). Single-domain ablations reach **flat 5.0% / CRM 3.7%** in-domain but collapse off-domain (flat-only→CRM 69%, CRM-only→flat 37%): co-training trades ~3–4 pt peak accuracy for cross-domain robustness. All three on `main` (LFS); see 2026-06-24 subsection |
-| 5 | Arm mobile-manipulator (case 2): dynamics NN + reaching RL | Dynamics model **done**; reaching RL planned | `f_arm` (`arm_transformer_v1`, 15-D state `[q,qd,qcmd,ee_base]`, context 16) reuses the HMMWV stack: `val_loss` **0.00181**, open-loop EE drift **~1.9% `errdist` @0.5 s**, 2.7% @1 s. Reaching policy `π_reach` on the frozen model is the next step; see the "Arm Mobile-Manipulator Study" section |
+| 5 | Arm mobile-manipulator reach mode: arm dynamics NN + reaching RL | Done (first pass) | `f_arm` is trained (`arm_transformer_full_v1`, 15-D `[q,qd,qcmd,ee_base]`, ctx16, EE drift ~1.9% err/dist @0.5 s). PPO reach policy `model_1499.pt` reaches **10/10 random Chrono goals** and **10/10 consecutive Chrono goals** with mean final EE error **3.1–3.9 cm**, 0 contacts, 0 unsafe actions in the reported evals |
+| 6 | Tracked vehicle drive mode: base NN-ROM + goal-reaching RL | Done (first pass) | v2 drive dataset processed to `[vx,vy,yaw_rate]` with **1.41M train / 0.27M val transitions**; `tracked_transformer_v1` best 5 s open-loop XY RMSE **0.105 m** (5.85% err/dist); `tracked_goal_v2_far` PPO reaches 20–40 m goals in NN env and **4/4 Chrono spot goals** within 0.75 m |
 
 ## Milestone 1: Rigid Flat-Terrain HMMWV Dataset
 
@@ -523,7 +524,7 @@ checkpoints). Trained on the local box this time; both ablation runs completed c
 
 ## Arm Mobile-Manipulator Study (Case 2): Arm Dynamics Model + Reaching RL
 
-Second NeDM study case, parallel to the HMMWV traversal work above: a 4-DOF gripper arm welded to the front of an M113 tracked vehicle. The goal is **locomanipulation** — drive the base until a target enters the arm's workspace, then reach it with the arm — split into a **drive mode** and a **reach mode** so we never have to learn the full coupled vehicle+arm dynamics at once. Design doc: [arm-dyn-model.md](arm-dyn-model.md). This milestone delivers the **reach-mode arm dynamics model** `f_arm` and the plan to train the reaching policy on it. Chrono-side collector details: `src/nedm/arm_data.py` and project memory `arm-dynamics-data-collection`.
+Second NeDM study case, parallel to the HMMWV traversal work above: a 4-DOF gripper arm welded to the front of an M113 tracked vehicle. The goal is **locomanipulation** — drive the base until a target enters the arm's workspace, then reach it with the arm — split into a **drive mode** and a **reach mode** so we never have to learn the full coupled vehicle+arm dynamics at once. Design doc: [arm-dyn-model.md](arm-dyn-model.md). This milestone now has first-pass implementations for both halves: a reach-mode arm dynamics model + PPO reach policy, and a drive-mode tracked-base NN-ROM + PPO goal-reaching policy. Chrono-side collector details: `src/nedm/arm_data.py` and project memory `arm-dynamics-data-collection`.
 
 ### Arm dynamics data + quality (2026-06-30)
 
@@ -560,40 +561,126 @@ Results — best `val_loss = 0.00181` @ epoch 30 (converged monotonically, not o
 | 1-step val RMSE | q 0.3–1.0 mrad · qd 0.009–0.043 rad/s · ee_base 0.0014–0.0029 |
 | Open-loop EE drift `errdist` (EE err ÷ EE travel) | **1.9% @0.25 s · 1.9% @0.5 s · 2.7% @1 s · 4.0% @2 s** |
 
-Eval via `scripts/eval_arm_rollout.py` (its own open-loop EE-drift rollout over held-out val episodes — seeds 16 steps, rolls `next = state + predict_next_delta`, compares predicted `ee_base` to ground truth; `artifacts/training_runs/arm_transformer_v1/rollout_eval.json`). The displacement-normalized drift holds ~2% over the horizons a reaching policy plans over → the model is **RL-ready**. (Absolute EE units are the collector's 2×-scaled-arm meters; `errdist` is the scale-invariant headline. Chrono sim-to-real transfer is validated in Phase 4.) **Not yet committed** — local edits + artifacts on `main`.
+Eval via `scripts/eval_arm_rollout.py` (its own open-loop EE-drift rollout over held-out val episodes — seeds 16 steps, rolls `next = state + predict_next_delta`, compares predicted `ee_base` to ground truth; `artifacts/training_runs/arm_transformer_v1/rollout_eval.json`). The displacement-normalized drift holds ~2% over the horizons a reaching policy plans over → the model is **RL-ready**. (Absolute EE units are the collector's 2×-scaled-arm meters; `errdist` is the scale-invariant headline. Chrono sim-to-sim transfer is validated by the reaching policy below.)
 
-### Reaching RL plan — Phase 4 (planned, not started)
+### Arm reaching RL + Chrono validation (2026-07-02)
 
-Train a **reach policy** `π_reach` entirely inside the frozen `f_arm` (base fixed, matching the data), then validate transfer in Chrono. Follows [arm-dyn-model.md](arm-dyn-model.md) §7, §9.
+Reach-mode PPO is implemented and trained against the frozen arm dynamics model. The implementation follows [arm-reaching-rl-plan.md](arm-reaching-rl-plan.md): `src/nedm/rl/arm_reaching_env.py` rolls the transformer dynamics inside an rsl-rl `VecEnv`; `src/nedm/rl/arm_kinematics.py` and `src/nedm/rl/arm_safety.py` provide batched FK and a geometric safety shield; `src/nedm/rl/arm_reaching_chrono_env.py` and `scripts/eval_arm_rl_chrono_reaching.py` deploy the same policy + shield in the real Chrono M113+arm scene.
 
-- **Env** — new `src/nedm/rl/arm_reaching_env.py` (rsl_rl `VecEnv`), **simpler** than the HMMWV tracking env: no world-pose integration and no reference trajectory, just a goal point. Reuse `load_frozen_dynamics` and the `state_hist`/`action_hist` roll + `predict_next_delta` substep pattern from `hmmwv_tracking_env.py`.
-- **Obs:** `q, qd, qcmd, goal_base, ee_base, goal−ee, d_safe_min`.
-- **Action (4):** `Δqcmd`, scaled by per-joint `DQ_MAX`; the env computes `qcmd_next = clip(qcmd+act)` **deterministically** and writes it into the qcmd channels (ignores the model's qcmd prediction — exact, drift-free). EE for the reward is read directly from the model's predicted `ee_base`.
-- **Reward:** `−w·‖ee−goal‖ − w·‖a‖² − w·‖Δa‖² − collision penalty + success bonus`; success when `‖ee−goal‖ < ε` for several consecutive steps.
-- **Goals:** sampled in the **well-covered upper/forward workspace** (per the coverage caveat above), not near-ground.
-- **Safety filter (doc §7):** lightweight geometric self/track/ground check applied before each model step (block + penalize unsafe). Separate module, needed for RL but not for the dynamics model; Chrono stays the ground-truth checker only during data collection / final validation.
-- **Then:** `scripts/train_arm_rl_reaching.py` (mirror `train_hmmwv_rl_tracking.py`), and a Chrono reaching-validation env (parallel to `hmmwv_chrono_tracking_env.py`) to confirm `π_reach` reaches goals on the real simulator with a fixed base.
-- **Later (out of scope for v1):** the **drive** policy + base dynamics model (HMMWV-style), and the rule-based **mode selector** that switches drive↔reach (doc §10–§12).
+Training setup for the current best run:
+
+```text
+artifacts/rl_runs_arm_goal_reach/arm_reach_adaptivekl005_lr1e4_tol005_ep150_bonus150_sigma015_luffy_repro_20260702/model_1499.pt
+```
+
+- Dynamics: `artifacts/training_runs/arm_transformer_full_v1/checkpoints/best_val.pt`.
+- Processed data / warm starts: `artifacts/training_datasets/arm_dyn_v3_seq16_v1`.
+- Geometry: `artifacts/arm_geometry/arm_geometry_v1.json`.
+- PPO: 4096 envs, 150-step episodes, adaptive KL target 0.005, LR 1e-4, actor/critic `[256,128,64]`, action = 4-D `Δqcmd`.
+- Goals: FK-sampled from the well-covered upper/forward workspace (`q_lo=[-1.5,0.1,-0.4,-0.4]`, `q_hi=[1.5,0.7,0.4,0.4]`).
+- Reward: exponential reach reward with 0.15 m scale, 5 cm one-step success threshold, +150 success bonus, action-rate penalty 0.02.
+
+Chrono validation results for `model_1499.pt`:
+
+| Eval | Goals | Success | Mean final EE error | Contacts / unsafe actions |
+|---|---:|---:|---:|---:|
+| Random fresh scenes: `chrono_eval_model1499_10_random_goals` | 10 | **10/10** | **0.0307 m** | 0 contacts, 0 unsafe-action rate |
+| Consecutive goals in one scene: `chrono_eval_model1499_10_consecutive_goals_cpu_render` | 10 | **10/10** | **0.0390 m** | 0 contacts, 0 unsafe-action rate |
+
+Earlier fixed-LR run `arm_reach_fixedlr1e4_tol005_ep150_bonus150_sigma015/model_1200.pt` also reached 10/10 consecutive Chrono goals with mean final EE error 0.0359 m. Its `oscillation_analysis.md` explains the mid-training reward oscillation: the large discontinuous +150 success bonus and one-step 5 cm threshold create cliff-like returns while the policy is near the goal basin. The later adaptive-KL reproduction keeps the useful behavior and is the current reference run.
+
+Remaining arm reach caveats:
+
+- The Chrono eval battery is still small (10 random + 10 consecutive goals); run a larger seeded goal set before treating the success rate as final.
+- The policy is intentionally reach-mode only: base fixed/stopped, no learned drive/reach switching yet.
+- Lower/near-ground workspace remains under-sampled by the arm dynamics data, so v1 goals should stay in the documented upper/forward workspace.
 
 ### Drive-mode data collection pipeline (2026-07-01)
 
-Base-motion data collector for the drive-mode NN-ROM described in [tracked_vehicle_nn_rom_rl_plan.md](tracked_vehicle_nn_rom_rl_plan.md): `src/nedm/tracked_vehicle_data.py` (`scripts/collect_tracked_vehicle_dataset.py` wrapper), driven by `configs/tracked_vehicle_drive_v1.json`.
+Base-motion data collector for the drive-mode NN-ROM described in [tracked_vehicle_nn_rom_rl_plan.md](tracked_vehicle_nn_rom_rl_plan.md): `src/nedm/tracked_vehicle_data.py` (`scripts/collect_tracked_vehicle_dataset.py` wrapper), initially driven by `configs/tracked_vehicle_drive_v1.json` and then scaled as `configs/tracked_vehicle_drive_v2.json`.
 
 Reuses rather than rebuilds. The M113+arm+terrain scene is exactly `arm_data.build_scene()` — the real deployed mounted-arm configuration, so the base ROM's mass/inertia/CG match reality instead of a bare M113 — with the arm's four `ChLinkMotorRotationAngle` motors left completely untouched: no angle target is ever set, so they hold `q=0` (home) as a hard constraint and the arm rides as fixed dead weight ("drive mode" per [arm-dyn-model.md](arm-dyn-model.md) §3.1), needing neither the PD actuator nor the arm collision setup `arm_data.py` builds for reach-mode data. The maneuver library (launch/brake, coast-down, steering arcs, S-turns, pivot-like turns, brake-while-steering, broad random commands, stop-and-go — plan §4.3) reuses the HMMWV collector's `scenario_generator`/driver-profile machinery (`generated_scenarios.py`, `hmmwv_data.sample_channel`) unchanged; the tracked-vehicle-specific families are config-level template overrides (`pivot_like_turn`/`coast_down`/`stop_and_go_straight` reuse the `step_steer`/`launch_brake`/`multi_steer` builders with different parameter ranges), not new generator code. Driver commands are evaluated directly from the continuous profile at each recorded step rather than through a `ChDataDriver` table, dropping the `driver_sample_step_s` knob entirely.
 
 Logged per row at 50 Hz (`record_step_s=0.02`; physics stepped at the same `STEP_SIZE=5e-4` the single-pin track needs): pose, quaternion, roll/pitch/yaw, world+body velocity/acceleration, world+body angular velocity, speed, roll/yaw rate, left/right sprocket speed, driver commands. A 0.5 s braked settle (matching `arm_data.py`'s handling of this same track model) runs before each scenario's own clock starts, so `time_s` in the CSV is scenario-local, not wall/sim-absolute. Per-row divergence guards (non-finite state, >45° roll/pitch, >45 m from origin) flag and truncate rare solver hiccups instead of silently polluting the dataset.
 
-`configs/tracked_vehicle_drive_v1.json` materializes 540 episodes across 10 families. Verified so far with ad hoc single-episode runs, not yet the full 540-episode collection (that's cluster-only — see below): sustained throttle=0.8 accelerates 0→3.9 m/s and is still climbing at 10 s (M113 top speed ≈16 m/s, so this is plausible, not capped/broken); a steering step to ±0.4 flips `yaw_rate_radps` sign with the expected inertial lag; throttle-then-release with no brake gives a smooth multi-second coast-down decay rather than an instant stop. Zero divergences across 5 test episodes. Each episode currently costs tens of seconds of wall-clock (e.g. a 13.7 s episode took ~52 s), so collecting the full 540-episode config is a cluster job (`create-euler-script` skill / Euler), never a local run.
+`configs/tracked_vehicle_drive_v1.json` materialized the first 540-episode design across 10 families and was spot-verified locally: sustained throttle=0.8 accelerates 0→3.9 m/s and is still climbing at 10 s (M113 top speed ≈16 m/s, so this is plausible, not capped/broken); a steering step to ±0.4 flips `yaw_rate_radps` sign with the expected inertial lag; throttle-then-release with no brake gives a smooth multi-second coast-down decay rather than an instant stop. Zero divergences across 5 test episodes. Each episode costs tens of seconds of wall-clock, so the scaled collection moved to shard/cluster execution via `scripts/cluster/collect_tracked_vehicle_drive.sh`.
+
+The scaled v2 dataset has since landed:
+
+```text
+artifacts/datasets/tracked_vehicle_drive_v2_shards/
+artifacts/training_datasets/tracked_drive_v2_seq16_v1/
+```
+
+The processed cache uses the compact drive-mode state/action design from the plan:
+
+| Group | Fields | Dim |
+|---|---|---:|
+| state | `vel_body_x_mps, vel_body_y_mps, yaw_rate_radps` | 3 |
+| action | `driver_steering, driver_throttle, driver_braking` | 3 |
+| target | corresponding next-step deltas | 3 |
+| context | 16 steps ≈ 0.32 s @ 50 Hz | — |
+
+Processed split: **1808 train episodes / 1,407,465 transitions** and **352 val episodes / 273,859 transitions**.
 
 Two things surfaced while testing:
 
 - **Terrain-size fix.** `arm_data.build_scene()`'s flat patch is a genuine finite rigid box (`RigidTerrain.AddPatch`), not an infinite plane. Its 100 m default is fine for reach-mode (base pinned, never moves) but far too small once the base actually drives — a 30 s sustained-throttle test reached pos_y≈45 m, which the old 100 m patch (and a first-pass 45 m bounds guard) would have falsely flagged as diverged/out-of-bounds. `build_scene()` now takes a `terrain_size_m` param (default 100 unchanged, so reach-mode/arm data collection is unaffected); the drive-mode collector passes `TERRAIN_SIZE_M = 600` and derives its divergence-guard bound from that.
 - **Zero-steering curving is expected, not a bug.** With `driver_steering` held at exactly 0.0 for a full 30 s run, the vehicle still curves substantially (left/right sprocket speed diverge, yaw rate grows to ~0.25 rad/s) — confirmed via the logged columns, not a scenario-evaluation bug. User confirmed this is a known asymmetry (likely the welded arm's mass/CG), so it's left as-is: the ROM should learn it as real behavior, and "steering=0" families (`coast_down`, `stop_and_go_straight`) mean *commanded* straight, not *actually* straight.
 
+### Tracked base NN-ROM (2026-07-02)
+
+The tracked-base reduced-order model is trained as `artifacts/training_runs/tracked_transformer_v1` from the v2 processed cache. It reuses the continuous-token transformer stack with the 3-D compact body-frame velocity state and 3-D driver-command action. Checkpoint selection uses open-loop pose rollout over held-out val episodes; `best_val.pt` is epoch 8.
+
+Best checkpoint metrics:
+
+| Metric | Value |
+|---|---:|
+| 1-step val RMSE `vx` | 0.02395 m/s |
+| 1-step val RMSE `vy` | 0.01319 m/s |
+| 1-step val RMSE yaw rate | 0.00687 rad/s |
+| 1 s open-loop XY RMSE | 0.0042 m |
+| 2 s open-loop XY RMSE | 0.0131 m |
+| 5 s open-loop XY RMSE | **0.1052 m** |
+| 5 s open-loop err/dist | **5.85%** |
+
+This is good enough for first-pass goal-reaching RL: the model is compact, stable over the 5 s horizon used by the policy, and preserves the real zero-steering curvature/asymmetry rather than trying to correct it away.
+
+### Tracked vehicle goal-reaching RL + Chrono spot eval (2026-07-03)
+
+Goal-reaching PPO is implemented in `src/nedm/rl/tracked_goal_env.py` and trained with `scripts/train_tracked_rl_goal.py`. Unlike HMMWV tracking, the policy does not follow a reference trajectory. It rolls the frozen base NN-ROM, integrates pose outside the network, and rewards progress toward a sampled body-frame goal.
+
+Current reference run:
+
+```text
+artifacts/rl_runs/tracked_goal_v2_far/
+```
+
+Setup:
+
+- Dynamics: `artifacts/training_runs/tracked_transformer_v1/checkpoints/best_val.pt`.
+- Processed data / normalization: `artifacts/training_datasets/tracked_drive_v2_seq16_v1`.
+- Goals: random radius 20–40 m, full angle range `[-pi, pi]`.
+- PPO: 2048 envs, action repeat 5 (10 Hz control over 50 Hz ROM), 600 policy-step max episode.
+- Action post-processing: dataset-mean centered commands, steering scale 0.4, throttle/brake max 0.6, throttle/brake conflict suppression enabled.
+- Reward: progress reward + small heading/action/spin penalties, 0.75 m success tolerance, +50 success bonus, 0.1 time penalty.
+
+The NN-env training log reaches **100% episode success** around iteration 1500 with mean final distance ≈0.63 m and no out-of-bounds/timeouts. Chrono transfer uses `scripts/eval_tracked_rl_goal_chrono.py`, one goal per process with a fresh M113+arm scene. Current spot-check results under the same 0.75 m tolerance:
+
+| Goal in start frame | Steps | Reached? | Final/min distance |
+|---|---:|---:|---:|
+| `(20, 0)` m | 100 | yes | 0.398 m |
+| `(12, 18)` m | 165 | yes | 0.566 m |
+| `(-18, 8)` m | 202 | yes | 0.487 m |
+| `(-15, -12)` m | 188 | yes | 0.475 m |
+
+Takeaway: the tracked base now has the complete first-pass loop — Chrono data → compact NN-ROM → PPO goal policy → Chrono spot transfer. The eval is still a spot check, not a full benchmark: it needs a larger seeded goal battery, aggregate summary JSON, and failure-case inspection before this is comparable to the HMMWV tracking documentation.
+
 ## Open Items / Next Steps
 
-- **Arm reaching RL (Phase 4 — next for case 2)**: build `src/nedm/rl/arm_reaching_env.py` on the frozen `f_arm` and train `π_reach`, then validate in Chrono — full plan in the "Arm Mobile-Manipulator Study" section. Sample goals in the upper/forward workspace (the lower workspace is under-sampled). Also: commit the Phase 0–3 arm work (currently local on `main`).
-- **Tracked-vehicle drive-mode base ROM (next for the base side of case 2)**: the data collection pipeline (`src/nedm/tracked_vehicle_data.py`, `configs/tracked_vehicle_drive_v1.json`) is built and spot-verified — see "Drive-mode data collection pipeline" above. Next: (1) scale the 540-episode config up on Euler (small-scale local runs cost tens of seconds per episode), (2) preprocess to `[vx, vy, r]` state / `[throttle, steering, brake]` action windows via the existing `training/preprocess.py` (field-name agnostic, no code changes needed), (3) train the memoryless residual MLP `f_base` per plan §6, (4) build the goal-reaching RL env per plan §8.
+- **Arm reaching RL scale-up**: the env, policy, and Chrono validation path are built and the current policy reaches 20/20 reported Chrono goals. Next: run a larger seeded goal battery (near/far/boundary/lower-workspace probes), keep reporting Chrono contact count and safety-filter blocks, and decide whether the one-step 5 cm success threshold should become a multi-step hold criterion to reduce training brittleness.
+- **Tracked-vehicle goal-reaching scale-up**: the v2 drive dataset, compact base ROM, PPO goal policy, and Chrono spot eval are built. Next: turn the 4-goal Chrono spot check into a proper benchmark (seeded 20-100 goal set, summary JSON, plots, per-goal failure labels), evaluate harder behind/side goals separately, and decide whether reverse/left-right track commands are needed for tighter final positioning.
+- **Hybrid locomanipulation integration**: combine the first-pass `π_drive` and `π_reach` with a rule-based mode selector from [arm-dyn-model.md](arm-dyn-model.md): drive until the target is inside the arm's sampled workspace, stop/brake the base, then hand off to reach mode. This is the next case-2 systems step; full coupled vehicle+arm learning remains out of scope for v1.
 - **Braking transfer gap**: the policy tracks turning references in Chrono but diverges on braking-heavy ones — likely a dynamics-model gap (brake response) rather than a policy gap; worth checking v07 open-loop rollout error on launch_brake/steer_brake segments specifically.
 - **v19–v30 sweep** crashed at the first model and was never completed.
 - **RL on alternate dynamics backbones**: the current active policy uses the 15-D tire-normal-force/omega v07-style model; the older `v3_turn_300g` backbone remains untested as an RL backbone.
