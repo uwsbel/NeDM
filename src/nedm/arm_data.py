@@ -283,7 +283,7 @@ def build_scene(terrain_size_m: float = 100.0):
         patch_mat,
         chrono.ChCoordsysd(chrono.ChVector3d(INIT_LOC.x, INIT_LOC.y, 0), chrono.QUNIT),
         terrain_size_m, terrain_size_m)
-    patch.SetColor(chrono.ChColor(0.5, 0.8, 0.5))
+    patch.SetTexture(veh.GetVehicleDataFile("terrain/textures/tile4.jpg"), terrain_size_m, terrain_size_m)
     terrain.Initialize()
 
     return m113, vehicle, terrain, gripper
@@ -300,7 +300,11 @@ def make_vis(vehicle, title="Arm data collection"):
     vis.Initialize()
     vis.AddLogo(chrono.GetChronoDataFile("logo_chrono_alpha.png"))
     vis.AddSkyBox()
-    vis.AddLightWithShadow(INIT_LOC + chrono.ChVector3d(0, 0, 30), INIT_LOC, 20, 1, 60, 50)
+    # A directional (sun) light lights the whole scene uniformly. The previous
+    # AddLightWithShadow only illuminated a ~60 m shadow frustum, so the large
+    # (up to 600 m) terrain patch rendered black beyond it -- matching the
+    # vehicle demos (demo_VEH_M113/HMMWV.py) fixes the all-black ground.
+    vis.AddLightDirectional()
     vis.AddTypicalLights()
     vis.AttachVehicle(vehicle)
     return vis

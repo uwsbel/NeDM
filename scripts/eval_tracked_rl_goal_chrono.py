@@ -25,10 +25,11 @@ SRC_ROOT = REPO_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
+import pychrono as chrono
 import pychrono.vehicle as veh
 from rsl_rl.runners import OnPolicyRunner
 
-from nedm.arm_data import build_scene, SETTLE_TIME, STEP_SIZE
+from nedm.arm_data import build_scene, make_vis, SETTLE_TIME, STEP_SIZE
 from nedm.rl.dynamics import resolve_dynamics_checkpoint_path
 from nedm.rl.tracked_goal_env import TrackedGoalReachingEnv, merge_env_cfg
 from nedm.tracked_vehicle_data import TERRAIN_SIZE_M, _advance, _sync, capture_row
@@ -41,8 +42,33 @@ def parse_args(argv=None):
     p.add_argument("--goal-y", type=float, required=True, help="Goal y in the vehicle start frame (m).")
     p.add_argument("--max-steps", type=int, default=400, help="Max policy steps (each = action_repeat*0.02 s sim).")
     p.add_argument("--output", type=Path, required=True, help="Output .npz path for the trajectory.")
+    p.add_argument("--render", action="store_true", help="Open the Chrono Irrlicht viewer during the rollout.")
     p.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu")
     return p.parse_args(argv)
+
+
+def add_goal_marker(system, vis, gx_w, gy_w, radius) -> None:
+    """Add a fixed, non-colliding green sphere at the goal (radius = success tolerance).
+
+    A fixed collision-disabled body is inert (it does not enter the dynamics), matching
+    the arm Chrono env's marker pattern for this same M113 Irrlicht scene. AttachSystem/
+    BindAll re-bind the viewer so it picks up the body added after make_vis().
+    """
+    body = chrono.ChBody()
+    body.SetFixed(True)
+    body.EnableCollision(False)
+    body.SetPos(chrono.ChVector3d(gx_w, gy_w, radius))
+    shape = chrono.ChVisualShapeSphere(float(radius))
+    shape.SetColor(chrono.ChColor(0.1, 0.75, 0.1))
+    body.AddVisualShape(shape)
+    system.Add(body)
+    for method_name, args in (("AttachSystem", (system,)), ("BindAll", ())):
+        method = getattr(vis, method_name, None)
+        if method is not None:
+            try:
+                method(*args)
+            except Exception:
+                pass
 
 
 def main(argv=None) -> int:
@@ -80,11 +106,22 @@ def main(argv=None) -> int:
     # ---- Chrono scene ----
     m113, vehicle, terrain, _g = build_scene(terrain_size_m=TERRAIN_SIZE_M)
     system = m113.GetSystem()
+    vis = make_vis(vehicle, f"Tracked goal reach  goal=({args.goal_x:.0f}, {args.goal_y:.0f}) m") if args.render else None
+    if vis is not None:
+        vehicle.EnableRealtime(True)
+    render_every = n_sub                                 # draw one frame per 0.02 s control step
+    tick = 0
+    window_closed = False
+
     di = veh.DriverInputs()
     di.m_throttle, di.m_steering, di.m_braking = 0.0, 0.0, 1.0
     while system.GetChTime() < SETTLE_TIME - 1e-9:      # settle onto tracks, braked
-        _sync(m113, terrain, di, system.GetChTime(), None, False)
-        _advance(m113, terrain, None)
+        do_render = vis is not None and tick % render_every == 0
+        if not _sync(m113, terrain, di, system.GetChTime(), vis, do_render):
+            window_closed = True
+            break
+        _advance(m113, terrain, vis)
+        tick += 1
 
     def read_state():
         row = capture_row(vehicle, "s", "f", "e", "eval", 0, 0.0, di)
@@ -95,6 +132,8 @@ def main(argv=None) -> int:
     # goal defined in the vehicle's start frame -> world
     gx_w = x0 + math.cos(yaw0) * args.goal_x - math.sin(yaw0) * args.goal_y
     gy_w = y0 + math.sin(yaw0) * args.goal_x + math.cos(yaw0) * args.goal_y
+    if vis is not None:
+        add_goal_marker(system, vis, gx_w, gy_w, float(rom.success_tolerance))
 
     last_driver = action_center.astype(np.float32).copy()
     poses = [(0.0, 0.0)]                                  # trajectory in start frame (origin)
@@ -126,8 +165,14 @@ def main(argv=None) -> int:
         di.m_steering, di.m_throttle, di.m_braking = float(driver[0]), float(driver[1]), float(driver[2])
 
         for _ in range(action_repeat * n_sub):
-            _sync(m113, terrain, di, system.GetChTime(), None, False)
-            _advance(m113, terrain, None)
+            do_render = vis is not None and tick % render_every == 0
+            if not _sync(m113, terrain, di, system.GetChTime(), vis, do_render):
+                window_closed = True
+                break
+            _advance(m113, terrain, vis)
+            tick += 1
+        if window_closed:
+            break
         last_driver = driver.astype(np.float32)
 
         _, _, _, x, y, yaw = read_state()
