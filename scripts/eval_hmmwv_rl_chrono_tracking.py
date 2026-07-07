@@ -102,6 +102,16 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--render-fps", type=float, default=50.0, help="Saved-frame rate for --render.")
     parser.add_argument("--render-width", type=int, default=1280, help="Render frame width.")
     parser.add_argument("--render-height", type=int, default=720, help="Render frame height.")
+    parser.add_argument(
+        "--blender-output-dir",
+        type=Path,
+        default=None,
+        help="Write Chrono Blender postprocess files for each rollout (no display needed).",
+    )
+    parser.add_argument("--blender-fps", type=float, default=20.0, help="Blender export frame rate.")
+    parser.add_argument("--blender-max-frames", type=int, default=None, help="Optional cap on exported Blender frames.")
+    parser.add_argument("--blender-width", type=int, default=1280, help="Blender render width stored in assets script.")
+    parser.add_argument("--blender-height", type=int, default=720, help="Blender render height stored in assets script.")
     return parser.parse_args(argv)
 
 
@@ -167,6 +177,10 @@ def rollout_one_reference(
     ignore_dones: bool = False,
     render: bool = False,
     render_output_dir: Path | None = None,
+    blender_output_dir: Path | None = None,
+    blender_fps: float = 20.0,
+    blender_max_frames: int | None = None,
+    blender_picture_size: tuple[int, int] = (1280, 720),
 ) -> dict[str, np.ndarray]:
     if reset:
         env_id = torch.tensor([0], dtype=torch.long, device=env.device)
@@ -175,6 +189,27 @@ def rollout_one_reference(
     if render:
         frames_dir = env.start_render(reference_id, output_dir=render_output_dir)
         print(f"rendering frames -> {frames_dir}")
+    blender_exporter = None
+    if blender_output_dir is not None:
+        from nedm.blender_export import BlenderFrameExporter
+
+        sim = env.sims[0]
+        if sim is None:
+            raise RuntimeError("Chrono simulation is not initialized")
+        pose = env.current_pose()[0].detach().cpu().numpy()
+        camera_aim = (float(pose[0]), float(pose[1]), 1.0)
+        camera_location = (float(pose[0] - 10.0), float(pose[1] - 12.0), 5.0)
+        blender_exporter = BlenderFrameExporter(
+            sim.hmmwv.GetSystem(),
+            blender_output_dir,
+            fps=blender_fps,
+            max_frames=blender_max_frames,
+            picture_size=blender_picture_size,
+            camera_location=camera_location,
+            camera_aim=camera_aim,
+            clean=True,
+        )
+        print(f"writing Blender postprocess files -> {blender_output_dir}")
     obs, _ = env.get_observations()
 
     record: dict[str, list[np.ndarray]] = {
@@ -186,19 +221,25 @@ def rollout_one_reference(
         "reward": [],
     }
 
-    with torch.no_grad():
-        for _ in range(max_steps):
-            actions = policy(obs.to(env.device))
-            obs, rewards, dones, _ = env.step(actions)
-            ref_state, ref_pose = env.current_reference_state_pose()
-            record["pose"].append(tensor_to_numpy(env.current_pose()[0]))
-            record["state"].append(tensor_to_numpy(env.current_state()[0]))
-            record["ref_pose"].append(tensor_to_numpy(ref_pose[0]))
-            record["ref_state"].append(tensor_to_numpy(ref_state[0]))
-            record["action"].append(tensor_to_numpy(env.actions[0]))
-            record["reward"].append(np.array(float(rewards[0].item()), dtype=np.float32))
-            if bool(dones[0].item()) and not ignore_dones:
-                break
+    try:
+        with torch.no_grad():
+            for _ in range(max_steps):
+                actions = policy(obs.to(env.device))
+                obs, rewards, dones, _ = env.step(actions)
+                ref_state, ref_pose = env.current_reference_state_pose()
+                record["pose"].append(tensor_to_numpy(env.current_pose()[0]))
+                record["state"].append(tensor_to_numpy(env.current_state()[0]))
+                record["ref_pose"].append(tensor_to_numpy(ref_pose[0]))
+                record["ref_state"].append(tensor_to_numpy(ref_state[0]))
+                record["action"].append(tensor_to_numpy(env.actions[0]))
+                record["reward"].append(np.array(float(rewards[0].item()), dtype=np.float32))
+                if blender_exporter is not None:
+                    blender_exporter.maybe_export()
+                if bool(dones[0].item()) and not ignore_dones:
+                    break
+    finally:
+        if blender_exporter is not None:
+            blender_exporter.write_summary()
 
     return {
         key: np.stack(values, axis=0) if values else np.empty((0,), dtype=np.float32)
@@ -321,6 +362,10 @@ def main(argv: list[str] | None = None) -> int:
         env_cfg["render_fps"] = float(args.render_fps)
         env_cfg["render_width"] = int(args.render_width)
         env_cfg["render_height"] = int(args.render_height)
+    if args.blender_output_dir is not None:
+        if terrain_type == "crm":
+            raise ValueError("--blender-output-dir is only wired for rigid/heightmap Chrono terrain.")
+        env_cfg["blender_export"] = True
 
     checkpoint_path = args.policy_checkpoint.resolve() if args.policy_checkpoint else latest_policy_checkpoint(run_dir)
     reference_count = load_reference_set(env_cfg["reference_path"]).num_references
@@ -344,6 +389,14 @@ def main(argv: list[str] | None = None) -> int:
 
     summary: list[dict[str, Any]] = []
     for index, reference_id in enumerate(reference_indices):
+        blender_dir = None
+        if args.blender_output_dir is not None:
+            base_blender_dir = args.blender_output_dir.expanduser().resolve()
+            blender_dir = (
+                base_blender_dir / f"ref{reference_id:02d}"
+                if len(reference_indices) > 1
+                else base_blender_dir
+            )
         record = rollout_one_reference(
             env,
             policy,
@@ -353,11 +406,19 @@ def main(argv: list[str] | None = None) -> int:
             ignore_dones=bool(args.ignore_dones),
             render=bool(args.render),
             render_output_dir=(output_dir / f"frames_ref{reference_id:02d}") if args.render else None,
+            blender_output_dir=blender_dir,
+            blender_fps=float(args.blender_fps),
+            blender_max_frames=args.blender_max_frames,
+            blender_picture_size=(int(args.blender_width), int(args.blender_height)),
         )
         if args.render:
             maybe_encode_video(output_dir / f"frames_ref{reference_id:02d}", args.render_fps)
         metrics = compute_metrics(record)
         metrics["reference"] = env.reference_names()[reference_id]
+        if blender_dir is not None:
+            state_dir = blender_dir / "output"
+            metrics["blender_output_dir"] = str(blender_dir)
+            metrics["blender_state_file_count"] = len(list(state_dir.glob("state*.py"))) if state_dir.is_dir() else 0
         summary.append(metrics)
         np.savez_compressed(output_dir / f"chrono_tracking_{reference_id:02d}.npz", **record)
         if not args.no_plots:
@@ -376,6 +437,8 @@ def main(argv: list[str] | None = None) -> int:
         "num_rollouts": len(summary),
         "mean_xy_rmse_m": float(np.mean(valid_xy)) if valid_xy else None,
         "median_xy_rmse_m": float(np.median(valid_xy)) if valid_xy else None,
+        "blender_output_dir": str(args.blender_output_dir.resolve()) if args.blender_output_dir is not None else None,
+        "blender_fps": float(args.blender_fps) if args.blender_output_dir is not None else None,
         "rollouts": summary,
     }
     (output_dir / "summary.json").write_text(json.dumps(aggregate, indent=2))

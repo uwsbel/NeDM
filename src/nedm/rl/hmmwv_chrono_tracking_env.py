@@ -65,6 +65,8 @@ def default_chrono_env_cfg() -> dict[str, Any]:
             "render_line_z_m": 0.3,
             # True: detailed HMMWV mesh (demo_VEH_HMMWV.py look). False: robust all-PRIMITIVES.
             "render_vehicle_mesh": True,
+            # Enable visual assets for non-Irrlicht exporters such as ChBlender.
+            "blender_export": False,
         }
     )
     return cfg
@@ -233,6 +235,7 @@ class HMMWVChronoTrackingEnv(VecEnv):
 
         # Offscreen rendering state (only used when cfg["render"] is enabled and start_render() is called).
         self.render_enabled = bool(self.cfg.get("render", False))
+        self.blender_export_enabled = bool(self.cfg.get("blender_export", False))
         self.render_fps = float(self.cfg.get("render_fps", 50.0))
         self._render_every = max(1, int(round((1.0 / self.render_fps) / self.chrono_step_size_s)))
         self.vis: Any = None
@@ -374,7 +377,7 @@ class HMMWVChronoTrackingEnv(VecEnv):
         driver_inputs.m_braking = float(ref_action[2])
         driver_inputs.m_clutch = 0.0
         sim = ChronoHMMWVSim(hmmwv=hmmwv, terrain=terrain, driver_inputs=driver_inputs, wheels=wheels)
-        if self.render_enabled:
+        if self.render_enabled or self.blender_export_enabled:
             # Enable visual assets HERE, before any warm-start stepping. Chrono's suspension/steering
             # primitive visuals freeze their hardpoints in absolute coords at Initialize() and
             # re-express them in each body's frame when the asset is added; adding them after the

@@ -212,6 +212,12 @@ def configure_vehicle_data_path() -> None:
     set_vehicle_data_path(os.path.join(chrono.GetChronoDataPath(), "vehicle") + os.sep)
 
 
+def vehicle_data_file(relative_path: str) -> str:
+    """Resolve a Chrono::Vehicle data path across PyChrono API versions."""
+    get_vehicle_data_file = getattr(veh, "GetVehicleDataFile", None) or veh.GetDataFile
+    return get_vehicle_data_file(relative_path)
+
+
 def build_scene(terrain_size_m: float = 100.0):
     """Create the M113 tracked vehicle, front-welded arm, and flat terrain.
 
@@ -283,7 +289,7 @@ def build_scene(terrain_size_m: float = 100.0):
         patch_mat,
         chrono.ChCoordsysd(chrono.ChVector3d(INIT_LOC.x, INIT_LOC.y, 0), chrono.QUNIT),
         terrain_size_m, terrain_size_m)
-    patch.SetTexture(veh.GetVehicleDataFile("terrain/textures/tile4.jpg"), terrain_size_m, terrain_size_m)
+    patch.SetTexture(vehicle_data_file("terrain/textures/tile4.jpg"), terrain_size_m, terrain_size_m)
     terrain.Initialize()
 
     return m113, vehicle, terrain, gripper
@@ -647,6 +653,20 @@ def assign_split(episode_id, validation_ratio):
     return "val" if int(digest[:8], 16) / 0xFFFFFFFF < validation_ratio else "train"
 
 
+# Optional headless per-control-step hook, called as ``hook(system)`` once per
+# ``_substep`` (before the physics advance, matching the Irrlicht render timing).
+# Kept module-global so every caller -- the direct drive/brake loops AND the arm
+# env's step() -- triggers it without threading a recorder through each call site.
+# Used to drive off-screen exporters (e.g. the Blender postprocess exporter).
+_FRAME_HOOK = None
+
+
+def set_frame_hook(hook):
+    """Install (or clear, with ``None``) the global per-``_substep`` frame hook."""
+    global _FRAME_HOOK
+    _FRAME_HOOK = hook
+
+
 def _substep(m113, terrain, actuator, driver_inputs, n_substeps, vis=None, frame_recorder=None):
     """Advance the physics ``n_substeps`` while holding the PD command + brakes.
 
@@ -663,6 +683,8 @@ def _substep(m113, terrain, actuator, driver_inputs, n_substeps, vis=None, frame
             vis.BeginScene()
             vis.Render()
             vis.EndScene()
+    if _FRAME_HOOK is not None:
+        _FRAME_HOOK(system)
     for _ in range(n_substeps):
         t = system.GetChTime()
         actuator.apply_pd()

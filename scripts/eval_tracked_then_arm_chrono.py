@@ -77,6 +77,7 @@ from nedm.arm_data import (
     build_scene,
     gripper_center,
     make_vis,
+    set_frame_hook,
     setup_arm_collision,
     _substep,
 )
@@ -128,9 +129,37 @@ def parse_args(argv=None):
     p.add_argument("--output-dir", type=Path, default=REPO_ROOT / "artifacts/combined_tracked_arm_demo")
     p.add_argument("--render", action="store_true", help="Open the Chrono Irrlicht viewer for the whole demo.")
     p.add_argument("--no-plots", action="store_true", help="Skip per-goal arm reach PNGs.")
+    p.add_argument(
+        "--blender-output-dir",
+        type=Path,
+        default=None,
+        help="Write Chrono Blender postprocess files for the combined rollout (no display needed).",
+    )
+    p.add_argument("--blender-fps", type=float, default=20.0, help="Blender export frame rate.")
+    p.add_argument("--blender-max-frames", type=int, default=None, help="Optional cap on exported Blender frames.")
+    p.add_argument("--blender-width", type=int, default=1280, help="Blender render width stored in assets script.")
+    p.add_argument("--blender-height", type=int, default=720, help="Blender render height stored in assets script.")
     p.add_argument("--seed", type=int, default=1)
     p.add_argument("--device", type=str, default="auto")
     return p.parse_args(argv)
+
+
+def enable_tracked_arm_blender_visuals(m113) -> None:
+    """Ensure the M113 chassis is visible in non-Irrlicht postprocess exports."""
+    mesh = chrono.VisualizationType_MESH
+    for setter in (
+        m113.SetChassisVisualizationType,
+        m113.SetSprocketVisualizationType,
+        m113.SetIdlerVisualizationType,
+        m113.SetSuspensionVisualizationType,
+        m113.SetIdlerWheelVisualizationType,
+        m113.SetRoadWheelVisualizationType,
+        m113.SetTrackShoeVisualizationType,
+    ):
+        try:
+            setter(mesh)
+        except Exception:
+            pass
 
 
 # ---------------------------------------------------------------------------
@@ -370,6 +399,8 @@ def main(argv=None) -> int:
     # ---- one shared M113 + arm rig ----
     print(f"[scene] building shared M113+arm rig (terrain {TERRAIN_SIZE_M:.0f} m) ...")
     m113, vehicle, terrain, gripper = build_scene(terrain_size_m=TERRAIN_SIZE_M)
+    if args.blender_output_dir is not None:
+        enable_tracked_arm_blender_visuals(m113)
     vis = make_vis(vehicle, "Tracked drive -> arm reach (combined demo)") if args.render else None
     if vis is not None:
         vehicle.EnableRealtime(True)
@@ -380,57 +411,84 @@ def main(argv=None) -> int:
     print("[scene] swapping arm to PD actuator + adding arm collision geometry ...")
     actuator = ArmPdActuator(gripper)          # remove hard angle motors -> torque + PD, qcmd = home
     collision_links = setup_arm_collision(gripper)
+    blender_exporter = None
+    blender_output_dir = None
+    if args.blender_output_dir is not None:
+        from nedm.blender_export import BlenderFrameExporter
+
+        system = m113.GetSystem()
+        blender_output_dir = args.blender_output_dir.expanduser().resolve()
+        chassis_pos = vehicle.GetChassis().GetPos()
+
+        blender_exporter = BlenderFrameExporter(
+            system,
+            blender_output_dir,
+            fps=float(args.blender_fps),
+            max_frames=args.blender_max_frames,
+            picture_size=(int(args.blender_width), int(args.blender_height)),
+            camera_location=(float(chassis_pos.x - 12.0), float(chassis_pos.y - 14.0), 6.0),
+            camera_aim=(float(chassis_pos.x), float(chassis_pos.y), 1.5),
+            light_location=(20.0, 0.0, 8.0),
+            clean=True,
+        )
+        set_frame_hook(blender_exporter)
+        print(f"[blender] writing postprocess files -> {blender_output_dir}")
     wall = time.time()
 
-    # ---- Phase 1: drive (arm compliant under PD) ----
-    print(f"[phase 1] driving base to goal ({args.tracked_goal_x:.1f}, {args.tracked_goal_y:.1f}) m ...")
-    drive_info = drive_to_goal(rom, tracked_policy, m113, vehicle, terrain, actuator, vis,
-                               args.tracked_goal_x, args.tracked_goal_y, args.tracked_max_steps, device)
-    reached_s = drive_info["reached_step"] * rom.step_dt if drive_info["reached_step"] >= 0 else None
-    print(f"[phase 1] {drive_info['status']}  min_dist={drive_info['min_dist_m']:.3f} m"
-          + (f"  (t={reached_s:.1f} s)" if reached_s is not None else ""))
+    try:
+        # ---- Phase 1: drive (arm compliant under PD) ----
+        print(f"[phase 1] driving base to goal ({args.tracked_goal_x:.1f}, {args.tracked_goal_y:.1f}) m ...")
+        drive_info = drive_to_goal(rom, tracked_policy, m113, vehicle, terrain, actuator, vis,
+                                   args.tracked_goal_x, args.tracked_goal_y, args.tracked_max_steps, device)
+        reached_s = drive_info["reached_step"] * rom.step_dt if drive_info["reached_step"] >= 0 else None
+        print(f"[phase 1] {drive_info['status']}  min_dist={drive_info['min_dist_m']:.3f} m"
+              + (f"  (t={reached_s:.1f} s)" if reached_s is not None else ""))
 
-    # ---- Phase 2: brake to rest, then pin (replaces the arm 6 s pre-roll) ----
-    brake_di = veh.DriverInputs()
-    brake_di.m_throttle, brake_di.m_steering, brake_di.m_braking = 0.0, 0.0, 1.0
-    n_sub = max(1, int(round(CONTROL_DT / STEP_SIZE)))
-    # The goal policy has no stop objective, so the base arrives still moving (~2 m/s).
-    # Bleed that off under full brake, but pin the chassis the moment it is at rest:
-    # a braked-but-UNPINNED M113 keeps a slow residual yaw creep (arm-mass asymmetry +
-    # track-ground slip) that reads as the vehicle slowly spinning, so the shorter this
-    # unpinned window, the better. Pinning also needs the tracks ~stopped to avoid a jolt.
-    max_brake_steps = int(round(float(args.brake_seconds) / CONTROL_DT))
-    min_brake_steps = max(1, int(round(float(args.min_brake_seconds) / CONTROL_DT)))
-    stop_speed = float(args.brake_stop_speed_mps)
-    dbg = os.environ.get("BRAKE_DEBUG")
-    print(f"[phase 2] braking to rest (<= {args.brake_seconds:.1f} s, stop at {stop_speed:.2f} m/s) ...")
-    braked_steps = 0
-    for bi in range(max_brake_steps):
-        _substep(m113, terrain, actuator, brake_di, n_sub, vis=vis)
-        braked_steps = bi + 1
-        speed = abs(vehicle.GetSpeed())
-        if dbg and bi % 50 == 0:
-            row = capture_row(vehicle, "s", "f", "e", "dbg", 0, 0.0, brake_di)
-            print(f"    [brake t={bi*CONTROL_DT:5.1f}s] speed={row['speed_mps']:+.4f} "
-                  f"yaw_rate={row['yaw_rate_radps']:+.5f} yaw={row['yaw_rad']:+.4f}", flush=True)
-        if braked_steps >= min_brake_steps and speed < stop_speed:
-            break
-    brake_seconds_used = braked_steps * CONTROL_DT
+        # ---- Phase 2: brake to rest, then pin (replaces the arm 6 s pre-roll) ----
+        brake_di = veh.DriverInputs()
+        brake_di.m_throttle, brake_di.m_steering, brake_di.m_braking = 0.0, 0.0, 1.0
+        n_sub = max(1, int(round(CONTROL_DT / STEP_SIZE)))
+        # The goal policy has no stop objective, so the base arrives still moving (~2 m/s).
+        # Bleed that off under full brake, but pin the chassis the moment it is at rest:
+        # a braked-but-UNPINNED M113 keeps a slow residual yaw creep (arm-mass asymmetry +
+        # track-ground slip) that reads as the vehicle slowly spinning, so the shorter this
+        # unpinned window, the better. Pinning also needs the tracks ~stopped to avoid a jolt.
+        max_brake_steps = int(round(float(args.brake_seconds) / CONTROL_DT))
+        min_brake_steps = max(1, int(round(float(args.min_brake_seconds) / CONTROL_DT)))
+        stop_speed = float(args.brake_stop_speed_mps)
+        dbg = os.environ.get("BRAKE_DEBUG")
+        print(f"[phase 2] braking to rest (<= {args.brake_seconds:.1f} s, stop at {stop_speed:.2f} m/s) ...")
+        braked_steps = 0
+        for bi in range(max_brake_steps):
+            _substep(m113, terrain, actuator, brake_di, n_sub, vis=vis)
+            braked_steps = bi + 1
+            speed = abs(vehicle.GetSpeed())
+            if dbg and bi % 50 == 0:
+                row = capture_row(vehicle, "s", "f", "e", "dbg", 0, 0.0, brake_di)
+                print(f"    [brake t={bi*CONTROL_DT:5.1f}s] speed={row['speed_mps']:+.4f} "
+                      f"yaw_rate={row['yaw_rate_radps']:+.5f} yaw={row['yaw_rad']:+.4f}", flush=True)
+            if braked_steps >= min_brake_steps and speed < stop_speed:
+                break
+        brake_seconds_used = braked_steps * CONTROL_DT
 
-    # Pin the chassis so the arm phase sees a fixed base (arm-only dynamics), matching
-    # how the arm data was collected and how the standalone arm eval runs. Once fixed,
-    # the base cannot creep, so the arm phase is perfectly static.
-    print(f"[phase 2] at rest after {brake_seconds_used:.1f} s "
-          f"(speed {abs(vehicle.GetSpeed()):.3f} m/s); pinning chassis for the arm phase ...")
-    vehicle.GetChassisBody().SetFixed(True)
+        # Pin the chassis so the arm phase sees a fixed base (arm-only dynamics), matching
+        # how the arm data was collected and how the standalone arm eval runs. Once fixed,
+        # the base cannot creep, so the arm phase is perfectly static.
+        print(f"[phase 2] at rest after {brake_seconds_used:.1f} s "
+              f"(speed {abs(vehicle.GetSpeed()):.3f} m/s); pinning chassis for the arm phase ...")
+        vehicle.GetChassisBody().SetFixed(True)
 
-    # ---- Phase 3: arm reach on the shared, settled rig ----
-    print(f"[phase 3] arm reaching {args.arm_num_goals} consecutive goals "
-          f"(policy={arm_checkpoint.name}) ...")
-    sim = make_arm_sim(arm_env, m113, vehicle, terrain, gripper, actuator, collision_links, vis)
-    arm_summary, success_tolerance_m = run_arm_phase(
-        arm_env, arm_policy, sim, args.arm_num_goals, args.arm_max_steps,
-        args.arm_goal_duration_s, output_dir, make_plots=not args.no_plots)
+        # ---- Phase 3: arm reach on the shared, settled rig ----
+        print(f"[phase 3] arm reaching {args.arm_num_goals} consecutive goals "
+              f"(policy={arm_checkpoint.name}) ...")
+        sim = make_arm_sim(arm_env, m113, vehicle, terrain, gripper, actuator, collision_links, vis)
+        arm_summary, success_tolerance_m = run_arm_phase(
+            arm_env, arm_policy, sim, args.arm_num_goals, args.arm_max_steps,
+            args.arm_goal_duration_s, output_dir, make_plots=not args.no_plots)
+    finally:
+        if blender_exporter is not None:
+            set_frame_hook(None)
+            blender_exporter.write_summary()
 
     # ---- summary ----
     aggregate = {
@@ -453,6 +511,11 @@ def main(argv=None) -> int:
                 float(np.mean([r["final_ee_error_m"] for r in arm_summary])) if arm_summary else None),
             "rollouts": arm_summary,
         },
+        "blender": (
+            json.loads((blender_output_dir / "blender_export_summary.json").read_text(encoding="utf-8"))
+            if blender_output_dir is not None
+            else None
+        ),
     }
     (output_dir / "summary.json").write_text(json.dumps(aggregate, indent=2))
     print(f"[done] wall={aggregate['wall_seconds']} s  ->  {output_dir/'summary.json'}")

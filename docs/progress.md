@@ -2,7 +2,7 @@
 
 A living log of the overall project state, so both of us can see at a glance what is done, what the headline numbers are, and what is next. Update this file whenever a milestone lands or a headline metric changes.
 
-Last updated: 2026-07-03 (brought the **Arm Mobile-Manipulator Study (case 2)** up to date: arm reach-mode now has a trained PPO policy with 10/10 random-goal and 10/10 consecutive-goal Chrono success; the tracked base now has a v2 drive dataset, compact NN-ROM, far-goal PPO policy, and 4/4 Chrono spot-goal reaches. HMMWV/CRM entries unchanged since the 2026-06-29/2026-06-24 subsections.)
+Last updated: 2026-07-07 (added the stabilized Chrono → Blender postprocess/rendering workflow, including HMMWV flat-rollout reference/pre-roll gotchas, raw-trajectory line rendering, and current Blender importer workarounds. Arm/tracked/CRM headline results unchanged since the 2026-07-03/2026-06-29/2026-06-24 subsections.)
 
 ## Status At A Glance
 
@@ -292,6 +292,78 @@ Artifacts:
 - PDF: `artifacts/rl_runs/chrono_eval_comparisons/onehot_policy_3x3_chrono_xy_rmse_median_iqr_steerlim010_model500.pdf`
 - Stats JSON: `artifacts/rl_runs/chrono_eval_comparisons/onehot_policy_3x3_chrono_xy_rmse_median_iqr_steerlim010_model500.json`
 - CSV: `artifacts/rl_runs/chrono_eval_comparisons/onehot_policy_3x3_chrono_xy_rmse_median_iqr_steerlim010_model500.csv`
+
+### Chrono → Blender Postprocess Rendering Pipeline (2026-07-07)
+
+The current sim-to-render path is usable end-to-end for HMMWV and tracked-vehicle stills:
+
+1. Run the Chrono rollout with the Python postprocess API enabled (`--blender-output-dir`). The eval
+   script constructs `BlenderFrameExporter`, initializes `pychrono.postprocess.ChBlender`, and calls
+   `ExportData()` at the requested export FPS during the rollout. `write_summary()` records frame
+   counts and patches state files so Chrono frame-parent empties do not show up as black axes in
+   Blender.
+2. Import the generated `exported.assets.py` in Blender headless mode and render a frozen frame with a
+   small custom Blender script. The render script uses a corrected camera `look_at(..., "-Z", "Y")`,
+   hides oversized Chrono Grease Pencil path objects, adds a local flat ground plane, draws trajectory
+   curves from raw `.npz` rollout data, and renders with CPU Cycles at 1480×980.
+3. For HMMWV specifically, the generated Chrono asset script imports `hmmwv_chassis.obj` as many loose
+   OBJ parts but only links one small part into the `Chassis body` frame. Current render/export
+   artifacts patch the generated `exported.assets.py` block to join all imported HMMWV chassis meshes
+   into a single Chrono asset before linking it into `chrono_assets`. This is stable for the saved
+   exports, but it is still an export-script workaround, not an upstream Chrono importer fix.
+
+The HMMWV flat rollout render was regenerated with the same setup as the earlier tight rigid eval, not
+the main training env config:
+
+```bash
+/home/harry/anaconda3/envs/tutorial/bin/python scripts/eval_hmmwv_rl_chrono_tracking.py \
+  --run-dir artifacts/rl_runs/hmmwv_rl_15d_crm2000mix25_onehot_flat20crm20_K16_64steps_ar02_state_vxvyyr_pos2_yaw2_steerlim010/eval_cfg_rigid20_val_rest_start_flatkey \
+  --policy-checkpoint artifacts/rl_runs/hmmwv_rl_15d_crm2000mix25_onehot_flat20crm20_K16_64steps_ar02_state_vxvyyr_pos2_yaw2_steerlim010/model_500.pt \
+  --device cpu \
+  --chrono-config configs/hmmwv_overfit_v1.json \
+  --reference-index 0 \
+  --max-steps 180 \
+  --pre-roll-time-s 0 \
+  --steering-rate-limit 0.1 \
+  --no-plots \
+  --output-dir artifacts/blender_exports/hmmwv_flat_val_rest_preroll0_rollout_eval \
+  --blender-output-dir artifacts/blender_exports/hmmwv_flat_val_rest_preroll0_rollout \
+  --blender-fps 20 \
+  --blender-width 1480 \
+  --blender-height 980
+```
+
+Result: 180 exported frames and tight tracking (`xy_rmse_m = 0.134 m`, `xy_final_m = 0.158 m`) on
+`sustained_turn/t300_s039_sustained_turn_00015`. The first bad render rollout was not a policy failure:
+it used the main training `env_cfg.json` (`hmmwv_tire_normal_force_omega_flat_crm_train_refs_40_1100_randwin_seed20260623.npz`)
+plus the current default `pre_roll_time_s = 6.0`. That made the policy handoff compare against reference
+index 732 from a random-window absolute reference and started the first recorded step already 42.5 m
+from `ref_pose`. The older tight eval effectively used `pre_roll_time_s = 0` and the rest-start
+validation references, so the first recorded `ref_pose` maps to index 132 (`context_steps - 1`) and the
+initial error is centimeters.
+
+Current artifacts:
+
+- Reusable render script: `blender-render/render_hmmwv_rollout.py`
+- Corrected HMMWV Blender export: `artifacts/blender_exports/hmmwv_flat_val_rest_preroll0_rollout/`
+- Corrected HMMWV eval summary: `artifacts/blender_exports/hmmwv_flat_val_rest_preroll0_rollout_eval/summary.json`
+- Corrected HMMWV render: `artifacts/blender_exports/hmmwv_flat_val_rest_preroll0_rollout/renders/hmmwv_flat_val_rest_preroll0_frame120_ortho.png`
+- Tracked vehicle + arm Blender export: `artifacts/blender_exports/tracked_arm_two_policy_consecutive/`
+- Tracked vehicle + arm render: `artifacts/blender_exports/tracked_arm_two_policy_consecutive/renders/tracked_arm_frame510_ortho.png`
+
+Rendering gotchas now captured:
+
+- Do not rely on Chrono's exported path object for HMMWV trajectory visualization; it imports as a
+  Grease Pencil object with radius around 10 and can fill the whole render green. New HMMWV Blender
+  exports leave that object out, and the render script draws Blender curves from raw rollout `.npz`
+  arrays instead (`ref_pose` in green, actual `pose` in red).
+- When freezing a frame for background rendering, temporarily remove the Chrono frame-change callback
+  during the render and restore it before Blender exits. Removing it permanently writes the PNG but
+  triggers a harmless add-on unregister traceback at shutdown; leaving it active can reload the hidden
+  path object and bring back the green-screen render.
+- The ugly tracked-vehicle "links" were frame-parent `EMPTY` axes in `chrono_frame_objects`, not exported
+  Chrono links. `BlenderFrameExporter` keeps `include_links = False`, removes link-frame globals, and
+  patches state files to set those parent empties to effectively invisible display size.
 
 ## Bumpy-Terrain Transfer (2026-06-11)
 
