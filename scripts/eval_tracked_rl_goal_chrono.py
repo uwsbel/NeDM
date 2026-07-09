@@ -47,12 +47,25 @@ def parse_args(argv=None):
     return p.parse_args(argv)
 
 
-def add_goal_marker(system, vis, gx_w, gy_w, radius) -> None:
+def _rebind_vis(vis, system) -> None:
+    """Re-bind the viewer so it picks up bodies added/removed after make_vis()."""
+    for method_name, args in (("AttachSystem", (system,)), ("BindAll", ())):
+        method = getattr(vis, method_name, None)
+        if method is not None:
+            try:
+                method(*args)
+            except Exception:
+                pass
+
+
+def add_goal_marker(system, vis, gx_w, gy_w, radius):
     """Add a fixed, non-colliding green sphere at the goal (radius = success tolerance).
 
     A fixed collision-disabled body is inert (it does not enter the dynamics), matching
     the arm Chrono env's marker pattern for this same M113 Irrlicht scene. AttachSystem/
     BindAll re-bind the viewer so it picks up the body added after make_vis().
+
+    Returns the marker body so callers can remove it later (see ``remove_goal_marker``).
     """
     body = chrono.ChBody()
     body.SetFixed(True)
@@ -62,13 +75,19 @@ def add_goal_marker(system, vis, gx_w, gy_w, radius) -> None:
     shape.SetColor(chrono.ChColor(0.1, 0.75, 0.1))
     body.AddVisualShape(shape)
     system.Add(body)
-    for method_name, args in (("AttachSystem", (system,)), ("BindAll", ())):
-        method = getattr(vis, method_name, None)
-        if method is not None:
-            try:
-                method(*args)
-            except Exception:
-                pass
+    _rebind_vis(vis, system)
+    return body
+
+
+def remove_goal_marker(system, vis, body) -> None:
+    """Remove a goal marker body added by ``add_goal_marker`` and re-bind the viewer."""
+    if body is None:
+        return
+    try:
+        system.Remove(body)
+    except Exception:
+        pass
+    _rebind_vis(vis, system)
 
 
 def main(argv=None) -> int:

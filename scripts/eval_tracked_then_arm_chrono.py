@@ -79,6 +79,7 @@ from nedm.arm_data import (
     make_vis,
     set_frame_hook,
     setup_arm_collision,
+    RenderFrameRecorder,
     _substep,
 )
 from nedm.rl.arm_reaching_chrono_env import ArmReachingChronoEnv, ChronoArmSim
@@ -88,7 +89,7 @@ from nedm.tracked_vehicle_data import TERRAIN_SIZE_M, capture_row
 
 # Reuse the standalone evals' helpers rather than re-deriving them.
 import eval_arm_rl_chrono_reaching as arm_eval
-from eval_tracked_rl_goal_chrono import add_goal_marker
+from eval_tracked_rl_goal_chrono import add_goal_marker, remove_goal_marker
 
 DEFAULT_TRACKED_CHECKPOINT = REPO_ROOT / "artifacts/rl_runs/tracked_goal_v2_far/model_1500.pt"
 DEFAULT_ARM_RUN_DIR = (
@@ -128,6 +129,15 @@ def parse_args(argv=None):
     # Shared
     p.add_argument("--output-dir", type=Path, default=REPO_ROOT / "artifacts/combined_tracked_arm_demo")
     p.add_argument("--render", action="store_true", help="Open the Chrono Irrlicht viewer for the whole demo.")
+    p.add_argument(
+        "--save-frames-dir",
+        type=Path,
+        default=None,
+        help="Save Irrlicht window frames as PNGs here (requires --render). One continuous "
+             "frame sequence across drive, brake, and arm-reach phases.",
+    )
+    p.add_argument("--frame-render-steps", type=int, default=1,
+                   help="Save one Irrlicht frame every N control steps (default: 1 = every step).")
     p.add_argument("--no-plots", action="store_true", help="Skip per-goal arm reach PNGs.")
     p.add_argument(
         "--blender-output-dir",
@@ -218,7 +228,8 @@ def load_arm_env_and_policy(run_dir: Path, policy_checkpoint: Path | None, rende
 # ---------------------------------------------------------------------------
 # Phase 1: drive the base to a 2-D goal (arm held compliant under PD)
 # ---------------------------------------------------------------------------
-def drive_to_goal(rom, policy, m113, vehicle, terrain, actuator, vis, goal_x, goal_y, max_steps, device):
+def drive_to_goal(rom, policy, m113, vehicle, terrain, actuator, vis, goal_x, goal_y, max_steps, device,
+                  frame_recorder=None):
     """Drive the M113 base to (goal_x, goal_y) with the tracked policy.
 
     Reuses the exact obs/action contract of scripts/eval_tracked_rl_goal_chrono.py.
@@ -243,7 +254,7 @@ def drive_to_goal(rom, policy, m113, vehicle, terrain, actuator, vis, goal_x, go
     di.m_throttle, di.m_steering, di.m_braking = 0.0, 0.0, 1.0
     system = m113.GetSystem()
     for _ in range(int(round(SETTLE_TIME / CONTROL_DT))):  # settle onto tracks, braked (arm under PD)
-        _substep(m113, terrain, actuator, di, n_sub, vis=vis)
+        _substep(m113, terrain, actuator, di, n_sub, vis=vis, frame_recorder=frame_recorder)
 
     def read_state():
         row = capture_row(vehicle, "s", "f", "e", "eval", 0, 0.0, di)
@@ -253,8 +264,9 @@ def drive_to_goal(rom, policy, m113, vehicle, terrain, actuator, vis, goal_x, go
     vx, vy, r, x0, y0, yaw0 = read_state()
     gx_w = x0 + math.cos(yaw0) * goal_x - math.sin(yaw0) * goal_y
     gy_w = y0 + math.sin(yaw0) * goal_x + math.cos(yaw0) * goal_y
+    goal_marker = None
     if vis is not None:
-        add_goal_marker(system, vis, gx_w, gy_w, float(tol))
+        goal_marker = add_goal_marker(system, vis, gx_w, gy_w, float(tol))
 
     last_driver = action_center.astype(np.float32).copy()
     reached_step = -1
@@ -282,7 +294,7 @@ def drive_to_goal(rom, policy, m113, vehicle, terrain, actuator, vis, goal_x, go
         di.m_steering, di.m_throttle, di.m_braking = float(driver[0]), float(driver[1]), float(driver[2])
 
         for _ in range(action_repeat):
-            _substep(m113, terrain, actuator, di, n_sub, vis=vis)
+            _substep(m113, terrain, actuator, di, n_sub, vis=vis, frame_recorder=frame_recorder)
         last_driver = driver.astype(np.float32)
 
         vx, vy, r, x, y, yaw = read_state()
@@ -290,6 +302,10 @@ def drive_to_goal(rom, policy, m113, vehicle, terrain, actuator, vis, goal_x, go
         if dist < tol and reached_step < 0:
             reached_step = step + 1
             break
+
+    # Goal reached -> drop the goal marker so it does not linger into the brake/arm phases.
+    if reached_step >= 0 and goal_marker is not None:
+        remove_goal_marker(system, vis, goal_marker)
 
     status = "REACHED" if reached_step >= 0 else "TIMEOUT"
     return {
@@ -306,7 +322,7 @@ def drive_to_goal(rom, policy, m113, vehicle, terrain, actuator, vis, goal_x, go
 # ---------------------------------------------------------------------------
 # Phase 3: build the injectable arm sim from the shared rig
 # ---------------------------------------------------------------------------
-def make_arm_sim(env, m113, vehicle, terrain, gripper, actuator, collision_links, vis):
+def make_arm_sim(env, m113, vehicle, terrain, gripper, actuator, collision_links, vis, frame_recorder=None):
     """Wrap the shared, already-driven rig in a ChronoArmSim + set up markers.
 
     Mirrors ArmReachingChronoEnv._create_sim's marker handling so the arm env's
@@ -328,7 +344,7 @@ def make_arm_sim(env, m113, vehicle, terrain, gripper, actuator, collision_links
     return ChronoArmSim(
         m113=m113, vehicle=vehicle, terrain=terrain, gripper=gripper, actuator=actuator,
         collision_links=collision_links, driver_inputs=driver_inputs, vis=vis,
-        frame_recorder=None, ee_marker=ee_marker, goal_marker=goal_marker,
+        frame_recorder=frame_recorder, ee_marker=ee_marker, goal_marker=goal_marker,
     )
 
 
@@ -404,6 +420,14 @@ def main(argv=None) -> int:
     vis = make_vis(vehicle, "Tracked drive -> arm reach (combined demo)") if args.render else None
     if vis is not None:
         vehicle.EnableRealtime(True)
+    # Optional Irrlicht frame capture: one continuous PNG sequence across all three phases.
+    frame_recorder = None
+    if args.save_frames_dir is not None:
+        if vis is None:
+            raise SystemExit("--save-frames-dir requires --render (frames are grabbed from the Irrlicht window).")
+        frames_dir = args.save_frames_dir.expanduser().resolve()
+        frame_recorder = RenderFrameRecorder(frames_dir, render_steps=int(args.frame_render_steps))
+        print(f"[frames] saving Irrlicht frames -> {frames_dir} (every {args.frame_render_steps} step[s])")
     # Swap to the compliant PD actuator + add arm collision geometry BEFORE driving, so
     # the arm rides compliant (PD, qcmd=home) throughout the drive -- the regime it was
     # trained on. Holding it rigid during the drive and swapping afterward shifts the
@@ -439,7 +463,8 @@ def main(argv=None) -> int:
         # ---- Phase 1: drive (arm compliant under PD) ----
         print(f"[phase 1] driving base to goal ({args.tracked_goal_x:.1f}, {args.tracked_goal_y:.1f}) m ...")
         drive_info = drive_to_goal(rom, tracked_policy, m113, vehicle, terrain, actuator, vis,
-                                   args.tracked_goal_x, args.tracked_goal_y, args.tracked_max_steps, device)
+                                   args.tracked_goal_x, args.tracked_goal_y, args.tracked_max_steps, device,
+                                   frame_recorder=frame_recorder)
         reached_s = drive_info["reached_step"] * rom.step_dt if drive_info["reached_step"] >= 0 else None
         print(f"[phase 1] {drive_info['status']}  min_dist={drive_info['min_dist_m']:.3f} m"
               + (f"  (t={reached_s:.1f} s)" if reached_s is not None else ""))
@@ -460,7 +485,7 @@ def main(argv=None) -> int:
         print(f"[phase 2] braking to rest (<= {args.brake_seconds:.1f} s, stop at {stop_speed:.2f} m/s) ...")
         braked_steps = 0
         for bi in range(max_brake_steps):
-            _substep(m113, terrain, actuator, brake_di, n_sub, vis=vis)
+            _substep(m113, terrain, actuator, brake_di, n_sub, vis=vis, frame_recorder=frame_recorder)
             braked_steps = bi + 1
             speed = abs(vehicle.GetSpeed())
             if dbg and bi % 50 == 0:
@@ -481,7 +506,8 @@ def main(argv=None) -> int:
         # ---- Phase 3: arm reach on the shared, settled rig ----
         print(f"[phase 3] arm reaching {args.arm_num_goals} consecutive goals "
               f"(policy={arm_checkpoint.name}) ...")
-        sim = make_arm_sim(arm_env, m113, vehicle, terrain, gripper, actuator, collision_links, vis)
+        sim = make_arm_sim(arm_env, m113, vehicle, terrain, gripper, actuator, collision_links, vis,
+                           frame_recorder=frame_recorder)
         arm_summary, success_tolerance_m = run_arm_phase(
             arm_env, arm_policy, sim, args.arm_num_goals, args.arm_max_steps,
             args.arm_goal_duration_s, output_dir, make_plots=not args.no_plots)
