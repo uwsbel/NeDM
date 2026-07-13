@@ -1,0 +1,134 @@
+{
+  "description": "Chrono HMMWV policy comparison for the L8-depth OFAT dynamics backbone (ablation_ofat/L8_H8_E256_ctx128{,_mix00,_mix100}, best_val checkpoints epoch 51/61/54). RL policies trained steering_rate_limit=0.1 for 1000 PPO iterations (mixture run continued training to 1800 but is evaluated at the matching iteration-1000 checkpoint); all three eval terrains apply steering_rate_limit=0.1.",
+  "policies": [
+    "mixture",
+    "rigid_only",
+    "crm_only"
+  ],
+  "policy_labels": {
+    "mixture": "Generalist (mix25)",
+    "rigid_only": "Rigid only",
+    "crm_only": "CRM only"
+  },
+  "terrains": [
+    "rigid_flat",
+    "crm",
+    "bumpy"
+  ],
+  "stats": {
+    "rigid_flat": {
+      "mixture": {
+        "summary_path": "/home/harry/NeDM/artifacts/rl_runs/hmmwv_rl_15d_crm2000mix25_onehot_ofatL8_bestval51_flat20crm20_K16_64steps_ar02_state_vxvyyr_pos2_yaw2_steerlim010/hmmwv_rl_15d_crm2000mix25_onehot_ofatL8_bestval51_flat20crm20_K16_64steps_ar02_state_vxvyyr_pos2_yaw2_steerlim010/chrono_eval_tracking_model_1000_rigid_val_rest_start_steerlim010_pre0/summary.json",
+        "steering_rate_limit": 0.1,
+        "n_total": 20,
+        "n_success": 20,
+        "n_early": 0,
+        "mean_xy_rmse_m": 0.183731884136796,
+        "q1_xy_rmse_m": 0.09870013408362865,
+        "median_xy_rmse_m": 0.15669292211532593,
+        "q3_xy_rmse_m": 0.23551950603723526,
+        "label": "Generalist (mix25)"
+      },
+      "rigid_only": {
+        "summary_path": "/home/harry/NeDM/artifacts/rl_runs/hmmwv_rl_15d_crm2000mix00_onehot_ofatL8_bestval61_rigid20_K16_64steps_ar02_state_vxvyyr_pos2_yaw2_steerlim010_1000it/chrono_eval_tracking_model_999_rigid_val20_rest_start_steerlim010_pre0/summary.json",
+        "steering_rate_limit": 0.1,
+        "n_total": 20,
+        "n_success": 20,
+        "n_early": 0,
+        "mean_xy_rmse_m": 0.21931061297655105,
+        "q1_xy_rmse_m": 0.16267384961247444,
+        "median_xy_rmse_m": 0.17402846366167068,
+        "q3_xy_rmse_m": 0.2767402157187462,
+        "label": "Rigid only"
+      },
+      "crm_only": {
+        "summary_path": "/home/harry/NeDM/artifacts/rl_runs/hmmwv_rl_15d_crm2000mix100_onehot_ofatL8_bestval54_crmonly20_K16_64steps_ar02_state_vxvyyr_pos2_yaw2_steerlim010_1000it/chrono_eval_tracking_model_999_rigid_val20_rest_start_steerlim010_pre0/summary.json",
+        "steering_rate_limit": 0.1,
+        "n_total": 20,
+        "n_success": 20,
+        "n_early": 0,
+        "mean_xy_rmse_m": 0.25864529721438884,
+        "q1_xy_rmse_m": 0.1887144222855568,
+        "median_xy_rmse_m": 0.23153521865606308,
+        "q3_xy_rmse_m": 0.3275403007864952,
+        "label": "CRM only"
+      }
+    },
+    "crm": {
+      "mixture": {
+        "summary_path": "/home/harry/NeDM/artifacts/rl_runs/hmmwv_rl_15d_crm2000mix25_onehot_ofatL8_bestval51_flat20crm20_K16_64steps_ar02_state_vxvyyr_pos2_yaw2_steerlim010/hmmwv_rl_15d_crm2000mix25_onehot_ofatL8_bestval51_flat20crm20_K16_64steps_ar02_state_vxvyyr_pos2_yaw2_steerlim010/chrono_crm_eval_model_1000_val20_rest_start_min10_steerlim010_pre0/summary.json",
+        "steering_rate_limit": 0.1,
+        "n_total": 20,
+        "n_success": 20,
+        "n_early": 0,
+        "mean_xy_rmse_m": 0.24857631959021093,
+        "q1_xy_rmse_m": 0.13373124226927757,
+        "median_xy_rmse_m": 0.17951252311468124,
+        "q3_xy_rmse_m": 0.3208216652274132,
+        "label": "Generalist (mix25)"
+      },
+      "rigid_only": {
+        "summary_path": "/home/harry/NeDM/artifacts/rl_runs/hmmwv_rl_15d_crm2000mix00_onehot_ofatL8_bestval61_rigid20_K16_64steps_ar02_state_vxvyyr_pos2_yaw2_steerlim010_1000it/chrono_crm_eval_model_999_val20_rest_start_min10_steerlim010_pre0/summary.json",
+        "steering_rate_limit": 0.1,
+        "n_total": 20,
+        "n_success": 20,
+        "n_early": 0,
+        "mean_xy_rmse_m": 1.0004123374819756,
+        "q1_xy_rmse_m": 0.3645310252904892,
+        "median_xy_rmse_m": 0.8543820381164551,
+        "q3_xy_rmse_m": 1.4466830492019653,
+        "label": "Rigid only"
+      },
+      "crm_only": {
+        "summary_path": "/home/harry/NeDM/artifacts/rl_runs/hmmwv_rl_15d_crm2000mix100_onehot_ofatL8_bestval54_crmonly20_K16_64steps_ar02_state_vxvyyr_pos2_yaw2_steerlim010_1000it/chrono_crm_eval_model_999_val20_rest_start_min10_steerlim010_pre0/summary.json",
+        "steering_rate_limit": 0.1,
+        "n_total": 20,
+        "n_success": 20,
+        "n_early": 0,
+        "mean_xy_rmse_m": 0.360656912997365,
+        "q1_xy_rmse_m": 0.17378584295511246,
+        "median_xy_rmse_m": 0.23075003176927567,
+        "q3_xy_rmse_m": 0.5214058011770248,
+        "label": "CRM only"
+      }
+    },
+    "bumpy": {
+      "mixture": {
+        "summary_path": "/home/harry/NeDM/artifacts/rl_runs/hmmwv_rl_15d_crm2000mix25_onehot_ofatL8_bestval51_flat20crm20_K16_64steps_ar02_state_vxvyyr_pos2_yaw2_steerlim010/hmmwv_rl_15d_crm2000mix25_onehot_ofatL8_bestval51_flat20crm20_K16_64steps_ar02_state_vxvyyr_pos2_yaw2_steerlim010/chrono_bumpy_eval_model_1000_val20_rest_start_steerlim010_pre0/summary.json",
+        "steering_rate_limit": 0.1,
+        "n_total": 20,
+        "n_success": 20,
+        "n_early": 0,
+        "mean_xy_rmse_m": 0.22890067994594573,
+        "q1_xy_rmse_m": 0.09907755255699158,
+        "median_xy_rmse_m": 0.1491091623902321,
+        "q3_xy_rmse_m": 0.24674713611602783,
+        "label": "Generalist (mix25)"
+      },
+      "rigid_only": {
+        "summary_path": "/home/harry/NeDM/artifacts/rl_runs/hmmwv_rl_15d_crm2000mix00_onehot_ofatL8_bestval61_rigid20_K16_64steps_ar02_state_vxvyyr_pos2_yaw2_steerlim010_1000it/chrono_bumpy_eval_model_999_val20_rest_start_steerlim010_pre0/summary.json",
+        "steering_rate_limit": 0.1,
+        "n_total": 20,
+        "n_success": 20,
+        "n_early": 0,
+        "mean_xy_rmse_m": 0.23757501877844334,
+        "q1_xy_rmse_m": 0.15899089351296425,
+        "median_xy_rmse_m": 0.18678507208824158,
+        "q3_xy_rmse_m": 0.29005182534456253,
+        "label": "Rigid only"
+      },
+      "crm_only": {
+        "summary_path": "/home/harry/NeDM/artifacts/rl_runs/hmmwv_rl_15d_crm2000mix100_onehot_ofatL8_bestval54_crmonly20_K16_64steps_ar02_state_vxvyyr_pos2_yaw2_steerlim010_1000it/chrono_bumpy_eval_model_999_val20_rest_start_steerlim010_pre0/summary.json",
+        "steering_rate_limit": 0.1,
+        "n_total": 20,
+        "n_success": 20,
+        "n_early": 0,
+        "mean_xy_rmse_m": 0.4182221442461014,
+        "q1_xy_rmse_m": 0.16573834791779518,
+        "median_xy_rmse_m": 0.21337588876485825,
+        "q3_xy_rmse_m": 0.415611132979393,
+        "label": "CRM only"
+      }
+    }
+  }
+}
