@@ -1,0 +1,33 @@
+[2026-07-09T13:48:02-05:00] === OFAT ablation sweep start: 13 trainable configs, 80 epochs each ===
+[2026-07-09T13:48:02-05:00] manifest=configs/ablation_ofat/manifest.json device=cuda max_attempts=3
+[2026-07-09T13:48:02-05:00] RUN   L2_H8_E256_ctx128 attempt 1/3  (free RAM: 50G avail)
+[2026-07-09T14:22:32-05:00] DONE  L2_H8_E256_ctx128 in 2070s (attempt 1, exit 0)
+[2026-07-09T14:22:32-05:00] RUN   L4_H8_E256_ctx128 attempt 1/3  (free RAM: 50G avail)
+[2026-07-09T14:40:57-05:00] === OFAT ablation sweep start: 13 trainable configs, 80 epochs each ===
+[2026-07-09T14:40:57-05:00] manifest=configs/ablation_ofat/manifest.json device=cuda max_attempts=3
+[2026-07-09T14:40:57-05:00] SKIP  L2_H8_E256_ctx128 (already reached epoch 80)
+[2026-07-09T14:40:57-05:00] RUN   L4_H8_E256_ctx128 attempt 1/3  (free RAM: 53G avail)
+[2026-07-09T15:32:44-05:00] DONE  L4_H8_E256_ctx128 in 3107s (attempt 1, exit 0)
+[2026-07-09T15:32:44-05:00] RUN   L8_H8_E256_ctx128 attempt 1/3  (free RAM: 59G avail)
+[2026-07-09T16:58:03-05:00] DONE  L8_H8_E256_ctx128 in 5119s (attempt 1, exit 0)
+[2026-07-09T16:58:03-05:00] RUN   L12_H8_E256_ctx128 attempt 1/3  (free RAM: 59G avail)
+[2026-07-09T18:56:24-05:00] DONE  L12_H8_E256_ctx128 in 7101s (attempt 1, exit 0)
+[2026-07-09T18:56:24-05:00] RUN   L6_H4_E128_ctx128 attempt 1/3  (free RAM: 59G avail)
+[2026-07-09T19:44:19-05:00] DONE  L6_H4_E128_ctx128 in 2875s (attempt 1, exit 0)
+[2026-07-09T19:44:19-05:00] RUN   L6_H6_E192_ctx128 attempt 1/3  (free RAM: 59G avail)
+[2026-07-09T20:42:15-05:00] DONE  L6_H6_E192_ctx128 in 3476s (attempt 1, exit 0)
+[2026-07-09T20:42:15-05:00] RUN   L6_H12_E384_ctx128 attempt 1/3  (free RAM: 59G avail)
+[2026-07-09T22:13:20-05:00] DONE  L6_H12_E384_ctx128 in 5465s (attempt 1, exit 0)
+[2026-07-09T22:13:20-05:00] RUN   L6_H16_E512_ctx128 attempt 1/3  (free RAM: 59G avail)
+[2026-07-10T00:13:30-05:00] DONE  L6_H16_E512_ctx128 in 7210s (attempt 1, exit 0)
+[2026-07-10T00:13:30-05:00] RUN   L6_H4_E256_ctx128 attempt 1/3  (free RAM: 59G avail)
+[2026-07-10T01:19:45-05:00] DONE  L6_H4_E256_ctx128 in 3975s (attempt 1, exit 0)
+[2026-07-10T01:19:45-05:00] RUN   L6_H16_E256_ctx128 attempt 1/3  (free RAM: 59G avail)
+[2026-07-10T02:31:43-05:00] DONE  L6_H16_E256_ctx128 in 4318s (attempt 1, exit 0)
+[2026-07-10T02:31:43-05:00] RUN   L6_H8_E256_ctx32 attempt 1/3  (free RAM: 59G avail)
+[2026-07-10T03:16:24-05:00] DONE  L6_H8_E256_ctx32 in 2681s (attempt 1, exit 0)
+[2026-07-10T03:16:24-05:00] RUN   L6_H8_E256_ctx64 attempt 1/3  (free RAM: 59G avail)
+[2026-07-10T04:10:31-05:00] DONE  L6_H8_E256_ctx64 in 3247s (attempt 1, exit 0)
+[2026-07-10T04:10:31-05:00] RUN   L6_H8_E256_ctx256 attempt 1/3  (free RAM: 59G avail)
+[2026-07-10T05:53:21-05:00] DONE  L6_H8_E256_ctx256 in 6170s (attempt 1, exit 0)
+[2026-07-10T05:53:21-05:00] === sweep end: completed=12 skipped=1 failed=0 ===

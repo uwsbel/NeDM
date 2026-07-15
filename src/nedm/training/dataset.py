@@ -24,6 +24,7 @@ class WindowedHMMWVDataset(Dataset):
         split: str,
         sequence_length: int,
         max_windows: int | None = None,
+        episode_fraction: float | None = None,
         seed: int = 0,
         load_into_memory: bool = False,
     ) -> None:
@@ -37,6 +38,18 @@ class WindowedHMMWVDataset(Dataset):
         self.episode_starts = np.load(processed_root / f"{split}_episode_starts.npy")
         self.episode_lengths = np.load(processed_root / f"{split}_episode_lengths.npy")
         self.split_metadata = load_split_metadata(processed_root, split)
+        # Optional data-quantity ablation: restrict training to a nested seeded
+        # subset of whole episodes. Same seed -> the same permutation, so a
+        # smaller fraction is a prefix of a larger one (20% ⊂ 40% ⊂ ...). Only
+        # the small index arrays are subset; the states/targets/actions memmaps
+        # are untouched (dropped-episode rows are simply never sampled).
+        if episode_fraction is not None and 0.0 < episode_fraction < 1.0:
+            n_ep = int(self.episode_lengths.shape[0])
+            keep = round(episode_fraction * n_ep)
+            perm = np.random.default_rng(seed).permutation(n_ep)
+            sel = np.sort(perm[:keep])
+            self.episode_starts = self.episode_starts[sel]
+            self.episode_lengths = self.episode_lengths[sel]
         self.valid_counts = np.maximum(self.episode_lengths.astype(np.int64) - self.sequence_length + 1, 0)
         self.cumulative_windows = np.cumsum(self.valid_counts, dtype=np.int64)
         self.total_windows = int(self.cumulative_windows[-1]) if self.cumulative_windows.size else 0

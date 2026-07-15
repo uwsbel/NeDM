@@ -1,0 +1,115 @@
+{
+  "processed_dataset_dir": "artifacts/training_datasets/hmmwv_tire_rigid_300g_normal_force_omega_seq_v1",
+  "output_dir": "artifacts/training_runs/ablation_ofat/L8_H8_E256_ctx128_data20",
+  "validation_dataset_name": "flat",
+  "terrain_conditioning": {
+    "enabled": true,
+    "terrains": [
+      "flat",
+      "crm"
+    ]
+  },
+  "train_mix": {
+    "datasets": [
+      {
+        "name": "flat",
+        "terrain": "flat",
+        "processed_dataset_dir": "artifacts/training_datasets/hmmwv_tire_rigid_300g_normal_force_omega_seq_v1",
+        "batch_fraction": 0.75,
+        "train_episode_fraction": 0.2
+      },
+      {
+        "name": "crm",
+        "terrain": "crm",
+        "processed_dataset_dir": "artifacts/training_datasets/hmmwv_crm_2000_normal_force_omega_seq_v1",
+        "batch_fraction": 0.25,
+        "train_episode_fraction": 0.2
+      }
+    ]
+  },
+  "validation_datasets": [
+    {
+      "name": "crm",
+      "terrain": "crm",
+      "processed_dataset_dir": "artifacts/training_datasets/hmmwv_crm_2000_normal_force_omega_seq_v1",
+      "split": "val",
+      "max_val_batches": 200
+    }
+  ],
+  "validation_loss_weights": {
+    "flat": 0.5,
+    "crm": 0.5
+  },
+  "loss": {
+    "type": "huber",
+    "huber_delta": 1.0,
+    "channel_weight_mode": "equal_domain_combined_std",
+    "channel_weight_datasets": [
+      "artifacts/training_datasets/hmmwv_tire_rigid_300g_normal_force_omega_seq_v1",
+      "artifacts/training_datasets/hmmwv_crm_2000_normal_force_omega_seq_v1"
+    ]
+  },
+  "rollout_eval": {
+    "num_episodes": 12,
+    "horizons_s": [
+      5.0,
+      10.0
+    ],
+    "selection_horizon_s": 10.0,
+    "datasets": [
+      {
+        "name": "flat",
+        "terrain": "flat",
+        "processed_dataset_dir": "artifacts/training_datasets/hmmwv_tire_rigid_300g_normal_force_omega_seq_v1",
+        "split": "val",
+        "weight": 0.5
+      },
+      {
+        "name": "crm",
+        "terrain": "crm",
+        "processed_dataset_dir": "artifacts/training_datasets/hmmwv_crm_2000_normal_force_omega_seq_v1",
+        "split": "val",
+        "weight": 0.5
+      }
+    ]
+  },
+  "model": {
+    "block_size": 128,
+    "n_layer": 8,
+    "n_head": 8,
+    "n_embd": 256,
+    "dropout": 0.0,
+    "bias": false,
+    "head_hidden_dim": 256
+  },
+  "optimizer": {
+    "lr": 0.0003,
+    "min_lr": 3e-05,
+    "weight_decay": 0.1,
+    "betas": [
+      0.9,
+      0.95
+    ],
+    "warmup_steps": 1000,
+    "grad_clip_norm": 1.0
+  },
+  "training": {
+    "seed": 2026061801,
+    "device": "cuda",
+    "batch_size": 64,
+    "num_workers": 0,
+    "num_epochs": 80,
+    "steps_per_epoch": 2000,
+    "max_val_batches": 200,
+    "checkpoint_metric": "rollout_sel",
+    "load_dataset_into_memory": false,
+    "pin_memory": false,
+    "compile": false
+  },
+  "sweep_recipe": {
+    "version": "ofat_L8_H8_E256_ctx128_data20",
+    "slug": "L8_H8_E256_ctx128_data20",
+    "arm": "data_quantity",
+    "notes": "Training-data-quantity ablation around the L8 depth winner (L8/8H/256/ctx128, flat+CRM one-hot mix25 generalist). Holds architecture / optimizer / loss / 75-25 data mix / rollout_sel selection / dual-domain rollout eval (0.5 flat + 0.5 crm) / seed 2026061801 / compute (80 epochs x 2000 steps) ALL fixed; the ONLY change is train_episode_fraction=0.2 applied to BOTH the flat and crm train sources, i.e. a nested seeded subset of whole training episodes (20% subset \u2282 40% \u2282 60% \u2282 80% \u2282 100%). Compute is held fixed (sampling with replacement over the smaller pool), so this isolates the pure effect of unique-trajectory count on accuracy; compare best_val rollout_sel vs the L8 100% anchor (S=0.0456). Val and rollout-eval sets are byte-identical across all runs."
+  }
+}

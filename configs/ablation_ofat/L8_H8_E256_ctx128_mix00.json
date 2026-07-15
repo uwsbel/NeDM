@@ -1,0 +1,100 @@
+{
+  "processed_dataset_dir": "artifacts/training_datasets/hmmwv_tire_rigid_300g_normal_force_omega_seq_v1",
+  "output_dir": "artifacts/training_runs/ablation_ofat/L8_H8_E256_ctx128_mix00",
+  "validation_dataset_name": "flat",
+  "terrain_conditioning": {
+    "enabled": true,
+    "terrains": ["flat", "crm"]
+  },
+  "train_mix": {
+    "datasets": [
+      {
+        "name": "flat",
+        "terrain": "flat",
+        "processed_dataset_dir": "artifacts/training_datasets/hmmwv_tire_rigid_300g_normal_force_omega_seq_v1",
+        "batch_fraction": 1.0
+      }
+    ]
+  },
+  "validation_datasets": [
+    {
+      "name": "crm",
+      "terrain": "crm",
+      "processed_dataset_dir": "artifacts/training_datasets/hmmwv_crm_2000_normal_force_omega_seq_v1",
+      "split": "val",
+      "max_val_batches": 200
+    }
+  ],
+  "validation_loss_weights": {
+    "flat": 1.0
+  },
+  "loss": {
+    "type": "huber",
+    "huber_delta": 1.0,
+    "channel_weight_mode": "equal_domain_combined_std",
+    "channel_weight_datasets": [
+      "artifacts/training_datasets/hmmwv_tire_rigid_300g_normal_force_omega_seq_v1",
+      "artifacts/training_datasets/hmmwv_crm_2000_normal_force_omega_seq_v1"
+    ]
+  },
+  "rollout_eval": {
+    "num_episodes": 12,
+    "horizons_s": [5.0, 10.0],
+    "selection_horizon_s": 10.0,
+    "datasets": [
+      {
+        "name": "flat",
+        "terrain": "flat",
+        "processed_dataset_dir": "artifacts/training_datasets/hmmwv_tire_rigid_300g_normal_force_omega_seq_v1",
+        "split": "val",
+        "weight": 1.0
+      },
+      {
+        "name": "crm",
+        "terrain": "crm",
+        "processed_dataset_dir": "artifacts/training_datasets/hmmwv_crm_2000_normal_force_omega_seq_v1",
+        "split": "val",
+        "weight": 0.0
+      }
+    ]
+  },
+  "model": {
+    "block_size": 128,
+    "n_layer": 8,
+    "n_head": 8,
+    "n_embd": 256,
+    "dropout": 0.0,
+    "bias": false,
+    "head_hidden_dim": 256
+  },
+  "optimizer": {
+    "lr": 0.0003,
+    "min_lr": 3e-05,
+    "weight_decay": 0.1,
+    "betas": [
+      0.9,
+      0.95
+    ],
+    "warmup_steps": 1000,
+    "grad_clip_norm": 1.0
+  },
+  "training": {
+    "seed": 2026061801,
+    "device": "cuda",
+    "batch_size": 64,
+    "num_workers": 0,
+    "num_epochs": 80,
+    "steps_per_epoch": 2000,
+    "max_val_batches": 200,
+    "checkpoint_metric": "rollout_sel",
+    "load_dataset_into_memory": false,
+    "pin_memory": false,
+    "compile": false
+  },
+  "sweep_recipe": {
+    "version": "ofat_L8_H8_E256_ctx128_mix00",
+    "slug": "L8_H8_E256_ctx128_mix00",
+    "arm": "data_mix",
+    "notes": "Data-mix ablation at the OFAT Stage-A depth winner (L8/8H/256/ctx128). Flat-only (rigid) specialist: trained 100% on flat data (0% CRM) while holding the L8 architecture, one-hot terrain conditioning over [flat, crm] (input_dim 20), flat-based normalization, equal-domain-combined-std Huber channel weighting, and 80x2000 optimizer schedule identical to the L8 mix25 generalist. Only the train_mix (and the loss/rollout weights that follow from it) changes vs L8_H8_E256_ctx128. Checkpoint selection (rollout_sel) driven by the flat 10s rollout (weight 1.0); CRM rollout kept at weight 0.0 for cross-domain monitoring. Pairs with L8_H8_E256_ctx128_mix100 (CRM-only) to bracket the L8 generalist. Seed 2026061801 = same as the L8 winner so the data mix is the only change. Sweep memory rule: load_dataset_into_memory=false, pin_memory=false."
+  }
+}

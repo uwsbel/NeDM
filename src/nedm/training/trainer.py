@@ -305,11 +305,13 @@ class HMMWVTrainer:
             max_train_windows = spec.get("max_train_windows")
             if max_train_windows is None and source_root == self.processed_root:
                 max_train_windows = training_cfg.get("max_train_windows")
+            episode_fraction = spec.get("train_episode_fraction")
             source_dataset = WindowedHMMWVDataset(
                 source_root,
                 split="train",
                 sequence_length=self.sequence_length,
                 max_windows=max_train_windows,
+                episode_fraction=episode_fraction,
                 seed=self.seed + source_index,
                 load_into_memory=bool(spec.get("load_dataset_into_memory", load_dataset_into_memory)),
             )

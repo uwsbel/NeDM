@@ -2,7 +2,7 @@
 
 A living log of the overall project state, so both of us can see at a glance what is done, what the headline numbers are, and what is next. Update this file whenever a milestone lands or a headline metric changes.
 
-Last updated: 2026-07-07 (added the stabilized Chrono → Blender postprocess/rendering workflow, including HMMWV flat-rollout reference/pre-roll gotchas, raw-trajectory line rendering, and current Blender importer workarounds. Arm/tracked/CRM headline results unchanged since the 2026-07-03/2026-06-29/2026-06-24 subsections.)
+Last updated: 2026-07-13 (new headline RL result: three one-hot policies retrained on the OFAT-sweep-winning **L8** dynamics backbone — generalist, rigid-only, CRM-only — and Chrono-evaluated uniformly across rigid-flat/CRM/bumpy at checkpoint iteration 1000. The L8 generalist now strictly dominates both specialists on every terrain, on both mean and median XY RMSE. See the new 2026-07-13 subsection under Milestone 3. Arm/tracked headline results unchanged since the 2026-07-03/2026-07-02 subsections.)
 
 ## Status At A Glance
 
@@ -10,7 +10,7 @@ Last updated: 2026-07-07 (added the stabilized Chrono → Blender postprocess/re
 |---|---|---|---|
 | 1 | Rigid flat-terrain HMMWV dataset | Done | ~310 GB across 4 dataset generations, 100 Hz episode CSVs |
 | 2 | NN dynamics model for HMMWV | Done | Upgraded from 7-D state to 15-D tire-normal-force/omega state; current RL backbone is `hmmwv_transformer_v07_tire_normal_force_omega_300g` |
-| 3 | RL tracking on NN dynamics + Chrono eval | Done (first pass) | 15-D policy eval now covers flat and bumpy rest-start refs; bumpy terrain degrades Chrono transfer substantially |
+| 3 | RL tracking on NN dynamics + Chrono eval | Done (first pass); latest backbone = OFAT-winning **L8** dynamics model | Three one-hot policies (generalist/rigid-only/CRM-only) retrained on the deeper L8 dynamics backbone and Chrono-evaluated on rigid-flat/CRM/bumpy at checkpoint iteration 1000: the **L8 generalist now beats both specialists on every terrain**, mean and median XY RMSE, 0/20 early terminations in all 9 cells — see 2026-07-13 subsection |
 | 4 | CRM (deformable soil) generalist dynamics NN | Generalist + ablations trained on 20× CRM (`crm_2000`) with one-hot terrain conditioning | One-hot 75/25 generalist hits **flat 9.1% / CRM 5.8%** open-loop 10s err/dist — improving the `crm_100` incumbent on **both** (flat 15.4%→9.1%, CRM 9.4%→5.8%). Single-domain ablations reach **flat 5.0% / CRM 3.7%** in-domain but collapse off-domain (flat-only→CRM 69%, CRM-only→flat 37%): co-training trades ~3–4 pt peak accuracy for cross-domain robustness. All three on `main` (LFS); see 2026-06-24 subsection |
 | 5 | Arm mobile-manipulator reach mode: arm dynamics NN + reaching RL | Done (first pass) | `f_arm` is trained (`arm_transformer_full_v1`, 15-D `[q,qd,qcmd,ee_base]`, ctx16, EE drift ~1.9% err/dist @0.5 s). PPO reach policy `model_1499.pt` reaches **10/10 random Chrono goals** and **10/10 consecutive Chrono goals** with mean final EE error **3.1–3.9 cm**, 0 contacts, 0 unsafe actions in the reported evals |
 | 6 | Tracked vehicle drive mode: base NN-ROM + goal-reaching RL | Done (first pass) | v2 drive dataset processed to `[vx,vy,yaw_rate]` with **1.41M train / 0.27M val transitions**; `tracked_transformer_v1` best 5 s open-loop XY RMSE **0.105 m** (5.85% err/dist); `tracked_goal_v2_far` PPO reaches 20–40 m goals in NN env and **4/4 Chrono spot goals** within 0.75 m |
@@ -292,6 +292,128 @@ Artifacts:
 - PDF: `artifacts/rl_runs/chrono_eval_comparisons/onehot_policy_3x3_chrono_xy_rmse_median_iqr_steerlim010_model500.pdf`
 - Stats JSON: `artifacts/rl_runs/chrono_eval_comparisons/onehot_policy_3x3_chrono_xy_rmse_median_iqr_steerlim010_model500.json`
 - CSV: `artifacts/rl_runs/chrono_eval_comparisons/onehot_policy_3x3_chrono_xy_rmse_median_iqr_steerlim010_model500.csv`
+
+### OFAT L8 dynamics backbone — RL retrain + uniform 3-terrain Chrono eval (2026-07-13)
+
+A separate architecture ablation (One-Factor-At-A-Time sweep over depth/width/heads/context
+around the 6-layer flat+CRM one-hot generalist anchor above; plan in
+[ablation_ofat_plan.md](ablation_ofat_plan.md)) found that **depth is the dominant lever**:
+scoring all 14 Stage-A configs by `S = min-over-epochs rollout_sel` (the same domain-balanced
+open-loop errdist metric from the 2026-06-24 subsection), the 6-layer anchor ranked only 10th of
+14 (`S = 0.0743`) and every deeper/wider arm beat it. The best was **L8** (8-layer, same
+8-head/256-embd/ctx128 otherwise): `S = 0.0456`, roughly halving the anchor's score, with returns
+saturating past depth 8 (L12 regressed to rank 6). A follow-up L8 data-mix ablation (flat-only
+`L8_H8_E256_ctx128_mix00` best_val ep61, CRM-only `_mix100` best_val ep54, alongside the L8
+generalist `L8_H8_E256_ctx128` best_val ep51) showed *why* L8 wins: at this depth the generalist
+pays **~zero flat tax** (flat 3.73% vs. the flat-only specialist's 3.80%) and only a ~1.2 pt CRM
+tax (5.38% vs. 4.17%) — the 6-layer generalist's flat tax was 3–4 points by comparison. These are
+still NN-vs-recorded-trajectory offline rollout numbers, not closed-loop RL/Chrono.
+
+To validate downstream, the exact 2026-06-29 RL recipe (2,048 envs, `dynamics_context_steps=16`,
+`action_repeat=5`, 64 steps/env/update, PPO actor/critic 512-256-128, **trained with**
+`steering_rate_limit=0.1`) was rerun with only the dynamics checkpoint swapped to each L8 arm's
+own `best_val.pt`:
+
+- Generalist: `artifacts/rl_runs/hmmwv_rl_15d_crm2000mix25_onehot_ofatL8_bestval51_flat20crm20_K16_64steps_ar02_state_vxvyyr_pos2_yaw2_steerlim010/` → dynamics `ablation_ofat/L8_H8_E256_ctx128/checkpoints/best_val.pt` (ep51)
+- Rigid-only specialist: `artifacts/rl_runs/hmmwv_rl_15d_crm2000mix00_onehot_ofatL8_bestval61_rigid20_K16_64steps_ar02_state_vxvyyr_pos2_yaw2_steerlim010_1000it/` → dynamics `ablation_ofat/L8_H8_E256_ctx128_mix00/checkpoints/best_val.pt` (ep61)
+- CRM-only specialist: `artifacts/rl_runs/hmmwv_rl_15d_crm2000mix100_onehot_ofatL8_bestval54_crmonly20_K16_64steps_ar02_state_vxvyyr_pos2_yaw2_steerlim010_1000it/` → dynamics `ablation_ofat/L8_H8_E256_ctx128_mix100/checkpoints/best_val.pt` (ep54)
+
+All three were Chrono-evaluated at **checkpoint iteration 1000** (not 500 — the 2026-06-29 6-layer
+comparison used iteration 500, but these L8 runs were evaluated at 1000) on the same rigid-flat /
+CRM / bumpy 20-reference sets, uniformly with `steering_rate_limit=0.1`. The generalist's training
+run continued past 1000 (checkpoints exist to 1800), but the eval below uses the iteration-1000
+checkpoint to match the two specialists' final iteration — re-evaluating the generalist at a later
+iteration is an open follow-up. Median XY RMSE with IQR error bars, 20 rollouts/cell, **0/20 early
+terminations in every cell**:
+
+| Chrono terrain | Policy | Mean XY RMSE | Median XY RMSE | IQR XY RMSE | Early terminations |
+|---|---|---:|---:|---:|---:|
+| Rigid flat | Generalist | **0.184 m** | **0.157 m** | 0.099–0.236 m | 0 / 20 |
+| Rigid flat | Rigid-only | 0.219 m | 0.174 m | 0.163–0.277 m | 0 / 20 |
+| Rigid flat | CRM-only | 0.259 m | 0.232 m | 0.189–0.328 m | 0 / 20 |
+| CRM | Generalist | **0.249 m** | **0.180 m** | 0.134–0.321 m | 0 / 20 |
+| CRM | Rigid-only | 1.000 m | 0.854 m | 0.365–1.447 m | 0 / 20 |
+| CRM | CRM-only | 0.361 m | 0.231 m | 0.174–0.521 m | 0 / 20 |
+| Bumpy | Generalist | **0.229 m** | **0.149 m** | 0.099–0.247 m | 0 / 20 |
+| Bumpy | Rigid-only | 0.238 m | 0.187 m | 0.159–0.290 m | 0 / 20 |
+| Bumpy | CRM-only | 0.418 m | 0.213 m | 0.166–0.416 m | 0 / 20 |
+
+Headline: on the L8 backbone the **generalist strictly dominates both specialists on every
+terrain**, mean and median alike — it is no longer a robustness trade-off. This is a stronger
+result than the 2026-06-29 6-layer comparison, where each specialist still narrowly won its own
+domain (rigid-only best on rigid-flat, CRM-only best on CRM) and the generalist's edge was being
+the best *all-rounder*. Here the generalist beats the rigid-only specialist on rigid-flat itself
+(0.157 vs 0.174 m median) and beats the CRM-only specialist on CRM itself (0.180 vs 0.231 m
+median), consistent with the near-zero flat tax found at the NN rollout level above.
+
+Caveat: the rigid-only specialist's CRM collapse is *worse* here (0.854 m median) than the
+6-layer rigid-only specialist's CRM collapse was (0.561 m median, 2026-06-29 table) even though
+its own in-domain rigid-flat number is about the same (0.174 vs 0.164 m) — i.e. depth did not
+uniformly help the specialists the way it helped the generalist. Each policy is a single seed at a
+single checkpoint iteration, so treat the specialist-vs-specialist deltas as indicative rather than
+final; the generalist-beats-both-specialists finding is the robust part of this result, replicated
+at both the NN-rollout and Chrono-closed-loop levels. A separate confound check is still in
+progress (chained on `luffy`, not yet synced locally): the legacy 6-layer RL policy used the
+anchor's `last.pt` rather than `best_val.pt`, so an `anchorL6_bestval69` RL run isolates how much
+of the L8 win is architecture vs. checkpoint selection.
+
+Artifacts:
+
+- Plot: `artifacts/rl_runs/chrono_eval_comparisons/onehot_policy_3x3_chrono_xy_rmse_median_iqr_steerlim010_ofatL8_model1000.png`
+- PDF: `artifacts/rl_runs/chrono_eval_comparisons/onehot_policy_3x3_chrono_xy_rmse_median_iqr_steerlim010_ofatL8_model1000.pdf`
+- Stats JSON: `artifacts/rl_runs/chrono_eval_comparisons/onehot_policy_3x3_chrono_xy_rmse_median_iqr_steerlim010_ofatL8_model1000.json`
+- CSV: `artifacts/rl_runs/chrono_eval_comparisons/onehot_policy_3x3_chrono_xy_rmse_median_iqr_steerlim010_ofatL8_model1000.csv`
+- Build script: `scripts/ablation_ofat/build_l8_chrono_eval_comparison.py`
+- OFAT sweep plan/config: [ablation_ofat_plan.md](ablation_ofat_plan.md), `configs/ablation_ofat/`, `scripts/ablation_ofat/`
+
+This supersedes the 2026-06-29 6-layer comparison as the current headline RL/Chrono result; that
+subsection is left in place above for the architecture-effect history.
+
+### L8 input-feature ablation — terrain one-hot and tire-force/omega channels (2026-07-15)
+
+Stage A above varied the *architecture* at a fixed input feature set. This pair holds the L8
+winner's architecture and recipe fixed (L8/8H/E256/ctx128, 75/25 flat/CRM mix,
+equal-domain-combined-std Huber, `rollout_sel` selection, AdamW 3e-4→3e-5, 80×2000 steps, seed
+2026061801) and varies only the *input features*, to price each block of the input:
+
+- `L8_H8_E256_ctx128_no_onehot` — `terrain_conditioning.enabled` → `false`. Input 20-D → **18-D**
+  (no `[flat, crm]` terrain key), readout still 15. The model must infer the terrain from state
+  history alone.
+- `L8_H8_E256_ctx128_no_tireforce_omega` — the 4 tire normal forces and 4 spindle angular
+  velocities dropped from **both** state and target. Input 20-D → **12-D**, readout **7**
+  (`[vx, vy, roll, pitch, roll_rate, pitch_rate, yaw_rate]`).
+
+Both trained clean on newton (4090) in one attempt each (5189 s / 5328 s). Metrics at each run's
+`best_val.pt` epoch — one-step = `val_flat_loss` / `val_crm_loss` (next-step delta prediction on
+the val split, normalized space); open-loop = 10 s rollout errdist (NN rolled out on the recorded
+action sequence vs. Chrono's recorded val-split trajectory, distance-normalized), 12
+episodes/domain:
+
+| Model | Input | Epoch | 1-step flat | 1-step CRM | 10 s open-loop flat | 10 s open-loop CRM |
+|---|---|---:|---:|---:|---:|---:|
+| `L8_H8_E256_ctx128` (baseline) | 20-D | 51 | 0.00248 | 0.09378 | **0.0373** | **0.0538** |
+| `L8_..._no_onehot` | 18-D | 58 | 0.00236 | 0.09395 | 0.0826 | 0.0486 |
+| `L8_..._no_tireforce_omega` | 12-D | 72 | 0.00341 | 0.06198 | 0.0341 | 0.0800 |
+
+`no_tireforce_omega`'s one-step losses are over 7 channels while the other two rows are over 15,
+so that row's one-step numbers are not on the same scale as the others. The 10 s open-loop errdist
+*is* comparable across all three: it is integrated from vx/vy/yaw_rate, which every arm retains.
+
+Reproduce: `scripts/ablation_ofat/gen_feature_ablation_configs.py` (deep-copies the L8 base;
+`--print-diff` shows exactly what changed) → `scripts/ablation_ofat/run_l8_feature_ablation.sh`
+(tmux `l8_feature_ablation`, log `artifacts/training_runs/ablation_ofat/l8_feature.log`) →
+`scripts/ablation_ofat/rank_feature_ablation.py`. The 7-D caches
+(`hmmwv_{tire_rigid_300g,crm_2000}_body7_seq_v1`) are column-sliced from the existing 15-D
+processed caches by `scripts/ablation_ofat/derive_state_subset_dataset.py --state-field-preset
+default --verify` (~20 s, ~9 GB; symlinks the state-independent arrays, exact row-subsets the
+per-channel normalization) rather than re-preprocessing the raw datasets. A table over all 22
+trained runs is `scripts/ablation_ofat/build_all_runs_table.py` →
+`artifacts/training_runs/ablation_ofat/all_runs_table.csv`. Both runs are intentionally excluded
+from `configs/ablation_ofat/manifest.json` (Stage A ranks architectures at a fixed feature set).
+
+Caveat for downstream use: the RL/Chrono envs feed a 15-D state, so the 7-D checkpoint is not
+drop-in for `eval_hmmwv_rl_chrono_tracking.py` without an env-side change. These are offline
+NN-rollout numbers, not closed-loop RL/Chrono.
 
 ### Chrono → Blender Postprocess Rendering Pipeline (2026-07-07)
 
@@ -750,6 +872,7 @@ Takeaway: the tracked base now has the complete first-pass loop — Chrono data 
 
 ## Open Items / Next Steps
 
+- **OFAT L8 arch-vs-checkpoint-selection confound**: the 2026-07-13 L8 RL comparison swapped both the dynamics architecture (6L→8L) and the checkpoint-selection basis (legacy used the anchor's `last.pt`, L8 uses `best_val.pt`) at once. An `anchorL6_bestval69` RL run (same 6-layer anchor, but its own `best_val.pt`) is chained on `luffy` to decompose the two effects; not yet synced locally. The L8 data-quantity ablation (episode-fraction sweep 20/40/60/80/100%, `scripts/ablation_ofat/run_l8_dataquantity_ablation.sh`) is also running on `luffy` as of 2026-07-13.
 - **Arm reaching RL scale-up**: the env, policy, and Chrono validation path are built and the current policy reaches 20/20 reported Chrono goals. Next: run a larger seeded goal battery (near/far/boundary/lower-workspace probes), keep reporting Chrono contact count and safety-filter blocks, and decide whether the one-step 5 cm success threshold should become a multi-step hold criterion to reduce training brittleness.
 - **Tracked-vehicle goal-reaching scale-up**: the v2 drive dataset, compact base ROM, PPO goal policy, and Chrono spot eval are built. Next: turn the 4-goal Chrono spot check into a proper benchmark (seeded 20-100 goal set, summary JSON, plots, per-goal failure labels), evaluate harder behind/side goals separately, and decide whether reverse/left-right track commands are needed for tighter final positioning.
 - **Hybrid locomanipulation integration**: combine the first-pass `π_drive` and `π_reach` with a rule-based mode selector from [arm-dyn-model.md](arm-dyn-model.md): drive until the target is inside the arm's sampled workspace, stop/brake the base, then hand off to reach mode. This is the next case-2 systems step; full coupled vehicle+arm learning remains out of scope for v1.

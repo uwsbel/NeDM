@@ -1,0 +1,6 @@
+[2026-07-15T10:01:09-05:00] === L8 feature ablation start: 2 runs, 80 epochs each, device=cuda ===
+[2026-07-15T10:01:09-05:00] RUN   L8_H8_E256_ctx128_no_onehot attempt 1/3  (free RAM: 51G avail)
+[2026-07-15T11:27:38-05:00] DONE  L8_H8_E256_ctx128_no_onehot in 5189s (attempt 1, exit 0)
+[2026-07-15T11:27:38-05:00] RUN   L8_H8_E256_ctx128_no_tireforce_omega attempt 1/3  (free RAM: 50G avail)
+[2026-07-15T12:56:26-05:00] DONE  L8_H8_E256_ctx128_no_tireforce_omega in 5328s (attempt 1, exit 0)
+[2026-07-15T12:56:26-05:00] === L8 feature ablation end: completed=2 skipped=0 failed=0 ===
