@@ -29,7 +29,13 @@
     "max_val_batches": 200,
     "load_dataset_into_memory": true,
     "pin_memory": false,
-    "checkpoint_metric": "val_loss",
+    "checkpoint_metric": "rollout_sel",
     "compile": false
+  },
+  "rollout_eval": {
+    "pose": "ee_base",
+    "horizons_s": [0.5, 1.0, 2.0],
+    "num_episodes": 100,
+    "selection_horizon_s": 0.5
   }
 }

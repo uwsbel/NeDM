@@ -1,0 +1,2105 @@
+[benchmark] 100 goals, seed=12345, radius=[20.0,40.0]m -> /home/harry/NeDM/artifacts/rl_runs/tracked_goal_v2_far_rollsel_rom_20260721/chrono_benchmark_N100_seed12345
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-12.0,-21.4) dist0=24.5m  REACHED in 20.1s  min_dist=0.745m  steps=201  wall=74s  -> goal_00.npz
+[1/100] goal=(-12.0,-21.4) rc=0 wall=78s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-1.6,-26.3) dist0=26.3m  REACHED in 21.6s  min_dist=0.748m  steps=216  wall=79s  -> goal_01.npz
+[2/100] goal=(-1.6,-26.3) rc=0 wall=83s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-6.7,35.3) dist0=35.9m  REACHED in 20.0s  min_dist=0.727m  steps=200  wall=73s  -> goal_02.npz
+[3/100] goal=(-6.7,35.3) rc=0 wall=76s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-9.6,-32.1) dist0=33.5m  REACHED in 22.3s  min_dist=0.560m  steps=223  wall=81s  -> goal_03.npz
+[4/100] goal=(-9.6,-32.1) rc=0 wall=85s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(26.3,8.9) dist0=27.8m  REACHED in 12.4s  min_dist=0.640m  steps=124  wall=45s  -> goal_04.npz
+[5/100] goal=(26.3,8.9) rc=0 wall=48s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(17.9,-19.8) dist0=26.7m  REACHED in 19.0s  min_dist=0.746m  steps=190  wall=70s  -> goal_05.npz
+[6/100] goal=(17.9,-19.8) rc=0 wall=74s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(31.9,1.5) dist0=32.0m  REACHED in 14.7s  min_dist=0.691m  steps=147  wall=54s  -> goal_06.npz
+[7/100] goal=(31.9,1.5) rc=0 wall=58s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(11.9,-20.5) dist0=23.7m  REACHED in 18.5s  min_dist=0.704m  steps=185  wall=68s  -> goal_07.npz
+[8/100] goal=(11.9,-20.5) rc=0 wall=71s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(6.8,-32.8) dist0=33.5m  REACHED in 23.8s  min_dist=0.683m  steps=238  wall=87s  -> goal_08.npz
+[9/100] goal=(6.8,-32.8) rc=0 wall=90s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(7.7,-38.1) dist0=38.8m  REACHED in 27.5s  min_dist=0.720m  steps=275  wall=101s  -> goal_09.npz
+[10/100] goal=(7.7,-38.1) rc=0 wall=104s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-21.5,-12.8) dist0=25.0m  REACHED in 22.9s  min_dist=0.736m  steps=229  wall=83s  -> goal_10.npz
+[11/100] goal=(-21.5,-12.8) rc=0 wall=87s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(38.7,-4.4) dist0=39.0m  REACHED in 22.0s  min_dist=0.693m  steps=220  wall=80s  -> goal_11.npz
+[12/100] goal=(38.7,-4.4) rc=0 wall=84s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-24.8,22.3) dist0=33.3m  REACHED in 20.5s  min_dist=0.621m  steps=205  wall=75s  -> goal_12.npz
+[13/100] goal=(-24.8,22.3) rc=0 wall=79s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-20.7,7.1) dist0=21.9m  REACHED in 18.3s  min_dist=0.674m  steps=183  wall=69s  -> goal_13.npz
+[14/100] goal=(-20.7,7.1) rc=0 wall=72s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-28.4,-4.9) dist0=28.8m  REACHED in 26.2s  min_dist=0.662m  steps=262  wall=98s  -> goal_14.npz
+[15/100] goal=(-28.4,-4.9) rc=0 wall=102s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-32.8,18.6) dist0=37.7m  REACHED in 22.6s  min_dist=0.657m  steps=226  wall=84s  -> goal_15.npz
+[16/100] goal=(-32.8,18.6) rc=0 wall=87s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-24.5,-23.5) dist0=33.9m  REACHED in 25.4s  min_dist=0.625m  steps=254  wall=97s  -> goal_16.npz
+[17/100] goal=(-24.5,-23.5) rc=0 wall=100s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(0.4,26.5) dist0=26.5m  REACHED in 16.7s  min_dist=0.513m  steps=167  wall=62s  -> goal_17.npz
+[18/100] goal=(0.4,26.5) rc=0 wall=66s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-27.6,21.0) dist0=34.7m  REACHED in 20.9s  min_dist=0.617m  steps=209  wall=79s  -> goal_18.npz
+[19/100] goal=(-27.6,21.0) rc=0 wall=82s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-12.0,-21.2) dist0=24.4m  REACHED in 20.7s  min_dist=0.727m  steps=207  wall=78s  -> goal_19.npz
+[20/100] goal=(-12.0,-21.2) rc=0 wall=81s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(10.6,-18.9) dist0=21.6m  REACHED in 18.2s  min_dist=0.717m  steps=182  wall=68s  -> goal_20.npz
+[21/100] goal=(10.6,-18.9) rc=0 wall=72s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(16.7,-16.1) dist0=23.2m  REACHED in 17.6s  min_dist=0.676m  steps=176  wall=65s  -> goal_21.npz
+[22/100] goal=(16.7,-16.1) rc=0 wall=69s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(15.3,-22.0) dist0=26.8m  REACHED in 20.1s  min_dist=0.727m  steps=201  wall=75s  -> goal_22.npz
+[23/100] goal=(15.3,-22.0) rc=0 wall=79s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(29.2,3.0) dist0=29.3m  REACHED in 13.0s  min_dist=0.478m  steps=130  wall=49s  -> goal_23.npz
+[24/100] goal=(29.2,3.0) rc=0 wall=52s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-25.3,-1.4) dist0=25.3m  REACHED in 26.1s  min_dist=0.743m  steps=261  wall=97s  -> goal_24.npz
+[25/100] goal=(-25.3,-1.4) rc=0 wall=101s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(32.1,-17.0) dist0=36.3m  REACHED in 22.3s  min_dist=0.727m  steps=223  wall=85s  -> goal_25.npz
+[26/100] goal=(32.1,-17.0) rc=0 wall=89s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-17.2,16.6) dist0=23.9m  REACHED in 17.2s  min_dist=0.542m  steps=172  wall=65s  -> goal_26.npz
+[27/100] goal=(-17.2,16.6) rc=0 wall=68s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-19.3,-11.8) dist0=22.6m  REACHED in 21.2s  min_dist=0.701m  steps=212  wall=79s  -> goal_27.npz
+[28/100] goal=(-19.3,-11.8) rc=0 wall=82s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(21.7,-2.2) dist0=21.8m  REACHED in 13.1s  min_dist=0.729m  steps=131  wall=49s  -> goal_28.npz
+[29/100] goal=(21.7,-2.2) rc=0 wall=52s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(31.7,-3.8) dist0=32.0m  REACHED in 18.6s  min_dist=0.709m  steps=186  wall=71s  -> goal_29.npz
+[30/100] goal=(31.7,-3.8) rc=0 wall=74s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-7.5,36.3) dist0=37.1m  REACHED in 20.5s  min_dist=0.711m  steps=205  wall=76s  -> goal_30.npz
+[31/100] goal=(-7.5,36.3) rc=0 wall=80s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-31.2,7.1) dist0=32.0m  REACHED in 21.9s  min_dist=0.731m  steps=219  wall=82s  -> goal_31.npz
+[32/100] goal=(-31.2,7.1) rc=0 wall=86s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(10.3,37.2) dist0=38.6m  REACHED in 22.7s  min_dist=0.690m  steps=227  wall=85s  -> goal_32.npz
+[33/100] goal=(10.3,37.2) rc=0 wall=88s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(5.1,-34.1) dist0=34.5m  REACHED in 24.6s  min_dist=0.695m  steps=246  wall=91s  -> goal_33.npz
+[34/100] goal=(5.1,-34.1) rc=0 wall=94s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(17.9,32.6) dist0=37.2m  REACHED in 21.7s  min_dist=0.643m  steps=217  wall=81s  -> goal_34.npz
+[35/100] goal=(17.9,32.6) rc=0 wall=84s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(22.2,-31.6) dist0=38.6m  REACHED in 25.3s  min_dist=0.726m  steps=253  wall=93s  -> goal_35.npz
+[36/100] goal=(22.2,-31.6) rc=0 wall=97s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-3.5,30.7) dist0=30.9m  REACHED in 18.3s  min_dist=0.546m  steps=183  wall=68s  -> goal_36.npz
+[37/100] goal=(-3.5,30.7) rc=0 wall=71s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(17.4,34.6) dist0=38.8m  REACHED in 22.4s  min_dist=0.669m  steps=224  wall=82s  -> goal_37.npz
+[38/100] goal=(17.4,34.6) rc=0 wall=86s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-29.6,4.2) dist0=29.9m  REACHED in 21.9s  min_dist=0.514m  steps=219  wall=80s  -> goal_38.npz
+[39/100] goal=(-29.6,4.2) rc=0 wall=84s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-17.1,18.9) dist0=25.5m  REACHED in 17.5s  min_dist=0.603m  steps=175  wall=64s  -> goal_39.npz
+[40/100] goal=(-17.1,18.9) rc=0 wall=68s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-27.8,-8.3) dist0=29.0m  REACHED in 24.3s  min_dist=0.688m  steps=243  wall=89s  -> goal_40.npz
+[41/100] goal=(-27.8,-8.3) rc=0 wall=93s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(8.3,-32.2) dist0=33.3m  REACHED in 24.0s  min_dist=0.701m  steps=240  wall=88s  -> goal_41.npz
+[42/100] goal=(8.3,-32.2) rc=0 wall=92s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-17.3,20.3) dist0=26.6m  REACHED in 17.8s  min_dist=0.577m  steps=178  wall=65s  -> goal_42.npz
+[43/100] goal=(-17.3,20.3) rc=0 wall=69s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(30.7,22.5) dist0=38.1m  REACHED in 20.2s  min_dist=0.582m  steps=202  wall=73s  -> goal_43.npz
+[44/100] goal=(30.7,22.5) rc=0 wall=77s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(14.0,-20.9) dist0=25.1m  REACHED in 18.1s  min_dist=0.734m  steps=181  wall=68s  -> goal_44.npz
+[45/100] goal=(14.0,-20.9) rc=0 wall=71s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-25.2,-9.2) dist0=26.8m  REACHED in 23.6s  min_dist=0.745m  steps=236  wall=87s  -> goal_45.npz
+[46/100] goal=(-25.2,-9.2) rc=0 wall=91s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-2.0,25.1) dist0=25.2m  REACHED in 16.3s  min_dist=0.554m  steps=163  wall=59s  -> goal_46.npz
+[47/100] goal=(-2.0,25.1) rc=0 wall=63s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-27.1,-0.3) dist0=27.1m  REACHED in 22.8s  min_dist=0.614m  steps=228  wall=84s  -> goal_47.npz
+[48/100] goal=(-27.1,-0.3) rc=0 wall=87s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-16.8,-11.1) dist0=20.1m  REACHED in 20.3s  min_dist=0.695m  steps=203  wall=74s  -> goal_48.npz
+[49/100] goal=(-16.8,-11.1) rc=0 wall=78s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-32.5,1.3) dist0=32.6m  REACHED in 23.5s  min_dist=0.690m  steps=235  wall=86s  -> goal_49.npz
+[50/100] goal=(-32.5,1.3) rc=0 wall=90s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-4.2,25.3) dist0=25.6m  REACHED in 16.4s  min_dist=0.485m  steps=164  wall=60s  -> goal_50.npz
+[51/100] goal=(-4.2,25.3) rc=0 wall=64s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-14.5,15.7) dist0=21.4m  REACHED in 16.5s  min_dist=0.737m  steps=165  wall=61s  -> goal_51.npz
+[52/100] goal=(-14.5,15.7) rc=0 wall=64s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(32.0,-4.6) dist0=32.3m  REACHED in 19.5s  min_dist=0.699m  steps=195  wall=71s  -> goal_52.npz
+[53/100] goal=(32.0,-4.6) rc=0 wall=75s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-11.5,-20.5) dist0=23.5m  REACHED in 20.5s  min_dist=0.738m  steps=205  wall=75s  -> goal_53.npz
+[54/100] goal=(-11.5,-20.5) rc=0 wall=78s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(25.5,5.5) dist0=26.1m  REACHED in 11.6s  min_dist=0.747m  steps=116  wall=42s  -> goal_54.npz
+[55/100] goal=(25.5,5.5) rc=0 wall=46s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(25.7,-12.9) dist0=28.8m  REACHED in 18.0s  min_dist=0.722m  steps=180  wall=65s  -> goal_55.npz
+[56/100] goal=(25.7,-12.9) rc=0 wall=69s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-12.0,-19.7) dist0=23.0m  REACHED in 19.8s  min_dist=0.684m  steps=198  wall=73s  -> goal_56.npz
+[57/100] goal=(-12.0,-19.7) rc=0 wall=76s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-12.3,-21.0) dist0=24.4m  REACHED in 20.1s  min_dist=0.693m  steps=201  wall=74s  -> goal_57.npz
+[58/100] goal=(-12.3,-21.0) rc=0 wall=78s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(1.5,-29.4) dist0=29.5m  REACHED in 21.8s  min_dist=0.716m  steps=218  wall=80s  -> goal_58.npz
+[59/100] goal=(1.5,-29.4) rc=0 wall=83s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-27.7,10.3) dist0=29.5m  REACHED in 20.6s  min_dist=0.628m  steps=206  wall=76s  -> goal_59.npz
+[60/100] goal=(-27.7,10.3) rc=0 wall=80s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-25.0,2.1) dist0=25.1m  REACHED in 20.8s  min_dist=0.552m  steps=208  wall=76s  -> goal_60.npz
+[61/100] goal=(-25.0,2.1) rc=0 wall=80s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(7.4,24.9) dist0=26.0m  REACHED in 16.5s  min_dist=0.660m  steps=165  wall=61s  -> goal_61.npz
+[62/100] goal=(7.4,24.9) rc=0 wall=64s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(4.3,25.2) dist0=25.6m  REACHED in 16.6s  min_dist=0.743m  steps=166  wall=61s  -> goal_62.npz
+[63/100] goal=(4.3,25.2) rc=0 wall=65s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(2.8,25.1) dist0=25.2m  REACHED in 16.5s  min_dist=0.659m  steps=165  wall=60s  -> goal_63.npz
+[64/100] goal=(2.8,25.1) rc=0 wall=64s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(29.5,3.2) dist0=29.7m  REACHED in 13.1s  min_dist=0.625m  steps=131  wall=48s  -> goal_64.npz
+[65/100] goal=(29.5,3.2) rc=0 wall=52s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-10.7,-21.8) dist0=24.2m  REACHED in 20.1s  min_dist=0.738m  steps=201  wall=74s  -> goal_65.npz
+[66/100] goal=(-10.7,-21.8) rc=0 wall=78s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-21.5,20.8) dist0=29.9m  REACHED in 19.2s  min_dist=0.684m  steps=192  wall=70s  -> goal_66.npz
+[67/100] goal=(-21.5,20.8) rc=0 wall=74s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-18.2,17.0) dist0=24.9m  REACHED in 17.8s  min_dist=0.495m  steps=178  wall=65s  -> goal_67.npz
+[68/100] goal=(-18.2,17.0) rc=0 wall=69s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(9.2,35.6) dist0=36.8m  REACHED in 22.1s  min_dist=0.585m  steps=221  wall=80s  -> goal_68.npz
+[69/100] goal=(9.2,35.6) rc=0 wall=84s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-21.6,9.6) dist0=23.6m  REACHED in 18.6s  min_dist=0.692m  steps=186  wall=68s  -> goal_69.npz
+[70/100] goal=(-21.6,9.6) rc=0 wall=72s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-36.9,4.7) dist0=37.2m  REACHED in 24.5s  min_dist=0.728m  steps=245  wall=90s  -> goal_70.npz
+[71/100] goal=(-36.9,4.7) rc=0 wall=94s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(23.6,0.5) dist0=23.6m  REACHED in 11.5s  min_dist=0.739m  steps=115  wall=42s  -> goal_71.npz
+[72/100] goal=(23.6,0.5) rc=0 wall=45s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-1.7,35.0) dist0=35.0m  REACHED in 20.0s  min_dist=0.553m  steps=200  wall=73s  -> goal_72.npz
+[73/100] goal=(-1.7,35.0) rc=0 wall=77s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(24.0,21.6) dist0=32.2m  REACHED in 18.5s  min_dist=0.576m  steps=185  wall=68s  -> goal_73.npz
+[74/100] goal=(24.0,21.6) rc=0 wall=71s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-18.2,-16.0) dist0=24.2m  REACHED in 21.7s  min_dist=0.696m  steps=217  wall=80s  -> goal_74.npz
+[75/100] goal=(-18.2,-16.0) rc=0 wall=83s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(14.2,-32.2) dist0=35.2m  REACHED in 23.9s  min_dist=0.685m  steps=239  wall=88s  -> goal_75.npz
+[76/100] goal=(14.2,-32.2) rc=0 wall=92s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-22.8,-10.3) dist0=25.0m  REACHED in 22.8s  min_dist=0.693m  steps=228  wall=86s  -> goal_76.npz
+[77/100] goal=(-22.8,-10.3) rc=0 wall=90s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-16.5,14.2) dist0=21.7m  REACHED in 16.8s  min_dist=0.570m  steps=168  wall=62s  -> goal_77.npz
+[78/100] goal=(-16.5,14.2) rc=0 wall=66s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-32.1,-4.5) dist0=32.4m  REACHED in 27.7s  min_dist=0.743m  steps=277  wall=103s  -> goal_78.npz
+[79/100] goal=(-32.1,-4.5) rc=0 wall=107s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(29.9,7.1) dist0=30.7m  REACHED in 13.0s  min_dist=0.694m  steps=130  wall=48s  -> goal_79.npz
+[80/100] goal=(29.9,7.1) rc=0 wall=51s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-14.4,-29.4) dist0=32.7m  REACHED in 23.6s  min_dist=0.651m  steps=236  wall=87s  -> goal_80.npz
+[81/100] goal=(-14.4,-29.4) rc=0 wall=90s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-14.2,-18.7) dist0=23.5m  REACHED in 19.9s  min_dist=0.745m  steps=199  wall=73s  -> goal_81.npz
+[82/100] goal=(-14.2,-18.7) rc=0 wall=77s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-12.6,-21.6) dist0=25.0m  REACHED in 20.4s  min_dist=0.672m  steps=204  wall=74s  -> goal_82.npz
+[83/100] goal=(-12.6,-21.6) rc=0 wall=78s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-24.1,23.5) dist0=33.7m  REACHED in 20.2s  min_dist=0.529m  steps=202  wall=75s  -> goal_83.npz
+[84/100] goal=(-24.1,23.5) rc=0 wall=79s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(21.6,-0.8) dist0=21.6m  REACHED in 11.7s  min_dist=0.530m  steps=117  wall=42s  -> goal_84.npz
+[85/100] goal=(21.6,-0.8) rc=0 wall=46s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(20.3,-31.5) dist0=37.5m  REACHED in 24.4s  min_dist=0.693m  steps=244  wall=89s  -> goal_85.npz
+[86/100] goal=(20.3,-31.5) rc=0 wall=93s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-28.6,0.1) dist0=28.6m  REACHED in 22.9s  min_dist=0.633m  steps=229  wall=83s  -> goal_86.npz
+[87/100] goal=(-28.6,0.1) rc=0 wall=87s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(31.0,9.2) dist0=32.4m  REACHED in 14.0s  min_dist=0.548m  steps=140  wall=51s  -> goal_87.npz
+[88/100] goal=(31.0,9.2) rc=0 wall=55s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(8.6,-24.8) dist0=26.3m  REACHED in 20.7s  min_dist=0.708m  steps=207  wall=76s  -> goal_88.npz
+[89/100] goal=(8.6,-24.8) rc=0 wall=79s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(16.2,-17.1) dist0=23.6m  REACHED in 17.2s  min_dist=0.745m  steps=172  wall=63s  -> goal_89.npz
+[90/100] goal=(16.2,-17.1) rc=0 wall=67s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(6.7,19.0) dist0=20.2m  REACHED in 14.0s  min_dist=0.599m  steps=140  wall=52s  -> goal_90.npz
+[91/100] goal=(6.7,19.0) rc=0 wall=56s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-17.6,-16.6) dist0=24.2m  REACHED in 21.1s  min_dist=0.703m  steps=211  wall=79s  -> goal_91.npz
+[92/100] goal=(-17.6,-16.6) rc=0 wall=82s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-1.9,37.4) dist0=37.4m  REACHED in 20.7s  min_dist=0.447m  steps=207  wall=78s  -> goal_92.npz
+[93/100] goal=(-1.9,37.4) rc=0 wall=81s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-29.4,26.3) dist0=39.5m  REACHED in 22.5s  min_dist=0.534m  steps=225  wall=85s  -> goal_93.npz
+[94/100] goal=(-29.4,26.3) rc=0 wall=89s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(28.5,-4.5) dist0=28.8m  REACHED in 16.9s  min_dist=0.711m  steps=169  wall=62s  -> goal_94.npz
+[95/100] goal=(28.5,-4.5) rc=0 wall=66s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(25.5,-10.6) dist0=27.6m  REACHED in 17.6s  min_dist=0.720m  steps=176  wall=66s  -> goal_95.npz
+[96/100] goal=(25.5,-10.6) rc=0 wall=69s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-15.9,-20.0) dist0=25.5m  REACHED in 21.8s  min_dist=0.723m  steps=218  wall=80s  -> goal_96.npz
+[97/100] goal=(-15.9,-20.0) rc=0 wall=84s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(34.8,-18.3) dist0=39.3m  REACHED in 23.3s  min_dist=0.716m  steps=233  wall=87s  -> goal_97.npz
+[98/100] goal=(34.8,-18.3) rc=0 wall=90s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(-1.9,21.1) dist0=21.2m  REACHED in 15.0s  min_dist=0.551m  steps=150  wall=55s  -> goal_98.npz
+[99/100] goal=(-1.9,21.1) rc=0 wall=59s
+Actor MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=11, out_features=256, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=256, out_features=128, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=128, out_features=64, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=64, out_features=1, bias=True)
+)
+!!!!!!!!!!!!!added lock!!!!!!!!!!!!
+goal=(24.2,-14.5) dist0=28.2m  REACHED in 18.2s  min_dist=0.729m  steps=182  wall=67s  -> goal_99.npz
+[100/100] goal=(24.2,-14.5) rc=0 wall=71s
+[plot] -> /home/harry/NeDM/artifacts/rl_runs/tracked_goal_v2_far_rollsel_rom_20260721/chrono_benchmark_N100_seed12345/benchmark_trajectories.png
+
+[benchmark] success 100/100 = 100%  median_min_dist=0.691m  worst_min_dist=0.748m  median_t2s=20.200000301003456s  median_path_eff=0.959162577904056
+[benchmark] -> /home/harry/NeDM/artifacts/rl_runs/tracked_goal_v2_far_rollsel_rom_20260721/chrono_benchmark_N100_seed12345/summary.json

@@ -69,12 +69,13 @@ def rollout_one_goal(
     ignore_dones: bool = False,
     reset_scene: bool = True,
     fixed_duration_steps: int | None = None,
+    goal_base: np.ndarray | None = None,
 ) -> dict[str, Any]:
     env_id = torch.tensor([0], dtype=torch.long, device=env.device)
     if reset_scene:
-        env.reset_idx(env_id)
+        env.reset_idx(env_id, goal_base=goal_base)
     else:
-        env.reset_goal_idx(env_id)
+        env.reset_goal_idx(env_id, goal_base=goal_base)
     obs, _ = env.get_observations()
 
     ee_values = [tensor_to_numpy(env.current_ee_base()[0])]
@@ -233,6 +234,15 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--policy-checkpoint", type=Path, default=None, help="Defaults to latest model_*.pt in run-dir.")
     parser.add_argument("--device", type=str, default="auto", help="Policy/obs tensor device; Chrono remains CPU-bound.")
     parser.add_argument("--num-goals", type=int, default=10)
+    parser.add_argument(
+        "--goal",
+        type=float,
+        nargs=3,
+        default=None,
+        metavar=("X", "Y", "Z"),
+        help="Explicit goal in the arm base frame (m). Runs a SINGLE goal and overrides --num-goals; "
+        "used by scripts/benchmark_arm_reach_chrono.py to drive a one-process-per-goal battery.",
+    )
     parser.add_argument("--max-steps", type=int, default=None)
     parser.add_argument(
         "--goal-duration-s",
@@ -359,8 +369,11 @@ def main(argv: list[str] | None = None) -> int:
         max_steps = max(max_steps if args.max_steps is not None else 0, goal_duration_steps)
     success_tolerance_m = float(env.cfg["reward"]["success_tolerance_m"])
 
+    explicit_goal = np.asarray(args.goal, dtype=np.float32) if args.goal is not None else None
+    num_goals = 1 if explicit_goal is not None else int(args.num_goals)
+
     summary = []
-    for rollout_index in range(int(args.num_goals)):
+    for rollout_index in range(num_goals):
         record = rollout_one_goal(
             env,
             policy,
@@ -368,6 +381,7 @@ def main(argv: list[str] | None = None) -> int:
             ignore_dones=bool(args.ignore_dones),
             reset_scene=(rollout_index == 0 or not bool(args.consecutive_goals)),
             fixed_duration_steps=goal_duration_steps,
+            goal_base=explicit_goal,
         )
         metrics = compute_metrics(record, success_tolerance_m=success_tolerance_m)
         metrics["rollout_index"] = rollout_index
@@ -421,7 +435,7 @@ def main(argv: list[str] | None = None) -> int:
         "consecutive_goals": bool(args.consecutive_goals),
         "goal_duration_s": float(args.goal_duration_s) if args.goal_duration_s is not None else None,
         "goal_duration_steps": goal_duration_steps,
-        "requested_goals": int(args.num_goals),
+        "requested_goals": num_goals,
         "num_rollouts": len(summary),
         "success_rate": float(np.mean([row["success"] for row in summary])) if summary else None,
         "reached_tolerance_rate": float(np.mean([row["reached_tolerance"] for row in summary])) if summary else None,
