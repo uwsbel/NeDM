@@ -121,10 +121,17 @@ class ArmReachingEnv(VecEnv):
         self.q_indices = torch.tensor([self.state_index[f"q_{i}"] for i in range(4)], device=self.device)
         self.qd_indices = torch.tensor([self.state_index[f"qd_{i}"] for i in range(4)], device=self.device)
         self.qcmd_indices = torch.tensor([self.state_index[f"qcmd_{i}"] for i in range(4)], device=self.device)
-        self.ee_indices = torch.tensor(
-            [self.state_index["ee_base_x"], self.state_index["ee_base_y"], self.state_index["ee_base_z"]],
-            device=self.device,
-        )
+        # ee_base is an optional state channel: the 15-D model carries it as an input feature
+        # (its predicted value is discarded and overwritten with FK every substep), while the
+        # 12-D [q, qd, qcmd] model omits it. Either way the end-effector is sourced from FK on
+        # the joints (``current_ee_base``), so nothing downstream depends on the channel.
+        if self.has_ee_channel:
+            self.ee_indices = torch.tensor(
+                [self.state_index["ee_base_x"], self.state_index["ee_base_y"], self.state_index["ee_base_z"]],
+                device=self.device,
+            )
+        else:
+            self.ee_indices = None
 
         self.state_mean = self.model.state_mean.to(self.device)
         self.state_std = torch.clamp(self.model.state_std.to(self.device), min=1.0e-6)
@@ -192,22 +199,25 @@ class ArmReachingEnv(VecEnv):
         return self
 
     def _validate_arm_fields(self) -> None:
+        # q/qd/qcmd (4 each) + 4 actions are mandatory; ee_base is optional (see __init__).
         required_state = (
             [f"q_{i}" for i in range(4)]
             + [f"qd_{i}" for i in range(4)]
             + [f"qcmd_{i}" for i in range(4)]
-            + ["ee_base_x", "ee_base_y", "ee_base_z"]
         )
         required_action = [f"act_{i}" for i in range(4)]
         missing_state = [field for field in required_state if field not in self.state_index]
         missing_action = [field for field in required_action if field not in self.action_fields]
         if missing_state or missing_action:
             raise ValueError(
-                "ArmReachingEnv requires the 15-D arm state/action layout. "
+                "ArmReachingEnv requires the [q, qd, qcmd] arm state/action layout. "
                 f"missing_state={missing_state}, missing_action={missing_action}"
             )
         if len(self.action_fields) != 4:
             raise ValueError(f"ArmReachingEnv expects 4 action fields, got {self.action_fields}")
+        self.has_ee_channel = all(
+            f"ee_base_{axis}" in self.state_index for axis in ("x", "y", "z")
+        )
 
     def _load_seed_prefixes(self) -> tuple[torch.Tensor, torch.Tensor]:
         processed_root = Path(self.cfg.get("processed_dataset_dir") or self.dynamics.config["processed_dataset_dir"])
@@ -256,7 +266,8 @@ class ArmReachingEnv(VecEnv):
         seed_ids = torch.randint(0, self.num_seed_prefixes, (env_ids.numel(),), device=self.device)
         self.state_hist[env_ids] = self.seed_states[seed_ids]
         self.action_hist[env_ids] = self.seed_actions[seed_ids]
-        self._overwrite_ee_channels(env_ids)
+        if self.has_ee_channel:
+            self._overwrite_ee_channels(env_ids)
         self.goal_base[env_ids] = self._sample_safe_goals(env_ids.numel())
 
         self.actions[env_ids] = self.action_hist[env_ids, -1, :]
@@ -375,7 +386,11 @@ class ArmReachingEnv(VecEnv):
         delta = self.model.predict_next_delta(self.state_hist[:, -k:, :], self.action_hist[:, -k:, :])
         next_state = current_state + delta
         next_state[:, self.qcmd_indices] = qcmd_next
-        next_state[:, self.ee_indices] = self.kin.ee_base(next_state[:, self.q_indices])
+        # 15-D model only: keep the ee_base input feature consistent with the joints by
+        # overwriting the model's (discarded) ee_base prediction with FK. The 12-D model has
+        # no such channel, and EE is read from FK on demand (current_ee_base), so skip it.
+        if self.has_ee_channel:
+            next_state[:, self.ee_indices] = self.kin.ee_base(next_state[:, self.q_indices])
 
         self.state_hist = torch.roll(self.state_hist, shifts=-1, dims=1)
         self.action_hist = torch.roll(self.action_hist, shifts=-1, dims=1)

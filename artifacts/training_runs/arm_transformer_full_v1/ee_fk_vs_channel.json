@@ -1,0 +1,131 @@
+{
+  "checkpoint": "/home/harry/NeDM/artifacts/training_runs/arm_transformer_full_v1/checkpoints/best_val.pt",
+  "processed_dataset_dir": "/home/harry/NeDM/artifacts/training_datasets/arm_dyn_v3_seq16_v1",
+  "geometry": "/home/harry/NeDM/artifacts/arm_geometry/arm_geometry_v1.json",
+  "split": "val",
+  "context_steps": 16,
+  "dt_s": 0.02,
+  "episodes_rolled": 277,
+  "horizons": {
+    "0.25s": {
+      "steps": 12,
+      "q_drift_mean_rad": 0.0012051702331910285,
+      "channel": {
+        "episodes": 223,
+        "ee_rmse_m": 0.024449142793232376,
+        "ee_mean_m": 0.011625709220184422,
+        "ee_p90_m": 0.015540850162506106,
+        "gt_disp_mean_m": 3.574315666617834,
+        "errdist": 0.006840230431121147
+      },
+      "fk": {
+        "episodes": 223,
+        "ee_rmse_m": 0.026348840634934093,
+        "ee_mean_m": 0.011241978087625362,
+        "ee_p90_m": 0.016919201612472536,
+        "gt_disp_mean_m": 3.574315666617834,
+        "errdist": 0.007371716180811321
+      },
+      "fk_floor": {
+        "episodes": 223,
+        "ee_rmse_m": 0.00012433351468289926,
+        "ee_mean_m": 7.093921264269674e-05,
+        "ee_p90_m": 0.0002272088691825048,
+        "gt_disp_mean_m": 3.574315666617834,
+        "errdist": 3.478526416793758e-05
+      },
+      "winner": "channel",
+      "fk_rmse_ratio_vs_channel": 1.077699977368023
+    },
+    "0.50s": {
+      "steps": 25,
+      "q_drift_mean_rad": 0.002438881066929618,
+      "channel": {
+        "episodes": 216,
+        "ee_rmse_m": 0.02874353112905073,
+        "ee_mean_m": 0.025681692588410375,
+        "ee_p90_m": 0.04066201113164425,
+        "gt_disp_mean_m": 5.888333797385847,
+        "errdist": 0.004881437112449629
+      },
+      "fk": {
+        "episodes": 216,
+        "ee_rmse_m": 0.02475163252931736,
+        "ee_mean_m": 0.019786739056278882,
+        "ee_p90_m": 0.033761078491806984,
+        "gt_disp_mean_m": 5.888333797385847,
+        "errdist": 0.004203503636343775
+      },
+      "fk_floor": {
+        "episodes": 216,
+        "ee_rmse_m": 9.944125824882736e-05,
+        "ee_mean_m": 6.427345199974163e-05,
+        "ee_p90_m": 0.00014800933422520757,
+        "gt_disp_mean_m": 5.888333797385847,
+        "errdist": 1.6887843262719712e-05
+      },
+      "winner": "fk",
+      "fk_rmse_ratio_vs_channel": 0.8611201044920048
+    },
+    "1.00s": {
+      "steps": 50,
+      "q_drift_mean_rad": 0.004090344444072495,
+      "channel": {
+        "episodes": 180,
+        "ee_rmse_m": 0.05955101155821007,
+        "ee_mean_m": 0.052143573644571006,
+        "ee_p90_m": 0.09071151539683342,
+        "gt_disp_mean_m": 5.234233899248971,
+        "errdist": 0.011377216361453524
+      },
+      "fk": {
+        "episodes": 180,
+        "ee_rmse_m": 0.049659609332729567,
+        "ee_mean_m": 0.040455358089982636,
+        "ee_p90_m": 0.07526346892118453,
+        "gt_disp_mean_m": 5.234233899248971,
+        "errdist": 0.00948746469657287
+      },
+      "fk_floor": {
+        "episodes": 180,
+        "ee_rmse_m": 4.707058170480745e-05,
+        "ee_mean_m": 3.953577090416932e-05,
+        "ee_p90_m": 6.237309135030954e-05,
+        "gt_disp_mean_m": 5.234233899248971,
+        "errdist": 8.99283115941023e-06
+      },
+      "winner": "fk",
+      "fk_rmse_ratio_vs_channel": 0.833900349185306
+    },
+    "2.00s": {
+      "steps": 100,
+      "q_drift_mean_rad": 0.008087747455151244,
+      "channel": {
+        "episodes": 66,
+        "ee_rmse_m": 0.11590695357239572,
+        "ee_mean_m": 0.09968925050149362,
+        "ee_p90_m": 0.16477573662996292,
+        "gt_disp_mean_m": 5.733294009259253,
+        "errdist": 0.020216467773186992
+      },
+      "fk": {
+        "episodes": 66,
+        "ee_rmse_m": 0.09044556533274677,
+        "ee_mean_m": 0.07072173057575569,
+        "ee_p90_m": 0.13239188492298126,
+        "gt_disp_mean_m": 5.733294009259253,
+        "errdist": 0.015775497503996386
+      },
+      "fk_floor": {
+        "episodes": 66,
+        "ee_rmse_m": 0.0001068821458163837,
+        "ee_mean_m": 5.396152402792006e-05,
+        "ee_p90_m": 6.898366336827166e-05,
+        "gt_disp_mean_m": 5.733294009259253,
+        "errdist": 1.8642362600586915e-05
+      },
+      "winner": "fk",
+      "fk_rmse_ratio_vs_channel": 0.7803290703888122
+    }
+  }
+}

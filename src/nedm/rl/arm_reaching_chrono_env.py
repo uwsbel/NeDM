@@ -151,10 +151,13 @@ class ArmReachingChronoEnv(VecEnv):
         self.q_indices = torch.tensor([self.state_index[f"q_{i}"] for i in range(4)], device=self.device)
         self.qd_indices = torch.tensor([self.state_index[f"qd_{i}"] for i in range(4)], device=self.device)
         self.qcmd_indices = torch.tensor([self.state_index[f"qcmd_{i}"] for i in range(4)], device=self.device)
-        self.ee_indices = torch.tensor(
-            [self.state_index["ee_base_x"], self.state_index["ee_base_y"], self.state_index["ee_base_z"]],
-            device=self.device,
-        )
+        if self.has_ee_channel:
+            self.ee_indices = torch.tensor(
+                [self.state_index["ee_base_x"], self.state_index["ee_base_y"], self.state_index["ee_base_z"]],
+                device=self.device,
+            )
+        else:
+            self.ee_indices = None
         self.q_indices_np = np.asarray([self.state_index[f"q_{i}"] for i in range(4)], dtype=np.int64)
 
         normalization = self.metadata["normalization"]
@@ -204,6 +207,9 @@ class ArmReachingChronoEnv(VecEnv):
         self.unsafe_action_buf = torch.zeros(self.num_envs, dtype=torch.bool, device=self.device)
         self.clearance_buf = torch.zeros(self.num_envs, dtype=torch.float32, device=self.device)
         self.ee_error_buf = torch.zeros(self.num_envs, dtype=torch.float32, device=self.device)
+        # Real Chrono end-effector (base frame), cached each state capture. Lets current_ee_base
+        # return the ground-truth gripper position for the 12-D model (no ee_base state channel).
+        self.ee_base_buf = torch.zeros(self.num_envs, 3, dtype=torch.float32, device=self.device)
         self.success_count_buf = torch.zeros(self.num_envs, dtype=torch.long, device=self.device)
         self.contact_buf = torch.zeros(self.num_envs, dtype=torch.bool, device=self.device)
         self.contact_force_buf = torch.zeros(self.num_envs, dtype=torch.float32, device=self.device)
@@ -236,22 +242,27 @@ class ArmReachingChronoEnv(VecEnv):
         return self
 
     def _validate_arm_fields(self) -> None:
+        # q/qd/qcmd (4 each) + 4 actions are mandatory; ee_base is optional. The 12-D
+        # [q, qd, qcmd] model omits it, in which case EE is read from FK on the joints
+        # (see current_ee_base) rather than a recorded state channel.
         required_state = (
             [f"q_{i}" for i in range(4)]
             + [f"qd_{i}" for i in range(4)]
             + [f"qcmd_{i}" for i in range(4)]
-            + ["ee_base_x", "ee_base_y", "ee_base_z"]
         )
         required_action = [f"act_{i}" for i in range(4)]
         missing_state = [field for field in required_state if field not in self.state_index]
         missing_action = [field for field in required_action if field not in self.action_fields]
         if missing_state or missing_action:
             raise ValueError(
-                "ArmReachingChronoEnv requires the 15-D arm state/action layout. "
+                "ArmReachingChronoEnv requires the [q, qd, qcmd] arm state/action layout. "
                 f"missing_state={missing_state}, missing_action={missing_action}"
             )
         if len(self.action_fields) != 4:
             raise ValueError(f"ArmReachingChronoEnv expects 4 action fields, got {self.action_fields}")
+        self.has_ee_channel = all(
+            f"ee_base_{axis}" in self.state_index for axis in ("x", "y", "z")
+        )
 
     def _observation_dim(self) -> int:
         return 4 + 4 + 4 + 3 + 3 + 3 + 1 + 4
@@ -454,7 +465,7 @@ class ArmReachingChronoEnv(VecEnv):
         if self.warm_start_context:
             for hist_index in range(self.context_steps):
                 self.state_hist[env_index, hist_index] = torch.as_tensor(
-                    self._capture_state_np(sim),
+                    self._capture_state_np(sim, env_index),
                     dtype=torch.float32,
                     device=self.device,
                 )
@@ -470,16 +481,22 @@ class ArmReachingChronoEnv(VecEnv):
                     )
             return
 
-        state = torch.as_tensor(self._capture_state_np(sim), dtype=torch.float32, device=self.device)
+        state = torch.as_tensor(self._capture_state_np(sim, env_index), dtype=torch.float32, device=self.device)
         self.state_hist[env_index] = state.view(1, -1).repeat(self.context_steps, 1)
         self.action_hist[env_index] = 0.0
 
-    def _capture_state_np(self, sim: ChronoArmSim) -> np.ndarray:
+    def _capture_state_np(self, sim: ChronoArmSim, env_index: int) -> np.ndarray:
         q, qd = sim.actuator.read_state()
         qcmd = list(sim.actuator.qcmd)
         ee_world = gripper_center(sim.gripper)
         self._update_ee_marker(sim, ee_world)
         ee_base = sim.gripper.base.GetFrameRefToAbs().TransformPointParentToLocal(ee_world)
+        # Ground-truth end-effector from the real sim; used by current_ee_base for the 12-D model.
+        self.ee_base_buf[env_index] = torch.tensor(
+            [float(ee_base.x), float(ee_base.y), float(ee_base.z)],
+            dtype=torch.float32,
+            device=self.device,
+        )
         values: dict[str, float] = {
             **{f"q_{i}": float(q[i]) for i in range(4)},
             **{f"qd_{i}": float(qd[i]) for i in range(4)},
@@ -560,7 +577,7 @@ class ArmReachingChronoEnv(VecEnv):
                         frame_recorder=sim.frame_recorder,
                     )
 
-                    state_np = self._capture_state_np(sim)
+                    state_np = self._capture_state_np(sim, env_index)
                     self.state_hist[env_index] = torch.roll(self.state_hist[env_index], shifts=-1, dims=0)
                     self.action_hist[env_index] = torch.roll(self.action_hist[env_index], shifts=-1, dims=0)
                     self.state_hist[env_index, -1] = torch.as_tensor(state_np, dtype=torch.float32, device=self.device)
@@ -772,7 +789,14 @@ class ArmReachingChronoEnv(VecEnv):
         return self.current_state(env_ids)[:, self.qcmd_indices]
 
     def current_ee_base(self, env_ids: torch.Tensor | None = None) -> torch.Tensor:
-        return self.current_state(env_ids)[:, self.ee_indices]
+        # Both layouts return the REAL Chrono gripper position (base frame). 15-D reads it from
+        # the ee_base state channel; 12-D reads the same value from ee_base_buf (cached in
+        # _capture_state_np), since it has no ee_base channel. No FK approximation in the metric.
+        if self.has_ee_channel:
+            return self.current_state(env_ids)[:, self.ee_indices]
+        if env_ids is None:
+            return self.ee_base_buf
+        return self.ee_base_buf[env_ids]
 
 
 __all__ = [

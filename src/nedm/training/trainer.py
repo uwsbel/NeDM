@@ -642,14 +642,33 @@ class HMMWVTrainer:
         # distance-normalizes by end-effector path length instead of driven distance.
         pose_mode = str(rollout_cfg.get("pose", "vehicle"))
         ee_idx: torch.Tensor | None = None
+        arm_kin = None
+        q_idx: torch.Tensor | None = None
         if pose_mode == "ee_base":
             ee_idx = torch.tensor(
                 [self.state_index[f"ee_base_{axis}"] for axis in ("x", "y", "z")],
                 dtype=torch.long,
                 device=self.device,
             )
+        elif pose_mode == "ee_base_fk":
+            # The end-effector is *not* a state channel (12-D [q, qd, qcmd] model), so
+            # derive it from the predicted joints via forward kinematics and compare
+            # against the Chrono-recorded ee_base carried in the rollout array.
+            from nedm.rl.arm_kinematics import ArmKinematics
+
+            geometry_path = rollout_cfg.get("geometry")
+            if geometry_path is None:
+                raise ValueError("rollout_eval.pose 'ee_base_fk' requires rollout_eval.geometry")
+            arm_kin = ArmKinematics.from_json(geometry_path, device=self.device, dtype=torch.float32)
+            q_idx = torch.tensor(
+                [self.state_index[f"q_{i}"] for i in range(arm_kin.num_joints)],
+                dtype=torch.long,
+                device=self.device,
+            )
         elif pose_mode != "vehicle":
-            raise ValueError(f"rollout_eval.pose must be 'vehicle' or 'ee_base', got {pose_mode!r}")
+            raise ValueError(
+                f"rollout_eval.pose must be 'vehicle', 'ee_base', or 'ee_base_fk', got {pose_mode!r}"
+            )
 
         metrics: dict[str, Any] = {}
         selection_terms: list[float] = []
@@ -671,7 +690,11 @@ class HMMWVTrainer:
                 episode_count = 0
                 for episode in selected_episodes:
                     result = self._rollout_episode(
-                        episode, horizon_steps, terrain_id, integrate_pose=(pose_mode == "vehicle")
+                        episode,
+                        horizon_steps,
+                        terrain_id,
+                        integrate_pose=(pose_mode == "vehicle"),
+                        load_rollout=(pose_mode == "ee_base_fk"),
                     )
                     if result is None:
                         continue
@@ -679,6 +702,9 @@ class HMMWVTrainer:
                     if pose_mode == "ee_base":
                         pred_series = predicted_states[:, ee_idx]
                         gt_series = gt_states[:, ee_idx]
+                    elif pose_mode == "ee_base_fk":
+                        pred_series = arm_kin.ee_base(predicted_states[:, q_idx])
+                        gt_series = gt_pose  # Chrono-recorded ee_base from the rollout array
                     else:
                         pred_series = predicted_pose[:, :2]
                         gt_series = gt_pose[:, :2]
@@ -696,7 +722,7 @@ class HMMWVTrainer:
                 # distance-normalized error: the honest cross-domain comparison,
                 # since CRM episodes are short/slow relative to flat.
                 errdist = traj_rmse / mean_distance if mean_distance > 1e-6 else float("nan")
-                if pose_mode == "ee_base":
+                if pose_mode in ("ee_base", "ee_base_fk"):
                     metrics[f"rollout_{name}_{horizon_s:.1f}s"] = {
                         "ee_rmse_m": traj_rmse,
                         "errdist": errdist,
@@ -744,6 +770,7 @@ class HMMWVTrainer:
         horizon_steps: int,
         terrain_id: int | None = None,
         integrate_pose: bool = True,
+        load_rollout: bool = False,
     ) -> tuple[torch.Tensor, torch.Tensor | None, torch.Tensor, torch.Tensor | None] | None:
         """Open-loop autoregressive rollout of an episode.
 
@@ -767,8 +794,10 @@ class HMMWVTrainer:
         history_actions = actions[: self.sequence_length].clone()
         predicted_states: list[torch.Tensor] = []
         predicted_pose: list[torch.Tensor] = []
-        if integrate_pose:
+        rollout = None
+        if integrate_pose or load_rollout:
             rollout = torch.from_numpy(episode["rollout"]).to(self.device)
+        if integrate_pose:
             current_pose = rollout[self.sequence_length - 1].clone()
 
         for step_index in range(steps):
@@ -790,7 +819,12 @@ class HMMWVTrainer:
 
         gt_states = states[self.sequence_length : self.sequence_length + steps]
         if not integrate_pose:
-            return (torch.stack(predicted_states, dim=0), None, gt_states, None)
+            gt_pose = (
+                rollout[self.sequence_length : self.sequence_length + steps]
+                if rollout is not None
+                else None
+            )
+            return (torch.stack(predicted_states, dim=0), None, gt_states, gt_pose)
         gt_pose = rollout[self.sequence_length : self.sequence_length + steps]
         return (
             torch.stack(predicted_states, dim=0),

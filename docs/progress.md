@@ -900,10 +900,44 @@ Both policies **hug their success tolerance** rather than driving tight (tracked
 
 Takeaway: the tracked base transfers to real Chrono physics at 100% over the full far/behind goal distribution, and the arm at 91% with every failure a near-miss timeout — both now have the proper seeded benchmark (aggregate JSON, plots, per-goal failure labels) the spot checks lacked. Serialize the two batteries — never run both Chrono batteries concurrently (machine-freeze history).
 
+### 12-D `[q, qd, qcmd]` arm ROM (drop `ee_base`) + FK end-effector — beats the 15-D model (2026-07-24)
+
+The 15-D arm ROM carries the end-effector `ee_base` as three extra **predicted** state channels. Two findings retire them:
+
+**1. FK on the predicted joints beats the `ee_base` channel.** During open-loop rollout of the existing 15-D `arm_transformer_full_v1`, we scored EE two ways against the *same* Chrono-recorded `ee_base`: (A) read the predicted `ee_base` channel directly, vs (B) apply forward kinematics to the predicted joints `q`. FK wins at every multi-step horizon (`scripts/eval_arm_ee_fk_vs_channel.py`, 277 val eps):
+
+| Horizon | `ee_base` channel errdist | FK(pred q) errdist |
+|---|---:|---:|
+| 0.5 s | 0.488 % | **0.420 %** |
+| 1.0 s | 1.138 % | **0.949 %** |
+| 2.0 s | 2.022 % | **1.578 %** |
+
+Reason: the model predicts `q` to sub-milliradian accuracy and FK(q)→EE is near-exact (a 45 µm fidelity floor vs the recorded gripper), whereas the `ee_base` channel drifts as an independent autoregressive output. FK adds negligible bias and enforces the kinematic constraint the channel does not.
+
+**2. So drop `ee_base` entirely — the 12-D ROM.** Retrained the ROM on state `[q, qd, qcmd]` (12-D), identical recipe to `arm_transformer_full_v1` (6L/8H/256, ctx16, seed 20260630, 80 ep × 2000). Because `ee_base` is no longer a channel, `rollout_sel` scores EE via FK on the predicted joints — new trainer `rollout_eval.pose: "ee_base_fk"` (reads the geometry + the Chrono-recorded `ee_base` from the rollout array). `scripts/eval_arm_rollout.py` is now FK-aware too (auto-detects channel-vs-FK from the state fields). On the identical 277-val-episode rollout, the 12-D model matches or beats 15-D:
+
+| Metric | 15-D (channel) | 12-D (FK) |
+|---|---:|---:|
+| one-step EE drift | 1.12 mm | 1.32 mm |
+| 0.5 s errdist | 0.488 % | **0.423 %** |
+| 1.0 s errdist | 1.138 % | **0.774 %** |
+| 2.0 s errdist | 2.022 % | **1.369 %** |
+
+Slightly worse at one step (the redundant channel fits the tiny per-step delta well) but ~32 % better at the multi-step horizons a reaching policy plans over. Config `configs/arm_transformer_noee_v1.json`; dataset `arm_dyn_v3_noee_seq16_v1` (12-D state, `rollout_fields = ee_base`); run `artifacts/training_runs/arm_transformer_noee_v1` (**best_val.pt = epoch 72**); launch `scripts/launch_arm_transformer_noee_v1.sh`.
+
+**3. Reach RL retrained on the 12-D ROM — and it transfers strictly better.** The reaching env already sourced EE from FK for reward/observations/safety (the 15-D model's `ee_base` prediction was overwritten with FK every substep and never consumed), so both `ArmReachingEnv` and `ArmReachingChronoEnv` were made **layout-agnostic** (a `has_ee_channel` flag gates the now-unused channel bookkeeping) — the 12-D swap needs no reward/obs changes and does no extra FK work. In the Chrono deployment env, `current_ee_base` returns the **real Chrono gripper** position (cached in `ee_base_buf` from `_capture_state_np`) for the 12-D model, so the success metric stays ground-truth (no FK approximation) and identical to the 15-D benchmark. Policy retrained with the identical HP to the `rollsel_rom_20260721` reference (`scripts/launch_arm_reach_noee12d_rom_20260724.sh` → `artifacts/rl_runs_arm_goal_reach/arm_reach_..._noee12d_rom_20260724/model_1499.pt`, NN-env success ~97.6 %). On the **byte-identical 100-goal Chrono battery** (seed 12345, 5 cm tol):
+
+| Policy | ROM | Success | Failures |
+|---|---|---:|---|
+| Arm reach (15-D) | `[q,qd,qcmd,ee_base]` | 91/100 | 9 timeouts |
+| Arm reach (12-D) | `[q,qd,qcmd]` (FK EE) | **97/100** | 3 timeouts |
+
+Strict superset: the 12-D policy reached **every** goal the 15-D reached, plus rescued all 6 of the 15-D's grazing near-miss timeouts (goals 12/21/42/49/52/58, previously 5.07–5.49 cm → now < 5 cm). Both fail the same 3 hard goals (27/28/59, deep z ≈ −3.8…−4.4 m, the under-sampled lower workspace) but the 12-D gets closer there too. All failures are timeouts (0 collision / joint-limit / unsafe). Dropping the redundant `ee_base` channel improved both open-loop EE fidelity and real-Chrono reach transfer.
+
 ## Open Items / Next Steps
 
 - **OFAT L8 arch-vs-checkpoint-selection confound**: the 2026-07-13 L8 RL comparison swapped both the dynamics architecture (6L→8L) and the checkpoint-selection basis (legacy used the anchor's `last.pt`, L8 uses `best_val.pt`) at once. An `anchorL6_bestval69` RL run (same 6-layer anchor, but its own `best_val.pt`) is chained on `luffy` to decompose the two effects; not yet synced locally. The L8 data-quantity ablation (episode-fraction sweep 20/40/60/80/100%, `scripts/ablation_ofat/run_l8_dataquantity_ablation.sh`) is also running on `luffy` as of 2026-07-13.
-- **Arm reaching RL scale-up**: the env, policy, and Chrono validation path are built and the 100-goal seeded Chrono battery now reports **91/100** at 5 cm tol (2026-07-22 subsection). Remaining: the 9 failures are all near-miss timeouts (5 grazing at 5.07–5.49 cm) — re-run just those with a longer step budget to quantify how many convert (budget- vs capability-limited), and decide whether the one-step 5 cm success threshold should become a multi-step hold criterion to reduce training brittleness.
+- **Arm reaching RL scale-up**: the env, policy, and Chrono validation path are built. The 12-D-ROM policy now reaches **97/100** at 5 cm tol (2026-07-24 subsection), up from the 15-D's 91/100 — it rescued all 6 grazing near-miss timeouts, leaving only **3 hard failures** (goals 27/28/59, deep z ≈ −3.8…−4.4 m in the under-sampled lower workspace). Remaining: those 3 are the data-coverage cap, so either collect more lower-workspace arm dynamics data or restrict v1 goals to the covered upper/forward shell; separately, decide whether the one-step 5 cm success threshold should become a multi-step hold criterion to reduce training brittleness.
 - **Tracked-vehicle goal-reaching scale-up**: the v2 drive dataset, compact base ROM, PPO goal policy, and the proper **100-goal seeded Chrono benchmark** are built — 100/100 at 0.75 m (2026-07-22 subsection). Remaining: the policy hugs the 0.75 m tolerance (40/100 in the 0.70–0.75 m band), so recompute success at a tighter tol (e.g. 0.5 m) from the saved poses, and decide whether reverse/left-right track commands are needed for tighter final positioning.
 - **Hybrid locomanipulation integration**: combine the first-pass `π_drive` and `π_reach` with a rule-based mode selector from [arm-dyn-model.md](arm-dyn-model.md): drive until the target is inside the arm's sampled workspace, stop/brake the base, then hand off to reach mode. This is the next case-2 systems step; full coupled vehicle+arm learning remains out of scope for v1.
 - **Braking transfer gap**: the policy tracks turning references in Chrono but diverges on braking-heavy ones — likely a dynamics-model gap (brake response) rather than a policy gap; worth checking v07 open-loop rollout error on launch_brake/steer_brake segments specifically.

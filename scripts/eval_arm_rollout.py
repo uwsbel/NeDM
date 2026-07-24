@@ -8,16 +8,28 @@ held-out episode with the first ``context`` recorded steps, then autoregressivel
 ``next = state + predict_next_delta`` while feeding the recorded actions, and compares the
 predicted ``ee_base`` channels against ground truth at several time horizons.
 
-Unlike the HMMWV rollout (``trainer.evaluate_rollouts``), there is no world-pose
-integration: the end-effector position is a state channel, so the drift is read straight
-off the rolled state. The qcmd channels are rolled purely from the model too (no
-deterministic overwrite), so this is a conservative bound — the RL env's exact qcmd update
-can only reduce error.
+Two EE-readout modes, auto-detected from the model's state fields:
+
+* **channel** (15-D model): ``ee_base`` is a state channel, so the predicted EE is read
+  straight off the rolled state. The GT is the recorded ``ee_base`` state channel.
+* **fk** (12-D ``[q, qd, qcmd]`` model): there is no ``ee_base`` channel, so the predicted
+  EE is ``FK(predicted q)`` via ``ArmKinematics`` on the known arm geometry. The GT is the
+  *same* Chrono-recorded ``ee_base`` — it lives in the processed ``rollout`` array
+  (``rollout_fields = ee_base_{x,y,z}``) rather than the state — so the two modes are scored
+  against identical ground truth and are directly comparable.
+
+Either way there is no world-pose integration. The qcmd channels are rolled purely from the
+model too (no deterministic overwrite), so this is a conservative bound — the RL env's exact
+qcmd update can only reduce error.
 
 Run in the nedm env:
 
     PYTHONPATH=src python scripts/eval_arm_rollout.py \
         --checkpoint artifacts/training_runs/arm_transformer_v1 --device cuda
+
+    # 12-D model (FK mode auto-selected; geometry defaults to arm_geometry_v1.json):
+    PYTHONPATH=src python scripts/eval_arm_rollout.py \
+        --checkpoint artifacts/training_runs/arm_transformer_noee_v1 --device cuda
 """
 
 from __future__ import annotations
@@ -70,6 +82,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="Number of held-out episodes to roll out (seeded random subset).",
     )
     parser.add_argument("--seed", type=int, default=0, help="Episode-subset sampling seed.")
+    parser.add_argument(
+        "--geometry",
+        type=Path,
+        default=REPO_ROOT / "artifacts/arm_geometry/arm_geometry_v1.json",
+        help="Arm geometry JSON for FK mode (models without an ee_base state channel).",
+    )
     parser.add_argument("--output", type=Path, default=None, help="Optional JSON metrics path.")
     return parser.parse_args(argv)
 
@@ -85,12 +103,19 @@ def _rollout_episode(
     actions: torch.Tensor,
     context: int,
     max_steps: int,
-    ee_idx: torch.Tensor,
+    *,
+    ee_idx: torch.Tensor | None = None,
+    q_idx: torch.Tensor | None = None,
+    arm_kin=None,
+    rollout: torch.Tensor | None = None,
 ) -> tuple[torch.Tensor, torch.Tensor] | None:
     """Return (pred_ee, gt_ee) of shape (steps, 3), aligned step-for-step, or None.
 
     ``pred_ee[k]`` is the end-effector of the rolled state after k+1 prediction steps;
-    ``gt_ee[k]`` is the recorded end-effector at the same time index.
+    ``gt_ee[k]`` is the recorded end-effector at the same time index. In **channel** mode
+    (``ee_idx`` given) both come from the ``ee_base`` state channel; in **fk** mode
+    (``arm_kin``/``q_idx`` given) the prediction is ``FK(predicted q)`` and the GT is the
+    recorded ``ee_base`` from the ``rollout`` array (aligned with ``states``).
     """
     total = states.shape[0]
     steps_avail = total - context
@@ -100,7 +125,7 @@ def _rollout_episode(
 
     hist_states = states[:context].clone()
     hist_actions = actions[:context].clone()
-    pred_ee: list[torch.Tensor] = []
+    pred_states: list[torch.Tensor] = []
     for step in range(steps):
         delta = model.predict_next_delta(
             hist_states[-context:].unsqueeze(0),
@@ -108,13 +133,19 @@ def _rollout_episode(
             terrain=None,
         ).squeeze(0)
         next_state = hist_states[-1] + delta
-        pred_ee.append(next_state[ee_idx])
+        pred_states.append(next_state)
         if context + step < actions.shape[0]:
             hist_actions = torch.cat([hist_actions, actions[context + step].unsqueeze(0)], dim=0)
         hist_states = torch.cat([hist_states, next_state.unsqueeze(0)], dim=0)
 
-    gt_ee = states[context : context + steps][:, ee_idx]
-    return torch.stack(pred_ee, dim=0), gt_ee
+    pred = torch.stack(pred_states, dim=0)  # (steps, state_dim)
+    if arm_kin is not None:  # fk mode
+        pred_ee = arm_kin.ee_base(pred[:, q_idx])
+        gt_ee = rollout[context : context + steps]
+    else:  # channel mode
+        pred_ee = pred[:, ee_idx]
+        gt_ee = states[context : context + steps][:, ee_idx]
+    return pred_ee, gt_ee
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -128,7 +159,32 @@ def main(argv: list[str] | None = None) -> int:
     context = dynamics.context_steps
     dt_s = dynamics.dt_s
     state_fields = list(dynamics.metadata["state_fields"])
-    ee_idx = torch.tensor(_ee_indices(state_fields), dtype=torch.long, device=args.device)
+
+    # Auto-select the EE readout: channel mode when ee_base is a state field, else FK mode.
+    has_ee_channel = all(f"ee_base_{axis}" in state_fields for axis in ("x", "y", "z"))
+    ee_idx = None
+    q_idx = None
+    arm_kin = None
+    if has_ee_channel:
+        ee_mode = "channel"
+        ee_idx = torch.tensor(_ee_indices(state_fields), dtype=torch.long, device=args.device)
+    else:
+        ee_mode = "fk"
+        from nedm.rl.arm_kinematics import ArmKinematics
+
+        if not args.geometry.exists():
+            raise FileNotFoundError(
+                f"FK mode needs an arm geometry JSON but {args.geometry} does not exist "
+                "(pass --geometry)."
+            )
+        arm_kin = ArmKinematics.from_json(
+            str(args.geometry), device=args.device, dtype=torch.float32
+        )
+        q_idx = torch.tensor(
+            [state_fields.index(f"q_{i}") for i in range(arm_kin.num_joints)],
+            dtype=torch.long,
+            device=args.device,
+        )
 
     processed_dir = Path(
         args.processed_dataset_dir
@@ -157,7 +213,20 @@ def main(argv: list[str] | None = None) -> int:
     for episode in episodes:
         states = torch.from_numpy(episode["states"]).to(args.device)
         actions = torch.from_numpy(episode["actions"]).to(args.device)
-        result = _rollout_episode(model, states, actions, context, max_steps, ee_idx)
+        rollout = (
+            torch.from_numpy(episode["rollout"]).to(args.device) if ee_mode == "fk" else None
+        )
+        result = _rollout_episode(
+            model,
+            states,
+            actions,
+            context,
+            max_steps,
+            ee_idx=ee_idx,
+            q_idx=q_idx,
+            arm_kin=arm_kin,
+            rollout=rollout,
+        )
         if result is None:
             continue
         pred_ee, gt_ee = result
@@ -165,7 +234,8 @@ def main(argv: list[str] | None = None) -> int:
         err = torch.linalg.norm(pred_ee - gt_ee, dim=-1)  # (steps,)
         one_step_sq += float(err[0].pow(2).item())
         one_step_count += 1
-        start_ee = states[context - 1][ee_idx]
+        # Recorded EE at the last seed step, in the same space as gt_ee (displacement ref).
+        start_ee = rollout[context - 1] if ee_mode == "fk" else states[context - 1][ee_idx]
         for h in horizons_steps:
             if err.shape[0] >= h:
                 horizon_err[h].append(float(err[h - 1].item()))
@@ -175,6 +245,8 @@ def main(argv: list[str] | None = None) -> int:
         "checkpoint": str(dynamics.checkpoint_path),
         "processed_dataset_dir": str(processed_dir),
         "split": args.split,
+        "ee_mode": ee_mode,
+        "geometry": str(args.geometry) if ee_mode == "fk" else None,
         "context_steps": context,
         "dt_s": dt_s,
         "episodes_rolled": rolled,
