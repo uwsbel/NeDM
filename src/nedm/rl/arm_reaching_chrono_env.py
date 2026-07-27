@@ -150,7 +150,11 @@ class ArmReachingChronoEnv(VecEnv):
         self._validate_arm_fields()
         self.q_indices = torch.tensor([self.state_index[f"q_{i}"] for i in range(4)], device=self.device)
         self.qd_indices = torch.tensor([self.state_index[f"qd_{i}"] for i in range(4)], device=self.device)
-        self.qcmd_indices = torch.tensor([self.state_index[f"qcmd_{i}"] for i in range(4)], device=self.device)
+        self.qcmd_indices = (
+            torch.tensor([self.state_index[f"qcmd_{i}"] for i in range(4)], device=self.device)
+            if self.has_qcmd_channel
+            else None
+        )
         if self.has_ee_channel:
             self.ee_indices = torch.tensor(
                 [self.state_index["ee_base_x"], self.state_index["ee_base_y"], self.state_index["ee_base_z"]],
@@ -171,6 +175,15 @@ class ArmReachingChronoEnv(VecEnv):
             torch.tensor(normalization["action_std"], dtype=torch.float32, device=self.device),
             min=1.0e-6,
         )
+        # Observation normalization for the qcmd block: state stats when qcmd is a state
+        # channel, action stats for the 8-D ROM where the absolute command is the action.
+        # Must match ArmReachingEnv exactly or the deployed policy sees a shifted input.
+        if self.has_qcmd_channel:
+            self.qcmd_obs_mean = self.state_mean[self.qcmd_indices]
+            self.qcmd_obs_std = self.state_std[self.qcmd_indices]
+        else:
+            self.qcmd_obs_mean = self.action_mean
+            self.qcmd_obs_std = self.action_std
 
         self.kin = ArmKinematics.from_json(self.cfg["geometry_path"], device=self.device, dtype=torch.float32)
         safety_cfg = self.cfg["safety"]
@@ -210,6 +223,9 @@ class ArmReachingChronoEnv(VecEnv):
         # Real Chrono end-effector (base frame), cached each state capture. Lets current_ee_base
         # return the ground-truth gripper position for the 12-D model (no ee_base state channel).
         self.ee_base_buf = torch.zeros(self.num_envs, 3, dtype=torch.float32, device=self.device)
+        # 8-D ROM only: qcmd is not a state channel, so cache the sim's own actuator
+        # command (ground truth, exactly what the 15-D/12-D layouts carry in the channel).
+        self.qcmd_buf = torch.zeros(self.num_envs, 4, dtype=torch.float32, device=self.device)
         self.success_count_buf = torch.zeros(self.num_envs, dtype=torch.long, device=self.device)
         self.contact_buf = torch.zeros(self.num_envs, dtype=torch.bool, device=self.device)
         self.contact_force_buf = torch.zeros(self.num_envs, dtype=torch.float32, device=self.device)
@@ -248,18 +264,28 @@ class ArmReachingChronoEnv(VecEnv):
         required_state = (
             [f"q_{i}" for i in range(4)]
             + [f"qd_{i}" for i in range(4)]
-            + [f"qcmd_{i}" for i in range(4)]
         )
-        required_action = [f"act_{i}" for i in range(4)]
         missing_state = [field for field in required_state if field not in self.state_index]
-        missing_action = [field for field in required_action if field not in self.action_fields]
-        if missing_state or missing_action:
+        if missing_state:
             raise ValueError(
-                "ArmReachingChronoEnv requires the [q, qd, qcmd] arm state/action layout. "
-                f"missing_state={missing_state}, missing_action={missing_action}"
+                "ArmReachingChronoEnv requires q/qd in the dynamics state layout. "
+                f"missing_state={missing_state}"
             )
         if len(self.action_fields) != 4:
             raise ValueError(f"ArmReachingChronoEnv expects 4 action fields, got {self.action_fields}")
+        if not (
+            all(f"act_{i}" in self.action_fields for i in range(4))
+            or all(f"qcmd_next_{i}" in self.action_fields for i in range(4))
+        ):
+            raise ValueError(
+                "ArmReachingChronoEnv requires either the act_* (delta) or qcmd_next_* "
+                f"(absolute) action layout, got {self.action_fields}"
+            )
+        # Unlike the NN env, this env never runs the dynamics model -- Chrono IS the
+        # dynamics -- so the action layout does not change how anything is stepped here.
+        # action_hist stays a delta buffer either way (it only feeds self.actions, i.e.
+        # the action-rate reward term). Only where qcmd is READ FROM differs.
+        self.has_qcmd_channel = all(f"qcmd_{i}" in self.state_index for i in range(4))
         self.has_ee_channel = all(
             f"ee_base_{axis}" in self.state_index for axis in ("x", "y", "z")
         )
@@ -497,6 +523,12 @@ class ArmReachingChronoEnv(VecEnv):
             dtype=torch.float32,
             device=self.device,
         )
+        # Ground-truth joint command; used by current_qcmd for the 8-D model, which has no
+        # qcmd state channel. Captured after the substep, so this is the command that was
+        # just in force -- identical to what the qcmd channel records for the other layouts.
+        self.qcmd_buf[env_index] = torch.tensor(
+            [float(value) for value in qcmd], dtype=torch.float32, device=self.device
+        )
         values: dict[str, float] = {
             **{f"q_{i}": float(q[i]) for i in range(4)},
             **{f"qd_{i}": float(qd[i]) for i in range(4)},
@@ -554,7 +586,7 @@ class ArmReachingChronoEnv(VecEnv):
             for _ in range(self.action_repeat):
                 current_state = self.state_hist[:, -1, :]
                 q = current_state[:, self.q_indices]
-                qcmd = current_state[:, self.qcmd_indices]
+                qcmd = self.current_qcmd()
                 safe_dq, unsafe, clearance = self.safety.filter(q, qcmd, raw_dq)
                 qcmd_next = torch.clamp(qcmd + safe_dq, self.kin.joint_limits_lo, self.kin.joint_limits_hi)
                 unsafe_any |= unsafe
@@ -746,13 +778,13 @@ class ArmReachingChronoEnv(VecEnv):
         current_state = self.state_hist[:, -1, :]
         q = current_state[:, self.q_indices]
         qd = current_state[:, self.qd_indices]
-        qcmd = current_state[:, self.qcmd_indices]
+        qcmd = self.current_qcmd()
         ee = self.current_ee_base()
         error = self.goal_base - ee
 
         q_norm = (q - self.state_mean[self.q_indices]) / self.state_std[self.q_indices]
         qd_norm = (qd - self.state_mean[self.qd_indices]) / self.state_std[self.qd_indices]
-        qcmd_norm = (qcmd - self.state_mean[self.qcmd_indices]) / self.state_std[self.qcmd_indices]
+        qcmd_norm = (qcmd - self.qcmd_obs_mean) / self.qcmd_obs_std
         obs_cfg = self.cfg["observation"]
         cart_scale = float(obs_cfg["cartesian_scale_m"])
         clearance = torch.clamp(
@@ -786,7 +818,13 @@ class ArmReachingChronoEnv(VecEnv):
         return self.current_state(env_ids)[:, self.q_indices]
 
     def current_qcmd(self, env_ids: torch.Tensor | None = None) -> torch.Tensor:
-        return self.current_state(env_ids)[:, self.qcmd_indices]
+        # Both layouts return the REAL Chrono actuator command: from the qcmd state channel
+        # (15-D / 12-D) or from qcmd_buf (8-D), cached in _capture_state_np.
+        if self.has_qcmd_channel:
+            return self.current_state(env_ids)[:, self.qcmd_indices]
+        if env_ids is None:
+            return self.qcmd_buf
+        return self.qcmd_buf[env_ids]
 
     def current_ee_base(self, env_ids: torch.Tensor | None = None) -> torch.Tensor:
         # Both layouts return the REAL Chrono gripper position (base frame). 15-D reads it from

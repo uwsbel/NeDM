@@ -12,7 +12,7 @@ Last updated: 2026-07-13 (new headline RL result: three one-hot policies retrain
 | 2 | NN dynamics model for HMMWV | Done | Upgraded from 7-D state to 15-D tire-normal-force/omega state; current RL backbone is `hmmwv_transformer_v07_tire_normal_force_omega_300g` |
 | 3 | RL tracking on NN dynamics + Chrono eval | Done (first pass); latest backbone = OFAT-winning **L8** dynamics model | Three one-hot policies (generalist/rigid-only/CRM-only) retrained on the deeper L8 dynamics backbone and Chrono-evaluated on rigid-flat/CRM/bumpy at checkpoint iteration 1000: the **L8 generalist now beats both specialists on every terrain**, mean and median XY RMSE, 0/20 early terminations in all 9 cells — see 2026-07-13 subsection |
 | 4 | CRM (deformable soil) generalist dynamics NN | Generalist + ablations trained on 20× CRM (`crm_2000`) with one-hot terrain conditioning | One-hot 75/25 generalist hits **flat 9.1% / CRM 5.8%** open-loop 10s err/dist — improving the `crm_100` incumbent on **both** (flat 15.4%→9.1%, CRM 9.4%→5.8%). Single-domain ablations reach **flat 5.0% / CRM 3.7%** in-domain but collapse off-domain (flat-only→CRM 69%, CRM-only→flat 37%): co-training trades ~3–4 pt peak accuracy for cross-domain robustness. All three on `main` (LFS); see 2026-06-24 subsection |
-| 5 | Arm mobile-manipulator reach mode: arm dynamics NN + reaching RL | Done (first pass); rollout-selected ROM + 100-goal Chrono benchmark | `f_arm` retrained with open-loop-rollout checkpoint selection (`arm_transformer_full_v1` ep74, EE drift ~0.5% err/dist @0.5 s). Reach policy retrained on it (`arm_reach_..._rollsel_rom_20260721/model_1499.pt`); 100-goal seeded Chrono stress battery hits **91/100** at 5 cm tol (all 9 misses near-miss timeouts, 0 contacts/joint-limit/unsafe) — see 2026-07-22 subsection |
+| 5 | Arm mobile-manipulator reach mode: arm dynamics NN + reaching RL | Done (first pass); rollout-selected ROM + 100-goal Chrono benchmark | `f_arm` retrained with open-loop-rollout checkpoint selection (`arm_transformer_full_v1` ep74, EE drift ~0.5% err/dist @0.5 s). Reach policy retrained on it (`arm_reach_..._rollsel_rom_20260721/model_1499.pt`); 100-goal seeded Chrono stress battery hits **91/100** at 5 cm tol (all 9 misses near-miss timeouts, 0 contacts/joint-limit/unsafe) — see 2026-07-22 subsection. Superseded twice since: the 12-D `[q,qd,qcmd]` ROM reaches **97/100** (2026-07-24), and the 8-D `[q,qd]` ROM with the absolute command as the action matches that **97/100** on a better open-loop ROM at 17 % fewer params (2026-07-27) |
 | 6 | Tracked vehicle drive mode: base NN-ROM + goal-reaching RL | Done (first pass); rollout-selected ROM + 100-goal Chrono benchmark | v2 drive dataset processed to `[vx,vy,yaw_rate]` with **1.41M train / 0.27M val transitions**; drive ROM reselected on open-loop rollout (`tracked_transformer_v1` ep8, 28.7% lower 5 s errdist); goal policy retrained (`tracked_goal_v2_far_rollsel_rom_20260721/model_1499.pt`); 100-goal seeded Chrono stress battery hits **100/100** at 0.75 m tol over r∈[20,40] m, θ∈[-π,π] — see 2026-07-22 subsection |
 
 ## Milestone 1: Rigid Flat-Terrain HMMWV Dataset
@@ -934,9 +934,50 @@ Slightly worse at one step (the redundant channel fits the tiny per-step delta w
 
 Strict superset: the 12-D policy reached **every** goal the 15-D reached, plus rescued all 6 of the 15-D's grazing near-miss timeouts (goals 12/21/42/49/52/58, previously 5.07–5.49 cm → now < 5 cm). Both fail the same 3 hard goals (27/28/59, deep z ≈ −3.8…−4.4 m, the under-sampled lower workspace) but the 12-D gets closer there too. All failures are timeouts (0 collision / joint-limit / unsafe). Dropping the redundant `ee_base` channel improved both open-loop EE fidelity and real-Chrono reach transfer.
 
+### 8-D `[q, qd]` arm ROM (qcmd becomes the action) — same reach transfer, smaller model (2026-07-27)
+
+Continues the channel-pruning line above. The 12-D ROM still carries `qcmd` as three-plus-one redundant *state* channels **and** predicts `Δqcmd`, which is an identity: the target equals the action (`target_std == action_std`). Moving the command out of the state and into the action retires both.
+
+**Layout.** State `[q, qd]` (8-D), action = the **absolute** joint command (4-D), readout 8-D `[Δq, Δqd]`.
+
+| ROM | state | action | readout | params |
+|---|---|---|---:|---:|
+| `arm_transformer_full_v1` | `[q, qd, qcmd, ee_base]` | `act` (Δqcmd) | 15 | — |
+| `arm_transformer_noee_v1` | `[q, qd, qcmd]` | `act` (Δqcmd) | 12 | 4.80 M (6L) |
+| `arm_transformer_8d_v1` | `[q, qd]` | **`qcmd_next`** | **8** | **4.01 M (5L)** |
+
+**The action must be `qcmd_next`, not `qcmd`.** In `arm_data.run_episode` the row's `qcmd` is the command in force over the *previous* interval; the loop then sets `actuator.qcmd = qcmd_next` and only then substeps, so `qcmd_next` is the target the PD law actually drives toward across `[t, t+1]` (and `qcmd_{t+1} == qcmd_next_t` identically). A first full run trained on the stale `qcmd` was aborted at epoch 13: `rollout_sel` sat at 0.058–0.067 versus the 12-D's 0.016–0.026 and was drifting the wrong way. Regressing per-step joint acceleration on the PD terms confirms the cause — R² = [.24 .46 .08 **.0005**] with `(qcmd − q)` versus [.24 .51 .20 **.39**] with `(qcmd_next − q)`; joints 2–3 carry almost no signal from the stale command. With the correct action the token is a bijection of the 12-D's `(q, qd, qcmd, Δqcmd)`, so the 8-D really is the 12-D minus redundancy.
+
+**Open-loop rollout** — identical 277 val episodes, same Chrono-recorded `ee_base`, FK on predicted joints both sides:
+
+| Metric | 12-D | 8-D |
+|---|---:|---:|
+| one-step EE drift | 1.32 mm | **1.19 mm** |
+| 0.5 s errdist | 0.423 % | **0.286 %** |
+| 1.0 s errdist | 0.774 % | **0.630 %** |
+| 2.0 s errdist | 1.369 % | **1.158 %** |
+
+~32 % better at 0.5 s and better at *every* horizon including one step — unlike the 12-D→15-D comparison, where the redundant channel won the one-step case. Config `configs/arm_transformer_8d_v1.json` (5 layers, since the token is 12-wide not 16-wide); dataset `arm_dyn_v3_8d_seq16_v1` (a pure column re-slice of the same episode split: 12,716 train / 2,284 val, 763,886 / 141,754 transitions); run `artifacts/training_runs/arm_transformer_8d_v1` (**best_val.pt = epoch 76**); launch `scripts/launch_arm_transformer_8d_v1.sh`.
+
+**Reach RL — unchanged recipe, equivalent transfer.** Both arm envs gained a third layout axis alongside `has_ee_channel`, all resolved from checkpoint metadata: `has_qcmd_channel` (qcmd from the state channel or an env-side buffer) and `absolute_qcmd_action` (ROM fed a delta or an absolute command). The **policy still emits a delta**; the env integrates it into the absolute command one line before the model call, so the action-rate reward and the `dq_max` safety bound keep their meaning and the observation stays the same 26 values. In `ArmReachingChronoEnv` the ROM is never stepped (Chrono is the dynamics), so only qcmd sourcing changed there — it now comes from the sim's own actuator, i.e. ground truth. PPO hyperparameters are byte-identical to `noee12d_rom_20260724` (`scripts/launch_arm_reach_8d_rom_20260727.sh`; NN-env success 96.9 %).
+
+Env equivalence was verified independently of training, since the 8-D run's early iterations looked alarming (joint-limit thrashing to ~80 % around iteration 30–90, 15× behind at iteration 150) before converging normally. The decisive check: the **already-trained 12-D policy** evaluated in both envs scores 98.4 % in its own and 98.0 % in the new 8-D env — a policy that never saw the 8-D ROM transfers into it intact, so the early deficit was exploration variance, not a wiring defect.
+
+On the **byte-identical 100-goal Chrono battery** (seed 12345, 5 cm tol; goal set asserted equal to the 12-D's at 0.0e+00 before the run, `scripts/launch_arm_reach_8d_chrono_benchmark_20260727.sh`):
+
+| Policy | ROM | Success | Median min-err | Failures |
+|---|---|---:|---:|---|
+| Arm reach (12-D) | `[q,qd,qcmd]` | 97/100 | 4.33 cm | 3 timeouts |
+| Arm reach (8-D) | `[q,qd]` + abs. cmd | **97/100** | **4.17 cm** | 3 timeouts |
+
+Identical score and the **same three failures** (goals 27/28/59 — the same under-sampled deep-z goals that also defeated the 15-D and 12-D policies). Across all 100 goals the 8-D is marginally closer (mean −0.09 cm, closer on 54/100): a wash. Net result — dropping `qcmd` from the state buys a materially better open-loop ROM at 17 % fewer parameters for no loss in real-Chrono reach transfer.
+
+**Caveats.** (1) The 5-layer depth change is *confounded* with the layout change — every number above varies both against the 12-D reference; an 8-D/6-layer run would be needed to attribute the ROM win to layout alone. (2) One RL seed per arm, so "equivalent RL outcome" rests on a single run each.
+
 ## Open Items / Next Steps
 
 - **OFAT L8 arch-vs-checkpoint-selection confound**: the 2026-07-13 L8 RL comparison swapped both the dynamics architecture (6L→8L) and the checkpoint-selection basis (legacy used the anchor's `last.pt`, L8 uses `best_val.pt`) at once. An `anchorL6_bestval69` RL run (same 6-layer anchor, but its own `best_val.pt`) is chained on `luffy` to decompose the two effects; not yet synced locally. The L8 data-quantity ablation (episode-fraction sweep 20/40/60/80/100%, `scripts/ablation_ofat/run_l8_dataquantity_ablation.sh`) is also running on `luffy` as of 2026-07-13.
+- **8-D ROM follow-ups**: the depth change (6L→5L) is confounded with the state-layout change, so an 8-D/6-layer run is what would attribute the open-loop win to the layout alone; and both the 12-D and 8-D reach policies are single-seed, so the "equivalent RL outcome" conclusion would benefit from a seed repeat.
 - **Arm reaching RL scale-up**: the env, policy, and Chrono validation path are built. The 12-D-ROM policy now reaches **97/100** at 5 cm tol (2026-07-24 subsection), up from the 15-D's 91/100 — it rescued all 6 grazing near-miss timeouts, leaving only **3 hard failures** (goals 27/28/59, deep z ≈ −3.8…−4.4 m in the under-sampled lower workspace). Remaining: those 3 are the data-coverage cap, so either collect more lower-workspace arm dynamics data or restrict v1 goals to the covered upper/forward shell; separately, decide whether the one-step 5 cm success threshold should become a multi-step hold criterion to reduce training brittleness.
 - **Tracked-vehicle goal-reaching scale-up**: the v2 drive dataset, compact base ROM, PPO goal policy, and the proper **100-goal seeded Chrono benchmark** are built — 100/100 at 0.75 m (2026-07-22 subsection). Remaining: the policy hugs the 0.75 m tolerance (40/100 in the 0.70–0.75 m band), so recompute success at a tighter tol (e.g. 0.5 m) from the saved poses, and decide whether reverse/left-right track commands are needed for tighter final positioning.
 - **Hybrid locomanipulation integration**: combine the first-pass `π_drive` and `π_reach` with a rule-based mode selector from [arm-dyn-model.md](arm-dyn-model.md): drive until the target is inside the arm's sampled workspace, stop/brake the base, then hand off to reach mode. This is the next case-2 systems step; full coupled vehicle+arm learning remains out of scope for v1.

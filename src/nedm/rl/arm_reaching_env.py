@@ -120,7 +120,15 @@ class ArmReachingEnv(VecEnv):
         self._validate_arm_fields()
         self.q_indices = torch.tensor([self.state_index[f"q_{i}"] for i in range(4)], device=self.device)
         self.qd_indices = torch.tensor([self.state_index[f"qd_{i}"] for i in range(4)], device=self.device)
-        self.qcmd_indices = torch.tensor([self.state_index[f"qcmd_{i}"] for i in range(4)], device=self.device)
+        # qcmd is an optional state channel. The 8-D [q, qd] ROM drops it (the absolute
+        # command is the action instead), so the env carries it in its own buffer and the
+        # observation normalizes it with the ACTION stats rather than the state stats.
+        self.qcmd_indices = (
+            torch.tensor([self.state_index[f"qcmd_{i}"] for i in range(4)], device=self.device)
+            if self.has_qcmd_channel
+            else None
+        )
+        self.qcmd_buf = torch.zeros(self.num_envs, 4, dtype=torch.float32, device=self.device)
         # ee_base is an optional state channel: the 15-D model carries it as an input feature
         # (its predicted value is discarded and overwritten with FK every substep), while the
         # 12-D [q, qd, qcmd] model omits it. Either way the end-effector is sourced from FK on
@@ -137,6 +145,15 @@ class ArmReachingEnv(VecEnv):
         self.state_std = torch.clamp(self.model.state_std.to(self.device), min=1.0e-6)
         self.action_mean = self.model.action_mean.to(self.device)
         self.action_std = torch.clamp(self.model.action_std.to(self.device), min=1.0e-6)
+        # Observation normalization for the qcmd block: state stats when qcmd is a state
+        # channel, action stats when it is the action (8-D). Both describe the same
+        # physical quantity, so the observation is numerically equivalent either way.
+        if self.has_qcmd_channel:
+            self.qcmd_obs_mean = self.state_mean[self.qcmd_indices]
+            self.qcmd_obs_std = self.state_std[self.qcmd_indices]
+        else:
+            self.qcmd_obs_mean = self.action_mean
+            self.qcmd_obs_std = self.action_std
 
         self.kin = ArmKinematics.from_json(self.cfg["geometry_path"], device=self.device, dtype=torch.float32)
         safety_cfg = self.cfg["safety"]
@@ -199,22 +216,39 @@ class ArmReachingEnv(VecEnv):
         return self
 
     def _validate_arm_fields(self) -> None:
-        # q/qd/qcmd (4 each) + 4 actions are mandatory; ee_base is optional (see __init__).
-        required_state = (
-            [f"q_{i}" for i in range(4)]
-            + [f"qd_{i}" for i in range(4)]
-            + [f"qcmd_{i}" for i in range(4)]
-        )
-        required_action = [f"act_{i}" for i in range(4)]
+        # q/qd (4 each) are mandatory; qcmd and ee_base are optional state channels and
+        # the action layout may be either a delta or an absolute command (see __init__).
+        required_state = [f"q_{i}" for i in range(4)] + [f"qd_{i}" for i in range(4)]
         missing_state = [field for field in required_state if field not in self.state_index]
-        missing_action = [field for field in required_action if field not in self.action_fields]
-        if missing_state or missing_action:
+        if missing_state:
             raise ValueError(
-                "ArmReachingEnv requires the [q, qd, qcmd] arm state/action layout. "
-                f"missing_state={missing_state}, missing_action={missing_action}"
+                "ArmReachingEnv requires q/qd in the dynamics state layout. "
+                f"missing_state={missing_state}"
             )
         if len(self.action_fields) != 4:
             raise ValueError(f"ArmReachingEnv expects 4 action fields, got {self.action_fields}")
+
+        # Action layout. "delta": a_t = act_t = dqcmd_t, and qcmd rides along as a state
+        # channel (15-D / 12-D ROMs). "absolute": a_t = qcmd_next_t, the joint command the
+        # PD law is actually driving toward across [t, t+1] (8-D ROM, which dropped qcmd
+        # from the state precisely because the action already carries it).
+        if all(f"act_{i}" in self.action_fields for i in range(4)):
+            self.absolute_qcmd_action = False
+        elif all(f"qcmd_next_{i}" in self.action_fields for i in range(4)):
+            self.absolute_qcmd_action = True
+        else:
+            raise ValueError(
+                "ArmReachingEnv requires either the act_* (delta) or qcmd_next_* (absolute) "
+                f"action layout, got {self.action_fields}"
+            )
+
+        self.has_qcmd_channel = all(f"qcmd_{i}" in self.state_index for i in range(4))
+        if not self.has_qcmd_channel and not self.absolute_qcmd_action:
+            raise ValueError(
+                "a dynamics ROM without qcmd state channels must use the absolute "
+                f"qcmd_next_* action layout; got state={self.state_fields}, "
+                f"action={self.action_fields}"
+            )
         self.has_ee_channel = all(
             f"ee_base_{axis}" in self.state_index for axis in ("x", "y", "z")
         )
@@ -270,7 +304,20 @@ class ArmReachingEnv(VecEnv):
             self._overwrite_ee_channels(env_ids)
         self.goal_base[env_ids] = self._sample_safe_goals(env_ids.numel())
 
-        self.actions[env_ids] = self.action_hist[env_ids, -1, :]
+        if self.absolute_qcmd_action:
+            # Seed the command buffer with the command in force over the interval that
+            # produced the last seeded state. In the processed cache action[t] is
+            # qcmd_next_t (the command applied across [t, t+1]), so for the last seeded
+            # state at index L-1 that command is action[L-2] -- which is exactly the
+            # qcmd_{L-1} the act_* layouts read off the state channel (the collector sets
+            # actuator.qcmd = qcmd_next, hence qcmd_{t+1} == qcmd_next_t identically).
+            self.qcmd_buf[env_ids] = self.action_hist[env_ids, -2, :]
+            # self.actions is the DELTA (the action-rate reward normalizes it by dq_max),
+            # so recover it from consecutive absolute commands rather than using the raw
+            # action slot, which holds an absolute pose in this layout.
+            self.actions[env_ids] = self.action_hist[env_ids, -1, :] - self.action_hist[env_ids, -2, :]
+        else:
+            self.actions[env_ids] = self.action_hist[env_ids, -1, :]
         self.last_actions[env_ids] = self.actions[env_ids]
         self.policy_actions[env_ids] = 0.0
         self.last_policy_actions[env_ids] = 0.0
@@ -377,15 +424,25 @@ class ArmReachingEnv(VecEnv):
     def _nn_substep(self, raw_dq: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         current_state = self.state_hist[:, -1, :]
         q = current_state[:, self.q_indices]
-        qcmd = current_state[:, self.qcmd_indices]
+        qcmd = self.current_qcmd()
         safe_dq, unsafe, clearance = self.safety.filter(q, qcmd, raw_dq)
         qcmd_next = torch.clamp(qcmd + safe_dq, self.kin.joint_limits_lo, self.kin.joint_limits_hi)
 
-        self.action_hist[:, -1, :] = safe_dq
+        # What the dynamics model consumes as its action: the delta for the act_* ROMs,
+        # the absolute post-step command for the qcmd_next_* (8-D) ROM. The policy still
+        # emits a delta either way -- only the encoding handed to the ROM differs.
+        model_action = qcmd_next if self.absolute_qcmd_action else safe_dq
+
+        self.action_hist[:, -1, :] = model_action
         k = self.dynamics_context_steps
         delta = self.model.predict_next_delta(self.state_hist[:, -k:, :], self.action_hist[:, -k:, :])
         next_state = current_state + delta
-        next_state[:, self.qcmd_indices] = qcmd_next
+        # qcmd is bookkeeping, never a model prediction: overwrite the channel for the
+        # ROMs that carry it, or advance the env-side buffer for the 8-D ROM.
+        if self.has_qcmd_channel:
+            next_state[:, self.qcmd_indices] = qcmd_next
+        else:
+            self.qcmd_buf = qcmd_next
         # 15-D model only: keep the ee_base input feature consistent with the joints by
         # overwriting the model's (discarded) ee_base prediction with FK. The 12-D model has
         # no such channel, and EE is read from FK on demand (current_ee_base), so skip it.
@@ -395,7 +452,7 @@ class ArmReachingEnv(VecEnv):
         self.state_hist = torch.roll(self.state_hist, shifts=-1, dims=1)
         self.action_hist = torch.roll(self.action_hist, shifts=-1, dims=1)
         self.state_hist[:, -1, :] = next_state
-        self.action_hist[:, -1, :] = safe_dq
+        self.action_hist[:, -1, :] = model_action
         self.actions = safe_dq
         return safe_dq, unsafe, clearance
 
@@ -511,13 +568,13 @@ class ArmReachingEnv(VecEnv):
         current_state = self.state_hist[:, -1, :]
         q = current_state[:, self.q_indices]
         qd = current_state[:, self.qd_indices]
-        qcmd = current_state[:, self.qcmd_indices]
+        qcmd = self.current_qcmd()
         ee = self.current_ee_base()
         error = self.goal_base - ee
 
         q_norm = (q - self.state_mean[self.q_indices]) / self.state_std[self.q_indices]
         qd_norm = (qd - self.state_mean[self.qd_indices]) / self.state_std[self.qd_indices]
-        qcmd_norm = (qcmd - self.state_mean[self.qcmd_indices]) / self.state_std[self.qcmd_indices]
+        qcmd_norm = (qcmd - self.qcmd_obs_mean) / self.qcmd_obs_std
         obs_cfg = self.cfg["observation"]
         cart_scale = float(obs_cfg["cartesian_scale_m"])
         clearance = torch.clamp(
@@ -549,6 +606,16 @@ class ArmReachingEnv(VecEnv):
 
     def current_q(self, env_ids: torch.Tensor | None = None) -> torch.Tensor:
         return self.current_state(env_ids)[:, self.q_indices]
+
+    def current_qcmd(self, env_ids: torch.Tensor | None = None) -> torch.Tensor:
+        """Joint command in force over the interval that produced the current state.
+
+        Read off the state channels for the 15-D/12-D ROMs, or out of the env-side
+        buffer for the 8-D ROM, which carries the command in the action instead.
+        """
+        if self.has_qcmd_channel:
+            return self.current_state(env_ids)[:, self.qcmd_indices]
+        return self.qcmd_buf if env_ids is None else self.qcmd_buf[env_ids]
 
     def current_ee_base(self, env_ids: torch.Tensor | None = None) -> torch.Tensor:
         return self.kin.ee_base(self.current_q(env_ids))
