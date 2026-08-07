@@ -55,9 +55,8 @@ artifacts/rl_runs/*
 !artifacts/rl_runs/hmmwv_rl_15d_crm2000mix100_onehot_ofatL8_bestval54_crmonly20_K16_64steps_ar02_state_vxvyyr_pos2_yaw2_steerlim010_1000it/
 !artifacts/rl_runs/chrono_eval_comparisons/
 # Study Case II: the tracked-base goal-reaching policy transferred to Chrono
-# (100/100), and the earlier run whose reward curve the training figure reads.
+# (100/100). Its own tfevents feed the reward figure.
 !artifacts/rl_runs/tracked_goal_v2_far_rollsel_rom_20260721/
-!artifacts/rl_runs/tracked_goal_v2_far/
 
 !artifacts/rl_runs_arm_goal_reach/
 artifacts/rl_runs_arm_goal_reach/*

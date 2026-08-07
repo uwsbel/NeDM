@@ -2,8 +2,11 @@
 """PPO convergence figure for the two Study Case II goal-reaching policies.
 
 Two stacked panels, one per task:
-  (a) tracked-base planar goal reaching (run tracked_goal_v2_far)
-  (b) arm end-effector reaching (run arm_reach_..._luffy_repro_20260702)
+  (a) tracked-base planar goal reaching (run tracked_goal_v2_far_rollsel_rom_20260721)
+  (b) arm end-effector reaching (run arm_reach_..._8d_rom_20260727)
+
+Both panels read the run that was actually transferred to Chrono, so the reward
+curve and the reported transfer result come from the same policy.
 
 Each panel shows the mean episode reward vs PPO iteration, read from the rsl-rl
 tensorboard logs, with a wall-clock top axis. Styled to match the Study Case I
@@ -21,7 +24,8 @@ import numpy as np
 from tensorboard.backend.event_processing.event_accumulator import EventAccumulator
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-TRACKED_EV = REPO_ROOT / "artifacts/rl_runs/tracked_goal_v2_far/events.out.tfevents.1783020301.newton.116336.0"
+TRACKED_EV = REPO_ROOT / ("artifacts/rl_runs/tracked_goal_v2_far_rollsel_rom_20260721/"
+    "events.out.tfevents.1784672662.newton.2341918.0")
 ARM_EV = REPO_ROOT / ("artifacts/rl_runs_arm_goal_reach/"
     "arm_reach_adaptivekl005_lr1e4_tol005_ep150_bonus150_sigma015_8d_rom_20260727/"
     "events.out.tfevents.1785176587.newton.3199792.0")
@@ -91,7 +95,8 @@ def main() -> int:
     out_dir.mkdir(parents=True, exist_ok=True)
 
     fig, (ax_a, ax_b) = plt.subplots(2, 1, figsize=(4.8, 5.6))
-    panel(ax_a, TRACKED_EV, "(a)", 1500)
+    # Both runs' final checkpoint is model_1499.pt -- that is what transferred.
+    panel(ax_a, TRACKED_EV, "(a)", 1499)
     panel(ax_b, ARM_EV, "(b)", 1499)
 
     fig.tight_layout(h_pad=2.2)

@@ -240,12 +240,21 @@ inference cost from `scripts/bench_dynamics_inference.py`.
    column cannot be re-run until it is rebuilt with
    `scripts/build_crm_rl_references.py` from `datasets/hmmwv_crm_2000`
    (seed 20260623, `min10` displacement filter).
-2. **`plot_tracked_arm_rl_reward.py` reads a different run than the one
-   transferred.** Panel (a) uses `rl_runs/tracked_goal_v2_far`, while the 100/100
-   Chrono result comes from `tracked_goal_v2_far_rollsel_rom_20260721`. Both runs
-   plateau at essentially the same mean reward (324.0 vs 325.4), so the curve is
-   not misleading, but the source should be corrected and the figure regenerated.
-   Both run directories are tracked until then.
+2. **Manuscript prose still describes the pre-correction reward run.**
+   `plot_tracked_arm_rl_reward.py` read `rl_runs/tracked_goal_v2_far` while the
+   100/100 Chrono result comes from `tracked_goal_v2_far_rollsel_rom_20260721`.
+   Fixed and the figure regenerated on 2026-08-07; the curve is unchanged in
+   shape (both runs plateau near 325). Three numbers in Sec. V-D-1 and Table 5
+   came from the old run and are now wrong:
+   - the transfer checkpoint is **iteration 1499**, not 1500 (there is no
+     `model_1500.pt` in the transferred run);
+   - that run was scheduled for **1,500** iterations, not 3,000 — 3,000 was the
+     older run's `max_iterations`;
+   - its wall-clock is 10.0 min, so the "≈10 min" claim still holds, as does
+     "the arm run is ≈6× longer" (57 min / 10.0 min = 5.7×).
+
+   Appendix A is unaffected: `Perf/total_fps` averages 163,022 over the correct
+   run versus 163,170 over the old one, both ≈163,000.
 3. **Dataset scale in the manuscript's Table 1.** It reports the flat set as
    ≈82k episodes / 329 M–81 M transitions, which describes the older
    `hmmwv_turn_300g` collection. The deployed model trains on

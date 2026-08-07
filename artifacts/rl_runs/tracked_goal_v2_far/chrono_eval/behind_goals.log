@@ -1,3 +1,0 @@
-goal=(-18.0,8.0) dist0=19.7m  REACHED in 20.1s  min_dist=0.665m  steps=201  wall=74s  -> goal2.npz
-goal=(-15.0,-12.0) dist0=19.2m  REACHED in 18.7s  min_dist=0.661m  steps=187  wall=69s  -> goal3.npz
-ALL DONE
