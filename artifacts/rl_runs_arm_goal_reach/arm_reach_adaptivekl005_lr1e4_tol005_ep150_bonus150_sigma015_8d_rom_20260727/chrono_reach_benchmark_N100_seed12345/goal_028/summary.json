@@ -1,0 +1,45 @@
+{
+  "backend": "chrono_arm_reaching",
+  "policy_checkpoint": "/home/harry/NeDM/artifacts/rl_runs_arm_goal_reach/arm_reach_adaptivekl005_lr1e4_tol005_ep150_bonus150_sigma015_8d_rom_20260727/model_1499.pt",
+  "pre_roll_time_s": 6.0,
+  "render": false,
+  "save_render_frames": false,
+  "frame_output_dir": null,
+  "render_steps": 1,
+  "consecutive_goals": false,
+  "goal_duration_s": null,
+  "goal_duration_steps": null,
+  "requested_goals": 1,
+  "num_rollouts": 1,
+  "success_rate": 0.0,
+  "reached_tolerance_rate": 0.0,
+  "mean_final_ee_error_m": 0.09269624948501587,
+  "mean_min_ee_error_m": 0.09269624948501587,
+  "rollouts": [
+    {
+      "steps": 150,
+      "done_reason": "timeout",
+      "final_done_reason": "timeout",
+      "first_done_step": 150,
+      "first_success_step": null,
+      "fixed_duration_steps": null,
+      "success": false,
+      "reached_tolerance": false,
+      "final_ee_error_m": 0.09269624948501587,
+      "min_ee_error_m": 0.09269624948501587,
+      "mean_ee_error_m": 1.5631197690963745,
+      "reward_sum": 19.479291915893555,
+      "unsafe_action_rate": 0.0,
+      "min_clearance_m": 0.13273996114730835,
+      "goal_base": [
+        0.7841200232505798,
+        4.893829822540283,
+        -2.575819969177246
+      ],
+      "contact_kind": null,
+      "contact_links": [],
+      "joint_limit_labels": [],
+      "rollout_index": 0
+    }
+  ]
+}

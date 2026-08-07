@@ -1,0 +1,230 @@
+Actor MLP: Sequential(
+  (0): Linear(in_features=231, out_features=512, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=512, out_features=256, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=256, out_features=128, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=128, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=231, out_features=512, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=512, out_features=256, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=256, out_features=128, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=128, out_features=1, bias=True)
+)
+{"steps": 180.0, "xy_rmse_m": 0.16288349032402039, "xy_mean_m": 0.12506034970283508, "xy_final_m": 0.32716742157936096, "yaw_rmse_rad": 0.014781850390136242, "reward_sum": 175.91448974609375, "reference": "sustained_turn/crm2000_sustained_turn_00269"}
+{"steps": 180.0, "xy_rmse_m": 0.656671941280365, "xy_mean_m": 0.4946945607662201, "xy_final_m": 0.29860934615135193, "yaw_rmse_rad": 0.02472778409719467, "reward_sum": 147.43399047851562, "reference": "sine_steer/crm2000_sine_steer_00116"}
+{"steps": 180.0, "xy_rmse_m": 0.0959034338593483, "xy_mean_m": 0.06939654797315598, "xy_final_m": 0.10710123181343079, "yaw_rmse_rad": 0.007234059739857912, "reward_sum": 178.1817626953125, "reference": "doublet_steer/crm2000_doublet_steer_00156"}
+{"steps": 180.0, "xy_rmse_m": 0.560172438621521, "xy_mean_m": 0.4471466541290283, "xy_final_m": 0.4714278280735016, "yaw_rmse_rad": 0.04914593696594238, "reward_sum": 150.26318359375, "reference": "multi_steer/crm2000_multi_steer_00401"}
+{"steps": 180.0, "xy_rmse_m": 0.16951990127563477, "xy_mean_m": 0.1317054182291031, "xy_final_m": 0.21084026992321014, "yaw_rmse_rad": 0.01153525896370411, "reward_sum": 175.7351837158203, "reference": "chirp_steer/crm2000_chirp_steer_00061"}
+{"steps": 180.0, "xy_rmse_m": 0.23941421508789062, "xy_mean_m": 0.15234257280826569, "xy_final_m": 0.1106598749756813, "yaw_rmse_rad": 0.013339654542505741, "reward_sum": 173.38380432128906, "reference": "steer_brake/crm2000_steer_brake_00153"}
+{"steps": 180.0, "xy_rmse_m": 0.1489897519350052, "xy_mean_m": 0.11465411633253098, "xy_final_m": 0.2205561399459839, "yaw_rmse_rad": 0.020516958087682724, "reward_sum": 176.05906677246094, "reference": "sustained_turn/crm2000_sustained_turn_00336"}
+{"steps": 180.0, "xy_rmse_m": 0.24909381568431854, "xy_mean_m": 0.1603255420923233, "xy_final_m": 0.1521752029657364, "yaw_rmse_rad": 0.029385779052972794, "reward_sum": 168.5224151611328, "reference": "sine_steer/crm2000_sine_steer_00090"}
+{"steps": 180.0, "xy_rmse_m": 0.20394903421401978, "xy_mean_m": 0.14093154668807983, "xy_final_m": 0.04507032781839371, "yaw_rmse_rad": 0.011588677763938904, "reward_sum": 174.76988220214844, "reference": "doublet_steer/crm2000_doublet_steer_00198"}
+{"steps": 180.0, "xy_rmse_m": 0.5771012902259827, "xy_mean_m": 0.40445566177368164, "xy_final_m": 0.10269372910261154, "yaw_rmse_rad": 0.007716902997344732, "reward_sum": 154.83062744140625, "reference": "multi_steer/crm2000_multi_steer_00249"}
+{"steps": 180.0, "xy_rmse_m": 1.1339722871780396, "xy_mean_m": 0.9112938046455383, "xy_final_m": 1.7981351613998413, "yaw_rmse_rad": 0.02195362001657486, "reward_sum": 110.03886413574219, "reference": "chirp_steer/crm2000_chirp_steer_00141"}
+{"steps": 180.0, "xy_rmse_m": 0.1293502300977707, "xy_mean_m": 0.08579672873020172, "xy_final_m": 0.06606733798980713, "yaw_rmse_rad": 0.005802770145237446, "reward_sum": 177.38990783691406, "reference": "steer_brake/crm2000_steer_brake_00024"}
+{"steps": 180.0, "xy_rmse_m": 0.35455965995788574, "xy_mean_m": 0.275418758392334, "xy_final_m": 0.6841577291488647, "yaw_rmse_rad": 0.030399011448025703, "reward_sum": 166.42434692382812, "reference": "sustained_turn/crm2000_sustained_turn_00106"}
+{"steps": 180.0, "xy_rmse_m": 0.3813859820365906, "xy_mean_m": 0.26881709694862366, "xy_final_m": 0.10051733255386353, "yaw_rmse_rad": 0.02035224437713623, "reward_sum": 166.06997680664062, "reference": "sine_steer/crm2000_sine_steer_00082"}
+{"steps": 180.0, "xy_rmse_m": 0.20919393002986908, "xy_mean_m": 0.1547134667634964, "xy_final_m": 0.0884571224451065, "yaw_rmse_rad": 0.006806252524256706, "reward_sum": 174.94830322265625, "reference": "doublet_steer/crm2000_doublet_steer_00064"}
+{"steps": 180.0, "xy_rmse_m": 0.17520782351493835, "xy_mean_m": 0.14617441594600677, "xy_final_m": 0.11121132224798203, "yaw_rmse_rad": 0.02008863352239132, "reward_sum": 174.90219116210938, "reference": "multi_steer/crm2000_multi_steer_00488"}
+{"steps": 180.0, "xy_rmse_m": 0.17578484117984772, "xy_mean_m": 0.10925508290529251, "xy_final_m": 0.610238790512085, "yaw_rmse_rad": 0.014575458131730556, "reward_sum": 175.67324829101562, "reference": "chirp_steer/crm2000_chirp_steer_00260"}
+{"steps": 180.0, "xy_rmse_m": 0.2220858484506607, "xy_mean_m": 0.18516775965690613, "xy_final_m": 0.12194246798753738, "yaw_rmse_rad": 0.03377153351902962, "reward_sum": 171.83004760742188, "reference": "steer_brake/crm2000_steer_brake_00133"}
+{"steps": 180.0, "xy_rmse_m": 0.8594147562980652, "xy_mean_m": 0.7356611490249634, "xy_final_m": 0.529430091381073, "yaw_rmse_rad": 0.019579723477363586, "reward_sum": 128.49615478515625, "reference": "sustained_turn/crm2000_sustained_turn_00018"}
+{"steps": 180.0, "xy_rmse_m": 0.5084835886955261, "xy_mean_m": 0.3891797363758087, "xy_final_m": 0.18050141632556915, "yaw_rmse_rad": 0.01050682831555605, "reward_sum": 158.78903198242188, "reference": "sine_steer/crm2000_sine_steer_00065"}
+{
+  "backend": "chrono_hmmwv",
+  "policy_checkpoint": "/home/harry/NeDM/artifacts/rl_runs/hmmwv_rl_15d_crm2000mix100_onehot_ofatL8_bestval54_crmonly20_K16_64steps_ar02_state_vxvyyr_pos2_yaw2_steerlim010_1000it/model_999.pt",
+  "chrono_config": "configs/hmmwv_crm_eval.json",
+  "pre_roll_time_s": 0.0,
+  "steering_rate_limit": 0.1,
+  "num_rollouts": 20,
+  "mean_xy_rmse_m": 0.360656912997365,
+  "median_xy_rmse_m": 0.23075003176927567,
+  "rollouts": [
+    {
+      "steps": 180.0,
+      "xy_rmse_m": 0.16288349032402039,
+      "xy_mean_m": 0.12506034970283508,
+      "xy_final_m": 0.32716742157936096,
+      "yaw_rmse_rad": 0.014781850390136242,
+      "reward_sum": 175.91448974609375,
+      "reference": "sustained_turn/crm2000_sustained_turn_00269"
+    },
+    {
+      "steps": 180.0,
+      "xy_rmse_m": 0.656671941280365,
+      "xy_mean_m": 0.4946945607662201,
+      "xy_final_m": 0.29860934615135193,
+      "yaw_rmse_rad": 0.02472778409719467,
+      "reward_sum": 147.43399047851562,
+      "reference": "sine_steer/crm2000_sine_steer_00116"
+    },
+    {
+      "steps": 180.0,
+      "xy_rmse_m": 0.0959034338593483,
+      "xy_mean_m": 0.06939654797315598,
+      "xy_final_m": 0.10710123181343079,
+      "yaw_rmse_rad": 0.007234059739857912,
+      "reward_sum": 178.1817626953125,
+      "reference": "doublet_steer/crm2000_doublet_steer_00156"
+    },
+    {
+      "steps": 180.0,
+      "xy_rmse_m": 0.560172438621521,
+      "xy_mean_m": 0.4471466541290283,
+      "xy_final_m": 0.4714278280735016,
+      "yaw_rmse_rad": 0.04914593696594238,
+      "reward_sum": 150.26318359375,
+      "reference": "multi_steer/crm2000_multi_steer_00401"
+    },
+    {
+      "steps": 180.0,
+      "xy_rmse_m": 0.16951990127563477,
+      "xy_mean_m": 0.1317054182291031,
+      "xy_final_m": 0.21084026992321014,
+      "yaw_rmse_rad": 0.01153525896370411,
+      "reward_sum": 175.7351837158203,
+      "reference": "chirp_steer/crm2000_chirp_steer_00061"
+    },
+    {
+      "steps": 180.0,
+      "xy_rmse_m": 0.23941421508789062,
+      "xy_mean_m": 0.15234257280826569,
+      "xy_final_m": 0.1106598749756813,
+      "yaw_rmse_rad": 0.013339654542505741,
+      "reward_sum": 173.38380432128906,
+      "reference": "steer_brake/crm2000_steer_brake_00153"
+    },
+    {
+      "steps": 180.0,
+      "xy_rmse_m": 0.1489897519350052,
+      "xy_mean_m": 0.11465411633253098,
+      "xy_final_m": 0.2205561399459839,
+      "yaw_rmse_rad": 0.020516958087682724,
+      "reward_sum": 176.05906677246094,
+      "reference": "sustained_turn/crm2000_sustained_turn_00336"
+    },
+    {
+      "steps": 180.0,
+      "xy_rmse_m": 0.24909381568431854,
+      "xy_mean_m": 0.1603255420923233,
+      "xy_final_m": 0.1521752029657364,
+      "yaw_rmse_rad": 0.029385779052972794,
+      "reward_sum": 168.5224151611328,
+      "reference": "sine_steer/crm2000_sine_steer_00090"
+    },
+    {
+      "steps": 180.0,
+      "xy_rmse_m": 0.20394903421401978,
+      "xy_mean_m": 0.14093154668807983,
+      "xy_final_m": 0.04507032781839371,
+      "yaw_rmse_rad": 0.011588677763938904,
+      "reward_sum": 174.76988220214844,
+      "reference": "doublet_steer/crm2000_doublet_steer_00198"
+    },
+    {
+      "steps": 180.0,
+      "xy_rmse_m": 0.5771012902259827,
+      "xy_mean_m": 0.40445566177368164,
+      "xy_final_m": 0.10269372910261154,
+      "yaw_rmse_rad": 0.007716902997344732,
+      "reward_sum": 154.83062744140625,
+      "reference": "multi_steer/crm2000_multi_steer_00249"
+    },
+    {
+      "steps": 180.0,
+      "xy_rmse_m": 1.1339722871780396,
+      "xy_mean_m": 0.9112938046455383,
+      "xy_final_m": 1.7981351613998413,
+      "yaw_rmse_rad": 0.02195362001657486,
+      "reward_sum": 110.03886413574219,
+      "reference": "chirp_steer/crm2000_chirp_steer_00141"
+    },
+    {
+      "steps": 180.0,
+      "xy_rmse_m": 0.1293502300977707,
+      "xy_mean_m": 0.08579672873020172,
+      "xy_final_m": 0.06606733798980713,
+      "yaw_rmse_rad": 0.005802770145237446,
+      "reward_sum": 177.38990783691406,
+      "reference": "steer_brake/crm2000_steer_brake_00024"
+    },
+    {
+      "steps": 180.0,
+      "xy_rmse_m": 0.35455965995788574,
+      "xy_mean_m": 0.275418758392334,
+      "xy_final_m": 0.6841577291488647,
+      "yaw_rmse_rad": 0.030399011448025703,
+      "reward_sum": 166.42434692382812,
+      "reference": "sustained_turn/crm2000_sustained_turn_00106"
+    },
+    {
+      "steps": 180.0,
+      "xy_rmse_m": 0.3813859820365906,
+      "xy_mean_m": 0.26881709694862366,
+      "xy_final_m": 0.10051733255386353,
+      "yaw_rmse_rad": 0.02035224437713623,
+      "reward_sum": 166.06997680664062,
+      "reference": "sine_steer/crm2000_sine_steer_00082"
+    },
+    {
+      "steps": 180.0,
+      "xy_rmse_m": 0.20919393002986908,
+      "xy_mean_m": 0.1547134667634964,
+      "xy_final_m": 0.0884571224451065,
+      "yaw_rmse_rad": 0.006806252524256706,
+      "reward_sum": 174.94830322265625,
+      "reference": "doublet_steer/crm2000_doublet_steer_00064"
+    },
+    {
+      "steps": 180.0,
+      "xy_rmse_m": 0.17520782351493835,
+      "xy_mean_m": 0.14617441594600677,
+      "xy_final_m": 0.11121132224798203,
+      "yaw_rmse_rad": 0.02008863352239132,
+      "reward_sum": 174.90219116210938,
+      "reference": "multi_steer/crm2000_multi_steer_00488"
+    },
+    {
+      "steps": 180.0,
+      "xy_rmse_m": 0.17578484117984772,
+      "xy_mean_m": 0.10925508290529251,
+      "xy_final_m": 0.610238790512085,
+      "yaw_rmse_rad": 0.014575458131730556,
+      "reward_sum": 175.67324829101562,
+      "reference": "chirp_steer/crm2000_chirp_steer_00260"
+    },
+    {
+      "steps": 180.0,
+      "xy_rmse_m": 0.2220858484506607,
+      "xy_mean_m": 0.18516775965690613,
+      "xy_final_m": 0.12194246798753738,
+      "yaw_rmse_rad": 0.03377153351902962,
+      "reward_sum": 171.83004760742188,
+      "reference": "steer_brake/crm2000_steer_brake_00133"
+    },
+    {
+      "steps": 180.0,
+      "xy_rmse_m": 0.8594147562980652,
+      "xy_mean_m": 0.7356611490249634,
+      "xy_final_m": 0.529430091381073,
+      "yaw_rmse_rad": 0.019579723477363586,
+      "reward_sum": 128.49615478515625,
+      "reference": "sustained_turn/crm2000_sustained_turn_00018"
+    },
+    {
+      "steps": 180.0,
+      "xy_rmse_m": 0.5084835886955261,
+      "xy_mean_m": 0.3891797363758087,
+      "xy_final_m": 0.18050141632556915,
+      "yaw_rmse_rad": 0.01050682831555605,
+      "reward_sum": 158.78903198242188,
+      "reference": "sine_steer/crm2000_sine_steer_00065"
+    }
+  ]
+}
