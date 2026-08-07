@@ -92,30 +92,36 @@ The first model intentionally does not directly predict:
 
 ## Default Run
 
-The default config is [hmmwv_transformer_v1.json](/home/harry/NeDM/configs/hmmwv_transformer_v1.json).
+This page describes the original 7-D single-terrain pipeline. The deployed model
+is the terrain-conditioned 15-D one — see [progress.md](progress.md) for its
+state definition, training recipe and results.
+
+The default config is the flat+CRM one-hot anchor,
+`configs/hmmwv_transformer_v07_tire_normal_force_omega_300g_crm2000_mix25_rebal_rollout_onehot.json`.
 
 Build the processed dataset:
 
 ```bash
-conda activate tutorial
+conda activate nedm
 python scripts/build_hmmwv_training_dataset.py \
-  --dataset-root artifacts/datasets/hmmwv_overfit_6k \
-  --output-dir artifacts/training_datasets/hmmwv_overfit_6k_seq_v1
+  --dataset-root artifacts/datasets/hmmwv_tire_rigid_300g_shards \
+  --output-dir artifacts/training_datasets/hmmwv_tire_rigid_300g_normal_force_omega_seq_v1
 ```
 
 Train the model:
 
 ```bash
-conda activate tutorial
-python scripts/train_hmmwv_dynamics.py --config configs/hmmwv_transformer_v1.json
+conda activate nedm
+PYTHONPATH=src python scripts/train_hmmwv_dynamics.py \
+  --config configs/ablation_ofat/L8_H8_E256_ctx128.json
 ```
 
 Run rollout evaluation from a saved checkpoint:
 
 ```bash
-conda activate tutorial
-python scripts/eval_hmmwv_rollout.py \
-  --checkpoint artifacts/training_runs/hmmwv_transformer_v1/checkpoints/best_val.pt
+conda activate nedm
+PYTHONPATH=src python scripts/eval_hmmwv_rollout.py \
+  --checkpoint artifacts/training_runs/ablation_ofat/L8_H8_E256_ctx128/checkpoints/best_val.pt
 ```
 
 ## Current Scope
