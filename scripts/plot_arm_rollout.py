@@ -7,7 +7,7 @@ figures: a grid of 3-D EE trajectories, and per-axis (x/y/z) time series showing
 prediction drifts. Companion to ``scripts/eval_arm_rollout.py`` (which reports the numbers).
 
     PYTHONPATH=src python scripts/plot_arm_rollout.py \
-        --checkpoint artifacts/training_runs/arm_transformer_full_v1 --device cuda
+        --checkpoint artifacts/training_runs/arm_transformer_8d_v1 --device cuda
 """
 
 from __future__ import annotations

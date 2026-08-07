@@ -1,7 +1,7 @@
 """Open-loop multi-step rollout EE-accuracy eval for the arm dynamics model.
 
-The arm dynamics model (``configs/arm_transformer_v1.json``) predicts per-step state
-deltas for state = [q, qdot, qcmd, ee_base]. The RL-readiness question is: if a policy
+The arm dynamics model (``configs/arm_transformer_8d_v1.json``) predicts per-step state
+deltas. The RL-readiness question is: if a policy
 rolls this model forward for k steps, how far does the *predicted* end-effector position
 drift from the Chrono ground truth? This script answers that directly — it seeds each
 held-out episode with the first ``context`` recorded steps, then autoregressively rolls
@@ -10,26 +10,21 @@ predicted ``ee_base`` channels against ground truth at several time horizons.
 
 Two EE-readout modes, auto-detected from the model's state fields:
 
-* **channel** (15-D model): ``ee_base`` is a state channel, so the predicted EE is read
-  straight off the rolled state. The GT is the recorded ``ee_base`` state channel.
-* **fk** (12-D ``[q, qd, qcmd]`` model): there is no ``ee_base`` channel, so the predicted
-  EE is ``FK(predicted q)`` via ``ArmKinematics`` on the known arm geometry. The GT is the
-  *same* Chrono-recorded ``ee_base`` — it lives in the processed ``rollout`` array
-  (``rollout_fields = ee_base_{x,y,z}``) rather than the state — so the two modes are scored
-  against identical ground truth and are directly comparable.
+* **fk** (the deployed 8-D ``[q, qd]`` model): there is no ``ee_base`` channel, so the
+  predicted EE is ``FK(predicted q)`` via ``ArmKinematics`` on the known arm geometry.
+  The GT is the Chrono-recorded ``ee_base``, which lives in the processed ``rollout``
+  array (``rollout_fields = ee_base_{x,y,z}``) rather than the state.
+* **channel** (retired 15-D model): ``ee_base`` was a state channel, so the predicted EE
+  was read straight off the rolled state. Kept so the two readouts stay scored against
+  identical ground truth and remain directly comparable.
 
-Either way there is no world-pose integration. The qcmd channels are rolled purely from the
-model too (no deterministic overwrite), so this is a conservative bound — the RL env's exact
-qcmd update can only reduce error.
+Either way there is no world-pose integration.
 
-Run in the nedm env:
+Run in the nedm env (FK mode is auto-selected; geometry defaults to
+``artifacts/arm_geometry/arm_geometry_v1.json``):
 
     PYTHONPATH=src python scripts/eval_arm_rollout.py \
-        --checkpoint artifacts/training_runs/arm_transformer_v1 --device cuda
-
-    # 12-D model (FK mode auto-selected; geometry defaults to arm_geometry_v1.json):
-    PYTHONPATH=src python scripts/eval_arm_rollout.py \
-        --checkpoint artifacts/training_runs/arm_transformer_noee_v1 --device cuda
+        --checkpoint artifacts/training_runs/arm_transformer_8d_v1 --device cuda
 """
 
 from __future__ import annotations

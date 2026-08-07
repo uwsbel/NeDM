@@ -26,7 +26,10 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--config",
         type=Path,
-        default=Path("configs/hmmwv_transformer_v1.json"),
+        default=Path(
+            "configs/hmmwv_transformer_v07_tire_normal_force_omega_300g"
+            "_crm2000_mix25_rebal_rollout_onehot.json"
+        ),
         help="Training config JSON file.",
     )
     parser.add_argument(
