@@ -28,7 +28,7 @@ the collection and preprocessing scripts in the tables below.
 | Sec. V-C | Tracked-base NN-ROM | 5 s rollout 0.105 m XY / 5.85% err/dist, epoch 8 | `training_runs/tracked_transformer_v1` |
 | Sec. V-C | Arm NN-ROM (8-D `[q, q̇]`) | 1.2 mm one-step EE, 1.2% EE drift at 2 s, epoch 76 | `training_runs/arm_transformer_8d_v1` |
 | Sec. V-E, App. G | Tracked-base goal reaching in Chrono | **100/100** at 0.75 m, median closest approach 0.691 m | `rl_runs/tracked_goal_v2_far_rollsel_rom_20260721` |
-| Sec. V-E, App. G | Arm end-effector reaching in Chrono | **97/100** at 0.05 m, zero contacts, zero joint-limit violations | `rl_runs_arm_goal_reach/…_8d_rom_20260727` |
+| Sec. V-E, App. G | Arm end-effector reaching in Chrono | **97/100** at 0.05 m, zero contacts, zero joint-limit violations | `rl_runs/…_8d_rom_20260727` |
 
 Two model-selection rules hold everywhere and are worth stating once:
 
@@ -171,7 +171,7 @@ is judged from the open-loop rollout, not the loss magnitude.
 - ROM: 8-D `[q, q̇]`, action = absolute `q_cmd`, 5L / 8H / E256 / ctx16,
   4.0 M params, `configs/arm_transformer_8d_v1.json`, epoch 76
 - Policy: `scripts/train_arm_rl_reaching.py`, 4,096 envs, 26-D obs, 50 Hz,
-  iteration 1499 → `rl_runs_arm_goal_reach/arm_reach_adaptivekl005_lr1e4_tol005_ep150_bonus150_sigma015_8d_rom_20260727/`
+  iteration 1499 → `rl_runs/arm_reach_adaptivekl005_lr1e4_tol005_ep150_bonus150_sigma015_8d_rom_20260727/`
 - Chrono: `chrono_reach_benchmark_N100_seed12345/` — 97/100 at 0.05 m, median
   reached error 4.17 cm, median convergence 0.9 s, **zero** contacts and **zero**
   joint-limit violations

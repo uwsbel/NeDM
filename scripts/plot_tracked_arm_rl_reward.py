@@ -26,7 +26,7 @@ from tensorboard.backend.event_processing.event_accumulator import EventAccumula
 REPO_ROOT = Path(__file__).resolve().parents[1]
 TRACKED_EV = REPO_ROOT / ("artifacts/rl_runs/tracked_goal_v2_far_rollsel_rom_20260721/"
     "events.out.tfevents.1784672662.newton.2341918.0")
-ARM_EV = REPO_ROOT / ("artifacts/rl_runs_arm_goal_reach/"
+ARM_EV = REPO_ROOT / ("artifacts/rl_runs/"
     "arm_reach_adaptivekl005_lr1e4_tol005_ep150_bonus150_sigma015_8d_rom_20260727/"
     "events.out.tfevents.1785176587.newton.3199792.0")
 DEFAULT_OUT = Path("/home/harry/Manuscripts/ImageArchive/journals/2026/neural-dynamics-model")

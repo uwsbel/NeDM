@@ -32,9 +32,9 @@ architecture, data-quantity and feature ablation arms (Appendices C–E); the
 `hmmwv_transformer_v07_tire_normal_force_omega_300g_crm2000_mix25_rebal_rollout_onehot/`
 is ablation model 10.
 
-Policy checkpoints live beside their PPO runs in `artifacts/rl_runs/` and
-`artifacts/rl_runs_arm_goal_reach/`; the transferred iterations are `model_1000`
-/ `model_999` (HMMWV tracking) and `model_1499` (tracked base, arm).
+Policy checkpoints live beside their PPO runs in `artifacts/rl_runs/`; the
+transferred iterations are `model_1000` / `model_999` (HMMWV tracking) and
+`model_1499` (tracked base, arm).
 
 ## Loading a dynamics checkpoint
 

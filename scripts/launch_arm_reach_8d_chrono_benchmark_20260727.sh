@@ -2,7 +2,7 @@
 # 100-goal seeded Chrono transfer battery for the 8-D-ROM arm reaching policy.
 #
 # The 8-D analog of the 12-D battery at
-#   artifacts/rl_runs_arm_goal_reach/arm_reach_..._noee12d_rom_20260724/chrono_reach_benchmark_N100_seed12345
+#   artifacts/rl_runs/arm_reach_..._noee12d_rom_20260724/chrono_reach_benchmark_N100_seed12345
 # and deliberately byte-comparable to it: same harness (scripts/benchmark_arm_reach_chrono.py),
 # same N=100, same seed=12345, same 5 cm tolerance. The two runs' env_cfg goal blocks are
 # identical (q_lo/q_hi/max_sample_attempts), so the seeded sampler yields the SAME 100 EE
@@ -26,8 +26,8 @@ cd "$REPO_ROOT"
 
 PYTHON_BIN="${PYTHON_BIN:-/home/harry/anaconda3/envs/nedm/bin/python}"
 CONDA_LIB="${CONDA_LIB:-/home/harry/anaconda3/envs/nedm/lib}"
-RUN_DIR="${RUN_DIR:-artifacts/rl_runs_arm_goal_reach/arm_reach_adaptivekl005_lr1e4_tol005_ep150_bonus150_sigma015_8d_rom_20260727}"
-REF_DIR="${REF_DIR:-artifacts/rl_runs_arm_goal_reach/arm_reach_adaptivekl005_lr1e4_tol005_ep150_bonus150_sigma015_noee12d_rom_20260724}"
+RUN_DIR="${RUN_DIR:-artifacts/rl_runs/arm_reach_adaptivekl005_lr1e4_tol005_ep150_bonus150_sigma015_8d_rom_20260727}"
+REF_DIR="${REF_DIR:-artifacts/rl_runs/arm_reach_adaptivekl005_lr1e4_tol005_ep150_bonus150_sigma015_noee12d_rom_20260724}"
 NUM_GOALS="${NUM_GOALS:-100}"
 SEED="${SEED:-12345}"
 SESSION_NAME="${SESSION_NAME:-arm_reach_8d_chrono_bench}"

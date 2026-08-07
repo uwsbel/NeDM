@@ -20,7 +20,7 @@ arm base frame, written to ``goals.json``.
 
 Example:
     PYTHONPATH=src python scripts/benchmark_arm_reach_chrono.py \
-        --run-dir artifacts/rl_runs_arm_goal_reach/<run> \
+        --run-dir artifacts/rl_runs/<run> \
         --num-goals 100 --seed 12345
 """
 

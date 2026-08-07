@@ -57,12 +57,9 @@ artifacts/rl_runs/*
 # Study Case II: the tracked-base goal-reaching policy transferred to Chrono
 # (100/100). Its own tfevents feed the reward figure.
 !artifacts/rl_runs/tracked_goal_v2_far_rollsel_rom_20260721/
-
-!artifacts/rl_runs_arm_goal_reach/
-artifacts/rl_runs_arm_goal_reach/*
 # Study Case II: the arm end-effector reaching policy transferred to Chrono
 # (97/100).
-!artifacts/rl_runs_arm_goal_reach/arm_reach_adaptivekl005_lr1e4_tol005_ep150_bonus150_sigma015_8d_rom_20260727/
+!artifacts/rl_runs/arm_reach_adaptivekl005_lr1e4_tol005_ep150_bonus150_sigma015_8d_rom_20260727/
 
 # Consecutive-waypoint routes: the manuscript figure chains eight goals along
 # the bowtie route; the square and plain fig-8 routes were exploratory.
@@ -73,8 +70,6 @@ artifacts/rl_runs/tracked_goal_v2_far_rollsel_rom_20260721/chrono_waypoints_*/
 artifacts/rl_runs/**/frames/
 artifacts/rl_runs/**/renders/
 artifacts/rl_runs/**/*.tmux_session
-artifacts/rl_runs_arm_goal_reach/**/frames/
-artifacts/rl_runs_arm_goal_reach/**/renders/
 
 # --- Reference trajectory sets ----------------------------------------------
 !artifacts/rl_reference_sets/

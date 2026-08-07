@@ -18,7 +18,7 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
 PYTHON_BIN="${PYTHON_BIN:-/home/harry/anaconda3/envs/nedm/bin/python}"
-OUTPUT_ROOT="${OUTPUT_ROOT:-artifacts/rl_runs_arm_goal_reach}"
+OUTPUT_ROOT="${OUTPUT_ROOT:-artifacts/rl_runs}"
 RUN_NAME="${RUN_NAME:-arm_reach_adaptivekl005_lr1e4_tol005_ep150_bonus150_sigma015_8d_rom_20260727}"
 SESSION_NAME="${SESSION_NAME:-arm_reach_8d_20260727}"
 LAUNCH_LOG="$OUTPUT_ROOT/$RUN_NAME.launch.log"

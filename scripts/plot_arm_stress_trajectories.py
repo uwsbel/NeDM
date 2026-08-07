@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 REPO = Path(__file__).resolve().parents[1]
-BENCH = REPO / ("artifacts/rl_runs_arm_goal_reach/"
+BENCH = REPO / ("artifacts/rl_runs/"
     "arm_reach_adaptivekl005_lr1e4_tol005_ep150_bonus150_sigma015_8d_rom_20260727/"
     "chrono_reach_benchmark_N100_seed12345")
 DEFAULT_OUT = Path("/home/harry/Manuscripts/ImageArchive/journals/2026/"

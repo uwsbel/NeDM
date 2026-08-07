@@ -94,7 +94,7 @@ from eval_tracked_rl_goal_chrono import add_goal_marker, remove_goal_marker
 DEFAULT_TRACKED_CHECKPOINT = REPO_ROOT / "artifacts/rl_runs/tracked_goal_v2_far/model_1500.pt"
 DEFAULT_ARM_RUN_DIR = (
     REPO_ROOT
-    / "artifacts/rl_runs_arm_goal_reach"
+    / "artifacts/rl_runs"
     / "arm_reach_adaptivekl005_lr1e4_tol005_ep150_bonus150_sigma015_luffy_repro_20260702"
 )
 
