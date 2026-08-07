@@ -247,7 +247,7 @@ Only raise `num_proximity_search_steps` above `1` after comparing force, sinkage
 
 Design target files:
 
-- `test/test_log_hmmwv_crm_tire_force.py`
+- `test/test_log_crm_tire_force.py`
   - single HMMWV CRM smoke test
   - validates FSI force logging and vehicle motion
 
@@ -345,7 +345,7 @@ Gate 4: model-training smoke
 
 ## Scale-Up Path
 
-1. Implement and pass `test/test_log_hmmwv_crm_tire_force.py`.
+1. Implement and pass `test/test_log_crm_tire_force.py`.
 2. Add `terrain.type = "crm"` to the collector with `force_source = "crm_fsi"`.
 3. Collect a 4 to 12 episode smoke shard.
 4. Build a smoke processed cache with `tire_force_omega`.
