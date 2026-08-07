@@ -7,25 +7,91 @@ __pycache__/
 # Project Chrono is treated as a local simulator dependency, not vendored source.
 chrono/
 
-# Never commit generated/raw datasets or processed cache arrays.
+# ---------------------------------------------------------------------------
+# artifacts/
+#
+# Deny everything, then re-include exactly the runs and outputs that reproduce
+# the manuscript. This is an allowlist on purpose: the previous deny-all rule
+# forced every kept run to be `git add -f`'d by hand, and the runs added that
+# way went stale -- the reported L8 and 8-D policies were never committed at
+# all. With an allowlist, a paper artifact that is missing a rule shows up in
+# `git status` instead of silently staying untracked.
+#
+# Raw episode CSVs (artifacts/datasets, ~337 GB) and processed cache arrays
+# (artifacts/training_datasets, ~73 GB) are always local-only; collect and
+# preprocess them with the scripts in scripts/ and scripts/cluster/.
+# ---------------------------------------------------------------------------
 artifacts/*
+
+# --- Dynamics-model training runs ------------------------------------------
 !artifacts/training_runs/
-!artifacts/training_runs/**/
-artifacts/datasets/
-artifacts/training_datasets/
+artifacts/training_runs/*
+# Study Case I: the OFAT architecture sweep, plus its data-quantity, data-mix
+# and feature arms. One directory serves the terrain-conditioned model, both
+# single-terrain specialists, and Appendices C, D and E.
+!artifacts/training_runs/ablation_ofat/
+# Study Case I: the shared 6-layer anchor (ablation model 10), trained once.
+!artifacts/training_runs/hmmwv_transformer_v07_tire_normal_force_omega_300g_crm2000_mix25_rebal_rollout_onehot/
+# Study Case II: the two deployed reduced models.
+!artifacts/training_runs/arm_transformer_8d_v1/
+!artifacts/training_runs/tracked_transformer_v1/
 
-# RL outputs (policy checkpoints, eval rollouts, reference sets) stay local.
-artifacts/rl_runs/
-artifacts/rl_reference_sets/
-
-# Keep training metadata and best checkpoints, but skip bulky duplicate/runtime outputs.
+# Within a kept run: metadata and the selected checkpoint only. best_val.pt is
+# written by the `rollout_sel` selection metric, so it is the rollout-selected
+# epoch, not the lowest one-step loss.
 artifacts/training_runs/*_interrupted_*/
 artifacts/training_runs/**/*.tmux_session
 artifacts/training_runs/**/plots/
 artifacts/training_runs/**/checkpoints/*
 !artifacts/training_runs/**/checkpoints/best_val.pt
-!artifacts/training_runs/**/*.json
-!artifacts/training_runs/**/*.jsonl
-!artifacts/training_runs/**/*.md
-!artifacts/training_runs/**/*.log
-!artifacts/training_runs/**/*.txt
+
+# --- RL runs ----------------------------------------------------------------
+!artifacts/rl_runs/
+artifacts/rl_runs/*
+# Study Case I: the three tracking policies compared in the policy-transfer
+# table, each with its nine-cell Chrono evaluation output.
+!artifacts/rl_runs/hmmwv_rl_15d_crm2000mix25_onehot_ofatL8_bestval51_flat20crm20_K16_64steps_ar02_state_vxvyyr_pos2_yaw2_steerlim010/
+!artifacts/rl_runs/hmmwv_rl_15d_crm2000mix00_onehot_ofatL8_bestval61_rigid20_K16_64steps_ar02_state_vxvyyr_pos2_yaw2_steerlim010_1000it/
+!artifacts/rl_runs/hmmwv_rl_15d_crm2000mix100_onehot_ofatL8_bestval54_crmonly20_K16_64steps_ar02_state_vxvyyr_pos2_yaw2_steerlim010_1000it/
+!artifacts/rl_runs/chrono_eval_comparisons/
+# Study Case II: the tracked-base goal-reaching policy transferred to Chrono
+# (100/100), and the earlier run whose reward curve the training figure reads.
+!artifacts/rl_runs/tracked_goal_v2_far_rollsel_rom_20260721/
+!artifacts/rl_runs/tracked_goal_v2_far/
+
+!artifacts/rl_runs_arm_goal_reach/
+artifacts/rl_runs_arm_goal_reach/*
+# Study Case II: the arm end-effector reaching policy transferred to Chrono
+# (97/100).
+!artifacts/rl_runs_arm_goal_reach/arm_reach_adaptivekl005_lr1e4_tol005_ep150_bonus150_sigma015_8d_rom_20260727/
+
+# Consecutive-waypoint routes: the manuscript figure chains eight goals along
+# the bowtie route; the square and plain fig-8 routes were exploratory.
+artifacts/rl_runs/tracked_goal_v2_far_rollsel_rom_20260721/chrono_waypoints_*/
+!artifacts/rl_runs/tracked_goal_v2_far_rollsel_rom_20260721/chrono_waypoints_fig8_bowtie/
+
+# Rendered frame dumps and tmux bookkeeping inside a kept RL run stay local.
+artifacts/rl_runs/**/frames/
+artifacts/rl_runs/**/renders/
+artifacts/rl_runs/**/*.tmux_session
+artifacts/rl_runs_arm_goal_reach/**/frames/
+artifacts/rl_runs_arm_goal_reach/**/renders/
+
+# --- Reference trajectory sets ----------------------------------------------
+!artifacts/rl_reference_sets/
+artifacts/rl_reference_sets/*
+# 40 RL training references (20 flat + 20 CRM, random mid-episode windows) and
+# the 20-reference flat set it is built from.
+!artifacts/rl_reference_sets/hmmwv_tire_normal_force_omega_flat_crm_train_refs_40_1100_randwin_seed20260623.npz
+!artifacts/rl_reference_sets/hmmwv_tire_normal_force_omega_train_refs_20_1100_seed_20260607.npz
+# Held-out rest-start evaluation references, 20 per terrain.
+!artifacts/rl_reference_sets/hmmwv_tire_normal_force_omega_val_refs_20_1100_rest_start.npz
+!artifacts/rl_reference_sets/hmmwv_bumpy_10g_normal_force_omega_val_refs_20_1100_rest_start.npz
+
+# --- Small inputs and generated figures -------------------------------------
+# Arm link geometry: forward kinematics and the collision-clearance shield.
+!artifacts/arm_geometry/
+# Generated Study Case I figures.
+!artifacts/analysis/
+artifacts/analysis/*
+!artifacts/analysis/manuscript_figs/
