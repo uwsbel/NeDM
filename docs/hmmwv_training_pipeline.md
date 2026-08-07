@@ -82,13 +82,13 @@ The first model intentionally does not directly predict:
 
 ## Pipeline Stages
 
-1. Raw episode CSVs are converted into compact train/val arrays with [build_hmmwv_training_dataset.py](/home/harry/NeDM/scripts/build_hmmwv_training_dataset.py).
+1. Raw episode CSVs are converted into compact train/val arrays with [build_hmmwv_training_dataset.py](/home/harry/NeDM/scripts/preprocess/build_hmmwv_training_dataset.py).
 2. The processed dataset stores contiguous `states`, `actions`, `targets`, episode boundaries, and normalization statistics.
-3. [train_hmmwv_dynamics.py](/home/harry/NeDM/scripts/train_hmmwv_dynamics.py) samples fixed-length windows from those arrays and trains the transformer on normalized delta-state loss.
+3. [train_hmmwv_dynamics.py](/home/harry/NeDM/scripts/training/train_hmmwv_dynamics.py) samples fixed-length windows from those arrays and trains the transformer on normalized delta-state loss.
 4. Validation reports:
    - one-step sequence RMSE on held-out windows
    - open-loop rollout RMSE over `1 s`, `2 s`, and `5 s`
-5. [eval_hmmwv_rollout.py](/home/harry/NeDM/scripts/eval_hmmwv_rollout.py) can reload a checkpoint and rerun validation later.
+5. [eval_hmmwv_rollout.py](/home/harry/NeDM/scripts/evaluation/eval_hmmwv_rollout.py) can reload a checkpoint and rerun validation later.
 
 ## Default Run
 
@@ -103,7 +103,7 @@ Build the processed dataset:
 
 ```bash
 conda activate nedm
-python scripts/build_hmmwv_training_dataset.py \
+python scripts/preprocess/build_hmmwv_training_dataset.py \
   --dataset-root artifacts/datasets/hmmwv_tire_rigid_300g_shards \
   --output-dir artifacts/training_datasets/hmmwv_tire_rigid_300g_normal_force_omega_seq_v1
 ```
@@ -112,7 +112,7 @@ Train the model:
 
 ```bash
 conda activate nedm
-PYTHONPATH=src python scripts/train_hmmwv_dynamics.py \
+PYTHONPATH=src python scripts/training/train_hmmwv_dynamics.py \
   --config configs/ablation_ofat/L8_H8_E256_ctx128.json
 ```
 
@@ -120,7 +120,7 @@ Run rollout evaluation from a saved checkpoint:
 
 ```bash
 conda activate nedm
-PYTHONPATH=src python scripts/eval_hmmwv_rollout.py \
+PYTHONPATH=src python scripts/evaluation/eval_hmmwv_rollout.py \
   --checkpoint artifacts/training_runs/ablation_ofat/L8_H8_E256_ctx128/checkpoints/best_val.pt
 ```
 

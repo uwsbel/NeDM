@@ -6,7 +6,7 @@ Build the compact 20-trajectory reference set:
 
 ```bash
 conda activate nedm
-python scripts/build_hmmwv_rl_references.py
+python scripts/preprocess/build_hmmwv_rl_references.py
 ```
 
 The default output is:
@@ -23,7 +23,7 @@ Train PPO with the default terrain-conditioned 15-D dynamics checkpoint
 
 ```bash
 conda activate nedm
-python scripts/train_hmmwv_rl_tracking.py \
+python scripts/training/train_hmmwv_rl_tracking.py \
   --device cuda \
   --num-envs 1024 \
   --max-iterations 2000
@@ -32,22 +32,15 @@ python scripts/train_hmmwv_rl_tracking.py \
 Swap the frozen NN dynamics checkpoint with:
 
 ```bash
-python scripts/train_hmmwv_rl_tracking.py \
+python scripts/training/train_hmmwv_rl_tracking.py \
   --dynamics-checkpoint artifacts/training_runs/<run-name>/checkpoints/best_val.pt \
   --reference-path artifacts/rl_reference_sets/<matching-reference-set>.npz
 ```
 
-Evaluate and plot a trained policy:
+Evaluate the trained policy against the real Chrono HMMWV model:
 
 ```bash
-python scripts/eval_hmmwv_rl_tracking.py \
-  --run-dir artifacts/rl_runs/<run-name>
-```
-
-Evaluate the same policy against the real Chrono HMMWV model:
-
-```bash
-python scripts/eval_hmmwv_rl_chrono_tracking.py \
+python scripts/evaluation/eval_hmmwv_rl_chrono_tracking.py \
   --run-dir artifacts/rl_runs/<run-name> \
   --policy-checkpoint artifacts/rl_runs/<run-name>/model_50.pt \
   --device cpu

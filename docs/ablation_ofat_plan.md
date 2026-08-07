@@ -149,7 +149,7 @@ env-side change. These two runs are an offline-metric study unless that is built
 
 The train-context choice (`block_size`) is distinct from the *deploy* context. On
 the winning checkpoint, sweep the number of last tokens fed at inference with
-`scripts/bench_context_accuracy.py` (K = 128…1) — no retraining. This keeps the
+`scripts/throughput/bench_context_accuracy.py` (K = 128…1) — no retraining. This keeps the
 "dynamics is near-Markovian → K=16 at deploy is as good as full context"
 argument (see the RL dynamics-context speedup work) independent of how much
 context the model was *trained* with.
@@ -159,17 +159,17 @@ context the model was *trained* with.
 ```bash
 PY=/home/harry/anaconda3/envs/nedm/bin/python
 # 1. (re)generate Stage A configs + manifest
-$PY scripts/ablation_ofat/gen_configs.py
+$PY scripts/ablations/gen_configs.py
 # 2. sanity-build every model, no data load
-$PY scripts/ablation_ofat/validate_configs.py
+$PY scripts/ablations/validate_configs.py
 # 3. launch the serial sweep in tmux (idempotent, resumable, skips completed)
-bash scripts/ablation_ofat/launch_sweep.sh
+bash scripts/ablations/launch_sweep.sh
 tail -f artifacts/training_runs/ablation_ofat/sweep.log
 # 4. rank when runs finish (updates live)
-$PY scripts/ablation_ofat/rank_stage_a.py
+$PY scripts/ablations/rank_stage_a.py
 # 5. Stage B: pick top-4, then e.g.
-$PY scripts/ablation_ofat/gen_configs.py --seed 2026061802 --suffix _s2 --only L8_H8_E256_ctx128 ...
-MANIFEST=configs/ablation_ofat/manifest_s2.json bash scripts/ablation_ofat/run_sweep.sh
+$PY scripts/ablations/gen_configs.py --seed 2026061802 --suffix _s2 --only L8_H8_E256_ctx128 ...
+MANIFEST=configs/ablation_ofat/manifest_s2.json bash scripts/ablations/run_sweep.sh
 ```
 
 Input-feature ablation (2026-07-15):
@@ -178,19 +178,19 @@ Input-feature ablation (2026-07-15):
 PY=/home/harry/anaconda3/envs/nedm/bin/python
 # 1. derive the 7-D caches (once; ~20 s + ~9 GB, --verify checks every row)
 for d in tire_rigid_300g crm_2000; do
-  $PY scripts/ablation_ofat/derive_state_subset_dataset.py \
+  $PY scripts/ablations/derive_state_subset_dataset.py \
     --source-dir artifacts/training_datasets/hmmwv_${d}_normal_force_omega_seq_v1 \
     --output-dir artifacts/training_datasets/hmmwv_${d}_body7_seq_v1 \
     --state-field-preset default --verify
 done
 # 2. generate the two configs from the L8 base
-$PY scripts/ablation_ofat/gen_feature_ablation_configs.py --print-diff
+$PY scripts/ablations/gen_feature_ablation_configs.py --print-diff
 # 3. train both serially (idempotent, resumable, skips completed)
 tmux new-session -d -s l8_feature_ablation \
-  'cd ~/NeDM && bash scripts/ablation_ofat/run_l8_feature_ablation.sh; exec bash'
+  'cd ~/NeDM && bash scripts/ablations/run_l8_feature_ablation.sh; exec bash'
 tail -f artifacts/training_runs/ablation_ofat/l8_feature.log
 # 4. compare against the L8 baseline (updates live)
-$PY scripts/ablation_ofat/rank_feature_ablation.py
+$PY scripts/ablations/rank_feature_ablation.py
 ```
 
 Configs: `configs/ablation_ofat/*.json` (+ `manifest.json`). Runs:

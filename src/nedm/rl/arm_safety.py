@@ -2,7 +2,7 @@
 
 The arm dynamics model is trained on free-space motion only, so RL rollouts need
 a fast shield that keeps commanded joint targets inside the free-space envelope.
-This module uses the geometry extracted by ``scripts/extract_arm_geometry.py`` and
+This module uses the geometry extracted by ``scripts/preprocess/extract_arm_geometry.py`` and
 implemented by :class:`nedm.rl.arm_kinematics.ArmKinematics`.
 """
 

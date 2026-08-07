@@ -1223,7 +1223,7 @@ the per-episode `split` field = 1808 train / 352 val):
 
 ```bash
 conda activate nedm   # numpy only; rl env also works
-python scripts/build_hmmwv_training_dataset.py \
+python scripts/preprocess/build_hmmwv_training_dataset.py \
   --dataset-root artifacts/datasets/tracked_vehicle_drive_v2_shards/shard_* \
   --output-dir  artifacts/training_datasets/tracked_drive_v2_seq16_v1 \
   --state-fields vel_body_x_mps vel_body_y_mps yaw_rate_radps

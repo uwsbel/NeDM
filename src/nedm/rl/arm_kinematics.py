@@ -1,7 +1,7 @@
 """Batched torch forward kinematics for the 4-DOF arm.
 
 The arm is a SolidWorks import (non-DH joint frames), so the kinematic geometry is
-*extracted once* from the live Chrono scene (``scripts/extract_arm_geometry.py``) into a JSON
+*extracted once* from the live Chrono scene (``scripts/preprocess/extract_arm_geometry.py``) into a JSON
 spec, and reproduced here as a product-of-exponentials (PoE) FK that runs batched on GPU.
 This gives every link's pose (not just the end-effector) so the RL safety filter
 (``arm_safety.py``) can check link-vs-ground, link-vs-track, and link-vs-link clearance.

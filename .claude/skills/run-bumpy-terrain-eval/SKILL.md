@@ -21,13 +21,13 @@ assign_height_map_index(episode_id, 100)  # = int(md5(f"terrain::{episode_id}"),
 
 1. **Processed cache** from the raw bumpy shards (needed to build references):
    ```bash
-   python scripts/build_hmmwv_training_dataset.py \
+   python scripts/preprocess/build_hmmwv_training_dataset.py \
      --dataset-root artifacts/datasets/hmmwv_bumpy_10g_shards/shard_00{0,1,2,3} \
      --output-dir artifacts/training_datasets/hmmwv_bumpy_10g_seq_v1
    ```
 2. **Rest-start reference set** (zero-speed start so Chrono can warm-start — see the chrono-rl-reference-rest-start memory):
    ```bash
-   python scripts/build_hmmwv_rl_references.py \
+   python scripts/preprocess/build_hmmwv_rl_references.py \
      --processed-dataset-dir artifacts/training_datasets/hmmwv_bumpy_10g_seq_v1 \
      --split train --num-references 20 --segment-nn-steps 1100 --no-random-segment-start \
      --output artifacts/rl_reference_sets/hmmwv_bumpy_refs_20_1100_rest_start.npz
@@ -46,7 +46,7 @@ OUT=$RUN/chrono_eval_model1999_bumpy_pychrono10_steerlimit03
 export LD_LIBRARY_PATH=/home/harry/anaconda3/envs/nedm/lib:$LD_LIBRARY_PATH
 
 for i in $(seq 0 19); do
-  /home/harry/anaconda3/envs/nedm/bin/python scripts/eval_hmmwv_rl_chrono_tracking.py \
+  /home/harry/anaconda3/envs/nedm/bin/python scripts/evaluation/eval_hmmwv_rl_chrono_tracking.py \
     --run-dir "$RUN/_bumpycfg" \
     --policy-checkpoint "$RUN/model_1999.pt" \
     --chrono-config configs/hmmwv_bumpy_eval.json \

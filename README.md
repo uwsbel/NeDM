@@ -52,11 +52,26 @@ expect a checkout at `chrono/` and read `chrono/data` for vehicle assets.
 | `src/nedm/training/` | Preprocessing, the causal-transformer dynamics model, and the trainer with rollout-based checkpoint selection |
 | `src/nedm/rl/` | Vectorized NN-ROM environments and their Chrono-backed twins, plus arm forward kinematics and the clearance shield |
 | `src/arm_model/` | The 4-DOF gripper arm imported from SolidWorks |
-| `scripts/` | Collection, preprocessing, training, evaluation, benchmarking and figure generation |
-| `scripts/ablation_ofat/` | The architecture, data-quantity and feature ablations (Appendices C–E) |
-| `scripts/cluster/` | SLURM array jobs for the large collections |
 | `configs/` | Collection and training configs |
 | `artifacts/` | Checkpoints, run metadata and Chrono evaluation output (datasets stay local) |
+| `test/` | Chrono validation harnesses for the tire-force channels (not a unit-test suite) |
+
+`scripts/` is organised by pipeline stage, in the order you would run them:
+
+| Path | Contents |
+|---|---|
+| `scripts/collection/` | Shard planners and Chrono collectors for the five datasets, plus their validators and small-scale smoke tests |
+| `scripts/preprocess/` | Raw episodes → processed caches; RL reference-set builders; arm FK geometry extraction |
+| `scripts/training/` | The dynamics trainer, the three PPO trainers, and the launchers holding each run's exact hyperparameters |
+| `scripts/ablations/` | Config generation, sweep runners and ranking for Appendices C–E and the specialist comparison |
+| `scripts/evaluation/` | Open-loop rollout eval, Chrono closed-loop transfer, and the seeded 100-goal benchmarks |
+| `scripts/figures/` | The eleven generators behind the manuscript's plotted figures |
+| `scripts/throughput/` | Chrono and NN-ROM throughput probes (Appendix A) and the context-truncation sweep |
+| `scripts/cluster/` | SLURM array jobs for the collections that only run at cluster scale |
+
+Every script under `scripts/` reproduces something the paper reports; nothing else is
+kept. The ablation *artifacts* and *configs* keep their original `ablation_ofat` name
+because it is recorded inside the run metadata.
 
 ## Quick start
 
@@ -64,22 +79,22 @@ Collect a small dataset, build its cache, and train:
 
 ```bash
 conda activate nedm
-python scripts/collect_hmmwv_dataset.py --config configs/hmmwv_overfit_v1.json
-python scripts/build_hmmwv_training_dataset.py --help
-PYTHONPATH=src python scripts/train_hmmwv_dynamics.py \
+python scripts/collection/collect_hmmwv_dataset.py --config configs/hmmwv_overfit_v1.json
+python scripts/preprocess/build_hmmwv_training_dataset.py --help
+PYTHONPATH=src python scripts/training/train_hmmwv_dynamics.py \
   --config configs/hmmwv_transformer_v07_tire_normal_force_omega_300g_crm2000_mix25_rebal_rollout_onehot.json
 ```
 
 The full flat collection is cluster-scale (~305 GB); see
-`scripts/cluster/collect_hmmwv_tire300g.sh` and rehearse with
-`scripts/smoke_test_hmmwv_tire10g.sh` first.
+`scripts/cluster/collect_hmmwv_tire300g.sh`; `scripts/collection/smoke_test_hmmwv_bumpy10g.sh`
+rehearses the same path at small scale first.
 
 Evaluate a trained policy back in Chrono:
 
 ```bash
-PYTHONPATH=src python scripts/eval_hmmwv_rl_chrono_tracking.py --help    # Study Case I
-PYTHONPATH=src python scripts/benchmark_tracked_goal_chrono.py --help    # Study Case II, base
-PYTHONPATH=src python scripts/benchmark_arm_reach_chrono.py --help       # Study Case II, arm
+PYTHONPATH=src python scripts/evaluation/eval_hmmwv_rl_chrono_tracking.py --help    # Study Case I
+PYTHONPATH=src python scripts/evaluation/benchmark_tracked_goal_chrono.py --help    # Study Case II, base
+PYTHONPATH=src python scripts/evaluation/benchmark_arm_reach_chrono.py --help       # Study Case II, arm
 ```
 
 ## Further reading

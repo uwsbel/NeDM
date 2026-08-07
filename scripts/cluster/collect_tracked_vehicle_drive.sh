@@ -108,7 +108,7 @@ for shard in "${shards[@]}"; do
   echo "collecting tracked-vehicle shard $shard -> $output_dir"
   echo "  start_index=$start_index max_scenarios=$SHARD_SIZE"
 
-  "$PYTHON_BIN" scripts/collect_tracked_vehicle_dataset.py \
+  "$PYTHON_BIN" scripts/collection/collect_tracked_vehicle_dataset.py \
     --config "$CONFIG" \
     --output-dir "$output_dir" \
     --start-index "$start_index" \

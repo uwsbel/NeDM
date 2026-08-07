@@ -1,6 +1,6 @@
 ---
 name: hmmwv-chrono-eval
-description: Run HMMWV RL tracking policy checkpoints in the Chrono HMMWV environment for the NeDM repo. Use when Codex needs to evaluate a policy with scripts/eval_hmmwv_rl_chrono_tracking.py, compare NN-env vs Chrono-env results, use rest-start reference sets, choose the correct nedm conda environment, handle pychrono runtime setup, or decide whether to apply a steering-rate limit during Chrono eval.
+description: Run HMMWV RL tracking policy checkpoints in the Chrono HMMWV environment for the NeDM repo. Use when Codex needs to evaluate a policy with scripts/evaluation/eval_hmmwv_rl_chrono_tracking.py, compare NN-env vs Chrono-env results, use rest-start reference sets, choose the correct nedm conda environment, handle pychrono runtime setup, or decide whether to apply a steering-rate limit during Chrono eval.
 ---
 
 # HMMWV Chrono Eval
@@ -65,7 +65,7 @@ Training `/episode/mean_pos_error_m` is closest to eval `xy_mean_m`, not `xy_rms
 Run the Chrono evaluator from an activated `nedm` shell:
 
 ```bash
-MPLCONFIGDIR=/tmp/nedm_mplconfig python scripts/eval_hmmwv_rl_chrono_tracking.py \
+MPLCONFIGDIR=/tmp/nedm_mplconfig python scripts/evaluation/eval_hmmwv_rl_chrono_tracking.py \
   --run-dir /tmp/hmmwv_rl_15d_5090_val_rest_start_eval_cfg_model300 \
   --policy-checkpoint artifacts/rl_runs/hmmwv_rl_15d_5090_2048env_tmux/model_300.pt \
   --device cpu \

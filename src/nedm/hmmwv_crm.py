@@ -2,7 +2,7 @@
 
 This is the single source of truth for the Chrono CRMTerrain setup and the
 FSI-based tire-channel capture. Both the data collector
-(``scripts/collect_hmmwv_crm_smoke.py`` / ``collect_hmmwv_crm_dataset.py``) and
+(``scripts/collection/collect_hmmwv_crm_smoke.py`` / ``collect_hmmwv_crm_dataset.py``) and
 the RL CRM evaluation env (``nedm.rl.hmmwv_chrono_crm_tracking_env``) import from
 here, so the eval terrain physics stays identical to the physics the dynamics
 model was trained on.
@@ -82,7 +82,7 @@ def collect_wheel_runtime(vehicle: Any) -> list[WheelRuntime]:
 def configure_crm_terrain(hmmwv: Any, config: dict[str, Any]) -> tuple[Any, list[WheelRuntime]]:
     """Build a CRMTerrain for ``hmmwv`` from ``config["terrain"]`` and register its wheels.
 
-    Mirrors ``scripts/collect_hmmwv_crm_smoke.configure_crm_terrain``. Reconfigures
+    Mirrors ``scripts/collection/collect_hmmwv_crm_smoke.configure_crm_terrain``. Reconfigures
     the multibody system solver/timestepper/threads (CRM requires it), so call this
     immediately after ``create_hmmwv`` and before stepping.
     """

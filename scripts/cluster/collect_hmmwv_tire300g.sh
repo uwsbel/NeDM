@@ -39,7 +39,7 @@ NUM_SHARDS=128
 JOBS="${SLURM_CPUS_PER_TASK:-16}"
 
 # idempotent; writes shard configs pointing at this machine's chrono data
-python scripts/prepare_hmmwv_tire300g_generation.py --chrono-data-root "$CHRONO_DATA_ROOT"
+python scripts/collection/prepare_hmmwv_tire300g_generation.py --chrono-data-root "$CHRONO_DATA_ROOT"
 
 if [[ -n "${SLURM_ARRAY_TASK_ID:-}" ]]; then
   shards=("$SLURM_ARRAY_TASK_ID")
@@ -61,10 +61,10 @@ PY
   fi
 
   echo "collecting shard $shard -> $output_dir (jobs=$JOBS)"
-  python scripts/collect_hmmwv_dataset.py --config "$config" --jobs "$JOBS"
+  python scripts/collection/collect_hmmwv_dataset.py --config "$config" --jobs "$JOBS"
 
   echo "validating shard $shard"
-  python scripts/validate_hmmwv_tire_dataset.py --dataset-dir "$output_dir"
+  python scripts/collection/validate_hmmwv_tire_dataset.py --dataset-dir "$output_dir"
 done
 
 echo "done: ${shards[*]}"

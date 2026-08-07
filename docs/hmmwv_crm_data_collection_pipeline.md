@@ -10,7 +10,7 @@ Collect HMMWV dynamics episodes on Chrono `CRMTerrain` deformable soil while kee
 - one episode JSON sidecar per episode
 - a shard-level `dataset_index.json`
 - a resolved collector config
-- the same 100 Hz logged state/action schema used by `scripts/build_hmmwv_training_dataset.py`
+- the same 100 Hz logged state/action schema used by `scripts/preprocess/build_hmmwv_training_dataset.py`
 - a processed cache built with `--state-field-preset tire_force_omega`
 
 The first production target should be a fixed-soil CRM dataset, not a broad soil benchmark. Terrain and soil variation can come after a fixed configuration passes rollout and validation checks.
@@ -26,7 +26,7 @@ For a 2000-episode CRM dataset on a workstation:
 ```bash
 cd /home/harry/NeDM
 git pull origin main
-bash scripts/launch_hmmwv_crm2000_collection.sh
+bash scripts/collection/launch_hmmwv_crm2000_collection.sh
 ```
 
 Monitor progress:
@@ -51,7 +51,7 @@ Useful overrides:
 
 ```bash
 PYTHON_BIN=/path/to/nedm/bin/python CHRONO_THREADS=12 BUILD_PROCESSED=1 \
-  bash scripts/launch_hmmwv_crm2000_collection.sh
+  bash scripts/collection/launch_hmmwv_crm2000_collection.sh
 ```
 
 Set `BUILD_PROCESSED=0` to collect raw episodes only. Re-running the launcher
@@ -318,12 +318,12 @@ Gate 2: collector smoke shard
 - every episode CSV has all base and tire columns.
 - all logged values are finite.
 - episode JSON records terrain type, soil parameters, SPH spacing, particle count, BCE count, and force source.
-- generated rows can be read by `scripts/build_hmmwv_training_dataset.py`.
+- generated rows can be read by `scripts/preprocess/build_hmmwv_training_dataset.py`.
 
 Gate 3: processed cache smoke
 
 ```bash
-python scripts/build_hmmwv_training_dataset.py \
+python scripts/preprocess/build_hmmwv_training_dataset.py \
   --dataset-root artifacts/datasets/hmmwv_crm_fixedsoil_10g_shards/smoke \
   --output-dir artifacts/training_datasets/hmmwv_crm_fixedsoil_smoke_force_omega_seq_v1 \
   --state-field-preset tire_force_omega \
@@ -363,7 +363,7 @@ Gate 4: model-training smoke
 The existing preprocessing path can be reused as long as the raw CRM shard has the expected CSV/index layout:
 
 ```bash
-python scripts/build_hmmwv_training_dataset.py \
+python scripts/preprocess/build_hmmwv_training_dataset.py \
   --dataset-root artifacts/datasets/hmmwv_crm_fixedsoil_10g_shards/shard_* \
   --output-dir artifacts/training_datasets/hmmwv_crm_fixedsoil_10g_force_omega_seq_v1 \
   --state-field-preset tire_force_omega \

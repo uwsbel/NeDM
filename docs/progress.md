@@ -10,6 +10,12 @@ tracked artifact tree is now an allowlist in `.gitignore`; a paper artifact that
 is missing a rule shows up in `git status` rather than staying silently
 untracked.
 
+**Layout.** `scripts/` is organised by pipeline stage --- `collection/`,
+`preprocess/`, `training/`, `ablations/`, `evaluation/`, `figures/`,
+`throughput/`, plus `cluster/` for the SLURM array jobs. Every script in there
+reproduces something this document records. The ablation artifacts and configs
+keep their original `ablation_ofat` name, which is recorded inside run metadata.
+
 **Scope of what is in git.** Checkpoints, run metadata, Chrono evaluation output
 and reference sets are version controlled (~2 GB via LFS). Raw episode CSVs
 (`artifacts/datasets/`, ~337 GB) and processed cache arrays
@@ -61,14 +67,14 @@ the eval reproduces the exact per-episode patch each reference was recorded on.
 Regenerate:
 
 ```bash
-python scripts/prepare_hmmwv_tire300g_generation.py     # shard plan
+python scripts/collection/prepare_hmmwv_tire300g_generation.py     # shard plan
 sbatch scripts/cluster/collect_hmmwv_tire300g.sh        # collect (cluster only)
-python scripts/build_hmmwv_training_dataset.py --help   # raw -> cache
-python scripts/ablation_ofat/derive_state_subset_dataset.py   # body7 caches
+python scripts/preprocess/build_hmmwv_training_dataset.py --help   # raw -> cache
+python scripts/ablations/derive_state_subset_dataset.py   # body7 caches
 ```
 
-`bash scripts/smoke_test_hmmwv_tire10g.sh` (and the `bumpy10g` / `crm` variants)
-rehearse the whole path at small scale before committing cluster time.
+`bash scripts/collection/smoke_test_hmmwv_bumpy10g.sh` (and the `crm` variant) rehearse the
+whole path at small scale before committing cluster time.
 
 ### Reduced dynamics model
 
@@ -132,11 +138,11 @@ computed over 7 channels instead of 15 and is not comparable across arms. The
 open-loop column is, since it integrates `vx, vy, ωz`, which every variant keeps.
 
 ```bash
-python scripts/ablation_ofat/gen_configs.py && python scripts/ablation_ofat/validate_configs.py
-bash scripts/ablation_ofat/run_sweep.sh              # Stage A, tmux
-bash scripts/ablation_ofat/run_l8_dataquantity_ablation.sh
-bash scripts/ablation_ofat/run_l8_feature_ablation.sh
-bash scripts/ablation_ofat/run_l8_chrono_eval_newton.sh   # 3-terrain closed loop
+python scripts/ablations/gen_configs.py && python scripts/ablations/validate_configs.py
+bash scripts/ablations/run_sweep.sh              # Stage A, tmux
+bash scripts/ablations/run_l8_dataquantity_ablation.sh
+bash scripts/ablations/run_l8_feature_ablation.sh
+bash scripts/ablations/run_l8_chrono_eval_newton.sh   # 3-terrain closed loop
 ```
 
 ---
@@ -154,7 +160,7 @@ has its own reduced state, ROM and policy.
   (1.41 M train / 0.27 M val)
 - ROM: 3-D `[vx, vy, r]`, 3-D action, 3L / 4H / E96 / ctx16, 0.34 M params,
   `configs/tracked_transformer_v1.json`, epoch 8
-- Policy: `scripts/train_tracked_rl_goal.py`, 2,048 envs, 11-D obs, 10 Hz,
+- Policy: `scripts/training/train_tracked_rl_goal.py`, 2,048 envs, 11-D obs, 10 Hz,
   iteration 1499 → `rl_runs/tracked_goal_v2_far_rollsel_rom_20260721/`
 - Chrono: `chrono_benchmark_N100_seed12345/` — 100/100 at 0.75 m, median
   time-to-success 20.2 s, median path efficiency 0.959
@@ -170,7 +176,7 @@ is judged from the open-loop rollout, not the loss magnitude.
   → `training_datasets/arm_dyn_v3_8d_seq16_v1` (0.76 M train transitions)
 - ROM: 8-D `[q, q̇]`, action = absolute `q_cmd`, 5L / 8H / E256 / ctx16,
   4.0 M params, `configs/arm_transformer_8d_v1.json`, epoch 76
-- Policy: `scripts/train_arm_rl_reaching.py`, 4,096 envs, 26-D obs, 50 Hz,
+- Policy: `scripts/training/train_arm_rl_reaching.py`, 4,096 envs, 26-D obs, 50 Hz,
   iteration 1499 → `rl_runs/arm_reach_adaptivekl005_lr1e4_tol005_ep150_bonus150_sigma015_8d_rom_20260727/`
 - Chrono: `chrono_reach_benchmark_N100_seed12345/` — 97/100 at 0.05 m, median
   reached error 4.17 cm, median convergence 0.9 s, **zero** contacts and **zero**
@@ -180,7 +186,7 @@ The end-effector is **not** a learned channel: it is recovered as `FK(q)` from t
 predicted joints, using the same batched forward kinematics that the safety
 shield already evaluates each step. Geometry lives in
 `artifacts/arm_geometry/arm_geometry_v1.json` (regenerate with
-`scripts/extract_arm_geometry.py`); FK and the clearance shield are
+`scripts/preprocess/extract_arm_geometry.py`); FK and the clearance shield are
 `src/nedm/rl/arm_kinematics.py` and `arm_safety.py`.
 
 Collection is restricted to free-space motion — episodes terminate on
@@ -210,24 +216,24 @@ All twelve scripts write into the manuscript image archive by default; pass
 
 | Figure | Script |
 |---|---|
-| `hmmwv_cotrain_training.pdf` | `scripts/ablation_ofat/manuscript_figs/plot_l8_training_curves.py` |
-| `hmmwv_rl_reward.pdf` | `scripts/ablation_ofat/manuscript_figs/plot_l8_rl_reward.py` |
-| `hmmwv_policy_transfer_bars.pdf` | `scripts/ablation_ofat/manuscript_figs/plot_l8_policy_transfer_bars.py` |
-| `hmmwv_policy_trajectories_grid.pdf` | `scripts/ablation_ofat/manuscript_figs/plot_l8_policy_trajectories_grid.py` |
-| `tracked_arm_training.pdf` | `scripts/plot_tracked_arm_training.py` |
-| `tracked_arm_rl_reward.pdf` | `scripts/plot_tracked_arm_rl_reward.py` |
-| `tracked_stress_trajectories.pdf` | `scripts/plot_tracked_stress_trajectories.py` |
-| `arm_stress_trajectories.pdf` | `scripts/plot_arm_stress_trajectories.py` |
-| `arm_fk_boxes.pdf` | `scripts/plot_arm_fk_boxes.py` |
-| imagery in `study-case-2.pdf` | `scripts/compose_tracked_arm_multiexposure.py` |
+| `hmmwv_cotrain_training.pdf` | `scripts/figures/plot_l8_training_curves.py` |
+| `hmmwv_rl_reward.pdf` | `scripts/figures/plot_l8_rl_reward.py` |
+| `hmmwv_policy_transfer_bars.pdf` | `scripts/figures/plot_l8_policy_transfer_bars.py` |
+| `hmmwv_policy_trajectories_grid.pdf` | `scripts/figures/plot_l8_policy_trajectories_grid.py` |
+| `tracked_arm_training.pdf` | `scripts/figures/plot_tracked_arm_training.py` |
+| `tracked_arm_rl_reward.pdf` | `scripts/figures/plot_tracked_arm_rl_reward.py` |
+| `tracked_stress_trajectories.pdf` | `scripts/figures/plot_tracked_stress_trajectories.py` |
+| `arm_stress_trajectories.pdf` | `scripts/figures/plot_arm_stress_trajectories.py` |
+| `arm_fk_boxes.pdf` | `scripts/figures/plot_arm_fk_boxes.py` |
+| imagery in `study-case-2.pdf` | `scripts/figures/compose_tracked_arm_multiexposure.py` |
 
 `fpp.pdf`, `hmmwv-nnrom.png` and the `study-case-2.pdf` layout are hand-drawn and
 live only in the manuscript repo.
 
-Appendix A throughput numbers come from `scripts/probe_sim_fps.py` (Chrono rows)
+Appendix A throughput numbers come from `scripts/throughput/probe_sim_fps.py` (Chrono rows)
 and the `Perf/total_fps` scalar in each PPO run's tfevents (NN-ROM rows). The
-k=16 context claim comes from `scripts/bench_context_accuracy.py`; per-pass
-inference cost from `scripts/bench_dynamics_inference.py`.
+k=16 context claim comes from `scripts/throughput/bench_context_accuracy.py`, and the
+6.8x collection speedup from `scripts/throughput/sweep_env_context.py`.
 
 ---
 
@@ -238,7 +244,7 @@ inference cost from `scripts/bench_dynamics_inference.py`.
    `artifacts/rl_reference_sets/hmmwv_crm2000_val_refs_20_1100_rest_start_min10_seed20260623.npz`,
    which is not on the filesystem. The recorded results are intact, but the CRM
    column cannot be re-run until it is rebuilt with
-   `scripts/build_crm_rl_references.py` from `datasets/hmmwv_crm_2000`
+   `scripts/preprocess/build_crm_rl_references.py` from `datasets/hmmwv_crm_2000`
    (seed 20260623, `min10` displacement filter).
 2. **Manuscript prose still describes the pre-correction reward run.**
    `plot_tracked_arm_rl_reward.py` read `rl_runs/tracked_goal_v2_far` while the

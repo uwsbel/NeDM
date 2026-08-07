@@ -97,7 +97,7 @@ class HMMWVChronoCRMTrackingEnv(HMMWVChronoTrackingEnv):
         # that to the offscreen eval path is future work.
         raise NotImplementedError(
             "CRM tracking eval does not support rendering yet. Run without --render "
-            "(see scripts/collect_hmmwv_crm_smoke.py --render for CRM VSG visualization)."
+            "(see scripts/collection/collect_hmmwv_crm_smoke.py --render for CRM VSG visualization)."
         )
 
     def _add_reference_line(self, sim: ChronoHMMWVSim, reference_id: int) -> None:  # pragma: no cover
