@@ -1229,7 +1229,7 @@ python scripts/build_hmmwv_training_dataset.py \
   --state-fields vel_body_x_mps vel_body_y_mps yaw_rate_radps
 ```
 
-Train (`configs/tracked_transformer_v1.json`, mirrors `arm_transformer_v1.json` shrunk,
+Train (`configs/tracked_transformer_v1.json`, mirrors the arm transformer config shrunk,
 with open-loop rollout eval enabled):
 
 ```bash

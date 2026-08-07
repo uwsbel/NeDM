@@ -28,14 +28,14 @@ built for the HMMWV collector (``nedm.generated_scenarios``,
 ``nedm.hmmwv_data.sample_channel``): the tracked-vehicle-specific variants
 (sharp/pivot-like arcs, straight stop-and-go) are expressed as config-level
 overrides of the existing ``step_steer``/``multi_steer`` templates -- see
-``configs/tracked_vehicle_drive_v1.json`` -- not new generator code. Driver
+``configs/tracked_vehicle_drive_v2.json`` -- not new generator code. Driver
 commands are evaluated directly from the scenario's continuous profile at
 each recorded step (no ``ChDataDriver`` table/interpolation layer), which is
 simpler and needs no ``driver_sample_step_s`` knob.
 
 Run in the NeDM conda env:
 
-    conda run -n nedm python -m nedm.tracked_vehicle_data --config configs/tracked_vehicle_drive_v1.json
+    conda run -n nedm python -m nedm.tracked_vehicle_data --config configs/tracked_vehicle_drive_v2.json
 
 Add ``--render`` to watch one run in the Irrlicht viewer, ``--dry-run`` to
 resolve the config without running Chrono, ``--list-scenarios`` to print the
@@ -493,7 +493,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Collect tracked-vehicle (M113 + arm-at-home) drive-mode dynamics data."
     )
-    parser.add_argument("--config", default="configs/tracked_vehicle_drive_v1.json",
+    parser.add_argument("--config", default="configs/tracked_vehicle_drive_v2.json",
                         help="Path to the collector config JSON.")
     parser.add_argument("--output-dir", default=None, help="Optional override for the output root.")
     parser.add_argument("--scenario-filter", default=None,

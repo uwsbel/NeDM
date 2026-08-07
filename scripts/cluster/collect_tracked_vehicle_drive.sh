@@ -31,11 +31,10 @@
 #
 # The total scenario count is read from the config itself (not hardcoded),
 # so this stays correct if the config's family counts change -- see
-# TRACKED_NUM_SHARDS below to repartition. To (re)collect v1 instead, override:
-#   TRACKED_CONFIG=configs/tracked_vehicle_drive_v1.json TRACKED_NUM_SHARDS=15 \
-#   TRACKED_OUTPUT_ROOT=artifacts/datasets/tracked_vehicle_drive_v1_shards \
-#   sbatch --export=ALL,TRACKED_CONFIG=configs/tracked_vehicle_drive_v1.json,TRACKED_NUM_SHARDS=15,TRACKED_OUTPUT_ROOT=artifacts/datasets/tracked_vehicle_drive_v1_shards \
-#     --array=5-13%9 scripts/cluster/collect_tracked_vehicle_drive.sh
+# TRACKED_NUM_SHARDS below to repartition. To collect a different config,
+# override all three variables together, e.g.:
+#   sbatch --export=ALL,TRACKED_CONFIG=configs/my_drive_cfg.json,TRACKED_NUM_SHARDS=15,TRACKED_OUTPUT_ROOT=artifacts/datasets/my_drive_shards \
+#     --array=0-14%15 scripts/cluster/collect_tracked_vehicle_drive.sh
 
 set -euo pipefail
 

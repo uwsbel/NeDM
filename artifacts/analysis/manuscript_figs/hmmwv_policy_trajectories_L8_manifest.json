@@ -1,0 +1,115 @@
+{
+  "policies": {
+    "mix25": "Generalist (mix25)",
+    "mix00": "Rigid only",
+    "mix100": "CRM only"
+  },
+  "step_dt_s": 0.05,
+  "terrains": {
+    "rigid": {
+      "terrain": "rigid",
+      "rows": [
+        {
+          "episode_idx": 12,
+          "maneuver_tag": "sustained turn (loop)",
+          "reference": "sustained_turn/t300_s065_sustained_turn_00014",
+          "xy_rmse_m": {
+            "mix25": 0.2688998579978943,
+            "mix00": 0.3067724406719208,
+            "mix100": 0.4269537627696991
+          }
+        },
+        {
+          "episode_idx": 3,
+          "maneuver_tag": "multi-steer (zigzag)",
+          "reference": "multi_steer/t300_s043_multi_steer_00021",
+          "xy_rmse_m": {
+            "mix25": 0.10101515799760818,
+            "mix00": 0.17475217580795288,
+            "mix100": 0.29212817549705505
+          }
+        },
+        {
+          "episode_idx": 19,
+          "maneuver_tag": "sine-steer (wave)",
+          "reference": "sine_steer/t300_s089_sine_steer_00008",
+          "xy_rmse_m": {
+            "mix25": 0.12173037976026535,
+            "mix00": 0.1688019186258316,
+            "mix100": 0.36207905411720276
+          }
+        }
+      ]
+    },
+    "bumpy": {
+      "terrain": "bumpy",
+      "rows": [
+        {
+          "episode_idx": 18,
+          "maneuver_tag": "sustained turn (loop)",
+          "reference": "sustained_turn/b10_s001_sustained_turn_00020",
+          "xy_rmse_m": {
+            "mix25": 0.09556057304143906,
+            "mix00": 0.16287465393543243,
+            "mix100": 1.1891775131225586
+          }
+        },
+        {
+          "episode_idx": 9,
+          "maneuver_tag": "multi-steer (zigzag)",
+          "reference": "multi_steer/b10_s003_multi_steer_00013",
+          "xy_rmse_m": {
+            "mix25": 0.23678678274154663,
+            "mix00": 0.1473396122455597,
+            "mix100": 0.5935799479484558
+          }
+        },
+        {
+          "episode_idx": 1,
+          "maneuver_tag": "sine-steer (wave)",
+          "reference": "sine_steer/b10_s003_sine_steer_00012",
+          "xy_rmse_m": {
+            "mix25": 0.32811927795410156,
+            "mix00": 0.33720892667770386,
+            "mix100": 0.35628819465637207
+          }
+        }
+      ]
+    },
+    "crm": {
+      "terrain": "crm",
+      "rows": [
+        {
+          "episode_idx": 18,
+          "maneuver_tag": "sustained turn (loop)",
+          "reference": "sustained_turn/crm2000_sustained_turn_00018",
+          "xy_rmse_m": {
+            "mix25": 0.3333261013031006,
+            "mix00": 2.017232894897461,
+            "mix100": 0.8594147562980652
+          }
+        },
+        {
+          "episode_idx": 3,
+          "maneuver_tag": "multi-steer (zigzag)",
+          "reference": "multi_steer/crm2000_multi_steer_00401",
+          "xy_rmse_m": {
+            "mix25": 0.30494388937950134,
+            "mix00": 0.9703249335289001,
+            "mix100": 0.560172438621521
+          }
+        },
+        {
+          "episode_idx": 1,
+          "maneuver_tag": "sine-steer (wave)",
+          "reference": "sine_steer/crm2000_sine_steer_00116",
+          "xy_rmse_m": {
+            "mix25": 0.35765111446380615,
+            "mix00": 1.657973289489746,
+            "mix100": 0.656671941280365
+          }
+        }
+      ]
+    }
+  }
+}

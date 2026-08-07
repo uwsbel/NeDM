@@ -53,7 +53,7 @@ EXP_NAME="${EXP_NAME:-hmmwv-nn-tracking}"
 LOGGER="${LOGGER:-tensorboard}"
 MATMUL_PRECISION="${MATMUL_PRECISION:-high}"
 STEERING_RATE_LIMIT="${STEERING_RATE_LIMIT:-}"
-DEFAULT_DYNAMICS_CHECKPOINT="artifacts/training_runs/hmmwv_transformer_v07_tire_normal_force_omega_300g/checkpoints/best_val.pth"
+DEFAULT_DYNAMICS_CHECKPOINT="artifacts/training_runs/ablation_ofat/L8_H8_E256_ctx128/checkpoints/best_val.pt"
 
 if [[ ! -f "$DEFAULT_DYNAMICS_CHECKPOINT" ]]; then
   echo "ERROR: missing dynamics checkpoint: $DEFAULT_DYNAMICS_CHECKPOINT" >&2

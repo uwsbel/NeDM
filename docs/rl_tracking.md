@@ -17,7 +17,9 @@ artifacts/rl_reference_sets/hmmwv_tire_normal_force_omega_train_refs_20_1100_see
 
 It contains 20 fixed-length training-set reference segments, 1100 NN transitions each, built from the 15-D tire-normal-force/omega processed cache. The state is the 7-D base HMMWV state plus four wheel-frame normal-force channels and four spindle angular velocities.
 
-Train PPO with the default 15-D v07 tire-normal-force/omega dynamics checkpoint:
+Train PPO with the default terrain-conditioned 15-D dynamics checkpoint
+(`ablation_ofat/L8_H8_E256_ctx128`). The manuscript's policies instead use the
+40-reference flat+CRM training set — see [progress.md](progress.md):
 
 ```bash
 conda activate nedm

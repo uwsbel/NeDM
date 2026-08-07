@@ -4,6 +4,15 @@
 > "Arm Mobile-Manipulator Study" section of [progress.md](progress.md) (status log).
 > This is the implementation plan for the **reach-mode RL policy** on the trained `f_arm`.
 
+> **Historical.** This is the plan as written against the original 15-D arm ROM.
+> What shipped differs in two ways: the deployed model is the 8-D `[q, q̇]` ROM
+> `artifacts/training_runs/arm_transformer_8d_v1` (end-effector recovered by FK,
+> `q_cmd` treated as the action rather than a state channel), and
+> `configs/arm_reach_rl_v1.json` was never used — `train_arm_rl_reaching.py`
+> takes its settings on the command line, as in
+> `scripts/launch_arm_reach_8d_rom_20260727.sh`. See [progress.md](progress.md)
+> for the delivered pipeline. The design reasoning below still applies.
+
 ## Context
 
 Phases 0–3 are **done**: the arm dynamics model `f_arm` is trained

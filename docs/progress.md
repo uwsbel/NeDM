@@ -1,990 +1,298 @@
 # NeDM Project Progress
 
-A living log of the overall project state, so both of us can see at a glance what is done, what the headline numbers are, and what is next. Update this file whenever a milestone lands or a headline metric changes.
+Reproduction record for *Learning the Right Abstraction: Neural Reduced Dynamics
+for Complex Robot Control* (Zhang and Negrut). Every stage output the manuscript
+reports is listed here with the artifact that produced it and the command that
+regenerates it.
 
-Last updated: 2026-07-13 (new headline RL result: three one-hot policies retrained on the OFAT-sweep-winning **L8** dynamics backbone — generalist, rigid-only, CRM-only — and Chrono-evaluated uniformly across rigid-flat/CRM/bumpy at checkpoint iteration 1000. The L8 generalist now strictly dominates both specialists on every terrain, on both mean and median XY RMSE. See the new 2026-07-13 subsection under Milestone 3. Arm/tracked headline results unchanged since the 2026-07-03/2026-07-02 subsections.)
+Last updated: 2026-08-07 — repo pruned to the manuscript's reproduction set. The
+tracked artifact tree is now an allowlist in `.gitignore`; a paper artifact that
+is missing a rule shows up in `git status` rather than staying silently
+untracked.
 
-## Status At A Glance
+**Scope of what is in git.** Checkpoints, run metadata, Chrono evaluation output
+and reference sets are version controlled (~2 GB via LFS). Raw episode CSVs
+(`artifacts/datasets/`, ~337 GB) and processed cache arrays
+(`artifacts/training_datasets/`, ~73 GB) are local-only — regenerate them with
+the collection and preprocessing scripts in the tables below.
 
-| # | Milestone | Status | Headline result |
+## Status at a glance
+
+| Paper section | Stage output | Headline | Artifact |
 |---|---|---|---|
-| 1 | Rigid flat-terrain HMMWV dataset | Done | ~310 GB across 4 dataset generations, 100 Hz episode CSVs |
-| 2 | NN dynamics model for HMMWV | Done | Upgraded from 7-D state to 15-D tire-normal-force/omega state; current RL backbone is `hmmwv_transformer_v07_tire_normal_force_omega_300g` |
-| 3 | RL tracking on NN dynamics + Chrono eval | Done (first pass); latest backbone = OFAT-winning **L8** dynamics model | Three one-hot policies (generalist/rigid-only/CRM-only) retrained on the deeper L8 dynamics backbone and Chrono-evaluated on rigid-flat/CRM/bumpy at checkpoint iteration 1000: the **L8 generalist now beats both specialists on every terrain**, mean and median XY RMSE, 0/20 early terminations in all 9 cells — see 2026-07-13 subsection |
-| 4 | CRM (deformable soil) generalist dynamics NN | Generalist + ablations trained on 20× CRM (`crm_2000`) with one-hot terrain conditioning | One-hot 75/25 generalist hits **flat 9.1% / CRM 5.8%** open-loop 10s err/dist — improving the `crm_100` incumbent on **both** (flat 15.4%→9.1%, CRM 9.4%→5.8%). Single-domain ablations reach **flat 5.0% / CRM 3.7%** in-domain but collapse off-domain (flat-only→CRM 69%, CRM-only→flat 37%): co-training trades ~3–4 pt peak accuracy for cross-domain robustness. All three on `main` (LFS); see 2026-06-24 subsection |
-| 5 | Arm mobile-manipulator reach mode: arm dynamics NN + reaching RL | Done (first pass); rollout-selected ROM + 100-goal Chrono benchmark | `f_arm` retrained with open-loop-rollout checkpoint selection (`arm_transformer_full_v1` ep74, EE drift ~0.5% err/dist @0.5 s). Reach policy retrained on it (`arm_reach_..._rollsel_rom_20260721/model_1499.pt`); 100-goal seeded Chrono stress battery hits **91/100** at 5 cm tol (all 9 misses near-miss timeouts, 0 contacts/joint-limit/unsafe) — see 2026-07-22 subsection. Superseded twice since: the 12-D `[q,qd,qcmd]` ROM reaches **97/100** (2026-07-24), and the 8-D `[q,qd]` ROM with the absolute command as the action matches that **97/100** on a better open-loop ROM at 17 % fewer params (2026-07-27) |
-| 6 | Tracked vehicle drive mode: base NN-ROM + goal-reaching RL | Done (first pass); rollout-selected ROM + 100-goal Chrono benchmark | v2 drive dataset processed to `[vx,vy,yaw_rate]` with **1.41M train / 0.27M val transitions**; drive ROM reselected on open-loop rollout (`tracked_transformer_v1` ep8, 28.7% lower 5 s errdist); goal policy retrained (`tracked_goal_v2_far_rollsel_rom_20260721/model_1499.pt`); 100-goal seeded Chrono stress battery hits **100/100** at 0.75 m tol over r∈[20,40] m, θ∈[-π,π] — see 2026-07-22 subsection |
-
-## Milestone 1: Rigid Flat-Terrain HMMWV Dataset
-
-Fixed simulation regime across all datasets: `HMMWV_Full`, flat rigid terrain, friction `mu = 0.9`, `TMEASY` tires, `SMC` contact, 2 ms simulation step, 100 Hz recording, per-scenario warmup discard, episode-level train/val splits. Pipeline documented in [data_collection_pipeline.md](data_collection_pipeline.md); collector in `src/nedm/hmmwv_data.py`.
-
-Datasets generated (local-only, gitignored):
-
-| Dataset | Episodes | Rows | Size | Generated | Notes |
-|---|---:|---:|---:|---|---|
-| `hmmwv_overfit_v1` | 6 | — | small | 2026-03 | Pilot run, one episode per maneuver |
-| `hmmwv_overfit_6k` | 6,000 | 5.7 M | 4.3 GB | 2026-03-09 | Base excitation set: launch/brake, step steer, sine steer, chirp |
-| `hmmwv_aggressive_steer_2k` | 2,000 | 1.9 M | 1.5 GB | 2026-05-24 | Stronger turning maneuvers to fix turn-response gaps |
-| `hmmwv_turn_300g` | 82,000 (82 shards × 1,000) | — | 300 GiB | 2026-05-24 | Turning-focused; low/medium/fast speed bands; families: multi_steer, sustained_turn, sine, chirp, doublet, steer_brake |
-
-Processed sequence caches (in `artifacts/training_datasets/`):
-
-- `hmmwv_overfit_6k_seq_v1` — 4.6 M train / 1.1 M val transitions
-- `hmmwv_overfit_6k_plus_aggressive_steer_2k_seq_v1` — 6.0 M train / 1.5 M val
-- `hmmwv_turn_300g_plus_base_seq_v1` — 329 M train / 81 M val (all 82 shards + base sets)
-
-## Milestone 2: NN Dynamics Model
-
-GPT-style causal transformer over continuous tokens at 100 Hz. The original HMMWV dynamics stack used 10-d state+action tokens (7 state fields plus 3 controls) and predicted the 7-d next-step state delta. The current RL backbone is the upgraded 15-state tire-normal-force/omega model described below. In both versions, position and yaw are reconstructed by integration during rollout. Pipeline documented in [hmmwv_training_pipeline.md](hmmwv_training_pipeline.md); checkpoints in Git LFS per [model_checkpoints.md](model_checkpoints.md).
-
-Training history:
-
-- **v1 / v2_block64** (2026-04) — first models on `hmmwv_overfit_6k_seq_v1`, established the pipeline and rollout-RMSE validation protocol.
-- **v04–v18 architecture sweep** (completed 2026-05-26) — 12 recipes, 80 epochs each, on the full 329 M-transition `hmmwv_turn_300g_plus_base_seq_v1` cache (≈300 GB raw pool). Ranked by median XY RMSE over a fixed set of 20 full validation rollouts:
-  - **v07 `context128_b64`** won on median XY RMSE (5.96 m) — the legacy 7-state RL dynamics backbone before the 15-D upgrade.
-  - **v04 `long_baseline_b32`** had the best mean/max robustness (mean 15.1 m) — the short-context fallback.
-  - Lowest one-step val loss (v18, v12) did **not** give the best rollouts — long-horizon rollout error is the metric that matters.
-- **v3_turn_300g** (2026-05-25) — v3 architecture on the 329 M-transition turn cache, ~20 epochs. Best val loss 0.0477; open-loop rollout XY RMSE 0.002 m @ 1 s, 0.014 m @ 2 s, 0.346 m @ 5 s.
-- **v19–v30 focused sweep** — started 2026-05-26, crashed on the first model (training subprocess died with signal 6); never re-run. Open item.
-
-### 15-D Tire-Normal-Force/Omega Upgrade (2026-06-15)
-
-The current RL backbone has been upgraded from the earlier 7-state dynamics model to a 15-state model that includes tire vertical normal forces and wheel spindle angular velocities:
-
-```text
-artifacts/training_runs/hmmwv_transformer_v07_tire_normal_force_omega_300g/checkpoints/best_val.pth
-```
-
-State fields are:
-
-```text
-vel_body_x_mps, vel_body_y_mps, roll_rad, pitch_rad,
-roll_rate_radps, ang_vel_body_y_radps, yaw_rate_radps,
-tire_fl_force_wheel_fz_n, tire_fr_force_wheel_fz_n,
-tire_rl_force_wheel_fz_n, tire_rr_force_wheel_fz_n,
-tire_fl_spindle_omega_radps, tire_fr_spindle_omega_radps,
-tire_rl_spindle_omega_radps, tire_rr_spindle_omega_radps
-```
-
-Actions remain the 3 driver channels: steering, throttle, braking. The model uses a 128-step context at 100 Hz (`dt_s = 0.01`). The matching RL reference sets are the `hmmwv_tire_normal_force_omega_*` compact `.npz` files under `artifacts/rl_reference_sets/`.
-
-## Milestone 3: RL Tracking (NN Dynamics Training, NN + Chrono Eval)
-
-PPO trajectory-tracking policy trained entirely inside the frozen NN dynamics model, then evaluated both in the NN env and against real Chrono. Documented in [rl_tracking.md](rl_tracking.md); code in `src/nedm/rl/`.
-
-Setup of the current best run (`hmmwv_rl_tracking_v07_8192env_16steps_term1m_20260608`):
-
-- Vectorized NN env: 8,192 parallel envs on GPU, frozen **v07** dynamics checkpoint, `next_state = state + predicted_delta`, pose integrated from body velocity and yaw rate.
-- Policy: rsl-rl PPO, actor/critic MLP 512-256-128 (ELU), empirical obs normalization, 2,000 iterations, 16 steps/env per iteration.
-- Control: one policy action (steering/throttle/brake) held for 5 NN steps → 20 Hz control over 100 Hz dynamics; 180 policy steps per episode (~9 s).
-- Observations: 10-step state/action history + 10-step reference preview. Reward: Gaussian position/yaw/state tracking terms minus action-rate and throttle-brake penalties. Termination at 1 m position error during training.
-- References: 20 fixed 1,100-transition training-set segments spanning all maneuver families (`hmmwv_train_refs_20_1100_rest_start.npz`, rest-start so Chrono can warm-start from zero speed).
-
-Evaluation of `model_1999` over the 20 references (eval termination relaxed to 20 m):
-
-| Eval backend | Median XY RMSE | Mean XY RMSE | Diverged |
-|---|---:|---:|---:|
-| NN dynamics env | 0.170 m | 0.238 m | 0 / 20 |
-| Chrono (sim-to-sim) | 0.245 m | 0.929 m | 1 / 20 |
-
-Chrono transfer detail: 16 of 20 references track under 0.5 m RMSE. The failures concentrate in braking-heavy maneuvers — `steer_brake` 6.8 m (terminated early), `launch_brake` 4.98 m, `aggressive_step_steer` 1.5 m. Turning families (sustained_turn, sine, chirp, doublet, multi_steer) transfer well.
-
-Supporting work that landed with this milestone:
-
-- `create_hmmwv` now honors `yaw_rad` and `fwd_vel_mps` init so Chrono eval can warm-start at the reference pose/speed.
-- Chrono eval gotchas were worked through and recorded: references must start from rest, the reference line must attach to the existing terrain body (a new `ChBody` perturbs the solver), and full-loop multi-reference eval must run one reference per process due to a native stack-smash on repeated sim re-creation.
-- **pychrono 10 verification (2026-06-09)**: new `nedm` conda env with pychrono 10.0.0 from the official `projectchrono` channel (replacing the 9.0.1 `bochengzou` build in `tutorial`). One API rename fixed (`veh.SetDataPath` → `SetVehicleDataPath`, compat shim in `hmmwv_data.py`). Re-ran the full 20-ref Chrono eval (`chrono_eval_model1999_reststart_pychrono10`): median 0.280 m vs 0.245 m under 9.0.1; 15/20 references match within ~0.05 m, marginal references flip both ways (launch_brake improved 4.98→0.45 m; two sine-steer refs diverged). Native fragility persists: eval processes can crash during plotting after the rollout npz is saved.
-- **Steering rate-limit filter (2026-06-09)**: rendered rollout analysis showed the Chrono-10 divergences are abrupt steering reversals shoving the tires into combined-slip saturation (full throttle, vehicle decelerates to a stop). Added a `steering_rate_limit` option to the Chrono eval env (clamp steering to ±threshold of the previous policy step). At 0.3 it eliminates **all** model_1999 divergences with no cost elsewhere: mean 1.360 → 0.255 m, median 0.280 → 0.217 m, diverged 3 → 0; even `steer_brake_s010` (diverged under both pychrono versions) drops to 0.68 m. Training-side hard termination on steering jumps is the follow-up (see `.claude/lessons_learned.md`).
-- **5 GB dynamics/RL scaling-law signal (2026-06-11)**: evaluated `hmmwv_rl_tracking_d005_v07_20260610_2048env_unbuf/model_1300.pt`, whose policy was trained against the `hmmwv_transformer_d005_v07_005g` NN dynamics checkpoint instead of the 300 GB backbone. On the same rest-start 20-reference set (`hmmwv_train_refs_20_1100_rest_start.npz`), NN-env tracking stayed strong: mean 0.186 m, median 0.148 m, 0/20 diverged. Raw Chrono transfer without steering clamp exposed the same steering-jump failure mode as the larger run: mean 1.802 m, median 0.442 m, 3/20 diverged. With the existing `steering_rate_limit=0.3` clamp, all 20 Chrono rollouts completed: mean 0.274 m, median 0.211 m, 0/20 diverged; worst case was `steer_brake/s010_steer_brake_00066` at 0.766 m RMSE. This is important evidence that a scaling law exists for the NN dynamics model: even the 5 GB data-scale model produces a policy whose clamped Chrono transfer is in the same regime as the 300 GB/v07 policy, while the remaining gap shows up as the same controllable action-smoothness pathology rather than broad tracking failure.
-
-### 15-D NN-Dynamics RL Policy (2026-06-15)
-
-The 15-D tire-normal-force/omega dynamics checkpoint now has a trained PPO tracking policy:
-
-```text
-artifacts/rl_runs/hmmwv_rl_15d_5090_2048env_tmux/model_300.pt
-```
-
-Run setup recovered from `env_cfg.json`:
-
-- 2,048 vectorized NN envs
-- frozen dynamics checkpoint: `hmmwv_transformer_v07_tire_normal_force_omega_300g/checkpoints/best_val.pth`
-- training references: `hmmwv_tire_normal_force_omega_train_refs_20_1100_seed_20260607.npz`
-- 20 Hz policy control (`action_repeat = 5` over 100 Hz NN dynamics)
-- 180 policy steps per episode
-- no steering-rate limiter in this run (`steering_rate_limit = None`)
-
-The NN rollout code was optimized to use the model's last-token `predict_next_delta` path; a direct check showed it is numerically identical to the old full-window `predict_delta(... )[:, -1, :]` path (`max_abs_diff = 0.0`). The NN env and eval script now use `torch.no_grad()` rather than wrapping mutable env buffers in outer `torch.inference_mode()`, which avoids PyTorch inference-tensor reset issues under the `nedm` environment.
-
-Evaluation works in both backends:
-
-| Eval set / backend | Metric note | Mean XY RMSE | Median XY RMSE | Mean XY mean error |
-|---|---|---:|---:|---:|
-| Training refs, NN env | closest comparison to training TensorBoard | 0.213 m | 0.169 m | 0.190 m |
-| Filtered val rest-start refs, NN env | held-out validation set, zero/rest handoff | 0.631 m | 0.445 m | 0.462 m |
-| Filtered val rest-start refs, Chrono env | `nedm` env, CPU, no steering clamp | 0.393 m | 0.287 m | 0.279 m |
-
-The training TensorBoard scalar `/episode/mean_pos_error_m` at iteration 301 was `0.173 m`; this is closest to eval `xy_mean_m`, not eval `xy_rmse_m`. Rechecking `model_300.pt` on the original training references gives average `xy_mean_m = 0.190 m`, which is consistent with the training log. The harder held-out rest-start validation set has several outliers, so its aggregate is substantially higher.
-
-Eval artifacts:
-
-- NN train-ref recheck: `artifacts/rl_runs/hmmwv_rl_15d_5090_2048env_tmux/eval_tracking_model_300_train_refs_recheck/`
-- NN held-out rest-start eval: `artifacts/rl_runs/hmmwv_rl_15d_5090_2048env_tmux/eval_tracking_model_300_val_rest_start/`
-- Chrono held-out rest-start eval: `artifacts/rl_runs/hmmwv_rl_15d_5090_2048env_tmux/chrono_eval_tracking_model_300_val_rest_start/`
-- Reference construction/eval workflow skill: `.agents/hmmwv-nn-eval/`
-- Chrono eval workflow skill: `.agents/hmmwv-chrono-eval/`
-
-### 15-D Bumpy-Terrain Data and Transfer Check (2026-06-16)
-
-The existing bumpy raw shards did include tire channels, but the old processed bumpy cache and compact references were 7-D. A new 15-D cache was built from the same raw bumpy heightmap data using the tire-normal-force/omega state preset:
-
-```text
-artifacts/training_datasets/hmmwv_bumpy_10g_normal_force_omega_seq_v1
-```
-
-The cache has 1,104 train episodes / 3.67 M train transitions and 256 val episodes / 0.84 M val transitions. State arrays are 15-D and match the current `hmmwv_transformer_v07_tire_normal_force_omega_300g` checkpoint exactly. New compact 20-reference sets were also built:
-
-- `artifacts/rl_reference_sets/hmmwv_bumpy_10g_normal_force_omega_train_refs_20_1100_seed_20260607.npz`
-- `artifacts/rl_reference_sets/hmmwv_bumpy_10g_normal_force_omega_train_refs_20_1100_rest_start.npz`
-- `artifacts/rl_reference_sets/hmmwv_bumpy_10g_normal_force_omega_val_refs_20_1100_rest_start.npz`
-
-Chrono bumpy evaluation reproduces the terrain per trajectory, not just per rollout index: `HMMWVChronoTrackingEnv._create_sim` resolves the bumpy heightmap from each reference's `episode_id`, and the selected 20 bumpy validation references were verified against the raw episode JSON `height_map_index` values with 0/20 mismatches.
-
-Flat-vs-bumpy comparison for the newer 15-D run used:
-
-```text
-artifacts/rl_runs/hmmwv_rl_15d_5090_2048env_tmux_v2/model_500.pt
-```
-
-The flat references are the existing rigid-terrain validation rest-start set (`t300_*`), while the bumpy references are held-out 15-D bumpy validation rest-start refs (`b10_*`). They are not trajectory-paired, but they use the same policy and the same 20-rollout family mix.
-
-| Eval backend / terrain | Mean XY RMSE | Median XY RMSE | Mean reward | Notes |
-|---|---:|---:|---:|---|
-| NN env, flat refs | 0.429 m | 0.342 m | 162.67 | `eval_tracking_model_500_val_rest_start` |
-| NN env, bumpy refs | 0.458 m | 0.401 m | 146.84 | mild degradation: +7% mean RMSE, +17% median RMSE |
-| Chrono, flat refs | 0.246 m | 0.217 m | 161.44 | `chrono_eval_tracking_model_500_val_rest_start` |
-| Chrono, bumpy refs | 0.615 m | 0.523 m | 135.41 | large degradation: +150% mean RMSE, +142% median RMSE |
-
-Finding: the 15-D NN env shows only mild degradation on bumpy references, but real Chrono bumpy transfer degrades strongly. The worst Chrono bumpy cases were `doublet_steer/b10_s002_doublet_steer_00023` at 1.95 m RMSE and `steer_brake/b10_s002_steer_brake_00021` at 1.74 m RMSE. This indicates that adding tire normal force and spindle omega to the flat-terrain dynamics state helps the policy interface, but it does not by itself close the terrain-domain gap. The dynamics model and policy still need bumpy-terrain adaptation.
-
-Artifacts:
-
-- Flat NN summary: `artifacts/rl_runs/hmmwv_rl_15d_5090_2048env_tmux_v2/eval_tracking_model_500_val_rest_start/summary.json`
-- Flat Chrono summary: `artifacts/rl_runs/hmmwv_rl_15d_5090_2048env_tmux_v2/chrono_eval_tracking_model_500_val_rest_start/summary.json`
-- Bumpy NN summary: `artifacts/rl_runs/hmmwv_rl_15d_5090_2048env_tmux_v2/eval_bumpy15d_model500_val_rest_start/summary.json`
-- Bumpy Chrono summary: `artifacts/rl_runs/hmmwv_rl_15d_5090_2048env_tmux_v2/chrono_eval_bumpy15d_model500_val_rest_start/summary.json`
-
-### Dynamics-Context Speedup for RL Training (2026-06-19)
-
-RL training throughput on the 15-D run was stuck at ~5K steps/s (4090) / ~6.6K (5090) despite 2,048 envs. Root cause, isolated from the RL loop with two new benchmark scripts (`scripts/bench_dynamics_inference.py`, `scripts/bench_context_accuracy.py`): every `_nn_substep` ran the dynamics transformer over the **full `block_size = 128` history** (`state_hist` is allocated at `context_steps`) but only consumes the last token — O(seq²) attention on ~128× more tokens than needed, ×`action_repeat = 5` substeps per policy step. Two findings:
-
-- **Batching saturates around batch = 64**: at seq=128 the GPU is already compute-bound, so 64 → 2,048 envs gives the *same* steps/s. Large batch buys decorrelated experience, not throughput. The "(15,1)→(15,n) is ~free" intuition only holds up to GPU saturation.
-- **The dynamics is near-Markovian**: pose RMSE over 300-step open-loop rollouts is flat (0.09–0.23 m) for context K from 128 down to 1; K=16 is as good as / better than the full 128.
-
-Fix: new `dynamics_context_steps` env config knob (+ `--dynamics-context-steps` CLI flag in `scripts/train_hmmwv_rl_tracking.py`) feeds only the last K tokens to the model. Buffers stay full-size and reset still warm-starts from 128 reference steps — only the model input is sliced (`None` = full context, backward-compatible). Measured on the same 4090, identical config otherwise:
-
-| Dynamics context | steps/s | collection / iter | 2,000-iter ETA |
-|---|---:|---:|---:|
-| Full 128 (baseline) | ~5,080 | 51.4 s | ~29 h |
-| **K = 16** | **~34,000** | **7.6 s** | **~4.4 h** |
-
-≈**6.8× end-to-end speedup** (PPO learning is ~0.2 s/iter, negligible); a bit under the 9× pure-inference gain because the full-size buffer roll + obs assembly are now a larger share of the cost.
-
-Relaunched the `hmmwv_rl_15d_5090_2048env_tmux_v2` config verbatim plus `dynamics_context_steps = 16` as `artifacts/rl_runs/hmmwv_rl_15d_4090_2048env_K16` (on a 4090; the original "5090" run was on a different host). Eval of the new `model_500.pt` vs the original full-context `model_500.pt`, same val rest-start refs (20), same `hmmwv_overfit_v1.json` chrono config, no steering clamp:
-
-| Eval backend | Run | Mean XY RMSE | Median XY RMSE | Diverged |
-|---|---|---:|---:|---:|
-| Chrono (ground truth) | Original (full ctx) | 0.246 m | 0.2167 m | 0 / 20 |
-| Chrono (ground truth) | **K=16** | 0.330 m | **0.2168 m** | 0 / 20 |
-| NN env | Original (full ctx) | 0.429 m | 0.342 m | 0 / 20 |
-| NN env | **K=16** | 0.631 m | 0.324 m | 1 / 20 |
-
-K=16 tracking quality is **on par with full context**: identical Chrono median and zero Chrono divergences. The higher K=16 means come from two hard refs (`steer_brake_s111`, `sustained_turn_s065`); on the other 18 the two runs are within a few cm. The single NN-env divergence (`steer_brake_s111`, 11.9 m in NN dynamics) is an NN-rollout artifact — that same trajectory tracks at 1.30 m in Chrono. Caveat: both are iteration 500 / 2000 (unconverged) from *different* training runs (different hardware/RNG), so the small mean gap is within run-to-run variance; re-compare at a later/converged checkpoint to confirm.
-
-Artifacts:
-
-- K=16 run (in progress): `artifacts/rl_runs/hmmwv_rl_15d_4090_2048env_K16/` (tmux `rl_k16`)
-- K=16 NN eval: `artifacts/rl_runs/hmmwv_rl_15d_4090_2048env_K16/eval_tracking_model_500_val_rest_start/`
-- K=16 Chrono eval: `artifacts/rl_runs/hmmwv_rl_15d_4090_2048env_K16/chrono_eval_tracking_model_500_val_rest_start/`
-- Benchmarks: `scripts/bench_dynamics_inference.py`, `scripts/bench_context_accuracy.py`
-
-### One-Hot Terrain-Conditioned RL 3-Terrain Chrono Eval (2026-06-25)
-
-> **Superseded for the headline by the 2026-06-29 subsection below.** This first eval used the
-> original policies (trained *without* a steering clamp) and a *mixed* eval config — rigid-flat and
-> bumpy re-evaluated with `steering_rate_limit = 0.1`, CRM evaluated with no clamp. The newer
-> `…_steerlim010` policies are trained *and* evaluated with `steering_rate_limit = 0.1` uniformly
-> across all three terrains, and their run dirs / plots are the ones actually committed to `main`.
-> The original (no-suffix) run dirs referenced just below were not synced to this box; only the
-> `rigid_flat_bumpy_3policies_steerlim010_summary.json` aggregate is committed.
-
-The terrain-conditioned dynamics/RL stack now has three comparable `model_500.pt` policies:
-
-- **Mixture generalist**: `artifacts/rl_runs/hmmwv_rl_15d_crm2000mix25_onehot_flat20crm20_K16_64steps_ar02_state_vxvyyr_pos2_yaw2/`
-- **Rigid-only specialist**: `artifacts/rl_runs/hmmwv_rl_15d_crm2000mix00_onehot_rigid20_K16_64steps_ar02_state_vxvyyr_pos2_yaw2/`
-- **CRM-only specialist**: `artifacts/rl_runs/hmmwv_rl_15d_crm2000mix100_onehot_crmonly20_K16_64steps_ar02_state_vxvyyr_pos2_yaw2/`
-
-All three use the same PPO architecture and `K=16`, 64 steps/env/update setup. Rigid-flat and bumpy Chrono evals were rerun with `steering_rate_limit = 0.1` after the bumpy runs showed that abrupt policy steering changes can trip Chrono solver/vehicle failures. CRM Chrono evals use the existing CRM runs without the rigid-terrain steering clamp. The plotted metric is **median XY RMSE** over 20 trajectories; the error bars are IQR (25th to 75th percentile). Lower is better.
-
-| Chrono terrain | Policy | Mean XY RMSE | Median XY RMSE | IQR XY RMSE | Early terminations |
-|---|---|---:|---:|---:|---:|
-| Rigid flat | Mixture | 0.184 m | 0.161 m | 0.130-0.214 m | 0 / 20 |
-| Rigid flat | Rigid-only | **0.158 m** | **0.143 m** | 0.116-0.166 m | 0 / 20 |
-| Rigid flat | CRM-only | 0.204 m | 0.172 m | 0.167-0.239 m | 0 / 20 |
-| CRM | Mixture | 0.164 m | 0.136 m | 0.100-0.195 m | 0 / 20 |
-| CRM | Rigid-only | 0.786 m | 0.505 m | 0.356-0.848 m | 0 / 20 |
-| CRM | CRM-only | 0.165 m | **0.131 m** | 0.120-0.209 m | 0 / 20 |
-| Bumpy | Mixture | **0.182 m** | **0.146 m** | 0.104-0.216 m | 0 / 20 |
-| Bumpy | Rigid-only | 0.242 m | 0.169 m | 0.128-0.332 m | 0 / 20 |
-| Bumpy | CRM-only | 0.231 m | 0.202 m | 0.156-0.267 m | 0 / 20 |
-
-Takeaway: the mixture policy is a strong generalist. It is close to the matching specialists on rigid-flat and CRM, and it is best on the held-out bumpy rigid-heightmap eval after steering-rate limiting. The rigid-only specialist still has the best rigid-flat median, and the CRM-only specialist still has the best CRM median, but each specialist degrades outside its terrain regime; the rigid-only policy is especially poor on CRM.
-
-Artifacts:
-
-- Plot: `artifacts/rl_runs/chrono_eval_comparisons/onehot_policy_3x3_chrono_xy_rmse_median_iqr_model500.png`
-- PDF: `artifacts/rl_runs/chrono_eval_comparisons/onehot_policy_3x3_chrono_xy_rmse_median_iqr_model500.pdf`
-- Stats JSON: `artifacts/rl_runs/chrono_eval_comparisons/onehot_policy_3x3_chrono_xy_rmse_median_iqr_model500.json`
-- CSV: `artifacts/rl_runs/chrono_eval_comparisons/onehot_policy_3x3_chrono_xy_rmse_median_iqr_model500.csv`
-- Rate-limited rigid/bumpy aggregate: `artifacts/rl_runs/chrono_eval_comparisons/rigid_flat_bumpy_3policies_steerlim010_summary.json`
-
-### Steering-rate-limited one-hot RL — uniform 3-terrain Chrono eval (2026-06-29)
-
-The cleaner, self-consistent version of the comparison above. Three new `model_500.pt` policies were
-**trained** with `steering_rate_limit = 0.1` (env config `steering_rate_limit = 0.1`, not just an
-eval-time clamp), and **all three eval terrains apply the same `steering_rate_limit = 0.1`** — so
-rigid-flat, CRM, and bumpy are now directly comparable under one control regime. Same one-hot
-terrain-conditioned dynamics backbones, same PPO architecture, `K=16`, 64 steps/env/update. Plotted
-metric is **median XY RMSE** over 20 trajectories; error bars are IQR (25th–75th percentile). Lower is
-better.
-
-| Chrono terrain | Policy | Mean XY RMSE | Median XY RMSE | IQR XY RMSE | Early terminations |
-|---|---|---:|---:|---:|---:|
-| Rigid flat | Mixture | **0.168 m** | **0.125 m** | 0.109–0.215 m | 0 / 20 |
-| Rigid flat | Rigid-only | 0.219 m | 0.164 m | 0.135–0.240 m | 0 / 20 |
-| Rigid flat | CRM-only | 0.272 m | 0.204 m | 0.168–0.273 m | 0 / 20 |
-| CRM | Mixture | **0.289 m** | 0.191 m | 0.168–0.362 m | 0 / 20 |
-| CRM | Rigid-only | 0.627 m | 0.561 m | 0.374–0.809 m | 0 / 20 |
-| CRM | CRM-only | 0.331 m | **0.166 m** | 0.145–0.333 m | 0 / 20 |
-| Bumpy | Mixture | **0.201 m** | **0.144 m** | 0.107–0.226 m | 0 / 20 |
-| Bumpy | Rigid-only | 0.274 m | 0.229 m | 0.150–0.362 m | 0 / 20 |
-| Bumpy | CRM-only | 0.491 m | 0.254 m | 0.190–0.498 m | 0 / 20 |
-
-Takeaway: under uniform steering-rate limiting the **mixture generalist is the clear best all-rounder** —
-lowest mean XY RMSE on *every* terrain, and lowest median on rigid-flat and bumpy. On CRM it trails the
-CRM-only specialist on median (0.191 vs 0.166 m) but beats it on mean (0.289 vs 0.331 m), i.e. the
-generalist has the tighter tail. Each specialist still degrades off its training terrain — the rigid-only
-policy collapses on CRM (median 0.561 m), and the CRM-only policy is worst on rigid-flat and bumpy. Note
-the flip vs the 2026-06-25 mixed-clamp eval: training the policies with the clamp moves the rigid-flat
-winner from the rigid-only specialist to the mixture generalist (median 0.125 vs 0.164 m), strengthening
-the generalist story; all 9 cells complete 20/20 with zero early terminations.
-
-Policies (all committed to `main`; `model_500.pt` plus full checkpoint history under each):
-
-- Mixture generalist: `artifacts/rl_runs/hmmwv_rl_15d_crm2000mix25_onehot_flat20crm20_K16_64steps_ar02_state_vxvyyr_pos2_yaw2_steerlim010/`
-- Rigid-only specialist: `artifacts/rl_runs/hmmwv_rl_15d_crm2000mix00_onehot_rigid20_K16_64steps_ar02_state_vxvyyr_pos2_yaw2_steerlim010/`
-- CRM-only specialist: `artifacts/rl_runs/hmmwv_rl_15d_crm2000mix100_onehot_crmonly20_K16_64steps_ar02_state_vxvyyr_pos2_yaw2_steerlim010/`
-
-Artifacts:
-
-- Plot: `artifacts/rl_runs/chrono_eval_comparisons/onehot_policy_3x3_chrono_xy_rmse_median_iqr_steerlim010_model500.png`
-- PDF: `artifacts/rl_runs/chrono_eval_comparisons/onehot_policy_3x3_chrono_xy_rmse_median_iqr_steerlim010_model500.pdf`
-- Stats JSON: `artifacts/rl_runs/chrono_eval_comparisons/onehot_policy_3x3_chrono_xy_rmse_median_iqr_steerlim010_model500.json`
-- CSV: `artifacts/rl_runs/chrono_eval_comparisons/onehot_policy_3x3_chrono_xy_rmse_median_iqr_steerlim010_model500.csv`
-
-### OFAT L8 dynamics backbone — RL retrain + uniform 3-terrain Chrono eval (2026-07-13)
-
-A separate architecture ablation (One-Factor-At-A-Time sweep over depth/width/heads/context
-around the 6-layer flat+CRM one-hot generalist anchor above; plan in
-[ablation_ofat_plan.md](ablation_ofat_plan.md)) found that **depth is the dominant lever**:
-scoring all 14 Stage-A configs by `S = min-over-epochs rollout_sel` (the same domain-balanced
-open-loop errdist metric from the 2026-06-24 subsection), the 6-layer anchor ranked only 10th of
-14 (`S = 0.0743`) and every deeper/wider arm beat it. The best was **L8** (8-layer, same
-8-head/256-embd/ctx128 otherwise): `S = 0.0456`, roughly halving the anchor's score, with returns
-saturating past depth 8 (L12 regressed to rank 6). A follow-up L8 data-mix ablation (flat-only
-`L8_H8_E256_ctx128_mix00` best_val ep61, CRM-only `_mix100` best_val ep54, alongside the L8
-generalist `L8_H8_E256_ctx128` best_val ep51) showed *why* L8 wins: at this depth the generalist
-pays **~zero flat tax** (flat 3.73% vs. the flat-only specialist's 3.80%) and only a ~1.2 pt CRM
-tax (5.38% vs. 4.17%) — the 6-layer generalist's flat tax was 3–4 points by comparison. These are
-still NN-vs-recorded-trajectory offline rollout numbers, not closed-loop RL/Chrono.
-
-To validate downstream, the exact 2026-06-29 RL recipe (2,048 envs, `dynamics_context_steps=16`,
-`action_repeat=5`, 64 steps/env/update, PPO actor/critic 512-256-128, **trained with**
-`steering_rate_limit=0.1`) was rerun with only the dynamics checkpoint swapped to each L8 arm's
-own `best_val.pt`:
-
-- Generalist: `artifacts/rl_runs/hmmwv_rl_15d_crm2000mix25_onehot_ofatL8_bestval51_flat20crm20_K16_64steps_ar02_state_vxvyyr_pos2_yaw2_steerlim010/` → dynamics `ablation_ofat/L8_H8_E256_ctx128/checkpoints/best_val.pt` (ep51)
-- Rigid-only specialist: `artifacts/rl_runs/hmmwv_rl_15d_crm2000mix00_onehot_ofatL8_bestval61_rigid20_K16_64steps_ar02_state_vxvyyr_pos2_yaw2_steerlim010_1000it/` → dynamics `ablation_ofat/L8_H8_E256_ctx128_mix00/checkpoints/best_val.pt` (ep61)
-- CRM-only specialist: `artifacts/rl_runs/hmmwv_rl_15d_crm2000mix100_onehot_ofatL8_bestval54_crmonly20_K16_64steps_ar02_state_vxvyyr_pos2_yaw2_steerlim010_1000it/` → dynamics `ablation_ofat/L8_H8_E256_ctx128_mix100/checkpoints/best_val.pt` (ep54)
-
-All three were Chrono-evaluated at **checkpoint iteration 1000** (not 500 — the 2026-06-29 6-layer
-comparison used iteration 500, but these L8 runs were evaluated at 1000) on the same rigid-flat /
-CRM / bumpy 20-reference sets, uniformly with `steering_rate_limit=0.1`. The generalist's training
-run continued past 1000 (checkpoints exist to 1800), but the eval below uses the iteration-1000
-checkpoint to match the two specialists' final iteration — re-evaluating the generalist at a later
-iteration is an open follow-up. Median XY RMSE with IQR error bars, 20 rollouts/cell, **0/20 early
-terminations in every cell**:
-
-| Chrono terrain | Policy | Mean XY RMSE | Median XY RMSE | IQR XY RMSE | Early terminations |
-|---|---|---:|---:|---:|---:|
-| Rigid flat | Generalist | **0.184 m** | **0.157 m** | 0.099–0.236 m | 0 / 20 |
-| Rigid flat | Rigid-only | 0.219 m | 0.174 m | 0.163–0.277 m | 0 / 20 |
-| Rigid flat | CRM-only | 0.259 m | 0.232 m | 0.189–0.328 m | 0 / 20 |
-| CRM | Generalist | **0.249 m** | **0.180 m** | 0.134–0.321 m | 0 / 20 |
-| CRM | Rigid-only | 1.000 m | 0.854 m | 0.365–1.447 m | 0 / 20 |
-| CRM | CRM-only | 0.361 m | 0.231 m | 0.174–0.521 m | 0 / 20 |
-| Bumpy | Generalist | **0.229 m** | **0.149 m** | 0.099–0.247 m | 0 / 20 |
-| Bumpy | Rigid-only | 0.238 m | 0.187 m | 0.159–0.290 m | 0 / 20 |
-| Bumpy | CRM-only | 0.418 m | 0.213 m | 0.166–0.416 m | 0 / 20 |
-
-Headline: on the L8 backbone the **generalist strictly dominates both specialists on every
-terrain**, mean and median alike — it is no longer a robustness trade-off. This is a stronger
-result than the 2026-06-29 6-layer comparison, where each specialist still narrowly won its own
-domain (rigid-only best on rigid-flat, CRM-only best on CRM) and the generalist's edge was being
-the best *all-rounder*. Here the generalist beats the rigid-only specialist on rigid-flat itself
-(0.157 vs 0.174 m median) and beats the CRM-only specialist on CRM itself (0.180 vs 0.231 m
-median), consistent with the near-zero flat tax found at the NN rollout level above.
-
-Caveat: the rigid-only specialist's CRM collapse is *worse* here (0.854 m median) than the
-6-layer rigid-only specialist's CRM collapse was (0.561 m median, 2026-06-29 table) even though
-its own in-domain rigid-flat number is about the same (0.174 vs 0.164 m) — i.e. depth did not
-uniformly help the specialists the way it helped the generalist. Each policy is a single seed at a
-single checkpoint iteration, so treat the specialist-vs-specialist deltas as indicative rather than
-final; the generalist-beats-both-specialists finding is the robust part of this result, replicated
-at both the NN-rollout and Chrono-closed-loop levels. A separate confound check is still in
-progress (chained on `luffy`, not yet synced locally): the legacy 6-layer RL policy used the
-anchor's `last.pt` rather than `best_val.pt`, so an `anchorL6_bestval69` RL run isolates how much
-of the L8 win is architecture vs. checkpoint selection.
-
-Artifacts:
-
-- Plot: `artifacts/rl_runs/chrono_eval_comparisons/onehot_policy_3x3_chrono_xy_rmse_median_iqr_steerlim010_ofatL8_model1000.png`
-- PDF: `artifacts/rl_runs/chrono_eval_comparisons/onehot_policy_3x3_chrono_xy_rmse_median_iqr_steerlim010_ofatL8_model1000.pdf`
-- Stats JSON: `artifacts/rl_runs/chrono_eval_comparisons/onehot_policy_3x3_chrono_xy_rmse_median_iqr_steerlim010_ofatL8_model1000.json`
-- CSV: `artifacts/rl_runs/chrono_eval_comparisons/onehot_policy_3x3_chrono_xy_rmse_median_iqr_steerlim010_ofatL8_model1000.csv`
-- Build script: `scripts/ablation_ofat/build_l8_chrono_eval_comparison.py`
-- OFAT sweep plan/config: [ablation_ofat_plan.md](ablation_ofat_plan.md), `configs/ablation_ofat/`, `scripts/ablation_ofat/`
-
-This supersedes the 2026-06-29 6-layer comparison as the current headline RL/Chrono result; that
-subsection is left in place above for the architecture-effect history.
-
-### L8 input-feature ablation — terrain one-hot and tire-force/omega channels (2026-07-15)
-
-Stage A above varied the *architecture* at a fixed input feature set. This pair holds the L8
-winner's architecture and recipe fixed (L8/8H/E256/ctx128, 75/25 flat/CRM mix,
-equal-domain-combined-std Huber, `rollout_sel` selection, AdamW 3e-4→3e-5, 80×2000 steps, seed
-2026061801) and varies only the *input features*, to price each block of the input:
-
-- `L8_H8_E256_ctx128_no_onehot` — `terrain_conditioning.enabled` → `false`. Input 20-D → **18-D**
-  (no `[flat, crm]` terrain key), readout still 15. The model must infer the terrain from state
-  history alone.
-- `L8_H8_E256_ctx128_no_tireforce_omega` — the 4 tire normal forces and 4 spindle angular
-  velocities dropped from **both** state and target. Input 20-D → **12-D**, readout **7**
-  (`[vx, vy, roll, pitch, roll_rate, pitch_rate, yaw_rate]`).
-
-Both trained clean on newton (4090) in one attempt each (5189 s / 5328 s). Metrics at each run's
-`best_val.pt` epoch — one-step = `val_flat_loss` / `val_crm_loss` (next-step delta prediction on
-the val split, normalized space); open-loop = 10 s rollout errdist (NN rolled out on the recorded
-action sequence vs. Chrono's recorded val-split trajectory, distance-normalized), 12
-episodes/domain:
-
-| Model | Input | Epoch | 1-step flat | 1-step CRM | 10 s open-loop flat | 10 s open-loop CRM |
-|---|---|---:|---:|---:|---:|---:|
-| `L8_H8_E256_ctx128` (baseline) | 20-D | 51 | 0.00248 | 0.09378 | **0.0373** | **0.0538** |
-| `L8_..._no_onehot` | 18-D | 58 | 0.00236 | 0.09395 | 0.0826 | 0.0486 |
-| `L8_..._no_tireforce_omega` | 12-D | 72 | 0.00341 | 0.06198 | 0.0341 | 0.0800 |
-
-`no_tireforce_omega`'s one-step losses are over 7 channels while the other two rows are over 15,
-so that row's one-step numbers are not on the same scale as the others. The 10 s open-loop errdist
-*is* comparable across all three: it is integrated from vx/vy/yaw_rate, which every arm retains.
-
-Reproduce: `scripts/ablation_ofat/gen_feature_ablation_configs.py` (deep-copies the L8 base;
-`--print-diff` shows exactly what changed) → `scripts/ablation_ofat/run_l8_feature_ablation.sh`
-(tmux `l8_feature_ablation`, log `artifacts/training_runs/ablation_ofat/l8_feature.log`) →
-`scripts/ablation_ofat/rank_feature_ablation.py`. The 7-D caches
-(`hmmwv_{tire_rigid_300g,crm_2000}_body7_seq_v1`) are column-sliced from the existing 15-D
-processed caches by `scripts/ablation_ofat/derive_state_subset_dataset.py --state-field-preset
-default --verify` (~20 s, ~9 GB; symlinks the state-independent arrays, exact row-subsets the
-per-channel normalization) rather than re-preprocessing the raw datasets. A table over all 22
-trained runs is `scripts/ablation_ofat/build_all_runs_table.py` →
-`artifacts/training_runs/ablation_ofat/all_runs_table.csv`. Both runs are intentionally excluded
-from `configs/ablation_ofat/manifest.json` (Stage A ranks architectures at a fixed feature set).
-
-Caveat for downstream use: the RL/Chrono envs feed a 15-D state, so the 7-D checkpoint is not
-drop-in for `eval_hmmwv_rl_chrono_tracking.py` without an env-side change. These are offline
-NN-rollout numbers, not closed-loop RL/Chrono.
-
-### Chrono → Blender Postprocess Rendering Pipeline (2026-07-07)
-
-The current sim-to-render path is usable end-to-end for HMMWV and tracked-vehicle stills:
-
-1. Run the Chrono rollout with the Python postprocess API enabled (`--blender-output-dir`). The eval
-   script constructs `BlenderFrameExporter`, initializes `pychrono.postprocess.ChBlender`, and calls
-   `ExportData()` at the requested export FPS during the rollout. `write_summary()` records frame
-   counts and patches state files so Chrono frame-parent empties do not show up as black axes in
-   Blender.
-2. Import the generated `exported.assets.py` in Blender headless mode and render a frozen frame with a
-   small custom Blender script. The render script uses a corrected camera `look_at(..., "-Z", "Y")`,
-   hides oversized Chrono Grease Pencil path objects, adds a local flat ground plane, draws trajectory
-   curves from raw `.npz` rollout data, and renders with CPU Cycles at 1480×980.
-3. For HMMWV specifically, the generated Chrono asset script imports `hmmwv_chassis.obj` as many loose
-   OBJ parts but only links one small part into the `Chassis body` frame. Current render/export
-   artifacts patch the generated `exported.assets.py` block to join all imported HMMWV chassis meshes
-   into a single Chrono asset before linking it into `chrono_assets`. This is stable for the saved
-   exports, but it is still an export-script workaround, not an upstream Chrono importer fix.
-
-The HMMWV flat rollout render was regenerated with the same setup as the earlier tight rigid eval, not
-the main training env config:
+| Sec. IV-C | Terrain-conditioned HMMWV NN-ROM | flat 3.7% / CRM 5.4% open-loop 10 s err/dist, epoch 51 | `training_runs/ablation_ofat/L8_H8_E256_ctx128` |
+| Sec. IV-E, App. B | Three tracking policies transferred to Chrono | generalist takes the lowest median **and** mean XY RMSE on all three terrains; 9/9 cells 20/20, zero early terminations | 3 × `rl_runs/…_ofatL8_…` |
+| App. C | Architecture OFAT sweep, 14 configs | depth dominates; returns saturate past L8 | `training_runs/ablation_ofat/` |
+| App. D | Training-data scaling, 20–100% | S falls 6.9% → 4.3% over 20–80% | `…/L8_H8_E256_ctx128_data{20,40,60,80}` |
+| App. E | Reduced-state and context ablation | no one-hot doubles flat rollout error; no terramechanics costs CRM ~49% | `…_no_onehot`, `…_no_tireforce_omega` |
+| Sec. V-C | Tracked-base NN-ROM | 5 s rollout 0.105 m XY / 5.85% err/dist, epoch 8 | `training_runs/tracked_transformer_v1` |
+| Sec. V-C | Arm NN-ROM (8-D `[q, q̇]`) | 1.2 mm one-step EE, 1.2% EE drift at 2 s, epoch 76 | `training_runs/arm_transformer_8d_v1` |
+| Sec. V-E, App. G | Tracked-base goal reaching in Chrono | **100/100** at 0.75 m, median closest approach 0.691 m | `rl_runs/tracked_goal_v2_far_rollsel_rom_20260721` |
+| Sec. V-E, App. G | Arm end-effector reaching in Chrono | **97/100** at 0.05 m, zero contacts, zero joint-limit violations | `rl_runs_arm_goal_reach/…_8d_rom_20260727` |
+
+Two model-selection rules hold everywhere and are worth stating once:
+
+- **Checkpoints are selected on open-loop rollout error, not one-step loss.**
+  `checkpoint_metric: rollout_sel` in every deployed config. The file is still
+  named `best_val.pt`, but it is the rollout-selected epoch. The two metrics rank
+  checkpoints differently: for `tracked_transformer_v1`, rollout picks epoch 8
+  while one-step validation loss would pick epoch 36.
+- **The RL environment queries the frozen ROM with a 16-step context**, not the
+  full 128-step training context. Attention is quadratic in context length, so
+  this is ~6.8× faster (≈5,080 → ≈35,000 policy-control steps/s) at no cost to
+  tracking quality; the dynamics are close to Markovian at this scale.
+
+---
+
+## Study Case I — terrain-aware HMMWV
+
+### Datasets
+
+| Role | Raw | Processed cache | Scale |
+|---|---|---|---|
+| Train / val / in-domain test | `datasets/hmmwv_tire_rigid_300g_shards` (128 shards, 305 GB) | `training_datasets/hmmwv_tire_rigid_300g_normal_force_omega_seq_v1` | 26,124 train eps / 128.0 M transitions; 6,644 val / 32.5 M |
+| Train / val / in-domain test | `datasets/hmmwv_crm_2000` (2,000 eps, 5.1 GB) | `training_datasets/hmmwv_crm_2000_normal_force_omega_seq_v1` | 1,582 train eps / 2.28 M; 418 val / 0.60 M |
+| Zero-shot OOD test only | `datasets/hmmwv_bumpy_10g_shards` (8.7 GB) | — (20 eval references only) | never enters training, selection, normalization or reward tuning |
+| App. E state ablation | (column slice of the above) | `…_300g_body7_seq_v1`, `…crm_2000_body7_seq_v1` | 7-D readout; built by column-slicing, not re-preprocessing |
+
+Heightmaps for the bumpy regime live in `assets/bumpy_terrain/` (100 BMPs), and
+the eval reproduces the exact per-episode patch each reference was recorded on.
+
+Regenerate:
 
 ```bash
-/home/harry/anaconda3/envs/tutorial/bin/python scripts/eval_hmmwv_rl_chrono_tracking.py \
-  --run-dir artifacts/rl_runs/hmmwv_rl_15d_crm2000mix25_onehot_flat20crm20_K16_64steps_ar02_state_vxvyyr_pos2_yaw2_steerlim010/eval_cfg_rigid20_val_rest_start_flatkey \
-  --policy-checkpoint artifacts/rl_runs/hmmwv_rl_15d_crm2000mix25_onehot_flat20crm20_K16_64steps_ar02_state_vxvyyr_pos2_yaw2_steerlim010/model_500.pt \
-  --device cpu \
-  --chrono-config configs/hmmwv_overfit_v1.json \
-  --reference-index 0 \
-  --max-steps 180 \
-  --pre-roll-time-s 0 \
-  --steering-rate-limit 0.1 \
-  --no-plots \
-  --output-dir artifacts/blender_exports/hmmwv_flat_val_rest_preroll0_rollout_eval \
-  --blender-output-dir artifacts/blender_exports/hmmwv_flat_val_rest_preroll0_rollout \
-  --blender-fps 20 \
-  --blender-width 1480 \
-  --blender-height 980
+python scripts/prepare_hmmwv_tire300g_generation.py     # shard plan
+sbatch scripts/cluster/collect_hmmwv_tire300g.sh        # collect (cluster only)
+python scripts/build_hmmwv_training_dataset.py --help   # raw -> cache
+python scripts/ablation_ofat/derive_state_subset_dataset.py   # body7 caches
 ```
 
-Result: 180 exported frames and tight tracking (`xy_rmse_m = 0.134 m`, `xy_final_m = 0.158 m`) on
-`sustained_turn/t300_s039_sustained_turn_00015`. The first bad render rollout was not a policy failure:
-it used the main training `env_cfg.json` (`hmmwv_tire_normal_force_omega_flat_crm_train_refs_40_1100_randwin_seed20260623.npz`)
-plus the current default `pre_roll_time_s = 6.0`. That made the policy handoff compare against reference
-index 732 from a random-window absolute reference and started the first recorded step already 42.5 m
-from `ref_pose`. The older tight eval effectively used `pre_roll_time_s = 0` and the rest-start
-validation references, so the first recorded `ref_pose` maps to index 132 (`context_steps - 1`) and the
-initial error is centimeters.
+`bash scripts/smoke_test_hmmwv_tire10g.sh` (and the `bumpy10g` / `crm` variants)
+rehearse the whole path at small scale before committing cluster time.
 
-Current artifacts:
+### Reduced dynamics model
 
-- Reusable render script: `blender-render/render_hmmwv_rollout.py`
-- Corrected HMMWV Blender export: `artifacts/blender_exports/hmmwv_flat_val_rest_preroll0_rollout/`
-- Corrected HMMWV eval summary: `artifacts/blender_exports/hmmwv_flat_val_rest_preroll0_rollout_eval/summary.json`
-- Corrected HMMWV render: `artifacts/blender_exports/hmmwv_flat_val_rest_preroll0_rollout/renders/hmmwv_flat_val_rest_preroll0_frame120_ortho.png`
-- Tracked vehicle + arm Blender export: `artifacts/blender_exports/tracked_arm_two_policy_consecutive/`
-- Tracked vehicle + arm render: `artifacts/blender_exports/tracked_arm_two_policy_consecutive/renders/tracked_arm_frame510_ortho.png`
+15-D state `[vx, vy, φ, θ, ωx, ωy, ωz, Fz×4, ω×4]`, 3-D driver action, 2-D
+terrain one-hot → 20-D token. L8 / 8 heads / E256 / ctx128, 6.40 M parameters,
+75/25 flat/CRM sub-batches, per-channel domain-rebalanced Huber loss,
+domain-balanced rollout selection `S = ½E_rigid + ½E_CRM`.
 
-Rendering gotchas now captured:
+- Config: `configs/ablation_ofat/L8_H8_E256_ctx128.json`
+- Run: `artifacts/training_runs/ablation_ofat/L8_H8_E256_ctx128/`
+- Selected epoch 51, S = 4.56% (flat 3.73%, CRM 5.38%)
+- Anchor for the sweep (ablation model 10, trained once):
+  `training_runs/hmmwv_transformer_v07_tire_normal_force_omega_300g_crm2000_mix25_rebal_rollout_onehot/`
 
-- Do not rely on Chrono's exported path object for HMMWV trajectory visualization; it imports as a
-  Grease Pencil object with radius around 10 and can fill the whole render green. New HMMWV Blender
-  exports leave that object out, and the render script draws Blender curves from raw rollout `.npz`
-  arrays instead (`ref_pose` in green, actual `pose` in red).
-- When freezing a frame for background rendering, temporarily remove the Chrono frame-change callback
-  during the render and restore it before Blender exits. Removing it permanently writes the PNG but
-  triggers a harmless add-on unregister traceback at shutdown; leaving it active can reload the hidden
-  path object and bring back the green-screen render.
-- The ugly tracked-vehicle "links" were frame-parent `EMPTY` axes in `chrono_frame_objects`, not exported
-  Chrono links. `BlenderFrameExporter` keeps `include_links = False`, removes link-frame globals, and
-  patches state files to set those parent empties to effectively invisible display size.
+Specialists for Table 4 are the data-mix arm of the same sweep:
+`…_mix00` (flat-only, epoch 61) and `…_mix100` (CRM-only, epoch 54). Each is
+close to the generalist in-domain but collapses off it — flat-only reaches 194%
+rollout error on CRM, CRM-only 40% on rigid.
 
-## Bumpy-Terrain Transfer (2026-06-11)
+### Tracking policies
 
-First out-of-regime test: take the **flat-terrain-trained** `model_1999` policy and evaluate it in Chrono on **bumpy rigid-heightmap terrain** (the same `bumpy_field_*.bmp` library the 10 GB bumpy dataset was collected on, 500×500 m patches, height ±0.6 m). The Chrono env now reproduces the exact per-episode terrain: each reference's heightmap is recovered deterministically from its `episode_id` via `assign_height_map_index` (verified to match every stored `height_map_index`), and `HMMWVChronoTrackingEnv._create_sim` passes it to `create_rigid_terrain`. Setup: bumpy reference set `hmmwv_bumpy_refs_20_1100_rest_start.npz` (rest-start; 6 families — bumpy data has no launch_brake/step_steer/aggressive_*), eval config `configs/hmmwv_bumpy_eval.json`, `steering_rate_limit=0.3`, 20 m bound. See the `run-bumpy-terrain-eval` skill for the full recipe.
+PPO over 2,048 vectorized copies of the frozen ROM. 231-D observation, 3 driver
+commands with the steering channel rate-limited, 20 Hz control over 100 Hz
+dynamics. Evaluated at iteration 1000.
 
-| Eval backend / terrain | Median XY RMSE | Mean XY RMSE | Diverged |
-|---|---:|---:|---:|
-| Chrono, flat terrain (smooth refs) | 0.217 m | 0.255 m | 0 / 20 |
-| **Chrono, bumpy terrain (bumpy refs)** | **0.345 m** | **1.46 m** | **4 / 20** |
-
-The flat-trained policy **does not transfer well to bumpy terrain**: mean RMSE jumps 0.26 → 1.46 m and 4/20 references diverge to the 20 m bound (refs 1 sine, 3 multi, 14 doublet, 16 chirp — all high-speed, high-travel steering maneuvers where the bumps perturb the tires most). Slow/braking refs (sustained_turn, steer_brake) still track within ~0.2–0.5 m. This is expected: both the frozen v07 NN dynamics model and the PPO policy only ever saw flat-terrain tire dynamics, so bump-induced load transfer and tire-force variation are out of distribution. **Closing this gap requires finetuning both the NN dynamics model and the policy on the bumpy dataset** — the eval harness for measuring that is now in place.
-
-## CRM Co-Trained Generalist Dynamics Model — First Sign of Life (2026-06-18)
-
-CRM (Continuum Representation Method — Chrono SPH/FSI deformable granular soil) is the **real**
-domain shift, qualitatively harder than bumpy: the flat-trained v07 base does **not** zero-shot to
-it. On a 22-episode CRM validation set its full-episode open-loop XY error is ~44% of distance
-traveled (vs ~6% on flat), because CRM adds wheel slip + sinkage that rigid-terrain data never
-contains (analysis in `artifacts/analysis/hmmwv_crm_15d_distribution/README.md`). Every sequential
-finetune off the flat base had previously made things *worse*, so the plan switched to **co-training
-one generalist** across terrains (balanced sampling + rollout-based selection) rather than
-sequential finetuning.
-
-First co-train attempt — `hmmwv_transformer_v07_tire_normal_force_omega_300g_crm100_mix25_scratch`
-(75% flat / 25% CRM batches, from scratch) — exposed a pipeline bug: its loss was a plain
-flat-normalized MSE, in which the CRM tire normal-force (Fz) delta is ~30× the flat per-step std →
-~900× in MSE, so the loss and the `val_mixed_loss` checkpoint metric were both dominated by an
-essentially-aleatoric channel. That metric *increased* as the model actually learned, so it
-selected the **epoch-1** checkpoint.
-
-Three fixes (all in `src/nedm/training/trainer.py`, backward-compatible behind config flags) →
-new run `..._crm100_mix25_rebal_rollout`:
-1. **Rebalanced loss** — per-channel weights from the equal-domain combined (flat+CRM) target std
-   + Huber (`_build_channel_weights`, `_compute_loss`, config `loss` block). The flat-std term
-   cancels, so the loss is effectively normalized by the combined scale; CRM-Fz stops dominating.
-2. **Checkpoint selection on `rollout_sel`** (combined flat+CRM open-loop err/dist), not one-step val.
-3. **Dual-domain rollout eval** during training (flat+CRM, 5 s / 10 s horizons; 10 s clears the
-   rest-start warm-up so it measures real maneuvering).
-
-Verification (`scripts/verify_rebal_vs_baseline.py`) uses full-episode open-loop **aggregate**
-err/dist = `sqrt(Σ pos²/Σ steps) / mean episode distance` (distance-weighted, robust; the
-mean-of-ratios variant is junk on CRM because immobilized episodes — e.g. one where ground truth
-moves 0.1 m — blow it up):
-
-| checkpoint | FLAT err/dist | CRM err/dist |
-|---|---:|---:|
-| flat-only 300 GB base (gold flat reference) | 6.1% | 44.2% |
-| `mix25_scratch` baseline `last` (the run to beat) | 27.1% | 31.2% |
-| generalist `best_val` (ep25, auto-selected) | 23.6% | **7.4%** |
-| **generalist `last` (ep80, best all-round)** | **15.4%** | 9.4% |
-
-Findings:
-
-- **Sign of life confirmed.** The co-trained generalist beats the naive baseline on **both**
-  domains at once — `last` (ep80) is flat 1.8× and CRM 3.3× better than the baseline. CRM forward-
-  speed prediction (open-loop vx RMSE) drops from 2.46 → 0.55 m/s. The three changes work as
-  intended: rebalancing let the model actually learn CRM, and rollout selection captured a
-  checkpoint ~4× better on the metric that matters, where the old metric shipped epoch 1.
-- **Flat tax remains** vs the dedicated flat-only base (15.4% vs 6.1%) — the expected co-training
-  cost. The flat-only base + its RL policy stay the shippable flat/bumpy result; this generalist
-  *adds* CRM. The baseline's flat dynamics were actually corrupted too (open-loop omega RMSE
-  50 rad/s, Fz 31 kN); the generalist fixes that (omega ~5, Fz ~0.4 kN).
-- **Selection metric mis-ranked.** More flat training shrank the flat tax (ep25 23.6% → ep80 15.4%)
-  for a tiny CRM cost (7.4% → 9.4%), so `last` (ep80) is the better generalist — but the noisy 10 s,
-  12-episode `rollout_sel` picked ep25. CRM Fz stays aleatoric (~4.7 kN, by design down-weighted).
-
-Artifacts:
-
-- Run: `artifacts/training_runs/hmmwv_transformer_v07_tire_normal_force_omega_300g_crm100_mix25_rebal_rollout/`
-  (config, `logs/run.log`, 80 epochs, `checkpoints/{best_val,last}.pt`)
-- Config: `configs/hmmwv_transformer_v07_tire_normal_force_omega_300g_crm100_mix25_rebal_rollout.json`
-- Verify / plot: `scripts/verify_rebal_vs_baseline.py`, `scripts/plot_rebal_vs_baseline_overlay.py`
-  → `artifacts/analysis/hmmwv_crm_15d_distribution/rebal_overlay_{crm,flat}.png`
-- Writeup: `artifacts/analysis/hmmwv_crm_15d_distribution/README.md` §7
-
-### Improvement ablations (2026-06-18)
-
-Three single-variable ablations off `..._rebal_rollout` (each 80 epochs, same selection/eval),
-to see whether the generalist could be pushed further. Trainer support added (backward-compatible):
-`model_normalization` override + `_equal_domain_normalization` (combined input/output norm), and
-`loss.channel_weight_overrides` (per-channel emphasis). Sweep: `scripts/{launch,run}_crm100_ablation_sweep.sh`.
-
-Gold full-episode open-loop err/dist (aggregate; best checkpoint per run):
-
-| run | change | FLAT | CRM | flat vx RMSE | verdict |
-|---|---|---:|---:|---:|---|
-| `..._rebal_rollout` (incumbent) | — | **15.4%** | 9.4% | 2.46 | best overall |
-| `..._crm100_combnorm` | equal-domain combined input/output norm | 19.9% | 9.2% | 2.23 | worse flat — de-centers the dominant flat domain |
-| `..._crm100_crm40` | 60/40 flat:CRM batch (vs 75/25) | 15.8% | 12.8% | 2.44 | worse both — CRM overfit |
-| `..._crm100_vx3` | 3× loss weight on vx | 15.5% | **8.6%** | **1.85** | ~tie flat, marginal CRM win, tighter vx |
-
-Findings: none is a decisive win. **More CRM batch weight ≠ better CRM** (overfits the ~96k-row
-CRM set → the bottleneck is CRM *data*). **Combined input normalization is the wrong lever**
-(it de-centers flat, which is 75% of the mix and where the do-no-harm bar lives; per-domain
-specialization should come from *terrain conditioning*, not a shared-norm shift). **vx upweight**
-is the only upside — small CRM gain at equal flat plus genuinely tighter vx — but it's fragile under
-the noisy 10s/12-episode `rollout_sel`, which kept mis-ranking checkpoints (e.g. it picked vx3 ep80,
-but ep71 is the good one). De-noising selection (full-episode in-loop eval, more episodes) is now a
-higher-value fix than further loss tuning. (combnorm crashed once at ep11 with SIGBUS — the known
-degraded-14900KF flakiness — and was resumed to 80.)
-
-### Terrain conditioning — planned next direction (2026-06-19)
-
-The ablations confirmed the flat tax is a *shared-network compromise* problem, not a loss-scaling or
-data-ratio problem. Root cause: one network `f(state, action) → Δstate` must serve physically
-different terrains — given the same observable 15-D state + action, the true delta differs by terrain
-(rigid: vx ≈ ωR, no slip; CRM: vx < ωR, ~25% slip + sinkage), so with no terrain signal the net
-*averages* across terrains, and that average is the flat tax. Combined-std loss fixed the loss
-domination but not this. **Terrain conditioning** gives the net an explicit terrain signal so a shared
-backbone can make terrain-specific predictions `f(state, action, terrain) → Δstate` — shared capacity
-for kinematics/integration, specialized capacity for slip/sinkage/Fz. Expected win: flat returns
-toward the flat-only gold (6.1%) while CRM keeps ~8–9%, i.e. flat tax removed without hurting CRM.
-
-Variants, simplest → richest: (1) **one-hot terrain ID** concatenated to each token — trivial, and the
-label is *free* (each training sample's source cache, flat-seq vs CRM-seq, is its terrain); (2) **FiLM**
-— terrain code → per-layer scale/shift modulating hidden features (more expressive than concat);
-(3) **continuous soil params** (stiffness/cohesion/density the CRM sim sets per episode) — interpolates
-to unseen soils, estimable online; (4) **inferred context** — an encoder reads a short (s,a,s′) window
-and infers the terrain latent from the observed slip/sinkage signature, *needing no label at inference*
-(the deployment-honest version for RL/real Chrono on soft soil). Plan: start with one-hot/FiLM as a
-clean A/B vs the current generalist (small changes — grow the transformer input or add a FiLM head;
-tag each sub-batch with its terrain id in `mixed_infinite_loader` before the merge; supply the id per
-episode at eval), then graduate to inferred context. Caveat: conditioning helps *allocation*, not
-*information* — it does not reduce CRM data needs (**the 20× CRM set `hmmwv_crm_2000` has since
-landed — see the 2026-06-22 subsection below**). This is design-rule #4 from the original co-train
-plan, now justified by the confirmed flat tax.
-
-### 20× CRM data collected + processed — `hmmwv_crm_2000` (2026-06-22)
-
-The ablations above pinned the headline CRM limiter on **data, not loss/ratio tuning** (the `crm40`
-batch-weight bump just overfit the ~96k-row crm_100 set). That larger set is now in hand.
-
-- **Raw**: `artifacts/datasets/hmmwv_crm_2000` — **2000 episodes** (20× `hmmwv_crm_100`), same CRM
-  collector and scenario family (`crm2000_*` prefix), identical maneuver mix (chirp 300 / doublet 200 /
-  multi 600 / sine 300 / steer_brake 200 / sustained_turn 400 — same proportions as crm_100) and terrain
-  (150×150 m, CRM spacing 0.08 m, depth 0.25 m). Collected via `scripts/run_hmmwv_crm2000_collection.sh`.
-- **Processed (15-D, the combined-model pipeline)**:
-  `artifacts/training_datasets/hmmwv_crm_2000_normal_force_omega_seq_v1` — built with the *same*
-  `tire_normal_force_omega` preset as crm_100
-  (`scripts/build_hmmwv_training_dataset.py --state-field-preset tire_normal_force_omega`).
-  **1582 train episodes / 2,280,431 transitions; 418 val / 602,530 transitions** — ~22× the ~128k-row
-  crm_100 cache, ~23.6× its 96k training rows. State/action/target/rollout fields verified
-  *field-for-field identical* to `hmmwv_crm_100_normal_force_omega_seq_v1`, so it is a drop-in swap.
-- **QA**: no NaN/Inf across all 2000 CSVs, no truncated episodes; episode-length and per-channel
-  (actions, body velocities, yaw rate, tire forces, slip, spindle ω) distributions match crm_100
-  closely. The ~18% boundary-cutoff / ~15% immobilized episodes therefore persist at similar
-  *proportions*, but there is now ~20× more mobile data in absolute terms (curation still open).
-- A 23-D `tire_force_omega` variant (`hmmwv_crm_2000_force_omega_seq_v1`) was also auto-built by the
-  collection script; **use the 15-D `_normal_force_omega_` cache** for the flat+CRM generalist (the 23-D
-  one does not match the established pipeline).
-
-**Next step (DONE 2026-06-24 — see the next subsection): retrain the flat+CRM generalist on crm_2000.** Fork
-`configs/hmmwv_transformer_v07_tire_normal_force_omega_300g_crm100_mix25_rebal_rollout.json` and swap the
-**four** `hmmwv_crm_100_normal_force_omega_seq_v1` references → `hmmwv_crm_2000_normal_force_omega_seq_v1`
-(`train_mix` crm dataset, `validation_datasets` crm, `loss.channel_weight_datasets[1]`, `rollout_eval`
-crm dataset); the launch/run scripts default `CRM_PROCESSED_DIR` to the crm_100 cache, so override that
-env var or add a `crm2000_mix25` config+script. This re-tests the flat:CRM batch-ratio question on the
-20× set (the `crm40` overfit should ease) and is the do-no-harm/CRM-gain headline for Milestone 4. Run
-on Euler, not the degraded local box.
-
-### Flat+CRM generalist retrained on crm_2000 + one-hot terrain conditioning — three-way ablation (2026-06-24)
-
-The two planned next-steps above — **retrain the generalist on `hmmwv_crm_2000`** and **add terrain
-conditioning** — landed together. The new generalist implements **one-hot terrain conditioning**
-(variant 1 of the planned direction): a 2-D one-hot `[flat, crm]` code is concatenated to every
-(state, action) token, growing the transformer input 18 → 20. The label is free (each `train_mix`
-source is one terrain) and is supplied per-domain at window/rollout eval. Everything else matches the
-`crm_100` incumbent recipe (flat-based input/output normalization, equal-domain-combined-std Huber
-loss, `rollout_sel` checkpoint selection, 80 epochs × 2000 steps), with the four `crm_100` → `crm_2000`
-references swapped.
-
-To isolate the contribution of co-training, two **single-domain ablation arms** were trained with
-*identical* architecture / normalization / loss — only the train mix differs:
-
-| model | run dir suffix | train mix | checkpoint selection |
-|---|---|---|---|
-| 75/25 generalist | `…crm2000_mix25_rebal_rollout_onehot` | 75% flat / 25% CRM | combined 0.5·flat + 0.5·CRM |
-| flat-only | `…crm2000_mix00_rebal_rollout_onehot` | 100% flat | flat only |
-| CRM-only | `…crm2000_mix100_rebal_rollout_onehot` | 100% CRM | CRM only |
-
-All three keep the one-hot `[flat, crm]` head so `input_dim` stays 20 (the specialists simply always
-emit their own one-hot); each specialist keeps the off-domain rollout/val at weight 0 for monitoring
-only, so selection is in-domain.
-
-**Three-way result** (best-`rollout_sel` checkpoint, open-loop 10s rollout err/dist; off-domain = zero-shot):
-
-| model | flat | CRM |
-|---|---|---|
-| 75/25 generalist | **9.1%** | **5.8%** |
-| flat-only | 5.0% | 69.2% (zero-shot) |
-| CRM-only | 37.2% (zero-shot) | 3.7% |
-
-Headline: the one-hot generalist improves on the `crm_100` `_rebal_rollout` incumbent on **both**
-domains (flat 15.4% → 9.1% on the same flat val; CRM 9.4% → 5.8% on the larger crm_2000 val) — the 20×
-data + explicit terrain signal together largely close the flat tax (flat-only gold ≈ 5–6%) while
-pushing CRM well below 9%. Each specialist still wins its own domain (flat 5.0 < 9.1; CRM 3.7 < 5.8) and
-collapses on the other (flat-only → CRM 69%, CRM-only → flat 37%), confirming that one shared network
-*can't* serve both terrains for free: co-training buys cross-domain robustness at a ~3–4 pt
-peak-accuracy cost. (CRM eval episodes differ between crm_100 and crm_2000 val, so the CRM
-incumbent comparison is indicative, not strict.)
-
-**Eval metric (`rollout_sel` / err-dist) — the numbers above.** Once per epoch, for each terrain we draw
-**12 val-split episodes** and roll the dynamics model **open-loop** over a **10 s horizon** (1000 steps
-at dt = 0.01 s): the model's own predicted body-frame Δstate is fed back each step and integrated to a
-predicted (x, y, yaw) pose. We take the RMS xy position error vs ground truth over all rollout steps
-(`xy_rmse_m`), then divide by the mean ground-truth path length per episode (`mean_dist_m`) to get
-**`errdist = xy_rmse / mean_dist`** — a dimensionless, distance-normalized open-loop position error
-(reported as %). Normalizing by distance traveled is what makes flat and CRM comparable, since CRM
-episodes are shorter/slower (≈ 25 m vs ≈ 35 m of ground-truth path per 10 s). The scalar
-**`rollout_sel`** used for checkpoint selection is the weight-averaged 10 s `errdist` across the model's
-selection domains, and `best_val.pt` is the epoch that minimizes it (here ep 69 / 67 / 70 for
-generalist / flat-only / CRM-only). The table cells are the per-domain `errdist` at each model's
-`best_val.pt`. Also logged per epoch but **not** the headline here: one-step window loss (Huber, channel
-re-weighted) and 5 s rollout err/dist.
-
-Caveats: these are **in-loop training rollout numbers on the val split**, not Chrono closed-loop
-transfer; and `best_val` is selected by peeking at those same rollout episodes, so it carries a mild
-optimistic bias vs a fully disjoint test set (use a disjoint reference set or `last.pt` for an unbiased
-read). For downstream RL use **`best_val.pt`** on all three — it beats `last.pt` on every model (largest
-gap on the generalist, `rollout_sel` 0.074 vs 0.139).
-
-**Provenance.** Run dirs under
-`artifacts/training_runs/hmmwv_transformer_v07_tire_normal_force_omega_300g_crm2000_{mix25,mix00,mix100}_rebal_rollout_onehot/`.
-All three pushed to `main` (checkpoints via Git LFS; `last.pt` force-added past `.gitignore`): commits
-`a239ff6` (one-hot code in `model.py`/`trainer.py`/`rl/dynamics.py` + flat-only run + both ablation
-configs/scripts), `a196a29` (75/25 generalist), `7aa90c9` (CRM-only run). Processed datasets stay
-gitignored — rsync `hmmwv_tire_rigid_300g_normal_force_omega_seq_v1` +
-`hmmwv_crm_2000_normal_force_omega_seq_v1` to retrain elsewhere (and `git lfs pull` to fetch the real
-checkpoints). Trained on the local box this time; both ablation runs completed cleanly.
-
-## Arm Mobile-Manipulator Study (Case 2): Arm Dynamics Model + Reaching RL
-
-Second NeDM study case, parallel to the HMMWV traversal work above: a 4-DOF gripper arm welded to the front of an M113 tracked vehicle. The goal is **locomanipulation** — drive the base until a target enters the arm's workspace, then reach it with the arm — split into a **drive mode** and a **reach mode** so we never have to learn the full coupled vehicle+arm dynamics at once. Design doc: [arm-dyn-model.md](arm-dyn-model.md). This milestone now has first-pass implementations for both halves: a reach-mode arm dynamics model + PPO reach policy, and a drive-mode tracked-base NN-ROM + PPO goal-reaching policy. Chrono-side collector details: `src/nedm/arm_data.py` and project memory `arm-dynamics-data-collection`.
-
-### Arm dynamics data + quality (2026-06-30)
-
-Raw data: `artifacts/datasets/arm_dynamics_v3_home_reset_fulltraj_shards/` — 15 shards × 1,000 episodes = **15,000 episodes / 920,640 transitions / 799 MB**, 50 Hz control (`control_dt = 0.02 s`), base pinned after settle, **torque + per-substep PD** joint actuation (so `q` genuinely lags `qcmd` — real dynamics, not a hard angle constraint). Each CSV row is a full transition: `q, qd, qcmd, act (=Δqcmd), q_next, qd_next, ee` (world) and `ee_base` (arm-base frame), plus `collision`/`collision_kind`.
-
-Quality probe (episode stats over all 15k + per-channel stats from a 1,200-episode CSV sample):
-
-- **Dynamics are non-degenerate.** PD tracking gap `|qcmd−q|` mean/joint = [0.37, 0.10, 0.065, 0.043] rad; `|qd|` mean/joint = [2.06, 1.02, 0.95, 0.85] rad/s; `qcmd+act==qcmd_next` exactly. The torque/PD swap worked — there is dynamics to learn.
-- **Plenty of windows at context 16.** A 16-step window needs ≥17 rows; yield **703,027 windows** (train 592k / val 111k) from 65.8% of episodes. (block 8 → 800k from 100% of eps; block 32 → 573k from 51%.)
-- **Coverage skew — the one caveat that shapes the RL phase.** 71% of episodes terminate on **ground** contact and 34% are <17 rows: the home pose + random downward shoulder commands drive the arm into the floor fast, so trajectories are short and the **lower workspace is under-sampled** — shoulder `q_1` only covers [−0.61, +1.57] of its ±1.57 rad limit (base yaw `q_0` covers full ±π; elbow/wrist full ±1.57). EE (world) z ∈ [0.16, 7.28] m, all above ground. ⟹ **reaching goals must be sampled in the well-covered upper/forward workspace**, not deep-down/near-ground.
-
-### Arm dynamics NN model `f_arm` (2026-06-30)
-
-Reuses the HMMWV training stack **unchanged** (`model.py`, `model_transformer.py`, `dataset.py`, `trainer.py`, `rl/dynamics.py`) — the same GPT-style causal continuous-token transformer, only the dims and context differ. Two tiny backward-compatible edits to `preprocess.py` were all the arm data needed: (1) `compute_dt_s` falls back to the dataset index's `control_dt_s` when there is no `collector_config.resolved.json` (arm dt = 0.02 s; without this it silently returned 0.01); (2) `main()` defaults the missing `scenario_family` from `collision_kind`.
-
-I/O design (state == target, 15-D):
-
-| Group | Fields | Dim |
-|---|---|---:|
-| state == target | `q0..3, qd0..3, qcmd0..3, ee_base_{x,y,z}` | 15 |
-| action | `act0..3` (applied Δqcmd) | 4 |
-| context (`block_size`) | 16 steps ≈ 0.32 s @ 50 Hz | — |
-
-- **`qcmd` is in the state** because during a step the PD targets `qcmd_{t+1}=qcmd_t+act_t`; the model needs the absolute command, not just the increment (the increment alone is ambiguous across window boundaries).
-- **`ee_base` is predicted as a state channel** so the reaching RL reads the end-effector straight from the model with **no torch arm-FK** (the reward is `‖ee−goal‖`).
-- Because the pipeline ties `target_dim==state_dim`, the model also predicts `Δqcmd` — a trivial identity (`Δqcmd≈act`; its `target_std` equals `action_std`). Harmless, and at RL rollout the qcmd channels are overwritten deterministically rather than trusted.
-
-Config `configs/arm_transformer_v1.json`: compact 4-layer / 4-head / 128-embd transformer, `dropout 0`, no `rollout_eval` (the HMMWV rollout integrator is pose-specific and would KeyError on arm fields; checkpoint on windowed `val_loss`). Processed cache `artifacts/training_datasets/arm_dyn_v3_seq16_v1` (763,886 train / 141,754 val transitions; `rollout_fields = ee_base`). Run dir `artifacts/training_runs/arm_transformer_v1`.
-
-Results — best `val_loss = 0.00181` @ epoch 30 (converged monotonically, not overfit):
-
-| Metric | Value |
+| Policy | Run |
 |---|---|
-| 1-step val RMSE | q 0.3–1.0 mrad · qd 0.009–0.043 rad/s · ee_base 0.0014–0.0029 |
-| Open-loop EE drift `errdist` (EE err ÷ EE travel) | **1.9% @0.25 s · 1.9% @0.5 s · 2.7% @1 s · 4.0% @2 s** |
+| Mixture generalist | `rl_runs/hmmwv_rl_15d_crm2000mix25_onehot_ofatL8_bestval51_flat20crm20_K16_64steps_ar02_state_vxvyyr_pos2_yaw2_steerlim010/` |
+| Rigid-only | `rl_runs/hmmwv_rl_15d_crm2000mix00_onehot_ofatL8_bestval61_rigid20_…_1000it/` |
+| CRM-only | `rl_runs/hmmwv_rl_15d_crm2000mix100_onehot_ofatL8_bestval54_crmonly20_…_1000it/` |
 
-Eval via `scripts/eval_arm_rollout.py` (its own open-loop EE-drift rollout over held-out val episodes — seeds 16 steps, rolls `next = state + predict_next_delta`, compares predicted `ee_base` to ground truth; `artifacts/training_runs/arm_transformer_v1/rollout_eval.json`). The displacement-normalized drift holds ~2% over the horizons a reaching policy plans over → the model is **RL-ready**. (Absolute EE units are the collector's 2×-scaled-arm meters; `errdist` is the scale-invariant headline. Chrono sim-to-sim transfer is validated by the reaching policy below.)
+References: 40 training refs (20 flat + 20 CRM, random mid-episode windows) in
+`hmmwv_tire_normal_force_omega_flat_crm_train_refs_40_1100_randwin_seed20260623.npz`;
+evaluation uses a **separate** held-out set of 20 rest-start references per
+terrain. Rest-start matters — the Chrono warm start only works if reference
+index 0 is at zero speed, so build eval refs with `--no-random-segment-start`.
 
-### Arm reaching RL + Chrono validation (2026-07-02)
+Each run carries its three Chrono evaluations
+(`chrono_eval_tracking_…`, `chrono_bumpy_eval_…`, `chrono_crm_eval_…`) and the
+matching `eval_cfg_*` directories. The nine cells are collated into
+`rl_runs/chrono_eval_comparisons/onehot_policy_3x3_chrono_xy_rmse_median_iqr_steerlim010_ofatL8_model1000.{csv,json,pdf,png}`.
 
-Reach-mode PPO is implemented and trained against the frozen arm dynamics model. The implementation follows [arm-reaching-rl-plan.md](arm-reaching-rl-plan.md): `src/nedm/rl/arm_reaching_env.py` rolls the transformer dynamics inside an rsl-rl `VecEnv`; `src/nedm/rl/arm_kinematics.py` and `src/nedm/rl/arm_safety.py` provide batched FK and a geometric safety shield; `src/nedm/rl/arm_reaching_chrono_env.py` and `scripts/eval_arm_rl_chrono_reaching.py` deploy the same policy + shield in the real Chrono M113+arm scene.
+Closed-loop XY RMSE (m), 20 references per cell, all 20/20:
 
-Training setup for the current best run:
+| Terrain | Generalist | Rigid-only | CRM-only |
+|---|---|---|---|
+| Rigid flat | **0.157** med / **0.184** mean | 0.174 / 0.219 | 0.232 / 0.259 |
+| CRM | **0.180** / **0.249** | 0.854 / 1.000 | 0.231 / 0.361 |
+| Rigid bumpy (zero-shot) | **0.149** / **0.229** | 0.187 / 0.238 | 0.213 / 0.418 |
 
-```text
-artifacts/rl_runs_arm_goal_reach/arm_reach_adaptivekl005_lr1e4_tol005_ep150_bonus150_sigma015_luffy_repro_20260702/model_1499.pt
+### Ablations
+
+| Appendix | Runs | Ranking script |
+|---|---|---|
+| C — architecture OFAT (14 configs) | `ablation_ofat/{L2,L4,L12}_…`, `{L6_H4_E128, L6_H6_E192, L6_H12_E384, L6_H16_E512}_…`, `{L6_H16_E256, L6_H4_E256}_…`, `L6_H8_E256_ctx{32,64,256}`, `L8_H8_E256_ctx128`, + the anchor | `rank_stage_a.py`, `build_all_runs_table.py` → `all_runs_table.csv` |
+| D — data quantity | `L8_H8_E256_ctx128_data{20,40,60,80}` (+ the 100% run) | `rank_data_quantity.py` → `l8_dataquantity_curve.csv` |
+| E — reduced state and context | `L8_H8_E256_ctx128_no_onehot` (18-D), `…_no_tireforce_omega` (12-D in, 7-D out) | `rank_feature_ablation.py` → `l8_feature_ablation.csv` |
+
+Judge these on `rollout_sel`, not `val_loss`: the 7-D readout's one-step loss is
+computed over 7 channels instead of 15 and is not comparable across arms. The
+open-loop column is, since it integrates `vx, vy, ωz`, which every variant keeps.
+
+```bash
+python scripts/ablation_ofat/gen_configs.py && python scripts/ablation_ofat/validate_configs.py
+bash scripts/ablation_ofat/run_sweep.sh              # Stage A, tmux
+bash scripts/ablation_ofat/run_l8_dataquantity_ablation.sh
+bash scripts/ablation_ofat/run_l8_feature_ablation.sh
+bash scripts/ablation_ofat/run_l8_chrono_eval_newton.sh   # 3-terrain closed loop
 ```
 
-- Dynamics: `artifacts/training_runs/arm_transformer_full_v1/checkpoints/best_val.pt`.
-- Processed data / warm starts: `artifacts/training_datasets/arm_dyn_v3_seq16_v1`.
-- Geometry: `artifacts/arm_geometry/arm_geometry_v1.json`.
-- PPO: 4096 envs, 150-step episodes, adaptive KL target 0.005, LR 1e-4, actor/critic `[256,128,64]`, action = 4-D `Δqcmd`.
-- Goals: FK-sampled from the well-covered upper/forward workspace (`q_lo=[-1.5,0.1,-0.4,-0.4]`, `q_hi=[1.5,0.7,0.4,0.4]`).
-- Reward: exponential reach reward with 0.15 m scale, 5 cm one-step success threshold, +150 success bonus, action-rate penalty 0.02.
-
-Chrono validation results for `model_1499.pt`:
-
-| Eval | Goals | Success | Mean final EE error | Contacts / unsafe actions |
-|---|---:|---:|---:|---:|
-| Random fresh scenes: `chrono_eval_model1499_10_random_goals` | 10 | **10/10** | **0.0307 m** | 0 contacts, 0 unsafe-action rate |
-| Consecutive goals in one scene: `chrono_eval_model1499_10_consecutive_goals_cpu_render` | 10 | **10/10** | **0.0390 m** | 0 contacts, 0 unsafe-action rate |
-
-Earlier fixed-LR run `arm_reach_fixedlr1e4_tol005_ep150_bonus150_sigma015/model_1200.pt` also reached 10/10 consecutive Chrono goals with mean final EE error 0.0359 m. Its `oscillation_analysis.md` explains the mid-training reward oscillation: the large discontinuous +150 success bonus and one-step 5 cm threshold create cliff-like returns while the policy is near the goal basin. The later adaptive-KL reproduction keeps the useful behavior and is the current reference run.
-
-Remaining arm reach caveats:
-
-- The Chrono eval battery is still small (10 random + 10 consecutive goals); run a larger seeded goal set before treating the success rate as final.
-- The policy is intentionally reach-mode only: base fixed/stopped, no learned drive/reach switching yet.
-- Lower/near-ground workspace remains under-sampled by the arm dynamics data, so v1 goals should stay in the documented upper/forward workspace.
-
-### Drive-mode data collection pipeline (2026-07-01)
-
-Base-motion data collector for the drive-mode NN-ROM described in [tracked_vehicle_nn_rom_rl_plan.md](tracked_vehicle_nn_rom_rl_plan.md): `src/nedm/tracked_vehicle_data.py` (`scripts/collect_tracked_vehicle_dataset.py` wrapper), initially driven by `configs/tracked_vehicle_drive_v1.json` and then scaled as `configs/tracked_vehicle_drive_v2.json`.
-
-Reuses rather than rebuilds. The M113+arm+terrain scene is exactly `arm_data.build_scene()` — the real deployed mounted-arm configuration, so the base ROM's mass/inertia/CG match reality instead of a bare M113 — with the arm's four `ChLinkMotorRotationAngle` motors left completely untouched: no angle target is ever set, so they hold `q=0` (home) as a hard constraint and the arm rides as fixed dead weight ("drive mode" per [arm-dyn-model.md](arm-dyn-model.md) §3.1), needing neither the PD actuator nor the arm collision setup `arm_data.py` builds for reach-mode data. The maneuver library (launch/brake, coast-down, steering arcs, S-turns, pivot-like turns, brake-while-steering, broad random commands, stop-and-go — plan §4.3) reuses the HMMWV collector's `scenario_generator`/driver-profile machinery (`generated_scenarios.py`, `hmmwv_data.sample_channel`) unchanged; the tracked-vehicle-specific families are config-level template overrides (`pivot_like_turn`/`coast_down`/`stop_and_go_straight` reuse the `step_steer`/`launch_brake`/`multi_steer` builders with different parameter ranges), not new generator code. Driver commands are evaluated directly from the continuous profile at each recorded step rather than through a `ChDataDriver` table, dropping the `driver_sample_step_s` knob entirely.
-
-Logged per row at 50 Hz (`record_step_s=0.02`; physics stepped at the same `STEP_SIZE=5e-4` the single-pin track needs): pose, quaternion, roll/pitch/yaw, world+body velocity/acceleration, world+body angular velocity, speed, roll/yaw rate, left/right sprocket speed, driver commands. A 0.5 s braked settle (matching `arm_data.py`'s handling of this same track model) runs before each scenario's own clock starts, so `time_s` in the CSV is scenario-local, not wall/sim-absolute. Per-row divergence guards (non-finite state, >45° roll/pitch, >45 m from origin) flag and truncate rare solver hiccups instead of silently polluting the dataset.
-
-`configs/tracked_vehicle_drive_v1.json` materialized the first 540-episode design across 10 families and was spot-verified locally: sustained throttle=0.8 accelerates 0→3.9 m/s and is still climbing at 10 s (M113 top speed ≈16 m/s, so this is plausible, not capped/broken); a steering step to ±0.4 flips `yaw_rate_radps` sign with the expected inertial lag; throttle-then-release with no brake gives a smooth multi-second coast-down decay rather than an instant stop. Zero divergences across 5 test episodes. Each episode costs tens of seconds of wall-clock, so the scaled collection moved to shard/cluster execution via `scripts/cluster/collect_tracked_vehicle_drive.sh`.
-
-The scaled v2 dataset has since landed:
-
-```text
-artifacts/datasets/tracked_vehicle_drive_v2_shards/
-artifacts/training_datasets/tracked_drive_v2_seq16_v1/
-```
-
-The processed cache uses the compact drive-mode state/action design from the plan:
-
-| Group | Fields | Dim |
-|---|---|---:|
-| state | `vel_body_x_mps, vel_body_y_mps, yaw_rate_radps` | 3 |
-| action | `driver_steering, driver_throttle, driver_braking` | 3 |
-| target | corresponding next-step deltas | 3 |
-| context | 16 steps ≈ 0.32 s @ 50 Hz | — |
-
-Processed split: **1808 train episodes / 1,407,465 transitions** and **352 val episodes / 273,859 transitions**.
-
-Two things surfaced while testing:
-
-- **Terrain-size fix.** `arm_data.build_scene()`'s flat patch is a genuine finite rigid box (`RigidTerrain.AddPatch`), not an infinite plane. Its 100 m default is fine for reach-mode (base pinned, never moves) but far too small once the base actually drives — a 30 s sustained-throttle test reached pos_y≈45 m, which the old 100 m patch (and a first-pass 45 m bounds guard) would have falsely flagged as diverged/out-of-bounds. `build_scene()` now takes a `terrain_size_m` param (default 100 unchanged, so reach-mode/arm data collection is unaffected); the drive-mode collector passes `TERRAIN_SIZE_M = 600` and derives its divergence-guard bound from that.
-- **Zero-steering curving is expected, not a bug.** With `driver_steering` held at exactly 0.0 for a full 30 s run, the vehicle still curves substantially (left/right sprocket speed diverge, yaw rate grows to ~0.25 rad/s) — confirmed via the logged columns, not a scenario-evaluation bug. User confirmed this is a known asymmetry (likely the welded arm's mass/CG), so it's left as-is: the ROM should learn it as real behavior, and "steering=0" families (`coast_down`, `stop_and_go_straight`) mean *commanded* straight, not *actually* straight.
-
-### Tracked base NN-ROM (2026-07-02)
-
-The tracked-base reduced-order model is trained as `artifacts/training_runs/tracked_transformer_v1` from the v2 processed cache. It reuses the continuous-token transformer stack with the 3-D compact body-frame velocity state and 3-D driver-command action. Checkpoint selection uses open-loop pose rollout over held-out val episodes; `best_val.pt` is epoch 8.
-
-Best checkpoint metrics:
-
-| Metric | Value |
-|---|---:|
-| 1-step val RMSE `vx` | 0.02395 m/s |
-| 1-step val RMSE `vy` | 0.01319 m/s |
-| 1-step val RMSE yaw rate | 0.00687 rad/s |
-| 1 s open-loop XY RMSE | 0.0042 m |
-| 2 s open-loop XY RMSE | 0.0131 m |
-| 5 s open-loop XY RMSE | **0.1052 m** |
-| 5 s open-loop err/dist | **5.85%** |
-
-This is good enough for first-pass goal-reaching RL: the model is compact, stable over the 5 s horizon used by the policy, and preserves the real zero-steering curvature/asymmetry rather than trying to correct it away.
-
-### Tracked vehicle goal-reaching RL + Chrono spot eval (2026-07-03)
-
-Goal-reaching PPO is implemented in `src/nedm/rl/tracked_goal_env.py` and trained with `scripts/train_tracked_rl_goal.py`. Unlike HMMWV tracking, the policy does not follow a reference trajectory. It rolls the frozen base NN-ROM, integrates pose outside the network, and rewards progress toward a sampled body-frame goal.
-
-Current reference run:
-
-```text
-artifacts/rl_runs/tracked_goal_v2_far/
-```
-
-Setup:
-
-- Dynamics: `artifacts/training_runs/tracked_transformer_v1/checkpoints/best_val.pt`.
-- Processed data / normalization: `artifacts/training_datasets/tracked_drive_v2_seq16_v1`.
-- Goals: random radius 20–40 m, full angle range `[-pi, pi]`.
-- PPO: 2048 envs, action repeat 5 (10 Hz control over 50 Hz ROM), 600 policy-step max episode.
-- Action post-processing: dataset-mean centered commands, steering scale 0.4, throttle/brake max 0.6, throttle/brake conflict suppression enabled.
-- Reward: progress reward + small heading/action/spin penalties, 0.75 m success tolerance, +50 success bonus, 0.1 time penalty.
-
-The NN-env training log reaches **100% episode success** around iteration 1500 with mean final distance ≈0.63 m and no out-of-bounds/timeouts. Chrono transfer uses `scripts/eval_tracked_rl_goal_chrono.py`, one goal per process with a fresh M113+arm scene. Current spot-check results under the same 0.75 m tolerance:
-
-| Goal in start frame | Steps | Reached? | Final/min distance |
-|---|---:|---:|---:|
-| `(20, 0)` m | 100 | yes | 0.398 m |
-| `(12, 18)` m | 165 | yes | 0.566 m |
-| `(-18, 8)` m | 202 | yes | 0.487 m |
-| `(-15, -12)` m | 188 | yes | 0.475 m |
-
-Takeaway: the tracked base now has the complete first-pass loop — Chrono data → compact NN-ROM → PPO goal policy → Chrono spot transfer. The eval is still a spot check, not a full benchmark: it needs a larger seeded goal battery, aggregate summary JSON, and failure-case inspection before this is comparable to the HMMWV tracking documentation.
-
-### Chrono 100-goal stress benchmark — rollout-selected-ROM policies (2026-07-22)
-
-Turned the tracked 4-goal spot check and the arm's reported reaching goals into proper **100-goal seeded Chrono batteries**, run on the two policies retrained against the open-loop-rollout-selected ROMs (2026-07-21 swap: tracked ep8 drive ROM, arm ep74 dynamics ROM). Both sample goals from each policy's own trained region, write a `goals.json`, and run **one fresh Chrono process per goal** — the arm env's `reset_idx` rebuilds the whole M113+arm scene each goal, so in-process batches risk the repeated-sim stack-smash. Every per-goal trajectory is saved as an npz for post-hoc reprocessing.
-
-Harnesses:
-
-- Tracked: `scripts/benchmark_tracked_goal_chrono.py` (goals from env_cfg `goal.radius_m`/`angle_rad`).
-- Arm: `scripts/benchmark_arm_reach_chrono.py` (new; EE goals via `ArmReachingChronoEnv._sample_safe_goals` over `goal.q_lo/q_hi` with `defer_reset=True`), plus a new `--goal X Y Z` flag on `scripts/eval_arm_rl_chrono_reaching.py` to drive one goal per process.
-
-Both run seed 12345, 100 goals:
-
-```text
-artifacts/rl_runs/tracked_goal_v2_far_rollsel_rom_20260721/chrono_benchmark_N100_seed12345/
-artifacts/rl_runs_arm_goal_reach/arm_reach_..._rollsel_rom_20260721/chrono_reach_benchmark_N100_seed12345/
-```
-
-| Policy | Region | Tol | Success | Closest approach (median / worst) | Time-to-success (median / worst) |
-|---|---|---|---:|---|---|
-| Tracked drive | r∈[20,40] m, θ∈[-π,π] | 0.75 m | **100/100** | 0.691 / 0.748 m | 20.2 / 27.7 s |
-| Arm reach | trained q-box (~5 m EE shell) | 0.05 m | **91/100** | 0.043 / 0.055 m (reached) | 0.82 / 2.84 s |
-
-Failure analysis:
-
-- **Tracked**: 0 failures, 0 timeouts (800-step cap; worst goal used ~276 steps). Behind-goals reach via forward-loop U-turns, transferring cleanly. Path efficiency median 0.959.
-- **Arm**: all 9 misses are **timeouts** (0 collisions, 0 joint-limit hits, 0 unsafe actions). 5 of the 9 plateau at 5.07–5.49 cm — grazing just outside the 5 cm line within the 3 s / 150-step budget — and only 2 are genuine misses (12 cm, 14 cm, deep/awkward configs). The arm's cap is budget-limited, not capability- or safety-limited.
-
-Both policies **hug their success tolerance** rather than driving tight (tracked: 40/100 land in the 0.70–0.75 m band). Because every trajectory is saved, success at a tighter tolerance can be recomputed offline without re-running.
-
-Takeaway: the tracked base transfers to real Chrono physics at 100% over the full far/behind goal distribution, and the arm at 91% with every failure a near-miss timeout — both now have the proper seeded benchmark (aggregate JSON, plots, per-goal failure labels) the spot checks lacked. Serialize the two batteries — never run both Chrono batteries concurrently (machine-freeze history).
-
-### 12-D `[q, qd, qcmd]` arm ROM (drop `ee_base`) + FK end-effector — beats the 15-D model (2026-07-24)
-
-The 15-D arm ROM carries the end-effector `ee_base` as three extra **predicted** state channels. Two findings retire them:
-
-**1. FK on the predicted joints beats the `ee_base` channel.** During open-loop rollout of the existing 15-D `arm_transformer_full_v1`, we scored EE two ways against the *same* Chrono-recorded `ee_base`: (A) read the predicted `ee_base` channel directly, vs (B) apply forward kinematics to the predicted joints `q`. FK wins at every multi-step horizon (`scripts/eval_arm_ee_fk_vs_channel.py`, 277 val eps):
-
-| Horizon | `ee_base` channel errdist | FK(pred q) errdist |
-|---|---:|---:|
-| 0.5 s | 0.488 % | **0.420 %** |
-| 1.0 s | 1.138 % | **0.949 %** |
-| 2.0 s | 2.022 % | **1.578 %** |
-
-Reason: the model predicts `q` to sub-milliradian accuracy and FK(q)→EE is near-exact (a 45 µm fidelity floor vs the recorded gripper), whereas the `ee_base` channel drifts as an independent autoregressive output. FK adds negligible bias and enforces the kinematic constraint the channel does not.
-
-**2. So drop `ee_base` entirely — the 12-D ROM.** Retrained the ROM on state `[q, qd, qcmd]` (12-D), identical recipe to `arm_transformer_full_v1` (6L/8H/256, ctx16, seed 20260630, 80 ep × 2000). Because `ee_base` is no longer a channel, `rollout_sel` scores EE via FK on the predicted joints — new trainer `rollout_eval.pose: "ee_base_fk"` (reads the geometry + the Chrono-recorded `ee_base` from the rollout array). `scripts/eval_arm_rollout.py` is now FK-aware too (auto-detects channel-vs-FK from the state fields). On the identical 277-val-episode rollout, the 12-D model matches or beats 15-D:
-
-| Metric | 15-D (channel) | 12-D (FK) |
-|---|---:|---:|
-| one-step EE drift | 1.12 mm | 1.32 mm |
-| 0.5 s errdist | 0.488 % | **0.423 %** |
-| 1.0 s errdist | 1.138 % | **0.774 %** |
-| 2.0 s errdist | 2.022 % | **1.369 %** |
-
-Slightly worse at one step (the redundant channel fits the tiny per-step delta well) but ~32 % better at the multi-step horizons a reaching policy plans over. Config `configs/arm_transformer_noee_v1.json`; dataset `arm_dyn_v3_noee_seq16_v1` (12-D state, `rollout_fields = ee_base`); run `artifacts/training_runs/arm_transformer_noee_v1` (**best_val.pt = epoch 72**); launch `scripts/launch_arm_transformer_noee_v1.sh`.
-
-**3. Reach RL retrained on the 12-D ROM — and it transfers strictly better.** The reaching env already sourced EE from FK for reward/observations/safety (the 15-D model's `ee_base` prediction was overwritten with FK every substep and never consumed), so both `ArmReachingEnv` and `ArmReachingChronoEnv` were made **layout-agnostic** (a `has_ee_channel` flag gates the now-unused channel bookkeeping) — the 12-D swap needs no reward/obs changes and does no extra FK work. In the Chrono deployment env, `current_ee_base` returns the **real Chrono gripper** position (cached in `ee_base_buf` from `_capture_state_np`) for the 12-D model, so the success metric stays ground-truth (no FK approximation) and identical to the 15-D benchmark. Policy retrained with the identical HP to the `rollsel_rom_20260721` reference (`scripts/launch_arm_reach_noee12d_rom_20260724.sh` → `artifacts/rl_runs_arm_goal_reach/arm_reach_..._noee12d_rom_20260724/model_1499.pt`, NN-env success ~97.6 %). On the **byte-identical 100-goal Chrono battery** (seed 12345, 5 cm tol):
-
-| Policy | ROM | Success | Failures |
-|---|---|---:|---|
-| Arm reach (15-D) | `[q,qd,qcmd,ee_base]` | 91/100 | 9 timeouts |
-| Arm reach (12-D) | `[q,qd,qcmd]` (FK EE) | **97/100** | 3 timeouts |
-
-Strict superset: the 12-D policy reached **every** goal the 15-D reached, plus rescued all 6 of the 15-D's grazing near-miss timeouts (goals 12/21/42/49/52/58, previously 5.07–5.49 cm → now < 5 cm). Both fail the same 3 hard goals (27/28/59, deep z ≈ −3.8…−4.4 m, the under-sampled lower workspace) but the 12-D gets closer there too. All failures are timeouts (0 collision / joint-limit / unsafe). Dropping the redundant `ee_base` channel improved both open-loop EE fidelity and real-Chrono reach transfer.
-
-### 8-D `[q, qd]` arm ROM (qcmd becomes the action) — same reach transfer, smaller model (2026-07-27)
-
-Continues the channel-pruning line above. The 12-D ROM still carries `qcmd` as three-plus-one redundant *state* channels **and** predicts `Δqcmd`, which is an identity: the target equals the action (`target_std == action_std`). Moving the command out of the state and into the action retires both.
-
-**Layout.** State `[q, qd]` (8-D), action = the **absolute** joint command (4-D), readout 8-D `[Δq, Δqd]`.
-
-| ROM | state | action | readout | params |
-|---|---|---|---:|---:|
-| `arm_transformer_full_v1` | `[q, qd, qcmd, ee_base]` | `act` (Δqcmd) | 15 | — |
-| `arm_transformer_noee_v1` | `[q, qd, qcmd]` | `act` (Δqcmd) | 12 | 4.80 M (6L) |
-| `arm_transformer_8d_v1` | `[q, qd]` | **`qcmd_next`** | **8** | **4.01 M (5L)** |
-
-**The action must be `qcmd_next`, not `qcmd`.** In `arm_data.run_episode` the row's `qcmd` is the command in force over the *previous* interval; the loop then sets `actuator.qcmd = qcmd_next` and only then substeps, so `qcmd_next` is the target the PD law actually drives toward across `[t, t+1]` (and `qcmd_{t+1} == qcmd_next_t` identically). A first full run trained on the stale `qcmd` was aborted at epoch 13: `rollout_sel` sat at 0.058–0.067 versus the 12-D's 0.016–0.026 and was drifting the wrong way. Regressing per-step joint acceleration on the PD terms confirms the cause — R² = [.24 .46 .08 **.0005**] with `(qcmd − q)` versus [.24 .51 .20 **.39**] with `(qcmd_next − q)`; joints 2–3 carry almost no signal from the stale command. With the correct action the token is a bijection of the 12-D's `(q, qd, qcmd, Δqcmd)`, so the 8-D really is the 12-D minus redundancy.
-
-**Open-loop rollout** — identical 277 val episodes, same Chrono-recorded `ee_base`, FK on predicted joints both sides:
-
-| Metric | 12-D | 8-D |
-|---|---:|---:|
-| one-step EE drift | 1.32 mm | **1.19 mm** |
-| 0.5 s errdist | 0.423 % | **0.286 %** |
-| 1.0 s errdist | 0.774 % | **0.630 %** |
-| 2.0 s errdist | 1.369 % | **1.158 %** |
-
-~32 % better at 0.5 s and better at *every* horizon including one step — unlike the 12-D→15-D comparison, where the redundant channel won the one-step case. Config `configs/arm_transformer_8d_v1.json` (5 layers, since the token is 12-wide not 16-wide); dataset `arm_dyn_v3_8d_seq16_v1` (a pure column re-slice of the same episode split: 12,716 train / 2,284 val, 763,886 / 141,754 transitions); run `artifacts/training_runs/arm_transformer_8d_v1` (**best_val.pt = epoch 76**); launch `scripts/launch_arm_transformer_8d_v1.sh`.
-
-**Reach RL — unchanged recipe, equivalent transfer.** Both arm envs gained a third layout axis alongside `has_ee_channel`, all resolved from checkpoint metadata: `has_qcmd_channel` (qcmd from the state channel or an env-side buffer) and `absolute_qcmd_action` (ROM fed a delta or an absolute command). The **policy still emits a delta**; the env integrates it into the absolute command one line before the model call, so the action-rate reward and the `dq_max` safety bound keep their meaning and the observation stays the same 26 values. In `ArmReachingChronoEnv` the ROM is never stepped (Chrono is the dynamics), so only qcmd sourcing changed there — it now comes from the sim's own actuator, i.e. ground truth. PPO hyperparameters are byte-identical to `noee12d_rom_20260724` (`scripts/launch_arm_reach_8d_rom_20260727.sh`; NN-env success 96.9 %).
-
-Env equivalence was verified independently of training, since the 8-D run's early iterations looked alarming (joint-limit thrashing to ~80 % around iteration 30–90, 15× behind at iteration 150) before converging normally. The decisive check: the **already-trained 12-D policy** evaluated in both envs scores 98.4 % in its own and 98.0 % in the new 8-D env — a policy that never saw the 8-D ROM transfers into it intact, so the early deficit was exploration variance, not a wiring defect.
-
-On the **byte-identical 100-goal Chrono battery** (seed 12345, 5 cm tol; goal set asserted equal to the 12-D's at 0.0e+00 before the run, `scripts/launch_arm_reach_8d_chrono_benchmark_20260727.sh`):
-
-| Policy | ROM | Success | Median min-err | Failures |
-|---|---|---:|---:|---|
-| Arm reach (12-D) | `[q,qd,qcmd]` | 97/100 | 4.33 cm | 3 timeouts |
-| Arm reach (8-D) | `[q,qd]` + abs. cmd | **97/100** | **4.17 cm** | 3 timeouts |
-
-Identical score and the **same three failures** (goals 27/28/59 — the same under-sampled deep-z goals that also defeated the 15-D and 12-D policies). Across all 100 goals the 8-D is marginally closer (mean −0.09 cm, closer on 54/100): a wash. Net result — dropping `qcmd` from the state buys a materially better open-loop ROM at 17 % fewer parameters for no loss in real-Chrono reach transfer.
-
-**Caveats.** (1) The 5-layer depth change is *confounded* with the layout change — every number above varies both against the 12-D reference; an 8-D/6-layer run would be needed to attribute the ROM win to layout alone. (2) One RL seed per arm, so "equivalent RL outcome" rests on a single run each.
-
-## Open Items / Next Steps
-
-- **OFAT L8 arch-vs-checkpoint-selection confound**: the 2026-07-13 L8 RL comparison swapped both the dynamics architecture (6L→8L) and the checkpoint-selection basis (legacy used the anchor's `last.pt`, L8 uses `best_val.pt`) at once. An `anchorL6_bestval69` RL run (same 6-layer anchor, but its own `best_val.pt`) is chained on `luffy` to decompose the two effects; not yet synced locally. The L8 data-quantity ablation (episode-fraction sweep 20/40/60/80/100%, `scripts/ablation_ofat/run_l8_dataquantity_ablation.sh`) is also running on `luffy` as of 2026-07-13.
-- **8-D ROM follow-ups**: the depth change (6L→5L) is confounded with the state-layout change, so an 8-D/6-layer run is what would attribute the open-loop win to the layout alone; and both the 12-D and 8-D reach policies are single-seed, so the "equivalent RL outcome" conclusion would benefit from a seed repeat.
-- **Arm reaching RL scale-up**: the env, policy, and Chrono validation path are built. The 12-D-ROM policy now reaches **97/100** at 5 cm tol (2026-07-24 subsection), up from the 15-D's 91/100 — it rescued all 6 grazing near-miss timeouts, leaving only **3 hard failures** (goals 27/28/59, deep z ≈ −3.8…−4.4 m in the under-sampled lower workspace). Remaining: those 3 are the data-coverage cap, so either collect more lower-workspace arm dynamics data or restrict v1 goals to the covered upper/forward shell; separately, decide whether the one-step 5 cm success threshold should become a multi-step hold criterion to reduce training brittleness.
-- **Tracked-vehicle goal-reaching scale-up**: the v2 drive dataset, compact base ROM, PPO goal policy, and the proper **100-goal seeded Chrono benchmark** are built — 100/100 at 0.75 m (2026-07-22 subsection). Remaining: the policy hugs the 0.75 m tolerance (40/100 in the 0.70–0.75 m band), so recompute success at a tighter tol (e.g. 0.5 m) from the saved poses, and decide whether reverse/left-right track commands are needed for tighter final positioning.
-- **Hybrid locomanipulation integration**: combine the first-pass `π_drive` and `π_reach` with a rule-based mode selector from [arm-dyn-model.md](arm-dyn-model.md): drive until the target is inside the arm's sampled workspace, stop/brake the base, then hand off to reach mode. This is the next case-2 systems step; full coupled vehicle+arm learning remains out of scope for v1.
-- **Braking transfer gap**: the policy tracks turning references in Chrono but diverges on braking-heavy ones — likely a dynamics-model gap (brake response) rather than a policy gap; worth checking v07 open-loop rollout error on launch_brake/steer_brake segments specifically.
-- **v19–v30 sweep** crashed at the first model and was never completed.
-- **RL on alternate dynamics backbones**: the current active policy uses the 15-D tire-normal-force/omega v07-style model; the older `v3_turn_300g` backbone remains untested as an RL backbone.
-- **15-D held-out validation outliers**: held-out/rest-start eval now exists for the 15-D policy. The NN env and Chrono env both run, but the validation set has several NN outliers; compare `xy_mean_m` to training logs and inspect per-reference behavior before drawing conclusions from aggregate RMSE alone.
-- **Bumpy-terrain finetune (next major step)**: the flat-trained policies regress on bumpy terrain. The older 7-D/v07 check degraded from mean 0.26 → 1.46 m with 4/20 divergences, and the newer 15-D `model_500.pt` check degraded from mean 0.25 → 0.62 m in Chrono. Plan: (1) finetune the current 15-D tire-normal-force/omega NN dynamics model on `hmmwv_bumpy_10g_normal_force_omega_seq_v1`, then (2) finetune/retrain the PPO policy against that bumpy dynamics model, and (3) re-run the 15-D bumpy NN + Chrono eval to measure recovery. The 15-D bumpy cache, reference sets, eval helper config, and per-episode terrain reproduction are all done.
-- **Beyond the fixed regime**: bumpy-terrain *evaluation* now exists (heightmap terrain reproduced per episode); friction variation, observation noise, and tire-channel supervision are still out of scope.
-- **CRM generalist follow-ups** (informed by the 2026-06-18 ablations): (1) **de-noise checkpoint selection** — make the in-loop rollout eval full-episode (or longer horizon) with more episodes so `rollout_sel` stops mis-ranking (it picked ep25/vx3-ep80 when the gold metric prefers different epochs); highest-value fix. (2) **More CRM data — LANDED 2026-06-22** — `hmmwv_crm_2000` (2000 eps) collected and processed to `hmmwv_crm_2000_normal_force_omega_seq_v1` (~2.28M train / 0.60M val transitions, ~23.6× the crm_100 training rows; see the dedicated subsection above). The `crm40` ablation showed more CRM *batch weight* just overfits the ~96k-row set (CRM 9.4%→12.8%), so the limiter was data, not weight — now addressable. **Actionable next step: retrain the flat+CRM generalist swapping crm_100→crm_2000** (4 config refs) and re-test the flat:CRM ratio on the 20× set. (Still ~18% boundary cutoffs / ~15% immobilized episodes to curate.) (3) **Terrain conditioning** (one-hot → FiLM → inferred context) for per-domain specialization to attack the flat tax — see the dedicated subsection above; combined input normalization (`combnorm`) is the *wrong* lever (it de-centers the dominant flat domain → flat 15.4%→19.9%). (4) Keep the **vx loss upweight** (marginal CRM win + tighter vx, free). (5) Extend flat+CRM to the full **tri-domain** (add bumpy) generalist; train/eval a PPO policy against it and run CRM Chrono transfer.
+---
+
+## Study Case II — M113 tracked vehicle with a 4-DOF arm
+
+One Chrono scene, two control modes. Drive mode moves the base with the arm
+welded at its home pose; reach mode holds the base and moves the arm. Each mode
+has its own reduced state, ROM and policy.
+
+### Drive mode
+
+- Dataset: `configs/tracked_vehicle_drive_v2.json` → `datasets/tracked_vehicle_drive_v2_shards`
+  (2,160 eps, 10 maneuver families) → `training_datasets/tracked_drive_v2_seq16_v1`
+  (1.41 M train / 0.27 M val)
+- ROM: 3-D `[vx, vy, r]`, 3-D action, 3L / 4H / E96 / ctx16, 0.34 M params,
+  `configs/tracked_transformer_v1.json`, epoch 8
+- Policy: `scripts/train_tracked_rl_goal.py`, 2,048 envs, 11-D obs, 10 Hz,
+  iteration 1499 → `rl_runs/tracked_goal_v2_far_rollsel_rom_20260721/`
+- Chrono: `chrono_benchmark_N100_seed12345/` — 100/100 at 0.75 m, median
+  time-to-success 20.2 s, median path efficiency 0.959
+- Route composition: `chrono_waypoints_fig8_bowtie/` — 8 goals chained in one
+  rollout, 8/8, per-leg closest approach 0.46–0.69 m
+
+One-step error is noise-limited here and nearly flat across epochs, so fidelity
+is judged from the open-loop rollout, not the loss magnitude.
+
+### Reach mode
+
+- Dataset: `datasets/arm_dynamics_v3_home_reset_fulltraj_shards` (15,000 eps)
+  → `training_datasets/arm_dyn_v3_8d_seq16_v1` (0.76 M train transitions)
+- ROM: 8-D `[q, q̇]`, action = absolute `q_cmd`, 5L / 8H / E256 / ctx16,
+  4.0 M params, `configs/arm_transformer_8d_v1.json`, epoch 76
+- Policy: `scripts/train_arm_rl_reaching.py`, 4,096 envs, 26-D obs, 50 Hz,
+  iteration 1499 → `rl_runs_arm_goal_reach/arm_reach_adaptivekl005_lr1e4_tol005_ep150_bonus150_sigma015_8d_rom_20260727/`
+- Chrono: `chrono_reach_benchmark_N100_seed12345/` — 97/100 at 0.05 m, median
+  reached error 4.17 cm, median convergence 0.9 s, **zero** contacts and **zero**
+  joint-limit violations
+
+The end-effector is **not** a learned channel: it is recovered as `FK(q)` from the
+predicted joints, using the same batched forward kinematics that the safety
+shield already evaluates each step. Geometry lives in
+`artifacts/arm_geometry/arm_geometry_v1.json` (regenerate with
+`scripts/extract_arm_geometry.py`); FK and the clearance shield are
+`src/nedm/rl/arm_kinematics.py` and `arm_safety.py`.
+
+Collection is restricted to free-space motion — episodes terminate on
+arm–ground, arm–vehicle or arm–self contact — so the ROM has no notion of
+contact and the shield is what keeps policy exploration inside the envelope it
+was trained on.
+
+The three remaining failures are all timeouts at deep lower-workspace goals
+(target height down to −4.4 m in the arm-base frame; closest approach 6.4, 9.3
+and 10.9 cm). That region is under-sampled by the collection, not a safety
+failure.
+
+### Benchmarks and figures
+
+`benchmark_tracked_goal_chrono.py` and `benchmark_arm_reach_chrono.py` run one
+goal per process and must be serialized against each other — repeated Chrono
+scene re-creation in a single process crashes natively (stack smashing), which is
+also why `eval_tracked_waypoints_chrono.py` swaps the active goal instead of
+resetting.
+
+---
+
+## Regenerating the manuscript figures
+
+All twelve scripts write into the manuscript image archive by default; pass
+`--out`/`--out-dir` to redirect.
+
+| Figure | Script |
+|---|---|
+| `hmmwv_cotrain_training.pdf` | `scripts/ablation_ofat/manuscript_figs/plot_l8_training_curves.py` |
+| `hmmwv_rl_reward.pdf` | `scripts/ablation_ofat/manuscript_figs/plot_l8_rl_reward.py` |
+| `hmmwv_policy_transfer_bars.pdf` | `scripts/ablation_ofat/manuscript_figs/plot_l8_policy_transfer_bars.py` |
+| `hmmwv_policy_trajectories_grid.pdf` | `scripts/ablation_ofat/manuscript_figs/plot_l8_policy_trajectories_grid.py` |
+| `tracked_arm_training.pdf` | `scripts/plot_tracked_arm_training.py` |
+| `tracked_arm_rl_reward.pdf` | `scripts/plot_tracked_arm_rl_reward.py` |
+| `tracked_stress_trajectories.pdf` | `scripts/plot_tracked_stress_trajectories.py` |
+| `arm_stress_trajectories.pdf` | `scripts/plot_arm_stress_trajectories.py` |
+| `arm_fk_boxes.pdf` | `scripts/plot_arm_fk_boxes.py` |
+| imagery in `study-case-2.pdf` | `scripts/compose_tracked_arm_multiexposure.py` |
+
+`fpp.pdf`, `hmmwv-nnrom.png` and the `study-case-2.pdf` layout are hand-drawn and
+live only in the manuscript repo.
+
+Appendix A throughput numbers come from `scripts/probe_sim_fps.py` (Chrono rows)
+and the `Perf/total_fps` scalar in each PPO run's tfevents (NN-ROM rows). The
+k=16 context claim comes from `scripts/bench_context_accuracy.py`; per-pass
+inference cost from `scripts/bench_dynamics_inference.py`.
+
+---
+
+## Known gaps
+
+1. **The CRM evaluation reference set is missing.** All three L8 runs' CRM evals
+   point at
+   `artifacts/rl_reference_sets/hmmwv_crm2000_val_refs_20_1100_rest_start_min10_seed20260623.npz`,
+   which is not on the filesystem. The recorded results are intact, but the CRM
+   column cannot be re-run until it is rebuilt with
+   `scripts/build_crm_rl_references.py` from `datasets/hmmwv_crm_2000`
+   (seed 20260623, `min10` displacement filter).
+2. **Manuscript prose still describes the pre-correction reward run.**
+   `plot_tracked_arm_rl_reward.py` read `rl_runs/tracked_goal_v2_far` while the
+   100/100 Chrono result comes from `tracked_goal_v2_far_rollsel_rom_20260721`.
+   Fixed and the figure regenerated on 2026-08-07; the curve is unchanged in
+   shape (both runs plateau near 325). Three numbers in Sec. V-D-1 and Table 5
+   came from the old run and are now wrong:
+   - the transfer checkpoint is **iteration 1499**, not 1500 (there is no
+     `model_1500.pt` in the transferred run);
+   - that run was scheduled for **1,500** iterations, not 3,000 — 3,000 was the
+     older run's `max_iterations`;
+   - its wall-clock is 10.0 min, so the "≈10 min" claim still holds, as does
+     "the arm run is ≈6× longer" (57 min / 10.0 min = 5.7×).
+
+   Appendix A is unaffected: `Perf/total_fps` averages 163,022 over the correct
+   run versus 163,170 over the old one, both ≈163,000.
+3. **Dataset scale in the manuscript's Table 1.** It reports the flat set as
+   ≈82k episodes / 329 M–81 M transitions, which describes the older
+   `hmmwv_turn_300g` collection. The deployed model trains on
+   `hmmwv_tire_rigid_300g_normal_force_omega_seq_v1`: 26,124 train episodes /
+   128.0 M transitions, 6,644 val / 32.5 M, from 32,768 raw episodes.
+
+## Open items
+
+- **Arm lower workspace.** The three Chrono misses sit in a region the collection
+  under-samples. Either collect more lower-workspace arm dynamics data or restrict
+  the goal distribution to the covered upper/forward shell.
+- **Base tolerance.** The policy stops on entering the 0.75 m region rather than
+  homing onto the goal, so it hugs the radius (40/100 land in 0.70–0.75 m).
+  Success at a tighter tolerance can be recomputed offline from the saved poses;
+  reaching it may need reverse/differential track commands.
+- **Single seed.** The architecture sweep, the data-scaling curve and both Study
+  Case II policies are single-seed. The 80% data point edging out 100% on S is
+  most likely seed noise, but only a repeat settles it.
+- **Confounded arm comparison.** The 8-D model also dropped a layer (6L → 5L), so
+  the open-loop win is not cleanly attributable to the state layout. An 8-D /
+  6-layer run would separate them.
+- **Contact-rich manipulation** is out of scope: the arm ROM is trained on
+  free-space motion only and the shield avoids contact rather than modeling it.
+
+---
+
+## Superseded work
+
+Kept as a record of what was tried. These runs and caches still exist locally but
+are no longer version controlled.
+
+| Line of work | Outcome |
+|---|---|
+| v01–v20 architecture sweeps, d005–d200 data scaling | Pre-dated the OFAT protocol; replaced by `ablation_ofat/` with rollout-based selection. |
+| CRM-100 era (`crm100_*`: combnorm, crm40, vx3, scratch, rebal_rollout) | The limiter was CRM *data*, not batch weight — more CRM weight on the ~96k-row set just overfit. Resolved by collecting `hmmwv_crm_2000` (20×). Combined input normalization was the wrong lever: it de-centers the dominant flat domain. |
+| Bumpy fine-tuning (`finetune_w_bumpy.py` and friends) | Fine-tuning the flat base on bumpy data was worse than the base. The failure was vx/omega longitudinal drift, not tire Fz; both Fz-feedback and WiSE-FT weight interpolation were refuted. Replaced by flat+CRM co-training plus rollout-based selection, which also generalizes to bumpy zero-shot. |
+| Sequential flat → CRM fine-tune | Degrades the previously learned rigid behavior. Replaced by mixed 75/25 sub-batches. |
+| 6-layer one-hot policy trio (`…_steerlim010` without `ofatL8`) | Superseded by the L8 backbone; same recipe, deeper dynamics. |
+| 15-D arm ROM `[q, q̇, q_cmd, ee_base]` (`arm_transformer_full_v1`) | Learning `ee_base` as a channel is worse than recovering it by FK. Reach transfer 91/100. |
+| 12-D arm ROM `[q, q̇, q_cmd]` (`arm_transformer_noee_v1`) | Dropping `ee_base` and using FK reached 97/100 and beat the 15-D channel by ~32% at multi-step. Superseded by the 8-D model, which treats `q_cmd` as the action rather than a state channel: same 97/100 transfer on a better open-loop ROM with 17% fewer parameters. |
+| `tracked_goal_v1`, `arm_reach_fixedlr*`, `luffy_repro` | PPO tuning iterations before the reward and KL schedule settled. |

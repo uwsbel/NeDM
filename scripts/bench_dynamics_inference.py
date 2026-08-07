@@ -21,8 +21,8 @@ sys.path.insert(0, str(REPO_ROOT / "src"))
 from nedm.training.model import HMMWVDynamicsModel  # noqa: E402
 
 DEFAULT_CKPT = (
-    "artifacts/training_runs/hmmwv_transformer_v07_tire_normal_force_omega_300g/"
-    "checkpoints/best_val.pth"
+    "artifacts/training_runs/ablation_ofat/L8_H8_E256_ctx128/"
+    "checkpoints/best_val.pt"
 )
 
 
