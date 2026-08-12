@@ -112,6 +112,67 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--blender-max-frames", type=int, default=None, help="Optional cap on exported Blender frames.")
     parser.add_argument("--blender-width", type=int, default=1280, help="Blender render width stored in assets script.")
     parser.add_argument("--blender-height", type=int, default=720, help="Blender render height stored in assets script.")
+    parser.add_argument(
+        "--crm-surface-margin-m",
+        type=float,
+        default=6.0,
+        help="CRM + Blender export only: margin around the reference/rollout XY bounding box for the "
+        "soil surface reconstruction window. The window is fixed for the whole rollout so the ruts "
+        "accumulate in place instead of sliding with the vehicle.",
+    )
+    parser.add_argument(
+        "--crm-surface-cube-size",
+        type=float,
+        default=2.0,
+        help="CRM + Blender export only: splashsurf marching-cubes cell size (x particle radius). One "
+        "mesh is written per exported frame, so this is the main lever on total export size.",
+    )
+    parser.add_argument(
+        "--crm-surface-smoothing-length",
+        type=float,
+        default=1.5,
+        help="CRM + Blender export only: SPH kernel smoothing length for the reconstruction "
+        "(x particle radius). Chrono's own default is 1.5; ~2.0 blends neighbouring particles "
+        "into a continuous surface instead of a lumpy one.",
+    )
+    parser.add_argument(
+        "--crm-surface-threshold",
+        type=float,
+        default=0.6,
+        help="CRM + Blender export only: iso-surface density threshold. Chrono's default is 0.6, "
+        "which reconstructs every particle the tyres throw into the air as its own blob -- a field "
+        "of shards in a close-up. ~0.8 drops the isolated flyers and keeps the churned band.",
+    )
+    parser.add_argument(
+        "--crm-surface-smoothing-iters",
+        type=int,
+        default=0,
+        help="CRM + Blender export only: splashsurf mesh smoothing iterations. 0 (default) is the "
+        "raw marching-cubes surface, which is fine for a top-down frame. Close-up chase-camera "
+        "renders need ~25 or every surface particle reads as its own spike; the smoothing is "
+        "feature-weighted, so rut walls survive. Implies --mesh-cleanup and barnacle decimation.",
+    )
+    parser.add_argument(
+        "--crm-surface-normals-smoothing-iters",
+        type=int,
+        default=0,
+        help="CRM + Blender export only: smoothing iterations for the exported normal field.",
+    )
+    parser.add_argument(
+        "--crm-surface-keep-particles",
+        action="store_true",
+        help="CRM + Blender export only: keep the per-frame SPH particle dumps next to the meshes. "
+        "They are the expensive thing to produce -- keeping them means the surface can be "
+        "re-reconstructed at a different resolution or smoothing without re-running the sim.",
+    )
+    parser.add_argument(
+        "--crm-surface-format", choices=("ply", "obj"), default="ply", help="CRM soil surface mesh format."
+    )
+    parser.add_argument(
+        "--no-crm-surface",
+        action="store_true",
+        help="Skip the per-frame soil surface reconstruction (vehicle-only CRM export).",
+    )
     return parser.parse_args(argv)
 
 
@@ -181,6 +242,7 @@ def rollout_one_reference(
     blender_fps: float = 20.0,
     blender_max_frames: int | None = None,
     blender_picture_size: tuple[int, int] = (1280, 720),
+    crm_surface: dict[str, Any] | None = None,
 ) -> dict[str, np.ndarray]:
     if reset:
         env_id = torch.tensor([0], dtype=torch.long, device=env.device)
@@ -210,6 +272,17 @@ def rollout_one_reference(
             clean=True,
         )
         print(f"writing Blender postprocess files -> {blender_output_dir}")
+
+    # CRM soil has no Chrono visual asset -- the SPH field is invisible to ChBlender --
+    # so the free surface is reconstructed separately, one mesh per exported frame.
+    surface_dir = None
+    surface_frames = 0
+    if crm_surface is not None and blender_exporter is not None:
+        from nedm.crm_surface import export_crm_surface
+
+        surface_dir = Path(crm_surface["output_dir"])
+        surface_dir.mkdir(parents=True, exist_ok=True)
+
     obs, _ = env.get_observations()
 
     record: dict[str, list[np.ndarray]] = {
@@ -234,12 +307,50 @@ def rollout_one_reference(
                 record["action"].append(tensor_to_numpy(env.actions[0]))
                 record["reward"].append(np.array(float(rewards[0].item()), dtype=np.float32))
                 if blender_exporter is not None:
-                    blender_exporter.maybe_export()
+                    exported = blender_exporter.maybe_export()
+                    if exported and surface_dir is not None:
+                        mesh_path = surface_dir / f"surface_{surface_frames:05d}.{crm_surface['format']}"
+                        export_crm_surface(
+                            env.sims[0].terrain,
+                            mesh_path,
+                            initial_spacing_m=crm_surface["initial_spacing_m"],
+                            center_xy=crm_surface["center_xy"],
+                            half_extent_xy=crm_surface["half_extent_xy"],
+                            cube_size=crm_surface["cube_size"],
+                            surface_threshold=crm_surface["surface_threshold"],
+                            smoothing_length=crm_surface["smoothing_length"],
+                            mesh_smoothing_iters=crm_surface["smoothing_iters"],
+                            normals_smoothing_iters=crm_surface["normals_smoothing_iters"],
+                            mesh_cleanup=crm_surface["smoothing_iters"] > 0,
+                            decimate_barnacles=crm_surface["smoothing_iters"] > 0,
+                            keep_particle_file=crm_surface["keep_particles"],
+                        )
+                        surface_frames += 1
                 if bool(dones[0].item()) and not ignore_dones:
                     break
     finally:
         if blender_exporter is not None:
             blender_exporter.write_summary()
+        if surface_dir is not None:
+            (surface_dir / "crm_surface_manifest.json").write_text(
+                json.dumps(
+                    {
+                        "frame_count": surface_frames,
+                        "format": crm_surface["format"],
+                        "pattern": f"surface_%05d.{crm_surface['format']}",
+                        "center_xy": list(crm_surface["center_xy"]),
+                        "half_extent_xy": list(crm_surface["half_extent_xy"]),
+                        "cube_size": crm_surface["cube_size"],
+                        "surface_threshold": crm_surface["surface_threshold"],
+                        "smoothing_length": crm_surface["smoothing_length"],
+                        "smoothing_iters": crm_surface["smoothing_iters"],
+                        "normals_smoothing_iters": crm_surface["normals_smoothing_iters"],
+                        "initial_spacing_m": crm_surface["initial_spacing_m"],
+                    },
+                    indent=2,
+                ),
+                encoding="utf-8",
+            )
 
     return {
         key: np.stack(values, axis=0) if values else np.empty((0,), dtype=np.float32)
@@ -363,8 +474,6 @@ def main(argv: list[str] | None = None) -> int:
         env_cfg["render_width"] = int(args.render_width)
         env_cfg["render_height"] = int(args.render_height)
     if args.blender_output_dir is not None:
-        if terrain_type == "crm":
-            raise ValueError("--blender-output-dir is only wired for rigid/heightmap Chrono terrain.")
         env_cfg["blender_export"] = True
 
     checkpoint_path = args.policy_checkpoint.resolve() if args.policy_checkpoint else latest_policy_checkpoint(run_dir)
@@ -397,6 +506,34 @@ def main(argv: list[str] | None = None) -> int:
                 if len(reference_indices) > 1
                 else base_blender_dir
             )
+        crm_surface = None
+        if blender_dir is not None and terrain_type == "crm" and not args.no_crm_surface:
+            # Fix the reconstruction window to the reference's own XY extent so the ruts
+            # stay put across frames; a vehicle-following window would erase the older
+            # ones as it slid forward.
+            ref_xy = np.asarray(env.reference_set.poses[reference_id][:, :2], dtype=float)
+            lo, hi = ref_xy.min(axis=0), ref_xy.max(axis=0)
+            centre = (lo + hi) * 0.5
+            half = (hi - lo) * 0.5 + float(args.crm_surface_margin_m)
+            crm_surface = {
+                "output_dir": blender_dir / "crm_surface",
+                "format": args.crm_surface_format,
+                "center_xy": (float(centre[0]), float(centre[1])),
+                "half_extent_xy": (float(half[0]), float(half[1])),
+                "cube_size": float(args.crm_surface_cube_size),
+                "surface_threshold": float(args.crm_surface_threshold),
+                "smoothing_length": float(args.crm_surface_smoothing_length),
+                "smoothing_iters": int(args.crm_surface_smoothing_iters),
+                "normals_smoothing_iters": int(args.crm_surface_normals_smoothing_iters),
+                "keep_particles": bool(args.crm_surface_keep_particles),
+                "initial_spacing_m": float(env.chrono_config["terrain"]["initial_spacing_m"]),
+            }
+            print(
+                f"CRM soil surface window: centre=({centre[0]:.1f}, {centre[1]:.1f}) "
+                f"half-extent=({half[0]:.1f}, {half[1]:.1f}) cube_size={crm_surface['cube_size']} "
+                f"l={crm_surface['smoothing_length']} smooth_iters={crm_surface['smoothing_iters']}"
+            )
+
         record = rollout_one_reference(
             env,
             policy,
@@ -410,6 +547,7 @@ def main(argv: list[str] | None = None) -> int:
             blender_fps=float(args.blender_fps),
             blender_max_frames=args.blender_max_frames,
             blender_picture_size=(int(args.blender_width), int(args.blender_height)),
+            crm_surface=crm_surface,
         )
         if args.render:
             maybe_encode_video(output_dir / f"frames_ref{reference_id:02d}", args.render_fps)
