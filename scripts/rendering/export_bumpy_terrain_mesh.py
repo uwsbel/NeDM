@@ -107,7 +107,7 @@ def main() -> None:
         "episode_id": episode_id,
         "height_map": bmp_path.name,
         "height_map_index": index,
-        "obj": str(obj_path.relative_to(REPO_ROOT)),
+        "obj": str(obj_path.relative_to(REPO_ROOT)) if obj_path.is_relative_to(REPO_ROOT) else str(obj_path),
         "patch_length_m": terrain_cfg["length_m"],
         "patch_width_m": terrain_cfg["width_m"],
         "height_min_m": terrain_cfg["height_min_m"],
