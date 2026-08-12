@@ -49,7 +49,24 @@ from mathutils import Vector
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_GROUND_TEXTURE = REPO_ROOT / "chrono/data/vehicle/terrain/textures/dirt.jpg"
+def default_ground_texture() -> Path | None:
+    """Chrono's own dirt albedo, if a Chrono data tree can be found.
+
+    The vendored ``chrono/`` checkout is gitignored (2 GB of upstream source), so a fresh
+    clone of this branch has no texture at this path. Probe the usual places and return
+    None rather than hard-failing -- a missing albedo costs a flat-coloured ground, not a
+    render. Blender's bundled Python cannot import pychrono, so ``GetChronoDataFile`` is
+    not available to ask properly.
+    """
+    candidates = [
+        REPO_ROOT / "chrono/data/vehicle/terrain/textures/dirt.jpg",
+        Path.home() / "miniconda3/envs/nedm/share/chrono/data/vehicle/terrain/textures/dirt.jpg",
+        Path.home() / "anaconda3/envs/nedm/share/chrono/data/vehicle/terrain/textures/dirt.jpg",
+    ]
+    return next((path for path in candidates if path.is_file()), None)
+
+
+DEFAULT_GROUND_TEXTURE = default_ground_texture()
 
 TERRAIN_TINTS = {
     # (tint RGBA, roughness). The tint multiplies the ground texture, so values above 1
@@ -199,8 +216,9 @@ def parse_args() -> argparse.Namespace:
     ground.add_argument(
         "--ground-texture",
         type=str,
-        default=str(DEFAULT_GROUND_TEXTURE),
-        help="Ground albedo image. Pass 'none' for a flat colour.",
+        default=str(DEFAULT_GROUND_TEXTURE) if DEFAULT_GROUND_TEXTURE else "none",
+        help="Ground albedo image. Pass 'none' for a flat colour. Defaults to Chrono's dirt.jpg "
+        "if a Chrono data tree is found, otherwise to a flat colour.",
     )
     ground.add_argument("--ground-texture-scale-m", type=float, default=6.0, help="Texture tile size in metres.")
     ground.add_argument(
