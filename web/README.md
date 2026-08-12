@@ -29,12 +29,21 @@ clips by relative path.
 ## Publish
 
 `.github/workflows/pages.yml` uploads `web/` to Pages on every push to `main`
-that touches it. It needs to be enabled once, by a repo admin:
+that touches it, and `workflow_dispatch` re-runs it by hand from the Actions
+tab. It passes `enablement: true`, so the first successful run creates the
+Pages site itself — no one needs to visit Settings → Pages first.
 
-**Settings → Pages → Build and deployment → Source: *GitHub Actions***
+**Blocked as of 2026-08-12:** GitHub Pages requires the repository to be public
+unless the owning account is on Pro/Team/Enterprise ("If the account that owns
+the repository uses GitHub Free or GitHub Free for organizations, the
+repository must be public"). `uwsbel/NeDM` is private under a Free org, so
+every run fails at `configure-pages` with *Get Pages site failed … Not Found*,
+and Settings → Pages shows no "Build and deployment" section at all — that is
+the feature being unavailable, not a permissions problem. Making the repo
+public, or upgrading the org, unblocks it with no change to this workflow.
 
-After that the workflow deploys on its own; `workflow_dispatch` re-runs it by
-hand from the Actions tab.
+Until then the page can be served from any public repo you own: copy `web/`
+into it and point the same workflow at it.
 
 Note that Git LFS files are **not** served by Pages (visitors get the pointer
 text, not the file), so everything under `assets/` is committed as a regular
