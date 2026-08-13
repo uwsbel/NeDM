@@ -3,10 +3,6 @@
 Code and artifacts for *Learning the Right Abstraction: Neural Reduced Dynamics
 for Complex Robot Control* (Zhang and Negrut).
 
-**Project page: <https://uwsbel.github.io/NeDM/>** — figures, and the nine
-side-by-side Chrono rollouts behind the Study Case I result. Its source is
-[`web/`](web/README.md).
-
 High-fidelity Chrono trajectories are distilled into a task-specific neural
 reduced dynamics model (NN-ROM); the model is frozen and replicated into a
 vectorized environment where a control policy is trained with PPO; the trained
