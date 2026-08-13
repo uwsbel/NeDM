@@ -1,0 +1,57 @@
+name: Deploy project page
+
+# Publishes web/ to GitHub Pages at https://uwsbel.github.io/NeDM/
+#
+# Creating the Pages site is a one-time manual step:
+#   Settings -> Pages -> Build and deployment -> Source: "GitHub Actions"
+# This workflow deploys to that site but cannot create it. configure-pages has
+# an `enablement` input, and it is a dead end here -- its own action.yml says
+# it "requires a token other than GITHUB_TOKEN", needing administration:write,
+# which no workflow token has. With it the run fails "Create Pages site failed
+# ... Resource not accessible by integration"; without it, "Get Pages site
+# failed ... Not Found" until the setting above is flipped. A PAT would work
+# and is not worth a secret for a step done once.
+#
+# Deploys from main only. The github-pages environment ships with a protection
+# rule allowing the default branch alone, so a run on any other branch is
+# rejected with "Branch <name> is not allowed to deploy to github-pages due to
+# environment protection rules" -- adding one needs Settings -> Environments,
+# which not every repo admin can reach.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'web/**'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Let a running deploy finish; queue at most one more.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: false            # Pages cannot serve LFS pointers; web/ holds real files.
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
