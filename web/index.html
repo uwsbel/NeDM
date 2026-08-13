@@ -6,7 +6,7 @@
 <title>Learning the Right Abstraction — Neural Reduced Dynamics for Complex Robot Control</title>
 <meta name="description" content="Neural reduced dynamics models distill high-fidelity Chrono simulation into fast surrogates that train control policies which transfer back to the full simulator.">
 <meta property="og:title" content="Learning the Right Abstraction: Neural Reduced Dynamics for Complex Robot Control">
-<meta property="og:description" content="One policy, trained inside a terrain-conditioned neural reduced dynamics model, beats both single-terrain specialists on rigid, deformable, and zero-shot bumpy terrain in Chrono.">
+<meta property="og:description" content="One policy, trained inside a terrain-conditioned neural reduced dynamics model, beats both single-terrain specialists on rigid, deformable, and out-of-distribution bumpy terrain in Chrono.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="assets/figures/overview.png">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚙</text></svg>">
@@ -67,54 +67,86 @@
   </figure>
 
   <!-- ───────────────────────── Video comparison ───────────────────────── -->
-  <section id="videos">
+  <section id="videos" class="wide">
     <h2>Study Case I — one policy, three terrains</h2>
     <p class="lede">
-      Three tracking policies, identical in every way except the frozen dynamics model they were trained
-      inside, driven closed-loop in Chrono. <span class="ref">Green</span> is the reference,
-      <span class="act">red</span> the driven path. Pick a terrain:
+      Nine closed-loop Chrono rollouts. Three tracking policies (columns), identical in every way
+      except the frozen dynamics model they were trained inside, on three terrains (rows).
+      <span class="ref">Green</span> is the reference, <span class="act">red</span> the path
+      actually driven — where you see only green, the vehicle is still on the line.
     </p>
 
-    <div class="tabs" role="tablist" aria-label="Terrain">
-      <button class="tab is-active" role="tab" data-terrain="rigid">Rigid flat</button>
-      <button class="tab" role="tab" data-terrain="crm">CRM soil</button>
-      <button class="tab" role="tab" data-terrain="bumpy">Rigid bumpy <span class="zs">zero-shot</span></button>
+    <div class="vrow">
+      <div class="vrow-head">
+        <h3>Rigid flat</h3>
+        <p>A held-out reference from the rigid validation set.</p>
+        <button class="btn btn-sm replay" data-terrain="rigid">⟲ replay row</button>
+      </div>
+      <div class="vrow-clips" data-terrain="rigid">
+        <figure class="vcard">
+          <video muted loop playsinline preload="none" poster="assets/videos/posters/rigid_generalist.jpg" src="assets/videos/rigid_generalist.mp4"></video>
+          <figcaption><span class="chip c-gen">Generalist</span><span class="vname">mixture — rigid + CRM</span><span class="vmetric">median XY RMSE <b>0.157 m</b></span></figcaption>
+        </figure>
+        <figure class="vcard">
+          <video muted loop playsinline preload="none" poster="assets/videos/posters/rigid_rigid_only.jpg" src="assets/videos/rigid_rigid_only.mp4"></video>
+          <figcaption><span class="chip c-rig">Rigid-only</span><span class="vname">specialist</span><span class="vmetric">median XY RMSE <b>0.174 m</b></span></figcaption>
+        </figure>
+        <figure class="vcard">
+          <video muted loop playsinline preload="none" poster="assets/videos/posters/rigid_crm_only.jpg" src="assets/videos/rigid_crm_only.mp4"></video>
+          <figcaption><span class="chip c-crm">CRM-only</span><span class="vname">specialist</span><span class="vmetric">median XY RMSE <b>0.232 m</b></span></figcaption>
+        </figure>
+      </div>
     </div>
 
-    <p class="terrain-note" id="terrain-note"></p>
-
-    <div class="vgrid">
-      <figure class="vcard" data-policy="generalist">
-        <video muted loop playsinline preload="metadata"></video>
-        <figcaption>
-          <span class="chip c-gen">Generalist</span>
-          <span class="vname">mixture — rigid + CRM</span>
-          <span class="vmetric"></span>
-        </figcaption>
-      </figure>
-      <figure class="vcard" data-policy="rigid_only">
-        <video muted loop playsinline preload="none"></video>
-        <figcaption>
-          <span class="chip c-rig">Rigid-only</span>
-          <span class="vname">specialist</span>
-          <span class="vmetric"></span>
-        </figcaption>
-      </figure>
-      <figure class="vcard" data-policy="crm_only">
-        <video muted loop playsinline preload="none"></video>
-        <figcaption>
-          <span class="chip c-crm">CRM-only</span>
-          <span class="vname">specialist</span>
-          <span class="vmetric"></span>
-        </figcaption>
-      </figure>
+    <div class="vrow">
+      <div class="vrow-head">
+        <h3>CRM soil</h3>
+        <p>Deformable terrain — the wheels sink and slip, and the rigid-only policy overshoots every turn.</p>
+        <button class="btn btn-sm replay" data-terrain="crm">⟲ replay row</button>
+      </div>
+      <div class="vrow-clips" data-terrain="crm">
+        <figure class="vcard">
+          <video muted loop playsinline preload="none" poster="assets/videos/posters/crm_generalist.jpg" src="assets/videos/crm_generalist.mp4"></video>
+          <figcaption><span class="chip c-gen">Generalist</span><span class="vname">mixture — rigid + CRM</span><span class="vmetric">median XY RMSE <b>0.180 m</b></span></figcaption>
+        </figure>
+        <figure class="vcard">
+          <video muted loop playsinline preload="none" poster="assets/videos/posters/crm_rigid_only.jpg" src="assets/videos/crm_rigid_only.mp4"></video>
+          <figcaption><span class="chip c-rig">Rigid-only</span><span class="vname">specialist</span><span class="vmetric">median XY RMSE <b>0.854 m</b></span></figcaption>
+        </figure>
+        <figure class="vcard">
+          <video muted loop playsinline preload="none" poster="assets/videos/posters/crm_crm_only.jpg" src="assets/videos/crm_crm_only.mp4"></video>
+          <figcaption><span class="chip c-crm">CRM-only</span><span class="vname">specialist</span><span class="vmetric">median XY RMSE <b>0.231 m</b></span></figcaption>
+        </figure>
+      </div>
     </div>
 
-    <div class="vcontrols">
-      <button id="btn-play" class="btn btn-sm">⏯ Play / pause all</button>
-      <button id="btn-restart" class="btn btn-sm">⟲ Restart in sync</button>
-      <span class="hint">Clips are one representative held-out reference per terrain, rendered in Blender from the Chrono rollout. Metrics are medians over all 20 held-out references.</span>
+    <div class="vrow">
+      <div class="vrow-head">
+        <h3>Rigid bumpy <span class="ood">out of distribution</span></h3>
+        <p>No bumpy data enters training, checkpoint selection, normalization or reward tuning, and bumpy carries the same rigid context code as flat.</p>
+        <button class="btn btn-sm replay" data-terrain="bumpy">⟲ replay row</button>
+      </div>
+      <div class="vrow-clips" data-terrain="bumpy">
+        <figure class="vcard">
+          <video muted loop playsinline preload="none" poster="assets/videos/posters/bumpy_generalist.jpg" src="assets/videos/bumpy_generalist.mp4"></video>
+          <figcaption><span class="chip c-gen">Generalist</span><span class="vname">mixture — rigid + CRM</span><span class="vmetric">median XY RMSE <b>0.149 m</b></span></figcaption>
+        </figure>
+        <figure class="vcard">
+          <video muted loop playsinline preload="none" poster="assets/videos/posters/bumpy_rigid_only.jpg" src="assets/videos/bumpy_rigid_only.mp4"></video>
+          <figcaption><span class="chip c-rig">Rigid-only</span><span class="vname">specialist</span><span class="vmetric">median XY RMSE <b>0.187 m</b></span></figcaption>
+        </figure>
+        <figure class="vcard">
+          <video muted loop playsinline preload="none" poster="assets/videos/posters/bumpy_crm_only.jpg" src="assets/videos/bumpy_crm_only.mp4"></video>
+          <figcaption><span class="chip c-crm">CRM-only</span><span class="vname">specialist</span><span class="vmetric">median XY RMSE <b>0.213 m</b></span></figcaption>
+        </figure>
+      </div>
     </div>
+
+    <p class="foot">
+      Each clip is one representative held-out reference for that terrain, rendered in Blender from the
+      Chrono rollout; the quoted medians are over all 20 held-out references, so an individual clip can
+      run against its policy's median. Clips loop — <b>replay row</b> restarts three in sync.
+    </p>
   </section>
 
   <!-- ───────────────────────── Quantitative ───────────────────────── -->
@@ -124,8 +156,9 @@
       Closed-loop Chrono XY RMSE over 20 held-out references per terrain, all 20/20 rollouts completing.
       The mixture generalist takes the lowest median <em>and</em> mean in all three regimes: it beats the
       rigid-only specialist on rigid ground and the CRM-only specialist on CRM soil, on their own home
-      terrain. Bumpy is a strict zero-shot test — no bumpy data enters training, checkpoint selection,
-      normalization, or reward tuning, and bumpy carries the same rigid context code as flat.
+      terrain. Bumpy is the out-of-distribution case — the policy never previews the height profile, so
+      closed-loop tracking there is the honest measure of whether the conditioned abstraction generalizes
+      or memorizes.
     </p>
 
     <div class="split">
@@ -135,7 +168,8 @@
       </figure>
 
       <table class="tbl">
-        <caption>Closed-loop Chrono XY RMSE (m), 20 references, iteration-1000 checkpoints</caption>
+        <caption>Closed-loop Chrono XY RMSE (m), 20 references, iteration-1000 checkpoints.
+        <sup>†</sup> out of distribution: rigid context code, no bumpy data anywhere in training or selection.</caption>
         <thead>
           <tr><th>Terrain</th><th>Policy</th><th>Median</th><th>Mean</th></tr>
         </thead>
@@ -159,7 +193,7 @@
         <b>Closed-loop XY paths</b> for three held-out maneuvers (columns) on each terrain (rows).
         The rigid-only specialist overshoots every turn on CRM soil; the CRM-only specialist is the outlier
         on bumpy ground despite sharing the rigid contact code. Panel annotations are per-episode RMSE for
-        the generalist (G), rigid-only (R), and CRM-only (C).
+        the generalist (G), rigid-only (R), and CRM-only (C). Row (c) is the out-of-distribution case.
       </figcaption>
     </figure>
 
@@ -191,47 +225,84 @@
       <figcaption>(a) Tracked-base goal reaching and (b) arm end-effector reaching, each trained inside its own frozen NN-ROM and validated in Chrono.</figcaption>
     </figure>
 
-    <div class="split split-narrow">
-      <figure class="fig">
-        <img src="assets/figures/tracked-stress.png" alt="100 driven paths radiating from the origin to seeded goals, and an eight-waypoint bowtie route.">
-        <figcaption>100-goal Chrono stress benchmark (a) and a chained eight-waypoint route driven in a single rollout (b).</figcaption>
-      </figure>
-      <div class="resultlist">
-        <div class="res"><b>100 / 100</b><span>tracked-base goals reached within 0.75&nbsp;m in Chrono</span></div>
-        <div class="res"><b>97 / 100</b><span>arm goals reached within 0.05&nbsp;m</span></div>
-        <div class="res"><b>0</b><span>arm contacts or joint-limit violations across all rollouts</span></div>
-        <div class="res"><b>10 min / 57 min</b><span>single-GPU PPO training for base / arm policy</span></div>
-      </div>
+    <div class="resultlist">
+      <div class="res"><b>100 / 100</b><span>tracked-base goals reached within 0.75&nbsp;m in Chrono</span></div>
+      <div class="res"><b>97 / 100</b><span>arm goals reached within 0.05&nbsp;m</span></div>
+      <div class="res"><b>0</b><span>arm contacts or joint-limit violations across all rollouts</span></div>
+      <div class="res"><b>10 min / 57 min</b><span>single-GPU PPO training for base / arm policy</span></div>
     </div>
   </section>
 
   <!-- ───────────────────────── Throughput ───────────────────────── -->
   <section id="throughput">
-    <h2>Throughput is what makes the loop interactive</h2>
+    <h2>High fidelity supplies the physics to judge a controller, not the throughput to find one</h2>
     <p class="lede">
-      Real-time factor is simulated seconds advanced per wall-clock second. CRM soil is the dominant Chrono
-      cost — ~14.1M SPH particles and a 4× smaller step — so a 15&nbsp;s episode takes ~100&nbsp;s of wall clock.
-      The surrogate that replaces it runs at 1,750× real time batched on one GPU. The payoff is not one
-      converged run; it is the reward-shaping and tuning iterations you can afford before it.
+      Real-time factor (RTF) is simulated seconds advanced per wall-clock second; RTF&nbsp;=&nbsp;1 is real
+      time. <b>Cost</b> is normalized to each case's own NN-ROM, so it reads directly as how many times
+      more wall-clock time the high-fidelity scene spends per simulated second than the surrogate that
+      replaces it.
     </p>
-    <table class="tbl tbl-full">
-      <thead>
-        <tr><th>Configuration</th><th>Real-time factor</th><th>Cost vs. its NN-ROM</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>Chrono — HMMWV, rigid flat</td><td>7.31×</td><td>239×</td></tr>
-        <tr><td>Chrono — HMMWV, bumpy rigid</td><td>6.65×</td><td>263×</td></tr>
-        <tr><td>Chrono — HMMWV, CRM soil</td><td>0.152×</td><td>11,500×</td></tr>
-        <tr class="rom"><td>NN-ROM — terrain-conditioned HMMWV<sup>‡</sup></td><td>1,750×</td><td>1×</td></tr>
-        <tr class="rom"><td>NN-ROM — tracked base<sup>‡</sup></td><td>16,300×</td><td>1×</td></tr>
-        <tr class="rom"><td>NN-ROM — arm<sup>‡</sup></td><td>2,320×</td><td>1×</td></tr>
-      </tbody>
-    </table>
+
+    <div class="split split-tables">
+      <div>
+        <table class="tbl">
+          <thead>
+            <tr><th>Configuration</th><th>Δt</th><th>Steps/s</th><th>RTF</th><th>Cost</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>HMMWV — rigid flat</td><td>2.0 ms</td><td>3,657</td><td>7.31×</td><td>239×</td></tr>
+            <tr><td>HMMWV — bumpy rigid</td><td>2.0 ms</td><td>3,324</td><td>6.65×</td><td>263×</td></tr>
+            <tr><td>HMMWV — CRM soil</td><td>0.5 ms</td><td>304</td><td>0.152×</td><td>11,500×</td></tr>
+            <tr class="rom sep"><td>HMMWV — NN-ROM (L8)<sup>‡</sup></td><td>10 ms</td><td>175,000</td><td>1,750×</td><td>1×</td></tr>
+          </tbody>
+        </table>
+        <p class="tcap"><b>Study Case I.</b> The Chrono rows share one <span class="mono">HMMWV_Full</span>
+        configuration and differ only in the tire–terrain contact model.</p>
+      </div>
+
+      <div>
+        <table class="tbl">
+          <thead>
+            <tr><th>Configuration</th><th>Δt</th><th>Steps/s</th><th>RTF</th><th>Cost</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>M113 tracked + arm — rigid</td><td>0.5 ms</td><td>558</td><td>0.279×</td><td>58,400× / 8,300×</td></tr>
+            <tr class="rom sep"><td>Tracked base — NN-ROM<sup>‡</sup></td><td>20 ms</td><td>815,000</td><td>16,300×</td><td>1×</td></tr>
+            <tr class="rom"><td>Arm — NN-ROM<sup>‡</sup></td><td>20 ms</td><td>116,000</td><td>2,320×</td><td>1×</td></tr>
+          </tbody>
+        </table>
+        <p class="tcap"><b>Study Case II.</b> One Chrono scene serves both control modes, so its Cost cell
+        gives the ratio over the drive- / reach-mode NN-ROM. The comparison is not symmetric: Chrono
+        simulates the full coupled vehicle-plus-arm system, each surrogate only the subsystem its mode
+        controls.</p>
+      </div>
+    </div>
+
     <p class="foot">
-      <sup>‡</sup> NN-ROM rows are aggregate batched-GPU figures across the parallel rollouts used during PPO
-      training; Chrono rows are single-process, single-stream (one Intel 14900KF). Measured
-      simulated-time throughput ratios reach ≈11,500× (CRM), ≈58,400× (tracked base), and ≈8,300× (arm).
+      <sup>‡</sup> NN-ROM rows are aggregate batched-GPU figures — dynamics forward passes per second summed
+      across the 2,048–4,096 parallel rollouts used during PPO — not single-stream processes like the Chrono
+      rows, which are one process on one Intel 14900KF.
     </p>
+
+    <div class="callout">
+      <h3>What the margin actually buys</h3>
+      <p>
+        CRM is the dominant Chrono cost, and the reason is the terrain rather than the vehicle: ~14.1M SPH
+        particles, ~10.8M boundary markers, and a 4× smaller step. A 15&nbsp;s episode costs ~100&nbsp;s of
+        wall clock. PPO consumes thousands of parallel rollouts over hundreds of iterations, so at that
+        rate the search is simply not affordable.
+      </p>
+      <p>
+        A single converged run understates the point. The expensive part of applying RL is not that run
+        but the design loop around it — shaping the reward and tuning the optimizer, each adjustment
+        validated only by training again. Both Study Case II policies needed exactly that: spin and
+        drive-against-brake penalties for the base; terminal bonus, action regularization, clearance
+        observation and command shield for the arm. The effective cost of a policy is one run times the
+        number of design iterations, so a run finishing in <b>10 minutes</b> (base) or <b>57 minutes</b>
+        (arm) instead of the orders of magnitude implied above is what keeps that loop interactive —
+        more reward and hyperparameter iterations per day, which is what ultimately yields a working policy.
+      </p>
+    </div>
   </section>
 
   <!-- ───────────────────────── Takeaway ───────────────────────── -->
@@ -271,74 +342,33 @@
 
 <script>
 (function () {
-  const POLICIES = ["generalist", "rigid_only", "crm_only"];
+  const rows = Array.from(document.querySelectorAll(".vrow-clips"));
+  const play = v => v.play().catch(() => {});
 
-  const DATA = {
-    rigid: {
-      note: "Flat rigid ground — a held-out reference from the rigid validation set.",
-      median: { generalist: "0.157", rigid_only: "0.174", crm_only: "0.232" }
-    },
-    crm: {
-      note: "Deformable CRM soil — the vehicle sinks and slips, and the rigid-only policy overshoots every turn.",
-      median: { generalist: "0.180", rigid_only: "0.854", crm_only: "0.231" }
-    },
-    bumpy: {
-      note: "Bumpy rigid heightmap — never seen in training, selection, normalization or reward tuning.",
-      median: { generalist: "0.149", rigid_only: "0.187", crm_only: "0.213" }
-    }
-  };
-
-  const cards  = Array.from(document.querySelectorAll(".vcard"));
-  const videos = cards.map(c => c.querySelector("video"));
-  const noteEl = document.getElementById("terrain-note");
-  let terrain = "rigid";
-
-  function load(t) {
-    terrain = t;
-    noteEl.textContent = DATA[t].note;
-    cards.forEach((card, i) => {
-      const policy = card.dataset.policy;
-      const v = videos[i];
-      v.poster = `assets/videos/posters/${t}_${policy}.jpg`;
-      v.src    = `assets/videos/${t}_${policy}.mp4`;
-      v.load();
-      card.querySelector(".vmetric").innerHTML =
-        `median XY RMSE <b>${DATA[t].median[policy]} m</b>`;
-    });
-    restart();
-  }
-
-  function restart() {
-    videos.forEach(v => { v.currentTime = 0; });
-    videos.forEach(v => v.play().catch(() => {}));
-  }
-
-  document.querySelectorAll(".tab").forEach(tab => {
-    tab.addEventListener("click", () => {
-      document.querySelectorAll(".tab").forEach(t => t.classList.remove("is-active"));
-      tab.classList.add("is-active");
-      load(tab.dataset.terrain);
+  // Restart a row's three clips together, so the comparison stays aligned.
+  document.querySelectorAll(".replay").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const row = document.querySelector(`.vrow-clips[data-terrain="${btn.dataset.terrain}"]`);
+      const vids = row.querySelectorAll("video");
+      vids.forEach(v => { v.currentTime = 0; });
+      vids.forEach(play);
     });
   });
 
-  document.getElementById("btn-restart").addEventListener("click", restart);
-  document.getElementById("btn-play").addEventListener("click", () => {
-    const paused = videos.some(v => v.paused);
-    videos.forEach(v => paused ? v.play().catch(() => {}) : v.pause());
-  });
-
-  // Only autoplay once the grid is actually on screen.
-  const grid = document.querySelector(".vgrid");
+  // All nine are on the page, but only the row you are looking at decodes.
+  // preload="none" keeps the other ~7 MB off the wire until then.
   if ("IntersectionObserver" in window) {
-    new IntersectionObserver((entries) => {
+    const io = new IntersectionObserver(entries => {
       entries.forEach(e => {
-        if (e.isIntersecting) videos.forEach(v => v.play().catch(() => {}));
-        else videos.forEach(v => v.pause());
+        const vids = e.target.querySelectorAll("video");
+        if (e.isIntersecting) vids.forEach(play);
+        else vids.forEach(v => v.pause());
       });
-    }, { threshold: 0.25 }).observe(grid);
+    }, { threshold: 0.2 });
+    rows.forEach(r => io.observe(r));
+  } else {
+    rows.forEach(r => r.querySelectorAll("video").forEach(play));
   }
-
-  load(terrain);
 })();
 </script>
 

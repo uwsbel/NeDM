@@ -23,8 +23,13 @@ python3 -m http.server 8000 --directory web
 # then open http://localhost:8000
 ```
 
-Open it through a server rather than `file://` — the video swapper fetches
-clips by relative path.
+Open it through a server rather than `file://` — the clips are fetched by
+relative path.
+
+All nine videos sit in the page at once as a 3×3 matrix (terrain × policy).
+They carry `preload="none"`, and an `IntersectionObserver` plays a row only
+while it is on screen, so the ~11 MB arrives a row at a time rather than up
+front.
 
 ## Publish
 
@@ -70,8 +75,12 @@ pdftocairo -png -r 150 -singlefile $IMG/fpp.pdf          web/assets/figures/over
 pdftocairo -png -r 200 -singlefile $IMG/study-case-2.pdf web/assets/figures/study-case-2
 cp $IMG/hmmwv_policy_transfer_bars.png     web/assets/figures/policy-transfer-bars.png
 cp $IMG/hmmwv_policy_trajectories_grid.png web/assets/figures/policy-trajectories.png
-cp $IMG/tracked_stress_trajectories.png    web/assets/figures/tracked-stress.png
 ```
+
+The trajectory grid still prints "zero-shot" in panel (c); the page says
+out-of-distribution everywhere it writes its own prose. Regenerating the figure
+with `scripts/figures/` would settle the mismatch, at the cost of diverging from
+the manuscript's own artifact.
 
 Videos are the fixed-camera Blender renders from
 `artifacts/blender_exports/videos/`, remuxed so the `moov` atom is at the front

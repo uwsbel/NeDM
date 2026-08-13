@@ -169,47 +169,47 @@ section { margin: 4.5rem 0; }
   gap: 2rem;
   align-items: start;
 }
-.split-narrow { grid-template-columns: .85fr 1fr; align-items: center; }
 
 /* ── Video comparison ───────────────────────────────────────────────── */
 
 .ref { color: var(--crm); font-weight: 600; }
 .act { color: #e8483a; font-weight: 600; }
 
-.tabs { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: .8rem; }
-.tab {
-  padding: .45rem 1rem;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: var(--bg);
-  color: var(--fg-muted);
-  font: inherit;
-  font-size: .93rem;
-  cursor: pointer;
+/* The nine-clip matrix earns more width than the prose column. */
+.wide {
+  width: min(1440px, calc(100vw - 44px));
+  margin-left: 50%;
+  transform: translateX(-50%);
 }
-.tab:hover { border-color: var(--accent); }
-.tab.is-active {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
-  font-weight: 500;
+
+.vrow { margin-bottom: 2.2rem; }
+.vrow-head {
+  display: flex;
+  align-items: baseline;
+  gap: .9rem;
+  flex-wrap: wrap;
+  margin-bottom: .7rem;
+  padding-bottom: .5rem;
+  border-bottom: 1px solid var(--line);
 }
-.zs {
-  font-size: .7rem;
+.vrow-head h3 { margin: 0; font-size: 1.12rem; }
+.vrow-head p  { margin: 0; font-size: .88rem; color: var(--fg-muted); flex: 1 1 20rem; }
+
+.ood {
+  display: inline-block;
+  padding: .1rem .45rem;
+  border-radius: 5px;
+  background: var(--accent-sf);
+  color: var(--accent);
+  border: 1px solid currentColor;
+  font-size: .68rem;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: .05em;
-  opacity: .8;
-  margin-left: .3rem;
+  vertical-align: 2px;
 }
 
-.terrain-note {
-  font-size: .9rem;
-  color: var(--fg-muted);
-  margin: 0 0 1.1rem;
-  min-height: 1.4em;
-}
-
-.vgrid {
+.vrow-clips {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
@@ -242,14 +242,7 @@ section { margin: 4.5rem 0; }
 .vmetric { display: block; color: var(--fg-muted); font-size: .84rem; margin-top: .15rem; }
 .vmetric b { color: var(--fg); }
 
-.vcontrols {
-  display: flex;
-  align-items: center;
-  gap: .6rem;
-  flex-wrap: wrap;
-  margin-top: 1.1rem;
-}
-.hint { font-size: .82rem; color: var(--fg-muted); flex: 1 1 22rem; }
+.replay { flex: 0 0 auto; }
 
 /* ── Tables ─────────────────────────────────────────────────────────── */
 
@@ -276,6 +269,14 @@ section { margin: 4.5rem 0; }
 
 .foot { font-size: .82rem; color: var(--fg-muted); max-width: 78ch; }
 
+/* Two throughput tables side by side, each with its own short caption. */
+.split-tables { grid-template-columns: 1fr 1fr; gap: 2.4rem; align-items: start; }
+.split-tables .tbl { font-size: .84rem; }
+.split-tables .tbl th, .split-tables .tbl td { padding: .38rem .45rem; }
+/* Configuration reads left, every measured column reads right (as in the paper). */
+.split-tables .tbl th:nth-child(2), .split-tables .tbl td:nth-child(2) { text-align: right; }
+.tcap { font-size: .82rem; color: var(--fg-muted); line-height: 1.5; margin: .8rem 0 0; }
+
 /* ── Callout, cards, result list ────────────────────────────────────── */
 
 .callout {
@@ -286,6 +287,7 @@ section { margin: 4.5rem 0; }
   border-radius: 0 var(--radius) var(--radius) 0;
 }
 .callout p { margin: 0; font-size: .96rem; }
+.callout p + p { margin-top: .9rem; }
 
 .cards {
   display: grid;
@@ -300,7 +302,12 @@ section { margin: 4.5rem 0; }
 }
 .card p { margin: 0; font-size: .92rem; color: var(--fg-muted); }
 
-.resultlist { display: flex; flex-direction: column; gap: .8rem; justify-content: center; }
+.resultlist {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: .8rem;
+  margin-top: 2rem;
+}
 .res {
   padding: .9rem 1.1rem;
   border: 1px solid var(--line);
@@ -333,8 +340,15 @@ footer p { margin: 0; }
 
 /* ── Responsive ─────────────────────────────────────────────────────── */
 
+@media (max-width: 1100px) {
+  .resultlist { grid-template-columns: repeat(2, 1fr); }
+  .split-tables { grid-template-columns: 1fr; gap: 2rem; }
+}
+
 @media (max-width: 900px) {
-  .split, .split-narrow, .cards { grid-template-columns: 1fr; }
+  .split, .cards { grid-template-columns: 1fr; }
+  .vrow-clips { grid-template-columns: 1fr; }
+  .wide { width: auto; margin-left: 0; transform: none; }
 
   /* Multi-panel figures are unreadable when squeezed; let them scroll instead. */
   .fig-wide { overflow-x: auto; }
@@ -342,7 +356,6 @@ footer p { margin: 0; }
   .fig-wide figcaption { min-width: 0; position: sticky; left: 0; }
 
   .stats { grid-template-columns: repeat(2, 1fr); }
-  .vgrid { grid-template-columns: 1fr; }
   .vcard video { max-width: 100%; }
   section { margin: 3.2rem 0; }
 }
