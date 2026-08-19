@@ -29,6 +29,7 @@
     <nav class="links">
       <a class="btn btn-disabled" aria-disabled="true" title="Link goes live with the preprint">📄 Paper <span class="soon">soon</span></a>
       <a class="btn" href="https://github.com/uwsbel/NeDM">💻 Code</a>
+      <a class="btn" href="https://huggingface.co/datasets/harryzhang1018/NeDM">🤗 Datasets</a>
       <a class="btn" href="#bibtex">📚 BibTeX</a>
     </nav>
   </div>
@@ -313,6 +314,41 @@
       <div class="card"><h3>Don't learn what you can derive</h3><p>Global pose is integrated from predicted velocities; the end-effector is <span class="mono">FK(q)</span>; contact clearance is geometric. Reduction discards redundancy, not fidelity.</p></div>
       <div class="card"><h3>Add context only where ambiguous</h3><p>A two-class terrain code where rigid and deformable dynamics diverge — nothing more. One backbone then shares what the regimes have in common.</p></div>
       <div class="card"><h3>Judge by transfer, not by loss</h3><p>One-step error is necessary and insufficient; a policy can farm reward from a surrogate's mistakes. Closed-loop Chrono is the exam.</p></div>
+    </div>
+  </section>
+
+  <!-- ───────────────────────── Data ───────────────────────── -->
+  <section id="data">
+    <h2>Every dataset behind these models is public</h2>
+    <p class="lede">
+      Every Chrono collection behind this work is released on Hugging Face &mdash; 70&nbsp;GB
+      across five datasets, nothing to re-collect.
+      <span class="mono">hmmwv_flat</span> (32,768 episodes, 160M transitions at 100&nbsp;Hz) and
+      <span class="mono">hmmwv_crm</span> (2,000 episodes on deformable SPH soil) train the
+      terrain-conditioned Study&nbsp;Case&nbsp;I model;
+      <span class="mono">hmmwv_bumpy</span> (1,360 episodes over 100 random heightmaps) is the
+      out-of-distribution test regime and enters no training, selection or normalization;
+      <span class="mono">tracked</span> (2,160) and <span class="mono">arm</span> (15,000) train the two
+      Study&nbsp;Case&nbsp;II models. Each ships in two tiers: <b>raw</b>, every recorded channel of every
+      episode as float32 Parquet with per-episode metadata and the bumpy heightmaps &mdash; enough to define
+      a different reduced state than ours; and <b>processed</b>, the exact training caches the deployed
+      checkpoints read, so the repository's configs run verbatim.
+    </p>
+    <div class="split split-data">
+      <pre><code>from datasets import load_dataset
+
+ds = load_dataset("harryzhang1018/NeDM",
+                  "hmmwv_crm", split="val",
+                  streaming=True)</code></pre>
+      <div class="datalinks">
+        <a class="btn" href="https://huggingface.co/datasets/harryzhang1018/NeDM">🤗 harryzhang1018/NeDM</a>
+        <p class="foot">
+          The dataset card documents every column, the per-episode train/val hash split, and the
+          collector that produced each set. The repository's
+          <span class="mono">scripts/release/download_nedm_datasets.py</span> pulls the training caches
+          directly into place, or rehydrates a raw set back into the collectors' original directory tree.
+        </p>
+      </div>
     </div>
   </section>
 

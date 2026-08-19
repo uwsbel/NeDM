@@ -277,6 +277,13 @@ section { margin: 4.5rem 0; }
 .split-tables .tbl th:nth-child(2), .split-tables .tbl td:nth-child(2) { text-align: right; }
 .tcap { font-size: .82rem; color: var(--fg-muted); line-height: 1.5; margin: .8rem 0 0; }
 
+/* ── Data release ───────────────────────────────────────────────────── */
+
+/* Snippet on the left, the link and its note on the right. */
+.split-data { grid-template-columns: 1fr 1fr; gap: 2rem; }
+.split-data pre { margin: 0; }
+.datalinks .foot { margin: 1rem 0 0; }
+
 /* ── Callout, cards, result list ────────────────────────────────────── */
 
 .callout {
