@@ -19,8 +19,14 @@ keep their original `ablation_ofat` name, which is recorded inside run metadata.
 **Scope of what is in git.** Checkpoints, run metadata, Chrono evaluation output
 and reference sets are version controlled (~2 GB via LFS). Raw episode CSVs
 (`artifacts/datasets/`, ~337 GB) and processed cache arrays
-(`artifacts/training_datasets/`, ~73 GB) are local-only — regenerate them with
-the collection and preprocessing scripts in the tables below.
+(`artifacts/training_datasets/`, ~73 GB) are not in git; the five datasets the
+paper's models train on, and their four processed caches, are published on
+Hugging Face at <https://huggingface.co/datasets/harryzhang1018/NeDM> (70 GB,
+float32 Parquet + `.npy`; card in `docs/hf_dataset_card.md`). Fetch them with
+`scripts/release/download_nedm_datasets.py` (`--processed` drops the caches into
+`artifacts/training_datasets/`; `--rehydrate` rebuilds the per-episode CSV tree
+under `artifacts/datasets/` so every script below runs unchanged) — or regenerate
+them with the collection and preprocessing scripts in the tables below.
 
 ## Status at a glance
 

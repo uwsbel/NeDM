@@ -18,10 +18,17 @@ chrono/
 # `git status` instead of silently staying untracked.
 #
 # Raw episode CSVs (artifacts/datasets, ~337 GB) and processed cache arrays
-# (artifacts/training_datasets, ~73 GB) are always local-only; collect and
-# preprocess them with the scripts in scripts/ and scripts/cluster/.
+# (artifacts/training_datasets, ~73 GB) are never in git; the paper's five
+# datasets and four caches are published on Hugging Face (see README) and
+# scripts/release/download_nedm_datasets.py puts them back here. The staged
+# release mirror (artifacts/hf_release) is local-only too.
 # ---------------------------------------------------------------------------
 artifacts/*
+
+# --- Small ablation result tables (JSON) -------------------------------------
+!artifacts/ablations/
+artifacts/ablations/*
+!artifacts/ablations/arm_q_input/
 
 # --- Dynamics-model training runs ------------------------------------------
 !artifacts/training_runs/
@@ -35,6 +42,10 @@ artifacts/training_runs/*
 # Study Case II: the two deployed reduced models.
 !artifacts/training_runs/arm_transformer_8d_v1/
 !artifacts/training_runs/tracked_transformer_v1/
+# Study Case II: arm-ROM input ablation ("why [q, qd] and not qd-only + integrate
+# q"), see docs/arm_rom_q_input_ablation.md. Same recipe as arm_transformer_8d_v1.
+!artifacts/training_runs/arm_transformer_8d_qdonly_v1/
+!artifacts/training_runs/arm_transformer_8d_integq_v1/
 
 # Within a kept run: metadata and the selected checkpoint only. best_val.pt is
 # written by the `rollout_sel` selection metric, so it is the rollout-selected

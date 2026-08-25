@@ -57,7 +57,7 @@ expect a checkout at `chrono/` and read `chrono/data` for vehicle assets.
 | `src/nedm/rl/` | Vectorized NN-ROM environments and their Chrono-backed twins, plus arm forward kinematics and the clearance shield |
 | `src/arm_model/` | The 4-DOF gripper arm imported from SolidWorks |
 | `configs/` | Collection and training configs |
-| `artifacts/` | Checkpoints, run metadata and Chrono evaluation output (datasets stay local) |
+| `artifacts/` | Checkpoints, run metadata and Chrono evaluation output (datasets are on Hugging Face, see below) |
 | `test/` | Chrono validation harnesses for the tire-force channels (not a unit-test suite) |
 
 `scripts/` is organised by pipeline stage, in the order you would run them:
@@ -72,10 +72,29 @@ expect a checkout at `chrono/` and read `chrono/data` for vehicle assets.
 | `scripts/figures/` | The eleven generators behind the manuscript's plotted figures |
 | `scripts/throughput/` | Chrono and NN-ROM throughput probes (Appendix A) and the context-truncation sweep |
 | `scripts/cluster/` | SLURM array jobs for the collections that only run at cluster scale |
+| `scripts/release/` | The Hugging Face dataset release: raw CSV → Parquet export, validation, upload, and the download/rehydrate helper |
 
 Every script under `scripts/` reproduces something the paper reports; nothing else is
 kept. The ablation *artifacts* and *configs* keep their original `ablation_ofat` name
 because it is recorded inside the run metadata.
+
+## Datasets
+
+All five datasets the paper's dynamics models train on are published at
+**<https://huggingface.co/datasets/harryzhang1018/NeDM>** (70 GB: every recorded channel as
+float32 Parquet plus the four processed training caches; the dataset card documents schemas,
+splits and provenance). Nothing needs to be re-collected:
+
+```bash
+conda activate nedm
+# the exact .npy caches the deployed models trained on -> artifacts/training_datasets/
+PYTHONPATH=src python scripts/release/download_nedm_datasets.py --dataset all --no-raw --processed
+# a raw dataset as the collectors' per-episode CSV tree -> artifacts/datasets/ (preprocess etc. run unchanged)
+PYTHONPATH=src python scripts/release/download_nedm_datasets.py --dataset tracked --rehydrate
+```
+
+`docs/hf_dataset_card.md` is the source of the Hub README; `scripts/release/export_hf_dataset.py`
++ `validate_hf_export.py` + `upload_hf_dataset.sh` regenerate and publish the release.
 
 ## Quick start
 
@@ -89,9 +108,9 @@ PYTHONPATH=src python scripts/training/train_hmmwv_dynamics.py \
   --config configs/hmmwv_transformer_v07_tire_normal_force_omega_300g_crm2000_mix25_rebal_rollout_onehot.json
 ```
 
-The full flat collection is cluster-scale (~305 GB); see
-`scripts/cluster/collect_hmmwv_tire300g.sh`; `scripts/collection/smoke_test_hmmwv_bumpy10g.sh`
-rehearses the same path at small scale first.
+The full flat collection is cluster-scale (~305 GB of CSV; download it from Hugging Face
+instead, see above); `scripts/cluster/collect_hmmwv_tire300g.sh` is the job that produced it and
+`scripts/collection/smoke_test_hmmwv_bumpy10g.sh` rehearses the same path at small scale.
 
 Evaluate a trained policy back in Chrono:
 
