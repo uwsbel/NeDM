@@ -1,0 +1,40 @@
+{
+  "checkpoint": "/home/harry/NeDM/artifacts/training_runs/arm_transformer_8d_qdonly_v1/checkpoints/best_val.pt",
+  "processed_dataset_dir": "/home/harry/NeDM/artifacts/training_datasets/arm_dyn_v3_8d_seq16_v1",
+  "split": "val",
+  "ee_mode": "fk",
+  "geometry": "/home/harry/NeDM/artifacts/arm_geometry/arm_geometry_v1.json",
+  "context_steps": 16,
+  "dt_s": 0.02,
+  "episodes_rolled": 277,
+  "one_step_ee_rmse_m": 0.0037903640947305715,
+  "horizons": {
+    "0.50s": {
+      "steps": 25,
+      "episodes": 216,
+      "ee_rmse_m": 0.18223905204448307,
+      "ee_mean_m": 0.14585303246147102,
+      "ee_p90_m": 0.2972608357667923,
+      "gt_disp_mean_m": 5.888333797385847,
+      "errdist": 0.030949171415076523
+    },
+    "1.00s": {
+      "steps": 50,
+      "episodes": 180,
+      "ee_rmse_m": 0.533793018011439,
+      "ee_mean_m": 0.3891923604326116,
+      "ee_p90_m": 0.8732429206371303,
+      "gt_disp_mean_m": 5.234233899248971,
+      "errdist": 0.10198111668032828
+    },
+    "2.00s": {
+      "steps": 100,
+      "episodes": 66,
+      "ee_rmse_m": 1.7100125014622054,
+      "ee_mean_m": 1.0030501635011397,
+      "ee_p90_m": 2.386147201061249,
+      "gt_disp_mean_m": 5.733294009259253,
+      "errdist": 0.2982600401619977
+    }
+  }
+}

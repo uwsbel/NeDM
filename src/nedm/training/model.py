@@ -17,11 +17,42 @@ class HMMWVDynamicsModel(nn.Module):
         transformer_cfg: dict[str, Any],
         normalization: dict[str, list[float]],
         num_terrains: int = 0,
+        state_fields: list[str] | None = None,
+        dt_s: float | None = None,
     ) -> None:
         super().__init__()
         self.state_dim = state_dim
         self.action_dim = action_dim
         self.target_dim = target_dim
+        # Input-channel ablation: ``blind_state_fields`` lists state channels the
+        # network never sees (they are dropped from the token before the input
+        # projection) while the state/target layout is left untouched. Used to test
+        # e.g. a qd-only arm ROM whose q is propagated kinematically outside the net
+        # (see ``integrated_state_fields`` below). Default: see everything.
+        blind_fields = list(transformer_cfg.get("blind_state_fields", []) or [])
+        if blind_fields:
+            if state_fields is None:
+                raise ValueError("blind_state_fields requires the state_fields list to resolve channel indices")
+            unknown = [field for field in blind_fields if field not in state_fields]
+            if unknown:
+                raise ValueError(f"blind_state_fields not in state_fields: {unknown}")
+        keep = [index for index, field in enumerate(state_fields or [None] * state_dim) if field not in blind_fields]
+        # non-persistent: derived from the config, and older checkpoints must keep loading.
+        self.register_buffer("input_state_indices", torch.tensor(keep, dtype=torch.long), persistent=False)
+        self.blind_state_fields = blind_fields
+        # Kinematic propagation: ``integrated_state_fields`` maps a position-like
+        # channel to its rate channel ({"q_0": "qd_0", ...}). The network's delta for
+        # that channel is replaced by the trapezoid integral of the (predicted) rate in
+        # ``predict_delta``/``predict_next_delta``, so every consumer (trainer rollout,
+        # RL envs, eval scripts) propagates it the same way. Pair the loss weight of
+        # such channels with 0 -- their head output is unused.
+        integrated = dict(transformer_cfg.get("integrated_state_fields", {}) or {})
+        self.integrated_pairs: list[tuple[int, int]] = []
+        if integrated:
+            if state_fields is None or dt_s is None:
+                raise ValueError("integrated_state_fields requires state_fields and dt_s")
+            self.integrated_pairs = [(state_fields.index(pos), state_fields.index(rate)) for pos, rate in integrated.items()]
+        self.dt_s = float(dt_s) if dt_s is not None else None
         # Terrain conditioning: when num_terrains > 0 a one-hot terrain code is
         # concatenated to every (state, action) token so a shared backbone can make
         # terrain-specific predictions (rigid: vx≈ωR; CRM: vx<ωR + sinkage). 0 keeps
@@ -29,7 +60,7 @@ class HMMWVDynamicsModel(nn.Module):
         self.num_terrains = int(num_terrains)
         self.backbone = ContinuousTransformer(
             TransformerConfig(
-                input_dim=state_dim + action_dim + self.num_terrains,
+                input_dim=len(keep) + action_dim + self.num_terrains,
                 block_size=int(transformer_cfg["block_size"]),
                 n_layer=int(transformer_cfg["n_layer"]),
                 n_head=int(transformer_cfg["n_head"]),
@@ -87,7 +118,10 @@ class HMMWVDynamicsModel(nn.Module):
     def _build_tokens(
         self, states: torch.Tensor, actions: torch.Tensor, terrain: torch.Tensor | int | None
     ) -> torch.Tensor:
-        tokens = torch.cat([self.normalize_state(states), self.normalize_action(actions)], dim=-1)
+        state_tokens = self.normalize_state(states)
+        if self.blind_state_fields:
+            state_tokens = state_tokens.index_select(-1, self.input_state_indices)
+        tokens = torch.cat([state_tokens, self.normalize_action(actions)], dim=-1)
         if self.num_terrains > 0:
             if terrain is None:
                 raise ValueError("this model is terrain-conditioned; a terrain id must be supplied")
@@ -103,13 +137,29 @@ class HMMWVDynamicsModel(nn.Module):
         features = self.backbone(self._build_tokens(states, actions, terrain))
         return self.head(features)
 
+    def apply_kinematic_integration(self, states: torch.Tensor, delta: torch.Tensor) -> torch.Tensor:
+        """Override integrated channels' deltas with the trapezoid integral of their rate.
+
+        ``states`` is the state the delta is applied to; both share the trailing
+        state dimension. No-op unless ``integrated_state_fields`` is configured.
+        """
+        if not self.integrated_pairs:
+            return delta
+        delta = delta.clone()
+        for pos_index, rate_index in self.integrated_pairs:
+            rate_now = states[..., rate_index]
+            rate_next = rate_now + delta[..., rate_index]
+            delta[..., pos_index] = 0.5 * (rate_now + rate_next) * self.dt_s
+        return delta
+
     def predict_delta(
         self, states: torch.Tensor, actions: torch.Tensor, terrain: torch.Tensor | int | None = None
     ) -> torch.Tensor:
-        return self.denormalize_target(self.forward(states, actions, terrain))
+        return self.apply_kinematic_integration(states, self.denormalize_target(self.forward(states, actions, terrain)))
 
     def predict_next_delta(
         self, states: torch.Tensor, actions: torch.Tensor, terrain: torch.Tensor | int | None = None
     ) -> torch.Tensor:
         features = self.backbone(self._build_tokens(states, actions, terrain))
-        return self.denormalize_target(self.head(features[:, -1, :]))
+        delta = self.denormalize_target(self.head(features[:, -1, :]))
+        return self.apply_kinematic_integration(states[:, -1, :], delta)

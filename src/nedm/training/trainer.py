@@ -401,7 +401,17 @@ class HMMWVTrainer:
             transformer_cfg=config["model"],
             normalization=normalization,
             num_terrains=self.num_terrains if self.terrain_enabled else 0,
+            state_fields=list(self.metadata["state_fields"]),
+            dt_s=float(self.metadata["dt_s"]),
         ).to(self.device)
+        if self.model.blind_state_fields or self.model.integrated_pairs:
+            # Input ablation (e.g. qd-only arm ROM with q recovered by integration): the
+            # network is blind to ``blind_state_fields`` and predict_delta propagates
+            # ``integrated_state_fields`` kinematically. Zero those channels' loss weight.
+            print(
+                f"model: blind_state_fields={self.model.blind_state_fields} "
+                f"integrated_state_fields={config['model'].get('integrated_state_fields')}"
+            )
 
         if bool(training_cfg.get("compile", False)) and hasattr(torch, "compile"):
             self.model = torch.compile(self.model)

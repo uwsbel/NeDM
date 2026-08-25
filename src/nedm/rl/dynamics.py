@@ -70,6 +70,8 @@ def load_frozen_dynamics(
         transformer_cfg=config["model"],
         normalization=metadata["normalization"],
         num_terrains=int(terrain_cfg.get("num_terrains", 0)),
+        state_fields=list(metadata["state_fields"]),
+        dt_s=float(metadata["dt_s"]),
     )
     model.load_state_dict(_strip_compile_prefix(checkpoint["model_state_dict"]))
     model.to(torch.device(device))
