@@ -100,3 +100,7 @@ artifacts/rl_reference_sets/*
 !artifacts/analysis/
 artifacts/analysis/*
 !artifacts/analysis/manuscript_figs/
+# NRD Study 1 evaluation outputs: summaries, curves, and demo rollout GIFs
+# (see docs/vision/double_pen/implementation_notes.md). Datasets, caches, and
+# training runs for NRD stay local-only for now.
+!artifacts/nrd_eval/

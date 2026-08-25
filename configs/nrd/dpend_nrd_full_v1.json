@@ -1,0 +1,65 @@
+{
+  "processed_dataset_dir": "artifacts/training_datasets/dpend_full_seq16_v1",
+  "output_dir": "artifacts/training_runs/dpend_nrd_full_v1",
+  "model": {
+    "block_size": 16,
+    "n_layer": 4,
+    "n_head": 4,
+    "n_embd": 192,
+    "dropout": 0.0,
+    "bias": false,
+    "head_hidden_dim": 192,
+    "z2_dim": 64
+  },
+  "vision": {
+    "image_size": 128,
+    "base_channels": 32,
+    "ae_checkpoint": "artifacts/training_runs/dpend_nrd_full_v1/ae_best.pt",
+    "freeze_encoder": true
+  },
+  "loss": {
+    "lambda_z1": 1.0,
+    "lambda_z2": 1.0,
+    "lambda_frame": 0.1,
+    "lambda_circle": 0.01,
+    "huber_delta": 1.0,
+    "frame_loss_positions": 2,
+    "frame_foreground_weight": 30.0
+  },
+  "optimizer": {
+    "lr": 0.0003,
+    "min_lr": 3e-05,
+    "weight_decay": 0.1,
+    "betas": [0.9, 0.95],
+    "warmup_steps": 500,
+    "grad_clip_norm": 1.0
+  },
+  "ae_training": {
+    "seed": 20260825,
+    "batch_size": 128,
+    "num_epochs": 10,
+    "steps_per_epoch": 400,
+    "max_val_batches": 40,
+    "lr": 0.0003,
+    "foreground_weight": 30.0,
+    "num_workers": 4
+  },
+  "training": {
+    "seed": 20260825,
+    "device": "auto",
+    "batch_size": 48,
+    "num_workers": 4,
+    "num_epochs": 30,
+    "steps_per_epoch": 500,
+    "max_val_batches": 30,
+    "rollout_horizon": 1,
+    "checkpoint_metric": "rollout_sel"
+  },
+  "rollout_eval": {
+    "split": "val",
+    "link_lengths": [0.3, 0.3],
+    "horizons_s": [0.5, 1.0, 2.0],
+    "num_episodes": 24,
+    "selection_horizon_s": 1.0
+  }
+}

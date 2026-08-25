@@ -28,6 +28,10 @@ class SplitBuffers:
     episode_lengths: np.ndarray
     rollout: np.ndarray
     arrays_saved: bool = False
+    # Camera frames (NRD datasets): uint8 (total_transitions + episodes, H, W, 3)
+    # in the same one-extra-row-per-episode layout as ``rollout``, so
+    # ``rollout_episode_offsets`` indexes both. None for state-only datasets.
+    frames: np.ndarray | None = None
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -114,6 +118,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="Write .npy arrays through memory maps instead of keeping the full cache in RAM.",
     )
     parser.add_argument(
+        "--frames",
+        action="store_true",
+        help="Also pack per-episode camera frames (episodes must carry frames_path) "
+        "into {split}_frames.npy, laid out like the rollout array.",
+    )
+    parser.add_argument(
         "--metadata-only",
         action="store_true",
         help="Rebuild metadata.json from already-written arrays and split metadata.",
@@ -167,6 +177,7 @@ def build_split_buffers(
     output_dir: Path | None = None,
     split: str | None = None,
     disk_backed_arrays: bool = False,
+    include_frames: bool = False,
 ) -> SplitBuffers:
     total_transitions = sum(int(ep["rows"]) - 1 for ep in episodes)
     state_dim = len(state_fields)
@@ -187,6 +198,20 @@ def build_split_buffers(
     episode_starts = np.empty((len(episodes),), dtype=np.int64)
     episode_lengths = np.empty((len(episodes),), dtype=np.int32)
 
+    frames: np.ndarray | None = None
+    if include_frames and episodes:
+        if output_dir is None or split is None:
+            raise ValueError("output_dir and split are required when include_frames=True")
+        first_frames = np.load(Path(episodes[0]["_dataset_root"]) / episodes[0]["frames_path"], mmap_mode="r")
+        frame_shape = first_frames.shape[1:]
+        # Frames are always disk-backed: a pilot split alone is multiple GB.
+        frames = np.lib.format.open_memmap(
+            output_dir / f"{split}_frames.npy",
+            mode="w+",
+            dtype=np.uint8,
+            shape=(total_transitions + len(episodes), *frame_shape),
+        )
+
     cursor = 0
     rollout_cursor = 0
     for episode_index, episode in enumerate(episodes):
@@ -205,6 +230,16 @@ def build_split_buffers(
         actions[cursor : cursor + length] = episode_actions[:-1]
         targets[cursor : cursor + length] = episode_states[1:] - episode_states[:-1]
         rollout[rollout_cursor : rollout_cursor + length + 1] = episode_rollout
+        if frames is not None:
+            frames_path = episode.get("frames_path")
+            if not frames_path:
+                raise ValueError(f"--frames requested but episode {episode['episode_id']} has no frames_path")
+            episode_frames = np.load(Path(episode["_dataset_root"]) / frames_path, mmap_mode="r")
+            if episode_frames.shape[0] != length + 1:
+                raise ValueError(
+                    f"{frames_path}: {episode_frames.shape[0]} frames but {length + 1} CSV rows"
+                )
+            frames[rollout_cursor : rollout_cursor + length + 1] = episode_frames
 
         cursor += length
         rollout_cursor += length + 1
@@ -217,6 +252,7 @@ def build_split_buffers(
         episode_lengths=episode_lengths,
         rollout=rollout,
         arrays_saved=disk_backed_arrays,
+        frames=frames,
     )
 
 
@@ -231,6 +267,8 @@ def save_split(output_dir: Path, split: str, buffers: SplitBuffers, episodes: li
         np.save(output_dir / f"{split}_actions.npy", buffers.actions)
         np.save(output_dir / f"{split}_targets.npy", buffers.targets)
         np.save(output_dir / f"{split}_rollout.npy", buffers.rollout)
+    if buffers.frames is not None:
+        buffers.frames.flush()  # frames are always written through a memmap
     np.save(output_dir / f"{split}_episode_starts.npy", buffers.episode_starts)
     np.save(output_dir / f"{split}_episode_lengths.npy", buffers.episode_lengths)
 
@@ -281,6 +319,7 @@ def build_metadata(
     rollout_fields: list[str],
     state_field_preset: str,
     stats_chunk_rows: int,
+    include_frames: bool = False,
 ) -> dict[str, Any]:
     train_states = np.load(output_dir / "train_states.npy", mmap_mode="r")
     train_actions = np.load(output_dir / "train_actions.npy", mmap_mode="r")
@@ -292,7 +331,13 @@ def build_metadata(
     action_mean, action_std = summarize_stats(train_actions, chunk_rows=stats_chunk_rows)
     target_mean, target_std = summarize_stats(train_targets, chunk_rows=stats_chunk_rows)
 
+    frames_info: dict[str, Any] | None = None
+    if include_frames:
+        train_frames = np.load(output_dir / "train_frames.npy", mmap_mode="r")
+        frames_info = {"shape": list(train_frames.shape[1:]), "dtype": "uint8"}
+
     return {
+        "frames": frames_info,
         "dataset_name": "+".join(dataset_index["dataset_name"] for dataset_index in dataset_indices),
         "raw_dataset_root": str(dataset_roots[0]),
         "raw_dataset_roots": [str(dataset_root) for dataset_root in dataset_roots],
@@ -384,6 +429,7 @@ def main(argv: list[str] | None = None) -> int:
             rollout_fields=rollout_fields,
             state_field_preset=args.state_field_preset,
             stats_chunk_rows=args.stats_chunk_rows,
+            include_frames=bool(args.frames),
         )
         (output_dir / "metadata.json").write_text(json.dumps(metadata, indent=2))
         print(
@@ -401,6 +447,7 @@ def main(argv: list[str] | None = None) -> int:
         output_dir=output_dir,
         split="train",
         disk_backed_arrays=bool(args.disk_backed_arrays),
+        include_frames=bool(args.frames),
     )
     val_buffers = build_split_buffers(
         episodes=split_episodes["val"],
@@ -410,6 +457,7 @@ def main(argv: list[str] | None = None) -> int:
         output_dir=output_dir,
         split="val",
         disk_backed_arrays=bool(args.disk_backed_arrays),
+        include_frames=bool(args.frames),
     )
 
     save_split(output_dir, "train", train_buffers, split_episodes["train"])
@@ -425,6 +473,7 @@ def main(argv: list[str] | None = None) -> int:
         rollout_fields=rollout_fields,
         state_field_preset=args.state_field_preset,
         stats_chunk_rows=args.stats_chunk_rows,
+        include_frames=bool(args.frames),
     )
     (output_dir / "metadata.json").write_text(json.dumps(metadata, indent=2))
 

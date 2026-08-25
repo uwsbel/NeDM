@@ -143,6 +143,26 @@ def wrap_angle(angle: torch.Tensor) -> torch.Tensor:
     return torch.atan2(torch.sin(angle), torch.cos(angle))
 
 
+def pendulum_tip_positions(trig_states: torch.Tensor, link_lengths: list[float]) -> torch.Tensor:
+    """(tip_x, tip_z) of a planar double pendulum from [cos q1, sin q1, cos q2, sin q2].
+
+    Each (cos, sin) pair is renormalized to the unit circle first -- open-loop
+    predictions drift slightly off it. q2 is relative to link 1.
+    """
+    cos_q1, sin_q1 = trig_states[..., 0], trig_states[..., 1]
+    cos_q2, sin_q2 = trig_states[..., 2], trig_states[..., 3]
+    norm1 = torch.sqrt(cos_q1**2 + sin_q1**2).clamp_min(1e-6)
+    norm2 = torch.sqrt(cos_q2**2 + sin_q2**2).clamp_min(1e-6)
+    cos_q1, sin_q1 = cos_q1 / norm1, sin_q1 / norm1
+    cos_q2, sin_q2 = cos_q2 / norm2, sin_q2 / norm2
+    sin_q12 = sin_q1 * cos_q2 + cos_q1 * sin_q2
+    cos_q12 = cos_q1 * cos_q2 - sin_q1 * sin_q2
+    length_1, length_2 = float(link_lengths[0]), float(link_lengths[1])
+    tip_x = length_1 * sin_q1 + length_2 * sin_q12
+    tip_z = -(length_1 * cos_q1 + length_2 * cos_q12)
+    return torch.stack([tip_x, tip_z], dim=-1)
+
+
 def metric_suffix(name: str) -> str:
     suffix = "".join(character if character.isalnum() else "_" for character in name.lower())
     return suffix.strip("_") or "dataset"
@@ -678,9 +698,21 @@ class HMMWVTrainer:
                 dtype=torch.long,
                 device=self.device,
             )
+        elif pose_mode == "pendulum_tip":
+            # NRD double pendulum: the trajectory is the link-2 tip, computed from
+            # the predicted [cos q1, sin q1, cos q2, sin q2] channels and fixed link
+            # lengths, compared against the Chrono-recorded (tip_x, tip_z) rollout.
+            link_lengths = rollout_cfg.get("link_lengths")
+            if link_lengths is None or len(link_lengths) != 2:
+                raise ValueError("rollout_eval.pose 'pendulum_tip' requires rollout_eval.link_lengths [L1, L2]")
+            q_idx = torch.tensor(
+                [self.state_index[field] for field in ("cos_q1", "sin_q1", "cos_q2", "sin_q2")],
+                dtype=torch.long,
+                device=self.device,
+            )
         elif pose_mode != "vehicle":
             raise ValueError(
-                f"rollout_eval.pose must be 'vehicle', 'ee_base', or 'ee_base_fk', got {pose_mode!r}"
+                f"rollout_eval.pose must be 'vehicle', 'ee_base', 'ee_base_fk', or 'pendulum_tip', got {pose_mode!r}"
             )
 
         metrics: dict[str, Any] = {}
@@ -707,7 +739,7 @@ class HMMWVTrainer:
                         horizon_steps,
                         terrain_id,
                         integrate_pose=(pose_mode == "vehicle"),
-                        load_rollout=(pose_mode == "ee_base_fk"),
+                        load_rollout=(pose_mode in ("ee_base_fk", "pendulum_tip")),
                     )
                     if result is None:
                         continue
@@ -718,6 +750,9 @@ class HMMWVTrainer:
                     elif pose_mode == "ee_base_fk":
                         pred_series = arm_kin.ee_base(predicted_states[:, q_idx])
                         gt_series = gt_pose  # Chrono-recorded ee_base from the rollout array
+                    elif pose_mode == "pendulum_tip":
+                        pred_series = pendulum_tip_positions(predicted_states[:, q_idx], link_lengths)
+                        gt_series = gt_pose  # Chrono-recorded (tip_x, tip_z) from the rollout array
                     else:
                         pred_series = predicted_pose[:, :2]
                         gt_series = gt_pose[:, :2]
@@ -735,7 +770,7 @@ class HMMWVTrainer:
                 # distance-normalized error: the honest cross-domain comparison,
                 # since CRM episodes are short/slow relative to flat.
                 errdist = traj_rmse / mean_distance if mean_distance > 1e-6 else float("nan")
-                if pose_mode in ("ee_base", "ee_base_fk"):
+                if pose_mode in ("ee_base", "ee_base_fk", "pendulum_tip"):
                     metrics[f"rollout_{name}_{horizon_s:.1f}s"] = {
                         "ee_rmse_m": traj_rmse,
                         "errdist": errdist,

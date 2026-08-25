@@ -293,6 +293,18 @@ k=16 context claim comes from `scripts/throughput/bench_context_accuracy.py`, an
 
 ---
 
+## Follow-on project: NRD (vision in the loop)
+
+Beyond the manuscript's scope. Neural Reduced Dynamics appends a learned camera
+latent z2 to the explicit state z1 and predicts both jointly; plans live in
+`docs/vision/` and the first study (Chrono double pendulum with a Chrono::Sensor
+camera) is implemented — collector `src/nedm/double_pendulum_data.py`, the
+`src/nedm/nrd/` package, `configs/nrd/`, and
+`scripts/evaluation/eval_nrd_dpend.py`. Status and gotchas:
+`docs/vision/double_pen/implementation_notes.md`.
+
+---
+
 ## Superseded work
 
 Kept as a record of what was tried. These runs and caches still exist locally but
