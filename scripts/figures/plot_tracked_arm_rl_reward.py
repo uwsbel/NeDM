@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """PPO convergence figure for the two Study Case II goal-reaching policies.
 
-Two stacked panels, one per task:
+Two panels, one per task (side by side with --layout wide, the default, for
+the single-column manuscript; stacked with --layout stacked):
   (a) tracked-base planar goal reaching (run tracked_goal_v2_far_rollsel_rom_20260721)
   (b) arm end-effector reaching (run arm_reach_..._8d_rom_20260727)
 
@@ -90,16 +91,24 @@ def panel(ax, ev_path: Path, tag: str, ckpt_iter: int) -> None:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out-dir", default=str(DEFAULT_OUT))
+    ap.add_argument("--layout", choices=("wide", "stacked"), default="wide")
     args = ap.parse_args()
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    fig, (ax_a, ax_b) = plt.subplots(2, 1, figsize=(4.8, 5.6))
-    # Both runs' final checkpoint is model_1499.pt -- that is what transferred.
-    panel(ax_a, TRACKED_EV, "(a)", 1499)
-    panel(ax_b, ARM_EV, "(b)", 1499)
+    if args.layout == "wide":
+        fig, (ax_a, ax_b) = plt.subplots(1, 2, figsize=(6.8, 2.9))
+    else:
+        fig, (ax_a, ax_b) = plt.subplots(2, 1, figsize=(4.8, 5.6))
+    # Both runs' final checkpoint is model_1499.pt (0-indexed, i.e. the 1500th PPO
+    # iteration) -- that is what transferred; labelled 1500 as in the manuscript.
+    panel(ax_a, TRACKED_EV, "(a)", 1500)
+    panel(ax_b, ARM_EV, "(b)", 1500)
 
-    fig.tight_layout(h_pad=2.2)
+    if args.layout == "wide":
+        fig.tight_layout(w_pad=1.8)
+    else:
+        fig.tight_layout(h_pad=2.2)
     png = out_dir / "tracked_arm_rl_reward.png"
     pdf = out_dir / "tracked_arm_rl_reward.pdf"
     fig.savefig(png, dpi=200)

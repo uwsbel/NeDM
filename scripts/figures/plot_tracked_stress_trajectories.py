@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Tracked-base goal-reaching: stress battery + consecutive-waypoint route.
 
-Two-panel (single-column, stacked) figure of the tracked drive policy under the
+Two-panel figure (side by side with --layout wide, the default, for the
+single-column manuscript; stacked with --layout stacked) of the tracked drive policy under the
 frozen NN-ROM, exercised in high-fidelity Chrono:
 
   (a) all 100 driven XY paths from the seeded 100-goal stress battery (origin to
@@ -87,11 +88,17 @@ def _style(ax, tag: str) -> None:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", type=Path, default=DEFAULT_OUT)
+    ap.add_argument("--layout", choices=("wide", "stacked"), default="wide")
     args = ap.parse_args()
 
-    fig, (ax0, ax1) = plt.subplots(
-        2, 1, figsize=(3.5, 5.9),
-        gridspec_kw={"height_ratios": [1.0, 0.6]})
+    if args.layout == "wide":
+        fig, (ax0, ax1) = plt.subplots(
+            1, 2, figsize=(6.8, 3.2),
+            gridspec_kw={"width_ratios": [1.0, 1.25]})
+    else:
+        fig, (ax0, ax1) = plt.subplots(
+            2, 1, figsize=(3.5, 5.9),
+            gridspec_kw={"height_ratios": [1.0, 0.6]})
     panel_stress(ax0)
     panel_bowtie(ax1)
 

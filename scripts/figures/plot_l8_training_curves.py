@@ -6,7 +6,10 @@ Replaces the manuscript's hmmwv_cotrain_training.pdf, which was built for the
 ablation_ofat/L8_H8_E256_ctx128 and marks the actual best_val epoch (51).
 
 Usage:
-    python plot_l8_training_curves.py [--out-dir DIR]
+    python plot_l8_training_curves.py [--out-dir DIR] [--layout wide|stacked]
+
+--layout wide   (default) 1x2 panels side by side, for the single-column manuscript
+--layout stacked          2x1 panels, the original double-column layout
 """
 from __future__ import annotations
 
@@ -33,6 +36,7 @@ def load_metrics() -> list[dict]:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out-dir", default=str(REPO_ROOT / "artifacts/analysis/manuscript_figs"))
+    ap.add_argument("--layout", choices=("wide", "stacked"), default="wide")
     args = ap.parse_args()
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -49,9 +53,12 @@ def main() -> int:
     valid = [(r["epoch"], r["rollout_sel"]) for r in rows if math.isfinite(r["rollout_sel"])]
     best_epoch, best_sel = min(valid, key=lambda t: t[1])
 
-    fig, (ax_top, ax_bot) = plt.subplots(
-        2, 1, figsize=(4.6, 5.2), sharex=True, gridspec_kw={"height_ratios": [1, 1.1]}
-    )
+    if args.layout == "wide":
+        fig, (ax_top, ax_bot) = plt.subplots(1, 2, figsize=(6.8, 2.7))
+    else:
+        fig, (ax_top, ax_bot) = plt.subplots(
+            2, 1, figsize=(4.6, 5.2), sharex=True, gridspec_kw={"height_ratios": [1, 1.1]}
+        )
 
     ax_top.plot(epochs, train_loss, color="black", lw=1.8, label="train")
     ax_top.plot(epochs, val_flat_loss, color="C0", lw=1.8, label="val (flat)")
@@ -64,6 +71,9 @@ def main() -> int:
     leg_top.get_frame().set_alpha(0.9)
     ax_top.grid(True, which="major", axis="y", alpha=0.3)
     ax_top.spines[["top", "right"]].set_visible(False)
+    if args.layout == "wide":
+        ax_top.set_xlabel("epoch")
+        ax_top.set_xlim(1, max(epochs))
 
     ax_bot.plot(epochs, flat10, color="C0", lw=1.3, label="flat")
     ax_bot.plot(epochs, crm10, color="C1", lw=1.3, label="CRM")
@@ -78,12 +88,18 @@ def main() -> int:
     )
     ax_bot.set_ylabel("10 s open-loop err/dist (%)")
     ax_bot.set_xlabel("epoch")
-    ax_bot.legend(frameon=False, loc="upper right", fontsize=9, ncol=3)
+    if args.layout == "wide":
+        # Leave headroom above the noisiest peak so the legend clears the traces.
+        ax_bot.set_ylim(top=1.35 * max(max(flat10), max(crm10)))
+        ax_bot.legend(frameon=False, loc="upper left", fontsize=9, ncol=3,
+                      columnspacing=1.0, handlelength=1.6)
+    else:
+        ax_bot.legend(frameon=False, loc="upper right", fontsize=9, ncol=3)
     ax_bot.grid(True, which="major", axis="y", alpha=0.3)
     ax_bot.spines[["top", "right"]].set_visible(False)
     ax_bot.set_xlim(1, max(epochs))
 
-    fig.tight_layout()
+    fig.tight_layout(w_pad=1.5)
     png_path = out_dir / "hmmwv_cotrain_training_L8.png"
     pdf_path = out_dir / "hmmwv_cotrain_training_L8.pdf"
     fig.savefig(png_path, dpi=200)

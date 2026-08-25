@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Training-curve figure for the Study Case II reduced-dynamics models.
 
-Two stacked panels, overlaying BOTH task-specific models (tracked-base + arm):
+Two panels (side by side with --layout wide, the default, for the
+single-column manuscript; stacked with --layout stacked), overlaying BOTH task-specific models (tracked-base + arm):
   (a) train and validation one-step loss vs epoch (log scale)
   (b) open-loop rollout error vs Chrono ground truth (err/dist, %) vs epoch
 
@@ -44,6 +45,7 @@ def best_epoch(rows: list[dict]) -> tuple[int, float]:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out-dir", default=str(DEFAULT_OUT))
+    ap.add_argument("--layout", choices=("wide", "stacked"), default="wide")
     args = ap.parse_args()
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -55,9 +57,12 @@ def main() -> int:
     ar_sel_ep, ar_sel = best_epoch(ar)
     xmax = max(max(tr_ep), max(ar_ep))
 
-    fig, (ax_top, ax_bot) = plt.subplots(
-        2, 1, figsize=(4.8, 5.2), sharex=True, gridspec_kw={"height_ratios": [1, 1.1]}
-    )
+    if args.layout == "wide":
+        fig, (ax_top, ax_bot) = plt.subplots(1, 2, figsize=(6.8, 2.8))
+    else:
+        fig, (ax_top, ax_bot) = plt.subplots(
+            2, 1, figsize=(4.8, 5.2), sharex=True, gridspec_kw={"height_ratios": [1, 1.1]}
+        )
 
     # --- (a) train / validation loss, both models overlaid ---
     ax_top.plot(tr_ep, [r["train_loss"] for r in tr], color=TRACKED_C, lw=1.6, ls="--",
@@ -77,20 +82,31 @@ def main() -> int:
     leg.get_frame().set_alpha(0.9)
     ax_top.grid(True, which="major", axis="y", alpha=0.3)
     ax_top.spines[["top", "right"]].set_visible(False)
+    if args.layout == "wide":
+        ax_top.set_xlabel("epoch")
+        ax_top.set_xlim(1, xmax)
 
     # --- (b) open-loop rollout error vs Chrono, both models overlaid ---
     ax_bot.plot(tr_ep, [r["rollout_sel"] * 100 for r in tr], color=TRACKED_C, lw=1.6,
                 label="tracked (5 s horizon)")
     ax_bot.plot(ar_ep, [r["rollout_sel"] * 100 for r in ar], color=ARM_C, lw=1.6,
                 label="arm (0.5 s horizon)")
-    for ep, val, c, ha, dy, va in (
-        (tr_sel_ep, tr_sel, TRACKED_C, "center", -13, "top"),
-        (ar_sel_ep, ar_sel, ARM_C, "right", 12, "bottom"),
-    ):
+    if args.layout == "wide":
+        # Annotations placed beside the markers, in the empty regions of the panel.
+        ann = (
+            (tr_sel_ep, tr_sel, TRACKED_C, "left", (8, -9), "top"),
+            (ar_sel_ep, ar_sel, ARM_C, "right", (-7, -5), "top"),
+        )
+    else:
+        ann = (
+            (tr_sel_ep, tr_sel, TRACKED_C, "center", (0, -13), "top"),
+            (ar_sel_ep, ar_sel, ARM_C, "right", (0, 12), "bottom"),
+        )
+    for ep, val, c, ha, off, va in ann:
         ax_bot.scatter([ep], [val * 100], color=c, edgecolor="black", zorder=5, s=32)
         ax_bot.annotate(
             f"selected (ep {ep})",
-            xy=(ep, val * 100), xytext=(0, dy), textcoords="offset points",
+            xy=(ep, val * 100), xytext=off, textcoords="offset points",
             fontsize=8, ha=ha, va=va, color=c,
         )
     # Tie the selected epoch back to the loss panel above.
@@ -98,15 +114,21 @@ def main() -> int:
         ax.axvline(tr_sel_ep, color=TRACKED_C, ls=":", lw=0.9, alpha=0.55)
         ax.axvline(ar_sel_ep, color=ARM_C, ls=":", lw=0.9, alpha=0.55)
     ax_bot.set_yscale("log")
+    if args.layout == "wide":
+        # Headroom below the arm's selected point so its label clears the axis.
+        ax_bot.set_ylim(bottom=0.5 * min(min(r["rollout_sel"] for r in tr),
+                                         min(r["rollout_sel"] for r in ar)) * 100,
+                        top=2.5 * max(max(r["rollout_sel"] for r in tr),
+                                      max(r["rollout_sel"] for r in ar)) * 100)
     ax_bot.set_ylabel("open-loop err/dist vs Chrono (%)")
     ax_bot.set_xlabel("epoch")
     ax_bot.set_title("(b) Open-loop rollout error", fontsize=9.5, loc="left")
-    ax_bot.legend(frameon=False, loc="upper right", fontsize=8)
+    ax_bot.legend(frameon=False, fontsize=8, loc="upper right")
     ax_bot.grid(True, which="major", axis="y", alpha=0.3)
     ax_bot.spines[["top", "right"]].set_visible(False)
     ax_bot.set_xlim(1, xmax)
 
-    fig.tight_layout()
+    fig.tight_layout(w_pad=1.5)
     png = out_dir / "tracked_arm_training.png"
     pdf = out_dir / "tracked_arm_training.pdf"
     fig.savefig(png, dpi=200)
