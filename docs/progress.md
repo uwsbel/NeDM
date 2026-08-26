@@ -303,6 +303,34 @@ camera) is implemented — collector `src/nedm/double_pendulum_data.py`, the
 `scripts/evaluation/eval_nrd_dpend.py`. Status and gotchas:
 `docs/vision/double_pen/implementation_notes.md`.
 
+**Reaching RL inside the frozen NRD (2026-08-26).** `DPendNRDReachEnv`
+(`src/nedm/rl/dpend_nrd_reach_env.py`, rsl_rl VecEnv, resets from a bank of
+recorded 16-step `[z1, z2, a]` windows, decoder never called) plus
+`scripts/training/train_dpend_nrd_rl_reach.py` and the paired NRD/Chrono
+evaluator `scripts/evaluation/eval_dpend_nrd_rl_reach.py`. The task plan's
+distance-shaped reward was exploitable (spinning past the 35 rad/s guard was
+cheaper than surviving) and plateaued at 13–17 % even after charging failures;
+the arm reach study's recipe (exponential reach reward, action-rate penalty,
+success bonus, no termination charge; lower-half goals, 2 cm) trained a
+state-only policy to 85 % in-NRD that transfers to Chrono with **no gap: 87 % /
+87 %** on 100 held-out pairs (84 shared successes, closest-approach medians
+15.2 / 15.3 mm). Interactive Chrono viewer with goal markers:
+`scripts/evaluation/visualize_dpend_nrd_rl_chrono.py`. Notes:
+`docs/vision/double_pen/rl_implementation_notes.md`.
+
+**Teacher–student distillation to a camera-only policy (2026-08-26).** The z1
+policy was distilled by online DAgger (`src/nedm/rl/dpend_distill.py`,
+`scripts/training/distill_dpend_nrd_student.py`) into a student that observes
+only four normalized camera latents 0.1 s apart plus the goal (258-D). On the
+identical held-out NRD pairs the student matches the teacher on all three
+seeds — **88 / 90 / 87 % vs 87 %** (unselected last checkpoints 88 / 86 / 85 %),
+action MAE ≈ 0.02, no spin/OOD — passing every acceptance criterion of the plan.
+Wired to the real plant (Chrono::Sensor frame → frozen encoder → z2 history →
+student, `scripts/evaluation/visualize_dpend_student_chrono.py`, markers
+verified invisible to the sensor) it reaches 9/10 consecutive goals, the same
+miss as the teacher. Notes:
+`docs/vision/double_pen/distillation_implementation_notes.md`.
+
 ---
 
 ## Superseded work

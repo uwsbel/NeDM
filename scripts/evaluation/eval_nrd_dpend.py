@@ -37,6 +37,7 @@ import torch.nn.functional as F
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 
 from nedm.double_pendulum_data import find_tip_pixel, project_to_pixel  # noqa: E402
+from nedm.nrd.checkpoint import load_nrd_model as load_nrd  # noqa: E402
 from nedm.nrd.model import NRDDynamicsModel  # noqa: E402
 from nedm.nrd.trainer import load_rollout_split_with_frames  # noqa: E402
 from nedm.nrd.vision import frames_to_uint8  # noqa: E402
@@ -47,23 +48,6 @@ SERIES_NRD = "#2a78d6"       # categorical slot 1 (blue)
 SERIES_STATE = "#eb6834"     # categorical slot 2 (orange)
 SERIES_ANCHOR = "#1baf7a"    # categorical slot 3 (aqua)
 SERIES_REFERENCE = "#8a8a85"  # persistence: recessive reference
-
-
-def load_nrd(checkpoint_path: Path, device: torch.device) -> tuple[NRDDynamicsModel, dict]:
-    payload = torch.load(checkpoint_path, map_location=device, weights_only=False)
-    config = payload["config"]
-    metadata = payload["metadata"]
-    model = NRDDynamicsModel(
-        state_dim=len(metadata["state_fields"]),
-        action_dim=len(metadata["action_fields"]),
-        transformer_cfg=config["model"],
-        vision_cfg=config.get("vision", {}),
-        normalization=metadata["normalization"],
-        state_fields=list(metadata["state_fields"]),
-    ).to(device)
-    model.load_state_dict(payload["model_state_dict"])
-    model.eval()
-    return model, payload
 
 
 def load_state_only(checkpoint_path: Path, device: torch.device) -> HMMWVDynamicsModel:

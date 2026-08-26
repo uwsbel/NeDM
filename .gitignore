@@ -77,6 +77,20 @@ artifacts/rl_runs/*
 artifacts/rl_runs/tracked_goal_v2_far_rollsel_rom_20260721/chrono_waypoints_*/
 !artifacts/rl_runs/tracked_goal_v2_far_rollsel_rom_20260721/chrono_waypoints_fig8_bowtie/
 
+# NRD follow-on (docs/vision/double_pen/rl_implementation_notes.md and
+# distillation_implementation_notes.md): the state-only reaching policy trained
+# inside the frozen NRD (final checkpoint only) with its paired NRD/Chrono
+# evaluations, and the three distilled camera-only students (best/last
+# checkpoints, teacher-vs-student evaluations, Chrono chain with the frames the
+# student actually saw). Intermediate checkpoints stay local.
+!artifacts/rl_runs/dpend_nrd_reach_z1_armreward_lowerhalf_seed1_20260826/
+artifacts/rl_runs/dpend_nrd_reach_z1_armreward_lowerhalf_seed1_20260826/model_*.pt
+!artifacts/rl_runs/dpend_nrd_reach_z1_armreward_lowerhalf_seed1_20260826/model_1499.pt
+!artifacts/rl_runs/dpend_nrd_student_z2hist4_from_z1_armreward_lowerhalf_seed1_20260826/
+!artifacts/rl_runs/dpend_nrd_student_z2hist4_from_z1_armreward_lowerhalf_seed2_20260826/
+!artifacts/rl_runs/dpend_nrd_student_z2hist4_from_z1_armreward_lowerhalf_seed3_20260826/
+artifacts/rl_runs/dpend_nrd_student_*/student_0*.pt
+
 # Rendered frame dumps and tmux bookkeeping inside a kept RL run stay local.
 artifacts/rl_runs/**/frames/
 artifacts/rl_runs/**/renders/
@@ -92,6 +106,9 @@ artifacts/rl_reference_sets/*
 # Held-out rest-start evaluation references, 20 per terrain.
 !artifacts/rl_reference_sets/hmmwv_tire_normal_force_omega_val_refs_20_1100_rest_start.npz
 !artifacts/rl_reference_sets/hmmwv_bumpy_10g_normal_force_omega_val_refs_20_1100_rest_start.npz
+# NRD follow-on: held-out reset contexts for the double-pendulum reaching evals
+# (the 16 384-window train bank is rebuilt by scripts/preprocess/build_dpend_nrd_context_bank.py).
+!artifacts/rl_reference_sets/dpend_nrd_full_v1_val_contexts_512_seed20260826.npz
 
 # --- Small inputs and generated figures -------------------------------------
 # Arm link geometry: forward kinematics and the collision-clearance shield.

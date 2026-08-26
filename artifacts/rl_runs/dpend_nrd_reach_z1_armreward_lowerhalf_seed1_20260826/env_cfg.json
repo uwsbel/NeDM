@@ -1,0 +1,47 @@
+{
+  "num_envs": 4096,
+  "device": "cuda",
+  "seed": 1,
+  "nrd_checkpoint": "artifacts/training_runs/dpend_nrd_full_v1/checkpoints/best_val.pt",
+  "context_bank": "artifacts/rl_reference_sets/dpend_nrd_full_v1_train_contexts_16384_seed20260826.npz",
+  "observe_z2": false,
+  "action_repeat": 5,
+  "max_episode_steps": 50,
+  "auto_reset": true,
+  "link_lengths_m": [
+    0.3,
+    0.3
+  ],
+  "goal": {
+    "theta_range_rad": [
+      3.141592653589793,
+      6.283185307179586
+    ],
+    "r_min_frac": 0.5,
+    "r_max_frac": 0.8,
+    "max_sample_attempts": 8
+  },
+  "reward": {
+    "type": "exponential",
+    "ee_error_scale_m": 0.06,
+    "action_rate_weight": 0.02,
+    "distance_weight": 1.0,
+    "progress_weight": 5.0,
+    "success_bonus": 150.0,
+    "angular_velocity_change_weight": 0.0,
+    "success_tolerance_m": 0.02,
+    "failure_penalty_mode": "none"
+  },
+  "termination": {
+    "omega_limit_radps": 35.0,
+    "z2_guard_margin": 1.5
+  },
+  "logging": {
+    "close_thresholds_m": [
+      0.01,
+      0.02,
+      0.05,
+      0.1
+    ]
+  }
+}

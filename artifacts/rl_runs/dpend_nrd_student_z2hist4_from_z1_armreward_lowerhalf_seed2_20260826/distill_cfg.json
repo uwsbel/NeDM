@@ -1,0 +1,87 @@
+{
+  "teacher_run_dir": "/home/harry/NeDM/artifacts/rl_runs/dpend_nrd_reach_z1_armreward_lowerhalf_seed1_20260826",
+  "teacher_checkpoint": "/home/harry/NeDM/artifacts/rl_runs/dpend_nrd_reach_z1_armreward_lowerhalf_seed1_20260826/model_1499.pt",
+  "teacher_iteration": 1499,
+  "seed": 2,
+  "history_len": 4,
+  "hidden_dims": [
+    256,
+    128,
+    64
+  ],
+  "student_input_dim": 258,
+  "context_indices": [
+    0,
+    5,
+    10,
+    15
+  ],
+  "dagger": {
+    "num_envs": 4096,
+    "rollout_steps_per_iteration": 24,
+    "iterations": 200,
+    "teacher_decay_iterations": 50,
+    "replay_capacity_samples": 500000
+  },
+  "student_training": {
+    "optimizer": "Adam",
+    "learning_rate": 0.001,
+    "batch_size": 8192,
+    "epochs_per_iteration": 5,
+    "max_grad_norm": 1.0,
+    "loss": "SmoothL1(student_action, teacher_action)"
+  },
+  "eval": {
+    "context_bank": "artifacts/rl_reference_sets/dpend_nrd_full_v1_val_contexts_512_seed20260826.npz",
+    "pairs": 100,
+    "pairs_seed": 20260826,
+    "every": 10
+  },
+  "env_cfg": {
+    "num_envs": 4096,
+    "device": "cuda",
+    "seed": 2,
+    "nrd_checkpoint": "artifacts/training_runs/dpend_nrd_full_v1/checkpoints/best_val.pt",
+    "context_bank": "artifacts/rl_reference_sets/dpend_nrd_full_v1_train_contexts_16384_seed20260826.npz",
+    "observe_z2": false,
+    "action_repeat": 5,
+    "max_episode_steps": 50,
+    "auto_reset": true,
+    "link_lengths_m": [
+      0.3,
+      0.3
+    ],
+    "goal": {
+      "theta_range_rad": [
+        3.141592653589793,
+        6.283185307179586
+      ],
+      "r_min_frac": 0.5,
+      "r_max_frac": 0.8,
+      "max_sample_attempts": 8
+    },
+    "reward": {
+      "type": "exponential",
+      "ee_error_scale_m": 0.06,
+      "action_rate_weight": 0.02,
+      "distance_weight": 1.0,
+      "progress_weight": 5.0,
+      "success_bonus": 150.0,
+      "angular_velocity_change_weight": 0.0,
+      "success_tolerance_m": 0.02,
+      "failure_penalty_mode": "none"
+    },
+    "termination": {
+      "omega_limit_radps": 35.0,
+      "z2_guard_margin": 1.5
+    },
+    "logging": {
+      "close_thresholds_m": [
+        0.01,
+        0.02,
+        0.05,
+        0.1
+      ]
+    }
+  }
+}

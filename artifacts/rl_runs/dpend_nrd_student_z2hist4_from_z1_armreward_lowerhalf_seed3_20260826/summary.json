@@ -1,0 +1,19 @@
+{
+  "run": "dpend_nrd_student_z2hist4_from_z1_armreward_lowerhalf_seed3_20260826",
+  "teacher": "/home/harry/NeDM/artifacts/rl_runs/dpend_nrd_reach_z1_armreward_lowerhalf_seed1_20260826/model_1499.pt",
+  "final_eval": {
+    "success_rate": 0.8500000238418579,
+    "timeout_rate": 0.15000000596046448,
+    "spin_rate": 0.0,
+    "ood_rate": 0.0,
+    "min_distance_median_m": 0.016336986795067787,
+    "within_1cm": 0.16,
+    "within_3cm": 0.91,
+    "time_to_success_median_s": 1.3799999952316284,
+    "action_mae_vs_teacher": 0.02269713208079338,
+    "action_sign_disagreement": 0.014162873039959535
+  },
+  "best_student_success": 0.8700000047683716,
+  "wall_s": 345.3250992298126,
+  "iterations": 200
+}

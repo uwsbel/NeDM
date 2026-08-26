@@ -1,0 +1,101 @@
+{
+  "student_run": "dpend_nrd_student_z2hist4_from_z1_armreward_lowerhalf_seed2_20260826",
+  "student_checkpoint": "/home/harry/NeDM/artifacts/rl_runs/dpend_nrd_student_z2hist4_from_z1_armreward_lowerhalf_seed2_20260826/student_best.pt",
+  "student_iteration": 109,
+  "teacher_checkpoint": "/home/harry/NeDM/artifacts/rl_runs/dpend_nrd_reach_z1_armreward_lowerhalf_seed1_20260826/model_1499.pt",
+  "teacher_iteration": 1499,
+  "num_pairs": 100,
+  "pairs_seed": 20260826,
+  "context_bank": "artifacts/rl_reference_sets/dpend_nrd_full_v1_val_contexts_512_seed20260826.npz",
+  "tolerance_m": 0.02,
+  "history_len": 4,
+  "teacher": {
+    "success_rate": 0.87,
+    "timeout_rate": 0.12999999523162842,
+    "spin_rate": 0.0,
+    "ood_rate": 0.0,
+    "nonfinite_rate": 0.0,
+    "closest_approach_success": {
+      "10mm": 0.18,
+      "15mm": 0.48,
+      "20mm": 0.87,
+      "30mm": 0.9,
+      "50mm": 0.94
+    },
+    "final_distance_m": {
+      "median": 0.015152348205447197,
+      "p90": 0.09247961640357971
+    },
+    "min_distance_m": {
+      "median": 0.015152348205447197,
+      "p90": 0.02262633480131626
+    },
+    "time_to_success_s": {
+      "median": 1.4399999380111694,
+      "p90": 2.8959999084472656
+    },
+    "action_abs_mean": 0.5027925968170166,
+    "action_slew_mean": 0.24574749171733856,
+    "action_saturated_frac": 0.0
+  },
+  "student": {
+    "success_rate": 0.9,
+    "timeout_rate": 0.10000000149011612,
+    "spin_rate": 0.0,
+    "ood_rate": 0.0,
+    "nonfinite_rate": 0.0,
+    "closest_approach_success": {
+      "10mm": 0.15,
+      "15mm": 0.39,
+      "20mm": 0.9,
+      "30mm": 0.92,
+      "50mm": 0.95
+    },
+    "final_distance_m": {
+      "median": 0.01635349914431572,
+      "p90": 0.02632678672671318
+    },
+    "min_distance_m": {
+      "median": 0.01635349914431572,
+      "p90": 0.020927254110574722
+    },
+    "time_to_success_s": {
+      "median": 1.399999976158142,
+      "p90": 2.2899999618530273
+    },
+    "action_abs_mean": 0.5027544498443604,
+    "action_slew_mean": 0.24391400814056396,
+    "action_saturated_frac": 0.0
+  },
+  "agreement_on_teacher_visited_states": {
+    "samples": 1969,
+    "mae": 0.0231275986880064,
+    "rmse": 0.034326884895563126,
+    "p95_abs_error": 0.062166400253772736,
+    "sign_disagreement_rate": 0.009141696292534281,
+    "teacher_action_abs_mean": 0.5131024122238159,
+    "student_action_abs_mean": 0.5119815468788147
+  },
+  "agreement_on_student_visited_states": {
+    "samples": 1810,
+    "mae": 0.02501584030687809,
+    "rmse": 0.03603160381317139,
+    "p95_abs_error": 0.06692878901958466,
+    "sign_disagreement_rate": 0.016022099447513812,
+    "teacher_action_abs_mean": 0.5094839334487915,
+    "student_action_abs_mean": 0.5063911080360413
+  },
+  "overlap": {
+    "both": 86,
+    "teacher_only": 1,
+    "student_only": 4,
+    "neither": 9,
+    "success_gap_pp": 3.0000000000000027,
+    "closest_approach_median_diff_mm": 1.201150894165039
+  },
+  "acceptance": {
+    "success_within_5pp": true,
+    "failure_rates_within_1pp": true,
+    "closest_approach_median_within_5mm": true
+  }
+}

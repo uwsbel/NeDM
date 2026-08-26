@@ -1,0 +1,127 @@
+{
+  "run_dir": "/home/harry/NeDM/artifacts/rl_runs/dpend_nrd_reach_z1_armreward_lowerhalf_seed1_20260826",
+  "policy_obs": "z1",
+  "policy_checkpoint": "/home/harry/NeDM/artifacts/rl_runs/dpend_nrd_reach_z1_armreward_lowerhalf_seed1_20260826/model_100.pt",
+  "policy_iteration": 100,
+  "context_bank": "artifacts/rl_reference_sets/dpend_nrd_full_v1_val_contexts_512_seed20260826.npz",
+  "num_pairs": 50,
+  "pairs_seed": 20260826,
+  "success_tolerance_m": 0.02,
+  "max_steps": 50,
+  "action_repeat": 5,
+  "nrd": {
+    "success_rate": 0.54,
+    "timeout_rate": 0.46000000834465027,
+    "spin_rate": 0.0,
+    "ood_rate": 0.0,
+    "success_rate_upper_goals": NaN,
+    "success_rate_lower_goals": 0.54,
+    "final_distance_m": {
+      "median": 0.019640307873487473,
+      "p90": 0.3800209164619446
+    },
+    "min_distance_m": {
+      "median": 0.019640307873487473,
+      "p90": 0.0796101987361908
+    },
+    "min_distance_fine_m": {
+      "median": 0.019640307873487473,
+      "p90": 0.0796101987361908
+    },
+    "time_to_success_s": {
+      "median": 1.8799999952316284,
+      "p90": 3.2360000610351562
+    },
+    "domega_rms_mean": 0.28409120440483093,
+    "domega_max_mean": 0.7901338338851929,
+    "domega_max_max": 1.4407780170440674,
+    "action_abs_mean": 0.4790268838405609,
+    "action_slew_mean": 0.22379988431930542,
+    "action_saturated_frac": 0.06439999490976334,
+    "success_vs_tolerance": {
+      "5mm": 0.04,
+      "10mm": 0.14,
+      "15mm": 0.32,
+      "20mm": 0.54,
+      "30mm": 0.64,
+      "50mm": 0.76,
+      "100mm": 0.94
+    },
+    "success_vs_tolerance_fine": {
+      "5mm": 0.04,
+      "10mm": 0.14,
+      "15mm": 0.32,
+      "20mm": 0.54,
+      "30mm": 0.64,
+      "50mm": 0.76,
+      "100mm": 0.94
+    },
+    "wall_s": 0.9664123058319092
+  },
+  "chrono": {
+    "success_rate": 0.54,
+    "timeout_rate": 0.46000000834465027,
+    "spin_rate": 0.0,
+    "ood_rate": 0.0,
+    "success_rate_upper_goals": NaN,
+    "success_rate_lower_goals": 0.54,
+    "final_distance_m": {
+      "median": 0.019739337265491486,
+      "p90": 0.305355966091156
+    },
+    "min_distance_m": {
+      "median": 0.019739337265491486,
+      "p90": 0.06585520505905151
+    },
+    "min_distance_fine_m": {
+      "median": 0.019364356994628906,
+      "p90": 0.0652775764465332
+    },
+    "time_to_success_s": {
+      "median": 1.5199999809265137,
+      "p90": 3.7239999771118164
+    },
+    "domega_rms_mean": 0.2855871915817261,
+    "domega_max_mean": 0.7957473993301392,
+    "domega_max_max": 1.4846776723861694,
+    "action_abs_mean": 0.49582767486572266,
+    "action_slew_mean": 0.2260296642780304,
+    "action_saturated_frac": 0.0944194346666336,
+    "success_vs_tolerance": {
+      "5mm": 0.04,
+      "10mm": 0.16,
+      "15mm": 0.3,
+      "20mm": 0.54,
+      "30mm": 0.68,
+      "50mm": 0.82,
+      "100mm": 0.94
+    },
+    "success_vs_tolerance_fine": {
+      "5mm": 0.06,
+      "10mm": 0.18,
+      "15mm": 0.34,
+      "20mm": 0.56,
+      "30mm": 0.68,
+      "50mm": 0.82,
+      "100mm": 0.94
+    },
+    "wall_s": 21.76422882080078
+  },
+  "paired": {
+    "both_success": 23,
+    "nrd_only_success": 4,
+    "chrono_only_success": 4,
+    "neither": 19,
+    "transfer_gap_success_rate": 0.0,
+    "nrd_success_chrono_fail_pairs": [
+      3,
+      6,
+      35,
+      49
+    ],
+    "min_distance_abs_diff_mm": {
+      "median": 5.348544597625732,
+      "p90": 21.472919464111328
+    }
+  }
+}
