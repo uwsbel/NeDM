@@ -56,6 +56,7 @@ class PlannerParams:
     a_lat_max: float = 2.0
     a_accel: float = 1.5
     a_decel: float = 2.0
+    v_launch_mps: float = 1.5  # vehicle starts at rest; profile must ramp from here
     v_terminal_mps: float = 1.5
     terminal_taper_m: float = 4.0
     # Goal: approach ring around the house center (plan §3.2).
@@ -378,6 +379,10 @@ def speed_profile(points: np.ndarray, grid: OracleGrid, params: PlannerParams) -
     taper = np.clip(remaining / params.terminal_taper_m, 0.0, 1.0)
     v = v * taper + params.v_terminal_mps * (1.0 - taper)
 
+    # The vehicle starts at rest: without clamping v[0], the forward pass
+    # ramps from cruise speed and the driver full-throttles from standstill
+    # (WP0a gate failure mode: launch wedge-in / steering saturation).
+    v[0] = min(v[0], params.v_launch_mps)
     for i in range(1, len(v)):  # forward accel limit
         v[i] = min(v[i], math.sqrt(v[i - 1] ** 2 + 2.0 * params.a_accel * seg[i - 1]))
     for i in range(len(v) - 2, -1, -1):  # backward decel limit

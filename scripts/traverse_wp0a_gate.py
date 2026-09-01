@@ -108,6 +108,9 @@ def run_one(task: tuple[int, int, str, float]) -> dict:
     max_contact_n = 0.0
     min_dist_goal = math.inf
     step = 0
+    # Repo convention: steering_rate_limit 0.1 per 20 Hz step = 2.0 full-scale/s.
+    steer_rate_per_s = 2.0
+    prev_steer = 0.0
 
     while True:
         t = float(system.GetChTime())
@@ -122,6 +125,9 @@ def run_one(task: tuple[int, int, str, float]) -> dict:
 
         driver.Synchronize(t)
         inputs = driver.GetInputs()
+        max_d = steer_rate_per_s * dt
+        prev_steer = min(max(float(inputs.m_steering), prev_steer - max_d), prev_steer + max_d)
+        inputs.m_steering = prev_steer
         terrain.Synchronize(t)
         hmmwv.Synchronize(t, inputs, terrain)
 
@@ -177,6 +183,7 @@ def main() -> int:
     parser.add_argument("--arena", default="assets/traverse/arena_v1")
     parser.add_argument("--episodes", type=int, default=100)
     parser.add_argument("--seed0", type=int, default=20260901)
+    parser.add_argument("--seeds", default=None, help="comma-separated explicit seed list (overrides --episodes/--seed0)")
     parser.add_argument("--procs", type=int, default=12)
     parser.add_argument("--timeout-scale", type=float, default=2.5)
     parser.add_argument("--out", default="artifacts/traverse/wp0a_gate")
@@ -185,7 +192,12 @@ def main() -> int:
     out_dir = (REPO_ROOT / args.out).resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    tasks = [(i, args.seed0 + i, args.arena, args.timeout_scale) for i in range(args.episodes)]
+    if args.seeds:
+        seeds = [int(s) for s in args.seeds.split(",")]
+    else:
+        seeds = [args.seed0 + i for i in range(args.episodes)]
+    args.episodes = len(seeds)
+    tasks = [(i, seed, args.arena, args.timeout_scale) for i, seed in enumerate(seeds)]
     rows: list[dict] = []
     wall0 = time.time()
     with get_context("spawn").Pool(args.procs) as pool:

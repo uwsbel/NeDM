@@ -199,6 +199,9 @@ def main() -> int:
     success_time = None
     max_contact_n = 0.0
     step = 0
+    # Repo convention: steering_rate_limit 0.1 per 20 Hz step = 2.0 full-scale/s.
+    steer_rate_per_s = 2.0
+    prev_steer = 0.0
 
     while True:
         t = float(system.GetChTime())
@@ -213,6 +216,9 @@ def main() -> int:
 
         driver.Synchronize(t)
         inputs = driver.GetInputs()
+        max_d = steer_rate_per_s * dt
+        prev_steer = min(max(float(inputs.m_steering), prev_steer - max_d), prev_steer + max_d)
+        inputs.m_steering = prev_steer
         terrain.Synchronize(t)
         hmmwv.Synchronize(t, inputs, terrain)
 
