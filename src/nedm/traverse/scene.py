@@ -218,6 +218,7 @@ class RenderSpec:
     with_depth: bool = True
     max_depth_m: float = 250.0
     plan_markers: bool = False  # showcase only; OFF for data collection
+    light_elevation_deg: float = 55.0  # WP0b geometry probes use ~80 (less shading bias)
 
 
 @dataclass
@@ -356,7 +357,9 @@ def build_scene(
     marker = chrono.ChVisualShapeBox(1.6, 1.0, 0.12)
     mmat = chrono.ChVisualMaterial()
     mmat.SetDiffuseColor(chrono.ChColor(*VEHICLE_MARKER_RGB))
-    mmat.SetEmissiveColor(chrono.ChColor(*[0.4 * c for c in VEHICLE_MARKER_RGB]))
+    # 0.4x emissive saturated the marker to sand-white under the directional
+    # light (WP0b alignment probe couldn't detect it); keep it subtle.
+    mmat.SetEmissiveColor(chrono.ChColor(*[0.1 * c for c in VEHICLE_MARKER_RGB]))
     marker.SetMaterial(0, mmat)
     hmmwv.GetChassisBody().AddVisualShape(
         marker, chrono.ChFramed(chrono.ChVector3d(0.1, 0.0, 0.95), chrono.QUNIT)
@@ -400,7 +403,9 @@ def build_scene(
             _add_plan_markers(patch_body, tmap, plan)
         manager = sens.ChSensorManager(system)
         manager.scene.SetAmbientLight(chrono.ChVector3f(0.35, 0.35, 0.38))
-        manager.scene.AddDirectionalLight(chrono.ChColor(1.0, 0.95, 0.85), math.radians(55.0), math.radians(120.0))
+        manager.scene.AddDirectionalLight(
+            chrono.ChColor(1.0, 0.95, 0.85), math.radians(render.light_elevation_deg), math.radians(120.0)
+        )
         background = sens.Background()
         background.mode = sens.BackgroundMode_SOLID_COLOR
         background.color_zenith = chrono.ChVector3f(*SKY_RGB)

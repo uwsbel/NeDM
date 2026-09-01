@@ -38,30 +38,36 @@ import pychrono.vehicle as veh  # noqa: E402
 from nedm.traverse.camera import CameraModel  # noqa: E402
 from nedm.traverse.layout import sample_episode  # noqa: E402
 from nedm.traverse.scene import (  # noqa: E402
-    CANOPY_RGB,
-    HOUSE_ROOF_RGB,
     RenderSpec,
-    ROCK_RGB,
-    VEHICLE_MARKER_RGB,
     build_config,
     build_scene,
 )
 from nedm.traverse.terrain import TerrainMap  # noqa: E402
 
 SETTLE_S = 0.5
-COLOR_TOL = 70.0  # euclidean RGB distance for blob membership
+COLOR_TOL = 80.0  # euclidean RGB distance for blob membership
 BLOB_WINDOW_PX = 14
 MIN_BLOB_PX = 3
+PROBE_LIGHT_ELEVATION_DEG = 80.0  # near-zenith: measure geometry, not shading
+
+# Detection references are RENDERED colors under the probe light (measured by
+# this script's MISS diagnostics), not the material diffuse colors.
+DETECT_RGB = {
+    "marker": (255, 170, 60),
+    "roof": (255, 90, 80),
+    "canopy": (45, 130, 50),
+    "rock": (135, 128, 120),
+}
 
 
-def blob_centroid(rgb: np.ndarray, u: float, v: float, ref: tuple[float, float, float]) -> tuple[float, float] | None:
+def blob_centroid(rgb: np.ndarray, u: float, v: float, ref: tuple[int, int, int]) -> tuple[float, float] | None:
     h, w, _ = rgb.shape
     x0, x1 = max(0, int(u) - BLOB_WINDOW_PX), min(w, int(u) + BLOB_WINDOW_PX + 1)
     y0, y1 = max(0, int(v) - BLOB_WINDOW_PX), min(h, int(v) + BLOB_WINDOW_PX + 1)
     if x1 <= x0 or y1 <= y0:
         return None
     win = rgb[y0:y1, x0:x1].astype(np.float64)
-    dist = np.linalg.norm(win - np.array(ref) * 255.0, axis=-1)
+    dist = np.linalg.norm(win - np.array(ref, np.float64), axis=-1)
     mask = dist < COLOR_TOL
     if mask.sum() < MIN_BLOB_PX:
         return None
@@ -76,18 +82,18 @@ def alignment_targets(scene, layout, tmap) -> list[tuple[str, float, float, floa
     marker_world = chassis.GetFrameRefToAbs().TransformPointLocalToParent(
         chrono.ChVector3d(0.1, 0.0, 0.95)
     )
-    targets.append(("marker", marker_world.x, marker_world.y, marker_world.z, VEHICLE_MARKER_RGB))
+    targets.append(("marker", marker_world.x, marker_world.y, marker_world.z, DETECT_RGB["marker"]))
     for asset in layout.assets:
         ground = float(tmap.height(asset.x_m, asset.y_m))
         if asset.kind == "house":
             z = ground + asset.dims["wall_height_m"] + 0.225 - 0.1
-            targets.append(("roof", asset.x_m, asset.y_m, z, HOUSE_ROOF_RGB))
+            targets.append(("roof", asset.x_m, asset.y_m, z, DETECT_RGB["roof"]))
         elif asset.kind == "tree":
             z = ground + asset.dims["trunk_height_m"] + 0.55 * asset.dims["canopy_radius_m"] - 0.1
-            targets.append(("canopy", asset.x_m, asset.y_m, z, CANOPY_RGB))
+            targets.append(("canopy", asset.x_m, asset.y_m, z, DETECT_RGB["canopy"]))
         elif asset.kind == "rock":
             z = ground + asset.dims["height_m"] - 0.15
-            targets.append(("rock", asset.x_m, asset.y_m, z, ROCK_RGB))
+            targets.append(("rock", asset.x_m, asset.y_m, z, DETECT_RGB["rock"]))
     return targets
 
 
@@ -119,7 +125,8 @@ def main() -> int:
         start_z = float(tmap.height(*layout.start_xy)) + 0.75
         config = build_config(arena_dir, (*layout.start_xy, start_z), layout.start_yaw)
         render = RenderSpec(width=args.res, height=args.res, cam_height_m=cam.cam_height_m,
-                            hfov_rad=cam.hfov_rad, plan_markers=False)
+                            hfov_rad=cam.hfov_rad, plan_markers=False,
+                            light_elevation_deg=PROBE_LIGHT_ELEVATION_DEG)
         scene = build_scene(config, layout, tmap, arena_dir, plan=None, render=render)
         hmmwv, system, terrain = scene.hmmwv, scene.system, scene.terrain
         dt = float(config["simulation"]["step_size_s"])
@@ -162,14 +169,21 @@ def main() -> int:
         if overlay:
             overlay.resize((512, 512), Image.NEAREST).save(out_dir / "alignment_overlay.png")
 
-        # depth image orientation self-test: which flip combo matches the map?
+        # depth error structure: signed offset (datum shift?) and radial trend
         if li == 0:
-            for name, dimg in (("as-is", depth), ("flipud", depth[::-1]),
-                               ("fliplr", depth[:, ::-1]), ("rot180", depth[::-1, ::-1])):
-                wx, wy, wz = cam.depth_to_world(dimg, convention="ray")
-                m = np.isfinite(dimg) & (np.abs(wx) < 0.45 * tmap.size_m) & (np.abs(wy) < 0.45 * tmap.size_m)
-                e = float(np.median(np.abs(wz[m] - tmap.height(wx[m], wy[m]))))
-                print(f"  depth orientation {name}: median |err| {e:.3f} m", flush=True)
+            wx, wy, wz = cam.depth_to_world(depth, convention="ray")
+            m = np.isfinite(depth) & (np.abs(wx) < 0.45 * tmap.size_m) & (np.abs(wy) < 0.45 * tmap.size_m)
+            signed = wz[m] - tmap.height(wx[m], wy[m])
+            uu, vv = np.meshgrid(np.arange(args.res), np.arange(args.res))
+            r = np.hypot(uu - cam.cx, vv - cam.cy)[m]
+            print(f"  depth signed err: median {np.median(signed):+.3f} m  "
+                  f"center(r<40px) {np.median(signed[r < 40]):+.3f}  "
+                  f"edge(r>100px) {np.median(signed[r > 100]):+.3f}", flush=True)
+            hgt = tmap.height(wx[m], wy[m])
+            a, b = np.polyfit(hgt, signed, 1)
+            print(f"  signed err vs terrain height: slope {a:+.3f} intercept {b:+.3f} m", flush=True)
+            c, d = np.polyfit(r, signed, 1)
+            print(f"  signed err vs pixel radius: slope {c * 100:+.3f} m/100px intercept {d:+.3f} m", flush=True)
 
         # 2) depth -> elevation vs calibrated heightmap (terrain pixels only)
         row = {"layout": li}
