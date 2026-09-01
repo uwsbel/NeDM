@@ -109,6 +109,7 @@ def main() -> int:
 
     errors: dict[str, list[float]] = {"marker": [], "roof": [], "canopy": [], "rock": []}
     misses: dict[str, int] = {k: 0 for k in errors}
+    offsets: dict[str, list[tuple[float, float]]] = {}
     depth_stats: list[dict] = []
     fps_report = None
 
@@ -147,7 +148,12 @@ def main() -> int:
             found = blob_centroid(rgb, u, v, ref)
             if found is None:
                 misses[kind] += 1
+                iu, iv = int(round(u)), int(round(v))
+                patch = rgb[max(0, iv - 2):iv + 3, max(0, iu - 2):iu + 3].reshape(-1, 3)
+                print(f"  MISS {kind} at ({u:.1f},{v:.1f}) expected {tuple(int(255*c) for c in ref)} "
+                      f"rendered mean {patch.mean(axis=0).round(0)}", flush=True)
                 continue
+            offsets.setdefault(kind, []).append((found[0] - u, found[1] - v))
             errors[kind].append(math.hypot(found[0] - u, found[1] - v))
             if draw:
                 draw.line([(u - 3, v), (u + 3, v)], fill=(0, 255, 255))
@@ -155,6 +161,15 @@ def main() -> int:
                 draw.ellipse([found[0] - 3, found[1] - 3, found[0] + 3, found[1] + 3], outline=(255, 0, 255))
         if overlay:
             overlay.resize((512, 512), Image.NEAREST).save(out_dir / "alignment_overlay.png")
+
+        # depth image orientation self-test: which flip combo matches the map?
+        if li == 0:
+            for name, dimg in (("as-is", depth), ("flipud", depth[::-1]),
+                               ("fliplr", depth[:, ::-1]), ("rot180", depth[::-1, ::-1])):
+                wx, wy, wz = cam.depth_to_world(dimg, convention="ray")
+                m = np.isfinite(dimg) & (np.abs(wx) < 0.45 * tmap.size_m) & (np.abs(wy) < 0.45 * tmap.size_m)
+                e = float(np.median(np.abs(wz[m] - tmap.height(wx[m], wy[m]))))
+                print(f"  depth orientation {name}: median |err| {e:.3f} m", flush=True)
 
         # 2) depth -> elevation vs calibrated heightmap (terrain pixels only)
         row = {"layout": li}
@@ -214,6 +229,10 @@ def main() -> int:
             "max": float(np.max(all_err)),
             "n": len(all_err),
             "per_class_median": {k: float(np.median(v)) for k, v in errors.items() if v},
+            "per_class_mean_offset_uv": {
+                k: [float(np.mean([o[0] for o in v])), float(np.mean([o[1] for o in v]))]
+                for k, v in offsets.items()
+            },
             "per_class_n": {k: len(v) for k, v in errors.items()},
             "misses": misses,
             "pass_2px_4px": bool(np.median(all_err) <= 2.0 and np.percentile(all_err, 95) <= 4.0),
