@@ -36,3 +36,16 @@ description: Storage and compute division of labor for this 1TB / RTX 5090 works
    must never land on this disk — only the compressed, training-ready store.
    The compressed store IS the trainable asset; pulling it here for 5090
    training is the intended workflow.
+
+## Running jobs on newton
+
+- Python with pychrono + torch: `~/anaconda3/envs/nedm/bin/python` (conda env
+  `nedm`); repo scripts need `PYTHONPATH=src` from `~/NeDM`. 32 CPU cores;
+  headless Chrono HMMWV episodes run ~15–25× slower than realtime, so batch
+  with ~12 workers and expect ~4 min per 10 s episode.
+- Detached launch (plain `ssh newton 'nohup ... &'` hangs the session):
+  ```bash
+  ssh newton 'cd ~/NeDM && nohup env PYTHONPATH=src ~/anaconda3/envs/nedm/bin/python -u <script> > /tmp/<name>.log 2>&1 < /dev/null & echo launched'
+  ```
+- Deliver code by commit + push from here, `git pull --ff-only` on newton —
+  never edit files on newton directly.
