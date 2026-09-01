@@ -423,7 +423,8 @@ def build_scene(
             depth_cam.SetName("overhead_depth")
             depth_cam.SetLag(0.0)
             depth_cam.SetCollectionWindow(0.0)
-            depth_cam.PushFilter(sens.ChFilterDepthAccess())
+            # ChDepthCamera installs its own depth-access filter; pushing
+            # another ChFilterDepthAccess breaks the filter graph.
             manager.AddSensor(depth_cam)
             depth_tap = _depth_tap(depth_cam)
 
