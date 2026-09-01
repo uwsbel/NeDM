@@ -127,11 +127,16 @@ def calibrate_orientation(arena_dir: Path, samples: int = 400, tol_m: float = 0.
         float(meta["height_max_m"]),
     )
     terrain.Initialize()
+    # Bullet raycasts see the patch only after the collision system binds it,
+    # and GetHeight casts DOWN from the query point — starting at z=0 begins
+    # inside any terrain above datum and silently returns 0.
+    system.GetCollisionSystem().BindAll()
+    probe_z = float(meta["height_max_m"]) + 5.0
 
     rng = np.random.default_rng(0)
     half = 0.47 * float(meta["size_m"])
     pts = rng.uniform(-half, half, size=(samples, 2))
-    measured = np.array([terrain.GetHeight(chrono.ChVector3d(x, y, 0.0)) for x, y in pts])
+    measured = np.array([terrain.GetHeight(chrono.ChVector3d(x, y, probe_z)) for x, y in pts])
 
     raw = np.asarray(Image.open(arena_dir / meta["bmp"]).convert("L"), dtype=np.float64)
     results = []
