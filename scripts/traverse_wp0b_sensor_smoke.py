@@ -170,7 +170,7 @@ def main() -> int:
                 d_meas = float(np.nanmin(depth[max(0, iv - 1):iv + 2, max(0, iu - 1):iu + 2]))
                 d_pred = math.sqrt(x * x + y * y + (cam.cam_height_m - z) ** 2)
                 r_px = math.hypot(u - cam.cx, v - cam.cy)
-                depth_cal.append((r_px, d_meas, d_pred))
+                depth_cal.append((r_px, d_meas, d_pred, iu, iv))
             if draw:
                 draw.line([(u - 3, v), (u + 3, v)], fill=(0, 255, 255))
                 draw.line([(u, v - 3), (u, v + 3)], fill=(0, 255, 255))
@@ -193,9 +193,16 @@ def main() -> int:
             print(f"  signed err vs terrain height: slope {a:+.3f} intercept {b:+.3f} m", flush=True)
             c, d = np.polyfit(r, signed, 1)
             print(f"  signed err vs pixel radius: slope {c * 100:+.3f} m/100px intercept {d:+.3f} m", flush=True)
-            for r_px, d_meas, d_pred in sorted(depth_cal):
-                print(f"  depth-cal r={r_px:6.1f}px meas={d_meas:8.3f} pred={d_pred:8.3f} "
-                      f"ratio={d_meas / d_pred:.4f}", flush=True)
+            for r_px, d_meas, d_pred, iu, iv in sorted(depth_cal):
+                n = args.res - 1
+                mirrors = {
+                    "as-is": depth[iv, iu], "lr": depth[iv, n - iu],
+                    "ud": depth[n - iv, iu], "rot180": depth[n - iv, n - iu],
+                }
+                best = min(mirrors, key=lambda k: abs(float(mirrors[k]) - d_pred))
+                print(f"  depth-cal r={r_px:6.1f}px pred={d_pred:8.3f} " +
+                      " ".join(f"{k}={float(d):7.2f}" for k, d in mirrors.items()) +
+                      f"  best={best}", flush=True)
 
         # 2) depth -> elevation vs calibrated heightmap (terrain pixels only)
         row = {"layout": li}
