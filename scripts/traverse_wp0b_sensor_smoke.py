@@ -165,7 +165,7 @@ def main() -> int:
                 valid &= (wx - asset.x_m) ** 2 + (wy - asset.y_m) ** 2 > (asset.footprint_radius_m + 1.5) ** 2
             ref = scene.hmmwv.GetChassis().GetBody().GetFrameRefToAbs().GetPos()
             valid &= (wx - ref.x) ** 2 + (wy - ref.y) ** 2 > 5.0**2
-            err = np.abs(wz - tmap.height(wx[valid], wy[valid]))
+            err = np.abs(wz[valid] - tmap.height(wx[valid], wy[valid]))
             uu, vv = np.meshgrid(np.arange(args.res), np.arange(args.res))
             r = np.hypot(uu - cam.cx, vv - cam.cy)[valid]
             row[conv] = {
