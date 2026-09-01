@@ -49,18 +49,24 @@ class CameraModel:
         scale = self.f_px / (self.cam_height_m - z)
         return self.cx + scale * x, self.cy - scale * y
 
-    def pixel_rays(self) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """Per-pixel ray tangents (dx/dz-drop, dy/dz-drop) and 1/cos(theta)."""
+    def pixel_rays(self, ray_scale: float = 1.0) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """Per-pixel ray tangents (dx/dz-drop, dy/dz-drop) and 1/cos(theta).
+
+        ray_scale multiplies the tangents: the WP0b smoke fits it against the
+        calibrated heightmap because this Chrono build's ChDepthCamera casts
+        rays ~1.20x wider than the constructor HFOV implies (the RGB camera
+        honors the HFOV; ray_scale stays 1.0 for RGB geometry).
+        """
         u = np.arange(self.width, dtype=np.float64)
         v = np.arange(self.height, dtype=np.float64)
         uu, vv = np.meshgrid(u, v)
-        tx = (uu - self.cx) / self.f_px
-        ty = -(vv - self.cy) / self.f_px
+        tx = ray_scale * (uu - self.cx) / self.f_px
+        ty = ray_scale * -(vv - self.cy) / self.f_px
         sec = np.sqrt(1.0 + tx**2 + ty**2)
         return tx, ty, sec
 
     def depth_to_world(
-        self, depth: np.ndarray, convention: str = "ray"
+        self, depth: np.ndarray, convention: str = "ray", ray_scale: float = 1.0
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """Depth image -> per-pixel world (x, y, z) of the hit point.
 
@@ -69,7 +75,7 @@ class CameraModel:
         distance along the optical axis (z-drop).
         """
         depth = np.asarray(depth, np.float64)
-        tx, ty, sec = self.pixel_rays()
+        tx, ty, sec = self.pixel_rays(ray_scale)
         drop = depth / sec if convention == "ray" else depth
         z = self.cam_height_m - drop
         return tx * drop, ty * drop, z

@@ -116,7 +116,7 @@ def main() -> int:
     errors: dict[str, list[float]] = {"marker": [], "roof": [], "canopy": [], "rock": []}
     misses: dict[str, int] = {k: 0 for k in errors}
     offsets: dict[str, list[tuple[float, float]]] = {}
-    depth_cal: list[tuple[float, float, float]] = []
+    ray_scale = 1.0
     depth_stats: list[dict] = []
     fps_report = None
 
@@ -163,14 +163,6 @@ def main() -> int:
                 continue
             offsets.setdefault(kind, []).append((found[0] - u, found[1] - v))
             errors[kind].append(math.hypot(found[0] - u, found[1] - v))
-            # depth-value calibration against a known 3D point: measured depth
-            # at the blob vs GT ray distance, across image radii
-            if li == 0:
-                iu, iv = int(round(found[0])), int(round(found[1]))
-                d_meas = float(np.nanmin(depth[max(0, iv - 1):iv + 2, max(0, iu - 1):iu + 2]))
-                d_pred = math.sqrt(x * x + y * y + (cam.cam_height_m - z) ** 2)
-                r_px = math.hypot(u - cam.cx, v - cam.cy)
-                depth_cal.append((r_px, d_meas, d_pred, iu, iv))
             if draw:
                 draw.line([(u - 3, v), (u + 3, v)], fill=(0, 255, 255))
                 draw.line([(u, v - 3), (u, v + 3)], fill=(0, 255, 255))
@@ -178,37 +170,26 @@ def main() -> int:
         if overlay:
             overlay.resize((512, 512), Image.NEAREST).save(out_dir / "alignment_overlay.png")
 
-        # depth error structure: signed offset (datum shift?) and radial trend
+        # Fit the depth ray-correction scale on the first layout (plan §3.3):
+        # this Chrono build's ChDepthCamera casts rays wider than its HFOV arg.
         if li == 0:
-            wx, wy, wz = cam.depth_to_world(depth, convention="ray")
-            m = np.isfinite(depth) & (np.abs(wx) < 0.45 * tmap.size_m) & (np.abs(wy) < 0.45 * tmap.size_m)
-            signed = wz[m] - tmap.height(wx[m], wy[m])
-            uu, vv = np.meshgrid(np.arange(args.res), np.arange(args.res))
-            r = np.hypot(uu - cam.cx, vv - cam.cy)[m]
-            print(f"  depth signed err: median {np.median(signed):+.3f} m  "
-                  f"center(r<40px) {np.median(signed[r < 40]):+.3f}  "
-                  f"edge(r>100px) {np.median(signed[r > 100]):+.3f}", flush=True)
-            hgt = tmap.height(wx[m], wy[m])
-            a, b = np.polyfit(hgt, signed, 1)
-            print(f"  signed err vs terrain height: slope {a:+.3f} intercept {b:+.3f} m", flush=True)
-            c, d = np.polyfit(r, signed, 1)
-            print(f"  signed err vs pixel radius: slope {c * 100:+.3f} m/100px intercept {d:+.3f} m", flush=True)
-            for r_px, d_meas, d_pred, iu, iv in sorted(depth_cal):
-                n = args.res - 1
-                mirrors = {
-                    "as-is": depth[iv, iu], "lr": depth[iv, n - iu],
-                    "ud": depth[n - iv, iu], "rot180": depth[n - iv, n - iu],
-                }
-                best = min(mirrors, key=lambda k: abs(float(mirrors[k]) - d_pred))
-                print(f"  depth-cal r={r_px:6.1f}px pred={d_pred:8.3f} " +
-                      " ".join(f"{k}={float(d):7.2f}" for k, d in mirrors.items()) +
-                      f"  best={best}", flush=True)
+            def med_err(scale: float) -> float:
+                wx, wy, wz = cam.depth_to_world(depth, convention="ray", ray_scale=scale)
+                m = (depth < 0.98 * 250.0) & (np.abs(wx) < 0.45 * tmap.size_m) & (np.abs(wy) < 0.45 * tmap.size_m)
+                return float(np.median(np.abs(wz[m] - tmap.height(wx[m], wy[m]))))
+
+            coarse = np.arange(0.95, 1.35, 0.05)
+            best = float(coarse[int(np.argmin([med_err(a) for a in coarse]))])
+            fine = np.arange(best - 0.05, best + 0.05, 0.002)
+            ray_scale = float(fine[int(np.argmin([med_err(a) for a in fine]))])
+            print(f"  fitted depth ray_scale = {ray_scale:.3f} "
+                  f"(median terrain err {med_err(ray_scale) * 1000:.1f} mm)", flush=True)
 
         # 2) depth -> elevation vs calibrated heightmap (terrain pixels only)
         row = {"layout": li}
         for conv in ("ray", "planar"):
-            wx, wy, wz = cam.depth_to_world(depth, convention=conv)
-            valid = np.isfinite(depth) & (np.abs(wx) < 0.47 * tmap.size_m) & (np.abs(wy) < 0.47 * tmap.size_m)
+            wx, wy, wz = cam.depth_to_world(depth, convention=conv, ray_scale=ray_scale)
+            valid = (depth < 0.98 * 250.0) & (np.abs(wx) < 0.47 * tmap.size_m) & (np.abs(wy) < 0.47 * tmap.size_m)
             for asset in layout.assets:  # exclude asset + vehicle pixels
                 valid &= (wx - asset.x_m) ** 2 + (wy - asset.y_m) ** 2 > (asset.footprint_radius_m + 1.5) ** 2
             ref = scene.hmmwv.GetChassis().GetBody().GetFrameRefToAbs().GetPos()
@@ -271,6 +252,7 @@ def main() -> int:
             "pass_2px_4px": bool(np.median(all_err) <= 2.0 and np.percentile(all_err, 95) <= 4.0),
         },
         "depth_convention_winner": winner,
+        "depth_ray_scale": ray_scale,
         "depth_median_all_m": {"ray": ray_med, "planar": planar_med},
         "depth_edge_m": {
             conv: {
