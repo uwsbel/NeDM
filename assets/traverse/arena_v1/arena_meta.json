@@ -9,8 +9,12 @@
   "bmp": "arena_000.bmp",
   "orientation": {
     "rot90": 0,
-    "flipud": false,
-    "calibrated": false
+    "flipud": true,
+    "calibrated": true,
+    "rmse_m": 0.008120992072417996,
+    "median_abs_m": 0.005373480689913723,
+    "runner_up_rmse_m": 0.817868874775216,
+    "samples": 400
   },
   "features": [
     {
