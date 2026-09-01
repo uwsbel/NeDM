@@ -53,7 +53,7 @@ PROBE_LIGHT_ELEVATION_DEG = 80.0  # near-zenith: measure geometry, not shading
 # Detection references are RENDERED colors under the probe light (measured by
 # this script's MISS diagnostics), not the material diffuse colors.
 DETECT_RGB = {
-    "marker": (255, 170, 60),
+    "marker": (60, 90, 255),
     "roof": (255, 90, 80),
     "canopy": (45, 130, 50),
     "rock": (135, 128, 120),
@@ -116,6 +116,7 @@ def main() -> int:
     errors: dict[str, list[float]] = {"marker": [], "roof": [], "canopy": [], "rock": []}
     misses: dict[str, int] = {k: 0 for k in errors}
     offsets: dict[str, list[tuple[float, float]]] = {}
+    depth_cal: list[tuple[float, float, float]] = []
     depth_stats: list[dict] = []
     fps_report = None
 
@@ -157,11 +158,19 @@ def main() -> int:
                 misses[kind] += 1
                 iu, iv = int(round(u)), int(round(v))
                 patch = rgb[max(0, iv - 2):iv + 3, max(0, iu - 2):iu + 3].reshape(-1, 3)
-                print(f"  MISS {kind} at ({u:.1f},{v:.1f}) expected {tuple(int(255*c) for c in ref)} "
+                print(f"  MISS {kind} at ({u:.1f},{v:.1f}) expected {ref} "
                       f"rendered mean {patch.mean(axis=0).round(0)}", flush=True)
                 continue
             offsets.setdefault(kind, []).append((found[0] - u, found[1] - v))
             errors[kind].append(math.hypot(found[0] - u, found[1] - v))
+            # depth-value calibration against a known 3D point: measured depth
+            # at the blob vs GT ray distance, across image radii
+            if li == 0:
+                iu, iv = int(round(found[0])), int(round(found[1]))
+                d_meas = float(np.nanmin(depth[max(0, iv - 1):iv + 2, max(0, iu - 1):iu + 2]))
+                d_pred = math.sqrt(x * x + y * y + (cam.cam_height_m - z) ** 2)
+                r_px = math.hypot(u - cam.cx, v - cam.cy)
+                depth_cal.append((r_px, d_meas, d_pred))
             if draw:
                 draw.line([(u - 3, v), (u + 3, v)], fill=(0, 255, 255))
                 draw.line([(u, v - 3), (u, v + 3)], fill=(0, 255, 255))
@@ -184,6 +193,9 @@ def main() -> int:
             print(f"  signed err vs terrain height: slope {a:+.3f} intercept {b:+.3f} m", flush=True)
             c, d = np.polyfit(r, signed, 1)
             print(f"  signed err vs pixel radius: slope {c * 100:+.3f} m/100px intercept {d:+.3f} m", flush=True)
+            for r_px, d_meas, d_pred in sorted(depth_cal):
+                print(f"  depth-cal r={r_px:6.1f}px meas={d_meas:8.3f} pred={d_pred:8.3f} "
+                      f"ratio={d_meas / d_pred:.4f}", flush=True)
 
         # 2) depth -> elevation vs calibrated heightmap (terrain pixels only)
         row = {"layout": li}
