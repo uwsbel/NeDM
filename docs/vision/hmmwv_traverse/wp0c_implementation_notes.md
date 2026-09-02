@@ -79,11 +79,24 @@ boulder: ~10 s driving + ~10 s contact-load dynamics).
 
 ## Pilot tier
 
-Launched 2026-09-02 (newton): 200 episodes × 20 s, seeds 20261000+ (disjoint
-from smoke), 3 procs, ~7 h, expected ~0.9 GB. Route-generation fallback to
-oracle measured on pilot seeds: ~5% spline, ~50% near-obstacle (hilly arena +
-slope/heading constraints; the meander families keep contact volume up).
-`traverse_collect --indices` can re-run individual episodes into the store.
+Completed 2026-09-02 (newton): **200/200 episodes complete, 0 abnormal**,
+80k frames, 873 MB disk (28.9× vs 25 GB raw), 6.5 h wall at 3 procs
+(p50 351 s / p95 414 s per episode). Seeds 20261000+ (disjoint from smoke).
+Mirrored locally at `artifacts/traverse/pilot_v1` (WP1 training input).
+
+- Families (actual): 112 spline / 40 meander / 20 oracle / 10 near_obstacle
+  / 18 oracle_fallback (8 spline ≈ 6.7%, 10 near_obstacle = 50% — matching
+  the pre-launch forecast; hilly arena + slope/heading constraints).
+- Near-obstacle honesty check: of the 10 contact-intended slots, 4 fell back
+  and **all 6 that generated recorded contact** (45–122 kN sideswipes); of
+  the 10 clear-pass slots, 6 fell back and **all 4 that generated passed at
+  0 N**. No false grazes, no missed intents among generated routes.
+- Contact overall: 33 episodes (25 meander / 6 near_obstacle / 2 spline),
+  peaks 8–153 kN, p50 73 kN. Spline/oracle families are contact-free except
+  two splines — random routes legitimately brushing obstacles under HULLS.
+- Full-store loader bench (`storage_bench.json`): 551 windows/s warm
+  (1.38 GiB/s raw-equivalent), 344 windows/s cold — same class as the smoke
+  store; scale to 200 episodes costs nothing.
 
 ## Still owed for G0b
 
