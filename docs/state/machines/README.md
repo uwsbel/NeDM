@@ -8,11 +8,12 @@ interpreter.
 | File | Machine | Role |
 |---|---|---|
 | [`kyle-sbel.md`](kyle-sbel.md) | Kyle's box, RTX 3090 | **Everything.** Dev, docs, training, analysis, manuscript builds |
-| [`kyle-N7-B650E.md`](kyle-N7-B650E.md) | RTX 5070 Ti, 32 cores | Reachable since 2026-09-02, **not yet provisioned**: no repo, no verified interpreter |
+| [`kyle-N7-B650E.md`](kyle-N7-B650E.md) | RTX 5070 Ti, 32 cores | Compute. Provisioned 2026-09-02: repo, pychrono, CUDA. No `git-lfs` |
 
-That is the whole list as of 2026-09-02. `kyle-sbel` is still the only box that
-can run anything today; `kyle-N7-B650E` has hardware and access and nothing
-else. Anything needing a box outside this table is blocked until access exists.
+That is the whole list as of 2026-09-02. Both boxes can run work; neither has
+`git-lfs`, so on both, everything under `artifacts/` is a pointer stub rather
+than weights. Anything needing a box outside this table is blocked until access
+exists.
 
 Two files cover the fleet rather than any single box:
 [`remote-control.md`](remote-control.md) for how the boxes are reached and what

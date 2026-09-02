@@ -1,28 +1,27 @@
 # kyle-N7-B650E
 
 **Verified:** 2026-09-02 · **Owner:** Kyle · **Role:** Second compute box.
-Reachable, **not yet provisioned** for this project.
+Provisioned except for `git-lfs`.
 
 | | |
 |---|---|
 | GPU | NVIDIA RTX 5070 Ti, 16 GB |
 | CPU / RAM | 32 threads / 60 GB (55 GB available) |
 | Disk (free) | 906 G total, **369 G free** (58% used, `/dev/nvme0n1p5`) |
-| Repo path | **none yet**. NeDM is not checked out on this box |
-| Interpreter | **unverified**. conda is present (`base` active); no pychrono env confirmed |
+| Repo path | `/home/kyle/sbel/NeDM`, branch `kyle/locomotion` at `272fcfa` |
+| Interpreter | `/home/kyle/miniconda3/envs/chrono312/bin/python` (pychrono OK, torch 2.10.0.dev20251114+**cu130**, `cuda True`). `envs/chrono` (3.10.16) is equivalent |
 | Reachable from | the coordinator Mac, as `dorm-pc`, via [Remote Control](remote-control.md) |
 | OS | Linux 6.17.0-20-generic |
 
-Everything above except the last two rows was measured on the box on 2026-09-02.
-The two blanks are real: this machine has hardware and access, and nothing else.
+All rows measured on the box on 2026-09-02.
 
 ## What this machine is for
 
-Nothing yet. It is documented because it is now **reachable**, which changes the
-planning assumption recorded in [`kyle-sbel.md`](kyle-sbel.md) and in
-`AGENT_CONTEXT.md` §3.
+Real work, with one caveat: `git-lfs` is missing, so every checkpoint is a
+pointer stub (gotcha 2). Fresh training and CPU-bound work are fine today;
+resuming from a checkpoint is not.
 
-Once provisioned, the split against [`kyle-sbel.md`](kyle-sbel.md) is:
+The split against [`kyle-sbel.md`](kyle-sbel.md):
 
 | | `kyle-sbel` | `kyle-N7-B650E` |
 |---|---|---|
@@ -35,10 +34,8 @@ So: VRAM-bound training and anything needing room for datasets stays on
 `kyle-sbel`. CPU-bound work, parallel builds, and Chrono state-only collection
 are the natural fit here, on twice the cores and twice the RAM.
 
-Before planning real work on it, someone must clone the repo, stand up a
-pychrono environment, verify `torch.cuda.is_available()` on Blackwell, and
-replace the two unverified rows above. Until then, treat any step that runs here
-as unproven rather than blocked.
+Note the torch builds differ by box and this is not incidental: `kyle-sbel`
+runs `2.6.0+cu124`, which does not cover this card. See gotcha 1.
 
 ## What it must not do
 
@@ -51,28 +48,34 @@ as unproven rather than blocked.
 
 ## Launch recipe
 
-Not yet established. When the repo lands, the portable form applies:
-
 ```bash
-export NEDM_ROOT=/home/kyle/<path once cloned>
-export NEDM_PY=<pychrono+torch interpreter once built>
+export NEDM_ROOT=/home/kyle/sbel/NeDM
+export NEDM_PY=/home/kyle/miniconda3/envs/chrono312/bin/python
 export PYTHONPATH=$NEDM_ROOT/src
 ```
 
-The `claude-rc` unit currently runs with `WorkingDirectory=/home/kyle/sbel`,
-which exists but is **empty and not a git repo**. Pointing it at the NeDM
-checkout once one exists would be an improvement, and would enable the diff pane
-on connected devices.
+Use the absolute interpreter path. **`conda` is not on `PATH` in a
+non-interactive shell** on this box, so anything relying on `conda activate`
+fails under the `claude-rc` unit, which runs non-interactively. Only
+`/usr/bin/python3` is on the default `PATH`, and it has no pychrono.
 
 ## Gotchas
 
-1. **The RTX 5070 Ti is Blackwell.** Do not assume the torch build that works on
-   `kyle-sbel`'s RTX 3090 works here. `torch 2.6.0+cu124` may need a newer CUDA
-   or a nightly wheel for `sm_120`. Verify before budgeting any run.
-2. **16 GB VRAM, not 24.** Batch sizes and model configs tuned on `kyle-sbel`
+1. **The RTX 5070 Ti is Blackwell, so it needs a cu130 build.** This is solved
+   here, not outstanding: the `chrono` and `chrono312` envs run
+   `torch 2.10.0.dev20251114+cu130` and report `cuda True`. Do not "fix" them
+   toward `kyle-sbel`'s `2.6.0+cu124`, which does not cover `sm_120`. The two
+   boxes legitimately run different torch builds.
+2. **`git-lfs` is not installed.** All 106 `.pt`/`.pth` files under `artifacts/`
+   are 132-byte pointer stubs, 14,020 bytes for the lot. The failure mode is
+   nasty: loading one raises an *unpickling* error, not a missing-file error.
+   Same gotcha as `kyle-sbel`, same fix, and installing it needs Kyle since
+   agents here cannot install software ([`remote-control.md`](remote-control.md)).
+3. **16 GB VRAM, not 24.** Batch sizes and model configs tuned on `kyle-sbel`
    will not transfer unchanged.
-3. **This box is on a different network from `kyle-sbel`** and reaches it only
-   over a public relay. See [`file-sync.md`](file-sync.md).
-4. `~/sbel` on this machine is empty and unrelated to
-   `/home/kyle/Documents/sbel` on `kyle-sbel`, despite the similar name. Do not
-   assume they are two copies of one thing.
+4. **This box is on a different network from `kyle-sbel`** and reaches it only
+   over a public relay, confirmed from both ends. See
+   [`file-sync.md`](file-sync.md).
+5. `~/sbel` here holds this box's NeDM checkout and is unrelated to
+   `/home/kyle/Documents/sbel` on `kyle-sbel`, despite the similar name. They
+   are separate clones, not two views of one thing.

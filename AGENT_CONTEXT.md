@@ -85,10 +85,11 @@ These are load-bearing. Violating them silently produces wrong results.
    validation loss** (`checkpoint_metric: rollout_sel`). The file is still named
    `best_val.pt` but it is the rollout-selected epoch. The two metrics rank
    checkpoints differently.
-2. **Two machines are reachable; only one is provisioned.** `kyle-sbel` runs
-   things today. `kyle-N7-B650E` has access and hardware but no repo checkout
-   and no verified interpreter, so a step that runs there is *unproven*, not
-   merely scheduled. The project convention is that collection runs on `newton`
+2. **Two machines are reachable and both are provisioned.** `kyle-sbel` and
+   `kyle-N7-B650E` both have the repo, pychrono, and working CUDA, on different
+   torch builds by necessity (the 5070 Ti is Blackwell and needs cu130). Neither
+   has `git-lfs`, so on both, every checkpoint under `artifacts/` is a pointer
+   stub and loading one fails as an *unpickling* error. The project convention is that collection runs on `newton`
    (GPU rendering) or Euler (state-only), but **neither is reachable** — see
    [`docs/state/machines/reference/`](docs/state/machines/reference/). Do not
    plan a step that runs on a box outside
