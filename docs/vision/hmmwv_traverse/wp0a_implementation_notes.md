@@ -74,3 +74,20 @@ vacuously true. Physical non-contact remains plausible (2 m plan inflation,
 0.88 m max cross-track), but the gate must be re-run with
 `vehicle.chassis_collision = "HULLS"` (now the traversal default) to make
 G0a's no-collision claim real. See wp0c_implementation_notes.md finding 5.
+
+**Re-run under HULLS (2026-09-02): G0a PASSES for real.** Two batches on
+the same 100 seeds (4.4 min each on newton after the narrowphase fix, vs
+the ~50 min pre-fix forecast):
+
+- v3, interim `tracker_p95_margin_m = 0.6`: 100/100 reach the approach
+  pose, but **one episode (seed 20260911) grazes an asset at 10.4 kN** —
+  with its own cross-track max only 0.55 m. The planar margin misses
+  roll/pitch-induced hull excursion; batch cross-track p99 is 0.76 m,
+  max 0.85 m, so 0.6 was undersized on both counts.
+- v3 with `tracker_p95_margin_m = 0.9`: **100/100 success, zero contact
+  episodes, max contact 0.0 N**, layout resamples 36/100 (vs 33 at 0.6 —
+  the tighter corridors cost almost nothing). Committed as the new
+  default; still to be replaced by a measured held-out p95 at G6.
+
+Gate artifacts: `artifacts/traverse/wp0a_gate_v3_hulls/` (0.6, fail) and
+`wp0a_gate_v3_m090/` (0.9, pass) on newton.

@@ -43,7 +43,12 @@ class PlannerParams:
     # assets (hull half-width 1.1 + gate cross-track up to 0.88 ≈ 2.0);
     # replace with the measured held-out p95 at G6.
     inflation_m: float = 2.0
-    tracker_p95_margin_m: float = 0.6
+    # 0.6 was not enough under HULLS: gate v3 batch cross-track reaches
+    # 0.85 m (p99 0.76) and one episode grazed at 10.4 kN despite staying
+    # inside 0.55 m — roll/pitch swings the hull beyond its planar
+    # half-width. 0.9 gives a clean 100/100 zero-contact pass with the
+    # layout-resample rate essentially unchanged (33 -> 36 per 100).
+    tracker_p95_margin_m: float = 0.9
     # Search-time slope caps (tan). Validation uses slightly looser caps so
     # smoothing across a cell corner is not brittle.
     slope_along_cap: float = math.tan(math.radians(20.0))

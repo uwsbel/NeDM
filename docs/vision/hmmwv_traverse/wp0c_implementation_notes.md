@@ -124,14 +124,24 @@ contacts never carried force, they only burned narrowphase time.
 | full tier forecast (3 procs) | ~33 h | **~2.2 h** |
 
 The pilot store needs no recollection — its contents are identical to what
-the fast path produces. Local note: `pychrono.sensor` aborts at OptiX init
-on the 5090 (driver 610); physics-only profiling works locally, rendered
-runs stay on newton.
+the fast path produces.
+
+Local `pychrono.sensor` crash, diagnosed with a standalone
+`optixModuleCreate` probe: driver 610.43.02's shader JIT (gpucomp)
+**aborts compiling `material_shaders.ptx` for sm_120 at optimization
+levels O1–O3; O0 compiles, and all 11 other chrono shaders compile at
+default opt** — a driver optimizer bug, not a version mismatch. The PTX
+(CUDA 12.8) and `libChrono_sensor.so` (chrono-wisc 10.0.0, OptiX SDK
+9.1.0) are bit-identical to newton's, where driver 595.84 (RTX 4090)
+compiles everything. Fixes: downgrade the local driver to a proven 58x/59x
+branch (CUDA 13 torch needs ≥R580, so 595.x keeps training intact), or
+rebuild chrono_sensor forcing O0 for that module. Until then: physics-only
+profiling local, rendered runs on newton.
 
 ## Still owed for G0b
 
-- Re-run the G0a gate under HULLS (CPU-only, ~50 min at 12 procs) so the
-  no-collision claim is non-vacuous.
+- ~~Re-run the G0a gate under HULLS~~ — done 2026-09-02, real pass at
+  `tracker_p95_margin_m = 0.9` (see wp0a notes addendum).
 - Analytic class-mask rasterizer + one-shot `ChSegmentationCamera` validation
   (masks stay derivable-on-demand from the layout manifests in `meta.json` —
   §6.3 stores manifests, not masks).
