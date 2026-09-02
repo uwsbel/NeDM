@@ -29,6 +29,7 @@ from nedm.traverse.oracle import (
     _resample,
     _segment_valid,
     speed_profile,
+    validate_candidate,
 )
 from nedm.traverse.terrain import TerrainMap
 
@@ -84,9 +85,13 @@ def random_spline_route(
     grid = OracleGrid(tmap, layout.obstacles(), params)
     bound = params.arena_keep_within_m - 4.0
 
-    for _ in range(30):
+    for attempt in range(80):
         pts = [np.asarray(layout.start_xy, dtype=np.float64)]
-        heading = float(layout.start_yaw) + float(rng.uniform(-0.5, 0.5))
+        # Early attempts leave the spawn roughly along the spawn heading; if
+        # that direction is cluttered every retry fails the same way, so later
+        # attempts fan out (±57° stays trackable over a 12+ m first leg).
+        spread = 0.5 if attempt < 30 else 1.0
+        heading = float(layout.start_yaw) + float(rng.uniform(-spread, spread))
         for _leg in range(int(rng.integers(4, 7))):
             placed = False
             for _try in range(80):
@@ -110,8 +115,15 @@ def random_spline_route(
             continue
         points = _chaikin(points, params.chaikin_iterations)
         points = _resample(points, params.sample_step_m)
-        points = _repair_curvature(points, params)
+        points = _repair_curvature(points, replace(params, curvature_repair_iterations=30))
         if float(np.hypot(*np.diff(points, axis=0).T).sum()) < min_length_m:
+            continue
+        # Chaikin/repair pull corners INSIDE the validated legs (smoke run 4:
+        # a smoothed spline grazed a rock at 10.8 kN) — re-validate like the
+        # oracle pipeline does. Slope caps are skipped on purpose: slope
+        # diversity is collection signal, not a safety constraint here.
+        checks = validate_candidate(grid, points, params)
+        if not (checks["clearance_ok"] and checks["in_bounds"] and checks["kappa_ok"]):
             continue
         route_params = replace(params, v_cruise_mps=float(rng.uniform(3.0, 8.0)))
         route = _finish_route(points, grid, route_params, {"family": "spline"})
@@ -147,7 +159,7 @@ def near_obstacle_route(
     # the start->target distance, and the pass must land inside the episode.
     targets.sort(key=lambda a: math.hypot(a.x_m - start[0], a.y_m - start[1]))
 
-    for asset in targets[:6]:
+    for asset in targets[:8]:
         center = np.array([asset.x_m, asset.y_m])
         if not (10.0 < float(np.hypot(*(center - start))) < 35.0):
             continue
@@ -159,22 +171,34 @@ def near_obstacle_route(
         # head-on crash that pins the vehicle (WP0c smoke run 3: 118 kN,
         # stuck 15 s at 0.4 m/s).
         physical_r = 0.5 * asset.dims["edge_m"] if asset.kind == "rock" else asset.dims["trunk_radius_m"]
-        if contact_intended:  # sideswipe: 0.25–0.55 m hull overlap
-            offset = float(rng.uniform(VEHICLE_HALF_WIDTH_M - 0.55, VEHICLE_HALF_WIDTH_M - 0.25))
+        if contact_intended:  # sideswipe: 0.35–0.65 m hull overlap (tracker eats ~0.3)
+            offset = float(rng.uniform(VEHICLE_HALF_WIDTH_M - 0.65, VEHICLE_HALF_WIDTH_M - 0.35))
         else:  # clear pass: hull edge misses by 0.7–1.7 m
             offset = float(rng.uniform(VEHICLE_HALF_WIDTH_M + 0.7, VEHICLE_HALF_WIDTH_M + 1.7))
         others = [o for o in layout.obstacles() if math.hypot(o[0] - asset.x_m, o[1] - asset.y_m) > 0.1]
         grid = OracleGrid(tmap, others, params)
-        for _try in range(40):
+        for _try in range(60):
             normal_ang = float(rng.uniform(0.0, 2.0 * math.pi))
             n_hat = np.array([math.cos(normal_ang), math.sin(normal_ang)])
             t_hat = np.array([-n_hat[1], n_hat[0]]) * float(rng.choice([-1.0, 1.0]))
             pass_pt = center + (physical_r + offset) * n_hat
-            pre = pass_pt - 9.0 * t_hat
+            pre = pass_pt - 12.0 * t_hat
             post = pass_pt + 12.0 * t_hat
             far = pass_pt + 24.0 * t_hat
             legs = np.array([start, pre, pass_pt, post, far])
             if np.abs(legs).max() > params.arena_keep_within_m - 3.0:
+                continue
+            # The follower can't do U-turns onto the pass line (8 m min turn
+            # radius; smoke run 4 missed its target by 6 m this way): the
+            # first leg must roughly agree with the spawn heading, and the
+            # pass direction with the first leg.
+            leg1 = math.atan2(pre[1] - start[1], pre[0] - start[0])
+            pass_dir = math.atan2(t_hat[1], t_hat[0])
+            if abs(math.remainder(leg1 - layout.start_yaw, 2.0 * math.pi)) > math.radians(60.0):
+                continue
+            if abs(math.remainder(pass_dir - leg1, 2.0 * math.pi)) > math.radians(75.0):
+                continue
+            if float(np.hypot(*(pre - start))) < 6.0:
                 continue
             if not (_segment_valid(grid, start, pre) and _segment_valid(grid, post, far)):
                 continue

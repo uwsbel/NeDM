@@ -149,7 +149,15 @@ def run_one(task: dict) -> dict:
             inputs = manual
         else:
             wp_idx = nearest_index(plan.waypoints, pos, wp_idx)
-            driver.SetDesiredSpeed(0.0 if frame < 0 else float(plan.speeds[wp_idx]))
+            # Park at the route end: the follower otherwise creeps past the
+            # final waypoint at terminal speed for the rest of the episode
+            # (WP0c smoke: an oracle episode backed into a tree at t=18 s).
+            at_end = (
+                wp_idx >= len(plan.waypoints) - 2
+                and float(np.hypot(*(pos - plan.waypoints[-1]))) < 3.0
+            )
+            v_cmd = 0.0 if (frame < 0 or at_end) else float(plan.speeds[wp_idx])
+            driver.SetDesiredSpeed(v_cmd)
 
         # --- physics substeps (gate-validated loop: sync + rate limit per substep) ---
         frame_contact = 0.0
