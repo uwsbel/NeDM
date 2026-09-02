@@ -3,6 +3,10 @@
 Code and artifacts for *Learning the Right Abstraction: Neural Reduced Dynamics
 for Complex Robot Control* (Zhang and Negrut).
 
+**Working with an AI agent? Start with [`AGENT_CONTEXT.md`](AGENT_CONTEXT.md)** —
+the orientation doc and the index into [`docs/state/`](docs/state/), which tracks
+current progress, lessons learned, checkpoints, datasets, and per-machine setup.
+
 **Project page: <https://uwsbel.github.io/NeDM/>** — figures, and the nine
 side-by-side Chrono rollouts behind the Study Case I result. Its source is
 [`web/`](web/README.md).
