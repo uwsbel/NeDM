@@ -58,14 +58,26 @@ def _finish_route(
     return PlanCandidate(waypoints=points, speeds=speeds, headings=headings, stations=stations, meta=meta)
 
 
+def _time_to_index(route: PlanCandidate, idx: int) -> float:
+    """Speed-profile travel time from the start to waypoint ``idx``."""
+    seg = np.diff(route.stations[: idx + 1])
+    v_mid = np.maximum(0.5 * (route.speeds[:idx] + route.speeds[1 : idx + 1]), 0.5)
+    return float(np.sum(seg / v_mid))
+
+
 def random_spline_route(
     tmap: TerrainMap,
     layout: EpisodeLayout,
     rng: np.random.Generator,
     params: PlannerParams | None = None,
     min_length_m: float = 45.0,
+    duration_s: float = 20.0,
 ) -> PlanCandidate | None:
-    """Random smooth free-space route from the spawn (60% family)."""
+    """Random smooth free-space route from the spawn (60% family).
+
+    Routes must outlive the episode (est duration >= ~1.05x) so the vehicle
+    never idles at a path endpoint inside the recorded window.
+    """
     params = params or PlannerParams()
     grid = OracleGrid(tmap, layout.obstacles(), params)
     bound = params.arena_keep_within_m - 4.0
@@ -100,7 +112,10 @@ def random_spline_route(
         if float(np.hypot(*np.diff(points, axis=0).T).sum()) < min_length_m:
             continue
         route_params = replace(params, v_cruise_mps=float(rng.uniform(3.0, 8.0)))
-        return _finish_route(points, grid, route_params, {"family": "spline"})
+        route = _finish_route(points, grid, route_params, {"family": "spline"})
+        if route.meta["est_duration_s"] < 1.05 * duration_s:
+            continue
+        return route
     return None
 
 
@@ -110,12 +125,16 @@ def near_obstacle_route(
     rng: np.random.Generator,
     contact_intended: bool,
     params: PlannerParams | None = None,
+    duration_s: float = 20.0,
 ) -> PlanCandidate | None:
     """Pass close by one asset (10% family, half with intended contact).
 
     The pass legs deliberately violate the planner's inflation margin, so only
     the approach leg from the spawn is clearance-checked (against the OTHER
-    assets); the pass segment keeps its geometry un-smoothed.
+    assets); the pass segment keeps its geometry un-smoothed. The pass point
+    must arrive within ~55% of the episode, or the recorded window ends before
+    the interesting part (smoke-v1 lesson: an 86 m route never reached its
+    target in 20 s).
     """
     params = params or PlannerParams()
     start = np.asarray(layout.start_xy, dtype=np.float64)
@@ -126,16 +145,20 @@ def near_obstacle_route(
 
     for asset in targets[:6]:
         center = np.array([asset.x_m, asset.y_m])
-        if not (12.0 < float(np.hypot(*(center - start))) < 55.0):
+        if not (12.0 < float(np.hypot(*(center - start))) < 40.0):
             continue
-        offset = float(rng.uniform(-0.25, 0.05)) if contact_intended else float(rng.uniform(0.6, 1.5))
+        # Aim relative to the PHYSICAL body, not the planner footprint (a
+        # rock's footprint radius is its circumscribed-corner radius and a
+        # tree's carries +0.4 m margin — grazing the footprint misses the box).
+        physical_r = 0.5 * asset.dims["edge_m"] if asset.kind == "rock" else asset.dims["trunk_radius_m"]
+        offset = float(rng.uniform(-0.2, 0.1)) if contact_intended else float(rng.uniform(1.5, 2.5))
         others = [o for o in layout.obstacles() if math.hypot(o[0] - asset.x_m, o[1] - asset.y_m) > 0.1]
         grid = OracleGrid(tmap, others, params)
         for _try in range(40):
             normal_ang = float(rng.uniform(0.0, 2.0 * math.pi))
             n_hat = np.array([math.cos(normal_ang), math.sin(normal_ang)])
             t_hat = np.array([-n_hat[1], n_hat[0]]) * float(rng.choice([-1.0, 1.0]))
-            pass_pt = center + (asset.footprint_radius_m + offset) * n_hat
+            pass_pt = center + (physical_r + offset) * n_hat
             pre = pass_pt - 14.0 * t_hat
             post = pass_pt + 14.0 * t_hat
             far = pass_pt + 26.0 * t_hat
@@ -146,15 +169,20 @@ def near_obstacle_route(
                 continue
             points = _resample(legs, params.sample_step_m)
             route_params = replace(params, v_cruise_mps=float(rng.uniform(2.5, 4.0)))
-            return _finish_route(
+            route = _finish_route(
                 points, grid, route_params,
                 {
                     "family": "near_obstacle",
                     "target_asset": asset.to_json(),
                     "pass_offset_m": offset,
+                    "physical_radius_m": physical_r,
                     "contact_intended": contact_intended,
                 },
             )
+            pass_idx = int(np.argmin(np.hypot(*(route.waypoints - pass_pt).T)))
+            if _time_to_index(route, pass_idx) > 0.55 * duration_s:
+                continue
+            return route
     return None
 
 
@@ -203,6 +231,7 @@ def build_driver_route(
     oracle_plan: PlanCandidate,
     rng: np.random.Generator,
     contact_intended: bool = False,
+    duration_s: float = 20.0,
 ) -> PlanCandidate | MeanderController | None:
     """Route (or controller) for one episode; None = generation failed
     (caller falls back to the always-available oracle route)."""
@@ -210,9 +239,9 @@ def build_driver_route(
         oracle_plan.meta["family"] = "oracle"
         return oracle_plan
     if family == "spline":
-        return random_spline_route(tmap, layout, rng)
+        return random_spline_route(tmap, layout, rng, duration_s=duration_s)
     if family == "near_obstacle":
-        return near_obstacle_route(tmap, layout, rng, contact_intended)
+        return near_obstacle_route(tmap, layout, rng, contact_intended, duration_s=duration_s)
     if family == "meander":
         return MeanderController(rng=rng)
     raise ValueError(f"unknown driver family: {family}")

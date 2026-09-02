@@ -9,7 +9,7 @@ description: Storage and compute division of labor for this 1TB / RTX 5090 works
 
 | Machine | GPU | Disk | Role |
 |---|---|---|---|
-| **This desktop** | RTX 5090, 32 GB | 1 TB total (~390 G free, 2026-09) | Training, eval, figures. **Never raw data collection.** |
+| **This desktop** | RTX 5090, 32 GB | 1 TB total (~700 G free, 2026-09-01 after cleanup) | Training, eval, figures. **Never raw data collection.** |
 | **newton** (`ssh newton`, repo at `~/NeDM`) | RTX 4090, 24 GB | 1.8 TB (~630 G free; `artifacts/` already 542 G) | Chrono data collection, including Chrono::Sensor RGB-D rendering. Home of the raw frame stores. |
 | **Euler cluster** | CPU array | cluster storage | State-only CPU-scale collection via SLURM arrays — see the `create-euler-script` skill. |
 
@@ -24,8 +24,9 @@ description: Storage and compute division of labor for this 1TB / RTX 5090 works
    manifests, model checkpoints, small eval summaries. Raw frame dumps,
    per-frame PNG dirs, uncompressed memmaps, and video archives stay on newton.
 3. **Check sizes before transferring.** `ssh newton "du -sh ~/NeDM/artifacts/<name>"`
-   and `df -h /` locally first. Keep local `artifacts/` well under ~200 G so
-   training runs and checkpoints have headroom.
+   and `df -h /` locally first. With ~700 G free (2026-09-01), local
+   `artifacts/` can hold up to ~400 G of training-ready stores; keep ≥250 G
+   headroom for checkpoints, caches, and system growth.
 4. **Transfer pattern:**
    ```bash
    rsync -avP newton:NeDM/artifacts/<name> /home/harry/NeDM/artifacts/

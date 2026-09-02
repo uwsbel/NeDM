@@ -72,7 +72,9 @@ def run_one(task: dict) -> dict:
 
     drv_rng = np.random.default_rng([seed, 77])
     contact_intended = family == "near_obstacle" and (idx // 10) % 2 == 0
-    route = build_driver_route(family, tmap, layout, oracle_plan, drv_rng, contact_intended)
+    route = build_driver_route(
+        family, tmap, layout, oracle_plan, drv_rng, contact_intended, duration_s=task["duration_s"]
+    )
     family_actual = family
     if route is None:  # generation failed; oracle route always exists
         route = oracle_plan
