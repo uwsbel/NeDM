@@ -3,7 +3,7 @@
 **Purpose.** Hand this file to any AI agent, on any machine, at the start of any
 session. It should be enough to orient without reading the codebase first.
 
-**Maintainer:** Kyle (`kasha2@wisc.edu`). **Branch:** `kyle/agent-context`.
+**Maintainer:** Kyle (`kasha2@wisc.edu`). **Branch:** `kyle/locomotion`.
 **Last verified:** 2026-09-02.
 
 Anything in this file that names a file, run, or number was true when written.

@@ -17,7 +17,7 @@
 | `main` | The published state-only paper: HMMWV, tracked vehicle + arm. No vision code |
 | `nrd_vision` | All vision work. 25 commits ahead of `main`, +43.7k lines, 322 files. Not merged |
 | `blender-render` | Rendering |
-| `kyle/agent-context` | Kyle's branch. This doc tree. Based on `nrd_vision` |
+| `kyle/locomotion` | Kyle's branch: this doc tree, and the quadruped locomotion case study. Based on `nrd_vision` |
 
 ## The one fact that reframes everything
 
