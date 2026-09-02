@@ -247,6 +247,11 @@ def main() -> int:
     parser.add_argument("--arena", default="assets/traverse/arena_v1")
     parser.add_argument("--tier", default="smoke", choices=["smoke", "pilot", "full"])
     parser.add_argument("--episodes", type=int, default=None, help="default: smoke 10 / pilot 200")
+    parser.add_argument(
+        "--indices", default=None,
+        help="comma-separated episode indices to (re-)collect into an existing store; "
+        "rows merge with episodes.jsonl and the manifest is rebuilt",
+    )
     parser.add_argument("--seed0", type=int, default=20260910)
     parser.add_argument("--duration-s", type=float, default=20.0)
     parser.add_argument("--res", type=int, default=256)
@@ -260,6 +265,7 @@ def main() -> int:
     out_dir = (REPO_ROOT / out).resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
 
+    indices = [int(s) for s in args.indices.split(",")] if args.indices else list(range(episodes))
     tasks = [
         {
             "index": i,
@@ -271,23 +277,33 @@ def main() -> int:
             "res": args.res,
             "chunk_frames": args.chunk_frames,
         }
-        for i in range(episodes)
+        for i in indices
     ]
 
     rows: list[dict] = []
     wall0 = time.time()
-    with get_context("spawn").Pool(args.procs) as pool:
+    with get_context("spawn").Pool(min(args.procs, len(tasks))) as pool:
         for row in pool.imap_unordered(run_one, tasks):
             rows.append(row)
             print(
-                f"[{len(rows):3d}/{episodes}] {row['episode_id']:>24s} {row['status']:>10s}  "
+                f"[{len(rows):3d}/{len(tasks)}] {row['episode_id']:>24s} {row['status']:>10s}  "
                 f"frames={row.get('frames', 0):3d}  disk={row.get('disk_mb', 0.0):6.1f} MB  "
                 f"ratio={row.get('ratio', 0.0):5.1f}x  contact={row.get('max_contact_n', 0.0):7.1f} N  "
                 f"wall={row['wall_s']:6.1f}s",
                 flush=True,
             )
-    rows.sort(key=lambda r: r["episode"])
-    with (out_dir / "episodes.jsonl").open("w", encoding="utf-8") as handle:
+    # Merge with any existing store (--indices repair mode replaces its rows).
+    by_index: dict[int, dict] = {}
+    episodes_path = out_dir / "episodes.jsonl"
+    if episodes_path.is_file():
+        with episodes_path.open("r", encoding="utf-8") as handle:
+            for line in handle:
+                old = json.loads(line)
+                by_index[old["episode"]] = old
+    for row in rows:
+        by_index[row["episode"]] = row
+    rows = [by_index[i] for i in sorted(by_index)]
+    with episodes_path.open("w", encoding="utf-8") as handle:
         for row in rows:
             handle.write(json.dumps(row) + "\n")
 

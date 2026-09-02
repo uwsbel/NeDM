@@ -132,7 +132,7 @@ def near_obstacle_route(
     The pass legs deliberately violate the planner's inflation margin, so only
     the approach leg from the spawn is clearance-checked (against the OTHER
     assets); the pass segment keeps its geometry un-smoothed. The pass point
-    must arrive within ~55% of the episode, or the recorded window ends before
+    must arrive within ~75% of the episode, or the recorded window ends before
     the interesting part (smoke-v1 lesson: an 86 m route never reached its
     target in 20 s).
     """
@@ -141,11 +141,13 @@ def near_obstacle_route(
     targets = [a for a in layout.assets if a.kind in ("rock", "tree")]
     if not targets:
         return None
-    rng.shuffle(targets)
+    # Closest targets first: at 2.5–4 m/s cruise, arrival time is dominated by
+    # the start->target distance, and the pass must land inside the episode.
+    targets.sort(key=lambda a: math.hypot(a.x_m - start[0], a.y_m - start[1]))
 
     for asset in targets[:6]:
         center = np.array([asset.x_m, asset.y_m])
-        if not (12.0 < float(np.hypot(*(center - start))) < 40.0):
+        if not (10.0 < float(np.hypot(*(center - start))) < 35.0):
             continue
         # Aim relative to the PHYSICAL body, not the planner footprint (a
         # rock's footprint radius is its circumscribed-corner radius and a
@@ -159,9 +161,9 @@ def near_obstacle_route(
             n_hat = np.array([math.cos(normal_ang), math.sin(normal_ang)])
             t_hat = np.array([-n_hat[1], n_hat[0]]) * float(rng.choice([-1.0, 1.0]))
             pass_pt = center + (physical_r + offset) * n_hat
-            pre = pass_pt - 14.0 * t_hat
-            post = pass_pt + 14.0 * t_hat
-            far = pass_pt + 26.0 * t_hat
+            pre = pass_pt - 9.0 * t_hat
+            post = pass_pt + 12.0 * t_hat
+            far = pass_pt + 24.0 * t_hat
             legs = np.array([start, pre, pass_pt, post, far])
             if np.abs(legs).max() > params.arena_keep_within_m - 3.0:
                 continue
@@ -180,7 +182,7 @@ def near_obstacle_route(
                 },
             )
             pass_idx = int(np.argmin(np.hypot(*(route.waypoints - pass_pt).T)))
-            if _time_to_index(route, pass_idx) > 0.55 * duration_s:
+            if _time_to_index(route, pass_idx) > 0.75 * duration_s:
                 continue
             return route
     return None
