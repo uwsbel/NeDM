@@ -120,10 +120,13 @@ def random_spline_route(
             continue
         # Chaikin/repair pull corners INSIDE the validated legs (smoke run 4:
         # a smoothed spline grazed a rock at 10.8 kN) — re-validate like the
-        # oracle pipeline does. Slope caps are skipped on purpose: slope
-        # diversity is collection signal, not a safety constraint here.
+        # oracle pipeline does, slope caps included (steep climbs at low
+        # commanded speed stall the vehicle, smoke run 5).
         checks = validate_candidate(grid, points, params)
-        if not (checks["clearance_ok"] and checks["in_bounds"] and checks["kappa_ok"]):
+        if not (
+            checks["clearance_ok"] and checks["in_bounds"]
+            and checks["kappa_ok"] and checks["slope_ok"]
+        ):
             continue
         route_params = replace(params, v_cruise_mps=float(rng.uniform(3.0, 8.0)))
         route = _finish_route(points, grid, route_params, {"family": "spline"})
@@ -203,7 +206,24 @@ def near_obstacle_route(
             if not (_segment_valid(grid, start, pre) and _segment_valid(grid, post, far)):
                 continue
             points = _resample(legs, params.sample_step_m)
-            route_params = replace(params, v_cruise_mps=float(rng.uniform(2.5, 4.0)))
+            # The pass legs skip clearance checks by design but must not skip
+            # slope checks: a 19.7 deg climb at this family's low cruise speed
+            # stalled the vehicle 4 m short of its target (smoke run 5). The
+            # tight cap covers only the pre->post pass section; the approach
+            # tolerates ordinary validated slopes.
+            gx_all, gy_all = tmap.gradient(points[:, 0], points[:, 1])
+            slope_all = np.hypot(gx_all, gy_all)
+            i_pre = int(np.argmin(np.hypot(*(points - pre).T)))
+            i_post = int(np.argmin(np.hypot(*(points - post).T)))
+            if float(slope_all[i_pre : i_post + 1].max()) > math.tan(math.radians(13.0)):
+                continue
+            if float(slope_all.max()) > math.tan(math.radians(19.0)):
+                continue
+            # v_min 3.0: the slope modulation floors commanded speed on steep
+            # approach ground, and 2.0 m/s was not enough momentum to climb.
+            route_params = replace(
+                params, v_cruise_mps=float(rng.uniform(3.5, 4.5)), v_min_mps=3.0
+            )
             route = _finish_route(
                 points, grid, route_params,
                 {

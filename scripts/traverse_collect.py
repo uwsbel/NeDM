@@ -166,8 +166,14 @@ def run_one(task: dict) -> dict:
             if driver is not None:
                 driver.Synchronize(ts)
                 inputs = driver.GetInputs()
-                max_d = STEER_RATE_PER_S * dt
-                prev_steer = min(max(float(inputs.m_steering), prev_steer - max_d), prev_steer + max_d)
+                if frame < 0:
+                    # Settle with wheels straight: with the brakes on, the
+                    # follower otherwise pre-winds to full lock whenever the
+                    # route starts off the spawn heading (wedge-launch risk).
+                    prev_steer = 0.0
+                else:
+                    max_d = STEER_RATE_PER_S * dt
+                    prev_steer = min(max(float(inputs.m_steering), prev_steer - max_d), prev_steer + max_d)
                 inputs.m_steering = prev_steer
             terrain.Synchronize(ts)
             hmmwv.Synchronize(ts, inputs, terrain)
