@@ -98,6 +98,36 @@ Mirrored locally at `artifacts/traverse/pilot_v1` (WP1 training input).
   (1.38 GiB/s raw-equivalent), 344 windows/s cold — same class as the smoke
   store; scale to 200 episodes costs nothing.
 
+## Post-pilot: the 17×-slower-than-real-time mystery (fixed, 15× speedup)
+
+The pilot ran at RTF 0.057 per worker (35 ms per 2 ms substep) — absurd for
+a stock HMMWV. Profiling with Chrono's step timers
+(`scripts/traverse_profile.py`) attributed **96% of the step to Bullet
+narrowphase between fixed bodies**: the 23 asset primitives sit embedded in
+the fixed 522k-triangle heightmap mesh, and every asset×terrain pair stays
+active every substep (42.1 of 43.8 ms). The suspects were all innocent:
+chassis HULLS vs terrain costs 0.9 ms, the solver 0.45 ms, rendering
+0.05 ms/substep amortized, contact polling 0.01 ms.
+
+Fix (`scene.py`): clear the terrain collision-family bit (RigidTerrain
+isolates its patch in family 14 for exactly this) from each asset's mask.
+Vehicle–asset and vehicle–terrain contact are untouched. Validated by
+re-collecting the smoke tier on the same seeds: **all per-episode stats
+bit-identical** (incl. 139,613.1 N / 54,480.5 N contact peaks) — fixed-fixed
+contacts never carried force, they only burned narrowphase time.
+
+| | before | after |
+|---|---|---|
+| per-worker RTF | 0.057 | **2.1** (newton, render+poll on) |
+| smoke tier wall (3 procs) | 21.7 min | **1.6 min** |
+| episode wall p50 | 361 s | **24 s** |
+| full tier forecast (3 procs) | ~33 h | **~2.2 h** |
+
+The pilot store needs no recollection — its contents are identical to what
+the fast path produces. Local note: `pychrono.sensor` aborts at OptiX init
+on the 5090 (driver 610); physics-only profiling works locally, rendered
+runs stay on newton.
+
 ## Still owed for G0b
 
 - Re-run the G0a gate under HULLS (CPU-only, ~50 min at 12 procs) so the
