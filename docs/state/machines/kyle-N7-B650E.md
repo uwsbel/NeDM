@@ -8,7 +8,7 @@ Provisioned except for `git-lfs`.
 | GPU | NVIDIA RTX 5070 Ti, 16 GB |
 | CPU / RAM | 32 threads / 60 GB (55 GB available) |
 | Disk (free) | 906 G total, **369 G free** (58% used, `/dev/nvme0n1p5`) |
-| Repo path | `/home/kyle/sbel/NeDM`, branch `kyle/locomotion` at `272fcfa` |
+| Repo path | `/home/kyle/sbel/NeDM`, branch `kyle/locomotion` |
 | Interpreter | `/home/kyle/miniconda3/envs/chrono312/bin/python` (pychrono OK, torch 2.10.0.dev20251114+**cu130**, `cuda True`). `envs/chrono` (3.10.16) is equivalent |
 | Reachable from | the coordinator Mac, as `dorm-pc`, via [Remote Control](remote-control.md) |
 | OS | Linux 6.17.0-20-generic |
