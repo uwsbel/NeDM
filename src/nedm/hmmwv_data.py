@@ -311,6 +311,19 @@ def create_hmmwv(config: dict[str, Any]) -> Any:
     hmmwv.SetSteeringType(STEERING_TYPES[vehicle_cfg["steering_type"]])
     hmmwv.SetTireType(TIRE_MODELS[vehicle_cfg["tire_model"]])
     hmmwv.SetTireStepSize(config["simulation"]["tire_step_size_s"])
+    # Chrono's default is CollisionType_NONE: the chassis has no collision
+    # shapes and TMEASY tires only query the terrain, so the vehicle cannot
+    # touch rigid obstacles at all. Config-driven so legacy flat/heightmap
+    # datasets (no obstacles) keep bit-identical physics.
+    chassis_collision = str(vehicle_cfg.get("chassis_collision", "NONE"))
+    hmmwv.SetChassisCollisionType(
+        {
+            "NONE": veh.CollisionType_NONE,
+            "PRIMITIVES": veh.CollisionType_PRIMITIVES,
+            "HULLS": veh.CollisionType_HULLS,
+            "MESH": veh.CollisionType_MESH,
+        }[chassis_collision]
+    )
     hmmwv.Initialize()
 
     hmmwv.SetChassisVisualizationType(chrono.VisualizationType_NONE)

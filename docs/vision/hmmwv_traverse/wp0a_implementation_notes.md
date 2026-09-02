@@ -64,3 +64,13 @@ cross-track 0.05 m mean / 0.28 m max, zero contact.
 
 - `LayoutParams` samples 6–10 rocks and 8–14 trees; plan §3.2 says rocks
   8–15, trees 5–10.
+
+## Addendum (2026-09-02, from WP0c)
+
+The "zero asset contact" result above was measured with the vehicle's chassis
+collision type at Chrono's default `NONE` (and TMEASY tires never contact
+rigid bodies), so the contact channel could not have fired: the claim was
+vacuously true. Physical non-contact remains plausible (2 m plan inflation,
+0.88 m max cross-track), but the gate must be re-run with
+`vehicle.chassis_collision = "HULLS"` (now the traversal default) to make
+G0a's no-collision claim real. See wp0c_implementation_notes.md finding 5.

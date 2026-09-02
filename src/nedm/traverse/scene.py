@@ -87,6 +87,10 @@ def build_config(
             "drive_type": "AWD",
             "steering_type": "PITMAN_ARM",
             "tire_model": "TMEASY",
+            # The traversal arena has rigid obstacles; without chassis hulls
+            # the vehicle is a ghost to them (WP0c finding: a deliberate graze
+            # at 0.62 m center-to-center recorded 0 N).
+            "chassis_collision": "HULLS",
         },
         "terrain": {
             "type": "rigid_heightmap",

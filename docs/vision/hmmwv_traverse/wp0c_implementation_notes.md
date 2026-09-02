@@ -49,9 +49,23 @@ roundtrip on random windows) before the worker reports success.
 4. **Driver mixture roster is index-based** (`FAMILY_CYCLE`, 60/20/10/10 per
    any 10 episodes), so tiers of any size keep §6.2 proportions and the
    assignment is reproducible from the episode index alone.
+5. **The vehicle was a ghost to obstacles** (found by the graze episode, fixed
+   in code, re-run pending): `create_hmmwv` left Chrono's default
+   `ChassisCollisionType = NONE`, and TMEASY tires only query the terrain — so
+   a deliberate pass with the rock buried 0.62 m inside the vehicle footprint
+   recorded 0 N. Chassis collision is now config-driven
+   (`vehicle.chassis_collision`, default NONE for legacy datasets) and the
+   traversal config sets `HULLS`. Consequence for WP0a: G0a's "zero asset
+   contact" was vacuously true (the oracle's 2 m inflation + 0.88 m max
+   cross-track make physical non-contact plausible, but the gate could not
+   have detected a graze). The G0a gate should be re-run once with HULLS to
+   make the claim non-vacuous.
 
 ## Still owed for G0b
 
+- Re-collect episode 6 (and ideally the full smoke tier) with chassis
+  collision HULLS so the near-obstacle contact episode actually contains
+  contact; re-run the G0a gate under HULLS (CPU-only, ~50 min at 12 procs).
 - Analytic class-mask rasterizer + one-shot `ChSegmentationCamera` validation
   (masks stay derivable-on-demand from the layout manifests in `meta.json` —
   §6.3 stores manifests, not masks).
