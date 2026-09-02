@@ -399,6 +399,17 @@ def build_scene(
     asset_mat.SetYoungModulus(2.0e7)
     asset_bodies = _add_assets(system, tmap, layout, asset_mat)
 
+    # Fixed assets sit embedded in the fixed terrain mesh; without masking,
+    # Bullet narrowphases every asset against the 522k-triangle heightmap
+    # every substep (~42 of 43 ms/substep measured — 96% of collection
+    # cost, RTF 0.057 -> ~4 once masked). RigidTerrain already isolates the
+    # patch in its own collision family for exactly this purpose; vehicle
+    # collides with both sides regardless (chassis mask is all-families).
+    terrain_family = patch_body.GetCollisionModel().GetFamily()
+    for _, body in asset_bodies:
+        model = body.GetCollisionModel()
+        model.SetFamilyMask(model.GetFamilyMask() & ~(1 << terrain_family))
+
     manager = None
     rgb_tap = None
     depth_tap = None
