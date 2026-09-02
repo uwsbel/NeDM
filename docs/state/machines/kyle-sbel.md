@@ -25,10 +25,18 @@ analysis; driving work on other boxes. Sibling repos live alongside it under
 `/home/kyle/Documents/sbel/` — `Manuscripts`, `chrono_fork`, `chrono_hil`,
 `ccta`, `sbel-reproducibility`.
 
-## What it must not do
+## Constraints
 
-No raw dataset collection (see [`newton.md`](newton.md)). It has the disk for it
-but not the role; collection belongs where the pipeline already runs.
+This is the **only** machine available (2026-09-02). The project convention is
+that raw dataset collection happens on `newton` or Euler, not on a training box
+— but neither is reachable from here, so if collection is genuinely needed it
+either happens locally or it is blocked. There is disk for it (1.3 T free);
+what is missing is the 4090/32-core throughput the pilot tiers were sized
+against. Budget from the measured rates in
+[`reference/newton.md`](reference/newton.md) and expect worse.
+
+Anything requiring `newton`, the 5090 box, or Euler is a **blocker to
+escalate**, not a step to attempt. See [`reference/`](reference/).
 
 ## Gotchas
 

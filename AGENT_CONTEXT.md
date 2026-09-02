@@ -54,8 +54,9 @@ Everything below is a link. Do not re-derive what is already written down.
 2. [`docs/state/progress/`](docs/state/progress/) — **current state of each
    workstream and the single next action for it.** This is the file that answers
    "where are we?".
-3. [`docs/state/machines/`](docs/state/machines/) — which machine you are on,
-   what it is allowed to do, and how to launch work elsewhere.
+3. [`docs/state/machines/`](docs/state/machines/) — the one machine you can run
+   on, and (under `reference/`) the boxes that hold the project's data but are
+   **not** accessible.
 
 **Depth, on demand:**
 
@@ -83,12 +84,13 @@ These are load-bearing. Violating them silently produces wrong results.
    validation loss** (`checkpoint_metric: rollout_sel`). The file is still named
    `best_val.pt` but it is the rollout-selected epoch. The two metrics rank
    checkpoints differently.
-2. **Never collect raw data on a training box.** Collection runs on `newton`
-   (GPU rendering) or Euler (state-only, CPU). See
-   [`docs/state/machines/`](docs/state/machines/) and
-   [`.claude/skills/storage/SKILL.md`](.claude/skills/storage/SKILL.md).
+2. **Only one machine is available: `kyle-sbel`.** The project convention is
+   that collection runs on `newton` (GPU rendering) or Euler (state-only), but
+   **neither is reachable** — see
+   [`docs/state/machines/reference/`](docs/state/machines/reference/). Do not
+   plan a step that runs on another box; surface it as a blocker.
 3. **Deliver code to other machines by commit + push, then `git pull --ff-only`
-   there.** Never edit files directly on `newton`.
+   there.** Never edit files directly on a remote box.
 4. **`z2` must be normalized before use.** The encoder's LayerNorm'd latents
    share a huge constant component (raw pairwise cosine 0.9998 between arbitrary
    frames). Raw-cosine latent metrics read 1.000 and mean nothing. Use the
@@ -111,8 +113,8 @@ and should not be rewritten casually.
 
 ```
 docs/state/
-├── machines/     Which box does what, paths, envs, launch recipes.
-│                 One file per machine. THE machine-portability layer.
+├── machines/     The box you can run on: paths, envs, constraints.
+│                 reference/ holds inaccessible boxes, for context only.
 ├── progress/     Current state + next action, one file per workstream.
 ├── lessons/      Hard-won findings. Gotchas that cost real time.
 ├── checkpoints/  Model registry: what exists, where, what it is for.
@@ -141,13 +143,19 @@ hostname; nvidia-smi --query-gpu=name,memory.total --format=csv,noheader; df -h 
 ls $NEDM_ROOT/docs/state/machines/
 ```
 
-If the machine has no file in `docs/state/machines/`, **write one** before doing
-substantial work — that is how this layer stays useful. Template is in
-[`docs/state/machines/README.md`](docs/state/machines/README.md).
+Today that is [`kyle-sbel.md`](docs/state/machines/kyle-sbel.md), and it is the
+only machine with access. `docs/state/machines/reference/` documents boxes that
+hold the project's data and runs but **cannot be logged into** — they are
+context, not options.
+
+If you gain access to a new machine and it has no file in
+`docs/state/machines/`, **write one** before doing substantial work. Template is
+in [`docs/state/machines/README.md`](docs/state/machines/README.md).
 
 Environment: `conda env create -f environment.nedm.yml && conda activate nedm`
 (env `nedm`, pychrono 10.0.0). `environment.yml` (pychrono 9.0.1) exists only for
-the oldest datasets.
+the oldest datasets. **On `kyle-sbel` the equivalent env is already installed and
+is named `chrono`, not `nedm`** — use `$NEDM_PY` rather than assuming a name.
 
 ---
 
@@ -164,9 +172,11 @@ ls artifacts/training_runs artifacts/rl_runs # what checkpoints are on THIS box
 du -sh artifacts/* 2>/dev/null | sort -h     # what data is on THIS box
 ```
 
-Artifacts are **per-machine**. A run named in `docs/state/checkpoints/` may exist
-on `newton` and not here. The registry records which box holds it; the `ls` above
-records the truth.
+Artifacts are **per-machine**. Most runs named in `docs/state/checkpoints/` and
+`docs/state/data/` exist only on machines listed under `machines/reference/`,
+which are not reachable — so expect the `ls` above to come back mostly empty.
+The registry records which box holds what; the `ls` records what you actually
+have.
 
 Git LFS holds the checkpoints. If `git lfs version` fails, checkpoint files are
 pointer stubs, not weights — install `git-lfs`, then `git lfs install && git lfs pull`.

@@ -1,24 +1,39 @@
 # Machines
 
-One file per machine, named by hostname. This is the portability layer: nothing
-else in `docs/state/` should hardcode a path or an interpreter.
+The portability layer: nothing else in `docs/state/` hardcodes a path or an
+interpreter.
 
-**If you are on a machine with no file here, write one before doing substantial
-work.** Fill it from the template below — it takes five minutes and saves the
-next agent an hour.
+## Machines you can actually run on
 
 | File | Machine | Role |
 |---|---|---|
-| [`newton.md`](newton.md) | `newton` (RTX 4090) | Chrono collection + rendering. Home of raw frame stores. |
-| [`workstation-5090.md`](workstation-5090.md) | Harry's RTX 5090 desktop | Training, eval, figures. Never raw collection. |
-| [`kyle-sbel.md`](kyle-sbel.md) | Kyle's box (RTX 3090) | Dev, docs, light training. |
-| [`euler.md`](euler.md) | UW Euler cluster | State-only CPU collection via SLURM arrays. |
-| [`manuscript.md`](manuscript.md) | — | Where the paper source lives and how to build it. |
+| [`kyle-sbel.md`](kyle-sbel.md) | Kyle's box, RTX 3090 | **Everything.** Dev, docs, training, analysis, manuscript builds |
+
+That is the whole list as of 2026-09-02. Plan work on the assumption that this
+is the only compute available, and that anything needing another box is blocked
+until access exists.
+
+Also here: [`manuscript.md`](manuscript.md) — where the paper source lives and
+how to build it locally (Tectonic, no sudo, works on this box today).
+
+## Reference only — no access
+
+[`reference/`](reference/) documents machines **you cannot log into**. They are
+recorded because the existing pipeline, the storage rules, and the location of
+every collected dataset assume them — not because they are options.
+
+| File | Machine | Why it is documented |
+|---|---|---|
+| [`reference/newton.md`](reference/newton.md) | RTX 4090 collection box | Holds the raw frame stores and every Study 3 dataset |
+| [`reference/workstation-5090.md`](reference/workstation-5090.md) | Harry's RTX 5090 desktop | Where the published training and eval runs happened |
+| [`reference/euler.md`](reference/euler.md) | UW Euler cluster | Where the SLURM-scale state-only collections ran |
+
+**Do not write a plan whose next step runs on one of these.** If a task needs
+one, say so and stop — that is a blocker to escalate, not a step to attempt.
 
 ## Portable invocation
 
-Every command written elsewhere in `docs/state/` assumes these three variables,
-so the same command works on every box:
+Every command elsewhere in `docs/state/` assumes these three variables:
 
 ```bash
 export NEDM_ROOT=/path/to/NeDM
@@ -28,24 +43,29 @@ export PYTHONPATH=$NEDM_ROOT/src
 
 Run scripts as `cd "$NEDM_ROOT" && "$NEDM_PY" -m ...` or
 `"$NEDM_PY" scripts/<stage>/<script>.py`. Never `python` bare — the system
-interpreter has no pychrono on any of these boxes.
+interpreter has no pychrono.
 
-## Cross-machine rules
+## How work and data move between boxes
 
-1. **Collection goes where the GPU renders** (`newton`) or where the cores are
-   (Euler). Not on a training box.
-2. **Code moves by git**, never by rsync or by editing on the remote:
-   commit and push here, `git pull --ff-only` there.
-3. **Data moves by rsync**, and only the trainable, compressed form:
-   ```bash
-   rsync -avP newton:NeDM/artifacts/<name> "$NEDM_ROOT/artifacts/"
-   ```
-   Check both sides first: `ssh newton "du -sh ~/NeDM/artifacts/<name>"` and
-   `df -h "$NEDM_ROOT"`.
-4. **Record what you moved** in `docs/state/data/` so the next person knows which
-   box holds which copy.
+Recorded so the conventions are legible, and so it is clear what is unavailable
+from here.
 
-## Template
+1. **Code moves by git.** Commit and push; `git pull --ff-only` on the far side.
+   Never edit files on a remote box directly.
+2. **Data moves by rsync**, and only the trainable, compressed form — never raw
+   frame dumps. `rsync -avP newton:NeDM/artifacts/<name> "$NEDM_ROOT/artifacts/"`
+   is the project's pattern; it does not work from `kyle-sbel`, which cannot
+   resolve `newton`.
+3. **Collection runs where the renderer or the cores are**, never on a training
+   box. This is a project rule, and separately it is moot here: no collection
+   box is reachable.
+4. **Record what you moved** in [`../data/`](../data/) so the next person knows
+   which box holds which copy.
+
+## Adding a machine
+
+If you gain access to a box, write it up here — five minutes, saves the next
+agent an hour.
 
 ```markdown
 # <hostname>

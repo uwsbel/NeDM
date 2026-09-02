@@ -1,5 +1,9 @@
 # Harry's RTX 5090 workstation
 
+> **NO ACCESS.** Kyle cannot log into this machine (verified 2026-09-02).
+> Documented for context only — see [`README.md`](README.md). Work that requires
+> this box is a blocker to escalate, not a step to attempt.
+
 **Verified:** 2026-09-01 (from `.claude/skills/storage/SKILL.md`) ·
 **Owner:** Harry · **Role:** Training, evaluation, figures.
 

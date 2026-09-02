@@ -14,11 +14,15 @@ usable.
 ## Rules
 
 1. **Record the machine for every copy.** "The pilot dataset" is not a location.
-2. **Collection happens on `newton` or Euler, never on a training box.** See
-   [`../machines/README.md`](../machines/README.md).
+2. **Almost none of this is on `kyle-sbel`.** Every dataset below lives on a
+   machine under [`../machines/reference/`](../machines/reference/), which is
+   not reachable. Assume a dataset is absent until `du -sh artifacts/*` says
+   otherwise, and treat "fetch dataset X" as **blocked**, not as a step.
+   The Hugging Face datasets in [`published.md`](published.md) are the one
+   exception — they download from anywhere.
 3. **Move only the trainable form.** Compressed episode-chunked stores and
    processed caches travel; raw frame dumps and uncompressed memmaps do not.
-4. **Check both sides before rsync:**
+4. **Check both sides before rsync** (project pattern; not runnable from here):
    ```bash
    ssh newton "du -sh ~/NeDM/artifacts/<name>"
    df -h "$NEDM_ROOT"
