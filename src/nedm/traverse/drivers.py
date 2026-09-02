@@ -32,6 +32,8 @@ from nedm.traverse.oracle import (
 )
 from nedm.traverse.terrain import TerrainMap
 
+VEHICLE_HALF_WIDTH_M = 1.1  # HMMWV hull is ~2.2 m wide
+
 FAMILY_CYCLE = (
     "spline", "meander", "spline", "spline", "oracle",
     "spline", "near_obstacle", "spline", "meander", "spline",
@@ -152,8 +154,15 @@ def near_obstacle_route(
         # Aim relative to the PHYSICAL body, not the planner footprint (a
         # rock's footprint radius is its circumscribed-corner radius and a
         # tree's carries +0.4 m margin — grazing the footprint misses the box).
+        # A graze means the HULL's side overlaps the asset by a fraction of the
+        # vehicle half-width; aiming the CENTERLINE at the asset is a blocking
+        # head-on crash that pins the vehicle (WP0c smoke run 3: 118 kN,
+        # stuck 15 s at 0.4 m/s).
         physical_r = 0.5 * asset.dims["edge_m"] if asset.kind == "rock" else asset.dims["trunk_radius_m"]
-        offset = float(rng.uniform(-0.2, 0.1)) if contact_intended else float(rng.uniform(1.5, 2.5))
+        if contact_intended:  # sideswipe: 0.25–0.55 m hull overlap
+            offset = float(rng.uniform(VEHICLE_HALF_WIDTH_M - 0.55, VEHICLE_HALF_WIDTH_M - 0.25))
+        else:  # clear pass: hull edge misses by 0.7–1.7 m
+            offset = float(rng.uniform(VEHICLE_HALF_WIDTH_M + 0.7, VEHICLE_HALF_WIDTH_M + 1.7))
         others = [o for o in layout.obstacles() if math.hypot(o[0] - asset.x_m, o[1] - asset.y_m) > 0.1]
         grid = OracleGrid(tmap, others, params)
         for _try in range(40):

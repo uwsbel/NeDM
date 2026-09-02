@@ -38,9 +38,12 @@ class PlannerParams:
     footprint_width_m: float = 2.6
     kappa_max: float = 1.0 / 8.0
     # Inflation budget v0 = half width + fixed margin; the tracker's held-out
-    # p95 lateral error is ADDED here once G6 measures it (plan §7.4).
+    # p95 lateral error is ADDED here (plan §7.4). Interim 0.6 from WP0c: with
+    # chassis hulls enabled, 2.0 m total let oracle/spline episodes graze
+    # assets (hull half-width 1.1 + gate cross-track up to 0.88 ≈ 2.0);
+    # replace with the measured held-out p95 at G6.
     inflation_m: float = 2.0
-    tracker_p95_margin_m: float = 0.0
+    tracker_p95_margin_m: float = 0.6
     # Search-time slope caps (tan). Validation uses slightly looser caps so
     # smoothing across a cell corner is not brittle.
     slope_along_cap: float = math.tan(math.radians(20.0))
