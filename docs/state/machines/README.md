@@ -8,10 +8,16 @@ interpreter.
 | File | Machine | Role |
 |---|---|---|
 | [`kyle-sbel.md`](kyle-sbel.md) | Kyle's box, RTX 3090 | **Everything.** Dev, docs, training, analysis, manuscript builds |
+| [`kyle-N7-B650E.md`](kyle-N7-B650E.md) | RTX 5070 Ti, 32 cores | Reachable since 2026-09-02, **not yet provisioned**: no repo, no verified interpreter |
 
-That is the whole list as of 2026-09-02. Plan work on the assumption that this
-is the only compute available, and that anything needing another box is blocked
-until access exists.
+That is the whole list as of 2026-09-02. `kyle-sbel` is still the only box that
+can run anything today; `kyle-N7-B650E` has hardware and access and nothing
+else. Anything needing a box outside this table is blocked until access exists.
+
+Two files cover the fleet rather than any single box:
+[`remote-control.md`](remote-control.md) for how the boxes are reached and what
+an agent may do on them unattended, and [`file-sync.md`](file-sync.md) for how
+files move between them.
 
 Also here: [`manuscript.md`](manuscript.md) — where the paper source lives and
 how to build it locally (Tectonic, no sudo, works on this box today).
@@ -51,7 +57,8 @@ Recorded so the conventions are legible, and so it is clear what is unavailable
 from here.
 
 1. **Code moves by git.** Commit and push; `git pull --ff-only` on the far side.
-   Never edit files on a remote box directly.
+   Never edit files on a remote box directly. Having an agent on the far box via
+   [`remote-control.md`](remote-control.md) does not change this.
 2. **Data moves by rsync**, and only the trainable, compressed form — never raw
    frame dumps. `rsync -avP newton:NeDM/artifacts/<name> "$NEDM_ROOT/artifacts/"`
    is the project's pattern; it does not work from `kyle-sbel`, which cannot
@@ -59,7 +66,10 @@ from here.
 3. **Collection runs where the renderer or the cores are**, never on a training
    box. This is a project rule, and separately it is moot here: no collection
    box is reachable.
-4. **Record what you moved** in [`../data/`](../data/) so the next person knows
+4. **Everything that is neither the repo nor a dataset moves by Syncthing**:
+   notes, scratch, small shared files, under `~/sync/sbel` on every machine.
+   Never put the repo or `artifacts/` in it. See [`file-sync.md`](file-sync.md).
+5. **Record what you moved** in [`../data/`](../data/) so the next person knows
    which box holds which copy.
 
 ## Adding a machine

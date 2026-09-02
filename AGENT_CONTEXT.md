@@ -54,9 +54,10 @@ Everything below is a link. Do not re-derive what is already written down.
 2. [`docs/state/progress/`](docs/state/progress/) — **current state of each
    workstream and the single next action for it.** This is the file that answers
    "where are we?".
-3. [`docs/state/machines/`](docs/state/machines/) — the one machine you can run
-   on, and (under `reference/`) the boxes that hold the project's data but are
-   **not** accessible.
+3. [`docs/state/machines/`](docs/state/machines/) — the machines you can run
+   on, how they are reached and how files move between them, and (under
+   `reference/`) the boxes that hold the project's data but are **not**
+   accessible.
 
 **Depth, on demand:**
 
@@ -84,11 +85,17 @@ These are load-bearing. Violating them silently produces wrong results.
    validation loss** (`checkpoint_metric: rollout_sel`). The file is still named
    `best_val.pt` but it is the rollout-selected epoch. The two metrics rank
    checkpoints differently.
-2. **Only one machine is available: `kyle-sbel`.** The project convention is
-   that collection runs on `newton` (GPU rendering) or Euler (state-only), but
-   **neither is reachable** — see
+2. **Two machines are reachable; only one is provisioned.** `kyle-sbel` runs
+   things today. `kyle-N7-B650E` has access and hardware but no repo checkout
+   and no verified interpreter, so a step that runs there is *unproven*, not
+   merely scheduled. The project convention is that collection runs on `newton`
+   (GPU rendering) or Euler (state-only), but **neither is reachable** — see
    [`docs/state/machines/reference/`](docs/state/machines/reference/). Do not
-   plan a step that runs on another box; surface it as a blocker.
+   plan a step that runs on a box outside
+   [`docs/state/machines/`](docs/state/machines/); surface it as a blocker.
+   Both reachable boxes are driven over Remote Control, under the policy in
+   [`docs/state/machines/remote-control.md`](docs/state/machines/remote-control.md):
+   agents do the work, a human installs software.
 3. **Deliver code to other machines by commit + push, then `git pull --ff-only`
    there.** Never edit files directly on a remote box.
 4. **`z2` must be normalized before use.** The encoder's LayerNorm'd latents
@@ -113,8 +120,10 @@ and should not be rewritten casually.
 
 ```
 docs/state/
-├── machines/     The box you can run on: paths, envs, constraints.
-│                 reference/ holds inaccessible boxes, for context only.
+├── machines/     The boxes you can run on: paths, envs, constraints. Also
+│                 how they are reached (remote-control.md) and how files move
+│                 between them (file-sync.md). reference/ holds inaccessible
+│                 boxes, for context only.
 ├── progress/     Current state + next action, one file per workstream.
 ├── lessons/      Hard-won findings. Gotchas that cost real time.
 ├── checkpoints/  Model registry: what exists, where, what it is for.
@@ -143,8 +152,9 @@ hostname; nvidia-smi --query-gpu=name,memory.total --format=csv,noheader; df -h 
 ls $NEDM_ROOT/docs/state/machines/
 ```
 
-Today that is [`kyle-sbel.md`](docs/state/machines/kyle-sbel.md), and it is the
-only machine with access. `docs/state/machines/reference/` documents boxes that
+Today that is [`kyle-sbel.md`](docs/state/machines/kyle-sbel.md), the only
+provisioned box, or [`kyle-N7-B650E.md`](docs/state/machines/kyle-N7-B650E.md),
+which is reachable but has no repo and no verified interpreter yet. `docs/state/machines/reference/` documents boxes that
 hold the project's data and runs but **cannot be logged into** — they are
 context, not options.
 
