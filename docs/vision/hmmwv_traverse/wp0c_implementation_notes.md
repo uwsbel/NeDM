@@ -49,23 +49,46 @@ roundtrip on random windows) before the worker reports success.
 4. **Driver mixture roster is index-based** (`FAMILY_CYCLE`, 60/20/10/10 per
    any 10 episodes), so tiers of any size keep §6.2 proportions and the
    assignment is reproducible from the episode index alone.
-5. **The vehicle was a ghost to obstacles** (found by the graze episode, fixed
-   in code, re-run pending): `create_hmmwv` left Chrono's default
-   `ChassisCollisionType = NONE`, and TMEASY tires only query the terrain — so
-   a deliberate pass with the rock buried 0.62 m inside the vehicle footprint
-   recorded 0 N. Chassis collision is now config-driven
-   (`vehicle.chassis_collision`, default NONE for legacy datasets) and the
-   traversal config sets `HULLS`. Consequence for WP0a: G0a's "zero asset
-   contact" was vacuously true (the oracle's 2 m inflation + 0.88 m max
-   cross-track make physical non-contact plausible, but the gate could not
-   have detected a graze). The G0a gate should be re-run once with HULLS to
-   make the claim non-vacuous.
+5. **The vehicle was a ghost to obstacles** (found by the graze episode):
+   `create_hmmwv` left Chrono's default `ChassisCollisionType = NONE`, and
+   TMEASY tires only query the terrain — a pass with the rock buried 0.62 m
+   inside the vehicle footprint recorded 0 N. Chassis collision is now
+   config-driven (`vehicle.chassis_collision`, default NONE for legacy
+   datasets); the traversal config sets `HULLS`. Consequence for WP0a: G0a's
+   "zero asset contact" was vacuously true — re-run the gate under HULLS to
+   make it real (see wp0a notes addendum).
+
+## Smoke iteration log (runs 3–6, all under HULLS)
+
+Enabling real contact exposed a chain of route/controller defects; each was
+diagnosed from the recorded stores (states.npz trajectories), fixed, and
+verified against the exact collection seeds locally before re-running:
+
+| Run | Defect found | Fix |
+|---|---|---|
+| 3 | Oracle/spline grazes (2.0 m inflation == hull half-width + tracking); contact-pass pinned head-on 15 s at 118 kN | interim +0.6 m tracker margin in inflation (§7.4); sideswipe aims hull-side overlap, not centerline |
+| 4 | Oracle backed into a tree at t=18 s (post-goal creep at terminal speed); Chaikin pulled a spline corner into a rock; sideswipe missed 6 m (U-turn geometry vs 8 m turn radius) | park at route end; re-validate smoothed splines; heading-aware pass geometry |
+| 5 | Sideswipe stalled on an unvalidated 19.7° climb at the 2.0 m/s slope-modulation floor, rolled backward; follower pre-wound full steering lock during settle | slope caps (13° pass section / 19° route, splines require slope_ok); near-obstacle v_min 3.0; straight-wheel settle |
+| 6 | **clean** — spline/oracle 0 N, sideswipe contact at t=10.1 s / 2.9 m/s / 54 kN peak | — (pilot launched) |
+
+Final smoke audit (run 6): 10/10 complete; contact only in the two meander
+episodes (69.9 / 139.6 kN — random driving legitimately hits things now) and
+the intended sideswipe, which comes to rest against the rock after impact
+(the honest outcome of a 0.4–0.65 m hull-overlap hit on an immovable
+boulder: ~10 s driving + ~10 s contact-load dynamics).
+
+## Pilot tier
+
+Launched 2026-09-02 (newton): 200 episodes × 20 s, seeds 20261000+ (disjoint
+from smoke), 3 procs, ~7 h, expected ~0.9 GB. Route-generation fallback to
+oracle measured on pilot seeds: ~5% spline, ~50% near-obstacle (hilly arena +
+slope/heading constraints; the meander families keep contact volume up).
+`traverse_collect --indices` can re-run individual episodes into the store.
 
 ## Still owed for G0b
 
-- Re-collect episode 6 (and ideally the full smoke tier) with chassis
-  collision HULLS so the near-obstacle contact episode actually contains
-  contact; re-run the G0a gate under HULLS (CPU-only, ~50 min at 12 procs).
+- Re-run the G0a gate under HULLS (CPU-only, ~50 min at 12 procs) so the
+  no-collision claim is non-vacuous.
 - Analytic class-mask rasterizer + one-shot `ChSegmentationCamera` validation
   (masks stay derivable-on-demand from the layout manifests in `meta.json` —
   §6.3 stores manifests, not masks).
