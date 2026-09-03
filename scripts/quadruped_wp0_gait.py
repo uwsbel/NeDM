@@ -177,7 +177,7 @@ def look_at_frame(chrono, eye, target):
     return chrono.ChFramed(chrono.ChVector3d(*eye), chrono.ChQuaterniond(e0, e1, e2, e3))
 
 
-def attach_video_camera(chrono, sys_, args):
+def attach_video_camera(chrono, sys_, args, ground_z: float):
     """Offscreen chase camera. Returns (manager, note) or (None, reason)."""
     try:
         import pychrono.sensor as sens
@@ -213,8 +213,18 @@ def attach_video_camera(chrono, sys_, args):
     # ground contact are inside the frame: that is the whole point of the clip.
     # A camera parented to the chassis would inherit its 180 deg X
     # initialization and film upside down.
-    eye = tuple(float(v) for v in args.cam_eye.split(","))
-    target = tuple(float(v) for v in args.cam_target.split(","))
+    # Ground height is derived from the settled robot, so a fixed z guessed in
+    # advance cannot frame it. Default the camera relative to the actual plane;
+    # explicit flags still win. Half the previous run clipped a foot at the
+    # bottom edge precisely because the aim point was absolute.
+    if args.cam_eye:
+        eye = tuple(float(v) for v in args.cam_eye.split(","))
+    else:
+        eye = (-1.9, -2.7, ground_z + 1.30)
+    if args.cam_target:
+        target = tuple(float(v) for v in args.cam_target.split(","))
+    else:
+        target = (0.35, 0.0, ground_z + 0.20)
     pose = look_at_frame(chrono, eye, target)
     cam = sens.ChCameraSensor(mount, float(args.video_fps), pose,
                               args.video_width, args.video_height,
@@ -331,7 +341,7 @@ def cmd_walk(args: argparse.Namespace) -> int:
             robot.GetChassisBody().SetFixed(False)
             terrain_created = True
             if args.video:
-                video_manager, video_note = attach_video_camera(chrono, sys_, args)
+                video_manager, video_note = attach_video_camera(chrono, sys_, args, z)
                 print(f"video: {video_note}")
                 if video_manager is None:
                     print("video: continuing without capture")
@@ -462,6 +472,20 @@ def _create_terrain(chrono, sys_, length, width, height, offset):
         chrono.ChFramed(chrono.ChVector3d(offset, 0, height - 0.1), chrono.QUNIT),
     )
     sys_.GetCollisionSystem().BindItem(ground)
+
+    # Chrono::Sensor renders VISUAL shapes, not collision shapes. Without this
+    # the floor exists physically and is invisible to the camera, which is how
+    # two renders came back showing the robot walking in mid-air. The texture
+    # also gives the eye something to judge foot slip against; a flat colour
+    # would make translation nearly impossible to see at 10 mm/s.
+    box = chrono.ChVisualShapeBox(length, width, 0.2)
+    texture = chrono.GetChronoDataFile("textures/pinkwhite.png")
+    if Path(texture).is_file():
+        box.SetTexture(texture, 10 * length, 10 * width)
+    ground.AddVisualShape(
+        box, chrono.ChFramed(chrono.ChVector3d(offset, 0, height - 0.1), chrono.QUNIT)
+    )
+
     sys_.AddBody(ground)
     return ground
 
@@ -493,10 +517,10 @@ def main() -> int:
     walk.add_argument("--video-height", type=int, default=540)
     walk.add_argument("--video-quality", type=int, default=85,
                       help="JPEG quality for the transferable copy")
-    walk.add_argument("--cam-eye", default="-1.6,-2.3,1.0",
-                      help="camera position x,y,z")
-    walk.add_argument("--cam-target", default="0.30,0.0,-0.15",
-                      help="camera aim point x,y,z; below the chassis so feet stay in frame")
+    walk.add_argument("--cam-eye", default=None,
+                      help="camera position x,y,z; default is relative to the ground plane")
+    walk.add_argument("--cam-target", default=None,
+                      help="camera aim x,y,z; default is 0.20 m above the ground plane")
     walk.add_argument("--cam-hfov-deg", type=float, default=62.0)
     args = parser.parse_args()
     return cmd_cycle(args) if args.cmd == "cycle" else cmd_walk(args)
