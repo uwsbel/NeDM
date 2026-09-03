@@ -762,3 +762,66 @@ missing file, and it nearly was read as one. Run from a directory whose parent
 holds a Chrono `data/` tree; a scratch directory with a symlink to
 `chrono-src/data` works and avoids writing into the pinned tree. Prefer
 `chrono-src/data`, which is the complete tree.
+
+## CLOSED: Python and C++ render equivalently, within the solver's own noise
+
+**2026-09-03, `kyle-N7-B650E`, patched source build.** Agreed threshold: mean
+RGB, dark < 40, bright > 180, mid-run frame.
+
+| arm | language | handle | dark | bright |
+|---|---|---|---|---|
+| attached | C++ | 0 | 53.8% | 38.8% |
+| attached, repeat | C++ | 0 | 54.3% | 38.6% |
+| **py_attached** | **Python** | **0** | **54.8%** | **38.3%** |
+| noattach | C++ | −1 | 0.1% | 93.9% |
+| py_noattach | Python | −1 | 0.1% | 94.0% |
+
+**The measurement that makes this a result rather than a number:**
+
+| comparison | pixels differing >2 | mean abs |
+|---|---|---|
+| **C++ vs C++ (noise floor)** | **21.3%** | 21.00 |
+| C++ vs Python, rep 1 | 22.3% | 22.03 |
+| C++ vs Python, rep 2 | **17.8%** | 19.67 |
+
+**Two runs of the identical binary differ from each other more than one of them
+differs from Python.** The cross-language difference sits inside the solver's own
+run-to-run variation, so at the resolution this measurement reaches, the paths
+are indistinguishable. The three dark fractions span less than one point.
+
+`kyle-N7-B650E` ran the second C++ arm specifically because the first comparison
+returned "22.3% of pixels differ", which reads as a real discrepancy with nothing
+to compare it against — and the SPH solver is nondeterministic while
+`sprite_position_jitter` is stochastic. **Without the floor, "22.3% differ" would
+have entered the record as a binding discrepancy.** This is
+[the noise-floor rule](../lessons/experiment-design.md) applied unprompted rather
+than quoted.
+
+### The honest limit of the claim
+
+It rests on summary statistics and a whole-frame diff at **one timestamp**. Two
+images can share a dark fraction and differ structurally, and a 21% baseline is
+wide enough to hide a real but modest cross-language effect. **What is shown is
+that any difference is smaller than the solver's own variation** — the useful
+practical statement, and weaker than "the images match."
+
+### Porting the gate needed five Python API fixes, none behavioural
+
+- `veh.SetDataPath` → `veh.SetVehicleDataPath`
+- `BoxSide_*` lives in `pychrono.fsi`, not `pychrono.vehicle`
+- **`rover.GetWheels()[i]` fails** — the `std::array` binds as an opaque
+  `SwigPyObject` and is not subscriptable. Use `GetWheel(robot.V_LF)`.
+- `scene.SetAmbientLight` takes `ChVector3f`, not `ChColor` — though
+  `AddPointLight` accepts `ChColor`
+- everything else transferred verbatim
+
+The render options needed **no** workaround once the patch was applied:
+constructed, three mesh sprites appended, spacing and jitter assigned and
+**read back before the run** (0.0 → 0.0100; `len(sprite_shapes)` 0 → 3).
+
+### Still open, unchanged
+
+Whether the soil **deforms**, whether particle positions track the physics,
+whether the bed reads as a **surface** rather than a scatter of sprites.
+2.0 s per arm, one frame each inspected quantitatively. **Presence proven,
+fidelity not.**
