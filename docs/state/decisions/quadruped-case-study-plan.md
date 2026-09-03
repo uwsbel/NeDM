@@ -155,3 +155,65 @@ study covers on the terrain axis.
 has one open question — plan-space versus driven-space clearance — that is a day
 of work. If a second complete case study is needed sooner than stage 3 can
 deliver, that sequencing should be chosen deliberately.
+
+## MEASURED: the terrain-conditioning justification, on the quadruped
+
+The manuscript conditions on terrain because *"the same reduced state and action
+evolve differently under physically distinct conditions."* For the HMMWV that is
+asserted from tire physics. **On the quadruped it is now measured:**
+
+| commanded forward velocity | achieved, rigid | achieved, CRM |
+|---|---|---|
+| 0.30 m/s | 0.030 | **0.145** — nearly 5× |
+| 0.50 m/s | 0.337 | 0.347 — agree to 3% |
+
+**Same policy, same command, same plant.** At low command the terrains differ by
+a factor of five; at high command they agree. So the discrepancy is neither a
+policy property nor a port bug — **a port bug would affect both terrains alike.**
+
+**This is the argument for the terrain context input, as a measurement rather than
+an analogy.** It also says the effect is *regime-dependent*: terrain matters most
+in the low-command regime, which a context input can represent and a single
+unconditioned model cannot.
+
+**Mechanism not established.** Soil compliance may let a marching gait convert
+into translation, or the CRM motion may be partly foot slip rather than clean
+walking. The per-foot slip channel already logged would distinguish these. Open.
+
+### And a dead zone that is worth learning
+
+Below roughly 0.35 m/s commanded, the robot on rigid ground **does not translate**
+— it marches in place. Inside its trained range, so a property of the plant rather
+than an out-of-range request. Families renamed for behaviour
+(`march_in_place_015`, `march_in_place_030`) so nothing implies a speed band.
+
+Ordering *within* the dead zone is not claimed: 0.033 against 0.030 m/s is 3 mm/s
+on a short window and both mean "not moving."
+
+**Reverse walks and is mildly asymmetric** — 51% tracking backward against 59%
+forward at the same magnitude. Another nonlinearity worth having; not leaning on
+one episode for the ratio.
+
+## Collection scale, chosen from the paper's own scaling curve
+
+Appendix~D retrains on nested subsets at fixed compute, so unique-trajectory count
+is the only variable:
+
+| data | flat rollout err | CRM rollout err | S |
+|---|---|---|---|
+| **20%** | **4.2%** | **9.6%** | 6.9% |
+| 80% | 3.9% | 4.6% | 4.3% |
+| 100% | 3.7% | 5.4% | 4.6% |
+
+**20% of their data already gives single-digit rollout error.** The curve is
+monotonic 20→80 and the 100% point is within seed noise of 80. So a minimal repro
+does not need their full scale — it needs enough unique trajectories to cover the
+command families on both terrains.
+
+**Record at 100 Hz, matching the HMMWV**, not at the 50 Hz control rate. The state
+is available at physics rate and this doubles transitions per episode for free,
+with stair-stepped actions between control steps — exactly what the plant does.
+
+Target: **~600 episodes, 75/25**, 11 families balanced. ~470 rigid (minutes,
+8-concurrent) and ~155 CRM (≈5.5 h sequential, the entire constraint), giving
+roughly **1 M transitions** at 1600 rows per 16 s episode.
