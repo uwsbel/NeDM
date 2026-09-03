@@ -91,18 +91,35 @@ Ranked option 3 is therefore better than "highest risk, keep off the critical
 path" but is not finished. It gets a walking Go2 onto CRM in an afternoon; it
 does not yet get a Go2 that stays up.
 
-> **Read every CRM number below as a single sample, not a measurement.** The
-> SPH solver is **nondeterministic run to run**: two runs with byte-identical
-> inputs, no proxy, no video, gave a fall time of 2.97 s and 2.03 s, a ~30%
-> spread. Consistent with GPU atomic accumulation over 43,632 particles, where
-> floating-point summation order varies per run. Almost certainly not a bug.
+> **Which CRM numbers are measurements and which are samples.** Five runs of one
+> identical command, standing:
 >
-> Consequences. Differences smaller than that spread are not interpretable from
-> single runs: the observed stand-versus-walk gap of 2.64 s against 1.95 s is
-> **not** outside it, so "the policy makes it worse" is unsupported. Differences
-> far larger than it survive: the spawn-clearance sweep, 0.64-0.85 s against
-> 2.97 s, stands. Anything quoted in this study should be a median over N runs
-> with the spread stated.
+> | t | run 1 | run 2 | run 3 | run 4 | run 5 | spread |
+> |---|---|---|---|---|---|---|
+> | 0.50 s | 3.0° | 3.0° | 3.0° | 3.0° | 3.0° | **0.00** |
+> | 1.00 s | 11.8° | 11.8° | 11.8° | 11.8° | 11.8° | **0.00** |
+> | 1.25 s | 21.2° | 21.2° | 21.2° | 21.2° | 21.2° | **0.00** |
+> | 2.00 s | 51.7° | 51.7° | 50.7° | 56.8° | 41.4° | 15.4 |
+> | 8.00 s | 119.5° | 132.4° | 97.3° | 125.3° | 52.8° | 79.6 |
+>
+> **The first 1.25 s is bit-identical.** The solver is not noisy; it reproduces
+> exactly until the robot loses balance, after which an inverted pendulum past
+> its tipping point amplifies last-bit differences without bound. That is
+> sensitive dependence, not a broken solver, and the distinction says precisely
+> which figures can be trusted.
+>
+> **Reportable as measurements:** anything before ~1.25 s. Tilt at fixed early
+> times, launch height, foot clearance, particle counts.
+> **Samples, needing a median and range over N runs:** `fell_at_s`,
+> `max_tilt_deg`, final base z, `forward_travel_m` (which varied by a factor of
+> 2.2), and the gate verdict itself. **One of the five runs never fell at all**,
+> so the same command yields both PASS and FAIL. `fell_at_s` cannot be a gate.
+> Gate inside the reproducible window instead: tilt at t=1.0, or
+> time-to-reach-15°.
+>
+> Realtime factors are a tight cluster across the day (0.291 / 0.267 / 0.273)
+> and wall time does not depend on trajectory chaos, so they are approximately
+> right, but each is still one sample.
 
 **Measured CRM cost with a quadruped actually walking on it**, which is the
 number this section has always been arguing about and which nothing previously
