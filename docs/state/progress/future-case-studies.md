@@ -74,6 +74,19 @@ The contrast is total and early:
 | 1.0 s | **1.5°** | **11.8°** |
 | 1.5 s | 2.4° | 29.8° |
 
+**Cause found 2026-09-03: the CRM bed heaves.** A rigid sphere at rest on this
+soil, zero drop, rises 0.12 m. Sharp onset between 0.20 and 0.25 m of terrain
+depth, then saturating. Not the robot, not the policy, not the spawn, not the
+step size, not the resolution. Full measurement in
+[`../lessons/chrono-versions.md`](../lessons/chrono-versions.md).
+
+That explains the run history: the early Go2 runs used depth 0.20, just below
+onset, and showed a 7.8 cm "rebound"; the run at depth 0.30 fell earliest of
+anything all day at 1.15 s, and is exactly the configuration with the largest
+heave. **Enlarging the terrain from 3.0x1.6x0.20 to 8x4x0.3, which was adopted
+from working code as an improvement, crossed the threshold.** Keep CRM beds at or
+below ~0.15 m until this is understood.
+
 **And the bounce is absent on rigid.** Same robot, same spawn logic, same policy,
 comparable foot clearance: rigid recovers 2.5 cm as the legs take the load, CRM
 rebounds **7.8 cm at a coefficient of restitution of 0.78**. Granular soil
