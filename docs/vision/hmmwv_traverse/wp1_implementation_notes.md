@@ -83,4 +83,6 @@ reconstructed `episodes.jsonl` from per-episode metas, re-collected the 4
 missing episodes via `--indices`, verified 44 episodes with full read-backs
 (0 errors). Fix: `maxtasksperchild=50` recycles workers (~1 GB peak).
 Operational note: long-run watchers need ≥3-strike ssh-failure tolerance —
-two transient drops false-declared this run finished.
+two transient drops false-declared this run finished. Two sessions raced on
+this repair in parallel; the deterministic per-episode seeds made the results
+identical and the merged store passed 44-episode full read-back verification.
