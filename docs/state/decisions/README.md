@@ -7,6 +7,17 @@ settled call or silently violate a deliberate constraint.
 |---|---|
 | [`architecture.md`](architecture.md) | Standing architectural commitments |
 | [`open-questions.md`](open-questions.md) | Live, unresolved, with what would settle each |
+| [`reuse-chrono-crmenv.md`](reuse-chrono-crmenv.md) | Why the policy's input contract is inherited, not reimplemented |
+
+**Case study III (quadruped on CRM)** — read in this order; each answers the
+question the previous one raises:
+
+| File | The question it settles |
+|---|---|
+| [`quadruped-case-study-plan.md`](quadruped-case-study-plan.md) | **Start here.** What the contribution is, and the staged plan |
+| [`quadruped-command-channel.md`](quadruped-command-channel.md) | Why the robot cannot be steered: there is no command input, by construction |
+| [`quadruped-bootstrapping.md`](quadruped-bootstrapping.md) | Why needing a policy to collect data is a new situation for this framework, not a flaw |
+| [`quadruped-contact-mode.md`](quadruped-contact-mode.md) | Why contact is temporally but not amplitude separable on soil — and why the foot never penetrates |
 
 The study plans carry their own decision logs and are authoritative for their
 own scope:

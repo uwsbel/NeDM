@@ -77,6 +77,26 @@ shipped. Read the relevant one before touching a study.
 
 ---
 
+## 2b. If you are working on the quadruped case study
+
+It is the newest line of work and the one most likely to be mid-flight. **The
+contribution is contact-mode conditioning** — a methodological extension the
+manuscript names as future work — **not "a fourth vehicle."**
+
+Read `docs/state/decisions/quadruped-case-study-plan.md` first; it links the
+other three in dependency order.
+
+Three findings that will otherwise cost you a day each:
+
+- **The walking policy has no command input.** Not one command in the data — no
+  channel to write to. It responds to a yaw command *incoherently*, so a
+  path-follower bolted on will appear to half-work.
+- **The foot is smaller than the SPH kernel support** (22 mm against 40 mm), so
+  it floats 22.9 mm above true contact and never penetrates. Everything
+  previously read as sinkage was surface deflection.
+- **Contact cannot be detected by a force threshold on soil.** No bimodality, no
+  plateau; a plain threshold invents 66% of its transitions. Use hysteresis.
+
 ## 3. House rules that are not obvious from the code
 
 These are load-bearing. Violating them silently produces wrong results.
