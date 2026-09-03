@@ -14,6 +14,20 @@ import numpy as np
 
 GRAVITY = 9.81
 
+# PD actuator gains. NOT tuned -- these are what every legged_gym-family Go2
+# config specifies, verified against both the Genesis locomotion example
+# (kp 20.0, kd 0.5) and unitree_rl_gym (stiffness 20.0 N*m/rad, damping 0.5
+# N*m*s/rad). Matching them is the whole point: a policy from that family assumes
+# this actuator, so moving these to suit a particular checkpoint would defeat the
+# reason for having them.
+PD_KP, PD_KD = 20.0, 0.5
+
+# Per-joint effort limits read from the URDF's <limit effort>, in MOTOR_NAMES
+# order. Hip and thigh are 23.7 N*m; the calf is 45.43 N*m because the Go2 knee
+# carries a reduction. They are NOT uniform, so a single clamp would either
+# throttle the knee or let the hips exceed hardware.
+JOINT_EFFORT_NM = np.array([23.7, 23.7, 45.43] * 4)
+
 # Chrono joint order. The policy does not use this order; see CHRONO_TO_POLICY.
 MOTOR_NAMES = [
     "RR_hip_joint", "RR_thigh_joint", "RR_calf_joint",

@@ -74,6 +74,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--pose-ramp-seconds", type=float, default=0.75)
     parser.add_argument("--settle-seconds", type=float, default=0.5)
     parser.add_argument("--solver-iters", type=int, default=150)
+    parser.add_argument("--actuation", choices=["torque", "position"], default="torque")
     parser.add_argument("--assets", default=DEFAULT_ASSETS)
     parser.add_argument("--patch-x", type=float, default=8.0)
     parser.add_argument("--patch-y", type=float, default=4.0)
@@ -242,7 +243,7 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
     )
     os.chdir(urdf.parent)
     try:
-        robot = Go2Robot(system, urdf, init)
+        robot = Go2Robot(system, urdf, init, actuation=args.actuation)
     finally:
         os.chdir(cwd_at_start)
 
@@ -310,6 +311,7 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
                 if sph_probe is not None:
                     soil_z, soil_ctrl = soilprobe.sample(sph_probe, robot)
 
+            robot.apply_pd()          # every physics step, not every control step
             if terrain is not None:
                 terrain.DoStepDynamics(exchange)
             else:
@@ -370,6 +372,7 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
         "terrain_type": args.terrain,
         "terrain_label": terrain_label,
         "foot_force_source": config["logging"]["foot_force_source"],
+        "plant": args.actuation,
         "command_constant": True,
         "command_lin_vel": [0.5, 0.0, 0.0],
         "seed": int(args.seed),

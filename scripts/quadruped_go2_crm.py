@@ -81,6 +81,11 @@ def build_parser() -> argparse.ArgumentParser:
 
     # ---- advanced: settled defaults, kept for sweeps and reproduction ----
     adv = ap.add_argument_group("advanced", "settled defaults; each was measured")
+    adv.add_argument("--actuation", choices=["torque", "position"], default="torque",
+                     help="torque: PD on ChLinkMotorRotationTorque, kp/kd from the "
+                          "legged_gym family, clamped to URDF effort. position: the "
+                          "historical kinematic-constraint plant, unbounded torque, "
+                          "which every gate before 2026-09-03 was measured on.")
     adv.add_argument("--assets", default="/home/kyle/Documents/sbel/sbel-reproducibility/2025/multi-terrain-RL")
     adv.add_argument("--step", type=float, default=5e-4, help="CFD step")
     adv.add_argument("--exchange-mult", type=int, default=5, help="MBS/CFD exchange = mult * step")
@@ -212,7 +217,7 @@ def main() -> int:
     cwd = cwd_at_start
     os.chdir(urdf.parent)
     try:
-        robot = Go2Robot(system, urdf, init)
+        robot = Go2Robot(system, urdf, init, actuation=args.actuation)
     finally:
         os.chdir(cwd)
 
@@ -282,6 +287,8 @@ def main() -> int:
                 robot.actuate(STAND_ACTION)
             else:
                 robot.actuate(policy.act(robot))
+        # PD runs every PHYSICS step, not every control step -- see apply_pd.
+        robot.apply_pd()
         if terrain is not None:
             terrain.DoStepDynamics(exchange)   # advances BOTH fluid and multibody
         else:
