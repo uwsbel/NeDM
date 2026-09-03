@@ -87,6 +87,14 @@ small, numerous, positionally-defined ones. **For a planner-facing
 representation, rocks are the class that matters, and they are the class that is
 completely gone.**
 
+**Do not lean on the vehicle number at all.** The generator places *exactly one*
+vehicle in every frame, so a detector that always fires scores recall 1.0 at
+near-zero IoU. Observed `z2` is recall 0.549 at IoU 0.082 — nearer that
+degenerate behaviour than to detection, and in fact *worse at recall than a
+constant predictor*. Against a class present in every frame, recall is not
+evidence of anything. The rock row carries the result; the vehicle row is
+included for completeness and should not be quoted as a capability.
+
 **Probe capacity is ruled out by direction.** The 1×1 conv probes have C·3+3
 parameters, so 99 at stage 1 rising to 1539 at stage 5: deeper stages get *more*
 probe capacity and do *worse*. The `z2` probe is an MLP with ~6.4 M parameters,
