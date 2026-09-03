@@ -180,7 +180,7 @@ upstream.
 It also explains the conda build: pychrono 10.0.0 predates the sensor FSI
 feature entirely, so no binding could have existed regardless of flags.
 
-## Configure gotchas, all three hit on `kyle-sbel`
+### Configure gotchas
 
 **1. A working CUDA compiler with no architecture list counts as NO toolchain.**
 The trap of this build. CMake reported success at every step:
@@ -286,6 +286,45 @@ The two boxes have materially different toolchains, measured:
 | SWIG | 4.5.0 (conda, installed today) | 4.2.0 (system) |
 | **ROS 2** | **Humble** | **Jazzy** |
 | OptiX SDK | 9.0.0 (installed today) | 9.0.0 (already present) |
+| **GPU / compute cap** | **RTX 3090, 8.6** | **12.0 (Blackwell)** |
+| `tinyxml2` | **conda** (Ubuntu 22.04 ships no CMake config) | **system 10.0.0** (24.04 ships one) |
+| Vulkan RT | OFF (no `glslangValidator`) | OFF (same) |
+
+Both configured successfully with OptiX ON and every module confirmed by name.
+Sensor flags are **identical** across the fleet, which is the part of Kyle's
+same-commit constraint that actually protects anything.
+
+**Two divergences land in the same module, `parsers`:** ROS distro *and* now
+`tinyxml2` provenance. Ubuntu 24.04 ships
+`/usr/lib/x86_64-linux-gnu/cmake/tinyxml2/tinyxml2-config.cmake` (10.0.0) and
+22.04 does not, so `kyle-sbel` links a **conda** tinyxml2 into an otherwise
+system build while `kyle-N7-B650E` links the **system** one. Correct on both
+boxes given what each has; not comparable. Parsers is now the module to suspect
+first for any cross-box disagreement, on two independent grounds.
+
+**The GPU gap is the widest divergence and the least discussed.** Compute 8.6
+against 12.0 is two architecture generations. Any timing, throughput, or
+realtime-factor number is a property of the box and not of the code, and must
+carry the GPU when reported. Numerical results should agree; performance
+results have no reason to.
+
+### Do not let a source build overwrite the conda `pychrono`
+
+Both boxes have a working conda `pychrono` 10.0.0, which today is the **only
+working renderer** on either. A source build must not overwrite it: that trades
+a known-good for an unproven one, with no way back short of a reinstall.
+
+`kyle-N7-B650E` uses a separate `CMAKE_INSTALL_PREFIX`
+(`~/chrono-build/install`) against the `nedm` interpreter. `kyle-sbel` uses a
+cloned env (`nedm-src`). Different mechanics, same property, and both are fine.
+
+**Selecting the source build must be an explicit act, never a default.** And
+verify the selection by reading `pychrono.__file__` after import — not by
+observing that `PYTHONPATH` is set. Both envs contain a conda `pychrono` as
+well, so a path that *looks* right and an import that *resolves* right are
+separate claims. Same rule as the configure summary block.
+
+## Configure gotchas, all three hit on `kyle-sbel`
 
 Pinning the SHA is necessary and **not sufficient**. The ROS divergence matters
 most: `parsers` links against ROS, distros differ in `rmw` and `urdfdom`, and
