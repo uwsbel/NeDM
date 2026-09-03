@@ -40,9 +40,9 @@ with a radial signature. Fitted as a scalar `ray_scale = 1.200` in
 `nedm/traverse/camera.py` and recorded in the dataset manifest. **Worth
 reporting upstream.**
 
-## Blocker: the renderer does not run on either reachable box
+## Resolved: the renderer needs the `nedm` environment
 
-**Found 2026-09-02.** `src/nedm/traverse/scene.py:410` calls
+**Found and resolved 2026-09-02.** `src/nedm/traverse/scene.py:410` calls
 `manager.scene.AddDirectionalLight(...)`. `ChScene` in pychrono 9.0.0 has no
 directional light at all: only `AddPointLight` and `AddAreaLight` exist, and
 there is no `DirectionalLight` class. Both `kyle-sbel` and `kyle-N7-B650E` run
@@ -53,11 +53,14 @@ re-run them since.
 `src/nedm/double_pendulum_data.py:199` uses `AddPointLight` and is unaffected,
 so Study 1 renders and Study 3 does not.
 
-Do not paper over this with a `hasattr` fallback in `scene.py`. Point lights are
-not directional lights, and swapping them changes the shading of collected
-frames, which would silently break comparability with the pilot tier already
-collected on `newton`. It is a version decision: either a Chrono new enough to
-have the call, or a deliberate re-collection under changed lighting.
+**The fix is the environment, not the code.** `conda env create -f
+environment.nedm.yml` gives pychrono 10.0.0 from the `projectchrono` channel,
+where `AddDirectionalLight` is present (verified on `kyle-sbel`). Run everything
+in this study under `envs/nedm`, never under `envs/chrono`.
+
+A `hasattr` fallback to point lights in `scene.py` was considered and rejected:
+point lights are not directional lights, and the shading change would silently
+break comparability with the pilot tier already collected on `newton`.
 
 ## What is next — the one action
 

@@ -9,17 +9,21 @@ is a 2-D one-hot over three discrete terrains.
 
 ## III — Quadruped locomotion on CRM terrain *(proposed by the author; recommended)*
 
-> **Blocker, found 2026-09-02: there is no CRM on either reachable box.**
-> Neither `kyle-sbel` nor `kyle-N7-B650E` has `pychrono.fsi`, and CRM terrain
-> lives in Chrono::FSI. Both run stock pychrono 9.0.0, so this is a property of
-> that package rather than of the machines. The CRM half of this study needs a
-> source build of Chrono with FSI and Python bindings, or C++, or a box that
-> already has one. **The rigid-ground half is unaffected**: RoboSimian, `RS_Driver`
-> and `walking_cycle.txt` are all present, which is what
-> `scripts/quadruped_wp0_gait.py` exercises.
+> **Unblocked 2026-09-02 by the `nedm` environment.** Both blockers here were
+> version, not hardware. Under pychrono 10.0.0 from the `projectchrono` channel
+> (`conda env create -f environment.nedm.yml`), verified on `kyle-sbel`:
 >
-> Second blocker for the Go2 half: `ChParserURDF` is unavailable on both boxes,
-> and for different reasons on each. See the machine files.
+> - **`pychrono.fsi` is present with the CRM machinery by name**:
+>   `PhysicsProblem_CRM`, `ChFsiProblemSPH`, `ChFsiSystemSPH`,
+>   `RheologyCRM_MCC`, `RheologyCRM_MU_OF_I`, SPH integration schemes. So this
+>   study is prototypable, and the **CRM realtime factor, which is the number
+>   this section actually argues about and which nothing has ever measured, is
+>   now measurable.**
+> - **`ChParserURDF` is exposed**, so the Go2 URDF path is open.
+> - RoboSimian and all twelve actuation files ship in 10.0.0 too, so the
+>   prototype and the study want the same environment.
+>
+> Under the older `envs/chrono` (pychrono 9.0.0) none of that holds. Use `nedm`.
 
 
 **Why it is the strongest candidate.** It is the first **intermittent-contact**

@@ -46,8 +46,11 @@ therefore the only option.
 dynamic trot.** At the plan's 0.3-0.5 s that is 15 to 25 tokens at 50 Hz, so
 lengthening the context stays entirely viable there, and 16 tokens is already
 within a few of sufficient. The prototype measurement bounds the machinery, not
-the answer. **Still open for Go2**, and it needs a Go2 gait period, which needs
-`ChParserURDF`, which is unavailable on both boxes.
+the answer. **Still open for Go2**, and it needs a Go2 gait period. That was blocked while
+both boxes ran pychrono 9.0.0, where `ChParserURDF` fails to load. Under the
+`nedm` environment (pychrono 10.0.0) the parser is exposed and verified, so
+**this is now answerable**: import a Go2 URDF, run a trot, and measure the
+period the same way `scripts/quadruped_wp0_gait.py cycle` does for RoboSimian.
 
 ## Where does the quadruped's seed controller come from?
 
