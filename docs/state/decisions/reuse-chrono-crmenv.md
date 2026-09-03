@@ -4,7 +4,8 @@
 
 ## Why this came up
 
-`scripts/quadruped_go2_crm.py` reimplements the checkpoint's input contract by
+`scripts/quadruped_go2_crm.py` (now `src/nedm/quadruped/policy.py`) reimplemented
+the checkpoint's input contract by
 hand: joint reorder, sign flip, observation scaling, and the command slot. Its
 docstring justifies this as *"a PORT, not a reuse. That work runs
 `bochengzou::pychrono`; everything here runs the `nedm` environment."*

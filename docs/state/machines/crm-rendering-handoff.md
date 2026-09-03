@@ -6,6 +6,25 @@ rendered through Chrono::Sensor, from Python, on two GPU architectures.
 This page exists because the knowledge was spread across ~20 commit messages and
 would cost someone a day to reassemble. Everything here is measured.
 
+## Where the code lives
+
+```
+src/nedm/quadruped/constants.py    conventions, scales, soil presets
+                   robot.py        Go2Robot
+                   policy.py       the inherited observation contract
+                   terrain.py      CRM and rigid construction
+                   camera.py       sprite render + the four camera modes
+                   soilprobe.py    z95 sinkage with the ejecta filter
+scripts/quadruped_go2_crm.py       argparse + the sim loop
+```
+
+Everyday use is six flags: `--seconds --terrain --soil --camera --out --no-policy`.
+Everything else sits in an `advanced` argparse group.
+
+```
+python scripts/quadruped_go2_crm.py --camera overhead --out runs/demo
+```
+
 ## To reproduce a render, you need all four of these
 
 Miss any one and you get a plausible-looking failure rather than an error.
@@ -29,7 +48,7 @@ rebuild that skips the patch produces a sensor module whose only reachable
 configuration renders nothing.
 
 **That is not left to anyone remembering.** `attach_sph_rendering` in
-`scripts/quadruped_go2_crm.py` **raises** if `ChFsiSphRenderOptions` is absent,
+`src/nedm/quadruped/camera.py` **raises** if `ChFsiSphRenderOptions` is absent,
 naming the patch and this page. It previously attached anyway and reported
 *"attached (defaults)"* — the silent no-op pattern, in our own code.
 
@@ -39,7 +58,9 @@ hazard is only on the *next* rebuild.
 
 ## The settings, and the two that read backwards
 
-Locked as defaults in `scripts/quadruped_go2_crm.py` (commit `6990392`).
+Constants in `src/nedm/quadruped/camera.py`, each carrying the measurement that
+fixed it. **They are no longer CLI flags** — they are settled, so they are not
+decisions to make at the command line.
 
 | setting | value | consequence if wrong |
 |---|---|---|
