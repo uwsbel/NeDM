@@ -47,6 +47,7 @@ DURATION_SETTLE = 0.5    # settle onto terrain once released
 TERRAIN_LENGTH = 8.0
 TERRAIN_WIDTH = 2.0
 FALL_DROP_M = 0.25       # chassis drop below its released height that counts as a fall
+OUTPUT_FPS = 100         # robot.Output() rate, matching the shipped demo
 
 
 def rpy_from_quat(e0: float, e1: float, e2: float, e3: float) -> tuple[float, float, float]:
@@ -125,6 +126,13 @@ def cmd_cycle(args: argparse.Namespace) -> int:
     return 0
 
 
+def up_axis_from_quat(e0: float, e1: float, e2: float, e3: float) -> tuple[float, float, float]:
+    """The body's local +Z expressed in world coordinates."""
+    return (2.0 * (e1 * e3 + e0 * e2),
+            2.0 * (e2 * e3 - e0 * e1),
+            e0 * e0 - e1 * e1 - e2 * e2 + e3 * e3)
+
+
 def cmd_walk(args: argparse.Namespace) -> int:
     import pychrono as chrono
     import pychrono.robot as robosimian
@@ -136,6 +144,14 @@ def cmd_walk(args: argparse.Namespace) -> int:
     if not Path(cycle_file).is_file():
         print(f"FAIL: actuation file not found at {cycle_file}")
         return 1
+
+    # RS_Driver loops this file, so its duration is the gait period. A window
+    # shorter than one period measures part of a stride, not locomotion.
+    cycle_period = float(np.loadtxt(cycle_file, usecols=0)[-1])
+    if args.sim_seconds < cycle_period:
+        print(f"WARNING: --sim-seconds {args.sim_seconds} is shorter than the "
+              f"{cycle_period:.2f} s gait period. Travel and speed will describe "
+              f"part of one stride. Use at least {math.ceil(2 * cycle_period)}.")
 
     sys_ = chrono.ChSystemSMC()
     sys_.SetCollisionSystemType(chrono.ChCollisionSystem.Type_BULLET)
@@ -163,11 +179,14 @@ def cmd_walk(args: argparse.Namespace) -> int:
     time_create_terrain = DURATION_POSE
     time_start = time_create_terrain + DURATION_SETTLE
     time_end = time_start + args.sim_seconds
+    output_every = max(1, math.ceil((1.0 / OUTPUT_FPS) / TIME_STEP))
 
     log: list[list[float]] = []
     terrain_created = False
     released_z = None
+    up0 = None
     fell_at = None
+    step = 0
     wall0 = time.perf_counter()
 
     while sys_.GetChTime() < time_end:
@@ -179,23 +198,37 @@ def cmd_walk(args: argparse.Namespace) -> int:
             _set_contact_properties(chrono, robot)
             robot.GetChassisBody().SetFixed(False)
             terrain_created = True
-            released_z = robot.GetChassisBody().GetPos().z
+            body = robot.GetChassisBody()
+            released_z = body.GetPos().z
+            r = body.GetRot()
+            up0 = up_axis_from_quat(r.e0, r.e1, r.e2, r.e3)
 
         robot.DoStepDynamics(TIME_STEP)
+        step += 1
 
         t = sys_.GetChTime()
         if terrain_created and t >= time_start:
+            if step % output_every == 0:
+                robot.Output()  # per-limb .dat channel; empty without this call
             body = robot.GetChassisBody()
             pos, rot = body.GetPos(), body.GetRot()
             roll, pitch, yaw = rpy_from_quat(rot.e0, rot.e1, rot.e2, rot.e3)
-            log.append([t, pos.x, pos.y, pos.z, roll, pitch, yaw])
+            up = up_axis_from_quat(rot.e0, rot.e1, rot.e2, rot.e3)
+            # Tilt from the pose the robot was released in. Absolute roll is
+            # useless here: RoboSimian is initialized 180 deg about X, so roll
+            # sits at +/-pi for the whole run by construction.
+            dot = max(-1.0, min(1.0, sum(a * b for a, b in zip(up, up0))))
+            tilt = math.acos(dot)
+            log.append([t, pos.x, pos.y, pos.z, roll, pitch, yaw, tilt])
             if fell_at is None and released_z is not None and pos.z < released_z - FALL_DROP_M:
                 fell_at = t
 
     wall = time.perf_counter() - wall0
     arr = np.asarray(log, dtype=np.float64)
-    np.savez_compressed(out_dir / "trajectory.npz", log=arr,
-                        columns=np.array(["t", "x", "y", "z", "roll", "pitch", "yaw"]))
+    np.savez_compressed(
+        out_dir / "trajectory.npz", log=arr,
+        columns=np.array(["t", "x", "y", "z", "roll", "pitch", "yaw", "tilt_from_release"]),
+    )
 
     try:
         avg_speed = float(cbk.GetAvgSpeed())
@@ -205,8 +238,12 @@ def cmd_walk(args: argparse.Namespace) -> int:
 
     dx = float(arr[-1, 1] - arr[0, 1]) if len(arr) else 0.0
     dy = float(arr[-1, 2] - arr[0, 2]) if len(arr) else 0.0
+    cycles = args.sim_seconds / cycle_period if cycle_period else None
     summary = {
         "sim_seconds": args.sim_seconds,
+        "gait_period_s": round(cycle_period, 3),
+        "cycles_covered": round(cycles, 3) if cycles else None,
+        "window_covers_full_cycle": bool(cycles and cycles >= 1.0),
         "wall_seconds": round(wall, 1),
         "realtime_factor": round(args.sim_seconds / wall, 4) if wall else None,
         "fell": fell_at is not None,
@@ -215,14 +252,19 @@ def cmd_walk(args: argparse.Namespace) -> int:
         "lateral_drift_m": round(dy, 4),
         "avg_speed_mps_callback": avg_speed,
         "mean_speed_mps_derived": round(abs(dx) / args.sim_seconds, 4) if args.sim_seconds else None,
-        "max_abs_roll_rad": round(float(np.abs(arr[:, 4]).max()), 4) if len(arr) else None,
-        "max_abs_pitch_rad": round(float(np.abs(arr[:, 5]).max()), 4) if len(arr) else None,
+        # Tilt from the released pose. max_abs_roll is deliberately absent: it is
+        # a constant of the 180 deg initialization, not a measurement.
+        "max_tilt_from_release_rad": round(float(arr[:, 7].max()), 4) if len(arr) else None,
+        "chassis_z_range_m": [round(float(arr[:, 3].min()), 5),
+                              round(float(arr[:, 3].max()), 5)] if len(arr) else None,
         "samples": int(len(arr)),
     }
     (out_dir / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
     print(json.dumps(summary, indent=2))
-    print("\nGATE: " + ("FAIL, robot fell" if summary["fell"]
-                        else "PASS, stayed upright for the full window"))
+    verdict = "FAIL, robot fell" if summary["fell"] else "PASS, stayed upright for the full window"
+    if not summary["window_covers_full_cycle"]:
+        verdict += " (travel/speed NOT meaningful: window is under one gait period)"
+    print("\nGATE: " + verdict)
     return 0
 
 
@@ -262,7 +304,8 @@ def main() -> int:
     sub = parser.add_subparsers(dest="cmd", required=True)
     sub.add_parser("cycle", help="report the actuation file's gait period")
     walk = sub.add_parser("walk", help="run the scripted gait on rigid ground")
-    walk.add_argument("--sim-seconds", type=float, default=10.0)
+    walk.add_argument("--sim-seconds", type=float, default=40.0,
+                      help="default covers ~2 RoboSimian gait cycles (~19.2 s each)")
     walk.add_argument("--out", default="artifacts/quadruped/wp0_walk")
     args = parser.parse_args()
     return cmd_cycle(args) if args.cmd == "cycle" else cmd_walk(args)

@@ -41,8 +41,19 @@ analogue of the paper's terramechanics ablation.
 locomotion policy in Chrono + CRM: PPO needs ~10⁸ steps and CRM runs below
 realtime — that is precisely the problem NRD exists to solve. And a
 random-action quadruped falls in ~0.4 s, so the HMMWV trick of collecting from a
-meandering driver gives a dataset that is 100% collapse dynamics. Ranked ways
-out:
+meandering driver gives a dataset that is 100% collapse dynamics.
+
+**Measured 2026-09-02, and it narrows this:** `scripts/quadruped_wp0_gait.py
+walk` runs scripted RoboSimian on `kyle-sbel` at **1.14x realtime** (10 s of sim
+in 8.8 s of wall, SMC + Bullet, 1 ms step, rigid ground, no rendering). Scope it
+honestly. This bounds the *non-terrain* half of the loop only, and says nothing
+about CRM, which is the terrain the "below realtime" claim is actually about and
+which neither box can run. What it does say is that ranked option 2 below, a
+rigid-ground PPO seed policy in Chrono, is worth costing properly rather than
+assuming it is out of reach; the throughput objection applies to CRM, not to
+rigid ground.
+
+Ranked ways out:
 
 1. **Scripted gait, not RL — the WP0a move.** A trot with Raibert-style foot
    placement over PD joint tracking. Chrono already ships this pattern:
