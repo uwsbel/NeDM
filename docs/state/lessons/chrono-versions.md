@@ -283,3 +283,47 @@ and passed, while Chrono requested the lowercase name and failed. The check
 written to prevent the failure reproduced it one layer down.
 **Fix:** assert the exact path the consumer will open, not a case-folded
 substring of it. See `require_chassis_hull_mesh` in `src/nedm/hmmwv_data.py`.
+
+## The default backend can change under you between a tag and HEAD
+
+**Cost:** caught before configure, one grep · **Found:** 2026-09-03 · **Applies to:** any Chrono::Sensor build off main
+
+**Expected:** Chrono::Sensor means OptiX, so a source build needs the OptiX SDK
+and a driver new enough to serve its ABI. We upgraded a driver to R595 and
+installed the 9.0.0 SDK on two boxes on that basis.
+**Happened:** on the pinned commit, `src/chrono_sensor/CMakeLists.txt` reads
+
+```cmake
+set(CH_USE_SENSOR_OPTIX     OFF CACHE BOOL "Enable LEGACY OptiX-dependent ...")
+set(CH_USE_SENSOR_VULKAN_RT ON  CACHE BOOL "Enable Vulkan ray-tracing ...")
+```
+
+Upstream demoted OptiX to **legacy, off by default** and made Vulkan RT the
+default somewhere between tag 10.0.0 and main. A default configure yields a
+sensor module with no OptiX in it, and the whole driver-and-SDK effort may have
+been aimed at a backend this commit does not build.
+**Fix:** read the module's own `CMakeLists.txt` for backend switches and their
+defaults **before** configuring, and never infer a backend from what the module
+required at the last tag. Enable both backends when the headers allow it; they
+coexist behind separate `#ifdef`s in `ChSensorManager.h`, and different machines
+may only be able to run different ones.
+
+The general form, and the third instance of it in this file: **a version pin
+fixes the source, not the assumptions built on an earlier version of it.**
+Version drift moved four class names 9→10, removed the FSI-SPH render feature
+from tag 10.0.0 entirely, and has now swapped a rendering backend. Each was
+found by reading the tree rather than by trusting a memory of it.
+
+## A locator variable's default can reach outside the tree you pinned
+
+**Cost:** none, caught by reading `FindOptiX.cmake` · **Found:** 2026-09-03 · **Applies to:** any `-D` path we leave unset
+
+**Expected:** leaving `OptiX_INSTALL_DIR` unset means CMake searches system
+locations, and a wrong result would announce itself as "not found".
+**Happened:** `cmake/FindOptiX.cmake:32` defaults it to `"${CMAKE_SOURCE_DIR}/../"`,
+the **parent of the source tree**. Both boxes hold multiple unrelated Chrono
+forks as sibling directories, one box fourteen of them. An unset value could
+silently resolve against a fork we had explicitly decided not to reuse, and the
+build would succeed and look correct.
+**Fix:** set every path locator explicitly, and prefer building outside any
+directory that holds sibling checkouts so the default cannot reach them.
