@@ -1,0 +1,85 @@
+"""Constants and conventions for the Go2-on-CRM runs.
+
+Split out of scripts/quadruped_go2_crm.py unchanged. The comments here are the
+most valuable part of the module: the joint permutation and the sign negation
+are conventions inherited from the training harness, and one of them nobody has
+ever explained."""
+
+from __future__ import annotations
+
+import math
+
+import numpy as np
+
+
+GRAVITY = 9.81
+
+# Chrono joint order. The policy does not use this order; see CHRONO_TO_POLICY.
+MOTOR_NAMES = [
+    "RR_hip_joint", "RR_thigh_joint", "RR_calf_joint",
+    "RL_hip_joint", "RL_thigh_joint", "RL_calf_joint",
+    "FR_hip_joint", "FR_thigh_joint", "FR_calf_joint",
+    "FL_hip_joint", "FL_thigh_joint", "FL_calf_joint",
+]
+FOOT_BODIES = ["FR_foot", "FL_foot", "RR_foot", "RL_foot"]
+SOIL_PROBE_R = 0.05      # radius of the particle patch sampled under each foot
+SOIL_CTRL_XY = (0.0, 1.2)  # undisturbed control patch, off the robot's path
+EJECTA_BAND = 0.03       # ignore particles this far above the control surface
+CALF_BODIES = ["FR_calf", "FL_calf", "RR_calf", "RL_calf"]
+
+# Chrono [RR,RL,FR,FL] -> policy [FR,FL,RR,RL]. Swapping two halves of six is
+# its own inverse, so this converts observations one way and actions the other.
+# The policy frame is RSL-RL's, taken from chrono_crmenv.py which ships with the
+# checkpoint. NOT Genesis: these were originally named *_GENESIS_*, which was
+# wrong -- model_2999.pt was trained in Chrono, not imported from Genesis. The
+# name leaked from the plan's REJECTED option 3 ("import a pretrained Go2 policy
+# (Genesis / IsaacLab)") and then into the docs and a summary page as though it
+# described what we did.
+CHRONO_TO_POLICY = np.array([6, 7, 8, 9, 10, 11, 0, 1, 2, 3, 4, 5], dtype=np.int64)
+
+# Policy-frame rest pose, in policy order [FR, FL, RR, RL]. Front and rear thigh
+# defaults differ (0.8 vs 1.0); normalising that away breaks the stance.
+POLICY_DEFAULTS = np.array([0.0, 0.8, -1.5, 0.0, 0.8, -1.5,
+                             0.0, 1.0, -1.5, 0.0, 1.0, -1.5], dtype=np.float32)
+
+# Chrono-order standing pose, held while the robot settles onto the soil.
+STAND_ACTION = np.array([0.0, -1.0, 1.5, 0.0, -1.0, 1.5,
+                         0.0, -0.8, 1.5, 0.0, -0.8, 1.5], dtype=np.float64)
+
+# ~63 deg from upright. A walking Go2 stays well inside this; a tumble
+# crosses it decisively, so it separates gait roll from falling over.
+FALL_TILT_RAD = math.radians(63.0)
+
+LIN_VEL_SCALE, ANG_VEL_SCALE, DOF_POS_SCALE, DOF_VEL_SCALE = 2.0, 0.25, 1.0, 0.05
+
+# Two soil presets, and which one you pick is a research decision.
+#
+# "eval" matches configs/hmmwv_crm_eval.json and demo_ROBOT_Viper_CRM.py. It is
+# the soil the HMMWV work uses, and it is what this script ran until it was found
+# to put a landing body into an undamped limit cycle.
+#
+# "training" is what chrono_crmenv.py actually used for the CRM policy finetune,
+# with Young's modulus HALVED and cohesion cut to 40%, both commented "Reduced"
+# in the source. Whoever wrote it evidently hit the same wall and solved it by
+# softening the soil rather than by raising artificial dissipation. That is the
+# physically honest fix: Young's modulus and cohesion are soil properties, and
+# artificial_viscosity is a numerical damping term that changes the foot-soil
+# interaction Case Study IV exists to measure.
+# WORKING COMBINATION, measured: soil "training" AND artificial_viscosity 2.0.
+# Neither alone is sufficient and the pair is better than either, because they
+# fix different halves of the problem. Standing, 8 s, depth 0.2:
+#   eval soil     + av 0.5 -> flips at 1.4 s, 178 deg
+#   training soil + av 0.5 -> falls at 2.4 s, 103 deg
+#   eval soil     + av 2.0 -> PASS but drifts to 13.7 deg, 11 cm front-rear split
+#   training soil + av 2.0 -> PASS, 6.8 deg peak, 4 cm split, tilt 0.7 deg at t=1
+# Soft soil fixes the IMPACT: spike falls 1168 N to 138 N, about one robot weight.
+# Viscosity fixes the RINGING: on soft soil at av 0.5 the box force swing halves
+# but its vertical excursion nearly TRIPLES, 0.024 m to 0.069 m, and it is the
+# movement rather than the force that topples a quadruped.
+SOIL_PRESETS = {
+    "eval": dict(density=1700.0, young=1.0e6, poisson=0.3, mu_I0=0.04,
+                 friction=0.8, diam=0.005, cohesion=5000.0),
+    "training": dict(density=1700.0, young=5.0e5, poisson=0.3, mu_I0=0.04,
+                     friction=0.8, diam=0.005, cohesion=2000.0),
+}
+
