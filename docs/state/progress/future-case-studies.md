@@ -57,7 +57,38 @@ against a hardcoded 0.5 m/s command, tracking roughly straight. A wrong
 observation vector produces thrashing or backwards motion, so the ported
 convention is right.
 
-**Update 2026-09-03: the tumble was a spawn artifact, and a second failure is
+**Update 2026-09-03: the Go2 WALKS on rigid ground, and the port is validated.**
+`--terrain rigid` reproduces the `ChBodyEasyBox` ground the policy was trained
+on. Result: **8 s upright, 3.11 m travelled at 0.423 m/s** against a 0.5 m/s
+command (85%), max tilt **6.6°**, body height steady at 0.35 m.
+
+That validates the entire port end to end: observation convention, the
+Genesis/Chrono reorder, the sign flip, the motor mapping, the 45-wide vector,
+the actuation type. **So every CRM failure is CRM-specific**, not a porting bug.
+
+The contrast is total and early:
+
+| tilt at | rigid | CRM |
+|---|---|---|
+| 0.5 s | 0.3° | 3.0° |
+| 1.0 s | **1.5°** | **11.8°** |
+| 1.5 s | 2.4° | 29.8° |
+
+**And the bounce is absent on rigid.** Same robot, same spawn logic, same policy,
+comparable foot clearance: rigid recovers 2.5 cm as the legs take the load, CRM
+rebounds **7.8 cm at a coefficient of restitution of 0.78**. Granular soil
+returning three quarters of an impact velocity is not soil behaviour, and it is
+now isolated as the open question. Candidates remaining are SPH resolution (the
+25 mm foot spanned only 1.7 particle spacings at the original 0.03) and solver
+iterations (60, taken from the rigid-ground skill, against 150 in SBEL's own CRM
+playground).
+
+**The lesson is the sequencing.** This control existed the whole time and would
+have taken four minutes. Running it first would have skipped an afternoon spent
+on spawn clearance, embedded particles and pose ramps, all of which assumed the
+port might be at fault.
+
+**Superseded below: the tumble was a spawn artifact, and a second failure is
 underneath it.** The Go2's URDF rest pose extends the legs, so a base height
 chosen as a constant put the feet *below* the soil surface and the BCE markers
 took a launch impulse from the particle bed. Spawn height is now derived from
