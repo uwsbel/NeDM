@@ -109,6 +109,13 @@ def build_parser() -> argparse.ArgumentParser:
     adv.add_argument("--foot-margin-spacings", type=float, default=5.0,
                      help="foot gap above the soil at spawn, in SPH spacings")
     adv.add_argument("--solver-iters", type=int, default=150)
+    # Override the preset's soil stiffness / cohesion. Both presets give only
+    # 1-5 mm of surface response under a Go2, which is a tenth of a particle
+    # diameter and cannot be seen; these exist to sweep softer.
+    adv.add_argument("--soil-young", type=float, default=None,
+                     help="override Young's modulus (training preset: 5.0e5)")
+    adv.add_argument("--soil-cohesion", type=float, default=None,
+                     help="override cohesion (training preset: 2000)")
     # 0.5 is the Viper demo value and leaves an undamped limit cycle under
     # impact; 3.0 and above crash the full-scale run. 2.0 is nearly the only
     # value in the working window. See docs/state/lessons/chrono-versions.md.
@@ -349,7 +356,9 @@ def main() -> int:
         "solver_iters": args.solver_iters,
         "artificial_viscosity": args.artificial_viscosity,
         "soil_preset": args.soil,
-        "soil": SOIL_PRESETS[args.soil],
+        "soil": {**SOIL_PRESETS[args.soil],
+                 **({"young": args.soil_young} if args.soil_young is not None else {}),
+                 **({"cohesion": args.soil_cohesion} if args.soil_cohesion is not None else {})},
         "sph_particles": int(terrain.GetNumSPHParticles()) if terrain else 0,
         "soil_top_m": soil_top, "spawn_z_m": spawn_z,
         "forward_travel_m": round(float(arr[-1, 1] - arr[0, 1]), 4),
