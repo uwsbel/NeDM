@@ -427,7 +427,7 @@ def build_rigid_ground(chrono, system):
     return ground, 0.05   # top surface
 
 
-def attach_sph_rendering(sens, manager, terrain, args):
+def attach_sph_rendering(chrono, sens, manager, terrain, args):
     """Make the CRM soil visible to Chrono::Sensor.
 
     SPH markers are not visual shapes, so a camera sees nothing by default and
@@ -450,12 +450,46 @@ def attach_sph_rendering(sens, manager, terrain, args):
             attach(sph)
             return "attached (no render options class; defaults)"
         opts = opts_cls()
-        # Sprite spacing drives how densely particles are drawn. Tie it to the
-        # actual particle spacing rather than the demo's hardcoded 0.01.
+        # BOTH of these are required for anything to be drawn, and the defaults
+        # are a null configuration -- ChFsiSphRender.h documents sprite_shapes as
+        # "Required" (default: empty) and render_particle_spacing as "Must be
+        # positive to render particles" (default: 0.f). Attaching with a
+        # default-constructed options object returns a valid handle and renders
+        # NOTHING, which is what an 886,611-particle run produced before the
+        # options struct was exposed: 86% flat sky, 0.2% dark pixels.
+        spacing = float(args.sph_render_spacing or args.spacing)
+        n_shapes = 0
+        if hasattr(opts, "sprite_shapes"):
+            # Match demo_SEN_CRM_Rendering.cpp EXACTLY rather than substituting a
+            # primitive. It loads three regolith OBJs as ChVisualShapeTriangleMesh
+            # with a white material; a ChVisualShapeSphere was accepted here and
+            # rendered nothing, so the sprite path likely handles meshes only.
+            # Comparing a first render against a known-good reference is worth
+            # more than comparing against a variant we invented.
+            mat = chrono.ChVisualMaterial()
+            mat.SetAmbientColor(chrono.ChColor(1, 1, 1))
+            mat.SetDiffuseColor(chrono.ChColor(1, 1, 1))
+            for i in (1, 2, 3):
+                path = chrono.GetChronoDataFile(f"models/regolith/particle_{i}.obj")
+                if not Path(path).is_file():
+                    continue
+                mesh = chrono.ChTriangleMeshConnected.CreateFromWavefrontFile(path, False, True)
+                shape = chrono.ChVisualShapeTriangleMesh()
+                shape.SetMesh(mesh)
+                shape.SetName(f"RegolithMesh{i}")
+                shape.SetMutable(False)
+                shape.AddMaterial(mat)
+                opts.sprite_shapes.append(shape)
+            n_shapes = len(opts.sprite_shapes)
+        if hasattr(opts, "sprite_position_jitter"):
+            opts.sprite_position_jitter = chrono.ChVector3f(0.005, 0.005, 0.0)
         if hasattr(opts, "render_particle_spacing"):
-            opts.render_particle_spacing = float(args.sph_render_spacing or args.spacing)
-        attach(sph, opts)
-        return f"attached, render_particle_spacing={args.sph_render_spacing or args.spacing}"
+            opts.render_particle_spacing = spacing
+        handle = attach(sph, opts)
+        if handle is not None and handle < 0:
+            return f"FAILED: AttachFsiSphSystem returned {handle} (no-op)"
+        return (f"attached handle={handle}, sprite_shapes={n_shapes}, "
+                f"render_particle_spacing={spacing}")
     except Exception as exc:  # noqa: BLE001
         return f"FAILED: {type(exc).__name__}: {exc}"
 
@@ -487,7 +521,7 @@ def attach_camera(chrono, system, args, soil_top: float, terrain=None):
     # the pipeline that camera already holds. Attaching after AddSensor produced
     # frames byte-identical to attaching not at all -- options populated, handle
     # 0, no error, and nothing drawn.
-    sph_note = attach_sph_rendering(sens, manager, terrain, args) if terrain is not None else "n/a"
+    sph_note = attach_sph_rendering(chrono, sens, manager, terrain, args) if terrain is not None else "n/a"
     print(f"sph rendering: {sph_note}")
 
     eye = np.array([-1.15, -1.45, soil_top + 0.62])
