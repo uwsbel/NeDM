@@ -309,7 +309,40 @@ def add_soil_visual_proxy(chrono, system, args, soil_top: float):
     return body
 
 
-def attach_camera(chrono, system, args, soil_top: float):
+def attach_sph_rendering(sens, manager, terrain, args):
+    """Make the CRM soil visible to Chrono::Sensor.
+
+    SPH markers are not visual shapes, so a camera sees nothing by default and
+    the robot appears to tumble in a void. The sensor manager renders particles
+    as sprites instead, via AttachFsiSphSystem; see Chrono's own
+    src/demos/sensor/demo_SEN_CRM_Rendering.cpp. This is the real mechanism and
+    it supersedes the static proxy box, which showed where the surface was but
+    could not show the soil deform.
+    """
+    attach = getattr(manager, "AttachFsiSphSystem", None)
+    if attach is None:
+        return "AttachFsiSphSystem unavailable in this build"
+    getter = getattr(terrain, "GetFluidSystemSPH", None) or getattr(terrain, "GetFsiSystemSPH", None)
+    if getter is None:
+        return "no SPH system accessor on CRMTerrain"
+    try:
+        sph = getter()
+        opts_cls = getattr(sens, "ChFsiSphRenderOptions", None)
+        if opts_cls is None:
+            attach(sph)
+            return "attached (no render options class; defaults)"
+        opts = opts_cls()
+        # Sprite spacing drives how densely particles are drawn. Tie it to the
+        # actual particle spacing rather than the demo's hardcoded 0.01.
+        if hasattr(opts, "render_particle_spacing"):
+            opts.render_particle_spacing = float(args.sph_render_spacing or args.spacing)
+        attach(sph, opts)
+        return f"attached, render_particle_spacing={args.sph_render_spacing or args.spacing}"
+    except Exception as exc:  # noqa: BLE001
+        return f"FAILED: {type(exc).__name__}: {exc}"
+
+
+def attach_camera(chrono, system, args, soil_top: float, terrain=None):
     try:
         import pychrono.sensor as sens
     except Exception as exc:  # noqa: BLE001
@@ -346,7 +379,9 @@ def attach_camera(chrono, system, args, soil_top: float):
         return None, "ChFilterSave unavailable"
     cam.PushFilter(save(str(frames) + "/"))
     manager.AddSensor(cam)
-    return manager, f"frames -> {frames}"
+    sph_note = attach_sph_rendering(sens, manager, terrain, args) if terrain is not None else "n/a"
+    print(f"sph rendering: {sph_note}")
+    return manager, f"frames -> {frames} | sph: {sph_note}"
 
 
 def _look_at(chrono, eye, target):
@@ -398,8 +433,12 @@ def main() -> int:
                     action="store_false", default=True,
                     help="keep SPH particles that overlap the feet at init; "
                          "reproduces the launch, for comparison only")
-    ap.add_argument("--no-soil-proxy", action="store_true",
-                    help="omit the visual floor; frames then show an empty void")
+    # The static proxy is now a fallback: AttachFsiSphSystem renders the actual
+    # particles, which the proxy cannot, so the proxy is off unless asked for.
+    ap.add_argument("--soil-proxy", action="store_true",
+                    help="add a static non-deforming floor box as well as the SPH sprites")
+    ap.add_argument("--sph-render-spacing", type=float, default=None,
+                    help="sprite spacing; defaults to the SPH initial spacing")
     ap.add_argument("--no-policy", action="store_true", help="hold the stand pose throughout")
     ap.add_argument("--out", default="artifacts/go2_crm")
     args = ap.parse_args()
@@ -454,9 +493,9 @@ def main() -> int:
 
     manager, video_note = (None, "disabled")
     if args.video:
-        if not args.no_soil_proxy:
+        if args.soil_proxy:
             add_soil_visual_proxy(chrono, system, args, soil_top)
-        manager, video_note = attach_camera(chrono, system, args, soil_top)
+        manager, video_note = attach_camera(chrono, system, args, soil_top, terrain)
         print(f"video: {video_note}")
 
     policy = None if args.no_policy else PolicyController(ckpt, cfgs)
