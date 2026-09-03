@@ -363,13 +363,18 @@ def main() -> int:
     ap.add_argument("--step", type=float, default=5e-4, help="CFD step")
     ap.add_argument("--exchange-mult", type=int, default=5, help="MBS/CFD exchange = mult * step")
     ap.add_argument("--control-hz", type=float, default=50.0)
-    ap.add_argument("--settle-seconds", type=float, default=0.5, help="hold the stand pose first")
+    ap.add_argument("--pose-ramp-seconds", type=float, default=0.75,
+                    help="ease from the URDF spawn pose to the stand pose")
+    ap.add_argument("--settle-seconds", type=float, default=0.5,
+                    help="hold the stand pose after the ramp, before the policy")
     ap.add_argument("--spacing", type=float, default=0.03)
     ap.add_argument("--patch-x", type=float, default=3.0)
     ap.add_argument("--patch-y", type=float, default=1.6)
     ap.add_argument("--depth", type=float, default=0.20)
     ap.add_argument("--soil-bottom", type=float, default=-0.20)
-    ap.add_argument("--spawn-clearance", type=float, default=0.42)
+    # A Go2 stands at roughly 0.30-0.32 m. 0.42 m dropped it ~10 cm before
+    # anything else happened; less drop is less to recover from.
+    ap.add_argument("--spawn-clearance", type=float, default=0.34)
     ap.add_argument("--video", action="store_true")
     ap.add_argument("--video-fps", type=float, default=30.0)
     ap.add_argument("--video-width", type=int, default=960)
@@ -444,11 +449,25 @@ def main() -> int:
     z0 = base.GetPos().z
     log, tilts, wall0, fell_at = [], [], time.perf_counter(), None
 
-    robot.actuate(STAND_ACTION)
+    # The URDF spawns at its own rest configuration, which is NOT the stand
+    # pose. Commanding the stand pose directly gives ChParserURDF's position
+    # motors a large step error to close in one control tick, and they close it
+    # by launching the robot: measured 9.2 cm of RISE in the first 200 ms on a
+    # robot commanded only to hold still, followed by a topple at 1.2 s. Nothing
+    # about soil compliance makes a stationary robot go up. Ramp instead.
+    q0 = robot.joint_pos().astype(np.float64)
+    initial_error = np.abs(q0 - STAND_ACTION)
+    print(f"initial joint error vs stand pose: max {initial_error.max():.3f} rad, "
+          f"mean {initial_error.mean():.3f} rad")
+
+    robot.actuate(q0)
     for i in range(n_steps):
         t = i * exchange
         if i % control_every == 0:
-            if policy is None or t < args.settle_seconds:
+            if t < args.pose_ramp_seconds:
+                a = t / max(args.pose_ramp_seconds, 1e-9)
+                robot.actuate(q0 + a * (STAND_ACTION - q0))
+            elif policy is None or t < args.pose_ramp_seconds + args.settle_seconds:
                 robot.actuate(STAND_ACTION)
             else:
                 robot.actuate(policy.act(robot))
@@ -489,6 +508,9 @@ def main() -> int:
         "max_tilt_deg": round(math.degrees(max(tilts)), 1) if tilts else None,
         "final_tilt_deg": round(math.degrees(tilts[-1]), 1) if tilts else None,
         "policy": "none (stand pose)" if policy is None else "model_2999.pt",
+        "pose_ramp_s": args.pose_ramp_seconds,
+        "initial_joint_error_max_rad": round(float(initial_error.max()), 4),
+        "initial_joint_error_mean_rad": round(float(initial_error.mean()), 4),
         "video": video_note, "frames_written": n_frames,
     }
     if args.video and n_frames:
