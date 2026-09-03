@@ -72,3 +72,35 @@ expectation comes from 12 seeds of *planning geometry*, not physics, and the
 driven trajectory is not the planned one. It is an order-of-magnitude
 expectation, not a prediction. **The power curve does not depend on it** — which
 is the property that makes the pre-registration honest rather than decorative.
+
+## Measure the noise floor before you compare anything to it
+
+**Cost:** none, applied before the cross-API comparison · **Found:** 2026-09-03 · **Applies to:** every A-vs-B on a stochastic simulator
+
+The cross-API check asks whether a Go2 run under the source build matches one
+under conda 10.0.0. **The obvious version of that question has no answer.** GPU
+SPH is not bit-reproducible — atomic accumulation order varies between runs on
+identical hardware — and the system has intermittent contact, so trajectories
+diverge from arbitrarily small differences. Two runs of the *same* build differ.
+
+So "do the APIs agree" is unanswerable until we know **how much a build
+disagrees with itself.**
+
+**Procedure: run the conda arm N times first, unchanged.** The spread of those
+runs is the noise floor. Only then run the source arm, and ask whether it falls
+*inside* that spread. A source-vs-conda difference smaller than conda-vs-conda
+is agreement; one substantially larger is a real API difference.
+
+Without the noise floor there is no criterion at all, and whatever difference
+appears gets argued about after the fact — which is the failure this file
+exists to prevent.
+
+**This is the same move as scoring a dataset against itself** to check the
+statistics machinery returns the degenerate answer, and the same move as
+asking what the null would produce. Establish what "no effect" looks like
+*with your own instrument, on your own hardware*, before interpreting an effect.
+
+**Corollary: separate the variables.** Compare physics **headless** first, so an
+API difference cannot be confounded with a rendering difference. Only then turn
+the camera on. Two changes landing at once produce a difference nobody can
+attribute.
