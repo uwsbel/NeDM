@@ -247,13 +247,28 @@ def build_crm(chrono, fsi, veh, system, robot, args):
     calf_geom.coll_cylinders.append(
         chrono.CylinderShape(chrono.ChVector3d(0, 0, 0), chrono.QUNIT, 0.02, 0.2))
 
+    # check_embedded=True. With it False, Chrono does NOT remove SPH particles
+    # that overlap a body's BCE markers at initialisation, and those overlaps
+    # resolve as an enormous repulsive impulse on the first steps. The Go2
+    # spawns with legs extended in the URDF rest pose, so its feet start below
+    # the soil surface and get ejected.
+    #
+    # The evidence is an inverted correlation: lowering the spawn from 0.42 m
+    # to 0.34 m made the launch BIGGER, 9.2 cm of rise to 15.9 cm, and the fall
+    # EARLIER, 1.20 s to 1.04 s. Less initial height cannot mean more energy
+    # unless the energy is coming from depth of embedding. A pose-snap
+    # explanation predicts the opposite, and a 0.75 s joint ramp made it worse
+    # rather than better, which rules that out.
+    #
+    # demo_ROBOT_Viper_CRM.py passes False, but it spawns the rover clear of the
+    # soil, so it never exercises the embedded case.
     coupled = []
     for name, geom in [(n, foot_geom) for n in FOOT_BODIES] + [(n, calf_geom) for n in CALF_BODIES]:
         body = robot.body(name)
         if body is None:
             continue
         try:
-            terrain.AddRigidBody(body, geom, False)
+            terrain.AddRigidBody(body, geom, args.check_embedded)
             coupled.append(name)
         except Exception as exc:  # noqa: BLE001
             print(f"  FSI registration failed for {name}: {type(exc).__name__}: {exc}")
@@ -379,6 +394,10 @@ def main() -> int:
     ap.add_argument("--video-fps", type=float, default=30.0)
     ap.add_argument("--video-width", type=int, default=960)
     ap.add_argument("--video-height", type=int, default=540)
+    ap.add_argument("--no-check-embedded", dest="check_embedded",
+                    action="store_false", default=True,
+                    help="keep SPH particles that overlap the feet at init; "
+                         "reproduces the launch, for comparison only")
     ap.add_argument("--no-soil-proxy", action="store_true",
                     help="omit the visual floor; frames then show an empty void")
     ap.add_argument("--no-policy", action="store_true", help="hold the stand pose throughout")
@@ -509,6 +528,7 @@ def main() -> int:
         "final_tilt_deg": round(math.degrees(tilts[-1]), 1) if tilts else None,
         "policy": "none (stand pose)" if policy is None else "model_2999.pt",
         "pose_ramp_s": args.pose_ramp_seconds,
+        "check_embedded": args.check_embedded,
         "initial_joint_error_max_rad": round(float(initial_error.max()), 4),
         "initial_joint_error_mean_rad": round(float(initial_error.mean()), 4),
         "video": video_note, "frames_written": n_frames,
