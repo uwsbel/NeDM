@@ -146,6 +146,62 @@ def csv_field_names(include_feet: bool = True) -> list[str]:
     return fields
 
 
+# Schmitt-trigger bounds for contact-mode extraction, in newtons. Measured, not
+# chosen: see contact_mode.
+CONTACT_RELEASE_N = 5.0
+CONTACT_ENGAGE_N = 60.0
+
+
+def contact_mode(force_fz, release_n: float = CONTACT_RELEASE_N,
+                 engage_n: float = CONTACT_ENGAGE_N):
+    """Per-foot stance booleans and the packed 4-bit mode, from a force series.
+
+    A DERIVATION, NOT A COLUMN, and deliberately so. Contact mode is a pure
+    function of foot_*_force_fz_n, which is already in every row, so it can be
+    recomputed at any time with different bounds. Writing it into the CSV would
+    freeze two tuned constants into the dataset where no consumer could revisit
+    them without recollecting -- the same argument that keeps slip ungated.
+
+    A PLAIN THRESHOLD IS NOT ADEQUATE ON CRM, which is why this is hysteretic.
+    Measured on 8 s episodes, comparing the detected switch rate against the
+    rate implied by the gait's own spectral peak (2 transitions per foot per
+    cycle), where 1.0x means every detected transition is a real one:
+
+        threshold 20 N     flat 1.02x ideal      crm 1.66x ideal
+        schmitt 5/60 N     flat 1.01x ideal      crm 0.96x ideal
+
+    On rigid the foot force is EXACTLY 0.0 for 42% of samples, so any threshold
+    in a wide band works and the mode is trivially separable. On CRM it never
+    reaches zero -- the foot rides on the coupling layer and always feels the
+    kernel, which is the standoff documented above -- so the force histogram has
+    no gap, decaying monotonically from its peak with no local minimum. A single
+    threshold cuts through that noise and invents 66% spurious transitions.
+
+    The gait structure is real on both terrains; only its SEPARABILITY BY FORCE
+    MAGNITUDE differs. Hysteresis recovers it because the mode is temporally
+    persistent even where it is not amplitude-separable.
+    """
+    import numpy as np
+
+    f = np.asarray(force_fz, dtype=float)
+    if f.ndim == 1:
+        f = f[:, None]
+    stance = np.zeros(f.shape, dtype=bool)
+    for j in range(f.shape[1]):
+        on = False
+        for i in range(f.shape[0]):
+            if on and f[i, j] < release_n:
+                on = False
+            elif not on and f[i, j] > engage_n:
+                on = True
+            stance[i, j] = on
+    # fl fr rl rr -> bit 3..0, matching LEG_ORDER
+    mode = np.zeros(f.shape[0], dtype=int)
+    for k in range(min(4, f.shape[1])):
+        mode |= stance[:, k].astype(int) << (3 - k)
+    return stance, mode
+
+
 def _foot_force_z(chrono, body, terrain) -> float:
     """Vertical force on a foot: FSI on CRM, rigid contact on flat.
 
