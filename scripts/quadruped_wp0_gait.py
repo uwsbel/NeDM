@@ -107,12 +107,21 @@ def cmd_cycle(args: argparse.Namespace) -> int:
     }
     print(json.dumps(out, indent=2))
 
-    period = out["autocorr_period_median_s"] or duration
+    # RS_Driver replays this file on a loop, so its duration IS the period by
+    # construction. Autocorrelation is only a cross-check, and a weak one: with
+    # roughly a single period in the record there is almost no lag range, which
+    # is why the per-joint estimates scatter.
     ctx = out["context_16_tokens_at_50hz_s"]
-    print(f"\nGait period ~{period:.3f} s against a {ctx:.2f} s context "
-          f"({period / ctx:.2f}x).")
-    print("open-questions.md: a context shorter than one period cannot carry phase,")
-    print("so either feed the controller clock into the token or lengthen the context.")
+    print(f"\nRoboSimian gait period = {duration:.2f} s (the cycle file's own duration, "
+          f"replayed on a loop) against a {ctx:.2f} s context: {duration / ctx:.0f}x too short.")
+    print("Autocorrelation cross-check spans "
+          f"{out['autocorr_period_min_s'] or float('nan'):.1f} to "
+          f"{out['autocorr_period_max_s'] or float('nan'):.1f} s; do not quote it, "
+          "the record holds about one period so the estimate is unresolved.")
+    print("\nCAVEAT, and it decides the answer: RoboSimian is a slow statically-stable")
+    print("walker. The plan targets a Go2 DYNAMIC TROT at 0.3-0.5 s, which needs only")
+    print("15-25 tokens at 50 Hz. So this number does NOT transfer, and 'lengthen the")
+    print("context' stays viable for Go2 even though it is hopeless here.")
     return 0
 
 

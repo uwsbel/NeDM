@@ -31,6 +31,24 @@ cannot predict touchdown. **Settles it:** decide before collection — feed the
 controller phase/clock into the token, or lengthen the context. See
 [`../progress/future-case-studies.md`](../progress/future-case-studies.md).
 
+**Measured 2026-09-02, and it does not transfer.**
+`scripts/quadruped_wp0_gait.py cycle` reports RoboSimian's shipped
+`walking_cycle.txt` as 19,164 rows at dt 1 ms, 32 joints, **19.16 s per cycle**.
+That is the period by construction, since `RS_Driver` replays the file on a
+loop; the autocorrelation cross-check scatters from 5.9 to 18.9 s because one
+period barely fits the record, so do not quote it.
+
+19.16 s against a 0.32 s context is **60x short**, and covering it would need
+~960 tokens. For RoboSimian, feeding the controller clock into the token is
+therefore the only option.
+
+**But RoboSimian is a slow statically-stable walker and the study targets a Go2
+dynamic trot.** At the plan's 0.3-0.5 s that is 15 to 25 tokens at 50 Hz, so
+lengthening the context stays entirely viable there, and 16 tokens is already
+within a few of sufficient. The prototype measurement bounds the machinery, not
+the answer. **Still open for Go2**, and it needs a Go2 gait period, which needs
+`ChParserURDF`, which is unavailable on both boxes.
+
 ## Where does the quadruped's seed controller come from?
 
 You cannot train locomotion in Chrono + CRM (PPO needs ~10⁸ steps; CRM runs
