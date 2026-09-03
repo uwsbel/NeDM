@@ -86,9 +86,25 @@ FALL_TILT_RAD = math.radians(63.0)
 
 LIN_VEL_SCALE, ANG_VEL_SCALE, DOF_POS_SCALE, DOF_VEL_SCALE = 2.0, 0.25, 1.0, 0.05
 
-# configs/hmmwv_crm_eval.json, cross-checked against demo_ROBOT_Viper_CRM.py.
-SOIL = dict(density=1700.0, young=1.0e6, poisson=0.3, mu_I0=0.04,
-            friction=0.8, diam=0.005, cohesion=5000.0)
+# Two soil presets, and which one you pick is a research decision.
+#
+# "eval" matches configs/hmmwv_crm_eval.json and demo_ROBOT_Viper_CRM.py. It is
+# the soil the HMMWV work uses, and it is what this script ran until it was found
+# to put a landing body into an undamped limit cycle.
+#
+# "training" is what chrono_crmenv.py actually used for the CRM policy finetune,
+# with Young's modulus HALVED and cohesion cut to 40%, both commented "Reduced"
+# in the source. Whoever wrote it evidently hit the same wall and solved it by
+# softening the soil rather than by raising artificial dissipation. That is the
+# physically honest fix: Young's modulus and cohesion are soil properties, and
+# artificial_viscosity is a numerical damping term that changes the foot-soil
+# interaction Case Study IV exists to measure.
+SOIL_PRESETS = {
+    "eval": dict(density=1700.0, young=1.0e6, poisson=0.3, mu_I0=0.04,
+                 friction=0.8, diam=0.005, cohesion=5000.0),
+    "training": dict(density=1700.0, young=5.0e5, poisson=0.3, mu_I0=0.04,
+                     friction=0.8, diam=0.005, cohesion=2000.0),
+}
 
 
 class Go2Robot:
@@ -220,10 +236,11 @@ def build_crm(chrono, fsi, veh, system, robot, args):
     terrain.SetGravitationalAcceleration(chrono.ChVector3d(0, 0, -GRAVITY))
     terrain.SetStepSizeCFD(args.step)
 
+    soil = SOIL_PRESETS[args.soil]
     mat = fsi.ElasticMaterialProperties()
-    mat.density, mat.Young_modulus, mat.Poisson_ratio = SOIL["density"], SOIL["young"], SOIL["poisson"]
-    mat.mu_I0, mat.mu_fric_s, mat.mu_fric_2 = SOIL["mu_I0"], SOIL["friction"], SOIL["friction"]
-    mat.average_diam, mat.cohesion_coeff = SOIL["diam"], SOIL["cohesion"]
+    mat.density, mat.Young_modulus, mat.Poisson_ratio = soil["density"], soil["young"], soil["poisson"]
+    mat.mu_I0, mat.mu_fric_s, mat.mu_fric_2 = soil["mu_I0"], soil["friction"], soil["friction"]
+    mat.average_diam, mat.cohesion_coeff = soil["diam"], soil["cohesion"]
     terrain.SetElasticSPH(mat)
 
     p = fsi.SPHParameters()
@@ -551,7 +568,9 @@ def main() -> int:
     ap.add_argument("--terrain", choices=["crm", "rigid"], default="crm",
                     help="rigid reproduces the ground the policy was trained on")
     ap.add_argument("--solver-iters", type=int, default=150)
-    ap.add_argument("--artificial-viscosity", type=float, default=5.0,
+    ap.add_argument("--soil", choices=["eval", "training"], default="training",
+                    help="training is the softer soil the CRM finetune actually used")
+    ap.add_argument("--artificial-viscosity", type=float, default=0.5,
                     help="0.5 is the Viper demo value and leaves an undamped "
                          "limit cycle under impact; see the note in build_crm")
     ap.add_argument("--no-calf-fsi", action="store_true",
@@ -736,6 +755,8 @@ def main() -> int:
         "weight_n": round(float(total_mass * GRAVITY), 1),
         "solver_iters": args.solver_iters,
         "artificial_viscosity": args.artificial_viscosity,
+        "soil_preset": args.soil,
+        "soil": SOIL_PRESETS[args.soil],
         "sph_particles": int(terrain.GetNumSPHParticles()) if terrain else 0,
         "soil_top_m": soil_top, "spawn_z_m": spawn_z,
         "forward_travel_m": round(float(arr[-1, 1] - arr[0, 1]), 4),
