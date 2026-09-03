@@ -569,6 +569,10 @@ def main() -> int:
     ap.add_argument("--video-fps", type=float, default=30.0)
     ap.add_argument("--video-width", type=int, default=960)
     ap.add_argument("--video-height", type=int, default=540)
+    # Default ON: a fixed frame loses a walking robot (the first CRM walk
+    # left shot at t=7.40 of 8 s). --no-cam-follow restores the fixed frame.
+    ap.add_argument("--cam-follow", dest="cam_follow", action="store_true", default=True)
+    ap.add_argument("--no-cam-follow", dest="cam_follow", action="store_false")
     ap.add_argument("--no-check-embedded", dest="check_embedded",
                     action="store_false", default=True,
                     help="keep SPH particles that overlap the feet at init; "
