@@ -460,7 +460,7 @@ def attach_camera(chrono, system, args, soil_top: float, terrain=None):
     try:
         import pychrono.sensor as sens
     except Exception as exc:  # noqa: BLE001
-        return None, f"pychrono.sensor unavailable ({type(exc).__name__})"
+        return None, f"pychrono.sensor unavailable ({type(exc).__name__})", None
     mount = chrono.ChBody()
     mount.SetFixed(True)
     mount.EnableCollision(False)
@@ -490,12 +490,12 @@ def attach_camera(chrono, system, args, soil_top: float, terrain=None):
     frames.mkdir(parents=True, exist_ok=True)
     save = getattr(sens, "ChFilterSave", None)
     if save is None:
-        return None, "ChFilterSave unavailable"
+        return None, "ChFilterSave unavailable", None
     cam.PushFilter(save(str(frames) + "/"))
     manager.AddSensor(cam)
     sph_note = attach_sph_rendering(sens, manager, terrain, args) if terrain is not None else "n/a"
     print(f"sph rendering: {sph_note}")
-    return manager, f"frames -> {frames} | sph: {sph_note}"
+    return manager, f"frames -> {frames} | sph: {sph_note}", mount
 
 
 def _look_at(chrono, eye, target):
@@ -677,11 +677,11 @@ def main() -> int:
         print(f"SPH particles {terrain.GetNumSPHParticles()}  "
               f"boundary BCE {terrain.GetNumBoundaryBCEMarkers()}")
 
-    manager, video_note = (None, "disabled")
+    manager, video_note, cam_mount = (None, "disabled", None)
     if args.video:
         if args.soil_proxy:
             add_soil_visual_proxy(chrono, system, args, soil_top)
-        manager, video_note = attach_camera(chrono, system, args, soil_top, terrain)
+        manager, video_note, cam_mount = attach_camera(chrono, system, args, soil_top, terrain)
         print(f"video: {video_note}")
 
     policy = None if args.no_policy else PolicyController(ckpt, cfgs)
@@ -691,6 +691,7 @@ def main() -> int:
     n_steps = int(args.sim_seconds / exchange)
     base = robot.base()
     z0 = base.GetPos().z
+    x0 = base.GetPos().x
     foot_bodies = {n: robot.body(n) for n in FOOT_BODIES}
     try:
         total_mass = sum(b.GetMass() for b in system.GetBodies())
@@ -724,6 +725,12 @@ def main() -> int:
             terrain.DoStepDynamics(exchange)   # advances BOTH fluid and multibody
         else:
             system.DoStepDynamics(exchange)
+        if cam_mount is not None and args.cam_follow:
+            # Translate the camera mount with the robot, so the pose the camera
+            # holds relative to it is preserved. A fixed frame loses a walking
+            # robot: the first CRM walk left shot at t=7.40 of 8 s, and the
+            # RoboSimian framing only survived because it barely moved.
+            cam_mount.SetPos(chrono.ChVector3d(base.GetPos().x - x0, 0.0, 0.0))
         if manager is not None:
             manager.Update()
         p, q = base.GetPos(), base.GetRot()
