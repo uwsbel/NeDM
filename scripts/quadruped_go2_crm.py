@@ -1,0 +1,459 @@
+#!/usr/bin/env python
+"""Unitree Go2 walking on CRM deformable terrain, headless, with video.
+
+The second half of the WP0 gate for the proposed quadruped case study
+(docs/state/progress/future-case-studies.md), which prescribes "a privileged
+scripted gait walking on rigid ground, THEN CRM, with zero learning, before any
+model work". `quadruped_wp0_gait.py` did the rigid half on RoboSimian. This does
+the CRM half on the robot the study actually targets.
+
+WHY GO2 RATHER THAN THE RoboSimian PROTOTYPE. The plan ranks the bootstrapping
+problem as the study's real risk, and ranks "import a pretrained Go2 policy" as
+option 3, "highest risk, keep off the critical path". That ranking is stale:
+`uwsbel/sbel-reproducibility` 2025/multi-terrain-RL already trained a Go2
+locomotion policy in Chrono on rigid ground and finetuned it on CRM granular
+terrain. `model_2999.pt` is the CRM-finetuned checkpoint. So the seed-controller
+problem is solved in-house, and RoboSimian's only stated purpose, shaking out
+CRM foot-contact machinery, is served better by the target robot itself.
+
+This is a PORT, not a reuse. That work runs `bochengzou::pychrono`; everything
+here runs the `nedm` environment this repo specifies (`projectchrono` 10.0.0).
+The observation convention is taken verbatim from `chrono_crmenv.py`, which is
+authoritative because it ships with the checkpoint.
+
+FOUR CONVENTIONS THAT SILENTLY BREAK THIS IF MISSED, all verified on kyle-sbel:
+
+1. Joints are NOT actuated by default. `SetAllJointsActuationType` must be
+   called BEFORE `PopulateSystem`. Without it `GetChMotor` returns a wrapped
+   null pointer that is not None, reports a plausible type, and kills the
+   interpreter with no traceback when touched. `if motor is not None` is not a
+   valid success test here.
+2. Joint positions and velocities are NEGATED into the policy's frame. This is
+   a real sign-convention difference, not a reordering artifact.
+3. Chrono orders joints [RR, RL, FR, FL]; the policy expects [FR, FL, RR, RL].
+   The map is an involution, so the same array converts both ways.
+4. The 3-wide command slot is a HARDCODED [0.5, 0, 0] * lin_vel_scale. It is
+   NOT `env_cfg['target_lin_vel']`, which has two elements and is used only for
+   reward. Wiring the config value in here produces a subtly wrong observation.
+
+Requires the `nedm` env AND an OptiX-capable driver (R590+) for --video; see
+docs/state/lessons/chrono-versions.md. CRM alone needs no OptiX.
+
+Usage:
+  "$NEDM_PY" scripts/quadruped_go2_crm.py --sim-seconds 3 --out artifacts/go2_crm
+  "$NEDM_PY" scripts/quadruped_go2_crm.py --sim-seconds 6 --video --out artifacts/go2_crm_vid
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import math
+import pickle
+import time
+from pathlib import Path
+
+import numpy as np
+
+GRAVITY = 9.81
+
+# Chrono joint order. The policy does not use this order; see CHRONO_TO_GENESIS.
+MOTOR_NAMES = [
+    "RR_hip_joint", "RR_thigh_joint", "RR_calf_joint",
+    "RL_hip_joint", "RL_thigh_joint", "RL_calf_joint",
+    "FR_hip_joint", "FR_thigh_joint", "FR_calf_joint",
+    "FL_hip_joint", "FL_thigh_joint", "FL_calf_joint",
+]
+FOOT_BODIES = ["FR_foot", "FL_foot", "RR_foot", "RL_foot"]
+CALF_BODIES = ["FR_calf", "FL_calf", "RR_calf", "RL_calf"]
+
+# Chrono [RR,RL,FR,FL] -> policy [FR,FL,RR,RL]. Swapping two halves of six is
+# its own inverse, so this converts observations one way and actions the other.
+CHRONO_TO_GENESIS = np.array([6, 7, 8, 9, 10, 11, 0, 1, 2, 3, 4, 5], dtype=np.int64)
+
+# Policy-frame rest pose, in policy order [FR, FL, RR, RL]. Front and rear thigh
+# defaults differ (0.8 vs 1.0); normalising that away breaks the stance.
+GENESIS_DEFAULTS = np.array([0.0, 0.8, -1.5, 0.0, 0.8, -1.5,
+                             0.0, 1.0, -1.5, 0.0, 1.0, -1.5], dtype=np.float32)
+
+# Chrono-order standing pose, held while the robot settles onto the soil.
+STAND_ACTION = np.array([0.0, -1.0, 1.5, 0.0, -1.0, 1.5,
+                         0.0, -0.8, 1.5, 0.0, -0.8, 1.5], dtype=np.float64)
+
+LIN_VEL_SCALE, ANG_VEL_SCALE, DOF_POS_SCALE, DOF_VEL_SCALE = 2.0, 0.25, 1.0, 0.05
+
+# configs/hmmwv_crm_eval.json, cross-checked against demo_ROBOT_Viper_CRM.py.
+SOIL = dict(density=1700.0, young=1.0e6, poisson=0.3, mu_I0=0.04,
+            friction=0.8, diam=0.005, cohesion=5000.0)
+
+
+class Go2Robot:
+    def __init__(self, chsystem, urdf_path: Path, init_frame):
+        import pychrono as chrono
+        import pychrono.parsers as parsers
+
+        self.chrono = chrono
+        self.parser = parsers.ChParserURDF(str(urdf_path))
+        self.parser.SetRootInitPose(init_frame)
+        # MUST precede PopulateSystem. See docstring note 1.
+        self.parser.SetAllJointsActuationType(parsers.ChParserURDF.ActuationType_POSITION)
+        for name in FOOT_BODIES:
+            self.parser.SetBodyMeshCollisionType(
+                name, parsers.ChParserURDF.MeshCollisionType_CONVEX_HULL)
+        # Deliberately NOT "base": the URDF already declares a tight box there,
+        # and a hull from trunk.obj engulfs the legs and makes the dog sprawl.
+        self.parser.PopulateSystem(chsystem)
+        self.parser.GetRootChBody().SetFixed(False)
+        self._configure_collision()
+        self.motors = [self.parser.GetChMotor(n) for n in MOTOR_NAMES]
+
+    def _configure_collision(self):
+        c = self.chrono
+        mat = c.ChContactMaterialSMC()
+        mat.SetFriction(0.9)
+        mat.SetRestitution(0.01)
+        mat.SetGn(60.0)
+        mat.SetKn(2e5)
+        for name in FOOT_BODIES + ["base"]:
+            body = self.parser.GetChBody(name)
+            if body is None:
+                continue
+            body.EnableCollision(True)
+            if body.GetCollisionModel() is not None:
+                body.GetCollisionModel().SetAllShapesMaterial(mat)
+        # Calves collide with SOIL through FSI, not through the contact system;
+        # leaving rigid collision on invites self-collision artifacts in gait.
+        for name in CALF_BODIES:
+            body = self.parser.GetChBody(name)
+            if body is not None:
+                body.EnableCollision(False)
+
+    def body(self, name):
+        return self.parser.GetChBody(name)
+
+    def base(self):
+        return self.parser.GetChBody("base")
+
+    def joint_pos(self) -> np.ndarray:
+        c = self.chrono
+        return np.array([c.CastToChLinkMotorRotation(m).GetMotorAngle()
+                         for m in self.motors], dtype=np.float32)
+
+    def joint_vel(self) -> np.ndarray:
+        c = self.chrono
+        return np.array([c.CastToChLinkMotorRotation(m).GetMotorAngleDt()
+                         for m in self.motors], dtype=np.float32)
+
+    def actuate(self, chrono_order_angles: np.ndarray) -> None:
+        c = self.chrono
+        for motor, angle in zip(self.motors, chrono_order_angles):
+            motor.SetMotorFunction(c.ChFunctionConst(float(angle)))
+
+
+class PolicyController:
+    """model_2999.pt, the CRM-finetuned checkpoint. 45 obs in, 12 actions out."""
+
+    def __init__(self, ckpt: Path, cfgs: Path):
+        import torch
+        import torch.nn as nn
+
+        self.torch = torch
+        with cfgs.open("rb") as fh:
+            self.env_cfg, self.train_cfg = pickle.load(fh)
+        hidden = self.train_cfg["policy"]["actor_hidden_dims"]
+
+        layers, in_dim = [], 45
+        for h in hidden:
+            layers += [nn.Linear(in_dim, h), nn.ELU()]
+            in_dim = h
+        layers.append(nn.Linear(in_dim, 12))
+        self.actor = nn.Sequential(*layers)
+
+        state = torch.load(ckpt, map_location="cpu", weights_only=False)
+        self.actor.load_state_dict({
+            k.removeprefix("actor."): v
+            for k, v in state["model_state_dict"].items() if k.startswith("actor.")
+        })
+        self.actor.eval()
+        self.last_actions = np.zeros(12, dtype=np.float32)
+        # Hardcoded, NOT env_cfg['target_lin_vel']. See docstring note 4.
+        self.command = np.array([0.5, 0.0, 0.0], dtype=np.float32) * LIN_VEL_SCALE
+
+    @staticmethod
+    def _projected_gravity(q) -> np.ndarray:
+        qw, qx, qy, qz = q.e0, q.e1, q.e2, q.e3
+        return np.array([-2 * (qx * qz - qw * qy),
+                         -2 * (qy * qz + qw * qx),
+                         -(1 - 2 * (qx * qx + qy * qy))], dtype=np.float32)
+
+    def observe(self, robot: Go2Robot) -> np.ndarray:
+        base = robot.base()
+        w = base.GetAngVelLocal()
+        # Negated AND reordered. See docstring notes 2 and 3.
+        pos = -robot.joint_pos()[CHRONO_TO_GENESIS]
+        vel = -robot.joint_vel()[CHRONO_TO_GENESIS]
+        return np.concatenate([
+            np.array([w.x, w.y, w.z], dtype=np.float32) * ANG_VEL_SCALE,
+            self._projected_gravity(base.GetRot()),
+            self.command,
+            (pos - GENESIS_DEFAULTS) * DOF_POS_SCALE,
+            vel * DOF_VEL_SCALE,
+            self.last_actions,
+        ]).astype(np.float32)
+
+    def act(self, robot: Go2Robot) -> np.ndarray:
+        obs = self.torch.from_numpy(self.observe(robot)).unsqueeze(0)
+        with self.torch.no_grad():
+            action = self.actor(obs).squeeze(0).numpy().astype(np.float32)
+        self.last_actions = action
+        targets_policy_frame = action * 0.25 + GENESIS_DEFAULTS
+        return -targets_policy_frame[CHRONO_TO_GENESIS].astype(np.float64)
+
+
+def build_crm(chrono, fsi, veh, system, robot, args):
+    terrain = veh.CRMTerrain(system, args.spacing)
+    terrain.SetVerbose(False)
+    terrain.SetGravitationalAcceleration(chrono.ChVector3d(0, 0, -GRAVITY))
+    terrain.SetStepSizeCFD(args.step)
+
+    mat = fsi.ElasticMaterialProperties()
+    mat.density, mat.Young_modulus, mat.Poisson_ratio = SOIL["density"], SOIL["young"], SOIL["poisson"]
+    mat.mu_I0, mat.mu_fric_s, mat.mu_fric_2 = SOIL["mu_I0"], SOIL["friction"], SOIL["friction"]
+    mat.average_diam, mat.cohesion_coeff = SOIL["diam"], SOIL["cohesion"]
+    terrain.SetElasticSPH(mat)
+
+    p = fsi.SPHParameters()
+    p.integration_scheme = fsi.IntegrationScheme_RK2
+    p.initial_spacing = args.spacing
+    p.d0_multiplier = 1.0
+    p.free_surface_threshold = 0.8
+    p.artificial_viscosity = 0.5
+    p.shifting_method = fsi.ShiftingMethod_NONE
+    # Chrono warns that ARTIFICIAL_UNILATERAL, the default, is less stable for
+    # CRM granular; demo_ROBOT_Viper_CRM.py sets these explicitly.
+    p.viscosity_method = fsi.ViscosityMethod_ARTIFICIAL_BILATERAL
+    p.boundary_method = fsi.BoundaryMethod_ADAMI
+    terrain.SetSPHParameters(p)
+
+    # FSI bodies MUST be registered before Construct/Initialize: BCE markers are
+    # generated at initialisation, and a body added later is silently uncoupled.
+    foot_geom = chrono.ChBodyGeometry()
+    foot_geom.coll_spheres.append(chrono.SphereShape(chrono.VNULL, 0.025))
+    calf_geom = chrono.ChBodyGeometry()
+    calf_geom.coll_cylinders.append(
+        chrono.CylinderShape(chrono.ChVector3d(0, 0, 0), chrono.QUNIT, 0.02, 0.2))
+
+    coupled = []
+    for name, geom in [(n, foot_geom) for n in FOOT_BODIES] + [(n, calf_geom) for n in CALF_BODIES]:
+        body = robot.body(name)
+        if body is None:
+            continue
+        try:
+            terrain.AddRigidBody(body, geom, False)
+            coupled.append(name)
+        except Exception as exc:  # noqa: BLE001
+            print(f"  FSI registration failed for {name}: {type(exc).__name__}: {exc}")
+
+    terrain.SetActiveDomain(chrono.ChVector3d(2.0, 2.0, 1.0))
+    terrain.SetActiveDomainDelay(0.1)
+    terrain.Construct(
+        chrono.ChVector3d(args.patch_x, args.patch_y, args.depth),
+        chrono.ChVector3d(args.patch_x / 2 - 0.6, 0, args.soil_bottom),
+        fsi.BoxSide_ALL & ~fsi.BoxSide_Z_POS,   # bitwise, not `and`
+    )
+    terrain.Initialize()
+    return terrain, coupled
+
+
+def attach_camera(chrono, system, args, soil_top: float):
+    try:
+        import pychrono.sensor as sens
+    except Exception as exc:  # noqa: BLE001
+        return None, f"pychrono.sensor unavailable ({type(exc).__name__})"
+    mount = chrono.ChBody()
+    mount.SetFixed(True)
+    mount.EnableCollision(False)
+    system.AddBody(mount)
+
+    manager = sens.ChSensorManager(system)
+    manager.scene.SetAmbientLight(chrono.ChVector3f(0.35, 0.35, 0.40))
+    if hasattr(manager.scene, "AddDirectionalLight"):
+        manager.scene.AddDirectionalLight(chrono.ChColor(1.0, 0.95, 0.85),
+                                          math.radians(55.0), math.radians(120.0))
+    else:
+        manager.scene.AddPointLight(chrono.ChVector3f(2, -2.5, 3),
+                                    chrono.ChColor(1.0, 0.95, 0.85), 25.0)
+    bg = sens.Background()
+    bg.mode = sens.BackgroundMode_SOLID_COLOR
+    bg.color_zenith = chrono.ChVector3f(0.55, 0.68, 0.85)
+    manager.scene.SetBackground(bg)
+
+    eye = np.array([-1.15, -1.45, soil_top + 0.62])
+    target = np.array([0.30, 0.0, soil_top + 0.08])
+    pose = chrono.ChFramed(chrono.ChVector3d(*eye), _look_at(chrono, eye, target))
+    cam = sens.ChCameraSensor(mount, args.video_fps, pose,
+                              args.video_width, args.video_height, math.radians(58.0))
+    cam.SetLag(0.0)
+    cam.SetCollectionWindow(0.0)
+    frames = Path(args.out) / "frames"
+    frames.mkdir(parents=True, exist_ok=True)
+    save = getattr(sens, "ChFilterSave", None)
+    if save is None:
+        return None, "ChFilterSave unavailable"
+    cam.PushFilter(save(str(frames) + "/"))
+    manager.AddSensor(cam)
+    return manager, f"frames -> {frames}"
+
+
+def _look_at(chrono, eye, target):
+    """Chrono::Sensor cameras look down +X with +Z up."""
+    f = np.asarray(target, float) - np.asarray(eye, float)
+    f /= np.linalg.norm(f)
+    up_hint = np.array([0.0, 0.0, 1.0]) if abs(f[2]) < 0.999 else np.array([0.0, 1.0, 0.0])
+    left = np.cross(up_hint, f); left /= np.linalg.norm(left)
+    up = np.cross(f, left)
+    r = np.column_stack([f, left, up])
+    tr = float(np.trace(r))
+    if tr > 0:
+        s = math.sqrt(tr + 1.0) * 2
+        q = [0.25 * s, (r[2, 1] - r[1, 2]) / s, (r[0, 2] - r[2, 0]) / s, (r[1, 0] - r[0, 1]) / s]
+    else:
+        i = int(np.argmax(np.diag(r))); j, k = (i + 1) % 3, (i + 2) % 3
+        s = math.sqrt(1.0 + r[i, i] - r[j, j] - r[k, k]) * 2
+        q = [0.0] * 4
+        q[0] = (r[k, j] - r[j, k]) / s
+        q[i + 1], q[j + 1], q[k + 1] = 0.25 * s, (r[j, i] + r[i, j]) / s, (r[k, i] + r[i, k]) / s
+    return chrono.ChQuaterniond(*q)
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description=__doc__,
+                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--assets", default="/home/kyle/Documents/sbel/sbel-reproducibility/2025/multi-terrain-RL")
+    ap.add_argument("--sim-seconds", type=float, default=3.0)
+    ap.add_argument("--step", type=float, default=5e-4, help="CFD step")
+    ap.add_argument("--exchange-mult", type=int, default=5, help="MBS/CFD exchange = mult * step")
+    ap.add_argument("--control-hz", type=float, default=50.0)
+    ap.add_argument("--settle-seconds", type=float, default=0.5, help="hold the stand pose first")
+    ap.add_argument("--spacing", type=float, default=0.03)
+    ap.add_argument("--patch-x", type=float, default=3.0)
+    ap.add_argument("--patch-y", type=float, default=1.6)
+    ap.add_argument("--depth", type=float, default=0.20)
+    ap.add_argument("--soil-bottom", type=float, default=-0.20)
+    ap.add_argument("--spawn-clearance", type=float, default=0.42)
+    ap.add_argument("--video", action="store_true")
+    ap.add_argument("--video-fps", type=float, default=30.0)
+    ap.add_argument("--video-width", type=int, default=960)
+    ap.add_argument("--video-height", type=int, default=540)
+    ap.add_argument("--no-policy", action="store_true", help="hold the stand pose throughout")
+    ap.add_argument("--out", default="artifacts/go2_crm")
+    args = ap.parse_args()
+
+    import pychrono as chrono
+    import pychrono.vehicle as veh
+    try:
+        import pychrono.fsi as fsi
+    except Exception as exc:  # noqa: BLE001
+        print(f"FAIL: pychrono.fsi unavailable ({type(exc).__name__}). CRM needs the nedm env.")
+        return 1
+
+    assets = Path(args.assets)
+    urdf = assets / "data/robot/go2_irrvis/urdf/go2_description.urdf"
+    ckpt = assets / "data/rl_models/rslrl/model_2999.pt"
+    cfgs = assets / "data/rl_models/rslrl/cfgs.pkl"
+    for f in (urdf, ckpt, cfgs):
+        if not f.is_file():
+            print(f"FAIL: missing {f}")
+            return 1
+
+    out = Path(args.out)
+    out.mkdir(parents=True, exist_ok=True)
+
+    system = chrono.ChSystemSMC()
+    system.SetGravitationalAcceleration(chrono.ChVector3d(0, 0, -GRAVITY))
+    system.SetCollisionSystemType(chrono.ChCollisionSystem.Type_BULLET)
+    system.SetSolverType(chrono.ChSolver.Type_BARZILAIBORWEIN)
+    system.GetSolver().AsIterative().SetMaxIterations(60)
+    chrono.ChCollisionModel.SetDefaultSuggestedEnvelope(0.0025)
+    chrono.ChCollisionModel.SetDefaultSuggestedMargin(0.0025)
+
+    # Construct's pos is the BOTTOM of the soil box, and GetHeight does NOT
+    # report the free surface (it is the height-functor hook, flat zero by
+    # default). The surface is soil_bottom + depth; place the robot above that.
+    soil_top = args.soil_bottom + args.depth
+    spawn_z = soil_top + args.spawn_clearance
+    init = chrono.ChFramed(chrono.ChVector3d(0.0, 0.0, spawn_z), chrono.QuatFromAngleZ(0.0))
+
+    # URDF meshes are referenced relatively; resolve from the urdf directory.
+    import os
+    cwd = os.getcwd()
+    os.chdir(urdf.parent)
+    try:
+        robot = Go2Robot(system, urdf, init)
+    finally:
+        os.chdir(cwd)
+
+    terrain, coupled = build_crm(chrono, fsi, veh, system, robot, args)
+    print(f"soil top {soil_top:.3f}  spawn z {spawn_z:.3f}  FSI-coupled bodies: {len(coupled)}")
+    print(f"SPH particles {terrain.GetNumSPHParticles()}  boundary BCE {terrain.GetNumBoundaryBCEMarkers()}")
+
+    manager, video_note = (None, "disabled")
+    if args.video:
+        manager, video_note = attach_camera(chrono, system, args, soil_top)
+        print(f"video: {video_note}")
+
+    policy = None if args.no_policy else PolicyController(ckpt, cfgs)
+
+    exchange = args.exchange_mult * args.step
+    control_every = max(1, int(round((1.0 / args.control_hz) / exchange)))
+    n_steps = int(args.sim_seconds / exchange)
+    base = robot.base()
+    z0 = base.GetPos().z
+    log, wall0, fell_at = [], time.perf_counter(), None
+
+    robot.actuate(STAND_ACTION)
+    for i in range(n_steps):
+        t = i * exchange
+        if i % control_every == 0:
+            if policy is None or t < args.settle_seconds:
+                robot.actuate(STAND_ACTION)
+            else:
+                robot.actuate(policy.act(robot))
+        terrain.DoStepDynamics(exchange)   # advances BOTH fluid and multibody
+        if manager is not None:
+            manager.Update()
+        p, q = base.GetPos(), base.GetRot()
+        log.append([t, p.x, p.y, p.z, q.e0, q.e1, q.e2, q.e3])
+        if fell_at is None and p.z < soil_top - 0.05:
+            fell_at = t
+
+    wall = time.perf_counter() - wall0
+    arr = np.asarray(log)
+    np.savez_compressed(out / "trajectory.npz", log=arr,
+                        columns=np.array(["t", "x", "y", "z", "e0", "e1", "e2", "e3"]))
+    n_frames = len(list((out / "frames").glob("*"))) if (out / "frames").is_dir() else 0
+    summary = {
+        "sim_seconds": args.sim_seconds, "wall_seconds": round(wall, 1),
+        "realtime_factor": round(args.sim_seconds / wall, 5) if wall else None,
+        "rtf_cfd": round(float(terrain.GetRtfCFD()), 5),
+        "rtf_mbd": round(float(terrain.GetRtfMBD()), 5),
+        "fsi_coupled_bodies": len(coupled), "coupled_names": coupled,
+        "sph_particles": int(terrain.GetNumSPHParticles()),
+        "soil_top_m": soil_top, "spawn_z_m": spawn_z,
+        "forward_travel_m": round(float(arr[-1, 1] - arr[0, 1]), 4),
+        "lateral_travel_m": round(float(arr[-1, 2] - arr[0, 2]), 4),
+        "base_z_start_end_m": [round(z0, 4), round(float(arr[-1, 3]), 4)],
+        "base_z_min_m": round(float(arr[:, 3].min()), 4),
+        "sank_below_soil_top": bool(fell_at is not None), "fell_at_s": fell_at,
+        "policy": "none (stand pose)" if policy is None else "model_2999.pt",
+        "video": video_note, "frames_written": n_frames,
+    }
+    (out / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
+    print(json.dumps(summary, indent=2))
+    print("\nGATE: " + ("FAIL, base sank below soil surface" if summary["sank_below_soil_top"]
+                        else "PASS, stayed above the soil for the full window"))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
