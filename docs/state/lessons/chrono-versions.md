@@ -346,3 +346,23 @@ the only in-band signal a no-op build leaves.
 
 This is the same failure class as the vacuous G0a gate and the case-insensitive
 mesh check: a thing that reports success while doing nothing. Third instance.
+
+## "Configure succeeded" is not "configure enabled what you asked for"
+
+**Cost:** caught at the summary block; would have been ~1 h of build · **Found:** 2026-09-03 · **Applies to:** every CMake build we do
+
+**Expected:** if CMake cannot satisfy a module we explicitly requested with
+`-DCH_ENABLE_MODULE_FSI_SPH=ON`, configure fails.
+**Happened:** it *warned* and carried on. A CUDA compiler that identified,
+passed its ABI check, and was found by `FindCUDAToolkit` still yielded an empty
+architecture list, and Chrono treats that as no GPU toolchain at all —
+disabling FSI::SPH, Vehicle SCM GPU, and the Sensor OptiX renderer, the exact
+three modules the build existed for. Configure exited 0.
+**Fix:** `-DCHRONO_CUDA_ARCHITECTURES=<compute_cap from nvidia-smi>`. And the
+general rule: **read the module summary block and confirm each requested module
+by name.** A requested module can silently decline; exit status does not
+distinguish "built what you asked" from "built something else quietly."
+
+Same family as the empty-body no-op above. Both are systems reporting success
+while doing something other than what was asked, and both are caught only by
+reading output rather than status.

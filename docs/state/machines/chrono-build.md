@@ -180,6 +180,100 @@ upstream.
 It also explains the conda build: pychrono 10.0.0 predates the sensor FSI
 feature entirely, so no binding could have existed regardless of flags.
 
+## Configure gotchas, all three hit on `kyle-sbel`
+
+**1. A working CUDA compiler with no architecture list counts as NO toolchain.**
+The trap of this build. CMake reported success at every step:
+
+```
+The CUDA compiler identification is NVIDIA 12.6.85
+Detecting CUDA compiler ABI info - done
+Found CUDAToolkit: /usr/local/cuda/include (found version 12.6.85)
+```
+
+and then:
+
+```
+CUDA archs (filtered):
+CUDA architectures not found. Set CHRONO_CUDA_ARCHITECTURES
+Building for NVIDIA, but no usable NVIDIA GPU toolchain was found.
+  All GPU-dependent Chrono modules will be disabled.
+GPU toolchains available: CUDA=FALSE HIP=FALSE
+```
+
+That disabled **FSI::SPH, Vehicle SCM GPU, and the Sensor OptiX renderer** —
+precisely the three things this build exists for — and reported two of them as
+*warnings*. Configure exits 0. Reading "configure succeeded" and starting the
+build costs an hour and yields a Sensor module with no OptiX and no FSI.
+
+Fix: `-DCHRONO_CUDA_ARCHITECTURES=86`, taken from the hardware rather than
+assumed — `nvidia-smi --query-gpu=compute_cap --format=csv` reports 8.6 for the
+RTX 3090. **Query the GPU on each box**; the value is not portable.
+
+**2. `CUDAToolkit_ROOT` is not sufficient.** It satisfies Thrust, but CMake's
+CUDA *language* check needs the compiler on `PATH` or named explicitly. `nvcc`
+is not on `PATH` here. Fix: `-DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc`.
+
+**3. `tinyxml2` has no CMake config on Ubuntu.** `libtinyxml2-dev` ships only
+`pkgconfig/tinyxml2.pc`. Configs exist at `/opt/ros/humble/share/tinyxml2_vendor/`
+(wrong package name) and in the conda env. Fix: `-Dtinyxml2_DIR=` pointed at the
+conda one **surgically** — adding the conda prefix to `CMAKE_PREFIX_PATH` would
+let CMake find dozens of conda libraries and mix ABIs against a system build.
+*Known risk:* one conda library links into an otherwise-system build. **Suspect
+this first if anything odd surfaces at link time.**
+
+**4. Vulkan RT needs `glslangValidator`, not just headers.** Present headers
+(1.3.204), absent shader compiler. Dropped, per the rule that Vulkan must never
+block: the feature is OptiX-only.
+
+### Confirmed enabled by reading the summary block, not by inferring from exit 0
+
+```
+CUDA archs (filtered):   86
+GPU toolchains available: CUDA=TRUE HIP=FALSE
+Chrono::FSI::SPH GPU backend: CUDA
+OptiX include directory: /home/kyle/opt/optix/include
+Building Chrono::Sensor with OptiX support
+Add python CORE / FEA / POSTPROCESS / FSI / VEHICLE / SENSOR / ROBOT / PARSERS
+```
+
+The OptiX path is **our 9.0.0**, not the 7.7.0 in `~/Downloads`. And
+`demo_SEN_CRM_Rendering.dir/` was generated, so the three-deep gate was met.
+
+## The shipped demo writes nothing to disk
+
+`demo_SEN_CRM_Rendering.cpp` on the pinned SHA:
+
+```cpp
+line  92:  bool snapshots = false;                              // DEFAULT OFF
+line 314:  cam->PushFilter(ChFilterVisualize(1280, 720, ...));  // ALWAYS
+line 316:  if (snapshots) cam->PushFilter(ChFilterSave(...));   // CONDITIONAL
+line 295:  manager->AttachFsiSphSystem(sysSPH, fsi_render_options);  // RETURN DISCARDED
+```
+
+As shipped it opens a window and saves nothing. **On a headless box the
+validation gate would produce no evidence at all**, and `ChFilterVisualize` may
+fail or no-op with no display. It does attach the FSI system properly (sprite
+meshes, jitter 0.005, `render_particle_spacing` 0.01), so the mechanism is
+exercised — we just cannot see the result.
+
+**Decision: copy it into NeDM as our own validation program**, rather than
+patching the pinned tree. A gate that lives in our repo is versioned with the
+results it produces, survives a re-pin, and can assert things the upstream demo
+does not. Our copy must:
+
+- push `ChFilterSave` and **no** `ChFilterVisualize` (headless);
+- **capture the return of `AttachFsiSphSystem` and assert it is not `-1`** —
+  that integer is the only in-band signal separating a working attach from the
+  silent no-op described above, and the shipped demo discards it;
+- support running with the attach call removed, to produce the negative control.
+
+**Pass criterion, fixed before running:** a saved `img_SEN` frame with CRM
+particles visibly present over the terrain region, **and** a second frame from an
+otherwise identical run without the attach, lacking them. The *difference* is the
+gate. A frame that merely renders proves nothing, since the failure mode under
+test is a call that returns `-1` and does nothing.
+
 ## Same SHA does NOT mean same binary
 
 The two boxes have materially different toolchains, measured:
