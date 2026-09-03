@@ -72,6 +72,22 @@ between wrap events overstates stride by about 10% and reads sway as drift. And
 of a stride, but a straightness criterion with a tight threshold would flip
 between versions on integrator noise.
 
+**First actual CRM number, 2026-09-02.** `scripts/crm_sensor_smoke.py` on
+`kyle-sbel`: an **uncoupled** CRM patch at collection-grade resolution (0.08 m
+spacing and 5e-4 s step, both matching `configs/hmmwv_crm_eval.json` exactly;
+2 m patch, ~3.1k SPH particles) runs at **0.68x realtime**, 1358 steps/s.
+
+Read that as an **upper bound, not a measurement**. The probe body failed to
+register with the FSI system, so the SPH was advancing with nothing in it: no
+BCE markers and no fluid-solid force computation, which is the cheapest possible
+CRM step. A coupled run is strictly slower. Real collection also carries roughly
+2.5x the particles (the config's active domain is [2, 2, 1] at 0.08 m) plus BCE
+markers for four tires plus the vehicle's multibody dynamics.
+
+So the doc's claim that CRM runs below realtime is **supported and now has a
+number against it** for the first time, and the true coupled figure is somewhere
+below 0.68x by an amount nobody has measured yet.
+
 That 10.4 mm/s is worth holding onto separately from the throughput question:
 RoboSimian is a slow statically-stable walker, and at 1 cm/s a traverse of any
 useful length costs a lot of simulated time to collect. It is a machinery

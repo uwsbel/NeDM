@@ -29,7 +29,17 @@ Usage, under the `nedm` environment (pychrono 10; 9.0.x has no FSI at all):
     "$NEDM_PY" scripts/crm_sensor_smoke.py --no-crm        # camera only
 
 Soil parameters are taken from `configs/hmmwv_crm_eval.json` so the throughput
-number is comparable to the collection the project actually runs.
+number is comparable to the collection the project actually runs: spacing 0.08 m
+and step 5e-4 s match exactly, and the 2 m patch is close to that config's
+`active_domain_m` of [2, 2, 1], which is what actually gets simulated. Real
+collection still carries roughly 2.5x the particles plus BCE markers for four
+tires plus the vehicle's own multibody dynamics, so treat any number here as
+optimistic against a full collection run.
+
+**Ordering rule:** rigid bodies must be registered with the terrain *before*
+`Construct`/`Initialize`. BCE markers are generated at initialisation, so a body
+added afterwards raises `Expression '!m_is_initialized' returned false` and stays
+silently uncoupled, making the SPH look fast rather than broken.
 """
 
 from __future__ import annotations
@@ -83,6 +93,15 @@ def build_crm(chrono, fsi, veh, system, args):
         p.num_proximity_search_steps = SPH["num_proximity_search_steps"]
     terrain.SetSPHParameters(p)
 
+    # Rigid bodies MUST be registered before Construct/Initialize. BCE markers
+    # are generated at initialisation, so adding afterwards raises
+    # "Expression '!m_is_initialized' returned false" from
+    # ChFsiFluidSystemSPH.cpp and leaves the body silently uncoupled: the SPH
+    # then advances with nothing in it, which looks like a fast CRM run rather
+    # than a broken one. hmmwv_crm.py registers its spindles here for the same
+    # reason.
+    probe, coupling = add_probe_body(chrono, system, terrain, args)
+
     terrain.SetActiveDomain(chrono.ChVector3d(2.0, 2.0, 1.0))
     terrain.SetActiveDomainDelay(0.1)
     # Open top: BoxSide_ALL minus Z_POS, same as the HMMWV CRM path.
@@ -92,7 +111,7 @@ def build_crm(chrono, fsi, veh, system, args):
         fsi.BoxSide_ALL & ~fsi.BoxSide_Z_POS,
     )
     terrain.Initialize()
-    return terrain
+    return terrain, probe, coupling
 
 
 def add_probe_body(chrono, system, terrain, args):
@@ -156,8 +175,7 @@ def main() -> int:
             print("      CRM needs pychrono 10; the 9.0.x builds ship no fsi module.")
             return 1
         t0 = time.perf_counter()
-        terrain = build_crm(chrono, fsi, veh, system, args)
-        body, coupling = add_probe_body(chrono, system, terrain, args)
+        terrain, body, coupling = build_crm(chrono, fsi, veh, system, args)
         report["crm"] = "built"
         report["crm_build_seconds"] = round(time.perf_counter() - t0, 2)
         report["probe_coupling"] = coupling
@@ -220,6 +238,11 @@ def main() -> int:
         "frames_written": n_frames,
         "spacing_m": args.spacing,
         "patch_m": args.patch,
+        # An uncoupled run is the cheapest possible CRM step: no BCE markers and
+        # no fluid-solid force computation. Its realtime factor is an upper
+        # bound, not a measurement, so say which one this is.
+        "timing_is_coupled": bool(terrain is not None
+                                  and str(report.get("probe_coupling", "")).startswith("coupled")),
     })
     (out / "summary.json").write_text(json.dumps(report, indent=2) + "\n")
     print(json.dumps(report, indent=2))
@@ -227,6 +250,9 @@ def main() -> int:
     both = report["crm"] == "built" and report["camera"] == "attached"
     print("\nRECIPE: " + ("CRM + Chrono::Sensor coexist in one process"
                           if both else "NOT both; see the fields above"))
+    if terrain is not None and not report["timing_is_coupled"]:
+        print("WARNING: probe is not coupled to the SPH, so realtime_factor is an "
+              "UPPER BOUND on CRM cost, not a measurement of it.")
     return 0
 
 
