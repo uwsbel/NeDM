@@ -51,7 +51,15 @@ escalate**, not a step to attempt. See [`reference/`](reference/).
    older than the 9.0.1 in `environment.yml` that is meant to be the legacy
    option. Use `$NEDM_PY`, never a hardcoded env name, and do not assume a
    version from either environment file. Verified 2026-09-02.
-3. **`nedm` cannot render on this box, and that is a driver problem, not an
+3. **RESOLVED 2026-09-02 by upgrading to driver 595.84: both environments now
+   render.** Kept below because the reasoning explains the fleet's remaining
+   R580 box. Two leftovers from the upgrade worth clearing at a quiet moment:
+   `nvidia-dkms-580` survived alongside `nvidia-dkms-595`, and
+   `nvidia-driver-590` is a transitional package sitting next to
+   `nvidia-driver-595`. That is the same stale-stack condition that made the
+   550 purge necessary in the first place.
+
+   *Historical:* **`nedm` could not render, and it was a driver problem, not an
    environment choice.** `nedm` (pychrono 10.0.0) has FSI/CRM, `ChParserURDF`
    and `AddDirectionalLight`, all of which `chrono` lacks. But OptiX fails with
    `OPTIX_ERROR_UNSUPPORTED_ABI_VERSION` at `ChOptixEngine.cpp:86` on driver

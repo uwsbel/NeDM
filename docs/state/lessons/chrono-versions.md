@@ -39,9 +39,19 @@ driver ships its own OptiX, and R580 identifies itself as **OptiX 9.0002, ABI
 110** (`libnvoptix.so.580.126.09`). It meets the stated floor and still fails,
 so the build almost certainly wants 9.1 specifically and an ABI above 110. OptiX
 9.1 requires an **R590** driver.
-**Fix:** upgrade to R590 or newer. No rebuild, no source compile. The prediction
-is falsifiable: R590 ships a higher ABI, and if the build's requested ABI is at
-or below it, rendering starts working untouched.
+**Fix:** upgrade to R590 or newer. No rebuild, no source compile.
+**CONFIRMED 2026-09-02**: `kyle-sbel` upgraded to **595.84** and Chrono 10
+renders. `crm_sensor_smoke.py` reports `camera: attached`, OptiX logs
+`Shader compile time: 8.53`, no ABI error. Note Ubuntu's `nvidia-driver-590` is
+a transitional package that pulls the 595 stack, so you land on 595, not 590.
+**pychrono 9.0.0 still renders on 595 too**, verified by frame content and not
+just an exit code, so this was a gain rather than a trade.
+
+Do not verify a driver upgrade by grepping the OptiX banner: the
+`OptiX Version: [...] ABI Version: [...]` string that R580 printed is **gone
+from the 595 library**. The library and symlink are both fine. Use a functional
+test instead, `crm_sensor_smoke.py --sim-seconds 0.2`, since a string that no
+longer exists cannot verify anything.
 **Risk before doing it:** 9.0.0 *does* render on R580 and is currently the only
 working renderer in the fleet. If R590 fixes 10 and breaks 9.0.0's older OptiX
 expectations, the result is zero renderers instead of one. **Upgrade one box and

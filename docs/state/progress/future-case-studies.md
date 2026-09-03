@@ -72,21 +72,33 @@ between wrap events overstates stride by about 10% and reads sway as drift. And
 of a stride, but a straightness criterion with a tight threshold would flip
 between versions on integrator noise.
 
-**First actual CRM number, 2026-09-02.** `scripts/crm_sensor_smoke.py` on
-`kyle-sbel`: an **uncoupled** CRM patch at collection-grade resolution (0.08 m
-spacing and 5e-4 s step, both matching `configs/hmmwv_crm_eval.json` exactly;
-2 m patch, ~3.1k SPH particles) runs at **0.68x realtime**, 1358 steps/s.
+**CRM is now measured, 2026-09-02.** `scripts/crm_sensor_smoke.py` on
+`kyle-sbel` at collection-grade resolution (0.08 m spacing and 5e-4 s step, both
+matching `configs/hmmwv_crm_eval.json` exactly; 2 m patch, ~3.1k SPH particles):
 
-Read that as an **upper bound, not a measurement**. The probe body failed to
-register with the FSI system, so the SPH was advancing with nothing in it: no
-BCE markers and no fluid-solid force computation, which is the cheapest possible
-CRM step. A coupled run is strictly slower. Real collection also carries roughly
-2.5x the particles (the config's active domain is [2, 2, 1] at 0.08 m) plus BCE
-markers for four tires plus the vehicle's multibody dynamics.
+| Configuration | Realtime factor | Steps/s |
+|---|---|---|
+| Uncoupled probe, no camera *(measurement artifact, see below)* | 0.679 | 1358 |
+| **Coupled probe, no camera** | **0.478** | 956 |
+| Coupled probe, with camera | 0.0865 | 173 |
 
-So the doc's claim that CRM runs below realtime is **supported and now has a
-number against it** for the first time, and the true coupled figure is somewhere
-below 0.68x by an amount nobody has measured yet.
+**Quote the middle row.** Training a policy needs no camera in the loop, so
+0.478x is the figure that bears on this section's argument: CRM runs roughly
+**2x slower than realtime**, which supports the claim while being far less
+damning than the rendered figure. Quoting 0.0865 would overstate the case by
+5.5x.
+
+Two things the spread shows. Coupling the probe costs about 30% (0.679 to
+0.478), so the earlier uncoupled number really was an upper bound: it advanced
+SPH with nothing in it, no BCE markers and no fluid-solid force computation.
+And **rendering, not soil physics, dominates** when a camera is present, a 5.5x
+slowdown on its own. `crm_build_seconds` is also not comparable across the
+camera boundary, since the rendered run pays OptiX shader compilation there
+(5.48 s versus 0.51 s).
+
+Still optimistic against real collection, which carries roughly 2.5x the
+particles (the config's active domain is [2, 2, 1] at 0.08 m) plus BCE markers
+for four tires plus the vehicle's own multibody dynamics.
 
 That 10.4 mm/s is worth holding onto separately from the throughput question:
 RoboSimian is a slow statically-stable walker, and at 1 cm/s a traverse of any
