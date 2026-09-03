@@ -1,0 +1,276 @@
+"""Per-step record schema for Go2 episodes, mirroring the HMMWV CRM collector.
+
+Field names are taken from nedm.hmmwv_data.BASE_FIELDS VERBATIM wherever the
+quantity exists for a legged base, so DEFAULT_STATE_FIELDS (vel_body_x_mps,
+vel_body_y_mps, roll_rad, pitch_rad, roll_rate_radps, ang_vel_body_y_radps,
+yaw_rate_radps) selects the same seven columns here as it does on the vehicle
+with no per-robot special-casing in the training package.
+
+TWO PLACES WHERE THE MIRROR IS NOT LITERAL, both deliberate:
+
+1. ACTIONS. The HMMWV's action is three driver channels; ours is the twelve
+   joint position targets the policy emits each control step. Same role in
+   (state, control) -> next state, different width. Emitted in MOTOR_NAMES order
+   -- Chrono order, RR/RL/FR/FL -- because that is the order `act()` returns and
+   `actuate()` consumes, and reordering here would put a permutation between the
+   dataset and the thing that produced it.
+
+2. PER-FOOT CHANNELS. The vehicle logs tire force plus spindle omega. Omega
+   earns its column because vx < omega*R on deformable ground, so the PAIR
+   (vx, omega) encodes wheel slip. Sinkage is not that quantity -- it is a
+   terrain measurement, not a drivetrain state -- so it is logged in addition to
+   a foot kinematic channel rather than in place of one. The actual omega
+   analogue is foot_*_slip_mps: a foot in stance should be stationary in world
+   frame, so horizontal foot motion under load IS slip.
+
+   SLIP IS LOGGED UNGATED, ON PURPOSE. "Horizontal speed while loaded" needs a
+   load threshold to define "loaded", and a threshold baked in here is
+   unrecoverable -- every downstream consumer inherits a number chosen now, with
+   no way to revisit it without recollecting. force_fz_n sits in the same row, so
+   any gating rule is a downstream derivation over data that is already present.
+   The HMMWV has the same shape: it logs spindle omega raw AND a derived
+   slip_ratio, rather than only the gated form.
+
+SINKAGE IS DEFINED ON BOTH TERRAINS, WHICH TOOK SOME CARE. The obvious
+definition, "local SPH surface height minus undisturbed control patch", needs
+particles and is therefore NaN for every flat episode -- half the dataset by
+terrain condition. Sinkage here is instead foot depth below the UNDISTURBED
+surface, which is a length on rigid ground too. The SPH surface statistic is
+kept as a separate column, zero-filled on rigid because rigid ground does not
+deform, which is a fact rather than a gap.
+
+Likewise the force column: FSI body force on CRM, Chrono contact force on rigid.
+Different mechanism, same physical quantity -- exactly the HMMWV's situation,
+where tire force comes from the tire model on both terrains.
+
+SINKAGE ZERO IS CALIBRATED ON RIGID AND OFFSET ON CRM. Measured on 8 s episodes,
+loaded samples only (foot_*_force_fz_n > 40 N):
+
+    flat  loaded sinkage  mean -0.006 m, max -0.000 m  -- foot origin sits ON the
+                                                          ground, so the zero is right
+    crm   loaded sinkage  mean -0.028 m, max -0.014 m  -- foot origin sits 28 mm
+                                                          ABOVE the nominal surface
+
+The reference is not the error: the undisturbed free surface measured from SPH
+particle z is 0.1993 against a nominal soil_top of 0.2000, so the two agree to
+0.7 mm. The 28 mm is a real FSI standoff -- about 1.4 particle spacings at the
+0.02 m spacing used -- and it means THE FOOT NEVER PENETRATES THE BED in this
+configuration; it rides on the coupling layer and the soil responds by deflecting
+its surface. That is a better explanation of the millimetre-scale surface
+displacement than "the effect is small", and it is why the two columns are not
+redundant: sinkage carries the standoff, surface_disp carries the deflection.
+"""
+
+from __future__ import annotations
+
+import math
+from typing import Any
+
+from .constants import FOOT_BODIES, MOTOR_NAMES
+
+# HMMWV leg order, so a reader who knows tire_fl/fr/rl/rr reads these the same
+# way. NOT the FOOT_BODIES order, which is FR/FL/RR/RL.
+LEG_ORDER = ["fl", "fr", "rl", "rr"]
+LEG_TO_FOOT_BODY = {
+    "fl": "FL_foot",
+    "fr": "FR_foot",
+    "rl": "RL_foot",
+    "rr": "RR_foot",
+}
+
+ACTION_FIELDS = [
+    f"joint_{name.removesuffix('_joint').lower()}_target_rad" for name in MOTOR_NAMES
+]
+
+BASE_FIELDS = [
+    "episode_id",
+    "scenario_name",
+    "scenario_family",
+    "split",
+    "sample_index",
+    "time_s",
+    *ACTION_FIELDS,
+    "pos_x_m",
+    "pos_y_m",
+    "pos_z_m",
+    "quat_e0",
+    "quat_e1",
+    "quat_e2",
+    "quat_e3",
+    "roll_rad",
+    "pitch_rad",
+    "yaw_rad",
+    "vel_world_x_mps",
+    "vel_world_y_mps",
+    "vel_world_z_mps",
+    "vel_body_x_mps",
+    "vel_body_y_mps",
+    "vel_body_z_mps",
+    "acc_world_x_mps2",
+    "acc_world_y_mps2",
+    "acc_world_z_mps2",
+    "acc_body_x_mps2",
+    "acc_body_y_mps2",
+    "acc_body_z_mps2",
+    "ang_vel_world_x_radps",
+    "ang_vel_world_y_radps",
+    "ang_vel_world_z_radps",
+    "ang_vel_body_x_radps",
+    "ang_vel_body_y_radps",
+    "ang_vel_body_z_radps",
+    "speed_mps",
+    "body_slip_rad",
+    "roll_rate_radps",
+    "yaw_rate_radps",
+]
+
+
+def foot_field_names() -> list[str]:
+    fields: list[str] = []
+    for leg in LEG_ORDER:
+        fields.extend(
+            [
+                f"foot_{leg}_force_fz_n",
+                f"foot_{leg}_slip_mps",
+                f"foot_{leg}_sinkage_m",
+                f"foot_{leg}_surface_disp_m",
+            ]
+        )
+    return fields
+
+
+def csv_field_names(include_feet: bool = True) -> list[str]:
+    fields = list(BASE_FIELDS)
+    if include_feet:
+        fields.extend(foot_field_names())
+    return fields
+
+
+def _foot_force_z(chrono, body, terrain) -> float:
+    """Vertical force on a foot: FSI on CRM, rigid contact on flat.
+
+    Two mechanisms because the two terrains couple differently -- feet exchange
+    momentum with soil through FSI body forces and with the rigid box through
+    the contact system. GetContactForce is ~0 on CRM (nothing touches the feet
+    in the contact sense) and GetFsiBodyForce does not exist without a terrain,
+    so neither alone spans the dataset.
+    """
+    if terrain is not None:
+        try:
+            return float(terrain.GetFsiBodyForce(body).z)
+        except Exception:  # noqa: BLE001
+            return float("nan")
+    try:
+        return float(body.GetContactForce().z)
+    except Exception:  # noqa: BLE001
+        return float("nan")
+
+
+def capture_row(
+    chrono,
+    robot: Any,
+    terrain: Any,
+    soil_top_m: float,
+    action: Any,
+    soil_z: Any,
+    soil_ctrl: float,
+    scenario_name: str,
+    scenario_family: str,
+    episode_id: str,
+    split: str,
+    sample_index: int,
+    time_s: float,
+) -> dict[str, Any]:
+    """One CSV row: base state in HMMWV field names, plus actions and feet.
+
+    `soil_z` / `soil_ctrl` come from soilprobe.sample in FOOT_BODIES order and
+    are NaN off CRM; the surface-displacement column is zero-filled rather than
+    NaN in that case, since rigid ground genuinely does not move.
+    """
+    base = robot.base()
+    ref = base.GetFrameRefToAbs()
+
+    pos = ref.GetPos()
+    quat = ref.GetRot()
+    euler_zyx = quat.GetCardanAnglesZYX()
+    vel_world = ref.GetPosDt()
+    vel_body = ref.TransformDirectionParentToLocal(vel_world)
+    acc_world = base.GetPosDt2()
+    acc_body = ref.TransformDirectionParentToLocal(acc_world)
+    ang_world = ref.GetAngVelParent()
+    ang_body = ref.GetAngVelLocal()
+
+    row: dict[str, Any] = {
+        "episode_id": episode_id,
+        "scenario_name": scenario_name,
+        "scenario_family": scenario_family,
+        "split": split,
+        "sample_index": sample_index,
+        "time_s": float(time_s),
+        "pos_x_m": float(pos.x),
+        "pos_y_m": float(pos.y),
+        "pos_z_m": float(pos.z),
+        "quat_e0": float(quat.e0),
+        "quat_e1": float(quat.e1),
+        "quat_e2": float(quat.e2),
+        "quat_e3": float(quat.e3),
+        # ChVehicle supplies GetRoll/GetPitch/GetSpeed/GetSlipAngle/GetRollRate/
+        # GetYawRate; a URDF body has no such helpers, so these are the same
+        # quantities taken from the base frame directly. Cardan ZYX, matching
+        # what capture_row uses for yaw on the vehicle side.
+        "roll_rad": float(euler_zyx.x),
+        "pitch_rad": float(euler_zyx.y),
+        "yaw_rad": float(euler_zyx.z),
+        "vel_world_x_mps": float(vel_world.x),
+        "vel_world_y_mps": float(vel_world.y),
+        "vel_world_z_mps": float(vel_world.z),
+        "vel_body_x_mps": float(vel_body.x),
+        "vel_body_y_mps": float(vel_body.y),
+        "vel_body_z_mps": float(vel_body.z),
+        "acc_world_x_mps2": float(acc_world.x),
+        "acc_world_y_mps2": float(acc_world.y),
+        "acc_world_z_mps2": float(acc_world.z),
+        "acc_body_x_mps2": float(acc_body.x),
+        "acc_body_y_mps2": float(acc_body.y),
+        "acc_body_z_mps2": float(acc_body.z),
+        "ang_vel_world_x_radps": float(ang_world.x),
+        "ang_vel_world_y_radps": float(ang_world.y),
+        "ang_vel_world_z_radps": float(ang_world.z),
+        "ang_vel_body_x_radps": float(ang_body.x),
+        "ang_vel_body_y_radps": float(ang_body.y),
+        "ang_vel_body_z_radps": float(ang_body.z),
+        "speed_mps": float(vel_world.Length()),
+        "body_slip_rad": float(math.atan2(vel_body.y, vel_body.x)),
+        "roll_rate_radps": float(ang_body.x),
+        "yaw_rate_radps": float(ang_body.z),
+    }
+
+    for field, value in zip(ACTION_FIELDS, action):
+        row[field] = float(value)
+
+    probe = {name: z for name, z in zip(FOOT_BODIES, soil_z)}
+    for leg in LEG_ORDER:
+        body_name = LEG_TO_FOOT_BODY[leg]
+        body = robot.body(body_name)
+        if body is None:
+            for suffix in ("force_fz_n", "slip_mps", "sinkage_m", "surface_disp_m"):
+                row[f"foot_{leg}_{suffix}"] = float("nan")
+            continue
+        foot_z = float(body.GetPos().z)
+        vel = body.GetPosDt()
+        row[f"foot_{leg}_force_fz_n"] = _foot_force_z(chrono, body, terrain)
+        row[f"foot_{leg}_slip_mps"] = float(math.hypot(vel.x, vel.y))
+        # Depth of the foot below the UNDISTURBED surface. Positive is buried.
+        # A length on rigid ground too, which the SPH-difference definition is
+        # not, which is the whole reason this is the column called sinkage.
+        row[f"foot_{leg}_sinkage_m"] = float(soil_top_m) - foot_z
+        local = probe.get(body_name, float("nan"))
+        if terrain is None:
+            disp = 0.0
+        elif math.isnan(local) or math.isnan(soil_ctrl):
+            disp = float("nan")
+        else:
+            disp = float(local) - float(soil_ctrl)
+        row[f"foot_{leg}_surface_disp_m"] = disp
+
+    return row

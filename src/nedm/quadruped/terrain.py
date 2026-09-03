@@ -19,7 +19,14 @@ def build_crm(chrono, fsi, veh, system, robot, args):
     terrain.SetGravitationalAcceleration(chrono.ChVector3d(0, 0, -GRAVITY))
     terrain.SetStepSizeCFD(args.step)
 
-    soil = SOIL_PRESETS[args.soil]
+    # Preset, then explicit overrides. The presets are the two we have evidence
+    # for; --soil-young / --soil-cohesion exist to sweep BELOW the softer of them
+    # in search of visible sinkage, which neither preset delivers.
+    soil = dict(SOIL_PRESETS[args.soil])
+    if getattr(args, "soil_young", None) is not None:
+        soil["young"] = float(args.soil_young)
+    if getattr(args, "soil_cohesion", None) is not None:
+        soil["cohesion"] = float(args.soil_cohesion)
     mat = crm_compat.soil_properties()
     mat.density, mat.Young_modulus, mat.Poisson_ratio = soil["density"], soil["young"], soil["poisson"]
     mat.mu_I0, mat.mu_fric_s, mat.mu_fric_2 = soil["mu_I0"], soil["friction"], soil["friction"]
