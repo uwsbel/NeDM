@@ -211,6 +211,43 @@ a transitional package that pulls the 595 stack, so you land on 595, not 590.
 **pychrono 9.0.0 still renders on 595 too**, verified by frame content and not
 just an exit code, so this was a gain rather than a trade.
 
+### SUPERSEDED 2026-09-03: the driver was never the requirement
+
+**A source build linked against the local OptiX 9.0.0 SDK renders on R580.**
+Measured on `kyle-N7-B650E`, the same box and the same failing camera test:
+
+```
+Shader compile time: 9.30066
+OPTIX OK   (source build, OptiX 9.0.0 SDK, driver 580.126.09)
+```
+
+Same driver, same GPU, same Chrono version. **The only change is which OptiX the
+build links against.** So `OPTIX_ERROR_UNSUPPORTED_ABI_VERSION` was a property of
+the **conda package's build**, not of R580.
+
+**The diagnosis above was right about the symptom and wrong about the cause.**
+The reasoning — "it meets the stated floor and still fails, so the build wants
+9.1 and an ABI above 110" — was a plausible mechanism inferred from a changelog
+and a version string. The real variable was never tested, because swapping the
+Chrono *build* to isolate the GPU also held the *linkage* fixed: every arm of
+that comparison used a conda package.
+
+**Do not treat R590+ as a prerequisite.** It will gate machines that do not need
+it. The accurate statement is: *the conda pychrono 10.0.0 package requires R590+;
+a source build against a local OptiX 9.0.0 SDK does not.* Upgrading remains a
+valid fix and is no longer the only one.
+
+`kyle-sbel`'s upgrade to 595.84 was therefore unnecessary for this. It is done,
+it works, and 9.0.0 still renders on it, so nothing needs undoing.
+
+**The general shape, and it is the day's recurring one:** a controlled comparison
+that varies one thing still misleads if the variable that matters is held
+constant in every arm. "Not the GPU, not machine-local" was correct and complete
+within the arms tested, and the answer was outside them.
+
+*A third-party build carries its own linkage, and that linkage is part of the
+dependency whether or not anyone wrote it down.*
+
 Do not verify a driver upgrade by grepping the OptiX banner: the
 `OptiX Version: [...] ABI Version: [...]` string that R580 printed is **gone
 from the 595 library**. The library and symlink are both fine. Use a functional
