@@ -83,10 +83,28 @@ def _fam_weave(t, T):           return (0.4, 0.0, 0.6 * math.sin(2 * math.pi * 0
 def _fam_pivot(t, T):           return (0.0, 0.0, 1.0)
 def _fam_stop_and_go(t, T):     return ((0.5 if (t % 4.0) < 2.0 else 0.0), 0.0, 0.0)
 
+# NAMED FOR THE BEHAVIOUR, NOT THE INTENT. A commanded 0.15 or 0.30 m/s produces
+# about 0.03 m/s of actual translation -- the robot marches without travelling.
+# Calling those "low" and "medium" speed bands would imply a monotonic speed axis
+# that does not exist, and a reader would assume 0.30 means 0.30. The dead zone
+# sits below roughly 0.35 m/s; ordering WITHIN it is not claimed, since 0.033 vs
+# 0.030 m/s is 3 mm/s on a short window and both simply mean "not translating".
+#
+# They are kept BECAUSE of that, not in spite of it: a commanded velocity that
+# produces almost none is a real plant nonlinearity, and the reduced model exists
+# to capture exactly that. A model trained without it would predict 0.3 -> 0.3
+# and be wrong across a third of the command range.
+#
+# OPEN QUESTION, deliberately not resolved: we cannot yet tell whether the dead
+# zone belongs to the POLICY or to our port of it. It was trained in Isaac Gym
+# with different contact and actuator behaviour and we run it at 500 Hz PD in
+# Chrono. If it is the policy it is data; if it is the port it is a bug we would
+# be baking into a dataset.
 COMMAND_FAMILIES = {
-    "constant_low":  lambda t, T: _fam_constant(t, 0.15),
-    "constant_med":  lambda t, T: _fam_constant(t, 0.30),
+    "march_in_place_015": lambda t, T: _fam_constant(t, 0.15),
+    "march_in_place_030": lambda t, T: _fam_constant(t, 0.30),
     "constant_high": lambda t, T: _fam_constant(t, 0.50),
+    "reverse":       lambda t, T: _fam_constant(t, -0.40),
     "vel_step":      _fam_vel_step,
     "yaw_step":      _fam_yaw_step,
     "arc":           _fam_arc,

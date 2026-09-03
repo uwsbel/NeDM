@@ -288,6 +288,22 @@ def main() -> int:
     except Exception:  # noqa: BLE001 - a diagnostic must not break the run
         total_mass = float("nan")
     log, tilts, wall0, fell_at = [], [], time.perf_counter(), None
+    # BED-BOUNDARY TERMINATION. Walking off the SPH bed is not a soft failure:
+    # it is an illegal memory access in SphBceManager and a core dump, with
+    # nothing written. A 32 s straight run died at ~22 s exactly when the base
+    # reached the far edge. Rather than pick an episode length that happens to
+    # fit the geometry -- fragile, since a faster family or a different spawn
+    # breaks it silently -- end the episode and record WHY, keeping the data
+    # collected up to that point.
+    # Margin is body half-length plus the known turning radius.
+    BED_MARGIN = 0.8
+    if rigid:
+        bed = (-5.0, 5.0, -5.0, 5.0)          # ChBodyEasyBox(10, 10, ...) at origin
+    else:
+        cx = args.patch_x / 2 - 0.6           # build_crm's centre; near edge is -0.6
+        bed = (cx - args.patch_x / 2, cx + args.patch_x / 2,
+               -args.patch_y / 2, args.patch_y / 2)
+    boundary_at = None
 
     # The URDF spawns at its own rest configuration, which is NOT the stand
     # pose. Commanding the stand pose directly gives ChParserURDF's position
@@ -367,6 +383,14 @@ def main() -> int:
         up_z = 1.0 - 2.0 * (q.e1 * q.e1 + q.e2 * q.e2)
         tilt = math.acos(max(-1.0, min(1.0, up_z)))
         tilts.append(tilt)
+        if boundary_at is None and not (
+                bed[0] + BED_MARGIN <= p.x <= bed[1] - BED_MARGIN
+                and bed[2] + BED_MARGIN <= p.y <= bed[3] - BED_MARGIN):
+            boundary_at = t
+            print(f"bed boundary at t={t:.2f}s, base ({p.x:+.2f}, {p.y:+.2f}); "
+                  f"bed x[{bed[0]:.2f},{bed[1]:.2f}] y[{bed[2]:.2f},{bed[3]:.2f}] "
+                  f"margin {BED_MARGIN}")
+            break
         if fell_at is None and (tilt > FALL_TILT_RAD or p.z < soil_top - 0.05):
             fell_at = t
 
@@ -401,6 +425,14 @@ def main() -> int:
         "base_z_start_end_m": [round(z0, 4), round(float(arr[-1, 3]), 4)],
         "base_z_min_m": round(float(arr[:, 3].min()), 4),
         "fell": bool(fell_at is not None), "fell_at_s": fell_at,
+        # Three outcomes, not two. bed_boundary is a clean stop with usable data,
+        # not a failure -- distinguishing it from a fall matters because the
+        # trajectory up to that point is fine.
+        "status": ("fell" if fell_at is not None
+                   else "bed_boundary" if boundary_at is not None else "completed"),
+        "bed_boundary_at_s": boundary_at,
+        "command_family": args.command_family,
+        "command_series": getattr(policy, "command_log", None),
         "max_tilt_deg": round(math.degrees(max(tilts)), 1) if tilts else None,
         "final_tilt_deg": round(math.degrees(tilts[-1]), 1) if tilts else None,
         "policy": "none (stand pose)" if policy is None else "model_2999.pt",
