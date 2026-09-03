@@ -4,7 +4,8 @@
 The second half of the WP0 gate for the proposed quadruped case study
 (docs/state/progress/future-case-studies.md), which prescribes "a privileged
 scripted gait walking on rigid ground, THEN CRM, with zero learning, before any
-model work". `quadruped_wp0_gait.py` did the rigid half on RoboSimian. This does
+model work". A RoboSimian script did the rigid half (removed 2026-09-03; git history
+through `5ccd2fe`). This does
 the CRM half on the robot the study actually targets.
 
 WHY GO2 RATHER THAN THE RoboSimian PROTOTYPE. The plan ranks the bootstrapping
@@ -306,26 +307,27 @@ class PolicyController:
         THE MATH IS THEIRS; THE PLUMBING IS OURS. Populating thirteen named
         attributes is much less to get wrong than reproducing a permutation, a
         sign convention and four scales, but it is not nothing -- which is why
-        the two paths are gated against each other bit-exactly.
-        """
-        if self._harness_obs is not None:
-            return self._observe_via_harness(robot)
-        return self._observe_local(robot)
+        the port was gated bit-exactly against the hand-written path before that
+        path was removed (max abs diff 0.0 over 45 elements on random input, and
+        travel/tilt/base_z reproduced to the digit on a bit-reproducible run).
 
-    def _observe_local(self, robot: Go2Robot) -> np.ndarray:
-        base = robot.base()
-        w = base.GetAngVelLocal()
-        # Negated AND reordered. See docstring notes 2 and 3.
-        pos = -robot.joint_pos()[CHRONO_TO_POLICY]
-        vel = -robot.joint_vel()[CHRONO_TO_POLICY]
-        return np.concatenate([
-            np.array([w.x, w.y, w.z], dtype=np.float32) * ANG_VEL_SCALE,
-            self._projected_gravity(base.GetRot()),
-            self.command,
-            (pos - POLICY_DEFAULTS) * DOF_POS_SCALE,
-            vel * DOF_VEL_SCALE,
-            self.last_actions,
-        ]).astype(np.float32)
+        THERE IS NO FALLBACK, DELIBERATELY. A hand-written second implementation
+        used to stand behind this and was selected whenever the harness failed to
+        import. That is a silent degradation: the guarantee "the conventions are
+        inherited" would have quietly become "inherited if an import happened to
+        succeed", with no signal at the point it stopped being true. Refusing is
+        the same call as the render-options guard above.
+        """
+        if self._harness_obs is None:
+            raise RuntimeError(
+                "The training harness's _compute_observations is unavailable, so "
+                "the checkpoint's input convention cannot be inherited. Refusing "
+                "to fall back to a hand-written reimplementation -- the joint "
+                "sign negation has no recorded justification anywhere in the "
+                "source, so a local copy of it cannot be verified against "
+                "anything. Make chrono_crmenv.py importable; see "
+                "docs/state/decisions/reuse-chrono-crmenv.md.")
+        return self._observe_via_harness(robot)
 
     def _observe_via_harness(self, robot: Go2Robot) -> np.ndarray:
         torch = self.torch

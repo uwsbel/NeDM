@@ -283,7 +283,7 @@ controller phase/clock into the token, or lengthen the context. See
 [`../progress/future-case-studies.md`](../progress/future-case-studies.md).
 
 **Measured 2026-09-02, and it does not transfer.**
-`scripts/quadruped_wp0_gait.py cycle` reports RoboSimian's shipped
+The RoboSimian gait script (removed; git history through `5ccd2fe`) reported its shipped
 `walking_cycle.txt` as 19,164 rows at dt 1 ms, 32 joints, **19.16 s per cycle**.
 That is the period by construction, since `RS_Driver` replays the file on a
 loop; the autocorrelation cross-check scatters from 5.9 to 18.9 s because one
@@ -301,7 +301,7 @@ the answer. **Still open for Go2**, and it needs a Go2 gait period. That was blo
 both boxes ran pychrono 9.0.0, where `ChParserURDF` fails to load. Under the
 `nedm` environment (pychrono 10.0.0) the parser is exposed and verified, so
 **this is now answerable**: import a Go2 URDF, run a trot, and measure the
-period the same way `scripts/quadruped_wp0_gait.py cycle` does for RoboSimian.
+period the same way the removed RoboSimian gait script did (git history through `5ccd2fe`).
 
 ## Where does the quadruped's seed controller come from?
 

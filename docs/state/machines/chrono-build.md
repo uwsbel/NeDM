@@ -451,7 +451,7 @@ AddDirectionalLight(self, color: ChColor, elevation: float, azimuth: float) -> u
 
 That is the method whose absence broke the first video render of the day and
 forced the `AddPointLight` key/fill fallback still carried in
-`quadruped_wp0_gait.py`. Also present: `AddDiskLight`, `AddRectangleLight`,
+the RoboSimian gait script, now removed. Also present: `AddDiskLight`, `AddRectangleLight`,
 `AddSpotLight`, `AddEnvironmentLight`, `AddSprite`, `Modify*` for each, and
 `AddFsiSphSystem`/`RemoveFsiSphSystem`/`GetFsiSphSources` on the scene directly.
 
@@ -463,7 +463,7 @@ any of them are still needed.
 
 **Eight call sites**, three renames plus `Background`
 (`crm_sensor_smoke.py:68,77,106`; `quadruped_go2_crm.py:251,255,346,477`;
-`quadruped_wp0_gait.py:207`).
+the removed RoboSimian gait script).
 
 `src/nedm/chrono_crm_compat.py` serves both environments from one codebase.
 Chosen over a hard cut for one reason specific to today: **every number we have

@@ -209,7 +209,7 @@ runs below realtime — that is precisely the problem NRD exists to solve. And a
 random-action quadruped falls in ~0.4 s, so the HMMWV trick of collecting from a
 meandering driver gives a dataset that is 100% collapse dynamics.
 
-**Measured 2026-09-02, and it narrows this:** `scripts/quadruped_wp0_gait.py
+**Measured 2026-09-02, and it narrows this:** the RoboSimian gait script (removed; see git history through `5ccd2fe`)
 walk` runs scripted RoboSimian on `kyle-sbel` at **roughly 1.22 to 1.25x
 realtime**, depending on Chrono version (SMC + Bullet, 1 ms step, rigid ground,
 no rendering). Six runs, n=3 per environment: 9.0.0 gives 1.2448-1.2516 and
