@@ -1,5 +1,10 @@
 __pycache__/
 *.py[cod]
+
+# macOS. The coordinator is the only Mac in the fleet, so these reach the repo
+# from one box only and are invisible there until a Linux box trips over them.
+.DS_Store
+**/.DS_Store
 .codex
 .agents/
 .vscode/
