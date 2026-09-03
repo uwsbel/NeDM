@@ -296,7 +296,10 @@ def main() -> int:
 
     rows: list[dict] = []
     wall0 = time.time()
-    with get_context("spawn").Pool(min(args.procs, len(tasks))) as pool:
+    # maxtasksperchild: workers leak ~2-3 MB/episode (Chrono/OptiX teardown is
+    # incomplete), which OOM-killed workers ~4600 episodes into a 5000-episode
+    # run on a 62 GB box. Recycling every 50 episodes caps a worker at ~1 GB.
+    with get_context("spawn").Pool(min(args.procs, len(tasks)), maxtasksperchild=50) as pool:
         for row in pool.imap_unordered(run_one, tasks):
             rows.append(row)
             print(
