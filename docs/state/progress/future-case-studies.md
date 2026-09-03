@@ -27,7 +27,9 @@ is a 2-D one-hot over three discrete terrains.
 > A Go2 under a ported RL policy walks **2.19 m in 8 s on CRM**, max tilt 7.3°
 > against 6.6° on rigid ground — so the soil costs some stability and does not
 > destroy it. The rigid-ground control walks 3.11 m in 8 s, which validates the
-> whole Genesis→Chrono port (joint reorder, sign flip, 45-dim observation).
+> whole port of the in-house checkpoint (joint reorder, sign flip, 45-dim
+> observation). **The policy was trained in Chrono**, not imported from another
+> engine — see the correction note below.
 > The reasoning above was right: SPH does not share the OptiX fault.
 >
 > Two things were **both** required and neither alone sufficed: the `training`
@@ -87,7 +89,7 @@ on. Result: **8 s upright, 3.11 m travelled at 0.423 m/s** against a 0.5 m/s
 command (85%), max tilt **6.6°**, body height steady at 0.35 m.
 
 That validates the entire port end to end: observation convention, the
-Genesis/Chrono reorder, the sign flip, the motor mapping, the 45-wide vector,
+policy-frame reorder, the sign flip, the motor mapping, the 45-wide vector,
 the actuation type. **So every CRM failure is CRM-specific**, not a porting bug.
 
 The contrast is total and early:
@@ -328,3 +330,45 @@ against the true SPH surface.
   Study I with more terrains" — strengthens an existing claim rather than
   opening a new one.
 - **Multi-vehicle interaction.** Needs a scene-graph encoder; different paper.
+
+## Correction: the Go2 policy was trained in Chrono, not imported
+
+**Recorded 2026-09-03 after Kyle caught it.**
+
+`model_2999.pt` comes from `uwsbel/sbel-reproducibility` 2025/multi-terrain-RL:
+**trained in Chrono on rigid ground and finetuned on CRM granular terrain**,
+in-house. It has never touched another engine.
+
+Earlier notes, variable names (`CHRONO_TO_GENESIS`, `GENESIS_DEFAULTS`) and a
+summary page all described this as a "Genesis→Chrono port". **That was wrong.**
+The word leaked from §Bootstrapping option 3 — *"Import a pretrained Go2 policy
+(Genesis / IsaacLab)"* — which the plan **rejected** as highest-risk and kept off
+the critical path. A rejected option's label attached itself to the thing that
+replaced it, and then propagated into code identifiers, three doc lines and a
+published page.
+
+Kyle found it by noticing the claim was internally inconsistent: **Genesis has no
+CRM**, so a Genesis-trained policy could not have been finetuned on granular
+terrain. The contradiction was visible in the docs for a day.
+
+The joint ordering `[FR, FL, RR, RL]` and the split thigh defaults are **RSL-RL's
+convention**, taken from `chrono_crmenv.py`, which is authoritative because it
+ships with the checkpoint. Identifiers renamed to `CHRONO_TO_POLICY` and
+`POLICY_DEFAULTS`.
+
+### And this explains the soil-preset dependency
+
+The Go2 walks on the `training` preset (cohesion 2000) and falls on `eval`
+(cohesion 5000). That was recorded as an unexplained sensitivity alongside the
+`artificial_viscosity` finding.
+
+**It is not a numerical mystery — it is a domain match.** `training` names the
+soil parameters *the policy was finetuned on*. The preset dictionary was carried
+over from the source repo with its names intact. A policy finetuned at cohesion
+2000 surviving there and failing at 5000 is ordinary generalisation failure, and
+the preset name said so all along.
+
+**Consequence for the study:** results on `training` soil are in-distribution for
+this controller. Any claim about CRM locomotion that depends on the policy
+staying upright must say which preset it used, and `eval` is the honest test of
+generalisation.

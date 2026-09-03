@@ -62,7 +62,7 @@ from nedm import chrono_crm_compat as crm_compat  # noqa: E402
 
 GRAVITY = 9.81
 
-# Chrono joint order. The policy does not use this order; see CHRONO_TO_GENESIS.
+# Chrono joint order. The policy does not use this order; see CHRONO_TO_POLICY.
 MOTOR_NAMES = [
     "RR_hip_joint", "RR_thigh_joint", "RR_calf_joint",
     "RL_hip_joint", "RL_thigh_joint", "RL_calf_joint",
@@ -77,11 +77,17 @@ CALF_BODIES = ["FR_calf", "FL_calf", "RR_calf", "RL_calf"]
 
 # Chrono [RR,RL,FR,FL] -> policy [FR,FL,RR,RL]. Swapping two halves of six is
 # its own inverse, so this converts observations one way and actions the other.
-CHRONO_TO_GENESIS = np.array([6, 7, 8, 9, 10, 11, 0, 1, 2, 3, 4, 5], dtype=np.int64)
+# The policy frame is RSL-RL's, taken from chrono_crmenv.py which ships with the
+# checkpoint. NOT Genesis: these were originally named *_GENESIS_*, which was
+# wrong -- model_2999.pt was trained in Chrono, not imported from Genesis. The
+# name leaked from the plan's REJECTED option 3 ("import a pretrained Go2 policy
+# (Genesis / IsaacLab)") and then into the docs and a summary page as though it
+# described what we did.
+CHRONO_TO_POLICY = np.array([6, 7, 8, 9, 10, 11, 0, 1, 2, 3, 4, 5], dtype=np.int64)
 
 # Policy-frame rest pose, in policy order [FR, FL, RR, RL]. Front and rear thigh
 # defaults differ (0.8 vs 1.0); normalising that away breaks the stance.
-GENESIS_DEFAULTS = np.array([0.0, 0.8, -1.5, 0.0, 0.8, -1.5,
+POLICY_DEFAULTS = np.array([0.0, 0.8, -1.5, 0.0, 0.8, -1.5,
                              0.0, 1.0, -1.5, 0.0, 1.0, -1.5], dtype=np.float32)
 
 # Chrono-order standing pose, held while the robot settles onto the soil.
@@ -229,13 +235,13 @@ class PolicyController:
         base = robot.base()
         w = base.GetAngVelLocal()
         # Negated AND reordered. See docstring notes 2 and 3.
-        pos = -robot.joint_pos()[CHRONO_TO_GENESIS]
-        vel = -robot.joint_vel()[CHRONO_TO_GENESIS]
+        pos = -robot.joint_pos()[CHRONO_TO_POLICY]
+        vel = -robot.joint_vel()[CHRONO_TO_POLICY]
         return np.concatenate([
             np.array([w.x, w.y, w.z], dtype=np.float32) * ANG_VEL_SCALE,
             self._projected_gravity(base.GetRot()),
             self.command,
-            (pos - GENESIS_DEFAULTS) * DOF_POS_SCALE,
+            (pos - POLICY_DEFAULTS) * DOF_POS_SCALE,
             vel * DOF_VEL_SCALE,
             self.last_actions,
         ]).astype(np.float32)
@@ -245,8 +251,8 @@ class PolicyController:
         with self.torch.no_grad():
             action = self.actor(obs).squeeze(0).numpy().astype(np.float32)
         self.last_actions = action
-        targets_policy_frame = action * 0.25 + GENESIS_DEFAULTS
-        return -targets_policy_frame[CHRONO_TO_GENESIS].astype(np.float64)
+        targets_policy_frame = action * 0.25 + POLICY_DEFAULTS
+        return -targets_policy_frame[CHRONO_TO_POLICY].astype(np.float64)
 
 
 def build_crm(chrono, fsi, veh, system, robot, args):

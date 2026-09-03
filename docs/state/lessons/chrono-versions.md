@@ -47,7 +47,7 @@ everything. That is the forward pitch measured directly rather than inferred
 from the base quaternion.
 
 *Contributing, not causal:* the commanded stand pose is front/rear asymmetric
-(`GENESIS_DEFAULTS` thigh 0.8 front, 1.0 rear). On rigid ground that same pose
+(`POLICY_DEFAULTS` thigh 0.8 front, 1.0 rear). On rigid ground that same pose
 settles all four feet within 2 mm and holds for 2 s, so the asymmetry is harmless
 until the contact pathology amplifies it.
 
