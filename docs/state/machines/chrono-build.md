@@ -170,9 +170,11 @@ The vehicle bindings already depend on it: `interface/vehicle/ChTerrain.i` and
 `ChModuleVehicle.i` both use `#ifdef CHRONO_FSI_SPH`, and that is how
 `CRMTerrain` reaches Python today.
 
-**So the real gap is much narrower than reported.** `ChModuleSensor.i` simply
-never `%include`s or references the guarded methods, while the vehicle interface
-does the equivalent successfully. There is a working pattern in the same repo to
+**Superseded: there was no gap at all.** See the resolution below —
+`ChModuleSensor.i` `%include`s the header unguarded and both macros already
+reach SWIG, so the methods generate without any change. The reasoning in this
+section was a plausible mechanism for an absence whose real cause was the conda
+build's version. There is a working pattern in the same repo to
 copy, so the patch makes the sensor interface *consistent with* the vehicle one
 rather than inventing a mechanism — smaller, and far more likely to be accepted
 upstream.
@@ -349,36 +351,81 @@ including `chrono_fork` at 22 G and `chrono-HIL` at 22 G, several with populated
 be confused with that set: a future agent grepping for "chrono" there finds
 fifteen candidates and no way to tell which is which.
 
-## The SWIG binding to add
+## RESOLVED: there is no SWIG binding to add. It already works.
 
-`AttachFsiSphSystem` is **absent** from `src/chrono_swig/interface/sensor/ChModuleSensor.i`,
-not `%ignore`d. The header *is* fully `%include`d (line 243), but on `main` the
-three FSI methods sit inside `#ifdef CHRONO_FSI_SPH`, which SWIG's preprocessor
-does not have defined, so it skips the whole block. `AttachFsiSphSystem`,
-`DetachFsiSphSystem` and `ClearFsiSphSystems` are all missing together, which
-confirms a guard problem rather than a per-method oversight.
+**Verified against the built artifact, 2026-09-03:**
 
-So this is **not a one-line `%rename`**. Three things are needed:
+```python
+>>> mgr.AttachFsiSphSystem(terrain.GetFluidSystemSPH())
+0
+```
 
-1. `CHRONO_FSI_SPH` defined for the SWIG preprocessor when sensor is built with
-   FSI enabled — a CMake change.
-2. `ChFsiSphRenderOptions` made a known type (`ChFsiSphRender.h`), or the default
-   argument will not translate.
-3. `ChFsiFluidSystemSPH` made known to the sensor module, which it is not today.
-   `ChModuleSensor.i` has **no FSI awareness at all**: no `%import` of the fsi
-   module. This creates a build-order dependency from the sensor bindings onto
-   the fsi bindings.
+`ChSensorManager` exposes `AttachFsiSphSystem`, `DetachFsiSphSystem` and
+`ClearFsiSphSystems`, with the default argument translated:
 
-Item 3 is the structural one: it touches the module dependency graph rather than
-being a local edit. The type already exists on the Python side
-(`terrain.GetFluidSystemSPH()` works), so the work is making the sensor module
-aware of it, not creating it.
+```
+AttachFsiSphSystem(self, sys: shared_ptr<chrono::fsi::sph::ChFsiFluidSystemSPH>,
+                   options: ChFsiSphRenderOptions const& = ChFsiSphRenderOptions()) -> int
+```
 
-**Patch versus PR.** `.i` files are version-specific, so any patch must record
-its target SHA beside it, and `main` moved 656 commits in five months with
-binding work landing the same day we looked. An upstream PR is the only form that
-does not rot. File the issue regardless of whether a patch is sent: the finding
-stands on its own, alongside WP0c's unreported `ChDepthCamera` `ray_scale` bug.
+**Both macros already reach SWIG**, conditional on the flags we set anyway:
+
+```cmake
+chrono_python/CMakeLists.txt:122   -DCHRONO_FSI_SPH    if CH_ENABLE_MODULE_FSI_SPH
+chrono_python/CMakeLists.txt:136   -DCHRONO_HAS_OPTIX  if CH_USE_SENSOR_OPTIX
+```
+
+`ChModuleSensor.i` `%include`s `ChSensorManager.h` unguarded, so with both
+macros defined SWIG parses the `#ifdef` block and generates all three methods.
+**Building from a SHA that postdates the feature *is* the fix.** Nothing to
+patch, nothing to send upstream.
+
+### How this diagnosis was wrong twice, and it was the same fact both times
+
+The conda `pychrono` 10.0.0 lacks the method. We had **already established** the
+C++ feature postdates the 10.0.0 tag by 272 commits. So the absence was always
+about the version — and it was then carried forward as a *separate* fact, "the
+bindings are missing it", and a three-part patch designed against it. **It was
+one fact wearing different clothes.**
+
+The compounding step was reading `ChModuleSensor.i` and **inferring a cause**
+instead of building and looking. The decisive check was one line against the
+built artifact, and the artifact existed for an hour before anyone ran it.
+
+**Rule: when a symbol is missing, check the artifact you have, not the source
+you think produced it.** Reading source to explain an absence produces a
+plausible mechanism whether or not it is the real one — and a plausible
+mechanism is exactly what stops you running the one-line check.
+
+**The patch series is empty**, and that is a finding rather than an absence. The
+build procedure (checkout SHA → apply patches → build) stands as policy with
+zero patches in it. `chrono-src` remains a clean checkout at the pinned SHA.
+
+## The API moved between 10.0.0 and the pinned SHA
+
+**Our existing scripts do not run unchanged against the source build.**
+
+| conda 10.0.0 | pinned SHA |
+|---|---|
+| `CRMTerrain.SetElasticSPH(...)` | **gone** → `SetCrmSPH(SoilProperties)` |
+| `fsi.ElasticMaterialProperties` | **gone** → `fsi.SoilProperties` |
+
+Both raise `AttributeError`. New in the pinned SHA and absent from 10.0.0:
+`AddFeaMesh`, `IsFsiSolid`, `SetActiveDomainBody`, `SetActiveDomainMesh`,
+`SetBcePattern1D/2D`, `SetCfdSPH`, `SetCrmSPH`, `SetFreeFlowDuration`,
+`UseNodeDirections`.
+
+So `quadruped_go2_crm.py` and `crm_sensor_smoke.py` both break on `nedm-src`,
+and the `sph_set()` guard that raises on unknown `SPHParameters` fields is about
+to earn its keep — `SPHParameters` accepts any attribute silently, so without
+the guard a renamed field would be set, ignored by C++, and produce a plausible
+wrong answer.
+
+**The two environments are NOT interchangeable, and this is the important
+consequence: every number produced on 2026-09-03 came from the conda 10.0.0
+API.** A source-build result compared against them is a comparison *across an
+API change*, not across a version bump. Any such comparison must say which
+environment produced each number.
 
 ## RESULT: CRM renders through Chrono::Sensor. The blocker is cleared.
 
