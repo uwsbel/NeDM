@@ -127,3 +127,41 @@ and it does so while producing entirely respectable statistics.
 samples the arms actually share. Here 40 of 100 differed, which was itself the
 signal. If the treatment can refuse, assume it is re-selecting until shown
 otherwise.
+
+## The check you add to catch silent failures can itself be silent
+
+**Cost:** none, caught by a third arm · **Found:** 2026-09-03 · **Applies to:** every in-band success signal
+
+All day the handle from `AttachFsiSphSystem` was our defence against the silent
+no-op: `-1` means the OptiX branch was compiled out, `>= 0` means a real attach.
+It was added precisely because a method that compiles, links and runs is not
+evidence that it does anything.
+
+`kyle-N7-B650E` then ran a third arm — attach succeeding, options left
+default-constructed — in **C++, with the ordering already correct**:
+
+| arm | handle | dark | bright |
+|---|---|---|---|
+| attached, options set | 0 | **53.8%** | 38.8% |
+| attached, options default | **0** | **0.1%** | 94.1% |
+| not attached | −1 | 0.1% | 93.9% |
+
+**Handle `0` and a blank scene.** Two of the three arms are indistinguishable in
+pixels while differing in handle, and two are indistinguishable in handle while
+differing entirely in pixels.
+
+So the handle separates *attached* from *not attached* and says nothing about
+*rendering*. **We replaced a check that could not fail with a check that also
+cannot fail in the case we had moved on to caring about.** Same shape as the
+vacuous gate and the CUDA `exit 0`, one level further in — and this time inside
+the instrument built to catch that shape.
+
+**The rule: an in-band success signal reports that a call was made, not that it
+did the thing you wanted.** Whenever you add one, ask the null question *about
+the signal itself* — what would this return if the operation succeeded and
+accomplished nothing? Here the answer was `0`, and only pixels tell the three
+arms apart.
+
+This also independently corroborates `kyle-sbel`'s run B, where populated-but-wrong
+options returned handle 0 and drew nothing. Two languages, two machines, two
+routes to the same conclusion.
