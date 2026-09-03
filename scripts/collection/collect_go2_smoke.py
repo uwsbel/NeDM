@@ -9,12 +9,16 @@ nedm.quadruped.dataset; see that module for where the mirror is not literal.
 Terrain labels follow terrain_conditioning: rigid ground is "flat", the training
 soil preset is "crm".
 
-THE COMMAND IS CONSTANT IN EVERY EPISODE THIS PRODUCES. model_2999.pt reads a
-hardcoded [0.5, 0, 0] built inside the training harness's own observation
-function, so no per-episode variation can reach it. What varies here is initial
-heading, spawn offset and seed. That is state coverage, not command coverage,
-and command_constant is written into the episode metadata so that a later reader
-cannot mistake limit-cycle data for a command-conditioned dataset.
+COMMANDS VARY, VIA STRUCTURED FAMILIES. With --imported-ckpt the policy has a
+live command channel, so each episode is driven by one excitation family and the
+full command series is recorded alongside the family name. Without it, the
+harness policy reads a hardcoded [0.5, 0, 0] and no per-episode variation can
+reach it -- in that case the command columns are constant and the episode is
+state coverage only.
+
+BOTH ACTION CANDIDATES ARE LOGGED: the twelve joint targets AND the three
+velocity commands. Which one is the NRD action is a training-time config
+decision; see nedm.quadruped.dataset.
 """
 
 from __future__ import annotations
@@ -53,11 +57,15 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--terrain", choices=["rigid", "crm"], default="crm")
     parser.add_argument("--duration-s", type=float, default=8.0)
     parser.add_argument("--step-size-s", type=float, default=5e-4)
-    parser.add_argument("--exchange-mult", type=int, default=5)
+    parser.add_argument("--exchange-mult", type=int, default=4)
     parser.add_argument("--control-hz", type=float, default=50.0)
-    parser.add_argument("--record-step-s", type=float, default=0.02,
-                        help="Default matches the 50 Hz control step, so every "
-                             "sample carries the action actually applied.")
+    parser.add_argument("--record-step-s", type=float, default=0.01,
+                        help="100 Hz, matching the HMMWV collector. Control runs at "
+                             "50 Hz so joint targets are stair-stepped across sample "
+                             "pairs -- that is what the plant does. NOTE the SPH "
+                             "surface probe also runs at control rate, so "
+                             "foot_*_surface_disp_m is zero-order held across pairs; "
+                             "every other channel is genuinely 100 Hz.")
     parser.add_argument("--episode-index", type=int, default=0)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--heading-deg", type=float, default=0.0)
@@ -75,6 +83,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--settle-seconds", type=float, default=0.5)
     parser.add_argument("--solver-iters", type=int, default=150)
     parser.add_argument("--actuation", choices=["torque", "position"], default="torque")
+    parser.add_argument("--imported-ckpt", default=None)
+    parser.add_argument("--command-family", default=None)
     parser.add_argument("--assets", default=DEFAULT_ASSETS)
     parser.add_argument("--patch-x", type=float, default=8.0)
     parser.add_argument("--patch-y", type=float, default=4.0)
@@ -110,7 +120,6 @@ def build_collector_config(args: argparse.Namespace, soil: dict[str, Any]) -> di
         "robot": {
             "model": "Unitree_Go2",
             "urdf": "data/robot/go2_irrvis/urdf/go2_description.urdf",
-            "policy": "data/rl_models/rslrl/model_2999.pt",
             "contact_method": "SMC",
             "init": {
                 "x_m": float(args.spawn_x_m),
@@ -119,13 +128,14 @@ def build_collector_config(args: argparse.Namespace, soil: dict[str, Any]) -> di
             },
         },
         "controller": {
-            # See the module docstring: this is not configurable, it is a fact
-            # about the checkpoint, recorded so the dataset is self-describing.
-            "command_constant": True,
-            "command_lin_vel_x_mps": 0.5,
-            "command_lin_vel_y_mps": 0.0,
-            "command_ang_vel_yaw_radps": 0.0,
-            "command_source": "hardcoded literal in chrono_crmenv._compute_observations",
+            "policy": (str(args.imported_ckpt) if args.imported_ckpt
+                       else "model_2999.pt (harness contract)"),
+            "command_family": args.command_family,
+            "command_constant": args.imported_ckpt is None,
+            "command_source": ("structured family, see command_series"
+                               if args.imported_ckpt else
+                               "hardcoded literal in chrono_crmenv._compute_observations"),
+            "actuation_plant": args.actuation,
         },
         "logging": {"include_foot_channels": True},
         "scenario_generator": {"seed": int(args.seed)},
@@ -284,7 +294,12 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
                 f"[{y_lo:.2f}, {y_hi:.2f}] with {margin} m margin")
         terrain, coupled = build_crm(chrono, fsi, veh, system, robot, args)
 
-    policy = PolicyController(ckpt, cfgs)
+    if args.imported_ckpt:
+        from nedm.quadruped.imported_policy import ImportedGo2Policy
+        policy = ImportedGo2Policy(Path(args.imported_ckpt), family=args.command_family,
+                                   duration=args.duration_s)
+    else:
+        policy = PolicyController(ckpt, cfgs)
     sph_probe = soilprobe.bind_probe(terrain)
 
     exchange = args.exchange_mult * args.step_size_s
@@ -300,12 +315,27 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
     split = assign_split(episode_id, float(args.validation_ratio))
     csv_path = episodes_dir / f"{episode_id}.csv"
 
+    BED_MARGIN = 0.8
+    if rigid:
+        bed = (-5.0, 5.0, -5.0, 5.0)
+    else:
+        cx = args.patch_x / 2 - 0.6
+        bed = (cx - args.patch_x / 2, cx + args.patch_x / 2,
+               -args.patch_y / 2, args.patch_y / 2)
+    boundary_at = None
+
     q0 = robot.joint_pos().astype(np.float64)
     robot.actuate(q0)
     action = q0.copy()
 
     rows: list[dict[str, Any]] = []
-    next_record_s = 0.0
+    # DISCARD THE WARMUP, as the HMMWV collector does ("each episode discards an
+    # initial settling transient before recording"). Before this the robot is on
+    # the pose ramp and the settle hold, not under policy control, so the command
+    # columns would carry the constructor default rather than the family and the
+    # dynamics are a drop transient rather than locomotion.
+    warmup_s = args.pose_ramp_seconds + args.settle_seconds
+    next_record_s = warmup_s
     next_progress_s = 0.0
     sample_index = 0
     fell_at: float | None = None
@@ -319,6 +349,12 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
         for i in range(n_steps):
             t = i * exchange
             if i % control_every == 0:
+                # Advance the command schedule UNCONDITIONALLY, including during
+                # the ramp. It has no effect there -- the policy is not driving --
+                # but it keeps the cmd_* columns showing the schedule rather than
+                # a stale constructor default on the first recorded row.
+                if policy is not None and hasattr(policy, "set_time"):
+                    policy.set_time(t)
                 if t < args.pose_ramp_seconds:
                     a = t / max(args.pose_ramp_seconds, 1e-9)
                     action = q0 + a * (STAND_ACTION - q0)
@@ -336,6 +372,13 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
             else:
                 system.DoStepDynamics(exchange)
 
+            bp = base.GetPos()
+            if boundary_at is None and not (
+                    bed[0] + BED_MARGIN <= bp.x <= bed[1] - BED_MARGIN
+                    and bed[2] + BED_MARGIN <= bp.y <= bed[3] - BED_MARGIN):
+                boundary_at = t
+                break
+
             if t + 1e-12 >= next_record_s:
                 row = capture_row(
                     chrono=chrono,
@@ -343,6 +386,7 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
                     terrain=terrain,
                     soil_top_m=soil_top,
                     action=action,
+                    command=getattr(policy, "command", (0.0, 0.0, 0.0)),
                     soil_z=soil_z,
                     soil_ctrl=soil_ctrl,
                     scenario_name=scenario_name,
@@ -388,12 +432,12 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
         "rows": len(rows),
         "duration_s": float(args.duration_s),
         "record_step_s": float(args.record_step_s),
+        "warmup_s": float(args.pose_ramp_seconds + args.settle_seconds),
         "terrain_type": args.terrain,
         "terrain_label": terrain_label,
         "foot_force_source": config["logging"]["foot_force_source"],
         "plant": args.actuation,
-        "command_constant": True,
-        "command_lin_vel": [0.5, 0.0, 0.0],
+
         "seed": int(args.seed),
         "heading_deg": float(args.heading_deg),
         "spawn_m": [float(args.spawn_x_m), float(args.spawn_y_m), float(spawn_z)],
@@ -402,6 +446,12 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
         "fsi_coupled_bodies": len(coupled),
         "crm_particles": int(terrain.GetNumSPHParticles()) if terrain is not None else 0,
         "fell": fell_at is not None,
+        "status": ("fell" if fell_at is not None
+                   else "bed_boundary" if boundary_at is not None else "completed"),
+        "bed_boundary_at_s": boundary_at,
+        "command_family": args.command_family,
+        "command_series": getattr(policy, "command_log", None),
+        "plant_bed_m": list(bed),
         "fell_at_s": fell_at,
         "force_summary": force_summary,
         "pose_summary": pose_summary,
