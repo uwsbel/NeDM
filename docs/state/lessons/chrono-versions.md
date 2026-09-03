@@ -110,6 +110,26 @@ also uses a 0.2 m bed, just under the heave threshold. That is the physically
 honest fix, since Young's modulus and cohesion are soil properties, and it drops
 the elastic wave speed from 24.3 to 17.1 m/s. `--soil training` selects it.
 
+**But the soil change alone is NOT sufficient**, and neither is the damping.
+Standing, 8 s, depth 0.2:
+
+| soil | av | result |
+|---|---|---|
+| eval | 0.5 | flips at 1.4 s, 178° |
+| training | 0.5 | falls at 2.4 s, 103° |
+| eval | 2.0 | PASS, but drifts to 13.7° with an 11 cm front-rear split |
+| **training** | **2.0** | **PASS, 6.8° peak, 4 cm split, 0.7° at t=1.0** |
+
+The pair is better than either, because they fix **different halves**. Soft soil
+fixes the *impact*: the spike falls from 1168 N to 138 N, about one robot weight.
+Viscosity fixes the *ringing*: on soft soil at av 0.5 the box's force swing halves
+but its **vertical excursion nearly triples**, 0.024 m to 0.069 m, and it is the
+movement rather than the force that topples a quadruped.
+
+At the working combination all four feet carry load continuously, the sum sits at
+weight (127-155 N against ~150 N), and tilt at t=1.0 is **0.7°, better than the
+rigid control's 1.5°**.
+
 **Note `playground_crm.py` and `chrono_crmenv.py` disagree**, and only the latter
 was used for training. Reading the playground first cost hours: it is a
 visualisation scratch file, not the configuration anything was run with.

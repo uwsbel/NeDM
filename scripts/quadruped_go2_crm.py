@@ -99,6 +99,17 @@ LIN_VEL_SCALE, ANG_VEL_SCALE, DOF_POS_SCALE, DOF_VEL_SCALE = 2.0, 0.25, 1.0, 0.0
 # physically honest fix: Young's modulus and cohesion are soil properties, and
 # artificial_viscosity is a numerical damping term that changes the foot-soil
 # interaction Case Study IV exists to measure.
+# WORKING COMBINATION, measured: soil "training" AND artificial_viscosity 2.0.
+# Neither alone is sufficient and the pair is better than either, because they
+# fix different halves of the problem. Standing, 8 s, depth 0.2:
+#   eval soil     + av 0.5 -> flips at 1.4 s, 178 deg
+#   training soil + av 0.5 -> falls at 2.4 s, 103 deg
+#   eval soil     + av 2.0 -> PASS but drifts to 13.7 deg, 11 cm front-rear split
+#   training soil + av 2.0 -> PASS, 6.8 deg peak, 4 cm split, tilt 0.7 deg at t=1
+# Soft soil fixes the IMPACT: spike falls 1168 N to 138 N, about one robot weight.
+# Viscosity fixes the RINGING: on soft soil at av 0.5 the box force swing halves
+# but its vertical excursion nearly TRIPLES, 0.024 m to 0.069 m, and it is the
+# movement rather than the force that topples a quadruped.
 SOIL_PRESETS = {
     "eval": dict(density=1700.0, young=1.0e6, poisson=0.3, mu_I0=0.04,
                  friction=0.8, diam=0.005, cohesion=5000.0),
@@ -525,7 +536,9 @@ def main() -> int:
     ap.add_argument("--spacing", type=float, default=0.02)
     ap.add_argument("--patch-x", type=float, default=8.0)
     ap.add_argument("--patch-y", type=float, default=4.0)
-    ap.add_argument("--depth", type=float, default=0.30)
+    # 0.2, matching chrono_crmenv.py and sitting just under the ~0.22 m depth
+    # at which the bed starts heaving.
+    ap.add_argument("--depth", type=float, default=0.20)
     ap.add_argument("--soil-bottom", type=float, default=0.0)
     # Swept, 3 s each, standing: 0.34 -> 0.13-0.16 m of launch and a fall at
     # 0.64-0.85 s; 0.42 -> 0.07 m and 1.08-1.21 s; 0.60 -> ZERO launch and 2.97 s.
@@ -570,7 +583,7 @@ def main() -> int:
     ap.add_argument("--solver-iters", type=int, default=150)
     ap.add_argument("--soil", choices=["eval", "training"], default="training",
                     help="training is the softer soil the CRM finetune actually used")
-    ap.add_argument("--artificial-viscosity", type=float, default=0.5,
+    ap.add_argument("--artificial-viscosity", type=float, default=2.0,
                     help="0.5 is the Viper demo value and leaves an undamped "
                          "limit cycle under impact; see the note in build_crm")
     ap.add_argument("--no-calf-fsi", action="store_true",
