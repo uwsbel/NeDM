@@ -282,8 +282,15 @@ def build_crm(chrono, fsi, veh, system, robot, args):
     #
     # demo_ROBOT_Viper_CRM.py passes False, but it spawns the rover clear of the
     # soil, so it never exercises the embedded case.
+    # The calves are coupled on CRM but have rigid collision DISABLED on the
+    # rigid control, so the two cases are not comparable in what touches the
+    # ground. playground_crm.py couples them; --no-calf-fsi removes them so the
+    # difference can be tested rather than assumed.
+    pairs = [(n, foot_geom) for n in FOOT_BODIES]
+    if not args.no_calf_fsi:
+        pairs += [(n, calf_geom) for n in CALF_BODIES]
     coupled = []
-    for name, geom in [(n, foot_geom) for n in FOOT_BODIES] + [(n, calf_geom) for n in CALF_BODIES]:
+    for name, geom in pairs:
         body = robot.body(name)
         if body is None:
             continue
@@ -530,6 +537,8 @@ def main() -> int:
     ap.add_argument("--terrain", choices=["crm", "rigid"], default="crm",
                     help="rigid reproduces the ground the policy was trained on")
     ap.add_argument("--solver-iters", type=int, default=150)
+    ap.add_argument("--no-calf-fsi", action="store_true",
+                    help="couple only the feet to the SPH, not the calves")
     ap.add_argument("--no-policy", action="store_true", help="hold the stand pose throughout")
     ap.add_argument("--out", default="artifacts/go2_crm")
     args = ap.parse_args()
@@ -664,7 +673,18 @@ def main() -> int:
         if manager is not None:
             manager.Update()
         p, q = base.GetPos(), base.GetRot()
-        log.append([t, p.x, p.y, p.z, q.e0, q.e1, q.e2, q.e3])
+        fz, ffz = [], []
+        for n in FOOT_BODIES:
+            b = foot_bodies.get(n)
+            fz.append(b.GetPos().z if b is not None else float("nan"))
+            if b is not None and terrain is not None:
+                try:
+                    ffz.append(float(terrain.GetFsiBodyForce(b).z))
+                except Exception:  # noqa: BLE001
+                    ffz.append(float("nan"))
+            else:
+                ffz.append(float("nan"))
+        log.append([t, p.x, p.y, p.z, q.e0, q.e1, q.e2, q.e3, *fz, *ffz])
         # Tilt from upright, NOT base height. A 6 s run reported PASS on a robot
         # lying inverted on the soil: base z was 0.0074, still nominally above a
         # soil top of 0.0, because 7 mm off the ground is what lying down looks
@@ -679,7 +699,9 @@ def main() -> int:
     wall = time.perf_counter() - wall0
     arr = np.asarray(log)
     np.savez_compressed(out / "trajectory.npz", log=arr,
-                        columns=np.array(["t", "x", "y", "z", "e0", "e1", "e2", "e3"]))
+                        columns=np.array(["t", "x", "y", "z", "e0", "e1", "e2", "e3",
+                                          *[f"footz_{n}" for n in FOOT_BODIES],
+                                          *[f"fsiFz_{n}" for n in FOOT_BODIES]]))
     n_frames = len(list((out / "frames").glob("*"))) if (out / "frames").is_dir() else 0
     summary = {
         "sim_seconds": args.sim_seconds, "wall_seconds": round(wall, 1),
@@ -688,6 +710,8 @@ def main() -> int:
         "rtf_mbd": round(float(terrain.GetRtfMBD()), 5) if terrain else None,
         "fsi_coupled_bodies": len(coupled), "coupled_names": coupled,
         "terrain": args.terrain,
+        "system_total_mass_kg": round(float(total_mass), 3),
+        "weight_n": round(float(total_mass * GRAVITY), 1),
         "solver_iters": args.solver_iters,
         "sph_particles": int(terrain.GetNumSPHParticles()) if terrain else 0,
         "soil_top_m": soil_top, "spawn_z_m": spawn_z,
