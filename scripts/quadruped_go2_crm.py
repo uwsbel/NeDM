@@ -555,8 +555,25 @@ def attach_sph_rendering(chrono, sens, manager, terrain, args):
         sph = getter()
         opts_cls = getattr(sens, "ChFsiSphRenderOptions", None)
         if opts_cls is None:
-            attach(sph)
-            return "attached (no render options class; defaults)"
+            # REFUSE rather than fall back. A default-constructed options object
+            # is a NULL CONFIGURATION -- ChFsiSphRender.h documents sprite_shapes
+            # as required (default empty) and render_particle_spacing as "must be
+            # positive to render particles" (default 0.f) -- so attaching without
+            # it returns a valid handle and renders NOTHING. Measured: 86% sky,
+            # 0.2% dark, indistinguishable from not attaching at all.
+            #
+            # This branch used to attach anyway and report "attached (defaults)",
+            # which is precisely the silent no-op this project spent two days
+            # cataloguing, sitting in our own code. The absence of this class
+            # means the build lacks patches/0001-expose-fsi-sph-render-options
+            # -- so say that, and stop.
+            raise RuntimeError(
+                "ChFsiSphRenderOptions is absent from pychrono.sensor, so the "
+                "only reachable configuration is the one that renders nothing. "
+                "This build is missing patches/0001-expose-fsi-sph-render-"
+                "options.patch. Apply it to chrono-src and rebuild the sensor "
+                "module and python bindings; see "
+                "docs/state/machines/crm-rendering-handoff.md.")
         opts = opts_cls()
         # BOTH of these are required for anything to be drawn, and the defaults
         # are a null configuration -- ChFsiSphRender.h documents sprite_shapes as

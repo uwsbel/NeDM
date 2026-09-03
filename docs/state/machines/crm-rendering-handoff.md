@@ -21,6 +21,22 @@ Miss any one and you get a plausible-looking failure rather than an error.
 4. **`load_normals=True`** when loading the sprite meshes. This one is the
    difference between a lit surface and flat black.
 
+### The build must apply the patch, and the code now refuses without it
+
+`chrono-src` is a **clean checkout**; the patch is **not** baked into the tree.
+So the build procedure is **checkout SHA → apply `patches/0001` → build**, and a
+rebuild that skips the patch produces a sensor module whose only reachable
+configuration renders nothing.
+
+**That is not left to anyone remembering.** `attach_sph_rendering` in
+`scripts/quadruped_go2_crm.py` **raises** if `ChFsiSphRenderOptions` is absent,
+naming the patch and this page. It previously attached anyway and reported
+*"attached (defaults)"* — the silent no-op pattern, in our own code.
+
+Note the compiled `_sensor.so` retains the binding regardless of the source
+tree's state, so an existing build keeps working after the tree is cleaned. The
+hazard is only on the *next* rebuild.
+
 ## The settings, and the two that read backwards
 
 Locked as defaults in `scripts/quadruped_go2_crm.py` (commit `6990392`).
