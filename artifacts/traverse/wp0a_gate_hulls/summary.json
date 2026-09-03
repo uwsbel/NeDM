@@ -1,0 +1,27 @@
+{
+  "episodes": 100,
+  "success": 100,
+  "success_rate": 1.0,
+  "success_rate_wilson95": [
+    0.9630051925239981,
+    0.9999999999999999
+  ],
+  "by_status": {
+    "success": 100
+  },
+  "collision_episodes": [
+    10
+  ],
+  "max_contact_overall_n": 10266.193859852112,
+  "cross_track_mean_m": 0.07548499705821908,
+  "cross_track_max_m": 0.7503726050747211,
+  "layout_resample_episodes": 33,
+  "plan_length_m_minmax": [
+    34.40214571427744,
+    63.43660137471909
+  ],
+  "wall_total_s": 2904.749980688095,
+  "gate_G0a_pass": false,
+  "seed0": 20260901,
+  "timeout_scale": 2.5
+}
