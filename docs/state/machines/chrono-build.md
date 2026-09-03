@@ -69,6 +69,71 @@ is too old.
 at 9.0.1 on `feature/hil_new`, 3.8 GB with a populated `CMakeCache.txt` and a
 last commit reading *"seg fault on demo run"*. Build in a fresh `chrono-src`.
 
+## OptiX is LEGACY on this commit. Vulkan RT is the default backend.
+
+`src/chrono_sensor/CMakeLists.txt` on the pinned SHA:
+
+```cmake
+set(CH_USE_SENSOR_OPTIX     OFF CACHE BOOL "Enable LEGACY OptiX-dependent Chrono::Sensor features")
+set(CH_USE_SENSOR_VULKAN_RT ON  CACHE BOOL "Enable Vulkan ray-tracing Chrono::Sensor features")
+```
+
+Between tag 10.0.0 and this commit, upstream made **Vulkan RT the default sensor
+backend and demoted OptiX to legacy, off by default**. `ChSensorManager.h`
+carries both `#ifdef CHRONO_HAS_OPTIX` and `#ifdef CHRONO_HAS_VULKAN_RT`
+branches, so the two can coexist in one build.
+
+**A default configure would produce a sensor module with no OptiX at all.**
+Anyone assuming otherwise builds for an hour and gets the wrong backend.
+
+This also means the entire OptiX chain — the R595 driver upgrade, the 9.0.0 SDK
+installs — **may be unnecessary for this build**. Whether it is depends on which
+backend the FSI-SPH rendering path is actually implemented under, which is the
+one thing that must be checked before configuring.
+
+**Build both backends where the headers allow it.** They coexist, the marginal
+build cost is far below the cost of a wrong guess plus a rebuild, and the two
+boxes have different drivers (R595 vs R580) so the backend that works may not be
+the same one on each.
+
+**`OptiX_INSTALL_DIR` defaults to the PARENT of the source tree**
+(`cmake/FindOptiX.cmake:32`, `"${CMAKE_SOURCE_DIR}/../"`). On `kyle-sbel` that
+is `/home/kyle/Documents/sbel/`, which contains `chrono_fork` and `chrono_hil`.
+An unset value could silently find an OptiX belonging to a fork we deliberately
+refused to reuse. Set it explicitly whatever the backend decision.
+
+## The FSI module switch is split
+
+`CH_ENABLE_MODULE_FSI` is an umbrella and `CH_ENABLE_MODULE_FSI_SPH` is a
+sub-switch. **Both are required**; enabling FSI alone yields no SPH.
+
+## Correction: the SWIG guard already exists
+
+My earlier diagnosis, that `CHRONO_FSI_SPH` is invisible to the SWIG
+preprocessor and a CMake change is needed to define it, **was wrong**. It is
+already wired, in `src/chrono_swig/chrono_python/CMakeLists.txt:121-124`:
+
+```cmake
+if(CH_ENABLE_MODULE_FSI_SPH)
+  set(CMAKE_SWIG_FLAGS "${CMAKE_SWIG_FLAGS};-DCHRONO_FSI_SPH")
+  set(CMAKE_SWIG_FLAGS "${CMAKE_SWIG_FLAGS};-DCHRONO_CRM")
+endif()
+```
+
+The vehicle bindings already depend on it: `interface/vehicle/ChTerrain.i` and
+`ChModuleVehicle.i` both use `#ifdef CHRONO_FSI_SPH`, and that is how
+`CRMTerrain` reaches Python today.
+
+**So the real gap is much narrower than reported.** `ChModuleSensor.i` simply
+never `%include`s or references the guarded methods, while the vehicle interface
+does the equivalent successfully. There is a working pattern in the same repo to
+copy, so the patch makes the sensor interface *consistent with* the vehicle one
+rather than inventing a mechanism — smaller, and far more likely to be accepted
+upstream.
+
+It also explains the conda build: pychrono 10.0.0 predates the sensor FSI
+feature entirely, so no binding could have existed regardless of flags.
+
 ## Same SHA does NOT mean same binary
 
 The two boxes have materially different toolchains, measured:
