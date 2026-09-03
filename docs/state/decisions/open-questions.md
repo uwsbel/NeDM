@@ -103,6 +103,17 @@ already carry that data.
 descriptive footnote.** A rare binary event is the least informative function of
 a continuous measurement we already have.
 
+**Driven clearance, unenforced arm, measured:** **45 of 100** episodes finish
+below the 2.60 m search bound and **1** below the 1.10 m hull half-width. The
+plan-based reconstruction predicted 41 of 100 — close enough to confirm the
+reconstruction was sound, and different enough to justify having added the driven
+field. **The plan understates how often the margin is actually violated**,
+because tracking error carries the vehicle further inside the corridor than the
+planned line does. So the margin is not a rare-event problem at all when measured
+on what the vehicle does rather than on what the planner intended; it is a
+45%-of-episodes problem, which is exactly why the binary collision readout was
+the wrong instrument.
+
 The honest statement if the enforced arm returns 0/100 is *"consistent with
 enforcement working, and underpowered to demonstrate it"* — never "enforcement
 works."
