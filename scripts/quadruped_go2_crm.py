@@ -642,6 +642,11 @@ def main() -> int:
     n_steps = int(args.sim_seconds / exchange)
     base = robot.base()
     z0 = base.GetPos().z
+    foot_bodies = {n: robot.body(n) for n in FOOT_BODIES}
+    try:
+        total_mass = sum(b.GetMass() for b in system.GetBodies())
+    except Exception:  # noqa: BLE001 - a diagnostic must not break the run
+        total_mass = float("nan")
     log, tilts, wall0, fell_at = [], [], time.perf_counter(), None
 
     # The URDF spawns at its own rest configuration, which is NOT the stand
