@@ -25,6 +25,35 @@ satisfiable today.
 **limit cycle**: one gait, one speed, one heading. The model would learn that
 slice very well and have seen nothing else.
 
+## The contribution: contact-mode conditioning
+
+**Not "a fourth system."** §7 of the manuscript names this as future work:
+
+> *"Extending the method to contact-rich manipulation will likely require
+> **event- or contact-conditioned neural dynamics, in which a contact mode is
+> predicted and the transition is conditioned on it**."*
+
+A quadruped is the natural testbed — four feet, sixteen modes, switching at
+2-4 Hz, and the mode is directly **observable** from foot force. The framework
+already has the slot: `c_t`, currently carrying the terrain one-hot.
+
+**Why it is doable:** contact modes cycle regardless of the command. A trot at
+constant velocity still traverses all-four-down, one diagonal, the other. So the
+diversity this contribution needs is inherent in walking, and it is blocked by
+none of the three constraints we hit:
+
+| constraint | blocks this? |
+|---|---|
+| no command channel | **no** — modes cycle anyway |
+| foot smaller than kernel | **no** — contact still switches |
+| 20 mm spacing under-resolves the patch | **no** — no footprint depth is claimed |
+
+**Tested by the paper's own deletion rule:** train with and without the
+contact-mode context, and show removal degrades rollout fidelity.
+
+**Scope:** validation levels 1 and 2 (one-step, open-loop rollout). Level 3,
+closed-loop policy transfer, needs the command channel and is the follow-on.
+
 ## Stage 1 — parity (in progress, not blocked)
 
 Mirror the HMMWV pipeline rather than building a parallel one.
@@ -38,10 +67,16 @@ Mirror the HMMWV pipeline rather than building a parallel one.
 | terrain one-hot `['flat','crm']` | `rigid` and `training` soil |
 | 75/25 train mix, huber loss, rollout eval at 5 s and 10 s | same |
 
-**The per-foot row is why this case study exists.** For a wheeled vehicle,
-normal force and wheel speed are the terramechanics channel. For a quadruped it
-is normal force and sinkage — and **the soil remembers**, so a footprint changes
-the next stance. That hysteresis has no wheeled analogue.
+**Superseded 2026-09-03 — see [`quadruped-contact-mode.md`](quadruped-contact-mode.md).**
+The soil-memory justification does *not* hold at stock geometry: the foot (22 mm
+radius) is smaller than the SPH kernel support (40 mm), so it floats 22.9 mm
+above true contact and leaves no footprint. **The contribution is
+contact-mode conditioning instead**, which is stronger and is not blocked by any
+of it — contact modes cycle regardless of command, penetration, or spacing.
+
+Soil memory becomes reachable with enlarged feet (50 mm radius flips penetration
+to +5.1 mm), which is a *second*, later contribution rather than this one's
+premise.
 
 Steps: collection script → one episode's schema reviewed → volume → processed
 dataset → training config → rollout eval.

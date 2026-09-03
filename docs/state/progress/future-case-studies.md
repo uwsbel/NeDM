@@ -61,7 +61,16 @@ predicts a residual `Δz_t` which is genuinely discontinuous at touchdown and
 liftoff. On CRM the reduced-state question is also new — the foot analogue of
 the paper's per-wheel terramechanics block is **sinkage plus penetration and
 extraction force**, and the soil *remembers*: a footprint changes the next
-stance. That is a hysteresis channel no current study has. Throughput value
+stance. That is a hysteresis channel no current study has.
+>
+> **Measured 2026-09-03 and it does not hold at stock geometry.** The Go2 foot
+> (22 mm radius) is *smaller than the SPH kernel support* (40 mm), so it floats
+> 22.9 mm above true contact, never penetrates, and leaves no footprint. There is
+> no hysteresis to learn. Enlarging the foot to 50 mm flips penetration to
+> +5.1 mm, so the channel is reachable — but as a second contribution, not this
+> one's premise. **The live justification is intermittent contact and
+> contact-mode conditioning**; see
+> [`../decisions/quadruped-contact-mode.md`](../decisions/quadruped-contact-mode.md). Throughput value
 peaks here too, since quadruped + CRM is plausibly the most expensive scene in
 the lab.
 
