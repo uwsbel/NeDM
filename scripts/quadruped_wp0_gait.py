@@ -191,8 +191,19 @@ def attach_video_camera(chrono, sys_, args):
 
     manager = sens.ChSensorManager(sys_)
     manager.scene.SetAmbientLight(chrono.ChVector3f(0.35, 0.35, 0.38))
-    manager.scene.AddDirectionalLight(chrono.ChColor(1.0, 0.95, 0.85),
-                                      math.radians(55.0), math.radians(120.0))
+    # pychrono 9.0.0's ChScene has no directional light: only AddPointLight and
+    # AddAreaLight exist. src/nedm/traverse/scene.py calls AddDirectionalLight
+    # and therefore cannot render on either of Kyle's boxes; see
+    # docs/state/progress/vision-study3-traverse.md. Prefer it when present so
+    # this stays correct on a newer build, and fall back to a key/fill pair.
+    if hasattr(manager.scene, "AddDirectionalLight"):
+        manager.scene.AddDirectionalLight(chrono.ChColor(1.0, 0.95, 0.85),
+                                          math.radians(55.0), math.radians(120.0))
+    else:
+        manager.scene.AddPointLight(chrono.ChVector3f(2.0, -2.5, 3.0),
+                                    chrono.ChColor(1.0, 0.95, 0.85), 25.0)
+        manager.scene.AddPointLight(chrono.ChVector3f(-2.0, 1.5, 2.0),
+                                    chrono.ChColor(0.45, 0.5, 0.6), 25.0)
     background = sens.Background()
     background.mode = sens.BackgroundMode_SOLID_COLOR
     background.color_zenith = chrono.ChVector3f(0.55, 0.68, 0.85)
@@ -216,6 +227,31 @@ def attach_video_camera(chrono, sys_, args):
     cam.PushFilter(save(str(frame_dir) + "/"))
     manager.AddSensor(cam)
     return manager, f"frames -> {frame_dir}"
+
+
+def transcode_frames_to_jpeg(out_dir: Path, quality: int) -> str:
+    """PNG frames to JPEG, so a run can cross a relayed link without ffmpeg.
+
+    Neither box has ffmpeg and installing it needs a human, but PIL is present.
+    JPEG at q85 is roughly a fifth the size of the PNGs, which is the difference
+    between a transfer that finishes and one that does not.
+    """
+    src = out_dir / "frames"
+    if not src.is_dir():
+        return "no frames directory"
+    pngs = sorted(src.glob("*.png"))
+    if not pngs:
+        return "no frames rendered"
+    try:
+        from PIL import Image
+    except Exception as exc:  # noqa: BLE001
+        return f"{len(pngs)} png frames, PIL unavailable ({type(exc).__name__})"
+    dst = out_dir / "jpg"
+    dst.mkdir(exist_ok=True)
+    for i, png in enumerate(pngs):
+        Image.open(png).convert("RGB").save(dst / f"f{i:05d}.jpg", quality=quality)
+    mb = sum(p.stat().st_size for p in dst.glob("*.jpg")) / 1e6
+    return f"{len(pngs)} frames -> {dst} ({mb:.1f} MB)"
 
 
 def cmd_walk(args: argparse.Namespace) -> int:
@@ -385,6 +421,9 @@ def cmd_walk(args: argparse.Namespace) -> int:
         # understates the solver. Quote the figure from a run without it.
         "realtime_factor_is_comparable": not args.video,
     }
+    if args.video and video_manager is not None:
+        summary["frames_jpeg"] = transcode_frames_to_jpeg(out_dir, args.video_quality)
+
     (out_dir / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
     print(json.dumps(summary, indent=2))
     verdict = "FAIL, robot fell" if summary["fell"] else "PASS, stayed upright for the full window"
@@ -441,6 +480,8 @@ def main() -> int:
     walk.add_argument("--video-fps", type=float, default=30.0)
     walk.add_argument("--video-width", type=int, default=960)
     walk.add_argument("--video-height", type=int, default=540)
+    walk.add_argument("--video-quality", type=int, default=85,
+                      help="JPEG quality for the transferable copy")
     args = parser.parse_args()
     return cmd_cycle(args) if args.cmd == "cycle" else cmd_walk(args)
 

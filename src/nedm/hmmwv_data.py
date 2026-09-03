@@ -212,31 +212,50 @@ def configure_chrono_data_paths(repo_root: Path, config: dict[str, Any]) -> None
     set_vehicle_data_path(str(vehicle_data_root) + "/")
 
 
+# Baked into libChrono_vehicle's compiled HMMWV model, not into any JSON in the
+# data tree, so it cannot be changed from this repo. Chrono 9.0.0 ships the file
+# as HMMWV_chassis_col.obj, which differs only in case and therefore resolves on
+# macOS and fails on Linux.
+HMMWV_HULL_MESH = "hmmwv_chassis_col.obj"
+
+
 def require_chassis_hull_mesh() -> None:
-    """Refuse to start if HULLS is requested but no hull mesh is on disk.
+    """Refuse to start unless the exact mesh Chrono will request is openable.
 
     WP0c found that `CollisionType_NONE` made G0a's "zero asset contact" result
-    vacuously true. A missing hull mesh reproduces that exact failure by another
-    route: Chrono logs one OBJ load error per worker, continues with no chassis
-    collision, and a 49-minute run again reports zero contacts. A gate that
-    cannot fail is worse than no gate, so fail here instead.
+    vacuously true. A mesh Chrono cannot open reproduces that failure exactly:
+    it logs one OBJ error per worker, continues with no chassis collision, and
+    the run again reports zero contacts. A gate that cannot fail is worse than
+    no gate.
+
+    This asserts the exact filename. An earlier version matched case-insensitively
+    and passed on a box where only the uppercase variant existed, which is the
+    very situation it was written to catch.
     """
     hmmwv_dir = Path(chrono.GetChronoDataPath()) / "vehicle" / "hmmwv"
     if not hmmwv_dir.is_dir():
         raise FileNotFoundError(
-            f"chassis_collision=HULLS but {hmmwv_dir} does not exist. "
+            f"chassis_collision needs {hmmwv_dir}, which does not exist. "
             f"Chrono data path is {chrono.GetChronoDataPath()!r}."
         )
-    meshes = sorted(
-        p.name
-        for p in hmmwv_dir.iterdir()
-        if p.suffix.lower() == ".obj" and "chassis" in p.name.lower()
+    if (hmmwv_dir / HMMWV_HULL_MESH).is_file():
+        return
+    variants = sorted(
+        p.name for p in hmmwv_dir.iterdir() if p.name.lower() == HMMWV_HULL_MESH.lower()
     )
-    if not any("col" in name.lower() for name in meshes):
-        raise FileNotFoundError(
-            f"chassis_collision=HULLS but no chassis collision mesh in {hmmwv_dir}. "
-            f"Chassis meshes present: {meshes}"
-        )
+    detail = (
+        f"only {variants} is present, which differs in case"
+        if variants
+        else f"nothing matching it is present; the directory holds "
+        f"{sorted(q.name for q in hmmwv_dir.iterdir())}"
+    )
+    raise FileNotFoundError(
+        f"Chrono will request {hmmwv_dir / HMMWV_HULL_MESH} and {detail}. "
+        "Either run scripts/make_chrono_data_overlay.py and point "
+        "NEDM_CHRONO_DATA_ROOT at its output, or set vehicle.chassis_collision "
+        "to PRIMITIVES, which builds collision from the vehicle model and needs "
+        "no mesh at all."
+    )
 
 
 def build_output_root(repo_root: Path, config: dict[str, Any], override: str | None) -> Path:
