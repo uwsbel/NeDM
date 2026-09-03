@@ -19,7 +19,8 @@ from __future__ import annotations
 import heapq
 import json
 import math
-from dataclasses import dataclass, field
+import os
+from dataclasses import dataclass, replace, field
 from pathlib import Path
 from typing import Any, Sequence
 
@@ -426,6 +427,12 @@ def plan_to_ring(
     """Full oracle pipeline: multi-goal A* to the approach ring, smooth,
     validate, attach speeds. Returns None when no feasible plan exists."""
     params = params or PlannerParams()
+    # Env override so the enforcement can be A/B'd against an identical run
+    # without threading a flag through every caller. Deliberately env-only:
+    # this changes planner behaviour and should be a conscious act, not a
+    # default anyone inherits.
+    if os.environ.get("NEDM_ENFORCE_INFLATION") == "1":
+        params = replace(params, enforce_inflation_after_smoothing=True)
     grid = OracleGrid(tmap, obstacles, params)
 
     ring_dist = np.hypot(grid.node_x - ring_center[0], grid.node_y - ring_center[1])
