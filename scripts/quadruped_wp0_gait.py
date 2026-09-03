@@ -48,6 +48,10 @@ from pathlib import Path
 
 import numpy as np
 
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+from nedm import chrono_crm_compat as crm_compat  # noqa: E402
+
 CYCLE_REL = "robot/robosimian/actuation/walking_cycle.txt"
 
 # Demo values (demo_ROBOT_RoboSimian_Rigid.py), kept so results are comparable.
@@ -204,10 +208,7 @@ def attach_video_camera(chrono, sys_, args, ground_z: float):
                                     chrono.ChColor(1.0, 0.95, 0.85), 25.0)
         manager.scene.AddPointLight(chrono.ChVector3f(-2.0, 1.5, 2.0),
                                     chrono.ChColor(0.45, 0.5, 0.6), 25.0)
-    background = sens.Background()
-    background.mode = sens.BackgroundMode_SOLID_COLOR
-    background.color_zenith = chrono.ChVector3f(0.55, 0.68, 0.85)
-    manager.scene.SetBackground(background)
+    crm_compat.set_solid_background(manager.scene, chrono.ChVector3f(0.55, 0.68, 0.85))
 
     # Fixed three-quarter view, aimed below the chassis so the feet and the
     # ground contact are inside the frame: that is the whole point of the clip.

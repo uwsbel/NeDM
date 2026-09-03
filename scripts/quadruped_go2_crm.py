@@ -55,6 +55,10 @@ from pathlib import Path
 
 import numpy as np
 
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+from nedm import chrono_crm_compat as crm_compat  # noqa: E402
+
 GRAVITY = 9.81
 
 # Chrono joint order. The policy does not use this order; see CHRONO_TO_GENESIS.
@@ -248,11 +252,11 @@ def build_crm(chrono, fsi, veh, system, robot, args):
     terrain.SetStepSizeCFD(args.step)
 
     soil = SOIL_PRESETS[args.soil]
-    mat = fsi.ElasticMaterialProperties()
+    mat = crm_compat.soil_properties()
     mat.density, mat.Young_modulus, mat.Poisson_ratio = soil["density"], soil["young"], soil["poisson"]
     mat.mu_I0, mat.mu_fric_s, mat.mu_fric_2 = soil["mu_I0"], soil["friction"], soil["friction"]
     mat.average_diam, mat.cohesion_coeff = soil["diam"], soil["cohesion"]
-    terrain.SetElasticSPH(mat)
+    crm_compat.set_crm_soil(terrain, mat)
 
     p = fsi.SPHParameters()
 
@@ -343,7 +347,7 @@ def build_crm(chrono, fsi, veh, system, robot, args):
             print(f"  FSI registration failed for {name}: {type(exc).__name__}: {exc}")
 
     terrain.SetActiveDomain(chrono.ChVector3d(1.0, 1.0, 1.0))
-    terrain.SetActiveDomainDelay(0.1)
+    crm_compat.set_free_flow_duration(terrain, 0.1)
     terrain.Construct(
         chrono.ChVector3d(args.patch_x, args.patch_y, args.depth),
         chrono.ChVector3d(args.patch_x / 2 - 0.6, 0, args.soil_bottom),
@@ -474,10 +478,7 @@ def attach_camera(chrono, system, args, soil_top: float, terrain=None):
     else:
         manager.scene.AddPointLight(chrono.ChVector3f(2, -2.5, 3),
                                     chrono.ChColor(1.0, 0.95, 0.85), 25.0)
-    bg = sens.Background()
-    bg.mode = sens.BackgroundMode_SOLID_COLOR
-    bg.color_zenith = chrono.ChVector3f(0.55, 0.68, 0.85)
-    manager.scene.SetBackground(bg)
+    crm_compat.set_solid_background(manager.scene, chrono.ChVector3f(0.55, 0.68, 0.85))
 
     eye = np.array([-1.15, -1.45, soil_top + 0.62])
     target = np.array([0.30, 0.0, soil_top + 0.08])

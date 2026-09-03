@@ -1,0 +1,148 @@
+"""CRM API shim spanning pychrono 10.0.0 and the pinned source build.
+
+WHY THIS EXISTS, AND WHEN TO DELETE IT
+--------------------------------------
+Chrono renamed several CRM entry points between release 10.0.0 (the conda
+pychrono everything in this repo was measured against) and the main-branch SHA
+6982828952a920bb4e857625e74cedcf46d3573a that we build from source:
+
+    CRMTerrain.SetElasticSPH        -> CRMTerrain.SetCrmSPH
+    CRMTerrain.SetActiveDomainDelay -> CRMTerrain.SetFreeFlowDuration
+    fsi.ElasticMaterialProperties   -> fsi.SoilProperties
+
+Every physics number this repo currently reports was produced through the OLD
+names. Migrating outright would leave nothing to compare the migration against,
+so this module lets ONE script run under BOTH interpreters -- which is the only
+way to test whether the API change moved the physics.
+
+That is its whole job. Once the Go2 has been re-run on the source build and the
+two APIs are shown to agree, DELETE THIS MODULE and the conda path with it. A
+compatibility layer that outlives its migration acquires users and then acquires
+permanence; this one has an end condition, and that is it.
+
+DESIGN CONSTRAINTS, and each is a reaction to a real failure
+------------------------------------------------------------
+Resolution happens ONCE at import, not per call: a decision needed once should
+not be re-made hundreds of times, and per-call dispatch admits a behaviour change
+mid-run.
+
+Missing on BOTH sides raises. Never no-op, never silently default -- the failure
+family this whole codebase spent a day cataloguing is calls that succeed while
+doing nothing.
+
+Present on BOTH sides ALSO raises. Two names for one operation means a build
+neither branch was written for, and quietly picking one would reproduce that same
+failure inside the tool written to prevent it.
+"""
+
+from __future__ import annotations
+
+_OLD = "chrono-10.0.0"
+_NEW = "chrono-main-6982828"
+
+
+def _resolve(new_name, old_name, holder, what):
+    """Pick exactly one of two names, or refuse."""
+    has_new, has_old = hasattr(holder, new_name), hasattr(holder, old_name)
+    if has_new and has_old:
+        raise RuntimeError(
+            f"{what}: BOTH {new_name!r} and {old_name!r} are present on "
+            f"{getattr(holder, '__name__', holder)!r}. This shim knows two API "
+            f"generations and this build matches neither cleanly; choosing one "
+            f"silently is exactly the bug this module exists to avoid."
+        )
+    if has_new:
+        return new_name, _NEW
+    if has_old:
+        return old_name, _OLD
+    raise RuntimeError(
+        f"{what}: NEITHER {new_name!r} nor {old_name!r} found on "
+        f"{getattr(holder, '__name__', holder)!r}. Available: "
+        f"{sorted(n for n in dir(holder) if not n.startswith('_'))}"
+    )
+
+
+def _detect():
+    import pychrono.fsi as fsi
+    import pychrono.vehicle as veh
+
+    soil_name, gen_a = _resolve("SoilProperties", "ElasticMaterialProperties", fsi, "soil properties type")
+    crm_name, gen_b = _resolve("SetCrmSPH", "SetElasticSPH", veh.CRMTerrain, "CRM soil setter")
+    delay_name, gen_c = _resolve("SetFreeFlowDuration", "SetActiveDomainDelay", veh.CRMTerrain, "active-domain delay")
+
+    gens = {gen_a, gen_b, gen_c}
+    if len(gens) != 1:
+        raise RuntimeError(
+            f"Mixed Chrono API generations in one build: soil type is {gen_a}, "
+            f"CRM setter is {gen_b}, delay setter is {gen_c}. Refusing to guess."
+        )
+    return gens.pop(), fsi, soil_name, crm_name, delay_name
+
+
+API_GENERATION, _fsi, _SOIL_NAME, _CRM_NAME, _DELAY_NAME = _detect()
+
+
+def soil_properties():
+    """Empty soil-property struct. Field names are IDENTICAL across both
+    generations -- all 13 members verified equal -- so only the type name moved."""
+    return getattr(_fsi, _SOIL_NAME)()
+
+
+def set_crm_soil(terrain, props):
+    """Apply soil properties to a CRMTerrain."""
+    return getattr(terrain, _CRM_NAME)(props)
+
+
+def set_free_flow_duration(terrain, seconds):
+    """Delay before the active domain begins tracking. Same signature both sides."""
+    return getattr(terrain, _DELAY_NAME)(seconds)
+
+
+def stamp():
+    """Tag for output artifacts. A shim that makes results comparable while
+    leaving no record of which side produced them defeats its own purpose."""
+    return API_GENERATION
+
+
+# ---------------------------------------------------------------------------
+# EXTERNAL-BUG workaround. Not one of ours; do NOT delete as obsolete.
+#
+# pychrono.sensor.Background is referenced by the public API on the source build
+# -- ChOptixScene.SetBackground(Background) and GetBackground() -> Background --
+# but the type is no longer constructible from Python, and the object returned by
+# GetBackground comes back as a raw SwigPyObject with SWIG reporting:
+#
+#     swig/python detected a memory leak of type 'Background *', no destructor found.
+#
+# That is a wrapping defect upstream, not a rename: there is no new name to move
+# to. Reported alongside the WP0c ChDepthCamera ray_scale issue.
+#
+# Consequence: the solid-colour background cannot be set on the source build.
+# Frames render against the renderer default instead. This changes the BACKDROP
+# only, never geometry or particles -- but it does mean a frame-to-frame pixel
+# comparison across the two builds will differ in background pixels for reasons
+# that have nothing to do with physics.
+# ---------------------------------------------------------------------------
+
+BACKGROUND_CONSTRUCTIBLE = None
+
+
+def set_solid_background(scene, color_zenith):
+    """Set a solid-colour background if this build allows it.
+
+    Returns True if applied, False if skipped because of the upstream defect.
+    Never raises: an unsettable backdrop must not stop a render.
+    """
+    global BACKGROUND_CONSTRUCTIBLE
+    import pychrono.sensor as sens
+
+    if BACKGROUND_CONSTRUCTIBLE is None:
+        BACKGROUND_CONSTRUCTIBLE = hasattr(sens, "Background")
+
+    if not BACKGROUND_CONSTRUCTIBLE:
+        return False
+    bg = sens.Background()
+    bg.mode = sens.BackgroundMode_SOLID_COLOR
+    bg.color_zenith = color_zenith
+    scene.SetBackground(bg)
+    return True

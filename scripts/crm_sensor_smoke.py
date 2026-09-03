@@ -50,6 +50,10 @@ import math
 import time
 from pathlib import Path
 
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+from nedm import chrono_crm_compat as crm_compat  # noqa: E402
+
 GRAVITY = 9.81
 
 # From configs/hmmwv_crm_eval.json, so timings are comparable to real collection.
@@ -65,7 +69,7 @@ def build_crm(chrono, fsi, veh, system, args):
     terrain.SetGravitationalAcceleration(chrono.ChVector3d(0, 0, -GRAVITY))
     terrain.SetStepSizeCFD(args.step)
 
-    mat = fsi.ElasticMaterialProperties()
+    mat = crm_compat.soil_properties()
     mat.density = SOIL["density"]
     mat.Young_modulus = SOIL["young_modulus_pa"]
     mat.Poisson_ratio = SOIL["poisson_ratio"]
@@ -74,7 +78,7 @@ def build_crm(chrono, fsi, veh, system, args):
     mat.mu_fric_2 = SOIL["friction"]
     mat.average_diam = SOIL["average_diam_m"]
     mat.cohesion_coeff = SOIL["cohesion"]
-    terrain.SetElasticSPH(mat)
+    crm_compat.set_crm_soil(terrain, mat)
 
     p = fsi.SPHParameters()
     p.integration_scheme = fsi.IntegrationScheme_RK2
@@ -103,7 +107,7 @@ def build_crm(chrono, fsi, veh, system, args):
     probe, coupling = add_probe_body(chrono, system, terrain, args)
 
     terrain.SetActiveDomain(chrono.ChVector3d(2.0, 2.0, 1.0))
-    terrain.SetActiveDomainDelay(0.1)
+    crm_compat.set_free_flow_duration(terrain, 0.1)
     # Open top: BoxSide_ALL minus Z_POS, same as the HMMWV CRM path.
     terrain.Construct(
         chrono.ChVector3d(args.patch, args.patch, args.depth),
