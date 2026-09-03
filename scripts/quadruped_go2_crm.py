@@ -480,6 +480,16 @@ def attach_camera(chrono, system, args, soil_top: float, terrain=None):
                                     chrono.ChColor(1.0, 0.95, 0.85), 25.0)
     crm_compat.set_solid_background(manager.scene, chrono.ChVector3f(0.55, 0.68, 0.85))
 
+    # Attach the SPH system BEFORE the camera exists, matching the C++ demo
+    # (AttachFsiSphSystem at demo line 295, camera built after). The attach calls
+    # ReconstructScenes() internally, so a camera added first is built against a
+    # scene that has no FSI source in it, and the later rebuild does not retrofit
+    # the pipeline that camera already holds. Attaching after AddSensor produced
+    # frames byte-identical to attaching not at all -- options populated, handle
+    # 0, no error, and nothing drawn.
+    sph_note = attach_sph_rendering(sens, manager, terrain, args) if terrain is not None else "n/a"
+    print(f"sph rendering: {sph_note}")
+
     eye = np.array([-1.15, -1.45, soil_top + 0.62])
     target = np.array([0.30, 0.0, soil_top + 0.08])
     pose = chrono.ChFramed(chrono.ChVector3d(*eye), _look_at(chrono, eye, target))
@@ -494,8 +504,6 @@ def attach_camera(chrono, system, args, soil_top: float, terrain=None):
         return None, "ChFilterSave unavailable", None
     cam.PushFilter(save(str(frames) + "/"))
     manager.AddSensor(cam)
-    sph_note = attach_sph_rendering(sens, manager, terrain, args) if terrain is not None else "n/a"
-    print(f"sph rendering: {sph_note}")
     return manager, f"frames -> {frames} | sph: {sph_note}", mount
 
 
