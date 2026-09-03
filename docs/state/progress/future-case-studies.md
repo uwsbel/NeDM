@@ -18,7 +18,10 @@ is a 2-D one-hot over three discrete terrains.
 >   `RheologyCRM_MCC`, `RheologyCRM_MU_OF_I`, SPH integration schemes. So this
 >   study is prototypable, and the **CRM realtime factor, which is the number
 >   this section actually argues about and which nothing has ever measured, is
->   now measurable.**
+>   now measurable.** Presence is verified; **a CRM run is not**, and the
+>   OptiX failure under this same build is a reminder that those differ. CRM is
+>   SPH rather than ray tracing, so it should not share that fault, but that is
+>   reasoning rather than evidence.
 > - **`ChParserURDF` is exposed**, so the Go2 URDF path is open.
 > - RoboSimian and all twelve actuation files ship in 10.0.0 too, so the
 >   prototype and the study want the same environment.

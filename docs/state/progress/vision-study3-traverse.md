@@ -40,7 +40,7 @@ with a radial signature. Fitted as a scalar `ray_scale = 1.200` in
 `nedm/traverse/camera.py` and recorded in the dataset manifest. **Worth
 reporting upstream.**
 
-## Resolved: the renderer needs the `nedm` environment
+## Blocker: neither environment can render this study on `kyle-sbel`
 
 **Found and resolved 2026-09-02.** `src/nedm/traverse/scene.py:410` calls
 `manager.scene.AddDirectionalLight(...)`. `ChScene` in pychrono 9.0.0 has no
@@ -53,14 +53,35 @@ re-run them since.
 `src/nedm/double_pendulum_data.py:199` uses `AddPointLight` and is unaffected,
 so Study 1 renders and Study 3 does not.
 
-**The fix is the environment, not the code.** `conda env create -f
-environment.nedm.yml` gives pychrono 10.0.0 from the `projectchrono` channel,
-where `AddDirectionalLight` is present (verified on `kyle-sbel`). Run everything
-in this study under `envs/nedm`, never under `envs/chrono`.
+**The environment fixes the API and breaks the renderer.** Both measured on
+`kyle-sbel`, 2026-09-02:
+
+| | `envs/chrono` (9.0.0) | `envs/nedm` (10.0.0) |
+|---|---|---|
+| `AddDirectionalLight` | **absent**, `AttributeError` | present |
+| Chrono::Sensor / OptiX | renders (1246 frames) | **`OPTIX_ERROR_UNSUPPORTED_ABI_VERSION`** |
+
+So 9.0.0 renders but cannot express this study's lighting, and 10.0.0 expresses
+it but cannot start OptiX at all. **Moving this study to `nedm` trades an
+`AttributeError` for an OptiX failure**; it does not unblock rendering.
+
+The 10.0.0 failure is at `ChOptixEngine.cpp:86`, in the engine constructor, on
+an RTX 3090 with driver 580.173.02 / CUDA 13.0 that the 9.0.0 build rendered on
+an hour earlier. So it is the `projectchrono` build's OptiX ABI against this
+driver, not the machine and not this repo's code. Whether it is the build or the
+driver is **not yet known**: it needs testing on `kyle-N7-B650E`, which has a
+different GPU. If both boxes fail it is the build.
 
 A `hasattr` fallback to point lights in `scene.py` was considered and rejected:
 point lights are not directional lights, and the shading change would silently
 break comparability with the pilot tier already collected on `newton`.
+
+**General lesson, which cost the wrong doc edit above:** a symbol being
+importable does not mean its subsystem initialises. `pychrono.sensor` imported
+cleanly under 10.0.0 and `AddDirectionalLight` was present; the engine still
+refused to start. The same caution applies to the FSI/CRM finding in
+[`future-case-studies.md`](future-case-studies.md), where presence has been
+verified and a run has not.
 
 ## What is next — the one action
 
