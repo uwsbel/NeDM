@@ -53,8 +53,11 @@ DEPTH_RAY_SCALE = 1.2  # WP0b-calibrated ChDepthCamera ray widening
 # ~7 px^2 gaussian in a 64^2 field: raw MSE of an all-zero prediction is ~5e-4,
 # so it needs a large weight to matter at all (v1 ran at 50 and the head
 # stayed at zero; center error was ~random).
-LOSS_WEIGHTS = {"seg": 1.0, "rgb": 1.0, "elev": 1.0, "heat": 2000.0, "pose": 1.0, "bev": 1.0}
-SEG_CLASS_WEIGHTS = (0.2, 2.0, 1.0, 1.0, 2.0)  # bg, rock, tree, house, vehicle
+LOSS_WEIGHTS = {
+    "seg": 1.0, "rgb": 1.0, "elev": 1.0, "heat": 2000.0, "pose": 1.0, "bev": 1.0,
+    "seg_sp": 1.0, "bev_sp": 1.0,  # deep supervision on the pre-pooling map
+}
+SEG_CLASS_WEIGHTS = (0.2, 8.0, 4.0, 1.0, 2.0)  # bg, rock, tree, house, vehicle
 
 
 # ---------------------------------------------------------------------------
@@ -292,8 +295,40 @@ class WarmupHeads(nn.Module):
         }
 
 
+class SpatialAuxHeads(nn.Module):
+    """Warm-up deep supervision decoding straight from the pre-pooling map.
+
+    Without this branch the encoder only receives gradients through z2, so any
+    information the pooling bottleneck rejects (v2: rocks, trees) is never
+    perceived at all; with it, the encoder must detect every class and pooling
+    alone decides what reaches z2 — which is what the probes then measure.
+    """
+
+    def __init__(self, c_map: int = 256):
+        super().__init__()
+        self.seg = nn.Sequential(  # 16 -> 256 full-res logits
+            _conv_block(c_map, 128), nn.Upsample(scale_factor=2),
+            _conv_block(128, 64), nn.Upsample(scale_factor=2),
+            _conv_block(64, 64), nn.Upsample(scale_factor=2),
+            _conv_block(64, 32), nn.Upsample(scale_factor=2),
+            _conv_block(32, 32), nn.Conv2d(32, N_CLASSES, 1),
+        )
+        self.bev = nn.Sequential(  # 16 -> 128 logits
+            _conv_block(c_map, 128), nn.Upsample(scale_factor=2),
+            _conv_block(128, 64), nn.Upsample(scale_factor=2),
+            _conv_block(64, 32), nn.Upsample(scale_factor=2),
+            _conv_block(32, 32), nn.Conv2d(32, 1, 1),
+        )
+
+    def forward(self, s: torch.Tensor) -> dict[str, torch.Tensor]:
+        return {"seg": self.seg(s), "bev": self.bev(s)[:, 0]}
+
+
 def warmup_losses(
-    out: dict[str, torch.Tensor], batch: dict[str, torch.Tensor], half_size_m: float
+    out: dict[str, torch.Tensor],
+    batch: dict[str, torch.Tensor],
+    half_size_m: float,
+    sp_out: dict[str, torch.Tensor] | None = None,
 ) -> dict[str, torch.Tensor]:
     inp = batch["input"]
     rgb_t = F.avg_pool2d(inp[:, :3], inp.shape[-1] // AUX_RES)
@@ -315,6 +350,11 @@ def warmup_losses(
             out["bev"], batch["bev"], pos_weight=torch.tensor(5.0, device=inp.device)
         ),
     }
+    if sp_out is not None:
+        losses["seg_sp"] = F.cross_entropy(sp_out["seg"], batch["label"], weight=cw)
+        losses["bev_sp"] = F.binary_cross_entropy_with_logits(
+            sp_out["bev"], batch["bev"], pos_weight=torch.tensor(5.0, device=inp.device)
+        )
     return losses
 
 
