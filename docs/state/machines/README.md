@@ -20,6 +20,9 @@ Two files cover the fleet rather than any single box:
 an agent may do on them unattended, and [`file-sync.md`](file-sync.md) for how
 files move between them.
 
+Also here: [`chrono-build.md`](chrono-build.md) — building Chrono from source,
+and **the pinned commit both boxes must use**.
+
 Also here: [`manuscript.md`](manuscript.md) — where the paper source lives and
 how to build it locally (Tectonic, no sudo, works on this box today).
 
