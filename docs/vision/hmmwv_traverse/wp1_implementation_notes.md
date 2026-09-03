@@ -124,7 +124,9 @@ error ≤ 1.5 m mean (0.80), yaw ≤ 8° mean (3.3–4.0).
 | full_v3 | 5000 | 20290000+ | 22 GB | 10 rollovers; see incident below |
 | full_v4 | 5000 | 20300000+ | 21.6 GB | complete 09-03 15:50 (4986 + 14 rollovers, 823 contact eps); 40-episode read-back verified; mirrored to luffy; `full_v4_partial` (2335-ep interim sync used by v6) deleted after the full mirror |
 
-Next free seed block: **20310000+**.
+| full_v5 | 5000 | 20310000+ | ~22 GB | collecting (started 09-03 ~16:45), WP2-oriented |
+
+Next free seed block: **20320000+**.
 
 ## full_v3 incident (fixed in `ebfa0a3`)
 
