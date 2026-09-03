@@ -825,3 +825,92 @@ Whether the soil **deforms**, whether particle positions track the physics,
 whether the bed reads as a **surface** rather than a scatter of sprites.
 2.0 s per arm, one frame each inspected quantitatively. **Presence proven,
 fidelity not.**
+
+## The CRM sprite render recipe, and what the parameters actually mean
+
+**Locked settings** (`quadruped_go2_crm.py` defaults, 2026-09-03):
+
+| setting | value | why |
+|---|---|---|
+| `load_normals` | **True** | the one that mattered; `false` gives flat black |
+| `render_particle_spacing` | **0.01** | resampling target — *lower* draws more |
+| mesh scale | **2.0** | baked into the transform; sprite size is mesh scale |
+| rotated variants | **24** | breaks the orientation lattice |
+| `sprite_position_jitter` | **0.005** | breaks the residual position moiré |
+
+**`render_particle_spacing` is a resampling target, not a sprite size, and the
+effect is CUBIC.** From the CUDA source rather than inferred:
+
+```
+ChOptixEngine.cpp, EstimateFsiSphRenderCount:
+    render_count = num_markers * (source_spacing / render_particle_spacing)^3
+fsi_sph_render.cu: instance transform uses template_scale[template_id]  // MESH scale
+```
+
+So 0.01 against an 0.02 source draws **8×** the markers and 0.026 draws 0.45×.
+Coverage measured as exposed background: 30.3% at 0.01, 45.8% at 0.02, 68.2% at
+0.026 — monotonic, and the trend was visible two arms before anyone read the
+source. **Raising this parameter to "close the gaps" removes sprites.**
+
+Result: background 68.2% → 29.3%, terrain mean 140.8, sd 21.5, dark 0.2%, at 41.7 s
+of wall time for 6 s of sim. An opaque, lit, granular bed.
+
+### Sprite size and orientation are controllable without an options field
+
+`ChFsiSphRenderOptions` has three fields and none of them set size or
+orientation. Both are still reachable, **because we own the mesh list**: N
+pre-rotated, pre-scaled copies of the same mesh, baked into the vertex data via
+`ChTriangleMeshConnected.Transform(ChVector3d, ChMatrix33d)` (verified to mutate:
+vertex 0 moved). The renderer cycles the list, so the list *is* the variety.
+
+**An API lacking a knob is not the same as an effect being unreachable.** The
+banding diagnosis was confirmed by exactly this: the row period tracked the list
+length, 3.1 px with 3 meshes → 24.0 px with 24.
+
+## MEASURED: the soil response is millimetres, and it goes UP
+
+**Renderer-independent, from SPH particle z-coordinates.** 95th-percentile z
+within 5 cm of a foot's XY, against an undisturbed control patch at the same
+instant. Walking Go2, t > 2 s.
+
+| foot | peak stance force | surface height at peak |
+|---|---|---|
+| FR | 194.5 N | **+0.00267 m** |
+| FL | 191.0 N | **+0.00401 m** |
+| RR | 183.8 N | **+0.00465 m** |
+| RL | 178.7 N | **+0.00171 m** |
+
+Mean relative height across the run is about **+1 mm**. The deepest depression
+anywhere is RL at −0.018 m, and it occurs at **Fz = 12 N** — a foot lifting out
+of a hole, not pressing into one.
+
+**The sign is the physical result: under load the surface goes UP.** Every foot at
+peak stance shows positive relative height. The soil **piles** around and under
+the foot rather than bowling beneath it — seen first in a static proxy and
+confirmed under 5× the load.
+
+**So the renderer is not the limiting factor and neither is the load.** A few
+millimetres of displacement on a bed discretised at 20 mm is a tenth of one
+particle diameter. **There is essentially nothing there to render**, and no sprite
+setting will change that. If Case Study III needs visible foot-soil interaction
+the lever is **soil stiffness, particle size, or robot mass** — a physics-design
+choice.
+
+### The estimator was valid for a static foot and invalid for a walking one
+
+The first walking measurement returned **+0.2798 m** of surface rise on a bed
+whose top is at 0.20 m. **A footfall throws particles into the air**, and a
+95th-percentile z then tracks ejecta rather than the bed.
+
+Same estimator, same code, different validity: the static proxy generates no
+ejecta and the walking robot does. **It was caught only because 0.48 m is
+absurd** — a subtler contamination would have passed and been reported.
+
+Fixed by excluding particles more than 3 cm above the control surface before
+taking the percentile. The control patch needs no filter and its z95 is stable to
+**sd 0.00000** across the run, which is itself evidence the estimator is sound
+where there is no ejecta.
+
+**Rule: an estimator validated in one regime is not validated in another.**
+Re-derive its assumptions when the regime changes — here, from static loading to
+impact.

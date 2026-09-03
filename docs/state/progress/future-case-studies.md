@@ -35,8 +35,11 @@ is a 2-D one-hot over three discrete terrains.
 > 2.0. Do not carry 5.0 over from single-sphere box tests — it hard-crashes at
 > domain scale, particles leaving the domain, core dump.
 >
-> Still open: **~4 cm differential sinkage** under the robot. It plateaus, so it
-> may be physical rather than numerical, but it is unexplained.
+> **The "~4 cm differential sinkage" was never sinkage.** It was differential
+> *foot height* — front feet at 0.131 m against rear at 0.245 m — measured from
+> foot **body** positions, not from soil. That is the robot **pitching
+> nose-down**, a body attitude. Corrected 2026-09-03; see the measured soil
+> response below.
 >
 > **What remains blocked is only the rendering**, and its cause is now known
 > precisely: `AttachFsiSphSystem` has no Python binding, and on the pinned
