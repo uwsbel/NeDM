@@ -106,6 +106,7 @@ def run_one(task: tuple[int, int, str, float]) -> dict:
     status = "timeout"
     success_time = None
     max_contact_n = 0.0
+    min_clearance_m = float("inf")
     min_dist_goal = math.inf
     step = 0
     # Repo convention: steering_rate_limit 0.1 per 20 Hz step = 2.0 full-scale/s.
@@ -133,6 +134,18 @@ def run_one(task: tuple[int, int, str, float]) -> dict:
 
         contact = max((body.GetContactForce().Length() for _, body in scene.asset_bodies), default=0.0)
         max_contact_n = max(max_contact_n, contact)
+        # Distance from the vehicle reference to the nearest obstacle EDGE.
+        # Without this the zero-contact criterion cannot be audited from its own
+        # output: a pass is indistinguishable from a run where collision was
+        # never active, which is exactly how the original G0a result came to be
+        # vacuously true. Recording clearance turns "no contact" into "no contact
+        # AND the closest approach was X m", which is a claim with content.
+        clearance = min(
+            (float(np.hypot(pos[0] - a.x_m, pos[1] - a.y_m)) - a.footprint_radius_m
+             for a, _ in scene.asset_bodies),
+            default=float("inf"),
+        )
+        min_clearance_m = min(min_clearance_m, clearance)
         dist_goal = float(np.hypot(*(pos - approach)))
         min_dist_goal = min(min_dist_goal, dist_goal)
         roll, pitch = float(vehicle.GetRoll()), float(vehicle.GetPitch())
@@ -162,6 +175,7 @@ def run_one(task: tuple[int, int, str, float]) -> dict:
         cross_track_mean_m=float(xt.mean()),
         cross_track_max_m=float(xt.max()),
         max_asset_contact_n=float(max_contact_n),
+        min_asset_clearance_m=float(min_clearance_m),
         min_dist_goal_m=float(min_dist_goal),
         wall_s=time.time() - wall0,
     )

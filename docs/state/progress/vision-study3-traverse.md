@@ -102,6 +102,44 @@ Specifically, none of this exists yet:
 
 Plan §14 gates pilot-tier *training* on these probes passing.
 
+## The zero-contact criterion barely discriminates
+
+**Found 2026-09-02, and it outlives the bug that led to it.** G0a requires "zero
+collisions". Reconstructing all 100 gate layouts from their seeds and measuring
+the planned centreline's clearance to the nearest obstacle *edge*:
+
+| | min | p05 | median | max |
+|---|---|---|---|---|
+| clearance to obstacle edge | **1.34 m** | 1.70 | 2.72 | 4.25 |
+
+Against an HMMWV half-width of roughly 1.1 m, **0 of 100** episodes have
+clearance below half-width, and only **9 of 100** fall below half-width plus the
+worst cross-track deviation ever observed. Zero contact is the geometrically
+expected result, not evidence about the collision system.
+
+Which means the gate **would return zero contact even with
+`CollisionType_NONE`** — precisely what the original G0a did, and why WP0c found
+that result vacuous. Collision being genuinely active now (verified: collide
+enabled, `GetNumShapes() = 1`) makes the number honest, but the gate still cannot
+distinguish a working collision system from a broken one, because it never puts
+the vehicle near an obstacle.
+
+Two ways to give the criterion content, and the study should do at least one:
+
+1. **Record clearance.** `scripts/traverse_wp0a_gate.py` now writes
+   `min_asset_clearance_m` per episode, so a pass reads "no contact **and**
+   closest approach was X m" rather than an unfalsifiable zero. Runs predating
+   this change cannot be audited from their own output.
+2. **Keep a deliberate-graze case in the suite as a positive control** that must
+   report non-zero. Without one, nothing proves the gate can fail.
+
+Three separate mechanisms have now produced a vacuous zero here: chassis
+collision at `NONE`, a hull mesh that failed to load, and a planner that simply
+routes around everything. A fourth was hypothesised, that fixed asset bodies
+might not accumulate contact force, and **disproved** by direct test: a fixed
+`ChBodyEasyBox` under SMC/Bullet reported 11115.41 N, identical to the moving
+body. The measurement path is sound.
+
 ## Also owed before G0b is genuinely closed
 
 1. **Re-run the G0a gate under `HULLS`.** The "zero asset contact" result was
