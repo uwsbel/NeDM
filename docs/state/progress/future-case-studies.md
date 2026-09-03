@@ -57,7 +57,22 @@ against a hardcoded 0.5 m/s command, tracking roughly straight. A wrong
 observation vector produces thrashing or backwards motion, so the ported
 convention is right.
 
-**But it only walks for about two seconds.** A 6 s run shows the base pitching
+**Update 2026-09-03: the tumble was a spawn artifact, and a second failure is
+underneath it.** The Go2's URDF rest pose extends the legs, so a base height
+chosen as a constant put the feet *below* the soil surface and the BCE markers
+took a launch impulse from the particle bed. Spawn height is now derived from
+measured leg reach (0.421 m) with the foot margin expressed in SPH spacings.
+Rise in the first 200 ms is then **exactly 0.0000**, and the robot settles into a
+correct stance.
+
+It still falls. Standing, doing nothing, it reaches **11.8° of tilt by t=1.0**
+and pitches forward from there, front legs folding under. The stand and policy
+runs are identical to three significant figures until t=1.0, so **whatever
+topples it begins before the controller matters**. That is the open question,
+and unlike the fall-time differences it is a large effect that survives the
+solver noise.
+
+*Superseded, retained for the record:* **it only walks for about two seconds.** A 6 s run shows the base pitching
 ~158° about Y between t=1 and t=3 and then lying inverted and motionless for the
 rest of the window. The 0.177 m/s figure is from a 1 s run that stopped before
 the tumble; `forward_travel_m` over 6 s is not gait distance, since the robot
@@ -76,9 +91,22 @@ Ranked option 3 is therefore better than "highest risk, keep off the critical
 path" but is not finished. It gets a walking Go2 onto CRM in an afternoon; it
 does not yet get a Go2 that stays up.
 
+> **Read every CRM number below as a single sample, not a measurement.** The
+> SPH solver is **nondeterministic run to run**: two runs with byte-identical
+> inputs, no proxy, no video, gave a fall time of 2.97 s and 2.03 s, a ~30%
+> spread. Consistent with GPU atomic accumulation over 43,632 particles, where
+> floating-point summation order varies per run. Almost certainly not a bug.
+>
+> Consequences. Differences smaller than that spread are not interpretable from
+> single runs: the observed stand-versus-walk gap of 2.64 s against 1.95 s is
+> **not** outside it, so "the policy makes it worse" is unsupported. Differences
+> far larger than it survive: the spawn-clearance sweep, 0.64-0.85 s against
+> 2.97 s, stands. Anything quoted in this study should be a median over N runs
+> with the spread stated.
+
 **Measured CRM cost with a quadruped actually walking on it**, which is the
 number this section has always been arguing about and which nothing previously
-had: **0.291x realtime**. 3 x 1.6 m patch at 0.03 m spacing, 43,632 SPH
+had: **0.291x realtime**, from one run. 3 x 1.6 m patch at 0.03 m spacing, 43,632 SPH
 particles, 29,886 boundary BCE markers, 8 FSI-coupled bodies, no camera.
 `rtf_cfd` 3.46 against `rtf_mbd` 0.543, so the multibody side is about 14% of
 the cost rather than the ~0.04% a single-free-body measurement suggested.
