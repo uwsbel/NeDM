@@ -24,7 +24,7 @@ The data pipeline is finished and de-risked. **The model does not exist yet.**
 
 | WP | Gate | Result |
 |---|---|---|
-| WP0a oracle vertical slice | G0a | **100/100** approach-pose reach, cross-track 0.069 m mean / 0.88 m max |
+| WP0a oracle vertical slice | G0a | **FAILS under real collision.** See below |
 | WP0b sensor smoke | G0b partial | alignment **0.97 px** median / 3.06 p95 (bar: 2 / 4); depth→elevation 6.3 mm median, **16.9 mm at image edges** |
 | WP0c storage + collection | G0b partial | **28.8×** compression; pilot **200/200** episodes, 80 k frames, **873 MB**, 6.5 h at 3 procs |
 
@@ -112,17 +112,16 @@ the planned centreline's clearance to the nearest obstacle *edge*:
 |---|---|---|---|---|
 | clearance to obstacle edge | **1.34 m** | 1.70 | 2.72 | 4.25 |
 
-Against an HMMWV half-width of roughly 1.1 m, **0 of 100** episodes have
-clearance below half-width, and only **9 of 100** fall below half-width plus the
-worst cross-track deviation ever observed. Zero contact is the geometrically
-expected result, not evidence about the collision system.
+Against an HMMWV half-width of roughly 1.1 m, **0 of 100** episodes have a
+*planned centreline* closer than half-width. But that is the wrong threshold: the
+per-episode test subtracts that episode's own cross-track, and on that basis 4 of
+100 fall inside half-width and **1 actually collided**.
 
-Which means the gate **would return zero contact even with
-`CollisionType_NONE`** — precisely what the original G0a did, and why WP0c found
-that result vacuous. Collision being genuinely active now (verified: collide
-enabled, `GetNumShapes() = 1`) makes the number honest, but the gate still cannot
-distinguish a working collision system from a broken one, because it never puts
-the vehicle near an obstacle.
+So the criterion has **low discriminating power, not zero** — an earlier draft of
+this section said zero and was too strong. The margin is thin enough that roughly
+1 episode in 100 crosses it. The original G0a's zero was still vacuous, because
+collision could not fire at all, but the arena does occasionally produce genuine
+contact, so the gate is not purely measuring the planner.
 
 Two ways to give the criterion content, and the study should do at least one:
 
@@ -140,13 +139,40 @@ might not accumulate contact force, and **disproved** by direct test: a fixed
 `ChBodyEasyBox` under SMC/Bullet reported 11115.41 N, identical to the moving
 body. The measurement path is sound.
 
-## Also owed before G0b is genuinely closed
+## G0a FAILS once collision can actually fire
 
-1. **Re-run the G0a gate under `HULLS`.** The "zero asset contact" result was
-   **vacuously true** — chassis collision was at Chrono's default `NONE` and
-   TMEASY tires never contact rigid bodies, so the contact channel could not
-   fire. Found in WP0c, flagged in the WP0a addendum. ~50 min at 12 procs,
-   CPU-only.
+**Re-run 2026-09-02 on `kyle-N7-B650E`** under `HULLS`, `nedm` env, same 100
+seeds from 20260901, 24 procs, 48 min 25 s. `gate_G0a_pass: false`.
+
+| | Original (newton) | Re-run |
+|---|---|---|
+| Approach-pose reach | 100/100 | **100/100**, unchanged |
+| Episodes with asset contact | 0, **vacuously** | **1** (episode 10, 10,266 N) |
+| Cross-track mean / max | 0.069 / 0.88 m | 0.0755 / 0.7504 m |
+
+The reach criterion still clears its 0.95 bar. The **zero-collision criterion
+does not**, so the gate fails as written. Note reach did *not* move: contact
+forces did not perturb the dynamics enough to cost a single approach pose, which
+was an open question before this run.
+
+**Episode 10 succeeded and collided.** Seed 20260911, reached the goal in 12.1 s,
+hit a rock (footprint radius 1.17 m) sitting 1.42 m from the planned centreline
+while running 0.55 m of cross-track. Success and no-contact are independent
+criteria and this is the first episode to separate them.
+
+The margin `planned clearance - that episode's own max cross-track` identifies
+the risk band but does not determine contact: four episodes (10, 33, 64, 69) fall
+below the 1.10 m half-width and exactly one collided. Episodes 64 and 33 are
+tighter on paper and did not touch, because max cross-track is a bound over the
+whole episode rather than a value attained at the closest obstacle. This is why
+`min_asset_clearance_m`, measured from the driven trajectory, is strictly better
+than anything reconstructable from the plan.
+
+**What the study has to decide:** plan §12.1 requires zero collisions. Either the
+planner's inflation margin grows, or the criterion is restated, or the result is
+reported honestly as 1/100. What is no longer available is claiming zero.
+
+### Still owed
 2. Analytic class-mask rasterizer + one-shot `ChSegmentationCamera` validation.
 
 ## Open risks
