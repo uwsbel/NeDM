@@ -379,3 +379,99 @@ its target SHA beside it, and `main` moved 656 commits in five months with
 binding work landing the same day we looked. An upstream PR is the only form that
 does not rot. File the issue regardless of whether a patch is sent: the finding
 stands on its own, alongside WP0c's unreported `ChDepthCamera` `ray_scale` bug.
+
+## RESULT: CRM renders through Chrono::Sensor. The blocker is cleared.
+
+**2026-09-03, `kyle-sbel`, pinned SHA, source build.** 847,714 SPH particles.
+
+```
+attached: handle = 0   frames_written=401 sim_frames=801 final_time=2.0025  exit 0
+control:  handle = -1  frames_written=401 sim_frames=801 final_time=2.0025  exit 0
+```
+
+Dominant colour, frame 200: **attached `[0,0,0]` at 49.4%**, **control
+`[216,230,243]` at 73.4%**. A dense granular field covers the terrain region in
+the attached frame and is absent in the control. Rover geometry is
+pixel-identical in both.
+
+Five independent lines, none of which depends on the numeric bounds below:
+handle ≥ 0 rules out the silent no-op; both arms writing 401 frames rules out
+the void condition; matched step count and final time rule out drift; identical
+rover geometry rules out a scene difference; and the difference is confined to
+where terrain is.
+
+### The pre-registered criterion REJECTED this true positive
+
+Reported as a criterion failure rather than silently widened, which is the right
+call and the reason this record is trustworthy.
+
+```
+changed pixels 66.10%          bound was 5-60%   FAILS
+41.2% of changed above mid-height   bound was 0%      FAILS
+```
+
+**The criterion was wrong, and its error is the same class we catalogued all
+day, one level up: a check whose passing condition encoded an unverified
+assumption.** The bounds assumed a wide third-person view where terrain occupies
+a lower band. The actual camera sits at `(0.5, 1, 1)` rotated 60° looking down,
+essentially on the rover wheel, so terrain fills most of the frame and extends
+well above the midline in perspective. **There is no sky above the horizon in
+most of this frame** — the region being guarded as sky is largely terrain. The
+camera pose was in the file that had already been read.
+
+It **failed safe**: it rejected a true positive rather than accepting a false
+one. That is the correct direction to fail, and it still failed.
+
+**This run is validated by the five lines above, NOT by the numeric bounds.**
+The revised criterion below was written after seeing this data and therefore
+cannot validate it — it applies to future runs only.
+
+### Revised criterion, for future runs only
+
+Keep: both arms must render (void check), ≥5% changed pixels, handle ≥ 0 in the
+attached arm and the call demonstrably absent in the control. Drop: the 60%
+upper bound and the horizon test. Replace with: the changed region is contiguous
+and coincides with the terrain's projected extent **computed from the camera
+pose**, not assumed from a mental picture of the framing.
+
+### Three defects found on the way
+
+**1. `render_frame` is always 0** in the gate's own trace — the counter is
+incremented inside a `#ifdef CHRONO_VSG` block that is compiled out. The
+comparability check happened to use `t` and `sim_frame`, which are correct.
+*"I would not have caught it if the two arms had disagreed — I would have been
+comparing on a field that is constant."* An instrument that reads zero always
+agrees with itself.
+
+**2. The gate segfaults if run outside `chrono-build/bin`**, because Chrono data
+paths resolve relatively. Needs an explicit `SetChronoDataPath`.
+
+**3. The conda contamination predicted at configure time happened exactly as
+described.** The imported `tinyxml2` target drags in the whole conda env include
+directory, which contains a *complete competing Chrono* — the gate compiled
+against `envs/nedm-src/include/chrono/` and died on a missing HACD header.
+
+**The built library is NOT contaminated**, verified rather than assumed: source
+`-I` paths precede the conda `-isystem` path in every module, and core, sensor
+and fsisph carry no conda include at all. Only `chrono_parsers` sees it, source
+path first. Fixed for the gate with `target_include_directories(... BEFORE ...)`.
+
+The risk was written down at configure time, sized correctly, and landed exactly
+where predicted. **That is the argument for recording risks you decide to
+accept.**
+
+### Two things noted, not chased
+
+**Particles render black `[0,0,0]`, not shaded regolith.** May be correct for the
+shipped sprite meshes and default material, or may mean lighting is not applied
+to the sprite path. Irrelevant to presence-versus-absence, but **black
+silhouettes are probably not the eventual deliverable** if the goal is a camera
+watching a CRM pile change shape.
+
+**Do not quote the realtime factors from this run.** `rtf_cfd` median 236.1
+against mean 964.1 is wildly skewed, and both are ~2 orders of magnitude from
+the 2.8-5.7 measured earlier the same day on the Go2 at up to 1.29 M particles.
+Startup transients, different accessor semantics in this build, or the 200 fps
+save filter perturbing timing. **Until the discrepancy is explained these
+measure nothing**, and publishing them beside the earlier numbers would put a
+contradiction in the record.
