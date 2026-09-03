@@ -22,6 +22,27 @@ is a 2-D one-hot over three discrete terrains.
 >   OptiX failure under this same build is a reminder that those differ. CRM is
 >   SPH rather than ray tracing, so it should not share that fault, but that is
 >   reasoning rather than evidence.
+>
+> **Superseded 2026-09-03: the CRM run is now verified, and so is the gait.**
+> A Go2 under a ported RL policy walks **2.19 m in 8 s on CRM**, max tilt 7.3°
+> against 6.6° on rigid ground — so the soil costs some stability and does not
+> destroy it. The rigid-ground control walks 3.11 m in 8 s, which validates the
+> whole Genesis→Chrono port (joint reorder, sign flip, 45-dim observation).
+> The reasoning above was right: SPH does not share the OptiX fault.
+>
+> Two things were **both** required and neither alone sufficed: the `training`
+> soil preset (cohesion 2000 rather than 5000) **and** `artificial_viscosity`
+> 2.0. Do not carry 5.0 over from single-sphere box tests — it hard-crashes at
+> domain scale, particles leaving the domain, core dump.
+>
+> Still open: **~4 cm differential sinkage** under the robot. It plateaus, so it
+> may be physical rather than numerical, but it is unexplained.
+>
+> **What remains blocked is only the rendering**, and its cause is now known
+> precisely: `AttachFsiSphSystem` has no Python binding, and on the pinned
+> commit its body is empty unless the build defines `CHRONO_HAS_OPTIX`. See
+> [`../machines/chrono-build.md`](../machines/chrono-build.md). A source build
+> is in progress on both boxes to close it.
 > - **`ChParserURDF` is exposed**, so the Go2 URDF path is open.
 > - RoboSimian and all twelve actuation files ship in 10.0.0 too, so the
 >   prototype and the study want the same environment.
