@@ -422,9 +422,14 @@ def main() -> int:
     ap.add_argument("--patch-y", type=float, default=1.6)
     ap.add_argument("--depth", type=float, default=0.20)
     ap.add_argument("--soil-bottom", type=float, default=-0.20)
-    # A Go2 stands at roughly 0.30-0.32 m. 0.42 m dropped it ~10 cm before
-    # anything else happened; less drop is less to recover from.
-    ap.add_argument("--spawn-clearance", type=float, default=0.34)
+    # Swept, 3 s each, standing: 0.34 -> 0.13-0.16 m of launch and a fall at
+    # 0.64-0.85 s; 0.42 -> 0.07 m and 1.08-1.21 s; 0.60 -> ZERO launch and 2.97 s.
+    # Monotonic and it disappears entirely by 0.60. The Go2's URDF rest pose has
+    # the legs extended, so at low clearance the foot BCE markers spawn within
+    # interaction range of a dense particle bed and take a contact impulse.
+    # Note this is NOT particles trapped inside the feet: check_embedded=True
+    # removes only 40 of 43,632 particles and changes nothing.
+    ap.add_argument("--spawn-clearance", type=float, default=0.60)
     ap.add_argument("--video", action="store_true")
     ap.add_argument("--video-fps", type=float, default=30.0)
     ap.add_argument("--video-width", type=int, default=960)
@@ -487,8 +492,17 @@ def main() -> int:
     finally:
         os.chdir(cwd)
 
+    foot_z = [robot.body(n).GetPos().z for n in FOOT_BODIES if robot.body(n) is not None]
+    foot_clearance = min(foot_z) - soil_top if foot_z else float("nan")
+    if foot_clearance < 0.05:
+        print(f"WARNING: lowest foot is {foot_clearance:.3f} m above the soil surface. "
+              "Below ~0.05 m the foot BCE markers take a launch impulse from the "
+              "particle bed; raise --spawn-clearance.")
+
     terrain, coupled = build_crm(chrono, fsi, veh, system, robot, args)
-    print(f"soil top {soil_top:.3f}  spawn z {spawn_z:.3f}  FSI-coupled bodies: {len(coupled)}")
+    print(f"soil top {soil_top:.3f}  spawn z {spawn_z:.3f}  "
+          f"lowest foot {min(foot_z):.3f} (clearance {foot_clearance:.3f})  "
+          f"FSI-coupled bodies: {len(coupled)}")
     print(f"SPH particles {terrain.GetNumSPHParticles()}  boundary BCE {terrain.GetNumBoundaryBCEMarkers()}")
 
     manager, video_note = (None, "disabled")
@@ -568,6 +582,7 @@ def main() -> int:
         "policy": "none (stand pose)" if policy is None else "model_2999.pt",
         "pose_ramp_s": args.pose_ramp_seconds,
         "check_embedded": args.check_embedded,
+        "foot_clearance_above_soil_m": round(float(foot_clearance), 4),
         "initial_joint_error_max_rad": round(float(initial_error.max()), 4),
         "initial_joint_error_mean_rad": round(float(initial_error.mean()), 4),
         "video": video_note, "frames_written": n_frames,
@@ -577,7 +592,14 @@ def main() -> int:
             from PIL import Image
             dst = out / "jpg"
             dst.mkdir(exist_ok=True)
-            for i, png in enumerate(sorted((out / "frames").glob("*.png"))):
+            # NUMERIC sort. Chrono names frames frame_0.png, frame_1.png,
+            # frame_10.png, so lexicographic order is not chronological and the
+            # clip plays the robot flipping back and forth at random. Caught
+            # only because the frames contradicted the trajectory.
+            def _frame_index(path):
+                digits = "".join(c for c in path.stem if c.isdigit())
+                return int(digits) if digits else -1
+            for i, png in enumerate(sorted((out / "frames").glob("*.png"), key=_frame_index)):
                 Image.open(png).convert("RGB").save(dst / f"f{i:05d}.jpg", quality=85)
             summary["frames_jpeg"] = str(dst)
         except Exception as exc:  # noqa: BLE001
