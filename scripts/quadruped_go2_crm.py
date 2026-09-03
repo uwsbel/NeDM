@@ -81,6 +81,12 @@ def build_parser() -> argparse.ArgumentParser:
 
     # ---- advanced: settled defaults, kept for sweeps and reproduction ----
     adv = ap.add_argument_group("advanced", "settled defaults; each was measured")
+    adv.add_argument("--spawn-x", type=float, default=0.0,
+                     help="Spawn X. The CRM bed's near edge is at -0.6 BY "
+                          "CONSTRUCTION (centre = patch_x/2 - 0.6), independent of "
+                          "patch_x, so a turning run that arcs backwards can leave "
+                          "the bed from the default spawn.")
+    adv.add_argument("--spawn-y", type=float, default=0.0)
     adv.add_argument("--imported-ckpt", default=None,
                      help="TorchScript policy from the legged_gym family, driven "
                           "through nedm.quadruped.imported_policy instead of the "
@@ -219,7 +225,8 @@ def main() -> int:
     else:
         leg_reach = None
         spawn_z = soil_top + args.spawn_clearance
-    init = chrono.ChFramed(chrono.ChVector3d(0.0, 0.0, spawn_z), chrono.QuatFromAngleZ(0.0))
+    init = chrono.ChFramed(chrono.ChVector3d(args.spawn_x, args.spawn_y, spawn_z),
+                           chrono.QuatFromAngleZ(0.0))
 
     # URDF meshes are referenced relatively; resolve from the urdf directory.
     cwd = cwd_at_start
