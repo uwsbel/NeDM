@@ -143,6 +143,81 @@ def up_axis_from_quat(e0: float, e1: float, e2: float, e3: float) -> tuple[float
             e0 * e0 - e1 * e1 - e2 * e2 + e3 * e3)
 
 
+
+def look_at_frame(chrono, eye, target):
+    """A Chrono frame at `eye` looking at `target`.
+
+    Chrono::Sensor cameras look down +X of their own frame with +Z up. The
+    rotation is built in numpy and handed over as an explicit quaternion rather
+    than going through a Chrono look-at helper, whose name has moved between
+    versions.
+    """
+    eye = np.asarray(eye, dtype=float)
+    fwd = np.asarray(target, dtype=float) - eye
+    fwd /= np.linalg.norm(fwd)
+    up_hint = np.array([0.0, 0.0, 1.0])
+    if abs(float(fwd @ up_hint)) > 0.999:
+        up_hint = np.array([0.0, 1.0, 0.0])
+    left = np.cross(up_hint, fwd)
+    left /= np.linalg.norm(left)
+    up = np.cross(fwd, left)
+    r = np.column_stack([fwd, left, up])
+    tr = float(np.trace(r))
+    if tr > 0:
+        s = math.sqrt(tr + 1.0) * 2
+        e0, e1, e2, e3 = 0.25 * s, (r[2, 1] - r[1, 2]) / s, (r[0, 2] - r[2, 0]) / s, (r[1, 0] - r[0, 1]) / s
+    else:
+        i = int(np.argmax(np.diag(r)))
+        j, k = (i + 1) % 3, (i + 2) % 3
+        s = math.sqrt(1.0 + r[i, i] - r[j, j] - r[k, k]) * 2
+        q = [0.0, 0.0, 0.0, 0.0]
+        q[0] = (r[k, j] - r[j, k]) / s
+        q[i + 1], q[j + 1], q[k + 1] = 0.25 * s, (r[j, i] + r[i, j]) / s, (r[k, i] + r[i, k]) / s
+        e0, e1, e2, e3 = q
+    return chrono.ChFramed(chrono.ChVector3d(*eye), chrono.ChQuaterniond(e0, e1, e2, e3))
+
+
+def attach_video_camera(chrono, sys_, args):
+    """Offscreen chase camera. Returns (manager, note) or (None, reason)."""
+    try:
+        import pychrono.sensor as sens
+    except Exception as exc:  # noqa: BLE001
+        return None, f"pychrono.sensor unavailable ({type(exc).__name__}: {exc})"
+
+    mount = chrono.ChBody()
+    mount.SetFixed(True)
+    mount.EnableCollision(False)
+    sys_.AddBody(mount)
+
+    manager = sens.ChSensorManager(sys_)
+    manager.scene.SetAmbientLight(chrono.ChVector3f(0.35, 0.35, 0.38))
+    manager.scene.AddDirectionalLight(chrono.ChColor(1.0, 0.95, 0.85),
+                                      math.radians(55.0), math.radians(120.0))
+    background = sens.Background()
+    background.mode = sens.BackgroundMode_SOLID_COLOR
+    background.color_zenith = chrono.ChVector3f(0.55, 0.68, 0.85)
+    manager.scene.SetBackground(background)
+
+    # Fixed three-quarter view. The robot travels ~0.2 m per cycle, so it stays
+    # in frame for the whole run without tracking. A camera parented to the
+    # chassis would inherit its 180 deg X initialization and film upside down.
+    pose = look_at_frame(chrono, (-1.1, -1.6, 0.75), (0.35, 0.0, 0.05))
+    cam = sens.ChCameraSensor(mount, float(args.video_fps), pose,
+                              args.video_width, args.video_height, math.radians(55.0))
+    cam.SetName("chase")
+    cam.SetLag(0.0)
+    cam.SetCollectionWindow(0.0)
+
+    frame_dir = Path(args.out) / "frames"
+    frame_dir.mkdir(parents=True, exist_ok=True)
+    save = getattr(sens, "ChFilterSave", None)
+    if save is None:
+        return None, "sens.ChFilterSave not available in this build"
+    cam.PushFilter(save(str(frame_dir) + "/"))
+    manager.AddSensor(cam)
+    return manager, f"frames -> {frame_dir}"
+
+
 def cmd_walk(args: argparse.Namespace) -> int:
     import pychrono as chrono
     import pychrono.robot as robosimian
@@ -191,6 +266,13 @@ def cmd_walk(args: argparse.Namespace) -> int:
     time_end = time_start + args.sim_seconds
     output_every = max(1, math.ceil((1.0 / OUTPUT_FPS) / TIME_STEP))
 
+    video_manager, video_note = (None, "disabled")
+    if args.video:
+        video_manager, video_note = attach_video_camera(chrono, sys_, args)
+        print(f"video: {video_note}")
+        if video_manager is None:
+            print("video: continuing without capture")
+
     log: list[list[float]] = []
     terrain_created = False
     released_z = None
@@ -214,6 +296,8 @@ def cmd_walk(args: argparse.Namespace) -> int:
             up0 = up_axis_from_quat(r.e0, r.e1, r.e2, r.e3)
 
         robot.DoStepDynamics(TIME_STEP)
+        if video_manager is not None:
+            video_manager.Update()
         step += 1
 
         t = sys_.GetChTime()
@@ -296,6 +380,10 @@ def cmd_walk(args: argparse.Namespace) -> int:
         "chassis_z_range_m": [round(float(arr[:, 3].min()), 5),
                               round(float(arr[:, 3].max()), 5)] if len(arr) else None,
         "samples": int(len(arr)),
+        "video": video_note,
+        # Rendering dominates wall time, so realtime_factor from a --video run
+        # understates the solver. Quote the figure from a run without it.
+        "realtime_factor_is_comparable": not args.video,
     }
     (out_dir / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
     print(json.dumps(summary, indent=2))
@@ -348,6 +436,11 @@ def main() -> int:
     walk.add_argument("--sim-seconds", type=float, default=40.0,
                       help="default covers ~2 RoboSimian gait cycles (~19.2 s each)")
     walk.add_argument("--out", default="artifacts/quadruped/wp0_walk")
+    walk.add_argument("--video", action="store_true",
+                      help="capture offscreen frames via Chrono::Sensor (needs a GPU)")
+    walk.add_argument("--video-fps", type=float, default=30.0)
+    walk.add_argument("--video-width", type=int, default=960)
+    walk.add_argument("--video-height", type=int, default=540)
     args = parser.parse_args()
     return cmd_cycle(args) if args.cmd == "cycle" else cmd_walk(args)
 
