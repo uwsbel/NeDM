@@ -69,212 +69,10 @@ is too old.
 at 9.0.1 on `feature/hil_new`, 3.8 GB with a populated `CMakeCache.txt` and a
 last commit reading *"seg fault on demo run"*. Build in a fresh `chrono-src`.
 
-## OptiX is LEGACY on this commit. Vulkan RT is the default backend.
-
-`src/chrono_sensor/CMakeLists.txt` on the pinned SHA:
-
-```cmake
-set(CH_USE_SENSOR_OPTIX     OFF CACHE BOOL "Enable LEGACY OptiX-dependent Chrono::Sensor features")
-set(CH_USE_SENSOR_VULKAN_RT ON  CACHE BOOL "Enable Vulkan ray-tracing Chrono::Sensor features")
-```
-
-Between tag 10.0.0 and this commit, upstream made **Vulkan RT the default sensor
-backend and demoted OptiX to legacy, off by default**. `ChSensorManager.h`
-carries both `#ifdef CHRONO_HAS_OPTIX` and `#ifdef CHRONO_HAS_VULKAN_RT`
-branches, so the two can coexist in one build.
-
-**A default configure would produce a sensor module with no OptiX at all.**
-Anyone assuming otherwise builds for an hour and gets the wrong backend.
-
-This also means the entire OptiX chain — the R595 driver upgrade, the 9.0.0 SDK
-installs — **may be unnecessary for this build**. Whether it is depends on which
-backend the FSI-SPH rendering path is actually implemented under, which is the
-one thing that must be checked before configuring.
-
-**Build both backends where the headers allow it.** They coexist, the marginal
-build cost is far below the cost of a wrong guess plus a rebuild, and the two
-boxes have different drivers (R595 vs R580) so the backend that works may not be
-the same one on each.
-
-**`OptiX_INSTALL_DIR` defaults to the PARENT of the source tree**
-(`cmake/FindOptiX.cmake:32`, `"${CMAKE_SOURCE_DIR}/../"`). On `kyle-sbel` that
-is `/home/kyle/Documents/sbel/`, which contains `chrono_fork` and `chrono_hil`.
-An unset value could silently find an OptiX belonging to a fork we deliberately
-refused to reuse. Set it explicitly whatever the backend decision.
-
-### RESOLVED: the feature is OptiX-only, so `CH_USE_SENSOR_OPTIX=ON` is mandatory
-
-`ChSensorManager.cpp`:
-
-```cpp
-#ifdef CHRONO_FSI_SPH
-CH_SENSOR_API int ChSensorManager::AttachFsiSphSystem(...) {
-    int handle = -1;
-    #ifdef CHRONO_HAS_OPTIX
-    handle = scene->AddFsiSphSystem(sys, options);
-    ReconstructScenes();
-    #endif
-    return handle;
-}
-```
-
-**Built Vulkan-only, the body is empty.** `AttachFsiSphSystem` still compiles,
-links, and is callable — it returns `-1` having done nothing. That is worse than
-the method being absent, because a Python binding over it would **silently
-no-op**: exactly the failure class this project keeps hitting.
-
-`src/chrono_sensor/optix/ChOptixScene.h:211` carries `AddFsiSphSystem`,
-`RemoveFsiSphSystem`, `ChFsiSphRenderSource` and `m_fsi_sph_sources`. Grepping
-`src/chrono_sensor/vulkan/` for `FsiSph` returns **nothing**.
-
-`ChFsiSphRender.h` sits at the top level of `chrono_sensor/` rather than under
-`optix/`, so file layout alone does not reveal this. The implementation does.
-
-The demo is gated the same way, three conditions deep
-(`src/demos/sensor/CMakeLists.txt`):
-
-```cmake
-if(CH_USE_SENSOR_OPTIX)
-  if(CH_ENABLE_MODULE_FSI_SPH AND CH_ENABLE_MODULE_VEHICLE)
-    set(DEMOS ${DEMOS} demo_SEN_CRM_Rendering)
-```
-
-So `demo_SEN_CRM_Rendering` is **not built at all** without OptiX. The driver
-upgrade and the SDK installs were not wasted.
-
-Vulkan RT is still enabled where headers allow (system Vulkan 1.3.204 on
-`kyle-sbel`), because it is free and `demo_SEN_vulkan_validation` does a 1:1
-Vulkan-vs-OptiX camera comparison — a useful cross-check given `kyle-N7-B650E`
-may never get OptiX working. **A Vulkan configure failure must not block the
-build**; drop the flag, since the feature we need does not use it.
-
 ## The FSI module switch is split
 
 `CH_ENABLE_MODULE_FSI` is an umbrella and `CH_ENABLE_MODULE_FSI_SPH` is a
 sub-switch. **Both are required**; enabling FSI alone yields no SPH.
-
-## Correction: the SWIG guard already exists
-
-My earlier diagnosis, that `CHRONO_FSI_SPH` is invisible to the SWIG
-preprocessor and a CMake change is needed to define it, **was wrong**. It is
-already wired, in `src/chrono_swig/chrono_python/CMakeLists.txt:121-124`:
-
-```cmake
-if(CH_ENABLE_MODULE_FSI_SPH)
-  set(CMAKE_SWIG_FLAGS "${CMAKE_SWIG_FLAGS};-DCHRONO_FSI_SPH")
-  set(CMAKE_SWIG_FLAGS "${CMAKE_SWIG_FLAGS};-DCHRONO_CRM")
-endif()
-```
-
-The vehicle bindings already depend on it: `interface/vehicle/ChTerrain.i` and
-`ChModuleVehicle.i` both use `#ifdef CHRONO_FSI_SPH`, and that is how
-`CRMTerrain` reaches Python today.
-
-**Superseded: there was no gap at all.** See the resolution below —
-`ChModuleSensor.i` `%include`s the header unguarded and both macros already
-reach SWIG, so the methods generate without any change. The reasoning in this
-section was a plausible mechanism for an absence whose real cause was the conda
-build's version. There is a working pattern in the same repo to
-copy, so the patch makes the sensor interface *consistent with* the vehicle one
-rather than inventing a mechanism — smaller, and far more likely to be accepted
-upstream.
-
-It also explains the conda build: pychrono 10.0.0 predates the sensor FSI
-feature entirely, so no binding could have existed regardless of flags.
-
-### Configure gotchas
-
-**1. A working CUDA compiler with no architecture list counts as NO toolchain.**
-The trap of this build. CMake reported success at every step:
-
-```
-The CUDA compiler identification is NVIDIA 12.6.85
-Detecting CUDA compiler ABI info - done
-Found CUDAToolkit: /usr/local/cuda/include (found version 12.6.85)
-```
-
-and then:
-
-```
-CUDA archs (filtered):
-CUDA architectures not found. Set CHRONO_CUDA_ARCHITECTURES
-Building for NVIDIA, but no usable NVIDIA GPU toolchain was found.
-  All GPU-dependent Chrono modules will be disabled.
-GPU toolchains available: CUDA=FALSE HIP=FALSE
-```
-
-That disabled **FSI::SPH, Vehicle SCM GPU, and the Sensor OptiX renderer** —
-precisely the three things this build exists for — and reported two of them as
-*warnings*. Configure exits 0. Reading "configure succeeded" and starting the
-build costs an hour and yields a Sensor module with no OptiX and no FSI.
-
-Fix: `-DCHRONO_CUDA_ARCHITECTURES=86`, taken from the hardware rather than
-assumed — `nvidia-smi --query-gpu=compute_cap --format=csv` reports 8.6 for the
-RTX 3090. **Query the GPU on each box**; the value is not portable.
-
-**2. `CUDAToolkit_ROOT` is not sufficient.** It satisfies Thrust, but CMake's
-CUDA *language* check needs the compiler on `PATH` or named explicitly. `nvcc`
-is not on `PATH` here. Fix: `-DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc`.
-
-**3. `tinyxml2` has no CMake config on Ubuntu.** `libtinyxml2-dev` ships only
-`pkgconfig/tinyxml2.pc`. Configs exist at `/opt/ros/humble/share/tinyxml2_vendor/`
-(wrong package name) and in the conda env. Fix: `-Dtinyxml2_DIR=` pointed at the
-conda one **surgically** — adding the conda prefix to `CMAKE_PREFIX_PATH` would
-let CMake find dozens of conda libraries and mix ABIs against a system build.
-*Known risk:* one conda library links into an otherwise-system build. **Suspect
-this first if anything odd surfaces at link time.**
-
-**4. Vulkan RT needs `glslangValidator`, not just headers.** Present headers
-(1.3.204), absent shader compiler. Dropped, per the rule that Vulkan must never
-block: the feature is OptiX-only.
-
-### Confirmed enabled by reading the summary block, not by inferring from exit 0
-
-```
-CUDA archs (filtered):   86
-GPU toolchains available: CUDA=TRUE HIP=FALSE
-Chrono::FSI::SPH GPU backend: CUDA
-OptiX include directory: /home/kyle/opt/optix/include
-Building Chrono::Sensor with OptiX support
-Add python CORE / FEA / POSTPROCESS / FSI / VEHICLE / SENSOR / ROBOT / PARSERS
-```
-
-The OptiX path is **our 9.0.0**, not the 7.7.0 in `~/Downloads`. And
-`demo_SEN_CRM_Rendering.dir/` was generated, so the three-deep gate was met.
-
-## The shipped demo writes nothing to disk
-
-`demo_SEN_CRM_Rendering.cpp` on the pinned SHA:
-
-```cpp
-line  92:  bool snapshots = false;                              // DEFAULT OFF
-line 314:  cam->PushFilter(ChFilterVisualize(1280, 720, ...));  // ALWAYS
-line 316:  if (snapshots) cam->PushFilter(ChFilterSave(...));   // CONDITIONAL
-line 295:  manager->AttachFsiSphSystem(sysSPH, fsi_render_options);  // RETURN DISCARDED
-```
-
-As shipped it opens a window and saves nothing. **On a headless box the
-validation gate would produce no evidence at all**, and `ChFilterVisualize` may
-fail or no-op with no display. It does attach the FSI system properly (sprite
-meshes, jitter 0.005, `render_particle_spacing` 0.01), so the mechanism is
-exercised — we just cannot see the result.
-
-**Decision: copy it into NeDM as our own validation program**, rather than
-patching the pinned tree. A gate that lives in our repo is versioned with the
-results it produces, survives a re-pin, and can assert things the upstream demo
-does not. Our copy must:
-
-- push `ChFilterSave` and **no** `ChFilterVisualize` (headless);
-- **capture the return of `AttachFsiSphSystem` and assert it is not `-1`** —
-  that integer is the only in-band signal separating a working attach from the
-  silent no-op described above, and the shipped demo discards it;
-- support running with the attach call removed, to produce the negative control.
-
-**Pass criterion, fixed before running:** a saved `img_SEN` frame with CRM
-particles visibly present over the terrain region, **and** a second frame from an
-otherwise identical run without the attach, lacking them. The *difference* is the
-gate. A frame that merely renders proves nothing, since the failure mode under
-test is a call that returns `-1` and does nothing.
 
 ## Same SHA does NOT mean same binary
 
@@ -350,56 +148,6 @@ including `chrono_fork` at 22 G and `chrono-HIL` at 22 G, several with populated
 `CMakeCache.txt`. Build outside `~/Documents` entirely so the pinned tree cannot
 be confused with that set: a future agent grepping for "chrono" there finds
 fifteen candidates and no way to tell which is which.
-
-## RESOLVED: there is no SWIG binding to add. It already works.
-
-**Verified against the built artifact, 2026-09-03:**
-
-```python
->>> mgr.AttachFsiSphSystem(terrain.GetFluidSystemSPH())
-0
-```
-
-`ChSensorManager` exposes `AttachFsiSphSystem`, `DetachFsiSphSystem` and
-`ClearFsiSphSystems`, with the default argument translated:
-
-```
-AttachFsiSphSystem(self, sys: shared_ptr<chrono::fsi::sph::ChFsiFluidSystemSPH>,
-                   options: ChFsiSphRenderOptions const& = ChFsiSphRenderOptions()) -> int
-```
-
-**Both macros already reach SWIG**, conditional on the flags we set anyway:
-
-```cmake
-chrono_python/CMakeLists.txt:122   -DCHRONO_FSI_SPH    if CH_ENABLE_MODULE_FSI_SPH
-chrono_python/CMakeLists.txt:136   -DCHRONO_HAS_OPTIX  if CH_USE_SENSOR_OPTIX
-```
-
-`ChModuleSensor.i` `%include`s `ChSensorManager.h` unguarded, so with both
-macros defined SWIG parses the `#ifdef` block and generates all three methods.
-**Building from a SHA that postdates the feature *is* the fix.** Nothing to
-patch, nothing to send upstream.
-
-### How this diagnosis was wrong twice, and it was the same fact both times
-
-The conda `pychrono` 10.0.0 lacks the method. We had **already established** the
-C++ feature postdates the 10.0.0 tag by 272 commits. So the absence was always
-about the version — and it was then carried forward as a *separate* fact, "the
-bindings are missing it", and a three-part patch designed against it. **It was
-one fact wearing different clothes.**
-
-The compounding step was reading `ChModuleSensor.i` and **inferring a cause**
-instead of building and looking. The decisive check was one line against the
-built artifact, and the artifact existed for an hour before anyone ran it.
-
-**Rule: when a symbol is missing, check the artifact you have, not the source
-you think produced it.** Reading source to explain an absence produces a
-plausible mechanism whether or not it is the real one — and a plausible
-mechanism is exactly what stops you running the one-line check.
-
-**The patch series is empty**, and that is a finding rather than an absence. The
-build procedure (checkout SHA → apply patches → build) stands as policy with
-zero patches in it. `chrono-src` remains a clean checkout at the pinned SHA.
 
 ## The API moved between 10.0.0 and the pinned SHA
 
@@ -488,102 +236,6 @@ Go2 has been re-run on the source build and the physics is confirmed to agree
 across APIs, the shim is deleted and the conda path goes with it. **The shim is a
 migration instrument, not a compatibility layer.**
 
-## RESULT: CRM renders through Chrono::Sensor. The blocker is cleared.
-
-**2026-09-03, `kyle-sbel`, pinned SHA, source build.** 847,714 SPH particles.
-
-```
-attached: handle = 0   frames_written=401 sim_frames=801 final_time=2.0025  exit 0
-control:  handle = -1  frames_written=401 sim_frames=801 final_time=2.0025  exit 0
-```
-
-Dominant colour, frame 200: **attached `[0,0,0]` at 49.4%**, **control
-`[216,230,243]` at 73.4%**. A dense granular field covers the terrain region in
-the attached frame and is absent in the control. Rover geometry is
-pixel-identical in both.
-
-Five independent lines, none of which depends on the numeric bounds below:
-handle ≥ 0 rules out the silent no-op; both arms writing 401 frames rules out
-the void condition; matched step count and final time rule out drift; identical
-rover geometry rules out a scene difference; and the difference is confined to
-where terrain is.
-
-### The pre-registered criterion REJECTED this true positive
-
-Reported as a criterion failure rather than silently widened, which is the right
-call and the reason this record is trustworthy.
-
-```
-changed pixels 66.10%          bound was 5-60%   FAILS
-41.2% of changed above mid-height   bound was 0%      FAILS
-```
-
-**The criterion was wrong, and its error is the same class we catalogued all
-day, one level up: a check whose passing condition encoded an unverified
-assumption.** The bounds assumed a wide third-person view where terrain occupies
-a lower band. The actual camera sits at `(0.5, 1, 1)` rotated 60° looking down,
-essentially on the rover wheel, so terrain fills most of the frame and extends
-well above the midline in perspective. **There is no sky above the horizon in
-most of this frame** — the region being guarded as sky is largely terrain. The
-camera pose was in the file that had already been read.
-
-It **failed safe**: it rejected a true positive rather than accepting a false
-one. That is the correct direction to fail, and it still failed.
-
-**This run is validated by the five lines above, NOT by the numeric bounds.**
-The revised criterion below was written after seeing this data and therefore
-cannot validate it — it applies to future runs only.
-
-### Revised criterion, for future runs only
-
-Keep: both arms must render (void check), ≥5% changed pixels, handle ≥ 0 in the
-attached arm and the call demonstrably absent in the control. Drop: the 60%
-upper bound and the horizon test. Replace with: the changed region is contiguous
-and coincides with the terrain's projected extent **computed from the camera
-pose**, not assumed from a mental picture of the framing.
-
-### Three defects found on the way
-
-**1. `render_frame` is always 0** in the gate's own trace — the counter is
-incremented inside a `#ifdef CHRONO_VSG` block that is compiled out. The
-comparability check happened to use `t` and `sim_frame`, which are correct.
-*"I would not have caught it if the two arms had disagreed — I would have been
-comparing on a field that is constant."* An instrument that reads zero always
-agrees with itself.
-
-**2. The gate segfaults if run outside `chrono-build/bin`**, because Chrono data
-paths resolve relatively. Needs an explicit `SetChronoDataPath`.
-
-**3. The conda contamination predicted at configure time happened exactly as
-described.** The imported `tinyxml2` target drags in the whole conda env include
-directory, which contains a *complete competing Chrono* — the gate compiled
-against `envs/nedm-src/include/chrono/` and died on a missing HACD header.
-
-**The built library is NOT contaminated**, verified rather than assumed: source
-`-I` paths precede the conda `-isystem` path in every module, and core, sensor
-and fsisph carry no conda include at all. Only `chrono_parsers` sees it, source
-path first. Fixed for the gate with `target_include_directories(... BEFORE ...)`.
-
-The risk was written down at configure time, sized correctly, and landed exactly
-where predicted. **That is the argument for recording risks you decide to
-accept.**
-
-### Two things noted, not chased
-
-**Particles render black `[0,0,0]`, not shaded regolith.** May be correct for the
-shipped sprite meshes and default material, or may mean lighting is not applied
-to the sprite path. Irrelevant to presence-versus-absence, but **black
-silhouettes are probably not the eventual deliverable** if the goal is a camera
-watching a CRM pile change shape.
-
-**Do not quote the realtime factors from this run.** `rtf_cfd` median 236.1
-against mean 964.1 is wildly skewed, and both are ~2 orders of magnitude from
-the 2.8-5.7 measured earlier the same day on the Go2 at up to 1.29 M particles.
-Startup transients, different accessor semantics in this build, or the 200 fps
-save filter perturbing timing. **Until the discrepancy is explained these
-measure nothing**, and publishing them beside the earlier numbers would put a
-contradiction in the record.
-
 ## How we patch the pinned tree
 
 **The tree stays a clean checkout; the patch is the artifact.** Never commit into
@@ -609,85 +261,6 @@ Why, given the same bytes end up on disk either way:
 - Upstream submission wants the diff anyway, so producing it early costs nothing.
 - On a future re-pin, a patch either applies or **conflicts loudly**. That is the
   behaviour we want from anything carrying our changes across a version bump.
-
-## A fourth defect: a confidently wrong absolute path
-
-The `SetChronoDataPath` fix was **wrong on the first attempt, and failed
-identically to the bug it was fixing.** `CHRONO_DATA_DIR` was set to
-`chrono-build/bin/data/` by analogy with a vehicle define already in the build
-flags. That directory does not exist — the data is at `chrono-build/data/`, and
-the demo worked from `bin` only because its relative `../data/` happened to
-resolve there.
-
-**So the absolute path was confidently wrong in a way the relative one was not**,
-and it segfaulted exactly as before. A fix that reproduces the original symptom
-is indistinguishable from no fix at all, which is how it survived one round.
-
-Same error class as the framing bounds: *an assumption encoded instead of the
-filesystem read*. Inferring a path from a sibling variable is not reading it.
-
-(A speculatively-added `vehicle::SetDataPath` call failed at **compile** time —
-that function does not exist in this version. The good outcome, and the contrast
-worth noticing: the wrong-but-plausible path failed at runtime and silently, the
-nonexistent function failed at build time and loudly.)
-
-## RESOLVED: CRM soil renders from Python. The cause was the sprite shape type.
-
-**2026-09-03, `kyle-sbel`, source build + `0001-expose-fsi-sph-render-options.patch`.**
-
-| run | sprite shapes | attach order | dominant % | dark % |
-|---|---|---|---|---|
-| A | none (defaults) | after camera | 86.1 | 0.2 |
-| B | `ChVisualShapeSphere` | after camera | 86.1 | 0.2 |
-| **C** | **regolith meshes** | **after camera** | **20.3** | **59.3** |
-| D | regolith meshes | before camera | 20.3 | 59.3 |
-
-**`sprite_shapes` must hold triangle meshes.** A `ChVisualShapeSphere` is
-accepted and draws nothing. The demo loads three regolith OBJs as
-`ChVisualShapeTriangleMesh` with a white `ChVisualMaterial`; reproducing that
-exactly — same files, same material, jitter 0.005, spacing 0.01 — is what made
-particles appear.
-
-### Two corrections to the record
-
-**The attach ordering was NOT the fix.** Run C renders with the attach still
-*after* `AddSensor`, which is the pre-`9005507` sequence. The
-"`ReconstructScenes` does not retrofit an existing camera pipeline" mechanism was
-plausible and is **falsified**. `9005507` is kept because matching upstream is
-right on its own terms and costs nothing, but its commit message asserts a cause
-we now know to be wrong. **Recorded here so the history is not believed.**
-
-**And the inference that led there was mine and was wrong.** I argued that
-byte-identical frames ruled out the sprite path executing, since a shape the
-renderer ignored would still be a path that ran. Wrong: **the path ran and had
-nothing drawable, so it added zero pixels.** "Ran and drew nothing" and "did not
-run" are indistinguishable from pixels alone. Two hypotheses collapsed into one,
-then reasoned from confidently, which foreclosed the candidate that was correct.
-
-It cost one run rather than an evening only because `kyle-sbel` had already
-started run C before that reasoning arrived. **Second time in one day a control
-run caught an error the argument had already settled** — the rigid-terrain run
-caught the determinism overclaim the same way. Both controls existed because
-someone ran one when the practical question looked answered.
-
-### The third silent no-op, and the worst of them
-
-1. **Method compiled without OptiX** — empty body, returns `-1`. Detectable via
-   the handle.
-2. **Default options** — a null configuration, but the header *documents* both
-   fields as required.
-3. **A primitive sprite shape** — a valid object, of a type the API's own
-   signature accepts, producing no output and no diagnostic.
-
-The third is the worst because **there is no document to have read more
-carefully.** `sprite_shapes` is typed `std::vector<std::shared_ptr<ChVisualShape>>`
-and `ChVisualShapeSphere` *is* a `ChVisualShape`. Nothing states that primitives
-are unsupported.
-
-**Upstream:** the field should either accept primitives or reject them loudly.
-Silently accepting a valid subtype and drawing nothing is the defect, not the
-missing feature. Report order: options struct unbound, primitive-sprite silence,
-`Background`, `ChDepthCamera` `ray_scale`.
 
 ## Building a standalone consumer against the source tree
 
@@ -762,110 +335,6 @@ missing file, and it nearly was read as one. Run from a directory whose parent
 holds a Chrono `data/` tree; a scratch directory with a symlink to
 `chrono-src/data` works and avoids writing into the pinned tree. Prefer
 `chrono-src/data`, which is the complete tree.
-
-## CLOSED: Python and C++ render equivalently, within the solver's own noise
-
-**2026-09-03, `kyle-N7-B650E`, patched source build.** Agreed threshold: mean
-RGB, dark < 40, bright > 180, mid-run frame.
-
-| arm | language | handle | dark | bright |
-|---|---|---|---|---|
-| attached | C++ | 0 | 53.8% | 38.8% |
-| attached, repeat | C++ | 0 | 54.3% | 38.6% |
-| **py_attached** | **Python** | **0** | **54.8%** | **38.3%** |
-| noattach | C++ | −1 | 0.1% | 93.9% |
-| py_noattach | Python | −1 | 0.1% | 94.0% |
-
-**The measurement that makes this a result rather than a number:**
-
-| comparison | pixels differing >2 | mean abs |
-|---|---|---|
-| **C++ vs C++ (noise floor)** | **21.3%** | 21.00 |
-| C++ vs Python, rep 1 | 22.3% | 22.03 |
-| C++ vs Python, rep 2 | **17.8%** | 19.67 |
-
-**Two runs of the identical binary differ from each other more than one of them
-differs from Python.** The cross-language difference sits inside the solver's own
-run-to-run variation, so at the resolution this measurement reaches, the paths
-are indistinguishable. The three dark fractions span less than one point.
-
-`kyle-N7-B650E` ran the second C++ arm specifically because the first comparison
-returned "22.3% of pixels differ", which reads as a real discrepancy with nothing
-to compare it against — and the SPH solver is nondeterministic while
-`sprite_position_jitter` is stochastic. **Without the floor, "22.3% differ" would
-have entered the record as a binding discrepancy.** This is
-[the noise-floor rule](../lessons/experiment-design.md) applied unprompted rather
-than quoted.
-
-### The honest limit of the claim
-
-It rests on summary statistics and a whole-frame diff at **one timestamp**. Two
-images can share a dark fraction and differ structurally, and a 21% baseline is
-wide enough to hide a real but modest cross-language effect. **What is shown is
-that any difference is smaller than the solver's own variation** — the useful
-practical statement, and weaker than "the images match."
-
-### Porting the gate needed five Python API fixes, none behavioural
-
-- `veh.SetDataPath` → `veh.SetVehicleDataPath`
-- `BoxSide_*` lives in `pychrono.fsi`, not `pychrono.vehicle`
-- **`rover.GetWheels()[i]` fails** — the `std::array` binds as an opaque
-  `SwigPyObject` and is not subscriptable. Use `GetWheel(robot.V_LF)`.
-- `scene.SetAmbientLight` takes `ChVector3f`, not `ChColor` — though
-  `AddPointLight` accepts `ChColor`
-- everything else transferred verbatim
-
-The render options needed **no** workaround once the patch was applied:
-constructed, three mesh sprites appended, spacing and jitter assigned and
-**read back before the run** (0.0 → 0.0100; `len(sprite_shapes)` 0 → 3).
-
-### Still open, unchanged
-
-Whether the soil **deforms**, whether particle positions track the physics,
-whether the bed reads as a **surface** rather than a scatter of sprites.
-2.0 s per arm, one frame each inspected quantitatively. **Presence proven,
-fidelity not.**
-
-## The CRM sprite render recipe, and what the parameters actually mean
-
-**Locked settings** (`quadruped_go2_crm.py` defaults, 2026-09-03):
-
-| setting | value | why |
-|---|---|---|
-| `load_normals` | **True** | the one that mattered; `false` gives flat black |
-| `render_particle_spacing` | **0.01** | resampling target — *lower* draws more |
-| mesh scale | **2.0** | baked into the transform; sprite size is mesh scale |
-| rotated variants | **24** | breaks the orientation lattice |
-| `sprite_position_jitter` | **0.005** | breaks the residual position moiré |
-
-**`render_particle_spacing` is a resampling target, not a sprite size, and the
-effect is CUBIC.** From the CUDA source rather than inferred:
-
-```
-ChOptixEngine.cpp, EstimateFsiSphRenderCount:
-    render_count = num_markers * (source_spacing / render_particle_spacing)^3
-fsi_sph_render.cu: instance transform uses template_scale[template_id]  // MESH scale
-```
-
-So 0.01 against an 0.02 source draws **8×** the markers and 0.026 draws 0.45×.
-Coverage measured as exposed background: 30.3% at 0.01, 45.8% at 0.02, 68.2% at
-0.026 — monotonic, and the trend was visible two arms before anyone read the
-source. **Raising this parameter to "close the gaps" removes sprites.**
-
-Result: background 68.2% → 29.3%, terrain mean 140.8, sd 21.5, dark 0.2%, at 41.7 s
-of wall time for 6 s of sim. An opaque, lit, granular bed.
-
-### Sprite size and orientation are controllable without an options field
-
-`ChFsiSphRenderOptions` has three fields and none of them set size or
-orientation. Both are still reachable, **because we own the mesh list**: N
-pre-rotated, pre-scaled copies of the same mesh, baked into the vertex data via
-`ChTriangleMeshConnected.Transform(ChVector3d, ChMatrix33d)` (verified to mutate:
-vertex 0 moved). The renderer cycles the list, so the list *is* the variety.
-
-**An API lacking a knob is not the same as an effect being unreachable.** The
-banding diagnosis was confirmed by exactly this: the row period tracked the list
-length, 3.1 px with 3 meshes → 24.0 px with 24.
 
 ## MEASURED: the soil response is millimetres, and it goes UP
 
@@ -976,3 +445,22 @@ Autocorrelation is substantial for walking — ρ = 0.56 cuts the effective samp
 count from 299 to 84 — and the effect survives comfortably. **Per-sample spread
 is not the standard error of a mean**, and the raw spread (−18.6 to +7.2 mm)
 bears on individual samples only, not on the published means.
+
+---
+
+## Where the rest of this went
+
+The render investigation that produced these notes is settled, and its
+conclusions live where a reader will actually need them:
+
+- **How to reproduce a render, and every setting with the measurement that fixed
+  it** → [`crm-rendering-handoff.md`](crm-rendering-handoff.md)
+- **Why the SWIG binding needed no patch, and the API delta 10.0.0 → pinned SHA**
+  → this file, *"The API moved…"* below
+- **Contact-mode extraction, the foot-vs-kernel finding, soil response**
+  → [`../decisions/quadruped-contact-mode.md`](../decisions/quadruped-contact-mode.md)
+
+What is kept here is what a person **building** Chrono needs: the pinned commit,
+the environment, the configure gotchas, the patch policy, and the standalone-consumer
+recipe. The narrative of how each was discovered has been removed; the reasoning
+that is still load-bearing has not.
