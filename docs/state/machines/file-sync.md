@@ -75,8 +75,26 @@ route and let Syncthing and `rsync` use it.
 
 ## Gotchas
 
-1. **A file written just after a folder is created will not sync, for up to an
-   hour.** The filesystem watcher is not live yet and `rescanIntervalS` is 3600,
+1. **`folders add-json` silently dropped `fsWatcherEnabled`.** The folder was
+   created with `"fsWatcherEnabled": true` in its JSON and came back
+   `fsWatcherEnabled: False`. With no watcher, `rescanIntervalS` was the only
+   mechanism, and at its 3600 s default that produced two separate "sync is
+   broken" false alarms in one afternoon: a test file unindexed for 50 minutes,
+   then 1246 rendered frames that never announced. Nothing was broken either
+   time. Check what the server actually stored rather than what you sent:
+
+   ```bash
+   curl -s -H "X-API-Key: $KEY" \
+     http://127.0.0.1:8384/rest/config/folders/sbel-shared | \
+     python3 -c "import json,sys;d=json.load(sys.stdin);print(d['fsWatcherEnabled'], d['rescanIntervalS'])"
+   ```
+
+   Fixed by `PATCH`ing the folder to `fsWatcherEnabled: true`,
+   `fsWatcherDelayS: 5`, `rescanIntervalS: 300`. The short interval is a
+   backstop, not the primary mechanism. **This must match on all three devices**;
+   folder settings are per-device, not synced.
+2. **A file written just after a folder is created will not sync, for up to an
+   hour**, whenever the watcher is off. The filesystem watcher is not live yet and `rescanIntervalS` is 3600,
    so the file never enters the index: Syncthing reports `localFiles=0` and
    cheerfully says every peer is 100% complete, because the shared set really is
    empty. This looks exactly like a slow or broken link and is neither. Force a
@@ -89,10 +107,10 @@ route and let Syncthing and `rsync` use it.
    ```
 
    Cost when found: about 50 minutes of believing the relay was slow.
-2. **`completion=100%` is not proof that sync works.** Check `localFiles` and
+3. **`completion=100%` is not proof that sync works.** Check `localFiles` and
    `globalFiles` in `/rest/db/status` too. Three machines agreeing perfectly on
    an empty set reports as fully synced.
-3. **The GUI binds `127.0.0.1:8384` only.** On the headless boxes there is no
+4. **The GUI binds `127.0.0.1:8384` only.** On the headless boxes there is no
    browser, so use `syncthing cli config ...` or the REST API.
-4. Syncthing services are systemd **user** units like `claude-rc`, so they share
+5. Syncthing services are systemd **user** units like `claude-rc`, so they share
    the same `loginctl enable-linger` dependency. Without it, both stop at logout.
