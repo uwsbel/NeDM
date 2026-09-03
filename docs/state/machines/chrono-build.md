@@ -630,3 +630,61 @@ filesystem read*. Inferring a path from a sibling variable is not reading it.
 that function does not exist in this version. The good outcome, and the contrast
 worth noticing: the wrong-but-plausible path failed at runtime and silently, the
 nonexistent function failed at build time and loudly.)
+
+## RESOLVED: CRM soil renders from Python. The cause was the sprite shape type.
+
+**2026-09-03, `kyle-sbel`, source build + `0001-expose-fsi-sph-render-options.patch`.**
+
+| run | sprite shapes | attach order | dominant % | dark % |
+|---|---|---|---|---|
+| A | none (defaults) | after camera | 86.1 | 0.2 |
+| B | `ChVisualShapeSphere` | after camera | 86.1 | 0.2 |
+| **C** | **regolith meshes** | **after camera** | **20.3** | **59.3** |
+| D | regolith meshes | before camera | 20.3 | 59.3 |
+
+**`sprite_shapes` must hold triangle meshes.** A `ChVisualShapeSphere` is
+accepted and draws nothing. The demo loads three regolith OBJs as
+`ChVisualShapeTriangleMesh` with a white `ChVisualMaterial`; reproducing that
+exactly — same files, same material, jitter 0.005, spacing 0.01 — is what made
+particles appear.
+
+### Two corrections to the record
+
+**The attach ordering was NOT the fix.** Run C renders with the attach still
+*after* `AddSensor`, which is the pre-`9005507` sequence. The
+"`ReconstructScenes` does not retrofit an existing camera pipeline" mechanism was
+plausible and is **falsified**. `9005507` is kept because matching upstream is
+right on its own terms and costs nothing, but its commit message asserts a cause
+we now know to be wrong. **Recorded here so the history is not believed.**
+
+**And the inference that led there was mine and was wrong.** I argued that
+byte-identical frames ruled out the sprite path executing, since a shape the
+renderer ignored would still be a path that ran. Wrong: **the path ran and had
+nothing drawable, so it added zero pixels.** "Ran and drew nothing" and "did not
+run" are indistinguishable from pixels alone. Two hypotheses collapsed into one,
+then reasoned from confidently, which foreclosed the candidate that was correct.
+
+It cost one run rather than an evening only because `kyle-sbel` had already
+started run C before that reasoning arrived. **Second time in one day a control
+run caught an error the argument had already settled** — the rigid-terrain run
+caught the determinism overclaim the same way. Both controls existed because
+someone ran one when the practical question looked answered.
+
+### The third silent no-op, and the worst of them
+
+1. **Method compiled without OptiX** — empty body, returns `-1`. Detectable via
+   the handle.
+2. **Default options** — a null configuration, but the header *documents* both
+   fields as required.
+3. **A primitive sprite shape** — a valid object, of a type the API's own
+   signature accepts, producing no output and no diagnostic.
+
+The third is the worst because **there is no document to have read more
+carefully.** `sprite_shapes` is typed `std::vector<std::shared_ptr<ChVisualShape>>`
+and `ChVisualShapeSphere` *is* a `ChVisualShape`. Nothing states that primitives
+are unsupported.
+
+**Upstream:** the field should either accept primitives or reject them loudly.
+Silently accepting a valid subtype and drawing nothing is the defect, not the
+missing feature. Report order: options struct unbound, primitive-sprite silence,
+`Background`, `ChDepthCamera` `ray_scale`.
