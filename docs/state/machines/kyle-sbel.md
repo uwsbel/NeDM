@@ -57,13 +57,16 @@ escalate**, not a step to attempt. See [`reference/`](reference/).
    `OPTIX_ERROR_UNSUPPORTED_ABI_VERSION` at `ChOptixEngine.cpp:86` on driver
    580.173.02 / CUDA 13.0, which the 9.0.0 build renders fine on.
 
-   Do not read that as "the two environments are complementary." The `nedm`
-   build ships a working sensor stack: [`reference/newton.md`](reference/newton.md)
-   records newton's interpreter as a conda env named `nedm`, and **newton did all
-   of Study 3's RGB-D collection**, so pychrono 10 plus Chrono::Sensor works on a
-   compatible driver. Strong inference rather than proof, since newton.md does
-   not name its pychrono version; `kyle-N7-B650E` has a different GPU and will
-   settle build-versus-driver.
+   **The fix is a driver upgrade to R590 or newer.** Chrono's changelog for
+   10.0.0 states: *"Ray-tracing sensor models in Chrono::Sensor now require
+   OptiX 9.0 or 9.1 (and corresponding NVIDIA driver versions)"*, and OptiX 9.1
+   requires an R590 driver. This box is on R580, which is why the 9.0.1 build
+   (an older OptiX) renders and the 10.0.0 build does not. Nothing is wrong with
+   the package or the GPU.
+
+   Corroborated by [`reference/newton.md`](reference/newton.md), which records
+   newton's interpreter as a conda env named `nedm`, and newton did all of Study
+   3's RGB-D collection.
 
    Until then `chrono` is the only environment on this box that can produce a
    frame and must not be deleted. `nedm` is also ~2.4% slower on identical
