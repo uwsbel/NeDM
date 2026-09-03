@@ -76,6 +76,8 @@ from pathlib import Path
 
 import pychrono as chrono
 import pychrono.vehicle as veh
+
+from nedm import chrono_compat as _cc
 from arm_model import LRV_Arm
 
 
@@ -251,9 +253,9 @@ def build_scene(terrain_size_m: float = 100.0):
     m113.SetInitPosition(chrono.ChCoordsysd(INIT_LOC, INIT_ROT))
     m113.Initialize()
 
-    track_vis = chrono.VisualizationType_MESH
-    m113.SetChassisVisualizationType(chrono.VisualizationType_NONE)
-    m113.SetSprocketVisualizationType(chrono.VisualizationType_MESH)
+    track_vis = _cc.VisualizationType_MESH
+    m113.SetChassisVisualizationType(_cc.VisualizationType_NONE)
+    m113.SetSprocketVisualizationType(_cc.VisualizationType_MESH)
     m113.SetIdlerVisualizationType(track_vis)
     m113.SetSuspensionVisualizationType(track_vis)
     m113.SetIdlerWheelVisualizationType(track_vis)

@@ -15,6 +15,8 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 import pychrono as chrono
 import pychrono.vehicle as veh
 
+from nedm import chrono_compat as _cc
+
 from nedm.generated_scenarios import expand_scenarios, validate_generator_config
 
 
@@ -398,11 +400,11 @@ def create_hmmwv(config: dict[str, Any]) -> Any:
     )
     hmmwv.Initialize()
 
-    hmmwv.SetChassisVisualizationType(chrono.VisualizationType_NONE)
-    hmmwv.SetSuspensionVisualizationType(chrono.VisualizationType_NONE)
-    hmmwv.SetSteeringVisualizationType(chrono.VisualizationType_NONE)
-    hmmwv.SetWheelVisualizationType(chrono.VisualizationType_NONE)
-    hmmwv.SetTireVisualizationType(chrono.VisualizationType_NONE)
+    hmmwv.SetChassisVisualizationType(_cc.VisualizationType_NONE)
+    hmmwv.SetSuspensionVisualizationType(_cc.VisualizationType_NONE)
+    hmmwv.SetSteeringVisualizationType(_cc.VisualizationType_NONE)
+    hmmwv.SetWheelVisualizationType(_cc.VisualizationType_NONE)
+    hmmwv.SetTireVisualizationType(_cc.VisualizationType_NONE)
     hmmwv.GetSystem().SetCollisionSystemType(chrono.ChCollisionSystem.Type_BULLET)
 
     return hmmwv

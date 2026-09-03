@@ -35,6 +35,8 @@ import pychrono as chrono
 import pychrono.sensor as sens
 import pychrono.vehicle as veh
 
+from nedm import chrono_compat as _cc
+
 from nedm.hmmwv_data import configure_chrono_data_paths, create_hmmwv, repo_root_from_module
 from nedm.traverse.layout import Asset, EpisodeLayout
 from nedm.traverse.oracle import PlanCandidate
@@ -353,9 +355,9 @@ def build_scene(
     system = hmmwv.GetSystem()
 
     # create_hmmwv sets every visualization NONE; re-enable for the cameras.
-    hmmwv.SetChassisVisualizationType(chrono.VisualizationType_MESH)
-    hmmwv.SetWheelVisualizationType(chrono.VisualizationType_MESH)
-    hmmwv.SetTireVisualizationType(chrono.VisualizationType_MESH)
+    hmmwv.SetChassisVisualizationType(_cc.VisualizationType_MESH)
+    hmmwv.SetWheelVisualizationType(_cc.VisualizationType_MESH)
+    hmmwv.SetTireVisualizationType(_cc.VisualizationType_MESH)
 
     # Bright roof marker so the ~15x7 px vehicle stays unambiguous at 256^2.
     marker = chrono.ChVisualShapeBox(1.6, 1.0, 0.12)

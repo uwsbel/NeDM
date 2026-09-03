@@ -20,6 +20,8 @@ import pychrono as chrono
 import pychrono.fsi as fsi
 import pychrono.vehicle as veh
 
+from nedm import chrono_compat as _cc
+
 from nedm.hmmwv_data import (
     BASE_FIELDS,
     WHEEL_SPECS,
@@ -323,7 +325,7 @@ def enable_vehicle_visuals(hmmwv: Any) -> None:
         hmmwv.SetWheelVisualizationType,
         hmmwv.SetTireVisualizationType,
     ):
-        setter(chrono.VisualizationType_PRIMITIVES)
+        setter(_cc.VisualizationType_PRIMITIVES)
 
 
 def create_visualization(hmmwv: Any, terrain: Any, args: argparse.Namespace) -> Any:

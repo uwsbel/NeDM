@@ -209,12 +209,16 @@ def attach_video_camera(chrono, sys_, args):
     background.color_zenith = chrono.ChVector3f(0.55, 0.68, 0.85)
     manager.scene.SetBackground(background)
 
-    # Fixed three-quarter view. The robot travels ~0.2 m per cycle, so it stays
-    # in frame for the whole run without tracking. A camera parented to the
-    # chassis would inherit its 180 deg X initialization and film upside down.
-    pose = look_at_frame(chrono, (-1.1, -1.6, 0.75), (0.35, 0.0, 0.05))
+    # Fixed three-quarter view, aimed below the chassis so the feet and the
+    # ground contact are inside the frame: that is the whole point of the clip.
+    # A camera parented to the chassis would inherit its 180 deg X
+    # initialization and film upside down.
+    eye = tuple(float(v) for v in args.cam_eye.split(","))
+    target = tuple(float(v) for v in args.cam_target.split(","))
+    pose = look_at_frame(chrono, eye, target)
     cam = sens.ChCameraSensor(mount, float(args.video_fps), pose,
-                              args.video_width, args.video_height, math.radians(55.0))
+                              args.video_width, args.video_height,
+                              math.radians(args.cam_hfov_deg))
     cam.SetName("chase")
     cam.SetLag(0.0)
     cam.SetCollectionWindow(0.0)
@@ -302,12 +306,12 @@ def cmd_walk(args: argparse.Namespace) -> int:
     time_end = time_start + args.sim_seconds
     output_every = max(1, math.ceil((1.0 / OUTPUT_FPS) / TIME_STEP))
 
-    video_manager, video_note = (None, "disabled")
-    if args.video:
-        video_manager, video_note = attach_video_camera(chrono, sys_, args)
-        print(f"video: {video_note}")
-        if video_manager is None:
-            print("video: continuing without capture")
+    # The camera is attached in the terrain branch, not here. ChSensorManager
+    # builds its ray-traced scene from the bodies present when it is created,
+    # and the terrain is added later, so a manager built at startup renders the
+    # robot walking on nothing. This is the same late-body problem the demo
+    # solved with vis.BindItem(ground), which we dropped with the Irrlicht loop.
+    video_manager, video_note = (None, "disabled" if not args.video else "pending terrain")
 
     log: list[list[float]] = []
     terrain_created = False
@@ -326,6 +330,13 @@ def cmd_walk(args: argparse.Namespace) -> int:
             _set_contact_properties(chrono, robot)
             robot.GetChassisBody().SetFixed(False)
             terrain_created = True
+            if args.video:
+                video_manager, video_note = attach_video_camera(chrono, sys_, args)
+                print(f"video: {video_note}")
+                if video_manager is None:
+                    print("video: continuing without capture")
+                elif hasattr(video_manager, "ReconstructScenes"):
+                    video_manager.ReconstructScenes()
             body = robot.GetChassisBody()
             released_z = body.GetPos().z
             r = body.GetRot()
@@ -482,6 +493,11 @@ def main() -> int:
     walk.add_argument("--video-height", type=int, default=540)
     walk.add_argument("--video-quality", type=int, default=85,
                       help="JPEG quality for the transferable copy")
+    walk.add_argument("--cam-eye", default="-1.6,-2.3,1.0",
+                      help="camera position x,y,z")
+    walk.add_argument("--cam-target", default="0.30,0.0,-0.15",
+                      help="camera aim point x,y,z; below the chassis so feet stay in frame")
+    walk.add_argument("--cam-hfov-deg", type=float, default=62.0)
     args = parser.parse_args()
     return cmd_cycle(args) if args.cmd == "cycle" else cmd_walk(args)
 

@@ -13,6 +13,8 @@ from rsl_rl.env import VecEnv
 import pychrono as chrono
 import pychrono.vehicle as veh
 
+from nedm import chrono_compat as _cc
+
 from nedm.hmmwv_data import (
     capture_row,
     configure_chrono_data_paths,
@@ -491,15 +493,15 @@ class HMMWVChronoTrackingEnv(VecEnv):
         hmmwv = sim.hmmwv
         if bool(self.cfg.get("render_vehicle_mesh", True)):
             vis_types = {
-                hmmwv.SetChassisVisualizationType: chrono.VisualizationType_MESH,
-                hmmwv.SetSuspensionVisualizationType: chrono.VisualizationType_MESH,
-                hmmwv.SetSteeringVisualizationType: chrono.VisualizationType_MESH,
-                hmmwv.SetWheelVisualizationType: chrono.VisualizationType_MESH,
-                hmmwv.SetTireVisualizationType: chrono.VisualizationType_MESH,
+                hmmwv.SetChassisVisualizationType: _cc.VisualizationType_MESH,
+                hmmwv.SetSuspensionVisualizationType: _cc.VisualizationType_MESH,
+                hmmwv.SetSteeringVisualizationType: _cc.VisualizationType_MESH,
+                hmmwv.SetWheelVisualizationType: _cc.VisualizationType_MESH,
+                hmmwv.SetTireVisualizationType: _cc.VisualizationType_MESH,
             }
         else:
             vis_types = {
-                setter: chrono.VisualizationType_PRIMITIVES
+                setter: _cc.VisualizationType_PRIMITIVES
                 for setter in (
                     hmmwv.SetChassisVisualizationType,
                     hmmwv.SetSuspensionVisualizationType,

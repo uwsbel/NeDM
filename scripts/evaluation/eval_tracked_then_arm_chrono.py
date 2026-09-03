@@ -58,6 +58,8 @@ from pathlib import Path
 
 import pychrono as chrono  # noqa: F401  # load Chrono before torch/libstdc++ users
 import pychrono.vehicle as veh
+
+from nedm import chrono_compat as _cc
 import numpy as np
 import torch
 from rsl_rl.runners import OnPolicyRunner
@@ -156,7 +158,7 @@ def parse_args(argv=None):
 
 def enable_tracked_arm_blender_visuals(m113) -> None:
     """Ensure the M113 chassis is visible in non-Irrlicht postprocess exports."""
-    mesh = chrono.VisualizationType_MESH
+    mesh = _cc.VisualizationType_MESH
     for setter in (
         m113.SetChassisVisualizationType,
         m113.SetSprocketVisualizationType,
