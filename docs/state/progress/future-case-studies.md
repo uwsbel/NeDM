@@ -44,9 +44,19 @@ random-action quadruped falls in ~0.4 s, so the HMMWV trick of collecting from a
 meandering driver gives a dataset that is 100% collapse dynamics.
 
 **Measured 2026-09-02, and it narrows this:** `scripts/quadruped_wp0_gait.py
-walk` runs scripted RoboSimian on `kyle-sbel` at **1.14x realtime** (10 s of sim
-in 8.8 s of wall, SMC + Bullet, 1 ms step, rigid ground, no rendering). Scope it
-honestly. This bounds the *non-terrain* half of the loop only, and says nothing
+walk` runs scripted RoboSimian on `kyle-sbel` at **1.25x realtime** (40 s of sim
+in 32 s of wall, SMC + Bullet, 1 ms step, rigid ground, no rendering; a shorter
+10 s run reads 1.14x because startup is not yet amortized). The gait itself is
+at steady state from the first cycle: **0.2000 m per 19.163 s stride**, matched
+to four digits across two consecutive cycles, so **10.4 mm/s**. Net lateral per
+cycle is 0.2 mm, though the chassis sways +/-77 mm within a stride and moves
+backward mid-stride, so any measurement taken between window endpoints rather
+than between wrap events overstates stride by about 10% and reads sway as drift.
+
+That 10.4 mm/s is worth holding onto separately from the throughput question:
+RoboSimian is a slow statically-stable walker, and at 1 cm/s a traverse of any
+useful length costs a lot of simulated time to collect. It is a machinery
+prototype, not a data source. Scope the realtime figure honestly too. This bounds the *non-terrain* half of the loop only, and says nothing
 about CRM, which is the terrain the "below realtime" claim is actually about and
 which neither box can run. What it does say is that ranked option 2 below, a
 rigid-ground PPO seed policy in Chrono, is worth costing properly rather than

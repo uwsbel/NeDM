@@ -21,9 +21,11 @@ One artifact to expect, so nobody chases it as physics: walking_cycle.txt is
 exactly one stride (verified frame-by-frame -- no interior frame returns to frame
 0, the nearest is the last one), but the loop is not perfectly closed. The gap
 |q[-1] - q[0]| is 0.0524 rad, about 3 degrees across 32 joints, so every time
-RS_Driver wraps end to start it steps the joint targets by that much. The default
-40 s window wraps about twice. Small periodic transients at those wraps come from
-the actuation file, not the solver.
+RS_Driver wraps end to start it steps the joint targets by that much. Measured
+over two cycles, this is NOT observable in the chassis trajectory: the largest
+single-step lateral move in a 40 s run was 0.14 mm and did not coincide with
+either wrap. Noted for anyone reading joint targets directly, not as a transient
+to watch for.
 
 Scope, stated plainly: RoboSimian is 32-DOF, so this validates the gait and
 contact machinery, NOT the ~40-D Go2-shaped z1 in the plan. And this build has
@@ -244,6 +246,28 @@ def cmd_walk(args: argparse.Namespace) -> int:
         avg_speed = None
         print(f"note: GetAvgSpeed unavailable ({type(exc).__name__}: {exc})")
 
+    # Displacement measured between driver wrap events, not window endpoints.
+    # RS_Driver wraps at time_start + k*period, so the boundaries are known
+    # without parsing its stdout. Endpoint-to-endpoint over a fractional number
+    # of cycles samples intra-stride oscillation at an arbitrary phase: x moves
+    # backward mid-stride, and y sways about +/-77 mm and closes on itself, so a
+    # window measurement reads sway as drift and inflates stride by ~10%.
+    per_cycle = []
+    k = 0
+    while cycle_period and time_start + (k + 1) * cycle_period <= time_end + 1e-9:
+        t0 = time_start + k * cycle_period
+        t1 = t0 + cycle_period
+        seg = arr[(arr[:, 0] >= t0 - 1e-9) & (arr[:, 0] <= t1 + 1e-9)] if len(arr) else arr
+        if len(seg) < 2:
+            break
+        per_cycle.append({
+            "cycle": k + 1,
+            "stride_length_m": round(float(seg[-1, 1] - seg[0, 1]), 4),
+            "net_lateral_m": round(float(seg[-1, 2] - seg[0, 2]), 4),
+            "lateral_sway_p2p_m": round(float(seg[:, 2].max() - seg[:, 2].min()), 4),
+        })
+        k += 1
+    strides = [c["stride_length_m"] for c in per_cycle]
     dx = float(arr[-1, 1] - arr[0, 1]) if len(arr) else 0.0
     dy = float(arr[-1, 2] - arr[0, 2]) if len(arr) else 0.0
     cycles = args.sim_seconds / cycle_period if cycle_period else None
@@ -256,10 +280,16 @@ def cmd_walk(args: argparse.Namespace) -> int:
         "realtime_factor": round(args.sim_seconds / wall, 4) if wall else None,
         "fell": fell_at is not None,
         "fell_at_s": fell_at,
-        "forward_travel_m": round(dx, 4),
-        "lateral_drift_m": round(dy, 4),
+        "complete_cycles": len(per_cycle),
+        "per_cycle": per_cycle,
+        "stride_length_m_mean": round(float(np.mean(strides)), 4) if strides else None,
+        "speed_mps_from_stride": round(float(np.mean(strides)) / cycle_period, 5)
+        if strides and cycle_period else None,
+        # Window endpoints, kept only because Chrono's own GetAvgSpeed shares
+        # their flaw. Neither is stride length; use the per-cycle values.
+        "window_endpoint_dx_m": round(dx, 4),
+        "window_endpoint_dy_m": round(dy, 4),
         "avg_speed_mps_callback": avg_speed,
-        "mean_speed_mps_derived": round(abs(dx) / args.sim_seconds, 4) if args.sim_seconds else None,
         # Tilt from the released pose. max_abs_roll is deliberately absent: it is
         # a constant of the 180 deg initialization, not a measurement.
         "max_tilt_from_release_rad": round(float(arr[:, 7].max()), 4) if len(arr) else None,
@@ -270,9 +300,12 @@ def cmd_walk(args: argparse.Namespace) -> int:
     (out_dir / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
     print(json.dumps(summary, indent=2))
     verdict = "FAIL, robot fell" if summary["fell"] else "PASS, stayed upright for the full window"
-    if not summary["window_covers_full_cycle"]:
-        verdict += " (travel/speed NOT meaningful: window is under one gait period)"
+    if not per_cycle:
+        verdict += " (stride NOT measured: window is under one gait period)"
     print("\nGATE: " + verdict)
+    if strides:
+        print(f"Stride {np.mean(strides):.4f} m/cycle over {len(strides)} cycle(s); "
+              f"window endpoints would say {dx / cycles:.4f} m/cycle.")
     return 0
 
 
