@@ -51,9 +51,41 @@ from the base quaternion.
 settles all four feet within 2 mm and holds for 2 s, so the asymmetry is harmless
 until the contact pathology amplifies it.
 
-**Mechanism not established, and deliberately not guessed at.** The one setting
-that is explicitly a dissipation mechanism, `shifting_method`, is `NONE`, and
-Chrono warns about it on every run. That is the next single-variable test.
+**CAUSE FOUND: `artificial_viscosity` is too low.** Monotonic dose-response on
+the dropped sphere, only that value changed:
+
+| artificial_viscosity | Fz peak-to-peak | oscillation |
+|---|---|---|
+| **0.5** (Viper demo value) | 161.1 N | 6.3 Hz |
+| 1.0 | 111.6 N | 6.8 Hz |
+| 2.0 | 69.7 N | 8.0 Hz |
+| **5.0** | **1.0 N** | **none** |
+
+At 5.0 the dropped body is dead steady, height varying 0.1 mm, mean force
+36.79 N = 1.00x weight exactly. At rest it is zero to printed precision. The
+limit cycle is gone, not reduced.
+
+0.5 comes from `demo_ROBOT_Viper_CRM.py`, and **Viper is a wheeled rover rolling,
+not a legged robot landing 15 kg on four small contact patches.** The demo's
+value was never exercised against impact.
+
+**`shifting_method` was refuted**, having been the obvious candidate: XSPH shaves
+11% off the force swing and changes nothing structural, `PPST_XSPH` likewise, and
+`DIFFUSION_XSPH` actively destabilises it to 11 cm of excursion at 88.7 Hz. Mean
+force stays 0.99-1.02x weight throughout, which was the pre-declared refutation
+condition.
+
+**Do not simply adopt 5.0.** Artificial viscosity is a *numerical* dissipation
+term, not a soil property. Over-damping changes the foot-soil interaction Case
+Study IV exists to measure, so sinkage and drawbar numbers are not comparable
+across this value. Find the lowest setting that removes the limit cycle; 2.0
+already cuts the force swing by 57% and 3.0-4.0 are untested.
+
+**A separate, smaller residue remains**, now cleanly measurable because the
+oscillation is gone: at 5.0 a body placed at rest settles at 0.1743 and a dropped
+body settles at 0.2063, a **3.2 cm permanent offset**. It no longer bounces, it
+just comes to rest higher. That may be physical, a body resting on soil it
+disturbed on landing, but that is not established.
 
 ## A CRM bed deeper than ~0.22 m heaves upward and carries bodies on it
 

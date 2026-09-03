@@ -251,7 +251,21 @@ def build_crm(chrono, fsi, veh, system, robot, args):
     sph_set("initial_spacing", args.spacing)
     sph_set("d0_multiplier", 1.0)
     sph_set("free_surface_threshold", 0.8)
-    sph_set("artificial_viscosity", 0.5)
+    # 0.5 comes from demo_ROBOT_Viper_CRM.py, and Viper is a wheeled rover
+    # ROLLING, not a legged robot LANDING 15 kg on four small contact patches.
+    # At 0.5 a dropped body enters an undamped limit cycle: force swinging 161 N
+    # peak-to-peak on a 36.8 N body, still going after two seconds. Monotonic
+    # dose-response, measured on a single sphere:
+    #   av 0.5 -> Fz p2p 161.1 N, 6.3 Hz     av 2.0 -> 69.7 N
+    #   av 1.0 -> 111.6 N                    av 5.0 -> 1.0 N, no oscillation
+    #
+    # CAVEAT, and it matters more for the study than for the demo: artificial
+    # viscosity is a NUMERICAL dissipation term, not a soil property. Over-
+    # damping changes the foot-soil interaction Case Study IV exists to measure,
+    # so a sinkage or drawbar number is not version-independent across this
+    # value. Use the LOWEST value that removes the limit cycle, not the highest
+    # that works.
+    sph_set("artificial_viscosity", args.artificial_viscosity)
     sph_set("shifting_method", fsi.ShiftingMethod_NONE)
     # Chrono warns that ARTIFICIAL_UNILATERAL, the default, is less stable for
     # CRM granular; demo_ROBOT_Viper_CRM.py sets these explicitly.
@@ -537,6 +551,9 @@ def main() -> int:
     ap.add_argument("--terrain", choices=["crm", "rigid"], default="crm",
                     help="rigid reproduces the ground the policy was trained on")
     ap.add_argument("--solver-iters", type=int, default=150)
+    ap.add_argument("--artificial-viscosity", type=float, default=5.0,
+                    help="0.5 is the Viper demo value and leaves an undamped "
+                         "limit cycle under impact; see the note in build_crm")
     ap.add_argument("--no-calf-fsi", action="store_true",
                     help="couple only the feet to the SPH, not the calves")
     ap.add_argument("--no-policy", action="store_true", help="hold the stand pose throughout")
@@ -718,6 +735,7 @@ def main() -> int:
         "system_total_mass_kg": round(float(total_mass), 3),
         "weight_n": round(float(total_mass * GRAVITY), 1),
         "solver_iters": args.solver_iters,
+        "artificial_viscosity": args.artificial_viscosity,
         "sph_particles": int(terrain.GetNumSPHParticles()) if terrain else 0,
         "soil_top_m": soil_top, "spawn_z_m": spawn_z,
         "forward_travel_m": round(float(arr[-1, 1] - arr[0, 1]), 4),
