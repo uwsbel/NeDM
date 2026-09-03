@@ -81,6 +81,14 @@ def build_parser() -> argparse.ArgumentParser:
 
     # ---- advanced: settled defaults, kept for sweeps and reproduction ----
     adv = ap.add_argument_group("advanced", "settled defaults; each was measured")
+    adv.add_argument("--imported-ckpt", default=None,
+                     help="TorchScript policy from the legged_gym family, driven "
+                          "through nedm.quadruped.imported_policy instead of the "
+                          "harness contract. Implies its own conventions.")
+    adv.add_argument("--command", type=float, nargs=3, default=[0.5, 0.0, 0.0],
+                     metavar=("VX", "VY", "WZ"),
+                     help="Velocity command for --imported-ckpt only; the harness "
+                          "policy reads a hardcoded literal and ignores this.")
     adv.add_argument("--actuation", choices=["torque", "position"], default="torque",
                      help="torque: PD on ChLinkMotorRotationTorque, kp/kd from the "
                           "legged_gym family, clamped to URDF effort. position: the "
@@ -247,7 +255,14 @@ def main() -> int:
         manager, video_note, cam_mount = attach_camera(chrono, system, args, soil_top, terrain)
         print(f"video: {video_note}")
 
-    policy = None if args.no_policy else PolicyController(ckpt, cfgs)
+    if args.no_policy:
+        policy = None
+    elif args.imported_ckpt:
+        from nedm.quadruped.imported_policy import ImportedGo2Policy
+        policy = ImportedGo2Policy(Path(args.imported_ckpt), command=args.command)
+        print(f"imported policy: {args.imported_ckpt}  command {args.command}")
+    else:
+        policy = PolicyController(ckpt, cfgs)
 
     exchange = args.exchange_mult * args.step
     control_every = max(1, int(round((1.0 / args.control_hz) / exchange)))
