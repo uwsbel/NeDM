@@ -52,15 +52,29 @@ on rigid ground in Chrono and **finetuned on CRM granular terrain**, which is
 ranked option 2 below, listed there as untried.
 
 First run, no tuning: 8 of 8 FSI bodies coupled (four feet, four calves), the
-robot settles 5.9 cm and holds rather than sinking, and it **walks: 0.177 m/s
-forward with -0.038 m lateral drift over 1 s**, against a hardcoded 0.5 m/s
-command. About 35% of commanded speed on soil, tracking roughly straight, no
-fall. A wrong observation vector produces thrashing or backwards motion; this is
-neither.
+robot settles 5.9 cm and holds rather than sinking, and it **walks at 0.177 m/s**
+against a hardcoded 0.5 m/s command, tracking roughly straight. A wrong
+observation vector produces thrashing or backwards motion, so the ported
+convention is right.
 
-So ranked option 3, "import a pretrained Go2 policy... highest risk, keep off
-the critical path", is not high risk and is not off the critical path. It is
-done, in-house, and reproduces.
+**But it only walks for about two seconds.** A 6 s run shows the base pitching
+~158° about Y between t=1 and t=3 and then lying inverted and motionless for the
+rest of the window. The 0.177 m/s figure is from a 1 s run that stopped before
+the tumble; `forward_travel_m` over 6 s is not gait distance, since the robot
+reaches 0.441 m by t=2 and then slides back to 0.36 m while on its back.
+
+So the honest statement is narrower than "solved": **the machinery works and the
+controller does not yet survive on this soil.** The URDF loads, the FSI coupling
+takes on all eight bodies, the observation convention is correct, and the policy
+produces a real gait. Whether the tumble is the policy meeting soil it was not
+finetuned against, the foot geometry (25 mm spheres), the 5.9 cm settle putting
+the robot in a pose outside the training distribution, or the exchange interval,
+is **not yet established**. A `--no-policy` stand-pose run separates the
+controller from the physics and has not been done.
+
+Ranked option 3 is therefore better than "highest risk, keep off the critical
+path" but is not finished. It gets a walking Go2 onto CRM in an afternoon; it
+does not yet get a Go2 that stays up.
 
 **Measured CRM cost with a quadruped actually walking on it**, which is the
 number this section has always been arguing about and which nothing previously

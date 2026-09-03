@@ -80,6 +80,10 @@ GENESIS_DEFAULTS = np.array([0.0, 0.8, -1.5, 0.0, 0.8, -1.5,
 STAND_ACTION = np.array([0.0, -1.0, 1.5, 0.0, -1.0, 1.5,
                          0.0, -0.8, 1.5, 0.0, -0.8, 1.5], dtype=np.float64)
 
+# ~63 deg from upright. A walking Go2 stays well inside this; a tumble
+# crosses it decisively, so it separates gait roll from falling over.
+FALL_TILT_RAD = math.radians(63.0)
+
 LIN_VEL_SCALE, ANG_VEL_SCALE, DOF_POS_SCALE, DOF_VEL_SCALE = 2.0, 0.25, 1.0, 0.05
 
 # configs/hmmwv_crm_eval.json, cross-checked against demo_ROBOT_Viper_CRM.py.
@@ -265,6 +269,31 @@ def build_crm(chrono, fsi, veh, system, robot, args):
     return terrain, coupled
 
 
+def add_soil_visual_proxy(chrono, system, args, soil_top: float):
+    """A static box at the soil surface, purely so the camera has a floor.
+
+    SPH markers are not visual shapes, so Chrono::Sensor has nothing to
+    ray-trace and renders the robot in an empty void. Chrono's own Viper CRM
+    demo shows the soil through ChSphVisualizationVSG, a VSG plugin with no
+    equivalent on the sensor path.
+
+    This is a PROXY and does not deform: it shows where the surface is, not what
+    the soil is doing. It is visual only, no collision, no FSI coupling, and it
+    cannot be used to judge sinkage or soil deformation from a frame.
+    """
+    body = chrono.ChBody()
+    body.SetFixed(True)
+    body.EnableCollision(False)
+    box = chrono.ChVisualShapeBox(args.patch_x, args.patch_y, 0.02)
+    texture = chrono.GetChronoDataFile("textures/pinkwhite.png")
+    if Path(texture).is_file():
+        box.SetTexture(texture, 8 * args.patch_x, 8 * args.patch_y)
+    body.AddVisualShape(box, chrono.ChFramed(
+        chrono.ChVector3d(args.patch_x / 2 - 0.6, 0, soil_top - 0.01), chrono.QUNIT))
+    system.AddBody(body)
+    return body
+
+
 def attach_camera(chrono, system, args, soil_top: float):
     try:
         import pychrono.sensor as sens
@@ -345,6 +374,8 @@ def main() -> int:
     ap.add_argument("--video-fps", type=float, default=30.0)
     ap.add_argument("--video-width", type=int, default=960)
     ap.add_argument("--video-height", type=int, default=540)
+    ap.add_argument("--no-soil-proxy", action="store_true",
+                    help="omit the visual floor; frames then show an empty void")
     ap.add_argument("--no-policy", action="store_true", help="hold the stand pose throughout")
     ap.add_argument("--out", default="artifacts/go2_crm")
     args = ap.parse_args()
@@ -399,6 +430,8 @@ def main() -> int:
 
     manager, video_note = (None, "disabled")
     if args.video:
+        if not args.no_soil_proxy:
+            add_soil_visual_proxy(chrono, system, args, soil_top)
         manager, video_note = attach_camera(chrono, system, args, soil_top)
         print(f"video: {video_note}")
 
@@ -409,7 +442,7 @@ def main() -> int:
     n_steps = int(args.sim_seconds / exchange)
     base = robot.base()
     z0 = base.GetPos().z
-    log, wall0, fell_at = [], time.perf_counter(), None
+    log, tilts, wall0, fell_at = [], [], time.perf_counter(), None
 
     robot.actuate(STAND_ACTION)
     for i in range(n_steps):
@@ -424,7 +457,15 @@ def main() -> int:
             manager.Update()
         p, q = base.GetPos(), base.GetRot()
         log.append([t, p.x, p.y, p.z, q.e0, q.e1, q.e2, q.e3])
-        if fell_at is None and p.z < soil_top - 0.05:
+        # Tilt from upright, NOT base height. A 6 s run reported PASS on a robot
+        # lying inverted on the soil: base z was 0.0074, still nominally above a
+        # soil top of 0.0, because 7 mm off the ground is what lying down looks
+        # like. Height measures something adjacent to falling; angle measures
+        # falling. Same failure the RoboSimian roll metric had.
+        up_z = 1.0 - 2.0 * (q.e1 * q.e1 + q.e2 * q.e2)
+        tilt = math.acos(max(-1.0, min(1.0, up_z)))
+        tilts.append(tilt)
+        if fell_at is None and (tilt > FALL_TILT_RAD or p.z < soil_top - 0.05):
             fell_at = t
 
     wall = time.perf_counter() - wall0
@@ -444,14 +485,28 @@ def main() -> int:
         "lateral_travel_m": round(float(arr[-1, 2] - arr[0, 2]), 4),
         "base_z_start_end_m": [round(z0, 4), round(float(arr[-1, 3]), 4)],
         "base_z_min_m": round(float(arr[:, 3].min()), 4),
-        "sank_below_soil_top": bool(fell_at is not None), "fell_at_s": fell_at,
+        "fell": bool(fell_at is not None), "fell_at_s": fell_at,
+        "max_tilt_deg": round(math.degrees(max(tilts)), 1) if tilts else None,
+        "final_tilt_deg": round(math.degrees(tilts[-1]), 1) if tilts else None,
         "policy": "none (stand pose)" if policy is None else "model_2999.pt",
         "video": video_note, "frames_written": n_frames,
     }
+    if args.video and n_frames:
+        try:
+            from PIL import Image
+            dst = out / "jpg"
+            dst.mkdir(exist_ok=True)
+            for i, png in enumerate(sorted((out / "frames").glob("*.png"))):
+                Image.open(png).convert("RGB").save(dst / f"f{i:05d}.jpg", quality=85)
+            summary["frames_jpeg"] = str(dst)
+        except Exception as exc:  # noqa: BLE001
+            summary["frames_jpeg"] = f"transcode skipped ({type(exc).__name__})"
+
     (out / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
     print(json.dumps(summary, indent=2))
-    print("\nGATE: " + ("FAIL, base sank below soil surface" if summary["sank_below_soil_top"]
-                        else "PASS, stayed above the soil for the full window"))
+    print("\nGATE: " + (f"FAIL, fell at {fell_at:.2f}s (max tilt {summary['max_tilt_deg']} deg)"
+                    if summary["fell"] else
+                    f"PASS, upright for the full window (max tilt {summary['max_tilt_deg']} deg)"))
     return 0
 
 
