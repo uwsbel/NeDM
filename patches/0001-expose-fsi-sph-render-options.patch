@@ -1,0 +1,52 @@
+# Expose ChFsiSphRenderOptions to pychrono.sensor
+#
+# Against: projectchrono/chrono @ 6982828952a920bb4e857625e74cedcf46d3573a
+#          (main, 2026-09-02, 656 commits past tag 10.0.0)
+#
+# ChSensorManager::AttachFsiSphSystem is ALREADY bound and returns a valid
+# handle from Python. But its ChFsiSphRenderOptions argument is not wrapped,
+# so default construction is the only reachable configuration -- and per
+# ChFsiSphRender.h that default renders nothing: sprite_shapes is empty and
+# documented "Required", render_particle_spacing is 0.f and documented "Must
+# be positive to render particles".
+#
+# Measured before this patch: Go2 on CRM, 886,611 particles, attach handle
+# valid, frames 86% flat sky and 0.2% dark. The C++ demo on the same box with
+# populated options renders 49.4% dark. The binding succeeded and drew nothing.
+#
+diff --git a/src/chrono_swig/interface/sensor/ChModuleSensor.i b/src/chrono_swig/interface/sensor/ChModuleSensor.i
+index 4a5f63881..9b8360ecb 100644
+--- a/src/chrono_swig/interface/sensor/ChModuleSensor.i
++++ b/src/chrono_swig/interface/sensor/ChModuleSensor.i
+@@ -78,6 +78,10 @@
+ #include "chrono_sensor/sensors/ChSensorBuffer.h"
+ #include "chrono_sensor/sensors/ChNoiseModel.h"
+ 
++#ifdef CHRONO_FSI_SPH
++  #include "chrono_sensor/ChFsiSphRender.h"
++#endif
++
+ #ifdef CHRONO_HAS_OPTIX
+ 
+   #include "chrono_sensor/sensors/ChOptixSensor.h"
+@@ -240,6 +244,20 @@ using namespace chrono::sensor;
+ #ifdef CHRONO_HAS_OPTIX
+   %include "ChOptixSensor.i"
+ #endif
++#ifdef CHRONO_FSI_SPH
++// ChSensorManager::AttachFsiSphSystem is already generated (it sits inside the
++// CHRONO_FSI_SPH guard in ChSensorManager.h, and both -DCHRONO_FSI_SPH and
++// -DCHRONO_HAS_OPTIX reach SWIG). But its ChFsiSphRenderOptions argument was not
++// wrapped, leaving default-construction as the only reachable configuration --
++// and per ChFsiSphRender.h that default renders NOTHING: sprite_shapes is empty
++// and documented "Required", render_particle_spacing is 0.f and documented "Must
++// be positive to render particles". So the bound method succeeded and drew no
++// particles. Wrapping the struct, and the shape vector its sprite_shapes field
++// needs, is what makes the existing binding usable.
++%template(vector_ChVisualShape) std::vector<std::shared_ptr<chrono::ChVisualShape>>;
++%include "chrono_sensor/ChFsiSphRender.h"
++#endif
++
+ %include "chrono_sensor/ChSensorManager.h"
+ 
+ 
