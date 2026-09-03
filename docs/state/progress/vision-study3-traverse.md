@@ -198,6 +198,49 @@ for tracking error while measured cross-track reaches 0.75 m. Episode 10 was
 delivered at 1.42 m, ran 0.55 m of cross-track, and had 0.87 m against a 1.1 m
 hull.
 
+### The driven-clearance data: it is not "1 unlucky episode in 100"
+
+**Measured 2026-09-03**, vehicle reference to nearest obstacle edge, from the
+driven trajectory rather than the plan:
+
+| episode | driven clearance | cross-track max | contact |
+|---|---|---|---|
+| 10 | **1.07 m** | 0.55 | **10,266 N** |
+| 33 | 1.14 m | 0.60 | 0 |
+| 64 | 1.16 m | 0.54 | 0 |
+| 69 | 1.25 m | 0.59 | 0 |
+
+Distribution over 100: min 1.07, p05 1.35, **median 2.71**, max 4.94.
+
+**The threshold is razor-sharp and it locates the hull empirically.** 1.07 m
+collides, 1.14 m does not: a 7 cm transition band, landing on ~1.1 m, which is
+*exactly* the hull half-width `oracle.py:41-44` assumed when it budgeted
+"hull half-width 1.1 + gate cross-track up to 0.88". **That comment's arithmetic
+was right.** What failed is that the 2.0 m it computed never reached the
+delivered path.
+
+**So "1 collision in 100" understates the result.** The distribution is bimodal:
+the median episode has 2.71 m of room, and a thin tail sits hard against the
+contact boundary with four episodes inside 0.16 m of the hull. One collision is
+what a tail that thin yields at n=100, not a stable rate; a different seed block
+would plausibly give 0 or 3. The honest description is **"four episodes finished
+within 0.16 m of contact, one of which touched"**, and only the driven-clearance
+field makes that statement possible.
+
+Reconstruction from plan geometry alone correctly identified the same four
+episodes {10, 33, 64, 69}, but ranked them differently, because max cross-track
+is a bound over the episode rather than the deviation attained at the closest
+obstacle. The set was recoverable from the plan; the ordering was not.
+
+**A validity risk in the obvious fix.** Enforcing the 2.6 m bound rejects every
+smoothed path landing between 1.3 and 2.6 m, which is 41 of 100. Layout
+resampling (already 33 of 100) would climb steeply, and **heavy resampling
+silently biases the episode distribution toward sparser layouts**, making the
+gate easier in a way that appears in no number the gate reports. If resampling
+climbs past roughly half the episodes, that is the signal to lower `inflation_m`
+to something the arena can actually deliver rather than to enforce a bound the
+sampler has to reroll until it meets.
+
 **What the study has to decide.** Plan §12.1 requires zero collisions, and the
 honest framing is not "the arena occasionally produces contact" but "the stated
 safety margin does not survive to the path the vehicle drives". Three shapes of
