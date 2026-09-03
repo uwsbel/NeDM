@@ -8,6 +8,85 @@ The single most useful habit to take from it: **verify the thing you care about,
 not a proxy for it.** Every entry below is a case where a check passed and the
 thing it stood in for did not.
 
+## CRM contact does not dissipate impact energy: any drop starts a limit cycle
+
+**Cost:** the larger half of a session · **Found:** 2026-09-03 · **Applies to:** any rigid body landing on `CRMTerrain`
+
+Measured on a single 0.025 m sphere, 3.75 kg, weight 36.79 N, soil depth 0.15 m.
+No robot, no legs, no controller.
+
+| drop | mean z | mean Fz | Fz peak-to-peak | oscillation |
+|---|---|---|---|---|
+| **0.000 m** | 0.1740 | 36.79 N = **1.00x weight** | 19.9 N | 21.8 Hz |
+| 0.010 m | 0.2047 | ~1.00x | 32.6 N | 22.8 Hz |
+| 0.050 m | 0.2340 | ~1.00x | 44.3 N | 10.7 Hz |
+| 0.095 m | 0.2136 | 35.97 N = **0.98x weight** | **161.1 N** | 6.3 Hz |
+
+**The mean force is correct in every case**, so the soil is not pushing too hard.
+What fails is *dissipation*: force spikes to 160 N, 4.4x weight, and falls to
+**-0.73 N**, so the body fully leaves contact each cycle and is still oscillating
+two seconds later.
+
+**No threshold; it is binary.** Placed exactly at rest it settles steady to
+0.3 mm. Dropped **one centimetre**, it enters a limit cycle it never leaves.
+
+**This resolves the "restitution above 1" paradox.** A bouncing body spends more
+time near the top of its cycle, so mean *height* rises above static equilibrium
+while mean *force* stays at weight. There is no energy surplus anywhere in the
+force balance. Everything recorded earlier as "restitution 0.78" or "the soil
+injects energy" was a limit cycle read as a rebound.
+
+**Not timestep chatter:** 6.3 and 21.8 Hz against an exchange interval of 2000 Hz
+and a CFD step of 10,000 Hz, FFT-confirmed.
+
+**On a quadruped it becomes directional.** Per-foot FSI force, standing, no
+policy: the impact spike totals **1056 N against a ~150 N robot**, rear-biased
+(291 N per rear foot vs 237 front). By t=0.8 the rear feet read **exactly
+0.0 N** while their height climbs 0.284 to 0.590 m and the front pair carries
+everything. That is the forward pitch measured directly rather than inferred
+from the base quaternion.
+
+*Contributing, not causal:* the commanded stand pose is front/rear asymmetric
+(`GENESIS_DEFAULTS` thigh 0.8 front, 1.0 rear). On rigid ground that same pose
+settles all four feet within 2 mm and holds for 2 s, so the asymmetry is harmless
+until the contact pathology amplifies it.
+
+**Mechanism not established, and deliberately not guessed at.** The one setting
+that is explicitly a dissipation mechanism, `shifting_method`, is `NONE`, and
+Chrono warns about it on every run. That is the next single-variable test.
+
+## A CRM bed deeper than ~0.22 m heaves upward and carries bodies on it
+
+**Cost:** most of a session's CRM work · **Found:** 2026-09-03 · **Applies to:** any `CRMTerrain` deeper than ~0.2 m
+
+Separate from the limit cycle above, and ruled out as its cause. A body placed
+**at rest** (no impact) on a deep bed still rises.
+
+| terrain depth | net rise of a body at rest |
+|---|---|
+| 0.15 m | **-0.001 m** (settles correctly) |
+| 0.20 m | +0.014 m |
+| 0.25 m | **+0.106 m** |
+| 0.30 m | +0.119 m |
+| 0.45 m | +0.118 m |
+
+Sharp onset between 0.20 and 0.25 m, then **saturating**: 0.25, 0.30 and 0.45 all
+give ~0.12 m rather than swelling proportionally. Over 4 s the body rises,
+plateaus at ~1.5 s, and slowly relaxes, so this is equilibration to a new level
+rather than unbounded growth.
+
+**Ruled out by direct test:** SPH step size across a 10x range, 5e-4 to 5e-5,
+which falsifies a CFL explanation despite the arithmetic supporting one;
+particle spacing at 0.02 and 0.03; `use_variable_time_step`, which made it worse;
+and the robot entirely, since this is one sphere.
+
+**Fix:** keep CRM beds at or below ~0.15 m depth until this is understood. Note
+that enlarging a terrain from 0.20 to 0.30 m depth, which looks like an
+improvement, crosses the threshold.
+
+**Both of these belong in an upstream report**, alongside WP0c's `ChDepthCamera`
+`ray_scale` finding.
+
 ## Do not conclude a subsystem works because it imports
 
 **Cost:** a wrong doc commit, later reverted · **Found:** 2026-09-02 · **Applies to:** any optional Chrono module
