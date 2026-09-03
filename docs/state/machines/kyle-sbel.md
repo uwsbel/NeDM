@@ -51,14 +51,23 @@ escalate**, not a step to attempt. See [`reference/`](reference/).
    older than the 9.0.1 in `environment.yml` that is meant to be the legacy
    option. Use `$NEDM_PY`, never a hardcoded env name, and do not assume a
    version from either environment file. Verified 2026-09-02.
-3. **The two conda environments are complementary, not successive.** `nedm`
-   (pychrono 10.0.0) has FSI/CRM, `ChParserURDF`, and `AddDirectionalLight`, all
-   of which `chrono` lacks. But **`nedm` cannot render at all here**: OptiX fails
-   with `OPTIX_ERROR_UNSUPPORTED_ABI_VERSION` at `ChOptixEngine.cpp:86` on driver
-   580.173.02 / CUDA 13.0, which the 9.0.0 build renders fine on. So `chrono` is
-   the only environment on this box that can produce a frame, and it must not be
-   deleted. `nedm` is also ~2.4% slower on identical rigid-body work. Physics
-   agrees between them to four digits. Verified 2026-09-02.
+3. **`nedm` cannot render on this box, and that is a driver problem, not an
+   environment choice.** `nedm` (pychrono 10.0.0) has FSI/CRM, `ChParserURDF`
+   and `AddDirectionalLight`, all of which `chrono` lacks. But OptiX fails with
+   `OPTIX_ERROR_UNSUPPORTED_ABI_VERSION` at `ChOptixEngine.cpp:86` on driver
+   580.173.02 / CUDA 13.0, which the 9.0.0 build renders fine on.
+
+   Do not read that as "the two environments are complementary." The `nedm`
+   build ships a working sensor stack: [`reference/newton.md`](reference/newton.md)
+   records newton's interpreter as a conda env named `nedm`, and **newton did all
+   of Study 3's RGB-D collection**, so pychrono 10 plus Chrono::Sensor works on a
+   compatible driver. Strong inference rather than proof, since newton.md does
+   not name its pychrono version; `kyle-N7-B650E` has a different GPU and will
+   settle build-versus-driver.
+
+   Until then `chrono` is the only environment on this box that can produce a
+   frame and must not be deleted. `nedm` is also ~2.4% slower on identical
+   rigid-body work, while the physics agrees to four digits. Verified 2026-09-02.
 4. **No `pychrono.fsi` in the older `chrono` env, so no CRM there.** Submodules are
    cascade, core, fea, irrlicht, pardisomkl, parsers, postprocess, robot, ros,
    sensor, vehicle. Any CRM work needs a source build of Chrono with FSI and
