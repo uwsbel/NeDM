@@ -123,6 +123,13 @@ the current dataset lacks and what a residual dynamics model most needs.
 Only this unlocks trajectory following and the architectural parallel to
 `ChPathFollowerDriver`.
 
+0. **Importing is ruled out** — see
+   [`quadruped-actuation.md`](quadruped-actuation.md). The nearest-neighbour
+   candidate (Genesis Go2) has *our exact limitation* — its own command config is
+   degenerate, `lin_vel_x_range [0.5, 0.5]`, which is where our hardcoded 0.5 came
+   from. The only real candidate assumes PD torque control, and our joints are
+   kinematic constraints. **The 35 h is not avoided by importing.**
+
 1. **Retrain with command randomisation.** Preferred if affordable: same
    simulator, no transfer gap, and we specify the command space. Recipe is known
    to work here — train on rigid (fast), finetune on CRM (slow, brief). Needs a

@@ -29,12 +29,18 @@ CALF_BODIES = ["FR_calf", "FL_calf", "RR_calf", "RL_calf"]
 
 # Chrono [RR,RL,FR,FL] -> policy [FR,FL,RR,RL]. Swapping two halves of six is
 # its own inverse, so this converts observations one way and actions the other.
-# The policy frame is RSL-RL's, taken from chrono_crmenv.py which ships with the
-# checkpoint. NOT Genesis: these were originally named *_GENESIS_*, which was
-# wrong -- model_2999.pt was trained in Chrono, not imported from Genesis. The
-# name leaked from the plan's REJECTED option 3 ("import a pretrained Go2 policy
-# (Genesis / IsaacLab)") and then into the docs and a summary page as though it
-# described what we did.
+# THE POLICY FRAME IS GENESIS'S, VERBATIM. Verified field by field against the
+# Genesis Go2 locomotion example: joint order FR/FL/RR/RL, the split thigh
+# defaults, all four obs scales (2.0 / 0.25 / 1.0 / 0.05), action_scale 0.25, and
+# the 3+3+3+12+12+12 observation layout are identical. SBEL reimplemented that
+# environment inside Chrono -- chrono_crmenv.py says so in its own comments
+# ("Genesis default joint angles", "Reorder from Genesis [FR,FL,RR,RL]").
+#
+# Two separate things, and conflating them cost a correction in each direction:
+#   the WEIGHTS were trained in Chrono, not imported  -- model_2999.pt is in-house
+#   the CONVENTION is Genesis's, imported wholesale   -- these names were right
+# So *_GENESIS_* was accurate about what it named. Kept as *_POLICY_* because the
+# role is what a reader needs at the call site, with provenance recorded here.
 CHRONO_TO_POLICY = np.array([6, 7, 8, 9, 10, 11, 0, 1, 2, 3, 4, 5], dtype=np.int64)
 
 # Policy-frame rest pose, in policy order [FR, FL, RR, RL]. Front and rear thigh
