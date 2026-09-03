@@ -102,6 +102,52 @@ is `/home/kyle/Documents/sbel/`, which contains `chrono_fork` and `chrono_hil`.
 An unset value could silently find an OptiX belonging to a fork we deliberately
 refused to reuse. Set it explicitly whatever the backend decision.
 
+### RESOLVED: the feature is OptiX-only, so `CH_USE_SENSOR_OPTIX=ON` is mandatory
+
+`ChSensorManager.cpp`:
+
+```cpp
+#ifdef CHRONO_FSI_SPH
+CH_SENSOR_API int ChSensorManager::AttachFsiSphSystem(...) {
+    int handle = -1;
+    #ifdef CHRONO_HAS_OPTIX
+    handle = scene->AddFsiSphSystem(sys, options);
+    ReconstructScenes();
+    #endif
+    return handle;
+}
+```
+
+**Built Vulkan-only, the body is empty.** `AttachFsiSphSystem` still compiles,
+links, and is callable — it returns `-1` having done nothing. That is worse than
+the method being absent, because a Python binding over it would **silently
+no-op**: exactly the failure class this project keeps hitting.
+
+`src/chrono_sensor/optix/ChOptixScene.h:211` carries `AddFsiSphSystem`,
+`RemoveFsiSphSystem`, `ChFsiSphRenderSource` and `m_fsi_sph_sources`. Grepping
+`src/chrono_sensor/vulkan/` for `FsiSph` returns **nothing**.
+
+`ChFsiSphRender.h` sits at the top level of `chrono_sensor/` rather than under
+`optix/`, so file layout alone does not reveal this. The implementation does.
+
+The demo is gated the same way, three conditions deep
+(`src/demos/sensor/CMakeLists.txt`):
+
+```cmake
+if(CH_USE_SENSOR_OPTIX)
+  if(CH_ENABLE_MODULE_FSI_SPH AND CH_ENABLE_MODULE_VEHICLE)
+    set(DEMOS ${DEMOS} demo_SEN_CRM_Rendering)
+```
+
+So `demo_SEN_CRM_Rendering` is **not built at all** without OptiX. The driver
+upgrade and the SDK installs were not wasted.
+
+Vulkan RT is still enabled where headers allow (system Vulkan 1.3.204 on
+`kyle-sbel`), because it is free and `demo_SEN_vulkan_validation` does a 1:1
+Vulkan-vs-OptiX camera comparison — a useful cross-check given `kyle-N7-B650E`
+may never get OptiX working. **A Vulkan configure failure must not block the
+build**; drop the flag, since the feature we need does not use it.
+
 ## The FSI module switch is split
 
 `CH_ENABLE_MODULE_FSI` is an umbrella and `CH_ENABLE_MODULE_FSI_SPH` is a

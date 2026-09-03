@@ -327,3 +327,22 @@ silently resolve against a fork we had explicitly decided not to reuse, and the
 build would succeed and look correct.
 **Fix:** set every path locator explicitly, and prefer building outside any
 directory that holds sibling checkouts so the default cannot reach them.
+
+## A guarded method with an empty body is worse than a missing one
+
+**Cost:** none, caught before configure · **Found:** 2026-09-03 · **Applies to:** any Chrono API behind a backend `#ifdef`
+
+**Expected:** if a build lacks the backend a feature needs, calls into that
+feature fail loudly — a link error, a missing symbol, an exception.
+**Happened:** `ChSensorManager::AttachFsiSphSystem` is guarded by
+`#ifdef CHRONO_FSI_SPH` on the *outside* and `#ifdef CHRONO_HAS_OPTIX` on the
+*inside*. Built without OptiX, the method still exists, compiles, links, and is
+callable — and returns `-1` having done nothing. A Python binding over it would
+have appeared to work and silently rendered nothing.
+**Fix:** for any API behind a backend guard, read the *body*, not the signature.
+Presence of a symbol is not evidence the feature is compiled in. Where a return
+value encodes success (here, a handle, `-1` on failure), **check it** — that is
+the only in-band signal a no-op build leaves.
+
+This is the same failure class as the vacuous G0a gate and the case-insensitive
+mesh check: a thing that reports success while doing nothing. Third instance.
