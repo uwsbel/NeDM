@@ -78,6 +78,13 @@ using std::endl;
 // ---------------------------------------------------------------------------
 
 int main(int argc, char* argv[]) {
+    // Resolve Chrono data absolutely. The upstream demo relies on a relative
+    // "../data/" and SEGFAULTS if run from anywhere but chrono-build/bin, which is
+    // a thing that will eventually happen, on another box, unattended.
+#ifdef CHRONO_DATA_DIR
+    SetChronoDataPath(CHRONO_DATA_DIR);
+#endif
+
     // Gate arms: default attaches the FSI system; --no-attach is the control.
     bool do_attach = true;
     double gate_tend = 2.0;
@@ -383,6 +390,14 @@ int main(int argc, char* argv[]) {
             render_frame++;
         }
 #else
+        // render_frame is advanced HERE, not only inside the CHRONO_VSG block above.
+        // That block is compiled out on a headless build, so the counter stayed 0 for
+        // an entire run while ChFilterSave wrote 401 images. A trace field that cannot
+        // vary always agrees with itself, so a comparability check on it would have
+        // passed no matter how far the two arms had drifted. Worse than no field.
+        if (time >= render_frame / render_fps)
+            render_frame++;
+
         // Comparability trace. A pixel diff between the two arms is only evidence
         // about particles if everything else about the frames matches, so each arm
         // prints the state its frames were rendered at. Diffing frames whose values
