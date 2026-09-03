@@ -227,16 +227,36 @@ def build_crm(chrono, fsi, veh, system, robot, args):
     terrain.SetElasticSPH(mat)
 
     p = fsi.SPHParameters()
-    p.integration_scheme = fsi.IntegrationScheme_RK2
-    p.initial_spacing = args.spacing
-    p.d0_multiplier = 1.0
-    p.free_surface_threshold = 0.8
-    p.artificial_viscosity = 0.5
-    p.shifting_method = fsi.ShiftingMethod_NONE
+
+    def sph_set(name, value):
+        """Assign an SPHParameters field, or fail loudly.
+
+        SPHParameters accepts ANY attribute name silently: `p.kernel_threshold
+        = 0.8` is accepted and reads back as 0.8, while the C++ never sees it.
+        So a config copied from a different Chrono version fails OPEN, running
+        solver defaults while appearing configured. `playground_crm.py` uses
+        kernel_threshold, viscosity_type, boundary_type and
+        consistent_gradient_discretization; none of those exist in pychrono
+        10.0.0, and adopting them would have silently disabled four settings.
+        This class of bug is invisible by construction, so assert.
+        """
+        if not hasattr(p, name):
+            raise AttributeError(
+                f"SPHParameters has no field {name!r} in this Chrono build. "
+                f"Available: {sorted(a for a in dir(p) if not a.startswith('_'))}"
+            )
+        setattr(p, name, value)
+
+    sph_set("integration_scheme", fsi.IntegrationScheme_RK2)
+    sph_set("initial_spacing", args.spacing)
+    sph_set("d0_multiplier", 1.0)
+    sph_set("free_surface_threshold", 0.8)
+    sph_set("artificial_viscosity", 0.5)
+    sph_set("shifting_method", fsi.ShiftingMethod_NONE)
     # Chrono warns that ARTIFICIAL_UNILATERAL, the default, is less stable for
     # CRM granular; demo_ROBOT_Viper_CRM.py sets these explicitly.
-    p.viscosity_method = fsi.ViscosityMethod_ARTIFICIAL_BILATERAL
-    p.boundary_method = fsi.BoundaryMethod_ADAMI
+    sph_set("viscosity_method", fsi.ViscosityMethod_ARTIFICIAL_BILATERAL)
+    sph_set("boundary_method", fsi.BoundaryMethod_ADAMI)
     terrain.SetSPHParameters(p)
 
     # FSI bodies MUST be registered before Construct/Initialize: BCE markers are
@@ -273,7 +293,7 @@ def build_crm(chrono, fsi, veh, system, robot, args):
         except Exception as exc:  # noqa: BLE001
             print(f"  FSI registration failed for {name}: {type(exc).__name__}: {exc}")
 
-    terrain.SetActiveDomain(chrono.ChVector3d(2.0, 2.0, 1.0))
+    terrain.SetActiveDomain(chrono.ChVector3d(1.0, 1.0, 1.0))
     terrain.SetActiveDomainDelay(0.1)
     terrain.Construct(
         chrono.ChVector3d(args.patch_x, args.patch_y, args.depth),
@@ -307,6 +327,51 @@ def add_soil_visual_proxy(chrono, system, args, soil_top: float):
         chrono.ChVector3d(args.patch_x / 2 - 0.6, 0, soil_top - 0.01), chrono.QUNIT))
     system.AddBody(body)
     return body
+
+
+def measure_leg_reach(chrono, urdf: Path) -> float:
+    """Base-to-lowest-foot distance in the URDF rest pose.
+
+    A throwaway system is built and discarded. Nothing has stepped, so the pose
+    is purely the URDF's own rest configuration and the offset is a fixed
+    geometric property of the model. Cheap: a URDF parse, no dynamics.
+
+    This exists because a constant spawn height is guesswork. The Go2 spawns with
+    its legs extended, so a clearance chosen for the BASE says nothing about
+    where the FEET are, and the feet are what meets the soil. Watching the first
+    render, the failure is plainly visible: the robot starts with its feet below
+    the surface.
+    """
+    probe_system = chrono.ChSystemSMC()
+    probe = Go2Robot(probe_system, urdf,
+                     chrono.ChFramed(chrono.ChVector3d(0, 0, 1.0), chrono.QuatFromAngleZ(0.0)))
+    base_z = probe.base().GetPos().z
+    foot_z = min(probe.body(n).GetPos().z for n in FOOT_BODIES if probe.body(n) is not None)
+    return float(base_z - foot_z)
+
+
+def build_rigid_ground(chrono, system):
+    """The ground the policy was actually trained on.
+
+    The Go2 skill is explicit: the RL policy was trained with a ChBodyEasyBox at
+    z=0, so its top surface sits at z=+0.05. Reproducing that exactly is the
+    control case. If the Go2 does not walk here, nothing about CRM is the
+    problem.
+    """
+    mat = chrono.ChContactMaterialSMC()
+    mat.SetFriction(0.9)
+    mat.SetRestitution(0.01)
+    mat.SetGn(60.0)
+    mat.SetKn(2e5)
+    ground = chrono.ChBodyEasyBox(10, 10, 0.1, 1000, True, True, mat)
+    ground.SetName("ground")
+    ground.SetPos(chrono.ChVector3d(0, 0, 0.0))
+    ground.SetFixed(True)
+    texture = chrono.GetChronoDataFile("textures/concrete.jpg")
+    if Path(texture).is_file() and ground.GetVisualShape(0) is not None:
+        ground.GetVisualShape(0).SetTexture(texture, 10, 10)
+    system.AddBody(ground)
+    return ground, 0.05   # top surface
 
 
 def attach_sph_rendering(sens, manager, terrain, args):
@@ -417,11 +482,13 @@ def main() -> int:
                     help="ease from the URDF spawn pose to the stand pose")
     ap.add_argument("--settle-seconds", type=float, default=0.5,
                     help="hold the stand pose after the ramp, before the policy")
-    ap.add_argument("--spacing", type=float, default=0.03)
-    ap.add_argument("--patch-x", type=float, default=3.0)
-    ap.add_argument("--patch-y", type=float, default=1.6)
-    ap.add_argument("--depth", type=float, default=0.20)
-    ap.add_argument("--soil-bottom", type=float, default=-0.20)
+    # playground_crm.py values. The foot sphere is r=0.025, so 0.02 gives a
+    # foot spanning 2.5 spacings against 1.7 at 0.03.
+    ap.add_argument("--spacing", type=float, default=0.02)
+    ap.add_argument("--patch-x", type=float, default=8.0)
+    ap.add_argument("--patch-y", type=float, default=4.0)
+    ap.add_argument("--depth", type=float, default=0.30)
+    ap.add_argument("--soil-bottom", type=float, default=0.0)
     # Swept, 3 s each, standing: 0.34 -> 0.13-0.16 m of launch and a fall at
     # 0.64-0.85 s; 0.42 -> 0.07 m and 1.08-1.21 s; 0.60 -> ZERO launch and 2.97 s.
     # Monotonic and it disappears entirely by 0.60. The Go2's URDF rest pose has
@@ -460,6 +527,9 @@ def main() -> int:
                     help="add a static non-deforming floor box as well as the SPH sprites")
     ap.add_argument("--sph-render-spacing", type=float, default=None,
                     help="sprite spacing; defaults to the SPH initial spacing")
+    ap.add_argument("--terrain", choices=["crm", "rigid"], default="crm",
+                    help="rigid reproduces the ground the policy was trained on")
+    ap.add_argument("--solver-iters", type=int, default=150)
     ap.add_argument("--no-policy", action="store_true", help="hold the stand pose throughout")
     ap.add_argument("--out", default="artifacts/go2_crm")
     args = ap.parse_args()
@@ -469,11 +539,14 @@ def main() -> int:
 
     import pychrono as chrono
     import pychrono.vehicle as veh
-    try:
-        import pychrono.fsi as fsi
-    except Exception as exc:  # noqa: BLE001
-        print(f"FAIL: pychrono.fsi unavailable ({type(exc).__name__}). CRM needs the nedm env.")
-        return 1
+    fsi = None
+    if args.terrain == "crm":
+        try:
+            import pychrono.fsi as fsi
+        except Exception as exc:  # noqa: BLE001
+            print(f"FAIL: pychrono.fsi unavailable ({type(exc).__name__}). "
+                  "CRM needs the nedm env; --terrain rigid does not.")
+            return 1
 
     assets = Path(args.assets)
     urdf = assets / "data/robot/go2_irrvis/urdf/go2_description.urdf"
@@ -491,35 +564,19 @@ def main() -> int:
     system.SetGravitationalAcceleration(chrono.ChVector3d(0, 0, -GRAVITY))
     system.SetCollisionSystemType(chrono.ChCollisionSystem.Type_BULLET)
     system.SetSolverType(chrono.ChSolver.Type_BARZILAIBORWEIN)
-    system.GetSolver().AsIterative().SetMaxIterations(60)
+    # 150, from playground_crm.py. The Go2 skill says 60, but that is for
+    # rigid ground; a 42-body articulated robot on compliant terrain is
+    # exactly where an under-converged contact solve shows up as excess bounce.
+    system.GetSolver().AsIterative().SetMaxIterations(args.solver_iters)
     chrono.ChCollisionModel.SetDefaultSuggestedEnvelope(0.0025)
     chrono.ChCollisionModel.SetDefaultSuggestedMargin(0.0025)
 
-def measure_leg_reach(chrono, urdf: Path) -> float:
-    """Base-to-lowest-foot distance in the URDF rest pose.
-
-    A throwaway system is built and discarded. Nothing has stepped, so the pose
-    is purely the URDF's own rest configuration and the offset is a fixed
-    geometric property of the model. Cheap: a URDF parse, no dynamics.
-
-    This exists because a constant spawn height is guesswork. The Go2 spawns with
-    its legs extended, so a clearance chosen for the BASE says nothing about
-    where the FEET are, and the feet are what meets the soil. Watching the first
-    render, the failure is plainly visible: the robot starts with its feet below
-    the surface.
-    """
-    probe_system = chrono.ChSystemSMC()
-    probe = Go2Robot(probe_system, urdf,
-                     chrono.ChFramed(chrono.ChVector3d(0, 0, 1.0), chrono.QuatFromAngleZ(0.0)))
-    base_z = probe.base().GetPos().z
-    foot_z = min(probe.body(n).GetPos().z for n in FOOT_BODIES if probe.body(n) is not None)
-    return float(base_z - foot_z)
-
-
-    # Construct's pos is the BOTTOM of the soil box, and GetHeight does NOT
-    # report the free surface (it is the height-functor hook, flat zero by
-    # default). The surface is soil_bottom + depth; place the robot above that.
-    soil_top = args.soil_bottom + args.depth
+    rigid = args.terrain == "rigid"
+    # For CRM, Construct's pos is the BOTTOM of the soil box, and GetHeight does
+    # NOT report the free surface (it is the height-functor hook, flat zero by
+    # default). The surface is soil_bottom + depth. For rigid, the Go2 skill's
+    # ChBodyEasyBox at z=0 puts its top at +0.05.
+    soil_top = 0.05 if rigid else args.soil_bottom + args.depth
     if args.spawn_clearance is None:
         os.chdir(urdf.parent)
         try:
@@ -550,11 +607,17 @@ def measure_leg_reach(chrono, urdf: Path) -> float:
               "Below ~0.05 m the foot BCE markers take a launch impulse from the "
               "particle bed; raise --spawn-clearance.")
 
-    terrain, coupled = build_crm(chrono, fsi, veh, system, robot, args)
+    if rigid:
+        build_rigid_ground(chrono, system)
+        terrain, coupled = None, []
+    else:
+        terrain, coupled = build_crm(chrono, fsi, veh, system, robot, args)
     print(f"soil top {soil_top:.3f}  spawn z {spawn_z:.3f}  "
           f"lowest foot {min(foot_z):.3f} (clearance {foot_clearance:.3f})  "
           f"FSI-coupled bodies: {len(coupled)}")
-    print(f"SPH particles {terrain.GetNumSPHParticles()}  boundary BCE {terrain.GetNumBoundaryBCEMarkers()}")
+    if terrain is not None:
+        print(f"SPH particles {terrain.GetNumSPHParticles()}  "
+              f"boundary BCE {terrain.GetNumBoundaryBCEMarkers()}")
 
     manager, video_note = (None, "disabled")
     if args.video:
@@ -594,7 +657,10 @@ def measure_leg_reach(chrono, urdf: Path) -> float:
                 robot.actuate(STAND_ACTION)
             else:
                 robot.actuate(policy.act(robot))
-        terrain.DoStepDynamics(exchange)   # advances BOTH fluid and multibody
+        if terrain is not None:
+            terrain.DoStepDynamics(exchange)   # advances BOTH fluid and multibody
+        else:
+            system.DoStepDynamics(exchange)
         if manager is not None:
             manager.Update()
         p, q = base.GetPos(), base.GetRot()
@@ -618,10 +684,12 @@ def measure_leg_reach(chrono, urdf: Path) -> float:
     summary = {
         "sim_seconds": args.sim_seconds, "wall_seconds": round(wall, 1),
         "realtime_factor": round(args.sim_seconds / wall, 5) if wall else None,
-        "rtf_cfd": round(float(terrain.GetRtfCFD()), 5),
-        "rtf_mbd": round(float(terrain.GetRtfMBD()), 5),
+        "rtf_cfd": round(float(terrain.GetRtfCFD()), 5) if terrain else None,
+        "rtf_mbd": round(float(terrain.GetRtfMBD()), 5) if terrain else None,
         "fsi_coupled_bodies": len(coupled), "coupled_names": coupled,
-        "sph_particles": int(terrain.GetNumSPHParticles()),
+        "terrain": args.terrain,
+        "solver_iters": args.solver_iters,
+        "sph_particles": int(terrain.GetNumSPHParticles()) if terrain else 0,
         "soil_top_m": soil_top, "spawn_z_m": spawn_z,
         "forward_travel_m": round(float(arr[-1, 1] - arr[0, 1]), 4),
         "lateral_travel_m": round(float(arr[-1, 2] - arr[0, 2]), 4),
