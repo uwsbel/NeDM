@@ -38,6 +38,7 @@ backwards or sideways, invert SIGN and retest before suspecting anything else.
 
 from __future__ import annotations
 
+import math
 from pathlib import Path
 
 import numpy as np
@@ -60,15 +61,56 @@ ACTION_SCALE = 0.25
 SIGN = -1.0   # see module docstring
 
 
+# Structured excitation families, mirroring the paper's approach rather than
+# uniform sampling: the HMMWV uses six maneuver families over three speed bands
+# and the tracked vehicle ten, on the grounds that structured excitation covers
+# the space more systematically than random draws.
+#
+# BOUNDED BY THE POLICY'S TRAINED RANGES, not by its deployment clip bounds:
+# lin_vel_x and lin_vel_y +/-0.5, ang_vel_yaw +/-1.0. The deploy config also
+# carries max_cmd [2.0, 1.0, 2.5], which is wider; driving to those would repeat
+# the obs[8] probe's mistake of asking for something never trained.
+#
+# The policy was trained with commands RESAMPLED EVERY 5 s, so sharp steps and
+# fast chirps are out of distribution for it even when the values are in range.
+# Which families survive that is measured, not assumed -- see the family gate.
+def _fam_constant(t, v):        return (v, 0.0, 0.0)
+def _fam_vel_step(t, T):        return (0.2 if t < T / 2 else 0.5, 0.0, 0.0)
+def _fam_yaw_step(t, T):        return (0.3, 0.0, 0.0 if t < T / 2 else 0.8)
+def _fam_arc(t, T):             return (0.4, 0.0, 0.6)
+def _fam_lateral(t, T):         return (0.0, 0.4, 0.0)
+def _fam_weave(t, T):           return (0.4, 0.0, 0.6 * math.sin(2 * math.pi * 0.15 * t))
+def _fam_pivot(t, T):           return (0.0, 0.0, 1.0)
+def _fam_stop_and_go(t, T):     return ((0.5 if (t % 4.0) < 2.0 else 0.0), 0.0, 0.0)
+
+COMMAND_FAMILIES = {
+    "constant_low":  lambda t, T: _fam_constant(t, 0.15),
+    "constant_med":  lambda t, T: _fam_constant(t, 0.30),
+    "constant_high": lambda t, T: _fam_constant(t, 0.50),
+    "vel_step":      _fam_vel_step,
+    "yaw_step":      _fam_yaw_step,
+    "arc":           _fam_arc,
+    "lateral":       _fam_lateral,
+    "weave":         _fam_weave,
+    "pivot":         _fam_pivot,
+    "stop_and_go":   _fam_stop_and_go,
+}
+
+
 class ImportedGo2Policy:
     """go2_cts_150k.pt driven on our Chrono Go2."""
 
-    def __init__(self, ckpt: Path, command=(0.5, 0.0, 0.0)):
+    def __init__(self, ckpt: Path, command=(0.5, 0.0, 0.0), family=None, duration=8.0):
         import torch
 
         self.torch = torch
         self.ckpt = Path(ckpt)
         self.command = np.asarray(command, dtype=np.float32)
+        self.family = family
+        self.duration = float(duration)
+        # Every command actually issued, so an episode records what it was ASKED
+        # to do and not merely which family it belonged to.
+        self.command_log: list[tuple[float, float, float, float]] = []
         self.last_actions = np.zeros(12, dtype=np.float32)
         self.model = None
         self.reset()
@@ -85,6 +127,13 @@ class ImportedGo2Policy:
         return np.array([-2 * (qx * qz - qw * qy),
                          -2 * (qy * qz + qw * qx),
                          -(1 - 2 * (qx * qx + qy * qy))], dtype=np.float32)
+
+    def set_time(self, t: float) -> None:
+        """Advance the command schedule. No-op for a fixed command."""
+        if self.family is not None:
+            vx, vy, wz = COMMAND_FAMILIES[self.family](t, self.duration)
+            self.command = np.array([vx, vy, wz], dtype=np.float32)
+        self.command_log.append((t, *map(float, self.command)))
 
     def observe(self, robot) -> np.ndarray:
         """The 45-vector in THEIR block order and THEIR scales.
