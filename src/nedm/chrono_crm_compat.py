@@ -67,19 +67,21 @@ def _detect():
     import pychrono.vehicle as veh
 
     soil_name, gen_a = _resolve("SoilProperties", "ElasticMaterialProperties", fsi, "soil properties type")
+    fsisys_name, gen_d = _resolve("GetFsiSystemSPH", "GetSystemFSI", veh.CRMTerrain, "FSI system accessor")
     crm_name, gen_b = _resolve("SetCrmSPH", "SetElasticSPH", veh.CRMTerrain, "CRM soil setter")
     delay_name, gen_c = _resolve("SetFreeFlowDuration", "SetActiveDomainDelay", veh.CRMTerrain, "active-domain delay")
 
-    gens = {gen_a, gen_b, gen_c}
+    gens = {gen_a, gen_b, gen_c, gen_d}
     if len(gens) != 1:
         raise RuntimeError(
             f"Mixed Chrono API generations in one build: soil type is {gen_a}, "
-            f"CRM setter is {gen_b}, delay setter is {gen_c}. Refusing to guess."
+            f"CRM setter is {gen_b}, delay setter is {gen_c}, FSI accessor is "
+            f"{gen_d}. Refusing to guess."
         )
-    return gens.pop(), fsi, soil_name, crm_name, delay_name
+    return gens.pop(), fsi, soil_name, crm_name, delay_name, fsisys_name
 
 
-API_GENERATION, _fsi, _SOIL_NAME, _CRM_NAME, _DELAY_NAME = _detect()
+API_GENERATION, _fsi, _SOIL_NAME, _CRM_NAME, _DELAY_NAME, _FSISYS_NAME = _detect()
 
 
 def soil_properties():
@@ -96,6 +98,11 @@ def set_crm_soil(terrain, props):
 def set_free_flow_duration(terrain, seconds):
     """Delay before the active domain begins tracking. Same signature both sides."""
     return getattr(terrain, _DELAY_NAME)(seconds)
+
+
+def fsi_system(terrain):
+    """The terrain's FSI system. GetSystemFSI on 10.0.0, GetFsiSystemSPH on main."""
+    return getattr(terrain, _FSISYS_NAME)()
 
 
 def stamp():
@@ -146,3 +153,79 @@ def set_solid_background(scene, color_zenith):
     bg.color_zenith = color_zenith
     scene.SetBackground(bg)
     return True
+
+
+# ---------------------------------------------------------------------------
+# Reusing the 2025 RL harness UNMODIFIED.
+#
+# chrono_crmenv.py defines the input contract that model_2999.pt was trained
+# against: the leg reorder, the blanket sign negation, the observation scaling
+# and the hardcoded command slot. Reimplementing those by hand means maintaining
+# four conventions, one of which -- the negation -- has no recorded explanation
+# anywhere in the source. Reusing the original file inherits all four correctly
+# BY CONSTRUCTION, and we never need to know why the negation is there.
+#
+# The file is imported byte-identical. It fails to import here only because it
+# pulls pychrono.vsg and pychrono.irrlicht at module scope for run-time display,
+# and our build has neither. Patching those imports out would fork the one file
+# whose value is being provably the original, so instead the missing modules are
+# satisfied from outside via sys.modules.
+#
+# The stubs RAISE on any attribute access. They are not silent no-ops: an API
+# that accepts a call and does nothing is the exact failure family this project
+# has spent days cataloguing, and introducing our own would be indefensible.
+# ---------------------------------------------------------------------------
+
+import sys as _sys
+import types as _types
+
+
+def _stub_module(name):
+    mod = _types.ModuleType(name)
+
+    def _raise(*_a, **_k):
+        raise RuntimeError(
+            f"{name} is not built in this environment. It is imported only for "
+            f"run-time display; headless simulation does not need it. Something "
+            f"asked for it, which means a display path is being exercised."
+        )
+
+    # Dunders must behave normally: import machinery and inspect read __file__,
+    # __spec__ and friends, and a stub that raises for those breaks the importer
+    # long before anything touches the display API. Only real attribute lookups
+    # raise.
+    def _module_getattr(attr):
+        if attr.startswith("__") and attr.endswith("__"):
+            raise AttributeError(attr)
+        return _raise
+
+    mod.__getattr__ = _module_getattr
+    mod.__file__ = f"<stub {name}>"
+    mod.__all__ = []
+    _sys.modules[name] = mod
+    return mod
+
+
+def install_display_stubs():
+    """Satisfy display-only imports so the RL harness loads unmodified.
+
+    Returns the list of names stubbed, so a caller can report what is absent
+    rather than discovering it at first use.
+    """
+    stubbed = []
+    for name in ("pychrono.vsg", "pychrono.irrlicht"):
+        try:
+            __import__(name)
+        except ImportError:
+            _stub_module(name)
+            stubbed.append(name)
+    import pychrono.fsi as fsi
+    if not hasattr(fsi, "ChFsiVisualizationVSG"):
+        def _raise_vsg(*_a, **_k):
+            raise RuntimeError(
+                "fsi.ChFsiVisualizationVSG is absent from this Chrono build "
+                "(VSG not enabled). Display only; headless does not need it."
+            )
+        fsi.ChFsiVisualizationVSG = _raise_vsg
+        stubbed.append("pychrono.fsi.ChFsiVisualizationVSG")
+    return stubbed
