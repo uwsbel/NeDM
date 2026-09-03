@@ -25,7 +25,8 @@ Layout-level 70/15/15 split; all metrics on held-out layouts; test untouched.
 | v4 (30k) | z₂ capacity test: 512-D, 16 queries | BEV z₂ 0.243 (v3: 0.231); spatial unchanged 0.836 | capacity is **not** the constraint |
 | v5 (30k, **7188 layouts**) | data-scaling test, v3 config (run by the day session) | BEV z₂ **0.327** / spatial **0.878**; rock recall 0.992; center 0.80 m spatial; z₂ memorization gap collapsed (0.44 train / 0.33 val) | z₂ **does** scale with data — but toward an apparent ~0.4 ceiling, not spatial's 0.88 |
 | v6 (30k, **9518 layouts**) | third data-scaling point, v3 config | BEV z₂ **0.390** / spatial 0.883; rock recall 0.994; center 1.35 m z₂ / 0.78 m spatial | train/val pinch: z₂ train BEV 0.72→0.44→**0.42** while val rose 0.23→0.33→**0.39** — the curves converge at ~0.4: a representational ceiling, not overfitting |
-| v7 (30k, same 9518) | **positional embedding before attention pooling** (`--pos-enc`), pinned to v6's episode manifest | *queued behind v6* | tests whether the ~0.4 ceiling is position-blindness rather than capacity or data |
+| v7 (30k, same 9518) | **positional embedding before attention pooling** (`--pos-enc`), pinned to v6's episode manifest | *running (5090)* | tests whether the ~0.4 ceiling is position-blindness rather than capacity or data |
+| v7b (30k, same pin) | pos-enc **+ slot-z combined**; first cluster run (AMD MI350, ROCm, SLURM 404206, ~820 sps / 36 min wall) | val BEV z₂ **0.312** vs 0.390 baseline | the combination *hurts*; caveat: cross-stack confound (baseline trained local cu130, this run ROCm) — v7's single-variable pos-enc remains the decisive test |
 
 The train-vs-val diagnostic (eval on training layouts alongside held-out) is
 what separated "can't represent the task" from "can't generalize it": the
