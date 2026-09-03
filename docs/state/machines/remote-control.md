@@ -111,3 +111,28 @@ the command himself on that box.
    pointing anywhere else, or any of `DISABLE_TELEMETRY`, `DO_NOT_TRACK`,
    `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`, `DISABLE_GROWTHBOOK` will
    disable it.
+
+## Who commits what
+
+**Whoever does the work commits it.** Early on every commit came from the
+coordinator, which kept history uniform and does not scale: routing a file
+written on one box through another to preserve single authorship is friction in
+service of nothing.
+
+Rules, so concurrent pushes stay boring:
+
+- **Pull before committing.** Every box, every time.
+- **Push promptly.** The collision window is the time between your commit and
+  your push, so keep it short rather than batching a day of work.
+- Use the shared trailers (`Co-Authored-By`, `Claude-Session`) so history reads
+  uniformly regardless of origin box.
+- Commit messages say what a change is **for**, not what it contains. The diff
+  already carries the contents; what it cannot carry is the reason. `tools/`
+  exists because the upstream demo writes nothing to disk and discards its
+  handle — unrecoverable from the diff, and the only thing a future reader
+  needs.
+
+**A note on why this matters more here than on a normal team.** Agents on
+different boxes cannot see each other's working trees, so an uncommitted file is
+invisible to the rest of the fleet in a way it would not be to a colleague who
+could ask. Committing is how a box tells the others what it knows.
