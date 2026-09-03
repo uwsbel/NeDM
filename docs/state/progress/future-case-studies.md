@@ -9,6 +9,19 @@ is a 2-D one-hot over three discrete terrains.
 
 ## III — Quadruped locomotion on CRM terrain *(proposed by the author; recommended)*
 
+> **Blocker, found 2026-09-02: there is no CRM on either reachable box.**
+> Neither `kyle-sbel` nor `kyle-N7-B650E` has `pychrono.fsi`, and CRM terrain
+> lives in Chrono::FSI. Both run stock pychrono 9.0.0, so this is a property of
+> that package rather than of the machines. The CRM half of this study needs a
+> source build of Chrono with FSI and Python bindings, or C++, or a box that
+> already has one. **The rigid-ground half is unaffected**: RoboSimian, `RS_Driver`
+> and `walking_cycle.txt` are all present, which is what
+> `scripts/quadruped_wp0_gait.py` exercises.
+>
+> Second blocker for the Go2 half: `ChParserURDF` is unavailable on both boxes,
+> and for different reasons on each. See the machine files.
+
+
 **Why it is the strongest candidate.** It is the first **intermittent-contact**
 system: four contact modes switching at 2–4 Hz each, against an NRD that
 predicts a residual `Δz_t` which is genuinely discontinuous at touchdown and

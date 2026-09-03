@@ -5,6 +5,7 @@ import csv
 import hashlib
 import json
 import math
+import os
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -180,12 +181,62 @@ def resolve_project_path(repo_root: Path, candidate: str) -> Path:
 
 
 def configure_chrono_data_paths(repo_root: Path, config: dict[str, Any]) -> None:
-    chrono_data_root = resolve_project_path(repo_root, config["chrono_data_root"])
-    vehicle_data_root = resolve_project_path(repo_root, config["vehicle_data_root"])
+    """Point Chrono at its data tree, falling back to the installed pychrono's.
+
+    Configs carry a repo-relative `chrono/data`, which existed only on `newton`.
+    Nothing is tracked under `chrono/` in this repository, so on every other
+    machine that path resolves to a directory that is not there and every mesh
+    load fails silently at runtime. `NEDM_CHRONO_DATA_ROOT` overrides both, for
+    a source build that ships its own data.
+    """
+    override = os.environ.get("NEDM_CHRONO_DATA_ROOT")
+    if override:
+        chrono_data_root = Path(override)
+        vehicle_data_root = chrono_data_root / "vehicle"
+    else:
+        chrono_data_root = resolve_project_path(repo_root, config["chrono_data_root"])
+        vehicle_data_root = resolve_project_path(repo_root, config["vehicle_data_root"])
+        if not chrono_data_root.is_dir():
+            installed = Path(chrono.GetChronoDataPath())
+            if not installed.is_dir():
+                raise FileNotFoundError(
+                    f"chrono_data_root {chrono_data_root} does not exist, and the "
+                    f"installed pychrono reports {installed}, which does not either. "
+                    "Set NEDM_CHRONO_DATA_ROOT to a Chrono data directory."
+                )
+            chrono_data_root = installed
+            vehicle_data_root = installed / "vehicle"
     chrono.SetChronoDataPath(str(chrono_data_root) + "/")
     # Chrono 10 renamed vehicle.SetDataPath to vehicle.SetVehicleDataPath.
     set_vehicle_data_path = getattr(veh, "SetVehicleDataPath", None) or veh.SetDataPath
     set_vehicle_data_path(str(vehicle_data_root) + "/")
+
+
+def require_chassis_hull_mesh() -> None:
+    """Refuse to start if HULLS is requested but no hull mesh is on disk.
+
+    WP0c found that `CollisionType_NONE` made G0a's "zero asset contact" result
+    vacuously true. A missing hull mesh reproduces that exact failure by another
+    route: Chrono logs one OBJ load error per worker, continues with no chassis
+    collision, and a 49-minute run again reports zero contacts. A gate that
+    cannot fail is worse than no gate, so fail here instead.
+    """
+    hmmwv_dir = Path(chrono.GetChronoDataPath()) / "vehicle" / "hmmwv"
+    if not hmmwv_dir.is_dir():
+        raise FileNotFoundError(
+            f"chassis_collision=HULLS but {hmmwv_dir} does not exist. "
+            f"Chrono data path is {chrono.GetChronoDataPath()!r}."
+        )
+    meshes = sorted(
+        p.name
+        for p in hmmwv_dir.iterdir()
+        if p.suffix.lower() == ".obj" and "chassis" in p.name.lower()
+    )
+    if not any("col" in name.lower() for name in meshes):
+        raise FileNotFoundError(
+            f"chassis_collision=HULLS but no chassis collision mesh in {hmmwv_dir}. "
+            f"Chassis meshes present: {meshes}"
+        )
 
 
 def build_output_root(repo_root: Path, config: dict[str, Any], override: str | None) -> Path:
@@ -316,6 +367,8 @@ def create_hmmwv(config: dict[str, Any]) -> Any:
     # touch rigid obstacles at all. Config-driven so legacy flat/heightmap
     # datasets (no obstacles) keep bit-identical physics.
     chassis_collision = str(vehicle_cfg.get("chassis_collision", "NONE"))
+    if chassis_collision != "NONE":
+        require_chassis_hull_mesh()
     hmmwv.SetChassisCollisionType(
         {
             "NONE": veh.CollisionType_NONE,

@@ -165,8 +165,14 @@ in [`docs/state/machines/README.md`](docs/state/machines/README.md).
 
 Environment: `conda env create -f environment.nedm.yml && conda activate nedm`
 (env `nedm`, pychrono 10.0.0). `environment.yml` (pychrono 9.0.1) exists only for
-the oldest datasets. **On `kyle-sbel` the equivalent env is already installed and
-is named `chrono`, not `nedm`** — use `$NEDM_PY` rather than assuming a name.
+the oldest datasets.
+
+**Neither reachable box runs that environment.** There is no `nedm` env on
+`kyle-sbel`; its `chrono` env carries pychrono **9.0.0**, older than both files
+in this repo, installed from a local tarball rather than a channel.
+`kyle-N7-B650E` runs its own builds. Do not assume a version from
+`environment.nedm.yml`; read the machine's own file and use `$NEDM_PY`. Verified
+2026-09-02.
 
 ---
 
