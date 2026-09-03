@@ -17,6 +17,14 @@ Two subcommands:
   walk    Run RoboSimian on rigid ground and report whether it stayed up, how
           fast it went, and the realtime factor.
 
+One artifact to expect, so nobody chases it as physics: walking_cycle.txt is
+exactly one stride (verified frame-by-frame -- no interior frame returns to frame
+0, the nearest is the last one), but the loop is not perfectly closed. The gap
+|q[-1] - q[0]| is 0.0524 rad, about 3 degrees across 32 joints, so every time
+RS_Driver wraps end to start it steps the joint targets by that much. The default
+40 s window wraps about twice. Small periodic transients at those wraps come from
+the actuation file, not the solver.
+
 Scope, stated plainly: RoboSimian is 32-DOF, so this validates the gait and
 contact machinery, NOT the ~40-D Go2-shaped z1 in the plan. And this build has
 no pychrono.fsi, so rigid ground is the only terrain available here; CRM needs a
