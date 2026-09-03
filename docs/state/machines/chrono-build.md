@@ -475,3 +475,50 @@ Startup transients, different accessor semantics in this build, or the 200 fps
 save filter perturbing timing. **Until the discrepancy is explained these
 measure nothing**, and publishing them beside the earlier numbers would put a
 contradiction in the record.
+
+## How we patch the pinned tree
+
+**The tree stays a clean checkout; the patch is the artifact.** Never commit into
+`chrono-src`, and never let a hand edit be the only record of a change.
+
+Procedure:
+
+1. Author the edit in place, iterate until it works.
+2. Export it: `git -C chrono-src diff > NeDM/patches/NNNN-<name>.patch`, with the
+   pinned SHA in the patch header.
+3. **Verify it round-trips**: `git -C chrono-src checkout .`, re-apply with
+   `git apply`, rebuild. If the exported patch does not reproduce the working
+   state, the patch is wrong and the working tree was the only copy.
+4. The build procedure is *checkout SHA → apply patch series → build*.
+
+Why, given the same bytes end up on disk either way:
+
+- **`git rev-parse HEAD` only means something if the tree is otherwise a clean
+  checkout.** "Both boxes build the same SHA" is unverifiable against a tree
+  carrying undocumented hand edits.
+- **`kyle-N7-B650E` has to reproduce this.** A patch applies identically; a hand
+  edit described in prose does not.
+- Upstream submission wants the diff anyway, so producing it early costs nothing.
+- On a future re-pin, a patch either applies or **conflicts loudly**. That is the
+  behaviour we want from anything carrying our changes across a version bump.
+
+## A fourth defect: a confidently wrong absolute path
+
+The `SetChronoDataPath` fix was **wrong on the first attempt, and failed
+identically to the bug it was fixing.** `CHRONO_DATA_DIR` was set to
+`chrono-build/bin/data/` by analogy with a vehicle define already in the build
+flags. That directory does not exist — the data is at `chrono-build/data/`, and
+the demo worked from `bin` only because its relative `../data/` happened to
+resolve there.
+
+**So the absolute path was confidently wrong in a way the relative one was not**,
+and it segfaulted exactly as before. A fix that reproduces the original symptom
+is indistinguishable from no fix at all, which is how it survived one round.
+
+Same error class as the framing bounds: *an assumption encoded instead of the
+filesystem read*. Inferring a path from a sibling variable is not reading it.
+
+(A speculatively-added `vehicle::SetDataPath` call failed at **compile** time —
+that function does not exist in this version. The good outcome, and the contrast
+worth noticing: the wrong-but-plausible path failed at runtime and silently, the
+nonexistent function failed at build time and loudly.)
