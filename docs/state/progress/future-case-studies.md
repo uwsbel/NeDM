@@ -44,9 +44,39 @@ the lab.
 sinkage (4)**. The headline ablation is dropping the sinkage block — the direct
 analogue of the paper's terramechanics ablation.
 
-**The bootstrapping problem, which is the real risk.** You cannot train the
-locomotion policy in Chrono + CRM: PPO needs ~10⁸ steps and CRM runs below
-realtime — that is precisely the problem NRD exists to solve. And a
+**The bootstrapping problem is SOLVED, 2026-09-03, and the ranking below is
+stale.** `scripts/quadruped_go2_crm.py` runs a Unitree Go2 on CRM soil in the
+`nedm` environment, driven by `model_2999.pt` from
+`uwsbel/sbel-reproducibility` 2025/multi-terrain-RL. That checkpoint was trained
+on rigid ground in Chrono and **finetuned on CRM granular terrain**, which is
+ranked option 2 below, listed there as untried.
+
+First run, no tuning: 8 of 8 FSI bodies coupled (four feet, four calves), the
+robot settles 5.9 cm and holds rather than sinking, and it **walks: 0.177 m/s
+forward with -0.038 m lateral drift over 1 s**, against a hardcoded 0.5 m/s
+command. About 35% of commanded speed on soil, tracking roughly straight, no
+fall. A wrong observation vector produces thrashing or backwards motion; this is
+neither.
+
+So ranked option 3, "import a pretrained Go2 policy... highest risk, keep off
+the critical path", is not high risk and is not off the critical path. It is
+done, in-house, and reproduces.
+
+**Measured CRM cost with a quadruped actually walking on it**, which is the
+number this section has always been arguing about and which nothing previously
+had: **0.291x realtime**. 3 x 1.6 m patch at 0.03 m spacing, 43,632 SPH
+particles, 29,886 boundary BCE markers, 8 FSI-coupled bodies, no camera.
+`rtf_cfd` 3.46 against `rtf_mbd` 0.543, so the multibody side is about 14% of
+the cost rather than the ~0.04% a single-free-body measurement suggested.
+
+That still supports "CRM runs below realtime", but **by 3.4x, not by the order
+of magnitude** the earlier camera-inclusive figure implied. Note also that the
+finer 0.03 m spacing did not cost what naive particle-count scaling predicts:
+10x the particles of the single-probe smoke test for well under 2x the cost.
+
+*Historical, retained because the reasoning still frames the alternatives:* You
+cannot train the locomotion policy in Chrono + CRM: PPO needs ~10⁸ steps and CRM
+runs below realtime — that is precisely the problem NRD exists to solve. And a
 random-action quadruped falls in ~0.4 s, so the HMMWV trick of collecting from a
 meandering driver gives a dataset that is 100% collapse dynamics.
 
