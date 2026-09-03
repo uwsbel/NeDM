@@ -263,6 +263,25 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
         build_rigid_ground(chrono, system)
         terrain, coupled = None, []
     else:
+        # ASSERT THE SPAWN IS ON THE BED. build_crm centres the patch at
+        # x = patch_x/2 - 0.6, so the soil spans [-0.6, patch_x - 0.6] -- NOT
+        # symmetric about the origin, which is the trap. A sweep over
+        # spawn_x in [-1.5, 0.5] once put 21 episodes off the near edge; all 21
+        # recorded zero foot load and were only caught by reading the data
+        # afterwards. Bounds that are checked by inspection get checked for the
+        # reason you happened to think of; this fails at episode 1 instead.
+        cx = args.patch_x / 2 - 0.6
+        x_lo, x_hi = cx - args.patch_x / 2, cx + args.patch_x / 2
+        y_lo, y_hi = -args.patch_y / 2, args.patch_y / 2
+        margin = 0.5
+        if not (x_lo + margin <= args.spawn_x_m <= x_hi - margin):
+            raise ValueError(
+                f"spawn_x_m={args.spawn_x_m} is outside the CRM bed "
+                f"[{x_lo:.2f}, {x_hi:.2f}] with {margin} m margin")
+        if not (y_lo + margin <= args.spawn_y_m <= y_hi - margin):
+            raise ValueError(
+                f"spawn_y_m={args.spawn_y_m} is outside the CRM bed "
+                f"[{y_lo:.2f}, {y_hi:.2f}] with {margin} m margin")
         terrain, coupled = build_crm(chrono, fsi, veh, system, robot, args)
 
     policy = PolicyController(ckpt, cfgs)
