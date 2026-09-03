@@ -3,7 +3,7 @@
 **Purpose:** First NRD study where vision is load-bearing — a hierarchical planner/tracker stack on a fixed bumpy arena
 **Simulator:** Project Chrono (HMMWV vehicle stack) with Chrono::Sensor RGB + depth cameras
 **Builds on:** `docs/vision/NRD_overall_project_plan.md` (Phase 3, pulled forward ahead of Phase 2 tabletop manipulation), Study 1 (`docs/vision/double_pen/`), and the state-only NeDM HMMWV stack
-**Status:** v1.1 — revised 2026-08-31 after `NRD_hmmwv_traversal_study_plan_review.md`; §16 = original decision log, §17 = review resolutions
+**Status:** v1.2 — revised 2026-09-03 (plan sync, §18); v1.1 revised 2026-08-31 after `NRD_hmmwv_traversal_study_plan_review.md`; §16 = original decision log, §17 = review resolutions, §18 = v1.2 changes
 **v1 charter:** Feasibility of the full stack (NRD + planner + tracker) on ONE fixed terrain map, trained and collected locally. Privileged information is allowed anywhere it unblocks v1; deployment-purity upgrades are a ladder, not a v1 gate.
 
 ## 1. Study objective, information contract, and positioning
@@ -32,10 +32,10 @@ The control architecture is **hierarchical**, not end-to-end RL:
  partial z1 ─────┴────────────────────────────→ TRACKER (20 Hz) ─→ [steer, throttle, brake]
 ```
 
-- **Planner (from \(z_2\)):** decodes traversal structure (occupancy + elevation gradients) from the sensor latent, searches it with direction-aware edge costs, validates HMMWV feasibility, and emits geometry + a slope-modulated speed profile ("Planner-B"). Interfaces support later NRD-rollout scoring and fine-tuning ("Planner-C", §9.5).
+- **Planner (from \(z_2\)):** decodes traversal structure (occupancy + elevation gradients) from the sensor latent, searches it with direction-aware edge costs, validates HMMWV feasibility, and emits geometry + a slope-modulated speed profile ("Planner-B"). k-best candidates are then scored by NRD rollout ("Planner-C" scoring, §9.5); differentiable fine-tuning stays deferred.
 - **Tracker (from partial \(z_1\)):** a reduced-observation policy with a **geometric tracking reward** (§10), trained inside frozen NRD imagination on **short randomized fragments** (1–3 s) so imagination stays within the validated horizon; continuous tracking is evaluated in Chrono.
 
-Why the hierarchy: it confines learned-model rollouts to short, validated horizons (tracker fragments; the v1 planner needs no rollout at all) and replaces the main exploitation surface (long-horizon RL against model error) with supervised imitation of a privileged oracle. Feedback-policy transfer tolerates proportional drift (Study 1: 87%→87% transfer despite a 3.3× model-error gap; tracked ROM: ~8% rollout error, 100/100 goals), but we do not rely on that for training-time horizons. The end-to-end RL agent survives only as a clearly-labeled bracket, run after G7 (§11).
+Why the hierarchy: it confines learned-model rollouts to short, validated horizons (tracker fragments; the v1 planner rolls out only the short scoring segments of §9.5, never a full traverse) and replaces the main exploitation surface (long-horizon RL against model error) with supervised imitation of a privileged oracle. Feedback-policy transfer tolerates proportional drift (Study 1: 87%→87% transfer despite a 3.3× model-error gap; tracked ROM: ~8% rollout error, 100/100 goals), but we do not rely on that for training-time horizons. The end-to-end RL agent survives only as a clearly-labeled bracket, run after G7 (§11).
 
 ## 2. Research questions
 
@@ -173,7 +173,25 @@ On held-out layouts, all evaluated by running the final smoothed, footprint-chec
 
 Plan once at episode start; replan trigger on large tracking deviation as the first upgrade (first consumer of predicted \(z_2\) inside imagination).
 
-### 9.5 Planner-C readiness (unchanged, mandatory)
+### 9.5 Planner-C rollout scoring (promoted into v1 — see §18)
+
+**Why this is in v1:** if the planner only ever consumes z₂ encoded from
+*recorded* frames, the NRD's z₂-prediction branch has no downstream consumer on
+the planning side, and "NRD rolls out z₂" is unearned there. On a fixed map
+with immovable assets and one whole-arena overhead camera, the layout is fully
+observed at t=0 and never changes, so any planner loop built on "consume the
+newly predicted z₂" is the identity map — architecture cannot fix that; only a
+dynamic or partially-observed scene can (deferred, §16).
+
+What *does* change under imagination is the vehicle's state and the terrain it
+sits on — exactly the content z₂ carries and generalizes (vehicle center
+0.8–2.1 m, yaw 3.3–4.4°). So v1 makes predicted z₂ load-bearing for planning
+through **candidate scoring, not candidate generation**: the k-best plans from
+§9.2 are rolled out in frozen NRD imagination over short tracking segments and
+scored on time, energy (auxiliary power head, §4), feasibility, and collision.
+Plan generation stays supervised; plan *selection* consumes predicted z₁/z₂.
+
+### 9.6 Planner-C interfaces (unchanged, mandatory)
 
 `PlanCandidate {waypoints, v_profile, meta}` world-frame; `score_plan(candidate, model, context) → {time, energy, collision_prob, feasibility}` (v1: geometric scorer; C: NRD-rollout scorer over **short imagined tracking segments**, energy from the auxiliary power head); differentiable head end-to-end from \(z_2\); k-best candidates; context-bank reset windows recorded per episode.
 
@@ -245,8 +263,8 @@ Three rows, each vs batch size: (1) Chrono physics (no rendering) vs NRD transit
 - **WP0b — Scene + sensor + storage smoke:** camera pair, sync, alignment (median+p95), depth-at-edges, analytic-mask validation, drivability sweep, rendering FPS, storage schema + compression + loader benchmarks on ~10 layouts. *(G0b)*
 - **WP1 — Perception pilot (smoke data, before pilot collection):** AE + auxiliary heads on the smoke tier; occupancy/localization probes from \(z_2\) and from the spatial feature map; provisional bars. **Pilot collection (200 layouts) starts only after these probes pass.**
 - **WP2 — NRD subsystem:** RGB-D schema/loaders, 70/15/15 preprocessing, joint + state-only training, HMMWV pose rollout eval in the NRD trainer, task-space \(z_2\) metrics, rollout-selected checkpoints, §8.3 grid. *(G1–G4 formal)*
-- **WP3 — Planner:** costmap head + directional search + validation; §9.3 ladder; Planner-A ablation optional. *(G5 provisional, margins pending G6)*
-- **WP4 — Tracker:** imagination env + geometric reward + fragment training; obs ablation; continuous Chrono eval; p95 → margins → G5 re-validation. *(G6)*
+- **WP3 — Tracker** (was WP4; reordered in v1.2): imagination env + geometric reward + fragment training; obs ablation; continuous Chrono eval; p95 lateral error → §7.4 inflation margin. *(G6)*
+- **WP4 — Planner** (was WP3): costmap head + directional search + validation; §9.3 ladder; §9.5 NRD rollout scoring of k-best candidates; Planner-A ablation optional. *(G5, with margins already supplied by WP3)*
 - **WP5 — Protected full stack:** freeze everything, full-tier collection decision, test-layout suites, comparison rows, throughput protocol, report, go/no-go for Planner-C and scaling. *(G7)*
 
 ## 15. Expected outputs
@@ -274,3 +292,25 @@ Terrain generator + fixed map; oracle stack (feasible search + validation + appr
 **Adopted:** §2.1 privileged start/goal contract + claim rewrite (§1) · §2.2 approach-pose goal (§3.2) · §2.3 directional edge costs, footprint/curvature validation, gradient-channel labels (§7, §9.1) · §2.4 RQ2 rewording + ablation grid (§2, §8.3) · §2.5 auxiliary warm-up losses, fine-tune criterion, spatial-probe comparison + declared fallback (§5) · §2.6 geometric reward, 38-D obs, `action_repeat=1`, short-fragment training (§10) · §2.7 storage math, schema/compression requirements, WP2 re-scoped incl. 70/15/15 preprocessing and HMMWV rollout eval (§6.1, §8.2) · §3.1 power as auxiliary head, richer energy regression, drive/brake work split (§4, §7.1) · §3.2 margin budget incl. tracker p95 (§7.4) · §3.4 task-space G2 metrics + static+CV baseline (§8.3, G2) · §3.5 e2e baseline post-G7/matched-or-labeled (§11) · §3.6 three-row throughput (§12.4) · §3.7 frozen thresholds, untouched test split, CIs, failure taxonomy (§12.1) · §5 revised WP order incl. WP0 oracle vertical slice and perception-pilot-before-collection (§14).
 
 **Deviations (with rationale):** review §3.3 — class masks are rasterized **analytically** from layout manifests for all splits (sensor segmentation only validates the projection at smoke tier); same metric guarantee, no extra render pass. Review §2.3 — Hybrid A*/lattice is a pre-declared **escalation** triggered by WP0b/WP0a rejection rates, not the v1 default; directional costs + post-hoc feasibility validation are mandatory either way. Review §2.5 — factored/spatial representations are a pre-declared **fallback** gated on the WP1 probes rather than a parallel v1 build; the spatial-feature probe runs regardless to quantify the pooling cost.
+
+## 18. v1.2 changes (2026-09-03 plan sync)
+
+1. **WP order: tracker before planner** (§14). §7.4 already makes the planner's
+   inflation margin depend on the tracker's held-out p95 lateral error (G6→G5),
+   so the tracker was always upstream in the real dependency graph; the v1.1
+   order forced G5 to be re-validated after the fact.
+2. **Planner-C rollout scoring promoted from post-v1 into v1** (§9.5), to make
+   predicted z₂ load-bearing on the planning side and not only in the tracker's
+   imagination env. Plan generation stays supervised (Planner-B); selection
+   among k-best candidates is scored by NRD rollout.
+3. **Learned receding-horizon planner `P_k = π_H(z₂, goal)` considered and
+   deferred.** On a static, fully-observed map, `z₂,k+1 ≈ z₂,k` in everything
+   the planner cares about, so the loop reduces to replanning on updated pose
+   and cannot beat encoding frame 0 once. It becomes the right design once the
+   scene has moving obstacles or a partial/ego view — both already on the §16
+   deferred ladder. Revisit at the WP5 go/no-go.
+4. **Planner-facing representation stays the §5 spatial-map fallback pending
+   WP1 v7**, which tests whether z₂'s ~0.4 BEV ceiling is position-blindness in
+   the attention pooling rather than capacity or data
+   (`wp1_implementation_notes.md`). If v7 clears the bar, the planner reads z₂
+   directly and item 3's blocker becomes the only one left.

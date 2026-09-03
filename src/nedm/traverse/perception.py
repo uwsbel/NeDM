@@ -71,25 +71,43 @@ class EpisodeEntry:
     layout: dict[str, Any]
 
 
-def _episode_entries(roots: list[Path]) -> list[EpisodeEntry]:
+def _episode_entries(
+    roots: list[Path], manifest: list[str] | None = None
+) -> list[EpisodeEntry]:
     import json
 
+    keep = set(manifest) if manifest is not None else None
     entries = []
     for root in roots:
         for ep_dir in list_episodes(root):
+            if keep is not None and str(ep_dir) not in keep:
+                continue
             with (ep_dir / "meta.json").open("r", encoding="utf-8") as handle:
                 meta = json.load(handle)
             if meta.get("status") != "complete":
                 continue
             entries.append(EpisodeEntry(ep_dir, int(meta["frames"]), meta["layout"]))
+    if keep is not None and len(entries) != len(keep):
+        raise FileNotFoundError(
+            f"episode manifest lists {len(keep)} episodes but {len(entries)} were found on disk"
+        )
     return entries
 
 
 def split_episodes(
-    roots: list[Path], seed: int = 20260902, fractions: tuple[float, float] = (0.7, 0.15)
+    roots: list[Path],
+    seed: int = 20260902,
+    fractions: tuple[float, float] = (0.7, 0.15),
+    manifest: list[str] | None = None,
 ) -> tuple[list[EpisodeEntry], list[EpisodeEntry], list[EpisodeEntry]]:
-    """Deterministic 70/15/15 layout-level split (each episode = unique layout)."""
-    entries = _episode_entries(roots)
+    """Deterministic 70/15/15 layout-level split (each episode = unique layout).
+
+    The split is a permutation over the *whole* enumerated set, so adding
+    episodes to a growing store reshuffles every split. Pass ``manifest`` (the
+    ``episode_manifest.json`` a previous run wrote) to pin the exact episode set
+    and keep a run comparable to its predecessor.
+    """
+    entries = _episode_entries(roots, manifest)
     order = np.random.default_rng(seed).permutation(len(entries))
     n_train = int(fractions[0] * len(entries))
     n_val = int(fractions[1] * len(entries))
@@ -212,25 +230,71 @@ class AttnPool(nn.Module):
     Mean+max pooling (v1) collapsed the 16x16 map to one statistic per channel
     and the BEV probe gap came out 0.40 IoU; multiple queries let the vector
     route information from different spatial regions before the bottleneck.
+
+    v7 options, both off by default so v1-v6 configs reproduce exactly:
+
+    ``pos_enc`` -- ``pooled = att @ f`` is a convex combination of feature
+    vectors, so position survives pooling only if the features themselves carry
+    it. The conv backbone is translation-equivariant and leaks absolute position
+    only weakly (zero padding, mostly near borders), which is why z2 localizes
+    one large salient object (vehicle center 0.8-2.1 m) but cannot place 8-15
+    rocks of 3-6 px (held-out BEV IoU ~0.33 vs 0.88 from the spatial map). A
+    learned per-cell embedding added before pooling makes each query report
+    "what" *and* "where".
+
+    ``slot_z`` -- the default projection flattens all queries and compresses
+    n_q*c_map -> z_dim in one linear map, mixing the slots it just separated.
+    Per-slot projection keeps z2 as n_q slots of z_dim // n_q dims instead.
     """
 
-    def __init__(self, c_map: int, z_dim: int, n_q: int = 8):
+    def __init__(
+        self,
+        c_map: int,
+        z_dim: int,
+        n_q: int = 8,
+        pos_enc: bool = False,
+        slot_z: bool = False,
+        map_hw: int = 16,
+    ):
         super().__init__()
         self.q = nn.Parameter(torch.randn(n_q, c_map) * 0.02)
-        self.proj = nn.Sequential(nn.Linear(n_q * c_map, z_dim), nn.SiLU(), nn.Linear(z_dim, z_dim))
+        self.pos = (
+            nn.Parameter(torch.randn(1, c_map, map_hw, map_hw) * 0.02) if pos_enc else None
+        )
+        self.slot_z = slot_z
+        if slot_z:
+            if z_dim % n_q:
+                raise ValueError(f"slot_z needs z_dim ({z_dim}) divisible by n_q ({n_q})")
+            d_slot = z_dim // n_q
+            self.proj = nn.Sequential(nn.Linear(c_map, d_slot), nn.SiLU(), nn.Linear(d_slot, d_slot))
+        else:
+            self.proj = nn.Sequential(
+                nn.Linear(n_q * c_map, z_dim), nn.SiLU(), nn.Linear(z_dim, z_dim)
+            )
         self.scale = c_map**-0.5
 
     def forward(self, s: torch.Tensor) -> torch.Tensor:
+        if self.pos is not None:
+            s = s + self.pos
         f = s.flatten(2).transpose(1, 2)  # (B, HW, C)
         att = torch.softmax(self.q @ f.transpose(1, 2) * self.scale, dim=-1)  # (B, n_q, HW)
         pooled = att @ f  # (B, n_q, C)
+        if self.slot_z:
+            return self.proj(pooled).flatten(1)  # per-slot, no cross-slot mixing
         return self.proj(pooled.flatten(1))
 
 
 class Encoder(nn.Module):
     """256^2 x 4ch -> spatial map (c_map x 16 x 16) -> global latent z2."""
 
-    def __init__(self, z_dim: int = 256, c_map: int = 256, n_q: int = 8):
+    def __init__(
+        self,
+        z_dim: int = 256,
+        c_map: int = 256,
+        n_q: int = 8,
+        pos_enc: bool = False,
+        slot_z: bool = False,
+    ):
         super().__init__()
         chans = [32, 64, 128, c_map]
         layers: list[nn.Module] = []
@@ -239,7 +303,7 @@ class Encoder(nn.Module):
             layers += [_conv_block(c_prev, c, stride=2), _conv_block(c, c)]
             c_prev = c
         self.backbone = nn.Sequential(*layers)
-        self.pool = AttnPool(c_map, z_dim, n_q)
+        self.pool = AttnPool(c_map, z_dim, n_q, pos_enc=pos_enc, slot_z=slot_z)
         self.z_dim = z_dim
         self.c_map = c_map
 

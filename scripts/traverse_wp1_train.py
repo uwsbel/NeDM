@@ -150,6 +150,16 @@ def main() -> int:
     ap.add_argument("--probe-steps", type=int, default=8000)
     ap.add_argument("--z-dim", type=int, default=256)
     ap.add_argument("--n-q", type=int, default=8, help="attention-pool queries")
+    ap.add_argument(
+        "--pos-enc",
+        action="store_true",
+        help="v7: learned per-cell positional embedding before attention pooling",
+    )
+    ap.add_argument(
+        "--slot-z",
+        action="store_true",
+        help="v7b: per-slot projection (z2 = n_q slots) instead of flattening the queries",
+    )
     ap.add_argument("--batch", type=int, default=48)
     ap.add_argument("--lr", type=float, default=3e-4)
     ap.add_argument("--workers", type=int, default=10)
@@ -157,6 +167,11 @@ def main() -> int:
     ap.add_argument("--val-batches", type=int, default=40)
     ap.add_argument("--final-val-batches", type=int, default=250)
     ap.add_argument("--seed", type=int, default=20260902)
+    ap.add_argument(
+        "--episode-manifest",
+        default=None,
+        help="pin the episode set to a previous run's episode_manifest.json (keeps splits comparable)",
+    )
     args = ap.parse_args()
 
     torch.manual_seed(args.seed)
@@ -166,8 +181,14 @@ def main() -> int:
     log_path = out_dir / "train_log.jsonl"
 
     roots = [Path(r) for r in args.data_roots]
-    train_e, val_e, test_e = P.split_episodes(roots, seed=args.seed)
+    manifest = (
+        json.loads(Path(args.episode_manifest).read_text()) if args.episode_manifest else None
+    )
+    train_e, val_e, test_e = P.split_episodes(roots, seed=args.seed, manifest=manifest)
     print(f"episodes: train {len(train_e)} / val {len(val_e)} / test {len(test_e)} (layout-level split)")
+    (out_dir / "episode_manifest.json").write_text(
+        json.dumps(sorted(str(e.ep_dir) for e in train_e + val_e + test_e), indent=0)
+    )
     train_ds = P.WP1FrameDataset(train_e, Path(args.arena))
     val_ds = P.WP1FrameDataset(val_e, Path(args.arena))
     half_size_m = train_ds.tmap.size_m / 2.0
@@ -188,7 +209,9 @@ def main() -> int:
     train_loader = make_loader(train_ds, args.batch, args.workers, shuffle=True)
     val_loader = make_loader(val_ds, args.batch, max(2, args.workers // 2), shuffle=True)
 
-    encoder = P.Encoder(z_dim=args.z_dim, n_q=args.n_q).to(device)
+    encoder = P.Encoder(
+        z_dim=args.z_dim, n_q=args.n_q, pos_enc=args.pos_enc, slot_z=args.slot_z
+    ).to(device)
     heads = P.WarmupHeads(z_dim=args.z_dim).to(device)
     sp_heads = P.SpatialAuxHeads().to(device)
     params = list(encoder.parameters()) + list(heads.parameters()) + list(sp_heads.parameters())
