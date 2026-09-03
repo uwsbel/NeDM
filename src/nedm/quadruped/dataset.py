@@ -78,9 +78,26 @@ LEG_TO_FOOT_BODY = {
     "rr": "RR_foot",
 }
 
-ACTION_FIELDS = [
+JOINT_ACTION_FIELDS = [
     f"joint_{name.removesuffix('_joint').lower()}_target_rad" for name in MOTOR_NAMES
 ]
+
+# THE SECOND ACTION CANDIDATE, logged alongside the first rather than instead of
+# it. Two defensible definitions of the NRD action exist and the choice is a
+# training-time config decision, not a collection-time one:
+#
+#   the 12 JOINT TARGETS -- NRD models the robot, the policy stays external.
+#     Direct analogue of the HMMWV's driver_steering/throttle/braking.
+#   the 3 VELOCITY COMMANDS -- NRD models (robot + policy) as one plant, exactly
+#     as the HMMWV's throttle acts through a powertrain rather than being a wheel
+#     torque. A level-3 outer loop then issues commands, which is far more
+#     tractable than learning to walk inside a learned model.
+#
+# Over-capture and select later, which is what the HMMWV pipeline does. Deciding
+# now would be free to get wrong and expensive to undo.
+COMMAND_ACTION_FIELDS = ["cmd_vx_mps", "cmd_vy_mps", "cmd_wz_radps"]
+
+ACTION_FIELDS = JOINT_ACTION_FIELDS + COMMAND_ACTION_FIELDS
 
 BASE_FIELDS = [
     "episode_id",
@@ -228,6 +245,7 @@ def capture_row(
     terrain: Any,
     soil_top_m: float,
     action: Any,
+    command: Any,
     soil_z: Any,
     soil_ctrl: float,
     scenario_name: str,
@@ -301,7 +319,9 @@ def capture_row(
         "yaw_rate_radps": float(ang_body.z),
     }
 
-    for field, value in zip(ACTION_FIELDS, action):
+    for field, value in zip(JOINT_ACTION_FIELDS, action):
+        row[field] = float(value)
+    for field, value in zip(COMMAND_ACTION_FIELDS, command):
         row[field] = float(value)
 
     probe = {name: z for name, z in zip(FOOT_BODIES, soil_z)}

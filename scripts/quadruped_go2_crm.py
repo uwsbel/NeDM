@@ -322,6 +322,8 @@ def main() -> int:
     for i in range(n_steps):
         t = i * exchange
         if i % control_every == 0:
+            if policy is not None and hasattr(policy, "set_time"):
+                policy.set_time(t)
             if t < args.pose_ramp_seconds:
                 a = t / max(args.pose_ramp_seconds, 1e-9)
                 robot.actuate(q0 + a * (STAND_ACTION - q0))
