@@ -403,29 +403,90 @@ zero patches in it. `chrono-src` remains a clean checkout at the pinned SHA.
 
 ## The API moved between 10.0.0 and the pinned SHA
 
-**Our existing scripts do not run unchanged against the source build.**
+**Enumerated member-by-member across both builds, not discovered by breakage.**
 
-| conda 10.0.0 | pinned SHA |
+**`CRMTerrain` — 2 removed, 9 added:**
+
+| 10.0.0 | pinned SHA |
 |---|---|
-| `CRMTerrain.SetElasticSPH(...)` | **gone** → `SetCrmSPH(SoilProperties)` |
-| `fsi.ElasticMaterialProperties` | **gone** → `fsi.SoilProperties` |
+| `SetElasticSPH(...)` | `SetCrmSPH(SoilProperties)` |
+| `SetActiveDomainDelay(d)` | `SetFreeFlowDuration(d)` — **same signature, pure rename** |
 
-Both raise `AttributeError`. New in the pinned SHA and absent from 10.0.0:
-`AddFeaMesh`, `IsFsiSolid`, `SetActiveDomainBody`, `SetActiveDomainMesh`,
-`SetBcePattern1D/2D`, `SetCfdSPH`, `SetCrmSPH`, `SetFreeFlowDuration`,
-`UseNodeDirections`.
+Added: `AddFeaMesh`, `IsFsiSolid`, `SetActiveDomainBody`, `SetActiveDomainMesh`,
+`SetBcePattern1D/2D`, `SetCrmSPH`, `SetFreeFlowDuration`, `UseNodeDirections`.
 
-So `quadruped_go2_crm.py` and `crm_sensor_smoke.py` both break on `nedm-src`,
-and the `sph_set()` guard that raises on unknown `SPHParameters` fields is about
-to earn its keep — `SPHParameters` accepts any attribute silently, so without
-the guard a renamed field would be set, ignored by C++, and produce a plausible
-wrong answer.
+**`pychrono.fsi` — 11 removed, 7 added.** `ElasticMaterialProperties` →
+`SoilProperties`. The other ten removals are all VSG visualisation classes
+(`ChSphVisualizationVSG`, the `Particle*ColorCallback` family,
+`MarkerVisibilityCallback` and friends) — **expected, our build has VSG off**.
+Added: `SoilProperties`, `ChFsiSphMarkerDeviceView`, `FsiMesh1D/2D`,
+`FsiMeshForce`, `FsiMeshState`.
 
-**The two environments are NOT interchangeable, and this is the important
-consequence: every number produced on 2026-09-03 came from the conda 10.0.0
-API.** A source-build result compared against them is a comparison *across an
-API change*, not across a version bump. Any such comparison must say which
-environment produced each number.
+**`pychrono.sensor`:** `manager.scene` is now `ChOptixScene`; `ChScene` does not
+exist. And `Background` is **no longer constructible** while still being the
+parameter type of `SetBackground`/`GetBackground` — `GetBackground` returns a raw
+`SwigPyObject` and SWIG warns *"memory leak of type 'Background *', no destructor
+found"*. **This is a genuine upstream binding defect**, not a rename: a type
+referenced by the public API but not properly wrapped. Two call sites hit it.
+
+### Two results that make the migration verifiable rather than hopeful
+
+**`SPHParameters`: zero changes.** All 28 fields identical in both builds. The
+`sph_set()` guard therefore reports nothing to catch — which is the guard working,
+not the guard being idle.
+
+**`SoilProperties` is field-for-field identical to `ElasticMaterialProperties`.**
+All 13 members match (`density`, `Young_modulus`, `Poisson_ratio`, `mu_I0`,
+`mu_fric_s`, `mu_fric_2`, `average_diam`, `cohesion_coeff`, `mcc_M`,
+`mcc_kappa`, `mcc_lambda`, `mcc_v_lambda`, `rheology_model`). **A pure rename**,
+so the soil block migrates faithfully *by inspection* rather than by hope.
+
+### Retroactive: the source build fixes this morning's first bug
+
+`ChOptixScene` on the pinned SHA **has `AddDirectionalLight`**:
+
+```
+AddDirectionalLight(self, color: ChColor, elevation: float, azimuth: float) -> unsigned int
+```
+
+That is the method whose absence broke the first video render of the day and
+forced the `AddPointLight` key/fill fallback still carried in
+`quadruped_wp0_gait.py`. Also present: `AddDiskLight`, `AddRectangleLight`,
+`AddSpotLight`, `AddEnvironmentLight`, `AddSprite`, `Modify*` for each, and
+`AddFsiSphSystem`/`RemoveFsiSphSystem`/`GetFsiSphSources` on the scene directly.
+
+**A workaround we are still carrying is already obsolete on the build we now
+have.** Worth checking the other workarounds against the new API before assuming
+any of them are still needed.
+
+### Decision: a compatibility shim, with a sunset condition
+
+**Eight call sites**, three renames plus `Background`
+(`crm_sensor_smoke.py:68,77,106`; `quadruped_go2_crm.py:251,255,346,477`;
+`quadruped_wp0_gait.py:207`).
+
+`src/nedm/chrono_crm_compat.py` serves both environments from one codebase.
+Chosen over a hard cut for one reason specific to today: **every number we have
+came from the conda API**, so a shim is what makes the cross-API comparison
+possible *at all*. Under a hard cut we could never check whether the migration
+was faithful, because nothing would remain to compare against.
+
+But `hasattr` dispatch is the silent-fallback pattern we have spent the day
+cataloguing, so it is constrained:
+
+1. **Detect once at import, not per call.** Resolve the API generation, bind the
+   functions, and expose the result as a module constant.
+2. **Raise when neither name is present.** Never no-op.
+3. **Raise when BOTH are present** — that means a build we do not understand, and
+   guessing would be the whole failure mode.
+4. **Stamp the API generation on every output artifact.** A shim that makes
+   numbers comparable while leaving no record of which side produced them
+   defeats its own purpose.
+
+**Sunset condition, so this does not become permanent architecture:** once the
+Go2 has been re-run on the source build and the physics is confirmed to agree
+across APIs, the shim is deleted and the conda path goes with it. **The shim is a
+migration instrument, not a compatibility layer.**
 
 ## RESULT: CRM renders through Chrono::Sensor. The blocker is cleared.
 
