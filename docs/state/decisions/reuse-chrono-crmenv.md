@@ -84,6 +84,74 @@ fork of `chrono_crmenv.py` however small. **Carry it as a patch against a
 recorded upstream commit**, the same discipline as `patches/0001` against
 `chrono-src`, rather than copying the file and letting it drift.
 
+## DONE 2026-09-03, commit `133427b`. Gate passed on the exact digits.
+
+```
+           travel   max tilt   base_z_end
+measured   2.5623      10.2       0.5307
+target     2.5623      10.2       0.5307
+```
+
+Not close — **the same digits**, on a configuration where the source build is
+bit-reproducible, so the noise floor is exactly zero.
+
+**And a tighter check ran first.** The end-to-end gate could in principle pass
+while both paths were wrong in the same way, so both observation
+implementations were run on the **same random state** — random joint angles,
+velocities, angular velocity, projected gravity, last actions — and compared
+element by element:
+
+```
+max abs diff 0.000e+00    IDENTICAL across all 45 elements
+```
+
+Bit-identical rather than close. So the adapter's plumbing is provably correct
+*independently of the simulation*, and the gate then confirms it in situ. **Two
+levels of evidence, not one** — the unit check proves equivalence, the gate
+proves it under load.
+
+### What is inherited, and what is not
+
+**Inherited byte-identical:** the permutation, the sign negation, the rest-pose
+subtraction, and the four scale factors — the last of these read from the
+harness's own `Config` rather than retyped, without being asked.
+
+**Ours:** the adapter plumbing, thirteen named attributes populated from our
+robot. **The math is theirs, the plumbing is ours.** That is a large reduction in
+what can silently drift, and it is not zero — which is what the two checks above
+exist to cover.
+
+`chrono_crmenv.py` is imported **byte-identical**; `git status` on that tree is
+clean. The hand-written path survives as `_observe_local`, unused, for removal in
+a separate commit once the inherited path has run more than once.
+
+### The `default_dof_pos` lead resolved, and our reimplementation was right
+
+`genesis_defaults` is a **local variable** inside `_compute_observations` (line
+495), not an attribute — which is why it never appeared in an attribute list
+gathered by grepping for `self.`. `dof_pos` is filled **absolute** at line 413
+straight from `get_joint_pos()`, and the rest-pose subtraction happens inside the
+observation at line 505. Our reimplementation did the same thing.
+
+**No discrepancy — and the audit still paid**, because it established what the
+code expects rather than what we assumed, and the attribute list was incomplete
+in a way that changed how the adapter must be populated. The adapter feeds
+absolute angles, documented where someone might otherwise "fix" it.
+
+### The stub trap, recorded because it gives no clue about its own cause
+
+A stub raising on **every** attribute including dunders breaks the import
+machinery itself. `inspect` reads `__file__`, gets the raiser function back, and
+dies inside `importlib` with:
+
+```
+'function' object has no attribute 'endswith'
+```
+
+Nowhere near the display API, and looking nothing like a stub problem. Dunders
+must behave normally; only real attribute lookups raise. Stubs raise **on use**,
+never silently.
+
 ## The verification gate for the switch
 
 **The switch is only proven faithful if the Go2 reproduces its current
