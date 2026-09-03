@@ -106,11 +106,12 @@ class WP1FrameDataset(Dataset):
     the vehicle box is overlaid per frame from the recorded pose.
     """
 
-    def __init__(self, entries: list[EpisodeEntry], arena_dir: Path, max_open_readers: int = 32):
+    def __init__(self, entries: list[EpisodeEntry], arena_dir: Path, max_open_readers: int = 256):
         self.entries = entries
         self.tmap = TerrainMap.from_dir(arena_dir)
         self.cam = CameraModel()
         self.max_open = max_open_readers
+        self._cum_frames = np.cumsum([e.n_frames for e in entries])
         self._readers: dict[int, EpisodeReader] = {}
         self._static: dict[int, tuple[np.ndarray, np.ndarray]] = {}
         self._field_idx: dict[str, int] | None = None
@@ -123,11 +124,12 @@ class WP1FrameDataset(Dataset):
         return sum(e.n_frames for e in self.entries)
 
     def _locate(self, idx: int) -> tuple[int, int]:
-        for ep_i, entry in enumerate(self.entries):
-            if idx < entry.n_frames:
-                return ep_i, idx
-            idx -= entry.n_frames
-        raise IndexError(idx)
+        # O(log n); the linear scan cost 5x throughput at 5k train episodes.
+        ep_i = int(np.searchsorted(self._cum_frames, idx, side="right"))
+        if ep_i >= len(self.entries):
+            raise IndexError(idx)
+        prev = int(self._cum_frames[ep_i - 1]) if ep_i else 0
+        return ep_i, idx - prev
 
     def _reader(self, ep_i: int) -> EpisodeReader:
         if ep_i not in self._readers:
