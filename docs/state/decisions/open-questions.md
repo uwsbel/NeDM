@@ -57,6 +57,56 @@ figures are also a floor *for this readout*; a stronger probe might extract more
 from `z2`. And the warm-up finding rests on 400 steps, though the mechanism
 argues longer training makes it worse rather than better.
 
+### The enforcement A/B is underpowered by construction, and the fix is cheaper
+
+**Computed 2026-09-03, before the enforced arm finished, so the result is not
+chosen after seeing it.**
+
+The unenforced arm produced **1 collision in 100**. Ask what a 0/100 enforced arm
+would prove:
+
+| | |
+|---|---|
+| P(0/100) **if enforcement does nothing** | **0.366** |
+| Fisher exact, 1/100 vs 0/100 | **p = 1.000** |
+| Fisher exact, 1/100 vs 0/**1000** | p = 0.091 |
+
+**A clean 0/100 is the single most likely outcome under the null.** It is not
+weak evidence for enforcement; it is *no* evidence. And the arm cannot be
+rescued by running longer — even a perfect 0/1000 against the existing baseline
+still misses significance.
+
+n per arm for 80% power at α=0.05, **assuming enforcement is perfect**:
+
+| baseline collision rate | n per arm |
+|---|---|
+| 1% (what we have) | **1025** |
+| 5% | 162 |
+| 10% | 95 |
+| 20% | **43** |
+| 40% | 19 |
+
+**So raising the baseline rate is both more powerful and cheaper.** At a 20%
+baseline, 43 runs per arm settles it — fewer than half the 100 per arm we are
+running now to learn nothing. The lever is scenario difficulty (tighter
+corridors, denser obstacles, less initial clearance), not more repetitions.
+
+**But the deeper error is the metric, not the sample size.** A binary
+collided/didn't discards almost everything each episode knows. We already log
+`min_centreline_clearance_m` and `min_asset_clearance_m` per episode — continuous
+quantities to which **every** run contributes, where enforcement should shift the
+whole distribution rather than only its extreme tail. At n=100 per arm a
+two-sample test detects a shift of ~0.4 SD at 80% power, and the existing runs
+already carry that data.
+
+**Rank the arms by clearance distribution; report the collision count as a
+descriptive footnote.** A rare binary event is the least informative function of
+a continuous measurement we already have.
+
+The honest statement if the enforced arm returns 0/100 is *"consistent with
+enforcement working, and underpowered to demonstrate it"* — never "enforcement
+works."
+
 ### What pooling keeps and what it destroys
 
 **Second probe, occupancy/class masks, 2026-09-03.** Same generator, same
