@@ -914,3 +914,65 @@ where there is no ejecta.
 **Rule: an estimator validated in one regime is not validated in another.**
 Re-derive its assumptions when the regime changes — here, from static loading to
 impact.
+
+## Soil softness: what moves sinkage, and the stability cliff
+
+**Standing sweep, 2026-09-03, `--no-policy`, 6 s.** Sinkage is body descent.
+
+**Cohesion is not a lever.** Held `young` at 5.0e5 and swept cohesion 2000 → 0:
+the response moves by a few mm and the body sits, if anything, *slightly higher*
+at zero cohesion. It never needs touching.
+
+**Young's modulus is the only lever, and the cliff is sharp:**
+
+| `young` | body sinkage | outcome |
+|---|---|---|
+| 5.0e5 *(training preset)* | 0 mm | stands, 10.2° |
+| 1.0e5 | 1.2 mm | stands, 3.9° |
+| **5.0e4** | **52.8 mm** | stands, 12.2° |
+| 4.0e4 | 62.8 mm | stands, 20.5° — marginal |
+| 3.0e4 | 425.6 mm | **falls**, face down |
+| 1.0e4 | 842.0 mm | falls, sinks below the bed floor |
+
+Nothing crashed at any setting — no domain-boundary loss, no core dump. **The
+failure mode is the robot foundering, not the solver.** A 25% reduction from
+4.0e4 takes it from standing to face-down, so nearly all the useful range sits
+inside one factor of two.
+
+### Body sinkage and surface displacement are different quantities
+
+At 5.0e4 the **body** descends 52.8 mm — two to three particle diameters, plainly
+visible. The **surface** under the feet never exceeds about 12 mm at any stable
+setting.
+
+**The robot descends into the bed and the soil closes around its legs**, rather
+than a crater opening beneath each foot. Overhead frames show the calves
+submerged and the feet no longer visible. *That* is the visible foot-soil
+interaction — a robot standing **in** soil rather than on it, the soil
+accommodating it continuously rather than leaving a static impression.
+
+### Standing and walking move the surface in OPPOSITE directions
+
+Settled by running **one** extraction over both trajectories — same code, same
+convention, so no labelling artifact is possible:
+
+| | mean surface height vs control |
+|---|---|
+| walking (policy on) | **+1.032 mm** — surface rises |
+| standing (no policy) | **−6.219 mm** — surface settles |
+
+**Sustained load consolidates; impact ejects.** This does not correct the
+published walking result, which was always scoped to walking — it adds the static
+case, which has the opposite sign and is the more intuitive of the two.
+
+### The walking figures survive the autocorrelation correction
+
+| | N | sd | lag-1 ρ | N_eff | SE_eff | significance |
+|---|---|---|---|---|---|---|
+| walking | 299 | 1.809 mm | +0.560 | 84.3 | 0.197 mm | **5.24 σ** |
+| standing | 199 | 3.845 mm | +0.230 | 124.6 | 0.344 mm | 18.05 σ |
+
+Autocorrelation is substantial for walking — ρ = 0.56 cuts the effective sample
+count from 299 to 84 — and the effect survives comfortably. **Per-sample spread
+is not the standard error of a mean**, and the raw spread (−18.6 to +7.2 mm)
+bears on individual samples only, not on the published means.
