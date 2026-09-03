@@ -168,9 +168,51 @@ whole episode rather than a value attained at the closest obstacle. This is why
 `min_asset_clearance_m`, measured from the driven trajectory, is strictly better
 than anything reconstructable from the plan.
 
-**What the study has to decide:** plan §12.1 requires zero collisions. Either the
-planner's inflation margin grows, or the criterion is restated, or the result is
-reported honestly as 1/100. What is no longer available is claiming zero.
+### Cause: smoothing destroys the planner's safety margin
+
+**Located in code and measured, 2026-09-03.** The collision is not a property of
+the arena. Min clearance to obstacle *edge*, all 100 seeds, densified to 0.1 m:
+
+| Stage | min | p05 | median |
+|---|---|---|---|
+| Raw A* | **2.60** | 2.61 | 2.76 |
+| After `_shortcut` | **2.60** | 2.60 | 2.80 |
+| **Delivered** | **1.33** | 1.70 | 2.72 |
+
+Raw A* sits exactly on `inflation_m 2.0 + tracker_p95_margin_m 0.6`, and
+`_shortcut` preserves it because `_segment_valid` (`oracle.py:226-247`) re-checks
+that same bound on every candidate segment. Then `_chaikin`, `_resample` and
+`_repair_curvature` run with **no clearance check at all**.
+
+The check behind them enforces a *different, weaker invariant*.
+`validate_candidate` asserts `clearance > 0.0` against **uninflated** footprints,
+which its own docstring states. With `footprint_width_m = 2.6`, that is exactly
+"centreline ≥ 1.3 m". So the 1.33 m floor is not an accident, it is the
+invariant being enforced. **41 of 100 episodes are delivered inside the budget
+the search was built to guarantee**, median erosion 0.07 m, worst 2.22 m.
+
+That is why episode 10 grazed. `oracle.py:41-44` says 2.0 m was chosen so
+hulls-enabled episodes would not touch ("hull half-width 1.1 + gate cross-track
+up to 0.88"). At the delivered floor of 1.3 m against a 1.1 m hull, 0.2 m remains
+for tracking error while measured cross-track reaches 0.75 m. Episode 10 was
+delivered at 1.42 m, ran 0.55 m of cross-track, and had 0.87 m against a 1.1 m
+hull.
+
+**What the study has to decide.** Plan §12.1 requires zero collisions, and the
+honest framing is not "the arena occasionally produces contact" but "the stated
+safety margin does not survive to the path the vehicle drives". Three shapes of
+fix, and choosing between them is a judgement about what margin the study wants
+to claim rather than a bug fix:
+
+1. Make validation enforce what the search guarantees.
+2. Re-shortcut after smoothing so the 2.6 m survives.
+3. Lower `inflation_m`, on the view that 2.6 m was never really required.
+
+`validate_candidate` now always reports `min_centreline_clearance_m`,
+`search_inflation_m` and `inflation_preserved`, so any run is auditable against
+this regardless of which fix is chosen. `PlannerParams.enforce_inflation_after_smoothing`
+implements option 1 and is **off by default**, so prior results stay
+reproducible and the two can be measured against each other.
 
 ### Still owed
 2. Analytic class-mask rasterizer + one-shot `ChSegmentationCamera` validation.

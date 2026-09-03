@@ -44,6 +44,17 @@ class PlannerParams:
     # replace with the measured held-out p95 at G6.
     inflation_m: float = 2.0
     tracker_p95_margin_m: float = 0.6
+    # The A* search and _shortcut both hold the centreline at
+    # inflation_m + tracker_p95_margin_m. _chaikin / _resample /
+    # _repair_curvature then run with NO clearance check, and
+    # validate_candidate enforces only "footprint does not overlap", i.e.
+    # centreline >= footprint_width_m / 2. Measured over the 100 G0a seeds:
+    # raw A* min 2.60 m, after shortcut 2.60 m, DELIVERED 1.33 m, with 41/100
+    # episodes delivered inside the search budget. That erosion is what let
+    # episode 10 graze a rock at 10,266 N under HULLS.
+    # Off by default so prior runs stay reproducible; turn it on to make
+    # validation enforce the same invariant the search does.
+    enforce_inflation_after_smoothing: bool = False
     # Search-time slope caps (tan). Validation uses slightly looser caps so
     # smoothing across a cell corner is not brittle.
     slope_along_cap: float = math.tan(math.radians(20.0))
@@ -322,6 +333,11 @@ def validate_candidate(grid: OracleGrid, points: np.ndarray, params: PlannerPara
     fx = points[:, 0][:, None] + offsets[:, 0] * cos_h[:, None] - offsets[:, 1] * sin_h[:, None]
     fy = points[:, 1][:, None] + offsets[:, 0] * sin_h[:, None] + offsets[:, 1] * cos_h[:, None]
     clearance = grid.clearance(fx.ravel(), fy.ravel()).min()
+    # Centreline clearance, separately from the footprint sweep above. This is
+    # the quantity the search guarantees and smoothing erodes, and without it
+    # a plan cannot be audited against the margin it was supposed to keep.
+    centreline_clearance = float(grid.clearance(points[:, 0], points[:, 1]).min())
+    required = params.inflation_m + params.tracker_p95_margin_m
     in_bounds = bool(
         np.all(np.abs(fx) <= grid.params.arena_keep_within_m + 1.0)
         and np.all(np.abs(fy) <= grid.params.arena_keep_within_m + 1.0)
@@ -335,7 +351,14 @@ def validate_candidate(grid: OracleGrid, points: np.ndarray, params: PlannerPara
         "kappa_max": float(kappa.max()),
         "kappa_ok": bool(kappa.max() <= params.kappa_max),
         "min_footprint_clearance_m": float(clearance),
-        "clearance_ok": bool(clearance > 0.0),
+        "min_centreline_clearance_m": centreline_clearance,
+        "search_inflation_m": float(required),
+        "inflation_preserved": bool(centreline_clearance >= required),
+        "clearance_ok": bool(
+            centreline_clearance >= required
+            if params.enforce_inflation_after_smoothing
+            else clearance > 0.0
+        ),
         "in_bounds": in_bounds,
         "slope_along_max": float(np.abs(s_along).max()),
         "slope_cross_max": float(np.abs(s_cross).max()),
