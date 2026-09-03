@@ -104,3 +104,26 @@ asking what the null would produce. Establish what "no effect" looks like
 API difference cannot be confounded with a rendering difference. Only then turn
 the camera on. Two changes landing at once produce a difference nobody can
 attribute.
+
+## Check that A and B ran on the same population before attributing anything
+
+**Cost:** would have shipped a causal claim the data does not support · **Found:** 2026-09-03 · **Applies to:** any A/B where the treatment can reject a sample
+
+The enforcement A/B returned p = 3.65e-06, Cliff's δ +0.379, a +1.216 m median
+shift with a CI excluding zero, and a fall from 45% to 9% below the bound. Every
+statistic was correct and the pre-registered power analysis held.
+
+**On the 60 episodes where both arms ran the identical layout, the paired
+difference was bit-identical: 0 of 60 improved.** The treatment changed nothing
+it was applied to. The whole effect came from the treatment *rejecting* samples,
+which caused the sampler to draw replacements, so the two arms were scored on
+different and unequally difficult populations.
+
+**A treatment that can reject a sample silently redefines the population it is
+evaluated on.** The between-arm comparison then measures selection, not effect,
+and it does so while producing entirely respectable statistics.
+
+**Always run the paired comparison on the shared subset**, and report how many
+samples the arms actually share. Here 40 of 100 differed, which was itself the
+signal. If the treatment can refuse, assume it is re-selecting until shown
+otherwise.

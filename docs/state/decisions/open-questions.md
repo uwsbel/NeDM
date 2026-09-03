@@ -57,6 +57,86 @@ figures are also a floor *for this readout*; a stronger probe might extract more
 from `z2`. And the warm-up finding rests on 400 steps, though the mechanism
 argues longer training makes it worse rather than better.
 
+### RESULT: enforcement improves nothing. The entire effect is selection.
+
+**2026-09-03, n=100 per arm, `kyle-N7-B650E`.** The distributional result is
+decisive and **its mechanism is not what it implies.**
+
+| `min_asset_clearance_m` (driven) | p05 | median | below 2.60 m |
+|---|---|---|---|
+| enforced | 2.555 | 3.925 | **9/100** |
+| unenforced | 1.348 | 2.710 | **45/100** |
+
+Mann-Whitney U=6895, z=4.630, **p = 3.65e-06**. Cliff's δ +0.379. Bootstrap
+median difference **+1.216 m**, 95% CI [+0.396, +1.712], excluding zero. The
+below-bound difference is **−36.0 pp**, CI [−47.0, −25.0]. The observed shift is
+three times the pre-registered 80%-power threshold of 0.40 m, so the
+pre-registration held.
+
+**And on the 60 episodes where both arms ran the identical layout:**
+
+```
+enforced    median 4.010   p05 2.594   min 2.086
+unenforced  median 4.010   p05 2.594   min 2.086
+paired difference: median +0.000 m,  0 of 60 improved,  60 of 60 UNCHANGED
+below 2.60 m: 5/60 in BOTH arms
+```
+
+**Bit-identical. Enforcement improved exactly zero paths on layouts it
+accepted.**
+
+**This is structural, not a sampling quirk.** `validate_candidate` can only
+*accept* or *reject*. There is no channel by which it improves a smoothed path —
+it cannot re-smooth, re-shortcut, or repair. So per layout it either passes the
+same path through unchanged or discards the layout, and the sampler rolls a new
+one. **The 45% → 9% improvement comes entirely from changing which episodes run,
+never from making any episode safer.**
+
+40 of 100 layouts differ between arms, because a rejected plan resamples the
+layout. So **the enforced arm is evaluated on a systematically different and
+easier population** — the bias flagged before the run, now measured rather than
+suspected.
+
+**Consequence for the gate: "G0a passes with enforcement" is true and is not a
+comparable gate result.** It passes partly because the hard layouts were rerolled
+until they admitted a compliant plan. *A gate that discards the episodes it finds
+hard is not measuring what one that keeps them measures.*
+
+**It is subtler than "it picks easy maps."** Asset counts are essentially equal
+(19.92 vs 19.78) and maximum plan length actually *fell*, 63.44 → 59.79 m. There
+is no path-length cost to report, because there are no new paths — only a
+different selection of layouts, and the survivors happen to be marginally
+shorter.
+
+### Even perfect enforcement does not deliver the corridor
+
+**5 of the 60 shared-layout episodes finish below 2.60 m driven although their
+plan satisfied it**, and 9 of 100 do so in the enforced arm overall. Enforcement
+guarantees the **plan**; tracking error erodes the margin afterwards. This is the
+plan-versus-driven gap appearing at the other end, and it means **2.60 m is a
+planning-space quantity being evaluated in driven space.** Those are different
+things and no amount of plan-side enforcement reconciles them.
+
+### So two separable fixes are needed, and neither alone suffices
+
+1. **Make enforcement able to repair rather than only refuse** — re-run
+   `_shortcut` against `_segment_valid` after Chaikin, or repair the smoothed
+   path where it violates, so a hard layout yields a compliant path instead of
+   being discarded. This removes the selection bias, which is the only way the
+   arms become comparable.
+2. **Size the planning margin to deliver the driven margin.** Planning to 2.60 m
+   delivers less than 2.60 m. The margin must absorb expected tracking error, or
+   the guarantee is stated in the wrong space.
+
+Lowering `inflation_m` remains the other honest answer and this result mildly
+favours it: 45% of driven episodes violating a bound the arena can only satisfy
+by rerolling half its layouts suggests **2.60 m is more corridor than this arena
+can reliably provide.**
+
+Collisions, descriptive and underpowered as agreed: 0/100 enforced against 1/100
+unenforced — *consistent with enforcement working, and underpowered to
+demonstrate it.*
+
 ### The enforcement A/B is underpowered by construction, and the fix is cheaper
 
 **Computed 2026-09-03, before the enforced arm finished, so the result is not
