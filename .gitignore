@@ -30,6 +30,19 @@ chrono/
 # ---------------------------------------------------------------------------
 artifacts/*
 
+# --- Study 3 traverse: the G0a enforcement A/B -------------------------------
+# 168 KB of per-episode records behind docs/vision/hmmwv_traverse/enforcement-ab.md.
+# Every number in that writeup is computed from these: the clearance
+# distributions, Mann-Whitney, the bootstrap CIs, and the 45% -> 9% below-bound
+# figure. Untracked, they existed on one machine only and the writeup was
+# unreproducible -- which is exactly the failure the allowlist above was
+# introduced to prevent, and at this size there was never a space case for it.
+!artifacts/traverse/
+artifacts/traverse/*
+!artifacts/traverse/wp0a_gate_hulls/
+!artifacts/traverse/wp0a_gate_hulls_v2/
+!artifacts/traverse/wp0a_gate_enforced/
+
 # --- Small ablation result tables (JSON) -------------------------------------
 !artifacts/ablations/
 artifacts/ablations/*
