@@ -1,6 +1,6 @@
 # Overview — where everything stands
 
-**Updated:** 2026-09-02.
+**Updated:** 2026-09-03.
 
 | Workstream | Status | Next action |
 |---|---|---|
@@ -8,7 +8,8 @@
 | Study 1 — double pendulum + RGB | **Complete.** Joint rollouts, policy transfer, camera-only distillation all pass | Written up; nothing pending |
 | Study 3 — HMMWV + overhead RGB-D | **WP0 complete, WP1 not started** | Build the 4-channel RGB-D encoder — see [`vision-study3-traverse.md`](vision-study3-traverse.md) |
 | Study 2 — tabletop manipulation | Deferred; Study 3 was pulled ahead of it | — |
-| Future case studies | Quadruped-on-CRM proposed by the author; excavation as second | Scope a WP0-style plan doc |
+| **Study 4 — quadruped on CRM** | **Collecting.** Rigid half done (484 episodes, 713 k transitions, zero falls); CRM half running (~5.5 h) | Build the processed dataset, then train — see [`quadruped-status.md`](quadruped-status.md) |
+| Future case studies | Excavation remains the next proposal | Scope a WP0-style plan doc |
 
 ## Branch map
 
