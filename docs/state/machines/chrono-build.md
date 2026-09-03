@@ -69,6 +69,42 @@ is too old.
 at 9.0.1 on `feature/hil_new`, 3.8 GB with a populated `CMakeCache.txt` and a
 last commit reading *"seg fault on demo run"*. Build in a fresh `chrono-src`.
 
+## Same SHA does NOT mean same binary
+
+The two boxes have materially different toolchains, measured:
+
+| | kyle-sbel | kyle-N7-B650E |
+|---|---|---|
+| CUDA | 12.6.85 | **13.0.88** |
+| gcc | 11.4.0 | **13.3.0** |
+| CMake | 3.22.1 | 3.28.3 |
+| SWIG | 4.5.0 (conda, installed today) | 4.2.0 (system) |
+| **ROS 2** | **Humble** | **Jazzy** |
+| OptiX SDK | 9.0.0 (installed today) | 9.0.0 (already present) |
+
+Pinning the SHA is necessary and **not sufficient**. The ROS divergence matters
+most: `parsers` links against ROS, distros differ in `rmw` and `urdfdom`, and
+`ChParserURDF` is precisely the component that loads the Go2. So that module is
+**not comparable across boxes** and cannot be made so without matching ROS. It
+also cannot simply be disabled, since the Go2 needs it.
+
+**Record the toolchain alongside any result that depends on the source build**,
+and validate that the Go2 URDF loads to the same body and motor counts on both
+before treating cross-box results as comparable.
+
+**A hypothesis worth testing once a build exists:** `kyle-N7-B650E` is still on
+the R580 driver, whose OptiX is 9.0.02 at ABI 110, and it has the OptiX 9.0.0
+SDK locally. A source build linked against that SDK should request an ABI the
+driver can serve, which would make Chrono::Sensor work on R580 **without the
+driver upgrade**. If that holds, the 595 upgrade becomes optional rather than
+required, which is worth knowing before the second box is rebooted.
+
+**`kyle-N7-B650E` has FOURTEEN existing Chrono trees** under `~/Documents`,
+including `chrono_fork` at 22 G and `chrono-HIL` at 22 G, several with populated
+`CMakeCache.txt`. Build outside `~/Documents` entirely so the pinned tree cannot
+be confused with that set: a future agent grepping for "chrono" there finds
+fifteen candidates and no way to tell which is which.
+
 ## The SWIG binding to add
 
 `AttachFsiSphSystem` is **absent** from `src/chrono_swig/interface/sensor/ChModuleSensor.i`,

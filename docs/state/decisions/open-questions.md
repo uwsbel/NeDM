@@ -57,6 +57,51 @@ figures are also a floor *for this readout*; a stronger probe might extract more
 from `z2`. And the warm-up finding rests on 400 steps, though the mechanism
 argues longer training makes it worse rather than better.
 
+### What pooling keeps and what it destroys
+
+**Second probe, occupancy/class masks, 2026-09-03.** Same generator, same
+pyramid, 3 classes at 64² with priority max-pool so 3-6 px rocks survive
+downsampling. Class fractions: background 0.9928, rock 0.0042, vehicle 0.0030.
+
+| representation | rock IoU | vehicle IoU | vehicle recall | rock recall |
+|---|---|---|---|---|
+| stage 2 (64²) | **0.621** | **0.678** | 0.958 | 0.764 |
+| stage 3 (32²) | 0.352 | 0.489 | 0.989 | 0.634 |
+| stage 4 (16²) | 0.065 | 0.323 | 0.993 | 0.124 |
+| stage 5 (8²) | 0.003 | 0.134 | 0.960 | 0.004 |
+| **pooled z2** | **0.000** | 0.082 | **0.549** | **0.000** |
+
+**Pooling keeps *whether*, destroys *where*.** Pooled `z2` reaches vehicle recall
+0.549 at IoU 0.082: it detects a vehicle in about half of frames and then smears
+the prediction over far more area than the vehicle occupies. A global latent
+retains a weak *presence* signal and no usable extent or position, which is
+consistent with the localisation arm rather than in tension with it.
+
+**Rocks are the sharper result and the one that matters.** IoU and recall are
+both **identically 0.000** at `z2`. Rock count barely varies between frames, so
+"are there rocks" carries almost no information and everything distinguishing one
+frame's rocks from another's is positional. Pooling destroys exactly that. So the
+split is not "occupancy survives better than localisation" — it is that pooling
+preserves the presence of one distinctive object and destroys everything about
+small, numerous, positionally-defined ones. **For a planner-facing
+representation, rocks are the class that matters, and they are the class that is
+completely gone.**
+
+**Probe capacity is ruled out by direction.** The 1×1 conv probes have C·3+3
+parameters, so 99 at stage 1 rising to 1539 at stage 5: deeper stages get *more*
+probe capacity and do *worse*. The `z2` probe is an MLP with ~6.4 M parameters,
+about 4000× the stage-5 probe, and still loses. The asymmetry flatters `z2`.
+
+**And the training arm reproduces the localisation finding independently.** 400
+steps of unweighted reconstruction drives stage 5 and `z2` to exactly 0.000 on
+both classes, worse than random initialisation. Two different probes, two
+different quantities, same conclusion: **§5's foreground-weighted and heatmap
+losses are mandatory, not advisory.**
+
+Same caveat as the localisation arm. Synthetic masks say the signal is there to
+be found; a real encoder on real Chrono frames faces occlusion, shadow, and rocks
+that look like ground.
+
 **This settles the probe bars (§14, and the open decision below).** A trained
 encoder that cannot beat its own random initialisation on the localisation probe
 has failed, whatever absolute threshold is chosen. That bar is anchored to a
