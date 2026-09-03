@@ -91,6 +91,8 @@ def build_parser() -> argparse.ArgumentParser:
                      help="TorchScript policy from the legged_gym family, driven "
                           "through nedm.quadruped.imported_policy instead of the "
                           "harness contract. Implies its own conventions.")
+    adv.add_argument("--command-family", default=None,
+                     help="Structured excitation family; overrides --command.")
     adv.add_argument("--command", type=float, nargs=3, default=[0.5, 0.0, 0.0],
                      metavar=("VX", "VY", "WZ"),
                      help="Velocity command for --imported-ckpt only; the harness "
@@ -266,8 +268,10 @@ def main() -> int:
         policy = None
     elif args.imported_ckpt:
         from nedm.quadruped.imported_policy import ImportedGo2Policy
-        policy = ImportedGo2Policy(Path(args.imported_ckpt), command=args.command)
-        print(f"imported policy: {args.imported_ckpt}  command {args.command}")
+        policy = ImportedGo2Policy(Path(args.imported_ckpt), command=args.command,
+                                   family=args.command_family, duration=args.seconds)
+        print(f"imported policy: {args.imported_ckpt}  "
+              f"{'family ' + args.command_family if args.command_family else 'command ' + str(args.command)}")
     else:
         policy = PolicyController(ckpt, cfgs)
 
@@ -308,6 +312,8 @@ def main() -> int:
             elif policy is None or t < args.pose_ramp_seconds + args.settle_seconds:
                 robot.actuate(STAND_ACTION)
             else:
+                if hasattr(policy, "set_time"):
+                    policy.set_time(t)
                 robot.actuate(policy.act(robot))
         # PD runs every PHYSICS step, not every control step -- see apply_pd.
         robot.apply_pd()
