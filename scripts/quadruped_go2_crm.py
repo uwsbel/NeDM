@@ -49,6 +49,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import random
 import pickle
 import time
 from pathlib import Path
@@ -69,6 +70,9 @@ MOTOR_NAMES = [
     "FL_hip_joint", "FL_thigh_joint", "FL_calf_joint",
 ]
 FOOT_BODIES = ["FR_foot", "FL_foot", "RR_foot", "RL_foot"]
+SOIL_PROBE_R = 0.05      # radius of the particle patch sampled under each foot
+SOIL_CTRL_XY = (0.0, 1.2)  # undisturbed control patch, off the robot's path
+EJECTA_BAND = 0.03       # ignore particles this far above the control surface
 CALF_BODIES = ["FR_calf", "FL_calf", "RR_calf", "RL_calf"]
 
 # Chrono [RR,RL,FR,FL] -> policy [FR,FL,RR,RL]. Swapping two halves of six is
@@ -457,6 +461,13 @@ def attach_sph_rendering(chrono, sens, manager, terrain, args):
         # default-constructed options object returns a valid handle and renders
         # NOTHING, which is what an 886,611-particle run produced before the
         # options struct was exposed: 86% flat sky, 0.2% dark pixels.
+        # render_particle_spacing is a RESAMPLING TARGET, not a sprite size.
+        # ChOptixEngine.cpp EstimateFsiSphRenderCount:
+        #     render_count = num_markers * (source_spacing / render_particle_spacing)^3
+        # so SMALLER values draw MORE sprites, cubically. Setting it ABOVE the
+        # actual particle spacing DECIMATES the bed and exposes background, which
+        # is why bright% rose monotonically 30.3 -> 45.8 -> 68.2 as we raised it
+        # from 0.01 to 0.02 to 0.026.
         spacing = float(args.sph_render_spacing or args.spacing)
         n_shapes = 0
         if hasattr(opts, "sprite_shapes"):
@@ -467,22 +478,51 @@ def attach_sph_rendering(chrono, sens, manager, terrain, args):
             # Comparing a first render against a known-good reference is worth
             # more than comparing against a variant we invented.
             mat = chrono.ChVisualMaterial()
-            mat.SetAmbientColor(chrono.ChColor(1, 1, 1))
-            mat.SetDiffuseColor(chrono.ChColor(1, 1, 1))
-            for i in (1, 2, 3):
-                path = chrono.GetChronoDataFile(f"models/regolith/particle_{i}.obj")
+            mat.SetAmbientColor(chrono.ChColor(*args.soil_ambient))
+            mat.SetDiffuseColor(chrono.ChColor(*args.soil_diffuse))
+            # ChFsiSphRenderOptions exposes no orientation control -- only
+            # sprite_shapes, sprite_position_jitter and render_particle_spacing.
+            # But we own the mesh LIST, and the renderer cycles it, so N
+            # pre-rotated copies ARE orientation variety. Position jitter and
+            # sprite overlap both failed to break the triangular lattice because
+            # you cannot decorrelate a shared attitude by moving things; rotating
+            # the vertex data before handing it over is what does it. A longer
+            # list also lengthens the cycle, which is what produced the measured
+            # period-3 banding against exactly three meshes.
+            rng = random.Random(20260903)
+            srcs = [f"models/regolith/particle_{i}.obj" for i in (1, 2, 3)]
+            for k in range(int(args.sprite_variants)):
+                path = chrono.GetChronoDataFile(srcs[k % len(srcs)])
                 if not Path(path).is_file():
                     continue
-                mesh = chrono.ChTriangleMeshConnected.CreateFromWavefrontFile(path, False, True)
+                mesh = chrono.ChTriangleMeshConnected.CreateFromWavefrontFile(
+                    path, bool(args.sprite_normals), True)
+                if args.sprite_variants > len(srcs):
+                    # Verified to MUTATE the vertex data, not just return a copy:
+                    # a vertex read before and after Transform differs.
+                    q = chrono.QuatFromAngleZ(rng.uniform(0, 6.283185))
+                    q = q * chrono.QuatFromAngleX(rng.uniform(0, 6.283185))
+                    q = q * chrono.QuatFromAngleY(rng.uniform(0, 6.283185))
+                    mesh.Transform(chrono.ChVector3d(0, 0, 0), chrono.ChMatrix33d(q))
+                if args.sprite_scale != 1.0:
+                    # SPRITE SIZE IS THE MESH'S OWN SCALE, not render_particle_spacing.
+                    # fsi_sph_render.cu builds each OptiX instance transform from
+                    # template_scale, i.e. the template mesh; render_particle_spacing
+                    # only sets HOW MANY sprites are resampled (see below). The options
+                    # struct has no size field, but we own the meshes, so scaling the
+                    # vertex data is how sprite size gets set.
+                    mesh.Transform(chrono.ChVector3d(0, 0, 0),
+                                   chrono.ChMatrix33d(float(args.sprite_scale)))
                 shape = chrono.ChVisualShapeTriangleMesh()
                 shape.SetMesh(mesh)
-                shape.SetName(f"RegolithMesh{i}")
+                shape.SetName(f"RegolithMesh{k}")
                 shape.SetMutable(False)
                 shape.AddMaterial(mat)
                 opts.sprite_shapes.append(shape)
             n_shapes = len(opts.sprite_shapes)
         if hasattr(opts, "sprite_position_jitter"):
-            opts.sprite_position_jitter = chrono.ChVector3f(0.005, 0.005, 0.0)
+            opts.sprite_position_jitter = chrono.ChVector3f(
+                float(args.sprite_jitter), float(args.sprite_jitter), 0.0)
         if hasattr(opts, "render_particle_spacing"):
             opts.render_particle_spacing = spacing
         handle = attach(sph, opts)
@@ -524,8 +564,8 @@ def attach_camera(chrono, system, args, soil_top: float, terrain=None):
     sph_note = attach_sph_rendering(chrono, sens, manager, terrain, args) if terrain is not None else "n/a"
     print(f"sph rendering: {sph_note}")
 
-    eye = np.array([-1.15, -1.45, soil_top + 0.62])
-    target = np.array([0.30, 0.0, soil_top + 0.08])
+    eye = np.array(args.cam_eye) if args.cam_eye else np.array([-1.15, -1.45, soil_top + 0.62])
+    target = np.array(args.cam_target) if args.cam_target else np.array([0.30, 0.0, soil_top + 0.08])
     pose = chrono.ChFramed(chrono.ChVector3d(*eye), _look_at(chrono, eye, target))
     cam = sens.ChCameraSensor(mount, args.video_fps, pose,
                               args.video_width, args.video_height, math.radians(58.0))
@@ -613,6 +653,23 @@ def main() -> int:
     ap.add_argument("--video-height", type=int, default=540)
     # Default ON: a fixed frame loses a walking robot (the first CRM walk
     # left shot at t=7.40 of 8 s). --no-cam-follow restores the fixed frame.
+    ap.add_argument("--sprite-scale", type=float, default=2.0,
+                    help="uniform scale baked into each sprite mesh; sprite SIZE lives "
+                         "here, not in render_particle_spacing")
+    ap.add_argument("--sprite-variants", type=int, default=24,
+                    help="number of sprite meshes; >3 adds randomly rotated copies")
+    ap.add_argument("--soil-diffuse", type=float, nargs=3, default=(1.0, 1.0, 1.0),
+                    metavar=("R", "G", "B"))
+    ap.add_argument("--soil-ambient", type=float, nargs=3, default=(1.0, 1.0, 1.0),
+                    metavar=("R", "G", "B"))
+    ap.add_argument("--sprite-jitter", type=float, default=0.005,
+                    help="per-marker sprite jitter; 0 tiles the lattice instead of breaking it up")
+    ap.add_argument("--sprite-normals", dest="sprite_normals", action="store_true", default=True,
+                    help="load vertex normals for the regolith sprites so they can be shaded")
+    ap.add_argument("--cam-eye", type=float, nargs=3, default=None, metavar=("X", "Y", "Z"),
+                    help="absolute camera position; overrides the default three-quarter view")
+    ap.add_argument("--cam-target", type=float, nargs=3, default=None, metavar=("X", "Y", "Z"),
+                    help="absolute camera aim point")
     ap.add_argument("--cam-follow", dest="cam_follow", action="store_true", default=True)
     ap.add_argument("--no-cam-follow", dest="cam_follow", action="store_false")
     ap.add_argument("--no-check-embedded", dest="check_embedded",
@@ -623,7 +680,7 @@ def main() -> int:
     # particles, which the proxy cannot, so the proxy is off unless asked for.
     ap.add_argument("--soil-proxy", action="store_true",
                     help="add a static non-deforming floor box as well as the SPH sprites")
-    ap.add_argument("--sph-render-spacing", type=float, default=None,
+    ap.add_argument("--sph-render-spacing", type=float, default=0.01,
                     help="sprite spacing; defaults to the SPH initial spacing")
     ap.add_argument("--terrain", choices=["crm", "rigid"], default="crm",
                     help="rigid reproduces the ground the policy was trained on")
@@ -758,6 +815,17 @@ def main() -> int:
           f"mean {initial_error.mean():.3f} rad")
 
     robot.actuate(q0)
+    sph_probe = None
+    if terrain is not None:
+        getter = getattr(terrain, "GetFluidSystemSPH", None)
+        if getter is not None:
+            try:
+                cand = getter()
+                if hasattr(cand, "GetParticlePositionsNumpy"):
+                    sph_probe = cand
+            except Exception:  # noqa: BLE001
+                sph_probe = None
+
     for i in range(n_steps):
         t = i * exchange
         if i % control_every == 0:
@@ -781,6 +849,43 @@ def main() -> int:
         if manager is not None:
             manager.Update()
         p, q = base.GetPos(), base.GetRot()
+        # Soil surface under each foot, sampled from SPH particle z directly.
+        # Renderer-independent, so it answers "is there a depression" without
+        # depending on whether the sprite path can draw one. 95th percentile of
+        # particles within SOIL_PROBE_R of the foot's XY, minus the same statistic
+        # for a fixed undisturbed control patch: the difference is the local
+        # surface displacement. A STATIC proxy foot gave only 2 mm; a walking foot
+        # lands with well above its static share of body weight, so the two are
+        # not interchangeable.
+        soil_z, soil_ctrl = [float("nan")] * len(FOOT_BODIES), float("nan")
+        if sph_probe is not None and i % control_every == 0:
+            try:
+                P = np.asarray(sph_probe.GetParticlePositionsNumpy())
+                # Control patch first: it is off the robot's path, so it has no
+                # ejecta and its z95 is a clean surface estimate.
+                cx, cy = SOIL_CTRL_XY
+                d = np.hypot(P[:, 0] - cx, P[:, 1] - cy)
+                sel = P[d < SOIL_PROBE_R]
+                if len(sel):
+                    soil_ctrl = float(np.percentile(sel[:, 2], 95))
+                # Foot patches: a bare z95 is NOT a surface estimate here, because a
+                # footfall throws particles into the air and the top percentile then
+                # tracks ejecta rather than the bed. A first pass reported 0.48 m
+                # under a foot over a bed whose top is 0.20 m -- 28 cm of "surface".
+                # So exclude anything more than EJECTA_BAND above the control surface.
+                if not math.isnan(soil_ctrl):
+                    lid = soil_ctrl + EJECTA_BAND
+                    for k, n in enumerate(FOOT_BODIES):
+                        b = robot.body(n)
+                        if b is None:
+                            continue
+                        fp = b.GetPos()
+                        d = np.hypot(P[:, 0] - fp.x, P[:, 1] - fp.y)
+                        sel = P[(d < SOIL_PROBE_R) & (P[:, 2] < lid)]
+                        if len(sel):
+                            soil_z[k] = float(np.percentile(sel[:, 2], 95))
+            except Exception:  # noqa: BLE001
+                pass
         fz, ffz = [], []
         for n in FOOT_BODIES:
             b = foot_bodies.get(n)
@@ -792,7 +897,7 @@ def main() -> int:
                     ffz.append(float("nan"))
             else:
                 ffz.append(float("nan"))
-        log.append([t, p.x, p.y, p.z, q.e0, q.e1, q.e2, q.e3, *fz, *ffz])
+        log.append([t, p.x, p.y, p.z, q.e0, q.e1, q.e2, q.e3, *fz, *ffz, *soil_z, soil_ctrl])
         # Tilt from upright, NOT base height. A 6 s run reported PASS on a robot
         # lying inverted on the soil: base z was 0.0074, still nominally above a
         # soil top of 0.0, because 7 mm off the ground is what lying down looks
@@ -809,7 +914,9 @@ def main() -> int:
     np.savez_compressed(out / "trajectory.npz", log=arr,
                         columns=np.array(["t", "x", "y", "z", "e0", "e1", "e2", "e3",
                                           *[f"footz_{n}" for n in FOOT_BODIES],
-                                          *[f"fsiFz_{n}" for n in FOOT_BODIES]]))
+                                          *[f"fsiFz_{n}" for n in FOOT_BODIES],
+                                          *[f"soilz_{n}" for n in FOOT_BODIES],
+                                          "soilz_ctrl"]))
     n_frames = len(list((out / "frames").glob("*"))) if (out / "frames").is_dir() else 0
     summary = {
         "sim_seconds": args.sim_seconds, "wall_seconds": round(wall, 1),
