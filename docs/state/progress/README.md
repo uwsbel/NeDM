@@ -11,6 +11,7 @@ often.
 | File | Workstream | Status |
 |---|---|---|
 | [`00-overview.md`](00-overview.md) | All of it, one screen | — |
+| [`quadruped-status.md`](quadruped-status.md) | **Study 4, quadruped on CRM.** Current status, the dataset, and the measured landmines |
 | [`state-only-paper.md`](state-only-paper.md) | The published state-only NRD | Submitted |
 | [`vision-study1-dpend.md`](vision-study1-dpend.md) | Study 1: double pendulum + RGB | Complete |
 | [`vision-study3-traverse.md`](vision-study3-traverse.md) | Study 3: HMMWV + overhead RGB-D | WP0 done, WP1 blocked |

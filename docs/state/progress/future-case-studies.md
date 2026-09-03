@@ -1,5 +1,17 @@
 # Candidate case studies 3 and 4
 
+> **The quadruped is no longer a candidate — it is Study 4 and it is collecting.**
+> For current status read
+> [`quadruped-status.md`](quadruped-status.md); for the contribution and staged
+> plan read
+> [`../decisions/quadruped-case-study-plan.md`](../decisions/quadruped-case-study-plan.md).
+>
+> **What this page is now for:** the original scoping argument, and the record of
+> which parts of it survived contact with measurement. Several did not — the
+> soil-memory motivation in particular. Kept because the reasoning stays useful
+> after the conclusion changes, per the decisions-doc convention. **Excavation
+> below is still a genuine proposal.**
+
 **Status:** Under discussion, nothing built · **Updated:** 2026-09-02
 
 Motivation: see the structural gap in
