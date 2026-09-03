@@ -429,7 +429,23 @@ def main() -> int:
     # interaction range of a dense particle bed and take a contact impulse.
     # Note this is NOT particles trapped inside the feet: check_embedded=True
     # removes only 40 of 43,632 particles and changes nothing.
-    ap.add_argument("--spawn-clearance", type=float, default=0.60)
+    # Default None means derive it: place the base so the lowest foot sits
+    # foot_margin above the soil. A constant cannot do this, because it fixes
+    # the BASE height while the FEET are what meets the soil, and the Go2's rest
+    # pose has the legs extended. Passing a value overrides and reproduces the
+    # old behaviour. Swept values for reference, standing, 3 s: base clearance
+    # 0.34 gave 0.13-0.16 m of launch and a fall at 0.64-0.85 s; 0.42 gave 0.07 m
+    # and 1.08-1.21 s; 0.60 gave zero launch and 2.97 s.
+    ap.add_argument("--spawn-clearance", type=float, default=None,
+                    help="base height above soil; omit to derive from leg reach")
+    # Expressed in SPH spacings, not metres, because what the foot has to clear
+    # is the kernel support radius and that scales with spacing. Measured against
+    # leg reach 0.421 m: feet 0.081 m BELOW the surface gave 0.132 m of launch,
+    # 0.001 m below gave 0.074 m, and 0.179 m above (about 6 spacings at 0.03)
+    # gave none. The cost of too much margin is a slightly longer drop; the cost
+    # of too little is a launch, so this errs high.
+    ap.add_argument("--foot-margin-spacings", type=float, default=5.0,
+                    help="foot gap above the soil at spawn, in SPH spacings")
     ap.add_argument("--video", action="store_true")
     ap.add_argument("--video-fps", type=float, default=30.0)
     ap.add_argument("--video-width", type=int, default=960)
@@ -447,6 +463,9 @@ def main() -> int:
     ap.add_argument("--no-policy", action="store_true", help="hold the stand pose throughout")
     ap.add_argument("--out", default="artifacts/go2_crm")
     args = ap.parse_args()
+
+    import os
+    cwd_at_start = os.getcwd()
 
     import pychrono as chrono
     import pychrono.vehicle as veh
@@ -476,16 +495,48 @@ def main() -> int:
     chrono.ChCollisionModel.SetDefaultSuggestedEnvelope(0.0025)
     chrono.ChCollisionModel.SetDefaultSuggestedMargin(0.0025)
 
+def measure_leg_reach(chrono, urdf: Path) -> float:
+    """Base-to-lowest-foot distance in the URDF rest pose.
+
+    A throwaway system is built and discarded. Nothing has stepped, so the pose
+    is purely the URDF's own rest configuration and the offset is a fixed
+    geometric property of the model. Cheap: a URDF parse, no dynamics.
+
+    This exists because a constant spawn height is guesswork. The Go2 spawns with
+    its legs extended, so a clearance chosen for the BASE says nothing about
+    where the FEET are, and the feet are what meets the soil. Watching the first
+    render, the failure is plainly visible: the robot starts with its feet below
+    the surface.
+    """
+    probe_system = chrono.ChSystemSMC()
+    probe = Go2Robot(probe_system, urdf,
+                     chrono.ChFramed(chrono.ChVector3d(0, 0, 1.0), chrono.QuatFromAngleZ(0.0)))
+    base_z = probe.base().GetPos().z
+    foot_z = min(probe.body(n).GetPos().z for n in FOOT_BODIES if probe.body(n) is not None)
+    return float(base_z - foot_z)
+
+
     # Construct's pos is the BOTTOM of the soil box, and GetHeight does NOT
     # report the free surface (it is the height-functor hook, flat zero by
     # default). The surface is soil_bottom + depth; place the robot above that.
     soil_top = args.soil_bottom + args.depth
-    spawn_z = soil_top + args.spawn_clearance
+    if args.spawn_clearance is None:
+        os.chdir(urdf.parent)
+        try:
+            leg_reach = measure_leg_reach(chrono, urdf)
+        finally:
+            os.chdir(cwd_at_start)
+        foot_margin = args.foot_margin_spacings * args.spacing
+        spawn_z = soil_top + foot_margin + leg_reach
+        print(f"auto-spawn: leg reach {leg_reach:.3f} m, foot margin {foot_margin:.3f} m "
+              f"({args.foot_margin_spacings:g} spacings) -> base at {spawn_z:.3f}")
+    else:
+        leg_reach = None
+        spawn_z = soil_top + args.spawn_clearance
     init = chrono.ChFramed(chrono.ChVector3d(0.0, 0.0, spawn_z), chrono.QuatFromAngleZ(0.0))
 
     # URDF meshes are referenced relatively; resolve from the urdf directory.
-    import os
-    cwd = os.getcwd()
+    cwd = cwd_at_start
     os.chdir(urdf.parent)
     try:
         robot = Go2Robot(system, urdf, init)
@@ -583,6 +634,7 @@ def main() -> int:
         "pose_ramp_s": args.pose_ramp_seconds,
         "check_embedded": args.check_embedded,
         "foot_clearance_above_soil_m": round(float(foot_clearance), 4),
+        "leg_reach_m": round(leg_reach, 4) if leg_reach is not None else None,
         "initial_joint_error_max_rad": round(float(initial_error.max()), 4),
         "initial_joint_error_mean_rad": round(float(initial_error.mean()), 4),
         "video": video_note, "frames_written": n_frames,

@@ -61,6 +61,30 @@ Version: [ 110 ] CUDA Version: [ 13.0.0.0 ] ~-~-~`. The ABI the build *requests*
 is still unmeasured: the env ships no OptiX SDK headers, so there is no
 `OPTIX_ABI_VERSION` to read.
 
+## The C++ demo existing does not mean the Python binding does
+
+**Cost:** a render cycle and a wrong doc claim · **Found:** 2026-09-03 · **Applies to:** any Chrono feature reached from Python
+
+**Expected:** `src/demos/sensor/demo_SEN_CRM_Rendering.cpp` shows CRM soil
+rendered through Chrono::Sensor via `manager->AttachFsiSphSystem(sysSPH, opts)`,
+so the same should be reachable from pychrono.
+**Happened:** `AttachFsiSphSystem` does not exist on `ChSensorManager` in
+pychrono 10.0.0, and no symbol matching Attach/Fsi/Sph appears anywhere in
+`pychrono.sensor`. The mechanism is in the C++ library and absent from the SWIG
+surface.
+**Fix:** none from Python today. Either render CRM through a **static proxy body**
+with a real visual shape, which works but cannot deform and so cannot show
+sinkage, or get the binding added upstream. **This matters for Case Study IV**,
+which wants an ego depth camera watching a CRM pile change shape: that is exactly
+what a proxy cannot provide.
+**Evidence:** `ChSensorManager` exposes only AddSensor, GetDeviceList, GetEngine,
+GetMaxEngines, GetNumEngines, GetRayRecursions, GetSensorList, GetVerbose,
+ReconstructScenes, SetDebug, SetDeviceList, SetMaxEngines, SetRayRecursions,
+SetVerbose, Update, scene.
+
+Note SPH markers are not visual shapes, so this is not something a caller can
+work around by walking the scene: there is nothing there to make visible.
+
 ## Four names moved between 9 and 10
 
 **Cost:** three separate blocked runs · **Found:** 2026-09-02 · **Applies to:** anything run outside `envs/nedm`
