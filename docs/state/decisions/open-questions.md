@@ -6,7 +6,64 @@ answered, and move the answer into
 
 **Updated:** 2026-09-02.
 
-## Does a global pooled `z2` survive at 256²?
+## Does a global pooled `z2` survive at 256²? **Measured: no.**
+
+**Answered 2026-09-03 on synthetic data.** Localisation error in pixels on 256²
+frames with a 15x7 px vehicle (0.16% of pixels) at a known position, 3-6 px
+distractors, textured background. Encoder frozen, a probe fitted per
+representation, held-out evaluation. Chance, meaning predict the image centre,
+is **87.03 px**.
+
+| Representation | px/cell | random init | after 400 steps of unweighted recon |
+|---|---|---|---|
+| stage 1 (128²) | 2 | 2.09 | 1.84 |
+| stage 2 (64²) | 4 | 1.67 | 1.92 |
+| stage 3 (32²) | 8 | 2.07 | 3.30 |
+| stage 4 (16²) | 16 | 4.39 | 11.06 |
+| stage 5 (8², the plan's map) | 32 | 7.11 | **84.64** |
+| **pooled `z2` (128-D)** | — | **75.69** | **87.36** |
+
+**Pooling is the cliff, not resolution.** At random initialisation every spatial
+map localises to 1.7-7.1 px, degrading gracefully with resolution, while the
+pooled `z2` lands at 75.7 px against 87.0 chance: distinguishable from chance
+but useless, about an order of magnitude worse than the map it is pooled from.
+This holds with **no training at all**, so it is a statement about the
+architecture rather than about optimisation. The pre-declared fallback, keeping
+a spatial map for the planner while `z2` serves the dynamics token, is therefore
+the right call and is now evidenced rather than hedged.
+
+**And unweighted reconstruction warm-up is worse than no warm-up.** Stage 5 goes
+from 7.11 px at random init to 84.64 px, i.e. chance, after 400 steps of plain
+4-channel reconstruction; stage 4 goes 4.39 to 11.06. The vehicle is 0.16% of
+pixels, so an unweighted MSE has almost no incentive to represent it and the
+deep layers spend capacity on the background that dominates the loss. **Training
+without foreground weighting actively destroys the signal the probes exist to
+measure**, which is direct empirical justification for plan §5 making the
+foreground-weighted and vehicle-heatmap losses *mandatory* rather than optional.
+
+**A correction worth keeping.** An earlier reading of this file argued the 8²
+map "has already destroyed most of the localisation signal" because the vehicle
+spans under half a cell. The measurement refutes the magnitude: a soft-argmax
+readout over a smooth response field interpolates between cells and reaches
+sub-cell precision, so stage 5 is degraded, not destroyed. The geometric
+argument had the ordering right and the size wrong.
+
+**What this cannot say.** Synthetic frames with an analytically placed bright
+rectangle show the signal is *there to be found* and the architecture can
+represent it. They do not show a real encoder trained on real Chrono frames will
+find it: real vehicles are not colour-distinct from terrain, occlusion and
+shadow exist, and these distractors are trivially separable. The random-init
+figures are also a floor *for this readout*; a stronger probe might extract more
+from `z2`. And the warm-up finding rests on 400 steps, though the mechanism
+argues longer training makes it worse rather than better.
+
+**This settles the probe bars (§14, and the open decision below).** A trained
+encoder that cannot beat its own random initialisation on the localisation probe
+has failed, whatever absolute threshold is chosen. That bar is anchored to a
+measurement available today and, by construction, cannot be tuned after the
+pilot results are seen.
+
+## Original framing
 
 Study 1's 64-D global latent worked on a 128² scene where the object covered 3%
 of pixels. Study 3 has a 256² arena where the vehicle is ~15×7 px and small rocks
