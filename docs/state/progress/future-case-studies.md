@@ -51,14 +51,26 @@ random-action quadruped falls in ~0.4 s, so the HMMWV trick of collecting from a
 meandering driver gives a dataset that is 100% collapse dynamics.
 
 **Measured 2026-09-02, and it narrows this:** `scripts/quadruped_wp0_gait.py
-walk` runs scripted RoboSimian on `kyle-sbel` at **1.25x realtime** (40 s of sim
-in 32 s of wall, SMC + Bullet, 1 ms step, rigid ground, no rendering; a shorter
-10 s run reads 1.14x because startup is not yet amortized). The gait itself is
-at steady state from the first cycle: **0.2000 m per 19.163 s stride**, matched
-to four digits across two consecutive cycles, so **10.4 mm/s**. Net lateral per
-cycle is 0.2 mm, though the chassis sways +/-77 mm within a stride and moves
-backward mid-stride, so any measurement taken between window endpoints rather
-than between wrap events overstates stride by about 10% and reads sway as drift.
+walk` runs scripted RoboSimian on `kyle-sbel` at **roughly 1.22 to 1.25x
+realtime**, depending on Chrono version (SMC + Bullet, 1 ms step, rigid ground,
+no rendering). Six runs, n=3 per environment: 9.0.0 gives 1.2448-1.2516 and
+10.0.0 gives 1.2111-1.2243. The ranges do not overlap, so the ~2.4% penalty on
+10.0.0 is consistent rather than noise, but it is one machine, sequential, with
+no thermal control, and 2.4% changes no decision here. Do not quote either
+figure to four digits. A 10 s run reads 1.14x because startup is not amortized.
+
+The gait is at steady state from the first cycle and **the physics is
+version-independent**: `stride_length_m_mean` is **0.2001 m** in all four runs
+across both environments, so **10.4 mm/s** stands regardless of Chrono version.
+Sway peak-to-peak agrees to 0.13% and the callback speed to 0.04%.
+
+Two measurement traps. The chassis sways +/-77 mm within a stride and moves
+backward mid-stride, so anything measured between window endpoints rather than
+between wrap events overstates stride by about 10% and reads sway as drift. And
+**net lateral per cycle is not stable enough to gate on**: it is -0.0001 m on
+9.0.0 and +0.0008 m on 10.0.0, a sign flip. Both mean "straight" at under 0.5%
+of a stride, but a straightness criterion with a tight threshold would flip
+between versions on integrator noise.
 
 That 10.4 mm/s is worth holding onto separately from the throughput question:
 RoboSimian is a slow statically-stable walker, and at 1 cm/s a traverse of any

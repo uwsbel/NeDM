@@ -51,20 +51,28 @@ escalate**, not a step to attempt. See [`reference/`](reference/).
    older than the 9.0.1 in `environment.yml` that is meant to be the legacy
    option. Use `$NEDM_PY`, never a hardcoded env name, and do not assume a
    version from either environment file. Verified 2026-09-02.
-3. **No `pychrono.fsi`, so no CRM terrain on this box.** Submodules shipped are
+3. **The two conda environments are complementary, not successive.** `nedm`
+   (pychrono 10.0.0) has FSI/CRM, `ChParserURDF`, and `AddDirectionalLight`, all
+   of which `chrono` lacks. But **`nedm` cannot render at all here**: OptiX fails
+   with `OPTIX_ERROR_UNSUPPORTED_ABI_VERSION` at `ChOptixEngine.cpp:86` on driver
+   580.173.02 / CUDA 13.0, which the 9.0.0 build renders fine on. So `chrono` is
+   the only environment on this box that can produce a frame, and it must not be
+   deleted. `nedm` is also ~2.4% slower on identical rigid-body work. Physics
+   agrees between them to four digits. Verified 2026-09-02.
+4. **No `pychrono.fsi` in the older `chrono` env, so no CRM there.** Submodules are
    cascade, core, fea, irrlicht, pardisomkl, parsers, postprocess, robot, ros,
    sensor, vehicle. Any CRM work needs a source build of Chrono with FSI and
    Python bindings enabled, or C++. This blocks the CRM half of the proposed
    quadruped case study; see
    [`../progress/future-case-studies.md`](../progress/future-case-studies.md).
-4. **`pychrono.parsers` is broken, not absent.** `_parsers.so` is present but
+5. **`pychrono.parsers` is broken in `chrono`, not absent.** `_parsers.so` is present but
    `ldd` reports `libament_index_cpp.so` and `liburdfdom_model.so.3.0`
    unresolved: it was built against ROS2 and urdfdom 3.0, neither installed
    here. So `ChParserURDF` is unavailable, which blocks importing a Go2 URDF.
    `pychrono.robot` is unaffected and RoboSimian works.
-5. **`newton` is not resolvable from here** (`Temporary failure in name
+6. **`newton` is not resolvable from here** (`Temporary failure in name
    resolution`, 2026-09-02). No SSH host entry and/or not on the network. Work
    destined for newton must be pushed to GitHub and pulled there by someone with
    access.
-6. Local Chrono checkout is at `/home/kyle/Documents/sbel/chrono_fork/chrono`,
+7. Local Chrono checkout is at `/home/kyle/Documents/sbel/chrono_fork/chrono`,
    which is the source tree, not the pychrono package the env uses.
