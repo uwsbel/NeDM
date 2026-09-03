@@ -688,3 +688,77 @@ are unsupported.
 Silently accepting a valid subtype and drawing nothing is the defect, not the
 missing feature. Report order: options struct unbound, primitive-sprite silence,
 `Background`, `ChDepthCamera` `ray_scale`.
+
+## Building a standalone consumer against the source tree
+
+*Written by `kyle-N7-B650E`, 2026-09-03, from four obstacles hit in sequence.*
+
+The pinned build tree is **not installed**, so a program linking against it — the
+CRM render gate, or anything else outside `chrono-src` — needs four things the
+in-tree demos get for free. All four are silent or misleading in different ways.
+
+### 1. Component names are not library names
+
+`find_package(Chrono COMPONENTS ...)` takes `FSI_SPH`, `SENSOR`, `VEHICLE`,
+`PARSERS`, `POSTPROCESS`. **There is no `ROBOT` component**, even though
+`libChronoModels_robot.so` exists and `Chrono::ChronoModels_robot` is a valid link
+target. Requesting `Robot` fails with *"Chrono was not configured with support for
+the REQUIRED component ROBOT"*, which reads as a build-configuration problem and
+is a naming one.
+
+### 2. Imported targets from an uninstalled tree carry no include directories
+
+`Chrono::Chrono_core` and friends resolve and link, but
+`#include "chrono/physics/ChSystemNSC.h"` fails. Name them explicitly:
+
+```cmake
+target_include_directories(<tgt> PRIVATE
+  /home/kyle/chrono-src/src      # headers
+  /home/kyle/chrono-build        # generated ChConfig.h
+  /usr/include/eigen3)
+```
+
+`ChronoConfig.cmake` supplies compile definitions and the OptiX include path
+itself, so those need not be repeated.
+
+### 3. Parsers drags in transitive finds the consumer must resolve
+
+`ChronoTargets.cmake` exports `Chrono_parsers` with `urdfdom::urdfdom_model`,
+`urdfdom::urdfdom_sensor` and `tinyxml2::tinyxml2` in its link interface and does
+**not** `find_package` them. Because the targets file defines every module, this
+fails **even for a consumer that does not use Parsers**. Each missing package
+surfaces only after the previous is fixed — four configure cycles, not one:
+
+```cmake
+find_package(tinyxml2 REQUIRED CONFIG PATHS /usr/lib/x86_64-linux-gnu/cmake/tinyxml2 NO_DEFAULT_PATH)
+find_package(urdfdom_headers REQUIRED CONFIG PATHS /opt/ros/jazzy/lib/x86_64-linux-gnu/urdfdom_headers/cmake NO_DEFAULT_PATH)
+find_package(console_bridge QUIET CONFIG PATHS /opt/ros/jazzy/lib/x86_64-linux-gnu/console_bridge/cmake)
+find_package(urdfdom REQUIRED CONFIG PATHS /opt/ros/jazzy/lib/x86_64-linux-gnu/urdfdom/cmake NO_DEFAULT_PATH)
+# ...then find_package(Chrono ...)
+```
+
+**This is the ROS divergence demonstrated rather than predicted.** Paths are
+written as literals *on purpose*: on `kyle-N7-B650E` they resolve to Jazzy's
+urdfdom and the **system** tinyxml2 (24.04 ships
+`/usr/lib/x86_64-linux-gnu/cmake/tinyxml2`; 22.04 does not), and on `kyle-sbel`
+to Humble's urdfdom and a **conda** tinyxml2. **The recipe above is correct for
+one box and wrong for the other**, and a templated version would hide exactly the
+fact the section exists to record.
+
+### 4. `CHRONO_DATA_DIR` is relative, and getting it wrong segfaults
+
+It expands to `../data/`, so the working directory decides whether a run works.
+The wrong directory does **not** produce a clean error — it prints
+
+```
+tiny_obj error message: Cannot open file [../data/robot/viper/col/viper_chassis.obj]
+```
+
+and then dies with **SIGSEGV**.
+
+**This matters more than it looks.** On a box where OptiX or the driver is under
+suspicion, a segfault out of a rendering program reads as a GPU problem. It is a
+missing file, and it nearly was read as one. Run from a directory whose parent
+holds a Chrono `data/` tree; a scratch directory with a symlink to
+`chrono-src/data` works and avoids writing into the pinned tree. Prefer
+`chrono-src/data`, which is the complete tree.
