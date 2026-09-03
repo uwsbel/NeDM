@@ -148,6 +148,8 @@ def main() -> int:
     ap.add_argument("--out", default="artifacts/traverse/wp1_v1")
     ap.add_argument("--steps", type=int, default=30000)
     ap.add_argument("--probe-steps", type=int, default=8000)
+    ap.add_argument("--z-dim", type=int, default=256)
+    ap.add_argument("--n-q", type=int, default=8, help="attention-pool queries")
     ap.add_argument("--batch", type=int, default=48)
     ap.add_argument("--lr", type=float, default=3e-4)
     ap.add_argument("--workers", type=int, default=10)
@@ -186,8 +188,8 @@ def main() -> int:
     train_loader = make_loader(train_ds, args.batch, args.workers, shuffle=True)
     val_loader = make_loader(val_ds, args.batch, max(2, args.workers // 2), shuffle=True)
 
-    encoder = P.Encoder().to(device)
-    heads = P.WarmupHeads().to(device)
+    encoder = P.Encoder(z_dim=args.z_dim, n_q=args.n_q).to(device)
+    heads = P.WarmupHeads(z_dim=args.z_dim).to(device)
     sp_heads = P.SpatialAuxHeads().to(device)
     params = list(encoder.parameters()) + list(heads.parameters()) + list(sp_heads.parameters())
     opt = torch.optim.AdamW(params, lr=args.lr, weight_decay=1e-4)
@@ -259,7 +261,7 @@ def main() -> int:
     for p in encoder.parameters():
         p.requires_grad_(False)
 
-    z2_probe = P.LatentProbe().to(device)
+    z2_probe = P.LatentProbe(z_dim=args.z_dim).to(device)
     sp_probe = P.SpatialProbe().to(device)
     popt = torch.optim.AdamW(list(z2_probe.parameters()) + list(sp_probe.parameters()), lr=args.lr)
     with log_path.open("a", encoding="utf-8") as log:

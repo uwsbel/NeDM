@@ -228,7 +228,7 @@ class AttnPool(nn.Module):
 class Encoder(nn.Module):
     """256^2 x 4ch -> spatial map (c_map x 16 x 16) -> global latent z2."""
 
-    def __init__(self, z_dim: int = 256, c_map: int = 256):
+    def __init__(self, z_dim: int = 256, c_map: int = 256, n_q: int = 8):
         super().__init__()
         chans = [32, 64, 128, c_map]
         layers: list[nn.Module] = []
@@ -237,7 +237,7 @@ class Encoder(nn.Module):
             layers += [_conv_block(c_prev, c, stride=2), _conv_block(c, c)]
             c_prev = c
         self.backbone = nn.Sequential(*layers)
-        self.pool = AttnPool(c_map, z_dim)
+        self.pool = AttnPool(c_map, z_dim, n_q)
         self.z_dim = z_dim
         self.c_map = c_map
 
