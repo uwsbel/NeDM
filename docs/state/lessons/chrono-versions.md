@@ -75,11 +75,44 @@ value was never exercised against impact.
 force stays 0.99-1.02x weight throughout, which was the pre-declared refutation
 condition.
 
-**Do not simply adopt 5.0.** Artificial viscosity is a *numerical* dissipation
-term, not a soil property. Over-damping changes the foot-soil interaction Case
-Study IV exists to measure, so sinkage and drawbar numbers are not comparable
-across this value. Find the lowest setting that removes the limit cycle; 2.0
-already cuts the force swing by 57% and 3.0-4.0 are untested.
+**The usable window is narrow and bounded on BOTH sides.** Swept on the box, then
+confirmed at full scale on the robot:
+
+| av | Fz p2p (box) | full scale: 8 bodies, 725k particles |
+|---|---|---|
+| 0.5 | 161.1 N | robot flips, 178° |
+| 1.0 | 111.6 N | — |
+| **2.0** | **69.7 N** | **GATE PASS, 8 s upright, max tilt 13.9°** |
+| 3.0 | 32.4 N | **CRASHES** — particles leave the domain, core dump |
+| 5.0 | 1.0 N | **CRASHES** |
+
+So 2.0 is not a tuned optimum, it is very nearly **the only value that works**:
+below it the robot falls over, at 3.0 and above the simulation dies. And at 2.0
+the box still shows a 70 N force swing on a 37 N body, so the limit cycle is
+**suppressed by 57%, not removed**.
+
+**Three cautions for Case Study IV.** The window is narrow. Inside it the
+pathology is only suppressed. And the damping needed to stand a quadruped up is a
+*numerical* term, not a soil property, so sinkage and drawbar numbers are not
+comparable across values of it.
+
+**A methodology limit worth carrying:** the single-sphere box isolates the physics
+cleanly and does **not** predict domain-scale stability. `av = 5.0` is perfect on
+one sphere over a 1x1x0.15 patch and hard-crashes with 8 coupled bodies over
+8x4x0.15. Anything characterised on the box needs confirming at scale before it
+becomes a default.
+
+**What the CRM training environment did instead, and it is the better answer.**
+`chrono_crmenv.py`, the environment used for the real policy finetune, keeps
+`artificial_viscosity` at 0.5 and **softens the soil**: `Young_modulus` 1e6 to
+**5e5**, `cohesion` 5e3 to **2e3**, both commented "Reduced" in the source. It
+also uses a 0.2 m bed, just under the heave threshold. That is the physically
+honest fix, since Young's modulus and cohesion are soil properties, and it drops
+the elastic wave speed from 24.3 to 17.1 m/s. `--soil training` selects it.
+
+**Note `playground_crm.py` and `chrono_crmenv.py` disagree**, and only the latter
+was used for training. Reading the playground first cost hours: it is a
+visualisation scratch file, not the configuration anything was run with.
 
 **A separate, smaller residue remains**, now cleanly measurable because the
 oscillation is gone: at 5.0 a body placed at rest settles at 0.1743 and a dropped
