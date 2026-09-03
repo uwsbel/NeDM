@@ -54,6 +54,30 @@ parallel to the HMMWV's `ChPathFollowerDriver` — planner → waypoints → con
 
 **This is a training-side problem, not a deployment-side one.**
 
+## CORRECTION 2026-09-03: the yaw scale, and the probe's units
+
+**Our command scaling is wrong for any nonzero command.** We apply
+`* LIN_VEL_SCALE` to the whole three-vector. The legged_gym convention is
+`cmd_scale = [2.0, 2.0, 0.25]` — **yaw is scaled by `ang_vel_scale`, not
+`lin_vel_scale`.**
+
+It is unobservable today because the yaw command is identically zero and
+`0 × 2.0 == 0 × 0.25`. It is wrong the moment a command is driven, which is
+exactly the regime an imported or retrained policy enters. **Any imported policy
+must use `[2.0, 2.0, 0.25]`.**
+
+**And it changes the units on the obs[8] probe.** The probe swept the raw
+observation slot, so the *finding* stands — the network responds to that channel
+incoherently. But the rad/s labels divided by 2.0 where they should have divided
+by 0.25, so **every quoted command was 8× too small**: `obs[8] = 1.0` was
+**4.0 rad/s**, not 0.5.
+
+That reframes the result. The network was being driven at **four times the widest
+yaw range any comparable policy is trained over** (±1.0 rad/s). "Responds
+incoherently to a channel it never saw vary" becomes "responds incoherently when
+driven far outside any trained range" — still consistent with our checkpoint
+needing a command channel, and a materially weaker statement about the network.
+
 ## What was ruled out along the way
 
 **Our command scaling is correct.** The harness multiplies the whole three-vector
