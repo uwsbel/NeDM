@@ -217,3 +217,51 @@ with stair-stepped actions between control steps — exactly what the plant does
 Target: **~600 episodes, 75/25**, 11 families balanced. ~470 rigid (minutes,
 8-concurrent) and ~155 CRM (≈5.5 h sequential, the entire constraint), giving
 roughly **1 M transitions** at 1600 rows per 16 s episode.
+
+## Two interpretations to fix BEFORE the results arrive
+
+Both are pre-registered so a later result cannot be read the convenient way.
+
+### If `surface_disp` deletes cleanly, that is a resolution finding, not a physics one
+
+It is the only channel carrying **soil memory**, so its ablation is the most
+interesting one we will run — and the most misreadable.
+
+**A null result does NOT mean "soil memory does not matter."** It means *"at 20 mm
+particle spacing, with a foot smaller than the kernel support, we never measured
+any."* The foot floats 22.9 mm clear and the channel reads 0.17–0.23 mm. Those
+numbers are the explanation, and they point at
+[`quadruped-contact-mode.md`](quadruped-contact-mode.md) rather than at soil
+physics.
+
+Enlarged feet flip penetration positive, so the channel is measurable in
+principle — just not at this geometry.
+
+### The no-falls gap became real when the plant changed
+
+The dataset contains **zero falls**, matching the paper's practice. The standing
+risk is that a policy trained inside NRD commands something that topples the
+robot while the model predicts it upright — named in §3 and answered by
+closed-loop transfer.
+
+**That risk was near-hypothetical this morning and is not now.** On the position
+plant a fall was barely reachable: joints tracked commands as a hard constraint
+with unbounded torque. On the torque plant, with 23.7 / 45.43 N·m limits, the
+robot genuinely can topple — `model_2999` does so spectacularly. **The two halves
+of "the model has never seen one" and "the plant can produce one" come from
+different eras of this work**, and only since the plant switch are both true at
+once.
+
+Still handled by the validation hierarchy. Still not a reason to change the
+dataset. Worth knowing when reading a level-3 result.
+
+## Scaling asymmetry, for when coverage needs raising
+
+| | cost to double |
+|---|---|
+| rigid | **8 minutes** (~1 s wall per episode-second, 8 concurrent) |
+| CRM | **5.5 hours** (~8 s wall per episode-second, cannot parallelise — GPU saturated) |
+
+14 CRM episodes per family is the thin number and the right first knob if rollout
+accuracy disappoints. **Move the mix by adding CRM overnight rather than by
+anything clever** — there is no parallelism to buy.
