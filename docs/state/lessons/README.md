@@ -18,6 +18,7 @@ Scope split:
 | [`chrono-sensor.md`](chrono-sensor.md) | Chrono::Sensor camera and depth gotchas |
 | [`representation-traps.md`](representation-traps.md) | Latent and reconstruction failure modes |
 | [`rl-in-nrd.md`](rl-in-nrd.md) | Training policies inside a learned model |
+| [`chrono-versions.md`](chrono-versions.md) | Chrono 9 vs 10 API moves, and the OptiX/driver coupling |
 
 ## Template
 
