@@ -344,3 +344,36 @@ This is the same discipline as the pooled line naming its family mix: a statisti
 whose value is dominated by one member of the sample must say so on the line
 where it appears. Leverage analysis due to the coordinator; verified here
 independently (arc 77.7%, range 0.0936-0.1292).
+
+---
+
+# Amendment 4: the verdict is computed by a script that predates the result
+
+`scripts/evaluation/report_go2_level3.py` implements every threshold and
+statistic above and emits the verdict. Written and smoke-tested **before the
+final checkpoint exists**, which is the point: if the verdict comes out of a
+script that predates the number, nobody chooses how to compute it after seeing
+the number — including whoever wrote the pre-registration, which amendment 1
+exists to document as a live risk rather than a hypothetical one.
+
+It refuses two things the pre-registration forbids: it will not compare paired
+absolute differences across arms, and it will not print a slope without its
+leave-one-out range.
+
+## One rule that had to be made concrete, and is therefore registered here
+
+The registration named the **median paired absolute difference** and the count,
+but never said what makes it a BEAT. Making that concrete now, before the result:
+
+    BEAT    median difference < 0 and policy better on >= 6 of 8
+    FAIL    median difference > 0 and policy worse  on >= 6 of 8
+    PARITY  otherwise
+
+**A sign test plus the same majority condition, with NO magnitude threshold in
+metres.** A magnitude threshold would have to be invented, and any value chosen
+now would be chosen by someone who has seen the plumbing table — the same
+objection as the excluded-reference "fix" in amendment 1, and refused for the
+same reason. The ratio already carries the effect-size judgement (the registered
+10%); the paired difference carries direction and consistency only. That is a
+real limitation of the co-reported statistic and is stated rather than papered
+over.
