@@ -529,3 +529,35 @@ separates it.
 
 Permute with a recorded seed. A control that cannot be reproduced is a control
 nobody can check.
+
+### Permuting a STATE channel is harder than permuting a CONTEXT input
+
+A context input is **exogenous**: supplied, never predicted, never fed back. Permute
+it and nothing else about the model changes. That is dorm-pc's contact-mode cell,
+and it is clean.
+
+A state channel is **endogenous** — it is predicted, it is in the loss, and in
+autoregressive rollout the model's own prediction for it becomes the next step's
+input. Naive permutation breaks the control in two separate ways:
+
+1. **The loss becomes incomparable.** `channel_weights` are mean-normalized to 1
+   across channels (`trainer.py:524`), so a permuted channel is unpredictable, its
+   per-channel term is large, and it dominates the aggregate. One-step loss then
+   differs between cells for a reason that has nothing to do with the question.
+2. **Train and rollout see different input distributions, in the permuted cell
+   only.** During training that channel's inputs are permuted and jumpy; during
+   rollout the model feeds back its own best prediction, which is smooth. The real
+   cell has no such mismatch, so the permuted cell can lose for an artifact.
+
+**The fix is to make the channel exogenous in the control cell:** supply it from
+the permuted record as a context-style input at both training and rollout time, so
+it is never predicted and never in the loss. Input width is then held exactly
+fixed, which is the thing the control exists to hold, and only the output head
+differs by one channel.
+
+**Compare on `rollout_sel`, not on aggregate one-step loss.** The rollout metric is
+pose-derived — `_integrate_pose` uses only `vel_body_x_mps`, `vel_body_y_mps` and
+`yaw_rate_radps` — so a permuted non-pose channel affects it *only* through its
+influence on predicting those three. That is exactly the causal path under test.
+Report one-step loss restricted to the channels present in both cells, never the
+aggregate.
