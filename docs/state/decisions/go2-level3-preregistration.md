@@ -764,3 +764,66 @@ an observability problem.
 Prescription 4 — "the integral term must arrive in the observation at a scale the
 network can act on" — is **withdrawn for this run**. It would apply to a run
 without empirical normalisation.
+
+---
+
+# Amendment 9: the slope is largely the ratio in disguise, and the gloss was written against the wrong reference set
+
+## The intercept test, and it does not go our way
+
+If `policy_i = k·floor_i` exactly, the regression returns slope `k` and intercept
+0 — and then **the slope IS the ratio, leveraged, not a second reading of it.**
+The through-origin slope is exactly a floor-weighted mean ratio, so comparing it
+to the median ratio decides which case we are in.
+
+Measured on the dress rehearsal (model_1100, reselected eight):
+
+    OLS slope 0.8860      intercept -0.0103 m
+    through-origin slope 0.7561   vs   median ratio 0.6795
+    difference: 11%
+
+**They agree to 11%. The slope is largely the ratio in disguise on this reference
+set.** The intercept is −0.010 m against policy errors spanning 0.011–0.135 m, so
+it is small but not negligible; the two statistics are not identical, but they are
+not independent either.
+
+**Consequence, stated plainly: the joint verdict is weaker than it looked.** The
+pre-registration treated the ratio and the slope as separate readings. They are
+not, on a reference set where policy error scales with floor. The statistics that
+remain genuinely independent of the ratio are the **paired absolute difference**
+(no denominator) and the **count**. Registered because a reader would otherwise
+count three agreeing statistics where there are two. Raised by the coordinator
+before the real number existed.
+
+The report now prints the intercept and the through-origin/median-ratio
+comparison on every run. The 15% flag for "one statistic twice" is a **display
+threshold, not a verdict criterion** — no registered verdict depends on it.
+
+## The slope gloss was written while looking at a station-keeping set
+
+Amendment 2 registered: *"slope > 2/3 → the policy inherits reference difficulty
+→ the beat is not correction, it is easier references."* That was written against
+the ORIGINAL eight, where six of eight moved under 30 cm.
+
+On references that actually move, **some inheritance of difficulty is expected** —
+a harder trajectory is harder for any controller, open- or closed-loop. A slope
+near 1 there may mean "the difficulty is real and affects both" rather than "the
+policy got an easy draw."
+
+The evidence that the gloss was population-dependent is our own: `spearman(floor,
+policy)` moved from +0.595 (p = 0.13, slope 0.109) on the station-keeping eight to
++0.810 (p = 0.022, slope 0.886) on the moving eight. Same code, same statistic,
+inverted reading — because on a station-keeping set policy error is uniform for
+want of anything to track, which looks identical to "independent of difficulty".
+
+**The thresholds stay.** 0 and 1 have data-independent meanings and that was the
+whole reason for setting them from endpoints rather than from data. **The
+interpretive gloss is corrected**, now, before the number arrives — because
+afterwards whichever reading suits the result will look like the natural one:
+
+    the slope measures THE FRACTION OF REFERENCE DIFFICULTY THE POLICY INHERITS.
+    On a moving reference set a nonzero value is expected. The diagnostic content
+    is in the ratio and the count, not in the slope alone.
+
+Correction proposed by the coordinator; the supporting evidence is the structural
+inversion measured here.

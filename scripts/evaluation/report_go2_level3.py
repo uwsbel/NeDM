@@ -132,7 +132,13 @@ def structure(rows: list[dict[str, Any]]) -> dict[str, Any]:
     policy = np.array([r["policy"] for r in rows])
     diff = policy - floor
 
-    slope = float(np.polyfit(floor, policy, 1)[0])
+    slope, intercept = (float(v) for v in np.polyfit(floor, policy, 1))
+    # IS THE SLOPE INDEPENDENT EVIDENCE, OR THE RATIO IN DISGUISE? If
+    # policy_i = k*floor_i exactly, the fit returns slope k and intercept 0, and
+    # the slope IS the ratio -- leveraged -- rather than a second reading of it.
+    # The through-origin slope is exactly a floor-weighted mean ratio, so
+    # comparing the two says which case we are in. Raised by the coordinator.
+    through_origin = float((floor * policy).sum() / (floor * floor).sum())
     # LEAVE-ONE-OUT IS MANDATORY, not optional (amendment 3). With the predictor
     # spanning ~40x, one reference can own most of Sxx, and a leveraged estimate
     # and a robust verdict are different properties.
@@ -146,9 +152,14 @@ def structure(rows: list[dict[str, Any]]) -> dict[str, Any]:
 
     lo, hi = min(loo), max(loo)
     if hi < SLOPE_INDEPENDENT:
-        reading = "policy error largely INDEPENDENT of reference difficulty"
+        reading = ("policy error largely INDEPENDENT of reference difficulty -- but check "
+                   "whether the references move: on a station-keeping set this is what "
+                   "uniform policy error looks like, not what correction looks like")
     elif lo > SLOPE_INHERITS:
-        reading = "policy INHERITS reference difficulty -- the beat is easier references"
+        reading = ("policy inherits MOST of reference difficulty. NOTE: on a reference "
+                   "set that actually moves, a nonzero slope is EXPECTED -- a harder "
+                   "trajectory is harder for open- and closed-loop alike. The diagnostic "
+                   "content is in the ratio and the count, not the slope alone.")
     elif lo > SLOPE_INDEPENDENT and hi < SLOPE_INHERITS:
         reading = "partial"
     else:
@@ -158,7 +169,8 @@ def structure(rows: list[dict[str, Any]]) -> dict[str, Any]:
     r_pol = spearman(floor, policy)
     r_diff = spearman(floor, diff)
     return {
-        "slope": slope, "loo_min": lo, "loo_max": hi, "loo": loo,
+        "slope": slope, "intercept": intercept, "through_origin_slope": through_origin,
+        "loo_min": lo, "loo_max": hi, "loo": loo,
         "leverage": leverage, "reading": reading,
         "spearman_floor_policy": r_pol,
         "spearman_floor_policy_p": exact_permutation_p(floor, policy),
@@ -196,8 +208,14 @@ def report_arm(label: str, arm: dict[str, Any]) -> dict[str, Any]:
         print("    itself the finding: the policy improves the hard references and regresses")
         print("    the easy ones, or the reverse. Neither is 'the real one'.")
 
-    print(f"\n  STRUCTURE -- does the policy inherit reference difficulty?")
-    print(f"    OLS slope of policy on floor: {st['slope']:+.4f}")
+    print(f"\n  STRUCTURE -- what fraction of reference difficulty does the policy inherit?")
+    print(f"    OLS slope of policy on floor: {st['slope']:+.4f}  intercept {st['intercept']:+.4f} m")
+    ratio_med = float(np.median([r["ratio"] for r in rows]))
+    print(f"    through-origin slope {st['through_origin_slope']:.4f} vs median ratio {ratio_med:.4f}")
+    gap = abs(st["through_origin_slope"] - ratio_med) / max(ratio_med, 1e-9)
+    print("      the through-origin slope IS a floor-weighted mean ratio, so if these")
+    print(f"      agree the slope is the ratio in disguise. They differ by {100*gap:.0f}%"
+          + ("  -> ONE STATISTIC TWICE" if gap < 0.15 else "  -> genuinely two readings"))
     print(f"    leave-one-out range:          {st['loo_min']:+.4f} to {st['loo_max']:+.4f}   "
           f"(max leverage {100 * max(st['leverage']):.1f}%)")
     print(f"    reading: {st['reading']}")
