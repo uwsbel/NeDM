@@ -1213,3 +1213,40 @@ a physical consistency check, not a second look: they cannot reach a foot 0.426 
 below the hip. The URDF joint frames give L_thigh = L_calf = 0.2130, which extends
 to exactly 0.426. **Check that a geometric quantity closes against an independent
 measurement of the same geometry**; plausibility is not a test.
+
+## Before running a verification step, state what result would constitute failure
+
+If no reachable result would say "no", the step is decoration — and worse than no
+step, because it produces the feeling of having checked.
+
+The instance: a collection was gated on confirming that `--ground-size-m 200.0`
+and `--perturb-peak-n` appeared in the first episode's log line. The driver logs
+progress counts, not subprocess command lines. **That grep returns nothing whether
+the design flag took effect or not.** It was handed over as the safeguard against
+a provenance defect that had just been described in the same message, so passing
+it would have meant signing off on a possibly-wrong dataset while believing it
+verified.
+
+What replaced it was falsifiable:
+
+    168 columns against the old design's 69
+    3889 rows against 1475
+    duration_s 41.25 against 16
+    plant_bed_m [-100, 100, -100, 100] against [-5, 5, -5, 5]
+    travel x -1.85..40.28 -- 40 m, PHYSICALLY IMPOSSIBLE on the old 10 m bed
+    cmd_vx 1.634, outside the old +/-0.5 envelope
+
+Any one of the column or row counts could in principle be a coincidence. **Travel
+exceeding the old bed size cannot be** — it is the one that could have come out
+"no", and it is what makes the set a check rather than a tally.
+
+Same family as "an n=8 correlation quoted without its p", and as "a comparison
+that looked too clean", reaching the same conclusion from a third direction. This
+one is the worst of the three because it was a check on PROVENANCE rather than on
+a result: a wrong result gets argued about later, and wrong provenance is
+undetectable later by construction.
+
+The habit that generalises: **write down the failing outcome before running the
+check.** If you cannot name one, you have not designed a check yet. The same test
+applies to a clamp in place of an exception — `Unreachable` raised from the IK has
+a failing outcome; silently clamping the acos domain does not.
