@@ -226,3 +226,17 @@ success when the thing it checks did not happen.**
 
 The last two are the same bug at different depths, ten minutes apart, and the
 second was invisible to the rule written for the first.
+### A cleanup command can match itself
+
+Twice in the same hour, a `pkill -f <pattern>` used to clear stale collectors
+matched **the shell that was running the `pkill`**, because the pattern appeared
+in that shell's own command line. Both times the command died with exit 144 and
+the job it was supposed to be tidying up around was left in an unclear state.
+
+The second time was ten minutes after writing the section above, which is the
+point: the failure family is *a signal or an action aimed at the wrong process*,
+and knowing the waiter version of it did not stop the killer version.
+
+**Kill by resolved PID.** If a pattern must be used, match on something that
+cannot appear in the killer — or check `pgrep -f` first and read what it would
+have hit.
