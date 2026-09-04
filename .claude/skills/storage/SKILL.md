@@ -1,52 +1,75 @@
 ---
 name: storage
-description: Storage and compute division of labor for this 1TB / RTX 5090 workstation. Use before planning data collection, launching anything that writes large artifacts, transferring datasets between machines, or deciding where a job should run.
+description: Which machine runs what, and where large artifacts live. Use before planning data collection, launching anything that writes large artifacts, transferring datasets between machines, or deciding where a job should run.
 ---
 
-# Storage policy: this workstation trains, other machines collect
+# Compute and storage across the fleet
 
-## Machines and roles
+**Rewritten 2026-09-04.** The previous version described a `this desktop` /
+`newton` / `Euler cluster` topology dated 2026-09-01 — the day before the current
+fleet existed. None of those hosts are reachable and none of its rules applied to
+the machines actually doing the work. It is superseded entirely.
 
-| Machine | GPU | Disk | Role |
-|---|---|---|---|
-| **This desktop** | RTX 5090, 32 GB | 1 TB total (~700 G free, 2026-09-01 after cleanup) | Training, eval, figures. **Never raw data collection.** |
-| **newton** (`ssh newton`, repo at `~/NeDM`) | RTX 4090, 24 GB | 1.8 TB (~630 G free; `artifacts/` already 542 G) | Chrono data collection, including Chrono::Sensor RGB-D rendering. Home of the raw frame stores. |
-| **Euler cluster** | CPU array | cluster storage | State-only CPU-scale collection via SLURM arrays — see the `create-euler-script` skill. |
+## Machines
 
-## Rules
+| Host | Role | GPU | Free disk | Workdir |
+|---|---|---|---|---|
+| **Kyles-MacBook-Pro** | coordinator | — (arm64) | — | `~/NeDM` |
+| **`sbel-pc`** = kyle-sbel | collection, training, eval | RTX 3090, 24 GB, sm_86 | ~1.2 TB | `~/Documents/sbel` |
+| **`dorm-pc`** = kyle-N7-B650E | collection, training, eval | RTX 5070 Ti, 16 GB, sm_120 | ~331 GB | `~/sbel` |
+| **`kyle-B650M-D3HP`** | unverified — see below | RTX 5060 Ti, 8 GB, sm_120 | ~414 GB | `~/sbel` |
 
-1. **No dataset collection on this machine.** Chrono episode collectors, RGB-D
-   rendering runs, and anything that writes raw per-frame data run on newton
-   (needs GPU rendering) or Euler (state-only). If asked to "collect data",
-   set the job up for one of those machines, not here.
-2. **Only trainable assets come here:** compressed/processed training datasets
-   (the episode-chunked stores the loaders actually read), layout/camera
-   manifests, model checkpoints, small eval summaries. Raw frame dumps,
-   per-frame PNG dirs, uncompressed memmaps, and video archives stay on newton.
-3. **Check sizes before transferring.** `ssh newton "du -sh ~/NeDM/artifacts/<name>"`
-   and `df -h /` locally first. With ~700 G free (2026-09-01), local
-   `artifacts/` can hold up to ~400 G of training-ready stores; keep ≥250 G
-   headroom for checkpoints, caches, and system growth.
-4. **Transfer pattern:**
-   ```bash
-   rsync -avP newton:NeDM/artifacts/<name> /home/harry/NeDM/artifacts/
-   ```
-   Checkpoints/results produced here that newton needs go back the same way.
-5. **Study 3 (traverse) budget context:** per plan §6.1, raw RGB-D frames are
-   ~25–49 GiB at pilot tier and **122–488 GiB at full tier**. Full-tier raw
-   must never land on this disk — only the compressed, training-ready store.
-   The compressed store IS the trainable asset; pulling it here for 5090
-   training is the intended workflow.
+Specs above are as reported by each machine on 2026-09-04, not inherited from an
+earlier document. **The old table's GPU entries were wrong for both compute nodes
+and nearly caused a correct metadata field to be overwritten with a plausible
+false one** — if a spec here matters to a decision, have the machine confirm it.
 
-## Running jobs on newton
+`kyle-B650M-D3HP` was reconfigured after its last survey and its current toolchain
+has not been checked. **Verify before assigning it work.**
 
-- Python with pychrono + torch: `~/anaconda3/envs/nedm/bin/python` (conda env
-  `nedm`); repo scripts need `PYTHONPATH=src` from `~/NeDM`. 32 CPU cores;
-  headless Chrono HMMWV episodes run ~15–25× slower than realtime, so batch
-  with ~12 workers and expect ~4 min per 10 s episode.
-- Detached launch (plain `ssh newton 'nohup ... &'` hangs the session):
-  ```bash
-  ssh newton 'cd ~/NeDM && nohup env PYTHONPATH=src ~/anaconda3/envs/nedm/bin/python -u <script> > /tmp/<name>.log 2>&1 < /dev/null & echo launched'
-  ```
-- Deliver code by commit + push from here, `git pull --ff-only` on newton —
-  never edit files on newton directly.
+## Where work runs
+
+**Both compute nodes collect data.** `sbel-pc` and `dorm-pc` have each collected
+Chrono episode datasets — 968 rigid + 152 CRM and 152 CRM + 304 rigid respectively.
+There is no "collection machine" and no prohibition on collecting anywhere.
+
+- **Rigid-body collection** is CPU-bound and parallelises well (8-concurrent measured).
+- **CRM / granular collection** saturates one GPU and runs sequentially — roughly
+  2 minutes of wall-clock per 16 s episode. It is the fleet's scarcest resource.
+- **Training and policy rollout** are GPU-bound. Check with the machine before
+  launching; a CRM collection and a training run will contend.
+
+The coordinator does not run simulations.
+
+## Dataset identity across machines
+
+**Every collection must use a distinct `--seed-offset`.** Episode ids embed it, and
+`preprocess.py` raises on duplicate ids across roots — which is the only thing that
+makes a cross-machine merge safe.
+
+Offsets used so far: `0` (sbel-pc), `1000000` (dorm-pc), `2000000` and `3000000`
+(reserved for the joint-state collection). **Pick an unused one and record it.**
+
+## Transferring datasets
+
+Syncthing is the transfer path — the machines are on networks without inbound
+ports, so there is no direct `ssh`/`rsync` between them.
+
+- Shared folder: `~/sync/sbel`, three devices, `sendreceive`.
+- `.stignore` excludes `*.mp4`, `*.exr`, `build/`, `__pycache__` and similar.
+  **`.tar.gz` is not excluded** — archive a dataset and it syncs.
+- **Send one archive, not a directory tree.** 460 loose files is 460 writes into a
+  shared folder; a tarball is one.
+- **Move the smaller half.** Direction is set by volume, not by which machine has
+  space.
+- Verify by `sha256` on both ends before trusting a transfer.
+
+Writes into `~/sync/sbel` publish to every other device automatically, so they may
+require explicit approval on some machines. That is a per-machine permission
+matter, not a rule of this document.
+
+## Large artifacts
+
+Raw per-frame stores, uncompressed memmaps and video stay on the machine that
+produced them. Move the processed cache or an archive, not the frame directory.
+Check free space on the receiving machine first — `df -h`.
