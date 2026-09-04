@@ -810,6 +810,25 @@ class HMMWVTrainer:
                 families.remove(family)
                 family_index -= 1
             family_index += 1
+        # Report the family mix of what was ACTUALLY selected, every time and
+        # unconditionally. The round-robin above balances across scenario_family, so a
+        # field that collapses to one value degenerates it to "first N in list order"
+        # while still returning N episodes -- which is indistinguishable from success
+        # in the output. This is not a heuristic and does not judge: an arm dataset
+        # with no collisions is legitimately one family (preprocess.py:390), and a
+        # threshold that flagged it would be the same mistake it is meant to catch.
+        # Printing the mix beside the rollout number it feeds means nobody has to have
+        # anticipated this failure to see it.
+        chosen: dict[str, int] = {}
+        for episode in selected:
+            key = str(episode.get("scenario_family"))
+            chosen[key] = chosen.get(key, 0) + 1
+        print(
+            f"rollout selection: {len(selected)} episodes over {len(chosen)} "
+            f"famil{'y' if len(chosen) == 1 else 'ies'}"
+        )
+        for family in sorted(chosen):
+            print(f"  {family}: {chosen[family]}")
         return selected
 
     def _rollout_episode(
