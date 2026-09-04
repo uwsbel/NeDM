@@ -19,7 +19,11 @@ from __future__ import annotations
 import csv, hashlib, json, sys, shutil
 from datetime import datetime, timezone
 from pathlib import Path
-sys.path.insert(0, "/home/kyle/Documents/sbel/NeDM/src")
+# Derived from __file__, NOT hardcoded. The absolute path that was here named
+# this box's checkout and made the script unimportable on dorm-pc, whose repo
+# is at ~/sbel/NeDM -- so the one canonical repair script could not be run on
+# half the dataset it is canonical for.
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 from nedm.hmmwv_data import assign_split
 
 VAL_RATIO = 0.2

@@ -99,7 +99,11 @@ def go2_default_chrono_env_cfg() -> dict[str, Any]:
             "device": "cpu",
             "chrono_config": None,       # required: the collector config to reproduce
             "imported_policy_ckpt": None,  # required: go2_cts_150k.pt
-            "urdf_assets_root": "/home/kyle/Documents/sbel/sbel-reproducibility/2025/multi-terrain-RL",
+            # Machine-specific, so it is an env var with this box's value as the
+            # fallback rather than a constant. NEDM_GO2_ASSETS overrides.
+            "urdf_assets_root": os.environ.get(
+                "NEDM_GO2_ASSETS",
+                "/home/kyle/Documents/sbel/sbel-reproducibility/2025/multi-terrain-RL"),
             "pose_ramp_seconds": 0.75,
             "settle_seconds": 0.5,
             # Matches the collection: foot_margin_spacings * spacing + leg reach.
@@ -461,8 +465,9 @@ class Go2ChronoCRMTrackingEnv(Go2ChronoTrackingEnv):
         roots = self.cfg.get("episode_metadata_roots")
         if roots:
             return [str(r) for r in roots]
-        return [str(Path.home() / "sbel-artifacts/datasets/go2_merged/crm"),
-                str(Path.home() / "sbel-artifacts/datasets/go2_merged/flat")]
+        env_root = os.environ.get("NEDM_GO2_MERGED_ROOT")
+        base = Path(env_root) if env_root else Path.home() / "sbel-artifacts/datasets/go2_merged"
+        return [str(base / "crm"), str(base / "flat")]
 
     def _crm_args(self) -> SimpleNamespace:
         """Rebuild the namespace build_crm reads, from the collector config.
