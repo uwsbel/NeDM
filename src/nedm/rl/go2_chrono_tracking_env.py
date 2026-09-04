@@ -418,8 +418,51 @@ class Go2ChronoCRMTrackingEnv(Go2ChronoTrackingEnv):
         from nedm.quadruped.terrain import build_crm
 
         args = self._crm_args()
+        # Widen the patch to the bed this episode was actually collected on,
+        # BEFORE the assertion, so the assertion tests the bed that will be built.
+        bed = self._episode_bed(reference_id)
+        if bed is not None:
+            x_lo, x_hi, y_lo, y_hi = bed
+            args.patch_x = float(x_hi - x_lo)
+            args.patch_y = float(y_hi - y_lo)
         self._assert_spawn_on_bed(reference_id, args)
         return build_crm(chrono, fsi, veh, system, robot, args)
+
+    def _episode_bed(self, reference_id: int) -> tuple[float, float, float, float] | None:
+        """The bed THIS reference's episode was collected on, from its metadata.
+
+        THE COLLECTION DID NOT USE ONE BED SIZE. 133 CRM episodes ran on
+        patch_y 4.0 and 19 on patch_y 8.0 -- collect_go2_smoke's spawn_for uses a
+        wider patch for the lateral family, which strafes. The merged
+        collector_config.resolved.json records ONE episode's config, so building
+        every eval bed from it puts 19 of 152 episodes on a bed half the width
+        they were collected on, and a lateral reference starting at |y| = 3.0
+        then spawns a metre off the edge and records zero foot load. That is the
+        failure the collection already had once with 21 episodes.
+
+        Falls back to the config when an episode's metadata cannot be found, and
+        SAYS SO, because silently using the config is how the wrong bed gets
+        built without anyone noticing.
+        """
+        import json
+
+        episode_id = self.reference_set.episode_ids[reference_id]
+        for root in self._episode_metadata_roots():
+            path = Path(root) / "episodes" / f"{episode_id}.json"
+            if path.is_file():
+                bed = json.loads(path.read_text()).get("plant_bed_m")
+                if bed and len(bed) == 4:
+                    return tuple(float(v) for v in bed)
+        print(f"[go2-crm] WARNING: no plant_bed_m for {episode_id}; "
+              f"falling back to the config bed, which may be the wrong width")
+        return None
+
+    def _episode_metadata_roots(self) -> list[str]:
+        roots = self.cfg.get("episode_metadata_roots")
+        if roots:
+            return [str(r) for r in roots]
+        return [str(Path.home() / "sbel-artifacts/datasets/go2_merged/crm"),
+                str(Path.home() / "sbel-artifacts/datasets/go2_merged/flat")]
 
     def _crm_args(self) -> SimpleNamespace:
         """Rebuild the namespace build_crm reads, from the collector config.
