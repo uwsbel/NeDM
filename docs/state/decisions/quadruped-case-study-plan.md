@@ -237,6 +237,34 @@ physics.
 Enlarged feet flip penetration positive, so the channel is measurable in
 principle — just not at this geometry.
 
+### What counts as success at OUR scale, fixed before the numbers exist
+
+We collected more than the target: **~968 flat and ~304 CRM**, about 1.9 M
+transitions at 1475 recorded rows per 16 s episode. But the CRM half is roughly
+**15% of the HMMWV's CRM scale**, and the scaling table above is the only
+calibrated statement we have about what that costs.
+
+Reading off it, 20% of their data gives S = 6.9% with CRM rollout at 9.6%. So:
+
+| level-2 CRM rollout err | what it means | what to do |
+|---|---|---|
+| **6–12%** | consistent with data quantity at our fraction | **nothing.** Not evidence the state is wrong. |
+| **> 15%** | worse than data quantity explains | look at the **state**, not the data |
+| **flat worse than CRM** | something is wrong upstream | rigid is the easier plant; suspect the mix or the flat cache |
+
+**The middle row is the one that will be tempting to misread.** A CRM rollout
+error near 10% will look like a bad result next to the paper's 5.4%, and the
+correct response is to add CRM episodes overnight — the 5.5-hour knob — not to
+start adding state channels. Adding channels in response to a data-quantity
+shortfall would produce a state that looks justified and is not, and the deletion
+rule would never catch it because the channel would appear to earn its place.
+
+**The selection metric does not change after we see results.** The checkpoint is
+the one minimizing held-out open-loop rollout error at the 10 s horizon, per
+`rollout_sel` in the config and per the framework's own rule. One-step loss and
+rollout error can rank checkpoints differently; that is expected and is not a
+reason to switch.
+
 ### The no-falls gap became real when the plant changed
 
 The dataset contains **zero falls**, matching the paper's practice. The standing
