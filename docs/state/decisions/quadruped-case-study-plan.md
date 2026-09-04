@@ -333,17 +333,42 @@ the ground-truth **path length** pooled over the selected episodes
 |---|---|---|---|
 | HMMWV flat | **52.89** | 2.02 | 3.8% |
 | HMMWV CRM | **30.41** | 1.30 | 4.3% |
-| Go2 CRM | **~1.5–3** (est.) | ? | ? |
+| **Go2 flat** | **1.02** (measured, n=966) | ? | ? |
+| **Go2 CRM** | **1.24** (measured, n=110) | ? | ? |
 
-A vehicle at highway-ish speed covers 30–53 m in a 10 s rollout. **Our quadruped
-covers 1–3 m** — achieved speeds run 0.03 m/s forward inside the dead zone to
-~0.25 m/s backward, and the `pivot` family barely translates at all. So the
-denominator is **10–20× smaller**.
+Measured by reproducing `gt_distance` exactly — per-step XY path length summed over
+indices 128–1128, the `block_size` offset and the 10 s horizon the selection metric
+uses. **The gap is 52× on flat and 25× on CRM**, worse than the 10–20× first
+estimated.
 
-The consequences, both directions:
+Per family, and the spread matters more than the mean:
 
-- To match their 4.3% we would need `xy_rmse` ≈ **6–13 cm** after a 10 s rollout.
-- Their *absolute* 1.30 m error, on our denominator, would read as **43–87%**.
+| | flat | crm |
+|---|---|---|
+| arc | 1.46 | 1.46 |
+| lateral | 1.35 | 1.57 |
+| yaw_step | 1.13 | 1.25 |
+| constant | 0.96 | 1.32 |
+| **pivot** | **0.54** | **0.55** |
+
+- To match their 4.3% we would need `xy_rmse` ≈ **5 cm** after a 10 s rollout.
+- Their *absolute* 1.30 m error, on our denominator, would read as **>100%**.
+
+**The sharper consequence:** the denominator is pooled over twelve episodes drawn
+one per family, and family path lengths differ by **2.7×** (`pivot` 0.54 m against
+`arc` 1.46 m). `pivot` barely translates, so it contributes almost nothing to
+`gt_distance` while contributing normally to `pos_sq_error` — **it inflates
+`errdist` through the denominator without any model being worse on it.** A
+checkpoint that improves on `pivot` moves the metric less than one that improves on
+`arc`, purely through path length. So our `errdist` is not comparable to theirs
+*even after correcting for scale*: their maneuver families all translate, and two
+of ours essentially do not. **Report `errdist` per family as well as pooled**, so
+the pooled number's composition is visible.
+
+`trainer.py:770` calls `errdist` "the honest cross-domain comparison" — and it is,
+**across domains within one system** (flat against CRM), which is what it was
+written for. We read it as cross-*system*. The comment is correct; we generalised
+past its scope.
 
 **Therefore the 6–12% band above is withdrawn as a cross-study comparison.** It was
 derived from data-scaling fractions, which remain valid, applied to a metric that
@@ -355,9 +380,19 @@ truth — so it ranks checkpoints exactly as `xy_rmse` does. **Selection is fine
 only the comparison to the paper's numbers is broken.**
 
 **What to do:** report `mean_dist_m` alongside `errdist` on the first rollout eval,
-then set the band from our own denominator. Compare absolute `xy_rmse` against
-robot scale (a Go2 is ~0.7 m long) rather than reading a ratio across systems that
-travel 20× differently.
+per terrain *and per family*, then set the band from our own denominator.
+
+For a reader-interpretable calibration, use **error in body lengths**, each system
+divided by *its own* length — an HMMWV is ~4.6 m, a Go2 ~0.7 m:
+
+| | absolute err | body length | err / body length |
+|---|---|---|---|
+| HMMWV CRM (anchor) | 1.30 m | 4.6 m | **0.28** |
+| Go2 at 0.20 m | 0.20 m | 0.7 m | 0.29 — parity |
+| Go2 at 0.10 m | 0.10 m | 0.7 m | **0.14** — 2× better |
+
+Divide each system's error by *its own* length. Dividing the HMMWV's 1.30 m by the
+Go2's 0.7 m gives 1.9 and compares nothing.
 
 **The selection metric does not change after we see results.** The checkpoint is
 the one minimizing held-out open-loop rollout error at the 10 s horizon, per
