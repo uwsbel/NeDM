@@ -309,3 +309,38 @@ distributions differ, so centimetres are not commensurable between them.
 
 The forward-motion prediction (ratio_val > ratio_train) is therefore a RATIO claim
 and stays one. Scope note due to the coordinator.
+
+---
+
+# Amendment 3: report the leave-one-out range, not just the slope
+
+The slope of policy error on floor error is the statistic that replaced the
+near-tautological correlation, so it is worth knowing whether it rests on one
+point. With the predictor spanning 40x, it does:
+
+| dropped | leverage (share of Sxx) | slope without it |
+|---|---|---|
+| **arc** | **77.7%** | +0.0936 |
+| yaw_step | 7.7% | +0.1019 |
+| constant | 7.5% | +0.0995 |
+| vel_step | 3.9% | +0.1004 |
+| weave | 1.4% | +0.1292 |
+| stop_and_go | 1.1% | +0.1148 |
+| lateral | 0.4% | +0.1091 |
+| pivot | 0.3% | +0.1077 |
+
+Full-sample slope **+0.1089**; leave-one-out range **+0.0936 to +0.1292**.
+
+**The estimate is leveraged and the verdict is robust, and those are different
+properties.** One reference carries three quarters of the predictor's variance,
+so the point estimate is arc's to move — but every leave-one-out slope stays
+inside the "< 1/3" band, so the CONCLUSION does not depend on arc.
+
+  **Registered:** report the leave-one-out slope range alongside the point
+  estimate, always. If the range straddles a threshold, that straddle IS the
+  finding and no point estimate may be quoted without it.
+
+This is the same discipline as the pooled line naming its family mix: a statistic
+whose value is dominated by one member of the sample must say so on the line
+where it appears. Leverage analysis due to the coordinator; verified here
+independently (arc 77.7%, range 0.0936-0.1292).

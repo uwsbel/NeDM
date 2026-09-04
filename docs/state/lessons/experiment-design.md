@@ -793,3 +793,37 @@ The only reason it didn't is that the operator counted the pairs independently
 before touching anything.
 
 A gate that fails on good data is worse than no gate, because it is believed.
+
+
+## Part-whole correlation: a statistic whose value is fixed by its own construction
+
+Correlating `floor` against `policy - floor` puts the SAME VARIABLE ON BOTH
+SIDES. Its variance drives the correlation, and when the shared term is the
+larger one the result is nearly predetermined: if `policy` were constant, then
+`policy - floor = c - floor` and Spearman would be exactly -1 with no fact about
+the policy in it at all.
+
+Measured on the Go2 level-3 plumbing run: floor spanned 40x, policy 2.5x, and
+rho came out -0.857 (exact permutation p = 0.0107 over all 40320 orderings). It
+was about to be reported as "the policy corrects large errors and adds small
+ones". What it actually said was "the policy's error is more uniform than the
+replay's" -- true, worth knowing, and a much weaker claim.
+
+**The fix is to put the shared term on ONE side only.** Regress `policy` on
+`floor` and read the slope: 0 means the policy's error is independent of how hard
+the reference is, 1 means it inherits the difficulty entirely. Thresholds can then
+be set from the endpoints' MEANING rather than fitted to data, which is what the
+ratio band lacked.
+
+Two companions the slope needs:
+
+- **Its p, and the power.** At n = 8, |rho| must exceed about 0.74 for p < 0.05.
+  A small-n correlation quoted without its p is how a null becomes a finding.
+- **The leave-one-out range.** With a 40x range in the predictor, one point
+  carried 77.7% of Sxx. The estimate was leveraged (0.0936 to 0.1292) while the
+  verdict was robust (all inside the registered band) -- different properties, and
+  the report has to distinguish them.
+
+Related family: a normalisation whose denominator varies across the sample
+(`errdist` over families with 2.7x path lengths; the level-3 policy/floor ratio
+over floors spanning 40x). Both are "the number you divided by is doing the work".
