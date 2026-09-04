@@ -103,8 +103,58 @@ learning to walk inside a learned model.
 
 ## What is not done
 
-The processed dataset, the training config, and any training run. Level 3
-(closed-loop transfer) is reachable now that commands exist, but is not started.
+The processed dataset and any training run. **The training config exists and has
+been checked against the HMMWV anchor** — `configs/go2_transformer_v01_contact_mix25_onehot.json`
+is key-for-key identical to
+`configs/hmmwv_transformer_v07_..._mix25_rebal_rollout_onehot.json` except the
+dataset paths, so the 75/25 mix, the Huber loss with per-domain channel
+rebalancing, the rollout-selected checkpoint, and the 80x2000 compute budget all
+match. That is what parity with the case study means, and it is now verified
+rather than intended.
+
+The policy environment is planned and not written; see
+[quadruped-policy-env.md](../decisions/quadruped-policy-env.md). The headline is
+that it is roughly a 150-line subclass of `hmmwv_tracking_env.py` rather than an
+871-line parallel implementation, because the two studies share `DEFAULT_STATE_FIELDS`
+verbatim and both actions are 3-D. It waits on levels 1 and 2 — writing it against
+a reduced state not yet shown to propagate would be building on the thing under
+test.
+
+## Six metadata defects, all found by consuming the data
+
+None was found by reading the collector. Three surfaced from writing the code that
+consumes the data and two from a second machine reproducing a result. Full
+taxonomy in [experiment-design.md](../lessons/experiment-design.md); the operational
+residue is `scripts/collection/validate_go2_dataset.py`, ten gates that run between
+the repair pass and preprocess, on a box with no torch.
+
+Two are worth naming here because they reached model selection:
+
+- **`scenario_family` was a constant** — one value per terrain against eight
+  command families. It has **three** consumers (`trainer.py:796`,
+  `build_combined_flat_crm_rl_references.py:135`, `references.py:111`) that each
+  degrade differently, and the third is the worst because a seeded shuffle over one
+  bucket returns the same plausible, unstratified reference bank every run.
+- **`terminated_near_boundary` was never written to the Go2 index at all**, so a
+  default-on exclusion in the reference builder silently never fired. The HMMWV
+  collector writes it; ours diverged from the schema it was meant to match.
+
+Both are fixed in the data rather than patched in the consumers, which is the only
+fix that is correct in all three places at once.
+
+## Open, and needs Kyle
+
+1. **`n_layer` 6 or 8.** Our config anchors at 6, matching
+   `configs/ablation_ofat/manifest.json`, whose `anchor_spec` is `L6_H8_E256_ctx128`
+   with `train: false` because v07 already ran it. But `sections/appendix_data_scaling.tex`
+   says the data-scaling study holds "the 8-layer backbone" fixed and calls its
+   100% point "the same run used throughout the paper". **Those cannot both
+   describe the deployed HMMWV model.** We match the repo, which is the thing that
+   actually ran. Worth resolving before the parity claim goes in writing.
+2. **dorm-pc's two local commits** (encoder draft, analysis scripts) are still
+   unpushed, pending your word.
+3. **Whether to vendor `go2_cts_150k.pt`** into the repo, and its citation and hash.
+4. **The upstream Chrono report** — six defects found, none filed.
 
 ## Landmines, all measured
 
