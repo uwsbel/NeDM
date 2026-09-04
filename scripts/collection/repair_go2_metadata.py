@@ -207,6 +207,56 @@ def repair(root: Path, seed_offset: int, machine: str, gpu_name: str, gpu_arch: 
     return report
 
 
+def emit_sidecar(root: Path, out: Path) -> dict:
+    """READ-ONLY: freeze the mtime-derived commit mapping into a file.
+
+    Run this BEFORE the rewrite, and safely while a collection is still in
+    flight, because it touches nothing.
+
+    WHY IT EXISTS. reflog_head_at derives an episode's commit from its file
+    mtime, and mtime is destroyed by `cp -r`, by rsync without -a, and by any
+    archive-and-restore. Until that mapping is written down, the provenance of a
+    thousand episodes depends on a filesystem attribute that ordinary handling
+    silently discards -- and "nothing is likely to touch them tonight" is not the
+    standard for something unrecoverable once lost.
+
+    It also makes the rewrite a PURE FUNCTION OF FILES. Re-running the pass
+    tomorrow would otherwise attribute commits differently from running it now,
+    because the input would be mtimes rather than data.
+
+    Keyed by the episode DIRECTORY, not episode_id -- the ids are not unique,
+    which is the bug the rewrite exists to fix.
+    """
+    rows, skipped = {}, []
+    for meta_path in sorted(root.glob("*/episodes/*.json")):
+        try:
+            json.loads(meta_path.read_text())
+        except Exception:  # noqa: BLE001 - a half-written file from a live run
+            skipped.append(str(meta_path.relative_to(root)))
+            continue
+        when = datetime.fromtimestamp(meta_path.stat().st_mtime)
+        commit, tree = reflog_head_at(when)
+        rows[str(meta_path.parents[1].name)] = {
+            "meta_file": meta_path.name,
+            "mtime": when.isoformat(),
+            "git_commit": commit,
+            "git_tree": tree,
+            "collection_code_digest": code_digest(commit),
+        }
+    payload = {
+        "note": ("Frozen mtime-derived git provenance. mtime does not survive "
+                 "copying; this file does. The rewrite reads this instead of the "
+                 "reflog, which also makes it reproducible."),
+        "root": str(root),
+        "captured_utc": datetime.now().astimezone().isoformat(),
+        "episodes": len(rows),
+        "skipped_unparseable": skipped,
+        "entries": rows,
+    }
+    out.write_text(json.dumps(payload, indent=2) + "\n")
+    return payload
+
+
 if __name__ == "__main__":
     import argparse
 
@@ -218,7 +268,14 @@ if __name__ == "__main__":
     ap.add_argument("--gpu-arch", required=True)
     ap.add_argument("--prefix", default="go2")
     ap.add_argument("--apply", action="store_true", help="without this, dry run")
+    ap.add_argument("--sidecar", type=Path, default=None,
+                    help="READ-ONLY: freeze the mtime-derived commit mapping and exit")
     a = ap.parse_args()
+    if a.sidecar:
+        rep = emit_sidecar(a.root, a.sidecar)
+        rep.pop("entries")
+        print(json.dumps(rep, indent=2))
+        raise SystemExit(0)
     rep = repair(a.root, a.seed_offset, a.machine, a.gpu_name, a.gpu_arch,
                  a.prefix, dry_run=not a.apply)
     print(json.dumps(rep, indent=2))
