@@ -243,6 +243,13 @@ def roll_one(env: Any, reference_id: int, policy: Any | None,
         "path_xy": path_xy,
         "ref_xy": ref_xy,
         "dt_s": float(env.step_dt),
+        # The learned policy was trained with action_rate_weight 0.2 penalising
+        # rapid command changes; the P controller has no such term. Comparing them
+        # on tracking error alone scores them on one controller's objective, so
+        # the other objective is measured too. Same definition the reward used:
+        # mean squared adjacent difference of the issued command.
+        "action_rate": float(np.square(np.diff(act, axis=0)).sum(axis=1).mean())
+        if len(act) > 1 else 0.0,
         "action_mean": act.mean(axis=0).tolist(),
         "action_std": act.std(axis=0).tolist(),
         "action_span": (act.max(axis=0) - act.min(axis=0)).tolist(),
