@@ -1,0 +1,2451 @@
+{
+  "note": "Frozen mtime-derived git provenance. mtime does not survive copying; this file does. The rewrite reads this instead of the reflog, which also makes it reproducible.",
+  "root": "/home/kyle/sbel-artifacts/datasets/go2_jointstate_rigid",
+  "captured_utc": "2026-09-04T12:10:26.895155-05:00",
+  "episodes": 304,
+  "skipped_unparseable": [],
+  "entries": {
+    "rigid_arc_0": {
+      "meta_file": "go2_flat_000.json",
+      "mtime": "2026-09-04T12:05:26.861675",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_arc_1": {
+      "meta_file": "go2_flat_001.json",
+      "mtime": "2026-09-04T12:05:26.838619",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_arc_10": {
+      "meta_file": "go2_flat_010.json",
+      "mtime": "2026-09-04T12:05:34.229585",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_arc_11": {
+      "meta_file": "go2_flat_011.json",
+      "mtime": "2026-09-04T12:05:34.208829",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_arc_12": {
+      "meta_file": "go2_flat_012.json",
+      "mtime": "2026-09-04T12:05:34.227810",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_arc_13": {
+      "meta_file": "go2_flat_013.json",
+      "mtime": "2026-09-04T12:05:34.214383",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_arc_14": {
+      "meta_file": "go2_flat_014.json",
+      "mtime": "2026-09-04T12:05:41.555030",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_arc_15": {
+      "meta_file": "go2_flat_015.json",
+      "mtime": "2026-09-04T12:05:41.569113",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_arc_16": {
+      "meta_file": "go2_flat_016.json",
+      "mtime": "2026-09-04T12:05:41.585441",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_arc_17": {
+      "meta_file": "go2_flat_017.json",
+      "mtime": "2026-09-04T12:05:41.573086",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_arc_18": {
+      "meta_file": "go2_flat_018.json",
+      "mtime": "2026-09-04T12:05:41.561704",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_arc_19": {
+      "meta_file": "go2_flat_019.json",
+      "mtime": "2026-09-04T12:05:41.590096",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_arc_2": {
+      "meta_file": "go2_flat_002.json",
+      "mtime": "2026-09-04T12:05:26.851032",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_arc_20": {
+      "meta_file": "go2_flat_020.json",
+      "mtime": "2026-09-04T12:05:41.588881",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_arc_21": {
+      "meta_file": "go2_flat_021.json",
+      "mtime": "2026-09-04T12:05:41.574153",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_arc_22": {
+      "meta_file": "go2_flat_022.json",
+      "mtime": "2026-09-04T12:05:48.892714",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_arc_23": {
+      "meta_file": "go2_flat_023.json",
+      "mtime": "2026-09-04T12:05:48.928061",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_arc_24": {
+      "meta_file": "go2_flat_024.json",
+      "mtime": "2026-09-04T12:05:48.929742",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_arc_25": {
+      "meta_file": "go2_flat_025.json",
+      "mtime": "2026-09-04T12:05:48.909120",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_arc_26": {
+      "meta_file": "go2_flat_026.json",
+      "mtime": "2026-09-04T12:05:48.887827",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_arc_27": {
+      "meta_file": "go2_flat_027.json",
+      "mtime": "2026-09-04T12:05:48.920261",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_arc_28": {
+      "meta_file": "go2_flat_028.json",
+      "mtime": "2026-09-04T12:05:48.901605",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_arc_29": {
+      "meta_file": "go2_flat_029.json",
+      "mtime": "2026-09-04T12:05:48.918923",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_arc_3": {
+      "meta_file": "go2_flat_003.json",
+      "mtime": "2026-09-04T12:05:26.868367",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_arc_30": {
+      "meta_file": "go2_flat_030.json",
+      "mtime": "2026-09-04T12:05:56.273133",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_arc_31": {
+      "meta_file": "go2_flat_031.json",
+      "mtime": "2026-09-04T12:05:56.276172",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_arc_32": {
+      "meta_file": "go2_flat_032.json",
+      "mtime": "2026-09-04T12:05:56.279067",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_arc_33": {
+      "meta_file": "go2_flat_033.json",
+      "mtime": "2026-09-04T12:05:56.257051",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_arc_34": {
+      "meta_file": "go2_flat_034.json",
+      "mtime": "2026-09-04T12:05:56.262439",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_arc_35": {
+      "meta_file": "go2_flat_035.json",
+      "mtime": "2026-09-04T12:05:56.271009",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_arc_36": {
+      "meta_file": "go2_flat_036.json",
+      "mtime": "2026-09-04T12:05:56.269534",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_arc_37": {
+      "meta_file": "go2_flat_037.json",
+      "mtime": "2026-09-04T12:05:56.281570",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_arc_4": {
+      "meta_file": "go2_flat_004.json",
+      "mtime": "2026-09-04T12:05:26.863758",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_arc_5": {
+      "meta_file": "go2_flat_005.json",
+      "mtime": "2026-09-04T12:05:26.867263",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_arc_6": {
+      "meta_file": "go2_flat_006.json",
+      "mtime": "2026-09-04T12:05:34.183819",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_arc_7": {
+      "meta_file": "go2_flat_007.json",
+      "mtime": "2026-09-04T12:05:34.195085",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_arc_8": {
+      "meta_file": "go2_flat_008.json",
+      "mtime": "2026-09-04T12:05:34.196528",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_arc_9": {
+      "meta_file": "go2_flat_009.json",
+      "mtime": "2026-09-04T12:05:34.220338",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_constant_0": {
+      "meta_file": "go2_flat_000.json",
+      "mtime": "2026-09-04T12:03:44.079768",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_constant_1": {
+      "meta_file": "go2_flat_001.json",
+      "mtime": "2026-09-04T12:03:44.087160",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_constant_10": {
+      "meta_file": "go2_flat_010.json",
+      "mtime": "2026-09-04T12:03:51.373598",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_constant_11": {
+      "meta_file": "go2_flat_011.json",
+      "mtime": "2026-09-04T12:03:51.366071",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_constant_12": {
+      "meta_file": "go2_flat_012.json",
+      "mtime": "2026-09-04T12:03:51.376519",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_constant_13": {
+      "meta_file": "go2_flat_013.json",
+      "mtime": "2026-09-04T12:03:51.382202",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_constant_14": {
+      "meta_file": "go2_flat_014.json",
+      "mtime": "2026-09-04T12:03:51.356830",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_constant_15": {
+      "meta_file": "go2_flat_015.json",
+      "mtime": "2026-09-04T12:03:51.379846",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_constant_16": {
+      "meta_file": "go2_flat_016.json",
+      "mtime": "2026-09-04T12:03:58.656885",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_constant_17": {
+      "meta_file": "go2_flat_017.json",
+      "mtime": "2026-09-04T12:03:58.679643",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_constant_18": {
+      "meta_file": "go2_flat_018.json",
+      "mtime": "2026-09-04T12:03:58.689034",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_constant_19": {
+      "meta_file": "go2_flat_019.json",
+      "mtime": "2026-09-04T12:03:58.665295",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_constant_2": {
+      "meta_file": "go2_flat_002.json",
+      "mtime": "2026-09-04T12:03:44.085827",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_constant_20": {
+      "meta_file": "go2_flat_020.json",
+      "mtime": "2026-09-04T12:03:58.671693",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_constant_21": {
+      "meta_file": "go2_flat_021.json",
+      "mtime": "2026-09-04T12:03:58.681408",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_constant_22": {
+      "meta_file": "go2_flat_022.json",
+      "mtime": "2026-09-04T12:03:58.683055",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_constant_23": {
+      "meta_file": "go2_flat_023.json",
+      "mtime": "2026-09-04T12:03:58.685755",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_constant_24": {
+      "meta_file": "go2_flat_024.json",
+      "mtime": "2026-09-04T12:04:05.924967",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_constant_25": {
+      "meta_file": "go2_flat_025.json",
+      "mtime": "2026-09-04T12:04:05.975724",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_constant_26": {
+      "meta_file": "go2_flat_026.json",
+      "mtime": "2026-09-04T12:04:05.967144",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_constant_27": {
+      "meta_file": "go2_flat_027.json",
+      "mtime": "2026-09-04T12:04:05.947207",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_constant_28": {
+      "meta_file": "go2_flat_028.json",
+      "mtime": "2026-09-04T12:04:05.970516",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_constant_29": {
+      "meta_file": "go2_flat_029.json",
+      "mtime": "2026-09-04T12:04:05.962709",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_constant_3": {
+      "meta_file": "go2_flat_003.json",
+      "mtime": "2026-09-04T12:03:44.094295",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_constant_30": {
+      "meta_file": "go2_flat_030.json",
+      "mtime": "2026-09-04T12:04:05.965584",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_constant_31": {
+      "meta_file": "go2_flat_031.json",
+      "mtime": "2026-09-04T12:04:05.974164",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_constant_32": {
+      "meta_file": "go2_flat_032.json",
+      "mtime": "2026-09-04T12:04:13.247746",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_constant_33": {
+      "meta_file": "go2_flat_033.json",
+      "mtime": "2026-09-04T12:04:13.249605",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_constant_34": {
+      "meta_file": "go2_flat_034.json",
+      "mtime": "2026-09-04T12:04:13.254318",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_constant_35": {
+      "meta_file": "go2_flat_035.json",
+      "mtime": "2026-09-04T12:04:13.251651",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_constant_36": {
+      "meta_file": "go2_flat_036.json",
+      "mtime": "2026-09-04T12:04:13.246162",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_constant_37": {
+      "meta_file": "go2_flat_037.json",
+      "mtime": "2026-09-04T12:04:13.256776",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_constant_4": {
+      "meta_file": "go2_flat_004.json",
+      "mtime": "2026-09-04T12:03:44.098887",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_constant_5": {
+      "meta_file": "go2_flat_005.json",
+      "mtime": "2026-09-04T12:03:44.095566",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_constant_6": {
+      "meta_file": "go2_flat_006.json",
+      "mtime": "2026-09-04T12:03:44.068215",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_constant_7": {
+      "meta_file": "go2_flat_007.json",
+      "mtime": "2026-09-04T12:03:44.091504",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_constant_8": {
+      "meta_file": "go2_flat_008.json",
+      "mtime": "2026-09-04T12:03:51.370862",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_constant_9": {
+      "meta_file": "go2_flat_009.json",
+      "mtime": "2026-09-04T12:03:51.369252",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_lateral_0": {
+      "meta_file": "go2_flat_000.json",
+      "mtime": "2026-09-04T12:04:13.235263",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_lateral_1": {
+      "meta_file": "go2_flat_001.json",
+      "mtime": "2026-09-04T12:04:13.238353",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_lateral_10": {
+      "meta_file": "go2_flat_010.json",
+      "mtime": "2026-09-04T12:04:27.910641",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_lateral_11": {
+      "meta_file": "go2_flat_011.json",
+      "mtime": "2026-09-04T12:04:27.929221",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_lateral_12": {
+      "meta_file": "go2_flat_012.json",
+      "mtime": "2026-09-04T12:04:27.924395",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_lateral_13": {
+      "meta_file": "go2_flat_013.json",
+      "mtime": "2026-09-04T12:04:27.915966",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_lateral_14": {
+      "meta_file": "go2_flat_014.json",
+      "mtime": "2026-09-04T12:04:27.921743",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_lateral_15": {
+      "meta_file": "go2_flat_015.json",
+      "mtime": "2026-09-04T12:04:27.888290",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_lateral_16": {
+      "meta_file": "go2_flat_016.json",
+      "mtime": "2026-09-04T12:04:27.926769",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_lateral_17": {
+      "meta_file": "go2_flat_017.json",
+      "mtime": "2026-09-04T12:04:27.918699",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_lateral_18": {
+      "meta_file": "go2_flat_018.json",
+      "mtime": "2026-09-04T12:04:35.266929",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_lateral_19": {
+      "meta_file": "go2_flat_019.json",
+      "mtime": "2026-09-04T12:04:35.256577",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_lateral_2": {
+      "meta_file": "go2_flat_002.json",
+      "mtime": "2026-09-04T12:04:20.612631",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_lateral_20": {
+      "meta_file": "go2_flat_020.json",
+      "mtime": "2026-09-04T12:04:35.247760",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_lateral_21": {
+      "meta_file": "go2_flat_021.json",
+      "mtime": "2026-09-04T12:04:35.262949",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_lateral_22": {
+      "meta_file": "go2_flat_022.json",
+      "mtime": "2026-09-04T12:04:35.253769",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_lateral_23": {
+      "meta_file": "go2_flat_023.json",
+      "mtime": "2026-09-04T12:04:35.259168",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_lateral_24": {
+      "meta_file": "go2_flat_024.json",
+      "mtime": "2026-09-04T12:04:35.264653",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_lateral_25": {
+      "meta_file": "go2_flat_025.json",
+      "mtime": "2026-09-04T12:04:35.244623",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_lateral_26": {
+      "meta_file": "go2_flat_026.json",
+      "mtime": "2026-09-04T12:04:42.650506",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_lateral_27": {
+      "meta_file": "go2_flat_027.json",
+      "mtime": "2026-09-04T12:04:42.645110",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_lateral_28": {
+      "meta_file": "go2_flat_028.json",
+      "mtime": "2026-09-04T12:04:42.653772",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_lateral_29": {
+      "meta_file": "go2_flat_029.json",
+      "mtime": "2026-09-04T12:04:42.661658",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_lateral_3": {
+      "meta_file": "go2_flat_003.json",
+      "mtime": "2026-09-04T12:04:20.577241",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_lateral_30": {
+      "meta_file": "go2_flat_030.json",
+      "mtime": "2026-09-04T12:04:42.658815",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_lateral_31": {
+      "meta_file": "go2_flat_031.json",
+      "mtime": "2026-09-04T12:04:42.655500",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_lateral_32": {
+      "meta_file": "go2_flat_032.json",
+      "mtime": "2026-09-04T12:04:42.647738",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_lateral_33": {
+      "meta_file": "go2_flat_033.json",
+      "mtime": "2026-09-04T12:04:42.644226",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_lateral_34": {
+      "meta_file": "go2_flat_034.json",
+      "mtime": "2026-09-04T12:04:49.982109",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_lateral_35": {
+      "meta_file": "go2_flat_035.json",
+      "mtime": "2026-09-04T12:04:49.980214",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_lateral_36": {
+      "meta_file": "go2_flat_036.json",
+      "mtime": "2026-09-04T12:04:49.987509",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_lateral_37": {
+      "meta_file": "go2_flat_037.json",
+      "mtime": "2026-09-04T12:04:49.975122",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_lateral_4": {
+      "meta_file": "go2_flat_004.json",
+      "mtime": "2026-09-04T12:04:20.609312",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_lateral_5": {
+      "meta_file": "go2_flat_005.json",
+      "mtime": "2026-09-04T12:04:20.601106",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_lateral_6": {
+      "meta_file": "go2_flat_006.json",
+      "mtime": "2026-09-04T12:04:20.598609",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_lateral_7": {
+      "meta_file": "go2_flat_007.json",
+      "mtime": "2026-09-04T12:04:20.608877",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_lateral_8": {
+      "meta_file": "go2_flat_008.json",
+      "mtime": "2026-09-04T12:04:20.591972",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_lateral_9": {
+      "meta_file": "go2_flat_009.json",
+      "mtime": "2026-09-04T12:04:20.604691",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_pivot_0": {
+      "meta_file": "go2_flat_000.json",
+      "mtime": "2026-09-04T12:04:49.973397",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_pivot_1": {
+      "meta_file": "go2_flat_001.json",
+      "mtime": "2026-09-04T12:04:49.984601",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_pivot_10": {
+      "meta_file": "go2_flat_010.json",
+      "mtime": "2026-09-04T12:04:57.300275",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_pivot_11": {
+      "meta_file": "go2_flat_011.json",
+      "mtime": "2026-09-04T12:04:57.326410",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_pivot_12": {
+      "meta_file": "go2_flat_012.json",
+      "mtime": "2026-09-04T12:05:04.726804",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_pivot_13": {
+      "meta_file": "go2_flat_013.json",
+      "mtime": "2026-09-04T12:05:04.708831",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_pivot_14": {
+      "meta_file": "go2_flat_014.json",
+      "mtime": "2026-09-04T12:05:04.724269",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_pivot_15": {
+      "meta_file": "go2_flat_015.json",
+      "mtime": "2026-09-04T12:05:04.715557",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_pivot_16": {
+      "meta_file": "go2_flat_016.json",
+      "mtime": "2026-09-04T12:05:04.729424",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_pivot_17": {
+      "meta_file": "go2_flat_017.json",
+      "mtime": "2026-09-04T12:05:04.719042",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_pivot_18": {
+      "meta_file": "go2_flat_018.json",
+      "mtime": "2026-09-04T12:05:04.721740",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_pivot_19": {
+      "meta_file": "go2_flat_019.json",
+      "mtime": "2026-09-04T12:05:04.717272",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_pivot_2": {
+      "meta_file": "go2_flat_002.json",
+      "mtime": "2026-09-04T12:04:49.971011",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_pivot_20": {
+      "meta_file": "go2_flat_020.json",
+      "mtime": "2026-09-04T12:05:12.113818",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_pivot_21": {
+      "meta_file": "go2_flat_021.json",
+      "mtime": "2026-09-04T12:05:12.117423",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_pivot_22": {
+      "meta_file": "go2_flat_022.json",
+      "mtime": "2026-09-04T12:05:12.080354",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_pivot_23": {
+      "meta_file": "go2_flat_023.json",
+      "mtime": "2026-09-04T12:05:12.115416",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_pivot_24": {
+      "meta_file": "go2_flat_024.json",
+      "mtime": "2026-09-04T12:05:12.098529",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_pivot_25": {
+      "meta_file": "go2_flat_025.json",
+      "mtime": "2026-09-04T12:05:12.093380",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_pivot_26": {
+      "meta_file": "go2_flat_026.json",
+      "mtime": "2026-09-04T12:05:12.107392",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_pivot_27": {
+      "meta_file": "go2_flat_027.json",
+      "mtime": "2026-09-04T12:05:12.073806",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_pivot_28": {
+      "meta_file": "go2_flat_028.json",
+      "mtime": "2026-09-04T12:05:19.489360",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_pivot_29": {
+      "meta_file": "go2_flat_029.json",
+      "mtime": "2026-09-04T12:05:19.498660",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_pivot_3": {
+      "meta_file": "go2_flat_003.json",
+      "mtime": "2026-09-04T12:04:49.977133",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_pivot_30": {
+      "meta_file": "go2_flat_030.json",
+      "mtime": "2026-09-04T12:05:19.494170",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_pivot_31": {
+      "meta_file": "go2_flat_031.json",
+      "mtime": "2026-09-04T12:05:19.503268",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_pivot_32": {
+      "meta_file": "go2_flat_032.json",
+      "mtime": "2026-09-04T12:05:19.506430",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_pivot_33": {
+      "meta_file": "go2_flat_033.json",
+      "mtime": "2026-09-04T12:05:19.499763",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_pivot_34": {
+      "meta_file": "go2_flat_034.json",
+      "mtime": "2026-09-04T12:05:19.508849",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_pivot_35": {
+      "meta_file": "go2_flat_035.json",
+      "mtime": "2026-09-04T12:05:19.468254",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_pivot_36": {
+      "meta_file": "go2_flat_036.json",
+      "mtime": "2026-09-04T12:05:26.840254",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_pivot_37": {
+      "meta_file": "go2_flat_037.json",
+      "mtime": "2026-09-04T12:05:26.848173",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_pivot_4": {
+      "meta_file": "go2_flat_004.json",
+      "mtime": "2026-09-04T12:04:57.311624",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_pivot_5": {
+      "meta_file": "go2_flat_005.json",
+      "mtime": "2026-09-04T12:04:57.320067",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_pivot_6": {
+      "meta_file": "go2_flat_006.json",
+      "mtime": "2026-09-04T12:04:57.316928",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_pivot_7": {
+      "meta_file": "go2_flat_007.json",
+      "mtime": "2026-09-04T12:04:57.292229",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_pivot_8": {
+      "meta_file": "go2_flat_008.json",
+      "mtime": "2026-09-04T12:04:57.308286",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_pivot_9": {
+      "meta_file": "go2_flat_009.json",
+      "mtime": "2026-09-04T12:04:57.325104",
+      "git_commit": "32e1a483576ff43ee385950aac038453f1193d6d",
+      "git_tree": "6772b2c6f1e2e42b936bb2837920bc0a3917fbb0",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_stop_and_go_0": {
+      "meta_file": "go2_flat_000.json",
+      "mtime": "2026-09-04T12:07:46.404233",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_stop_and_go_1": {
+      "meta_file": "go2_flat_001.json",
+      "mtime": "2026-09-04T12:07:46.406693",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_stop_and_go_10": {
+      "meta_file": "go2_flat_010.json",
+      "mtime": "2026-09-04T12:07:53.793247",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_stop_and_go_11": {
+      "meta_file": "go2_flat_011.json",
+      "mtime": "2026-09-04T12:07:53.744626",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_stop_and_go_12": {
+      "meta_file": "go2_flat_012.json",
+      "mtime": "2026-09-04T12:07:53.755878",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_stop_and_go_13": {
+      "meta_file": "go2_flat_013.json",
+      "mtime": "2026-09-04T12:07:53.780796",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_stop_and_go_14": {
+      "meta_file": "go2_flat_014.json",
+      "mtime": "2026-09-04T12:08:01.193084",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_stop_and_go_15": {
+      "meta_file": "go2_flat_015.json",
+      "mtime": "2026-09-04T12:08:01.204602",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_stop_and_go_16": {
+      "meta_file": "go2_flat_016.json",
+      "mtime": "2026-09-04T12:08:01.185269",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_stop_and_go_17": {
+      "meta_file": "go2_flat_017.json",
+      "mtime": "2026-09-04T12:08:01.190975",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_stop_and_go_18": {
+      "meta_file": "go2_flat_018.json",
+      "mtime": "2026-09-04T12:08:01.199715",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_stop_and_go_19": {
+      "meta_file": "go2_flat_019.json",
+      "mtime": "2026-09-04T12:08:01.202410",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_stop_and_go_2": {
+      "meta_file": "go2_flat_002.json",
+      "mtime": "2026-09-04T12:07:46.416554",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_stop_and_go_20": {
+      "meta_file": "go2_flat_020.json",
+      "mtime": "2026-09-04T12:08:01.183135",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_stop_and_go_21": {
+      "meta_file": "go2_flat_021.json",
+      "mtime": "2026-09-04T12:08:01.196822",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_stop_and_go_22": {
+      "meta_file": "go2_flat_022.json",
+      "mtime": "2026-09-04T12:08:08.567544",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_stop_and_go_23": {
+      "meta_file": "go2_flat_023.json",
+      "mtime": "2026-09-04T12:08:08.551333",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_stop_and_go_24": {
+      "meta_file": "go2_flat_024.json",
+      "mtime": "2026-09-04T12:08:08.622430",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_stop_and_go_25": {
+      "meta_file": "go2_flat_025.json",
+      "mtime": "2026-09-04T12:08:08.539043",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_stop_and_go_26": {
+      "meta_file": "go2_flat_026.json",
+      "mtime": "2026-09-04T12:08:08.503041",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_stop_and_go_27": {
+      "meta_file": "go2_flat_027.json",
+      "mtime": "2026-09-04T12:08:08.565753",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_stop_and_go_28": {
+      "meta_file": "go2_flat_028.json",
+      "mtime": "2026-09-04T12:08:08.545221",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_stop_and_go_29": {
+      "meta_file": "go2_flat_029.json",
+      "mtime": "2026-09-04T12:08:08.512985",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_stop_and_go_3": {
+      "meta_file": "go2_flat_003.json",
+      "mtime": "2026-09-04T12:07:46.398492",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_stop_and_go_30": {
+      "meta_file": "go2_flat_030.json",
+      "mtime": "2026-09-04T12:08:15.899422",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_stop_and_go_31": {
+      "meta_file": "go2_flat_031.json",
+      "mtime": "2026-09-04T12:08:15.932276",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_stop_and_go_32": {
+      "meta_file": "go2_flat_032.json",
+      "mtime": "2026-09-04T12:08:15.938006",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_stop_and_go_33": {
+      "meta_file": "go2_flat_033.json",
+      "mtime": "2026-09-04T12:08:15.942122",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_stop_and_go_34": {
+      "meta_file": "go2_flat_034.json",
+      "mtime": "2026-09-04T12:08:15.940049",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_stop_and_go_35": {
+      "meta_file": "go2_flat_035.json",
+      "mtime": "2026-09-04T12:08:15.907861",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_stop_and_go_36": {
+      "meta_file": "go2_flat_036.json",
+      "mtime": "2026-09-04T12:08:15.914324",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_stop_and_go_37": {
+      "meta_file": "go2_flat_037.json",
+      "mtime": "2026-09-04T12:08:15.883817",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_stop_and_go_4": {
+      "meta_file": "go2_flat_004.json",
+      "mtime": "2026-09-04T12:07:46.412896",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_stop_and_go_5": {
+      "meta_file": "go2_flat_005.json",
+      "mtime": "2026-09-04T12:07:46.411253",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_stop_and_go_6": {
+      "meta_file": "go2_flat_006.json",
+      "mtime": "2026-09-04T12:07:53.729788",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_stop_and_go_7": {
+      "meta_file": "go2_flat_007.json",
+      "mtime": "2026-09-04T12:07:53.784724",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_stop_and_go_8": {
+      "meta_file": "go2_flat_008.json",
+      "mtime": "2026-09-04T12:07:53.795886",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_stop_and_go_9": {
+      "meta_file": "go2_flat_009.json",
+      "mtime": "2026-09-04T12:07:53.791653",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_vel_step_0": {
+      "meta_file": "go2_flat_000.json",
+      "mtime": "2026-09-04T12:06:03.645258",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_vel_step_1": {
+      "meta_file": "go2_flat_001.json",
+      "mtime": "2026-09-04T12:06:03.618781",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_vel_step_10": {
+      "meta_file": "go2_flat_010.json",
+      "mtime": "2026-09-04T12:06:10.944394",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_vel_step_11": {
+      "meta_file": "go2_flat_011.json",
+      "mtime": "2026-09-04T12:06:10.948787",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_vel_step_12": {
+      "meta_file": "go2_flat_012.json",
+      "mtime": "2026-09-04T12:06:10.945359",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_vel_step_13": {
+      "meta_file": "go2_flat_013.json",
+      "mtime": "2026-09-04T12:06:10.922746",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_vel_step_14": {
+      "meta_file": "go2_flat_014.json",
+      "mtime": "2026-09-04T12:06:09.555012",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_vel_step_15": {
+      "meta_file": "go2_flat_015.json",
+      "mtime": "2026-09-04T12:06:10.500868",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_vel_step_16": {
+      "meta_file": "go2_flat_016.json",
+      "mtime": "2026-09-04T12:06:18.232810",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_vel_step_17": {
+      "meta_file": "go2_flat_017.json",
+      "mtime": "2026-09-04T12:06:18.233919",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_vel_step_18": {
+      "meta_file": "go2_flat_018.json",
+      "mtime": "2026-09-04T12:06:18.225426",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_vel_step_19": {
+      "meta_file": "go2_flat_019.json",
+      "mtime": "2026-09-04T12:06:18.238904",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_vel_step_2": {
+      "meta_file": "go2_flat_002.json",
+      "mtime": "2026-09-04T12:06:03.626892",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_vel_step_20": {
+      "meta_file": "go2_flat_020.json",
+      "mtime": "2026-09-04T12:06:18.222019",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_vel_step_21": {
+      "meta_file": "go2_flat_021.json",
+      "mtime": "2026-09-04T12:06:16.393864",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_vel_step_22": {
+      "meta_file": "go2_flat_022.json",
+      "mtime": "2026-09-04T12:06:18.236355",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_vel_step_23": {
+      "meta_file": "go2_flat_023.json",
+      "mtime": "2026-09-04T12:06:18.241537",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_vel_step_24": {
+      "meta_file": "go2_flat_024.json",
+      "mtime": "2026-09-04T12:06:23.994589",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_vel_step_25": {
+      "meta_file": "go2_flat_025.json",
+      "mtime": "2026-09-04T12:06:25.590513",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_vel_step_26": {
+      "meta_file": "go2_flat_026.json",
+      "mtime": "2026-09-04T12:06:25.487243",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_vel_step_27": {
+      "meta_file": "go2_flat_027.json",
+      "mtime": "2026-09-04T12:06:25.518054",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_vel_step_28": {
+      "meta_file": "go2_flat_028.json",
+      "mtime": "2026-09-04T12:06:25.202559",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_vel_step_29": {
+      "meta_file": "go2_flat_029.json",
+      "mtime": "2026-09-04T12:06:25.436058",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_vel_step_3": {
+      "meta_file": "go2_flat_003.json",
+      "mtime": "2026-09-04T12:06:03.649806",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_vel_step_30": {
+      "meta_file": "go2_flat_030.json",
+      "mtime": "2026-09-04T12:06:25.540569",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_vel_step_31": {
+      "meta_file": "go2_flat_031.json",
+      "mtime": "2026-09-04T12:06:25.420049",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_vel_step_32": {
+      "meta_file": "go2_flat_032.json",
+      "mtime": "2026-09-04T12:06:32.843441",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_vel_step_33": {
+      "meta_file": "go2_flat_033.json",
+      "mtime": "2026-09-04T12:06:32.845834",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_vel_step_34": {
+      "meta_file": "go2_flat_034.json",
+      "mtime": "2026-09-04T12:06:32.121593",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_vel_step_35": {
+      "meta_file": "go2_flat_035.json",
+      "mtime": "2026-09-04T12:06:32.829361",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_vel_step_36": {
+      "meta_file": "go2_flat_036.json",
+      "mtime": "2026-09-04T12:06:32.811097",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_vel_step_37": {
+      "meta_file": "go2_flat_037.json",
+      "mtime": "2026-09-04T12:06:32.838568",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_vel_step_4": {
+      "meta_file": "go2_flat_004.json",
+      "mtime": "2026-09-04T12:06:03.610097",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_vel_step_5": {
+      "meta_file": "go2_flat_005.json",
+      "mtime": "2026-09-04T12:06:03.647206",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_vel_step_6": {
+      "meta_file": "go2_flat_006.json",
+      "mtime": "2026-09-04T12:06:03.637392",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_vel_step_7": {
+      "meta_file": "go2_flat_007.json",
+      "mtime": "2026-09-04T12:06:03.642869",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_vel_step_8": {
+      "meta_file": "go2_flat_008.json",
+      "mtime": "2026-09-04T12:06:10.933883",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_vel_step_9": {
+      "meta_file": "go2_flat_009.json",
+      "mtime": "2026-09-04T12:06:10.929373",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_weave_0": {
+      "meta_file": "go2_flat_000.json",
+      "mtime": "2026-09-04T12:07:09.582541",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_weave_1": {
+      "meta_file": "go2_flat_001.json",
+      "mtime": "2026-09-04T12:07:09.563289",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_weave_10": {
+      "meta_file": "go2_flat_010.json",
+      "mtime": "2026-09-04T12:07:16.865338",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_weave_11": {
+      "meta_file": "go2_flat_011.json",
+      "mtime": "2026-09-04T12:07:16.887161",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_weave_12": {
+      "meta_file": "go2_flat_012.json",
+      "mtime": "2026-09-04T12:07:24.251101",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_weave_13": {
+      "meta_file": "go2_flat_013.json",
+      "mtime": "2026-09-04T12:07:24.246720",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_weave_14": {
+      "meta_file": "go2_flat_014.json",
+      "mtime": "2026-09-04T12:07:24.254503",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_weave_15": {
+      "meta_file": "go2_flat_015.json",
+      "mtime": "2026-09-04T12:07:24.249445",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_weave_16": {
+      "meta_file": "go2_flat_016.json",
+      "mtime": "2026-09-04T12:07:24.227943",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_weave_17": {
+      "meta_file": "go2_flat_017.json",
+      "mtime": "2026-09-04T12:07:24.222793",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_weave_18": {
+      "meta_file": "go2_flat_018.json",
+      "mtime": "2026-09-04T12:07:24.238128",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_weave_19": {
+      "meta_file": "go2_flat_019.json",
+      "mtime": "2026-09-04T12:07:24.256517",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_weave_2": {
+      "meta_file": "go2_flat_002.json",
+      "mtime": "2026-09-04T12:07:09.576659",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_weave_20": {
+      "meta_file": "go2_flat_020.json",
+      "mtime": "2026-09-04T12:07:31.564991",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_weave_21": {
+      "meta_file": "go2_flat_021.json",
+      "mtime": "2026-09-04T12:07:31.607595",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_weave_22": {
+      "meta_file": "go2_flat_022.json",
+      "mtime": "2026-09-04T12:07:31.602516",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_weave_23": {
+      "meta_file": "go2_flat_023.json",
+      "mtime": "2026-09-04T12:07:31.590334",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_weave_24": {
+      "meta_file": "go2_flat_024.json",
+      "mtime": "2026-09-04T12:07:31.576961",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_weave_25": {
+      "meta_file": "go2_flat_025.json",
+      "mtime": "2026-09-04T12:07:31.605623",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_weave_26": {
+      "meta_file": "go2_flat_026.json",
+      "mtime": "2026-09-04T12:07:31.609984",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_weave_27": {
+      "meta_file": "go2_flat_027.json",
+      "mtime": "2026-09-04T12:07:31.592180",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_weave_28": {
+      "meta_file": "go2_flat_028.json",
+      "mtime": "2026-09-04T12:07:38.965649",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_weave_29": {
+      "meta_file": "go2_flat_029.json",
+      "mtime": "2026-09-04T12:07:38.960319",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_weave_3": {
+      "meta_file": "go2_flat_003.json",
+      "mtime": "2026-09-04T12:07:09.537963",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_weave_30": {
+      "meta_file": "go2_flat_030.json",
+      "mtime": "2026-09-04T12:07:38.957083",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_weave_31": {
+      "meta_file": "go2_flat_031.json",
+      "mtime": "2026-09-04T12:07:38.967675",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_weave_32": {
+      "meta_file": "go2_flat_032.json",
+      "mtime": "2026-09-04T12:07:38.975628",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_weave_33": {
+      "meta_file": "go2_flat_033.json",
+      "mtime": "2026-09-04T12:07:38.961763",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_weave_34": {
+      "meta_file": "go2_flat_034.json",
+      "mtime": "2026-09-04T12:07:38.972673",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_weave_35": {
+      "meta_file": "go2_flat_035.json",
+      "mtime": "2026-09-04T12:07:38.969960",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_weave_36": {
+      "meta_file": "go2_flat_036.json",
+      "mtime": "2026-09-04T12:07:46.401683",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_weave_37": {
+      "meta_file": "go2_flat_037.json",
+      "mtime": "2026-09-04T12:07:46.397884",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_weave_4": {
+      "meta_file": "go2_flat_004.json",
+      "mtime": "2026-09-04T12:07:16.844558",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_weave_5": {
+      "meta_file": "go2_flat_005.json",
+      "mtime": "2026-09-04T12:07:16.840575",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_weave_6": {
+      "meta_file": "go2_flat_006.json",
+      "mtime": "2026-09-04T12:07:16.852238",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_weave_7": {
+      "meta_file": "go2_flat_007.json",
+      "mtime": "2026-09-04T12:07:16.885413",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_weave_8": {
+      "meta_file": "go2_flat_008.json",
+      "mtime": "2026-09-04T12:07:16.873629",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_weave_9": {
+      "meta_file": "go2_flat_009.json",
+      "mtime": "2026-09-04T12:07:16.858187",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_yaw_step_0": {
+      "meta_file": "go2_flat_000.json",
+      "mtime": "2026-09-04T12:06:32.854362",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_yaw_step_1": {
+      "meta_file": "go2_flat_001.json",
+      "mtime": "2026-09-04T12:06:32.852039",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_yaw_step_10": {
+      "meta_file": "go2_flat_010.json",
+      "mtime": "2026-09-04T12:06:47.467554",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_yaw_step_11": {
+      "meta_file": "go2_flat_011.json",
+      "mtime": "2026-09-04T12:06:47.515431",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_yaw_step_12": {
+      "meta_file": "go2_flat_012.json",
+      "mtime": "2026-09-04T12:06:47.514580",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_yaw_step_13": {
+      "meta_file": "go2_flat_013.json",
+      "mtime": "2026-09-04T12:06:47.512067",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_yaw_step_14": {
+      "meta_file": "go2_flat_014.json",
+      "mtime": "2026-09-04T12:06:47.489267",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_yaw_step_15": {
+      "meta_file": "go2_flat_015.json",
+      "mtime": "2026-09-04T12:06:47.506259",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_yaw_step_16": {
+      "meta_file": "go2_flat_016.json",
+      "mtime": "2026-09-04T12:06:47.468746",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_yaw_step_17": {
+      "meta_file": "go2_flat_017.json",
+      "mtime": "2026-09-04T12:06:47.478985",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_yaw_step_18": {
+      "meta_file": "go2_flat_018.json",
+      "mtime": "2026-09-04T12:06:54.855047",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_yaw_step_19": {
+      "meta_file": "go2_flat_019.json",
+      "mtime": "2026-09-04T12:06:54.861706",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_yaw_step_2": {
+      "meta_file": "go2_flat_002.json",
+      "mtime": "2026-09-04T12:06:40.189842",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_yaw_step_20": {
+      "meta_file": "go2_flat_020.json",
+      "mtime": "2026-09-04T12:06:54.847739",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_yaw_step_21": {
+      "meta_file": "go2_flat_021.json",
+      "mtime": "2026-09-04T12:06:54.862830",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_yaw_step_22": {
+      "meta_file": "go2_flat_022.json",
+      "mtime": "2026-09-04T12:06:54.858830",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_yaw_step_23": {
+      "meta_file": "go2_flat_023.json",
+      "mtime": "2026-09-04T12:06:54.855762",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_yaw_step_24": {
+      "meta_file": "go2_flat_024.json",
+      "mtime": "2026-09-04T12:06:54.842030",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_yaw_step_25": {
+      "meta_file": "go2_flat_025.json",
+      "mtime": "2026-09-04T12:06:54.866927",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_yaw_step_26": {
+      "meta_file": "go2_flat_026.json",
+      "mtime": "2026-09-04T12:07:02.233215",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_yaw_step_27": {
+      "meta_file": "go2_flat_027.json",
+      "mtime": "2026-09-04T12:07:02.190274",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_yaw_step_28": {
+      "meta_file": "go2_flat_028.json",
+      "mtime": "2026-09-04T12:07:02.240961",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_yaw_step_29": {
+      "meta_file": "go2_flat_029.json",
+      "mtime": "2026-09-04T12:07:02.239344",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_yaw_step_3": {
+      "meta_file": "go2_flat_003.json",
+      "mtime": "2026-09-04T12:06:40.184579",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_yaw_step_30": {
+      "meta_file": "go2_flat_030.json",
+      "mtime": "2026-09-04T12:07:02.214037",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_yaw_step_31": {
+      "meta_file": "go2_flat_031.json",
+      "mtime": "2026-09-04T12:07:02.237110",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_yaw_step_32": {
+      "meta_file": "go2_flat_032.json",
+      "mtime": "2026-09-04T12:07:02.220021",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_yaw_step_33": {
+      "meta_file": "go2_flat_033.json",
+      "mtime": "2026-09-04T12:07:02.223607",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_yaw_step_34": {
+      "meta_file": "go2_flat_034.json",
+      "mtime": "2026-09-04T12:07:09.585196",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_yaw_step_35": {
+      "meta_file": "go2_flat_035.json",
+      "mtime": "2026-09-04T12:07:09.573061",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_yaw_step_36": {
+      "meta_file": "go2_flat_036.json",
+      "mtime": "2026-09-04T12:07:09.578871",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_yaw_step_37": {
+      "meta_file": "go2_flat_037.json",
+      "mtime": "2026-09-04T12:07:09.586696",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_yaw_step_4": {
+      "meta_file": "go2_flat_004.json",
+      "mtime": "2026-09-04T12:06:40.187175",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_yaw_step_5": {
+      "meta_file": "go2_flat_005.json",
+      "mtime": "2026-09-04T12:06:40.181870",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_yaw_step_6": {
+      "meta_file": "go2_flat_006.json",
+      "mtime": "2026-09-04T12:06:40.197815",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_yaw_step_7": {
+      "meta_file": "go2_flat_007.json",
+      "mtime": "2026-09-04T12:06:40.199929",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_yaw_step_8": {
+      "meta_file": "go2_flat_008.json",
+      "mtime": "2026-09-04T12:06:40.195373",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    },
+    "rigid_yaw_step_9": {
+      "meta_file": "go2_flat_009.json",
+      "mtime": "2026-09-04T12:06:40.192326",
+      "git_commit": "094f4a065659bd6561f86a86bc2038cb2eaf72a2",
+      "git_tree": "2a3c4d78c392b8d43d3ac3482441a1d2f7d349f6",
+      "collection_code_digest": "d4a5f4a401dc9c3f",
+      "commit_code_was_executed": false
+    }
+  },
+  "caveat": {
+    "summary": "collection_code_digest d4a5f4a401dc9c3f names the code at the recorded commits, which is NOT the code that ran, for all 304 episodes. git_commit and git_tree are correct; only the digest's claim about execution is false.",
+    "cause": "The working tree was AHEAD of HEAD. The joint-state logging that this collection exists to produce was uncommitted while it ran, and was committed as 1d652ae after the last episode finished. code_digest() reads `git show <commit>:<file>`, so it describes the commit and structurally cannot see uncommitted work.",
+    "proofs": [
+      "FIELD IN THE DATA, ABSENT FROM THE CODE: every episode carries 24 joint_*_pos_rad / joint_*_vel_radps columns. dataset.py at both recorded commits (32e1a483, 094f4a06) contains zero occurrences of JOINT_STATE_FIELDS; 1d652ae contains three.",
+      "TIMESTAMPS: last episode written 12:08:15, commit 1d652ae at 12:08:58 -- 43 seconds after the collection ended."
+    ],
+    "data_impact": "None. The executing code is exactly 1d652ae's, which is committed and diffable. The direction is favourable: the data is RICHER than its recorded commits, carrying columns they could not have written.",
+    "note": "Same defect sbel-pc found on their rigid half, same direction (tree ahead of HEAD), hit here within an hour of writing it up as a lesson -- which is the argument for the durable fix (record the running process's state) rather than for being more careful."
+  }
+}

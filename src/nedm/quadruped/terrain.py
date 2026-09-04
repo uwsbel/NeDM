@@ -178,7 +178,7 @@ def measure_leg_reach(chrono, urdf: Path) -> float:
     return float(base_z - foot_z)
 
 
-def build_rigid_ground(chrono, system):
+def build_rigid_ground(chrono, system, size_m: float = 10.0):
     """The ground the policy was actually trained on.
 
     The Go2 skill is explicit: the RL policy was trained with a ChBodyEasyBox at
@@ -191,7 +191,11 @@ def build_rigid_ground(chrono, system):
     mat.SetRestitution(0.01)
     mat.SetGn(60.0)
     mat.SetKn(2e5)
-    ground = chrono.ChBodyEasyBox(10, 10, 0.1, 1000, True, True, mat)
+    # SIZE IS A PARAMETER because episode length sets it. At 0.5 m/s a 40 s
+    # episode travels 20 m, so the historical 10 x 10 box would end every long
+    # episode at its edge. It is one fixed box: enlarging it costs nothing and
+    # removes boundary termination on rigid entirely.
+    ground = chrono.ChBodyEasyBox(size_m, size_m, 0.1, 1000, True, True, mat)
     ground.SetName("ground")
     ground.SetPos(chrono.ChVector3d(0, 0, 0.0))
     ground.SetFixed(True)

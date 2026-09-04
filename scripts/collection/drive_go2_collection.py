@@ -9,6 +9,18 @@ from nedm.quadruped.imported_policy import (COMMAND_FAMILIES, FAMILY_PARAMS,
                                             stratified_params, family_seed)
 
 TERRAIN, N_PER_FAM, CONC = sys.argv[1], int(sys.argv[2]), int(sys.argv[3])
+# The comprehensive collection. Off by default so every earlier invocation
+# reproduces; NEDM_WIDE=1 switches on the measured command envelope, 40 s
+# episodes, the 200 m ground and the diversity mechanisms together, because they
+# are one design and mixing halves of it would be neither dataset.
+WIDE = os.environ.get("NEDM_WIDE", "0") == "1"
+DURATION_S = float(os.environ.get("NEDM_DURATION_S", "41.25" if WIDE else "16"))
+GROUND_M = float(os.environ.get("NEDM_GROUND_M", "200" if WIDE else "10"))
+# Peak trunk impulse per episode, STRATIFIED ACROSS EPISODES AND INCLUDING ZERO,
+# so the set spans clean-and-directly-comparable through heavily-disturbed rather
+# than being uniformly noisy. 0 to 120 N against a ~158 N robot: the top of the
+# range falls it, which is where fall coverage comes from at no extra mechanism.
+PERTURB_MAX_N = float(os.environ.get("NEDM_PERTURB_MAX_N", "120"))
 SEED_OFFSET = int(sys.argv[4]) if len(sys.argv) > 4 else 0
 # The offset goes in the directory name as well as the metadata: metadata makes the
 # origin recoverable, a path makes it obvious, and two boxes writing identically
@@ -48,15 +60,26 @@ def spawn_for(fam, p, terrain):
 
 jobs = []
 for fam in COMMAND_FAMILIES:
-    for i, p in enumerate(stratified_params(fam, N_PER_FAM, seed=family_seed(fam, SEED_OFFSET))):
+    for i, p in enumerate(stratified_params(fam, N_PER_FAM, seed=family_seed(fam, SEED_OFFSET), wide=WIDE)):
         x, y, h, py = spawn_for(fam, p, TERRAIN)
         jobs.append((fam, i, p, x, y, h, py))
 print(f"{len(jobs)} episodes: {len(COMMAND_FAMILIES)} families x {N_PER_FAM}")
 
 def cmd(j):
     fam, i, p, x, y, h, py = j
+    extra = []
+    if WIDE:
+        # One stratified bin per episode index, including exactly zero at i==0.
+        peak = PERTURB_MAX_N * (i % 6) / 5.0
+        tilt_rng = random.Random(family_seed(fam, SEED_OFFSET) + 977 * i)
+        extra = ["--ground-size-m", f"{GROUND_M}",
+                 "--perturb-peak-n", f"{peak:.1f}",
+                 "--prewalk-s", f"{tilt_rng.uniform(0.0, 3.0):.2f}",
+                 "--ground-tilt-roll-deg", f"{tilt_rng.uniform(-3.0, 3.0):.2f}",
+                 "--ground-tilt-pitch-deg", f"{tilt_rng.uniform(-3.0, 3.0):.2f}"]
     return [PY, "scripts/collection/collect_go2_smoke.py", "--terrain", TERRAIN,
-            "--duration-s", "16", "--imported-ckpt", CKPT, "--command-family", fam,
+            "--duration-s", f"{DURATION_S}", "--imported-ckpt", CKPT, "--command-family", fam,
+            *extra,
             "--command-params", json.dumps(p), "--episode-index", str(i),
             "--seed", str(1000 + i), "--spawn-x-m", f"{x:.4f}", "--spawn-y-m", f"{y:.4f}",
             "--heading-deg", f"{h:.2f}", "--patch-y", f"{py}",

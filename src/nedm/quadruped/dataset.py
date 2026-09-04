@@ -119,6 +119,60 @@ JOINT_STATE_FIELDS = (
     + [f"joint_{name.removesuffix('_joint').lower()}_vel_radps" for name in MOTOR_NAMES]
 )
 
+# CONVENTION: MOTOR_NAMES order (RR RL FR FL), matching the target and pos/vel
+# columns above. The PD law already computes this every physics step and the
+# caller threw it away; it cannot be reconstructed afterwards because it depends
+# on the target and the state at the moment it was applied, at 400 Hz.
+# Clamped to the URDF effort limits, i.e. the torque actually commanded.
+JOINT_TORQUE_FIELDS = [
+    f"joint_{name.removesuffix('_joint').lower()}_torque_nm" for name in MOTOR_NAMES
+]
+
+# CONVENTION: MOTOR_NAMES order. The policy's raw network output, BEFORE
+# ACTION_SCALE, IMPORTED_DEFAULTS and the sign/permutation back to Chrono order.
+# Logged because the transform is lossy to invert in the presence of clipping and
+# because it is the quantity a fine-tuning objective would act on.
+POLICY_RAW_ACTION_FIELDS = [
+    f"policy_raw_{name.removesuffix('_joint').lower()}" for name in MOTOR_NAMES
+]
+
+# CONVENTION: LEG_ORDER (fl fr rl rr), matching the other foot_* columns.
+# Tangential force is what traction and slip are made of and is NOT recoverable
+# from fz. Contact is Chrono's own contact-container ground truth, not a force
+# threshold -- the thing every hysteresis constant so far has been standing in for.
+FOOT_VECTOR_FIELDS: list[str] = []
+for _leg in LEG_ORDER:
+    FOOT_VECTOR_FIELDS += [
+        f"foot_{_leg}_force_fx_n", f"foot_{_leg}_force_fy_n",
+        f"foot_{_leg}_pos_x_m", f"foot_{_leg}_pos_y_m", f"foot_{_leg}_pos_z_m",
+        f"foot_{_leg}_vel_x_mps", f"foot_{_leg}_vel_y_mps", f"foot_{_leg}_vel_z_mps",
+        f"foot_{_leg}_in_contact",
+    ]
+
+# THREE DISTINCT FRAMES, all logged, because two of them have already been
+# confused once: the base COG (pos_x_m et al above), the base REFERENCE frame,
+# and the whole-robot centre of mass over all 42 bodies. Measured separation at
+# stand: 24 mm COM-to-COG in x, 21 mm COG-to-REF.
+# CONVENTION: world frame, applied at the base COG. Zero when no perturbation is
+# active. LOGGED, NOT IMPLICIT: an unlogged disturbance is an unexplained
+# acceleration -- it widens coverage and makes the data unlearnable at the same
+# time. Logging it keeps "is this a model input?" a modelling choice rather than
+# a collection one.
+PERTURB_FIELDS = [
+    "perturb_force_x_n", "perturb_force_y_n", "perturb_force_z_n",
+    "perturb_torque_x_nm", "perturb_torque_y_nm", "perturb_torque_z_nm",
+]
+
+BODY_FRAME_FIELDS = [
+    # pos_x_m/pos_y_m/pos_z_m above are ALREADY the REF frame (capture_row reads
+    # GetFrameRefToAbs). What was missing is the COG, which is what GetPos()
+    # returns and what the boundary check used -- the 20.7 mm disagreement that
+    # cost an afternoon was between these two.
+    "base_cog_x_m", "base_cog_y_m", "base_cog_z_m",
+    "com_x_m", "com_y_m", "com_z_m",
+    "com_vel_x_mps", "com_vel_y_mps", "com_vel_z_mps",
+]
+
 ACTION_FIELDS = JOINT_ACTION_FIELDS + COMMAND_ACTION_FIELDS
 
 BASE_FIELDS = [
@@ -162,6 +216,10 @@ BASE_FIELDS = [
     "roll_rate_radps",
     "yaw_rate_radps",
     *JOINT_STATE_FIELDS,
+    *JOINT_TORQUE_FIELDS,
+    *POLICY_RAW_ACTION_FIELDS,
+    *BODY_FRAME_FIELDS,
+    *PERTURB_FIELDS,
 ]
 
 
@@ -171,6 +229,15 @@ def foot_field_names() -> list[str]:
         fields.extend(
             [
                 f"foot_{leg}_force_fz_n",
+                f"foot_{leg}_force_fx_n",
+                f"foot_{leg}_force_fy_n",
+                f"foot_{leg}_pos_x_m",
+                f"foot_{leg}_pos_y_m",
+                f"foot_{leg}_pos_z_m",
+                f"foot_{leg}_vel_x_mps",
+                f"foot_{leg}_vel_y_mps",
+                f"foot_{leg}_vel_z_mps",
+                f"foot_{leg}_in_contact",
                 f"foot_{leg}_slip_mps",
                 f"foot_{leg}_sinkage_m",
                 f"foot_{leg}_surface_disp_m",
@@ -242,6 +309,65 @@ def contact_mode(force_fz, release_n: float = CONTACT_RELEASE_N,
     return stance, mode
 
 
+def contact_bodies(chrono, system) -> set:
+    """Names of bodies Chrono's contact container resolved a contact for.
+
+    GROUND TRUTH for foot contact, replacing a force threshold. Every hysteresis
+    constant tuned so far has been a proxy for this, tuned because it was never
+    logged. Empty on CRM, where feet couple through FSI and the contact system
+    sees nothing -- the caller passes None there so the column reads NaN rather
+    than a confident False.
+    """
+    class _Rep(chrono.ReportContactCallback):
+        def __init__(self):
+            super().__init__()
+            self.names = set()
+
+        def OnReportContact(self, pA, pB, plane, distance, eff_radius,
+                            react_forces, react_torques, cA, cB, offset):
+            for c in (cA, cB):
+                try:
+                    self.names.add(chrono.CastToChBody(c).GetName())
+                except Exception:  # noqa: BLE001
+                    pass
+            return True
+
+    rep = _Rep()
+    system.GetContactContainer().ReportAllContacts(rep)
+    return rep.names
+
+
+def whole_robot_com(system):
+    """Mass-weighted centre of mass and its velocity over every non-ground body.
+
+    Distinct from the base COG and from the base REF frame: measured separation
+    at stand is 24 mm COM-to-COG in x. Not derivable from any logged column,
+    because the per-link states are not logged.
+    """
+    bodies = [b for b in system.GetBodies() if b.GetName() != "ground"]
+    m = sum(b.GetMass() for b in bodies)
+    if not bodies or m <= 0:
+        return (float("nan"),) * 3, (float("nan"),) * 3
+    px = sum(b.GetMass() * b.GetPos().x for b in bodies) / m
+    py = sum(b.GetMass() * b.GetPos().y for b in bodies) / m
+    pz = sum(b.GetMass() * b.GetPos().z for b in bodies) / m
+    vx = sum(b.GetMass() * b.GetPosDt().x for b in bodies) / m
+    vy = sum(b.GetMass() * b.GetPosDt().y for b in bodies) / m
+    vz = sum(b.GetMass() * b.GetPosDt().z for b in bodies) / m
+    return (px, py, pz), (vx, vy, vz)
+
+
+def _foot_force_xy(chrono, body, terrain):
+    """Tangential contact force. Not reconstructable from fz, and it is what
+    traction and slip are made of."""
+    try:
+        v = (terrain.GetFsiBodyForce(body) if terrain is not None
+             else body.GetContactForce())
+        return float(v.x), float(v.y)
+    except Exception:  # noqa: BLE001
+        return float("nan"), float("nan")
+
+
 def _foot_force_z(chrono, body, terrain) -> float:
     """Vertical force on a foot: FSI on CRM, rigid contact on flat.
 
@@ -277,6 +403,11 @@ def capture_row(
     split: str,
     sample_index: int,
     time_s: float,
+    tau: Any = None,
+    policy_raw: Any = None,
+    perturb: Any = None,
+    contacts: Any = None,
+    com: Any = None,
 ) -> dict[str, Any]:
     """One CSV row: base state in HMMWV field names, plus actions and feet.
 
@@ -354,17 +485,57 @@ def capture_row(
     for field, value in zip(COMMAND_ACTION_FIELDS, command):
         row[field] = float(value)
 
+    # Chrono order throughout, matching the target and pos/vel columns.
+    for field, value in zip(JOINT_TORQUE_FIELDS,
+                            tau if tau is not None else [float("nan")] * 12):
+        row[field] = float(value)
+    for field, value in zip(POLICY_RAW_ACTION_FIELDS,
+                            policy_raw if policy_raw is not None else [float("nan")] * 12):
+        row[field] = float(value)
+
+    # Three frames, none derivable from another.
+    for field, value in zip(PERTURB_FIELDS,
+                            perturb if perturb is not None else [0.0] * 6):
+        row[field] = float(value)
+
+    cg = base.GetPos()          # COG; `pos_*` above is the REF frame
+    row["base_cog_x_m"], row["base_cog_y_m"], row["base_cog_z_m"] = (
+        float(cg.x), float(cg.y), float(cg.z))
+    cpos, cvel = (com if com is not None else ((float("nan"),) * 3, (float("nan"),) * 3))
+    row["com_x_m"], row["com_y_m"], row["com_z_m"] = [float(v) for v in cpos]
+    row["com_vel_x_mps"], row["com_vel_y_mps"], row["com_vel_z_mps"] = [float(v) for v in cvel]
+
     probe = {name: z for name, z in zip(FOOT_BODIES, soil_z)}
     for leg in LEG_ORDER:
         body_name = LEG_TO_FOOT_BODY[leg]
         body = robot.body(body_name)
         if body is None:
-            for suffix in ("force_fz_n", "slip_mps", "sinkage_m", "surface_disp_m"):
+            for suffix in ("force_fz_n", "force_fx_n", "force_fy_n",
+                           "pos_x_m", "pos_y_m", "pos_z_m",
+                           "vel_x_mps", "vel_y_mps", "vel_z_mps",
+                           "in_contact", "slip_mps", "sinkage_m", "surface_disp_m"):
                 row[f"foot_{leg}_{suffix}"] = float("nan")
             continue
         foot_z = float(body.GetPos().z)
         vel = body.GetPosDt()
         row[f"foot_{leg}_force_fz_n"] = _foot_force_z(chrono, body, terrain)
+        fxy = _foot_force_xy(chrono, body, terrain)
+        row[f"foot_{leg}_force_fx_n"], row[f"foot_{leg}_force_fy_n"] = fxy
+        fp = body.GetPos()
+        row[f"foot_{leg}_pos_x_m"] = float(fp.x)
+        row[f"foot_{leg}_pos_y_m"] = float(fp.y)
+        row[f"foot_{leg}_pos_z_m"] = float(fp.z)
+        row[f"foot_{leg}_vel_x_mps"] = float(vel.x)
+        row[f"foot_{leg}_vel_y_mps"] = float(vel.y)
+        row[f"foot_{leg}_vel_z_mps"] = float(vel.z)
+        # GROUND TRUTH, not a threshold: membership in the set of bodies Chrono's
+        # contact container actually resolved a contact for. NaN off rigid, where
+        # feet couple through FSI and the contact system sees nothing.
+        row[f"foot_{leg}_in_contact"] = (
+            float("nan") if contacts is None else float(body_name in contacts))
+        # SLIP IS A MAGNITUDE and therefore carries no direction. Kept for
+        # continuity with earlier datasets; the signed components are the
+        # foot_*_vel_* columns above, which is what a directional diagnostic needs.
         row[f"foot_{leg}_slip_mps"] = float(math.hypot(vel.x, vel.y))
         # Depth of the foot below the UNDISTURBED surface. Positive is buried.
         # A length on rigid ground too, which the SPH-difference definition is

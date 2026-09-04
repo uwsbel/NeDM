@@ -1,0 +1,96 @@
+{
+  "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_jointstate_31d",
+  "output_dir": "/home/kyle/sbel-artifacts/training_runs/go2_jointstate_31d_pilot",
+  "validation_dataset_name": "flat",
+  "terrain_conditioning": {
+    "enabled": false,
+    "terrains": [
+      "flat"
+    ]
+  },
+  "train_mix": {
+    "datasets": [
+      {
+        "name": "flat",
+        "terrain": "flat",
+        "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_jointstate_31d",
+        "batch_fraction": 1.0
+      }
+    ]
+  },
+  "validation_datasets": [
+    {
+      "name": "flat",
+      "terrain": "flat",
+      "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_jointstate_31d",
+      "split": "val",
+      "max_val_batches": 200
+    }
+  ],
+  "validation_loss_weights": {
+    "flat": 1.0
+  },
+  "loss": {
+    "type": "huber",
+    "huber_delta": 1.0,
+    "channel_weight_mode": "equal_domain_combined_std",
+    "channel_weight_datasets": [
+      "/home/kyle/sbel-artifacts/training_datasets/go2_jointstate_31d"
+    ]
+  },
+  "rollout_eval": {
+    "num_episodes": 12,
+    "horizons_s": [
+      5.0,
+      10.0
+    ],
+    "selection_horizon_s": 10.0,
+    "datasets": [
+      {
+        "name": "flat",
+        "terrain": "flat",
+        "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_jointstate_31d",
+        "split": "val",
+        "weight": 1.0
+      }
+    ]
+  },
+  "model": {
+    "block_size": 128,
+    "n_layer": 6,
+    "n_head": 8,
+    "n_embd": 256,
+    "dropout": 0.0,
+    "bias": false,
+    "head_hidden_dim": 256
+  },
+  "optimizer": {
+    "lr": 0.0003,
+    "min_lr": 3e-05,
+    "weight_decay": 0.1,
+    "betas": [
+      0.9,
+      0.95
+    ],
+    "warmup_steps": 1000,
+    "grad_clip_norm": 1.0
+  },
+  "training": {
+    "seed": 2026061801,
+    "device": "cuda",
+    "batch_size": 64,
+    "num_workers": 0,
+    "num_epochs": 80,
+    "steps_per_epoch": 2000,
+    "max_val_batches": 200,
+    "checkpoint_metric": "rollout_sel",
+    "load_dataset_into_memory": true,
+    "pin_memory": false,
+    "compile": false
+  },
+  "sweep_recipe": {
+    "version": "go2_jointstate_31d_pilot",
+    "slug": "flat_joint31",
+    "notes": "PILOT, answering one question: can a surrogate that must predict 24 joint channels autoregressively hold a plausible gait for 6 s? Rigid only, because rigid costs minutes and soil costs 5.35 h -- so the risky question is answered before the expensive collection, not after. Action is the 12 joint targets; state is 31-D (7 body + 12 q + 12 dq) because the imported policy's 45-D observation reads q and dq and cannot be rolled forward inside a body-only surrogate."
+  }
+}

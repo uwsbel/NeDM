@@ -111,6 +111,25 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--assets", default=DEFAULT_ASSETS)
     parser.add_argument("--patch-x", type=float, default=8.0)
     parser.add_argument("--patch-y", type=float, default=4.0)
+    # Rigid ground extent. 10.0 reproduces every earlier rigid collection; long
+    # episodes need more, since travel is duration x commanded speed.
+    parser.add_argument("--ground-size-m", type=float, default=10.0)
+    # DIVERSITY. All default to OFF so every earlier collection reproduces byte
+    # for byte; the new run switches them on explicitly.
+    #
+    # Peak trunk impulse in newtons. Scale reference: the robot weighs ~158 N, so
+    # 80 N is roughly half body weight -- enough to visibly disturb a gait, and the
+    # top of the range falls it, which is where the fall coverage comes from.
+    parser.add_argument("--perturb-peak-n", type=float, default=0.0)
+    parser.add_argument("--perturb-mean-interval-s", type=float, default=2.0)
+    parser.add_argument("--perturb-duration-s", type=float, default=0.10)
+    # Per-episode ground tilt, degrees, applied as roll and pitch of the static box.
+    parser.add_argument("--ground-tilt-roll-deg", type=float, default=0.0)
+    parser.add_argument("--ground-tilt-pitch-deg", type=float, default=0.0)
+    # NON-QUIESCENT START: seconds of policy-driven walking after the settle and
+    # BEFORE recording begins, so an episode starts mid-gait with velocity and
+    # arbitrary phase instead of from rest.
+    parser.add_argument("--prewalk-s", type=float, default=0.0)
     parser.add_argument("--soil-young", type=float, default=None)
     parser.add_argument("--soil-cohesion", type=float, default=None)
     parser.add_argument("--no-calf-fsi", action="store_true")
@@ -187,13 +206,24 @@ def build_collector_config(args: argparse.Namespace, soil: dict[str, Any]) -> di
     return config
 
 
-def assert_finite_rows(rows: list[dict[str, Any]], allow_nan: set[str]) -> None:
-    for row in rows:
+def first_nonfinite_row(rows: list[dict[str, Any]], allow_nan: set[str]) -> int | None:
+    """Index of the first row carrying a non-finite value, or None.
+
+    TRUNCATE, DO NOT DISCARD. A violent fall can diverge the contact solver
+    mid-tumble: measured, roll runs 16 -> 42 degrees over six samples and the
+    next row is NaN. Everything before that is a real recorded fall and is
+    exactly the coverage this collection exists to get, so the episode is cut at
+    the first bad row and LABELLED rather than thrown away. Raising here would
+    discard the falls and keep only the episodes that never lost stability --
+    selecting against the data we are trying to collect.
+    """
+    for index, row in enumerate(rows):
         for key, value in row.items():
             if key in allow_nan:
                 continue
             if isinstance(value, float) and not math.isfinite(value):
-                raise ValueError(f"non-finite value in {key} at sample {row['sample_index']}")
+                return index
+    return None
 
 
 def summarize_force(rows: list[dict[str, Any]], total_mass_kg: float, gravity: float) -> dict[str, float]:
@@ -225,7 +255,8 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
     from nedm.quadruped import soilprobe
     from nedm.quadruped.constants import (FALL_TILT_RAD, FOOT_BODIES, GRAVITY,
                                           SOIL_PRESETS, STAND_ACTION)
-    from nedm.quadruped.dataset import capture_row, csv_field_names, foot_field_names
+    from nedm.quadruped.dataset import (capture_row, contact_bodies, csv_field_names,
+                                        foot_field_names, whole_robot_com)
     from nedm.quadruped.policy import PolicyController
     from nedm.quadruped.provenance import provenance
     from nedm.quadruped.robot import Go2Robot
@@ -238,6 +269,10 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
         import pychrono.fsi as fsi
 
     np.random.seed(args.seed)
+    # Seeded from the episode seed so perturbation timing and direction are part
+    # of the episode's identity and replay exactly.
+    import random as _random
+    rng = _random.Random(args.seed)
     cwd_at_start = os.getcwd()
     assets = Path(args.assets)
     urdf = assets / "data/robot/go2_irrvis/urdf/go2_description.urdf"
@@ -259,6 +294,18 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
 
     system = chrono.ChSystemSMC()
     system.SetGravitationalAcceleration(chrono.ChVector3d(0, 0, -GRAVITY))
+    # SLOPE BY TILTING GRAVITY, NOT THE GROUND. Rotating the static box is not a
+    # local slope: at 200 m across, 2.5 deg is a 4.4 m ramp, and a 40 s episode
+    # climbs several metres of it and destabilises -- measured, 6 of 16 probe
+    # episodes went non-finite and tilt was the isolated cause. A tilted gravity
+    # vector is exactly a uniform slope, identical at every position, and the
+    # body attitude the policy senses responds the same way.
+    if args.ground_tilt_roll_deg or args.ground_tilt_pitch_deg:
+        _r = math.radians(args.ground_tilt_roll_deg)
+        _p = math.radians(args.ground_tilt_pitch_deg)
+        system.SetGravitationalAcceleration(chrono.ChVector3d(
+            9.81 * math.sin(_p), -9.81 * math.sin(_r),
+            -9.81 * math.cos(_r) * math.cos(_p)))
     system.SetCollisionSystemType(chrono.ChCollisionSystem.Type_BULLET)
     system.SetSolverType(chrono.ChSolver.Type_BARZILAIBORWEIN)
     system.GetSolver().AsIterative().SetMaxIterations(args.solver_iters)
@@ -300,7 +347,7 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
     robot_mass = sum(b.GetMass() for b in system.GetBodies())
 
     if rigid:
-        build_rigid_ground(chrono, system)
+        build_rigid_ground(chrono, system, size_m=float(args.ground_size_m))
         terrain, coupled = None, []
     else:
         # ASSERT THE SPAWN IS ON THE BED. build_crm centres the patch at
@@ -325,7 +372,7 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
         terrain, coupled = build_crm(chrono, fsi, veh, system, robot, args)
 
     if args.imported_ckpt:
-        from nedm.quadruped.imported_policy import ImportedGo2Policy
+        from nedm.quadruped.imported_policy import CHRONO_TO_IMPORTED, ImportedGo2Policy
         params = json.loads(args.command_params) if args.command_params else None
         policy = ImportedGo2Policy(Path(args.imported_ckpt), family=args.command_family,
                                    duration=args.duration_s, params=params)
@@ -348,7 +395,11 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
 
     BED_MARGIN = 0.8
     if rigid:
-        bed = (-5.0, 5.0, -5.0, 5.0)
+        # DERIVED FROM THE GROUND SIZE, not restated. These were two hardcoded
+        # constants that had to agree (a 10 x 10 box and a +/-5 bed); deriving one
+        # from the other means enlarging the ground cannot leave the bed behind.
+        half = float(args.ground_size_m) / 2.0
+        bed = (-half, half, -half, half)
     else:
         cx = args.patch_x / 2 - 0.6
         bed = (cx - args.patch_x / 2, cx + args.patch_x / 2,
@@ -358,6 +409,13 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
     q0 = robot.joint_pos().astype(np.float64)
     robot.actuate(q0)
     action = q0.copy()
+    tau = np.zeros(12)
+    policy_raw = np.full(12, float("nan"))
+    perturb = np.zeros(6)
+    _acc = base.AddAccumulator()
+    _pert_until = -1.0
+    _pert_next = (rng.expovariate(1.0 / max(args.perturb_mean_interval_s, 1e-9))
+                  if args.perturb_peak_n > 0 else float("inf"))
 
     rows: list[dict[str, Any]] = []
     # DISCARD THE WARMUP, as the HMMWV collector does ("each episode discards an
@@ -365,7 +423,8 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
     # the pose ramp and the settle hold, not under policy control, so the command
     # columns would carry the constructor default rather than the family and the
     # dynamics are a drop transient rather than locomotion.
-    warmup_s = args.pose_ramp_seconds + args.settle_seconds
+    # Recording starts AFTER the prewalk, so the first recorded row is mid-gait.
+    warmup_s = args.pose_ramp_seconds + args.settle_seconds + float(args.prewalk_s)
     next_record_s = warmup_s
     next_progress_s = 0.0
     sample_index = 0
@@ -393,11 +452,35 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
                     action = STAND_ACTION.astype(np.float64)
                 else:
                     action = policy.act(robot)
+                    # The network's raw output, before ACTION_SCALE and the
+                    # defaults. Reordered to Chrono order for column naming only;
+                    # the sign convention is NOT applied, because "raw" means the
+                    # number the policy emitted.
+                    _raw = np.zeros(12, dtype=np.float64)
+                    _raw[CHRONO_TO_IMPORTED] = policy.last_actions
+                    policy_raw = _raw
                 robot.actuate(action)
                 if sph_probe is not None:
                     soil_z, soil_ctrl = soilprobe.sample(sph_probe, robot)
 
-            robot.apply_pd()          # every physics step, not every control step
+            # PERTURBATION: Poisson-timed impulses of random direction, held for a
+            # short window. Re-applied every physics step while active because the
+            # accumulator is emptied each step.
+            base.EmptyAccumulator(_acc)
+            if args.perturb_peak_n > 0.0:
+                if t >= _pert_next and t > warmup_s * 0.5:
+                    mag = rng.uniform(0.25, 1.0) * args.perturb_peak_n
+                    th = rng.uniform(0.0, 2.0 * math.pi)
+                    perturb = np.array([mag * math.cos(th), mag * math.sin(th),
+                                        mag * rng.uniform(-0.3, 0.3), 0.0, 0.0, 0.0])
+                    _pert_until = t + args.perturb_duration_s
+                    _pert_next = t + rng.expovariate(1.0 / max(args.perturb_mean_interval_s, 1e-9))
+                if t < _pert_until:
+                    base.AccumulateForce(_acc, chrono.ChVector3d(*perturb[:3]),
+                                         base.GetPos(), False)
+                else:
+                    perturb = np.zeros(6)
+            tau = robot.apply_pd()    # every physics step, not every control step
             if terrain is not None:
                 terrain.DoStepDynamics(exchange)
             else:
@@ -411,9 +494,18 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
                 break
 
             if t + 1e-12 >= next_record_s:
+                # Contact ground truth is meaningful only on rigid: on CRM the
+                # feet couple through FSI and the contact system sees nothing, so
+                # None here makes the column NaN rather than a confident False.
+                contacts = contact_bodies(chrono, system) if terrain is None else None
                 row = capture_row(
                     chrono=chrono,
                     robot=robot,
+                    tau=tau,
+                    policy_raw=policy_raw,
+                    perturb=perturb,
+                    contacts=contacts,
+                    com=whole_robot_com(system),
                     terrain=terrain,
                     soil_top_m=soil_top,
                     action=action,
@@ -448,8 +540,30 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
     wall_s = time.perf_counter() - wall0
     # surface_disp is NaN before the first probe on CRM and legitimately absent
     # if the probe never bound; nothing else is allowed to be non-finite.
+    # NaN is MEANINGFUL in two places and must not be confused with a defect:
+    #  - surface_disp_m off CRM: rigid ground genuinely does not deform.
+    #  - policy_raw_*: recording can begin between 50 Hz policy control steps
+    #    (physics runs at 400 Hz), so the first row or two can precede the first
+    #    policy action. NaN there means "the policy was not driving yet", which is
+    #    true; filling it with a stale or zero action would be a quiet lie.
+    #  - foot_*_in_contact on CRM: the contact system sees nothing there.
+    from nedm.quadruped.dataset import POLICY_RAW_ACTION_FIELDS
     allow_nan = {f for f in foot_field_names() if f.endswith("_surface_disp_m")}
-    assert_finite_rows(rows, allow_nan)
+    allow_nan |= set(POLICY_RAW_ACTION_FIELDS)
+    allow_nan |= {f for f in foot_field_names() if f.endswith("_in_contact")}
+    diverged_at = first_nonfinite_row(rows, allow_nan)
+    if diverged_at is not None:
+        if diverged_at < 50:
+            raise ValueError(
+                f"non-finite at sample {diverged_at}: too little usable data to keep")
+        rows = rows[:diverged_at]
+        # The CSV is streamed during the loop, so the non-finite row is ALREADY on
+        # disk. Rewrite the file from the truncated list, or the metadata says 185
+        # while the file holds 186 and gate G10 fails on a real dataset.
+        with csv_path.open("w", newline="", encoding="utf-8") as _h:
+            _w = csv.DictWriter(_h, fieldnames=csv_field_names())
+            _w.writeheader()
+            _w.writerows(rows)
 
     force_summary = summarize_force(rows, robot_mass, GRAVITY)
     pose_summary = summarize_pose(rows)
@@ -477,7 +591,13 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
         "fsi_coupled_bodies": len(coupled),
         "crm_particles": int(terrain.GetNumSPHParticles()) if terrain is not None else 0,
         "fell": fell_at is not None,
-        "status": ("fell" if fell_at is not None
+        # Solver divergence during a tumble. The episode is truncated here, not
+        # discarded: the rows before it are a genuine recorded fall.
+        "diverged": diverged_at is not None,
+        "diverged_at_s": (None if diverged_at is None
+                          else float(rows[-1]["time_s"]) if rows else None),
+        "status": ("diverged" if diverged_at is not None
+                   else "fell" if fell_at is not None
                    else "bed_boundary" if boundary_at is not None else "completed"),
         "bed_boundary_at_s": boundary_at,
         "command_family": args.command_family,
