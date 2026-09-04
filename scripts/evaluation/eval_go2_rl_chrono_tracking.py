@@ -85,6 +85,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
                              "10 s, so a floor measured at some other horizon cannot be laid "
                              "beside a level-2 number. Converted with the env's own step_dt.")
     parser.add_argument("--pre-roll-time-s", type=float, default=None)
+    parser.add_argument("--p-gains", type=str, default=None,
+                        help="kx,ky,kyaw for a hand-tuned PROPORTIONAL controller instead of "
+                             "a learned policy. The baseline that answers 'would a simple "
+                             "controller have done this without any of the framework'. Same "
+                             "action bounds, same references, same horizon, same floor.")
     parser.add_argument("--device", type=str, default="cpu")
     parser.add_argument("--out", type=Path, default=None)
     return parser.parse_args(argv)
@@ -161,7 +166,32 @@ def load_policy(args: argparse.Namespace, env: Any, run_dir: Path) -> Any:
     return runner.get_inference_policy(device=args.device)
 
 
-def roll_one(env: Any, reference_id: int, policy: Any | None) -> dict[str, Any]:
+class ProportionalController:
+    """cmd = clip(K * local pose error), the simplest thing that could work.
+
+    NO LEARNING, NO SURROGATE, NO PLANT MODEL. It sees exactly what the learned
+    policy's observation contains as pose error and maps it straight to a
+    velocity command. If this matches the learned policy then the framework did
+    not earn its compute on this task, and that is a result rather than an
+    embarrassment -- a baseline that cannot embarrass us is not a baseline.
+    """
+
+    def __init__(self, gains, low, high):
+        import torch
+
+        self.k = torch.tensor(gains, dtype=torch.float32, device=low.device)
+        self.low, self.high = low, high
+
+    def __call__(self, env) -> Any:
+        import torch
+
+        _, ref_pose = env._reference_state_pose()
+        err = env._pose_error_local(ref_pose)          # dx, dy in body frame; dyaw wrapped
+        return torch.clamp(self.k * err, self.low, self.high)
+
+
+def roll_one(env: Any, reference_id: int, policy: Any | None,
+             p_controller: Any | None = None) -> dict[str, Any]:
     """One reference. policy=None replays the reference's own actions."""
     env.reset_idx(torch.tensor([0], device=env.device),
                   reference_ids=torch.tensor([reference_id], device=env.device))
@@ -178,7 +208,11 @@ def roll_one(env: Any, reference_id: int, policy: Any | None) -> dict[str, Any]:
     ref_xy: list[list[float]] = []
     steps = 0
     for _ in range(env.max_episode_length):
-        if policy is None:
+        if p_controller is not None:
+            # Already a command in m/s and rad/s, like a reference action, so it
+            # bypasses the policy scaling for the same reason the replay does.
+            obs, reward, dones, extras = env.step_raw_actions(p_controller(env))
+        elif policy is None:
             # THE REFERENCE'S OWN ACTIONS, at the reference cursor the env is
             # about to consume. _set_driver_action_np is bypassed deliberately:
             # the base's step() applies action scaling and clamping to a POLICY
@@ -307,7 +341,17 @@ def main(argv: list[str] | None = None) -> int:
     result["replay_baseline"] = summarize(
         "REPLAY BASELINE -- Chrono driven by the reference's own recorded commands", baseline_rows)
 
-    if args.run_dir is not None and (args.policy_checkpoint or list(args.run_dir.glob("model_*.pt"))):
+    if args.p_gains:
+        gains = [float(v) for v in args.p_gains.split(",")]
+        if len(gains) != 3:
+            raise SystemExit("--p-gains needs exactly kx,ky,kyaw")
+        ctrl = ProportionalController(gains, env.action_low, env.action_high)
+        rows = [roll_one(env, rid, policy=None, p_controller=ctrl) for rid in reference_ids]
+        result["policy"] = summarize(
+            f"PROPORTIONAL CONTROLLER k = {gains} -- no learning, no surrogate",
+            rows, floor_rows=baseline_rows)
+        result["controller"] = {"kind": "proportional", "gains": gains}
+    elif args.run_dir is not None and (args.policy_checkpoint or list(args.run_dir.glob("model_*.pt"))):
         policy = load_policy(args, env, args.run_dir)
         policy_rows = [roll_one(env, rid, policy=policy) for rid in reference_ids]
         result["policy"] = summarize("POLICY -- trained in the frozen NRD model",
