@@ -230,7 +230,14 @@ def summarize(label: str, rows: list[dict[str, Any]],
         print(f"  {r['episode_id']:<34} {r['scenario_family']:<28} "
               f"{r['steps']:>6} {r['mean_position_error_m']:>9.4f} "
               f"{r['final_position_error_m']:>8.4f}{cell}")
-    families = sorted({r["scenario_family"].rsplit("_command", 1)[0].split("_")[-1] for r in rows})
+    # Strip the "go2_<terrain>_" prefix and "_command" suffix, and NOTHING ELSE.
+    # A .split("_")[-1] here collapsed stop_and_go to "go" and both vel_step and
+    # yaw_step to "step", printing 7 labels for 8 families -- a mix label that
+    # understates the mix, on the very line whose job is to state it.
+    families = sorted({
+        "_".join(r["scenario_family"].removesuffix("_command").split("_")[2:])
+        for r in rows
+    })
     print(f"  {'POOLED':<34} {'mix: ' + ','.join(families):<28} {'':>6} {mean:>9.4f} {final:>8.4f}"
           f"   ({completed}/{len(rows)} to the horizon)")
     out = {"mean_position_error_m": mean, "final_position_error_m": final,
