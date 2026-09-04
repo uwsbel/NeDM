@@ -14,7 +14,7 @@ The gates are ordered by the stage they protect:
   G4  family agreement  scenario_family is consistent with terrain + command_family
   G5  index/json parity the two copies of a shared field agree
   G6  split             both splits exist and the ratio is in band
-  G7  val coverage      the validation split contains every family
+  G7  val coverage      each terrain's validation split contains every family
   G8  ROLLOUT COVERAGE  the episodes the trainer would SELECT cover every family
   G1b HMMWV parity      (warn) fields the HMMWV index carries and ours does not
   G9  boundary flag     terminated_near_boundary is present and matches status
@@ -25,6 +25,11 @@ split can cover all eight families perfectly while the trainer still draws all
 twelve of its rollout episodes from one of them -- producing coverage and consuming
 it are different guarantees. G8 is the one that matters, because rollout error at
 the selection horizon is what every deployed checkpoint is chosen on.
+
+Both run PER TERRAIN, because that is how the trainer evaluates: rollout_eval
+loops `for domain in domains` (trainer.py:721) and selects once per processed
+dataset. Checking the merged pool would demand twelve distinct families out of
+sixteen and fail on data the trainer would handle correctly.
 
 G1 exists because of a narrower rule than "audit every .get() with no default".
 preprocess.py:233 reads `frames_path` with exactly that pattern and is harmless,
@@ -241,34 +246,54 @@ def main() -> int:
                 f"(counts {dict(splits)}) -- a zero here means no validation set exists at all")
 
     # ---- G7 val coverage --------------------------------------------------
-    val = [ep for ep in episodes if ep.get("split") == "val"]
-    val_fams = {ep.get("scenario_family") for ep in val}
-    missing7 = sorted(fams - val_fams)
+    # PER TERRAIN, because that is how the trainer evaluates. rollout_eval loops
+    # `for domain in domains` (trainer.py:721) and calls the selection once per
+    # processed dataset, so flat and crm each get their own twelve drawn from
+    # their own families. Checking the merged pool would demand twelve distinct
+    # families out of sixteen -- a requirement the trainer never actually faces.
+    by_terrain: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for ep in episodes:
+        by_terrain[ep.get("terrain_label") or "?"].append(ep)
+
+    missing7: list[str] = []
+    for terr, terr_eps in sorted(by_terrain.items()):
+        terr_fams = {ep.get("scenario_family") for ep in terr_eps}
+        terr_val_fams = {ep.get("scenario_family") for ep in terr_eps if ep.get("split") == "val"}
+        gap = sorted(terr_fams - terr_val_fams)
+        print(f"        {terr:6s} {len(terr_val_fams)}/{len(terr_fams)} families in val"
+              + (f", missing {gap}" if gap else ""))
+        missing7.extend(gap)
     report("G7 val coverage", not missing7,
-           f"validation split covers all {len(fams)} families" if not missing7
-           else f"validation split is missing {missing7}")
+           "every terrain's validation split covers every family it collected" if not missing7
+           else f"{len(missing7)} family/terrain combinations absent from validation: {missing7[:4]}")
 
     # ---- G8 ROLLOUT COVERAGE ---------------------------------------------
-    # The gate that matters. G7 can pass while this fails.
-    selected = select_rollout_episodes(list(val), args.rollout_episodes)
-    sel_fams = Counter(ep["scenario_family"] for ep in selected)
-    # An empty selection must FAIL rather than pass vacuously: "0 of 0 families
-    # covered" is true and useless, and a gate that passes on no input is the
-    # failure this whole script exists to catch.
-    # Measure against every family that EXISTS, not against the families that
-    # survived into val. Scoring the selection against the pool it was drawn from
-    # would report full coverage of an already-impoverished pool -- the same
-    # produced-versus-consumed confusion one level further down.
-    reachable = min(args.rollout_episodes, len(fams))
-    ok8 = len(selected) > 0 and len(sel_fams) >= reachable
-    report("G8 rollout coverage", ok8,
-           f"the {len(selected)} selected episodes span {len(sel_fams)}/{len(fams)} families" if ok8
-           else f"the {len(selected)} episodes every checkpoint is SELECTED on span "
-                f"{len(sel_fams)}/{len(fams)} collected families, expected at least {reachable}"
-                + (" -- nothing to select from" if not selected
-                   else " -- the validation split cannot reach the rest (see G7)"))
-    for fam, n in sorted(sel_fams.items()):
-        print(f"        {fam:44s} {n}")
+    # The gate that matters, and the one G7 cannot stand in for. A validation
+    # split can cover every family while the round-robin still fails to reach
+    # them inside max_episodes. Scored against the families that EXIST on that
+    # terrain, not the families that survived into val -- scoring against the
+    # pool it drew from would report full coverage of an impoverished pool.
+    bad8: list[str] = []
+    for terr, terr_eps in sorted(by_terrain.items()):
+        terr_fams = {ep.get("scenario_family") for ep in terr_eps}
+        terr_val = [ep for ep in terr_eps if ep.get("split") == "val"]
+        selected = select_rollout_episodes(list(terr_val), args.rollout_episodes)
+        sel_fams = Counter(ep["scenario_family"] for ep in selected)
+        reachable = min(args.rollout_episodes, len(terr_fams))
+        ok = len(selected) > 0 and len(sel_fams) >= reachable
+        print(f"        {terr:6s} {len(selected):2d} selected spanning "
+              f"{len(sel_fams)}/{len(terr_fams)} families (need {reachable})"
+              + ("" if ok else "   <-- FAIL"))
+        for fam, n in sorted(sel_fams.items()):
+            print(f"          {fam:44s} {n}")
+        if not ok:
+            bad8.append(f"{terr}: {len(sel_fams)}/{len(terr_fams)} in {len(selected)} episodes"
+                        + (" (nothing to select from)" if not selected else ""))
+    report("G8 rollout coverage", not bad8,
+           f"every terrain's {args.rollout_episodes} selected episodes span all its families"
+           if not bad8
+           else "the episodes every checkpoint is SELECTED on do not span the collected "
+                f"families: {bad8}")
 
     # ---- G9 boundary flag -------------------------------------------------
     if "terminated_near_boundary" in present:
