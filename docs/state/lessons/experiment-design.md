@@ -549,13 +549,33 @@ input. Naive permutation breaks the control in two separate ways:
    rollout the model feeds back its own best prediction, which is smooth. The real
    cell has no such mismatch, so the permuted cell can lose for an artifact.
 
-**The fix is to make the channel exogenous in the control cell:** supply it from
-the permuted record as a context-style input at both training and rollout time, so
-it is never predicted and never in the loss. Input width is then held exactly
-fixed, which is the thing the control exists to hold, and only the output head
-differs by one channel.
+**The mechanism already exists and is better than permutation.**
+`transformer_cfg.blind_state_fields` (`model.py:33`, applied at `model.py:123`,
+logged at `trainer.py:427`, precedent in `configs/ablations/arm_transformer_8d_qdonly_v1.json`)
+drops a channel from the token *before the input projection* while leaving **the
+state and target layout untouched**. The network never sees the channel; it is
+still predicted, still autoregressed, still in the loss with the same weights.
 
-**Compare on `rollout_sel`, not on aggregate one-step loss.** The rollout metric is
+| control | input | output head | loss channel set |
+|---|---|---|---|
+| **blind** | narrows by 1 (−256 params) | **identical** | **identical** |
+| permuted-exogenous | fixed | narrows by 1 (−257) | changes |
+
+Blind is cleaner on the axis that matters most — an identical loss channel set
+means the two cells' aggregate losses are built from the same terms — and it needs
+**no new code**. Prefer it. Permutation remains the right control for an
+*exogenous* input like the contact-mode code, which has no target to leave
+untouched.
+
+The residual capacity difference is ~256 of ~4.72 M backbone parameters
+(6 layers × (4·256² + 2·256·1024)), i.e. **0.005%** — about four orders of
+magnitude smaller than the capacity confound the control exists to remove. That
+ratio is what makes the control sound rather than merely better.
+
+**Compare on `rollout_sel`, not on aggregate one-step loss** — this caveat survives
+either construction, because a blinded channel must still be predicted without
+being seen, so its own one-step term is worse for a reason unrelated to the
+question. The rollout metric is
 pose-derived — `_integrate_pose` uses only `vel_body_x_mps`, `vel_body_y_mps` and
 `yaw_rate_radps` — so a permuted non-pose channel affects it *only* through its
 influence on predicting those three. That is exactly the causal path under test.
