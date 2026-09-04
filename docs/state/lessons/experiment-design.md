@@ -1307,43 +1307,22 @@ magnitude coarser than float32**, and the floor correspondingly larger. One `sed
 something visible on the horizon of interest.
 
 
-## Name the failing outcome before running a verification step
 
-**Cost:** two reviewers, same blind spot, same minute · **Found:** 2026-09-04 · **Applies to:** every check, especially the quick reassuring ones
-
-A collection run was gated on an environment variable that switches the whole
-dataset design. The verification handed to the collecting box was:
-
-> grep the driver log for `--ground-size-m 200.0`; if it is absent, the config did
-> not take.
-
-**The driver logs progress counts and never logs subprocess command lines.** The grep
-returns nothing whether the design took or not. It was not a weak check; it was **not
-a check** — no outcome of running it could have reported failure.
-
-The replacement, found by the box that had to run it: **episode travel spans 40 m,
-which is physically impossible on the 10 m bed the old design uses.** Reachable "no",
-computed from the data rather than from a log that may not contain the evidence.
-
-**Two independent reviewers proposed and relayed the bad check without noticing**,
-which is the important part. A mistake that survives two people is evidence about the
-**shape of the check**, not about anyone's attention, and it is why the rule has to be
-procedural rather than an exhortation to be careful:
-
-> **Before running a verification step, state what result would constitute failure. If
-> no result would, it is not a step.**
+**Two independent reviewers proposed and relayed this check without either noticing.**
+A mistake that survives two people is evidence about the **shape of the check**, not
+about anyone's attention, which is why the rule has to be procedural rather than an
+exhortation to be careful.
 
 **The same principle from the other side.** A test written the same hour caught a bug
-in *itself* on its first run — it compared `JOINT_ACTION_FIELDS` against `MOTOR_NAMES`
-without stripping the `joint_` prefix, and failed. That is what a check with a
-reachable "no" looks like: it can report failure, so it did, immediately, on its
-author. A test that has never been shown to fail is not yet evidence of anything —
-which is why each assertion there was fed a deliberate transposition and shown to
-reject it.
+in *itself* on its first run -- it compared `JOINT_ACTION_FIELDS` against `MOTOR_NAMES`
+without stripping the `joint_` prefix, and failed. That is what a reachable "no" looks
+like: it can report failure, so it did, immediately, on its author. Each assertion in
+`test/test_joint_orderings.py` was then fed a deliberate transposition and shown to
+reject it, because a test never shown to fail is not yet evidence of anything.
 
 **Corollary for the rationale, not just the test.** A passing test with a wrong reason
-attached teaches the next reader the wrong thing while looking like it teaches the
-right one. One of the assertions here was justified as catching a transposition the
-existing assertion missed; measurement showed the existing assertion caught it too.
-The test was kept — its real value is independence from a hardcoded literal — but the
-docstring was corrected, because the reason is the part that gets reused.
+attached teaches the next reader the wrong thing while looking like it teaches the right
+one. One assertion there was justified as catching a transposition the existing
+assertion missed; measurement showed the existing one caught it too. The test was kept --
+its value is independence from a hardcoded literal -- but the docstring was corrected,
+because the reason is the part that gets reused.
