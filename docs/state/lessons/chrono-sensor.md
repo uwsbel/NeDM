@@ -67,3 +67,89 @@ with 0.1× emissive. Marker detection still only succeeded on 6/10 layouts at
 tires only query the terrain. A pass with a rock buried 0.62 m inside the vehicle
 footprint recorded **0 N**. This made a "zero collisions" gate result *vacuously
 true*. **Before claiming zero contact, prove the contact channel can fire.**
+
+## A green Chrono::Sensor build may not contain the backend you meant to test
+
+**Cost:** one full 220-target build, discarded · **Found:** 2026-09-04 · **Applies to:** verifying any Chrono::Sensor backend on Linux
+
+Verifying "the OptiX path" on a `feature/sensor_metal_rt` checkout produced a clean
+build, eleven `demo_SEN_*` binaries and a passing test suite — **with OptiX compiled
+out entirely.** Two independent defaults, neither of which announces itself:
+
+**1. `CH_USE_SENSOR_OPTIX` defaults to `OFF`** (upstream, `chrono_sensor/CMakeLists.txt`),
+described as *"legacy"*; Vulkan RT is the default renderer. **Passing `OptiX_INSTALL_DIR`
+does not enable it and does not warn that it was ignored.**
+
+**2. With it explicitly `ON`, it can still be forced back OFF — by a warning.**
+
+```
+CMake Warning: Chrono::Sensor OptiX renderer requires CUDA, but none is available
+               (vendor=NVIDIA, CUDA=FALSE, HIP=FALSE)
+-- Building Chrono::Sensor with NO OptiX support
+```
+
+`CUDA=FALSE` on a box with CUDA 13.0.88 and a working `nvcc`, purely because
+`/usr/local/cuda/bin` was not on `PATH` and `CMAKE_CUDA_COMPILER` resolved `NOTFOUND`.
+Configure succeeds, build succeeds, tests pass.
+
+**The severities are inverted relative to the consequences, which is the general
+lesson.** In the same file, a missing `glslangValidator` is a `FATAL_ERROR` that stops
+the build dead — and the cost of proceeding would have been *one disabled optional
+feature*. A missing CUDA toolchain is a **warning** — and the cost of proceeding is
+**silently measuring a different renderer than the one under test**. The loud failure
+guards the cheap mistake; the quiet one guards the expensive mistake.
+
+Related asymmetry in the same `if()`: Vulkan **absent** takes an `else()` that warns and
+disables gracefully, while Vulkan **present without `glslang-tools`** is fatal. On Ubuntu
+`libvulkan-dev` arrives with the graphics stack while `glslang-tools` is a separate
+package, so the **more**-installed machine fails where the **less**-installed one builds.
+
+**Fix / checklist before trusting any sensor verification:**
+
+```bash
+grep -E "^CH_USE_SENSOR_(OPTIX|VULKAN_RT|VULKAN_RT_GPU|METAL_RT):" CMakeCache.txt
+ldd bin/demo_SEN_camera | grep -E "nvrtc|cuda"   # OptiX build links these
+```
+
+Assert the backend from the **cache and the linkage**, never from "it configured and the
+tests passed". Required on Linux for OptiX:
+`-DCH_USE_SENSOR_OPTIX=ON -DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc`.
+
+**And `CMAKE_CUDA_ARCHITECTURES` is not the knob.** `cmake/ChronoGPUDetect.cmake`
+overwrites `CHRONO_CUDA_ARCHITECTURES` from `CMAKE_CUDA_ARCHITECTURES_ALL_MAJOR` with
+`FORCE`, so `-DCMAKE_CUDA_ARCHITECTURES=120` is accepted and discarded, leaving
+`60-real;70-real;80-real;90` on an sm_120 part — which *runs*, via PTX JIT from the
+virtual `90` arch, while no longer measuring native code. Use
+`-DCHRONO_CUDA_ARCHITECTURES=<arch>`.
+
+**Evidence:** `chrono_sensor/CMakeLists.txt` (OptiX default, glslang `FATAL_ERROR`);
+`cmake/ChronoGPUModule.cmake` (CUDA warning path); `cmake/ChronoGPUDetect.cmake` (arch
+`FORCE`). Symptom that exposed it: `demo_SEN_Gator` missing from `bin/`, and only
+because it happens to sit behind the same `if(CH_USE_SENSOR_OPTIX)`.
+
+## Sensor demos resolve data by a RELATIVE path, so cwd decides whether they crash
+
+**Cost:** two false "Linux segfault" results, nearly reported · **Found:** 2026-09-04 · **Applies to:** every `demo_SEN_*`
+
+`demo_SEN_camera` and `demo_SEN_Gator` both **segfaulted (exit 139)** when run as
+`./bin/demo_SEN_camera` from the build root. Not a crash in the code:
+
+```
+tiny_obj error message: Cannot open file [../data/vehicle/audi/audi_chassis.obj]
+Segmentation fault
+```
+
+The demos load assets through a **relative** `../data/`, which resolves against the
+**current working directory**, not the executable. From the build root that is
+`<build>/../data`, which does not exist; the loader returns a null mesh and the demo
+faults on it. Run from `bin/`, where `../data` resolves, both are fine —
+`demo_SEN_camera` exits **0**.
+
+**A missing asset that surfaces as a segfault is indistinguishable from a real crash
+in a CI log or a bug report.** Check the working directory before filing one.
+
+**Corollary: exit 124 is not a hang.** `demo_SEN_Gator` hit a 120 s cap with output
+frozen after *"Add sensor 'GPS'"* and an empty `DEMO_OUTPUT` — which looks exactly like
+a deadlock. Process state said otherwise: **`Rl`, 114% CPU, 8 threads.** It was
+simulating with no per-step console output. Sample `ps -o stat=,pcpu=` before calling
+anything hung; silent is not stopped.
