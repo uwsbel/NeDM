@@ -85,6 +85,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--actuation", choices=["torque", "position"], default="torque")
     parser.add_argument("--imported-ckpt", default=None)
     parser.add_argument("--command-family", default=None)
+    parser.add_argument("--command-params", default=None,
+                        help="JSON dict of this episode's stratified amplitude draw.")
     parser.add_argument("--assets", default=DEFAULT_ASSETS)
     parser.add_argument("--patch-x", type=float, default=8.0)
     parser.add_argument("--patch-y", type=float, default=4.0)
@@ -302,8 +304,9 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
 
     if args.imported_ckpt:
         from nedm.quadruped.imported_policy import ImportedGo2Policy
+        params = json.loads(args.command_params) if args.command_params else None
         policy = ImportedGo2Policy(Path(args.imported_ckpt), family=args.command_family,
-                                   duration=args.duration_s)
+                                   duration=args.duration_s, params=params)
     else:
         policy = PolicyController(ckpt, cfgs)
     sph_probe = soilprobe.bind_probe(terrain)
@@ -456,6 +459,7 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
                    else "bed_boundary" if boundary_at is not None else "completed"),
         "bed_boundary_at_s": boundary_at,
         "command_family": args.command_family,
+        "command_params": getattr(policy, "params", None),
         "command_series": getattr(policy, "command_log", None),
         "plant_bed_m": list(bed),
         "fell_at_s": fell_at,
