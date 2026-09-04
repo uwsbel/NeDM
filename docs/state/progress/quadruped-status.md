@@ -142,6 +142,57 @@ Two are worth naming here because they reached model selection:
 Both are fixed in the data rather than patched in the consumers, which is the only
 fix that is correct in all three places at once.
 
+## Levels 1 and 2 PASS — the NRD model validates on Go2/CRM
+
+**2026-09-04.** Checkpoint `best_val.pt`, epoch 46 of 80, config identical to the
+HMMWV v07 anchor but for dataset paths. Trained on 1,120 episodes / 1.64 M
+transitions, 20.8% held out.
+
+**Reported on the FULL validation split** (34 crm, 199 flat), not the twelve
+episodes the checkpoint was selected on:
+
+| metric | n | xy_rmse_m | mean_dist_m | errdist | err/BL |
+|---|---|---|---|---|---|
+| rollout_crm_10s | 34 | 0.1179 | 1.303 | **9.05%** | 0.17 |
+| rollout_flat_10s | 199 | 0.0957 | 1.037 | **9.23%** | 0.14 |
+
+`errdist = xy_rmse / mean_dist_m`, `mean_dist_m` = ground-truth path length pooled
+over the evaluated episodes. `err/BL` divides `xy_rmse` by the **Go2's own** body
+length (0.7 m); the HMMWV anchor is 1.30 m / 4.6 m = 0.28.
+
+**The pre-registered band held.** 6–12% CRM was fixed before the number existed,
+derived from the paper's scaling appendix at our 15.3% data fraction. It came in at
+9.05%.
+
+**Selection bias is +7.1%** — `rollout_sel` 0.0914 on full val against 0.0853 on the
+twelve selection episodes. Small, so selection was picking signal rather than a
+lucky draw, but it is reported because the anchor's 4.3% is a *100-episode*
+evaluation and a 12-episode figure on the selection set is not the same quantity.
+
+**The paper's selection rule reproduced on independent data.** `val_loss` reaches
+its minimum at epoch 80; `rollout_sel` at epoch 80 is **1.8× worse** than at epoch
+46. Choosing on one-step loss would have shipped a checkpoint 80% worse on the
+metric that governs downstream control. That is why `checkpoint_metric` is
+load-bearing rather than a convenience.
+
+**The two terrains are indistinguishable** at this checkpoint (9.05% vs 9.23%, and
+the ordering *inverts* between the 12-episode and full-val sets). The claim that
+survives is the weaker and truer one: **flat at 0.35% of reference data performs
+comparably to CRM at 15.3%.**
+
+### Per-family diagnostic (full val, 10 s) — not a selection metric
+
+`errdist` spans 3.7× across families, and **the spread is mostly denominator**.
+`flat pivot` has the *lowest absolute error of any flat family* (0.0680 m) and the
+fourth-worst `errdist`, because it barely translates (`mean_dist` 0.523 m). Ranked
+by absolute error the picture inverts. CRM per-family cells are n = 2–7 and should
+not be ranked.
+
+One observation worth a later look: **`flat constant` has the worst absolute error
+of any flat family** (0.1597 m against `lateral`'s 0.0554), despite being the
+simplest command. It is also the family that sweeps `vx` straight through the
+measured dead zone, so the command→velocity nonlinearity is the natural suspect.
+
 ## Why episodes hit the bed boundary: lateral excursion, not turning
 
 Boundary terminations are a **composition** effect, not drift — confirmed
