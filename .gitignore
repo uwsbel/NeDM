@@ -146,3 +146,19 @@ artifacts/traverse/wp3_tracker_*/model_*.pt
 !artifacts/traverse/wp4_scores_tracker_v1/
 !artifacts/traverse/wp4_chrono_candidates_v1/
 !artifacts/traverse/media/
+# WP4: map head (v2 deployed), planner ladder, power calibration, camera-only
+# candidate scores (routes exported for Chrono) and their Chrono validation.
+!artifacts/traverse/wp4_maphead_v1/
+!artifacts/traverse/wp4_maphead_v2/
+!artifacts/traverse/wp4_planner_ladder_v1/
+!artifacts/traverse/wp4_planner_ladder_v2_final/
+!artifacts/traverse/wp4_power_calib/
+!artifacts/traverse/wp4_scores_pred_occ/
+!artifacts/traverse/wp4_scores_pred_full/
+!artifacts/traverse/wp4_scores_pred_occ_r40/
+!artifacts/traverse/wp4_scores_pred_full_r40/
+!artifacts/traverse/wp4_chrono_pred_occ/
+!artifacts/traverse/wp4_chrono_pred_full/
+!artifacts/traverse/wp4_chrono_pred_occ_r40/
+!artifacts/traverse/wp4_chrono_pred_full_r40/
+artifacts/traverse/wp4_scores_*/trajectories.npz

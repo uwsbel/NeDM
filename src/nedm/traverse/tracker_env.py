@@ -316,7 +316,8 @@ class TraverseTrackingEnv(VecEnv):
         self.z1_hist = torch.cat([self.z1_hist[:, 1:], z1_next.unsqueeze(1)], dim=1)
         self.token_hist = torch.cat([self.token_hist[:, 1:], token_next.unsqueeze(1)], dim=1)
         self.act_hist = torch.cat([self.act_hist[:, 1:], self.act_hist[:, -1:]], dim=1)
-        self.energy_kj += (power[:, -1, 0] * self.p_std + self.p_mean) * DT_S
+        self.last_power = power[:, -1, 0] * self.p_std + self.p_mean  # kW
+        self.energy_kj += self.last_power * DT_S
 
     # ------------------------------------------------------------------ route geometry
     def _route_errors(self) -> dict[str, torch.Tensor]:

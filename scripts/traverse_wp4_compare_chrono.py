@@ -12,12 +12,14 @@ import numpy as np
 img = json.load(open(sys.argv[1]))["rows"]
 rows = [json.loads(l) for l in Path(sys.argv[2]).read_text().splitlines() if l.strip()]
 ctl = sys.argv[3] if len(sys.argv) > 3 else "wp3_tracker_v1"
+efield = sys.argv[4] if len(sys.argv) > 4 else "energy_kj"
+print(f"imagined energy field: {efield}")
 ch = {(r["key"], r["candidate"]): r for r in rows if ctl in str(r["controller"])}
 im = {(r["key"], r["candidate"]): r for r in img}
 common = sorted(set(ch) & set(im))
 print(f"chrono rows ({ctl}): {len(ch)}  imagined rows: {len(im)}  common: {len(common)}")
 t_i = np.array([im[k]["time_s"] for k in common]); t_c = np.array([ch[k]["time_s"] for k in common])
-e_i = np.array([im[k]["energy_kj"] for k in common]); e_c = np.array([ch[k]["energy_kj"] for k in common])
+e_i = np.array([im[k][efield] for k in common]); e_c = np.array([ch[k]["energy_kj"] for k in common])
 ok = np.array([ch[k]["completed"] for k in common])
 print(f"chrono completed {ok.sum()}/{len(ok)}  contact {sum(ch[k]['contact'] for k in common)}")
 print(f"time  : imagined {t_i[ok].mean():.2f}s chrono {t_c[ok].mean():.2f}s  corr {np.corrcoef(t_i[ok], t_c[ok])[0,1]:.3f}  MAE {np.abs(t_i-t_c)[ok].mean():.2f}s")
@@ -28,7 +30,7 @@ def spearman(a, b):
     return np.corrcoef(ra, rb)[0, 1] if len(a) > 2 else np.nan
 
 keys = sorted({k for k, _ in common})
-cost = lambda r, scale: r["time_s"] + scale * r["energy_kj"] / 10.0
+cost = lambda r, scale, f="energy_kj": r["time_s"] + scale * r[f] / 10.0
 agree, regret, rho_t, rho_c, n_ep = 0, [], [], [], 0
 agree_t, regret_t, detail = 0, [], []
 for key in keys:
@@ -39,7 +41,7 @@ for key in keys:
     # imagined pick uses imagined energy; chrono pick uses chrono energy, rescaled to the imagined energy scale
     # so the two rank on the same objective (energy ratio handled by the scale factor)
     ratio = e_c[ok].mean() / e_i[ok].mean()
-    ci = {c: cost(im[(key, c)], 1.0) for c in cands}
+    ci = {c: cost(im[(key, c)], 1.0, efield) for c in cands}
     cc = {c: cost(ch[(key, c)], 1.0 / ratio) if ch[(key, c)]["completed"] else 1e9 for c in cands}
     pi, pc = min(ci, key=ci.get), min(cc, key=cc.get)
     agree += pi == pc

@@ -413,3 +413,29 @@ Consequences recorded here, detail in `wp2_implementation_notes.md`:
    the attention pooling rather than capacity or data
    (`wp1_implementation_notes.md`). If v7 clears the bar, the planner reads z₂
    directly and item 3's blocker becomes the only one left.
+
+## 21. v1.5 change (2026-09-04 night): planner made sensor-based (WP4)
+
+Prompted by the review question "are we using privileged heightmap/obstacle
+information in the planner?" — yes, as a v1 stand-in; now replaced.
+`wp4_implementation_notes.md` has the numbers.
+
+1. **Planner-B built** (§7, §5 fallback representation): a conv head decodes
+   BEV occupancy + elevation from the frozen camera scene map (held-out IoU
+   0.82, 99.9 % rock/tree detection); occupied cells become disc obstacles and
+   the unchanged oracle search/smoother/validator runs on them. On 100 held-out
+   layouts it finds the oracle's plan (length ratio 1.001) on every layout the
+   oracle solves, with zero true-map collisions.
+2. **Planner-C scoring** now checks collision against the predicted map; the
+   true discs are reported as a metric only. Camera-only candidates driven in
+   Chrono: 145/145 complete, zero contact.
+3. **Energy** (§9.5 objective): the WP2 power head under-reports 1.6× under the
+   tracker; power models on imagined *kinematics* do not transfer (noisy
+   imagined tire loads / wheel speeds); a throttle/brake-based model does
+   (ratio 1.15–1.19, corr 0.72–0.80). Residual gap is the dynamics model's
+   throttle response — fix is tracker-driven training episodes, not calibration.
+4. **§7.4 margin:** the measured tracker p95 (0.07–0.12 m) cannot yet be used
+   because the shortcut/Chaikin smoother relies on the 0.9 m inflation; margin
+   stays at 0.9 pending a clearance-aware smoother.
+5. Still privileged: start pose, goal, and the tracker's pose in Chrono (v1
+   contract §3).

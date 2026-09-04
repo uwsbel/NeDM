@@ -296,6 +296,9 @@ def build_tasks(args) -> list[dict]:
     manifest = json.loads((Path(args.routes) / "routes_manifest.json").read_text())
     allowed = set().union(*(set(manifest["families"][f]) for f in args.families))
     keys = [k for k in split if k in allowed][: args.episodes]
+    if args.route_file:
+        exported_keys = set(json.loads(Path(args.route_file).read_text()))
+        keys = [k for k in keys if k in exported_keys]
     tmap = TerrainMap.from_dir(Path(args.arena))
     ref_meta = next(Path(r) / "policy_meta.json" for r in args.runs if r != "follower")
     tasks = []
@@ -307,6 +310,13 @@ def build_tasks(args) -> list[dict]:
         meta = json.loads(meta_path.read_text())
         with np.load(Path(args.routes) / f"{key}.npz") as r:
             routes = [("recorded", {n: r[n].tolist() for n in ("waypoints", "speeds", "headings", "stations")})]
+        if args.route_file:
+            exported = json.loads(Path(args.route_file).read_text())
+            routes = [(c["candidate"], {n: c[n] for n in ("waypoints", "speeds", "headings", "stations")})
+                      for c in exported.get(key, []) if c["candidate"] != "recorded" or args.include_recorded]
+            if args.include_recorded and not any(n == "recorded" for n, _ in routes):
+                with np.load(Path(args.routes) / f"{key}.npz") as r:
+                    routes.append(("recorded", {n: r[n].tolist() for n in ("waypoints", "speeds", "headings", "stations")}))
         if args.candidates:
             layout = EpisodeLayout.from_json(meta["layout"])
             seen = set()
@@ -361,6 +371,8 @@ def main() -> int:
     ap.add_argument("--families", nargs="+", default=["oracle"])
     ap.add_argument("--episodes", type=int, default=32)
     ap.add_argument("--candidates", action="store_true")
+    ap.add_argument("--route-file", default=None, help="json from the scorer's --export-routes: drive exactly those routes")
+    ap.add_argument("--include-recorded", action="store_true")
     ap.add_argument("--horizon-s", type=float, default=25.0)
     ap.add_argument("--procs", type=int, default=12)
     args = ap.parse_args()

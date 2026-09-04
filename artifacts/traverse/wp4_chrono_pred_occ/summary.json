@@ -1,0 +1,109 @@
+{
+ "args": {
+  "runs": [
+   "artifacts/traverse/wp3_tracker_v1"
+  ],
+  "out": "artifacts/traverse/wp4_chrono_pred_occ",
+  "cache": "artifacts/traverse/wp2_z2_cache_v6",
+  "routes": "artifacts/traverse/wp3_routes",
+  "stores": "artifacts/traverse",
+  "arena": "assets/traverse/arena_v1",
+  "split": "val",
+  "families": [
+   "oracle"
+  ],
+  "episodes": 32,
+  "candidates": false,
+  "route_file": "artifacts/traverse/wp4_scores_pred_occ/routes.json",
+  "include_recorded": false,
+  "horizon_s": 25.0,
+  "procs": 10
+ },
+ "wall_s": 450.7122368812561,
+ "per_controller_candidate": {
+  "wp3_tracker_v1/energy_averse": {
+   "n": 20,
+   "completed": 1.0,
+   "contact": 0.0,
+   "rollover": 0.0,
+   "off_route": 0.0,
+   "time_s_completed": 11.6675,
+   "energy_kj_completed": 196.56573853219578,
+   "mean_ct_m": 0.031860722468825244,
+   "p95_ct_m": 0.09466646489540168,
+   "max_ct_m": 0.1389572050399041,
+   "mean_speed_err_mps": 0.3562959996096858,
+   "steer_rate_max": 0.10000000000000005
+  },
+  "wp3_tracker_v1/fast": {
+   "n": 26,
+   "completed": 1.0,
+   "contact": 0.0,
+   "rollover": 0.0,
+   "off_route": 0.0,
+   "time_s_completed": 10.24423076923077,
+   "energy_kj_completed": 189.91019701111915,
+   "mean_ct_m": 0.03808816011880399,
+   "p95_ct_m": 0.1091548311130017,
+   "max_ct_m": 0.1839097159101351,
+   "mean_speed_err_mps": 0.396970674231147,
+   "steer_rate_max": 0.10000000000000002
+  },
+  "wp3_tracker_v1/oracle": {
+   "n": 27,
+   "completed": 1.0,
+   "contact": 0.0,
+   "rollover": 0.0,
+   "off_route": 0.0,
+   "time_s_completed": 11.007407407407406,
+   "energy_kj_completed": 182.1986798973621,
+   "mean_ct_m": 0.032559045221727576,
+   "p95_ct_m": 0.0937216463972078,
+   "max_ct_m": 0.15692332928653555,
+   "mean_speed_err_mps": 0.36237971853790796,
+   "steer_rate_max": 0.10000000000000002
+  },
+  "wp3_tracker_v1/shortest": {
+   "n": 27,
+   "completed": 1.0,
+   "contact": 0.0,
+   "rollover": 0.0,
+   "off_route": 0.0,
+   "time_s_completed": 11.288888888888888,
+   "energy_kj_completed": 193.8949419789325,
+   "mean_ct_m": 0.03841930871328257,
+   "p95_ct_m": 0.1372328664927323,
+   "max_ct_m": 0.1951257651095348,
+   "mean_speed_err_mps": 0.3564095526196113,
+   "steer_rate_max": 0.10000000000000003
+  },
+  "wp3_tracker_v1/slow": {
+   "n": 27,
+   "completed": 1.0,
+   "contact": 0.0,
+   "rollover": 0.0,
+   "off_route": 0.0,
+   "time_s_completed": 15.62037037037037,
+   "energy_kj_completed": 114.28785502065632,
+   "mean_ct_m": 0.02667796889275233,
+   "p95_ct_m": 0.08895537898418665,
+   "max_ct_m": 0.14863388932818133,
+   "mean_speed_err_mps": 0.2912568711681025,
+   "steer_rate_max": 0.10000000000000002
+  },
+  "wp3_tracker_v1/wide_berth": {
+   "n": 18,
+   "completed": 1.0,
+   "contact": 0.0,
+   "rollover": 0.0,
+   "off_route": 0.0,
+   "time_s_completed": 11.00277777777778,
+   "energy_kj_completed": 183.06599951813084,
+   "mean_ct_m": 0.03505143616404324,
+   "p95_ct_m": 0.10246327681809014,
+   "max_ct_m": 0.15361079737768643,
+   "mean_speed_err_mps": 0.3526830828239894,
+   "steer_rate_max": 0.10000000000000003
+  }
+ }
+}

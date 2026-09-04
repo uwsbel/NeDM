@@ -35,8 +35,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from nedm.traverse import nrd_data as D
 from nedm.traverse.layout import EpisodeLayout
-from nedm.traverse.nrd_model import DT_S
+from nedm.traverse.nrd_model import DT_S, VX
 from nedm.traverse.oracle import PlanCandidate, PlannerParams, plan_to_ring
+from nedm.traverse.planner_b import MapDecoder, occupancy_discs
+from nedm.traverse.power_calib import KINDS, PowerModel
 from nedm.traverse.terrain import TerrainMap
 from nedm.traverse.tracker_env import TraverseTrackingEnv, merge_env_cfg, pure_pursuit_actions
 
@@ -73,13 +75,20 @@ def recorded_truth(cache: Path, key: str, route: dict[str, np.ndarray]) -> dict[
             "mean_ct_m": float(ct.mean()), "max_ct_m": float(ct.max())}
 
 
-def build_candidates(meta: dict, tmap: TerrainMap, sweep: dict) -> tuple[list[tuple[str, PlanCandidate]], EpisodeLayout]:
+def build_candidates(meta: dict, tmap: TerrainMap, sweep: dict, obstacles=None, margin: float | None = None,
+                     repair_iterations: int | None = None) -> tuple[list[tuple[str, PlanCandidate]], EpisodeLayout]:
+    """``obstacles`` None -> the true footprint discs (privileged oracle); otherwise the
+    disc list to plan against (e.g. occupied cells of the camera-derived map)."""
     layout = EpisodeLayout.from_json(meta["layout"])
-    obstacles = layout.obstacles()
+    obstacles = layout.obstacles() if obstacles is None else obstacles
     out, seen = [], set()
     for name, overrides in sweep.items():
-        plan = plan_to_ring(tmap, obstacles, layout.start_xy, layout.house_xy,
-                            replace(PlannerParams(), **overrides))
+        params = replace(PlannerParams(), **overrides)
+        if margin is not None:
+            params = replace(params, tracker_p95_margin_m=margin)
+        if repair_iterations is not None:
+            params = replace(params, curvature_repair_iterations=repair_iterations)
+        plan = plan_to_ring(tmap, obstacles, layout.start_xy, layout.house_xy, params)
         if plan is None:
             continue
         sig = (len(plan.waypoints), round(plan.length_m, 2), round(float(plan.speeds.mean()), 3))
@@ -91,10 +100,28 @@ def build_candidates(meta: dict, tmap: TerrainMap, sweep: dict) -> tuple[list[tu
     return out, layout
 
 
-@torch.no_grad()
-def rollout(env: TraverseTrackingEnv, policy, horizon: int, obstacles: torch.Tensor) -> dict[str, torch.Tensor]:
-    """Roll every env from its episode start for ``horizon`` steps; obstacles (N, M, 3) padded with r<0."""
+def footprint_clearance(env: TraverseTrackingEnv, obstacles: torch.Tensor) -> torch.Tensor:
     n, dev = env.num_envs, env.device
+    cos_y, sin_y = torch.cos(env.pose[:, 2]), torch.sin(env.pose[:, 2])
+    clear = torch.full((n,), float("inf"), device=dev)
+    for off in FOOTPRINT_DISCS:
+        cx, cy = env.pose[:, 0] + off * cos_y, env.pose[:, 1] + off * sin_y
+        d = torch.hypot(obstacles[..., 0] - cx[:, None], obstacles[..., 1] - cy[:, None]) - obstacles[..., 2] - FOOTPRINT_HALF_W
+        d = torch.where(obstacles[..., 2] >= 0, d, torch.full_like(d, float("inf")))
+        clear = torch.minimum(clear, d.min(dim=1).values)
+    return clear
+
+
+@torch.no_grad()
+def rollout(env: TraverseTrackingEnv, policy, horizon: int, obstacles: torch.Tensor,
+            obstacles_true: torch.Tensor | None = None, power_models: dict[str, PowerModel] | None = None,
+            ) -> dict[str, torch.Tensor]:
+    """Roll every env from its episode start for ``horizon`` steps; obstacles (N, M, 3) padded with r<0
+    are the set the SCORE uses (true discs or camera-derived cells); ``obstacles_true`` adds the
+    privileged metric. ``power_models`` -> calibrated kinematic energies alongside the head's."""
+    n, dev = env.num_envs, env.device
+    obstacles_true = obstacles if obstacles_true is None else obstacles_true
+    power_models = power_models or {}
     env.reset_idx(torch.arange(n, device=dev), episode_ids=torch.arange(n, device=dev),
                   start_frames=torch.full((n,), env.context, device=dev, dtype=torch.long),
                   fragment_steps=torch.full((n,), horizon, device=dev, dtype=torch.long))
@@ -108,6 +135,11 @@ def rollout(env: TraverseTrackingEnv, policy, horizon: int, obstacles: torch.Ten
     ct_sum = torch.zeros(n, device=dev); ct_max = torch.zeros(n, device=dev)
     energy = torch.zeros(n, device=dev)
     progress = torch.zeros(n, device=dev)
+    collided_true = torch.zeros(n, dtype=torch.bool, device=dev)
+    min_clear_true = torch.full((n,), float("inf"), device=dev)
+    e_kin = {k: torch.zeros(n, device=dev) for k in power_models}
+    prev_vx = env.z1_phys[:, VX].clone()
+    traj = {"z1": [], "act": [], "active": [], "power": []}
     for step in range(horizon):
         obs = env.obs_buf
         act = policy(obs)
@@ -115,16 +147,20 @@ def rollout(env: TraverseTrackingEnv, policy, horizon: int, obstacles: torch.Ten
         err = env._route_errors()
         ct = err["e_ct"].abs()
         ct_sum += ct * active; ct_max = torch.where(active, torch.maximum(ct_max, ct), ct_max)
-        # footprint clearance against the obstacle discs
-        cos_y, sin_y = torch.cos(env.pose[:, 2]), torch.sin(env.pose[:, 2])
-        clear = torch.full((n,), float("inf"), device=dev)
-        for off in FOOTPRINT_DISCS:
-            cx, cy = env.pose[:, 0] + off * cos_y, env.pose[:, 1] + off * sin_y
-            d = torch.hypot(obstacles[..., 0] - cx[:, None], obstacles[..., 1] - cy[:, None]) - obstacles[..., 2] - FOOTPRINT_HALF_W
-            d = torch.where(obstacles[..., 2] >= 0, d, torch.full_like(d, float("inf")))
-            clear = torch.minimum(clear, d.min(dim=1).values)
+        vx = env.z1_phys[:, VX]
+        ax = (vx - prev_vx) / DT_S
+        prev_vx = vx.clone()
+        for k, pm in power_models.items():
+            e_kin[k] += pm.predict(env.z1_phys, env.actions, ax, torch) * DT_S * active
+        traj["z1"].append(env.z1_phys.clone()); traj["act"].append(env.actions.clone())
+        traj["active"].append(active.clone()); traj["power"].append(env.last_power.clone() if hasattr(env, "last_power") else torch.zeros(n, device=dev))
+        # footprint clearance against the scoring obstacle set and the true discs
+        clear = footprint_clearance(env, obstacles)
         min_clear = torch.where(active, torch.minimum(min_clear, clear), min_clear)
         collided |= active & (clear < 0)
+        clear_t = footprint_clearance(env, obstacles_true)
+        min_clear_true = torch.where(active, torch.minimum(min_clear_true, clear_t), min_clear_true)
+        collided_true |= active & (clear_t < 0)
         just_done = active & dones.bool()
         end_step = torch.where(just_done, torch.full_like(end_step, step + 1), end_step)
         completed |= just_done & err["route_end"]
@@ -135,9 +171,14 @@ def rollout(env: TraverseTrackingEnv, policy, horizon: int, obstacles: torch.Ten
         if not active.any():
             break
     steps = end_step.float().clamp(min=1.0)
-    return {"time_s": end_step.float() * DT_S, "completed": completed, "failed": failed,
-            "collided": collided, "min_clearance_m": min_clear, "energy_kj": energy,
-            "mean_ct_m": ct_sum / steps, "max_ct_m": ct_max, "progress_m": progress}
+    out = {"time_s": end_step.float() * DT_S, "completed": completed, "failed": failed,
+           "collided": collided, "min_clearance_m": min_clear, "energy_kj": energy,
+           "collided_true": collided_true, "min_clearance_true_m": min_clear_true,
+           "mean_ct_m": ct_sum / steps, "max_ct_m": ct_max, "progress_m": progress}
+    for k, e in e_kin.items():
+        out[f"energy_{k.replace('+', '')}_kj"] = e
+    out["_traj"] = {k: torch.stack(v).cpu().numpy() for k, v in traj.items()}
+    return out
 
 
 def load_policy(run_dir: Path, env: TraverseTrackingEnv, device: str):
@@ -164,6 +205,20 @@ def main() -> None:
     ap.add_argument("--families", nargs="+", default=["oracle"])
     ap.add_argument("--episodes", type=int, default=32)
     ap.add_argument("--horizon-s", type=float, default=20.0)
+    ap.add_argument("--candidates", choices=["oracle", "predicted"], default="oracle",
+                    help="oracle = privileged true map; predicted = camera-derived map (Planner-B)")
+    ap.add_argument("--terrain", choices=["true", "predicted"], default="true",
+                    help="terrain for predicted-map planning (true = memorized-terrain rung)")
+    ap.add_argument("--collision", choices=["true", "predicted"], default="true",
+                    help="obstacle set the SCORE's collision check uses (true discs are always reported)")
+    ap.add_argument("--maphead", default="artifacts/traverse/wp4_maphead_v1/ckpt_best.pt")
+    ap.add_argument("--map-key", default="map_v2")
+    ap.add_argument("--occ-threshold", type=float, default=0.5)
+    ap.add_argument("--margin", type=float, default=None, help="tracker margin override for candidate generation")
+    ap.add_argument("--power-calib", default="artifacts/traverse/wp4_power_calib/power_calib.json")
+    ap.add_argument("--dump-trajectories", default=None, help="npz path for per-step imagined z1/actions")
+    ap.add_argument("--export-routes", default=None, help="json path: every candidate route, for the Chrono eval")
+    ap.add_argument("--energy-field", default="energy_act_kj", help="energy used in the selection objective")
     ap.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
     args = ap.parse_args()
 
@@ -176,11 +231,24 @@ def main() -> None:
     tmap = TerrainMap.from_dir(Path(args.arena))
 
     t0 = time.time()
-    entries, index, obstacle_lists, truths = [], [], [], {}
+    need_map = args.candidates == "predicted" or args.collision == "predicted"
+    decoder = MapDecoder(Path(args.maphead), Path(args.arena), args.device) if need_map else None
+    entries, index, obstacle_lists, true_lists, truths, cells = [], [], [], [], {}, []
     for key in keys:
         store, ep = key.split("__", 1)
         meta = json.loads((Path(args.stores) / store / ep / "meta.json").read_text())
-        cands, layout = build_candidates(meta, tmap, CANDIDATE_SWEEP)
+        pred_discs, plan_tmap = None, tmap
+        if decoder is not None:
+            with np.load(cache / f"{key}.npz") as d:
+                occ, elev = decoder(d[args.map_key])
+            pred_discs = occupancy_discs(occ, decoder.size_m, args.occ_threshold, mode="cells")
+            cells.append(len(pred_discs))
+            if args.terrain == "predicted":
+                plan_tmap = decoder.terrain(elev)
+        cands, layout = build_candidates(meta, plan_tmap, CANDIDATE_SWEEP,
+                                         obstacles=pred_discs if args.candidates == "predicted" else None,
+                                         margin=args.margin,
+                                         repair_iterations=40 if args.candidates == "predicted" else None)
         with np.load(routes / f"{key}.npz") as r:
             recorded = {n: r[n] for n in ("waypoints", "speeds", "headings", "stations")}
         truths[key] = recorded_truth(cache, key, recorded)
@@ -189,13 +257,28 @@ def main() -> None:
             entries.append((key, route))
             index.append({"key": key, "candidate": name, "length_m": float(route["stations"][-1]),
                           "mean_speed_mps": float(route["speeds"].mean())})
-            obstacle_lists.append(layout.obstacles())
-    print(f"{len(keys)} episodes -> {len(entries)} candidate rollouts (plans in {time.time() - t0:.1f}s)", flush=True)
+            true_lists.append(layout.obstacles())
+            obstacle_lists.append(pred_discs if args.collision == "predicted" else layout.obstacles())
+    if args.export_routes:
+        exp = {}
+        for (key, route), row in zip(entries, index):
+            exp.setdefault(key, []).append({"candidate": row["candidate"], **{k: np.asarray(v).tolist() for k, v in route.items()}})
+        Path(args.export_routes).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.export_routes).write_text(json.dumps(exp))
+    print(f"{len(keys)} episodes -> {len(entries)} candidate rollouts (plans in {time.time() - t0:.1f}s)"
+          + (f"; predicted occupied cells mean {np.mean(cells):.0f}" if cells else ""), flush=True)
 
-    m = max(len(o) for o in obstacle_lists)
-    obst = np.full((len(entries), m, 3), -1.0, np.float32)
-    for i, o in enumerate(obstacle_lists):
-        obst[i, : len(o)] = np.asarray(o, np.float32)
+    def pad(lists):
+        m = max(len(o) for o in lists)
+        arr = np.full((len(entries), m, 3), -1.0, np.float32)
+        for i, o in enumerate(lists):
+            if len(o):
+                arr[i, : len(o)] = np.asarray(o, np.float32)
+        return torch.tensor(arr, device=args.device)
+    obst, obst_true = pad(obstacle_lists), pad(true_lists)
+    power_models = {}
+    if args.power_calib and Path(args.power_calib).exists():
+        power_models = {k: PowerModel.load(Path(args.power_calib), k) for k in KINDS}
     cfg = merge_env_cfg({"num_envs": len(entries), "device": args.device, "auto_reset": False,
                          "dynamics_checkpoint": args.dynamics_checkpoint, "arena": args.arena,
                          "cache": args.cache, "routes": args.routes, "split": args.split,
@@ -212,8 +295,12 @@ def main() -> None:
             return env.physical_to_policy(env.bank.act_raw[env.env_ep, f])
     else:
         policy = load_policy(Path(args.policy), env, args.device)
-    res = rollout(env, policy, int(round(args.horizon_s / DT_S)), torch.tensor(obst, device=env.device))
+    res = rollout(env, policy, int(round(args.horizon_s / DT_S)), obst, obst_true, power_models)
+    traj = res.pop("_traj")
     res = {k: v.cpu().numpy() for k, v in res.items()}
+    if args.dump_trajectories:
+        np.savez_compressed(args.dump_trajectories, keys=np.array([r["key"] for r in index]),
+                            candidates=np.array([r["candidate"] for r in index]), **traj)
 
     rows = []
     for i, row in enumerate(index):
@@ -234,6 +321,8 @@ def main() -> None:
                 "mae": float(np.abs(a - b).mean()), "corr": float(np.corrcoef(a, b)[0, 1]) if len(a) > 2 else float("nan")}
     summary = {
         "episodes": len(keys), "rollouts": len(entries), "horizon_s": args.horizon_s, "policy": args.policy,
+        "candidates": args.candidates, "terrain": args.terrain, "collision": args.collision, "margin": args.margin,
+        "predicted_cells_mean": float(np.mean(cells)) if cells else None,
         "recorded_route_calibration": {
             "completed_recorded": int(sum(c["rec_completed"] for c in cal)),
             "completed_imagined": int(sum(c["img_completed"] for c in cal)),
@@ -251,7 +340,9 @@ def main() -> None:
         summary["per_candidate"][name] = {
             "n": len(sel), "completed": float(np.mean([r["completed"] for r in sel])),
             "failed": float(np.mean([r["failed"] for r in sel])), "collided": float(np.mean([r["collided"] for r in sel])),
+            "collided_true": float(np.mean([r["collided_true"] for r in sel])),
             "time_s": float(np.mean([r["time_s"] for r in sel])), "energy_kj": float(np.mean([r["energy_kj"] for r in sel])),
+            **{k: float(np.mean([r[k] for r in sel])) for k in sel[0] if k.startswith("energy_") and k != "energy_kj"},
             "mean_ct_m": float(np.mean([r["mean_ct_m"] for r in sel])), "max_ct_m": float(np.mean([r["max_ct_m"] for r in sel])),
             "length_m": float(np.mean([r["length_m"] for r in sel])), "progress_m": float(np.mean([r["progress_m"] for r in sel])),
         }
@@ -263,9 +354,12 @@ def main() -> None:
             continue
         ok = [r for r in cands if r["completed"] and not r["failed"] and not r["collided"]]
         pool = ok or cands
-        best = min(pool, key=lambda r: r["time_s"] + r["energy_kj"] / 10.0)
+        ef = args.energy_field if args.energy_field in pool[0] else "energy_kj"
+        best = min(pool, key=lambda r: r["time_s"] + r[ef] / 10.0)
         wins[best["candidate"]] = wins.get(best["candidate"], 0) + 1
+        best["selected"] = True
     summary["selection_wins"] = wins
+    summary["selection_energy_field"] = ef if wins else None
     out = Path(args.out); out.mkdir(parents=True, exist_ok=True)
     (out / "candidate_scores.json").write_text(json.dumps({"summary": summary, "rows": rows, "calibration": cal}, indent=1))
     print(json.dumps(summary, indent=1), flush=True)

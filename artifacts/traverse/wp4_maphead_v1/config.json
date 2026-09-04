@@ -1,0 +1,21 @@
+{
+ "out": "artifacts/traverse/wp4_maphead_v1",
+ "cache": "artifacts/traverse/wp2_z2_cache_v6",
+ "stores": "artifacts/traverse",
+ "arena": "assets/traverse/arena_v1",
+ "map_key": "map_v2",
+ "grid": 128,
+ "width": 64,
+ "steps": 4000,
+ "batch": 64,
+ "lr": 0.0003,
+ "weight_decay": 0.05,
+ "pos_weight": 5.0,
+ "small_weight": 3.0,
+ "elev_weight": 1.0,
+ "eval_every": 500,
+ "limit_train": 0,
+ "limit_val": 0,
+ "seed": 0,
+ "device": "cuda"
+}
