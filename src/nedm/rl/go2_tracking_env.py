@@ -28,8 +28,12 @@ WHAT CHANGES, AND WHY EACH ONE HAS TO:
    logged, and a reader would find a throttle_brake number on a legged robot and
    reasonably wonder what it meant.
 
-3. TERMINATION ROLL AND PITCH ARE A REAL FALL TEST. On the HMMWV they proxy a
-   rollover; on a quadruped they are the actual failure. Tightened accordingly.
+3. TERMINATION ROLL AND PITCH ARE A MODEL-VALIDITY BOUND, NOT A FALL TEST. That
+   was the first framing and it was wrong: the collection recorded ZERO falls in
+   1,120 episodes, so the model has never seen one and cannot predict one. What
+   the thresholds actually do is stop the policy optimising past the edge of the
+   training data, where the model extrapolates freely. Set just above the
+   observed maxima -- see the measurement at the cfg below.
 
 THREE MEASURED PLANT NONLINEARITIES THE POLICY MUST LEARN AROUND, all from the
 collection and all reproduced by the NRD model it trains inside:

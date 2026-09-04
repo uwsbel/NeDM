@@ -46,3 +46,21 @@ DEFAULT_TRACKED_DYNAMICS_CHECKPOINT = Path(
 DEFAULT_TRACKED_PROCESSED_DATASET_DIR = Path(
     "artifacts/training_datasets/tracked_drive_v2_seq16_v1"
 )
+
+# Study Case III: terrain-conditioned Go2 quadruped on rigid + CRM. Same
+# architecture and hyperparameters as the HMMWV anchor -- only the dataset paths
+# and the 3-D command action differ -- rollout-selected epoch 46 (rollout_sel
+# 0.0853; 0.0914 unbiased on the full val split, a +7.1% selection gap).
+DEFAULT_GO2_DYNAMICS_CHECKPOINT = Path(
+    "artifacts/training_runs/go2_transformer_v01_contact_mix25_onehot/checkpoints/best_val.pt"
+)
+# The CRM cache. Used only when references have to be rebuilt; the shipped
+# reference set below already spans both domains.
+DEFAULT_GO2_PROCESSED_DATASET_DIR = Path(
+    "artifacts/training_datasets/go2_crm_seq_v1"
+)
+# 40 training references: 20 flat + 20 CRM, matching the HMMWV anchor's split,
+# carrying metadata["domains"] so each env samples only its own terrain.
+DEFAULT_GO2_REFERENCE_PATH = Path(
+    "artifacts/rl_references/go2_flat_crm_ref40.npz"
+)

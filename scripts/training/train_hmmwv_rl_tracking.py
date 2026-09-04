@@ -17,13 +17,54 @@ if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
 from nedm.rl.hmmwv_tracking_env import HMMWVNeuralTrackingEnv, default_env_cfg, merge_env_cfg
+from nedm.rl.go2_tracking_env import Go2NeuralTrackingEnv, go2_default_env_cfg
 from nedm.rl.dynamics import resolve_dynamics_checkpoint_path
 from nedm.rl.defaults import (
+    DEFAULT_GO2_DYNAMICS_CHECKPOINT,
+    DEFAULT_GO2_PROCESSED_DATASET_DIR,
+    DEFAULT_GO2_REFERENCE_PATH,
     DEFAULT_RL_DYNAMICS_CHECKPOINT,
     DEFAULT_RL_PROCESSED_DATASET_DIR,
     DEFAULT_RL_REFERENCE_PATH,
 )
 from nedm.rl.references import build_reference_set, save_reference_set
+
+
+# A --robot FLAG RATHER THAN A SECOND SCRIPT. Go2NeuralTrackingEnv is a subclass
+# that overrides two methods; everything this file does -- PPO config, run dir,
+# reference building, terrain plumbing, seeding -- is identical for both robots.
+# Forking it would create a mirror that drifts, which is the failure mode this
+# repo has already paid for once.
+#
+# EACH ENTRY OWNS ITS OWN DEFAULTS for the settings where the two robots must
+# differ, so no robot inherits the other's numbers by omission. max_episode_steps
+# and max_position_error_m are the two that bit: the HMMWV's 180 steps runs past
+# the end of every Go2 reference segment, and its 20 m termination is several
+# times the entire Go2 trajectory, so neither could be left as a shared default.
+ROBOTS: dict[str, dict[str, Any]] = {
+    "hmmwv": {
+        "env_cls": HMMWVNeuralTrackingEnv,
+        "cfg_fn": default_env_cfg,
+        "exp_name": "hmmwv-nn-tracking",
+        "dynamics_checkpoint": DEFAULT_RL_DYNAMICS_CHECKPOINT,
+        "reference_path": DEFAULT_RL_REFERENCE_PATH,
+        "reference_source_dir": DEFAULT_RL_PROCESSED_DATASET_DIR,
+        "max_episode_steps": 180,
+        "max_position_error_m": 20.0,
+    },
+    "go2": {
+        "env_cls": Go2NeuralTrackingEnv,
+        "cfg_fn": go2_default_env_cfg,
+        "exp_name": "go2-nn-tracking",
+        "dynamics_checkpoint": DEFAULT_GO2_DYNAMICS_CHECKPOINT,
+        "reference_path": DEFAULT_GO2_REFERENCE_PATH,
+        "reference_source_dir": DEFAULT_GO2_PROCESSED_DATASET_DIR,
+        # Both come from go2_default_env_cfg; None means "take the preset's",
+        # which keeps ONE definition of each rather than two that can disagree.
+        "max_episode_steps": None,
+        "max_position_error_m": None,
+    },
+}
 
 
 class NoOpSummaryWriter:
@@ -61,8 +102,10 @@ def parse_terrain_value(value: str | None) -> str | list[float] | None:
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Train PPO trajectory tracking on frozen NN HMMWV dynamics.")
-    parser.add_argument("--exp-name", type=str, default="hmmwv-nn-tracking")
+    parser = argparse.ArgumentParser(description="Train PPO trajectory tracking on a frozen NN dynamics model.")
+    parser.add_argument("--robot", choices=sorted(ROBOTS), default="hmmwv",
+                        help="Selects the env class and the robot-specific defaults in ROBOTS.")
+    parser.add_argument("--exp-name", type=str, default=None)
     parser.add_argument("--device", type=str, default="auto")
     parser.add_argument(
         "--matmul-precision",
@@ -81,8 +124,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--dynamics-checkpoint",
         type=Path,
-        default=DEFAULT_RL_DYNAMICS_CHECKPOINT,
-        help="Frozen NN dynamics checkpoint.",
+        default=None,
+        help="Frozen NN dynamics checkpoint. Unset uses the --robot default.",
     )
     parser.add_argument(
         "--processed-dataset-dir",
@@ -93,8 +136,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--reference-path",
         type=Path,
-        default=DEFAULT_RL_REFERENCE_PATH,
-        help="Compact reference set produced by build_hmmwv_rl_references.py.",
+        default=None,
+        help="Compact reference set produced by build_hmmwv_rl_references.py. "
+             "Unset uses the --robot default.",
     )
     parser.add_argument(
         "--terrain",
@@ -133,8 +177,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--reference-source-dir",
         type=Path,
-        default=DEFAULT_RL_PROCESSED_DATASET_DIR,
-        help="Processed dataset used only when building missing references.",
+        default=None,
+        help="Processed dataset used only when building missing references. "
+             "Unset uses the --robot default.",
     )
     parser.add_argument("--num-references", type=int, default=20)
     parser.add_argument("--reference-segment-nn-steps", type=int, default=1100)
@@ -142,8 +187,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--max-position-error-m",
         type=float,
-        default=20.0,
-        help="Episode terminates when tracking position error exceeds this (termination.max_position_error_m).",
+        default=None,
+        help="Episode terminates when tracking position error exceeds this "
+             "(termination.max_position_error_m). Unset uses the --robot default.",
     )
     parser.add_argument("--action-repeat", type=int, default=5)
     parser.add_argument(
@@ -186,7 +232,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument("--obs-history-steps", type=int, default=10)
     parser.add_argument("--reference-preview-steps", type=int, default=10)
-    parser.add_argument("--max-episode-steps", type=int, default=180)
+    parser.add_argument("--max-episode-steps", type=int, default=None,
+                        help="Unset uses the --robot default.")
     parser.add_argument("--output-root", type=Path, default=Path("artifacts/rl_runs"))
     parser.add_argument("--run-name", type=str, default=None)
     parser.add_argument("--save-interval", type=int, default=100)
@@ -196,7 +243,17 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default="tensorboard",
         help="RSL-RL logger: tensorboard, wandb, neptune, or none for smoke tests without scalar logging.",
     )
-    return parser.parse_args(argv)
+    args = parser.parse_args(argv)
+    # Fill unset robot-varying options from the preset. Done HERE, once, so that
+    # run_dir naming, env cfg and the printed banner all see the same resolved
+    # values -- resolving them separately at each use site is how two of them end
+    # up disagreeing.
+    preset = ROBOTS[args.robot]
+    for key in ("exp_name", "dynamics_checkpoint", "reference_path",
+                "reference_source_dir", "max_episode_steps", "max_position_error_m"):
+        if getattr(args, key) is None:
+            setattr(args, key, preset[key])
+    return args
 
 
 def get_train_cfg(args: argparse.Namespace) -> dict[str, Any]:
@@ -248,7 +305,15 @@ def get_train_cfg(args: argparse.Namespace) -> dict[str, Any]:
 
 
 def get_env_cfg(args: argparse.Namespace) -> dict[str, Any]:
-    cfg = default_env_cfg()
+    preset = ROBOTS[args.robot]
+    cfg = preset["cfg_fn"]()
+    # The preset's termination dict carries keys this CLI has no flag for -- the
+    # Go2's roll and pitch model-validity bounds. cfg.update() with a fresh
+    # {"max_position_error_m": ...} would DROP them silently, and an env with no
+    # attitude termination looks exactly like one whose bounds are never hit.
+    termination = dict(cfg.get("termination") or {})
+    if args.max_position_error_m is not None:
+        termination["max_position_error_m"] = float(args.max_position_error_m)
     cfg.update(
         {
             "num_envs": int(args.num_envs),
@@ -266,9 +331,11 @@ def get_env_cfg(args: argparse.Namespace) -> dict[str, Any]:
             "steering_rate_limit": args.steering_rate_limit,
             "obs_history_steps": int(args.obs_history_steps),
             "reference_preview_steps": int(args.reference_preview_steps),
-            "max_episode_steps": int(args.max_episode_steps),
+            "max_episode_steps": int(args.max_episode_steps)
+            if args.max_episode_steps is not None
+            else int(cfg["max_episode_steps"]),
             "auto_reset": True,
-            "termination": {"max_position_error_m": float(args.max_position_error_m)},
+            "termination": termination,
         }
     )
     if args.action_rate_weight is not None:
@@ -306,7 +373,17 @@ def make_run_dir(args: argparse.Namespace) -> Path:
     run_name = args.run_name
     if run_name is None:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        checkpoint_stem = args.dynamics_checkpoint.parents[2].name
+        # The RUN directory is the parent of checkpoints/, for every study. The
+        # previous parents[2] happened to name the HMMWV ablation GROUP because
+        # that study nests one level deeper; on a flat layout like the Go2's it
+        # resolves to the literal string "training_runs", which identifies
+        # nothing. Run dirs already carry a timestamp, so this only changes what
+        # the name is derived from, not its uniqueness.
+        checkpoint_dir = args.dynamics_checkpoint.resolve().parent
+        checkpoint_stem = (
+            checkpoint_dir.parent.name if checkpoint_dir.name == "checkpoints"
+            else checkpoint_dir.name
+        )
         run_name = f"{args.exp_name}_{checkpoint_stem}_{timestamp}"
     run_dir = (args.output_root / run_name).resolve()
     run_dir.mkdir(parents=True, exist_ok=False)
@@ -330,7 +407,7 @@ def main(argv: list[str] | None = None) -> int:
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(int(args.seed))
 
-    env = HMMWVNeuralTrackingEnv(env_cfg, device=args.device)
+    env = ROBOTS[args.robot]["env_cls"](env_cfg, device=args.device)
     runner = OnPolicyRunner(env, train_cfg, log_dir=str(run_dir), device=args.device)
     if str(args.logger).lower() in {"none", "off", "disabled"}:
         runner.writer = NoOpSummaryWriter()
@@ -338,6 +415,7 @@ def main(argv: list[str] | None = None) -> int:
         print("logger disabled; scalar logging is disabled, checkpoint saves remain enabled")
 
     print(f"Starting RL tracking training in {run_dir}")
+    print(f"robot={args.robot} env={type(env).__name__}")
     print(
         f"device={args.device} num_envs={env.num_envs} action_repeat={env.action_repeat} "
         f"matmul_precision={args.matmul_precision}"
