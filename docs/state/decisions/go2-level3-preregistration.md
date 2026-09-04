@@ -878,3 +878,48 @@ check whose success path is reachable without the thing it checks having
 happened — reproduced inside the checklist written to catch it, within minutes of
 writing it. A skipped check now sets the overall result to **INCOMPLETE** and
 prints `[SKIP]` with the reason and the remedy.
+
+---
+
+# Amendment 11: what the references actually command (a characterisation, not a change)
+
+Found while verifying that the eval's new command recording worked: the replay
+floor's command span came out **exactly 0.0** on the probe references. That is not
+a bug in the replay — it is the data.
+
+Commands issued over the 6 s evaluation window:
+
+| | primary (most-moving) | bracket (least-moving) |
+|---|---|---|
+| arc / constant / lateral / pivot | 1 distinct command each | 1 each |
+| stop_and_go / vel_step / yaw_step | 2 (a single step) | 1–2 |
+| weave | **301** | 301 |
+| **single constant for the whole 6 s** | **4 of 8** | **5 of 8** |
+
+Over the full 11 s reference, `arc`, `constant`, `lateral` and `pivot` have **one**
+distinct command; `stop_and_go`, `vel_step` and `yaw_step` have **two**; only
+`weave` is richly time-varying (550 distinct).
+
+## This is the collection design, and it makes the benchmark a CLEANER test, not a weaker one
+
+The excitation families are piecewise-constant by construction — an "arc" is a
+constant forward velocity plus a constant yaw rate. Nothing is broken.
+
+But it changes what a reader should understand the task to be. **Seven of eight
+references are constant or single-step, so the policy is not being asked to
+follow a rich schedule.** The task is closer to "hold a commanded velocity and
+correct the drift" than "follow a trajectory".
+
+**And that is precisely the comparison this level-3 design tests.** With a
+constant command the open-loop replay has NO mechanism to correct accumulated
+drift — it can only reissue the same command — while the closed-loop policy can.
+So the floor and the policy differ in exactly the one capability under
+examination, with the command schedule held constant between them. A richer
+schedule would have added a second difference (schedule-following ability) on top
+of the one being measured.
+
+It also explains why the plant's own drift signature matters: **α = 0.98,
+ballistic, a held bias.** Under a constant command that bias integrates without
+bound in open loop. Whether the policy corrects it is the whole question.
+
+Recorded as a characterisation. **No criterion, threshold or arm changes.**
