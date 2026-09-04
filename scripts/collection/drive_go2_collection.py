@@ -7,7 +7,7 @@ from nedm.quadruped.imported_policy import (COMMAND_FAMILIES, FAMILY_PARAMS,
 TERRAIN, N_PER_FAM, CONC = sys.argv[1], int(sys.argv[2]), int(sys.argv[3])
 SEED_OFFSET = int(sys.argv[4]) if len(sys.argv) > 4 else 0
 ROOT = "/home/kyle/sbel-artifacts/datasets/go2_stratified"; PY = "/home/kyle/miniconda3/envs/nedm-src/bin/python"
-CKPT = "/tmp/go2_import/go2_cts_150k.pt"
+CKPT = "/home/kyle/sbel-artifacts/checkpoints/go2_cts_150k.pt"
 os.makedirs(f"{ROOT}/logs", exist_ok=True)
 env = dict(os.environ, PYTHONPATH="/home/kyle/Documents/sbel/chrono-build/bin")
 
