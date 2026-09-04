@@ -771,3 +771,25 @@ Removing a mean from a distribution leaves `sd`, and `sd` is already 98.7% of th
 total RMS. **Correcting the controller lean removes ~1.3% of the drift, not 16%.**
 The conclusion — not worth correcting — is unchanged and in fact stronger. One more
 instance of a ratio computed for one purpose answering a different one.
+
+## Identify a thing by what it IS, not by listing what it is not
+
+The dataset gate collected episode metadata with `rglob("*.json")` minus a
+**name-based exclusion list**. That is a closed-world assumption, and the world
+grew: the repair pass kept `episodes/<id>.config.json` per episode (because
+`patch_y_m` lives only there — 8.0 for `lateral` against 4.0 elsewhere). Those
+files parse fine and yield `terrain_label=None`, so they registered as a
+seventeenth `(terrain, command_family)` pair against sixteen `scenario_family`
+values, and **G3 failed on a correct dataset.**
+
+Fixed by identifying episode metadata **structurally — it carries an
+`episode_id`.** That needs no update the next time the layout gains a sidecar
+file; the exclusion list would have needed one every time.
+
+**The false FAIL is the dangerous direction, and this is the instance that proves
+it.** It pointed at `scenario_family` — the field that had *just* been repaired —
+so acting on it would have meant "fixing" a correct repair while trusting the gate.
+The only reason it didn't is that the operator counted the pairs independently
+before touching anything.
+
+A gate that fails on good data is worse than no gate, because it is believed.
