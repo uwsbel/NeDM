@@ -581,3 +581,44 @@ pose-derived — `_integrate_pose` uses only `vel_body_x_mps`, `vel_body_y_mps` 
 influence on predicting those three. That is exactly the causal path under test.
 Report one-step loss restricted to the channels present in both cells, never the
 aggregate.
+
+## Normalisation hides the units it divided by
+
+**Four instances in one night**, three of them mine. Every one was a ratio carried
+across a boundary its denominator did not survive.
+
+| ratio | denominator that differed | wrong by |
+|---|---|---|
+| "20% of their data" | episodes vs **transitions** (their flat episodes are 5,000 rows, ours 1,475) | flat is 0.35%, not 1.2% |
+| "flat worse than CRM means a bug" | our flat is 0.35% of reference, our CRM 15.6% | criterion **inverted** |
+| "expect 6–12% `errdist`" | path length: theirs 30–53 m, ours **1.0–1.2 m** | 25–52× |
+| "1.9 body lengths" | HMMWV numerator ÷ **Go2** denominator | 1.9 should be 0.28 |
+
+**A normalised quantity looks system-independent and is not.** That is the whole
+trap: the ratio was doing exactly what it was designed to do *inside its scope*,
+and dividing out the units is what made it look safe to carry outside.
+
+### The defence is dimensional and takes one line
+
+**Does each numerator divide by its own system's denominator?** Run it before
+quoting any cross-system ratio. The fourth instance above was produced *in a
+message whose thesis was this very point* — knowing the rule is not the same as
+running the check.
+
+### Plausibility is not confirmation
+
+`1.30 / 0.7 = 1.86` rounded to "1.9 body lengths", which **looked like a plausible
+vehicle-scale error**, and plausibility was read as confirmation. A wrong answer
+inside the expected range is the one that survives review, because the check that
+would catch it feels unnecessary once the number looks right.
+
+### Quote the scope with the value
+
+`trainer.py:770` calls `errdist` "the honest cross-domain comparison" — correct,
+**across domains within one system**, which is what it was written for. We read it
+as cross-*system*, and the word "honest" encouraged it. Nothing was stale, silent,
+or wrong; a true statement was applied outside its conditions.
+
+So report the scope *in* the number: *"errdist 0.14, normalised by ground-truth
+path length pooled over the twelve selected episodes, mean_dist_m 1.24"* is a
+sentence someone can carry to another system safely. *"errdist 0.14"* is not.
