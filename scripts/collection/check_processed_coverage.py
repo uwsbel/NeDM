@@ -60,7 +60,7 @@ def main() -> int:
 
     failed = False
     for cache in a.caches:
-        meta_path = cache / f"{a.split}_metadata.json"
+        meta_path = cache / f"{a.split}_episodes.json"
         if not meta_path.is_file():
             print(f"[????] {cache.name}: no {meta_path.name} -- cannot measure")
             failed = True
