@@ -222,6 +222,34 @@ roughly **1 M transitions** at 1600 rows per 16 s episode.
 
 Both are pre-registered so a later result cannot be read the convenient way.
 
+### The state ablation is SCHEDULED, and runs blind rather than deleted
+
+**Added 2026-09-04.** Conditional on level-2 passing its pre-registered band, and
+listed here so it is a schedule rather than an intention:
+
+| cell | construction | question |
+|---|---|---|
+| `quadruped_contact` (15-D) | baseline | the anchor |
+| blind `foot_*_surface_disp_m` | `blind_state_fields` | does soil deflection carry anything? |
+| blind `foot_*_sinkage_m` | `blind_state_fields` | does sinkage? |
+
+Two runs. `blind_state_fields` drops the channels from the token before the input
+projection while leaving the state and target layout untouched, so the output head
+and the loss channel set are identical across cells — verified structurally, not by
+convention: `keep` reaches only `input_dim` (`model.py:63`) and the head is built
+from `target_dim` (`model.py:76`). Compare on `rollout_sel`.
+
+**Not plain deletion**, for the reason in
+[experiment-design.md](../lessons/experiment-design.md): removing a channel removes
+information *and* width, and at 15% of reference CRM data width alone buys accuracy.
+
+Until these are run the honest status of `surface_disp` is **three facts and no
+resolution** — it measures 0.17–0.23 mm under a 28 mm standoff, it is kept because
+nothing else carries soil deflection at all, and the deletion test cannot
+adjudicate it at our scale. *"Ablate it later"* was not a deferral, it was a
+decision that declined to say so. **"Pending" becomes honest when a run is
+scheduled, not when it is imaginable** — which is what this table is for.
+
 ### If `surface_disp` deletes cleanly, that is a resolution finding, not a physics one
 
 It is the only channel carrying **soil memory**, so its ablation is the most
