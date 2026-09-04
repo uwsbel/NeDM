@@ -593,3 +593,86 @@ Stopping now would itself be a decision made after seeing the trajectory, and it
 would truncate the record that makes the drift visible. Letting it finish costs
 about an hour of GPU and yields the complete curve plus the FINAL checkpoint the
 comparison needs.
+
+---
+
+# Amendment 8: why the policy drifted — the reward was balanced at the wrong operating point
+
+Post-hoc, formed after seeing the drift. Two tests on data not used to form the
+hypothesis, and one of them corrects the hypothesis rather than confirming it.
+
+## Test 1: did the policy trade position for smoothness? PARTIALLY
+
+Raw, over iterations 733 → 1106:
+
+    action_rate  0.0659 -> 0.0410     corr(iteration, action_rate) = -0.980
+    pos_err      0.0145 -> 0.0159     corr(iteration, pos_err)     = +0.255
+
+That is the predicted signature. **But `action_rate` is measured on SAMPLED
+actions, and exploration noise collapsed over the same window** (σ 0.100 →
+0.070), which reduces it on its own: for iid noise E[(ΔA)²] carries a term ~2σ².
+Regressing it out:
+
+    action_rate ~ 4.435 σ² + 0.019
+    corr(iteration, residual) = -0.334      residual 0.0030 -> 0.0007
+
+So roughly **90% of the action_rate decline is entropy collapse, not a trade**.
+A real residual trend survives, but the dominant process in the window is the
+noise schedule. The prediction is partially confirmed, and would have been
+reported as strongly confirmed if the confound had not been removed.
+
+## Test 2: where does the tracking loss actually sit? THIS IS THE FINDING
+
+Decomposed across training from the logged terms:
+
+    iter   position      yaw     state   total   act_rate pen   position share
+       0    0.24653  0.30555   0.75521  1.30729     0.15786          18.9%
+     414    0.00207  0.00124   0.03300  0.03631     0.02108           5.7%
+     828    0.00193  0.00127   0.02451  0.02771     0.01180           7.0%
+    1110    0.00159  0.00090   0.02057  0.02306     0.00832           6.9%
+
+**At convergence the STATE term is 89% of the tracking loss and position is 6.9%.
+The action-rate penalty is 5.2x the position term.**
+
+The reward was solved to be balanced — and the registered measurement said so:
+
+    under a random policy: position 0.515  yaw 0.528  state 0.281, spread 1.88x
+
+**That balance holds at initialisation and not at convergence.** Position and yaw
+errors fall ~15x during training while the state error falls ~6x, so the state
+term takes over and position becomes nearly free to drift. Nothing in the reward
+pushes back on a 0.0145 → 0.0178 excursion because that excursion costs 0.0007
+against a total of 0.023.
+
+## What this says about the sigma question, and what it does not
+
+The coordinator's original concern was that `position_sigma_m = 0.55` is too
+loose and the policy would plateau at 0.08–0.15 m. **The registered falsifier did
+not fire** — the policy reached 0.0145 m, far past that band. A different
+consequence of the same flat region appeared instead: it reached 0.0145 and then
+fell back, with no gradient to hold it.
+
+So this is a **partial hit, not a hit**: the mechanism showed up, its stated
+falsifier stayed silent, and the writeup should say which.
+
+And the prescription is different from the one the concern implied. "Tighten
+position_sigma" treats a symptom. The cause is that **all three sigmas were
+solved at the random-policy operating point** — a choice this document registered
+explicitly and which is now shown to be the wrong operating point to balance at,
+because the errors it balances shrink at very different rates. A reward balanced
+where training STARTS is not balanced where it ENDS, and it is the endpoint that
+determines what the policy converges to.
+
+That is a limitation of a choice made here, found by measuring it. It belongs in
+the writeup as such and not as an incidental observation.
+
+## Epistemic status
+
+Hypothesis formed after seeing the drift. Both tests use logged data not examined
+for this purpose beforehand, so this is a post-hoc hypothesis with independent
+confirmation from data not used to form it — materially stronger than a post-hoc
+reading, and weaker than a pre-registration. Framing due to the coordinator, whose
+arithmetic put position at ~0.1% of the tracking loss; measured it is 6.9%, the
+comparison having been against the action-rate penalty rather than the tracking
+loss. The conclusion survives the correction and is strengthened: the penalty is
+5.2x position.
