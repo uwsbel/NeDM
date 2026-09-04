@@ -701,3 +701,26 @@ its necessary conditions — and in both, the sample's incidental features got
 promoted to requirements. Inspecting few units beats a p-value (see above), but the
 next question is always: **which of these conditions did I observe because it
 matters, and which because it was there?**
+
+## Correct arithmetic on an unchecked premise about what the system does
+
+**Twice in one night, both mine.** Distinct from the denominator error: the numbers
+were right and the *model of the system's behaviour* was not.
+
+| claim | the arithmetic | the premise that was false |
+|---|---|---|
+| "the rollout has a valid start window" | sound | assumed a **random start**; `trainer.py:841` takes `states[:sequence_length]` |
+| "spawn heading explains 57–71% of lateral drift" | sound — `E\|sin θ\|` over ±10° is 0.087 against a measured 0.123 | assumed the robot **walks along its initial heading**; the policy has a yaw-tracking reward and *corrects* the offset rather than integrating it |
+
+Measured: regressing drift-per-metre on `|sin(heading)|` over 38 episodes gives
+slope 0.177, intercept 0.090, **R² = 0.018** — heading explains **14%**, not 57–71%.
+Drift is a plant property after all, at 0.090 m/m once the heading term is removed.
+
+**The proposed remedy would have failed.** Narrowing the heading draw from ±10° to
+±3° cuts drift by ~10%, not two thirds — and someone could have spent a recollection
+on it.
+
+**Both times the premise concerned what the system does *between* the numbers.**
+`path × sin(θ)` is open-loop kinematics; a closed-loop controller with a heading
+objective makes it wrong, and nothing in the arithmetic signals that. The check is
+not dimensional — it is: *which component decides this, and have I read it?*
