@@ -20,7 +20,23 @@
 #    would leave no record of the departure. Change the env module and say why
 #    in the commit.
 #
-# 4. Terrain-mixed by default. The checkpoint is terrain-conditioned
+# 4. THE RUN SHAPE IS THE ANCHOR RL RUN'S, NOT THE ARGPARSE DEFAULTS. Those are
+#    different: the anchor trained at 2048 envs, 64 steps/env and K=16 dynamics
+#    context, while the script defaults are 1024/128/full-context. Launching on
+#    the defaults gave an ETA of 26.8 HOURS, and it would not have been the
+#    anchor's configuration at the end of it either.
+#
+# 5. dynamics_context_steps=16 IS MEASURED HERE, NOT ASSUMED FROM THE HMMWV.
+#    Same seed, same action sequence, only the model context differs
+#    (256 envs x 120 steps):
+#        ctx=16    mean pos err 0.3267 m   11626 env-steps/s
+#        ctx=32    mean pos err 0.2962 m    7128 env-steps/s
+#        ctx=full  mean pos err 0.3346 m    1952 env-steps/s
+#    ctx=16 differs from full context by 0.0135 m over the trace, 4.0% of the
+#    mean error, for a 6.0x speedup. The dynamics is near-Markovian for the Go2
+#    as it is for the HMMWV -- checked rather than inherited.
+#
+# 6. Terrain-mixed by default. The checkpoint is terrain-conditioned
 #    (terrains: flat, crm) and the 40-reference set carries per-reference
 #    domains, so each env samples references only from its own terrain. A
 #    single-terrain run is possible with TERRAIN=flat, but the default matches
@@ -30,8 +46,10 @@ set -euo pipefail
 REPO="${NEDM_REPO:-/home/kyle/Documents/sbel/NeDM}"
 PY="${NEDM_PY:-/home/kyle/miniconda3/envs/nedm-src/bin/python}"
 RUN_NAME="${RUN_NAME:-go2_nn_tracking_v01}"
-NUM_ENVS="${NUM_ENVS:-1024}"
+NUM_ENVS="${NUM_ENVS:-2048}"
 MAX_ITERS="${MAX_ITERS:-2000}"
+STEPS_PER_ENV="${STEPS_PER_ENV:-64}"
+CTX="${CTX:-16}"
 SEED="${SEED:-1}"
 TERRAIN="${TERRAIN:-}"
 TERRAIN_MIX="${TERRAIN_MIX:-flat:1,crm:1}"
@@ -55,6 +73,8 @@ exec "$PY" -u scripts/training/train_hmmwv_rl_tracking.py \
     --num-envs "$NUM_ENVS" \
     --max-iterations "$MAX_ITERS" \
     --seed "$SEED" \
+    --num-steps-per-env "$STEPS_PER_ENV" \
+    --dynamics-context-steps "$CTX" \
     --dynamics-checkpoint "$CKPT" \
     --reference-path "$REFS" \
     "${TERRAIN_ARGS[@]}" \

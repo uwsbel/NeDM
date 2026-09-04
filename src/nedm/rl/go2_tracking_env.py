@@ -35,6 +35,19 @@ WHAT CHANGES, AND WHY EACH ONE HAS TO:
    training data, where the model extrapolates freely. Set just above the
    observed maxima -- see the measurement at the cfg below.
 
+4. THE REWARD BASELINE IS THE ANCHOR'S RL RUN, NOT default_env_cfg(). The
+   anchor overrode the module defaults on its command line, so the values it
+   actually trained with -- weights 2.0/1.6/0.2/0.2, state error restricted to
+   the three controllable velocities -- are not the ones a fresh
+   default_env_cfg() hands you. Inheriting the module defaults and calling that
+   parity would have been wrong by 10x on the action-rate weight alone.
+
+   The sigmas beneath those weights are then solved from OUR measured error
+   scales, because weight * (error/sigma)^2 lets a mis-scaled sigma silently
+   overrule the weight beside it. At the anchor's own sigmas, yaw_loss is 40x
+   position_loss on Go2-scale errors and the 2.0-vs-1.6 weight ratio expresses
+   nothing at all.
+
 THREE MEASURED PLANT NONLINEARITIES THE POLICY MUST LEARN AROUND, all from the
 collection and all reproduced by the NRD model it trains inside:
   a forward dead zone below ~0.35 m/s (commanded 0.30 achieves 0.030 on rigid)
@@ -64,29 +77,59 @@ def go2_default_env_cfg() -> dict[str, Any]:
         # would run past the end of every reference segment.
         "max_episode_steps": 120,
     })
+    # THE BASELINE HERE IS THE ANCHOR'S RL RUN, NOT default_env_cfg(). Those are
+    # different configurations and I had been inheriting the wrong one:
+    # hmmwv_rl_15d_crm2000mix25_onehot_ofatL8_bestval51 overrode the module
+    # defaults from the command line, so its weights are position 2.0 / yaw 1.6 /
+    # state 0.2 / action_rate 0.2, against the module's 1.0 / 0.8 / 0.2 / 0.02.
+    # The action-rate weight alone differs by 10x. Parity means the run's values.
     cfg["reward"] = {
         **cfg["reward"],
-        # CHOSEN FROM MEASURED ERROR, not from the trajectory length. The Go2
-        # covers ~1.0-1.3 m in a 10 s rollout against the HMMWV's 30-53 m, so the
-        # inherited 2.0 m is wider than our whole trajectory: exp(-(e/2)^2) is
-        # 0.99 at 0.2 m and 0.94 at 0.5 m, flat with no gradient. But over-
-        # correcting is the same failure mirrored -- at sigma 0.25 the reward is
-        # 0.037 by 0.45 m, which is where an untrained policy actually sits.
-        # A random policy on this env produces (measured, 256 envs x 120 steps):
-        #     p10 0.079   p50 0.295   p90 0.454 m
-        # giving reward across that band of:
-        #     sigma 0.25 -> 0.905 / 0.249 / 0.037   dead at p90
-        #     sigma 0.40 -> 0.962 / 0.581 / 0.275   graded throughout
-        #     sigma 0.50 -> 0.975 / 0.707 / 0.438   compressed at the top
-        # 0.40 keeps a usable gradient over the whole range early training visits.
-        "position_sigma_m": 0.40,
-        "yaw_sigma_rad": 0.35,
+        "position_weight": 2.0,
+        "yaw_weight": 1.6,
+        "state_weight": 0.2,
+        "action_rate_weight": 0.2,
+        "state_sigma": 1.0,
+        # THE ANCHOR RESTRICTS THE STATE TERM TO THE THREE CONTROLLABLE
+        # VELOCITIES, and all three exist verbatim in our state vector. Left at
+        # None it averages all 15 fields, eight of which are per-foot normal
+        # forces and slip speeds -- gait-phase quantities that a velocity command
+        # cannot steer, since our footfall phase relative to the reference's is
+        # arbitrary. Measured, those eight are 47% of the 15-field mean, which is
+        # about their share by count: they do NOT dominate the value. That is the
+        # trap. Including them barely moves the number while pointing half the
+        # gradient at an objective the action space cannot reach, so the
+        # difference would never appear in a log.
+        "state_error_fields": ["vel_body_x_mps", "vel_body_y_mps", "yaw_rate_radps"],
+        # SIGMAS ARE CHOSEN SO THE ANCHOR'S WEIGHTS ACTUALLY SET THE BALANCE.
+        # Each channel enters as weight * (error / sigma)^2, so a sigma carrying
+        # the wrong unit scale silently overrides the weight beside it -- the same
+        # failure as any normalisation that hides what it divided by. At the
+        # anchor's own sigmas (position 2.0 m, yaw 0.35 rad) and our measured
+        # errors, position_loss spans 0.001-0.103 while yaw_loss spans 0.29-4.13:
+        # yaw is 40x position and the 2.0-vs-1.6 weight ratio expresses nothing.
+        #
+        # Measured under a random policy on this env, 256 envs x 120 steps:
+        #     position  p10 0.079  p50 0.295  p90 0.454 m
+        #     yaw       mean 0.562 rad
+        #     state     mean squared normalised error 2.138 over the three fields
+        # Solving for equal-to-weight-ratio contributions at the median gives:
+        "position_sigma_m": 0.55,
+        "yaw_sigma_rad": 0.70,
+        # which yields, at p50: position 0.575, yaw 0.522, state 0.428 -- a 1.10
+        # position:yaw ratio against the weights' 1.25, and track_reward graded
+        # 0.60 / 0.58 / 0.22 / 0.06 from a well-tracked state out to the random
+        # policy. The previous 0.40 was solved against the module default weight
+        # of 1.0; at the anchor's 2.0 it collapses to 0.0008 at p90.
     }
-    # KEPT AT 0.0 RATHER THAN REMOVED. The parent indexes this key directly
-    # (hmmwv_tracking_env.py:741), so deleting it raises on the first step. The
-    # term is neutralised here, dropped from the reward terms in _compute_reward,
-    # and stripped from the log in _make_extras -- so nothing downstream ever
-    # sees a throttle_brake number, which is the point. Zeroing the weight ALONE
+    # KEPT AT 0.0 RATHER THAN REMOVED (the anchor runs it at 0.05). The parent
+    # indexes this key directly (hmmwv_tracking_env.py:741), so deleting it
+    # raises on the first step. The term is driver_actions[:,1]*driver_actions[:,2],
+    # which for the HMMWV penalises pressing both pedals at once; for us those
+    # channels are cmd_vy and cmd_wz, so it would penalise TURNING WHILE
+    # STRAFING. It is neutralised here, dropped from the reward terms in
+    # _compute_reward, and stripped from the log in _make_extras, so nothing
+    # downstream ever sees a throttle_brake number. Zeroing the weight ALONE
     # would not have achieved that.
     cfg["reward"]["throttle_brake_weight"] = 0.0
     # THESE ARE A MODEL-VALIDITY BOUNDARY, NOT A FALL TEST. The collection
