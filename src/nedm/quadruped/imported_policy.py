@@ -61,70 +61,122 @@ ACTION_SCALE = 0.25
 SIGN = -1.0   # see module docstring
 
 
-# Structured excitation families, mirroring the paper's approach rather than
-# uniform sampling: the HMMWV uses six maneuver families over three speed bands
-# and the tracked vehicle ten, on the grounds that structured excitation covers
-# the space more systematically than random draws.
+# Structured excitation families, mirroring the paper's approach: keep the SHAPE
+# and draw the AMPLITUDE per episode ("amplitudes, frequencies and durations are
+# drawn per episode to span the vehicle's operating envelope").
 #
-# BOUNDED BY THE POLICY'S TRAINED RANGES, not by its deployment clip bounds:
-# lin_vel_x and lin_vel_y +/-0.5, ang_vel_yaw +/-1.0. The deploy config also
-# carries max_cmd [2.0, 1.0, 2.5], which is wider; driving to those would repeat
-# the obs[8] probe's mistake of asking for something never trained.
+# EIGHT SHAPES, NOT ELEVEN. The previous march_in_place_015/030, constant_high and
+# reverse were four fixed points on one shape -- constant vx -- and collapse into
+# a single family the moment amplitude is randomised. Keeping them separate would
+# have been four names for one experiment.
 #
-# The policy was trained with commands RESAMPLED EVERY 5 s, so sharp steps and
-# fast chirps are out of distribution for it even when the values are in range.
-# Which families survive that is measured, not assumed -- see the family gate.
-def _fam_constant(t, v):        return (v, 0.0, 0.0)
-def _fam_vel_step(t, T):        return (0.2 if t < T / 2 else 0.5, 0.0, 0.0)
-def _fam_yaw_step(t, T):        return (0.3, 0.0, 0.0 if t < T / 2 else 0.8)
-def _fam_arc(t, T):             return (0.4, 0.0, 0.6)
-def _fam_lateral(t, T):         return (0.0, 0.4, 0.0)
-def _fam_weave(t, T):           return (0.4, 0.0, 0.6 * math.sin(2 * math.pi * 0.15 * t))
-def _fam_pivot(t, T):           return (0.0, 0.0, 1.0)
-def _fam_stop_and_go(t, T):     return ((0.5 if (t % 4.0) < 2.0 else 0.0), 0.0, 0.0)
-
-# NAMED FOR THE BEHAVIOUR, NOT THE INTENT. A commanded 0.15 or 0.30 m/s produces
-# about 0.03 m/s of actual translation -- the robot marches without travelling.
-# Calling those "low" and "medium" speed bands would imply a monotonic speed axis
-# that does not exist, and a reader would assume 0.30 means 0.30. The dead zone
-# sits below roughly 0.35 m/s; ordering WITHIN it is not claimed, since 0.033 vs
-# 0.030 m/s is 3 mm/s on a short window and both simply mean "not translating".
+# BOUNDED BY THE POLICY'S TRAINED RANGES, not its deployment clips: vx and vy in
+# +/-0.5, yaw in +/-1.0. The deploy config's max_cmd [2.0, 1.0, 2.5] is wider and
+# driving to it would ask for behaviour never trained.
 #
-# They are kept BECAUSE of that, not in spite of it: a commanded velocity that
-# produces almost none is a real plant nonlinearity, and the reduced model exists
-# to capture exactly that. A model trained without it would predict 0.3 -> 0.3
-# and be wrong across a third of the command range.
-#
-# OPEN QUESTION, deliberately not resolved: we cannot yet tell whether the dead
-# zone belongs to the POLICY or to our port of it. It was trained in Isaac Gym
-# with different contact and actuator behaviour and we run it at 500 Hz PD in
-# Chrono. If it is the policy it is data; if it is the port it is a bug we would
-# be baking into a dataset.
-COMMAND_FAMILIES = {
-    "march_in_place_015": lambda t, T: _fam_constant(t, 0.15),
-    "march_in_place_030": lambda t, T: _fam_constant(t, 0.30),
-    "constant_high": lambda t, T: _fam_constant(t, 0.50),
-    "reverse":       lambda t, T: _fam_constant(t, -0.40),
-    "vel_step":      _fam_vel_step,
-    "yaw_step":      _fam_yaw_step,
-    "arc":           _fam_arc,
-    "lateral":       _fam_lateral,
-    "weave":         _fam_weave,
-    "pivot":         _fam_pivot,
-    "stop_and_go":   _fam_stop_and_go,
+# THE DEAD ZONE IS NOT SAMPLED AROUND. Drawing vx uniformly over [-0.5, 0.5] puts
+# most draws below the ~0.35 m/s translation threshold, so most episodes barely
+# move. That is the plant's actual behaviour and the model has to learn it;
+# biasing the draw away from it would be hiding the most interesting nonlinearity
+# we have measured.
+PARAM_RANGES = {
+    "vx": (-0.5, 0.5), "vy": (-0.5, 0.5), "wz": (-1.0, 1.0),
+    "vx0": (-0.5, 0.5), "vx1": (-0.5, 0.5),
+    "wz1": (-1.0, 1.0), "wz_amp": (0.2, 1.0),
+    "t_switch": (4.0, 12.0), "freq": (0.05, 0.30), "period": (2.0, 6.0),
 }
+
+FAMILY_PARAMS = {
+    "constant":    ["vx"],
+    "lateral":     ["vy"],
+    "pivot":       ["wz"],
+    "arc":         ["vx", "wz"],
+    "vel_step":    ["vx0", "vx1", "t_switch"],
+    "yaw_step":    ["vx", "wz1", "t_switch"],
+    "weave":       ["vx", "wz_amp", "freq"],
+    "stop_and_go": ["vx", "period"],
+}
+
+
+def _sched(family, p):
+    """(t, T) -> (vx, vy, wz) for one family at one parameter draw."""
+    if family == "constant":
+        return lambda t, T: (p["vx"], 0.0, 0.0)
+    if family == "lateral":
+        return lambda t, T: (0.0, p["vy"], 0.0)
+    if family == "pivot":
+        return lambda t, T: (0.0, 0.0, p["wz"])
+    if family == "arc":
+        return lambda t, T: (p["vx"], 0.0, p["wz"])
+    if family == "vel_step":
+        return lambda t, T: (p["vx0"] if t < p["t_switch"] else p["vx1"], 0.0, 0.0)
+    if family == "yaw_step":
+        return lambda t, T: (p["vx"], 0.0, 0.0 if t < p["t_switch"] else p["wz1"])
+    if family == "weave":
+        return lambda t, T: (p["vx"], 0.0,
+                             p["wz_amp"] * math.sin(2 * math.pi * p["freq"] * t))
+    if family == "stop_and_go":
+        return lambda t, T: ((p["vx"] if (t % (2 * p["period"])) < p["period"] else 0.0),
+                             0.0, 0.0)
+    raise KeyError(family)
+
+
+def family_seed(family: str, offset: int = 0) -> int:
+    """Stable per-family seed. NOT hash().
+
+    Python salts str hashing per process (PYTHONHASHSEED), so `hash(family)`
+    returns a different value every run. A collection seeded that way is not
+    reproducible, cannot be resumed exactly, and cannot be coordinated with
+    another machine -- all three of which we assumed it could. crc32 is stable
+    across processes, machines and Python versions.
+
+    `offset` partitions the draw space so two machines collecting in parallel
+    produce DISJOINT parameters. Without it, identical family names and counts
+    give byte-identical episodes, which look like data rather than duplicates.
+    """
+    import zlib
+
+    return (zlib.crc32(family.encode()) + offset) & 0xFFFFFFFF
+
+
+def stratified_params(family: str, n: int, seed: int) -> list[dict]:
+    """n parameter draws per family, STRATIFIED rather than uniform.
+
+    Each varying parameter's range is cut into n equal bins and one value is
+    drawn from each, then the bin order is shuffled INDEPENDENTLY per parameter.
+    That guarantees the range is spanned rather than merely covered in
+    expectation -- which matters enormously at n=19 and not at all at n=1000.
+    Uniform draws at this size leave gaps and cluster by luck.
+    """
+    import random
+
+    rng = random.Random(seed)
+    out = [dict() for _ in range(n)]
+    for name in FAMILY_PARAMS[family]:
+        lo, hi = PARAM_RANGES[name]
+        order = list(range(n))
+        rng.shuffle(order)
+        for i, b in enumerate(order):
+            out[i][name] = lo + (b + rng.random()) / n * (hi - lo)
+    return out
+
+
+COMMAND_FAMILIES = list(FAMILY_PARAMS)
 
 
 class ImportedGo2Policy:
     """go2_cts_150k.pt driven on our Chrono Go2."""
 
-    def __init__(self, ckpt: Path, command=(0.5, 0.0, 0.0), family=None, duration=8.0):
+    def __init__(self, ckpt: Path, command=(0.5, 0.0, 0.0), family=None, duration=8.0,
+                 params=None):
         import torch
 
         self.torch = torch
         self.ckpt = Path(ckpt)
         self.command = np.asarray(command, dtype=np.float32)
         self.family = family
+        self.params = dict(params) if params else None
+        self._sched = _sched(family, self.params) if (family and self.params) else None
         self.duration = float(duration)
         # Every command actually issued, so an episode records what it was ASKED
         # to do and not merely which family it belonged to.
@@ -148,8 +200,8 @@ class ImportedGo2Policy:
 
     def set_time(self, t: float) -> None:
         """Advance the command schedule. No-op for a fixed command."""
-        if self.family is not None:
-            vx, vy, wz = COMMAND_FAMILIES[self.family](t, self.duration)
+        if self._sched is not None:
+            vx, vy, wz = self._sched(t, self.duration)
             self.command = np.array([vx, vy, wz], dtype=np.float32)
         self.command_log.append((t, *map(float, self.command)))
 
