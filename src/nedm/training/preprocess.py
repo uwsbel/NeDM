@@ -11,6 +11,11 @@ from typing import Any
 
 import numpy as np
 
+from nedm.quadruped.dataset import (
+    CONTACT_ENGAGE_N,
+    CONTACT_RELEASE_N,
+    contact_mode,
+)
 from nedm.training.constants import (
     DEFAULT_ACTION_FIELDS,
     DEFAULT_ROLLOUT_FIELDS,
@@ -27,6 +32,9 @@ class SplitBuffers:
     episode_starts: np.ndarray
     episode_lengths: np.ndarray
     rollout: np.ndarray
+    # Packed 4-bit contact mode per transition, int8 in [0, 15], aligned with
+    # ``states`` (the mode of the FROM state). None unless --contact-mode.
+    contact_modes: np.ndarray | None = None
     arrays_saved: bool = False
     # Camera frames (NRD datasets): uint8 (total_transitions + episodes, H, W, 3)
     # in the same one-extra-row-per-episode layout as ``rollout``, so
@@ -84,6 +92,20 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="Optional cap per split for quick smoke tests.",
     )
     parser.add_argument(
+        "--contact-mode",
+        action="store_true",
+        help="Precompute the packed 4-bit foot contact mode per transition "
+             "(quadruped datasets only; needs the foot_*_force_fz_n columns).",
+    )
+    parser.add_argument(
+        "--contact-release-n", type=float, default=CONTACT_RELEASE_N,
+        help="Schmitt-trigger release threshold, newtons.",
+    )
+    parser.add_argument(
+        "--contact-engage-n", type=float, default=CONTACT_ENGAGE_N,
+        help="Schmitt-trigger engage threshold, newtons.",
+    )
+    parser.add_argument(
         "--state-field-preset",
         type=str,
         choices=sorted(STATE_FIELD_PRESETS),
@@ -137,21 +159,37 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
+# Foot force columns in the order the 4-bit contact mode packs them: fl fr rl rr
+# -> bits 3..0. Named explicitly rather than derived, because
+# quadruped.constants.FOOT_BODIES is ordered FR, FL, RR, RL -- a DIFFERENT order
+# that would silently transpose the left/right bits. contact_mode's docstring
+# says "matching LEG_ORDER", but no LEG_ORDER exists in the codebase; the order
+# it actually documents is this one, which is also the CSV column order.
+CONTACT_FORCE_FIELDS = [
+    "foot_fl_force_fz_n",
+    "foot_fr_force_fz_n",
+    "foot_rl_force_fz_n",
+    "foot_rr_force_fz_n",
+]
+
+
 def read_episode_csv(
     csv_path: Path,
     state_fields: list[str],
     action_fields: list[str],
     rollout_fields: list[str],
-) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    contact_fields: list[str] | None = None,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray | None]:
     state_rows: list[list[float]] = []
     action_rows: list[list[float]] = []
     rollout_rows: list[list[float]] = []
+    contact_rows: list[list[float]] = []
 
     with csv_path.open(newline="") as fp:
         reader = csv.DictReader(fp)
         missing = [
             field
-            for field in state_fields + action_fields + rollout_fields
+            for field in state_fields + action_fields + rollout_fields + list(contact_fields or [])
             if field not in reader.fieldnames
         ]
         if missing:
@@ -160,13 +198,16 @@ def read_episode_csv(
             state_rows.append([float(row[field]) for field in state_fields])
             action_rows.append([float(row[field]) for field in action_fields])
             rollout_rows.append([float(row[field]) for field in rollout_fields])
+            if contact_fields:
+                contact_rows.append([float(row[field]) for field in contact_fields])
 
     states = np.asarray(state_rows, dtype=np.float32)
     actions = np.asarray(action_rows, dtype=np.float32)
     rollout = np.asarray(rollout_rows, dtype=np.float32)
+    contact = np.asarray(contact_rows, dtype=np.float64) if contact_fields else None
     if len(states) < 2:
         raise ValueError(f"{csv_path} has fewer than 2 rows after warmup trimming")
-    return states, actions, rollout
+    return states, actions, rollout, contact
 
 
 def build_split_buffers(
@@ -178,6 +219,7 @@ def build_split_buffers(
     split: str | None = None,
     disk_backed_arrays: bool = False,
     include_frames: bool = False,
+    contact_mode_bounds: tuple[float, float] | None = None,
 ) -> SplitBuffers:
     total_transitions = sum(int(ep["rows"]) - 1 for ep in episodes)
     state_dim = len(state_fields)
@@ -197,6 +239,8 @@ def build_split_buffers(
     rollout = allocate("rollout", (total_transitions + len(episodes), rollout_dim), np.float32)
     episode_starts = np.empty((len(episodes),), dtype=np.int64)
     episode_lengths = np.empty((len(episodes),), dtype=np.int32)
+    contact_modes = (allocate("contact_modes", (total_transitions,), np.int8)
+                     if contact_mode_bounds is not None else None)
 
     frames: np.ndarray | None = None
     if include_frames and episodes:
@@ -216,11 +260,12 @@ def build_split_buffers(
     rollout_cursor = 0
     for episode_index, episode in enumerate(episodes):
         csv_path = Path(episode["_dataset_root"]) / episode["csv_path"]
-        episode_states, episode_actions, episode_rollout = read_episode_csv(
+        episode_states, episode_actions, episode_rollout, episode_forces = read_episode_csv(
             csv_path,
             state_fields=state_fields,
             action_fields=action_fields,
             rollout_fields=rollout_fields,
+            contact_fields=CONTACT_FORCE_FIELDS if contact_mode_bounds is not None else None,
         )
         length = episode_states.shape[0] - 1
         episode_starts[episode_index] = cursor
@@ -229,6 +274,18 @@ def build_split_buffers(
         states[cursor : cursor + length] = episode_states[:-1]
         actions[cursor : cursor + length] = episode_actions[:-1]
         targets[cursor : cursor + length] = episode_states[1:] - episode_states[:-1]
+        if contact_modes is not None:
+            # PER EPISODE, BEFORE SLICING, and both parts matter. The Schmitt
+            # trigger is a temporal filter carrying state across samples, so
+            # running it on the concatenated buffer would let one episode's final
+            # stance set the next episode's opening mode across a discontinuity
+            # that is not a footfall. Sliced [:-1] to align with ``states``: the
+            # mode of the FROM state of each transition, not the TO state, so a
+            # model conditioning on it sees the contact configuration it is
+            # predicting forward from.
+            release_n, engage_n = contact_mode_bounds
+            _, episode_mode = contact_mode(episode_forces, release_n=release_n, engage_n=engage_n)
+            contact_modes[cursor : cursor + length] = episode_mode[:-1].astype(np.int8)
         rollout[rollout_cursor : rollout_cursor + length + 1] = episode_rollout
         if frames is not None:
             frames_path = episode.get("frames_path")
@@ -251,6 +308,7 @@ def build_split_buffers(
         episode_starts=episode_starts,
         episode_lengths=episode_lengths,
         rollout=rollout,
+        contact_modes=contact_modes,
         arrays_saved=disk_backed_arrays,
         frames=frames,
     )
@@ -269,6 +327,8 @@ def save_split(output_dir: Path, split: str, buffers: SplitBuffers, episodes: li
         np.save(output_dir / f"{split}_rollout.npy", buffers.rollout)
     if buffers.frames is not None:
         buffers.frames.flush()  # frames are always written through a memmap
+    if buffers.contact_modes is not None and not buffers.arrays_saved:
+        np.save(output_dir / f"{split}_contact_modes.npy", buffers.contact_modes)
     np.save(output_dir / f"{split}_episode_starts.npy", buffers.episode_starts)
     np.save(output_dir / f"{split}_episode_lengths.npy", buffers.episode_lengths)
 
@@ -283,6 +343,13 @@ def save_split(output_dir: Path, split: str, buffers: SplitBuffers, episodes: li
             str(Path(episode["_dataset_root"]) / episode["csv_path"])
             for episode in episodes
         ],
+        # Occupancy of the 16 modes, so a degenerate extraction (one mode at
+        # 90%, or flight/full-stance never observed) is visible in the cache
+        # rather than only after a model fails to learn from it.
+        **({"contact_mode_histogram": {
+            str(m): int(c) for m, c in
+            zip(*np.unique(buffers.contact_modes, return_counts=True))}}
+           if buffers.contact_modes is not None else {}),
         "rollout_episode_offsets": np.cumsum(
             np.concatenate(([0], buffers.episode_lengths.astype(np.int64) + 1))
         ).tolist(),
@@ -320,6 +387,7 @@ def build_metadata(
     state_field_preset: str,
     stats_chunk_rows: int,
     include_frames: bool = False,
+    contact_mode_bounds: tuple[float, float] | None = None,
 ) -> dict[str, Any]:
     train_states = np.load(output_dir / "train_states.npy", mmap_mode="r")
     train_actions = np.load(output_dir / "train_actions.npy", mmap_mode="r")
@@ -336,7 +404,27 @@ def build_metadata(
         train_frames = np.load(output_dir / "train_frames.npy", mmap_mode="r")
         frames_info = {"shape": list(train_frames.shape[1:]), "dtype": "uint8"}
 
+    # THE THRESHOLDS TRAVEL WITH THE CACHE. contact_mode's docstring keeps the
+    # mode out of the CSV so two tuned constants are not frozen into the dataset
+    # where no consumer can revisit them. Writing the mode into a derived cache
+    # without the bounds would reintroduce exactly that, one layer down: a
+    # contact channel that cannot be reproduced or compared against another
+    # choice of bounds. 5/60 N is measured, not chosen -- see that docstring.
+    contact_info = None
+    if contact_mode_bounds is not None:
+        release_n, engage_n = contact_mode_bounds
+        contact_info = {
+            "release_n": release_n,
+            "engage_n": engage_n,
+            "force_fields": list(CONTACT_FORCE_FIELDS),
+            "bit_order": "fl fr rl rr -> bits 3..0",
+            "num_modes": 16,
+            "dtype": "int8",
+            "alignment": "mode of the FROM state of each transition",
+        }
+
     return {
+        "contact_mode": contact_info,
         "frames": frames_info,
         "dataset_name": "+".join(dataset_index["dataset_name"] for dataset_index in dataset_indices),
         "raw_dataset_root": str(dataset_roots[0]),
@@ -409,6 +497,16 @@ def main(argv: list[str] | None = None) -> int:
         for split in split_episodes:
             split_episodes[split] = split_episodes[split][: args.max_episodes_per_split]
 
+    contact_bounds = ((float(args.contact_release_n), float(args.contact_engage_n))
+                      if args.contact_mode else None)
+    if contact_bounds is not None and contact_bounds[0] >= contact_bounds[1]:
+        raise ValueError(
+            f"--contact-release-n ({contact_bounds[0]}) must be below "
+            f"--contact-engage-n ({contact_bounds[1]}). Equal bounds collapse the "
+            "Schmitt trigger to a plain threshold, which invents 66% spurious "
+            "transitions on CRM -- see quadruped.dataset.contact_mode."
+        )
+
     state_fields = (
         list(args.state_fields)
         if args.state_fields is not None
@@ -430,6 +528,7 @@ def main(argv: list[str] | None = None) -> int:
             state_field_preset=args.state_field_preset,
             stats_chunk_rows=args.stats_chunk_rows,
             include_frames=bool(args.frames),
+            contact_mode_bounds=contact_bounds,
         )
         (output_dir / "metadata.json").write_text(json.dumps(metadata, indent=2))
         print(
@@ -448,6 +547,7 @@ def main(argv: list[str] | None = None) -> int:
         split="train",
         disk_backed_arrays=bool(args.disk_backed_arrays),
         include_frames=bool(args.frames),
+        contact_mode_bounds=contact_bounds,
     )
     val_buffers = build_split_buffers(
         episodes=split_episodes["val"],
@@ -458,6 +558,7 @@ def main(argv: list[str] | None = None) -> int:
         split="val",
         disk_backed_arrays=bool(args.disk_backed_arrays),
         include_frames=bool(args.frames),
+        contact_mode_bounds=contact_bounds,
     )
 
     save_split(output_dir, "train", train_buffers, split_episodes["train"])
@@ -474,6 +575,7 @@ def main(argv: list[str] | None = None) -> int:
         state_field_preset=args.state_field_preset,
         stats_chunk_rows=args.stats_chunk_rows,
         include_frames=bool(args.frames),
+        contact_mode_bounds=contact_bounds,
     )
     (output_dir / "metadata.json").write_text(json.dumps(metadata, indent=2))
 
