@@ -424,6 +424,12 @@ between two episodes that are ~2 minutes apart, and the in-flight one had alread
 imported the old file. Thirty seconds earlier and the batch would have split
 silently.
 
+**The margin was a property of the workload, not of the handling.** This collector
+re-reads the file once per *episode*, so the exposed window is 22 seconds inside a
+2-minute gap. A job that re-read per row, or whose episodes were seconds apart,
+would have been caught by the same 22 seconds. Do not read "it was fine" as a
+tolerance; it does not transfer to a faster job.
+
 **The deliberate edits were never the risk.** That same box had checked an hour
 earlier that `trainer.py` was safe to edit. The discipline was working exactly
 where attention was pointed, and the hazard arrived through a command whose
@@ -445,7 +451,15 @@ other**, then told the second box a file had been pushed, with no method attache
 Two machines running the same job under the same hazard, one holding the
 mitigation. That is worse than nobody knowing it, because the fleet looked uniform
 from where the second box sat. **When a mitigation is discovered by one node,
-propagating it is the same task as recording it.**
+propagating it is the same task as recording it** — to every node that could lose
+data, at the time it is learned, rather than to whoever is next in the conversation.
+
+The affected box made the fair objection: the technique would have prevented that
+instance, but the rule it already held would have prevented the whole class, so the
+briefing gap is not the main lesson. What it does expose is structural. **In a fleet
+coordinated through one hub, the hub holds the only complete view, and no leaf can
+audit what another leaf was told.** From either box the fleet looked uniform. That
+asymmetry is a standing property of the topology, not a one-off.
 
 ### Restoring
 
