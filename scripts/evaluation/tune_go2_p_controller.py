@@ -88,11 +88,11 @@ def main() -> int:
     print(f"tuning on {len(tune_on)} held-out {a.domain} references: {tune_on}")
     print(f"evaluating later on the eight: {eval_eight}   (disjoint: "
           f"{not set(tune_on) & set(eval_eight)})")
-    print(f"{len(combos)} gain combinations{' (isotropic)' if a.isotropic else ''}\n")
-
     values = [float(v) for v in a.grid.split(",")]
     combos = ([(v, v, v) for v in values] if a.isotropic
               else list(itertools.product(values, values, values)))
+    print(f"{len(combos)} gain combinations{' (isotropic)' if a.isotropic else ''}\n")
+
     results = []
     t0 = time.time()
     for kx, ky, kyaw in combos:
