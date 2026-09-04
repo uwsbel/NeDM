@@ -71,7 +71,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--heading-deg", type=float, default=0.0)
     parser.add_argument("--spawn-x-m", type=float, default=0.0)
     parser.add_argument("--spawn-y-m", type=float, default=0.0)
-    parser.add_argument("--validation-ratio", type=float, default=0.0)
+    # 0.2 matches the HMMWV (6,644 val against 26,124 train). NOT 0.0: a zero
+    # ratio marks every episode "train" and produces a dataset with no held-out
+    # set, which fails SILENTLY -- training runs, the loss falls, and there is
+    # nothing to select a checkpoint on or detect overfitting with. Every
+    # deployed model in the paper is chosen by held-out rollout error, so this
+    # ratio is load-bearing rather than a convenience. The first 1,042 episodes
+    # were collected at 0.0 and had their splits recomputed in a retrofit pass.
+    parser.add_argument("--validation-ratio", type=float, default=0.2)
     parser.add_argument("--soil", choices=["training", "eval"], default="training")
     parser.add_argument("--depth", type=float, default=0.20)
     parser.add_argument("--soil-bottom", type=float, default=0.0)
