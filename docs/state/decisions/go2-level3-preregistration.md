@@ -1051,3 +1051,48 @@ question "was selection worth anything?" answers itself: **no, on this run.**
 The rule still did its job. It was written when the evidence pointed the other
 way, it named the choice in advance, and it resolved to "no difference" without
 anyone deciding that after the fact.
+
+---
+
+# Amendment 13: the soil comparison gives an UPPER bound on the policy, not a lower one
+
+The asymmetries reverse between terrains, and that changes what each result can
+be claimed to show. Registered before the soil-tuned number exists.
+
+## Rigid: every asymmetry favoured the policy, and the baseline won anyway
+
+    P tuned on 12 held-out references; policy trained on all 40 including the 8
+    P gains at a grid boundary and still improving when the search stopped
+    P searched 64 combinations over the full 3-axis product
+
+The baseline still won 8 of 8 at 3.9x pooled. **So the rigid loss is a LOWER
+bound on the baseline** — a better-tuned P wins by more — and the conclusion is
+robust.
+
+## Soil: the asymmetries now favour the BASELINE'S OPPONENT
+
+    P tuned on RIGID references and evaluated on soil (the original defect)
+    P search restricted to ISOTROPIC gains, not the 3-axis product
+    P tuning set capped at 4 references, not 12
+    24 rollouts searched on soil against 64 combinations on rigid
+
+CRM costs ~1.6 min per rollout, so the full product is ~19 hours and the
+restrictions are necessary rather than chosen. But necessity does not change
+their direction: **they handicap the baseline.**
+
+**CONSEQUENCE, AND IT CUTS AGAINST US:** a soil result where the tuned P still
+loses is *not* evidence that the policy beats a well-tuned controller. It bounds
+the policy's margin from ABOVE.
+
+    the honest claim caps at   "the advantage disappears on soil"
+    it cannot reach            "the learned policy wins on soil"
+
+regardless of how the number falls. If the soil-tuned P *wins*, that needs no
+caveat at all — a handicapped baseline beating the policy is clean.
+
+**Report the search beside the gain.** A gain value without the search that found
+it is the same shape of claim as a ratio without its denominator: 24 rollouts on
+soil against 64 combinations on rigid is part of the result, not a footnote.
+
+Direction and bound analysis due to the coordinator, raised in the direction that
+disfavours the result they had been arguing for.
