@@ -163,9 +163,9 @@ the §4 candidates (cell discs, 12 repair passes); the final-planner candidates
 | predicted occupancy + memorized terrain | 145 | **145/145** | **0** | 0 | 0 | 0.034 m | 0.10 m | 0.987 | 1.19 / 0.72 |
 | full predicted map | 147 | **147/147** | **0** | 0 | 0 | 0.033 m | 0.10 m | 0.981 | 1.16 / 0.75 |
 | final planner (40 repair passes): predicted occupancy + memorized terrain | 165 | **165/165** | **0** | 0 | 0 | 0.034 m | 0.11 m | 0.990 | 1.20 / 0.71 |
-| final planner: full predicted map | _re-running after a newton segfault_ | | | | | | | | |
+| final planner: full predicted map | 165 | **165/165** | **0** | 0 | 0 | 0.033 m | 0.10 m | 0.964 | 1.22 / 0.64 |
 
-**Plans built from the camera alone are safe to drive**: 457 of 457 completed
+**Plans built from the camera alone are safe to drive**: 622 of 622 completed
 with no asset contact and no rollover on 32 held-out layouts, tracked as tightly
 as the oracle's plans (mean cross-track 0.033–0.034 vs 0.029 m). That includes
 the full-predicted-map plans the ladder flagged as exceeding the true slope caps
@@ -193,13 +193,11 @@ same near-tie reason as before.
 
 ## Open
 
-1. Chrono results for the full-predicted-map rung and for the 40-pass
-   candidates (queued on newton).
-2. Dynamics model retraining with tracker-driven Chrono episodes (DAgger) to
+1. Dynamics model retraining with tracker-driven Chrono episodes (DAgger) to
    remove the throttle-response bias behind the 10 % time and 15–20 % energy gaps.
-3. Chrono-validate the margin-fallback plans (2–3 % of layouts), or make the
+2. Chrono-validate the margin-fallback plans (2–3 % of layouts), or make the
    smoother clearance-aware so the default margin can drop toward the measured 0.1 m.
-4. Vehicle localisation from the camera (the tracker's pose in Chrono is still
+3. Vehicle localisation from the camera (the tracker's pose in Chrono is still
    the simulator's) — WP1 showed 0.8 m / 3–4° from the spatial map.
-5. Test split untouched throughout.
+4. Test split untouched throughout.
 
