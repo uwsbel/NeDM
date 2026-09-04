@@ -1156,3 +1156,60 @@ the opposite answer.
 Related: [when a comparison goes wrong, suspect the apparatus](#when-a-comparison-goes-wrong-suspect-the-apparatus-before-the-subject).
 There the instrument was broken; here the instrument was fine and the **regime** carried
 no signal.
+
+## When the codebase documents a trap, quote the documentation — recalling it is not enough
+
+`dataset.py:105` carries a comment block enumerating **four** orderings of the
+same twelve Go2 joints:
+
+    MOTOR_NAMES   RR RL FR FL   joint_pos/joint_vel, actuate(), target columns
+    LEG_ORDER     fl fr rl rr   the foot_* columns
+    FOOT_BODIES   FR FL RR RL   the body-name list
+    imported      FL FR RL RR   the policy, via CHRONO_TO_IMPORTED and SIGN
+
+That block exists so nobody has to remember. It was written after an ordering bug
+and it is exact.
+
+An instruction to build a joint-space controller then arrived carrying "MOTOR_NAMES
+is FR/FL/RR/RL" from memory — which is `FOOT_BODIES`, one line further down — **in
+the same message that warned to verify orderings against the code rather than
+against the instruction.** The warning was right and the claim beside it was wrong,
+for the second time on the same point.
+
+**A warning to check something, delivered alongside an unchecked claim about that
+same thing, is worse than no warning: it lends the wrong value the authority of
+the caution.** The reader who trusts the warning is exactly the reader who will
+also trust the number next to it.
+
+So: when the codebase documents a trap, the only acceptable form of the
+instruction is a quotation with its file and line. Paraphrase from memory is how a
+comment written to prevent an error becomes decoration beside a repetition of it.
+
+(And the recipient undercounted too — reported "three orderings" when the block
+says four. Both errors are the same kind: describing a document instead of reading
+it.)
+
+## An error identical across independent units is a shared constant, not a per-unit bug
+
+Validating Go2 forward kinematics against Chrono, the foot position was wrong by
+**0.0218 m on all four legs**. Being identical is the whole diagnosis: a sign
+error, a leg-ordering error or a left-right transposition would differ BETWEEN
+legs, because those bugs act on per-leg quantities. A constant common to all four
+can only come from something shared.
+
+It was the base frame: the base **body** origin sits at the COM, displaced
+(0.02111, 0, −0.00537) from the base **link** frame that the URDF's hip offsets
+are expressed in. Measured at spawn — before any dynamics, when the link frame is
+exactly the spawn frame — rather than hardcoded. FK then matched to 0.00000 m.
+
+The discriminating question is cheap and worth asking first: **does the error vary
+across independent units, or not?** It separates "shared frame or constant" from
+"per-unit sign or index" before any hunting starts.
+
+The same run also produced a plausible-looking wrong answer worth naming. Link
+lengths taken as distances between BODY origins in the rest pose gave thigh 0.2962
+and calf 0.0982 — reasonable numbers that survive inspection. What killed them was
+a physical consistency check, not a second look: they cannot reach a foot 0.426 m
+below the hip. The URDF joint frames give L_thigh = L_calf = 0.2130, which extends
+to exactly 0.426. **Check that a geometric quantity closes against an independent
+measurement of the same geometry**; plausibility is not a test.
