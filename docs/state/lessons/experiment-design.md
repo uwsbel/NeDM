@@ -191,3 +191,33 @@ wrong process.
 
 The rule: resolve the pid of the process that does the WORK and poll that. A
 wrapper, a launcher, a shell that spawns and returns — none of them are the job.
+
+### A vanished pid is not a success
+
+The rule above is necessary and was not sufficient. On the very next job, a
+waiter polling the correct long-lived pid reported completion — and the job had
+not run. The script had been killed when the foreground tool call that launched
+it was torn down (`nohup` ignores SIGHUP; it does not survive the process group
+going away), leaving one orphaned child still simulating with no parent.
+
+`while kill -0 <pid>` cannot distinguish **completed** from **killed**,
+**crashed**, or **OOM-ed**. All four produce the same silence. The waiter
+reported the truth — that pid was gone — and the inference drawn from it was
+wrong.
+
+**Require a sentinel.** The job prints a token on successful completion; the
+watcher checks for the token, never for the absence of a process. The script
+here already had a `LATERAL_DONE` line for exactly this purpose and the first
+waiter did not look at it. Rewritten to check, the same job reported
+`episode dirs: 13/14, sentinel present: 1, VERDICT: completed` — which is a
+claim about the work, not about a process table.
+
+Two related self-inflicted variants from the same hour, both the same shape:
+
+- **Launch method matters more than the waiter.** A 5-hour run launched through
+  the tool's own background mechanism survived; an identical job launched with
+  `nohup ... &` inside a foreground call did not.
+- **`pkill -f <pattern>` matches the shell running the `pkill`.** A cleanup
+  command whose pattern appeared in its own command line killed itself and
+  returned exit 144. Kill by resolved pid, or match on something that cannot
+  appear in the killer.
