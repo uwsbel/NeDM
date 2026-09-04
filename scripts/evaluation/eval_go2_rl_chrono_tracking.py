@@ -171,6 +171,11 @@ def roll_one(env: Any, reference_id: int, policy: Any | None) -> dict[str, Any]:
     errors: list[float] = []
     rewards: list[float] = []
     taken: list[list[float]] = []
+    # World-frame paths, so a figure can show the reference, the open-loop replay
+    # drifting off it, and whether the policy pulled back. A camera cannot show
+    # any of that; three numeric paths can.
+    path_xy: list[list[float]] = []
+    ref_xy: list[list[float]] = []
     steps = 0
     for _ in range(env.max_episode_length):
         if policy is None:
@@ -192,6 +197,8 @@ def roll_one(env: Any, reference_id: int, policy: Any | None) -> dict[str, Any]:
         # emitting a constant produces entirely ordinary-looking position errors,
         # so "did the policy actually act" cannot be read off the errors.
         taken.append([float(v) for v in env.sims[0].command])
+        path_xy.append([float(env.pose[0, 0]), float(env.pose[0, 1])])
+        ref_xy.append([float(v) for v in env._reference_state_pose()[1][0, :2]])
         steps += 1
         if bool(dones[0]):
             break
@@ -199,6 +206,9 @@ def roll_one(env: Any, reference_id: int, policy: Any | None) -> dict[str, Any]:
     err = np.asarray(errors, dtype=np.float64)
     act = np.asarray(taken, dtype=np.float64)
     return {
+        "path_xy": path_xy,
+        "ref_xy": ref_xy,
+        "dt_s": float(env.step_dt),
         "action_mean": act.mean(axis=0).tolist(),
         "action_std": act.std(axis=0).tolist(),
         "action_span": (act.max(axis=0) - act.min(axis=0)).tolist(),
