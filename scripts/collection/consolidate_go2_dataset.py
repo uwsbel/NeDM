@@ -160,6 +160,12 @@ def run(src: Path, out_root: Path, sidecar: Path, seed_offset: int,
                             "terminated_near_boundary": boundary,
                             "split": split, "csv_path": f"episodes/{new_id}.csv",
                             "rows": m["rows"], "duration_s": m["duration_s"],
+                            # Carried into the INDEX, not only the episode JSON.
+                            # The sidecar is keyed by source directory and the
+                            # index is what a reader opens first, so without it
+                            # joining back to provenance means opening an episode
+                            # file to find out which directory it came from.
+                            "source_episode_dir": ep_dir,
                             "terrain_label": terrain})
         if apply:
             (out / "dataset_index.json").write_text(json.dumps({
@@ -188,7 +194,14 @@ def run(src: Path, out_root: Path, sidecar: Path, seed_offset: int,
                 shutil.copy(note, out / "PROVENANCE_NOTE.md")
         report["per_terrain"][terrain] = {
             "episodes": len(entries), "splits": splits,
-            "transitions": sum(e["rows"] for e in entries),
+            # rows - 1 PER EPISODE, not sum(rows). An episode of N recorded rows
+            # yields N-1 (state, next_state) transitions, so summing rows
+            # overcounts by one per episode -- 152 on dorm-pc's half, 1120 across
+            # both. Cosmetic in a report and not read by preprocess, but it is
+            # the number people quote in a paper. Reported by dorm-pc from a
+            # two-way diff against preprocess's own count.
+            "transitions": sum(e["rows"] - 1 for e in entries),
+            "rows": sum(e["rows"] for e in entries),
             "val_pct": round(100 * splits["val"] / max(len(entries), 1), 1),
             "distinct_ids": len({e["episode_id"] for e in entries}),
         }
