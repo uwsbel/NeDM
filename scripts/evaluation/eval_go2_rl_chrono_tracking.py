@@ -72,6 +72,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--num-references", type=int, default=5)
     parser.add_argument("--reference-index", type=int, default=None,
                         help="Evaluate one reference by index instead of the first N.")
+    parser.add_argument("--reference-indices", type=str, default=None,
+                        help="Comma-separated reference indices. Taking the first N is a "
+                             "MOTION-BLIND draw -- on the training set it produced eight "
+                             "references with a median path of 0.143 m over 6 s, against "
+                             "0.500 m available from the same pool. Naming the indices is "
+                             "how the eval set stops being an accident of ordering.")
     parser.add_argument("--max-steps", type=int, default=None)
     parser.add_argument("--horizon-s", type=float, default=None,
                         help="Episode horizon in SECONDS. Prefer this over --max-steps: the "
@@ -261,7 +267,12 @@ def main(argv: list[str] | None = None) -> int:
     print(f"env: {env_cls.__name__}  references: {env.num_references}  "
           f"horizon: {env.max_episode_length} steps ({env.max_episode_length * env.step_dt:.2f} s)")
 
-    if args.reference_index is not None:
+    if args.reference_indices:
+        reference_ids = [int(v) for v in args.reference_indices.split(",") if v.strip() != ""]
+        bad = [i for i in reference_ids if not 0 <= i < env.num_references]
+        if bad:
+            raise SystemExit(f"reference indices out of range for this set: {bad}")
+    elif args.reference_index is not None:
         reference_ids = [int(args.reference_index)]
     else:
         reference_ids = list(range(min(args.num_references, env.num_references)))

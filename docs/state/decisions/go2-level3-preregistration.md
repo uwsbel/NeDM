@@ -377,3 +377,103 @@ same reason. The ratio already carries the effect-size judgement (the registered
 10%); the paired difference carries direction and consistency only. That is a
 real limitation of the co-reported statistic and is stated rather than papered
 over.
+
+---
+
+# Amendment 5: the eval eight are reselected for motion, from the policy's own pool
+
+## The problem: the benchmark was mostly measuring station-keeping
+
+Path length over the 6 s primary horizon, the eight references originally used:
+
+    weave 1.790   arc 0.483   vel_step 0.276   stop_and_go 0.156
+    lateral 0.134   yaw_step 0.122   constant 0.108   pivot 0.008
+
+**Pivot travelled eight millimetres in six seconds**, against a floor of 0.0372 m
+— 4.6x the entire distance covered. Six of eight moved less than 30 cm. A
+tracking error several times larger than the trajectory is not tracking error,
+it is drift from a stationary reference, and on six of eight references this
+measured station-keeping.
+
+It also explains the denominator instability in amendment 1: **the floors span
+40x because the paths span 200x.** That was the symptom.
+
+## The check that mattered: is the TRAINING set degenerate too?
+
+The eval eight are drawn from the same pool the policy trains on, selected by the
+same motion-blind `select_reference_episode_indices`. If the other references
+looked the same, the policy would have spent 2000 iterations learning to hold
+position, and the level-3 result would measure the wrong competence entirely.
+
+Measured on all 40 training references, over the exact window the policy tracks
+(rows 127–727, the 128-step context offset, 6.0 s):
+
+    min 0.007   median 0.372   max 2.102 m
+    below 0.05 m:  3/40      below 0.25 m: 14/40      below 0.50 m: 27/40
+
+**Not degenerate.** The policy trains against a 300x range of reference motion
+with a median of 0.372 m. The original eval eight (median 0.143 m) were an
+unlucky draw from a pool whose median is 2.6x higher, not a representative
+sample of it. Check proposed by the coordinator; it is the check that decides
+between "reselect the eval set" and "the training set is wrong", and it came out
+on the benign side.
+
+**Truncation bias ruled out.** `select_reference_episode_indices` filters on
+`episode_lengths >= segment_nn_steps`, and high-motion episodes are likelier to
+hit the bed boundary and be truncated — which would bias the pool before any
+draw. Measured: 2 of 769 flat and 6 of 118 CRM episodes excluded. Too few to
+shift a median. The low-motion draw was chance, not a bias, and the note says so
+because "we suspected a bias" and "we ruled one out" are different records.
+
+## The change
+
+The eval eight are now named indices into **`go2_flat_crm_ref40.npz` — the
+policy's own training reference file** — chosen as the highest-motion member of
+each flat family:
+
+| family | old idx / path | new idx / path |
+|---|---|---|
+| lateral | 2 / 0.135 | **10 / 2.102** |
+| constant | 1 / 0.108 | **17 / 1.730** |
+| weave | 6 / 1.792 | 6 / 1.792 |
+| arc | 0 / 0.477 | **16 / 0.540** |
+| pivot | 3 / 0.007 | **19 / 0.461** |
+| vel_step | 5 / 0.283 | **13 / 0.288** |
+| stop_and_go | 4 / 0.151 | **12 / 0.283** |
+| yaw_step | 7 / 0.110 | **15 / 0.277** |
+
+    median path 0.143 -> 0.500 m (3.5x)      worst 0.007 -> 0.277 m
+
+**The 8/8 train overlap is PRESERVED and is now exact.** Using the training
+reference file rather than a re-drawn one means the eval tracks the same
+episodes *and the same windows* the policy tracked, which the seg-1178 rebuild
+did not. The primary still measures "transfer on references the policy actually
+tracked"; only which of its own references, and that dissolves the open question
+in the previous amendment. Route proposed by the coordinator.
+
+## The new floor, and why it fixes amendment 1
+
+    arc 0.0757  constant 0.1066  lateral 0.0775  pivot 0.0506
+    stop_and_go 0.0970  vel_step 0.0717  weave 0.0338  yaw_step 0.0113
+    POOLED 0.0655 m
+
+The floor RISES (0.0457 -> 0.0655) because these references move. More important,
+**the floor spread collapses from 40x to 9.4x**, which is the denominator
+instability of amendment 1 fixed at its cause rather than worked around by a
+statistic.
+
+## The three flags
+
+1. **Made after seeing the model_300 plumbing numbers.** Not blind.
+2. **The direction it cuts is UNKNOWN, and that is a change from the earlier
+   proposal.** A path-length *filter* on the original eight would have moved the
+   verdict against the policy (median ratio 1.16, worse on 2 of 3) and I said so
+   before it could be checked. But these are eight *different* episodes on which
+   the policy's performance has never been measured, so the direction is
+   genuinely unknown. That makes the change blinder than the filter, not less
+   blind — but the claim "it cuts against the policy" no longer applies and must
+   not be carried over.
+3. **The justification is independent of both:** a tracking benchmark must track
+   something that moves.
+
+The original eight are reported as a secondary arm so nothing is hidden.
