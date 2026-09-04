@@ -57,13 +57,25 @@ would settle it.
 ## The dataset
 
 100 Hz, matching the HMMWV. 16 s episodes, 1475 rows after discarding the 1.25 s
-ramp and settle. Eleven command families mirroring the paper's maneuver-family
-practice rather than uniform sampling.
+ramp and settle. **Eight** command families mirroring the paper's maneuver-family
+practice rather than uniform sampling, with **amplitudes stratified per episode**.
+
+*(The first collection had eleven, but four of them — two march-in-place variants,
+`constant_high` and `reverse` — were four fixed POINTS on one shape. Once amplitude
+is randomised they are one experiment, so they collapsed into `constant`. Keeping
+them apart would have quadruple-weighted constant-velocity motion in the family
+balance.)*
 
 | | episodes | transitions | status |
 |---|---|---|---|
-| rigid | 484 (44 × 11) | 713,257 | 476 completed, 8 bed_boundary, **0 fell** |
-| CRM | 154 (14 × 11) | ~227 k expected | running |
+| rigid | **968** (121 × 8) | ~1.4 M | 968/968 clean, **0 fell** |
+| CRM, `kyle-sbel` | 152 (19 × 8) | in progress | seed offset 0 |
+| CRM, `kyle-N7-B650E` | 152 (19 × 8) | in progress | seed offset 1,000,000 |
+
+Two machines collect CRM in parallel — **38 episodes per family pooled**. Verified
+equivalent first: rigid identical to four decimals across `sm_86` and `sm_120`, CRM
+within 0.88%. Every episode stamps `machine`, `gpu_name`, `gpu_arch`, `seed_offset`
+and `git_commit` so origin is recoverable if a cross-box artefact ever appears.
 
 Scale chosen from the paper's own data-scaling appendix: **20% of their data
 already gives single-digit rollout error**, and the curve is flat past 80%.
