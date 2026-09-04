@@ -142,6 +142,51 @@ Two are worth naming here because they reached model selection:
 Both are fixed in the data rather than patched in the consumers, which is the only
 fix that is correct in all three places at once.
 
+## Why episodes hit the bed boundary: lateral excursion, not turning
+
+Boundary terminations are a **composition** effect, not drift — confirmed
+family-by-family on both machines independently (`arc` landed on 4/19 on *both*,
+with different spawns and seeds; pooled turning-vs-not was 17/112 against 0/114,
+Fisher p = 3.4e-6).
+
+But **"turning" is a proxy and `pivot` falsifies it.** `pivot` accumulates 323° of
+heading and never leaves the bed; `weave` accumulates 35° and does. The predictor
+is **sustained lateral displacement relative to each family's own headroom** —
+closest approach to the y-limit as a fraction of usable half-width, which is 3.2 m
+for `lateral` (`patch_y` 8.0) and 1.2 m for everyone else (`patch_y` 4.0):
+
+| family | mean approach | max | boundary |
+|---|---|---|---|
+| lateral | **0.94** | 0.94 | **0/19** |
+| arc | 0.54 | 1.01 | 4/19 |
+| weave | 0.53 | 1.02 | 1/7 |
+| yaw_step | 0.43 | 1.02 | 3/19 |
+| vel_step | 0.24 | 0.69 | 1/19 |
+| constant | 0.20 | 0.59 | 0/19 |
+| pivot | **0.11** | 0.19 | 0/19 |
+
+Max is ~1.0 for any family that exits, by definition; **the mean is the
+informative column**, and it separates cleanly — 0.54/0.53/0.43 against
+0.24/0.20/0.11, no overlap.
+
+So: sustained turning produces lateral drift because a circle leans to one side and
+stays there (`arc`, `yaw_step`); oscillating turning produces some (`weave`);
+turning in place produces none (`pivot`); and a straight family produces it only
+when the bed is narrow for it (the old `lateral`). **The remedy differs by family** —
+`arc` and `yaw_step` want a wider bed or a shorter horizon, `pivot` wants nothing,
+`lateral` wanted the spawn fix it already has.
+
+**`lateral` is the vindicating row.** It crosses 94% of its available half-width by
+design — 3.0 m of excursion — and its *max* is also 0.94, so not one of nineteen
+episodes overshot. Before recollection this family was 14/14 truncated. It is now
+simultaneously the family that comes closest to the limit and the family that never
+crosses it, which is sharper evidence for the wide-bed and far-side-spawn fix than
+its 0% rate alone.
+
+*(Note the normalisation: dividing by each family's own headroom is what makes
+`lateral` legible. On raw metres it would look like the riskiest family in the set.
+See the denominator lesson in [experiment-design.md](../lessons/experiment-design.md).)*
+
 ## Known dataset artifacts (documented, not recollected)
 
 Two things a future reader would otherwise misread as physics.
