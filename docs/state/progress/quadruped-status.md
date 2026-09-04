@@ -142,6 +142,29 @@ Two are worth naming here because they reached model selection:
 Both are fixed in the data rather than patched in the consumers, which is the only
 fix that is correct in all three places at once.
 
+## Known dataset artifacts (documented, not recollected)
+
+Two things a future reader would otherwise misread as physics.
+
+**`vel_step`'s boundary rate is a spawn artifact, not a plant property.**
+`drive_go2_collection.py:36` reads `p.get("vx", p.get("vx0", 0.0))`, so for
+`vel_step` — the only family with two independent velocity signs — the spawn is
+placed from `vx0` alone. A `vx0 > 0` episode spawns ~0.9 m from the near edge on
+the assumption it travels forward; if `vx1 < 0` it reverses into the edge it was
+placed against. Confirmed on all 3 boundary episodes across both boxes.
+
+The mechanism is the **spawn**, not the dead zone. `crm_vel_step_17` tracks forward
+at 0.155 m/s — far above the dead zone — and exits anyway on a near-symmetric
+out-and-back (0.155 forward, 0.159 backward) purely because it began 0.7 m from the
+edge. The dead zone aggravates (2 of 3) but is not necessary. Ten of nineteen
+`vel_step` episodes are sign flips, so this is not rare by construction. **Fix for
+future collections:** spawn mid-bed when `vx0` and `vx1` disagree in sign.
+
+**The boundary check and the logged trajectory use different reference frames**,
+offset +20 mm in x — measured at +20.4 and +19.2 mm on two episodes. See
+[experiment-design.md](../lessons/experiment-design.md). Nothing to recollect; the
+effective +x margin is 0.78 m. **Fix:** check the frame you log.
+
 ## Open, and needs Kyle
 
 1. **`n_layer` 6 or 8.** Our config anchors at 6, matching

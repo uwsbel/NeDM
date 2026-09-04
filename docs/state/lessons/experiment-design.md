@@ -622,3 +622,41 @@ or wrong; a true statement was applied outside its conditions.
 So report the scope *in* the number: *"errdist 0.14, normalised by ground-truth
 path length pooled over the twelve selected episodes, mean_dist_m 1.24"* is a
 sentence someone can carry to another system safely. *"errdist 0.14"* is not.
+
+## A record can disagree with its check exactly where someone will look
+
+**Seventh finding, 2026-09-04.** The Go2 collector tests the bed boundary on one
+reference frame and logs the trajectory from another:
+
+```
+collect_go2_smoke.py:416   bp = base.GetPos()                  -> CENTRE OF GRAVITY
+dataset.py:265             base.GetFrameRefToAbs().GetPos()    -> REFERENCE FRAME
+```
+
+They differ by a fixed +20 mm in x. Nothing in either file says which frame the
+other uses.
+
+**Found from data, not from reading.** Two boundary episodes stopped at logged
+x = 0.1796 and 0.1808 against a bed edge of exactly 0.200. Since the check breaks
+*before* recording, no row should exist below 0.200 — yet about twelve did. The
+implied offsets, +20.4 mm and +19.2 mm, agree to 1.2 mm across approach speeds
+differing by 70% and `t_switch` by 3 s. **A speed-dependent artefact cannot produce
+a 1 mm spread; a fixed frame offset produces exactly that.**
+
+Not a data defect: terminations are real, trajectories self-consistent, effective
+margin 0.78 m rather than 0.80, nothing to recollect.
+
+### The shape worth remembering
+
+**The 20 mm is present in every episode and legible in almost none.** Mid-episode
+there is nothing to compare a position against, so the offset is invisible. It
+becomes visible only at the boundary — *which is the one place a reader goes
+looking for a geometric explanation.*
+
+So the failure mode is not "a small constant error." It is **the record disagreeing
+with the check precisely where someone will check it.** A future reader
+reconstructing why an episode ended finds the robot 20 mm *inside* a line it
+supposedly crossed, and has no way to tell which of the two numbers to distrust.
+
+Same class as this project's earlier AuxRef visual-frame bug. The one-line rule:
+**check the frame you log.**
