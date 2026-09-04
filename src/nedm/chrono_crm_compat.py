@@ -67,21 +67,37 @@ def _detect():
     import pychrono.vehicle as veh
 
     soil_name, gen_a = _resolve("SoilProperties", "ElasticMaterialProperties", fsi, "soil properties type")
-    fsisys_name, gen_d = _resolve("GetFsiSystemSPH", "GetSystemFSI", veh.CRMTerrain, "FSI system accessor")
     crm_name, gen_b = _resolve("SetCrmSPH", "SetElasticSPH", veh.CRMTerrain, "CRM soil setter")
     delay_name, gen_c = _resolve("SetFreeFlowDuration", "SetActiveDomainDelay", veh.CRMTerrain, "active-domain delay")
 
-    gens = {gen_a, gen_b, gen_c, gen_d}
+    # GetFsiSystemSPH / GetSystemFSI IS NOT A GENERATION MARKER AND IS NOT
+    # RESOLVED HERE. It was, briefly, and it broke every CRM run on this
+    # machine: conda pychrono 10.0.0 carries GetFsiSystemSPH together with the
+    # OLD names for all three pairings above, so the four-way agreement check
+    # reported "mixed API generations" on the exact build every physics number
+    # in this repo was measured against. The pairing was asserted from the
+    # rename list, not verified against the installed module.
+    #
+    # The one consumer is this module's own fsi_system(), which now resolves the
+    # accessor by fallback at call time -- correct, because the name is not a
+    # generation marker. Every caller outside this file already bypassed the
+    # shim for it: camera.py does its own getattr chain and
+    # collect_hmmwv_crm_smoke.py calls GetFsiSystemSPH directly.
+    #
+    # The three pairings that remain are the three documented renames, each
+    # verified present-on-exactly-one-side in this build. If a future build is
+    # found where the accessor genuinely tracks the generation, add it back WITH
+    # the observation that established it.
+    gens = {gen_a, gen_b, gen_c}
     if len(gens) != 1:
         raise RuntimeError(
             f"Mixed Chrono API generations in one build: soil type is {gen_a}, "
-            f"CRM setter is {gen_b}, delay setter is {gen_c}, FSI accessor is "
-            f"{gen_d}. Refusing to guess."
+            f"CRM setter is {gen_b}, delay setter is {gen_c}. Refusing to guess."
         )
-    return gens.pop(), fsi, soil_name, crm_name, delay_name, fsisys_name
+    return gens.pop(), fsi, soil_name, crm_name, delay_name
 
 
-API_GENERATION, _fsi, _SOIL_NAME, _CRM_NAME, _DELAY_NAME, _FSISYS_NAME = _detect()
+API_GENERATION, _fsi, _SOIL_NAME, _CRM_NAME, _DELAY_NAME = _detect()
 
 
 def soil_properties():
@@ -101,8 +117,22 @@ def set_free_flow_duration(terrain, seconds):
 
 
 def fsi_system(terrain):
-    """The terrain's FSI system. GetSystemFSI on 10.0.0, GetFsiSystemSPH on main."""
-    return getattr(terrain, _FSISYS_NAME)()
+    """The terrain's FSI system.
+
+    RESOLVED BY FALLBACK, NOT BY GENERATION. This accessor does NOT track the
+    API generation -- conda pychrono 10.0.0 exposes GetFsiSystemSPH while
+    carrying the OLD names for the three pairings in _detect -- so binding it to
+    the generation is what made this shim reject the build everything was
+    measured on. Take whichever name is present, and raise if neither is.
+    """
+    for name in ("GetFsiSystemSPH", "GetFluidSystemSPH", "GetSystemFSI"):
+        getter = getattr(terrain, name, None)
+        if getter is not None:
+            return getter()
+    raise AttributeError(
+        "CRMTerrain exposes none of GetFsiSystemSPH, GetFluidSystemSPH or "
+        f"GetSystemFSI. Available: {sorted(n for n in dir(terrain) if not n.startswith('_'))}"
+    )
 
 
 def stamp():

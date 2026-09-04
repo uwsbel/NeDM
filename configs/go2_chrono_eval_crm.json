@@ -1,0 +1,45 @@
+{
+  "_provenance": {
+    "derived_from": "/home/kyle/sbel-artifacts/datasets/go2_merged/crm/collector_config.resolved.json",
+    "note": "Plant settings only, copied verbatim from the resolved collector config the training dataset was generated with. The per-episode robot.init and output_subdir are deliberately NOT carried over: the eval spawns at a REFERENCE pose, not at a collection pose."
+  },
+  "simulation": {
+    "step_size_s": 0.0005,
+    "exchange_step_s": 0.002,
+    "record_step_s": 0.01,
+    "control_hz": 50.0,
+    "validation_ratio": 0.0,
+    "solver_iterations": 150
+  },
+  "robot": {
+    "model": "Unitree_Go2",
+    "urdf": "data/robot/go2_irrvis/urdf/go2_description.urdf",
+    "contact_method": "SMC"
+  },
+  "terrain": {
+    "type": "crm",
+    "label": "crm",
+    "depth_m": 0.2,
+    "bottom_z_m": 0.0,
+    "initial_spacing_m": 0.02,
+    "patch_x_m": 8.0,
+    "patch_y_m": 4.0,
+    "soil_preset": "training",
+    "soil": {
+      "density": 1700.0,
+      "young": 500000.0,
+      "poisson": 0.3,
+      "mu_I0": 0.04,
+      "friction": 0.8,
+      "diam": 0.005,
+      "cohesion": 2000.0
+    },
+    "sph": {
+      "artificial_viscosity": 2.0
+    }
+  },
+  "logging": {
+    "include_foot_channels": true,
+    "foot_force_source": "crm_fsi"
+  }
+}

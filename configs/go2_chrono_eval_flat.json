@@ -1,0 +1,28 @@
+{
+  "_provenance": {
+    "derived_from": "/home/kyle/sbel-artifacts/datasets/go2_merged/flat/collector_config.resolved.json",
+    "note": "Plant settings only, copied verbatim from the resolved collector config the training dataset was generated with. The per-episode robot.init and output_subdir are deliberately NOT carried over: the eval spawns at a REFERENCE pose, not at a collection pose."
+  },
+  "simulation": {
+    "step_size_s": 0.0005,
+    "exchange_step_s": 0.002,
+    "record_step_s": 0.01,
+    "control_hz": 50.0,
+    "validation_ratio": 0.0,
+    "solver_iterations": 150
+  },
+  "robot": {
+    "model": "Unitree_Go2",
+    "urdf": "data/robot/go2_irrvis/urdf/go2_description.urdf",
+    "contact_method": "SMC"
+  },
+  "terrain": {
+    "type": "rigid",
+    "label": "flat",
+    "top_z_m": 0.05
+  },
+  "logging": {
+    "include_foot_channels": true,
+    "foot_force_source": "chrono_contact"
+  }
+}
