@@ -14,6 +14,7 @@ import numpy as np
 from nedm.quadruped.dataset import (
     CONTACT_ENGAGE_N,
     CONTACT_RELEASE_N,
+    LEG_ORDER,
     contact_mode,
 )
 from nedm.training.constants import (
@@ -159,18 +160,17 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-# Foot force columns in the order the 4-bit contact mode packs them: fl fr rl rr
-# -> bits 3..0. Named explicitly rather than derived, because
-# quadruped.constants.FOOT_BODIES is ordered FR, FL, RR, RL -- a DIFFERENT order
-# that would silently transpose the left/right bits. contact_mode's docstring
-# says "matching LEG_ORDER", but no LEG_ORDER exists in the codebase; the order
-# it actually documents is this one, which is also the CSV column order.
-CONTACT_FORCE_FIELDS = [
-    "foot_fl_force_fz_n",
-    "foot_fr_force_fz_n",
-    "foot_rl_force_fz_n",
-    "foot_rr_force_fz_n",
-]
+# Foot force columns in the order the 4-bit contact mode packs them: bits 3..0.
+# DERIVED FROM LEG_ORDER, the constant that already defines this ordering and
+# that names the CSV columns in the first place -- not a literal beside it. Two
+# orderings for the same four legs already coexist here: LEG_ORDER is fl fr rl
+# rr, and quadruped.constants.FOOT_BODIES is FR FL RR RL. Packing against the
+# wrong one transposes the left/right bits, and NO HISTOGRAM CAN SEE THAT,
+# because the marginal distribution is unchanged under a relabelling -- the trot
+# signature survives it too, since 0110 and 1001 swap into each other under a
+# left/right flip. A hardcoded copy would make it three orderings and one more
+# thing to reach for by mistake.
+CONTACT_FORCE_FIELDS = [f"foot_{leg}_force_fz_n" for leg in LEG_ORDER]
 
 
 def read_episode_csv(
