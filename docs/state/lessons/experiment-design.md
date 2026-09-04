@@ -344,3 +344,44 @@ one anybody cares about.
 invisible to inspection and obvious to use. A synthetic dataset run through the
 real pipeline would have surfaced most of them before a single real episode was
 collected.
+
+`scripts/collection/validate_go2_dataset.py` is that consumer, and it runs between
+repair and preprocess.
+
+### A sixth defect, in a worse category than the five
+
+`terminated_near_boundary` was never written to the Go2 index at all. The RL
+reference builder filters on it (`build_combined_flat_crm_rl_references.py:133`),
+`.get()` returned `None`, `None` is falsy, and **a default-on exclusion was off
+with nothing reporting that it was off.** The HMMWV collector does write the field;
+ours diverged from the schema it was meant to match, in a key nobody reads until
+the reference build.
+
+The obvious rule — *audit every `.get()` with no default* — is wrong, and the
+counter-example is four lines away in the same file. `preprocess.py:233` reads
+`frames_path` with exactly that pattern and is harmless, because it checks the
+absence and raises. The real condition is narrower:
+
+> **A missing key is dangerous only where absence and a legitimate value collapse
+> to the same branch.**
+
+`None` is not a path, so `frames_path` cannot collapse. `None` and `False` are both
+"keep this episode", so `terminated_near_boundary` collapses perfectly. **A wrong
+value is at least present to be noticed; an absent one is not.**
+
+The corollary is worth the discipline it costs: a field missing from a schema *for
+no reason* is how the next one hides. `warmup_s` had no consumer and was added
+anyway, on that argument.
+
+### Watch the gate fail before trusting it
+
+Run against synthetic pre- and post-repair datasets, the gate found three defects
+and **two were in the gate itself**: it passed on zero selected episodes ("0 of 0
+families covered" — true, useless), and it scored coverage against the families
+that survived into the validation split rather than the families that exist,
+reporting full coverage of an already-impoverished pool. That second one is the
+produced-versus-consumed confusion again, one level below where it was first
+found, *inside the check written to catch it*.
+
+A gate must also refuse to emit PASS on input an earlier gate already failed —
+otherwise a later check reads clean off data it never saw.
