@@ -408,6 +408,31 @@ found, *inside the check written to catch it*.
 A gate must also refuse to emit PASS on input an earlier gate already failed —
 otherwise a later check reads clean off data it never saw.
 
+### Running a check is not evidence that the check ran
+
+The strongest version of this, and the one that cost the most: a repair script's
+dry run reported `csv_changed: []`, and that was quoted to me three times as
+evidence the rewrite preserved the trajectory data. **The comparison was inside the
+`if apply:` branch.** On a dry run it never executed, so the empty list meant "not
+computed" and read as "nothing changed" — on a dataset it would have corrupted.
+
+The five earlier instances of this shape (a G0a gate passing a robot on its back,
+CMake's `exit 0`, the `AttachFsiSphSystem` handle, G8 on zero episodes, a waiter on
+a vanished pid) were all caught by someone *reading* the checker. This one was
+**run, three times, and its output quoted as a result.** Reading the checker is what
+catches it; running it is what makes you stop reading it.
+
+**The fix is a negative control inside the check, executed every run:**
+
+```
+data change detected:        True    (perturb a non-id column -> hash differs)
+id change correctly ignored: True    (perturb the id column   -> hash identical)
+```
+
+Without the second line the comparison could pass by hashing nothing that matters.
+A check that demonstrates it *can* fail, on every invocation, is a different object
+from a check that merely has not failed yet.
+
 ## Ask what a command WRITES, not what you intended to edit
 
 **Cost:** zero episodes, by a 22-second margin · **Found:** 2026-09-04
