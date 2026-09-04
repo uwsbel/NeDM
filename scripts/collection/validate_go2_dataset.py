@@ -143,8 +143,21 @@ def load_index(root: Path) -> tuple[dict[str, Any], list[dict[str, Any]]]:
 
 
 def episode_json(ep: dict[str, Any]) -> dict[str, Any] | None:
-    path = Path(ep["_root"]) / "episodes" / f"{ep['episode_id']}.json"
-    return json.loads(path.read_text()) if path.exists() else None
+    """Locate an episode's JSON from what the index already says.
+
+    Derived from `csv_path` rather than assuming an `episodes/` directory, so the
+    gate follows whatever layout the consolidation produces instead of asserting
+    one. The collector writes a root per episode and the repair pass consolidates
+    them; hardcoding the post-consolidation shape here would make the gate fail on
+    a layout choice rather than on a data defect.
+    """
+    root = Path(ep["_root"])
+    for path in (root / str(ep.get("csv_path", "")).removesuffix(".csv"),
+                 root / "episodes" / str(ep["episode_id"])):
+        candidate = path.with_suffix(".json")
+        if candidate.is_file():
+            return json.loads(candidate.read_text())
+    return None
 
 
 def select_rollout_episodes(episodes: list[dict[str, Any]], max_episodes: int) -> list[dict[str, Any]]:
@@ -209,7 +222,8 @@ def main() -> int:
     # from whichever episode happened to be written last.
     on_disk = [json.loads(p.read_text())
                for root in args.dataset_root
-               for p in sorted((root / "episodes").glob("*.json"))]
+               for p in sorted(root.rglob("*.json"))
+               if p.name not in ("dataset_index.json", "collector_config.resolved.json")]
 
     # ---- G1 schema parity -------------------------------------------------
     present = set(episodes[0])
