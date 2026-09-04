@@ -72,10 +72,58 @@ rather than plant compensation.
 So a "policy > floor" result cannot be explained by commands the policy was
 unable to issue. It would mean miscalibration, as stated above.
 
-**This is a transfer test, not a generalisation test.** The references are drawn
-from the same train split the policy trained against, so overlap is likely. The
-question is whether the learned controller works in Chrono, not whether it works
-on unseen trajectories. Do not report it as the latter.
+**This is a transfer test, not a generalisation test — and the overlap is
+total, not "likely".** Measured, not assumed: **8 of 8** evaluated references are
+episodes the policy actually tracked during PPO (the eval draws a 1178-step
+window and PPO used an 1100-step window of the same episodes). "Likely" was the
+word that should have triggered the check, and the true sentence is stronger than
+the hedge.
+
+So a second, supplementary arm now measures generalisation rather than
+disclaiming it.
+
+## The generalisation arm (supplementary)
+
+`go2_flat_valref20_seg1178.npz`, 20 val-split references, **0 of 8 overlapping**
+the policy's training references — confirmed, not assumed. Same builder, same
+seed, same 8-family spread, one argument changed.
+
+    PRIMARY        6.0 s, random-start, TRAIN refs   transfer, as registered
+    SUPPLEMENTARY  6.0 s, random-start, VAL refs     generalisation
+
+Train stays primary because level 3 asks whether a policy trained inside the
+frozen model still works in Chrono, which is transfer. But a reader assumes
+generalisation unless told, and answering the question beats disclaiming it.
+
+**Val floor, 6.00 s, random-start, measured:**
+
+| family | val floor | train floor |
+|---|---|---|
+| stop_and_go | 0.1254 | 0.0615 |
+| arc | 0.1133 | 0.1771 |
+| pivot | 0.0685 | 0.0372 |
+| constant | 0.0683 | 0.0049 |
+| yaw_step | 0.0618 | 0.0044 |
+| weave | 0.0362 | 0.0277 |
+| vel_step | 0.0245 | 0.0161 |
+| lateral | 0.0237 | 0.0363 |
+| **POOLED** | **0.0652** | **0.0457** |
+
+**THE TWO ARMS ARE NOT ABSOLUTELY COMPARABLE, AND THE REASON IS NOT "VAL IS
+HARDER".** The command distributions differ:
+
+    train refs   cmd_vx [-0.496, +0.192]   barely any forward motion
+    val refs     cmd_vx [-0.394, +0.472]   substantial forward motion
+
+Forward is the plant's worst regime — a dead zone below ~0.35 m/s and ~4x worse
+tracking than backward at the same magnitude. So the val references sit in
+harder territory for the replay *and* for the policy, and the 43% higher floor is
+mostly that, not novelty. **Compare ratios across arms, never the raw errors.**
+Each arm is scored against its own floor, which is exactly what the ratio is for.
+
+Action-range check repeated on the val references: cmd_vx [−0.394, +0.472],
+cmd_vy [0.000, +0.078], cmd_wz [−0.532, +0.699], **0.00% outside the policy's
+bounds**. The escape hatch is closed on both arms.
 
 ## One thing the numbers already say about expected effect size
 
