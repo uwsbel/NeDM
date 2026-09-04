@@ -132,3 +132,103 @@ motion, mostly backward or inside the measured forward dead zone below ~0.35 m/s
 The policy's authority to correct is limited by the plant in exactly this
 operating region, so a modest beat is the physically expected outcome and a large
 one would deserve scrutiny rather than celebration.
+
+---
+
+# Amendment, same day, BEFORE the final checkpoint exists
+
+## Disclosure first
+
+I ran the full level-3 path on **model_300** — an unconverged intermediate
+checkpoint, 15% of training — as a plumbing test, to prove the policy loads and
+the ratios compute before the real checkpoint lands. **I saw those numbers.**
+Everything below is written knowing them, which is exactly why it is written as a
+disclosure and an addition rather than as an edit to the criteria.
+
+## The registered ratio has a denominator problem, and it is our own errdist mistake in a third costume
+
+From the plumbing run:
+
+| family | floor | policy | ratio | abs diff |
+|---|---|---|---|---|
+| arc | 0.1771 | 0.0418 | **0.24** | −0.1353 |
+| stop_and_go | 0.0615 | 0.0218 | 0.35 | −0.0397 |
+| pivot | 0.0372 | 0.0237 | 0.64 | −0.0135 |
+| lateral | 0.0363 | 0.0266 | 0.73 | −0.0096 |
+| vel_step | 0.0161 | 0.0187 | 1.16 | +0.0026 |
+| weave | 0.0277 | 0.0470 | 1.69 | +0.0193 |
+| constant | 0.0049 | 0.0187 | 3.79 | +0.0138 |
+| yaw_step | 0.0044 | 0.0197 | **4.51** | +0.0154 |
+
+**The two worst ratios have the two smallest floors.** The floors span 40x across
+the sample, so dividing by them turns a **+1.5 cm** absolute regression into a
+ratio of 4.51 while a **−13.5 cm** absolute improvement becomes 0.24. A
+median-of-ratios treats the 1.5 cm as nearly 20x more significant than the
+13.5 cm. That is a normalisation whose denominator varies enormously across the
+sample — the same defect as `errdist` dividing by a pooled `mean_dist` over
+families with 2.7x different path lengths, which this project has already been
+caught by once.
+
+## What I am NOT doing, and why
+
+The obvious fix is to exclude references whose floor is below some threshold —
+and a principled threshold exists (the floor should exceed the policy's own
+in-model tracking error, ~0.018 m, or the replay is already better than the
+policy's best case for reasons unrelated to transfer).
+
+**That fix would drop `constant` and `yaw_step` — precisely the two references
+where the policy currently looks worst — and would improve the apparent verdict.
+So I am not making it.** A criterion changed after seeing preliminary numbers, in
+the direction that flatters the subject, is not a fix; it is the thing
+pre-registration exists to prevent, performed by the person who wrote the
+pre-registration.
+
+## What I am doing instead
+
+**The registered criteria are UNCHANGED.** Median per-reference ratio ≤ 0.90 and
+≥ 6 of 8 beats for a beat; median > 1.15 or ≥ 6 of 8 worse for a fail. That
+verdict stands as written and will be reported first.
+
+**Added, co-reported, not substituted:** the median **paired absolute
+difference** (policy − floor, metres), which has no denominator and therefore no
+denominator instability, and the count of references where each statistic favours
+the policy.
+
+- If the ratio verdict and the absolute-difference verdict **agree**, report the
+  agreed verdict.
+- If they **disagree**, the verdict is **SPLIT**, and both are reported with this
+  table, because a disagreement between a scale-free and a scale-dependent
+  statistic is a real finding about the policy — it means the policy improves the
+  hard references and regresses the easy ones, or the reverse — and collapsing it
+  to one number destroys the finding either way.
+
+Neither statistic is privileged as "the real one". They measure different things
+and the honest report says so.
+
+## An additional prediction, registered before its evidence
+
+From the command ranges already measured:
+
+    train  cmd_vx [-0.496, +0.192]   forward span 0.192
+    val    cmd_vx [-0.394, +0.472]   forward span 0.472   2.5x more forward range
+
+A forward position error is corrected by commanding forward velocity, and small
+forward corrections land inside the measured dead zone — commanded 0.30 achieves
+0.030 on rigid, about 10% — while backward corrections track ~4x better. **So the
+policy's correction authority is weakest exactly where the val arm spends more of
+its time.**
+
+- **Prediction:** `ratio_val > ratio_train`. Less beat on the val arm.
+- **Falsifier:** `ratio_val ≤ ratio_train` means the beat is not dead-zone-limited
+  and the mechanism is something else.
+
+Registered because otherwise a worse val ratio has "it does not generalise" as
+its default explanation, when the plant already predicts it — the same
+misattribution as reading the 43% raw floor gap as a generalisation penalty when
+it was a command distribution. The physical explanation should have to compete
+with the generalisation one, not inherit the result by default.
+
+And if the ratios come out **equal** despite 2.5x more forward range, that is the
+ratio being robust across the plant's own worst nonlinearity, which is a stronger
+result than equality across two arbitrary draws. Prediction due to the
+coordinator; falsifier and the equality reading added here.
