@@ -213,6 +213,7 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
                                           SOIL_PRESETS, STAND_ACTION)
     from nedm.quadruped.dataset import capture_row, csv_field_names, foot_field_names
     from nedm.quadruped.policy import PolicyController
+    from nedm.quadruped.provenance import provenance
     from nedm.quadruped.robot import Go2Robot
     from nedm.quadruped.terrain import build_crm, build_rigid_ground, measure_leg_reach
 
@@ -473,6 +474,17 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
         "force_summary": force_summary,
         "pose_summary": pose_summary,
         "wall_clock_s": round(wall_s, 2),
+        # WRITTEN AT COLLECTION TIME, NOT BACKFILLED. nedm.quadruped.provenance
+        # existed for a whole collection without ever being imported, so every
+        # origin field on the shipped episodes was reconstructed afterwards by
+        # repair_go2_metadata.py -- which can recover git state from mtimes but
+        # CANNOT recover which pychrono was on the path. This box has two Chrono
+        # builds that differ in the CRM API, selected only by PYTHONPATH, and
+        # working out after the fact which one produced the CRM episodes took an
+        # hour and only succeeded because the two happen to disagree about an
+        # attribute name. A field that can only be observed while the process is
+        # alive has to be written while the process is alive.
+        **provenance(),
     }
     (episodes_dir / f"{episode_id}.json").write_text(json.dumps(episode_meta, indent=2) + "\n")
 

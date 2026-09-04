@@ -73,6 +73,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--reference-index", type=int, default=None,
                         help="Evaluate one reference by index instead of the first N.")
     parser.add_argument("--max-steps", type=int, default=None)
+    parser.add_argument("--horizon-s", type=float, default=None,
+                        help="Episode horizon in SECONDS. Prefer this over --max-steps: the "
+                             "model's rollout horizons are 5 s and 10 s and SELECTION is at "
+                             "10 s, so a floor measured at some other horizon cannot be laid "
+                             "beside a level-2 number. Converted with the env's own step_dt.")
     parser.add_argument("--pre-roll-time-s", type=float, default=None)
     parser.add_argument("--device", type=str, default="cpu")
     parser.add_argument("--out", type=Path, default=None)
@@ -124,6 +129,12 @@ def build_env(args: argparse.Namespace, run_cfg: dict[str, Any] | None) -> Any:
         cfg["reference_path"] = run_cfg["reference_path"]
     if args.pre_roll_time_s is not None:
         cfg["pre_roll_time_s"] = float(args.pre_roll_time_s)
+    if args.horizon_s is not None:
+        # step_dt is dt_s * action_repeat and both come from the checkpoint /
+        # config, so convert here rather than asking the caller to do arithmetic
+        # that would silently drift if action_repeat changed.
+        dt_s = float(cfg.get("dt_s") or 0.01)
+        cfg["max_episode_steps"] = int(round(args.horizon_s / (dt_s * int(cfg["action_repeat"]))))
     if args.max_steps is not None:
         cfg["max_episode_steps"] = int(args.max_steps)
 
@@ -188,19 +199,49 @@ def roll_one(env: Any, reference_id: int, policy: Any | None) -> dict[str, Any]:
     }
 
 
-def summarize(label: str, rows: list[dict[str, Any]]) -> dict[str, Any]:
+def summarize(label: str, rows: list[dict[str, Any]],
+              floor_rows: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+    """Per reference first, pooled last, and the pooled line always states its mix.
+
+    THE POOLED NUMBER IS ABOUT THE MIX, NOT ABOUT THE SUBJECT. On these
+    references arc is 32x constant, so a pooled floor compared against a policy
+    evaluated on a different family composition is the errdist mistake again --
+    dividing by a mean taken over families whose difficulty differs by an order
+    of magnitude. When a floor is supplied, each reference is compared to ITS OWN
+    floor and the pooled ratio is reported only alongside the spread of the
+    per-reference ratios.
+    """
     mean = float(np.mean([r["mean_position_error_m"] for r in rows]))
     final = float(np.mean([r["final_position_error_m"] for r in rows]))
     completed = sum(int(r["completed"]) for r in rows)
+    floor_by_id = {r["reference_id"]: r for r in (floor_rows or [])}
+    ratio_col = " " * 9 if not floor_by_id else f"{'x floor':>9}"
     print(f"\n{label}")
-    print(f"  {'reference':<34} {'family':<28} {'steps':>6} {'mean err':>9} {'final':>8}")
+    print(f"  {'reference':<34} {'family':<28} {'steps':>6} {'mean err':>9} {'final':>8}{ratio_col}")
+    ratios = []
     for r in rows:
+        cell = ""
+        base = floor_by_id.get(r["reference_id"])
+        if base is not None and base["mean_position_error_m"] > 0:
+            ratio = r["mean_position_error_m"] / base["mean_position_error_m"]
+            r["over_own_floor"] = ratio
+            ratios.append(ratio)
+            cell = f"{ratio:>9.2f}"
         print(f"  {r['episode_id']:<34} {r['scenario_family']:<28} "
-              f"{r['steps']:>6} {r['mean_position_error_m']:>9.4f} {r['final_position_error_m']:>8.4f}")
-    print(f"  {'POOLED':<34} {'':<28} {'':>6} {mean:>9.4f} {final:>8.4f}"
-          f"   ({completed}/{len(rows)} ran to the horizon)")
-    return {"mean_position_error_m": mean, "final_position_error_m": final,
-            "completed": completed, "num_references": len(rows), "per_reference": rows}
+              f"{r['steps']:>6} {r['mean_position_error_m']:>9.4f} "
+              f"{r['final_position_error_m']:>8.4f}{cell}")
+    families = sorted({r["scenario_family"].rsplit("_command", 1)[0].split("_")[-1] for r in rows})
+    print(f"  {'POOLED':<34} {'mix: ' + ','.join(families):<28} {'':>6} {mean:>9.4f} {final:>8.4f}"
+          f"   ({completed}/{len(rows)} to the horizon)")
+    out = {"mean_position_error_m": mean, "final_position_error_m": final,
+           "completed": completed, "num_references": len(rows),
+           "family_mix": families, "per_reference": rows}
+    if ratios:
+        print(f"  PER-REFERENCE x floor: min {min(ratios):.2f}  median "
+              f"{float(np.median(ratios)):.2f}  max {max(ratios):.2f}")
+        out["over_own_floor"] = {"min": min(ratios), "median": float(np.median(ratios)),
+                                 "max": max(ratios)}
+    return out
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -232,15 +273,18 @@ def main(argv: list[str] | None = None) -> int:
     if args.run_dir is not None and (args.policy_checkpoint or list(args.run_dir.glob("model_*.pt"))):
         policy = load_policy(args, env, args.run_dir)
         policy_rows = [roll_one(env, rid, policy=policy) for rid in reference_ids]
-        result["policy"] = summarize("POLICY -- trained in the frozen NRD model", policy_rows)
+        result["policy"] = summarize("POLICY -- trained in the frozen NRD model",
+                                     policy_rows, floor_rows=baseline_rows)
         floor = result["replay_baseline"]["mean_position_error_m"]
         got = result["policy"]["mean_position_error_m"]
-        print(f"\nPOLICY vs REPLAY FLOOR: {got:.4f} m against {floor:.4f} m "
-              f"({got / floor:.2f}x the floor)")
-        print("  The floor is what this harness costs: a fresh world, a mid-episode spawn the")
-        print("  robot never walked to, and an empty low-level observation history. Error at")
-        print("  the floor means the policy tracks as well as the recorded commands did.")
-        result["policy_over_floor"] = got / floor
+        print(f"\nPOLICY vs REPLAY FLOOR (pooled, mix "
+              f"{','.join(result['policy']['family_mix'])}): {got:.4f} m against {floor:.4f} m")
+        print("  Read the PER-REFERENCE ratios above first. The pooled figure is a statement")
+        print("  about this family mix, not about the policy: arc and constant differ by ~30x,")
+        print("  so pooling across an unmatched mix is the errdist mistake in another costume.")
+        print("  The floor is what this harness costs: a fresh world, a spawn the robot never")
+        print("  walked to, and an empty low-level observation history.")
+        result["policy_over_floor_pooled"] = got / floor
     else:
         print("\nNo policy given -- baseline only. Pass --run-dir once PPO has written a checkpoint.")
 

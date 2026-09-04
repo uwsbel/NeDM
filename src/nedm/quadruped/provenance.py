@@ -45,6 +45,7 @@ from __future__ import annotations
 import os
 import socket
 import subprocess
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -60,8 +61,41 @@ def _git(*args: str) -> str | None:
         return None
 
 
+def _chrono_build() -> dict[str, Any]:
+    """Which pychrono actually ran, by PATH and by API generation.
+
+    THIS BOX HAS TWO CHRONO BUILDS AND THE RECORD DID NOT SAY WHICH ONE RAN:
+    conda pychrono 10.0.0 under miniconda, and a source build at
+    Documents/sbel/chrono-build/bin selected only by PYTHONPATH. They differ in
+    the CRM API -- the source build has SoilProperties/SetCrmSPH/
+    SetFreeFlowDuration, the conda build the older names -- so they are not the
+    same simulator for anything touching SPH soil.
+
+    Reconstructing which one produced an episode after the fact cost an hour and
+    was only possible because the two builds happen to disagree about an
+    attribute name. git_commit and git_tree pin OUR code exactly and say nothing
+    about the binary underneath it, which is half of what produced the numbers.
+
+    Read from sys.modules rather than importing: by the time a collection calls
+    this, pychrono is loaded, and a provenance call must not be the thing that
+    first imports a 12 MB extension module.
+    """
+    module = sys.modules.get("pychrono")
+    build: dict[str, Any] = {
+        "pychrono_path": getattr(module, "__file__", None) if module else None,
+        "api_generation": None,
+    }
+    try:
+        from nedm import chrono_crm_compat
+
+        build["api_generation"] = chrono_crm_compat.stamp()
+    except Exception:  # noqa: BLE001 - provenance must never break a collection
+        pass
+    return build
+
+
 def provenance() -> dict[str, Any]:
-    """machine, gpu_name, gpu_arch, seed_offset, git_commit, git_tree.
+    """machine, gpu_name, gpu_arch, seed_offset, git_commit, git_tree, chrono_build.
 
     Every field degrades to None rather than raising: a collection must not die
     because it could not identify itself.
@@ -83,4 +117,5 @@ def provenance() -> dict[str, Any]:
         "seed_offset": int(os.environ.get("NEDM_SEED_OFFSET", "0")),
         "git_commit": _git("rev-parse", "HEAD"),
         "git_tree": _git("rev-parse", "HEAD^{tree}"),
+        "chrono_build": _chrono_build(),
     }

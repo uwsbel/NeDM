@@ -41,6 +41,7 @@ though HEAD moved. It is a finding of the pass, not an assumption of it.
 from __future__ import annotations
 
 import csv
+import ast
 import hashlib
 import json
 import re
@@ -59,15 +60,98 @@ REPO = Path(__file__).resolve().parents[2]
 
 # The files an episode actually reads. git_tree also covers docs and unrelated
 # scripts, which changed during the run; these did not.
+# WRITTEN BY NAMING FILES, THEN CHECKED BY RESOLVING IMPORTS. Naming files is
+# how the hole got in: terrain.py does `from nedm import chrono_crm_compat`, that
+# shim is read by every CRM episode, it CHANGED during the run -- and it was not
+# on this list, so collection_code_digest could not see it. A record whose whole
+# job is to say what code produced an episode, with a hole exactly where a
+# dependency lives. Same class as the six metadata defects.
+#
+# assert_code_files_cover_imports() below now walks the actual import graph and
+# fails if the list has drifted, so the next omission is loud instead of silent.
 CODE_FILES = [
     "scripts/collection/collect_go2_smoke.py",
-    "src/nedm/quadruped/imported_policy.py",
-    "src/nedm/quadruped/dataset.py",
-    "src/nedm/quadruped/robot.py",
+    "src/nedm/chrono_compat.py",
+    "src/nedm/chrono_crm_compat.py",
+    "src/nedm/generated_scenarios.py",
+    "src/nedm/hmmwv_data.py",
     "src/nedm/quadruped/constants.py",
-    "src/nedm/quadruped/terrain.py",
+    "src/nedm/quadruped/dataset.py",
+    "src/nedm/quadruped/imported_policy.py",
+    "src/nedm/quadruped/policy.py",
+    "src/nedm/quadruped/provenance.py",
+    "src/nedm/quadruped/robot.py",
     "src/nedm/quadruped/soilprobe.py",
+    "src/nedm/quadruped/terrain.py",
 ]
+
+def repo_relative_for_module(module_name: str) -> str | None:
+    """src-relative path for a `nedm.*` module, or None if it is not one of ours."""
+    if not (module_name == "nedm" or module_name.startswith("nedm.")):
+        return None
+    parts = module_name.split(".")
+    candidate = REPO / "src" / Path(*parts).with_suffix(".py")
+    if candidate.is_file():
+        return str(candidate.relative_to(REPO))
+    package_init = REPO / "src" / Path(*parts) / "__init__.py"
+    if package_init.is_file():
+        return str(package_init.relative_to(REPO))
+    return None
+
+
+def import_closure(entry: str) -> set[str]:
+    """Every repo file reachable from `entry` through nedm imports.
+
+    Walks EVERY Import/ImportFrom node, not only module-level ones: the collector
+    does almost all of its heavy imports inside run_episode(), so a top-level-only
+    walk would have found essentially nothing and agreed with the broken list.
+    """
+    seen: set[str] = set()
+    queue = [entry]
+    while queue:
+        rel = queue.pop()
+        if rel in seen:
+            continue
+        path = REPO / rel
+        if not path.is_file():
+            continue
+        seen.add(rel)
+        tree = ast.parse(path.read_text())
+        for node in ast.walk(tree):
+            found: list[str] = []
+            if isinstance(node, ast.Import):
+                found = [alias.name for alias in node.names]
+            elif isinstance(node, ast.ImportFrom) and node.module and node.level == 0:
+                # `from nedm import chrono_crm_compat` -- the NAME is the module.
+                # This is the exact form that was missed, so handle it explicitly.
+                found = [node.module] + [f"{node.module}.{a.name}" for a in node.names]
+            for name in found:
+                child = repo_relative_for_module(name)
+                if child and child not in seen:
+                    queue.append(child)
+    return seen
+
+
+def assert_code_files_cover_imports() -> None:
+    """CODE_FILES must cover the collector's import closure. Fail loudly if not."""
+    # __init__.py files carry no collection logic and appear only as package
+    # markers; excluding them keeps the list about code that can change behaviour.
+    closure = {rel for rel in import_closure(CODE_FILES[0])
+               if not rel.endswith("__init__.py")}
+    missing = sorted(closure - set(CODE_FILES))
+    if missing:
+        raise SystemExit(
+            "CODE_FILES does not cover the collector's import closure. "
+            f"Missing: {missing}\n"
+            "collection_code_digest would silently omit these, which is how "
+            "chrono_crm_compat.py went unrecorded across 152 CRM episodes. "
+            "Add them. There is no exclusion list on purpose: every entry here is a "
+            "file the collector actually imports, and 'related enough to digest' is "
+            "not a judgement worth re-making per file."
+        )
+    stale = sorted(set(CODE_FILES) - closure)
+    if stale:
+        print(f"note: CODE_FILES lists files not in the import closure: {stale}")
 
 # Columns carrying the id, present in EVERY csv row.
 ID_COLUMNS = ["episode_id", "scenario_name", "split"]
