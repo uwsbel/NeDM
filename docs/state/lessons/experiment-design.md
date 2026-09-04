@@ -846,7 +846,9 @@ the last episode finished**. So all 968 rigid episodes ran code NEWER than their
 recorded commit. Proof: every episode carries `command_params`, the per-episode
 amplitude draw, and the collector at the recorded commit contains **no occurrence
 of that string at all** — a field in the data that the recorded code could not
-have written.
+have written. **Reproducible on that box** and marked unverified here at their
+request: `git show 71c790d9:scripts/collection/collect_go2_smoke.py | grep
+command_params` returns nothing, while every episode JSON carries the field.
 
 **The exotic case, verified here on this disk.** A mid-run `git pull --rebase`
 moved HEAD forward; the collector file was restored from a hash-verified
@@ -940,11 +942,21 @@ confirmed a transposed channel.
 | candidate | result | why it fails |
 |---|---|---|
 | `corr(roll, left_load - right_load)` | **-0.083** | right sign, nowhere near decisive; gait-frequency load alternation dominates the variance and mean \|roll\| is only 0.034 rad |
-| `corr(yaw_rate, left_slip - right_slip)` | **+0.019** | noise, wrong sign — slip is recorded as a **magnitude**, so it carries no left-right sign information at all |
+| `corr(yaw_rate, left_slip - right_slip)` | **+0.019** | noise, wrong sign — slip is recorded as a **magnitude** (below) |
 
 Both underpowered, and reported as such rather than quoting the one with the
 agreeable sign. So "no check can see it" is a measured claim here, not a
 rhetorical one.
+
+**And the second one could never have worked, for a reason worth its own note.**
+`foot_*_slip_mps` is `math.hypot(vel.x, vel.y)` — `quadruped/dataset.py:338`,
+checked here rather than taken on report. It is a **magnitude**, so it discards
+not just the left-right sign but **every directional component**. Any directional
+diagnostic on this dataset — left-right asymmetry, fore-aft slip, lateral drift —
+is dead on arrival, and **nothing in the column name says so**. That is a schema
+change to argue for if contact work needs it, not something recoverable from what
+is recorded. The logging is ungated on purpose, but ungated is not the same as
+signed.
 
 So the defence cannot be validation. It has to be **one source of truth**: derive
 the field order from the canonical constant rather than restating it. A hardcoded
