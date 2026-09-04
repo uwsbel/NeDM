@@ -60,11 +60,26 @@ would settle it.
 ramp and settle. **Eight** command families mirroring the paper's maneuver-family
 practice rather than uniform sampling, with **amplitudes stratified per episode**.
 
-*(The first collection had eleven, but four of them — two march-in-place variants,
-`constant_high` and `reverse` — were four fixed POINTS on one shape. Once amplitude
-is randomised they are one experiment, so they collapsed into `constant`. Keeping
-them apart would have quadruple-weighted constant-velocity motion in the family
-balance.)*
+### There are TWO datasets and they are not interchangeable
+
+| | families | commands | what it is for |
+|---|---|---|---|
+| **`go2_stratified`** | 8 | amplitudes **drawn per episode** | **training.** The one below. |
+| `go2_discrete` | 11 | eleven **fixed** operating points, repeated | evaluation of repeatability at known commands |
+
+`go2_discrete` is the first collection. It is not a training set and cannot
+demonstrate command conditioning — eleven repeated points are not a sampled space.
+It is kept because exactly-repeated conditions measure something a randomised set
+cannot: how much of the variance is command versus seed.
+
+**The eight families are a deliberate collapse of the eleven.** Four of them —
+both march-in-place variants, `constant_high` and `reverse` — were four fixed
+POINTS on one shape (constant `vx` at 0.15, 0.30, 0.50, −0.40). Once amplitude is
+randomised per episode they are one experiment under four names, and keeping them
+apart would have quadruple-weighted constant-velocity motion in the family balance.
+
+**Any per-family figure must say which dataset it describes.** 44 × 11 and 14 × 11
+are `go2_discrete`; 121 × 8 and 19 × 8 are `go2_stratified`.
 
 | | episodes | transitions | status |
 |---|---|---|---|
@@ -102,3 +117,30 @@ The processed dataset, the training config, and any training run. Level 3
   interface. Reload per episode.
 - **The bed extent has bitten three times**: spawn edge, turning-circle margin,
   and a far-edge GPU crash. Now a logged termination status.
+
+## Provenance: what is correct and what is not
+
+**The `policy` field is correct in the datasets.** All 1,606 existing episodes —
+968 stratified rigid and 638 discrete — name the imported checkpoint, verified by
+count rather than inferred. The collection script has recorded it conditionally
+since `db62c53`, the first commit that loads an imported checkpoint at all, so no
+episode was ever written with the stale value.
+
+*(A report that 968 episodes needed a metadata pass was wrong, and came from
+checking the single-episode GATE script rather than the collection script. Both
+contain the same `model_2999.pt` literal, which is what made the wrong one look
+like confirmation.)*
+
+**The gate script's field IS wrong** and unconditional — so gate and verify
+summaries name the wrong policy. Not a dataset defect, but those are the summaries
+anyone reads to check a reference number, **including the 2.1506 / 2.6 pair the
+cross-machine equivalence decision rested on.** Fixed on `kyle-N7-B650E`.
+
+**The real dataset defect is the checkpoint PATH.** Episodes record
+`/tmp/go2_import/go2_cts_150k.pt`, which no longer exists since the checkpoint
+moved off `/tmp`. That is worse than a wrong name in one respect: **a wrong name is
+obviously wrong on inspection, and a right name at a dead path looks fine until
+someone tries to use it.** Folded into the same metadata pass as the five origin
+keys, deliberately **after** the CRM run rather than mid-run — four episodes
+previously ran on a different actuator plant because a file changed under a live
+batch.
