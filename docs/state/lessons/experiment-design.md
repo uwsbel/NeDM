@@ -1156,3 +1156,59 @@ the opposite answer.
 Related: [when a comparison goes wrong, suspect the apparatus](#when-a-comparison-goes-wrong-suspect-the-apparatus-before-the-subject).
 There the instrument was broken; here the instrument was fine and the **regime** carried
 no signal.
+
+
+## Chaos bounds prediction from an UNCERTAIN start, not from a KNOWN one
+
+**Cost:** caught in review, before it became a reported "physical floor" · **Found:** 2026-09-04 · **Applies to:** any error floor claimed from sensitivity analysis
+
+Measuring how fast two nearly-identical simulations separate is a good way to
+characterise a system. Turning that separation into a floor under **model** error is
+a different claim, and it does not follow.
+
+**The two experiments are not measuring the same thing:**
+
+| | initial condition | dynamics |
+|---|---|---|
+| twin separation | perturbed | **exact** |
+| model rollout | **exact** | approximate |
+
+A deterministic system given its exact state has **no floor from chaos at all** — a
+perfect model reproduces it forever. Chaos supplies the **amplification**, not the
+seed. So "the twins separate by 84% of travel at 5 s, therefore a model reporting 9%
+at 10 s must be measuring something else" is invalid: the model starts where the
+twins did not.
+
+**The tempting error is to report a floor a better model is entitled to walk straight
+through**, which is worse than reporting no floor, because it makes a real improvement
+look impossible and a broken metric look vindicated.
+
+**A weaker version does survive, and it is the useful one.** The model's initial
+condition is not exact either — it is whatever the pipeline stores. Here
+`training/preprocess.py` casts states, actions, targets and rollout to **float32**, so
+a joint angle of order 1 rad reaches the model known to ~1e-7 rad. That IS an
+uncertain start, so:
+
+> the twin separation, seeded at the pipeline's own storage precision, is what a
+> **perfect** model would produce. Model error should sit above it — not because a
+> model cannot beat a twin, but because it **inherits the same uncertain start** and
+> adds its own error on top.
+
+**Seed the twin with the actual quantization, not a number near it.**
+`x0_pert = np.float64(np.float32(x0))` reproduces exactly the error the pipeline
+introduces. A flat perturbation is wrong per-channel — float32 is *relative*, so 1 rad
+quantizes to ~6e-8 while 0.01 quantizes to ~6e-10, a spread of two orders of magnitude
+that correlates with which channels matter. It also removes a free parameter: "we chose
+1e-6, then 1e-7" invites the question of what 1e-8 would have shown.
+
+**Find the coarsest step before assuming which one it is.** The floor is set by the
+worst quantization on the path, not by the one you thought of. Checked here: the raw
+CSVs are written by `csv.DictWriter` with no formatter, so Python emits full float64
+round-trip text (16–17 digits, `repr(float) == text`). Had they gone through a
+`%.6f`-style formatter the text would have been ~1e-6 absolute — **an order of
+magnitude coarser than float32**, and the floor correspondingly larger. One `sed -n
+'2p'` settles it and it changes what you perturb.
+
+**Report the floor and the error together.** "9% against a 3% floor" says something
+"9%" cannot, and it is only available in a system that amplifies storage precision to
+something visible on the horizon of interest.
