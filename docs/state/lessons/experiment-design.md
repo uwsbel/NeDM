@@ -1029,3 +1029,52 @@ survives review by other people, since reviewers check what they were shown.
 
 The only defence found so far is to state the inference as a separate claim and
 test it separately — reading the actor weights, not just the observation scale.
+
+
+## When a comparison goes wrong, suspect the apparatus before the subject
+
+**Cost:** three wrong answers in one day, one of them a discarded 220-target build · **Found:** 2026-09-04 · **Applies to:** any differential measurement — diffs, before/after, baseline vs change
+
+Distinct from [state the scope with the result](#state-the-scope-with-the-result-or-the-conclusion-inherits-one-it-never-had),
+which is about a test's *reach*. This is about **differential** measurement, where the
+answer is a delta: if the machinery producing the delta is stale, misconfigured or
+pointed at the wrong reference, it yields a **plausible, confident, wrong** number and
+nothing about the output looks unusual.
+
+Three instances, same shape. *(The first two are reported by the Chrono session and are
+not verified here; the third is mine and was traced on this box.)*
+
+| the comparison | what the artifact did | what it looked like |
+|---|---|---|
+| build against a **stale ninja file** | replayed an old failure | a **regression** introduced by the change |
+| **two-dot** diff across a rebase | folded in upstream's movement | branch **content** the author never wrote |
+| verifying "the OptiX path" with **OptiX compiled out** | measured Vulkan RT throughout | a **passing OptiX verification** |
+
+In each the subject was fine and the instrument was not. And in each the wrong answer was
+the *reassuring* one — a green verification, a clean attribution, a regression with an
+obvious culprit — so nothing prompted a second look.
+
+**Why this is worse than a failure.** A silent failure leaves you with no answer and you
+go looking. A silent *wrong thing* leaves you with an answer, and answers do not prompt
+investigation. The Chrono flag that started the third case is the pure form:
+`-DCMAKE_CUDA_ARCHITECTURES=120` is **accepted without complaint** and then discarded
+with `FORCE`, so the build succeeds while targeting the wrong architecture.
+
+**Fix: assert the apparatus is what you think, from evidence outside the comparison.**
+Not "it configured and the tests passed" but the cache variable, the linked libraries,
+the merge base, the file timestamp:
+
+```bash
+grep -E "^CH_USE_SENSOR_OPTIX:" CMakeCache.txt      # the backend, not the intent
+ldd bin/demo_SEN_camera | grep -E "nvrtc|cuda"      # what actually links
+git diff upstream/main...HEAD -- <path>             # three-dot, against the merge base
+```
+
+The check must be **independent of the thing under test** — that is the whole content of
+the rule. Verifying the OptiX build by running the OptiX tests is circular when the
+question is whether OptiX is in the build at all.
+
+**What exposed the third one was luck**, and worth naming as such: `demo_SEN_Gator` was
+missing from `bin/`, and only because it happens to be gated behind the same `if()` as
+the backend. There was no diagnostic designed to catch it. Do not rely on the next one
+being similarly convenient.
