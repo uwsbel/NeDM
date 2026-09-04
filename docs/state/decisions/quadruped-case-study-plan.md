@@ -265,3 +265,70 @@ dataset. Worth knowing when reading a level-3 result.
 14 CRM episodes per family is the thin number and the right first knob if rollout
 accuracy disappoints. **Move the mix by adding CRM overnight rather than by
 anything clever** — there is no parallelism to buy.
+
+## Three measured nonlinearities in the plant
+
+All three are properties of (robot + imported policy) responding to a velocity
+command, and **each was found by a different measurement**. Together they are the
+argument that this plant is worth learning a reduced model of.
+
+### 1. A forward dead zone
+
+Below roughly 0.35 m/s commanded, the robot marches without translating. Inside
+the policy's trained range, so a plant property rather than an out-of-range
+request.
+
+### 2. It is terrain-dependent
+
+| commanded | rigid | CRM |
+|---|---|---|
+| 0.30 m/s | 0.030 | **0.145** — ~5× |
+| 0.50 m/s | 0.337 | 0.347 — agree to 3% |
+
+Regime-dependent: terrain matters most where the dead zone bites. **This is the
+manuscript's stated justification for the terrain context input, measured rather
+than asserted.**
+
+### 3. It is sign-dependent, and only stratification could show it
+
+Same magnitude band, 0.15–0.35 m/s, `constant` family on rigid:
+
+| direction | achieved / commanded |
+|---|---|
+| forward | **0.10** |
+| backward | **0.41** |
+
+**Backward tracks four times better than forward where forward collapses.**
+
+Invisible in the old dataset by construction: it sampled forward at 0.15 and 0.30
+and backward only at −0.40 — one point on each side of a comparison needing both.
+**No amount of re-reading the old data would have found it.**
+
+### Why this matters for the case study
+
+The plant's response to a velocity command depends on **magnitude, sign, and
+terrain**, and the three interact. A memoryless linear map cannot represent any of
+it, and a static calibration curve cannot represent the terrain dependence. That
+is a substantive answer to "could you not just invert the input-output map" —
+which is the first thing a reviewer will ask of a command-conditioned result.
+
+## Achieved coverage is much better than the dead zone alone suggests
+
+| axis | family | transfer ratio | achieved below 0.05 |
+|---|---|---|---|
+| yaw | `pivot` | 0.73–0.91, near-linear both signs | **8%** |
+| lateral | `lateral` | 0.41–0.58, **no dead zone** | 35% |
+| forward | `constant` | 0.10–0.49, dead zone | **54%** |
+
+**Only one of three axes is badly clustered.** The prediction that uniform
+commanding would produce clustered achieved motion holds for forward speed and
+fails for yaw, so the state distribution carries real spread.
+
+### A pooling trap worth avoiding
+
+The first pooled histogram made lateral look 93% dead. It is not — **seven of
+eight families command `vy = 0` by construction**, and those structural zeros
+swamp the one family that drives the axis.
+
+**Restrict each axis to the family that commands it.** Pooling across families
+measures the family mix, not the plant.
