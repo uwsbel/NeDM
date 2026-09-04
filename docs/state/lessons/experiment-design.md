@@ -407,3 +407,48 @@ found, *inside the check written to catch it*.
 
 A gate must also refuse to emit PASS on input an earlier gate already failed —
 otherwise a later check reads clean off data it never saw.
+
+## Ask what a command WRITES, not what you intended to edit
+
+**Cost:** zero episodes, by a 22-second margin · **Found:** 2026-09-04
+
+The rule was already written down and already being followed: *do not mutate
+anything a running collection reads, and git HEAD counts, not just source files.*
+The box that wrote that rule then ran `git pull --rebase` mid-collection to fetch a
+script, and a rebase checks out files. It replaced the collector — which every
+episode re-reads at spawn — with origin's version, which lacked six provenance keys
+the run was recording.
+
+**Zero episodes were affected, and that is luck, not margin.** The window fell
+between two episodes that are ~2 minutes apart, and the in-flight one had already
+imported the old file. Thirty seconds earlier and the batch would have split
+silently.
+
+**The deliberate edits were never the risk.** That same box had checked an hour
+earlier that `trainer.py` was safe to edit. The discipline was working exactly
+where attention was pointed, and the hazard arrived through a command whose
+file-writing is a *side effect* of its real purpose:
+
+> It is not enough to ask "am I editing a file the run reads." Ask **"does this
+> command write to that tree at all"** — and `pull`, `rebase`, `checkout`, `stash`
+> and `merge` all do.
+
+**A rule scoped to intent does not cover a danger scoped to effect.**
+
+### The safe read, and a briefing failure worth more than the technique
+
+`git fetch` updates refs only; `git show origin/<branch>:<path>` then reads a blob
+without touching the worktree. That is the whole mitigation.
+
+One box worked it out and reported it. **I passed it to that box and not to the
+other**, then told the second box a file had been pushed, with no method attached.
+Two machines running the same job under the same hazard, one holding the
+mitigation. That is worse than nobody knowing it, because the fleet looked uniform
+from where the second box sat. **When a mitigation is discovered by one node,
+propagating it is the same task as recording it.**
+
+### Restoring
+
+Restore by extracting the known-good file and **checking its hash against what the
+run started with** before copying it in — never by editing it back, which can
+produce a third version matching neither, with no way to tell.
