@@ -3,7 +3,7 @@
 **Purpose:** First NRD study where vision is load-bearing — a hierarchical planner/tracker stack on a fixed bumpy arena
 **Simulator:** Project Chrono (HMMWV vehicle stack) with Chrono::Sensor RGB + depth cameras
 **Builds on:** `docs/vision/NRD_overall_project_plan.md` (Phase 3, pulled forward ahead of Phase 2 tabletop manipulation), Study 1 (`docs/vision/double_pen/`), and the state-only NeDM HMMWV stack
-**Status:** v1.2 — revised 2026-09-03 (plan sync, §18); v1.1 revised 2026-08-31 after `NRD_hmmwv_traversal_study_plan_review.md`; §16 = original decision log, §17 = review resolutions, §18 = v1.2 changes
+**Status:** v1.4 — revised 2026-09-04 pm (§20: tracker + planner rollout built; ẑ₂ decision now evidence-based); v1.3 2026-09-04 am (§19); v1.2 2026-09-03 (§18); v1.1 2026-08-31 after `NRD_hmmwv_traversal_study_plan_review.md`; §16 = original decision log, §17 = review resolutions
 **v1 charter:** Feasibility of the full stack (NRD + planner + tracker) on ONE fixed terrain map, trained and collected locally. Privileged information is allowed anywhere it unblocks v1; deployment-purity upgrades are a ladder, not a v1 gate.
 
 ## 1. Study objective, information contract, and positioning
@@ -84,7 +84,9 @@ Deliberate non-Markovness stands: without position, \(z_1\) cannot determine the
 
 ## 5. Sensor state \(z_2\) and representation safeguards
 
-- Input \(x_t \in \mathbb R^{4\times256\times256}\) (RGB + normalized elevation). Encoder: Study 1 `ConvEncoder` extended to 4 channels + one extra stride-2 stage; \(z_2 \in \mathbb R^{128}\); mirrored decoder, diagnostic only. \(z_2\) statistics fitted at joint-init (Study 1 normalization footgun).
+- Input \(x_t \in \mathbb R^{4\times256\times256}\) (RGB + normalized elevation). Encoder: Study 1 `ConvEncoder` extended to 4 channels + one extra stride-2 stage; mirrored decoder, diagnostic only.
+- **\(z_2\) is an ego-indexed crop of the encoder's spatial map, not a global pooled vector (v1.3, 2026-09-04).** The scene map \(M = E_\phi^{(2)}(x)\in\mathbb R^{64\times64\times64}\) is the **stage-2** backbone tap `backbone[:4]` — NOT the final 256x16x16 map, which at 5.44 m/cell would make an 8x8 crop span 43 m, half the arena. Stage 2 gives 1.36 m/cell over the camera's 87 m field of view, encoded **once per episode** from a vehicle-free pixel-wise median of 9 frames — the layout is static and the camera fixed, so nothing is gained by re-encoding per frame, and the moving vehicle medians away. At each step an \(8\times8\) window spanning \(\pm5\) m (1.25 m sample spacing, matched to the 1.36 m cell size) is resampled from \(M\), ego-aligned to the vehicle's yaw, projected \(64\to16\) channels and flattened to \(z_2\in\mathbb R^{256}\). The resampling is differentiable (`grid_sample`), so the dynamics loss trains the projection. World→image uses the §3.3 camera contract with terrain height at each sample point (verified to 1e-6 m against the quantized heightmap). \(z_2\) statistics fitted at joint-init (Study 1 normalization footgun).
+- **\(z_2\) is indexed, not predicted forward.** During imagination the crop is retaken from the static \(M\) at the pose dead-reckoned from predicted \(z_1\); there is no \(\hat z_{2,t+1}\) head. Measured (WP2 Batch C, 2 seeds): indexing closes **75 %** of the privileged-terrain gap at 1 s and **51 %** at 5 s (leak-free scene maps, 2 seeds), where the pooled global vector closed 39 % / −6 %; the autoregressive variant of the same token collapses to −57 % / −145 %. The global pooled latent is retained only as a diagnostic and as the WP1/G1 comparison point.
 - **Auxiliary representation losses during AE warm-up are mandatory** (review §2.5; labels are analytic and free): (a) occupancy/class-mask prediction, (b) vehicle-center heatmap + yaw, (c) foreground/class-weighted RGB reconstruction, (d) elevation reconstruction with its own normalization. These are representation-shaping losses from analytic ground truth, not task/reward losses — consistent with the master-plan boundary.
 - **Encoder fine-tuning criterion:** downstream occupancy-probe and localization-probe performance, not latent-prediction plateau alone.
 - **Information-bottleneck staging** (partial adoption of review §2.5): the single global latent remains the v1 spine, but the perception pilot (WP1) also probes occupancy/localization **from the encoder's pre-pooling spatial feature map**, quantifying what global pooling destroys. Pre-declared fallback if the single-latent probes miss their bars: keep a low-res spatial feature map (or a factored \(z_{\mathrm{layout}}/z_{\mathrm{vehicle}}\)) as the planner-facing representation while the global \(z_2\) continues to serve the dynamics token.
@@ -135,7 +137,9 @@ Oracle touches privileged data only at training/eval. Deployment inference: came
 
 ### 8.1 Model
 
-Token \(u_t = [z_{1,t}(15),\, z_{2,t}(128),\, a_t(3)]\), NeDM backbone, ctx 16 @ 0.05 s; heads: \(\Delta z_1\), \(\hat z_{2,t+1}\), auxiliary power. Losses per master plan; multi-step curriculum available (mandatory before Planner-C). Stages: AE warm-up (with §5 auxiliary losses) → \(z_2\) stats → joint training, frozen encoder first.
+Token \(u_t = [z_{1,t}(15),\, z_{2,t}(256),\, a_t(3)]\) = 274-D, NeDM backbone (`ContinuousTransformer`, 6L/256/8H), ctx 16 @ 0.05 s. Heads: \(\Delta z_1\) (15, residual in normalized target space) and the auxiliary power head (1, §4). **No \(\hat z_{2,t+1}\) head in v1.3** — \(z_2\) is re-indexed from the static scene map each step (§5), so there is no sensor latent to roll forward. Losses per master plan; multi-step curriculum available. Stages: AE warm-up (with §5 auxiliary losses) → scene-map cache → \(z_2\) stats → joint training, frozen encoder first.
+
+Reference implementation: `scripts/traverse_wp2_encode_map.py` (per-episode scene map), `src/nedm/traverse/map_crop.py` (`MapCropper`), `scripts/traverse_wp2_train_map.py --map-mode index`. The pooled-\(z_2\) path (`traverse_wp2_train.py`) is kept as the matched baseline for the §8.3 grid.
 
 ### 8.2 Infrastructure deliverables (review §2.7 — WP2 is a subsystem, not a flag)
 
@@ -184,18 +188,34 @@ newly predicted z₂" is the identity map — architecture cannot fix that; only
 dynamic or partially-observed scene can (deferred, §16).
 
 What *does* change under imagination is the vehicle's state and the terrain it
-sits on — exactly the content z₂ carries and generalizes (vehicle center
-0.8–2.1 m, yaw 3.3–4.4°). So v1 makes predicted z₂ load-bearing for planning
-through **candidate scoring, not candidate generation**: the k-best plans from
-§9.2 are rolled out in frozen NRD imagination over short tracking segments and
-scored on time, energy (auxiliary power head, §4), feasibility, and collision.
-Plan generation stays supervised; plan *selection* consumes predicted z₁/z₂.
+sits on. So v1 makes the NRD load-bearing for planning through **candidate
+scoring, not candidate generation**: the k-best plans from §9.2 are driven by
+the WP3 tracker inside the frozen NRD from the episode's real start context and
+scored on time, energy (auxiliary power head, §4), tracking cost, feasibility
+(roll/pitch/cross-track bounds) and footprint collision. Plan generation stays
+supervised; plan *selection* consumes the rollout.
+
+**Mechanism (v1.4, replaces "roll z₂ forward"):** z₂ is *indexed* — the
+t = 0 scene map is re-cut around the dead-reckoned pose at every imagined step
+(§5) — while z₁ and the power head are predicted. The scorer is
+`scripts/traverse_wp4_score_candidates.py`; the rollout is **closed-loop**
+(tracker in the loop), which the WP3/4 notes show is what keeps a 10–20 s
+imagined traverse on the route (open-loop replay of recorded actions drifts
+0.47 m and misses the end in a third of episodes; with a controller the imagined
+time-to-goal correlates 0.99 with the recorded one). Energy from the power head
+is biased ~25 % low over 10 s and is used for relative ranking only until
+recalibrated (open item).
 
 ### 9.6 Planner-C interfaces (unchanged, mandatory)
 
 `PlanCandidate {waypoints, v_profile, meta}` world-frame; `score_plan(candidate, model, context) → {time, energy, collision_prob, feasibility}` (v1: geometric scorer; C: NRD-rollout scorer over **short imagined tracking segments**, energy from the auxiliary power head); differentiable head end-to-end from \(z_2\); k-best candidates; context-bank reset windows recorded per episode.
 
 ## 10. Tracker (review §2.6 adopted in full)
+
+*Status 2026-09-04: built and trained in imagination (`nedm/traverse/tracker_env.py`,
+`scripts/traverse_wp3_train_tracker.py`); Chrono evaluation (the actual G6) not yet run.
+Design carries the state-only HMMWV tracking study's transfer lessons; see
+`wp3_implementation_notes.md`.*
 
 - **Environment:** NRD imagination env (dpend pattern: joint \([z_1,z_2]\) rollout from recorded context windows) + reference machinery. References: random splines + oracle routes (§6.2 distribution).
 - **Geometric tracking reward** (replaces full-state reference error, which planner routes cannot supply): cross-track error, heading error, **speed error vs the reference profile**, action-rate penalty, simultaneous throttle+brake penalty, rollover/safety penalties charged with remaining cost (no cheap exits). Full-state reference terms are dropped except fields the planner specifies (speed).
@@ -292,6 +312,85 @@ Terrain generator + fixed map; oracle stack (feasible search + validation + appr
 **Adopted:** §2.1 privileged start/goal contract + claim rewrite (§1) · §2.2 approach-pose goal (§3.2) · §2.3 directional edge costs, footprint/curvature validation, gradient-channel labels (§7, §9.1) · §2.4 RQ2 rewording + ablation grid (§2, §8.3) · §2.5 auxiliary warm-up losses, fine-tune criterion, spatial-probe comparison + declared fallback (§5) · §2.6 geometric reward, 38-D obs, `action_repeat=1`, short-fragment training (§10) · §2.7 storage math, schema/compression requirements, WP2 re-scoped incl. 70/15/15 preprocessing and HMMWV rollout eval (§6.1, §8.2) · §3.1 power as auxiliary head, richer energy regression, drive/brake work split (§4, §7.1) · §3.2 margin budget incl. tracker p95 (§7.4) · §3.4 task-space G2 metrics + static+CV baseline (§8.3, G2) · §3.5 e2e baseline post-G7/matched-or-labeled (§11) · §3.6 three-row throughput (§12.4) · §3.7 frozen thresholds, untouched test split, CIs, failure taxonomy (§12.1) · §5 revised WP order incl. WP0 oracle vertical slice and perception-pilot-before-collection (§14).
 
 **Deviations (with rationale):** review §3.3 — class masks are rasterized **analytically** from layout manifests for all splits (sensor segmentation only validates the projection at smoke tier); same metric guarantee, no extra render pass. Review §2.3 — Hybrid A*/lattice is a pre-declared **escalation** triggered by WP0b/WP0a rejection rates, not the v1 default; directional costs + post-hoc feasibility validation are mandatory either way. Review §2.5 — factored/spatial representations are a pre-declared **fallback** gated on the WP1 probes rather than a parallel v1 build; the spatial-feature probe runs regardless to quantify the pooling cost.
+
+## 20. v1.4 change (2026-09-04, afternoon): ẑ₂ decision confirmed; WP3 + Planner-C built
+
+1. **The ẑ₂ prediction head stays out of v1, now on a fair test.** With the
+   map projection frozen and the token loss normalized (the two defects of the
+   Batch C run), autoregressive prediction of the local crop still falls below
+   persistence within 0.5 s and returns z1 accuracy to state-only level, two
+   seeds (`wp2_implementation_notes.md`, addendum). Indexing remains the v1
+   mechanism; the branch is reinstated when the scene or the camera moves (§16).
+2. **Pose drift explains ~40 % of the 5 s shortfall**, not all of it; the rest
+   is accumulated state error. Recorded there too.
+3. **§10 tracker implemented** (`nedm/traverse/tracker_env.py`,
+   `traverse_wp3_train_tracker.py`): geometric reward, 38-D deployment
+   observation, 1–3 s fragments from recorded context windows, HMMWV-study PPO
+   recipe with the steering clamp trained in. In-model held-out mean cross-track
+   0.15 m, p95 0.54 m, vs 0.245 / 0.73 m for scripted pure pursuit; the state-
+   history obs ablation changes nothing. **G6 still requires the Chrono run.**
+4. **§9.5 Planner-C scorer implemented** (`traverse_wp4_score_candidates.py`):
+   k candidates from oracle parameter sweeps, tracked inside the NRD from the
+   real start context, scored on time / energy / tracking / safety / collision.
+   Restated mechanism, as §19 required: the scene map is encoded once and
+   **indexed along the imagined trajectory**; predicted z1 supplies time and
+   feasibility. Calibration on 32 held-out layouts: time-to-goal corr 0.997
+   (10 % optimistic); **energy underestimated ~30 % by the power head** even
+   under replayed recorded inputs — calibrate before absolute use.
+5. **G4 respecified:** cross-modal consistency for v1 is "the indexed token at
+   the imagined pose supports z1 prediction as well as at the true pose" —
+   measured: identical at 1 s, 0.06 z1-MAE apart at 5 s. The decodability form
+   of G4 is retired with the ẑ₂ head.
+
+## 19. v1.3 change (2026-09-04): z2 becomes a spatial index
+
+WP2 established that the single failure behind every disappointing z2 result —
+elevation channel unused, latent undecodable after 0.5 s (G4), only 39 % of the
+privileged-terrain ceiling — is **global pooling**, not the encoder, the data,
+the capacity or the modality. A 256-number summary of an 80x80 m arena cannot
+carry a height field. Replacing it with a 256-number encoding of the 10 m under
+the vehicle closes 75 % of that ceiling at 1 s and 51 % at 5 s, and fixes the pose-channel
+regression outright (0.117 m, better than state, than pooled z2, and than the
+privileged ceiling itself).
+
+Consequences recorded here, detail in `wp2_implementation_notes.md`:
+
+1. §5 and §8.1 rewritten: \(z_2\) = ego-indexed crop, no \(\hat z_2\) head.
+2. §9.5 Planner-C rollout scoring must be restated. "Roll z2 forward and score"
+   is not the mechanism — on a static map the scorer should **index** the t=0
+   scene map along each candidate path. Predicted \(z_1\) still supplies time,
+   energy and feasibility; obstacle geometry comes from the spatial map, which
+   was already the G1 recommendation for the planner.
+3. G4 as written (cross-modal decodability of a predicted latent) no longer has
+   an object in v1.3 — nothing is predicted forward. It should be respecified
+   against the *indexed* token or retired; the WP1 probes already cover whether
+   the encoded map decodes the scene.
+4. §18.3's deferral of the learned receding-horizon planner is reinforced: the
+   static-scene argument now has direct dynamics-side evidence.
+
+## 20. v1.4 changes (2026-09-04 pm)
+
+1. **The ẑ₂ head decision is now evidence-based, not a one-run over-reach** (the
+   v1.3 wording was challenged and re-tested). A fair two-stage test — projection
+   frozen so the target is stationary, loss on normalized targets, two seeds,
+   persistence baseline — predicts the next crop well one-step (4 % residual
+   variance) but falls **below persistence within 0.5 s** when fed back, and
+   drags z₁ to state-only level (0.33–0.35 vs 0.25 for indexing at 1 s). Feeding
+   the crop the *true* pose at 5 s recovers only ~40 % of the long-horizon gap, so
+   most of it is accumulated state error, not "reading the wrong place". §5's
+   "index, not predict" stands; the branch returns with a moving scene or an
+   ego camera (§16 ladder). Detail: `wp2_implementation_notes.md` addendum.
+2. **§9.5 restated** (above): closed-loop tracker rollout over an indexed scene
+   map; G4 as written is retired and replaced by the scorer calibration against
+   recorded routes (imagined vs recorded time / energy / cross-track on the same
+   route), which tests the thing the planner actually consumes.
+3. **WP3 tracker built** (§10 status line) and **Planner-C scorer built** (WP4's
+   §9.5 deliverable) ahead of the costmap head; candidates currently come from
+   the privileged oracle's cost sweep (§7.6), which is the v1 charter's allowed
+   privileged source until the WP4 costmap head exists.
+4. Checkpoint selection in the WP2 map trainers is at the 5 s horizon, not
+   §8.2's 0.5–1.0 s; consistent across arms, recorded so the "@1 s" tables are
+   read correctly.
 
 ## 18. v1.2 changes (2026-09-03 plan sync)
 

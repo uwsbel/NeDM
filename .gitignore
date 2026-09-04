@@ -121,3 +121,28 @@ artifacts/analysis/*
 # (see docs/vision/double_pen/implementation_notes.md). Datasets, caches, and
 # training runs for NRD stay local-only for now.
 !artifacts/nrd_eval/
+
+# --- NRD traversal study (docs/vision/hmmwv_traverse/) -----------------------
+# Small readouts, the deployed dynamics model, the deployed tracker (final
+# checkpoint + configs), the planner-rollout scores with their Chrono
+# validation, and the two presentation videos. Episode stores, scene-map caches,
+# WP1 encoder runs and intermediate checkpoints stay local / on the cluster.
+!artifacts/traverse/
+artifacts/traverse/*
+!artifacts/traverse/wp2_g3_analysis.json
+!artifacts/traverse/wp2_g3b_analysis.json
+!artifacts/traverse/wp2_g4_readout.json
+!artifacts/traverse/wp2_z2mode_readout.json
+!artifacts/traverse/wp3_tracker_eval.json
+!artifacts/traverse/wp2_mapv2_index_amd/
+!artifacts/traverse/wp2_posedrift_amd/
+!artifacts/traverse/wp3_tracker_v1/
+!artifacts/traverse/wp3_tracker_v1_s2/
+!artifacts/traverse/wp3_tracker_hist4/
+artifacts/traverse/wp3_tracker_*/model_*.pt
+!artifacts/traverse/wp3_tracker_*/model_999.pt
+!artifacts/traverse/wp3_chrono_eval_v1/
+!artifacts/traverse/wp4_scores_v1/
+!artifacts/traverse/wp4_scores_tracker_v1/
+!artifacts/traverse/wp4_chrono_candidates_v1/
+!artifacts/traverse/media/

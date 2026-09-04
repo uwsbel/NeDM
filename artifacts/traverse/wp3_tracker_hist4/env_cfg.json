@@ -1,0 +1,52 @@
+{
+  "num_envs": 2048,
+  "device": "cuda",
+  "dynamics_checkpoint": "artifacts/traverse/wp2_mapv2_index_amd/ckpt_best.pt",
+  "arena": "assets/traverse/arena_v1",
+  "cache": "artifacts/traverse/wp2_z2_cache_v6",
+  "map_key": "map_v2",
+  "routes": "artifacts/traverse/wp3_routes",
+  "split": "train",
+  "families": null,
+  "max_bank_episodes": 0,
+  "fragment_steps_min": 20,
+  "fragment_steps_max": 60,
+  "preview_points": 10,
+  "preview_spacing_m": 1.0,
+  "search_window": 40,
+  "obs_history_steps": 4,
+  "action_low": [
+    -1.0,
+    0.0,
+    0.0
+  ],
+  "action_high": [
+    1.0,
+    1.0,
+    1.0
+  ],
+  "action_center": "dataset_mean",
+  "action_scale": [
+    1.0,
+    0.7,
+    0.5
+  ],
+  "steering_rate_limit": 0.1,
+  "reward": {
+    "cross_track_sigma_m": 1.0,
+    "heading_sigma_rad": 0.35,
+    "speed_sigma_mps": 1.0,
+    "cross_track_weight": 2.0,
+    "heading_weight": 0.8,
+    "speed_weight": 0.5,
+    "action_rate_weight": 0.2,
+    "throttle_brake_weight": 0.05
+  },
+  "termination": {
+    "max_cross_track_m": 6.0,
+    "max_abs_roll_rad": 0.6,
+    "max_abs_pitch_rad": 0.4
+  },
+  "auto_reset": true,
+  "seed": 1
+}
