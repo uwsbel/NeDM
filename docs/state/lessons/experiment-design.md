@@ -165,3 +165,29 @@ arms apart.
 This also independently corroborates `kyle-sbel`'s run B, where populated-but-wrong
 options returned handle 0 and drew nothing. Two languages, two machines, two
 routes to the same conclusion.
+
+## Poll the long-lived pid, never the launcher
+
+A 5-hour CRM collection was watched by a background waiter,
+`while kill -0 <pid>; do sleep 120; done`. Over the real job it worked: it fired
+by itself on completion and is reliable enough for overnight runs.
+
+**The first attempt reported completion after 60 seconds.** The launch had been
+wrapped in a command that backgrounded the collector and then exited, so the
+waiter was watching the *wrapper*, which had indeed finished. The collector ran
+on for five more hours underneath it.
+
+That is a FALSE SUCCESS, which is the most dangerous shape a monitoring bug can
+take — nobody investigates a job that reports finishing. Had it gone unnoticed
+overnight, the next step would have built a dataset out of 60 seconds of output
+and found nothing structurally wrong with it: correct schema, valid rows, a
+plausible index, and 1/300th of the intended data.
+
+Same family as the vacuous gate above and the in-band handle: **the signal
+reported that something ended, not that the thing you cared about ended.** Ask
+the null question about the watcher itself — what would this report if the job I
+care about were still running? If the answer is "success", it is watching the
+wrong process.
+
+The rule: resolve the pid of the process that does the WORK and poll that. A
+wrapper, a launcher, a shell that spawns and returns — none of them are the job.

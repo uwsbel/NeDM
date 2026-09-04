@@ -150,6 +150,12 @@ def build_collector_config(args: argparse.Namespace, soil: dict[str, Any]) -> di
             "depth_m": float(args.depth),
             "bottom_z_m": float(args.soil_bottom),
             "initial_spacing_m": float(args.spacing),
+            # PER EPISODE, never assumed from a global. CRM lateral episodes use a
+            # wider bed than every other family (see the lateral note in the
+            # collection docs), so bed extent has to be readable from the episode
+            # itself rather than inferred from the collector defaults.
+            "patch_x_m": float(args.patch_x),
+            "patch_y_m": float(args.patch_y),
             "soil_preset": args.soil,
             "soil": dict(soil),
             "sph": {"artificial_viscosity": float(args.artificial_viscosity)},
