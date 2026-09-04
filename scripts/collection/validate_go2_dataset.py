@@ -220,10 +220,19 @@ def main() -> int:
     # id, so colliding ids silently collapse -- which is precisely the case G2
     # exists to catch, and it would leave every family statistic below computed
     # from whichever episode happened to be written last.
-    on_disk = [json.loads(p.read_text())
-               for root in args.dataset_root
+    # Identify episode metadata STRUCTURALLY -- by carrying an episode_id --
+    # rather than by filename. An earlier name-based exclusion list missed
+    # episodes/<id>.config.json, the per-episode collector configs kept because
+    # patch_y_m lives only there. Those parse fine and yield terrain_label=None,
+    # command_family=None, so they appeared as a seventeenth (terrain, family)
+    # pair and FAILED G3 on a dataset that was correct. A false FAIL is the
+    # dangerous direction: it sends someone to fix a non-problem while trusting
+    # the gate. A structural test does not need updating when the layout gains a
+    # new sidecar file.
+    on_disk = [m for root in args.dataset_root
                for p in sorted(root.rglob("*.json"))
-               if p.name not in ("dataset_index.json", "collector_config.resolved.json")]
+               for m in [json.loads(p.read_text())]
+               if isinstance(m, dict) and "episode_id" in m]
 
     # ---- G1 schema parity -------------------------------------------------
     present = set(episodes[0])
