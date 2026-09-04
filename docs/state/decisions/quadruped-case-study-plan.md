@@ -246,11 +246,41 @@ calibrated statement we have about what that costs.
 
 Reading off it, 20% of their data gives S = 6.9% with CRM rollout at 9.6%. So:
 
-| level-2 CRM rollout err | what it means | what to do |
+**AMENDED 2026-09-04, before any result existed.** The first draft compared
+episode counts. sbel-pc checked it in transitions and the third criterion
+inverted; the amendment is recorded rather than substituted, because a
+pre-registration that is quietly edited is not one.
+
+Their episode lengths differ from ours in opposite directions on the two terrains.
+Their CRM episodes are ~1,440 rows against our 1,475 — near-identical, so the
+episode-count comparison holds. **Their flat episodes are ~5,000 rows**, 3.4x ours,
+across ~82,000 episodes:
+
+| | ours | theirs | our fraction |
+|---|---|---|---|
+| CRM | ~304 ep / 0.45 M transitions | 2,000 ep / 2.88 M | **15.6%** |
+| flat | 968 ep / 1.43 M transitions | ~82,000 ep / 410 M | **0.35%** |
+
+**Our flat half is roughly forty times more data-starved relative to its reference
+than our CRM half**, despite being the larger half of our own dataset.
+
+| level-2 result | what it means | what to do |
 |---|---|---|
-| **6–12%** | consistent with data quantity at our fraction | **nothing.** Not evidence the state is wrong. |
-| **> 15%** | worse than data quantity explains | look at the **state**, not the data |
-| **flat worse than CRM** | something is wrong upstream | rigid is the easier plant; suspect the mix or the flat cache |
+| **CRM rollout 6–12%** | consistent with 15% of reference data | **nothing.** Not evidence the state is wrong. |
+| **CRM rollout > 15%** | worse than data quantity explains | look at the **state**, not the data |
+| **flat worse than CRM** | **EXPECTED** at 0.35% against 15.6% | **not** evidence of an upstream fault |
+| **flat better than CRM** | the informative surprise | the flat plant is learnable from 1.4 M transitions — a finding, not a pass |
+
+The withdrawn criterion read *"flat worse than CRM means something upstream is
+wrong; rigid is the easier plant."* Rigid **is** the easier plant, and that is
+exactly why the error was seductive. It would have sent someone hunting a bug in
+the healthier half, finding nothing, and possibly "fixing" something that was never
+broken. The paper's scaling appendix cannot arbitrate: its lowest measured point is
+20% of the full mixed dataset, and 0.35% is far below any regime it sampled.
+
+The practical consequence is better than expected: **the cheap knob is on the half
+that needs it most.** Flat episodes cost ~8 minutes per 484 at 8-way parallelism,
+against 5.5 hours to double CRM.
 
 **The middle row is the one that will be tempting to misread.** A CRM rollout
 error near 10% will look like a bad result next to the paper's 5.4%, and the
