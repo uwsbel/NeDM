@@ -154,6 +154,14 @@ def select_rollout_episodes(episodes: list[dict[str, Any]], max_episodes: int) -
     must run before torch is available. If that function changes, this mirror is
     stale -- which is why G8 prints the selection it produces rather than only a
     verdict, so a drift shows up as a number that stops matching the trainer's log.
+    The mirror does not have to be trusted; it has to be checkable.
+
+    THE MIRROR COVERS THE SELECTION ALGORITHM ONLY, and deliberately omits the
+    trainer's family-distribution logging, which sits between the loop and the
+    return and cannot affect what is selected. So the two are no longer textually
+    identical and that difference is expected: diff the bucket/sort/round-robin/
+    pop/remove-when-empty body, not the whole function. A drift warning that fires
+    on a change which cannot cause drift stops being read.
     """
     by_family: dict[str, list[dict[str, Any]]] = {}
     for episode in episodes:
