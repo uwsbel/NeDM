@@ -709,3 +709,58 @@ with the horizon and the instantaneous one does not. Balancing at the convergenc
 point instead of the initialisation point would be unbalanced again at a
 different episode length. Still a hypothesis about the fix; the measurement above
 is not.
+
+## Amendment 8c: the observation-scale mechanism does NOT bind, and why
+
+A second mechanism was proposed: `hmmwv_tracking_env.py:811` hardcodes
+`pose_error[:, 0] / 10.0`, so a Go2 position error of 0.0162 m arrives as 0.00162
+among channels normalised to order 1 — a ~600x scale disparity, in a literal
+inside a parent method that no config diff could surface.
+
+**The literal is real. The consequence is not.** `empirical_normalization` is
+`True` in the run's `train_cfg`, so rsl_rl wraps observations in
+`EmpiricalNormalization` and the network receives `(x − mean) / std`. From
+`model_1100.pt`, over 100,001,792 samples:
+
+    channel      running mean   running std
+    dx/10           -0.000079      0.008669
+    dy/10            0.000040      0.006679
+    dyaw/pi         -0.001086      0.043541
+
+    neighbouring state_error stds: 1.34, 1.17, 1.03, 1.10, 1.12
+
+The running std IS tiny, exactly as predicted — **and that is the divisor**. The
+`/10.0` and the Go2's small scale are divided straight back out, so the channel
+reaches the network at unit variance like every other.
+
+Confirmed on the trained weights rather than argued from the mechanism. Actor
+first-layer mean |w| by input channel:
+
+    dx/10  0.1210     dy/10  0.1095     dyaw/pi 0.0622
+    median over all 231 inputs: 0.0656
+    -> 1.84x, 1.67x and 0.95x the median
+
+**The network does not merely see position error; it weights it nearly twice the
+average channel.** So the incentive finding stands alone and is not compounded by
+an observability problem.
+
+### What survives
+
+- **The `/10.0` is dead code in effect, not correct code.** It is a constant
+  rescale that the normaliser exactly undoes up to an offset. It is harmless
+  *because* `empirical_normalization` is on — a coupling documented nowhere. Turn
+  that flag off and the hazard binds immediately.
+- **The hiding place is real even though this instance is neutralised.** A literal
+  inside an inherited parent method cannot appear in a config diff, and we
+  verified the training config key-for-key against the anchor and overrode
+  `default_env_cfg` where it differed. Neither check could have reached a
+  `/10.0`. That is a genuinely new location for this failure class.
+- **The controls framing is correct and applies to the reward finding**, which is
+  measured and unaffected: a tracking controller weighting instantaneous error
+  13x its integral exhibits steady-state error, which is the textbook reason PID
+  has an I term. We built that reward and observed exactly that. This makes the
+  result legible as a principled one rather than a tuning accident.
+
+Prescription 4 — "the integral term must arrive in the observation at a scale the
+network can act on" — is **withdrawn for this run**. It would apply to a run
+without empirical normalisation.
