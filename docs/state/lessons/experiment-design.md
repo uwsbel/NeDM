@@ -240,3 +240,57 @@ and knowing the waiter version of it did not stop the killer version.
 **Kill by resolved PID.** If a pattern must be used, match on something that
 cannot appear in the killer — or check `pgrep -f` first and read what it would
 have hit.
+
+## A shared branch is a mutable dependency of every running job
+
+**Cost:** one episode, caught within five minutes · **Found:** 2026-09-04 · **Applies to:** any long run on a box that touches git
+
+A collection re-reads its own source on every episode. So **any git operation on
+that working tree changes the running job**, and a rebase is enough — nobody has
+to edit anything.
+
+What happened: a correct fix (the validation-ratio default, from another machine)
+was pushed to the shared branch. The collecting box rebased onto origin to publish
+an unrelated tool. Git checked out `collect_go2_smoke.py`. **Eighteen seconds
+later the next episode started on different code.**
+
+**Nobody did anything wrong at the moment it happened.** The fix was right, the
+push was right, the rebase was right, and the run had been going for hours before
+either. The failure is in the *composition*, which is why neither party saw it
+coming: each action was locally correct and reviewed as such.
+
+This is the third instance in one session of a file changing under a live run —
+after an actuation edit mid-batch and a mid-run seed change — and **the first
+where the mutation came from someone else's good work arriving through a routine
+git command.**
+
+### Why it was catchable
+
+The per-episode provenance sidecar had been running for five minutes when it
+found it, and it found it by **digest, not by commit**. Commits moved constantly
+and mean nothing on their own; the digest of the seven files an episode actually
+reads is flat until behaviour changes. One episode out of 1,045 carried a
+different digest.
+
+**Record a content digest of the code an episode reads, per episode.** A commit
+hash tells you what HEAD was; a digest tells you whether it mattered.
+
+### Two ways to prevent it, in order of preference
+
+1. **Run from a snapshot.** Copy the collection code to a run-scoped directory at
+   launch and execute from there. The live tree then cannot reach a running job at
+   all, and the box stays free to pull, rebase and push.
+2. **Freeze git during a run.** Cheap, immediate, and the mitigation actually
+   adopted here — but it makes every long run block the branch, which does not
+   scale to two machines collecting for six hours.
+
+### When a mid-run change does not require a restart
+
+Only when the changed behaviour is confined to a field that is being overwritten
+anyway. Here the diff reached exactly one thing — `assign_split`'s ratio — and the
+repair pass recomputes every episode's split from its new id regardless. **After
+the pass, an episode collected under either value is indistinguishable.**
+
+That argument is legitimate and it is narrow. It holds *because* the differing
+field is the one already scheduled for rewrite. Had the diff touched anything
+else, the correct answer was to restart.
