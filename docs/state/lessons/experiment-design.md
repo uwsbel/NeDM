@@ -165,3 +165,64 @@ arms apart.
 This also independently corroborates `kyle-sbel`'s run B, where populated-but-wrong
 options returned handle 0 and drew nothing. Two languages, two machines, two
 routes to the same conclusion.
+
+## A watched process disappearing means it ENDED, not that it SUCCEEDED
+
+**Cost:** ten minutes, and only because it was checked · **Found:** 2026-09-03 · **Applies to:** every background job we wait on
+
+The rule written earlier — *poll the process that does the work, not the
+launcher* — was followed correctly and **was not enough.** The lesson recurred
+within ten minutes of being written down, in a form its own text did not cover.
+
+A waiter reported `LATERAL COLLECTION FINISHED`. It had polled the collector
+script's own PID, exactly as prescribed. Checking the *job* rather than the
+signal:
+
+- the output file was **empty** — not one progress line
+- **one** episode directory existed, of fourteen
+- the script had never printed its completion sentinel
+- and episode 0's python child was **still running, orphaned**
+
+```
+while kill -0 <pid>; do sleep 120; done
+```
+
+**cannot distinguish "completed" from "killed", "crashed", or "OOM-ed".** All four
+produce the same silence. The waiter reported the literal truth — that PID was
+gone — and the inference drawn from it was wrong.
+
+**So the rule has a second half: wait on a SUCCESS SENTINEL, not on an absence.**
+The job prints something on successful completion; the waiter checks for that
+string. Absence of a process is not evidence of success, and a monitor built on
+absence reports success for every failure mode there is.
+
+### And the launch method decided it
+
+The 5-hour collection survived; this one did not. Same waiter design. The
+difference:
+
+| | launch | outcome |
+|---|---|---|
+| CRM collection | the tool's own tracked background mechanism | ran 5 h to completion |
+| lateral re-collection | `nohup … &` inside a **foreground** call | killed when that call was torn down |
+
+**`nohup` only ignores SIGHUP.** It does not survive the process group being
+cleaned up. The python child was reparented and kept running, which is why one
+episode was in flight with no parent — the tell that made the diagnosis
+unambiguous.
+
+### The pattern this completes
+
+Every silent failure in this project has the same shape: **the check reports
+success when the thing it checks did not happen.**
+
+| check | what it reported | what was true |
+|---|---|---|
+| G0a gate | pass | robot on its back |
+| `AttachFsiSphSystem` | handle ≥ 0 | nothing rendered |
+| CMake | exit 0 | three modules silently disabled |
+| first waiter | finished | the *launcher* finished |
+| second waiter | finished | the job was **killed** |
+
+The last two are the same bug at different depths, ten minutes apart, and the
+second was invisible to the rule written for the first.
