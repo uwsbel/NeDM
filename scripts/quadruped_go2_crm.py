@@ -102,7 +102,12 @@ def build_parser() -> argparse.ArgumentParser:
                           "legged_gym family, clamped to URDF effort. position: the "
                           "historical kinematic-constraint plant, unbounded torque, "
                           "which every gate before 2026-09-03 was measured on.")
-    adv.add_argument("--assets", default="/home/kyle/Documents/sbel/sbel-reproducibility/2025/multi-terrain-RL")
+    # The default is this box's layout; other machines differ (dorm-pc has no
+    # "sbel/" segment). NEDM_GO2_ASSETS overrides it so a run elsewhere needs no flag.
+    adv.add_argument("--assets",
+                     default=os.environ.get(
+                         "NEDM_GO2_ASSETS",
+                         "/home/kyle/Documents/sbel/sbel-reproducibility/2025/multi-terrain-RL"))
     adv.add_argument("--step", type=float, default=5e-4, help="CFD step")
     adv.add_argument("--exchange-mult", type=int, default=5, help="MBS/CFD exchange = mult * step")
     adv.add_argument("--control-hz", type=float, default=50.0)
@@ -437,7 +442,16 @@ def main() -> int:
         "command_series": getattr(policy, "command_log", None),
         "max_tilt_deg": round(math.degrees(max(tilts)), 1) if tilts else None,
         "final_tilt_deg": round(math.degrees(tilts[-1]), 1) if tilts else None,
-        "policy": "none (stand pose)" if policy is None else "model_2999.pt",
+        # The policy field is what an audit greps to establish provenance, so it
+        # must name the checkpoint that actually RAN. This was an unconditional
+        # "model_2999.pt", which asserted the abandoned in-house policy for every
+        # imported-policy run -- including the five clips in verify/ that are the
+        # evidence for "the imported policy walks and turns".
+        "policy": (
+            "none (stand pose)" if policy is None
+            else (Path(args.imported_ckpt).name if args.imported_ckpt else "model_2999.pt")
+        ),
+        "policy_path": (None if policy is None else str(args.imported_ckpt or ckpt)),
         "pose_ramp_s": args.pose_ramp_seconds,
         "check_embedded": args.check_embedded,
         "foot_clearance_above_soil_m": round(float(foot_clearance), 4),
