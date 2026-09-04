@@ -524,3 +524,72 @@ window** (median 0.372 m, max 2.102 m). Not degenerate — that was checked and
 settled in amendment 5 — but not ambitious either. This belongs in the writeup
 beside the single-gait and thin-forward-command limitations rather than being
 discovered by a reader.
+
+---
+
+# Amendment 7: policy checkpoint selection — registered at iteration 1086 of 2000
+
+**Written while the run is still going and before any Chrono evaluation of any
+checkpoint.** The trajectory has turned and the rule for which checkpoint gets
+evaluated must exist before the answer does.
+
+## What the trajectory shows
+
+    iter  250   pos_err 0.0229   noise std 0.210
+    iter  500           0.0171             0.150
+    iter  733           0.0145  <- BEST    ~0.105
+    iter 1000           0.0184             0.080
+    iter 1086           0.0178             0.070
+
+    best 0.0145 at iteration 733; latest 0.0178 at 1086
+    DRIFT SINCE BEST +0.0033 m, +22.8%, over 353 iterations
+    action noise std 0.690 -> 0.070
+
+**Both late-training failure modes are present at once.** The coordinator
+predicted that a reward flat below ~0.08 m gives little pressure to HOLD position
+as opposed to improve it, and that the thing to watch for is drift or entropy
+collapse rather than a plateau. It is drift AND entropy collapse: the policy
+peaked at iteration 733 and has degraded 23% since, while exploration collapsed
+by an order of magnitude. The final checkpoint will very likely be worse than one
+from a third of the way in.
+
+This is the same shape as the dynamics model's `val_loss` versus `rollout_sel`:
+the last checkpoint is not the best checkpoint, and which one ships is a decision
+that must be made by a rule rather than by default.
+
+## The rule
+
+**Selection metric: the logged in-model `/tracking/position_error_m`, minimised
+over checkpoints that exist** (`save_interval` 100). Ties broken toward the
+earlier checkpoint.
+
+**Both checkpoints are evaluated in Chrono and both are reported:**
+
+    SELECTED   the save-interval checkpoint nearest the logged minimum
+    FINAL      model_2000
+
+If they disagree, both numbers are published with the trajectory. Reporting only
+the selected one would hide that selection was worth 23%; reporting only the
+final one would ship a knowingly worse policy for the sake of appearing
+unselected.
+
+## Two limits of this rule, stated rather than buried
+
+1. **The selection metric is a TRAINING metric.** `/tracking/position_error_m` is
+   a mean over the 40 references the policy is training against, inside the
+   model. It is not held out. So "SELECTED" means "best on its own training
+   objective", and the Chrono number is what tests whether that transferred.
+   This is weaker than the dynamics model's `rollout_sel`, which is computed on a
+   val split, and the difference is real.
+
+2. **Selection is NOT permitted on any Chrono result.** Evaluating several
+   checkpoints in Chrono and keeping the best would be selecting on the test set.
+   The Chrono evaluation runs exactly twice — SELECTED and FINAL — and the choice
+   of which two was fixed by this amendment before either was run.
+
+## Why the run is not being stopped early
+
+Stopping now would itself be a decision made after seeing the trajectory, and it
+would truncate the record that makes the drift visible. Letting it finish costs
+about an hour of GPU and yields the complete curve plus the FINAL checkpoint the
+comparison needs.
