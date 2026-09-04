@@ -215,13 +215,28 @@ def main() -> int:
                     help="TRAIN-reference arm JSON (registered primary)")
     ap.add_argument("--generalisation", type=Path, default=None,
                     help="VAL-reference arm JSON (supplementary)")
+    ap.add_argument("--least-moving", type=Path, default=None,
+                    help="The ORIGINAL eight (median path 0.143 m). Reported as the "
+                         "other end of a bracket, not as a footnote: with the primary "
+                         "eight at 0.500 m median they span the pool's range, and "
+                         "'on the most-moving X, on the least-moving Y' is a stronger "
+                         "statement than either alone.")
     ap.add_argument("--out", type=Path, default=None)
     a = ap.parse_args()
 
     result: dict[str, Any] = {}
     result["primary"] = report_arm(
-        "PRIMARY -- 6.0 s, random-start, TRAIN references (transfer)",
+        "PRIMARY -- 6.0 s, TRAIN references, MOST-MOVING per family (median path 0.500 m)\n"
+        "  This is performance on the most-moving reference in each family.\n"
+        "  It is a deliberate high draw and NOT a representative sample.",
         load_arm(a.primary))
+
+    if a.least_moving:
+        result["least_moving"] = report_arm(
+            "BRACKET -- 6.0 s, TRAIN references, LEAST-MOVING (median path 0.143 m)\n"
+            "  The other end of the same pool. Six of these eight move less than 30 cm\n"
+            "  in 6 s, so this arm is closer to station-keeping than to tracking.",
+            load_arm(a.least_moving))
 
     if a.generalisation:
         result["generalisation"] = report_arm(

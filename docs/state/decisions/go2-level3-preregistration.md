@@ -477,3 +477,50 @@ statistic.
    something that moves.
 
 The original eight are reported as a secondary arm so nothing is hidden.
+
+---
+
+# Amendment 6: how the two eval sets are labelled and reported
+
+## The reselected eight are MAX-MOTION PER FAMILY, not a representative sample
+
+The original eight were an unlucky low draw. The reselected eight are a
+deliberate high draw — the highest-motion member of each flat family. **Both are
+non-representative.** The second is the right choice for a tracking benchmark,
+and it means something specific:
+
+  **"performance on the most-moving reference in each family"** — NOT typical
+  performance.
+
+Report it in those words. "We selected for motion" invites a reader to assume a
+representative sample, and it is not one.
+
+## The two sets are a BRACKET, not a result and an apology
+
+    median reference path over 6 s:   original 0.143 m     reselected 0.500 m
+
+They are the low and high ends of the same pool, so together they bracket the
+range. Report as **"on the most-moving references X, on the least-moving Y"**,
+which is a stronger statement than either alone and costs nothing beyond runs
+already done. Neither is a footnote to the other. Framing due to the coordinator.
+
+## PROHIBITED: comparing the new floor to the old signal
+
+The floor rose 0.0457 → 0.0655 because the references move. The policy's
+**0.0167 m is a training mean over all forty references** — a different
+population entirely. `0.0655 / 0.0167 = 3.9x` is a new denominator over an old
+numerator across different reference sets, and it is the same error caught four
+times tonight in a fresh costume.
+
+**No floor-to-signal ratio may be quoted until the policy has been measured on
+the reselected eight specifically.** Its error there will almost certainly be
+higher than 0.0167, because those are the eight that move most. Prohibition due
+to the coordinator, who spotted it before it was written down.
+
+## Registered limitation: the training distribution is slow
+
+**27 of 40 training references travel less than 0.50 m over the tracked 6 s
+window** (median 0.372 m, max 2.102 m). Not degenerate — that was checked and
+settled in amendment 5 — but not ambitious either. This belongs in the writeup
+beside the single-gait and thin-forward-command limitations rather than being
+discovered by a reader.
