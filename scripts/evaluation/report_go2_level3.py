@@ -91,8 +91,10 @@ def load_arm(path: Path) -> dict[str, Any]:
             "diff": r["mean_position_error_m"] - base["mean_position_error_m"],
             "policy_steps": r["steps"],
             "floor_steps": base["steps"],
+            "action_span": r.get("action_span"),
         })
     return {"path": str(path), "rows": rows,
+            "pooled_policy": float(data["policy"]["mean_position_error_m"]),
             "reference_path": data.get("reference_path"),
             "chrono_config": data.get("chrono_config")}
 
@@ -233,6 +235,92 @@ def report_arm(label: str, arm: dict[str, Any]) -> dict[str, Any]:
             "per_reference": rows}
 
 
+def checklist(result: dict[str, Any], arms: dict[str, dict[str, Any]]) -> bool:
+    """Fixed checks, run on EVERY verdict, whichever way it went.
+
+    ASYMMETRIC SCRUTINY IS A BIAS WITH A DIRECTION. Auditing a BEAT harder than a
+    FAIL depresses the reported rate of BEAT below the true rate over enough runs,
+    and it feels like rigour the whole time -- the mirror image of the thing this
+    pre-registration exists to prevent, and harder to notice because it looks like
+    caution. A FAIL is just as easily an artifact: the CRM bed bug would have
+    produced one, and so would a mismatched pre-roll. So the checks are fixed in
+    advance and do not depend on the answer. Construction due to the coordinator.
+    """
+    print(f"\n{'=' * 78}\nCHECKLIST -- runs on every verdict, independent of which way it went\n{'=' * 78}")
+    ok = True
+
+    def check(name: str, passed: bool, detail: str) -> None:
+        nonlocal ok
+        ok &= passed
+        print(f"  [{'PASS' if passed else 'FAIL'}] {name}: {detail}")
+
+    def skipped(name: str, why: str) -> None:
+        """NOT a pass. A check that could not run is an open question, and the
+        overall result is reported as INCOMPLETE rather than as passing."""
+        nonlocal ok
+        ok = False
+        print(f"  [SKIP] {name}: {why}")
+
+    for label, arm in arms.items():
+        rows = arm["rows"]
+        # No reference aborted or silently substituted.
+        short = [r for r in rows if r["policy_steps"] != r["floor_steps"]]
+        check(f"{label}: policy and floor ran the same horizon",
+              not short,
+              "all references matched" if not short
+              else f"{len(short)} differ: {[r['family'] for r in short]}")
+        # The policy actually acted.
+        spans = [r.get("action_span") for r in rows if r.get("action_span")]
+        if spans:
+            worst = min(max(sp) for sp in spans)
+            check(f"{label}: policy issued non-degenerate commands",
+                  worst > 1e-3,
+                  f"smallest per-reference command span across channels = {worst:.4f}")
+        else:
+            # A CHECK THAT SKIPS SILENTLY IS THE DEFECT THIS FILE EXISTS TO
+            # CATCH. No action_span means the eval JSON predates the recording
+            # of issued commands -- which is a reason to re-run it, not a pass.
+            skipped(f"{label}: policy issued non-degenerate commands",
+                    "eval JSON carries no action_span; re-run the eval to record it")
+        # Per-reference reconciles with pooled.
+        pooled = float(np.mean([r["policy"] for r in rows]))
+        check(f"{label}: per-reference mean reconciles with pooled",
+              abs(pooled - arm["pooled_policy"]) < 1e-9,
+              f"{pooled:.6f} vs {arm['pooled_policy']:.6f}")
+
+    # Arms matched: a reference appearing in two arms must have the SAME floor.
+    if len(arms) == 1:
+        skipped("arms matched (shared reference floor)",
+                "only one arm supplied; pass --least-moving and --generalisation "
+                "so the matching and direction checks can run")
+    if len(arms) > 1:
+        by_ep: dict[str, list[float]] = {}
+        for arm in arms.values():
+            for r in arm["rows"]:
+                by_ep.setdefault(r["episode_id"], []).append(r["floor"])
+        shared = {k: v for k, v in by_ep.items() if len(v) > 1}
+        if shared:
+            worst = max(max(v) - min(v) for v in shared.values())
+            check("arms matched (shared reference has identical floor)",
+                  worst < 1e-4,
+                  f"{len(shared)} shared, max floor disagreement {worst:.6f} m")
+        else:
+            skipped("arms matched (shared reference floor)",
+                    "no reference appears in two arms, so file/pre-roll/horizon "
+                    "agreement is unverifiable from these outputs")
+
+    # Direction agreement between arms.
+    meds = {k: float(np.median([r["ratio"] for r in a["rows"]])) for k, a in arms.items()}
+    if len(meds) > 1:
+        sides = {k: (v < 1.0) for k, v in meds.items()}
+        check("arms agree in direction",
+              len(set(sides.values())) == 1,
+              ", ".join(f"{k} median {v:.3f}" for k, v in meds.items()))
+
+    print(f"\n  {'ALL CHECKS PASS -- report the verdict as it stands' if ok else 'INCOMPLETE OR FAILED -- investigate before reporting, regardless of the verdict'}")
+    return ok
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--primary", type=Path, required=True,
@@ -287,6 +375,13 @@ def main() -> int:
             print("    arbitrary draws.")
         result["cross_arm"] = {"median_ratio_train": rt, "median_ratio_val": rv,
                                "prediction_ratio_val_gt_train": bool(held)}
+
+    arms = {"primary": load_arm(a.primary)}
+    if a.least_moving:
+        arms["least_moving"] = load_arm(a.least_moving)
+    if a.generalisation:
+        arms["generalisation"] = load_arm(a.generalisation)
+    result["checklist_passed"] = checklist(result, arms)
 
     if a.out:
         a.out.parent.mkdir(parents=True, exist_ok=True)

@@ -827,3 +827,54 @@ afterwards whichever reading suits the result will look like the natural one:
 
 Correction proposed by the coordinator; the supporting evidence is the structural
 inversion measured here.
+
+---
+
+# Amendment 10: a fixed checklist, run on every verdict
+
+## The disposition it replaces was a bias with a direction
+
+I registered "treat a BEAT as needing more scrutiny than a PARITY or FAIL". The
+instinct was right and the construction was wrong: **asymmetric scrutiny
+systematically depresses the reported rate of whichever verdict is audited
+harder**, and it feels like rigour the entire time. That is the mirror image of
+the failure this document exists to prevent, and harder to notice because it
+looks like caution.
+
+A FAIL is just as easily an artifact. The CRM bed bug would have produced one. A
+mismatched pre-roll would have produced one — and the unmatched least-moving arm
+would have produced a wrong bracket in whichever direction the mismatch happened
+to point. Correction due to the coordinator.
+
+## The checklist, fixed now, run on any verdict
+
+Implemented in `report_go2_level3.py` and executed automatically:
+
+1. **policy and floor ran the same horizon** — no reference aborted or silently
+   substituted
+2. **the policy issued non-degenerate commands** — a policy emitting a constant
+   produces entirely ordinary-looking position errors, so this cannot be read off
+   the errors; the eval now records the command actually delivered to the plant
+3. **per-reference numbers reconcile with the pooled figure**
+4. **arms matched** — a reference appearing in two arms must have an identical
+   floor, which is the only thing in either table that can detect a file,
+   pre-roll or horizon mismatch
+5. **arms agree in direction** — primary, least-moving and generalisation
+6. **the two checkpoints agree in direction** — SELECTED and FINAL
+
+If any fails, investigate — **regardless of which way the verdict went**. If all
+pass, report the verdict as it stands, **including a BEAT**. It is also checkable
+by someone else, which "I will be more suspicious" is not.
+
+## A SKIPPED CHECK IS NOT A PASS
+
+The first implementation skipped silently when its data was absent: the
+non-degeneracy check found no `action_span` in an older eval JSON and simply did
+not run, and the arms-matched check did not print at all with a single arm. Both
+reported ALL CHECKS PASS.
+
+That is the failure class this project has catalogued roughly fifteen times — a
+check whose success path is reachable without the thing it checks having
+happened — reproduced inside the checklist written to catch it, within minutes of
+writing it. A skipped check now sets the overall result to **INCOMPLETE** and
+prints `[SKIP]` with the reason and the remedy.

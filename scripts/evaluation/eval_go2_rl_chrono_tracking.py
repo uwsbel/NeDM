@@ -170,6 +170,7 @@ def roll_one(env: Any, reference_id: int, policy: Any | None) -> dict[str, Any]:
 
     errors: list[float] = []
     rewards: list[float] = []
+    taken: list[list[float]] = []
     steps = 0
     for _ in range(env.max_episode_length):
         if policy is None:
@@ -187,12 +188,20 @@ def roll_one(env: Any, reference_id: int, policy: Any | None) -> dict[str, Any]:
             obs, reward, dones, extras = env.step(action)
         errors.append(float(extras["log"]["/tracking/position_error_m"]))
         rewards.append(float(reward[0]))
+        # The COMMAND that reached the plant, after scaling and clamping. A policy
+        # emitting a constant produces entirely ordinary-looking position errors,
+        # so "did the policy actually act" cannot be read off the errors.
+        taken.append([float(v) for v in env.sims[0].command])
         steps += 1
         if bool(dones[0]):
             break
 
     err = np.asarray(errors, dtype=np.float64)
+    act = np.asarray(taken, dtype=np.float64)
     return {
+        "action_mean": act.mean(axis=0).tolist(),
+        "action_std": act.std(axis=0).tolist(),
+        "action_span": (act.max(axis=0) - act.min(axis=0)).tolist(),
         "reference_id": reference_id,
         "episode_id": env.reference_set.episode_ids[reference_id],
         "scenario_family": env.reference_set.scenario_families[reference_id],
