@@ -317,6 +317,48 @@ start adding state channels. Adding channels in response to a data-quantity
 shortfall would produce a state that looks justified and is not, and the deletion
 rule would never catch it because the channel would appear to earn its place.
 
+### SECOND AMENDMENT: `errdist` is not comparable across the two studies
+
+**Added 2026-09-04, still before any result.** The band above compares our
+`rollout_sel` to the HMMWV's 5.4%. **`errdist` is a ratio, and nobody checked the
+denominator.** Third instance of that error class tonight, and the most
+consequential, because this is the number a checkpoint is chosen on.
+
+`trainer.py:772`: `errdist = traj_rmse / mean_distance`, where `mean_distance` is
+the ground-truth **path length** pooled over the selected episodes
+(`trainer.py:763`). Recorded from the HMMWV's own ablation run
+(`artifacts/training_runs/ablation_ofat/feature_ablation_rollout100.json`):
+
+| | mean_dist_m | xy_rmse_m | errdist |
+|---|---|---|---|
+| HMMWV flat | **52.89** | 2.02 | 3.8% |
+| HMMWV CRM | **30.41** | 1.30 | 4.3% |
+| Go2 CRM | **~1.5–3** (est.) | ? | ? |
+
+A vehicle at highway-ish speed covers 30–53 m in a 10 s rollout. **Our quadruped
+covers 1–3 m** — achieved speeds run 0.03 m/s forward inside the dead zone to
+~0.25 m/s backward, and the `pivot` family barely translates at all. So the
+denominator is **10–20× smaller**.
+
+The consequences, both directions:
+
+- To match their 4.3% we would need `xy_rmse` ≈ **6–13 cm** after a 10 s rollout.
+- Their *absolute* 1.30 m error, on our denominator, would read as **43–87%**.
+
+**Therefore the 6–12% band above is withdrawn as a cross-study comparison.** It was
+derived from data-scaling fractions, which remain valid, applied to a metric that
+is not commensurable between the two systems.
+
+**What is unaffected:** `rollout_sel` as a *checkpoint selection* metric. The
+denominator is identical across checkpoints of a run — same episodes, same ground
+truth — so it ranks checkpoints exactly as `xy_rmse` does. **Selection is fine;
+only the comparison to the paper's numbers is broken.**
+
+**What to do:** report `mean_dist_m` alongside `errdist` on the first rollout eval,
+then set the band from our own denominator. Compare absolute `xy_rmse` against
+robot scale (a Go2 is ~0.7 m long) rather than reading a ratio across systems that
+travel 20× differently.
+
 **The selection metric does not change after we see results.** The checkpoint is
 the one minimizing held-out open-loop rollout error at the 10 s horizon, per
 `rollout_sel` in the config and per the framework's own rule. One-step loss and
