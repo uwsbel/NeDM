@@ -97,6 +97,28 @@ JOINT_ACTION_FIELDS = [
 # now would be free to get wrong and expensive to undo.
 COMMAND_ACTION_FIELDS = ["cmd_vx_mps", "cmd_vy_mps", "cmd_wz_radps"]
 
+# Measured joint state, needed to roll an external walking policy forward inside a
+# surrogate: its 45-D observation reads q and dq, and a model that predicts only
+# body state cannot supply them.
+#
+# ORDERED BY MOTOR_NAMES (RR, RL, FR, FL), which is CHRONO ORDER -- deliberately,
+# and NOT by LEG_ORDER. Four orderings for the same twelve joints exist here:
+#
+#   MOTOR_NAMES   RR RL FR FL   robot.joint_pos()/joint_vel(), robot.actuate(),
+#                               and JOINT_ACTION_FIELDS -- i.e. the target columns
+#   LEG_ORDER     fl fr rl rr   the foot_* columns
+#   FOOT_BODIES   FR FL RR RL   the body-name list
+#   imported      FL FR RL RR   the policy, reached via CHRONO_TO_IMPORTED and SIGN
+#
+# Chrono order is the only choice that makes q, dq and the previous action line up
+# index-for-index, since the target columns already use it. Logging in any other
+# order would need a permutation at write time AND a different one at read time,
+# to produce columns that silently disagree with the actions beside them.
+JOINT_STATE_FIELDS = (
+    [f"joint_{name.removesuffix('_joint').lower()}_pos_rad" for name in MOTOR_NAMES]
+    + [f"joint_{name.removesuffix('_joint').lower()}_vel_radps" for name in MOTOR_NAMES]
+)
+
 ACTION_FIELDS = JOINT_ACTION_FIELDS + COMMAND_ACTION_FIELDS
 
 BASE_FIELDS = [
@@ -139,6 +161,7 @@ BASE_FIELDS = [
     "body_slip_rad",
     "roll_rate_radps",
     "yaw_rate_radps",
+    *JOINT_STATE_FIELDS,
 ]
 
 
@@ -320,6 +343,13 @@ def capture_row(
     }
 
     for field, value in zip(JOINT_ACTION_FIELDS, action):
+        row[field] = float(value)
+    # Raw Chrono-order values, NOT sign-flipped and NOT permuted. The imported
+    # policy applies SIGN and CHRONO_TO_IMPORTED itself (imported_policy.py:224);
+    # applying either here would bake one consumer's convention into the dataset
+    # and silently break every other reader.
+    joint_state = list(robot.joint_pos()) + list(robot.joint_vel())
+    for field, value in zip(JOINT_STATE_FIELDS, joint_state):
         row[field] = float(value)
     for field, value in zip(COMMAND_ACTION_FIELDS, command):
         row[field] = float(value)

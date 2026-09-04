@@ -43,7 +43,15 @@ if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
 DEFAULT_OUTPUT_DIR = Path("artifacts/datasets/go2_smoke")
-DEFAULT_ASSETS = "/home/kyle/Documents/sbel/sbel-reproducibility/2025/multi-terrain-RL"
+# Machine-specific, so it is an env var with this box's value as the fallback --
+# the same convention drive_go2_collection.py already documents for NEDM_REPO,
+# NEDM_PY and NEDM_CHRONO_PYTHONPATH. The driver passes no --assets, so a
+# hardcoded path here is not a default: it is a hard failure on any box whose
+# checkout is not at ~/Documents/sbel (dorm-pc's has no "sbel/" segment), and it
+# fails at the URDF load AFTER the process has started.
+DEFAULT_ASSETS = os.environ.get(
+    "NEDM_GO2_ASSETS",
+    "/home/kyle/Documents/sbel/sbel-reproducibility/2025/multi-terrain-RL")
 
 
 def parse_args() -> argparse.Namespace:
