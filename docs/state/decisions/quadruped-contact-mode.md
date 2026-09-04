@@ -97,3 +97,53 @@ heading are bounded deliberately**: the sinkage probe's undisturbed control patc
 sits at (0.0, 1.2), and a wider spread would walk the robot into its own
 reference and corrupt `surface_disp`. Maximum lateral excursion is ~0.74 m against
 that 1.2 m patch.
+
+## The ablation needs a fifth cell: PERMUTED mode
+
+**Added 2026-09-04, before any cell was run.** The four-cell design is confounded
+by construction and cannot support the claim it was built to test.
+
+At our data scale an added input tends to improve rollout **whether or not it
+encodes real physics**, because we sit on the steep part of the data curve and
+extra capacity absorbs variance. Every cell that carries mode also carries the
+sixteen extra input dimensions that come with it. So "terrain+mode beats
+terrain-only" is equally consistent with two worlds:
+
+- contact mode carries physics, or
+- contact mode carries nothing and the model benefited from the width.
+
+This is the same confound as the rejected cross-product encoding — context tangled
+with capacity — reappearing one level up, after we had already rejected it once in
+its more obvious form.
+
+### The control
+
+A fifth cell with the mode code **permuted within each episode**: same width, same
+sixteen dimensions, same one-hot structure, same everything, but the mode assigned
+to each timestep carries no information about the actual contact state.
+
+| cell | what it holds |
+|---|---|
+| terrain + mode | the claim |
+| terrain + **permuted** mode | the same capacity, none of the signal |
+
+Permute *within episode* rather than drawing from the pooled empirical
+distribution: it preserves each episode's mode marginal exactly and destroys only
+the temporal correspondence with the force series. Drawing from the pool would also
+destroy the per-episode composition, adding a second difference to argue about.
+
+**Seed the permutation and record the seed in the run config.** A control that
+cannot be reproduced is a control nobody can check.
+
+### It has a three-point null, which is what makes it interpretable
+
+If capacity alone helps, permuted lands **between** terrain-only and terrain+mode.
+If capacity is all there ever was, permuted lands **at** terrain+mode. If the
+signal is real, real mode beats permuted.
+
+Whichever way it falls, the result reads. And if permuted matches real mode, the
+case study's central claim is not supported by this experiment — **a result, and a
+much better one to find ourselves than to have a reviewer ask about.**
+
+Cost: one training run, no new data. The permutation is a transform on the
+precomputed per-timestep mode column, applied at load.
