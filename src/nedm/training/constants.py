@@ -1,5 +1,13 @@
 from __future__ import annotations
 
+# The collector owns these names; importing keeps one source of truth for the
+# column ordering. quadruped.dataset is pure stdlib and pulls in no simulator.
+from nedm.quadruped.dataset import (
+    COMMAND_ACTION_FIELDS as _COMMAND_ACTION_FIELDS,
+    JOINT_ACTION_FIELDS as _JOINT_ACTION_FIELDS,
+    JOINT_STATE_FIELDS as _JOINT_STATE_FIELDS,
+)
+
 DEFAULT_STATE_FIELDS = [
     "vel_body_x_mps",
     "vel_body_y_mps",
@@ -79,12 +87,21 @@ QUADRUPED_FULL_FOOT_FIELDS = (
 # The 3-D velocity command. The alternative action is the twelve joint targets;
 # both are collected so the choice is made by ablation. See
 # docs/state/decisions/quadruped-case-study-plan.md.
-QUADRUPED_COMMAND_ACTION_FIELDS = ["cmd_vx", "cmd_vy", "cmd_wz"]
-QUADRUPED_JOINT_ACTION_FIELDS = [
-    f"joint_{leg}_{joint}_target_rad"
-    for leg in ("rr", "rl", "fr", "fl")
-    for joint in ("hip", "thigh", "calf")
-]
+# IMPORTED FROM THE COLLECTOR'S OWN DEFINITIONS, not restated. These name CSV
+# columns, so the collector is the only authority on what they are called, and a
+# copy here can drift from the files it claims to describe. It already had:
+# these were "cmd_vx"/"cmd_vy"/"cmd_wz" against the collector's
+# "cmd_vx_mps"/"cmd_vy_mps"/"cmd_wz_radps" -- wrong, and invisible because
+# nothing imported them. (Harmless if used: read_episode_csv raises KeyError on a
+# missing field, so this would have failed loudly rather than silently.)
+QUADRUPED_COMMAND_ACTION_FIELDS = list(_COMMAND_ACTION_FIELDS)
+QUADRUPED_JOINT_ACTION_FIELDS = list(_JOINT_ACTION_FIELDS)
+
+# 31-D. Body state plus the twelve measured joint positions and velocities, in
+# the collector's Chrono order -- the state a surrogate must predict for an
+# external walking policy to be rolled forward inside it, since the imported
+# policy's 45-D observation reads q and dq. Body-only channels cannot supply them.
+QUADRUPED_JOINT_STATE_FIELDS = list(_JOINT_STATE_FIELDS)
 
 STATE_FIELD_PRESETS = {
     "default": DEFAULT_STATE_FIELDS,
@@ -94,6 +111,8 @@ STATE_FIELD_PRESETS = {
     # adds sinkage and surface displacement as ablation candidates.
     "quadruped_contact": DEFAULT_STATE_FIELDS + QUADRUPED_CONTACT_STATE_FIELDS,
     "quadruped_full": DEFAULT_STATE_FIELDS + QUADRUPED_FULL_FOOT_FIELDS,
+    # 31-D, for the joint-level surrogate the policy fine-tuning pilot needs.
+    "quadruped_joint": DEFAULT_STATE_FIELDS + QUADRUPED_JOINT_STATE_FIELDS,
 }
 
 DEFAULT_ACTION_FIELDS = [

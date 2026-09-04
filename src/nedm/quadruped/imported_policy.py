@@ -86,6 +86,23 @@ PARAM_RANGES = {
     "t_switch": (4.0, 12.0), "freq": (0.05, 0.30), "period": (2.0, 6.0),
 }
 
+# WIDE RANGES, MEASURED NOT GUESSED. No training config ships with the imported
+# checkpoint, so the envelope was measured directly on rigid: the policy tracks at
+# 0.90-0.99 from 0.8 m/s up to 2.0 m/s forward, 0.87 at -1.4 reverse, 0.94 at
+# 3.0 rad/s yaw, 0.89 at 1.0 m/s lateral, and falls nowhere in that range.
+#
+# The narrow ranges above sample ONLY the band where it works worst -- 0.3 m/s
+# achieves 0.01 of command. Every episode collected before 2026-09-04 lives in
+# that band, which is why the plant looked like it tracked at 63% of command.
+#
+# Capped at what was actually probed. No claim is made past 2.0 m/s or 3.0 rad/s.
+PARAM_RANGES_WIDE = {
+    "vx": (-1.5, 2.0), "vy": (-1.5, 1.5), "wz": (-3.0, 3.0),
+    "vx0": (-1.5, 2.0), "vx1": (-1.5, 2.0),
+    "wz1": (-3.0, 3.0), "wz_amp": (0.2, 3.0),
+    "t_switch": (4.0, 12.0), "freq": (0.05, 0.30), "period": (2.0, 6.0),
+}
+
 FAMILY_PARAMS = {
     "constant":    ["vx"],
     "lateral":     ["vy"],
@@ -139,7 +156,7 @@ def family_seed(family: str, offset: int = 0) -> int:
     return (zlib.crc32(family.encode()) + offset) & 0xFFFFFFFF
 
 
-def stratified_params(family: str, n: int, seed: int) -> list[dict]:
+def stratified_params(family: str, n: int, seed: int, wide: bool = False) -> list[dict]:
     """n parameter draws per family, STRATIFIED rather than uniform.
 
     Each varying parameter's range is cut into n equal bins and one value is
@@ -152,8 +169,9 @@ def stratified_params(family: str, n: int, seed: int) -> list[dict]:
 
     rng = random.Random(seed)
     out = [dict() for _ in range(n)]
+    table = PARAM_RANGES_WIDE if wide else PARAM_RANGES
     for name in FAMILY_PARAMS[family]:
-        lo, hi = PARAM_RANGES[name]
+        lo, hi = table[name]
         order = list(range(n))
         rng.shuffle(order)
         for i, b in enumerate(order):
