@@ -633,8 +633,9 @@ collect_go2_smoke.py:416   bp = base.GetPos()                  -> CENTRE OF GRAV
 dataset.py:265             base.GetFrameRefToAbs().GetPos()    -> REFERENCE FRAME
 ```
 
-They differ by a fixed +20 mm in x. Nothing in either file says which frame the
-other uses.
+They differ by a **body-frame longitudinal offset of 20.7 mm** — the COG sits that
+far forward of the reference-frame origin along the body x-axis. Nothing in either
+file says which frame the other uses.
 
 **Found from data, not from reading.** Two boundary episodes stopped at logged
 x = 0.1796 and 0.1808 against a bed edge of exactly 0.200. Since the check breaks
@@ -642,6 +643,26 @@ x = 0.1796 and 0.1808 against a bed edge of exactly 0.200. Since the check break
 implied offsets, +20.4 mm and +19.2 mm, agree to 1.2 mm across approach speeds
 differing by 70% and `t_switch` by 3 s. **A speed-dependent artefact cannot produce
 a 1 mm spread; a fixed frame offset produces exactly that.**
+
+**The first description was wrong, and nine episodes corrected it.** From two
+x-edge episodes it read as "+20 mm in world x." That cannot be right, because the
+offset also appears on the **y** edges. If it is one body-frame offset, the miss at
+any edge is `|d · cos(angle between the body x-axis and that edge normal)|`, and
+dividing it out should recover the same constant:
+
+| | raw miss | implied offset |
+|---|---|---|
+| spread over 9 episodes, 4 families, 3 edges, 236° of heading | **8.5 mm** | **3.3 mm** |
+
+Projection removes 62% of the scatter; mean 20.7 mm. And the falsifying case is
+decisive: a world-x offset predicts **zero** miss at a y edge with the body pointing
+along y, yet the four episodes at |yaw| 85–100° on a y edge show the **largest**
+misses (19.7–22.4 mm). The residual 3.3 mm is about what a 10 ms sample interval at
+0.2 m/s gives.
+
+So the correct statement is: *the COG sits ~20.7 mm forward of REF along the body
+x-axis; the boundary is tested on the COG and logged from REF; the discrepancy a
+reader sees at any edge is that offset projected onto the edge normal.*
 
 Not a data defect: terminations are real, trajectories self-consistent, effective
 margin 0.78 m rather than 0.80, nothing to recollect.
@@ -660,3 +681,23 @@ supposedly crossed, and has no way to tell which of the two numbers to distrust.
 
 Same class as this project's earlier AuxRef visual-frame bug. The one-line rule:
 **check the frame you log.**
+
+### Coda: n=2 gives you a mechanism and lies about which parts are load-bearing
+
+Two people made the same error inside an hour, on different findings:
+
+- The frame offset read as **"+20 mm in world x"** from two x-edge episodes. Nine
+  episodes across three edges showed it was body-frame, and the world-frame reading
+  was *falsified* by the very cases the first sample happened to exclude.
+- The `vel_step` spawn failure read as a **four-way conjunction** — forward spawn,
+  `vx0` in the dead zone, strong negative `vx1`, early switch — from one episode
+  where all four held. A second episode tracking forward at 0.155 m/s (2.5× the
+  supposed threshold) exited anyway. **The spawn is sufficient; the dead zone only
+  aggravates.** Exposure is ~half the family, not the 1-in-10 the conjunction
+  implied.
+
+Both times a small sample yielded a *correct* mechanism and a *wrong* account of
+its necessary conditions — and in both, the sample's incidental features got
+promoted to requirements. Inspecting few units beats a p-value (see above), but the
+next question is always: **which of these conditions did I observe because it
+matters, and which because it was there?**
