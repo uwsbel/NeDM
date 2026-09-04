@@ -3,6 +3,70 @@
 Written **2026-09-04, before the policy checkpoint exists** (`go2_nn_tracking_v01`
 is at iteration ~320/2000). Committed so git timestamps it ahead of the number.
 
+---
+
+# THE OPERATIVE RULE, IN ONE PLACE
+
+Everything below this block is the record of how the rule was arrived at, across
+eleven amendments. **This block is the rule.** If the two ever disagree, the
+amendments are authoritative and this summary is the bug.
+
+**What is measured.** The replay baseline drives Chrono with the reference's own
+recorded commands — open-loop, unable to react. The policy is closed-loop. The
+reported quantity is `policy_error / floor_error` **per reference**, same
+reference, terrain, horizon and start distribution, differing only in open- versus
+closed-loop.
+
+**Primary arm.** 6.00 s (120 policy steps), rigid terrain, the **source** Chrono
+build, `go2_flat_crm_ref40.npz` — the policy's own training reference file — at
+pre-roll 0.0 so the window is exactly the one the policy tracked. Reference
+indices **16, 17, 10, 19, 12, 13, 6, 15**: the highest-motion member of each flat
+family. This is **performance on the most-moving reference in each family**, a
+deliberate high draw, **not a representative sample**. Pooled floor **0.0655 m**.
+
+**Two checkpoints, fixed in advance.** SELECTED (the save-interval checkpoint
+nearest the logged in-model `position_error_m` minimum) and FINAL (`model_2000`).
+Both are evaluated and **both are published**. Selection on any Chrono result is
+forbidden.
+
+**Verdict, on the per-reference ratio:**
+
+    BEAT     median <= 0.90  AND  policy better on >= 6 of 8
+    FAIL     median >  1.15   OR  policy worse  on >= 6 of 8
+    PARITY   otherwise
+
+**The count governs a median/count disagreement.** A median inside the BEAT
+threshold with fewer than 6 improvements is PARITY, not BEAT.
+
+**Co-reported, not substituted:** the median **paired absolute difference** (sign
+test plus the same majority condition; no magnitude threshold in metres, on
+purpose). If it agrees with the ratio, report the agreed verdict. If it
+disagrees, the verdict is **SPLIT** and both are reported — a disagreement
+between a scale-free and a scale-dependent statistic is itself the finding.
+
+**The slope is NOT independent evidence.** The through-origin slope is a
+floor-weighted mean ratio; on this reference set it agrees with the median ratio
+to ~11%. Report it with its intercept and leave-one-out range, and count two
+statistics where a reader might count three.
+
+**The checklist runs on every verdict, whichever way it went** — asymmetric
+scrutiny is a bias with a direction. **A skipped check is not a pass**; it makes
+the result INCOMPLETE.
+
+**Supplementary and labelled as such:** the least-moving eight (the other end of
+the bracket — report as "on the most-moving X, on the least-moving Y"), the val
+arm (0/8 training overlap; generalisation, compared by RATIO only, never by raw
+error), and the 10.00 s horizon (an 80-step extrapolation beyond anything the
+policy saw).
+
+**Known limits:** this is a transfer test, not a generalisation test (8/8 primary
+references were tracked during PPO); the training distribution is slow (27 of 40
+references travel under 0.50 m); seven of eight references issue a constant or
+single-step command; and the reward was balanced at the random-policy operating
+point, which is why the policy drifted after iteration 733.
+
+---
+
 ## The reading, stated before the measurement
 
 The replay baseline is **open-loop**: Chrono driven by the reference's own
