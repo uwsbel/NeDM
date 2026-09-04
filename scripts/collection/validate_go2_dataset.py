@@ -10,6 +10,8 @@ The gates are ordered by the stage they protect:
 
   G1  schema parity     every key a consumer reads is a key the collector writes
   G2  identity          episode ids are unique across the merged index
+                        (preprocess.py:398 also raises on this, but only after
+                        the collection it would invalidate has already run)
   G3  family cardinality  scenario_family distinguishes what command_family does
   G4  family agreement  scenario_family is consistent with terrain + command_family
   G5  index/json parity the two copies of a shared field agree
@@ -39,6 +41,26 @@ frames_path cannot collapse, while None and False are both "keep this episode", 
 terminated_near_boundary collapses perfectly. A wrong value is at least present to
 be noticed; this one is not. G1 therefore lists the keys whose absence is
 indistinguishable from a meaningful value, not every key a consumer touches.
+
+THE GATE READS THE RAW INDEX; THE TRAINER SELECTS FROM THE PROCESSED CACHE. Those
+are the same episodes in the same order, so G8's predicted selection is the
+trainer's actual one -- but only under two conditions, because the round-robin
+does `family_episodes.pop(0)` and is order-sensitive within a family, not merely
+membership-sensitive:
+
+  1. PASS --dataset-root IN THE SAME ORDER preprocess receives its roots.
+     preprocess.py:380-396 appends per root, then per episode within each root,
+     with no sort and no shuffle anywhere; split partitioning at :405 preserves
+     relative order. So order is carried exactly, and only the root order is
+     yours to get wrong.
+  2. DO NOT USE --max-episodes-per-split. preprocess.py:409 truncates each split
+     with a bare slice, and the gate cannot see that truncation.
+
+Outside those two, "the raw set would select 8/8 per terrain" and "the trainer
+selected 8/8 per terrain" are the same claim. Inside them they are not, and only
+the second one selects a checkpoint -- so re-ask the question against
+split_metadata["scenario_families"] after preprocess, where the answer is measured
+rather than predicted.
 
 Pure stdlib on purpose: this must run on a box with no torch and no CUDA, before
 anything expensive is scheduled.
