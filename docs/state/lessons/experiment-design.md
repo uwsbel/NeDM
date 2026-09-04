@@ -294,3 +294,53 @@ the pass, an episode collected under either value is indistinguishable.**
 That argument is legitimate and it is narrow. It holds *because* the differing
 field is the one already scheduled for rewrite. Had the diff touched anything
 else, the correct answer was to restart.
+
+## Provenance defects are found by CONSUMERS, never by readers
+
+**Cost:** five defects, all caught before training · **Found:** 2026-09-03/04 · **Applies to:** any dataset with metadata
+
+Five metadata defects surfaced in one session. **Not one was found by reading the
+collector.** Three came from writing the code that consumes the data, and two from
+a second machine trying to reproduce a result.
+
+| field | what it said | what was true |
+|---|---|---|
+| `policy` | a checkpoint that never ran | the imported one did |
+| `checkpoint_path` | a path under `/tmp` | moved to durable storage |
+| `git_commit` | commits that no longer resolve | rebased and reworded away |
+| `patch_y` | correct | **invisible from where the decision was made** |
+| `scenario_family` | `"constant_command"` for every episode | eight distinct families |
+
+**Four were true when written and invalidated by change. One was never true.**
+
+That distinction matters because the mitigations differ. A value invalidated by
+change is caught by recording provenance at write time and re-verifying it later.
+**A value that was false at its source survives any amount of faithful handling** —
+a careful consolidation propagates it perfectly, a hash check confirms it was
+copied exactly, and a rule like "keep everything addressable" preserves it intact.
+
+### The one that reached checkpoint selection
+
+`scenario_family` looked like a label. It is the key
+`_select_rollout_episodes` buckets on (`trainer.py:797`) before round-robining
+across families to choose the twelve episodes the deployed checkpoint is selected
+on. **With one bucket the round-robin degenerates to "take the first twelve in
+list order"** — and the output is still a rollout error over twelve episodes,
+which is exactly what a correct one looks like.
+
+### A stop-condition must be checked where the property is CONSUMED
+
+The coverage requirement had been set one layer too high: *"report the val split
+per family before training."* A val split can cover every family perfectly and the
+trainer can still select twelve rollout episodes from one of them.
+
+**Check the property at the point of use, not the point of production.** Producing
+coverage and consuming it are different guarantees, and only the second one is the
+one anybody cares about.
+
+### The practical rule
+
+**Write the consumer early, even before the data exists.** Every defect here was
+invisible to inspection and obvious to use. A synthetic dataset run through the
+real pipeline would have surfaced most of them before a single real episode was
+collected.
