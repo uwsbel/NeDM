@@ -2,7 +2,7 @@
 
 WRITTEN BEFORE THE FINAL CHECKPOINT EXISTS, WHICH IS THE ENTIRE POINT. Every
 threshold, every statistic and the order they are reported in come from
-docs/state/decisions/go2-level3-preregistration.md and its three amendments. If
+docs/state/decisions/go2-level3-preregistration.md and its amendments. If
 the verdict is computed by a script that predates the number, nobody gets to
 choose how to compute it after seeing the number -- including the person who
 wrote the pre-registration, which is the failure mode that amendment 1 exists to
@@ -21,6 +21,12 @@ contains both the replay floor and the policy, per reference) and produces:
 Refuses to do things the pre-registration forbids: it will not compare paired
 absolute differences across arms, and it will not print a slope without its
 leave-one-out range.
+
+ARM LABELS ARE PART OF THE RESULT. The primary eight are the MOST-MOVING
+reference in each family -- a deliberate high draw, not a representative sample --
+and --least-moving supplies the original low draw as the other end of a bracket.
+Reporting "on the most-moving X, on the least-moving Y" is stronger than either
+alone, and it stops "we selected for motion" being read as "we sampled".
 """
 
 from __future__ import annotations
