@@ -808,6 +808,25 @@ class HMMWVNeuralTrackingEnv(VecEnv):
         history_actions_norm = (history_actions - self.action_mean) / self.action_std
         state_error_norm = (current_state - ref_state) / self.state_std
         pose_error = self._pose_error_local(ref_pose)
+        # THESE CONSTANTS ARE HARMLESS ONLY BECAUSE empirical_normalization IS ON,
+        # and that coupling is documented in neither file. The divisors are
+        # HMMWV-scaled: 10 m is a reasonable position error for a vehicle
+        # covering 30-53 m per episode. The Go2 covers ~1.0-1.3 m and its typical
+        # position error is 0.016 m, which arrives here as 0.0016 among channels
+        # of order 1 -- a ~600x disparity.
+        #
+        # It does not bite, because rsl_rl's EmpiricalNormalization feeds the
+        # network (x - mean)/std and the running std of these channels IS that
+        # small number, so the constant divides straight back out. Measured on a
+        # trained Go2 policy over 100M samples: running std 0.0087 / 0.0067 /
+        # 0.0435, and the actor's first-layer mean |w| on the two position
+        # channels is 1.84x and 1.67x the median over all 231 inputs -- the
+        # network weights position error nearly TWICE the average channel.
+        #
+        # SET empirical_normalization: false AND THIS BINDS IMMEDIATELY, with
+        # nothing anywhere to warn you. Dead code in effect is not correct code.
+        # A per-robot scale belongs in cfg, but changing it now would move the
+        # observation distribution of every trained checkpoint in this repo.
         pose_error_scaled = torch.stack(
             [
                 pose_error[:, 0] / 10.0,

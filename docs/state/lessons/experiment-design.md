@@ -979,3 +979,53 @@ construction — this is not a gap in the checks, it is a property of the defect
 
 **Evidence:** `src/nedm/training/preprocess.py` `CONTACT_FORCE_FIELDS`;
 `src/nedm/quadruped/dataset.py:73`.
+
+## Two places a config diff cannot reach, and one rule for where to look
+
+**A literal inside an inherited parent method.** `hmmwv_tracking_env.py`
+hardcodes `pose_error[:, 0] / 10.0` in `_compute_observations`. Porting to the
+Go2 we verified the training config key-for-key against the anchor and overrode
+`default_env_cfg` wherever it differed. **Neither check could reach that
+literal**, because it is not in any config. The instance turned out to be
+neutralised, but the blind spot is not — a scale constant living in code that a
+subclass inherits is invisible to exactly the two audits a careful port performs.
+
+**And the rule that explains which inherited mismatches survive:**
+
+    OBSERVATION path   empirical_normalization divides inherited scale
+                       constants straight back out. The /10.0 was a ~600x raw
+                       disparity for the Go2 and reached the network at unit
+                       variance, weighted 1.84x the median channel.
+
+    REWARD path        NOTHING normalises these. position_sigma_m 2.0 inherited
+                       from a 30-53 m vehicle onto a 1.0-1.3 m robot made the
+                       reward flat everywhere, and had to be solved by hand from
+                       measured error percentiles.
+
+So on the next port: **do not spend effort auditing observation scaling under
+empirical normalisation; do audit every reward scale, because nothing normalises
+those.** Cheap, correct, and it explains rather than merely records why one of two
+inherited mismatches bit and the other did not. Generalisation due to the
+coordinator.
+
+## A correctly-established fact, and an unexamined claim about what follows
+
+A distinct species from the arithmetic slips. Both instances tonight had the same
+shape: the evidence was right and the inference from it was not.
+
+- "`pose_error/10.0` exists and is a 600x disparity for the Go2" — TRUE, verified.
+  "Therefore the network cannot act on position error" — FALSE, refuted by the
+  running std and the first-layer weights.
+- "All five CRM collection commits contain 133427b and pychrono has not changed" —
+  TRUE, verified. "Therefore the shim change cannot be what broke CRM" — the
+  reading was right but the conclusion drawn from it ("the environment changed
+  under us") was wrong; the real cause was two Chrono builds selected by
+  PYTHONPATH.
+
+**An arithmetic slip announces itself to anyone who redoes the arithmetic. This
+one survives any amount of rechecking of the part that was done**, because the
+unverified step is invisible among verified ones. It is also the class that
+survives review by other people, since reviewers check what they were shown.
+
+The only defence found so far is to state the inference as a separate claim and
+test it separately — reading the actor weights, not just the observation scale.
