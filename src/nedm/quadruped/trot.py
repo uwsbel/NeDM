@@ -247,6 +247,11 @@ class TrotController:
         hx, hy = self.geo.hip_xy[leg]
         vx_leg = vx - wz * hy
         vy_leg = vy + wz * hx
+        # frequency 0 is the STAND case -- the phase never advances, so there is
+        # no stance sweep to size and the displacement is zero by definition.
+        # Dividing by it would be a stand-specific crash in a gait-general path.
+        if self.params.frequency_hz <= 0.0:
+            return np.zeros(2)
         stance_time = self.params.duty / self.params.frequency_hz
         return np.asarray([vx_leg, vy_leg]) * stance_time
 
