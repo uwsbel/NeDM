@@ -19,7 +19,7 @@ from __future__ import annotations
 import heapq
 import json
 import math
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any, Sequence
 
@@ -457,3 +457,25 @@ def plan_to_ring(
             "params": {"inflation_m": params.inflation_m, "energy_weight": params.energy_weight},
         },
     )
+
+
+def plan_to_ring_fallback(
+    tmap: TerrainMap,
+    obstacles: Sequence[Obstacle],
+    start_xy: tuple[float, float],
+    ring_center: tuple[float, float],
+    params: PlannerParams | None = None,
+    margins: Sequence[float] = (0.9, 0.6, 0.3),
+) -> PlanCandidate | None:
+    """Feasibility rescue (plan §7.4 follow-up): plan with the interim tracker margin
+    first and shrink it only when no plan validates. The smoother relies on the
+    inflation, so a smaller margin is a last resort, not a default; the margin used is
+    recorded in ``meta["tracker_margin_m"]``. On 300 held-out layouts the ladder
+    0.9 -> 0.6 -> 0.3 turned the oracle's 2 no-path layouts into plans."""
+    params = params or PlannerParams()
+    for m in margins:
+        plan = plan_to_ring(tmap, obstacles, start_xy, ring_center, replace(params, tracker_p95_margin_m=m))
+        if plan is not None:
+            plan.meta["tracker_margin_m"] = float(m)
+            return plan
+    return None

@@ -36,7 +36,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from nedm.traverse import nrd_data as D
 from nedm.traverse.layout import EpisodeLayout
 from nedm.traverse.nrd_model import DT_S, VX
-from nedm.traverse.oracle import PlanCandidate, PlannerParams, plan_to_ring
+from nedm.traverse.oracle import PlanCandidate, PlannerParams, plan_to_ring, plan_to_ring_fallback
 from nedm.traverse.planner_b import MapDecoder, occupancy_discs
 from nedm.traverse.power_calib import KINDS, PowerModel
 from nedm.traverse.terrain import TerrainMap
@@ -76,7 +76,8 @@ def recorded_truth(cache: Path, key: str, route: dict[str, np.ndarray]) -> dict[
 
 
 def build_candidates(meta: dict, tmap: TerrainMap, sweep: dict, obstacles=None, margin: float | None = None,
-                     repair_iterations: int | None = None) -> tuple[list[tuple[str, PlanCandidate]], EpisodeLayout]:
+                     repair_iterations: int | None = None, margin_fallback: bool = False,
+                     ) -> tuple[list[tuple[str, PlanCandidate]], EpisodeLayout]:
     """``obstacles`` None -> the true footprint discs (privileged oracle); otherwise the
     disc list to plan against (e.g. occupied cells of the camera-derived map)."""
     layout = EpisodeLayout.from_json(meta["layout"])
@@ -88,7 +89,8 @@ def build_candidates(meta: dict, tmap: TerrainMap, sweep: dict, obstacles=None, 
             params = replace(params, tracker_p95_margin_m=margin)
         if repair_iterations is not None:
             params = replace(params, curvature_repair_iterations=repair_iterations)
-        plan = plan_to_ring(tmap, obstacles, layout.start_xy, layout.house_xy, params)
+        planner = plan_to_ring_fallback if margin_fallback else plan_to_ring
+        plan = planner(tmap, obstacles, layout.start_xy, layout.house_xy, params)
         if plan is None:
             continue
         sig = (len(plan.waypoints), round(plan.length_m, 2), round(float(plan.speeds.mean()), 3))
@@ -215,6 +217,7 @@ def main() -> None:
     ap.add_argument("--map-key", default="map_v2")
     ap.add_argument("--occ-threshold", type=float, default=0.5)
     ap.add_argument("--margin", type=float, default=None, help="tracker margin override for candidate generation")
+    ap.add_argument("--margin-fallback", action="store_true", help="0.9 -> 0.6 -> 0.3 margin rescue when no plan validates")
     ap.add_argument("--power-calib", default="artifacts/traverse/wp4_power_calib/power_calib.json")
     ap.add_argument("--dump-trajectories", default=None, help="npz path for per-step imagined z1/actions")
     ap.add_argument("--export-routes", default=None, help="json path: every candidate route, for the Chrono eval")
@@ -248,7 +251,8 @@ def main() -> None:
         cands, layout = build_candidates(meta, plan_tmap, CANDIDATE_SWEEP,
                                          obstacles=pred_discs if args.candidates == "predicted" else None,
                                          margin=args.margin,
-                                         repair_iterations=40 if args.candidates == "predicted" else None)
+                                         repair_iterations=40 if args.candidates == "predicted" else None,
+                                         margin_fallback=args.margin_fallback)
         with np.load(routes / f"{key}.npz") as r:
             recorded = {n: r[n] for n in ("waypoints", "speeds", "headings", "stations")}
         truths[key] = recorded_truth(cache, key, recorded)

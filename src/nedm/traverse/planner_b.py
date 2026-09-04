@@ -15,7 +15,7 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from nedm.traverse.oracle import Obstacle, OracleGrid, PlanCandidate, PlannerParams, a_star, plan_to_ring
+from nedm.traverse.oracle import Obstacle, OracleGrid, PlanCandidate, PlannerParams, a_star, plan_to_ring, plan_to_ring_fallback
 from nedm.traverse.terrain import TerrainMap
 
 
@@ -107,7 +107,8 @@ def occupancy_discs(occ_prob: np.ndarray, size_m: float, threshold: float = 0.5,
 
 def plan_on_predicted_map(decoder: MapDecoder, scene_map: np.ndarray, start_xy, ring_center,
                           params: PlannerParams | None = None, true_terrain: TerrainMap | None = None,
-                          threshold: float = 0.5, elev_smooth: float = 1.0) -> tuple[PlanCandidate | None, dict]:
+                          threshold: float = 0.5, elev_smooth: float = 1.0,
+                          margin_fallback: bool = False) -> tuple[PlanCandidate | None, dict]:
     """Camera-only planning. ``true_terrain`` given -> ablation rung with memorized terrain.
     On failure ``info["reason"]`` says whether A* found no path or smoothing/validation rejected it."""
     params = params or PlannerParams()
@@ -117,7 +118,10 @@ def plan_on_predicted_map(decoder: MapDecoder, scene_map: np.ndarray, start_xy, 
     occ, elev = decoder(scene_map)
     tmap = true_terrain if true_terrain is not None else decoder.terrain(elev, elev_smooth)
     discs = occupancy_discs(occ, decoder.size_m, threshold, mode="cells")
-    plan = plan_to_ring(tmap, discs, start_xy, ring_center, params)
+    if margin_fallback:
+        plan = plan_to_ring_fallback(tmap, discs, start_xy, ring_center, params)
+    else:
+        plan = plan_to_ring(tmap, discs, start_xy, ring_center, params)
     info = {"occupied_cells": len(discs), "occ": occ, "elev": elev, "reason": None}
     if plan is None:
         grid = OracleGrid(tmap, discs, params)

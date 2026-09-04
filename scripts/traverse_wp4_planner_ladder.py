@@ -21,7 +21,7 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from nedm.traverse import nrd_data as D
 from nedm.traverse.layout import EpisodeLayout
-from nedm.traverse.oracle import OracleGrid, PlanCandidate, PlannerParams, plan_to_ring, validate_candidate, _energy_per_m
+from nedm.traverse.oracle import OracleGrid, PlanCandidate, PlannerParams, plan_to_ring, plan_to_ring_fallback, validate_candidate, _energy_per_m
 from nedm.traverse.planner_b import MapDecoder, plan_on_predicted_map
 from nedm.traverse.terrain import TerrainMap
 
@@ -63,6 +63,7 @@ def main() -> None:
     ap.add_argument("--margins", type=float, nargs="+", default=[0.9, 0.3])
     ap.add_argument("--threshold", type=float, default=0.5)
     ap.add_argument("--elev-smooth", type=float, default=1.0)
+    ap.add_argument("--margin-fallback", action="store_true", help="0.9 -> 0.6 -> 0.3 rescue for all rungs")
     ap.add_argument("--map-key", default="map_v2")
     ap.add_argument("--device", default="cuda")
     args = ap.parse_args()
@@ -87,12 +88,14 @@ def main() -> None:
         for margin in args.margins:
             params = replace(PlannerParams(), tracker_p95_margin_m=margin)
             true_grid = OracleGrid(tmap, layout.obstacles(), params)
-            plans = {"oracle": plan_to_ring(tmap, layout.obstacles(), layout.start_xy, layout.house_xy, params)}
+            planner = plan_to_ring_fallback if args.margin_fallback else plan_to_ring
+            plans = {"oracle": planner(tmap, layout.obstacles(), layout.start_xy, layout.house_xy, params)}
             t1 = time.time()
             plans["pred_occ"], info = plan_on_predicted_map(decoder, scene_map, layout.start_xy, layout.house_xy, params,
-                                                           true_terrain=tmap, threshold=args.threshold)
+                                                           true_terrain=tmap, threshold=args.threshold, margin_fallback=args.margin_fallback)
             plans["pred_full"], info_full = plan_on_predicted_map(decoder, scene_map, layout.start_xy, layout.house_xy, params,
-                                                                 threshold=args.threshold, elev_smooth=args.elev_smooth)
+                                                                 threshold=args.threshold, elev_smooth=args.elev_smooth,
+                                                                 margin_fallback=args.margin_fallback)
             reasons = {"pred_occ": info["reason"], "pred_full": info_full["reason"]}
             plan_s = time.time() - t1
             plans["straight"] = straight_line(tmap, layout.start_xy, layout.house_xy, params)
@@ -103,6 +106,7 @@ def main() -> None:
                 if plan is not None:
                     j = judge(true_grid, plan, params)
                     row.update(j)
+                    row["margin_used"] = plan.meta.get("tracker_margin_m", margin)
                     if ref:
                         row["length_ratio"] = j["length_m"] / ref["length_m"]
                         row["energy_ratio"] = j["energy_proxy"] / ref["energy_proxy"]

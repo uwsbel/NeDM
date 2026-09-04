@@ -86,14 +86,21 @@ the true slope caps by more than the validation slack (5.7 % without the σ = 1
 cell blur, at 12 % no-path). Whether those plans are drivable is the Chrono
 question in §5.
 
-### Tracker margin (plan step 5): not the binding constraint
+### Tracker margin (plan step 5): shrink only as a rescue
 
-Reducing `tracker_p95_margin_m` from the interim 0.9 to 0.3 (Chrono p95 is
-0.07–0.12 m) **raised** the oracle's no-path rate from 2 % to 18 %. A* then
-threads closer to obstacles and the shortcut/Chaikin smoother pushes the path
-into the uninflated footprint, so validation rejects it. The smoother, not the
-margin, is what the inflation protects; the margin stays at 0.9 until the
-smoother is made clearance-aware. Feasibility at 0.9 is already 98 %.
+Reducing `tracker_p95_margin_m` from the interim 0.9 to 0.3 outright (Chrono p95
+is 0.07–0.12 m) **raised** the oracle's no-path rate from 2 % to 18 % on the
+oracle-family layouts. A* then threads closer to obstacles and the
+shortcut/Chaikin smoother pushes the path into the uninflated footprint, so
+validation rejects it. The smoother, not the margin, is what the inflation
+protects. What does work is a fallback ladder (`oracle.plan_to_ring_fallback`):
+plan at 0.9, and only if nothing validates retry at 0.6, then 0.3. On the
+100-layout ladder every rung then reaches **100 % feasibility with zero
+collisions** (oracle 98 layouts at 0.9 + 2 at 0.6; camera-only 98 + 1 + 1;
+full predicted 97 + 3); on 300 val layouts of all families the oracle's two
+no-path layouts become plans. The ladder is available in the ladder script
+(`--margin-fallback`) and the scorer (`--margin-fallback`); the Chrono runs in
+§5 were made without it, so the rescued plans are not yet Chrono-validated.
 
 ## 3. Energy — why the power head fails and what transfers
 
@@ -154,11 +161,17 @@ the §4 candidates (cell discs, 12 repair passes); the final-planner candidates
 | rung | Chrono runs | completed | contact | rollover | off route | mean ct | p95 ct | imagined vs Chrono time corr | energy (act model) ratio / corr |
 |---|---|---|---|---|---|---|---|---|---|
 | predicted occupancy + memorized terrain | 145 | **145/145** | **0** | 0 | 0 | 0.034 m | 0.10 m | 0.987 | 1.19 / 0.72 |
-| full predicted map | _running_ | | | | | | | | |
+| full predicted map | 147 | **147/147** | **0** | 0 | 0 | 0.033 m | 0.10 m | 0.981 | 1.16 / 0.75 |
+| final planner (40 repair passes): predicted occupancy + memorized terrain | 165 | **165/165** | **0** | 0 | 0 | 0.034 m | 0.11 m | 0.990 | 1.20 / 0.71 |
+| final planner: full predicted map | _re-running after a newton segfault_ | | | | | | | | |
 
-**Plans built from the camera alone are safe to drive**: 145 of 145 completed
-with no asset contact on 32 held-out layouts, tracked as tightly as the
-oracle's plans (mean cross-track 0.034 vs 0.029 m). The imagined-vs-Chrono
+**Plans built from the camera alone are safe to drive**: 457 of 457 completed
+with no asset contact and no rollover on 32 held-out layouts, tracked as tightly
+as the oracle's plans (mean cross-track 0.033–0.034 vs 0.029 m). That includes
+the full-predicted-map plans the ladder flagged as exceeding the true slope caps
+(8 % of them): none rolled over or left the route, so the slope caps with their
+15 % validation slack are conservative for this arena rather than the flag being
+a driving failure. The imagined-vs-Chrono
 calibration is unchanged from the oracle candidates (time corr 0.99, 10 % fast;
 throttle-based energy 19 % low, corr 0.72), so the scorer's judgement of
 camera-only plans is as trustworthy as its judgement of privileged ones. Pick
@@ -175,7 +188,8 @@ same near-tie reason as before.
   uses the throttle-based calibrated model.
 - **Energy:** 15–20 % low with corr 0.7–0.8; the fix is dynamics-model side
   (tracker-driven training episodes), not calibration side.
-- **Margin:** 0.9 m stays; shrinking it requires a clearance-aware smoother.
+- **Margin:** 0.9 m stays as the default; the 0.9 → 0.6 → 0.3 fallback rescues
+  the last 2–3 % of layouts (not yet driven in Chrono).
 
 ## Open
 
@@ -183,8 +197,8 @@ same near-tie reason as before.
    candidates (queued on newton).
 2. Dynamics model retraining with tracker-driven Chrono episodes (DAgger) to
    remove the throttle-response bias behind the 10 % time and 15–20 % energy gaps.
-3. Clearance-aware smoother so the tracker margin can drop to the measured
-   0.1 m and layouts with narrow corridors become feasible.
+3. Chrono-validate the margin-fallback plans (2–3 % of layouts), or make the
+   smoother clearance-aware so the default margin can drop toward the measured 0.1 m.
 4. Vehicle localisation from the camera (the tracker's pose in Chrono is still
    the simulator's) — WP1 showed 0.8 m / 3–4° from the spatial map.
 5. Test split untouched throughout.

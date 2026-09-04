@@ -39,6 +39,7 @@ from nedm.traverse.terrain import TerrainMap
 from nedm.traverse.tracker_env import TraverseTrackingEnv, merge_env_cfg
 from traverse_wp4_score_candidates import (CANDIDATE_SWEEP, FOOTPRINT_DISCS, FOOTPRINT_HALF_W,
                                            build_candidates, load_policy, route_dict)
+from nedm.traverse.planner_b import MapDecoder, occupancy_discs
 
 LABEL = {"recorded": "recorded route", "oracle": "default plan", "shortest": "shortest",
          "energy_averse": "energy-saving", "slow": "slow (4 m/s)", "fast": "fast (9 m/s)",
@@ -60,15 +61,23 @@ def collect(args) -> dict:
     horizon = int(round(args.horizon_s / DT_S))
 
     entries, index, episodes = [], [], {}
+    decoder = MapDecoder(Path(args.maphead), Path(args.arena), args.device) if args.candidates == "predicted" else None
     for key in keys:
         store, ep = key.split("__", 1)
         meta = json.loads((Path(args.stores) / store / ep / "meta.json").read_text())
-        cands, layout = build_candidates(meta, tmap, CANDIDATE_SWEEP)
+        occ = None
+        if decoder is not None:
+            with np.load(cache / f"{key}.npz") as d:
+                occ, _ = decoder(d["map_v2"])
+            discs = occupancy_discs(occ, decoder.size_m, args.occ_threshold, mode="cells")
+            cands, layout = build_candidates(meta, tmap, CANDIDATE_SWEEP, obstacles=discs, repair_iterations=40)
+        else:
+            cands, layout = build_candidates(meta, tmap, CANDIDATE_SWEEP)
         with np.load(routes / f"{key}.npz") as r:
             recorded = {n: r[n] for n in ("waypoints", "speeds", "headings", "stations")}
         with np.load(cache / f"{key}.npz") as d:
             real_pose = d["pose"]
-        episodes[key] = {"layout": layout, "routes": {}, "real_pose": real_pose, "context": None}
+        episodes[key] = {"layout": layout, "routes": {}, "real_pose": real_pose, "context": None, "occ": occ}
         for name, plan in [("recorded", None)] + cands:
             route = recorded if plan is None else route_dict(plan)
             episodes[key]["routes"][name] = route
@@ -176,10 +185,10 @@ def render(data: dict, args) -> None:
     cols = min(args.cols, len(keys))
     rows_n = math.ceil(len(keys) / cols)
     fig_w = args.panel_in * cols
-    fig_h = args.panel_in * rows_n * 0.92 + (1.9 if cols == 1 else 1.4)
+    fig_h = args.panel_in * rows_n * 0.92 + (1.9 if cols == 1 else (1.6 if args.candidates == "predicted" else 1.4))
     fig, axes = plt.subplots(rows_n, cols, figsize=(fig_w, fig_h), squeeze=False)
     fig.patch.set_facecolor("#101418")
-    fig.subplots_adjust(left=0.01, right=0.99, bottom=0.01, top=(0.835 if cols == 1 else 0.865), wspace=0.02, hspace=0.06)
+    fig.subplots_adjust(left=0.01, right=0.99, bottom=0.01, top=(0.835 if cols == 1 else (0.85 if args.candidates == "predicted" else 0.865)), wspace=0.02, hspace=0.06)
     half = tmap.half
     ls = LightSource(azdeg=315, altdeg=45)
     rng = float(tmap.height_grid.max() - tmap.height_grid.min())
@@ -196,9 +205,17 @@ def render(data: dict, args) -> None:
         ax.set_xticks([]); ax.set_yticks([])
         for sp in ax.spines.values():
             sp.set_edgecolor("#3a4450")
+        pred = ep.get("occ") is not None
         for a in ep["layout"].assets:
             fc = {"house": "#8d6e63", "rock": "#9e9e9e", "tree": "#2e7d32"}.get(a.kind, "#888")
-            ax.add_patch(patches.Circle((a.x_m, a.y_m), a.footprint_radius_m, fc=fc, ec="k", lw=0.6, alpha=0.9, zorder=3))
+            ax.add_patch(patches.Circle((a.x_m, a.y_m), a.footprint_radius_m, fc="none" if pred else fc, ec="k",
+                                        lw=0.8 if pred else 0.6, ls="--" if pred else "-", alpha=0.9, zorder=3))
+        if pred:
+            g = ep["occ"].shape[0]; cell = tmap.size_m / g
+            iy, ix = np.nonzero(ep["occ"] >= args.occ_threshold)
+            for yy, xx in zip(iy, ix):
+                ax.add_patch(patches.Rectangle((xx * cell - half, half - (yy + 1) * cell), cell, cell,
+                                               fc="#ff1744", ec="none", alpha=0.75, zorder=3))
         # goal marker at the recorded route end
         rec = ep["routes"]["recorded"]
         gx, gy = rec["waypoints"][-1]
@@ -276,7 +293,7 @@ def render(data: dict, args) -> None:
     from matplotlib.lines import Line2D
     handles = [Line2D([0], [0], color=COLOR[n], lw=3, ls="--" if n == "recorded" else "-") for n in LABEL]
     fig.legend(handles, [LABEL[n] for n in LABEL], loc="upper center", ncol=7 if cols > 1 else 4,
-               bbox_to_anchor=(0.5, 0.915 if cols > 1 else 0.885), frameon=False, labelcolor="w",
+               bbox_to_anchor=(0.5, (0.9 if args.candidates == "predicted" else 0.915) if cols > 1 else 0.885), frameon=False, labelcolor="w",
                fontsize=9 if cols > 1 else 8.5, handlelength=2.5, columnspacing=1.4)
     sup = fig.text(0.5, 0.975, "", ha="center", va="top", color="w", fontsize=13, fontweight="bold")
     sub = fig.text(0.5, 0.94, "", ha="center", va="top", color="#c0c8d0", fontsize=9.5)
@@ -332,14 +349,16 @@ def render(data: dict, args) -> None:
                             continue
                 for art, line in zip(board, scoreboard(key, s, final).split("\n")):
                     art.set_text(line)
-            sup.set_text("Planner rollout inside the NRD model  —  t = %4.1f s" % (s * DT_S))
+            mode = "camera-only plans" if args.candidates == "predicted" else "planner rollout"
+            sup.set_text(f"{mode.capitalize()} inside the NRD model  —  t = {s * DT_S:4.1f} s")
             sub.set_text(("Every vehicle is imagined by the physics+camera model and driven by the learned tracker; no simulator in the loop.\n"
                          "Dotted square = 8x8 camera-derived terrain window fed to the physics.   "
                          "White dotted outline = the real recorded vehicle on its (dashed white) route.   "
                          "sim = same candidate driven in the Chrono simulator afterwards.").replace("physics.   ", "physics.\n").replace("route.   ", "route.\n") if cols == 1 else
                          ("Every vehicle is imagined by the physics+camera model and driven by the learned tracker; no simulator in the loop.\n"
-                          "Dotted square = 8x8 camera-derived terrain window fed to the physics.   "
-                          "White dotted outline = the real recorded vehicle on its (dashed white) route.   "
+                          + ("Red cells = obstacles decoded from the camera; the plans were searched on those cells, not on the true map (dashed outlines).\n"
+                             if args.candidates == "predicted" else "Dotted square = 8x8 camera-derived terrain window fed to the physics.   ")
+                          + "White dotted outline = the real recorded vehicle on its (dashed white) route.   "
                           "sim = same candidate driven in the Chrono simulator afterwards."))
             writer.grab_frame()
             if f % 50 == 0:
@@ -370,6 +389,9 @@ def main() -> None:
     ap.add_argument("--pad-m", type=float, default=7.0)
     ap.add_argument("--window-half-m", type=float, default=5.0)
     ap.add_argument("--chrono-rows", default=None)
+    ap.add_argument("--candidates", choices=["oracle", "predicted"], default="oracle")
+    ap.add_argument("--maphead", default="artifacts/traverse/wp4_maphead_v2/ckpt_best.pt")
+    ap.add_argument("--occ-threshold", type=float, default=0.85)
     ap.add_argument("--board-font", type=float, default=6.6)
     ap.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
     args = ap.parse_args()
