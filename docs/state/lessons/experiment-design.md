@@ -724,3 +724,50 @@ on it.
 `path × sin(θ)` is open-loop kinematics; a closed-loop controller with a heading
 objective makes it wrong, and nothing in the arithmetic signals that. The check is
 not dimensional — it is: *which component decides this, and have I read it?*
+
+## A p-value can be a way of not looking, or a way of looking with the wrong instrument
+
+Two failures of the same statistic in one night, in opposite directions.
+
+**Too few units — a way of not looking.** `vel_step` vs `constant` was 3/38 against
+0/38, p = 0.240. There were *three* anomalous episodes, fully instrumented. Reading
+their parameters found a spawn bug; reading their trajectories turned it into an
+arithmetic identity. **When the anomalous units are few and inspectable, inspect
+them.**
+
+**Wrong instrument — a way of looking badly.** Asking whether the drift bias was
+systematic or per-episode, I proposed a **sign test**: ~35/3 means systematic,
+~19/19 means per-episode. Over 237 episodes it came back **132/105, p = 0.091** —
+neither outcome, and it would have been read as "per-episode, nothing to record."
+
+The signed *mean* on the same data gives **+0.0292 ± 0.0118 m/m, 2.47σ.** A binomial
+on signs **discards magnitude**, so it cannot see a small consistent lean sitting
+inside large per-episode scatter. It is maximally robust and minimally sensitive:
+the right tool when the alternative is *"all one way"*, the wrong one when the
+alternative is *"slightly one way"* — and I had specified a binary rule for what
+was a continuum.
+
+The answer was **both, in a ratio**: 16% systematic, 84% per-episode.
+
+### And scope the sample to the question, not to the conversation
+
+I framed that test on the 38 CRM episodes because CRM was what we had been
+discussing. The question was about **the controller**, which is identical on both
+terrains — so the population was 237 episodes, and 199 of them were being discarded
+for no reason but conversational momentum.
+
+### The 16% answers a different question than it was used for
+
+`mean/RMS = 15.9%` is a fair description of *how large the systematic component is
+relative to typical drift*. It is **not** how much correcting the lean would remove:
+
+| question | quantity | value |
+|---|---|---|
+| how big is the systematic part? | mean / RMS | **15.9%** |
+| what does removing it buy? | 1 − sd/RMS | **1.3%** |
+| how much mean-square does it hold? | mean² / (mean²+sd²) | 2.5% |
+
+Removing a mean from a distribution leaves `sd`, and `sd` is already 98.7% of the
+total RMS. **Correcting the controller lean removes ~1.3% of the drift, not 16%.**
+The conclusion — not worth correcting — is unchanged and in fact stronger. One more
+instance of a ratio computed for one purpose answering a different one.
