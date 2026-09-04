@@ -1,15 +1,29 @@
 """Stratified Go2 collection driver. Rigid in parallel, CRM sequential."""
 import json, os, subprocess, sys, random
-sys.path.insert(0, "/home/kyle/Documents/sbel/NeDM/src")
+# Paths differ per box (dorm-pc has no "sbel/" segment, and its env is "nedm" not
+# "nedm-src"), so every machine-specific path is an env var with this box's value as
+# the fallback. Without this the driver silently runs the wrong interpreter.
+REPO = os.environ.get("NEDM_REPO", "/home/kyle/Documents/sbel/NeDM")
+sys.path.insert(0, f"{REPO}/src")
 from nedm.quadruped.imported_policy import (COMMAND_FAMILIES, FAMILY_PARAMS,
                                             stratified_params, family_seed)
 
 TERRAIN, N_PER_FAM, CONC = sys.argv[1], int(sys.argv[2]), int(sys.argv[3])
 SEED_OFFSET = int(sys.argv[4]) if len(sys.argv) > 4 else 0
-ROOT = "/home/kyle/sbel-artifacts/datasets/go2_stratified"; PY = "/home/kyle/miniconda3/envs/nedm-src/bin/python"
-CKPT = "/home/kyle/sbel-artifacts/checkpoints/go2_cts_150k.pt"
+# The offset goes in the directory name as well as the metadata: metadata makes the
+# origin recoverable, a path makes it obvious, and two boxes writing identically
+# named directories is how a merge silently overwrites. Offset 0 is unsuffixed, so
+# the baseline collection keeps its name and an unsuffixed directory MEANS offset 0.
+_suffix = "" if SEED_OFFSET == 0 else f"_off{SEED_OFFSET}"
+ROOT = os.environ.get("NEDM_DATASET_ROOT",
+                      f"/home/kyle/sbel-artifacts/datasets/go2_stratified{_suffix}")
+PY = os.environ.get("NEDM_PY", "/home/kyle/miniconda3/envs/nedm-src/bin/python")
+CKPT = os.environ.get("NEDM_GO2_CKPT", "/home/kyle/sbel-artifacts/checkpoints/go2_cts_150k.pt")
 os.makedirs(f"{ROOT}/logs", exist_ok=True)
-env = dict(os.environ, PYTHONPATH="/home/kyle/Documents/sbel/chrono-build/bin")
+env = dict(os.environ,
+           PYTHONPATH=os.environ.get("NEDM_CHRONO_PYTHONPATH",
+                                     "/home/kyle/Documents/sbel/chrono-build/bin"),
+           NEDM_SEED_OFFSET=str(SEED_OFFSET))
 
 def spawn_for(fam, p, terrain):
     """Spawn so the episode has room in the direction it will actually travel.
@@ -53,7 +67,7 @@ running = []
 for n, j in enumerate(jobs):
     log = open(f"{ROOT}/logs/{TERRAIN}_{j[0]}_{j[1]}.log", "w")
     running.append(subprocess.Popen(cmd(j), stdout=log, stderr=log, env=env,
-                                    cwd="/home/kyle/Documents/sbel/NeDM"))
+                                    cwd=REPO))
     if len(running) >= CONC:
         for r in running: r.wait()
         running = []
