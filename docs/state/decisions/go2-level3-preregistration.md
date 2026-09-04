@@ -676,3 +676,36 @@ arithmetic put position at ~0.1% of the tracking loss; measured it is 6.9%, the
 comparison having been against the action-rate penalty rather than the tracking
 loss. The conclusion survives the correction and is strengthened: the penalty is
 5.2x position.
+
+## Amendment 8b: the integral signature, tested
+
+The proposed mechanism: `state` is the INSTANTANEOUS velocity error and
+`position` is its INTEGRAL, so a small persistent velocity bias is nearly free
+instantaneously and unbounded in the integral. Weighting 89% on the instantaneous
+term and 6.9% on its integral is the wrong direction for exactly that failure.
+
+Predicted signature: state error flat while position grows. Measured over
+iterations 733 → 1132:
+
+    position_error_m     0.0145 -> 0.0162    +11.7%   corr(iteration) = +0.210
+    state_error_norm     0.3471 -> 0.3253     -6.3%   corr(iteration) = -0.876
+
+**Stronger than predicted.** State error is not flat — it is still FALLING, with
+a tight correlation, while position rises. The two move in OPPOSITE directions.
+The policy is actively improving instantaneous velocity matching while losing
+position, which is what a reward weighted 89/7 toward the instantaneous term
+should produce.
+
+This also connects to a plant property measured hours earlier for an unrelated
+purpose: the drift exponent was **α = 0.98, ballistic** — a held bias, not
+diffusive at 0.5. Persistent-bias drift is this plant's own signature, and the
+reward under-weights the only term that integrates it. Mechanism and the α
+connection due to the coordinator.
+
+**A third consequence for the prescription.** An integral term and an
+instantaneous term of the same underlying quantity cannot be balanced by their
+magnitudes at ANY single operating point, because the integral's magnitude scales
+with the horizon and the instantaneous one does not. Balancing at the convergence
+point instead of the initialisation point would be unbalanced again at a
+different episode length. Still a hypothesis about the fix; the measurement above
+is not.
