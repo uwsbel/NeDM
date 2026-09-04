@@ -1078,3 +1078,81 @@ question is whether OptiX is in the build at all.
 missing from `bin/`, and only because it happens to be gated behind the same `if()` as
 the backend. There was no diagnostic designed to catch it. Do not rely on the next one
 being similarly convenient.
+
+
+## Four conventions for the same twelve values, and none of them is wrong
+
+**Cost:** near-miss, caught before collecting 304 episodes · **Found:** 2026-09-04 · **Applies to:** any schema where several consumers index the same physical set
+
+The Go2's twelve joints are ordered **four different ways** in one codebase, each
+correct for its consumer:
+
+| convention | order | who wants it |
+|---|---|---|
+| `MOTOR_NAMES` | RR RL FR FL | `robot.joint_pos()`, `joint_vel()`, `actuate()`, and `JOINT_ACTION_FIELDS` — the target columns in every CSV |
+| `LEG_ORDER` | fl fr rl rr | the `foot_*` columns |
+| `FOOT_BODIES` | FR FL RR RL | the body-name list |
+| imported policy | FL FR RL RR | reached via `CHRONO_TO_IMPORTED` **and** `SIGN = -1.0` |
+
+**This is not a naming problem to be cleaned up.** Four consumers legitimately want
+four different orders; a codebase-wide "fix" would just pick one and break three.
+
+**Two rules that actually work:**
+
+**1. New columns take the order of the columns they must align with**, not the order
+that seems canonical in the abstract. Adding 12 joint positions and 12 velocities, the
+instruction was to use `LEG_ORDER` — reasonable, since that is the constant that guards
+the `foot_*` columns against exactly this class of bug. It was wrong here: the joint
+targets are in `MOTOR_NAMES` order, so `q`, `dq` and the previous action have to be too,
+or they silently disagree with the action columns beside them in the same row. The rule
+that avoided it is **"align with the neighbours", not "use the canonical constant"** —
+because which constant is canonical depends on the column family.
+
+**2. Log raw, and never bake a consumer's transform into the file.** The imported policy
+needs `SIGN` and a permutation applied. Both stay in
+[`imported_policy.py`](../../../src/nedm/quadruped/imported_policy.py); the CSV records
+what the simulator reported, in the simulator's order. A dataset carrying one consumer's
+convention is wrong for every other reader **and undiscoverable from the file**, since
+sign-flipped joint angles look entirely plausible.
+
+**Evidence:** `quadruped/dataset.py` (`JOINT_STATE_FIELDS`, `LEG_ORDER`),
+`quadruped/constants.py` (`MOTOR_NAMES`, `FOOT_BODIES`), `imported_policy.py:224`.
+
+
+## Some properties cannot be identified from symmetric data, and no test on it will say so
+
+**Cost:** a reported misalignment that did not exist · **Found:** 2026-09-04 · **Applies to:** verifying any index/label assignment against periodic or symmetric motion
+
+Checking that 12 new joint-position columns were matched to the right joints, against a
+**constant forward walking** episode:
+
+```
+12x12 correlation, measured vs target : diagonal is argmax  0/12
+12x12 RMS,         measured vs target : diagonal is argmin  2/12
+                        both front hips appeared sign-inverted
+```
+
+Read literally that is a catastrophic misalignment. **It was an artifact of the gait.** A
+trot moves diagonal pairs identically and mirrors left against right, so the twelve target
+signals are phase-shifted near-copies of one another, and a measurement that lags its own
+target legitimately resembles a different leg's target more closely.
+
+**The data did not contain the information the test needed.** No amount of care with the
+statistic would have fixed it — under a symmetric gait, leg identity is simply not
+identifiable, and both a "confirmed" and a "refuted" verdict would have been unfounded.
+
+**Fix: verify on a regime that breaks the symmetry.** Re-run on `pivot`, where the legs
+must do genuinely different things: diagonal is RMS-argmin **8/12** with clear margins,
+the four misses have narrow margins and sit on the worst-tracking joints, and the two
+"inverted" hips resolve. Supported by an argument the numbers alone do not give: **a real
+permutation would move a leg's hip, thigh and calf together, and would not dissolve when
+the command changes.**
+
+**The dangerous version of this is the reverse.** Had the symmetric episode happened to
+return 12/12, it would have been recorded as confirmation — from data incapable of
+confirming anything. Before trusting a check, ask whether the data could have produced
+the opposite answer.
+
+Related: [when a comparison goes wrong, suspect the apparatus](#when-a-comparison-goes-wrong-suspect-the-apparatus-before-the-subject).
+There the instrument was broken; here the instrument was fine and the **regime** carried
+no signal.
