@@ -827,3 +827,143 @@ Two companions the slope needs:
 Related family: a normalisation whose denominator varies across the sample
 (`errdist` over families with 2.7x path lengths; the level-3 policy/floor ratio
 over floors spanning 40x). Both are "the number you divided by is doing the work".
+
+
+## A commit hash records where HEAD WAS, not what RAN
+
+**Cost:** two datasets, both halves, one night · **Found:** 2026-09-04 · **Applies to:** any provenance stamp derived from a commit
+
+Every collected episode stamps `git_commit`, and a repair pass derives
+`collection_code_digest` from it with `git show <commit>:<file>`. That digest is a
+claim about **what code produced this episode**. It is actually a claim about what
+the commit contains, and the two differ **whenever the working tree is dirty,
+restored, or checked out mid-run.**
+
+**The ordinary case, which needs no accident.** *(Reported by `sbel-pc`; their
+numbers, not independently checked here.)* The tree carried uncommitted changes
+during collection, and the commit that introduced them landed **18 minutes after
+the last episode finished**. So all 968 rigid episodes ran code NEWER than their
+recorded commit. Proof: every episode carries `command_params`, the per-episode
+amplitude draw, and the collector at the recorded commit contains **no occurrence
+of that string at all** — a field in the data that the recorded code could not
+have written.
+
+**The exotic case, verified here on this disk.** A mid-run `git pull --rebase`
+moved HEAD forward; the collector file was restored from a hash-verified
+extraction but **HEAD stayed at the new commit**. So 46 of 152 CRM episodes ran
+code OLDER than their recorded commit. Proven three independent ways, each a
+contradiction rather than an inference:
+
+| test | the recorded commit's code implies | the data shows |
+|---|---|---|
+| split | `--validation-ratio` defaults to 0.2, driver never passes it, so 6 val per 19 | all 46 `train`, which only 0.0 produces |
+| assets | hardcodes a `DEFAULT_ASSETS` path absent on that box; raises `FileNotFoundError` on the URDF before simulating | all 46 completed |
+| `git_tree` | imports `provenance.py`, whose `provenance()` writes a `git_tree` field | none of the 46 carry it |
+
+`git_commit` and `git_tree` stayed **true in both cases** — HEAD really was there.
+Only the digest's claim about *execution* was false, and it was false in **opposite
+directions on the two halves**, which is why neither half could have found it by
+looking at itself.
+
+**Fix, in order of strength:**
+
+1. **Record the running process's own state while it is alive.** A digest computed
+   afterwards from a commit can only ever describe the commit.
+2. **Freeze the mapping to a file.** Both halves' commits are now **orphaned** —
+   reflog-only after rebases. They resolve today and **would not survive a
+   `git gc --prune`**. Provenance that is derivable-in-principle can be
+   perishable-in-fact; a committed sidecar is what converts one into the other.
+3. **Prefer a field the data carries over one the filesystem carries.** The
+   sidecar builder derives commits from **file mtime**, which no copy survives.
+   Where episodes also recorded `git_commit` at collection time, the two agreed on
+   all 152 — which validates the mtime method rather than merely trusting it.
+
+**Say "consistent", not "clean".** An episode set that no test contradicts has
+passed a **necessary and not sufficient** check: a tree differing from HEAD in
+ways that add no new metadata key passes every test above unnoticed.
+
+**Evidence:** `docs/state/provenance/go2_stratified_s1000000_commits.json`
+(`caveat` block, 46 of 152 flagged); `scripts/collection/repair_go2_metadata.py`
+`code_digest()`.
+
+
+## State the SCOPE with the result, or the conclusion inherits one it never had
+
+**Cost:** three false-but-reasoned conclusions in one day · **Found:** 2026-09-04 · **Applies to:** any check whose result gets restated in words
+
+Three instances, three different operators, all the same shape. *(The first two
+are reported second-hand; the third was made and traced here.)*
+
+| the test that ran | the sentence it became | why the sentence was false |
+|---|---|---|
+| read a rename list in the source | "the CRM shim pairs A with B" | never checked against the *installed* module; refused to import on the only build the collection used |
+| read code at **one** commit | "the collection cannot have run after `133427b`" | the frozen sidecar showed all 152 episodes ran under commits *containing* it |
+| `grep LEG_ORDER src/nedm/quadruped/constants.py` | "no `LEG_ORDER` exists in the codebase" | it is in the **adjacent module**, `quadruped/dataset.py:73`, with a comment documenting the exact trap being rediscovered |
+
+Each produced a **confident, well-reasoned, false** statement, and each then
+**justified an action**: refusing to import, a wrong diagnosis, and adding a third
+source of truth for a leg ordering that already had a canonical constant.
+
+The common mechanism is that **the test's scope was never written down**, so the
+conclusion silently inherited a scope the test never had. "Not in `constants.py`"
+is true and nobody would have acted on it. "Not in the codebase" is what got acted
+on, and it was never tested.
+
+**Fix: state the scope in the same breath as the result** — "not in *this file*",
+"at *this commit*", "in the *rename list*, not the installed module". A narrow true
+statement is safe. A narrow test wearing a broad conclusion is not.
+
+Same family as the padded-field `awk` split and the dry run that reported a
+comparison it never made: in all of them the *check* was fine and the *restatement*
+was wrong.
+
+
+## When a defect is invariant under every available check, derivation is the only defence
+
+**Cost:** near-miss, caught by review · **Found:** 2026-09-04 · **Applies to:** ordering constants, label maps, any index-to-name binding
+
+Two orderings for the same four legs coexist: `LEG_ORDER` is `fl fr rl rr` and
+`constants.FOOT_BODIES` is `FR FL RR RL`. Packing the 4-bit contact mode against
+the wrong one **transposes the left/right bits**.
+
+**Nothing downstream can see that.** The marginal mode distribution is
+**unchanged under a relabelling**, so every summary statistic is identical. Even
+the physics check passes: the trot signature is that the two dominant modes are
+the diagonal pairs, and a left/right flip maps `0110` to `1001` — *the two
+diagonals swap into each other*. The strongest validation available would have
+confirmed a transposed channel.
+
+**Someone tried to find a downstream check and could not.** *(Attempted by
+`sbel-pc`; their numbers.)* Two candidate empirical tests for the labelling, over
+1 s windows on 40 CRM episodes:
+
+| candidate | result | why it fails |
+|---|---|---|
+| `corr(roll, left_load - right_load)` | **-0.083** | right sign, nowhere near decisive; gait-frequency load alternation dominates the variance and mean \|roll\| is only 0.034 rad |
+| `corr(yaw_rate, left_slip - right_slip)` | **+0.019** | noise, wrong sign — slip is recorded as a **magnitude**, so it carries no left-right sign information at all |
+
+Both underpowered, and reported as such rather than quoting the one with the
+agreeable sign. So "no check can see it" is a measured claim here, not a
+rhetorical one.
+
+So the defence cannot be validation. It has to be **one source of truth**: derive
+the field order from the canonical constant rather than restating it. A hardcoded
+copy is correct on the day it is written and is a third ordering to reach for by
+mistake thereafter.
+
+**Where the risk actually lives: consumers, not the recorded data.** The collector
+never associates by index. `capture_row` maps label to body *name*
+(`LEG_TO_FOOT_BODY`), and the one `FOOT_BODIES`-ordered array in the path
+(`soil_z` from `soilprobe.sample`) is converted to a **name-keyed dict** before
+use. There is no positional association anywhere between the FR/FL/RR/RL body
+list and the fl/fr/rl/rr column names, so the CSV columns are correct **by
+construction**. The transposition hazard appears when a *downstream* consumer
+re-derives an ordering — which is exactly what a preprocess step packing bits
+does, and why it must import the constant rather than restate it.
+
+**Generalises to:** any binding where the failure is a *permutation* of correct
+values. Permutations preserve marginals, so aggregate checks are blind to them by
+construction — this is not a gap in the checks, it is a property of the defect.
+
+**Evidence:** `src/nedm/training/preprocess.py` `CONTACT_FORCE_FIELDS`;
+`src/nedm/quadruped/dataset.py:73`.
