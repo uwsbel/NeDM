@@ -232,3 +232,80 @@ And if the ratios come out **equal** despite 2.5x more forward range, that is th
 ratio being robust across the plant's own worst nonlinearity, which is a stronger
 result than equality across two arbitrary draws. Prediction due to the
 coordinator; falsifier and the equality reading added here.
+
+---
+
+# Amendment 2: the structure of a split verdict
+
+Both of us have now seen the model_300 plumbing numbers, so **neither of the
+predictions below is blind**. They are registered flagged as such. The mechanisms
+are independent of those numbers and would be defended either way, but the record
+should say when a prediction was written, not only what it says.
+
+## The registered monotonicity prediction, and why it is WEAK
+
+A feedback controller helps where there is error to correct and can only add where
+there is none, so improvement should be monotone in floor size.
+
+  **Registered:** Spearman(floor, policy − floor) < −0.5, negative differences on
+  high-floor references and positive on low-floor ones, crossover near the
+  policy's own in-model tracking error.
+
+Verified on the plumbing run: rho = **−0.857**, exact permutation p = **0.0107**
+(n = 8, all 40 320 orderings enumerated, not approximated).
+
+**But this statistic is close to mechanical and must not be reported as strong
+evidence.** If the policy's error were CONSTANT across references then
+policy − floor = c − floor and rho would be exactly −1 by construction. Measured
+spreads:
+
+    floor   0.0044 to 0.1771   40x
+    policy  0.0187 to 0.0470   2.5x
+
+So most of rho(floor, policy − floor) is the floor's own variance, not a fact
+about the policy. A strong negative rho here mainly says "the policy's error is
+more uniform than the replay's", which is a weaker claim than "the policy corrects
+large errors and adds small ones".
+
+## The informative form, registered with principled thresholds
+
+The real question is whether the policy INHERITS reference difficulty. Two
+statistics that are not near-tautological:
+
+  **(a)** Spearman(floor, policy). Plumbing value **+0.595, exact p = 0.132** —
+  not significant at n = 8. Note the power: with eight references, |rho| must
+  exceed about 0.74 to reach p < 0.05, so this arm cannot support a confident
+  claim either way and should be reported with its p, not as a bare correlation.
+
+  **(b)** OLS slope of policy error on floor error. **0 means the policy's error
+  is independent of how hard the reference is for open-loop replay; 1 means it
+  inherits the difficulty entirely.** Thresholds set as natural thirds of that
+  interval, not from data:
+
+      slope < 1/3    policy error largely independent of reference difficulty
+                     -> "corrects large errors and adds small ones" SUPPORTED
+      1/3 to 2/3     partial
+      slope > 2/3    the policy inherits reference difficulty
+                     -> the beat is not correction, it is easier references
+
+  Plumbing value: slope = **0.109**.
+
+**If (b) is below 1/3 while the paired difference and the ratio disagree, the
+honest headline is not "split verdict" but "the policy corrects large errors and
+adds small ones"** — a characterisation, with the ratio and the paired difference
+each measuring one half of it. If rho(floor, policy − floor) is near zero instead,
+the two statistics disagree for reasons NOT explained by floor size and the split
+verdict genuinely is ambiguity rather than structure. Framing due to the
+coordinator; the weakness critique and (a)/(b) added here.
+
+## Scope: which statistic governs where
+
+**The paired absolute difference has no denominator and therefore cannot be
+compared ACROSS arms.** Train and val floors differ by 43% and their command
+distributions differ, so centimetres are not commensurable between them.
+
+    within an arm    -> paired absolute difference governs
+    between arms     -> the ratio is the only commensurable statistic
+
+The forward-motion prediction (ratio_val > ratio_train) is therefore a RATIO claim
+and stays one. Scope note due to the coordinator.
