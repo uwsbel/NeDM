@@ -172,7 +172,16 @@ class Go2NeuralTrackingEnv(HMMWVNeuralTrackingEnv):
             reward_terms = {**reward_terms,
                             "throttle_brake": torch.zeros_like(reward_terms["track_reward"])}
         extras = super()._make_extras(reward_terms, dones, time_outs)
-        log = extras.get("log")
-        if isinstance(log, dict):
-            log.pop("/tracking/throttle_brake", None)
+        # BOTH DICTS, NOT JUST "log". The parent does episode_log.update(
+        # tracking_log) (hmmwv_tracking_env.py:796), which copies the entries
+        # into a SECOND dict under "episode" -- and that is the one rsl_rl
+        # prints. The first version popped only from "log", and I verified it on
+        # a 3-iteration smoke at 24 steps/env against max_episode_steps 120, so
+        # no episode ever ENDED, "episode" was never built, and the branch that
+        # defeats the strip never ran. A passing check whose success path does
+        # not require the thing it checks to have happened.
+        for key in ("log", "episode"):
+            entry = extras.get(key)
+            if isinstance(entry, dict):
+                entry.pop("/tracking/throttle_brake", None)
         return extras
