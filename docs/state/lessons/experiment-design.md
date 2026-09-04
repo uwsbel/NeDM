@@ -328,6 +328,28 @@ on. **With one bucket the round-robin degenerates to "take the first twelve in
 list order"** — and the output is still a rollout error over twelve episodes,
 which is exactly what a correct one looks like.
 
+### Three consumers, three failure modes, one field
+
+`scenario_family` turned out to have three consumers, not one, and each degrades
+differently when the field collapses to a single value:
+
+| consumer | mechanism | degrades to |
+|---|---|---|
+| `trainer.py:796` | round-robin, `pop(0)` | the first twelve in list order |
+| `build_combined_*:135` | shuffle within bucket | proportional to family frequency |
+| `references.py:111` | seeded shuffle, `pop()` | a stable, reproducible wrong bank |
+
+**The third is the worst, and it is worst because it is reproducible.** A seeded
+shuffle over a single bucket returns the same plausible-looking, unstratified
+reference set every time it runs. Rerunning it confirms it. The other two at least
+have the decency to look arbitrary. It also accepts a `requested_families` list,
+so an explicit request can be honoured exactly and mean nothing, drawn from a pool
+where every episode claims the same family.
+
+This is the argument for repairing the data rather than patching the consumer: a
+consumer patch would have had to be correct in three modules, and the third is the
+one nobody had read.
+
 ### A stop-condition must be checked where the property is CONSUMED
 
 The coverage requirement had been set one layer too high: *"report the val split
