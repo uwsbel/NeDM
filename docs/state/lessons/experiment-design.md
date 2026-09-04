@@ -466,3 +466,41 @@ asymmetry is a standing property of the topology, not a one-off.
 Restore by extracting the known-good file and **checking its hash against what the
 run started with** before copying it in — never by editing it back, which can
 produce a third version matching neither, with no way to tell.
+
+## At small data scale, DELETION and PERMUTATION are different tests
+
+**Found:** 2026-09-04, before any ablation ran · **Applies to:** every feature
+ablation in this project, including the paper's own rule
+
+The framework's rule for the reduced state is deletion: *a channel earns its place
+only if removing it degrades rollout fidelity or closed-loop performance.* That
+test is sound at the reference data scale. **It is confounded at ours.**
+
+Deleting a channel removes information *and* width. Adding one supplies
+information *and* width. On the steep part of the data curve, extra width absorbs
+variance on its own, so a channel that carries no physics can still earn its place
+by the deletion test, and a channel that carries physics can look unnecessary if
+the model was capacity-limited rather than information-limited.
+
+**The fix is to permute rather than delete.** Replace the channel's values with a
+version that preserves its marginal distribution and destroys its correspondence
+with everything else — permute within episode — and keep the dimensionality
+identical. Then:
+
+| comparison | isolates |
+|---|---|
+| present vs **deleted** | information **+ capacity**, tangled |
+| present vs **permuted** | **information only** |
+
+The three-point reading is what makes it interpretable: permuted lands *between*
+the other two if capacity alone helps, *at* the full model if capacity was all
+there ever was, and *below* the full model if the signal is real.
+
+This applies to `quadruped_contact` (15-D) against `quadruped_full` (23-D) exactly
+as it applies to the contact-mode context input — and it is why the pre-registered
+warning about adding channels to fix a data shortfall is not paranoia. **A channel
+added for capacity reasons passes the deletion test honestly.** Only permutation
+separates it.
+
+Permute with a recorded seed. A control that cannot be reproduced is a control
+nobody can check.
