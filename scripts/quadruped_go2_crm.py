@@ -69,7 +69,8 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--seconds", type=float, default=8.0, help="simulated seconds")
     ap.add_argument("--terrain", choices=["crm", "rigid"], default="crm",
                     help="rigid reproduces the ground the policy was trained on")
-    ap.add_argument("--soil", choices=["training", "eval"], default="training",
+    ap.add_argument("--soil", choices=["soft", "hmmwv_reference", "training", "eval"],
+                    default="training",
                     help="training is the softer soil the CRM finetune actually used")
     ap.add_argument("--camera", choices=["none", "overhead", "follow", "side"],
                     default="none",

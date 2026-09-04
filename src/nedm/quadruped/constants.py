@@ -96,10 +96,34 @@ LIN_VEL_SCALE, ANG_VEL_SCALE, DOF_POS_SCALE, DOF_VEL_SCALE = 2.0, 0.25, 1.0, 0.0
 # Viscosity fixes the RINGING: on soft soil at av 0.5 the box force swing halves
 # but its vertical excursion nearly TRIPLES, 0.024 m to 0.069 m, and it is the
 # movement rather than the force that topples a quadruped.
+# SOIL STIFFNESS PRESETS. The names "eval" and "training" name a STIFFNESS, NOT A
+# ROLE, and they are actively misleading: **every Go2 episode, the dynamics model,
+# and the Chrono transfer eval all run on the one called "training".** The one
+# called "eval" has never been used for anything.
+#
+# Prefer the descriptive aliases below. "training"/"eval" are kept because 304
+# collected CRM episodes record `soil_preset: "training"` in their metadata, and
+# rewriting a recorded value to fix a naming problem is the wrong-at-source defect
+# this project has spent considerable effort cleaning up.
+#
+#   soft             what we actually use, everywhere
+#   hmmwv_reference  byte-identical to the HMMWV study's soil (hmmwv_crm_eval.json)
+#
+# The two differ by design: `soft` is half the Young's modulus and 40% the cohesion,
+# chosen to make sinkage effects visible on a robot far lighter than a vehicle.
+# CONSEQUENCE FOR CROSS-STUDY COMPARISON: we match the HMMWV's soil MODEL (same
+# constitutive form, friction, grain size) and NOT its soil PARAMETERS. Any
+# comparison of Go2 CRM numbers against HMMWV CRM numbers must say so.
+_SOIL_SOFT = dict(density=1700.0, young=5.0e5, poisson=0.3, mu_I0=0.04,
+                  friction=0.8, diam=0.005, cohesion=2000.0)
+_SOIL_HMMWV_REFERENCE = dict(density=1700.0, young=1.0e6, poisson=0.3, mu_I0=0.04,
+                             friction=0.8, diam=0.005, cohesion=5000.0)
+
 SOIL_PRESETS = {
-    "eval": dict(density=1700.0, young=1.0e6, poisson=0.3, mu_I0=0.04,
-                 friction=0.8, diam=0.005, cohesion=5000.0),
-    "training": dict(density=1700.0, young=5.0e5, poisson=0.3, mu_I0=0.04,
-                     friction=0.8, diam=0.005, cohesion=2000.0),
+    "soft": _SOIL_SOFT,
+    "hmmwv_reference": _SOIL_HMMWV_REFERENCE,
+    # Deprecated aliases. Same objects, so `is` comparisons and round-trips hold.
+    "training": _SOIL_SOFT,
+    "eval": _SOIL_HMMWV_REFERENCE,
 }
 

@@ -79,7 +79,13 @@ def parse_args() -> argparse.Namespace:
     # ratio is load-bearing rather than a convenience. The first 1,042 episodes
     # were collected at 0.0 and had their splits recomputed in a retrofit pass.
     parser.add_argument("--validation-ratio", type=float, default=0.2)
-    parser.add_argument("--soil", choices=["training", "eval"], default="training")
+    parser.add_argument("--soil", choices=["soft", "hmmwv_reference", "training", "eval"],
+                        default="training",
+                        help="soil STIFFNESS, not a role. 'soft' (alias 'training') is what "
+                             "every collected episode and the Chrono eval use; "
+                             "'hmmwv_reference' (alias 'eval') matches the HMMWV study and is "
+                             "unused. Default stays 'training' so new episodes record the same "
+                             "value as the 304 already collected.")
     parser.add_argument("--depth", type=float, default=0.20)
     parser.add_argument("--soil-bottom", type=float, default=0.0)
     parser.add_argument("--spacing", type=float, default=0.02)

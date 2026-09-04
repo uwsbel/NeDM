@@ -238,6 +238,38 @@ its 0% rate alone.
 `lateral` legible. On raw metres it would look like the riskiest family in the set.
 See the denominator lesson in [experiment-design.md](../lessons/experiment-design.md).)*
 
+## The soil presets are named for a STIFFNESS, not a role
+
+`SOIL_PRESETS` had two entries, `training` and `eval`. **Those name a stiffness.
+Every collected episode, the dynamics model, and the Chrono transfer eval all run
+on the one called `training`; the one called `eval` has never been used.** The
+names invite exactly the wrong reading — that we train and evaluate on different
+terrain — and they caught a reader on 2026-09-04.
+
+Descriptive aliases added (`soft`, `hmmwv_reference`) pointing at the same objects.
+**The old keys are kept and the default is unchanged**, because 304 collected CRM
+episodes record `soil_preset: "training"` and rewriting a recorded value to fix a
+naming problem is the wrong-at-source defect this project has spent the night
+cleaning up.
+
+**The substantive point underneath:** the unused `hmmwv_reference` preset is
+byte-identical to the HMMWV study's soil. What we actually use is **deliberately
+softer** — half the Young's modulus (5.0e5 against 1.0e6) and 40% the cohesion
+(2000 against 5000) — chosen to make sinkage visible on a robot far lighter than a
+vehicle. Particle spacing is also 4x finer (0.02 m against 0.08 m).
+
+| | HMMWV CRM | Go2 (used) |
+|---|---|---|
+| young | 1.0e6 | **5.0e5** |
+| cohesion | 5000 | **2000** |
+| spacing | 0.08 m | **0.02 m** |
+| density / friction / poisson / mu_I0 / diam | — | identical |
+
+So **we match the HMMWV's soil MODEL and not its soil PARAMETERS.** That is a
+second reason Go2 CRM numbers are not directly comparable to HMMWV CRM numbers, on
+top of the path-length denominator (their vehicle travels 25-52x further). Both
+must be stated wherever the two studies are put side by side.
+
 ## Known dataset artifacts (documented, not recollected)
 
 Two things a future reader would otherwise misread as physics.
