@@ -987,3 +987,67 @@ ballistic, a held bias.** Under a constant command that bias integrates without
 bound in open loop. Whether the policy corrects it is the whole question.
 
 Recorded as a characterisation. **No criterion, threshold or arm changes.**
+
+---
+
+# Amendment 12: RETRACTION — the "drift after iteration 733" was a window artifact
+
+Amendment 8 reported that the policy "peaked a third of the way in and has
+degraded 23% since", measured at iteration 1086 over the window 733–1086. **The
+completed run does not support that**, and the finding is withdrawn.
+
+    window 733-1132 (as reported)   corr(iteration, pos_err) = +0.210
+    window 733-END  (complete)      corr(iteration, pos_err) = -0.227
+
+Same start point, longer window, **the sign flips**. Over 733→1999 the OLS slope
+is −6.5e-07 m/iteration — −0.0008 m across the whole window — against a
+per-iteration standard deviation of 0.0010 m. The series **oscillates**; it does
+not drift. And the minimum is at iteration **1980**, not 733: the run ended
+essentially at its best.
+
+**I fitted a trend to a window that ended where I happened to be looking.** The
+window was not chosen to flatter anything — it was chosen by the clock — but a
+window chosen by when you measured is not evidence about a trend, and 400
+iterations of a noisy series will support whichever sign the endpoints happen to
+have. Same family as "an absence claim needs a time bound as well as a scope
+bound", one level up: **a trend claim needs its window justified, not merely
+stated.**
+
+## Amendment 8b is withdrawn with it
+
+The "integral signature" — state error falling while position rose, in opposite
+directions — was measured over the same window. On the complete run:
+
+    733-1132   corr(it, pos) +0.210   corr(it, state) -0.876   opposite
+    733-END    corr(it, pos) -0.227   corr(it, state) -0.938   SAME direction
+
+Position and state both improve over the full run. The opposition was the same
+window artifact.
+
+## What survives, and it is the part that was never a trend
+
+**The reward decomposition at convergence stands**, because it is a snapshot of
+the converged values rather than a claim about their evolution:
+
+    at convergence: state 89% of the tracking loss, position 6.9%,
+    action-rate penalty 5.2x the position term
+
+and so does the conclusion drawn from it — **the reward was balanced at the
+random-policy operating point and that balance does not hold at convergence**,
+which is arithmetic on two measured operating points, not a fitted trend.
+
+What is withdrawn is the claim that this *caused observable degradation*. It did
+not. The reward is mis-balanced at convergence AND the policy did not drift; both
+are true, and I connected them on 400 iterations of noise.
+
+## Consequence for the checkpoint rule: SELECTED and FINAL coincide
+
+The registered rule selects the save-interval checkpoint nearest the logged
+minimum. That minimum is at iteration 1980, and the nearest saved checkpoint is
+`model_1999` — which is also the last one written. **SELECTED == FINAL ==
+model_1999**, so the two arms of the rule collapse to one evaluation and the
+question "was selection worth anything?" answers itself: **no, on this run.**
+
+The rule still did its job. It was written when the evidence pointed the other
+way, it named the choice in advance, and it resolved to "no difference" without
+anyone deciding that after the fact.
