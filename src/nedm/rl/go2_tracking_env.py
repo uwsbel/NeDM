@@ -62,10 +62,20 @@ def go2_default_env_cfg() -> dict[str, Any]:
     })
     cfg["reward"] = {
         **cfg["reward"],
-        # The Go2 covers ~1.0-1.3 m in a 10 s rollout against the HMMWV's 30-53 m,
-        # so a 2.0 m position sigma would be wider than the entire trajectory and
-        # the tracking term would be flat everywhere.
-        "position_sigma_m": 0.25,
+        # CHOSEN FROM MEASURED ERROR, not from the trajectory length. The Go2
+        # covers ~1.0-1.3 m in a 10 s rollout against the HMMWV's 30-53 m, so the
+        # inherited 2.0 m is wider than our whole trajectory: exp(-(e/2)^2) is
+        # 0.99 at 0.2 m and 0.94 at 0.5 m, flat with no gradient. But over-
+        # correcting is the same failure mirrored -- at sigma 0.25 the reward is
+        # 0.037 by 0.45 m, which is where an untrained policy actually sits.
+        # A random policy on this env produces (measured, 256 envs x 120 steps):
+        #     p10 0.079   p50 0.295   p90 0.454 m
+        # giving reward across that band of:
+        #     sigma 0.25 -> 0.905 / 0.249 / 0.037   dead at p90
+        #     sigma 0.40 -> 0.962 / 0.581 / 0.275   graded throughout
+        #     sigma 0.50 -> 0.975 / 0.707 / 0.438   compressed at the top
+        # 0.40 keeps a usable gradient over the whole range early training visits.
+        "position_sigma_m": 0.40,
         "yaw_sigma_rad": 0.35,
     }
     # KEPT AT 0.0 RATHER THAN REMOVED. The parent indexes this key directly
@@ -75,12 +85,21 @@ def go2_default_env_cfg() -> dict[str, Any]:
     # sees a throttle_brake number, which is the point. Zeroing the weight ALONE
     # would not have achieved that.
     cfg["reward"]["throttle_brake_weight"] = 0.0
+    # THESE ARE A MODEL-VALIDITY BOUNDARY, NOT A FALL TEST. The collection
+    # recorded ZERO falls in 1,120 episodes, so the NRD model has never seen one
+    # and cannot predict one -- past the edge of its data it extrapolates, and a
+    # policy optimising inside it would be free to exploit that. Terminating
+    # where the training data ends is what stops it.
+    # Measured coverage of the training split:
+    #     |roll|  max 0.395 rad (flat), 0.262 (crm)
+    #     |pitch| max 0.334 rad (crm),  0.173 (flat)
+    # Thresholds sit just above those maxima: legitimate states are not
+    # terminated, extrapolated ones are.
     cfg["termination"] = {
         # 20 m is a third of an HMMWV trajectory and several times ours.
         "max_position_error_m": 2.0,
-        # A real fall test rather than a rollover proxy.
-        "max_abs_roll_rad": 0.5,
-        "max_abs_pitch_rad": 0.5,
+        "max_abs_roll_rad": 0.40,
+        "max_abs_pitch_rad": 0.35,
     }
     return cfg
 
