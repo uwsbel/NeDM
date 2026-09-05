@@ -369,3 +369,61 @@ time 12.48 s, energy 175 kJ. Imagined vs Chrono on the same 173
 candidates: time corr 0.988 (11.03 vs 12.48 s), throttle-based
 energy corr 0.686 at ratio 1.17. **Nothing privileged remains in the
 deployed chain**; the true map is used only to judge the results.
+
+## 7. Planner-S: sampling + imagination instead of search — `planner_s.py`, `traverse_wp5_sample_planner.py`
+
+Prompted by the timing measurement (§6 follow-up: map decode 1 ms, five A*
+candidates 0.7 s, imagining them 1.4–1.7 s on GPU *or* CPU): the imagined
+rollout is batched and cheap, so the planner should not be bound by A*'s
+handful of candidates. Planner-S samples 5000 smooth routes per layout
+(Catmull-Rom through three scattered control points from a point 4 m ahead of
+the camera start pose to a sampled point on the approach ring around the
+camera goal; per-route scatter scale 4–14 % of the chord; cruise speed
+3–9 m/s; the oracle's speed-profile ramps), rejects curvature > 1/8 m on the
+dense curve, applies the oracle's curvature repair to borderline ones, sweeps
+the footprint against the camera's obstacle cells with 0.2 m slack, and
+imagines every survivor (mean 354 per layout, capped at 2000) together with the
+A* candidates in one batched rollout with the tracker from the camera start
+pose. Terrain feasibility is judged by the physics model (roll / pitch /
+cross-track failure flags), not by slope caps. Wall time 6.4 s per layout on the
+5090 (sampling 2.3 s, A* 0.8 s, imagining ~350 routes 3.5 s).
+
+Chrono, 32 held-out layouts, tracker on camera pose, one pick per layout
+(`wp5_chrono_sample_planner_v2`):
+
+| pick (objective in imagination) | completed | contact | Chrono time | Chrono energy | Chrono cost time+E/10 | better than the A* pick | Chrono / imagined energy at the pick |
+|---|---|---|---|---|---|---|---|
+| A* best (time + throttle-model energy/10) | 32/32 | 0 | 15.47 s | 126.5 kJ | 28.12 | — | 1.66 |
+| sampled best, same objective | 32/32 | 0 | 16.00 s | 112.4 kJ | 27.25 | 17/32 | **2.16** |
+| **sampled best, pessimistic energy = max(power head, throttle model)** | **32/32** | **0** | **14.11 s** | **119.7 kJ** | **26.08** | **22/32** | 1.55 |
+| sampled best, time only | 32/32 | 0 | 10.74 s | 173.6 kJ | 28.10 | 14/32 | 1.02 |
+
+Three findings:
+
+1. **Sampling + imagination beats A* + imagination in the real simulator** once
+   the objective is made robust: the pessimistic pick is 9 % faster and 5 %
+   cheaper in energy than the A* pick, wins on 22 of 32 layouts, and every one
+   of the 128 sampled routes driven completed with zero contact. The routes are
+   camera-only from start pose to goal, and 11 % of the imagined-OK samples
+   beat the best A* candidate on the imagined objective, so the search space
+   A* explores is genuinely small.
+2. **Optimiser's curse is real and measurable.** With the plain objective the
+   sampler homes in on routes where the throttle-based energy estimate is
+   near zero (power-head / throttle-model ratio at the pick > 1000, median over
+   all samples 0.94); Chrono energy is then 2.16× the imagined value and the
+   Chrono advantage shrinks to 17/32. Taking the *maximum* of the two
+   independent energy estimates removes the exploit (ratio 1.55, below even
+   the A* pick's 1.66). Selecting from thousands of imagined rollouts needs a
+   pessimistic or ensemble score; selecting from five did not.
+3. **Time-only picks are accurately imagined** (energy ratio 1.02, time bias the
+   usual 10–15 %): the model's mistakes are in energy attribution, not in
+   which route is fast.
+
+Open: (a) the 0.2 m prefilter slack and the tracker's 0.05 m camera-pose error
+are both inside the 0.9 m planner margin the A* path uses, so the sampled
+routes run closer to obstacles (min true clearance 0.39 m vs 0.35 m for A*
+picks — comparable) — a proper safety margin for sampled routes should come
+from the tracker's measured error, as §7.4 of the plan intends; (b) 5000 samples
+with three control points is a first family; iterative resampling around the
+best (CEM) would use the same budget better; (c) the 10 % time bias still needs
+powertrain state in z1 (§6.2).
