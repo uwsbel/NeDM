@@ -247,6 +247,7 @@ def run_one(task: dict) -> dict:
     energy_kj = 0.0
     energy_first16_kj, vx_frame16 = 0.0, None  # the launch the imagination never sees (it starts from frame 16)
     max_contact = 0.0
+    max_roll = max_pitch = 0.0
     min_clear = math.inf
     status, end_time = "timeout", None
     n_frames = int(round(task["horizon_s"] / CTRL_DT_S))
@@ -370,6 +371,8 @@ def run_one(task: dict) -> dict:
             act_log.append(last.copy())
 
         roll, pitch = float(vehicle.GetRoll()), float(vehicle.GetPitch())
+        if frame >= 0:
+            max_roll = max(max_roll, abs(roll)); max_pitch = max(max_pitch, abs(pitch))
         if abs(roll) > ROLL_PITCH_ABORT_RAD or abs(pitch) > ROLL_PITCH_ABORT_RAD:
             status = "rollover"; break
         if frame >= 0 and abs(err["e_ct"]) > 6.0:
@@ -387,6 +390,7 @@ def run_one(task: dict) -> dict:
                max_ct_m=float(ct.max()), mean_speed_err_mps=float(np.mean(ev_log)) if ev_log else 0.0,
                mean_heading_err_deg=float(np.degrees(np.mean(eh_log))) if eh_log else 0.0,
                max_contact_n=float(max_contact), contact=bool(max_contact > CONTACT_EPS_N),
+               max_roll_deg=float(math.degrees(max_roll)), max_pitch_deg=float(math.degrees(max_pitch)),
                min_clearance_m=float(min_clear), steer_rate_max=float(np.abs(np.diff(acts[:, 0])).max()) if len(acts) > 1 else 0.0,
                frames=len(ct_log), wall_s=time.time() - wall0, localisation=loc_mode,
                loc_xy_mean_m=float(np.mean(loc_xy_log)) if loc_xy_log else None,
