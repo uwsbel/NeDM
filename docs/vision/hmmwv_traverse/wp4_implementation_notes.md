@@ -276,11 +276,17 @@ throttle-based calibration on correlation (0.87 vs 0.84). The 10 % time bias did
 than the real one (Chrono speed error 0.36 m/s). On the recorded held-out
 episodes the retrained model is marginally worse (5 s state error 0.441 vs
 0.435, 5 s pose error 1.73 vs 1.67 m) — the price of 12 % out-of-distribution
-data in the mix. Round 2 with the full 2000 episodes follows when the
-collection finishes; if the time bias stays, it is a controller-in-the-loop
-mismatch (the model reproduces the recorded and tracker-driven *transitions*
-but the closed loop still settles faster) and a rollout-consistency term in
-training would be the next lever.
+data in the mix. Where the 10 % sits: against the speed profile's own implied duration
+(153 oracle-sweep candidates, profile 11.60 s), the **imagined** tracker finishes
+at 0.93× the profile time (it runs *above* the commanded speed inside the
+model) while **Chrono** finishes at 1.04× (the real vehicle lags the profile
+by 3–6 %, most on the fast sweep). Same policy, opposite sign: the model
+accelerates more per unit throttle than Chrono does, which is the same defect
+the energy gap showed. Round 1 fixed the power channel but not the speed
+channel. Round 2 with the full 2000 episodes follows when the collection
+finishes; if the bias persists, the next lever is a rollout-consistency term in
+training (multi-step loss under the tracker's actions) rather than more
+one-step data.
 
 ### 6.3 Goal from the camera — `planner_b.goal_from_map`
 
