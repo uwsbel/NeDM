@@ -296,4 +296,10 @@ runs (12.06 vs 12.04 s, 178 vs 177 kJ). So the planner's map, the plan, the
 tracker's pose and the rollout scoring all come from the camera, and the
 result in the simulator is unchanged.
 
-_pending: the all-sensor batch (camera start pose and camera goal as well)._
+All-sensor candidates (camera start pose, camera goal, camera obstacles,
+camera-pose tracking; `wp4_chrono_allsensor`): **173/173 completed, 0 contact**,
+mean cross-track 0.045 m, p95 0.122 m, localisation 0.048 m / 1.30°,
+time 12.48 s, energy 175 kJ. Imagined vs Chrono on the same 173
+candidates: time corr 0.988 (11.03 vs 12.48 s), throttle-based
+energy corr 0.686 at ratio 1.17. **Nothing privileged remains in the
+deployed chain**; the true map is used only to judge the results.
