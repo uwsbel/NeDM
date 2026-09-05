@@ -439,3 +439,39 @@ information in the planner?" — yes, as a v1 stand-in; now replaced.
    stays at 0.9 pending a clearance-aware smoother.
 5. Still privileged: start pose, goal, and the tracker's pose in Chrono (v1
    contract §3).
+
+## 22. v1.6 change (2026-09-05 overnight): imagination budget, energy fidelity, and a measurement correction
+
+`wp4_implementation_notes.md` §8 has the numbers. Two goals were set: use the batched
+imagination better than random sampling, and make the imagined energy accurate.
+
+1. **Measurement correction (§9.5 / §10 evaluation).** Every imagined-vs-Chrono
+   comparison since WP3 started the imagination from the recorded context at frame 16
+   (vehicle already at 2 m/s, launch energy spent) while Chrono starts from rest. The
+   "−10 % time bias" and "1.2× energy under-estimate" were that head start. A
+   frame-aligned benchmark on tracker-driven held-out Chrono episodes shows the deployed
+   dynamics model at +0.1 % time and 0.99 energy. Future model comparisons use
+   `traverse_wp5_aligned_bench.py`, not batch ratios.
+2. **Imagine from rest.** A live vehicle has no recording; the planner now seeds the
+   imagination with a rest context at the camera start pose. Models trained with
+   tracker-driven episodes launch correctly from it (the collection-only model does not).
+   This removes the last dependence of the planner on the episode being evaluated.
+3. **Powertrain state (§6 state contract).** Engine speed and motorshaft torque are added
+   to the vehicle state (17-D); their product is the recorded power, so energy can be read
+   off the predicted state. With tracker-driven episodes re-collected in the new state the
+   model matches the deployed one on bias and lifts the energy correlation to 0.91–0.92
+   from rest. Without tracker data the 17-D model over-estimates energy by 25–33 %.
+   A delta-scaled state loss was a null result.
+4. **Sampling planner (§7 / §9.5).** Random sampling of the route family saturates at
+   ~300 imagined routes; cross-entropy refinement (σ 0.4 m, 3 rounds) adds 2–3 % in
+   Chrono; a clearance penalty is free safety; ensemble-max pessimism over weak
+   checkpoints hurts. Selecting over thousands of imagined rollouts still finds the model's
+   soft spots (Chrono energy 1.2× the imagined at the CEM pick, down from 1.5–1.7×); a
+   route-geometry energy floor is a guard, not an estimator.
+5. **Chrono result (32 held-out layouts, camera map + camera pose + rest context):** the
+   from-rest CEM pick costs 24.40 (time + kJ/10) against 27.32 for the A* pick (−11 %),
+   14.08 s / 103 kJ vs 14.42 s / 129 kJ, better on 26/31 layouts, zero contact on all 100
+   routes driven.
+6. Open: single-process live Chrono demo (camera frame at t = 0 → map → plan from rest →
+   drive), test split, tighter curse guard (floor refitted on from-rest energies or a
+   pessimistic ensemble of strong members).

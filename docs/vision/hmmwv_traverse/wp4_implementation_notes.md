@@ -541,10 +541,26 @@ defect, and the engine state carries the information (gear, torque lag) that the
 channels alone did not. The sampling planner's pessimistic term is therefore configurable
 (`--pess-terms head state` for 17-D models; `head act` remains the 15-D default).
 
-### 8.5 Fine-tune on the re-collected tracker-driven episodes
+### 8.5 Fine-tune on the re-collected tracker-driven episodes — `wp2_z2_cache_dagger_v2`
 
-(pending — `wp2_z2_cache_dagger_v2`, 17-D rows; fine-tunes `wp2_mapv2_pt_dag_ro8_amd`,
-`wp2_mapv2_pt_dscale_dag_ro8_amd`; see the end of this section.)
+The 1991 tracker-driven train-split episodes were re-collected on newton with the 17-D rows
+(`--preset tire_normal_force_omega_pt`; 1991 written, 2.6 h at 18 workers) and the 17-D
+rollout-loss models fine-tuned on them for 8 k steps (`--extra-train-cache … --rollout-steps 8`,
+init from the recorded-only rollout-loss checkpoints). A 903-episode snapshot was used first
+(`wp2_mapv2_pt_dagp_ro8_amd`, the model behind §8.11–8.12), the full set afterwards.
+Frame-aligned against the held-out tracker episodes (§8.9 protocol; from rest §8.10):
+
+| model | time bias (frame 16 / from rest) | power head ratio / corr (frame 16) | from rest | state power from rest |
+|---|---|---|---|---|
+| `wp2_mapv2_pt_dagp_ro8_amd` (903 episodes) | −0.1 % / −0.1 % | 0.98 / 0.87 | 0.97 / 0.91 | 0.95 / 0.92 |
+| **`wp2_mapv2_pt_dag_ro8_amd` (all 1991)** | **+0.1 % / −0.2 %** | **0.96 / 0.90** | **0.96 / 0.90** | **0.95 / 0.90** |
+| `wp2_mapv2_pt_dscale_dag_ro8_amd` (all 1991, delta-scaled) | −0.6 % / +2.2 % | 1.03 / 0.86 | 1.01 / 0.88 | 1.00 / 0.88 |
+
+The full set adds correlation frame-aligned (0.87 → 0.90) and nothing from rest — the 903
+episodes had already done the work. In the confounded batch benchmark (§8.3 protocol) the
+tracker-data fine-tune looked like a regression (head 0.94 → 1.21, time −8.7 → −11.8 %);
+§8.9 explains why that reading was wrong. **Recommended dynamics checkpoint for the planner:
+`wp2_mapv2_pt_dag_ro8_amd` with the sidecar `wp2_z2_cache_v6_pt` and `--pess-terms head state`.**
 
 ### 8.6 Chrono: resampling, clearance penalty, ensemble — `wp5_chrono_sample_planner_v3`
 
@@ -668,3 +684,64 @@ the layouts). The 17-D tracker-data model imagines a complete run from standstil
 time bias and an energy estimate that is unbiased and correlates 0.91–0.92 with Chrono — the
 best fidelity numbers of the study, and the configuration a live planner can actually use.
 The sampling planner now takes `--from-rest` (start pose = camera estimate, context = rest).
+
+### 8.11 Chrono v5: geometry floor, 15-D vs 17-D imagination (recorded-context start) — `wp5_chrono_sample_planner_v5`
+
+Same 32 layouts; both planners use CEM (3 rounds) and the floor at fit − 1.5σ; "f15" imagines
+with the deployed 15-D model (pessimism = max(head, throttle, floor)), "pdf" with the 17-D
+tracker-data model (max(head, state, floor)). Imagination still from the recorded context.
+
+| pick | Chrono time | Chrono energy | Chrono cost | beats A* | min clearance |
+|---|---|---|---|---|---|
+| A* best (f15 / pdf imagination) | 15.66 / 15.25 s | 124.7 / 124.6 kJ | 28.12 / 27.71 | — | 1.43 / 1.48 m |
+| sampled, round 0 (f15 / pdf) | 14.90 / 14.92 s | 105.6 / 105.4 kJ | 25.46 / 25.46 | 25/31 / 25/31 | 1.02 / 0.94 m |
+| CEM (f15 / pdf) | 14.65 / 14.57 s | 101.8 / 102.6 kJ | 24.83 / 24.84 | 25/31 / 24/31 | 1.01 / 0.94 m |
+| **CEM + clearance (f15 / pdf)** | 14.82 / 14.69 s | 99.4 / 100.4 kJ | **24.76 / 24.73** | **26/31 / 25/31** | 1.07 / 1.03 m |
+
+All 169 distinct routes completed with zero contact. The loose floor changes little against
+§8.6 (24.88 → 24.76), and with the recorded-context start the two dynamics models pick
+equally well — consistent with §8.9: both are calibrated once the start is accounted for, and
+the 17-D model's extra correlation does not show through a search that still starts 0.8 s into
+the drive. The Chrono rows now record the launch energy (`energy_first16_kj`); in these
+camera-localised runs it is only ~2 kJ (the tracker launches gently on a pose estimate), so the
+batch-level energy ratios remain dominated by the *recorded* context's 2 m/s head start and are
+not a model-fidelity measure — use §8.9/§8.10.
+
+### 8.12 Chrono v6: the deployable configuration — imagine from rest, 17-D tracker-data model — `wp5_chrono_sample_planner_v6`
+
+Planner: camera map + camera start pose, **rest context** (`--from-rest`), dynamics
+`wp2_mapv2_pt_dagp_ro8_amd`, pessimism = max(power head, state power, geometry floor), 5000
+samples + 3 CEM rounds (+ clearance penalty variant), 18 s per layout. 100 distinct routes,
+all completed, zero contact:
+
+| pick | Chrono time | Chrono energy | Chrono cost | beats A* | Chrono / imagined energy | Chrono / imagined time | min clearance |
+|---|---|---|---|---|---|---|---|
+| A* best | 14.42 s | 129.0 kJ | 27.32 | — | **0.98** | **1.04** | 1.51 m |
+| sampled, pessimistic, round 0 | 14.52 s | 110.5 kJ | 25.57 | 25/31 | 1.07 | 1.04 | 0.97 m |
+| **+ 3 CEM rounds** | **14.08 s** | **103.3 kJ** | **24.40** | **26/31** | 1.18 | 1.05 | 1.03 m |
+| + 3 CEM rounds + clearance penalty | 14.10 s | 105.8 kJ | 24.68 | 24/31 | 1.20 | 1.05 | 1.07 m |
+
+This is the first batch in which the imagination is compared like for like (both start from
+rest), and it is calibrated: the A* pick's imagined energy is within 2 % and its time within
+4 % of Chrono. The search still finds the model's soft spots — the CEM pick's energy is 18 %
+under — but that is down from 50–70 % (§8.6) and the pick is the best Chrono cost of the
+study: 24.40 against 27.32 for A* (−11 %), 14.08 s and 103 kJ against 14.42 s and 129 kJ.
+
+### Where §8 leaves things
+
+* **Goal 1 (use the imagination budget)**: random sampling saturates by ~300 imagined routes;
+  the budget is better spent on CEM refinement (+2–3 % Chrono cost) and on a rest-context
+  imagination that is calibrated against the real run. Ensemble-max pessimism over weak
+  members does not help; a clearance penalty is free safety.
+* **Goal 2 (accurate imagined energy)**: the deployed model was already unbiased once measured
+  properly; the real gains were (a) the frame-aligned benchmark and the from-rest start, which
+  make imagined time / energy comparable to Chrono at all, and (b) the powertrain state with
+  tracker-driven data, which raises the energy correlation to 0.91–0.92 from rest and lets the
+  energy be read off the predicted state. The remaining error is the optimiser's curse at
+  ~1.2× on the CEM pick; a tighter floor refitted on from-rest energies, or a pessimistic
+  ensemble of *strong* members (the two 17-D tracker-data checkpoints), are the next levers.
+* Deployment gap closed: the planner no longer needs a recording of the episode it plans —
+  camera map, camera pose, rest context.
+* Open: the single-process live Chrono demo (camera frame at t = 0 → map → plan from rest →
+  drive), the test split, and a Chrono batch with the full-data checkpoint (§8.5; it matches
+  the 903-episode model from rest, so §8.12 stands as the result).

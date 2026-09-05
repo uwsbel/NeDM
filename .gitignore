@@ -225,3 +225,6 @@ artifacts/traverse/wp2_z2_cache_dagger_v1/*.npz
 !artifacts/traverse/wp5_tracker_val_pt/
 !artifacts/traverse/wp2_mapv2_pt_dagp_ro8_amd/
 # mini-cache (tracker_val episodes + scene maps, 50 MB) is rebuilt by traverse_wp5_aligned_bench.py
+!artifacts/traverse/wp2_mapv2_pt_dag_ro8_amd/
+!artifacts/traverse/wp2_z2_cache_dagger_v2/
+artifacts/traverse/wp2_z2_cache_dagger_v2/*.npz
