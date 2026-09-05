@@ -37,7 +37,7 @@ from nedm.traverse import nrd_data as D
 from nedm.traverse.layout import EpisodeLayout
 from nedm.traverse.nrd_model import DT_S, VX
 from nedm.traverse.oracle import PlanCandidate, PlannerParams, plan_to_ring, plan_to_ring_fallback
-from nedm.traverse.planner_b import MapDecoder, occupancy_discs
+from nedm.traverse.planner_b import MapDecoder, goal_from_map, occupancy_discs
 from nedm.traverse.power_calib import KINDS, PowerModel
 from nedm.traverse.terrain import TerrainMap
 from nedm.traverse.tracker_env import TraverseTrackingEnv, merge_env_cfg, pure_pursuit_actions
@@ -76,12 +76,13 @@ def recorded_truth(cache: Path, key: str, route: dict[str, np.ndarray]) -> dict[
 
 
 def build_candidates(meta: dict, tmap: TerrainMap, sweep: dict, obstacles=None, margin: float | None = None,
-                     repair_iterations: int | None = None, margin_fallback: bool = False,
+                     repair_iterations: int | None = None, margin_fallback: bool = False, goal=None,
                      ) -> tuple[list[tuple[str, PlanCandidate]], EpisodeLayout]:
     """``obstacles`` None -> the true footprint discs (privileged oracle); otherwise the
     disc list to plan against (e.g. occupied cells of the camera-derived map)."""
     layout = EpisodeLayout.from_json(meta["layout"])
     obstacles = layout.obstacles() if obstacles is None else obstacles
+    goal = layout.house_xy if goal is None else goal
     out, seen = [], set()
     for name, overrides in sweep.items():
         params = replace(PlannerParams(), **overrides)
@@ -90,7 +91,7 @@ def build_candidates(meta: dict, tmap: TerrainMap, sweep: dict, obstacles=None, 
         if repair_iterations is not None:
             params = replace(params, curvature_repair_iterations=repair_iterations)
         planner = plan_to_ring_fallback if margin_fallback else plan_to_ring
-        plan = planner(tmap, obstacles, layout.start_xy, layout.house_xy, params)
+        plan = planner(tmap, obstacles, layout.start_xy, goal, params)
         if plan is None:
             continue
         sig = (len(plan.waypoints), round(plan.length_m, 2), round(float(plan.speeds.mean()), 3))
@@ -218,6 +219,7 @@ def main() -> None:
     ap.add_argument("--occ-threshold", type=float, default=0.5)
     ap.add_argument("--margin", type=float, default=None, help="tracker margin override for candidate generation")
     ap.add_argument("--margin-fallback", action="store_true", help="0.9 -> 0.6 -> 0.3 margin rescue when no plan validates")
+    ap.add_argument("--goal", choices=["true", "predicted"], default="true", help="ring centre: true house or largest camera blob")
     ap.add_argument("--power-calib", default="artifacts/traverse/wp4_power_calib/power_calib.json")
     ap.add_argument("--dump-trajectories", default=None, help="npz path for per-step imagined z1/actions")
     ap.add_argument("--export-routes", default=None, help="json path: every candidate route, for the Chrono eval")
@@ -240,19 +242,20 @@ def main() -> None:
     for key in keys:
         store, ep = key.split("__", 1)
         meta = json.loads((Path(args.stores) / store / ep / "meta.json").read_text())
-        pred_discs, plan_tmap = None, tmap
+        pred_discs, plan_tmap, pred_goal = None, tmap, None
         if decoder is not None:
             with np.load(cache / f"{key}.npz") as d:
                 occ, elev = decoder(d[args.map_key])
             pred_discs = occupancy_discs(occ, decoder.size_m, args.occ_threshold, mode="cells")
             cells.append(len(pred_discs))
+            pred_goal = goal_from_map(occ, decoder.size_m, args.occ_threshold) if args.goal == "predicted" else None
             if args.terrain == "predicted":
                 plan_tmap = decoder.terrain(elev)
         cands, layout = build_candidates(meta, plan_tmap, CANDIDATE_SWEEP,
                                          obstacles=pred_discs if args.candidates == "predicted" else None,
                                          margin=args.margin,
                                          repair_iterations=40 if args.candidates == "predicted" else None,
-                                         margin_fallback=args.margin_fallback)
+                                         margin_fallback=args.margin_fallback, goal=pred_goal)
         with np.load(routes / f"{key}.npz") as r:
             recorded = {n: r[n] for n in ("waypoints", "speeds", "headings", "stations")}
         truths[key] = recorded_truth(cache, key, recorded)
@@ -325,7 +328,7 @@ def main() -> None:
                 "mae": float(np.abs(a - b).mean()), "corr": float(np.corrcoef(a, b)[0, 1]) if len(a) > 2 else float("nan")}
     summary = {
         "episodes": len(keys), "rollouts": len(entries), "horizon_s": args.horizon_s, "policy": args.policy,
-        "candidates": args.candidates, "terrain": args.terrain, "collision": args.collision, "margin": args.margin,
+        "candidates": args.candidates, "terrain": args.terrain, "collision": args.collision, "margin": args.margin, "goal": args.goal,
         "predicted_cells_mean": float(np.mean(cells)) if cells else None,
         "recorded_route_calibration": {
             "completed_recorded": int(sum(c["rec_completed"] for c in cal)),

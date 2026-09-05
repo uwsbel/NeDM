@@ -64,6 +64,7 @@ def main() -> None:
     ap.add_argument("--threshold", type=float, default=0.5)
     ap.add_argument("--elev-smooth", type=float, default=1.0)
     ap.add_argument("--margin-fallback", action="store_true", help="0.9 -> 0.6 -> 0.3 rescue for all rungs")
+    ap.add_argument("--goal", choices=["true", "predicted"], default="true", help="ring centre for the predicted rungs")
     ap.add_argument("--map-key", default="map_v2")
     ap.add_argument("--device", default="cuda")
     args = ap.parse_args()
@@ -92,10 +93,11 @@ def main() -> None:
             plans = {"oracle": planner(tmap, layout.obstacles(), layout.start_xy, layout.house_xy, params)}
             t1 = time.time()
             plans["pred_occ"], info = plan_on_predicted_map(decoder, scene_map, layout.start_xy, layout.house_xy, params,
-                                                           true_terrain=tmap, threshold=args.threshold, margin_fallback=args.margin_fallback)
+                                                           true_terrain=tmap, threshold=args.threshold, margin_fallback=args.margin_fallback,
+                                                           goal_from_camera=args.goal == "predicted")
             plans["pred_full"], info_full = plan_on_predicted_map(decoder, scene_map, layout.start_xy, layout.house_xy, params,
                                                                  threshold=args.threshold, elev_smooth=args.elev_smooth,
-                                                                 margin_fallback=args.margin_fallback)
+                                                                 margin_fallback=args.margin_fallback, goal_from_camera=args.goal == "predicted")
             reasons = {"pred_occ": info["reason"], "pred_full": info_full["reason"]}
             plan_s = time.time() - t1
             plans["straight"] = straight_line(tmap, layout.start_xy, layout.house_xy, params)
@@ -107,6 +109,9 @@ def main() -> None:
                     j = judge(true_grid, plan, params)
                     row.update(j)
                     row["margin_used"] = plan.meta.get("tracker_margin_m", margin)
+                    end_d = float(np.hypot(plan.waypoints[-1, 0] - layout.house_xy[0], plan.waypoints[-1, 1] - layout.house_xy[1]))
+                    row["end_ring_err_m"] = abs(end_d - params.approach_ring_m)
+                    row["on_true_ring"] = bool(row["end_ring_err_m"] <= params.approach_ring_tol_m)
                     if ref:
                         row["length_ratio"] = j["length_m"] / ref["length_m"]
                         row["energy_ratio"] = j["energy_proxy"] / ref["energy_proxy"]
@@ -126,6 +131,8 @@ def main() -> None:
                 "min_true_clearance_p05_m": float(np.percentile([r["true_min_clearance_m"] for r in found], 5)) if found else None,
                 "length_ratio_mean": float(np.mean([r["length_ratio"] for r in found if "length_ratio" in r])) if found else None,
                 "energy_ratio_mean": float(np.mean([r["energy_ratio"] for r in found if "energy_ratio" in r])) if found else None,
+                "on_true_ring_rate": float(np.mean([r["on_true_ring"] for r in found])) if found else None,
+                "end_ring_err_p95_m": float(np.percentile([r["end_ring_err_m"] for r in found], 95)) if found else None,
             }
     from collections import Counter
     for rung in ("pred_occ", "pred_full"):
@@ -133,11 +140,12 @@ def main() -> None:
         print(f"{rung} failure reasons: {dict(c)}")
     out = Path(args.out); out.mkdir(parents=True, exist_ok=True)
     (out / "ladder.json").write_text(json.dumps({"summary": summary, "rows": rows}, indent=1))
-    print(f"{'rung':22s} {'no-path':>8s} {'collide':>8s} {'slope!':>7s} {'clear p05':>10s} {'len ratio':>10s} {'E ratio':>8s}")
+    print(f"{'rung':22s} {'no-path':>8s} {'collide':>8s} {'slope!':>7s} {'clear p05':>10s} {'len ratio':>10s} {'E ratio':>8s} {'on ring':>8s} {'ring err p95':>12s}")
     for k, v in summary.items():
         f = lambda x, p=3: "  -  " if x is None else f"{x:.{p}f}"
         print(f"{k:22s} {f(v['no_path_rate']):>8s} {f(v['collision_rate']):>8s} {f(v['slope_violation_rate']):>7s} "
-              f"{f(v['min_true_clearance_p05_m'], 2):>10s} {f(v['length_ratio_mean']):>10s} {f(v['energy_ratio_mean']):>8s}")
+              f"{f(v['min_true_clearance_p05_m'], 2):>10s} {f(v['length_ratio_mean']):>10s} {f(v['energy_ratio_mean']):>8s} "
+              f"{f(v['on_true_ring_rate']):>8s} {f(v['end_ring_err_p95_m'], 2):>12s}")
 
 
 if __name__ == "__main__":

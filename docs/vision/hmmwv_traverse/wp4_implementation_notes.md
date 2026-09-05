@@ -259,3 +259,17 @@ split only; val/test untouched). Retrained model: `wp2_mapv2_dagger_amd`.
 
 _pending: collection running on newton (≈ 2 h), then retraining and the
 imagined-vs-Chrono time / energy comparison against `wp2_mapv2_index_amd`._
+
+### 6.3 Goal from the camera — `planner_b.goal_from_map`
+
+The house is the largest predicted blob; its centroid replaces the privileged
+house position as the approach-ring centre. On 400 held-out layouts the centroid
+is 0.09 m (mean) / 0.39 m (max) from the true house centre, and the blob radius
+averages 3.50 m against the 3.5 m footprint. Ladder with camera goal + margin
+fallback (`--goal predicted`, 100 layouts): no-path 0 %, collisions 0, plans
+identical to the oracle's in length; plan endpoints lie within 1.0 m of the true
+approach ring on 100 % of layouts (within the planner's own 0.75 m ring
+tolerance on 86 %, the oracle's discretised endpoints already use 0.64 m of it)
+and within the study's 2 m success radius on all. The scorer takes
+`--goal predicted`. **With this, the start pose is the only privileged input
+left in the chain** (and the tracker's pose head could supply it too).

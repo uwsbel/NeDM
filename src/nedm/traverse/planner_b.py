@@ -105,24 +105,39 @@ def occupancy_discs(occ_prob: np.ndarray, size_m: float, threshold: float = 0.5,
     return out
 
 
+def goal_from_map(occ_prob: np.ndarray, size_m: float, threshold: float = 0.5) -> tuple[float, float]:
+    """The house is the largest predicted blob; its centroid is the goal (ring centre). On 400
+    held-out layouts: 0.09 m mean / 0.39 m max error vs the true house centre (ring tol 0.75 m)."""
+    g = occ_prob.shape[0]
+    cell = size_m / g
+    half = size_m / 2
+    comps = _label_components(occ_prob >= threshold)
+    iy, ix = max(comps, key=lambda c: len(c[0]))
+    return float(((ix + 0.5) * cell - half).mean()), float((half - (iy + 0.5) * cell).mean())
+
+
 def plan_on_predicted_map(decoder: MapDecoder, scene_map: np.ndarray, start_xy, ring_center,
                           params: PlannerParams | None = None, true_terrain: TerrainMap | None = None,
                           threshold: float = 0.5, elev_smooth: float = 1.0,
-                          margin_fallback: bool = False) -> tuple[PlanCandidate | None, dict]:
+                          margin_fallback: bool = False, goal_from_camera: bool = False,
+                          ) -> tuple[PlanCandidate | None, dict]:
     """Camera-only planning. ``true_terrain`` given -> ablation rung with memorized terrain.
+    ``goal_from_camera`` replaces ``ring_center`` by the largest predicted blob's centroid.
     On failure ``info["reason"]`` says whether A* found no path or smoothing/validation rejected it."""
     params = params or PlannerParams()
     # Cell-disc blobs have jagged inflated boundaries; the oracle's 12 curvature-repair
     # passes leave 9 % of A* paths above the curvature cap, 40 passes rescue 7 of 9.
     params = replace(params, curvature_repair_iterations=max(params.curvature_repair_iterations, 40))
     occ, elev = decoder(scene_map)
+    if goal_from_camera:
+        ring_center = goal_from_map(occ, decoder.size_m, threshold)
     tmap = true_terrain if true_terrain is not None else decoder.terrain(elev, elev_smooth)
     discs = occupancy_discs(occ, decoder.size_m, threshold, mode="cells")
     if margin_fallback:
         plan = plan_to_ring_fallback(tmap, discs, start_xy, ring_center, params)
     else:
         plan = plan_to_ring(tmap, discs, start_xy, ring_center, params)
-    info = {"occupied_cells": len(discs), "occ": occ, "elev": elev, "reason": None}
+    info = {"occupied_cells": len(discs), "occ": occ, "elev": elev, "reason": None, "ring_center": tuple(ring_center)}
     if plan is None:
         grid = OracleGrid(tmap, discs, params)
         ring = np.hypot(grid.node_x - ring_center[0], grid.node_y - ring_center[1])
