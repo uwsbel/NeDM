@@ -804,3 +804,81 @@ Prediction accuracy is read per arm from its own numbers: imagined time / energy
 world-model picks, regression energy and profile time for the geometry picks, profile time for
 plain A* (it has no energy estimate at all; the world model's imagined energy for the A* route is
 reported as the world model's prediction of the baseline).
+
+### 9.3 Chrono result — `wp5_chrono_compare_test` (32 test layouts, 282 distinct routes, all completed, zero contact)
+
+Cost = Chrono time + Chrono energy / 10. "wins" and Δcost are paired against plain A* on the 31
+layouts where plain A* found a route (on `ep_2314` it found none even at the 0.3 m margin; sampling
+found 21–25 valid routes there and drove one). "E / pred" is Chrono energy over the arm's *own*
+prediction (imagination for the world-model picks, geometry regression for the geometry picks; the
+plain-A* row shows the world model's imagined energy for the A* route, since A* predicts none).
+Clearance is to the true obstacle discs; "worst" is the smallest minimum over the 32 routes.
+
+| planner | time | energy | cost | wins | Δcost ± SE | E / pred | t / pred | t / profile | speed err | clearance mean / worst | < 0.3 m |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| **plain A*** (rule-based, no dynamics) | 11.11 s | 187.9 kJ | 29.91 | — | — | (0.92) | — | 1.04 | 0.38 m/s | 1.48 / 0.72 m | 0 |
+| A* sweep + world model | 13.96 | 131.1 | 27.06 | 24/31 | −2.78 ± 0.64 | 0.96 | 0.99 | 1.02 | 0.32 | 1.44 / 0.63 | 0 |
+| sampling + world model, round 0 | 13.51 | 115.6 | 25.08 | 30/31 | −4.97 ± 0.59 | 1.03 | 1.00 | 1.01 | 0.28 | 1.02 / 0.17 | 2 |
+| + 3 CEM rounds | 13.27 | 108.9 | **24.16** | 30/31 | −5.81 ± 0.60 | 1.10 | 1.00 | 1.01 | 0.28 | 0.98 / 0.09 | 2 |
+| **+ clearance penalty (= `deploy`)** | 13.22 | 111.2 | **24.35** | **30/31** | **−5.66 ± 0.62** | 1.11 | 1.00 | 1.01 | 0.29 | 1.03 / **0.41** | **0** |
+| sampling + geometry scorer, round 0 | 14.43 | 126.0 | 27.03 | 24/31 | −2.82 ± 0.70 | 1.28 | 1.01 | 1.01 | 0.29 | 0.93 / 0.06 | 2 |
+| + 3 CEM rounds | 14.40 | 119.5 | 26.35 | 24/31 | −3.48 ± 0.74 | 1.32 | 1.01 | 1.01 | 0.27 | 0.92 / 0.18 | 4 |
+| + clearance penalty (= `geo_deploy`) | 14.82 | 113.7 | 26.19 | 26/31 | −3.64 ± 0.69 | 1.30 | 1.01 | 1.01 | 0.27 | 1.02 / 0.28 | 1 |
+| A* sweep + geometry scorer | 15.03 | 131.6 | 28.19 | 22/31 | −1.61 ± 0.83 | 1.29 | 1.02 | 1.02 | 0.29 | 1.47 / 0.68 | 0 |
+
+Head to head on the deployable pick, **world model vs geometry scorer over the same candidates:
+26/32 layouts, −1.84 ± 0.44 cost**. Noise floor: the two arms' plain-A* routes differ only by
+float noise in the predicted terrain (28 of 31 identical geometries, speeds within 0.01 m/s) and
+were both driven — mean |Δcost| between the two copies is 1.00, mean |ΔE| 9.9 kJ, arm means
+29.91 vs 29.69 — so single-layout differences under ~1 are noise; the arm-level differences above
+are 6–10 standard errors.
+
+Wall time per layout on the 5090: plain A* 0.1–0.3 s; A* sweep 0.6–2 s; sampling + world model
+19.1 s (5000 samples, ≤ 2000 imagined, 3 CEM rounds, one 17-D model); sampling + geometry 9.1 s
+(CPU, dominated by route building — the geometry scorer itself is negligible).
+
+### 9.4 Reading
+
+1. **Plain A* is beaten on 30 of 31 layouts, by 19 % in cost (29.9 → 24.35), with 41 % less
+   energy (188 → 111 kJ) for 2.1 s more time, and it fails outright on one layout where
+   sampling does not.** The A* speed profile is also the one the tracker holds worst (speed
+   error 0.38 vs 0.28–0.29 m/s; Chrono takes 4 % longer than the profile promises against 1 %
+   for the sampled routes): the rule-based profile asks for speeds the vehicle does not deliver.
+2. **What the world model adds over "sampling + any scorer": 1.84 cost (7 %) on the same
+   candidates, 26/32 layouts.** Both scorers pick shorter, slower, cheaper routes than A*; the
+   geometry regression's picks are 1.6 s slower and no cheaper in energy than the imagined picks.
+   The world model's advantage is not only the number — it is the only arm whose predictions are
+   trustworthy at the pick.
+3. **Prediction accuracy.** Imagined time is exact (1.00 on every pick, 0.99 at the A* sweep).
+   Imagined energy is 0.96 at the A*-sweep pick, 1.03 at the round-0 sampled pick, 1.10–1.11 at
+   the CEM picks (the optimiser's curse, unchanged from §8.12's 1.18–1.20 in size class but on
+   an untouched split). The geometry regression, fitted on 865 Chrono runs, is *exploited* by
+   the same search: 1.28–1.32 at its own picks — it says 87 kJ, Chrono says 114. The world model
+   also predicts the plain-A* route it did not choose to within 8 % (0.92, over-estimating).
+4. **Safety.** Zero contact on all 282 routes. Without the penalty both samplers drive to
+   0.06–0.18 m of a true obstacle on their worst layout (the reviewer's point); with the penalty
+   the world-model pick's worst clearance is 0.41 m (none under 0.3) at +0.19 cost. The geometry
+   pick with the same penalty still has one route under 0.3 m (0.28), because its clearance is
+   geometric while the imagined one includes the tracker's actual deviation. Max roll / pitch
+   are 15–18° in every arm — this terrain does not stress dynamic feasibility, as anticipated.
+5. **Live inputs cost nothing** once the vehicle masks itself: the single-frame camera map plus
+   frame-0 pose give the same decoded occupancy as the recorded medians and a from-rest
+   imagination calibrated to 1.00 in time. The vehicle-in-crop failure of §9.1 is the one real
+   deployment lesson of the exercise.
+
+### 9.5 Where step one leaves things
+
+* Claim supported on the current arena: with identical live inputs and the same tracker, the
+  sampled world-model route is cheaper than plain A* (−19 %), the route's predicted time and
+  energy are borne out in Chrono (time exact, energy within 10 %), and the world model is worth
+  7 % over a cheap scorer on the same candidates. Not shown, because the arena cannot show it:
+  dynamic-feasibility failures of the rule-based planner (no rollover, stall or contact anywhere).
+* Curse guard: the CEM picks still land 10 % under on energy. Refitting the floor on from-rest
+  energies or penalising routes whose imagined energy sits far below the regression are the
+  cheap next levers; a Chrono batch with a pessimistic ensemble of the two strong 17-D members
+  is the expensive one.
+* Reproducibility note: run both arms' map decoding on the same device — CPU vs GPU float noise
+  in the predicted elevation moved 4 of 31 plain-A* geometries by up to 0.24 m.
+* The terrain-stress study (steeper climbs, side slopes, crater rims) is what would earn the
+  dynamic-feasibility half of the claim; it needs a new arena and hence re-collection and
+  retraining of the encoder, map head and dynamics model.

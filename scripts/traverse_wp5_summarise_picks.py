@@ -59,14 +59,16 @@ for name in sorted(rows, key=lambda n: (n != args.reference, n)):
     done = [r for r in rs.values() if r["completed"]]
     common = [k for k in rs if k in ref and rs[k]["completed"] and ref[k]["completed"]]
     wins = sum(cost(rs[k]) < cost(ref[k]) for k in common)
-    dcost = float(np.mean([cost(rs[k]) - cost(ref[k]) for k in common])) if common else float("nan")
+    diffs = np.array([cost(rs[k]) - cost(ref[k]) for k in common])
+    dcost = float(diffs.mean()) if common else float("nan")
+    dcost_se = float(diffs.std(ddof=1) / np.sqrt(len(diffs))) if len(diffs) > 1 else float("nan")
     e_ratio = ratio([(r["energy_kj"], pred.get(k, {}).get(f"{name}_energy")) for k, r in rs.items() if r["completed"]])
     t_ratio = ratio([(r["time_s"], pred.get(k, {}).get(f"{name}_time")) for k, r in rs.items() if r["completed"]])
     p_ratio = ratio([(r["time_s"], pred.get(k, {}).get(f"{name}_profile_time")) for k, r in rs.items() if r["completed"]])
     clr = [r["min_clearance_m"] for r in done]
     s = {"n": len(rs), "completed": len(done), "contact": int(sum(r["contact"] for r in rs.values())),
          "time_s": float(np.mean([r["time_s"] for r in done])) if done else None, "energy_kj": float(np.mean([r["energy_kj"] for r in done])) if done else None,
-         "cost": float(np.mean([cost(r) for r in done])) if done else None, "wins": wins, "n_common": len(common), "dcost_vs_ref": dcost,
+         "cost": float(np.mean([cost(r) for r in done])) if done else None, "wins": wins, "n_common": len(common), "dcost_vs_ref": dcost, "dcost_se": dcost_se,
          "chrono_over_pred_energy": e_ratio, "chrono_over_pred_time": t_ratio, "chrono_over_profile_time": p_ratio,
          "min_clearance_mean": float(np.mean(clr)) if clr else None, "min_clearance_worst": float(np.min(clr)) if clr else None,
          "n_below_0p3": int(sum(c < 0.3 for c in clr)), "speed_err_mps": float(np.mean([r["mean_speed_err_mps"] for r in done])) if done else None,
@@ -79,6 +81,9 @@ for name in sorted(rows, key=lambda n: (n != args.reference, n)):
           f"{wins:3d}/{len(common):<3d} {f(dcost, 6, 2)} | {f(e_ratio)} {f(t_ratio)} {f(p_ratio)} | {f(s['min_clearance_mean'], 5)} {f(s['min_clearance_worst'], 5)} {s['n_below_0p3']:4d} | "
           f"{f(s['speed_err_mps'], 5)} {f(s['p95_ct_m'], 5)} {f(s['max_roll_deg'], 5, 1)} {f(s['max_pitch_deg'], 5, 1)}")
 print("wins / dcost: paired against", args.reference, "on layouts both completed; E/pred, t/pred: Chrono / the planner's own prediction; t/prof: Chrono / profile-implied time")
+for name, s in summary.items():
+    if name != args.reference and s["n_common"] > 1:
+        print(f"  {name:20s} paired cost difference {s['dcost_vs_ref']:+.2f} +/- {s['dcost_se']:.2f} (SE, n={s['n_common']})")
 if args.layouts:
     names = sorted(rows, key=lambda n: (n != args.reference, n))
     keys = sorted(set().union(*(set(rs) for rs in rows.values())))

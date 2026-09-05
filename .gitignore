@@ -228,3 +228,11 @@ artifacts/traverse/wp2_z2_cache_dagger_v1/*.npz
 !artifacts/traverse/wp2_mapv2_pt_dag_ro8_amd/
 !artifacts/traverse/wp2_z2_cache_dagger_v2/
 artifacts/traverse/wp2_z2_cache_dagger_v2/*.npz
+# WP5 step one: plain A* vs sampling + world model on the test split with live inputs (§9)
+!artifacts/traverse/wp5_compare_test_nrd/
+!artifacts/traverse/wp5_compare_test_geo/
+!artifacts/traverse/wp5_chrono_compare_test/
+!artifacts/traverse/wp5_compare_test_routes.json
+# live single-frame cache: only the manifest and the map-quality stats; the npz (65 MB) is rebuilt by traverse_wp5_live_inputs.py
+!artifacts/traverse/wp5_live_cache_test/
+artifacts/traverse/wp5_live_cache_test/*.npz

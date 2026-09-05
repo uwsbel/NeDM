@@ -475,3 +475,29 @@ imagination better than random sampling, and make the imagined energy accurate.
 6. Open: single-process live Chrono demo (camera frame at t = 0 → map → plan from rest →
    drive), test split, tighter curse guard (floor refitted on from-rest energies or a
    pessimistic ensemble of strong members).
+
+## 23. v1.7 change (2026-09-05): plain A* baseline, live inputs only, test split
+
+`wp4_implementation_notes.md` §9 has the numbers. Step one of the agreed programme: show that,
+given the same camera map, camera start pose, rest state and tracker, the sampling planner scored
+by the world model beats a classical planner and that its predictions are borne out.
+
+1. **Evaluation boundary closed (§9.5 / §10).** Scene map = one pre-departure camera frame with
+   the vehicle masked out of its own view at the camera-estimated pose; start pose = camera
+   estimate at frame 0; ego-crop tokens at that estimate; predicted elevation for every speed
+   profile, slope cap and floor; test split (never used for training or selection); worst-case
+   clearance reported; plain A* as the fallback when no sampled route validates. Finding: the
+   dynamics model's ego crop must not contain the vehicle — with it in the frame the imagined
+   vehicle does not launch on some layouts.
+2. **Arms (§7 / §9.5).** Plain A* (default rules, margin ladder) · A* sweep + world model ·
+   sampling + world model (CEM, clearance penalty) · sampling + Chrono-fitted geometry regression
+   over the same candidates (control) — all exported by `traverse_wp5_sample_planner.py`.
+3. **Result (32 test layouts, 282 routes, zero contact).** Deployable world-model pick 24.35
+   (time + kJ/10) vs plain A* 29.91, −5.66 ± 0.62, 30/31 layouts, 111 vs 188 kJ, 13.2 vs 11.1 s;
+   plain A* finds no route on one layout where sampling does. World model vs geometry scorer on
+   the same candidates: −1.84 ± 0.44, 26/32. Imagined time exact (1.00), imagined energy 0.96 at
+   the A*-sweep pick and 1.10 at the CEM pick; the geometry regression is exploited to 1.30 by
+   the same search. Rule-based speed profile: Chrono 4 % slower than promised, speed error 0.38
+   vs 0.28 m/s on the sampled routes.
+4. **Not shown:** dynamic-feasibility failures of the classical planner — roll/pitch stay under
+   18° in every arm on this arena. That claim needs the terrain-stress arena (§9.5 of the notes).
