@@ -74,7 +74,7 @@ import argparse
 import csv
 import json
 import sys
-from collections import Counter, defaultdict
+from collections import Counter, defaultdict, defaultdict
 from pathlib import Path
 from typing import Any
 
@@ -378,6 +378,64 @@ def main() -> int:
                else f"{len(bad10)} mismatches (e.g. {bad10[0]})")
     else:
         print("[SKIP] G10 rows: pass --check-rows to open every CSV")
+
+    # ---- G11 design agreement ---------------------------------------------
+    # A dataset's design lives in the operator's environment, not in the episodes:
+    # ground size, perturbation, prewalk and slope appear in NO episode artifact.
+    # So a half-set environment yields old-design episodes INDISTINGUISHABLE from
+    # new-design ones, and pooling two roots collected under different designs is
+    # undetectable after the fact. run_manifest.json is the stopgap; this gate is
+    # what makes it load-bearing rather than decorative.
+    manifests = []
+    for root in args.dataset_root:
+        for candidate in (root / "run_manifest.json", root.parent / "run_manifest.json"):
+            if candidate.is_file():
+                manifests.append((root, json.loads(candidate.read_text())))
+                break
+    if not manifests:
+        print("[SKIP] G11 design agreement: no run_manifest.json under any root")
+    else:
+        designs = {json.dumps(m.get("effective_design"), sort_keys=True) for _, m in manifests}
+        missing = [str(r) for r in args.dataset_root
+                   if str(r) not in {str(rr) for rr, _ in manifests}]
+        ok11 = len(designs) == 1 and not missing
+        report("G11 design agreement", ok11, detail=(
+            f"all {len(manifests)} root(s) share one effective_design" if ok11
+            else f"{len(designs)} distinct designs across {len(manifests)} manifest(s)"
+                 + (f"; {len(missing)} root(s) have none" if missing else "")))
+
+    # ---- G12 command coverage ---------------------------------------------
+    # THE PROPERTY THIS COLLECTION EXISTS TO ESTABLISH, and nothing else checks it.
+    # Every dataset before 2026-09-04 was confined to |vx| <= 0.5, which is the band
+    # where the imported policy tracks WORST -- 0.3 m/s achieves 0.01 of command. A
+    # dataset can pass every other gate here while covering none of the envelope it
+    # was collected to cover, because the other gates ask about structure and this
+    # asks about reach.
+    if manifests:
+        ranges = (manifests[0][1].get("effective_design") or {}).get("param_ranges") or {}
+    else:
+        ranges = {}
+    if not ranges:
+        print("[SKIP] G12 command coverage: no param_ranges in any manifest")
+    else:
+        vals = defaultdict(list)
+        for meta in on_disk:
+            for key, value in (meta.get("command_params") or {}).items():
+                vals[key.rstrip("01")].append(float(value))
+        shortfalls = []
+        for key, (lo, hi) in ranges.items():
+            got = vals.get(key)
+            if not got:
+                continue
+            span = (max(got) - min(got)) / (hi - lo)
+            # 0.8 of the intended span, not 1.0: stratified draws take one sample per
+            # bin, so the extremes sit inside the range by construction and demanding
+            # the full span would fail on correct data.
+            if span < 0.8 or min(got) > lo + 0.25 * (hi - lo) or max(got) < hi - 0.25 * (hi - lo):
+                shortfalls.append(f"{key}: [{min(got):.2f},{max(got):.2f}] of [{lo},{hi}]")
+        report("G12 command coverage", not shortfalls, detail=(
+            f"realised commands span the intended envelope on {len(ranges)} parameter(s)"
+            if not shortfalls else "; ".join(shortfalls)))
 
     per_family = Counter(ep.get("scenario_family") for ep in episodes)
     print("\n  episodes per family:")

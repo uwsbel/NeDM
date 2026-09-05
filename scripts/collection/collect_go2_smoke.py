@@ -487,6 +487,14 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
                 system.DoStepDynamics(exchange)
 
             bp = base.GetPos()
+            # NaN FAILS EVERY COMPARISON, so a diverged position makes the
+            # in-bounds test False and trips this as a boundary exit. Measured on
+            # the first comprehensive run: all 291 diverged episodes carried a
+            # bed_boundary_at_s, while the furthest any episode travelled was
+            # 64.0 m against a 99.2 m threshold -- so not one of them was real.
+            # Diagnose non-finite explicitly and stop for THAT reason instead.
+            if not (math.isfinite(bp.x) and math.isfinite(bp.y)):
+                break
             if boundary_at is None and not (
                     bed[0] + BED_MARGIN <= bp.x <= bed[1] - BED_MARGIN
                     and bed[2] + BED_MARGIN <= bp.y <= bed[3] - BED_MARGIN):
