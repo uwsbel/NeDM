@@ -257,8 +257,30 @@ applied action, pose, power); the layout's existing scene map is reused through
 ``source_key``. The map trainer appends them with ``--extra-train-cache`` (train
 split only; val/test untouched). Retrained model: `wp2_mapv2_dagger_amd`.
 
-_pending: collection running on newton (≈ 2 h), then retraining and the
-imagined-vs-Chrono time / energy comparison against `wp2_mapv2_index_amd`._
+**Round 1** (snapshot of 776 tracker-driven episodes = +12 % training data;
+40 k steps, MI350, 27 min; checkpoint selected at 5 s state error as before).
+Same 32 held-out layouts, same tracker, imagined rollouts vs the Chrono batches:
+
+| dynamics model | candidates | imagined vs Chrono time (corr / bias) | power head energy: ratio / corr | throttle-model energy: ratio / corr |
+|---|---|---|---|---|
+| `wp2_mapv2_index_amd` (collection driver only) | oracle sweep, 185 | 0.989 / −10 % | 1.62 / 0.65 | 1.15 / 0.80 |
+| **`wp2_mapv2_dagger_amd` (+776 tracker episodes)** | oracle sweep, 185 | 0.987 / −10 % | **1.31 / 0.87** | 1.13 / 0.84 |
+| `wp2_mapv2_index_amd` | camera-only, 165 | 0.990 / −9 % | — | 1.20 / 0.71 |
+| **`wp2_mapv2_dagger_amd`** | camera-only, 165 | 0.989 / −10 % | — | 1.17 / 0.79 |
+
+The learned power head is the clear winner of the extra data: under the
+tracker's actions its energy correlation with Chrono rises from 0.65 to 0.87
+and the under-estimate shrinks from 1.62× to 1.31×, so the head now beats the
+throttle-based calibration on correlation (0.87 vs 0.84). The 10 % time bias did
+**not** move: the imagined tracker still holds the speed profile more tightly
+than the real one (Chrono speed error 0.36 m/s). On the recorded held-out
+episodes the retrained model is marginally worse (5 s state error 0.441 vs
+0.435, 5 s pose error 1.73 vs 1.67 m) — the price of 12 % out-of-distribution
+data in the mix. Round 2 with the full 2000 episodes follows when the
+collection finishes; if the time bias stays, it is a controller-in-the-loop
+mismatch (the model reproduces the recorded and tracker-driven *transitions*
+but the closed loop still settles faster) and a rollout-consistency term in
+training would be the next lever.
 
 ### 6.3 Goal from the camera — `planner_b.goal_from_map`
 
