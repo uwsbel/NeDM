@@ -501,3 +501,32 @@ by the world model beats a classical planner and that its predictions are borne 
    vs 0.28 m/s on the sampled routes.
 4. **Not shown:** dynamic-feasibility failures of the classical planner — roll/pitch stay under
    18° in every arm on this arena. That claim needs the terrain-stress arena (§9.5 of the notes).
+
+## 24. v1.8 change (2026-09-05, after review of §23): pilot before recollection
+
+A second opinion on §23 was checked point by point (`wp4_implementation_notes.md` §9.6) and
+adopted. Corrections to how §23 should be read: the prediction figures are aggregate ratios —
+per route the world model's time error is 0.17 s MAE but its energy error is 14 % MAE and 37 %
+at the 95th percentile; the gain decomposition is descriptive (the scorer changes the CEM
+candidates; only 14 / 32 round-0 banks coincided); the vehicle-in-crop bug causes false
+*rejection*, and the unguarded hazard is false *acceptance*.
+
+Research question for the next phase: **can the world-model planner identify feasible, efficient
+route-and-speed combinations that a strong classical planner or a cheap learned scorer
+misjudges?** Terrain is designed for meaningful choices (direct crossing / slower crossing /
+detour, at least one feasible), not until A* fails.
+
+Programme, in order, each gated on the previous:
+
+1. Chrono feasibility map on parameterised challenges (existing craters and hills first; then a
+   climb, a side slope, a crater rim via `terrain.ArenaSpec`), sweeping speed and heading with
+   the same tracker; stall, wheel unloading, roll / pitch, tracking loss, time, shaft work.
+2. Shared candidate benchmark: one bank per challenge, cross-scored by a tuned classical planner,
+   the geometry regression, the world model, and later a state-only world model; every pick
+   driven; energy at matched time and safety, per-route prediction error and curse ratio per
+   scorer.
+3. Sanity signals measured against Chrono outcomes (regression disagreement, completion,
+   predicted limit violations), not assumed.
+4. Recollection / retraining only if the pilot shows decisions the cheap scorers get wrong, with
+   terrain-parameter train / dev / test splits, frozen encoder tested first, and the arena-
+   heightmap dependences of the crop projection and pose head resolved.

@@ -882,3 +882,60 @@ Wall time per layout on the 5090: plain A* 0.1–0.3 s; A* sweep 0.6–2 s; samp
 * The terrain-stress study (steeper climbs, side slopes, crater rims) is what would earn the
   dynamic-feasibility half of the claim; it needs a new arena and hence re-collection and
   retraining of the encoder, map head and dynamics model.
+
+### 9.6 Review of §9 (second opinion, 2026-09-05) — what checked out, and the revised next step
+
+A reviewer qualified four statements in §9.3–9.5. Each was checked against the rows and the code:
+
+| reviewer's point | check | verdict |
+|---|---|---|
+| "time exact, energy within 10 %" describes aggregate ratios; per-route errors are larger | pooled over the 159 world-model picks driven: time MAE **0.17 s** (p95 0.35–0.45 s); energy MAE **14 %** (11 % at the A* picks, 17 % at the CEM picks), **p95 37 %**, worst 81 %. The geometry regression: 24–25 % MAE, p95 45–57 % at its own picks | correct — §9.3's ratios are means over routes and hide a wide per-route spread; both are reported from now on |
+| the gain decomposition is descriptive: a different scorer changes the CEM elites and later candidates | true by construction for the CEM picks. The round-0 banks were meant to be identical (same seed) but the RNG is shared across layouts and CEM consumes a different number of draws per arm, so only **14 / 32** round-0 banks coincided. On round 0 the world-model pick still beats the geometry pick 24/32, −1.95 ± 0.53 | correct — the 7 % is a pipeline comparison; a clean scorer comparison needs one candidate bank scored by every scorer (per-layout seeds, cross-scoring the union of banks) |
+| the stalled imagination is rejected, not driven: acceptance requires `completed & ~failed & ~collided` (`traverse_wp5_sample_planner.py`, `Imaginer.__call__`) | confirmed; the first (unmasked) run showed "ok 0" on those layouts, i.e. the sampled arm would have collapsed to the plain-A* fallback | correct — §9.4 item 5 overstated the hazard. The vehicle-in-crop bug causes **false rejection** of feasible routes; the unsolved hazard is **false acceptance**: an imagined success that fails in Chrono. None occurred in 282 runs, but nothing in the pipeline would catch one |
+| the remaining prediction error is a planning-reliability question, not guard tuning | agreed; whether the search selects the model's mistakes is exactly the curse measurement (§8.6, §9.3: 1.03 at round 0 → 1.10 after CEM). Reference the reviewer supplied: *Decision-Metric Alignment in Latent World Models* (arXiv 2608.18746) — title verified | correct — keep the curse measurement as a standing metric alongside the terrain work |
+
+Two further dependences the reviewer flagged are real and matter for any "unfamiliar terrain" claim:
+the crop projection (`map_crop.py`, `_terrain_height`) and the pose head's pixel-to-world inversion
+(`traverse_wp4_train_posehead.py`, `pixel_to_world`) both read the **arena heightmap**. On a new
+arena they need either the new heightmap (a prior map) or the map head's predicted elevation.
+
+**What arena_v1 already offers for a pilot** (from `arena_meta.json`): 6 hills (1.5–3 m high,
+σ 4–7.5 m) and 6 craters (1–2 m deep, σ 2–4 m, rimmed), slopes capped at 20° in generation
+(measured max 22.8°, p99 19°, 10 % of the arena above 15°). The 282 routes of §9.3 crossed at most
+18.6° along-track (mean of per-route maxima 10.6°) with 1.7 m of climb on average — the routes go
+around or over the shoulders of the features, never through a crater. So the first feasibility map
+can be made on the existing craters and hills without a new arena; steeper cases need
+`terrain.ArenaSpec` with a raised slope cap.
+
+**Revised research question** (reviewer's wording, adopted): *can the world-model planner identify
+feasible, efficient route-and-speed combinations that a strong classical planner or a cheap learned
+scorer misjudges?* Terrain is to be designed for meaningful choices — a direct crossing, a slower
+crossing, a detour, with at least one demonstrably feasible option — not until A* fails. Failing to
+hold 7 m/s is a performance limit, not infeasibility.
+
+**Revised next step: a bounded pilot, before any recollection or retraining.**
+
+1. *Feasibility map in Chrono* (newton). Parameterised challenges — first the existing craters and
+   hills, then one climb, one side slope, one crater rim from `ArenaSpec` — each swept over cruise
+   speed and approach heading with the same tracker, including slow profiles and detours. Record
+   stall (speed under threshold with throttle on), wheel unloading (min tire normal force — already
+   in the 15-D state), max roll / pitch, tracking loss, time, shaft work. Output: for each challenge,
+   which route-and-speed combinations are feasible and what they cost.
+2. *Shared candidate benchmark.* One candidate bank per challenge (per-layout RNG seeds so every
+   scorer sees identical banks, union of all CEM children cross-scored), scored by (a) a classical
+   planner with tuned speed profiles, (b) the geometry regression, (c) the world model, later (d) a
+   state-only world model to isolate what vision contributes. Every scorer's pick is driven. Report
+   energy at matched traversal time and safety, alongside the combined cost; report per-route
+   prediction error (MAE, p95) and the curse ratio for every scorer.
+3. *Sanity signals, measured not assumed.* Log the geometry-regression disagreement, completion,
+   and predicted physical-limit violations for every pick; measure which of them actually flag the
+   decisions that go wrong in Chrono. The regression is a disagreement signal, not a bound — it
+   misestimates its own picks by 25 %.
+4. *Scale only if the pilot shows decisions the cheap scorers get wrong.* Then: collect successful
+   and failed executions, split terrain parameters into train / dev / test, test the frozen encoder
+   first, fine-tune what the measured failures indicate, and resolve the heightmap dependences above.
+
+Related work the reviewer pointed to, both titles verified: *Learning When to Jump for Off-road
+Navigation* (arXiv 2602.00877) already treats motion-dependent traversability; the contribution to
+aim for is that explicit physical-state prediction with the tracker inside the imagination
+improves those decisions on terrain the planner has not seen.
