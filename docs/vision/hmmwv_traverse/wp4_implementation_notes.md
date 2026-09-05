@@ -99,8 +99,13 @@ plan at 0.9, and only if nothing validates retry at 0.6, then 0.3. On the
 collisions** (oracle 98 layouts at 0.9 + 2 at 0.6; camera-only 98 + 1 + 1;
 full predicted 97 + 3); on 300 val layouts of all families the oracle's two
 no-path layouts become plans. The ladder is available in the ladder script
-(`--margin-fallback`) and the scorer (`--margin-fallback`); the Chrono runs in
-§5 were made without it, so the rescued plans are not yet Chrono-validated.
+(`--margin-fallback`) and the scorer (`--margin-fallback`). **Chrono-validated**
+(`wp4_chrono_fallback`, `traverse_wp4_export_fallback_plans.py`): over all 1154
+routed held-out layouts the camera-only planner needed the fallback on 34 (29 at
+0.6 m, 5 at 0.3 m; 4 layouts remain infeasible). 31 of those plans were driven by
+the tracker in Chrono: **31/31 completed, zero contact**, min footprint clearance
+0.55 m, max cross-track 0.30 m — the tracker's real error fits inside the reduced
+margins with room to spare.
 
 ## 3. Energy — why the power head fails and what transfers
 
@@ -189,14 +194,14 @@ same near-tie reason as before.
 - **Energy:** 15–20 % low with corr 0.7–0.8; the fix is dynamics-model side
   (tracker-driven training episodes), not calibration side.
 - **Margin:** 0.9 m stays as the default; the 0.9 → 0.6 → 0.3 fallback rescues
-  the last 2–3 % of layouts (not yet driven in Chrono).
+  the last 2–3 % of layouts and its plans drive clean in Chrono (31/31).
 
 ## Open
 
 1. Dynamics model retraining with tracker-driven Chrono episodes (DAgger) to
    remove the throttle-response bias behind the 10 % time and 15–20 % energy gaps.
-2. Chrono-validate the margin-fallback plans (2–3 % of layouts), or make the
-   smoother clearance-aware so the default margin can drop toward the measured 0.1 m.
+2. ~~Chrono-validate the margin-fallback plans~~ done (31/31); a clearance-aware
+   smoother would let the default margin drop toward the measured 0.1 m.
 3. Vehicle localisation from the camera (the tracker's pose in Chrono is still
    the simulator's) — WP1 showed 0.8 m / 3–4° from the spatial map.
 4. Test split untouched throughout.

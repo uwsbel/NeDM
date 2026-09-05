@@ -191,6 +191,9 @@ def main() -> None:
     ap.add_argument("--selection", default="z1_mae_norm")
     ap.add_argument("--seed", type=int, default=20260903)
     ap.add_argument("--max-train-episodes", type=int, default=0)
+    ap.add_argument("--extra-train-cache", nargs="*", default=[],
+                    help="extra cache dirs appended to the TRAIN split only (e.g. tracker-driven Chrono "
+                         "episodes); their scene maps come from the base cache via each file's source_key")
     ap.add_argument("--init-from", default="",
                     help="ckpt_best.pt of a finished run to start from (two-stage predict / eval-only)")
     ap.add_argument("--freeze-cropper", action="store_true",
@@ -219,6 +222,21 @@ def main() -> None:
     val_split = D.load_split(cache, val_keys, with_z2=False)
     train_maps = load_maps(cache, train_keys, args.map_key)
     val_maps = load_maps(cache, val_keys, args.map_key)
+    for extra in args.extra_train_cache:
+        extra = Path(extra)
+        ekeys = D.load_cache_keys(extra)
+        esplit = D.load_split(extra, ekeys, with_z2=False)
+        src = [str(np.load(extra / f"{k}.npz")["source_key"]) for k in ekeys]
+        emaps = load_maps(cache, src, args.map_key)
+        train_split = D.CacheSplit(keys=train_split.keys + list(ekeys),
+                                   z1=np.concatenate([train_split.z1, esplit.z1]),
+                                   z2=np.concatenate([train_split.z2, esplit.z2]),
+                                   act=np.concatenate([train_split.act, esplit.act]),
+                                   pose=np.concatenate([train_split.pose, esplit.pose]),
+                                   power=np.concatenate([train_split.power, esplit.power]),
+                                   terrain=np.concatenate([train_split.terrain, esplit.terrain]))
+        train_maps = np.concatenate([train_maps, emaps])
+        print(f"extra train cache {extra}: +{len(ekeys)} episodes (val/test untouched)", flush=True)
     print(f"loaded cache + maps in {time.time() - t0:.1f}s  maps {train_maps.shape}", flush=True)
 
     payload = torch.load(args.init_from, map_location="cpu") if args.init_from else None
