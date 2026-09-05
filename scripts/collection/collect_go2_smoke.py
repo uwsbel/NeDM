@@ -240,6 +240,12 @@ def summarize_force(rows: list[dict[str, Any]], total_mass_kg: float, gravity: f
 
 
 def summarize_pose(rows: list[dict[str, Any]]) -> dict[str, float]:
+    if not rows:
+        # Reached when an episode ended before the first recorded row. The old
+        # failure here was min() on an empty sequence, which named the symptom and
+        # not the cause; the divergence guard in the step loop now catches the
+        # usual route in, and this stays as a backstop that says what happened.
+        raise ValueError("episode produced zero recorded rows: nothing to summarise")
     return {
         "min_pos_z_m": min(float(r["pos_z_m"]) for r in rows),
         "final_pos_x_m": float(rows[-1]["pos_x_m"]),
@@ -405,6 +411,7 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
         bed = (cx - args.patch_x / 2, cx + args.patch_x / 2,
                -args.patch_y / 2, args.patch_y / 2)
     boundary_at = None
+    solver_diverged_at = None
 
     q0 = robot.joint_pos().astype(np.float64)
     robot.actuate(q0)
@@ -487,6 +494,23 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
                 system.DoStepDynamics(exchange)
 
             bp = base.GetPos()
+            # DIVERGENCE FIRST, AND SEPARATELY FROM THE BED TEST. A non-finite
+            # position fails every comparison below, so `not (lo <= x <= hi)` is
+            # True and a diverged solver was being recorded as a bed exit. That
+            # mislabelled the ending and, when it happened before the first
+            # recorded row, surfaced as "min() iterable argument is empty" three
+            # functions away -- 144 of the 238 lost episodes at offset 3,000,000.
+            #
+            # BREAK, DO NOT RAISE. An earlier version of this guard raised here.
+            # That changed behaviour rather than only the diagnosis: a LATE
+            # divergence is recoverable, and the post-loop handler below truncates
+            # at the first non-finite row and keeps the episode. Raising threw those
+            # episodes away and made previously collected ones impossible to
+            # reproduce -- caught by the verdict harness's replay check, which
+            # requires bit-identical output and refused to run.
+            if not (math.isfinite(bp.x) and math.isfinite(bp.y) and math.isfinite(bp.z)):
+                solver_diverged_at = t
+                break
             if boundary_at is None and not (
                     bed[0] + BED_MARGIN <= bp.x <= bed[1] - BED_MARGIN
                     and bed[2] + BED_MARGIN <= bp.y <= bed[3] - BED_MARGIN):
@@ -599,6 +623,9 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
         "status": ("diverged" if diverged_at is not None
                    else "fell" if fell_at is not None
                    else "bed_boundary" if boundary_at is not None else "completed"),
+        # Distinguished from a genuine bed exit: this is the step at which the
+        # base position went non-finite, which used to be reported as a boundary.
+        "solver_diverged_at_s": solver_diverged_at,
         "bed_boundary_at_s": boundary_at,
         "command_family": args.command_family,
         "command_params": getattr(policy, "params", None),

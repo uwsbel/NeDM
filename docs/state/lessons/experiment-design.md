@@ -1426,3 +1426,240 @@ it said "mirroring what the other machine already does," and the other machine's
 transfer was a fortieth of the size. An approval obtained on an accurate
 description of *what* can still be uninformed about *how much*, and the person who
 wrote the description is the one who owes the correction.
+
+## A test that cannot reject is not evidence of agreement
+
+An exact two-sided sign test on n = 5 has a minimum attainable p of 0.0625. Citing
+p = 1.000 from it as "the halves agree" reports the test's own powerlessness as a
+finding about the data. Before quoting a p-value, ask what the test *could* have
+detected; if the answer is "nothing at these n", quote the effect size against the
+sampling spread instead. Same shape as the recurring "check whose success path is
+reachable without the thing being checked" — here the success path is reachable
+without the halves agreeing.
+
+## Compute the noise floor before choosing the threshold, not after
+
+Setting a target effect first and discovering afterwards that it sits inside the
+sampling noise produces a number nobody can interpret — the run is spent and the
+result is unreadable. Bootstrap each candidate statistic at each candidate
+granularity from the baseline itself, then pick the granularity so the target
+exceeds the noise. For the Go2 fine-tune this ruled out the intended scoring cell
+outright: a ±10-point criterion on the low-command ratio needs n ≈ 344 against 74
+available.
+
+## Pooling is variance reduction only when the parts agree
+
+"Raise n by pooling across families so noise falls as 1/sqrt(n)" assumes one
+population. Pooling averages down the within-group component and leaves the
+between-group component intact, so where between exceeds within, the pooled
+interval is *wider* than the sub-groups it came from — measured on Go2 backward-low,
+between-family sd 45.5 pts against within-family 32.7, and the pooled half-width
+(30.5 pts) worse than four of five constituent cells. Decompose before pooling.
+Note this arose as the proposed *fix* for a family-composition error: the same
+part-whole confusion reappeared inside its own remedy.
+
+## Prefer the statistic without the denominator when the denominator is small
+
+Seventh instance of this class. Backward-low tracking scored as achieved/commanded
+divides by 0.023–0.18 m/s, so a fixed 0.05 m/s error reads as 47% at the median
+command and 213% at the smallest; the resulting CI spans zero and cannot establish
+even the sign. The same episodes scored as absolute velocity error give a CI far
+from zero and pool legitimately in both bins. When a ratio's denominator is itself
+the swept variable, most of the spread is manufactured by the division.
+
+## Pairing can beat any n you could afford to collect
+
+Running both arms on the same commands cancels everything explained by command
+magnitude and family. Measured on the Go2 baseline that is 64% of the variance in
+the low bin — more than quadrupling the effective n there, against a 4.6× shortfall
+that no realistic collection would close. Check what a paired design removes before
+concluding a measurement needs more data.
+
+## A variance reduction is not a noise reduction
+
+Removing 64% of the variance removes only 40% of the sd, and thresholds live in sd.
+Worse, a variance decomposition measured on ONE arm's distribution is an upper bound
+on what a paired design delivers: the structural component cancels only if both arms
+respond to it identically, and whatever fails to cancel enters the difference twice,
+at sqrt(2). On the Go2 low bin that is the difference between an 11.8% and a 16.7%
+detectable effect — the gap between the two is larger than several of the effects
+under discussion. Quote the detectable effect in the units of the claim, not the
+fraction of variance explained.
+
+## If two runs never repeat a condition, the irreducible noise is unmeasured
+
+All 1,762 (family, command) combinations in the Go2 collection are distinct, so no
+amount of reanalysis can separate treatment effect from run-to-run variability — the
+data contains no replicate. That is invisible until you go looking for one, because
+a large dataset feels like it must contain repeats. Deliberately replicating a
+handful of conditions costs almost nothing at collection time and is the only way to
+learn the floor afterwards. Here the retrofit probe is 64 episodes and 1.5 minutes,
+which is the cheap case; on a slower plant it would not have been recoverable.
+
+## NaN fails every comparison, so a divergence reads as whatever you test next
+
+`not (lo <= x <= hi)` is True when x is NaN, so a diverged solver was recorded as a
+bed-boundary exit, broke the step loop before the first row, and died three functions
+away on `min()` over an empty list. 144 of 238 lost Go2 episodes at offset 3,000,000
+took that route, and the error message named the symptom in a different file from the
+cause. dorm-pc hit the same mechanism in its boundary flags, mislabelling 296
+episodes. **Test finiteness explicitly and first, before any comparison whose False
+branch means something else.** Two distinct symptoms, one silent and one fatal, from
+one root cause.
+
+## Python's hash() of a str is per-process randomised
+
+Spawn jitter seeded from `random.Random(hash((family, json.dumps(params))))` drew a
+different position on every invocation — measured -0.138, +0.421, +0.458 for the same
+inputs. Within one process it is consistent, so a single collection looks
+self-consistent and reproducible; it is not. This is invisible until a second run has
+to match the first, and a paired evaluation generated that way would give the two
+arms different realisations while every log said "same commands". Use `hashlib` for
+any seed that must survive a process boundary.
+
+## Difference of medians is not median of differences
+
+On the same 49 pairs: difference of medians +0.0138 m/s (treatment looks harmful),
+median of paired differences -0.0000 (no effect). Only the second has the shared
+episode difficulty removed. If a design is paired, the statistic must be paired too;
+pairing the data collection and then computing an unpaired summary discards the
+entire benefit while appearing to keep it.
+
+## A quantity measured on a simplified set does not transfer to the diverse one
+
+Two correct measurements of the same correlation: r = 0.959 with spawn, heading,
+tilt, prewalk and perturbation pinned so only the command varied, and r = 0.737 with
+the realisation varying as the collection does. Sizing thresholds on the first would
+have understated the noise by about 15%. Same shape as pooling across heterogeneous
+families: the population you measured on has to be the population you will score on.
+
+## A bright line on a noisy statistic rejects a null treatment at chance
+
+"The wrong-way fraction must not increase" sounds strict and defensible. On a
+statistic carrying +-14 points it rejects a treatment whose true effect is zero about
+half the time — noise with a verdict attached. The fix is to keep the decision made
+in advance (a regression is a failure, whatever the primary does) but test it for
+significance, here McNemar on discordant pairs, which uses the pairing. Symptom to
+watch for: a document containing both a bright line and a named hypothesis test for
+the same quantity. That is two rules, and the bright line is usually the one written
+first and never re-examined.
+
+## Negative-control the acceptance criterion, not only the measurements
+
+An acceptance criterion is a check like any other, and it deserves the same
+reachable-failure test we demand of assertions: run it against a treatment that
+ought to fail, before the real one exists. Random weight perturbation is a
+known-null; putting it through the Go2 criterion showed the primary correctly not
+firing (-0.0000 against a -0.020 threshold) and, after the anchor was fixed, the
+anchor correctly not firing either (McNemar p = 0.227). The first version of the
+anchor DID fire on that null, and it had been written into the document as expected
+behaviour — the negative control is what exposed it. A criterion validated only by
+the result it eventually produces is validated too late.
+
+## When the noise scales with the effect, "the noise floor" is not a number
+
+Two machines measured the paired sd of the same quantity as 0.0325 and 0.0667 and it
+looked like a twofold contradiction. It was not: the paired difference is the
+treatment-by-realisation interaction, so its variance grows with the size of the
+treatment, and the two runs used perturbations differing 3.4x in effect. All three
+measurements fit `paired_sd = 0.307 * shift^0.58` within 3% across both machines.
+
+Two consequences. **Size the noise at the effect size you intend to detect** — using
+the noise of a much larger treatment demands the criterion resolve a small effect
+through a big effect's variance, and here that turned a 1.79-sigma threshold into
+0.86. And **"detectable" becomes an implicit condition rather than a fixed number**:
+E is detectable when `E >= 1.96 * 1.25 * sd(E) / sqrt(n)`, which has to be solved
+rather than looked up. Quoting a single sd is what made two consistent measurements
+look contradictory.
+
+Fourth instance in one day of a specification difference presenting as a measurement
+difference, after the selection predicate, the manifest vocabulary and the pinned-vs-
+varied realisation. The tell each time was a control that AGREED while the headline
+numbers did not — here pair loss at 25%, 23% and 22.4% predicted, which located the
+difference in the treatment rather than the harness.
+
+## A good method plus an unidentified parameter is still not a number
+
+`E >= 1.96 * 1.25 * sd(E) / sqrt(n)` is the correct way to ask what is detectable
+when noise scales with the effect. Solving it needs the exponent of that scaling, and
+three points against two parameters gave a slope of 0.579 on one degree of freedom.
+The central estimate got quoted as "the floor is 0.0050 and our threshold is four
+times it", which reported a fit as though it were a measurement.
+
+**Then both attempts to bound that claim were themselves invalid, in the same way:**
+each varied the exponent while holding the fitted coefficient fixed, and in a log-log
+fit those two are strongly correlated, so the pair stops describing the data at all —
+one such combination predicted an sd of 0.193 where 0.0325 had been measured. Varying
+one parameter of a correlated multi-parameter fit does not produce a confidence
+range, it produces incoherent curves. One of those analyses also had the inequality's
+direction backwards: `E >= k*E^b` becomes a CEILING when `b > 1`, satisfied by all
+small effects, not an impossibility.
+
+The fix is not to abandon the method but to separate it from the claim: keep the
+inequality, drop the value, and note which quantities are anchored on measurements
+instead. Here the threshold sat at the lowest measured point, so it survived the fit
+being undetermined — a good reason to place thresholds ON measured points rather than
+in the interpolated space between them.
+
+## Prefer the construction with the fewest assumptions between data and claim
+
+Three ways to put an interval on a median of 49 paired differences: the normal-theory
+`1.96*1.25*sd/sqrt(n)`, which assumes normality and uses a non-robust sd to size a
+robust statistic; the bootstrap, which assumes nothing but is known to run optimistic
+for medians at small n because its sampling distribution is a coarse lattice of order
+statistics; and the exact order-statistic interval, whose coverage is binomial and
+which assumes nothing at all. Measured here, they gave 0.0114, 0.0096 and 0.0122 on
+the same data — the normal formula wrong by 4x in one regime and by -8% in another,
+which is worse than being conservative because the direction is unpredictable.
+
+Where two constructions agree, the result is real: at the smaller treatment the exact
+and bootstrap intervals matched to four decimals. Where they disagree, take the one
+making fewer assumptions. A large resample count does not repair a biased estimator —
+it just measures the wrong thing precisely.
+
+## A control earns its keep by disagreeing, not by agreeing
+
+All five same-name-different-thing collisions in this study were caught the same way:
+**a control that AGREED while the headline numbers did not.** Pair loss matched three
+ways (25%, 23%, 22.4% predicted) while two paired sds differed twofold, which located
+the difference in the treatment rather than the harness. The per-family table matched
+while the pooled medians differed by 26 points, which located that one in composition.
+
+The general form: a control's diagnostic value is highest when it disagrees with the
+thing it is controlling for, because agreement everywhere carries no information. A
+control that always moves with the headline is not doing any work and should be
+replaced by one that can come apart from it. Design controls that CAN disagree, and
+report them even when they do not.
+
+## State what a negative result means, in the same breath as the threshold
+
+"FAIL" reads as "the thing does not work" unless the document says otherwise. It
+means only that an effect of at least the threshold size was not demonstrated. At the
+Go2 criterion's sizing a genuine 0.015 m/s improvement fails four times in five, and
+an effect exactly at the threshold is a coin flip — a threshold is a decision
+boundary, not a detection guarantee. Write the power at a few true effect sizes
+beside the threshold, so the failure cannot be over-read later by someone who was not
+in the conversation that set it.
+
+## Two agents agreeing is not a control when they share the premise
+
+Pair loss was modelled as `1 - 0.881^2 = 22.4%` because either arm could fail. The
+coordinator derived the same figure independently, and the agreement is presumably
+why neither of us examined it. It was wrong: in a design where the baseline arm is
+an ALREADY-COLLECTED episode, that arm cannot fail — it survived collection and
+passed the predicate by construction — so only the treated arm is at risk, and it
+runs on specs pre-selected for having worked once. Measured loss was 5%, not 23%,
+which moved the surviving-pair count from below the minimum to above it.
+
+Independent derivation from a shared unexamined premise is not independent
+confirmation. The check that would have caught it is the one that did: running the
+thing and counting.
+
+## A tool written to enforce a rule can rebuild the violation inside itself
+
+The verdict harness printed the vacuity warning correctly — "smallest attainable
+McNemar p = 0.0625, cannot reject" — and then its verdict logic counted the
+non-firing anchor as a satisfied rule. That is the n = 5 sign-test error, rebuilt
+inside the tool written to prevent it, one screen below the warning that names it.
+Printing a caveat is not enforcing it: check that the control flow acts on the
+warning, not merely that the warning exists.

@@ -79,10 +79,18 @@ Per family, backward, `0.02 <= |cmd| < 0.5`, steady state:
 | constant | 29.8% | 23 | 24.6% | 33 |
 | vel_step | 28.6% | 23 | 32.0% | 23 |
 
-Within 7 points on every family. **The differences are NOT systematic** — 3 of 5
-one way, 2 of 5 the other, mean −2.5 points, exact two-sided sign test p = 1.000.
-The halves are consistent and there is no between-box effect to explain. That was
-asserted twice as a real difference and withdrawn on measurement.
+Within 7 points on every family, mean −2.5 points, 3 of 5 one way and 2 of 5 the
+other. **Seven points is inside the sampling noise of a median at these n** — the
+bootstrap below puts the 95% half-width at 10–20 points per family — so the halves
+are consistent and there is no between-box effect to explain. That was asserted
+twice as a real difference and withdrawn on measurement.
+
+**Do not cite the sign test here.** An earlier version justified this with an exact
+two-sided sign test at p = 1.000. With n = 5 the smallest attainable two-sided p is
+0.0625, so that test cannot reject at any conventional level regardless of the data:
+p = 1.000 says only "3 of 5 is not 5 of 5", which was never in question. It failed
+to detect a difference; it did not show there was none. The defensible statement is
+the effect size against the spread, which is what the paragraph above now gives.
 
 ## The near-zero cell is a different measurement, not a smaller one
 
@@ -108,3 +116,131 @@ Predicate agreed both sides. Merged baseline unblocked. **The acceptance criteri
 is deliberately still unwritten** — three of the four numbers used to size this
 target so far were artifacts of how the statistic was formed, and the criterion
 gets written against the merged baseline once, rather than fixed a fourth time.
+
+## Noise floor, measured before any threshold is written
+
+Bootstrap, 4,000 resamples, on this half's 114 eligible backward episodes. The
+95% half-width is what any criterion has to clear to be readable.
+
+| granularity | n | median ratio | 95% half-width |
+|---|---|---|---|
+| per family-bin, low | 5–9 | −62% … +57% | **21–69 pts** |
+| per family-bin, high | 14–17 | 38% … 67% | 9–13 pts |
+| pooled backward low (0.02–0.18) | 37 | −2.2% | **30.5 pts** |
+| pooled backward high (0.18–0.50) | 77 | 51.1% | 6.5 pts |
+| pooled backward band | 114 | 45.4% | 8.6 pts |
+
+### Pooling across families does NOT fix the low bin
+
+The natural prescription — score pooled within a direction-and-bin so n rises and
+noise falls as 1/sqrt(n) — assumes the families are samples from one population.
+In the low bin they are not:
+
+| bin | statistic | between-family sd | within-family sd |
+|---|---|---|---|
+| low | ratio | **45.5 pts** | 32.7 pts |
+| high | ratio | 12.1 pts | 23.8 pts |
+
+Pooling averages down only the *within* component. In the low bin between exceeds
+within (ratio 1.39), so pooling mixes genuinely different populations and the
+interval widens rather than shrinks — the pooled low half-width (30.5 pts) is worse
+than four of the five individual family-bins it is built from. **This is the same
+part-whole error as the family-composition disagreement**, now appearing in the
+proposed fix for it. Pooling is only variance reduction when the parts agree; the
+high bin (ratio 0.51) is where it is legitimate, and there it works.
+
+### The ratio itself is a denominator problem
+
+The low bin divides by the command, which is 0.023–0.18 m/s. A fixed 0.05 m/s
+velocity error is 47% of the median command in that bin and 213% of the smallest.
+Most of the low bin's spread is manufactured by the division. Scored as absolute
+velocity error instead, on the same episodes:
+
+| bin | median ratio (95% CI) | median abs err, m/s (95% CI) |
+|---|---|---|
+| low | −2.2% [−20.6, +40.5] | **+0.077 [+0.062, +0.110]** |
+| high | +51.1% [+43.8, +56.8] | +0.167 [+0.140, +0.194] |
+
+The ratio CI in the low bin **spans zero and cannot even establish the sign**. The
+absolute-error CI never approaches zero. Absolute error is also the better-behaved
+statistic under decomposition (between/within 0.74 low, 0.50 high, so pooling helps
+in both bins). This is the seventh instance of the denominator failure class in
+`lessons/experiment-design.md`.
+
+### Consequences for the criterion — all three are binding
+
+1. **A ±10-point ratio criterion in the low bin is not attainable at any n we will
+   have.** It needs n ≈ 344; this half has 37 and the merged set gives ~74, a 4.6×
+   shortfall. The high bin needs n ≈ 32 and already has 77.
+2. **Score absolute velocity error, not the ratio, in the low bin.** Report the
+   ratio for interpretability; do not evaluate the criterion on it there.
+3. **Pair the arms**, but see the correction below on how much that buys. Removing
+   family and command magnitude — exactly what cancels if the fine-tuned policy is
+   run on the *same* commands — removes **64%** of the low-bin variance and 22–24%
+   of the high-bin variance.
+
+Per-family numbers are still reported, for structure and to keep composition
+visible. They are not what the criterion is evaluated on.
+
+### Scope limit: this baseline is rigid-only
+
+All 1,762 episodes in the seed-3,000,000 collection are `terrain_type: rigid`;
+zero CRM. The predicate is not hiding soil, there is none in this half. Since level
+3 found soil and rigid behave differently (transfer gap 4.8× vs 2.4×; the tuned P
+gain differs 2×), **a criterion written on this baseline says nothing about soil**
+and must not be reported as if it did. Whether the merged baseline covers soil
+depends entirely on the other half.
+
+(The 238 CSVs without sidecar JSON are not a selection effect on this cell: zero of
+them satisfy the predicate, failing earlier filters regardless of metadata.)
+
+
+## Correction: 64% of the variance is not 64% of the noise
+
+The 64% figure is a **variance** reduction, which is only a 40% reduction in sd,
+and it is an **upper bound** on what pairing delivers. It was measured by removing
+family and command magnitude from the *baseline's own* distribution. That structural
+component cancels in a paired difference only if both arms respond to it identically.
+Whatever does not cancel — chiefly the plant's sensitivity to initial conditions at
+low command — enters the difference twice.
+
+Detectable effect on the merged low bin (n = 74), absolute velocity error, against a
+baseline median under-shoot of 0.077 m/s:
+
+| design | sd of the difference | 95% half-width | as % of baseline |
+|---|---|---|---|
+| unpaired | 0.075 | 0.0213 m/s | 27.7% |
+| paired, arms correlated except treatment (optimistic bound) | 0.032 | 0.0091 m/s | **11.8%** |
+| paired, residuals independent between arms (pessimistic) | 0.045 | 0.0129 m/s | **16.7%** |
+
+The true value lies between the last two rows and **cannot be derived from the
+existing data**: all 1,762 (family, command) combinations in this half are distinct,
+so there is no repeated command at a different seed from which to estimate the
+irreducible component. It has to be measured.
+
+### The probe that settles it
+
+Run a small replicate set — the same low-bin backward commands at several seeds —
+and read the within-command spread directly. At 16.5 s wall per 37.8 s episode
+(rigid is faster than realtime; no SPH):
+
+| job | episodes | serial | at 12 workers |
+|---|---|---|---|
+| seed-variance probe, 8 commands x 8 seeds | 64 | 0.29 h | **1.5 min** |
+| replicated scoring set, 74 x 5 seeds x 2 arms | 740 | 3.39 h | 17 min |
+| replicated scoring set, 74 x 3 seeds x 2 arms | 444 | 2.04 h | 10 min |
+
+The probe costs about two minutes, so the replication count k is chosen from data
+rather than guessed, and the choice between the 11.8% and 16.7% rows is settled
+before any threshold is written.
+
+**Consequence for the merged baseline's role.** Averaging within a pair needs k
+seeds on *both* arms, and the collected baseline has exactly one seed per command.
+So the 3,503-episode merged baseline is not what the criterion is scored against —
+it selects which cells are scorable and sizes their noise. The comparison numbers
+come from the purpose-run replicated set. That is a change in what the merged
+baseline is *for*, and it is cheap only because rigid episodes are.
+
+**Collection host.** Per the project storage policy this workstation trains and
+evaluates but does not collect; the probe and the replicated set run on a collection
+machine.

@@ -1,5 +1,5 @@
 """Stratified Go2 collection driver. Rigid in parallel, CRM sequential."""
-import json, os, subprocess, sys, random
+import hashlib, json, os, subprocess, sys, random
 # Paths differ per box (dorm-pc has no "sbel/" segment, and its env is "nedm" not
 # "nedm-src"), so every machine-specific path is an env var with this box's value as
 # the fallback. Without this the driver silently runs the wrong interpreter.
@@ -44,7 +44,14 @@ def spawn_for(fam, p, terrain):
     bed and the other almost none -- which is how the old lateral family ended up
     100% truncated. Place the robot at the far end of its own travel direction.
     """
-    rng = random.Random(hash((fam, json.dumps(p, sort_keys=True))) & 0xffffffff)
+    # hashlib, NOT hash(). Python randomises hash() of str per process (PYTHONHASHSEED),
+    # so this line drew a DIFFERENT spawn on every invocation: three runs of the same
+    # (family, params) gave jitter -0.138, +0.421, +0.458. Within one driver process the
+    # spawns are consistent, so a single collection is self-consistent -- but the run is
+    # not reproducible, and a PAIRED evaluation that regenerates episodes for a second
+    # arm would silently give the two arms different spawns while appearing matched.
+    _key = json.dumps([fam, p], sort_keys=True).encode()
+    rng = random.Random(int(hashlib.sha256(_key).hexdigest()[:8], 16))
     vx = p.get("vx", p.get("vx0", 0.0)); vy = p.get("vy", 0.0)
     if terrain == "rigid":
         x = -3.0 if vx >= 0 else 3.0
