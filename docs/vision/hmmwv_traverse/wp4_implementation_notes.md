@@ -198,12 +198,13 @@ same near-tie reason as before.
 
 ## Open
 
-1. Dynamics model retraining with tracker-driven Chrono episodes (DAgger) to
-   remove the throttle-response bias behind the 10 % time and 15–20 % energy gaps.
+1. ~~Dynamics model retraining with tracker-driven Chrono episodes~~ done (§6.2):
+   energy fixed (ratio 1.02–1.17), time bias −10 % remains → add powertrain state
+   (engine speed, gear) to z1 and retrain.
 2. ~~Chrono-validate the margin-fallback plans~~ done (31/31); a clearance-aware
    smoother would let the default margin drop toward the measured 0.1 m.
-3. Vehicle localisation from the camera (the tracker's pose in Chrono is still
-   the simulator's) — WP1 showed 0.8 m / 3–4° from the spatial map.
+3. ~~Vehicle localisation from the camera~~ done (§6.1): 5 cm / 1.4°, tracker on
+   camera pose 32/32 zero contact; goal and start pose from the camera too (§6.3–6.4).
 4. Test split untouched throughout.
 
 ## 6. Follow-ups started 2026-09-05 (per the WP4 recommendation list)
@@ -303,6 +304,27 @@ question rather than a data-mix one: z1 carries no powertrain state (engine
 speed, gear), and the HMMWV's torque response lags throttle through the
 transmission. The concrete next step is to add engine speed / gear to the state
 (both are in the stores) — out of scope for this session.
+
+**Round 2** (all 1991 tracker-driven episodes = +30 % training data, fine-tuned
+from the rollout-loss model for 8 k steps with the rollout loss;
+`wp2_mapv2_dagger2_ro8_amd`). Summary of the four dynamics models against the
+same Chrono batch (185 oracle-sweep candidates, PPO tracker):
+
+| dynamics model | held-out 5 s state err | time bias | power-head energy ratio / corr | throttle-model ratio / corr | combined-objective pick agreement | Spearman (combined) |
+|---|---|---|---|---|---|---|
+| one-step, collection data only | 0.435 | −10 % | 1.62 / 0.65 | 1.15 / 0.80 | 10/31 | 0.30 |
+| + 776 tracker episodes | 0.441 | −10 % | 1.31 / 0.87 | 1.13 / 0.84 | 15/31 | 0.37 |
+| + rollout loss (8 steps) | 0.335 | −10 % | 1.24 / 0.82 | 1.10 / 0.84 | 16/31 | 0.55 |
+| **+ all 1991 tracker episodes, rollout loss** | **0.331** | −10 % | **1.17** / 0.74 | **1.02** / 0.79 | **20/31** | **0.63–0.66** |
+
+For the purpose that matters — ranking candidate plans on time + energy — the
+final model doubles the pick agreement of the original (20/31 vs 10/31) and
+lifts the within-layout rank correlation from 0.30 to 0.66; its throttle-model
+energy is unbiased (ratio 1.02). The time bias is untouched by any of it
+(replay: −9 %, 25/32 routes completed open-loop). Recommended checkpoint for the
+scorer: `--dynamics-checkpoint artifacts/traverse/wp2_mapv2_dagger2_ro8_amd/ckpt_best.pt`
+(the tracker itself was trained in the original model and needs no change:
+0.03 m in Chrono).
 
 ### 6.3 Goal from the camera — `planner_b.goal_from_map`
 
