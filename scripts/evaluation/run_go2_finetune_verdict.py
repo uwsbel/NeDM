@@ -183,9 +183,20 @@ def popen_arm(spec, ckpt, outdir):
 NON_PHYSICS = ("episode_id", "scenario_name", "scenario_family", "split",
                "grav_body_x", "grav_body_y", "grav_body_z")
 N_PHYSICS_COLS = 164
+# SCHEMA ADDITION, 2026-09-05. The applied gravity vector is now logged, so episodes
+# collected after that date carry 3 physics columns the earlier ones lack. The
+# recorded VALUES of every shared column are unchanged -- logging gravity does not
+# alter dynamics -- so an old baseline still replays correctly, but its column SET no
+# longer matches.
+#
+# Handled by naming the difference rather than intersecting the sets. An intersection
+# would silently absorb a genuinely missing physics column, which is the failure this
+# file already carries a guard against; asserting that the set difference is EXACTLY
+# this list keeps a real omission fatal.
+SCHEMA_ADDITIONS = ("grav_world_x_mps2", "grav_world_y_mps2", "grav_world_z_mps2")
 
 
-def physics_digest(path):
+def physics_digest(path, extra_exclude=()):
     """(sorted physics column names, digest over just those columns).
 
     A raw sha256 of the file compares bytes, so an episode from a consolidated half
@@ -202,7 +213,8 @@ def physics_digest(path):
     with open(path, newline="") as h:
         r = csv.reader(h)
         head = next(r)
-        keep = [i for i, c in enumerate(head) if c not in NON_PHYSICS]
+        drop = set(NON_PHYSICS) | set(extra_exclude)
+        keep = [i for i, c in enumerate(head) if c not in drop]
         names = sorted(head[i] for i in keep)
         order = sorted(keep, key=lambda i: head[i])
         d = hashlib.sha256()
@@ -215,13 +227,31 @@ def compare_replay(original, replay):
     """(ok, reason). Physics-only equality, with the column set checked first."""
     na, da = physics_digest(original)
     nb, db = physics_digest(replay)
-    if len(na) != N_PHYSICS_COLS or len(nb) != N_PHYSICS_COLS:
-        return False, (f"physics column count {len(na)} vs {len(nb)}, "
-                       f"expected {N_PHYSICS_COLS} -- columns were lost, not renamed")
+    diff = set(na) ^ set(nb)
+    if diff and diff <= set(SCHEMA_ADDITIONS):
+        # One side predates the gravity columns. Drop them from BOTH and re-digest,
+        # so the comparison is over the columns the two schemas share.
+        na, da = physics_digest(original, extra_exclude=SCHEMA_ADDITIONS)
+        nb, db = physics_digest(replay, extra_exclude=SCHEMA_ADDITIONS)
+        expect = N_PHYSICS_COLS
+    else:
+        expect = None
+    if expect is None:
+        for n in (na, nb):
+            if len(n) not in (N_PHYSICS_COLS, N_PHYSICS_COLS + len(SCHEMA_ADDITIONS)):
+                return False, (f"physics column count {len(na)} vs {len(nb)}; expected "
+                               f"{N_PHYSICS_COLS} or {N_PHYSICS_COLS + len(SCHEMA_ADDITIONS)}"
+                               f" -- columns were lost, not renamed")
+    elif len(na) != expect or len(nb) != expect:
+        return False, (f"after dropping the schema additions, {len(na)} vs {len(nb)} "
+                       f"physics columns, expected {expect}")
     if na != nb:
         miss = sorted(set(na) ^ set(nb))[:4]
         return False, f"physics columns differ: {miss}"
-    return (da == db), ("physics identical" if da == db else "physics digest differs")
+    note = "physics identical" if da == db else "physics digest differs"
+    if diff:
+        note += " (schema additions excluded from both)"
+    return (da == db), note
 
 
 def exact_median_ci(x, alpha=0.05):

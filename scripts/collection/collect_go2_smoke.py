@@ -123,6 +123,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--perturb-peak-n", type=float, default=0.0)
     parser.add_argument("--perturb-mean-interval-s", type=float, default=2.0)
     parser.add_argument("--perturb-duration-s", type=float, default=0.10)
+    # TORQUE PERTURBATION. perturb_torque_x/y/z_nm have been recorded since the
+    # collector was written and were identically zero in 210 of 210 episodes sampled
+    # at offset 3,000,000 -- the columns were faithful, the channel was never driven.
+    # A pure torque rotates the trunk without translating the centre of mass, which
+    # is the only excitation that unloads the FRONT or REAR pair together. A trot is
+    # always diagonal, so those configurations (modes 3 and 12) are structurally
+    # unreachable by pushing, and they measure 0.91% and 0.06% of transitions.
+    parser.add_argument("--perturb-torque-peak-nm", type=float, default=0.0)
     # Per-episode ground tilt, degrees, applied as roll and pitch of the static box.
     parser.add_argument("--ground-tilt-roll-deg", type=float, default=0.0)
     parser.add_argument("--ground-tilt-pitch-deg", type=float, default=0.0)
@@ -306,12 +314,13 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
     # episodes went non-finite and tilt was the isolated cause. A tilted gravity
     # vector is exactly a uniform slope, identical at every position, and the
     # body attitude the policy senses responds the same way.
+    _grav_world = [0.0, 0.0, -9.81]
     if args.ground_tilt_roll_deg or args.ground_tilt_pitch_deg:
         _r = math.radians(args.ground_tilt_roll_deg)
         _p = math.radians(args.ground_tilt_pitch_deg)
-        system.SetGravitationalAcceleration(chrono.ChVector3d(
-            9.81 * math.sin(_p), -9.81 * math.sin(_r),
-            -9.81 * math.cos(_r) * math.cos(_p)))
+        _grav_world = [9.81 * math.sin(_p), -9.81 * math.sin(_r),
+                       -9.81 * math.cos(_r) * math.cos(_p)]
+        system.SetGravitationalAcceleration(chrono.ChVector3d(*_grav_world))
     system.SetCollisionSystemType(chrono.ChCollisionSystem.Type_BULLET)
     system.SetSolverType(chrono.ChSolver.Type_BARZILAIBORWEIN)
     system.GetSolver().AsIterative().SetMaxIterations(args.solver_iters)
@@ -421,8 +430,15 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
     perturb = np.zeros(6)
     _acc = base.AddAccumulator()
     _pert_until = -1.0
+    # BOTH CHANNELS, not just force. This gate was left testing perturb_peak_n alone
+    # when torque was added: with force 0 and torque 80 N.m the first trigger time
+    # stayed at infinity, so nothing ever fired and the torque bracket measured a
+    # perfectly flat zero at every level. The trigger condition below had been
+    # updated; this initialiser had not. A partial fix reads exactly like a working
+    # one when the control row is also zero.
+    _pert_any = (args.perturb_peak_n > 0.0) or (args.perturb_torque_peak_nm > 0.0)
     _pert_next = (rng.expovariate(1.0 / max(args.perturb_mean_interval_s, 1e-9))
-                  if args.perturb_peak_n > 0 else float("inf"))
+                  if _pert_any else float("inf"))
 
     rows: list[dict[str, Any]] = []
     # DISCARD THE WARMUP, as the HMMWV collector does ("each episode discards an
@@ -474,17 +490,32 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
             # short window. Re-applied every physics step while active because the
             # accumulator is emptied each step.
             base.EmptyAccumulator(_acc)
-            if args.perturb_peak_n > 0.0:
+            if args.perturb_peak_n > 0.0 or args.perturb_torque_peak_nm > 0.0:
                 if t >= _pert_next and t > warmup_s * 0.5:
                     mag = rng.uniform(0.25, 1.0) * args.perturb_peak_n
                     th = rng.uniform(0.0, 2.0 * math.pi)
+                    # Torque direction is drawn in the ROLL-PITCH plane, because that
+                    # is where the target modes live: pitch unloads front or rear
+                    # (modes 3, 12), roll unloads left or right (modes 5, 10). Yaw is
+                    # given a small share only -- it spins the trunk without changing
+                    # which feet carry load, so it excites nothing we are short of.
+                    tmag = rng.uniform(0.25, 1.0) * args.perturb_torque_peak_nm
+                    tphi = rng.uniform(0.0, 2.0 * math.pi)
                     perturb = np.array([mag * math.cos(th), mag * math.sin(th),
-                                        mag * rng.uniform(-0.3, 0.3), 0.0, 0.0, 0.0])
+                                        mag * rng.uniform(-0.3, 0.3),
+                                        tmag * math.cos(tphi), tmag * math.sin(tphi),
+                                        tmag * rng.uniform(-0.2, 0.2)])
                     _pert_until = t + args.perturb_duration_s
                     _pert_next = t + rng.expovariate(1.0 / max(args.perturb_mean_interval_s, 1e-9))
                 if t < _pert_until:
-                    base.AccumulateForce(_acc, chrono.ChVector3d(*perturb[:3]),
-                                         base.GetPos(), False)
+                    if args.perturb_peak_n > 0.0:
+                        base.AccumulateForce(_acc, chrono.ChVector3d(*perturb[:3]),
+                                             base.GetPos(), False)
+                    if args.perturb_torque_peak_nm > 0.0:
+                        # local=False: the torque is applied about world axes, so
+                        # "pitch" means pitch regardless of the trunk's heading.
+                        base.AccumulateTorque(_acc, chrono.ChVector3d(*perturb[3:6]),
+                                              False)
                 else:
                     perturb = np.zeros(6)
             tau = robot.apply_pd()    # every physics step, not every control step
@@ -528,6 +559,7 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
                     tau=tau,
                     policy_raw=policy_raw,
                     perturb=perturb,
+                    gravity=_grav_world,
                     contacts=contacts,
                     com=whole_robot_com(system),
                     terrain=terrain,

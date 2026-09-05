@@ -82,8 +82,16 @@ def cmd(j):
         extra = ["--ground-size-m", f"{GROUND_M}",
                  "--perturb-peak-n", f"{peak:.1f}",
                  "--prewalk-s", f"{tilt_rng.uniform(0.0, 3.0):.2f}",
+                 # ROLL STAYS AT +/-3, PITCH IS CAPPED AT 1.5. Measured on the 2,000
+                 # episodes at offset 3,000,000: this quadruped is far weaker in pitch
+                 # than in roll, corr(|pitch|, fell) = +0.427 rising 2% -> 48% across
+                 # the band, against corr(|roll|, fell) = +0.057 and flat. Drawing both
+                 # independently at +/-3 gives a COMBINED tilt up to 4.24 deg, inside
+                 # the 3-5 deg band where the gait was separately measured to collapse.
+                 # Capping the combined magnitude instead would sacrifice roll range
+                 # for nothing, since roll does not drive failures.
                  "--ground-tilt-roll-deg", f"{tilt_rng.uniform(-3.0, 3.0):.2f}",
-                 "--ground-tilt-pitch-deg", f"{tilt_rng.uniform(-3.0, 3.0):.2f}"]
+                 "--ground-tilt-pitch-deg", f"{tilt_rng.uniform(-1.5, 1.5):.2f}"]
     return [PY, "scripts/collection/collect_go2_smoke.py", "--terrain", TERRAIN,
             "--duration-s", f"{DURATION_S}", "--imported-ckpt", CKPT, "--command-family", fam,
             *extra,

@@ -163,6 +163,24 @@ PERTURB_FIELDS = [
     "perturb_torque_x_nm", "perturb_torque_y_nm", "perturb_torque_z_nm",
 ]
 
+# THE SAME ARGUMENT AS PERTURB_FIELDS ABOVE, APPLIED TO A DISTURBANCE WE MISSED.
+# Terrain slope is implemented by ROTATING GRAVITY on flat ground, so a tilted
+# episode carries a horizontal acceleration -- 0.51 m/s^2 at 3 deg -- that nothing
+# in the state records. Measured on 1,762 episodes, the applied pitch is NOT
+# recoverable from the logged body attitude: corr(applied pitch, mean pitch_rad)
+# = -0.030. That is an unlogged disturbance, which is exactly what the comment
+# above says makes data unlearnable.
+#
+# WORLD FRAME, m/s^2, AS SET rather than as reconstructed. A gravity direction
+# derived post-hoc from the quaternion computes R^T . [0,0,-1], the world-z axis
+# in body frame, which equals gravity only on level ground -- on a tilted episode
+# it is wrong by exactly the tilt, in the direction of asserting the ground is
+# level. Body-frame gravity is derivable from these three plus the quaternion;
+# the reverse is not true, so the primitive is what gets logged.
+GRAVITY_FIELDS = [
+    "grav_world_x_mps2", "grav_world_y_mps2", "grav_world_z_mps2",
+]
+
 BODY_FRAME_FIELDS = [
     # pos_x_m/pos_y_m/pos_z_m above are ALREADY the REF frame (capture_row reads
     # GetFrameRefToAbs). What was missing is the COG, which is what GetPos()
@@ -220,6 +238,7 @@ BASE_FIELDS = [
     *POLICY_RAW_ACTION_FIELDS,
     *BODY_FRAME_FIELDS,
     *PERTURB_FIELDS,
+    *GRAVITY_FIELDS,
 ]
 
 
@@ -406,6 +425,7 @@ def capture_row(
     tau: Any = None,
     policy_raw: Any = None,
     perturb: Any = None,
+    gravity: Any = None,
     contacts: Any = None,
     com: Any = None,
 ) -> dict[str, Any]:
@@ -496,6 +516,14 @@ def capture_row(
     # Three frames, none derivable from another.
     for field, value in zip(PERTURB_FIELDS,
                             perturb if perturb is not None else [0.0] * 6):
+        row[field] = float(value)
+
+    # Default is level gravity, so an episode that never sets it reads as level --
+    # which is true for every untilted run and honest for the rest only because the
+    # collector always passes it. If this default is ever silently relied on, the
+    # column becomes the same reconstruction error it exists to prevent.
+    for field, value in zip(GRAVITY_FIELDS,
+                            gravity if gravity is not None else [0.0, 0.0, -9.81]):
         row[field] = float(value)
 
     cg = base.GetPos()          # COG; `pos_*` above is the REF frame

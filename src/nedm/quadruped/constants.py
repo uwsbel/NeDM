@@ -8,6 +8,7 @@ ever explained."""
 from __future__ import annotations
 
 import math
+import os
 
 import numpy as np
 
@@ -65,6 +66,16 @@ POLICY_DEFAULTS = np.array([0.0, 0.8, -1.5, 0.0, 0.8, -1.5,
 # Chrono-order standing pose, held while the robot settles onto the soil.
 STAND_ACTION = np.array([0.0, -1.0, 1.5, 0.0, -1.0, 1.5,
                          0.0, -0.8, 1.5, 0.0, -0.8, 1.5], dtype=np.float64)
+# EXPERIMENTAL, off by default. The hips here are 0.0 while the imported policy's
+# zero-action pose has them at +/-0.1 (upstream: FL/RL +0.1, FR/RR -0.1), so at the
+# handover from the scripted stand to the policy the first action commands a 0.1 rad
+# splay on all four hips at once. Falls cluster 0.14 s after the ramp ends, which is
+# when that handover happens. Set NEDM_STAND_HIP=1 to stand in the policy's own pose
+# and measure whether the fall rate changes. Chrono order RR, RL, FR, FL; the sign
+# convention is inverted relative to the policy, hence the negation.
+if os.environ.get("NEDM_STAND_HIP") == "1":
+    STAND_ACTION = STAND_ACTION.copy()
+    STAND_ACTION[[0, 3, 6, 9]] = [0.1, -0.1, 0.1, -0.1]
 
 # ~63 deg from upright. A walking Go2 stays well inside this; a tumble
 # crosses it decisively, so it separates gait roll from falling over.

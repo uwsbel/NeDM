@@ -1756,3 +1756,226 @@ saying why hands the diagnosis back to whoever is least prepared to do it. Where
 cause is cheaply testable in advance — here, comparing the recorded `machine` field
 to the hostname — check for it explicitly and say so, rather than letting a general
 integrity check discover it as a mismatch.
+
+## Check which implementation a claim is about before reasoning from it
+
+I argued that upstream's joint-space reward terms could not transfer, because our
+fine-tune acts in command space into a frozen low-level policy. That was true of
+`Go2NeuralTrackingEnv`, the environment I had built, and false of the joint-space
+environment the fine-tune actually uses — the repo contains both, and I reasoned from
+the one I knew rather than checking which one was running. Had it been accepted it
+would have removed real terms from the objective on a false premise.
+
+The failure is not being wrong about the code; it is answering a question about
+SYSTEM A using knowledge of SYSTEM B without noticing the substitution. Familiarity
+with one implementation is what makes it feel unnecessary to check. When a repo holds
+two designs for the same job, name the one you are reasoning about in the claim
+itself, so the substitution has somewhere to become visible.
+
+## A test whose wrong answers coincide is not a test
+
+The first sign-convention check displaced all four Go2 hips by the same 0.35 rad.
+Every implementation — correct, unsigned, and leg-mispaired — returned 1.4000 and
+passed, because the two hips with default +0.1 and the two with -0.1 cancel exactly
+under both wrong conventions. The test looked discriminating and did nothing.
+Unequal displacements removed the cancellation.
+
+Symmetric test inputs are the usual cause: symmetry in the case can annihilate
+exactly the asymmetry the test is meant to expose. **Report the discrimination matrix,
+not the verdict** — run each wrong implementation you can think of against every test
+and check that each TEST is failed by something, not merely that the SUITE rejects
+each variant. The suite here was sound as a whole while one of its tests was inert,
+and only a per-test check made that visible.
+
+## A story that explains the evidence elegantly is not thereby true
+
+I reported that `hip_to_default` needs the recorded joint positions negated while
+`dof_pos_limits` does not — one term referencing an imported constant, the other the
+URDF, an elegant trap that "cuts both ways". It was wrong: the URDF calf range is
+entirely negative and recorded calf positions are entirely positive, so both terms
+need the same single negation. There is one convention shift, not two.
+
+The claim survived because it sounded like the kind of thing that is true, and it was
+stated more confidently than an unmeasured claim deserved. Symmetry and irony are not
+evidence. Note also how it was caught: not by re-reading, but by gathering real joint
+limits to BUILD a test, where the numbers refused to fit. Constructing the check found
+the error in the specification before it examined any implementation.
+
+## A suite validates implementations against its reference, not the reference
+
+A green discrimination matrix says every candidate matches the reference encoded in
+the harness. It says nothing about whether that reference is right: had the Go2
+sign convention in it been wrong, the reference would have encoded the error and
+every cell would still have read green. That convention rests on a separate check
+entirely — measured joint ranges against the URDF — and the two validations answer
+different questions.
+
+Write the distinction where the matrix is READ, not only where it is documented. The
+scope note belongs in the tool's own output, because the person most likely to
+over-read a green matrix is the one looking at the output rather than the design doc.
+
+## Sign tests cannot catch a form error
+
+The reward-term suite asserted only that `dof_pos_limits` was ">0" inside the soft
+band and "==0" at the nominal pose. Both hold for a SQUARED implementation as well as
+the correct linear one, so adding that variant made the suite fail its own soundness
+check. The fix was to assert a magnitude with a closed-form expectation: with every
+joint at 0.48 of half-range from the midpoint, the excursion past the 0.45 soft limit
+is exactly `0.03*r` per joint, so the correct total is `0.03*sum(range)` = 1.0849
+against 0.1208 squared.
+
+Predicates of the shape "is it positive" or "is it zero" test that something FIRED,
+not that it computed the right thing. Where a closed form exists, assert the value.
+
+## Being unsure is weakly correlated with being wrong
+
+dorm-pc flagged two things it was uncertain about — `tracking_sigma = 0.25` and the
+linear form of `dof_pos_limits` — and both were correct. The one real error, squaring
+`hip_to_default` where upstream uses `torch.abs`, was in a term it did not flag. Its
+confidence was calibrated in exactly the wrong direction, which is normal: doubt
+attaches to things recalled as facts, while a formula that "obviously" looks like the
+others gets transcribed without a second look.
+
+Review the unflagged parts at least as carefully as the flagged ones. A reviewer who
+concentrates on what the author was worried about is checking the author's model of
+their own errors, not their errors.
+
+## Instrument the input, not only the outcome
+
+The first torque bracket returned 0.00% target-mode occupancy at every level. That is
+a publishable-looking null: "torque does not excite these modes." It was wrong — the
+trigger time was initialised to infinity unless the FORCE magnitude was positive, so
+with force at zero and torque at 80 N·m nothing ever fired. I had updated the trigger
+condition when adding torque and not the initialiser.
+
+What caught it was a `|T| max` column included to check the channel rather than the
+physics, reading 0.0 where it should have read 80. **A dead channel and a real null
+produce the same outcome table**; only measuring the input distinguishes them. Log
+what you applied, not just what happened.
+
+Related: a partial fix reads exactly like a working one. When adding a parameter to an
+existing mechanism, grep for every place the old parameter is tested — the trigger,
+the initialiser, the guard, the summary — because the one you miss will fail silently
+in the direction of doing nothing.
+
+## A caveat you can measure is not a caveat
+
+I reported that torque enriched three lateral contact modes but left FRONT worse than
+the existing data, and listed "the probe was backward-only, so the comparison is not
+like-for-like" as a caveat. It was not a caveat, it was an untested hypothesis with a
+ten-minute experiment attached: FRONT means the rear feet are up, which is a nose-down
+attitude, and walking direction plausibly biases which pitch unloads feet. Re-run
+forward, FRONT went 0.30% to 1.15% and overtook the baseline.
+
+Stating a limitation honestly is worth much less than testing it when the test is
+cheap. Before writing "this may be an artifact of X", ask what it would cost to vary
+X — and if the answer is minutes, the sentence should be a measurement instead.
+
+## "It does not occur" and "we failed to collect it" need different responses
+
+The Go2 REAR contact mode sat at 0.06% of transitions and looked like a coverage
+deficit. Two mechanisms were tested: trunk torque reached 1.7x, and a gravity tilt
+reached 50-150x — but every tilted episode fell within 0.9 s, so that enrichment was
+the collapse trajectory. Bracketing the walkable range showed the gait breaks between
+3° and 5°, and at 3° the mode is rarer than on flat ground. There is no setting at
+which the robot both walks and rears.
+
+So the mode is structurally absent for this policy on this plant, and 1,991 frames is
+what the system produces rather than what collection missed. No episode count reaches
+it, and a model that never predicts it is correct rather than deficient.
+
+Before budgeting collection to close a coverage gap, test whether the configuration is
+reachable at all. The distinction is invisible in a histogram — both cases look like a
+small number — and only an attempt to produce the state on purpose separates them.
+
+## Check WHEN a labelled event happened before treating the label as a population
+
+428 of 1,762 Go2 episodes carry `fell: True`, and that was taken as 428 episodes of
+falling-robot data. The median `fell_at_s` is 1.39 s against a recording start of
+1.25-4.25 s: 94% of them collapsed during the stand-up ramp, before or barely after
+recording began. They are failures to STAND, not falls while walking, and a robot that
+collapsed during the ramp then lies still for the whole episode — which is why a peer
+measured them as 89% airborne-or-collapsed and concluded falls contribute no contact
+diversity. Both observations are the same fact seen from different sides.
+
+Genuine loss-of-balance episodes numbered ten. A boolean flag says an event occurred,
+not when, not whether the recording covers it, and not whether the label means the
+same thing across the population it names.
+
+## "n=10 of 428" and "n=10, which is the whole population" are different caveats
+
+Reporting a 10.3x effect measured on 10 of 428 fall episodes invites the reading that
+it is a 2% subsample and therefore a selection artifact. It is not: only 12 episodes
+fall late enough to have any pre-fall history, so ten is very nearly the complete set
+of genuine locomotion falls. The honest statement is "small in absolute terms, not a
+biased slice", and it is much weaker than the fraction sounds.
+
+When a filter removes most of a population, say WHY before quoting the survivors —
+the exclusion reason determines whether the remainder is a sample or a census.
+
+## Independent ranges compose into a magnitude nobody specified
+
+Ground tilt was drawn as roll ~ U(−3,3) and pitch ~ U(−3,3), independently, and each
+looked modest. The robot experiences the COMBINED tilt, which reaches 4.24° — inside
+the 3–5° band where the gait was separately measured to collapse. A quarter of the
+collection failed to stand as a result.
+
+Nobody chose 4.24°; it is what two reasonable-looking ±3° ranges produce together.
+When several axes of a disturbance are sampled independently, state the distribution
+of the resulting MAGNITUDE, because that is the quantity the system responds to and
+it is not what any single range says.
+
+The corollary is that the fix is not always symmetric: here pitch drove falls
+(corr +0.427) and roll did not (+0.057), so capping the combined magnitude — the
+obvious response — would have sacrificed roll diversity for nothing. Decompose before
+constraining.
+
+## A "floor" is only a floor until you vary the thing you were not varying
+
+An 11.9% episode-loss rate was measured to be flat against perturbation magnitude and
+was therefore recorded — by me, repeatedly — as an irreducible solver-divergence
+floor. It was flat against perturbation and steeply monotone against ground pitch:
+0.6% in the lowest band, 22.3% in the highest. Capping pitch cut it to 4.2%.
+
+Establishing that X does not cause a residual is not evidence the residual is
+irreducible; it only removes X. The word "floor" asserts something much stronger than
+the measurement supports, and once written it stops anyone looking — including its
+author, who quoted it four times before testing a second variable against it.
+
+## A derived channel inherits the assumptions of its derivation
+
+Gravity-direction channels were reconstructed post-hoc from each episode's
+quaternion. That computes the world-z axis in body frame, which equals the gravity
+direction only when gravity points along world-z. These episodes apply terrain slope
+by ROTATING GRAVITY on flat ground, so on every tilted episode the derived channel is
+wrong by exactly the tilt — and wrong in the specific direction of asserting the
+ground is level, which is the least likely error to be noticed.
+
+A quantity the simulator SET should be logged, not reconstructed. Reconstruction
+silently imports whatever the reconstructor assumed, and the assumption is invisible
+in the resulting column, which looks like a measurement.
+
+## Keep third-party source on disk
+
+Two defects in this project were caught by checking a constant against upstream while
+the source happened to be open for an unrelated review: a squared reward term that
+should have been an absolute value, and a hip default of 0.0 where upstream has ±0.1.
+Neither check was diligence; both cost one command because the source was local.
+
+"Check your constants against upstream" is an exhortation nobody acts on. "Keep the
+source on disk" is a one-time action that makes the check cost nothing, and the checks
+then happen as a side effect of working nearby.
+
+## Named quantities need an expiry note saying what was and was not varied
+
+"11.9% solver-divergence floor" was measured against one variable, perturbation
+magnitude, found flat, and named. The name then substituted for the measurement: it
+was quoted four times without anyone testing a second variable, and the tilt
+correlation that halved it was found only because someone was chasing an unrelated
+question. Nothing about the word "floor" invites revisiting it.
+
+The remedy is not vigilance about named quantities — vigilance does not scale and the
+name is precisely what suppresses it. Record, beside any number given a name, WHAT
+WAS VARIED WHEN IT WAS MEASURED. "11.9%, flat against perturbation 0–120 N, no other
+variable tested" carries its own expiry; "floor" does not, and reads as a property of
+the system rather than of one sweep.
