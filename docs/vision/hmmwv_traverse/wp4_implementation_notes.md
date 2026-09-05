@@ -288,5 +288,12 @@ routes are queued in Chrono with the tracker on camera pose
 (`wp4_chrono_allsensor`), alongside the camera-planned routes with camera pose
 (`wp4_chrono_loc_camera_pred_occ`).
 
-_pending: both Chrono batches (newton, slow with 6 rendering processes next to
-the data collection)._
+Camera-planned routes (final planner, 165 candidates) tracked with the camera
+pose in Chrono (`wp4_chrono_loc_camera_pred_occ`): **165/165 completed, zero
+contact**, mean cross-track 0.045 m (0.034 m with the true pose on the same
+routes), localisation 4.8 cm / 1.3°, time and energy identical to the true-pose
+runs (12.06 vs 12.04 s, 178 vs 177 kJ). So the planner's map, the plan, the
+tracker's pose and the rollout scoring all come from the camera, and the
+result in the simulator is unchanged.
+
+_pending: the all-sensor batch (camera start pose and camera goal as well)._
