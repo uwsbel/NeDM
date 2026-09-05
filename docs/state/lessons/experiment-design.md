@@ -2019,3 +2019,37 @@ Related: [when a comparison goes wrong, suspect the apparatus](#when-a-compariso
 and the same session's rule that a check with no reachable failure is not a check. This
 is that rule applied to a *value* rather than a test: **a number that cannot be wrong
 is not a measurement.**
+
+
+## Check a summary statistic against the quantities it came from
+
+**Cost:** caught in one message, twice · **Found:** 2026-09-04 · **Applies to:** any derived figure quoted beside its inputs
+
+A paired-design analysis reported **"81% variance reduction from pairing"** next to its
+own inputs:
+
+```
+  sd baseline                 0.0511
+  sd of the paired difference 0.0467
+```
+
+**A 9% reduction in sd cannot be an 81% reduction in variance.** The two numbers sat
+one line apart and contradicted each other. The formula was
+`1 - var(d)/(var_b + var_t)`, which is not the comparison a paired design makes; the
+right one is the paired difference against the unpaired difference,
+`sd(d)` against `sqrt(var_b + var_t)`, which gives **56%**.
+
+**What caught it was not the value looking wrong** — 81% is entirely plausible for
+pairing — **but its relation to the neighbours it was printed beside.** An isolated
+summary statistic has no scale; the same number next to its inputs does.
+
+**The practical form:** when reporting a derived figure, print the quantities it was
+computed from beside it, and check the arithmetic in your head before sending. Ratios,
+percentage reductions and normalised errors are where this bites, because they discard
+the scale that would otherwise make an error visible.
+
+**Same session, same shape, different direction:** an "improvement" of 4x in
+`rollout_sel` sat beside `xy_rmse` values of 1.9045 m and 2.0374 m — the raw errors
+said the model was slightly *worse*, and the ratio said four times better, because the
+denominators differed by 3.7x. Printing raw and derived together is what made both
+visible. See [normalisation hides the units it divided by](#normalisation-hides-the-units-it-divided-by).
