@@ -209,3 +209,19 @@ artifacts/traverse/wp2_z2_cache_dagger_v1/*.npz
 !artifacts/traverse/wp2_mapv2_pt_ro8_amd/
 !artifacts/traverse/wp2_mapv2_dscale_dag_ro8_amd/
 # the 17-D sidecar (wp2_z2_cache_v6_pt, 9518 small npz) is rebuilt in 10 s by traverse_wp5_build_z1_sidecar.py
+!artifacts/traverse/wp5_sample_planner_v5/
+!artifacts/traverse/wp5_sample_planner_v5_15d_floor/
+!artifacts/traverse/wp5_sample_planner_v5_ptdag_floor/
+!artifacts/traverse/wp5_sample_planner_v6/
+!artifacts/traverse/wp5_sample_planner_v6_rest/
+!artifacts/traverse/wp5_chrono_sample_planner_v5/
+!artifacts/traverse/wp5_chrono_sample_planner_v6/
+!artifacts/traverse/wp5_energy_floor/
+!artifacts/traverse/wp5_energy_bench_ptdagp/
+!artifacts/traverse/wp5_aligned_bench/
+!artifacts/traverse/wp5_aligned_bench_rest/
+!artifacts/traverse/wp5_aligned_bench_full/
+!artifacts/traverse/wp5_aligned_bench_full_rest/
+!artifacts/traverse/wp5_tracker_val_pt/
+!artifacts/traverse/wp2_mapv2_pt_dagp_ro8_amd/
+# mini-cache (tracker_val episodes + scene maps, 50 MB) is rebuilt by traverse_wp5_aligned_bench.py

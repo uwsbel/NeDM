@@ -571,3 +571,100 @@ better than A*. (3) **Ensemble pessimism hurts** with these members: the maximum
 conservative but ranks worse (bench ρ 0.48 vs 0.51), and its Chrono picks are slower and
 costlier than the single-model ones (26.62 vs 25.75). Pessimism over poor estimates is not a
 substitute for a better estimate; §8.4 provides the better estimate.
+
+### 8.7 Chrono: the powertrain-state model as the planner's imagination — `wp5_chrono_sample_planner_v4_pt`
+
+Same layouts and picks, dynamics `wp2_mapv2_pt_ro8_amd` (17-D, recorded data + rollout loss,
+no tracker-driven data), pessimistic energy = max(power head, state power):
+
+| pick | completed | contact | Chrono time | Chrono energy | Chrono cost | beats the A* pick | Chrono / imagined energy at the pick |
+|---|---|---|---|---|---|---|---|
+| A* best | 32/32 | 0 | 14.61 s | 136.2 kJ | 28.24 | — | 1.12 |
+| sampled, pessimistic, round 0 | 31/31 | 0 | 16.13 s | 101.0 kJ | 26.23 | 22/31 | 1.48 |
+| + 3 CEM rounds | 31/31 | 0 | 16.15 s | 95.7 kJ | 25.72 | 22/31 | **2.17** |
+| + 3 CEM rounds + clearance penalty | 31/31 | 0 | 16.13 s | 96.9 kJ | 25.81 | 23/31 | 2.15 |
+
+Two lessons. (1) A model that is unbiased *on average* (§8.4: 0.97 over 726 routes, 1.12 on
+the A* picks here) is still exploitable by a search over thousands of routes: the CEM pick's
+imagined energy was 44 kJ against 96 kJ in Chrono. Population-level calibration does not
+protect the argmin; the search needs a guard of its own. (2) The recorded-only 17-D model
+chooses *slower* routes than the tracker-data 15-D model (16.1 s vs 13.9 s) and ends up
+0.9 cost points worse (25.81 vs 24.88) despite the lower energy — its ranking of candidates
+is weaker (bench ρ 0.45 vs 0.56) because it has never seen the tracker's actions. Hence the
+fine-tune on the re-collected 17-D tracker episodes (§8.5) and the geometry floor (§8.8).
+
+### 8.8 Geometry floor against the curse — `traverse_wp5_energy_floor.py`, `energy_floor.py`
+
+Chrono energy of all 990 driven routes regressed on route geometry (length, length-weighted
+v², positive climb, peak speed, re-acceleration): R² 0.60 in fit, 0.51 on a held-out batch,
+σ 36 kJ. Geometry alone is *not* an energy estimator (the NRD's estimates correlate 0.74–0.84
+with Chrono), but fit − 1.5σ is a floor no driven route of that geometry has gone below; the
+planner adds it to the pessimistic maximum (`--energy-floor … --floor-sigmas 1.5`). At the
+v4 CEM pick the floor would have read ~66 kJ against the model's 44 kJ.
+
+### 8.9 The comparison was confounded: imagination starts 0.8 s into the drive — `traverse_wp5_aligned_bench.py`
+
+Every imagined-vs-Chrono number so far (WP3 §, WP4 §3/§6, §8.3–8.7 above) compared a
+Chrono run that starts **from rest at frame 0** with an imagined rollout that starts **from
+the recorded context at frame 16** — where the recorded vehicle is already at 1.98 m/s,
+0.6 m down the route and has spent 31.5 kJ launching (val split, 200 episodes; the tracker in
+Chrono reaches frame 16 at 0.84 m/s having spent 10–17 kJ). The imagination therefore
+inherits a launch it never pays for: ~0.8–1 s of time and ~20–30 kJ of energy on runs of
+11–15 s and 110–175 kJ. That is most of the "−10 % time bias" and most of the "1.2×
+energy under-estimate".
+
+The frame-aligned test removes it: 96 held-out layouts are driven by the tracker in Chrono
+with the 17-D rows and the route saved (`traverse_wp4_collect_tracker_episodes.py --split
+val`, never used for training); every model imagines the same route **from that episode's
+own frames 0–15** with the same tracker, and time-to-end and energy are compared **from
+frame 16 in both** (67 episodes reach the route end; Chrono 11.16 s, 157.6 kJ from frame 16):
+
+| model | time bias | time corr | power head: ratio / corr | throttle model | state power | max(head, throttle) |
+|---|---|---|---|---|---|---|
+| `wp2_mapv2_index_amd` (15-D, collection driver only) | +2.9 % | 0.978 | 1.21 / 0.69 | 1.02 | — | 1.00 |
+| **`wp2_mapv2_dagger2_ro8_amd` (15-D, deployed)** | **+0.1 %** | **0.996** | **0.99 / 0.82** | 0.97 | — | 0.94 |
+| `wp2_mapv2_dscale_dag_ro8_amd` | −0.4 % | 0.998 | 1.03 / 0.85 | 1.02 | — | 0.97 |
+| `wp2_mapv2_pt_amd` (17-D, recorded only) | +1.3 % | 0.993 | 0.93 / 0.81 | 0.68 | 0.92 / 0.80 | 0.68 |
+| `wp2_mapv2_pt_ro8_amd` | +4.8 % | 0.972 | 0.75 / 0.69 | 0.61 | 0.77 / 0.71 | 0.61 |
+| **`wp2_mapv2_pt_dagp_ro8_amd` (17-D, + 903 tracker episodes, rollout loss)** | **−0.1 %** | **0.998** | **0.98 / 0.87** | 0.96 | **0.96 / 0.87** | 0.92 |
+
+Corrected conclusions:
+
+1. **The deployed model has no time bias and an unbiased power head** under the tracker
+   (+0.1 %, 0.99). The two DAgger rounds did fix the original 21 % energy under-estimate
+   (`index_amd` → `dagger2_ro8`); the rollout loss fixed the drift. Nothing about the
+   longitudinal response is "too easy" — the earlier diagnosis was the start-up artefact.
+2. **Powertrain state buys ranking, not bias**: with the tracker data the 17-D model matches
+   the deployed one on bias and lifts the energy correlation from 0.82 to 0.87, with the
+   state-derived power (engine speed × torque along the imagined state) as good as the head.
+   Without tracker data the 17-D models *over*-estimate energy by 25–33 % and time by
+   1–5 % — §8.4's "unbiased 0.94" was the confound cancelling an over-estimate. The 903-episode
+   fine-tune did not "revert" the gains (§8.5); it corrected them.
+3. **The optimiser's-curse ratios in §8.6–8.7 are inflated by ~0.25** (the launch): the
+   round-0 pessimistic pick is ~1.25× not 1.5×, the CEM picks ~1.45× (15-D) and ~1.9×
+   (recorded-only 17-D). The exploitation is real but smaller, and the geometry floor (§8.8),
+   fitted on from-rest Chrono energies, sits ~20 kJ above what the imagination can report —
+   it needs refitting on frame-16 energies before it is tightened.
+4. **Deployment implication**: the imagination has always been seeded with the *recorded*
+   first 16 frames of the episode being evaluated. A live vehicle has no recording — it sits
+   at rest. The planner must imagine from a rest context; §8.10 tests whether the model can.
+
+### 8.10 Imagining from rest — `rollout(..., rest_start=True)`, `traverse_wp5_aligned_bench.py --from-rest`
+
+Context seeded with the episode's frame-0 state (settled, at rest, brake on) repeated 16 times,
+tokens cropped at the start pose; ground truth is the *whole* Chrono episode from frame 0
+(67 episodes, 11.96 s, 167.9 kJ including the launch):
+
+| model | completed | time bias | time corr | power head: ratio / corr | state power | throttle model |
+|---|---|---|---|---|---|---|
+| `wp2_mapv2_index_amd` (collection driver only) | 0.55 | +46 % | 0.70 | 0.97 / 0.49 | — | 0.64 |
+| `wp2_mapv2_dagger2_ro8_amd` (deployed) | 1.00 | −3.5 % | 0.992 | 0.99 / 0.84 | — | 0.94 |
+| `wp2_mapv2_pt_ro8_amd` (17-D, recorded only) | 1.00 | +4.8 % | 0.978 | 0.76 / 0.75 | 0.78 / 0.77 | 0.60 |
+| **`wp2_mapv2_pt_dagp_ro8_amd` (17-D + tracker episodes)** | **1.00** | **−0.1 %** | **0.996** | **0.97 / 0.91** | **0.95 / 0.92** | 0.90 |
+
+The models trained with tracker-driven episodes launch from a parked context as the real
+vehicle does (the collection-only model never learned to — it stalls or drifts on 45 % of
+the layouts). The 17-D tracker-data model imagines a complete run from standstill with no
+time bias and an energy estimate that is unbiased and correlates 0.91–0.92 with Chrono — the
+best fidelity numbers of the study, and the configuration a live planner can actually use.
+The sampling planner now takes `--from-rest` (start pose = camera estimate, context = rest).

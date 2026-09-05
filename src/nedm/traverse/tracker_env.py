@@ -132,6 +132,8 @@ class EpisodeBank:
             if k not in loaded:
                 with np.load(cache / f"{k}.npz") as d:
                     loaded[k] = (d["z1"], d["act"], d["pose"], d[cfg["map_key"]])
+                if loaded[k][0].shape[-1] > z1_dim:  # wider cache (e.g. 17-D tracker episodes) for a 15-D model
+                    loaded[k] = (loaded[k][0][:, :z1_dim], *loaded[k][1:])
                 if loaded[k][0].shape[-1] != z1_dim:
                     if not sidecar:
                         raise ValueError(f"dynamics model expects {z1_dim}-D z1 but the cache has "

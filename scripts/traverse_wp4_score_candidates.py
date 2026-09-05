@@ -119,16 +119,34 @@ def footprint_clearance(env: TraverseTrackingEnv, obstacles: torch.Tensor) -> to
 @torch.no_grad()
 def rollout(env: TraverseTrackingEnv, policy, horizon: int, obstacles: torch.Tensor,
             obstacles_true: torch.Tensor | None = None, power_models: dict[str, PowerModel] | None = None,
-            start_poses: torch.Tensor | None = None) -> dict[str, torch.Tensor]:
+            start_poses: torch.Tensor | None = None, rest_start: bool = False) -> dict[str, torch.Tensor]:
     """Roll every env from its episode start for ``horizon`` steps; obstacles (N, M, 3) padded with r<0
     are the set the SCORE uses (true discs or camera-derived cells); ``obstacles_true`` adds the
-    privileged metric. ``power_models`` -> calibrated kinematic energies alongside the head's."""
+    privileged metric. ``power_models`` -> calibrated kinematic energies alongside the head's.
+    ``rest_start``: instead of the recorded frames 0-15 (vehicle already launched), seed the context with
+    the episode's frame-0 state (at rest, brake on) repeated -- what a live vehicle at t=0 looks like."""
     n, dev = env.num_envs, env.device
     obstacles_true = obstacles if obstacles_true is None else obstacles_true
     power_models = power_models or {}
     env.reset_idx(torch.arange(n, device=dev), episode_ids=torch.arange(n, device=dev),
                   start_frames=torch.full((n,), env.context, device=dev, dtype=torch.long),
                   fragment_steps=torch.full((n,), horizon, device=dev, dtype=torch.long))
+    if rest_start:
+        b, c = env.bank, env.context
+        z0 = b.z1[env.env_ep, 0]  # normalized frame-0 state: settled, at rest
+        pose0 = b.pose[env.env_ep, 0]
+        brake = (torch.tensor([0.0, 0.0, 1.0], device=dev) - env.act_mean) / env.act_std
+        env.z1_hist[:] = z0[:, None, :].expand(-1, c, -1)
+        env.act_hist[:] = brake[None, None, :].expand(n, c, -1)
+        env.pose[:] = pose0
+        with torch.no_grad():
+            env.token_hist[:] = env.model.cropper(env.env_maps, pose0[:, None, :].expand(-1, c, -1))
+        env.z1_phys[:] = z0 * env.z1_std + env.z1_mean
+        env.last_actions[:] = torch.tensor([0.0, 0.0, 1.0], device=dev); env.actions[:] = env.last_actions
+        d = (b.route_xy[env.env_ep] - env.pose[:, None, :2]).norm(dim=-1)
+        valid = torch.arange(b.route_xy.shape[1], device=dev)[None, :] < b.route_len[env.env_ep][:, None]
+        env.route_idx[:] = torch.where(valid, d, torch.full_like(d, float("inf"))).argmin(dim=1)
+        env.start_station_m[:] = b.route_s[env.env_ep, env.route_idx]
     if start_poses is not None:  # dead-reckon from the camera's start estimate instead of the recorded pose
         env.pose[:] = start_poses
     env._compute_observations()

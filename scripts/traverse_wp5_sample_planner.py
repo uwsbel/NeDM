@@ -27,6 +27,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from nedm.traverse import nrd_data as D
 from nedm.traverse.layout import EpisodeLayout
+from nedm.traverse.energy_floor import EnergyFloor
 from nedm.traverse.nrd_model import DT_S
 from nedm.traverse.planner_b import MapDecoder, goal_from_map, occupancy_discs
 from nedm.traverse.planner_s import resample_routes, sample_routes
@@ -36,14 +37,15 @@ from nedm.traverse.tracker_env import TraverseTrackingEnv, merge_env_cfg
 from traverse_wp4_score_candidates import CANDIDATE_SWEEP, build_candidates, load_policy, rollout, route_dict
 
 RES_KEYS = ("time_s", "completed", "failed", "collided", "collided_true", "min_clearance_m", "min_clearance_true_m",
-            "energy_kj", "energy_act_kj", "energy_state_kj")
+            "energy_kj", "energy_act_kj", "energy_state_kj", "energy_floor")
 
 
 class Imaginer:
     """Batched imagined rollouts of route candidates on one layout, over one or more dynamics models."""
 
-    def __init__(self, args, power_models):
-        self.args, self.power_models = args, power_models
+    def __init__(self, args, power_models, tmap=None):
+        self.args, self.power_models, self.tmap = args, power_models, tmap
+        self.floor = EnergyFloor.load(Path(args.energy_floor), args.floor_sigmas) if args.energy_floor else None
         self.horizon = int(round(args.horizon_s / DT_S))
         self.sidecars = args.z1_extra_cache or [""]
         if len(self.sidecars) == 1:
@@ -62,7 +64,7 @@ class Imaginer:
             obst = torch.tensor(np.asarray(discs, np.float32), device=dev)[None].expand(len(entries), -1, -1).contiguous()
             obst_true = torch.tensor(np.asarray(layout.obstacles(), np.float32), device=dev)[None].expand(len(entries), -1, -1).contiguous()
             sp = env.pose.clone(); sp[:] = torch.tensor(start, device=dev, dtype=sp.dtype)
-            res = rollout(env, policy, self.horizon, obst, obst_true, self.power_models, sp)
+            res = rollout(env, policy, self.horizon, obst, obst_true, self.power_models, sp, rest_start=a.from_rest)
             per_model.append({k: v.cpu().numpy() for k, v in res.items() if not k.startswith("_")})
             del env, policy
         torch.cuda.empty_cache()
@@ -70,6 +72,9 @@ class Imaginer:
         # pessimistic energy = max over the chosen estimators and over all models
         names = {"head": "energy_kj", "act": "energy_act_kj", "state": "energy_state_kj"}
         terms = [r[names[t]] for r in per_model for t in a.pess_terms if names[t] in r]
+        if self.floor is not None:  # geometry floor: no route of this length / speed / climb has cost less in Chrono
+            out["energy_floor"] = np.array([self.floor.floor_kj(p, self.tmap) for p in plans])
+            terms.append(out["energy_floor"])
         out["energy_pess"] = np.max(terms, axis=0)
         out["ok"] = np.all([r["completed"] & ~r["failed"] & ~r["collided"] for r in per_model], axis=0)
         return out
@@ -109,6 +114,10 @@ def main() -> None:
     ap.add_argument("--clearance-penalty", type=float, default=4.0, help="s of cost per metre short of the target")
     ap.add_argument("--pess-terms", nargs="+", default=["head", "act"], choices=["head", "act", "state"],
                     help="estimators entering the pessimistic maximum ('state' = engine speed x torque from a 17-D model)")
+    ap.add_argument("--energy-floor", default=None, help="energy_floor.json from traverse_wp5_energy_floor.py: adds fit - k*sigma to the pessimistic maximum")
+    ap.add_argument("--floor-sigmas", type=float, default=1.5)
+    ap.add_argument("--from-rest", action="store_true",
+                    help="seed the imagination with a rest context at the camera start pose (a live vehicle has no recording)")
     ap.add_argument("--no-astar", action="store_true")
     ap.add_argument("--pick-prefix", default="", help="prefix for the exported pick names (e.g. 'ens_' for an ensemble run)")
     ap.add_argument("--seed", type=int, default=0)
@@ -124,7 +133,7 @@ def main() -> None:
     decoder = MapDecoder(Path(args.maphead), Path(args.arena), args.device)
     start_est = json.loads(Path(args.start_poses).read_text())
     power_models = {k: PowerModel.load(Path(args.power_calib), k) for k in KINDS}
-    imagine = Imaginer(args, power_models)
+    imagine = Imaginer(args, power_models, tmap)
     rng = np.random.default_rng(args.seed)
     results, export = [], {}
     for n_ep, key in enumerate(keys):
@@ -198,6 +207,8 @@ def main() -> None:
             b = idx[np.argmin(cost[idx])]
             row[f"{name}_cost"] = float(cost_pess[b]); row[f"{name}_time"] = float(res["time_s"][b]); row[f"{name}_energy"] = float(res["energy_pess"][b])
             row[f"{name}_energy_head"] = float(res["energy_kj"][b]); row[f"{name}_energy_act"] = float(res["energy_act_kj"][b])
+            if "energy_floor" in res:
+                row[f"{name}_energy_floor"] = float(res["energy_floor"][b])
             row[f"{name}_clear"] = float(res["min_clearance_m"][b]); row[f"{name}_clear_true"] = float(res["min_clearance_true_m"][b])
             row[f"{name}_collided_true"] = bool(res["collided_true"][b]); row[f"{name}_round"] = int(rounds[b])
             row[f"{name}_length"] = float(plans[b].length_m); row[f"{name}_vcruise"] = float(plans[b].meta.get("v_cruise", plans[b].speeds.max()))

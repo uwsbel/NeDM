@@ -1,0 +1,85 @@
+{
+ "args": {
+  "runs": [
+   "artifacts/traverse/wp3_tracker_v1"
+  ],
+  "out": "artifacts/traverse/wp5_chrono_sample_planner_v4_pt",
+  "cache": "artifacts/traverse/wp2_z2_cache_v6",
+  "routes": "artifacts/traverse/wp3_routes",
+  "stores": "artifacts/traverse",
+  "arena": "assets/traverse/arena_v1",
+  "split": "val",
+  "families": [
+   "oracle"
+  ],
+  "episodes": 32,
+  "candidates": false,
+  "route_file": "artifacts/traverse/wp5_sample_planner_v4_pt/routes.json",
+  "include_recorded": false,
+  "localisation": "camera",
+  "posehead": "artifacts/traverse/wp4_posehead_v1_amd/ckpt_best.pt",
+  "loc_gain_xy": 0.3,
+  "loc_gain_yaw": 0.15,
+  "horizon_s": 30.0,
+  "procs": 8
+ },
+ "wall_s": 1361.1310760974884,
+ "per_controller_candidate": {
+  "wp3_tracker_v1/pt_astar_best": {
+   "n": 32,
+   "completed": 1.0,
+   "contact": 0.0,
+   "rollover": 0.0,
+   "off_route": 0.0,
+   "time_s_completed": 14.612500000000002,
+   "energy_kj_completed": 136.23724048925985,
+   "mean_ct_m": 0.04026860740169018,
+   "p95_ct_m": 0.1100916363853258,
+   "max_ct_m": 0.15744799519009675,
+   "mean_speed_err_mps": 0.3377436357666004,
+   "steer_rate_max": 0.10000000000000003
+  },
+  "wp3_tracker_v1/pt_cem_pess": {
+   "n": 31,
+   "completed": 1.0,
+   "contact": 0.0,
+   "rollover": 0.0,
+   "off_route": 0.0,
+   "time_s_completed": 16.150000000000002,
+   "energy_kj_completed": 95.65088170415942,
+   "mean_ct_m": 0.050213356707394255,
+   "p95_ct_m": 0.1305373898226802,
+   "max_ct_m": 0.1908873169908874,
+   "mean_speed_err_mps": 0.30578932708371176,
+   "steer_rate_max": 0.10000000000000005
+  },
+  "wp3_tracker_v1/pt_cem_pess_clear": {
+   "n": 31,
+   "completed": 1.0,
+   "contact": 0.0,
+   "rollover": 0.0,
+   "off_route": 0.0,
+   "time_s_completed": 16.12741935483871,
+   "energy_kj_completed": 96.85205843824627,
+   "mean_ct_m": 0.04938704584751323,
+   "p95_ct_m": 0.12531002441424313,
+   "max_ct_m": 0.1863297091785684,
+   "mean_speed_err_mps": 0.3063063243070115,
+   "steer_rate_max": 0.10000000000000005
+  },
+  "wp3_tracker_v1/pt_sampled_pess": {
+   "n": 31,
+   "completed": 1.0,
+   "contact": 0.0,
+   "rollover": 0.0,
+   "off_route": 0.0,
+   "time_s_completed": 16.125806451612906,
+   "energy_kj_completed": 101.02143719005848,
+   "mean_ct_m": 0.04542746829061721,
+   "p95_ct_m": 0.1245394213441997,
+   "max_ct_m": 0.17982930755538665,
+   "mean_speed_err_mps": 0.3064370825646204,
+   "steer_rate_max": 0.10000000000000005
+  }
+ }
+}

@@ -124,7 +124,8 @@ def run_one(task: dict) -> dict:
         out = Path(task["out_dir"]) / f"{task['out_key']}.npz"
         np.savez(out, z1=np.asarray(z1_rows, np.float32), act=np.asarray(act_rows, np.float32),
                  pose=np.asarray(pose_rows, np.float32), power=np.asarray(power_rows, np.float32)[:, None],
-                 source_key=np.array(task["key"]), route_name=np.array(task["route_name"]))
+                 source_key=np.array(task["key"]), route_name=np.array(task["route_name"]),
+                 **{f"route_{k}": np.asarray(v, np.float32) for k, v in task["route"].items()})
         row["written"] = True
     else:
         row["written"] = False
@@ -138,12 +139,12 @@ def build_tasks(args) -> list[dict]:
     from nedm.traverse.terrain import TerrainMap
 
     keys = D.load_cache_keys(Path(args.cache))
-    train_keys = D.split_keys(keys)[0]
+    split_keys = dict(zip(("train", "val", "test"), D.split_keys(keys)))[args.split]
     manifest = json.loads((Path(args.routes) / "routes_manifest.json").read_text())
     routed = set().union(*manifest["families"].values())
-    train_keys = [k for k in train_keys if k in routed]
+    split_keys = [k for k in split_keys if k in routed]
     rng = np.random.default_rng(args.seed)
-    picked = [train_keys[i] for i in rng.permutation(len(train_keys))[: args.episodes]]
+    picked = [split_keys[i] for i in rng.permutation(len(split_keys))[: args.episodes]]
     tmap = TerrainMap.from_dir(Path(args.arena))
     names, probs = list(ROUTE_CHOICES), np.array(list(ROUTE_CHOICES.values()))
     tasks, counts = [], {}
@@ -185,6 +186,8 @@ def main() -> None:
     ap.add_argument("--episodes", type=int, default=2000)
     ap.add_argument("--procs", type=int, default=10)
     ap.add_argument("--seed", type=int, default=20260905)
+    ap.add_argument("--split", default="train", choices=["train", "val", "test"],
+                    help="val: held-out layouts for frame-aligned model tests (never for training)")
     ap.add_argument("--skip-existing", action="store_true", help="resume: skip tasks whose npz already exists")
     ap.add_argument("--preset", default="tire_normal_force_omega",
                     help="z1 state preset; 'tire_normal_force_omega_pt' adds engine speed + motorshaft torque (17-D)")

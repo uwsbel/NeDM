@@ -245,6 +245,7 @@ def run_one(task: dict) -> dict:
     hist_states: list[np.ndarray] = []
     ct_log, ev_log, eh_log, act_log = [], [], [], []
     energy_kj = 0.0
+    energy_first16_kj, vx_frame16 = 0.0, None  # the launch the imagination never sees (it starts from frame 16)
     max_contact = 0.0
     min_clear = math.inf
     status, end_time = "timeout", None
@@ -350,6 +351,10 @@ def run_one(task: dict) -> dict:
             if frame >= 0:
                 p_kw = float(engine.GetOutputMotorshaftTorque()) * float(transmission.GetOutputMotorshaftSpeed()) / 1000.0
                 energy_kj += p_kw * dt
+                if frame < 16:
+                    energy_first16_kj += p_kw * dt
+                elif vx_frame16 is None:
+                    vx_frame16 = float(hmmwv.GetVehicle().GetSpeed())
             if driver is not None:
                 driver.Advance(dt)
             terrain.Advance(dt)
@@ -377,7 +382,8 @@ def run_one(task: dict) -> dict:
     acts = np.asarray(act_log) if act_log else np.zeros((1, 3))
     row.update(status=status, completed=status == "completed",
                time_s=float(end_time if end_time is not None else task["horizon_s"]),
-               energy_kj=float(energy_kj), mean_ct_m=float(ct.mean()), p95_ct_m=float(np.quantile(ct, 0.95)),
+               energy_kj=float(energy_kj), energy_first16_kj=float(energy_first16_kj), vx_frame16=vx_frame16,
+               mean_ct_m=float(ct.mean()), p95_ct_m=float(np.quantile(ct, 0.95)),
                max_ct_m=float(ct.max()), mean_speed_err_mps=float(np.mean(ev_log)) if ev_log else 0.0,
                mean_heading_err_deg=float(np.degrees(np.mean(eh_log))) if eh_log else 0.0,
                max_contact_n=float(max_contact), contact=bool(max_contact > CONTACT_EPS_N),

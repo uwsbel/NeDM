@@ -35,7 +35,7 @@ for f in args.results:
             if k.endswith("_time") or k.endswith("_energy"):
                 imagined.setdefault(r["key"], {})[prefix + k] = v
 ref = rows.get(args.reference, {})
-print(f"{'pick':22s} {'n':>3s} {'done':>5s} {'contact':>7s} {'time':>6s} {'energy':>7s} {'cost':>6s} | {'beats ref':>9s} | {'E ch/img':>8s} {'t ch/img':>8s} {'minclr':>6s}")
+print(f"{'pick':22s} {'n':>3s} {'done':>5s} {'contact':>7s} {'time':>6s} {'energy':>7s} {'cost':>6s} | {'beats ref':>9s} | {'E ch/img':>8s} {'-launch':>7s} {'t ch/img':>8s} {'minclr':>6s}")
 for name in sorted(rows, key=lambda n: (n != args.reference, n)):
     rs = rows[name]
     done = [r for r in rs.values() if r["completed"]]
@@ -46,8 +46,12 @@ for name in sorted(rows, key=lambda n: (n != args.reference, n)):
     ie = [(r["energy_kj"], imagined[k].get(f"{name}_energy")) for k, r in rs.items() if r["completed"] and k in imagined]
     it = [(r["time_s"], imagined[k].get(f"{name}_time")) for k, r in rs.items() if r["completed"] and k in imagined]
     ie = [(a, b) for a, b in ie if b is not None]; it = [(a, b) for a, b in it if b is not None]
+    e_ratio_nl = float("nan")
     if ie:
         e_ratio = np.mean([a for a, _ in ie]) / np.mean([b for _, b in ie]); t_ratio = np.mean([a for a, _ in it]) / np.mean([b for _, b in it])
+        launch = [r.get("energy_first16_kj") for k, r in rs.items() if r["completed"] and k in imagined and imagined[k].get(f"{name}_energy") is not None]
+        if launch and all(l is not None for l in launch):  # Chrono energy after its launch vs imagined (which starts at frame 16)
+            e_ratio_nl = (np.mean([a for a, _ in ie]) - np.mean(launch)) / np.mean([b for _, b in ie])
     print(f"{name:22s} {len(rs):3d} {len(done) / max(len(rs), 1):5.2f} {sum(r['contact'] for r in rs.values()):7d} "
           f"{np.mean([r['time_s'] for r in done]):6.2f} {np.mean([r['energy_kj'] for r in done]):7.1f} {np.mean([cost(r) for r in done]):6.2f} | "
-          f"{beats:4d}/{len(common):<4d} | {e_ratio:8.2f} {t_ratio:8.2f} {np.mean([r['min_clearance_m'] for r in done]):6.2f}")
+          f"{beats:4d}/{len(common):<4d} | {e_ratio:8.2f} {e_ratio_nl:7.2f} {t_ratio:8.2f} {np.mean([r['min_clearance_m'] for r in done]):6.2f}")
