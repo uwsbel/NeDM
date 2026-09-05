@@ -1326,3 +1326,44 @@ one. One assertion there was justified as catching a transposition the existing
 assertion missed; measurement showed the existing one caught it too. The test was kept --
 its value is independence from a hardcoded literal -- but the docstring was corrected,
 because the reason is the part that gets reused.
+
+
+## A placeholder that prints a plausible number is more dangerous than one that crashes
+
+**Cost:** caught by an unrelated zero, one step before publication · **Found:** 2026-09-04 · **Applies to:** any scaffolded computation left in a reporting path
+
+Building a per-episode "irreducible floor" column, the growth term was stubbed:
+
+```python
+floor = seed_sep * math.exp(rate * 0.0)      # exponent is zero
+```
+
+That is the seed separation multiplied by one, printed in a column headed **FLOOR**
+alongside real measurements. It does not crash, does not warn, and produces numbers
+of the right order of magnitude. **A reader — including its author an hour later —
+has nothing to distinguish it from a computed result.**
+
+**A stub that crashes is self-limiting; a stub that prints is load-bearing the moment
+someone reads the column.** The failure mode is not writing the stub, which is normal
+while building. It is that nothing about the output says it is one.
+
+What actually exposed it was **unrelated**: a *different* bug made the seed separation
+exactly `0.00e+00` on all twelve episodes, which was implausible enough to investigate.
+Had the seed been correct, the FLOOR column would have carried plausible-looking
+garbage into a report. **The check that caught it was luck, not design.**
+
+**Practical rules:**
+
+- **Make an unfinished computation fail, not evaluate.** `raise NotImplementedError`
+  where the term belongs. If a partial result must be shown, name the column for what
+  it is (`seed_sep_no_growth_model`), never for what it is meant to become.
+- **Beware the multiply-by-one and the add-zero.** `exp(x * 0.0)`, `* 1.0`, `+ 0.0`
+  and `if False:` all read as arithmetic and behave as deletions.
+- **Report the stub rather than quietly fixing it**, if it reached anyone. The
+  correction is cheap and the record of what was believed is not — someone may have
+  already acted on the number.
+
+Related: [when a comparison goes wrong, suspect the apparatus](#when-a-comparison-goes-wrong-suspect-the-apparatus-before-the-subject),
+and the same session's rule that a check with no reachable failure is not a check. This
+is that rule applied to a *value* rather than a test: **a number that cannot be wrong
+is not a measurement.**
