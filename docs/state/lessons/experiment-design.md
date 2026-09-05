@@ -1663,3 +1663,96 @@ non-firing anchor as a satisfied rule. That is the n = 5 sign-test error, rebuil
 inside the tool written to prevent it, one screen below the warning that names it.
 Printing a caveat is not enforcing it: check that the control flow acts on the
 warning, not merely that the warning exists.
+
+## Surviving the pipeline is not evidence of being real
+
+The verdict harness selected baseline episodes on the argument that a collected
+episode "passed the predicate by construction". It had not: an episode can blow up to
+absurd-but-FINITE values and clear every finiteness check in the pipeline. One
+eligible episode carried a max joint angle of 137 rad and a joint target of 2e34
+against a physical range of about +-3 rad. Finiteness is a much weaker property than
+plausibility, and any filter built from `isfinite` alone inherits that weakness.
+
+Check magnitudes against physical bounds, not just against NaN. Where the population
+is bimodal — here p99 at 3.6 rad and the next value at 136 — the threshold is not a
+judgement call, and saying so is what makes the exclusion defensible.
+
+## The first sufficient explanation is where you stop looking
+
+`rigid_constant_70` failed the harness's bit-identical replay check. The diagnosis —
+a divergence guard I had added that raised where the original broke — was correct,
+and the fix was right. But the same episode was ALSO physically absurd, and that
+went unnoticed for another hour until a peer raised admissibility as a general
+concern. An episode with a joint target of 2e34 failing to reproduce is not a
+coincidence; the two defects were related, and finding the first is precisely what
+stopped the search for the second.
+
+**The general form: a CORRECT diagnosis is the most effective thing there is at
+stopping a search.** A wrong one gets contradicted by the next piece of evidence and
+forces a revisit. A right one satisfies you and closes the question, so a second
+defect sitting behind it is never looked for and nothing ever prompts a second look.
+Being right is the more dangerous case precisely because it is stable.
+
+The check is cheap and belongs at the END of a diagnosis rather than being a new
+technique: **ask whether the explanation accounts for the WHOLE symptom or merely
+enough of it**, and whether the failing case is unusual in any other respect before
+closing. The replay mismatch was fully explained by the guard regression, so nothing
+pointed at 2e34 — one glance at that episode's joint magnitudes would have.
+
+Pairs with [[two agents agreeing is not a control]]: both are a satisfying answer
+suppressing further inquiry, approached from different directions — one where the
+answer is your own, one where it is a collaborator's.
+
+## Do not force two exclusions to agree until you know they answer the same question
+
+Training exclusion and evaluation exclusion have opposed failure modes: excluding
+aggressively from training protects the normalisation and the learned dynamics, while
+excluding aggressively from evaluation costs representativeness, because a physically
+real but difficult episode is exactly what should be scored. Two collaborators
+excluding 14.3% and 0.7% is not necessarily an inconsistency to reconcile. Establish
+what each filter is FOR before treating a numeric disagreement as a defect — and then
+enforce consistency only where it actually bites, here across the two halves of the
+evaluation set.
+
+## A number embedded in an explanation goes stale silently
+
+The verdict harness's FAIL message read "a true 0.015 m/s improvement fails about
+four times in five." True at n = 33, wrong at n = 107 where it is nine in ten — and
+it would have been read at the exact moment it mattered, in the message explaining a
+negative result. Worse, it erred toward UNDERSTATING our own criterion, which is the
+direction nobody audits. Compute such numbers from the run rather than writing them
+into prose; a hardcoded figure inside an explanation has no test that fails when it
+drifts.
+
+## Label which side of a threshold a rate describes
+
+A power table listing 0.010 through 0.030 against a 0.020 threshold shows numbers
+falling with n below the threshold and rising above it. Both are the test improving:
+above, the rate is power; below, it is the rate of passing an effect smaller than the
+one declared meaningful. Unlabelled, the falling column reads as lost sensitivity.
+Say which side is which in the table itself, not in the surrounding text.
+
+## A simulation is not reproducible across machines until you have checked it is
+
+Chrono episodes replay bit-identically on the box that produced them and not on the
+other one: different build, different arithmetic in the last digits, and a chaotic
+plant amplifies it into 147 differing columns by row 0. Separation was perfect by
+machine, 14 of 14 foreign pairs differing and 6 of 6 native pairs identical.
+
+Determinism is a property of a build, not of a simulator, and "it is deterministic"
+is almost always shorthand for "it is deterministic here". Any design that replays
+recorded episodes has to be stratified by the machine that recorded them. Ours was —
+the baseline arm is the recorded file so it is unaffected, but the treated arm must
+run where its baseline was collected, or the arms differ by build as well as by
+treatment.
+
+## A check that fires correctly but attributes wrongly still costs the time it saved
+
+The replay check would have caught the cross-machine problem — as an unexplained
+bit-identical failure. Someone would then have gone hunting for a collector
+regression, which is precisely what happened with `rigid_constant_70`. Detecting a
+fault and naming it are different services, and a guard that stops the run without
+saying why hands the diagnosis back to whoever is least prepared to do it. Where the
+cause is cheaply testable in advance — here, comparing the recorded `machine` field
+to the hostname — check for it explicitly and say so, rather than letting a general
+integrity check discover it as a mismatch.

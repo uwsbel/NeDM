@@ -361,3 +361,130 @@ discordant pairs and therefore a vacuous anchor.** The anchor becomes evaluable
 precisely when the treatment is large enough to matter — 11 discordant pairs at the
 threshold-sized perturbation, against 5 at the near-null one. So a vacuous anchor is
 weak evidence that the treatment did little, but it is not licence to ignore the rule.
+
+## KNOWN GAP IN COMMIT e0d039a — read before running the pushed harness
+
+**The harness as pushed in `e0d039a` has no physical-admissibility predicate.** If
+you are running that commit, it will admit episodes that are physically impossible.
+The fix exists but is not yet pushed; Kyle's authorisation was scoped to that one
+push, and a second is pending.
+
+**Surviving collection is not the same as being physically real.** The eligibility
+filter was survival-based, on the argument that a collected episode "passed the
+predicate by construction". That argument is wrong: an episode can blow up to
+absurd-but-**finite** values and pass every finiteness check in the pipeline. Found
+in this half: `rigid_constant_70`, max |joint angle| **137 rad** and max |joint
+target| **2e34**, against a Go2 joint range of about +-3 rad. It was eligible.
+
+It is also the episode that failed the replay check earlier the same night, read at
+the time as an unrelated collector regression. An episode carrying a joint target of
+2e34 failing to reproduce bit-for-bit was not a coincidence, and the two findings are
+one.
+
+**The threshold is not a judgement call.** Over 1,481 episodes the population is
+cleanly bimodal: p99 of max|joint angle| is 3.38 rad and p99 of max|joint target| is
+3.64, then it jumps to 136 and 4.6e34 with nothing between. Every bound from 4 to 10
+rad excludes the identical 10 episodes (0.7%). The predicate is 5.0 rad, applied over
+the **retained episode** rather than only the scored window — a run that went absurd
+earlier is not rehabilitated by ending calmly. Eligible in this half: 37 -> 36.
+
+**Do NOT reconcile this with the training-cache exclusion.** dorm-pc excludes 500 of
+3,503 by per-joint 2x-URDF bounds for the training cache. That is a different
+decision with a different objective: excluding aggressively from TRAINING protects
+the normalisation and the learned dynamics, while excluding aggressively from
+EVALUATION costs representativeness, since a physically real but difficult episode is
+exactly what should be scored. The two numbers are not meant to match.
+
+**What must match is this predicate across both halves of the evaluation set.** That
+is the only version of the consistency requirement that bites, and it is what would
+make the merged baseline incoherent if violated.
+
+
+## Power recomputed at the merged n. The threshold was NOT revisited.
+
+**Corrected count.** An earlier draft said ~116 attempted and ~107 surviving. That
+double-counted: dorm-pc's consolidated set holds BOTH machines' data, so its "80"
+already contains this half's 36. The real total is **80 attempted, 36 here and 44
+there**, and the design is **stratified rather than merged** (see below), so the
+n that matters is per-machine: **~33 and ~40 surviving** at the measured 8% loss.
+Both clear the 30-pair minimum independently.
+
+**Two different quantities, and only one of them may move.** The **threshold** stays
+at -0.020 m/s: it states what size of improvement is worth calling an improvement,
+it was fixed in advance, and changing it because more data arrived would be
+goalpost-moving in the hardest form to spot, because it would look like rigour. The
+**power** describes what the criterion resolves at a given n and must be restated
+when n changes.
+
+### Every half-width is quoted with its treatment magnitude
+
+**A half-width is not a property of the criterion alone.** The paired difference is
+the treatment-by-realisation interaction, so its spread scales with the treatment:
+`paired_sd = 0.307 * shift^0.58`. Quoting a half-width without naming the treatment
+is what made two correct measurements look contradictory for an hour.
+
+| treatment | measured | n = 33 | n = 107 |
+|---|---|---|---|
+| shift 0.0213 (threshold-sized, rel-sigma 0.01) | hw 0.0076 at n=33 | 0.0076 | 0.0042 |
+| shift 0.0329 (larger, rel-sigma 0.02) | hw 0.0122 at n=46 | 0.0144 | 0.0080 |
+
+The second row is the conservative sizing and is what the thresholds are quoted
+against. Both rows are correct; they describe different treatments.
+
+### Below the threshold these are FALSE-PASS rates, not power
+
+| true improvement | | n = 33 (this box) | n = 40 (dorm-pc) | n = 73 (combined) | direction with n |
+|---|---|---|---|---|---|
+| 0.010 m/s | false-pass | 8.7% | 6.7% | **2.1%** | falls — better |
+| 0.015 | false-pass | 24.8% | 22.7% | **15.6%** | falls — better |
+| **0.020** | **the threshold** | **50%** | **50%** | **50%** | fixed — a coin flip at exactly its own size |
+| 0.025 | power | 75.2% | 77.3% | **84.4%** | rises — better |
+| 0.030 | power | 91.3% | 93.3% | **97.9%** | rises — better |
+
+(Conservative sizing, shift 0.0329. At the threshold-sized treatment every row is
+sharper: 9.9% and 1.0% false-pass, 90.1% and 99.5% power at n=33.)
+
+**Above the threshold the number is power and rising with n is the criterion
+improving. Below it the number is the rate at which the criterion passes an effect
+SMALLER than the one we declared meaningful — a false-pass rate — and falling with n
+is also the criterion improving.** Both columns move in the direction of a better
+test, in opposite numerical directions. A reader seeing 24.8% fall to 11.0% will
+otherwise read it as lost sensitivity.
+
+The 50% row does not improve with n and never will: an effect exactly at a decision
+boundary is a coin flip by construction. **A FAIL still means "no improvement of at
+least 0.020 m/s was demonstrated", not "no improvement occurred."** The harness now
+computes that sentence from the run's own half-width rather than carrying a fixed
+number, because the hardcoded version was true at n = 33 and understated the
+criterion at n = 107.
+
+
+## The verdict is stratified by machine, not merged
+
+**Episodes are only bit-reproducible on the machine that collected them.** Different
+Chrono builds differ in the last digits and a chaotic plant amplifies it: a replay of
+an s3000000 episode on the other box differs in 147 columns from row 0, physics
+included — `joint_rr_hip_target_rad` -0.15132537 against -0.15141966. Separation is
+perfect by machine, 14 of 14 foreign pairs differing and 6 of 6 native pairs
+identical.
+
+The **baseline arm is unaffected**, being the recorded file rather than a replay.
+The **treated arm must run where its baseline was collected**, or the two arms differ
+by BUILD as well as by checkpoint — in a design whose entire claim is that only the
+checkpoint differs.
+
+So each box scores its own episodes and the paired differences are combined
+afterwards. Machine cancels within each pair, which makes this an ordinary stratified
+paired design and loses nothing: 33 and 40 surviving pairs both clear the 30 minimum.
+
+**Report the paired difference PER MACHINE as well as pooled.** If the treatment
+effect differs between boxes that is a machine-by-treatment interaction, and it must
+stay visible rather than being averaged away. The harness writes a machine-tagged
+per-episode summary (`--summary-json`) for exactly this, and **refuses to run at all**
+when eligible episodes come from another host, rather than silently dropping them.
+
+**Provenance note for the dataset:** this collection is not reproducible across
+machines. For training that is benign — the seed offsets are disjoint, so no spec
+appears twice and the surrogate learns across a mixture of two very slightly
+different plants. For anything replay-based it is a hard constraint, and the next
+person to assume a simulation reproduces across machines will assume it silently.

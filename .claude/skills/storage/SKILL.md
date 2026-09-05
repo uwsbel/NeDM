@@ -74,7 +74,8 @@ The coordinator does not run simulations.
 makes a cross-machine merge safe.
 
 Offsets used so far: `0` (sbel-pc), `1000000` (dorm-pc), `2000000` and `3000000`
-(reserved for the joint-state collection). **Pick an unused one and record it.**
+(the joint-state collection), `4000000` (sbel-pc, Go2 seed-variance probe,
+2026-09-04). **Pick an unused one and record it.**
 
 ## Transferring datasets
 
