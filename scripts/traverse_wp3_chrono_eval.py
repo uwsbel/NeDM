@@ -206,7 +206,8 @@ def run_one(task: dict) -> dict:
     config = build_config(arena_dir, (*layout.start_xy, start_z), layout.start_yaw)
     loc_mode = task.get("localisation", "true")
     render = None
-    if loc_mode != "true":
+    dump_frame0 = task.get("dump_frame0")
+    if loc_mode != "true" or dump_frame0:
         from nedm.traverse.scene import RenderSpec
         render = RenderSpec(width=256, height=256, plan_markers=False)
     scene = build_scene(config, layout, tmap, arena_dir, plan=None, render=render)
@@ -216,7 +217,7 @@ def run_one(task: dict) -> dict:
     dt = float(config["simulation"]["step_size_s"])
     substeps = max(1, int(round(CTRL_DT_S / dt)))
     obstacles = np.asarray(layout.obstacles(), np.float64)
-    localiser = CameraLocaliser(Path(task["posehead"]), arena_dir) if render is not None else None
+    localiser = CameraLocaliser(Path(task["posehead"]), arena_dir) if loc_mode != "true" else None
     est = None  # (x, y, yaw) the tracker uses when localisation != true
     settle_est: list[tuple[float, float, float]] = []
     loc_xy_log, loc_yaw_log = [], []
@@ -248,6 +249,9 @@ def run_one(task: dict) -> dict:
     energy_first16_kj, vx_frame16 = 0.0, None  # the launch the imagination never sees (it starts from frame 16)
     max_contact = 0.0
     max_roll = max_pitch = 0.0
+    min_tire_fz = math.inf   # wheel unloading
+    unloaded_frames = 0      # frames with any wheel under 500 N
+    stall_frames = 0         # throttle on, vehicle not moving, after the launch window
     min_clear = math.inf
     status, end_time = "timeout", None
     n_frames = int(round(task["horizon_s"] / CTRL_DT_S))
@@ -258,13 +262,23 @@ def run_one(task: dict) -> dict:
         ref = hmmwv.GetChassis().GetBody().GetFrameRefToAbs()
         x, y = ref.GetPos().x, ref.GetPos().y
         yaw = float(ref.GetRot().GetCardanAnglesZYX().z)
-        state = capture_row(hmmwv, terrain, "eval", "eval", task["key"], "val", max(frame, 0), ts,
-                            manual, include_tires=policy is not None and policy.hist > 0)
+        state = capture_row(hmmwv, terrain, "eval", "eval", task["key"], "val", max(frame, 0), ts, manual, include_tires=True)
+        state["engine_motor_speed_radps"] = float(engine.GetMotorSpeed())  # collector convention
+        state["engine_motorshaft_torque_nm"] = float(engine.GetOutputMotorshaftTorque())
         vx, yaw_rate = float(state["vel_body_x_mps"]), float(state["yaw_rate_radps"])
         x_true, y_true, yaw_true = x, y, yaw
-        if localiser is not None:
+        if render is not None:
             scene.manager.Update()
-            cam_xyz = localiser(scene.rgb_tap.take(), scene.depth_tap.take())
+            rgb_u8, depth_m = scene.rgb_tap.take(), scene.depth_tap.take()
+            if dump_frame0 and frame == 0:  # what a live planner gets at t = 0: one frame, the rest state, the true pose
+                from nedm.traverse.storage import encode_depth_mm
+                z1_fields = STATE_FIELD_PRESETS["tire_normal_force_omega_pt"]
+                Path(dump_frame0).parent.mkdir(parents=True, exist_ok=True)
+                np.savez_compressed(dump_frame0, rgb=np.asarray(rgb_u8, np.uint8), depth_mm=encode_depth_mm(np.asarray(depth_m, np.float32)),
+                                    z1=np.array([float(state[f]) for f in z1_fields], np.float32), z1_fields=np.array(z1_fields),
+                                    pose=np.array([x, y, yaw], np.float32))
+        if localiser is not None:
+            cam_xyz = localiser(rgb_u8, depth_m)
             if frame < 0:
                 settle_est.append(cam_xyz)
                 est = cam_xyz
@@ -373,6 +387,12 @@ def run_one(task: dict) -> dict:
         roll, pitch = float(vehicle.GetRoll()), float(vehicle.GetPitch())
         if frame >= 0:
             max_roll = max(max_roll, abs(roll)); max_pitch = max(max_pitch, abs(pitch))
+            fz = [float(state[f"tire_{w}_force_wheel_fz_n"]) for w in ("fl", "fr", "rl", "rr")]
+            min_tire_fz = min(min_tire_fz, *fz)
+            if min(fz) < 500.0:
+                unloaded_frames += 1
+            if frame >= int(round(2.0 / CTRL_DT_S)) and abs(vx) < 0.3 and float(last[1]) > 0.3:
+                stall_frames += 1
         if abs(roll) > ROLL_PITCH_ABORT_RAD or abs(pitch) > ROLL_PITCH_ABORT_RAD:
             status = "rollover"; break
         if frame >= 0 and abs(err["e_ct"]) > 6.0:
@@ -391,6 +411,8 @@ def run_one(task: dict) -> dict:
                mean_heading_err_deg=float(np.degrees(np.mean(eh_log))) if eh_log else 0.0,
                max_contact_n=float(max_contact), contact=bool(max_contact > CONTACT_EPS_N),
                max_roll_deg=float(math.degrees(max_roll)), max_pitch_deg=float(math.degrees(max_pitch)),
+               min_tire_fz_n=float(min_tire_fz) if math.isfinite(min_tire_fz) else None,
+               stall_s=stall_frames * CTRL_DT_S, stalled=bool(stall_frames * CTRL_DT_S >= 1.0), unloaded_s=unloaded_frames * CTRL_DT_S,
                min_clearance_m=float(min_clear), steer_rate_max=float(np.abs(np.diff(acts[:, 0])).max()) if len(acts) > 1 else 0.0,
                frames=len(ct_log), wall_s=time.time() - wall0, localisation=loc_mode,
                loc_xy_mean_m=float(np.mean(loc_xy_log)) if loc_xy_log else None,
@@ -402,6 +424,14 @@ def run_one(task: dict) -> dict:
 # ----------------------------------------------------------------------------- batch
 def build_tasks(args) -> list[dict]:
     from nedm.traverse import nrd_data as D
+    if args.tasks_file:  # explicit runs (e.g. the terrain feasibility sweep): key, meta_path, candidate, route[, dump_frame0]
+        ref_meta = next(Path(r) / "policy_meta.json" for r in args.runs if r != "follower")
+        tasks = []
+        for t in json.loads(Path(args.tasks_file).read_text()):
+            for ctrl in args.runs:
+                tasks.append({**t, "controller": ctrl, "arena": args.arena, "horizon_s": args.horizon_s, "ref_meta": str(ref_meta),
+                              "localisation": args.localisation, "posehead": args.posehead, "loc_gain_xy": args.loc_gain_xy, "loc_gain_yaw": args.loc_gain_yaw})
+        return tasks
     from nedm.traverse.layout import EpisodeLayout
     from nedm.traverse.oracle import PlannerParams, plan_to_ring
     from nedm.traverse.terrain import TerrainMap
@@ -488,6 +518,7 @@ def main() -> int:
     ap.add_argument("--episodes", type=int, default=32)
     ap.add_argument("--candidates", action="store_true")
     ap.add_argument("--route-file", default=None, help="json from the scorer's --export-routes: drive exactly those routes")
+    ap.add_argument("--tasks-file", default=None, help="json list of explicit runs {key, meta_path, candidate, route[, dump_frame0]} (terrain sweeps)")
     ap.add_argument("--include-recorded", action="store_true")
     ap.add_argument("--localisation", choices=["true", "camera", "fused"], default="true",
                     help="pose the TRACKER sees: Chrono truth (v1), per-frame camera estimate, or odometry+camera filter")
