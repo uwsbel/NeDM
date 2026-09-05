@@ -206,3 +206,42 @@ same near-tie reason as before.
    the simulator's) — WP1 showed 0.8 m / 3–4° from the spatial map.
 4. Test split untouched throughout.
 
+## 6. Follow-ups started 2026-09-05 (per the WP4 recommendation list)
+
+### 6.1 Camera-based vehicle localisation for the tracker — `traverse_wp4_train_posehead.py`, `traverse_wp3_chrono_eval.py --localisation`
+
+The tracker's pose in the Chrono evaluation was the simulator's. A pose head on
+the frozen encoder's 64×64 stage-2 map (heatmap + soft-argmax + sub-cell
+regression, yaw as sin/cos) is trained on the WP1 frame set (6662 train / 1427
+val layouts, same split as WP1 v6). Pixel → world inverts the pinhole model at
+the vehicle-centre height using the known arena heightmap (fixed terrain).
+
+| head | frames seen | val centre error mean / median / p95 | val yaw error mean / p95 |
+|---|---|---|---|
+| WP1 v5 spatial probe (16×16 map, reference) | — | 0.80 m | 3.3–4.4° |
+| cluster smoke, 100 steps | 6 k | 0.106 / 0.102 / 0.196 m | 15.4° / 21.2° |
+| **v1, 15 k steps (MI350, 12 min)** | 960 k | _see readout_ | _see readout_ |
+
+In Chrono the tracker can take its pose from (a) the truth, (b) the per-frame
+camera estimate, or (c) a complementary filter: odometry prediction from body
+velocities and yaw rate (sensorable), camera correction with gain 0.3 on
+position, and a heading measurement that blends the camera yaw with the
+direction of travel between consecutive camera fixes when moving faster than
+1.5 m/s. The filter is initialised from the camera alone during the 0.8 s
+settle, so no privileged pose enters at any point. With the *smoke* head
+(15° yaw error) the raw camera pose broke tracking (mean cross-track 0.6–2.5 m);
+the filter with motion heading brought it back to 0.22–0.39 m — the design is
+robust to a weak yaw channel. Results with the trained head: §6.1 table below.
+
+_pending: 31-route Chrono comparison truth / camera / fused_
+
+### 6.2 Tracker-driven training episodes for the dynamics model — `traverse_wp4_collect_tracker_episodes.py`
+
+2000 train-split layouts driven in Chrono by the PPO tracker (routes: recorded
+37 %, oracle 21 %, slow 22 %, fast 19 %), recorded as 400-frame cache rows (z1,
+applied action, pose, power); the layout's existing scene map is reused through
+``source_key``. The map trainer appends them with ``--extra-train-cache`` (train
+split only; val/test untouched). Retrained model: `wp2_mapv2_dagger_amd`.
+
+_pending: collection running on newton (≈ 2 h), then retraining and the
+imagined-vs-Chrono time / energy comparison against `wp2_mapv2_index_amd`._

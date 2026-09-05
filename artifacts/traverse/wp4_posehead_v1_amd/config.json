@@ -1,0 +1,22 @@
+{
+ "data_roots": [
+  "artifacts/traverse/pilot_v1",
+  "artifacts/traverse/full_v1",
+  "artifacts/traverse/full_v2",
+  "artifacts/traverse/full_v3",
+  "artifacts/traverse/full_v4_partial"
+ ],
+ "episode_manifest": "artifacts/traverse/wp1_v6_episode_manifest.json",
+ "arena": "assets/traverse/arena_v1",
+ "encoder_ckpt": "artifacts/traverse/wp1_v6/ckpt_warmup.pt",
+ "out": "artifacts/traverse/wp4_posehead_v1_amd",
+ "steps": 15000,
+ "batch": 64,
+ "lr": 0.0003,
+ "width": 96,
+ "workers": 20,
+ "val_every": 1000,
+ "val_batches": 40,
+ "final_val_batches": 300,
+ "seed": 20260902
+}

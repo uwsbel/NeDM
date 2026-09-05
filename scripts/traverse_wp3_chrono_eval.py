@@ -128,6 +128,54 @@ class PolicyController:
 
 
 # ----------------------------------------------------------------------------- one Chrono run
+class CameraLocaliser:
+    """Per-frame vehicle pose from the overhead RGB-D frame: frozen WP1 encoder stem + WP4 pose head
+    (scripts/traverse_wp4_train_posehead.py). Pixel -> world uses the known arena heightmap."""
+
+    def __init__(self, posehead_ckpt: Path, arena_dir: Path):
+        import importlib.util
+        import torch
+        from nedm.traverse import perception as P
+        from nedm.traverse.camera import CameraModel
+        from nedm.traverse.storage import DEPTH_NO_HIT, DEPTH_OFFSET_M, encode_depth_mm
+        from nedm.traverse.terrain import TerrainMap
+        spec = importlib.util.spec_from_file_location("posehead", REPO_ROOT / "scripts" / "traverse_wp4_train_posehead.py")
+        mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
+        self.mod, self.torch = mod, torch
+        payload = torch.load(posehead_ckpt, map_location="cpu", weights_only=False)
+        enc_ckpt = Path(payload["encoder_ckpt"])
+        enc_ckpt = enc_ckpt if enc_ckpt.is_absolute() else REPO_ROOT / enc_ckpt
+        encoder = P.Encoder(z_dim=256, n_q=8)
+        encoder.load_state_dict(torch.load(enc_ckpt, map_location="cpu", weights_only=False)["encoder"], strict=True)
+        self.stem = encoder.backbone[:mod.STAGE].eval()
+        self.head = mod.PoseHead(width=payload["config"]["width"]).eval()
+        self.head.load_state_dict(payload["head"])
+        self.cam, self.tmap = CameraModel(), TerrainMap.from_dir(arena_dir)
+        _, _, sec = self.cam.pixel_rays(P.DEPTH_RAY_SCALE)
+        self.sec = sec.astype(np.float32)
+        self.h_min, self.h_max = float(self.tmap.meta["height_min_m"]), float(self.tmap.meta["height_max_m"])
+        self._enc, self._nohit, self._off = encode_depth_mm, DEPTH_NO_HIT, DEPTH_OFFSET_M
+        torch.set_num_threads(2)
+
+    def __call__(self, rgb_u8: np.ndarray, depth_m: np.ndarray) -> tuple[float, float, float]:
+        mm = self._enc(depth_m)  # exactly the store's quantization
+        d = self._off + mm.astype(np.float32) / 1000.0
+        z = self.cam.cam_height_m - d / self.sec
+        z[mm == self._nohit] = self.h_min
+        z_norm = (z - self.h_min) / (self.h_max - self.h_min)
+        inp = np.concatenate([rgb_u8.astype(np.float32).transpose(2, 0, 1) / 255.0, z_norm[None]], 0)
+        with self.torch.no_grad():
+            fmap = self.stem(self.torch.from_numpy(inp)[None])
+            _, u_s, v_s, yaw = self.head(fmap)
+        u, v = self.mod.stage_to_img(u_s.numpy(), v_s.numpy())
+        x, y = self.mod.pixel_to_world(self.cam, self.tmap, u, v)
+        return float(x[0]), float(y[0]), float(math.atan2(float(yaw[0, 0]), float(yaw[0, 1])))
+
+
+def wrap_pi(a: float) -> float:
+    return (a + math.pi) % (2 * math.pi) - math.pi
+
+
 def run_one(task: dict) -> dict:
     import pychrono as chrono
     import pychrono.vehicle as veh
@@ -156,13 +204,23 @@ def run_one(task: dict) -> dict:
 
     start_z = float(tmap.height(*layout.start_xy)) + 0.75
     config = build_config(arena_dir, (*layout.start_xy, start_z), layout.start_yaw)
-    scene = build_scene(config, layout, tmap, arena_dir, plan=None, render=None)
+    loc_mode = task.get("localisation", "true")
+    render = None
+    if loc_mode != "true":
+        from nedm.traverse.scene import RenderSpec
+        render = RenderSpec(width=256, height=256, plan_markers=False)
+    scene = build_scene(config, layout, tmap, arena_dir, plan=None, render=render)
     hmmwv, system, terrain = scene.hmmwv, scene.system, scene.terrain
     vehicle = hmmwv.GetVehicle()
     engine, transmission = vehicle.GetEngine(), vehicle.GetTransmission()
     dt = float(config["simulation"]["step_size_s"])
     substeps = max(1, int(round(CTRL_DT_S / dt)))
     obstacles = np.asarray(layout.obstacles(), np.float64)
+    localiser = CameraLocaliser(Path(task["posehead"]), arena_dir) if render is not None else None
+    est = None  # (x, y, yaw) the tracker uses when localisation != true
+    settle_est: list[tuple[float, float, float]] = []
+    loc_xy_log, loc_yaw_log = [], []
+    k_xy, k_yaw = float(task.get("loc_gain_xy", 0.3)), float(task.get("loc_gain_yaw", 0.15))
 
     driver = None
     if policy is None:
@@ -182,6 +240,8 @@ def run_one(task: dict) -> dict:
     manual = veh.DriverInputs()
     last = np.array([0.0, 0.0, 1.0])
     prev_steer = 0.0
+    prev_vx = prev_vy = prev_yaw_rate = 0.0
+    prev_cam = None
     hist_states: list[np.ndarray] = []
     ct_log, ev_log, eh_log, act_log = [], [], [], []
     energy_kj = 0.0
@@ -199,6 +259,43 @@ def run_one(task: dict) -> dict:
         state = capture_row(hmmwv, terrain, "eval", "eval", task["key"], "val", max(frame, 0), ts,
                             manual, include_tires=policy is not None and policy.hist > 0)
         vx, yaw_rate = float(state["vel_body_x_mps"]), float(state["yaw_rate_radps"])
+        x_true, y_true, yaw_true = x, y, yaw
+        if localiser is not None:
+            scene.manager.Update()
+            cam_xyz = localiser(scene.rgb_tap.take(), scene.depth_tap.take())
+            if frame < 0:
+                settle_est.append(cam_xyz)
+                est = cam_xyz
+            elif loc_mode == "camera":
+                est = cam_xyz
+            else:  # fused: odometry prediction from the previous frame's body velocities + camera correction
+                if frame == 0 and settle_est:
+                    a = np.asarray(settle_est)
+                    est = (float(a[:, 0].mean()), float(a[:, 1].mean()),
+                           float(math.atan2(np.sin(a[:, 2]).mean(), np.cos(a[:, 2]).mean())))
+                px, py, pyaw = est
+                vy_b = float(state["vel_body_y_mps"])
+                px += CTRL_DT_S * (prev_vx * math.cos(pyaw) - prev_vy * math.sin(pyaw))
+                py += CTRL_DT_S * (prev_vx * math.sin(pyaw) + prev_vy * math.cos(pyaw))
+                pyaw += CTRL_DT_S * prev_yaw_rate
+                px += k_xy * (cam_xyz[0] - px); py += k_xy * (cam_xyz[1] - py)
+                # heading: the camera's yaw is the weakest channel; when moving, the direction of
+                # travel from consecutive camera fixes is a second, independent heading measurement
+                yaw_meas, k_use = cam_xyz[2], k_yaw
+                if prev_cam is not None and vx > 1.5:
+                    dx, dy = cam_xyz[0] - prev_cam[0], cam_xyz[1] - prev_cam[1]
+                    if math.hypot(dx, dy) > 0.05:
+                        yaw_motion = math.atan2(dy, dx) - math.atan2(prev_vy, max(prev_vx, 1e-3))
+                        yaw_meas = math.atan2(0.3 * math.sin(cam_xyz[2]) + 0.7 * math.sin(yaw_motion),
+                                              0.3 * math.cos(cam_xyz[2]) + 0.7 * math.cos(yaw_motion))
+                        k_use = max(k_yaw, 0.3)
+                pyaw = wrap_pi(pyaw + k_use * wrap_pi(yaw_meas - pyaw))
+                est = (px, py, pyaw)
+            prev_cam = cam_xyz
+            prev_vx, prev_vy, prev_yaw_rate = vx, float(state["vel_body_y_mps"]), yaw_rate
+            x, y, yaw = est
+            if frame >= 0:
+                loc_xy_log.append(math.hypot(x - x_true, y - y_true)); loc_yaw_log.append(abs(wrap_pi(yaw - yaw_true)))
         err = rt.update(x, y, yaw, vx, first=first); first = False
 
         if frame < 0:  # settle with brakes on, wheels straight (collector convention)
@@ -220,10 +317,15 @@ def run_one(task: dict) -> dict:
             cmd = None
 
         if frame >= 0:
-            ct_log.append(abs(err["e_ct"])); ev_log.append(abs(err["e_v"])); eh_log.append(abs(err["e_h"]))
-            c, s_ = math.cos(yaw), math.sin(yaw)
+            if localiser is not None:  # judge tracking with the TRUE pose, not the estimate
+                err_true = RouteTracker.__new__(RouteTracker); err_true.__dict__.update(rt.__dict__)
+                e_t = err_true.update(x_true, y_true, yaw_true, vx, first=False)
+                ct_log.append(abs(e_t["e_ct"])); ev_log.append(abs(e_t["e_v"])); eh_log.append(abs(e_t["e_h"]))
+            else:
+                ct_log.append(abs(err["e_ct"])); ev_log.append(abs(err["e_v"])); eh_log.append(abs(err["e_h"]))
+            c, s_ = math.cos(yaw_true), math.sin(yaw_true)
             for off in (-1.9, 0.0, 1.9):
-                cx, cy = x + off * c, y + off * s_
+                cx, cy = x_true + off * c, y_true + off * s_
                 if len(obstacles):
                     clear = float(np.min(np.hypot(obstacles[:, 0] - cx, obstacles[:, 1] - cy) - obstacles[:, 2] - 1.3))
                     min_clear = min(min_clear, clear)
@@ -280,7 +382,10 @@ def run_one(task: dict) -> dict:
                mean_heading_err_deg=float(np.degrees(np.mean(eh_log))) if eh_log else 0.0,
                max_contact_n=float(max_contact), contact=bool(max_contact > CONTACT_EPS_N),
                min_clearance_m=float(min_clear), steer_rate_max=float(np.abs(np.diff(acts[:, 0])).max()) if len(acts) > 1 else 0.0,
-               frames=len(ct_log), wall_s=time.time() - wall0)
+               frames=len(ct_log), wall_s=time.time() - wall0, localisation=loc_mode,
+               loc_xy_mean_m=float(np.mean(loc_xy_log)) if loc_xy_log else None,
+               loc_xy_p95_m=float(np.quantile(loc_xy_log, 0.95)) if loc_xy_log else None,
+               loc_yaw_mean_deg=float(np.degrees(np.mean(loc_yaw_log))) if loc_yaw_log else None)
     return row
 
 
@@ -334,7 +439,8 @@ def build_tasks(args) -> list[dict]:
             for name, route in routes:
                 tasks.append({"key": key, "controller": ctrl, "candidate": name, "route": route,
                               "meta_path": str(meta_path), "arena": args.arena, "horizon_s": args.horizon_s,
-                              "ref_meta": str(ref_meta)})
+                              "ref_meta": str(ref_meta), "localisation": args.localisation, "posehead": args.posehead,
+                              "loc_gain_xy": args.loc_gain_xy, "loc_gain_yaw": args.loc_gain_yaw})
     return tasks
 
 
@@ -373,6 +479,11 @@ def main() -> int:
     ap.add_argument("--candidates", action="store_true")
     ap.add_argument("--route-file", default=None, help="json from the scorer's --export-routes: drive exactly those routes")
     ap.add_argument("--include-recorded", action="store_true")
+    ap.add_argument("--localisation", choices=["true", "camera", "fused"], default="true",
+                    help="pose the TRACKER sees: Chrono truth (v1), per-frame camera estimate, or odometry+camera filter")
+    ap.add_argument("--posehead", default="artifacts/traverse/wp4_posehead_v1_amd/ckpt_best.pt")
+    ap.add_argument("--loc-gain-xy", type=float, default=0.3)
+    ap.add_argument("--loc-gain-yaw", type=float, default=0.15)
     ap.add_argument("--horizon-s", type=float, default=25.0)
     ap.add_argument("--procs", type=int, default=12)
     args = ap.parse_args()

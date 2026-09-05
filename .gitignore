@@ -165,3 +165,6 @@ artifacts/traverse/wp4_scores_*/trajectories.npz
 !artifacts/traverse/wp4_planner_ladder_v2_fallback/
 !artifacts/traverse/wp4_fallback_plans/
 !artifacts/traverse/wp4_chrono_fallback/
+!artifacts/traverse/wp4_posehead_v1_amd/
+!artifacts/traverse/wp4_chrono_loc_camera/
+!artifacts/traverse/wp4_chrono_loc_fused/
