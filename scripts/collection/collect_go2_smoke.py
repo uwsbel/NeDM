@@ -105,6 +105,17 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--solver-iters", type=int, default=150)
     parser.add_argument("--actuation", choices=["torque", "position"], default="torque")
     parser.add_argument("--imported-ckpt", default=None)
+    # MID-EPISODE POLICY BRANCH, off unless both are given, so nothing about an
+    # ordinary collection changes. Exists so two arms can be bit-identical up to a
+    # known instant and differ only after it: a weight-perturbed policy otherwise
+    # differs from step 0, and by the time any fixed-length history window has
+    # filled, the arms have been diverging for the whole window. Measured: 0.068 m/s
+    # of body-velocity difference already present at the first row of a 128-row
+    # window, against a surrogate whose two arms start at exactly 0 by construction.
+    parser.add_argument("--switch-ckpt", default=None,
+                        help="Checkpoint to swap the policy's WEIGHTS to mid-episode.")
+    parser.add_argument("--switch-ckpt-at-s", type=float, default=None,
+                        help="Simulation time at which to swap. Requires --switch-ckpt.")
     parser.add_argument("--command-family", default=None)
     parser.add_argument("--command-params", default=None,
                         help="JSON dict of this episode's stratified amplitude draw.")
@@ -393,6 +404,10 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
                                    duration=args.duration_s, params=params)
     else:
         policy = PolicyController(ckpt, cfgs)
+    _switch_ck = Path(args.switch_ckpt) if args.switch_ckpt else None
+    if (_switch_ck is None) != (args.switch_ckpt_at_s is None):
+        raise SystemExit("--switch-ckpt and --switch-ckpt-at-s must be given together")
+    _switched = False
     sph_probe = soilprobe.bind_probe(terrain)
 
     exchange = args.exchange_mult * args.step_size_s
@@ -474,6 +489,14 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
                 elif t < args.pose_ramp_seconds + args.settle_seconds:
                     action = STAND_ACTION.astype(np.float64)
                 else:
+                    if (_switch_ck is not None and not _switched
+                            and t >= args.switch_ckpt_at_s):
+                        # WEIGHTS ONLY. Replacing the policy object would reset its
+                        # 5-step observation history and inject a discontinuity that
+                        # has nothing to do with the weight change being measured.
+                        policy.model = policy.torch.jit.load(str(_switch_ck),
+                                                             map_location="cpu")
+                        _switched = True
                     action = policy.act(robot)
                     # The network's raw output, before ACTION_SCALE and the
                     # defaults. Reordered to Chrono order for column naming only;
@@ -652,6 +675,9 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
         "diverged": diverged_at is not None,
         "diverged_at_s": (None if diverged_at is None
                           else float(rows[-1]["time_s"]) if rows else None),
+        "policy_switch_ckpt": str(_switch_ck) if _switch_ck is not None else None,
+        "policy_switch_at_s": args.switch_ckpt_at_s,
+        "policy_switched": _switched,
         "status": ("diverged" if diverged_at is not None
                    else "fell" if fell_at is not None
                    else "bed_boundary" if boundary_at is not None else "completed"),
