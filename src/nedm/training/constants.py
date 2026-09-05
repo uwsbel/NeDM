@@ -40,10 +40,18 @@ TIRE_NORMAL_FORCE_OMEGA_STATE_FIELDS = [
     "tire_rr_spindle_omega_radps",
 ]
 
+# Powertrain state (WP5): engine speed encodes the gear given the wheel speeds; motorshaft
+# torque carries the engine's lag behind the throttle. Their product is the recorded power.
+POWERTRAIN_STATE_FIELDS = [
+    "engine_motor_speed_radps",
+    "engine_motorshaft_torque_nm",
+]
+
 STATE_FIELD_PRESETS = {
     "default": DEFAULT_STATE_FIELDS,
     "tire_force_omega": DEFAULT_STATE_FIELDS + TIRE_FORCE_OMEGA_STATE_FIELDS,
     "tire_normal_force_omega": DEFAULT_STATE_FIELDS + TIRE_NORMAL_FORCE_OMEGA_STATE_FIELDS,
+    "tire_normal_force_omega_pt": DEFAULT_STATE_FIELDS + TIRE_NORMAL_FORCE_OMEGA_STATE_FIELDS + POWERTRAIN_STATE_FIELDS,
 }
 
 DEFAULT_ACTION_FIELDS = [

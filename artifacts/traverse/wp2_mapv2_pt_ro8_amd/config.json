@@ -1,0 +1,115 @@
+{
+  "cache": "artifacts/traverse/wp2_z2_cache_v6",
+  "arena": "assets/traverse/arena_v1",
+  "map_mode": "index",
+  "map_key": "map_v2",
+  "out": "artifacts/traverse/wp2_mapv2_pt_ro8_amd",
+  "context": 16,
+  "steps": 8000,
+  "batch": 256,
+  "token_dim": 256,
+  "lr": 0.0001,
+  "min_lr": 1e-05,
+  "warmup_steps": 200,
+  "weight_decay": 0.1,
+  "grad_clip": 1.0,
+  "n_layer": 6,
+  "n_head": 8,
+  "n_embd": 256,
+  "dropout": 0.0,
+  "eval_every": 2000,
+  "eval_episodes": 256,
+  "val_batches": 20,
+  "horizons": [
+    10,
+    20,
+    40,
+    100
+  ],
+  "selection": "z1_mae_norm",
+  "seed": 20260903,
+  "max_train_episodes": 0,
+  "rollout_steps": 8,
+  "rollout_weight": 1.0,
+  "extra_train_cache": [],
+  "z1_extra_cache": "artifacts/traverse/wp2_z2_cache_v6_pt",
+  "delta_scale": false,
+  "init_from": "artifacts/traverse/wp2_mapv2_pt_amd/ckpt_best.pt",
+  "freeze_cropper": false,
+  "freeze_backbone": false,
+  "token_stat_batches": 64,
+  "eval_only": false,
+  "model": {
+    "block_size": 16,
+    "n_layer": 6,
+    "n_head": 8,
+    "n_embd": 256,
+    "dropout": 0.0,
+    "bias": false,
+    "head_hidden_dim": 256
+  },
+  "n_params": 5196322,
+  "split_counts": [
+    6662,
+    1427,
+    1429
+  ],
+  "normalization": {
+    "z1_mean": [
+      2.541916608810425,
+      -0.0028791946824640036,
+      -0.0010378957958891988,
+      -0.012642422690987587,
+      0.00039348675636574626,
+      0.002365157241001725,
+      -0.00031595773180015385,
+      6460.3017578125,
+      6193.51171875,
+      6386.99951171875,
+      6164.5244140625,
+      7.997885704040527,
+      8.815439224243164,
+      6.0575151443481445,
+      6.483781814575195,
+      161.04803466796875,
+      50.54722213745117
+    ],
+    "z1_std": [
+      1.544066071510315,
+      0.24254095554351807,
+      0.10259382426738739,
+      0.10984667390584946,
+      0.10291130840778351,
+      0.11128171533346176,
+      0.16734856367111206,
+      4166.298828125,
+      4093.37744140625,
+      4118.318359375,
+      3987.31494140625,
+      13.806818962097168,
+      15.087211608886719,
+      8.485808372497559,
+      9.509112358093262,
+      75.30235290527344,
+      101.63178253173828
+    ],
+    "z2_mean": [],
+    "z2_std": [],
+    "act_mean": [
+      -0.002858338877558708,
+      0.2001095563173294,
+      0.020143987610936165
+    ],
+    "act_std": [
+      0.48496851325035095,
+      0.2469247579574585,
+      0.07055574655532837
+    ],
+    "power_mean": [
+      11.250716209411621
+    ],
+    "power_std": [
+      21.61240005493164
+    ]
+  }
+}

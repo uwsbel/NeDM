@@ -62,7 +62,7 @@ class MapBatcher:
         return out
 
 
-def rollout_loss(model, batch, context: int, steps: int, z1_mean, z1_std):
+def rollout_loss(model, batch, context: int, steps: int, z1_mean, z1_std, w=None):
     """K-step autoregressive loss under the RECORDED actions: predicted state fed back, map
     re-cropped at the dead-reckoned pose (exactly the imagination env's step). Targets the
     closed-loop speed bias that one-step teacher forcing does not see."""
@@ -75,7 +75,8 @@ def rollout_loss(model, batch, context: int, steps: int, z1_mean, z1_std):
         window = slice(step, step + context)
         delta, power, _ = model(z1_hist[:, -context:], token_hist[:, -context:], act[:, window])
         z1_next = z1_hist[:, -1] + delta[:, -1]
-        l_z1 = l_z1 + F.huber_loss(z1_next, z1[:, context + step], delta=1.0)
+        tgt = z1[:, context + step]
+        l_z1 = l_z1 + (F.huber_loss(z1_next * w, tgt * w, delta=1.0) if w is not None else F.huber_loss(z1_next, tgt, delta=1.0))
         l_p = l_p + F.huber_loss(power[:, -1], batch["power"][:, context + step], delta=1.0)
         pose = integrate_pose(pose, z1_next * z1_std + z1_mean)
         nxt = model.cropper(maps, pose.unsqueeze(1))[:, 0]
@@ -84,10 +85,14 @@ def rollout_loss(model, batch, context: int, steps: int, z1_mean, z1_std):
     return (l_z1 + l_p) / steps, {"ro_z1": float(l_z1.detach()) / steps, "ro_power": float(l_p.detach()) / steps}
 
 
-def step_loss(model, batch, mode: str):
+def step_loss(model, batch, mode: str, w=None):
+    """``w`` (z1_dim,) rescales the state channels in the loss. With --delta-scale it is the inverse
+    per-step delta std, so slowly varying channels (vx: one-step change ~0.03 of the state std) get the
+    same weight as the noisy tire channels instead of being ignored -- the 10 % speed bias lives there."""
     token = model.cropper(batch["map"], batch["pose"])
     delta, power, token_next = model(batch["z1"][:, :-1], token[:, :-1], batch["act"][:, :-1])
-    loss = F.huber_loss(delta, batch["z1"][:, 1:] - batch["z1"][:, :-1], delta=1.0)
+    tgt = batch["z1"][:, 1:] - batch["z1"][:, :-1]
+    loss = F.huber_loss(delta * w, tgt * w, delta=1.0) if w is not None else F.huber_loss(delta, tgt, delta=1.0)
     parts = {"z1": float(loss.detach())}
     lp = F.huber_loss(power, batch["power"][:, 1:], delta=1.0)
     loss = loss + lp
@@ -221,6 +226,11 @@ def main() -> None:
     ap.add_argument("--extra-train-cache", nargs="*", default=[],
                     help="extra cache dirs appended to the TRAIN split only (e.g. tracker-driven Chrono "
                          "episodes); their scene maps come from the base cache via each file's source_key")
+    ap.add_argument("--z1-extra-cache", default="",
+                    help="sidecar dir (traverse_wp5_build_z1_sidecar.py) whose z1_extra channels are appended to "
+                         "the base cache's z1 (e.g. engine speed + motorshaft torque -> 17-D state)")
+    ap.add_argument("--delta-scale", action="store_true",
+                    help="weight each z1 channel in the state losses by 1/std of its normalized one-step delta")
     ap.add_argument("--init-from", default="",
                     help="ckpt_best.pt of a finished run to start from (two-stage predict / eval-only)")
     ap.add_argument("--freeze-cropper", action="store_true",
@@ -249,10 +259,17 @@ def main() -> None:
     val_split = D.load_split(cache, val_keys, with_z2=False)
     train_maps = load_maps(cache, train_keys, args.map_key)
     val_maps = load_maps(cache, val_keys, args.map_key)
+    if args.z1_extra_cache:
+        train_split = D.with_z1_extra(train_split, Path(args.z1_extra_cache))
+        val_split = D.with_z1_extra(val_split, Path(args.z1_extra_cache))
+        print(f"z1 extra channels from {args.z1_extra_cache}: z1 is now {train_split.z1.shape[-1]}-D", flush=True)
     for extra in args.extra_train_cache:
         extra = Path(extra)
         ekeys = D.load_cache_keys(extra)
         esplit = D.load_split(extra, ekeys, with_z2=False)
+        if esplit.z1.shape[-1] != train_split.z1.shape[-1]:
+            raise ValueError(f"{extra}: z1 is {esplit.z1.shape[-1]}-D but the base cache (+sidecar) is "
+                             f"{train_split.z1.shape[-1]}-D; collect it with the matching --preset")
         src = [str(np.load(extra / f"{k}.npz")["source_key"]) for k in ekeys]
         emaps = load_maps(cache, src, args.map_key)
         train_split = D.CacheSplit(keys=train_split.keys + list(ekeys),
@@ -272,6 +289,11 @@ def main() -> None:
     z1_dim, act_dim = train_split.z1.shape[-1], train_split.act.shape[-1]
     train_data = MapBatcher(train_split, norm, args.context, train_maps)
     val_data = MapBatcher(val_split, norm, args.context, val_maps)
+    loss_w = None
+    if args.delta_scale:
+        d_std = np.diff(train_data.z1, axis=1).reshape(-1, z1_dim).std(0) + 1e-6
+        loss_w = torch.tensor((d_std.mean() / d_std).astype(np.float32), device=device)  # mean weight 1
+        print("delta-scale weights:", np.round(loss_w.cpu().numpy(), 2).tolist(), flush=True)
     del train_split, val_split
 
     cfg = {"block_size": args.context, "n_layer": args.n_layer, "n_head": args.n_head,
@@ -338,12 +360,12 @@ def main() -> None:
         if args.rollout_steps > 0:
             batch = train_data.sample(rng, args.batch, device, extra_steps=args.rollout_steps)
             one = {k: v[:, : args.context + 1] if v.dim() >= 2 and k != "map" else v for k, v in batch.items()}
-            loss, parts = step_loss(model, one, args.map_mode)
-            ro, ro_parts = rollout_loss(model, batch, args.context, args.rollout_steps, z1_mean_t, z1_std_t)
+            loss, parts = step_loss(model, one, args.map_mode, loss_w)
+            ro, ro_parts = rollout_loss(model, batch, args.context, args.rollout_steps, z1_mean_t, z1_std_t, loss_w)
             loss = loss + args.rollout_weight * ro
             parts.update(ro_parts)
         else:
-            loss, parts = step_loss(model, train_data.sample(rng, args.batch, device), args.map_mode)
+            loss, parts = step_loss(model, train_data.sample(rng, args.batch, device), args.map_mode, loss_w)
         opt.zero_grad(set_to_none=True)
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), args.grad_clip)
@@ -357,7 +379,7 @@ def main() -> None:
             vr = np.random.default_rng(args.seed + 1)
             with torch.no_grad():
                 vls = [float(step_loss(model, val_data.sample(vr, args.batch, device),
-                                       args.map_mode)[0]) for _ in range(args.val_batches)]
+                                       args.map_mode, loss_w)[0]) for _ in range(args.val_batches)]
             m = rollout_eval(model, val_data, norm, args.map_mode, args.context,
                              args.horizons, args.eval_episodes, device)
             sel = m[f"{args.selection}@{max(args.horizons)}"]
@@ -369,7 +391,9 @@ def main() -> None:
             if sel < best["metric"]:
                 best = {"metric": sel, "step": step + 1, **m}
                 torch.save({"model": model.state_dict(), "config": cfg, "map_mode": args.map_mode,
-                            "normalization": norm.to_dict(), "step": step + 1, "metrics": m},
+                            "normalization": norm.to_dict(), "step": step + 1, "metrics": m,
+                            "z1_dim": z1_dim, "z1_extra_cache": args.z1_extra_cache,
+                            "delta_scale": loss_w.cpu().tolist() if loss_w is not None else None},
                            out_dir / "ckpt_best.pt")
     (out_dir / "g3_readout.json").write_text(json.dumps(
         {"variant": f"map-{args.map_mode}", "best": best, "wall_s": time.time() - start,

@@ -427,3 +427,147 @@ from the tracker's measured error, as §7.4 of the plan intends; (b) 5000 sample
 with three control points is a first family; iterative resampling around the
 best (CEM) would use the same budget better; (c) the 10 % time bias still needs
 powertrain state in z1 (§6.2).
+
+## 8. Overnight 2026-09-05: using the imagination budget, and making imagined energy accurate
+
+Two goals set for the night: (1) push the sampling planner further, since imagined
+rollouts are batched and cheap; (2) make the energy the imagination reports accurate,
+because the round-2 sampler exploited the throttle-model energy (optimiser's curse) and
+even the pessimistic pick was 1.55× under Chrono.
+
+### 8.1 How much does the sample budget buy? — `wp5_sample_planner_v2/cands_*.npz`
+
+Running best of the pessimistic cost (time + max(power head, throttle model)/10) over the
+imagined-OK samples of round 2, relative to the final best per layout (30 layouts, median
+297 imagined-OK samples per layout, range 4–1026):
+
+| imagined samples | excess over final best (mean) | worst layout |
+|---|---|---|
+| 10 | +12.0 % | +28 % |
+| 25 | +7.1 % | +28 % |
+| 50 | +4.3 % | +21 % |
+| 100 | +2.4 % | +11 % |
+| 200 | +0.7 % | +7 % |
+| 400 | +0.4 % | +2 % |
+
+Random sampling of this route family saturates at ~200–400 imagined routes; doubling the
+5000-sample budget would buy well under 1 %. The value of more rollouts is therefore not
+more of the same samples — it is either local refinement or robustness to model error.
+
+### 8.2 Cross-entropy refinement — `planner_s.resample_routes`, `traverse_wp5_sample_planner.py --cem-rounds`
+
+Every candidate now carries its control polygon; a CEM round perturbs the interior control
+points of the best K imagined routes by N(0, σ) m, slides the ring end point by the matching
+angle, jitters cruise speed by N(0, σ_v), rebuilds (curvature / arena / camera-cell
+prefilter) and imagines the children in one batch. σ = 1.5 m fails outright (10–25 % of
+children survive the filters, none beats its parent: the round-0 optimum is a short route
+at the right speed and metre-scale moves only lengthen it). σ = 0.4 m, σ_v = 0.25 m/s,
+32 elites × 16 children × 3 rounds, shrink 0.7 works: on 31 layouts the imagined
+pessimistic cost falls from 20.22 (round 0) to 18.67 (−7.7 %), almost entirely through
+imagined energy (75.9 → 63.9 kJ; time 12.63 → 12.29 s), for +11 s per layout. Whether
+that 8 % is real or the optimiser's curse climbing the model's energy errors is what the
+Chrono batch `wp5_chrono_sample_planner_v3` decides (§8.6).
+
+### 8.3 Offline energy benchmark — `traverse_wp5_energy_bench.py`
+
+Every route the tracker has driven in Chrono (726, six batches; camera-localised batches
+are re-imagined from the camera start estimate, the others from the recorded start) is
+re-imagined with any set of dynamics checkpoints and the estimators are scored against the
+Chrono energies: ratio (Chrono / imagined), correlation, MAE, within-layout rank
+correlation and top-1 agreement of time + E/10 where a batch has ≥ 3 candidates per layout
+(126 groups). No simulator time needed — this is the test bed for goal (2). Baseline
+(`wp5_energy_bench_base`, deployed model `wp2_mapv2_dagger2_ro8_amd`):
+
+| estimator | ratio | corr | MAE kJ | rank ρ | top-1 /126 | ratio on the sampled-planner picks (v1 / v2) |
+|---|---|---|---|---|---|---|
+| power head | 1.23 | 0.84 | 34 | 0.56 | 72 | 1.42 / 1.31 |
+| throttle model | 1.12 | 0.81 | 37 | 0.48 | 71 | 1.77 / 1.36 |
+| pessimistic max(head, throttle) | 1.08 | 0.82 | 31 | 0.51 | 75 | 1.40 / 1.23 |
+| throttle model refit on the tracker-driven episodes | 1.19 | 0.81 | 37 | 0.44 | 65 | 1.99 / 1.45 |
+| 4-model ensemble, max of all estimates | 0.98 | 0.78 | 31 | 0.48 | 66 | 1.10 / 1.03 |
+
+Imagined time is −11 % against Chrono in every batch (corr 0.987). Two things stand out:
+the under-estimate is worst exactly on the routes the sampler picked (the curse, measured:
+1.3–1.8× where the population average is 1.1–1.2×), and only the ensemble maximum removes
+it there (1.03–1.10) — at the price of a slight over-estimate everywhere else. Refitting
+the throttle model on tracker-driven data does not help: the throttle the *imagined*
+tracker applies is what is wrong, not the coefficients.
+
+### 8.4 Fixing the model instead of the estimator — powertrain state (`tire_normal_force_omega_pt`)
+
+Two hypotheses for the −10 % speed bias and the low energy were trained side by side on
+the cluster (40 k steps, recorded data only, same recipe as `wp2_mapv2_index_amd`):
+
+* **Loss weighting** (`--delta-scale`): per-step vx changes are ~0.03 of the state std, so
+  the state loss barely sees them; weight each channel by 1/std of its normalized one-step
+  delta (vx ×7.8, roll ×8, tire loads ×0.4). Result: **null** — held-out state error
+  0.414 vs 0.435, but the closed-loop time bias under the tracker is −11.3 % (unchanged) and
+  after the tracker-data + rollout-loss fine-tune (`wp2_mapv2_dscale_dag_ro8_amd`) still
+  −11.7 %; ranking marginally better (ρ 0.62 vs 0.56).
+* **Powertrain state**: engine speed and motorshaft torque appended to z1 (17-D; sidecar
+  cache `wp2_z2_cache_v6_pt` built from the stores by `traverse_wp5_build_z1_sidecar.py`,
+  frame-aligned; the trainer takes `--z1-extra-cache`, the tracker env concatenates it, the
+  checkpoint records `z1_dim`; the deployed 38-D tracker is unaffected because its
+  observation uses only vx and yaw rate). Their product *is* the recorded power, so a
+  17-D model gives a third energy estimate for free: Σ engine speed × torque along the
+  imagined state (`energy_state_kj`).
+
+| model (recorded data only, 40 k steps) | time bias vs Chrono under the tracker | power head ratio / corr | throttle model ratio | state-power ratio |
+|---|---|---|---|---|
+| `wp2_mapv2_index_amd` (15-D) | −10.6 % | 1.58 / 0.53 | 1.20 | — |
+| `wp2_mapv2_dscale_amd` (15-D, delta-scaled loss) | −11.3 % | 1.65 / 0.74 | 1.24 | — |
+| **`wp2_mapv2_pt_amd` (17-D powertrain state)** | **−9.4 %** | **1.09 / 0.76** | 0.71 | **1.09** |
+| `wp2_mapv2_pt_dscale_amd` (17-D + delta-scaled) | −8.3 % | 1.11 / 0.58 | 0.70 | 1.16 |
+| + 8 k steps rollout loss (8 steps), recorded data: **`wp2_mapv2_pt_ro8_amd`** | **−8.7 %** | **0.94 / 0.74** | 0.72 | **0.97** |
+| `wp2_mapv2_pt_dscale_ro8_amd` | −9.4 % | 0.96 / 0.70 | 0.73 | 0.95 |
+| for reference: deployed `wp2_mapv2_dagger2_ro8_amd` (15-D, tracker data + rollout loss) | −11.3 % | 1.23 / 0.84 | 1.12 | — |
+
+With the rollout loss the 17-D model's power head is unbiased under the tracker (0.94–0.97
+overall) and — the point of the exercise — **on the sampled-planner picks it reads 0.93–1.00
+where the deployed model read 1.31–1.42**: the systematic under-estimate the sampler was
+exploiting is gone. What the recorded-only 17-D model still lacks is the tracker-driven
+data's ranking quality (rank ρ 0.45–0.46, top-1 65–67/126 vs 0.56 / 72–75 for the deployed
+model), hence the re-collection of the 1991 tracker-driven episodes with the powertrain
+channels (`traverse_wp4_collect_tracker_episodes.py --preset tire_normal_force_omega_pt`,
+newton, `wp2_z2_cache_dagger_v2`) and the fine-tune on them (§8.5). Open-loop replay of the
+recorded driver's actions moves from −9 % (deployed model, 25/32 routes completed) to
++2 % (30/32) — the acceleration response is no longer too strong.
+
+With identical training data the powertrain state takes the power head from a 58 %
+under-estimate to 9 % under the tracker's actions, and shaves 1–3 points off the time
+bias. The throttle model flips to a 30 % *over*-estimate: the imagined tracker now has to
+push the throttle harder, as the real one does — the acceleration response was the
+defect, and the engine state carries the information (gear, torque lag) that the tire
+channels alone did not. The sampling planner's pessimistic term is therefore configurable
+(`--pess-terms head state` for 17-D models; `head act` remains the 15-D default).
+
+### 8.5 Fine-tune on the re-collected tracker-driven episodes
+
+(pending — `wp2_z2_cache_dagger_v2`, 17-D rows; fine-tunes `wp2_mapv2_pt_dag_ro8_amd`,
+`wp2_mapv2_pt_dscale_dag_ro8_amd`; see the end of this section.)
+
+### 8.6 Chrono: resampling, clearance penalty, ensemble — `wp5_chrono_sample_planner_v3`
+
+Same 32 held-out layouts, tracker on camera pose, one Chrono run per distinct route
+(`traverse_wp5_merge_routes.py` drives coinciding picks once;
+`traverse_wp5_summarise_picks.py` splits the rows). Deployed 15-D dynamics model;
+"ens" = pessimistic energy taken as the maximum over the four 15-D checkpoints.
+
+| pick | completed | contact | Chrono time | Chrono energy | Chrono cost | beats the A* pick | Chrono / imagined energy at the pick | min clearance |
+|---|---|---|---|---|---|---|---|---|
+| A* best | 32/32 | 0 | 15.18 s | 129.6 kJ | 28.15 | — | 1.38 | 1.45 m |
+| sampled, pessimistic, round 0 (the round-2 winner) | 31/31 | 0 | 14.31 s | 114.3 kJ | 25.75 | 24/31 | 1.51 | 0.99 m |
+| + 3 CEM rounds | 31/31 | 0 | 14.01 s | 110.6 kJ | 25.07 | 25/31 | 1.73 | 0.98 m |
+| **+ 3 CEM rounds + clearance penalty** | **31/31** | **0** | **13.87 s** | **110.0 kJ** | **24.88** | **26/31** | 1.70 | **1.04 m** |
+| ensemble pessimism, round 0 | 32/32 | 0 | 14.14 s | 124.8 kJ | 26.62 | 19/32 | 1.38 | 1.03 m |
+| ensemble + CEM + clearance | 32/32 | 0 | 14.24 s | 122.0 kJ | 26.45 | 21/32 | 1.35 | 1.08 m |
+
+Reading: (1) **CEM refinement is real but discounted** — the imagined cost fell 7.7 %, the
+Chrono cost 2.6 % (25.75 → 25.07); the rest was the sampler climbing the model's energy
+errors (Chrono/imagined energy 1.51 → 1.73 at the pick). (2) The **clearance penalty is
+free**: a further 0.2 cost points *and* a wider real margin (1.04 m vs 0.98 m), 26/31 layouts
+better than A*. (3) **Ensemble pessimism hurts** with these members: the maximum over four
+15-D models — one of them the weak collection-only model (energy corr 0.53) — is more
+conservative but ranks worse (bench ρ 0.48 vs 0.51), and its Chrono picks are slower and
+costlier than the single-model ones (26.62 vs 25.75). Pessimism over poor estimates is not a
+substitute for a better estimate; §8.4 provides the better estimate.

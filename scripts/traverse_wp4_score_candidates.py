@@ -144,6 +144,8 @@ def rollout(env: TraverseTrackingEnv, policy, horizon: int, obstacles: torch.Ten
     collided_true = torch.zeros(n, dtype=torch.bool, device=dev)
     min_clear_true = torch.full((n,), float("inf"), device=dev)
     e_kin = {k: torch.zeros(n, device=dev) for k in power_models}
+    has_pt = env.z1_phys.shape[1] >= 17  # powertrain state present: power = engine speed x motorshaft torque
+    e_state = torch.zeros(n, device=dev)
     prev_vx = env.z1_phys[:, VX].clone()
     traj = {"z1": [], "act": [], "active": [], "power": []}
     for step in range(horizon):
@@ -158,6 +160,8 @@ def rollout(env: TraverseTrackingEnv, policy, horizon: int, obstacles: torch.Ten
         prev_vx = vx.clone()
         for k, pm in power_models.items():
             e_kin[k] += pm.predict(env.z1_phys, env.actions, ax, torch) * DT_S * active
+        if has_pt:
+            e_state += (env.z1_phys[:, 15] * env.z1_phys[:, 16] / 1000.0) * DT_S * active
         traj["z1"].append(env.z1_phys.clone()); traj["act"].append(env.actions.clone())
         traj["active"].append(active.clone()); traj["power"].append(env.last_power.clone() if hasattr(env, "last_power") else torch.zeros(n, device=dev))
         # footprint clearance against the scoring obstacle set and the true discs
@@ -183,6 +187,8 @@ def rollout(env: TraverseTrackingEnv, policy, horizon: int, obstacles: torch.Ten
            "mean_ct_m": ct_sum / steps, "max_ct_m": ct_max, "progress_m": progress}
     for k, e in e_kin.items():
         out[f"energy_{k.replace('+', '')}_kj"] = e
+    if has_pt:
+        out["energy_state_kj"] = e_state
     out["_traj"] = {k: torch.stack(v).cpu().numpy() for k, v in traj.items()}
     return out
 
@@ -226,6 +232,7 @@ def main() -> None:
     ap.add_argument("--start-poses", default=None,
                     help="json from traverse_wp4_start_pose_from_camera.py: plan and roll out from the camera's start estimate")
     ap.add_argument("--power-calib", default="artifacts/traverse/wp4_power_calib/power_calib.json")
+    ap.add_argument("--z1-extra-cache", default=None, help="sidecar dir when the dynamics model has a 17-D (powertrain) state")
     ap.add_argument("--dump-trajectories", default=None, help="npz path for per-step imagined z1/actions")
     ap.add_argument("--export-routes", default=None, help="json path: every candidate route, for the Chrono eval")
     ap.add_argument("--energy-field", default="energy_act_kj", help="energy used in the selection objective")
@@ -298,6 +305,7 @@ def main() -> None:
     cfg = merge_env_cfg({"num_envs": len(entries), "device": args.device, "auto_reset": False,
                          "dynamics_checkpoint": args.dynamics_checkpoint, "arena": args.arena,
                          "cache": args.cache, "routes": args.routes, "split": args.split,
+                         "z1_extra_cache": args.z1_extra_cache,
                          "fragment_steps_max": int(round(args.horizon_s / DT_S))})
     env = TraverseTrackingEnv(cfg, device=args.device, entries=entries)
     if args.policy == "pure_pursuit":

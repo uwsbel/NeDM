@@ -189,3 +189,23 @@ artifacts/traverse/wp2_z2_cache_dagger_v1/*.npz
 !artifacts/traverse/wp5_sample_planner_v2/
 !artifacts/traverse/wp5_chrono_sample_planner/
 !artifacts/traverse/wp5_chrono_sample_planner_v2/
+# WP5 overnight: budget curve / CEM / ensemble runs, offline energy benchmark, powertrain-state dynamics model
+!artifacts/traverse/wp5_sample_planner_v3/
+!artifacts/traverse/wp5_sample_planner_v3_cem/
+!artifacts/traverse/wp5_sample_planner_v3_ens/
+!artifacts/traverse/wp5_sample_planner_v4_pt/
+!artifacts/traverse/wp5_chrono_sample_planner_v3/
+!artifacts/traverse/wp5_chrono_sample_planner_v4_pt/
+!artifacts/traverse/wp5_energy_bench_base/
+!artifacts/traverse/wp5_energy_bench_dscale/
+!artifacts/traverse/wp5_energy_bench_dsro8/
+!artifacts/traverse/wp5_energy_bench_pt/
+!artifacts/traverse/wp5_energy_bench_ptro8/
+!artifacts/traverse/wp5_power_calib_dagger/
+!artifacts/traverse/wp5_replay_index/
+!artifacts/traverse/wp5_replay_dscale/
+!artifacts/traverse/wp5_replay_pt_ro8/
+!artifacts/traverse/wp5_replay_dagger2/
+!artifacts/traverse/wp2_mapv2_pt_ro8_amd/
+!artifacts/traverse/wp2_mapv2_dscale_dag_ro8_amd/
+# the 17-D sidecar (wp2_z2_cache_v6_pt, 9518 small npz) is rebuilt in 10 s by traverse_wp5_build_z1_sidecar.py

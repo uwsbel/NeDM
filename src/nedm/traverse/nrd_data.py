@@ -80,6 +80,22 @@ def load_split(cache_dir: Path, keys: list[str], with_z2: bool = True,
     )
 
 
+def load_z1_extra(sidecar: Path, keys: list[str]) -> np.ndarray:
+    """(N, T, k) extra state channels from a sidecar dir (traverse_wp5_build_z1_sidecar.py)."""
+    out = []
+    for key in keys:
+        with np.load(Path(sidecar) / f"{key}.npz") as data:
+            out.append(data["z1_extra"])
+    return np.stack(out)
+
+
+def with_z1_extra(split: CacheSplit, sidecar: Path) -> CacheSplit:
+    """Append the sidecar's channels to ``split.z1`` (frame-aligned; same key order)."""
+    extra = load_z1_extra(sidecar, split.keys)
+    return CacheSplit(keys=split.keys, z1=np.concatenate([split.z1, extra.astype(split.z1.dtype)], -1),
+                      z2=split.z2, act=split.act, pose=split.pose, power=split.power, terrain=split.terrain)
+
+
 def pose_features(pose: np.ndarray) -> np.ndarray:
     """(x, y, yaw) -> (x/40, y/40, sin yaw, cos yaw); yaw split so it is continuous.
 

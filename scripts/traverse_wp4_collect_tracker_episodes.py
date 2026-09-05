@@ -53,7 +53,7 @@ def run_one(task: dict) -> dict:
     layout = EpisodeLayout.from_json(meta["layout"])
     policy = PolicyController(Path(task["policy"]))
     rt = RouteTracker(task["route"], policy.meta)
-    state_fields = STATE_FIELD_PRESETS["tire_normal_force_omega"]
+    state_fields = STATE_FIELD_PRESETS[task.get("preset", "tire_normal_force_omega")]
     row = {"key": task["key"], "out_key": task["out_key"], "route_name": task["route_name"]}
 
     start_z = float(tmap.height(*layout.start_xy)) + 0.75
@@ -97,6 +97,8 @@ def run_one(task: dict) -> dict:
             if sub == 0 and frame >= 0:  # collector convention: state after Synchronize, action of this interval
                 state = capture_row(hmmwv, terrain, "dagger", task["route_name"], task["key"], "train", frame, ts,
                                     manual, include_tires=True)
+                state["engine_motor_speed_radps"] = float(engine.GetMotorSpeed())  # collector convention (traverse_collect.py)
+                state["engine_motorshaft_torque_nm"] = float(engine.GetOutputMotorshaftTorque())
                 z1_rows.append([float(state[f]) for f in state_fields])
                 act_rows.append(cmd.copy())
                 pose_rows.append([float(state[f]) for f in DEFAULT_ROLLOUT_FIELDS])
@@ -166,7 +168,8 @@ def build_tasks(args) -> list[dict]:
                 route = {n: r[n].tolist() for n in ("waypoints", "speeds", "headings", "stations")}
         counts[choice] = counts.get(choice, 0) + 1
         tasks.append({"key": key, "out_key": f"{key}__dag_{choice}", "route_name": choice, "route": route,
-                      "meta_path": str(meta_path), "arena": args.arena, "policy": args.policy, "out_dir": args.out})
+                      "meta_path": str(meta_path), "arena": args.arena, "policy": args.policy, "out_dir": args.out,
+                      "preset": args.preset})
     print(f"{len(tasks)} tasks; routes {counts}", flush=True)
     return tasks
 
@@ -183,6 +186,8 @@ def main() -> None:
     ap.add_argument("--procs", type=int, default=10)
     ap.add_argument("--seed", type=int, default=20260905)
     ap.add_argument("--skip-existing", action="store_true", help="resume: skip tasks whose npz already exists")
+    ap.add_argument("--preset", default="tire_normal_force_omega",
+                    help="z1 state preset; 'tire_normal_force_omega_pt' adds engine speed + motorshaft torque (17-D)")
     args = ap.parse_args()
     out = Path(args.out); out.mkdir(parents=True, exist_ok=True)
     tasks = build_tasks(args)
@@ -203,7 +208,8 @@ def main() -> None:
             print(f"[{i}/{len(tasks)}] {row['out_key'][-40:]:40s} {row['status']:10s} frames={row['frames']:3d} "
                   f"parked={row['parked_at']} contact={row['max_contact_n']:.0f}N wall={row['wall_s']:.0f}s", flush=True)
             if i % 50 == 0 or i == len(tasks):
-                (out / "cache_manifest.json").write_text(json.dumps({"episodes": sorted(written), "source_cache": args.cache}))
+                (out / "cache_manifest.json").write_text(json.dumps({"episodes": sorted(written), "source_cache": args.cache,
+                                                                     "preset": args.preset}))
                 with (out / "rows.jsonl").open("w") as f:
                     for r in rows:
                         f.write(json.dumps(r) + "\n")

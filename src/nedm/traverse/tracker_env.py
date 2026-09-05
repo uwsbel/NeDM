@@ -49,6 +49,7 @@ def default_env_cfg() -> dict[str, Any]:
         "dynamics_checkpoint": "artifacts/traverse/wp2_mapv2_index_amd/ckpt_best.pt",
         "arena": "assets/traverse/arena_v1",
         "cache": "artifacts/traverse/wp2_z2_cache_v6",
+        "z1_extra_cache": None,  # sidecar with extra z1 channels when the dynamics model's state is wider than the cache's
         "map_key": "map_v2",
         "routes": "artifacts/traverse/wp3_routes",
         "split": "train",  # train | val | test -- WP2's pinned layout split
@@ -126,10 +127,17 @@ class EpisodeBank:
         keys = [k for k, _ in entries]
         z1, act, pose, maps, wps, spd, hdg, sta = [], [], [], [], [], [], [], []
         loaded: dict[str, tuple] = {}
+        z1_dim, sidecar = len(norm.z1_mean), cfg.get("z1_extra_cache")
         for k, route in entries:
             if k not in loaded:
                 with np.load(cache / f"{k}.npz") as d:
                     loaded[k] = (d["z1"], d["act"], d["pose"], d[cfg["map_key"]])
+                if loaded[k][0].shape[-1] != z1_dim:
+                    if not sidecar:
+                        raise ValueError(f"dynamics model expects {z1_dim}-D z1 but the cache has "
+                                         f"{loaded[k][0].shape[-1]}-D; pass z1_extra_cache (sidecar dir)")
+                    with np.load(Path(sidecar) / f"{k}.npz") as d:
+                        loaded[k] = (np.concatenate([loaded[k][0], d["z1_extra"].astype(np.float32)], -1), *loaded[k][1:])
             a, b, c, m = loaded[k]
             z1.append(a); act.append(b); pose.append(c); maps.append(m)
             wps.append(np.asarray(route["waypoints"], np.float32))
@@ -217,12 +225,13 @@ class TraverseTrackingEnv(VecEnv):
 
         n, c = self.num_envs, self.context
         dev = self.device
-        self.z1_hist = torch.zeros(n, c, 15, device=dev)
+        self.z1_dim = len(self.norm.z1_mean)
+        self.z1_hist = torch.zeros(n, c, self.z1_dim, device=dev)
         self.act_hist = torch.zeros(n, c, 3, device=dev)
         self.token_hist = torch.zeros(n, c, self.model.token_dim, device=dev)
         self.env_maps = torch.zeros(n, *self.bank.maps.shape[1:], device=dev)
         self.pose = torch.zeros(n, 3, device=dev)
-        self.z1_phys = torch.zeros(n, 15, device=dev)
+        self.z1_phys = torch.zeros(n, self.z1_dim, device=dev)
         self.env_ep = torch.zeros(n, dtype=torch.long, device=dev)
         self.route_idx = torch.zeros(n, dtype=torch.long, device=dev)
         self.fragment_len = torch.full((n,), self.max_episode_length, dtype=torch.long, device=dev)
@@ -238,7 +247,7 @@ class TraverseTrackingEnv(VecEnv):
         self.ep_speed_err_sum = torch.zeros(n, device=dev)
         self.search_offsets = torch.arange(-2, int(self.cfg["search_window"]), device=dev)
         self.preview_k = torch.arange(1, self.preview_points + 1, device=dev, dtype=torch.float32)
-        self.num_obs = 3 + 3 * self.preview_points + 2 + 3 + 15 * self.obs_history_steps
+        self.num_obs = 3 + 3 * self.preview_points + 2 + 3 + self.z1_dim * self.obs_history_steps
         self.obs_buf = torch.zeros(n, self.num_obs, device=dev)
         self.rew_buf = torch.zeros(n, device=dev)
         self.reset_buf = torch.zeros(n, dtype=torch.long, device=dev)

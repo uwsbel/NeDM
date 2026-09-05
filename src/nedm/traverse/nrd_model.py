@@ -76,6 +76,7 @@ def load_map_model(ckpt_path: Path | str, arena_dir: Path | str, device: str | t
     """Load a ``traverse_wp2_train_map.py`` checkpoint: (frozen model, normalizer, payload)."""
     payload = torch.load(Path(ckpt_path), map_location="cpu", weights_only=False)
     cfg = payload["config"]
+    z1_dim = int(payload.get("z1_dim", len(payload["normalization"]["z1_mean"])))  # 15, or 17 with powertrain state
     predict = payload.get("map_mode") == "predict"
     token_dim = int(payload["model"]["cropper.fc.weight"].shape[0])
     model = WP2MapModel(z1_dim, act_dim, cfg, Path(arena_dir), token_dim, predict_token=predict)

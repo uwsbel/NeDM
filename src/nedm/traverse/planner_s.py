@@ -12,6 +12,10 @@ points scattered around the chord -> a point on the goal ring on the start-facin
 Catmull-Rom spline, resampled at 0.5 m, curvature-checked against the HMMWV's 8 m
 minimum turn radius. Cruise speed is a sampled parameter; ramps and terminal taper
 reuse the oracle's speed profile so the tracker sees the same reference format.
+
+``resample_routes`` is the cross-entropy-method step: the best imagined routes are
+perturbed (control points, ring end point, cruise speed) and imagined again, so the
+batched imagination budget concentrates where the objective is already good.
 """
 from __future__ import annotations
 
@@ -68,6 +72,47 @@ def _curvature_max(points: np.ndarray) -> float:
     return float(kappa.max()) if len(kappa) else 0.0
 
 
+def _build_routes(ctrl: np.ndarray, v_cruise: np.ndarray, tmap: TerrainMap, discs: Sequence[Obstacle],
+                  params: PlannerParams, prefilter_margin_m: float = 0.2, max_routes: int | None = None,
+                  tag: str = "sample") -> tuple[list[PlanCandidate], dict]:
+    """Control polygons (N, 5, 2) + cruise speeds (N,) -> curvature-feasible, in-arena, obstacle-clear
+    PlanCandidates (footprint swept against the camera's obstacle discs with ``prefilter_margin_m`` slack).
+    Each candidate keeps its control polygon in ``meta`` so it can be resampled around (CEM)."""
+    dense = _catmull_rom(ctrl)
+    keep = (np.abs(dense) <= params.arena_keep_within_m).all(axis=(1, 2))
+    # hopeless curvature is rejected on the dense curve (vectorized); borderline routes get the oracle's repair
+    keep &= _kappa_dense(dense) <= 2.0 * params.kappa_max
+    obs = np.asarray(discs, float) if len(discs) else np.zeros((0, 3))
+    grid = OracleGrid(tmap, [], params)  # terrain only; used for the speed profile's slope term
+    out, stats = [], {"sampled": len(ctrl), "arena": int(keep.sum()), "curvature": 0, "clear": 0}
+    for i in np.nonzero(keep)[0]:
+        if max_routes is not None and len(out) >= max_routes:
+            break
+        pts = _resample(dense[i], params.sample_step_m)
+        if _curvature_max(pts) > params.kappa_max:
+            pts = _repair_curvature(pts, params)
+            if _curvature_max(pts) > params.kappa_max:
+                continue
+        stats["curvature"] += 1
+        if len(obs):
+            tang = np.gradient(pts, axis=0); tang /= np.maximum(np.linalg.norm(tang, axis=1, keepdims=True), 1e-9)
+            centres = np.concatenate([pts + off * tang for off in FOOTPRINT_DISCS], 0)  # (3M, 2)
+            d = np.hypot(centres[:, None, 0] - obs[None, :, 0], centres[:, None, 1] - obs[None, :, 1]) - obs[None, :, 2] - FOOTPRINT_HALF_W
+            if d.min() < prefilter_margin_m:
+                continue
+        stats["clear"] += 1
+        p = replace(params, v_cruise_mps=float(v_cruise[i]))
+        speeds = speed_profile(pts, grid, p)
+        tang = np.gradient(pts, axis=0)
+        headings = np.arctan2(tang[:, 1], tang[:, 0])
+        seg = np.hypot(*np.diff(pts, axis=0).T)
+        out.append(PlanCandidate(waypoints=pts, speeds=speeds, headings=headings,
+                                 stations=np.concatenate([[0.0], np.cumsum(seg)]),
+                                 meta={"candidate": f"{tag}_{i}", "v_cruise": float(v_cruise[i]), "length_m": float(seg.sum()),
+                                       "ctrl": ctrl[i].tolist()}))
+    return out, stats
+
+
 def sample_routes(start_xy, start_yaw: float, goal_xy, n: int, rng: np.random.Generator,
                   tmap: TerrainMap, discs: Sequence[Obstacle], params: PlannerParams | None = None,
                   lateral_frac=(0.04, 0.14), ring_half_angle_deg: float = 75.0, v_range=(3.0, 9.0),
@@ -92,37 +137,24 @@ def sample_routes(start_xy, start_yaw: float, goal_xy, n: int, rng: np.random.Ge
     sigma = rng.uniform(lo, hi, (n, 1, 1)) * length  # per-route scatter scale: near-chord and wide detours
     lat = rng.normal(0, 1.0, (n, k, 1)) * sigma * np.array([0.6, 1.0, 0.6])[None, :, None]
     ctrl = np.concatenate([np.repeat(start[None, None], n, 0), np.repeat(ahead[:, None], n, 0), base + lat * normal[:, None], end[:, None]], 1)
-    dense = _catmull_rom(ctrl)
-    keep_arena = (np.abs(dense) <= params.arena_keep_within_m).all(axis=(1, 2))
-    # hopeless curvature is rejected on the dense curve (vectorized); borderline routes get the oracle's repair
-    keep_arena &= _kappa_dense(dense) <= 2.0 * params.kappa_max
-    # footprint prefilter against obstacle discs (vectorized, chunked)
-    obs = np.asarray(discs, float) if len(discs) else np.zeros((0, 3))
     v_cruise = rng.uniform(*v_range, n)
-    grid = OracleGrid(tmap, [], params)  # terrain only; used for the speed profile's slope term
-    out, stats = [], {"sampled": n, "arena": int(keep_arena.sum()), "curvature": 0, "clear": 0}
-    for i in np.nonzero(keep_arena)[0]:
-        if max_routes is not None and len(out) >= max_routes:
-            break
-        pts = _resample(dense[i], params.sample_step_m)
-        if _curvature_max(pts) > params.kappa_max:
-            pts = _repair_curvature(pts, params)
-            if _curvature_max(pts) > params.kappa_max:
-                continue
-        stats["curvature"] += 1
-        if len(obs):
-            tang = np.gradient(pts, axis=0); tang /= np.maximum(np.linalg.norm(tang, axis=1, keepdims=True), 1e-9)
-            centres = np.concatenate([pts + off * tang for off in FOOTPRINT_DISCS], 0)  # (3M, 2)
-            d = np.hypot(centres[:, None, 0] - obs[None, :, 0], centres[:, None, 1] - obs[None, :, 1]) - obs[None, :, 2] - FOOTPRINT_HALF_W
-            if d.min() < prefilter_margin_m:
-                continue
-        stats["clear"] += 1
-        p = replace(params, v_cruise_mps=float(v_cruise[i]))
-        speeds = speed_profile(pts, grid, p)
-        tang = np.gradient(pts, axis=0)
-        headings = np.arctan2(tang[:, 1], tang[:, 0])
-        seg = np.hypot(*np.diff(pts, axis=0).T)
-        out.append(PlanCandidate(waypoints=pts, speeds=speeds, headings=headings,
-                                 stations=np.concatenate([[0.0], np.cumsum(seg)]),
-                                 meta={"candidate": f"sample_{i}", "v_cruise": float(v_cruise[i]), "length_m": float(seg.sum())}))
-    return out, stats
+    return _build_routes(ctrl, v_cruise, tmap, discs, params, prefilter_margin_m, max_routes)
+
+
+def resample_routes(elites: Sequence[PlanCandidate], children_each: int, rng: np.random.Generator, goal_xy,
+                    tmap: TerrainMap, discs: Sequence[Obstacle], params: PlannerParams | None = None,
+                    sigma_m: float = 1.0, sigma_v: float = 0.5, v_range=(3.0, 9.0), prefilter_margin_m: float = 0.2,
+                    tag: str = "cem") -> tuple[list[PlanCandidate], dict]:
+    """CEM step: perturb each elite's interior control points by N(0, sigma_m) m, slide its ring end point
+    along the approach ring by the matching angle, jitter cruise speed by N(0, sigma_v) m/s; rebuild."""
+    params = params or PlannerParams()
+    goal = np.asarray(goal_xy, float)
+    ctrl = np.repeat(np.stack([np.asarray(e.meta["ctrl"], float) for e in elites]), children_each, 0)
+    v = np.repeat(np.array([e.meta["v_cruise"] for e in elites], float), children_each)
+    n = len(ctrl)
+    ctrl[:, 2:5] += rng.normal(0, sigma_m, (n, 3, 2))
+    end = ctrl[:, 5] - goal
+    theta = np.arctan2(end[:, 1], end[:, 0]) + rng.normal(0, sigma_m / params.approach_ring_m, n)
+    ctrl[:, 5] = goal + params.approach_ring_m * np.stack([np.cos(theta), np.sin(theta)], 1)
+    v = np.clip(v + rng.normal(0, sigma_v, n), *v_range)
+    return _build_routes(ctrl, v, tmap, discs, params, prefilter_margin_m, None, tag=tag)
