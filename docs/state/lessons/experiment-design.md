@@ -1396,3 +1396,33 @@ All three are **absence of a complaint being read as evidence of correctness.**
 The self-advertising instance got fixed immediately; the silent ones each needed
 someone to ask. That asymmetry is the thing to design against, because the defects
 that announce themselves are the ones least likely to survive anyway.
+
+## Stage outside the live path; move in only once the thing is characterised
+
+A 1,762-episode dataset was tarred **directly into the Syncthing share**. Syncthing
+began propagating as the file was written, so by the time the size was measured —
+4.91 GB compressed, against the 0.108 GB transfer the authorisation had compared
+it to — the artifact was already replicating to two other machines.
+
+**The decision point passed before the decision could be made, and the cause was
+the choice of where to write.** Nothing about the measurement was slow; the write
+target removed the ability to reconsider.
+
+Staging it outside the share and moving it in once characterised costs one `mv`
+and preserves the choice. That is the whole rule:
+
+**Write to a location with no side effects. Move it into the live path only after
+the artifact is fully characterised.**
+
+It applies to anything that starts acting the moment it exists — a dataset in a
+sync share, a checkpoint in a directory something globs, a config in a path a
+launcher reads, a file in a watched folder. Same class as a mid-run mutation: the
+harm is not in the content but in the timing being taken out of your hands.
+
+The related distinction, which is what made the problem visible at all:
+**"authorised" and "informed" are different.** The content transferred was exactly
+what was approved. The footprint was not what the approving sentence conveyed —
+it said "mirroring what the other machine already does," and the other machine's
+transfer was a fortieth of the size. An approval obtained on an accurate
+description of *what* can still be uninformed about *how much*, and the person who
+wrote the description is the one who owes the correction.
