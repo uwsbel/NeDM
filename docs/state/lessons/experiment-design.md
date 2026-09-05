@@ -1326,3 +1326,42 @@ one. One assertion there was justified as catching a transposition the existing
 assertion missed; measurement showed the existing one caught it too. The test was kept --
 its value is independence from a hardcoded literal -- but the docstring was corrected,
 because the reason is the part that gets reused.
+
+## A guard whose absent input is also its failure signature must treat absence as failure
+
+Not "a skip should fail" as a coding style. A design rule about which gates can
+afford to skip.
+
+`G11 design agreement` exists because a dataset's design — ground size,
+perturbation, prewalk, slope — lives in the operator's ENVIRONMENT and appears in
+no episode artifact. A half-set environment produces old-design episodes
+indistinguishable from new-design ones, and pooling two roots collected under
+different designs is undetectable afterwards. `run_manifest.json` is the stopgap;
+G11 is what makes it load-bearing.
+
+**And G11 skips when no manifest is found, and a skip does not fail the
+validator.** `[SKIP]` prints without appending to `failures`, so the run returns 0.
+
+**The disarming condition and the danger condition are the same condition.** An
+operator who did not write a manifest is exactly the operator who may not have
+set the environment either. So the gate turns itself off precisely when the thing
+it guards against is most likely to have happened, and reports success while
+doing it.
+
+The test to apply when writing a gate: **ask what makes this check unable to run,
+and then ask whether that same circumstance makes the defect more likely.** If
+the answers coincide, absence must be reported as failure — or at minimum as
+INCOMPLETE, never as a pass.
+
+Contrast a gate that can afford to skip: `G10 rows` skips unless `--check-rows`
+is passed. Its absent input is an explicit operator choice not to spend the time,
+which is unrelated to whether the rows are correct. Skipping there is honest.
+
+Related, from the same review: `effective_design` versus `resolved_design`. The
+gate read one key and the manifest wrote the other, so G11 would have compared
+`None` against a real design and either passed vacuously or flagged a spurious
+mismatch — on the one gate whose whole purpose is preventing that pooling error.
+**No amount of running the gate finds this**, because it returns 0 either way. The
+fix points both names at the SAME dict object rather than duplicating the values,
+since two keys holding two copies of one design is a future disagreement waiting
+to happen.
