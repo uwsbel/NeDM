@@ -273,3 +273,20 @@ tolerance on 86 %, the oracle's discretised endpoints already use 0.64 m of it)
 and within the study's 2 m success radius on all. The scorer takes
 `--goal predicted`. **With this, the start pose is the only privileged input
 left in the chain** (and the tracker's pose head could supply it too).
+
+### 6.4 Start pose from the camera; the all-sensor chain — `traverse_wp4_start_pose_from_camera.py`, scorer `--start-poses`
+
+The pose head applied to the camera frame at the rollout start gives the start
+pose within 0.040 m mean / 0.076 m max and 1.2° yaw on the 32 held-out
+episodes. The scorer now plans from that estimate (start), toward the largest
+blob (goal), around the predicted cells (obstacles), rolls out from the
+estimate (dead reckoning), and scores collision on the predicted cells:
+**no privileged quantity enters candidate generation, rollout or scoring**
+(`wp4_scores_allsensor`: 173 candidates on 32 layouts, 99.4 % complete in
+imagination, zero true-disc collisions, min true clearance 0.32 m). Those
+routes are queued in Chrono with the tracker on camera pose
+(`wp4_chrono_allsensor`), alongside the camera-planned routes with camera pose
+(`wp4_chrono_loc_camera_pred_occ`).
+
+_pending: both Chrono batches (newton, slow with 6 rendering processes next to
+the data collection)._

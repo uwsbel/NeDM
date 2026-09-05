@@ -76,13 +76,14 @@ def recorded_truth(cache: Path, key: str, route: dict[str, np.ndarray]) -> dict[
 
 
 def build_candidates(meta: dict, tmap: TerrainMap, sweep: dict, obstacles=None, margin: float | None = None,
-                     repair_iterations: int | None = None, margin_fallback: bool = False, goal=None,
+                     repair_iterations: int | None = None, margin_fallback: bool = False, goal=None, start=None,
                      ) -> tuple[list[tuple[str, PlanCandidate]], EpisodeLayout]:
     """``obstacles`` None -> the true footprint discs (privileged oracle); otherwise the
     disc list to plan against (e.g. occupied cells of the camera-derived map)."""
     layout = EpisodeLayout.from_json(meta["layout"])
     obstacles = layout.obstacles() if obstacles is None else obstacles
     goal = layout.house_xy if goal is None else goal
+    start = layout.start_xy if start is None else start
     out, seen = [], set()
     for name, overrides in sweep.items():
         params = replace(PlannerParams(), **overrides)
@@ -91,7 +92,7 @@ def build_candidates(meta: dict, tmap: TerrainMap, sweep: dict, obstacles=None, 
         if repair_iterations is not None:
             params = replace(params, curvature_repair_iterations=repair_iterations)
         planner = plan_to_ring_fallback if margin_fallback else plan_to_ring
-        plan = planner(tmap, obstacles, layout.start_xy, goal, params)
+        plan = planner(tmap, obstacles, start, goal, params)
         if plan is None:
             continue
         sig = (len(plan.waypoints), round(plan.length_m, 2), round(float(plan.speeds.mean()), 3))
@@ -118,7 +119,7 @@ def footprint_clearance(env: TraverseTrackingEnv, obstacles: torch.Tensor) -> to
 @torch.no_grad()
 def rollout(env: TraverseTrackingEnv, policy, horizon: int, obstacles: torch.Tensor,
             obstacles_true: torch.Tensor | None = None, power_models: dict[str, PowerModel] | None = None,
-            ) -> dict[str, torch.Tensor]:
+            start_poses: torch.Tensor | None = None) -> dict[str, torch.Tensor]:
     """Roll every env from its episode start for ``horizon`` steps; obstacles (N, M, 3) padded with r<0
     are the set the SCORE uses (true discs or camera-derived cells); ``obstacles_true`` adds the
     privileged metric. ``power_models`` -> calibrated kinematic energies alongside the head's."""
@@ -128,6 +129,8 @@ def rollout(env: TraverseTrackingEnv, policy, horizon: int, obstacles: torch.Ten
     env.reset_idx(torch.arange(n, device=dev), episode_ids=torch.arange(n, device=dev),
                   start_frames=torch.full((n,), env.context, device=dev, dtype=torch.long),
                   fragment_steps=torch.full((n,), horizon, device=dev, dtype=torch.long))
+    if start_poses is not None:  # dead-reckon from the camera's start estimate instead of the recorded pose
+        env.pose[:] = start_poses
     env._compute_observations()
     active = torch.ones(n, dtype=torch.bool, device=dev)
     end_step = torch.full((n,), horizon, device=dev, dtype=torch.long)
@@ -220,6 +223,8 @@ def main() -> None:
     ap.add_argument("--margin", type=float, default=None, help="tracker margin override for candidate generation")
     ap.add_argument("--margin-fallback", action="store_true", help="0.9 -> 0.6 -> 0.3 margin rescue when no plan validates")
     ap.add_argument("--goal", choices=["true", "predicted"], default="true", help="ring centre: true house or largest camera blob")
+    ap.add_argument("--start-poses", default=None,
+                    help="json from traverse_wp4_start_pose_from_camera.py: plan and roll out from the camera's start estimate")
     ap.add_argument("--power-calib", default="artifacts/traverse/wp4_power_calib/power_calib.json")
     ap.add_argument("--dump-trajectories", default=None, help="npz path for per-step imagined z1/actions")
     ap.add_argument("--export-routes", default=None, help="json path: every candidate route, for the Chrono eval")
@@ -239,6 +244,8 @@ def main() -> None:
     need_map = args.candidates == "predicted" or args.collision == "predicted"
     decoder = MapDecoder(Path(args.maphead), Path(args.arena), args.device) if need_map else None
     entries, index, obstacle_lists, true_lists, truths, cells = [], [], [], [], {}, []
+    start_est = json.loads(Path(args.start_poses).read_text()) if args.start_poses else {}
+    start_list = []
     for key in keys:
         store, ep = key.split("__", 1)
         meta = json.loads((Path(args.stores) / store / ep / "meta.json").read_text())
@@ -255,7 +262,8 @@ def main() -> None:
                                          obstacles=pred_discs if args.candidates == "predicted" else None,
                                          margin=args.margin,
                                          repair_iterations=40 if args.candidates == "predicted" else None,
-                                         margin_fallback=args.margin_fallback, goal=pred_goal)
+                                         margin_fallback=args.margin_fallback, goal=pred_goal,
+                                         start=tuple(start_est[key]["est"][:2]) if key in start_est else None)
         with np.load(routes / f"{key}.npz") as r:
             recorded = {n: r[n] for n in ("waypoints", "speeds", "headings", "stations")}
         truths[key] = recorded_truth(cache, key, recorded)
@@ -266,6 +274,7 @@ def main() -> None:
                           "mean_speed_mps": float(route["speeds"].mean())})
             true_lists.append(layout.obstacles())
             obstacle_lists.append(pred_discs if args.collision == "predicted" else layout.obstacles())
+            start_list.append(start_est[key]["est"] if key in start_est else None)
     if args.export_routes:
         exp = {}
         for (key, route), row in zip(entries, index):
@@ -302,7 +311,14 @@ def main() -> None:
             return env.physical_to_policy(env.bank.act_raw[env.env_ep, f])
     else:
         policy = load_policy(Path(args.policy), env, args.device)
-    res = rollout(env, policy, int(round(args.horizon_s / DT_S)), obst, obst_true, power_models)
+    start_poses = None
+    if start_est:
+        sp = env.pose.clone()
+        for i, est in enumerate(start_list):
+            if est is not None:
+                sp[i] = torch.tensor(est, device=env.device, dtype=sp.dtype)
+        start_poses = sp
+    res = rollout(env, policy, int(round(args.horizon_s / DT_S)), obst, obst_true, power_models, start_poses)
     traj = res.pop("_traj")
     res = {k: v.cpu().numpy() for k, v in res.items()}
     if args.dump_trajectories:
@@ -328,7 +344,7 @@ def main() -> None:
                 "mae": float(np.abs(a - b).mean()), "corr": float(np.corrcoef(a, b)[0, 1]) if len(a) > 2 else float("nan")}
     summary = {
         "episodes": len(keys), "rollouts": len(entries), "horizon_s": args.horizon_s, "policy": args.policy,
-        "candidates": args.candidates, "terrain": args.terrain, "collision": args.collision, "margin": args.margin, "goal": args.goal,
+        "candidates": args.candidates, "terrain": args.terrain, "collision": args.collision, "margin": args.margin, "goal": args.goal, "start_poses": args.start_poses,
         "predicted_cells_mean": float(np.mean(cells)) if cells else None,
         "recorded_route_calibration": {
             "completed_recorded": int(sum(c["rec_completed"] for c in cal)),

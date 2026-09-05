@@ -169,3 +169,7 @@ artifacts/traverse/wp4_scores_*/trajectories.npz
 !artifacts/traverse/wp4_chrono_loc_camera/
 !artifacts/traverse/wp4_chrono_loc_fused/
 !artifacts/traverse/wp4_planner_ladder_v2_camgoal/
+!artifacts/traverse/wp4_start_poses/
+!artifacts/traverse/wp4_scores_allsensor/
+!artifacts/traverse/wp4_chrono_allsensor/
+!artifacts/traverse/wp4_chrono_loc_camera_pred_occ/
