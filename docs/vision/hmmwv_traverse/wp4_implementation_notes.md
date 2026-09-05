@@ -283,10 +283,26 @@ model) while **Chrono** finishes at 1.04× (the real vehicle lags the profile
 by 3–6 %, most on the fast sweep). Same policy, opposite sign: the model
 accelerates more per unit throttle than Chrono does, which is the same defect
 the energy gap showed. Round 1 fixed the power channel but not the speed
-channel. Round 2 with the full 2000 episodes follows when the collection
-finishes; if the bias persists, the next lever is a rollout-consistency term in
-training (multi-step loss under the tracker's actions) rather than more
-one-step data.
+channel. **Rollout-consistency loss** (`traverse_wp2_train_map.py --rollout-steps 8`):
+an 8-step autoregressive loss (predicted state fed back, map re-cropped at the
+dead-reckoned pose — the imagination env's own step) added to the one-step
+loss, fine-tuned from the round-1 model for 8 k steps (11 min). Held-out
+recorded rollouts improve sharply: 5 s state error **0.335** (one-step models
+0.435–0.441), and open-loop replay of the recorded actions now completes 31/32
+routes (old model 21/32, which drifted off route). Against Chrono under the
+tracker (`wp4_scores_tracker_ro8`): power-head energy ratio 1.24 / corr 0.82,
+throttle-model 1.10 / 0.84, combined-objective pick agreement 16/31 (Spearman
+0.55–0.58, the best so far) — **but the time bias is still −10 %.**
+
+The replay test locates it: with the recorded driver's own actions the new
+model finishes the recorded routes in 9.72 s where the recording took 11.04 s
+(−12 %, corr 0.87), i.e. the model's longitudinal response to throttle is too
+strong even under in-distribution actions, and the tracker inherits it. Neither
+12 % tracker-driven data nor the rollout loss moved it, so it is a model-input
+question rather than a data-mix one: z1 carries no powertrain state (engine
+speed, gear), and the HMMWV's torque response lags throttle through the
+transmission. The concrete next step is to add engine speed / gear to the state
+(both are in the stores) — out of scope for this session.
 
 ### 6.3 Goal from the camera — `planner_b.goal_from_map`
 

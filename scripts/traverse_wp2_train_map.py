@@ -48,16 +48,40 @@ class MapBatcher:
         self.maps = maps  # (N, C, 64, 64) float16
         self.n_episodes, self.n_frames = split.z1.shape[0], split.z1.shape[1]
 
-    def sample(self, rng, batch: int, device: str):
+    def sample(self, rng, batch: int, device: str, extra_steps: int = 1):
+        """``extra_steps`` frames after the context window (1 = one-step training; K for a
+        K-step autoregressive rollout loss)."""
         ep = rng.integers(0, self.n_episodes, batch)
-        t0 = rng.integers(0, self.n_frames - self.context, batch)
-        idx = t0[:, None] + np.arange(self.context + 1)[None, :]
+        t0 = rng.integers(0, self.n_frames - self.context - extra_steps + 1, batch)
+        idx = t0[:, None] + np.arange(self.context + extra_steps)[None, :]
         out = {}
         for name, src in (("z1", self.z1), ("act", self.act), ("power", self.power),
                           ("pose", self.pose)):
             out[name] = torch.from_numpy(src[ep[:, None], idx]).to(device, non_blocking=True)
         out["map"] = torch.from_numpy(self.maps[ep]).to(device, non_blocking=True).float()
         return out
+
+
+def rollout_loss(model, batch, context: int, steps: int, z1_mean, z1_std):
+    """K-step autoregressive loss under the RECORDED actions: predicted state fed back, map
+    re-cropped at the dead-reckoned pose (exactly the imagination env's step). Targets the
+    closed-loop speed bias that one-step teacher forcing does not see."""
+    z1, act, pose_gt, maps = batch["z1"], batch["act"], batch["pose"], batch["map"]
+    token_hist = model.cropper(maps, pose_gt[:, :context])
+    z1_hist = z1[:, :context]
+    pose = pose_gt[:, context - 1]
+    l_z1 = l_p = 0.0
+    for step in range(steps):
+        window = slice(step, step + context)
+        delta, power, _ = model(z1_hist[:, -context:], token_hist[:, -context:], act[:, window])
+        z1_next = z1_hist[:, -1] + delta[:, -1]
+        l_z1 = l_z1 + F.huber_loss(z1_next, z1[:, context + step], delta=1.0)
+        l_p = l_p + F.huber_loss(power[:, -1], batch["power"][:, context + step], delta=1.0)
+        pose = integrate_pose(pose, z1_next * z1_std + z1_mean)
+        nxt = model.cropper(maps, pose.unsqueeze(1))[:, 0]
+        z1_hist = torch.cat([z1_hist, z1_next.unsqueeze(1)], dim=1)
+        token_hist = torch.cat([token_hist, nxt.unsqueeze(1)], dim=1)
+    return (l_z1 + l_p) / steps, {"ro_z1": float(l_z1.detach()) / steps, "ro_power": float(l_p.detach()) / steps}
 
 
 def step_loss(model, batch, mode: str):
@@ -191,6 +215,9 @@ def main() -> None:
     ap.add_argument("--selection", default="z1_mae_norm")
     ap.add_argument("--seed", type=int, default=20260903)
     ap.add_argument("--max-train-episodes", type=int, default=0)
+    ap.add_argument("--rollout-steps", type=int, default=0,
+                    help="K > 0 adds a K-step autoregressive rollout loss (state fed back, map re-cropped)")
+    ap.add_argument("--rollout-weight", type=float, default=1.0)
     ap.add_argument("--extra-train-cache", nargs="*", default=[],
                     help="extra cache dirs appended to the TRAIN split only (e.g. tracker-driven Chrono "
                          "episodes); their scene maps come from the base cache via each file's source_key")
@@ -300,13 +327,23 @@ def main() -> None:
 
     log = out_dir / "train_log.jsonl"; log.write_text("")
     rng = np.random.default_rng(args.seed)
+    z1_mean_t = torch.tensor(norm.z1_mean.astype(np.float32), device=device)
+    z1_std_t = torch.tensor(norm.z1_std.astype(np.float32), device=device)
     best = {"metric": float("inf"), "step": -1}
     start = time.time()
 
     for step in range(args.steps):
         for g in opt.param_groups:
             g["lr"] = lr_at(step)
-        loss, parts = step_loss(model, train_data.sample(rng, args.batch, device), args.map_mode)
+        if args.rollout_steps > 0:
+            batch = train_data.sample(rng, args.batch, device, extra_steps=args.rollout_steps)
+            one = {k: v[:, : args.context + 1] if v.dim() >= 2 and k != "map" else v for k, v in batch.items()}
+            loss, parts = step_loss(model, one, args.map_mode)
+            ro, ro_parts = rollout_loss(model, batch, args.context, args.rollout_steps, z1_mean_t, z1_std_t)
+            loss = loss + args.rollout_weight * ro
+            parts.update(ro_parts)
+        else:
+            loss, parts = step_loss(model, train_data.sample(rng, args.batch, device), args.map_mode)
         opt.zero_grad(set_to_none=True)
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), args.grad_clip)

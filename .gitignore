@@ -178,3 +178,6 @@ artifacts/traverse/wp4_scores_*/trajectories.npz
 !artifacts/traverse/wp4_scores_pred_occ_r40_dagger/
 !artifacts/traverse/wp2_z2_cache_dagger_v1/
 artifacts/traverse/wp2_z2_cache_dagger_v1/*.npz
+!artifacts/traverse/wp2_mapv2_dagger_ro8_amd/
+!artifacts/traverse/wp4_scores_tracker_ro8/
+!artifacts/traverse/wp4_scores_pred_occ_r40_ro8/
