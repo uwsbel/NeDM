@@ -745,3 +745,62 @@ study: 24.40 against 27.32 for A* (−11 %), 14.08 s and 103 kJ against 14.42 s 
 * Open: the single-process live Chrono demo (camera frame at t = 0 → map → plan from rest →
   drive), the test split, and a Chrono batch with the full-data checkpoint (§8.5; it matches
   the 903-episode model from rest, so §8.12 stands as the result).
+
+## 9. Step one (2026-09-05): plain A* versus sampling + world model on the test split, with live inputs only
+
+Goal, agreed with the user: both planners see the same camera map, camera start pose and rest
+state, and hand the same tracker a route. The classical baseline (A* with rule-based slope caps and
+a rule-based speed profile) has no dynamics and no notion of energy; the sampling planner pays
+neural-network inference to roll the tracker through the learned physics model on thousands of
+candidates. The claim to test is that the sampled route is executed as planned (predicted time and
+energy match Chrono), costs less, and is no less safe. A matched-candidate control — the same
+sampled routes and CEM procedure scored by a cheap route-geometry regression instead of the world
+model — isolates what the dynamics model adds over "sampling + any scorer".
+
+### 9.1 Closing the evaluation boundary — `traverse_wp5_live_inputs.py`, `wp5_live_cache_test`
+
+The reviewer's critiques of §7–8 all concerned inputs a live vehicle would not have:
+
+| leak | before | now |
+|---|---|---|
+| scene map | vehicle-free median over 16 frames spread across the recorded episode | the fixed camera's frame 0 (vehicle parked at the start), encoded with the same WP1 stem |
+| start pose | camera estimate at frame 16 (0.65 m into the drive) even in from-rest mode | camera estimate at frame 0; 32 test layouts: 0.046 m mean / 0.13 m max, 0.97° yaw |
+| rest tokens | ego crop at the recorded frame-0 pose | ego crop at the camera estimate |
+| terrain in speed profile / A* slope caps / geometry floor | arena height field | map head's predicted elevation (`--terrain predicted`) |
+| layouts | val split (used for checkpoint selection, map/pose head validation) | test split, never touched by any training or selection |
+| clearance reporting | mean of per-route minima | mean **and worst** minimum, count under 0.3 m |
+| no valid sampled route | nothing exported | `deploy` = clearance-penalised CEM pick, or plain A* as fallback |
+
+**The single-frame map breaks the dynamics model unless the vehicle masks itself out.** The map
+head is indifferent — decoded occupancy from the single frame matches the full median (IoU 0.876
+vs 0.876 against the true layout, same goal error) — but the dynamics model's ego crop at the start
+pose then contains the vehicle's own body, which it has never seen (the cache maps are vehicle-free
+by construction). On 2 of 3 layouts probed, the imagined vehicle never moved off the start (20 s
+horizon, progress 0.0 m, no failure flag) and on the third it completed at 306 kJ instead of 170.
+The live builder now rasterises the vehicle box at the *camera-estimated* pose (same box and 3 px
+dilation as the cache builder), fills the hole from its neighbours, and encodes that. With the
+mask the three layouts complete from rest at 223 / 178 / 175 kJ against 194 / 182 / 170 with the
+full median map, and the decoded occupancy is unchanged (IoU 0.877). This is a real deployment
+requirement, not an evaluation detail: any live use of the crop must remove the ego vehicle.
+
+### 9.2 Protocol
+
+32 test-split layouts (oracle family), all inputs from §9.1, tracker `wp3_tracker_v1`, camera
+localisation in Chrono, 30 s horizon. Arms, all exported by `traverse_wp5_sample_planner.py`:
+
+* **plain A*** (`astar_plain`): default `PlannerParams` (7 m/s cruise, slope caps, 0.9 m margin
+  with the 0.6 / 0.3 m fallback ladder, 40 curvature-repair iterations like the sweep). Exported
+  whatever the imagination says about it.
+* **A* sweep + world model** (`astar_best`): the six A* variants, best imagined pessimistic cost.
+* **sampling + world model**: 5000 samples → ≤ 2000 imagined, 3 CEM rounds (32 elites × 16
+  children, σ 0.4 m / 0.25 m/s, shrink 0.7), pessimism = max(power head, state power, geometry
+  floor), dynamics `wp2_mapv2_pt_dag_ro8_amd` (17-D, full tracker data), picks `sampled_pess`,
+  `cem_pess`, `cem_pess_clear`, `deploy`.
+* **sampling + geometry scorer** (`geo_*`, `--scorer geometry`): identical candidate family and
+  CEM procedure; time = profile-implied duration, energy = the Chrono-fitted geometry regression,
+  feasibility = geometric footprint clearance. No dynamics model anywhere.
+
+Prediction accuracy is read per arm from its own numbers: imagined time / energy for the
+world-model picks, regression energy and profile time for the geometry picks, profile time for
+plain A* (it has no energy estimate at all; the world model's imagined energy for the A* route is
+reported as the world model's prediction of the baseline).
