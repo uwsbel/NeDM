@@ -1,0 +1,43 @@
+{
+ "args": {
+  "runs": [
+   "artifacts/traverse/wp3_tracker_v1"
+  ],
+  "out": "artifacts/traverse/wp4_chrono_loc_camera",
+  "cache": "artifacts/traverse/wp2_z2_cache_v6",
+  "routes": "artifacts/traverse/wp3_routes",
+  "stores": "artifacts/traverse",
+  "arena": "assets/traverse/arena_v1",
+  "split": "val",
+  "families": [
+   "oracle"
+  ],
+  "episodes": 32,
+  "candidates": false,
+  "route_file": null,
+  "include_recorded": false,
+  "localisation": "camera",
+  "posehead": "artifacts/traverse/wp4_posehead_v1_amd/ckpt_best.pt",
+  "loc_gain_xy": 0.3,
+  "loc_gain_yaw": 0.15,
+  "horizon_s": 25.0,
+  "procs": 6
+ },
+ "wall_s": 306.2210018634796,
+ "per_controller_candidate": {
+  "wp3_tracker_v1/recorded": {
+   "n": 32,
+   "completed": 1.0,
+   "contact": 0.0,
+   "rollover": 0.0,
+   "off_route": 0.0,
+   "time_s_completed": 11.271875000000001,
+   "energy_kj_completed": 186.38146262366115,
+   "mean_ct_m": 0.04079238742060176,
+   "p95_ct_m": 0.10487491029155682,
+   "max_ct_m": 0.15993251080540213,
+   "mean_speed_err_mps": 0.3622414716256487,
+   "steer_rate_max": 0.10000000000000003
+  }
+ }
+}

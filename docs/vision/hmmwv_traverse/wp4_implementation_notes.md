@@ -220,7 +220,7 @@ the vehicle-centre height using the known arena heightmap (fixed terrain).
 |---|---|---|---|
 | WP1 v5 spatial probe (16×16 map, reference) | — | 0.80 m | 3.3–4.4° |
 | cluster smoke, 100 steps | 6 k | 0.106 / 0.102 / 0.196 m | 15.4° / 21.2° |
-| **v1, 15 k steps (MI350, 12 min)** | 960 k | _see readout_ | _see readout_ |
+| **v1, 15 k steps (MI350, 12 min)** | 960 k | **0.054 / 0.046 / 0.110 m** (19 200 frames) | **1.45° / 3.3°** |
 
 In Chrono the tracker can take its pose from (a) the truth, (b) the per-frame
 camera estimate, or (c) a complementary filter: odometry prediction from body
@@ -233,7 +233,21 @@ settle, so no privileged pose enters at any point. With the *smoke* head
 the filter with motion heading brought it back to 0.22–0.39 m — the design is
 robust to a weak yaw channel. Results with the trained head: §6.1 table below.
 
-_pending: 31-route Chrono comparison truth / camera / fused_
+Chrono, the tracker on the 32 held-out recorded routes (`wp4_chrono_loc_{camera,fused}`):
+
+| pose the tracker sees | completed | contact | time to end | mean ct | p95 ct | max ct | localisation error xy mean / p95 | yaw |
+|---|---|---|---|---|---|---|---|---|
+| Chrono truth (v1 contract) | 31/31 | 0 | 11.22 s | 0.029 m | 0.071 m | 0.34 m | — | — |
+| **camera, per frame** | **32/32** | **0** | 11.27 s | 0.041 m | 0.105 m | 0.35 m | 0.047 / 0.097 m | 1.28° |
+| odometry + camera filter | 32/32 | 0 | 11.29 s | 0.042 m | 0.117 m | 0.39 m | 0.036 / 0.074 m | 1.42° |
+
+**The tracker no longer needs the simulator's pose.** Fed only the per-frame
+camera estimate it completes every route with zero contact and a mean
+cross-track within 1 cm of the truth-fed runs; the filter lowers the
+localisation error (3.6 vs 4.7 cm) but not the tracking error, so the plain
+per-frame estimate is the deployment choice. Tracking is now measured against
+the true pose while the controller sees only the camera. With this, the only
+privileged inputs left in the whole chain are the start pose and the goal.
 
 ### 6.2 Tracker-driven training episodes for the dynamics model — `traverse_wp4_collect_tracker_episodes.py`
 
