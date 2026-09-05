@@ -1365,3 +1365,34 @@ mismatch — on the one gate whose whole purpose is preventing that pooling erro
 fix points both names at the SAME dict object rather than duplicating the values,
 since two keys holding two copies of one design is a future disagreement waiting
 to happen.
+
+## A check that fired once must be re-run in every condition it could apply to
+
+**A boundary optimum is a self-advertising defect** — the number sits on the edge
+of the grid and announces itself. **A wrongly-tuned optimum in an untested
+condition just looks like a number.**
+
+Tuning a proportional baseline on rigid ground, the optimum landed on the grid
+corner. That was visible, so the grid was extended — twice, since it ran to the
+boundary again. Then the same gains were used to evaluate on SOIL, and that
+condition was never searched at all. Tuning on soil later gave an INTERIOR
+optimum at a value 3.3x better than the one used, and the published conclusion —
+that the learned policy beat the baseline on soil — was a tuning artifact and had
+to be withdrawn from the status page.
+
+The rule: **the conditions where a check stays quiet are indistinguishable from
+the conditions where it was never run.** Having fired once is evidence the check
+works, not evidence the other conditions are clean. So re-run it everywhere it
+could apply, and record where it was run rather than only what it found.
+
+Same shape as two other defects found the same day:
+
+- a validator gate that SKIPS when its input is missing, printing `[SKIP]` and
+  not failing — so the run reports success
+- a verification grep for flags that the logs never contain, which returns
+  nothing whether the design took effect or not
+
+All three are **absence of a complaint being read as evidence of correctness.**
+The self-advertising instance got fixed immediately; the silent ones each needed
+someone to ask. That asymmetry is the thing to design against, because the defects
+that announce themselves are the ones least likely to survive anyway.
