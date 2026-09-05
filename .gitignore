@@ -184,3 +184,8 @@ artifacts/traverse/wp2_z2_cache_dagger_v1/*.npz
 !artifacts/traverse/wp2_mapv2_dagger2_ro8_amd/
 !artifacts/traverse/wp4_scores_tracker_dagger2/
 !artifacts/traverse/wp4_scores_pred_occ_r40_dagger2/
+# WP5: sampling planner (imagination scores thousands of sampled routes) and its Chrono runs
+!artifacts/traverse/wp5_sample_planner_v1/
+!artifacts/traverse/wp5_sample_planner_v2/
+!artifacts/traverse/wp5_chrono_sample_planner/
+!artifacts/traverse/wp5_chrono_sample_planner_v2/
