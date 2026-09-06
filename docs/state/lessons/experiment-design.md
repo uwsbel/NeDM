@@ -43,6 +43,27 @@ happen to be holding it.**
 Recorded because the claim was mine to check and the checking cost one query — which is
 the corollary two entries below, applied to a sentence about this file.
 
+**NEXT TASK, not tonight: convert distinctions into checks.** Start from 12 of 136 rather
+than re-deriving it. Three have already made the trip, which is what makes it look
+tractable:
+
+```
+  attested vs verified        -> a confidence grade in the provenance files
+  wrapped vs merely large     -> a 5.0 rad threshold in verify_circular_unwrap.py
+  requested vs loaded         -> /proc/<pid>/maps and a binary hash in the summary
+```
+
+**But not every distinction converts, and the ones that resist are the interesting
+output.** A distinction that cannot be turned into something that runs is a prediction
+that its failure will recur: you have named it and you still have nothing that fires. So
+the conversion pass should record its failures explicitly rather than quietly skipping
+them. The unconvertible list is a map of where this file will keep being needed and keep
+being insufficient.
+
+The nine constructions written on 2026-09-06 all came out of one session's failures, which
+suggests conversion happens under the pressure of a specific incident rather than as
+general hygiene. Worth knowing before scheduling it as general hygiene.
+
 ## Ask what it would look like if the thing did nothing
 
 **Cost:** four instances in one day · **Found:** 2026-09-03 · **Applies to:** every gate, test, and A/B
