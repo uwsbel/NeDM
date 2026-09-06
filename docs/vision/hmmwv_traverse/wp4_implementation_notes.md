@@ -1260,8 +1260,18 @@ Per arena, tracker-driven runs from rest, true localisation for the tracker, cam
 | sequence: climb through A, turn (±35° / ±60°) onto B's centre or shoulder, 14–28 m apart | 5–9 | `seq_v{v1}_{v2}` two-speed profiles (v1 through A, v2 from 8 m before B; curvature cap relaxed to 5 m/s² so fast turn entries are driven), `slope_aware` |
 | free-form sampled routes between random flat start / goal pairs | 6–8 | 6 routes spread over cruise speed 2–9 m/s |
 
-Runs: f101 441, f102 402, f103 314, f104 592, f105 609 (2 358 training/validation runs); sealed f106 406, f107 566
-with the full set of 8 speed pairs per sequence. Start / house placement needs ≤ 14° local slope, which skips
+Runs recorded (`artifacts/traverse/wp7_cache_v1`, 2 471 episodes, 2026-09-07 02:28; the val arena and the sealed banks also
+carry `detour_wide_L/R` and all 8 speed pairs per sequence):
+
+| arena | runs | feasible (completed, no stall, no contact) | stall | timeout | off-route | rollover |
+|---|---|---|---|---|---|---|
+| arena_f101 | 441 | 340 (77 %) | 32 | 34 | 2 | 2 |
+| arena_f102 | 402 | 343 (85 %) | 17 | 28 | 1 | 1 |
+| arena_f103 | 314 | 274 (87 %) | 13 | 11 | 0 | 0 |
+| arena_f104 | 592 | 451 (76 %) | 47 | 59 | 2 | 0 |
+| arena_f105 | 722 | 451 (62 %) | 93 | 114 | 10 | 0 |
+
+By layout kind: freeform 166/228 feasible, sequence 200/290 feasible, crossing 1493/1953 feasible. Sealed banks: f106 439 runs, f107 638 runs. Start / house placement needs ≤ 14° local slope, which skips
 roughly half the heading variants on these rough surfaces. Chrono on newton, 12 processes, ≈ 6 runs / min.
 
 ### 11.3 First arena, frozen model (early read, 2026-09-07 00:55) — `wp7_collect_f101`
