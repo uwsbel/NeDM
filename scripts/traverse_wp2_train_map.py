@@ -13,6 +13,12 @@ index is the strong baseline (the layout is static, so indexing is exact). If
 predict cannot beat it, the prediction branch is not earning its place here --
 the same question the z2 persistence test asked of the pooled token, which
 predict won at 1 s.
+
+Multi-arena data (plan §28, 2026-09-06): ``--split-by arena`` takes schema-v2 caches
+(``traverse_wp7_build_cache.py``: variable-length episodes incl. stalls / rollovers, one
+arena per episode) and splits by TERRAIN INSTANCE (``--val-arenas`` / ``--test-arenas``),
+never by episode; every crop takes its episode's own height field from a bank of arenas;
+window sampling, losses and rollout metrics honour the recorded-frame mask.
 """
 
 from __future__ import annotations
@@ -33,12 +39,17 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from nedm.traverse import nrd_data as D
 from nedm.traverse.nrd_model import WP2MapModel  # noqa: F401 (checkpoint class)
+from nedm.traverse.terrain import TerrainMap
 from nedm.training.model_transformer import ContinuousTransformer, TransformerConfig
 from traverse_wp2_train import DT_S, POSE_CHANNELS, TERRAIN_CHANNELS, integrate_pose
 
 
 class MapBatcher:
-    def __init__(self, split: D.CacheSplit, norm: D.Normalizer, context: int, maps: np.ndarray):
+    """Windows over one split. ``heightmaps`` (A, 1, H, W) on ``device`` is the crop's height-field bank;
+    ``split.arena_idx`` picks each episode's row. Only windows inside the recorded frames are sampled."""
+
+    def __init__(self, split: D.CacheSplit, norm: D.Normalizer, context: int, maps: np.ndarray,
+                 heightmaps: torch.Tensor):
         self.context = context
         self.z1 = ((split.z1 - norm.z1_mean) / norm.z1_std).astype(np.float32)
         self.act = ((split.act - norm.act_mean) / norm.act_std).astype(np.float32)
@@ -47,18 +58,29 @@ class MapBatcher:
         self.pose = split.pose.astype(np.float32)
         self.maps = maps  # (N, C, 64, 64) float16
         self.n_episodes, self.n_frames = split.z1.shape[0], split.z1.shape[1]
+        self.n_valid = split.n_valid
+        self.valid = split.valid_mask()
+        self.arena_idx = split.arena_idx if split.arena_idx is not None else np.zeros(self.n_episodes, np.int64)
+        self.arena_ids = list(split.arena_ids) or ["arena"]
+        self.heightmaps = heightmaps  # (A, 1, H, W) on device
+        self.status = list(split.status)
 
     def sample(self, rng, batch: int, device: str, extra_steps: int = 1):
         """``extra_steps`` frames after the context window (1 = one-step training; K for a
-        K-step autoregressive rollout loss)."""
-        ep = rng.integers(0, self.n_episodes, batch)
-        t0 = rng.integers(0, self.n_frames - self.context - extra_steps + 1, batch)
-        idx = t0[:, None] + np.arange(self.context + extra_steps)[None, :]
+        K-step autoregressive rollout loss). Windows lie inside the recorded frames; an episode is
+        drawn in proportion to the windows it offers (uniform over windows, as with uniform episodes)."""
+        L = self.context + extra_steps
+        n_win = np.maximum(self.n_valid - L + 1, 0)
+        p = n_win / n_win.sum()
+        ep = rng.choice(self.n_episodes, batch, p=p)
+        t0 = np.minimum((rng.random(batch) * n_win[ep]).astype(np.int64), n_win[ep] - 1)
+        idx = t0[:, None] + np.arange(L)[None, :]
         out = {}
         for name, src in (("z1", self.z1), ("act", self.act), ("power", self.power),
                           ("pose", self.pose)):
             out[name] = torch.from_numpy(src[ep[:, None], idx]).to(device, non_blocking=True)
         out["map"] = torch.from_numpy(self.maps[ep]).to(device, non_blocking=True).float()
+        out["hm"] = self.heightmaps[torch.from_numpy(self.arena_idx[ep]).to(device)]
         return out
 
 
@@ -66,8 +88,8 @@ def rollout_loss(model, batch, context: int, steps: int, z1_mean, z1_std, w=None
     """K-step autoregressive loss under the RECORDED actions: predicted state fed back, map
     re-cropped at the dead-reckoned pose (exactly the imagination env's step). Targets the
     closed-loop speed bias that one-step teacher forcing does not see."""
-    z1, act, pose_gt, maps = batch["z1"], batch["act"], batch["pose"], batch["map"]
-    token_hist = model.cropper(maps, pose_gt[:, :context])
+    z1, act, pose_gt, maps, hm = batch["z1"], batch["act"], batch["pose"], batch["map"], batch["hm"]
+    token_hist = model.cropper(maps, pose_gt[:, :context], hm)
     z1_hist = z1[:, :context]
     pose = pose_gt[:, context - 1]
     l_z1 = l_p = 0.0
@@ -79,7 +101,7 @@ def rollout_loss(model, batch, context: int, steps: int, z1_mean, z1_std, w=None
         l_z1 = l_z1 + (F.huber_loss(z1_next * w, tgt * w, delta=1.0) if w is not None else F.huber_loss(z1_next, tgt, delta=1.0))
         l_p = l_p + F.huber_loss(power[:, -1], batch["power"][:, context + step], delta=1.0)
         pose = integrate_pose(pose, z1_next * z1_std + z1_mean)
-        nxt = model.cropper(maps, pose.unsqueeze(1))[:, 0]
+        nxt = model.cropper(maps, pose.unsqueeze(1), hm)[:, 0]
         z1_hist = torch.cat([z1_hist, z1_next.unsqueeze(1)], dim=1)
         token_hist = torch.cat([token_hist, nxt.unsqueeze(1)], dim=1)
     return (l_z1 + l_p) / steps, {"ro_z1": float(l_z1.detach()) / steps, "ro_power": float(l_p.detach()) / steps}
@@ -89,7 +111,7 @@ def step_loss(model, batch, mode: str, w=None):
     """``w`` (z1_dim,) rescales the state channels in the loss. With --delta-scale it is the inverse
     per-step delta std, so slowly varying channels (vx: one-step change ~0.03 of the state std) get the
     same weight as the noisy tire channels instead of being ignored -- the 10 % speed bias lives there."""
-    token = model.cropper(batch["map"], batch["pose"])
+    token = model.cropper(batch["map"], batch["pose"], batch["hm"])
     delta, power, token_next = model(batch["z1"][:, :-1], token[:, :-1], batch["act"][:, :-1])
     tgt = batch["z1"][:, 1:] - batch["z1"][:, :-1]
     loss = F.huber_loss(delta * w, tgt * w, delta=1.0) if w is not None else F.huber_loss(delta, tgt, delta=1.0)
@@ -112,7 +134,7 @@ def fit_token_stats(model, data: MapBatcher, batch: int, n_batches: int, device:
     crops = []
     for _ in range(n_batches):
         b = data.sample(rng, batch, device)
-        crops.append(model.cropper(b["map"], b["pose"]).reshape(-1, model.token_dim))
+        crops.append(model.cropper(b["map"], b["pose"], b["hm"]).reshape(-1, model.token_dim))
     t = torch.cat(crops)
     model.tok_mean.copy_(t.mean(0))
     model.tok_std.copy_(t.std(0).clamp_min(1e-3))
@@ -123,30 +145,36 @@ def fit_token_stats(model, data: MapBatcher, batch: int, n_batches: int, device:
 @torch.no_grad()
 def rollout_eval(model, data: MapBatcher, norm, mode: str, context: int, horizons: list[int],
                  n_episodes: int, device: str, seed: int = 7,
-                 crop_pose: str = "deadreckon") -> dict:
+                 crop_pose: str = "deadreckon", per_arena: bool = False) -> dict:
     """crop_pose: where the index crop is taken during rollout. "deadreckon" is the
     honest setting (pose integrated from predicted z1); "gt" reads the map at the
     true pose and isolates how much long-horizon error is *reading the wrong place*
-    rather than the token lacking information (the pose-drift test)."""
+    rather than the token lacking information (the pose-drift test).
+
+    Episodes shorter than context + h are excluded from the horizon-h means (recorded-frame mask)."""
     model.eval()
-    eps = np.random.default_rng(seed).choice(
-        data.n_episodes, size=min(n_episodes, data.n_episodes), replace=False)
+    eligible = np.nonzero(data.n_valid >= context + min(horizons))[0]
+    eps = np.random.default_rng(seed).choice(eligible, size=min(n_episodes, len(eligible)), replace=False)
     to_t = lambda a: torch.from_numpy(np.ascontiguousarray(a)).to(device)
     z1_gt, act = to_t(data.z1[eps]), to_t(data.act[eps])
     pose_gt, maps = to_t(data.pose[eps]), to_t(data.maps[eps]).float()
+    hm = data.heightmaps[torch.from_numpy(data.arena_idx[eps]).to(device)]
+    n_valid = torch.from_numpy(data.n_valid[eps]).to(device)
+    arena_of = data.arena_idx[eps]
     power_gt = to_t(data.power_raw[eps])[..., 0]
     z1_mean, z1_std = to_t(norm.z1_mean.astype(np.float32)), to_t(norm.z1_std.astype(np.float32))
     p_mean, p_std = float(norm.power_mean[0]), float(norm.power_std[0])
 
     z1_hist = z1_gt[:, :context].clone()
     pose_hist = pose_gt[:, :context].clone()
-    token_hist = model.cropper(maps, pose_hist)
+    token_hist = model.cropper(maps, pose_hist, hm)
     pose = pose_gt[:, context - 1].clone()
     cv_pose = pose_gt[:, context - 1].clone()
     cv_state = z1_gt[:, context - 1] * z1_std + z1_mean
     e_pred = torch.zeros(len(eps), device=device)
     e_gt = torch.zeros(len(eps), device=device)
     results: dict[str, float] = {}
+    mmean = lambda v, m: float(v[m].mean()) if int(m.sum()) else float("nan")
 
     for step in range(max(horizons)):
         window = slice(step, step + context)
@@ -160,31 +188,38 @@ def rollout_eval(model, data: MapBatcher, norm, mode: str, context: int, horizon
         # the pose-drift test). predict: the head's normalized output, de-normalized.
         if mode == "index":
             crop_at = pose_gt[:, context + step] if crop_pose == "gt" else pose
-            nxt = model.cropper(maps, crop_at.unsqueeze(1))[:, 0]
+            nxt = model.cropper(maps, crop_at.unsqueeze(1), hm)[:, 0]
         else:
             nxt = token_next[:, -1] * model.tok_std + model.tok_mean
         token_hist = torch.cat([token_hist, nxt.unsqueeze(1)], dim=1)
 
+        live = n_valid > context + step  # the target frame was recorded
         kw = power[:, -1, 0] * p_std + p_mean
-        e_pred = e_pred + kw * DT_S
-        e_gt = e_gt + power_gt[:, context + step] * DT_S
+        e_pred = e_pred + torch.where(live, kw * DT_S, torch.zeros_like(kw))
+        e_gt = e_gt + torch.where(live, power_gt[:, context + step] * DT_S, torch.zeros_like(kw))
         h = step + 1
         if h in horizons:
             frame = context - 1 + h
+            m = n_valid > frame
             gt = pose_gt[:, frame]
             err = (z1_hist[:, frame] - z1_gt[:, frame]).abs()
-            results[f"z1_mae_norm@{h}"] = float(err.mean())
-            results[f"terrain_mae_norm@{h}"] = float(err[:, TERRAIN_CHANNELS].mean())
-            results[f"pose_chan_mae_norm@{h}"] = float(err[:, POSE_CHANNELS].mean())
-            results[f"pose_err_m@{h}"] = float((pose[:, :2] - gt[:, :2]).norm(dim=1).mean())
-            results[f"cv_pose_err_m@{h}"] = float((cv_pose[:, :2] - gt[:, :2]).norm(dim=1).mean())
-            results[f"yaw_err_deg@{h}"] = float(torch.rad2deg(
-                torch.abs((pose[:, 2] - gt[:, 2] + math.pi) % (2 * math.pi) - math.pi)).mean())
-            results[f"energy_err_kj@{h}"] = float((e_pred - e_gt).abs().mean())
+            yaw_err = torch.rad2deg(torch.abs((pose[:, 2] - gt[:, 2] + math.pi) % (2 * math.pi) - math.pi))
+            results[f"z1_mae_norm@{h}"] = mmean(err.mean(1), m)
+            results[f"terrain_mae_norm@{h}"] = mmean(err[:, TERRAIN_CHANNELS].mean(1), m)
+            results[f"pose_chan_mae_norm@{h}"] = mmean(err[:, POSE_CHANNELS].mean(1), m)
+            results[f"pose_err_m@{h}"] = mmean((pose[:, :2] - gt[:, :2]).norm(dim=1), m)
+            results[f"cv_pose_err_m@{h}"] = mmean((cv_pose[:, :2] - gt[:, :2]).norm(dim=1), m)
+            results[f"yaw_err_deg@{h}"] = mmean(yaw_err, m)
+            results[f"energy_err_kj@{h}"] = mmean((e_pred - e_gt).abs(), m)
+            results[f"n@{h}"] = int(m.sum())
             if mode == "predict":
-                true_token = model.cropper(maps, pose_gt[:, frame].unsqueeze(1))[:, 0]
-                results[f"token_cos@{h}"] = float(
-                    F.cosine_similarity(token_hist[:, frame], true_token, dim=-1).mean())
+                true_token = model.cropper(maps, pose_gt[:, frame].unsqueeze(1), hm)[:, 0]
+                results[f"token_cos@{h}"] = mmean(F.cosine_similarity(token_hist[:, frame], true_token, dim=-1), m)
+            if per_arena and len(data.arena_ids) > 1:
+                for ai, aid in enumerate(data.arena_ids):
+                    ma = m & torch.from_numpy(arena_of == ai).to(device)
+                    if int(ma.sum()):
+                        results[f"z1_mae_norm@{h}/{aid}"] = mmean(err.mean(1), ma)
     model.train()
     return results
 
@@ -193,10 +228,38 @@ def load_maps(cache: Path, keys: list[str], key: str = "map") -> np.ndarray:
     return np.stack([np.load(cache / f"{k}.npz")[key] for k in keys])
 
 
+def load_cache_with_maps(cache: Path, keys: list[str], map_key: str, base_cache: Path | None,
+                         n_frames: int | None, arena_id: str | None) -> tuple[D.CacheSplit, np.ndarray]:
+    """Episodes + scene maps of one cache. Maps come from the files themselves (``map_key``) or, for
+    tracker-driven caches that reuse a recorded layout, from ``base_cache`` via each file's ``source_key``."""
+    split = D.load_split(cache, keys, with_z2=False, n_frames=n_frames, arena_id=arena_id)
+    with np.load(cache / f"{keys[0]}.npz") as probe:
+        own = map_key in probe.files
+    if own:
+        maps = load_maps(cache, keys, map_key)
+    else:
+        src = [str(np.load(cache / f"{k}.npz")["source_key"]) for k in keys]
+        maps = load_maps(base_cache, src, map_key)
+    return split, maps
+
+
+def heightmap_bank(arena_dirs: dict[str, Path], device: str) -> torch.Tensor:
+    """(A, 1, H, W) crop height fields, rows in ``sorted(arena_dirs)`` order (= CacheSplit.arena_ids)."""
+    grids = [torch.tensor(TerrainMap.from_dir(Path(arena_dirs[a])).height_grid, dtype=torch.float32) for a in sorted(arena_dirs)]
+    return torch.stack(grids)[:, None].to(device)
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--cache", required=True)
-    ap.add_argument("--arena", default="assets/traverse/arena_v1")
+    ap.add_argument("--cache", default="", help="schema-v1 base cache (episode split, one arena)")
+    ap.add_argument("--caches", nargs="*", default=[],
+                    help="schema-v2 multi-arena caches (traverse_wp7_build_cache.py); used with --split-by arena")
+    ap.add_argument("--split-by", choices=["episode", "arena"], default="episode",
+                    help="arena: hold out whole terrain instances (--val-arenas / --test-arenas), never episodes")
+    ap.add_argument("--val-arenas", nargs="*", default=[])
+    ap.add_argument("--test-arenas", nargs="*", default=[], help="sealed: loaded by nothing here")
+    ap.add_argument("--n-frames", type=int, default=0, help="pad variable-length episodes to this many frames (0: longest)")
+    ap.add_argument("--arena", default="assets/traverse/arena_v1", help="arena of schema-v1 caches / the model's default crop map")
     ap.add_argument("--map-mode", choices=["index", "predict"], required=True)
     ap.add_argument("--map-key", default="map")
     ap.add_argument("--out", required=True)
@@ -225,14 +288,14 @@ def main() -> None:
     ap.add_argument("--rollout-weight", type=float, default=1.0)
     ap.add_argument("--extra-train-cache", nargs="*", default=[],
                     help="extra cache dirs appended to the TRAIN split only (e.g. tracker-driven Chrono "
-                         "episodes); their scene maps come from the base cache via each file's source_key")
+                         "episodes on arena_v1); scene maps from the files or from --cache via source_key")
     ap.add_argument("--z1-extra-cache", default="",
                     help="sidecar dir (traverse_wp5_build_z1_sidecar.py) whose z1_extra channels are appended to "
-                         "the base cache's z1 (e.g. engine speed + motorshaft torque -> 17-D state)")
+                         "15-D z1 caches (e.g. engine speed + motorshaft torque -> 17-D state)")
     ap.add_argument("--delta-scale", action="store_true",
                     help="weight each z1 channel in the state losses by 1/std of its normalized one-step delta")
     ap.add_argument("--init-from", default="",
-                    help="ckpt_best.pt of a finished run to start from (two-stage predict / eval-only)")
+                    help="ckpt_best.pt of a finished run to start from (two-stage predict / fine-tune / eval-only)")
     ap.add_argument("--freeze-cropper", action="store_true",
                     help="freeze the map projection so the prediction target is stationary")
     ap.add_argument("--freeze-backbone", action="store_true",
@@ -246,52 +309,98 @@ def main() -> None:
     torch.manual_seed(args.seed); np.random.seed(args.seed)
     device = "cuda" if torch.cuda.is_available() else "cpu"
     out_dir = Path(args.out); out_dir.mkdir(parents=True, exist_ok=True)
-    cache = Path(args.cache)
-    keys = D.load_cache_keys(cache)
-    train_keys, val_keys, test_keys = D.split_keys(keys)
-    if args.max_train_episodes:
-        train_keys = train_keys[: args.max_train_episodes]
-        val_keys = val_keys[: max(args.eval_episodes, 8)]
-    print(f"split: {len(train_keys)}/{len(val_keys)}/{len(test_keys)} (test untouched)", flush=True)
+    n_frames = args.n_frames or None
+    arena_dirs: dict[str, Path] = {}
 
     t0 = time.time()
-    train_split = D.load_split(cache, train_keys, with_z2=False)
-    val_split = D.load_split(cache, val_keys, with_z2=False)
-    train_maps = load_maps(cache, train_keys, args.map_key)
-    val_maps = load_maps(cache, val_keys, args.map_key)
-    if args.z1_extra_cache:
-        train_split = D.with_z1_extra(train_split, Path(args.z1_extra_cache))
-        val_split = D.with_z1_extra(val_split, Path(args.z1_extra_cache))
-        print(f"z1 extra channels from {args.z1_extra_cache}: z1 is now {train_split.z1.shape[-1]}-D", flush=True)
+    base_cache = Path(args.cache) if args.cache else None
+    if args.split_by == "arena":
+        if not args.caches:
+            raise SystemExit("--split-by arena needs --caches")
+        parts = []
+        for c in args.caches:
+            c = Path(c)
+            manifest = json.loads((c / "cache_manifest.json").read_text())
+            arena_dirs.update({k: Path(v) for k, v in manifest.get("arenas", {}).items()})
+            keys = D.load_cache_keys(c)
+            sp, mp = load_cache_with_maps(c, keys, args.map_key, base_cache, n_frames, None)
+            parts.append((sp, mp))
+        split_all, maps_all = parts[0]
+        for sp, mp in parts[1:]:
+            split_all, maps_all = D.concat_splits(split_all, sp), np.concatenate([maps_all, mp])
+        unknown = (set(args.val_arenas) | set(args.test_arenas)) - set(split_all.arena_ids)
+        if unknown:
+            raise SystemExit(f"unknown arenas {sorted(unknown)}; caches hold {split_all.arena_ids}")
+        name_of = np.asarray(split_all.arena_ids)[split_all.arena_idx]
+        is_val = np.isin(name_of, args.val_arenas); is_test = np.isin(name_of, args.test_arenas)
+        sel = lambda m: D.CacheSplit(keys=[k for k, f in zip(split_all.keys, m) if f], z1=split_all.z1[m], z2=split_all.z2[m], act=split_all.act[m],
+                                     pose=split_all.pose[m], power=split_all.power[m], terrain=split_all.terrain[m],
+                                     valid=None if split_all.valid is None else split_all.valid[m], arena_idx=split_all.arena_idx[m],
+                                     arena_ids=split_all.arena_ids, status=[s for s, f in zip(split_all.status, m) if f])
+        train_split, val_split = sel(~is_val & ~is_test), sel(is_val)
+        train_maps, val_maps = maps_all[~is_val & ~is_test], maps_all[is_val]
+        train_keys, val_keys, test_keys = train_split.keys, val_split.keys, [k for k, f in zip(split_all.keys, is_test) if f]
+        cnt = lambda sp: {a: int((sp.arena_idx == i).sum()) for i, a in enumerate(sp.arena_ids) if int((sp.arena_idx == i).sum())}
+        print(f"split by arena: train {len(train_keys)} {cnt(train_split)} | val {len(val_keys)} {cnt(val_split)} | test {len(test_keys)} (untouched)", flush=True)
+        st = lambda sp: {s: int(sum(x == s for x in sp.status)) for s in sorted(set(sp.status))}
+        print(f"  episode outcomes: train {st(train_split)} val {st(val_split)}", flush=True)
+    else:
+        cache = base_cache
+        keys = D.load_cache_keys(cache)
+        train_keys, val_keys, test_keys = D.split_keys(keys)
+        if args.max_train_episodes:
+            train_keys = train_keys[: args.max_train_episodes]
+            val_keys = val_keys[: max(args.eval_episodes, 8)]
+        print(f"split: {len(train_keys)}/{len(val_keys)}/{len(test_keys)} (test untouched)", flush=True)
+        train_split = D.load_split(cache, train_keys, with_z2=False, n_frames=n_frames)
+        val_split = D.load_split(cache, val_keys, with_z2=False, n_frames=n_frames)
+        train_maps = load_maps(cache, train_keys, args.map_key)
+        val_maps = load_maps(cache, val_keys, args.map_key)
+        if args.z1_extra_cache:
+            train_split = D.with_z1_extra(train_split, Path(args.z1_extra_cache))
+            val_split = D.with_z1_extra(val_split, Path(args.z1_extra_cache))
+            print(f"z1 extra channels from {args.z1_extra_cache}: z1 is now {train_split.z1.shape[-1]}-D", flush=True)
+        arena_dirs[train_split.arena_ids[0]] = Path(args.arena)
     for extra in args.extra_train_cache:
         extra = Path(extra)
         ekeys = D.load_cache_keys(extra)
-        esplit = D.load_split(extra, ekeys, with_z2=False)
+        esplit, emaps = load_cache_with_maps(extra, ekeys, args.map_key, base_cache, train_split.n_frames, None)
+        if esplit.z1.shape[-1] == 15 and train_split.z1.shape[-1] == 17 and args.z1_extra_cache:
+            esplit = D.with_z1_extra(esplit, Path(args.z1_extra_cache))
         if esplit.z1.shape[-1] != train_split.z1.shape[-1]:
-            raise ValueError(f"{extra}: z1 is {esplit.z1.shape[-1]}-D but the base cache (+sidecar) is "
+            raise ValueError(f"{extra}: z1 is {esplit.z1.shape[-1]}-D but the training data is "
                              f"{train_split.z1.shape[-1]}-D; collect it with the matching --preset")
-        src = [str(np.load(extra / f"{k}.npz")["source_key"]) for k in ekeys]
-        emaps = load_maps(cache, src, args.map_key)
-        train_split = D.CacheSplit(keys=train_split.keys + list(ekeys),
-                                   z1=np.concatenate([train_split.z1, esplit.z1]),
-                                   z2=np.concatenate([train_split.z2, esplit.z2]),
-                                   act=np.concatenate([train_split.act, esplit.act]),
-                                   pose=np.concatenate([train_split.pose, esplit.pose]),
-                                   power=np.concatenate([train_split.power, esplit.power]),
-                                   terrain=np.concatenate([train_split.terrain, esplit.terrain]))
+        for a in esplit.arena_ids:
+            arena_dirs.setdefault(a, Path(args.arena))
+        train_split = D.concat_splits(train_split, esplit)
         train_maps = np.concatenate([train_maps, emaps])
         print(f"extra train cache {extra}: +{len(ekeys)} episodes (val/test untouched)", flush=True)
-    print(f"loaded cache + maps in {time.time() - t0:.1f}s  maps {train_maps.shape}", flush=True)
+    for a in set(train_split.arena_ids) | set(val_split.arena_ids):
+        arena_dirs.setdefault(a, Path(args.arena))
+    # the val split must index the same bank rows as the train split
+    all_ids = sorted(arena_dirs)
+    remap = lambda sp: np.asarray([all_ids.index(sp.arena_ids[i]) for i in sp.arena_idx], np.int64) if sp.arena_idx is not None else np.zeros(sp.n_episodes, np.int64)
+    train_split.arena_idx, train_split.arena_ids = remap(train_split), all_ids
+    val_split.arena_idx, val_split.arena_ids = remap(val_split), all_ids
+    hm_bank = heightmap_bank(arena_dirs, device)
+    print(f"loaded cache + maps in {time.time() - t0:.1f}s  maps {train_maps.shape}  frames {train_split.n_frames}  "
+          f"height-field bank {tuple(hm_bank.shape)} for {all_ids}", flush=True)
+    if train_split.valid is not None:
+        nv = train_split.n_valid
+        print(f"  recorded frames per episode: mean {nv.mean():.0f} min {nv.min()} max {nv.max()} "
+              f"({int((nv < args.context + 1).sum())} too short for one window)", flush=True)
 
     payload = torch.load(args.init_from, map_location="cpu") if args.init_from else None
     norm = (D.Normalizer.from_dict(payload["normalization"]) if payload
             else D.Normalizer.fit(train_split))
     z1_dim, act_dim = train_split.z1.shape[-1], train_split.act.shape[-1]
-    train_data = MapBatcher(train_split, norm, args.context, train_maps)
-    val_data = MapBatcher(val_split, norm, args.context, val_maps)
+    train_data = MapBatcher(train_split, norm, args.context, train_maps, hm_bank)
+    val_data = MapBatcher(val_split, norm, args.context, val_maps, hm_bank)
     loss_w = None
     if args.delta_scale:
-        d_std = np.diff(train_data.z1, axis=1).reshape(-1, z1_dim).std(0) + 1e-6
+        dz = np.diff(train_data.z1, axis=1)
+        dm = train_data.valid[:, 1:] & train_data.valid[:, :-1]
+        d_std = dz[dm].reshape(-1, z1_dim).std(0) + 1e-6
         loss_w = torch.tensor((d_std.mean() / d_std).astype(np.float32), device=device)  # mean weight 1
         print("delta-scale weights:", np.round(loss_w.cpu().numpy(), 2).tolist(), flush=True)
     del train_split, val_split
@@ -302,7 +411,8 @@ def main() -> None:
     model = WP2MapModel(z1_dim, act_dim, cfg, Path(args.arena), args.token_dim,
                         predict_token=(args.map_mode == "predict")).to(device)
     if payload is not None:
-        missing, unexpected = model.load_state_dict(payload["model"], strict=False)
+        state = {k: v for k, v in payload["model"].items() if k != "cropper.heightmap"}
+        missing, unexpected = model.load_state_dict(state, strict=False)
         print(f"init from {args.init_from} (step {payload.get('step')}) "
               f"missing={missing} unexpected={unexpected}", flush=True)
     if args.map_mode == "predict":
@@ -335,6 +445,7 @@ def main() -> None:
     (out_dir / "config.json").write_text(json.dumps(
         {**vars(args), "model": cfg, "n_params": n_params,
          "split_counts": [len(train_keys), len(val_keys), len(test_keys)],
+         "arena_ids": all_ids, "arena_dirs": {k: str(v) for k, v in arena_dirs.items()},
          "normalization": norm.to_dict()}, indent=2))
     if args.eval_only:
         assert payload is not None, "--eval-only needs --init-from"
@@ -342,7 +453,7 @@ def main() -> None:
                    "map_mode": args.map_mode}
         for cp in ("deadreckon", "gt"):
             readout[cp] = rollout_eval(model, val_data, norm, args.map_mode, args.context,
-                                       args.horizons, args.eval_episodes, device, crop_pose=cp)
+                                       args.horizons, args.eval_episodes, device, crop_pose=cp, per_arena=True)
             print(cp, json.dumps(readout[cp]), flush=True)
         (out_dir / "posedrift_readout.json").write_text(json.dumps(readout, indent=2))
         return
@@ -354,12 +465,18 @@ def main() -> None:
     best = {"metric": float("inf"), "step": -1}
     start = time.time()
 
+    def save(path: Path, step: int, m: dict) -> None:
+        torch.save({"model": model.state_dict(), "config": cfg, "map_mode": args.map_mode,
+                    "normalization": norm.to_dict(), "step": step, "metrics": m,
+                    "z1_dim": z1_dim, "z1_extra_cache": args.z1_extra_cache, "arena_ids": all_ids,
+                    "delta_scale": loss_w.cpu().tolist() if loss_w is not None else None}, path)
+
     for step in range(args.steps):
         for g in opt.param_groups:
             g["lr"] = lr_at(step)
         if args.rollout_steps > 0:
             batch = train_data.sample(rng, args.batch, device, extra_steps=args.rollout_steps)
-            one = {k: v[:, : args.context + 1] if v.dim() >= 2 and k != "map" else v for k, v in batch.items()}
+            one = {k: v[:, : args.context + 1] if v.dim() >= 2 and k not in ("map", "hm") else v for k, v in batch.items()}
             loss, parts = step_loss(model, one, args.map_mode, loss_w)
             ro, ro_parts = rollout_loss(model, batch, args.context, args.rollout_steps, z1_mean_t, z1_std_t, loss_w)
             loss = loss + args.rollout_weight * ro
@@ -381,20 +498,17 @@ def main() -> None:
                 vls = [float(step_loss(model, val_data.sample(vr, args.batch, device),
                                        args.map_mode, loss_w)[0]) for _ in range(args.val_batches)]
             m = rollout_eval(model, val_data, norm, args.map_mode, args.context,
-                             args.horizons, args.eval_episodes, device)
+                             args.horizons, args.eval_episodes, device, per_arena=True)
             sel = m[f"{args.selection}@{max(args.horizons)}"]
             rec = {"phase": "val", "step": step + 1, "val_loss": float(np.mean(vls)),
                    "selection": sel, **m}
             with log.open("a") as fh:
                 fh.write(json.dumps(rec) + "\n")
             print(json.dumps(rec), flush=True)
+            save(out_dir / "ckpt_last.pt", step + 1, m)
             if sel < best["metric"]:
                 best = {"metric": sel, "step": step + 1, **m}
-                torch.save({"model": model.state_dict(), "config": cfg, "map_mode": args.map_mode,
-                            "normalization": norm.to_dict(), "step": step + 1, "metrics": m,
-                            "z1_dim": z1_dim, "z1_extra_cache": args.z1_extra_cache,
-                            "delta_scale": loss_w.cpu().tolist() if loss_w is not None else None},
-                           out_dir / "ckpt_best.pt")
+                save(out_dir / "ckpt_best.pt", step + 1, m)
     (out_dir / "g3_readout.json").write_text(json.dumps(
         {"variant": f"map-{args.map_mode}", "best": best, "wall_s": time.time() - start,
          "split_counts": [len(train_keys), len(val_keys), len(test_keys)]}, indent=2))

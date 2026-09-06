@@ -48,7 +48,7 @@ def main() -> None:
     head = PoseHead(width=payload["config"]["width"]).to(dev); head.load_state_dict(payload["head"]); head.eval()
     helper = EpisodeMedian([], Path("artifacts/traverse"), Path(args.arena))  # vehicle mask: true ground under the vehicle
     norm_helper = EpisodeMedian([], Path("artifacts/traverse"), Path(args.norm_arena))  # elevation channel: training normalisation
-    ds_helper = P.WP1FrameDataset([], Path(args.arena))
+    ds_helper = P.WP1FrameDataset([], Path(args.norm_arena))  # pose head: elevation channel normalised with its TRAINING arena (fixed 2026-09-06)
     keys, poses, errs = [], {}, []
     for f in sorted(Path(args.challenges).glob("*/frame0.npz")):
         key = f.parent.name

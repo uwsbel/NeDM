@@ -57,13 +57,24 @@ class MapCropper(nn.Module):
         self.fc = nn.Linear(k * k * mid_ch, out_dim)
         self.out_dim = out_dim
 
-    def _terrain_height(self, x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
-        """Bilinear height at world (x, y); grid rows increase with +y."""
+    def _terrain_height(self, x: torch.Tensor, y: torch.Tensor,
+                        heightmap: torch.Tensor | None = None) -> torch.Tensor:
+        """Bilinear height at world (x, y); grid rows increase with +y.
+
+        ``heightmap`` (B, 1, H, W) gives every batch element its own height field (multi-arena
+        training); ``None`` reads the module's prior map of the arena being planned on."""
         gx = (x + self.size_m / 2.0) / self.size_m * 2.0 - 1.0
         gy = (y + self.size_m / 2.0) / self.size_m * 2.0 - 1.0
-        grid = torch.stack([gx, gy], dim=-1).reshape(1, -1, 1, 2)
-        out = F.grid_sample(self.heightmap, grid, mode="bilinear",
-                            padding_mode="border", align_corners=False)
+        if heightmap is None:
+            grid = torch.stack([gx, gy], dim=-1).reshape(1, -1, 1, 2)
+            out = F.grid_sample(self.heightmap, grid, mode="bilinear",
+                                padding_mode="border", align_corners=False)
+            return out.reshape(x.shape)
+        batch = x.shape[0]
+        if heightmap.shape[0] == 1 and batch > 1:
+            heightmap = heightmap.expand(batch, -1, -1, -1)
+        grid = torch.stack([gx, gy], dim=-1).reshape(batch, -1, 1, 2)
+        out = F.grid_sample(heightmap, grid, mode="bilinear", padding_mode="border", align_corners=False)
         return out.reshape(x.shape)
 
     def sample_points(self, pose: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
@@ -73,12 +84,16 @@ class MapCropper(nn.Module):
         du, dv = self.du.view(1, 1, -1), self.dv.view(1, 1, -1)
         return (x + du * cos_yaw - dv * sin_yaw, y + du * sin_yaw + dv * cos_yaw)
 
-    def forward(self, maps: torch.Tensor, pose: torch.Tensor) -> torch.Tensor:
-        """maps (B, C, H, W) static per episode; pose (B, L, 3) -> (B, L, out_dim)."""
+    def forward(self, maps: torch.Tensor, pose: torch.Tensor,
+                heightmap: torch.Tensor | None = None) -> torch.Tensor:
+        """maps (B, C, H, W) static per episode; pose (B, L, 3) -> (B, L, out_dim).
+
+        ``heightmap`` (B, 1, Hh, Wh): per-episode height field for the world -> image projection
+        (a bank of arenas indexed per episode); default: the module's single-arena prior map."""
         batch, _, _, _ = maps.shape
         length = pose.shape[1]
         px, py = self.sample_points(pose)
-        pz = self._terrain_height(px, py)
+        pz = self._terrain_height(px, py, heightmap)
         scale = self.f_px / (self.cam_h - pz)
         u = self.cx + scale * px
         v = self.cy - scale * py

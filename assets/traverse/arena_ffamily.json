@@ -1,0 +1,58 @@
+{
+ "arena_f101": {
+  "seed": 101,
+  "slope_cap_deg": 31.604727539273878,
+  "roughness_m": 0.19672473433440452,
+  "roughness_corr_m": 2.784805411969977,
+  "n_hills": 6,
+  "n_craters": 6
+ },
+ "arena_f102": {
+  "seed": 102,
+  "slope_cap_deg": 26.119938015030126,
+  "roughness_m": 0.22617265692922955,
+  "roughness_corr_m": 2.823836777182846,
+  "n_hills": 5,
+  "n_craters": 5
+ },
+ "arena_f103": {
+  "seed": 103,
+  "slope_cap_deg": 27.188782629060633,
+  "roughness_m": 0.17916136894138618,
+  "roughness_corr_m": 2.182009728094305,
+  "n_hills": 6,
+  "n_craters": 7
+ },
+ "arena_f104": {
+  "seed": 104,
+  "slope_cap_deg": 30.869953686586747,
+  "roughness_m": 0.23997925932155514,
+  "roughness_corr_m": 2.2160888282268245,
+  "n_hills": 5,
+  "n_craters": 5
+ },
+ "arena_f105": {
+  "seed": 105,
+  "slope_cap_deg": 29.467367335210813,
+  "roughness_m": 0.2788897708125636,
+  "roughness_corr_m": 2.096729455446624,
+  "n_hills": 6,
+  "n_craters": 6
+ },
+ "arena_f106": {
+  "seed": 106,
+  "slope_cap_deg": 31.87685498824335,
+  "roughness_m": 0.15525201987617543,
+  "roughness_corr_m": 2.122786689830936,
+  "n_hills": 7,
+  "n_craters": 6
+ },
+ "arena_f107": {
+  "seed": 107,
+  "slope_cap_deg": 29.539751435801804,
+  "roughness_m": 0.21209951401184235,
+  "roughness_corr_m": 2.5027373819192467,
+  "n_hills": 5,
+  "n_craters": 7
+ }
+}

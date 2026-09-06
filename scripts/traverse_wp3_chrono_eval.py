@@ -132,7 +132,10 @@ class CameraLocaliser:
     """Per-frame vehicle pose from the overhead RGB-D frame: frozen WP1 encoder stem + WP4 pose head
     (scripts/traverse_wp4_train_posehead.py). Pixel -> world uses the known arena heightmap."""
 
-    def __init__(self, posehead_ckpt: Path, arena_dir: Path):
+    def __init__(self, posehead_ckpt: Path, arena_dir: Path, norm_arena_dir: Path | None = None):
+        """``arena_dir``: the arena driven on (pixel -> world through its heightmap). ``norm_arena_dir``: the arena
+        whose height range normalises the elevation channel -- the head's TRAINING arena, whatever is driven on
+        (before 2026-09-06 the current arena's range was used, so the input distribution shifted on new arenas)."""
         import importlib.util
         import torch
         from nedm.traverse import perception as P
@@ -153,7 +156,8 @@ class CameraLocaliser:
         self.cam, self.tmap = CameraModel(), TerrainMap.from_dir(arena_dir)
         _, _, sec = self.cam.pixel_rays(P.DEPTH_RAY_SCALE)
         self.sec = sec.astype(np.float32)
-        self.h_min, self.h_max = float(self.tmap.meta["height_min_m"]), float(self.tmap.meta["height_max_m"])
+        norm_meta = TerrainMap.from_dir(Path(norm_arena_dir)).meta if norm_arena_dir else self.tmap.meta
+        self.h_min, self.h_max = float(norm_meta["height_min_m"]), float(norm_meta["height_max_m"])
         self._enc, self._nohit, self._off = encode_depth_mm, DEPTH_NO_HIT, DEPTH_OFFSET_M
         torch.set_num_threads(2)
 
@@ -217,7 +221,17 @@ def run_one(task: dict) -> dict:
     dt = float(config["simulation"]["step_size_s"])
     substeps = max(1, int(round(CTRL_DT_S / dt)))
     obstacles = np.asarray(layout.obstacles(), np.float64)
-    localiser = CameraLocaliser(Path(task["posehead"]), arena_dir) if loc_mode != "true" else None
+    norm_arena = task.get("norm_arena")
+    localiser = CameraLocaliser(Path(task["posehead"]), arena_dir, (REPO_ROOT / norm_arena).resolve() if norm_arena else None) if loc_mode != "true" else None
+    # training-data recording (plan §28 collector): 20 Hz rows in the WP2 cache convention -- state after
+    # Synchronize at the first substep, the action of that interval -- for EVERY frame until the episode ends,
+    # whichever way it ends (route end + parking, stall, off-route, rollover, timeout); the outcome is the label
+    record = task.get("record")
+    rec_fields = STATE_FIELD_PRESETS[task.get("record_preset", "tire_normal_force_omega_pt")]
+    rec_z1, rec_act, rec_pose, rec_power = [], [], [], []
+    stall_abort_frames = int(round(task["stall_abort_s"] / CTRL_DT_S)) if task.get("stall_abort_s") else None
+    park_frames = int(round(task.get("park_s", 0.0) / CTRL_DT_S))
+    end_frame = None  # frame at which the route end was reached (parking follows when park_s > 0)
     est = None  # (x, y, yaw) the tracker uses when localisation != true
     settle_est: list[tuple[float, float, float]] = []
     loc_xy_log, loc_yaw_log = [], []
@@ -321,6 +335,10 @@ def run_one(task: dict) -> dict:
             cmd = np.array([0.0, 0.0, 1.0]); prev_steer = 0.0
             if driver is not None:
                 driver.SetDesiredSpeed(0.0)
+        elif end_frame is not None:  # parked at the route end (collector convention), rows still recorded
+            cmd = np.array([0.0, 0.0, 1.0])
+            if driver is not None:
+                driver.SetDesiredSpeed(0.0)
         elif policy is not None:
             obs = np.concatenate([[err["e_along"] / 10.0, err["e_ct"] / 10.0, err["e_h"] / math.pi],
                                   rt.preview(x, y, yaw), [vx / 10.0, yaw_rate], last])
@@ -335,7 +353,7 @@ def run_one(task: dict) -> dict:
             driver.SetDesiredSpeed(0.0 if err["route_end"] else float(err["v_ref"]))
             cmd = None
 
-        if frame >= 0:
+        if frame >= 0 and end_frame is None:
             if localiser is not None:  # judge tracking with the TRUE pose, not the estimate
                 err_true = RouteTracker.__new__(RouteTracker); err_true.__dict__.update(rt.__dict__)
                 e_t = err_true.update(x_true, y_true, yaw_true, vx, first=False)
@@ -366,6 +384,14 @@ def run_one(task: dict) -> dict:
                 inputs = manual
             terrain.Synchronize(ts)
             hmmwv.Synchronize(ts, inputs, terrain)
+            if record and sub == 0 and frame >= 0:
+                srow = capture_row(hmmwv, terrain, "collect", task["candidate"], task["key"], "train", frame, ts, inputs, include_tires=True)
+                srow["engine_motor_speed_radps"] = float(engine.GetMotorSpeed())
+                srow["engine_motorshaft_torque_nm"] = float(engine.GetOutputMotorshaftTorque())
+                rec_z1.append([float(srow[f]) for f in rec_fields])
+                rec_act.append([float(inputs.m_steering), float(inputs.m_throttle), float(inputs.m_braking)])
+                rec_pose.append([float(srow["pos_x_m"]), float(srow["pos_y_m"]), float(srow["yaw_rad"])])
+                rec_power.append(float(engine.GetOutputMotorshaftTorque()) * float(transmission.GetOutputMotorshaftSpeed()) / 1000.0)
             if frame >= 0:
                 p_kw = float(engine.GetOutputMotorshaftTorque()) * float(transmission.GetOutputMotorshaftSpeed()) / 1000.0
                 energy_kj += p_kw * dt
@@ -384,11 +410,11 @@ def run_one(task: dict) -> dict:
             last = np.array([prev_steer, float(inputs.m_throttle), float(inputs.m_braking)])
         else:
             last = cmd
-        if frame >= 0:
+        if frame >= 0 and end_frame is None:
             act_log.append(last.copy())
 
         roll, pitch = float(vehicle.GetRoll()), float(vehicle.GetPitch())
-        if frame >= 0:
+        if frame >= 0 and end_frame is None:
             max_roll = max(max_roll, abs(roll)); max_pitch = max(max_pitch, abs(pitch))
             fz = [float(state[f"tire_{w}_force_wheel_fz_n"]) for w in ("fl", "fr", "rl", "rr")]
             min_tire_fz = min(min_tire_fz, *fz)
@@ -404,14 +430,30 @@ def run_one(task: dict) -> dict:
                 stall_frames += 1
         if abs(roll) > ROLL_PITCH_ABORT_RAD or abs(pitch) > ROLL_PITCH_ABORT_RAD:
             status = "rollover"; break
-        if frame >= 0 and abs(err["e_ct"]) > 6.0:
-            status = "off_route"; break
-        if frame >= 0 and err["route_end"]:
-            status = "completed"; end_time = (frame + 1) * CTRL_DT_S; break
+        if end_frame is not None:  # parking after the route end
+            if frame - end_frame >= park_frames:
+                break
+        else:
+            if frame >= 0 and abs(err["e_ct"]) > 6.0:
+                status = "off_route"; break
+            if stall_abort_frames is not None and stall_frames >= stall_abort_frames:
+                status = "stall"; break
+            if frame >= 0 and err["route_end"]:
+                status = "completed"; end_time = (frame + 1) * CTRL_DT_S; end_frame = frame
+                if park_frames == 0:
+                    break
         frame += 1
 
     ct = np.asarray(ct_log) if ct_log else np.zeros(1)
     acts = np.asarray(act_log) if act_log else np.zeros((1, 3))
+    if record:
+        Path(record).parent.mkdir(parents=True, exist_ok=True)
+        np.savez_compressed(record, z1=np.asarray(rec_z1, np.float32).reshape(-1, len(rec_fields)), act=np.asarray(rec_act, np.float32).reshape(-1, 3),
+                            pose=np.asarray(rec_pose, np.float32).reshape(-1, 3), power=np.asarray(rec_power, np.float32).reshape(-1, 1),
+                            z1_fields=np.array(rec_fields), status=np.array(status), end_frame=np.array(-1 if end_frame is None else end_frame),
+                            key=np.array(task["key"]), candidate=np.array(task["candidate"]), arena=np.array(task["arena"]),
+                            meta_path=np.array(task["meta_path"]), max_contact_n=np.array(float(max_contact)),
+                            **{f"route_{k}": np.asarray(v, np.float32) for k, v in route.items()})
     if series is not None:
         Path(task["dump_series"]).parent.mkdir(parents=True, exist_ok=True)
         np.savez_compressed(task["dump_series"], series=np.asarray(series, np.float32),
@@ -428,7 +470,7 @@ def run_one(task: dict) -> dict:
                stall_s=stall_frames * CTRL_DT_S, stalled=bool(stall_frames * CTRL_DT_S >= 1.0), unloaded_s=unloaded_frames * CTRL_DT_S,
                unload_run_max_s=unload_run_max * CTRL_DT_S, airborne_s=airborne_frames * CTRL_DT_S,
                min_clearance_m=float(min_clear), steer_rate_max=float(np.abs(np.diff(acts[:, 0])).max()) if len(acts) > 1 else 0.0,
-               frames=len(ct_log), wall_s=time.time() - wall0, localisation=loc_mode,
+               frames=len(ct_log), recorded_frames=len(rec_z1), wall_s=time.time() - wall0, localisation=loc_mode,
                loc_xy_mean_m=float(np.mean(loc_xy_log)) if loc_xy_log else None,
                loc_xy_p95_m=float(np.quantile(loc_xy_log, 0.95)) if loc_xy_log else None,
                loc_yaw_mean_deg=float(np.degrees(np.mean(loc_yaw_log))) if loc_yaw_log else None)
@@ -443,8 +485,13 @@ def build_tasks(args) -> list[dict]:
         tasks = []
         for t in json.loads(Path(args.tasks_file).read_text()):
             for ctrl in args.runs:
-                tasks.append({**t, "controller": ctrl, "arena": args.arena, "horizon_s": args.horizon_s, "ref_meta": str(ref_meta),
-                              "localisation": args.localisation, "posehead": args.posehead, "loc_gain_xy": args.loc_gain_xy, "loc_gain_yaw": args.loc_gain_yaw})
+                tasks.append({**t, "controller": ctrl, "arena": t.get("arena", args.arena), "horizon_s": args.horizon_s, "ref_meta": str(ref_meta),
+                              "localisation": args.localisation, "posehead": args.posehead, "loc_gain_xy": args.loc_gain_xy, "loc_gain_yaw": args.loc_gain_yaw,
+                              "norm_arena": args.norm_arena, "stall_abort_s": args.stall_abort_s, "park_s": args.park_s})
+        if args.skip_existing:
+            n0 = len(tasks)
+            tasks = [t for t in tasks if not (t.get("record") and Path(t["record"]).exists())]
+            print(f"resume: {n0 - len(tasks)} runs already recorded, {len(tasks)} to go", flush=True)
         return tasks
     from nedm.traverse.layout import EpisodeLayout
     from nedm.traverse.oracle import PlannerParams, plan_to_ring
@@ -541,14 +588,30 @@ def main() -> int:
     ap.add_argument("--loc-gain-yaw", type=float, default=0.15)
     ap.add_argument("--horizon-s", type=float, default=25.0)
     ap.add_argument("--procs", type=int, default=12)
+    ap.add_argument("--norm-arena", default="assets/traverse/arena_v1",
+                    help="arena whose height range normalises the pose head's elevation channel (its training arena)")
+    ap.add_argument("--stall-abort-s", type=float, default=None,
+                    help="collection: end the run with status 'stall' after this long with throttle on and no motion")
+    ap.add_argument("--park-s", type=float, default=0.0, help="collection: keep recording this long (brakes on) after the route end")
+    ap.add_argument("--skip-existing", action="store_true", help="tasks-file mode: skip runs whose 'record' file exists; append to rows.jsonl")
     args = ap.parse_args()
 
     tasks = build_tasks(args)
     out = Path(args.out); out.mkdir(parents=True, exist_ok=True)
     print(f"{len(tasks)} Chrono runs ({args.episodes} episodes x {len(args.runs)} controllers"
           f"{' x candidates' if args.candidates else ''}), {args.procs} procs", flush=True)
-    rows_path = out / "rows.jsonl"; rows_path.write_text("")
+    rows_path = out / "rows.jsonl"
     rows = []
+    if args.skip_existing and rows_path.exists():
+        for line in rows_path.read_text().splitlines():
+            try:
+                rows.append(json.loads(line))
+            except json.JSONDecodeError:
+                pass
+        rows = [r for r in rows if "status" in r]
+        rows_path.write_text("".join(json.dumps(r) + "\n" for r in rows))
+    else:
+        rows_path.write_text("")
     t0 = time.time()
     with get_context("spawn").Pool(args.procs, maxtasksperchild=1) as pool:
         for i, row in enumerate(pool.imap_unordered(run_one, tasks)):

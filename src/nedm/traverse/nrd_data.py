@@ -10,7 +10,7 @@ leak into WP2 val/test and "held out" stops meaning held out for the stack.
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 import numpy as np
@@ -37,15 +37,26 @@ def split_keys(
 
 @dataclass
 class CacheSplit:
-    """Stacked arrays for one split. Episodes are uniform length in schema v1."""
+    """Stacked arrays for one split.
+
+    Schema v1 episodes are uniform length (400 frames, every frame valid). Schema v2 (multi-arena
+    collection, 2026-09-06) keeps early-terminated episodes: files hold only the recorded frames plus
+    ``status`` / ``arena``; the loader pads them to a common length by repeating the last row and
+    ``valid`` marks the recorded frames -- every consumer (window sampler, losses, rollout metrics)
+    must honour it. ``arena_idx`` indexes ``arena_ids`` (one crop height field per arena).
+    """
 
     keys: list[str]
-    z1: np.ndarray  # (N, T, 15)
+    z1: np.ndarray  # (N, T, 15 | 17)
     z2: np.ndarray  # (N, T, Z) -- empty when the variant does not need it
     act: np.ndarray  # (N, T, 3)
     pose: np.ndarray  # (N, T, 3)
     power: np.ndarray  # (N, T, 1) motorshaft kW -- auxiliary head target only
     terrain: np.ndarray  # (N, T, 64) privileged ego terrain patch (priv rows only)
+    valid: np.ndarray | None = None  # (N, T) bool; None = every frame recorded (schema v1)
+    arena_idx: np.ndarray | None = None  # (N,) int into arena_ids; None = single arena
+    arena_ids: list[str] = field(default_factory=list)
+    status: list[str] = field(default_factory=list)  # per episode: completed | stall | off_route | rollover | timeout
 
     @property
     def n_episodes(self) -> int:
@@ -55,29 +66,90 @@ class CacheSplit:
     def n_frames(self) -> int:
         return self.z1.shape[1]
 
+    @property
+    def n_valid(self) -> np.ndarray:
+        """(N,) recorded frames per episode."""
+        if self.valid is None:
+            return np.full(self.n_episodes, self.n_frames, dtype=np.int64)
+        return self.valid.sum(1).astype(np.int64)
+
+    def valid_mask(self) -> np.ndarray:
+        return np.ones((self.n_episodes, self.n_frames), bool) if self.valid is None else self.valid
+
+
+def _pad_rows(a: np.ndarray, n_frames: int) -> np.ndarray:
+    """(t, D) -> (n_frames, D): repeat the last recorded row (masked out downstream)."""
+    if a.shape[0] >= n_frames:
+        return a[:n_frames]
+    if a.shape[0] == 0:
+        return np.zeros((n_frames,) + a.shape[1:], a.dtype)
+    return np.concatenate([a, np.repeat(a[-1:], n_frames - a.shape[0], axis=0)], axis=0)
+
 
 def load_split(cache_dir: Path, keys: list[str], with_z2: bool = True,
-               with_terrain: bool = False) -> CacheSplit:
-    z1, z2, act, pose, power, terrain = [], [], [], [], [], []
+               with_terrain: bool = False, n_frames: int | None = None,
+               arena_id: str | None = None) -> CacheSplit:
+    """Load episodes of one cache. Variable-length (schema v2) files are padded to ``n_frames``
+    (default: the longest episode) with ``valid`` set; ``arena`` comes from the file, the cache
+    manifest's ``arena_of``, or ``arena_id`` (schema v1 caches: the one arena they were recorded on)."""
+    cache_dir = Path(cache_dir)
+    manifest = {}
+    mf = cache_dir / "cache_manifest.json"
+    if mf.exists():
+        manifest = json.loads(mf.read_text())
+    arena_of = manifest.get("arena_of", {})
+    default_arena = arena_id or manifest.get("arena_id", "arena_v1")
+    z1, z2, act, pose, power, terrain, arenas, status, lengths = [], [], [], [], [], [], [], [], []
     for key in keys:
-        with np.load(Path(cache_dir) / f"{key}.npz") as data:
+        with np.load(cache_dir / f"{key}.npz") as data:
             z1.append(data["z1"])
             act.append(data["act"])
             pose.append(data["pose"])
             power.append(data["power"])
             terrain.append(data["terrain"] if with_terrain else np.zeros((0,), np.float32))
             if with_z2:
-                z2.append(data["z2"])
+                z2.append(data["z2"] if "z2" in data.files else np.zeros((data["z1"].shape[0], 0), np.float32))
+            arenas.append(str(data["arena"]) if "arena" in data.files else arena_of.get(key, default_arena))
+            status.append(str(data["status"]) if "status" in data.files else "completed")
+            lengths.append(int(data["z1"].shape[0]))
+    lengths = np.asarray(lengths)
+    T = int(n_frames or lengths.max())
+    uniform = bool((lengths == T).all())
+    stack = lambda rows: np.stack(rows) if uniform else np.stack([_pad_rows(r, T) for r in rows])
+    arena_ids = sorted(set(arenas))
+    valid = None
+    if not uniform:
+        valid = np.arange(T)[None, :] < np.minimum(lengths, T)[:, None]
     return CacheSplit(
         keys=list(keys),
-        z1=np.stack(z1),
-        z2=np.stack(z2) if with_z2 else np.zeros((len(keys), z1[0].shape[0], 0), dtype=np.float32),
-        act=np.stack(act),
-        pose=np.stack(pose),
-        power=np.stack(power),
-        terrain=np.stack(terrain) if with_terrain
-        else np.zeros((len(keys), z1[0].shape[0], 0), dtype=np.float32),
+        z1=stack(z1),
+        z2=stack(z2) if with_z2 else np.zeros((len(keys), T, 0), dtype=np.float32),
+        act=stack(act),
+        pose=stack(pose),
+        power=stack(power),
+        terrain=stack(terrain) if with_terrain else np.zeros((len(keys), T, 0), dtype=np.float32),
+        valid=valid,
+        arena_idx=np.asarray([arena_ids.index(a) for a in arenas], np.int64),
+        arena_ids=arena_ids,
+        status=status,
     )
+
+
+def concat_splits(a: CacheSplit, b: CacheSplit) -> CacheSplit:
+    """Stack two splits (possibly different lengths / arenas) into one; keys must be disjoint."""
+    T = max(a.n_frames, b.n_frames)
+    pad = lambda x, n: x if x.shape[1] == T else np.concatenate([x, np.repeat(x[:, -1:], T - x.shape[1], axis=1)], axis=1)
+    arena_ids = sorted(set(a.arena_ids) | set(b.arena_ids))
+    remap = lambda s: np.asarray([arena_ids.index(s.arena_ids[i]) for i in (s.arena_idx if s.arena_idx is not None else np.zeros(s.n_episodes, int))], np.int64)
+    va = np.concatenate([a.valid_mask(), np.zeros((a.n_episodes, T - a.n_frames), bool)], 1)
+    vb = np.concatenate([b.valid_mask(), np.zeros((b.n_episodes, T - b.n_frames), bool)], 1)
+    valid = np.concatenate([va, vb])
+    return CacheSplit(keys=a.keys + b.keys,
+                      z1=np.concatenate([pad(a.z1, T), pad(b.z1, T)]), z2=np.concatenate([pad(a.z2, T), pad(b.z2, T)]),
+                      act=np.concatenate([pad(a.act, T), pad(b.act, T)]), pose=np.concatenate([pad(a.pose, T), pad(b.pose, T)]),
+                      power=np.concatenate([pad(a.power, T), pad(b.power, T)]), terrain=np.concatenate([pad(a.terrain, T), pad(b.terrain, T)]),
+                      valid=None if valid.all() else valid, arena_idx=np.concatenate([remap(a), remap(b)]), arena_ids=arena_ids,
+                      status=list(a.status) + list(b.status))
 
 
 def load_z1_extra(sidecar: Path, keys: list[str]) -> np.ndarray:
@@ -93,7 +165,8 @@ def with_z1_extra(split: CacheSplit, sidecar: Path) -> CacheSplit:
     """Append the sidecar's channels to ``split.z1`` (frame-aligned; same key order)."""
     extra = load_z1_extra(sidecar, split.keys)
     return CacheSplit(keys=split.keys, z1=np.concatenate([split.z1, extra.astype(split.z1.dtype)], -1),
-                      z2=split.z2, act=split.act, pose=split.pose, power=split.power, terrain=split.terrain)
+                      z2=split.z2, act=split.act, pose=split.pose, power=split.power, terrain=split.terrain,
+                      valid=split.valid, arena_idx=split.arena_idx, arena_ids=split.arena_ids, status=split.status)
 
 
 def pose_features(pose: np.ndarray) -> np.ndarray:
@@ -119,8 +192,12 @@ class Normalizer:
 
     @staticmethod
     def fit(split: CacheSplit, eps: float = 1e-6) -> "Normalizer":
+        mask = split.valid.reshape(-1) if split.valid is not None else None  # recorded frames only
+
         def stats(a: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
             flat = a.reshape(-1, a.shape[-1])
+            if mask is not None and flat.shape[0] == mask.shape[0]:
+                flat = flat[mask]
             return flat.mean(0), np.maximum(flat.std(0), eps)
 
         z1_mean, z1_std = stats(split.z1)
