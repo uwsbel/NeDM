@@ -40,9 +40,10 @@ THAT REASONING IS ABOUT CRM AND THIS HARNESS ONLY EVER RAN ON RIGID, where
 foot_*_in_contact records what Chrono's contact container actually resolved and the
 proxy was never needed. The Schmitt constants were tuned where no ground truth exists;
 on rigid they agree with it on 70.9% of samples, worst of every threshold in the band
-(see contact_mode's docstring). The section foot is fl and the drop rule is keyed to
-rr -- the two feet the proxy handles WORST, at 72.2% and 41.2%, because they carry the
-least load and a 60 N engage rarely latches for them.
+(see contact_mode's docstring). The drop rule keys on SECTION_FOOT = fl, at 72.2%
+agreement; STANCE_PARTNER = rr, the frame anchor and the diagonal-offset diagnostic, is
+the worst foot in the robot at 41.2%. Both carry less load than the front-right and
+rear-left, so a 60 N engage latches for them least often.
 
 MEASURED CONSEQUENCE for rr touchdown detection, 60 rigid episodes:
 
@@ -54,6 +55,20 @@ MEASURED CONSEQUENCE for rr touchdown detection, 60 rigid episodes:
   chatter, not under-detection. But it finds NONE on 4 episodes where ground truth
   finds events, against 1 the other way. So the failure is bimodal: slight
   over-detection where it works, total failure on ~7% of episodes.
+
+  MEASURED EFFECT ON THE DROP RULE, 366 non-diverged episodes of the 400 W0 used:
+
+    dropped by the proxy (fewer than 3 fl rising edges)   78
+    dropped by ground truth on the same rule              68
+    proxy drops that ground truth would KEEP              21
+    ground truth drops that the proxy KEEPS               11
+
+  So 32 episodes -- 8.7% -- are admitted or excluded purely by which detector is used,
+  net 10 fewer admitted under the proxy. That bears directly on the W4 intersection:
+  the event arm admitted 255 of 400 against the fixed arm's 281, and that 26-episode
+  gap was attributed to gait. A substantial part of it is detector quality instead.
+  The event arm was scored on the subset where the weaker detector happened to work,
+  which is a sharper statement of the handicap than "the detector is biased".
 
   Both modes handicap the EVENT-INDEXED arm specifically, since that arm's sampling
   depends on detecting the event; the fixed-dt arm is indifferent. W4 is recorded
