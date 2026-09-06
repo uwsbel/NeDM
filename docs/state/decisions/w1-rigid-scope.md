@@ -538,3 +538,46 @@ signal. **The gate is not compromised.** What is compromised is any claim that
 rests on exact reproduction: a stripped digest comparison, or treating a recording
 as ground truth for an open-loop replay at multi-second horizons, where by 41 s
 the replay differs from its own original by more than the quantity being measured.
+
+### Refinement: the simulator IS deterministic. The divergence has a source.
+
+The section above called this "chaos from rounding". Chaos explains the
+AMPLIFICATION and not the origin, and the distinction matters.
+
+Three replays now exist of the same episode spec: with the patched collector at
+sigma = 0, with the pre-patch collector, and with the collector from before the
+perturbation RNG draw-order fix.
+
+    patched vs pre-patch            0 of 167 numeric columns differ
+    pre-RNG-fix vs patched          3 differ, all grav_world_* (ground-tilt gravity)
+    ANY of them vs the recording  145 of 164 differ, max |diff| 51.31091 N
+                                   -- the SAME value to 7 digits from every version
+
+**The simulator is deterministic.** Two collector versions separated by a
+deliberate RNG change produce byte-equal physics. And the divergence from the
+recording is identical across all three, so it originates in the RECORDING side,
+not in any run-to-run instability.
+
+**It is also not the RNG fix**, which was the obvious suspect: the pre-fix
+collector diverges from the recording by exactly the same amount.
+
+**And it is not a parameter reconstruction error.** `spec_for` rebuilds the
+perturbation peak, prewalk and ground tilt from a seeded RNG rather than reading
+them from the episode metadata, which records none of them -- so that was the
+leading hypothesis. It is ruled out by magnitude: the reconstruction gives a
+ground tilt of 1.57 deg roll, and 41 s on a slope that size would displace the
+robot by metres. Measured `pos_x_m` divergence is 0.02 m.
+
+**What remains is an environment difference between the recording (Sep 4 23:12)
+and now** -- Chrono build, thread count, or host. The initial difference is
+4.6e-05 rad at the first recorded row, which then amplifies about 5000x over 41 s
+through ordinary contact chaos.
+
+**This reconciles the verdict harness.** Its check is a genuine sha256 over 164
+physics columns on every row and it aborts on any mismatch -- not weaker than its
+docstring. It produced a verdict at n=36 because it collected and replayed within
+one environment, where reproduction is exact. **The check is sound; what it
+cannot detect is a recording made under a different build.** The episode metadata
+recording no perturbation, prewalk or tilt parameters is a separate gap worth
+closing, because it forces replay to depend on a reconstruction nobody can verify
+against the episode itself.
