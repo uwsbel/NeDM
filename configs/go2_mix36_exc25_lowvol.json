@@ -21,7 +21,7 @@
         "terrain": "flat",
         "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_excitation_36d",
         "batch_fraction": 0.25,
-        "train_episode_fraction": 0.0625
+        "train_episode_fraction": 0.01
       }
     ]
   },
@@ -100,6 +100,6 @@
   "sweep_recipe": {
     "version": "go2_mix36_exc25_lowvol",
     "slug": "mix36exc25lv",
-    "notes": "LOW-VOLUME CELL: batch_fraction 0.25 as in go2_mix36_exc25, but only 1/16 of the excitation episodes (train_episode_fraction 0.0625, ~918 of 14,696). The RATIO is held and the VOLUME is cut 16x. Two things it separates. First, whether rank-saturation-at-2000-rows survives TRAINING -- rank is a property of the data and whether a model exploits action variation as soon as it is present is a different claim. Second, and more important: a mixed cell sees more total data DIVERSITY, not only decorrelated actions, so a gate improvement could come from variety rather than from the action map. If the effect holds at 1/16 the volume it is the action structure; if it scales with volume it is diversity."
+    "notes": "LOW-VOLUME CONTROL: batch_fraction 0.25 as in go2_mix36_exc25, but only train_episode_fraction=0.01 of the excitation episodes -- about 146 of 14,696, roughly 49,494 rows against 4.98M. Ratio held, volume cut 100x.\n\nWHAT IT SEPARATES, stated before the numbers exist. A mixed cell sees more total data DIVERSITY, not only decorrelated actions, so a gate improvement could come from variety rather than from the action map -- and 'the confound was the binding constraint' is exactly the reading a favourable result would be given. If the effect PERSISTS at 1/100 the volume, the action structure is doing the work. If it SCALES with volume, diversity is a live alternative and the two cannot be separated without a further control.\n\nIt also tests whether rank-saturation-at-2000-rows survives TRAINING. Rank is a property of the data; whether a model exploits action variation as soon as it is present is a different claim. 49,494 rows is about 25x that saturation point.\n\nREPETITION IS THE COST AND IS DELIBERATE: the excitation stream supplies ~32,000 samples per epoch against a pool of ~49,494, so the small pool is seen roughly 0.6x per epoch and ~52x over the run. That is the point of the cell -- same ratio, far less unique data -- but it means a null here could be overfitting to a small pool rather than insufficient volume, and that ambiguity should be stated rather than resolved by assertion."
   }
 }
