@@ -698,3 +698,89 @@ RNG stream the episode does not carry. That was verified correct here only by
 locating the collection-time commit and re-executing the draw sequence by hand.
 Recording the values -- not the seed -- would make replay checkable rather than
 reconstructable.
+
+## 1j. The wrap fix moves the gate. Paired, at 0.5 s, on every measure.
+
+First result in this study to move the action-sensitivity gate.
+
+**Validity before the statistic.** Both runs are `sequence_length` 128 and both used
+the same cached Chrono arms, so the comparison is paired by construction:
+
+    max |d_chrono_A - d_chrono_B| = 0.000e+00   at both horizons
+
+Identical, not merely comparable. The between-episode variance is common to both
+arms and cancels in the difference.
+
+| 0.5 s, 16 matched episodes | value | 95% CI | |
+|---|---|---|---|
+| gain | A 1.451 -> B 1.046 | | |
+| paired `d(log gain)` | -0.2706 | [-0.5122, -0.0248] | **excludes 0** |
+| paired `d(\|log gain\|)` | -0.3184 | [-0.5338, -0.1060] | **excludes 0** |
+| corr | A 0.479 -> B 0.773 | | |
+| paired-bootstrap `d(corr)` | +0.2863 | [+0.0874, +0.5307] | **excludes 0** |
+
+**The marginal intervals overlapped and I had written this off as unseparated.**
+corr [-0.022, 0.788] against [0.450, 0.917] looks like nothing. Paired, it is
++0.2863 excluding zero. Pairing beat an n we could not have afforded to collect.
+
+**Two things the analysis had to get right.**
+
+`corr` is a **cross-episode** statistic with no per-episode value, so "take 16
+per-episode differences" is not available for it. It is paired by **bootstrap** --
+resample episodes, recompute corr for BOTH arms on the SAME resample, difference,
+20k draws.
+
+And `d(log gain)` alone is the wrong target, because **gain's ideal is 1.0, not
+smaller** -- a run overshooting to 0.6 would score as an improvement on the signed
+difference. `d(|log gain|)`, the distance from ideal, is what the verdict cares
+about: 0.828 -> 0.510. That it separates too is what makes this solid rather than
+an artefact of which direction was examined.
+
+### 1.0 s is UNDERPOWERED, NOT NULL
+
+    0.5 s  d(log gain)  [-0.5122, -0.0248]   width 0.49
+    1.0 s  d(log gain)  [-0.6499, +0.5593]   width 1.21   -- 2.5x wider
+
+Nothing separates at 1.0 s, and the apparatus is worse there (`err_over_signal`
+0.164 against 0.093). **So the supported claim is "we cannot detect an effect at
+1.0 s", NOT "the fix does not help at 1.0 s".** Those are different statements and
+the interval width is the evidence against the second. If 1.0 s ever needs to be
+readable the fix is more episodes, not a better statistic.
+
+### What is NOT established
+
+**The attribution.** `go2_contact_40d_unwrap_pinned` restores the pre-unwrap
+`target_std` for that one channel against the same unwrapped arrays, and it is the
+only thing that separates "the +-2*pi target spikes are gone" from "that channel's
+effective loss weight rose 113x". Both landed in this run. The paired analysis
+sharpens THAT something happened, not WHAT.
+
+**And the stake is worth stating plainly before the pinned arm lands**, so neither
+outcome gets over-read on arrival. The trustworthy horizon has been 0.1 s all
+study. This cell reads gain 1.046 PASS and corr 0.773, with the interval
+straddling the 0.5 threshold. If it survives attribution, the usable horizon
+extends roughly fivefold and 0.5 s covers a full gait cycle -- the thing we
+established the model could not do -- which would relicense the fine-tune line,
+since v4's 5-step branches were chosen against a 0.1 s window. If instead the
+pinned arm attributes it to the loss weight, that is equally real: one
+badly-weighted channel would have been costing a fivefold horizon.
+
+Neither is claimed. One unreplicated pair with an interval straddling the
+threshold is precisely the shape of result this study has spent its time
+retracting.
+
+### Tooling
+
+The gate now persists `per_episode` arrays with episode ids, so any two runs on
+shared arms can be paired without re-instrumenting, and it applies the same
+`circular_unwrapped` transform the training set got -- a model trained on
+unwrapped angles fed a wrapped +-2*pi jump is being evaluated off-distribution on
+the one channel that was fixed.
+
+**And cached arms are valid only for the `sequence_length` that generated them.**
+`branch_at = rowsA[L]["time_s"]`, so ctx8 and ctx16 reused L=128 arms branching at
+2.68 s while their own windows start at 1.48 s -- entirely before the branch,
+`d_chrono` of 1e-8, `err_over_signal` of 1.1e8, INCOMPLETE. The apparatus check
+caught it and refused to emit a number. Same class as the Chrono build mismatch: a
+cached artefact reused under conditions it was not generated for, producing
+plausible machinery rather than an error.

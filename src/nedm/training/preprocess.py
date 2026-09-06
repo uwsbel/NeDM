@@ -491,6 +491,13 @@ def build_metadata(
         "state_fields": state_fields,
         "action_fields": action_fields,
         "target_fields": [f"delta_{field}" for field in state_fields],
+        # WHICH CHANNELS WERE UNWRAPPED. Any consumer that rebuilds state from raw
+        # CSVs -- the action-sensitivity gate does exactly this -- must apply the
+        # same unwrap or it feeds a model trained on continuous angles a wrapped
+        # input, which is a train/test mismatch on the one channel we fixed.
+        # Recorded as a list rather than a bool so a later change to
+        # CIRCULAR_STATE_FIELDS cannot silently reinterpret an old dataset.
+        "circular_unwrapped": [f for f in state_fields if f in CIRCULAR_STATE_FIELDS],
         "rollout_fields": rollout_fields,
         "splits": {
             "train": {

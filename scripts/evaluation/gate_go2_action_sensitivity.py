@@ -206,7 +206,7 @@ def run_arm(s, ckpt, outdir, switch_ckpt=None, switch_at=None):
     return got[0], None
 
 
-def read_arrays(csv_path, state_fields, action_fields):
+def read_arrays(csv_path, state_fields, action_fields, circular=()):
     """State and action matrices, deriving the gravity channels when absent.
 
     Arm B comes straight from the collector and has no grav_body_* columns; the
@@ -226,6 +226,13 @@ def read_arrays(csv_path, state_fields, action_fields):
             r["grav_body_z"] = -(1.0 - 2.0 * (x * x + y * y))
     S = np.array([[float(r[f]) for f in state_fields] for r in rows], dtype=np.float64)
     A = np.array([[float(r[f]) for f in action_fields] for r in rows], dtype=np.float64)
+    # SAME UNWRAP THE TRAINING SET GOT, or none, per the checkpoint's own metadata.
+    # A model trained on unwrapped angles and fed a wrapped +-2*pi jump here is being
+    # evaluated off its training distribution on exactly the channel that was fixed,
+    # and the gate would report that as an action-sensitivity number.
+    for f in circular:
+        if f in state_fields:
+            S[:, state_fields.index(f)] = np.unwrap(S[:, state_fields.index(f)])
     return S, A
 
 
@@ -289,6 +296,10 @@ def main():
     tr.model.load_state_dict(ck["model_state_dict"]); tr.model.to(tr.device).eval()
     md = json.load(open(ck["config"]["processed_dataset_dir"] + "/metadata.json"))
     sf, af, dt = md["state_fields"], md["action_fields"], md["dt_s"]
+    # Absent means "built before the unwrap existed", which is genuinely no unwrap --
+    # so default to empty rather than guessing from the field names.
+    circ = md.get("circular_unwrapped", [])
+    print(f"  circular channels unwrapped to match training: {circ or 'none'}")
     hs_steps = [max(1, int(round(float(h) / dt))) for h in a.horizons_s.split(",")]
     print(f"surrogate {a.checkpoint}\n  state {len(sf)}D action {len(af)}D dt {dt}s "
           f"seq_len {tr.sequence_length}")
@@ -336,8 +347,8 @@ def main():
             if got is None:
                 failed += 1; print(f"  {s['eid']}: arm B failed {err[:120]}"); continue
             gotB = [got]
-        SA, AA = read_arrays(s["csv"], sf, af)
-        SB, AB = read_arrays(gotB[0], sf, af)
+        SA, AA = read_arrays(s["csv"], sf, af, circ)
+        SB, AB = read_arrays(gotB[0], sf, af, circ)
         if SA is None or SB is None: failed += 1; continue
         n = min(len(SA), len(SB))
         if n <= L + max(hs_steps): failed += 1; continue
@@ -433,11 +444,12 @@ def main():
         report["families"][fname] = {}
         for h, hstep in zip(a.horizons_s.split(","), hs_steps):
             dc, dm, cs = [], [], []
+            eids = []
             for r in rec:
                 if r["steps"] < hstep: continue
                 vc = r["dc"][hstep - 1, idxs]; vm = r["dm"][hstep - 1, idxs]
                 nc = float(np.linalg.norm(vc)); nm = float(np.linalg.norm(vm))
-                dc.append(nc); dm.append(nm)
+                dc.append(nc); dm.append(nm); eids.append(r["eid"])
                 if nc > 1e-12 and nm > 1e-12:
                     cs.append(float(np.dot(vc, vm) / (nc * nm)))
             if len(dc) < 3:
@@ -459,7 +471,21 @@ def main():
                                                 d_model=float(np.median(dm)),
                                                 gain=gain, corr=corr, cosine=cos,
                                                 gain_ci=[g_lo, g_hi], corr_ci=[r_lo, r_hi],
-                                                cosine_ci=[c_lo, c_hi], n=len(dc))
+                                                cosine_ci=[c_lo, c_hi], n=len(dc),
+                                                # PER-EPISODE, so two runs on the same
+                                                # cached arms can be compared PAIRED.
+                                                # The between-episode variance is common
+                                                # to both arms and cancels in the
+                                                # difference; the marginal intervals
+                                                # above do not exploit that and overlap
+                                                # far more than the effect warrants.
+                                                # corr is a cross-episode statistic and
+                                                # has no per-episode value -- pair it by
+                                                # bootstrapping THESE arrays jointly.
+                                                per_episode=dict(eid=list(eids),
+                                                                 d_chrono=[float(v) for v in dc],
+                                                                 d_model=[float(v) for v in dm],
+                                                                 cosine=[float(v) for v in cs]))
     # --- RELAXATION DIAGNOSTIC ------------------------------------------------
     # The contact indicators are binary but this is a DELTA model, so predicted contact
     # is prev+delta and can leave [0,1]. Instrumented BEFORE the verdict so a null is
