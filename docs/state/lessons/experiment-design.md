@@ -3614,3 +3614,54 @@ fitted on, so it reads as a property of the robot rather than of the terrain.
 When a constant is fitted in a regime where the target is unobservable, record that fact
 next to the constant, and check it in any regime where the target *is* observable before
 reusing it there.
+
+## A claim that is doing rhetorical work has not necessarily been read
+
+Writing up the contact-detector finding, I wrote that W0's episode drop rule "is keyed to
+rr" — the worst-detected foot in the robot, at 41.2% agreement with ground truth. It is
+keyed to `SECTION_FOOT = fl`, at 72.2%. `rr` is the frame anchor and the diagonal-offset
+diagnostic, not the drop rule.
+
+Nothing was wrong with my instrument, my search, or my scope. The sentence wanted the
+stronger version, the stronger version was *available* in nearby code, and I did not go
+back and read which one the drop rule used. The claim was serving an argument, and the
+argument supplied the answer.
+
+This is a different failure from the others in this file, and so is the defence. Against
+an instrument error you check the instrument. Against this, the tell is that **the wrong
+version was more useful than the right one** — which is the same signature as the two
+contaminated numbers caught tonight, both of which overshot in the flattering direction.
+
+The corrected claim is genuinely weaker: second-worst rather than worst. That weakening is
+the cost of the check and it is the whole point of running it.
+
+Operationally: when a factual claim is load-bearing for a conclusion you already hold, it
+is at *higher* risk of being unread, not lower. Ask whether you looked it up or reached
+for it.
+
+## Build the contradiction rather than resolving to look for one
+
+Two wrong numbers were caught tonight, both by internal contradiction rather than by
+scrutiny:
+
+```
+  rank 1.00 on 200,000 rows      contradicted 2.34 on three episodes of the same data
+  114.8% event ratio             contradicted "more complete failures" printed beside it
+```
+
+Neither was caught by looking harder at the number. In both cases a second quantity
+happened to exist that could not coexist with the first — and in both cases **it existed
+by accident**. The three-episode figure was left over from an earlier check. The two event
+counts were printed side by side only because one table was convenient.
+
+Had either second number not happened to be there, both wrong figures would have shipped,
+and both were the more dramatic version.
+
+So the useful form is not "look for contradictions", which is a vigilance instruction and
+does not survive fatigue. It is: **print the quantity two ways when it costs nothing.** A
+per-episode figure beside a pooled one, a count beside a rate, an absolute error beside a
+normalised one. The second number is what makes the first checkable, and constructing it
+is cheap while noticing its absence is not.
+
+Same argument as testing a detector on both a known-good and a known-bad case, one level
+up: build the thing that makes failure visible instead of resolving to be more careful.
