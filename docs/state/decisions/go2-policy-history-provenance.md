@@ -43,6 +43,27 @@ past its URDF limit within ~30 ms.
 This was predicted to cluster at perturbation onsets. It clusters at the
 opposite transition.
 
+## Replicated three times, 85 for 85 (2026-09-06)
+
+Three collections, different burst structures, different seeds, and the third run by a
+collector that differs from the first two:
+
+```
+  arm                          rejections   phase              rows since handover
+  EX-B  L=10, N=16, seed 22        41       41 recover, 0 perturb   median  3, max 11*
+  EX-A  L=40, N=4,  seeds 21/31/33/34   17  17 recover, 0 perturb   median 19, max 46
+  GT    L=40, N=4,  seeds 41-46        27  27 recover, 0 perturb   median 19, max 30
+  ------------------------------------------------------------------------------
+                                       85   85 recover, 0 perturb
+```
+
+`*` EX-B's window is 12 rows, so its maximum is right-censored at 11; see the note below.
+
+**85 of 85 after the policy resumes, none during perturbation**, and the median is
+identical at 19 rows on the two arms whose recovery window is long enough to measure it.
+This is no longer a property of one collector. It is a measured property of the imported
+controller, sampled three times independently.
+
 ## Why it matters beyond the collector
 
 Two severities of one phenomenon, now both quantified:
