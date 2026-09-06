@@ -1,0 +1,97 @@
+{
+  "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_contact_40d",
+  "output_dir": "/home/kyle/sbel-artifacts/training_runs/go2_contact_40d",
+  "validation_dataset_name": "flat",
+  "terrain_conditioning": {
+    "enabled": false,
+    "terrains": [
+      "flat"
+    ]
+  },
+  "train_mix": {
+    "datasets": [
+      {
+        "name": "flat",
+        "terrain": "flat",
+        "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_contact_40d",
+        "batch_fraction": 1.0
+      }
+    ]
+  },
+  "validation_datasets": [
+    {
+      "name": "flat",
+      "terrain": "flat",
+      "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_contact_40d",
+      "split": "val",
+      "max_val_batches": 200
+    }
+  ],
+  "validation_loss_weights": {
+    "flat": 1.0
+  },
+  "loss": {
+    "type": "huber",
+    "huber_delta": 1.0,
+    "channel_weight_mode": "equal_domain_combined_std",
+    "channel_weight_datasets": [
+      "/home/kyle/sbel-artifacts/training_datasets/go2_contact_40d"
+    ]
+  },
+  "rollout_eval": {
+    "num_episodes": 12,
+    "horizons_s": [
+      5.0,
+      10.0
+    ],
+    "selection_horizon_s": 10.0,
+    "datasets": [
+      {
+        "name": "flat",
+        "terrain": "flat",
+        "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_contact_40d",
+        "split": "val",
+        "weight": 1.0
+      }
+    ]
+  },
+  "model": {
+    "block_size": 128,
+    "n_layer": 6,
+    "n_head": 8,
+    "n_embd": 256,
+    "dropout": 0.0,
+    "bias": false,
+    "head_hidden_dim": 256
+  },
+  "optimizer": {
+    "lr": 0.0003,
+    "min_lr": 3e-05,
+    "weight_decay": 0.1,
+    "betas": [
+      0.9,
+      0.95
+    ],
+    "warmup_steps": 1000,
+    "grad_clip_norm": 1.0
+  },
+  "training": {
+    "seed": 2026061801,
+    "device": "cuda",
+    "batch_size": 64,
+    "num_workers": 0,
+    "num_epochs": 80,
+    "steps_per_epoch": 2000,
+    "max_val_batches": 200,
+    "checkpoint_metric": "rollout_sel",
+    "load_dataset_into_memory": true,
+    "pin_memory": false,
+    "compile": false,
+    "input_noise_sigma": 0.05
+  },
+  "sweep_recipe": {
+    "version": "go2_contact_40d",
+    "slug": "contact40",
+    "notes": "CONTACT-CONDITIONED surrogate, 40 channels: the 34 base plus pos_z_m, vel_body_z_mps and the four foot_*_in_contact indicators. The model predicts every channel it conditions on, so the contact mode is both PREDICTED and CONDITIONED ON -- conditioning alone is insufficient because in a rollout the future mode is unknown. sigma 0.05 to match the full-noise baseline: at that sigma the gate's apparatus at 0.5 s is already 0.33, comfortably clear of 1.0, so the conditioned model needs only corr >= 0.5 to PASS outright and ONE quantity has to move. That choice and its reasoning were recorded before training. CRITERION: succeed by landing OFF the measured noise trade-off curve -- an (apparatus, corr) pair at 0.5 s that no noise magnitude achieves. The curve is sigma 0: (1.12, 0.202), sigma 0.025: (1.03, 0.409), sigma 0.05: (0.33, 0.181). Sliding along it, better on one and worse on the other, is the existing trade-off and is NOT evidence conditioning helps. LIMITATION: the indicators are binary but this is a delta model, so predicted contact is prev+delta and can leave [0,1]. A relaxation, not a mode classifier."
+  }
+}

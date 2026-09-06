@@ -1,0 +1,103 @@
+{
+  "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_corrected_34d_excl",
+  "output_dir": "/home/kyle/sbel-artifacts/training_runs/go2_corrected_34d_noise",
+  "validation_dataset_name": "flat",
+  "terrain_conditioning": {
+    "enabled": false,
+    "terrains": [
+      "flat"
+    ]
+  },
+  "train_mix": {
+    "datasets": [
+      {
+        "name": "flat",
+        "terrain": "flat",
+        "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_corrected_34d_excl",
+        "batch_fraction": 1.0
+      }
+    ]
+  },
+  "validation_datasets": [
+    {
+      "name": "flat",
+      "terrain": "flat",
+      "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_corrected_34d_excl",
+      "split": "val",
+      "max_val_batches": 200
+    }
+  ],
+  "validation_loss_weights": {
+    "flat": 1.0
+  },
+  "loss": {
+    "type": "huber",
+    "huber_delta": 1.0,
+    "channel_weight_mode": "equal_domain_combined_std",
+    "channel_weight_datasets": [
+      "/home/kyle/sbel-artifacts/training_datasets/go2_corrected_34d_excl"
+    ]
+  },
+  "rollout_eval": {
+    "num_episodes": 12,
+    "horizons_s": [
+      5.0,
+      10.0
+    ],
+    "selection_horizon_s": 10.0,
+    "datasets": [
+      {
+        "name": "flat",
+        "terrain": "flat",
+        "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_corrected_34d_excl",
+        "split": "val",
+        "weight": 1.0
+      }
+    ]
+  },
+  "model": {
+    "block_size": 128,
+    "n_layer": 6,
+    "n_head": 8,
+    "n_embd": 256,
+    "dropout": 0.0,
+    "bias": false,
+    "head_hidden_dim": 256
+  },
+  "optimizer": {
+    "lr": 0.0003,
+    "min_lr": 3e-05,
+    "weight_decay": 0.1,
+    "betas": [
+      0.9,
+      0.95
+    ],
+    "warmup_steps": 1000,
+    "grad_clip_norm": 1.0
+  },
+  "training": {
+    "seed": 2026061801,
+    "device": "cuda",
+    "batch_size": 64,
+    "num_workers": 0,
+    "num_epochs": 80,
+    "steps_per_epoch": 2000,
+    "max_val_batches": 200,
+    "checkpoint_metric": "rollout_sel",
+    "load_dataset_into_memory": true,
+    "pin_memory": false,
+    "compile": false,
+    "input_noise_sigma": 0.05
+  },
+  "sweep_recipe": {
+    "version": "go2_corrected_34d_noise",
+    "slug": "corr34noise",
+    "notes": "Identical to go2_corrected_34d except input_noise_sigma=0.05. Tests ONE claim: the previous run's rollout collapse is exposure bias. Evidence for that diagnosis, from the training curve alone and independent of the gate: val_loss improved 9x monotonically (0.004896 -> 0.002806) while rollout_sel degraded 15x (0.5868 at ep16 -> 8.8339 at ep80), and the selected epoch was 16 of 80 against the previous 31-D run's 67 of 80. PREDICTION, DECLARED BEFORE RUNNING: if the diagnosis is right, rollout_sel stops diverging and the selected epoch moves back toward the 60s. If rollout_sel still climbs while val_loss falls, exposure bias is NOT the mechanism and noise injection is the wrong fix -- that outcome is informative and must not be explained away by tuning sigma. Sigma is declared at 0.05 and will not be tuned to taste; one value, one run. Noise is per-sample sigma ~ U(0, 0.05) scaled by each channel's own std, added to the input state, with the target delta reduced by the same noise so the model learns to return to the TRUE next state rather than to preserve the error.",
+    "success_criteria": {
+      "diagnostic": "rollout_sel stops diverging AND the selected epoch moves past 50. Confirms exposure bias was the mechanism. Does NOT by itself make the surrogate usable for a fine-tune.",
+      "useful": "the gate's usable horizon extends past 0.5 s, i.e. body_vel at 0.5 s reaches gain in [0.5,2.0], corr >= 0.5 and cosine >= 0.5 with a measurable apparatus. This is the bar that changes what we can do.",
+      "expected": "Noise injection attacks exposure bias and typically buys 2-5x of rollout horizon. The measured gap is 10-30x: usable horizon ~0.1 s against a gait cycle of 0.567 s and preferably several. So the diagnostic bar is likely and the useful bar is NOT expected to be cleared by this change alone. Declared in advance so a partial success is not reported as a solution.",
+      "if_it_fails": "If rollout_sel still climbs while val_loss falls, exposure bias is not the mechanism and noise injection is the wrong fix. That outcome is informative and must not be explained away by tuning sigma."
+    }
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_corrected_34d_excl",
+  "output_dir": "/home/kyle/sbel-artifacts/training_runs/go2_corrected_34d",
+  "validation_dataset_name": "flat",
+  "terrain_conditioning": {
+    "enabled": false,
+    "terrains": [
+      "flat"
+    ]
+  },
+  "train_mix": {
+    "datasets": [
+      {
+        "name": "flat",
+        "terrain": "flat",
+        "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_corrected_34d_excl",
+        "batch_fraction": 1.0
+      }
+    ]
+  },
+  "validation_datasets": [
+    {
+      "name": "flat",
+      "terrain": "flat",
+      "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_corrected_34d_excl",
+      "split": "val",
+      "max_val_batches": 200
+    }
+  ],
+  "validation_loss_weights": {
+    "flat": 1.0
+  },
+  "loss": {
+    "type": "huber",
+    "huber_delta": 1.0,
+    "channel_weight_mode": "equal_domain_combined_std",
+    "channel_weight_datasets": [
+      "/home/kyle/sbel-artifacts/training_datasets/go2_corrected_34d_excl"
+    ]
+  },
+  "rollout_eval": {
+    "num_episodes": 12,
+    "horizons_s": [
+      5.0,
+      10.0
+    ],
+    "selection_horizon_s": 10.0,
+    "datasets": [
+      {
+        "name": "flat",
+        "terrain": "flat",
+        "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_corrected_34d_excl",
+        "split": "val",
+        "weight": 1.0
+      }
+    ]
+  },
+  "model": {
+    "block_size": 128,
+    "n_layer": 6,
+    "n_head": 8,
+    "n_embd": 256,
+    "dropout": 0.0,
+    "bias": false,
+    "head_hidden_dim": 256
+  },
+  "optimizer": {
+    "lr": 0.0003,
+    "min_lr": 3e-05,
+    "weight_decay": 0.1,
+    "betas": [
+      0.9,
+      0.95
+    ],
+    "warmup_steps": 1000,
+    "grad_clip_norm": 1.0
+  },
+  "training": {
+    "seed": 2026061801,
+    "device": "cuda",
+    "batch_size": 64,
+    "num_workers": 0,
+    "num_epochs": 80,
+    "steps_per_epoch": 2000,
+    "max_val_batches": 200,
+    "checkpoint_metric": "rollout_sel",
+    "load_dataset_into_memory": true,
+    "pin_memory": false,
+    "compile": false
+  },
+  "sweep_recipe": {
+    "version": "go2_corrected_34d",
+    "slug": "corrected34",
+    "notes": "Merged 3,503 flat episodes MINUS 500 physically inadmissible ones (excluded from dataset_index.json, CSVs retained). 34-D state = 31-D joint state plus grav_body_x/y/z. The exclusion is what makes this trainable at all: on the unexcluded index the ACTION normalisation was mean -3.6e29, std 3.0e31, because diverged episodes carried joint targets of order 1e30. Post-exclusion max |action| is 8.13 and max |state| is 60.18, the declared dq bound exactly. Pre-declared acceptance rule r = std/((p99-p1)/4.65) median < 1.5 and max < 3.0: PASSES at median 0.856 / max 1.384, 0 of 34 channels above 2. Same architecture, optimizer and epoch count as go2_wide_31d so the only deliberate differences are the data and the 3 gravity channels."
+  }
+}

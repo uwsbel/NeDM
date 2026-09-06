@@ -294,3 +294,85 @@ contact force dynamics, and the distinction between "mode identification is fine
 but within-mode forces are wrong" cannot be settled with these channels. Settling
 it needs `foot_*_force_fz_n` in the state, which the raw CSVs have and the
 processed dataset does not.
+
+## 1f. The attitude channel is broken, and it -- not contact -- is what fails
+
+Chasing why the `body` group scored worst led to a defect that changes the
+attribution of everything above.
+
+### `pitch_rad` wraps, and the delta model has no angle handling
+
+Measured on the `go2_contact_40d` training data:
+
+    pitch_rad  range [-3.142, +3.142]     per-step jumps > 1 rad:  2159
+    roll_rad   range [-1.160, +1.067]     per-step jumps > 1 rad:     0
+    largest single-step pitch jump: 6.2831 = exactly 2*pi
+
+A Cardan ZYX middle angle is bounded to +-pi/2. This channel spans the full +-pi
+and jumps by exactly 2*pi, which is angle wraparound. The model is a DELTA model,
+so every wrap is a +-2*pi target it must fit as an ordinary real, 2159 times.
+
+**It also poisons the normalisation.** The wraps inflate the channel's std:
+
+    normalization std   pitch_rad 0.89109     roll_rad 0.03811     (23x)
+
+The loss is computed on normalised targets, so an inflated std silently
+DOWN-WEIGHTS the channel -- the one channel with a pathology is also the one the
+loss cares least about.
+
+### The channel names are swapped relative to the quaternion
+
+Correlating each logged channel against angles derived from the stored quaternion
+(`quat_e0..e3`, which are exact):
+
+| logged | q-roll | q-pitch | q-yaw |
+|---|---|---|---|
+| `roll_rad` | 0.0175 | **1.0000** | -0.0475 |
+| `pitch_rad` | **1.0000** | 0.0175 | -0.2231 |
+| `yaw_rad` | -0.2231 | -0.0475 | **1.0000** |
+
+`yaw_rad` matches to 0.000000, so the quaternion formulas are not globally wrong.
+`roll_rad` and `pitch_rad` are transposed relative to their names. Whether that is
+a field-assignment error or Chrono's `GetCardanAnglesZYX` ordering differing from
+what the assignment assumes needs the API confirmed -- but the transposition
+itself is not in doubt at correlation 1.0000 each way.
+
+**This did not invalidate the FK validation in 1a**, and the reason is worth
+stating so nobody re-runs it: on near-level ground both angles are small, and
+`Ry(a)Rx(b)` vs `Ry(b)Rx(a)` differ only at second order, so the swap costs well
+under a millimetre there. It matters exactly where the robot tilts.
+
+### Attribution: it is the attitude, not the joints
+
+Recomputing `G()` with one input group substituted from ground truth at a time:
+
+| horizon | all predicted | GT attitude + z | GT joints |
+|---|---|---|---|
+| 0.10 s | 0.830 | 0.870 | 0.831 |
+| 0.29 s | 0.742 | 0.848 | 0.744 |
+| 0.50 s | 0.701 | 0.858 | 0.702 |
+| 1.00 s | 0.608 | **0.849** | 0.611 |
+
+**With ground-truth attitude, `G()` is flat across every horizon at its ceiling.
+With ground-truth joints it collapses exactly as before.** The joint predictions
+(RMSE 0.028 rad at 1 s) were never the problem. The whole of `G()`'s rollout
+degradation is the predicted body attitude and height.
+
+And the attitude error is large: `pitch_rad` at 1 s has median |error| 0.31 rad on
+FALL-FREE episodes, with 55 of 59 episodes above 0.1 rad.
+
+### What this changes
+
+**The 1c conclusion stands but its cause was misattributed.** `G()` still loses to
+the model's own contact prediction (0.849 at best against 0.968), so
+contact-as-input is still not the win W1 claimed. But the measured collapse to
+0.608 was not evidence about contact geometry -- **it was a broken attitude
+channel propagating through the FK.** The honest headline is that `G()` runs at
+0.85 and the model runs at 0.97, not that `G()` runs at 0.61.
+
+**And the ordering of work changes.** Before adding force channels or dropping
+gravity or sweeping context, the wrap should be fixed -- unwrap the angle, or
+carry `(sin, cos)`, or take the delta modulo 2*pi. It is a preprocessing change,
+it affects a channel every downstream consumer reads, and no arm's result is
+clean while a state channel the model both consumes and predicts has 2159
+discontinuities in it.
