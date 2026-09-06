@@ -22,7 +22,7 @@
     {
       "name": "flat",
       "terrain": "flat",
-      "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_contact_40d",
+      "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_walking_36d",
       "split": "val",
       "max_val_batches": 200
     }
@@ -35,7 +35,7 @@
     "huber_delta": 1.0,
     "channel_weight_mode": "equal_domain_combined_std",
     "channel_weight_datasets": [
-      "/home/kyle/sbel-artifacts/training_datasets/go2_contact_40d"
+      "/home/kyle/sbel-artifacts/training_datasets/go2_walking_36d"
     ]
   },
   "rollout_eval": {
