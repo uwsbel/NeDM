@@ -3129,3 +3129,45 @@ The plausible one has no such defence, and attention flows naturally to the firs
 instinct this argues for — inspecting the numbers that raise no alarm — is not natural
 and has to be deliberate. When a bug is found in one output, check every other output
 derived from the same expression, especially the ones that look fine.
+
+## A version is what a build claims; a hash is what it is
+
+**Cost:** none yet, caught before the 5M-row set landed · **Found:** 2026-09-06 ·
+**Applies to:** any dependency resolved at import time rather than pinned
+
+Two Chrono builds live on kyle-sbel: a conda `pychrono` inside the env, and a source
+build reached only through `PYTHONPATH`. The source build shadows the conda one when
+the path is set. Omit the path and the import still succeeds, the run completes, and
+the output looks entirely normal.
+
+Measured, same seed and arguments, only `PYTHONPATH` differing:
+
+```
+  numeric columns compared     183
+  columns differing            115
+  largest delta                5.23 N   (foot_fl_force_fz_n)
+  runs completed               2 of 2
+  errors raised                0
+```
+
+**The wrong engine does not fail. It exits 0.** Compare the replay investigation,
+which cost an evening but announced itself with 145 differing columns; this has the
+same magnitude of divergence and no symptom at all. The only difference is an
+environment variable that is easy to omit and invisible once omitted.
+
+Recording a *version* would not have caught it — both builds report Chrono 10, and a
+version is a claim the build makes about itself. The binary's md5 is the build. The
+collector now fingerprints `_core.so` at startup, prints it, writes it to
+`summary.json`, and stamps a short tag on **every row**, because rows get pooled
+across collections and a summary does not travel with them.
+
+The general rule: when a dependency is resolved at import time from a mutable search
+path, record what was actually loaded, not what was requested. `/proc/<pid>/maps` on
+a live process tells you which shared object is really mapped, and is stronger
+evidence than the environment variable that was supposed to select it.
+
+And the corollary that made this urgent rather than interesting: **provenance you did
+not record cannot be recovered once the process exits.** Four running shards were
+verifiable from `/proc`; the completed run's launcher was gone, so its build is
+attested by a process listing someone happened to read, and two older diagnostics are
+simply unknown. The window for recording provenance is while the thing is running.

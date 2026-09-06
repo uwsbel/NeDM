@@ -44,7 +44,7 @@ reached by driving the PD to a random target for a short unrecorded pre-roll --
 physically consistent, unlike injecting a pose the dynamics never produced.
 """
 from __future__ import annotations
-import argparse, csv, json, math, os, sys, time
+import argparse, csv, hashlib, json, math, os, sys, time
 from pathlib import Path
 import numpy as np
 
@@ -101,6 +101,30 @@ DIVERGENCE_LIMIT = 1e5
 # dropping it quietly would hide the one number that tunes the perturbation.
 JOINT_LIMIT_MARGIN = 1.5     # multiple of the URDF range, beyond which q is runaway
 PIN_ROWS = 8                 # consecutive rows at the effort limit to call it pinned
+
+
+
+def chrono_fingerprint():
+    """Identify WHICH Chrono this process actually loaded, by hashing the binary.
+
+    THERE IS NO ERROR TO NOTICE IF THIS IS WRONG. Two Chrono builds live on this
+    box -- a conda pychrono inside the env, and a source build reached only via
+    PYTHONPATH -- and the source build shadows the conda one when the path is
+    set. Omit the path and the import still succeeds, the run completes, and the
+    output looks entirely normal while the physics came from a different engine.
+    Unlike the replay investigation, which had 145 differing columns as a
+    symptom, this failure is silent.
+
+    So the binary is fingerprinted rather than the version string: a version is
+    what a build claims, a hash is what it is. Recorded per run in summary.json
+    and as a short column on every row, because rows get pooled across
+    collections and a summary does not travel with them.
+    """
+    import pychrono
+    so = Path(pychrono.__file__).parent / "_core.so"
+    h = hashlib.md5(so.read_bytes()).hexdigest() if so.exists() else "missing"
+    return {"pychrono_path": str(so), "core_so_md5": h,
+            "source_build": "chrono-build" in str(so)}
 
 
 def main():
@@ -167,8 +191,11 @@ def main():
         print(f"  init pool: {0 if init_pool is None else len(init_pool)} recorded poses")
     out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
     # target and gains logged alongside so the torque is reproducible after the fact
-    fields = (["window", "phase", "burst", "kp", "kd"] + [f"target_{i}" for i in range(12)]
-              + list(csv_field_names()))
+    fp = chrono_fingerprint()
+    print(f"  chrono: {fp['core_so_md5'][:8]}  {fp['pychrono_path']}"
+          f"  {'SOURCE BUILD' if fp['source_build'] else 'CONDA -- is that intended?'}")
+    fields = (["window", "phase", "burst", "kp", "kd", "chrono_build"]
+              + [f"target_{i}" for i in range(12)] + list(csv_field_names()))
     fh = open(out / "windows.csv", "w", newline="")
     w = csv.DictWriter(fh, fieldnames=fields, extrasaction="ignore")
     w.writeheader()
@@ -336,6 +363,7 @@ def main():
             fell += 1
             fell_rows.append(int(over[0]))
         for r in rows:
+            r["chrono_build"] = fp["core_so_md5"][:8]
             w.writerow(r)
         rows_written += len(rows)
         kept += 1
@@ -346,6 +374,7 @@ def main():
     fh.close()
     el = time.perf_counter() - t_start
     json.dump({"windows_requested": a.windows, "kept": kept,
+               "chrono": fp,
                "rejected_by_reason": reject, "discarded": sum(reject.values()),
                "reject_events": reject_events,
                "ended_fallen": fell, "rows": rows_written,

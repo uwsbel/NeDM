@@ -1,0 +1,72 @@
+{
+ "note": "Chrono build provenance for the Go2 excitation collection. Two Chrono builds exist on kyle-sbel and the source build shadows the conda one only when it is on PYTHONPATH; omitting it produces different physics with no error. This file records which build each dataset was produced with, and how that was established.",
+ "captured_utc": "2026-09-06T02:32:14.821306-05:00",
+ "builds": {
+  "source": {
+   "path": "/home/kyle/Documents/sbel/chrono-build/bin/pychrono/_core.so",
+   "core_so_md5": "3b0bd530d06f54a4f688c5cddef249cf",
+   "intended": true
+  },
+  "conda": {
+   "path": "/home/kyle/miniconda3/envs/nedm-src/lib/python3.12/site-packages/pychrono/_core.so",
+   "core_so_md5": "8e9e386546fe0b33fdacce4c0c620ec8",
+   "intended": false
+  }
+ },
+ "divergence_measured": {
+  "method": "same seed, same arguments, 2 windows, only PYTHONPATH differed",
+  "numeric_columns_compared": 183,
+  "numeric_columns_differing": 115,
+  "largest_deltas": {
+   "foot_fl_force_fz_n": 5.23,
+   "foot_fl_force_fy_n": 4.629,
+   "foot_fl_force_fx_n": 2.786
+  },
+  "both_runs_completed": true,
+  "errors_raised": 0,
+  "comment": "The wrong build does not fail. It produces 115 differing columns and exits 0. This is why a version string is insufficient: a version is what a build claims, a hash is what it is."
+ },
+ "datasets": {
+  "go2_exc_b40_c2": {
+   "build": "source",
+   "evidence": "live /proc/<pid>/maps showed the source _core.so mapped, plus PYTHONPATH in /proc/<pid>/environ",
+   "confidence": "verified"
+  },
+  "go2_exc_b40_c3": {
+   "build": "source",
+   "evidence": "live /proc/<pid>/maps + environ",
+   "confidence": "verified"
+  },
+  "go2_exc_b40_c4": {
+   "build": "source",
+   "evidence": "live /proc/<pid>/maps + environ",
+   "confidence": "verified"
+  },
+  "go2_exc_c10_c2": {
+   "build": "source",
+   "evidence": "live /proc/<pid>/maps + environ",
+   "confidence": "verified"
+  },
+  "go2_exc_b40": {
+   "build": "source",
+   "evidence": "launcher process is gone; attested only by a process listing read while it was running, which showed PYTHONPATH=src:/home/kyle/Documents/sbel/chrono-build/bin inline in the launching shell",
+   "confidence": "attested, not verified"
+  },
+  "go2_exc_b10": {
+   "build": "source",
+   "evidence": "same launching shell as go2_exc_b40",
+   "confidence": "attested, not verified"
+  },
+  "go2_exc_C": {
+   "build": "unknown",
+   "evidence": "launched before provenance was checked; no record survives",
+   "confidence": "unknown"
+  },
+  "go2_exc_Bdiag": {
+   "build": "unknown",
+   "evidence": "launched before provenance was checked; no record survives",
+   "confidence": "unknown"
+  }
+ },
+ "fix": "scripts/collection/collect_go2_excitation.py now calls chrono_fingerprint() at startup, prints the build, writes the full record to summary.json, and stamps an 8-char chrono_build column on every row so the marker survives pooling. Datasets collected before this commit carry no such marker, which is why this file exists."
+}
