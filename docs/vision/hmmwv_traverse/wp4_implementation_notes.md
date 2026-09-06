@@ -1288,3 +1288,58 @@ The frozen arena_v1 model (`wp2_mapv2_pt_dag_ro8_amd`) imagined 104 of these run
 1.36 under Chrono (corr 0.59), time 1.05 (corr 0.91); its pick among each layout's routes is infeasible on 1/13
 layouts, regret 1.06 among feasible picks. This is the baseline the models trained on f101–f104 have to beat on
 f105 and the sealed arenas.
+
+### 11.4 Validation arena (`arena_f105`, 722 routes on 65 layouts, 271 infeasible; 13 layouts with no feasible route)
+
+**Training (cluster, `slurm/wp7_finetune.sbatch`, split by arena, val = f105; selection = 5 s state error).**
+Frozen arena_v1 model on f105: state MAE 1.00 at 5 s. Fine-tuning it at lr 1e-4 (12k steps; with the arena_v1 tracker
+episodes mixed in, `wp7_ft_mix_amd`, or on the new arenas only, `wp7_ft_new_amd`) leaves the validation loss flat
+(0.090 → 0.091) and the 5 s error at 0.95–1.05: the model does not move. Training from scratch on the same data
+(`wp7_scratch_mix_amd`, lr 3e-4, 20k steps) fits the new arenas far better (val loss 0.068, one-step error 0.216 vs
+0.270, 5 s error 0.78–0.85) — but, below, fits do not translate into decisions.
+
+**Rejection of infeasible routes (imagination from rest at the camera start pose, `traverse_wp7_imagine_cache.py`):**
+
+| model | rejects (rightly / wrongly) | accepts infeasible | AUC reject | AUC imagined time | time ratio / corr (feasible) | energy ratio / corr |
+|---|---|---|---|---|---|---|
+| frozen | 58 (35 / 23) | 236 / 271 | 0.54 | 0.64 | 1.00 / 0.72 | 1.16 / 0.37 |
+| fine-tune mixed | 129 (77 / 52) | 194 | 0.58 | 0.62 | 1.05 / 0.72 | 1.14 / 0.38 |
+| scratch mixed | 181 (84 / 97) | 187 | 0.55 | 0.61 | 1.00 / 0.54 | 1.09 / 0.30 |
+| fine-tune new only | 148 (76 / 72) | 195 | 0.56 | 0.67 | 1.08 / 0.68 | 1.21 / 0.29 |
+| cheap predictor, true elevation | — | — | **0.77** (sequences 0.98, crossings 0.78, free-form 0.49) | — | 0.97 / 0.91 | 0.96 / 0.68 |
+| cheap predictor, predicted elevation | — | — | 0.70 | — | 0.99 / 0.91 | 0.95 / 0.64 |
+
+Speed alone has AUC 0.43 (faster is more often feasible). The world models still accept most stalls and timeouts
+(fine-tune mixed: 65 stalls, 88 timeouts accepted): training on 1 750 episodes with ~330 failures did not teach the
+imagination to stall. The cheap predictor, given the terrain profile along the route and the speed profile, is a far
+better feasibility classifier, especially on the sequences.
+
+**Picks from the shared bank (`traverse_wp7_pick_table.py`, strict feasibility, cost = time + kJ/10):**
+
+| method | picked / 52 | feasible | regret (mean, max) | feasible rejected | infeasible rejected | abstains on 13 no-solution layouts |
+|---|---|---|---|---|---|---|
+| rule-based profile | 47 | 31 | 1.44, 2.08 | – | – | 1 |
+| **fastest commanded speed** | 52 | **44** | 1.15, 1.56 | – | – | 0 |
+| slowest | 52 | 27 | 1.40, 2.40 | – | – | 0 |
+| cheap, true elevation (τ 0.5) | 45 | 36 | 1.15, 1.71 | 118 / 451 | 80 / 130 | 8 |
+| cheap, predicted elevation (τ 0.5) | 46 | 35 | 1.13, 1.40 | 101 / 451 | 50 / 130 | 5 |
+| world model, frozen | 50 | 39 | 1.15, 2.18 | 23 / 451 | 6 / 130 | 2 |
+| world model, fine-tune mixed | 50 | 39 | 1.13, 1.54 | 52 / 451 | 29 / 130 | 2 |
+| world model, scratch mixed | 48 | 37 | 1.22, 3.68 | 97 / 451 | 24 / 130 | 2 |
+| gate fine-tune + cost cheap-true | 50 | 42 | **1.11**, 1.71 | 52 / 451 | 29 / 130 | 2 |
+
+By kind: on the **8 sequence layouts** the fine-tuned world model picks 8/8 feasible with regret 1.05 (frozen 8/8,
+1.13; fastest 7/8, 1.08; rule 5/8; the cheap predictor abstains on 5 of 8 at τ 0.5 and is right on the 3 it picks). On
+the **39 crossings** the fastest speed wins (33 feasible) against 27–28 for the world models and 28–29 for the cheap
+predictors: the models pick slow crossings (`direct_v3/v4`) that stall or time out in Chrono — the momentum regime
+the imagination still does not see. Where the fastest pick fails (8 layouts), the best route is usually a detour, and
+no learned method finds it (one exception each). Lowering τ to 0.3 lets the cheap predictor pick 48/52 with 40
+feasible, regret 1.12 — still below the fastest heuristic.
+
+**Cost model alone (perfect feasibility gate, first choice among the Chrono-feasible routes):** cheap-true regret 1.11,
+profile time 1.14, fastest 1.15, world models 1.22–1.26 (energy correlation 0.3–0.4 on this arena). The world
+model's ranking of feasible routes is worse than the trivial heuristic here.
+
+One layout (`x_hill1_h180`) has its camera heading estimate flipped by 177° (a symmetric vehicle seen from above;
+1 of 248 layouts): every route on it fails in imagination with identical times, which is where the regret maxima
+of 5.0 in the perfect-gate analysis come from. The cheap predictor does not use the start pose and is unaffected.
