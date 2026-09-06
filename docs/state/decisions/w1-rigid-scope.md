@@ -85,10 +85,85 @@ re-fitting rather than quoting it.
    0.821). So even past the knee the failure is partly a calibration shift rather
    than loss of signal -- the feet are still ordered correctly, the cut has moved.
 
-**What is NOT yet marked on this curve is the surrogate's own joint error.**
-Until that is measured at 0.1 s and beyond, the curve says where the cliff is but
-not which side of it we are on. That measurement is the remaining gate on W1 and
-it is not an argument, it is a rollout.
+**The injection curve is i.i.d. per joint. A surrogate's error is not.** So
+rather than mark the surrogate's RMSE on this curve, the measurement below runs
+`G()` on the surrogate's actual predicted joints, which carries the actual error
+structure. The curve stays as calibration context, not as the answer.
+
+## 1c. `G()` on the surrogate's own rollout -- the measurement that decides W1
+
+**Dataset `go2_contact_40d`, split `val`, 39 held-out episodes, open-loop
+autoregressive rollout, checkpoint `go2_contact_40d/checkpoints/best_val.pt`.**
+Stated in full because "the surrogate's accuracy" must not come to mean different
+things on different machines.
+
+`G() acc` computes contact from the model's PREDICTED joints. `model acc` is the
+same model's DIRECTLY PREDICTED contact channels, thresholded at 0.5 -- i.e. the
+thing W1 proposed to remove. `frozen` holds contact at its last observed value.
+
+| horizon | joint RMSE | G() acc | G() F1 | model acc | model F1 | frozen |
+|---|---|---|---|---|---|---|
+| 0.02 s | 0.0029 | 0.859 | 0.897 | **0.997** | 0.998 | 0.981 |
+| 0.10 s | 0.0065 | 0.830 | 0.871 | **0.988** | 0.991 | 0.831 |
+| 0.29 s | 0.0117 | 0.742 | 0.795 | **0.985** | 0.988 | 0.726 |
+| 0.50 s | 0.0181 | 0.701 | 0.763 | **0.981** | 0.985 | 0.712 |
+| 1.00 s | 0.0281 | 0.608 | 0.677 | **0.968** | 0.975 | 0.718 |
+
+### This is a negative result for contact-as-input, and it is not close
+
+**The model predicts its own contact channels far better than `G()` reconstructs
+them from the model's own joints** -- 0.968 against 0.608 at 1 s, and the gap is
+present at every horizon including the shortest. W1's premise was that moving
+contact out of the model and into exact geometry would help. Measured, it costs
+0.14 accuracy at 0.02 s and 0.36 at 1 s.
+
+**`G()` also fails to beat a frozen-contact baseline.** It is worse at 0.02 s
+(0.859 vs 0.981), ties at 0.10 s, wins marginally at 0.29 s (0.742 vs 0.726), and
+is worse again at 0.50 and 1.00 s. A mechanism that does not beat "assume nothing
+changed" is not carrying the contribution.
+
+**Two distinct causes, and they should not be conflated:**
+
+1. **`G()` has a ceiling of about 0.86**, visible at 0.02 s where joint RMSE is
+   0.0029 rad and essentially nothing has compounded yet. That is `G()`
+   disagreeing with the recorded contact indicator, not error accumulation --
+   a fixed threshold on a rigid sphere is not what Chrono's contact system
+   reports. This ceiling caps contact-as-input no matter how good the surrogate
+   gets.
+2. **Degradation below that ceiling is far faster than the i.i.d. curve predicts.**
+
+### The correlation effect, quantified rather than asserted
+
+Reading the injection curve at each measured RMSE and comparing:
+
+| horizon | joint RMSE | curve predicts | measured | gap |
+|---|---|---|---|---|
+| 0.02 s | 0.0029 | ~0.867 | 0.859 | 0.008 |
+| 0.10 s | 0.0065 | ~0.867 | 0.830 | 0.037 |
+| 0.29 s | 0.0117 | ~0.866 | 0.742 | 0.124 |
+| 0.50 s | 0.0181 | ~0.863 | 0.701 | 0.162 |
+| 1.00 s | 0.0281 | ~0.851 | 0.608 | 0.243 |
+
+**The direction predicted was right and the magnitude is worse than a constant
+offset.** i.i.d. per-joint error partially cancels through the FK sum; correlated
+error does not. But the gap is 0.008 at 0.02 s and 0.243 at 1 s, so this is not a
+fixed penalty for correlation -- **the error structure becomes more damaging as it
+compounds, not merely larger**. The injection curve is therefore optimistic in a
+horizon-dependent way, and would have been actively misleading as a marker. That
+is the argument for having measured directly.
+
+### What this does and does not rule out
+
+It does NOT say contact geometry is useless. It says **`G()`-as-a-replacement-for-
+predicting-contact is worse than predicting contact**, on this checkpoint, this
+dataset, this split, open-loop. Contact geometry as an ADDITIONAL input alongside
+the predicted channels is untouched by this measurement, and is the version worth
+testing next -- it cannot do worse than the model alone, because the model keeps
+what it already has.
+
+The NeRD correcting-loop analogy is what needs re-examining: NeRD's query is exact
+against its own ground truth, and `G()` here is not -- it has a 0.86 ceiling
+against the contact indicator the data actually records.
 
 ## 2. What leaves the model's output, and whether it still closes
 
@@ -147,3 +222,75 @@ indicators, so there is nothing to move from output to input.
 
 Anyone who later runs the ablation on the bigger set and finds it disagrees
 should look here first.
+
+## 1d. Increment R^2, and a comparator that had to be thrown out
+
+**Dataset `go2_contact_40d`, split `val`, 30 episodes, 274 samples per horizon.**
+
+**A framing I built and then discarded.** To get a like-for-like number against a
+one-step-from-ground-truth linear baseline, I summed the model's one-step deltas
+along the ground-truth trajectory ("teacher forced"). That produced TF R^2 BELOW
+autoregressive R^2 -- 0.005 vs 0.879 at 0.29 s -- which is impossible for a
+well-posed comparison, since autoregression is strictly harder.
+
+It is an artifact of the construction, twice over:
+
+- **Open-loop integration of a biased derivative diverges linearly.** Summing 100
+  one-step deltas with no state feedback accumulates 100x any systematic bias.
+  Autoregression feeds the drifted state back, and for oscillatory channels that
+  is self-limiting. So TF-sum is not "the easier version of AR", it is a different
+  and worse-conditioned estimator.
+- **The aggregate was dominated by one near-constant channel.** `grav_body_z` has
+  a ground-truth increment sd of 0.0014 and accumulates a +0.0050 bias, giving
+  R^2 = **-60.3** on its own and dragging the unweighted 40-channel mean to
+  -0.981. An unweighted mean R^2 is not robust when a channel with almost no
+  variance is in the average.
+
+**So there is no valid like-for-like number here against a direct h-step
+predictor**, because this model is a one-step delta model and does not produce
+one. Reporting the TF row as that comparison would have been a bad number wearing
+a good number's name. Autoregressive per-group R^2, which is well-posed:
+
+| horizon | jpos | jvel | grav | contact | body |
+|---|---|---|---|---|---|
+| 0.02 s | 0.998 | 0.989 | 0.649 | 0.922 | 0.882 |
+| 0.10 s | 0.999 | 0.997 | 0.948 | 0.968 | 0.862 |
+| 0.29 s | 0.992 | 0.993 | 0.441 | 0.883 | 0.723 |
+| 0.50 s | 0.983 | 0.985 | 0.287 | 0.892 | 0.688 |
+| 1.00 s | 0.951 | 0.975 | -0.680 | 0.802 | 0.203 |
+
+Gravity is the worst group by a wide margin, consistent with the earlier finding
+that the gravity channels are a plant defect rather than a reconstruction error.
+
+## 1e. Is the error actually in contact? Stance vs swing
+
+The premise behind W1 and W2 -- and behind the manuscript's limitations paragraph
+-- is that a single continuous model must average across contact switches. If
+that is right, per-leg error should concentrate while the leg is loaded.
+
+Per-leg increment R^2, split by that leg's ground-truth contact state at the
+target step. Same rollout, same dataset and split.
+
+| horizon | jpos stance | jpos swing | diff | jvel stance | jvel swing | diff |
+|---|---|---|---|---|---|---|
+| 0.02 s | 0.995 | 0.999 | -0.004 | 0.981 | 0.992 | -0.010 |
+| 0.10 s | 0.998 | 0.999 | -0.001 | 0.996 | 0.998 | -0.002 |
+| 0.29 s | 0.981 | 0.998 | -0.017 | 0.980 | 0.997 | -0.017 |
+| 0.50 s | 0.966 | 0.995 | -0.029 | 0.966 | 0.992 | -0.025 |
+| 1.00 s | 0.893 | 0.992 | -0.099 | 0.941 | 0.988 | -0.047 |
+
+**Stance is worse than swing at every horizon, in both channel groups, ten out of
+ten comparisons in the same direction, and the gap grows monotonically with
+horizon** (-0.004 to -0.099). The direction is not in doubt.
+
+**But read the magnitudes before concluding anything.** Stance joint positions are
+still at R^2 0.893 at one second. The error concentrates in contact, and the model
+is nonetheless good in contact. "Contact is where the residual lives" is
+supported; "the model fails at contact" is not.
+
+**A limitation that bounds what this can say:** the 40-channel state carries no
+contact FORCE. So this measures joint dynamics conditioned on contact state, not
+contact force dynamics, and the distinction between "mode identification is fine
+but within-mode forces are wrong" cannot be settled with these channels. Settling
+it needs `foot_*_force_fz_n` in the state, which the raw CSVs have and the
+processed dataset does not.
