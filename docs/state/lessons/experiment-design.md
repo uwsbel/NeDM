@@ -4,6 +4,45 @@ Failures where the *experiment* could not have answered its question, whatever
 the code did. These are the expensive ones, because the compute is spent before
 anyone notices, and the output looks like a result.
 
+## What this file is mostly made of, counted rather than asserted
+
+A claim was put to me at the end of a long session: that every lesson here builds
+something which makes a failure visible, and that not one of them is "be more careful."
+It is the kind of summary that feels earned after a night of finding things. Counted
+across all 136 entries:
+
+```
+  imperative / construction ("test X", "print Y", "record Z")    12
+  distinction ("A is not B", "X does not imply Y")               59
+  other                                                          65
+```
+
+**The half that is true:** almost nothing here is advice to try harder. The single entry
+whose title contains anything like it argues for applying a rule *earlier*, at
+specification time rather than analysis time, which is a change of place and not of
+effort.
+
+**The half that is not:** constructions are a small minority. The dominant form is a
+distinction — separating two things that had been treated as one. A wrapped angle from a
+large one. A filter's structure from its validity. What a run requested from what it
+loaded. Attested from verified.
+
+That difference matters, and not in this file's favour. A construction works whether or
+not you remember it: the check runs, the guard fires, the second number is printed beside
+the first. **A distinction only helps if it comes to mind at the moment it applies** —
+which is closer to vigilance than the flattering summary admits, and vigilance is exactly
+what the rest of these entries argue is unreliable.
+
+So the honest reading is that this file mostly supplies *vocabulary* rather than
+machinery, and that the entries which earn the most are the ones that got turned into
+something that runs: the write-time NaN check, the finiteness guard in the verifier, the
+matched-fraction subsample built into the analysis script, the collector's four
+provenance fields. **The rest are names for failures, and a name only fires if you
+happen to be holding it.**
+
+Recorded because the claim was mine to check and the checking cost one query — which is
+the corollary two entries below, applied to a sentence about this file.
+
 ## Ask what it would look like if the thing did nothing
 
 **Cost:** four instances in one day · **Found:** 2026-09-03 · **Applies to:** every gate, test, and A/B
