@@ -1,0 +1,20 @@
+{
+ "note": "Spec-collision test: is the episode reproduction spec sufficient to determine an episode's data? Group every episode in the corpus by its spec and look for specs shared across datasets, then check whether the colliding episodes hold the same data. Requires NO re-runs.",
+ "captured_utc": "2026-09-06T07:55:44.165882-05:00",
+ "method": "Spec key = fam, idx, params, duration, seed, spawn_x, spawn_y, heading, peak, prewalk, roll, pitch, off -- everything episode_spec determines, excluding paths. Data compared by the verdict harness's physics_digest with schema additions excluded from both sides.",
+ "result": {
+  "episodes_with_a_spec": 4551,
+  "distinct_specs": 3027,
+  "specs_shared_across_datasets": 1242,
+  "verdict": "THE SPEC IS NOT SUFFICIENT"
+ },
+ "interpretation": "A collision where the data DIFFERS proves the spec omits something that determines the output. One collision group is legitimate -- go2_merged is a consolidation of go2_stratified, so identical specs with identical data is correct. Every other cross-dataset collision holds DIFFERENT data.",
+ "the_verdict_group_identifies_the_missing_field": "go2_joint_off3000000 with the five verdict datasets collides both ways: some colliding episodes are IDENTICAL and some DIFFER. Those datasets contain baseline replays (same policy, identical data) and treated arms (different checkpoint, different data) under the SAME spec. That is direct proof that the policy checkpoint is a determinant the sidecar does not record, rather than an inference from its absence.",
+ "other_colliding_groups": {
+  "pairprobe / seedprobe": "DIFFERENT -- perturbation flags not in the spec",
+  "standpose_0 / standpose_1 / torque_bracket_v2": "DIFFERENT",
+  "tilt_rear / tilt_walkable / torque_fwd": "DIFFERENT",
+  "merged / stratified": "IDENTICAL -- legitimate, one is a consolidation of the other"
+ },
+ "consequence": "The sidecar is sufficient within ONE family -- the verdict harness's baseline replays, which is why the harness's own replay check works and why 6 datasets backfilled cleanly. It is not sufficient for the corpus. Any future check that assumes 'same spec implies same data' is unsound outside that family."
+}

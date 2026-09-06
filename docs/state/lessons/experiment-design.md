@@ -3381,3 +3381,28 @@ participation ratio toward one unless something is dominating the spectrum.
 Operationally: before comparing two corpora, list the filters each has already been
 through. A filter that ran inside one collector is invisible at analysis time and is not
 recorded in either dataset.
+
+## Test a provenance record for sufficiency by looking for collisions, not by reproducing
+
+Whether a reproduction sidecar records enough to determine an episode's data can be
+tested without re-running anything: group every episode by its spec, find specs shared
+across datasets, and compare the data. A collision where the data differs **proves**
+the spec omits a determinant. No collision is weak evidence of sufficiency.
+
+Across the Go2 corpus: 4,551 episodes, 3,027 distinct specs, **1,242 specs shared across
+datasets**. One collision group is legitimate — `go2_merged` is a consolidation of
+`go2_stratified`, so identical spec and identical data is correct. Every other
+cross-dataset collision holds different data. The spec is not sufficient.
+
+The sharpest group identifies the missing field rather than merely proving one exists.
+`go2_joint_off3000000` and the five verdict datasets collide **both ways** — some
+colliding episodes identical, some different — because those datasets hold baseline
+replays and treated arms under the same spec, differing only in the policy checkpoint.
+That is direct evidence the checkpoint is a determinant, not an inference from its
+absence.
+
+Why this beats the reproduction approach it came out of: replaying one episode per
+dataset cost 19 simulations and returned 6 answers, because the replay instrument could
+not rebuild most invocations. The collision test cost no simulations, covered every
+episode, and returned a decisive negative. **When an instrument keeps failing to
+reproduce, ask whether the question can be answered from data already on disk.**
