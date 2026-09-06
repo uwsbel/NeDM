@@ -959,3 +959,83 @@ false failure was caught:
 
     go2_contact_40d          pitch_rad max 6.2832   39241 wraps   FAIL
     go2_contact_40d_unwrap   pitch_rad max 2.8766       0 wraps   PASS
+
+## 1n. RETRACTION: the ctx64 result was an artifact of its own branch point
+
+**Section 1k's context table is void as quantities, and the "minimum <= 0.64 s,
+at most 3.8x NeRD" conclusion is withdrawn.** It was measured on an apparatus that
+each cell partly chose for itself.
+
+`branch_at = rowsA[L]["time_s"]` tied the branch to `sequence_length`, so **every
+context was scored against a branch point selected to suit it** -- a different
+instant, a different gait phase, a different `d_chrono`. The cell that looked
+measurable was the one whose own branch point flattered it.
+
+Branching at a **fixed row** (128) instead gives every context the same arms, the
+same instant, and the same `d_chrono`. A model of context L uses rows `[B-L, B)`
+as history -- the last L rows of the same identical prefix.
+
+**Verified behaviour-preserving before use.** For L=128 the change is a no-op and
+the baseline reproduces to the last digit:
+
+    gain     1.451003619926325  ->  1.451003619926325   IDENTICAL
+    corr     0.47924507377254183 -> 0.47924507377254183 IDENTICAL
+    d_chrono 0.04002717314039082 -> 0.04002717314039082 IDENTICAL
+
+So the unwrap, pinned and baseline results are untouched. **One result retracted,
+not a cascade.**
+
+### The corrected curve, all cells on one apparatus
+
+| context | history | err/signal 0.5 s (common) | (own branch, VOID) | verdict |
+|---|---|---|---|---|
+| 8 | 0.08 s | 4.114 | 4.968 | INCOMPLETE |
+| 16 | 0.16 s | 2.184 | 2.837 | INCOMPLETE |
+| 32 | 0.32 s | 1.637 | 2.558 | INCOMPLETE |
+| 64 | 0.64 s | **1.572** | **0.994** | **INCOMPLETE** |
+| 128 | 1.28 s | 0.609 | 0.609 | PARTIAL |
+
+**ctx64 moved the wrong way -- 0.994 to 1.572 -- and crossed the threshold.** Its
+own branch fell at t ~ 2.04 s against the common branch at t ~ 2.68 s: a different
+gait phase. Every other cell moved DOWN, so the bias was not uniform; each cell's
+own branch point simply suited it differently.
+
+**The bound therefore moves UP, not down:**
+
+    reported in 1k    minimum <= 0.64 s        ->  at most 3.8x NeRD
+    corrected         minimum in (0.64, 1.28]  ->  3.8x to 7.7x
+
+The ctx64 run tightened the LOWER bound and left the upper one where it was. "One
+run halved the number" was wrong. And **1k's suggestive ctx64-beats-ctx128
+direction result is void** -- it compared two different apparatuses.
+
+The curve is also nearly flat from 32 to 64 (1.637 to 1.572) and then drops
+sharply to 0.609 at 128, so the transition is somewhere in (0.64, 1.28] and is not
+gradual.
+
+### The class this belongs to
+
+> **A comparison in which the thing being compared silently selects its own
+> reference.**
+
+| instance | how the reference was selected |
+|---|---|
+| the Chrono build | the run chose its own physics, via whether `PYTHONPATH` was set |
+| cached gate arms | a model was scored against arms built for a different context |
+| branch-at-L | each context chose the branch point it was measured at |
+
+**All three produce plausible numbers rather than errors, and all three were found
+by a change made for a different reason.** Fixed-index branching was requested for
+statistical power and turned out to be a correctness fix. No amount of scrutinising
+the numbers would have exposed it, because the numbers were internally consistent.
+
+### What it enables
+
+Arm A's prediction is now a clean paired test on a common reference rather than an
+unpairable comparison: **if history is compensating for partial observability,
+adding contact force and slip should make a shorter context measurable where it
+currently is not.** Concretely, ctx64 + force/slip against the same arm set that
+just read 1.572 INCOMPLETE without them -- a binary outcome, not a ratio
+improvement to be argued about. The corrected 3.8x-to-7.7x range makes that
+prediction more interesting rather than less, since there is more history to
+explain away.

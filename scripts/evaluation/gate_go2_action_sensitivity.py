@@ -287,6 +287,11 @@ def main():
                     help="Only use episodes whose id contains this. Default keeps to "
                          "episodes collected on this machine, which are the only ones "
                          "that replay bit-identically here.")
+    ap.add_argument("--branch-row", type=int, default=128,
+                    help="Row index at which the two Chrono arms diverge. FIXED across "
+                         "contexts on purpose: branching at sequence_length ties the "
+                         "apparatus to the model, so two context lengths get different "
+                         "arms and cannot be compared paired. 128 is a no-op for L=128.")
     ap.add_argument("--out", default="/home/kyle/sbel-artifacts/go2_action_sensitivity.json")
     a = ap.parse_args()
 
@@ -333,14 +338,29 @@ def main():
         if len(rec) >= a.episodes: break
         s = spec_for(j)
         L = tr.sequence_length
-        # Branch at arm A's OWN recorded time at row L, so the two Chrono arms are
-        # identical through the history window and diverge exactly where the
+        # Branch at arm A's own recorded time at a FIXED ROW INDEX, so the two Chrono
+        # arms are identical through the history window and diverge exactly where the
         # surrogate rollout begins. Row 0 is not t=0 and prewalk varies per episode,
-        # so this cannot be a constant.
+        # so the branch TIME cannot be a constant -- but the ROW can, and that
+        # distinction is the whole point.
+        #
+        # THIS USED TO BE rowsA[L], WHICH TIED THE APPARATUS TO THE MODEL. The branch
+        # then moved with sequence_length, so two contexts got different arm sets,
+        # different d_chrono, and no paired comparison -- which is why the ctx64
+        # versus ctx128 result could only ever be suggestive. It also silently
+        # invalidated cached arms across contexts: ctx8 reused L=128 arms branching at
+        # 2.68 s while its own window started at 1.48 s, entirely before the branch,
+        # giving d_chrono of 1e-8 and err_over_signal of 1.1e8.
+        #
+        # With a fixed row B, a model of context L uses rows [B-L, B) as history --
+        # the last L rows of the SAME identical prefix -- so every context branches at
+        # the same instant on the same arms. B defaults to 128, which makes this a
+        # NO-OP for L=128 models: nothing already measured changes.
+        B = max(a.branch_row, L)
         rowsA = list(csv.DictReader(open(s["csv"])))
-        if len(rowsA) <= L + max(hs_steps): failed += 1; continue
-        branch_at = float(rowsA[L]["time_s"])
-        outdir = f"{a.work}/branch_{a.rel_sigma}/{s['eid']}"
+        if len(rowsA) <= B + max(hs_steps): failed += 1; continue
+        branch_at = float(rowsA[B]["time_s"])
+        outdir = f"{a.work}/branch_{a.rel_sigma}_row{B}/{s['eid']}"
         gotB = glob.glob(f"{outdir}/episodes/*.csv")
         if not gotB:
             got, err = run_arm(s, BASE_CKPT, outdir, switch_ckpt=tck, switch_at=branch_at)
@@ -351,7 +371,7 @@ def main():
         SB, AB = read_arrays(gotB[0], sf, af, circ)
         if SA is None or SB is None: failed += 1; continue
         n = min(len(SA), len(SB))
-        if n <= L + max(hs_steps): failed += 1; continue
+        if n <= B + max(hs_steps): failed += 1; continue
         # ANCHORING SELF-TEST. If the branch worked, the arms are identical up to L.
         # If they are not, this episode's d_chrono starts from a nonzero offset the
         # surrogate cannot see, and the pair is unusable rather than merely noisy.
@@ -372,16 +392,16 @@ def main():
             print(f"  {s['eid']}: arm B INADMISSIBLE, max|action| "
                   f"{float(np.abs(AB).max()):.4g} > 5.0 rad")
             continue
-        pre = float(np.abs(SB[:L] - SA[:L]).max())
+        pre = float(np.abs(SB[:B] - SA[:B]).max())
         if pre > 1e-6:
             failed += 1
             print(f"  {s['eid']}: BRANCH FAILED, arms differ by {pre:.3g} before the branch")
             continue
-        steps = min(max(hs_steps), n - L)
-        MA = roll(tr, SA, AA, steps, tr.device)
-        MB = roll(tr, SA, AB, steps, tr.device)     # same (identical) history, arm B's actions
+        steps = min(max(hs_steps), n - B)
+        MA = roll(tr, SA[B - L:], AA[B - L:], steps, tr.device)
+        MB = roll(tr, SA[B - L:], AB[B - L:], steps, tr.device)     # same (identical) history, arm B's actions
         rec.append(dict(eid=s["eid"], fam=s["fam"], n=n, steps=steps,
-                        dc=(SB[L:L + steps] - SA[L:L + steps]),
+                        dc=(SB[B:B + steps] - SA[B:B + steps]),
                         dm=(MB - MA),
                         da=np.abs(AB[:steps] - AA[:steps]),
                         # APPARATUS CHECK, not part of the gate's verdict. Arm A's
@@ -389,8 +409,8 @@ def main():
                         # is being driven wrongly -- misordered channels, wrong
                         # normalisation, a stale history -- this is large and the gain
                         # below is measuring nothing. It must be read before the gain.
-                        err=np.abs(MA - SA[L:L + steps]),
-                        ma=MA, sa=SA[L:L + steps]))
+                        err=np.abs(MA - SA[B:B + steps]),
+                        ma=MA, sa=SA[B:B + steps]))
         print(f"  {s['eid']:42s} {s['fam']:<12} rows {n} steps {steps}")
 
     if not rec:
