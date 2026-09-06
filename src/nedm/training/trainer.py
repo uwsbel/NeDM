@@ -218,6 +218,31 @@ def validate_compatible_metadata(
     for key in ("state_fields", "action_fields", "rollout_fields"):
         if list(candidate.get(key, [])) != list(reference.get(key, [])):
             raise ValueError(f"{candidate_root} has incompatible {key}")
+
+    # VALUE SEMANTICS, NOT JUST NAMES.
+    #
+    # The comparison above sees NAMES and is structurally blind to what the numbers
+    # mean. Measured case: go2_contact_40d_unwrap trained on unwrapped angles while
+    # validating against go2_contact_40d, whose pitch_rad still wraps by 2*pi. Forty
+    # identical names, one dataset's values transformed and the other's not, and this
+    # function passed it for hours.
+    #
+    # circular_unwrapped is a name-level fact ABOUT the values, so a name comparison
+    # can carry it. It does not cover everything -- two datasets can share every flag
+    # and still differ -- but it converts that specific failure from invisible to
+    # loud, which is the whole of the return.
+    #
+    # processing_provenance is deliberately NOT compared. It records the commit that
+    # built each dataset, and two corpora built at different times legitimately differ
+    # there; comparing it would reject valid mixes. It is provenance, not semantics.
+    for key in ("circular_unwrapped", "backfills_applied"):
+        if key in candidate or key in reference:
+            if candidate.get(key) != reference.get(key):
+                raise ValueError(
+                    f"{candidate_root} has incompatible {key}: "
+                    f"{candidate.get(key)!r} against the reference's {reference.get(key)!r}. "
+                    f"The field NAMES match, so this is a difference in what the values "
+                    f"mean -- mixing them trains on one transform and evaluates on another.")
     if abs(float(candidate["dt_s"]) - float(reference["dt_s"])) > 1e-12:
         raise ValueError(
             f"{candidate_root} has dt_s={candidate['dt_s']}, expected {reference['dt_s']}"
@@ -458,6 +483,13 @@ class HMMWVTrainer:
             }
             print(f"loss: type={self.loss_type} huber_delta={self.huber_delta} channel_weights={named}")
 
+        # THE DEFAULT DECIDES WHICH DATASET SELECTS YOUR MODEL, SILENTLY.
+        # "val_loss" comes from validation_datasets; "rollout_sel" comes from
+        # rollout_eval, and a config can point those at different corpora. Both
+        # go2_contact_40d_unwrap configs did exactly that -- validating on wrapped
+        # data while rolling out on unwrapped -- and the headline survived only
+        # because both explicitly set rollout_sel. On this default it would have
+        # been selected on the wrong data with nothing to indicate it.
         self.checkpoint_metric = str(training_cfg.get("checkpoint_metric", "val_loss"))
         self.metrics_path = self.output_dir / "metrics.jsonl"
         self.input_noise_sigma = float(config.get("training", {}).get("input_noise_sigma", 0.0))
