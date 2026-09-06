@@ -192,9 +192,17 @@ def main() -> None:
     vmax = np.array([r["glob"][-1] for r in val])
     res["auc_infeasible_speed_only"] = auc(vmax, infeasible)
     (out / "readout.json").write_text(json.dumps(res, indent=1)); (out / "train_log.json").write_text(json.dumps(log))
-    (out / "val_predictions.json").write_text(json.dumps([{"key": r["key"], "p_feasible": float(p), "time_pred": float(t), "energy_pred": float(e), "feasible": bool(r["feasible"]),
-                                                            "time_s": r["time_s"], "energy_kj": r["energy_kj"], "status": r["status"], "kind": r["kind"]}
-                                                           for r, p, t, e in zip(val, p_feas, t_pred, e_pred)], indent=0))
+    def dump(rs, name):
+        if not rs:
+            return
+        t = tensors(rs)
+        with torch.no_grad():
+            oo = model(t[0], t[1]).cpu().numpy()
+        (out / name).write_text(json.dumps([{"key": r["key"], "arena": r["arena"], "layout": r["layout"], "p_feasible": float(1 / (1 + np.exp(-o_[0]))), "time_pred": float(np.exp(o_[1])),
+                                             "energy_pred": float(np.exp(o_[2])), "feasible": bool(r["feasible"]), "time_s": r["time_s"], "energy_kj": r["energy_kj"],
+                                             "status": r["status"], "kind": r["kind"]} for r, o_ in zip(rs, oo)], indent=0))
+    dump(val, "val_predictions.json")
+    dump([r for r in rows if r["arena"] in args.test_arenas], "test_predictions.json")  # sealed arenas: predictions only, never looked at during selection
     print(json.dumps(res, indent=1))
 
 
