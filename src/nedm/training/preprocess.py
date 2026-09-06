@@ -179,6 +179,39 @@ CONTACT_FORCE_FIELDS = [f"foot_{leg}_force_fz_n" for leg in LEG_ORDER]
 CIRCULAR_STATE_FIELDS = frozenset({"roll_rad", "pitch_rad", "yaw_rad", "body_slip_rad"})
 
 
+def _processing_provenance() -> dict:
+    """The commit that shaped this dataset, and whether the tree was clean.
+
+    WHY. A processed dataset built before c699338 -- which added the circular
+    unwrap -- is INDISTINGUISHABLE from one built after, except by running
+    verify_circular_unwrap.py, and that catches exactly one defect rather than the
+    next preprocessing change that silently alters behaviour. This is the same gap
+    as two Chrono builds selected by whether PYTHONPATH happened to be set: a
+    behavioural difference chosen by something nobody records.
+
+    The dirty flag matters as much as the hash. A modified working copy is not the
+    commit it claims to be, and "built at c699338" from a tree with uncommitted
+    edits is a false provenance rather than a missing one.
+
+    Never raises. Provenance that breaks the pipeline it documents is worse than
+    provenance that records its own absence.
+    """
+    import subprocess
+    repo = Path(__file__).resolve().parents[3]
+    out = {"commit": None, "dirty": None, "repo": str(repo)}
+    try:
+        out["commit"] = subprocess.run(
+            ["git", "-C", str(repo), "rev-parse", "HEAD"],
+            capture_output=True, text=True, timeout=10, check=True).stdout.strip()
+        status = subprocess.run(
+            ["git", "-C", str(repo), "status", "--porcelain"],
+            capture_output=True, text=True, timeout=10, check=True).stdout
+        out["dirty"] = bool(status.strip())
+    except Exception as exc:                                  # noqa: BLE001
+        out["error"] = f"{type(exc).__name__}: {exc}"
+    return out
+
+
 def read_episode_csv(
     csv_path: Path,
     state_fields: list[str],
@@ -498,6 +531,9 @@ def build_metadata(
         # Recorded as a list rather than a bool so a later change to
         # CIRCULAR_STATE_FIELDS cannot silently reinterpret an old dataset.
         "circular_unwrapped": [f for f in state_fields if f in CIRCULAR_STATE_FIELDS],
+        # WHICH CODE SHAPED THIS DATA. See _processing_provenance: a dataset built
+        # before the unwrap landed looks identical to one built after.
+        "processing_provenance": _processing_provenance(),
         "rollout_fields": rollout_fields,
         "splits": {
             "train": {

@@ -53,6 +53,18 @@ def main(argv: list[str] | None = None) -> int:
     else:
         print(f"  metadata declares circular_unwrapped = {declared or '[] (none)'}")
 
+    prov = md.get("processing_provenance")
+    if prov is None:
+        print("  no processing_provenance -- built by a checkout predating the "
+              "provenance record. The commit that shaped this data is unknown.")
+    else:
+        c = (prov.get("commit") or "unknown")[:12]
+        if prov.get("dirty"):
+            print(f"  processed at {c} with a DIRTY tree -- the recorded commit is "
+                  f"not what ran; treat the provenance as approximate")
+        else:
+            print(f"  processed at {c}, clean tree")
+
     bad = 0
     for split in a.splits:
         p = a.dataset_dir / f"{split}_targets.npy"
