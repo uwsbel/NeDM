@@ -72,5 +72,11 @@
    "note": "PERMANENTLY UNGRADEABLE, and not because the build is unknowable. The one-window reproduction test that settled go2_exc_b40 and go2_exc_b10 needs the seed and arguments, and summary.json did not record them at the time. The collector now writes seed and argv, so this gap closes going forward but cannot be closed backwards."
   }
  },
- "fix": "scripts/collection/collect_go2_excitation.py now calls chrono_fingerprint() at startup, prints the build, writes the full record to summary.json, and stamps an 8-char chrono_build column on every row so the marker survives pooling. Datasets collected before this commit carry no such marker, which is why this file exists. summary.json now also records seed and argv, because the reproduction test that settles build provenance is only available when the run can be re-run."
+ "fix": "scripts/collection/collect_go2_excitation.py now calls chrono_fingerprint() at startup, prints the build, writes the full record to summary.json, and stamps an 8-char chrono_build column on every row so the marker survives pooling. Datasets collected before this commit carry no such marker, which is why this file exists. summary.json now also records seed and argv, because the reproduction test that settles build provenance is only available when the run can be re-run.",
+ "what_verified_does_not_cover": "Every 'verified' grade here rests on one untested assumption: that a single collector process loads one Chrono build for the whole of its run. That is true of a normally behaved dynamic loader and no mechanism in this code reloads pychrono, but it is an argument, not a measurement, and the point of this file is that those differ. MITIGATION, already in place: the per-row chrono_build column means a violation announces itself -- a run whose rows carry two different tags is visible in the pooled set without anyone going looking. Until such a case appears, read 'verified' as 'verified given one build per process'.",
+ "two_layers": {
+  "traceability": "what did this run use? -- the chrono hash, the config. Recorded.",
+  "verifiability": "can this run be re-executed? -- the seed, the argv. Recorded only from 2026-09-06.",
+  "note": "Recording the first without the second gives a dataset you can describe and cannot check. go2_exc_C looks fully documented until someone tries to reproduce it, which may be long after the information could have been captured for free."
+ }
 }

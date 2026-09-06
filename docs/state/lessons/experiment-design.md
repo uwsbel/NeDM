@@ -3205,3 +3205,40 @@ Before writing a fact into a docstring, ask whether it is a property of this fun
 of the code that calls it. If it varies by caller, the docstring's job is to say where
 the value comes from — here, `exchange_mult * step_size_s`, recorded per episode as
 `simulation.exchange_step_s` — and nothing else.
+
+## Provenance has two layers, and recording only the first is silent
+
+A fingerprint tells you what a run used; a seed tells you whether you can ever check.
+
+```
+  TRACEABILITY    what did this run use?        the binary hash, the config
+  VERIFIABILITY   can this run be re-executed?  the seed, the argv
+```
+
+Two excitation datasets were settled by re-running one window and comparing physics
+columns — bit-identical, question closed. Two others could not be settled at all, and
+not because their build was unknowable: `summary.json` had never recorded the **seed**.
+The build was recoverable in principle; the ability to ask was not.
+
+Recording traceability without verifiability produces a dataset you can describe and
+cannot check, and it fails silently in the usual way — `go2_exc_C` looks fully
+documented right up to the moment someone tries to reproduce it, which may be months
+after the seed could have been captured for the cost of one line.
+
+The asymmetry that makes this worth a rule: capturing the seed is free at write time
+and impossible afterwards. Traceability metadata can sometimes be reconstructed from
+logs, launch records, or a running process. Verifiability cannot be reconstructed from
+anything — a seed that was not written down is gone.
+
+## A correct fix from a wrong diagnosis is unstable
+
+Three of us independently changed the same docstring, took the right action, and were
+wrong about why — all three diagnosed a stale derived quantity when the real defect was
+a claim about the caller asserted on the callee (see the rate entry above). The fix
+survived; the reasoning behind it will not, because the next person applies "it goes
+stale when the config moves" to a case where a fresher number *is* the answer, and
+writes one.
+
+When a fix lands, check that the stated reason predicts the fix. If a different
+diagnosis would have produced the same action, the agreement is not evidence that the
+diagnosis is right.
