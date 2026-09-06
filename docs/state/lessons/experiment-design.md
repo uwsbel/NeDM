@@ -3846,8 +3846,21 @@ and the log claimed six releases over five sidecars — written into the release
 the data the whole exercise exists to produce, by the person who had spent the evening
 writing up that exact class.
 
-**The write-up may make it worse rather than better.** Having named an area, it feels
-covered, and attention stops going there. The entry becomes a receipt.
+**Three candidate mechanisms, and the dullest is the null hypothesis:**
+
+- *false confidence* — having named an area it feels covered, and attention stops going
+  there. The entry becomes a receipt. (The most interesting, and the first one reached
+  for, which by this file's own standards is a reason to distrust it.)
+- *fatigue* — all four instances came after nine hours and three in the final ninety
+  minutes. Writing things up is itself the tiring activity, so the errors arrive when the
+  writing does.
+- **recognition bias** — an error matching a recently written entry is instantly legible
+  as *that class*, where the same error a week earlier would have been "a bug". The
+  clustering may be entirely observational.
+
+The third needs no causal story and predicts the observation on its own, which makes it
+the null rather than a third contender. Four cases cannot separate them, and the
+practical instruction is identical under all three.
 
 So a documented failure class needs a *mechanism* attached or it is decoration:
 
@@ -3863,3 +3876,29 @@ cross-check written after an earlier near-miss and run out of habit, which print
 clean lines and one file-not-found. **The construction caught the author's own violation
 of the entry he had written an hour earlier**, which is better evidence for building
 checks than any argument in the entries themselves.
+
+
+## A published hash freezes the artefact, so every later correction must be additive
+
+Two provenance sidecars needed a correction after their hashes had been published for the
+far machine to verify. Appending an amendment would have changed the files and made that
+verification fail — correctly, for a benign reason, with no way for the verifier to
+distinguish an authorised edit from corruption.
+
+**A correct check firing for a benign reason destroys its signal value.** The next one
+gets discounted, and a check that is routinely discounted has been removed without anyone
+deciding to remove it. That is the same failure as a guard that fires on valid
+configurations, and it is worse than an untidy file because it disables the mechanism
+rather than merely cluttering it.
+
+So the correction went into a *new* file that invalidates no published hash and states why
+it exists, rather than into the artefacts it corrects.
+
+This is stronger than the reason I first gave myself, which was that a churning provenance
+file is its own hazard. Churn is untidy and recoverable by care. **Breaking a published
+hash destroys the instrument that made the artefact verifiable**, and no amount of care
+downstream restores it — the verifier can only report a mismatch, never explain one.
+
+Operationally: the moment a hash is published, treat the file as append-only-elsewhere.
+Corrections go in a new artefact that names what it corrects, and the original stays
+byte-identical to what was attested.
