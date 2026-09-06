@@ -2769,3 +2769,41 @@ recomputation reaches.
 Related: [part-whole correlation](#part-whole-correlation-a-statistic-whose-value-is-fixed-by-its-own-construction),
 [state the scope with the result](#state-the-scope-with-the-result-or-the-conclusion-inherits-one-it-never-had),
 and [the same selection rule](#the-same-selection-rule-run-on-two-inputs-is-not-the-same-selection).
+
+## A defect that inflates its own variance is weighted out of the loss that would catch it
+
+**Cost:** 2159 discontinuities that survived every check we ran · **Found:** 2026-09-05
+
+`pitch_rad` wraps: range +/-pi, 2159 per-step jumps above 1 rad, the largest exactly 2*pi.
+The surrogate is a **delta** model, so each wrap is a +-2*pi target to be fitted as an
+ordinary real.
+
+**The self-concealing part is the mechanism worth remembering:**
+
+```
+  the wraps inflate that channel's std       0.891   (roll, undamaged: 0.038)
+  the loss is computed on NORMALISED targets
+  => residuals there are divided by 23x more than anywhere else
+  => the one channel with a pathology is the channel the loss weights least
+```
+
+**A defect large enough to dominate a raw-units metric can be invisible to a normalised
+one, precisely because it is large.** Normalisation by an empirical std is a
+*data-dependent* weighting, so a channel that misbehaves buys itself a smaller weight.
+Every training curve looked healthy.
+
+**Two checks that would have caught it, neither of which is a loss:**
+
+1. **Bound every angle channel by its own geometry before training.** A Cardan ZYX middle
+   angle is bounded to +-pi/2; this one spanned +-pi. That is a one-line assertion on the
+   dataset, not a diagnostic to run later.
+2. **Histogram per-step increments per channel and look at the tail, in RAW units.** A
+   target of exactly 2*pi is not a large residual, it is a different kind of object, and
+   it is visible instantly at the top of a sorted list.
+
+**The general form:** any weighting derived from the data can be *bought* by the pathology
+it is meant to expose. Whenever a loss weight, a normaliser, or a threshold is estimated
+from the same data it polices, ask what a defect would do to it — and check the quantity
+in units the defect cannot rescale.
+
+Related: [normalisation hides the units it divided by](#normalisation-hides-the-units-it-divided-by).

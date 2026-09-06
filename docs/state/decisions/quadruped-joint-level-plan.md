@@ -144,6 +144,44 @@ the contribution, and it is not a modification of NeRD.** It borrows four of NeR
 structural ideas and replaces its environment representation entirely. Scoping it as the
 latter is the honest framing.
 
+## CORRECTED 2026-09-05: the section below reasoned from group aggregates, and both were one broken channel
+
+> **`pitch_rad` wraps.** Range +/-pi, **2159 per-step jumps above 1 rad**, the largest
+> exactly 2*pi. The model is a **delta** model, so every wrap is a +-2*pi target it must
+> fit as an ordinary real.
+>
+> **And the defect suppresses its own gradient.** The wraps inflate that channel's std to
+> **0.891** against roll's **0.038**. The loss is computed on normalised targets, so **the
+> one channel with a pathology is the channel the loss weights least.** That is why 2159
+> discontinuities survived every check.
+>
+> **Both group scores below are that channel:**
+>
+> | group score | what it actually was |
+> |---|---|
+> | `grav` **-0.680** | `grav_body_z` RMSE 0.00069 against sd 0.446, **R^2 1.000**. An R^2-on-near-constant-channels artifact. |
+> | `body` **0.203** | `vel_body_x` **0.822**, `roll_rad` 0.800, `pos_z_m` 0.906, `pitch_rad` **-928** |
+>
+> **`vel_body_x` is 0.822 at one second.** The surrogate is good at forward body velocity.
+> The claim below that the body group fails is **withdrawn**, and it is the sixth instance
+> of the aggregate class recorded in
+> [`../lessons/experiment-design.md`](../lessons/experiment-design.md) — written into that
+> file in the same session in which this section reasoned from an aggregate anyway.
+>
+> **Arm B is dropped.** Its premise fails on both stated grounds: `grav_body_*` is a
+> backfill *computed from* the quaternion (exact by construction, 0.0e+00), so it cannot
+> disagree with it; and it is **not** redundant with roll/pitch, which is why the backfill
+> exists — measured corr 0.226 and 0.204, with only `grav_z` redundant.
+>
+> **Arm A stays queued but does not run yet.** No arm is interpretable while a channel the
+> model both consumes and predicts carries 2159 discontinuities.
+>
+> **What survives unchanged:** contact is not where the model fails, and W1's
+> contact-as-input still loses — though at **0.85 against 0.97**, not the 0.61 first
+> reported. Substituting one input group at a time showed ground-truth *attitude* holds
+> G() flat at its ceiling across every horizon while ground-truth *joints* collapses as
+> before, so the degradation was attitude all along, not contact geometry.
+
 ## WHERE THE ERROR ACTUALLY IS — measured 2026-09-05, and it is not contact
 
 **This section supersedes the premise of W1 and W2.** Both were aimed at contact
