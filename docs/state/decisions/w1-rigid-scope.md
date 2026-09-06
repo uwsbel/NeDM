@@ -376,3 +376,62 @@ carry `(sin, cos)`, or take the delta modulo 2*pi. It is a preprocessing change,
 it affects a channel every downstream consumer reads, and no arm's result is
 clean while a state channel the model both consumes and predicts has 2159
 discontinuities in it.
+
+## 1g. Correction: the channel is CORRECT. The representation is not.
+
+Two corrections to 1f, one from the Chrono API and one from my own arithmetic.
+
+**The values are right; only the labels are exchanged.** Chrono's
+`GetCardanAnglesZYX` packs **(pitch, roll, yaw)** into `.x/.y/.z`, and
+`dataset.py:469` reads `.x` and names it `roll_rad`. So `pitch_rad` **is roll** --
+an OUTER ZYX angle, which legitimately spans +-pi and legitimately wraps -- and
+`roll_rad` **is pitch**, the middle angle, correctly bounded. Every value in every
+episode is a correct angle. Nothing is corrupt and nothing needs re-collecting.
+I called the channel broken; it is not. It is correctly labelled-wrong.
+
+**The loss-weighting number in 1f was the wrong std.** I quoted `state_std`
+(0.891 vs 0.038, 23x). The loss is computed on normalised TARGETS, so the figure
+that matters is `target_std`: **0.41543 against roll's 0.00270, a 154x ratio.**
+Same mechanism, same direction, wrong magnitude by a factor of seven.
+
+### The modelling half survives, and the obvious test does not rescue it
+
+"The data is fine" and "a delta model can consume this" are different claims. The
+proposed check was to recompute this channel's R^2 with wrapping episodes
+excluded, on the theory that a handful of roll-overs produced the -928.
+
+**It does the opposite.** 10 of 59 val episodes (16.9%) contain a wrap:
+
+| subset | R^2 | RMSE | n |
+|---|---|---|---|
+| all episodes | +0.419 | 1.6159 | 59 |
+| non-wrapping only | **-323.4** | **0.3333** | 49 |
+| wrapping only | +0.371 | 3.8551 | 10 |
+
+Excluding the wraps makes R^2 *worse* -- because wrapping episodes carry enormous
+target variance, and including them inflates the denominator. **R^2 is not usable
+on this channel at any episode selection**, which is the fourth time tonight a
+variance-normalised aggregate has reported something other than what it was read
+to mean. RMSE is the honest metric.
+
+**And on RMSE the failure is real and is not the roll-overs.** On the 49
+non-wrapping episodes the ground-truth 1 s increment has sd 0.0185 rad, and the
+model's error is 0.3333 rad -- **18x the channel's own variation**, on episodes
+containing no wrap at all.
+
+The wraps do account for roughly half the total error: a wrap-aware residual,
+`atan2(sin(d), cos(d))`, gives RMSE 0.8585 against 1.6159 unwrapped. So both
+things are true -- the representation costs about half, and the remainder is an
+ordinary modelling failure on a channel the loss weights 154x too little.
+
+`roll_rad` (true pitch) for contrast: RMSE 0.0574 rad, R^2 -3.686. Small error,
+negative R^2, same artifact.
+
+### A bug the new guard found in itself
+
+The unwrap guard's first version tested every channel for a jump above pi and
+fired immediately on nine joint VELOCITY channels, up to 16.85 rad/s. Those are
+impact transients: a rate may jump by any amount and it says nothing about
+circularity. **Testing "large jump" as though it meant "wrapped" is the same
+conflation the guard exists to catch, one level up.** It now checks only
+angle-valued channels, `_rad` and not `_radps`.

@@ -172,6 +172,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 # thing to reach for by mistake.
 CONTACT_FORCE_FIELDS = [f"foot_{leg}_force_fz_n" for leg in LEG_ORDER]
 
+# Angles that live on a circle and can wrap by 2*pi. Declared EXPLICITLY rather
+# than matched by an "_rad" suffix: the joint angles also end in _rad and are
+# limit-bounded, so a suffix rule would unwrap twelve channels that never wrap
+# and hide the fact that this list is a claim about which channels are circular.
+CIRCULAR_STATE_FIELDS = frozenset({"roll_rad", "pitch_rad", "yaw_rad", "body_slip_rad"})
+
 
 def read_episode_csv(
     csv_path: Path,
@@ -256,6 +262,10 @@ def build_split_buffers(
             shape=(total_transitions + len(episodes), *frame_shape),
         )
 
+    circular_indices = [
+        index for index, field in enumerate(state_fields) if field in CIRCULAR_STATE_FIELDS
+    ]
+
     cursor = 0
     rollout_cursor = 0
     for episode_index, episode in enumerate(episodes):
@@ -270,6 +280,52 @@ def build_split_buffers(
         length = episode_states.shape[0] - 1
         episode_starts[episode_index] = cursor
         episode_lengths[episode_index] = length
+
+        # CIRCULAR CHANNELS ARE UNWRAPPED PER EPISODE, BEFORE SLICING.
+        #
+        # pitch_rad spans the full +-pi and jumps by exactly 2*pi where the angle
+        # wraps -- 2284 such jumps in the 40-channel training set, against zero in
+        # roll. This is a DELTA model, so every wrap became a +-2*pi target it had
+        # to fit as an ordinary real, and the history window fed it a matching
+        # discontinuity on the input side.
+        #
+        # The defect suppressed its own gradient: the spikes inflated the channel's
+        # TARGET std to 0.41543 against roll's 0.00270, and the loss is computed on
+        # normalized targets, so the one channel with a pathology was the one the
+        # loss weighted least. It survived every check we ran.
+        #
+        # Unwrapping rather than (sin, cos) because the data says it stays bounded:
+        # per-episode excursion is 0.090 rad median, 2.306 max, far short of 2*pi,
+        # so the unwrapped value never runs away. It also keeps the channel count
+        # and every downstream consumer unchanged, since G() and the FK path read
+        # the angle through cos/sin and do not care that it left [-pi, pi].
+        for _circ in circular_indices:
+            episode_states[:, _circ] = np.unwrap(episode_states[:, _circ])
+
+        # A circular channel that is NOT in the list above is the failure this
+        # guards: it would silently reintroduce 2*pi targets.
+        #
+        # ONLY ANGLE-VALUED CHANNELS ARE CHECKED. The first version of this guard
+        # tested every channel for a jump above pi and immediately fired on nine
+        # joint VELOCITY channels, up to 16.85 rad/s. Those are real impact
+        # transients, not wraps: a rate can jump by any amount and it means
+        # nothing about circularity. Testing "large jump" as if it were "wrapped"
+        # is the same conflation this guard exists to catch, one level up.
+        # _radps is excluded by the endswith on _rad, which _radps does not match.
+        _jumps = np.abs(np.diff(episode_states, axis=0))
+        _bad = [
+            index
+            for index in np.where(_jumps.max(axis=0) > np.pi)[0]
+            if state_fields[index].endswith("_rad") and int(index) not in circular_indices
+        ]
+        _bad = [int(i) for i in _bad]
+        if _bad:
+            raise ValueError(
+                "state channels jump by more than pi between consecutive rows, which "
+                "means they are circular and are not being unwrapped: "
+                + ", ".join(f"{state_fields[i]} (max jump {_jumps[:, i].max():.4f})" for i in _bad)
+                + f". Episode {csv_path.name}. Add them to CIRCULAR_STATE_FIELDS."
+            )
 
         states[cursor : cursor + length] = episode_states[:-1]
         actions[cursor : cursor + length] = episode_actions[:-1]
