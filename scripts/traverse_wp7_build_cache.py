@@ -96,8 +96,11 @@ def main() -> None:
         maps: dict[str, np.ndarray] = {}
         n_written = n_short = 0
         for f in sorted((coll / "records").glob("*.npz")):
-            with np.load(f) as z:
-                data = {k: z[k] for k in z.files}
+            try:
+                with np.load(f) as z:
+                    data = {k: z[k] for k in z.files}
+            except Exception as exc:  # a run killed mid-write (batch restart) leaves a truncated file
+                print(f"  unreadable record {f.name}: {exc} -- skipped", flush=True); continue
             key, cand = str(data["key"]), str(data["candidate"])
             arena = Path(str(data["arena"])); aid = arena.name
             arenas.setdefault(aid, str(arena))
