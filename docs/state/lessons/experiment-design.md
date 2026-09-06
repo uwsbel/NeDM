@@ -2781,11 +2781,17 @@ ordinary real.
 **The self-concealing part is the mechanism worth remembering:**
 
 ```
-  the wraps inflate that channel's std       0.891   (roll, undamaged: 0.038)
+  the wraps inflate that channel's target_std   0.41543   (roll, undamaged: 0.00270)
   the loss is computed on NORMALISED targets
-  => residuals there are divided by 23x more than anywhere else
+  => residuals there are divided by 154x more than anywhere else
   => the one channel with a pathology is the channel the loss weights least
 ```
+
+*(First written as 23x, from `state_std`. The loss is on normalised **targets**, so the
+figure that matters is `target_std` and the correct factor is **154x** — the first version
+understated the defect sevenfold, in the direction that made it look less serious.
+Unwrapping the channel drops its `target_std` from 0.34640 to 0.00305, a measured **113x**
+rise in effective loss weight.)*
 
 **A defect large enough to dominate a raw-units metric can be invisible to a normalised
 one, precisely because it is large.** Normalisation by an empirical std is a
@@ -2807,3 +2813,51 @@ from the same data it polices, ask what a defect would do to it — and check th
 in units the defect cannot rescale.
 
 Related: [normalisation hides the units it divided by](#normalisation-hides-the-units-it-divided-by).
+
+## A magnitude test standing in for a property test — inside the guard written to catch it
+
+**Cost:** an assertion that fired on nine healthy channels · **Found:** 2026-09-05
+
+After finding that a circular channel was being fitted as a real, we added an assertion so
+an undeclared circular channel would fail loudly. **Its first version tested every channel
+for a per-step jump above pi** and fired immediately on **nine joint velocity channels, up
+to 16.85 rad/s** — impact transients, where a rate can jump by any amount and it says
+nothing whatever about circularity.
+
+> **Reading "large jump" as "wrapped" is the same conflation the guard exists to catch,
+> one level up.**
+
+Narrowed to `_rad` and not `_radps`. **A guard is not exempt from the class of error it
+guards against**, and writing one is the moment you are most primed to commit that error,
+because the pattern is fresh and every large number looks like the one you just found.
+
+**The general form:** a magnitude is evidence about a *property* only under an assumption
+about what the channel is. `|dx| > pi` means "wrapped" for an angle and means "a hard
+impact" for a rate. **Test the property where it is declared — units, channel role,
+declared topology — never a magnitude that correlates with it.**
+
+## R^2 is unusable where a pathology inflates its own denominator
+
+**Found:** 2026-09-05 · **Applies to:** any channel with rare high-variance episodes
+
+Same channel, three episode selections:
+
+| subset | R^2 | RMSE | n |
+|---|---|---|---|
+| all episodes | **+0.419** | 1.6159 | 59 |
+| non-wrapping only | **-323.4** | 0.3333 | 49 |
+| wrapping only | +0.371 | 3.8551 | 10 |
+
+**Removing the pathological episodes made R^2 dramatically worse** — they were carrying
+enormous target variance and inflating `ss_tot`, the denominator that flattered the score.
+So the statistic is unusable here at *any* episode selection, and no filtering rescues it.
+
+**Use normalised RMSE as the decision quantity instead:** `RMSE / sd(ground-truth
+increment)`, per channel. On the clean 49 episodes that reads **18x the channel's own
+variation** — immediately interpretable, comparable across channels, bounded below by
+zero, and with no denominator a pathology can inflate. Keep R^2 alongside where it
+behaves; do not decide on it.
+
+This is the same denominator failure as the `grav` group scoring **-0.680** while
+`grav_body_z` had RMSE 0.00069 against sd 0.446, and as the `body` group scoring 0.203
+while `vel_body_x` was 0.822. **Three group-level conclusions in one session rested on it.**
