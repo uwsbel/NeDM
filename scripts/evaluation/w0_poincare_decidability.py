@@ -301,14 +301,22 @@ def main():
     }
     level = {"ridge(level)": R2l(ridge_pred(ridge_fit(Xtr, Ytr, a.ridge_lam), Xte))}
     spread = Dte.std(0)
+    # SPLIT THE HANDLERS. A missing sklearn is an acceptable skip; a broken MLP arm is
+    # not, and a bare `except` made the two indistinguishable. This block referenced an
+    # undefined `sy` and the LEVEL target from the moment the decision metric became the
+    # increment, and every run since has printed "(MLP skipped: ...)" and carried on, so
+    # any MLP column in an older table was never populated.
     try:
         from sklearn.neural_network import MLPRegressor
         from sklearn.preprocessing import StandardScaler
+    except ImportError as e:
+        print(f"  (MLP skipped, sklearn unavailable: {e})")
+    else:
         sx = StandardScaler().fit(Xtr)
-        m = MLPRegressor((256, 256), max_iter=400, random_state=0).fit(sx.transform(Xtr), sy.transform(Ytr))
-        res["mlp"] = R2(sy.inverse_transform(m.predict(sx.transform(Xte))))
-    except Exception as e:
-        print(f"  (MLP skipped: {e})")
+        sy = StandardScaler().fit(Dtr)          # the INCREMENT, matching R2d
+        m = MLPRegressor((256, 256), max_iter=400, random_state=0)
+        m.fit(sx.transform(Xtr), sy.transform(Dtr))
+        res["mlp"] = R2d(sy.inverse_transform(m.predict(sx.transform(Xte))))
 
     # THE APPARATUS CHECK. Event-time quantisation converts directly into pre-impact state
     # error at the instant of peak derivative. If that error is a large fraction of the
