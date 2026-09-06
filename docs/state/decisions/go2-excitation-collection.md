@@ -132,3 +132,31 @@ and recorded in
 [docs/state/provenance/go2_excitation_rows_repair.json](../provenance/go2_excitation_rows_repair.json),
 since the datasets sit outside the repo and the repair would otherwise be visible
 only to whoever opened the JSON.
+
+### Headline recomputed at matched sampling fraction (2026-09-06)
+
+The confound-breaking claim rests on excitation-versus-policy figures that were
+measured before the sampling-fraction dependence was known. Recomputed at matched
+n=200,000 and sampling fraction 1.00 for both sides:
+
+```
+                        effective rank    conditional variance
+  policy   a = pi(s)        3.90/12              0.086
+  excitation EX-A          12.00/12              0.830
+```
+
+Against the previously reported 3.89 -> 12.00 and 0.079 -> 0.675. **The gap is wider
+than reported, not narrower** — the correction moves it the favourable way, as
+predicted from the direction argument: the policy pool is the larger one, so it sat
+at the lower sampling fraction and was scored on easier terms.
+
+**One asymmetry that has to be corrected for, and is not obvious.** The excitation
+collector rejects diverged episodes by construction, so its data contains none. The
+policy datasets were collected without that filter and contain some: 0.78% of rows in
+`go2_joint_off3000000` are numerically diverged, with joint targets up to 4e34 rad.
+
+Those 1,241 rows alone drive the policy's effective rank to **1.00/12**. Comparing the
+two corpora without excluding them yields "1.00 against 12.00", which is a more
+dramatic version of the right conclusion reached for entirely the wrong reason — the
+policy's actions are not rank-one, its outliers are. Both sides are filtered to
+`|target| <= 5 rad` before comparison.

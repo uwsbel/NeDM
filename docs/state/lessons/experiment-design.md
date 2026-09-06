@@ -3355,3 +3355,29 @@ here, how densely the sample covers the population it was drawn from.
 The tell was an outlier I nearly explained away. A fourth EX-A run scored 0.8410 where
 three others sat at 0.8521–0.8538, a deviation 13x their spread. It was the run with the
 smallest pool.
+
+## A filter applied to one corpus and not the other is a confound, even when it is right
+
+The excitation collector rejects diverged episodes; the policy collectors did not. So
+`go2_joint_off3000000` carries 0.78% of rows with joint targets up to 4e34 rad, and the
+excitation set carries none — not because the excitation data is better behaved, but
+because the collector threw those episodes away.
+
+Comparing the two corpora as they sit produced an **effective rank of 1.00/12 for the
+policy against 12.00/12 for excitation**. That is the right conclusion — policy actions
+are low-rank — supported by an entirely wrong mechanism: 1,241 outlier rows dominated
+the covariance so completely that one direction absorbed the whole spectrum. Excluding
+them gives 3.90, which matches the independently reported 3.89.
+
+The failure mode is the dangerous one: **the contaminated number was more favourable to
+the conclusion I already believed.** A result that overshoots in the direction you
+expect does not feel like an error, it feels like confirmation, and 1.00 against 12.00
+is a better headline than 3.90 against 12.00.
+
+The tell was an inconsistency I could not explain away: three episodes of the same
+dataset gave rank 2.34, and 200,000 rows of it gave 1.00. More data cannot reduce
+participation ratio toward one unless something is dominating the spectrum.
+
+Operationally: before comparing two corpora, list the filters each has already been
+through. A filter that ran inside one collector is invisible at analysis time and is not
+recorded in either dataset.
