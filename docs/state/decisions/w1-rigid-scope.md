@@ -1221,3 +1221,62 @@ attitude could plausibly propagate there. **But it is 1.9x on an already tiny
 absolute error, and one model pair cannot distinguish a mechanism from retraining
 noise.** Recorded so that if the excitation models show the same sign it becomes
 worth a look; on this evidence it is not.
+
+## 1r. Contact channels: accurate, not where the error is, and expensive to remove
+
+Three instruments built for unrelated questions, agreeing on one channel group.
+
+| measurement | value | what it says |
+|---|---|---|
+| normalised RMSE by group, 1.0 s | contact **0.333** against gravity 8.718, body 0.975 | contact is the third-best PREDICTED group |
+| `G()` against the model's own prediction | **0.968** vs 0.849 | the model predicts contact better than exact geometry computes it |
+| removing contact as an INPUT | err/signal **0.518 -> 1.190** | it carries 2.3x of the model's open-loop accuracy |
+
+**"Well-predicted" and "load-bearing as an input" are independent properties of a
+channel**, and this is the clearest statement of that in the study. W1 spent its
+effort discovering the second from the other direction: a model that predicts
+contact better than geometry computes it is a model that *uses* contact.
+
+### The ablation is single-variable, and the obvious comparison is not
+
+The comparison first reached for was the 40-channel WRAPPED baseline at 0.609,
+which differs from the 36-channel model in **two** ways -- the channel set and the
+wrap fix. The clean one is the unwrapped 40-channel model:
+
+    40ch WRAPPED     err/signal 0.609   PARTIAL      <- two variables
+    40ch UNWRAPPED              0.518   PARTIAL      <- one variable
+    36ch UNWRAPPED              1.190   INCOMPLETE
+
+**Verified rather than assumed:** the 36-channel preset is a strict subset of the
+40-channel one, differing in exactly `foot_{fl,fr,rl,rr}_in_contact` and nothing
+else. Same source corpus, same context, same architecture.
+
+**Nobody designed this ablation.** It fell out of dropping the contact channels to
+work around an excitation corpus that carries them as NaN.
+
+## 1s. Declared before the numbers: how to read the excitation sweep
+
+The 36-channel baseline is **INCOMPLETE** -- `err/signal` 1.190 at 0.5 s -- so a
+paired comparison against it may be unmeasurable, as in Arm C. The pre-declared
+response is one re-run at `--rel-sigma 0.05`, named in the gate's own docstring as
+the answer to an apparatus-limited INCOMPLETE.
+
+**`rel-sigma` makes a worse model measurable rather than making it better.** The
+36-channel apparatus deficit is real and would persist.
+
+**And a degraded baseline has more headroom, so excitation could help MORE at 36
+channels than at 40.** A positive would then overstate what the full channel set
+would show. That is the favourable-result-evades-scrutiny pattern arriving
+structurally rather than through anyone's error, which is why it is written down
+before the numbers exist.
+
+**So the fallback has asymmetric value, and that decides the ordering rather than
+cost:**
+
+| outcome | reading |
+|---|---|
+| NEGATIVE at `rel-sigma 0.05` | **decisive.** If decorrelated actions do not help even a degraded model with headroom to improve, that is strong evidence the confound was not the binding constraint. |
+| POSITIVE at `rel-sigma 0.05` | **provisional.** A licence to spend the two-hour 40-channel re-collection, not an endpoint. |
+
+**A positive is not the result. It is permission to go and get the result** at the
+channel set everything else in the study uses.
