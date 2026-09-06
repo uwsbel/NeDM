@@ -1,0 +1,2035 @@
+{
+ "note": "Diverged-row census. Bounds are far beyond physical, so a trip means numerical divergence rather than an aggressive episode. Consult this before any cross-corpus comparison: the excitation collector filters diverged episodes and the policy collectors do not, and that filter is recorded in neither dataset.",
+ "bounds": {
+  "joint_pos": 10.0,
+  "joint_target": 10.0,
+  "joint_vel": 200.0,
+  "lin_vel": 100.0,
+  "ang_vel": 200.0,
+  "quat": 1.01,
+  "force": 100000.0,
+  "torque": 100000.0
+ },
+ "datasets": {
+  "go2_discrete": {
+   "rows_scanned": 400654,
+   "files_scanned": 276,
+   "diverged_rows": 0,
+   "diverged_pct": 0.0,
+   "truncated": true,
+   "families": {
+    "joint_target": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 0,
+     "max_abs": 2.621856689453125,
+     "nonfinite_cells": 0
+    },
+    "lin_vel": {
+     "columns": 6,
+     "bound": 100.0,
+     "rows_over_bound": 0,
+     "max_abs": 0.6618241791071887,
+     "nonfinite_cells": 0
+    },
+    "ang_vel": {
+     "columns": 6,
+     "bound": 200.0,
+     "rows_over_bound": 0,
+     "max_abs": 2.364214892828133,
+     "nonfinite_cells": 0
+    },
+    "quat": {
+     "columns": 4,
+     "bound": 1.01,
+     "rows_over_bound": 0,
+     "max_abs": 0.9999999341079394,
+     "nonfinite_cells": 0
+    },
+    "force": {
+     "columns": 4,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 410.17431640625,
+     "nonfinite_cells": 0
+    }
+   }
+  },
+  "go2_exc_Bdiag": {
+   "rows_scanned": 88060,
+   "files_scanned": 1,
+   "diverged_rows": 0,
+   "diverged_pct": 0.0,
+   "truncated": false,
+   "families": {
+    "joint_pos": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 0,
+     "max_abs": 3.691087484359741,
+     "nonfinite_cells": 0
+    },
+    "joint_target": {
+     "columns": 24,
+     "bound": 10.0,
+     "rows_over_bound": 0,
+     "max_abs": 1.79999911213553,
+     "nonfinite_cells": 0
+    },
+    "joint_vel": {
+     "columns": 12,
+     "bound": 200.0,
+     "rows_over_bound": 0,
+     "max_abs": 53.52754592895508,
+     "nonfinite_cells": 0
+    },
+    "lin_vel": {
+     "columns": 6,
+     "bound": 100.0,
+     "rows_over_bound": 0,
+     "max_abs": 1.379549430574907,
+     "nonfinite_cells": 0
+    },
+    "ang_vel": {
+     "columns": 6,
+     "bound": 200.0,
+     "rows_over_bound": 0,
+     "max_abs": 8.804865157026212,
+     "nonfinite_cells": 0
+    },
+    "quat": {
+     "columns": 4,
+     "bound": 1.01,
+     "rows_over_bound": 0,
+     "max_abs": 0.9999937468938812,
+     "nonfinite_cells": 0
+    },
+    "force": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 553.0003511491857,
+     "nonfinite_cells": 0
+    },
+    "torque": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 45.25330173770634,
+     "nonfinite_cells": 0
+    }
+   }
+  },
+  "go2_exc_C": {
+   "rows_scanned": 22800,
+   "files_scanned": 1,
+   "diverged_rows": 0,
+   "diverged_pct": 0.0,
+   "truncated": false,
+   "families": {
+    "joint_pos": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 0,
+     "max_abs": 1.8979394435882568,
+     "nonfinite_cells": 0
+    },
+    "joint_target": {
+     "columns": 24,
+     "bound": 10.0,
+     "rows_over_bound": 0,
+     "max_abs": 1.79996835447272,
+     "nonfinite_cells": 0
+    },
+    "joint_vel": {
+     "columns": 12,
+     "bound": 200.0,
+     "rows_over_bound": 0,
+     "max_abs": 29.96449279785156,
+     "nonfinite_cells": 0
+    },
+    "lin_vel": {
+     "columns": 6,
+     "bound": 100.0,
+     "rows_over_bound": 0,
+     "max_abs": 0.939689883183806,
+     "nonfinite_cells": 0
+    },
+    "ang_vel": {
+     "columns": 6,
+     "bound": 200.0,
+     "rows_over_bound": 0,
+     "max_abs": 7.157154139147032,
+     "nonfinite_cells": 0
+    },
+    "quat": {
+     "columns": 4,
+     "bound": 1.01,
+     "rows_over_bound": 0,
+     "max_abs": 0.9999635964040527,
+     "nonfinite_cells": 0
+    },
+    "force": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 231.680790719914,
+     "nonfinite_cells": 0
+    },
+    "torque": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 21.153216978406466,
+     "nonfinite_cells": 0
+    }
+   }
+  },
+  "go2_exc_b10": {
+   "rows_scanned": 269960,
+   "files_scanned": 1,
+   "diverged_rows": 0,
+   "diverged_pct": 0.0,
+   "truncated": false,
+   "families": {
+    "joint_pos": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 0,
+     "max_abs": 4.081024646759033,
+     "nonfinite_cells": 0
+    },
+    "joint_target": {
+     "columns": 24,
+     "bound": 10.0,
+     "rows_over_bound": 0,
+     "max_abs": 1.7999996299116048,
+     "nonfinite_cells": 0
+    },
+    "joint_vel": {
+     "columns": 12,
+     "bound": 200.0,
+     "rows_over_bound": 0,
+     "max_abs": 78.34883117675781,
+     "nonfinite_cells": 0
+    },
+    "lin_vel": {
+     "columns": 6,
+     "bound": 100.0,
+     "rows_over_bound": 0,
+     "max_abs": 1.4018206597843432,
+     "nonfinite_cells": 0
+    },
+    "ang_vel": {
+     "columns": 6,
+     "bound": 200.0,
+     "rows_over_bound": 0,
+     "max_abs": 19.07035082401327,
+     "nonfinite_cells": 0
+    },
+    "quat": {
+     "columns": 4,
+     "bound": 1.01,
+     "rows_over_bound": 0,
+     "max_abs": 0.9999976883834504,
+     "nonfinite_cells": 0
+    },
+    "force": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 680.1080087588954,
+     "nonfinite_cells": 0
+    },
+    "torque": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 45.43,
+     "nonfinite_cells": 0
+    }
+   }
+  },
+  "go2_exc_b10_c2": {
+   "rows_scanned": 34340,
+   "files_scanned": 1,
+   "diverged_rows": 0,
+   "diverged_pct": 0.0,
+   "truncated": false,
+   "families": {
+    "joint_pos": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 0,
+     "max_abs": 3.400803327560425,
+     "nonfinite_cells": 0
+    },
+    "joint_target": {
+     "columns": 24,
+     "bound": 10.0,
+     "rows_over_bound": 0,
+     "max_abs": 1.7999685378377408,
+     "nonfinite_cells": 0
+    },
+    "joint_vel": {
+     "columns": 12,
+     "bound": 200.0,
+     "rows_over_bound": 0,
+     "max_abs": 47.21139144897461,
+     "nonfinite_cells": 0
+    },
+    "lin_vel": {
+     "columns": 6,
+     "bound": 100.0,
+     "rows_over_bound": 0,
+     "max_abs": 1.0974958792394096,
+     "nonfinite_cells": 0
+    },
+    "ang_vel": {
+     "columns": 6,
+     "bound": 200.0,
+     "rows_over_bound": 0,
+     "max_abs": 8.76585692386696,
+     "nonfinite_cells": 0
+    },
+    "quat": {
+     "columns": 4,
+     "bound": 1.01,
+     "rows_over_bound": 0,
+     "max_abs": 0.9999962072178008,
+     "nonfinite_cells": 0
+    },
+    "force": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 547.007613760557,
+     "nonfinite_cells": 0
+    },
+    "torque": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 45.43,
+     "nonfinite_cells": 0
+    }
+   }
+  },
+  "go2_exc_b40": {
+   "rows_scanned": 306000,
+   "files_scanned": 1,
+   "diverged_rows": 0,
+   "diverged_pct": 0.0,
+   "truncated": false,
+   "families": {
+    "joint_pos": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 0,
+     "max_abs": 3.1855716705322266,
+     "nonfinite_cells": 0
+    },
+    "joint_target": {
+     "columns": 24,
+     "bound": 10.0,
+     "rows_over_bound": 0,
+     "max_abs": 1.7999986414550224,
+     "nonfinite_cells": 0
+    },
+    "joint_vel": {
+     "columns": 12,
+     "bound": 200.0,
+     "rows_over_bound": 0,
+     "max_abs": 45.0311279296875,
+     "nonfinite_cells": 0
+    },
+    "lin_vel": {
+     "columns": 6,
+     "bound": 100.0,
+     "rows_over_bound": 0,
+     "max_abs": 1.2076140444762,
+     "nonfinite_cells": 0
+    },
+    "ang_vel": {
+     "columns": 6,
+     "bound": 200.0,
+     "rows_over_bound": 0,
+     "max_abs": 7.531001951068196,
+     "nonfinite_cells": 0
+    },
+    "quat": {
+     "columns": 4,
+     "bound": 1.01,
+     "rows_over_bound": 0,
+     "max_abs": 0.9999987269973534,
+     "nonfinite_cells": 0
+    },
+    "force": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 519.5522913055643,
+     "nonfinite_cells": 0
+    },
+    "torque": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 45.43,
+     "nonfinite_cells": 0
+    }
+   }
+  },
+  "go2_exc_b40_c2": {
+   "rows_scanned": 2190620,
+   "files_scanned": 1,
+   "diverged_rows": 0,
+   "diverged_pct": 0.0,
+   "truncated": true,
+   "families": {
+    "joint_pos": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 0,
+     "max_abs": 3.666386604309082,
+     "nonfinite_cells": 0
+    },
+    "joint_target": {
+     "columns": 24,
+     "bound": 10.0,
+     "rows_over_bound": 0,
+     "max_abs": 1.799999858989639,
+     "nonfinite_cells": 0
+    },
+    "joint_vel": {
+     "columns": 12,
+     "bound": 200.0,
+     "rows_over_bound": 0,
+     "max_abs": 49.640113830566406,
+     "nonfinite_cells": 0
+    },
+    "lin_vel": {
+     "columns": 6,
+     "bound": 100.0,
+     "rows_over_bound": 0,
+     "max_abs": 1.2677652577410012,
+     "nonfinite_cells": 0
+    },
+    "ang_vel": {
+     "columns": 6,
+     "bound": 200.0,
+     "rows_over_bound": 0,
+     "max_abs": 8.381877271090271,
+     "nonfinite_cells": 0
+    },
+    "quat": {
+     "columns": 4,
+     "bound": 1.01,
+     "rows_over_bound": 0,
+     "max_abs": 0.9999998886521084,
+     "nonfinite_cells": 0
+    },
+    "force": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 527.3622296021606,
+     "nonfinite_cells": 0
+    },
+    "torque": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 45.20424388295339,
+     "nonfinite_cells": 0
+    }
+   }
+  },
+  "go2_exc_b40_c3": {
+   "rows_scanned": 1249840,
+   "files_scanned": 1,
+   "diverged_rows": 0,
+   "diverged_pct": 0.0,
+   "truncated": true,
+   "families": {
+    "joint_pos": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 0,
+     "max_abs": 3.664264678955078,
+     "nonfinite_cells": 0
+    },
+    "joint_target": {
+     "columns": 24,
+     "bound": 10.0,
+     "rows_over_bound": 0,
+     "max_abs": 1.7999979646323931,
+     "nonfinite_cells": 0
+    },
+    "joint_vel": {
+     "columns": 12,
+     "bound": 200.0,
+     "rows_over_bound": 0,
+     "max_abs": 48.91145706176758,
+     "nonfinite_cells": 0
+    },
+    "lin_vel": {
+     "columns": 6,
+     "bound": 100.0,
+     "rows_over_bound": 0,
+     "max_abs": 1.2378882625598129,
+     "nonfinite_cells": 0
+    },
+    "ang_vel": {
+     "columns": 6,
+     "bound": 200.0,
+     "rows_over_bound": 0,
+     "max_abs": 8.712270186108414,
+     "nonfinite_cells": 0
+    },
+    "quat": {
+     "columns": 4,
+     "bound": 1.01,
+     "rows_over_bound": 0,
+     "max_abs": 0.999999773132851,
+     "nonfinite_cells": 0
+    },
+    "force": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 585.6971908268964,
+     "nonfinite_cells": 0
+    },
+    "torque": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 45.160034631272616,
+     "nonfinite_cells": 0
+    }
+   }
+  },
+  "go2_exc_b40_c4": {
+   "rows_scanned": 1250180,
+   "files_scanned": 1,
+   "diverged_rows": 0,
+   "diverged_pct": 0.0,
+   "truncated": true,
+   "families": {
+    "joint_pos": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 0,
+     "max_abs": 3.313768148422241,
+     "nonfinite_cells": 0
+    },
+    "joint_target": {
+     "columns": 24,
+     "bound": 10.0,
+     "rows_over_bound": 0,
+     "max_abs": 1.799999749405708,
+     "nonfinite_cells": 0
+    },
+    "joint_vel": {
+     "columns": 12,
+     "bound": 200.0,
+     "rows_over_bound": 0,
+     "max_abs": 50.00187301635742,
+     "nonfinite_cells": 0
+    },
+    "lin_vel": {
+     "columns": 6,
+     "bound": 100.0,
+     "rows_over_bound": 0,
+     "max_abs": 1.3015853868919995,
+     "nonfinite_cells": 0
+    },
+    "ang_vel": {
+     "columns": 6,
+     "bound": 200.0,
+     "rows_over_bound": 0,
+     "max_abs": 8.542065029872452,
+     "nonfinite_cells": 0
+    },
+    "quat": {
+     "columns": 4,
+     "bound": 1.01,
+     "rows_over_bound": 0,
+     "max_abs": 0.9999993914985638,
+     "nonfinite_cells": 0
+    },
+    "force": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 570.7019661666368,
+     "nonfinite_cells": 0
+    },
+    "torque": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 45.43,
+     "nonfinite_cells": 0
+    }
+   }
+  },
+  "go2_exc_c10_c2": {
+   "rows_scanned": 190000,
+   "files_scanned": 1,
+   "diverged_rows": 0,
+   "diverged_pct": 0.0,
+   "truncated": false,
+   "families": {
+    "joint_pos": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 0,
+     "max_abs": 1.9642040729522705,
+     "nonfinite_cells": 0
+    },
+    "joint_target": {
+     "columns": 24,
+     "bound": 10.0,
+     "rows_over_bound": 0,
+     "max_abs": 1.79999443472343,
+     "nonfinite_cells": 0
+    },
+    "joint_vel": {
+     "columns": 12,
+     "bound": 200.0,
+     "rows_over_bound": 0,
+     "max_abs": 35.17402648925781,
+     "nonfinite_cells": 0
+    },
+    "lin_vel": {
+     "columns": 6,
+     "bound": 100.0,
+     "rows_over_bound": 0,
+     "max_abs": 0.9608664449440336,
+     "nonfinite_cells": 0
+    },
+    "ang_vel": {
+     "columns": 6,
+     "bound": 200.0,
+     "rows_over_bound": 0,
+     "max_abs": 6.867923469146141,
+     "nonfinite_cells": 0
+    },
+    "quat": {
+     "columns": 4,
+     "bound": 1.01,
+     "rows_over_bound": 0,
+     "max_abs": 0.9999960311132328,
+     "nonfinite_cells": 0
+    },
+    "force": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 256.8533023670029,
+     "nonfinite_cells": 0
+    },
+    "torque": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 24.07090641123306,
+     "nonfinite_cells": 0
+    }
+   }
+  },
+  "go2_excitation_pilot": {
+   "rows_scanned": 340000,
+   "files_scanned": 1,
+   "diverged_rows": 0,
+   "diverged_pct": 0.0,
+   "truncated": false,
+   "families": {
+    "joint_pos": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 0,
+     "max_abs": 3.0344667434692383,
+     "nonfinite_cells": 0
+    },
+    "joint_target": {
+     "columns": 24,
+     "bound": 10.0,
+     "rows_over_bound": 0,
+     "max_abs": 1.7999989851758995,
+     "nonfinite_cells": 0
+    },
+    "joint_vel": {
+     "columns": 12,
+     "bound": 200.0,
+     "rows_over_bound": 0,
+     "max_abs": 49.29220962524414,
+     "nonfinite_cells": 0
+    },
+    "lin_vel": {
+     "columns": 6,
+     "bound": 100.0,
+     "rows_over_bound": 0,
+     "max_abs": 1.9517967751753549,
+     "nonfinite_cells": 0
+    },
+    "ang_vel": {
+     "columns": 6,
+     "bound": 200.0,
+     "rows_over_bound": 0,
+     "max_abs": 13.38862838609002,
+     "nonfinite_cells": 0
+    },
+    "quat": {
+     "columns": 4,
+     "bound": 1.01,
+     "rows_over_bound": 0,
+     "max_abs": 0.9999916155457508,
+     "nonfinite_cells": 0
+    },
+    "force": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 404.2091508240832,
+     "nonfinite_cells": 0
+    },
+    "torque": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 39.13727674998298,
+     "nonfinite_cells": 0
+    }
+   }
+  },
+  "go2_excitation_v2": {
+   "rows_scanned": 68000,
+   "files_scanned": 1,
+   "diverged_rows": 0,
+   "diverged_pct": 0.0,
+   "truncated": false,
+   "families": {
+    "joint_pos": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 0,
+     "max_abs": 2.566983222961426,
+     "nonfinite_cells": 0
+    },
+    "joint_target": {
+     "columns": 24,
+     "bound": 10.0,
+     "rows_over_bound": 0,
+     "max_abs": 1.7999996636383997,
+     "nonfinite_cells": 0
+    },
+    "joint_vel": {
+     "columns": 12,
+     "bound": 200.0,
+     "rows_over_bound": 0,
+     "max_abs": 24.07062339782715,
+     "nonfinite_cells": 0
+    },
+    "lin_vel": {
+     "columns": 6,
+     "bound": 100.0,
+     "rows_over_bound": 0,
+     "max_abs": 1.0773172130665116,
+     "nonfinite_cells": 0
+    },
+    "ang_vel": {
+     "columns": 6,
+     "bound": 200.0,
+     "rows_over_bound": 0,
+     "max_abs": 8.48873073912103,
+     "nonfinite_cells": 0
+    },
+    "quat": {
+     "columns": 4,
+     "bound": 1.01,
+     "rows_over_bound": 0,
+     "max_abs": 0.9999707247491968,
+     "nonfinite_cells": 0
+    },
+    "force": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 149.89515722337725,
+     "nonfinite_cells": 0
+    },
+    "torque": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 24.460770945566995,
+     "nonfinite_cells": 0
+    }
+   }
+  },
+  "go2_excitation_v3": {
+   "rows_scanned": 13600,
+   "files_scanned": 1,
+   "diverged_rows": 0,
+   "diverged_pct": 0.0,
+   "truncated": false,
+   "families": {
+    "joint_pos": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 0,
+     "max_abs": 3.1959939002990723,
+     "nonfinite_cells": 0
+    },
+    "joint_target": {
+     "columns": 24,
+     "bound": 10.0,
+     "rows_over_bound": 0,
+     "max_abs": 1.7997864870766096,
+     "nonfinite_cells": 0
+    },
+    "joint_vel": {
+     "columns": 12,
+     "bound": 200.0,
+     "rows_over_bound": 0,
+     "max_abs": 44.01909255981445,
+     "nonfinite_cells": 0
+    },
+    "lin_vel": {
+     "columns": 6,
+     "bound": 100.0,
+     "rows_over_bound": 0,
+     "max_abs": 1.1184046200616171,
+     "nonfinite_cells": 0
+    },
+    "ang_vel": {
+     "columns": 6,
+     "bound": 200.0,
+     "rows_over_bound": 0,
+     "max_abs": 6.675942933980256,
+     "nonfinite_cells": 0
+    },
+    "quat": {
+     "columns": 4,
+     "bound": 1.01,
+     "rows_over_bound": 0,
+     "max_abs": 0.9999989030471168,
+     "nonfinite_cells": 0
+    },
+    "force": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 226.47127860843528,
+     "nonfinite_cells": 0
+    },
+    "torque": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 38.53660247395135,
+     "nonfinite_cells": 0
+    }
+   }
+  },
+  "go2_joint_off3000000": {
+   "rows_scanned": 401288,
+   "files_scanned": 147,
+   "diverged_rows": 2678,
+   "diverged_pct": 0.6673511293634496,
+   "truncated": true,
+   "families": {
+    "joint_pos": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 2653,
+     "max_abs": 149.33880615234375,
+     "nonfinite_cells": 168
+    },
+    "joint_target": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 2678,
+     "max_abs": 4.377621393257527e+34,
+     "nonfinite_cells": 168
+    },
+    "joint_vel": {
+     "columns": 12,
+     "bound": 200.0,
+     "rows_over_bound": 414,
+     "max_abs": 447.6629028320313,
+     "nonfinite_cells": 168
+    },
+    "lin_vel": {
+     "columns": 6,
+     "bound": 100.0,
+     "rows_over_bound": 14,
+     "max_abs": 6.411349248678715,
+     "nonfinite_cells": 84
+    },
+    "ang_vel": {
+     "columns": 6,
+     "bound": 200.0,
+     "rows_over_bound": 14,
+     "max_abs": 160.31887628591542,
+     "nonfinite_cells": 84
+    },
+    "quat": {
+     "columns": 4,
+     "bound": 1.01,
+     "rows_over_bound": 14,
+     "max_abs": 0.99999980222649,
+     "nonfinite_cells": 56
+    },
+    "force": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 3163.8488178450853,
+     "nonfinite_cells": 0
+    },
+    "torque": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 14,
+     "max_abs": 45.43,
+     "nonfinite_cells": 168
+    }
+   }
+  },
+  "go2_merged": {
+   "rows_scanned": 401152,
+   "files_scanned": 276,
+   "diverged_rows": 0,
+   "diverged_pct": 0.0,
+   "truncated": true,
+   "families": {
+    "joint_target": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 0,
+     "max_abs": 3.0938096046447754,
+     "nonfinite_cells": 0
+    },
+    "lin_vel": {
+     "columns": 6,
+     "bound": 100.0,
+     "rows_over_bound": 0,
+     "max_abs": 0.9085239340614332,
+     "nonfinite_cells": 0
+    },
+    "ang_vel": {
+     "columns": 6,
+     "bound": 200.0,
+     "rows_over_bound": 0,
+     "max_abs": 2.910825054593245,
+     "nonfinite_cells": 0
+    },
+    "quat": {
+     "columns": 4,
+     "bound": 1.01,
+     "rows_over_bound": 0,
+     "max_abs": 0.9999999271238084,
+     "nonfinite_cells": 0
+    },
+    "force": {
+     "columns": 4,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 575.4444580078125,
+     "nonfinite_cells": 0
+    }
+   }
+  },
+  "go2_pairprobe_pert": {
+   "rows_scanned": 195062,
+   "files_scanned": 64,
+   "diverged_rows": 1312,
+   "diverged_pct": 0.6726066583957921,
+   "truncated": false,
+   "families": {
+    "joint_pos": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 1287,
+     "max_abs": 154.31028747558594,
+     "nonfinite_cells": 24
+    },
+    "joint_target": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 1312,
+     "max_abs": 4.278419810973417e+34,
+     "nonfinite_cells": 24
+    },
+    "joint_vel": {
+     "columns": 12,
+     "bound": 200.0,
+     "rows_over_bound": 197,
+     "max_abs": 396.88031005859375,
+     "nonfinite_cells": 24
+    },
+    "lin_vel": {
+     "columns": 6,
+     "bound": 100.0,
+     "rows_over_bound": 2,
+     "max_abs": 6.53110204371398,
+     "nonfinite_cells": 12
+    },
+    "ang_vel": {
+     "columns": 6,
+     "bound": 200.0,
+     "rows_over_bound": 2,
+     "max_abs": 148.13877422166408,
+     "nonfinite_cells": 12
+    },
+    "quat": {
+     "columns": 4,
+     "bound": 1.01,
+     "rows_over_bound": 2,
+     "max_abs": 0.9999994853537724,
+     "nonfinite_cells": 8
+    },
+    "force": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 3401.003554646932,
+     "nonfinite_cells": 0
+    },
+    "torque": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 2,
+     "max_abs": 45.43,
+     "nonfinite_cells": 24
+    }
+   }
+  },
+  "go2_pairprobe_pert02": {
+   "rows_scanned": 187643,
+   "files_scanned": 64,
+   "diverged_rows": 1951,
+   "diverged_pct": 1.0397403580202833,
+   "truncated": false,
+   "families": {
+    "joint_pos": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 1904,
+     "max_abs": 135.6626739501953,
+     "nonfinite_cells": 180
+    },
+    "joint_target": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 1951,
+     "max_abs": 4.396431149390445e+34,
+     "nonfinite_cells": 180
+    },
+    "joint_vel": {
+     "columns": 12,
+     "bound": 200.0,
+     "rows_over_bound": 349,
+     "max_abs": 616.3997802734375,
+     "nonfinite_cells": 180
+    },
+    "lin_vel": {
+     "columns": 6,
+     "bound": 100.0,
+     "rows_over_bound": 15,
+     "max_abs": 6.478852128689463,
+     "nonfinite_cells": 90
+    },
+    "ang_vel": {
+     "columns": 6,
+     "bound": 200.0,
+     "rows_over_bound": 15,
+     "max_abs": 156.3098047991944,
+     "nonfinite_cells": 90
+    },
+    "quat": {
+     "columns": 4,
+     "bound": 1.01,
+     "rows_over_bound": 15,
+     "max_abs": 0.9999995298780656,
+     "nonfinite_cells": 60
+    },
+    "force": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 2881.0248652048144,
+     "nonfinite_cells": 0
+    },
+    "torque": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 15,
+     "max_abs": 45.43,
+     "nonfinite_cells": 180
+    }
+   }
+  },
+  "go2_pairprobe_repeat": {
+   "rows_scanned": 194926,
+   "files_scanned": 64,
+   "diverged_rows": 1236,
+   "diverged_pct": 0.6340867816504725,
+   "truncated": false,
+   "families": {
+    "joint_pos": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 1215,
+     "max_abs": 142.1427001953125,
+     "nonfinite_cells": 120
+    },
+    "joint_target": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 1236,
+     "max_abs": 4.517930507662164e+34,
+     "nonfinite_cells": 120
+    },
+    "joint_vel": {
+     "columns": 12,
+     "bound": 200.0,
+     "rows_over_bound": 170,
+     "max_abs": 384.3962097167969,
+     "nonfinite_cells": 120
+    },
+    "lin_vel": {
+     "columns": 6,
+     "bound": 100.0,
+     "rows_over_bound": 10,
+     "max_abs": 8.225196184341437,
+     "nonfinite_cells": 60
+    },
+    "ang_vel": {
+     "columns": 6,
+     "bound": 200.0,
+     "rows_over_bound": 10,
+     "max_abs": 163.702881947925,
+     "nonfinite_cells": 60
+    },
+    "quat": {
+     "columns": 4,
+     "bound": 1.01,
+     "rows_over_bound": 10,
+     "max_abs": 0.9999989647349548,
+     "nonfinite_cells": 40
+    },
+    "force": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 3290.2091347635333,
+     "nonfinite_cells": 0
+    },
+    "torque": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 10,
+     "max_abs": 45.43,
+     "nonfinite_cells": 120
+    }
+   }
+  },
+  "go2_seedprobe_off4000000": {
+   "rows_scanned": 194918,
+   "files_scanned": 64,
+   "diverged_rows": 1228,
+   "diverged_pct": 0.6300085164017689,
+   "truncated": false,
+   "families": {
+    "joint_pos": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 1207,
+     "max_abs": 142.1427001953125,
+     "nonfinite_cells": 24
+    },
+    "joint_target": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 1228,
+     "max_abs": 4.517930507662164e+34,
+     "nonfinite_cells": 24
+    },
+    "joint_vel": {
+     "columns": 12,
+     "bound": 200.0,
+     "rows_over_bound": 162,
+     "max_abs": 384.3962097167969,
+     "nonfinite_cells": 24
+    },
+    "lin_vel": {
+     "columns": 6,
+     "bound": 100.0,
+     "rows_over_bound": 2,
+     "max_abs": 8.225196184341437,
+     "nonfinite_cells": 12
+    },
+    "ang_vel": {
+     "columns": 6,
+     "bound": 200.0,
+     "rows_over_bound": 2,
+     "max_abs": 163.702881947925,
+     "nonfinite_cells": 12
+    },
+    "quat": {
+     "columns": 4,
+     "bound": 1.01,
+     "rows_over_bound": 2,
+     "max_abs": 0.9999989647349548,
+     "nonfinite_cells": 8
+    },
+    "force": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 3290.2091347635333,
+     "nonfinite_cells": 0
+    },
+    "torque": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 2,
+     "max_abs": 45.43,
+     "nonfinite_cells": 24
+    }
+   }
+  },
+  "go2_stand_tilt": {
+   "rows_scanned": 53853,
+   "files_scanned": 16,
+   "diverged_rows": 15,
+   "diverged_pct": 0.027853601470670158,
+   "truncated": false,
+   "families": {
+    "joint_pos": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 15,
+     "max_abs": 103.72039794921876,
+     "nonfinite_cells": 12
+    },
+    "joint_target": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 15,
+     "max_abs": 1.7940600907215595e+34,
+     "nonfinite_cells": 12
+    },
+    "joint_vel": {
+     "columns": 12,
+     "bound": 200.0,
+     "rows_over_bound": 1,
+     "max_abs": 178.58590698242188,
+     "nonfinite_cells": 12
+    },
+    "lin_vel": {
+     "columns": 6,
+     "bound": 100.0,
+     "rows_over_bound": 1,
+     "max_abs": 2.963729993663197,
+     "nonfinite_cells": 6
+    },
+    "ang_vel": {
+     "columns": 6,
+     "bound": 200.0,
+     "rows_over_bound": 1,
+     "max_abs": 11.562644399266826,
+     "nonfinite_cells": 6
+    },
+    "quat": {
+     "columns": 4,
+     "bound": 1.01,
+     "rows_over_bound": 1,
+     "max_abs": 0.9999991154771992,
+     "nonfinite_cells": 4
+    },
+    "force": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 194.1308153394621,
+     "nonfinite_cells": 0
+    },
+    "torque": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 1,
+     "max_abs": 45.43,
+     "nonfinite_cells": 12
+    }
+   }
+  },
+  "go2_standpose_0": {
+   "rows_scanned": 61362,
+   "files_scanned": 16,
+   "diverged_rows": 0,
+   "diverged_pct": 0.0,
+   "truncated": false,
+   "families": {
+    "joint_pos": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 0,
+     "max_abs": 1.6460506916046145,
+     "nonfinite_cells": 0
+    },
+    "joint_target": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 0,
+     "max_abs": 1.6774852275848389,
+     "nonfinite_cells": 0
+    },
+    "joint_vel": {
+     "columns": 12,
+     "bound": 200.0,
+     "rows_over_bound": 0,
+     "max_abs": 9.424431800842283,
+     "nonfinite_cells": 0
+    },
+    "lin_vel": {
+     "columns": 6,
+     "bound": 100.0,
+     "rows_over_bound": 0,
+     "max_abs": 0.6281752041239426,
+     "nonfinite_cells": 0
+    },
+    "ang_vel": {
+     "columns": 6,
+     "bound": 200.0,
+     "rows_over_bound": 0,
+     "max_abs": 0.6023856160284575,
+     "nonfinite_cells": 0
+    },
+    "quat": {
+     "columns": 4,
+     "bound": 1.01,
+     "rows_over_bound": 0,
+     "max_abs": 0.9999999528128904,
+     "nonfinite_cells": 0
+    },
+    "force": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 120.76269419511983,
+     "nonfinite_cells": 0
+    },
+    "torque": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 17.752490401268005,
+     "nonfinite_cells": 0
+    }
+   }
+  },
+  "go2_standpose_1": {
+   "rows_scanned": 61362,
+   "files_scanned": 16,
+   "diverged_rows": 0,
+   "diverged_pct": 0.0,
+   "truncated": false,
+   "families": {
+    "joint_pos": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 0,
+     "max_abs": 1.6294105052947998,
+     "nonfinite_cells": 0
+    },
+    "joint_target": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 0,
+     "max_abs": 1.703078031539917,
+     "nonfinite_cells": 0
+    },
+    "joint_vel": {
+     "columns": 12,
+     "bound": 200.0,
+     "rows_over_bound": 0,
+     "max_abs": 10.862789154052734,
+     "nonfinite_cells": 0
+    },
+    "lin_vel": {
+     "columns": 6,
+     "bound": 100.0,
+     "rows_over_bound": 0,
+     "max_abs": 0.62248964921722,
+     "nonfinite_cells": 0
+    },
+    "ang_vel": {
+     "columns": 6,
+     "bound": 200.0,
+     "rows_over_bound": 0,
+     "max_abs": 0.6014633206826979,
+     "nonfinite_cells": 0
+    },
+    "quat": {
+     "columns": 4,
+     "bound": 1.01,
+     "rows_over_bound": 0,
+     "max_abs": 0.9999998212386528,
+     "nonfinite_cells": 0
+    },
+    "force": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 132.79848040968213,
+     "nonfinite_cells": 0
+    },
+    "torque": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 19.622251272201535,
+     "nonfinite_cells": 0
+    }
+   }
+  },
+  "go2_stratified": {
+   "rows_scanned": 401152,
+   "files_scanned": 276,
+   "diverged_rows": 0,
+   "diverged_pct": 0.0,
+   "truncated": true,
+   "families": {
+    "joint_target": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 0,
+     "max_abs": 3.0938096046447754,
+     "nonfinite_cells": 0
+    },
+    "lin_vel": {
+     "columns": 6,
+     "bound": 100.0,
+     "rows_over_bound": 0,
+     "max_abs": 0.9085239340614332,
+     "nonfinite_cells": 0
+    },
+    "ang_vel": {
+     "columns": 6,
+     "bound": 200.0,
+     "rows_over_bound": 0,
+     "max_abs": 2.910825054593245,
+     "nonfinite_cells": 0
+    },
+    "quat": {
+     "columns": 4,
+     "bound": 1.01,
+     "rows_over_bound": 0,
+     "max_abs": 0.9999999271238084,
+     "nonfinite_cells": 0
+    },
+    "force": {
+     "columns": 4,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 575.4444580078125,
+     "nonfinite_cells": 0
+    }
+   }
+  },
+  "go2_tilt_rear": {
+   "rows_scanned": 11828,
+   "files_scanned": 16,
+   "diverged_rows": 1988,
+   "diverged_pct": 16.807575245180928,
+   "truncated": false,
+   "families": {
+    "joint_pos": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 1932,
+     "max_abs": 146.3693084716797,
+     "nonfinite_cells": 36
+    },
+    "joint_target": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 1988,
+     "max_abs": 4.48325927339389e+34,
+     "nonfinite_cells": 36
+    },
+    "joint_vel": {
+     "columns": 12,
+     "bound": 200.0,
+     "rows_over_bound": 357,
+     "max_abs": 449.2614135742188,
+     "nonfinite_cells": 36
+    },
+    "lin_vel": {
+     "columns": 6,
+     "bound": 100.0,
+     "rows_over_bound": 3,
+     "max_abs": 8.57143563064313,
+     "nonfinite_cells": 18
+    },
+    "ang_vel": {
+     "columns": 6,
+     "bound": 200.0,
+     "rows_over_bound": 3,
+     "max_abs": 161.6858024997171,
+     "nonfinite_cells": 18
+    },
+    "quat": {
+     "columns": 4,
+     "bound": 1.01,
+     "rows_over_bound": 3,
+     "max_abs": 0.9997651003791364,
+     "nonfinite_cells": 12
+    },
+    "force": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 2785.6002382157744,
+     "nonfinite_cells": 0
+    },
+    "torque": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 3,
+     "max_abs": 45.43,
+     "nonfinite_cells": 36
+    }
+   }
+  },
+  "go2_tilt_walkable": {
+   "rows_scanned": 20591,
+   "files_scanned": 24,
+   "diverged_rows": 1471,
+   "diverged_pct": 7.143897819435676,
+   "truncated": false,
+   "families": {
+    "joint_pos": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 1445,
+     "max_abs": 144.4170379638672,
+     "nonfinite_cells": 36
+    },
+    "joint_target": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 1471,
+     "max_abs": 4.575557111666914e+34,
+     "nonfinite_cells": 36
+    },
+    "joint_vel": {
+     "columns": 12,
+     "bound": 200.0,
+     "rows_over_bound": 219,
+     "max_abs": 410.2616882324219,
+     "nonfinite_cells": 36
+    },
+    "lin_vel": {
+     "columns": 6,
+     "bound": 100.0,
+     "rows_over_bound": 3,
+     "max_abs": 6.167265923279018,
+     "nonfinite_cells": 18
+    },
+    "ang_vel": {
+     "columns": 6,
+     "bound": 200.0,
+     "rows_over_bound": 3,
+     "max_abs": 155.41375527327804,
+     "nonfinite_cells": 18
+    },
+    "quat": {
+     "columns": 4,
+     "bound": 1.01,
+     "rows_over_bound": 3,
+     "max_abs": 0.9999867438519424,
+     "nonfinite_cells": 12
+    },
+    "force": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 2881.911369418017,
+     "nonfinite_cells": 0
+    },
+    "torque": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 3,
+     "max_abs": 45.43,
+     "nonfinite_cells": 36
+    }
+   }
+  },
+  "go2_torque_bracket_v2": {
+   "rows_scanned": 154213,
+   "files_scanned": 40,
+   "diverged_rows": 0,
+   "diverged_pct": 0.0,
+   "truncated": false,
+   "families": {
+    "joint_pos": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 0,
+     "max_abs": 2.277297258377075,
+     "nonfinite_cells": 0
+    },
+    "joint_target": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 0,
+     "max_abs": 2.3387160301208496,
+     "nonfinite_cells": 0
+    },
+    "joint_vel": {
+     "columns": 12,
+     "bound": 200.0,
+     "rows_over_bound": 0,
+     "max_abs": 29.33342933654785,
+     "nonfinite_cells": 0
+    },
+    "lin_vel": {
+     "columns": 6,
+     "bound": 100.0,
+     "rows_over_bound": 0,
+     "max_abs": 0.6863685606324849,
+     "nonfinite_cells": 0
+    },
+    "ang_vel": {
+     "columns": 6,
+     "bound": 200.0,
+     "rows_over_bound": 0,
+     "max_abs": 11.264284778955997,
+     "nonfinite_cells": 0
+    },
+    "quat": {
+     "columns": 4,
+     "bound": 1.01,
+     "rows_over_bound": 0,
+     "max_abs": 0.9999993353063764,
+     "nonfinite_cells": 0
+    },
+    "force": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 216.672855588904,
+     "nonfinite_cells": 0
+    },
+    "torque": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 39.83901042046017,
+     "nonfinite_cells": 0
+    }
+   }
+  },
+  "go2_torque_fwd": {
+   "rows_scanned": 30704,
+   "files_scanned": 8,
+   "diverged_rows": 0,
+   "diverged_pct": 0.0,
+   "truncated": false,
+   "families": {
+    "joint_pos": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 0,
+     "max_abs": 2.6179728507995605,
+     "nonfinite_cells": 0
+    },
+    "joint_target": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 0,
+     "max_abs": 2.756190061569214,
+     "nonfinite_cells": 0
+    },
+    "joint_vel": {
+     "columns": 12,
+     "bound": 200.0,
+     "rows_over_bound": 0,
+     "max_abs": 32.25830078125,
+     "nonfinite_cells": 0
+    },
+    "lin_vel": {
+     "columns": 6,
+     "bound": 100.0,
+     "rows_over_bound": 0,
+     "max_abs": 0.8479895736775923,
+     "nonfinite_cells": 0
+    },
+    "ang_vel": {
+     "columns": 6,
+     "bound": 200.0,
+     "rows_over_bound": 0,
+     "max_abs": 12.649742931764038,
+     "nonfinite_cells": 0
+    },
+    "quat": {
+     "columns": 4,
+     "bound": 1.01,
+     "rows_over_bound": 0,
+     "max_abs": 0.999999513571925,
+     "nonfinite_cells": 0
+    },
+    "force": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 289.203431813629,
+     "nonfinite_cells": 0
+    },
+    "torque": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 39.00595656879005,
+     "nonfinite_cells": 0
+    }
+   }
+  },
+  "go2_verdict_r4": {
+   "rows_scanned": 169512,
+   "files_scanned": 46,
+   "diverged_rows": 415,
+   "diverged_pct": 0.24482042569257634,
+   "truncated": false,
+   "families": {
+    "joint_pos": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 410,
+     "max_abs": 131.98902893066406,
+     "nonfinite_cells": 0
+    },
+    "joint_target": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 415,
+     "max_abs": 4.101481783922381e+34,
+     "nonfinite_cells": 0
+    },
+    "joint_vel": {
+     "columns": 12,
+     "bound": 200.0,
+     "rows_over_bound": 73,
+     "max_abs": 446.2117309570313,
+     "nonfinite_cells": 0
+    },
+    "lin_vel": {
+     "columns": 6,
+     "bound": 100.0,
+     "rows_over_bound": 0,
+     "max_abs": 5.558511397519908,
+     "nonfinite_cells": 0
+    },
+    "ang_vel": {
+     "columns": 6,
+     "bound": 200.0,
+     "rows_over_bound": 0,
+     "max_abs": 157.41606295003655,
+     "nonfinite_cells": 0
+    },
+    "quat": {
+     "columns": 4,
+     "bound": 1.01,
+     "rows_over_bound": 0,
+     "max_abs": 0.999996574297066,
+     "nonfinite_cells": 0
+    },
+    "force": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 3801.936031070116,
+     "nonfinite_cells": 0
+    },
+    "torque": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 45.43,
+     "nonfinite_cells": 0
+    }
+   }
+  },
+  "go2_verdict_r5": {
+   "rows_scanned": 150034,
+   "files_scanned": 41,
+   "diverged_rows": 415,
+   "diverged_pct": 0.27660396976685286,
+   "truncated": false,
+   "families": {
+    "joint_pos": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 410,
+     "max_abs": 131.98902893066406,
+     "nonfinite_cells": 0
+    },
+    "joint_target": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 415,
+     "max_abs": 4.101481783922381e+34,
+     "nonfinite_cells": 0
+    },
+    "joint_vel": {
+     "columns": 12,
+     "bound": 200.0,
+     "rows_over_bound": 73,
+     "max_abs": 446.2117309570313,
+     "nonfinite_cells": 0
+    },
+    "lin_vel": {
+     "columns": 6,
+     "bound": 100.0,
+     "rows_over_bound": 0,
+     "max_abs": 5.558511397519908,
+     "nonfinite_cells": 0
+    },
+    "ang_vel": {
+     "columns": 6,
+     "bound": 200.0,
+     "rows_over_bound": 0,
+     "max_abs": 157.41606295003655,
+     "nonfinite_cells": 0
+    },
+    "quat": {
+     "columns": 4,
+     "bound": 1.01,
+     "rows_over_bound": 0,
+     "max_abs": 0.9999938247040344,
+     "nonfinite_cells": 0
+    },
+    "force": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 3801.936031070116,
+     "nonfinite_cells": 0
+    },
+    "torque": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 45.43,
+     "nonfinite_cells": 0
+    }
+   }
+  },
+  "go2_verdict_rehearsal": {
+   "rows_scanned": 169512,
+   "files_scanned": 46,
+   "diverged_rows": 415,
+   "diverged_pct": 0.24482042569257634,
+   "truncated": false,
+   "families": {
+    "joint_pos": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 410,
+     "max_abs": 131.98902893066406,
+     "nonfinite_cells": 0
+    },
+    "joint_target": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 415,
+     "max_abs": 4.101481783922381e+34,
+     "nonfinite_cells": 0
+    },
+    "joint_vel": {
+     "columns": 12,
+     "bound": 200.0,
+     "rows_over_bound": 73,
+     "max_abs": 446.2117309570313,
+     "nonfinite_cells": 0
+    },
+    "lin_vel": {
+     "columns": 6,
+     "bound": 100.0,
+     "rows_over_bound": 0,
+     "max_abs": 5.558511397519908,
+     "nonfinite_cells": 0
+    },
+    "ang_vel": {
+     "columns": 6,
+     "bound": 200.0,
+     "rows_over_bound": 0,
+     "max_abs": 157.41606295003655,
+     "nonfinite_cells": 0
+    },
+    "quat": {
+     "columns": 4,
+     "bound": 1.01,
+     "rows_over_bound": 0,
+     "max_abs": 0.999996574297066,
+     "nonfinite_cells": 0
+    },
+    "force": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 3801.936031070116,
+     "nonfinite_cells": 0
+    },
+    "torque": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 45.43,
+     "nonfinite_cells": 0
+    }
+   }
+  },
+  "go2_verdict_surv": {
+   "rows_scanned": 154035,
+   "files_scanned": 42,
+   "diverged_rows": 415,
+   "diverged_pct": 0.2694192878241958,
+   "truncated": false,
+   "families": {
+    "joint_pos": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 410,
+     "max_abs": 131.98902893066406,
+     "nonfinite_cells": 0
+    },
+    "joint_target": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 415,
+     "max_abs": 4.101481783922381e+34,
+     "nonfinite_cells": 0
+    },
+    "joint_vel": {
+     "columns": 12,
+     "bound": 200.0,
+     "rows_over_bound": 73,
+     "max_abs": 446.2117309570313,
+     "nonfinite_cells": 0
+    },
+    "lin_vel": {
+     "columns": 6,
+     "bound": 100.0,
+     "rows_over_bound": 0,
+     "max_abs": 5.558511397519908,
+     "nonfinite_cells": 0
+    },
+    "ang_vel": {
+     "columns": 6,
+     "bound": 200.0,
+     "rows_over_bound": 0,
+     "max_abs": 157.41606295003655,
+     "nonfinite_cells": 0
+    },
+    "quat": {
+     "columns": 4,
+     "bound": 1.01,
+     "rows_over_bound": 0,
+     "max_abs": 0.999996574297066,
+     "nonfinite_cells": 0
+    },
+    "force": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 3801.936031070116,
+     "nonfinite_cells": 0
+    },
+    "torque": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 45.43,
+     "nonfinite_cells": 0
+    }
+   }
+  },
+  "go2_verdict_v4": {
+   "rows_scanned": 76623,
+   "files_scanned": 39,
+   "diverged_rows": 2212,
+   "diverged_pct": 2.886861647286063,
+   "truncated": false,
+   "families": {
+    "joint_pos": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 2180,
+     "max_abs": 152.56402587890625,
+     "nonfinite_cells": 36
+    },
+    "joint_target": {
+     "columns": 12,
+     "bound": 10.0,
+     "rows_over_bound": 2212,
+     "max_abs": 3.580315217083433e+34,
+     "nonfinite_cells": 36
+    },
+    "joint_vel": {
+     "columns": 12,
+     "bound": 200.0,
+     "rows_over_bound": 308,
+     "max_abs": 462.5400085449219,
+     "nonfinite_cells": 36
+    },
+    "lin_vel": {
+     "columns": 6,
+     "bound": 100.0,
+     "rows_over_bound": 3,
+     "max_abs": 6.421717691498261,
+     "nonfinite_cells": 18
+    },
+    "ang_vel": {
+     "columns": 6,
+     "bound": 200.0,
+     "rows_over_bound": 3,
+     "max_abs": 153.1156792339207,
+     "nonfinite_cells": 18
+    },
+    "quat": {
+     "columns": 4,
+     "bound": 1.01,
+     "rows_over_bound": 3,
+     "max_abs": 0.9999900276214144,
+     "nonfinite_cells": 12
+    },
+    "force": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 0,
+     "max_abs": 3430.746285459835,
+     "nonfinite_cells": 0
+    },
+    "torque": {
+     "columns": 15,
+     "bound": 100000.0,
+     "rows_over_bound": 3,
+     "max_abs": 45.43,
+     "nonfinite_cells": 36
+    }
+   }
+  }
+ },
+ "scan_is_truncated": "Each dataset was scanned to at most 400,000 rows, so percentages describe the scanned prefix. go2_joint_off3000000 holds 5.7M rows and 401,288 were scanned. Per-dataset 'truncated' says which.",
+ "headline": "EVERY excitation dataset is 0.000% -- the collector's divergence filter works. 13 of 32 other datasets contain diverged rows, worst go2_tilt_rear at 16.8%. This asymmetry is a property of the COLLECTORS, not of the physics, and it is recorded in no dataset.",
+ "W0_is_only_partly_protected": "W0 (w0_poincare_decidability.py) applies no magnitude filter. It drops an episode only when episode_events returns None, i.e. no detectable stance events. Tested directly on go2_joint_off3000000: of 150 episodes scanned, 35 (23%) contain at least one diverged row -- far above the 0.67% ROW rate. Of 8 diverged episodes, W0 would drop 6 and KEEP 2; of 8 clean episodes it drops 0. So divergence usually destroys stance detection, but not always, and roughly a quarter of diverged episodes reach the fit. R^2 is not robust to outliers. THIS DOES NOT SHOW THE W0 FIGURES ARE WRONG -- it shows they rest on data whose divergence status was never checked, and the invocation glob is not recorded in any doc, so which dataset they used cannot be recovered from the repo. Anyone who knows the glob can settle it by re-running with a magnitude filter and comparing."
+}

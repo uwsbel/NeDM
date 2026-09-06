@@ -3406,3 +3406,24 @@ dataset cost 19 simulations and returned 6 answers, because the replay instrumen
 not rebuild most invocations. The collision test cost no simulations, covered every
 episode, and returned a decisive negative. **When an instrument keeps failing to
 reproduce, ask whether the question can be answered from data already on disk.**
+
+## A structural filter is not a validity filter, even when it removes most bad cases
+
+W0 drops an episode when no stance events can be detected. On diverged episodes that
+usually happens — divergence destroys foot contact — so the drop rule *looks* like it
+protects the analysis. Tested directly: of eight diverged episodes it drops six and
+keeps two; of eight clean episodes it drops none.
+
+Two of eight is not protection. R^2 is not robust to outliers, and a single row carrying
+1e34 sets the residual for the whole fit. A filter that removes 75% of contamination
+leaves an analysis fully exposed while looking defended, which is worse than no filter,
+because no filter invites a check.
+
+The episode-level rate is also the one that matters and is not the one being quoted:
+`go2_joint_off3000000` is 0.67% of **rows** but 23% of **episodes** contain at least one
+diverged row. A per-row rate makes contamination sound negligible when the analysis unit
+is the episode.
+
+Ask what an existing filter was written to catch, not what it happens to catch. A rule
+built for "this episode has no gait" will exclude many diverged episodes incidentally
+and was never designed to exclude them reliably.
