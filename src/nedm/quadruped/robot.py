@@ -102,8 +102,17 @@ class Go2Robot:
         MUST BE CALLED EVERY PHYSICS STEP, not every control step. legged_gym
         runs its PD at 200 Hz under a 50 Hz policy (decimation 4); a PD law
         evaluated only at the policy rate is a different controller and would not
-        match what any policy from that family expects. Our physics step is
-        2.5e-3 s, so this runs at 400 Hz.
+        match what any policy from that family expects.
+
+        THE RATE IS NOT STATED HERE ON PURPOSE. This docstring used to say "our
+        physics step is 2.5e-3 s, so this runs at 400 Hz". The collector's default
+        exchange step is 4 x 5e-4 = 2e-3 s, so the true rate is 500 Hz, and two
+        readers took 400 Hz for a measured fact because it was written like one.
+        A docstring that restates a derived quantity goes stale silently the
+        moment the config moves, and it is exactly what gets consulted in order to
+        avoid measuring. The rate is whatever the caller's loop period is --
+        `exchange_mult * step_size_s` in collect_go2_smoke.py, and recorded per
+        episode as `simulation.exchange_step_s`.
 
         No-op on the position plant, so the sim loop can call it unconditionally.
         """
