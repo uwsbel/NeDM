@@ -3827,3 +3827,39 @@ not wrong in general. Each is a real consideration under contention. What was mi
 time was checking whether the contention existed, and the cost of not checking is invisible
 because the sequential version still works — it just takes longer, and nothing reports the
 difference.
+
+## Writing a failure class up does not inoculate against it
+
+Four times in one session, someone committed the error they had just documented.
+
+```
+  a bare `except` hiding a NameError        -- after the entry on bare excepts
+  a claim shaped by what it argued for      -- in the message naming that class
+  generalising from three cases             -- while describing that class
+  `python ...; mv ...; echo released`       -- after cataloguing checks that verify
+                                               nothing while appearing to
+```
+
+The last is the sharpest. A semicolon runs the next command regardless of the previous
+one's exit status, so a traceback on stderr sat two lines from a success line on stdout,
+and the log claimed six releases over five sidecars — written into the release path for
+the data the whole exercise exists to produce, by the person who had spent the evening
+writing up that exact class.
+
+**The write-up may make it worse rather than better.** Having named an area, it feels
+covered, and attention stops going there. The entry becomes a receipt.
+
+So a documented failure class needs a *mechanism* attached or it is decoration:
+
+```
+  "check the exit status"   a distinction -- helps only if recalled at the moment
+  `set -euo pipefail`       a construction -- fails the script whether or not anyone
+                            remembers it
+  `&&` between stages       same, locally
+```
+
+And what caught the s44 case was not the log, not review and not care: a per-shard
+cross-check written after an earlier near-miss and run out of habit, which printed five
+clean lines and one file-not-found. **The construction caught the author's own violation
+of the entry he had written an hour earlier**, which is better evidence for building
+checks than any argument in the entries themselves.
