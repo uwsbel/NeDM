@@ -1,0 +1,105 @@
+{
+  "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_walking_36d",
+  "output_dir": "/home/kyle/sbel-artifacts/training_runs/go2_mix36_exc25_lowvol",
+  "validation_dataset_name": "flat",
+  "terrain_conditioning": {
+    "enabled": false,
+    "terrains": [
+      "flat"
+    ]
+  },
+  "train_mix": {
+    "datasets": [
+      {
+        "name": "walking",
+        "terrain": "flat",
+        "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_walking_36d",
+        "batch_fraction": 0.75
+      },
+      {
+        "name": "excitation",
+        "terrain": "flat",
+        "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_excitation_36d",
+        "batch_fraction": 0.25,
+        "train_episode_fraction": 0.0625
+      }
+    ]
+  },
+  "validation_datasets": [
+    {
+      "name": "flat",
+      "terrain": "flat",
+      "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_walking_36d",
+      "split": "val",
+      "max_val_batches": 200
+    }
+  ],
+  "validation_loss_weights": {
+    "flat": 1.0
+  },
+  "loss": {
+    "type": "huber",
+    "huber_delta": 1.0,
+    "channel_weight_mode": "equal_domain_combined_std",
+    "channel_weight_datasets": [
+      "/home/kyle/sbel-artifacts/training_datasets/go2_walking_36d",
+      "/home/kyle/sbel-artifacts/training_datasets/go2_excitation_36d"
+    ]
+  },
+  "rollout_eval": {
+    "num_episodes": 12,
+    "horizons_s": [
+      5.0,
+      10.0
+    ],
+    "selection_horizon_s": 10.0,
+    "datasets": [
+      {
+        "name": "flat",
+        "terrain": "flat",
+        "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_walking_36d",
+        "split": "val",
+        "weight": 1.0
+      }
+    ]
+  },
+  "model": {
+    "block_size": 128,
+    "n_layer": 6,
+    "n_head": 8,
+    "n_embd": 256,
+    "dropout": 0.0,
+    "bias": false,
+    "head_hidden_dim": 256
+  },
+  "optimizer": {
+    "lr": 0.0003,
+    "min_lr": 3e-05,
+    "weight_decay": 0.1,
+    "betas": [
+      0.9,
+      0.95
+    ],
+    "warmup_steps": 1000,
+    "grad_clip_norm": 1.0
+  },
+  "training": {
+    "seed": 2026061801,
+    "device": "cuda",
+    "batch_size": 64,
+    "num_workers": 0,
+    "num_epochs": 80,
+    "steps_per_epoch": 2000,
+    "max_val_batches": 200,
+    "checkpoint_metric": "rollout_sel",
+    "load_dataset_into_memory": true,
+    "pin_memory": false,
+    "compile": false,
+    "input_noise_sigma": 0.05
+  },
+  "sweep_recipe": {
+    "version": "go2_mix36_exc25_lowvol",
+    "slug": "mix36exc25lv",
+    "notes": "LOW-VOLUME CELL: batch_fraction 0.25 as in go2_mix36_exc25, but only 1/16 of the excitation episodes (train_episode_fraction 0.0625, ~918 of 14,696). The RATIO is held and the VOLUME is cut 16x. Two things it separates. First, whether rank-saturation-at-2000-rows survives TRAINING -- rank is a property of the data and whether a model exploits action variation as soon as it is present is a different claim. Second, and more important: a mixed cell sees more total data DIVERSITY, not only decorrelated actions, so a gate improvement could come from variety rather than from the action map. If the effect holds at 1/16 the volume it is the action structure; if it scales with volume it is diversity."
+  }
+}
