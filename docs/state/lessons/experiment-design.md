@@ -3774,3 +3774,25 @@ is cheap while noticing its absence is not.
 
 Same argument as testing a detector on both a known-good and a known-bad case, one level
 up: build the thing that makes failure visible instead of resolving to be more careful.
+
+## A cost quoted without its opportunity cost is not a cost
+
+A 40-channel re-collection was held on the reasoning that it would take two hours and the
+question it served had no answer yet — "do not spend compute before the question it serves
+has an answer." Sound rule, correct arithmetic, and wrong here.
+
+The unchecked input was **what the machine was otherwise doing**. It was at load 0.00 and
+had been for some time. Two hours of an idle box is not two hours of anything; the
+alternative use was nothing. Kyle asked why the three machines could not collect
+simultaneously, and the question dissolved the objection immediately — it was a question
+about the *resource*, where both of us had been reasoning about the *experiment*.
+
+That is the same shape as the rest of this file: a figure correct in isolation and wrong
+in the sentence it sits in. "Two hours" is true. "Two hours we cannot afford" required a
+fact about the machine that neither of us looked up, and the sentence carried the second
+meaning while only the first had been checked.
+
+Operationally: before deferring work on cost, state what the resource would otherwise do
+in that window. If the answer is "nothing", the cost is not the runtime — it is whatever
+the delay pushes back, which is often also nothing. And note where the blind spot sat:
+two parties reasoning carefully about the science, neither about the hardware, for hours.
