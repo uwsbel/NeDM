@@ -1039,3 +1039,54 @@ just read 1.572 INCOMPLETE without them -- a binary outcome, not a ratio
 improvement to be argued about. The corrected 3.8x-to-7.7x range makes that
 prediction more interesting rather than less, since there is more history to
 explain away.
+
+## 1o. CORRECTION: the per-group R^2-against-horizon table in 1d is not a degradation curve
+
+`normalised RMSE^2 ~ 1 - R^2`, so the normalised-RMSE metric adopted to escape
+R^2's denominator problem **inherits it along the horizon axis**. Both divide by
+the increment spread `sd(dx)`, and that spread MOVES with horizon -- it dips near
+one gait cycle, when the oscillatory part of the state has returned near its start
+so the net increment is small, and recovers once drift accumulates.
+
+**So a model at 1.00 s appears to face a higher bar than at 0.29 s not because
+prediction is harder but because the divisor is larger.**
+
+    ACROSS CHANNELS at one horizon   normalised RMSE   -- correct, keep
+    ACROSS HORIZONS for one channel  RAW RMSE          -- or a horizon-independent scale
+
+### Re-reported in raw RMSE
+
+| horizon | jpos | jvel | grav | contact | body |
+|---|---|---|---|---|---|
+| 0.02 s | 0.00373 | 0.32426 | 0.00040 | 0.08963 | 0.24682 |
+| 0.10 s | 0.01003 | 0.37168 | 0.00242 | 0.11482 | 0.50303 |
+| 0.29 s | 0.02024 | 0.44679 | 0.00909 | 0.14626 | 0.41090 |
+| 0.50 s | 0.03073 | 0.75305 | 0.01590 | 0.19136 | 0.40376 |
+| 1.00 s | 0.05495 | 1.02474 | 0.02627 | 0.25885 | 0.42556 |
+
+**Raw error grows monotonically with horizon for jpos, jvel, grav and contact,
+exactly as physics demands.** The R^2 table's apparent structure was largely its
+moving normaliser.
+
+**Two readings change materially.**
+
+`grav` in R^2 collapses 0.649 -> **-0.680**, which was read as the worst group by a
+wide margin. In raw error it goes **0.00040 -> 0.02627 rad** -- among the smallest
+absolute errors in the table. This is the same low-variance artefact identified in
+1e, now visible on the horizon axis as well as the channel axis. **Gravity is not a
+failing group; it is a near-constant one.**
+
+`body` is the one group whose raw error is NOT monotone: 0.247 at 0.02 s, 0.503 at
+0.10 s, then falling to ~0.41 and flat. **That is the `pitch_rad` wrap.** A 2*pi
+error appears or does not depending on whether a wrap falls inside the window, and
+it does not grow with horizon the way an accumulating error does. The body group's
+numbers here are from the WRAPPED baseline and inherit the defect fixed in 1j.
+
+**What still stands:** the within-horizon rankings. Body being worse than joints at
+1.00 s is a comparison at fixed horizon and is unaffected. What does not stand is
+reading any of those rows as a degradation curve.
+
+**And the G() accuracy-against-horizon table in 1c is unaffected** -- checked
+rather than assumed. Accuracy and F1 are counts over a fixed denominator (16
+episodes x 4 feet) with no horizon-dependent normaliser, and its `jointRMSE`
+column is already raw. That table does read correctly as a degradation curve.
