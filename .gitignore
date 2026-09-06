@@ -236,3 +236,18 @@ artifacts/traverse/wp2_z2_cache_dagger_v2/*.npz
 # live single-frame cache: only the manifest and the map-quality stats; the npz (65 MB) is rebuilt by traverse_wp5_live_inputs.py
 !artifacts/traverse/wp5_live_cache_test/
 artifacts/traverse/wp5_live_cache_test/*.npz
+# WP6 pilot: terrain challenges, feasibility sweeps, shared-candidate benchmark (frame dumps and caches are rebuilt by the scripts)
+!artifacts/traverse/wp6_challenges/
+!artifacts/traverse/wp6_challenges_steep/
+artifacts/traverse/wp6_challenges/*/frame0.npz
+artifacts/traverse/wp6_challenges_steep/*/frame0.npz
+!artifacts/traverse/wp6_feasibility_v1/
+!artifacts/traverse/wp6_feasibility_steep_v1/
+!artifacts/traverse/wp6_plan_challenges_v1/
+!artifacts/traverse/wp6_chrono_challenges_v1/
+!artifacts/traverse/wp6_imagine_sweep_v1/
+!artifacts/traverse/wp6_imagine_sweep_steep/
+!artifacts/traverse/wp6_challenge_cache/
+!artifacts/traverse/wp6_challenge_cache_steep/
+artifacts/traverse/wp6_challenge_cache/*.npz
+artifacts/traverse/wp6_challenge_cache_steep/*.npz

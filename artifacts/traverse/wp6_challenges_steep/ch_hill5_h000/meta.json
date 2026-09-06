@@ -1,0 +1,41 @@
+{
+ "layout": {
+  "episode_id": "ch_hill5_h000",
+  "seed": 0,
+  "assets": [
+   {
+    "kind": "house",
+    "x_m": 12.516716291061464,
+    "y_m": -22.54775680242598,
+    "yaw_rad": 0.0,
+    "footprint_radius_m": 3.501562118716424,
+    "dims": {
+     "length_m": 5.0,
+     "width_m": 4.0,
+     "wall_height_m": 3.0
+    }
+   }
+  ],
+  "house_xy": [
+   12.516716291061464,
+   -22.54775680242598
+  ],
+  "house_yaw": 0.0,
+  "start_xy": [
+   -35.48328370893854,
+   -22.54775680242598
+  ],
+  "start_yaw": 0.0
+ },
+ "challenge": {
+  "feature": {
+   "kind": "hill",
+   "x_m": -4.4832837089385364,
+   "y_m": -22.54775680242598,
+   "sigma_m": 7.748738580361293,
+   "amplitude_m": 3.0359240713051125
+  },
+  "heading_deg": 0,
+  "offset_m": 0.0
+ }
+}

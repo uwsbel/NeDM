@@ -530,3 +530,26 @@ Programme, in order, each gated on the previous:
 4. Recollection / retraining only if the pilot shows decisions the cheap scorers get wrong, with
    terrain-parameter train / dev / test splits, frozen encoder tested first, and the arena-
    heightmap dependences of the crop projection and pose head resolved.
+
+## 25. v1.9 (2026-09-06): pilot results — the decisions exist; the world model resolves them only where it was trained
+
+`wp4_implementation_notes.md` §10. Steps 1–3 of §24 were run; step 4's gate is assessed.
+
+1. **Feasibility maps.** Arena_v1 features: 328 / 330 crossings feasible; the rule-based slope profile
+   is never cheapest (+30 % cost, +63 % energy). A steeper arena (`arena_v2_steep`, 32° cap): 37 / 170
+   crossings infeasible, the rule infeasible on 5 / 17 challenges and up to 2.8× the best; slow crossings
+   stall where fast ones succeed. Two classical picks also stalled on arena_v1 challenge layouts.
+2. **Shared candidate benchmark (33 arena_v1 challenges, 227 routes, camera localisation).** World-model
+   deploy pick 22.65 vs plain A* 25.79 (−3.67 ± 0.54, 31/32, zero infeasible) vs geometry-scorer pick
+   23.89; world model vs geometry on the same bank −1.24 ± 0.71 (18/33). Both scorers are exploited to a
+   ~1.35× energy under-estimate at the CEM pick. Among identical straight crossings the regression picks
+   the speed as well as the world model (regret 1.04 vs 1.03; rule 1.30).
+3. **Prediction on unseen terrain fails silently:** the world model accepts all 37 infeasible steep
+   crossings, 3 / 15 of its picks stall, energy under by 35 %.
+4. **Sanity signals:** scorer disagreement is the only informative flag (AUC 0.67, top-decile precision
+   0.50 vs 0.23 base); imagined roll / pitch / wheel load carry nothing on this arena.
+5. **Decision:** recollect and retrain on the steep arena (tracker-driven, successes and failures, terrain
+   parameters split train / dev / test, frozen encoder first), and judge the world model on (a) rejecting
+   crossings the rule accepts and (b) the momentum-vs-crawl choice, against the regression refitted on
+   the same data. Housekeeping first: tire-load metric, decoder device, heightmap dependence of the crop
+   and pose head.

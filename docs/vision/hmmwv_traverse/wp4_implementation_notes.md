@@ -1061,3 +1061,77 @@ Reading:
    current scorer resolves them. That justifies collecting there. It does *not* yet show a world-model
    advantage over a cheap scorer on speed choice; that advantage has to be demonstrated after training
    on the stall regime, on held-out steep features, against the regression refitted on the same data.
+
+### 10.5 Shared candidate benchmark on the arena_v1 challenges — `wp6_plan_challenges_v1`, `wp6_chrono_challenges_v1`
+
+33 challenge layouts (§10.2), live inputs from the frame-0 dumps (camera start pose error 0.065 m mean),
+`--scorer both`: one common round-0 bank per layout (5000 samples → 500–1000 clear), one 3-round CEM chain
+per scorer, every candidate scored by both, picks from the union; 227 distinct routes driven in Chrono with
+camera localisation, 8 procs on newton. Cost = time + kJ/10; paired against plain A* where both completed.
+
+| pick | completed | Chrono time | energy | cost | wins vs plain A* | Δcost ± SE | E / own pred | t / own pred |
+|---|---|---|---|---|---|---|---|---|
+| **plain A*** | **32 / 33** (stalled on `hill0_h000`, 7.9 s) | 9.19 s | 166 kJ | 25.79 | — | — | (0.99) | 1.00 |
+| A* sweep, world-model choice | 33 | 11.25 | 138 | 25.05 | 22/32 | −2.12 ± 0.47 | 1.08 | 1.03 |
+| A* sweep, geometry choice | **32 / 33** (stalled on `crater10_h000`) | 11.56 | 135 | 25.09 | 17/31 | −0.94 ± 0.44 | 1.33 | 1.07 |
+| sampling + world model, round 0 | 33 | 11.66 | 112 | 22.82 | 26/32 | −3.48 ± 0.58 | 1.20 | 1.01 |
+| **sampling + world model, CEM + clearance (`wm_deploy`)** | **33** | 11.31 | **113** | **22.65** | **31/32** | **−3.67 ± 0.54** | 1.34 | 1.01 |
+| sampling + geometry, round 0 | 33 | 11.47 | 131 | 24.53 | 25/32 | −1.65 ± 0.79 | 1.35 | 1.07 |
+| sampling + geometry, CEM + clearance (`geo_deploy`) | 33 | 11.35 | 125 | 23.89 | 26/32 | −2.39 ± 0.87 | 1.36 | 1.07 |
+
+* **World model vs geometry regression on the shared bank: 18 / 33 layouts, −1.24 ± 0.71.** Smaller and
+  less certain than §9's −1.84 ± 0.44 on the recorded layouts. On these feature-crossing layouts the search
+  exploits *both* scorers about equally (Chrono / predicted energy 1.34 and 1.36 at the CEM picks; 1.20 at
+  the world model's round-0 pick) — the curse is twice §9's 1.11 because every sampled route now crosses
+  a hill or crater and the model is less accurate there (energy MAE 22 % per route on the straight
+  crossings, §10.4).
+* Against the sweep's best hand-made route (an oracle over 10 straight / detour crossings, §10.2) the
+  world-model pick costs 1.12× (median 1.06) and beats it on 7 / 33 layouts; the geometry pick 1.19×
+  (4 / 33); plain A* 1.31×. Free-form sampled routes do find crossings the straight sweep does not.
+* **Feasibility.** Both classical picks stalled once (the plain-A* route over the top of `hill0`, the
+  geometry-chosen A* variant into `crater10`): the rule-based speed profile is not always feasible even on
+  arena_v1 once the goal lies just past a feature. All 165 world-model-chosen routes completed, and so did
+  all sampled geometry picks. Roll and pitch stayed under 27° for every pick.
+
+### 10.6 Which sanity signals identify the picks that go wrong? — `traverse_wp6_sanity_signals.py`
+
+363 driven picks; 83 (23 %) "went wrong" = did not complete, stalled, contact, or Chrono cost more than
+1.25× the planner's own prediction (81 of the 83 are mis-predictions, 2 are stalls).
+
+| signal (higher = more suspicious) | AUC | top-decile precision (base 0.23) |
+|---|---|---|
+| \|energy disagreement between the two scorers\| | **0.67** | **0.50** |
+| energy prediction close to the geometry floor | 0.62 | 0.50 |
+| imagined time | 0.62 | 0.25 |
+| imagined max pitch / roll | 0.57 / 0.54 | 0.26 / 0.16 |
+| imagined min tire load | 0.44 | 0.05 |
+| the other scorer rejects the route | 0.50 | — (it never does) |
+
+The disagreement between the world model and the regression is the only useful flag: when the two differ
+by a lot, half the time the pick is a mis-prediction. Imagined roll, pitch and wheel load carry nothing
+here (the arena never gets near the limits), and neither scorer ever rejects a route the other accepts.
+Used as a veto on the top decile of disagreement, it would have removed 50 % bad picks at the price of
+50 % good ones — a signal worth logging, not yet a gate.
+
+### 10.7 Where the pilot leaves things
+
+1. **The decisions exist, and rules get them wrong.** On arena_v1's features the rule-based slope profile
+   is never the cheapest crossing (+30 % cost, +63 % energy) and stalls once; on the steep arena it is
+   infeasible on 5 / 17 challenges and up to 2.8× the best feasible cost, in a regime where carrying
+   speed into a climb beats crawling. That is the substance the research question needs.
+2. **On its training terrain the world model resolves them — but so does a regression.** Among matched
+   straight crossings both pick within 3–4 % of the Chrono-optimal speed; on free-form sampled routes the
+   world model is ahead by 1.2–1.8 cost (7 %) with a wide error bar on the harder layouts, and it is the
+   only planner with zero infeasible picks (198 routes). Its per-route energy error on feature crossings
+   is 22 %, and the CEM search exploits that to a 34 % under-estimate at the pick.
+3. **On unseen steeper terrain it does not know that it does not know**: 0 of 37 infeasible crossings
+   rejected, 3 of 15 picks would have stalled, energy under by 35 %. No current scorer or heuristic
+   predicts the stall regime.
+4. **Gate for recollection (plan §24 step 4): open for the steep arena, with the claim narrowed.** What
+   retraining on steep terrain can be asked to show is (a) rejecting the infeasible crossings the rule
+   accepts and (b) choosing the momentum-vs-crawl regime, on held-out steep features, against the
+   regression refitted on the same data. Speed choice on gentle features is not where the world model
+   earns its cost.
+5. Housekeeping before that: fix the tire-load metric; make the geometry decoder device-independent;
+   resolve the arena-heightmap dependence of the crop and pose head (the steep runs used the steep
+   arena's own height field as the prior map).
