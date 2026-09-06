@@ -1343,3 +1343,11 @@ model's ranking of feasible routes is worse than the trivial heuristic here.
 One layout (`x_hill1_h180`) has its camera heading estimate flipped by 177° (a symmetric vehicle seen from above;
 1 of 248 layouts): every route on it fails in imagination with identical times, which is where the regret maxima
 of 5.0 in the perfect-gate analysis come from. The cheap predictor does not use the start pose and is unaffected.
+
+**Two more variants (val):** fine-tune mixed at lr 3e-4 (`wp7_ft_mix_lr3_amd`; 5 s error 0.93) rejects 170 (92 / 78),
+picks 37 feasible of 47, regret 1.18; from scratch on the new arenas only (`wp7_scratch_new_amd`; the best fit of
+all, 5 s error 0.68, one-step 0.195) rejects 151 (62 / 89), picks 36 of 49, regret 1.18, and on sequences 7/8 (1.07).
+A better fit to the recorded states does not make a better selector. **Selected for the sealed evaluation:** the
+fine-tuned mixed model (`wp7_ft_mix_amd`, best pick record among the trained models on f105), with the frozen model
+as the baseline and the best-fitting model as a secondary; the cheap predictors at τ 0.5; the fastest-speed and
+rule-based heuristics.
