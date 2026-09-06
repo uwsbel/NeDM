@@ -37,7 +37,8 @@ def main() -> None:
             r["feasible"] = bool(r.get("completed")) and not bool(r.get("stalled")) and not bool(r.get("contact"))
             bank[r["layout"]][r["candidate"]] = r
     layouts = sorted(l for l in bank if any(r["feasible"] for r in bank[l].values()))
-    n_nosol = sum(1 for l in bank if not any(r["feasible"] for r in bank[l].values()))
+    nosol = sorted(l for l in bank if not any(r["feasible"] for r in bank[l].values()))  # "no candidate works": abstention task
+    n_nosol = len(nosol)
     best = {l: min((r for r in bank[l].values() if r["feasible"]), key=lambda r: COST(r["time_s"], r["energy_kj"])) for l in layouts}
 
     def speed_of(c: str) -> float:
@@ -51,21 +52,22 @@ def main() -> None:
 
     methods: dict[str, dict] = {}
     # heuristics: pick a candidate name per layout, reject nothing
-    methods["rule (slope_aware)"] = {l: ("slope_aware" if "slope_aware" in bank[l] else None) for l in layouts}
-    methods["fastest constant speed"] = {l: max((c for c in bank[l] if speed_of(c) > 0), key=speed_of, default=None) for l in layouts}
-    methods["slowest constant speed"] = {l: min((c for c in bank[l] if speed_of(c) > 0), key=speed_of, default=None) for l in layouts}
+    every = layouts + nosol
+    methods["rule (slope_aware)"] = {l: ("slope_aware" if "slope_aware" in bank[l] else None) for l in every}
+    methods["fastest constant speed"] = {l: max((c for c in bank[l] if speed_of(c) > 0), key=speed_of, default=None) for l in every}
+    methods["slowest constant speed"] = {l: min((c for c in bank[l] if speed_of(c) > 0), key=speed_of, default=None) for l in every}
     rejects: dict[str, dict] = {}  # method -> layout -> set of rejected candidates
     for spec in args.cheap:
         name, path = spec.split("=", 1)
         pred = {p["key"]: p for p in json.loads(Path(path).read_text())}
         picks, rej = {}, {}
-        for l in layouts:
+        for l in every:
             rows = [(c, pred[r["key"]]) for c, r in bank[l].items() if r["key"] in pred]
             if not rows:
                 picks[l] = None; continue
             ok = [(c, p) for c, p in rows if p["p_feasible"] >= args.tau]
             rej[l] = {c for c, p in rows if p["p_feasible"] < args.tau}
-            picks[l] = (min(ok, key=lambda cp: COST(cp[1]["time_pred"], cp[1]["energy_pred"])) if ok else max(rows, key=lambda cp: cp[1]["p_feasible"]))[0]
+            picks[l] = min(ok, key=lambda cp: COST(cp[1]["time_pred"], cp[1]["energy_pred"]))[0] if ok else None  # none above tau: abstain
         methods[f"cheap: {name}"] = picks; rejects[f"cheap: {name}"] = rej
     for spec in args.imagine:
         name, path = spec.split("=", 1)
@@ -73,7 +75,7 @@ def main() -> None:
         for r in json.loads(Path(path).read_text()):
             rows_by[r["layout"]][r["candidate"]] = r
         picks, rej = {}, {}
-        for l in layouts:
+        for l in every:
             rows = rows_by.get(l, {})
             if not rows:
                 picks[l] = None; continue
@@ -82,7 +84,7 @@ def main() -> None:
             picks[l] = min(ok, key=lambda cr: COST(cr[1]["img_time"], cr[1]["img_energy"]))[0] if ok else None
         methods[f"world model: {name}"] = picks; rejects[f"world model: {name}"] = rej
 
-    hdr = f"{'method':34s} {'layouts':>7s} {'picked':>6s} {'feasible':>8s} {'regret':>6s} {'max':>5s} {'rej.feas':>8s} {'rej.inf':>7s}"
+    hdr = f"{'method':34s} {'layouts':>7s} {'picked':>6s} {'feasible':>8s} {'regret':>6s} {'max':>5s} {'rej.feas':>8s} {'rej.inf':>7s} {'abstain':>7s}"
     print(f"arenas {args.arenas}: {len(layouts)} layouts with a feasible route ({n_nosol} without), bank sizes {min(len(bank[l]) for l in layouts)}-{max(len(bank[l]) for l in layouts)}")
     print(hdr); print("-" * len(hdr))
     table = {}
@@ -95,13 +97,15 @@ def main() -> None:
         rej = rejects.get(name)
         rf = sum(sum(bank[l][c]["feasible"] for c in rej.get(l, ())) for l in layouts) if rej else 0
         ri = sum(sum(not bank[l][c]["feasible"] for c in rej.get(l, ())) for l in layouts) if rej else 0
+        abstain = sum(1 for l in nosol if not picks.get(l))  # no-solution layouts on which the method picked nothing
         table[name] = {"layouts": len(layouts), "picked": len(picked), "pick_feasible": len(feas), "regret_mean": float(np.mean(reg)) if reg else None,
                        "regret_max": float(np.max(reg)) if reg else None, "rejected_feasible": rf, "rejected_infeasible": ri,
-                       "n_feasible_routes": n_feas_total, "n_infeasible_routes": n_inf_total}
+                       "n_feasible_routes": n_feas_total, "n_infeasible_routes": n_inf_total, "no_solution_layouts": n_nosol, "abstained": abstain}
         print(f"{name:34s} {len(layouts):7d} {len(picked):6d} {len(feas):8d} {np.mean(reg) if reg else float('nan'):6.2f} {np.max(reg) if reg else float('nan'):5.2f} "
-              f"{(f'{rf}/{n_feas_total}' if rej else '-'):>8s} {(f'{ri}/{n_inf_total}' if rej else '-'):>7s}")
+              f"{(f'{rf}/{n_feas_total}' if rej else '-'):>8s} {(f'{ri}/{n_inf_total}' if rej else '-'):>7s} {abstain:3d}/{n_nosol:<3d}")
     print("feasible = picked route completed in Chrono without stall or contact; regret = Chrono cost of the pick / best feasible cost; "
-          "rej.feas / rej.inf = feasible / infeasible bank routes the method rejected (world models: imagination not ok; cheap: p < tau)")
+          "rej.feas / rej.inf = feasible / infeasible bank routes the method rejected (world models: imagination not ok; cheap: p < tau); "
+          "abstain = layouts with NO feasible bank route on which the method picked nothing")
     if args.json:
         Path(args.json).write_text(json.dumps(table, indent=1))
 
