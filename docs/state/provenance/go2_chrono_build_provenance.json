@@ -49,24 +49,28 @@
   },
   "go2_exc_b40": {
    "build": "source",
-   "evidence": "launcher process is gone; attested only by a process listing read while it was running, which showed PYTHONPATH=src:/home/kyle/Documents/sbel/chrono-build/bin inline in the launching shell",
-   "confidence": "attested, not verified"
+   "confidence": "verified",
+   "evidence": "Re-ran window 0 under the fingerprinted collector (--windows 1 --seed 21 --window-rows 40 --bursts 4 --recover-rows 60, --action-scale 0.3 --branch-from-policy) and compared the 183 numeric physics columns against the original: BIT-IDENTICAL, 0 differing. The collector uses one RNG consumed sequentially from window 0, so one window reproduces the first episode exactly, and a single process shares its build across all its episodes.",
+   "note": "A mismatch would have had two possible causes -- wrong build, or a code change between then and now. A match rules out both simultaneously, so this also confirms the rows_written accumulator and the fingerprint print are physics-neutral."
   },
   "go2_exc_b10": {
    "build": "source",
-   "evidence": "same launching shell as go2_exc_b40",
-   "confidence": "attested, not verified"
+   "confidence": "verified",
+   "evidence": "Re-ran window 0 under the fingerprinted collector (--windows 1 --seed 22 --window-rows 10 --bursts 16 --recover-rows 12, --action-scale 0.3 --branch-from-policy) and compared the 183 numeric physics columns against the original: BIT-IDENTICAL, 0 differing. The collector uses one RNG consumed sequentially from window 0, so one window reproduces the first episode exactly, and a single process shares its build across all its episodes.",
+   "note": "A mismatch would have had two possible causes -- wrong build, or a code change between then and now. A match rules out both simultaneously, so this also confirms the rows_written accumulator and the fingerprint print are physics-neutral."
   },
   "go2_exc_C": {
    "build": "unknown",
    "evidence": "launched before provenance was checked; no record survives",
-   "confidence": "unknown"
+   "confidence": "unknown",
+   "note": "PERMANENTLY UNGRADEABLE, and not because the build is unknowable. The one-window reproduction test that settled go2_exc_b40 and go2_exc_b10 needs the seed and arguments, and summary.json did not record them at the time. The collector now writes seed and argv, so this gap closes going forward but cannot be closed backwards."
   },
   "go2_exc_Bdiag": {
    "build": "unknown",
    "evidence": "launched before provenance was checked; no record survives",
-   "confidence": "unknown"
+   "confidence": "unknown",
+   "note": "PERMANENTLY UNGRADEABLE, and not because the build is unknowable. The one-window reproduction test that settled go2_exc_b40 and go2_exc_b10 needs the seed and arguments, and summary.json did not record them at the time. The collector now writes seed and argv, so this gap closes going forward but cannot be closed backwards."
   }
  },
- "fix": "scripts/collection/collect_go2_excitation.py now calls chrono_fingerprint() at startup, prints the build, writes the full record to summary.json, and stamps an 8-char chrono_build column on every row so the marker survives pooling. Datasets collected before this commit carry no such marker, which is why this file exists."
+ "fix": "scripts/collection/collect_go2_excitation.py now calls chrono_fingerprint() at startup, prints the build, writes the full record to summary.json, and stamps an 8-char chrono_build column on every row so the marker survives pooling. Datasets collected before this commit carry no such marker, which is why this file exists. summary.json now also records seed and argv, because the reproduction test that settles build provenance is only available when the run can be re-run."
 }

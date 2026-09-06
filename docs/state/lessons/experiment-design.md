@@ -3155,8 +3155,10 @@ which cost an evening but announced itself with 145 differing columns; this has 
 same magnitude of divergence and no symptom at all. The only difference is an
 environment variable that is easy to omit and invisible once omitted.
 
-Recording a *version* would not have caught it — both builds report Chrono 10, and a
-version is a claim the build makes about itself. The binary's md5 is the build. The
+**A version is what a build claims about itself; the md5 is what it is.** Recording a
+version would not have caught this — both builds report Chrono 10, so a recorded
+version would have matched across a 115-column difference and certified the wrong
+thing. That is worse than recording nothing, because it manufactures confidence. The
 collector now fingerprints `_core.so` at startup, prints it, writes it to
 `summary.json`, and stamps a short tag on **every row**, because rows get pooled
 across collections and a summary does not travel with them.
@@ -3171,3 +3173,35 @@ not record cannot be recovered once the process exits.** Four running shards wer
 verifiable from `/proc`; the completed run's launcher was gone, so its build is
 attested by a process listing someone happened to read, and two older diagnostics are
 simply unknown. The window for recording provenance is while the thing is running.
+
+
+## A docstring cannot state a rate that belongs to its callers
+
+Three of us independently "fixed" the same stale line in `robot.py`, which said the PD
+loop runs at 400 Hz. dorm-pc and I both argued the same thing: a docstring restating a
+derived quantity goes stale the moment the config moves. I then wrote a fresher number,
+500 Hz, which was the same defect refreshed; dorm-pc's version, which refuses to state
+the rate at all, was taken instead.
+
+**All three of us had the diagnosis wrong.** The line was never stale. Reading the
+collectors afterwards:
+
+```
+  collect_go2_excitation.py    exchange 2.5e-3 s  ->  400 Hz
+  collect_go2_smoke.py         exchange 2.0e-3 s  ->  500 Hz
+```
+
+`apply_pd` is shared, and the rate is a property of **whoever calls it**. The original
+400 Hz was correct for one caller and wrong for the other, simultaneously, from the day
+it was written. There is no number that fixes it — not a fresher one, not a range, not
+a note about which config it came from. My 500 Hz would have been wrong for the very
+caller I was working in.
+
+Staleness is a claim going out of date. This is a claim that was never a property of
+the thing it was written on. The second is worse, because updating it feels like
+maintenance and cannot converge.
+
+Before writing a fact into a docstring, ask whether it is a property of this function or
+of the code that calls it. If it varies by caller, the docstring's job is to say where
+the value comes from — here, `exchange_mult * step_size_s`, recorded per episode as
+`simulation.exchange_step_s` — and nothing else.

@@ -375,6 +375,12 @@ def main():
     el = time.perf_counter() - t_start
     json.dump({"windows_requested": a.windows, "kept": kept,
                "chrono": fp,
+               # RECORDED SO THE RUN CAN BE REPRODUCED. Re-running one window at the
+               # same seed and comparing physics columns settles a dataset's build
+               # provenance by construction -- but only if the seed and arguments
+               # survive. Two older diagnostics are permanently ungradeable because
+               # they do not.
+               "seed": a.seed, "argv": sys.argv[1:],
                "rejected_by_reason": reject, "discarded": sum(reject.values()),
                "reject_events": reject_events,
                "ended_fallen": fell, "rows": rows_written,
