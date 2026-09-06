@@ -1177,3 +1177,40 @@ choose successful action sequences beyond what terrain and entry speed alone can
 case to build is *sequences* of features — carrying speed to clear a climb that leaves the vehicle badly placed
 or too fast for the next turn or side slope — since a per-crossing entry-speed table already covers single
 features (cf. *Learning When to Jump*, arXiv 2602.00877).
+
+### 10.9 A two-sided decision range — `assets/traverse/arena_v3_rough`, `wp6_feasibility_rough_v1`
+
+Generator seed 23, 30° cap, roughness 0.25 m at 2.5 m correlation (v1: 0.15 m at 2 m), hills 2.5–4.5 m,
+craters 2.5–4 m; placement limit 14° (with 0.35 m roughness nothing was flat enough to spawn on). 27 challenge
+layouts, 270 crossings, contact-aware feasibility, sustained-lift wheel metric.
+
+* **113 / 270 infeasible; 5 layouts have no feasible route at all** (28–29° shoulder lines and one 20° climb
+  the tracker cannot hold). The rule-based profile is infeasible on **16 / 27** challenges and cheapest on 1.
+* **Speed is now penalised as well as required.** Momentum climbs remain (2–3 m/s stall, 5+ m/s cross on
+  eight layouts); on five layouts the fast crossing is 10–17 % dearer than a mid speed (`hill3_h090`: 5 m/s
+  40.9 vs 8 m/s 47.4; `hill1_h270`: 5 m/s 33.5 vs 7 m/s 37.9) and on `crater8_h225` every direct crossing
+  stalls or times out and **only the detours are feasible**; on `crater7_h000` the detour is the cheapest
+  feasible route. "Always 8 m/s" is infeasible on one challenge and 9 % over the optimum on average — no
+  longer a free lunch, though still the best cheap heuristic.
+
+**Pick among the identical 10 routes** (Chrono cost / best feasible; frozen world model with corrected inputs):
+
+| picker | rough: infeasible picks / regret | steep (§10.3, corrected): infeasible / regret |
+|---|---|---|
+| rule (slope-aware profile) | 11 / 22, 1.43 (max 2.14) | 3 / 15, 1.38 (max 2.79) |
+| always slowest (2 m/s) | 14 / 22, 1.44 | 5 / 15, 1.24 |
+| always fastest (8 m/s) | 1 / 22, 1.09 (max 1.26) | 0 / 15, 1.12 (max 1.52) |
+| geometry regression | 5 / 22, 1.26 (max 2.38) | 1 / 15, 1.12 (max 2.05) |
+| world model, frozen, arena_v1 training | 5 / 22, 1.13 (max 1.79) | 2 / 15, 1.08 (max 1.27) |
+
+The frozen model on the rough arena: rejects 10 routes (6 rightly, 4 wrongly) of 113 infeasible; imagined
+time has AUC 0.81 for infeasibility (the imagined vehicle is slow where the real one stalls, without
+predicting the stall itself); energy 1.36 under with correlation 0.41. It picks no worse than the regression
+on feasibility and better on cost, but 5 of its 22 picks stall. Nothing trained on arena_v1 resolves this
+arena; the fast heuristic is the one to beat.
+
+**What the collection has to contain, from the three maps:** momentum climbs (v2/v3 stall, v5+ cross),
+speed-penalised rough crossings, detour-only and detour-cheapest craters, contact cases, and the
+no-solution layouts as negatives; successes and failures alike; several generator seeds so that terrain
+instances (not headings through one feature) can be split train / dev / test; and sequences of features
+(the sharpened question of §10.8), which none of the single-crossing challenges yet exercise.

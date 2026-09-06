@@ -1,0 +1,41 @@
+{
+ "layout": {
+  "episode_id": "ch_hill2_h000_shoulder",
+  "seed": 0,
+  "assets": [
+   {
+    "kind": "house",
+    "x_m": 20.579060437335542,
+    "y_m": 16.13567296557485,
+    "yaw_rad": 0.0,
+    "footprint_radius_m": 3.501562118716424,
+    "dims": {
+     "length_m": 5.0,
+     "width_m": 4.0,
+     "wall_height_m": 3.0
+    }
+   }
+  ],
+  "house_xy": [
+   20.579060437335542,
+   16.13567296557485
+  ],
+  "house_yaw": 0.0,
+  "start_xy": [
+   -23.420939562664458,
+   16.13567296557485
+  ],
+  "start_yaw": 0.0
+ },
+ "challenge": {
+  "feature": {
+   "kind": "hill",
+   "x_m": 2.579060437335542,
+   "y_m": 11.749740292621944,
+   "sigma_m": 4.385932672952909,
+   "amplitude_m": 3.966177802203498
+  },
+  "heading_deg": 0,
+  "offset_m": 4.385932672952909
+ }
+}

@@ -567,3 +567,24 @@ feasibility definition, a sustained-lift wheel metric, and a matched cheap predi
 cost trained on the same data as the comparison. Research question sharpened to: does imagining the
 vehicle's changing state help choose successful action sequences beyond what terrain and entry speed alone
 predict?
+
+## 27. v1.11 (2026-09-06): the benchmark is two-sided; collection design
+
+`arena_v3_rough` (30° cap, 0.25 m roughness, deep craters; notes §10.9) gives the decision range the review
+asked for: 113 / 270 crossings infeasible, the rule infeasible on 16 / 27 challenges, momentum climbs,
+speed-penalised crossings (fast 10–17 % dearer or stalling), detour-only and detour-cheapest craters. Among
+identical routes the frozen arena_v1 world model picks 5 / 22 infeasible routes (regret 1.13), the geometry
+regression 5 / 22 (1.26), the rule 11 / 22 (1.43), always-fast 1 / 22 (1.09).
+
+Collection design for the matched training experiment (§24 step 4, now open):
+* terrain: the challenge generator on `ArenaSpec` families (cap 25–32°, roughness 0.15–0.3 m, craters 2–4 m)
+  over several seeds; splits by seed / terrain instance; held-out seeds for the test;
+* episodes: tracker-driven crossings and detours at swept speeds from the feasibility protocol, successes
+  and failures kept (stall, off-route, contact labelled), plus free-form sampled routes as in WP4's
+  tracker-driven collection; camera frames and 17-D state as before; the encoder frozen first;
+* comparison: world model vs a cheap predictor of crossing success / cost trained on the same episodes
+  (terrain profile + entry speed), judged on held-out terrain by false acceptance of infeasible crossings,
+  feasible-route rejection and Chrono cost of the pick; always-fast as the heuristic floor;
+* the distinguishing case to add: sequences of features where the speed that clears the first leaves the
+  vehicle badly placed for the second.
+Chrono collection on newton; training on the AMD cluster.

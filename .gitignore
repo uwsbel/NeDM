@@ -256,3 +256,9 @@ artifacts/traverse/wp6_challenge_cache_steep_norm/*.npz
 !artifacts/traverse/wp6_imagine_sweep_steep_cropfix/
 !artifacts/traverse/wp6_imagine_sweep_steep_normfix/
 !artifacts/traverse/wp6_imagine_sweep_steep_bothfix/
+!artifacts/traverse/wp6_challenges_rough/
+artifacts/traverse/wp6_challenges_rough/*/frame0.npz
+!artifacts/traverse/wp6_feasibility_rough_v1/
+!artifacts/traverse/wp6_challenge_cache_rough/
+artifacts/traverse/wp6_challenge_cache_rough/*.npz
+!artifacts/traverse/wp6_imagine_sweep_rough/

@@ -1,0 +1,41 @@
+{
+ "layout": {
+  "episode_id": "ch_crater10_h000",
+  "seed": 0,
+  "assets": [
+   {
+    "kind": "house",
+    "x_m": 28.60176480425799,
+    "y_m": -23.979810993934294,
+    "yaw_rad": 0.0,
+    "footprint_radius_m": 3.501562118716424,
+    "dims": {
+     "length_m": 5.0,
+     "width_m": 4.0,
+     "wall_height_m": 3.0
+    }
+   }
+  ],
+  "house_xy": [
+   28.60176480425799,
+   -23.979810993934294
+  ],
+  "house_yaw": 0.0,
+  "start_xy": [
+   -6.398235195742011,
+   -23.979810993934294
+  ],
+  "start_yaw": 0.0
+ },
+ "challenge": {
+  "feature": {
+   "kind": "crater",
+   "x_m": 11.60176480425799,
+   "y_m": -23.979810993934294,
+   "sigma_m": 3.538054826601779,
+   "amplitude_m": 3.199445947445255
+  },
+  "heading_deg": 0,
+  "offset_m": 0.0
+ }
+}
