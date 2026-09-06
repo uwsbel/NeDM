@@ -2727,3 +2727,45 @@ This is the third member of a family already in this file: the
 [check that can itself be silent](#the-check-you-add-to-catch-silent-failures-can-itself-be-silent),
 and [running a check is not evidence that the check ran](#running-a-check-is-not-evidence-that-the-check-ran).
 **All three are cases where the instrument failed quietly and the subject took the blame.**
+
+## Five instances of one class: a number correct about its scope, wrong about its meaning
+
+**Found:** 2026-09-05, across a single session · **Applies to:** every summary statistic and
+every name for a change
+
+Each of these was arithmetically correct and each was read as answering a question it did
+not answer. They are collected because **one is a mistake, five is a class**, and the
+defence is the same in every case.
+
+| # | the number or name | what it actually covered | what it was taken to mean |
+|---|---|---|---|
+| 1 | `body_vel` prefix match | 2 channels for one model, 3 for the other | "the same quantity on both" |
+| 2 | "the collector seeding fix" | two `sha256` commits already on origin | a third, uncommitted, different fix |
+| 3 | `grep grav_world_x_mps2` in the collector | that literal is in `dataset.py` | "the wiring is absent" |
+| 4 | `grav_body_z`, increment sd 0.0014 | one channel at R^2 -60.3 | a 40-channel mean of -0.981 |
+| 5 | W0 median R^2 0.393 at 0.29 s | 24 joint columns at 0.458 | "the floor for the body family", which is **0.125** |
+
+**Instance 5 is the sharpest** because the conclusion would have survived review: comparing
+the surrogate's 0.723 against 0.393 looks like a careful like-for-like, and it understates
+the surrogate's advantage **threefold** because the denominator is a median over
+heterogeneous channels dominated by the easy ones.
+
+**Three defences, in the order they pay:**
+
+1. **Report the subgroup you will act on, not the aggregate.** An aggregate over
+   heterogeneous channels is a summary of nothing in particular. If a decision turns on
+   body velocity, the number quoted beside that decision must be body velocity.
+2. **Search for the mechanism, never the label.** `git log -S "<a distinctive literal>"`,
+   scoped to the file the mechanism actually lives in. A negative result is only as good
+   as its scope; a positive one carries its own.
+3. **Assert equality of the selected sets**, never that the same rule ran on both sides.
+
+**The tell they share:** in every case the number was *defensible* if challenged, because
+it was correct. **What was wrong was the sentence it was placed in.** So the check is not
+"is this number right" but **"what would have to be true for this number to answer the
+question I am asking of it"** — and that is a question about scope, which no amount of
+recomputation reaches.
+
+Related: [part-whole correlation](#part-whole-correlation-a-statistic-whose-value-is-fixed-by-its-own-construction),
+[state the scope with the result](#state-the-scope-with-the-result-or-the-conclusion-inherits-one-it-never-had),
+and [the same selection rule](#the-same-selection-rule-run-on-two-inputs-is-not-the-same-selection).
