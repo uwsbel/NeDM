@@ -83,6 +83,8 @@ def main() -> None:
     ap.add_argument("--place-slope-deg", type=float, default=14.0)
     ap.add_argument("--detour-speed", type=float, default=5.0)
     ap.add_argument("--seq-a-lat-max", type=float, default=5.0, help="relaxed curvature cap for the sequence profiles (fast turn entries are driven)")
+    ap.add_argument("--wide-detours", action="store_true",
+                    help="add detour_wide_L/R (radius 4 sigma, >= 12 m, 4 m/s) to every crossing: the 'no candidate works' task needs wider alternatives")
     args = ap.parse_args()
     out, arena = Path(args.out), Path(args.arena)
     arena_id = arena.name
@@ -127,11 +129,16 @@ def main() -> None:
             hts = tmap.height(line[:, 0], line[:, 1])
             runs = [(f"direct_v{v:.0f}", route(line, const_profile(line, v, params))) for v in args.speeds]
             runs.append(("slope_aware", route(line, speed_profile(line, grid, params))))
-            R = max(2.5 * sigma, 8.0)
-            for side, sgn in (("L", 1.0), ("R", -1.0)):
-                ctrl = np.stack([start, centre - 14 * u, centre - 7 * u + sgn * R * n, centre + sgn * R * n, centre + 7 * u + sgn * R * n, centre + 11 * u + sgn * 0.3 * R * n, end])
-                pts = _resample(_catmull_rom(ctrl[None], 240)[0], params.sample_step_m)
-                runs.append((f"detour_{side}", route(pts, const_profile(pts, args.detour_speed, params))))
+            radii = [("detour", max(2.5 * sigma, 8.0), args.detour_speed)]
+            if args.wide_detours:
+                radii.append(("detour_wide", max(4.0 * sigma, 12.0), 4.0))
+            for tag, R, v_det in radii:
+                for side, sgn in (("L", 1.0), ("R", -1.0)):
+                    ctrl = np.stack([start, centre - 14 * u, centre - 7 * u + sgn * R * n, centre + sgn * R * n, centre + 7 * u + sgn * R * n, centre + 11 * u + sgn * 0.3 * R * n, end])
+                    pts = _resample(_catmull_rom(ctrl[None], 240)[0], params.sample_step_m)
+                    if np.abs(pts).max() > params.arena_keep_within_m:  # a wide loop may leave the arena
+                        continue
+                    runs.append((f"{tag}_{side}", route(pts, const_profile(pts, v_det, params))))
             add_layout(cid, layout, "crossing", {"feature": f, "feature_index": fi, "heading_deg": hdeg, "offset_m": offset,
                                                 "line_max_up_deg": float(np.degrees(np.arctan(max(along.max(), 0)))),
                                                 "line_max_down_deg": float(np.degrees(np.arctan(max(-along.min(), 0)))),
