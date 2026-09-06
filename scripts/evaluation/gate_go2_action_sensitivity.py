@@ -307,10 +307,24 @@ def main():
     # tonight correctly refuses that pairing -- so the guard blocked re-gating the
     # very checkpoints it was written to protect. The guard is right and the config
     # is wrong; the gate simply should not be constructing state it does not use.
+    # EVERY dataset reference is redirected, not the two that happened to fail first.
+    # Clearing validation_datasets and train_mix left loss.channel_weight_datasets
+    # pointing at the wrapped corpus, which raised again ten minutes later -- the
+    # third instance tonight of fixing an instance rather than the class. The rule
+    # that would have avoided all three: after fixing one member, search for the
+    # rest before re-running.
+    _self = ck["config"]["processed_dataset_dir"]
     ck["config"]["validation_datasets"] = []
     ck["config"]["train_mix"] = {"datasets": [
-        {"name": "self", "processed_dataset_dir": ck["config"]["processed_dataset_dir"],
-         "batch_fraction": 1.0}]}
+        {"name": "self", "processed_dataset_dir": _self, "batch_fraction": 1.0}]}
+    if "channel_weight_datasets" in ck["config"].get("loss", {}):
+        ck["config"]["loss"]["channel_weight_datasets"] = [_self]
+    for _d in ck["config"].get("rollout_eval", {}).get("datasets", []):
+        _d["processed_dataset_dir"] = _self
+    _left = [v for v in json.dumps(ck["config"]).split('"')
+             if v.startswith("/home/kyle/sbel-artifacts/training_datasets/") and v != _self]
+    if _left:
+        raise SystemExit(f"gate: unredirected dataset references remain: {sorted(set(_left))}")
     tr = HMMWVTrainer(ck["config"])
     tr.model.load_state_dict(ck["model_state_dict"]); tr.model.to(tr.device).eval()
     md = json.load(open(ck["config"]["processed_dataset_dir"] + "/metadata.json"))
