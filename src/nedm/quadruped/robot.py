@@ -114,12 +114,19 @@ class Go2Robot:
         `exchange_mult * step_size_s` in collect_go2_smoke.py, and recorded per
         episode as `simulation.exchange_step_s`.
 
+        GAINS COME FROM THE INSTANCE IF SET. Excitation collection resamples Kp
+        and Kd per control step, and a module constant cannot express that. When
+        unset these fall back to PD_KP/PD_KD so every existing caller is
+        unchanged -- verified by bit-identical replay of a recorded episode.
+
         No-op on the position plant, so the sim loop can call it unconditionally.
         """
         if self.actuation != "torque":
             return np.zeros(len(self.motors))
         c = self.chrono
-        tau = PD_KP * (self.target - self.joint_pos()) - PD_KD * self.joint_vel()
+        kp = getattr(self, "kp", PD_KP)
+        kd = getattr(self, "kd", PD_KD)
+        tau = kp * (self.target - self.joint_pos()) - kd * self.joint_vel()
         tau = np.clip(tau, -JOINT_EFFORT_NM, JOINT_EFFORT_NM)
         for motor, t in zip(self.motors, tau):
             motor.SetMotorFunction(c.ChFunctionConst(float(t)))

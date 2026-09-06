@@ -2997,3 +2997,135 @@ same confidence, from a party who has just demonstrated care by producing the me
 
 Related: [when a comparison goes wrong, suspect the apparatus](#when-a-comparison-goes-wrong-suspect-the-apparatus-before-the-subject),
 and [a residual after elimination is a hypothesis, not a conclusion](#when-your-misuse-of-a-tool-gives-a-wrong-answer-the-tool-is-broken-is-the-expensive-conclusion).
+## A distribution can be inside every marginal band and nowhere near the joint region
+
+Two instances in one collection, and neither is the familiar "an aggregate hid a
+subgroup" — here every marginal is CORRECT and the conclusion still fails.
+
+**Action scale.** The range was derived from the policy's own commanded offsets,
+|target − stand| at p99.9 = 1.53 rad. Independent draws at that marginal extreme
+drove joints past the URDF limit in 30 of 30 windows, because the policy's twelve
+offsets are strongly correlated and independent samples are not. A marginal range is
+an envelope, not a description of what lives inside it.
+
+**State containment.** Median per-channel containment against the walking band was
+0.997–1.000 — every channel inside its own p1–p99 — while JOINT containment across
+all 33 channels at once was 0.03, against a walking-vs-walking ceiling of 0.812. The
+state was inside every one-dimensional band and outside the walking region 97% of the
+time.
+
+Report the joint statistic whenever the question is "is this the same regime". The
+per-channel view answers a different question and answers it reassuringly.
+
+## Measure the ceiling before quoting a score against a reference
+
+Joint containment across 33 channels at p1–p99 cannot reach 1.0 even for the
+reference population: held-out walking scores 0.812 against walking. Quoting an
+excitation score of 0.03 without that makes it read as "3% of an absolute standard"
+when it means "0.04x of what the reference itself achieves". A coordinator on the
+other end of the message said they would probably have over-reacted to the bare
+number. Compute what the reference scores against itself, and quote the ratio.
+
+## A statistic whose value depends on sample size cannot be a stopping rule for sampling
+
+"Collect until the confound diagnostic plateaus" has no stopping point when the
+diagnostic itself moves with n. The conditional/unconditional action variance fell
+0.776 -> 0.696 on excitation data as rows accumulated — which reads exactly like the
+confound returning under volume. Running the same instrument on POLICY data, where
+the answer was already known, showed 0.185 -> 0.085 over the same range: both decline,
+because denser sampling puts kNN neighbours closer together and shrinks the local
+variance. The metric was moving, not the data.
+
+The stopping rule and the statistic move together and nothing in the number
+distinguishes them. **The control is what separates them, and it is only available by
+running the instrument on a population whose answer you already have.**
+
+Salvage rather than discard: effective rank does not depend on n in the same way and
+saturated at 11.93 by 2,000 rows, which is a valid plateau and a finding in itself —
+the confound broke with almost no data. Conditional variance stays meaningful as a
+comparison at MATCHED n, which is how the headline was computed. A metric can be
+unusable for one purpose and sound for another.
+
+## Apply the discipline one step earlier: to instructions, not only to results
+
+"Measure the noise floor before comparing anything to it" had been in this file for
+days when three separate briefings in one session set a numeric threshold on a
+quantity whose scale had not been measured — a stopping rule on a statistic whose
+behaviour under sampling was unknown, a 0.6 containment threshold against a ceiling
+that turned out to be 0.812, and a mixture ratio whose denominator contained rows of
+the same kind it was being contrasted with.
+
+The habit had been trained on INTERPRETING results and not on WRITING instructions,
+which is one step earlier, cheaper, and where nobody was looking. A rule that lives
+only at the analysis stage will be violated at the specification stage by the same
+person who wrote it.
+
+Operationally: when setting a threshold, name the reference it is relative to, or ask
+for the reference to be measured first and express the threshold as a fraction of it.
+
+## Record why and when a unit was dropped, before dropping it
+
+Asked where in the episode the excitation collector's rejections occurred, the answer
+was not merely unlogged: it had never existed. A rejected episode hit `continue` before
+any row was written, so there was no artefact to re-analyse. That fails differently
+from data that was collected and discarded — no amount of reprocessing reaches it, and
+nothing in the pipeline distinguishes "this quantity is missing" from "this quantity is
+uninteresting." The instrumentation had to be built and the arms re-run before the
+question could be asked at all.
+
+What it cost to skip and what it bought to add: three lines appending a rejection record
+(`window`, `reason`, `row`, `phase`, `burst`, `rows_since_onset`) turned an unanswerable
+question into a decisive one on the first re-run — all 41 rejections during recovery,
+median 3 rows after the policy handover, none during perturbation. That inverted the
+hypothesis and changed the collection design.
+
+The discarded units are where the mechanism lives. A filter is a measurement of the
+thing being filtered, so instrument it like one.
+
+Related, and the reason this is not merely bookkeeping: excluding failures is a
+survivorship filter over exactly the states the failures identify. Arm B's 13.7%
+rejection rate was first waved off as tolerable "because those episodes are excluded" —
+but the exclusions were concentrated on the handover states the study is about, so the
+survivors were biased toward easy handovers. Judge an exclusion rule by WHAT it selects
+against, not by how many units it removes.
+
+## A wrong number written to disk outranks a wrong number printed to a log
+
+The excitation collector printed `first tip at row median 332 of 10` — nonsense, because
+the denominator used the burst length where the episode length belonged. Fixing the
+printed line surfaced the same substitution in `summary.json`, where `"rows"` was
+`kept * WINDOW_ROWS`: arm A's summary claimed 36,000 rows for a file holding 306,000, an
+8.5x undercount, in a persisted artefact meant to be read by someone else later.
+
+The printed line was self-evidently absurd and would have been caught by any reader. The
+JSON field was plausible, so it would not have been. Four existing summaries were
+recounted from their CSVs and stamped with a `rows_field_repaired` note.
+
+Both are now derived from `rows_written`, accumulated as rows are actually written,
+rather than recomputed from a formula that can drift from what the loop does. Prefer
+counting what happened over recomputing what should have happened.
+
+## Killing a shell does not kill the children it launched with `&`
+
+A waiter shell (`until grep -q DONE log; do sleep 30; done; cmd_a & cmd_b &`) was
+killed to cancel a queued collection. It had already fired, and the two backgrounded
+children were reparented rather than killed, so "I cancelled it" was false while a
+process kept writing to disk. It was caught 26 s in only because the process list was
+checked afterwards; the next person finds it as a dataset that mysteriously grows.
+
+Kill the process that does the work, not the shell that launched it — and after any
+cancellation, re-list the processes and confirm the specific PIDs are gone. A cancel is
+not done when the kill returns; it is done when the thing it was cancelling is absent.
+
+## Be more suspicious of numbers that look right than of numbers that look wrong
+
+One substitution produced two wrong numbers. The printed one — `first tip at row median
+332 of 10` — was self-evidently absurd and was caught in minutes. The one written to
+`summary.json` was an 8.5x undercount that looked entirely plausible and would have been
+copied into a report by someone with no reason to doubt it.
+
+The obviously wrong number is nearly harmless: it defends itself by being unbelievable.
+The plausible one has no such defence, and attention flows naturally to the first. The
+instinct this argues for — inspecting the numbers that raise no alarm — is not natural
+and has to be deliberate. When a bug is found in one output, check every other output
+derived from the same expression, especially the ones that look fine.
