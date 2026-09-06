@@ -144,6 +144,67 @@ the contribution, and it is not a modification of NeRD.** It borrows four of NeR
 structural ideas and replaces its environment representation entirely. Scoping it as the
 latter is the honest framing.
 
+## WHERE THE ERROR ACTUALLY IS — measured 2026-09-05, and it is not contact
+
+**This section supersedes the premise of W1 and W2.** Both were aimed at contact
+discontinuity, on the strength of the manuscript's own limitations paragraph and NeRD's
+ablation table. Measured on the surrogate's own autoregressive rollout
+(`go2_contact_40d`, val, 30 episodes), per-group increment R^2:
+
+| horizon | jpos | jvel | **grav** | contact | **body** |
+|---|---|---|---|---|---|
+| 0.10 s | 0.999 | 0.997 | 0.948 | 0.968 | 0.862 |
+| 0.29 s | 0.992 | 0.993 | 0.441 | 0.883 | 0.723 |
+| 1.00 s | 0.951 | 0.975 | **-0.680** | 0.802 | **0.203** |
+
+**Contact is the third-best group.** The two failing groups are **gravity** and
+**body**. And the action-sensitivity gate scores the **body-velocity** family, so
+**the gate's failure and the body group's failure are the same failure** — which
+neither W1 nor W2 was aimed at.
+
+Contact-related error is real and consistent — the stance/swing split is worse in stance
+at every horizon, ten of ten in the same direction, gap growing to -0.099 — but the
+magnitudes are small: stance joint position is still **0.893 at one second**. *"Contact is
+where the residual concentrates"* is supported; *"the model fails at contact"* is not.
+
+### The lead: the state omits a variable the transition depends on
+
+The 40-channel state carries **no contact force**. The raw CSVs have
+`foot_*_force_fz_n`; preprocessing drops it. Meanwhile:
+
+```python
+# constants.py -- the BODY-LEVEL preset, the one that passes all three levels
+QUADRUPED_CONTACT_STATE_FIELDS = QUADRUPED_FOOT_FORCE_FIELDS + QUADRUPED_FOOT_SLIP_FIELDS
+```
+
+**The body-level model that passes has foot force and slip. The joint-level model that
+fails does not**, and nobody chose that. Body acceleration is *determined* by contact
+force; without it the model must infer force from joint configuration, which is the hard
+part of the problem.
+
+**This is a violation of the framework's own design rule, not a missing feature.** Contact
+force is not reconstructible by `G()`, is not an action, and the transition depends on it,
+so by §4.2 it is a recurrent state variable. It was dropped in preprocessing rather than
+by a decision. **It is also the correct reading of NeRD**, which says contact information
+must reach the model — not that a boolean should be computed geometrically, which is what
+W1 tried and what failed.
+
+### Three one-variable arms, pre-registered
+
+| arm | change | rationale |
+|---|---|---|
+| **A** | add `foot_*_force_fz_n` and `foot_*_slip_mps` to the state | the missing state variable; also unblocks whether within-mode force dynamics are the W2 target |
+| **B** | drop the gravity channels | worst group at -0.680, a **known** plant defect (tilt applied by rotating gravity), and redundant with roll/pitch |
+| **C** | `block_size` sweep 8/16/32 vs 128 | see [`nerd-conformance-audit.md`](nerd-conformance-audit.md) |
+
+**Read, declared before any of them run.** If **A** moves the body group upward from 0.203
+and the gate's 0.5 s corr with it, the missing-force hypothesis holds and is the case
+study's finding. If **B** alone does most of the work, the story is a data defect rather
+than an abstraction one — smaller, still honest. **If neither moves the body group, the
+failure is not in the state's contents**, and C then HALO's `L_iso` are what remain.
+
+Run them separately. A joint improvement from a combined run attributes to neither.
+
 ## Work items, in order
 
 ### W0 — Is the map a function of the state at all? (one day, no architecture)
