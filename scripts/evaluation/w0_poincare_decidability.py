@@ -44,6 +44,16 @@ point. This script therefore reports each component's SPREAD alongside its R^2 a
 components whose spread is too small to score. A near-zero R^2 on a degenerate component
 is not evidence that the map is unpredictable.
 
+THE ABSOLUTE R^2 CANNOT LICENSE W4, AND --fixed-dt IS WHY. "High licenses the event-
+indexed formulation, low kills it" has no number attached, and picking the boundary after
+seeing the value is the failure this whole harness exists to prevent. The decidable
+question is not "is the map predictable" but "is EVENT indexing better than TIME
+indexing", because that difference is W4's entire premise. --fixed-dt samples pairs at a
+regular interval instead of at touchdowns, using an identical state vector and frame rule,
+so the only thing that differs is when the samples are taken. HALO never ran this control;
+its gait is clock-driven, so its Poincare map is approximately a fixed-dt flow map, and it
+reports no baseline that would have shown that.
+
 NOT EVERY DETECTED PAIR IS A POINCARE RETURN. A section crossing separated from the next
 by many seconds is not a consecutive return -- the robot stood, fell, or the section was
 missed. Such pairs are not hard cases, they are different objects, and they depress R^2
@@ -124,8 +134,13 @@ def load_episode(path, joint_cols):
     return out
 
 
-def episode_events(ep, joint_cols):
-    """Pre-impact states at section-foot touchdown, plus event times."""
+def episode_events(ep, joint_cols, fixed_dt=None, log_dt=None):
+    """States at section-foot touchdown, or -- as a control -- at a fixed interval.
+
+    The frame anchor is the stance partner's foot position at the sampled instant, which
+    is defined at any time and not only at touchdown, so both arms use an identical state
+    construction and differ ONLY in when they sample.
+    """
     # ONE call on the stacked 4-column force array: that is contact_mode's designed
     # input and the only form whose bit packing matches LEG_ORDER.
     try:
@@ -134,7 +149,11 @@ def episode_events(ep, joint_cols):
         return None
     st, _mode = contact_mode(fz)
     stance = {leg: st[:, k] for k, leg in enumerate(LEG_ORDER)}
-    idx = rising_edges(stance[SECTION_FOOT])
+    if fixed_dt is not None:
+        step = max(1, int(round(fixed_dt / log_dt)))
+        idx = list(range(0, len(ep["time_s"]), step))
+    else:
+        idx = rising_edges(stance[SECTION_FOOT])
     if len(idx) < 3:
         return None
     t = ep["time_s"]
@@ -195,6 +214,13 @@ def main():
     ap.add_argument("--max-episodes", type=int, default=400)
     ap.add_argument("--knn-k", type=int, default=10)
     ap.add_argument("--ridge-lam", type=float, default=1.0)
+    ap.add_argument("--split-seed", type=int, default=0,
+                    help="episode-split seed; vary it to measure split-to-split spread, "
+                         "which is the yardstick any arm-vs-arm gap must clear")
+    ap.add_argument("--fixed-dt", type=float, default=None, metavar="SECONDS",
+                    help="CONTROL ARM: pair states every SECONDS instead of at touchdowns. "
+                         "Same state vector, same frame rule. W4 is licensed only if the "
+                         "event-indexed arm BEATS this.")
     ap.add_argument("--gait-band", type=float, nargs=2, default=None, metavar=("LO", "HI"),
                     help="keep pairs whose inter-event interval is in [LO,HI]*median. "
                          "PRE-REGISTER THIS before reading any R^2.")
@@ -218,7 +244,7 @@ def main():
     per_ep, per_ep_t, ev_dt, diag_off, n_drop = [], [], [], [], 0
     for p in paths:
         ep = load_episode(p, joint_cols)
-        got = episode_events(ep, joint_cols)
+        got = episode_events(ep, joint_cols, a.fixed_dt, dt)
         if got is None:
             n_drop += 1
             continue
@@ -237,7 +263,7 @@ def main():
 
     # SPLIT BY EPISODE, never by event. Events within an episode share a soil realisation
     # and an initial condition, so a row-wise split leaks and inflates R^2.
-    rng = np.random.default_rng(0)
+    rng = np.random.default_rng(a.split_seed)
     order = rng.permutation(len(per_ep))
     n_tr = int(0.8 * len(per_ep))
     tr, te = order[:n_tr], order[n_tr:]
@@ -291,7 +317,8 @@ def main():
     quant_pz = float(np.median(vz) * dt)
     spread_pz = float(np.vstack([s for s in per_ep])[:, 2].std())
 
-    print(f"\n=== W0  {a.label} ===")
+    arm = f"FIXED-dt {a.fixed_dt:.3f}s (CONTROL)" if a.fixed_dt else "EVENT-INDEXED"
+    print(f"\n=== W0  {a.label}   [{arm}] ===")
     print(f"episodes {len(per_ep)} usable, {n_drop} dropped   events {sum(len(s) for s in per_ep)}"
           f"   train {len(Xtr)} / test {len(Xte)}")
     print(f"log dt {dt*1000:.1f} ms  ({1/dt:.0f} Hz)")
@@ -340,6 +367,8 @@ def main():
 
     if a.summary_json:
         json.dump({"label": a.label, "host": os.uname().nodename, "dt_s": dt,
+                   "arm": "fixed_dt" if a.fixed_dt else "event", "fixed_dt": a.fixed_dt,
+                   "split_seed": a.split_seed, "gait_band": a.gait_band,
                    "n_episodes": len(per_ep), "n_dropped": n_drop,
                    "n_events": int(sum(len(s) for s in per_ep)),
                    "interevent_mean_s": float(np.mean(ev_dt)),
