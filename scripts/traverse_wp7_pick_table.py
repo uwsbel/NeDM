@@ -54,8 +54,9 @@ def main() -> None:
     # heuristics: pick a candidate name per layout, reject nothing
     every = layouts + nosol
     methods["rule (slope_aware)"] = {l: ("slope_aware" if "slope_aware" in bank[l] else None) for l in every}
-    methods["fastest constant speed"] = {l: max((c for c in bank[l] if speed_of(c) > 0), key=speed_of, default=None) for l in every}
-    methods["slowest constant speed"] = {l: min((c for c in bank[l] if speed_of(c) > 0), key=speed_of, default=None) for l in every}
+    spd = lambda l, c: bank[l][c].get("mean_speed") if bank[l][c].get("mean_speed") is not None else speed_of(c)
+    methods["fastest (mean commanded speed)"] = {l: max((c for c in bank[l] if speed_of(c) > 0), key=lambda c: spd(l, c), default=None) for l in every}
+    methods["slowest (mean commanded speed)"] = {l: min((c for c in bank[l] if speed_of(c) > 0), key=lambda c: spd(l, c), default=None) for l in every}
     rejects: dict[str, dict] = {}  # method -> layout -> set of rejected candidates
     for spec in args.cheap:
         name, path = spec.split("=", 1)

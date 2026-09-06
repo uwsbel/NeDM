@@ -125,7 +125,9 @@ def main() -> None:
             r = rows.get((key, cand), {})
             labels[ekey] = {k: r.get(k) for k in ("status", "completed", "time_s", "energy_kj", "contact", "max_contact_n", "max_roll_deg", "max_pitch_deg",
                                                   "min_tire_fz_n", "stall_s", "stalled", "unload_run_max_s", "airborne_s", "mean_ct_m", "p95_ct_m", "length_m", "recorded_frames")}
-            labels[ekey].update(arena=aid, layout=key, candidate=cand, kind=kind_of[ekey])
+            sp = data.get("route_speeds", np.zeros(1))
+            labels[ekey].update(arena=aid, layout=key, candidate=cand, kind=kind_of[ekey], mean_speed=float(np.mean(sp)), max_speed=float(np.max(sp)),
+                                route_length_m=float(data["route_stations"][-1]) if "route_stations" in data else None)
             n_written += 1
         st = {s: sum(status_of[e] == s for e in episodes if arena_of[e] in {Path(a).name for a in [arenas[k] for k in arenas]} and e.split("__")[0] == Path(arenas[list(arenas)[-1]]).name) for s in set(status_of.values())}
         errs = [poses[k]["err_m"] for k in maps]
