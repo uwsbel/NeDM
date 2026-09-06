@@ -426,11 +426,44 @@ def main():
     # vel_body_z_mps -- so the primary family, and therefore the headline corr, was
     # computed over different channel sets for different models and the numbers were not
     # comparable. Found 2026-09-05 while writing the definition out for sbel-pc.
-    fams = {"body_vel": [sf.index("vel_body_x_mps"), sf.index("vel_body_y_mps")],
-            "body_rate": [i for i, f in enumerate(sf) if "rate_radps" in f or "ang_vel" in f],
-            "joint_pos": [i for i, f in enumerate(sf) if f.endswith("_pos_rad")],
-            "joint_vel": [i for i, f in enumerate(sf) if f.endswith("_vel_radps")],
-            "gravity":   [i for i, f in enumerate(sf) if f.startswith("grav_body")]}
+    # EVERY FAMILY IS A DECLARED LIST OF NAMES, NOT A PATTERN.
+    #
+    # body_vel was converted first, after `f.startswith("vel_body")` gave two channels
+    # for the 34-channel state and three for the 40-channel one. The other four were
+    # left as patterns, which was an incomplete fix: `startswith("grav_body")` returns
+    # THREE for the current preset and ZERO for a preset without the backfilled gravity
+    # channels -- and the excitation corpus lacks them natively. Two models compared
+    # through this gate would then have a "gravity" family meaning different things,
+    # both sides internally consistent, exactly the original defect one family over.
+    #
+    # `sf.index` RAISES on a missing channel. A pattern silently returns a shorter
+    # list, which is the whole difference: the failure becomes loud instead of
+    # producing a comparable-looking number over a different set.
+    # MOTOR_NAMES order: RR, RL, FR, FL. Written out rather than matched so the
+    # ordering is a declaration; four different orderings exist for these twelve.
+    _JOINTS = [f"joint_{leg}_{j}"
+               for leg in ("rr", "rl", "fr", "fl") for j in ("hip", "thigh", "calf")]
+    FAMILY_CHANNELS = {
+        "body_vel":  ("vel_body_x_mps", "vel_body_y_mps"),
+        "body_rate": ("roll_rate_radps", "ang_vel_body_y_radps", "yaw_rate_radps"),
+        "joint_pos": tuple(f"{j}_pos_rad" for j in _JOINTS),
+        "joint_vel": tuple(f"{j}_vel_radps" for j in _JOINTS),
+        "gravity":   ("grav_body_x", "grav_body_y", "grav_body_z"),
+    }
+    fams = {}
+    for fname, names in FAMILY_CHANNELS.items():
+        missing = [c for c in names if c not in sf]
+        if missing:
+            raise SystemExit(
+                f"family {fname!r} needs channels absent from this checkpoint's state: "
+                f"{missing}. The gate compares families across models, so a family that "
+                f"silently shrinks makes two arms incomparable while both look fine. "
+                f"Either the checkpoint's preset is wrong for this gate, or "
+                f"FAMILY_CHANNELS needs a deliberate edit -- not a pattern that adapts.")
+        fams[fname] = [sf.index(c) for c in names]
+        assert len(fams[fname]) == len(names), fname
+    print("  families (declared, not matched): "
+          + ", ".join(f"{k}={len(v)}" for k, v in fams.items()))
     print("\n=== APPARATUS CHECK: arm A open-loop error vs its own recording ===")
     print("  (read this first: if it is large the gain below is meaningless)")
     print(f"  {'horizon':>8} {'|err|':>12} {'|d_chrono|':>12} {'ratio':>8}")
