@@ -1090,3 +1090,77 @@ reading any of those rows as a degradation curve.
 rather than assumed. Accuracy and F1 are counts over a fixed denominator (16
 episodes x 4 feet) with no horizon-dependent normaliser, and its `jointRMSE`
 column is already raw. That table does read correctly as a degradation curve.
+
+## 1p. Where the error actually is, on a model without the defect
+
+Three tables have now been used to answer "where is the error", and each was
+invalid on the axis it was read along. **The metric is not the finding; the axis
+is.**
+
+| comparison | valid metric | why the other fails |
+|---|---|---|
+| across HORIZONS, one group, one model | **raw RMSE** | R^2 and normalised RMSE divide by an increment spread that MOVES with horizon |
+| across GROUPS, one horizon, one model | **normalised RMSE** | raw RMSE compares rad against rad/s -- a units comparison |
+| across MODELS, one group, one horizon | **raw RMSE** | the normaliser is a property of the DATA, and the two models' data differ |
+
+### Normalised RMSE by group, UNWRAP model (1.0 = no skill)
+
+| horizon | jpos | jvel | grav | contact | body |
+|---|---|---|---|---|---|
+| 0.02 s | 0.028 | 0.077 | 0.266 | 0.130 | 0.133 |
+| 0.10 s | 0.020 | 0.030 | 0.116 | 0.118 | 0.201 |
+| 0.29 s | 0.067 | 0.054 | 0.548 | 0.274 | 0.400 |
+| 0.50 s | 0.095 | 0.083 | 0.792 | 0.266 | 0.431 |
+| 1.00 s | 0.182 | 0.130 | **8.718** | 0.333 | **0.975** |
+
+**At 1.0 s gravity is the worst group by an order of magnitude and body sits at
+the no-skill line.** This is the first valid across-group table in the study: the
+earlier R^2 version had a moving normaliser, the raw-RMSE version was a units
+comparison, and both were computed on the wrapped baseline.
+
+**This partly reverses 1o.** "Gravity is not the worst group, it is the most
+nearly constant one" is true in ABSOLUTE terms and false as a statement about
+where the error is. **1o used the raw table to answer a cross-group question,
+which is the incomparability this section exists to name.** Both halves are true
+and only one was said.
+
+### What the unwrap changed, in raw RMSE (the valid cross-model metric)
+
+| at 1.0 s | baseline | unwrap | |
+|---|---|---|---|
+| jpos | 0.0550 | 0.0481 | better |
+| jvel | 1.0247 | 0.8751 | better |
+| contact | 0.2589 | 0.2087 | better |
+| body | 0.4256 | **0.1771** | 2.4x better |
+| grav | 0.0263 | 0.0491 | 1.9x worse |
+
+**Body's raw error is now monotone across horizons** (0.0099, 0.0239, 0.0518,
+0.0799, 0.1771) where the baseline's was not -- confirming the non-monotonicity
+in 1o was the wrap, since removing the wrap removed it.
+
+### A third incomparability, which appeared inside this very table
+
+**Normalised RMSE across MODELS is invalid**, and it misleads in the flattering
+direction. Body reads 0.764 -> 0.975 normalised, "the unwrap made body worse",
+while raw error went 0.4256 -> 0.1771, **2.4x better**. `sd(delta pitch)` in the
+wrapped data includes the 2*pi jumps; in the unwrapped data it does not. **The
+baseline was being divided by a spread its own defect manufactured.**
+
+### Gravity: both readings are true and neither alone is complete
+
+    absolute   RMSE 0.049 on a UNIT vector -- negligible to any consumer of the state
+    relative   normalised 8.718 -- error many times the channel's own variation
+
+**Which matters depends on the consumer.** A policy reading projected gravity sees
+0.049 and does not care. A claim that the surrogate "models attitude" is refuted
+by 8.718. Recording both rather than picking a verdict, because the single number
+would be wrong for one of the two questions.
+
+### What survives untouched
+
+**The confound diagnosis never rested on this table.** `vel_body_x` is at R^2
+0.822 at 1.0 s -- the surrogate predicts forward velocity WELL -- while the gate
+reads corr 0.310 at 0.5 s. **The gate's failure was never a prediction-accuracy
+failure**, which is why the action-blindness reading survives every revision of
+the localisation. **What has been retracted and re-retracted is where the error
+is, not what the gate is measuring.**
