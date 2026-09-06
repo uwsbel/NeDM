@@ -3570,3 +3570,47 @@ to 0.96x ideal on CRM — and careful tuning of a proxy does not make it the qua
 The proxy remains necessary on CRM, where the contact system reports nothing. That is
 what makes this worth stating: the fallback exists for a real reason, and its existence
 is why nobody noticed it was being used where the truth was available.
+
+## An off-diagonal test that comes back negative is still worth running
+
+A proxy for foot contact agreed with ground truth on only 41.2% of samples for one foot
+against 72-87% for the others — worse than chance, which suggested a leg-ordering
+mismatch, and this project has burned four orderings for the same twelve values.
+
+The test was a 4x4 matrix: agreement between each foot's stored contact and the proxy
+computed from every foot's force. A permutation shows as a sharp off-diagonal maximum.
+
+It came back negative. The diagonal won for three feet, and the fourth's best
+off-diagonal cell beat its neighbours by 0.4 points, which is noise. But the matrix's
+*columns* were informative in a way the diagonal alone was not: the rear-right force
+column disagreed with everything, which pointed at that foot's force distribution rather
+than at its labelling.
+
+The answer was a threshold calibrated for a different regime. Agreement tracks the
+fraction of samples exceeding the 60 N engage threshold with rank correlation +0.80, and
+the rear-right foot carries the least load — median 16.25 N against 34-52 N — so the
+trigger almost never latches for it. Pooled agreement falls monotonically with the
+threshold: 92.3% at 5 N, 70.9% at the tuned 60 N.
+
+Two things worth keeping. A negative permutation test cost one query and converted "worth
+investigating eventually" into a specific mechanism the same day. And a matrix built to
+be read along its diagonal answered the question through its columns — running the
+general form rather than the single comparison is what made that available.
+
+## Constants tuned where no ground truth exists do not transfer to where it does
+
+The contact hysteresis was tuned on CRM, where feet couple through FSI and the contact
+system reports nothing, against the best criterion available there: the gait's own
+spectral peak, reaching 0.96x ideal. That is careful work and the number is real.
+
+It is also a measure of agreement with a *criterion*, not with truth — and on rigid,
+where truth is logged, the same constants score 70.9%, the worst of every threshold in
+the band tested. The tuning was sound and the transfer was not.
+
+The failure mode is that a well-tuned proxy carries the authority of its tuning into
+regimes the tuning never covered. Nothing in the constant records which regime it was
+fitted on, so it reads as a property of the robot rather than of the terrain.
+
+When a constant is fitted in a regime where the target is unobservable, record that fact
+next to the constant, and check it in any regime where the target *is* observable before
+reusing it there.

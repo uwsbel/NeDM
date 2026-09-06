@@ -296,6 +296,36 @@ def contact_mode(force_fz, release_n: float = CONTACT_RELEASE_N,
         threshold 20 N     flat 1.02x ideal      crm 1.66x ideal
         schmitt 5/60 N     flat 1.01x ideal      crm 0.96x ideal
 
+    MEASURED AGAINST GROUND TRUTH, 2026-09-06, and the news is bad on rigid. The
+    figures above measure agreement with a SPECTRAL criterion, not with truth. On
+    rigid, foot_*_in_contact records what Chrono's contact container actually
+    resolved, so the proxy can be scored directly. Over 15,356 rows of
+    go2_joint_off3000000:
+
+        engage  5 N    92.3%        engage 30 N    79.7%
+        engage 10 N    85.9%        engage 40 N    77.8%
+        engage 20 N    82.0%        engage 60 N    70.9%  <- the tuned default
+
+    Agreement falls monotonically as the engage threshold rises, and the default is
+    the worst of the band. Per foot it is 72.2 / 83.5 / 86.6 / 41.2, and the ordering
+    is explained by load rather than by anything about the feet: agreement tracks the
+    fraction of samples above the engage threshold with rank correlation +0.80.
+
+        foot   % above 60 N   agreement
+        fl         23.6%        72.2%
+        fr         40.3%        83.5%
+        rl         40.3%        86.6%
+        rr         17.4%        41.2%     median force 16.25 N
+
+    The rear-right foot carries the least load -- median 16.25 N against 34-52 N --
+    so a 60 N engage threshold almost never latches for it, and the trigger reports
+    swing while the simulator reports contact.
+
+    SO: THESE CONSTANTS ARE FOR CRM AND SHOULD NOT BE USED ON RIGID. They were tuned
+    where no ground truth exists, against the best criterion available there, and the
+    tuning does not transfer to a regime where the answer can simply be looked up.
+    On rigid, read foot_*_in_contact.
+
     On rigid the foot force is EXACTLY 0.0 for 42% of samples, so any threshold
     in a wide band works and the mode is trivially separable. On CRM it never
     reaches zero -- the foot rides on the coupling layer and always feels the
