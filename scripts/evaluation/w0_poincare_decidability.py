@@ -36,6 +36,32 @@ own spectral peak, while the Schmitt trigger gives 0.96x. A naive rising edge wo
 manufacture events on soil and not on rigid -- i.e. it would fabricate exactly the
 rigid-vs-soil difference this script exists to measure.
 
+THAT REASONING IS ABOUT CRM AND THIS HARNESS ONLY EVER RAN ON RIGID, where
+foot_*_in_contact records what Chrono's contact container actually resolved and the
+proxy was never needed. The Schmitt constants were tuned where no ground truth exists;
+on rigid they agree with it on 70.9% of samples, worst of every threshold in the band
+(see contact_mode's docstring). The section foot is fl and the drop rule is keyed to
+rr -- the two feet the proxy handles WORST, at 72.2% and 41.2%, because they carry the
+least load and a 60 N engage rarely latches for them.
+
+MEASURED CONSEQUENCE for rr touchdown detection, 60 rigid episodes:
+
+    detector             median events   zero-event episodes
+    contact_mode proxy        94                 10
+    stored in_contact         78                  7
+
+  On the 49 episodes where both detect events the proxy finds 1.08x as many -- mild
+  chatter, not under-detection. But it finds NONE on 4 episodes where ground truth
+  finds events, against 1 the other way. So the failure is bimodal: slight
+  over-detection where it works, total failure on ~7% of episodes.
+
+  Both modes handicap the EVENT-INDEXED arm specifically, since that arm's sampling
+  depends on detecting the event; the fixed-dt arm is indifferent. W4 is recorded
+  INCONCLUSIVE and this is not a reason to re-run it -- but if the event-indexed
+  formulation is ever revisited, READ foot_*_in_contact ON RIGID rather than
+  contact_mode, or it inherits this handicap and reaches the same answer for a reason
+  nobody would look for twice.
+
 R^2 IS UNDEFINED WHERE THE SECTION STATE DOES NOT VARY. If every episode converges to
 the same limit cycle, the pre-impact state is nearly constant, ss_tot collapses, and R^2
 sits near zero no matter how good the model is. That is exactly HALO's Figure 5, where
