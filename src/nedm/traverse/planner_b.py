@@ -29,12 +29,20 @@ class MapDecoder:
         mod = importlib.util.module_from_spec(spec); sys.modules["maphead"] = spec.loader.exec_module(mod) or mod
         payload = torch.load(ckpt_path, map_location=device, weights_only=False)
         cfg = payload["config"]
-        self.model = mod.MapHead(Path(arena_dir), cfg["grid"], width=cfg["width"]).to(device).eval()
+        # The head decodes elevation into the height range of the arena it was TRAINED on (its config's arena);
+        # ``arena_dir`` is the arena planned on and only provides the grid extent / metadata of the returned
+        # TerrainMap. Before 2026-09-06 the planned arena's range was used, which rescaled the decoded heights
+        # on every other arena.
+        train_arena = Path(cfg.get("arena", arena_dir))
+        if not train_arena.is_absolute() and not train_arena.exists():
+            train_arena = Path(__file__).resolve().parents[3] / train_arena
+        self.model = mod.MapHead(train_arena if train_arena.exists() else Path(arena_dir), cfg["grid"], width=cfg["width"]).to(device).eval()
         self.model.load_state_dict(payload["model"])
         self.device = device
         self.grid = cfg["grid"]
         self.size_m = self.model.size_m
         self.tmap_meta = TerrainMap.from_dir(Path(arena_dir)).meta
+        self.train_arena = str(train_arena)
 
     @torch.no_grad()
     def __call__(self, scene_map: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
