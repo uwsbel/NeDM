@@ -44,6 +44,15 @@ point. This script therefore reports each component's SPREAD alongside its R^2 a
 components whose spread is too small to score. A near-zero R^2 on a degenerate component
 is not evidence that the map is unpredictable.
 
+NOT EVERY DETECTED PAIR IS A POINCARE RETURN. A section crossing separated from the next
+by many seconds is not a consecutive return -- the robot stood, fell, or the section was
+missed. Such pairs are not hard cases, they are different objects, and they depress R^2
+without carrying information about the map. --gait-band drops pairs whose interval falls
+outside [lo, hi] times the median interval. It is OFF by default so the unfiltered number
+is always visible, and when on the script also reports R^2 on the DROPPED pairs: if those
+score like the kept ones, the contamination story is wrong and the filter is laundering
+the result rather than cleaning it. Set the band before looking at the R^2.
+
 THE SAMPLING CAVEAT IS REPORTED, NOT ASSUMED AWAY. Events are located to the nearest
 logged row. At a 50 Hz log rate that is up to 20 ms of quantisation, sampled at the
 instant of peak state derivative, which converts to millimetres of body-height error. This
@@ -149,12 +158,21 @@ def ridge_pred(W, X):
     return np.hstack([X, np.ones((len(X), 1))]) @ W
 
 
-def knn_pred(Xtr, Ytr, Xte, k):
+def knn_pred(Xtr, Ytr, Xte, k, chunk: int = 512):
+    """Chunked over queries. The naive form builds an (n_te, n_tr, d) tensor, which is
+    32.9 GiB on a 43k-event rigid set -- it ran on the synthetic test and died on real
+    data. Chunking changes no number (verified identical to the unchunked form at
+    k=1/5/16, max abs diff 0.00e+00)."""
     mu, sd = Xtr.mean(0), Xtr.std(0) + 1e-9
     A, B = (Xtr - mu) / sd, (Xte - mu) / sd
-    d = ((B[:, None, :] - A[None, :, :]) ** 2).sum(-1)
-    nn = np.argsort(d, axis=1)[:, :k]
-    return Ytr[nn].mean(1)
+    an = (A ** 2).sum(1)
+    out = np.empty((len(B), Ytr.shape[1]), dtype=float)
+    for i in range(0, len(B), chunk):
+        b = B[i:i + chunk]
+        d = an[None, :] - 2.0 * (b @ A.T) + (b ** 2).sum(1)[:, None]
+        nn = np.argpartition(d, min(k, d.shape[1] - 1), axis=1)[:, :k]
+        out[i:i + chunk] = Ytr[nn].mean(1)
+    return out
 
 
 def r2_per_component(Yte, Pred, Ytr_mean, min_spread):
@@ -177,6 +195,9 @@ def main():
     ap.add_argument("--max-episodes", type=int, default=400)
     ap.add_argument("--knn-k", type=int, default=10)
     ap.add_argument("--ridge-lam", type=float, default=1.0)
+    ap.add_argument("--gait-band", type=float, nargs=2, default=None, metavar=("LO", "HI"),
+                    help="keep pairs whose inter-event interval is in [LO,HI]*median. "
+                         "PRE-REGISTER THIS before reading any R^2.")
     ap.add_argument("--min-spread", type=float, default=1e-4,
                     help="held-out sd below which a component is unscoreable, not unpredictable")
     ap.add_argument("--summary-json", default=None)
@@ -194,7 +215,7 @@ def main():
     joint_cols = sorted(joint_cols)
 
     dt = float(np.median(np.diff(probe["time_s"])))
-    per_ep, ev_dt, diag_off, n_drop = [], [], [], 0
+    per_ep, per_ep_t, ev_dt, diag_off, n_drop = [], [], [], [], 0
     for p in paths:
         ep = load_episode(p, joint_cols)
         got = episode_events(ep, joint_cols)
@@ -203,6 +224,7 @@ def main():
             continue
         S, T, stance, t = got
         per_ep.append(S)
+        per_ep_t.append(T)
         ev_dt.extend(np.diff(T).tolist())
         pe = rising_edges(stance[STANCE_PARTNER])
         for i in rising_edges(stance[SECTION_FOOT]):
@@ -219,10 +241,27 @@ def main():
     order = rng.permutation(len(per_ep))
     n_tr = int(0.8 * len(per_ep))
     tr, te = order[:n_tr], order[n_tr:]
-    pack = lambda idxs: (np.vstack([per_ep[i][:-1] for i in idxs]),
-                         np.vstack([per_ep[i][1:] for i in idxs]))
+    med_iv = float(np.median(ev_dt))
+    def pack(idxs, keep=True):
+        Xs, Ys = [], []
+        for i in idxs:
+            S, T = per_ep[i], per_ep_t[i]
+            iv = np.diff(T)
+            if a.gait_band is None:
+                m = np.ones(len(iv), dtype=bool)
+            else:
+                lo, hi = a.gait_band
+                m = (iv >= lo * med_iv) & (iv <= hi * med_iv)
+            m = m if keep else ~m
+            if m.any():
+                Xs.append(S[:-1][m]); Ys.append(S[1:][m])
+        if not Xs:
+            return np.zeros((0, per_ep[0].shape[1])), np.zeros((0, per_ep[0].shape[1]))
+        return np.vstack(Xs), np.vstack(Ys)
+
     Xtr, Ytr = pack(tr)
     Xte, Yte = pack(te)
+    n_all = sum(len(s) - 1 for s in per_ep)
     # THE DECISION TARGET IS THE INCREMENT. See the module docstring.
     Dtr, Dte = Ytr - Xtr, Yte - Xte
 
@@ -265,8 +304,26 @@ def main():
           f"  vs pz spread {spread_pz*1000:.1f} mm"
           f"   ratio {quant_pz/max(spread_pz,1e-9):.2f}"
           f"{'   <- BOUNDED BY LOG RATE' if quant_pz > 0.3*spread_pz else ''}")
+    # THE FALSIFICATION CHECK ON THE FILTER ITSELF. If the pairs the band REMOVED are
+    # about as predictable as the ones it kept, the band is not removing contamination.
+    dropped_note = ""
+    if a.gait_band is not None:
+        Xd, Yd = pack(te, keep=False)
+        if len(Xd) > 30:
+            Dd = Yd - Xd
+            r_drop = np.nanmedian(r2_per_component(Dd, ridge_pred(Wd, Xd), Dtr.mean(0), a.min_spread))
+            r_keep = np.nanmedian(res["ridge"])
+            dropped_note = (f"  band kept {len(Xte)}/{n_all} pairs "
+                            f"(median interval {med_iv:.3f} s, band "
+                            f"[{a.gait_band[0]*med_iv:.3f}, {a.gait_band[1]*med_iv:.3f}] s)\n"
+                            f"  ridge increment R^2  KEPT {r_keep:.3f}   DROPPED {r_drop:.3f}")
+            if r_drop > r_keep - 0.05:
+                dropped_note += ("\n  WARNING: dropped pairs score like kept ones. The band is NOT\n"
+                                 "  removing contamination; do not report the filtered number as cleaner.")
     n_deg = int((spread < a.min_spread).sum())
     allk = list(res) + list(level)
+    if dropped_note:
+        print("\n" + dropped_note)
     print(f"\n  R^2 on the INCREMENT is the verdict; (level) is a persistence diagnostic.")
     print(f"{'component':<28}{'sd(dx)':>10}" + "".join(f"{k:>14}" for k in allk))
     for i, nm in enumerate(names):
