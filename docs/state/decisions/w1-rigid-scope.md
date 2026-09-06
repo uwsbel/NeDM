@@ -492,3 +492,49 @@ Shorter context is worse on both, which is the expected direction for one-step
 loss and does NOT settle the pre-registered question -- that is decided by the
 action-sensitivity gate, which has not been run on these checkpoints yet. ctx16
 and ctx32 are still training.
+
+## 1i. Two replay facts, one of which was assumed and is false
+
+Before running an action-noise pilot, the new `--action-noise-sigma-rad` flag
+needed checking at sigma = 0. The code path makes it a structural no-op -- the
+noise RNG is not even constructed unless the flag is positive -- but "structurally
+guaranteed" has been wrong twice tonight, so it was measured.
+
+**The flag is a true no-op, verified.** Replaying one episode with the pre-patch
+collector and with the patched collector at sigma = 0:
+
+    167 numeric columns compared, 0 differ.   IDENTICAL.
+
+**But the same run showed replay itself is not reproducible**, which is a separate
+and pre-existing fact. Original recording vs a fresh replay with the UNPATCHED
+collector, same seed, same spec:
+
+    164 numeric columns, 145 differ.  foot_fr_force_fz_n max |diff| 51.3 N
+
+This is why the control mattered. Without it, a broken-looking replay would have
+been attributed to the new flag.
+
+### It is chaos from rounding, not a structural difference
+
+| row | t | `joint_fl_calf_pos_rad` \|diff\| | `pos_x_m` \|diff\| |
+|---|---|---|---|
+| 0 | 1.40 s | 4.6e-05 | 7.2e-06 |
+| 50 | 1.90 s | 2.8e-04 | 3.1e-05 |
+| 1000 | 11.40 s | 8.0e-04 | 3.3e-05 |
+| 3984 | 41.24 s | **5.4e-02** | **2.0e-02** |
+
+Divergence begins at the level of CSV rounding and amplifies roughly 5000x over
+41 s. A contact-rich simulation with a 50 Hz policy in the loop is chaotic; two
+runs that agree to float precision at the first recorded row do not stay together.
+
+**The earlier "s2000000 episodes replay bit-identically" is false.** It was
+generalised from a small sample and is now measured directly on one of exactly
+those episodes.
+
+**What it does and does not invalidate.** At the horizons the action-sensitivity
+gate uses, replay divergence is 1e-4 to 1e-3 rad against a measured `d_chrono` of
+about 0.27 rad for joint positions -- two to three orders of magnitude below the
+signal. **The gate is not compromised.** What is compromised is any claim that
+rests on exact reproduction: a stripped digest comparison, or treating a recording
+as ground truth for an open-loop replay at multi-second horizons, where by 41 s
+the replay differs from its own original by more than the quantity being measured.
