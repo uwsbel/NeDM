@@ -435,3 +435,60 @@ impact transients: a rate may jump by any amount and it says nothing about
 circularity. **Testing "large jump" as though it meant "wrapped" is the same
 conflation the guard exists to catch, one level up.** It now checks only
 angle-valued channels, `_rad` and not `_radps`.
+
+## 1h. The action is 95% determined by the state, and that is the confound
+
+Every perturbation the collector offers is an external push on the body
+(`--perturb-peak-n`, `--perturb-torque-peak-nm`, both at the base COG). **None
+perturbs the ACTION.** The twelve joint targets are always exactly what the policy
+commands from the state it sees, so the training data lies on the manifold
+`a = pi(s)`, and a model can fit `f(s, a) -> ds` perfectly while ignoring `a`.
+Nothing in the loss penalises ignoring it.
+
+Measured rather than argued. 120,000 rows, states normalised, K nearest
+neighbours restricted to **different episodes** -- same-episode neighbours are
+temporally adjacent and would measure gait smoothness rather than action
+diversity.
+
+| K | neighbourhood radius | conditional / unconditional action variance | effective rank |
+|---|---|---|---|
+| 8 | 1.335 | **0.0245** | **2.04** |
+| 16 | 1.486 | 0.0298 | 2.29 |
+| 32 | 1.747 | 0.0396 | 2.47 |
+| 64 | 1.905 | 0.0443 | 2.61 |
+| 128 | 2.262 | 0.0577 | 2.71 |
+
+**Roughly 4% of action variance survives conditioning on the state, spread over an
+effectively 2-to-3-dimensional subspace of a 12-dimensional action.**
+
+**And the trend says this is an upper bound.** Tighter neighbourhoods -- smaller K,
+purer conditioning -- give consistently *less* surviving variance and *lower*
+rank, monotonically across the whole sweep. Extrapolating toward zero radius, the
+true figure is at or below 2.45% and rank 2.04. Two further effects push the same
+way: the neighbourhood has finite width, so some of the residual is state
+difference rather than action freedom; and the policy consumes a 5-step history,
+so part of the residual is history variation rather than command variation.
+
+The surviving rank of ~2-3 against a 3-dimensional command is the expected
+signature: **the command is the only thing that moves the action independently of
+the state, and it is constant within an episode for six of the eight families.**
+
+This is the largest divergence from NeRD, and it was never discussed. NeRD
+collects with uniform random torques resampled every step -- maximal action
+variation, zero confounding. We collect exclusively from one policy's closed loop.
+It also explains the fine-tune failures directly: the surrogate is only valid
+where `a = pi(s)`, fine-tuning moves the policy off that manifold, and `f` is
+undefined there. The action-sensitivity gate reporting corr 0.310 is the
+instrument working, not failing.
+
+### Context sweep, first cell
+
+| run | best val_loss | selected rollout_sel |
+|---|---|---|
+| ctx128 (baseline) | 0.00995 | 0.4378 |
+| ctx8 | 0.01869 | 0.5551 |
+
+Shorter context is worse on both, which is the expected direction for one-step
+loss and does NOT settle the pre-registered question -- that is decided by the
+action-sensitivity gate, which has not been run on these checkpoints yet. ctx16
+and ctx32 are still training.
