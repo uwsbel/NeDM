@@ -2931,3 +2931,69 @@ retraction*. **A claim made in the same breath as a correction inherits the corr
 credibility** — the reader has just watched you be scrupulous, so the next sentence is
 weighed less. It is exactly when a new claim needs the most scrutiny and is most likely to
 receive the least.
+
+## A threshold specified before its reference is measured is unanswerable
+
+**Cost:** three instructions that could not be followed as written · **Found:** 2026-09-06
+· **Applies to:** every briefing that sets a numeric criterion
+
+Three separate instructions were pushed back on in one session. They share one shape:
+**each specifies a NUMBER on a quantity whose scale had not yet been measured.**
+
+| the instruction | why it was unanswerable |
+|---|---|
+| *"collect until the confound diagnostic plateaus"* | the statistic's behaviour under sampling was unknown — it declines with `n` for **any** population, so there is no plateau |
+| *"keep the three weak channels above ~0.6"* | the metric's ceiling was unknown. Walking data scores **0.812** against itself, so 0.6 was 0.74x of a maximum nobody had measured |
+| *"2.4M informative against 10.5M confounded"* | the denominator's composition was unchecked — the new collection's own recovery rows are confounded too, making it 13.1M |
+
+**None is a reasoning error.** Each is the right *kind* of criterion. Each was
+unanswerable because the reference value did not exist when the threshold was set.
+
+**The fix, and it costs one sentence per briefing:**
+
+> When a briefing sets a numeric threshold, either **name the reference it is relative
+> to**, or **ask for the reference to be measured first** and set the threshold as a
+> fraction of it.
+
+*"Measure what the reference scores against itself, then take a fraction of that"* would
+have prevented two of the three; asking what the denominator is composed of prevents the
+third.
+
+**This is [measure the noise floor](#measure-the-noise-floor-before-you-compare-anything-to-it)
+applied to SPECIFICATION rather than to analysis**, and that is why it recurred despite
+the lesson already being in this file. The habit had been trained on interpreting results
+and not on writing instructions — the same discipline, one step earlier in the process,
+where it is cheaper and where nobody was looking for it.
+
+## Separate the measurement from what you claim it means, and verify them separately
+
+**Found:** 2026-09-06 · **Applies to:** every reported result
+
+Reviewing a session's worth of errors turned up a shape neither party had noticed:
+
+> Almost none were measurement errors. Nearly all were **labels and attributions attached
+> to correct numbers.**
+
+| the number | correct | the sentence around it |
+|---|---|---|
+| 145 columns differ | yes | *"chaos"* — was a build mismatch |
+| 4.6e-05 at row 0 | yes | *"environment difference"* — asserted as a cause after elimination |
+| the gate's source | read correctly | *"contaminated"* — never checked |
+| `grav` group -0.680 | yes | *"the error is in the gravity channels"* — was one near-constant channel |
+
+**A number gets checked because it looks checkable. The sentence wrapped around it does
+not, because it does not look like a claim.** And both arrive in the same breath, at the
+same confidence, from a party who has just demonstrated care by producing the measurement.
+
+**Two rules:**
+
+1. **State the measurement and the interpretation as separate claims**, and treat the
+   second as unverified until something independent supports it.
+2. **In briefings, mark which claims are verified and which are believed.** An instruction
+   that states facts and intentions at identical confidence gives the reader no way to
+   allocate checking effort. Three errors propagated this way in one session — an
+   asserted CLI flag that did not exist, a spec item that had changed, and a rate read off
+   a stale docstring and passed on as a measurement.
+
+Related: [when a comparison goes wrong, suspect the apparatus](#when-a-comparison-goes-wrong-suspect-the-apparatus-before-the-subject),
+and [a residual after elimination is a hypothesis, not a conclusion](#when-your-misuse-of-a-tool-gives-a-wrong-answer-the-tool-is-broken-is-the-expensive-conclusion).
