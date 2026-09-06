@@ -1,0 +1,44 @@
+{
+ "note": "Record of a corrected row-count field in four excitation dataset summaries. The datasets live outside the repo, so without this file the repair is visible only to whoever opens the JSON -- and the reason the undercount mattered is that plausible numbers propagate unchallenged.",
+ "captured_utc": "2026-09-06T02:21:40.221826-05:00",
+ "field": "summary.json:rows",
+ "cause": "The collector emitted `rows` as kept * WINDOW_ROWS. WINDOW_ROWS is the BURST length, not the episode length; an episode is WINDOW_ROWS*bursts + recover_rows*(bursts-1) rows. With bursts>1 the field undercounts by roughly the burst count.",
+ "why_it_survived": "The same substitution also produced a printed line reading 'first tip at row median 332 of 10', which is self-evidently absurd and was caught in minutes. The JSON field was plausible, so nothing flagged it.",
+ "fix": "Both the JSON field and the printed line now derive from a rows_written accumulator incremented where rows are actually written, rather than recomputed from a formula that can drift from the loop. Landed in scripts/collection/collect_go2_excitation.py.",
+ "repair_method": "Recounted from each windows.csv (line count minus header). The on-disk JSONs each carry a `rows_field_repaired` string preserving the old value; no value was silently overwritten.",
+ "root": "/home/kyle/sbel-artifacts/datasets",
+ "datasets": {
+  "go2_exc_b40": {
+   "arm": "A (L=40,N=4) seed 21",
+   "kept": 900,
+   "rows_claimed": 36000,
+   "rows_actual": 306000,
+   "rows_per_episode": 340,
+   "undercount_factor": 8.5
+  },
+  "go2_exc_b10": {
+   "arm": "B (L=10,N=16) seed 22, arm dropped",
+   "kept": 794,
+   "rows_claimed": 7940,
+   "rows_actual": 269960,
+   "rows_per_episode": 340,
+   "undercount_factor": 34.0
+  },
+  "go2_exc_C": {
+   "arm": "C (L=10,N=4) seed 23, 300-ep diagnostic",
+   "kept": 300,
+   "rows_claimed": 3000,
+   "rows_actual": 22800,
+   "rows_per_episode": 76,
+   "undercount_factor": 7.6
+  },
+  "go2_exc_Bdiag": {
+   "arm": "B (L=10,N=16) 300-ep diagnostic",
+   "kept": 259,
+   "rows_claimed": 2590,
+   "rows_actual": 88060,
+   "rows_per_episode": 340,
+   "undercount_factor": 34.0
+  }
+ }
+}

@@ -118,3 +118,13 @@ A/B pair that held `L x N` constant.
 This is stated here because the shard sizes make the mismatch invisible to
 anyone reading the datasets rather than the plan: nothing in `go2_exc_b40_c*`
 or `go2_exc_c10_c2` signals that their row counts are not comparable.
+
+### Row-count repair
+
+Four dataset summaries carried a `rows` field that substituted burst length for
+episode length (`kept * WINDOW_ROWS`), undercounting by roughly the burst count —
+8.5x for arm A, **34x for arm B**, which has 16 bursts. Recounted from the CSVs
+and recorded in
+[docs/state/provenance/go2_excitation_rows_repair.json](../provenance/go2_excitation_rows_repair.json),
+since the datasets sit outside the repo and the repair would otherwise be visible
+only to whoever opened the JSON.
