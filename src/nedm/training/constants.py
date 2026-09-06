@@ -113,6 +113,48 @@ STATE_FIELD_PRESETS = {
     "quadruped_full": DEFAULT_STATE_FIELDS + QUADRUPED_FULL_FOOT_FIELDS,
     # 31-D, for the joint-level surrogate the policy fine-tuning pilot needs.
     "quadruped_joint": DEFAULT_STATE_FIELDS + QUADRUPED_JOINT_STATE_FIELDS,
+    # 34-D. Adds the three projected-gravity components, computed from the stored
+    # quaternion rather than reconstructed from roll and pitch. The reconstruction
+    # carried 0.0288 mean error per component against components of order 1, and
+    # the error scales with TILT -- so it was worst during stumbles and falls,
+    # which is the regime a low-command fine-tune most depends on. This is the
+    # channel telling the policy which way is down, and the policy consumes it
+    # directly, so the surrogate now predicts the quantity that is used rather
+    # than one it is derived from.
+    "quadruped_joint_grav": (DEFAULT_STATE_FIELDS + QUADRUPED_JOINT_STATE_FIELDS
+                             + ["grav_body_x", "grav_body_y", "grav_body_z"]),
+    # BASE HEIGHT AND VERTICAL VELOCITY, added 2026-09-05 for a measured reason.
+    #
+    # The imported policy's own training objective is dominated by
+    # `correct_base_height`, whose CONVERGED curriculum weight is -10.0 -- five
+    # times the next-largest penalty (`dof_pos_limits` at -2.0). The 34-D
+    # quadruped_joint_grav state cannot express it: there is no pos_z_m channel.
+    #
+    # So a policy fine-tuned inside that surrogate has no incentive to hold body
+    # height, and the first fine-tune fell in 43 of 43 Chrono episodes at a median
+    # of 1.52 s -- a height and posture failure, in a policy with no height term.
+    #
+    # This is the general point rather than a detail of one run: the reduced state
+    # was chosen by asking what the DYNAMICS depend on, and pose is the canonical
+    # thing that criterion excludes. That can omit what the OBJECTIVE depends on.
+    # Excluding pose does not break the dynamics here; it breaks the control problem.
+    "quadruped_joint_grav_pose": (DEFAULT_STATE_FIELDS + QUADRUPED_JOINT_STATE_FIELDS
+                                  + ["grav_body_x", "grav_body_y", "grav_body_z"]
+                                  + ["pos_z_m", "vel_body_z_mps"]),
+    # CONTACT-CONDITIONED. The surrogate fits a function with repeated discontinuities --
+    # four feet making and breaking contact several times per gait cycle -- and a single
+    # smooth transition model can only average across them. Putting the contact
+    # indicators IN THE STATE makes the mode both predicted and conditioned on, which is
+    # the requirement: conditioning alone is insufficient because in a rollout the future
+    # mode is unknown.
+    #
+    # The indicators are binary but this is a DELTA model, so predicted contact is
+    # prev + delta and can leave [0,1]. That is a relaxation, not a mode classifier.
+    "quadruped_contact_conditioned": (DEFAULT_STATE_FIELDS + QUADRUPED_JOINT_STATE_FIELDS
+                                      + ["grav_body_x", "grav_body_y", "grav_body_z"]
+                                      + ["pos_z_m", "vel_body_z_mps"]
+                                      + ["foot_fl_in_contact", "foot_fr_in_contact",
+                                         "foot_rl_in_contact", "foot_rr_in_contact"]),
 }
 
 DEFAULT_ACTION_FIELDS = [

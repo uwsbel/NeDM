@@ -378,7 +378,8 @@ def main():
                         # is being driven wrongly -- misordered channels, wrong
                         # normalisation, a stale history -- this is large and the gain
                         # below is measuring nothing. It must be read before the gain.
-                        err=np.abs(MA - SA[L:L + steps])))
+                        err=np.abs(MA - SA[L:L + steps]),
+                        ma=MA, sa=SA[L:L + steps]))
         print(f"  {s['eid']:42s} {s['fam']:<12} rows {n} steps {steps}")
 
     if not rec:
@@ -389,7 +390,12 @@ def main():
     print(f"\n  usable pairs {len(rec)}, failed {failed}")
     print(f"  mean |action difference| between arms: "
           f"{np.mean([r['da'].mean() for r in rec]):.5f} rad")
-    fams = {"body_vel": [i for i, f in enumerate(sf) if f.startswith("vel_body")],
+    # body_vel NAMED EXPLICITLY, not by prefix. Selecting on "vel_body" gives TWO
+    # channels for a 34-channel state and THREE for the 40-channel one, which added
+    # vel_body_z_mps -- so the primary family, and therefore the headline corr, was
+    # computed over different channel sets for different models and the numbers were not
+    # comparable. Found 2026-09-05 while writing the definition out for sbel-pc.
+    fams = {"body_vel": [sf.index("vel_body_x_mps"), sf.index("vel_body_y_mps")],
             "body_rate": [i for i, f in enumerate(sf) if "rate_radps" in f or "ang_vel" in f],
             "joint_pos": [i for i, f in enumerate(sf) if f.endswith("_pos_rad")],
             "joint_vel": [i for i, f in enumerate(sf) if f.endswith("_vel_radps")],
@@ -454,6 +460,58 @@ def main():
                                                 gain=gain, corr=corr, cosine=cos,
                                                 gain_ci=[g_lo, g_hi], corr_ci=[r_lo, r_hi],
                                                 cosine_ci=[c_lo, c_hi], n=len(dc))
+    # --- RELAXATION DIAGNOSTIC ------------------------------------------------
+    # The contact indicators are binary but this is a DELTA model, so predicted contact
+    # is prev+delta and can leave [0,1]. Instrumented BEFORE the verdict so a null is
+    # attributable: if the relaxation is adequate a null is about conditioning, and if
+    # it drifts wide the relaxation is the candidate explanation rather than a guess.
+    CI_ = [i for i, f in enumerate(sf) if f.endswith("_in_contact")]
+    if CI_:
+        print(f"\n=== RELAXATION DIAGNOSTIC: {len(CI_)} predicted contact channels ===")
+        print(f"  {'horizon':>8} {'frac outside [0,1]':>19} {'p1':>8} {'p99':>8} "
+              f"{'thresholded disagreement':>25}")
+        report["relaxation"] = {}
+        for h, hstep in zip(a.horizons_s.split(","), hs_steps):
+            v = np.concatenate([r["ma"][:hstep, CI_].ravel() for r in rec if r["steps"] >= hstep])
+            t = np.concatenate([r["sa"][:hstep, CI_].ravel() for r in rec if r["steps"] >= hstep])
+            if v.size == 0:
+                continue
+            out = float(((v < 0.0) | (v > 1.0)).mean())
+            dis = float(((v > 0.5).astype(int) != (t > 0.5).astype(int)).mean())
+            report["relaxation"][h] = dict(frac_outside_01=out, p1=float(np.percentile(v, 1)),
+                                           p99=float(np.percentile(v, 99)),
+                                           thresholded_disagreement=dis)
+            print(f"  {h:>8} {100*out:18.2f}% {np.percentile(v,1):8.3f} "
+                  f"{np.percentile(v,99):8.3f} {100*dis:24.2f}%")
+        print("  drift growing with horizon and/or high disagreement => the RELAXATION is\n"
+              "  the candidate explanation for a null, not conditioning itself.")
+
+        # --- corr split by whether the window contains a CONTACT TRANSITION -----
+        # A conditioned model could improve corr for the wrong reason: four channels
+        # informative about near-future dynamics help generally, not only across
+        # discontinuities. Improvement concentrated at transitions supports the
+        # discontinuity story; uniform improvement means something else is happening.
+        print(f"\n=== corr SPLIT BY CONTACT TRANSITION IN THE WINDOW (body_vel) ===")
+        vi_ = fams["body_vel"]
+        report["transition_split"] = {}
+        for h, hstep in zip(a.horizons_s.split(","), hs_steps):
+            grp = {True: ([], []), False: ([], [])}
+            for r in rec:
+                if r["steps"] < hstep:
+                    continue
+                tr_ = bool((np.abs(np.diff(r["sa"][:hstep, CI_], axis=0)) > 0.5).any())
+                grp[tr_][0].append(float(np.linalg.norm(r["dc"][hstep - 1, vi_])))
+                grp[tr_][1].append(float(np.linalg.norm(r["dm"][hstep - 1, vi_])))
+            row = {}
+            for k, lab in ((True, "with transition"), (False, "no transition")):
+                dc_, dm_ = grp[k]
+                if len(dc_) >= 4:
+                    row[lab] = dict(corr=float(np.corrcoef(dc_, dm_)[0, 1]), n=len(dc_))
+            report["transition_split"][h] = row
+            parts = "  ".join(f"{lab}: corr {v['corr']:+.3f} (n={v['n']})"
+                              for lab, v in row.items())
+            print(f"  {h:>8}s  {parts}")
+
     # --- verdict, against the rule declared in the docstring ------------------
     PRIMARY, VH, GLO, GHI, CMIN, NMIN = "body_vel", ["0.5", "1.0"], 0.5, 2.0, 0.5, 8
     reasons, ok = [], True
@@ -504,12 +562,23 @@ def main():
     #   INCOMPLETE no horizon evaluable
     # Success needs complete evidence; failure needs one clear instance. The previous
     # form let an unmeasurable horizon erase a clean failure at a measurable one.
+    # BUG FIXED 2026-09-05. The final branch read `"PASS" if ok else "FAIL"`, and `ok`
+    # is None when a condition is INDETERMINATE -- so a run where NOTHING failed and one
+    # horizon merely could not be resolved was labelled FAIL. It mislabelled the
+    # contact-conditioned result, whose 0.5 s horizon passed all three conditions and
+    # whose only blemish was an indeterminate corr at 1.0 s.
+    #
+    # The declared rule is: PASS when all declared horizons are evaluable and passing;
+    # FAIL when any evaluable horizon fails; INCOMPLETE when none is evaluable. It did
+    # not name the case "some pass, none fail, one indeterminate" -- that is PARTIAL.
     if any_failing:
         verdict = "FAIL"
     elif not evaluable:
         verdict = "INCOMPLETE"
+    elif ok is None:
+        verdict = "PARTIAL -- no condition failed; at least one is indeterminate"
     else:
-        verdict = "PASS" if ok else "FAIL"
+        verdict = "PASS"
     report["verdict"] = verdict; report["verdict_reasons"] = reasons
     print(f"\n=== GATE VERDICT: {verdict} ===")
     for r in reasons:

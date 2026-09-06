@@ -2150,3 +2150,363 @@ built on it.
 in NeRD is dead code with no call site; the multi-leg selection in HALO is one line with a
 `for now` comment. Neither is discoverable from the PDF, both took minutes, and each one
 would have changed a design decision on its own.
+## A bound that is declared, logged, and never enforced
+
+**Cost:** two full preprocess-and-train cycles · **Found:** 2026-09-05 · **Applies to:** any filter with a "too small to bother with" branch
+
+A physical-admissibility filter declared its bounds up front, in the docstring, before
+measuring what they would cut — the right order. It then failed to enforce them:
+
+```
+  declared joint-position bound   |q| <= 2.09 rad
+  worst value in the "filtered"   158.15 rad
+  samples outside the bound       45,057   (0.4999%)
+```
+
+The cause was a branch meant to be conservative:
+
+```python
+last = int(np.argmax(~ok))     # first inadmissible frame
+if last < 50:
+    continue                   # "too short to trim; a gate will drop it"
+```
+
+**No gate did.** An episode whose first violation came before frame 50 was skipped by
+the trimmer entirely, so it kept **100% of its bad frames** — the exact opposite of the
+declared criterion, and worse than having no filter, because the filter's existence was
+what stopped anyone looking. The reasoning "something downstream handles this" named no
+specific downstream check, and that is the tell.
+
+**The bug was invisible in the filter's own output.** It reported `episodes trimmed 0,
+frames removed 0` and looked like a clean no-op. The dropped-episode counter existed but
+was never printed, so the one number that would have exposed it — 500 — was computed and
+discarded. **A branch that takes an action needs a line in the report, or it is not
+observable.** Every summary line should account for every path through the loop.
+
+**How it was caught:** not by re-reading the filter, but by checking the declared bound
+against the data it had supposedly filtered. `max |q|` should have been <= 2.09 by
+construction. It was 158.15. **A postcondition that restates the declared guarantee is
+worth more than any amount of re-reading the code that is supposed to provide it.**
+
+## When the data falsifies the rationale but vindicates the threshold
+
+**Cost:** none, caught before it propagated · **Found:** 2026-09-05 · **Applies to:** any filter whose docstring explains what it will cut
+
+The same filter's docstring argued: diverged episodes are the integrator coming apart in
+the *final* frames, the recovery behaviour worth keeping lies *before* the blow-up, so
+trimming the tail preserves everything valuable. Measured over all 3,503 episodes:
+
+```
+  violating episodes                                  500
+  episodes with a good prefix >= 50 frames            0
+  episodes 100% inadmissible                          344 of 500
+  median inadmissible fraction                        1.000
+  episodes under 10% bad                              1 of 500
+  status                                              diverged 499, fell 1
+```
+
+**Not one episode had the shape the rationale described.** There was no good prefix to
+preserve anywhere in the population. The operation was never a trim; it was an exclusion,
+and the docstring's story about the mechanism was simply wrong.
+
+**The threshold was right and the reason for it was wrong, and those are independent.**
+The bounds came from the URDF and from physics rather than from the data, so they
+survived their rationale being falsified. Had they been tuned to produce a pleasing cut,
+there would have been nothing left standing.
+
+**The handling that matters:** the falsified premise was recorded in the script, with the
+numbers that killed it, rather than being quietly rewritten to match the outcome. A
+docstring silently edited to agree with its results is indistinguishable from one that
+was right all along, and destroys the only evidence that a prediction was ever made.
+
+**On the goalpost question.** The acceptance rule `r = std/((p99-p1)/4.65)`, declared as
+`median < 1.5 and max < 3.0`, first FAILED at median 1.84 / max 31.17, then PASSED at
+median 0.856 / max 1.384 after the exclusion. "The test failed, we changed the data, the
+test passed" is exactly the shape of moving the goalposts, and needs the distinction made
+explicitly rather than assumed: **the first failure was the criterion correctly detecting
+that its own bound had never been applied** — demonstrated independently by `max |state|`
+being 158.15 against a 2.09 bound before, and exactly 60.18 against the declared 60.2
+bound after. The criterion was not weakened, the population was not chosen to pass it,
+and the bound was not adjusted. Fixing a bug in *applying* a criterion validates the
+criterion; changing the criterion because it failed does not. State which one it is.
+
+## Do not infer a magnitude from a summary statistic when you can measure it
+
+**Cost:** one retracted claim, caught in ~10 minutes · **Found:** 2026-09-05 · **Applies to:** any "therefore it must be" about numerical scale
+
+From an action-normalisation `std` of `2.5e+32`, the inference was drawn that real
+actions of order 1 rad "reach the network as numerically meaningless input" — plausible
+arithmetic, and it was reported to a peer as a finding. Measuring it gave something else:
+
+```
+                        old cache      corrected cache
+  raw |action| max      3.7e+33        3.77
+  normalised |z| max    14.8           13.69
+  normalised |z| MEDIAN 0.0132         0.5854
+```
+
+**Nothing was zeroed.** The true effect was ~44x attenuation of the action channel while
+the state channels were normalised correctly — severe, badly conditioned, but not
+destroyed. The inference had missed that the outlier actions inflating the `std` were
+*also present in the raw data*, so both numerator and denominator moved.
+
+**The difference changed a downstream decision**, which is the only reason it was worth
+retracting: "meaningless inputs" implies prior results are void and should be discarded,
+while "44x attenuated" implies they are degraded, retained as a record, and re-run. The
+peer had already been told the stronger version and had amplified it to "void, discard".
+
+**A second error rode along with the first, and it is the more general one.** The
+retraction was accompanied by the reasoning *"a weak model that still showed the effect
+is weak evidence for it rather than no evidence."* **That holds only when the artifact
+pushes AGAINST the effect.** Here it pushes with it. Attenuating the action channel makes
+the model lean on state history instead, which degrades SHORT-horizon prediction most —
+that is where the action's influence is most direct — and matters least at long horizon:
+
+```
+  observed   wide model worse short-horizon, better long-horizon
+  artifact   predicts worse short-horizon, little effect long-horizon
+```
+
+The artifact is a **sufficient explanation for the observation**, so the observation does
+not discriminate between the substantive claim and the defect. It is **uninformative**
+about the claim, not weak support for it. "Survived despite a handicap" is only an
+argument once you have checked which way the handicap points, and that check is one line
+of reasoning that is very easy to skip because the phrase sounds rigorous on its own.
+
+**The rule:** when the data is on disk and the check is a few lines, measuring costs
+minutes and inference costs a retraction. Reserve inference for what cannot be measured.
+An arithmetic argument about scale is a *hypothesis about the data*, and should be
+labelled as one until the data has been asked.
+
+## Measure what the apparatus does before trusting what it measures
+
+**Cost:** none — caught before the run · **Found:** 2026-09-05 · **Applies to:** any two-arm or paired comparison
+
+A gate was built to ask whether a surrogate transmits action influence the way the
+simulator does. Two arms, identical except for a perturbed policy; compare how far
+apart they end up. Pre-registered thresholds, an apparatus check, a declared
+INCOMPLETE branch. The design was sound and the measurement would have been wrong.
+
+**Before running it, the arms were measured on their own.** The between-arm difference
+in body velocity was flat across every horizon:
+
+```
+  0.05s 0.068   0.1s 0.064   0.2s 0.039   0.5s 0.065   1.0s 0.050   2.0s 0.074
+```
+
+First reading: saturation, the arms have decorrelated. **A control rejected that** —
+matched arms differ by only ~9% of the difference between two *unrelated* episodes, so
+they are nowhere near decorrelated.
+
+**The real cause was structural.** A weight-perturbed policy differs from step 0, so by
+the time the model's 128-step history window has filled, the two arms have been
+diverging for 1.28 s. At the first row of the comparison window they already differed
+by 0.068 m/s, while the model's two arms start at exactly 0 **by construction**. The
+gain would have read near zero at short horizons for pure bookkeeping reasons.
+
+**And the artifact pointed at the conclusion.** Near-zero gain reads as "the surrogate
+is action-blind" — the exact FAIL the gate exists to detect. A pre-registered rule, a
+confident negative, and an artifact that predicts it: unarguable after the fact. See
+[when a comparison goes wrong, suspect the apparatus before the subject] and the
+artifact-direction rule under
+[do not infer a magnitude from a summary statistic](#do-not-infer-a-magnitude-from-a-summary-statistic-when-you-can-measure-it).
+
+**The fix was a better experiment, not a correction factor:** branch the policy
+mid-episode, so both arms are bit-identical until a known instant and differ only
+after. Both sides then start from a difference of exactly zero at the same moment. The
+branch is per-episode, at each episode's own recorded time at the window start —
+row 0 is not t=0 and prewalk varies, so a constant would not have aligned. The swap
+replaces **weights only**: replacing the policy object would reset its 5-step
+observation history and inject a discontinuity unrelated to the change under study.
+
+**Two further defects surfaced in the same pre-run pass, both in the checking code:**
+
+- The self-test required the arms to be identical before the branch to within `1e-9`.
+  They agree to `3e-8`, because one arm's gravity channels were *recorded* and the
+  other's are *derived* by the same formula in float. **The check would have rejected
+  every pair and reported INCOMPLETE** — a correct-looking null produced by the
+  tolerance, not the data.
+- The horizon filter was `if steps <= horizon`, with `steps` capped at the longest
+  horizon. **The longest horizon therefore always reported n=0**, an empty row in a
+  table whose other rows looked fine.
+
+**The pattern across all three: none would have crashed, and each would have produced a
+plausible number or a plausible absence.** A smoke run on a deliberately meaningless
+input — an undertrained checkpoint, three episodes — found two of them, because the
+point was to exercise the paths rather than to get an answer. **Run the apparatus on
+something whose answer you do not care about, before running it on something you do.**
+
+## Bit-reproducibility is a property of a machine, not of a dataset
+
+**Cost:** one wrong claim to a collaborator, caught same session · **Found:** 2026-09-05 · **Applies to:** any replay-based or paired design over pooled data
+
+A merged dataset was verified to replay bit-identically: five episodes, five command
+families, all 164 physics columns identical on every row, from a spec RECONSTRUCTED
+rather than read back. That is a strong check and it was reported as "this half
+replays exactly."
+
+**The five episodes were homogeneous in the one variable that turned out to matter.**
+All five came from seed offset 2,000,000. The set also holds 1,510 episodes at offset
+3,000,000 collected on a *different machine*, and those do not replay here at all:
+
+```
+  joint_rr_hip_target_rad   recorded -0.15132537   replayed -0.15141966   ~6e-5 relative
+```
+
+147 columns differ from row 0. The separation is clean rather than marginal: **14/14
+from one machine differed, 6/6 from the other matched.**
+
+**What caught it was a control built for a different question.** The gate's branch
+self-test requires two arms to be bit-identical before a mid-episode branch — written
+to detect a failed branch. Because both arms run the baseline checkpoint before the
+branch, that test *is* a replay check, and it ran on 20 episodes rather than 5. It
+partitioned them perfectly by collecting machine. A control designed for one question
+answering a different one is worth engineering for deliberately.
+
+**The consequences are asymmetric and both halves need saying:**
+
+- **Training is unaffected.** The offsets are disjoint, so no spec appears twice and
+  there are no contradictory samples; the model learns across a mixture of two very
+  slightly different plants. Reporting only the alarming half would have caused a
+  pointless re-collection.
+- **Every replay-based design is constrained.** A paired experiment that re-runs one
+  arm must run it on the machine that collected its baseline, or the arms differ by
+  machine as well as by treatment — a second uncontrolled difference in a design whose
+  whole claim is that only one thing changed. The fix is a stratified paired design,
+  each machine treating its own episodes, **reported per machine as well as pooled** so
+  a machine-by-treatment interaction stays visible.
+
+**A 6e-5 relative difference is invisible at the step level and decisive over 40 s of
+a chaotic plant.** The general form: "reproducible" without naming the machine, build
+tree and library versions is an incomplete claim, and pooling data from two boxes
+silently converts a reproducibility property into a per-row attribute nobody tracks.
+See [an error identical across independent units is a shared constant] for the
+inverse case, where uniformity was the signal.
+
+## Two measurability questions, and catching one is a reason nobody asks the other
+
+**Cost:** a verdict asserted on evidence that could not support it · **Found:** 2026-09-05 · **Applies to:** every threshold test
+
+A gate tested three conditions against fixed thresholds. It carried a deliberate
+**apparatus veto**: refuse to report a ratio when the instrument's own error exceeds the
+signal it is measuring. That veto worked — it caught a horizon where the surrogate's
+rollout error was 4.6x the between-arm signal, and returned INCOMPLETE instead of a
+number.
+
+**It asked the wrong measurability question of the deciding condition.** There are two:
+
+```
+  APPARATUS MEASURABLE     is the signal above the instrument's own noise      CHECKED
+  STATISTIC DETERMINABLE   is n enough to separate observed from threshold     NOT ASKED
+```
+
+The verdict was driven by `corr >= 0.5`, a Pearson correlation, measured on **16
+episodes**:
+
+| | r | n | 95% CI | |
+|---|---|---|---|---|
+| as run | 0.143 | 16 | **[−0.380, +0.596]** | cannot reject 0.5 |
+| re-run | 0.181 | 200 | [+0.043, +0.312] | rejects 0.5 |
+
+**The observed 0.143 was not distinguishable from a passing 0.5.** A FAIL was reported
+anyway. The conclusion later turned out to be right — but it was not established, and
+being right is not the same as having measured.
+
+**The pairing is the lesson, and so is the psychology.** Having built a visible guard
+against one class of unmeasurability made the whole category feel handled. The veto's
+existence was itself the reason nobody looked for the second question. **A guard against
+one failure mode is not evidence about its neighbours, and is actively misleading about
+them.**
+
+**A correlation needs far more samples than a median does**, and the same n was used for
+both without asking. In this gate: `gain` and `cosine` are medians and were adequately
+determined at n=16 in one case; `corr` needed **n ≥ 60** to discriminate against its own
+threshold. One sample size was chosen for three statistics with different requirements.
+
+**The fix generalises:** decide every condition by its **interval**, not its point
+estimate — PASS when the whole interval is inside the passing region, FAIL when it is
+wholly outside, INDETERMINATE when it straddles the threshold. That makes "we could not
+tell" a first-class outcome for each condition separately, rather than a property of the
+run as a whole.
+
+**And it repaid the scrutiny in both directions.** Re-measuring at n=200 confirmed the
+FAIL *and* confirmed that `gain` had genuinely moved inside its band — a claim that had
+been quoted as good news while resting on the same 16 samples as the failure. Checking
+only the condition you dislike is not checking.
+
+## A process check that matches its own invocation is not a process check
+
+**Cost:** none, caught before acting · **Found:** 2026-09-05 · **Applies to:** any check whose pattern can match the checker
+
+A chained job ran preprocess, then training, then a gate, sequentially. Mid-run:
+
+```
+  pgrep -f "nedm.training.trainer"  -> RUNNING      correct
+  pgrep -f "gate_go2_action"        -> RUNNING      IMPOSSIBLE, the chain is sequential
+```
+
+Both cannot be true. The gate pattern matched **the chain script's own text** —
+`chain_contact.sh` contains the string `gate_go2_action` in the command it will later
+run. `ps` showed only two processes: the shell and the trainer.
+
+**The check returned a plausible affirmative for a reason unrelated to what it was asked.**
+Had the contradiction not been obvious — a sequential chain cannot run two stages at once
+— it would have been believed, and the natural next action was to hunt for a duplicate
+process that did not exist.
+
+**Same shape as the other apparatus failures from this session** and it belongs beside
+them: a dead torque channel that a `|T|max` column exposed; a joint-limit filter whose
+`< 50` branch made it silently a no-op; a correlation tested at n=16 against a threshold
+its interval could not exclude. In each case the instrument answered confidently about
+something other than the question.
+
+**The concrete fix:** match on the interpreter and script path rather than a substring
+(`pgrep -f "python.*gate_go2_action"`), or read `ps` and exclude the orchestrator by PID.
+**The general one: when a check can match the thing doing the checking, it will
+eventually.** A contradiction between two checks is the cheapest possible signal that one
+of them is measuring itself.
+
+## Agreeing on a metric is not agreeing on what it selects
+
+**Cost:** the headline result of a session, retracted after publication · **Found:** 2026-09-05 · **Applies to:** any metric defined over "a family of channels"
+
+Two surrogates were compared on the same declared metric: action-response correlation on
+**body velocity**. Both sides agreed the metric, repeatedly and carefully, across many
+messages. The gate selected the family like this:
+
+```python
+  "body_vel": [i for i, f in enumerate(sf) if f.startswith("vel_body")]
+```
+
+**A 34-channel state has two matching channels. The 40-channel state added
+`vel_body_z_mps` and has three.** So the headline comparison — **0.876 against 0.181** —
+was three channels against two, and the difference was mostly the extra channel.
+
+Corrected to an explicit two-channel set, the same gate on the same episodes gives
+**0.310 against 0.181**: still an improvement, but it **fails** the 0.5 threshold where
+0.876 passed it comfortably. Downstream, a claim that the model was "the first to pass all
+three conditions" and "decisively off the trade-off curve" was withdrawn, and a
+2.5-hour fine-tune had already been launched on branch lengths those numbers justified.
+
+**Why six earlier catches in the same session missed it.** Every one of them checked a
+*value*: a dead torque channel, a filter that silently no-opped, a correlation tested at
+an n its interval could not support, a pooled veto that could not protect the family it
+existed for. **This defect was in the SELECTION, not the value.** Every number was
+correctly computed from the channels it was given.
+
+**"Both models score body velocity" was true, and meant different things on each side.**
+
+**It surfaced only because a collaborator asked for the computation written out by name**
+— which channels, in which order, normalised by what — in order to implement it
+independently. Prose agreement on a metric had survived a dozen exchanges; the request to
+enumerate broke it immediately.
+
+**The rules that follow:**
+
+- **Name the channels. Never select a scored family by prefix, substring, or regex.** A
+  pattern silently adapts to whatever a schema later contains, and schemas grow.
+- **When two artefacts are compared, assert the selected sets are equal** — not just that
+  the same selection rule ran on both.
+- **Ask a collaborator to reimplement from your written definition.** The exercise of
+  stating it precisely enough for someone else to run is a stronger check than any amount
+  of agreeing that you mean the same thing.

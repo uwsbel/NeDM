@@ -522,12 +522,24 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
                     # (modes 3, 12), roll unloads left or right (modes 5, 10). Yaw is
                     # given a small share only -- it spins the trunk without changing
                     # which feet carry load, so it excites nothing we are short of.
-                    tmag = rng.uniform(0.25, 1.0) * args.perturb_torque_peak_nm
-                    tphi = rng.uniform(0.0, 2.0 * math.pi)
-                    perturb = np.array([mag * math.cos(th), mag * math.sin(th),
-                                        mag * rng.uniform(-0.3, 0.3),
-                                        tmag * math.cos(tphi), tmag * math.sin(tphi),
-                                        tmag * rng.uniform(-0.2, 0.2)])
+                    # EVERY TORQUE DRAW IS INSIDE THE GUARD, and the force z-component
+                    # is drawn BEFORE any of them. Drawing tmag/tphi unconditionally
+                    # advanced the shared RNG by two before the force z, so a
+                    # force-only episode replayed with DIFFERENT forces even though the
+                    # torque was zero -- measured on vel_step_140 as 155 of 164 physics
+                    # columns differing from row 207. Multiplying a draw by zero still
+                    # consumes it, which is why `tmag * rng.uniform(-0.2, 0.2)` has to
+                    # be inside the guard too and not merely zeroed.
+                    _f = [mag * math.cos(th), mag * math.sin(th),
+                          mag * rng.uniform(-0.3, 0.3)]
+                    if args.perturb_torque_peak_nm > 0.0:
+                        tmag = rng.uniform(0.25, 1.0) * args.perturb_torque_peak_nm
+                        tphi = rng.uniform(0.0, 2.0 * math.pi)
+                        _t = [tmag * math.cos(tphi), tmag * math.sin(tphi),
+                              tmag * rng.uniform(-0.2, 0.2)]
+                    else:
+                        _t = [0.0, 0.0, 0.0]
+                    perturb = np.array(_f + _t)
                     _pert_until = t + args.perturb_duration_s
                     _pert_next = t + rng.expovariate(1.0 / max(args.perturb_mean_interval_s, 1e-9))
                 if t < _pert_until:

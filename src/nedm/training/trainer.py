@@ -460,6 +460,7 @@ class HMMWVTrainer:
 
         self.checkpoint_metric = str(training_cfg.get("checkpoint_metric", "val_loss"))
         self.metrics_path = self.output_dir / "metrics.jsonl"
+        self.input_noise_sigma = float(config.get("training", {}).get("input_noise_sigma", 0.0))
         self.best_val_loss = float("inf")
         self.global_step = 0
         self.start_epoch = 0
@@ -571,7 +572,28 @@ class HMMWVTrainer:
         for group in self.optimizer.param_groups:
             group["lr"] = lr
         self.optimizer.zero_grad(set_to_none=True)
-        prediction_norm = self.model(batch["states"], batch["actions"], terrain=batch.get("terrain_ids"))
+        states = batch["states"]
+        if self.input_noise_sigma > 0.0:
+            # EXPOSURE-BIAS NOISE. Training feeds the model true states; a rollout
+            # feeds it its own predictions, so it never learns to recover from its own
+            # error and drifts. Perturbing the input state and asking for the delta
+            # that still lands on the TRUE next state teaches that correction.
+            #
+            # The target must move with the input or this teaches the opposite. The
+            # target is a delta, target[t] = s[t+1] - s[t]; if s[t] is perturbed by e
+            # and the target is left alone, the model learns to land at s[t+1] + e,
+            # i.e. to PRESERVE the error rather than remove it. Subtracting e makes
+            # (s[t] + e) + delta = s[t+1] exactly.
+            #
+            # Sigma is per-sample and drawn from U(0, sigma_max) so the model sees a
+            # range of error magnitudes rather than one; a rollout's error grows with
+            # horizon, so a single magnitude would only ever match one point on it.
+            # Scaled by each channel's own std, since the raw channels span 0.04 to 15.
+            scale = torch.rand(states.shape[0], 1, 1, device=states.device) * self.input_noise_sigma
+            noise = torch.randn_like(states) * scale * self.model.state_std
+            states = states + noise
+            batch = {**batch, "targets": batch["targets"] - noise}
+        prediction_norm = self.model(states, batch["actions"], terrain=batch.get("terrain_ids"))
         target_norm = self.model.normalize_target(batch["targets"])
         loss = self._compute_loss(prediction_norm, target_norm)
         loss.backward()

@@ -1,3 +1,20 @@
+> **DOCUMENT-WIDE RETRACTION — read before quoting any correlation from this file.**
+> Every `body_vel` correlation computed before 2026-09-05 selected channels by the prefix
+> `vel_body`, which returns **two** channels for a 34-channel state and **three** for the
+> 40-channel one. **The figures 0.876, 0.944 and the +0.793 transition improvement are
+> ARTEFACTS of that mismatch and must not be quoted.** The corrected, matched two-channel
+> values are:
+>
+> ```
+>                       0.1 s corr        0.5 s corr        transition improvement
+>   UNCONDITIONED 34ch  0.495             0.181             --
+>   CONDITIONED   40ch  0.616 (PASS)      0.310 (FAIL)      +0.245 at transitions
+> ```
+>
+> The conditioned surrogate **PASSES the gate at 0.1 s and FAILS at 0.5 s**. It is **not**
+> off the noise trade-off curve. Sections below that state otherwise are retained only so
+> their retractions have a target.
+
 # Go2 action-sensitivity gate — result
 
 **Run 2026-09-05, criterion declared before any number existed** (in
@@ -1497,3 +1514,287 @@ to 4.2%.
 detectability limit — *"this design cannot distinguish a true R² below ~0.07 from zero"*
 — which is a statement about the design's resolution with the reasoning given, not a
 claim that nature has a floor there. That scoping is the distinction and it holds.
+
+---
+
+## Gravity-channel check: a PLANT defect, not a reconstruction error. v1–v5 are clean.
+
+**Code, decisive.** `ImportedGo2Policy._projected_gravity(q)` computes
+
+```python
+  [-2(qx*qz - qw*qy), -2(qy*qz + qw*qx), -(1 - 2(qx² + qy²))]
+```
+
+which is `R^T·[0,0,-1]` — **the world-z axis in the body frame, not the gravity
+direction.** That is the *identical* formula used to derive the post-hoc `grav_body_*`
+columns. And the collector applies slope by **rotating gravity** (`collect_go2_smoke.py`:
+`_grav_world = [9.81 sin p, -9.81 sin r, -9.81 cos r cos p]`), so on a tilted episode the
+true gravity has a horizontal component the observation does not carry.
+
+**Measured, 160 episodes, residual = median max|predicted − logged action| over 50
+control steps:**
+
+| \|applied pitch\| | n | median residual |
+|---|---|---|
+| 0.00–0.75° | 55 | 0.1399 |
+| 0.75–1.50° | 41 | 0.1479 |
+| 1.50–2.25° | 25 | 0.2703 |
+| 2.25–3.01° | 39 | 0.1442 |
+
+`corr(|pitch|, residual) = +0.194`, `corr(|roll|, residual) = +0.062`. **Not monotone —
+the highest-tilt band is among the lowest.** The residual is flat in tilt.
+
+**Conclusion, and it is the benign branch for the fine-tune line:**
+
+- **The reconstruction is NOT diverging from what the policy saw.** My derived channels
+  and the collector's own observation use the same formula on the same quaternion, so
+  the fine-tune fed the policy exactly what the collector fed it.
+- **v1–v5 carry no reconstruction confound.** The pooled FAIL's interpretation is
+  unaffected: it is *fine-tuning degrades the policy*, not *fine-tuning against a
+  corrupted signal degrades the policy*.
+
+**But the plant defect is real and should not be lost in the good news.** On any tilted
+episode the policy was fed a level-ground gravity direction — it could not sense the
+slope it was walking on. That is true of the **baseline** too, since it is how the data
+was collected, so the paired comparison stays internally consistent. It does mean the
+imported policy has never been given slope information in this dataset, and that
+`grav_body_*` is misnamed: it is body-frame world-z, not body-frame gravity.
+
+**This is exactly what sbel-pc's proposed `grav_world_{x,y,z}_mps2` columns fix** — they
+log the vector the collector *sets*, so the slope becomes observable rather than absent.
+
+---
+
+## Half-noise gate: prediction CONFIRMED, useful bar MISSED
+
+Three surrogates, identical gate, n=200 val, rel-sigma 0.01 perturbation, body_vel:
+
+| surrogate | h | apparatus | gain | corr | corr 95% CI | cosine |
+|---|---|---|---|---|---|---|
+| σ=0 (pre-noise) | 0.1 s | 0.14 | 1.077 | **0.668** | [0.583, 0.738] | 0.962 |
+| | 0.5 s | **1.12** | 2.304 | 0.202 | [0.065, 0.331] | 0.504 |
+| **σ=0.025 (half)** | 0.1 s | 0.14 | 0.925 | **0.576** | [0.476, 0.662] | 0.952 |
+| | 0.5 s | **1.03** | 1.665 | 0.409 | [0.286, 0.518] | 0.847 |
+| σ=0.05 (full) | 0.1 s | 0.08 | 0.910 | **0.495** | [0.382, 0.593] | 0.960 |
+| | 0.5 s | 0.33 | 1.159 | 0.181 | [0.043, 0.312] | 0.688 |
+
+**PREDICTION CONFIRMED.** The declared band was *corr at 0.1 s between 0.495 and 0.668
+if contraction scales with noise magnitude*. **Measured 0.576** — inside the band and
+almost exactly its midpoint. Contraction scales with noise, monotonically and close to
+linearly: 0.668 → 0.576 → 0.495 for σ = 0 → 0.025 → 0.05.
+
+**USEFUL BAR MISSED, and the trade-off is visible in the table.** The bar was a surrogate
+both *measurable* and *passing corr* at 0.5 s. No σ achieves both:
+
+```
+  σ=0.05    apparatus 0.33 -- MEASURABLE at 0.5 s, but corr 0.181 fails
+  σ=0.025   corr 0.409 -- the best of the three at 0.5 s, but apparatus 1.03, SWAMPED
+  σ=0        apparatus 1.12 swamped AND corr 0.202
+```
+
+More noise buys rollout accuracy (apparatus falls 1.12 → 1.03 → 0.33) and costs action
+sensitivity (corr falls 0.668 → 0.576 → 0.495 at 0.1 s). **σ=0.025 sits at the crossover
+and satisfies neither condition.**
+
+**Stated under the amended rule, not the original one:** *noise magnitude alone does not
+separate stability from sensitivity in the range tested.* **NOT** *"the trade-off is
+intrinsic."* One family of magnitudes failing is evidence about that family. Multi-step
+loss and contact conditioning are untried and remain open.
+
+Gate verdict on half-noise: **INCOMPLETE** — apparatus 1.03 at 0.5 s and 2.33 at 1.0 s,
+so both verdict horizons are unmeasurable for the primary family.
+
+---
+
+## Contact-conditioned surrogate — criterion declared before training
+
+**THE BAR IS THE CURVE, not a threshold I picked.** The three noise magnitudes trace a
+measured trade-off between rollout accuracy and action sensitivity at 0.5 s:
+
+```
+  sigma 0      apparatus 1.12   corr 0.202
+  sigma 0.025  apparatus 1.03   corr 0.409
+  sigma 0.05   apparatus 0.33   corr 0.181
+```
+
+**Conditioning succeeds if it lands OFF this curve** — an (apparatus, corr) pair that no
+noise magnitude achieves. **Sliding along it — better on one, worse on the other — is the
+existing trade-off doing what it already does and is NOT evidence that conditioning
+helps.** This is a stronger test than an absolute corr threshold because it is relative
+to a measured baseline rather than to a chosen number.
+
+**TRAINED AND GATED AT σ = 0.05, and the reasoning is on the record before the run.**
+At σ=0.05 the apparatus at 0.5 s is already 0.33, comfortably clear of 1.0, so the
+conditioned model needs only `corr ≥ 0.5` to PASS the gate outright at that horizon —
+**one quantity has to move.** At σ=0.025 it would need apparatus below 1.0 *and* corr
+above 0.5, two simultaneous improvements with a murky read if only one arrives.
+
+*"We picked the sigma where it had the best chance"* is a fair criticism, so the honest
+framing is stated first: **σ=0.05 is the point where the gate's other condition is
+already satisfied, so it tests conditioning against the narrowest remaining gap.** If it
+clears the gate at 0.5 s there it would be off the curve by construction, since no
+baseline point achieves apparatus under 1.0 together with corr above 0.5.
+
+**State: 40 channels.** The 34 base, plus `pos_z_m` and `vel_body_z_mps`, plus the four
+`foot_*_in_contact` indicators. The model predicts every channel it conditions on, so
+adding the contact indicators to the state makes the mode both **predicted** and
+**conditioned on** — which is the requirement; conditioning alone is insufficient because
+in a rollout the future mode is unknown.
+
+**Stated limitation:** the indicators are binary but the model is a delta predictor, so
+predicted contact is `prev + delta` and can drift outside [0,1]. That is a relaxation,
+not a mode classifier, and it should not be described as one.
+
+The height and gravity channels are carried on **weak positive evidence, decided
+cheaply** — Spearman +0.241 and a 1.44x error ratio with tilt at 0.1 s — not as a
+mechanism.
+
+---
+
+## Contact-conditioned surrogate: OFF THE CURVE — but not by the declared mechanism
+
+40 channels (34 base + `pos_z_m`, `vel_body_z_mps` + four `foot_*_in_contact`), σ=0.05,
+selected epoch 31 of 80. Gate at n=200 val, body_vel:
+
+| h | apparatus | gain | corr | corr 95% CI | cosine |
+|---|---|---|---|---|---|
+| 0.1 s | 0.09 | 0.963 | **0.944** | [0.926, 0.957] | 0.986 |
+| **0.5 s** | **0.39** | **1.050** | **0.876** | **[0.840, 0.905]** | **0.922** |
+| 1.0 s | 0.68 | 1.078 | 0.412 | [0.290, 0.521] | 0.870 |
+| 2.0 s | 1.19 | 1.280 | 0.215 | [0.079, 0.344] | 0.790 |
+
+### CORRECTION — the "off the curve" result was a CHANNEL-SET ARTEFACT
+
+**RETRACTED.** The gate selected the `body_vel` family by the prefix `vel_body`, which
+returns **two** channels for a 34-channel state and **three** for the 40-channel one,
+because the conditioned state added `vel_body_z_mps`. **The headline corr of 0.876 was
+computed over three channels and compared against 0.181 computed over two.**
+
+Re-run with `body_vel` named explicitly as `vel_body_x_mps` and `vel_body_y_mps`, both
+models, same gate, n=200:
+
+```
+                    apparatus   gain    corr           cosine
+  UNCONDITIONED 34ch    0.33   1.159   0.181 [0.043,0.312]  0.688
+  CONDITIONED   40ch    0.55   1.088   0.310 [0.179,0.431]  0.798
+```
+
+**corr is 0.310, not 0.876.** Its interval upper bound is 0.431, **below the 0.5
+threshold**, so `corr` FAILS. **The conditioned model does NOT pass the gate at 0.5 s and
+the claim that it was the first to do so is withdrawn.**
+
+**And it is not off the curve.** Interpolating the noise curve at apparatus 0.55 gives
+corr ≈ 0.253; the conditioned model sits at 0.310, an excess of +0.057 against a
+confidence interval of width 0.252. **Essentially on the curve, not off it.** The declared
+success condition is not met.
+
+**What survives:** the transition split, which is a between-model comparison and does not
+depend on the absolute level — improvement +0.245 at transitions against −0.069 away from
+them, both computed on the matched two-channel set. Conditioning does help, at contact
+transitions specifically, and by considerably less than the retracted number implied.
+
+**The original artefact-laden section follows, kept so the retraction has its target:**
+
+### Against the declared curve, at 0.5 s
+
+```
+  sigma 0        (apparatus 1.12, corr 0.202)
+  sigma 0.025    (          1.03,      0.409)
+  sigma 0.05     (          0.33,      0.181)
+  CONTACT 40ch   (          0.39,      0.876)   <-- DECISIVELY OFF THE CURVE
+```
+
+**At an apparatus comparable to σ=0.05's, corr is 0.876 against 0.181 — and higher than
+any point on the curve at any apparatus.** The best corr noise ever achieved at 0.5 s was
+0.409, and that came with an apparatus of 1.03 (swamped). **This is an (apparatus, corr)
+pair no noise magnitude reaches**, which is exactly the declared success condition.
+
+**All three conditions PASS at 0.5 s on their intervals** — the first surrogate to do so.
+
+### The mechanism IS what produced it — my first reading was WRONG
+
+**RETRACTED, in full.** The paragraph below originally concluded the discontinuity
+mechanism was falsified. **That conclusion was drawn from a one-armed measurement and is
+the opposite of the truth.**
+
+I measured the *conditioned* model's absolute corr with and without a contact transition.
+**The mechanism is a claim about the difference BETWEEN TWO MODELS in each window**, and a
+conditioned model that is worse at transitions is expected either way, because transition
+windows are intrinsically harder — which is what the discontinuity story asserts.
+
+**Both models on the same 200 windows, transitions read from the recorded
+`foot_*_in_contact` columns so the labels apply to a model with no contact channels:**
+
+```
+                       with transition        no transition
+  UNCONDITIONED 34ch    corr +0.121 (n=153)   corr +0.958 (n=47)
+  CONDITIONED   40ch    corr +0.914 (n=153)   corr +0.943 (n=47)
+
+  IMPROVEMENT           +0.793                 -0.015
+```
+
+**Conditioning does essentially all of its work at contact transitions and nothing away
+from them.** The unconditioned model is nearly blind to action influence across a
+transition (0.121) and near-perfect without one (0.958). **The discontinuity mechanism is
+SUPPORTED, decisively.**
+
+**The original one-armed reading follows, kept because the retraction needs its target:**
+
+```
+  corr split by whether the window contains a contact transition, 0.5 s:
+    with transition   +0.859  (n=160)
+    no transition     +0.934  (n=40)
+```
+
+**The improvement is not concentrated at contact transitions — it is marginally BETTER in
+windows without one.** The discontinuity story predicted the opposite. So conditioning
+works, and the reason we gave for expecting it to work is not the reason it did.
+
+**That reading was wrong.** The four channels resolve discontinuities and do almost
+nothing else — which is precisely the justification the targeted collection rested on.
+**The stand-down issued on the strength of the falsified reading is withdrawn.**
+
+### The relaxation is adequate, so a null would have been about conditioning
+
+```
+  horizon   outside [0,1]   p1      p99     thresholded disagreement
+    0.1 s       44.38%    -0.052   +1.040          0.92%
+    0.5 s       46.30%    -0.137   +1.202          1.93%
+    2.0 s       49.04%    -0.481   +1.276          5.33%
+```
+
+Nearly half the predicted values leave [0,1] — but they sit **just** outside it, and the
+**thresholded mode is right 98% of the time at 0.5 s.** The relaxation represents the
+contact state well despite not being a classifier. The ambiguity flagged before training
+is resolved: this is not a case where a poor relaxation could explain the outcome.
+
+### The gate printed FAIL and that was a BUG in my verdict code
+
+The final branch read `verdict = "PASS" if ok else "FAIL"`, and `ok` is `None` when a
+condition is INDETERMINATE — **so a run where nothing failed and one horizon merely could
+not be resolved was labelled FAIL.** Nothing fails anywhere in this run; 0.5 s passes all
+three conditions and 1.0 s has an indeterminate corr.
+
+The declared rule named PASS, FAIL and INCOMPLETE and **did not cover "some pass, none
+fail, one indeterminate"**. Fixed to report that case as **PARTIAL**. The printed FAIL is
+withdrawn as a coding error, not a result.
+
+### Memorisation concern: CLOSED, and the first measurement was a sampling artefact
+
+The first pass took the first 60 episodes of each split **sorted by name**, which biases
+family composition. Re-run with random sampling (seed 12345), identical episodes for both
+models:
+
+| model | sampling | train err | val err | val/train |
+|---|---|---|---|---|
+| unconditioned | first-60-by-name | 0.01733 | 0.01239 | 0.715 |
+| conditioned | first-60-by-name | 0.03196 | 0.03507 | 1.097 |
+| **unconditioned** | **random** | 0.00950 | 0.01172 | **1.233** |
+| **conditioned** | **random** | 0.02636 | 0.02418 | **0.917** |
+
+**The order reverses.** Under random sampling the *conditioned* model has the LOWER
+val/train ratio — it generalises relatively better, not worse. The 0.715 was the sampling
+artefact I flagged as the likely cause, converted from a caveat into a measurement.
+
+**The differential memorisation concern is closed**, and in the conditioned model's
+favour. The pre-fall test's main threat goes with it.
