@@ -3495,3 +3495,25 @@ silently, because the code that got slower is code that previously did not run a
 When re-enabling a stage that has been skipped, re-measure the runtime before scaling out
 the batch. And pin thread counts when running numerical work in parallel: the default is
 one process taking every core, which is correct for one process and catastrophic for ten.
+
+## Name the scope of a census, because a partial one reads as complete
+
+The divergence census scanned 32 datasets and found 13 carrying diverged rows. It
+scanned one machine. The training corpus — including `go2_contact_40d`, which every
+trained surrogate in this study used — lives on the other box and appears nowhere in it.
+
+Nothing in the output said so. A file listing 32 datasets with per-dataset rates reads
+as an inventory of the study's data, and the datasets it cannot see are indistinguishable
+from datasets that do not exist. This is the absence-versus-wrong-probe failure again,
+one level up: not a probe looking in the wrong place, but a probe whose *reach* was
+narrower than its apparent claim.
+
+The fix is a line, and it has to be inside the artefact rather than in the message that
+accompanied it, because the artefact is what gets cited later. State which machine, which
+root, and what is known to live elsewhere.
+
+The corroborating half is worth recording too: dorm-pc found the same 4e34 divergence
+phenomenon in its raw source independently, hours earlier, by a different route — its
+physical-admissibility filter had already excluded 530 of 3,503 episodes. Two boxes
+reaching the same defect by different means is stronger evidence that it is a property of
+the collector than either finding alone.
