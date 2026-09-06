@@ -2,7 +2,34 @@
 
 CRM is tabled ([crm-tabled.md](crm-tabled.md)). On rigid the terrain query is a
 closed-form plane query, so contact geometry can move OUT of the model and into
-a deterministic `G()`. This scopes that. Nothing here is trained yet.
+a deterministic `G()`. This scopes that.
+
+---
+
+## READ THIS BEFORE ANY NUMBER BELOW: which metric is valid on which axis
+
+**Three axes, three different valid metrics. Two of them were got wrong in this
+document before the rule was written down, and each error produced a confident,
+internally consistent, wrong conclusion.**
+
+| comparison | valid metric | why the alternative fails |
+|---|---|---|
+| across **horizons**, one group, one model | **raw RMSE** | R^2 and normalised RMSE divide by an increment spread that MOVES with horizon -- it dips near one gait cycle and recovers, so a later horizon appears to face a higher bar |
+| across **groups**, one horizon, one model | **normalised RMSE** | raw RMSE compares rad against rad/s: a units comparison, not a quality one |
+| across **models**, one group, one horizon | **raw RMSE** | the normaliser is a property of the DATA, and two models trained on differently-processed data have different denominators |
+
+**The third is the one that is hardest to see, and it misleads in the flattering
+direction.** Measured here: the `body` group reads normalised **0.764 -> 0.975**
+across the wrap fix, which says the fix made it worse, while raw error went
+**0.4256 -> 0.1771**, which is 2.4x better. `sd(delta pitch)` in the wrapped data
+includes the 2*pi jumps; in the unwrapped data it does not. **The baseline was
+being divided by a spread its own defect manufactured.**
+
+**The metric is not the finding. The axis is.** Any table below that is read along
+an axis other than the one it was computed for will give a plausible answer to the
+wrong question.
+
+---
 
 ## 1. The contact query: what `G()` can compute
 
@@ -1164,3 +1191,33 @@ reads corr 0.310 at 0.5 s. **The gate's failure was never a prediction-accuracy
 failure**, which is why the action-blindness reading survives every revision of
 the localisation. **What has been retracted and re-retracted is where the error
 is, not what the gate is measuring.**
+
+## 1q. Two instruments agree on the same horizon boundary
+
+Neither was designed to check the other.
+
+    the gate         0.5 s passes on gain; nothing separates at 1.0 s
+    per-group table  body normalised RMSE 0.431 at 0.5 s, 0.975 at 1.0 s
+
+**0.975 is the no-skill line.** The model has essentially no predictive skill on
+body channels at one second, and it crosses into that between 0.5 s and 1.0 s --
+the same boundary the action-sensitivity gate reports from an entirely different
+construction (Chrono arm divergence against surrogate rollout divergence, versus
+open-loop prediction error against ground truth).
+
+**Two independent measurements agreeing on a boundary is much stronger than either
+alone**, and this is the first time in the study that has happened.
+
+It also re-establishes the localisation on the correct axis: **gravity 8.718 and
+body 0.975 against 0.13-0.33 for everything else. Contact is not where the error
+lives**, which was the original claim and survives every revision.
+
+### Open observation, deliberately not chased
+
+**Gravity is the one group the unwrap made worse in raw terms: 0.0263 -> 0.0491 at
+1.0 s.** The unwrap touched only `pitch_rad`, and the gravity channels are a
+backfill computed from the quaternion, so a change in how the model represents
+attitude could plausibly propagate there. **But it is 1.9x on an already tiny
+absolute error, and one model pair cannot distinguish a mechanism from retraining
+noise.** Recorded so that if the excitation models show the same sign it becomes
+worth a look; on this evidence it is not.
