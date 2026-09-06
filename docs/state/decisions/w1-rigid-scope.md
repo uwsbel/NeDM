@@ -880,3 +880,82 @@ response to INCOMPLETE -- so it is pre-declared rather than a remedy invented
 after seeing a null. **Recorded with its reason: the apparatus, not the model, was
 the binding constraint.** Not run now; three hours of Chrono arms is the wrong
 spend while the unwrap attribution is outstanding.
+
+## 1l. Attribution resolved: it is the spike removal, not the loss weight
+
+`go2_contact_40d_unwrap_pinned` trains on the SAME unwrapped arrays but restores
+`pitch_rad`'s pre-unwrap `target_std` (0.41543), so it keeps the OLD effective loss
+weight. It is the only thing that separates the two changes that landed together.
+
+Its gate: **gain 1.007 [0.815, 1.692] PASS, corr 0.704 [0.320, 0.889], cosine
+0.928 PASS** -- essentially matching the unpinned arm despite the old weight.
+
+Paired, 0.5 s, 16 matched episodes, `max |d_chrono_A - d_chrono_B| = 0.0e+00` on
+all three comparisons:
+
+| comparison | isolates | `d(\|log gain\|)` | 95% CI | |
+|---|---|---|---|---|
+| baseline -> pinned | **spike removal** | **-0.4158** | [-0.7668, -0.0502] | **excludes 0** |
+| pinned -> unwrap | **the 113x weight** | +0.0974 | [-0.1801, +0.3802] | includes 0 |
+| baseline -> unwrap | both together | -0.3184 | [-0.5343, -0.1091] | excludes 0 |
+
+**Removing the +-2*pi target spikes carries the whole effect.** Spike removal alone
+excludes zero and is LARGER than the combined change. The weight change's point
+estimate is **+0.0974 -- slightly worse** -- though its interval includes zero, so
+the supported statement is that it does nothing measurable, not that it hurts.
+
+**Without the pinned arm this would have been a real result with two candidate
+causes and no way to choose**, and the 113x loss-weight correction is the more
+interesting-sounding one.
+
+**One limit held rather than glossed:** isolated spike removal moves corr +0.2311
+with the interval touching zero at -0.0097. corr separates only when both changes
+are pooled, which is an n=16 power limit and NOT evidence that the weight change
+contributes. Gain is the solid result.
+
+### State the horizon claim precisely, because it will be quoted
+
+    0.5 s   gain 1.007 / 1.046   PASS cleanly, both arms
+            corr 0.704 / 0.773   point estimate above the 0.5 threshold,
+                                 lower bound 0.320 / 0.450 -- STRADDLES it
+
+**Not "the trustworthy horizon extends fivefold".** The supported claim is: *the
+0.5 s cell now passes on gain and is favourable-but-indeterminate on corr,
+attributable to a data representation defect.* The fix for the indeterminacy is
+more episodes, not a better statistic.
+
+**And the cause is mundane, which is why it is credible:** a delta model was being
+handed 2159 discontinuities of exactly 2*pi. Nothing about the abstraction, the
+loss, or contact.
+
+## 1m. The unwrap must reach every future dataset, and that is now checkable
+
+The excitation collection uses the same collector and the same channel, and
+everything trained on it is a delta model. **A dataset that reaches training with
+the wraps intact inherits a defect already proven expensive, and does so silently
+-- training runs, the loss falls, and only the gate notices.**
+
+The unwrap is structural in `preprocess.py` from `c699338`, and the
+`circular_unwrapped` metadata marker from `8633631`. **Both are on origin, so any
+checkout at or past those commits gets it automatically** -- but a checkout that
+predates them does not, which is the actual risk on a second machine.
+
+`scripts/preprocess/verify_circular_unwrap.py` fails loudly on any processed
+dataset whose circular channels still carry wrap-sized targets. Run it before
+anything trains.
+
+**The threshold had to be measured, not assumed.** The first version failed on
+`>1.0 rad` reasoning that a real per-step attitude change is ~0.03 rad -- and it
+FAILED the known-good unwrapped dataset, which legitimately contains 6 steps up to
+2.8766 rad. Those are genuine large changes in near-diverged episodes, and
+`np.unwrap` leaves them precisely because they are BELOW pi and therefore not
+wraps. **Testing "large" when the property is "wrapped" is the same
+magnitude-for-property conflation the preprocessing guard itself got wrong on
+joint velocities.** The threshold is now 5.0 rad, against 2*pi = 6.283, and counts
+above 1.0 rad are reported as a diagnostic rather than a failure.
+
+Self-tested against both a known-bad and a known-good dataset, which is how the
+false failure was caught:
+
+    go2_contact_40d          pitch_rad max 6.2832   39241 wraps   FAIL
+    go2_contact_40d_unwrap   pitch_rad max 2.8766       0 wraps   PASS
