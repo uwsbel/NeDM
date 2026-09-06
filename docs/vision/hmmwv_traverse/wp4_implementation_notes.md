@@ -939,3 +939,125 @@ Related work the reviewer pointed to, both titles verified: *Learning When to Ju
 Navigation* (arXiv 2602.00877) already treats motion-dependent traversability; the contribution to
 aim for is that explicit physical-state prediction with the tracker inside the imagination
 improves those decisions on terrain the planner has not seen.
+
+## 10. Pilot (2026-09-05/06): terrain feasibility map and the shared candidate benchmark
+
+Plan §24. Research question: can the world-model planner identify feasible, efficient route-and-speed
+combinations that a strong classical planner or a cheap learned scorer misjudges? Everything below
+uses the same tracker (`wp3_tracker_v1`) and, for the planners, live inputs only (§9.1).
+
+### 10.1 Tooling
+
+* `traverse_wp3_chrono_eval.py --tasks-file`: explicit runs (key, layout meta, route); `dump_frame0`
+  saves the camera frame at t = 0, the 17-D rest state and the true pose; new row fields `stall_s`
+  (throttle on, under 0.3 m/s, after the 2 s launch window), `stalled` (≥ 1 s), `unloaded_s`
+  (any wheel under 500 N), `min_tire_fz_n`, `max_roll_deg`, `max_pitch_deg`.
+* `traverse_wp6_challenges.py`: for every hill / crater in an arena and 8 approach headings (hills also
+  get one-sigma "shoulder" lines = side slope), a layout with the start ≥ 18 m before the feature
+  centre and the house ≥ 17 m beyond it, both on ground under 10° like the regular layouts (the first
+  version spawned the vehicle on a 20° flank; it slid, three wheels unloaded, and both runs bogged
+  down — a layout artefact, fixed). Routes per layout: straight through the centre at constant
+  2 … 8 m/s (`direct_v*`, oracle launch ramp / taper), the same line with the oracle's rule-based
+  slope-capped profile (`slope_aware`, the classical planner's answer), and two 5 m/s detours.
+* `traverse_wp6_build_challenge_cache.py`: frame-0 dumps → planner cache (rest state tiled, vehicle
+  masked out of its own frame at the camera-estimated pose, single-frame scene map) + start poses.
+* `traverse_wp5_sample_planner.py --scorer both --challenge-cache`: the shared candidate benchmark —
+  per-layout RNG seeds (identical banks whatever ran before), one CEM chain per scorer from the common
+  round-0 bank, every candidate then scored by every scorer, picks per scorer from the union
+  (`wm_*`, `geo_*`), and per pick the other scorer's opinion (`*_disagree`), acceptance, imagined
+  roll / pitch / wheel-load extremes. `traverse_wp6_sanity_signals.py` ranks those signals by how
+  well they identify picks that go wrong in Chrono.
+
+### 10.2 Feasibility map on arena_v1 — `wp6_feasibility_v1` (33 challenges × 10 routes, true pose)
+
+Arena_v1's 6 hills (1.5–3 m) and 6 craters (1–2 m) with a 20° generation cap: 33 layouts survive the
+flat-start / flat-house requirement (11 crater, 22 hill), crossing lines up to 18.9° along-track.
+
+* **328 / 330 routes feasible.** Every constant-speed crossing from 2 to 8 m/s completed without a
+  stall or a roll / pitch abort (max roll and pitch 12–15° in every family). The two failures are
+  detours: the tracker lost a curved 5 m/s detour on a side slope (cross-track 1.9 m, 19 s stall)
+  and bogged in a crater rim on another (5 s stall).
+* **The rule-based slope-aware profile is never the cheapest feasible route.** It costs 1.30× the
+  best constant-speed crossing on average (1.04–1.64×): the same time (−0.3 s) but **+63 kJ**
+  (163 vs 100 kJ, +63 %), because modulating speed on every slope spends energy re-accelerating.
+  The best constant speed is 4 m/s on 18 of 33 layouts, 3 m/s on 7, 6–7 m/s on 8. Detours are
+  always worse (1.5–3× the direct cost).
+* **Wheel-unload metric unusable as implemented:** every run reports a wheel under 500 N for
+  0.6–24 s (median 3 s) and a zero minimum, at 2 m/s on gentle ground as much as at 8 m/s. The
+  reported tire force must be checked (contact reporting at the control rate) before it is used.
+* Reading: on this arena the decision that matters is *speed*, not feasibility — everything is
+  drivable, and the classical rule gets the speed wrong by a third of the cost. Feasibility failures
+  need the steeper arena (§10.3).
+
+### 10.3 Feasibility map on a steeper arena — `assets/traverse/arena_v2_steep`, `wp6_feasibility_steep_v1`
+
+Same generator (`terrain.ArenaSpec`, seed 11) with hills of 3–5 m, craters of 2–3.5 m and the slope cap
+raised from 20° to 32° (measured max 37°, p99 32°); Chrono's BMP orientation copied from arena_v1.
+17 challenge layouts survive the flat-placement test (3 crater, 14 hill), lines up to 31.6° along-track.
+Same 10 routes per layout, same tracker, true pose. **This arena has the decisions the pilot was
+looking for:**
+
+* **37 / 170 routes infeasible** (stall, off-route, timeout). Two layouts are infeasible at every speed
+  and both detours (a 28° climb the tracker cannot hold the line on; a 12° shoulder line that stalls
+  at every speed). Roll or pitch exceeds 25° on 6 of the 17 layouts even when the crossing succeeds.
+* **The rule-based slope-aware profile is infeasible on 5 / 17 challenges** — on the steep climbs it
+  slows down, as its rule says, and stalls — and where it is feasible it costs 1.38× the best feasible
+  crossing (up to 2.79×). It is never the cheapest.
+* **A momentum regime the rules get backwards.** On the 27–32° crater climbs the slow crossings stall
+  (2 m/s always; 3–4 m/s on the steepest) while 6–8 m/s complete; on a 23° hill the *slow* crossing
+  (2 m/s) is best and fast ones are 10 % dearer. Whether to carry speed into a climb or crawl it is a
+  route-and-speed decision with a 2–3× cost spread, and neither a slope cap nor a geometry regression
+  contains the answer.
+* Detours are usually feasible but 1.3–3× the direct cost; on two layouts a detour is the only
+  feasible option (`hill0_h225` at 2–3 m/s direct stalls, detour L completes).
+
+The world model has never seen slopes above 20°; §10.5 asks whether it predicts any of this anyway.
+
+### 10.4 Does the world model predict the feasibility maps? — `traverse_wp6_imagine_sweep.py`
+
+The sweep routes of §10.2–10.3 were imagined exactly as the planner would (rest state at the camera
+start pose, single self-masked frame, `wp2_mapv2_pt_dag_ro8_amd`, 30 s horizon) and compared route by
+route with Chrono. On the steep arena the crop's prior height field is the steep arena's own; the model
+has never seen slopes above 20°.
+
+| | arena_v1 (training terrain), 330 routes | steep arena (unseen), 170 routes |
+|---|---|---|
+| Chrono infeasible | 2 | 37 |
+| imagination rejects | 3 (1 of the 2 infeasible, 2 false rejects) | **0** — every stalled or off-route crossing is accepted |
+| AUC of imagined time / pitch / energy for infeasibility | 0.96 / 0.96 / 0.99 (2 positives) | 0.67 / 0.59 / 0.54 |
+| time, both feasible: Chrono / imagined (MAE, corr) | 1.00 (0.34 s, 0.99) | 1.04 (0.72 s, 0.94) |
+| energy, both feasible: Chrono / imagined (MAE, corr) | 0.93 (22 %, 0.82) | **1.35** (33 %, 0.68) |
+| imagined best = Chrono's best feasible | 19 / 33 | 1 / 17 |
+| imagined best infeasible in Chrono | 0 | **3 / 17** |
+| Chrono cost of imagined best / best feasible | 1.03 (max 1.35) | 1.08 (max 1.27) |
+
+**Regret of each scorer's pick among the SAME 10 sweep routes** (Chrono cost of the pick / best feasible;
+"infeasible" = the pick stalled or left the route in Chrono):
+
+| picker | arena_v1: infeasible picks | regret mean / max | steep: infeasible picks | regret mean / max |
+|---|---|---|---|---|
+| rule (slope-aware profile) | 0 / 33 | 1.30 / 1.64 | 3 / 15 | 1.38 / 2.79 |
+| world model (imagined cost) | 0 / 33 | **1.03** / 1.35 | **3 / 15** | 1.08 / 1.27 |
+| geometry regression | 0 / 33 | 1.04 / 1.35 | 1 / 15 | 1.12 / 2.05 |
+| always fastest (8 m/s) | 0 / 33 | 1.20 / 1.45 | 0 / 15 | 1.12 / 1.52 |
+| always slowest (2 m/s) | 0 / 33 | 1.38 / 2.90 | 5 / 15 | 1.24 / 1.49 |
+
+Reading:
+
+1. **On its training terrain the world model reads the map well** — time exact, energy within 7 %
+   in aggregate (22 % per route), the right crossing on 19 of 33 layouts and 3 % regret against the
+   Chrono-optimal choice, where the classical rule pays 30 %. But **the geometry regression does the
+   same on this bank (4 %)**: choosing a speed for a straight crossing of a gentle feature is a
+   problem a length-and-speed regression solves. The world model's edge over the regression in §9 came
+   from the free-form sampled routes, not from speed choice.
+2. **On terrain it has not seen the world model does not know what it does not know.** It accepts all
+   37 infeasible crossings, under-predicts energy by 35 %, and 3 of its 15 challenge-level picks stall
+   in Chrono — false acceptances, the hazard §9.6 named. It is still no worse than the rule (3 / 15
+   infeasible, 1.38 regret) and its feasible picks are cheaper than anyone's, but "carry speed into the
+   climb" (always 8 m/s) is infeasible nowhere here, which shows how little any scorer understands the
+   stall regime.
+3. **Gate for step 4 (plan §24): partly open.** The steep arena contains exactly the decisions the
+   research question asks about — stall vs momentum, detour vs direct, a 2–3× cost spread — and no
+   current scorer resolves them. That justifies collecting there. It does *not* yet show a world-model
+   advantage over a cheap scorer on speed choice; that advantage has to be demonstrated after training
+   on the stall regime, on held-out steep features, against the regression refitted on the same data.
