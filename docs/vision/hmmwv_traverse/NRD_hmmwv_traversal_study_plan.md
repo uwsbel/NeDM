@@ -588,3 +588,39 @@ Collection design for the matched training experiment (§24 step 4, now open):
 * the distinguishing case to add: sequences of features where the speed that clears the first leaves the
   vehicle badly placed for the second.
 Chrono collection on newton; training on the AMD cluster.
+
+## 28. v1.12 (2026-09-06): work order for the learning comparison (review of §27, adopted)
+
+A second review of `73f6f3e` agreed with §27's direction and added what it lacked. Its factual claims were
+checked and hold: the tracker-episode collector writes only complete, full-length episodes (aborted runs —
+the failures the experiment needs — are dropped); the trainer splits individual episodes at random and
+builds one crop for one arena; the pose head's elevation channel still uses the current arena's height
+range (only the scene-map channel was fixed in §26); and on `arena_v3_rough` no layout has a slower direct
+crossing succeeding where 8 m/s fails — the benchmark is two-sided in cost and has a genuine detour
+decision, but high-speed instability is untested. §27 is amended as follows; where it is not mentioned it
+stands.
+
+**Milestone:** reliable route-and-speed selection on unseen terrain, compared with a cheap learned
+predictor given the same inputs — a small reproducible learning comparison, not a larger dataset.
+
+0. **Pipeline first (prerequisites, no collection before they are done).**
+   * Collector: keep early-terminated episodes with their termination reason (stall, off-route, rollover,
+     contact, timeout) and a valid-frame mask; the cache schema and the trainer's loss must honour the mask
+     (the cache currently assumes uniform-length episodes).
+   * Trainer: splits by terrain seed / instance, never by episode; the crop takes a per-episode height
+     field (a bank of arena heightmaps indexed per episode) instead of one arena — the largest code change.
+   * Inputs: the pose head's elevation channel normalised with the training arena like the scene map.
+1. **Collection, modest and targeted.** Several independent generator seeds (arena families: cap 25–32°,
+   roughness 0.15–0.3 m, craters 2–4 m); tracker-driven crossings, detours and free-form sampled routes;
+   sampling densest around the speeds where the outcome changes; successes, stalls, tracking failures and
+   contacts all kept. **Sequences of features from the start**: a climb that needs momentum followed by a
+   turn or side slope that needs braking, with varied spacing and approach state; unseen combinations held
+   out. Encoder and tracker frozen. Chrono on newton; training on the AMD cluster.
+2. **Matched models on identical data and candidates.** The fine-tuned world model; a cheap predictor of
+   crossing success and cost given the same terrain profile (from the same prior / predicted elevation),
+   the same starting state and the same proposed route and speed; the 8 m/s heuristic as the floor. One
+   candidate bank per layout for every method.
+3. **Evaluate once on sealed seeds.** Report, in this order: successful selections; cost among successful
+   selections; rejection of feasible options. "No candidate works" is a separate rejection task — the five
+   no-solution layouts do not prove no route exists, so give that task wider detour candidates. Scale
+   collection only if learning materially improves selection and the world model earns its computation.
