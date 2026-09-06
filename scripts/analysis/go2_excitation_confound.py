@@ -100,7 +100,18 @@ def main():
         # comparing at native volumes confounds burst length with training volume --
         # the same error, one axis over, as holding L x N constant.
         n = min(len(A), len(C))
-        print(f"\nmatched at n={n:,} (the smaller arm), burst length L=40 vs L=10 at N=4")
+        # MATCHED n IS NOT ENOUGH. The kNN score also depends on the SAMPLING FRACTION
+        # n/pool: drawing 100,000 rows from a 100,000-row pool takes every row of every
+        # episode, so neighbours are consecutive timesteps and the local action spread
+        # collapses. Drawing the same 100,000 from a million-row pool samples episodes
+        # sparsely and the neighbours are further apart. Measured on one EX-A shard at
+        # fixed n=100,000: 0.8351 at fraction 1.00 rising to 0.8538 at fraction 0.10.
+        # So the smaller arm, which is always sampled at fraction 1.00, is scored on
+        # harsher terms unless the larger arm is TRUNCATED to the same pool size rather
+        # than subsampled from all of it.
+        A = A.iloc[:n]
+        C = C.iloc[:n]
+        print(f"\nmatched at n={n:,} AND sampling fraction 1.00 for both arms")
         report("EX-A  L=40", A, n)
         report("EX-C  L=10", C, n)
     print("\nfull volume (NOT comparable across arms -- n differs):")

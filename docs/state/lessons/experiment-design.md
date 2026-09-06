@@ -3322,3 +3322,36 @@ above it turned the raise into a silent skip and produced a clean, wrong 32/32. 
 misread my own debug output — a probe that printed `r[0]` — concluded the return type
 was a dict, and "fixed" a bug that did not exist, on top of the one that did.
 Instrumenting the failing call directly resolved in one step what three guesses had not.
+
+## Matching sample size is not matching sampling density
+
+The excitation arms were compared at matched n, with the matching built into the script
+precisely because conditional variance falls with n. That was necessary and not
+sufficient. The kNN score also depends on the **sampling fraction** — how much of the
+available pool the sample consumes:
+
+```
+  EX-A, fixed n=100,000, varying pool
+     pool   100,000   fraction 1.00   cond var 0.8351
+     pool   200,000   fraction 0.50            0.8457
+     pool   400,000   fraction 0.25            0.8511
+     pool 1,030,880   fraction 0.10            0.8538
+```
+
+Drawing 100,000 rows from a 100,000-row pool takes every row of every episode, so a
+point's nearest neighbours are its own consecutive timesteps and the local action spread
+collapses. Drawing the same 100,000 from a million samples episodes sparsely and the
+neighbours are further apart.
+
+The smaller arm is always at fraction 1.00, so it is scored on harsher terms unless the
+larger arm is **truncated** to the same pool rather than subsampled from all of it. The
+uncorrected comparison read 0.8538 against 0.7871; corrected it is 0.8351 against
+0.7871 — the same conclusion, with the effect overstated by about 40%.
+
+The general form: when a statistic depends on the *geometry* of the sample and not only
+its size, equalising n leaves the confound in place. Ask what else the estimator sees —
+here, how densely the sample covers the population it was drawn from.
+
+The tell was an outlier I nearly explained away. A fourth EX-A run scored 0.8410 where
+three others sat at 0.8521–0.8538, a deviation 13x their spread. It was the run with the
+smallest pool.
