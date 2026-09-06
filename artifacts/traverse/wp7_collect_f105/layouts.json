@@ -1,0 +1,1326 @@
+[
+ {
+  "id": "arena_f105__x_hill0_h045",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_hill0_h045/meta.json",
+  "n_runs": 12,
+  "feature": {
+   "kind": "hill",
+   "x_m": -19.271993425276662,
+   "y_m": -15.055103924474182,
+   "sigma_m": 5.914586000804634,
+   "amplitude_m": 3.124291861938453
+  },
+  "feature_index": 0,
+  "heading_deg": 45,
+  "offset_m": 0.0,
+  "line_max_up_deg": 18.244439253991754,
+  "line_max_down_deg": 20.77892220670194,
+  "line_relief_m": 3.344432539194756
+ },
+ {
+  "id": "arena_f105__x_hill0_h090",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_hill0_h090/meta.json",
+  "n_runs": 12,
+  "feature": {
+   "kind": "hill",
+   "x_m": -19.271993425276662,
+   "y_m": -15.055103924474182,
+   "sigma_m": 5.914586000804634,
+   "amplitude_m": 3.124291861938453
+  },
+  "feature_index": 0,
+  "heading_deg": 90,
+  "offset_m": 0.0,
+  "line_max_up_deg": 14.223008952391735,
+  "line_max_down_deg": 8.135725538405369,
+  "line_relief_m": 2.232792915120113
+ },
+ {
+  "id": "arena_f105__x_hill0_h135",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_hill0_h135/meta.json",
+  "n_runs": 12,
+  "feature": {
+   "kind": "hill",
+   "x_m": -19.271993425276662,
+   "y_m": -15.055103924474182,
+   "sigma_m": 5.914586000804634,
+   "amplitude_m": 3.124291861938453
+  },
+  "feature_index": 0,
+  "heading_deg": 135,
+  "offset_m": 0.0,
+  "line_max_up_deg": 23.775063253641587,
+  "line_max_down_deg": 19.775757532606445,
+  "line_relief_m": 1.8512457378544624
+ },
+ {
+  "id": "arena_f105__x_hill0_h270",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_hill0_h270/meta.json",
+  "n_runs": 12,
+  "feature": {
+   "kind": "hill",
+   "x_m": -19.271993425276662,
+   "y_m": -15.055103924474182,
+   "sigma_m": 5.914586000804634,
+   "amplitude_m": 3.124291861938453
+  },
+  "feature_index": 0,
+  "heading_deg": 270,
+  "offset_m": 0.0,
+  "line_max_up_deg": 6.715975210278145,
+  "line_max_down_deg": 14.223008952391739,
+  "line_relief_m": 2.947157025031255
+ },
+ {
+  "id": "arena_f105__x_hill0_h315",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_hill0_h315/meta.json",
+  "n_runs": 12,
+  "feature": {
+   "kind": "hill",
+   "x_m": -19.271993425276662,
+   "y_m": -15.055103924474182,
+   "sigma_m": 5.914586000804634,
+   "amplitude_m": 3.124291861938453
+  },
+  "feature_index": 0,
+  "heading_deg": 315,
+  "offset_m": 0.0,
+  "line_max_up_deg": 17.299708765370653,
+  "line_max_down_deg": 23.77506325364155,
+  "line_relief_m": 1.8512457378544633
+ },
+ {
+  "id": "arena_f105__x_hill0_h090_sh",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_hill0_h090_sh/meta.json",
+  "n_runs": 11,
+  "feature": {
+   "kind": "hill",
+   "x_m": -19.271993425276662,
+   "y_m": -15.055103924474182,
+   "sigma_m": 5.914586000804634,
+   "amplitude_m": 3.124291861938453
+  },
+  "feature_index": 0,
+  "heading_deg": 90,
+  "offset_m": 5.914586000804634,
+  "line_max_up_deg": 27.04766549529617,
+  "line_max_down_deg": 25.668200105654346,
+  "line_relief_m": 1.7518591127125036
+ },
+ {
+  "id": "arena_f105__x_hill0_h270_sh",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_hill0_h270_sh/meta.json",
+  "n_runs": 12,
+  "feature": {
+   "kind": "hill",
+   "x_m": -19.271993425276662,
+   "y_m": -15.055103924474182,
+   "sigma_m": 5.914586000804634,
+   "amplitude_m": 3.124291861938453
+  },
+  "feature_index": 0,
+  "heading_deg": 270,
+  "offset_m": 5.914586000804634,
+  "line_max_up_deg": 16.371905195920885,
+  "line_max_down_deg": 27.155914719766827,
+  "line_relief_m": 4.3893437500343415
+ },
+ {
+  "id": "arena_f105__x_hill1_h000",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_hill1_h000/meta.json",
+  "n_runs": 13,
+  "feature": {
+   "kind": "hill",
+   "x_m": -11.170528146749561,
+   "y_m": 0.9169364459966687,
+   "sigma_m": 6.974379326443774,
+   "amplitude_m": 2.931221537056093
+  },
+  "feature_index": 1,
+  "heading_deg": 0,
+  "offset_m": 0.0,
+  "line_max_up_deg": 23.033034906770073,
+  "line_max_down_deg": 18.758244667246974,
+  "line_relief_m": 3.1803721547524884
+ },
+ {
+  "id": "arena_f105__x_hill1_h045",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_hill1_h045/meta.json",
+  "n_runs": 13,
+  "feature": {
+   "kind": "hill",
+   "x_m": -11.170528146749561,
+   "y_m": 0.9169364459966687,
+   "sigma_m": 6.974379326443774,
+   "amplitude_m": 2.931221537056093
+  },
+  "feature_index": 1,
+  "heading_deg": 45,
+  "offset_m": 0.0,
+  "line_max_up_deg": 27.65014672194699,
+  "line_max_down_deg": 26.065151206780286,
+  "line_relief_m": 4.462166978705085
+ },
+ {
+  "id": "arena_f105__x_hill1_h090",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_hill1_h090/meta.json",
+  "n_runs": 12,
+  "feature": {
+   "kind": "hill",
+   "x_m": -11.170528146749561,
+   "y_m": 0.9169364459966687,
+   "sigma_m": 6.974379326443774,
+   "amplitude_m": 2.931221537056093
+  },
+  "feature_index": 1,
+  "heading_deg": 90,
+  "offset_m": 0.0,
+  "line_max_up_deg": 23.631180286472997,
+  "line_max_down_deg": 20.142315203014167,
+  "line_relief_m": 3.7388185154623947
+ },
+ {
+  "id": "arena_f105__x_hill1_h180",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_hill1_h180/meta.json",
+  "n_runs": 13,
+  "feature": {
+   "kind": "hill",
+   "x_m": -11.170528146749561,
+   "y_m": 0.9169364459966687,
+   "sigma_m": 6.974379326443774,
+   "amplitude_m": 2.931221537056093
+  },
+  "feature_index": 1,
+  "heading_deg": 180,
+  "offset_m": 0.0,
+  "line_max_up_deg": 18.758244667246974,
+  "line_max_down_deg": 23.033034906770073,
+  "line_relief_m": 2.34
+ },
+ {
+  "id": "arena_f105__x_hill1_h315",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_hill1_h315/meta.json",
+  "n_runs": 13,
+  "feature": {
+   "kind": "hill",
+   "x_m": -11.170528146749561,
+   "y_m": 0.9169364459966687,
+   "sigma_m": 6.974379326443774,
+   "amplitude_m": 2.931221537056093
+  },
+  "feature_index": 1,
+  "heading_deg": 315,
+  "offset_m": 0.0,
+  "line_max_up_deg": 18.647950710849493,
+  "line_max_down_deg": 22.314907384704547,
+  "line_relief_m": 3.642014979700343
+ },
+ {
+  "id": "arena_f105__x_hill1_h000_sh",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_hill1_h000_sh/meta.json",
+  "n_runs": 13,
+  "feature": {
+   "kind": "hill",
+   "x_m": -11.170528146749561,
+   "y_m": 0.9169364459966687,
+   "sigma_m": 6.974379326443774,
+   "amplitude_m": 2.931221537056093
+  },
+  "feature_index": 1,
+  "heading_deg": 0,
+  "offset_m": 6.974379326443774,
+  "line_max_up_deg": 14.769905152412164,
+  "line_max_down_deg": 12.420124003233783,
+  "line_relief_m": 2.2714747677433045
+ },
+ {
+  "id": "arena_f105__x_hill1_h090_sh",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_hill1_h090_sh/meta.json",
+  "n_runs": 12,
+  "feature": {
+   "kind": "hill",
+   "x_m": -11.170528146749561,
+   "y_m": 0.9169364459966687,
+   "sigma_m": 6.974379326443774,
+   "amplitude_m": 2.931221537056093
+  },
+  "feature_index": 1,
+  "heading_deg": 90,
+  "offset_m": 6.974379326443774,
+  "line_max_up_deg": 16.36472116749639,
+  "line_max_down_deg": 16.36472116749644,
+  "line_relief_m": 3.784306803284092
+ },
+ {
+  "id": "arena_f105__x_hill1_h270_sh",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_hill1_h270_sh/meta.json",
+  "n_runs": 13,
+  "feature": {
+   "kind": "hill",
+   "x_m": -11.170528146749561,
+   "y_m": 0.9169364459966687,
+   "sigma_m": 6.974379326443774,
+   "amplitude_m": 2.931221537056093
+  },
+  "feature_index": 1,
+  "heading_deg": 270,
+  "offset_m": 6.974379326443774,
+  "line_max_up_deg": 16.364721167496434,
+  "line_max_down_deg": 16.364721167496388,
+  "line_relief_m": 2.2334463209107787
+ },
+ {
+  "id": "arena_f105__x_hill2_h225",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_hill2_h225/meta.json",
+  "n_runs": 13,
+  "feature": {
+   "kind": "hill",
+   "x_m": 6.496058052607104,
+   "y_m": 18.34298108373961,
+   "sigma_m": 4.290188366339871,
+   "amplitude_m": 2.5423583830388177
+  },
+  "feature_index": 2,
+  "heading_deg": 225,
+  "offset_m": 0.0,
+  "line_max_up_deg": 17.299708765370664,
+  "line_max_down_deg": 19.96961086195415,
+  "line_relief_m": 3.0168682720022066
+ },
+ {
+  "id": "arena_f105__x_hill2_h180_sh",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_hill2_h180_sh/meta.json",
+  "n_runs": 13,
+  "feature": {
+   "kind": "hill",
+   "x_m": 6.496058052607104,
+   "y_m": 18.34298108373961,
+   "sigma_m": 4.290188366339871,
+   "amplitude_m": 2.5423583830388177
+  },
+  "feature_index": 2,
+  "heading_deg": 180,
+  "offset_m": 4.290188366339871,
+  "line_max_up_deg": 17.920615058654214,
+  "line_max_down_deg": 11.313448998907816,
+  "line_relief_m": 1.353954348104584
+ },
+ {
+  "id": "arena_f105__x_hill3_h000",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_hill3_h000/meta.json",
+  "n_runs": 13,
+  "feature": {
+   "kind": "hill",
+   "x_m": 15.04631644031322,
+   "y_m": 6.7673340645222595,
+   "sigma_m": 5.520113025309263,
+   "amplitude_m": 3.0825037614661346
+  },
+  "feature_index": 3,
+  "heading_deg": 0,
+  "offset_m": 0.0,
+  "line_max_up_deg": 27.197831699313117,
+  "line_max_down_deg": 20.298643325532016,
+  "line_relief_m": 4.033243249627672
+ },
+ {
+  "id": "arena_f105__x_hill3_h045",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_hill3_h045/meta.json",
+  "n_runs": 13,
+  "feature": {
+   "kind": "hill",
+   "x_m": 15.04631644031322,
+   "y_m": 6.7673340645222595,
+   "sigma_m": 5.520113025309263,
+   "amplitude_m": 3.0825037614661346
+  },
+  "feature_index": 3,
+  "heading_deg": 45,
+  "offset_m": 0.0,
+  "line_max_up_deg": 21.31681570469967,
+  "line_max_down_deg": 27.433806581668467,
+  "line_relief_m": 3.2696299615326425
+ },
+ {
+  "id": "arena_f105__x_hill3_h090",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_hill3_h090/meta.json",
+  "n_runs": 12,
+  "feature": {
+   "kind": "hill",
+   "x_m": 15.04631644031322,
+   "y_m": 6.7673340645222595,
+   "sigma_m": 5.520113025309263,
+   "amplitude_m": 3.0825037614661346
+  },
+  "feature_index": 3,
+  "heading_deg": 90,
+  "offset_m": 0.0,
+  "line_max_up_deg": 27.19783169931314,
+  "line_max_down_deg": 27.19783169931308,
+  "line_relief_m": 3.266577500297966
+ },
+ {
+  "id": "arena_f105__x_hill3_h180",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_hill3_h180/meta.json",
+  "n_runs": 13,
+  "feature": {
+   "kind": "hill",
+   "x_m": 15.04631644031322,
+   "y_m": 6.7673340645222595,
+   "sigma_m": 5.520113025309263,
+   "amplitude_m": 3.0825037614661346
+  },
+  "feature_index": 3,
+  "heading_deg": 180,
+  "offset_m": 0.0,
+  "line_max_up_deg": 23.772079983692237,
+  "line_max_down_deg": 27.197831699313117,
+  "line_relief_m": 4.19381598000408
+ },
+ {
+  "id": "arena_f105__x_hill3_h225",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_hill3_h225/meta.json",
+  "n_runs": 13,
+  "feature": {
+   "kind": "hill",
+   "x_m": 15.04631644031322,
+   "y_m": 6.7673340645222595,
+   "sigma_m": 5.520113025309263,
+   "amplitude_m": 3.0825037614661346
+  },
+  "feature_index": 3,
+  "heading_deg": 225,
+  "offset_m": 0.0,
+  "line_max_up_deg": 27.43380658166847,
+  "line_max_down_deg": 21.31681570469967,
+  "line_relief_m": 4.103593041526662
+ },
+ {
+  "id": "arena_f105__x_hill3_h270",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_hill3_h270/meta.json",
+  "n_runs": 12,
+  "feature": {
+   "kind": "hill",
+   "x_m": 15.04631644031322,
+   "y_m": 6.7673340645222595,
+   "sigma_m": 5.520113025309263,
+   "amplitude_m": 3.0825037614661346
+  },
+  "feature_index": 3,
+  "heading_deg": 270,
+  "offset_m": 0.0,
+  "line_max_up_deg": 27.19783169931308,
+  "line_max_down_deg": 15.084034288818502,
+  "line_relief_m": 3.620122548830175
+ },
+ {
+  "id": "arena_f105__x_hill3_h315",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_hill3_h315/meta.json",
+  "n_runs": 13,
+  "feature": {
+   "kind": "hill",
+   "x_m": 15.04631644031322,
+   "y_m": 6.7673340645222595,
+   "sigma_m": 5.520113025309263,
+   "amplitude_m": 3.0825037614661346
+  },
+  "feature_index": 3,
+  "heading_deg": 315,
+  "offset_m": 0.0,
+  "line_max_up_deg": 27.086822348866203,
+  "line_max_down_deg": 17.299708765370607,
+  "line_relief_m": 4.071508965172849
+ },
+ {
+  "id": "arena_f105__x_hill3_h000_sh",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_hill3_h000_sh/meta.json",
+  "n_runs": 13,
+  "feature": {
+   "kind": "hill",
+   "x_m": 15.04631644031322,
+   "y_m": 6.7673340645222595,
+   "sigma_m": 5.520113025309263,
+   "amplitude_m": 3.0825037614661346
+  },
+  "feature_index": 3,
+  "heading_deg": 0,
+  "offset_m": 5.520113025309263,
+  "line_max_up_deg": 16.376629735325235,
+  "line_max_down_deg": 20.156107028839635,
+  "line_relief_m": 2.4438008415209445
+ },
+ {
+  "id": "arena_f105__x_hill3_h090_sh",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_hill3_h090_sh/meta.json",
+  "n_runs": 13,
+  "feature": {
+   "kind": "hill",
+   "x_m": 15.04631644031322,
+   "y_m": 6.7673340645222595,
+   "sigma_m": 5.520113025309263,
+   "amplitude_m": 3.0825037614661346
+  },
+  "feature_index": 3,
+  "heading_deg": 90,
+  "offset_m": 5.520113025309263,
+  "line_max_up_deg": 13.9713539661379,
+  "line_max_down_deg": 8.352689697606644,
+  "line_relief_m": 1.56417449148516
+ },
+ {
+  "id": "arena_f105__x_hill3_h180_sh",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_hill3_h180_sh/meta.json",
+  "n_runs": 13,
+  "feature": {
+   "kind": "hill",
+   "x_m": 15.04631644031322,
+   "y_m": 6.7673340645222595,
+   "sigma_m": 5.520113025309263,
+   "amplitude_m": 3.0825037614661346
+  },
+  "feature_index": 3,
+  "heading_deg": 180,
+  "offset_m": 5.520113025309263,
+  "line_max_up_deg": 16.364721167496384,
+  "line_max_down_deg": 16.36472116749637,
+  "line_relief_m": 2.419886100816214
+ },
+ {
+  "id": "arena_f105__x_hill3_h270_sh",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_hill3_h270_sh/meta.json",
+  "n_runs": 12,
+  "feature": {
+   "kind": "hill",
+   "x_m": 15.04631644031322,
+   "y_m": 6.7673340645222595,
+   "sigma_m": 5.520113025309263,
+   "amplitude_m": 3.0825037614661346
+  },
+  "feature_index": 3,
+  "heading_deg": 270,
+  "offset_m": 5.520113025309263,
+  "line_max_up_deg": 24.418901454364672,
+  "line_max_down_deg": 17.00307925345864,
+  "line_relief_m": 4.934858405425615
+ },
+ {
+  "id": "arena_f105__x_hill4_h045",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_hill4_h045/meta.json",
+  "n_runs": 12,
+  "feature": {
+   "kind": "hill",
+   "x_m": 19.329046056728686,
+   "y_m": -7.673472302933064,
+   "sigma_m": 5.189316854448866,
+   "amplitude_m": 4.2370980426467195
+  },
+  "feature_index": 4,
+  "heading_deg": 45,
+  "offset_m": 0.0,
+  "line_max_up_deg": 21.388453853646286,
+  "line_max_down_deg": 11.730201523677835,
+  "line_relief_m": 2.253913995743299
+ },
+ {
+  "id": "arena_f105__x_hill4_h090",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_hill4_h090/meta.json",
+  "n_runs": 12,
+  "feature": {
+   "kind": "hill",
+   "x_m": 19.329046056728686,
+   "y_m": -7.673472302933064,
+   "sigma_m": 5.189316854448866,
+   "amplitude_m": 4.2370980426467195
+  },
+  "feature_index": 4,
+  "heading_deg": 90,
+  "offset_m": 0.0,
+  "line_max_up_deg": 20.156107028839674,
+  "line_max_down_deg": 26.4811686029642,
+  "line_relief_m": 4.2634179971476955
+ },
+ {
+  "id": "arena_f105__x_hill4_h135",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_hill4_h135/meta.json",
+  "n_runs": 12,
+  "feature": {
+   "kind": "hill",
+   "x_m": 19.329046056728686,
+   "y_m": -7.673472302933064,
+   "sigma_m": 5.189316854448866,
+   "amplitude_m": 4.2370980426467195
+  },
+  "feature_index": 4,
+  "heading_deg": 135,
+  "offset_m": 0.0,
+  "line_max_up_deg": 22.5521175177261,
+  "line_max_down_deg": 13.038462927162074,
+  "line_relief_m": 3.2815084123260303
+ },
+ {
+  "id": "arena_f105__x_hill4_h225",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_hill4_h225/meta.json",
+  "n_runs": 12,
+  "feature": {
+   "kind": "hill",
+   "x_m": 19.329046056728686,
+   "y_m": -7.673472302933064,
+   "sigma_m": 5.189316854448866,
+   "amplitude_m": 4.2370980426467195
+  },
+  "feature_index": 4,
+  "heading_deg": 225,
+  "offset_m": 0.0,
+  "line_max_up_deg": 11.730201523677836,
+  "line_max_down_deg": 21.388453853646286,
+  "line_relief_m": 2.2302549967998155
+ },
+ {
+  "id": "arena_f105__x_hill4_h270",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_hill4_h270/meta.json",
+  "n_runs": 12,
+  "feature": {
+   "kind": "hill",
+   "x_m": 19.329046056728686,
+   "y_m": -7.673472302933064,
+   "sigma_m": 5.189316854448866,
+   "amplitude_m": 4.2370980426467195
+  },
+  "feature_index": 4,
+  "heading_deg": 270,
+  "offset_m": 0.0,
+  "line_max_up_deg": 27.224837404104534,
+  "line_max_down_deg": 20.15610702883967,
+  "line_relief_m": 4.001936872163409
+ },
+ {
+  "id": "arena_f105__x_hill4_h315",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_hill4_h315/meta.json",
+  "n_runs": 12,
+  "feature": {
+   "kind": "hill",
+   "x_m": 19.329046056728686,
+   "y_m": -7.673472302933064,
+   "sigma_m": 5.189316854448866,
+   "amplitude_m": 4.2370980426467195
+  },
+  "feature_index": 4,
+  "heading_deg": 315,
+  "offset_m": 0.0,
+  "line_max_up_deg": 14.10060509066053,
+  "line_max_down_deg": 22.5521175177261,
+  "line_relief_m": 2.80491507594241
+ },
+ {
+  "id": "arena_f105__x_hill4_h270_sh",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_hill4_h270_sh/meta.json",
+  "n_runs": 11,
+  "feature": {
+   "kind": "hill",
+   "x_m": 19.329046056728686,
+   "y_m": -7.673472302933064,
+   "sigma_m": 5.189316854448866,
+   "amplitude_m": 4.2370980426467195
+  },
+  "feature_index": 4,
+  "heading_deg": 270,
+  "offset_m": 5.189316854448866,
+  "line_max_up_deg": 23.339295371421393,
+  "line_max_down_deg": 18.609464570998597,
+  "line_relief_m": 2.6037020471042096
+ },
+ {
+  "id": "arena_f105__x_hill5_h000",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_hill5_h000/meta.json",
+  "n_runs": 12,
+  "feature": {
+   "kind": "hill",
+   "x_m": 3.6223477335331182,
+   "y_m": -21.337360501846938,
+   "sigma_m": 4.618048708139935,
+   "amplitude_m": 3.579547157644055
+  },
+  "feature_index": 5,
+  "heading_deg": 0,
+  "offset_m": 0.0,
+  "line_max_up_deg": 19.645795744286822,
+  "line_max_down_deg": 20.156107028839685,
+  "line_relief_m": 3.1625153977407328
+ },
+ {
+  "id": "arena_f105__x_hill5_h180",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_hill5_h180/meta.json",
+  "n_runs": 12,
+  "feature": {
+   "kind": "hill",
+   "x_m": 3.6223477335331182,
+   "y_m": -21.337360501846938,
+   "sigma_m": 4.618048708139935,
+   "amplitude_m": 3.579547157644055
+  },
+  "feature_index": 5,
+  "heading_deg": 180,
+  "offset_m": 0.0,
+  "line_max_up_deg": 20.15610702883969,
+  "line_max_down_deg": 16.36472116749638,
+  "line_relief_m": 1.8561782934098656
+ },
+ {
+  "id": "arena_f105__x_hill5_h000_sh",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_hill5_h000_sh/meta.json",
+  "n_runs": 13,
+  "feature": {
+   "kind": "hill",
+   "x_m": 3.6223477335331182,
+   "y_m": -21.337360501846938,
+   "sigma_m": 4.618048708139935,
+   "amplitude_m": 3.579547157644055
+  },
+  "feature_index": 5,
+  "heading_deg": 0,
+  "offset_m": 4.618048708139935,
+  "line_max_up_deg": 20.15610702883968,
+  "line_max_down_deg": 16.364721167496448,
+  "line_relief_m": 2.4434827477222374
+ },
+ {
+  "id": "arena_f105__x_hill5_h180_sh",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_hill5_h180_sh/meta.json",
+  "n_runs": 11,
+  "feature": {
+   "kind": "hill",
+   "x_m": 3.6223477335331182,
+   "y_m": -21.337360501846938,
+   "sigma_m": 4.618048708139935,
+   "amplitude_m": 3.579547157644055
+  },
+  "feature_index": 5,
+  "heading_deg": 180,
+  "offset_m": 4.618048708139935,
+  "line_max_up_deg": 8.854997360561056,
+  "line_max_down_deg": 12.420276877315306,
+  "line_relief_m": 1.1995421929909935
+ },
+ {
+  "id": "arena_f105__x_crater7_h090",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_crater7_h090/meta.json",
+  "n_runs": 12,
+  "feature": {
+   "kind": "crater",
+   "x_m": 26.857240159000035,
+   "y_m": 7.100035399476155,
+   "sigma_m": 3.080965759766581,
+   "amplitude_m": 1.3131611195008273
+  },
+  "feature_index": 7,
+  "heading_deg": 90,
+  "offset_m": 0.0,
+  "line_max_up_deg": 22.39699522988814,
+  "line_max_down_deg": 20.156107028839664,
+  "line_relief_m": 2.3363520993769216
+ },
+ {
+  "id": "arena_f105__x_crater7_h270",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_crater7_h270/meta.json",
+  "n_runs": 12,
+  "feature": {
+   "kind": "crater",
+   "x_m": 26.857240159000035,
+   "y_m": 7.100035399476155,
+   "sigma_m": 3.080965759766581,
+   "amplitude_m": 1.3131611195008273
+  },
+  "feature_index": 7,
+  "heading_deg": 270,
+  "offset_m": 0.0,
+  "line_max_up_deg": 16.1547165262299,
+  "line_max_down_deg": 22.39699522988855,
+  "line_relief_m": 2.336352099376919
+ },
+ {
+  "id": "arena_f105__x_crater9_h090",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_crater9_h090/meta.json",
+  "n_runs": 12,
+  "feature": {
+   "kind": "crater",
+   "x_m": -25.9040836463234,
+   "y_m": 15.153930987927602,
+   "sigma_m": 2.5707231751840753,
+   "amplitude_m": 2.2024824608330853
+  },
+  "feature_index": 9,
+  "heading_deg": 90,
+  "offset_m": 0.0,
+  "line_max_up_deg": 12.322490184383508,
+  "line_max_down_deg": 11.267482918363651,
+  "line_relief_m": 1.3036725530704514
+ },
+ {
+  "id": "arena_f105__x_crater9_h270",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_crater9_h270/meta.json",
+  "n_runs": 12,
+  "feature": {
+   "kind": "crater",
+   "x_m": -25.9040836463234,
+   "y_m": 15.153930987927602,
+   "sigma_m": 2.5707231751840753,
+   "amplitude_m": 2.2024824608330853
+  },
+  "feature_index": 9,
+  "heading_deg": 270,
+  "offset_m": 0.0,
+  "line_max_up_deg": 11.267482918363651,
+  "line_max_down_deg": 8.352689697606648,
+  "line_relief_m": 1.4890827149508372
+ },
+ {
+  "id": "arena_f105__x_crater10_h090",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_crater10_h090/meta.json",
+  "n_runs": 11,
+  "feature": {
+   "kind": "crater",
+   "x_m": -31.227122659820715,
+   "y_m": -15.46039481033916,
+   "sigma_m": 3.112118046443066,
+   "amplitude_m": 1.4554775928533081
+  },
+  "feature_index": 10,
+  "heading_deg": 90,
+  "offset_m": 0.0,
+  "line_max_up_deg": 18.83458702277858,
+  "line_max_down_deg": 14.358850541506541,
+  "line_relief_m": 1.6665942259463231
+ },
+ {
+  "id": "arena_f105__x_crater10_h270",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_crater10_h270/meta.json",
+  "n_runs": 11,
+  "feature": {
+   "kind": "crater",
+   "x_m": -31.227122659820715,
+   "y_m": -15.46039481033916,
+   "sigma_m": 3.112118046443066,
+   "amplitude_m": 1.4554775928533081
+  },
+  "feature_index": 10,
+  "heading_deg": 270,
+  "offset_m": 0.0,
+  "line_max_up_deg": 12.540872303585756,
+  "line_max_down_deg": 18.8345870227785,
+  "line_relief_m": 1.6665942259463231
+ },
+ {
+  "id": "arena_f105__x_crater11_h225",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_crater11_h225/meta.json",
+  "n_runs": 13,
+  "feature": {
+   "kind": "crater",
+   "x_m": -14.430536872881781,
+   "y_m": 21.92384371848086,
+   "sigma_m": 3.4673515445825083,
+   "amplitude_m": 1.219863419895516
+  },
+  "feature_index": 11,
+  "heading_deg": 225,
+  "offset_m": 0.0,
+  "line_max_up_deg": 25.041492734969076,
+  "line_max_down_deg": 11.730201523677747,
+  "line_relief_m": 3.5436358990821013
+ },
+ {
+  "id": "arena_f105__x_crater11_h315",
+  "kind": "crossing",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__x_crater11_h315/meta.json",
+  "n_runs": 13,
+  "feature": {
+   "kind": "crater",
+   "x_m": -14.430536872881781,
+   "y_m": 21.92384371848086,
+   "sigma_m": 3.4673515445825083,
+   "amplitude_m": 1.219863419895516
+  },
+  "feature_index": 11,
+  "heading_deg": 315,
+  "offset_m": 0.0,
+  "line_max_up_deg": 17.299708765370664,
+  "line_max_down_deg": 11.216328138074896,
+  "line_relief_m": 1.515100359610864
+ },
+ {
+  "id": "arena_f105__s_hill2_hill3_t+60",
+  "kind": "sequence",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__s_hill2_hill3_t+60/meta.json",
+  "n_runs": 9,
+  "feature_a": {
+   "kind": "hill",
+   "x_m": 6.496058052607104,
+   "y_m": 18.34298108373961,
+   "sigma_m": 4.290188366339871,
+   "amplitude_m": 2.5423583830388177
+  },
+  "feature_b": {
+   "kind": "hill",
+   "x_m": 15.04631644031322,
+   "y_m": 6.7673340645222595,
+   "sigma_m": 5.520113025309263,
+   "amplitude_m": 3.0825037614661346
+  },
+  "pair_distance_m": 14.39105702893482,
+  "offset_m": 0.0,
+  "turn_deg": 60.0,
+  "s_switch_m": 22.575177833442385,
+  "length_m": 40.59764762327677,
+  "max_up_deg": 28.707194886307814,
+  "max_cross_deg": 20.036737262396525
+ },
+ {
+  "id": "arena_f105__s_crater11_hill2_t+35_sh",
+  "kind": "sequence",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__s_crater11_hill2_t+35_sh/meta.json",
+  "n_runs": 9,
+  "feature_a": {
+   "kind": "crater",
+   "x_m": -14.430536872881781,
+   "y_m": 21.92384371848086,
+   "sigma_m": 3.4673515445825083,
+   "amplitude_m": 1.219863419895516
+  },
+  "feature_b": {
+   "kind": "hill",
+   "x_m": 6.496058052607104,
+   "y_m": 18.34298108373961,
+   "sigma_m": 4.290188366339871,
+   "amplitude_m": 2.5423583830388177
+  },
+  "pair_distance_m": 21.230754870809076,
+  "offset_m": 4.290188366339871,
+  "turn_deg": 35.0,
+  "s_switch_m": 33.9528886826449,
+  "length_m": 54.93767021455277,
+  "max_up_deg": 27.318448651155823,
+  "max_cross_deg": 18.57287051952744
+ },
+ {
+  "id": "arena_f105__s_hill5_hill1_t-35",
+  "kind": "sequence",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__s_hill5_hill1_t-35/meta.json",
+  "n_runs": 9,
+  "feature_a": {
+   "kind": "hill",
+   "x_m": 3.6223477335331182,
+   "y_m": -21.337360501846938,
+   "sigma_m": 4.618048708139935,
+   "amplitude_m": 3.579547157644055
+  },
+  "feature_b": {
+   "kind": "hill",
+   "x_m": -11.170528146749561,
+   "y_m": 0.9169364459966687,
+   "sigma_m": 6.974379326443774,
+   "amplitude_m": 2.931221537056093
+  },
+  "pair_distance_m": 26.72232979087434,
+  "offset_m": 0.0,
+  "turn_deg": -35.0,
+  "s_switch_m": 34.53617318685234,
+  "length_m": 55.042759912810524,
+  "max_up_deg": 18.673044891656367,
+  "max_cross_deg": 22.151482741924568
+ },
+ {
+  "id": "arena_f105__s_hill2_hill1_t-35",
+  "kind": "sequence",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__s_hill2_hill1_t-35/meta.json",
+  "n_runs": 9,
+  "feature_a": {
+   "kind": "hill",
+   "x_m": 6.496058052607104,
+   "y_m": 18.34298108373961,
+   "sigma_m": 4.290188366339871,
+   "amplitude_m": 2.5423583830388177
+  },
+  "feature_b": {
+   "kind": "hill",
+   "x_m": -11.170528146749561,
+   "y_m": 0.9169364459966687,
+   "sigma_m": 6.974379326443774,
+   "amplitude_m": 2.931221537056093
+  },
+  "pair_distance_m": 24.814820161667683,
+  "offset_m": 0.0,
+  "turn_deg": -35.0,
+  "s_switch_m": 38.07202038771094,
+  "length_m": 56.08443281550423,
+  "max_up_deg": 20.519291593990705,
+  "max_cross_deg": 18.014159805908722
+ },
+ {
+  "id": "arena_f105__s_hill1_hill3_t-60",
+  "kind": "sequence",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__s_hill1_hill3_t-60/meta.json",
+  "n_runs": 9,
+  "feature_a": {
+   "kind": "hill",
+   "x_m": -11.170528146749561,
+   "y_m": 0.9169364459966687,
+   "sigma_m": 6.974379326443774,
+   "amplitude_m": 2.931221537056093
+  },
+  "feature_b": {
+   "kind": "hill",
+   "x_m": 15.04631644031322,
+   "y_m": 6.7673340645222595,
+   "sigma_m": 5.520113025309263,
+   "amplitude_m": 3.0825037614661346
+  },
+  "pair_distance_m": 26.861684466858232,
+  "offset_m": 0.0,
+  "turn_deg": -60.0,
+  "s_switch_m": 36.087212434679266,
+  "length_m": 60.61207809813885,
+  "max_up_deg": 26.72309299993617,
+  "max_cross_deg": 14.889460531861848
+ },
+ {
+  "id": "arena_f105__s_hill3_hill2_t-60_sh",
+  "kind": "sequence",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__s_hill3_hill2_t-60_sh/meta.json",
+  "n_runs": 9,
+  "feature_a": {
+   "kind": "hill",
+   "x_m": 15.04631644031322,
+   "y_m": 6.7673340645222595,
+   "sigma_m": 5.520113025309263,
+   "amplitude_m": 3.0825037614661346
+  },
+  "feature_b": {
+   "kind": "hill",
+   "x_m": 6.496058052607104,
+   "y_m": 18.34298108373961,
+   "sigma_m": 4.290188366339871,
+   "amplitude_m": 2.5423583830388177
+  },
+  "pair_distance_m": 14.39105702893482,
+  "offset_m": 4.290188366339871,
+  "turn_deg": -60.0,
+  "s_switch_m": 34.362395593023265,
+  "length_m": 52.82142340599456,
+  "max_up_deg": 27.260562070713437,
+  "max_cross_deg": 20.03837981130958
+ },
+ {
+  "id": "arena_f105__s_hill1_hill2_t-60_sh",
+  "kind": "sequence",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__s_hill1_hill2_t-60_sh/meta.json",
+  "n_runs": 9,
+  "feature_a": {
+   "kind": "hill",
+   "x_m": -11.170528146749561,
+   "y_m": 0.9169364459966687,
+   "sigma_m": 6.974379326443774,
+   "amplitude_m": 2.931221537056093
+  },
+  "feature_b": {
+   "kind": "hill",
+   "x_m": 6.496058052607104,
+   "y_m": 18.34298108373961,
+   "sigma_m": 4.290188366339871,
+   "amplitude_m": 2.5423583830388177
+  },
+  "pair_distance_m": 24.814820161667683,
+  "offset_m": -4.290188366339871,
+  "turn_deg": -60.0,
+  "s_switch_m": 33.368169810201444,
+  "length_m": 57.81070691443927,
+  "max_up_deg": 22.377489875635472,
+  "max_cross_deg": 27.67561132982551
+ },
+ {
+  "id": "arena_f105__s_hill3_hill4_t-35",
+  "kind": "sequence",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__s_hill3_hill4_t-35/meta.json",
+  "n_runs": 9,
+  "feature_a": {
+   "kind": "hill",
+   "x_m": 15.04631644031322,
+   "y_m": 6.7673340645222595,
+   "sigma_m": 5.520113025309263,
+   "amplitude_m": 3.0825037614661346
+  },
+  "feature_b": {
+   "kind": "hill",
+   "x_m": 19.329046056728686,
+   "y_m": -7.673472302933064,
+   "sigma_m": 5.189316854448866,
+   "amplitude_m": 4.2370980426467195
+  },
+  "pair_distance_m": 15.062491875837157,
+  "offset_m": 0.0,
+  "turn_deg": -35.0,
+  "s_switch_m": 29.122713388611828,
+  "length_m": 47.154930948376276,
+  "max_up_deg": 26.63193675722461,
+  "max_cross_deg": 26.07433878663431
+ },
+ {
+  "id": "arena_f105__s_hill4_crater7_t+60_sh",
+  "kind": "sequence",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__s_hill4_crater7_t+60_sh/meta.json",
+  "n_runs": 9,
+  "feature_a": {
+   "kind": "hill",
+   "x_m": 19.329046056728686,
+   "y_m": -7.673472302933064,
+   "sigma_m": 5.189316854448866,
+   "amplitude_m": 4.2370980426467195
+  },
+  "feature_b": {
+   "kind": "crater",
+   "x_m": 26.857240159000035,
+   "y_m": 7.100035399476155,
+   "sigma_m": 3.080965759766581,
+   "amplitude_m": 1.3131611195008273
+  },
+  "pair_distance_m": 16.58102036289135,
+  "offset_m": 3.080965759766581,
+  "turn_deg": 60.0,
+  "s_switch_m": 30.16704234998314,
+  "length_m": 53.231244393277024,
+  "max_up_deg": 14.661998689707778,
+  "max_cross_deg": 27.437254346323982
+ },
+ {
+  "id": "arena_f105__s_hill1_hill0_t+60_sh",
+  "kind": "sequence",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__s_hill1_hill0_t+60_sh/meta.json",
+  "n_runs": 9,
+  "feature_a": {
+   "kind": "hill",
+   "x_m": -11.170528146749561,
+   "y_m": 0.9169364459966687,
+   "sigma_m": 6.974379326443774,
+   "amplitude_m": 2.931221537056093
+  },
+  "feature_b": {
+   "kind": "hill",
+   "x_m": -19.271993425276662,
+   "y_m": -15.055103924474182,
+   "sigma_m": 5.914586000804634,
+   "amplitude_m": 3.124291861938453
+  },
+  "pair_distance_m": 17.909210291219733,
+  "offset_m": 5.914586000804634,
+  "turn_deg": 60.0,
+  "s_switch_m": 27.530905225507354,
+  "length_m": 45.53838191686655,
+  "max_up_deg": 20.582362456538497,
+  "max_cross_deg": 13.56240346189619
+ },
+ {
+  "id": "arena_f105__s_hill3_hill1_t-60_sh",
+  "kind": "sequence",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__s_hill3_hill1_t-60_sh/meta.json",
+  "n_runs": 9,
+  "feature_a": {
+   "kind": "hill",
+   "x_m": 15.04631644031322,
+   "y_m": 6.7673340645222595,
+   "sigma_m": 5.520113025309263,
+   "amplitude_m": 3.0825037614661346
+  },
+  "feature_b": {
+   "kind": "hill",
+   "x_m": -11.170528146749561,
+   "y_m": 0.9169364459966687,
+   "sigma_m": 6.974379326443774,
+   "amplitude_m": 2.931221537056093
+  },
+  "pair_distance_m": 26.861684466858232,
+  "offset_m": -6.974379326443774,
+  "turn_deg": -60.0,
+  "s_switch_m": 37.06969834202007,
+  "length_m": 59.587207034371154,
+  "max_up_deg": 24.510828362422863,
+  "max_cross_deg": 22.048990606499075
+ },
+ {
+  "id": "arena_f105__s_hill0_hill1_t+60_sh",
+  "kind": "sequence",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__s_hill0_hill1_t+60_sh/meta.json",
+  "n_runs": 9,
+  "feature_a": {
+   "kind": "hill",
+   "x_m": -19.271993425276662,
+   "y_m": -15.055103924474182,
+   "sigma_m": 5.914586000804634,
+   "amplitude_m": 3.124291861938453
+  },
+  "feature_b": {
+   "kind": "hill",
+   "x_m": -11.170528146749561,
+   "y_m": 0.9169364459966687,
+   "sigma_m": 6.974379326443774,
+   "amplitude_m": 2.931221537056093
+  },
+  "pair_distance_m": 17.909210291219733,
+  "offset_m": 6.974379326443774,
+  "turn_deg": 60.0,
+  "s_switch_m": 33.04243343318428,
+  "length_m": 54.05504878536731,
+  "max_up_deg": 20.369017360320203,
+  "max_cross_deg": 20.247979290083368
+ },
+ {
+  "id": "arena_f105__f_00",
+  "kind": "freeform",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__f_00/meta.json",
+  "n_runs": 6,
+  "distance_m": 42.651411483836704
+ },
+ {
+  "id": "arena_f105__f_01",
+  "kind": "freeform",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__f_01/meta.json",
+  "n_runs": 6,
+  "distance_m": 38.379651417552154
+ },
+ {
+  "id": "arena_f105__f_02",
+  "kind": "freeform",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__f_02/meta.json",
+  "n_runs": 6,
+  "distance_m": 37.600125076996264
+ },
+ {
+  "id": "arena_f105__f_03",
+  "kind": "freeform",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__f_03/meta.json",
+  "n_runs": 6,
+  "distance_m": 44.04714212101634
+ },
+ {
+  "id": "arena_f105__f_04",
+  "kind": "freeform",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__f_04/meta.json",
+  "n_runs": 6,
+  "distance_m": 40.295960003639756
+ },
+ {
+  "id": "arena_f105__f_05",
+  "kind": "freeform",
+  "arena": "arena_f105",
+  "meta_path": "artifacts/traverse/wp7_collect_f105/arena_f105__f_05/meta.json",
+  "n_runs": 6,
+  "distance_m": 42.403098396538674
+ }
+]

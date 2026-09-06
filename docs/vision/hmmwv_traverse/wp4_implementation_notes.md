@@ -1351,3 +1351,62 @@ A better fit to the recorded states does not make a better selector. **Selected 
 fine-tuned mixed model (`wp7_ft_mix_amd`, best pick record among the trained models on f105), with the frozen model
 as the baseline and the best-fitting model as a secondary; the cheap predictors at τ 0.5; the fastest-speed and
 rule-based heuristics.
+
+### 11.5 Sealed evaluation (`arena_f106` + `arena_f107`, run once, 2026-09-07 03:27) — `wp7_cache_sealed`, `wp7_pick_table_sealed_*.json`
+
+1 077 bank routes on 98 layouts (93 with at least one feasible route, 5 with none); 234 routes infeasible. Every method
+picks one route per layout from the same bank; the picked route's Chrono outcome is the score. Reported in the
+pre-registered order — successful selections, cost among successes, rejection of feasible options.
+
+| method | picked / 93 | **feasible** | regret mean (max) | feasible routes rejected / 843 | infeasible rejected / 193 | abstains on 5 no-solution layouts |
+|---|---|---|---|---|---|---|
+| rule-based profile | 79 | 53 | 1.53 (4.40) | – | – | 2 |
+| **fastest commanded speed** | 93 | **86** | 1.15 (1.81) | – | – | 0 |
+| slowest | 93 | 55 | 1.40 (2.51) | – | – | 0 |
+| cheap predictor, true elevation | 86 | 78 | 1.15 (4.48) | 102 | 82 | 2 |
+| cheap predictor, predicted elevation | 85 | 76 | 1.16 (4.48) | 120 | 71 | 4 |
+| world model, frozen (arena_v1) | 93 | 80 | 1.15 (2.52) | 5 | 4 | 2 |
+| world model, fine-tuned mixed (selected on f105) | 93 | 82 | 1.15 (2.20) | 83 | 55 | 1 |
+| world model, scratch new-only (best fit) | 88 | 77 | 1.19 (4.48) | 133 | 59 | 1 |
+| gate world model (fine-tuned) + cost cheap-true | 93 | 85 | 1.17 (4.48) | 83 | 55 | 1 |
+
+Paired against the fastest heuristic on the 93 layouts: fine-tuned world model feasible where the heuristic is not
+0 times, the reverse 4 times, cost difference where both feasible +0.74 ± 1.09 (n = 82); cheap-true +2 / −10,
++0.11 ± 1.39 (n = 76); frozen +2 / −8, +1.00 ± 1.14. By kind (both arenas): crossings (68) fastest 64, fine-tuned
+60, cheap 60/65; sequences (11) fastest 8 (regret 1.07), fine-tuned 8 (1.26), cheap 5 of 8 picked (1.04) — the
+validation arena's 8/8 did not carry over; free-form (14) fastest 14 (1.20), fine-tuned 14 (**1.11**), cheap 13
+(1.06). Per arena: on f107 (the milder one, 55 layouts) the cheap predictor is best on cost (51 feasible, regret
+1.09 vs 1.15 for the heuristic); on f106 (38 layouts) the heuristic leads (35 vs 31 / 27).
+
+Per-route fidelity on the sealed routes: fine-tuned world model rejects 161 (78 rightly, 83 wrongly), accepts 156
+of 234 infeasible (AUC of the reject flag 0.62, of imagined time 0.76); time 1.06 / corr 0.90, energy 1.15 /
+corr 0.58 on feasible routes. Frozen: rejects 28, accepts 211 (0.55 / 0.76); energy 1.16 / 0.52. Cheap predictor
+(true elevation): AUC 0.78 (crossings 0.73, sequences 0.80, free-form 0.82); time 0.98 / 0.88, energy 1.01 /
+0.66; with the map head's elevation 0.74.
+
+### 11.6 Where this leaves the thesis (2026-09-07)
+
+* **The learning comparison is negative for selection.** On two sealed terrain instances, neither the world model
+  fine-tuned on four new arenas nor a cheap crossing predictor given the same terrain profile beats "drive the
+  fastest candidate" (86 / 93 feasible, regret 1.15): the world model is 82 / 93 at the same regret, the cheap
+  predictor 78 of 86 picked. Training did what it could be expected to do — the fine-tuned imagination rejects
+  78 infeasible routes where the frozen one rejected 23 — but at the price of 83 false rejections, and it still
+  accepts two thirds of the stalls and timeouts. The imagination does not reproduce the stall regime, on this data
+  and with this loss; the terrain-profile predictor classifies feasibility far better (AUC 0.78 vs 0.62) yet also
+  does not convert that into better picks at the pre-registered threshold.
+* **Where the world model does earn something:** the cost ranking of free-form routes (regret 1.11 vs 1.20 for the
+  heuristic, n = 14) and, on the validation arena only, the momentum-then-braking sequences (8 / 8 at 1.05); the
+  sealed sequences (8 / 11 at 1.26) do not confirm the latter.
+* **Why the heuristic is so strong here:** on this family feasibility increases with speed (speed alone has AUC
+  0.43–0.57 for infeasibility, the wrong direction for a "slow is safe" prior), the speed-penalised and detour-only
+  cases are a minority, and where the fastest pick fails the answer is usually a detour that no learned method
+  finds either. A benchmark on which the heuristic is beatable needs more layouts whose best route is slow or a
+  detour — or a different cost that penalises speed (energy weight, ride severity).
+* **Two live-input defects surfaced:** the camera heading flips by ~180° on 1 of 248 layouts (symmetric vehicle
+  from above; every imagined route on that layout fails), and the map head's decoded elevation on the new arenas
+  costs the cheap predictor 0.04 AUC against the true field.
+* **Candidate next steps (not started):** (1) make the imagination fail where the vehicle stalls — weight failure
+  episodes and their final seconds in the rollout loss, or add an explicit stall / progress head trained on the
+  recorded outcomes; (2) rebalance the benchmark toward speed-penalised and detour-only layouts before spending
+  more on models; (3) fix the heading ambiguity in the pose head (velocity-direction or two-frame cue) — cheap and
+  independent of the thesis question.

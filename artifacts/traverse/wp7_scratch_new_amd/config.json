@@ -1,0 +1,138 @@
+{
+  "cache": "",
+  "caches": [
+    "artifacts/traverse/wp7_cache_v1"
+  ],
+  "split_by": "arena",
+  "val_arenas": [
+    "arena_f105"
+  ],
+  "test_arenas": [],
+  "n_frames": 0,
+  "arena": "assets/traverse/arena_v1",
+  "map_mode": "index",
+  "map_key": "map_v2",
+  "out": "artifacts/traverse/wp7_scratch_new_amd",
+  "context": 16,
+  "steps": 20000,
+  "batch": 256,
+  "token_dim": 256,
+  "lr": 0.0003,
+  "min_lr": 3e-05,
+  "warmup_steps": 1000,
+  "weight_decay": 0.1,
+  "grad_clip": 1.0,
+  "n_layer": 6,
+  "n_head": 8,
+  "n_embd": 256,
+  "dropout": 0.0,
+  "eval_every": 1000,
+  "eval_episodes": 256,
+  "val_batches": 20,
+  "horizons": [
+    10,
+    20,
+    40,
+    100
+  ],
+  "selection": "z1_mae_norm",
+  "seed": 20260903,
+  "max_train_episodes": 0,
+  "rollout_steps": 8,
+  "rollout_weight": 1.0,
+  "extra_train_cache": [],
+  "z1_extra_cache": "",
+  "delta_scale": false,
+  "init_from": "",
+  "freeze_cropper": false,
+  "freeze_backbone": false,
+  "token_stat_batches": 64,
+  "eval_only": false,
+  "model": {
+    "block_size": 16,
+    "n_layer": 6,
+    "n_head": 8,
+    "n_embd": 256,
+    "dropout": 0.0,
+    "bias": false,
+    "head_hidden_dim": 256
+  },
+  "n_params": 5196322,
+  "split_counts": [
+    1749,
+    722,
+    0
+  ],
+  "arena_ids": [
+    "arena_f101",
+    "arena_f102",
+    "arena_f103",
+    "arena_f104",
+    "arena_f105"
+  ],
+  "arena_dirs": {
+    "arena_f101": "assets/traverse/arena_f101",
+    "arena_f102": "assets/traverse/arena_f102",
+    "arena_f103": "assets/traverse/arena_f103",
+    "arena_f104": "assets/traverse/arena_f104",
+    "arena_f105": "assets/traverse/arena_f105"
+  },
+  "normalization": {
+    "z1_mean": [
+      2.3064680099487305,
+      -0.0027636182494461536,
+      -0.008131260983645916,
+      -0.0481882244348526,
+      -0.00024628438404761255,
+      0.0016625650459900498,
+      -0.004793650470674038,
+      6538.0302734375,
+      6248.92041015625,
+      6586.2138671875,
+      6016.66748046875,
+      8.494187355041504,
+      12.68758487701416,
+      8.16977310180664,
+      13.793601989746094,
+      172.9099578857422,
+      80.42772674560547
+    ],
+    "z1_std": [
+      2.0650923252105713,
+      0.294759601354599,
+      0.16886888444423676,
+      0.1618717908859253,
+      0.18881480395793915,
+      0.19347988069057465,
+      0.19203028082847595,
+      6368.16845703125,
+      5446.70947265625,
+      5709.12841796875,
+      5609.98486328125,
+      16.145498275756836,
+      23.959762573242188,
+      17.57419204711914,
+      30.31926727294922,
+      84.44232940673828,
+      126.33914947509766
+    ],
+    "z2_mean": [],
+    "z2_std": [],
+    "act_mean": [
+      -0.13092733919620514,
+      0.2757081091403961,
+      0.10759743303060532
+    ],
+    "act_std": [
+      0.4297907054424286,
+      0.27182599902153015,
+      0.28980353474617004
+    ],
+    "power_mean": [
+      19.719552993774414
+    ],
+    "power_std": [
+      28.426252365112305
+    ]
+  }
+}

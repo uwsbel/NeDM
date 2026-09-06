@@ -1,0 +1,45 @@
+{
+ "layout": {
+  "episode_id": "arena_f105__x_hill1_h090",
+  "seed": 0,
+  "assets": [
+   {
+    "kind": "house",
+    "x_m": -11.17052814674956,
+    "y_m": 20.91693644599667,
+    "yaw_rad": 1.5707963267948966,
+    "footprint_radius_m": 3.501562118716424,
+    "dims": {
+     "length_m": 5.0,
+     "width_m": 4.0,
+     "wall_height_m": 3.0
+    }
+   }
+  ],
+  "house_xy": [
+   -11.17052814674956,
+   20.91693644599667
+  ],
+  "house_yaw": 1.5707963267948966,
+  "start_xy": [
+   -11.170528146749563,
+   -28.08306355400333
+  ],
+  "start_yaw": 1.5707963267948966
+ },
+ "kind": "crossing",
+ "arena": "assets/traverse/arena_f105",
+ "feature": {
+  "kind": "hill",
+  "x_m": -11.170528146749561,
+  "y_m": 0.9169364459966687,
+  "sigma_m": 6.974379326443774,
+  "amplitude_m": 2.931221537056093
+ },
+ "feature_index": 1,
+ "heading_deg": 90,
+ "offset_m": 0.0,
+ "line_max_up_deg": 23.631180286472997,
+ "line_max_down_deg": 20.142315203014167,
+ "line_relief_m": 3.7388185154623947
+}

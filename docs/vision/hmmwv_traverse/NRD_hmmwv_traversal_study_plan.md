@@ -624,3 +624,28 @@ predictor given the same inputs — a small reproducible learning comparison, no
    selections; rejection of feasible options. "No candidate works" is a separate rejection task — the five
    no-solution layouts do not prove no route exists, so give that task wider detour candidates. Scale
    collection only if learning materially improves selection and the world model earns its computation.
+
+## 29. v1.13 (2026-09-07): §28 executed — the learning comparison is negative for selection
+
+Overnight execution of §28 (notes §11): pipeline prerequisites built (per-episode crop height field, masked
+variable-length cache, arena split, collector keeping every outcome, pose-head / map-head normalisation); seven
+arena instances generated; 2 471 tracker-driven Chrono runs on five arenas (crossings, feature sequences with
+two-speed profiles, free-form routes; 22 % infeasible) plus 1 077 sealed bank routes on two more; five dynamics
+models trained on the cluster (fine-tuned / from scratch, with and without the arena_v1 episodes), a cheap
+terrain-profile predictor with true and with predicted elevation; one sealed evaluation on shared candidate banks.
+
+**Result (notes §11.5):** on the sealed arenas the fastest-candidate heuristic makes 86 / 93 feasible selections at
+regret 1.15; the selected world model 82 / 93 at 1.15 (paired: never better on feasibility, cost +0.74 ± 1.09);
+the cheap predictor 78 of 86 picked (+0.11 ± 1.39). Training raised the imagination's true rejections from 23 to
+78 of 234 infeasible routes but added 83 false rejections; two thirds of stalls and timeouts are still accepted.
+The cheap predictor is the better feasibility classifier (AUC 0.78 vs 0.62). The world model wins only on the
+cost ranking of free-form routes (1.11 vs 1.20, n = 14). The validation-arena advantage on feature sequences
+(8 / 8 at 1.05) did not carry over (8 / 11 at 1.26 sealed, heuristic 8 / 11 at 1.07).
+
+**Standing decision for the user:** the benchmark as built rewards speed, so the claim "the world model finds
+route-and-speed choices a cheap method misjudges" is not supported on this family. Options, in the order I would
+take them: (a) rebalance the benchmark toward speed-penalised and detour-only layouts and a cost that penalises
+speed, then re-run the same sealed protocol (collection and evaluation tooling exist; ~4 h on newton); (b) teach
+the imagination to stall (failure-weighted rollout loss or an explicit progress head on the recorded outcomes);
+(c) fix the pose head's heading ambiguity. (a) decides whether the thesis question is even posed by the terrain;
+(b) is the model work the question needs.

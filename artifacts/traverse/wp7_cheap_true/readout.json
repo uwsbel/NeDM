@@ -1,0 +1,29 @@
+{
+ "n_val": 722,
+ "best_step": 400,
+ "val_loss": 0.6968335509300232,
+ "auc_infeasible": 0.7662512988766251,
+ "infeasible_rate": 0.37534626038781166,
+ "precision_at_reject_20pct": 0.7430555555555556,
+ "time_mape_feasible": 0.1067946592354148,
+ "energy_mape_feasible": 0.3675512397536312,
+ "energy_ratio_feasible": 0.9557466073349952,
+ "by_kind": {
+  "crossing": {
+   "n": 578,
+   "infeasible_rate": 0.3771626297577855,
+   "auc_infeasible": 0.7769622833843017
+  },
+  "freeform": {
+   "n": 36,
+   "infeasible_rate": 0.3055555555555556,
+   "auc_infeasible": 0.4909090909090909
+  },
+  "sequence": {
+   "n": 108,
+   "infeasible_rate": 0.3888888888888889,
+   "auc_infeasible": 0.976911976911977
+  }
+ },
+ "auc_infeasible_speed_only": 0.42693972394269397
+}
