@@ -24,8 +24,54 @@ from nedm.traverse.layout import EpisodeLayout
 from nedm.traverse.oracle import PlanCandidate
 from nedm.traverse.power_calib import KINDS, PowerModel
 from nedm.traverse.terrain import TerrainMap
-from traverse_wp5_sample_planner import Imaginer
+from traverse_wp5_sample_planner import FZ0, FZ1, PITCH, ROLL, Imaginer
 from traverse_wp6_imagine_sweep import auc
+
+
+def imagine_arena_batched(a, cache: Path, groups: list[tuple[str, list[str], EpisodeLayout, tuple]], labels: dict,
+                          power_models: dict) -> dict[str, dict[str, np.ndarray]]:
+    """All (layout, route) pairs of one arena in ONE imagination env per dynamics model (the per-layout ``Imaginer``
+    reloads model + policy for every layout). Returns key -> {ok, time_s, energy_pess, energy_kj, completed, failed,
+    pred_max_roll_deg, pred_max_pitch_deg, pred_min_fz_n}; same computation as ``Imaginer.__call__``."""
+    import torch
+    from nedm.traverse.tracker_env import TraverseTrackingEnv, merge_env_cfg
+    from traverse_wp4_score_candidates import load_policy, rollout, route_dict
+    dev = a.device
+    entries, starts, discs, keys = [], [], [], []
+    for lay, ks, layout, start in groups:
+        for k in ks:
+            with np.load(cache / f"{k}.npz") as z:
+                plan = PlanCandidate(waypoints=z["route_waypoints"].astype(float), speeds=z["route_speeds"].astype(float),
+                                     headings=z["route_headings"].astype(float), stations=z["route_stations"].astype(float), meta={"candidate": labels[k]["candidate"]})
+            entries.append((ks[0], route_dict(plan))); starts.append(start); discs.append(np.asarray(layout.obstacles(), np.float32).reshape(-1, 3)); keys.append(k)
+    n = len(entries); m = max(len(d) for d in discs)
+    obst = np.full((n, m, 3), -1.0, np.float32)
+    for i, d in enumerate(discs):
+        obst[i, : len(d)] = d
+    obst_t = torch.tensor(obst, device=dev)
+    horizon = int(round(a.horizon_s / 0.05))
+    per_model, limits = [], None
+    for ckpt in a.dynamics_checkpoints:
+        cfg = merge_env_cfg({"num_envs": n, "device": dev, "auto_reset": False, "split": "val", "dynamics_checkpoint": ckpt, "arena": a.arena,
+                             "cache": str(cache), "routes": a.routes, "fragment_steps_max": horizon, "z1_extra_cache": None, "map_key": a.map_key})
+        env = TraverseTrackingEnv(cfg, device=dev, entries=entries)
+        policy = load_policy(Path(a.policy), env, dev)
+        sp = torch.tensor(np.asarray(starts, np.float32), device=dev)
+        res = rollout(env, policy, horizon, obst_t, obst_t, power_models, sp, rest_start=True)
+        if limits is None:
+            z1, active = res["_traj"]["z1"], res["_traj"]["active"]
+            mm = np.where(active[..., None], z1, np.nan)
+            with np.errstate(all="ignore"):
+                limits = {"pred_max_roll_deg": np.degrees(np.nanmax(np.abs(mm[..., ROLL]), axis=0)), "pred_max_pitch_deg": np.degrees(np.nanmax(np.abs(mm[..., PITCH]), axis=0)),
+                          "pred_min_fz_n": np.nanmin(mm[..., FZ0:FZ1], axis=(0, 2)) if z1.shape[-1] >= FZ1 else np.full(n, np.nan)}
+        per_model.append({k: v.cpu().numpy() for k, v in res.items() if not k.startswith("_")})
+        del env, policy
+        torch.cuda.empty_cache()
+    names = {"head": "energy_kj", "act": "energy_act_kj", "state": "energy_state_kj"}
+    terms = [r[names[t]] for r in per_model for t in a.pess_terms if names[t] in r]
+    out = {"time_s": per_model[0]["time_s"], "completed": per_model[0]["completed"], "failed": per_model[0]["failed"], "energy_kj": per_model[0]["energy_kj"],
+           "energy_pess": np.max(terms, axis=0), "ok": np.all([r["completed"] & ~r["failed"] & ~r["collided"] for r in per_model], axis=0), **limits}
+    return {k: {f: out[f][i] for f in out} for i, k in enumerate(keys)}
 
 
 def main() -> None:
@@ -41,6 +87,7 @@ def main() -> None:
     ap.add_argument("--pess-terms", nargs="+", default=["head", "state"])
     ap.add_argument("--horizon-s", type=float, default=30.0)
     ap.add_argument("--max-layouts", type=int, default=0)
+    ap.add_argument("--per-layout", action="store_true", help="one imagination env per layout (slow; default: all routes of an arena in one env)")
     ap.add_argument("--device", default="cuda")
     args = ap.parse_args()
     cache = Path(args.cache)
@@ -63,25 +110,31 @@ def main() -> None:
         layouts = sorted(by_layout)
         if args.max_layouts:
             layouts = layouts[: args.max_layouts]
+        groups = []
         for lay in layouts:
-            keys = by_layout[lay]
-            plans, routes_meta = [], []
-            with np.load(cache / f"{keys[0]}.npz") as z:
-                layout = EpisodeLayout.from_json(json.loads(str(z["layout_json"])))
+            with np.load(cache / f"{by_layout[lay][0]}.npz") as z:
+                groups.append((lay, by_layout[lay], EpisodeLayout.from_json(json.loads(str(z["layout_json"]))), tuple(start_est[lay]["est"])))
+        batched = {} if args.per_layout else imagine_arena_batched(a, cache, groups, labels, power_models)
+        for lay, keys, layout, start in groups:
+            if args.per_layout:
+                plans = []
+                for k in keys:
+                    with np.load(cache / f"{k}.npz") as z:
+                        plans.append(PlanCandidate(waypoints=z["route_waypoints"].astype(float), speeds=z["route_speeds"].astype(float),
+                                                   headings=z["route_headings"].astype(float), stations=z["route_stations"].astype(float), meta={"candidate": labels[k]["candidate"]}))
+                r_ = imagine(keys[0], plans, start, layout.obstacles(), layout)
+                res = {k: {f: r_[f][i] for f in r_} for i, k in enumerate(keys)}
+            else:
+                res = {k: batched[k] for k in keys}
             for k in keys:
-                with np.load(cache / f"{k}.npz") as z:
-                    plans.append(PlanCandidate(waypoints=z["route_waypoints"].astype(float), speeds=z["route_speeds"].astype(float),
-                                               headings=z["route_headings"].astype(float), stations=z["route_stations"].astype(float), meta={"candidate": labels[k]["candidate"]}))
-            res = imagine(keys[0], plans, tuple(start_est[lay]["est"]), layout.obstacles(), layout)
-            for i, k in enumerate(keys):
-                c = labels[k]
+                c, r_ = labels[k], res[k]
                 feasible = bool(c.get("completed")) and not bool(c.get("stalled")) and not bool(c.get("contact"))
                 rows.append({"key": k, "arena": aid, "layout": lay, "kind": c.get("kind"), "candidate": c["candidate"], "chrono_feasible": feasible, "chrono_status": c["status"],
                              "chrono_time": c["time_s"], "chrono_energy": c["energy_kj"], "chrono_max_pitch": c.get("max_pitch_deg"), "chrono_max_roll": c.get("max_roll_deg"),
-                             "img_ok": bool(res["ok"][i]), "img_completed": bool(res["completed"][i]), "img_failed": bool(res["failed"][i]),
-                             "img_time": float(res["time_s"][i]), "img_energy": float(res["energy_pess"][i]), "img_energy_head": float(res["energy_kj"][i]),
-                             "img_max_pitch": float(res["pred_max_pitch_deg"][i]), "img_max_roll": float(res["pred_max_roll_deg"][i]), "img_min_fz": float(res["pred_min_fz_n"][i])})
-            n_ok = sum(bool(res["ok"][i]) for i in range(len(keys))); n_f = sum(rows[-len(keys) + i]["chrono_feasible"] for i in range(len(keys)))
+                             "img_ok": bool(r_["ok"]), "img_completed": bool(r_["completed"]), "img_failed": bool(r_["failed"]),
+                             "img_time": float(r_["time_s"]), "img_energy": float(r_["energy_pess"]), "img_energy_head": float(r_["energy_kj"]),
+                             "img_max_pitch": float(r_["pred_max_pitch_deg"]), "img_max_roll": float(r_["pred_max_roll_deg"]), "img_min_fz": float(r_["pred_min_fz_n"])})
+            n_ok = sum(bool(res[k]["ok"]) for k in keys); n_f = sum(rows[-len(keys) + i]["chrono_feasible"] for i in range(len(keys)))
             print(f"{lay:44s} imagined ok {n_ok:2d}/{len(keys):2d}  Chrono feasible {n_f:2d}/{len(keys):2d}", flush=True)
     (out / "rows.json").write_text(json.dumps(rows, indent=1))
     feas = np.array([r["chrono_feasible"] for r in rows]); ok = np.array([r["img_ok"] for r in rows])

@@ -147,9 +147,12 @@ class EpisodeBank:
             hdg.append(np.asarray(route["headings"], np.float32))
             sta.append(np.asarray(route["stations"], np.float32))
         self.keys = keys
-        self.n_frames = z1[0].shape[0]
+        self.n_frames = max(a.shape[0] for a in z1)
         self.context = context
-        z1_np, act_np, pose_np = np.stack(z1), np.stack(act), np.stack(pose)
+        # schema-v2 caches hold variable-length episodes: pad by repeating the last row (planner rollouts read only
+        # frame 0 / the context window; fragments never start past active_end, computed from the route below)
+        pad = lambda a: a if a.shape[0] == self.n_frames else np.concatenate([a, np.repeat(a[-1:], self.n_frames - a.shape[0], axis=0)], axis=0)
+        z1_np, act_np, pose_np = np.stack([pad(a) for a in z1]), np.stack([pad(a) for a in act]), np.stack([pad(a) for a in pose])
         self.z1 = torch.from_numpy((z1_np - norm.z1_mean) / norm.z1_std).float().to(device)
         self.act = torch.from_numpy((act_np - norm.act_mean) / norm.act_std).float().to(device)
         self.act_raw = torch.from_numpy(act_np).float().to(device)

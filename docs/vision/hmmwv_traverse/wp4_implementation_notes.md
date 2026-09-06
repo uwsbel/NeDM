@@ -1214,3 +1214,67 @@ speed-penalised rough crossings, detour-only and detour-cheapest craters, contac
 no-solution layouts as negatives; successes and failures alike; several generator seeds so that terrain
 instances (not headings through one feature) can be split train / dev / test; and sequences of features
 (the sharpened question of §10.8), which none of the single-crossing challenges yet exercise.
+
+## 11. Learning comparison (2026-09-06/07): pipeline, multi-arena collection, matched models — plan §28
+
+### 11.1 Pipeline prerequisites (plan §28 step 0) — commit `890a46f`
+
+* **Crop height field per episode.** `MapCropper.forward(maps, pose, heightmap=None)`: the world → image projection
+  of the ego window reads an optional `(B, 1, H, W)` height field, so a batch may mix arenas; the trainer keeps a
+  bank of arena heightmaps and indexes it per episode. Default path (module buffer) is numerically unchanged.
+* **Cache schema v2.** `nrd_data.load_split` accepts variable-length episodes (files hold the recorded frames only,
+  plus `arena` and `status`), pads them by repeating the last row and returns a `valid` mask, `arena_idx` /
+  `arena_ids` and per-episode `status`; `concat_splits` merges caches of different lengths / arenas;
+  `Normalizer.fit` uses recorded frames only.
+* **Trainer** (`traverse_wp2_train_map.py`): `--caches ... --split-by arena --val-arenas ... --test-arenas ...`
+  splits by terrain instance (test arenas are loaded by nothing); window sampling draws only windows inside the
+  recorded frames (episodes weighted by the windows they offer, as before for uniform episodes); the rollout
+  metrics average only episodes that were still recorded at the horizon (`n@h` reported) and per-arena `z1_mae`;
+  `--extra-train-cache` still appends arena_v1 tracker episodes (sidecar applied when they are 15-D); `ckpt_last.pt`.
+* **Collector = the Chrono runner** (`traverse_wp3_chrono_eval.py --tasks-file` with a `record` path per run):
+  every frame from t = 0 until the run ends is written in the cache convention (state after `Synchronize` at the
+  first substep, the action of that interval; 17-D powertrain preset), whichever way it ends — `completed`
+  (+ `--park-s 1.5` of braking, the collector's parking convention), `stall` (`--stall-abort-s 3`: throttle on,
+  no motion for 3 s after the launch window), `off_route`, `rollover`, `timeout` (30 s). `--skip-existing`
+  resumes a batch (newton's start-up segfaults). One frame-0 camera dump per layout.
+* **Pose head input.** The elevation channel is normalised with the head's training arena everywhere it is used
+  (runner `--norm-arena`, challenge cache builder). The map head's elevation decode likewise uses its training
+  range (`MapDecoder`; on the rough arena: bias 0.09 m, MAE 0.44 m, corr 0.89 against the true field).
+
+Smoke on newton (3 runs, `arena_v3_rough` crater 8): direct 8 m/s completed (150 + 30 parking frames),
+slope-aware stalled after 270 frames, 2 m/s timed out at 600 frames — all three recorded, labelled, and loaded by
+the trainer with the mask.
+
+### 11.2 Collection design (plan §28 step 1) — `traverse_wp7_arenas.py`, `traverse_wp7_collection_tasks.py`
+
+Seven arena instances `assets/traverse/arena_f101 … f107` (one generator seed each; family ranges: slope cap
+25–32°, roughness 0.15–0.28 m at 2–3 m correlation, 5–7 hills of 2.5–4.5 m, 5–7 craters of 2–4 m sigma;
+orientation copied from arena_v1). **f101–f104 train, f105 validation / model selection, f106–f107 sealed** (their
+runs are the evaluation's candidate banks and are looked at once, at the end).
+
+Per arena, tracker-driven runs from rest, true localisation for the tracker, camera frame 0 dumped per layout:
+
+| kind | layouts | runs per layout |
+|---|---|---|
+| crossing of one feature (8 headings; hills also on the shoulder = side slope) | 21–47 | `direct_v2…v9` constant speed, `slope_aware` (rule profile), `detour_L/R` at 5 m/s |
+| sequence: climb through A, turn (±35° / ±60°) onto B's centre or shoulder, 14–28 m apart | 5–9 | `seq_v{v1}_{v2}` two-speed profiles (v1 through A, v2 from 8 m before B; curvature cap relaxed to 5 m/s² so fast turn entries are driven), `slope_aware` |
+| free-form sampled routes between random flat start / goal pairs | 6–8 | 6 routes spread over cruise speed 2–9 m/s |
+
+Runs: f101 441, f102 402, f103 314, f104 592, f105 609 (2 358 training/validation runs); sealed f106 406, f107 566
+with the full set of 8 speed pairs per sequence. Start / house placement needs ≤ 14° local slope, which skips
+roughly half the heading variants on these rough surfaces. Chrono on newton, 12 processes, ≈ 6 runs / min.
+
+### 11.3 First arena, frozen model (early read, 2026-09-07 00:55) — `wp7_collect_f101`
+
+441 runs on `arena_f101` (47 layouts): 371 completed, 32 stall, 34 timeout, 2 rollover, 2 off-route; recorded
+episodes 101–600 frames (mean 368). The camera start-pose estimate is 0.07 m off on average (max 0.18 m). The
+sequence layouts are two-sided as intended: on `crater9_hill4_t+35` the slow pairs (3/3, 5/7) complete and the
+fast ones (7/4, 8/3, 8/8) stall; on `crater6_crater9_t-60_sh` only 6/6 completes (slower pairs time out, faster
+ones too); on `hill2_crater8_t+60` the cheapest pair is 7/4 (211 kJ) against 299 kJ for 8/8 and 771 kJ / 28 s
+for the rule profile; one sequence layout has no feasible route at all.
+
+The frozen arena_v1 model (`wp2_mapv2_pt_dag_ro8_amd`) imagined 104 of these runs on 16 layouts: it rejects 1 of
+35 infeasible routes (AUC of "rejects" 0.51; imagined time AUC 0.69, imagined max roll 0.78), imagined energy is
+1.36 under Chrono (corr 0.59), time 1.05 (corr 0.91); its pick among each layout's routes is infeasible on 1/13
+layouts, regret 1.06 among feasible picks. This is the baseline the models trained on f101–f104 have to beat on
+f105 and the sealed arenas.
