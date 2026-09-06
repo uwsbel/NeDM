@@ -3280,3 +3280,45 @@ credit anywhere, is not what a real corpus looks like after months of varied wor
 **Treat a suspiciously total result as a probe failure until proven otherwise** — and
 before reporting an absence, confirm the probe finds the thing where it is known to
 exist.
+
+## A reproduction instrument is only as general as the invocation it can rebuild
+
+A backfill replayed one episode per dataset to establish which Chrono build produced it.
+Six of nineteen reproduced bit-identically. The other thirteen did not — and none of
+that is evidence about Chrono.
+
+The replay reuses the verdict harness's `arm_cmd`, which was written to rebuild one
+family of episodes and reproduces only the flags that family needs. Three independent
+proofs that this, not the data, is what the mismatches measure:
+
+```
+  terrain hardcoded to rigid   -> the two CRM datasets produced no comparable CSV
+  no torque-perturbation flag  -> go2_torque_fwd carries 33.1 Nm of perturbation
+                                  torque with force identically zero
+  spec does not determine output -> three datasets yield IDENTICAL replay specs
+                                  and contain different data, so at most one
+                                  could ever have matched
+```
+
+The third is the general form: if two datasets produce the same reproduction spec and
+different data, the spec is missing something that determines the output, and no
+comparison built on it can conclude anything.
+
+**Reusing a proven instrument was right; assuming its validity transferred was not.**
+The instinct to reuse `arm_cmd` rather than write a second replay path was correct — a
+second implementation would be a second thing to keep correct. But "this code is
+trusted" and "this code answers my question" are different claims, and the first was
+doing the work of the second here.
+
+Before reusing an instrument on a new population, find the case where it must fail and
+check that it does. Had these thirteen been reported as failures to reproduce, the
+alarming reading — data underneath published results does not replay — was available
+and wrong.
+
+And the smaller one that cost three iterations: `episode_spec` takes a **string**, and
+passing a `Path` calls `Path.replace`, which is a filesystem rename, not a string
+substitution. It raised rather than renaming anything, but a bare `except: continue`
+above it turned the raise into a silent skip and produced a clean, wrong 32/32. I then
+misread my own debug output — a probe that printed `r[0]` — concluded the return type
+was a dict, and "fixed" a bug that did not exist, on top of the one that did.
+Instrumenting the failing call directly resolved in one step what three guesses had not.

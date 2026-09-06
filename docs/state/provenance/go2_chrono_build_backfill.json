@@ -1,0 +1,242 @@
+{
+ "note": "Backfilled Chrono build provenance. Establishes by replay what the datasets never recorded, before a rebuild makes it unrecoverable.",
+ "build_replayed_against": {
+  "pychrono_path": "/home/kyle/Documents/sbel/chrono-build/bin/pychrono/_core.so",
+  "core_so_md5": "3b0bd530d06f54a4f688c5cddef249cf",
+  "source_build": true
+ },
+ "datasets": {
+  "go2_discrete": {
+   "status": "no replayable episode",
+   "build": "unknown",
+   "confidence": "unknown"
+  },
+  "go2_exc_Bdiag": {
+   "status": "no replayable episode",
+   "build": "unknown",
+   "confidence": "unknown"
+  },
+  "go2_exc_C": {
+   "status": "no replayable episode",
+   "build": "unknown",
+   "confidence": "unknown"
+  },
+  "go2_exc_b10": {
+   "status": "no replayable episode",
+   "build": "unknown",
+   "confidence": "unknown"
+  },
+  "go2_exc_b10_c2": {
+   "status": "no replayable episode",
+   "build": "unknown",
+   "confidence": "unknown"
+  },
+  "go2_exc_b40": {
+   "status": "no replayable episode",
+   "build": "unknown",
+   "confidence": "unknown"
+  },
+  "go2_exc_b40_c2": {
+   "status": "no replayable episode",
+   "build": "unknown",
+   "confidence": "unknown"
+  },
+  "go2_exc_b40_c3": {
+   "status": "no replayable episode",
+   "build": "unknown",
+   "confidence": "unknown"
+  },
+  "go2_exc_b40_c4": {
+   "status": "no replayable episode",
+   "build": "unknown",
+   "confidence": "unknown"
+  },
+  "go2_exc_c10_c2": {
+   "status": "no replayable episode",
+   "build": "unknown",
+   "confidence": "unknown"
+  },
+  "go2_excitation_pilot": {
+   "status": "no replayable episode",
+   "build": "unknown",
+   "confidence": "unknown"
+  },
+  "go2_excitation_v2": {
+   "status": "no replayable episode",
+   "build": "unknown",
+   "confidence": "unknown"
+  },
+  "go2_excitation_v3": {
+   "status": "no replayable episode",
+   "build": "unknown",
+   "confidence": "unknown"
+  },
+  "go2_joint_off3000000": {
+   "status": "bit-identical",
+   "build": "3b0bd530d06f54a4f688c5cddef249cf",
+   "confidence": "verified",
+   "episode": "go2_flat_000.csv",
+   "evidence": "replayed one episode under the build named in this file, with checkpoint /home/kyle/sbel-artifacts/checkpoints/go2_cts_150k.pt, and compared physics columns only",
+   "mismatch_is_ambiguous": false
+  },
+  "go2_merged": {
+   "status": "MISMATCH: replay produced no CSV",
+   "build": "ambiguous",
+   "confidence": "ambiguous",
+   "episode": "go2_crm_s0_arc_000.csv",
+   "evidence": "replayed one episode under the build named in this file, with checkpoint /home/kyle/sbel-artifacts/checkpoints/go2_cts_150k.pt, and compared physics columns only",
+   "mismatch_is_ambiguous": true
+  },
+  "go2_pairprobe_pert": {
+   "status": "MISMATCH: physics digest differs (schema additions excluded from both)",
+   "build": "ambiguous",
+   "confidence": "ambiguous",
+   "episode": "go2_flat_000.csv",
+   "evidence": "replayed one episode under the build named in this file, with checkpoint /home/kyle/sbel-artifacts/checkpoints/go2_cts_150k.pt, and compared physics columns only",
+   "mismatch_is_ambiguous": true
+  },
+  "go2_pairprobe_pert02": {
+   "status": "MISMATCH: physics digest differs (schema additions excluded from both)",
+   "build": "ambiguous",
+   "confidence": "ambiguous",
+   "episode": "go2_flat_000.csv",
+   "evidence": "replayed one episode under the build named in this file, with checkpoint /home/kyle/sbel-artifacts/checkpoints/go2_cts_150k.pt, and compared physics columns only",
+   "mismatch_is_ambiguous": true
+  },
+  "go2_pairprobe_repeat": {
+   "status": "MISMATCH: physics digest differs (schema additions excluded from both)",
+   "build": "ambiguous",
+   "confidence": "ambiguous",
+   "episode": "go2_flat_000.csv",
+   "evidence": "replayed one episode under the build named in this file, with checkpoint /home/kyle/sbel-artifacts/checkpoints/go2_cts_150k.pt, and compared physics columns only",
+   "mismatch_is_ambiguous": true
+  },
+  "go2_seedprobe_off4000000": {
+   "status": "MISMATCH: physics digest differs (schema additions excluded from both)",
+   "build": "ambiguous",
+   "confidence": "ambiguous",
+   "episode": "go2_flat_000.csv",
+   "evidence": "replayed one episode under the build named in this file, with checkpoint /home/kyle/sbel-artifacts/checkpoints/go2_cts_150k.pt, and compared physics columns only",
+   "mismatch_is_ambiguous": true
+  },
+  "go2_stand_tilt": {
+   "status": "MISMATCH: physics digest differs (schema additions excluded from both)",
+   "build": "ambiguous",
+   "confidence": "ambiguous",
+   "episode": "go2_flat_000.csv",
+   "evidence": "replayed one episode under the build named in this file, with checkpoint /home/kyle/sbel-artifacts/checkpoints/go2_cts_150k.pt, and compared physics columns only",
+   "mismatch_is_ambiguous": true
+  },
+  "go2_standpose_0": {
+   "status": "MISMATCH: physics digest differs (schema additions excluded from both)",
+   "build": "ambiguous",
+   "confidence": "ambiguous",
+   "episode": "go2_flat_000.csv",
+   "evidence": "replayed one episode under the build named in this file, with checkpoint /home/kyle/sbel-artifacts/checkpoints/go2_cts_150k.pt, and compared physics columns only",
+   "mismatch_is_ambiguous": true
+  },
+  "go2_standpose_1": {
+   "status": "MISMATCH: physics digest differs (schema additions excluded from both)",
+   "build": "ambiguous",
+   "confidence": "ambiguous",
+   "episode": "go2_flat_000.csv",
+   "evidence": "replayed one episode under the build named in this file, with checkpoint /home/kyle/sbel-artifacts/checkpoints/go2_cts_150k.pt, and compared physics columns only",
+   "mismatch_is_ambiguous": true
+  },
+  "go2_stratified": {
+   "status": "MISMATCH: replay produced no CSV",
+   "build": "ambiguous",
+   "confidence": "ambiguous",
+   "episode": "go2_crm_000.csv",
+   "evidence": "replayed one episode under the build named in this file, with checkpoint /home/kyle/sbel-artifacts/checkpoints/go2_cts_150k.pt, and compared physics columns only",
+   "mismatch_is_ambiguous": true
+  },
+  "go2_tilt_rear": {
+   "status": "MISMATCH: physics digest differs (schema additions excluded from both)",
+   "build": "ambiguous",
+   "confidence": "ambiguous",
+   "episode": "go2_flat_000.csv",
+   "evidence": "replayed one episode under the build named in this file, with checkpoint /home/kyle/sbel-artifacts/checkpoints/go2_cts_150k.pt, and compared physics columns only",
+   "mismatch_is_ambiguous": true
+  },
+  "go2_tilt_walkable": {
+   "status": "MISMATCH: physics digest differs (schema additions excluded from both)",
+   "build": "ambiguous",
+   "confidence": "ambiguous",
+   "episode": "go2_flat_000.csv",
+   "evidence": "replayed one episode under the build named in this file, with checkpoint /home/kyle/sbel-artifacts/checkpoints/go2_cts_150k.pt, and compared physics columns only",
+   "mismatch_is_ambiguous": true
+  },
+  "go2_torque_bracket_v2": {
+   "status": "MISMATCH: physics digest differs (schema additions excluded from both)",
+   "build": "ambiguous",
+   "confidence": "ambiguous",
+   "episode": "go2_flat_000.csv",
+   "evidence": "replayed one episode under the build named in this file, with checkpoint /home/kyle/sbel-artifacts/checkpoints/go2_cts_150k.pt, and compared physics columns only",
+   "mismatch_is_ambiguous": true
+  },
+  "go2_torque_fwd": {
+   "status": "MISMATCH: physics digest differs (schema additions excluded from both)",
+   "build": "ambiguous",
+   "confidence": "ambiguous",
+   "episode": "go2_flat_000.csv",
+   "evidence": "replayed one episode under the build named in this file, with checkpoint /home/kyle/sbel-artifacts/checkpoints/go2_cts_150k.pt, and compared physics columns only",
+   "mismatch_is_ambiguous": true
+  },
+  "go2_verdict_r4": {
+   "status": "bit-identical",
+   "build": "3b0bd530d06f54a4f688c5cddef249cf",
+   "confidence": "verified",
+   "episode": "go2_flat_151.csv",
+   "evidence": "replayed one episode under the build named in this file, with checkpoint /home/kyle/sbel-artifacts/checkpoints/go2_cts_150k.pt, and compared physics columns only",
+   "mismatch_is_ambiguous": false
+  },
+  "go2_verdict_r5": {
+   "status": "bit-identical",
+   "build": "3b0bd530d06f54a4f688c5cddef249cf",
+   "confidence": "verified",
+   "episode": "go2_flat_151.csv",
+   "evidence": "replayed one episode under the build named in this file, with checkpoint /home/kyle/sbel-artifacts/checkpoints/go2_cts_150k.pt, and compared physics columns only",
+   "mismatch_is_ambiguous": false
+  },
+  "go2_verdict_rehearsal": {
+   "status": "bit-identical",
+   "build": "3b0bd530d06f54a4f688c5cddef249cf",
+   "confidence": "verified",
+   "episode": "go2_flat_151.csv",
+   "evidence": "replayed one episode under the build named in this file, with checkpoint /home/kyle/sbel-artifacts/checkpoints/go2_cts_150k.pt, and compared physics columns only",
+   "mismatch_is_ambiguous": false
+  },
+  "go2_verdict_surv": {
+   "status": "bit-identical",
+   "build": "3b0bd530d06f54a4f688c5cddef249cf",
+   "confidence": "verified",
+   "episode": "go2_flat_151.csv",
+   "evidence": "replayed one episode under the build named in this file, with checkpoint /home/kyle/sbel-artifacts/checkpoints/go2_cts_150k.pt, and compared physics columns only",
+   "mismatch_is_ambiguous": false
+  },
+  "go2_verdict_v4": {
+   "status": "bit-identical",
+   "build": "3b0bd530d06f54a4f688c5cddef249cf",
+   "confidence": "verified",
+   "episode": "go2_flat_151.csv",
+   "evidence": "replayed one episode under the build named in this file, with checkpoint /home/kyle/sbel-artifacts/checkpoints/go2_cts_150k.pt, and compared physics columns only",
+   "mismatch_is_ambiguous": false
+  }
+ },
+ "READ_THIS_BEFORE_THE_MISMATCHES": "A MISMATCH IN THIS FILE IS NOT EVIDENCE OF A BUILD PROBLEM. The replay uses run_go2_finetune_verdict.arm_cmd, which reproduces only the flag set the verdict harness needs. Where it cannot reproduce a dataset's original invocation, the replay differs for reasons that have nothing to do with Chrono. Proven insufficient three independent ways, below. 6 datasets are VERIFIED; the other 13 are UNDETERMINED BY THIS INSTRUMENT; zero show any sign of a build problem.",
+ "why_the_instrument_is_insufficient": {
+  "1_terrain_is_hardcoded": "arm_cmd passes --terrain rigid unconditionally. go2_stratified and go2_merged are CRM datasets, so the replay ran different physics and produced no comparable CSV at all.",
+  "2_no_torque_perturbation_flag": "arm_cmd passes --perturb-peak-n (force) and has no torque equivalent. go2_torque_fwd's episodes carry perturbation torque up to 33.1 Nm with perturbation force identically zero, so the replay could not reproduce them. Applies to the torque and pairprobe datasets.",
+  "3_the_spec_does_not_determine_the_output": "go2_stand_tilt, go2_standpose_0 and go2_tilt_walkable yield IDENTICAL replay specs (off=5000000, seed=2000, roll=-1.75, pitch=2.80, prewalk=1.08) but contain different data. At most one could have matched. The episode sidecar therefore omits something that determines the output, which makes a mismatch uninformative about anything else."
+ },
+ "also_unrecorded_the_checkpoint": "No sidecar records which policy checkpoint produced the episode, so even a well-formed replay confounds build with policy. A MATCH rules out both at once and is the only clean verdict available; a mismatch separates neither.",
+ "verified": [
+  "go2_joint_off3000000",
+  "go2_verdict_r4",
+  "go2_verdict_r5",
+  "go2_verdict_rehearsal",
+  "go2_verdict_surv",
+  "go2_verdict_v4"
+ ]
+}
