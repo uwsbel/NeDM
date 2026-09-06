@@ -1,0 +1,15 @@
+{
+ "note": "Audit of which Go2 datasets can be re-executed, which bounds what can ever be verified about the data underneath every result in this study.",
+ "captured_utc": "2026-09-06T02:38:27.158126-05:00",
+ "result": {
+  "datasets": 32,
+  "record_a_seed": 20,
+  "record_a_chrono_fingerprint": 0
+ },
+ "split": {
+  "re_executable": "The 20 datasets written by the mainline collector, which emits collector_config.resolved.json per episode carrying scenario_generator.seed. Includes every verdict dataset.",
+  "not_re_executable": "The 8 excitation datasets written before 2026-09-06, which emit a run-level summary.json that did not record seed or argv."
+ },
+ "a_seed_is_worth_more_than_a_fingerprint": "No dataset records a Chrono fingerprint, but that is recoverable for the 20 that record a seed: re-run one episode and compare physics columns, which is exactly how go2_exc_b40 and go2_exc_b10 were settled. The reverse does not hold -- a fingerprint cannot recover a seed. So verifiability subsumes traceability, and if only one can be recorded it should be the seed.",
+ "caveat_on_this_audit": "The first version of this audit searched for '*meta*.json' and reported 0/32 datasets recording a seed. The real filename is collector_config.resolved.json. The probe was wrong, not the data, and a wrong probe returns exactly what a real absence returns. The 0/32 was only caught because it was implausible enough to check."
+}

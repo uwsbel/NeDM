@@ -3242,3 +3242,41 @@ writes one.
 When a fix lands, check that the stated reason predicts the fix. If a different
 diagnosis would have produced the same action, the agreement is not evidence that the
 diagnosis is right.
+
+## A seed is worth more than a fingerprint, because one recovers the other
+
+Auditing 32 Go2 datasets: 20 record a seed, **none** records a Chrono build fingerprint.
+That sounds like traceability is the gap. It is the other way round.
+
+For the 20 that record a seed, the build is recoverable — re-run one episode and compare
+physics columns, which is exactly how `go2_exc_b40` and `go2_exc_b10` were settled from
+"attested" to "verified". A fingerprint cannot recover a seed: no amount of knowing which
+binary was used tells you which random stream was drawn.
+
+**Verifiability subsumes traceability.** If only one field can be recorded, record the
+seed. Record both, but never trade the seed away for metadata that feels more directly
+descriptive.
+
+The corollary for the excitation family, which recorded neither: it is the only part of
+the corpus whose build cannot be established even in principle, and that is a
+consequence of writing a run-level summary instead of the per-episode config the
+mainline collector emits — a format choice made for convenience that quietly cost the
+ability to check the data.
+
+## A wrong probe returns exactly what a real absence returns
+
+The first pass of that audit searched for `*meta*.json` and reported **0 of 32 datasets
+record a seed**. The real filename is `collector_config.resolved.json`. Nothing was
+missing; the probe was.
+
+This is the second time in this study the same error has appeared — the first was
+grepping the collector for a field that lives in `dataset.py` and concluding the
+mechanism was absent. The failure has no signature: a search of the wrong place returns
+an empty result that is indistinguishable from the thing not existing, and the emptiness
+itself feels like evidence.
+
+What caught it both times was the answer being *too* clean. 0 of 32, with no partial
+credit anywhere, is not what a real corpus looks like after months of varied work.
+**Treat a suspiciously total result as a probe failure until proven otherwise** — and
+before reporting an absence, confirm the probe finds the thing where it is known to
+exist.
