@@ -3796,3 +3796,34 @@ Operationally: before deferring work on cost, state what the resource would othe
 in that window. If the answer is "nothing", the cost is not the runtime — it is whatever
 the delay pushes back, which is often also nothing. And note where the blind spot sat:
 two parties reasoning carefully about the science, neither about the hardware, for hours.
+
+## Work gets queued by default, and the dependency is often absent
+
+Three times in one day, work was arranged sequentially and the sequencing turned out to
+rest on nothing:
+
+```
+  re-collection held until the sweep finished    the sweep is GPU-bound; the collector
+                                                 box was at load 0.00
+  transfer held until the sweep finished         different machine, different resource
+  each shard compressed, then all transferred    sync of shard 1 does not need shard 6
+                                                 to have finished compressing
+```
+
+In each case the ordering had a plausible-sounding justification — don't spend compute
+before you need it, don't compete for the far machine, finish staging before shipping —
+and in each case the two activities used different resources, or the same resource with
+capacity to spare. Nobody imposed the queue; it was the default arrangement, and the
+default is sequential because that is how the work is described rather than how it must
+run.
+
+The question that dissolved all three was the same: **what does one of these need from the
+other?** Not "can they overlap", which invites a risk assessment, but what the actual
+dependency is. Twice the answer was nothing, and once it was a shared resource that had
+been measured idle.
+
+The reason this is worth writing down rather than being obvious: the justifications were
+not wrong in general. Each is a real consideration under contention. What was missing each
+time was checking whether the contention existed, and the cost of not checking is invisible
+because the sequential version still works — it just takes longer, and nothing reports the
+difference.
