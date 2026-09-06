@@ -76,6 +76,20 @@ def parse_args() -> argparse.Namespace:
                              "every other channel is genuinely 100 Hz.")
     parser.add_argument("--episode-index", type=int, default=0)
     parser.add_argument("--seed", type=int, default=0)
+    parser.add_argument(
+        "--action-noise-sigma-rad", type=float, default=0.0,
+        help="Gaussian noise added to the twelve joint TARGETS each control step, "
+             "in radians. Every other perturbation this collector offers is an "
+             "external push on the BODY, which leaves the action an exact function "
+             "of the state: measured, only ~4%% of action variance survives "
+             "conditioning on the state, over an effectively rank-2 subspace of a "
+             "12-dimensional action. A surrogate fit on that data can ignore the "
+             "action entirely and still fit, which is why it is undefined once a "
+             "fine-tuned policy leaves the a = pi(s) manifold. This flag is the "
+             "only thing here that decorrelates action from state. Applied AFTER "
+             "the policy acts and BEFORE actuation, so the logged action is the "
+             "one actually applied -- logging the clean action would recreate the "
+             "confound in the dataset while hiding it.")
     parser.add_argument("--heading-deg", type=float, default=0.0)
     parser.add_argument("--spawn-x-m", type=float, default=0.0)
     parser.add_argument("--spawn-y-m", type=float, default=0.0)
@@ -298,6 +312,13 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
     # of the episode's identity and replay exactly.
     import random as _random
     rng = _random.Random(args.seed)
+    # SEPARATE STREAM, and created only when the flag is on. Drawing action noise
+    # from `rng` above would shift every subsequent perturbation draw and break
+    # bit-identical replay of every episode already collected -- the same class of
+    # break as the perturbation draw-order bug fixed in 519ad1d. With sigma = 0 no
+    # draw is taken and nothing about this collector's behaviour changes.
+    _action_rng = (np.random.default_rng([args.seed, 0xAC7104])
+                   if args.action_noise_sigma_rad > 0.0 else None)
     cwd_at_start = os.getcwd()
     assets = Path(args.assets)
     urdf = assets / "data/robot/go2_irrvis/urdf/go2_description.urdf"
@@ -505,6 +526,14 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
                     _raw = np.zeros(12, dtype=np.float64)
                     _raw[CHRONO_TO_IMPORTED] = policy.last_actions
                     policy_raw = _raw
+                    # NOT during the ramp or settle: those phases are a scripted
+                    # stand-up, not a policy decision, and perturbing them only
+                    # changes how often the robot falls before it starts walking.
+                    # policy_raw stays clean -- it means "the number the policy
+                    # emitted", and that is still true.
+                    if _action_rng is not None:
+                        action = action + _action_rng.normal(
+                            0.0, args.action_noise_sigma_rad, size=12)
                 robot.actuate(action)
                 if sph_probe is not None:
                     soil_z, soil_ctrl = soilprobe.sample(sph_probe, robot)
@@ -675,6 +704,7 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
         "plant": args.actuation,
 
         "seed": int(args.seed),
+        "action_noise_sigma_rad": float(args.action_noise_sigma_rad),
         "heading_deg": float(args.heading_deg),
         "spawn_m": [float(args.spawn_x_m), float(args.spawn_y_m), float(spawn_z)],
         "soil_top_m": float(soil_top),
