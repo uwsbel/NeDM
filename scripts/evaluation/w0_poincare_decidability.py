@@ -134,6 +134,34 @@ def load_episode(path, joint_cols):
     return out
 
 
+def episode_is_diverged(ep, joint_cols, bound):
+    """True if any numeric channel leaves a physically absurd bound.
+
+    W0 HAS NO MAGNITUDE FILTER OF ITS OWN, and its only exclusion -- dropping
+    episodes with no detectable stance events -- protects it by accident. Divergence
+    usually destroys foot contact, so most diverged episodes are dropped anyway; of
+    eight tested, six were and two were not. Two in eight is enough to matter, because
+    R^2 is not robust and a single row carrying 1e34 sets the residual for the fit.
+
+    Measured cost of not having this: on go2_joint_off3000000, 21% of the 400 episodes
+    used carry at least one diverged row, and excluding them moves the median ridge
+    increment R^2 from 0.182 to 0.378 -- on FEWER episodes, so it is not a volume
+    effect. Every published W0 figure predating this flag was measured with the
+    contamination in.
+
+    The bound is deliberately far beyond anything physical, so a trip means numerical
+    divergence and not an aggressive episode.
+    """
+    for k, v in ep.items():
+        if v.dtype != float:
+            continue
+        if not np.isfinite(v).all():
+            return True
+        if np.abs(v).max() > bound:
+            return True
+    return False
+
+
 def episode_events(ep, joint_cols, fixed_dt=None, log_dt=None):
     """States at section-foot touchdown, or -- as a control -- at a fixed interval.
 
@@ -224,6 +252,11 @@ def main():
     ap.add_argument("--gait-band", type=float, nargs=2, default=None, metavar=("LO", "HI"),
                     help="keep pairs whose inter-event interval is in [LO,HI]*median. "
                          "PRE-REGISTER THIS before reading any R^2.")
+    ap.add_argument("--max-abs-state", type=float, default=None, metavar="BOUND",
+                    help="drop episodes where any numeric channel exceeds BOUND in "
+                         "absolute value, or is non-finite. Off by default so old runs "
+                         "reproduce; 1e4 is a sane setting and 1e34 values have been "
+                         "observed. See episode_is_diverged.")
     ap.add_argument("--min-spread", type=float, default=1e-4,
                     help="held-out sd below which a component is unscoreable, not unpredictable")
     ap.add_argument("--summary-json", default=None)
@@ -241,9 +274,12 @@ def main():
     joint_cols = sorted(joint_cols)
 
     dt = float(np.median(np.diff(probe["time_s"])))
-    per_ep, per_ep_t, ev_dt, diag_off, n_drop = [], [], [], [], 0
+    per_ep, per_ep_t, ev_dt, diag_off, n_drop, n_diverged = [], [], [], [], 0, 0
     for p in paths:
         ep = load_episode(p, joint_cols)
+        if a.max_abs_state is not None and episode_is_diverged(ep, joint_cols, a.max_abs_state):
+            n_diverged += 1
+            continue
         got = episode_events(ep, joint_cols, a.fixed_dt, dt)
         if got is None:
             n_drop += 1
@@ -314,7 +350,11 @@ def main():
     else:
         sx = StandardScaler().fit(Xtr)
         sy = StandardScaler().fit(Dtr)          # the INCREMENT, matching R2d
-        m = MLPRegressor((256, 256), max_iter=400, random_state=0)
+        # KEYWORD, NOT POSITIONAL. sklearn 1.8 made `loss` the first positional
+        # parameter; 1.7 had `hidden_layer_sizes` there. The positional form meant
+        # different things in the two analysis envs on this box -- it trained a net
+        # under one and raised InvalidParameterError under the other.
+        m = MLPRegressor(hidden_layer_sizes=(256, 256), max_iter=400, random_state=0)
         m.fit(sx.transform(Xtr), sy.transform(Dtr))
         res["mlp"] = R2d(sy.inverse_transform(m.predict(sx.transform(Xte))))
 
@@ -327,7 +367,7 @@ def main():
 
     arm = f"FIXED-dt {a.fixed_dt:.3f}s (CONTROL)" if a.fixed_dt else "EVENT-INDEXED"
     print(f"\n=== W0  {a.label}   [{arm}] ===")
-    print(f"episodes {len(per_ep)} usable, {n_drop} dropped   events {sum(len(s) for s in per_ep)}"
+    print(f"episodes {len(per_ep)} usable, {n_drop} dropped, {n_diverged} diverged   events {sum(len(s) for s in per_ep)}"
           f"   train {len(Xtr)} / test {len(Xte)}")
     print(f"log dt {dt*1000:.1f} ms  ({1/dt:.0f} Hz)")
     print(f"inter-event interval  mean {np.mean(ev_dt):.3f} s  sd {np.std(ev_dt):.3f} s"
