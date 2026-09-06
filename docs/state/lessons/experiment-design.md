@@ -2510,3 +2510,37 @@ enumerate broke it immediately.
 - **Ask a collaborator to reimplement from your written definition.** The exercise of
   stating it precisely enough for someone else to run is a stronger check than any amount
   of agreeing that you mean the same thing.
+
+## A test that runs a function is not a test that runs it at scale
+
+**Cost:** a 32.9 GiB allocation on the first real run, after the test suite passed ·
+**Found:** 2026-09-05 · **Applies to:** anything validated on synthetic data first
+
+`knn_pred` in the W0 harness built an `(n_te, n_tr, d)` distance tensor. The synthetic
+discrimination test has **240** test events. The rigid dataset has **43,224**. The test
+exercised the code path and could not exercise the size, so it passed, and the function
+died the first time it saw real data.
+
+**The generalisable half is not "test at scale". It is what a passing test does to
+attention:**
+
+> A test's existence transfers confidence out of proportion to what it covers. "There is
+> a test for it" is exactly what stops anyone looking.
+
+**Two questions that cost nothing and would have caught it:**
+
+1. **What is the largest input this will see, and how does cost grow?** Not "does it
+   work" &mdash; `O(n_te x n_tr)` against 43k is a different program from the same
+   expression against 240.
+2. **What does this test NOT cover?** Write it next to the test. A synthetic fixture is
+   chosen for the property under test and is silently unrepresentative in every other
+   dimension, size first among them.
+
+**Related shape, same session.** The pre-registered gait-band filter shipped with a check
+that reports R^2 on the pairs it *dropped*, precisely so it could be caught doing nothing.
+It fired on the first real run: dropped pairs scored 0.008 against kept pairs at -0.073,
+so the band was laundering rather than cleaning, and the declared fallback to the
+unfiltered number applied. **A check written so it can fail visibly caught its own
+subject; a test written so it could only pass did not.** The difference is not rigour, it
+is whether the failing outcome was made reachable
+([above](#before-running-a-verification-step-state-what-result-would-constitute-failure)).

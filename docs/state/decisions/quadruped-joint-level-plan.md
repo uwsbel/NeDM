@@ -264,7 +264,56 @@ to it. NeRD does not use it. So this is supported by one paper of the three and 
 **subordinate to W1**: if the analytic query closes the loop, one-step training may
 suffice, which is the cheaper outcome. Run it as an ablation on top of W1, not before it.
 
-### W4 — Event-indexed Poincare formulation
+### W4 — Event-indexed Poincare formulation: **DEAD. Ran 2026-09-05.**
+
+**Killed by its own pre-registered control, on rigid ground.** Five episode-split seeds,
+event-indexed against fixed-interval sampling at 0.290 s (the median inter-event
+interval), identical state vector and frame rule, **unfiltered on both arms** so whatever
+contamination exists sits in both equally.
+
+| model | event-indexed | fixed-dt | event > fixed | gap |
+|---|---|---|---|---|
+| ridge | 0.097 +/- 0.109 | **0.393 +/- 0.043** | **0 of 5** | -0.271 |
+| kNN-10 | 0.247 +/- 0.065 | **0.349 +/- 0.044** | **0 of 5** | -0.106 |
+
+**The rule was declared before either number existed:** licensed if event beats fixed on
+>= 4 of 5 seeds *and* the gap exceeds the within-arm seed spread; dead if fixed >= event.
+Fixed wins on every seed with both models, and the gap exceeds the seed spread in both
+cases (0.271 against 0.109; 0.106 against 0.065). **This is not a coin flip that landed
+five times.**
+
+**Why the absolute R^2 could not have decided this.** The rule originally shipped as "high
+licenses W4, low kills it" with no number attached, which is a placeholder rather than a
+pre-registration. The designated unfiltered result was 0.282, which is neither, and
+picking a boundary after seeing it would have been the exact failure the harness exists to
+prevent. **W4's premise was never "the map is predictable" but "event indexing beats time
+indexing"** &mdash; a comparison that needs no threshold.
+
+**The prediction was on record first**, from HALO's own structure: a clocked gait makes the
+Poincare map approximately a fixed-dt flow map, so event indexing should buy nothing here.
+It predicted parity and the data returned a disadvantage, which is the same conclusion
+with more force. **HALO never ran this control**, which is why its framing went
+unexamined; the spec at `../reference/papers/halo-spec.md` shows its gait is driven by an
+exogenous 0.6 s clock.
+
+**A second, independent reason, visible without the comparison:** the event arm's
+seed-to-seed spread is **0.109 against fixed's 0.043**, and its seed-1 ridge went
+negative. Event indexing is both worse on average and less stable, consistent with the
+event *times* carrying noise rather than signal.
+
+**Scope, adjacent to the verdict.** Rigid ground only; there is no CRM arm and there will
+not be one. And it is a statement about *this* gait: the mechanism predicts the result
+would not hold for a gait whose period varies with state. Our inter-event interval sd is
+127% of its mean, which sounds irregular, but the control shows that irregularity carries
+nothing the fixed-dt sampler lacks.
+
+**One number worth carrying forward rather than discarding with W4.** Fixed-interval ridge
+reaches **0.393** on the increment at a 0.290 s horizon, from ground-truth state. That is
+substantially more structure at a gait-cycle horizon than the 0.1 s trustworthy window
+suggested, and it bounds from below what W1 and W3 should be able to reach. It is a
+one-step number, not an autoregressive one, and must not be compared to a rollout result.
+
+*Original framing, kept because the reasoning stays useful:*
 
 **Gated behind W0.** Highest ceiling, highest risk, and the risk is structural rather than
 implementational.
