@@ -65,6 +65,49 @@ def main(argv: list[str] | None = None) -> int:
         else:
             print(f"  processed at {c}, clean tree")
 
+    # FINITENESS FIRST, OVER EVERY CHANNEL.
+    #
+    # Added after the excitation corpus reached training with all four
+    # foot_*_in_contact channels at literally "nan" in every row -- 100% of
+    # 3,984,945 train rows. normalisation divided by NaN, train_loss was NaN from
+    # epoch 1, and the run died several steps later on a missing checkpoint metric,
+    # which is the symptom and not the fault.
+    #
+    # FOUR CHECKS HAD ALREADY PASSED ON THAT DATA. Hashes verified the bytes crossed
+    # (nan is what was sent). The converter's self-check compared rows, episode count
+    # and rows-per-episode, all correct, and never inspects values. This verifier
+    # checked the circular channels and reported them clean, which they were. And
+    # validate_compatible_metadata compared field NAMES and passed, correctly --
+    # equal names, one side's values NaN.
+    #
+    # Every check verified a different true thing and none asked whether the numbers
+    # were numbers. This is that check, and it is deliberately over ALL channels
+    # rather than a named list, because the failure was in channels this file had no
+    # reason to be looking at.
+    nonfinite = 0
+    for split in a.splits:
+        for kind in ("states", "actions", "targets"):
+            arr_path = a.dataset_dir / f"{split}_{kind}.npy"
+            if not arr_path.exists():
+                continue
+            arr = np.load(arr_path, mmap_mode="r")
+            counts = np.zeros(arr.shape[1], dtype=np.int64)
+            for start in range(0, arr.shape[0], 1_000_000):
+                chunk = np.asarray(arr[start:start + 1_000_000])
+                counts += (~np.isfinite(chunk)).sum(axis=0)
+            names = fields if kind != "actions" else md.get("action_fields", [])
+            for i in np.where(counts > 0)[0]:
+                nonfinite += 1
+                label = names[i] if i < len(names) else f"col {i}"
+                print(f"  {split:5s} {kind:8s} {label:22s} {counts[i]:,} NON-FINITE "
+                      f"({counts[i] / arr.shape[0]:.4%})")
+    if nonfinite:
+        print(f"\nFAIL: {nonfinite} channel/split combinations contain non-finite values. "
+              f"Training on these divides the normalisation by NaN and produces a NaN "
+              f"loss from the first epoch.")
+        return 1
+    print("  finiteness: all state/action/target channels finite in every split")
+
     bad = 0
     for split in a.splits:
         p = a.dataset_dir / f"{split}_targets.npy"
