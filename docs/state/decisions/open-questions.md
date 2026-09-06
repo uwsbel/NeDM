@@ -303,7 +303,30 @@ both boxes ran pychrono 9.0.0, where `ChParserURDF` fails to load. Under the
 **this is now answerable**: import a Go2 URDF, run a trot, and measure the
 period the same way the removed RoboSimian gait script did (git history through `5ccd2fe`).
 
-## Where does the quadruped's seed controller come from?
+**Update 2026-09-05: context length is not the binding constraint, and this question was
+aimed at the wrong quantity.** The joint-level model's measured *trustworthy* horizon is
+**0.1 s, five steps at 50 Hz** — shorter than the 0.32 s context it already has. Feeding
+it more history does not help when it cannot be trusted forward past a fifth of a gait
+cycle. The binding constraint is **autoregressive horizon**, not context length, and the
+two are independent. Re-ask as: *what extends the horizon past one gait cycle?* See
+[`quadruped-joint-level-plan.md`](quadruped-joint-level-plan.md).
+
+## Where does the quadruped's seed controller come from? **RESOLVED: imported.**
+
+**Answered 2026-09-03.** The scripted-gait recommendation below was tried and **failed
+its own gate**: the generated gait cannot stand open-loop, because standing needs real
+balance control and not a replayed trajectory. The study instead imports
+`wty-yy/go2_rl_gym` / `go2_cts_150k.pt` (MIT), which trains against exactly the kp 20 /
+kd 0.5 actuator law the plant now uses and randomises commands over +/-0.5 m/s and
++/-1.0 rad/s yaw. See
+[`quadruped-imported-policy.md`](quadruped-imported-policy.md).
+
+**The cost of importing, which was not anticipated here:** the imported policy is
+*stateful* (five-step history, 32-dim latent), and a stateful controller breaks
+trajectory-matched evaluation outright. See
+[`../lessons/rl-in-nrd.md`](../lessons/rl-in-nrd.md#a-stateful-policy-is-part-of-the-dynamical-system-and-the-reduced-state-does-not-cover-it).
+
+*Original framing, kept for the reasoning:*
 
 You cannot train locomotion in Chrono + CRM (PPO needs ~10⁸ steps; CRM runs
 below realtime) and random actions produce only collapse data. Three candidate

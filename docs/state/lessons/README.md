@@ -20,6 +20,12 @@ Scope split:
 | [`rl-in-nrd.md`](rl-in-nrd.md) | Training policies inside a learned model |
 | [`chrono-versions.md`](chrono-versions.md) | Chrono 9 vs 10 API moves, and the OptiX/driver coupling |
 
+Related, outside this folder:
+
+| Where | Covers |
+|---|---|
+| [`../reference/papers/`](../reference/papers/) | Technical specs of three papers read with their code, including where each paper contradicts its own implementation |
+
 ## Template
 
 ```markdown

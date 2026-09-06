@@ -2053,3 +2053,100 @@ the scale that would otherwise make an error visible.
 said the model was slightly *worse*, and the ratio said four times better, because the
 denominators differed by 3.7x. Printing raw and derived together is what made both
 visible. See [normalisation hides the units it divided by](#normalisation-hides-the-units-it-divided-by).
+
+## The same selection rule, run on two inputs, is not the same selection
+
+**Cost:** three headline numbers, one launched experiment, and the justification for that
+experiment's design · **Found:** 2026-09-05 · **Applies to:** any A/B between two models
+whose state definitions differ
+
+**Expected:** a scoring routine applied identically to two checkpoints compares them on
+the same quantity. **Happened:** the action-sensitivity gate reported correlation
+**0.876** at 0.5 s for the contact-conditioned model against **0.181** unconditioned, and
+a **+0.793** transition-split effect. On a matched channel set the real numbers are
+**0.310** and **+0.245** — the first is a gate *failure*, not a pass. **Cause:** one line.
+
+```python
+"body_vel": [i for i, f in enumerate(sf) if f.startswith("vel_body")]
+```
+
+`sf` is each model's *own* state-field list. The 34-channel model matched **two**
+channels; the 40-channel model matched **three**. Both sides then computed a correct
+score over different physical quantities. Every internal consistency check passed,
+because nothing was internally inconsistent.
+
+**Fix:** name channels explicitly, never select a scored family by prefix, and when two
+artifacts are compared assert the selected index sets are **equal** — not that the same
+rule ran on both.
+
+```python
+assert sel_a == sel_b, (sel_a, sel_b)   # the one line that would have caught it
+```
+
+**Why six other catches in the same session did not reach it.** Every one of them checked
+a **value**: a threshold, a baseline, a scope, a premise, an arithmetic step. This defect
+sat in the **selection**, upstream of every value, and it emitted values that were each
+individually correct. Value-checking cannot find it, by construction.
+
+**The second-order cost is larger than the first, and is the real lesson.** The retracted
+0.876 was the *stated justification* for running the next fine-tune at 25-step branches.
+Corrected, 0.5 s is a horizon that model **fails**; it passes only at 0.1 s. So that run
+was not a pre-registered risk that materialised — it was **never licensed**, and its
+0-of-43 failure is evidence about neither variable it changed. Distinguish these:
+
+| | what it tells you |
+|---|---|
+| the risk materialised | the design was sound, the bet lost |
+| the justification was void | **nothing**, and the pre-registration is not a defence |
+
+A wrong number does not merely mislead a conclusion. It silently **authorises work**, and
+that authorisation survives the number's retraction unless someone goes looking for it.
+
+**The strongest available check is not a check.** Have a second party reimplement the
+comparison from your written definition. Stating it precisely enough for someone else to
+run is a stronger test than any amount of agreeing that you mean the same thing.
+
+Related: [suspect the apparatus before the subject](#when-a-comparison-goes-wrong-suspect-the-apparatus-before-the-subject),
+and [a commit hash records where HEAD WAS](#a-commit-hash-records-where-head-was-not-what-ran).
+
+## A paper's headline number often does not cover the system you want it for
+
+**Cost:** a case-study reframing built on a claim that was not established · **Found:** 2026-09-05
+· **Applies to:** any decision made from a related-work claim
+
+Three papers were read in full alongside their released code on the same day, to decide
+what to build next. **All three disagreed with their own code in ways that changed the
+design**, and in two of the three the headline result did not cover the system it was
+being cited for.
+
+| paper | what it is cited for | what it actually shows |
+|---|---|---|
+| NeRD | "1000-step stability on a quadruped" | 1000 steps is **Cartpole**, 2 DoF, contact-free. For the quadruped there is **no open-loop state error at any horizon** — only closed-loop agreement on a **saturating** reward |
+| DHAL | "K~3 modes is optimal" | K=1 to K>=2 is real (2.5x); **K=2 vs 3 vs 4 is within seed noise**, 3 seeds, no numeric table |
+| HALO | "handles legged contact events" | Uses **one foot**; the other's events are computed and discarded, code comment `# just choose the default first one for now` |
+
+**Three checks, in the order that pays.**
+
+1. **Which system carries the headline number?** A paper reporting six robots may have run
+   its flagship metric on the easiest one. Find the table, not the abstract.
+2. **Does the metric saturate where the result sits?** NeRD's ANYmal agreement is
+   `exp(-((v_x-1)^2 + v_z^2))`, first-order insensitive at the peak a trained policy
+   occupies. **The tell was in the same table:** its one non-saturating reward,
+   `R = w_y + p_up`, shows **+17.21%** against **-0.02%** for the saturating ones. A
+   metric that cannot move is not evidence that nothing moved.
+3. **Read the loss, not the paragraph describing the loss.** DHAL credits a term with
+   preventing mode collapse. It is *per-sample* entropy, minimized, and the collapsed
+   solution attains its **global minimum**. The paragraph and the equation say opposite
+   things and the equation is what ran.
+
+**The generalisable form:** a related-work claim is a *measurement made on some system
+under some metric*, and citing it is an implicit assertion that both transfer. State the
+system and the metric when you cite it, the way a scope is stated with a result
+([above](#state-the-scope-with-the-result-or-the-conclusion-inherits-one-it-never-had)),
+and the mismatch becomes visible at the moment of citing rather than after the plan is
+built on it.
+
+**Cheapest sufficient check:** clone the code and grep for the mechanism. Noise injection
+in NeRD is dead code with no call site; the multi-leg selection in HALO is one line with a
+`for now` comment. Neither is discoverable from the PDF, both took minutes, and each one
+would have changed a design decision on its own.

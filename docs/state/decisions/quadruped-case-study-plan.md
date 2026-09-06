@@ -1,5 +1,23 @@
 # Quadruped case study: the plan to parity, and past it
 
+> **SUPERSEDED 2026-09-05** by
+> [`quadruped-joint-level-plan.md`](quadruped-joint-level-plan.md).
+>
+> Kept because the reasoning stays useful after the conclusion changed. Two things in
+> this document are now known to be wrong, and both are load-bearing for what follows it:
+>
+> 1. **The stated contribution, "contact-mode conditioning" as a soft context input, is
+>    not sufficient.** It was measured. It helps at contact transitions (+0.245, not the
+>    +0.793 first reported, which was an artifact) and it does **not** extend the
+>    trustworthy horizon. See [`go2-finetune-postmortem.md`](go2-finetune-postmortem.md).
+> 2. **The plan treats level 3 as a follow-on gated only by the command channel.** The
+>    command channel was solved; level 3 still failed, for reasons this document does not
+>    anticipate: a 0.1 s trustworthy horizon against a 0.3-0.5 s gait cycle, and a
+>    stateful imported policy that diverges from its own recording even under true states.
+>
+> Everything in it about collection scale, the dead zone, the pooling trap, and the
+> pre-registered ablation design remains valid and is not restated in the new plan.
+
 **Written 2026-09-03. Supersedes ad-hoc direction in the session log.**
 
 Goal: bring case study III (quadruped on CRM) to the same footing as the HMMWV

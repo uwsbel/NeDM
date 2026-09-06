@@ -14,10 +14,26 @@ question the previous one raises:
 
 | File | The question it settles |
 |---|---|
-| [`quadruped-case-study-plan.md`](quadruped-case-study-plan.md) | **Start here.** What the contribution is, and the staged plan |
+| [`quadruped-joint-level-plan.md`](quadruped-joint-level-plan.md) | **Start here.** The current plan: joint-level contact, and what changed |
+| [`quadruped-case-study-plan.md`](quadruped-case-study-plan.md) | *Superseded.* The original staged plan; still authoritative on collection scale and the ablation design |
+| [`go2-finetune-postmortem.md`](go2-finetune-postmortem.md) | Why fine-tuning the imported policy is closed, what is retracted, and the two distinct failures |
 | [`quadruped-command-channel.md`](quadruped-command-channel.md) | Why the robot cannot be steered: there is no command input, by construction |
 | [`quadruped-bootstrapping.md`](quadruped-bootstrapping.md) | Why needing a policy to collect data is a new situation for this framework, not a flaw |
 | [`quadruped-contact-mode.md`](quadruped-contact-mode.md) | Why contact is temporally but not amplitude separable on soil — and why the foot never penetrates |
+| [`go2-contact-mode-coverage.md`](go2-contact-mode-coverage.md) | Which of the 16 contact modes the data actually contains: 8 well, 4 barely |
+
+**Results and gates for that study**, declared before their numbers existed:
+
+| File | The question it settles |
+|---|---|
+| [`go2-action-sensitivity-gate.md`](go2-action-sensitivity-gate.md) | Whether the surrogate responds to action changes the way Chrono does |
+| [`go2-finetune-acceptance-criterion.md`](go2-finetune-acceptance-criterion.md) | The two rules a fine-tune had to clear |
+| [`go2-finetune-baseline-predicate.md`](go2-finetune-baseline-predicate.md) | What the fine-tune is compared against |
+| [`go2-finetune-displacement-result.md`](go2-finetune-displacement-result.md) | What weight displacement buys and costs |
+| [`go2-level3-preregistration.md`](go2-level3-preregistration.md) | The level-3 transfer rule, timestamped ahead of the checkpoint |
+| [`go2-p-controller-baseline-result.md`](go2-p-controller-baseline-result.md) | The trivial baseline, and that it wins |
+| [`go2-scripted-trot-negative-result.md`](go2-scripted-trot-negative-result.md) | Why the scripted gait was parked |
+| [`go2-contact-coverage-protocol.md`](go2-contact-coverage-protocol.md) | How contact coverage is measured |
 
 The study plans carry their own decision logs and are authoritative for their
 own scope:

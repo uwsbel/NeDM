@@ -63,3 +63,35 @@ does not do this for you — it has to be designed in.
 Feeding *true* latents alongside a *drifted* `z1` gave 161.9 mm at 3 s versus
 24.0 mm fully autonomous. The pairing is an input combination the model never saw
 in training. Do not "help" a rollout with partially real inputs.
+
+## A stateful policy is part of the dynamical system, and the reduced state does not cover it
+
+**Cost:** every trajectory-matched comparison in the Go2 fine-tune line · **Found:** 2026-09-05
+
+The framework's design rule (`§4.2`) says the reduced state retains the coordinates the
+**transition** depends on. That is written for the *plant*. When the controller carries
+memory, the system being rolled out is `(plant state, controller state)`, and the second
+half is neither modelled nor validated.
+
+`go2_cts_150k` carries a five-step observation history and a 32-dim student-encoder
+latent. Fed **true** states from Chrono, with a perfect view of the world, it still drifts
+off its own recorded behaviour once it accumulates its own actions — measurably **worse
+than predicting the mean action**.
+
+**Consequence:** trajectory reproduction is not an available success metric for a stateful
+controller. A perfect dynamics model would fail it. Any before/after comparison that
+scores "does the rollout match the recording" is measuring the controller's own
+divergence, and the surrogate's contribution is not separable from it.
+
+**Two ways out, in order of preference:**
+
+1. **Score task outcomes, not trajectories** — completion, tracking error against the
+   command, terminal state distribution. These are well defined under a divergent but
+   correct rollout.
+2. **Close the state over the controller** — include the controller's memory in `z`, or
+   use a memoryless controller. The HMMWV policy is effectively memoryless, which is why
+   this never surfaced in that case study.
+
+**Check before designing the comparison:** roll the controller in the *high-fidelity*
+simulator from a recorded initial condition and measure divergence from the recording. If
+it diverges there, no surrogate result can be read against the recording.

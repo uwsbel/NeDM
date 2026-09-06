@@ -1,10 +1,25 @@
 # Study 4 — quadruped on CRM: where it stands
 
-**Updated:** 2026-09-03. **Status: collecting.**
+**Updated:** 2026-09-05. **Status: replanning.** Collection is complete and not the
+constraint.
 
-The contribution is **contact-mode conditioning**, a methodological extension the
-manuscript names as future work — *not* "a fourth vehicle." Full reasoning and the
-staged plan: [`../decisions/quadruped-case-study-plan.md`](../decisions/quadruped-case-study-plan.md).
+**The contribution has changed.** It was "contact-mode conditioning" as a soft context
+input. That was measured and is **not sufficient**: it helps at contact transitions
+(+0.245) and does not extend the trustworthy horizon, which is 0.1 s against a 0.3-0.5 s
+gait cycle. Fine-tuning the imported policy inside that surrogate is **closed** and
+failed both pre-declared rules.
+
+Read in this order:
+[`../decisions/quadruped-joint-level-plan.md`](../decisions/quadruped-joint-level-plan.md)
+for what is being done now,
+[`../decisions/go2-finetune-postmortem.md`](../decisions/go2-finetune-postmortem.md) for
+what was closed and which figures are retracted, and
+[`../decisions/quadruped-case-study-plan.md`](../decisions/quadruped-case-study-plan.md)
+(superseded) for collection scale and the ablation design, which still stand.
+
+**Three numbers below this line are stale and are corrected in the postmortem:** any
+appearance of corr `0.876`, `0.944`, or a transition split of `+0.793` is an artifact of
+a channel-selection defect and must not be cited.
 
 ## What changed today, in the order it mattered
 
