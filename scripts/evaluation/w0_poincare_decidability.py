@@ -347,7 +347,16 @@ def main():
             if r_drop > r_keep - 0.05:
                 dropped_note += ("\n  WARNING: dropped pairs score like kept ones. The band is NOT\n"
                                  "  removing contamination; do not report the filtered number as cleaner.")
-    n_deg = int((spread < a.min_spread).sum())
+    # COUNT THE NaNs ACTUALLY RETURNED, not a proxy for them. r2_per_component returns
+    # NaN through TWO paths -- held-out sd below min_spread, or ss_tot collapsing -- and
+    # re-deriving the count from the TRAINING spread caught only one. On a 0.02 s run
+    # every component came back NaN while this line reported "0 of 35 unscoreable" and
+    # the withhold guard stayed silent, so a table of dashes was printed beside a claim
+    # that nothing was wrong. A guard keyed off a different array from the one it guards
+    # is not a guard.
+    first = next(iter(res))
+    deg_mask = np.isnan(res[first])
+    n_deg = int(deg_mask.sum())
     allk = list(res) + list(level)
     if dropped_note:
         print("\n" + dropped_note)
@@ -357,11 +366,17 @@ def main():
         cells = "".join("           ---" if np.isnan((res | level)[k][i]) else f"{(res | level)[k][i]:>14.3f}"
                         for k in allk)
         print(f"{nm:<28}{spread[i]:>10.4f}{cells}")
-    print(f"\n{'MEDIAN over SCOREABLE':<28}{'':>10}"
-          + "".join(f"{np.nanmedian((res | level)[k]):>14.3f}" for k in allk))
-    print(f"{n_deg} of {len(names)} components unscoreable (sd < {a.min_spread}): "
-          f"constant at the section, NOT unpredictable.")
-    if n_deg > 0.7 * len(names):
+    def _med(v):
+        return "         ---" if np.all(np.isnan(v)) else f"{np.nanmedian(v):>14.3f}"
+    print(f"\n{'MEDIAN over SCOREABLE':<28}{'':>10}" + "".join(_med((res | level)[k]) for k in allk))
+    print(f"{n_deg} of {len(names)} components unscoreable: held-out sd < {a.min_spread} "
+          f"or no variance to explain. Constant at the section, NOT unpredictable.")
+    if n_deg == len(names):
+        print("\n  *** ALL UNSCOREABLE. NO VERDICT. ***\n"
+              "  Every component is constant at this horizon: the increment is smaller than\n"
+              "  the spread threshold, so this horizon is below the resolution of the metric.\n"
+              "  That is a fact about the horizon, not about predictability.")
+    elif n_deg > 0.7 * len(names):
         print("VERDICT WITHHELD: most of the section state does not vary. Widen the initial\n"
               "  conditions or the command distribution before reading anything into R^2.")
 

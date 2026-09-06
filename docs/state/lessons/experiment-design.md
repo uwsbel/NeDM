@@ -2680,3 +2680,50 @@ could violate by involving several feet changing at once or modes rare elsewhere
 
 Label composed conclusions as composed. The failure mode is that a derivation acquires
 the confidence of its inputs while carrying an assumption neither of them checked.
+
+## A guard keyed off a different array from the one it guards is not a guard
+
+**Cost:** a run where every component failed and the summary said nothing was wrong ·
+**Found:** 2026-09-05 · **Applies to:** any validity check that recomputes its own subject
+
+W0's harness withholds its verdict when most of the state does not vary, because R^2 sits
+near zero on a constant component however good the model is. The check was written as:
+
+```python
+n_deg = int((spread < a.min_spread).sum())        # spread = TRAINING spread
+```
+
+while the NaNs it was counting are produced elsewhere, through **two** paths:
+
+```python
+ok = Yte.std(0) >= min_spread                      # HELD-OUT spread
+return np.where(ok & (ss_tot > 1e-12), ..., np.nan)  # ...or no variance to explain
+```
+
+At a 0.02 s horizon the increments are small enough that the held-out condition fired for
+**all 35 components** while the training spread did not. The table printed 35 dashes, the
+medians were NaN, and the summary line read **"0 of 35 components unscoreable"** with the
+withhold guard silent. A reader taking that line at face value concludes the run was fine.
+
+**Fix: count the thing itself, never a proxy for it.**
+
+```python
+n_deg = int(np.isnan(res[first_key]).sum())   # the NaNs actually returned
+```
+
+Now the count and the table cannot disagree, because they read the same array.
+
+**The general rule.** A validity check that *re-derives* its subject is a second
+implementation of the same logic, and the two drift. Two implementations agreeing proves
+nothing when only one of them is wired to the output; two implementations *disagreeing* is
+invisible unless something compares them. **Have the check read the artefact it is
+checking.**
+
+**And a related trap the same run exposed:** `np.nanmedian` over an all-NaN array returns
+NaN and prints as a number-shaped blank rather than raising. An aggregate that cannot
+distinguish "no data" from "a value" will report the first as the second.
+
+This is the third member of a family already in this file: the
+[check that can itself be silent](#the-check-you-add-to-catch-silent-failures-can-itself-be-silent),
+and [running a check is not evidence that the check ran](#running-a-check-is-not-evidence-that-the-check-ran).
+**All three are cases where the instrument failed quietly and the subject took the blame.**
