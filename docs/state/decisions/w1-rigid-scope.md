@@ -828,8 +828,19 @@ The measurable/unmeasurable boundary lies **somewhere in (32, 128]**, a 4x gap
 with no cell in it. We established that 32 fails and 128 works; **we did NOT
 establish that 128 is needed.**
 
-That matters because the natural comparison is to NeRD's ANYmal at h=10 and
-1/60 s = 0.167 s of history (BELIEVED, from the coordinator, not read at source):
+**Two claims must not be collapsed, and only the first is measured:**
+
+| claim | value | status |
+|---|---|---|
+| what we USE | 1.28 s against NeRD's 0.167 s = **7.7x** | VERIFIED both sides |
+| what we NEED | somewhere in (0.32 s, 1.28 s] | a BOUND, no cell inside it |
+
+"Our model needs eight times the history" is the second claim quoted with the
+first's number. NeRD's side is now verified at source in `nerd-spec.md`:
+`frame_dt = 1/60 s` (line 65), `h = 10` for all six robots (line 282,
+`num_states_history: 10`), and their own non-monotonicity -- h=5 worse than h=1 on
+Ant, h=20 "occasionally exploded" (line 453). Ours is verified too. **What is not
+measured is our minimum:**
 
     true minimum 128  ->  7.7x NeRD
                   64  ->  3.8x
