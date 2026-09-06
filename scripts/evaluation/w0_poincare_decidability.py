@@ -72,7 +72,7 @@ fraction of the signal's own spread, the R^2 is bounded by the apparatus and the
 verdict is "not measurable at this log rate" rather than a null.
 """
 from __future__ import annotations
-import argparse, csv, glob, json, math, os, sys
+import argparse, csv, glob, hashlib, json, math, os, sys
 from collections import defaultdict
 import numpy as np
 
@@ -381,7 +381,19 @@ def main():
               "  conditions or the command distribution before reading anything into R^2.")
 
     if a.summary_json:
+        # RECORD THE INPUTS, NOT ONLY THE RESULTS. A summary that omits which files it
+        # read is reproducible in principle and not in fact: the 2026-09-06 corpus
+        # divergence census could not determine whether an earlier W0 run had read a
+        # contaminated dataset, because the glob was preserved nowhere. The resolved
+        # file list is hashed rather than stored so the field stays small while still
+        # identifying the exact input set.
+        _flist = "\n".join(paths)
         json.dump({"label": a.label, "host": os.uname().nodename, "dt_s": dt,
+                   "input_glob": a.glob,
+                   "input_files_sha256": hashlib.sha256(_flist.encode()).hexdigest(),
+                   "input_files_n": len(paths),
+                   "input_files_first": paths[0], "input_files_last": paths[-1],
+                   "max_abs_state": float(np.abs(np.vstack(per_ep)).max()),
                    "arm": "fixed_dt" if a.fixed_dt else "event", "fixed_dt": a.fixed_dt,
                    "split_seed": a.split_seed, "gait_band": a.gait_band,
                    "n_episodes": len(per_ep), "n_dropped": n_drop,
