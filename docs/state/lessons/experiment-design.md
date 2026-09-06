@@ -3677,6 +3677,17 @@ Operationally: when a factual claim is load-bearing for a conclusion you already
 is at *higher* risk of being unread, not lower. Ask whether you looked it up or reached
 for it.
 
+**Corollary, from three cases in one session: the weaker claim kept turning out to be the
+true one.** Second-worst foot rather than worst. A bounded share of the arm gap rather
+than 21 of 26. Survival bias rather than generation bias. In each case the stronger
+version was the one that came to mind first, was easier to state, and made the argument
+land harder — and in each case checking it cost one query and cost the claim some force.
+
+That gives a cheap test that needs no domain knowledge: **when two versions of a claim are
+available and the stronger is the more quotable, check the stronger one specifically.**
+Not because strong claims are usually wrong, but because the pressure that selected it was
+rhetorical rather than evidential, and that pressure leaves no trace in the sentence.
+
 ## Build the contradiction rather than resolving to look for one
 
 Two wrong numbers were caught tonight, both by internal contradiction rather than by
