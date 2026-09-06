@@ -581,3 +581,52 @@ cannot detect is a recording made under a different build.** The episode metadat
 recording no perturbation, prewalk or tilt parameters is a separate gap worth
 closing, because it forces replay to depend on a reconstruction nobody can verify
 against the episode itself.
+
+### STATUS: UNDER TEST, not a result. Cause eliminated, not established.
+
+The two sections above are downgraded. sbel-pc replays its own episodes at
+**0.000e+00 across 164 physics columns x 3994 rows**, so replay failure is not a
+general property, and its argument against the chaos reading is quantitative:
+
+**Chaos amplifies a difference that already exists; it cannot create one at t=0.**
+A float64 round-trip through CSV is ~1e-16 relative. The observed row-0
+difference is 4.6e-05 rad -- eleven orders larger. And the rates do not
+reconcile: 4.6e-05 to 5.4e-02 over 40 s is an e-folding time near 5 s, but
+reaching 4.6e-05 from 1e-16 during the 1.4 s before recording would need one near
+56 ms. **One system does not have two Lyapunov times a hundredfold apart.** The
+difference existed before recording began.
+
+**My magnitude argument against a parameter mismatch was invalid.** I compared
+"reconstructed tilt versus no tilt" and concluded metres of displacement. The real
+alternative is "reconstructed tilt versus slightly different tilt", which produces
+exactly a small initial offset. The argument did not test what it claimed to test.
+
+**What has actually been eliminated, by measurement:**
+
+| candidate | verdict |
+|---|---|
+| the new action-noise flag | ruled out -- 0 of 167 columns differ vs unpatched |
+| the perturbation RNG draw-order fix | ruled out -- pre-fix collector diverges identically |
+| run-to-run nondeterminism | ruled out -- two collector versions agree byte-for-byte |
+| `prewalk`, `ground-tilt-roll`, `ground-tilt-pitch` | **match** -- driver draws 0.15 / -1.57 / -1.17, reconstruction gives the same |
+| `perturb-peak-n`, `ground-size-m`, `patch-y` | match -- 24.0, 200.0, 4.0 on both sides |
+| `spawn`, `heading`, `command_params`, `seed`, `duration` | taken from episode metadata, not reconstructed |
+
+**No cause is established.** Every parameter the replay passes is either read from
+the episode's own metadata or reconstructed and verified to match the driver.
+What remains is an environment difference between the Sep 4 recording and now, or
+a parameter not yet identified -- and "the residual after elimination" is a
+hypothesis, not a finding. **Marked under test.**
+
+**Two things this does not touch, both checked rather than assumed.** The verdict
+is unaffected: 3e-5 m over a 10 s scored window is 3e-6 m/s against a +-0.0114
+interval, four thousandfold below it. And the action-noise verification is
+unaffected, because it compared patched against unpatched on the SAME
+reconstruction, so it is independent of whether that reconstruction is right.
+
+**One real gap regardless of how this lands:** the episode metadata records no
+perturbation peak, prewalk or ground tilt, so replay depends on rederiving them
+from a driver RNG stream that no longer exists in the episode. That worked here
+and is unverifiable in general. The harness's digest check is meaningful only for
+episodes replayed on their collecting machine with a collector whose RNG stream
+matches -- a condition that was nowhere stated.
