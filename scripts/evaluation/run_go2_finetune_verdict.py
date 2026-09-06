@@ -408,9 +408,16 @@ def main():
           f"({100*dropped/max(len(eligible),1):.0f}%)")
     for f in sorted({s['fam'] for s, _, _ in pairs}):
         print(f"   {f:<14} n={sum(1 for s,_,_ in pairs if s['fam']==f)}")
-    if n < 30:
-        print("\nVERDICT: INCOMPLETE -- fewer than 30 surviving pairs")
-        return 1
+    # THE 30-PAIR MINIMUM IS A CONDITION ON THE POOLED COUNT, NOT ON A STRATUM.
+    # This is a stratified paired design: each machine scores its own episodes and
+    # the differences are combined afterwards, so a stratum below 30 is normal and
+    # must still EMIT its per-episode differences or the pool cannot be formed.
+    # Returning early here made a stratum that was individually short unpoolable,
+    # which would have forced a re-run to recover data already computed.
+    #
+    # Separating the two concerns: the statistics and the summary are always
+    # produced; only the VERDICT is withheld below the minimum.
+    stratum_incomplete = n < 30
 
     D = np.array([te - s["base_err"] for s, te, _ in pairs])
     B = np.array([s["base_err"] for s, _, _ in pairs])
@@ -431,12 +438,64 @@ def main():
                    "exact_ci": [lo, hi], "coverage": cov,
                    "wrong_way_baseline": float(bw.mean()), "wrong_way_treated": float(tw.mean()),
                    "mcnemar_p": pmc, "mcnemar_min_p": pmin, "sd_ratio": ratio_sd,
+                   "survivorship": {
+                       "n_survivors": len(pairs),
+                       "n_dropped": len(eligible) - len(pairs),
+                       "baseline_median_err_survivors": float(np.median(
+                           [sp["base_err"] for sp in eligible
+                            if (sp["fam"], sp["idx"]) in {(q["fam"], q["idx"])
+                                                          for q, _, _ in pairs}])),
+                       "baseline_median_err_dropped": (float(np.median(
+                           [sp["base_err"] for sp in eligible
+                            if (sp["fam"], sp["idx"]) not in {(q["fam"], q["idx"])
+                                                              for q, _, _ in pairs}]))
+                           if len(eligible) > len(pairs) else None)},
                    "pairs": [{"family": sp["fam"], "idx": sp["idx"], "cmd": sp["cmd"],
                               "baseline_err": sp["base_err"], "treated_err": te,
                               "difference": te - sp["base_err"]}
                              for sp, te, _ in pairs]},
                   open(a.summary_json, "w"), indent=1)
         print(f"\nwrote {a.summary_json} ({n} pairs, machine {host})")
+    # SURVIVORSHIP DIAGNOSTIC. Surviving pairs are selected by the TREATMENT
+    # completing, so the paired difference describes a subpopulation the treatment
+    # defines. It is unbiased WITHIN that subpopulation and says nothing about
+    # whether the subpopulation is representative. The failure it permits is
+    # specific: a treatment that survives preferentially on episodes it happens to
+    # track well shows a good per-survivor difference while the overall effect is
+    # bad -- which is the DEFAULT expectation when a treatment removes its own
+    # worst cases.
+    #
+    # The baseline ran every episode, so its error exists on both groups and the
+    # comparison is free. Similar => selection is not on episode difficulty.
+    # Lower on survivors => the treatment survives on easy episodes, and the gap
+    # bounds how optimistic the paired figure is.
+    surv_ids = {(sp["fam"], sp["idx"]) for sp, _, _ in pairs}
+    b_surv = np.array([sp["base_err"] for sp in eligible
+                       if (sp["fam"], sp["idx"]) in surv_ids])
+    b_drop = np.array([sp["base_err"] for sp in eligible
+                       if (sp["fam"], sp["idx"]) not in surv_ids])
+    print("\n--- SURVIVORSHIP (baseline error, which exists for every episode) ---")
+    print(f"  survivors     n={len(b_surv):<4} median baseline |err| {np.median(b_surv):+.4f} m/s")
+    if len(b_drop):
+        gap = float(np.median(b_drop) - np.median(b_surv))
+        print(f"  dropped       n={len(b_drop):<4} median baseline |err| {np.median(b_drop):+.4f} m/s")
+        print(f"  gap (dropped - survivors) {gap:+.4f} m/s")
+        if len(b_drop) < 5:
+            print("  NOT INTERPRETABLE: fewer than 5 dropped episodes, so this "
+                  "comparison cannot distinguish selection from noise")
+        elif gap > 0.005:
+            print("  -> dropped episodes were HARDER for the baseline: the treatment "
+                  "survived on easier ones, so the paired figure is optimistic by "
+                  "roughly this gap")
+        elif gap < -0.005:
+            print("  -> dropped episodes were EASIER for the baseline: selection runs "
+                  "against the treatment, so the paired figure is conservative")
+        else:
+            print("  -> no material difference: selection is not on episode difficulty "
+                  "and the survivorship concern is weak")
+    else:
+        print("  dropped       n=0    no selection occurred")
+
     print(f"\n--- PRIMARY ---")
     print(f"  median paired difference {med:+.4f} m/s")
     print(f"  exact 95% CI [{lo:+.4f}, {hi:+.4f}] (coverage {cov:.3f}), half-width {(hi-lo)/2:.4f}")
@@ -446,6 +505,14 @@ def main():
           f"   {'(VACUOUS -- cannot reject)' if pmin > 0.05 else ''}")
     print(f"--- SPREAD GUARD ---")
     print(f"  treated sd / baseline sd {ratio_sd:.2f}   (limit 1.50)")
+
+    if stratum_incomplete:
+        print(f"\n  NOTE: {n} surviving pairs is below the 30-pair minimum. The figures\n"
+              f"  above are reported so this stratum can be POOLED; no verdict is\n"
+              f"  declared on it alone.")
+        print("\nVERDICT: INCOMPLETE for this stratum -- pool with the other machine "
+              "before scoring.")
+        return 1
 
     fail, unevaluable = [], []
     if not (med <= -0.020 and hi < 0):

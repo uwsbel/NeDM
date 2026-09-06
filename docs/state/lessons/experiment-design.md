@@ -2544,3 +2544,139 @@ unfiltered number applied. **A check written so it can fail visibly caught its o
 subject; a test written so it could only pass did not.** The difference is not rigour, it
 is whether the failing outcome was made reachable
 ([above](#before-running-a-verification-step-state-what-result-would-constitute-failure)).
+
+
+## A missing half can present as a shorter table
+
+Pooling two machines' summaries printed the survivorship line for one stratum only,
+because the two emitters named those keys differently. There was no error and no
+warning — the table was simply one row shorter, which reads as "that stratum had
+nothing to report" rather than "this code could not find it". Sixth specification
+mismatch in this project, and the first to present as an absence rather than a
+disagreement.
+
+When merging records from independent producers, assert that every input contributed
+to every output section. A section that silently accepts fewer inputs than it was
+given is a check whose failure looks like data.
+
+## Put the scope beside the verdict, not in a limitations section
+
+The Go2 fine-tune result is "FAIL, both rules, n = 36" — for the backward-low command
+cell on rigid terrain only. The sentence that will be quoted is "fine-tuning made it
+worse", and it is true only with the scope attached. A limitations section at the end
+is read by people who already have the conclusion; a scope sentence adjacent to the
+verdict is read by everyone who reads the verdict.
+
+## Diagnostics reported beside a pre-registered verdict undo the pre-registration
+
+The pre-fall test declares one scoring family, one ratio and one bar before the
+models exist. Reporting other shared families "as diagnostics" alongside the verdict
+was offered and declined: with five verdict branches available, per-family numbers let
+a reader take the verdict from whichever family looks best, and the declaration stops
+constraining anything. The freedom pre-registration removes is exactly the freedom a
+diagnostic table hands back.
+
+If a second quantity is worth scoring, declare it now and say how the two combine.
+"Reported for information" is not a neutral act when a verdict is in the same output.
+
+## An abort beats a silent fall-back to a smaller set
+
+Scoring fields are resolved by name in each model's own `state_fields`, and a model
+missing any of them aborts naming the missing ones rather than scoring on those it
+has. The fall-back is the tempting behaviour — it always produces a number — and it
+produces one for a different quantity than the one declared, with nothing in the
+output saying so. Four positional-ordering traps in this project argue for the same
+handling anywhere a field set is assumed.
+
+## One arm's performance across conditions does not test a two-arm claim
+
+A conditioned surrogate scored corr 0.859 on windows containing a contact transition
+and 0.934 on windows without, and that was read as falsifying the claim that
+conditioning works by handling discontinuities. It does not. The claim is about the
+DIFFERENCE between the conditioned and unconditioned models in each window; the
+measurement is one model's absolute performance across windows. A model worse at
+transitions is expected whether or not conditioning helped there, because transition
+windows are harder — which is what the mechanism asserts.
+
+The two worlds are numerically indistinguishable from the reported split: if the
+unconditioned model scored 0.10 and 0.90 in the same windows, conditioning improved
+transitions by 0.76 and the mechanism is strongly supported, with the conditioned
+model still worse at transitions.
+
+Whenever a claim is comparative, check the measurement has both arms in every cell.
+The single-arm version is cheaper to compute and answers a different question, and
+the difference is invisible in the numbers themselves.
+
+## A pre-registered metric can be invalidated by facts about the system, not the answer
+
+The pre-fall test declared absolute open-loop error as its metric. A peer then
+reported that the conditioned model is ~2x worse at absolute prediction while far
+better at action-response correlation — it became more accurate about how state
+responds to actions and less about the state itself. The declared metric therefore
+measures the axis the treatment regressed on.
+
+That is a legitimate reason to amend a declaration and a dangerous one to act on
+casually, because "the metric was wrong" is also what someone says after seeing a
+result they dislike. The distinguishing test is WHAT the new information is about: a
+fact about the system's behaviour, learned independently of the outcome, can justify
+an amendment; a fact about the outcome cannot.
+
+Either way, amend explicitly and before the result: state the old bar, the new bar,
+and why the change was prompted. A silent substitution is indistinguishable from
+fitting the instrument to the answer, even when it is not.
+
+## The conservative-looking option can be the one that defeats the purpose
+
+Amending the pre-fall test's metric from absolute error to correlation broke its
+statistics: a correlation has no per-episode value, so the median and order-statistic
+CI had nothing to operate on. An alternative was available — compute a PER-EPISODE
+correlation, which preserves the original machinery untouched and looks like
+minimising the change.
+
+It was rejected because a per-episode correlation is a different quantity from the
+pooled-across-windows correlation the gate scores, and matching the gate is the entire
+reason the amendment exists. **Preserving the old statistics would have quietly
+reverted the amendment while appearing to be the careful choice.**
+
+When an amendment forces a second change, check whether the option that minimises
+disruption also undoes the first change. "Smallest diff" and "still measuring the
+intended thing" are different objectives and they diverge exactly when an amendment
+was necessary.
+
+## A low false-positive count is not a calibration measurement
+
+One false positive in 40 synthetic nulls has a Wilson 95% interval of 0.4% to 12.9%.
+It rules out gross miscalibration and says almost nothing else — 2.5%, 5% and 10% are
+all consistent with it. Reporting "calibrated, slightly conservative" claims a
+precision forty draws cannot deliver, and the phrase survives being quoted without
+its n in a way the raw count does not.
+
+Say what the check rules out rather than what it appears to confirm.
+
+## Two metrics can share a name, be agreed between machines, and need different apparatus
+
+The pre-fall test was amended to score "action-response correlation", the same
+quantity the surrogate gate scores, and both machines agreed the change. Only when the
+exact computation was requested did it emerge that the gate's metric is a PAIRED
+COUNTERFACTUAL — the plant run twice under two action sequences — while the pre-fall
+instrument does open-loop prediction against recorded truth. The second cannot produce
+the inputs the first requires.
+
+The mismatch was not in the formula. It was in **what the formula needs to exist**,
+which no amount of agreeing on the formula would have surfaced. Asking for the
+computation rather than implementing something that resembled it is what found it, and
+it found it before days were spent rather than after.
+
+When adopting a metric from another instrument, ask what data it consumes, not only
+how it is calculated.
+
+## A derivation from two measurements is not a third measurement
+
+"Conditioning helps before a fall" now rests on composing two direct results: pre-fall
+windows are transition-rich, and conditioning helps at transitions. That is a sound
+inference and it is weaker than either input, because it assumes pre-fall transitions
+behave like transitions generally — which neither measurement tests, and which a fall
+could violate by involving several feet changing at once or modes rare elsewhere.
+
+Label composed conclusions as composed. The failure mode is that a derivation acquires
+the confidence of its inputs while carrying an assumption neither of them checked.

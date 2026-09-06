@@ -450,3 +450,332 @@ tilt observable, make future pooling genuinely a coverage question, and make the
 derived channels unnecessary — removing the need to filter the existing 3,503 down to
 match. It changes the schema, so both machines agree the column set before either
 collects again.
+
+## STOOD DOWN 2026-09-05 — and the mechanism is UNTESTED, not falsified
+
+The targeted collection is not running. Contact conditioning worked decisively
+without it: correlation at 0.5 s went from 0.181 to 0.876, off the declared
+trade-off curve, the first surrogate to pass the gate at that horizon.
+
+**The stated reason for standing down was that the mechanism is falsified. It is
+not, and the distinction matters because one of these is a finding.** dorm-pc
+measured the CONDITIONED model at corr 0.859 on windows containing a contact
+transition against 0.934 on windows without — real, and distinguishable from equal
+(Fisher z = +2.19, two-sided p = 0.029). But that is one model's absolute
+performance across two window types. The mechanism is a claim about the
+**difference between two models** in each window:
+
+```
+  measured   conditioned model: 0.859 with a transition, 0.934 without
+  mechanism  conditioning should help MORE at transitions than away from them
+```
+
+A conditioned model worse at transitions is expected whether or not conditioning
+helped there, because transition windows are intrinsically harder — which is what
+the discontinuity story asserts in the first place. If the UNCONDITIONED model
+scored 0.10 at transitions and 0.90 without, conditioning improved transitions by
+0.76 and non-transitions by 0.03, the mechanism would be strongly supported, and
+the reported numbers would be unchanged. The split cannot separate those worlds.
+
+**So the collection is stood down on cost against expected value — a defensible
+call — and NOT on a falsified mechanism.**
+
+Testing it needs the unconditioned model on the same two window sets. The pre-fall
+test (`prefall_prediction_test.py`) is exactly that comparison, a ratio of two
+models' errors per window, and was designed that way before this arose.
+
+### What the collection work produced
+
+| | |
+|---|---|
+| pitch-tilt diagnosis and cap | +20 points of usable yield on every future collection |
+| torque perturbation | a recorded channel that had never been driven, now working and bracketed |
+| REAR characterised | structurally unreachable during locomotion; not a coverage gap |
+| the "11% floor" corrected | a number quoted four times, wrong in kind |
+| lateral modes on the fall path | 1.33% -> 13.70% in the final second — **this measurement stands** |
+
+**The last row is not retracted by the stand-down.** Lateral contact does lie on the
+path into a fall. What is open is whether conditioning helps *by handling those
+transitions*. Both can be true: the modes precede falls, and the model's improvement
+comes from somewhere else.
+
+### The pre-fall test measures the axis conditioning got WORSE on
+
+dorm-pc reports the conditioned surrogate is roughly **2x worse at absolute open-loop
+prediction** while far better at action-response correlation — more accurate about how
+the state responds to actions, less accurate about the state itself. The gate scores
+the first, which is why it passes.
+
+`prefall_prediction_test.py` scores **absolute open-loop error** on body velocity. So
+as declared it measures the axis on which conditioning regressed, and would show
+conditioning "helping less" in both windows for a reason unrelated to the mechanism.
+
+**This is a defect in the declared instrument, and it is not being fixed quietly.**
+Changing a declared bar after seeing related results is what pre-registration exists
+to prevent. The two honest options are:
+
+1. **Amend the declaration explicitly and now**, before any result, stating that the
+   metric changes because of what was learned about the MODEL rather than about the
+   ANSWER, with the correlation-based bar and its threshold declared before it runs.
+2. Run it as declared and report that it tests the wrong axis.
+
+Preference is (1), recorded as an amendment rather than a silent substitution. Either
+way the change and its reason are on the record before the result exists.
+
+## AMENDMENT 1 to the pre-fall test — declared 2026-09-05, before any result
+
+**The metric changes from absolute open-loop error to action-response correlation.**
+Recorded as an amendment rather than substituted silently, with the old bar, the new
+bar, and the reason, so it can be judged rather than taken on trust.
+
+**Old bar.** Per episode, `gap = r_steady − r_prefall` where `r = err_conditioned /
+err_unconditioned` on body velocity, absolute open-loop error. Bar: median gap > 0.10
+with an exact 95% CI excluding 0.
+
+**Why it is invalid.** The conditioned surrogate is roughly **2x worse at absolute
+open-loop prediction** while far better at action-response correlation — more accurate
+about how state responds to actions, less about the state itself. The declared metric
+therefore scores the axis the treatment regressed on, and would report conditioning
+"helping less" in both windows for a reason unrelated to the mechanism.
+
+**Why this is a legitimate amendment and not fitting the instrument to the answer.**
+The prompting fact is about the MODEL'S BEHAVIOUR, reported by dorm-pc as a caution
+against its own result, and learned independently of what the pre-fall test would
+say. No pre-fall number exists. The distinguishing test is what the new information is
+about: a fact about the system can justify an amendment, a fact about the outcome
+cannot. "The metric was wrong" is also what someone says after seeing a result they
+dislike, which is why this is written down before rather than after.
+
+**New bar.** Per episode, with `improvement_w = corr_conditioned(w) −
+corr_unconditioned(w)` in window `w`:
+
+```
+  gap = improvement_prefall − improvement_steady
+  BAR: median gap > 0.10 with an exact 95% order-statistic CI excluding 0
+```
+
+Same 0.10, now in correlation units. The five verdict branches are unchanged —
+SUPPORTED, PRESENT BUT BELOW BAR, CONTRADICTED, UNSUPPORTED (uniform), INCONCLUSIVE —
+and the INCONCLUSIVE branch still exists because at n = 6 val the interval spans the
+data range.
+
+**Note the structural change.** The old bar used a RATIO of errors; the new one uses a
+DIFFERENCE of correlations, because correlations are already on a bounded common scale
+and a ratio of them is not meaningful near 1. The gap is still a difference of
+differences, so the within-episode design is unchanged.
+
+**Blocked on one thing:** the exact `corr` computation must match the gate's, or this
+repeats the specification-mismatch class six times over. Requested from dorm-pc rather
+than guessed; the bar above is definition-independent in form and will be implemented
+against its stated computation.
+
+## AMENDMENT 2 to the pre-fall test — declared 2026-09-05, still before any result
+
+**The interval construction changes from order statistics to a percentile bootstrap
+over episodes.** Forced by Amendment 1, found before implementation, and recorded
+separately rather than folded into it.
+
+**Why.** The original metric produced one number PER EPISODE — an error ratio computed
+within each episode — so a median across 21 episodes with an order-statistic CI was
+well defined. **A correlation is computed ACROSS a set of windows, not within an
+episode**, so the amended quantity yields exactly one number per window-set:
+
+```
+  improvement_prefall = corr_cond(prefall) - corr_uncond(prefall)   ONE number
+  improvement_steady  = corr_cond(steady)  - corr_uncond(steady)    ONE number
+  gap                 = their difference                            ONE number
+```
+
+There is no sample to take a median of and no order statistics to build an interval
+from. The median threshold and the k-th order-statistic CI both assumed a per-episode
+sample the amended quantity does not produce.
+
+**The fix.** Resample the episodes with replacement, recompute all four correlations
+and the gap on each draw, and take a percentile interval from the bootstrap
+distribution.
+
+| | |
+|---|---|
+| kept | the difference-of-differences structure |
+| kept | the 0.10 threshold and all five verdict branches |
+| kept | the within-episode window design and the excluded stand-up collapses |
+| changed | interval construction only — percentile bootstrap, not order statistics |
+
+**The INCONCLUSIVE branch is what this most has to preserve.** At 21 episodes the
+bootstrap interval will be wide, and a wide interval containing zero must still report
+INCONCLUSIVE rather than uniform.
+
+**Degenerate draws are counted and reported.** With 21 episodes, some resamples will
+produce too few windows of one type or a near-constant series, and a correlation on
+those is undefined or meaningless. Those draws are discarded and **the count and
+reason are printed**. A bootstrap that silently drops a third of its draws is not the
+interval it claims to be — the same vacuity trap in a new place.
+
+**An alternative was available and rejected.** Each episode contributes ~20 pre-fall
+anchors, enough to compute a per-episode correlation and keep the original
+order-statistic machinery intact. That was not taken because a per-episode correlation
+is a DIFFERENT QUANTITY from the pooled-across-windows correlation the gate scores,
+and matching the gate's quantity is the entire reason for Amendment 1. Preserving the
+old statistics would have quietly undone the amendment's purpose.
+
+### Calibration of the bootstrap: what 40 nulls do and do not establish
+
+Forty independent synthetic nulls, gap constructed to be exactly zero:
+
+```
+  CI excluded 0 in 1 of 40   point estimates mean +0.0034, sd 0.0385
+```
+
+**This rules out gross miscalibration. It does NOT establish that the test is
+conservative.** The Wilson 95% interval on 1/40 runs from **0.4% to 12.9%**, so the
+nominal 5% sits comfortably inside it — as do 2.5% and 10%. Forty draws cannot
+separate those, and "calibrated, slightly conservative" claims a precision this
+measurement does not have. Distinguishing 2.5% from 5% at any useful power needs
+hundreds of draws, not forty.
+
+**One of the forty came back at +0.093 with a CI excluding zero, on a true null.**
+That is what a low false-positive rate looks like from the inside, and it is the
+argument for running forty rather than trusting the first — a single clean-looking
+run is exactly what a correctly-calibrated test produces most of the time and an
+overfitted one produces always.
+
+## The pre-fall test is NOT RUN. The question is answered by composition instead.
+
+**Decided 2026-09-05, before any pre-fall result and with none ever computed.**
+
+### Why it cannot run
+
+The gate's metric is a **paired counterfactual**: `d_chrono = SB − SA`, Chrono run
+twice from the same state under two action sequences, correlated against the model's
+`d_model = MB − MA`. It measures whether the model predicts the state change *caused
+by changing the actions*.
+
+`prefall_prediction_test.py` does **open-loop prediction against recorded truth** and
+cannot produce SA and SB. Computing the gate's metric on pre-fall windows would need
+Chrono branched from an arbitrary recorded row — injecting base pose, base velocity,
+joint positions and joint velocities — and no such capability exists in this repo.
+
+**Amendment 1 committed an open-loop instrument to computing a paired-counterfactual
+metric, and neither machine noticed they were incompatible.** Found by asking dorm-pc
+for the exact computation instead of implementing something that resembled it.
+
+### What answers the question instead
+
+```
+  1. pre-fall windows are transition-rich    lateral modes 1.33% -> 13.70% in the
+                                             final second before a fall (sbel-pc)
+  2. conditioning helps at transitions       +0.793 with a transition, -0.015
+                                             without, n=200 windows (dorm-pc)
+  => conditioning helps pre-fall             BY COMPOSITION
+```
+
+**This is a derivation from two direct measurements, not a direct measurement, and it
+must be stated that way.** The composition carries an assumption neither measurement
+tests: that transitions in the second before a fall behave like transitions
+generally. They may not — a fall may involve several feet changing at once, or
+transitions into modes that are rare elsewhere. Nothing here rules that out.
+
+### Options rejected, with why
+
+**(b) run it on dorm-pc's half with its apparatus** — n=11 episodes, 3 val. At that n
+the bootstrap interval spans most of the plausible range and INCONCLUSIVE was the
+near-certain outcome before any of this. It buys an unresolvable version of the
+question, not the question.
+
+**(a) build the branching apparatus here — AVAILABLE AND UNSCHEDULED.** Chrono state
+injection at an arbitrary row, **validated against a replay proving the branch
+reproduces the recorded continuation before any difference is trusted**. Days, not
+hours, and it duplicates apparatus dorm-pc already has. If the fall-specific question
+later matters enough, this is the honest way to get it and should be scheduled rather
+than improvised.
+
+Taking (c) is not choosing less evidence over more: the cheap version cannot resolve
+and the expensive version duplicates existing apparatus.
+
+## The composition's gap has a mechanism, and it is the collection's argument again
+
+The derivation above assumes pre-fall transitions behave like transitions generally.
+They measurably do not — REAR occurs at 664x its steady rate before a fall and
+essentially never otherwise. **The mechanism that makes this matter:**
+
+```
+  conditioning helps at transitions    because the model can condition on the mode
+  it helps LESS at RARE modes          because it has barely seen them
+                                       REAR is 1,991 frames of 3.39M; all four
+                                       lateral pairs are under 1%
+  pre-fall windows are rare-mode-rich  that is where those modes occur
+  => the composition is weakest exactly where it matters most
+```
+
+**That is the collection's justification arriving from a different direction** — not
+"fill the histogram" but "the mechanism we confirmed may not extend to the regime we
+care about, because the data does not." The two arguments are one and should be read
+together.
+
+**It does not change the ordering.** v6 runs first. But the prediction is now specific
+rather than generic: **if v6 fails, check whether the failures involve rare contact
+modes.** If they do, the collection becomes a diagnosed fix aimed at modes a policy
+was watched to exploit, rather than insurance against modes we predicted it might.
+
+### The rare-mode subset check is feasible — measured, not assumed
+
+Sampling one 50-row (0.5 s) window per episode across 200 episodes of this half:
+
+```
+  windows sampled                       153
+  containing any contact transition     118  (77%)
+  of those, visiting a lateral mode      49  (41.5%)
+  lateral frames within such a window    median 6% of the 50
+```
+
+Scaled to dorm-pc's 153 transition windows, **expect ~64 to visit a lateral mode** —
+enough to split. So the question "does conditioning still help when the transition
+involves a rare mode" is answerable on data already computed, and does not need
+collection to answer it.
+
+One caveat on what the subset means: "visits a lateral mode" is a brief event, a median
+of 3 rows in 50. The subset is windows that *touch* a rare mode, not windows dominated
+by one.
+
+
+## CORRECTED 2026-09-05: the transition effect is 3x smaller than first reported
+
+dorm-pc's channel-selection defect reached its own headline. Re-run with the shared
+two-channel set named explicitly:
+
+| | with transition (n=153) | without (n=47) |
+|---|---|---|
+| unconditioned 34ch | +0.121 | +0.958 |
+| conditioned 40ch | **+0.366** | +0.889 |
+| **improvement** | **+0.245** | **−0.069** |
+
+Previously reported as +0.793 at transitions. **The direction holds and the mechanism
+is still supported — improvement at transitions, slightly negative away from them —
+but the effect is three times smaller.** The extra `vel_body_z_mps` channel in the
+conditioned model's selection was worth about 0.55 of the original 0.79.
+
+**This changes what the rare-mode split is for.** At +0.793 the rare-mode caveat could
+not plausibly invert the conclusion; the margin was enormous. At +0.245 it can. If
+conditioning helps materially less on transitions involving modes the model has barely
+seen — and pre-fall windows are exactly where those modes occur — the composed claim
+"conditioning helps before a fall" could shrink toward zero on the very population it
+was meant to cover. **The split now tests whether the derivation survives, rather than
+by how much it holds.** A number three times too large was hiding how much the caveat
+mattered.
+
+### Conditioning is a trade, not a uniform improvement
+
+Two facts that "0.181 to 0.876" conceals:
+
+- the conditioned model is **worse away from transitions**, 0.889 against 0.958
+- it is roughly **2x worse at absolute open-loop prediction**
+
+It buys action-sensitivity across contact changes and pays in general accuracy. That
+is still a good trade for a surrogate a policy optimises inside, because
+action-sensitivity is what a policy exploits — but the headline reads as a uniform
+improvement and the behaviour underneath is not one.
+
+**The corrected headline must come from the gate's own pipeline.** dorm-pc's script
+gives +0.423 pooled for the unconditioned model where the gate gives +0.181, on the
+same model and the same channels, so the episode selection differs too. Substituting
+one pipeline's number for the other's would be the same error one level up.

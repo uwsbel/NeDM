@@ -488,3 +488,75 @@ machines. For training that is benign — the seed offsets are disjoint, so no s
 appears twice and the surrogate learns across a mixture of two very slightly
 different plants. For anything replay-based it is a hard constraint, and the next
 person to assume a simulation reproduces across machines will assume it silently.
+
+---
+
+# RESULT — v4, scored 2026-09-05
+
+**VERDICT: FAIL on both rules, n = 36 pooled.**
+
+**Scope, stated here rather than in a limitations section.** This scores the
+**backward-low command cell on rigid terrain**. It says nothing about forward
+commands, other command magnitudes, or soil, and v4 was not trained to improve only
+this cell. It is a decisive negative **about what was measured**, not about
+everything v4 does. The sentence most likely to be quoted from this work is
+"fine-tuning made it worse", and that sentence is true only with this scope attached.
+
+## Per-machine first
+
+| machine | pairs | dropped | median difference | wrong-way |
+|---|---|---|---|---|
+| kyle-sbel | 16 | 20 | −0.0021 | 56% → 75% |
+| kyle-N7-B650E | 20 | 23 | +0.0164 | 40% → 85% |
+
+The strata differ in magnitude and agree in direction on the anchor. **The difference
+is not significant** — |difference of medians| 0.0185, permutation p = 0.530 on
+20,000 draws — so it is within what 16 and 20 pairs can resolve. It is deliberately
+NOT counted as a fourth machine divergence alongside inadmissibility (46×), stand-up
+failures (2×) and tilt fragility; those were large and unambiguous, and stacking a
+null onto them would be reading a pattern into noise.
+
+## Pooled, n = 36
+
+```
+  PRIMARY   median paired difference  +0.0120 m/s      threshold <= -0.020
+            exact 95% CI [-0.0090, +0.0295], coverage 0.971
+  ANCHOR    wrong-way 47% -> 81%, discordant 2/14
+            McNemar p = 0.0042, smallest attainable 0.0000 -- EVALUABLE, and it FIRES
+  SPREAD    within the 1.5x guard
+```
+
+**Three measures agree:**
+
+- **survival** — v4 completes 33 of 79 eligible episodes across both machines,
+  against a baseline that completes all of them by construction of the predicate
+- **tracking** — no improvement; the pooled median has the **wrong sign**
+- **direction** — significantly more wrong-way episodes
+
+## Survivorship runs against the treatment, replicated
+
+| machine | survivors | dropped | gap |
+|---|---|---|---|
+| kyle-sbel | +0.0892 | +0.0749 | −0.0144 |
+| kyle-N7-B650E | +0.0949 | +0.0578 | −0.0371 |
+
+v4 survived on the episodes the **baseline found harder**, independently on both
+machines. So the per-survivor comparison **understates** the harm and the true effect
+is worse than +0.0120. This diagnostic could have come out either way and came out
+the same way twice.
+
+## Two checks made before trusting the pool
+
+Both emitters define `difference` as `treated − baseline`, verified **elementwise**
+rather than read from a README; and every error in both strata is positive, so
+dorm-pc's absolute convention and this one's signed convention coincide **in this
+cell**. Had any error been negative, the pooled median would have been the average of
+two different questions and nothing in the output would have said so. `pool_go2_verdict.py`
+refuses to run if either check fails rather than producing a number.
+
+## What is not a rescue for this
+
+dorm-pc's contact-conditioning test is a **different surrogate** answering whether the
+0.1 s horizon can be extended at all. If it succeeds it justifies a fresh attempt with
+its own criterion. It does not revise this result, and describing it as a rescue would
+be exactly the hopeful reading the pre-registration exists to prevent.
