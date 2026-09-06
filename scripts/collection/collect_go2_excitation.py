@@ -127,6 +127,29 @@ def chrono_fingerprint():
             "source_build": "chrono-build" in str(so)}
 
 
+def checkpoint_fingerprint(path):
+    """Hash the policy checkpoint, for the same reason the Chrono binary is hashed.
+
+    THE PATH IS NOT THE IDENTITY. A checkpoint path is reused, moved and overwritten;
+    two runs naming the same file can have used different weights. Every existing Go2
+    dataset records a seed and no episode sidecar anywhere records which policy
+    produced it, so a replay that differs cannot separate a build change from a policy
+    change. This closes that forward.
+
+    Provenance now has four fields and they answer four different questions:
+    seed (can this be re-executed?), argv (under what arguments?), the Chrono hash
+    (with which physics?) and this (with which policy?).
+    """
+    p = Path(path)
+    if not p.exists():
+        return {"checkpoint_path": str(p), "sha256": "missing"}
+    h = hashlib.sha256()
+    with open(p, "rb") as fh:
+        for blk in iter(lambda: fh.read(1 << 20), b""):
+            h.update(blk)
+    return {"checkpoint_path": str(p), "sha256": h.hexdigest(), "bytes": p.stat().st_size}
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--windows", type=int, default=100)
@@ -194,6 +217,8 @@ def main():
     fp = chrono_fingerprint()
     print(f"  chrono: {fp['core_so_md5'][:8]}  {fp['pychrono_path']}"
           f"  {'SOURCE BUILD' if fp['source_build'] else 'CONDA -- is that intended?'}")
+    ck = checkpoint_fingerprint(CKPT)
+    print(f"  policy: {ck['sha256'][:8]}  {ck['checkpoint_path']}")
     fields = (["window", "phase", "burst", "kp", "kd", "chrono_build"]
               + [f"target_{i}" for i in range(12)] + list(csv_field_names()))
     fh = open(out / "windows.csv", "w", newline="")
@@ -374,7 +399,7 @@ def main():
     fh.close()
     el = time.perf_counter() - t_start
     json.dump({"windows_requested": a.windows, "kept": kept,
-               "chrono": fp,
+               "chrono": fp, "checkpoint": ck,
                # RECORDED SO THE RUN CAN BE REPRODUCED. Re-running one window at the
                # same seed and comparing physics columns settles a dataset's build
                # provenance by construction -- but only if the seed and arguments
