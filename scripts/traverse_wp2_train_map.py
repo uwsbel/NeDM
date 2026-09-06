@@ -48,9 +48,14 @@ class MapBatcher:
     """Windows over one split. ``heightmaps`` (A, 1, H, W) on ``device`` is the crop's height-field bank;
     ``split.arena_idx`` picks each episode's row. Only windows inside the recorded frames are sampled."""
 
+    EVENT_KINDS = ("approach", "stuck", "launch", "recovery", "matched")
+
     def __init__(self, split: D.CacheSplit, norm: D.Normalizer, context: int, maps: np.ndarray,
-                 heightmaps: torch.Tensor):
+                 heightmaps: torch.Tensor, events: dict | None = None):
         self.context = context
+        self.keys = list(split.keys)
+        self.events = {k: events[k] for k in self.keys if events and k in events}  # key -> events.json record
+        self._event_tables: dict[int, dict] = {}
         self.z1 = ((split.z1 - norm.z1_mean) / norm.z1_std).astype(np.float32)
         self.act = ((split.act - norm.act_mean) / norm.act_std).astype(np.float32)
         self.power = ((split.power - norm.power_mean) / norm.power_std).astype(np.float32)
@@ -65,15 +70,81 @@ class MapBatcher:
         self.heightmaps = heightmaps  # (A, 1, H, W) on device
         self.status = list(split.status)
 
-    def sample(self, rng, batch: int, device: str, extra_steps: int = 1):
+    def event_table(self, extra_steps: int) -> dict:
+        """Per event kind, the (episode, t0_lo, t0_hi) ranges of window anchors whose rollout span (frames
+        context .. context+K-1 after t0) contains the event -- stalled-episode events from
+        ``traverse_wp7_stall_diagnosis.py events``: 'approach' = the stop inside the span, 'stuck' = context and
+        span after the stop (stationary, throttle on), 'launch' = the first frames of a launch failure,
+        'recovery' = the resume frame inside the span, 'matched' = a feasible sibling passing the stalled runs'
+        stop station inside the span."""
+        K = extra_steps
+        if K in self._event_tables:
+            return self._event_tables[K]
+        L = self.context + K
+        tab = {kind: [] for kind in self.EVENT_KINDS}
+        key_idx = {k: i for i, k in enumerate(self.keys)}
+        for k, ev in self.events.items():
+            i = key_idx[k]; n = int(self.n_valid[i])
+            if n < L:
+                continue
+            span = lambda f: (max(0, f - self.context - K + 1), min(f - self.context, n - L))  # anchors with frame f in the span
+            if ev.get("stop") is not None:
+                lo, hi = span(int(ev["stop"]))
+                if hi >= lo:
+                    tab["approach"].append((i, lo, hi))
+                lo, hi = int(ev["stop"]), n - L
+                if hi >= lo:
+                    tab["stuck"].append((i, lo, hi))
+            if ev.get("launch"):
+                tab["launch"].append((i, 0, max(0, min(40, n - L))))
+            for f in ev.get("resume", []):
+                lo, hi = span(int(f))
+                if hi >= lo:
+                    tab["recovery"].append((i, lo, hi))
+            for f in ev.get("matched", []):
+                lo, hi = span(int(f))
+                if hi >= lo:
+                    tab["matched"].append((i, lo, hi))
+        out = {}
+        for kind, ranges in tab.items():
+            if ranges:
+                a = np.asarray(ranges, np.int64)
+                out[kind] = (a, (a[:, 2] - a[:, 1] + 1).astype(np.float64))
+        self._event_tables[K] = out
+        return out
+
+    def sample_event_anchors(self, rng, n: int, extra_steps: int, kinds=None) -> tuple[np.ndarray, np.ndarray]:
+        """``n`` (episode, t0) anchors, balanced over the event kinds present (uniform over windows within a kind)."""
+        tab = self.event_table(extra_steps)
+        kinds = [k for k in (kinds or self.EVENT_KINDS) if k in tab]
+        if not kinds or n <= 0:
+            return np.zeros(0, np.int64), np.zeros(0, np.int64)
+        which = rng.integers(0, len(kinds), n)
+        ep, t0 = np.zeros(n, np.int64), np.zeros(n, np.int64)
+        for ki, kind in enumerate(kinds):
+            m = which == ki
+            if not m.any():
+                continue
+            a, w = tab[kind]
+            r = rng.choice(len(a), int(m.sum()), p=w / w.sum())
+            ep[m] = a[r, 0]
+            t0[m] = a[r, 1] + (rng.random(int(m.sum())) * w[r]).astype(np.int64)
+        return ep, t0
+
+    def sample(self, rng, batch: int, device: str, extra_steps: int = 1, event_frac: float = 0.0, event_kinds=None):
         """``extra_steps`` frames after the context window (1 = one-step training; K for a
         K-step autoregressive rollout loss). Windows lie inside the recorded frames; an episode is
-        drawn in proportion to the windows it offers (uniform over windows, as with uniform episodes)."""
+        drawn in proportion to the windows it offers (uniform over windows, as with uniform episodes).
+        ``event_frac`` of the batch is drawn from the stall-event windows instead (event_table)."""
         L = self.context + extra_steps
+        n_ev = int(round(event_frac * batch)) if self.events else 0
         n_win = np.maximum(self.n_valid - L + 1, 0)
         p = n_win / n_win.sum()
-        ep = rng.choice(self.n_episodes, batch, p=p)
-        t0 = np.minimum((rng.random(batch) * n_win[ep]).astype(np.int64), n_win[ep] - 1)
+        ep = rng.choice(self.n_episodes, batch - n_ev, p=p)
+        t0 = np.minimum((rng.random(batch - n_ev) * n_win[ep]).astype(np.int64), n_win[ep] - 1)
+        if n_ev:
+            ep_e, t0_e = self.sample_event_anchors(rng, n_ev, extra_steps, event_kinds)
+            ep, t0 = np.concatenate([ep, ep_e]), np.concatenate([t0, t0_e])
         idx = t0[:, None] + np.arange(L)[None, :]
         out = {}
         for name, src in (("z1", self.z1), ("act", self.act), ("power", self.power),
@@ -84,7 +155,7 @@ class MapBatcher:
         return out
 
 
-def rollout_loss(model, batch, context: int, steps: int, z1_mean, z1_std, w=None):
+def rollout_loss(model, batch, context: int, steps: int, z1_mean, z1_std, w=None, progress_weight: float = 0.0):
     """K-step autoregressive loss under the RECORDED actions: predicted state fed back, map
     re-cropped at the dead-reckoned pose (exactly the imagination env's step). Targets the
     closed-loop speed bias that one-step teacher forcing does not see."""
@@ -92,7 +163,8 @@ def rollout_loss(model, batch, context: int, steps: int, z1_mean, z1_std, w=None
     token_hist = model.cropper(maps, pose_gt[:, :context], hm)
     z1_hist = z1[:, :context]
     pose = pose_gt[:, context - 1]
-    l_z1 = l_p = 0.0
+    l_z1 = l_p = l_prog = 0.0
+    cum_pred = cum_rec = 0.0
     for step in range(steps):
         window = slice(step, step + context)
         delta, power, _ = model(z1_hist[:, -context:], token_hist[:, -context:], act[:, window])
@@ -100,11 +172,20 @@ def rollout_loss(model, batch, context: int, steps: int, z1_mean, z1_std, w=None
         tgt = z1[:, context + step]
         l_z1 = l_z1 + (F.huber_loss(z1_next * w, tgt * w, delta=1.0) if w is not None else F.huber_loss(z1_next, tgt, delta=1.0))
         l_p = l_p + F.huber_loss(power[:, -1], batch["power"][:, context + step], delta=1.0)
+        if progress_weight > 0:  # distance travelled along the body x axis: the quantity a stall zeroes and a drift inflates
+            cum_pred = cum_pred + (z1_next[:, 0] * z1_std[0] + z1_mean[0]) * DT_S
+            cum_rec = cum_rec + (tgt[:, 0] * z1_std[0] + z1_mean[0]) * DT_S
+            l_prog = l_prog + F.huber_loss(cum_pred, cum_rec, delta=1.0)  # metres
         pose = integrate_pose(pose, z1_next * z1_std + z1_mean)
         nxt = model.cropper(maps, pose.unsqueeze(1), hm)[:, 0]
         z1_hist = torch.cat([z1_hist, z1_next.unsqueeze(1)], dim=1)
         token_hist = torch.cat([token_hist, nxt.unsqueeze(1)], dim=1)
-    return (l_z1 + l_p) / steps, {"ro_z1": float(l_z1.detach()) / steps, "ro_power": float(l_p.detach()) / steps}
+    parts = {"ro_z1": float(l_z1.detach()) / steps, "ro_power": float(l_p.detach()) / steps}
+    total = (l_z1 + l_p) / steps
+    if progress_weight > 0:
+        total = total + progress_weight * l_prog / steps
+        parts["ro_progress_m"] = float(l_prog.detach()) / steps
+    return total, parts
 
 
 def step_loss(model, batch, mode: str, w=None):
@@ -224,6 +305,58 @@ def rollout_eval(model, data: MapBatcher, norm, mode: str, context: int, horizon
     return results
 
 
+@torch.no_grad()
+def stall_eval(model, data: MapBatcher, norm, context: int, device: str, max_per_kind: int = 128, seed: int = 11) -> dict:
+    """Stall reproduction on the split's event windows under the RECORDED controls (the §12.2 tests, in-training):
+    stuck (context 0.2 s after the stop, 3 s): predicted |vx| at the end (Chrono ~0); approach (context ends 2 s
+    before the stop, 4 s): predicted vx 2 s after the stop; launch (frames 0-15, 3 s): predicted vx at 3 s (Chrono
+    ~0); recovery (context ends 1 s before the resume, 3 s) and matched (a feasible sibling at the stalled runs' stop
+    station, 4 s): |predicted - recorded| vx at the end -- the guards against 'always stop'. stall_score = mean."""
+    model.eval()
+    specs = {"stuck": (lambda ev: [int(ev["stop"]) + 4] if ev.get("stop") is not None else [], 60, "abs"),
+             "approach": (lambda ev: [int(ev["stop"]) - context - 40] if ev.get("stop") is not None else [], 80, "abs"),
+             "launch": (lambda ev: [0] if ev.get("launch") else [], 60, "abs"),
+             "recovery": (lambda ev: [int(f) - context - 20 for f in ev.get("resume", [])], 60, "err"),
+             "matched": (lambda ev: [int(f) - context - 40 for f in ev.get("matched", [])], 80, "err")}
+    rng = np.random.default_rng(seed)
+    key_idx = {k: i for i, k in enumerate(data.keys)}
+    z1_mean, z1_std = float(norm.z1_mean[0]), float(norm.z1_std[0])
+    out, scores = {}, []
+    for kind, (anchors_of, K, mode) in specs.items():
+        cand = []
+        for k, ev in data.events.items():
+            i = key_idx[k]
+            for t0 in anchors_of(ev):
+                if 0 <= t0 and t0 + context + K <= data.n_valid[i]:
+                    cand.append((i, t0))
+        if not cand:
+            continue
+        cand = np.asarray(cand)[rng.permutation(len(cand))[:max_per_kind]]
+        ep, t0 = cand[:, 0], cand[:, 1]
+        idx = t0[:, None] + np.arange(context + K)[None, :]
+        to_t = lambda a: torch.from_numpy(np.ascontiguousarray(a)).to(device)
+        z1, act, pose_gt = to_t(data.z1[ep[:, None], idx]), to_t(data.act[ep[:, None], idx]), to_t(data.pose[ep[:, None], idx])
+        maps = to_t(data.maps[ep]).float(); hm = data.heightmaps[torch.from_numpy(data.arena_idx[ep]).to(device)]
+        z1_hist = z1[:, :context]; token_hist = model.cropper(maps, pose_gt[:, :context], hm); pose = pose_gt[:, context - 1]
+        z1_mean_t = torch.tensor(norm.z1_mean.astype(np.float32), device=device); z1_std_t = torch.tensor(norm.z1_std.astype(np.float32), device=device)
+        for step in range(K):
+            delta, _, _ = model(z1_hist[:, -context:], token_hist[:, -context:], act[:, step:step + context])
+            z1_next = z1_hist[:, -1] + delta[:, -1]
+            pose = integrate_pose(pose, z1_next * z1_std_t + z1_mean_t)
+            nxt = model.cropper(maps, pose.unsqueeze(1), hm)[:, 0]
+            z1_hist = torch.cat([z1_hist, z1_next.unsqueeze(1)], dim=1); token_hist = torch.cat([token_hist, nxt.unsqueeze(1)], dim=1)
+        pred = z1_hist[:, -1, 0] * z1_std + z1_mean; rec = z1[:, -1, 0] * z1_std + z1_mean
+        val = float(pred.abs().mean()) if mode == "abs" else float((pred - rec).abs().mean())
+        out[f"stall_{kind}_vx"] = val; out[f"stall_{kind}_rec"] = float(rec.mean()); out[f"stall_{kind}_n"] = int(len(ep))
+        if mode == "abs":
+            out[f"stall_{kind}_hold"] = float((pred.abs() < 0.5).float().mean())
+        scores.append(val)
+    if scores:
+        out["stall_score"] = float(np.mean(scores))
+    model.train()
+    return out
+
+
 def load_maps(cache: Path, keys: list[str], key: str = "map") -> np.ndarray:
     return np.stack([np.load(cache / f"{k}.npz")[key] for k in keys])
 
@@ -286,6 +419,14 @@ def main() -> None:
     ap.add_argument("--rollout-steps", type=int, default=0,
                     help="K > 0 adds a K-step autoregressive rollout loss (state fed back, map re-cropped)")
     ap.add_argument("--rollout-weight", type=float, default=1.0)
+    ap.add_argument("--progress-weight", type=float, default=0.0,
+                    help="adds a Huber loss on the cumulative distance (m) along the rollout: penalises the speed drift a stall exposes")
+    ap.add_argument("--vx-weight", type=float, default=1.0, help="extra weight on the vx channel in the state losses")
+    ap.add_argument("--events", nargs="*", default=["auto"],
+                    help="events.json files (traverse_wp7_stall_diagnosis.py events); 'auto' = <cache>/events.json of every --caches dir")
+    ap.add_argument("--event-frac", type=float, default=0.0,
+                    help="fraction of each batch drawn from stall-event windows (approach / stuck / launch / recovery / matched), balanced over kinds")
+    ap.add_argument("--event-kinds", nargs="*", default=None)
     ap.add_argument("--extra-train-cache", nargs="*", default=[],
                     help="extra cache dirs appended to the TRAIN split only (e.g. tracker-driven Chrono "
                          "episodes on arena_v1); scene maps from the files or from --cache via source_key")
@@ -394,8 +535,20 @@ def main() -> None:
     norm = (D.Normalizer.from_dict(payload["normalization"]) if payload
             else D.Normalizer.fit(train_split))
     z1_dim, act_dim = train_split.z1.shape[-1], train_split.act.shape[-1]
-    train_data = MapBatcher(train_split, norm, args.context, train_maps, hm_bank)
-    val_data = MapBatcher(val_split, norm, args.context, val_maps, hm_bank)
+    events: dict = {}
+    ev_paths = [Path(c) / "events.json" for c in args.caches] if args.events == ["auto"] else [Path(p) for p in args.events]
+    for pth in ev_paths:
+        if pth.exists():
+            events.update(json.loads(pth.read_text()))
+    train_data = MapBatcher(train_split, norm, args.context, train_maps, hm_bank, events)
+    val_data = MapBatcher(val_split, norm, args.context, val_maps, hm_bank, events)
+    if events:
+        K = max(args.rollout_steps, 1)
+        cnt = {k: (len(v[0]), int(v[1].sum())) for k, v in train_data.event_table(K).items()}
+        print(f"stall events: {len(train_data.events)} train / {len(val_data.events)} val episodes with records; "
+              f"train event ranges (n, windows) at K={K}: {cnt}; event_frac {args.event_frac}", flush=True)
+    elif args.event_frac > 0:
+        raise SystemExit("--event-frac needs events.json (traverse_wp7_stall_diagnosis.py events)")
     loss_w = None
     if args.delta_scale:
         dz = np.diff(train_data.z1, axis=1)
@@ -403,6 +556,9 @@ def main() -> None:
         d_std = dz[dm].reshape(-1, z1_dim).std(0) + 1e-6
         loss_w = torch.tensor((d_std.mean() / d_std).astype(np.float32), device=device)  # mean weight 1
         print("delta-scale weights:", np.round(loss_w.cpu().numpy(), 2).tolist(), flush=True)
+    if args.vx_weight != 1.0:
+        loss_w = torch.ones(z1_dim, device=device) if loss_w is None else loss_w
+        loss_w = loss_w.clone(); loss_w[0] = loss_w[0] * args.vx_weight
     del train_split, val_split
 
     cfg = {"block_size": args.context, "n_layer": args.n_layer, "n_head": args.n_head,
@@ -475,14 +631,14 @@ def main() -> None:
         for g in opt.param_groups:
             g["lr"] = lr_at(step)
         if args.rollout_steps > 0:
-            batch = train_data.sample(rng, args.batch, device, extra_steps=args.rollout_steps)
+            batch = train_data.sample(rng, args.batch, device, extra_steps=args.rollout_steps, event_frac=args.event_frac, event_kinds=args.event_kinds)
             one = {k: v[:, : args.context + 1] if v.dim() >= 2 and k not in ("map", "hm") else v for k, v in batch.items()}
             loss, parts = step_loss(model, one, args.map_mode, loss_w)
-            ro, ro_parts = rollout_loss(model, batch, args.context, args.rollout_steps, z1_mean_t, z1_std_t, loss_w)
+            ro, ro_parts = rollout_loss(model, batch, args.context, args.rollout_steps, z1_mean_t, z1_std_t, loss_w, args.progress_weight)
             loss = loss + args.rollout_weight * ro
             parts.update(ro_parts)
         else:
-            loss, parts = step_loss(model, train_data.sample(rng, args.batch, device), args.map_mode, loss_w)
+            loss, parts = step_loss(model, train_data.sample(rng, args.batch, device, event_frac=args.event_frac, event_kinds=args.event_kinds), args.map_mode, loss_w)
         opt.zero_grad(set_to_none=True)
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), args.grad_clip)
@@ -499,7 +655,9 @@ def main() -> None:
                                        args.map_mode, loss_w)[0]) for _ in range(args.val_batches)]
             m = rollout_eval(model, val_data, norm, args.map_mode, args.context,
                              args.horizons, args.eval_episodes, device, per_arena=True)
-            sel = m[f"{args.selection}@{max(args.horizons)}"]
+            if val_data.events:
+                m.update(stall_eval(model, val_data, norm, args.context, device))
+            sel = m[args.selection] if args.selection in m else m[f"{args.selection}@{max(args.horizons)}"]
             rec = {"phase": "val", "step": step + 1, "val_loss": float(np.mean(vls)),
                    "selection": sel, **m}
             with log.open("a") as fh:

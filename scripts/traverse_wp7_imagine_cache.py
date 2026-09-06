@@ -26,6 +26,7 @@ from nedm.traverse.power_calib import KINDS, PowerModel
 from nedm.traverse.terrain import TerrainMap
 from traverse_wp5_sample_planner import FZ0, FZ1, PITCH, ROLL, Imaginer
 from traverse_wp6_imagine_sweep import auc
+from traverse_wp7_stall_diagnosis import tracker_action_center
 
 
 def imagine_arena_batched(a, cache: Path, groups: list[tuple[str, list[str], EpisodeLayout, tuple]], labels: dict,
@@ -54,7 +55,8 @@ def imagine_arena_batched(a, cache: Path, groups: list[tuple[str, list[str], Epi
     for ckpt in a.dynamics_checkpoints:
         cfg = merge_env_cfg({"num_envs": n, "device": dev, "auto_reset": False, "split": "val", "dynamics_checkpoint": ckpt, "arena": a.arena,
                              "cache": str(cache), "routes": a.routes, "fragment_steps_max": horizon, "z1_extra_cache": None, "map_key": a.map_key,
-                             "termination": {"max_abs_roll_rad": np.radians(a.roll_limit_deg), "max_abs_pitch_rad": np.radians(a.pitch_limit_deg)}})
+                             "termination": {"max_abs_roll_rad": np.radians(a.roll_limit_deg), "max_abs_pitch_rad": np.radians(a.pitch_limit_deg)},
+                             "action_center": tracker_action_center(Path(a.policy))})
         env = TraverseTrackingEnv(cfg, device=dev, entries=entries)
         policy = load_policy(Path(a.policy), env, dev)
         sp = torch.tensor(np.asarray(starts, np.float32), device=dev)

@@ -52,6 +52,17 @@ def final_stationary_run(vx: np.ndarray, thr: float = STOP_MPS) -> tuple[int, in
     return i + 1, len(vx) - (i + 1)
 
 
+def tracker_action_center(policy_dir: Path) -> list[float]:
+    """The tracker squashes its outputs around the action mean of the dynamics normaliser it was TRAINED with;
+    the imagination env must keep that centre whatever dynamics model it now drives (review audit, notes §12.4)."""
+    import torch
+    cfg = json.loads((policy_dir / "env_cfg.json").read_text())
+    if isinstance(cfg.get("action_center"), list):
+        return [float(v) for v in cfg["action_center"]]
+    payload = torch.load(cfg["dynamics_checkpoint"], map_location="cpu", weights_only=False)
+    return [float(v) for v in payload["normalization"]["act_mean"]]
+
+
 def slope_ahead_deg(tmap: TerrainMap, x: float, y: float, yaw: float, d: float = 2.0) -> float:
     c, s = math.cos(yaw), math.sin(yaw)
     h1 = float(tmap.height(np.array([x + d * c]), np.array([y + d * s]))[0])
@@ -272,7 +283,8 @@ def cmd_model(args) -> None:
                 mname = Path(ckpt).parent.name
                 cfg = merge_env_cfg({"num_envs": n, "device": dev, "auto_reset": False, "split": "val", "dynamics_checkpoint": ckpt, "arena": man["arenas"][aid],
                                      "cache": str(cache), "routes": "artifacts/traverse/wp3_routes", "fragment_steps_max": 600, "z1_extra_cache": None, "map_key": "map_v2",
-                                     "termination": {"max_abs_roll_rad": math.radians(args.roll_limit_deg), "max_abs_pitch_rad": math.radians(args.pitch_limit_deg)}})
+                                     "termination": {"max_abs_roll_rad": math.radians(args.roll_limit_deg), "max_abs_pitch_rad": math.radians(args.pitch_limit_deg)},
+                                     "action_center": tracker_action_center(Path(args.policy))})
                 env = TraverseTrackingEnv(cfg, device=dev, entries=entries)
                 policy = load_policy(Path(args.policy), env, dev)
                 b = env.bank
@@ -599,6 +611,48 @@ def cmd_predictable(args) -> None:
         print(f"  {name:36s} AUC val {a_val:.3f}  sealed {auc(pred(Xs), Ys > 0.5):.3f}")
 
 
+# ------------------------------------------------------------------------------------------ event labels
+def cmd_events(args) -> None:
+    """Per-episode stall events for the trainer's event-balanced sampler and stall validation metrics
+    (``<cache>/events.json``): class, stop frame, launch failure, recovery (resume) frames, and for feasible
+    episodes the frames at which they pass the stations where their layout's stalled siblings stopped."""
+    diag = json.loads((Path(args.out) / "classify.json").read_text())["rows"]
+    for cdir in args.caches:
+        cache = Path(cdir)
+        man = json.loads((cache / "cache_manifest.json").read_text()); labels = json.loads((cache / "labels.json").read_text())
+        stop_station = defaultdict(list)
+        for k in man["episodes"]:
+            r = diag.get(k)
+            if r and r["class"] == "stop":
+                stop_station[r["layout"]].append(r["progress_end_m"])
+        ev, cnt = {}, Counter()
+        for k in man["episodes"]:
+            e = load_episode(cache, k); r = diag.get(k); n = len(e["z1"])
+            cls = r["class"] if r else "feasible"
+            rec = {"class": cls, "n_frames": n, "stop": None, "launch": cls == "launch", "resume": [], "matched": []}
+            if cls == "stop":
+                rec["stop"] = int(round(r["stop_s"] / DT))
+            vx, thr = e["z1"][:, 0], e["act"][:, 1]
+            # recovery: >= 1 s (cumulative within a 3 s window) of |vx| < 0.3 with throttle on, followed by vx > 0.5
+            stalled = (np.abs(vx) < STOP_MPS) & (thr > 0.3)
+            i = 40
+            while i < n:
+                if stalled[max(0, i - 40):i].sum() >= 20 and vx[i] > 0.5 and (i + 10 < n) and (vx[i:i + 10] > 0.5).mean() > 0.5:
+                    rec["resume"].append(int(i)); i += 60
+                else:
+                    i += 1
+            if cls == "feasible" and stop_station[labels[k]["layout"]]:
+                prog = route_progress(e["pose"], e["route_waypoints"], e["route_stations"])
+                for st in stop_station[labels[k]["layout"]]:
+                    hit = np.nonzero(prog >= st)[0]
+                    if len(hit) and 16 < hit[0] < n - 20:
+                        rec["matched"].append(int(hit[0]))
+            ev[k] = rec
+            cnt[cls] += 1; cnt["resume_events"] += len(rec["resume"]); cnt["matched_frames"] += len(rec["matched"])
+        (cache / "events.json").write_text(json.dumps(ev))
+        print(f"{cache}: {dict(cnt)} -> events.json")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -633,12 +687,15 @@ def main() -> None:
     pr.add_argument("--skip-launch", action="store_true")
     pr.add_argument("--device", default="cuda")
     pr.add_argument("--out", default="artifacts/traverse/wp7_stall_diag")
+    ev = sub.add_parser("events")
+    ev.add_argument("--caches", nargs="+", default=["artifacts/traverse/wp7_cache_v1", "artifacts/traverse/wp7_cache_sealed"])
+    ev.add_argument("--out", default="artifacts/traverse/wp7_stall_diag")
     an = sub.add_parser("analyze")
     an.add_argument("--out", default="artifacts/traverse/wp7_stall_diag")
     an.add_argument("--tag", default="f105")
     an.add_argument("--examples", type=int, default=3)
     args = ap.parse_args()
-    {"classify": cmd_classify, "model": cmd_model, "analyze": cmd_analyze, "predictable": cmd_predictable}[args.cmd](args)
+    {"classify": cmd_classify, "model": cmd_model, "analyze": cmd_analyze, "predictable": cmd_predictable, "events": cmd_events}[args.cmd](args)
 
 
 if __name__ == "__main__":

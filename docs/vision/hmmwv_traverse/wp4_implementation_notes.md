@@ -1583,3 +1583,66 @@ everything observable (state trajectory, controls, true terrain ahead) supports.
   definition, the tracker's own action centre, the heading flip). Not: finer terrain input, and not longer
   fine-tuning of the same loss. Whether (1)–(2) beat the fastest-candidate heuristic on a benchmark that rewards
   speed is doubtful; they are worth it only on a benchmark with speed-penalised and detour-only layouts (§11.6).
+
+## 13. Stall-reproduction ablation (2026-09-06, plan §30 review adopted) — `slurm/wp8_launch.sh`, `wp8_eval/`
+
+The §12 review disagreed with reading the predictability probe as a ceiling and asked for one focused training
+experiment on the existing data before anything else: balance the training around approaching a stall, staying
+stuck, recovering, and matched successful crossings; train and judge over 2–4 s of recorded motion with progress
+and stall persistence, not only the mean state error; first show the model reproduces known training examples,
+then unseen terrain and route selection with the benchmark unchanged. The user's instruction: do a large ablation on
+the cluster rather than detour around the problem. The model is a data-driven dynamics model; if the stall regime is
+under-weighted (§12.5: 7 % of training frames stuck, 2 % in the two seconds before a stop; 61 % of the selected
+model's windows from the gentle arena_v1 data; a 0.4 s rollout loss), training should be able to fix it.
+
+### 13.1 What was added to the trainer (`traverse_wp2_train_map.py`)
+
+* **Stall events** (`traverse_wp7_stall_diagnosis.py events` → `<cache>/events.json`): per episode the class,
+  the stop frame, launch failure, the resume frames of recoveries (≥ 1 s cumulative stall with throttle on, then
+  vx > 0.5 m/s), and for feasible episodes the frames at which they pass the stations where the layout's stalled
+  siblings stopped. `wp7_cache_v1`: 280 stops, 168 launch failures, 204 recoveries, 1 091 matched frames.
+* **Event-balanced sampling** (`--event-frac p`, `MapBatcher.event_table`): a fraction p of every batch is drawn
+  from windows whose rollout span contains an event — `approach` (the stop inside the span), `stuck` (context and
+  span after the stop), `launch` (the first frames of a launch failure), `recovery` (the resume inside the span),
+  `matched` (a feasible sibling passing the stalled runs' station) — balanced over the kinds, uniform over windows
+  within a kind; the rest of the batch as before (uniform over recorded windows). At K = 40 the training arenas
+  offer 7 120 / 2 764 / 2 583 / 3 694 / 26 379 such windows.
+* **Longer rollout horizons** (`--rollout-steps` 8 / 40 / 80 / 120 = 0.4 / 2 / 4 / 6 s of autoregressive
+  prediction under the recorded controls, map re-cropped at the dead-reckoned pose).
+* **Progress loss** (`--progress-weight`): Huber on the cumulative distance along the body axis (metres) at every
+  rollout step — the quantity a stall zeroes and a drift inflates; `--vx-weight` scales the speed channel in the
+  state losses; `--delta-scale` as before.
+* **Stall validation metrics** (`stall_eval`, on the validation arena's event windows under the recorded controls,
+  the §12.2 tests in-training): `stuck` (context 0.2 s after the stop, 3 s) → predicted |vx| at the end and the
+  fraction under 0.5 m/s (`hold`); `approach` (context ends 2 s before the stop, 4 s) → predicted vx 2 s after the
+  stop; `launch` (frames 0–15, 3 s); `recovery` (context ends 1 s before the resume, 3 s) and `matched` (a feasible
+  sibling at the stalled runs' station, 4 s) → |predicted − recorded| vx, the guards against "always stop";
+  `stall_score` = the mean of the five, in m/s; `--selection stall_score` picks `ckpt_best.pt` by it.
+
+### 13.2 The grid (25 runs, `slurm/wp8_launch.sh`, mi3501x, one MI350 each)
+
+All on the new data (`wp7_cache_v1`, train f101–f104, val f105), batch 256, fine-tuned from the frozen
+`wp2_mapv2_pt_dag_ro8_amd` at lr 3e-4 unless noted:
+
+| axis | runs |
+|---|---|
+| event fraction × horizon | p ∈ {0, 0.3, 0.6} × K ∈ {8, 40, 80} (`wp8_p{0,3,6}_k{8,40,80}`; 12 k steps, 10 k at K = 80) |
+| loss, at (p .3, K 40) and (p .6, K 80) | progress weight 1 (`_prog`), delta-scale (`_ds`), progress + vx weight 5 (`_progvx`) |
+| init / data, at the same two points with progress | from scratch on the new data (`_scratch`, 20 k / 14 k steps); fine-tuned on new + arena_v1 tracker episodes (`_mix`) |
+| learning rate | lr 1e-4 (`_lr1`) at the same two points with progress |
+| seeds | (p .6, K 80, progress) seeds 1, 2 |
+| heavier / longer | p 0.9 at K 80 with progress; K 120 (6 s) at p 0.6 with progress (8 k steps) |
+
+Throughput on MI350 at K = 8 was 2 880 samples/s (≈ 675 steps/min); the rollout part scales with K, so K = 80
+runs are budgeted at 10 k steps inside the 3 h 50 walltime, with `ckpt_last.pt` every 1 000 steps as the fallback.
+
+### 13.3 Evaluation (local, `traverse_wp8_eval_runs.sh` → `wp8_eval/<run>/`, `traverse_wp8_leaderboard.py`)
+
+Every finished run (and the frozen and the §11 fine-tuned model as baselines) gets, with the audit fixes in place
+(60° attitude termination = Chrono's abort; the tracker's own action centre whatever dynamics model it drives):
+(1) the §12.2 stall tests on the validation arena f105 (`analyze_f105.txt`: from the recorded context, does it
+predict the stop / hold a stall / keep a launch failure stationary, and does it still move the feasible controls);
+(2) the same on the training arena f104 (`analyze_f104.txt`: the "reproduce known training examples" check);
+(3) the imagination on every f105 route and the shared-bank pick table (`pick_f105.json`, `pick_f105.txt`): the
+selection question with the benchmark unchanged. The sealed arenas are not touched by the ablation; one run of the
+chosen configuration on them comes after, with the user.
