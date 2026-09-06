@@ -122,16 +122,26 @@ def main() -> None:
                      layout_json=np.array(json.dumps(meta.get("layout", {}))), max_contact_n=data["max_contact_n"],
                      **{k: v for k, v in data.items() if k.startswith("route_")})
             episodes.append(ekey); arena_of[ekey] = aid; status_of[ekey] = status; kind_of[ekey] = kinds.get(key, meta.get("kind", "unknown"))
-            r = rows.get((key, cand), {})
+            # labels: the runner's metrics row when it exists, else what the record itself tells (a run killed between saving its
+            # record and reporting its row -- batch restarts -- still has status, frames, power and contact)
+            end_frame = int(data["end_frame"])
+            fallback = {"status": status, "completed": status == "completed", "time_s": float((end_frame + 1) * 0.05) if end_frame >= 0 else 30.0,
+                        "energy_kj": float(data["power"][: end_frame + 1].sum() * 0.05) if end_frame >= 0 else float(data["power"].sum() * 0.05),
+                        "contact": bool(float(data["max_contact_n"]) > 1.0), "max_contact_n": float(data["max_contact_n"]),
+                        "max_roll_deg": float(np.degrees(np.abs(data["z1"][:, 2]).max())), "max_pitch_deg": float(np.degrees(np.abs(data["z1"][:, 3]).max())),
+                        "min_tire_fz_n": float(data["z1"][:, 7:11].min()), "stall_s": 3.0 if status == "stall" else 0.0, "stalled": status == "stall",
+                        "unload_run_max_s": None, "airborne_s": None, "mean_ct_m": None, "p95_ct_m": None,
+                        "length_m": float(data["route_stations"][-1]) if "route_stations" in data else None, "recorded_frames": int(data["z1"].shape[0]), "from_record": True}
+            r = rows.get((key, cand))
             labels[ekey] = {k: r.get(k) for k in ("status", "completed", "time_s", "energy_kj", "contact", "max_contact_n", "max_roll_deg", "max_pitch_deg",
-                                                  "min_tire_fz_n", "stall_s", "stalled", "unload_run_max_s", "airborne_s", "mean_ct_m", "p95_ct_m", "length_m", "recorded_frames")}
+                                                  "min_tire_fz_n", "stall_s", "stalled", "unload_run_max_s", "airborne_s", "mean_ct_m", "p95_ct_m", "length_m", "recorded_frames")} if r else fallback
             sp = data.get("route_speeds", np.zeros(1))
             labels[ekey].update(arena=aid, layout=key, candidate=cand, kind=kind_of[ekey], mean_speed=float(np.mean(sp)), max_speed=float(np.max(sp)),
                                 route_length_m=float(data["route_stations"][-1]) if "route_stations" in data else None)
             n_written += 1
-        st = {s: sum(status_of[e] == s for e in episodes if arena_of[e] in {Path(a).name for a in [arenas[k] for k in arenas]} and e.split("__")[0] == Path(arenas[list(arenas)[-1]]).name) for s in set(status_of.values())}
         errs = [poses[k]["err_m"] for k in maps]
-        print(f"{coll.name}: {n_written} episodes from {len(maps)} layouts ({n_short} shorter than {args.min_frames} frames dropped); "
+        n_fb = sum(1 for e in episodes if labels[e].get("from_record"))
+        print(f"{coll.name}: {n_written} episodes from {len(maps)} layouts ({n_short} shorter than {args.min_frames} frames dropped; {n_fb} labelled from the record only); "
               f"camera start-pose error mean {np.mean(errs):.2f} m max {np.max(errs):.2f} m; {time.time() - t0:.0f}s", flush=True)
     by_arena = {a: {s: sum(1 for e in episodes if arena_of[e] == a and status_of[e] == s) for s in sorted(set(status_of.values()))} for a in sorted(arenas)}
     (out / "cache_manifest.json").write_text(json.dumps({"schema": 2, "episodes": episodes, "arena_of": arena_of, "status_of": status_of, "kind_of": kind_of,
