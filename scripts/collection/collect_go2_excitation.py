@@ -154,6 +154,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--windows", type=int, default=100)
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--allow-nan-columns", action="store_true",
+                    help="proceed even if a column is NaN in every row of "
+                         "the first episode. Off by default.")
     ap.add_argument("--out", required=True)
     ap.add_argument("--ground-size-m", type=float, default=40.0)
     ap.add_argument("--action-scale", type=float, default=None,
@@ -184,7 +187,7 @@ def main():
     import pychrono as chrono
     from nedm.quadruped.robot import Go2Robot
     from nedm.quadruped.constants import STAND_ACTION, PD_KP, PD_KD, JOINT_EFFORT_NM
-    from nedm.quadruped.dataset import csv_field_names, capture_row
+    from nedm.quadruped.dataset import csv_field_names, capture_row, contact_bodies
     from nedm.quadruped.terrain import build_rigid_ground
     from nedm.quadruped.imported_policy import ImportedGo2Policy
     CKPT = os.environ.get("NEDM_GO2_CKPT",
@@ -355,11 +358,19 @@ def main():
                 bad = "torque_pinned"; break
             # soil_z is NaN-per-foot on rigid, matching what collect_go2_smoke
             # passes; None is not accepted and would fail inside capture_row.
+            # GROUND TRUTH CONTACT. This call previously passed contacts=None
+            # EXPLICITLY, which writes foot_*_in_contact as NaN rather than raising
+            # -- so all four contact columns were `nan` in every row of the first
+            # 5M-row collection, undetected until the far end tried to train on it.
+            # contacts=None is correct on CRM, where feet couple through FSI and the
+            # contact system sees nothing. This collector runs on RIGID ground, where
+            # the contact container does see the feet, so None was simply wrong here.
+            contacts = contact_bodies(chrono, system)
             row = capture_row(chrono, robot, None, 0.0, target,
                               (0.0, 0.0, 0.0), [float("nan")] * 4, float("nan"),
                               f"exc_{wi:06d}", "go2_excitation", f"exc_{wi:06d}",
                               "train", len(rows), t, tau=tau, policy_raw=None,
-                              perturb=None, contacts=None, com=None,
+                              perturb=None, contacts=contacts, com=None,
                               gravity=[0.0, 0.0, -9.81])
             qz = robot.base().GetRot()
             row["_tilt"] = math.acos(max(-1.0, min(1.0, 1 - 2 * (qz.e1 ** 2 + qz.e2 ** 2))))
@@ -387,6 +398,32 @@ def main():
         if len(over):
             fell += 1
             fell_rows.append(int(over[0]))
+        # WRITE-TIME FINITENESS CHECK, on the FIRST kept episode only. A column
+        # written entirely as NaN is invisible to every check downstream: hashes
+        # prove the bytes crossed and NaN is what was sent; a row/episode counter
+        # counts NaN rows; a schema guard compares NAMES and cannot see through
+        # equal names with one side empty. All four foot_*_in_contact columns
+        # shipped as `nan` in a 5M-row collection for exactly that reason. This
+        # costs one pass over one episode and fails the run instead of the training.
+        if kept == 0:
+            # EXPECTED_NAN: columns this collector deliberately does not populate.
+            # policy_raw and com are passed as None because the excitation arm is not
+            # policy-driven and the CoM is not needed; the soil channels are CRM-only
+            # and are NaN on rigid by design. Everything else being all-NaN is a bug.
+            EXPECTED_NAN = ("policy_raw_", "com_", "soil_")
+            EXPECTED_NAN_SUFFIX = ("_sinkage_m", "_surface_disp_m")
+            dead = [k for k in rows[0]
+                    if not k.startswith("_")
+                    and not k.startswith(EXPECTED_NAN)
+                    and not k.endswith(EXPECTED_NAN_SUFFIX)
+                    and all(isinstance(r.get(k), float) and math.isnan(r[k]) for r in rows)]
+            if dead:
+                print(f"\nALL-NaN COLUMNS IN THE FIRST EPISODE: {dead}\n"
+                      f"Refusing to write {a.windows} episodes of a column that is "
+                      f"never populated. If these are legitimately unavailable for "
+                      f"this terrain, add them to EXPECTED_NAN.", flush=True)
+                if not a.allow_nan_columns:
+                    return 2
         for r in rows:
             r["chrono_build"] = fp["core_so_md5"][:8]
             w.writerow(r)

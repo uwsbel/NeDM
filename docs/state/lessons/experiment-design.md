@@ -3517,3 +3517,56 @@ phenomenon in its raw source independently, hours earlier, by a different route 
 physical-admissibility filter had already excluded 530 of 3,503 episodes. Two boxes
 reaching the same defect by different means is stronger evidence that it is a property of
 the collector than either finding alone.
+
+## Four checks verified four true things and none asked whether the values were numbers
+
+All four `foot_*_in_contact` columns shipped as the string `nan` in every row of a
+5M-row collection. It survived every gate between the collector and the training box:
+
+```
+  per-file hashes      proved the bytes crossed intact -- `nan` is what was sent
+  row/episode counts   counted NaN rows correctly
+  the unwrap verifier  proved the circular channels are clean, which they were
+  the schema guard     compared column NAMES, and the names matched exactly
+```
+
+The schema guard is the instructive one: its whole job is compatibility, and equal
+names with one side entirely empty is precisely the case it cannot see through. Each
+check was correct. None of them was a check on the values.
+
+Cause: the `capture_row` call passed `contacts=None` **explicitly**, which writes NaN
+rather than raising. `None` is correct on CRM, where feet couple through FSI and the
+contact system genuinely reports nothing — so the parameter has a legitimate meaning
+that makes a wrong value indistinguishable from a deliberate one.
+
+The fix is a write-time check on the first kept episode: any column that is NaN in every
+row of it, and is not on an explicit expected-NaN list, aborts the run. One pass over one
+episode, and it fails the collection instead of the training two days later. Writing the
+expected list is the useful part — it forces you to say which absences are intended, and
+the four contact columns were conspicuously not among them.
+
+Generally: a validity check that compares structure will not catch empty content. If a
+pipeline's guarantees are all structural, one of them has to look at a value.
+
+## Ground truth logged beats a constant tuned to approximate it
+
+Foot contact has two definitions in this repo. `foot_*_in_contact` is membership in the
+set of bodies Chrono's contact container actually resolved a contact for. `contact_mode()`
+is a hysteretic Schmitt trigger on foot force, at 5 N release and 60 N engage.
+
+They agree on **70.8%** of samples, measured over six rigid episodes — and on one foot
+only 41.2%.
+
+```
+  fl 71.8%    fr 83.5%    rl 86.6%    rr 41.2%
+```
+
+The threshold is not a second opinion; it is a proxy that is wrong about a quarter of
+samples wherever the ground truth exists. `contact_bodies`' own docstring says as much:
+*"every hysteresis constant tuned so far has been a proxy for this, tuned because it was
+never logged."* The constants were tuned carefully — against a spectral-peak criterion,
+to 0.96x ideal on CRM — and careful tuning of a proxy does not make it the quantity.
+
+The proxy remains necessary on CRM, where the contact system reports nothing. That is
+what makes this worth stating: the fallback exists for a real reason, and its existence
+is why nobody noticed it was being used where the truth was available.
