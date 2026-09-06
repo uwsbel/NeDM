@@ -74,3 +74,50 @@ was declared before any of these numbers existed.
 eliminates absolute height entirely and lets the contact query's **depths** carry it. That
 is a real structural difference and it sits behind the contact-query result above, so it
 is not actionable until the context-length question is settled.
+
+## Addendum: `vx` characterised, and a worry withdrawn
+
+**Measured 2026-09-05 on rigid episode CSVs, no models.**
+
+`vx` came back as the least predictable component in the W0 linear baseline — negative R^2
+at both horizons — which raised the question of whether the fine-tune acceptance criterion,
+scored on `vx` tracking, had less power than it appeared to.
+
+**It did not, and the reason is a distinction between two different quantities:**
+
+```
+  the concern    the 0.29 s INCREMENT of vx is unpredictable
+  what was scored  the MEAN achieved vx over a 10 s window
+```
+
+Averaging ~1000 rows of a **zero-autocorrelation** increment is precisely the case where
+the window mean is well determined while each step is not. The criterion's measured 95%
+interval, **+/-0.0114 m/s**, never depended on increments being predictable — and serially
+uncorrelated increments give that mean a *smaller* standard error than correlated ones
+would. **The fine-tune verdict is undisturbed.**
+
+**Three measurements, and the second is the one that mattered:**
+
+| | result |
+|---|---|
+| increment autocorrelation, lags 1-5, all intervals | flat, slightly negative. Nothing predictable from past increments |
+| **sd across events vs within a cycle** | **vx 3.28x, vy 3.11x**, wz 1.23x |
+| command changes explaining `dvx` | pooled corr +0.352 = **12.4%** of variance; **zero in six of eight families** |
+
+The second was run because it could have **excused** the negative R^2: a settled limit
+cycle sampled at its own period gives an increment that is pure noise, and a negative R^2
+would then be correct rather than a failure. **It declined to excuse it.** At 3.28x the
+within-cycle spread the section value genuinely varies, so there is something to predict.
+
+**That converts an ambiguous result into a specific one:** not "there is no structure in
+`vx`" but **"the linear fit is the wrong instrument for it"** — which is consistent with
+the trained surrogate reaching 0.723 on the same family, and with the fault being
+action-sensitivity rather than accuracy.
+
+**A command channel is not the missing ingredient.** It explains an eighth of the pooled
+variance and *nothing at all* in six of eight families, where the command is constant and
+`sd(dvx)` is still 0.06-0.096.
+
+**Method note worth carrying:** the informative check here was the one that could have let
+the result off. Running it and reporting that it failed to is what makes the conclusion
+narrow enough to act on.
