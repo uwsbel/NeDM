@@ -54,6 +54,7 @@ def main() -> None:
     ap.add_argument("--floor-sigmas", type=float, default=1.5)
     ap.add_argument("--pess-terms", nargs="+", default=["head", "state"])
     ap.add_argument("--horizon-s", type=float, default=30.0)
+    ap.add_argument("--crop-arena", default=None, help="ablation: force the crop's height field to this arena (default: --arena)")
     ap.add_argument("--device", default="cuda")
     args = ap.parse_args()
     a = SimpleNamespace(**vars(args), routes="artifacts/traverse/wp3_routes", map_key="map_v2", from_rest=True, cache=args.challenge_cache)
@@ -84,7 +85,7 @@ def main() -> None:
             c = chrono[key].get(t["candidate"])
             if c is None:
                 continue
-            feasible = c["completed"] and not c.get("stalled") and c["status"] == "completed"
+            feasible = c["completed"] and not c.get("stalled") and c["status"] == "completed" and not c.get("contact", False)
             rows.append({"key": key, "candidate": t["candidate"], "chrono_feasible": bool(feasible), "chrono_status": c["status"], "chrono_stalled": bool(c.get("stalled")),
                          "chrono_time": c["time_s"], "chrono_energy": c["energy_kj"], "chrono_max_pitch": c["max_pitch_deg"], "chrono_max_roll": c["max_roll_deg"],
                          "img_ok": bool(res["ok"][i]), "img_completed": bool(res["completed"][i]), "img_failed": bool(res["failed"][i]),

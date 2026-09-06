@@ -80,8 +80,12 @@ def load_map_model(ckpt_path: Path | str, arena_dir: Path | str, device: str | t
     predict = payload.get("map_mode") == "predict"
     token_dim = int(payload["model"]["cropper.fc.weight"].shape[0])
     model = WP2MapModel(z1_dim, act_dim, cfg, Path(arena_dir), token_dim, predict_token=predict)
-    missing, unexpected = model.load_state_dict(payload["model"], strict=False)
-    allowed = {"tok_mean", "tok_std"}  # buffers added 2026-09-04; older index ckpts lack them
+    # The crop's height field is a prior map of the arena being PLANNED ON, not a learned parameter: keep the
+    # buffer built for ``arena_dir`` and drop the training arena's copy that older checkpoints carry (before
+    # 2026-09-06 the checkpoint's arena_v1 heightmap silently overrode the requested arena's).
+    state = {k: v for k, v in payload["model"].items() if k != "cropper.heightmap"}
+    missing, unexpected = model.load_state_dict(state, strict=False)
+    allowed = {"tok_mean", "tok_std", "cropper.heightmap"}  # tok_* buffers added 2026-09-04; older index ckpts lack them
     if unexpected or (set(missing) - allowed):
         raise RuntimeError(f"checkpoint mismatch: missing={missing} unexpected={unexpected}")
     model.to(device).eval()

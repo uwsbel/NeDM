@@ -1135,3 +1135,45 @@ Used as a veto on the top decile of disagreement, it would have removed 50 % bad
 5. Housekeeping before that: fix the tire-load metric; make the geometry decoder device-independent;
    resolve the arena-heightmap dependence of the crop and pose head (the steep runs used the steep
    arena's own height field as the prior map).
+
+### 10.8 Review of §10 and the corrected frozen-model replay
+
+A reviewer checked `465dfc3` and found two implementation faults in the steep-arena test; both reproduced:
+
+| finding | check | fix |
+|---|---|---|
+| the loaded model kept **arena_v1's crop height field** even when the steep arena was requested (the checkpoint's `cropper.heightmap` buffer overrode the one built for the arena; 5.21 m max difference) | reproduced: loading with `arena_v2_steep` gave arena_v1's heights | `load_map_model` drops the checkpoint's buffer and keeps the requested arena's; `MapCropper.heightmap` is now non-persistent |
+| the encoder's **elevation channel was normalised with each arena's own height range** (3.90 m on v1, 8.45 m on the steep arena), so a metre of relief entered the frozen encoder at less than half its training scale | reproduced in `EpisodeMedian._elevation` | the cache builders take `--norm-arena` (default arena_v1): training normalisation whatever arena is planned on; the vehicle mask still uses the true ground |
+
+Further corrections adopted: "feasible" now excludes contact (one steep detour completed with 10 kN against
+the house → 38 infeasible, not 37); the wheel-unload metric fired everywhere because single wheels read
+exactly zero for isolated 50 ms frames at 3–6 m/s (wheel hop on the 0.15 m roughness; the four loads still
+sum to the 25 kN weight) — replaced by the longest consecutive unloaded stretch and an "airborne" count
+(sum of loads under half the weight); the −1.24 of §10.5 has a feature-grouped bootstrap 95 % interval of
+[−2.50, +0.05] over the 10 physical features (per-layout: [−2.73, +0.02]) — modest, not decisive; and the
+disagreement flag of §10.6 has AUC **0.43** on the 33 `wm_deploy` picks alone (0.74 on `geo_deploy`): it
+flags the regression's mistakes, not the world model's, and is not a guard for the deployed choice.
+
+**Corrected replay of the 170 steep crossings** (same frames, same Chrono outcomes, frozen model):
+
+| inputs | infeasible crossings accepted | energy Chrono / imagined (both feasible) | imagined best = Chrono best | imagined best infeasible |
+|---|---|---|---|---|
+| as reported (v1 crop, arena-own normalisation) | 37 / 37 | 1.35 | 1 / 17 | 3 |
+| crop height field fixed | 37 / 38 | 1.34 | 1 / 17 | 2 |
+| normalisation fixed | 38 / 38 | 1.22 | 2 / 17 | 2 |
+| **both fixed** | **38 / 38** | **1.22** | 4 / 17 | 2 |
+
+The preprocessing faults explain part of the energy error (1.35 → 1.22) and none of the feasibility
+blindness: with correct inputs the frozen model still accepts every stalled or off-route crossing. The
+steep-terrain failure is missing dynamics knowledge — the training data contains no stall regime — and
+recollection there is justified. The reviewer's other conditions stand: the steep arena's decisions are
+one-sided (8 m/s completes every challenge that has a feasible option; no challenge needs a detour), so the
+benchmark must gain cases where speed is penalised (stability, tracking) and where only a detour works, and
+splits must be by terrain instance, not by heading through the same feature. `assets/traverse/arena_v3_rough`
+(30° cap, 0.35 m roughness, 2.5–4 m craters) is the first attempt at that; its sweep is §10.9.
+
+Sharpened research question (reviewer's wording, adopted): **does imagining the vehicle's changing state help
+choose successful action sequences beyond what terrain and entry speed alone can predict?** The distinguishing
+case to build is *sequences* of features — carrying speed to clear a climb that leaves the vehicle badly placed
+or too fast for the next turn or side slope — since a per-crossing entry-speed table already covers single
+features (cf. *Learning When to Jump*, arXiv 2602.00877).

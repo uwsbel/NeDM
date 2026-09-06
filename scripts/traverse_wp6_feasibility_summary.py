@@ -23,7 +23,7 @@ for r in rows:
     by[r["key"]][r["candidate"]] = r
 cands = sorted({r["candidate"] for r in rows}, key=lambda c: (not c.startswith("direct"), c))
 cost = lambda r: r["time_s"] + r["energy_kj"] / 10
-feasible = lambda r: r["completed"] and not r.get("stalled") and r["status"] == "completed"
+feasible = lambda r: r["completed"] and not r.get("stalled") and r["status"] == "completed" and not r.get("contact", False)
 print(f"{'challenge':24s} {'up/down deg':>11s} | " + " ".join(f"{c[-7:]:>9s}" for c in cands) + "  | best feasible -> cost | slope_aware cost (x best)")
 out = {}
 for key in sorted(by, key=lambda k: (ch.get(k, {}).get("kind", ""), k)):
@@ -34,9 +34,9 @@ for key in sorted(by, key=lambda k: (ch.get(k, {}).get("kind", ""), k)):
         if r is None:
             cells.append(f"{'-':>9s}"); continue
         if feasible(r):
-            cells.append(f"{cost(r):6.1f}{'u' if r.get('unloaded_s', 0) > 0.5 else ' '}{'!' if r['max_pitch_deg'] > 25 or r['max_roll_deg'] > 25 else ' '} ")
+            cells.append(f"{cost(r):6.1f}{'u' if r.get('unload_run_max_s', 0) >= 0.3 else ' '}{'!' if r['max_pitch_deg'] > 25 or r['max_roll_deg'] > 25 else ' '} ")
         else:
-            cells.append(f"{'STALL' if r.get('stalled') else r['status'][:6]:>9s}")
+            cells.append(f"{'STALL' if r.get('stalled') else ('CONTACT' if r.get('contact') else r['status'][:6]):>9s}")
     feas = {n: r for n, r in rs.items() if feasible(r)}
     best = min(feas, key=lambda n: cost(feas[n])) if feas else None
     sa = rs.get("slope_aware")
@@ -44,8 +44,8 @@ for key in sorted(by, key=lambda k: (ch.get(k, {}).get("kind", ""), k)):
     print(f"{key:24s} {c.get('line_max_up_deg', float('nan')):5.1f}/{c.get('line_max_down_deg', float('nan')):4.1f} | " + " ".join(cells) + "  | " + tail)
     out[key] = {"best_feasible": best, "best_cost": cost(feas[best]) if best else None, "slope_aware_cost": cost(sa) if sa and feasible(sa) else None,
                 "n_feasible": len(feas), "n_routes": len(rs), "infeasible": [n for n, r in rs.items() if not feasible(r)],
-                "routes": {n: {k: r.get(k) for k in ("status", "completed", "stalled", "stall_s", "unloaded_s", "time_s", "energy_kj", "max_roll_deg", "max_pitch_deg", "mean_speed_err_mps", "max_ct_m", "min_tire_fz_n")} for n, r in rs.items()}}
-print("cells: cost = time + kJ/10 for feasible routes; 'u' = a wheel unloaded for > 0.5 s; '!' = roll or pitch over 25 deg; STALL / status otherwise")
+                "routes": {n: {k: r.get(k) for k in ("status", "completed", "stalled", "stall_s", "unloaded_s", "unload_run_max_s", "airborne_s", "contact", "max_contact_n", "time_s", "energy_kj", "max_roll_deg", "max_pitch_deg", "mean_speed_err_mps", "max_ct_m", "min_tire_fz_n")} for n, r in rs.items()}}
+print("cells: cost = time + kJ/10 for feasible routes; 'u' = a wheel unloaded for >= 0.3 s consecutively; '!' = roll or pitch over 25 deg; STALL / CONTACT / status otherwise")
 n_inf = sum(len(v["infeasible"]) for v in out.values()); n_all = sum(v["n_routes"] for v in out.values())
 print(f"{n_inf}/{n_all} routes infeasible over {len(out)} challenges; slope-aware infeasible on {sum(1 for v in out.values() if v['slope_aware_cost'] is None)} challenges; "
       f"slope-aware is the cheapest feasible route on {sum(1 for v in out.values() if v['best_feasible'] == 'slope_aware')}")

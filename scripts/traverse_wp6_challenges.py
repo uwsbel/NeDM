@@ -73,6 +73,7 @@ def main() -> None:
     ap.add_argument("--arena", default="assets/traverse/arena_v1")
     ap.add_argument("--bound", type=float, default=36.0, help="start / house must lie within +-bound (arena keep-within)")
     ap.add_argument("--detour-speed", type=float, default=5.0)
+    ap.add_argument("--place-slope-deg", type=float, default=10.0, help="max local slope for the start / house placement")
     args = ap.parse_args()
     out, arena = Path(args.out), Path(args.arena)
     tmap = TerrainMap.from_dir(arena)
@@ -91,8 +92,9 @@ def main() -> None:
             th = math.radians(hdeg); u = np.array([math.cos(th), math.sin(th)]); n = np.array([-u[1], u[0]])
             centre = c + offset * n
             # start and house on ground as flat as the regular layouts demand (the vehicle spawns 0.75 m up and settles)
-            start = next((centre - d * u for d in np.arange(STANDOFF_M, 33.0, 1.0) if flat(tmap, centre - d * u, args.bound)), None)
-            house = next((centre + d * u for d in np.arange(BEYOND_M, 29.0, 1.0) if flat(tmap, centre + d * u, args.bound - 3.0)), None)
+            smax = math.tan(math.radians(args.place_slope_deg))
+            start = next((centre - d * u for d in np.arange(STANDOFF_M, 33.0, 1.0) if flat(tmap, centre - d * u, args.bound, smax)), None)
+            house = next((centre + d * u for d in np.arange(BEYOND_M, 29.0, 1.0) if flat(tmap, centre + d * u, args.bound - 3.0, smax)), None)
             if start is None or house is None:
                 skipped.append((f["kind"], fi, hdeg, offset)); continue
             end = house - params.approach_ring_m * u
@@ -118,6 +120,7 @@ def main() -> None:
                 ctrl = np.stack([start, centre - 14 * u, centre - 7 * u + sgn * R * n, centre + sgn * R * n, centre + 7 * u + sgn * R * n, centre + 11 * u + sgn * 0.3 * R * n, end])
                 pts = _resample(_catmull_rom(ctrl[None], 240)[0], params.sample_step_m)
                 tasks.append({**base, "candidate": f"detour_{side}", "route": route(pts, const_profile(pts, args.detour_speed, params))})
+    out.mkdir(parents=True, exist_ok=True)
     (out / "tasks.json").write_text(json.dumps(tasks))
     (out / "challenges.json").write_text(json.dumps(challenges, indent=1))
     print(f"skipped {len(skipped)} variants with no flat start / house")

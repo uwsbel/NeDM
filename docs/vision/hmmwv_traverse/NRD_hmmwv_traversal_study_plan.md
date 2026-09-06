@@ -553,3 +553,17 @@ Programme, in order, each gated on the previous:
    crossings the rule accepts and (b) the momentum-vs-crawl choice, against the regression refitted on
    the same data. Housekeeping first: tire-load metric, decoder device, heightmap dependence of the crop
    and pose head.
+
+## 26. v1.10 (2026-09-06): corrected replay before recollection
+
+Two implementation faults in the §25 steep-arena test were found in review and reproduced (crop height
+field stuck on arena_v1; elevation channel normalised per arena) — `wp4_implementation_notes.md` §10.8.
+Fixed, and the 170 steep crossings replayed with the frozen model: energy calibration improves (1.35 →
+1.22) but all 38 infeasible crossings are still accepted. Conclusion: the failure is missing dynamics
+knowledge; recollection on steep terrain is justified. Conditions before collecting (from the review, all
+adopted): a two-sided decision range (momentum-required climbs, crossings where speed is penalised, true
+direct-vs-detour choices, sequences of features), splits by terrain instance and parameters, contact in the
+feasibility definition, a sustained-lift wheel metric, and a matched cheap predictor of crossing success /
+cost trained on the same data as the comparison. Research question sharpened to: does imagining the
+vehicle's changing state help choose successful action sequences beyond what terrain and entry speed alone
+predict?

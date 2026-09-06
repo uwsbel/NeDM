@@ -34,6 +34,8 @@ def main() -> None:
     ap.add_argument("--encoder", default="artifacts/traverse/wp1_v6/ckpt_warmup.pt")
     ap.add_argument("--posehead", default="artifacts/traverse/wp4_posehead_v1_amd/ckpt_best.pt")
     ap.add_argument("--frames", type=int, default=400, help="tiled length of the rest state (the env reads frames 0..context)")
+    ap.add_argument("--norm-arena", default="assets/traverse/arena_v1",
+                    help="arena whose height range normalises the encoder's elevation channel: the encoder's TRAINING arena, whatever is planned on")
     args = ap.parse_args()
     dev = "cuda" if torch.cuda.is_available() else "cpu"
     out = Path(args.out); out.mkdir(parents=True, exist_ok=True)
@@ -44,7 +46,8 @@ def main() -> None:
     payload = torch.load(args.posehead, map_location=dev, weights_only=False)
     pstem = enc.backbone[:STAGE]
     head = PoseHead(width=payload["config"]["width"]).to(dev); head.load_state_dict(payload["head"]); head.eval()
-    helper = EpisodeMedian([], Path("artifacts/traverse"), Path(args.arena))
+    helper = EpisodeMedian([], Path("artifacts/traverse"), Path(args.arena))  # vehicle mask: true ground under the vehicle
+    norm_helper = EpisodeMedian([], Path("artifacts/traverse"), Path(args.norm_arena))  # elevation channel: training normalisation
     ds_helper = P.WP1FrameDataset([], Path(args.arena))
     keys, poses, errs = [], {}, []
     for f in sorted(Path(args.challenges).glob("*/frame0.npz")):
@@ -64,7 +67,7 @@ def main() -> None:
                       "err_deg": math.degrees(abs((est[2] - pose[2] + math.pi) % (2 * math.pi) - math.pi))}
         # scene map from the single frame, vehicle masked at the ESTIMATED pose
         mask = vehicle_mask_xy(helper, *est)
-        elev = helper._elevation(depth_mm)
+        elev = norm_helper._elevation(depth_mm)
         rgb_f, elev_f = fill_masked(rgb, mask), fill_masked(elev, mask)
         minp = torch.from_numpy(np.concatenate([rgb_f.transpose(2, 0, 1), elev_f[None]]).astype(np.float32))[None].to(dev)
         with torch.no_grad():
@@ -74,7 +77,8 @@ def main() -> None:
                  pose=np.tile(pose[None], (T, 1)).astype(np.float32), map_v2=scene_map, z2=np.zeros((T, 256), np.float32), power=np.zeros((T, 1), np.float32))
         keys.append(key)
         print(f"{key}: rest vx {z1[0]:+.2f} pitch {math.degrees(z1[3]):+.1f} deg, tire loads {np.round(z1[7:11]).astype(int)} N | camera pose err {err:.3f} m {poses[key]['err_deg']:.2f} deg | masked {int(mask.sum())} px")
-    (out / "cache_manifest.json").write_text(json.dumps({"episodes": keys, "source": args.challenges, "encoder": args.encoder, "vehicle_masked": True}))
+    (out / "cache_manifest.json").write_text(json.dumps({"episodes": keys, "source": args.challenges, "encoder": args.encoder, "vehicle_masked": True,
+                                                         "arena": args.arena, "elevation_norm_arena": args.norm_arena}))
     (out / "start_poses.json").write_text(json.dumps(poses, indent=1))
     print(f"{len(keys)} challenge cache entries -> {out}; camera start pose error mean {np.mean(errs):.3f} m max {np.max(errs):.3f} m")
 

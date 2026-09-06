@@ -46,8 +46,8 @@ class MapCropper(nn.Module):
         self.f_px, self.cx, self.cy = cam.f_px, cam.cx, cam.cy
         self.cam_h = cam.cam_height_m
         self.width = cam.width
-        self.register_buffer(
-            "heightmap", torch.tensor(tmap.height_grid, dtype=torch.float32)[None, None]
+        self.register_buffer(  # prior map of the arena, not a parameter: never saved into checkpoints
+            "heightmap", torch.tensor(tmap.height_grid, dtype=torch.float32)[None, None], persistent=False
         )
         offsets = torch.linspace(-half_m, half_m, k)
         du, dv = torch.meshgrid(offsets, offsets, indexing="ij")  # du forward, dv left

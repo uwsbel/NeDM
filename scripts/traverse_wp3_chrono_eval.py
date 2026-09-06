@@ -250,7 +250,10 @@ def run_one(task: dict) -> dict:
     max_contact = 0.0
     max_roll = max_pitch = 0.0
     min_tire_fz = math.inf   # wheel unloading
-    unloaded_frames = 0      # frames with any wheel under 500 N
+    unloaded_frames = 0      # frames with any wheel under 500 N (single-frame wheel hop is common on the rough surface)
+    unload_run = unload_run_max = 0  # longest consecutive stretch with a wheel unloaded = sustained lift
+    airborne_frames = 0      # frames with the four loads summing to under half the vehicle weight
+    series = [] if task.get("dump_series") else None  # per-frame diagnostics on request
     stall_frames = 0         # throttle on, vehicle not moving, after the launch window
     min_clear = math.inf
     status, end_time = "timeout", None
@@ -389,8 +392,14 @@ def run_one(task: dict) -> dict:
             max_roll = max(max_roll, abs(roll)); max_pitch = max(max_pitch, abs(pitch))
             fz = [float(state[f"tire_{w}_force_wheel_fz_n"]) for w in ("fl", "fr", "rl", "rr")]
             min_tire_fz = min(min_tire_fz, *fz)
+            if series is not None:
+                series.append([ts, vx, float(last[1]), float(last[2]), roll, pitch, *fz, *(float(state[f"tire_{w}_force_world_z_n"]) for w in ("fl", "fr", "rl", "rr")), float(engine.GetOutputMotorshaftTorque())])
             if min(fz) < 500.0:
-                unloaded_frames += 1
+                unloaded_frames += 1; unload_run += 1; unload_run_max = max(unload_run_max, unload_run)
+            else:
+                unload_run = 0
+            if sum(fz) < 0.5 * 25000.0:
+                airborne_frames += 1
             if frame >= int(round(2.0 / CTRL_DT_S)) and abs(vx) < 0.3 and float(last[1]) > 0.3:
                 stall_frames += 1
         if abs(roll) > ROLL_PITCH_ABORT_RAD or abs(pitch) > ROLL_PITCH_ABORT_RAD:
@@ -403,6 +412,10 @@ def run_one(task: dict) -> dict:
 
     ct = np.asarray(ct_log) if ct_log else np.zeros(1)
     acts = np.asarray(act_log) if act_log else np.zeros((1, 3))
+    if series is not None:
+        Path(task["dump_series"]).parent.mkdir(parents=True, exist_ok=True)
+        np.savez_compressed(task["dump_series"], series=np.asarray(series, np.float32),
+                            columns=np.array(["t", "vx", "throttle", "brake", "roll", "pitch", "fz_fl", "fz_fr", "fz_rl", "fz_rr", "fzw_fl", "fzw_fr", "fzw_rl", "fzw_rr", "torque"]))
     row.update(status=status, completed=status == "completed",
                time_s=float(end_time if end_time is not None else task["horizon_s"]),
                energy_kj=float(energy_kj), energy_first16_kj=float(energy_first16_kj), vx_frame16=vx_frame16,
@@ -413,6 +426,7 @@ def run_one(task: dict) -> dict:
                max_roll_deg=float(math.degrees(max_roll)), max_pitch_deg=float(math.degrees(max_pitch)),
                min_tire_fz_n=float(min_tire_fz) if math.isfinite(min_tire_fz) else None,
                stall_s=stall_frames * CTRL_DT_S, stalled=bool(stall_frames * CTRL_DT_S >= 1.0), unloaded_s=unloaded_frames * CTRL_DT_S,
+               unload_run_max_s=unload_run_max * CTRL_DT_S, airborne_s=airborne_frames * CTRL_DT_S,
                min_clearance_m=float(min_clear), steer_rate_max=float(np.abs(np.diff(acts[:, 0])).max()) if len(acts) > 1 else 0.0,
                frames=len(ct_log), wall_s=time.time() - wall0, localisation=loc_mode,
                loc_xy_mean_m=float(np.mean(loc_xy_log)) if loc_xy_log else None,

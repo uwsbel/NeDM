@@ -92,6 +92,9 @@ class Imaginer:
                                  "dynamics_checkpoint": ckpt, "arena": a.arena, "cache": self.cache_dir, "routes": a.routes,
                                  "fragment_steps_max": self.horizon, "z1_extra_cache": sidecar or None, "map_key": a.map_key})
             env = TraverseTrackingEnv(cfg, device=dev, entries=entries)
+            if getattr(a, "crop_arena", None):  # ablation only: crop height field from another arena
+                from nedm.traverse.terrain import TerrainMap as _TM
+                env.model.cropper.heightmap.copy_(torch.tensor(_TM.from_dir(Path(a.crop_arena)).height_grid, dtype=torch.float32, device=dev)[None, None])
             policy = load_policy(Path(a.policy), env, dev)
             obst = torch.tensor(np.asarray(discs, np.float32).reshape(-1, 3), device=dev)[None].expand(len(entries), -1, -1).contiguous()
             obst_true = torch.tensor(np.asarray(layout.obstacles(), np.float32).reshape(-1, 3), device=dev)[None].expand(len(entries), -1, -1).contiguous()
