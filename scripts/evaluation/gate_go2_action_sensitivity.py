@@ -297,6 +297,20 @@ def main():
 
     ck = torch.load(a.checkpoint, map_location="cpu", weights_only=False)
     ck["config"]["training"]["device"] = a.device
+    # THE GATE NEVER VALIDATES. It loads a checkpoint, rolls the model forward on
+    # arms it generates itself, and scores the result -- validation_datasets and the
+    # train mix are never touched. Loading them anyway means a checkpoint whose
+    # config has an unrelated defect cannot be gated at all.
+    #
+    # That is not hypothetical: both go2_contact_40d_unwrap configs list the WRAPPED
+    # go2_contact_40d as their validation set, and the metadata guard added earlier
+    # tonight correctly refuses that pairing -- so the guard blocked re-gating the
+    # very checkpoints it was written to protect. The guard is right and the config
+    # is wrong; the gate simply should not be constructing state it does not use.
+    ck["config"]["validation_datasets"] = []
+    ck["config"]["train_mix"] = {"datasets": [
+        {"name": "self", "processed_dataset_dir": ck["config"]["processed_dataset_dir"],
+         "batch_fraction": 1.0}]}
     tr = HMMWVTrainer(ck["config"])
     tr.model.load_state_dict(ck["model_state_dict"]); tr.model.to(tr.device).eval()
     md = json.load(open(ck["config"]["processed_dataset_dir"] + "/metadata.json"))
