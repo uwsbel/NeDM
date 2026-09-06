@@ -252,6 +252,9 @@ def main():
     ap.add_argument("--gait-band", type=float, nargs=2, default=None, metavar=("LO", "HI"),
                     help="keep pairs whose inter-event interval is in [LO,HI]*median. "
                          "PRE-REGISTER THIS before reading any R^2.")
+    ap.add_argument("--restrict-to", default=None, metavar="FILE",
+                    help="newline-delimited episode paths; use ONLY these. Feed it the\n"
+                         "intersection of two arms' used_episodes to make the arms paired.")
     ap.add_argument("--max-abs-state", type=float, default=None, metavar="BOUND",
                     help="drop episodes where any numeric channel exceeds BOUND in "
                          "absolute value, or is non-finite. Off by default so old runs "
@@ -263,6 +266,10 @@ def main():
     a = ap.parse_args()
 
     paths = sorted(glob.glob(a.glob))[: a.max_episodes]
+    if a.restrict_to:
+        keep = {ln.strip() for ln in open(a.restrict_to) if ln.strip()}
+        paths = [q for q in sorted(glob.glob(a.glob)) if q in keep]
+        print(f"restricted to {len(paths)} episodes from {a.restrict_to}")
     if not paths:
         sys.exit(f"no episodes matched {a.glob}")
 
@@ -275,6 +282,7 @@ def main():
 
     dt = float(np.median(np.diff(probe["time_s"])))
     per_ep, per_ep_t, ev_dt, diag_off, n_drop, n_diverged = [], [], [], [], 0, 0
+    used_paths = []
     for p in paths:
         ep = load_episode(p, joint_cols)
         if a.max_abs_state is not None and episode_is_diverged(ep, joint_cols, a.max_abs_state):
@@ -285,6 +293,7 @@ def main():
             n_drop += 1
             continue
         S, T, stance, t = got
+        used_paths.append(p)
         per_ep.append(S)
         per_ep_t.append(T)
         ev_dt.extend(np.diff(T).tolist())
@@ -445,6 +454,15 @@ def main():
                    "arm": "fixed_dt" if a.fixed_dt else "event", "fixed_dt": a.fixed_dt,
                    "split_seed": a.split_seed, "gait_band": a.gait_band,
                    "n_episodes": len(per_ep), "n_dropped": n_drop,
+                   "n_diverged": n_diverged,
+                   # THE PATHS, NOT ONLY THE COUNT. The event and fixed-dt arms drop
+                   # different episodes -- 288/112 against 339/61 -- so they were never
+                   # drawing from the same population, and a between-arm comparison over
+                   # them is confounded by WHICH episodes each arm could use. Varying the
+                   # split seed does not touch that, because the seed varies the split
+                   # WITHIN an arm. Recording the used set makes the arms intersectable,
+                   # which is what makes the comparison paired.
+                   "used_episodes": used_paths,
                    "n_events": int(sum(len(s) for s in per_ep)),
                    "interevent_mean_s": float(np.mean(ev_dt)),
                    "interevent_sd_s": float(np.std(ev_dt)),

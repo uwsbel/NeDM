@@ -3427,3 +3427,55 @@ is the episode.
 Ask what an existing filter was written to catch, not what it happens to catch. A rule
 built for "this episode has no gait" will exclude many diverged episodes incidentally
 and was never designed to exclude them reliably.
+
+## Environment-selected behaviour: three instances, one class
+
+Three times in one session, the same program produced different behaviour depending on
+something outside the code, with no error in any case:
+
+```
+  which Chrono           chosen by PYTHONPATH        115 of 183 columns differ, exit 0
+  whether unwrap applies chosen by git checkout      carries the whole 0.5 s gate result
+  whether the MLP runs   chosen by sklearn version   1.8 moved `loss` to the first
+                                                     positional slot, where 1.7 had
+                                                     hidden_layer_sizes
+```
+
+Each is invisible in the source. Each produces plausible output rather than a failure.
+And each is selected by state a reader of the code cannot see: an environment variable, a
+commit, an installed package version.
+
+The defences differ and only one generalises:
+
+- **Record what was actually loaded, not what was requested.** `/proc/<pid>/maps` for the
+  Chrono build; a binary hash in the run summary; `circular_unwrapped` metadata.
+- **Pin the selector** where a variable can carry it — `$NEDM_ANALYSIS_PY` fixes the third
+  of these, and only the third.
+- **Remove the dependence entirely** where the API allows. Passing `hidden_layer_sizes=`
+  by keyword is correct under both sklearn versions, and needs no pin, no record and no
+  discipline from the next caller. Where a positional argument's meaning is a property of
+  the installed version, the keyword form is not a style preference.
+
+The ordering matters: eliminating the dependence beats pinning it, and pinning beats
+recording it. Recording is the fallback when the other two are unavailable, and it only
+tells you afterwards which behaviour you got.
+
+## Varying the seed does not fix a comparison whose arms have different populations
+
+W4 compared event-indexed against fixed-dt across five split seeds and reported the fixed
+arm winning 5 of 5. But the arms dropped different episodes — 288 used and 112 dropped
+against 339 and 61 — because the event detector fails on different episodes than the
+fixed-dt sampler does. So the arms were never drawing from the same population, and the
+result is confounded by which episodes each arm could use.
+
+Five seeds does not address this. The seed varies the train/test split **within** an arm;
+it cannot vary which episodes the arm was able to admit. Repeating a confounded
+comparison with different splits produces five confounded comparisons and a consistent
+answer, which reads as robustness.
+
+The fix is an intersection: record the episodes each arm actually used, intersect, re-run
+both restricted to the common set. Then the arms differ only in the thing under test.
+
+Generally: whenever an arm has its own admission rule, check the admitted sets before
+reading the comparison. Consistency across seeds is evidence about variance, never about
+whether the arms were comparable to begin with.
