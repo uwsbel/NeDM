@@ -2861,3 +2861,73 @@ behaves; do not decide on it.
 This is the same denominator failure as the `grav` group scoring **-0.680** while
 `grav_body_z` had RMSE 0.00069 against sd 0.446, and as the `body` group scoring 0.203
 while `vel_body_x` was 0.822. **Three group-level conclusions in one session rested on it.**
+
+## Two importable builds, selected by an environment variable, producing plausible numbers
+
+**Cost:** an evening, a false "replay is not reproducible" finding, and a false consequence
+drawn from it · **Found:** 2026-09-06
+
+```
+  /home/kyle/chrono-build/bin/pychrono/_core.so     md5 d1d0bd0a   Sep 3
+  envs/nedm/.../site-packages/pychrono/_core.so     md5 8e9e3865   May 7
+```
+
+Collection pins the local build by setting `PYTHONPATH`; an ad-hoc replay that did not
+imported the conda one. **Different floating point, a difference present at the first
+step, amplified ~5000x over 41 s.** With the matching build: **0.000e+00** across 164
+columns and 3994 rows.
+
+**The failure mode is that it does not fail.** A missing library produces an ImportError; a
+*different* library produces numbers, and they look like physics. Every downstream check
+&mdash; digests, column comparisons, divergence plots &mdash; then measures the build
+difference and reports it as a property of the simulation.
+
+**The precondition nobody stated:** the digest check is meaningful only for episodes
+replayed against **the same binary**, not merely on the same machine. Same-machine was
+assumed and is not sufficient, because one machine can carry two.
+
+**Fix, which detects rather than diagnoses:** record the **md5 of the `pychrono`
+`_core.so` actually imported** into the episode metadata, alongside the perturbation peak,
+prewalk and ground tilt. A mismatch is then caught at comparison time instead of costing
+someone an evening. **Same argument as recording values rather than seeds, applied to the
+simulator itself:** a seed plus a code version is a promise the code version can be found.
+
+**How it was actually caught, which is the transferable part.** Not by inspecting
+environments, but by an arithmetic argument about the *shape* of the divergence: the row-0
+difference was **4.6e-05** against a float64 round-trip floor of **~1e-16**, eleven orders
+apart, while the episode's own growth implied a ~5 s e-folding time. Reaching 4.6e-05 from
+rounding in the 1.4 s before recording would need an e-folding time near 56 ms, a
+hundredfold faster than the same episode shows later. **One system does not have two
+Lyapunov times a hundredfold apart, so the difference predated recording.** Chaos amplifies
+a difference; it cannot create one.
+
+## When your misuse of a tool gives a wrong answer, "the tool is broken" is the expensive conclusion
+
+**Found:** 2026-09-06 · **Applies to:** every negative result about shared tooling
+
+The replay above was run by calling `arm_cmd()` — **half of a two-part helper** — and
+executing the result directly:
+
+```python
+  cmd = g.arm_cmd(s, g.BASE_CKPT, out)
+  r = subprocess.run(cmd, capture_output=True, text=True, cwd=REPO)   # no env=
+```
+
+`run_arm()` is the half that supplies the environment. The gate's own single
+`subprocess.run` does pass `env=env_for(s)`, so **no gate number was ever affected** —
+but the conclusion drawn was "the gate sets no PYTHONPATH, so its apparatus check is
+contaminated." A shared tool was declared defective on the strength of a private misuse.
+
+**Two rules:**
+
+1. **Before reporting a tool as broken, run the tool.** Not a piece of it, not a
+   reimplementation of what it does — the entry point, as documented. Half a helper is a
+   different program.
+2. **Attribute to your own use before attributing to the tool**, because the two produce
+   identical symptoms and only one of them costs other people their time.
+
+**And the timing is the part worth remembering.** That consequence was asserted *inside a
+retraction*. **A claim made in the same breath as a correction inherits the correction's
+credibility** — the reader has just watched you be scrupulous, so the next sentence is
+weighed less. It is exactly when a new claim needs the most scrutiny and is most likely to
+receive the least.
