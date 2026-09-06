@@ -48,12 +48,22 @@ Every command elsewhere in `docs/state/` assumes these three variables:
 ```bash
 export NEDM_ROOT=/path/to/NeDM
 export NEDM_PY=/path/to/the/pychrono+torch/python
+export NEDM_ANALYSIS_PY=/path/to/the/pandas+scipy+sklearn/python
 export PYTHONPATH=$NEDM_ROOT/src
 ```
 
 Run scripts as `cd "$NEDM_ROOT" && "$NEDM_PY" -m ...` or
 `"$NEDM_PY" scripts/<stage>/<script>.py`. Never `python` bare — the system
 interpreter has no pychrono.
+
+**`NEDM_ANALYSIS_PY` is the interpreter with the analysis stack**, and it exists
+because on at least one box no single env has both. `$NEDM_PY` is defined as the
+*pychrono+torch* interpreter; scripts under `scripts/analysis/` need pandas,
+scipy and scikit-learn, which that env may not carry. Anything that reads
+collected data without simulating uses `$NEDM_ANALYSIS_PY`. Where one env
+satisfies both, point them at the same path — the variables stay distinct so a
+script never has to name an env, which is the whole point of the convention.
+Each machine page records which env satisfies which on that box.
 
 ## How work and data move between boxes
 

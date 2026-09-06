@@ -10,13 +10,22 @@ Two excitation arms, matched at 160 perturbed rows and ~1.03 s per episode,
 differing only in how many times control is handed back to the policy:
 
 ```
-arm A   L=40, N=4     4 handovers    300/300 kept     0.0% rejected
-arm B   L=10, N=16   16 handovers   259/300 kept    13.7% rejected (all joint_limit)
-arm C   L=10, N=4     4 handovers   300/300 kept     0.0% rejected
+EX-A   L=40, N=4     4 handovers    300/300 kept     0.0% rejected
+EX-B   L=10, N=16   16 handovers   259/300 kept    13.7% rejected (all joint_limit)
+EX-C   L=10, N=4     4 handovers   300/300 kept     0.0% rejected
 ```
 
-Burst length is not the driver. A and C share N=4 at different L and both
-reject nothing; B differs from C only in handover count and rejects 13.7%.
+Burst length is not the driver. EX-A and EX-C share N=4 at different L and both
+reject nothing at 300 episodes; EX-B differs from EX-C only in handover count and
+rejects 13.7%.
+
+**EX-A's rate is ~0.1%, not 0%.** The 0/300 above is the 300-episode diagnostic;
+at larger n rejections do occur. The 0% figure was an artefact of the sample
+size available when it was first quoted, and is corrected here so it does not
+harden -- a quoted zero is unusually sticky, because nobody re-examines a rate
+with no exceptions. Two orders of magnitude below EX-B either way, so nothing in
+this finding changes. Whether EX-A's rare rejections also sit at the handover is
+the open test of the mechanism on the arm we kept.
 
 The timing localises the mechanism:
 
@@ -55,22 +64,22 @@ failing here rather than at the dynamics model.
 
 ## Consequence for the collection
 
-Arm B is dropped, and the reason is survivorship rather than the rejection
+EX-B is dropped, and the reason is survivorship rather than the rejection
 rate. Excluding episodes that fail at handover selects against exactly the
-states where the policy struggles, so arm B's survivors are biased toward easy
+states where the policy struggles, so EX-B's survivors are biased toward easy
 handovers -- a survivorship filter operating on the mechanism under study.
-Arm A delivers the same perturbed rows at the same cost with no rejection and
-no selection.
+EX-A delivers the same perturbed rows at the same cost at ~0.1% rejection and
+no meaningful selection.
 
-Standing plan: **arm A for bulk, arm C for the burst-length comparison at
-matched handover count, arm B dropped.** A-versus-C isolates burst length with
+Standing plan: **EX-A for bulk, EX-C for the burst-length comparison at
+matched handover count, EX-B dropped.** EX-A versus EX-C isolates burst length with
 handover count held fixed, which is the comparison the original A/B pair could
 not make -- there `L x N` was held constant, so `L` and `N` were perfectly
 anti-correlated and completely confounded by construction.
 
 ## Remedy, not built
 
-If arm B's structure is ever wanted back, the fix is a **ramped handover**:
+If EX-B's structure is ever wanted back, the fix is a **ramped handover**:
 blend the target from perturbed to policy over a few steps rather than
 switching abruptly, and mark the blended rows as neither. Not built now.
 Worth knowing it exists if the burst-length comparison says short bursts

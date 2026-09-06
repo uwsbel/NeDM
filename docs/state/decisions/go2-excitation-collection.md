@@ -70,23 +70,27 @@ At scale 0.3 the rejection rate is 0; at 1.6 it is 100% on the primary tier.
 
 ## Final arm plan (2026-09-06)
 
+**The excitation arms are `EX-A`, `EX-B`, `EX-C`.** The prefix is not decoration:
+this repo also uses "arm C" for a context-length arm on a different study line,
+and unprefixed arm letters are ambiguous across `docs/state/decisions/`.
+
 `L` = burst length in rows, `N` = bursts per episode, both arms 340 rows/episode.
 
 | arm | L | N | perturbed rows/ep | rejected | role |
 |---|---|---|---|---|---|
-| A | 40 | 4 | 160 | 0.0% | **bulk** |
-| B | 10 | 16 | 160 | 13.7% | **dropped** |
-| C | 10 | 4 | 40 | 0.0% | burst-length comparison |
+| EX-A | 40 | 4 | 160 | 0.0% | **bulk** |
+| EX-B | 10 | 16 | 160 | 13.7% | **dropped** |
+| EX-C | 10 | 4 | 40 | 0.0% | burst-length comparison |
 
 The original A/B pair held `L x N` constant, so `L` and `N` were perfectly
-anti-correlated and completely confounded by construction. **A-versus-C isolates
+anti-correlated and completely confounded by construction. **EX-A versus EX-C isolates
 burst length at matched handover count (N=4)**, which is the comparison that pair
 could not make.
 
-Arm B is dropped for **survivorship, not for its rejection rate**: its rejections
+EX-B is dropped for **survivorship, not for its rejection rate**: its rejections
 are concentrated at the policy handover, so excluding them biases the survivors
 toward easy handovers — a survivorship filter operating on the mechanism under
-study. Arm A gives the same 160 perturbed rows at the same ~1.03 s/episode with no
+study. EX-A gives the same 160 perturbed rows at the same ~1.03 s/episode with no
 rejection and no selection. See [go2-policy-history-provenance.md](go2-policy-history-provenance.md),
 which records the handover result as a finding about the study rather than about
 the collector.
@@ -94,23 +98,23 @@ the collector.
 Runs (`--action-scale 0.3 --branch-from-policy`):
 
 ```
-go2_exc_b40      seed 21    900 eps   arm A   (complete, 306,000 rows)
-go2_exc_b40_c2   seed 31  6,453 eps   arm A
-go2_exc_b40_c3   seed 33  3,680 eps   arm A
-go2_exc_b40_c4   seed 34  3,680 eps   arm A
-go2_exc_c10_c2   seed 35  2,500 eps   arm C   (190,000 rows, comparison only)
+go2_exc_b40      seed 21    900 eps   EX-A   (complete, 306,000 rows)
+go2_exc_b40_c2   seed 31  6,453 eps   EX-A
+go2_exc_b40_c3   seed 33  3,680 eps   EX-A
+go2_exc_b40_c4   seed 34  3,680 eps   EX-A
+go2_exc_c10_c2   seed 35  2,500 eps   EX-C   (190,000 rows, comparison only)
 ```
 
-Arm A total 14,713 episodes = **5.00M rows**. Arm C needs only enough volume for
-the comparison, not for the bulk; effective rank saturates by ~2,000 rows and arm C
+EX-A total 14,713 episodes = **5.00M rows**. EX-C needs only enough volume for
+the comparison, not for the bulk; effective rank saturates by ~2,000 rows and EX-C
 supplies 100,000 perturbed rows.
 
-Superseded: `go2_exc_b10` (seed 22, arm B, kept) and `go2_exc_b10_c2` (seed 32,
+Superseded: `go2_exc_b10` (seed 22, EX-B, kept) and `go2_exc_b10_c2` (seed 32,
 killed ~30 s in, marked `ABANDONED.txt`).
 
-### The A-versus-C comparison must be run at matched perturbed-row counts
+### The EX-A versus EX-C comparison must be run at matched perturbed-row counts
 
-Arm A supplies ~2.35M perturbed rows and arm C ~100K. **Subsample A down to C's
+EX-A supplies ~2.35M perturbed rows and EX-C ~100K. **Subsample A down to C's
 100K before comparing.** Run at native volumes the comparison confounds burst
 length with training volume — the same error, one axis over, as the original
 A/B pair that held `L x N` constant.
@@ -123,7 +127,7 @@ or `go2_exc_c10_c2` signals that their row counts are not comparable.
 
 Four dataset summaries carried a `rows` field that substituted burst length for
 episode length (`kept * WINDOW_ROWS`), undercounting by roughly the burst count —
-8.5x for arm A, **34x for arm B**, which has 16 bursts. Recounted from the CSVs
+8.5x for EX-A, **34x for EX-B**, which has 16 bursts. Recounted from the CSVs
 and recorded in
 [docs/state/provenance/go2_excitation_rows_repair.json](../provenance/go2_excitation_rows_repair.json),
 since the datasets sit outside the repo and the repair would otherwise be visible

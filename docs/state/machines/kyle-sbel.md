@@ -1,6 +1,6 @@
 # kyle-sbel
 
-**Verified:** 2026-09-02 · **Owner:** Kyle · **Role:** Development, docs,
+**Verified:** 2026-09-06 · **Owner:** Kyle · **Role:** Development, docs,
 manuscript builds, light training and analysis.
 
 | | |
@@ -9,13 +9,15 @@ manuscript builds, light training and analysis.
 | CPU / RAM | 16 cores / 30 GB |
 | Disk (free) | 1.8 T total, **1.3 T free** |
 | Repo path | `/home/kyle/Documents/sbel/NeDM` |
-| Interpreter | `/home/kyle/miniconda3/envs/chrono/bin/python` (**pychrono 9.0.0**, torch 2.6.0+cu124, CUDA available) |
+| Interpreter | `/home/kyle/miniconda3/envs/nedm-src/bin/python` (**pychrono 10 source build** via `PYTHONPATH`, torch 2.12.0+cu130) |
+| Analysis interpreter | `/home/kyle/miniconda3/envs/ml/bin/python` (torch 2.5.1+cu121, pandas 3.0.0, scipy 1.17.0, sklearn 1.8.0; **no pychrono**) |
 | Reachable from | local only |
 
 ```bash
 export NEDM_ROOT=/home/kyle/Documents/sbel/NeDM
-export NEDM_PY=/home/kyle/miniconda3/envs/chrono/bin/python
-export PYTHONPATH=$NEDM_ROOT/src
+export NEDM_PY=/home/kyle/miniconda3/envs/nedm-src/bin/python
+export NEDM_ANALYSIS_PY=/home/kyle/miniconda3/envs/ml/bin/python
+export PYTHONPATH=$NEDM_ROOT/src:/home/kyle/Documents/sbel/chrono-build/bin
 ```
 
 ## What this machine is for
@@ -43,8 +45,30 @@ escalate**, not a step to attempt. See [`reference/`](reference/).
 1. **`git-lfs` is not installed.** Checkpoint `.pt` files under `artifacts/` are
    LFS pointer stubs, not weights. Install `git-lfs`, then
    `git lfs install && git lfs pull`, before expecting any checkpoint to load.
-2. **The `chrono` env is not equivalent to `nedm`, despite what the name
-   suggests.** There is no `nedm` env on this box and never was. `chrono` carries
+2. **Five envs exist and none is a superset; the split is why
+   `NEDM_ANALYSIS_PY` had to be introduced.** Verified 2026-09-06:
+
+   | env | pychrono | torch | pandas / scipy / sklearn |
+   |---|---|---|---|
+   | `nedm-src` | 10.0.0 conda, **overridden by the source build via `PYTHONPATH`** | 2.12.0 | none |
+   | `nedm` | 10.0.0 conda | 2.12.0 | none |
+   | `chrono` | 9.0.0 conda (local tarball) | 2.6.0 | pandas, scipy, **no sklearn** |
+   | `ml` | none | 2.5.1 | all three |
+   | `entangle` | none | 2.9.1 | all three |
+
+   No env carries both pychrono and the full analysis stack, so simulation and
+   analysis cannot share an interpreter on this box. `chrono` comes closest and
+   still lacks sklearn. Which Chrono a `nedm-src` process gets is decided
+   **only** by whether the source build is on `PYTHONPATH` — the conda 10.0.0
+   is importable without it, so the two builds are silently interchangeable and
+   a run that forgets the path is not obviously wrong.
+
+   **This entry previously said the interpreter was `chrono`/pychrono 9.0.0.**
+   That was true on 2026-09-02 and false by 2026-09-06; the collection work runs
+   on `nedm-src` against the source build. A stale interpreter line is expensive
+   because it is consulted precisely when someone cannot see the box.
+
+   There is no `nedm`-vs-`chrono` equivalence to assume: `chrono` carries
    **pychrono 9.0.0**, installed from a local tarball
    (`~/Downloads/pychrono-9.0.0-py310_4853.tar.bz2`, conda channel shows as
    `<unknown>`), which is older than the 10.0.0 in `environment.nedm.yml` *and*

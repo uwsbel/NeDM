@@ -1,13 +1,18 @@
 """Effective rank and conditional action variance for the excitation arms.
 
-RUN THIS WITH THE ANALYSIS INTERPRETER, NOT THE COLLECTOR'S. The collector env
-(envs/nedm-src, which carries pychrono) has neither pandas nor scipy, so this
-script cannot run beside the thing that produced its input:
+THE ARMS ARE EX-A AND EX-C, not "arm A" and "arm C". This repo already uses
+"arm C" for a context-length arm on a different study line, so the excitation
+arms carry the EX- prefix to keep the two unambiguous.
 
-    /home/kyle/miniconda3/envs/ml/bin/python scripts/analysis/go2_excitation_confound.py
+RUN THIS WITH $NEDM_ANALYSIS_PY, NOT $NEDM_PY. No env is named here on purpose:
+the fleet convention (docs/state/machines/README.md) is that scripts read their
+interpreter from the environment so that no script hardcodes an env name.
 
-Stated here because it is not stated anywhere else -- two torch envs exist on
-this box (`ml`, `entangle`) and no doc says which is canonical.
+    "$NEDM_ANALYSIS_PY" scripts/analysis/go2_excitation_confound.py --ex-a ...
+
+The variable exists separately from $NEDM_PY because on this box no env carries
+both pychrono and the analysis stack, so simulation and analysis cannot share an
+interpreter. Which env satisfies which is recorded on the machine page.
 
 WHY BOTH NUMBERS AND WHY AT MATCHED n. The policy-generated data has a=pi(s),
 so action is a deterministic function of state and a surrogate cannot tell which
@@ -70,15 +75,15 @@ def load(paths, phase=None):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--arm-a", nargs="+", required=True)
-    ap.add_argument("--arm-c", nargs="*", default=[])
+    ap.add_argument("--ex-a", nargs="+", required=True)
+    ap.add_argument("--ex-c", nargs="*", default=[])
     ap.add_argument("--phase", default="perturb")
     ap.add_argument("--k", type=int, default=16)
     ap.add_argument("--seed", type=int, default=0)
     a = ap.parse_args()
 
-    A = load(a.arm_a, a.phase)
-    print(f"arm A  {len(A):,} {a.phase} rows from {len(a.arm_a)} shard(s)")
+    A = load(a.ex_a, a.phase)
+    print(f"EX-A  {len(A):,} {a.phase} rows from {len(a.ex_a)} shard(s)")
     rng = np.random.default_rng(a.seed)
 
     def report(tag, df, n):
@@ -88,18 +93,18 @@ def main():
         print(f"  {tag:24s} n={n:>7,}  effective rank {er:5.2f}/12   conditional var {cv:.3f}")
         return er, cv
 
-    if a.arm_c:
-        C = load(a.arm_c, a.phase)
-        print(f"arm C  {len(C):,} {a.phase} rows from {len(a.arm_c)} shard(s)")
-        # MATCHED n IS THE WHOLE POINT: arm A has ~23x arm C's perturbed rows, and
+    if a.ex_c:
+        C = load(a.ex_c, a.phase)
+        print(f"EX-C  {len(C):,} {a.phase} rows from {len(a.ex_c)} shard(s)")
+        # MATCHED n IS THE WHOLE POINT: EX-A has ~23x EX-C's perturbed rows, and
         # comparing at native volumes confounds burst length with training volume --
         # the same error, one axis over, as holding L x N constant.
         n = min(len(A), len(C))
         print(f"\nmatched at n={n:,} (the smaller arm), burst length L=40 vs L=10 at N=4")
-        report("arm A  L=40", A, n)
-        report("arm C  L=10", C, n)
+        report("EX-A  L=40", A, n)
+        report("EX-C  L=10", C, n)
     print("\nfull volume (NOT comparable across arms -- n differs):")
-    report("arm A  L=40", A, len(A))
+    report("EX-A  L=40", A, len(A))
     return 0
 
 
