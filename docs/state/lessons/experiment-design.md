@@ -3479,3 +3479,19 @@ both restricted to the common set. Then the arms differ only in the thing under 
 Generally: whenever an arm has its own admission rule, check the admitted sets before
 reading the comparison. Consistency across seeds is evidence about variance, never about
 whether the arms were comparable to begin with.
+
+## A silently dead code path is also a silently free one
+
+W0's MLP arm had been dead for weeks behind a bare `except`. Fixing it was correct and
+immediately changed the cost profile of every W0 run: ten in parallel, with sklearn's
+default BLAS threading, drove load to **137 on a sixteen-core box** and nothing finished
+in fifty minutes. Nothing that looked like a performance change had been made.
+
+The general shape: a skipped stage contributes nothing to runtime, so the surrounding
+scheduling — how many runs fit in parallel, how long a batch takes — was tuned against a
+program that was not doing all of its work. Restoring the work invalidates that tuning
+silently, because the code that got slower is code that previously did not run at all.
+
+When re-enabling a stage that has been skipped, re-measure the runtime before scaling out
+the batch. And pin thread counts when running numerical work in parallel: the default is
+one process taking every core, which is correct for one process and catastrophic for ten.

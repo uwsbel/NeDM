@@ -40,7 +40,15 @@ contaminated data with unpaired arms. On clean, paired data **the ridge comparis
 reverses completely**, and the four metrics now disagree: ridge and level-ridge favour
 event indexing 5/5, knn10 and the MLP favour fixed-dt 4/5.
 
-**The correct conclusion is that W4 is undecided, not that event indexing wins.** A
+**The correct conclusion is that W4 is INCONCLUSIVE, and it stays there.**
+
+Two things make it inconclusive rather than decided the other way. First, the
+pre-registration said "event beats fixed on >= 4 of 5 seeds" and never named the
+estimator -- which was harmless while the estimators agreed and is load-bearing now.
+A decision rule that does not name its statistic is not a pre-registration. Second,
+**the MLP is a metric nobody had when W4 was decided**, because it was silently dead;
+part of the disagreement is a measurement that did not exist. "The estimators
+disagree" reads differently once one of them is new. A
 comparison whose sign depends on the estimator is not a result, and reporting the two
 metrics that now favour our preferred arm would repeat the original error with the
 polarity flipped.
@@ -67,13 +75,48 @@ way the surrogate's advantage on the body family is roughly half what was claime
 
 The bar a trained surrogate must clear is substantially higher at 0.10 s and 1.00 s.
 
-**The curve is no longer monotonic in horizon and I cannot explain that.** Predicting
-further ahead should be harder, and 1.00 s scores above 0.29 s on ridge and knn10 while
-the MLP still falls. The mean inter-event interval is 0.350 s, so 0.29 s is 0.83 gait
-periods and 1.00 s is 2.86 — the fractional parts are nearly identical, so a simple
-gait-phase argument does not account for it. Flagged rather than explained; a
-non-monotonic predictability curve is either a real feature of the dynamics at these
-horizons or an artefact of the fixed-dt construction, and I have not distinguished them.
+**The curve is no longer monotonic in horizon, and the reason is the normaliser rather
+than predictability.** Two tests, both free from data already in the summaries.
+
+*Test 1, oscillation versus drift — refuted.* The hypothesis was that oscillatory
+channels dip at 0.29 s while drift channels rise monotonically. Every group dips:
+
+```
+  group                             0.10    0.29    1.00
+  joint velocity (12)              0.817   0.415   0.530     dip
+  body angular rate (3)            0.610   0.422   0.540     dip
+  relative position (3)  [drift]   0.491   0.262   0.448     dip
+  joint position (12)              0.671   0.304   0.434     dip
+  attitude (2)                     0.520   0.491   0.645     dip
+  body linear velocity (3)         0.212   0.105   0.215     dip
+```
+
+The dip is universal, so it is not a property of channel type. Nor is it sample size,
+which falls monotonically with horizon — 86,189 training pairs at 0.10 s, 29,639 at
+0.29 s, 8,516 at 1.00 s — so the *least* data coincides with a *recovery* in score.
+
+*Test 2, absolute error — this is the answer.* R^2 is normalised by the increment's own
+spread, and that spread is not monotonic in horizon:
+
+```
+  horizon    sd(dx)    ridge R^2    residual RMSE
+    0.10 s    0.306      0.732          0.157
+    0.29 s    0.233      0.372          0.187
+    1.00 s    0.282      0.490          0.203
+```
+
+**Residual RMSE grows monotonically with horizon, exactly as it must.** R^2 tracks
+`sd(dx)`, which dips at 0.29 s and recovers at 1.00 s — consistent with gait
+quasi-periodicity, where after roughly a gait cycle the oscillatory part of the state
+has returned near its start and the net increment is small, while at three cycles
+accumulated drift has made it large again. The earlier gait-phase argument failed
+because it was applied to predictability; it belongs to the increment spread.
+
+**Consequence for using this curve as a floor.** Comparing R^2 across horizons compares
+against a moving normaliser: a surrogate at 1.00 s faces an apparently higher bar
+(0.496) than at 0.29 s (0.356) not because prediction is easier but because the
+increment spread is larger. Either quote the floor at a single horizon, or use residual
+RMSE, which is monotonic and directly comparable.
 
 ## Note on cost
 
