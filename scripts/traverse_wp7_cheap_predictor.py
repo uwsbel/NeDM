@@ -11,7 +11,7 @@ Targets: feasible (completed, no stall, no contact), log time, log energy (the l
 Model: a small GRU over the profile + MLP on the globals; trained on the train arenas, selected on the val arena.
 Reports val AUC of infeasibility, time / energy errors on feasible runs, per layout kind; writes predictions.
 
-  PYTHONPATH=src python scripts/traverse_wp7_cheap_predictor.py --cache artifacts/traverse/wp7_cache_v1 \
+  PYTHONPATH=src python scripts/traverse_wp7_cheap_predictor.py --caches artifacts/traverse/wp7_cache_v1 \
       --val-arenas arena_f105 --out artifacts/traverse/wp7_cheap_v1
 """
 from __future__ import annotations
@@ -83,18 +83,20 @@ def auc(score, label):
     return float((ranks[l == 1].sum() - n1 * (n1 + 1) / 2) / (n1 * n0))
 
 
-def load_dataset(cache: Path, terrain: str, maphead: str | None, device: str):
-    manifest = json.loads((cache / "cache_manifest.json").read_text())
-    labels = json.loads((cache / "labels.json").read_text())
+def load_dataset(caches: list[Path], terrain: str, maphead: str | None, device: str):
+    manifest, labels = {"episodes": [], "arenas": {}}, {}
+    for cache in caches:
+        m = json.loads((cache / "cache_manifest.json").read_text())
+        manifest["episodes"] += [(cache, k) for k in m["episodes"]]; manifest["arenas"].update(m["arenas"])
+        labels.update(json.loads((cache / "labels.json").read_text()))
     tmaps = {a: TerrainMap.from_dir(Path(d)) for a, d in manifest["arenas"].items()}
     decoder = None
     if terrain == "predicted":
-        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-        from traverse_wp5_sample_planner import MapDecoder
+        from nedm.traverse.planner_b import MapDecoder
         decoder = MapDecoder(Path(maphead), Path(manifest["arenas"][next(iter(manifest["arenas"]))]), device)
     rows = []
     pred_tmaps: dict[str, object] = {}
-    for key in manifest["episodes"]:
+    for cache, key in manifest["episodes"]:
         with np.load(cache / f"{key}.npz") as z:
             pts, sp = z["route_waypoints"], z["route_speeds"]
             z1_0 = z["z1"][0]
@@ -113,7 +115,7 @@ def load_dataset(cache: Path, terrain: str, maphead: str | None, device: str):
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--cache", required=True)
+    ap.add_argument("--caches", nargs="+", required=True, help="schema-v2 caches (e.g. the training cache and the sealed-arena cache)")
     ap.add_argument("--out", required=True)
     ap.add_argument("--val-arenas", nargs="+", required=True)
     ap.add_argument("--test-arenas", nargs="*", default=[])
@@ -130,7 +132,7 @@ def main() -> None:
     dev = "cuda" if torch.cuda.is_available() else "cpu"
     out = Path(args.out); out.mkdir(parents=True, exist_ok=True)
     t0 = time.time()
-    rows = load_dataset(Path(args.cache), args.terrain, args.maphead, dev)
+    rows = load_dataset([Path(c) for c in args.caches], args.terrain, args.maphead, dev)
     train = [r for r in rows if r["arena"] not in args.val_arenas and r["arena"] not in args.test_arenas]
     val = [r for r in rows if r["arena"] in args.val_arenas]
     print(f"{len(rows)} episodes ({time.time() - t0:.0f}s): train {len(train)} feasible {np.mean([r['feasible'] for r in train]):.2f} | "
