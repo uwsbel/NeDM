@@ -3615,6 +3615,44 @@ When a constant is fitted in a regime where the target is unobservable, record t
 next to the constant, and check it in any regime where the target *is* observable before
 reusing it there.
 
+## Favourable errors survive longer, so check them harder — the bias is in what persists
+
+Three wrong numbers nearly shipped tonight, by three unrelated mechanisms, and all three
+pointed the same way:
+
+```
+  policy effective rank 1.00/12   made the confound look more broken than it is
+  114.8% event ratio              made the contact proxy look worse, as I was arguing
+  "the drop rule keys on rr"      made the detector handicap sharper than it is
+```
+
+All three were caught by accident — a figure left over from an earlier check, two numbers
+that happened to share a table, and a peer asking about a foot. None by the scrutiny they
+would have drawn had they disagreed with me.
+
+**But the honest form of this is a survival bias, not a generation bias.** Errors tonight
+were not uniformly flattering. The audit probe that returned 0 of 32 datasets with a seed,
+and the backfill that returned 32 of 32 unreplayable, were both alarming rather than
+convenient — and both were caught within minutes, because a totally clean result is
+implausible on its face. The unwelcome errors announced themselves. The flattering ones
+did not, and so they lasted long enough to nearly be reported.
+
+That is the mechanism worth carrying: not that mistakes tend to favour you, but that
+**the ones that favour you evade the check that would catch them**, because a number
+agreeing with your argument does not feel like it needs one. Scrutiny is spent where a
+result surprises, and a favourable result is unsurprising by construction.
+
+So the defence has to be deliberately asymmetric, which is uncomfortable because it means
+spending the most effort where the least seems warranted:
+
+- when a result supports the conclusion you already hold, treat it as **unverified** until
+  it has survived a check you would have run on a result that contradicted you;
+- be specific about which check that is — recompute it a second way, or find the quantity
+  it must agree with;
+- and notice when a number overshoots. Rank 1.00 was not merely favourable, it was
+  *better* than the truth. Overshoot in a welcome direction is the strongest available
+  signal that something is wrong, and the weakest at prompting anyone to look.
+
 ## A claim that is doing rhetorical work has not necessarily been read
 
 Writing up the contact-detector finding, I wrote that W0's episode drop rule "is keyed to
