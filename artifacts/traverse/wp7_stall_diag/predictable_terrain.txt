@@ -1,0 +1,11 @@
+predictability of 'stuck <lead> later' from the model's own inputs; train ['arena_f101', 'arena_f102', 'arena_f103', 'arena_f104'], val ['arena_f105'], sealed ['arena_f106', 'arena_f107']
+
+lead 2 s: train 96620 samples (1.8 % positive), val 43092 (2.4 %), sealed 64302 (2.1 %)
+  context+future controls              AUC val 0.842  sealed 0.856  (sealed sensitivity at 5 % FPR: 0.32)
+  context only                         AUC val 0.829  sealed 0.852  (sealed sensitivity at 5 % FPR: 0.33)
+  last frame + future controls         AUC val 0.809  sealed 0.846  (sealed sensitivity at 5 % FPR: 0.31)
+  last frame, no tire loads/omegas     AUC val 0.830  sealed 0.857  (sealed sensitivity at 5 % FPR: 0.31)
+  last frame + future controls + TRUE terrain 0.25 m patch (6 x 3 m ahead) AUC val 0.813  sealed 0.854  (sealed sensitivity at 5 % FPR: 0.31)
+  last frame + future controls + coarse 1.4 m patch (+-5 m, the crop's grid) AUC val 0.823  sealed 0.848  (sealed sensitivity at 5 % FPR: 0.30)
+  context + future controls + TRUE terrain 0.25 m patch AUC val 0.828  sealed 0.863  (sealed sensitivity at 5 % FPR: 0.35)
+  TRUE terrain 0.25 m patch only       AUC val 0.739  sealed 0.756  (sealed sensitivity at 5 % FPR: 0.17)

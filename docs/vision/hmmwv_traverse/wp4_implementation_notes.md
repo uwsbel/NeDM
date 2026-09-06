@@ -1410,3 +1410,176 @@ corr 0.58 on feasible routes. Frozen: rejects 28, accepts 211 (0.55 / 0.76); ene
   recorded outcomes; (2) rebalance the benchmark toward speed-penalised and detour-only layouts before spending
   more on models; (3) fix the heading ambiguity in the pose head (velocity-direction or two-frame cue) — cheap and
   independent of the thesis question.
+
+## 12. Why the imagination accepts runs that Chrono stalls (2026-09-06, after the §11 review) — `traverse_wp7_stall_diagnosis.py`, `wp7_stall_diag/`
+
+The §11 review asked for a diagnosis before any change to the benchmark or the loss: take the runs the world
+model accepts and Chrono stalls, and find out whether the dynamics model is wrong or something else is (the
+tracker, the camera map, the start-pose estimate, the evaluation's attitude limits, the tracker's action offsets).
+Everything below uses the recorded schema-v2 caches (`wp7_cache_v1`, `wp7_cache_sealed`), the three dynamics
+models (frozen `wp2_mapv2_pt_dag_ro8_amd`, selected fine-tuned `wp7_ft_mix_amd`, from-scratch `wp7_scratch_new_amd`)
+and the tracker `wp3_tracker_v1`. Printouts: `wp7_stall_diag/classify.txt`, `analyze_{f105,f105cam,train,sealed}.txt`,
+`predictable.txt`; per-run trajectories in `model_tests_*.json` (not committed, 130–190 MB each).
+
+### 12.1 What stalls the vehicle in Chrono — `classify`
+
+Every non-feasible run gets a class from its own 17-D trace and the true terrain: where it ended (progress along
+the route), whether it ever launched, and what it was doing around the stop (throttle, engine torque, wheel speeds
+→ slip, tire loads → wheel lift, pitch and the terrain slope 2 m ahead). 846 non-feasible runs on the seven arenas:
+
+| class | n | what it is |
+|---|---|---|
+| contact | 140 | drove the whole route, touched an asset (infeasible by the strict rule only) |
+| launch | 209 | never got 2 m from the start (126 stall aborts, 83 timeouts) |
+| stop | 417 | moved, then stuck en route (161 stall aborts, 256 timeouts) |
+| stall_recovered | 49 | ≥ 1 s cumulative stall, then finished |
+| off_route / rollover | 21 / 10 | |
+
+**One mechanism.** Stops happen at a median 15 m of a 39 m route, on a slope ahead of +10° (p25 +4°, p75 +16°),
+nose up 10°, with a wheel unloaded on 76 % of the frames around the stop and a wheel-speed excess of 41 m/s over
+the ground speed (a free wheel spinning at ~90 rad/s), throttle 0.52, engine torque 168 Nm: the vehicle loses a
+wheel's contact on the 0.15–0.28 m roughness while climbing, and the HMMWV's open axle and central differentials
+(`HMMWV_Full`, AWD shafts driveline, TMEASY tires, rigid heightmap) send the torque to the wheel in the air.
+Tags: `stop|slope+lift+spin` 173, `stop|slope+spin` 94 (intermittent contact, no 50 % lift), `stop|lift+spin` 36,
+`stop|spin` 34, the rest low-throttle variants. Launch failures are the same thing at rest: 78 % of them start
+with a wheel already unloaded (the vehicle settles on the roughness with a diagonal wheel in the air, e.g.
+`arena_f105__x_hill1_h000`: rear-left 0 N, front-right 3.6 kN at rest; both spin up to 100 rad/s under throttle,
+the loaded pair never turns, 11 of 13 candidates fail, the two that pass steer left at launch). Tire-load
+caveat: on healthy runs some wheel reads < 500 N on 49 % of frames (rigid-heightmap contact, 2.3 cm quantisation
+steps), so the loads flicker; the wheel-speed excess is the robust traction signal.
+
+**Momentum is the decision.** Over the direct-crossing speed ladders of 241 layouts: 132 pass at every speed,
+65 fail slow and pass fast, 4 the reverse, 16 mixed, 24 fail at every speed. On 48 of the 65 momentum layouts
+(where the slowest failing run stopped en route), the next-faster candidate passed the same station at 2.66 m/s
+(median; dipping to 1.73 m/s in the next 2 s) where the failing run had 0.65 m/s before stopping; slope ahead
++8.5°. One step of commanded speed (1 m/s) separates the stall from the pass.
+
+**What the imagination makes of it** (accepted / n with rows, frozen · fine-tuned · scratch): launch 111 · 96 · 93
+of 146; stop 224 · 173 · 191 of 239; contact 71 · 46 · 62 of 76. On the 38 momentum layouts with imagination rows
+the frozen model accepts every speed on 38 / 38; the fine-tuned model on 28 / 38 and reproduces Chrono's pattern
+on 2 / 38. The imagined slow crossing simply takes longer (14.7 s at v2 against 7.1 s at v9) instead of stalling.
+
+### 12.2 Where the prediction goes wrong — `model`, `analyze`
+
+Per run, one imagination env per arena and model, the recorded episode's own scene map and route: (a) from rest
+with the RECORDED controls (teacher forcing — no tracker, no camera pose); (b) the same with the tire loads set to
+a healthy 6.25 kN pattern; (c) the same with another layout's scene map; (d) from rest with the tracker (the
+planner's imagination; true start pose, and the camera estimate in `analyze_f105cam.txt` — identical within
+0.05 m/s); (e) from the recorded 16-frame context 2 s before the stop with the recorded controls; (f) with another
+layout's map; (g) with the tracker; (h) seeded 1 s INSIDE the stall (stationary, throttle on, wheel spinning);
+(i) local k-step errors from the recorded context every 0.2 s from 2 s before to 1 s after the stop, k = 8
+(0.4 s, the training rollout horizon) and k = 20 (1 s). Feasible runs on the same layouts are the controls, their
+"stop" being the frame at which they passed the station where the layout's stalled runs stopped.
+
+Validation arena `arena_f105` (105 launch failures, 102 stops, 265 feasible controls), speeds in m/s:
+
+| test | Chrono | frozen | fine-tuned | scratch |
+|---|---|---|---|---|
+| launch, (a) rest + recorded controls, vx at 3 s | 0.31 | 2.03 (57 % > 1) | 2.29 (77 %) | 2.44 (78 %) |
+| launch, (b) healthy loads | | 3.12 | 3.37 | 3.22 |
+| launch, (c) wrong map | | 2.00 | 2.30 | 2.43 |
+| launch, (d) rest + tracker, completes the route | 0 % | 75 % | 78 % | 67 % |
+| stop, (e) context 2 s before + recorded controls, vx 2 s after the stop | 0.17 | 2.53 (25 % < 0.5) | 2.32 (26 %) | 2.44 (19 %) |
+| stop, (f) wrong map | | 2.57 | 2.31 | 2.44 |
+| stop, (g) tracker | | 1.90 (23 %) | 1.98 (23 %) | 2.01 (17 %) |
+| stop, (h) seeded inside the stall, vx 4 s later | ≈ 0 | 1.69 (39 % < 0.5) | 1.95 (32 %) | 1.81 (31 %) |
+| stop, (i) k = 8 error before / after the stop | | +0.14 / +0.16 | +0.12 / +0.16 | +0.03 / +0.04 |
+| stop, (i) k = 20 error before / after | | +0.37 / +0.36 | +0.32 / +0.35 | +0.17 / +0.12 |
+| feasible, (e) at the matched station, vx 2 s later | 3.30 | 4.61 | 4.37 | 4.32 |
+| feasible, (i) k = 8 / k = 20 | | +0.01 / +0.13 | +0.01 / +0.09 | −0.03 / 0.00 |
+
+Sealed arenas (41 launch, 137 stop, 450 controls) and the training arenas (63 / 178 / 463) are in
+`analyze_sealed.txt` and `analyze_train.txt`; the stop-reproduction rates in (e) are 34 · 29 · 28 % sealed and
+32 · 43 · 41 % on the training arenas; the launch-failure rates 24 · 49 · 51 % sealed, 33 · 56 · 62 % train.
+
+1. **It is the dynamics model, not the controller, the map or the localisation.** Given the true state and the
+   recorded controls, 2 s after Chrono's stop every model still predicts 2.3–2.5 m/s. Swapping the scene map for
+   another layout's changes that by < 0.05 m/s; the tracker lowers it a little (1.9–2.0); the camera start pose
+   changes nothing. The models do not even hold a stall they are placed inside: from 1 s into a stall they are
+   back at 1.7–1.95 m/s four seconds later.
+2. **Short-horizon accuracy is not what is missing.** At the training horizon (0.4 s) the signed speed error around
+   the stop is +0.03 to +0.16 m/s; the scratch model has the smallest local errors (+0.03 / +0.17 at 1 s) and the
+   worst stall reproduction (19 % of stops, 12 % of launch failures). The stall is a regime ("throttle on,
+   stationary, free wheel spinning") that a small positive per-step drift leaves within a second or two, after
+   which the imagined state is a moving vehicle and the throttle does what it always does.
+3. **The models are optimistic about speed on the rough climbs even where Chrono passes:** teacher-forced from
+   the matched station, +0.4 m/s at 2 s and +1.0 m/s at 3–4 s for every model. The closed-loop time is still
+   within 3–7 % of Chrono's (ratio 1.03–1.07, corr 0.82–0.92) because the tracker absorbs the optimism; the
+   momentum margin that decides a pass is exactly what it hides.
+4. **Launch failures:** from rest with the recorded controls the models launch the vehicle (2.0–2.4 m/s at 3 s,
+   57–78 % above 1 m/s) where Chrono never moved. They do read the tire loads — a healthy pattern raises the
+   prediction by ~1 m/s — but not nearly enough; fine-tuning made this worse (57 → 77 % launched).
+5. **The trained models learned some of it on their own arenas and little of it elsewhere:** 43 % / 41 % of the
+   training-arena stops and 56 % / 62 % of the launch failures are reproduced from the recorded context, against
+   29 % / 28 % and 49 % / 51 % on the sealed arenas; the closed-loop imagination from rest still completes
+   67 % / 59 % of the training-arena failures.
+6. **Local ranking vs. from rest.** With the true state 2 s before the stop, the model's own predicted speed
+   separates stops from matched passes at AUC 0.74–0.84 (f105); from rest, the planner's setting, the same
+   comparison is at chance (0.48–0.59): the imagined approach to the stall point is faster than Chrono's and the
+   stall depends on the local state.
+
+### 12.3 Is the stall predictable from what the model is given? — `predictable`
+
+Small MLPs trained on the training arenas from the model's own inputs (16-frame 17-D context + controls, plus
+the next 1–4 s of recorded controls), label "stuck N s later", judged on the sealed arenas (`predictable.txt`):
+
+| lead | inputs | AUC val | AUC sealed | sensitivity at 5 % false positives |
+|---|---|---|---|---|
+| 1 s | context + future controls | 0.83 | 0.85 | 0.31 |
+| 2 s | context + future controls | 0.84 | 0.86 | 0.32 |
+| 2 s | context only | 0.83 | 0.85 | 0.33 |
+| 2 s | last frame + controls | 0.83 | 0.86 | 0.24 |
+| 2 s | last frame without tire loads / wheel speeds | 0.83 | 0.86 | 0.31 |
+| 4 s | context + future controls | 0.84 | 0.86 | 0.31 |
+
+From the state trajectory, only about a third of the stalls are foreseeable 1–4 s ahead at a 5 % false-alarm
+rate, and the tire loads / wheel speeds add nothing to that. The world model's local prediction (25 % of stops
+at 3 % false positives, 2 s ahead) is at that level. Launch failures from the rest state: tire loads + wheel
+speeds alone AUC 0.78 val / 0.81 sealed (the perched signature is real); the full 20-D input overfits the 63
+training positives (0.63 sealed).
+**Terrain probe (`--terrain`, `predictable_terrain.txt`): the fine terrain does not carry the missing information
+either.** Adding the TRUE height field as a 0.25 m ego patch (6 m ahead × 3 m wide, 325 samples, relative to the
+vehicle's own height) to the same classifier at 2 s lead gives AUC 0.85 → 0.86 sealed and sensitivity 0.32 → 0.35;
+the patch alone gives 0.76 / 0.17; the coarse 1.4 m grid the ego crop uses gives 0.85 / 0.30. Caveat: a small MLP
+on raw heights with 1 700 training positives is a weak extractor, so this is a floor on the terrain's usefulness,
+not a proof of chaos — but it is the same extractor that reaches 0.86 from the state, and the privileged terrain
+adds three points of sensitivity to it. At a 2 s lead, about a third of the stalls at 5 % false alarms is what
+everything observable (state trajectory, controls, true terrain ahead) supports.
+
+### 12.4 The two audit items from the review
+
+* **Attitude limits.** The imagination terminated rollouts at |pitch| > 0.4 rad (23°) or |roll| > 0.6 rad (34°)
+  while Chrono's runner aborts at 60° and the feasibility rule caps nothing. Re-imagined with 60° limits
+  (`traverse_wp7_imagine_cache.py --roll-limit-deg 60 --pitch-limit-deg 60`, `wp7_imagine_*_lim60`): the
+  fine-tuned model's sealed rejections fall 161 → 77 (false 83 → 25, true 78 → 52), f105 129 → 74; the frozen
+  model is unchanged (its rollouts never reach the limits); the pick outcome is unchanged (regret 1.14–1.15,
+  11 infeasible picks). The limits inflated both kinds of rejection and are not the cause of the selection
+  result. One definition for both places from here on: the imagination's termination = Chrono's abort (60°)
+  unless the benchmark adopts an explicit attitude cap for both.
+* **Tracker action offsets.** The tracker's action centre is the dynamics normaliser's action mean. It is
+  identical for the frozen and every fine-tuned model ([−0.003, 0.20, 0.02]; fine-tuning keeps the checkpoint's
+  normaliser) but not for the scratch models ([−0.13, 0.28, 0.11] new-only, [−0.06, 0.20, 0.22] mixed — a brake
+  centre of 0.22 instead of 0.02). The scratch-model rows of §11.4 are confounded by this; the selected model is
+  not. Fix: the tracker env should take its action centre from the tracker's own training normaliser, not from
+  whichever dynamics model it is driving.
+
+### 12.5 Reading
+
+* The failure is in the dynamics model: given the true state, the recorded controls, no camera, no tracker and
+  no localisation, it predicts motion where Chrono stalls, and it drifts out of a stall it is placed in. The
+  0.4 s rollout loss on the 7 % of training frames that are stuck (2 % in the two seconds before a stop) leaves a
+  small positive drift in exactly the regime where zero is the answer, and the models are optimistic about the
+  speed on rough climbs generally.
+* But what any predictor can do here is bounded by the event itself: the wheel lift that starts a stall is a
+  contact event on roughness (0.16 m per pixel, 0.15–0.28 m bumps, quantised contact) and from the state
+  trajectory a third of the stalls are foreseeable 1–4 s ahead at 5 % false alarms — and giving the classifier
+  the TRUE terrain ahead adds three points (§12.3). The momentum decisions on this family are therefore
+  statistical: a speed margin, which is what the fastest-candidate heuristic embodies without a model, and what
+  no route-by-route imagination will call from rest whether or not it is a world model.
+* What would still change the result: (1) a stall / progress head trained on the recorded outcomes (it can learn
+  the statistic — "slow on a +10° rough climb stalls a third of the time" — which is what the pick needs, and what
+  the one-step dynamics loss never sees); (2) a rollout loss that holds the stuck regime (failure-weighted, longer
+  horizon) so the imagination at least stops where it is placed inside a stall; (3) the audit fixes (one attitude
+  definition, the tracker's own action centre, the heading flip). Not: finer terrain input, and not longer
+  fine-tuning of the same loss. Whether (1)–(2) beat the fastest-candidate heuristic on a benchmark that rewards
+  speed is doubtful; they are worth it only on a benchmark with speed-penalised and detour-only layouts (§11.6).

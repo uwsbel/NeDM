@@ -285,3 +285,6 @@ artifacts/traverse/wp7_scratch_new_amd/*.pt
 artifacts/traverse/wp7_cheap_*/*.pt
 !artifacts/traverse/wp7_pick_table_*.json
 artifacts/traverse/wp7_collect_f10?/tasks.json
+!artifacts/traverse/wp7_stall_diag/
+artifacts/traverse/wp7_stall_diag/model_tests*.json
+!artifacts/traverse/wp7_imagine_*_lim60/

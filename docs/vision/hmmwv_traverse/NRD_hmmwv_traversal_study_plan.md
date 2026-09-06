@@ -3,7 +3,7 @@
 **Purpose:** First NRD study where vision is load-bearing — a hierarchical planner/tracker stack on a fixed bumpy arena
 **Simulator:** Project Chrono (HMMWV vehicle stack) with Chrono::Sensor RGB + depth cameras
 **Builds on:** `docs/vision/NRD_overall_project_plan.md` (Phase 3, pulled forward ahead of Phase 2 tabletop manipulation), Study 1 (`docs/vision/double_pen/`), and the state-only NeDM HMMWV stack
-**Status:** v1.4 — revised 2026-09-04 pm (§20: tracker + planner rollout built; ẑ₂ decision now evidence-based); v1.3 2026-09-04 am (§19); v1.2 2026-09-03 (§18); v1.1 2026-08-31 after `NRD_hmmwv_traversal_study_plan_review.md`; §16 = original decision log, §17 = review resolutions
+**Status:** v1.14 — 2026-09-06 (§30: stall diagnosis); v1.4 — revised 2026-09-04 pm (§20: tracker + planner rollout built; ẑ₂ decision now evidence-based); v1.3 2026-09-04 am (§19); v1.2 2026-09-03 (§18); v1.1 2026-08-31 after `NRD_hmmwv_traversal_study_plan_review.md`; §16 = original decision log, §17 = review resolutions
 **v1 charter:** Feasibility of the full stack (NRD + planner + tracker) on ONE fixed terrain map, trained and collected locally. Privileged information is allowed anywhere it unblocks v1; deployment-purity upgrades are a ladder, not a v1 gate.
 
 ## 1. Study objective, information contract, and positioning
@@ -649,3 +649,42 @@ speed, then re-run the same sealed protocol (collection and evaluation tooling e
 the imagination to stall (failure-weighted rollout loss or an explicit progress head on the recorded outcomes);
 (c) fix the pose head's heading ambiguity. (a) decides whether the thesis question is even posed by the terrain;
 (b) is the model work the question needs.
+
+## 30. v1.14 (2026-09-06): diagnosis of the accepted stalls (review of §29, adopted) — notes §12
+
+The review of §29 asked, before any benchmark or loss change, for an explanation of why the imagination accepts
+runs that Chrono stalls, and for two audit fixes. Done (notes §12, `traverse_wp7_stall_diagnosis.py`):
+
+**Cause in Chrono.** Nearly every stall is one mechanism: a wheel loses contact on the 0.15–0.28 m roughness
+while climbing (+10° median slope ahead) and the HMMWV's open differentials spin it (wheel-speed excess 41 m/s)
+while the vehicle stops; launch failures are the same with a wheel already unloaded at rest (78 %). Momentum is
+the decision: 65 of 241 crossing ladders fail slow and pass fast (4 the reverse); the passing candidate crossed the
+stall station at 2.7 m/s where the failing one had 0.65 m/s.
+
+**Cause in the model.** Given the true state and the recorded controls (no tracker, camera map, or localisation)
+the models predict 2.3–2.5 m/s two seconds after Chrono stopped; they drift out of a stall they are placed inside
+(1.7–1.95 m/s after 4 s); the scene map is irrelevant to this (< 0.05 m/s); local accuracy at the 0.4 s training
+horizon is fine (≤ +0.16 m/s) and the model with the best local accuracy reproduces the fewest stalls. Trained
+models reproduce ~40 % of their own training-arena stops and ~30 % elsewhere. The information ceiling from the
+state trajectory is low: small classifiers on the model's own inputs foresee a third of the stalls 1–4 s ahead at
+5 % false alarms (AUC 0.85), tire loads adding nothing; the world model's local prediction is at that level.
+
+**Audit.** The imagination's attitude limits (23° / 34°) against Chrono's 60° inflated the fine-tuned model's
+sealed rejections (161 → 77 at 60°, false 83 → 25, true 78 → 52) without changing the pick result; the scratch
+models drive the tracker with a different action centre than it was trained with (brake centre 0.22 vs 0.02) —
+the selected model does not.
+
+**Terrain probe (notes §12.3):** giving the same classifier the TRUE terrain ahead as a 0.25 m ego patch adds
+three points of sensitivity (0.32 → 0.35 at 5 % false alarms; AUC 0.86 → 0.86); the terrain alone gives 0.76.
+The missing information is not in a finer map either: on this family a stall is a contact event that everything
+observable two seconds earlier foresees about a third of the time.
+
+**Decision for the next round (mine, for the user to confirm).** The momentum decisions on this family are
+statistical, so no route-by-route imagination from rest — world model or otherwise — will call them, and the
+fastest-candidate heuristic is the speed margin that the statistics reward. Model work that can still pay:
+(1) a stall / progress head on the recorded outcomes (learns the statistic the pick needs); (2) a failure-weighted,
+longer-horizon rollout loss so the imagination holds a stall it is placed in. Neither is likely to beat the
+heuristic on a benchmark that rewards speed, so they are worth doing only together with §29 option (a): a
+benchmark with speed-penalised and detour-only layouts and a cost that penalises speed. Housekeeping first either
+way: one attitude definition in imagination and Chrono, the tracker's own action centre, the heading flip.
+Not worth doing: finer terrain input; more fine-tuning of the same loss.

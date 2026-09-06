@@ -1,0 +1,55 @@
+{
+ "n_routes": 1077,
+ "chrono_infeasible": 234,
+ "img_rejects": 77,
+ "rejected_infeasible": 52,
+ "rejected_feasible": 25,
+ "accepted_infeasible": 182,
+ "accepted_feasible": 818,
+ "auc_reject": 0.5962831158560696,
+ "auc_img_time": 0.7919949103223125,
+ "auc_img_pitch": 0.6719109610568685,
+ "auc_img_energy": 0.7591021078565563,
+ "auc_img_roll": 0.5933834190061948,
+ "n_both": 818,
+ "time_ratio": 1.065592699932021,
+ "time_mae_s": 0.952261512378609,
+ "time_corr": 0.9035669460150141,
+ "energy_ratio": 1.1546122844645477,
+ "energy_mape": 0.3065254584246655,
+ "energy_corr": 0.5711857450081528,
+ "by_kind": {
+  "crossing": {
+   "n": 864,
+   "infeasible": 156,
+   "auc_reject": 0.5927314211212517,
+   "auc_img_time": 0.776736563812835,
+   "accepted_infeasible": 122,
+   "rejected_feasible": 23
+  },
+  "freeform": {
+   "n": 96,
+   "infeasible": 20,
+   "auc_reject": 0.5368421052631579,
+   "auc_img_time": 0.9055921052631579,
+   "accepted_infeasible": 18,
+   "rejected_feasible": 2
+  },
+  "sequence": {
+   "n": 117,
+   "infeasible": 58,
+   "auc_reject": 0.6379310344827587,
+   "auc_img_time": 0.7339275277615429,
+   "accepted_infeasible": 42,
+   "rejected_feasible": 0
+  }
+ },
+ "pick": {
+  "layouts_with_feasible": 93,
+  "agree_with_chrono_best": 24,
+  "pick_infeasible": 11,
+  "no_pick": 0,
+  "regret_mean": 1.1377055251548058,
+  "regret_max": 2.1978092276614873
+ }
+}

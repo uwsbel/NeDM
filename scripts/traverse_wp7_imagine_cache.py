@@ -53,7 +53,8 @@ def imagine_arena_batched(a, cache: Path, groups: list[tuple[str, list[str], Epi
     per_model, limits = [], None
     for ckpt in a.dynamics_checkpoints:
         cfg = merge_env_cfg({"num_envs": n, "device": dev, "auto_reset": False, "split": "val", "dynamics_checkpoint": ckpt, "arena": a.arena,
-                             "cache": str(cache), "routes": a.routes, "fragment_steps_max": horizon, "z1_extra_cache": None, "map_key": a.map_key})
+                             "cache": str(cache), "routes": a.routes, "fragment_steps_max": horizon, "z1_extra_cache": None, "map_key": a.map_key,
+                             "termination": {"max_abs_roll_rad": np.radians(a.roll_limit_deg), "max_abs_pitch_rad": np.radians(a.pitch_limit_deg)}})
         env = TraverseTrackingEnv(cfg, device=dev, entries=entries)
         policy = load_policy(Path(a.policy), env, dev)
         sp = torch.tensor(np.asarray(starts, np.float32), device=dev)
@@ -88,6 +89,8 @@ def main() -> None:
     ap.add_argument("--horizon-s", type=float, default=30.0)
     ap.add_argument("--max-layouts", type=int, default=0)
     ap.add_argument("--per-layout", action="store_true", help="one imagination env per layout (slow; default: all routes of an arena in one env)")
+    ap.add_argument("--roll-limit-deg", type=float, default=np.degrees(0.6), help="imagination attitude termination (tracker-env default 0.6 rad); Chrono aborts at 60 deg")
+    ap.add_argument("--pitch-limit-deg", type=float, default=np.degrees(0.4))
     ap.add_argument("--device", default="cuda")
     args = ap.parse_args()
     cache = Path(args.cache)

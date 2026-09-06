@@ -1,0 +1,26 @@
+predictability of 'stuck <lead> later' from the model's own inputs; train ['arena_f101', 'arena_f102', 'arena_f103', 'arena_f104'], val ['arena_f105'], sealed ['arena_f106', 'arena_f107']
+
+lead 1 s: train 104160 samples (0.9 % positive), val 45667 (1.1 %), sealed 68797 (1.0 %)
+  context+future controls              AUC val 0.826  sealed 0.854  (sealed sensitivity at 5 % FPR: 0.31)
+  context only                         AUC val 0.820  sealed 0.831  (sealed sensitivity at 5 % FPR: 0.29)
+  last frame + future controls         AUC val 0.808  sealed 0.834  (sealed sensitivity at 5 % FPR: 0.28)
+  last frame, no tire loads/omegas     AUC val 0.812  sealed 0.844  (sealed sensitivity at 5 % FPR: 0.31)
+
+lead 2 s: train 96620 samples (1.8 % positive), val 43092 (2.4 %), sealed 64302 (2.1 %)
+  context+future controls              AUC val 0.842  sealed 0.856  (sealed sensitivity at 5 % FPR: 0.32)
+  context only                         AUC val 0.829  sealed 0.852  (sealed sensitivity at 5 % FPR: 0.33)
+  last frame + future controls         AUC val 0.832  sealed 0.858  (sealed sensitivity at 5 % FPR: 0.24)
+  last frame, no tire loads/omegas     AUC val 0.830  sealed 0.857  (sealed sensitivity at 5 % FPR: 0.31)
+
+lead 4 s: train 80333 samples (2.9 % positive), val 37178 (3.4 %), sealed 54367 (3.3 %)
+  context+future controls              AUC val 0.841  sealed 0.858  (sealed sensitivity at 5 % FPR: 0.31)
+  context only                         AUC val 0.820  sealed 0.833  (sealed sensitivity at 5 % FPR: 0.27)
+  last frame + future controls         AUC val 0.841  sealed 0.849  (sealed sensitivity at 5 % FPR: 0.31)
+  last frame, no tire loads/omegas     AUC val 0.847  sealed 0.862  (sealed sensitivity at 5 % FPR: 0.31)
+
+launch failure from the rest state: train 1749 (63 failures), val 722 (105), sealed 1077 (41)
+  17-D rest state + v_cmd + slope      AUC val 0.810  sealed 0.633
+  rest state only                      AUC val 0.711  sealed 0.564
+  tire loads + omegas only             AUC val 0.776  sealed 0.814
+  attitude + v_cmd + slope (no loads)  AUC val 0.859  sealed 0.688
+  v_cmd + slope only                   AUC val 0.859  sealed 0.689
