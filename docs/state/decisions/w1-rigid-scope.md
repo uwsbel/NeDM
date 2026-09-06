@@ -784,3 +784,88 @@ the one channel that was fixed.
 caught it and refused to emit a number. Same class as the Chrono build mismatch: a
 cached artefact reused under conditions it was not generated for, producing
 plausible machinery rather than an error.
+
+## 1k. Arm C, the context sweep: a third outcome, and what it constrains
+
+Pre-registered reading was: gate corr at 0.5 s rising monotonically as context
+shrinks supports the action-blindness mechanism; flat closes the line.
+
+**Neither branch applies. All three shortened contexts return INCOMPLETE.** Each
+cell got its own regenerated arm B at its own branch time, so this is not the
+stale-cache artefact of the first attempt.
+
+| context | history | body_vel err/signal 0.5 s | 1.0 s | verdict |
+|---|---|---|---|---|
+| 8 | 0.08 s | 4.968 | 8.222 | INCOMPLETE |
+| 16 | 0.16 s | 2.837 | 3.485 | INCOMPLETE |
+| 32 | 0.32 s | 2.558 | 6.945 | INCOMPLETE |
+| 128 | 1.28 s | 0.609 | 0.650 | PARTIAL |
+| 128 + unwrap | 1.28 s | **0.518** | 0.802 | PARTIAL |
+
+The surrogate's own open-loop error is 2.6x to 8.2x the between-arm signal at
+every shortened context, so the gate refuses to emit gain or corr. At that ratio
+the numbers would be reading its own drift.
+
+**This is not a null result and must not be written as one.** Shortening context
+degrades the surrogate faster than it could plausibly improve action sensitivity,
+so the remedy destroys the instrument that would measure it. Two things follow and
+only the first is about the hypothesis:
+
+- **The mechanism is neither supported nor refuted.** Nothing here bears on
+  whether 1.28 s of periodic gait lets the model predict from phase alone.
+- **Shortening context is not a usable fix regardless**, because at ctx <= 32 the
+  model is not accurate enough to serve as a surrogate at 0.5 s at all.
+
+**The one pre-registered prediction that held is `val_loss`:** 0.00995 at 128,
+0.01628 at 16, 0.01869 at 8, monotone, shorter is worse. The declared rule was
+that val_loss and the gate moving the SAME way would mean the mechanism was
+wrong. They did not move the same way -- **the gate did not move at all, because
+it could not** -- so the rule does not apply.
+
+### What the sweep constrains, and what it does not
+
+The measurable/unmeasurable boundary lies **somewhere in (32, 128]**, a 4x gap
+with no cell in it. We established that 32 fails and 128 works; **we did NOT
+establish that 128 is needed.**
+
+That matters because the natural comparison is to NeRD's ANYmal at h=10 and
+1/60 s = 0.167 s of history (BELIEVED, from the coordinator, not read at source):
+
+    true minimum 128  ->  7.7x NeRD
+                  64  ->  3.8x
+                  48  ->  2.9x
+
+**"Eight times the history on a robot of the same size" and "three times" support
+different stories.** One ctx64 cell -- one training run plus one arm regeneration
+-- converts the range into a number, and should be run before the ratio is used
+for anything.
+
+### The reframing this suggests, and the prediction it licenses
+
+If more history is needed because the reduced state dropped information the
+transition depends on, then **context length is a diagnostic of the abstraction
+rather than a hyperparameter** -- which is the manuscript's own subject. NeRD
+keeps the full generalized state and takes contact from an analytic query; we keep
+a 40-channel projection.
+
+**Pre-registered for Arm A, before it runs:** restoring a state variable the
+transition provably depends on should REDUCE the history required. With foot force
+and slip in the state, the apparatus ratio at ctx32 should improve materially
+against the 2.558 measured here, and may become measurable at all. If it does not,
+the partial-observability explanation is wrong.
+
+**"Materially" needs a floor, and we do not have one.** The only handle is that
+ctx128 baseline and ctx128 unwrap differ by 0.09 in this ratio at the SAME context
+-- a real difference between two models, which means model-to-model variation is
+not obviously small next to what Arm A might buy. **Arm A should therefore run
+ctx128 and ctx32 with the added channels, plus one seed repeat at ctx32 without
+them** -- three runs, where the third is the threshold the first two are judged
+against.
+
+### Declared next action if the context diagnosis is revisited
+
+One re-run at `--rel-sigma 0.05`, which the gate's own docstring names as the
+response to INCOMPLETE -- so it is pre-declared rather than a remedy invented
+after seeing a null. **Recorded with its reason: the apparatus, not the model, was
+the binding constraint.** Not run now; three hours of Chrono arms is the wrong
+spend while the unwrap attribution is outstanding.
