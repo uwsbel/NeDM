@@ -2442,3 +2442,52 @@ until that is reconciled.
 **armA degrading as gain rises toward nominal is the direction that under-actuation
 cannot explain**, and it is the one result in the sweep that needs a mechanism rather
 than a rate.
+
+### Base's failures separate exactly on SUSTAINED COMMANDED YAW, not on family
+
+The base curve's two 5/5 conditions are `yaw_step` and `arc`. Read by family that is
+two unrelated families; read by the commanded yaw rate it is a clean split:
+
+    cond  family              commanded yaw                     base @ k=1.00
+     0-3  constant x4         none                                   0/5
+     4    vel_step            none                                   3/5
+     6    weave               oscillating wz_amp 0.4, MEAN ZERO      0/5
+     5    yaw_step            SUSTAINED wz 0.5 after t=8             5/5
+     7    arc                 SUSTAINED wz 0.3                       5/5
+
+**The two conditions base fails are exactly the two with sustained nonzero commanded
+yaw, and `weave` -- which commands yaw but with zero mean -- passes 0/5.** Under
+random labelling P = 1/28 = 0.036 for that exact pairing.
+
+**It also has an independent mechanism.** `corpus_coverage.py` found six coverage
+holes, all body-motion channels, with `yaw_rate` showing a **101x density gap** in
+the tail. Sustained yaw is the regime the training corpus is thinnest in.
+
+#### But the eight cells confound four factors, so no label is safe yet
+
+Each condition carries a unique (family, peak force, roll, pitch). **There is one cell
+per combination, so family, disturbance magnitude and both tilts are perfectly
+confounded across n=8.** Force does worse than yaw as an explanation -- `arc` fails at
+36 N while `constant` passes at 72 N, and corr(peak, failures) is only +0.52 -- but
+"does worse" on eight confounded cells is not an attribution.
+
+> **REGISTERED: `arc` with `wz` set to 0.0, at the SAME 36 N peak and the same
+> +1.0/-3.0 tilts, base checkpoint, 5 seeds.**
+>
+>     passes ~0/5  -> the sustained yaw command is the driver, not the arc family
+>                     and not its disturbance; the condition list is probing a known
+>                     corpus hole and the base "failure rate" is partly an artifact
+>                     of which conditions were chosen
+>     fails ~5/5   -> yaw is a correlate, the arc cell fails for its force or tilt,
+>                     and the exact separation above is a coincidence at P=0.036
+
+#### What this does to the proposed statistic
+
+Excluding conditions 5 and 7 because the reference fails them **removes precisely the
+sustained-yaw regime** -- the one physically distinct regime in the list and the one
+the corpus is thinnest in. That is not removing a constant offset; it is changing the
+estimand to "performance away from the known coverage hole."
+
+**Prefer the paired excess over base.** Saturated conditions contribute zero discordant
+pairs and drop out of a McNemar automatically, with no data-dependent selection rule
+and no change to what is being estimated.
