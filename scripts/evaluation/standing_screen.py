@@ -28,7 +28,7 @@ Monotone with the verdict, and GRADED -- so the output is a rate, not a label.
 Divergence and scoring are different: an episode can diverge and still score,
 because scored() needs only 1500 rows and finite velocity.
 """
-import argparse, csv, glob, json, os, subprocess, sys, tempfile
+import argparse, hashlib, csv, glob, json, os, subprocess, sys, tempfile
 from concurrent.futures import ThreadPoolExecutor
 import numpy as np
 sys.path.insert(0, "src")
@@ -55,6 +55,38 @@ def raw_action_max(rows):
 
 PY = os.environ.get("NEDM_PY", sys.executable)
 CHRONO = os.environ.get("NEDM_CHRONO_PYTHONPATH", "/home/kyle/chrono-build/bin")
+
+# A SELECTOR THAT SILENTLY DOES NOTHING IS WORSE THAN A WRONG ONE, because a wrong one
+# eventually produces a visible contradiction and this produces a clean run on the other
+# binary. `_one` sets PYTHONPATH=CHRONO on every collector subprocess, REPLACING whatever
+# the caller exported. Where CHRONO holds no pychrono the import falls through to conda:
+# no error, no warning, nothing different in the log.
+#
+# Measured on kyle-sbel 2026-09-07: the default path does not exist there (its source
+# build is at ~/Documents/sbel/chrono-build/bin), so every sweep ran on conda's
+# _core.so 8e9e3865 while the same session's verdict work ran on source 3b0bd530, and
+# the three other boxes each ran their own local build. The physics build is a condition
+# of the measurement and was recorded nowhere.
+def _resolved_chrono():
+    """(pychrono.__init__ path, _core.so md5) as a collector subprocess would see it."""
+    out = subprocess.run(
+        [PY, "-c", "import pychrono,os;f=os.path.join(os.path.dirname(pychrono.__file__),"
+                   "'_core.so');print(pychrono.__file__);print(f)"],
+        env=dict(os.environ, PYTHONPATH=CHRONO), capture_output=True, text=True)
+    if out.returncode != 0:
+        raise SystemExit(f"ABORT: cannot import pychrono under PYTHONPATH={CHRONO}\n"
+                         f"{out.stderr.strip()}")
+    init, so = out.stdout.strip().splitlines()[:2]
+    md5 = hashlib.md5(open(so, "rb").read()).hexdigest() if os.path.exists(so) else None
+    if not os.path.exists(os.path.join(CHRONO, "pychrono", "_core.so")):
+        raise SystemExit(
+            f"ABORT: NEDM_CHRONO_PYTHONPATH={CHRONO} contains no pychrono/_core.so, so "
+            f"setting it has NO EFFECT and the run silently used\n  {init}\n"
+            f"  md5 {md5}\n"
+            f"Point NEDM_CHRONO_PYTHONPATH at the build you mean, or unset it to declare "
+            f"that the ambient interpreter's pychrono is intended.")
+    return init, md5
+
 # THE CRITERION IS COMMAND MAGNITUDE, NOT BODY HEIGHT.
 # The first version of this screen tested median pos_z and FAILED its own self-test:
 # v4, which scores 20 of 43, collapses to 0.181 m under a zero-velocity command.
@@ -183,6 +215,8 @@ def screen(ckpt, duration=DURATION_S, seed=0, keep=None, concurrency=1, repeats=
     --seed, so concurrency cannot change any result; it is verified against serial
     rather than assumed.
     """
+    _chrono_init, _chrono_md5 = _resolved_chrono()
+    print(f"  pychrono {_chrono_md5[:8] if _chrono_md5 else '?'}  {_chrono_init}", flush=True)
     jobs = [(f, p, pk, r, pi, seed + rep)
             for rep in range(repeats) for f, p, pk, r, pi in CONDITIONS]
     if concurrency > 1:
@@ -221,6 +255,7 @@ def screen(ckpt, duration=DURATION_S, seed=0, keep=None, concurrency=1, repeats=
                  n_conditions=ncond, repeats_per_condition=reps,
                  per_condition_failed=per_cond,
                  condition_names=[c[0] for c in CONDITIONS],
+                 pychrono=_chrono_init, pychrono_core_md5=_chrono_md5,
                  unbounded=len(unbounded), short=len(short),
                  median_raw=float(f"{sorted(mags)[len(mags)//2]:.4g}"),
                  max_raw=float(f"{max(mags):.4g}"),
