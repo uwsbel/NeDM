@@ -3459,3 +3459,36 @@ that way rather than claiming the branch.
 **Both prior accounts stay withdrawn:** `733734e` (cell attribution) and `2940da7`
 (pitch cap). **The band test was launched to resolve a difference that three
 measurements now suggest was never there.**
+
+### Which tilt distribution is "the project's"? Not the driver's.
+
+Every `flat`-derived training dataset -- `go2_corrected_34d`, `go2_corrected_34d_excl`
+(the surrogate's), `go2_corrected_36d_pose`, `go2_contact_40d` and its variants --
+resolves to `go2_comprehensive_merged/flat`, **collected 2026-09-04, sixteen hours
+before the cap.** The verdict's baseline corpus is that same root.
+
+    training corpus, all surrogates      pitch +-3.0     (pre-cap)
+    verdict baseline corpus              pitch +-3.0     (same root)
+    the fleet's evaluation corpora       pitch +-3.0     (chosen by copying the roll bound)
+    drive_go2_collection.py today        pitch +-1.5     (no in-use dataset came from it)
+
+> **The accidental +-3.0 happens to match the distribution every surrogate was trained
+> on and every verdict scored against. The driver's +-1.5 matches nothing currently in
+> use.** So "under the distribution the project actually collects under, the deficit is
+> 1.4-6.1 points" is the wrong reference: **nothing in the project has been collected
+> under it yet.**
+
+**Neither range is correct a priori** -- the point is that the correction swapped one
+unstated choice for another, and the one it swapped to is less connected to the
+existing artifacts, not more.
+
+#### And the cap removes exactly the discriminating region
+
+The band tables put the arms' largest differences at `[+1.0,+2.0)` (-38 and -40) and
+`[+2.0,+3.1)` (-67 and -63), with v4's advantage at `[-2.0,-1.0)` (+30 and +21).
+**Capping pitch to +-1.5 excises most of the first two entirely and half the third.**
+
+**The cap's own rationale was that combined tilt reached 4.24 deg, "inside the 3-5 deg
+band where the gait was separately measured to collapse."** That is a reasonable
+objective for a corpus meant to teach a dynamics model. **It is the wrong objective for
+a corpus meant to distinguish policies, and the same corpus is used for both.**
