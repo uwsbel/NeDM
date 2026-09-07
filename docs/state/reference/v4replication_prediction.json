@@ -49,5 +49,8 @@
   },
   "kstar_note": "0.600 is the LOWEST margin of any arm measured, below every 36-D arm",
   "kstar_written_utc": "2026-09-07T09:11:23.244041+00:00",
-  "both_predictors_agree": true
+  "both_predictors_agree": true,
+  "harness_md5_at_readout": "eb9379203704bf339d105a3db054b03c",
+  "harness_note": "ADDED AFTER REGISTRATION, not at prediction time. The harness changed at 02:39:55 between registration and the first readout, which returned NOT MEASURABLE. The ladder was scored on /tmp copy 2a185b2f; this run uses eb937920. Verified equivalent: 258 saved episodes across six arms, 0 disagreements including on returned values, so the number can join the ladder. Future predictions pin the hash at registration.",
+  "ladder_harness_md5": "2a185b2fc6114f26881bde1a882ec8de"
 }
