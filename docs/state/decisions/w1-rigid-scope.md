@@ -1956,3 +1956,38 @@ state. At n=5, fitted after the fact, it is suggestive and nothing more.
 
 **This is the only out-of-sample test available.** It costs seconds and the answer
 arrives before the verdict does.
+
+### Registered BEFORE the replicate's verdict is read: what a 0 obliges
+
+The 2x2 as it stands:
+
+|  | pre-unwrap dataset | post-unwrap dataset |
+|---|---|---|
+| **34-D** | v4 = **20 of 43** | replicate = ? |
+| **36-D** | (empty) | base36 = **0 of 43** |
+
+An earlier registration committed to filling the empty cell if the replicate
+returns 0. **That ordering is now amended, and the amendment is recorded before the
+number exists.**
+
+**If the replicate returns 0, run a DIRECT REPLICATION OF v4 first** -- 34-D trained
+on v4's own dataset (`go2_corrected_34d_excl`) with today's pipeline -- and the
+fourth cell second.
+
+```
+  replication ~ 20  -> the DATASET is the variable, v4 reproduces, and the fourth
+                       cell then asks whether that holds at 36-D. Clean design.
+  replication = 0   -> v4 does not reproduce on its own data with current code.
+                       Its 20 was the pipeline vintage or a lucky checkpoint, and
+                       the entire 34-vs-36 result rests on one unreproducible run.
+```
+
+**The second outcome is the one worth knowing most, and the fourth cell cannot
+reach it: a replication tests reproducibility, the fourth cell assumes it.** v4's
+dataset differs from the current one in more than the unwrap -- it predates the
+provenance instrumentation entirely -- so "pre-unwrap" labels a vintage, not an
+isolated change, and the 2x2's column heading is weaker than it looks.
+
+**Also registered:** if the verdict produces no surviving pairs, no `--summary-json`
+is written and the family split is **UNAVAILABLE, not zero.** v4's run wrote none,
+which is why this is stated in advance rather than discovered.
