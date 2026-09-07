@@ -1,0 +1,39 @@
+{
+  "written_utc": "2026-09-07T09:07:42.442015+00:00",
+  "checkpoint": "/home/kyle/sbel-artifacts/finetune_go2_v4replication/go2_finetuned_v4rep.pt",
+  "observation_sha256": "06f73542045494f8319e9b33c706346c7635de9b16c32a7d75d25ac78ef4230b",
+  "rho": 0.9263635277748108,
+  "max_abs_action": 5.307419300079346,
+  "rule": "rho<0.55 and |a|<4.0 -> SURVIVES; rho>0.65 or |a|>4.4 -> 0 of 43; else NO PREDICTION",
+  "thresholds_fixed_at": "w1-rigid-scope.md, replicate epoch 22 of 80, before this fine-tune existed",
+  "thresholds_are_fitted": "yes -- to five points, no independent justification. The claim is that a rule fixed in advance predicted an unseen outcome, not that 0.55 is meaningful.",
+  "prediction": "0 of 43",
+  "verdict_read_yet": false,
+  "reference_points": {
+    "v4": [
+      0.4591,
+      3.955,
+      "20/43"
+    ],
+    "base": [
+      0.4919,
+      2.4569,
+      "43/43"
+    ],
+    "armA": [
+      0.6522,
+      4.4515,
+      "0/43"
+    ],
+    "base36": [
+      0.7139,
+      6.3754,
+      "0/43"
+    ],
+    "armB": [
+      1.0225,
+      6.8732,
+      "0/43"
+    ]
+  }
+}
