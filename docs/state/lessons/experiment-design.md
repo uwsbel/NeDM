@@ -4310,3 +4310,52 @@ measured the confound.
 experiment run twice. The strongest-looking evidence -- replication on independent data
 -- is precisely the evidence that touches a shared confound least, which is why "it
 replicated" should prompt "on what did the two runs agree by construction?"
+
+## Every guard ships with a test that makes it fire
+
+Two guards written in one session were structurally incapable of failing:
+
+```
+  an E3 floor that bootstrapped a SEPARATION -- an absolute difference, whose
+  resampled lower bound is essentially always positive. It passed all three
+  legs including the one it was written for.
+
+  a refusal keyed on `--action-mult is None` where the flag defaulted to 1.0,
+  so the condition was never true. It fell through and started a real run.
+```
+
+Both were read by two people and looked obviously correct. **Review cannot distinguish a
+guard that never fires from a guard on data that never violates it** — the two produce
+identical output, which is no output. Only construction can: build the case the guard
+exists to catch and confirm it fails, then fix it and confirm it passes.
+
+The second guard was written *after* the lesson recording the first, by someone who had
+just written that lesson. Knowing the rule is not the same as applying it, and the
+moment of highest risk is when a check looks too simple to test.
+
+## Absence is the dominant form, and the one we are slowest to read
+
+Nearly every failure of this session had output identical to a benign state, and in most
+of them the failure was something **missing**:
+
+```
+  a launch that returned          the PROCESS was absent
+  --perturb-peak-n 60 accepted    the EVENTS were absent, 0 of 300 rows
+  a sampled command stored        the APPLICATION was absent -- set_time never called
+  a header with no rows           the DATA was absent
+  `except: continue`              the CHECK was absent
+  a guard that cannot fire        the GUARD was absent, twice
+```
+
+Against only two failures that were unrepresentative *presences* -- a sample drawn from
+one family, and an interval printed as [0, 0]. Those announce themselves as a number
+somebody can look at and disbelieve.
+
+**A wrong number can be disbelieved; a missing one has to be noticed.** No output is the
+same output whether the check passed, the check never ran, or there was nothing to check,
+so absence is silent by default and costs a second look rather than a first. Every one of
+these was caught by someone asking "why is there nothing here", never by anyone reading a
+wrong value.
+
+Practically: when a step reports success, ask what it should have *produced* and confirm
+the artifact exists with the right size, count and range. Not whether it said it worked.
