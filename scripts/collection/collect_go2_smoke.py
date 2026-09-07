@@ -830,6 +830,23 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
         ],
     }
     (output_root / "dataset_index.json").write_text(json.dumps(dataset_index, indent=2) + "\n")
+    # THE EFFECTIVE ACTION GAIN, which nothing else records.
+    #
+    # collector_config.resolved.json is named as though it captured the run's resolved
+    # parameters. It captures the parameters that flow through the CONFIG system.
+    # NEDM_ACTION_MULT is applied at policy level from the environment, outside that
+    # path, so it never entered this file -- and the verdict summary did not record it
+    # either. Audited 2026-09-07: the checkpoint has two independent records (filename
+    # and controller.policy) and the multiplier had exactly one, the filename. The
+    # parameter that turned out to be the confound was the one with nothing to
+    # cross-check it against.
+    #
+    # A file that looks like a complete record is complete for one subsystem, and the
+    # boundary is invisible from inside the file. Stated here because the next
+    # parameter applied outside the config path will look just as absent.
+    config["effective_action_mult"] = float(os.environ.get("NEDM_ACTION_MULT", 1.0))
+    config["action_mult_source"] = ("NEDM_ACTION_MULT" if "NEDM_ACTION_MULT" in os.environ
+                                    else "default (variable unset)")
     (output_root / "collector_config.resolved.json").write_text(json.dumps(config, indent=2) + "\n")
     return dataset_index, episode_meta
 

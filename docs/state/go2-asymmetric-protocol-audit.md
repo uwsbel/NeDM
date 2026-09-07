@@ -50,3 +50,57 @@ instead of an archaeology exercise, and it is the same repair as recording colle
 parameters in the episode sidecar: **the artifact should state the conditions that
 produced it, because the filename, the directory and the operator's memory all fail
 differently.**
+
+## The gain had one record; the checkpoint had two
+
+Following the coordinating session's check of its own artifacts, which have the identical
+defect: the episode tree can recover the checkpoint and cannot recover the gain.
+
+```
+   parameter        records that exist                          auditable?
+   checkpoint       filename AND controller.policy in every     YES, two records,
+                    episode's collector_config.resolved.json    cross-checkable
+   action mult      filename only                               NO, nothing to check
+                                                                it against
+```
+
+**The parameter that turned out to be the confound was the one with nothing to
+cross-check it against, and the parameter never in doubt had two records.**
+
+The reason is worth stating because it will recur. `collector_config.resolved.json` is
+named as though it captured the run's resolved parameters; it captures the parameters
+that flow through the **config system**. `NEDM_ACTION_MULT` is applied at policy level
+from the environment, outside that path, so it never entered the file. **A file that
+looks like a complete record is complete for one subsystem, and the boundary is invisible
+from inside the file.**
+
+Both halves now fixed:
+
+```
+   summary        arms{treated_ckpt, treated_action_mult, baseline_ckpt,
+                  baseline_action_mult, matched_gain} + argv
+                  -- written on EVERY exit path including the aborts
+   episode config effective_action_mult + action_mult_source
+```
+
+The episode config matters more than the summary: it is one file per run against many
+per corpus, and the summary does not survive a cleaned output tree. The k-sweep episode
+trees are gone, which is why those five runs are recoverable only by filename convention.
+
+## Verification, constructed rather than assumed
+
+The `matched_gain` field was verified on the case it was expected to fail, per the rule
+that produced it:
+
+```
+   armA @0.75  vs base @1.0     matched_gain false   expected false   OK
+   armA @nom   vs base @1.0     matched_gain true    expected true    OK
+   base @nom   vs base @1.0     matched_gain true    expected true    OK
+   filter on matched_gain -> excludes exactly the asymmetric run
+```
+
+Constructing the true case surfaced a separate defect: the summary was written only on
+the success path, so the two matched runs produced **no file at all** -- armA diverges at
+nominal gain, the harness correctly returned NOT MEASURABLE, and the provenance went with
+it. **The runs most in need of a record were the ones writing none.** Aborts now write a
+stub carrying the arms, the argv, and the reason.
