@@ -4804,3 +4804,41 @@ and reported `yaw_rate` at 0.980 against a measured 101x density gap -- the same
 in a different transform, caught by adding a `tail` measure.
 
 **Evidence:** commit d525b5f.
+
+## A reconstruction duplicates a source, and the artifact does not record its version
+
+**When a parameter is not stored but re-derived from a seeded RNG, the derivation is a
+second copy of the generating code. Nothing in the data says which version of that code
+produced it, so the copy can drift out of step silently and the result still looks
+well-formed.**
+
+The Go2 corpus never recorded its ground tilt. Reconstructing it from
+`Random(family_seed(fam, off) + 977*i)` recovers the draws in order, and an internal
+check confirmed the alignment was real: `corr(pitch, fell) = -0.475` cannot arise from
+randomised inputs. **The reconstruction was nonetheless at half scale**, because it
+drew `uniform(-1.5, 1.5)` while the corpus had been collected with `uniform(-3.0, 3.0)`:
+
+    corpus collected            2026-09-04 18:59 .. 23:10
+    pitch capped to +-1.5       2026-09-05 17:07     sixteen hours later
+
+**Correlations are scale-invariant, so every statistic survived and only the
+conclusions in degrees were wrong** -- including a claim that the interesting behaviour
+sat *beyond* the training envelope when it sat inside it. **The check that was run
+verified alignment; the risk that fired was range.**
+
+> **An internal consistency check confirms the dimension you thought to check.** Here
+> it confirmed the draws lined up, which was the worry, and said nothing about their
+> support, which was not.
+
+**This exact failure is documented in the codebase, in the commit that fixed it** --
+`collect_go2_smoke.py:746-752`: *"the verdict harness used to reconstruct these from a
+seeded RNG duplicated in its own source. That contract broke silently when the driver's
+pitch range was capped to +-1.5 and the harness kept deriving +-3.0."* **The same
+mismatch recurred, mirrored, eighteen hours after that comment was written** -- because
+the comment fixed the harness and the technique stayed available.
+
+**What actually pinned it:** episode mtimes against `git log -L` on the generating
+line. That works only when the data and the repository are on the same machine, and
+**nothing in the corpus itself would have revealed it.**
+
+**Evidence:** commit 23ccc47.
