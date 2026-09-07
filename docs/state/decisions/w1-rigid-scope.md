@@ -1850,3 +1850,48 @@ any shell rc file, and the harness's default points at the *other* machine's lay
 `run_go2_finetune_verdict.py` now prints the resolved pychrono path and md5 before
 the replay check, and says so loudly when the path does not exist -- turning "which
 build produced these numbers?" from unanswerable-from-artifacts into a grep.
+
+### CORRECTION: rho(J) is state-sensitive, so point evaluations of it mean little
+
+Two boxes computed rho at "the reset pose" and disagreed across the stability
+boundary the conclusion rested on -- **base 0.5572 here, 1.3652 on sbel-pc**. Both
+are probably correct measurements on *different constructed vectors*: neither box
+lifted the reset state from a simulation. **"The reset pose" named two different
+states** -- the denominator rule applied to a state rather than a sample.
+
+Testing whether that explains it, by perturbing joint angles around the reset pose
+(40 draws per level):
+
+| joint noise | base min/med/max | frac>1 | arm A min/med/max | frac>1 |
+|---|---|---|---|---|
+| 0.02 | 0.499 / 0.551 / 0.602 | 0% | 0.449 / 0.490 / 0.526 | 0% |
+| 0.10 | 0.443 / 0.533 / 0.652 | 0% | 0.452 / 0.531 / 0.702 | 0% |
+| 0.20 | 0.453 / 0.555 / **1.016** | **5%** | 0.457 / 0.593 / 0.841 | 0% |
+
+**Base crosses 1 under joint perturbation alone; arm A never does.** And on nominal
+walking states base spans **0.44 to 2.58** while every fine-tune sits in a narrow
+band under 1. **A single point evaluation of base can land anywhere in that range**,
+so 0.5572 and 1.3652 are both inside it and the disagreement is what a
+state-sensitive quantity measured at two different states should produce.
+
+> **WITHDRAWN: "nothing exceeds 1 at the reset pose, therefore entry needs the
+> plant."** That was a categorical conclusion from a point measurement of a quantity
+> since shown to be state-sensitive. The plant may still be required; this does not
+> establish it.
+
+**What survives, independent of which vector is right:**
+
+> Across nominal walking, near-reset, and under perturbation, **base's
+> action-feedback gain is broadly state-dependent and exceeds 1 in part of the
+> space, while all three fine-tuned policies are confined to a narrow band below
+> it.**
+
+**And rho is invariant to body height** -- identical to three decimals from 0.10 to
+0.40 m -- so it is not tracking postural stability at all. It measures how strongly
+a policy responds to its own previous action, and **fine-tuning both damped that
+response and flattened its state-dependence.**
+
+My reset vector, published for recomputation: `sha256[:16] = 0cc8011915d3a9ff`,
+36-D float32, surrogate field order, joint positions = policy defaults mapped to the
+Chrono frame, everything else zero, `grav_body_z = -1.0`, `pos_z_m = 0.30`,
+`cmd = zeros(3)`, `prev = zeros(12)`, fresh `initial_history`.
