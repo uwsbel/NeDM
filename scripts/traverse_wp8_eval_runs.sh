@@ -30,20 +30,20 @@ eval_one() {  # $1 = run name (dir under artifacts/traverse), $2 = checkpoint pa
 eval_one wp2_mapv2_pt_dag_ro8_amd $FROZEN
 eval_one wp7_ft_mix_amd artifacts/traverse/wp7_ft_mix_amd/ckpt_best.pt
 while true; do
-  runs=$(ssh amd 'cd /work1/dannegrut/harry/nedm/artifacts/traverse && for d in wp8_*/; do d=${d%/}; if [ -f $d/g3_readout.json ]; then echo $d; elif [ -f $d/ckpt_last.pt ] && [ $(( $(date +%s) - $(stat -c %Y $d/ckpt_last.pt) )) -gt 900 ] && [ -z "$(squeue -u $USER -h -n $d)" ]; then echo $d; fi; done' 2>/dev/null)
+  runs=$(ssh amd 'cd /work1/dannegrut/harry/nedm/artifacts/traverse && for d in wp8*/; do d=${d%/}; if [ -f $d/g3_readout.json ]; then echo $d; elif [ -f $d/ckpt_last.pt ] && [ $(( $(date +%s) - $(stat -c %Y $d/ckpt_last.pt) )) -gt 900 ] && [ -z "$(squeue -u $USER -h -n $d)" ]; then echo $d; fi; done' 2>/dev/null)
   for r in $runs; do
     [ -f $OUT/$r/done ] && continue
     rsync -az $REMOTE/$r/ artifacts/traverse/$r/ 2>/dev/null || continue
     ck=artifacts/traverse/$r/ckpt_best.pt; [ -f $ck ] || ck=artifacts/traverse/$r/ckpt_last.pt
     [ -f $ck ] && eval_one $r $ck
   done
-  n_q=$(ssh amd 'squeue -u $USER -h -n "$(cd /work1/dannegrut/harry/nedm/artifacts/traverse; ls -d wp8_* 2>/dev/null | tr "\n" ",")" | wc -l' 2>/dev/null)
-  n_done=$(ls $OUT/wp8_*/done 2>/dev/null | wc -l)
+  n_q=$(ssh amd 'squeue -u $USER -h -n "$(cd /work1/dannegrut/harry/nedm/artifacts/traverse; ls -d wp8* 2>/dev/null | tr "\n" ",")" | wc -l' 2>/dev/null)
+  n_done=$(ls $OUT/wp8*/done 2>/dev/null | wc -l)
   echo "[$(date +%H:%M)] queue: $n_q  evaluated: $n_done"
   if [ "$n_q" = "0" ] && [ -z "$(ssh amd 'squeue -u $USER -h' 2>/dev/null)" ]; then
     # one last sweep for stragglers, then stop
     sleep 60
-    runs=$(ssh amd 'cd /work1/dannegrut/harry/nedm/artifacts/traverse && ls -d wp8_*' 2>/dev/null)
+    runs=$(ssh amd 'cd /work1/dannegrut/harry/nedm/artifacts/traverse && ls -d wp8*' 2>/dev/null)
     all_done=1; for r in $runs; do [ -f $OUT/$r/done ] || all_done=0; done
     [ $all_done = 1 ] && { echo "ALL WP8 EVALUATED"; break; }
   fi

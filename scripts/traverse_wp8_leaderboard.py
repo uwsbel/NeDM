@@ -53,7 +53,7 @@ for d in sorted(OUT.glob("*/")):
             if row:
                 r.update(pick_feasible=row.get("pick_feasible"), pick_regret=row.get("regret_mean"), pick_layouts=row.get("layouts"),
                          rej_feas=row.get("rejected_feasible"), rej_inf=row.get("rejected_infeasible"))
-            fast = p.get("fastest")
+            fast = p.get("fastest (mean commanded speed)")
             if fast:
                 r["fastest_feasible"] = fast.get("pick_feasible")
         except Exception:

@@ -155,13 +155,15 @@ class MapBatcher:
         return out
 
 
-def rollout_loss(model, batch, context: int, steps: int, z1_mean, z1_std, w=None, progress_weight: float = 0.0):
+def rollout_loss(model, batch, context: int, steps: int, z1_mean, z1_std, w=None, progress_weight: float = 0.0, context_noise: float = 0.0):
     """K-step autoregressive loss under the RECORDED actions: predicted state fed back, map
     re-cropped at the dead-reckoned pose (exactly the imagination env's step). Targets the
     closed-loop speed bias that one-step teacher forcing does not see."""
     z1, act, pose_gt, maps, hm = batch["z1"], batch["act"], batch["pose"], batch["map"], batch["hm"]
     token_hist = model.cropper(maps, pose_gt[:, :context], hm)
     z1_hist = z1[:, :context]
+    if context_noise > 0:
+        z1_hist = z1_hist + context_noise * torch.randn_like(z1_hist)
     pose = pose_gt[:, context - 1]
     l_z1 = l_p = l_prog = 0.0
     cum_pred = cum_rec = 0.0
@@ -188,13 +190,16 @@ def rollout_loss(model, batch, context: int, steps: int, z1_mean, z1_std, w=None
     return total, parts
 
 
-def step_loss(model, batch, mode: str, w=None):
+def step_loss(model, batch, mode: str, w=None, context_noise: float = 0.0):
     """``w`` (z1_dim,) rescales the state channels in the loss. With --delta-scale it is the inverse
     per-step delta std, so slowly varying channels (vx: one-step change ~0.03 of the state std) get the
     same weight as the noisy tire channels instead of being ignored -- the 10 % speed bias lives there."""
     token = model.cropper(batch["map"], batch["pose"], batch["hm"])
-    delta, power, token_next = model(batch["z1"][:, :-1], token[:, :-1], batch["act"][:, :-1])
-    tgt = batch["z1"][:, 1:] - batch["z1"][:, :-1]
+    z_in = batch["z1"][:, :-1]
+    if context_noise > 0:
+        z_in = z_in + context_noise * torch.randn_like(z_in)
+    delta, power, token_next = model(z_in, token[:, :-1], batch["act"][:, :-1])
+    tgt = batch["z1"][:, 1:] - z_in  # the delta that brings the (noisy) input to the clean next state
     loss = F.huber_loss(delta * w, tgt * w, delta=1.0) if w is not None else F.huber_loss(delta, tgt, delta=1.0)
     parts = {"z1": float(loss.detach())}
     lp = F.huber_loss(power, batch["power"][:, 1:], delta=1.0)
@@ -422,6 +427,8 @@ def main() -> None:
     ap.add_argument("--progress-weight", type=float, default=0.0,
                     help="adds a Huber loss on the cumulative distance (m) along the rollout: penalises the speed drift a stall exposes")
     ap.add_argument("--vx-weight", type=float, default=1.0, help="extra weight on the vx channel in the state losses")
+    ap.add_argument("--context-noise", type=float, default=0.0,
+                    help="std of Gaussian noise added to the normalised state context in training (targets clean): robustness to the model's own errors in closed loop")
     ap.add_argument("--events", nargs="*", default=["auto"],
                     help="events.json files (traverse_wp7_stall_diagnosis.py events); 'auto' = <cache>/events.json of every --caches dir")
     ap.add_argument("--event-frac", type=float, default=0.0,
@@ -633,12 +640,12 @@ def main() -> None:
         if args.rollout_steps > 0:
             batch = train_data.sample(rng, args.batch, device, extra_steps=args.rollout_steps, event_frac=args.event_frac, event_kinds=args.event_kinds)
             one = {k: v[:, : args.context + 1] if v.dim() >= 2 and k not in ("map", "hm") else v for k, v in batch.items()}
-            loss, parts = step_loss(model, one, args.map_mode, loss_w)
-            ro, ro_parts = rollout_loss(model, batch, args.context, args.rollout_steps, z1_mean_t, z1_std_t, loss_w, args.progress_weight)
+            loss, parts = step_loss(model, one, args.map_mode, loss_w, args.context_noise)
+            ro, ro_parts = rollout_loss(model, batch, args.context, args.rollout_steps, z1_mean_t, z1_std_t, loss_w, args.progress_weight, args.context_noise)
             loss = loss + args.rollout_weight * ro
             parts.update(ro_parts)
         else:
-            loss, parts = step_loss(model, train_data.sample(rng, args.batch, device, event_frac=args.event_frac, event_kinds=args.event_kinds), args.map_mode, loss_w)
+            loss, parts = step_loss(model, train_data.sample(rng, args.batch, device, event_frac=args.event_frac, event_kinds=args.event_kinds), args.map_mode, loss_w, args.context_noise)
         opt.zero_grad(set_to_none=True)
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), args.grad_clip)
