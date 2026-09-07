@@ -3048,3 +3048,47 @@ consistent with that even though it is measured on only one region.
 > conditional rates, reported together: **on base's successes v4 completes 47% against
 > base's 100%; on base's failures v4 completes 37% against base's 0%.** Quoting either
 > alone mischaracterises it, and quoting their sum invents a population.
+
+### Fine-tuning SHIFTED the tilt tolerance rather than shrinking it
+
+Measured on two machines and two seeds, tilt set explicitly per cell:
+
+    nose-down side   base fails from about -1.5    v4 holds to about -3.0    v4 BETTER
+    nose-up   side   base clean out to +3.0        v4 fails from +2.0        v4 WORSE
+
+> **v4 buys roughly 1.5 degrees of downhill tolerance and pays about 1 degree of
+> uphill.** This is the first mechanistic account of what fine-tuning did to these
+> policies rather than a description of how often they fail.
+
+**armA saturates at 15/15 and 20/20 across both grids** -- no measurable band at
+nominal gain, so it is *uninformative* on this axis rather than worse on it. Same
+distinction as a saturated cell contributing no discordant pairs.
+
+#### The band prediction, and a provenance question it rests on
+
+The claim that v4's 14 rescues sit between base's boundary and v4's needs the failed
+episodes' pitch values. **Those were reported from sidecars, spanning -2.97 to +2.99 --
+which two commit dates make hard to hold together:**
+
+    e09e45b   2026-09-05 17:07   pitch capped, uniform(-3,3) -> uniform(-1.5,1.5)
+    574a6d2   2026-09-07 02:39   tilt first RECORDED in the episode sidecar
+
+**A corpus with a tilt sidecar was collected after the cap, so its pitch should lie
+inside +-1.5.** Either the corpus was built by a purpose-made script setting tilt
+directly -- in which case it is a constructed distribution, not a found one -- or the
+values are the half-scale reconstruction, in which case the median is -0.93 and the
+band argument collapses. **`go2_cell_a3` is not on this box and I cannot resolve it
+here.**
+
+**The grids in the first table do not depend on this** -- their tilts were set per cell
+by the experimenter. **Only the band-clustering claim does.**
+
+#### And the separation is not yet a separation
+
+    rescued      n=14   -2.21 .. -0.79   median -1.52
+    not rescued  n=24   -2.97 .. +2.99   median -2.15
+
+**Ranges overlap almost entirely; medians differ by 0.63; the non-rescued range is
+inflated by a single nose-up episode.** At these n it needs a rank test. **The sign was
+registered before the split was seen, which is what makes it evidence at all; the
+magnitude is not quotable.**
