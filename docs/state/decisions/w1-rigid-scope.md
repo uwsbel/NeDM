@@ -3318,3 +3318,64 @@ Different modes, invisible in a completion rate.
 > **So the selection story separates cleanly: the eligibility rule hides 14 real
 > completions for v4 and hides nothing for armA.** It does not merely flatter base --
 > it conceals capability exactly where capability exists.
+
+### WITHDRAWN: the pitch-cap account, and the gap it explained was 1.9 sigma
+
+**Both `go2_cell_a3` and `go2_cell_sliger` reach pitch -2.99..+3.00.** Neither is
+capped, so the pre-cap/post-cap inference at `2940da7` is wrong, and the `-2.97..+2.99`
+sidecar figures I had flagged as "the number that does not fit" were correct.
+
+**And the gap did not need a mechanism:**
+
+    root      20/43   = 46.5%   binomial sd 7.6   95% CI 31.6% .. 61.4%
+    a3       129/207  = 62.3%   binomial sd 3.4
+    difference 15.8 pts, se 8.3, z = 1.90, two-sided p = 0.057
+
+**I fitted a mechanism to a marginal difference and it appeared to fit** -- 22.2
+predicted against 15.8 observed. **That agreement is what fitting to noise produces:
+the gap is small enough that any plausible mechanism lands near it.** Both `733734e`
+(the cell attribution) and `2940da7` (the cap account) are withdrawn.
+
+### The finding that survives: the crossover, at population scale
+
+    pitch band       n     base      v4      delta
+    [-3.0,-2.0)     29    41.4%     6.9%    -34.5
+    [-2.0,-1.0)     30    46.7%    76.7%    +30.0    <- v4 BETTER
+    [-1.0, 0.0)     57    93.0%    78.9%    -14.0
+    [ 0.0,+1.0)     46   100.0%   100.0%      0.0
+    [+1.0,+2.0)     58   100.0%    62.1%    -37.9
+    [+2.0,+3.1)     49    98.0%    30.6%    -67.3    <- v4 collapses, base clean
+
+**Marginals verified: the six bands sum to n=269, base 231, v4 167, matching the
+reported totals exactly.** The synthetic `arc` grid's crossover reproduced on eight
+families in a collected corpus -- same signs, same ordering, same crossover point, a
+completely different instrument.
+
+#### And the aggregate is a weighted average across a sign change
+
+Same per-band rates, reweighted:
+
+    as measured (this corpus's mix)   base 85.9%  v4 62.1%  net -23.8 pts
+    pitch capped to +-1.0             base 96.5%  v4 89.5%  net  -7.1 pts
+    pitch capped to +-2.0             base 84.9%  v4 79.4%  net  -5.5 pts
+    nose-down half only               base 60.4%  v4 54.2%  net  -6.2 pts
+    nose-up half only                 base 99.3%  v4 64.2%  net -35.1 pts
+
+> **`net -64` and `62.1%` are properties of this corpus's tilt distribution, not of
+> v4.** The aggregate ranges over a factor of five across defensible mixes.
+
+**This is the condition-list defect one level up.** The unfiltered pass removed
+SELECTION -- no cell, no predicate, no conditioning on either arm's outcome -- **but it
+did not remove COMPOSITION, and the tilt mix is as arbitrary as the eight conditions
+were.** "Unfiltered population" felt like it had solved the problem.
+
+**Report the band table, not the net.** The net needs its mix stated, exactly as the
+`k*` rate needed its condition list stated.
+
+#### Unresolved provenance
+
+`drive_go2_collection.py:94` draws `uniform(-1.5, 1.5)`, yet both corpora reach +-3.0.
+**Neither was produced by the current driver as it stands**, so they are constructed
+evaluation corpora rather than draws from the collection distribution. **They do match
+the TRAINING corpus's +-3.0**, which is the comparison that matters, but how they were
+generated is not recorded anywhere I can see.
