@@ -3936,3 +3936,33 @@ cell it exposes is by construction the one that looks best.
 This is a construction, not a distinction: it fires without being remembered, and it caught
 the same failure twice in one sweep — the second time in the cell that had already been
 endorsed on the strength of the contaminated number.
+
+## Duplicate measurements across machines; never duplicate pipelines
+
+Two instructions arrived together that looked contradictory: run both verdict arms on this
+box *and* on the other one, but do not preprocess the excitation data here because the
+other box already does.
+
+They are the same principle and the difference is what the stage emits.
+
+```
+  duplicating a MEASUREMENT   two estimates of one quantity.
+                              disagreement is information; agreement is replication.
+  duplicating a PIPELINE      two artifacts, which then get compared as though
+                              they were one thing.
+```
+
+The second is how this project ended up with two contact definitions — a hysteretic
+threshold and a logged ground truth, both called foot contact, agreeing on 70.8% of
+samples, with every contact-conditioned result silently using whichever the local pipeline
+produced. Nothing failed. Two boxes each built a defensible artifact and the names matched.
+
+A measurement that disagrees across machines announces itself: two numbers, one quantity,
+someone has to reconcile them. An artifact that disagrees does not, because each consumer
+sees only one of them, and the disagreement surfaces later as an unexplained result rather
+than as a conflict.
+
+So: replicate anything whose output is a **number**, and let exactly one machine own
+anything whose output is a **dataset** that other stages inherit. When the same instinct —
+"do it in both places, it is safer" — points opposite ways, the tell is whether a
+downstream consumer could tell the two outputs apart.
