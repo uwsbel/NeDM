@@ -51,6 +51,37 @@ NOT_COMPUTABLE = {             # stated, not silently dropped
 # channels?" For every term called uncomputable, name the missing quantity and confirm it
 # cannot be derived: `collision` survives that test, `torques` did not.
 
+# THE QUANTITY EACH OMITTED TERM ACTUALLY NEEDS. The dict above is a per-run fact
+# frozen into a module-level constant, which cannot be right for two different state
+# definitions -- and it was not. It was written for the 34-D state and applied
+# unchanged to every 36-D and 40-D run, so `correct_base_height` (the LARGEST weight
+# in the whole reward, 10x tracking_lin_vel) was dropped from surrogates that carry
+# pos_z_m. v4's omission was correct; every 36-D fine-tune after it inherited a
+# reason that had stopped being true.
+#
+# Naming the requirement per term is what makes the rule above runnable instead of
+# advisory. Empty tuple = genuinely underivable from any state we have.
+OMITTED_REQUIRES = {
+    "correct_base_height": ("pos_z_m",),
+    "lin_vel_z":           ("vel_body_z_mps",),
+    "collision":           ("foot_fl_in_contact", "foot_fr_in_contact",
+                            "foot_rl_in_contact", "foot_rr_in_contact"),
+    "feet_regulation":     (),      # foot velocity and height: in no state we have
+}
+
+
+def wrongly_omitted(state_fields):
+    """Omitted terms whose required channels are ALL present in this state.
+
+    Returns {term: weight}. Non-empty means the run is about to drop a reward term
+    it could compute -- which is the defect this function exists to make impossible
+    to repeat, and which cost the fine-tuning line its largest reward term across
+    every 36-D run.
+    """
+    have = set(state_fields)
+    return {t: NOT_COMPUTABLE[t] for t, req in OMITTED_REQUIRES.items()
+            if req and have.issuperset(req)}
+
 def shrunk_limits(urdf_lo, urdf_hi, frac=0.45):
     """legged_gym shrinks the range about its midpoint in _process_dof_props, NOT in
     the reward. Against the RAW urdf limits this term is nearly inert -- 0.059%
