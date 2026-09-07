@@ -4195,3 +4195,23 @@ zero, tight and entirely plausible had the point estimate not been printed besid
 
 The check is now an assertion in the script. It costs one line and it catches an entire
 class of resampling error that otherwise produces confident, well-formed, wrong numbers.
+
+## Refuse to rank until something clears a floor
+
+A decision rule compared two candidate explanations of the family split and reported
+which one accounted for it. On the zero-disturbance corpus it announced "yaw content
+accounts for the split" from a difference of 0.0023 between two fits whose R-squared
+were 0.0033 and 0.0001. Neither explained anything. The comparison operator did not
+care.
+
+**Ranking noise produces a fluent sentence about noise.** `>` applied to two
+meaningless numbers returns a meaningful-looking answer, and the output is a clean
+declarative claim with no hedging anywhere in it, because the hedging would have had to
+come from a check that was never written.
+
+The fix is not "be careful with weak effects". It is mechanical: **the floor check runs
+before the ranking**, and when nothing clears the floor the script says the comparison
+cannot discriminate instead of naming a winner. Same shape as the interval that excluded
+its own point estimate, the audit that reported 0/32 too cleanly, and a collaborator's
+assertion tuned to an expectation nobody had measured -- an instrument returning a
+well-formed answer to a question its inputs could not support.

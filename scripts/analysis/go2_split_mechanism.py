@@ -78,7 +78,38 @@ def main():
     print(f"  label vs yaw content correlation r = {corr:.3f}"
           + ("   (collinear, as expected)" if abs(corr) > 0.7 else ""))
 
+    # THE 2x2, BEFORE THE FITS. A nested fit says which factor adds over the other;
+    # it does not say where the effect lives. Command variation cuts ACROSS the
+    # straight/turning split -- vel_step, weave and yaw_step change command
+    # mid-episode, constant and arc do not -- so the two factors are separable and
+    # the four cells show which margin, if either, carries it.
+    VARY = ("vel_step", "weave", "yaw_step")
+    var = np.array([1.0 if p["family"] in VARY else 0.0 for p in pairs
+                    if index.get((p["family"], p["idx"]))
+                    and yaw_content(index[(p["family"], p["idx"])]) is not None])
+    print("\n  2x2: median paired difference (n)")
+    print(f"                 {'no variation':>20}  {'variation':>20}")
+    for lv, nm in ((0.0, "straight"), (1.0, "turning")):
+        cells = []
+        for vv in (0.0, 1.0):
+            g = d[(lab == lv) & (var == vv)]
+            cells.append(f"{np.median(g):+.5f} (n={len(g)})" if len(g) else "empty")
+        print(f"    {nm:<10} {cells[0]:>20}  {cells[1]:>20}")
+    m_var = [d[var == v] for v in (0.0, 1.0)]
+    m_lab = [d[lab == v] for v in (0.0, 1.0)]
+    dv = abs(np.median(m_var[1]) - np.median(m_var[0]))
+    dl = abs(np.median(m_lab[1]) - np.median(m_lab[0]))
+    print(f"  variation margin {dv:.5f}   straight/turning margin {dl:.5f}")
+    print("  (unbalanced by design: 2 straight families vs 3 turning, "
+          "1 no-variation family on each row)")
+
     r_lab, r_yaw = r2(d, [lab]), r2(d, [yaw])
+    r_var = r2(d, [var])
+    r_lv = r2(d, [lab, var])
+    print(f"\n  R^2  variation only  {r_var:.4f}")
+    print(f"  R^2  label+variation {r_lv:.4f}   "
+          f"variation adds over label {r_lv - r_lab:+.4f}, "
+          f"label adds over variation {r_lv - r_var:+.4f}")
     r_both = r2(d, [lab, yaw])
     print(f"\n  R^2  label only      {r_lab:.4f}")
     print(f"  R^2  yaw only        {r_yaw:.4f}")
