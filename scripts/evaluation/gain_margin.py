@@ -1,5 +1,15 @@
-"""Closed-loop gain margin k*: the factor by which loop gain can be multiplied
-before the plant-policy loop goes unstable.
+"""Uniform-gain stability margin k*.
+
+OPERATIONAL DEFINITION: the factor by which the ENTIRE action vector is uniformly
+scaled at which the closed plant-policy loop loses stability, read off as the
+smallest k where the divergence rate crosses 0.5.
+
+NOT the classical Nyquist gain margin, which is defined for a linear system at the
+frequency where phase crosses -180 degrees. This is a legitimate generalisation to
+a nonlinear closed loop and the interpretive force is the same -- k* < 1 means the
+policy is unstable as deployed, with no margin at all -- but calling it "the gain
+margin" claims a correspondence this does not establish. The classical connection
+is an observation, not a claim.
 
 USES NEDM_ACTION_MULT, THE CANONICAL PATH. An earlier version of this file scaled
 the actor's final layer instead, which is affine and therefore an exact uniform
@@ -9,14 +19,21 @@ END TO END through the collector at k = 0.75:
     max |diff| in joint targets   3.8e-05 at row 0, 3.6e-05 at row 174, flat between
 
 Constant and non-growing, so the two agree to float32 rounding order and neither is
-semantically wrong. **But they are not bit-identical**, and bit-exact replay is the
+semantically wrong.
+
+SCOPE OF THAT TEST, because it will get reused: "the difference did not grow"
+distinguishes rounding from a semantic difference **only in a contracting regime**,
+and k = 0.75 is where these policies are stable. On a DIVERGING trajectory a
+3.8e-05 discrepancy amplifies at roughly 1.4x per control step -- the measured
+growth constant -- and reaches O(1) in about thirty steps. There, a genuine
+rounding difference and a semantic one both grow, and non-growth is unavailable as
+a discriminator. The conclusion here is "equivalent on a stable trajectory", not
+"equivalent". **But they are not bit-identical**, and bit-exact replay is the
 property the paired verdict rests on. Two ways to scale one quantity, differing in
 the last few digits, is the pipeline-duplication hazard this project has recorded
 twice -- so the weight-scaling path was deleted in favour of sbel-pc's env var
 rather than kept as an equivalent alternative.
 
-k* is read off the divergence rate from standing_screen: the smallest k at which
-the rate crosses 0.5.
 """
 import argparse, os, sys
 from pathlib import Path
