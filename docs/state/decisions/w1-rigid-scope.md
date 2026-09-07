@@ -3619,3 +3619,33 @@ is not.**
 
 **Final form:** v4's tolerance window is **narrower and displaced**, not translated. It
 beats base only in `[-2.0,-1.0)` and loses at both extremes.
+
+### CORRECTION to the grid summary at line 3056: I recorded it backwards
+
+I wrote *"nose-down side: base fails from about -1.5, **v4 holds to about -3.0**, v4
+BETTER."* **The grid says the opposite at -3.0.** Summing the fleet's two-arm grid over
+its five rolls:
+
+    pitch    base fails   v4 fails    verdict
+    -3.0        16/25       25/25     v4 WORSE
+    -1.5        15/25        6/25     v4 BETTER
+    -1.0         0/25        0/25     tie
+    -0.5         0/25        0/25     tie
+
+**v4 fails every one of the 25 cells at pitch -3.0.** And I had been told this directly
+-- the message delivering that grid said *"does protective roll protect v4? Answered:
+no"* -- **so this is not an inference error, it is a transcription that reversed a
+result I had been handed in plain terms.**
+
+**The likely source:** my own earlier grid found BASE protected at roll -3.0 out to
+pitch -9.0, and I carried "protected at steep nose-down" across from the base arm to
+v4 when writing the two-arm summary. **The same transplant, between arms this time.**
+
+> **Both instruments agree and always did: v4 is better ONLY in the moderate nose-down
+> band and worse at both extremes.** The corpus band table (`[-3.1,-2.0)` b=21 c=3
+> against `[-2.0,-1.0)` b=5 c=22) is the same shape as the grid, and the "shifted
+> tolerance" reading was an artifact of my summary, not a disagreement between
+> instruments.
+
+**Line 3056 and the "SHIFTED rather than shrinking" heading above it are superseded by
+`df63fd0`: the window is NARROWER AND DISPLACED.**
