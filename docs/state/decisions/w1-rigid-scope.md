@@ -2577,3 +2577,38 @@ cells are in the list.**
 > **Do not adopt the pooled rate as the `k*` replacement.** Paired excess over base on
 > matched conditions is unaffected by this and should be used instead. A condition list
 > that crosses tilt against family would fix the instrument, but that is a rebuild.
+
+### REGISTERED: pitch x roll crossed on one cell, to settle what the rebuild must cross
+
+Within the nose-down group neither pitch magnitude nor peak force orders severity:
+
+    cond  pitch  roll  peak    failures (of 20, x3 seeds)
+     5    -1.5   3.0   120         20 20 20
+     7    -3.0   1.0    36         19 16 17
+     4    -2.5  -1.5    96          4 14  8
+     1    -1.0   1.5    24          0  4  1
+
+**By pitch magnitude the order is 7 > 4 > 5; by rate it is 5 > 7 > 4. By peak it is
+5 > 4 > 7; by rate 5 > 7 > 4.** Neither works. **ROLL is monotone with the rate across
+the three deep cells** (+3.0 > +1.0 > -1.5) -- **which is the fourth label tried on
+these same eight cells, and by the rule from the last one it is worth a test and not a
+conclusion.**
+
+> **Test: `arc`, base, peak 36 N and `wz` 0.3 held fixed, pitch x roll fully crossed
+> at pitch in {-3.0, -1.5, 0.0} and roll in {-3.0, 0.0, +3.0}, 5 seeds per cell.**
+>
+>     roll matters only when pitch < 0    -> the factors INTERACT; a rebuild must cross
+>                                            pitch x roll, and neither alone suffices
+>     roll matters at every pitch         -> roll is a main effect and the nose-down
+>                                            grouping is incomplete
+>     roll does not matter                -> the within-group ordering is noise at
+>                                            n=20, and pitch sign is the whole story
+>     pitch -1.5 ~= pitch -3.0            -> confirms sign not magnitude, independently
+>                                            of the eight-cell coincidence
+
+**This is a crossed design on one cell, so it is the rebuild in miniature** -- if it
+resolves, the full rebuild's factor list is known rather than guessed.
+
+**One correction to my own arc test while registering this:** pitch +3.0 gave 1/5, not
+0/5 (one episode ended at row 135). **Nose-up is not strictly immune**, which their
+zero-over-240 does not contradict -- no nose-up `arc` cell exists in the eight.
