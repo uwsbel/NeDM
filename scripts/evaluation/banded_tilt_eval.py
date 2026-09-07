@@ -61,24 +61,43 @@ def main() -> int:
                 return (lo, hi)
         return None
 
-    # PRECONDITION FIRST, before any comparison is printed.
+    # THE FLAT BAND HAS TWO FORMS AND NEITHER IS AN ABSENCE.
+    #
+    #   A completes 100%  -> LOGICAL impossibility. B > A is arithmetically
+    #                        impossible, so a reported gain is a PIPELINE BUG.
+    #                        Not statistical, so band size does not enter: equally
+    #                        binding at n=40 and n=124.
+    #
+    #   A completes < 100% -> STATISTICAL null. B-A should be ~0 where tilt cannot
+    #                         matter. This is the specificity test, and unlike the
+    #                         impossibility it gains power as the band grows.
+    #
+    # An earlier version printed LIVE or VOID, which made the check disappear
+    # exactly when A missed -- and created a perverse incentive, since a thin band
+    # is easier to sweep and so more likely to read LIVE while carrying least
+    # evidence. The two forms cover for each other: thin bands favour the logical
+    # form, thick ones the statistical one, and no band size leaves you without a
+    # check. There is therefore nothing to choose.
     if "A" in arms:
-        g = [s for s in common if band_of(arms["A"][s]["pitch"]) == (0.0, 1.0)]
-        k = sum(arms["A"][s]["completed"] for s in g)
-        live = g and k == len(g)
-        print(f"\nPRECONDITION  arm A in [0.0,+1.0): {k} of {len(g)} complete"
-              f"   -> ceiling check {'LIVE' if live else 'VOID'}")
-        if live:
-            # A LIVE VERDICT IS NOT SELF-INTERPRETING. The precondition is "arm A
-            # completes ALL of them", so a THIN band is easier to sweep than a thick
-            # one -- the check is most likely to be live exactly where it has least
-            # power. "All 43" and "all 124" are very different evidence for the same
-            # word, so the count travels with the verdict.
-            print(f"   LIVE on {len(g)} episodes -- a thin band is easier to sweep,")
-            print(f"   so read this as evidence proportional to {len(g)}, not as a binary")
-            print("   any B gain in that band falsifies the pipeline")
+        g = [s_ for s_ in common if band_of(arms["A"][s_]["pitch"]) == (0.0, 1.0)]
+        k = sum(arms["A"][s_]["completed"] for s_ in g)
+        print(f"\nFLAT BAND [0.0,+1.0)   arm A completes {k} of {len(g)}")
+        if g and k == len(g):
+            print("  form: LOGICAL IMPOSSIBILITY -- A is at ceiling, so any B gain here")
+            print("        is arithmetically impossible and indicates a pipeline bug.")
+            print("        Binding regardless of band size.")
+            if "B" in arms:
+                gain = sum(arms["B"][s_]["completed"] for s_ in g) - k
+                print(f"        B - A in this band: {gain:+d}  "
+                      f"{'-> PIPELINE BUG' if gain > 0 else '-> consistent'}")
         else:
-            print("   band is ordinary evidence; the registered impossibility does not apply")
+            print("  form: STATISTICAL NULL -- A is not at ceiling, so this band tests")
+            print("        specificity: B-A should be ~0 where tilt cannot matter.")
+            if "B" in arms:
+                b = sum(1 for s_ in g if arms["A"][s_]["completed"] and not arms["B"][s_]["completed"])
+                c = sum(1 for s_ in g if not arms["A"][s_]["completed"] and arms["B"][s_]["completed"])
+                p_, fl = mcnemar(b, c)
+                print(f"        B vs A discordance {c}:{b}   McNemar p={p_:.4f}   floor={fl:.2g}")
 
     print(f"\n{'band':14}{'n':>5}" + "".join(f"{t:>8}" for t in tags))
     counts = {}
