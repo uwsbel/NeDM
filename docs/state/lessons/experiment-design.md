@@ -4727,3 +4727,60 @@ magnitude, there is no finding to carry.**
 
 **Evidence:** commits fb4970a, 5c669d3. Related: [the number 40 was a grid
 dimension](#the-number-40-was-a-grid-dimension-and-two-of-us-read-it-as-a-sample-size-within-one-hour).
+
+## A selector that silently does nothing is worse than one that selects wrongly
+
+**Cost:** four boxes, four physics binaries, none recorded · **Found:** 2026-09-07 · **Applies to:** any environment variable used to choose a build or backend
+
+The standing screen launches every collector with
+
+```python
+  subprocess.run(cmd, env=dict(os.environ, PYTHONPATH=CHRONO), ...)
+```
+
+where `CHRONO` defaults to `/home/kyle/chrono-build/bin`. The intent is that every
+episode runs against the locally built physics rather than the packaged one.
+
+**On one of four machines that directory contains no `pychrono` at all**, so the
+import falls straight through to the conda site-packages copy. Verified directly:
+
+```
+  PYTHONPATH=/home/kyle/chrono-build/bin python -c "import pychrono; print(pychrono.__file__)"
+    a3     -> /home/kyle/chrono-build/bin/pychrono/__init__.py
+    sbel   -> .../miniconda3/envs/nedm/.../pychrono/__init__.py     PYTHONPATH IGNORED
+```
+
+No error, no warning, nothing different in the log. **The mechanism intended to
+select the build cannot fire on that box, and the run looks identical to one where
+it did.**
+
+| box | `chrono-build/bin/pychrono/_core.so` | what ran |
+|---|---|---|
+| a3 | `cfbf8af6` | local build |
+| sliger | `60457362` | local build |
+| north | `d1d0bd0a` | local build |
+| sbel | **absent** | conda's `8e9e3865` |
+
+**Three locally built binaries that differ from each other, and a fourth box on the
+packaged one.** None of it recorded in any artifact.
+
+**Why this class is worse than a wrong selection.** A selector that picks the wrong
+thing eventually produces a visible contradiction: two runs disagree, someone
+looks. A selector that has no effect produces results that are *internally*
+consistent on every box, and only disagree across boxes, where the difference is
+attributed to the seed. In this case the affected box sat lowest on both arms of a
+comparison and that was read as sampling variation.
+
+**What survived and why.** Every *within-box* comparison is build-matched and
+unaffected. The conclusion that rested on within-box comparisons held; the
+statements that pooled across boxes ("four seeds, four machines") silently mixed
+seed with build.
+
+**Fix.** Raise when the selector cannot do its job: if `PYTHONPATH` names a
+directory with no `pychrono` in it, fail rather than proceed. And record the
+resolved `pychrono.__file__` and its `_core.so` md5 in every episode's artifact
+beside the checkpoint md5. **The physics build is a condition of the
+measurement.** Same defect as the action multiplier, in the one condition that
+silently differs across the whole fleet.
+
+**Evidence:** `standing_screen._one`; four-box md5 table above.
