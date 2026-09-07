@@ -2981,3 +2981,31 @@ Short episodes span eight families:
 is zero or out of range). **Those three are invisible to the verdict for a reason that
 has nothing to do with the arms**, so they must be reported separately from the
 base-failure region or the two blind spots get pooled.
+
+### The 1500-row threshold does sit in a gap -- but the short set is not homogeneous
+
+Over all 3503 corpus episodes:
+
+    short (<1500)  572     min 50   median 121   max 1492
+    next value at or above 1500:                      1553
+    => EMPTY between 1492 and 1553, a 61-row gap
+
+**So the threshold is not arbitrary**, unlike the earlier case where I reused "site the
+threshold in the gap" on a set spanning 248 to 3958 with no gap in it. Here there is
+one, and it is thin but real.
+
+**But the set has a tail that the median hides:**
+
+    [   0,  200)   530     93%   dead within ~5% of the episode
+    [ 200,  500)    26
+    [ 500,  900)    10
+    [ 900, 1200)     3
+    [1200, 1500)     3     failed around 35-40% of the way through
+
+**Full corpus episodes average 3760 rows**, so a 1492-row episode is a robot that ran
+for two fifths of the run before losing it, and a 121-row one is gone in about a
+second. **These are not the same event and an arm completing one of each would not be
+the same result.**
+
+> **Any "arms complete N of the base failures" figure should be stratified by base's
+> own length**, or a single marginal recovery and a genuine rescue report identically.
