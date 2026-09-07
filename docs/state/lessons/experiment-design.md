@@ -4290,3 +4290,23 @@ one run, and it moved a +0.33 m/s headline to +0.0015, and a family split of +0.
 Generally: whenever the arms of a comparison differ in any respect besides the treatment,
 the control-against-itself run is available, and it is usually the cheapest experiment on
 the board. **Ask what else changed between the arms, and then measure that alone.**
+
+## Replication does not test a confound the datasets share
+
+E3 reproduced at 28% against 29% on two independently collected corpora, with its
+criterion operationalised before either existed. It was reported as the strongest result
+of the session on exactly those grounds.
+
+Both corpora were scored with the same asymmetric protocol -- treated arm at reduced
+gain, baseline at nominal. Recomputed with the arms matched, E3's family separation is
+0.00003 at permutation p 0.856. **The replication was reproducing the protocol.**
+
+Independent data tests sampling error, selection, and overfitting to a particular
+draw. It does nothing about a factor held constant across both datasets, and pre-
+registration does not help either -- the criterion was fixed in advance and still
+measured the confound.
+
+**Only varying the confounded factor tests it.** Two corpora, one protocol, is one
+experiment run twice. The strongest-looking evidence -- replication on independent data
+-- is precisely the evidence that touches a shared confound least, which is why "it
+replicated" should prompt "on what did the two runs agree by construction?"
