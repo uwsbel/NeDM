@@ -3749,3 +3749,87 @@ values some episodes can be handed a nearly identical vector.
 
 **Report `corr(grav_shuf, grav_world)` across episodes; it should be ~0.** One line,
 and it converts "shuffled" from a procedure into a measured property.
+
+### REGISTERED: the banded endpoint is measured on the corpus's own `val` split
+
+**A, B and C all train on the new corpus.** If the banded downstream evaluation reuses
+those episodes, **B's advantage could be "B fitted these specific tilt draws" rather
+than "B generalises tilt"** -- and that is precisely the axis under test, so it is the
+worst place to leave a confound. The policy is scored in Chrono rather than inside the
+surrogate, so it is not leakage in the usual sense, **but the episode specs would be
+ones the surrogate trained against, and B is the only arm able to represent them.**
+
+**The fix costs nothing because the split is already in the data:**
+
+    episode record carries "split": train | val, assigned AT COLLECTION
+    merged root sample: 252 train, 65 val
+
+**Every preset preprocessing the same corpus inherits the identical split**, so A, B
+and C share it automatically -- no seeding to coordinate, no way for the arms to
+diverge.
+
+> **Measure the banded endpoint on `val` episodes only.** Held out from all three
+> surrogates, identical across arms, tilt recorded so it can be banded. **Available
+> only if decided before training, which is now.**
+
+**Two counts to confirm before committing**, because both can silently fail:
+
+1. **Per-band val counts.** ~20% of ~3500 is ~700, about 100 per band, enough for the
+   paired comparison. **If a band is thin, better known now than in the analysis.**
+2. **The `[0.0,+1.0)` ceiling check needs val episodes in that band.** If the split is
+   thin there the pre-registered impossibility cannot fire -- **and an impossibility
+   check that cannot fire is the same defect as a control that cannot fail**, which is
+   a shape this project has now hit twice.
+
+### The ceiling check is CONDITIONAL, and a stronger impossibility is available
+
+**My `[0.0,+1.0)` impossibility was measured with BASE and v4.** The A/B/C arms are
+three new fine-tuned policies and nothing guarantees they inherit it -- on the old
+corpora armA failed 57% and base36 79% of the clean-cell conditions where base was
+perfect. **So the check is conditional:**
+
+    IF arm A completes 100% of val episodes in [0,+1)  -> B cannot improve there and
+                                                          any gain falsifies the pipeline
+    IF arm A completes <100%                           -> the band is informative, not a
+                                                          ceiling, and the check is VOID
+
+**A's rate in that band is therefore the first number to read**, before any comparison.
+**An impossibility whose precondition was assumed rather than verified is the same
+defect as a control that cannot fail** -- my phrasing, correctly applied to my own
+check.
+
+#### REGISTERED: a second impossibility that does not depend on any absolute rate
+
+**Arm C carries three channels with no tilt information.** So:
+
+    C - A, banded    MUST BE FLAT across pitch bands
+                     any tilt-DEPENDENT difference means the shuffle leaked, or the
+                     pipeline distinguishes the arms by something other than the
+                     channels' content
+
+    B - C, banded    should INCREASE with |pitch| if tilt observability is the mechanism
+                     flat -> the gain is generic to 39-D, not to tilt
+                     decreasing -> incoherent
+
+**This is stronger than the ceiling check because it is a DIFFERENCE, not a level.** It
+holds whether the new policies are good or bad, so it cannot be voided by A's rate the
+way the ceiling can. **And it tests the shuffle control end-to-end rather than at the
+preprocessing step where `corr < 0.15` is checked.**
+
+#### Split uniformity, verified
+
+    overall val fraction 0.207 on 261 episodes; per-band 15.7% to 26.1%
+    expected sd at n~50 is 0.057, so a +-5 point spread around 20.7% is what
+    unstructured assignment gives
+
+**Every band projects to 80+ val episodes at ~3500, against the 29-65 that produced
+tonight's McNemar results, and ~134 for the ceiling band against the 91 that
+established it.** Decision confirmed: banded endpoint on `val` only.
+
+#### And what the split does not buy, recorded rather than fixed
+
+**Holding out episodes protects against B having fitted these specific tilt draws. It
+does not protect against B having fitted this corpus's tilt DISTRIBUTION** -- all three
+arms see +-3.0 uniform and a policy tuned inside B is tuned for that. **Not fixable by
+a split. The honest form is that the result generalises to the tilt distribution it was
+trained and evaluated on, stated rather than implied.**
