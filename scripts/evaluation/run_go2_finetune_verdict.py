@@ -348,7 +348,12 @@ def main():
                     help="re-derive prewalk and ground tilt from a seeded RNG for "
                          "corpora that do not record them. Correct ONLY before the "
                          "ground-pitch cap (e09e45b); wrong and silent after it.")
-    ap.add_argument("--action-mult", type=float, default=1.0,
+    # DEFAULT None, NOT 1.0, so "not passed" is distinguishable from "passed as
+    # nominal". arm_env already treats None as nominal. With default=1.0 the
+    # ambient-variable guard below could never fire -- it tested `is None` on a
+    # value that was never None, which is the second guard-that-cannot-fail of
+    # the same day.
+    ap.add_argument("--action-mult", type=float, default=None,
                     help="scale the TREATED policy's output by this factor. Applied only "
                          "to the treated arm; the baseline replay check runs unscaled, so "
                          "it stays a valid check. See imported_policy.NEDM_ACTION_MULT -- "
@@ -371,6 +376,22 @@ def main():
                     help="write machine-tagged per-episode paired differences for "
                          "stratified combination across boxes")
     a = ap.parse_args()
+
+    # SETTING NEDM_ACTION_MULT IN THE ENVIRONMENT DOES NOTHING HERE, AND SAYING SO
+    # IS THE POINT. arm_env pops it deliberately, so that a stray value in the
+    # operator's shell cannot silently scale one arm. The cost is that an operator
+    # who sets it the wrong way gets a clean run at nominal gain with no complaint:
+    # a gain control launched that way returned exactly 0.000000 on 457 episodes,
+    # which is what a comparison of a policy against itself returns.
+    #
+    # The harness cannot tell "the operator wants nominal" from "the operator asked
+    # the wrong way", so it refuses instead of guessing.
+    if "NEDM_ACTION_MULT" in os.environ and a.action_mult is None:
+        raise SystemExit(
+            "NEDM_ACTION_MULT is set in the environment but --action-mult was not "
+            "passed. This harness strips the ambient variable by design, so the run "
+            "would proceed at NOMINAL gain and silently ignore what you asked for. "
+            "Pass --action-mult explicitly, or unset the variable to run at nominal.")
     LEGACY_DERIVATION[0] = a.legacy_derivation
 
     # --- select the cell -----------------------------------------------------
