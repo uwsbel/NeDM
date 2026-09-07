@@ -1346,3 +1346,412 @@ gate readable. corr is indeterminate in every cell. **The gate becoming readable
 a precondition for the fine-tune question, not an answer to it** -- the endpoint is
 a fine-tune inside an excitation-trained surrogate that survives transfer to
 Chrono, and that is one experiment away.
+
+## 1u. CORRECTION: the sweep's baseline comparison was confounded, and one metric was not a comparison at all
+
+**Two of the three verdicts in 1t rested on a comparison against `base` that
+differs from the excitation cells in TWO ways, not one.** The channel weighting
+differs as well as the data.
+
+### The mechanism: single-dataset weighting is an exact identity
+
+`_build_channel_weights` computes `w_i = flat_std_i^2 / mean_d(std_{d,i}^2)`, where
+`flat_std` is `self.metadata`'s `target_std`. When `channel_weight_datasets` is a
+single dataset matching the metadata source, numerator and denominator are the
+**same array** and `w_i = 1.0` identically, for every channel.
+
+**The config generator set `channel_weight_datasets` to each cell's own
+`train_mix`.** For the baseline that is walking alone, so the baseline trained
+**unweighted** while every excitation cell trained under a real weight vector:
+
+|  | data | weights |
+|---|---|---|
+| `base` | walking | 1.0 everywhere (identity) |
+| `base_ownweights` | walking | 1.0 everywhere -- **same config as `base`** |
+| `exc25`, `seed2`, `lowvol` | walking + excitation | `roll_rate` 0.058, `grav_body_y` 0.161, `vel_body_x` 1.163 |
+
+**`base_ownweights` was built to remove a contamination that was never there.** It
+is `base` under a different name, and its gate reproduces `base` to nine decimals
+-- `gain 1.042596576`, `corr 0.554773709`, `d_model 0.051442282` -- on a
+checkpoint file with a different md5. **Recorded as what it actually is: a
+determinism check on the training pipeline, which we did not previously have.**
+A run that reproduces another to nine decimals is either a determinism check or a
+duplicate, and which one must be established before it is reported as either.
+
+### `val_loss` is withdrawn outright, not merely confounded
+
+The weights are mean-normalized (`weights * weights.size / weights.sum()`), so
+they do not shrink the loss -- overall scale is fixed. **But mean-normalization
+fixes the total, not the allocation.** `base` minimises an unweighted MSE;
+`exc25` minimises one that downweights `roll_rate` 17x and `grav_body_y` 6x --
+**the very channels 1p identified as where the error is.** Two different
+objectives, each scored on itself.
+
+> **WITHDRAWN: "val_loss 0.00662 vs 0.00811, real, 18% below baseline."** That is
+> not one quantity measured twice. It is two quantities.
+
+### `err/signal` is confounded differently, and less badly
+
+The gate reads **raw** channels, so the ruler is common across cells. The confound
+is in what the model learned, not in the measurement. `1.401 -> 0.287` remains a
+real comparison of a real quantity between two models -- which differ in two ways.
+
+> **WITHDRAWN: "the gap to baseline is ~1.0, far exceeding the seed spread."**
+> The gap is data-plus-weighting.
+
+**What is untouched:** the seed spread (0.145), the floor measurement, and the
+low-volume result. Those compare cells that share a weight vector.
+
+### The corrected cell, and its metrics declared before the numbers
+
+`go2_mix36_base_bothweights`: walking-only data under exc25's exact weight vector,
+**verified equal channel by channel**. It differs from `exc25` only in data.
+
+|  | chanw walking | chanw walking+exc |
+|---|---|---|
+| **train walking** | `base` | `base_matchw` |
+| **train walking+exc** | (not built) | `exc25` |
+
+    base -> base_matchw     WEIGHTING effect     err/signal ONLY
+    base_matchw -> exc25    DATA effect          err/signal AND val_loss
+    base -> exc25           the confounded total already reported
+
+**The two legs do not admit the same metrics.** The weighting leg compares models
+trained under different weight vectors, so reporting it on `val_loss` would repeat
+the error withdrawn above; it is readable only on `err/signal`. **Additivity is
+likewise testable only on `err/signal`**, the one metric defined across all three
+cells. The leg that carries the claim -- data -- is the one where both metrics are
+admissible, and their agreement is a check worth having.
+
+**If weighting carries most of the effect, the excitation corpus was not the lever.**
+
+### Two instrument defects found while setting this up
+
+**The fine-tune checkpoints were not loadable by anything that consumes them.**
+The fine-tune scripts save `{"state_dict": ...}`; the collector, the gate and the
+verdict harness all call `torch.jit.load`, which fails outright on it. v4 worked
+only because someone exported it by hand and never captured the step. Now
+`scripts/evaluation/export_finetuned_policy.py`, validated by re-exporting v4 and
+reproducing the existing artifact bit-exactly in all 14 tensors.
+
+**The verdict harness aborts on mixed-machine episode sets and had no flag for the
+stratified design its own abort message recommends** -- only `--allow-foreign`,
+which proceeds *including* the foreign half. Added `--own-machine-only`, which
+drops foreign episodes and prints a standing warning that the result is a stratum
+and not the pool. The patch is purely additive and guarded by the flag. **On this
+host the cell holds 43 episodes, the denominator of the 38-of-43 control.**
+
+**Both of the harness's path defaults are the other machine's**, including
+`NEDM_CHRONO_PYTHONPATH`. That one is the dangerous member: this box carries a
+second pychrono inside the conda env, so the wrong default can silently change the
+physics build and break the bit-exact replay the paired design rests on. **Check
+the md5, not the path.**
+
+## 1v. The fine-tune verdict ladder: the excitation data is exonerated, and three explanations for the surviving result have died
+
+One harness, one root, 43 episodes per arm, `--own-machine-only` on kyle-N7-B650E.
+Every arm stopped on `target_dw`, so displacement is matched to three decimals.
+
+| policy | surrogate | `\|\|dW\|\|` | surviving pairs |
+|---|---|---|---|
+| unmodified | -- | -- | **43 of 43**, median paired difference exactly +0.0000, CI [0,0] |
+| v4 | 34-D, walking | 8.9032 | **20 of 43** |
+| base36 | 36-D, walking only | 8.9003 | **0 of 43** |
+| arm A | 36-D, walking + excitation | 8.9017 | **0 of 43** |
+
+### The excitation data is not the cause
+
+**`base36`'s surrogate never saw an excitation row and collapses identically to arm
+A.** No weighting story can rescue the attribution: a walking-only 36-channel
+surrogate produces total collapse on its own. The sentence *"the excitation
+fine-tune destroys transfer"* was sealed as "arm A, pending arm B" for four hours
+and never written.
+
+### What survives, welded to no mechanism
+
+> **At `||dW||` matched to three decimals, same script, same objective, same 5-step
+> horizon: 34-D gives 20 of 43, and two independently trained 36-D surrogates each
+> give 0.**
+
+Three explanations for that have been proposed and withdrawn in one session. The
+empirical claim outlived all three, which is the reason to state it alone.
+
+### The failure mode is not a fall in the scored episode
+
+The policy **cannot hold a stand**: 0.100 m against a standing 0.30-0.42 m at the
+first recorded row, during prewalk, before the episode begins. Joint targets then
+grow exponentially -- 4.15, 4.75, 5.58, 6.80, 9.66, 16.5, doubling about every two
+rows -- to 1e30. Chrono clamps **torque** (`robot.py:130`) but nothing clamps the
+**command**, which is why these episodes terminate on length rather than crashing.
+**Ordering: fails to stand, then falls, then unbounded feedback through the
+observation, then 1e30.** The first observable was none of the first three.
+
+### WITHDRAWN 1: the surrogate is fooled
+
+> ~~The surrogate is smooth and bounded where physics is not, so gradient ascent
+> finds a policy with unbounded outputs that the surrogate scores as excellent.~~
+
+The predicted **height** rises to 0.758 m, which is measured. The predicted
+**reward** was inferred and is the opposite: +0.95 at 5 steps, **-1.53 at 20**.
+The surrogate penalises the runaway heavily, using terms it already computes.
+
+### WITHDRAWN 2: the window is narrower than the validity
+
+> ~~The failure is visible inside the validity the surrogate already had, and the
+> fine-tune's 0.05 s window is narrower than both.~~
+
+Killed by the control, which should have been run before the claim:
+
+```
+  surrogate   policy        h=5      h=20                h=50
+  exc25       exc25 FT     +0.95    -1.53   1.2e1     -7.94     2.4e1
+  exc25       UNMODIFIED   +0.60    -4.0e8  3.4e6     -inf      3.1e19
+  34-D        v4 FT        +1.06    -0.29   1.7e1     -2.5e15   1.4e10
+  34-D        UNMODIFIED   +0.86    -1.5e8  1.5e6     -inf      5.2e18
+```
+
+**The policy that completes 43 of 43 in Chrono is the worst-behaved policy in every
+surrogate.** The surrogate does not discriminate; its closed-loop rollout diverges
+for everything past ~5-10 steps. `-1.53` is a good number, not a bad one.
+
+**The conflation this exposed, which ran through the whole evening:**
+
+    0.5 s validity from the gate      OPEN-LOOP, against RECORDED actions
+    what the fine-tune consumes       CLOSED-LOOP, policy feeding its own actions back
+
+Different properties. The gate certifies the first. **Closed-loop validity is under
+~10 steps for every surrogate here, 34-D and 36-D alike, and nothing has ever
+measured it.** So `--branch-steps 50` would optimise against a model already at
+1e19 actions for the baseline policy, and the 5-step window may be about right for
+the validity that actually matters.
+
+### WITHDRAWN 3: 36-D permitted a sharper myopic optimum
+
+v4 scores **+1.0645** at 5 steps, the *highest* of the three, not the lowest.
+
+### A real defect, which is not the explanation
+
+`go2_reward_terms.NOT_COMPUTABLE` drops `correct_base_height` at **-10.0**, the
+largest weight in the reward, for the stated reason *"no pos_z_m in the 34-D
+state"*. True for v4. **False for every 36-D and 40-D surrogate**, which carry
+`pos_z_m` -- but the dict is a module-level constant encoding a per-run fact. The
+34-D to 36-D difference is exactly two channels, `pos_z_m` and `vel_body_z_mps`,
+and **neither is constrained**: one by the stale omission, one because `lin_vel_z`'s
+converged weight is literally 0.0, so half the pose pair cannot be fixed by any
+reward change.
+
+`wrongly_omitted(state_fields)` now returns omitted terms whose required channels
+are all present in the loaded state. **The rule it enforces was already written in
+that file**, by whoever hit this with `torques` and `dof_power`: *name the missing
+quantity and confirm it cannot be derived.* It was recorded and not re-run when the
+state changed. **Recording a rule and enforcing a rule are different things.**
+
+The term itself is **not implemented** -- `RT.terms()` takes no height argument, so
+removing the dict entry would change nothing. It needs the upstream form and target
+height from `go2_env.py`, and both-class validation against a policy known to stand
+and one known to collapse, before any fine-tune trusts it.
+
+### 17, 20 and 38 are one row under two predicates
+
+    v4   42/43 recorded   COMPLETED 17, fell 4, diverged 21   PAIRS 20
+
+**17 is a status category; 20 is surviving scored pairs; 38 is that same status
+category on the unmodified policy.** Never in conflict, all from one run. This
+harness reports 43 of 43 for the base policy because it counts pairs, not statuses.
+
+### Three diagnostics that were printing all along
+
+`reward: 10 computable terms, 4 omitted` on every fine-tune including v4's; the
+2026-09-05 `constants.py` note diagnosing the height gap correctly and shipping only
+the state half of the fix; and v3's own pre-registered falsification test on mean
+`|raw action|`. **A diagnostic nobody reads is not a diagnostic**, and the fix is
+that `wrongly_omitted` asserts rather than prints.
+
+### The verdict is a divergence test with a tracking test bolted onto its survivors
+
+Per-episode, using the harness's **own** `scored()` rather than a reimplementation,
+with "diverged" = `max |raw policy action| > 1e3` (invariant from 1e3 to 1e6):
+
+| policy | n | diverged | scored | diverged AND scored | neither |
+|---|---|---|---|---|---|
+| base | 43 | 0 | 43 | 0 | 0 |
+| v4 | 43 | 23 | 20 | 0 | 0 |
+| base36 | 43 | 43 | 0 | 0 | 0 |
+| arm A | 43 | 43 | 0 | 0 | 0 |
+
+**Zero exceptions in 172 episodes: an episode scores if and only if its commanded
+actions stay bounded.**
+
+So `"v4 completes 20 of 43"` means `"v4 does not diverge in 20 of 43"`. **The primary
+axis has never measured control quality; it measures whether the policy blows up.**
+And the paired tracking difference is then computed over the survivors -- **a sample
+selected by the very failure being studied.** `go2-finetune-displacement-result.md`
+already suspected the survivors were the easier episodes; this is the sharp form.
+
+**Threshold choice is not free-floating:** base's median max is 4.547, so a bound at
+10 sits inside its own operating range and produced a spurious 2/43. At 1e3 that
+vanishes and the rates are identical at 1e6. **Quote a rate only where it is
+invariant across decades.**
+
+**Raw action space matters.** `targets = action * 0.25 + IMPORTED_DEFAULTS` in the
+policy frame with `SIGN = -1` and a 12-element reindex, and the defaults differ per
+joint. Comparing a recorded Chrono target against a surrogate-side action without
+inverting all three compares different quantities -- which is how an earlier version
+of this analysis produced a spurious fifteen-order-of-magnitude "separation" in which
+v4 looked bounded. **v4 diverges in Chrono too, in 23 of 43.**
+
+### ARM B: the attribution, single-variable at last
+
+| policy | surrogate | `\|\|dW\|\|` | surviving |
+|---|---|---|---|
+| base | -- | -- | **43 of 43** |
+| v4 | 34-D, walking | 8.9032 | **20 of 43** |
+| base36 | 36-D, walking, identity weights | 8.9003 | **0 of 43** |
+| arm A | 36-D, walking + excitation | 8.9017 | **0 of 43** |
+| arm B | 36-D, walking, exc25's weight vector | 8.9017 | **0 of 43** |
+
+**Arm A and arm B match to four decimals on displacement, share one channel-weight
+vector, and differ only in whether the surrogate's training data included the
+excitation corpus. Both are 0 of 43.**
+
+> **The excitation data has no effect on fine-tune transfer. Not adverse, not
+> beneficial -- no effect.**
+
+Two independent walking-only 36-D arms reach the same zero, one under identity
+weights and one under exc25's, so no weighting story survives either.
+
+**Every 36-D arm is 0; the 34-D arm is 20.** Three replicates against one, at
+matched displacement, same script, same objective, same 5-step horizon. That
+sentence has now outlived four proposed mechanisms.
+
+### The excitation corpus does buy what it was collected to buy
+
+Same three checkpoints, evaluated on both validation splits:
+
+| surrogate | walking | excitation |
+|---|---|---|
+| base_matchw (0%) | 0.008933 | **0.741947** |
+| exc25 (25%) | 0.006657 | **0.123441** |
+| exc50 (50%) | 0.011860 | **0.128190** |
+
+**A 6x improvement on the excitation distribution.** The sweep's walking-only
+validation set was structurally incapable of measuring it: with 55.7% of excitation
+rows beyond walking's 99th percentile, degradation on walking is close to what the
+design guarantees, and the benefit is invisible by construction.
+
+**The two columns are NOT one instrument and the magnitudes must not be traded off
+against each other.** `val_loss` comes from the **primary** loader built from
+`processed_root`; `validation_datasets` only adds **extra** loaders keyed
+`val_<name>_loss`. Overriding the former and reading the latter returns *the same
+number for every set* -- caught only because two different validation sets produced
+identical values, the same signature that exposed the `base_ownweights` duplicate.
+The walking column here also **inverts** the dose-response ordering computed at
+training time, so a trade curve needs both sides re-measured on one loader.
+
+### WITHDRAWN: the walking-split dose-response
+
+> ~~Adding excitation data costs walking-split accuracy monotonically with dose:
+> 0.00613 / 0.00662 / 0.00867.~~
+
+**`checkpoint_metric` is `rollout_sel` in all three runs, so `best_val.pt` is not the
+best-by-val_loss checkpoint.** The two "disagreeing" loaders never disagreed -- they
+were measuring different epochs:
+
+| run | saved ckpt | min val_loss over 80 epochs | val_loss AT the saved epoch |
+|---|---|---|---|
+| base_matchw | ep37 | 0.00613 @ep78 | **0.00893** |
+| exc25 | ep76 | 0.00662 @ep74 | **0.00666** |
+| exc50 | ep24 | 0.00867 @ep78 | **0.01186** |
+
+The right-hand column reproduces the extra-loader evaluation to four decimals. **The
+dose-response was computed from per-run epoch-wise minima of a metric that selected
+none of the saved models** -- a selected extreme of a noisy series, describing
+checkpoints that do not exist.
+
+**On the artifacts that do exist the trend is non-monotone**, with the 25% cell
+lowest: 0.00893 / 0.00666 / 0.01186.
+
+**And the selection compounds it.** `rollout_sel` is the metric withdrawn in 1t as
+seed-noise-dominated (0.2364 vs 0.4167 across two seeds of one config). It set the
+saved epochs to 37, 76 and 24 -- the 0% and 50% arms stopped less than half way
+through a run the 25% arm nearly completed, on that noise. **Nothing about
+walking-split accuracy across these three cells is currently reportable.**
+
+**The excitation reversal is unaffected**: both columns come from the same loader on
+the same artifacts, so `0.00893 -> 0.74195` against `0.00666 -> 0.12344` is one
+comparison, and the 6x stands.
+
+### What replaces it: a common epoch, from `last.pt`
+
+All three ran 80 epochs and all three saved `last.pt` at epoch 80 -- a fixed epoch,
+free of `rollout_sel` selection entirely. Verified from `metrics.jsonl` on this box:
+
+|  | val_loss @ep80 | vs the seed floor (0.00020) |
+|---|---|---|
+| 0% excitation | 0.00660 | -- |
+| 25% excitation | 0.00662 | difference 0.00002 = **0.1x** -> NULL |
+| 50% excitation | 0.00901 | difference 0.00239 = **12x** -> REAL |
+
+> **At 25% excitation, walking-split accuracy is indistinguishable from
+> walking-only. At 50% it is materially worse.** A null followed by a penalty,
+> not a monotone dose-response.
+
+**Caveats attached:** n=1 per cell, and the floor is borrowed from the excitation
+family rather than measured on the 0% arm. A second 0% seed is training.
+
+### `best_val.pt` is not selected by val loss, in ANY run in this project
+
+`checkpoint_metric` defaults to `val_loss` but every go2 config sets it to
+`rollout_sel` -- **the metric withdrawn in 1t as seed-noise-dominated.** The
+filename says otherwise and there is no error, the same class as
+`val_tracking_mse` naming a negated reward.
+
+**So every `best_val.pt` here is a model chosen by a metric the sweep's own floor
+says cannot support selection**, and the saved epochs show what that costs: 37, 76
+and 24 out of 80. The 0% and 50% arms were frozen less than halfway through a run
+the 25% arm nearly completed.
+
+**Prefer `last.pt` for any cross-run comparison** until selection is fixed. The
+fine-tune arms were all trained inside `rollout_sel`-selected surrogates, which is a
+**shared** defect rather than a differential one -- so the arm A / arm B attribution
+holds, but it is stated here rather than assumed.
+
+### The 34-D replicate, and a confound caught before the verdict
+
+The surviving claim -- *34-D gives 20 of 43, every 36-D arm gives 0* -- rests on
+**three independent 36-D checkpoints against ONE 34-D checkpoint (v4)**, trained
+weeks earlier under a different config generation and merely re-scored since.
+Re-running v4 confirmed the *evaluation* reproduces; it did not replicate the
+*training*. That is n=1 on the arm making the claim -- the structure of the
+withdrawn `rollout_sel` result.
+
+**The first attempt at the replicate reintroduced the confound it existed to
+remove.** It trained on `go2_corrected_34d_excl`:
+
+| | `go2_corrected_34d_excl` | `go2_walking_36d` |
+|---|---|---|
+| processed | 2026-09-05T06:33 | 2026-09-06T20:50 |
+| `circular_unwrapped` | **ABSENT** | `['roll_rad','pitch_rad']` |
+| `processing_provenance` | **ABSENT** | commit `b42e3ebb` |
+
+**38 hours apart, across the circular-unwrap fix** -- which alone moved `err/signal`
+from 0.609 to 0.518. Pairing them would have confounded the channel set with the
+wrap fix, *a confound this document already records about an earlier comparison*.
+
+**The config asserted that no 36-D dataset reference survived. That was true and
+insufficient**: it checked what the run pointed AT, not whether the two things being
+compared were otherwise identical.
+
+Now gated by `scripts/preprocess/assert_datasets_differ_only_by_channels.py`, which
+requires matching raw roots, `dt_s`, `contact_mode`, `circular_unwrapped`,
+action/rollout fields, provenance commit and split contents, and **treats `<ABSENT>`
+as a failure rather than a match** -- a property one dataset does not record cannot
+be asserted equal. It runs as a hard stop before training.
+
+**Not a third variable:** the `_excl` exclusion lives in the raw corpus, and both
+datasets report identical episode *and* transition counts (2382/621, 8,961,196).
+
+**Recorded before the replicate's result exists:** v4's surrogate trained on
+`go2_corrected_34d_excl`, the pre-unwrap dataset. **If the fresh replicate lands at 0
+while v4 sits at 20, old preprocessing is a live explanation and must not be selected
+after seeing the number.**
