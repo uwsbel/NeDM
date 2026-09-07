@@ -284,6 +284,17 @@ def main():
     ap.add_argument("--replay-check", type=int, default=5)
     ap.add_argument("--concurrency", type=int, default=8)
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--own-machine-only", action="store_true",
+                    help="drop episodes collected on another machine and score only "
+                         "this host's, which is the stratified design the abort message "
+                         "recommends; prints exactly what was dropped. Ported from "
+                         "dorm-pc's patch rather than adopting its file, which was "
+                         "based on 04eac14 and predates the survivorship diagnostic and "
+                         "the stratum_incomplete guard. Its schema exclusion exists "
+                         "under a different name, NEW_PHYSICS -- absence of an "
+                         "identifier is not absence of a capability, and I nearly "
+                         "reported it missing from reading the source instead of "
+                         "calling it.")
     ap.add_argument("--allow-foreign", action="store_true",
                     help="proceed despite episodes from another machine; only valid if "
                          "cross-build replay has been verified")
@@ -343,6 +354,18 @@ def main():
     by_machine = Counter(sp.get("machine") for sp in eligible)
     print("  eligible by machine: " + ", ".join(f"{k}={v}" for k, v in by_machine.items()))
     foreign = {k: v for k, v in by_machine.items() if k and k != host}
+    if foreign and a.own_machine_only:
+        before = len(eligible)
+        eligible = [sp for sp in eligible if sp.get("machine") == host]
+        print(f"  --own-machine-only: dropped {before - len(eligible)} episode(s) from "
+              f"{', '.join(foreign)}; scoring {len(eligible)} from {host}.")
+        print("  THIS IS ONE STRATUM, NOT THE POOL. The dropped episodes are not missing\n"
+              "  data; they are the other box's stratum and must be scored there and\n"
+              "  combined as paired differences. Do not report this n as the comparison.")
+        if not eligible:
+            print("\nVERDICT: NOT MEASURABLE -- no episodes from this host.")
+            return 2
+        foreign = {}
     if foreign:
         print(f"\nVERDICT: NOT MEASURABLE -- {sum(foreign.values())} eligible episodes were\n"
               f"collected on {', '.join(foreign)} but this host is {host}. Episodes do not\n"
@@ -425,6 +448,16 @@ def main():
     bw = np.array([s["base_ratio"] < 0 for s, _, _ in pairs])
     tw = np.array([tr < 0 for _, _, tr in pairs])
     lo, hi, cov = exact_median_ci(D)
+    # AN ALL-DROPPED STRATUM IS A RESULT, NOT A CRASH. Arm A dropped 36 of 36 because
+    # every treated episode diverged numerically, and mcnemar() then raised on empty
+    # boolean arrays -- losing the diagnostic output after the run had already cost
+    # the episodes. Report and stop cleanly instead.
+    if len(bw) == 0:
+        print("\nVERDICT: NOT MEASURABLE -- 0 surviving pairs. Every treated episode\n"
+              "failed the scoring predicate. Check the treated episodes' joint-target\n"
+              "magnitudes before concluding anything about control quality: unbounded\n"
+              "output and falling are different failures and only one is about walking.")
+        return 2
     n01, n10, pmc, pmin = mcnemar(bw, tw)
     ratio_sd = T.std(ddof=1) / B.std(ddof=1)
     med = float(np.median(D))
