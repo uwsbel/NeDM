@@ -3833,3 +3833,46 @@ does not protect against B having fitted this corpus's tilt DISTRIBUTION** -- al
 arms see +-3.0 uniform and a policy tuned inside B is tuned for that. **Not fixable by
 a split. The honest form is that the result generalises to the tilt distribution it was
 trained and evaluated on, stated rather than implied.**
+
+### The new corpus's 405 exclusions are nose-down, and they compound two earlier selections
+
+    band          observed  expected (uniform +-3.0)  deficit
+    [-3.1,-2.0)        342                       625     -283
+    [-2.0,-1.0)        414                       568     -154
+    [-1.0,+0.0)        587                       568      +19
+    [+0.0,+1.0)        610                       568      +42
+    [+1.0,+2.0)        599                       568      +31
+    [+2.0,+3.1)        563                       625      -62
+
+**The two steepest nose-down bands account for 436 of the shortfall against 405
+excluded episodes.** Episodes producing 0-17 rows were dropped as unusable -- correctly,
+they carry nothing learnable -- **but the drop falls almost entirely on nose-down
+tilt.**
+
+> **`[-3.1,-2.0)` does not contain 342 episodes of steep nose-down. It contains 342
+> episodes of steep nose-down IN WHICH THE COLLECTING POLICY MANAGED TO STAND.**
+
+**This does not break the A/B/C comparison** -- all arms see the same episodes, and the
+`C - A` flatness check is untouched. **It limits the reading of the nose-down bands**,
+which are exactly the bands the tilt hypothesis cares most about.
+
+**Third instance of the shape tonight, and they compound:**
+
+    the 500-episode admissibility filter    pitch-correlated
+    the verdict's eligibility rule          conditions on base succeeding
+    collection itself                       conditions on the robot standing
+
+**Each is defensible alone. All three select on the outcome, in the same direction.**
+
+**Not fixable -- an episode with 0-17 rows has nothing in it. The remedy is to carry the
+attempted count beside the usable one**, so the band reads `342 of 625 attempted`
+rather than as a sample of its tilt range.
+
+#### And a defect regenerated in data collected today
+
+`scenario_family` collapsed to `go2_flat_constant_command` for all eight families
+again. **The lessons file already records that defect as FOUND, and the source had never
+been changed.** Fixed at `430702e`; the raw shards still carry the wrong value and only
+the merged index is correct.
+
+> **Recording a defect does not fix it, and the entry did not distinguish the two.**
