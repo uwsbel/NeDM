@@ -20,7 +20,38 @@ md5 before use: v4 `3d856f9d...` (three local copies byte-identical), armA `ccc2
 ```
 
 **The summary statistic separates the arms by 0.025. The underlying curves separate by
-0.65 at k=0.95, Fisher exact p = 6.0e-11.** At nominal gain, 0.42 with p = 1.8e-06.
+0.65 at k=0.95 and 0.42 at nominal gain.**
+
+### Correction: the Fisher exact p-values first reported here are withdrawn
+
+They were 6.0e-11 and 1.8e-06, computed on 40 against 40 as if each rung were 40
+independent episodes. **The 40 is a grid dimension, not a sample size.** The sweep runs
+`repeats x CONDITIONS` -- 8 fixed conditions crossed with 5 seeds -- and the five
+episodes inside a condition share family, params, perturbation peak and both tilts,
+differing only by seed. The independent unit is the **condition**, of which there are 8.
+Both arms run the identical job list, so the design is also **paired**.
+
+Per-condition failures at seed 303:
+
+```
+   k=0.95   v4   [0, 1, 5, 2, 1, 4, 1, 0]   pooled 14/40
+            armA [5, 5, 5, 5, 5, 5, 5, 5]   pooled 40/40
+   k=1.00   v4   [0, 0, 4, 3, 5, 3, 4, 4]   pooled 23/40
+            armA [5, 5, 5, 5, 5, 5, 5, 5]   pooled 40/40
+```
+
+Both rungs: **7 of 8 conditions discordant, all favouring v4, paired sign test
+p = 0.016.** With 8 units the smallest attainable p is 0.0078, so the reported
+6.0e-11 was eight orders of magnitude beyond what the design can support.
+
+**The finding is unaffected.** 0.35 against 1.00 is enormous, it holds on four seeds and
+four machines, and p = 0.016 over 7 of 8 discordant conditions is adequate evidence. The
+effect survives; the exponent does not.
+
+The printed `+-` on every rung has the same defect -- binomial on 40 where it should be
+clustered on 8. At k=0.95 the correct SE for v4 is 0.130 against the printed 0.075; at
+nominal, 0.133 against 0.078. `standing_screen.py` now returns the per-condition
+breakdown so the right unit is always available without a re-run.
 
 The rates at k=1.00 also reproduce the original observation that motivated this test:
 v4 23/40 diverging against the recorded 23/43, armA 40/40 against 43/43.

@@ -4663,6 +4663,16 @@ made it inert. The wrong null propagated much further and triggered a simulation
 plus a re-examination of a verification that had been correct. **A reading is
 visibly an interpretation; a null looks like arithmetic.**
 
+**Instrument fix, kyle-sbel.** `standing_screen.py` now returns `per_condition_failed`,
+`n_conditions` and `repeats_per_condition` alongside the pooled count, so the correct
+unit is available without a re-run. Recovering it for the seed-303 sweeps required
+re-running two rungs because only the pooled `14/40` had been kept. **Recording the
+structure beside the total is cheaper than remembering that the total has structure**,
+and the pooled number is the one that gets quoted.
+
+Seed 303, both rungs: 7 of 8 conditions discordant, all favouring v4, paired sign test
+`p = 0.016`. Clustered SE 0.130 against the printed binomial-on-40 0.075.
+
 **Evidence:** four v4 sweeps at k=0.95 gave 15, 15, 15, 14 (range 1, corrected sd
 1.67); at k=0.90 they gave 20, 23, 21, 24 (sd 1.83 against predicted 1.79).
 Per-condition vectors `[0,0,5,4,2,4,0,0]` and `[0,0,5,5,0,5,0,0]`, different

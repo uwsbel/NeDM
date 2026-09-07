@@ -201,8 +201,26 @@ def screen(ckpt, duration=DURATION_S, seed=0, keep=None, concurrency=1, repeats=
     unbounded = [i for i, m in enumerate(mags) if m > TARGET_LIMIT_RAD]
     short = [i for i, L in enumerate(lens) if L < MIN_ROWS]
     failed = sorted(set(unbounded) | set(short))
+    # PER-CONDITION BREAKDOWN. The pooled count is repeats x len(CONDITIONS) and its
+    # first factor is a GRID DIMENSION, not a sample size: the repeats inside a
+    # condition share family, params, perturbation peak and both tilts, and differ only
+    # by seed. The independent unit is the CONDITION, so any statistic computed on the
+    # pooled n -- a binomial standard error, a Fisher exact against another arm --
+    # overstates its evidence by roughly sqrt(repeats).
+    #
+    # Recorded because two sessions made this error in opposite directions within an
+    # hour on 2026-09-07: one inflated a coincidence by treating 40 as n, the other
+    # deflated a p-value from 0.016 to 6e-11 the same way. Keeping the breakdown means
+    # the correct unit is always available without a re-run.
+    ncond = len(CONDITIONS)
+    per_cond = [sum(1 for j, i in enumerate(range(len(got)))
+                    if i % ncond == c and i in set(failed)) for c in range(ncond)]
+    reps = len(got) // ncond
     return (f"{len(failed)}/{len(got)}",
             dict(failed=len(failed), n=len(got), rate=round(len(failed) / len(got), 3),
+                 n_conditions=ncond, repeats_per_condition=reps,
+                 per_condition_failed=per_cond,
+                 condition_names=[c[0] for c in CONDITIONS],
                  unbounded=len(unbounded), short=len(short),
                  median_raw=float(f"{sorted(mags)[len(mags)//2]:.4g}"),
                  max_raw=float(f"{max(mags):.4g}"),
