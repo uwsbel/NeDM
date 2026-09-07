@@ -156,6 +156,19 @@ def parse_args() -> argparse.Namespace:
     # always diagonal, so those configurations (modes 3 and 12) are structurally
     # unreachable by pushing, and they measure 0.91% and 0.06% of transitions.
     parser.add_argument("--perturb-torque-peak-nm", type=float, default=0.0)
+    # AMPLITUDE SCALE APPLIED AFTER EVERY DRAW, for a matched no-perturbation control.
+    # Setting --perturb-peak-n 0 to build that control changes the CODE PATH: the guard
+    # at the impulse block is skipped, so its rng.uniform draws are never taken and the
+    # shared stream diverges from the perturbed arm at the first event. The two arms
+    # then differ in every subsequent random quantity, not only in perturbation -- the
+    # same defect as the draw-order bugs documented in that block.
+    #
+    # This scales the assembled vector instead, so the draws, the branch and the event
+    # timing are bit-identical between arms and only the applied force differs. Default
+    # 1.0 multiplies by exactly one and takes no draw, so no existing corpus changes.
+    parser.add_argument("--perturb-scale", type=float, default=1.0,
+                        help="multiply applied perturbation force/torque by this "
+                             "(1.0 = normal, 0.0 = matched control with identical draws)")
     # Per-episode ground tilt, degrees, applied as roll and pitch of the static box.
     parser.add_argument("--ground-tilt-roll-deg", type=float, default=0.0)
     parser.add_argument("--ground-tilt-pitch-deg", type=float, default=0.0)
@@ -600,13 +613,14 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
                     _pert_next = t + rng.expovariate(1.0 / max(args.perturb_mean_interval_s, 1e-9))
                     _pert_events += 1
                 if t < _pert_until:
+                    _ps = args.perturb_scale
                     if args.perturb_peak_n > 0.0:
-                        base.AccumulateForce(_acc, chrono.ChVector3d(*perturb[:3]),
+                        base.AccumulateForce(_acc, chrono.ChVector3d(*(perturb[:3] * _ps)),
                                              base.GetPos(), False)
                     if args.perturb_torque_peak_nm > 0.0:
                         # local=False: the torque is applied about world axes, so
                         # "pitch" means pitch regardless of the trunk's heading.
-                        base.AccumulateTorque(_acc, chrono.ChVector3d(*perturb[3:6]),
+                        base.AccumulateTorque(_acc, chrono.ChVector3d(*(perturb[3:6] * _ps)),
                                               False)
                 else:
                     perturb = np.zeros(6)
@@ -650,7 +664,12 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
                     robot=robot,
                     tau=tau,
                     policy_raw=policy_raw,
-                    perturb=perturb,
+                    # THE FORCE THAT WAS APPLIED, not the one that was drawn. A
+                    # --perturb-scale 0 control draws a full-magnitude impulse and
+                    # applies none of it; logging the draw would label every control
+                    # episode with perturbations it never felt. Scale 1.0 multiplies
+                    # by exactly one, so existing corpora are unchanged.
+                    perturb=perturb * args.perturb_scale,
                     gravity=_grav_world,
                     contacts=contacts,
                     com=whole_robot_com(system),
@@ -734,6 +753,7 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
         "prewalk_s": float(args.prewalk_s),
         "ground_tilt_roll_deg": float(args.ground_tilt_roll_deg),
         "ground_tilt_pitch_deg": float(args.ground_tilt_pitch_deg),
+        "perturb_scale": float(args.perturb_scale),
         "perturb_peak_n": float(args.perturb_peak_n),
         "perturb_torque_peak_nm": float(args.perturb_torque_peak_nm),
         "record_step_s": float(args.record_step_s),
