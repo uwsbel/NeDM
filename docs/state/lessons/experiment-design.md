@@ -4721,3 +4721,44 @@ instrument.**
 
 **Evidence:** clean-cell decomposition and the pitch x roll grid, commits 24a3c7d and
 f3ababd.
+
+## An equivalence can carry the dynamics and not the sensing
+
+**When you argue two experimental setups are the same by transforming one into the
+other, the transformation has to carry the observation function too. Check what the
+sensor computes, not what it is named.**
+
+The screen's `--ground-tilt-roll-deg` and `--ground-tilt-pitch-deg` do not tilt the
+ground. They rotate gravity on a flat plane
+(`collect_go2_smoke.py:366-371`). I objected that this was therefore not slope
+behaviour, on the grounds that the contact normal stays vertical while a real slope
+rotates the friction cone.
+
+**That objection was wrong.** With a plane, a uniform field and a yaw-only spawn,
+rotating the whole world maps tilted-gravity-on-flat-ground onto vertical-gravity-on-a-
+slope exactly; `tan(theta)` is `tan(theta)` in either frame. **The dynamics are
+equivalent and nothing in the scene picks out a world direction.**
+
+**But nothing in the scene is not the same as nothing in the experiment.**
+`_projected_gravity` (`imported_policy.py:223-227`) computes the gravity observation
+from the base quaternion alone -- the body-frame direction of world **-Z**, hardcoded.
+`SetGravitationalAcceleration` cannot reach it:
+
+    roll -3.0 pitch -9.0    policy SEES [0,0,-1]    TRUE [-0.156, 0.052, -0.986]
+
+**The observation error equals the full tilt.** Under the world rotation the robot's
+quaternion becomes `R` and a correct sensor would return the tilted vector; ours still
+returns `[0,0,-1]`. **The rotation carries the dynamics and not the sensing, because
+the sensing is computed under an assumption the rotation invalidates.**
+
+> **The right conclusion was reached from the wrong argument, which is not the same as
+> being right.** Had the observation been computed from the system's actual field, the
+> friction-cone objection would still have been wrong and the axis would genuinely
+> have been slope behaviour.
+
+**The general form:** a "these are the same up to a change of frame" argument is a
+claim about every function in the loop, and hardcoded constants are exactly the terms
+that do not transform. **The flag's name asserted a physical setup; the code
+implemented a different one; and the sensor assumed a third.**
+
+**Evidence:** commit 870add6 and the gravity-observation check.
