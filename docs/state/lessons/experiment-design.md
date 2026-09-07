@@ -4836,3 +4836,62 @@ confirmed factor was only half the story.
 across 240 episodes and three seeds; swept continuously, the boundary is a step
 between pitch -1.5 and -1.0 at roll +1.0, with 5/5 on one side and 0/5 on the
 other.
+
+## A transform applied before the question was asked
+
+**Cost:** a corpus envelope shaped by a statistic blind to the factor it dismissed · **Found:** 2026-09-07 · **Applies to:** any screening correlation on a signed quantity
+
+The collection driver caps ground pitch at ±1.5 deg while leaving roll at ±3.0,
+and the comment above the code gives its reason, measured on ~2000 episodes:
+
+```
+  corr(|pitch|, fell) = +0.427    rising 2% -> 48% across the band
+  corr(|roll|,  fell) = +0.057    and flat
+  "roll does not drive failures"
+```
+
+**Both statistics take an absolute value first.** The roll effect is
+antisymmetric — at the same `|roll| = 3.0`, one sign fails 5/5 and the other
+passes 0/5 — and `|roll|` cancels those two exactly. **The transform removes the
+signal before the correlation is computed, so the near-zero result is guaranteed
+regardless of how large the effect is.**
+
+Reconstructing the tilts (never recorded, but drawn from a seeded RNG and
+therefore recoverable) over 1762 episodes:
+
+| statistic | value |
+|---|---|
+| `corr(\|pitch\|, fell)` | +0.309 |
+| `corr( pitch,  fell)` | **-0.475** |
+| `corr(\|roll\|,  fell)` | -0.008 |
+| `corr( roll,   fell)` | **+0.079** |
+
+Failure rate by roll sign, monotone: 13.0% / 15.8% / 19.9%.
+
+**The `|.|` cost pitch about a third of its signal and cost roll all of it.** The
+decision then compared the two damaged statistics and dismissed the more damaged
+one. **And the resulting envelope removed the regime where the dismissed factor
+matters**: capping pitch at ±1.5 means the corpus never reaches the depth at
+which roll sign decides the outcome outright.
+
+**This is not a wrong number and not a wrong denominator.** The arithmetic is
+correct and the sample is adequate. The defect is that a symmetrising transform
+was applied to a quantity whose effect is antisymmetric, before the question was
+put to it. **A statistic can be blind by construction to exactly the thing it is
+being used to rule out**, and nothing in its value reveals that.
+
+**Fix.** Before screening a signed variable out on a correlation, compute the
+signed version too. If they disagree, the transform is doing the work.
+
+**Two errors on the way to this, both caught by counts rather than by reasoning:**
+the first parser took `parts[-2]` as the command family, which silently dropped
+`vel_step` and `yaw_step` — 40% of episodes, *selected by family* — and was caught
+only because the episode count came to 1091 against 1762 on disk. And the corpus
+was first assumed flat because its config carries no tilt key; a corpus known to
+be tilted has no tilt key either.
+
+**Caveat recorded honestly:** the reconstruction yields `+0.309` where the
+driver's comment says `+0.427`, flat across fall thresholds from 1000 to 3500
+rows, and that gap is unexplained. What argues the reconstruction is sound is
+that randomised inputs cannot produce `corr(pitch, fell) = -0.475`; the residual
+disagreement is in the comparison set, not in the recovered tilts.
