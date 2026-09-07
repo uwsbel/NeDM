@@ -52,3 +52,28 @@ of yaw than walking's (0.56% against 56.8%). That fits, and a fit is not a cause
 discriminator is `base36` and `armB`, whose surrogates saw the same walking data without
 excitation: if dilution is the mechanism their split should be weak or absent. Separate
 run, separate registration.
+
+## Amendment, 2026-09-07, before the fresh verdict runs
+
+**Gain.** The confirmatory run uses **k = 0.75**, not nominal. At k = 1.00 arm A diverges
+in 36 of 36 and there is no tracking to stratify; 0.75 is where the original split was
+measured, so the replication is like-for-like rather than confounded by operating point.
+Stated here because a reader will otherwise assume a verdict is at nominal gain.
+
+**E3 — is the body-motion split better than the family split?** Added because the corpus
+gap turns out to span all body-motion channels rather than yaw alone, so "turning" may be
+a proxy for realised body-motion magnitude.
+
+Operationalised in advance, since "better" is otherwise chosen after seeing it:
+
+- *separation* = |median difference in half A − median difference in half B|
+- family split: `constant+vel_step` vs `arc+weave+yaw_step`
+- motion split: median-split on per-episode median |v_body| over the scored window
+- **decision rule:** whichever separation is larger by **more than 20% of the smaller**
+  wins; within 20% is declared a **tie**, meaning the two are collinear in this stratum
+  and cannot be separated without conditions that break the correlation.
+
+**Five-way family breakdown** will also be reported. It is **not registered** — 60 per
+family now permits it where 36 episodes did not, and a graded effect across families
+would be structure the two-bucket split cannot show. Primary remains the registered
+binary split.
