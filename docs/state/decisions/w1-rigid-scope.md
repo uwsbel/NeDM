@@ -2404,3 +2404,41 @@ though it generalised.
 
 **The n=1 that remains is unchanged and is on the noise-ON side** -- the symmetric
 cell (`70627b8`, queued) is what closes it. Seed B does not touch it.
+
+### REGISTERED before the base reference curve reports its failure-mode split
+
+`NEDM_ACTION_MULT` multiplies the action (`imported_policy.py:296`), so **k < 1 is
+REDUCED control authority and k > 1 is amplified.** The screen's failure criterion is
+an OR over two modes it already records separately in `per_episode`:
+
+    short      episode ends before 1500 rows, commands bounded   -> the robot FELL
+    unbounded  max|raw action| > 1e6                             -> it DIVERGED
+
+**These have opposite gain dependence, and the pooled rate hides it.** Under-authority
+makes a controller fall; over-authority makes it oscillate and diverge.
+
+> **Registered: base's 22-33% failures at k=0.85-0.90 are predominantly `short`, not
+> `unbounded` -- falls from under-actuation, the expected behaviour of any controller
+> whose actions are scaled to 85-90%.** If they come back predominantly `unbounded`,
+> the screen is detecting something that is not under-actuation and my reading of the
+> instrument is wrong.
+
+**This is what decides whether "v4 is base plus half again" is a legal sentence.** If
+base's rate at k=1.00 is falls and v4's is divergences, the two rates are different
+quantities and their ratio means nothing -- the pooling error one level up from the
+denominator errors.
+
+**A second reason the comparison is not yet legal:** base scores 43/43 on the verdict
+and some non-zero rate on the screen, but **the two instruments do not share an
+episode set.** The verdict scores 43 dataset-derived episodes; the screen runs 8
+synthetic standing conditions x 5. A rate from one is not a denominator for the other
+until that is reconciled.
+
+#### The anomaly this framing exposes
+
+    v4    condition 1, k 0.90 -> 0.95    5/5 fail -> 0/5     MORE authority, better
+    armA  all conditions, k 0.90 -> 0.95  23/40  -> 40/40    MORE authority, WORSE
+
+**armA degrading as gain rises toward nominal is the direction that under-actuation
+cannot explain**, and it is the one result in the sweep that needs a mechanism rather
+than a rate.
