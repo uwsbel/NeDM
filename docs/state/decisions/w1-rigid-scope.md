@@ -2245,3 +2245,45 @@ the crossing bracket is not a single step, at 40 episodes per rung.
 **Per-rung standard errors are reported, not just the interpolated crossing** -- the
 crossing hides the sampling noise that produced it, which is what let 0.925 look
 exact when both bracketing pairs happened to straddle 0.5 symmetrically.
+
+### REGISTERED before cell 2's verdict returns: the intermediate branch
+
+The original registration covers only the ends:
+
+    ~20 of 43   -> input_noise_sigma IS the regression
+    ~0-2        -> it is a correlate
+    ~5-15       -> NOT COVERED
+
+**Registered now, while the verdict is still running:**
+
+> **An intermediate count means the key is PARTIALLY CAUSAL** -- removing it recovers
+> some of the gap and not all. That is a third claim, distinct from both branches,
+> and its follow-up is a **dose-response across `input_noise_sigma` values**, not
+> another binary cell.
+
+### And the abstention does NOT predict an intermediate result
+
+I wrote that cell 2's landing in the no-prediction gap suggested "intermediate, not a
+restoration." **That is wrong and it is the reading pre-registration exists to
+prevent.** Abstention means **the features do not place it**, not that the answer
+lies between. Nothing was ever measured inside the gap; it is empty space between two
+labelled clusters, and the verdict could be 20 or 0 with equal consistency.
+
+**There is a concrete reason the axes cannot order this**, and it is visible in the
+only two points whose outcomes differ:
+
+| policy | rho | max abs action | verdict |
+|---|---|---|---|
+| v4 | 0.4591 | 3.9550 | 20 of 43 |
+| base | 0.4919 | 2.4569 | 43 of 43 |
+
+**On `rho`, base is HIGHER than v4 and does BETTER. On `|a|`, base is LOWER and does
+better.** The two features order the survivor class in *opposite directions*. Cell2-A
+sits above v4 on both -- which argues "better" by one axis and "worse" by the other.
+
+**Every other reference point is 0 of 43**, so the failure class carries no
+within-class ordering either.
+
+> **The predictor separates survivors from failures and has essentially no resolution
+> on "how many of 43" -- which is the quantity both branches are stated in. It was
+> built to classify and is being read for a count.**
