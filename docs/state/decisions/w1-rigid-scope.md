@@ -3092,3 +3092,35 @@ by the experimenter. **Only the band-clustering claim does.**
 inflated by a single nose-up episode.** At these n it needs a rank test. **The sign was
 registered before the split was seen, which is what makes it evidence at all; the
 magnitude is not quotable.**
+
+### The 2x2 at the SURROGATE level, before the symmetric cell's verdict
+
+    cell                          epochs   val_loss   rollout_sel   verdict
+    A  sigma 0.0   seed ...801       80    0.002806      8.8339      22/43
+    B  sigma 0.0   seed ...802       80    0.002803      3.5918      27/43
+    C  sigma 0.05  seed ...801       80    0.007559      0.5796       0/43
+    D  sigma 0.05  seed ...802       80    0.007922      2.0275     running
+
+    noise effect  2.69x at seed ...801,  2.83x at seed ...802
+    seed  effect  1.001x at sigma 0.0,   1.048x at sigma 0.05
+
+**On `val_loss` the design does exactly what it was built to test: the flag moves the
+surrogate 2.7-2.8x on both seeds, and the seed moves it under 5%.**
+
+#### But the two surrogate metrics disagree about cell D, and I am recording that now
+
+`rollout_sel` is not stable across seeds -- 8.83 against 3.59 at sigma 0.0 (2.5x) and
+0.58 against 2.03 at sigma 0.05 (3.5x). **It is the multi-step rollout metric, and the
+fine-tune optimises through branch rollouts**, so it is not obviously the less relevant
+of the two.
+
+    by val_loss     D looks like C  (0.0079 vs 0.0076)          -> expect ~0/43
+    by rollout_sel  D looks unlike C (2.03 vs 0.58, 3.5x better) -> expect better than 0
+
+**And `rollout_sel` does not order the three known verdicts** -- 8.83 gave 22, 3.59
+gave 27, 0.58 gave 0 -- so it is not a clean predictor either. **The point is only that
+the surrogate-level evidence is not unanimous, and I would rather say so before the
+number arrives than explain afterwards which metric I had been watching.**
+
+**The registered branches at `d645afd` are unchanged and this does not amend them.**
+They are about the surviving-pair count, not about either surrogate metric.
