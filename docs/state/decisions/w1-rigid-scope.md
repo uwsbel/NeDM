@@ -3190,3 +3190,42 @@ time. It is not evidence that `rollout_sel` is the better metric.**
 `34171f8` registered that its call counted for nothing either way. **It was wrong
 again, on inputs (rho 1.2597, |a| 6.0899) far outside its fitting range.** Two wrong
 calls and one abstention, out of three out-of-sample cases. **It stays retired.**
+
+### My projection of the unfiltered pass was wrong, and the reason is a second selection
+
+    projection at 47% (the verdict cell's rate)   v4 121/269   net -110
+    projection at 40%                             v4 106/269   net -125
+    projection at 55%                             v4 141/269   net  -90
+    MEASURED                                      v4 167/269   net  -64
+
+**All three were wrong and the answer is outside the range I quoted.** The sign was
+determined, as I said; **the magnitudes were not mine to give.**
+
+**The error is entirely in one imported rate:**
+
+    v4 on base-successes, verdict cell (cell-filtered)     20/43    46.5%
+    v4 on base-successes, unfiltered (no cell)            153/231   66.2%
+
+**I transplanted 47% from a cell-filtered population onto an unfiltered one** -- the
+exact move I spent the night objecting to in others, and the lesson
+*"a fact travels; the conditions that made it true do not"* is already in the file
+under my name.
+
+#### But the 19.7-point gap is itself a finding
+
+**The verdict's cell selects a region where v4 is unusually bad.** Base's completion
+rate is comparable across the two corpora (85.9% in `go2_cell_a3`, 83.7% in the merged
+set), so this is not a difficulty difference between corpora -- **it is the cell.**
+
+> **So the verdict carries TWO selection effects in OPPOSITE directions.** It conditions
+> on base having succeeded, which hides v4's 37% completion rate on base's failures and
+> flatters base. And it conditions on `-0.18 < cmd <= -0.02`, a band where v4 completes
+> 47% rather than 66%, which flatters base again.
+>
+> **`20/43` is not simply "one region of v4's behaviour". It is the region of that
+> region where v4 does worst.**
+
+**What this does not change:** the net is still solidly negative at -64 over 269
+episodes, and v4 still completes fewer episodes than base on any population measured.
+**The direction survives all of it. The magnitude has now been wrong twice, both times
+from a rate carried across a selection boundary.**
