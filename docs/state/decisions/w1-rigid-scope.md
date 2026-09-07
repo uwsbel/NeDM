@@ -3876,3 +3876,49 @@ been changed.** Fixed at `430702e`; the raw shards still carry the wrong value a
 the merged index is correct.
 
 > **Recording a defect does not fix it, and the entry did not distinguish the two.**
+
+### The [0,+1) check should CHANGE TYPE, not go void
+
+The impossibility as registered has a perverse property: **it is likeliest to be live
+exactly when it has least power**, because a thin band is easier for arm A to sweep.
+Annotating that with the episode count does not remove the incentive to prefer a thin
+band.
+
+**The fix is that the band always yields a check, in one of two forms:**
+
+    A = 100%   LOGICAL impossibility. B > A is arithmetically impossible, so a
+               reported gain is a PIPELINE BUG. Not statistical -- equally binding
+               at n=40 and n=124.
+
+    A < 100%   STATISTICAL null. B - A should be ~0 where tilt does not matter.
+               This is the specificity check with scientific content.
+
+**And the power inverts, so the two forms cover each other:**
+
+    discordant pairs, all favouring B:   5 -> p 6.3e-02    15 -> 6.1e-05
+                                        10 -> p 2.0e-03    20 -> 1.9e-06
+
+    thin band  -> A likelier to sweep -> logical form, binding regardless of n
+    thick band -> A likelier to miss  -> null form, MORE power the thicker it is
+
+> **No band size makes the check disappear, so there is nothing to choose.** The
+> evaluator should print which form applied and its result, never `VOID` -- an absence
+> is not an outcome.
+
+#### And the val-coverage check I signed off was on the wrong set
+
+I verified 68-124 val episodes per band on **3129 indexed** episodes. The surrogates
+train on **~2550 admissible** ones, filtered by the same nose-down-concentrated rule.
+**`[-3.1,-2.0)` lands nearer 43-55 than 68**, so the margin I claimed was smaller than
+stated. **Recomputed on the admissible set before training, as the gate.**
+
+#### Truncation: my suggestion did not transfer
+
+    old corpus   500 excluded, median 131 rows, 156 admissible in SOME frames
+    new corpus   median cut row 0 -- inadmissible at the first LOGGED frame
+
+**`warmup_s` is discarded before recording, so row 0 is already post-ramp,
+post-settle, post-prewalk.** These episodes were out of bounds before the scored window
+existed, **so they never entered the regime truncation was designed to preserve** --
+truncation rescues 3 in 242. **The suggestion came from a corpus where failures had a
+run-up and landed on one where failure precedes recording.**
