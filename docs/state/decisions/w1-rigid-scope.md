@@ -2728,3 +2728,49 @@ form and the lateral component is doing something specific.
 **`base_matchw` IS armB** (md5 `7c0020ec3829`, surrogate `go2_mix36_base_bothweights`),
 and its own header says it is deliberately NOT base36, whose surrogate is
 `go2_mix36_base`. **They are two distinct arms and both belong in the table.**
+
+### THE POLICY CANNOT SEE THE TILT: `_projected_gravity` is hardcoded to world -Z
+
+`imported_policy.py:223-227` computes the gravity observation **from the base
+quaternion alone**. It never queries the system, so `SetGravitationalAcceleration`
+cannot reach it. The 45-vector has no other world-frame term -- no base linear
+velocity, no height.
+
+Combined with the yaw-only spawn (`collect_go2_smoke.py:392`), the robot starts
+upright, `q = identity`, and:
+
+    roll  0.0 pitch  0.0   policy SEES [0,0,-1]  TRUE [0,0,-1]              error 0.00 deg
+    roll  0.0 pitch -4.5   policy SEES [0,0,-1]  TRUE [-0.078,0,-0.997]     error 4.50 deg
+    roll -3.0 pitch -9.0   policy SEES [0,0,-1]  TRUE [-0.156,0.052,-0.986] error 9.49 deg
+
+**The observation error equals the full tilt.**
+
+#### This corrects my earlier objection, which was wrong for the reason I gave
+
+The rotation argument is sound: plane + gravity + upright robot is rotation-equivalent
+to a slope, and `tan(theta)` is the same in either frame. **The friction-cone objection
+is withdrawn -- the DYNAMICS map.**
+
+**The OBSERVATION does not map.** Rotate the world so gravity is vertical and the robot
+stands normal to a slope with quaternion `R`; a correct `projected_gravity` would
+return the tilted vector and the policy would see the slope. Ours returns `[0,0,-1]`.
+**The rotation carries the dynamics and not the sensing, because the sensing is
+computed under an assumption the rotation invalidates.**
+
+#### And it is worse than blindness -- it is a wrong attitude reference
+
+The quaternion does change as the robot tips, so the policy sees *some* gravity signal.
+But it is the direction of world -Z, not of the actual field. **The policy holds
+attitude against a vertical that is not vertical**, fighting to stand normal to a
+horizontal ground plane while the field pulls it sideways. On a real slope with correct
+sensing it would lean into the slope; here it cannot, because it does not know there is
+one.
+
+> **This axis measures rejection of an UNOBSERVED, MIS-SENSED gravity disturbance. It
+> is not slope walking.** Arm comparisons on it stay valid -- every arm is equally
+> mis-informed -- but no result from it should be described as terrain or slope
+> performance.
+
+**A one-line fix exists** (normalise the system's gravity into the body frame instead
+of assuming world -Z) **and it would change every number on this axis, so it must not
+be applied underneath a running comparison.** It is a different experiment.
