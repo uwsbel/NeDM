@@ -4359,3 +4359,42 @@ wrong value.
 
 Practically: when a step reports success, ask what it should have *produced* and confirm
 the artifact exists with the right size, count and range. Not whether it said it worked.
+## A fact travels; the conditions that made it true do not
+
+Distinct from *a broken audit that reports benignly*. There, an instrument fails
+and reports something plausible. **Here nothing fails**: a correct measurement is
+correctly reported, correctly quoted, and lands somewhere its precondition no longer
+holds. Three instances in two hours on 2026-09-07:
+
+| fact | precondition where established | context it was carried into |
+|---|---|---|
+| `scored()` rejects below 1500 rows | verdict episodes are ~3884 rows, so 1500 is 39% | the screen's ~2000-row episodes, where it is a **75%** survival bar |
+| site a threshold in the gap between populations | the command populations are separated -- nothing between 2.4 and 8e15 | episode **length**, where failed episodes span 248 to 3958 and there is no gap |
+| rows 0-125 are byte-identical across arms | `--log-warmup` runs record from t=0 | verdict CSVs, which record from `warmup_s` -- **the prefix is not in them at all** |
+
+Each fact was true. Each was quoted accurately. **Each became false on arrival.**
+
+> **When reusing a fact, restate its precondition and check it holds in the new
+> context.**
+
+### How each was caught, which is the same way
+
+**Not by re-deriving the fact — by an output that could not be true.**
+
+    a fitted k* of -28.1        on a curve whose rungs run 0/8 .. 7/8
+    a "shared" prefix max       spanning 33 orders of magnitude across arms
+                                that were supposed to share it
+
+**A plausible value in either place would have been believed.** The first was caught
+because a fragile estimator failed loudly where a robust one would have absorbed the
+problem and returned something believable.
+
+### And a conclusion can survive its own argument being wrong
+
+The claim *"the shared minimum `fell_at_s` of 1.20 s is pre-policy"* was first argued
+from the byte-identical prefix -- **an argument that turned out not to apply to
+verdict data at all.** It survives on an independent route: `pose_ramp 0.75 +
+settle 0.5 = 1.25 s`, and `fell_at` is stamped in **simulation** time, so 1.20 falls
+inside the settle regardless of what is recorded. **Two routes existed; only one was
+sound; the conclusion was right for the other reason.** Worth separating "the
+conclusion holds" from "the argument holds" when reporting either.
