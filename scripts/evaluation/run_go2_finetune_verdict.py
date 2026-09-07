@@ -179,23 +179,37 @@ def arm_cmd(spec, ckpt, outdir):
             "--output-dir", outdir, "--overwrite", "--progress-interval-s", "99"]
 
 
-def arm_env(spec):
-    return dict(os.environ, PYTHONPATH=CHRONO, NEDM_SEED_OFFSET=str(spec["off"]))
+def arm_env(spec, action_mult=None):
+    """Subprocess environment. action_mult is scoped to the TREATED arm only.
+
+    NEDM_ACTION_MULT scales the policy's output, so inheriting it from the ambient
+    environment silently applies it to the baseline replay check as well -- and the
+    replay then does not reproduce bit-identically, aborting the run with NOT
+    MEASURABLE. That is the guard working, but the contamination is the bug. The
+    variable is therefore STRIPPED from the inherited environment and re-set only
+    where it is meant to apply, so a k-scaled treated arm can be compared against an
+    unscaled recorded baseline without disabling the replay check.
+    """
+    e = dict(os.environ, PYTHONPATH=CHRONO, NEDM_SEED_OFFSET=str(spec["off"]))
+    e.pop("NEDM_ACTION_MULT", None)
+    if action_mult is not None and action_mult != 1.0:
+        e["NEDM_ACTION_MULT"] = repr(float(action_mult))
+    return e
 
 
-def run_arm(spec, ckpt, outdir):
+def run_arm(spec, ckpt, outdir, action_mult=None):
     """Blocking single-episode run, used by the replay check."""
     os.makedirs(outdir, exist_ok=True)
-    p = subprocess.run(arm_cmd(spec, ckpt, outdir), env=arm_env(spec),
+    p = subprocess.run(arm_cmd(spec, ckpt, outdir), env=arm_env(spec, action_mult),
                        capture_output=True, text=True)
     got = glob.glob(f"{outdir}/episodes/*.csv")
     return (got[0] if got and p.returncode == 0 else None)
 
 
-def popen_arm(spec, ckpt, outdir):
+def popen_arm(spec, ckpt, outdir, action_mult=None):
     """Same invocation as run_arm, launched without blocking so a batch runs in parallel."""
     os.makedirs(outdir, exist_ok=True)
-    return subprocess.Popen(arm_cmd(spec, ckpt, outdir), env=arm_env(spec),
+    return subprocess.Popen(arm_cmd(spec, ckpt, outdir), env=arm_env(spec, action_mult),
                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
@@ -305,6 +319,11 @@ def main():
     ap.add_argument("--replay-check", type=int, default=5)
     ap.add_argument("--concurrency", type=int, default=8)
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--action-mult", type=float, default=1.0,
+                    help="scale the TREATED policy's output by this factor. Applied only "
+                         "to the treated arm; the baseline replay check runs unscaled, so "
+                         "it stays a valid check. See imported_policy.NEDM_ACTION_MULT -- "
+                         "a gain-margin diagnostic, not a fix.")
     ap.add_argument("--own-machine-only", action="store_true",
                     help="drop episodes collected on another machine and score only "
                          "this host's, which is the stratified design the abort message "
@@ -431,7 +450,7 @@ def main():
     done = 0
     for i in range(0, len(eligible), a.concurrency):
         batch = eligible[i:i + a.concurrency]
-        procs = [(s, popen_arm(s, a.ckpt, s["out"])) for s in batch]
+        procs = [(s, popen_arm(s, a.ckpt, s["out"], a.action_mult)) for s in batch]
         for s, pr in procs:
             pr.wait()
             got = glob.glob(f"{s['out']}/episodes/*.csv")
