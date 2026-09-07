@@ -2146,6 +2146,32 @@ Paired against the strongest inexpensive baseline (analytic), the imagination **
 does not help. In the full-bank regime, where feasibility and the deadline must also be predicted, the ordering is
 unchanged (+2.55 % / +1.55 %) and the imagination's picks are slightly *less* compliant (0.59–0.62 vs 0.63).
 
+Three regimes are reported, not two: (a) hands over both feasibility and the deadline, which cannot support any
+planner claim; **(a′) hands over the Chrono-feasible bank but leaves the deadline call to each arm** — the regime
+the plan actually asks for (+1.45 % / +2.50 % against analytic); and (b) the full bank. The conclusion is identical
+in all three.
+
+**Against the plan's designated "primary inexpensive competitor" — the direct learned predictor — the imagination is
+a tie, not a loss:** −0.28 % (CI −1.25 to +0.86) in (a), −0.19 % (CI −1.44 to +1.07) in (a′). The loss is specifically
+against the *analytic* model, which is the stronger of the two. Either way the 5 % gate is missed by an order of
+magnitude, and completion is not in the imagination's favour: on the full bank it picks a genuinely compliant route
+on 59.2 % / 62.0 % of layouts against 62.7 % (analytic) and 67.3 % (learned predictor).
+
+**Why it loses — the optimiser's curse, measured.** Selecting the minimum predicted work preferentially selects the
+candidates an arm under-predicts, so the predicted/true ratio at the pick should sit below the arm's own average:
+
+| arm | ratio over all compliant candidates | ratio at its pick (full bank) | curse |
+|---|---|---|---|
+| analytic | 1.021 | 1.019 | **−0.002** |
+| direct learned predictor | 1.068 | 1.053 | −0.015 |
+| imagination, frozen | 1.031 | 0.945 | −0.086 |
+| imagination, fine-tuned | 1.356 | 1.177 | **−0.180** |
+
+The analytic model is essentially immune; the imagination is exploited by its own argmin by 40–90×
+more. Its per-route error is large enough (MAPE 23–33 %) that the cheapest-looking candidate is
+usually just the most under-predicted one. This is the §8.1/§9.3 curse again, now measured against
+a baseline that does not suffer from it.
+
 The pre-registered gate — ≥ 5 % paired work reduction against the strongest inexpensive baseline — **fails**, in the
 wrong direction. It is not a deadline artefact: over slack K ∈ {0.8 … 2.0} the imagination is never best (analytic
 wins at tight deadlines, the learned predictor at loose ones). It is also the least accurate arm at its own pick

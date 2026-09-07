@@ -539,6 +539,33 @@ def main() -> int:
         txt += rows_t
         txt.append("")
 
+    # ------------------------------------------------------------------ the optimiser's curse, made explicit
+    ref = {}
+    comp_rows = [r for r in truth if r["compliant"]]
+    for name, arm in arms.items():
+        pr = arm["pred"]
+        rr = [pr[r["id"]]["w"] / max(r["w_pos_kj"], 1e-9) for r in comp_rows if r["id"] in pr]
+        tr = [pr[r["id"]]["t"] / max(r["time_s"], 1e-9) for r in comp_rows if r["id"] in pr]
+        ref[name] = {"n_compliant_candidates": len(rr),
+                     "mean_pred_over_true_work": float(np.mean(rr)),
+                     "mean_pred_over_true_time": float(np.mean(tr))}
+        for reg in regimes:
+            at = result["regimes"][reg]["overall"][name].get("pred_at_pick_work_ratio")
+            ref[name][f"at_pick_{reg}"] = at
+            ref[name][f"curse_{reg}"] = (at - ref[name]["mean_pred_over_true_work"]) if at is not None else None
+    result["optimisers_curse"] = ref
+    txt.append("=" * 132)
+    txt.append("THE OPTIMISER'S CURSE: each arm's predicted/true work ratio over ALL compliant candidates, and at the candidate it PICKED.")
+    txt.append("Selecting the minimum predicted work preferentially selects candidates the arm under-predicts, so the ratio at the pick")
+    txt.append("should sit below the arm's own average ratio; the gap is the curse.")
+    txt.append("=" * 132)
+    txt.append(f"  {'arm':<20}{'n cand':>8}{'all cand':>10}{'a_compliant':>13}{'a_feasible':>12}{'b_full':>9}{'curse (b_full)':>16}")
+    for name, r in ref.items():
+        txt.append(f"  {name:<20}{r['n_compliant_candidates']:>8}{r['mean_pred_over_true_work']:>10.3f}"
+                   f"{f(r['at_pick_a_compliant'], 3, 13)}{f(r['at_pick_a_feasible'], 3, 12)}{f(r['at_pick_b_full'], 3, 9)}"
+                   f"{f(r['curse_b_full'], 3, 16)}")
+    txt.append("")
+
     # ------------------------------------------------------------------ gate sensitivity (full bank only)
     gs = {}
     txt.append("=" * 132)

@@ -825,6 +825,19 @@ The learned arm additionally takes the K=1.0 deadline as an INPUT FEATURE, so it
    2.00            13.04          11.05           9.40          17.17          12.08           9.83          12.70          15.08          12.53          13.83          12.50
 
 ====================================================================================================================================
+THE OPTIMISER'S CURSE: each arm's predicted/true work ratio over ALL compliant candidates, and at the candidate it PICKED.
+Selecting the minimum predicted work preferentially selects candidates the arm under-predicts, so the ratio at the pick
+should sit below the arm's own average ratio; the gap is the curse.
+====================================================================================================================================
+  arm                   n cand  all cand  a_compliant  a_feasible   b_full  curse (b_full)
+  analytic                1843     1.021        1.006       1.020    1.019          -0.002
+  cheap                   1843     1.068        1.059       1.068    1.053          -0.015
+  nrd_frozen              1843     1.031        0.951       0.945    0.945          -0.086
+  nrd_moms1               1843     1.356        1.265       1.176    1.177          -0.180
+  nrd_frozen_floor        1843     1.039        0.964       0.956    0.955          -0.084
+  nrd_moms1_floor         1843     1.358        1.267       1.176    1.178          -0.180
+
+====================================================================================================================================
 GATE SENSITIVITY (full bank): the learned arm's feasibility threshold is a free choice, so it is swept.
 ====================================================================================================================================
    p_feasible >=   picks   abst   comp   comp%    W+ kJ  regret kJ

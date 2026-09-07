@@ -39479,6 +39479,74 @@
   "n_feasible_runs": 4224,
   "layouts_with_a_compliant_candidate": 385
  },
+ "optimisers_curse": {
+  "analytic": {
+   "n_compliant_candidates": 1843,
+   "mean_pred_over_true_work": 1.0210698342894735,
+   "mean_pred_over_true_time": 1.0184633290825948,
+   "at_pick_a_compliant": 1.0063633670430943,
+   "curse_a_compliant": -0.014706467246379251,
+   "at_pick_a_feasible": 1.0196131146512217,
+   "curse_a_feasible": -0.00145671963825178,
+   "at_pick_b_full": 1.019348019891452,
+   "curse_b_full": -0.0017218143980215483
+  },
+  "cheap": {
+   "n_compliant_candidates": 1843,
+   "mean_pred_over_true_work": 1.0678423551614733,
+   "mean_pred_over_true_time": 1.025517342475542,
+   "at_pick_a_compliant": 1.0586148108788163,
+   "curse_a_compliant": -0.00922754428265704,
+   "at_pick_a_feasible": 1.068404246678969,
+   "curse_a_feasible": 0.0005618915174956385,
+   "at_pick_b_full": 1.0526878753229827,
+   "curse_b_full": -0.015154479838490609
+  },
+  "nrd_frozen": {
+   "n_compliant_candidates": 1843,
+   "mean_pred_over_true_work": 1.0307713054780723,
+   "mean_pred_over_true_time": 1.0044832297963109,
+   "at_pick_a_compliant": 0.9506223511004759,
+   "curse_a_compliant": -0.0801489543775964,
+   "at_pick_a_feasible": 0.9448936409353482,
+   "curse_a_feasible": -0.08587766454272405,
+   "at_pick_b_full": 0.9447641257611359,
+   "curse_b_full": -0.08600717971693639
+  },
+  "nrd_moms1": {
+   "n_compliant_candidates": 1843,
+   "mean_pred_over_true_work": 1.356425787823521,
+   "mean_pred_over_true_time": 1.1159580814892696,
+   "at_pick_a_compliant": 1.2652346851282377,
+   "curse_a_compliant": -0.09119110269528341,
+   "at_pick_a_feasible": 1.1759084925871932,
+   "curse_a_feasible": -0.18051729523632787,
+   "at_pick_b_full": 1.1768338873826085,
+   "curse_b_full": -0.17959190044091256
+  },
+  "nrd_frozen_floor": {
+   "n_compliant_candidates": 1843,
+   "mean_pred_over_true_work": 1.0388567481807294,
+   "mean_pred_over_true_time": 1.0044832297963109,
+   "at_pick_a_compliant": 0.9636177917453467,
+   "curse_a_compliant": -0.0752389564353827,
+   "at_pick_a_feasible": 0.9563893900523096,
+   "curse_a_feasible": -0.08246735812841977,
+   "at_pick_b_full": 0.9549127937428077,
+   "curse_b_full": -0.08394395443792169
+  },
+  "nrd_moms1_floor": {
+   "n_compliant_candidates": 1843,
+   "mean_pred_over_true_work": 1.3580638668934455,
+   "mean_pred_over_true_time": 1.1159580814892696,
+   "at_pick_a_compliant": 1.2668848203765142,
+   "curse_a_compliant": -0.09117904651693132,
+   "at_pick_a_feasible": 1.1764525135404473,
+   "curse_a_feasible": -0.18161135335299816,
+   "at_pick_b_full": 1.1783397570963905,
+   "curse_b_full": -0.179724109797055
+  }
+ },
  "gate_sensitivity_cheap_full_bank": {
   "0.1": {
    "n_layouts": 547,
