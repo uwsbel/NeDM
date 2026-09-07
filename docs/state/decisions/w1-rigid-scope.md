@@ -1991,3 +1991,64 @@ isolated change, and the 2x2's column heading is weaker than it looks.
 **Also registered:** if the verdict produces no surviving pairs, no `--summary-json`
 is written and the family split is **UNAVAILABLE, not zero.** v4's run wrote none,
 which is why this is stated in advance rather than discovered.
+
+### The dose-response, third version, with a per-episode interval
+
+Withdrawn twice: first as epoch-wise minima of checkpoints never saved, then as a
+0.57% single-family prefix. Held a third time pending an error bar. **It now has
+one, and it survives.**
+
+`last.pt` for all three, full validation set (2,244,752 windows over **615 of 621**
+episodes -- the other six are shorter than the 128-step window and yield none),
+bootstrap resampling **whole episodes**, 5,000 draws:
+
+| contrast | stratum | n eps | difference | 95% CI |
+|---|---|---|---|---|
+| exc25 − base | straight | 227 | **+0.001067** | [+0.000723, +0.001416] |
+| exc25 − base | turning | 388 | **+0.000926** | [+0.000603, +0.001312] |
+| exc25 − base | **ALL** | 615 | **+0.000978** | [+0.000737, +0.001251] |
+| exc50 − base | straight | 227 | **+0.003269** | [+0.002668, +0.003920] |
+| exc50 − base | turning | 388 | **+0.003759** | [+0.002968, +0.004733] |
+| exc50 − base | **ALL** | 615 | **+0.003578** | [+0.003015, +0.004252] |
+
+**Every interval excludes zero. Monotone in dose, and uniform across strata --
+not a cancellation.**
+
+> **Adding excitation data degrades one-step accuracy on the walking validation
+> distribution, monotonically with dose: +0.00098 at 25% and +0.00358 at 50%,
+> both significant at the episode level.**
+
+**The interval is the point.** Window counts would have given ~2.24M "observations"
+and an interval roughly 60x too narrow; windows within an episode overlap and share
+a trajectory, so the effective n is 615. **The prefix result proved that before this
+was run** -- five arc episodes read 30x different from the full arc stratum, which
+is between-episode variance dominating.
+
+**Scope, stated because it has been overstated twice:** this is one-step prediction
+error on the WALKING distribution. It says nothing about excitation-distribution
+accuracy, where the same checkpoints show a ~6x improvement, and nothing about
+closed-loop behaviour, where the tracking split runs in the opposite direction on
+one stratum. **Those are three different measurements and they do not agree.**
+
+### Registered BEFORE the v4 replication's verdict: how to read a positive result
+
+After nine dead mechanisms, a non-zero result will be the most scrutinised number of
+the session, so its reading is fixed now.
+
+```
+  ~20 of 43  -> v4 REPRODUCES on its own data with current code. The variable
+                separating v4 from every other arm is its DATASET, not its channel
+                count and not the pipeline. The fourth cell then becomes meaningful
+                and asks whether that holds at 36-D.
+  ~0-2       -> v4 does NOT reproduce. The one non-zero fine-tune result this
+                project has is a single unreproducible run, and every comparison
+                that used it as the positive reference -- including the entire
+                34-vs-36 line -- rested on it.
+  in between -> no clean reading; report the number and the margin, claim nothing.
+```
+
+**A ~20 would NOT establish that the unwrap is the variable.** v4's dataset predates
+the provenance instrumentation entirely, so it differs from the current one in an
+unknown bundle of ways; "pre-unwrap" names a vintage. **It would establish
+reproducibility and localise the cause to the dataset, which is a strictly weaker
+and more defensible claim than the one the 2x2's axis label implies.**
