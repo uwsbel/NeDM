@@ -334,6 +334,34 @@ def mcnemar(b_bad, t_bad):
     return n01, n10, p, 2 / 2 ** d          # p, and the smallest attainable p
 
 
+
+def arms_record(a, base_ckpt):
+    """What this run compared. Recorded on EVERY exit path, including the aborts.
+
+    A summary written only on success means the runs most in need of provenance --
+    the ones that stopped early and will be re-run under changed conditions -- leave
+    no record of what they tried. Audited 2026-09-07: of eight summaries on this box,
+    none named either arm, and two could not be classified at all.
+    """
+    return {"treated_ckpt": os.path.abspath(a.ckpt),
+            "treated_action_mult": 1.0 if a.action_mult is None else float(a.action_mult),
+            "baseline_ckpt": os.path.abspath(base_ckpt),
+            "baseline_action_mult": 1.0,
+            "matched_gain": a.action_mult is None or a.action_mult == 1.0}
+
+
+def write_stub(a, base_ckpt, host, status, why):
+    """Summary for a run that produced no verdict, so the attempt stays auditable."""
+    if not a.summary_json:
+        return
+    import json as _j
+    _j.dump({"machine": host, "n": 0, "cell": [a.cell_lo, a.cell_hi],
+             "arms": arms_record(a, base_ckpt), "argv": sys.argv,
+             "verdict": status, "why": why, "pairs": []},
+            open(a.summary_json, "w"), indent=2)
+    print(f"  wrote {a.summary_json} (no verdict; the attempt is recorded)")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--ckpt", required=True, help="fine-tuned checkpoint (treated arm)")
@@ -376,6 +404,7 @@ def main():
                     help="write machine-tagged per-episode paired differences for "
                          "stratified combination across boxes")
     a = ap.parse_args()
+    host = socket.gethostname()
 
     # SETTING NEDM_ACTION_MULT IN THE ENVIRONMENT DOES NOTHING HERE, AND SAYING SO
     # IS THE POINT. arm_env pops it deliberately, so that a stray value in the
@@ -426,6 +455,7 @@ def main():
             print(f"\nVERDICT: NOT MEASURABLE -- baseline root contributed no usable\n"
                   f"episodes ({len(found)} files found, {seen} parsed). Refusing to\n"
                   f"report a count that silently omits a whole half.")
+            write_stub(a, BASE_CKPT, host, "NOT MEASURABLE", "baseline root contributed no usable episodes")
             return 2
     print("  rejected: " + (", ".join(f"{v} {k}" for k, v in rejected.most_common()) or "none"))
 
@@ -441,7 +471,7 @@ def main():
     # and the paired differences are combined afterwards. Machine cancels within each
     # pair. This aborts rather than skipping, because silently dropping the foreign
     # half is how a partial answer would come back looking like the whole one.
-    host = socket.gethostname()
+    # (hoisted above; kept for readability of the original flow)
     by_machine = Counter(sp.get("machine") for sp in eligible)
     print("  eligible by machine: " + ", ".join(f"{k}={v}" for k, v in by_machine.items()))
     foreign = {k: v for k, v in by_machine.items() if k and k != host}
@@ -455,6 +485,7 @@ def main():
               "  combined as paired differences. Do not report this n as the comparison.")
         if not eligible:
             print("\nVERDICT: NOT MEASURABLE -- no episodes from this host.")
+            write_stub(a, BASE_CKPT, host, "NOT MEASURABLE", "no eligible episodes from this host")
             return 2
         foreign = {}
     if foreign:
@@ -466,6 +497,7 @@ def main():
               f"differences afterwards; --allow-foreign overrides only if you have\n"
               f"verified replay across the two builds.")
         if not a.allow_foreign:
+            write_stub(a, BASE_CKPT, host, "NOT MEASURABLE", "eligible episodes come from a foreign machine and --allow-foreign was not given")
             return 2
     from collections import Counter
     print(f"eligible baseline episodes in the cell: {len(eligible)}")
@@ -492,6 +524,7 @@ def main():
         if not ok:
             print("\nVERDICT: NOT MEASURABLE -- the arms cannot be run on identical\n"
                   "episodes, so the pairing is void. This is not a null result.")
+            write_stub(a, BASE_CKPT, host, "NOT MEASURABLE", "replay check mismatched; the arms cannot run on identical episodes")
             return 2
 
     # --- treated arm ---------------------------------------------------------
@@ -549,6 +582,7 @@ def main():
               "failed the scoring predicate. Check the treated episodes' joint-target\n"
               "magnitudes before concluding anything about control quality: unbounded\n"
               "output and falling are different failures and only one is about walking.")
+        write_stub(a, BASE_CKPT, host, "NOT MEASURABLE", "0 surviving pairs; every treated episode failed the scoring predicate")
         return 2
     n01, n10, pmc, pmin = mcnemar(bw, tw)
     ratio_sd = T.std(ddof=1) / B.std(ddof=1)
