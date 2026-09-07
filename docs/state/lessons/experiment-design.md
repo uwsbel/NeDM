@@ -4895,3 +4895,93 @@ driver's comment says `+0.427`, flat across fall thresholds from 1000 to 3500
 rows, and that gap is unexplained. What argues the reconstruction is sound is
 that randomised inputs cannot produce `corr(pitch, fell) = -0.475`; the residual
 disagreement is in the comparison set, not in the recovered tilts.
+
+## A check aimed at the failure you anticipated is silent on the one you did not
+
+**Cost:** a published figure retracted, degrees wrong by 2x · **Found:** 2026-09-07 · **Applies to:** any value reconstructed by re-running a source
+
+Ground tilts were never recorded in the artifacts, but they are drawn from a
+seeded RNG, so they can be recovered by re-running the draw. The reconstruction
+was checked before use, and the check passed:
+
+> if the recovered tilts were misaligned with the true ones, they would be
+> effectively random and **every** correlation would sit near zero.
+> `corr(pitch, fell) = -0.475` cannot come from randomised inputs.
+
+**That argument is correct and it verified the wrong property.** Pearson
+correlation discards scale. The reconstruction had drawn from the *current*
+driver, which caps pitch at ±1.5; the corpus was collected eighteen hours earlier
+when the range was ±3.0. **Every recovered pitch was exactly half its true
+value**, perfectly aligned episode-for-episode, and the check could not see it.
+
+| | held | verified by the check? |
+|---|---|---|
+| alignment (which episode got which draw) | yes | **yes** |
+| scale (what the draw meant) | no | **no — the statistic discards it** |
+
+**The check was chosen against the failure that seemed likely — a wrong seed, a
+wrong draw order, a mis-parsed filename — and it was completely silent on the one
+that occurred. And it looked like a passing check either way.**
+
+**Cause.** A reconstruction duplicates a source, and **nothing in the artifact
+records which version of that source produced it.** The only thing that pinned it
+was episode mtime against `git log -L`, which worked only because both happened to
+be on the same machine.
+
+**The same contract had already broken once, in the opposite direction**, and the
+commit that fixed it says so: *"the verdict harness used to reconstruct these from
+a seeded RNG duplicated in its own source. That contract broke silently when the
+driver's pitch range was capped and the harness kept deriving ±3.0."* Eighteen
+hours later a reconstruction drew ±1.5 from a corpus collected at ±3.0. **Same
+contract, same silence, mirrored.**
+
+**Fix.** Record the values rather than the recipe. Where a reconstruction is
+unavoidable, pin the source by commit and verify a *scale-carrying* quantity — a
+mean, a range, a single known episode — not only a scale-invariant one.
+
+**What survived.** Correlations, being scale-invariant, were unaffected; every
+statement in degrees was retracted. **The property the flawed check verified was
+the property that let the rest of the work stand**, which is luck rather than
+method.
+
+## A threshold chosen for numerical sanity selected on the outcome
+
+**Cost:** upstream of every arm in the ladder · **Found:** 2026-09-07 · **Applies to:** any admissibility filter applied before training
+
+A dynamics-model corpus drops episodes that leave the physical envelope
+(`2x URDF per joint, |dq| <= 60.2, |v| <= 15.0, |w| <= 50.0`). The bound is
+correct: training on `|v| = 1e35` states would poison the model.
+
+```
+  dataset_index.json                3003     what the surrogate trains on
+  dataset_index.json.pre_physical   3503
+  dropped                            500     mean 131.5 rows against 3760.7 kept
+                                             499 of 500 diverged, 344 inadmissible in 100% of frames
+```
+
+**The filter selects on the outcome.** What it removes is not noise, it is the
+catastrophic tail — and the surviving corpus is conditioned on *not having blown
+up*. 363 falls and 78 divergences do remain, so the model is not failure-blind;
+what it is missing is 99.8% of one specific mode.
+
+**And nothing downstream records the conditioning.** The surrogate's
+`metadata.json` names its raw root and not the admissibility filter, so a reader
+of its provenance cannot discover that the training distribution is censored, let
+alone on what.
+
+**Two separable defects, and the second is the fixable one:**
+
+1. The filter is **whole-episode**. 156 of the 500 were admissible in *some*
+   frames — their pre-divergence run-up, which is the informative part, went out
+   with the blown-up remainder. **Truncating at the first inadmissible frame keeps
+   the approach and drops only the tail.**
+2. The censoring is **unrecorded**, so every downstream result inherits it
+   silently.
+
+**What this does and does not explain.** It can explain how often and where
+policies fine-tuned inside the model lose the robot. **It cannot explain the
+failure signature**, and a control settles that: the base controller, which never
+entered the fine-tuning loop, fails with the same `~1e35` divergence as every
+fine-tuned arm and at the largest magnitude of any of them. The blow-up is what
+the integrator does when any controller loses the robot. **The most visually
+striking part of the failure is the part the mechanism does not account for.**
