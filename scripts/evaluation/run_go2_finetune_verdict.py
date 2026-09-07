@@ -558,7 +558,23 @@ def main():
         # Machine-tagged, per-episode, so the strata can be combined later AND
         # reported separately. A machine-by-treatment interaction must stay visible;
         # pooling numbers that hide structure is the failure this study kept hitting.
+        # THE ARMS, RECORDED. Without these a summary cannot say what it compared:
+        # the treated arm runs at action_mult and the baseline at nominal, so a file
+        # holding only a median is a number whose comparison is unrecoverable. Audited
+        # 2026-09-07: of eight summaries on this box, five encoded the gain in the
+        # FILENAME by convention and two (anchor_sbel, v4_sbel) had neither the gain nor
+        # an output directory, so which comparison produced them cannot be determined
+        # from the artifacts at all.
         json.dump({"machine": host, "n": n, "cell": [a.cell_lo, a.cell_hi],
+                   "arms": {
+                       "treated_ckpt": os.path.abspath(a.ckpt),
+                       "treated_action_mult": (1.0 if a.action_mult is None
+                                               else float(a.action_mult)),
+                       "baseline_ckpt": os.path.abspath(BASE_CKPT),
+                       "baseline_action_mult": 1.0,
+                       "matched_gain": (a.action_mult is None or a.action_mult == 1.0),
+                   },
+                   "argv": sys.argv,
                    "median_paired_difference": med,
                    "exact_ci": [lo, hi], "coverage": cov,
                    "wrong_way_baseline": float(bw.mean()), "wrong_way_treated": float(tw.mean()),
