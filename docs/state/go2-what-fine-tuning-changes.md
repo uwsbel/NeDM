@@ -17,9 +17,27 @@ nominal. With both arms at the same gain, in cell4 at n=195:
    E3, family vs motion   permutation p 0.856, nothing to discriminate
 ```
 
-Pending: the same control in cell5, the tracking-capable cell, where the deadband no
-longer suppresses headroom. Until that lands the tracking null is established in one
-cell, not two.
+cell5, the tracking-capable cell, at n=221:
+
+```
+   matched gain, ALL      +0.00154   [+0.00027, +0.00418]   +0.66% of baseline error
+   straight               +0.00152   [+0.00009, +0.00343]
+   turning                +0.00199   [+0.00004, +0.00736]
+   split                  +0.00047
+```
+
+**The cell5 intervals exclude zero.** So the tracking claim needs qualifying: it is not
+that the fine-tune has no effect on tracking, but that where an effect is detectable it
+is very small and in the **harmful** direction -- 0.66% of the baseline error, at a
+commanded speed where the robot realises 56% of what it is asked.
+
+```
+              ratio   baseline err   matched-gain effect        as % of error
+   cell4      0.33      0.0886 m/s   -0.00001 [-0.0007,+0.0009]      -0.01%
+   cell5      0.56      0.2335 m/s   +0.00154 [+0.0003,+0.0042]      +0.66%
+```
+
+Still no family split anywhere: +0.00003 and +0.00047.
 
 ## Stability: real, large, replicated
 
@@ -44,13 +62,34 @@ own baseline corpus and its own physics build, at nominal gain:
 
 ## The statement
 
-**Fine-tuning does not change how well the policy tracks. It changes whether the policy
-stays stable.**
+**Fine-tuning does not meaningfully change how well the policy tracks. It changes
+whether the policy stays stable.**
+
+The hedge is load-bearing: at tracking-capable speed the fine-tune is detectably worse,
+by 0.66% of the baseline error. That is a real effect and it is two orders of magnitude
+below the -0.020 m/s the criterion was written for, and it runs the same direction as
+the stability result rather than against it.
 
 That accounts for the shape of everything measured: every tracking comparison has been
 marginal, sign-unstable and sensitive to protocol, while every stability measurement has
 been large, reproducible across machines, and predictable from the weights. The two were
 being reported as one line of evidence when only one of them had any.
+
+## A withdrawn quantification
+
+An earlier version of this reported a "headroom" per cell -- baseline error split into a
+deadband component `(1 - ratio) * |cmd|` and a residual that a tracking effect could act
+on -- and gave cell4 66% deadband with 0.030 m/s of headroom.
+
+**That decomposition is withdrawn.** It is circular: when under-realisation is the only
+error source, `(1 - ratio) * |cmd|` *is* the error, so the residual is zero by
+construction. cell5 made it visible by returning a deadband of 112% of the error and a
+negative headroom. And it is backwards on its own terms -- failing to realise the command
+is not an irreducible floor, it is exactly the deficiency a better policy would fix, so
+subtracting it removes from the denominator the thing the treatment is meant to act on.
+
+The defensible denominator is the whole baseline error, which is what the table above
+uses. It is the more demanding comparison, not the more forgiving one.
 
 ## The order this was found in
 

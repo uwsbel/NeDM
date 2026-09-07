@@ -99,22 +99,28 @@ def main():
     if len(sh) < 20:
         raise SystemExit("too few shared episodes to decompose")
 
-    # HEADROOM. A null means little in a cell where the robot barely executes the
-    # command: the baseline error is then mostly the unrealised command, which is
-    # common to both arms and which no fine-tune acts on. Reporting the deadband
-    # fraction turns "null in this cell" into a quantity a reader can weigh, and
-    # makes a null across cells a claim about the range of headroom it held across.
-    cmds = np.array([b1[k][1] for k in sh])
+    # REALISATION AND THE DENOMINATOR FOR A NULL.
+    #
+    # An earlier version of this split the baseline error into a "deadband component"
+    # (1 - ratio) * |cmd| and a residual "headroom", and reported the fine-tune's
+    # effect against the residual. That decomposition is wrong twice over. It is
+    # circular -- when under-realisation is the only error source, (1-ratio)*|cmd| IS
+    # the error, so the residual is zero by construction and came out NEGATIVE in
+    # cell5 (deadband 112% of the error). And it is conceptually backwards: failing to
+    # realise the command is not an irreducible floor, it is precisely the deficiency a
+    # better policy would fix, so counting it as unavailable removes from the
+    # denominator the very thing the treatment is supposed to act on.
+    #
+    # The defensible denominator is the whole baseline error. All of it is reducible by
+    # a policy that tracks better.
+    cmds = np.array([abs(b1[k][1]) for k in sh])
     errs = np.array([b1[k][0] for k in sh])
-    real = np.array([abs(abs(b1[k][1]) - b1[k][0]) for k in sh])   # |realised| approx
-    r = float(np.median(real) / np.median(np.abs(cmds)))
-    deadband = (1.0 - r) * float(np.median(np.abs(cmds)))
-    print(f"\n  HEADROOM: median |cmd| {np.median(np.abs(cmds)):.4f}, "
-          f"realised ratio {r:.2f}")
-    print(f"    baseline error {np.median(errs):.4f} m/s, of which deadband "
-          f"~{deadband:.4f} ({100 * deadband / np.median(errs):.0f}%)")
-    print(f"    headroom a tracking effect could act on: "
-          f"~{np.median(errs) - deadband:+.4f} m/s")
+    real = np.array([abs(abs(b1[k][1]) - b1[k][0]) for k in sh])
+    r = float(np.median(real) / np.median(cmds))
+    print(f"\n  median |cmd| {np.median(cmds):.4f}, realised ratio {r:.2f}, "
+          f"baseline error {np.median(errs):.4f} m/s")
+    print(f"    effects below are reported against that error as denominator")
+    base_err = float(np.median(errs))
 
     legs = (("as_reported", lambda k: tk[k][0] - b1[k][0]),
             ("multiplier",  lambda k: bk[k][0] - b1[k][0]),
@@ -135,6 +141,8 @@ def main():
             print(f"  {nm:<9} n={len(g):<4} median {np.median(g):+.5f}" +
                   (f"  95% CI [{c[0]:+.5f}, {c[1]:+.5f}]" if c else ""))
         print(f"  split (turning - straight) {np.median(gt) - np.median(gs):+.5f}")
+        print(f"  ALL as a fraction of baseline error: "
+              f"{100 * np.median(al) / base_err:+.2f}%")
         out = f"{a.out_prefix}_{name}.json"
         json.dump(dict(machine="kyle-sbel", n=len(pairs), cell=None,
                        median_paired_difference=float(np.median(al)),
