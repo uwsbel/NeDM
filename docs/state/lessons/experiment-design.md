@@ -4420,3 +4420,47 @@ proportional to how different its numbers are.
 
 Related to "when a result is cleaner than the world it describes", but distinct: that
 rule says what to be suspicious of, this one says what the second dataset is *for*.
+
+## Attempted and kept are not interchangeable, in either direction
+
+Two errors from the same confusion, pointing opposite ways:
+
+```
+  summary.json reported rows as  kept x WINDOW_ROWS
+      -> overcounted by 8.5x on one arm and 34x on another
+
+  an ETA computed as             attempts x WINDOW_ROWS / observed rate
+      -> concluded a healthy run would take 18 hours and it was killed
+```
+
+The collector attempts a window, applies an admissibility filter, and writes only the
+survivors. With ~96% rejected on `joint_limit`, 341 rows after twelve minutes is two kept
+windows out of six hundred attempted at 1.2 s each -- a fast run with a low yield, which
+looks identical to a slow run if you assume every attempt produces output.
+
+**A pipeline with a filter has two rates and they are not related by a constant.** Before
+inferring throughput from output volume, find the yield. And before killing a job for
+being slow, measure its per-item time rather than dividing the total by the observations.
+
+## `pkill -f` matches the shell that runs it
+
+`pkill -f collect_go2_excitation` killed the bash process executing that command, because
+the pattern appeared in its own command line. Everything after it in the compound command
+-- an `rm -rf` and a relaunch -- never ran.
+
+The visible symptom was an exit code. What identified it was noticing that the script the
+relaunch was supposed to have written **did not exist on disk**: the cleanup had not
+merely failed, it had never happened, and the difference is invisible from the exit status
+alone.
+
+```
+  counting     ps -eo args | grep -c '[c]ollect_go2_excitation'
+  launching    setsid nohup ... & disown
+```
+
+The bracket trick makes the pattern not match itself. This is the second time in one
+session that a `pkill -f` pattern matched its own invocation.
+
+**And the general form: after any cleanup or kill, verify the intended end state rather
+than reading the exit code.** A command that was itself killed reports failure in a way
+that looks like the target resisting.
