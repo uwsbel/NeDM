@@ -88,3 +88,46 @@ of the rate span being interpolated across. That was correct and this run does n
 contradict it. At n=40 the rungs are precise enough to show that **the imprecision was
 not the only problem**: even measured well, k* is the wrong statistic for this
 comparison.
+
+## The physics build does not explain the between-box spread
+
+The coordinating session found that `standing_screen`'s chrono selector cannot fire on
+this box -- its default `PYTHONPATH` names a directory with no `pychrono`, so the import
+falls through to conda -- and noted that kyle-sbel returned the lowest `k*` on both arms
+while being the one box on a different binary.
+
+Confirmed the mechanism and then measured the consequence, same seed, same checkpoints,
+two binaries:
+
+```
+   v4    conda  8e9e3865  [0, 2, 16, 24, 14, 23, 37, 40]   k* = 0.875
+   v4    source 3b0bd530  [0, 2, 16, 23, 14, 23, 37, 40]   k* = 0.879
+   armA  conda  8e9e3865  [0, 0, 20, 26, 40, 40, 40, 40]   k* = 0.850
+   armA  source 3b0bd530  [0, 0, 20, 26, 40, 40, 40, 40]   k* = 0.850
+```
+
+**One episode differs across 320.** armA is identical at every rung; v4 differs by one at
+k=0.90, moving `k*` by 0.004.
+
+**So the build does not explain kyle-sbel being lowest on both arms.** The between-box
+spread (v4 0.875-0.900, armA 0.850-0.886) is seed and corpus variation, and this box's
+numbers pool with the others after all. The confound was real, the instrument was broken,
+and the effect on this measurement is negligible -- all three are worth stating, because
+only the third could have been assumed and it was the one that had to be measured.
+
+This does not license "the builds are interchangeable" generally. It is a statement about
+rigid-terrain Go2 divergence classification, where the outcome is a coarse threshold on
+joint-target magnitude. A measurement sensitive to fine trajectory detail, or CRM
+granular terrain, could differ.
+
+## The selector, fixed
+
+`standing_screen.py` now aborts when `NEDM_CHRONO_PYTHONPATH` names a directory with no
+`pychrono/_core.so`, printing what it actually resolved and its md5, and records
+`pychrono` and `pychrono_core_md5` in every run's detail. Verified both ways: it fires on
+this box's default and passes on the source build.
+
+**A selector that silently does nothing is worse than a wrong one**, because a wrong one
+eventually produces a visible contradiction and this produced a clean run on the other
+binary. Same class as the action multiplier -- applied outside the config path, invisible
+in the artifact.
