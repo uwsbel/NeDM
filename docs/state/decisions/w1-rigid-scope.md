@@ -2678,3 +2678,53 @@ crossed and no scalar summarises them.
 **Independent replication worth recording:** their pitch +3.0 read 1/5 at roll +1.0
 and my arc test read 1/5 at roll +1.0, on different boxes with different Chrono
 builds. **The nose-up edge is real and reproduces across the build difference.**
+
+### RESULT: protective roll REMOVES the boundary, it does not shift it
+
+    arc, base, peak 36 N, wz +0.3, 5 seeds per cell
+
+      roll -3.0  pitch -4.5    0/5     rows 1775 x5
+      roll -3.0  pitch -6.0    0/5     rows 1775 x5
+      roll -3.0  pitch -9.0    0/5     rows 1775 x5
+      roll  0.0  pitch -4.5    5/5     rows 87, 87, 87, 91, 89   <- control, as required
+
+**At roll -3.0 there is no boundary out to -9.0, six times deeper than where the step
+sits at roll +1.0.** The REMOVED branch registered above is confirmed: this is a
+genuine interaction and **no scalar effective-tilt summarises it. The rebuild crosses
+two axes.**
+
+**And the protection is sign-asymmetric** -- roll +3.0 gives 5/5 at pitch -3.0 while
+roll -3.0 gives 0/5 at -9.0.
+
+#### The plumbing was verified before reporting this, because the result is odd
+
+`standing_screen.py:143-144` passes `roll` to `--ground-tilt-roll-deg` and `pitch` to
+`--ground-tilt-pitch-deg`; not swapped.
+
+#### But "ground tilt" does not tilt the ground -- it rotates GRAVITY
+
+`collect_go2_smoke.py:366-371`:
+
+    _grav_world = [9.81*sin(pitch), -9.81*sin(roll), -9.81*cos(roll)*cos(pitch)]
+    system.SetGravitationalAcceleration(...)
+
+**The ground stays horizontal and its contact normal stays vertical.** On a real slope
+the friction cone rotates with the surface; here it does not, so the two are not
+equivalent at the contacts even though the body-frame acceleration matches.
+
+**This makes the surprise arithmetic rather than physics.** At roll -3.0 / pitch -9.0
+the longitudinal component is `9.81*sin(-9deg)` = **-1.53**, twice the **-0.77** of the
+control at roll 0.0 / pitch -4.5 that fails 5/5. **The passing cell has double the
+destabilising gravity of the failing one**, so this is not a magnitude effect in any
+form and the lateral component is doing something specific.
+
+> **Nothing measured on this axis should be described as slope or terrain
+> performance.** It is a gravity-direction sweep on flat ground, and the name in the
+> flag has been carrying an assumption none of us checked.
+
+#### armB's identity, for the clean-cell table
+
+`run_armB_finetune.sh` writes `--out /home/kyle/sbel-artifacts/finetune_go2_base_matchw`.
+**`base_matchw` IS armB** (md5 `7c0020ec3829`, surrogate `go2_mix36_base_bothweights`),
+and its own header says it is deliberately NOT base36, whose surrogate is
+`go2_mix36_base`. **They are two distinct arms and both belong in the table.**
