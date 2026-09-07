@@ -164,6 +164,10 @@ def main():
     ap.add_argument("--window-rows", type=int, default=None)
     ap.add_argument("--randomise-gains", action="store_true",
                     help="ON HOLD -- forces torque as the action channel; see note above")
+    ap.add_argument("--command-envelope", action="store_true",
+                    help="branch on arc(vx, wz) across the trained envelope "
+                         "instead of constant(vx) only, which leaves wz at "
+                         "exactly zero in every episode")
     ap.add_argument("--branch-from-policy", action="store_true",
                     help="reach the initial state by RUNNING the policy, then switch to "
                          "random targets. Joint q/qd cannot be written directly on a "
@@ -265,8 +269,25 @@ def main():
             # genuinely in, and the branch time is randomised so gait phase and
             # speed vary rather than every window starting at the same point in
             # the cycle.
-            pol = ImportedGo2Policy(Path(CKPT), family="constant",  # noqa: F841 -- reused for recovery
-                                    params={"vx": float(rng.uniform(-0.8, 0.8))})
+            # THE WHOLE COMMAND VECTOR, not vx alone. Every excitation corpus so far
+            # branched on family="constant" with only a vx key, so vy and wz were
+            # commanded at exactly zero in every episode ever collected. That is why
+            # the yaw hole (|yaw| > 1 rad/s: walking 56.8%, excitation 0.56%) could
+            # not close: it was not a sampling shortfall, the channel was never
+            # commanded. Fixing set_time() made the vx draw take effect and left this
+            # untouched, so the corpus still could not reach turning states.
+            #
+            # Ranges are the policy's TRAINED envelope. Note the measured deadband
+            # (go2-command-realisation-deadband.md): commanding vx does not produce
+            # proportional vx, so this widens what is ASKED FOR and the audit has to
+            # judge what is REACHED.
+            if a.command_envelope:
+                fam, prm = "arc", {"vx": float(rng.uniform(-0.5, 0.5)),
+                                   "wz": float(rng.uniform(-1.0, 1.0))}
+            else:
+                fam, prm = "constant", {"vx": float(rng.uniform(-0.8, 0.8))}
+            pol = ImportedGo2Policy(Path(CKPT), family=fam,  # noqa: F841 -- reused for recovery
+                                    params=prm)
             pol.reset()
             branch_logged = False
             t_br = float(rng.uniform(*a.branch_s))
