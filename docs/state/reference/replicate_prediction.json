@@ -35,5 +35,17 @@
       6.8732,
       "0/43"
     ]
-  }
+  },
+  "kstar": 0.925,
+  "kstar_rule": "SURVIVES iff k* > 1 (principled threshold: unity is where a gain margin stops being a margin)",
+  "kstar_prediction": "0 of 43",
+  "kstar_reference": {
+    "base": 1.45,
+    "v4": 1.075,
+    "armA": 0.925,
+    "armB": 0.925,
+    "base36": 0.906
+  },
+  "kstar_written_utc": "2026-09-07T07:40:54.105598+00:00",
+  "both_predictors_agree": true
 }
