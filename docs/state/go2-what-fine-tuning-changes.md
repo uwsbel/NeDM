@@ -68,12 +68,39 @@ None of these used the asymmetric protocol.
 ```
 
 Cross-machine, reported by the coordinating session from a3 and sliger, each with its
-own baseline corpus and its own physics build, at nominal gain:
+own baseline corpus, physics build and compiler:
 
 ```
-   base36  0 of 228        base 228 of 228
-   armB    1 of 229        base 229 of 229
+                       at k = 1.0     at k = 0.65
+   a3      base36      0 of 228       219 of 228   (96%)
+   sliger  armB        1 of 229       228 of 229   (99.6%)
+   sbel    armA        0 of 36        36 of 36
 ```
+
+Three arms, three machines, same effect -- and **reversible by a deployment-time
+scalar**. That is a more specific claim than "the fine-tune breaks the policy": near-total
+failure becomes near-total survival at reduced gain, with tracking unchanged as far as
+anything can detect, so the failure is a **gain-margin property** rather than a broken
+controller. It does not recover any benefit; nothing about the fine-tune becomes useful
+at 0.65.
+
+## Why the survival half is not confounded and the tracking half was
+
+These runs produce two numbers with different status, and the distinction is what kept
+the stability result intact when the tracking result collapsed:
+
+```
+   SURVIVAL   treated-at-k against a PREDICATE -- scored or not scored. It is not a
+              comparison against the baseline at all, so the baseline's gain is
+              irrelevant. UNCONFOUNDED as measured.
+
+   TRACKING   treated-at-k against a baseline RECORDED at nominal. Two variables.
+              Needs the matched control, which is what moved +0.00854 to +0.00003.
+```
+
+A comparison against a fixed predicate cannot inherit an asymmetry between arms, because
+there is only one arm. That is worth keeping as a design preference: **where a threshold
+will do, a threshold is harder to confound than a difference.**
 
 ## The statement
 
