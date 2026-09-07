@@ -476,9 +476,9 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
     # updated; this initialiser had not. A partial fix reads exactly like a working
     # one when the control row is also zero.
     _pert_any = (args.perturb_peak_n > 0.0) or (args.perturb_torque_peak_nm > 0.0)
+    _pert_events = 0
     _pert_next = (rng.expovariate(1.0 / max(args.perturb_mean_interval_s, 1e-9))
                   if _pert_any else float("inf"))
-
     rows: list[dict[str, Any]] = []
     # DISCARD THE WARMUP, as the HMMWV collector does ("each episode discards an
     # initial settling transient before recording"). Before this the robot is on
@@ -495,6 +495,23 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
     # and a settle hold, not locomotion, and pooling them with training data would be
     # the mistake the discard exists to prevent.
     next_record_s = 0.0 if args.log_warmup else warmup_s
+    # A DISTURBANCE PARAMETER THAT SILENTLY PRODUCES ZERO EVENTS IS A VACUOUS TEST.
+    # The first event is drawn from expovariate(1/mean_interval) and gated on
+    # t > warmup_s * 0.5, so the eligible window is duration - warmup_s/2. With the
+    # 2.0 s default mean interval, a 3 s episode leaves 1.88 s of eligible time and
+    # frequently fires NOTHING -- the parameter is accepted, recorded in the config,
+    # and never used. That produced three "with perturbation" warmup runs on
+    # 2026-09-07 that tested no perturbation at all, reported as the corrected
+    # version of an under-disturbed test.
+    if _pert_any:
+        _elig = float(args.duration_s) - warmup_s * 0.5
+        _ratio = _elig / max(args.perturb_mean_interval_s, 1e-9)
+        if _ratio < 3.0:
+            print(f"  WARNING: perturbation eligible window {_elig:.2f}s is only "
+                  f"{_ratio:.1f}x the mean interval "
+                  f"{args.perturb_mean_interval_s:.2f}s -- this episode may record "
+                  f"ZERO disturbance events. Lengthen --duration-s or shorten "
+                  f"--perturb-mean-interval-s.", flush=True)
     next_progress_s = 0.0
     sample_index = 0
     fell_at: float | None = None
@@ -581,6 +598,7 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
                     perturb = np.array(_f + _t)
                     _pert_until = t + args.perturb_duration_s
                     _pert_next = t + rng.expovariate(1.0 / max(args.perturb_mean_interval_s, 1e-9))
+                    _pert_events += 1
                 if t < _pert_until:
                     if args.perturb_peak_n > 0.0:
                         base.AccumulateForce(_acc, chrono.ChVector3d(*perturb[:3]),
@@ -707,6 +725,9 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
         "rows": len(rows),
         "duration_s": float(args.duration_s),
         "record_step_s": float(args.record_step_s),
+        # COUNT, not just the parameter. A recorded --perturb-peak-n proves the
+        # parameter was accepted, not that any force was applied.
+        "perturb_events": int(_pert_events),
         "warmup_s": float(args.pose_ramp_seconds + args.settle_seconds),
         "terrain_type": args.terrain,
         "terrain_label": terrain_label,
