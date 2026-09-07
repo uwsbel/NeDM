@@ -724,6 +724,18 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
         "csv_path": str(csv_path.relative_to(output_root)),
         "rows": len(rows),
         "duration_s": float(args.duration_s),
+        # COLLECTION PARAMETERS, RECORDED RATHER THAN RE-DERIVED. The verdict
+        # harness used to reconstruct these from a seeded RNG duplicated in its own
+        # source. That contract broke silently when the driver's pitch range was
+        # capped to +-1.5 and the harness kept deriving +-3.0: any corpus collected
+        # after that fails the bit-identical replay check for a reason that looks
+        # like non-determinism. Recording them removes the duplicated draw instead
+        # of asking two files to stay in step.
+        "prewalk_s": float(args.prewalk_s),
+        "ground_tilt_roll_deg": float(args.ground_tilt_roll_deg),
+        "ground_tilt_pitch_deg": float(args.ground_tilt_pitch_deg),
+        "perturb_peak_n": float(args.perturb_peak_n),
+        "perturb_torque_peak_nm": float(args.perturb_torque_peak_nm),
         "record_step_s": float(args.record_step_s),
         # COUNT, not just the parameter. A recorded --perturb-peak-n proves the
         # parameter was accepted, not that any force was applied.

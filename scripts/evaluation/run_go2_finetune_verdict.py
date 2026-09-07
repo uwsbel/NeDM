@@ -58,6 +58,7 @@ def chrono_provenance():
 
 
 PERTURB_MAX_N, GROUND_M, SCORED_ROWS, LEAD_IN_S = 120.0, 200.0, 1000, 5.0
+LEGACY_DERIVATION = [False]   # set by --legacy-derivation; list so it is writable
 # PHYSICAL ADMISSIBILITY. Surviving collection is not the same as being physically
 # real: an episode can blow up to absurd-but-FINITE values and pass every finiteness
 # check. Measured over 1,481 episodes the population is cleanly bimodal -- p99 of
@@ -116,11 +117,35 @@ def episode_spec(json_path):
         csv_path = next((c for c in cand if c and os.path.exists(c)), None)
         if csv_path is None:
             return None, "csv not found beside the sidecar or at csv_path"
+    # READ the collection parameters, do not re-derive them. These were reconstructed
+    # from an RNG duplicated in this file, which silently disagreed with the driver
+    # after the ground-pitch cap (driver +-1.5, here +-3.0) and made every post-cap
+    # corpus fail the replay check as if the simulator were non-deterministic.
+    #
+    # ABSENCE IS AMBIGUOUS AND THEREFORE FATAL BY DEFAULT. A sidecar without these
+    # fields is either a pre-cap corpus, where the derivation is right, or a post-cap
+    # one, where it is wrong -- and the two are indistinguishable here. Guessing is
+    # what produced the original failure, so a caller who wants the legacy path has
+    # to ask for it and thereby record the decision.
+    have = all(k in m for k in ("prewalk_s", "ground_tilt_roll_deg",
+                                "ground_tilt_pitch_deg", "perturb_peak_n"))
+    if have:
+        prewalk = float(m["prewalk_s"]); roll = float(m["ground_tilt_roll_deg"])
+        pitch = float(m["ground_tilt_pitch_deg"]); peak = float(m["perturb_peak_n"])
+    elif LEGACY_DERIVATION[0]:
+        peak = PERTURB_MAX_N * (idx % 6) / 5.0
+        prewalk = tr.uniform(0.0, 3.0)
+        roll = tr.uniform(-3.0, 3.0); pitch = tr.uniform(-3.0, 3.0)
+    else:
+        return None, ("sidecar records no collection parameters, so they can only be "
+                      "re-derived -- and the derivation is correct ONLY for corpora "
+                      "collected before the ground-pitch cap (e09e45b). Pass "
+                      "--legacy-derivation to use it anyway, which is right for "
+                      "go2_joint_off3000000 and wrong for anything newer.")
     return dict(json=json_path, csv=csv_path, machine=m.get("machine"), fam=fam, idx=idx,
                 params=m["command_params"], duration=m["duration_s"], seed=m["seed"],
                 spawn_x=m["spawn_m"][0], spawn_y=m["spawn_m"][1], heading=m["heading_deg"],
-                peak=PERTURB_MAX_N * (idx % 6) / 5.0, prewalk=tr.uniform(0.0, 3.0),
-                roll=tr.uniform(-3.0, 3.0), pitch=tr.uniform(-3.0, 3.0), off=off), None
+                peak=peak, prewalk=prewalk, roll=roll, pitch=pitch, off=off), None
 
 
 def scored(csv_path):
@@ -319,6 +344,10 @@ def main():
     ap.add_argument("--replay-check", type=int, default=5)
     ap.add_argument("--concurrency", type=int, default=8)
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--legacy-derivation", action="store_true",
+                    help="re-derive prewalk and ground tilt from a seeded RNG for "
+                         "corpora that do not record them. Correct ONLY before the "
+                         "ground-pitch cap (e09e45b); wrong and silent after it.")
     ap.add_argument("--action-mult", type=float, default=1.0,
                     help="scale the TREATED policy's output by this factor. Applied only "
                          "to the treated arm; the baseline replay check runs unscaled, so "
@@ -342,6 +371,7 @@ def main():
                     help="write machine-tagged per-episode paired differences for "
                          "stratified combination across boxes")
     a = ap.parse_args()
+    LEGACY_DERIVATION[0] = a.legacy_derivation
 
     # --- select the cell -----------------------------------------------------
     eligible = []
