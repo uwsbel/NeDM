@@ -3922,3 +3922,48 @@ post-settle, post-prewalk.** These episodes were out of bounds before the scored
 existed, **so they never entered the regime truncation was designed to preserve** --
 truncation rescues 3 in 242. **The suggestion came from a corpus where failures had a
 run-up and landed on one where failure precedes recording.**
+
+### The trainer does not enforce determinism, so the machine-effect control is mandatory
+
+`trainer.py:94-98` seeds `random`, `numpy`, `torch` and `torch.cuda`. **It never sets
+`torch.backends.cudnn.deterministic`, never calls `torch.use_deterministic_algorithms`,
+and never touches `cudnn.benchmark`.**
+
+> **"Same seed" does not mean "same result" here, even on one box.** Nondeterministic
+> reduction kernels may be selected, so a same-seed repeat is expected to differ.
+
+**Consequence for the six-run experiment, independent of the machine question:** each
+arm's `rollout_sel` carries run-to-run noise ON TOP of seed noise, and neither has been
+measured separately. **Seed variance was 40% on `rollout_sel` between A_s1 and A_s2 --
+how much of that is the seed and how much is the run is currently unknown.**
+
+#### The measurement, on one box
+
+    north run 1  vs  north run 2   ->  NONDETERMINISM   (same box, seed, data)
+    north run 1  vs  sbel A_s1     ->  MACHINE + nondeterminism
+
+**Subtract the first from the second.** Sequential, not concurrent -- two trainings
+sharing a GPU changes kernel timing and therefore possibly kernel selection, which is
+the quantity being measured.
+
+**Amendment to the registered thresholds:** the `<5% / 5-20% / >20%` bands apply to
+**(cross-box difference MINUS same-box difference)**, not to the raw cross-box number.
+**Otherwise nondeterminism alone could push a machine-identical pair into the middle
+band and keep the queue serial for no reason.**
+
+**Stated limitation:** north-vs-north measures NORTH's nondeterminism, not sbel's. If
+the boxes differ in how nondeterministic they are, the subtraction is approximate.
+
+#### And the edge check's blind spot, stated properly
+
+All six configs named a stale dataset path in four places, and the pairwise edge
+verification passed -- **because every arm carried the same wrong reference, so the
+diffs cancelled.**
+
+> **A between-arm comparison is structurally blind to any error common to all arms.**
+> Edges catch what DIFFERS; an existence check catches what is SHARED and wrong.
+> Neither subsumes the other.
+
+**I proposed the edge check as verification of the design; it verifies only that the
+arms differ in one thing.** The distinction was not named until it cost six instant
+failures.
