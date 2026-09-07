@@ -3229,3 +3229,36 @@ set), so this is not a difficulty difference between corpora -- **it is the cell
 episodes, and v4 still completes fewer episodes than base on any population measured.
 **The direction survives all of it. The magnitude has now been wrong twice, both times
 from a rate carried across a selection boundary.**
+
+### REGISTERED before running v4 in a neighbouring command band on the merged root
+
+**Their cell test has a weak arm, and the reason is corpus composition.** Sampling 417
+base-completed episodes from `go2_comprehensive_merged/flat`:
+
+    (0.02,0.18]  THE CURRENT CELL      9    2.2%
+    (0.18,0.40]                       26    6.2%
+    (0.40,0.80]                       22    5.3%
+    forward or zero commanded vx     305   73.1%
+    non-constant tail                 55   13.2%
+
+**The verdict's cell is 2.2% of this corpus.** `go2_cell_a3` is 78% inside it (209 of
+269) -- it is a cell-TARGETED corpus, as its name says. **So their "outside the cell"
+arm is 22 episodes that a cell-targeted generator happened to miss, not a sample of the
+outside-cell population.** Their 1.3-point result is measured where they have almost no
+outside-cell data.
+
+**The merged root has the opposite composition and can answer it.** Running the verdict
+harness unchanged with `--cell-lo 0.18 --cell-hi 0.40` gives v4's surviving-pair rate
+in a neighbouring band -- same corpus, same machine, same code path, same predicate,
+only the band moved.
+
+    ~47%, like 20/43   -> the cell is NOT the explanation; the 46.5-vs-66.2 gap is the
+                          corpus or v4 generally, and my `733734e` claim is withdrawn
+    ~66%               -> the cell IS the explanation on the root where 20/43 was
+                          measured, and their a3 null was an artifact of having 22
+                          outside-cell episodes
+    52-60%             -> partial; the cell carries some of the gap and not most of it,
+                          and neither the two-selection claim nor its withdrawal is clean
+
+**Registering the middle branch explicitly, because the last cell I ran did not have
+one and the answer landed in it.**
