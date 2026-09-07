@@ -3124,3 +3124,19 @@ number arrives than explain afterwards which metric I had been watching.**
 
 **The registered branches at `d645afd` are unchanged and this does not amend them.**
 They are about the surviving-pair count, not about either surrogate metric.
+
+### The symmetric cell's blind prediction is from the RETIRED predictor. It counts for nothing.
+
+The chain script still calls `predict_replicate.py`, so a prediction of **0 of 43** was
+committed before this verdict. **The predictor was retired at `16754ee`** after its
+only two out-of-sample calls: an abstention on cell 2 seed A, and a confident `0 of 43`
+on seed B that returned **27**.
+
+> **Recording this BEFORE the verdict, because the registered branch for cell D is also
+> `~0 of 43`.** If D comes back near zero, the retired predictor will have been "right",
+> and that must not be read as rehabilitating it. **One correct call from a model that
+> was decisively wrong on its previous one, on a case where the designed hypothesis
+> predicts the same answer, is not evidence about the model.**
+
+The prediction is committed for provenance only. **Nothing downstream should cite it in
+either direction**, and the verdict is scored against `d645afd` alone.
