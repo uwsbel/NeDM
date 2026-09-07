@@ -164,6 +164,21 @@ def main():
     ap.add_argument("--window-rows", type=int, default=None)
     ap.add_argument("--randomise-gains", action="store_true",
                     help="ON HOLD -- forces torque as the action channel; see note above")
+    # READ THE PARAMETERS OFF AN EXISTING CORPUS RATHER THAN REMEMBERING THEM.
+    # The module defaults are a fact about the module, not about any artifact on disk:
+    # WINDOW_ROWS defaults to 170 and every excitation corpus in datasets/ was collected
+    # at 40 with action_scale 0.3. Running at the defaults rejected 99.5% of windows on
+    # joint_limit, against those corpora's 900 of 900, because a window then has to
+    # survive 1.7 s of open-loop joint noise instead of 0.4 s -- and the rejection rate
+    # very nearly got reported as a property of the experimental condition being added.
+    #
+    # This rule was already written down for this repo's RL configs and did not fire
+    # here, which is the argument for reading it from the artifact instead of recalling
+    # it.
+    ap.add_argument("--match-corpus", metavar="DIR",
+                    help="take window_rows and action_scale from DIR/summary.json, so "
+                         "this run is comparable to an existing corpus. Explicit flags "
+                         "still win; a mismatch is reported.")
     ap.add_argument("--command-envelope", action="store_true",
                     help="branch on arc(vx, wz) across the trained envelope "
                          "instead of constant(vx) only, which leaves wz at "
@@ -202,6 +217,23 @@ def main():
     urdf = assets / "data/robot/go2_irrvis/urdf/go2_description.urdf"
     stand = np.asarray(STAND_ACTION, dtype=np.float64)
     global ACTION_SCALE, WINDOW_ROWS
+    if a.match_corpus:
+        import json as _json
+        _sp = os.path.join(a.match_corpus, "summary.json")
+        if not os.path.exists(_sp):
+            raise SystemExit(f"--match-corpus: no summary.json in {a.match_corpus}")
+        _m = _json.load(open(_sp))
+        for _k, _attr in (("window_rows", "window_rows"), ("action_scale", "action_scale")):
+            if _k not in _m:
+                continue
+            _cur = getattr(a, _attr)
+            if _cur is None:
+                setattr(a, _attr, _m[_k])
+                print(f"  --match-corpus: {_k} = {_m[_k]} (from {a.match_corpus})")
+            elif _cur != _m[_k]:
+                print(f"  --match-corpus: {_k} EXPLICIT {_cur} overrides corpus "
+                      f"value {_m[_k]} -- this run is NOT comparable to that corpus")
+
     if a.action_scale is not None: ACTION_SCALE = a.action_scale
     if a.window_rows is not None: WINDOW_ROWS = a.window_rows
     rng = np.random.default_rng(a.seed)
