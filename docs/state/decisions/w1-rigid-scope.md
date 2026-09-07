@@ -2370,3 +2370,37 @@ matched:
 
 **`rollout_sel` varied 2.5x across the two noise-off seeds**, so surrogate-to-surrogate
 spread is exactly the thing that could still produce this at n=1 on one side.
+
+### CELL 2 SEED B: 27 of 43 -- and the blind predictor is REFUTED
+
+    sigma 0.05   seed 2026061801   v4rep     0/43
+    sigma 0.0    seed 2026061801   cell2 A  22/43
+    sigma 0.0    seed 2026061802   cell2 B  27/43
+    v4           original, no noise          20/43
+
+**Both noise-off seeds recover, and both exceed v4.** The `~20` branch registered at
+`5c669d3` is confirmed on two independent surrogate seeds, spread across all five
+families in each (B: arc 3, constant 8, vel_step 8, weave 5, yaw_step 3).
+
+#### The predictor called seed B at 0 of 43 and it returned 27
+
+    seed A   rho 0.5164  |a| 4.2741   -> NO PREDICTION (gap)   actual 22/43
+    seed B   rho 0.7003  |a| 4.0517   -> 0 of 43               actual 27/43
+
+**This is the predictor's first out-of-sample call and it is wrong by 27 episodes**,
+in the direction that would have overturned the cell. It was committed before the
+verdict at `ab21d78`, so the failure is recorded rather than reconstructed.
+
+**Why it failed is visible in its own training data.** It was fit on five points --
+two survivors (rho 0.459/0.492) and three failures (0.652/0.714/1.023) -- and seed B's
+0.7003 sits inside the failure cluster on rho while its |a| of 4.0517 sits with the
+survivors. **The two features order the classes in opposite directions**, which is the
+same thing that produced seed A's abstention. A boundary fit to five points, read as
+though it generalised.
+
+> **Retire the rho/|a| predictor.** It has now abstained once and been decisively
+> wrong once, on the only two out-of-sample cases it has ever seen. Nothing downstream
+> should cite it, and the k* ladder's readings that leaned on it inherit the doubt.
+
+**The n=1 that remains is unchanged and is on the noise-ON side** -- the symmetric
+cell (`70627b8`, queued) is what closes it. Seed B does not touch it.
