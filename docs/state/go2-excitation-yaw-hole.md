@@ -60,3 +60,65 @@ Recorded because the audit was previously a confirmation -- `wz` was never comma
 a yaw hole was guaranteed regardless of sampling -- and a question that can only return
 one answer should not be run again without saying in advance what the other answers would
 mean.
+
+## Result: the prediction was wrong. Neither hole closes.
+
+Two matched corpora, 300 windows x 12 workers each, 144,012 rows apiece, 100% kept.
+Reached-state coverage against the walking corpus (`scripts/analysis/go2_reached_coverage.py`):
+
+```
+   channel                envelope inside/covers/tail    baseline inside/covers/tail
+   vel_body_x_mps           1.000  0.580  0.0000*         1.000  0.680  0.0000*
+   yaw_rate_radps           1.000  0.860  0.0000*         1.000  0.760  0.0000*
+   ang_vel_body_z_radps     1.000  0.860  0.0000*         1.000  0.760  0.0000*
+```
+
+Yaw rate directly:
+
+```
+   corpus     n         p50 |yaw|   p90     p99     % > 1 rad/s
+   walking    399,986      1.2469  2.4166  2.8613     60.20%
+   envelope   144,000      0.2878  0.7061  1.1181      2.08%
+   baseline   144,000      0.2283  0.6192  1.0187      1.13%
+```
+
+**Commanding `wz` moves yaw content and does not close the hole.** The high-yaw fraction
+roughly doubles, 1.13% to 2.08%, and p90 rises 14% -- a real effect, in the predicted
+direction, about 29x short of walking's 60.2%.
+
+So the registered third branch applies: **commanding the envelope is not the mechanism by
+which this coverage is gained.**
+
+## Why, and what it means for the corpus design
+
+The excitation *window* is not policy-driven locomotion. It is a 0.4 s burst of random
+joint targets (`stand + ACTION_SCALE * U(-1,1)^12`) applied after a pre-roll. The command
+only influences the **branch phase** that sets the initial state; during the recorded rows
+the policy is not tracking anything. A yaw rate commanded at 1.0 rad/s therefore has 0.4 s
+of open-loop joint noise in which to survive, and mostly it does not.
+
+**The hole is a property of the excitation protocol, not of the command distribution.**
+That is why every previous attempt to close it by sampling harder failed, and it predicts
+that `--command-envelope` will not fix it either at any sampling density.
+
+The forward-velocity hole persists exactly as predicted, for the additional reason that
+`vx` is realised at 4-5% in the low band, so it was never going to arrive.
+
+`--command-envelope` remains correct and worth keeping -- `wz` at exactly zero was a real
+defect and the flag measurably widens the distribution -- but it is not the intervention
+this corpus needs. Closing the yaw hole requires recording windows in which the policy is
+*driving*, not windows of open-loop excitation seeded from a driven state.
+
+## A configuration error worth recording
+
+The first two attempts at this audit rejected 99.5% of windows on `joint_limit` and I
+nearly reported that as the envelope pushing the robot into its limits -- a clean and
+plausible finding. The control arm rejected at the same rate.
+
+The cause was neither: I ran the collector at its module defaults, `WINDOW_ROWS = 170`,
+while every corpus in `datasets/` was collected at `window_rows 40` with
+`action_scale 0.3` and kept 900 of 900. A window had to survive 1.7 s of open-loop noise
+instead of 0.4 s. Matching the recorded config gave 100% kept on both arms.
+
+Same lesson as the anchor's RL config: **the module defaults are not what produced the
+artifacts, and the run's own recorded config is the authority.**
