@@ -2943,3 +2943,41 @@ agreement is tautological on the verdict's side.** The v4 and armA points still 
 it, and **the screen's own base 0/240 on the clean cells is a real measurement** --
 those episodes were not selected for base surviving them. **The validation survives on
 the arms; it should not be quoted with base as its anchor.**
+
+### "Rejected by `scored()`" is not "base failed" -- the set is 59% that and 41% other
+
+`scored()` has five rejection paths: short episode, non-finite values, non-constant
+command over the scored window, insufficient lead-in (clause 3b), and joint
+admissibility. **Only the first and last mean base failed.**
+
+    episodes on disk                            3503
+    rows < 1500  (base did not finish)           572
+    verdict's "failed predicate or admissibility" 967
+    rejected for reasons OTHER than short         395
+
+**So re-running arms on everything `scored()` rejects would mix 572 base-failures with
+395 episodes base completed fine** -- and an arm "completing an episode base could not"
+would be unfalsifiable, since 41% of the set was never a base failure.
+
+> **Select on `rows < 1500`, not on `scored() is None`.**
+
+#### The verdict cannot classify the episodes it is blind to
+
+Cell membership is `-cell_hi < cmd <= -cell_lo`, where `cmd` comes from **the constant
+tail of the scored window** -- a statistic over rows a failed episode never reached.
+**`scored()` returns `None` before `cmd` exists, so a base-failed episode has no
+defined cell.** The complement experiment needs the command taken from the episode's
+early rows or its spec, and that is a different rule, not the same one applied further.
+
+#### And three command families never enter the verdict at all
+
+Short episodes span eight families:
+
+    weave 90   yaw_step 82   arc 81   pivot 72   vel_step 71
+    lateral 65   constant 63   stop_and_go 48
+
+**The verdict's eligible set contains only five** -- `pivot`, `lateral` and
+`stop_and_go` are absent, excluded by the cell rather than by failure (their `cmd_vx`
+is zero or out of range). **Those three are invisible to the verdict for a reason that
+has nothing to do with the arms**, so they must be reported separately from the
+base-failure region or the two blind spots get pooled.
