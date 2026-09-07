@@ -29,6 +29,7 @@ Divergence and scoring are different: an episode can diverge and still score,
 because scored() needs only 1500 rows and finite velocity.
 """
 import argparse, csv, glob, json, os, subprocess, sys, tempfile
+from concurrent.futures import ThreadPoolExecutor
 import numpy as np
 sys.path.insert(0, "src")
 from nedm.quadruped.imported_policy import (ACTION_SCALE, IMPORTED_DEFAULTS, SIGN,
@@ -155,10 +156,26 @@ def _one(ckpt, fam, params, peak, roll, pitch, duration, seed, keep=None):
     return raw_action_max(rows), len(rows)
 
 
-def screen(ckpt, duration=DURATION_S, seed=0, keep=None):
-    vals = [_one(ckpt, f, p, pk, r, pi, duration, seed)
-            for f, p, pk, r, pi in CONDITIONS]
-    missing = [CONDITIONS[i][0] for i, v in enumerate(vals) if v is None]
+def screen(ckpt, duration=DURATION_S, seed=0, keep=None, concurrency=1, repeats=1):
+    """repeats>1 pools REPEATS x len(CONDITIONS) episodes, seeds seed..seed+repeats-1.
+
+    n=8 per rung gives a binomial sd of 0.177 at p=0.5, which is 71% of the entire
+    0.85-1.00 rate span the crossing is interpolated inside -- so two arms that
+    genuinely differ will very often return the same k*. Resolving dk* = 0.05 needs
+    the rate pinned to 0.083, i.e. n ~= 36. Hence repeats.
+
+    Each episode is an independent subprocess with its own temp dir and its own
+    --seed, so concurrency cannot change any result; it is verified against serial
+    rather than assumed.
+    """
+    jobs = [(f, p, pk, r, pi, seed + rep)
+            for rep in range(repeats) for f, p, pk, r, pi in CONDITIONS]
+    if concurrency > 1:
+        with ThreadPoolExecutor(max_workers=concurrency) as ex:
+            vals = list(ex.map(lambda j: _one(ckpt, j[0], j[1], j[2], j[3], j[4], duration, j[5]), jobs))
+    else:
+        vals = [_one(ckpt, f, p, pk, r, pi, duration, sd) for f, p, pk, r, pi, sd in jobs]
+    missing = [jobs[i][0] for i, v in enumerate(vals) if v is None]
     if missing:
         # A dropped condition changes the denominator silently, which is how the
         # previous self-test reported a rate over 4 episodes while claiming 8.
