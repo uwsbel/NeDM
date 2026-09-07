@@ -3966,3 +3966,31 @@ So: replicate anything whose output is a **number**, and let exactly one machine
 anything whose output is a **dataset** that other stages inherit. When the same instinct —
 "do it in both places, it is safer" — points opposite ways, the tell is whether a
 downstream consumer could tell the two outputs apart.
+
+## A dataset's value is not fixed by the question it was collected for
+
+`go2_ctrl_torque40` was collected as a state-matched control and disqualified within the
+hour: its states sit at 0.93x the distance to walking that walking's own held-out half
+achieves, so it is a coverage duplicate of walking rather than the wide-state instrument
+the design called for. That judgement was correct on its stated purpose.
+
+The same measurement pass that disqualified it found it holds **8,058 standing rows against
+walking's 204 and the excitation corpus's zero** — 40x walking's coverage of the regime
+where the fine-tuned policy actually fails, because the smoke collector includes a prewalk
+settle phase that the excitation collector's branch-from-policy design skips by
+construction.
+
+So the corpus that failed its own test is the only one on the box covering the region a
+different question needs, and nobody had asked that question when it was collected.
+
+Two things follow. **Do not delete a corpus because it failed the purpose it was built
+for** — the collection cost is sunk and the storage is not the expensive part. And when a
+dataset is disqualified, record *what it does contain* rather than only why it failed,
+because the description is what makes it findable later. The disqualifying measurement had
+already produced the standing counts; they were in the same table and went unremarked for
+an hour.
+
+The corollary that made this visible: the pass also produced the 55.7%-beyond-walking's-
+support figure for the excitation corpus, which turned out to be the quantitative premise a
+later argument needed. **A measurement made to answer one question routinely contains the
+answer to another, and the marginal cost of reading the rest of the table is zero.**
