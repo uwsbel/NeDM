@@ -456,7 +456,26 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
     terrain_label = config["terrain"]["label"]
     episode_id = f"go2_{terrain_label}_{args.episode_index:03d}"
     scenario_name = episode_id
-    scenario_family = f"go2_{terrain_label}_constant_command"
+    # THE COMMANDED FAMILY, NOT A LITERAL. This said "constant_command" for every
+    # episode regardless of what was commanded, which is the defect already in
+    # docs/state/lessons/experiment-design.md -- and it was still writing one value
+    # in data collected 2026-09-07, because the entry recorded the consequence and
+    # nothing changed the source.
+    #
+    # It is not cosmetic. trainer.py:797 buckets on this field and round-robins
+    # across families to choose the twelve rollout episodes the DEPLOYED CHECKPOINT
+    # is selected on. With one bucket the round-robin degenerates to "take the first
+    # twelve in list order", and the output is still a rollout error over twelve
+    # episodes -- which is exactly what a correct one looks like.
+    #
+    # args.command_family is what the driver actually passed, so it cannot drift
+    # from the commanded motion the way a separate label can.
+    # --command-family defaults to None, so a caller that omits it would get
+    # "go2_flat_None" -- a new wrong value in place of the old one. Fall back to the
+    # historical literal in that case, which keeps every existing invocation
+    # reproducing and confines the change to callers that actually state a family.
+    scenario_family = (f"go2_{terrain_label}_{args.command_family}"
+                       if args.command_family else f"go2_{terrain_label}_constant_command")
     split = assign_split(episode_id, float(args.validation_ratio))
     csv_path = episodes_dir / f"{episode_id}.csv"
 
