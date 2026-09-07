@@ -3902,3 +3902,37 @@ downstream restores it — the verifier can only report a mismatch, never explai
 Operationally: the moment a hash is published, treat the file as append-only-elsewhere.
 Corrections go in a new artefact that names what it corrects, and the original stays
 byte-identical to what was attested.
+
+## Print rows-per-episode beside whatever a collection sweep is tuning
+
+A magnitude sweep for a perturbation control was scored on how well its joint distribution
+matched a target. Two cells looked best on the metric being optimised, and both were
+measuring truncated episodes:
+
+```
+  160 Nm              state rank 2.61, closest of any cell to the 2.27 target
+                      48 rows/episode against a possible 476
+  mixed-family 40 Nm  containment 0.712, highest of any cell
+                      191 rows/episode
+  matched  40 Nm      containment 0.433
+                      475 rows/episode -- runs to completion
+```
+
+At 160 Nm the robot falls immediately and the "distribution" is free-fall. At mixed-family
+40 Nm a `wz = 0.2` turning command was knocking it over, so the higher containment was
+measured over a shorter, earlier slice of each episode. Both cells were optimal on the
+metric and neither was measuring the thing the metric was for.
+
+**An episode that ends early will look better on almost any distributional metric**, because
+the distribution is then taken over a shorter, earlier and less varied slice — closer to
+the initial condition, before the run has explored anything. The failure is systematic and
+it points the same way every time, which is what makes it dangerous rather than merely
+noisy.
+
+So: **any collection sweep prints rows-per-episode next to whatever it is tuning.** Not as
+a diagnostic to consult when something looks wrong, but as a required column, because the
+cell it exposes is by construction the one that looks best.
+
+This is a construction, not a distinction: it fires without being remembered, and it caught
+the same failure twice in one sweep — the second time in the cell that had already been
+endorsed on the strength of the contaminated number.
