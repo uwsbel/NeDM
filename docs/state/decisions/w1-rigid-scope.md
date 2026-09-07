@@ -3420,3 +3420,42 @@ of that choice.
 **Third instance of the same defect at a third level:** the screen's hand-picked
 conditions, the verdict's selection rule, and now a composition in a pass that had
 removed all selection. **Removing selection does not remove composition.**
+
+### BAND TEST RESULT: 34/55 = 61.8%, and the three measurements point at the 43
+
+Registered at `f51770b`: `~47%` -> cell is not the explanation; `~66%` -> it is;
+`52-60%` -> partial. **The answer is 61.8%, closest to the `~66%` branch and
+statistically consistent with it (95% CI 49.0-74.7%).**
+
+    measurement                        k/n      rate     sd    95% CI
+    root, cell (0.02,0.18]           20/43    46.5%    7.6%   31.6 .. 61.4
+    root, band (0.18,0.40]   NEW     34/55    61.8%    6.6%   49.0 .. 74.7
+    go2_cell_a3, cell (0.02,0.18]   129/207   62.3%    3.4%   55.7 .. 68.9
+
+#### But the pairwise tests say something neither branch anticipated
+
+    band vs cell, same corpus        +15.3 pts   z=1.52   p=0.127
+    a3 vs root,   same cell          +15.8 pts   z=1.90   p=0.057
+    a3 vs band,   NEITHER shared      +0.5 pts   z=0.07   p=0.946
+
+> **The two measurements that differ in EVERYTHING -- different corpus, different
+> command band, different machine -- agree to half a point. The only measurement that
+> disagrees with anything is the 43, and it is the shared term in both "significant"
+> comparisons.**
+
+**So the parsimonious reading is not a cell effect and not a corpus effect. It is that
+`20/43` is a low draw**, and the two 15-point gaps are one gap counted twice, because
+both subtract the same 46.5%.
+
+**This does not license "the true value is 62%"** -- 61.8 and 62.3 agreeing so closely
+is itself a coincidence at these n, and I have spent the night warning about exactly
+that kind of agreement. **What it does say is that no mechanism is needed: the 43's own
+interval reaches 61.4%.**
+
+**The registered `~66%` branch nominally fires, but the reading it was attached to --
+"the cell IS the explanation" -- does not survive the third comparison.** Recording it
+that way rather than claiming the branch.
+
+**Both prior accounts stay withdrawn:** `733734e` (cell attribution) and `2940da7`
+(pitch cap). **The band test was launched to resolve a difference that three
+measurements now suggest was never there.**
