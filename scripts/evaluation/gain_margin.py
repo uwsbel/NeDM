@@ -53,6 +53,7 @@ if __name__ == "__main__":
     # rung, so two sweeps of one policy agree by construction and measure
     # determinism rather than repeatability. Two such sweeps were run on 2026-09-07
     # and reported as a repeatability check; they were one experiment run twice.
+    ap.add_argument("--json", help="write per-rung per-episode outcomes for paired analysis")
     ap.add_argument("--repeats", type=int, default=1,
                     help="pool this many x len(CONDITIONS) episodes per rung. n=8 gives a "
                          "binomial sd of 0.177 at p=0.5, 71%% of the rate span the crossing "
@@ -62,6 +63,8 @@ if __name__ == "__main__":
     ap.add_argument("--seed", type=int, default=0,
                     help="episode seed; vary it to draw DIFFERENT episodes per rung")
     a = ap.parse_args()
+    import json as _json
+    _rec = {"ckpt": a.ckpt, "seed": a.seed, "repeats": a.repeats, "rungs": {}}
     print(f"  episode seed {a.seed}")
     print(f"  {'k':>6s} {'divergence rate':>16s}")
     kstar, prev_k, prev_r = None, None, None
@@ -74,6 +77,9 @@ if __name__ == "__main__":
         import math
         se = math.sqrt(max(r*(1-r), 1e-9)/max(info["n"], 1))
         print(f"  {k:6.2f} {v:>10s} {r:5.2f} +-{se:.3f}   (unbounded {info['unbounded']}, short {info['short']})")
+        _rec["rungs"][f"{k:.2f}"] = info["per_episode"]
+        if a.json:
+            open(a.json, "w").write(_json.dumps(_rec, indent=1))
         if kstar is None and r >= 0.5:
             # linear interpolation between the last sub-0.5 rung and this one
             kstar = k if prev_k is None else prev_k + (0.5 - prev_r) * (k - prev_k) / (r - prev_r)

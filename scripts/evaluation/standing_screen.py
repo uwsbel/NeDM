@@ -201,12 +201,25 @@ def screen(ckpt, duration=DURATION_S, seed=0, keep=None, concurrency=1, repeats=
     unbounded = [i for i, m in enumerate(mags) if m > TARGET_LIMIT_RAD]
     short = [i for i, L in enumerate(lens) if L < MIN_ROWS]
     failed = sorted(set(unbounded) | set(short))
+    # PER-EPISODE OUTCOMES, because two arms run the IDENTICAL job list -- same
+    # family, params, peak, tilt and seed at every index. So their episodes are
+    # matched, and comparing two rates with an unpaired two-proportion test is not
+    # merely weaker, it is INVALID: it treats positively correlated observations as
+    # independent and returns p-values that are too small. Measured 2026-09-07 on the
+    # tilt bands -- unpaired gave 0.012 and 0.049 where McNemar gave 0.023 and 0.057.
+    # Note McNemar's p is often LARGER, not smaller: concordant episodes carry no
+    # information about the difference, so a matched design with low discordance has
+    # a hard floor at 2/2**n_discordant. Record the counts and let the analysis pair.
+    per_ep = [{"job": f"{jobs[i][0]}:{jobs[i][5]}", "failed": i in set(failed),
+               "unbounded": i in set(unbounded), "short": i in set(short),
+               "max_raw": mags[i], "rows": lens[i]} for i in range(len(got))]
     return (f"{len(failed)}/{len(got)}",
             dict(failed=len(failed), n=len(got), rate=round(len(failed) / len(got), 3),
                  unbounded=len(unbounded), short=len(short),
                  median_raw=float(f"{sorted(mags)[len(mags)//2]:.4g}"),
                  max_raw=float(f"{max(mags):.4g}"),
-                 median_rows=sorted(lens)[len(lens)//2], min_rows=min(lens)))
+                 median_rows=sorted(lens)[len(lens)//2], min_rows=min(lens),
+                 per_episode=per_ep))
 
 
 # Expected rates are the VERDICT's measured per-episode divergence, which this
