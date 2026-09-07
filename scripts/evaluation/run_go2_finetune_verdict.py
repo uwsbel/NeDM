@@ -36,6 +36,27 @@ BASE_CKPT = os.environ.get("NEDM_GO2_CKPT",
 PY = os.environ.get("NEDM_PY", "/home/kyle/miniconda3/envs/nedm-src/bin/python")
 CHRONO = os.environ.get("NEDM_CHRONO_PYTHONPATH",
                         "/home/kyle/Documents/sbel/chrono-build/bin")
+def chrono_provenance():
+    """The pychrono actually resolved, and its md5.
+
+    This box has TWO pychrono installs -- a source build and one inside the conda
+    env -- and which one wins is decided by PYTHONPATH. The default CHRONO above is
+    the OTHER machine's layout, so an unset NEDM_CHRONO_PYTHONPATH silently selects
+    the conda build, which breaks the bit-exact replay the paired design rests on.
+
+    Recording the resolved path and md5 turns "which build produced these numbers?"
+    from a question that cannot be answered from the artifacts into a grep. The
+    replay check would catch a mismatch, but only after the episodes are collected.
+    """
+    import hashlib
+    from pathlib import Path
+    so = Path(CHRONO) / "pychrono" / "_core.so"
+    if not so.exists():
+        return f"pychrono NOT FOUND at {so} -- subprocesses will fall back to whatever is importable"
+    h = hashlib.md5(so.read_bytes()).hexdigest()
+    return f"pychrono {so}  md5 {h}"
+
+
 PERTURB_MAX_N, GROUND_M, SCORED_ROWS, LEAD_IN_S = 120.0, 200.0, 1000, 5.0
 # PHYSICAL ADMISSIBILITY. Surviving collection is not the same as being physically
 # real: an episode can blow up to absurd-but-FINITE values and pass every finiteness
@@ -387,6 +408,7 @@ def main():
         return 1
 
     # --- abort condition: episodes must replay bit-for-bit -------------------
+    print(f"  {chrono_provenance()}")
     print(f"\nreplay check on {a.replay_check} baseline episodes (bit-identical required)")
     rng = random.Random(0)
     for spec in rng.sample(eligible, min(a.replay_check, len(eligible))):

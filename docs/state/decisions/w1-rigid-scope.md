@@ -1755,3 +1755,98 @@ datasets report identical episode *and* transition counts (2382/621, 8,961,196).
 `go2_corrected_34d_excl`, the pre-unwrap dataset. **If the fresh replicate lands at 0
 while v4 sits at 20, old preprocessing is a live explanation and must not be selected
 after seeing the number.**
+
+### Two stability measures, both anti-correlated with plant performance
+
+**The divergence growth constant is a policy-specific eigenvalue-like number.**
+Fitting `log |raw action|` against time over a fixed window (1e12 to 1e20, identical
+for every episode):
+
+| policy | verdict | lambda (1/s) | episodes with lambda <= 0 |
+|---|---|---|---|
+| base | 43 of 43 | -- | **43** |
+| v4 | 20 of 43 | **41.8** | **20** |
+| base36 | 0 of 43 | **31.0** | 0 |
+| arm B | 0 of 43 | **33.5** | 0 |
+| arm A | 0 of 43 | **16.8** | 0 |
+
+**The `lambda <= 0` column is exactly the survivor count** -- a third independent
+route to the same column, after `never` and `scored`.
+
+It is **not** a fit artifact, and the check that would have shown one was run: a
+suspicion that lambda measured `fixed_log_range / time_to_overflow` was tested by
+refitting over a bounded window and **refuted** -- the values reproduce. It is also
+**disturbance-independent** (sbel-pc measured arm A at 16.8471 across 0-80 Nm) and
+**not a selection effect**: v4's lambda on its 21 diverging seeds versus arm A's on
+*those same seeds* gives a paired difference of **+24.894**, against +25.0 unmatched.
+
+**But it does not order with performance.** v4 is the fastest diverger and the best
+arm. *Rare and violent* versus *reliable and gentle* -- and no account of it.
+
+### rho(J): the same reversal a third time
+
+`J = d action_{t+1} / d action_t` through the observation, plant held fixed, by
+autodiff over 96 recorded in-distribution states:
+
+| policy | verdict | p50 rho | max | fraction rho > 1 |
+|---|---|---|---|---|
+| base | 43 of 43 | 0.836 | **2.581** | **0.344** |
+| v4 | 20 of 43 | 0.550 | 0.796 | 0.000 |
+| arm A | 0 of 43 | 0.717 | 0.987 | 0.000 |
+| base36 | 0 of 43 | 0.750 | 1.045 | 0.010 |
+
+**The working policy is expansive in a third of sampled states; all three failing
+policies are contractive almost everywhere.** Arm A never exceeds 1.
+
+**Scope:** this is the *direct* action-feedback path only -- state and command
+frozen, history fixed. The loop that actually diverges runs through the plant, which
+is the leg every other elimination points at. So this is a fourth **elimination**
+(the direct path cannot be the mechanism, agreeing with sbel-pc's `prev_actions`
+isolation converging) rather than an explanation.
+
+**Three local stability measures now point the wrong way:**
+
+    surrogate closed-loop action magnitude   base worst (18.6-24.9), fine-tunes 4.9-8.4
+    surrogate predicted reward               base lowest at every horizon
+    rho(J) on the nominal trajectory         base the only one exceeding 1
+
+**Every measure that says a policy is locally well-behaved says the failing
+policies are the well-behaved ones.** That pattern is the result. Inventing a
+mechanism to explain it away would be the fifth reframe to die in one session.
+
+
+### CORRECTION: arm B's two empty episodes are the extreme, not missing data
+
+Arm B is the only arm with empty episodes (0/0/0/0/2 across the five). Both were
+re-run and both reproduce deterministically:
+
+    vel_step_64   rc=1  rows=0
+    vel_step_81   rc=1  rows=0
+        ValueError: episode produced zero recorded rows: nothing to summarise
+
+Recording begins at `warmup_s`; **these episodes never reached it.** The policy
+destroyed the run during prewalk so completely the simulation ended before one row
+was logged.
+
+**So arm B's instant-divergence count is 33 of 43, not 31 of 41.** Excluding them as
+"missing" biased the worst arm's instant count DOWNWARD by two. `scored()` returns
+None for both, so `0 of 43` is unaffected -- but the classification was wrong.
+
+**The general form, which the sentinel rule did not cover:** a failure path that
+returns a sentinel is a silent denominator shrink, *and the dropped records are not
+a random sample* -- they are the tail in the direction being measured. Count what
+ran, and check which direction what did not run failed in.
+
+### Which Chrono build produced the five verdicts
+
+**All five, proven rather than asserted: the source build.** Each run's replay check
+re-runs a baseline episode and requires a bit-identical physics digest against the
+original, which was collected under `/home/kyle/chrono-build/bin` (md5 `d1d0bd0a`).
+The conda env holds a different binary (`8e9e3865`). **25 of 25 replay checks passed
+across the five runs, which a different build cannot do.**
+
+This was luck backed by a check, not discipline: `NEDM_CHRONO_PYTHONPATH` is not in
+any shell rc file, and the harness's default points at the *other* machine's layout.
+`run_go2_finetune_verdict.py` now prints the resolved pychrono path and md5 before
+the replay check, and says so loudly when the path does not exist -- turning "which
+build produced these numbers?" from unanswerable-from-artifacts into a grep.
