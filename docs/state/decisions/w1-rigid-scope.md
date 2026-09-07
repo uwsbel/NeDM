@@ -3538,3 +3538,47 @@ scored against.
 > **A corpus tuned to keep the robot inside its stable envelope is a corpus that cannot
 > see which policy has the wider envelope. Two objectives, one collection parameter,
 > and the parameter was set for the first.**
+
+### PAIRED analysis, and the tilt shift is settled
+
+Discordant counts per band, `b` = base completes and v4 does not, `c` = the reverse:
+
+    band          a3: b, c   McNemar    sliger: b, c   McNemar
+    [-3.1,-2.0)     11,  1    0.0063       10,  2       0.0386
+    [-2.0,-1.0)      2, 11    0.0225        3, 11       0.0574
+    [-1.0,+0.0)     10,  2    0.0386        7,  4       0.5488
+    [+0.0,+1.0)      0,  0      --          0,  0         --
+    [+1.0,+2.0)     22,  0    0.0000       17,  0       0.0000
+    [+2.0,+3.1)     33,  0    0.0000       41,  0       0.0000
+
+**My earlier unpaired p-values are struck.** They treated positively correlated
+observations as independent and were anti-conservative: 0.012 and 0.049 against the
+correct 0.023 and 0.057. **Concordant pairs carry no information about the difference,
+which is why McNemar conditions on the discordant ones -- that is the test being right,
+not the pairing "costing power."**
+
+#### Pooling the two corpora IS valid, and settles it
+
+Different episodes, independent draws, same generator -- **unlike the gain rungs, where
+the same episodes recurred and pooling would have double-counted.**
+
+    v4's ADVANTAGE   [-2.0,-1.0)    pooled b=5   c=22   p = 0.0015
+    v4's DEFICIT     pitch > +1.0   pooled b=113 c=0    p = 1.9e-34
+    the ZERO         [0.0,+1.0)     91 episodes, not one failure by either arm
+
+**Neither corpus alone gets the advantage band past 0.02; pooled it is unambiguous.**
+
+**Attainable floors, so neither end is overread:**
+
+     13 discordant -> smallest two-sided p = 2.4e-04      27 -> 1.5e-08
+     14 discordant -> 1.2e-04                            113 -> 1.9e-34
+
+**sliger's 0.057 is 3 against 11 on 14 flips -- modest per corpus, decisive pooled.**
+
+**DROPPED: `[-1.0,0.0)`** -- b=10,c=2 against b=7,c=4 is a direction difference in the
+discordance, not a magnitude difference. It does not replicate.
+
+> **Final form of the tilt result: v4 trades nose-up tolerance for nose-down. The gain
+> is p=0.0015 on 27 discordant pairs; the loss is p=1.9e-34 on 113, every one in base's
+> favour. Both measured on paired episodes across two independently drawn corpora, and
+> reproducing a synthetic sweep run on a different instrument.**
