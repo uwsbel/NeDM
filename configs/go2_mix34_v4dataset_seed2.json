@@ -1,0 +1,97 @@
+{
+  "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_corrected_34d_excl",
+  "output_dir": "/home/kyle/sbel-artifacts/training_runs/go2_mix34_v4dataset_seed2",
+  "validation_dataset_name": "flat",
+  "terrain_conditioning": {
+    "enabled": false,
+    "terrains": [
+      "flat"
+    ]
+  },
+  "train_mix": {
+    "datasets": [
+      {
+        "name": "walking",
+        "terrain": "flat",
+        "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_corrected_34d_excl",
+        "batch_fraction": 1.0
+      }
+    ]
+  },
+  "validation_datasets": [
+    {
+      "name": "flat",
+      "terrain": "flat",
+      "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_corrected_34d_excl",
+      "split": "val",
+      "max_val_batches": 200
+    }
+  ],
+  "validation_loss_weights": {
+    "flat": 1.0
+  },
+  "loss": {
+    "type": "huber",
+    "huber_delta": 1.0,
+    "channel_weight_mode": "equal_domain_combined_std",
+    "channel_weight_datasets": [
+      "/home/kyle/sbel-artifacts/training_datasets/go2_corrected_34d_excl"
+    ]
+  },
+  "rollout_eval": {
+    "num_episodes": 12,
+    "horizons_s": [
+      5.0,
+      10.0
+    ],
+    "selection_horizon_s": 10.0,
+    "datasets": [
+      {
+        "name": "flat",
+        "terrain": "flat",
+        "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_corrected_34d_excl",
+        "split": "val",
+        "weight": 1.0
+      }
+    ]
+  },
+  "model": {
+    "block_size": 128,
+    "n_layer": 6,
+    "n_head": 8,
+    "n_embd": 256,
+    "dropout": 0.0,
+    "bias": false,
+    "head_hidden_dim": 256
+  },
+  "optimizer": {
+    "lr": 0.0003,
+    "min_lr": 3e-05,
+    "weight_decay": 0.1,
+    "betas": [
+      0.9,
+      0.95
+    ],
+    "warmup_steps": 1000,
+    "grad_clip_norm": 1.0
+  },
+  "training": {
+    "seed": 2026061802,
+    "device": "cuda",
+    "batch_size": 64,
+    "num_workers": 0,
+    "num_epochs": 80,
+    "steps_per_epoch": 2000,
+    "max_val_batches": 200,
+    "checkpoint_metric": "rollout_sel",
+    "load_dataset_into_memory": true,
+    "pin_memory": false,
+    "compile": false,
+    "input_noise_sigma": 0.05
+  },
+  "sweep_recipe": {
+    "version": "go2_mix34_v4dataset_seed2",
+    "slug": "mix34v4ds2",
+    "notes": "SYMMETRIC CELL, fourth cell of the bisection 2x2. Identical to go2_mix34_v4dataset except training.seed 2026061801 -> 2026061802; input_noise_sigma stays 0.05. Cell 2 gave sigma=0.0 at seed ...801 -> 22 of 43 against sigma=0.05 at the SAME seed -> 0 of 43, and cell2 B doubles the noise-OFF arm only, leaving noise-ON at n=1. REGISTERED at d645afd: ~0 of 43 means the flag's effect holds on two seeds in BOTH directions and surrogate seed variance cannot explain 22-against-0; ~20 of 43 means the noise-ON arm at seed ...801 was an outlier, the flag is not the variable, and cell 2's reading is withdrawn."
+  }
+}
