@@ -1999,3 +1999,34 @@ accepted); gate + fastest picks against the heuristic's 44 / 52 (random-rejecter
 not, and fresh hard arenas (`traverse_wp8_sealed_prep.sh`, ≥ 30 heuristic-failure layouts with a feasible alternative,
 one look) are worth collecting with the head as the gate; (i) ≈ (ii) → the imagination-as-feature-source idea is closed
 on this family and no collection goes to it; only the cost-side benchmark (b) remains.
+
+**Head test result (2026-09-07 06:00, `wp8_head/results.json`, `wp8_eval_summary/head_f105.txt`).** f105: 722 routes,
+151 stall + launch, 271 infeasible, 451 feasible; three seeds each, layout-cluster 95 % CIs in brackets:
+
+| head input | AUC stall vs feasible | AUC infeasible vs feasible | feasible rejected at 50 % infeasible rejection | gate + fastest (heuristic 44) |
+|---|---|---|---|---|
+| imagined trajectory of `wp8e_mom_s1`, state + pose + progress, tracker from rest | **0.82 / 0.83 / 0.82** [0.72, 0.89] | **0.78 / 0.80 / 0.78** | 0.12 | 46 / 46 / 46 |
+| same with the 256-D crop tokens along the imagined path | 0.79 / 0.79 / 0.81 | 0.78 / 0.77 / 0.78 | 0.12–0.15 | 46 / 46 / 46 |
+| same, open-loop rollout (fixed throttle + noise) | 0.81 / 0.79 / 0.76 | 0.73 / 0.74 / 0.71 | 0.18–0.25 | 45 / 46 / 45 |
+| imagined trajectory of the frozen model, state | 0.76 / 0.76 / 0.79 | 0.74 / 0.75 / 0.74 | 0.20–0.22 | 44 / 43 / 44 |
+| nominal route: profile features + tokens along the nominal path | 0.74 / 0.71 / 0.73 | 0.70 / 0.69 / 0.72 | 0.20–0.29 | 44 |
+| nominal route: profile features only (the cheap predictor's inputs, true terrain) | 0.78 / 0.77 / 0.76 | 0.74 / 0.74 / 0.75 | 0.18–0.22 | 44 |
+| commanded speed only | 0.60 | 0.57 | 0.41–0.45 | 44 |
+
+Pre-registered rule: (i) beats (ii) by ≥ 0.05 in all seeds — yes (+0.06 / +0.08 / +0.08 with tokens, +0.08 to +0.12
+without) — and matches (iii): yes (+0.03 to +0.06 over the profile-only head in every seed). Paired layout-cluster
+bootstrap on the seed-averaged scores: state head − profile-only +0.05 [−0.03, +0.13] (stall), +0.04 [−0.02, +0.12]
+(infeasible); state head − frozen-imagination head +0.05 [−0.03, +0.13]; frozen-imagination head − profile-only
++0.01 [−0.09, +0.10]. The gate's two fixes on f105 are the contact layout and the detour layout the audit flagged.
+
+**Reading.** The imagined trajectory *is* a better feature source than the nominal route with the same crop tokens
+(the tokens along the nominal path even hurt), and the stall-trained model's trajectory beats the frozen model's by
+about +0.05 in every seed — the first place the stall training shows up in a planner-relevant quantity. Against the
+terrain-profile predictor the edge is +0.03 to +0.06, seed-consistent, and not significant on 65 layouts. So the
+rule passes on its letter, the effect is small, and the decision is what the pre-registration said: fresh, harder
+arenas with enough heuristic-failure layouts to see a +0.05 AUC as picks, one look. Launched 06:03 (`arena_f108`–
+`f111`, difficulty 1.25: slope caps 33–39°, roughness 0.22–0.32 m; 2 197 bank runs on newton, model-free);
+`traverse_wp8_sealed_count.py` picks the pair by heuristic-failure count, `traverse_wp8_sealed_look.sh` is the
+single look (primary: the state head with the f105 threshold, fastest accepted; comparators: profile-only head,
+frozen-imagination head, heuristic; fixes:breaks sign test; contact-only and no-solution layouts apart) — committed
+before the collection finishes.
