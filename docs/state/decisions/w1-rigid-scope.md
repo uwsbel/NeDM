@@ -3749,3 +3749,34 @@ values some episodes can be handed a nearly identical vector.
 
 **Report `corr(grav_shuf, grav_world)` across episodes; it should be ~0.** One line,
 and it converts "shuffled" from a procedure into a measured property.
+
+### REGISTERED: the banded endpoint is measured on the corpus's own `val` split
+
+**A, B and C all train on the new corpus.** If the banded downstream evaluation reuses
+those episodes, **B's advantage could be "B fitted these specific tilt draws" rather
+than "B generalises tilt"** -- and that is precisely the axis under test, so it is the
+worst place to leave a confound. The policy is scored in Chrono rather than inside the
+surrogate, so it is not leakage in the usual sense, **but the episode specs would be
+ones the surrogate trained against, and B is the only arm able to represent them.**
+
+**The fix costs nothing because the split is already in the data:**
+
+    episode record carries "split": train | val, assigned AT COLLECTION
+    merged root sample: 252 train, 65 val
+
+**Every preset preprocessing the same corpus inherits the identical split**, so A, B
+and C share it automatically -- no seeding to coordinate, no way for the arms to
+diverge.
+
+> **Measure the banded endpoint on `val` episodes only.** Held out from all three
+> surrogates, identical across arms, tilt recorded so it can be banded. **Available
+> only if decided before training, which is now.**
+
+**Two counts to confirm before committing**, because both can silently fail:
+
+1. **Per-band val counts.** ~20% of ~3500 is ~700, about 100 per band, enough for the
+   paired comparison. **If a band is thin, better known now than in the analysis.**
+2. **The `[0.0,+1.0)` ceiling check needs val episodes in that band.** If the split is
+   thin there the pre-registered impossibility cannot fire -- **and an impossibility
+   check that cannot fire is the same defect as a control that cannot fail**, which is
+   a shape this project has now hit twice.
