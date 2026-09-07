@@ -4398,3 +4398,25 @@ settle 0.5 = 1.25 s`, and `fell_at` is stamped in **simulation** time, so 1.20 f
 inside the settle regardless of what is recorded. **Two routes existed; only one was
 sound; the conclusion was right for the other reason.** Worth separating "the
 conclusion holds" from "the argument holds" when reporting either.
+
+## A derived quantity must be given the chance to be impossible
+
+The withdrawn headroom metric -- baseline error split into a deadband component and a
+residual -- was built on cell4 and looked entirely reasonable there: 66% deadband,
+0.030 m/s of headroom, a plausible fraction with a plausible remainder. Two people
+discussed what it implied across several exchanges without either noticing it was
+circular.
+
+It was constructed on cell4 and **cell4 could not falsify it**, because its terms were
+chosen where that data lives. cell5 -- four times the commanded speed, 2.6x the baseline
+error -- returned a deadband of 112% of the error and a negative headroom.
+
+**A new derived quantity should be evaluated on a dataset with materially different
+numbers before it is trusted, and the purpose is not to check that it agrees.** It is to
+give it an opportunity to produce something impossible: a fraction above one, a negative
+magnitude, a probability outside [0,1], an interval that excludes its own point estimate.
+Agreement on a second similar dataset is weak; the value of the second dataset is
+proportional to how different its numbers are.
+
+Related to "when a result is cleaner than the world it describes", but distinct: that
+rule says what to be suspicious of, this one says what the second dataset is *for*.

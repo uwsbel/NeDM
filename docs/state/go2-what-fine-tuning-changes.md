@@ -26,10 +26,25 @@ cell5, the tracking-capable cell, at n=221:
    split                  +0.00047
 ```
 
-**The cell5 intervals exclude zero.** So the tracking claim needs qualifying: it is not
-that the fine-tune has no effect on tracking, but that where an effect is detectable it
-is very small and in the **harmful** direction -- 0.66% of the baseline error, at a
-commanded speed where the robot realises 56% of what it is asked.
+**The cell5 intervals exclude zero, and the exclusion survives multiplicity.** Nine
+primary intervals have been looked at across this line (3 cells x straight/turning/
+aggregate), so a single marginal exclusion on the third cell is the obvious objection.
+Tested rather than argued:
+
+```
+   unadjusted        alpha 0.05      [+0.00027, +0.00418]   excludes 0
+   Bonferroni /9     alpha 0.00556   [+0.00008, +0.00656]   excludes 0
+   Bonferroni /12    alpha 0.00417   [+0.00007, +0.00689]   excludes 0
+   sign test         136/221 positive, two-sided p = 7.3e-04
+```
+
+The sign test is the cleaner evidence: it does not depend on the interval construction
+and its p clears even a /12 correction by a factor of six.
+
+**So the sign is established and the magnitude is not.** The adjusted interval runs from
++0.00008 to +0.00689 -- from 0.03% to 3% of baseline error, a factor of 80. The fine-tune
+is reliably worse at tracking-capable speed; how much worse is poorly determined and
+small on any reading.
 
 ```
               ratio   baseline err   matched-gain effect        as % of error
@@ -62,13 +77,19 @@ own baseline corpus and its own physics build, at nominal gain:
 
 ## The statement
 
-**Fine-tuning does not meaningfully change how well the policy tracks. It changes
-whether the policy stays stable.**
+**On every axis where anything is measurable at all, the fine-tune is worse --
+negligibly on tracking, enormously on stability.**
 
-The hedge is load-bearing: at tracking-capable speed the fine-tune is detectably worse,
-by 0.66% of the baseline error. That is a real effect and it is two orders of magnitude
-below the -0.020 m/s the criterion was written for, and it runs the same direction as
-the stability result rather than against it.
+```
+   one-step accuracy (walking)   worse, monotone in dose, tight intervals
+   tracking, matched gain        worse or nil, two orders below the criterion
+   stability and recovery        worse, large, reproducible across machines
+```
+
+This is a better headline than "null on tracking, effect on stability" because it removes
+the apparent tension: the two results point the same way and differ only in magnitude. It
+also holds on the point estimates alone, so it does not rest on cell5's marginal
+exclusion.
 
 That accounts for the shape of everything measured: every tracking comparison has been
 marginal, sign-unstable and sensitive to protocol, while every stability measurement has
