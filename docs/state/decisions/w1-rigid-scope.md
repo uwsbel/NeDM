@@ -2287,3 +2287,46 @@ within-class ordering either.
 > **The predictor separates survivors from failures and has essentially no resolution
 > on "how many of 43" -- which is the quantity both branches are stated in. It was
 > built to classify and is being read for a count.**
+
+### CELL 2 SEED A SCORED: 22 of 43 -- lands on the registered "~20" branch
+
+    control (base policy)                              43/43
+    v4        original, trained pre-519ad1d, NO noise  20/43
+    v4rep     same dataset, same 34-D, noise ON         0/43   <- matched counterfactual
+    cell2 A   same dataset, same 34-D, noise OFF       22/43   <- this measurement
+
+**Scored against the branch registered at `5c669d3`, unamended: `~20 of 43 ->
+input_noise_sigma IS the regression`.** Removing the noise recovers v4's score from a
+with-noise counterpart at zero.
+
+**The flag was verified active rather than assumed** -- final surrogate `val_loss`
+0.007559 with noise against 0.002806 without, a 2.7x gap, so this is not a repeat of
+the bisection cell that reproduced a policy bit-for-bit. The three fine-tuned policies
+are also distinct by md5.
+
+**The recovery is spread across all five command families, not carried by one:**
+
+    family      v4 (no noise)   cell2 A (noise off)   v4rep (noise on)
+    arc               2                  4                  0
+    constant          7                  7                  0
+    vel_step          6                  3                  0
+    weave             3                  5                  0
+    yaw_step          2                  3                  0
+
+#### Correction: the 2/43 arm is NOT the counterfactual
+
+`finetune_go2_34d_replicate` (2/43) trained on **`go2_mix34_base_replicate`** -- the
+base dataset, not v4's. I nearly read it as a second with-noise draw on the matched
+dataset. **It differs in two variables and licenses nothing.** The matched with-noise
+arm is `v4rep` at 0/43, and it is n=1.
+
+#### What can still overturn this, and it is already running
+
+**Neither surrogate run dir records its training seed** -- `metrics.jsonl` carries only
+per-epoch losses and there is no `config.json`. So "these two differ only in the noise
+flag" is an intent, **not a fact recoverable from the artifacts.**
+
+**Seed B is the guard, and its blind prediction is committed: `0 of 43`.** If that
+verifies, the two cell-2 seeds disagree 22 against 0 on the same flag, the seed
+dominates, and this reading dies. **The prediction actively points away from the
+result I just scored**, which is the strongest form the check could have taken.
