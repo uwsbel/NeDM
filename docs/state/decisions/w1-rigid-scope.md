@@ -2612,3 +2612,43 @@ resolves, the full rebuild's factor list is known rather than guessed.
 **One correction to my own arc test while registering this:** pitch +3.0 gave 1/5, not
 0/5 (one episode ended at row 135). **Nose-up is not strictly immune**, which their
 zero-over-240 does not contradict -- no nose-up `arc` cell exists in the eight.
+
+### CROSSED GRID RESULT: pitch x roll INTERACT, and peak is not needed at all
+
+`arc`, base, **peak held at 36 N and `wz` at 0.3 throughout**, 5 seeds per cell:
+
+    pitch \ roll     -3.0     0.0    +3.0
+        -3.0          0/5     5/5     5/5
+        -1.5          0/5     5/5     5/5
+         0.0          0/5     0/5     0/5
+
+**Three findings, each from one variable moving:**
+
+1. **Roll -3.0 completely protects a nose-down cell.** 0/5 at pitch -3.0, where roll 0.0
+   and +3.0 both give 5/5. The registered "roll matters only when pitch < 0" branch is
+   confirmed -- at pitch 0.0 roll does nothing.
+2. **Pitch magnitude is irrelevant** -- -1.5 and -3.0 are identical at every roll.
+   Sign, not magnitude, confirmed independently of the eight-cell coincidence.
+3. **Peak force is not required to span the range.** It was fixed at 36 N while the
+   rate went 0/5 to 5/5. **The pitch x peak crossing the fleet data argued for would
+   have missed the factor that actually does the work.**
+
+**And it is not the turn direction.** At pitch -3.0 / roll -3.0, `wz` = +0.3, 0.0 and
+-0.3 all give 0/5, all 1775 rows -- so roll's protection is not cancelling the arc's
+turn.
+
+    cond4 (roll -1.5, nose-down) failing 4-14/20 fits the same monotone axis:
+    roll -3.0 -> 0/5,  roll -1.5 -> ~20-70%,  roll 0.0 -> 5/5,  roll +3.0 -> 5/5
+
+> **The rebuild must cross pitch x roll.** Family, peak and yaw have each now been
+> tested one-at-a-time and none of them moves the rate; the two tilt axes move it
+> completely and only in combination.
+
+#### Consequence for a 1-D pitch dose-response
+
+**The pitch boundary is roll-conditional** -- at roll -3.0 there is no boundary
+anywhere in [-3.0, 0.0]. **A pitch sweep at a single fixed roll measures where that
+roll's boundary is, not where the boundary is**, and the arc cell's +1.0 roll is an
+arbitrary choice inherited from the defective list. Fix roll at 0.0 and say so, or
+sweep the plane. **Arm-vs-arm comparison at a fixed roll stays valid** -- it is paired,
+and the confound is held constant.
