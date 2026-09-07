@@ -3697,3 +3697,55 @@ other.**
 **One surrogate seed per arm gives the sign and nothing about magnitude** -- the
 `input_noise_sigma` 2x2 moved 11 pairs across seeds at fixed sigma. **Two seeds per
 arm, or the result is a direction only.**
+
+### AMENDED registration: drop val_loss as the primary endpoint, and band the downstream one
+
+**Accepting the argument that one-step teacher-forced `val_loss` will under-report tilt
+observability**: the channel matters for where a trajectory goes over many steps, not
+for the next state given the true current one, because the current state already
+encodes the slope's consequences so far. **Primary endpoint becomes open-loop horizon
+error at 1.0 s; `val_loss` is diagnostic only.**
+
+**But the justification offered for it is wrong and worth correcting**, because it will
+be repeated:
+
+    contrast                    val_loss    verdict
+    noise flag, seed ...801       2.69x     22 -> 0 pairs
+    noise flag, seed ...802       2.83x     27 -> 11 pairs
+    seed,  at sigma 0.0          1.001x     22 vs 27
+    seed,  at sigma 0.05         1.048x      0 vs 11
+
+**`val_loss` detected the flag at 2.7-2.8x on both seeds -- the largest effect measured
+tonight. What it missed was the SEED**, where 1.05x accompanied an 11-pair swing. **So
+it is not "the metric that failed to see the largest effect"; it is a metric that
+measures one-step accuracy well and predicts downstream policy outcome badly.** The
+reason to drop it here is the a-priori mechanism, not a track record it does not have.
+
+#### The downstream endpoint must be BANDED, not pooled
+
+We spent hours establishing that a pooled completion rate is a property of the
+evaluation corpus's tilt mix. **Registering a pooled A/B/C completion rate would
+reintroduce exactly that.** The endpoint is the per-pitch-band paired table.
+
+> **And banding gives the experiment a specificity check it otherwise lacks:
+> tilt observability should help MOST at high |pitch| and NOT AT ALL near zero.**
+>
+>     helps at high |pitch|, flat near zero   -> consistent with tilt observability
+>     helps uniformly across all bands        -> NOT tilt observability; something
+>                                                generic about 39-D or the extra
+>                                                channels, and arm C should show it too
+>     helps only near zero                    -> incoherent; suspect the pipeline
+>
+> **`[0.0,+1.0)` had 91 episodes with zero failures by either arm, so it is a hard
+> ceiling: B cannot improve there and any apparent gain is an artifact.**
+
+#### One verification to add to the shuffle control
+
+`grav_shuf_*` as an across-episode derangement is the right construction -- a constant
+triple would have near-zero variance and be renormalised unlike any real channel, which
+would make C differ from B in two ways. **But a derangement only guarantees no episode
+keeps its OWN triple, not that it receives a dissimilar one.** With clustered tilt
+values some episodes can be handed a nearly identical vector.
+
+**Report `corr(grav_shuf, grav_world)` across episodes; it should be ~0.** One line,
+and it converts "shuffled" from a procedure into a measured property.
