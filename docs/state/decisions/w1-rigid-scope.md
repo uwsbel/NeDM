@@ -3582,3 +3582,40 @@ discordance, not a magnitude difference. It does not replicate.
 > is p=0.0015 on 27 discordant pairs; the loss is p=1.9e-34 on 113, every one in base's
 > favour. Both measured on paired episodes across two independently drawn corpora, and
 > reproducing a synthetic sweep run on a different instrument.**
+
+### Correction: the bands do NOT disagree in direction, and the tilt result is not a clean shift
+
+    band          a3 b:c   sl b:c   same dir   heterogeneity   pooled p    x6
+    [-3.1,-2.0)    11:1     10:2      yes         1.000        2.77e-04   0.002
+    [-2.0,-1.0)     2:11     3:11     yes         1.000        1.51e-03   0.009
+    [-1.0,+0.0)    10:2      7:4      yes         0.371        3.47e-02   0.208
+    [+1.0,+2.0)    22:0     17:0      yes         1.000        3.64e-12  <0.001
+    [+2.0,+3.1)    33:0     41:0      yes         1.000        1.06e-22  <0.001
+
+**`[-1.0,0.0)` was dropped on the grounds that the corpora "disagree in direction".
+They do not** -- b=10,c=2 and b=7,c=4 both favour base. **sliger is weaker, not
+opposite; p=0.55 was read as a null direction, which is treating p>0.05 as evidence of
+no effect.** Fisher on the b/c split gives 0.371: no detectable heterogeneity anywhere.
+
+**The valid reason to drop it is MULTIPLICITY.** Six bands were tested; at x6 it is
+0.208 and the only band that fails. Everything else survives with room.
+
+> **"Pool only when the per-corpus directions agree" would be a bad rule.** At 11-14
+> discordant pairs the direction of a weak effect is itself noisy, so the rule discards
+> the evidence pooling exists to combine and conditions the decision on the data being
+> pooled. **The principled version is a heterogeneity test: pool unless the corpora are
+> shown to differ.**
+
+#### And "shifted toward nose-down" is wrong for the tails
+
+    [-3.1,-2.0)   pooled b=21  c=3    p=2.8e-04    v4 much WORSE
+    [-2.0,-1.0)   pooled b=5   c=22   p=1.5e-03    v4 BETTER
+    [+1.0,+3.1)   pooled b=113 c=0    p=1.9e-34    v4 much WORSE
+
+**v4 is better at moderate nose-down and worse at steep nose-down -- the same side.**
+The band table showed this throughout; we quoted the two crossings and skipped the far
+end. **"v4 trades uphill for downhill" implies it is better everywhere downhill, and it
+is not.**
+
+**Final form:** v4's tolerance window is **narrower and displaced**, not translated. It
+beats base only in `[-2.0,-1.0)` and loses at both extremes.
