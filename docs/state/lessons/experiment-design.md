@@ -4053,3 +4053,51 @@ families` beside the number it feeds, with the comment *"nobody has to have
 anticipated this failure to see it."* `val_loss` printed nothing, and hid a
 one-family prefix through every run in the project's history. **Same repository,
 same period, opposite outcomes.**
+
+## A constant that reproduces history must be pinned, not synchronised
+
+The verdict harness re-derives a corpus's collection parameters from a seeded RNG. The
+driver draws the same quantities. When the driver's ground-pitch range was capped from
+±3.0 to ±1.5 for a measured reason, the harness kept ±3.0, and every corpus collected
+afterwards failed the bit-identical replay check — appearing as simulator
+non-determinism.
+
+The obvious repair is a test asserting the two agree. **That test would have destroyed
+what it protected.** `go2_joint_off3000000` was collected at ±3.0 and is the baseline
+behind every scored result in the project; realigning the harness to the driver's ±1.5
+makes it unreproducible. The two constants look like duplicates and are not:
+
+```
+  the driver's draw      CURRENT behaviour. Should change when collection improves.
+  the harness's draw     a HISTORICAL RECORD of how one corpus was made.
+                         Must never change, or that corpus stops replaying.
+```
+
+So the test freezes the legacy constants against being "fixed", with the reason in the
+failure message, and the real repair is elsewhere: the collector now **records** the
+parameters and the harness **reads** them, so new corpora do not depend on the
+duplication at all.
+
+The general form: **a constant whose job is to reproduce a historical artifact must be
+pinned, not synchronised.** Any test asserting it matches current behaviour is a test
+that it will eventually be broken on purpose, by someone doing the reasonable thing.
+
+## A failing test says two things disagree, not which one is wrong
+
+The test above failed exactly as intended, on pitch. I then went to make it pass by
+updating the harness — and stopped only because the change meant editing the constant
+that reproduces the corpus every result depends on.
+
+**The obvious side to change was the side that had to stay.** It looked stale; it did not
+match current behaviour; it was the historical record.
+
+This is the inverse of the audit failure recorded above, where an instrument reported
+success and was wrong. Here an instrument reported failure and was right, and acting on
+the failure in the obvious direction would have been the damage.
+
+**Neither a pass nor a fail tells you what to do.** Both are inputs to a prior question:
+which of the two disagreeing objects is authoritative? A test that cannot answer that —
+and none can — hands you a decision, not an instruction.
+
+The test earned its keep by failing for a reason nobody predicted, including the person
+who asked for it.
