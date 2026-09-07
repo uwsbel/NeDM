@@ -3379,3 +3379,44 @@ were.** "Unfiltered population" felt like it had solved the problem.
 evaluation corpora rather than draws from the collection distribution. **They do match
 the TRAINING corpus's +-3.0**, which is the comparison that matters, but how they were
 generated is not recorded anywhere I can see.
+
+### CORRECTION: my own reweighting table weighted bands equally, not by episode count
+
+The table at `de5e1ea` is wrong in every row except the first. **The "as measured" row
+passed the band counts and is right; the restricted rows passed 0/1 indicators**, which
+averages over BANDS rather than over EPISODES -- a different estimand, and an unstated
+composition of exactly the kind the entry was about.
+
+    restriction        WRONG (equal bands)      CORRECT (episode counts)
+    as collected +-3.0        -23.8                     -23.8
+    +-2.0                      -5.5                     -11.0
+    +-1.0 / +-1.5              -7.1                      -9.9   (theirs, exact: -6.1)
+
+**The corrected +-2.0 figure matches the fleet's independently computed -11.0
+exactly.** My +-1.5 of -9.9 linearly interpolates the boundary bands; **theirs at -6.1
+uses per-episode pitch and is the one to use.**
+
+> **I made a composition error while writing up a composition error.** Substituting a
+> uniform-over-bands mix for the episode mix is the same move as picking a tilt range
+> without noticing -- silent, defensible-looking, and it changed the number by half.
+
+**The qualitative conclusion survives**: the net ranges from -6 to -24 across
+defensible mixes, a factor of four rather than five.
+
+### The tilt mix was chosen, not collected
+
+`fresh_a3.py:28-29` and `fresh_sliger.py:28-29` draw **pitch from `uniform(-3.0, 3.0)`**
+while `drive_go2_collection.py:94` draws `uniform(-1.5, 1.5)` -- the roll range copied
+across to pitch, past a comment explaining why the two differ.
+
+    as collected  (+-3.0, chosen)   n=269   base 85.9%   v4 62.1%   net -23.8
+    driver's current +-1.5          n=147   base 94.6%   v4 88.4%   net  -6.1
+
+**Under the distribution the project actually collects under, v4's deficit is 6 points.
+Under the one in the scratch generator, 24.** Every aggregate quoted from the
+unfiltered pass -- `net -64`, `62.1%`, "v4 loses more than it gains" -- is a property
+of that choice.
+
+**Third instance of the same defect at a third level:** the screen's hand-picked
+conditions, the verdict's selection rule, and now a composition in a pass that had
+removed all selection. **Removing selection does not remove composition.**
