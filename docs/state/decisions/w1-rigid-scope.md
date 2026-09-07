@@ -3140,3 +3140,53 @@ on seed B that returned **27**.
 
 The prediction is committed for provenance only. **Nothing downstream should cite it in
 either direction**, and the verdict is scored against `d645afd` alone.
+
+### SYMMETRIC CELL: 11 of 43. The 2x2 closes, and it hits NEITHER registered branch.
+
+                    seed ...801   seed ...802
+      sigma 0.0          22            27
+      sigma 0.05          0            11
+
+    noise effect at seed ...801   22 -> 0    -22 pairs
+    noise effect at seed ...802   27 -> 11   -16 pairs
+    seed  effect at sigma 0.0     22 vs 27    +5 pairs
+    seed  effect at sigma 0.05     0 vs 11   +11 pairs
+
+**Registered at `d645afd` were `~0` and `~20`. The answer is 11, which is neither**,
+and unlike cell 2 I did not register an intermediate branch here. **That is a gap in my
+registration, not a result to be read into one of the two arms of it.**
+
+#### What the 2x2 establishes anyway
+
+**`input_noise_sigma` is causal.** It costs 22 surviving pairs at one seed and 16 at
+the other -- **same sign, large at both, and larger than the seed effect at either
+sigma.** The direction replicates and that was the question the cell existed to answer.
+
+**But "noise-ON gives ~0" was an overreading of n=1.** Cell C's zero is the extreme of
+the four, not the typical value: at the other seed the same flag gives 11. **The
+seed moves the outcome by 11 pairs at sigma 0.05 against 5 at sigma 0.0**, so surrogate
+seed variance is larger than the `val_loss` 2x2 suggested (1.048x across seeds) and
+larger than I assumed when I called C the counterfactual.
+
+> **Corrected claim: removing `input_noise_sigma` recovers roughly 16-22 surviving
+> pairs, on two seeds. Not "22 against 0" -- that pair was the widest of the four
+> available and quoting it overstates the effect by about a third.**
+
+#### The pre-registered metric disagreement resolved toward `rollout_sel`
+
+At `1f9fee3`, before the verdict: `val_loss` said D looks like C (expect ~0);
+`rollout_sel` said D is 3.5x better than C (expect better than 0). **D returned 11.**
+
+    by rollout_sel   C 0.58 -> 0,  D 2.03 -> 11,  B 3.59 -> 27,  A 8.83 -> 22
+    by val_loss      B -> 27, A -> 22, C -> 0, D -> 11
+
+**`rollout_sel` orders three of four and inverts A/B; `val_loss` orders three of four
+and inverts C/D.** Both are 3-of-4 at n=4. **The direction call on D was correct and
+was made in advance -- but it is one binary call, which chance gets right half the
+time. It is not evidence that `rollout_sel` is the better metric.**
+
+#### The retired predictor said 0 and the answer was 11
+
+`34171f8` registered that its call counted for nothing either way. **It was wrong
+again, on inputs (rho 1.2597, |a| 6.0899) far outside its fitting range.** Two wrong
+calls and one abstention, out of three out-of-sample cases. **It stays retired.**
