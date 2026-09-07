@@ -1,0 +1,97 @@
+{
+  "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_corrected_34d_excl",
+  "output_dir": "/home/kyle/sbel-artifacts/training_runs/go2_mix34_v4dataset",
+  "validation_dataset_name": "flat",
+  "terrain_conditioning": {
+    "enabled": false,
+    "terrains": [
+      "flat"
+    ]
+  },
+  "train_mix": {
+    "datasets": [
+      {
+        "name": "walking",
+        "terrain": "flat",
+        "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_corrected_34d_excl",
+        "batch_fraction": 1.0
+      }
+    ]
+  },
+  "validation_datasets": [
+    {
+      "name": "flat",
+      "terrain": "flat",
+      "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_corrected_34d_excl",
+      "split": "val",
+      "max_val_batches": 200
+    }
+  ],
+  "validation_loss_weights": {
+    "flat": 1.0
+  },
+  "loss": {
+    "type": "huber",
+    "huber_delta": 1.0,
+    "channel_weight_mode": "equal_domain_combined_std",
+    "channel_weight_datasets": [
+      "/home/kyle/sbel-artifacts/training_datasets/go2_corrected_34d_excl"
+    ]
+  },
+  "rollout_eval": {
+    "num_episodes": 12,
+    "horizons_s": [
+      5.0,
+      10.0
+    ],
+    "selection_horizon_s": 10.0,
+    "datasets": [
+      {
+        "name": "flat",
+        "terrain": "flat",
+        "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_corrected_34d_excl",
+        "split": "val",
+        "weight": 1.0
+      }
+    ]
+  },
+  "model": {
+    "block_size": 128,
+    "n_layer": 6,
+    "n_head": 8,
+    "n_embd": 256,
+    "dropout": 0.0,
+    "bias": false,
+    "head_hidden_dim": 256
+  },
+  "optimizer": {
+    "lr": 0.0003,
+    "min_lr": 3e-05,
+    "weight_decay": 0.1,
+    "betas": [
+      0.9,
+      0.95
+    ],
+    "warmup_steps": 1000,
+    "grad_clip_norm": 1.0
+  },
+  "training": {
+    "seed": 2026061801,
+    "device": "cuda",
+    "batch_size": 64,
+    "num_workers": 0,
+    "num_epochs": 80,
+    "steps_per_epoch": 2000,
+    "max_val_batches": 200,
+    "checkpoint_metric": "rollout_sel",
+    "load_dataset_into_memory": true,
+    "pin_memory": false,
+    "compile": false,
+    "input_noise_sigma": 0.05
+  },
+  "sweep_recipe": {
+    "version": "go2_mix34_v4dataset",
+    "slug": "mix34v4ds",
+    "notes": "DIRECT REPLICATION OF v4. 34-D trained on v4 OWN dataset (go2_corrected_34d_excl, the pre-unwrap vintage) with today pipeline. The 34-vs-36 result died when go2_mix34_base_replicate -- 34-D on the CURRENT dataset -- returned 2 of 43 and k* 0.925, indistinguishable from the 36-D arms. So the state definition does not explain v4 and the remaining candidate is its dataset vintage. This asks whether v4 reproduces AT ALL on its own data with current code. A result near 20 means the dataset is the variable; a result near 0-2 means the one non-zero fine-tune this project has is a single unreproducible run. Registered at 9ccc794 to run BEFORE the fourth cell, because a replication tests reproducibility while the fourth cell assumes it."
+  }
+}
