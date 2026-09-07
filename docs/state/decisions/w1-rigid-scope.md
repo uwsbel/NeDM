@@ -1346,3 +1346,873 @@ gate readable. corr is indeterminate in every cell. **The gate becoming readable
 a precondition for the fine-tune question, not an answer to it** -- the endpoint is
 a fine-tune inside an excitation-trained surrogate that survives transfer to
 Chrono, and that is one experiment away.
+
+## 1u. CORRECTION: the sweep's baseline comparison was confounded, and one metric was not a comparison at all
+
+**Two of the three verdicts in 1t rested on a comparison against `base` that
+differs from the excitation cells in TWO ways, not one.** The channel weighting
+differs as well as the data.
+
+### The mechanism: single-dataset weighting is an exact identity
+
+`_build_channel_weights` computes `w_i = flat_std_i^2 / mean_d(std_{d,i}^2)`, where
+`flat_std` is `self.metadata`'s `target_std`. When `channel_weight_datasets` is a
+single dataset matching the metadata source, numerator and denominator are the
+**same array** and `w_i = 1.0` identically, for every channel.
+
+**The config generator set `channel_weight_datasets` to each cell's own
+`train_mix`.** For the baseline that is walking alone, so the baseline trained
+**unweighted** while every excitation cell trained under a real weight vector:
+
+|  | data | weights |
+|---|---|---|
+| `base` | walking | 1.0 everywhere (identity) |
+| `base_ownweights` | walking | 1.0 everywhere -- **same config as `base`** |
+| `exc25`, `seed2`, `lowvol` | walking + excitation | `roll_rate` 0.058, `grav_body_y` 0.161, `vel_body_x` 1.163 |
+
+**`base_ownweights` was built to remove a contamination that was never there.** It
+is `base` under a different name, and its gate reproduces `base` to nine decimals
+-- `gain 1.042596576`, `corr 0.554773709`, `d_model 0.051442282` -- on a
+checkpoint file with a different md5. **Recorded as what it actually is: a
+determinism check on the training pipeline, which we did not previously have.**
+A run that reproduces another to nine decimals is either a determinism check or a
+duplicate, and which one must be established before it is reported as either.
+
+### `val_loss` is withdrawn outright, not merely confounded
+
+The weights are mean-normalized (`weights * weights.size / weights.sum()`), so
+they do not shrink the loss -- overall scale is fixed. **But mean-normalization
+fixes the total, not the allocation.** `base` minimises an unweighted MSE;
+`exc25` minimises one that downweights `roll_rate` 17x and `grav_body_y` 6x --
+**the very channels 1p identified as where the error is.** Two different
+objectives, each scored on itself.
+
+> **WITHDRAWN: "val_loss 0.00662 vs 0.00811, real, 18% below baseline."** That is
+> not one quantity measured twice. It is two quantities.
+
+### `err/signal` is confounded differently, and less badly
+
+The gate reads **raw** channels, so the ruler is common across cells. The confound
+is in what the model learned, not in the measurement. `1.401 -> 0.287` remains a
+real comparison of a real quantity between two models -- which differ in two ways.
+
+> **WITHDRAWN: "the gap to baseline is ~1.0, far exceeding the seed spread."**
+> The gap is data-plus-weighting.
+
+**What is untouched:** the seed spread (0.145), the floor measurement, and the
+low-volume result. Those compare cells that share a weight vector.
+
+### The corrected cell, and its metrics declared before the numbers
+
+`go2_mix36_base_bothweights`: walking-only data under exc25's exact weight vector,
+**verified equal channel by channel**. It differs from `exc25` only in data.
+
+|  | chanw walking | chanw walking+exc |
+|---|---|---|
+| **train walking** | `base` | `base_matchw` |
+| **train walking+exc** | (not built) | `exc25` |
+
+    base -> base_matchw     WEIGHTING effect     err/signal ONLY
+    base_matchw -> exc25    DATA effect          err/signal AND val_loss
+    base -> exc25           the confounded total already reported
+
+**The two legs do not admit the same metrics.** The weighting leg compares models
+trained under different weight vectors, so reporting it on `val_loss` would repeat
+the error withdrawn above; it is readable only on `err/signal`. **Additivity is
+likewise testable only on `err/signal`**, the one metric defined across all three
+cells. The leg that carries the claim -- data -- is the one where both metrics are
+admissible, and their agreement is a check worth having.
+
+**If weighting carries most of the effect, the excitation corpus was not the lever.**
+
+### Two instrument defects found while setting this up
+
+**The fine-tune checkpoints were not loadable by anything that consumes them.**
+The fine-tune scripts save `{"state_dict": ...}`; the collector, the gate and the
+verdict harness all call `torch.jit.load`, which fails outright on it. v4 worked
+only because someone exported it by hand and never captured the step. Now
+`scripts/evaluation/export_finetuned_policy.py`, validated by re-exporting v4 and
+reproducing the existing artifact bit-exactly in all 14 tensors.
+
+**The verdict harness aborts on mixed-machine episode sets and had no flag for the
+stratified design its own abort message recommends** -- only `--allow-foreign`,
+which proceeds *including* the foreign half. Added `--own-machine-only`, which
+drops foreign episodes and prints a standing warning that the result is a stratum
+and not the pool. The patch is purely additive and guarded by the flag. **On this
+host the cell holds 43 episodes, the denominator of the 38-of-43 control.**
+
+**Both of the harness's path defaults are the other machine's**, including
+`NEDM_CHRONO_PYTHONPATH`. That one is the dangerous member: this box carries a
+second pychrono inside the conda env, so the wrong default can silently change the
+physics build and break the bit-exact replay the paired design rests on. **Check
+the md5, not the path.**
+
+## 1v. The fine-tune verdict ladder: the excitation data is exonerated, and three explanations for the surviving result have died
+
+One harness, one root, 43 episodes per arm, `--own-machine-only` on kyle-N7-B650E.
+Every arm stopped on `target_dw`, so displacement is matched to three decimals.
+
+| policy | surrogate | `\|\|dW\|\|` | surviving pairs |
+|---|---|---|---|
+| unmodified | -- | -- | **43 of 43**, median paired difference exactly +0.0000, CI [0,0] |
+| v4 | 34-D, walking | 8.9032 | **20 of 43** |
+| base36 | 36-D, walking only | 8.9003 | **0 of 43** |
+| arm A | 36-D, walking + excitation | 8.9017 | **0 of 43** |
+
+### The excitation data is not the cause
+
+**`base36`'s surrogate never saw an excitation row and collapses identically to arm
+A.** No weighting story can rescue the attribution: a walking-only 36-channel
+surrogate produces total collapse on its own. The sentence *"the excitation
+fine-tune destroys transfer"* was sealed as "arm A, pending arm B" for four hours
+and never written.
+
+### What survives, welded to no mechanism
+
+> **At `||dW||` matched to three decimals, same script, same objective, same 5-step
+> horizon: 34-D gives 20 of 43, and two independently trained 36-D surrogates each
+> give 0.**
+
+Three explanations for that have been proposed and withdrawn in one session. The
+empirical claim outlived all three, which is the reason to state it alone.
+
+### The failure mode is not a fall in the scored episode
+
+The policy **cannot hold a stand**: 0.100 m against a standing 0.30-0.42 m at the
+first recorded row, during prewalk, before the episode begins. Joint targets then
+grow exponentially -- 4.15, 4.75, 5.58, 6.80, 9.66, 16.5, doubling about every two
+rows -- to 1e30. Chrono clamps **torque** (`robot.py:130`) but nothing clamps the
+**command**, which is why these episodes terminate on length rather than crashing.
+**Ordering: fails to stand, then falls, then unbounded feedback through the
+observation, then 1e30.** The first observable was none of the first three.
+
+### WITHDRAWN 1: the surrogate is fooled
+
+> ~~The surrogate is smooth and bounded where physics is not, so gradient ascent
+> finds a policy with unbounded outputs that the surrogate scores as excellent.~~
+
+The predicted **height** rises to 0.758 m, which is measured. The predicted
+**reward** was inferred and is the opposite: +0.95 at 5 steps, **-1.53 at 20**.
+The surrogate penalises the runaway heavily, using terms it already computes.
+
+### WITHDRAWN 2: the window is narrower than the validity
+
+> ~~The failure is visible inside the validity the surrogate already had, and the
+> fine-tune's 0.05 s window is narrower than both.~~
+
+Killed by the control, which should have been run before the claim:
+
+```
+  surrogate   policy        h=5      h=20                h=50
+  exc25       exc25 FT     +0.95    -1.53   1.2e1     -7.94     2.4e1
+  exc25       UNMODIFIED   +0.60    -4.0e8  3.4e6     -inf      3.1e19
+  34-D        v4 FT        +1.06    -0.29   1.7e1     -2.5e15   1.4e10
+  34-D        UNMODIFIED   +0.86    -1.5e8  1.5e6     -inf      5.2e18
+```
+
+**The policy that completes 43 of 43 in Chrono is the worst-behaved policy in every
+surrogate.** The surrogate does not discriminate; its closed-loop rollout diverges
+for everything past ~5-10 steps. `-1.53` is a good number, not a bad one.
+
+**The conflation this exposed, which ran through the whole evening:**
+
+    0.5 s validity from the gate      OPEN-LOOP, against RECORDED actions
+    what the fine-tune consumes       CLOSED-LOOP, policy feeding its own actions back
+
+Different properties. The gate certifies the first. **Closed-loop validity is under
+~10 steps for every surrogate here, 34-D and 36-D alike, and nothing has ever
+measured it.** So `--branch-steps 50` would optimise against a model already at
+1e19 actions for the baseline policy, and the 5-step window may be about right for
+the validity that actually matters.
+
+### WITHDRAWN 3: 36-D permitted a sharper myopic optimum
+
+v4 scores **+1.0645** at 5 steps, the *highest* of the three, not the lowest.
+
+### A real defect, which is not the explanation
+
+`go2_reward_terms.NOT_COMPUTABLE` drops `correct_base_height` at **-10.0**, the
+largest weight in the reward, for the stated reason *"no pos_z_m in the 34-D
+state"*. True for v4. **False for every 36-D and 40-D surrogate**, which carry
+`pos_z_m` -- but the dict is a module-level constant encoding a per-run fact. The
+34-D to 36-D difference is exactly two channels, `pos_z_m` and `vel_body_z_mps`,
+and **neither is constrained**: one by the stale omission, one because `lin_vel_z`'s
+converged weight is literally 0.0, so half the pose pair cannot be fixed by any
+reward change.
+
+`wrongly_omitted(state_fields)` now returns omitted terms whose required channels
+are all present in the loaded state. **The rule it enforces was already written in
+that file**, by whoever hit this with `torques` and `dof_power`: *name the missing
+quantity and confirm it cannot be derived.* It was recorded and not re-run when the
+state changed. **Recording a rule and enforcing a rule are different things.**
+
+The term itself is **not implemented** -- `RT.terms()` takes no height argument, so
+removing the dict entry would change nothing. It needs the upstream form and target
+height from `go2_env.py`, and both-class validation against a policy known to stand
+and one known to collapse, before any fine-tune trusts it.
+
+### 17, 20 and 38 are one row under two predicates
+
+    v4   42/43 recorded   COMPLETED 17, fell 4, diverged 21   PAIRS 20
+
+**17 is a status category; 20 is surviving scored pairs; 38 is that same status
+category on the unmodified policy.** Never in conflict, all from one run. This
+harness reports 43 of 43 for the base policy because it counts pairs, not statuses.
+
+### Three diagnostics that were printing all along
+
+`reward: 10 computable terms, 4 omitted` on every fine-tune including v4's; the
+2026-09-05 `constants.py` note diagnosing the height gap correctly and shipping only
+the state half of the fix; and v3's own pre-registered falsification test on mean
+`|raw action|`. **A diagnostic nobody reads is not a diagnostic**, and the fix is
+that `wrongly_omitted` asserts rather than prints.
+
+### The verdict is a divergence test with a tracking test bolted onto its survivors
+
+Per-episode, using the harness's **own** `scored()` rather than a reimplementation,
+with "diverged" = `max |raw policy action| > 1e3` (invariant from 1e3 to 1e6):
+
+| policy | n | diverged | scored | diverged AND scored | neither |
+|---|---|---|---|---|---|
+| base | 43 | 0 | 43 | 0 | 0 |
+| v4 | 43 | 23 | 20 | 0 | 0 |
+| base36 | 43 | 43 | 0 | 0 | 0 |
+| arm A | 43 | 43 | 0 | 0 | 0 |
+
+**Zero exceptions in 172 episodes: an episode scores if and only if its commanded
+actions stay bounded.**
+
+So `"v4 completes 20 of 43"` means `"v4 does not diverge in 20 of 43"`. **The primary
+axis has never measured control quality; it measures whether the policy blows up.**
+And the paired tracking difference is then computed over the survivors -- **a sample
+selected by the very failure being studied.** `go2-finetune-displacement-result.md`
+already suspected the survivors were the easier episodes; this is the sharp form.
+
+**Threshold choice is not free-floating:** base's median max is 4.547, so a bound at
+10 sits inside its own operating range and produced a spurious 2/43. At 1e3 that
+vanishes and the rates are identical at 1e6. **Quote a rate only where it is
+invariant across decades.**
+
+**Raw action space matters.** `targets = action * 0.25 + IMPORTED_DEFAULTS` in the
+policy frame with `SIGN = -1` and a 12-element reindex, and the defaults differ per
+joint. Comparing a recorded Chrono target against a surrogate-side action without
+inverting all three compares different quantities -- which is how an earlier version
+of this analysis produced a spurious fifteen-order-of-magnitude "separation" in which
+v4 looked bounded. **v4 diverges in Chrono too, in 23 of 43.**
+
+### ARM B: the attribution, single-variable at last
+
+| policy | surrogate | `\|\|dW\|\|` | surviving |
+|---|---|---|---|
+| base | -- | -- | **43 of 43** |
+| v4 | 34-D, walking | 8.9032 | **20 of 43** |
+| base36 | 36-D, walking, identity weights | 8.9003 | **0 of 43** |
+| arm A | 36-D, walking + excitation | 8.9017 | **0 of 43** |
+| arm B | 36-D, walking, exc25's weight vector | 8.9017 | **0 of 43** |
+
+**Arm A and arm B match to four decimals on displacement, share one channel-weight
+vector, and differ only in whether the surrogate's training data included the
+excitation corpus. Both are 0 of 43.**
+
+> **The excitation data has no effect on fine-tune transfer. Not adverse, not
+> beneficial -- no effect.**
+
+Two independent walking-only 36-D arms reach the same zero, one under identity
+weights and one under exc25's, so no weighting story survives either.
+
+**Every 36-D arm is 0; the 34-D arm is 20.** Three replicates against one, at
+matched displacement, same script, same objective, same 5-step horizon. That
+sentence has now outlived four proposed mechanisms.
+
+### The excitation corpus does buy what it was collected to buy
+
+Same three checkpoints, evaluated on both validation splits:
+
+| surrogate | walking | excitation |
+|---|---|---|
+| base_matchw (0%) | 0.008933 | **0.741947** |
+| exc25 (25%) | 0.006657 | **0.123441** |
+| exc50 (50%) | 0.011860 | **0.128190** |
+
+**A 6x improvement on the excitation distribution.** The sweep's walking-only
+validation set was structurally incapable of measuring it: with 55.7% of excitation
+rows beyond walking's 99th percentile, degradation on walking is close to what the
+design guarantees, and the benefit is invisible by construction.
+
+**The two columns are NOT one instrument and the magnitudes must not be traded off
+against each other.** `val_loss` comes from the **primary** loader built from
+`processed_root`; `validation_datasets` only adds **extra** loaders keyed
+`val_<name>_loss`. Overriding the former and reading the latter returns *the same
+number for every set* -- caught only because two different validation sets produced
+identical values, the same signature that exposed the `base_ownweights` duplicate.
+The walking column here also **inverts** the dose-response ordering computed at
+training time, so a trade curve needs both sides re-measured on one loader.
+
+### WITHDRAWN: the walking-split dose-response
+
+> ~~Adding excitation data costs walking-split accuracy monotonically with dose:
+> 0.00613 / 0.00662 / 0.00867.~~
+
+**`checkpoint_metric` is `rollout_sel` in all three runs, so `best_val.pt` is not the
+best-by-val_loss checkpoint.** The two "disagreeing" loaders never disagreed -- they
+were measuring different epochs:
+
+| run | saved ckpt | min val_loss over 80 epochs | val_loss AT the saved epoch |
+|---|---|---|---|
+| base_matchw | ep37 | 0.00613 @ep78 | **0.00893** |
+| exc25 | ep76 | 0.00662 @ep74 | **0.00666** |
+| exc50 | ep24 | 0.00867 @ep78 | **0.01186** |
+
+The right-hand column reproduces the extra-loader evaluation to four decimals. **The
+dose-response was computed from per-run epoch-wise minima of a metric that selected
+none of the saved models** -- a selected extreme of a noisy series, describing
+checkpoints that do not exist.
+
+**On the artifacts that do exist the trend is non-monotone**, with the 25% cell
+lowest: 0.00893 / 0.00666 / 0.01186.
+
+**And the selection compounds it.** `rollout_sel` is the metric withdrawn in 1t as
+seed-noise-dominated (0.2364 vs 0.4167 across two seeds of one config). It set the
+saved epochs to 37, 76 and 24 -- the 0% and 50% arms stopped less than half way
+through a run the 25% arm nearly completed, on that noise. **Nothing about
+walking-split accuracy across these three cells is currently reportable.**
+
+**The excitation reversal is unaffected**: both columns come from the same loader on
+the same artifacts, so `0.00893 -> 0.74195` against `0.00666 -> 0.12344` is one
+comparison, and the 6x stands.
+
+### What replaces it: a common epoch, from `last.pt`
+
+All three ran 80 epochs and all three saved `last.pt` at epoch 80 -- a fixed epoch,
+free of `rollout_sel` selection entirely. Verified from `metrics.jsonl` on this box:
+
+|  | val_loss @ep80 | vs the seed floor (0.00020) |
+|---|---|---|
+| 0% excitation | 0.00660 | -- |
+| 25% excitation | 0.00662 | difference 0.00002 = **0.1x** -> NULL |
+| 50% excitation | 0.00901 | difference 0.00239 = **12x** -> REAL |
+
+> **At 25% excitation, walking-split accuracy is indistinguishable from
+> walking-only. At 50% it is materially worse.** A null followed by a penalty,
+> not a monotone dose-response.
+
+**Caveats attached:** n=1 per cell, and the floor is borrowed from the excitation
+family rather than measured on the 0% arm. A second 0% seed is training.
+
+### `best_val.pt` is not selected by val loss, in ANY run in this project
+
+`checkpoint_metric` defaults to `val_loss` but every go2 config sets it to
+`rollout_sel` -- **the metric withdrawn in 1t as seed-noise-dominated.** The
+filename says otherwise and there is no error, the same class as
+`val_tracking_mse` naming a negated reward.
+
+**So every `best_val.pt` here is a model chosen by a metric the sweep's own floor
+says cannot support selection**, and the saved epochs show what that costs: 37, 76
+and 24 out of 80. The 0% and 50% arms were frozen less than halfway through a run
+the 25% arm nearly completed.
+
+**Prefer `last.pt` for any cross-run comparison** until selection is fixed. The
+fine-tune arms were all trained inside `rollout_sel`-selected surrogates, which is a
+**shared** defect rather than a differential one -- so the arm A / arm B attribution
+holds, but it is stated here rather than assumed.
+
+### The 34-D replicate, and a confound caught before the verdict
+
+The surviving claim -- *34-D gives 20 of 43, every 36-D arm gives 0* -- rests on
+**three independent 36-D checkpoints against ONE 34-D checkpoint (v4)**, trained
+weeks earlier under a different config generation and merely re-scored since.
+Re-running v4 confirmed the *evaluation* reproduces; it did not replicate the
+*training*. That is n=1 on the arm making the claim -- the structure of the
+withdrawn `rollout_sel` result.
+
+**The first attempt at the replicate reintroduced the confound it existed to
+remove.** It trained on `go2_corrected_34d_excl`:
+
+| | `go2_corrected_34d_excl` | `go2_walking_36d` |
+|---|---|---|
+| processed | 2026-09-05T06:33 | 2026-09-06T20:50 |
+| `circular_unwrapped` | **ABSENT** | `['roll_rad','pitch_rad']` |
+| `processing_provenance` | **ABSENT** | commit `b42e3ebb` |
+
+**38 hours apart, across the circular-unwrap fix** -- which alone moved `err/signal`
+from 0.609 to 0.518. Pairing them would have confounded the channel set with the
+wrap fix, *a confound this document already records about an earlier comparison*.
+
+**The config asserted that no 36-D dataset reference survived. That was true and
+insufficient**: it checked what the run pointed AT, not whether the two things being
+compared were otherwise identical.
+
+Now gated by `scripts/preprocess/assert_datasets_differ_only_by_channels.py`, which
+requires matching raw roots, `dt_s`, `contact_mode`, `circular_unwrapped`,
+action/rollout fields, provenance commit and split contents, and **treats `<ABSENT>`
+as a failure rather than a match** -- a property one dataset does not record cannot
+be asserted equal. It runs as a hard stop before training.
+
+**Not a third variable:** the `_excl` exclusion lives in the raw corpus, and both
+datasets report identical episode *and* transition counts (2382/621, 8,961,196).
+
+**Recorded before the replicate's result exists:** v4's surrogate trained on
+`go2_corrected_34d_excl`, the pre-unwrap dataset. **If the fresh replicate lands at 0
+while v4 sits at 20, old preprocessing is a live explanation and must not be selected
+after seeing the number.**
+
+### Two stability measures, both anti-correlated with plant performance
+
+**The divergence growth constant is a policy-specific eigenvalue-like number.**
+Fitting `log |raw action|` against time over a fixed window (1e12 to 1e20, identical
+for every episode):
+
+| policy | verdict | lambda (1/s) | episodes with lambda <= 0 |
+|---|---|---|---|
+| base | 43 of 43 | -- | **43** |
+| v4 | 20 of 43 | **41.8** | **20** |
+| base36 | 0 of 43 | **31.0** | 0 |
+| arm B | 0 of 43 | **33.5** | 0 |
+| arm A | 0 of 43 | **16.8** | 0 |
+
+**The `lambda <= 0` column is exactly the survivor count** -- a third independent
+route to the same column, after `never` and `scored`.
+
+It is **not** a fit artifact, and the check that would have shown one was run: a
+suspicion that lambda measured `fixed_log_range / time_to_overflow` was tested by
+refitting over a bounded window and **refuted** -- the values reproduce. It is also
+**disturbance-independent** (sbel-pc measured arm A at 16.8471 across 0-80 Nm) and
+**not a selection effect**: v4's lambda on its 21 diverging seeds versus arm A's on
+*those same seeds* gives a paired difference of **+24.894**, against +25.0 unmatched.
+
+**But it does not order with performance.** v4 is the fastest diverger and the best
+arm. *Rare and violent* versus *reliable and gentle* -- and no account of it.
+
+### rho(J): the same reversal a third time
+
+`J = d action_{t+1} / d action_t` through the observation, plant held fixed, by
+autodiff over 96 recorded in-distribution states:
+
+| policy | verdict | p50 rho | max | fraction rho > 1 |
+|---|---|---|---|---|
+| base | 43 of 43 | 0.836 | **2.581** | **0.344** |
+| v4 | 20 of 43 | 0.550 | 0.796 | 0.000 |
+| arm A | 0 of 43 | 0.717 | 0.987 | 0.000 |
+| base36 | 0 of 43 | 0.750 | 1.045 | 0.010 |
+
+**The working policy is expansive in a third of sampled states; all three failing
+policies are contractive almost everywhere.** Arm A never exceeds 1.
+
+**Scope:** this is the *direct* action-feedback path only -- state and command
+frozen, history fixed. The loop that actually diverges runs through the plant, which
+is the leg every other elimination points at. So this is a fourth **elimination**
+(the direct path cannot be the mechanism, agreeing with sbel-pc's `prev_actions`
+isolation converging) rather than an explanation.
+
+**Three local stability measures now point the wrong way:**
+
+    surrogate closed-loop action magnitude   base worst (18.6-24.9), fine-tunes 4.9-8.4
+    surrogate predicted reward               base lowest at every horizon
+    rho(J) on the nominal trajectory         base the only one exceeding 1
+
+**Every measure that says a policy is locally well-behaved says the failing
+policies are the well-behaved ones.** That pattern is the result. Inventing a
+mechanism to explain it away would be the fifth reframe to die in one session.
+
+
+### CORRECTION: arm B's two empty episodes are the extreme, not missing data
+
+Arm B is the only arm with empty episodes (0/0/0/0/2 across the five). Both were
+re-run and both reproduce deterministically:
+
+    vel_step_64   rc=1  rows=0
+    vel_step_81   rc=1  rows=0
+        ValueError: episode produced zero recorded rows: nothing to summarise
+
+Recording begins at `warmup_s`; **these episodes never reached it.** The policy
+destroyed the run during prewalk so completely the simulation ended before one row
+was logged.
+
+**So arm B's instant-divergence count is 33 of 43, not 31 of 41.** Excluding them as
+"missing" biased the worst arm's instant count DOWNWARD by two. `scored()` returns
+None for both, so `0 of 43` is unaffected -- but the classification was wrong.
+
+**The general form, which the sentinel rule did not cover:** a failure path that
+returns a sentinel is a silent denominator shrink, *and the dropped records are not
+a random sample* -- they are the tail in the direction being measured. Count what
+ran, and check which direction what did not run failed in.
+
+### Which Chrono build produced the five verdicts
+
+**All five, proven rather than asserted: the source build.** Each run's replay check
+re-runs a baseline episode and requires a bit-identical physics digest against the
+original, which was collected under `/home/kyle/chrono-build/bin` (md5 `d1d0bd0a`).
+The conda env holds a different binary (`8e9e3865`). **25 of 25 replay checks passed
+across the five runs, which a different build cannot do.**
+
+This was luck backed by a check, not discipline: `NEDM_CHRONO_PYTHONPATH` is not in
+any shell rc file, and the harness's default points at the *other* machine's layout.
+`run_go2_finetune_verdict.py` now prints the resolved pychrono path and md5 before
+the replay check, and says so loudly when the path does not exist -- turning "which
+build produced these numbers?" from unanswerable-from-artifacts into a grep.
+
+### CORRECTION: rho(J) is state-sensitive, so point evaluations of it mean little
+
+Two boxes computed rho at "the reset pose" and disagreed across the stability
+boundary the conclusion rested on -- **base 0.5572 here, 1.3652 on sbel-pc**. Both
+are probably correct measurements on *different constructed vectors*: neither box
+lifted the reset state from a simulation. **"The reset pose" named two different
+states** -- the denominator rule applied to a state rather than a sample.
+
+Testing whether that explains it, by perturbing joint angles around the reset pose
+(40 draws per level):
+
+| joint noise | base min/med/max | frac>1 | arm A min/med/max | frac>1 |
+|---|---|---|---|---|
+| 0.02 | 0.499 / 0.551 / 0.602 | 0% | 0.449 / 0.490 / 0.526 | 0% |
+| 0.10 | 0.443 / 0.533 / 0.652 | 0% | 0.452 / 0.531 / 0.702 | 0% |
+| 0.20 | 0.453 / 0.555 / **1.016** | **5%** | 0.457 / 0.593 / 0.841 | 0% |
+
+**Base crosses 1 under joint perturbation alone; arm A never does.** And on nominal
+walking states base spans **0.44 to 2.58** while every fine-tune sits in a narrow
+band under 1. **A single point evaluation of base can land anywhere in that range**,
+so 0.5572 and 1.3652 are both inside it and the disagreement is what a
+state-sensitive quantity measured at two different states should produce.
+
+> **WITHDRAWN: "nothing exceeds 1 at the reset pose, therefore entry needs the
+> plant."** That was a categorical conclusion from a point measurement of a quantity
+> since shown to be state-sensitive. The plant may still be required; this does not
+> establish it.
+
+**What survives, independent of which vector is right:**
+
+> Across nominal walking, near-reset, and under perturbation, **base's
+> action-feedback gain is broadly state-dependent and exceeds 1 in part of the
+> space, while all three fine-tuned policies are confined to a narrow band below
+> it.**
+
+**And rho is invariant to body height** -- identical to three decimals from 0.10 to
+0.40 m -- so it is not tracking postural stability at all. It measures how strongly
+a policy responds to its own previous action, and **fine-tuning both damped that
+response and flattened its state-dependence.**
+
+My reset vector, published for recomputation: `sha256[:16] = 0cc8011915d3a9ff`,
+36-D float32, surrogate field order, joint positions = policy defaults mapped to the
+Chrono frame, everything else zero, `grav_body_z = -1.0`, `pos_z_m = 0.30`,
+`cmd = zeros(3)`, `prev = zeros(12)`, fresh `initial_history`.
+
+### REFUTED: "a fine-tune can only degrade what its surrogate can represent"
+
+The account: v4's 34-D surrogate carries no `pos_z_m`, so the fine-tune has no
+gradient on height and height is preserved by inability; 36-D surrogates can
+represent height, the reward does not constrain it, so it degrades.
+
+**v4 sinks.** `--log-warmup`, three seeds, identical through row 125 because the
+pose ramp is not under policy control:
+
+| policy | seed | r125 | r150 | r170 | r200 | verdict |
+|---|---|---|---|---|---|---|
+| base | 0/1/2 | 0.3026 | 0.379/0.376/0.374 | 0.382/0.379/0.378 | 0.376 | 43/43 |
+| **v4** | 0/1/2 | 0.3026 | **0.2735/0.2733/0.2732** | **0.1497/0.1497/0.1504** | 0.188 | **20/43** |
+| arm A | 0/1/2 | 0.3026 | 0.304/0.303/0.302 | 0.209/0.207/0.204 | 0.160 | 0/43 |
+
+**v4 sinks FURTHER and FASTER than arm A and survives anyway** -- 0.150 against
+0.207 at row 170, reproducible to four decimals across seeds. Independently
+reproduced on sbel-pc, which measured v4's minimum at 0.131 against base's 0.302.
+
+> **Every fine-tune sinks. Only the 36-D ones diverge. Height is a shared symptom,
+> not the discriminator.**
+
+**And the fine-tune degrades height with no height channel anywhere in the loop** --
+v4's surrogate cannot represent it. So the degradation is a side effect of moving
+the policy at all, **which means restoring `correct_base_height` may not fix it.**
+That is now a live possibility to test with the two-second readout rather than
+discover after implementing a signature change.
+
+**This voids the 2x2's representability-derived prediction** (that the 34-D
+replicate would preserve height by inability). The 2x2's original reading stands on
+its own terms and is not re-derived from a dead account.
+
+### PRE-REGISTERED, before the replicate's fine-tune exists
+
+On the real first-call observation `06f73542…` (hash verified), one forward pass:
+
+| policy | rho | max abs action | verdict |
+|---|---|---|---|
+| v4 | 0.4591 | 3.9550 | 20/43 |
+| base | 0.4919 | 2.4569 | 43/43 |
+| arm A | 0.6522 | 4.4515 | 0/43 |
+| base36 | 0.7139 | 6.3754 | 0/43 |
+| arm B | 1.0225 | 6.8732 | 0/43 |
+
+**Both quantities are monotone with the outcome across five policies**, with a gap
+between survivors and failures at rho 0.492-0.652 and at max abs action 3.96-4.45.
+
+**This is causally inert** -- rows 0-125 are byte-identical across policies because
+the pose ramp is not under policy control, so what a policy emits at row 0 is never
+executed. It is a pure measure of how differently each policy responds to that
+state. At n=5, fitted after the fact, it is suggestive and nothing more.
+
+> **PREDICTION, recorded before the 34-D replicate's fine-tune exists:**
+> compute rho and max abs action for it on `06f73542…`.
+> **rho < 0.55 and max abs action < 4.0 -> predict it SURVIVES (non-zero verdict).
+> rho > 0.65 or max abs action > 4.4 -> predict it gives 0 of 43.**
+> Between the gaps: no prediction, and that is itself informative.
+
+**This is the only out-of-sample test available.** It costs seconds and the answer
+arrives before the verdict does.
+
+### Registered BEFORE the replicate's verdict is read: what a 0 obliges
+
+The 2x2 as it stands:
+
+|  | pre-unwrap dataset | post-unwrap dataset |
+|---|---|---|
+| **34-D** | v4 = **20 of 43** | replicate = ? |
+| **36-D** | (empty) | base36 = **0 of 43** |
+
+An earlier registration committed to filling the empty cell if the replicate
+returns 0. **That ordering is now amended, and the amendment is recorded before the
+number exists.**
+
+**If the replicate returns 0, run a DIRECT REPLICATION OF v4 first** -- 34-D trained
+on v4's own dataset (`go2_corrected_34d_excl`) with today's pipeline -- and the
+fourth cell second.
+
+```
+  replication ~ 20  -> the DATASET is the variable, v4 reproduces, and the fourth
+                       cell then asks whether that holds at 36-D. Clean design.
+  replication = 0   -> v4 does not reproduce on its own data with current code.
+                       Its 20 was the pipeline vintage or a lucky checkpoint, and
+                       the entire 34-vs-36 result rests on one unreproducible run.
+```
+
+**The second outcome is the one worth knowing most, and the fourth cell cannot
+reach it: a replication tests reproducibility, the fourth cell assumes it.** v4's
+dataset differs from the current one in more than the unwrap -- it predates the
+provenance instrumentation entirely -- so "pre-unwrap" labels a vintage, not an
+isolated change, and the 2x2's column heading is weaker than it looks.
+
+**Also registered:** if the verdict produces no surviving pairs, no `--summary-json`
+is written and the family split is **UNAVAILABLE, not zero.** v4's run wrote none,
+which is why this is stated in advance rather than discovered.
+
+### The dose-response, third version, with a per-episode interval
+
+Withdrawn twice: first as epoch-wise minima of checkpoints never saved, then as a
+0.57% single-family prefix. Held a third time pending an error bar. **It now has
+one, and it survives.**
+
+`last.pt` for all three, full validation set (2,244,752 windows over **615 of 621**
+episodes -- the other six are shorter than the 128-step window and yield none),
+bootstrap resampling **whole episodes**, 5,000 draws:
+
+| contrast | stratum | n eps | difference | 95% CI |
+|---|---|---|---|---|
+| exc25 − base | straight | 227 | **+0.001067** | [+0.000723, +0.001416] |
+| exc25 − base | turning | 388 | **+0.000926** | [+0.000603, +0.001312] |
+| exc25 − base | **ALL** | 615 | **+0.000978** | [+0.000737, +0.001251] |
+| exc50 − base | straight | 227 | **+0.003269** | [+0.002668, +0.003920] |
+| exc50 − base | turning | 388 | **+0.003759** | [+0.002968, +0.004733] |
+| exc50 − base | **ALL** | 615 | **+0.003578** | [+0.003015, +0.004252] |
+
+**Every interval excludes zero. Monotone in dose, and uniform across strata --
+not a cancellation.**
+
+> **Adding excitation data degrades one-step accuracy on the walking validation
+> distribution, monotonically with dose: +0.00098 at 25% and +0.00358 at 50%,
+> both significant at the episode level.**
+
+**The interval is the point.** Window counts would have given ~2.24M "observations"
+and an interval roughly 60x too narrow; windows within an episode overlap and share
+a trajectory, so the effective n is 615. **The prefix result proved that before this
+was run** -- five arc episodes read 30x different from the full arc stratum, which
+is between-episode variance dominating.
+
+**NAME THE ESTIMAND -- the two defensible summaries differ by 25%:**
+
+    pooled over WINDOWS    base 0.004813  exc25 0.005594   diff +0.000781
+    mean over EPISODES     (the bootstrap above)           diff +0.000978
+
+Long episodes carry more weight in the first; every episode carries equal weight in
+the second. **The figures above are per-EPISODE** -- "how much worse on a typical
+episode" -- which is the estimand a bootstrap over episodes estimates. The
+per-window figure answers "how much worse at a typical timestep" and is what the
+trainer optimises. Neither is wrong; **two numbers 25% apart under one name is how
+the preceding four hours went.**
+
+**Scope, stated because this has been overstated twice:** one-step prediction error
+on the WALKING distribution only.
+
+### The three measurements differ in PRECISION as much as in direction
+
+| measurement | n | interval | |
+|---|---|---|---|
+| one-step, walking dist. | 615 episodes | [+0.00074, +0.00125] | **tight** |
+| one-step, excitation dist. | same checkpoints | ~6x better | large effect |
+| closed-loop tracking | 16-20 episodes | [-0.0593, -0.0104] | **wide**, and does not exclude the -0.020 criterion |
+
+**They are NOT three equally-established results.** The two one-step measurements
+are tight and point opposite ways *by distribution*; the closed-loop measurement is
+imprecise and is being re-measured on ~300 fresh episodes. Whether it belongs in the
+comparison at all depends on that run.
+
+### What the one-step results actually say, and the sentence that survives
+
+Stated in full they are not surprising: **adding out-of-distribution data makes the
+model better there and worse here, monotonically in dose.** That is what mixing data
+does; these numbers measure it cleanly for the first time in this project.
+
+**The finding is that neither one predicts the closed-loop behaviour.**
+
+> **One-step accuracy, on any distribution, does not predict what a policy trained
+> inside that model will do in the plant.**
+
+Six instruments have now hit that wall: the gate, the apparatus ratio, rho(J),
+the flattening measure, lambda, and this. **It is the one claim tonight with a
+tight measurement behind it rather than a string of nulls.**
+
+### Registered BEFORE the v4 replication's verdict: how to read a positive result
+
+After nine dead mechanisms, a non-zero result will be the most scrutinised number of
+the session, so its reading is fixed now.
+
+```
+  ~20 of 43  -> v4 REPRODUCES on its own data with current code. The variable
+                separating v4 from every other arm is its DATASET, not its channel
+                count and not the pipeline. The fourth cell then becomes meaningful
+                and asks whether that holds at 36-D.
+  ~0-2       -> v4 does NOT reproduce. The one non-zero fine-tune result this
+                project has is a single unreproducible run, and every comparison
+                that used it as the positive reference -- including the entire
+                34-vs-36 line -- rested on it.
+  in between -> no clean reading; report the number and the margin, claim nothing.
+```
+
+**A ~20 would NOT establish that the unwrap is the variable.** v4's dataset predates
+the provenance instrumentation entirely, so it differs from the current one in an
+unknown bundle of ways; "pre-unwrap" names a vintage. **It would establish
+reproducibility and localise the cause to the dataset, which is a strictly weaker
+and more defensible claim than the one the 2x2's axis label implies.**
+
+### v4 DOES NOT REPRODUCE, and both blind predictions were correct
+
+34-D trained on **v4's own dataset** (`go2_corrected_34d_excl`) with today's
+pipeline. Predictions committed at `15f4d69` before the verdict was opened.
+
+```
+  REGISTERED          rho 0.9264, |a| 5.3074   -> 0 of 43
+                      k* = 0.600               -> 0 of 43
+  ACTUAL              0 of 43, 43/43 diverged, median max|raw action| 6.46e34
+                      harness: NOT MEASURABLE -- every treated episode failed the predicate
+```
+
+**Both predictors correct, and on the literal count this time rather than only the
+class.** Second out-of-sample test; the first (replicate, predicted 0, actual 2) was
+correct on class only.
+
+### The ladder, all at nominal gain, one ruler
+
+| arm | dataset | surviving | diverged >1e3 | k* |
+|---|---|---|---|---|
+| base policy | -- | **43 of 43** | 0/43 | 1.450 |
+| **v4 (original)** | v4's, OLD pipeline | **20 of 43** | 23/43 | 1.075 |
+| **v4 REPLICATION** | **v4's, current pipeline** | **0 of 43** | **43/43** | **0.600** |
+| replicate 34-D | current | 2 of 43 | 41/43 | 0.925 |
+| base36 | current | 0 of 43 | 43/43 | 0.906 |
+| armA / armB | current | 0 of 43 | 43/43, 41/43 | 0.925 |
+
+> **v4's 20 of 43 does not reproduce on v4's own data with current code.** The one
+> non-zero fine-tune result this project has is a **single unreproducible run**.
+
+**Everything that used v4 as the positive reference rested on it:** the 34-vs-36
+line, the 17-and-20-of-43 figures, and the postmortem's reading of v4 as the
+configuration that works.
+
+**Unregistered observation, labelled as such:** `k* = 0.600` is the lowest margin of
+any arm -- below every 36-D arm. The current pipeline given v4's *exact data*
+produces less stability margin than the current pipeline given any other data. **So
+the dataset is not the variable either.** What changed between v4 and now is the
+pipeline, and that is not something the 2x2 was built to test.
+
+**The fourth cell is not run.** It was gated on the replication returning ~20;
+nothing reproduces, so the axis is dead.
+
+**Verified before this number joined the ladder:** scoring equivalence across two
+harness versions (258 episodes, six arms, 0 disagreements), `NEDM_ACTION_MULT`
+absent from the verdict process by `/proc` read, pychrono `d1d0bd0a` in the
+verdict's own output, and replay 5/5 bit-identical.
+
+### k* has a measurement noise floor of at least 0.15, found by accident
+
+Bisection cell 1 fine-tuned inside v4's **own** surrogate with current code and
+reproduced v4's weights exactly -- **14/14 tensors identical, `||cell1 - v4|| =
+0.000000`**, on both the state dict and the exported policy. So its `k*` run
+measured **the same policy twice**:
+
+```
+  v4       k* = 1.075   "STABLE as deployed (k* > 1)"
+  cell 1   k* = 0.925   "UNSTABLE as deployed (k* < 1)"
+```
+
+> **A spread of 0.15 on identical weights, straddling the threshold the predictor
+> classifies against.**
+
+**What this invalidates:** the gap between v4 (1.075) and armA / armB / the 34-D
+replicate (0.925) **is the noise floor**, so `k*` does not separate them. `base` at
+1.450 and the v4 replication at 0.600 lie outside the band and survive; the middle
+of the ladder does not.
+
+**The threshold is still principled and the resolution is not.** `k*` is read off an
+8-episode screen at each of six gains with the 0.5 crossing interpolated -- a
+binomial on 8 samples cannot resolve a crossing between rungs 0.15 apart. Fixing it
+means more episodes per rung or a finer grid near the crossing.
+
+**Effect on the blind tests:** both remain correct, but for the first (replicate)
+`k* = 0.925` sat inside the noise band and its call was luck; the v4 replication's
+0.600 is far outside it and stands. **rho/|a| is unaffected** -- it is autodiff over
+weights, and cell 1 demonstrated it returns identical values on identical weights.
+
+**Nobody designed this check.** It fell out of a bisection cell that happened to
+reproduce a policy bit-for-bit, and only because the identical rho and |a| were
+questioned rather than accepted as "the fine-tune reproduces."
+
+### Scope note: which commits are inert, and for which runs
+
+Six commits touched the training path after v4's surrogate was trained
+(2026-09-05T01:47). Three are preprocessing-only (`c699338`, `8633631`, `3f5a86c`)
+and **inert for the bisection cells only because those consume v4's
+already-processed dataset.** That is a property of the run, not of the commits: **a
+cell using current preprocessing would carry all three**, including the circular
+unwrap. Of the three that touch `trainer.py`, `212a787` is a stdout print inside a
+try/except and `96a4811` is an additive guard that either raises or does nothing
+(it never raised -- every run completed), leaving `519ad1d`'s `input_noise_sigma`,
+which is gated behind `if self.input_noise_sigma > 0.0`.
+
+### REGISTERED before the repaired k* re-measurement
+
+The broken criterion **under-detected failure at high gain** -- it scored falls with
+bounded commands as passes, which is why cell1's k=1.50 rung read 0/8 and now reads
+8/8. **So every old `k*` is biased UPWARD**: the 0.5 crossing appeared to sit at a
+higher `k` than it should, because failures above the true crossing were scored as
+survivals.
+
+> **Registered: repaired `k*` values should come in LOWER than their old
+> counterparts, across the board. If any comes in higher, something else is wrong.**
+
+**And the old ladder's status is stronger than "0.15 resolution":**
+
+> Every `k*` in the ladder -- base 1.450, v4 1.075, armA/armB 0.925, base36 0.906,
+> v4rep 0.600 -- was measured on a criterion now known to mis-score an entire failure
+> mode. **They are not noisy readings of the right quantity; they are readings of a
+> different one.** `base` and `v4rep`, which I said survived the noise floor, do not
+> survive this: both were read off curves the broken criterion could have turned over
+> anywhere.
+
+**The deciding measurement is one sweep, not six.** Cell1's weights are v4's, so
+re-running the repaired sweep on v4's checkpoint gives a second repaired reading of
+the *identical* policy:
+
+    agrees with cell1's 0.925   -> the 0.15 spread WAS the criterion; k* is
+                                   repeatable and re-measuring the ladder is worth it
+    differs by ~0.15 again      -> 8-episode rungs are the limit; the repair fixed
+                                   monotonicity, not resolution, and re-measuring
+                                   the ladder at this rung count is pointless
+
+**This is also the first *designed* repeatability check `k*` has had** -- the first
+came free from a bisection accident.

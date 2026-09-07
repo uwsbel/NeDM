@@ -156,6 +156,19 @@ def parse_args() -> argparse.Namespace:
     # always diagonal, so those configurations (modes 3 and 12) are structurally
     # unreachable by pushing, and they measure 0.91% and 0.06% of transitions.
     parser.add_argument("--perturb-torque-peak-nm", type=float, default=0.0)
+    # AMPLITUDE SCALE APPLIED AFTER EVERY DRAW, for a matched no-perturbation control.
+    # Setting --perturb-peak-n 0 to build that control changes the CODE PATH: the guard
+    # at the impulse block is skipped, so its rng.uniform draws are never taken and the
+    # shared stream diverges from the perturbed arm at the first event. The two arms
+    # then differ in every subsequent random quantity, not only in perturbation -- the
+    # same defect as the draw-order bugs documented in that block.
+    #
+    # This scales the assembled vector instead, so the draws, the branch and the event
+    # timing are bit-identical between arms and only the applied force differs. Default
+    # 1.0 multiplies by exactly one and takes no draw, so no existing corpus changes.
+    parser.add_argument("--perturb-scale", type=float, default=1.0,
+                        help="multiply applied perturbation force/torque by this "
+                             "(1.0 = normal, 0.0 = matched control with identical draws)")
     # Per-episode ground tilt, degrees, applied as roll and pitch of the static box.
     parser.add_argument("--ground-tilt-roll-deg", type=float, default=0.0)
     parser.add_argument("--ground-tilt-pitch-deg", type=float, default=0.0)
@@ -163,6 +176,9 @@ def parse_args() -> argparse.Namespace:
     # BEFORE recording begins, so an episode starts mid-gait with velocity and
     # arbitrary phase instead of from rest.
     parser.add_argument("--prewalk-s", type=float, default=0.0)
+    parser.add_argument("--log-warmup", action="store_true",
+                        help="also record the pose ramp, settle and prewalk that are "
+                             "normally discarded. Diagnostic only -- see next_record_s.")
     parser.add_argument("--soil-young", type=float, default=None)
     parser.add_argument("--soil-cohesion", type=float, default=None)
     parser.add_argument("--no-calf-fsi", action="store_true")
@@ -473,9 +489,9 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
     # updated; this initialiser had not. A partial fix reads exactly like a working
     # one when the control row is also zero.
     _pert_any = (args.perturb_peak_n > 0.0) or (args.perturb_torque_peak_nm > 0.0)
+    _pert_events = 0
     _pert_next = (rng.expovariate(1.0 / max(args.perturb_mean_interval_s, 1e-9))
                   if _pert_any else float("inf"))
-
     rows: list[dict[str, Any]] = []
     # DISCARD THE WARMUP, as the HMMWV collector does ("each episode discards an
     # initial settling transient before recording"). Before this the robot is on
@@ -484,7 +500,31 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
     # dynamics are a drop transient rather than locomotion.
     # Recording starts AFTER the prewalk, so the first recorded row is mid-gait.
     warmup_s = args.pose_ramp_seconds + args.settle_seconds + float(args.prewalk_s)
-    next_record_s = warmup_s
+    # --log-warmup RECORDS THE DISCARDED TRANSIENT. The window above is normally
+    # dropped, which means every artefact this project has starts AFTER the policy has
+    # been in closed loop for seconds. A fine-tuned policy was found to be at 1e10 rad
+    # by its first recorded row, so the failure happens entirely inside this window and
+    # nothing in the corpus contains it. Off by default: the rows are a drop transient
+    # and a settle hold, not locomotion, and pooling them with training data would be
+    # the mistake the discard exists to prevent.
+    next_record_s = 0.0 if args.log_warmup else warmup_s
+    # A DISTURBANCE PARAMETER THAT SILENTLY PRODUCES ZERO EVENTS IS A VACUOUS TEST.
+    # The first event is drawn from expovariate(1/mean_interval) and gated on
+    # t > warmup_s * 0.5, so the eligible window is duration - warmup_s/2. With the
+    # 2.0 s default mean interval, a 3 s episode leaves 1.88 s of eligible time and
+    # frequently fires NOTHING -- the parameter is accepted, recorded in the config,
+    # and never used. That produced three "with perturbation" warmup runs on
+    # 2026-09-07 that tested no perturbation at all, reported as the corrected
+    # version of an under-disturbed test.
+    if _pert_any:
+        _elig = float(args.duration_s) - warmup_s * 0.5
+        _ratio = _elig / max(args.perturb_mean_interval_s, 1e-9)
+        if _ratio < 3.0:
+            print(f"  WARNING: perturbation eligible window {_elig:.2f}s is only "
+                  f"{_ratio:.1f}x the mean interval "
+                  f"{args.perturb_mean_interval_s:.2f}s -- this episode may record "
+                  f"ZERO disturbance events. Lengthen --duration-s or shorten "
+                  f"--perturb-mean-interval-s.", flush=True)
     next_progress_s = 0.0
     sample_index = 0
     fell_at: float | None = None
@@ -571,14 +611,16 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
                     perturb = np.array(_f + _t)
                     _pert_until = t + args.perturb_duration_s
                     _pert_next = t + rng.expovariate(1.0 / max(args.perturb_mean_interval_s, 1e-9))
+                    _pert_events += 1
                 if t < _pert_until:
+                    _ps = args.perturb_scale
                     if args.perturb_peak_n > 0.0:
-                        base.AccumulateForce(_acc, chrono.ChVector3d(*perturb[:3]),
+                        base.AccumulateForce(_acc, chrono.ChVector3d(*(perturb[:3] * _ps)),
                                              base.GetPos(), False)
                     if args.perturb_torque_peak_nm > 0.0:
                         # local=False: the torque is applied about world axes, so
                         # "pitch" means pitch regardless of the trunk's heading.
-                        base.AccumulateTorque(_acc, chrono.ChVector3d(*perturb[3:6]),
+                        base.AccumulateTorque(_acc, chrono.ChVector3d(*(perturb[3:6] * _ps)),
                                               False)
                 else:
                     perturb = np.zeros(6)
@@ -622,7 +664,12 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
                     robot=robot,
                     tau=tau,
                     policy_raw=policy_raw,
-                    perturb=perturb,
+                    # THE FORCE THAT WAS APPLIED, not the one that was drawn. A
+                    # --perturb-scale 0 control draws a full-magnitude impulse and
+                    # applies none of it; logging the draw would label every control
+                    # episode with perturbations it never felt. Scale 1.0 multiplies
+                    # by exactly one, so existing corpora are unchanged.
+                    perturb=perturb * args.perturb_scale,
                     gravity=_grav_world,
                     contacts=contacts,
                     com=whole_robot_com(system),
@@ -696,7 +743,23 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
         "csv_path": str(csv_path.relative_to(output_root)),
         "rows": len(rows),
         "duration_s": float(args.duration_s),
+        # COLLECTION PARAMETERS, RECORDED RATHER THAN RE-DERIVED. The verdict
+        # harness used to reconstruct these from a seeded RNG duplicated in its own
+        # source. That contract broke silently when the driver's pitch range was
+        # capped to +-1.5 and the harness kept deriving +-3.0: any corpus collected
+        # after that fails the bit-identical replay check for a reason that looks
+        # like non-determinism. Recording them removes the duplicated draw instead
+        # of asking two files to stay in step.
+        "prewalk_s": float(args.prewalk_s),
+        "ground_tilt_roll_deg": float(args.ground_tilt_roll_deg),
+        "ground_tilt_pitch_deg": float(args.ground_tilt_pitch_deg),
+        "perturb_scale": float(args.perturb_scale),
+        "perturb_peak_n": float(args.perturb_peak_n),
+        "perturb_torque_peak_nm": float(args.perturb_torque_peak_nm),
         "record_step_s": float(args.record_step_s),
+        # COUNT, not just the parameter. A recorded --perturb-peak-n proves the
+        # parameter was accepted, not that any force was applied.
+        "perturb_events": int(_pert_events),
         "warmup_s": float(args.pose_ramp_seconds + args.settle_seconds),
         "terrain_type": args.terrain,
         "terrain_label": terrain_label,

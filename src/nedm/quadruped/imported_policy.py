@@ -41,6 +41,7 @@ from __future__ import annotations
 import math
 from pathlib import Path
 
+import os
 import numpy as np
 
 # Their joint order, FL/FR/RL/RR, expressed as indices into our Chrono order
@@ -57,6 +58,7 @@ ANG_VEL_SCALE = 0.25
 DOF_POS_SCALE = 1.0
 DOF_VEL_SCALE = 0.05
 ACTION_SCALE = 0.25
+_ACTION_MULT = float(os.environ.get('NEDM_ACTION_MULT', '1.0'))
 
 SIGN = -1.0   # see module docstring
 
@@ -195,6 +197,14 @@ class ImportedGo2Policy:
         self.family = family
         self.params = dict(params) if params else None
         self._sched = _sched(family, self.params) if (family and self.params) else None
+        # A SCHEDULE THAT IS BUILT AND NEVER APPLIED IS SILENT. self.command is set
+        # from `command` here and thereafter ONLY by set_time(). A caller that passes
+        # family+params and never calls set_time gets the constructor default and no
+        # warning -- which is how every excitation corpus in this project came to be
+        # collected at a fixed +0.5 m/s while its config recorded vx ~ U(-0.8, 0.8).
+        # 1,765 episodes, zero with negative mean forward velocity, found only because
+        # someone checked the SIGN. act() now refuses rather than relying on memory.
+        self._sched_applied = False
         self.duration = float(duration)
         # Every command actually issued, so an episode records what it was ASKED
         # to do and not merely which family it belonged to.
@@ -221,6 +231,7 @@ class ImportedGo2Policy:
         if self._sched is not None:
             vx, vy, wz = self._sched(t, self.duration)
             self.command = np.array([vx, vy, wz], dtype=np.float32)
+            self._sched_applied = True
         self.command_log.append((t, *map(float, self.command)))
 
     def observe(self, robot) -> np.ndarray:
@@ -248,9 +259,41 @@ class ImportedGo2Policy:
 
     def act(self, robot) -> np.ndarray:
         torch = self.torch
+        if self._sched is not None and not self._sched_applied:
+            raise RuntimeError(
+                f"ImportedGo2Policy was given family={self.family!r} params={self.params!r} "
+                "but set_time() was never called, so self.command is still the constructor "
+                f"default {tuple(float(x) for x in self.command)} and the schedule has no "
+                "effect. Call set_time(t) before act(). This is an error rather than a "
+                "warning because the silent version produced four corpora at a fixed "
+                "command whose configs said otherwise.")
         obs = torch.from_numpy(self.observe(robot)).unsqueeze(0)
         with torch.no_grad():
             action = self.model(obs).squeeze(0).numpy().astype(np.float32)
+        # NEDM_ACTION_MULT -- A DIAGNOSTIC FOR MEASURING GAIN MARGIN. NOT A FIX.
+        #
+        # Scaling the output by k multiplies the closed-loop gain by k, so sweeping k and
+        # finding where divergence appears measures the classical gain margin: the factor
+        # by which loop gain can be multiplied before the loop goes unstable. Measured at
+        # 20 episodes per cell, zero disturbance:
+        #
+        #     base  k* = 1.473      stable with 47% of margin
+        #     armA  k* = 0.921      MARGIN BELOW UNITY -- unstable as deployed
+        #
+        # A margin below 1 means the controller's loop gain already exceeds the plant's
+        # stability limit. It is not broken and not commanding nonsense; a marginally
+        # unstable feedback controller looks entirely normal until the loop is closed,
+        # which is why every open-loop measurement of armA showed it CALMER than base.
+        #
+        # SURVIVING IS NOT WORKING. A policy at k=0.75 commands 25% less motion, and a
+        # controller that stops diverging because it barely moves has not been fixed.
+        # Any run that sets this must say so in its provenance; treating it as a fix is a
+        # decision someone makes explicitly, on tracking evidence, not a default.
+        #
+        # Default 1.0, so unset behaviour is unchanged. The scaled action also feeds back
+        # through last_actions, because the quantity being scaled is what is commanded.
+        if _ACTION_MULT != 1.0:
+            action = (action * _ACTION_MULT).astype(np.float32)
         self.last_actions = action
         targets = action * ACTION_SCALE + IMPORTED_DEFAULTS
         # back to Chrono order, and back through the sign convention

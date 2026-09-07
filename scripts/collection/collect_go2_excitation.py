@@ -164,6 +164,25 @@ def main():
     ap.add_argument("--window-rows", type=int, default=None)
     ap.add_argument("--randomise-gains", action="store_true",
                     help="ON HOLD -- forces torque as the action channel; see note above")
+    # READ THE PARAMETERS OFF AN EXISTING CORPUS RATHER THAN REMEMBERING THEM.
+    # The module defaults are a fact about the module, not about any artifact on disk:
+    # WINDOW_ROWS defaults to 170 and every excitation corpus in datasets/ was collected
+    # at 40 with action_scale 0.3. Running at the defaults rejected 99.5% of windows on
+    # joint_limit, against those corpora's 900 of 900, because a window then has to
+    # survive 1.7 s of open-loop joint noise instead of 0.4 s -- and the rejection rate
+    # very nearly got reported as a property of the experimental condition being added.
+    #
+    # This rule was already written down for this repo's RL configs and did not fire
+    # here, which is the argument for reading it from the artifact instead of recalling
+    # it.
+    ap.add_argument("--match-corpus", metavar="DIR",
+                    help="take window_rows and action_scale from DIR/summary.json, so "
+                         "this run is comparable to an existing corpus. Explicit flags "
+                         "still win; a mismatch is reported.")
+    ap.add_argument("--command-envelope", action="store_true",
+                    help="branch on arc(vx, wz) across the trained envelope "
+                         "instead of constant(vx) only, which leaves wz at "
+                         "exactly zero in every episode")
     ap.add_argument("--branch-from-policy", action="store_true",
                     help="reach the initial state by RUNNING the policy, then switch to "
                          "random targets. Joint q/qd cannot be written directly on a "
@@ -198,6 +217,23 @@ def main():
     urdf = assets / "data/robot/go2_irrvis/urdf/go2_description.urdf"
     stand = np.asarray(STAND_ACTION, dtype=np.float64)
     global ACTION_SCALE, WINDOW_ROWS
+    if a.match_corpus:
+        import json as _json
+        _sp = os.path.join(a.match_corpus, "summary.json")
+        if not os.path.exists(_sp):
+            raise SystemExit(f"--match-corpus: no summary.json in {a.match_corpus}")
+        _m = _json.load(open(_sp))
+        for _k, _attr in (("window_rows", "window_rows"), ("action_scale", "action_scale")):
+            if _k not in _m:
+                continue
+            _cur = getattr(a, _attr)
+            if _cur is None:
+                setattr(a, _attr, _m[_k])
+                print(f"  --match-corpus: {_k} = {_m[_k]} (from {a.match_corpus})")
+            elif _cur != _m[_k]:
+                print(f"  --match-corpus: {_k} EXPLICIT {_cur} overrides corpus "
+                      f"value {_m[_k]} -- this run is NOT comparable to that corpus")
+
     if a.action_scale is not None: ACTION_SCALE = a.action_scale
     if a.window_rows is not None: WINDOW_ROWS = a.window_rows
     rng = np.random.default_rng(a.seed)
@@ -231,6 +267,7 @@ def main():
     step = 5e-4
     exchange = 2.5e-3
     kept = fell = rows_written = 0
+    branch_cmds = []
     reject = {"nan_inf": 0, "state_1e5": 0, "joint_limit": 0, "torque_pinned": 0}
     reject_events = []
     fell_rows = []
@@ -264,14 +301,39 @@ def main():
             # genuinely in, and the branch time is randomised so gait phase and
             # speed vary rather than every window starting at the same point in
             # the cycle.
-            pol = ImportedGo2Policy(Path(CKPT), family="constant",  # noqa: F841 -- reused for recovery
-                                    params={"vx": float(rng.uniform(-0.8, 0.8))})
+            # THE WHOLE COMMAND VECTOR, not vx alone. Every excitation corpus so far
+            # branched on family="constant" with only a vx key, so vy and wz were
+            # commanded at exactly zero in every episode ever collected. That is why
+            # the yaw hole (|yaw| > 1 rad/s: walking 56.8%, excitation 0.56%) could
+            # not close: it was not a sampling shortfall, the channel was never
+            # commanded. Fixing set_time() made the vx draw take effect and left this
+            # untouched, so the corpus still could not reach turning states.
+            #
+            # Ranges are the policy's TRAINED envelope. Note the measured deadband
+            # (go2-command-realisation-deadband.md): commanding vx does not produce
+            # proportional vx, so this widens what is ASKED FOR and the audit has to
+            # judge what is REACHED.
+            if a.command_envelope:
+                fam, prm = "arc", {"vx": float(rng.uniform(-0.5, 0.5)),
+                                   "wz": float(rng.uniform(-1.0, 1.0))}
+            else:
+                fam, prm = "constant", {"vx": float(rng.uniform(-0.8, 0.8))}
+            pol = ImportedGo2Policy(Path(CKPT), family=fam,  # noqa: F841 -- reused for recovery
+                                    params=prm)
             pol.reset()
+            branch_logged = False
             t_br = float(rng.uniform(*a.branch_s))
             tt = 0.0
             while tt < t_br:
                 if int(tt / CONTROL_DT) != int((tt - exchange) / CONTROL_DT):
+                    # set_time APPLIES the sampled command. Without it self.command
+                    # stays at the constructor default (0.5, 0, 0) and the draw above
+                    # is computed and discarded -- which is what every excitation
+                    # corpus before this commit actually recorded.
+                    pol.set_time(tt)
                     robot.actuate(pol.act(robot))
+                    if not branch_logged:
+                        branch_cmds.append([float(x) for x in pol.command]); branch_logged = True
                 robot.apply_pd(); system.DoStepDynamics(exchange); tt += exchange
             q_target0 = None
         # PRE-ROLL to a random configuration. Reaching the initial q through the
@@ -366,8 +428,13 @@ def main():
             # contact system sees nothing. This collector runs on RIGID ground, where
             # the contact container does see the feet, so None was simply wrong here.
             contacts = contact_bodies(chrono, system)
+            # THE REAL COMMAND, not a literal. This was (0.0, 0.0, 0.0), so every
+            # cmd_* column in every excitation dataset reads zero regardless of what
+            # was commanded -- which corrupted three separate coverage analyses before
+            # anyone checked the column against the config.
             row = capture_row(chrono, robot, None, 0.0, target,
-                              (0.0, 0.0, 0.0), [float("nan")] * 4, float("nan"),
+                              tuple(float(x) for x in pol.command),
+                              [float("nan")] * 4, float("nan"),
                               f"exc_{wi:06d}", "go2_excitation", f"exc_{wi:06d}",
                               "train", len(rows), t, tau=tau, policy_raw=None,
                               perturb=None, contacts=contacts, com=None,
@@ -443,6 +510,10 @@ def main():
                # survive. Two older diagnostics are permanently ungradeable because
                # they do not.
                "seed": a.seed, "argv": sys.argv[1:],
+               # PER-EPISODE COMMAND. Absent from both the CSV and the sidecar
+               # until now, which is why a fixed-command corpus was indistinguishable
+               # from a swept one without measuring the sign of the realised velocity.
+               "branch_commands": branch_cmds,
                "rejected_by_reason": reject, "discarded": sum(reject.values()),
                "reject_events": reject_events,
                "ended_fallen": fell, "rows": rows_written,

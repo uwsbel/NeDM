@@ -402,6 +402,47 @@ class HMMWVTrainer:
             num_workers=num_workers,
             pin_memory=pin_memory,
         )
+        # PRINT THE COMPOSITION OF WHAT val_loss ACTUALLY SEES, unconditionally.
+        # The loader is unshuffled, so `max_val_batches` takes a PREFIX rather than a
+        # sample. On go2_walking_36d that prefix is 12,800 windows of 2,244,752 --
+        # 0.57%, spanning five episodes, and 100% of one condition family (arc) out
+        # of eight near-uniform families. Every val_loss this project has reported is
+        # one-step error on those five arc episodes, and it survived undetected
+        # through every run because nothing printed what the number was computed on.
+        #
+        # rollout_sel has had exactly this guard from the start and its prefix problem
+        # was therefore answerable in one query by anyone. This is that guard, for
+        # the other metric. It changes no number -- it makes the number checkable.
+        #
+        # A COUNT would not have caught this: 12,800 windows is the right count and
+        # the wrong composition. Record the count when a sample can be empty or
+        # short; record the composition when it can be unrepresentative.
+        try:
+            _vfam = self.val_dataset.split_metadata.get("scenario_families")
+            if _vfam:
+                import numpy as _np
+                _seen = self.max_val_batches * batch_size
+                _cum = self.val_dataset.cumulative_windows
+                _ep = _np.searchsorted(_cum, _np.arange(min(_seen, self.val_dataset.total_windows)),
+                                       side="right")
+                _mix: dict[str, int] = {}
+                for _e in _np.unique(_ep):
+                    _mix[str(_vfam[int(_e)])] = _mix.get(str(_vfam[int(_e)]), 0) + 1
+                _tot = len(set(map(str, _vfam)))
+                print(f"val_loss composition: {min(_seen, self.val_dataset.total_windows):,} of "
+                      f"{self.val_dataset.total_windows:,} windows "
+                      f"({min(_seen, self.val_dataset.total_windows)/max(self.val_dataset.total_windows,1):.2%}), "
+                      f"{len(_np.unique(_ep))} episodes, "
+                      f"{len(_mix)} of {_tot} families: {_mix}", flush=True)
+        except Exception as _e:  # never let an audit print break training
+            # Report the reason, not just the failure. The first version of this
+            # block raised ValueError on a numpy truth-value test and printed
+            # "unavailable", which is indistinguishable from a dataset that
+            # legitimately carries no scenario_families field.
+            import traceback as _tb
+            print(f"val_loss composition: UNAVAILABLE -- {type(_e).__name__}: {_e} "
+                  f"({_tb.extract_tb(_e.__traceback__)[-1].lineno})", flush=True)
+
         validation_dataset_raw = str(config.get("validation_dataset_name", "primary"))
         self.validation_dataset_name = metric_suffix(validation_dataset_raw)
         # The primary val set is the model's processed_root (flat). Default to the

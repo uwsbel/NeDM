@@ -1,5 +1,49 @@
 # Fine-tuning the imported policy inside the NRD: closed, and why
 
+> ## REOPENED 2026-09-07 -- THIS DOCUMENT'S CONCLUSION IS NOT SUPPORTED AS WRITTEN
+>
+> This closed the line with **"over-optimisation inside a locally-valid model, not the
+> objective."** The objective was missing its largest term.
+>
+> `go2_reward_terms.NOT_COMPUTABLE` drops `correct_base_height` at weight **-10.0**,
+> ten times `tracking_lin_vel`, for the stated reason *"no pos_z_m in the 34-D state"*.
+> That was true for v4's 34-D surrogate. It is **false for every 36-D and 40-D
+> surrogate**, which carry `pos_z_m` -- but the dict is a module-level constant that
+> does not depend on the loaded state, so the term was dropped from runs that could
+> compute it. `collision` is likewise computable on the 40-channel corpus.
+>
+> **Measured since, one instrument, one root, 43 episodes each:**
+>
+> | policy | surrogate | surviving |
+> |---|---|---|
+> | unmodified | -- | **43 of 43**, paired difference exactly 0 |
+> | v4 | 34-D, walking | **20 of 43** |
+> | base36 | 36-D, walking only | **0 of 43** |
+> | arm A | 36-D, walking + excitation | **0 of 43** |
+>
+> Two things follow. **The excitation data is not the cause** -- base36's surrogate
+> never saw an excitation row and collapses identically. And **v4's 20 of 43, which
+> this document read as the configuration that works, is the same failure in milder
+> form** against a baseline that completes all 43.
+>
+> The failure is not a fall in the scored episode. The policy **cannot hold a stand**:
+> it is at 0.100 m before the first recorded row, and the commanded joint targets then
+> diverge exponentially to 1e30 because Chrono clamps torque but nothing clamps the
+> command. Inside its own surrogate the same policy never falls -- the surrogate
+> predicts height *rising* to 0.758 m while the action reaches 3e18.
+>
+> **Working hypothesis, not established:** 34-D cannot represent body height, so
+> gradient ascent has no pathway to it; 36-D models it and nothing in the reward
+> constrains it. Adding a channel to the state without adding it to the reward made the
+> surrogate strictly worse to optimise inside.
+>
+> **The diagnostic printed on every run from the beginning** -- `reward: 10 computable
+> terms, 4 omitted; largest omitted is correct_base_height at -10.0` -- including v4's.
+> It is now `wrongly_omitted(state_fields)`, checked against the loaded surrogate.
+>
+> Superseding text waits on the fix experiments. Nothing below is edited.
+
+
 **Decided:** 2026-09-05 · **Status: closed.** Superseded by
 [`quadruped-joint-level-plan.md`](quadruped-joint-level-plan.md).
 

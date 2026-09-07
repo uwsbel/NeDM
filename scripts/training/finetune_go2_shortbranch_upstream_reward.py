@@ -226,7 +226,7 @@ for u in range(1, a.updates + 1):
     if a.target_dw is not None and dw() >= a.target_dw:
         d = dw()
         torch.save({"state_dict": policy.state_dict(), "update": u, "dw": d,
-                    "val_tracking_mse": float("nan")}, f"{a.out}/best.pt")
+                    "val_neg_reward": float("nan")}, f"{a.out}/best.pt")
         print(f"  update {u:5d}  ||dW|| {d:.3f} >= target {a.target_dw} -- STOPPING", flush=True)
         hist_log.append({"update": u, "dw": d, "stopped_on": "target_dw"})
         best = (float("nan"), u)
@@ -235,17 +235,24 @@ for u in range(1, a.updates + 1):
         with torch.no_grad():
             parts = [rollout(VAL[i:i + 128], grad=False) for i in range(0, len(VAL), 128)]
             vr = torch.cat([p[1] for p in parts])
+        # NEGATED REWARD, NOT AN MSE. vr is the surrogate's rollout reward, so this
+        # is -mean(reward): LOWER IS BETTER, which is what the `vm < best[0]`
+        # selection below relies on. The old name was `val_tracking_mse`, which
+        # both lies about the sign (an MSE cannot be negative) and invites a
+        # comparison ACROSS runs. It is not comparable across runs: two fine-tunes
+        # in different surrogates each score their own rollouts under their own
+        # reward model, so the numbers share a name and not an instrument.
         vm = float(-vr.mean())                     # SURROGATE-INTERNAL metric
-        hist_log.append({"update": u, "train_loss": float(loss), "val_tracking_mse": vm})
+        hist_log.append({"update": u, "train_loss": float(loss), "val_neg_reward": vm})
         star = ""
         if vm < best[0]:
             best = (vm, u); star = "  <- best"
             torch.save({"state_dict": policy.state_dict(), "update": u,
-                        "val_tracking_mse": vm}, f"{a.out}/best.pt")
+                        "val_neg_reward": vm}, f"{a.out}/best.pt")
         print(f"  update {u:5d}  train {float(loss):.6f}  val {vm:.6f}  dW {dw():.3f}"
               f"  {time.time()-t0:6.0f}s{star}", flush=True)
 json.dump({"config": vars(a), "history": hist_log,
-           "best_update": best[1], "best_val_tracking_mse": best[0]},
+           "best_update": best[1], "best_val_neg_reward": best[0]},
           open(f"{a.out}/history.json", "w"), indent=2)
 print(f"\n  DONE. best checkpoint from update {best[1]}, val {best[0]:.6f} -> {a.out}/best.pt")
 print("  The Chrono verdict harness has NOT been run. It runs ONCE, on this checkpoint.")

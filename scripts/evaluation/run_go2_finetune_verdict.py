@@ -36,7 +36,29 @@ BASE_CKPT = os.environ.get("NEDM_GO2_CKPT",
 PY = os.environ.get("NEDM_PY", "/home/kyle/miniconda3/envs/nedm-src/bin/python")
 CHRONO = os.environ.get("NEDM_CHRONO_PYTHONPATH",
                         "/home/kyle/Documents/sbel/chrono-build/bin")
+def chrono_provenance():
+    """The pychrono actually resolved, and its md5.
+
+    This box has TWO pychrono installs -- a source build and one inside the conda
+    env -- and which one wins is decided by PYTHONPATH. The default CHRONO above is
+    the OTHER machine's layout, so an unset NEDM_CHRONO_PYTHONPATH silently selects
+    the conda build, which breaks the bit-exact replay the paired design rests on.
+
+    Recording the resolved path and md5 turns "which build produced these numbers?"
+    from a question that cannot be answered from the artifacts into a grep. The
+    replay check would catch a mismatch, but only after the episodes are collected.
+    """
+    import hashlib
+    from pathlib import Path
+    so = Path(CHRONO) / "pychrono" / "_core.so"
+    if not so.exists():
+        return f"pychrono NOT FOUND at {so} -- subprocesses will fall back to whatever is importable"
+    h = hashlib.md5(so.read_bytes()).hexdigest()
+    return f"pychrono {so}  md5 {h}"
+
+
 PERTURB_MAX_N, GROUND_M, SCORED_ROWS, LEAD_IN_S = 120.0, 200.0, 1000, 5.0
+LEGACY_DERIVATION = [False]   # set by --legacy-derivation; list so it is writable
 # PHYSICAL ADMISSIBILITY. Surviving collection is not the same as being physically
 # real: an episode can blow up to absurd-but-FINITE values and pass every finiteness
 # check. Measured over 1,481 episodes the population is cleanly bimodal -- p99 of
@@ -95,11 +117,35 @@ def episode_spec(json_path):
         csv_path = next((c for c in cand if c and os.path.exists(c)), None)
         if csv_path is None:
             return None, "csv not found beside the sidecar or at csv_path"
+    # READ the collection parameters, do not re-derive them. These were reconstructed
+    # from an RNG duplicated in this file, which silently disagreed with the driver
+    # after the ground-pitch cap (driver +-1.5, here +-3.0) and made every post-cap
+    # corpus fail the replay check as if the simulator were non-deterministic.
+    #
+    # ABSENCE IS AMBIGUOUS AND THEREFORE FATAL BY DEFAULT. A sidecar without these
+    # fields is either a pre-cap corpus, where the derivation is right, or a post-cap
+    # one, where it is wrong -- and the two are indistinguishable here. Guessing is
+    # what produced the original failure, so a caller who wants the legacy path has
+    # to ask for it and thereby record the decision.
+    have = all(k in m for k in ("prewalk_s", "ground_tilt_roll_deg",
+                                "ground_tilt_pitch_deg", "perturb_peak_n"))
+    if have:
+        prewalk = float(m["prewalk_s"]); roll = float(m["ground_tilt_roll_deg"])
+        pitch = float(m["ground_tilt_pitch_deg"]); peak = float(m["perturb_peak_n"])
+    elif LEGACY_DERIVATION[0]:
+        peak = PERTURB_MAX_N * (idx % 6) / 5.0
+        prewalk = tr.uniform(0.0, 3.0)
+        roll = tr.uniform(-3.0, 3.0); pitch = tr.uniform(-3.0, 3.0)
+    else:
+        return None, ("sidecar records no collection parameters, so they can only be "
+                      "re-derived -- and the derivation is correct ONLY for corpora "
+                      "collected before the ground-pitch cap (e09e45b). Pass "
+                      "--legacy-derivation to use it anyway, which is right for "
+                      "go2_joint_off3000000 and wrong for anything newer.")
     return dict(json=json_path, csv=csv_path, machine=m.get("machine"), fam=fam, idx=idx,
                 params=m["command_params"], duration=m["duration_s"], seed=m["seed"],
                 spawn_x=m["spawn_m"][0], spawn_y=m["spawn_m"][1], heading=m["heading_deg"],
-                peak=PERTURB_MAX_N * (idx % 6) / 5.0, prewalk=tr.uniform(0.0, 3.0),
-                roll=tr.uniform(-3.0, 3.0), pitch=tr.uniform(-3.0, 3.0), off=off), None
+                peak=peak, prewalk=prewalk, roll=roll, pitch=pitch, off=off), None
 
 
 def scored(csv_path):
@@ -158,23 +204,37 @@ def arm_cmd(spec, ckpt, outdir):
             "--output-dir", outdir, "--overwrite", "--progress-interval-s", "99"]
 
 
-def arm_env(spec):
-    return dict(os.environ, PYTHONPATH=CHRONO, NEDM_SEED_OFFSET=str(spec["off"]))
+def arm_env(spec, action_mult=None):
+    """Subprocess environment. action_mult is scoped to the TREATED arm only.
+
+    NEDM_ACTION_MULT scales the policy's output, so inheriting it from the ambient
+    environment silently applies it to the baseline replay check as well -- and the
+    replay then does not reproduce bit-identically, aborting the run with NOT
+    MEASURABLE. That is the guard working, but the contamination is the bug. The
+    variable is therefore STRIPPED from the inherited environment and re-set only
+    where it is meant to apply, so a k-scaled treated arm can be compared against an
+    unscaled recorded baseline without disabling the replay check.
+    """
+    e = dict(os.environ, PYTHONPATH=CHRONO, NEDM_SEED_OFFSET=str(spec["off"]))
+    e.pop("NEDM_ACTION_MULT", None)
+    if action_mult is not None and action_mult != 1.0:
+        e["NEDM_ACTION_MULT"] = repr(float(action_mult))
+    return e
 
 
-def run_arm(spec, ckpt, outdir):
+def run_arm(spec, ckpt, outdir, action_mult=None):
     """Blocking single-episode run, used by the replay check."""
     os.makedirs(outdir, exist_ok=True)
-    p = subprocess.run(arm_cmd(spec, ckpt, outdir), env=arm_env(spec),
+    p = subprocess.run(arm_cmd(spec, ckpt, outdir), env=arm_env(spec, action_mult),
                        capture_output=True, text=True)
     got = glob.glob(f"{outdir}/episodes/*.csv")
     return (got[0] if got and p.returncode == 0 else None)
 
 
-def popen_arm(spec, ckpt, outdir):
+def popen_arm(spec, ckpt, outdir, action_mult=None):
     """Same invocation as run_arm, launched without blocking so a batch runs in parallel."""
     os.makedirs(outdir, exist_ok=True)
-    return subprocess.Popen(arm_cmd(spec, ckpt, outdir), env=arm_env(spec),
+    return subprocess.Popen(arm_cmd(spec, ckpt, outdir), env=arm_env(spec, action_mult),
                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
@@ -284,6 +344,31 @@ def main():
     ap.add_argument("--replay-check", type=int, default=5)
     ap.add_argument("--concurrency", type=int, default=8)
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--legacy-derivation", action="store_true",
+                    help="re-derive prewalk and ground tilt from a seeded RNG for "
+                         "corpora that do not record them. Correct ONLY before the "
+                         "ground-pitch cap (e09e45b); wrong and silent after it.")
+    # DEFAULT None, NOT 1.0, so "not passed" is distinguishable from "passed as
+    # nominal". arm_env already treats None as nominal. With default=1.0 the
+    # ambient-variable guard below could never fire -- it tested `is None` on a
+    # value that was never None, which is the second guard-that-cannot-fail of
+    # the same day.
+    ap.add_argument("--action-mult", type=float, default=None,
+                    help="scale the TREATED policy's output by this factor. Applied only "
+                         "to the treated arm; the baseline replay check runs unscaled, so "
+                         "it stays a valid check. See imported_policy.NEDM_ACTION_MULT -- "
+                         "a gain-margin diagnostic, not a fix.")
+    ap.add_argument("--own-machine-only", action="store_true",
+                    help="drop episodes collected on another machine and score only "
+                         "this host's, which is the stratified design the abort message "
+                         "recommends; prints exactly what was dropped. Ported from "
+                         "dorm-pc's patch rather than adopting its file, which was "
+                         "based on 04eac14 and predates the survivorship diagnostic and "
+                         "the stratum_incomplete guard. Its schema exclusion exists "
+                         "under a different name, NEW_PHYSICS -- absence of an "
+                         "identifier is not absence of a capability, and I nearly "
+                         "reported it missing from reading the source instead of "
+                         "calling it.")
     ap.add_argument("--allow-foreign", action="store_true",
                     help="proceed despite episodes from another machine; only valid if "
                          "cross-build replay has been verified")
@@ -291,6 +376,23 @@ def main():
                     help="write machine-tagged per-episode paired differences for "
                          "stratified combination across boxes")
     a = ap.parse_args()
+
+    # SETTING NEDM_ACTION_MULT IN THE ENVIRONMENT DOES NOTHING HERE, AND SAYING SO
+    # IS THE POINT. arm_env pops it deliberately, so that a stray value in the
+    # operator's shell cannot silently scale one arm. The cost is that an operator
+    # who sets it the wrong way gets a clean run at nominal gain with no complaint:
+    # a gain control launched that way returned exactly 0.000000 on 457 episodes,
+    # which is what a comparison of a policy against itself returns.
+    #
+    # The harness cannot tell "the operator wants nominal" from "the operator asked
+    # the wrong way", so it refuses instead of guessing.
+    if "NEDM_ACTION_MULT" in os.environ and a.action_mult is None:
+        raise SystemExit(
+            "NEDM_ACTION_MULT is set in the environment but --action-mult was not "
+            "passed. This harness strips the ambient variable by design, so the run "
+            "would proceed at NOMINAL gain and silently ignore what you asked for. "
+            "Pass --action-mult explicitly, or unset the variable to run at nominal.")
+    LEGACY_DERIVATION[0] = a.legacy_derivation
 
     # --- select the cell -----------------------------------------------------
     eligible = []
@@ -343,6 +445,18 @@ def main():
     by_machine = Counter(sp.get("machine") for sp in eligible)
     print("  eligible by machine: " + ", ".join(f"{k}={v}" for k, v in by_machine.items()))
     foreign = {k: v for k, v in by_machine.items() if k and k != host}
+    if foreign and a.own_machine_only:
+        before = len(eligible)
+        eligible = [sp for sp in eligible if sp.get("machine") == host]
+        print(f"  --own-machine-only: dropped {before - len(eligible)} episode(s) from "
+              f"{', '.join(foreign)}; scoring {len(eligible)} from {host}.")
+        print("  THIS IS ONE STRATUM, NOT THE POOL. The dropped episodes are not missing\n"
+              "  data; they are the other box's stratum and must be scored there and\n"
+              "  combined as paired differences. Do not report this n as the comparison.")
+        if not eligible:
+            print("\nVERDICT: NOT MEASURABLE -- no episodes from this host.")
+            return 2
+        foreign = {}
     if foreign:
         print(f"\nVERDICT: NOT MEASURABLE -- {sum(foreign.values())} eligible episodes were\n"
               f"collected on {', '.join(foreign)} but this host is {host}. Episodes do not\n"
@@ -364,6 +478,7 @@ def main():
         return 1
 
     # --- abort condition: episodes must replay bit-for-bit -------------------
+    print(f"  {chrono_provenance()}")
     print(f"\nreplay check on {a.replay_check} baseline episodes (bit-identical required)")
     rng = random.Random(0)
     for spec in rng.sample(eligible, min(a.replay_check, len(eligible))):
@@ -386,7 +501,7 @@ def main():
     done = 0
     for i in range(0, len(eligible), a.concurrency):
         batch = eligible[i:i + a.concurrency]
-        procs = [(s, popen_arm(s, a.ckpt, s["out"])) for s in batch]
+        procs = [(s, popen_arm(s, a.ckpt, s["out"], a.action_mult)) for s in batch]
         for s, pr in procs:
             pr.wait()
             got = glob.glob(f"{s['out']}/episodes/*.csv")
@@ -425,6 +540,16 @@ def main():
     bw = np.array([s["base_ratio"] < 0 for s, _, _ in pairs])
     tw = np.array([tr < 0 for _, _, tr in pairs])
     lo, hi, cov = exact_median_ci(D)
+    # AN ALL-DROPPED STRATUM IS A RESULT, NOT A CRASH. Arm A dropped 36 of 36 because
+    # every treated episode diverged numerically, and mcnemar() then raised on empty
+    # boolean arrays -- losing the diagnostic output after the run had already cost
+    # the episodes. Report and stop cleanly instead.
+    if len(bw) == 0:
+        print("\nVERDICT: NOT MEASURABLE -- 0 surviving pairs. Every treated episode\n"
+              "failed the scoring predicate. Check the treated episodes' joint-target\n"
+              "magnitudes before concluding anything about control quality: unbounded\n"
+              "output and falling are different failures and only one is about walking.")
+        return 2
     n01, n10, pmc, pmin = mcnemar(bw, tw)
     ratio_sd = T.std(ddof=1) / B.std(ddof=1)
     med = float(np.median(D))
@@ -433,7 +558,23 @@ def main():
         # Machine-tagged, per-episode, so the strata can be combined later AND
         # reported separately. A machine-by-treatment interaction must stay visible;
         # pooling numbers that hide structure is the failure this study kept hitting.
+        # THE ARMS, RECORDED. Without these a summary cannot say what it compared:
+        # the treated arm runs at action_mult and the baseline at nominal, so a file
+        # holding only a median is a number whose comparison is unrecoverable. Audited
+        # 2026-09-07: of eight summaries on this box, five encoded the gain in the
+        # FILENAME by convention and two (anchor_sbel, v4_sbel) had neither the gain nor
+        # an output directory, so which comparison produced them cannot be determined
+        # from the artifacts at all.
         json.dump({"machine": host, "n": n, "cell": [a.cell_lo, a.cell_hi],
+                   "arms": {
+                       "treated_ckpt": os.path.abspath(a.ckpt),
+                       "treated_action_mult": (1.0 if a.action_mult is None
+                                               else float(a.action_mult)),
+                       "baseline_ckpt": os.path.abspath(BASE_CKPT),
+                       "baseline_action_mult": 1.0,
+                       "matched_gain": (a.action_mult is None or a.action_mult == 1.0),
+                   },
+                   "argv": sys.argv,
                    "median_paired_difference": med,
                    "exact_ci": [lo, hi], "coverage": cov,
                    "wrong_way_baseline": float(bw.mean()), "wrong_way_treated": float(tw.mean()),

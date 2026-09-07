@@ -4,95 +4,6 @@ Failures where the *experiment* could not have answered its question, whatever
 the code did. These are the expensive ones, because the compute is spent before
 anyone notices, and the output looks like a result.
 
-## The failure class: a failure that looks like success
-
-**Distilled 2026-09-07, after a session in which nine explanations were withdrawn and
-zero wrong claims were published.**
-
-The expensive failures this project has had are not wrong measurements. They are
-**failures rendered indistinguishable from a benign state** — the instrument reported
-something a reader would accept, so nobody looked. Seven instances in one session:
-
-| what happened | what it looked like |
-|---|---|
-| a launch command returned | "the process is running" (it had exited on a missing argument) |
-| `--perturb-peak-n 60` accepted | a disturbance test (it fired **zero** times) |
-| `params={'vx': ...}` stored | a swept command (never applied; every episode ran at the default) |
-| 12,800 windows evaluated | a healthy sample (**one** condition family of eight, the same 5 episodes, forever) |
-| 2 episodes wrote no rows | "dropped" (they were the **most** divergent — the extreme, not the absence) |
-| an audit's `except` → `"unavailable"` | a dataset with no family field |
-| `(lo>0)==(hi>0)` on `[0,0]` | "the interval excludes zero" |
-
-**In every case the fix was the same, and it was never "check more carefully" — the
-checking was happening and returning a plausible answer. Make the failure path produce
-different output from the success path.**
-
-### The three mechanical forms
-
-| record | when the sample can be | catches |
-|---|---|---|
-| **the count** | silently empty or short | `perturb_events`; the screen's realised conditions; windows evaluated |
-| **the composition** | silently unrepresentative | family mix beside `val_loss`; a count of 12,800 would not have caught it |
-| **a distinguishable error** | silently failing | print the exception, not a benign-looking string |
-
-**A worked contrast, same codebase, same authors:** `rollout_sel` balances across
-condition families **and prints `"12 episodes over 8 families"` on every run**. `val_loss`
-did neither. The first was answerable in one query by someone not suspecting anything;
-the second's one-family prefix survived undetected through every run in the project's
-history. **The difference is that one metric announces what it was computed on.**
-
-### Who caught them
-
-**All seven were caught by someone other than the author** — running the same thing and
-getting a different number, or asking what a number was computed on. **Not one was caught
-by the author reasoning harder.** That is the argument for the multi-machine arrangement,
-stated as evidence rather than preference.
-
-### And it applies to the instruments built to catch it
-
-Four tools were wrong on first use and are trustworthy only because each was validated
-against a case whose answer was already known: the standing screen (five versions, five
-distinct failures), the dataset-equality gate (a false positive on a matched pair), the
-coverage audit (bin occupancy blind to a 101x density hole), and the interval splitter
-(the `[0,0]` bug above). **Validate a new instrument against a measurement you already
-trust, and treat "it agrees with everything" as a warning rather than a pass.**
-
-## The four mechanical rules
-
-**Distilled 2026-09-07, after a night in which five explanations were withdrawn and
-zero wrong claims were published.**
-
-Every withdrawal died to one of four cheap mechanical acts. **Not one died to anyone
-thinking harder.** Prefer a mechanical rule to a resolution to be careful.
-
-| rule | what it caught |
-|---|---|
-| **Print the column** | The surrogate "rewards the exploit" — it does not. The missing column was the reward. |
-| **Call the instrument, don't reimplement or eyeball it** | A `physics_digest` check done by eye gave the opposite answer; a reimplemented `scored()` gave 24 where the harness gives 20. |
-| **Read the whole file / the whole table** | `constants.py` diagnosed the bug two days earlier, forty lines from something being read. The historical attempts table held the 17-vs-20 answer in the row already on screen. |
-| **Name the denominator in the sentence** | "one-step accuracy is worse" was "worse on the walking-split validation set", measured on the distribution the data deliberately departs from. Also: units — two columns "ordered oppositely" were in different spaces. |
-
-| **Count what actually ran** | A screen's self-test printed ORDERING PRESERVED over a denominator that had silently halved: 4 of 8 conditions raised `KeyError`, the collector exited rc=1, and the results were dropped as `None`. The four survivors were all one condition family. |
-
-**The fifth rule defeats the other four**, because a rate over an unchecked denominator is
-immune to printing columns, calling instruments, reading files and naming denominators —
-the denominator you name is simply the wrong one.
-
-**Its general form:** *a failure path that returns a sentinel which is then filtered out
-is a silent denominator shrink.* `screen()` dropped `KeyError` as `None`; `scored()`
-returns `None` on failure and its caller counts the drops. Same shape, one reported and
-one did not. **Audit every filter on `None`/falsy/exception and require the count to be
-asserted or reported.** A comprehension that quietly drops failures can move a
-denominator with nobody seeing it.
-
-**A sixth, for results rather than measurements:** *seal a headline to its control arm, in
-writing, before it can be written down.* `arm A: 0 of 43` was sealed as "pending arm B"
-for four hours across two machines. The obvious reading — that the excitation data
-destroyed transfer — was supported by every observation available and was false.
-
-**The pattern behind all of them:** in every case the measurement was correct and the
-*sentence* was broader than what produced it. Suspect the sentence, not the number.
-
 ## What this file is mostly made of, counted rather than asserted
 
 A claim was put to me at the end of a long session: that every lesson here builds
@@ -3992,868 +3903,675 @@ Operationally: the moment a hash is published, treat the file as append-only-els
 Corrections go in a new artefact that names what it corrects, and the original stays
 byte-identical to what was attested.
 
-## A treated count is not a result. Carry the control in the same breath.
-
-**Cost:** recurred three times · **Found:** 2026-09-06 · **Applies to:** any reported count
-
-**Expected:** "v4 completes 17 of 43" identifies a result.
-**Happened:** It was quoted all night as the comparison target while the number that
-makes it mean anything — the unmodified policy completes **38 of 43** — sat in the
-adjacent column of the same table row and was dropped every time. An arm landing at 18
-then looks like it "beat v4" when it is a comparable degradation.
-**Cause:** The treated count is the interesting-looking half, so it is the half that
-survives copying. Prose sites quoted it bare (`walks in Chrono on 17 of 43 episodes`),
-and from there it travelled with no control at all.
-**Fix:** Write the pair as one token everywhere, including prose: *17 of 43 against 38*.
-An earlier draft of `go2-finetune-displacement-result.md` had already been corrected for
-exactly this and the correction did not propagate to the other two files.
-**Evidence:** `go2-finetune-postmortem.md` table row; `go2-action-sensitivity-gate.md:1469`
-before patching; the "the number that matters, and the one an earlier draft of this
-document omitted" note already on record.
-
-## A machine-tagged summary is a stratum, not the result.
-
-**Cost:** ~1 h of contradictory numbers · **Found:** 2026-09-06 · **Applies to:** stratified runs
-
-**Expected:** `n_surviving 20` in a verdict summary is that run's answer.
-**Happened:** It disagreed with a documented 17, and with the pooled `n = 36` used for
-the tracking row. Reconciling them as different *predicates* was attempted first.
-**Cause:** `run_go2_finetune_verdict.py` writes `--summary-json` **per box** for
-"stratified combination across boxes", and its own comment notes a stratum below the
-30-pair minimum is normal. So a machine-tagged file is one contribution to a pool.
-**Fix:** Before reconciling two counts, check whether they have the same *scope* — one
-box or all of them. Scope mismatch is more common than predicate mismatch and much
-cheaper to test. Read the predicate only after scope is ruled out.
-**Evidence:** stratum `kyle-N7-B650E` 20/43; postmortem tracking row n = 36.
-
-## Check the predicate nesting before proposing a reconciliation.
-
-**Cost:** would have sent a search in the wrong direction · **Found:** 2026-09-06
-
-**Expected:** "surviving" and "completed" are unrelated filters, so either can exceed
-the other and 20 > 17 needs no explanation.
-**Happened:** `scored()` rejects on `len(rows) < SCORED_ROWS + 500` before any other
-clause. Completion is a *clause inside* survival, alongside finiteness, a constant
-command window, lead-in, and joint admissibility.
-**Cause:** The names suggest two sibling filters. The code has one nested in the other.
-**Fix:** When two counts must be reconciled, derive the *ordering the code forces*
-first. It rules out whole families of explanation for free.
-**Evidence:** `scripts/evaluation/run_go2_finetune_verdict.py`, `scored()`.
-
-**Amendment, same day, and it is the more useful half.** The conclusion drawn above was
-over-stated and relayed to two boxes as settled: "surviving <= completed, so 20 > 17
-must be scope." The scope half was right (20 and 16 pool to 36). The exclusion was not.
-It holds only for the reading of "completed" that means the row-count clause. If the
-document's "completed" means an upright-or-fall test that `scored()` never performs, the
-nesting inverts and 17 < 20 is the *expected* ordering.
-**The real lesson:** deriving an ordering from code constrains the term as the *code*
-defines it. The other number came from prose, where the same word can name a different
-predicate. Pin what the word means on BOTH sides before claiming the ordering excludes
-anything — otherwise you have proven something about one function and applied it to a
-sentence.
-
-## A launch command returning is not a process running.
-
-**Cost:** 20 min of a queue believed busy · **Found:** 2026-09-06 · **Applies to:** every launch
-
-**Expected:** The verdict was reported RUNNING with 43 episodes at concurrency 8.
-**Happened:** It had exited immediately:
-`error: the following arguments are required: --baseline-root`. Nothing ran for twenty
-minutes, and the arm queued behind it inherited the same omission.
-**Cause:** Status was inferred from the launch having been issued, not from the process
-existing. Same shape as the two-Chrono-builds episode: the requested thing and the actual
-thing were never compared.
-**Fix:** Before reporting a run as live, confirm the pid exists or the output file is
-growing. For this harness specifically, confirm the printed `{root}: N episode files, M
-parsed` is non-zero — it returns NOT MEASURABLE rather than a silently short count.
-**Evidence:** dorm-pc, 2026-09-06.
-
-**Second instance, same day, and it completes the rule.** The next launch *was* checked
-by pid, was alive, then exited NOT MEASURABLE on a mixed-machine episode set — and
-"running" was carried forward from the earlier check without re-testing. So the pair:
-
-    a launch that returned      is not a process that started
-    a process that started     is not a process that is running now
-
-**Confirm liveness at the moment you report it, not at the moment you began it.** The
-second half is the easier one to miss precisely because the first check was done
-honestly.
-**Evidence:** `VERDICT: NOT MEASURABLE -- 37 eligible episodes were collected on
-kyle-sbel but this host is kyle-N7-B650E.`
-
-
-## Replicate measurements. Never replicate pipelines.
-
-**Cost:** avoided, because a box declined an instruction · **Found:** 2026-09-06
-
-**Expected:** Idle compute should duplicate whatever the busy box is doing.
-**Happened:** Two near-simultaneous instructions went out that look contradictory —
-*both boxes run the verdict* and *only one box preprocesses*. sbel-pc declined the
-second on the grounds that the last time two boxes ran the same stage independently we
-ended up with two contact definitions.
-**Cause:** "Use idle compute" is not a single rule. What the stage *emits* decides it.
-**Fix:**
-
-| stage emits | duplicate? | why |
-|---|---|---|
-| a number | yes | two estimates of one quantity; disagreement is information |
-| a dataset or checkpoint | no | two artifacts everything downstream inherits, later compared as if they were one |
-
-A measurement replicated twice is a stronger measurement. A pipeline run twice is two
-subtly different worlds, and the difference surfaces months later as an unexplained
-discrepancy in something that consumed both.
-**Evidence:** the two contact definitions; the two Chrono builds selected by
-`PYTHONPATH`; verdict arms deliberately run on both boxes at the same time.
-
-## Read the signature before specifying the invocation.
-
-**Cost:** two boxes given an unrunnable instruction · **Found:** 2026-09-06
-
-**Expected:** "Identical arguments, only `--surrogate` differs" describes the arms.
-**Happened:** `run_go2_finetune_verdict.py` has no `--surrogate` argument and never
-loads a surrogate. It takes `--ckpt`, a fine-tuned *policy*; the surrogate acted
-upstream during fine-tuning. Separately, `--baseline-root` is required, and omitting it
-cost twenty minutes of a queue believed busy.
-**Cause:** The flag was written from what the experimental design needed, not from what
-the file accepts. The design was right and the interface was invented to match it.
-**Fix:** Paste the actual signature into the instruction. This is the second instance —
-the first was a data collector described as "the existing collector plus one flag" where
-no such flag existed. Both times the *design* was sound, which is what made the invented
-interface plausible enough to send.
-**Evidence:** sbel-pc's read of the CLI signature, 2026-09-06.
-
-## Never vary a knob that the metric is defined through.
-
-**Cost:** two headline claims withdrawn · **Found:** 2026-09-06 · **Applies to:** any sweep
-
-**Expected:** `val_loss 0.00662 vs 0.00811` compares two models' accuracy.
-**Happened:** The two cells used different channel-weight vectors, and `val_loss` is a
-*weighted* average computed through exactly those weights. The cells were not one
-quantity measured twice; they were two different objectives each evaluated on itself.
-**Cause:** The swept variable and the metric's definition shared a parameter.
-**Fix:** Before comparing cells, ask whether the metric is *defined* through anything
-that varies between them. Sort confounds by which layer they sit in:
-
-| confound in | consequence | example |
-|---|---|---|
-| what the model learned | a real comparison of a real quantity, two causes | `err/signal` here — the gate reads raw channels |
-| the metric's own definition | not a comparison at all | `val_loss` here |
-
-The second is strictly worse and is easy to miss because the number still looks like the
-same number.
-**Near-miss worth recording:** the first suspicion was that smaller weights mechanically
-shrink the loss. That is wrong — `_build_channel_weights` mean-normalizes
-(`weights * size / sum`), fixing the total. The real mechanism is *allocation*: the
-weights downweighted `body_rate` and `gravity`, the families an earlier retraction had
-already identified as where the error sits. Checking the code turned a confident wrong
-claim into the correct narrower one before it was sent.
-**Evidence:** `src/nedm/training/trainer.py`, `_build_channel_weights` and
-`_compute_loss`; `w1-rigid-scope.md` section 1t withdrawal banner.
-
-## A config generator that defaults a knob to "same as the data" silently disables it.
-
-**Cost:** ~1 h GPU on a duplicate, plus a confounded sweep · **Found:** 2026-09-06
-
-**Expected:** Setting `channel_weight_datasets` to each cell's own `train_mix` gives
-every cell weights appropriate to its data.
-**Happened:** For single-dataset cells it produces **exactly 1.0 on every channel**.
-`w_i = flat_std_i^2 / scale_sq_i`, and when the weight datasets are the training set,
-those arrays are identical. So the baseline ran unweighted while everything else ran
-weighted, and the sweep varied two things per cell.
-**Cause:** The default was written as a sensible-sounding rule rather than evaluated on
-the degenerate case. It is a no-op precisely where the mix has one member.
-**Fix:** For any derived config value, evaluate it by hand on the simplest cell before
-generating the sweep. A knob that computes to its identity element is indistinguishable
-from a knob that was never set.
-**Corollary that caught it:** two cells reproduced each other to nine decimals on
-different checkpoint files. **A run that matches another that exactly is either a
-determinism check or a duplicate, and you must decide which before reporting it** — this
-one was reported as an ablation first.
-**Evidence:** `go2_mix36_base` vs `go2_mix36_base_ownweights`, gain 1.042596576,
-corr 0.554773709, d_model 0.051442282, identical.
-
-
-## Check how an argument is CONSUMED before shipping a file to satisfy it.
-
-**Cost:** avoided; would have been 86 episodes across two boxes · **Found:** 2026-09-06
-
-**Expected:** `--ckpt <fine-tune checkpoint>` takes the fine-tune's `best.pt`.
-**Happened:** `--ckpt` is consumed by `torch.jit.load` (`imported_policy.py:208`), which
-needs a TorchScript export. `best.pt` is a plain dict (`state_dict`, `update`, `dw`,
-`val_tracking_mse`) and fails with `failed locating file constants.pkl`. Two boxes were
-about to run 43 episodes each, every one failing to load a policy.
-**Cause:** An earlier arm worked only because someone had hand-made a TorchScript export
-and never recorded the step. The undocumented manual step looked like a property of the
-pipeline.
-**Fix:** Read the *consumer*, not the flag name, before producing an artifact for it.
-Then script the step that was manual, and **validate the script against the artifact the
-manual step produced** — here, re-exporting the earlier arm reproduced its file
-bit-exactly across all 14 tensors, which is a positive control rather than an assertion.
-**Related:** the exporter depends on submodule aliasing (loading a state_dict mutates the
-base in place) and *tests* that dependency, aborting if the export comes out identical to
-the base. A load-bearing assumption that is asserted at runtime cannot rot silently.
-**Evidence:** `scripts/evaluation/export_finetuned_policy.py`; `go2_finetuned_v4.pt`
-reproduced bit-exactly.
-
-## Patching a measurement instrument mid-experiment needs a null-case regression.
-
-**Cost:** open · **Found:** 2026-09-06 · **Applies to:** any harness change during a run
-
-**Expected:** Adding a selection flag (`--own-machine-only`) changes only which episodes
-are scored.
-**Risk:** The harness md5 moved `4c460d37 -> 2a185b2f`. Every number produced after the
-patch sits on a different instrument from every number before it, and the two are being
-pooled.
-**Fix:** Run the patched instrument **without** the new flag on an input where the flag
-is inert, and require it to reproduce the unpatched result exactly. That is the
-difference between a selection flag and a silent change of ruler, and it is the same
-positive-control discipline that validated the exporter in the entry above.
-**Note the good half:** the original harness aborted on a mixed-machine set and offered
-only `--allow-foreign`, which resolves it in the *wrong* direction by including foreign
-episodes. Its abort text recommended the stratified design that no flag implemented. An
-instrument that documents a design it does not support will be worked around by hand
-eventually; better to implement it and regression-test it.
-
-## "Effective rank" is not one number. Fix the state definition before quoting it.
-
-**Cost:** a headline multiple overstated 3.0x vs 1.7x · **Found:** 2026-09-06
-
-**Expected:** "the control has 3x the independent state directions of the excitation
-corpus" is a fact about the corpora.
-**Happened:** Three state definitions gave **three different orderings** of the same
-three corpora:
-
-| corpus | joint pos only (12d) | raw full state (22d) | z-scored 22d |
-|---|---|---|---|
-| walking | 7.13 | 3.26 | 12.86 |
-| control | 5.79 | 2.26 | 12.67 |
-| excitation | 2.27 | **3.54** | 7.39 |
-
-The claim was measured on joint positions and reported as a claim about *the state*.
-Under the raw full state the ordering **inverts**.
-**Cause:** The quantity was named more broadly than it was measured — the same error as
-quoting a column count from an adjacent file, in a new place.
-**Fix:** Name the definition in the same sentence as the number, every time. Where a
-choice exists, pick it on a stated principle *before* seeing the orderings: here,
-z-scored, because it matches the estimator that consumes it. An unnormalized rank over
-mixed-unit channels measures which channels have the largest units, not which corpus is
-richer. Choosing after seeing three orderings is unrecoverable however good the reason.
-**Evidence:** `go2-excitation-collection.md`, the rank-caveat table.
-
-## A ratio can be low because the numerator is small or because the denominator is.
-
-**Cost:** open · **Found:** 2026-09-06 · **Applies to:** normalized variance statistics
-
-**Expected:** Conditional action variance near walking's value means the control's
-actions are policy-determined, as its design requires.
-**Risk:** `Var(a|s) / Var(a)` is low for two unrelated reasons — the action is a *rich
-function of state* (walking: large `Var(a)`, nearly all explained), or the action *barely
-varies at all* (constant torque: tiny `Var(a)`, nothing to explain, unstable ratio).
-**Both read as "determined by the state". Only one is.**
-**Fix:** Report the **marginal** variance beside every normalized one. A ratio whose
-denominator is a property of the data cannot be interpreted without it — the same
-structure as the `err_over_signal` apparatus check, and as the R² inflated by a
-persistent level that made a random walk score ~1.0.
-**Related trap in the same result:** the control matched *walking* on both reported axes
-(state rank 12.67 vs 12.86, cond. variance 0.0968 vs 0.0865), so it may not occupy a new
-cell of the design at all. The defence — constant torque visits a different *region* at
-similar dimensionality — is a claim about **coverage**, and rank measures
-**dimensionality**. Different quantity; needs a support or nearest-neighbour measurement.
-**Evidence:** `go2_ctrl_torque40` diagnostic, 2026-09-06.
-
-## Different rulers: ask what PRODUCED each number before comparing them.
-
-**Cost:** two withdrawn comparisons in one evening · **Found:** 2026-09-06
-
-This stopped being an incident and became a class. Both instances shared a *name* where
-a shared *instrument* was required, and both were caught only after the number had been
-quoted:
-
-| number | compared across | why inadmissible |
-|---|---|---|
-| `val_loss` | cells with different channel weights | the metric is *defined* through the weights |
-| `val_tracking_mse` | two fine-tunes in different surrogates | each model scored its own rollouts on its own reward |
-
-The second was committed within an hour of documenting the first. **A third followed the
-same evening, and it was the coordinator's:** `38 of 43` was enforced as the control
-anchor across two machines all night. The harness returns `43 of 43` for that policy.
-`38` and the `17` beside it come from a different predicate entirely — the two families
-agree on ordering and disagree on magnitude. The lesson was being written up while the
-error was being enforced, which says the class is easier to document than to notice.
-
-**The detector, cheap enough to run every time:** *what produced each of these two
-numbers? If the producer differs, they are not comparable, however similar the name.*
-
-**Corollary — a name that lies costs twice.** `val_tracking_mse` is a **negated reward**,
-not an MSE. It reports negative values, which a squared error cannot. In one evening the
-name produced a sign error (the field was read as "lower is worse") and then an
-inadmissible cross-surrogate comparison. Rename fields that misdescribe their contents;
-the reading error recurs until you do.
-**Correct handling:** the metric is admissible *within* a run for checkpoint selection,
-and across runs sharing a surrogate. Withdrawing the comparison beat flipping it.
-
-## Reading an instrument's source and calling it are different tests.
-
-**Cost:** one false alarm and one near-miss, opposite directions · **Found:** 2026-09-06
-
-**Happened, twice in an hour, symmetrically:**
-
-- A capability was reported **missing** because a grep for `SCHEMA_ADDITIONS` found
-  nothing. It was present as `NEW_PHYSICS`, and the exclusion path had fired on every
-  replay check. **Absence of an identifier is not absence of a capability.**
-- The mirror image: comparing raw CSV headers **by eye** showed a six-column mismatch
-  that looked like a real replay failure. Calling `physics_digest` gave the opposite
-  answer, because it drops those columns before comparing.
-
-**Cause:** In both cases the source was read as a proxy for behaviour.
-**Fix:** Test an instrument by **calling it** on a known input. Source-reading generates
-hypotheses; it does not settle them. Same family as the two Chrono builds that were
-swappable by `PYTHONPATH` with no error.
-**Note:** the decision that rested on the false alarm — keep the newer harness base —
-was still correct, for the two *other* differences that were real. A right decision
-resting partly on a wrong reason still needs the reason corrected, or it transfers to
-the next case where it is load-bearing.
-
-
-## A control where nothing differs cannot detect an insensitive instrument.
-
-**Cost:** nearly over-credited · **Found:** 2026-09-06 · **Applies to:** null controls
-
-**Expected:** The unmodified policy replaying its own baselines at 43/43, bit-exact,
-paired difference exactly 0.0000, is "the strongest form the control could take".
-**Actually:** The treated arm *was* the baseline policy, so identity is the expected
-output. It establishes determinism, pairing, scoring plumbing and env reproducibility —
-all necessary. But **a harness hard-wired to report identity would pass it too.**
-Nothing differed, so nothing tested whether the scoring path *responds* to a policy that
-does.
-**Fix:** Pair every null control with a control that has known non-null signal — here, a
-rerun of a fine-tune whose result is already on record. The null control proves the
-apparatus is quiet; only the signal control proves it can hear.
-**Evidence:** unmodified-policy verdict, 43/43, CI [+0.0000, +0.0000].
-
-## "Falls over" and "diverges numerically" are different findings.
-
-**Cost:** a misdescription carried for an hour · **Found:** 2026-09-06
-
-**Expected:** Episodes terminating at ~400 rows instead of ~3800 means the robot falls.
-**Happened:** Commanded joint targets reach **1e30 rad** by row 400, against a physical
-range of about ±3 and an admissibility bound of 5. Body height collapses by row 10 and
-the controller then runs away.
-**Cause:** Both look identical in a survival count. Only the trajectory tells them apart.
-**Why it matters:** they license different next steps. A falling policy is a control
-quality result and the next question is about the objective. **An unbounded policy is a
-numerics or export result**, and the next questions are per-tensor weight statistics,
-whether the same divergence appears inside the surrogate the policy was optimised in,
-and whether any action bound exists in the loop at all.
-**Leading hypothesis it generated** (unmeasured at time of writing): a learned surrogate
-is smooth and bounded where physics is not, so gradient ascent inside it can find a
-policy with unbounded outputs that the surrogate scores as excellent. It would explain
-the collapse, the fine-tune's own metric never flagging trouble, and predicts the effect
-*worsens* as the surrogate gets more accurate on-distribution.
-**Fix:** Before describing a failure, look at the trajectory, not the count.
-
-## A diagnostic nobody reads is not a diagnostic. Assert instead of printing.
-
-**Cost:** an entire fine-tuning line, six attempts, plus a postmortem drawing the wrong
-conclusion · **Found:** 2026-09-07
-
-**Expected:** The fine-tune objective implements the reward.
-**Happened:** It computes **10 of 14 terms**. The largest-magnitude term in the whole
-reward, `correct_base_height` at **−10.0**, ten times `tracking_lin_vel`, is silently
-omitted — along with `collision` (−1.0). So nothing penalised the robot being at the
-wrong height, on **every run including the one the postmortem called the configuration
-that works**.
-**Cause of the miss:** the script printed the omitted list on every run since the
-beginning. It was read past repeatedly, including by an agent auditing that exact file
-in the session that eventually found it.
-**Fix:** A silently-degraded objective must **fail loudly**, not print. If a reward term
-cannot be computed, either assert and stop, or require an explicit
-`--allow-omitted-terms` naming each one. The cost asymmetry is total: an assertion costs
-one run, a print cost six attempts and a wrong published conclusion.
-**Generalise:** every "N of M computed" line in this codebase is a candidate. Grep for
-them and decide, per site, whether the degraded path should be an error.
-**Evidence:** `go2-action-sensitivity-gate.md` flag banner, 2026-09-07.
-
-## Coverage without horizon buys nothing.
-
-**Cost:** would have sent the fix in the wrong direction · **Found:** 2026-09-07
-
-**Expected:** The fine-tuned policy cannot stand because standing states were never in
-the objective's rollout distribution.
-**Happened:** False. Collapsed states *are* sampled — 7.0% of the branch pool below
-0.20 m, standing is 93%. The rollout is `--branch-steps 5`, **0.05 s**. **A policy
-cannot fall within 0.05 s**, so holding a stand is never evaluated no matter how often
-standing is sampled.
-**Cause:** "Is the state in the distribution?" and "can the behaviour manifest in the
-horizon?" are different questions. The first was checked and answered yes; only the
-second mattered.
-**Fix:** For any behaviour the objective must penalise, ask what **timescale** it needs
-to become visible, then check the rollout horizon against it. A failure slower than the
-horizon is invisible regardless of coverage.
-**The connection that makes this expensive:** the one clear thing the excitation corpus
-bought was a surrogate valid to 0.5 s where the baseline was INCOMPLETE at that horizon.
-The fine-tune used 0.05 s throughout. **The line never used the capability it spent
-weeks collecting**, which is also why the advantage could not show up as anything but
-collateral damage.
-
-## WITHDRAWN 2026-09-07: "enriching state without enriching reward makes a model worse to optimise inside."
-
-**The empirical result stands. The explanation below is withdrawn.** It rested on the
-surrogate scoring the runaway policy *well*. Measured, it does not: the surrogate's own
-reward reads **+0.95 at 5 steps, −1.53 at 20, −7.9 at 50**, penalising the runaway
-heavily using terms it already computes (`dof_pos_limits`, `action_rate`, `torques`) and
-without needing the height term at all. **The model is not fooled. It is not asked** —
-the fine-tune's window is 5 steps, 0.05 s, and the failure first registers at 0.2 s.
-
-The claim was withdrawn *before* being generalised, because the reward column was
-requested specifically as the measurement that could falsify it. Keep the entry for the
-shape of the error: **the fantasy was measured, the "and is rewarded for it" was
-inferred and never checked.**
-
-Superseded by [horizon-shorter-than-failure](#the-objectives-window-was-shorter-than-the-failure-it-had-to-prevent).
-
-### The empirical result, which survived both explanations
-
-
-
-**Cost:** six fine-tuning attempts and a wrong postmortem conclusion · **Found:** 2026-09-07
-
-**Expected:** A surrogate with more state channels is strictly more useful — more
-faithful, so better to optimise a controller inside.
-**Happened:** The reverse, cleanly:
-
-| arm | model sees height? | reward constrains height? | result |
-|---|---|---|---|
-| v4, 34-D | **no** | no | **20 of 43** |
-| base36, 36-D | yes | no | **0 of 43** |
-| arm A, 36-D + excitation | yes | no | **0 of 43** |
-
-v4 survives *because* it is impoverished in exactly the dimension its reward ignores.
-Adding `pos_z_m` to the state gave gradient ascent a pathway to a quantity nothing
-penalised; the surrogate then predicts body height *rising* to 0.758 m, twice standing,
-while the commanded action explodes to 3e18, and never predicts a fall.
-**Cause:** The failure is neither model fidelity nor reward completeness. It is the
-**mismatch between what the model represents and what the reward constrains.** Every
-unconstrained representable degree of freedom is an exploit waiting for an optimiser.
-**Fix:** When a learned dynamics model's state grows, re-derive which reward terms are
-now computable **and require them**. Enrichment of state and enrichment of objective must
-be the same change, enforced together — here by `wrongly_omitted(state_fields)`, which
-makes an advisory comment runnable.
-**Why it hid for six attempts:** every prior change made the model *better*, and better
-is the direction that hurts. A monotone-improvement prior makes this class invisible.
-**Status:** hypothesis, not established — 34-D → 36-D is two channels and only one is
-named. The test is restoring the term on a 36-D surrogate; prediction on record is that
-both zero arms recover toward v4 or past it.
-
-## Seal a dramatic number until its attribution arm lands.
-
-**Cost:** none — that is the point · **Found:** 2026-09-07
-
-`arm A` returned **0 of 43** and was held for four hours as *"arm A, pending arm B"*,
-across two machines and a cross-box replication, with an explicit instruction not to
-write the sentence "the excitation fine-tune destroys transfer".
-
-**It would have been wrong.** `base36`, whose surrogate never saw an excitation row,
-returned 0 of 43 as well. The obvious reading of a dramatic result was available, was
-supported by every observation at the time, and was false.
-
-**Fix:** A result that would be a headline gets sealed to a named, already-queued control
-arm, in writing, at the moment it lands. Not "be careful" — an explicit sentence you have
-committed not to write, and the specific run that unseals it.
-**Evidence:** `go2-action-sensitivity-gate.md` ladder table.
-
-## WITHDRAWN 2026-09-07: "the objective's window was shorter than the failure it had to prevent."
-
-**Killed by the baseline control, which was requested precisely because the numbers had
-no scale.** Rolled through the same surrogates at the same horizons, the **unmodified
-policy — which completes 43 of 43 in Chrono, bit-exactly — is the worst-behaved of all
-six policies**, reaching actions of 1e6–1e7 at h=20 where every fine-tuned policy sits
-at 1e1.
-
-So the surrogate does **not** detect the catastrophe, and −1.53 is a *good* score, not a
-bad one. The reading below, that "the model already knows and nothing asks it", is dead.
-
-**Two withdrawn accounts, one control each, both requested as the measurement that could
-falsify the preferred story.** Keep the entry for the observations, which stand; the
-explanation does not.
-
-### The observations that survived, and the distinction that replaced the account
-
-
-
-**Cost:** four fine-tune generations, v1 through v4 · **Found:** 2026-09-07
-
-**The surrogate detects the catastrophe. Nothing asks it.**
-
-| horizon | surrogate reward | max abs action |
-|---|---|---|
-| 5 steps, 0.05 s — **the fine-tune's window** | **+0.95** | 7.0 |
-| 20 steps, 0.20 s | −1.53 | 11.6 |
-| 50 steps, 0.50 s | −7.94 | 24.4 |
-
-At the window the gradient actually sees, the policy is *genuinely good*, and no policy
-can fall in 0.05 s. Everything that makes it catastrophic happens outside.
-
-**This unifies four generations of failure.** The terms meant to restrain action
-inflation — `action_rate`, `torques`, `dof_pos_limits` — are the same three that drive
-the reward negative at 0.2 s. **They have always worked and have never been asked.**
-
-| version | terms | mean abs raw action |
-|---|---|---|
-| v1 | 1 of 14, tracking only | 1.033 → 5.244 |
-| v2 | 8 of 14 | 4.725 |
-| v3 | 10 of 14 | → 1e34 |
-
-Each generation added terms to the objective. **None widened the window.** So each fixed
-nothing and the next was worse.
-
-**And the falsification test was already written**, in
-`finetune_go2_shortbranch_upstream_reward.py`, before the run:
-
-> *"If the mean |raw action| of v3 does NOT come down toward 1.033, this diagnosis is
-> wrong."*
-
-It went to 1e34. **The v3 diagnosis was falsified by its own pre-registered criterion and
-nobody read it back.** Third unread diagnostic of the night, after the omitted-terms
-print and the 2026-09-05 `constants.py` note.
-
-**Fix:** For any behaviour an objective must prevent, ask what timescale it needs to
-become visible, and check the rollout horizon against it. Then reuse the criterion
-already on record rather than choosing one after seeing the data.
-**The loop this closes:** the horizon the objective needs (0.2–0.5 s) sits inside the
-validity the excitation corpus bought (0.5 s) and outside the validity the baseline had
-(0.1 s). The corpus collected to help fine-tuning does help — through a mechanism nobody
-proposed — and looked useless only because the window was never widened to use it.
-**Status:** the strongest surviving account, and it still needs its baseline control —
-the unmodified policy through the same surrogates at the same horizons, or "−1.53" has
-no scale.
-
-## Read back every pre-registered criterion against its result.
-
-**Cost:** three instances in one night · **Found:** 2026-09-07
-
-The project keeps generating good diagnostics and not reading them:
-
-1. `reward: 10 computable terms, 4 omitted` — printed on **every** fine-tune since the
-   beginning, including the one the postmortem called successful.
-2. `constants.py:126-140`, 2026-09-05 — diagnosed the height omission, stated the general
-   principle, extended the state to fix it. The reward half never shipped.
-3. v3's own falsification criterion — written before the run, falsified by the run,
-   never read back.
-
-**A written criterion that is never re-run is a comment, not a check.** The audit is
-mechanical: find every pre-registered success or falsification criterion in the codebase
-and evaluate it against the result it was written for. Three hits in one evening says
-the base rate is high.
-
-
-## Open-loop validity is not closed-loop validity, and only the second one matters for control.
-
-**Cost:** four fine-tune generations built on the wrong number · **Found:** 2026-09-07
+## Print rows-per-episode beside whatever a collection sweep is tuning
+
+A magnitude sweep for a perturbation control was scored on how well its joint distribution
+matched a target. Two cells looked best on the metric being optimised, and both were
+measuring truncated episodes:
 
 ```
-  what the gate certified      OPEN-loop, against RECORDED actions      0.5 s
-  what a fine-tune consumes    CLOSED-loop, policy feeding itself back  NEVER MEASURED
+  160 Nm              state rank 2.61, closest of any cell to the 2.27 target
+                      48 rows/episode against a possible 476
+  mixed-family 40 Nm  containment 0.712, highest of any cell
+                      191 rows/episode
+  matched  40 Nm      containment 0.433
+                      475 rows/episode -- runs to completion
 ```
 
-**Every surrogate-quality claim in this project is open-loop.** The excitation sweep's
-headline — the 0.5 s cell becoming measurable — is open-loop. One-step error is
-open-loop. `err_over_signal` is open-loop. A policy optimised inside the model consumes
-none of them: it feeds its own actions back, and compounding is a different property.
+At 160 Nm the robot falls immediately and the "distribution" is free-fall. At mixed-family
+40 Nm a `wz = 0.2` turning command was knocking it over, so the higher containment was
+measured over a shorter, earlier slice of each episode. Both cells were optimal on the
+metric and neither was measuring the thing the metric was for.
 
-On first evidence, closed-loop validity is **under ~10 steps for every surrogate we
-have**, 34-D and 36-D alike — which would mean the 5-step window was about right for the
-validity that actually exists, and that "the fine-tune used a window narrower than its
-validity" was backwards.
+**An episode that ends early will look better on almost any distributional metric**, because
+the distribution is then taken over a shorter, earlier and less varied slice — closer to
+the initial condition, before the run has explored anything. The failure is systematic and
+it points the same way every time, which is what makes it dangerous rather than merely
+noisy.
 
-**The anti-correlation, which is the sharper form:** inside all three surrogates, the
-policy that works in reality is the *worst*-behaved, by five orders of magnitude.
-Surrogate closed-loop stability is not a weak proxy for real performance; it may be
-**anti-correlated** with it. Candidate mechanism, untested: fine-tuning inside a model
-makes a policy more compatible with *that model's* dynamics while making it worse in the
-world — model exploitation appearing as stability rather than as reward.
+So: **any collection sweep prints rows-per-episode next to whatever it is tuning.** Not as
+a diagnostic to consult when something looks wrong, but as a required column, because the
+cell it exposes is by construction the one that looks best.
 
-**Fix:** Certify the property you will consume. Before optimising a policy inside a
-learned model, measure divergence against horizon with the **policy in the loop**,
-against ground truth, and set the optimisation window from that.
-**Verify first:** the rollout code is the fine-tune's own, so if it is wrong the bug is
-in every fine-tune too. Discriminator: teacher-forced open-loop versus closed-loop on one
-episode. Open-loop stable at 50 steps and closed-loop exploding at 10 means the
-compounding is real. Both exploding means the rollout is broken and everything
-downstream is suspect.
-**Check the literature:** whether NeRD, DHAL and HALO certify open-loop then optimise
-closed-loop decides whether this is a general gap worth naming or a mistake local to us.
+This is a construction, not a distinction: it fires without being remembered, and it caught
+the same failure twice in one sweep — the second time in the cell that had already been
+endorsed on the strength of the contaminated number.
 
-## Four mechanisms died. The measurement did not move.
+## Duplicate measurements across machines; never duplicate pipelines
 
-**Found:** 2026-09-07
+Two instructions arrived together that looked contradictory: run both verdict arms on this
+box *and* on the other one, but do not preprocess the excitation data here because the
+other box already does.
 
-> At `||dW||` matched to three decimals — 8.9032, 8.9017, 8.9003 — same script, same
-> objective, same 5-step horizon: **34-D gives 20 of 43, and two independently trained
-> 36-D surrogates each give 0.**
+They are the same principle and the difference is what the stage emits.
 
-Dead explanations, in order: *the excitation data destroys transfer*; *the model
-represents height that the reward does not constrain*; *the 36-D surrogate permits a
-sharper myopic optimum*; *the objective's window is shorter than the failure*.
+```
+  duplicating a MEASUREMENT   two estimates of one quantity.
+                              disagreement is information; agreement is replication.
+  duplicating a PIPELINE      two artifacts, which then get compared as though
+                              they were one thing.
+```
 
-**The empirical claim outlived all four.** Report a measurement welded to nothing, and it
-survives its explanations being wrong. Weld it to the first plausible story and it dies
-with that story, taking a real result with it.
+The second is how this project ended up with two contact definitions — a hysteretic
+threshold and a logged ground truth, both called foot contact, agreeing on 70.8% of
+samples, with every contact-conditioned result silently using whichever the local pipeline
+produced. Nothing failed. Two boxes each built a defensible artifact and the names matched.
 
-Each of the four died to a **mechanical act, not to reasoning**: print the missing
-column, read the whole table, read the whole file, run the baseline arm. None would have
-died to more thinking.
+A measurement that disagrees across machines announces itself: two numbers, one quantity,
+someone has to reconcile them. An artifact that disagrees does not, because each consumer
+sees only one of them, and the disagreement surfaces later as an unexplained result rather
+than as a conflict.
 
-## Self-test a screen against every known outcome before you screen anything with it.
+So: replicate anything whose output is a **number**, and let exactly one machine own
+anything whose output is a **dataset** that other stages inherit. When the same instinct —
+"do it in both places, it is safer" — points opposite ways, the tell is whether a
+downstream consumer could tell the two outputs apart.
 
-**Cost:** avoided — would have mislabelled an entire dW ladder · **Found:** 2026-09-07
+## A dataset's value is not fixed by the question it was collected for
 
-A standing screen was specified on **body height**, from a description of the failure
-that had been in use for hours. Validated before use:
+`go2_ctrl_torque40` was collected as a state-matched control and disqualified within the
+hour: its states sit at 0.93x the distance to walking that walking's own held-out half
+achieves, so it is a coverage duplicate of walking rather than the wide-state instrument
+the design called for. That judgement was correct on its stated purpose.
 
-| policy | verdict | median z | screen says | expected |
-|---|---|---|---|---|
-| base | 43 of 43 | 0.380 | stands | stands ✓ |
-| v4 | 20 of 43 | **0.181** | collapsed | stands ✗ |
-| exc25 | 0 of 43 | **0.229** | marginal | collapsed ✗ |
+The same measurement pass that disqualified it found it holds **8,058 standing rows against
+walking's 204 and the excitation corpus's zero** — 40x walking's coverage of the regime
+where the fine-tuned policy actually fails, because the smoke collector includes a prewalk
+settle phase that the excitation collector's branch-from-policy design skips by
+construction.
 
-**v4 does not hold a stand and scores 20 of 43. exc25 sits *higher* than v4 and scores
-zero.** So "cannot hold a stand" was never the property that predicts the verdict, and
-the verdict's command cell never asks for zero velocity — standing still is out of
-distribution for all of these policies.
+So the corpus that failed its own test is the only one on the box covering the region a
+different question needs, and nobody had asked that question when it was collected.
 
-**The replacement passes:** command magnitude, threshold 10 rad.
+Two things follow. **Do not delete a corpus because it failed the purpose it was built
+for** — the collection cost is sunk and the storage is not the expensive part. And when a
+dataset is disqualified, record *what it does contain* rather than only why it failed,
+because the description is what makes it findable later. The disqualifying measurement had
+already produced the standing counts; they were in the same table and went unremarked for
+an hour.
 
-| policy | max abs joint target |
+The corollary that made this visible: the pass also produced the 55.7%-beyond-walking's-
+support figure for the excitation corpus, which turned out to be the quantitative premise a
+later argument needed. **A measurement made to answer one question routinely contains the
+answer to another, and the marginal cost of reading the rest of the table is zero.**
+
+## A broken audit that reports benignly is worse than no audit
+
+Seven failures on 2026-09-06/07, and none of them looked like errors. Each is a
+**failure rendered indistinguishable from a benign state**:
+
+| what happened | what it looked like |
 |---|---|
-| base | 1.253 |
-| v4 | 2.402 |
-| exc25 | 8.19e15 |
-| base36 | 1.99e24 |
+| a launch command returned | "the process is running" |
+| `--perturb-peak-n 60.0` accepted, fired **zero** times | a recorded parameter |
+| `params={'vx': ...}` stored, never applied | the constructor default, logged as 0 |
+| 12,800 windows evaluated -- one family of eight | a healthy count |
+| 2 episodes wrote no rows | "dropped", when they were the **extreme** |
+| an audit's `except` printing `"unavailable"` | a dataset with no family field |
+| a screen's self-test passing | one benign condition per policy |
 
-Nothing between 2.4 and 8e15, so the threshold is not a tuned margin.
-**Fix:** a screen is an instrument. Validate it against **every** outcome you already
-know, not just one, and label what it is not — this one is a pre-filter, since v4 passes
-it and still only scores 20 of 43.
+**In every case the instrument returned something a reader would accept, so the
+checking that was already happening returned a plausible answer.** Several survived
+for the life of the project. "Check more carefully" would not have caught any of
+them, because the checks were being run.
 
-## One quantity, two systems, opposite order.
+**The fix is always the same: make the failure path produce different output from
+the success path.**
 
-**Found:** 2026-09-07 · **Status:** pending a units check
+    perturb_events                a COUNT, not the parameter
+    val_loss composition          a family MIX, not the window count
+    wrongly_omitted()             an assertion against the loaded state, not a print
+    screen: missing condition     ABORT, not a silently shorter denominator
+    unapplied schedule            RuntimeError, not the default command
+    audit failure                 the exception and line, not "unavailable"
+
+**Two halves, and each catches cases the other cannot:**
+
+> **Record the COUNT when a sample can be silently empty or short. Record the
+> COMPOSITION when it can be silently unrepresentative.**
+
+12,800 windows is the right count and the wrong composition; a count alone would
+have passed it. Zero perturbation events has the right composition and no count.
+
+### The sharpest instance is self-referential
+
+The `val_loss` composition print was added *because* an unrepresentative sample had
+gone unnoticed. **Its first version raised `ValueError` on a numpy truth-value test
+and printed `"unavailable"`** -- which is exactly what a dataset legitimately
+lacking `scenario_families` would print. **The audit and the thing it audited failed
+the same way, in the same commit.**
+
+### Why these were caught at all
+
+**Every one was found by someone other than its author** -- running the same thing
+and getting a different answer, or asking what a number was computed on. **Not one
+was found by its author reasoning harder about it.**
+
+Two metrics in this codebase differ only in whether their author had been bitten
+before: `rollout_sel` round-robins by family and prints `12 episodes over 8
+families` beside the number it feeds, with the comment *"nobody has to have
+anticipated this failure to see it."* `val_loss` printed nothing, and hid a
+one-family prefix through every run in the project's history. **Same repository,
+same period, opposite outcomes.**
+
+## A constant that reproduces history must be pinned, not synchronised
+
+The verdict harness re-derives a corpus's collection parameters from a seeded RNG. The
+driver draws the same quantities. When the driver's ground-pitch range was capped from
+±3.0 to ±1.5 for a measured reason, the harness kept ±3.0, and every corpus collected
+afterwards failed the bit-identical replay check — appearing as simulator
+non-determinism.
+
+The obvious repair is a test asserting the two agree. **That test would have destroyed
+what it protected.** `go2_joint_off3000000` was collected at ±3.0 and is the baseline
+behind every scored result in the project; realigning the harness to the driver's ±1.5
+makes it unreproducible. The two constants look like duplicates and are not:
 
 ```
-  policy   max|action| INSIDE surrogate (h=5)   max|target| IN CHRONO   verdict
-  base              18.6 - 24.9                        1.253           43 of 43
-  v4                 4.92                              2.402           20 of 43
-  exc25              7.04                              8.19e15          0 of 43
-  base36             8.38                              1.99e24          0 of 43
+  the driver's draw      CURRENT behaviour. Should change when collection improves.
+  the harness's draw     a HISTORICAL RECORD of how one corpus was made.
+                         Must never change, or that corpus stops replaying.
 ```
 
-**The policy with the worst command behaviour in the model has the best in the plant,
-and vice versa.** This collapses four separate results into one axis: the
-anti-correlation, the v1→v3 action-inflation ladder (5.2x → 4.7x → 1e34), the 34-D
-versus 36-D split (bounded 2.4 versus diverged 1e15), and the withdrawn "cannot hold a
-stand" (height was downstream of command divergence).
+So the test freezes the legacy constants against being "fixed", with the reason in the
+failure message, and the real repair is elsewhere: the collector now **records** the
+parameters and the harness **reads** them, so new corpora do not depend on the
+duplication at all.
 
-**Crisp form:** *fine-tuning inside a surrogate buys command stability in the surrogate
-and costs command stability in the plant.*
+The general form: **a constant whose job is to reproduce a historical artifact must be
+pinned, not synchronised.** Any test asserting it matches current behaviour is a test
+that it will eventually be broken on purpose, by someone doing the reasonable thing.
 
-**If it holds, optimising inside the surrogate is self-defeating by construction** for as
-long as the surrogate's closed-loop behaviour does not match the plant's — every step
-that improves the policy in the model degrades it in the world.
+## A failing test says two things disagree, not which one is wrong
 
-**Gate before claiming it:** are `max|action|` and `max|target|` the same quantity in the
-same units, or is there a scaling / default-pose offset between them? And report the
-Chrono column over the first 5 steps so both sides share a window. Without those it is
-"ordered oppositely", not "anti-correlated".
-**What it makes the multi-step experiment test:** not just whether closed-loop validity
-moves past 10 steps, but **whether the anti-correlation weakens** — the direct test of
-whether the approach is recoverable at all.
+The test above failed exactly as intended, on pitch. I then went to make it pass by
+updating the harness — and stopped only because the change meant editing the constant
+that reproduces the corpus every result depends on.
 
-## Pin a historical constant. Do not synchronise it.
+**The obvious side to change was the side that had to stay.** It looked stale; it did not
+match current behaviour; it was the historical record.
 
-**Cost:** avoided — the suggestion would have destroyed the only replay-compatible
-baseline corpus in the project · **Found:** 2026-09-07
+This is the inverse of the audit failure recorded above, where an instrument reported
+success and was wrong. Here an instrument reported failure and was right, and acting on
+the failure in the obvious direction would have been the damage.
 
-**The suggestion (mine, and wrong):** add a test asserting that the verdict harness's
-parameter derivation and the collector driver's produce identical draws, so that
-changing one without the other fails loudly.
+**Neither a pass nor a fail tells you what to do.** Both are inputs to a prior question:
+which of the two disagreeing objects is authoritative? A test that cannot answer that —
+and none can — hands you a decision, not an instruction.
 
-**Why it is wrong:** those are two different objects.
+The test earned its keep by failing for a reason nobody predicted, including the person
+who asked for it.
 
-| | role | changes when |
+## Constants chosen to exercise a fix are not constants chosen for the experiment
+
+The confirmatory corpus for the family split was collected by a script originally
+written to test the parameter-recording fix — could the collector pass arbitrary
+values, record them, and replay bit-identically? For that purpose the values were
+irrelevant, so they were pinned at the simplest thing available:
+
+```
+  --perturb-peak-n 0.0   --ground-tilt-roll-deg 0.0
+  --prewalk-s 2.0        --ground-tilt-pitch-deg 0.0
+```
+
+Reused as the confirmatory corpus, those constants make a **disturbance-free** dataset,
+where the discovery corpus had perturbation graded 0-120 N, prewalk U(0,3) and tilt
+U(-3,3). The registered endpoint then reported a sign reversal in the straight-line
+stratum — the pre-registration's explicit refutation condition, with n=120 and an
+interval excluding zero. It looked like a clean, decisive negative result.
+
+It was a different experiment. **The script was correct for its original purpose and
+the reuse carried the purpose-specific constants along invisibly**, because nothing in
+a working script announces which of its arguments were load-bearing and which were
+placeholders.
+
+## The repair created the failure mode
+
+Worth stating plainly, because it is the cost side of a fix recorded above as a win.
+
+Before: collection parameters were re-derived from a seeded RNG, so a corpus got the
+discovery distribution whether the collector wanted it or not — wrong parameters were
+nearly unreachable, and the real defect was that the derivation could drift from the
+driver.
+
+After: the collector passes explicit values and records them. Wrong parameters are now
+**easy, silent, and perfectly reproducible** — the recording makes a mistaken corpus
+replay flawlessly, which is exactly why the replay check passed on all three episodes
+and told me nothing.
+
+A fix that removes a class of error usually installs a new one. Name it when landing
+the fix, or the next person meets it without warning.
+
+## The primary endpoint was clean; a secondary number caught the error
+
+Nothing in the registered analysis was suspicious. 300/300 survived, 0 dropped, replay
+bit-identical, both intervals excluding zero, a refutation exactly as pre-registered.
+
+What did not fit was an incidental quantity in E3: the body-motion median-split cut
+moved 0.0768 -> 0.0279 m/s between corpora. **The baseline arm was 2.75x slower in
+realised body speed** — and no property of a fine-tune can do that to the baseline arm.
+That is what sent me to read the collector.
+
+Registered endpoints are designed to be interpretable under the assumption that the
+experiment ran as intended. **They cannot police that assumption; only quantities with
+an expected value from outside the hypothesis can.** Report the incidental numbers, and
+read them for whether the experiment happened at all, before reading the endpoint for
+what it means.
+
+Corollary: a pre-registered refutation is not self-validating. Registering the
+criterion in advance protects against choosing it afterwards. It does nothing about
+collecting the wrong data, and it makes the wrong answer look more authoritative.
+
+## Replicates that consume no randomness are copies
+
+The realisation pilot ran three reps per condition, each with its own `--seed`. In the
+control arm all three came out **bit-identical**: with perturbation scaled to zero and
+spawn, heading, tilt and prewalk fixed, nothing in the episode consumes randomness, so
+the seed changed and the episode did not.
+
+Nothing failed. Three files were written, each analysable, each agreeing perfectly with
+the others -- which reads as excellent reproducibility rather than as an absence of
+replication. The effect was to inflate n threefold and shrink every interval by sqrt(3):
+the `vx` slope interval was [0.157, 0.273] and is [0.023, 0.384] once clustered by
+command level. **The apparent precision was duplication.**
+
+Varying a seed only replicates the quantities that seed actually drives. Before treating
+reps as reps, check that they differ -- `ptp == 0` across a level is the whole test, and
+it now runs in the analysis and prints a warning rather than being trusted.
+
+Related: perfect agreement between replicates is evidence about the pipeline, not about
+the measurement, and should prompt the question of what was supposed to vary.
+
+## A confidence interval that excludes its own point estimate is impossible
+
+The first run of that analysis reported `slope 0.192, 95% CI [-0.125, 0.118]`. A
+percentile interval is built from resamples of the statistic, so it cannot omit the
+statistic. That is not an unlikely result; it is a proof of a bug.
+
+The cause: the bootstrap drew a separate index vector for each array, resampling x and y
+independently. That destroys the pairing, so every resample regressed shuffled commands
+on shuffled outcomes and returned an estimate of the null slope -- an interval centred on
+zero, tight and entirely plausible had the point estimate not been printed beside it.
+
+The check is now an assertion in the script. It costs one line and it catches an entire
+class of resampling error that otherwise produces confident, well-formed, wrong numbers.
+
+## Refuse to rank until something clears a floor
+
+A decision rule compared two candidate explanations of the family split and reported
+which one accounted for it. On the zero-disturbance corpus it announced "yaw content
+accounts for the split" from a difference of 0.0023 between two fits whose R-squared
+were 0.0033 and 0.0001. Neither explained anything. The comparison operator did not
+care.
+
+**Ranking noise produces a fluent sentence about noise.** `>` applied to two
+meaningless numbers returns a meaningful-looking answer, and the output is a clean
+declarative claim with no hedging anywhere in it, because the hedging would have had to
+come from a check that was never written.
+
+The fix is not "be careful with weak effects". It is mechanical: **the floor check runs
+before the ranking**, and when nothing clears the floor the script says the comparison
+cannot discriminate instead of naming a winner. Same shape as the interval that excluded
+its own point estimate, the audit that reported 0/32 too cleanly, and a collaborator's
+assertion tuned to an expectation nobody had measured -- an instrument returning a
+well-formed answer to a question its inputs could not support.
+
+## When a result is cleaner than the world it describes, the cleanliness is the finding
+
+Three faces of one rule, all of which fired tonight and all of which were right:
+
+```
+  uniformity across conditions that should differ
+      +0.318 to +0.359 across five command families, every interval excluding
+      zero, no structure at all. A fine-tune producing an identical effect in
+      five different command regimes is more likely to be something applied to
+      all five. It was: the action multiplier.
+
+  perfect agreement across replicates that should vary
+      three reps per condition, bit-identical. Read as excellent reproducibility.
+      Meant no replication happened.
+
+  a constant to more decimals than the process supports
+      a loop gain matching rho(J) from the weights alone to four decimals across
+      96 episodes -- real, and worth checking precisely because it was too clean.
+```
+
+The common form: **agreement that exceeds what the underlying variability could
+produce is evidence about the apparatus, not about the phenomenon.** It should
+trigger the question "what would have had to vary for this to differ, and did it?"
+before the result is interpreted.
+
+## A two-branch pre-registration assumes the sign
+
+cell5 was registered with two branches: the effect appears at a tracking-capable
+command, or it stays null. The result was a large effect **in the harmful direction** --
+a third outcome neither branch described.
+
+Recording that as a failure of the registration rather than filing the result under the
+nearer branch. The design had implicitly assumed the treatment was neutral-or-helpful,
+which is exactly the assumption a pre-registration is supposed to avoid making, and the
+omission was invisible until reality supplied the missing case.
+
+A registration that enumerates outcomes should either cover the sign-reversed case
+explicitly or say that it does not. **An unanticipated branch is information about the
+design, not about the data.**
+
+## A guard that cannot fail
+
+E3 ranked two separations without checking whether either exceeded chance. The fix was a
+floor: bootstrap each separation, require its lower bound above zero.
+
+**It passed everything, including the case it was written for.** A separation is an
+absolute difference; its resampled distribution is non-negative; a percentile lower bound
+on it is essentially always positive. The guard was structurally incapable of failing,
+and it looked exactly like a working guard -- it printed real numbers, computed from real
+data, in the right place.
+
+It was caught only because the output it was supposed to suppress still appeared
+underneath it.
+
+**Before trusting a new check, construct the case it exists to catch and confirm it
+fails.** A guard is code, it has bugs, and its bugs are silent by nature: a check that
+never fires is indistinguishable from a check on data that never violates it. Permuting
+the group labels -- a null with the same structure as the data -- is the instrument that
+actually answers "is this separation more than chance".
+
+## Run the control against itself
+
+The verdict harness runs the treated arm at reduced gain and the baseline at nominal,
+because the treatment diverges otherwise. That is a defensible engineering choice and an
+indefensible comparison: every difference it reports is treatment plus gain.
+
+The diagnostic cost nothing that had not already been built -- run the **baseline**
+checkpoint through the **treated** code path at the same setting. It took one flag and
+one run, and it moved a +0.33 m/s headline to +0.0015, and a family split of +0.0085 to
++0.00003.
+
+Generally: whenever the arms of a comparison differ in any respect besides the treatment,
+the control-against-itself run is available, and it is usually the cheapest experiment on
+the board. **Ask what else changed between the arms, and then measure that alone.**
+
+## Replication does not test a confound the datasets share
+
+E3 reproduced at 28% against 29% on two independently collected corpora, with its
+criterion operationalised before either existed. It was reported as the strongest result
+of the session on exactly those grounds.
+
+Both corpora were scored with the same asymmetric protocol -- treated arm at reduced
+gain, baseline at nominal. Recomputed with the arms matched, E3's family separation is
+0.00003 at permutation p 0.856. **The replication was reproducing the protocol.**
+
+Independent data tests sampling error, selection, and overfitting to a particular
+draw. It does nothing about a factor held constant across both datasets, and pre-
+registration does not help either -- the criterion was fixed in advance and still
+measured the confound.
+
+**Only varying the confounded factor tests it.** Two corpora, one protocol, is one
+experiment run twice. The strongest-looking evidence -- replication on independent data
+-- is precisely the evidence that touches a shared confound least, which is why "it
+replicated" should prompt "on what did the two runs agree by construction?"
+
+## Every guard ships with a test that makes it fire
+
+Two guards written in one session were structurally incapable of failing:
+
+```
+  an E3 floor that bootstrapped a SEPARATION -- an absolute difference, whose
+  resampled lower bound is essentially always positive. It passed all three
+  legs including the one it was written for.
+
+  a refusal keyed on `--action-mult is None` where the flag defaulted to 1.0,
+  so the condition was never true. It fell through and started a real run.
+```
+
+Both were read by two people and looked obviously correct. **Review cannot distinguish a
+guard that never fires from a guard on data that never violates it** — the two produce
+identical output, which is no output. Only construction can: build the case the guard
+exists to catch and confirm it fails, then fix it and confirm it passes.
+
+The second guard was written *after* the lesson recording the first, by someone who had
+just written that lesson. Knowing the rule is not the same as applying it, and the
+moment of highest risk is when a check looks too simple to test.
+
+## Absence is the dominant form, and the one we are slowest to read
+
+Nearly every failure of this session had output identical to a benign state, and in most
+of them the failure was something **missing**:
+
+```
+  a launch that returned          the PROCESS was absent
+  --perturb-peak-n 60 accepted    the EVENTS were absent, 0 of 300 rows
+  a sampled command stored        the APPLICATION was absent -- set_time never called
+  a header with no rows           the DATA was absent
+  `except: continue`              the CHECK was absent
+  a guard that cannot fire        the GUARD was absent, twice
+```
+
+Against only two failures that were unrepresentative *presences* -- a sample drawn from
+one family, and an interval printed as [0, 0]. Those announce themselves as a number
+somebody can look at and disbelieve.
+
+**A wrong number can be disbelieved; a missing one has to be noticed.** No output is the
+same output whether the check passed, the check never ran, or there was nothing to check,
+so absence is silent by default and costs a second look rather than a first. Every one of
+these was caught by someone asking "why is there nothing here", never by anyone reading a
+wrong value.
+
+Practically: when a step reports success, ask what it should have *produced* and confirm
+the artifact exists with the right size, count and range. Not whether it said it worked.
+## A fact travels; the conditions that made it true do not
+
+Distinct from *a broken audit that reports benignly*. There, an instrument fails
+and reports something plausible. **Here nothing fails**: a correct measurement is
+correctly reported, correctly quoted, and lands somewhere its precondition no longer
+holds. Three instances in two hours on 2026-09-07:
+
+| fact | precondition where established | context it was carried into |
 |---|---|---|
-| the driver's derivation | **current behaviour** | the collection improves |
-| the harness's derivation | a **historical record** of how one corpus was made | never |
+| `scored()` rejects below 1500 rows | verdict episodes are ~3884 rows, so 1500 is 39% | the screen's ~2000-row episodes, where it is a **75%** survival bar |
+| site a threshold in the gap between populations | the command populations are separated -- nothing between 2.4 and 8e15 | episode **length**, where failed episodes span 248 to 3958 and there is no gap |
+| rows 0-125 are byte-identical across arms | `--log-warmup` runs record from t=0 | verdict CSVs, which record from `warmup_s` -- **the prefix is not in them at all** |
 
-`go2_joint_off3000000` was collected at ground-pitch ±3.0. The driver was later capped
-to ±1.5 for a good, measured reason (24% of stand-up failures were pitch-driven; the cap
-took usable yield from 67% to 87%). **Realigning the harness to match the driver would
-make the only replay-compatible baseline corpus in the project stop replaying, and every
-result scored against it unreproducible.**
+Each fact was true. Each was quoted accurately. **Each became false on arrival.**
 
-**They should differ, permanently.**
+> **When reusing a fact, restate its precondition and check it holds in the new
+> context.**
 
-**Fix:** *a constant whose job is to reproduce a historical artifact must be **pinned**,
-not **synchronised**.* The test should assert the legacy constant is unchanged, with the
-reason in the failure message, so the next person to "fix" the discrepancy is stopped by
-an explanation rather than by a diff. The durable repair is to remove the dependency
-entirely — record the parameters at collection time and read them back — and keep the
-frozen derivation only for corpora that predate the recording, behind an explicit flag.
+### How each was caught, which is the same way
 
-### The meta-lesson, which is the more transferable half
+**Not by re-deriving the fact — by an output that could not be true.**
 
-> **A failing test says two things disagree. It does not say which one is wrong.**
+    a fitted k* of -28.1        on a curve whose rungs run 0/8 .. 7/8
+    a "shared" prefix max       spanning 33 orders of magnitude across arms
+                                that were supposed to share it
 
-The test was written, it failed on pitch exactly as predicted, and the obvious next
-move — change the stale-looking side to match current behaviour — was the disaster. It
-was caught only because someone went to make it pass and stopped.
+**A plausible value in either place would have been believed.** The first was caught
+because a fragile estimator failed loudly where a robust one would have absorbed the
+problem and returned something believable.
 
-**This is the inverse of the audit lesson above.** There, an instrument reported success
-and was wrong. Here, an instrument reported failure and was right, and acting on that
-failure the obvious way would have been worse than never running it. **Neither a pass nor
-a fail tells you what to do; both are inputs to a judgement about which object is
-authoritative.**
+### And a conclusion can survive its own argument being wrong
 
-**Note also that the test earned its keep by failing for a reason nobody predicted,
-including the person who asked for it.**
+The claim *"the shared minimum `fell_at_s` of 1.20 s is pre-policy"* was first argued
+from the byte-identical prefix -- **an argument that turned out not to apply to
+verdict data at all.** It survives on an independent route: `pose_ramp 0.75 +
+settle 0.5 = 1.25 s`, and `fell_at` is stamped in **simulation** time, so 1.20 falls
+inside the settle regardless of what is recorded. **Two routes existed; only one was
+sound; the conclusion was right for the other reason.** Worth separating "the
+conclusion holds" from "the argument holds" when reporting either.
 
-## When a result is cleaner than the world it describes, the cleanliness is the finding.
+## A derived quantity must be given the chance to be impossible
 
-**Found:** 2026-09-07 · **Three instances, one rule**
+The withdrawn headroom metric -- baseline error split into a deadband component and a
+residual -- was built on cell4 and looked entirely reasonable there: 66% deadband,
+0.030 m/s of headroom, a plausible fraction with a plausible remainder. Two people
+discussed what it implied across several exchanges without either noticing it was
+circular.
 
-| what looked impressive | what it actually was |
-|---|---|
-| a growth constant identical to **four decimals** across 96 episodes with different commands, tilts and disturbances | real, but only after a bounded-window refit; the tightness was the reason to distrust it first |
-| a treated arm producing **+0.318 to +0.359 across five command families**, every interval excluding zero, no family structure whatever | the action multiplier, applied to all five |
-| **three bit-identical replicate runs** of a control condition | no replication at all — with everything fixed, a control episode consumes no randomness, so the seed changed and nothing else did. Intervals inflated by sqrt(3). |
+It was constructed on cell4 and **cell4 could not falsify it**, because its terms were
+chosen where that data lives. cell5 -- four times the commanded speed, 2.6x the baseline
+error -- returned a deadband of 112% of the error and a negative headroom.
 
-**Uniformity across conditions that should differ, and perfect agreement across replicates that should vary, are evidence about the apparatus rather than about the phenomenon.**
-**Fix:** treat suspicious cleanliness as a trigger to check the instrument *before* reporting, not as a strength of the result.
+**A new derived quantity should be evaluated on a dataset with materially different
+numbers before it is trusted, and the purpose is not to check that it agrees.** It is to
+give it an opportunity to produce something impossible: a fraction above one, a negative
+magnitude, a probability outside [0,1], an interval that excludes its own point estimate.
+Agreement on a second similar dataset is weak; the value of the second dataset is
+proportional to how different its numbers are.
 
-## Two arms that differ in two things: the second instance, twelve hours after writing down the first.
+Related to "when a result is cleaner than the world it describes", but distinct: that
+rule says what to be suspicious of, this one says what the second dataset is *for*.
 
-**Cost:** two headline claims, one of them reported to the user · **Found:** 2026-09-07
+## Attempted and kept are not interchangeable, in either direction
+
+Two errors from the same confusion, pointing opposite ways:
 
 ```
-  01:00   base vs exc25   differed in TRAINING DATA and CHANNEL WEIGHTS   attributed to data
-  13:00   armA vs base    differed in POLICY and ACTION GAIN              attributed to policy
+  summary.json reported rows as  kept x WINDOW_ROWS
+      -> overcounted by 8.5x on one arm and 34x on another
+
+  an ETA computed as             attempts x WINDOW_ROWS / observed rate
+      -> concluded a healthy run would take 18 hours and it was killed
 ```
 
-The second is structural: `arm_env` scopes the action multiplier to the **treated** arm only, and baselines are *recorded* at nominal gain. So every gain-scaled verdict compares `(treated, k)` against `(base, 1.0)`.
+The collector attempts a window, applies an admissibility filter, and writes only the
+survivors. With ~96% rejected on `joint_limit`, 341 rows after twelve minutes is two kept
+windows out of six hundred attempted at 1.2 s each -- a fast run with a low yield, which
+looks identical to a slow run if you assume every attempt produces output.
 
-Measured: `base@0.75` against `base@1.0` gives **+0.2229** — two thirds of a **+0.3299** headline — and at matched gain the effect is **+0.00154**, a null. The multiplier also produces a straight-versus-turning **interaction** larger than the split attributed to fine-tuning, which is the shape needed to manufacture a split from nothing.
+**A pipeline with a filter has two rates and they are not related by a constant.** Before
+inferring throughput from output volume, find the yield. And before killing a job for
+being slow, measure its per-item time rather than dividing the total by the observations.
 
-**Writing the class down did not prevent the recurrence.** Both instances were found by someone running a control that isolated one variable, not by anyone remembering the lesson.
-**Fix, structural rather than remembered:** *make the harness print what differs between the arms it compares, every run, beside the number it produces.* Checkpoint, action multiplier, physics build, baseline root. It is the composition print applied to a **comparison** rather than to a sample, and it is where the multiplier would have announced itself twelve hours earlier.
+## `pkill -f` matches the shell that runs it
 
-## Pin a registered test's instrument by hash, not by intention.
+`pkill -f collect_go2_excitation` killed the bash process executing that command, because
+the pattern appeared in its own command line. Everything after it in the compound command
+-- an `rm -rf` and a relaunch -- never ran.
 
-**Cost:** one blind readout invalidated · **Found:** 2026-09-07
+The visible symptom was an exit code. What identified it was noticing that the script the
+relaunch was supposed to have written **did not exist on disk**: the cleanup had not
+merely failed, it had never happened, and the difference is invisible from the exit status
+alone.
 
-An agent declined to ship its own harness improvement between a registered prediction and its readout, on the correct grounds that changing an instrument mid-test is what blinding exists to prevent. **A different agent's change to the same shared harness landed underneath it anyway**, and the verdict returned NOT MEASURABLE.
+```
+  counting     ps -eo args | grep -c '[c]ollect_go2_excitation'
+  launching    setsid nohup ... & disown
+```
 
-**"Be more careful" would not have helped — it was maximally careful about the variable it could see.** The repository has three committers.
-**Fix:** record the instrument's md5 in the prediction file at registration time. A mismatch at readout is then *detected* rather than discovered. Backdating that field on an existing record is the same move as re-running with a different flag to get a number; mark it `at_readout` and flag it as added after the fact.
+The bracket trick makes the pattern not match itself. This is the second time in one
+session that a `pkill -f` pattern matched its own invocation.
 
-### Two corollaries from the same episode
+**And the general form: after any cleanup or kill, verify the intended end state rather
+than reading the exit code.** A command that was itself killed reports failure in a way
+that looks like the target resisting.
 
-**Eligibility equivalence is not scoring equivalence.** One agent verified a new harness selected *the same 36 episodes*; that is which episodes, not what score they get. Two harnesses can agree on selection and disagree on values, and only the second question matters for a comparison across arms. Rescoring 258 saved episodes settled it at near-zero cost — **0 disagreements on returned values.**
+## An improvement on the intervention's own axis is guaranteed by construction
 
-**A choice with one option is not a choice made after seeing a result.** Re-running with a different flag after seeing an outcome is tuning — *unless no other setting produces a measurement at all*. Here the corpus records no collection parameters, so without the legacy flag 0 of 7006 episodes parse. That defence is checkable by a reader; "the result contained no information" requires believing the experimenter's account of it.
+The excitation corpus was collected to add coverage of the excitation distribution. It
+improves surrogate accuracy on the excitation validation split by 6x, 0.742 to 0.123.
+That number has been carried as evidence the corpus was worth collecting.
 
-## Do not rank explanations before checking that any of them explains anything.
+It is a check that the collection worked, not a result. **The metric is aligned with the
+intervention**: the corpus adds rows in a region, and the instrument measures error in
+that region, so an improvement is what a successful collection means rather than
+something it implies. The consumer is a closed-loop policy optimisation, and nothing in
+the 6x speaks to it.
 
-**Found:** 2026-09-07
+Sharper than the earlier form of this rule, which was *do not measure open-loop and claim
+closed-loop*. **A large improvement on an aligned axis is more persuasive and not more
+relevant**, and size is the thing that makes it convincing to a reader who has not asked
+what the axis is.
 
-A decision rule compared two candidate explanations of an effect and announced a winner from a difference of **0.0023 in R²** — between two fits that **both explained under 0.6% of the variance.**
+Ask, of any reported gain: **is this metric downstream of the consumer, or downstream of
+the intervention?** If the latter, it is an assay of the intervention, and belongs in the
+methods rather than the results.
 
-> **Ranking noise produces a fluent sentence about noise.**
+## Verify a fix by its effect, not by its output
 
-**Fix:** a floor check runs *first*. Refuse to rank until at least one candidate clears a minimum, and report "neither explains anything" as the answer when that is what the data says. A comparison operator applied to two meaningless numbers returns a meaningful-looking result.
+`--match-corpus` was added so a collector reads its parameters from an existing corpus
+instead of the module defaults. The first version read `action_scale = 0.3` from the
+corpus, printed `--match-corpus: action_scale = 0.3 (from ...)`, and ran at the module
+default of 1.6, because the block was placed after the line that applies the value.
 
-**Related:** a **two-branch** pre-registration assumes the effect's sign. One registered "effect appears" or "effect stays null" and got a third outcome — a large effect in the *harmful* direction. **An unanticipated branch is information about the design, not about the data**, and should be recorded as a failure of the registration rather than fitted into whichever branch is nearest.
+Everything it printed was true. The read was correct, the log line was correct, and the
+program's behaviour had no connection to either.
 
-## A fact travels; the conditions that made it true do not.
+Caught by running the same seed both ways and comparing **yield**: 12 of 30 windows kept
+against 30 of 30. Not by reading the code and not by reading the output.
 
-**Cost:** three wasted analyses in two hours, all proposed by the same person · **Found:** 2026-09-07
+**A fix that reports its own success is reporting an intention.** This is distinct from
+the guard lessons above -- those concern checks that cannot fire; this is a check that
+fires correctly and truthfully and is disconnected from the effect.
 
-Distinct from every other entry here. Those are about **instruments reporting badly**. This
-one is about a **correct measurement, correctly reported, then correctly quoted into a
-context where it is false.** No instrument fails. The reasoning does.
+Third instance of **read-print-discard** in one session, after a sampled command that was
+computed, logged and never applied because `set_time()` was not called, and a summary
+field that recorded a parameter the run did not use. In all three the log is the evidence
+that the value was obtained, and it is silent about whether it was used.
 
-| the fact | where it was true | where it was reused | the precondition that changed |
-|---|---|---|---|
-| `MIN_ROWS = 1500` | the verdict, ~3884-row episodes | the screen, ~2000-row episodes | 39% of an episode became **75%** — a survival bar, not a scoring window |
-| "site the threshold in the gap" | the command threshold: nothing between 2.4 and 8e15 | the episode-length threshold | **there is no gap** — failed episodes span 248 to 3958 rows |
-| "rows 0-125 are byte-identical across arms" | `--log-warmup` runs, recording from t=0 | verdict CSVs | verdict episodes **begin at `warmup_s`** — the prefix does not exist in that layout |
+## A negative test needs a location verified to lack the thing
 
-**Each was established correctly. Each was quoted accurately. Each was false where it
-landed**, and in every case the person reusing it (me) did not restate the condition that
-had made it true.
+The refusal path of that flag was tested by pointing it at `/tmp`, which felt obviously
+empty of a corpus summary. `/tmp/summary.json` had been there since four days earlier.
+The test passed by accident and proved nothing.
 
-**Fix:** when reusing a fact across contexts, **write its precondition next to it and
-check that precondition explicitly.** "1500 rows" is not a fact; "1500 rows, which is 39%
-of a 3884-row episode and sizes a 1000-row scoring window plus lead-in" is. The second
-cannot be transplanted without the mismatch becoming visible.
+**Construct the negative case; do not select a place you expect it to hold.** An empty
+directory created for the test cannot have been contaminated by days of unrelated work,
+and the natural choice is dangerous precisely because its emptiness is assumed rather
+than established -- on a machine in daily use, the well-known scratch location is the
+least empty place available.
 
-**How all three were caught:** by an output that could not be true — a fitted margin of
-**−28.1**, and a "shared" prefix whose values spanned **33 orders of magnitude** across
-arms that were supposedly identical. **A plausible number in either place would have been
-believed.**
+## The parameter that broke everything was the one with no second witness
 
-**Corollary worth keeping:** the conclusion that survived (a fall flag at t=1.20 s being
-pre-policy) survived **not by luck but because a second independent route to it existed** —
-the warmup schedule (`pose_ramp 0.75 + settle 0.5 = 1.25`) and where `fell_at` is stamped
-in simulation time. **A conclusion resting on one supporting fact dies with that fact.**
-
-## The parameter that broke everything was the one parameter with no second witness.
-
-**Cost:** eight summaries re-classified, five unrecoverable, two unclassifiable · **Found:** 2026-09-07 · **Applies to:** any run whose comparison is encoded outside the artifact
+**Cost:** eight summaries re-classified, five recoverable by filename alone, two by nothing · **Found:** 2026-09-07 · **Applies to:** any run whose comparison is encoded outside the artifact
 
 A night of tracking results on one machine collapsed to a single cause: the
-treated and baseline arms had been run at different action multipliers. The
-audit that established this had to be done from a directory listing, because
-no summary file recorded which arms it compared.
+treated and baseline arms had been run at different action multipliers. The audit
+that established this had to be done from a directory listing, because no summary
+recorded which arms it compared.
 
-The interesting part is not that the record was missing. It is *which* record
-was missing, and why the two halves of the comparison were not equally missing.
+The interesting part is not that a record was missing. It is *which* record, and
+why the two halves of the comparison were not equally missing.
 
 | parameter | records that exist | auditable? |
 |---|---|---|
-| checkpoint | filename convention, **and** `controller.policy` in every episode's `collector_config.resolved.json` | yes, two independent records can be cross-checked |
+| checkpoint | filename convention, **and** `controller.policy` in every episode's `collector_config.resolved.json` | yes, two independent records, cross-checkable |
 | action multiplier | filename convention | **no, one record, nothing to check it against** |
 
-The multiplier appears nowhere in the episode tree. Not in the resolved config,
-not in the sidecars, nowhere. Verified by grepping the whole tree of a run known
-to have used a non-unity gain.
+The multiplier appeared nowhere in the episode tree. Verified by grepping the
+full tree of a run known to have used a non-unity gain: zero hits.
+
+**So the parameter that turned out to be the confound is precisely the one with
+nothing to cross-check it against, and the parameter never in doubt had two.**
 
 **Cause.** `collector_config.resolved.json` is named as though it captured the
-resolved parameters of the run. It captures the parameters that flow through the
-config system. `--action-mult` is applied at the harness level, outside that
-path, so it never enters the file. **A file that looks like a complete record is
-complete for one subsystem, and the boundary is invisible from inside the file.**
+run's resolved parameters. It captures the parameters that flow through the
+config system. The multiplier is applied at policy level from the environment,
+outside that path, so it never enters the file. **A file that looks like a
+complete record is complete for one subsystem, and the boundary is invisible from
+inside the file.** The next parameter applied outside the config path will look
+just as absent.
 
 **Fix.** Record the comparison in the summary (an `arms` block naming both
 checkpoints, both multipliers, and a `matched_gain` boolean to filter on) *and*
-push the effective gain into the episode sidecar. The summary is one file per
-run; the episodes are the durable artifact and outlive it. Where a run's
-episodes survived, its checkpoint was recoverable and its gain was not, which is
-exactly the wrong way round: the checkpoint was never in doubt.
+push the effective gain into the episode sidecar with its source. The summary is
+one file per run; the episodes are many per corpus and outlive a cleaned output
+tree. Where a run's episodes survived, its checkpoint was recoverable and its
+gain was not, which is exactly the wrong way round.
 
-**The general form.** A convention that lives only in filenames cannot be
-audited, because a file that does not follow it is indistinguishable from a file
-where it did not apply. Absence has to be *detectable* to be checkable. A missing
-JSON field is a null you can query for. A missing filename token is nothing.
+**A convention that lives only in filenames cannot be audited**, because a file
+not following it is indistinguishable from a file where it did not apply.
+Absence has to be *detectable*: a missing JSON field is a null you can query for,
+a missing filename token is nothing.
 
-**Evidence:** verdict summaries carry `cell`, `machine`, `n`, `median_paired_difference`,
-`exact_ci`, and no field naming either arm. Five k-sweep runs recoverable by
-filename alone; two recoverable by nothing. Commits 16b0245, e9052c1.
+**Evidence:** verdict summaries carried `cell`, `machine`, `n`,
+`median_paired_difference`, `exact_ci`, and no field naming either arm. Commits
+16b0245, e9052c1, 2a272b8.
 
-## Stating a caveat is not the same as propagating it.
+## Stating a caveat is not the same as propagating it
 
-**Cost:** one wrong prediction, correctly reported · **Found:** 2026-09-07 · **Applies to:** any estimate carried from one condition to another
+**Cost:** one wrong prediction, correctly reported · **Found:** 2026-09-07 · **Applies to:** any estimate carried across a condition boundary
 
-A prediction was registered in advance: if the gain confound explained the
+A prediction registered in advance: if the gain confound explained the
 zero-disturbance cell, it would have to act through a family interaction rather
 than a common shift, because the multiplier had moved a different cell's
 aggregate by only +0.00075.
@@ -4865,28 +4583,25 @@ estimate came from.
 **Cause.** The +0.00075 was measured on a corpus *with* disturbance and applied
 to a corpus *without* it, when disturbance is precisely the variable the
 multiplier's effect might depend on. The escape route was named in the
-prediction, in writing, and then the reasoning proceeded as though it were
-closed.
+prediction, in writing, and the reasoning then proceeded as though it were closed.
 
-**This is its own failure, distinct from not knowing the caveat.** Writing down
-"this may depend on X" and then using the number as if it did not is more
-dangerous than never noticing X, because the caveat's presence in the text reads
-as though it were handled.
+**This is its own failure, distinct from not knowing the caveat, and worse:** the
+caveat's presence in the text reads as due diligence and functions as decoration.
 
 **Fix.** When an estimate crosses a condition boundary, the caveat has to change
-what you *do* with the number, not just accompany it: either widen the
-prediction to cover both directions, or refuse to predict and say why.
+what you *do* with the number, not just accompany it: widen the prediction to
+cover both directions, or refuse to predict and say why.
 
-**Evidence:** multiplier effect by corpus, zero-disturbance +0.00969 vs
-disturbance-matched +0.00075, a 13x difference across the boundary the estimate
-was carried over.
+**Evidence:** multiplier effect by corpus, zero-disturbance +0.00969 against
+disturbance-matched +0.00075, 13x across the boundary the estimate was carried
+over.
 
-## An interval that excludes zero, at 0.01% of the error it is measured against.
+## An interval that excludes zero, at 0.01% of the error it is measured against
 
-**Cost:** none, flagged before anyone quoted it · **Found:** 2026-09-07 · **Applies to:** any deterministic or near-deterministic comparison
+**Cost:** none, flagged before anyone quoted it · **Found:** 2026-09-07 · **Applies to:** any near-deterministic comparison
 
-The cleanest example this project has produced of significance without
-magnitude. On the zero-disturbance corpus, at matched gain:
+The cleanest example this project has produced of significance without magnitude.
+On the zero-disturbance corpus, at matched gain:
 
 ```
   armA@0.75 - base@0.75    +0.00001   [+0.00000, +0.00001]    0.01% of baseline error
@@ -4897,9 +4612,7 @@ episode is deterministic and the two policies differ by a nearly constant amount
 so the bootstrap has almost no spread to resample.
 
 **Quoted with its interval and without its magnitude, this reads as a confirmed
-effect.** It is a real difference of no consequence. The denominator is what
-makes it legible, and the denominator is the thing an interval never carries.
+effect.** It is a real difference of no consequence. The denominator is what makes
+it legible, and an interval never carries one.
 
-**Evidence:** cell3 matched-gain decomposition, commit e9052c1. Companion to
-[the four mechanical rules](#the-four-mechanical-rules), fourth rule: name the
-denominator.
+**Evidence:** cell3 matched-gain decomposition, commit e9052c1.
