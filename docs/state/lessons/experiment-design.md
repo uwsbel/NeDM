@@ -4686,3 +4686,38 @@ three cells with steep negative ground pitch; base's failures outside them are z
 every rung through nominal. **The floor was a property of the list, not the controller.**
 
 **Evidence:** arc yaw and pitch tests, commits 4f8f64d and 24a3c7d.
+
+## A confound that compresses a difference hides better than one that inflates it
+
+**The response to a weak instrument is more episodes. The response to an implausible
+result is a look at the design. So a confound that costs you signal buys itself time.**
+
+Three of the standing screen's eight conditions stood the robot on a nose-down slope,
+where the base controller fails regardless of gain or policy. That floor did two things
+at once: it gave base a spurious 35% failure rate, and it pushed the fine-tuned arms
+toward saturation. Restricted to the four cells with no tilt:
+
+    pooled over all 8 cells    base 35%   v4 58%    gap 23 points, dirty reference
+    the four clean cells       base  0%   v4 44%    gap 44 points, perfect reference
+
+**The defect was halving the difference it was hiding in.** Four machines ran for
+hours on the compressed version, and the reading of those hours was "`k*` cannot
+separate the arms, so we need a better statistic" -- **which was true, and which is
+exactly what a suppressed effect looks like from inside.**
+
+Had the confound inflated the gap instead, it would have been caught the first time a
+result failed to replicate. **Suppression produces no contradiction. It produces
+patience.**
+
+> **When an instrument reads weaker than the effect you have other reasons to expect,
+> that is a design question, not a sample-size question.** The tell is not a
+> disagreement between measurements; it is a persistent agreement on a value smaller
+> than it should be.
+
+**How the defect was found:** not by staring at the rate, but by asking why the
+reference controller failed at all, and then changing one factor at a time on a single
+cell. **The base curve was collected to calibrate the arms and instead audited the
+instrument.**
+
+**Evidence:** clean-cell decomposition and the pitch x roll grid, commits 24a3c7d and
+f3ababd.
