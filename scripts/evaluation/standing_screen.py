@@ -82,6 +82,22 @@ CHRONO = os.environ.get("NEDM_CHRONO_PYTHONPATH", "/home/kyle/chrono-build/bin")
 #   base's worst and ten below the nearest true divergence.
 TARGET_LIMIT_RAD = 1e6
 
+# AND A LENGTH RULE, BECAUSE THERE ARE TWO FAILURE MODES AND THIS SCREENED FOR ONE.
+# The verdict harness says so in its own output: "unbounded output and falling are
+# different failures and only one is about walking." The verdict ACTS on both --
+# scored() rejects on len(rows) < SCORED_ROWS + 500 regardless of command magnitude.
+# This screen did not, so:
+#     policy DIVERGES -> commands blow up, episode runs long   -> FAILED   correct
+#     policy FALLS    -> episode ends short, commands bounded   -> PASSED   WRONG
+# That produced a NON-MONOTONE gain sweep: cell1's rungs read 0/8, 1/8, 3/8, 5/8,
+# 7/8, then 0/8 at k=1.50 -- zero divergence at the HIGHEST gain, because at high
+# gain the policy stops being detectably broken rather than stopping being broken.
+# A k* read off that curve is not merely imprecise, it is ill-posed.
+#
+# Reusing the verdict's own row rule rather than inventing a second definition of
+# failure: two instruments with two definitions is how they came to disagree.
+MIN_ROWS = 1500          # SCORED_ROWS(1000) + 500, from the verdict harness
+
 
 # COMMANDED conditions spanning the verdict's cell (-0.18 < vx <= -0.02) plus a
 # still command. A still command alone is the trap v2 fell into.
@@ -136,7 +152,7 @@ def _one(ckpt, fam, params, peak, roll, pitch, duration, seed, keep=None):
     # Raw action space, so this is directly comparable with surrogate-side action
     # magnitudes. Comparing a Chrono target against a surrogate action without
     # inverting compares two different quantities.
-    return raw_action_max(rows)
+    return raw_action_max(rows), len(rows)
 
 
 def screen(ckpt, duration=DURATION_S, seed=0, keep=None):
@@ -149,11 +165,16 @@ def screen(ckpt, duration=DURATION_S, seed=0, keep=None):
         raise SystemExit(f"ABORT: {len(missing)} condition(s) produced no episode: "
                          f"{missing}. A rate over an unknown denominator is not a rate.")
     got = vals
-    n_div = sum(1 for v in got if v > TARGET_LIMIT_RAD)
-    return (f"{n_div}/{len(got)}",
-            dict(diverged=n_div, n=len(got), rate=round(n_div / len(got), 3),
-                 median_raw=float(f"{sorted(got)[len(got)//2]:.4g}"),
-                 max_raw=float(f"{max(got):.4g}")))
+    mags = [v[0] for v in got]; lens = [v[1] for v in got]
+    unbounded = [i for i, m in enumerate(mags) if m > TARGET_LIMIT_RAD]
+    short = [i for i, L in enumerate(lens) if L < MIN_ROWS]
+    failed = sorted(set(unbounded) | set(short))
+    return (f"{len(failed)}/{len(got)}",
+            dict(failed=len(failed), n=len(got), rate=round(len(failed) / len(got), 3),
+                 unbounded=len(unbounded), short=len(short),
+                 median_raw=float(f"{sorted(mags)[len(mags)//2]:.4g}"),
+                 max_raw=float(f"{max(mags):.4g}"),
+                 median_rows=sorted(lens)[len(lens)//2], min_rows=min(lens)))
 
 
 # Expected rates are the VERDICT's measured per-episode divergence, which this
