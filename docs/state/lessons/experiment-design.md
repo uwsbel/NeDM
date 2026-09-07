@@ -3994,3 +3994,62 @@ The corollary that made this visible: the pass also produced the 55.7%-beyond-wa
 support figure for the excitation corpus, which turned out to be the quantitative premise a
 later argument needed. **A measurement made to answer one question routinely contains the
 answer to another, and the marginal cost of reading the rest of the table is zero.**
+
+## A broken audit that reports benignly is worse than no audit
+
+Seven failures on 2026-09-06/07, and none of them looked like errors. Each is a
+**failure rendered indistinguishable from a benign state**:
+
+| what happened | what it looked like |
+|---|---|
+| a launch command returned | "the process is running" |
+| `--perturb-peak-n 60.0` accepted, fired **zero** times | a recorded parameter |
+| `params={'vx': ...}` stored, never applied | the constructor default, logged as 0 |
+| 12,800 windows evaluated -- one family of eight | a healthy count |
+| 2 episodes wrote no rows | "dropped", when they were the **extreme** |
+| an audit's `except` printing `"unavailable"` | a dataset with no family field |
+| a screen's self-test passing | one benign condition per policy |
+
+**In every case the instrument returned something a reader would accept, so the
+checking that was already happening returned a plausible answer.** Several survived
+for the life of the project. "Check more carefully" would not have caught any of
+them, because the checks were being run.
+
+**The fix is always the same: make the failure path produce different output from
+the success path.**
+
+    perturb_events                a COUNT, not the parameter
+    val_loss composition          a family MIX, not the window count
+    wrongly_omitted()             an assertion against the loaded state, not a print
+    screen: missing condition     ABORT, not a silently shorter denominator
+    unapplied schedule            RuntimeError, not the default command
+    audit failure                 the exception and line, not "unavailable"
+
+**Two halves, and each catches cases the other cannot:**
+
+> **Record the COUNT when a sample can be silently empty or short. Record the
+> COMPOSITION when it can be silently unrepresentative.**
+
+12,800 windows is the right count and the wrong composition; a count alone would
+have passed it. Zero perturbation events has the right composition and no count.
+
+### The sharpest instance is self-referential
+
+The `val_loss` composition print was added *because* an unrepresentative sample had
+gone unnoticed. **Its first version raised `ValueError` on a numpy truth-value test
+and printed `"unavailable"`** -- which is exactly what a dataset legitimately
+lacking `scenario_families` would print. **The audit and the thing it audited failed
+the same way, in the same commit.**
+
+### Why these were caught at all
+
+**Every one was found by someone other than its author** -- running the same thing
+and getting a different answer, or asking what a number was computed on. **Not one
+was found by its author reasoning harder about it.**
+
+Two metrics in this codebase differ only in whether their author had been bitten
+before: `rollout_sel` round-robins by family and prints `12 episodes over 8
+families` beside the number it feeds, with the comment *"nobody has to have
+anticipated this failure to see it."* `val_loss` printed nothing, and hid a
+one-family prefix through every run in the project's history. **Same repository,
+same period, opposite outcomes.**
