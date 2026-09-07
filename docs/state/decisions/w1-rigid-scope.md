@@ -1895,3 +1895,64 @@ My reset vector, published for recomputation: `sha256[:16] = 0cc8011915d3a9ff`,
 36-D float32, surrogate field order, joint positions = policy defaults mapped to the
 Chrono frame, everything else zero, `grav_body_z = -1.0`, `pos_z_m = 0.30`,
 `cmd = zeros(3)`, `prev = zeros(12)`, fresh `initial_history`.
+
+### REFUTED: "a fine-tune can only degrade what its surrogate can represent"
+
+The account: v4's 34-D surrogate carries no `pos_z_m`, so the fine-tune has no
+gradient on height and height is preserved by inability; 36-D surrogates can
+represent height, the reward does not constrain it, so it degrades.
+
+**v4 sinks.** `--log-warmup`, three seeds, identical through row 125 because the
+pose ramp is not under policy control:
+
+| policy | seed | r125 | r150 | r170 | r200 | verdict |
+|---|---|---|---|---|---|---|
+| base | 0/1/2 | 0.3026 | 0.379/0.376/0.374 | 0.382/0.379/0.378 | 0.376 | 43/43 |
+| **v4** | 0/1/2 | 0.3026 | **0.2735/0.2733/0.2732** | **0.1497/0.1497/0.1504** | 0.188 | **20/43** |
+| arm A | 0/1/2 | 0.3026 | 0.304/0.303/0.302 | 0.209/0.207/0.204 | 0.160 | 0/43 |
+
+**v4 sinks FURTHER and FASTER than arm A and survives anyway** -- 0.150 against
+0.207 at row 170, reproducible to four decimals across seeds. Independently
+reproduced on sbel-pc, which measured v4's minimum at 0.131 against base's 0.302.
+
+> **Every fine-tune sinks. Only the 36-D ones diverge. Height is a shared symptom,
+> not the discriminator.**
+
+**And the fine-tune degrades height with no height channel anywhere in the loop** --
+v4's surrogate cannot represent it. So the degradation is a side effect of moving
+the policy at all, **which means restoring `correct_base_height` may not fix it.**
+That is now a live possibility to test with the two-second readout rather than
+discover after implementing a signature change.
+
+**This voids the 2x2's representability-derived prediction** (that the 34-D
+replicate would preserve height by inability). The 2x2's original reading stands on
+its own terms and is not re-derived from a dead account.
+
+### PRE-REGISTERED, before the replicate's fine-tune exists
+
+On the real first-call observation `06f73542…` (hash verified), one forward pass:
+
+| policy | rho | max abs action | verdict |
+|---|---|---|---|
+| v4 | 0.4591 | 3.9550 | 20/43 |
+| base | 0.4919 | 2.4569 | 43/43 |
+| arm A | 0.6522 | 4.4515 | 0/43 |
+| base36 | 0.7139 | 6.3754 | 0/43 |
+| arm B | 1.0225 | 6.8732 | 0/43 |
+
+**Both quantities are monotone with the outcome across five policies**, with a gap
+between survivors and failures at rho 0.492-0.652 and at max abs action 3.96-4.45.
+
+**This is causally inert** -- rows 0-125 are byte-identical across policies because
+the pose ramp is not under policy control, so what a policy emits at row 0 is never
+executed. It is a pure measure of how differently each policy responds to that
+state. At n=5, fitted after the fact, it is suggestive and nothing more.
+
+> **PREDICTION, recorded before the 34-D replicate's fine-tune exists:**
+> compute rho and max abs action for it on `06f73542…`.
+> **rho < 0.55 and max abs action < 4.0 -> predict it SURVIVES (non-zero verdict).
+> rho > 0.65 or max abs action > 4.4 -> predict it gives 0 of 43.**
+> Between the gaps: no prediction, and that is itself informative.
+
+**This is the only out-of-sample test available.** It costs seconds and the answer
+arrives before the verdict does.
