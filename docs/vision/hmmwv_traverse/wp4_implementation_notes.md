@@ -1959,3 +1959,43 @@ controller reacts to every stall the same way.
 
 **What remains open for the goal "planning takes advantage of the imagination":** not route selection by imagined
 completion on this family. Three designs are still untested and are the decision for the user (plan §32).
+
+### 13.12 Closeout review (10-agent adversarial pass, `wp8_eval_summary/closeout_review_result.json`) and the head test
+
+**Corrections to §13.7–13.11 adopted.** (1) The teacher-forced decision numbers are contaminated by the recorded
+*future* controls: a single scalar of them — mean |Δthrottle| over the next 8 s — ranks "stuck within 8 s" at AUC 0.96,
+above every model; those figures are retired. Under a probe with NO future controls (route-following steering,
+context-mean throttle, tracker-matched noise) the augmented models keep AUC 0.71–0.78 (frozen 0.64, the fingerprint
+model 0.48), i.e. 60–77 % of their above-chance teacher-forced discrimination, at or above their tracker-in-the-loop
+numbers. (2) The decision windows are not a foresight benchmark: |steering| at the last context frame — Chrono's
+controller already reacting to a stall under way — ranks the label at 0.84 by itself; what the trained models add is
+recognition of a stall already in progress (25 of the 46 stops already rock through zero speed inside the 0.8 s
+context; on clean forward approaches the gain is about +1 stop). (3) Three harness defects: the progress-based
+"stuck" flag froze one side at the route end (the `pred stuck` / `gate [tracker]` rows of the decision logs are not
+interpretable; the AUCs by progress are), the pooled AUC mixes at-rest (all infeasible) and en-route windows (the
+tracker-in-the-loop numbers are not inflated by this, teacher-forced ones are by +0.05–0.12), and the pure-pursuit
+"below chance" was an at-rest effect (pure pursuit commands 0.75–1.0 throttle at rest and launches a perched vehicle;
+en route 0.77–0.81). Fixed in `decision`: termination-safe stuck measure and an en-route stratum. (4) Tracker-in-the-loop
+differences between models are inside noise (layout bootstrap: ar03 − frozen +0.05 [−0.12, +0.24]); moving the
+decision point to 2 or 10 m does not help (0.62–0.76). (5) On the whole-route yardstick (closed-loop from rest,
+imagined time as score) the stall-trained runs rank stall+launch vs feasible at 0.74–0.78 against the frozen 0.69, but
+the gain is rejection volume (58 → 150–240 routes) with the stall-vs-feasible odds ratio unchanged (4.8), and the
+pick is uncorrelated with it. (6) Design (b) is not settled as parity: on the sealed arenas the fine-tuned model ranks
+cost better than the cheap predictor at time + energy (oracle-gated regret 1.22 vs 1.38, paired −0.16 [−0.29, −0.04]),
+driven by the milder arena, in a fourth post-hoc look — a motivation for a fresh cost-side benchmark, not a result.
+(7) Design (c) has no signal to act on and should not be built.
+
+**The head test (design (a), pre-registered before the run, 2026-09-07 06:00).** Arms, one GRU head each, trained on
+f101–f104 outcomes with leave-one-arena-out early stopping, three seeds, judged on f105: (i) the imagined trajectory
+from rest with the WP3 tracker — 17-D state, pose, progress and the 256-D crop tokens along the imagined path, every
+0.2 s for 30 s — for the frozen model and for `wp8e_mom_s1`; (i′) the same from an open-loop rollout (route-following
+steering, throttle 0.4 + tracker-matched noise); (i″) the imagined state without tokens; (ii) the nominal route —
+the terrain-profile features at 1 m plus the same crop tokens along the nominal path at 2 m, with each model's
+cropper; (iii) the profile features alone (the cheap predictor's inputs, true terrain); commanded speed alone.
+Endpoints: AUC stall+launch vs feasible and all-infeasible vs feasible with layout-cluster bootstrap CIs; the
+within-commanded-speed AUC; feasible routes rejected at the threshold rejecting 50 % of infeasible ones; P(stall |
+accepted); gate + fastest picks against the heuristic's 44 / 52 (random-rejecter reference 43.9 ± 0.7). Decision rule:
+(i) beats (ii) by ≥ 0.05 AUC in all three seeds and matches (iii) → the imagination carries information its inputs do
+not, and fresh hard arenas (`traverse_wp8_sealed_prep.sh`, ≥ 30 heuristic-failure layouts with a feasible alternative,
+one look) are worth collecting with the head as the gate; (i) ≈ (ii) → the imagination-as-feature-source idea is closed
+on this family and no collection goes to it; only the cost-side benchmark (b) remains.

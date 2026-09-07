@@ -824,7 +824,7 @@ def cmd_decision(args) -> None:
                     st = torch.tensor(t0, device=dev)
                     env.reset_idx(ids, episode_ids=ids, start_frames=st, fragment_steps=torch.full((n,), H, device=dev, dtype=torch.long)); env._compute_observations()
                     thr_off = float(mode.split("thr")[1]) if mode.startswith("rec_thr") else 0.0
-                    vx_tr = np.full((n, H), np.nan, np.float32); done = np.zeros(n, bool); prog_end = np.zeros(n, np.float32); prog_1s = np.zeros(n, np.float32)
+                    vx_tr = np.full((n, H), np.nan, np.float32); prog_tr = np.full((n, H), np.nan, np.float32); done = np.zeros(n, bool); prog_end = np.zeros(n, np.float32); complete_end = np.zeros(n, bool)
                     for s_ in range(H):
                         if mode != "pol":
                             driver = b.act_raw[ids, torch.clamp(st - 1 + s_, max=b.n_frames - 1)].clone()
@@ -832,18 +832,22 @@ def cmd_decision(args) -> None:
                                 driver[:, 1] = (driver[:, 1] + thr_off).clamp(0.0, 1.0); driver[:, 2] = 0.0
                             env._nn_step(driver); env.episode_length_buf += 1; err = env._route_errors(); env.last_actions = driver.clone(); env.actions = driver; env._compute_observations()
                             dn = (err["route_end"] | ~torch.isfinite(env.z1_phys).all(dim=-1)).cpu().numpy()
+                            complete_end |= (~done) & err["route_end"].cpu().numpy()
                         else:
                             with torch.no_grad():
                                 a = policy(env.obs_buf)
                             _, _, dn_t, _ = env.step(a); dn = dn_t.bool().cpu().numpy()
+                            complete_end |= (~done) & env._route_errors()["route_end"].cpu().numpy()
                         vx_tr[:, s_] = np.where(done, np.nan, env.z1_phys[:, VX].cpu().numpy())
                         pm = env.progress_m.cpu().numpy(); prog_end = np.where(done, prog_end, pm)
-                        if s_ == H - 21:
-                            prog_1s = pm.copy()
+                        prog_tr[:, s_] = np.where(done, np.nan, pm)
                         done |= dn
-                    vx_end = np.array([vx_tr[i, max(0, int((~np.isnan(vx_tr[i])).sum()) - 1)] for i in range(n)])
-                    disp_1s = prog_end - prog_1s
-                    stuck = (np.abs(vx_end) < 0.5) | (disp_1s < 0.5)
+                    n_act = (~np.isnan(vx_tr)).sum(1)
+                    vx_end = np.array([vx_tr[i, max(0, n_act[i] - 1)] for i in range(n)])
+                    # progress over the last second BEFORE termination (audit: reading the live buffer after the route end froze one side)
+                    disp_1s = np.array([prog_tr[i, n_act[i] - 1] - prog_tr[i, max(0, n_act[i] - 21)] if n_act[i] > 0 else 0.0 for i in range(n)])
+                    reached_end = np.array([bool(complete_end[i]) for i in range(n)])
+                    stuck = (~reached_end) & ((np.abs(vx_end) < 0.5) | (disp_1s < 0.5))
                     for i, w in enumerate(wins):
                         w.setdefault("models", {}).setdefault(mname, {})[mode] = {"vx_end": float(vx_end[i]), "progress_m": float(prog_end[i]), "disp_last1s_m": float(disp_1s[i]), "pred_stuck": bool(stuck[i])}
                 del env, policy; torch.cuda.empty_cache()
@@ -853,13 +857,17 @@ def cmd_decision(args) -> None:
     models = sorted(set(m for w in W for m in w.get("models", {})))
     loc = np.array([w["local_stuck"] for w in W]); glob = np.array([not w["feasible"] for w in W])
     print(f"\n{len(W)} decision windows; local stuck {loc.sum()}, infeasible runs {glob.sum()}")
-    print(f"{'predictor':44s} {'AUC local':>9s} {'AUC infeasible':>14s} {'sens@5%FPR':>10s} {'pred stuck (stuck / pass)':>26s}")
+    print(f"{'predictor':44s} {'AUC local':>9s} {'AUC infeasible':>14s} {'sens@5%FPR':>10s} {'pred stuck (stuck / pass)':>26s} | en-route stratum (rest windows: {int(at_rest.sum())})")
+    at_rest = np.array([w["t0"] == C for w in W])
     def report(name, score, pred_stuck=None):
         a1, a2 = auc(score, loc), auc(score, glob)
+        en = ~at_rest
+        a1e = auc(score[en], loc[en]) if loc[en].any() and (~loc[en]).any() else float("nan")
+        a2e = auc(score[en], glob[en]) if glob[en].any() and (~glob[en]).any() else float("nan")
         neg = np.sort(score[~loc]); thr = neg[int(0.95 * len(neg))] if len(neg) else np.inf
         sens = float((score[loc] > thr).mean()) if loc.any() else float("nan")
         ps = "" if pred_stuck is None else f"{pred_stuck[loc].mean():.2f} / {pred_stuck[~loc].mean():.2f}"
-        print(f"{name:44s} {a1:9.2f} {a2:14.2f} {sens:10.2f} {ps:>26s}")
+        print(f"{name:44s} {a1:9.2f} {a2:14.2f} {sens:10.2f} {ps:>26s} | en route only: {a1e:.2f} {a2e:.2f}")
     all_modes = sorted(set(md for w in W for m in w.get("models", {}) for md in w["models"][m]), key=lambda x: (x != "rec", x != "pol", x))
     for m in models:
         for mode in all_modes:
