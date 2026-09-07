@@ -4101,3 +4101,63 @@ and none can — hands you a decision, not an instruction.
 
 The test earned its keep by failing for a reason nobody predicted, including the person
 who asked for it.
+
+## Constants chosen to exercise a fix are not constants chosen for the experiment
+
+The confirmatory corpus for the family split was collected by a script originally
+written to test the parameter-recording fix — could the collector pass arbitrary
+values, record them, and replay bit-identically? For that purpose the values were
+irrelevant, so they were pinned at the simplest thing available:
+
+```
+  --perturb-peak-n 0.0   --ground-tilt-roll-deg 0.0
+  --prewalk-s 2.0        --ground-tilt-pitch-deg 0.0
+```
+
+Reused as the confirmatory corpus, those constants make a **disturbance-free** dataset,
+where the discovery corpus had perturbation graded 0-120 N, prewalk U(0,3) and tilt
+U(-3,3). The registered endpoint then reported a sign reversal in the straight-line
+stratum — the pre-registration's explicit refutation condition, with n=120 and an
+interval excluding zero. It looked like a clean, decisive negative result.
+
+It was a different experiment. **The script was correct for its original purpose and
+the reuse carried the purpose-specific constants along invisibly**, because nothing in
+a working script announces which of its arguments were load-bearing and which were
+placeholders.
+
+## The repair created the failure mode
+
+Worth stating plainly, because it is the cost side of a fix recorded above as a win.
+
+Before: collection parameters were re-derived from a seeded RNG, so a corpus got the
+discovery distribution whether the collector wanted it or not — wrong parameters were
+nearly unreachable, and the real defect was that the derivation could drift from the
+driver.
+
+After: the collector passes explicit values and records them. Wrong parameters are now
+**easy, silent, and perfectly reproducible** — the recording makes a mistaken corpus
+replay flawlessly, which is exactly why the replay check passed on all three episodes
+and told me nothing.
+
+A fix that removes a class of error usually installs a new one. Name it when landing
+the fix, or the next person meets it without warning.
+
+## The primary endpoint was clean; a secondary number caught the error
+
+Nothing in the registered analysis was suspicious. 300/300 survived, 0 dropped, replay
+bit-identical, both intervals excluding zero, a refutation exactly as pre-registered.
+
+What did not fit was an incidental quantity in E3: the body-motion median-split cut
+moved 0.0768 -> 0.0279 m/s between corpora. **The baseline arm was 2.75x slower in
+realised body speed** — and no property of a fine-tune can do that to the baseline arm.
+That is what sent me to read the collector.
+
+Registered endpoints are designed to be interpretable under the assumption that the
+experiment ran as intended. **They cannot police that assumption; only quantities with
+an expected value from outside the hypothesis can.** Report the incidental numbers, and
+read them for whether the experiment happened at all, before reading the endpoint for
+what it means.
+
+Corollary: a pre-registered refutation is not self-validating. Registering the
+criterion in advance protects against choosing it afterwards. It does nothing about
+collecting the wrong data, and it makes the wrong answer look more authoritative.
