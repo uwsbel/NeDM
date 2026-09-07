@@ -37,3 +37,26 @@ arrays, so it is the right instrument; the input is what was wrong.
 Yaw is the channel where this matters least and most at once: `wz` is realised at
 0.72-0.92 across its whole range, so unlike `vx` it will actually arrive once commanded.
 The prediction is that the yaw hole closes and the forward-velocity holes do not.
+
+## Registered prediction, before the audit corpus is collected
+
+Written 2026-09-07 before any `--command-envelope` corpus exists beyond the three-episode
+smoke test.
+
+```
+   yaw channels           HOLE CLOSES.    wz is realised at 0.72-0.92 across its whole
+                          trained range, so once commanded it actually arrives.
+   forward-velocity       HOLES PERSIST.  vx is realised at 4-5% below 0.1 m/s and 0.63
+                          at the edge of the trained range, so commanding it does not
+                          produce it.
+```
+
+**If both close, the deadband measurement is wrong somewhere** and the realisation pilot
+needs re-examining before its conclusions are used further. If neither closes, commanding
+the envelope is not the mechanism by which coverage is gained and the corpus design needs
+a different intervention.
+
+Recorded because the audit was previously a confirmation -- `wz` was never commanded, so
+a yaw hole was guaranteed regardless of sampling -- and a question that can only return
+one answer should not be run again without saying in advance what the other answers would
+mean.
