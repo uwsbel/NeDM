@@ -13,7 +13,7 @@
       {
         "name": "walking",
         "terrain": "flat",
-        "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_walking_36d",
+        "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_gravworld_A",
         "batch_fraction": 1.0
       }
     ]
@@ -22,7 +22,7 @@
     {
       "name": "flat",
       "terrain": "flat",
-      "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_walking_36d",
+      "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_gravworld_A",
       "split": "val",
       "max_val_batches": 200
     }
@@ -35,7 +35,7 @@
     "huber_delta": 1.0,
     "channel_weight_mode": "equal_domain_combined_std",
     "channel_weight_datasets": [
-      "/home/kyle/sbel-artifacts/training_datasets/go2_walking_36d"
+      "/home/kyle/sbel-artifacts/training_datasets/go2_gravworld_A"
     ]
   },
   "rollout_eval": {
@@ -49,7 +49,7 @@
       {
         "name": "flat",
         "terrain": "flat",
-        "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_walking_36d",
+        "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_gravworld_A",
         "split": "val",
         "weight": 1.0
       }
