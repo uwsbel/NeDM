@@ -4762,3 +4762,45 @@ that do not transform. **The flag's name asserted a physical setup; the code
 implemented a different one; and the sensor assumed a third.**
 
 **Evidence:** commit 870add6 and the gravity-observation check.
+
+## A statistic that symmetrises cannot detect an antisymmetric effect
+
+**`corr(|x|, y)` is not a weaker test of x than `corr(x, y)`. It is a test of a
+different thing, and it returns exactly zero for effects that depend on the sign of x
+however large they are.**
+
+The Go2 corpus randomises ground tilt with roll over +-3.0 and pitch capped at +-1.5.
+The cap is justified in the code from 2,000 measured episodes
+(`drive_go2_collection.py:84-94`):
+
+    corr(|pitch|, fell) = +0.427    rising 2% -> 48% across the band
+    corr(|roll|,  fell) = +0.057    and flat
+    "...since roll does not drive failures."
+
+**Roll drives failures completely, and by sign:**
+
+    pitch -3.0, roll -3.0  ->  0/5        identical |roll|
+    pitch -3.0, roll +3.0  ->  5/5        opposite outcomes
+
+Those two cells cancel under the absolute value. **The pitch result was valid because
+the pitch effect happens to be symmetric in magnitude; applying the same transform to
+roll deleted the signal it was testing for.** Nothing about the correlation being small
+suggested the transform was wrong -- **a null from a symmetrised statistic looks
+exactly like a null from no effect.**
+
+**The cost was not the wrong conclusion in isolation.** It shaped the training corpus:
+roll fully sampled, pitch capped at half the depth later tested. **The two fine-tuned
+arms turn out to be indistinguishable inside that envelope and to diverge exactly at
+its pitch boundary** -- so the blind spot chose where the interesting behaviour would
+sit, and then nothing sampled it.
+
+> **Before trusting a null, ask what transform was applied to the variable between the
+> raw quantity and the test.** `|x|`, `x^2`, ranks, bin occupancy and magnitude-only
+> summaries are all lossy in specific directions, and each one makes a whole class of
+> effect invisible while returning a perfectly ordinary-looking number.
+
+**Related:** the corpus-coverage script's first version ranked by binary bin occupancy
+and reported `yaw_rate` at 0.980 against a measured 101x density gap -- the same defect
+in a different transform, caught by adding a `tail` measure.
+
+**Evidence:** commit d525b5f.
