@@ -2818,3 +2818,47 @@ thing to measure but is not what the table's column heading says.
 **This does not weaken the ordering** -- every arm is equally out-of-distribution, and
 base at a hard 0/240 while fine-tuned arms fail 44-79% OOD is a sharper statement than
 the in-distribution version would be. **It changes the caption, not the result.**
+
+### RETRACTED: the OOD framing. The pitch cap postdates the entire training corpus.
+
+    corpus s2000000   1741 episodes   2026-09-04 18:59 .. 23:07
+    corpus s3000000   1762 episodes   2026-09-04 22:44 .. 23:10
+    go2_corrected_34d_excl built                        2026-09-05 01:33
+    pitch capped to +-1.5   commit e09e45b              2026-09-05 17:07   <- AFTER
+    parameters first recorded  commit 574a6d2           2026-09-07 02:39
+
+`e09e45b` changed `uniform(-3.0, 3.0)` to `uniform(-1.5, 1.5)` **sixteen hours after
+the dataset the surrogate trains on was already built.** The surrogate's
+`metadata.json` names `go2_comprehensive_merged/flat` as its raw root, and every
+episode in it predates the cap.
+
+> **The training pitch envelope is +-3.0, not +-1.5.** My claim at `d525b5f` that three
+> of the four clean cells sit beyond the trained range is **wrong** -- pitch 0.0, +1.5,
+> +2.0 and +2.5 are all inside +-3.0, and the grid's -3.0 is at the edge rather than at
+> double the depth.
+
+**Also retracted: "the arms are indistinguishable inside the envelope and diverge at
+its boundary."** There was no boundary in the training data. **The arms diverge at
+pitch -1.5 to -3.0, which is squarely IN distribution.**
+
+#### The corrected reading is stronger, not weaker
+
+The surrogate saw tilt drawn over the full +-3.0 pitch range **and has no channel that
+represents it** -- `grav_body_*` is derived from the stored quaternion, carrying the
+same hardcoded world -Z as the policy. **So the arms differ on a latent that was
+sampled across exactly the range where they differ, and that the model could not
+represent.** No distribution shift is needed to explain it: the data was there and the
+state definition threw it away.
+
+#### And this exact failure is documented in the codebase, in the commit that fixed it
+
+`collect_go2_smoke.py:746-752`, added by `574a6d2`:
+
+    "The verdict harness used to reconstruct these from a seeded RNG duplicated in
+     its own source. That contract broke silently when the driver's pitch range was
+     capped to +-1.5 and the harness kept deriving +-3.0."
+
+**Previously: harness derived +-3.0, driver had capped to +-1.5. Now: a reconstruction
+drew +-1.5 from a corpus collected at +-3.0.** The same mismatch, mirrored, eighteen
+hours after a comment was written describing it. **A reconstruction is only as good as
+the version of the source it duplicates, and nothing in the corpus pins that version.**
