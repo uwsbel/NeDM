@@ -48,7 +48,7 @@ class MapBatcher:
     """Windows over one split. ``heightmaps`` (A, 1, H, W) on ``device`` is the crop's height-field bank;
     ``split.arena_idx`` picks each episode's row. Only windows inside the recorded frames are sampled."""
 
-    EVENT_KINDS = ("approach", "stuck", "launch", "recovery", "matched")
+    EVENT_KINDS = ("approach", "stuck", "launch", "recovery", "matched", "momentum")
 
     def __init__(self, split: D.CacheSplit, norm: D.Normalizer, context: int, maps: np.ndarray,
                  heightmaps: torch.Tensor, events: dict | None = None):
@@ -105,6 +105,10 @@ class MapBatcher:
                 lo, hi = span(int(f))
                 if hi >= lo:
                     tab["matched"].append((i, lo, hi))
+            for f in ev.get("momentum", []):  # the loss-of-momentum moment inside the span
+                lo, hi = span(int(f))
+                if hi >= lo:
+                    tab["momentum"].append((i, lo, hi))
         out = {}
         for kind, ranges in tab.items():
             if ranges:
@@ -362,7 +366,8 @@ def stall_eval(model, data: MapBatcher, norm, context: int, device: str, max_per
              "approach": (lambda ev: [int(ev["stop"]) - context - 40] if ev.get("stop") is not None else [], 80, "err"),  # audit: |pred - rec|, not |pred|
              "launch": (lambda ev: [0] if ev.get("launch") else [], 60, "abs"),
              "recovery": (lambda ev: [int(f) - context - 20 for f in ev.get("resume", [])], 60, "err"),
-             "matched": (lambda ev: [int(f) - context - 40 for f in ev.get("matched", [])], 80, "err")}
+             "matched": (lambda ev: [int(f) - context - 40 for f in ev.get("matched", [])], 80, "err"),
+             "momentum": (lambda ev: [int(f) - context - 40 for f in ev.get("momentum", [])], 80, "err")}  # context ends 2 s before the momentum loss
     rng = np.random.default_rng(seed)
     key_idx = {k: i for i, k in enumerate(data.keys)}
     z1_mean, z1_std = float(norm.z1_mean[0]), float(norm.z1_std[0])

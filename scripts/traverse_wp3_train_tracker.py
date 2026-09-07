@@ -69,9 +69,32 @@ def parse_args(argv=None) -> argparse.Namespace:
     ap.add_argument("--logger", default="tensorboard")
     ap.add_argument("--seed", type=int, default=1)
     ap.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
+    ap.add_argument("--wp7-cache", default="", help="schema-v2 multi-arena cache: routes and start states from its episodes on --train-arenas (plan §31 step 2)")
+    ap.add_argument("--train-arenas", nargs="*", default=["arena_f101", "arena_f102", "arena_f103", "arena_f104"])
+    ap.add_argument("--min-frames", type=int, default=80, help="wp7 episodes shorter than this are skipped")
     ap.add_argument("--smoke", action="store_true")
     ap.add_argument("--smoke-steps", type=int, default=60)
     return ap.parse_args(argv)
+
+
+def wp7_entries(args: argparse.Namespace):
+    """(key, route) entries + arena bank from a schema-v2 cache: every recorded run on the training arenas (all outcomes:
+    the fragments start from recorded states, the route is the reference), routes stored inside the episode files."""
+    import numpy as np
+    cache = Path(args.wp7_cache)
+    man = json.loads((cache / "cache_manifest.json").read_text())
+    entries, arena_of = [], {}
+    for k in man["episodes"]:
+        if man["arena_of"][k] not in args.train_arenas:
+            continue
+        with np.load(cache / f"{k}.npz") as z:
+            if z["z1"].shape[0] < args.min_frames:
+                continue
+            entries.append((k, {n: z[f"route_{n}"].astype(np.float32) for n in ("waypoints", "speeds", "headings", "stations")}))
+        arena_of[k] = man["arena_of"][k]
+    arena_dirs = {a: man["arenas"][a] for a in args.train_arenas if a in man["arenas"]}
+    print(f"wp7 entries: {len(entries)} episodes on {sorted(arena_dirs)}", flush=True)
+    return entries, {"cache": str(cache), "map_key": "map_v2", "arena_dirs": arena_dirs, "arena_of": arena_of, "z1_extra_cache": None}
 
 
 def env_cfg_from_args(args: argparse.Namespace) -> dict[str, Any]:
@@ -162,7 +185,11 @@ def main(argv=None) -> int:
     train_cfg = train_cfg_from_args(args)
     out = Path(args.out); out.mkdir(parents=True, exist_ok=True)
     t0 = time.time()
-    env = TraverseTrackingEnv(env_cfg, device=args.device)
+    entries = None
+    if args.wp7_cache:
+        entries, extra = wp7_entries(args)
+        env_cfg.update(extra)
+    env = TraverseTrackingEnv(env_cfg, device=args.device, entries=entries)
     print(f"env: {env.num_envs} envs, {env.bank.n_episodes} bank episodes ({args.split}), "
           f"obs {env.num_obs}-D, context {env.context}, bank load {env.bank.load_s:.1f}s, "
           f"total init {time.time() - t0:.1f}s", flush=True)

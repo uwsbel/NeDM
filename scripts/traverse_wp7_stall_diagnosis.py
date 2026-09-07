@@ -659,7 +659,7 @@ def cmd_events(args) -> None:
         for k in man["episodes"]:
             e = load_episode(cache, k); r = diag.get(k); n = len(e["z1"])
             cls = r["class"] if r else "feasible"
-            rec = {"class": cls, "n_frames": n, "stop": None, "launch": cls == "launch", "resume": [], "matched": []}
+            rec = {"class": cls, "n_frames": n, "stop": None, "launch": cls == "launch", "resume": [], "matched": [], "momentum": []}
             if cls == "stop":
                 rec["stop"] = int(round(r["stop_s"] / DT))
             vx, thr = e["z1"][:, 0], e["act"][:, 1]
@@ -671,6 +671,13 @@ def cmd_events(args) -> None:
                     rec["resume"].append(int(i)); i += 60
                 else:
                     i += 1
+            # momentum loss (audit 2026-09-07): the moment the planner must foresee -- the first sustained drop under 1 m/s
+            # after the vehicle had been moving (> 2 m/s), in runs that then stall, crawl or recover
+            if cls in ("stop", "crawl", "stall_recovered"):
+                run_max = np.maximum.accumulate(vx)
+                for t in range(20, n - 20):
+                    if run_max[t] > 2.0 and vx[t] < 1.0 and vx[t - 1] >= 1.0 and vx[t:t + 20].mean() < 1.0:
+                        rec["momentum"].append(int(t)); break
             if cls == "feasible" and stop_station[labels[k]["layout"]]:
                 prog = route_progress(e["pose"], e["route_waypoints"], e["route_stations"])
                 for st in stop_station[labels[k]["layout"]]:
@@ -678,7 +685,7 @@ def cmd_events(args) -> None:
                     if len(hit) and 16 < hit[0] < n - 20:
                         rec["matched"].append(int(hit[0]))
             ev[k] = rec
-            cnt[cls] += 1; cnt["resume_events"] += len(rec["resume"]); cnt["matched_frames"] += len(rec["matched"])
+            cnt[cls] += 1; cnt["resume_events"] += len(rec["resume"]); cnt["matched_frames"] += len(rec["matched"]); cnt["momentum_events"] += len(rec["momentum"])
         (cache / "events.json").write_text(json.dumps(ev))
         print(f"{cache}: {dict(cnt)} -> events.json")
 

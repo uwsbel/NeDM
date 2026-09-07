@@ -149,6 +149,17 @@ class EpisodeBank:
         self.keys = keys
         self.n_frames = max(a.shape[0] for a in z1)
         self.context = context
+        # multi-arena caches (plan §31 step 2): every episode's crop reads its own arena's height field
+        self.heightmaps = None
+        self.arena_ids = [cfg.get("arena", "arena")]
+        self.arena_idx = torch.zeros(len(keys), dtype=torch.long, device=device)
+        if cfg.get("arena_dirs"):
+            from nedm.traverse.terrain import TerrainMap
+            self.arena_ids = sorted(cfg["arena_dirs"])
+            self.heightmaps = torch.stack([torch.tensor(TerrainMap.from_dir(Path(cfg["arena_dirs"][a])).height_grid, dtype=torch.float32)
+                                           for a in self.arena_ids])[:, None].to(device)  # (A, 1, H, W)
+            arena_of = cfg.get("arena_of") or {}
+            self.arena_idx = torch.tensor([self.arena_ids.index(arena_of[k]) if k in arena_of else 0 for k in keys], dtype=torch.long, device=device)
         # schema-v2 caches hold variable-length episodes: pad by repeating the last row (planner rollouts read only
         # frame 0 / the context window; fragments never start past active_end, computed from the route below)
         pad = lambda a: a if a.shape[0] == self.n_frames else np.concatenate([a, np.repeat(a[-1:], self.n_frames - a.shape[0], axis=0)], axis=0)
@@ -235,6 +246,7 @@ class TraverseTrackingEnv(VecEnv):
         self.act_hist = torch.zeros(n, c, 3, device=dev)
         self.token_hist = torch.zeros(n, c, self.model.token_dim, device=dev)
         self.env_maps = torch.zeros(n, *self.bank.maps.shape[1:], device=dev)
+        self.env_arena = torch.zeros(n, dtype=torch.long, device=dev)
         self.pose = torch.zeros(n, 3, device=dev)
         self.z1_phys = torch.zeros(n, self.z1_dim, device=dev)
         self.env_ep = torch.zeros(n, dtype=torch.long, device=dev)
@@ -259,6 +271,21 @@ class TraverseTrackingEnv(VecEnv):
         self.time_out_buf = torch.zeros(n, dtype=torch.bool, device=dev)
         self.extras: dict[str, Any] = {}
         self.reset()
+
+    def crop(self, maps: torch.Tensor, poses: torch.Tensor, env_ids: torch.Tensor | None = None) -> torch.Tensor:
+        """ego crops of ``maps`` at ``poses`` (B, T, 3); with a multi-arena bank each env's crop projects through its own
+        arena's height field (grouped by arena; the cropper expands one (1,1,H,W) field over a group)"""
+        if self.bank.heightmaps is None:
+            return self.model.cropper(maps, poses)
+        arena = self.env_arena if env_ids is None else self.env_arena[env_ids]
+        out = None
+        for a in torch.unique(arena).tolist():
+            idx = (arena == a).nonzero(as_tuple=False).flatten()
+            tok = self.model.cropper(maps[idx], poses[idx], self.bank.heightmaps[a:a + 1])
+            if out is None:
+                out = torch.zeros(maps.shape[0], *tok.shape[1:], device=tok.device, dtype=tok.dtype)
+            out[idx] = tok
+        return out
 
     # ------------------------------------------------------------------ resets
     def reset(self) -> tuple[torch.Tensor, dict]:
@@ -290,8 +317,9 @@ class TraverseTrackingEnv(VecEnv):
         self.act_hist[env_ids] = b.act[ep_col, win]
         hist_pose = b.pose[ep_col, win]
         self.env_maps[env_ids] = b.maps[episode_ids].float()
+        self.env_arena[env_ids] = b.arena_idx[episode_ids]
         with torch.no_grad():
-            self.token_hist[env_ids] = self.model.cropper(self.env_maps[env_ids], hist_pose)
+            self.token_hist[env_ids] = self.crop(self.env_maps[env_ids], hist_pose, env_ids)
         self.pose[env_ids] = hist_pose[:, -1]
         self.z1_phys[env_ids] = self.z1_hist[env_ids, -1] * self.z1_std + self.z1_mean
         self.env_ep[env_ids] = episode_ids
@@ -326,7 +354,7 @@ class TraverseTrackingEnv(VecEnv):
         z1_next = self.z1_hist[:, -1] + delta[:, -1]
         self.z1_phys = z1_next * self.z1_std + self.z1_mean
         self.pose = integrate_pose(self.pose, self.z1_phys)
-        token_next = self.model.cropper(self.env_maps, self.pose.unsqueeze(1))[:, 0]
+        token_next = self.crop(self.env_maps, self.pose.unsqueeze(1))[:, 0]
         self.z1_hist = torch.cat([self.z1_hist[:, 1:], z1_next.unsqueeze(1)], dim=1)
         self.token_hist = torch.cat([self.token_hist[:, 1:], token_next.unsqueeze(1)], dim=1)
         self.act_hist = torch.cat([self.act_hist[:, 1:], self.act_hist[:, -1:]], dim=1)

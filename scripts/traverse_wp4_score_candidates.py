@@ -140,7 +140,7 @@ def rollout(env: TraverseTrackingEnv, policy, horizon: int, obstacles: torch.Ten
         env.act_hist[:] = brake[None, None, :].expand(n, c, -1)
         env.pose[:] = pose0 if start_poses is None else start_poses  # the live vehicle knows only the camera's estimate
         with torch.no_grad():
-            env.token_hist[:] = env.model.cropper(env.env_maps, env.pose[:, None, :].expand(-1, c, -1))
+            env.token_hist[:] = env.crop(env.env_maps, env.pose[:, None, :].expand(-1, c, -1))
         env.z1_phys[:] = z0 * env.z1_std + env.z1_mean
         env.last_actions[:] = torch.tensor([0.0, 0.0, 1.0], device=dev); env.actions[:] = env.last_actions
         d = (b.route_xy[env.env_ep] - env.pose[:, None, :2]).norm(dim=-1)
