@@ -21,6 +21,18 @@ GROUND_M = float(os.environ.get("NEDM_GROUND_M", "200" if WIDE else "10"))
 # than being uniformly noisy. 0 to 120 N against a ~158 N robot: the top of the
 # range falls it, which is where fall coverage comes from at no extra mechanism.
 PERTURB_MAX_N = float(os.environ.get("NEDM_PERTURB_MAX_N", "120"))
+# TILT RANGE, now a parameter instead of a literal. The +-1.5 pitch cap was added
+# because tilt was an UNLOGGED disturbance: nothing in the state recorded it, so
+# episodes at high pitch were unlearnable and capping was the only lever. That
+# reason is gone once grav_world_* is in the state -- the tilt becomes an observed
+# input rather than a latent -- and the cap then costs exactly the region where
+# policies differ most (measured: the two bands above +1.0 deg carry 113 discordant
+# episodes, every one favouring the base controller).
+#
+# Defaults preserve the capped behaviour, so every existing invocation reproduces.
+# A run that wants the wider range has to ask, and thereby record the decision.
+TILT_ROLL = float(os.environ.get("NEDM_TILT_ROLL_DEG", "3.0"))
+TILT_PITCH = float(os.environ.get("NEDM_TILT_PITCH_DEG", "1.5"))
 SEED_OFFSET = int(sys.argv[4]) if len(sys.argv) > 4 else 0
 # The offset goes in the directory name as well as the metadata: metadata makes the
 # origin recoverable, a path makes it obvious, and two boxes writing identically
@@ -90,8 +102,8 @@ def cmd(j):
                  # the 3-5 deg band where the gait was separately measured to collapse.
                  # Capping the combined magnitude instead would sacrifice roll range
                  # for nothing, since roll does not drive failures.
-                 "--ground-tilt-roll-deg", f"{tilt_rng.uniform(-3.0, 3.0):.2f}",
-                 "--ground-tilt-pitch-deg", f"{tilt_rng.uniform(-1.5, 1.5):.2f}"]
+                 "--ground-tilt-roll-deg", f"{tilt_rng.uniform(-TILT_ROLL, TILT_ROLL):.2f}",
+                 "--ground-tilt-pitch-deg", f"{tilt_rng.uniform(-TILT_PITCH, TILT_PITCH):.2f}"]
     return [PY, "scripts/collection/collect_go2_smoke.py", "--terrain", TERRAIN,
             "--duration-s", f"{DURATION_S}", "--imported-ckpt", CKPT, "--command-family", fam,
             *extra,

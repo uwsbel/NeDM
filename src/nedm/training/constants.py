@@ -150,6 +150,30 @@ STATE_FIELD_PRESETS = {
     #
     # The indicators are binary but this is a DELTA model, so predicted contact is
     # prev + delta and can leave [0,1]. That is a relaxation, not a mode classifier.
+    # OBSERVED GRAVITY. Every preset above carries grav_body_*, which
+    # add_gravity_channels.py computes from the stored QUATERNION as R^T.[0,0,-1].
+    # That is the body-frame direction of world -Z, not of gravity, and the two
+    # differ by exactly the ground tilt -- so on a tilted episode the channel
+    # asserts the ground is level. Measured on 1,762 episodes: the applied pitch is
+    # NOT recoverable from the logged attitude, corr = -0.030.
+    #
+    # Tilt is randomised per episode across the corpus, so it is an unobserved
+    # latent folded into the residual. grav_world_*_mps2 is the gravity vector AS
+    # SET, and with the quaternion the model can form the true body-frame gravity;
+    # the reverse is not possible, which is why the primitive is what gets logged.
+    #
+    # NeRD's ablation is the outside evidence: replacing the robot-centric frame
+    # with a world frame costs 23.3x on Ant, their floating-base walker, and
+    # nothing (1.1x) on a base-fixed pendulum. A quadruped that walks out of its
+    # training region is the case where the frame matters most.
+    #
+    # REQUIRES A CORPUS COLLECTED AFTER grav_world_* WAS ADDED TO THE LOGGER.
+    # go2_comprehensive_merged/flat (2026-09-04) does NOT carry these columns.
+    "quadruped_joint_gravworld_pose": (DEFAULT_STATE_FIELDS + QUADRUPED_JOINT_STATE_FIELDS
+                                       + ["grav_body_x", "grav_body_y", "grav_body_z"]
+                                       + ["pos_z_m", "vel_body_z_mps"]
+                                       + ["grav_world_x_mps2", "grav_world_y_mps2",
+                                          "grav_world_z_mps2"]),
     "quadruped_contact_conditioned": (DEFAULT_STATE_FIELDS + QUADRUPED_JOINT_STATE_FIELDS
                                       + ["grav_body_x", "grav_body_y", "grav_body_z"]
                                       + ["pos_z_m", "vel_body_z_mps"]
