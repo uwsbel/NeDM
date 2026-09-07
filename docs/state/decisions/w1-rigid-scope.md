@@ -3492,3 +3492,49 @@ The band tables put the arms' largest differences at `[+1.0,+2.0)` (-38 and -40)
 band where the gait was separately measured to collapse."** That is a reasonable
 objective for a corpus meant to teach a dynamics model. **It is the wrong objective for
 a corpus meant to distinguish policies, and the same corpus is used for both.**
+
+### Band table with denominators, both corpora, marginals verified
+
+    go2_cell_a3                          go2_cell_sliger
+    band          n   base  v4  delta    band          n   base  v4  delta     p(a3)  p(sl)
+    [-3.1,-2.0)  29    12    2  -34.5    [-3.1,-2.0)  32    10    2  -25.0     0.001  0.007
+    [-2.0,-1.0)  30    14   23  +30.0    [-2.0,-1.0)  39    22   30  +20.5     0.012  0.049
+    [-1.0,+0.0)  57    53   45  -14.0    [-1.0,+0.0)  53    49   46   -5.7     0.028  0.337
+    [+0.0,+1.0)  46    46   46   +0.0    [+0.0,+1.0)  45    45   45   +0.0       --     --
+    [+1.0,+2.0)  58    58   36  -37.9    [+1.0,+2.0)  43    43   26  -39.5     0.000  0.000
+    [+2.0,+3.1)  49    48   15  -67.3    [+2.0,+3.1)  65    64   23  -63.1     0.000  0.000
+    TOTAL       269   231  167           TOTAL       277   233  172
+
+**Marginals verified independently against both reported totals: exact match.**
+
+**v4's ADVANTAGE band replicates and is significant on both** -- `[-2.0,-1.0)` at
+p=0.012 and p=0.049. That is the half of the shift most likely to be dismissed as
+noise. **`[-1.0,0.0)` does NOT replicate (0.028 against 0.337) and should not be
+carried.**
+
+#### Caveat on those p-values, which are mine
+
+**Both arms run the same episodes, so the comparisons are PAIRED.** The tests above are
+unpaired two-proportion z, which ignores that; **McNemar needs discordance counts, not
+marginals.** I raised exactly this objection about the gain rungs and then used the
+wrong test myself for want of the per-episode data. With positive within-episode
+correlation McNemar is usually more powerful, **so the true significance is probably
+stronger -- but "probably stronger" is not a result.**
+
+#### And my scaling check made the night's own error
+
+I estimated sliger's v4 total at ~178 by scaling a3's band sizes; the true value is
+172. **`[+2.0,+3.1)` is 65 on sliger against 49 on a3, and `[+1.0,+2.0)` is 43 against
+58** -- same generator, same range, different draw. **A transplant, inside a check run
+to catch transplants.**
+
+### Reference class: the fleet's +-1.5 correction is withdrawn too
+
+**"An improvement in form and a regression in reference class."** No aggregate without
+its mix stands; what changes is the default a reader should assume when none is stated,
+and that is **+-3.0**, because it is what every surrogate trained on and every verdict
+scored against.
+
+> **A corpus tuned to keep the robot inside its stable envelope is a corpus that cannot
+> see which policy has the wider envelope. Two objectives, one collection parameter,
+> and the parameter was set for the first.**
