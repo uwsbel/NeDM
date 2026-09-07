@@ -231,6 +231,7 @@ def main():
     step = 5e-4
     exchange = 2.5e-3
     kept = fell = rows_written = 0
+    branch_cmds = []
     reject = {"nan_inf": 0, "state_1e5": 0, "joint_limit": 0, "torque_pinned": 0}
     reject_events = []
     fell_rows = []
@@ -267,11 +268,19 @@ def main():
             pol = ImportedGo2Policy(Path(CKPT), family="constant",  # noqa: F841 -- reused for recovery
                                     params={"vx": float(rng.uniform(-0.8, 0.8))})
             pol.reset()
+            branch_logged = False
             t_br = float(rng.uniform(*a.branch_s))
             tt = 0.0
             while tt < t_br:
                 if int(tt / CONTROL_DT) != int((tt - exchange) / CONTROL_DT):
+                    # set_time APPLIES the sampled command. Without it self.command
+                    # stays at the constructor default (0.5, 0, 0) and the draw above
+                    # is computed and discarded -- which is what every excitation
+                    # corpus before this commit actually recorded.
+                    pol.set_time(tt)
                     robot.actuate(pol.act(robot))
+                    if not branch_logged:
+                        branch_cmds.append([float(x) for x in pol.command]); branch_logged = True
                 robot.apply_pd(); system.DoStepDynamics(exchange); tt += exchange
             q_target0 = None
         # PRE-ROLL to a random configuration. Reaching the initial q through the
@@ -366,8 +375,13 @@ def main():
             # contact system sees nothing. This collector runs on RIGID ground, where
             # the contact container does see the feet, so None was simply wrong here.
             contacts = contact_bodies(chrono, system)
+            # THE REAL COMMAND, not a literal. This was (0.0, 0.0, 0.0), so every
+            # cmd_* column in every excitation dataset reads zero regardless of what
+            # was commanded -- which corrupted three separate coverage analyses before
+            # anyone checked the column against the config.
             row = capture_row(chrono, robot, None, 0.0, target,
-                              (0.0, 0.0, 0.0), [float("nan")] * 4, float("nan"),
+                              tuple(float(x) for x in pol.command),
+                              [float("nan")] * 4, float("nan"),
                               f"exc_{wi:06d}", "go2_excitation", f"exc_{wi:06d}",
                               "train", len(rows), t, tau=tau, policy_raw=None,
                               perturb=None, contacts=contacts, com=None,
@@ -443,6 +457,10 @@ def main():
                # survive. Two older diagnostics are permanently ungradeable because
                # they do not.
                "seed": a.seed, "argv": sys.argv[1:],
+               # PER-EPISODE COMMAND. Absent from both the CSV and the sidecar
+               # until now, which is why a fixed-command corpus was indistinguishable
+               # from a swept one without measuring the sign of the realised velocity.
+               "branch_commands": branch_cmds,
                "rejected_by_reason": reject, "discarded": sum(reject.values()),
                "reject_events": reject_events,
                "ended_fallen": fell, "rows": rows_written,

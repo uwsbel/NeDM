@@ -197,6 +197,14 @@ class ImportedGo2Policy:
         self.family = family
         self.params = dict(params) if params else None
         self._sched = _sched(family, self.params) if (family and self.params) else None
+        # A SCHEDULE THAT IS BUILT AND NEVER APPLIED IS SILENT. self.command is set
+        # from `command` here and thereafter ONLY by set_time(). A caller that passes
+        # family+params and never calls set_time gets the constructor default and no
+        # warning -- which is how every excitation corpus in this project came to be
+        # collected at a fixed +0.5 m/s while its config recorded vx ~ U(-0.8, 0.8).
+        # 1,765 episodes, zero with negative mean forward velocity, found only because
+        # someone checked the SIGN. act() now refuses rather than relying on memory.
+        self._sched_applied = False
         self.duration = float(duration)
         # Every command actually issued, so an episode records what it was ASKED
         # to do and not merely which family it belonged to.
@@ -223,6 +231,7 @@ class ImportedGo2Policy:
         if self._sched is not None:
             vx, vy, wz = self._sched(t, self.duration)
             self.command = np.array([vx, vy, wz], dtype=np.float32)
+            self._sched_applied = True
         self.command_log.append((t, *map(float, self.command)))
 
     def observe(self, robot) -> np.ndarray:
@@ -250,6 +259,14 @@ class ImportedGo2Policy:
 
     def act(self, robot) -> np.ndarray:
         torch = self.torch
+        if self._sched is not None and not self._sched_applied:
+            raise RuntimeError(
+                f"ImportedGo2Policy was given family={self.family!r} params={self.params!r} "
+                "but set_time() was never called, so self.command is still the constructor "
+                f"default {tuple(float(x) for x in self.command)} and the schedule has no "
+                "effect. Call set_time(t) before act(). This is an error rather than a "
+                "warning because the silent version produced four corpora at a fixed "
+                "command whose configs said otherwise.")
         obs = torch.from_numpy(self.observe(robot)).unsqueeze(0)
         with torch.no_grad():
             action = self.model(obs).squeeze(0).numpy().astype(np.float32)
