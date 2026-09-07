@@ -3009,3 +3009,42 @@ the same result.**
 
 > **Any "arms complete N of the base failures" figure should be stratified by base's
 > own length**, or a single marginal recovery and a genuine rescue report identically.
+
+### The complement fires: v4 completes 14 of 38 episodes base cannot
+
+    corpus go2_cell_a3, 38 baseline episodes with rows < 1500
+
+      base    0 of 38    0.0%    deterministic control
+      v4     14 of 38   36.8%    6 of 14 re-verified with the harness's own scored()
+      armA    0 of 38    0.0%
+
+**The registered ">0" branch fires**, and armA's zero shows it is not a generic
+property of fine-tuning. **The verdict can never contain one of these episodes.**
+
+#### But the reframe needs its other half, and the number is net negative
+
+    region                            n    base    v4
+    base SUCCEEDED (verdict cell)    43      43    20
+    base FAILED (complement)         38       0    14
+    -------------------------------------------------
+    union                            81      43    34
+
+**v4 gains 14 episodes base cannot complete and loses 23 that it can. Net -9.** So
+"v4 is different, not worse" is right as a description of the *structure* and wrong if
+it is heard as "the verdict understates v4." **On the two regions together v4
+completes fewer episodes than base**, and the verdict's `20/43` is directionally
+consistent with that even though it is measured on only one region.
+
+#### And the union is not a population, so the -9 is an illustration and not a statistic
+
+- **The 43 are cell-filtered** (`-0.18 < cmd <= -0.02`); **the 38 cannot be**, because
+  cell membership is read from a scored window a failed episode never reaches.
+- **They are from different corpora** -- `go2_comprehensive_merged/flat` against
+  `go2_cell_a3`, which is not on this box.
+- The two regions are **not sampled in their natural proportion**; 43 and 38 are
+  artifacts of what each selection happened to yield.
+
+> **Nothing here licenses a pooled rate.** The defensible statement is the pair of
+> conditional rates, reported together: **on base's successes v4 completes 47% against
+> base's 100%; on base's failures v4 completes 37% against base's 0%.** Quoting either
+> alone mischaracterises it, and quoting their sum invents a population.
