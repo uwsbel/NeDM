@@ -1,0 +1,558 @@
+{
+ "plan": "docs/vision/hmmwv_traverse/energy_and_crater_experiment_plan.md section B",
+ "arenas": {
+  "deep": "assets/traverse/arena_bowl_deep",
+  "shallow": "assets/traverse/arena_bowl_shallow",
+  "flat": "assets/traverse/arena_bowl_flat"
+ },
+ "bowl": {
+  "centre_xy_m": [
+   0.0,
+   0.0
+  ],
+  "R_bottom_m": 4.5,
+  "R_top_m": 7.484076468792746,
+  "R_top_entry_m": 16.442587327269695,
+  "wall_deg": 47.0,
+  "depth_m": 3.2,
+  "entry_deg": 15.0,
+  "entry_azimuth_deg": 180.0,
+  "entry_halfwidth_deg": 28.0,
+  "arm_depth_m": {
+   "deep": 3.2,
+   "shallow": 0.9,
+   "flat": 0.0
+  }
+ },
+ "headings_deg": [
+  0.0,
+  12.0,
+  348.0,
+  24.0
+ ],
+ "speed_levels_mps": [
+  2.0,
+  4.0,
+  6.0,
+  8.0
+ ],
+ "claim_levels_mps": [
+  2.0,
+  4.0,
+  6.0
+ ],
+ "excluded_level_mps": 8.0,
+ "excluded_because": "8 m/s pitches the vehicle over on the deep arena (prototype: 89.1 deg pitch, chassis contact 99 kN); run and recorded, excluded from the trap claim",
+ "control_families": {
+  "tracker": {
+   "controller": "artifacts/traverse/wp3_tracker_v1",
+   "route": "straight line through the bowl centre",
+   "profile": "const_profile",
+   "a_accel": 2.5,
+   "a_lat_max": 2.0,
+   "v_launch_mps": 1.5,
+   "terminal_taper_m": 4.0
+  },
+  "schedule": {
+   "controller": "schedule",
+   "approach_throttles": [
+    0.15,
+    0.22,
+    0.32,
+    1.0
+   ],
+   "approach_throttles_source": "calibrated",
+   "full_throttle_from_s": 20.0,
+   "steering": 0.0,
+   "braking": 0.0,
+   "note": "open loop; the level is an approach THROTTLE, the achieved entry speed is measured per run, not commanded. The nominal route it carries is the tracker route of the SAME LEVEL INDEX -- nothing follows it, it only drives cross-track/station logging and the route-end completion test"
+  }
+ },
+ "run_settings": {
+  "horizon_s": 60.0,
+  "park_s": 1.5,
+  "stall_abort_s": null,
+  "off_route_m": null,
+  "roll_pitch_abort_deg": 85.0,
+  "localisation": "true",
+  "record_preset": "tire_normal_force_omega_pt (default)",
+  "post_entry_observation_s": "horizon minus the measured entry time; the entry is reached in 9-15 s from a 17.56 m approach run"
+ },
+ "start_radius_m": 34.0,
+ "goal_radius_m": 32.0,
+ "approach_run_to_rim_m": 17.557412672730305,
+ "detour": {
+  "offset_m": 16.0,
+  "speed_mps": 4.0,
+  "shape": "raised cosine, tangent to the approach heading at both ends"
+ },
+ "perturbations": [
+  {
+   "tag": "p1",
+   "lateral_m": 0.6,
+   "yaw_deg": 0.0
+  },
+  {
+   "tag": "p2",
+   "lateral_m": -0.6,
+   "yaw_deg": 0.0
+  },
+  {
+   "tag": "p3",
+   "lateral_m": 0.0,
+   "yaw_deg": 2.0
+  }
+ ],
+ "calibration": {
+  "throttles": [
+   0.15,
+   0.22,
+   0.32,
+   0.45,
+   0.65
+  ],
+  "dwell_s": 3.0,
+  "horizon_s": 15.0,
+  "arm": "flat"
+ },
+ "geometry_measured_on_bmp": [
+  {
+   "arm": "deep",
+   "heading_deg": 0.0,
+   "route": "direct",
+   "entry_chord_grade_deg": -15.378787762234653,
+   "exit_chord_grade_deg": 41.83611638111925,
+   "start_slope_deg": 0.0,
+   "goal_slope_deg": 2.6898805113712436,
+   "z_min_m": -3.2246666666666663,
+   "radius_min_m": 0.0,
+   "max_abs_coord_m": 34.0
+  },
+  {
+   "arm": "deep",
+   "heading_deg": 0.0,
+   "route": "detour_L",
+   "entry_chord_grade_deg": -0.654132545762237,
+   "exit_chord_grade_deg": 0.919175199591828,
+   "kappa_max_1_per_m": 0.09055663363203109,
+   "length_m": 68.5659950155683,
+   "z_min_m": -0.06333333333333346,
+   "radius_min_m": 11.22657689206981,
+   "max_abs_coord_m": 34.0
+  },
+  {
+   "arm": "deep",
+   "heading_deg": 0.0,
+   "route": "detour_R",
+   "entry_chord_grade_deg": -0.9967912706466642,
+   "exit_chord_grade_deg": 0.8268424824120681,
+   "kappa_max_1_per_m": 0.09055663363203109,
+   "length_m": 68.5659950155683,
+   "z_min_m": -0.06333333333333346,
+   "radius_min_m": 11.22657689206981,
+   "max_abs_coord_m": 34.0
+  },
+  {
+   "arm": "shallow",
+   "heading_deg": 0.0,
+   "route": "direct",
+   "entry_chord_grade_deg": -4.660663324211551,
+   "exit_chord_grade_deg": 13.99001234871291,
+   "start_slope_deg": 0.0,
+   "goal_slope_deg": 2.6898805113712436,
+   "z_min_m": -0.9300000000000002,
+   "radius_min_m": 0.0,
+   "max_abs_coord_m": 34.0
+  },
+  {
+   "arm": "shallow",
+   "heading_deg": 0.0,
+   "route": "detour_L",
+   "entry_chord_grade_deg": -0.654132545762237,
+   "exit_chord_grade_deg": 0.919175199591828,
+   "kappa_max_1_per_m": 0.09055663363203109,
+   "length_m": 68.5659950155683,
+   "z_min_m": -0.06333333333333346,
+   "radius_min_m": 11.22657689206981,
+   "max_abs_coord_m": 34.0
+  },
+  {
+   "arm": "shallow",
+   "heading_deg": 0.0,
+   "route": "detour_R",
+   "entry_chord_grade_deg": -0.9967912706466642,
+   "exit_chord_grade_deg": 0.8216945981876068,
+   "kappa_max_1_per_m": 0.09055663363203109,
+   "length_m": 68.5659950155683,
+   "z_min_m": -0.06333333333333346,
+   "radius_min_m": 11.22657689206981,
+   "max_abs_coord_m": 34.0
+  },
+  {
+   "arm": "flat",
+   "heading_deg": 0.0,
+   "route": "direct",
+   "entry_chord_grade_deg": -0.6547804022677007,
+   "exit_chord_grade_deg": 0.873010978226994,
+   "start_slope_deg": 0.0,
+   "goal_slope_deg": 2.6898805113712436,
+   "z_min_m": -0.06333333333333346,
+   "radius_min_m": 0.0,
+   "max_abs_coord_m": 34.0
+  },
+  {
+   "arm": "flat",
+   "heading_deg": 0.0,
+   "route": "detour_L",
+   "entry_chord_grade_deg": -0.654132545762237,
+   "exit_chord_grade_deg": 0.919175199591828,
+   "kappa_max_1_per_m": 0.09055663363203109,
+   "length_m": 68.5659950155683,
+   "z_min_m": -0.06333333333333346,
+   "radius_min_m": 11.22657689206981,
+   "max_abs_coord_m": 34.0
+  },
+  {
+   "arm": "flat",
+   "heading_deg": 0.0,
+   "route": "detour_R",
+   "entry_chord_grade_deg": -0.9967912706466642,
+   "exit_chord_grade_deg": 0.8216945981876068,
+   "kappa_max_1_per_m": 0.09055663363203109,
+   "length_m": 68.5659950155683,
+   "z_min_m": -0.06333333333333346,
+   "radius_min_m": 11.22657689206981,
+   "max_abs_coord_m": 34.0
+  },
+  {
+   "arm": "deep",
+   "heading_deg": 12.0,
+   "route": "direct",
+   "entry_chord_grade_deg": -17.333272051041742,
+   "exit_chord_grade_deg": 41.83246397238969,
+   "start_slope_deg": 0.0,
+   "goal_slope_deg": 0.0,
+   "z_min_m": -3.2305140625961424,
+   "radius_min_m": 0.0,
+   "max_abs_coord_m": 33.25701842494939
+  },
+  {
+   "arm": "deep",
+   "heading_deg": 12.0,
+   "route": "detour_L",
+   "entry_chord_grade_deg": -0.8722052339086485,
+   "exit_chord_grade_deg": 0.7826662545530535,
+   "kappa_max_1_per_m": 0.09055663363202004,
+   "length_m": 68.56599501556829,
+   "z_min_m": -0.050000000000000266,
+   "radius_min_m": 11.226576892069811,
+   "max_abs_coord_m": 33.25701842494939
+  },
+  {
+   "arm": "deep",
+   "heading_deg": 12.0,
+   "route": "detour_R",
+   "entry_chord_grade_deg": -0.8721478824520916,
+   "exit_chord_grade_deg": 0.8721651864603606,
+   "kappa_max_1_per_m": 0.09055663363203717,
+   "length_m": 68.56599501556829,
+   "z_min_m": -0.06333333333333346,
+   "radius_min_m": 11.22657689206981,
+   "max_abs_coord_m": 33.25701842494939
+  },
+  {
+   "arm": "shallow",
+   "heading_deg": 12.0,
+   "route": "direct",
+   "entry_chord_grade_deg": -4.8090103766048795,
+   "exit_chord_grade_deg": 13.97549175361122,
+   "start_slope_deg": 0.0,
+   "goal_slope_deg": 0.0,
+   "z_min_m": -0.9300000000000002,
+   "radius_min_m": 0.0,
+   "max_abs_coord_m": 33.25701842494939
+  },
+  {
+   "arm": "shallow",
+   "heading_deg": 12.0,
+   "route": "detour_L",
+   "entry_chord_grade_deg": -0.8722052339086485,
+   "exit_chord_grade_deg": 0.7746943748056017,
+   "kappa_max_1_per_m": 0.09055663363202004,
+   "length_m": 68.56599501556829,
+   "z_min_m": -0.050000000000000266,
+   "radius_min_m": 11.226576892069811,
+   "max_abs_coord_m": 33.25701842494939
+  },
+  {
+   "arm": "shallow",
+   "heading_deg": 12.0,
+   "route": "detour_R",
+   "entry_chord_grade_deg": -0.8721478824520916,
+   "exit_chord_grade_deg": 0.8721651864603606,
+   "kappa_max_1_per_m": 0.09055663363203717,
+   "length_m": 68.56599501556829,
+   "z_min_m": -0.06333333333333346,
+   "radius_min_m": 11.22657689206981,
+   "max_abs_coord_m": 33.25701842494939
+  },
+  {
+   "arm": "flat",
+   "heading_deg": 12.0,
+   "route": "direct",
+   "entry_chord_grade_deg": -0.873010978226994,
+   "exit_chord_grade_deg": 0.6547804022677007,
+   "start_slope_deg": 0.0,
+   "goal_slope_deg": 0.0,
+   "z_min_m": -0.06333333333333346,
+   "radius_min_m": 0.0,
+   "max_abs_coord_m": 33.25701842494939
+  },
+  {
+   "arm": "flat",
+   "heading_deg": 12.0,
+   "route": "detour_L",
+   "entry_chord_grade_deg": -0.8722052339086485,
+   "exit_chord_grade_deg": 0.7746943748056017,
+   "kappa_max_1_per_m": 0.09055663363202004,
+   "length_m": 68.56599501556829,
+   "z_min_m": -0.050000000000000266,
+   "radius_min_m": 11.226576892069811,
+   "max_abs_coord_m": 33.25701842494939
+  },
+  {
+   "arm": "flat",
+   "heading_deg": 12.0,
+   "route": "detour_R",
+   "entry_chord_grade_deg": -0.8721478824520916,
+   "exit_chord_grade_deg": 0.8721651864603606,
+   "kappa_max_1_per_m": 0.09055663363203717,
+   "length_m": 68.56599501556829,
+   "z_min_m": -0.06333333333333346,
+   "radius_min_m": 11.22657689206981,
+   "max_abs_coord_m": 33.25701842494939
+  },
+  {
+   "arm": "deep",
+   "heading_deg": 348.0,
+   "route": "direct",
+   "entry_chord_grade_deg": -17.46699497755242,
+   "exit_chord_grade_deg": 41.81571899352889,
+   "start_slope_deg": 0.0,
+   "goal_slope_deg": 0.0,
+   "z_min_m": -3.236666666666667,
+   "radius_min_m": 0.0,
+   "max_abs_coord_m": 33.257018424949386
+  },
+  {
+   "arm": "deep",
+   "heading_deg": 348.0,
+   "route": "detour_L",
+   "entry_chord_grade_deg": -0.6541672271273214,
+   "exit_chord_grade_deg": 0.6421554258866506,
+   "kappa_max_1_per_m": 0.09055663363203717,
+   "length_m": 68.56599501556829,
+   "z_min_m": -0.046264168208804815,
+   "radius_min_m": 11.226576892069813,
+   "max_abs_coord_m": 33.257018424949386
+  },
+  {
+   "arm": "deep",
+   "heading_deg": 348.0,
+   "route": "detour_R",
+   "entry_chord_grade_deg": -1.0901367148013728,
+   "exit_chord_grade_deg": 0.6541349345963846,
+   "kappa_max_1_per_m": 0.09055663363202068,
+   "length_m": 68.56599501556829,
+   "z_min_m": -0.050000000000000266,
+   "radius_min_m": 11.226576892069811,
+   "max_abs_coord_m": 33.257018424949386
+  },
+  {
+   "arm": "shallow",
+   "heading_deg": 348.0,
+   "route": "direct",
+   "entry_chord_grade_deg": -4.80278380474712,
+   "exit_chord_grade_deg": 14.1136988607066,
+   "start_slope_deg": 0.0,
+   "goal_slope_deg": 0.0,
+   "z_min_m": -0.9300000000000002,
+   "radius_min_m": 0.0,
+   "max_abs_coord_m": 33.257018424949386
+  },
+  {
+   "arm": "shallow",
+   "heading_deg": 348.0,
+   "route": "detour_L",
+   "entry_chord_grade_deg": -0.6541672271273214,
+   "exit_chord_grade_deg": 0.6421554258866506,
+   "kappa_max_1_per_m": 0.09055663363203717,
+   "length_m": 68.56599501556829,
+   "z_min_m": -0.046264168208804815,
+   "radius_min_m": 11.226576892069813,
+   "max_abs_coord_m": 33.257018424949386
+  },
+  {
+   "arm": "shallow",
+   "heading_deg": 348.0,
+   "route": "detour_R",
+   "entry_chord_grade_deg": -1.0901367148013728,
+   "exit_chord_grade_deg": 0.6541349345963846,
+   "kappa_max_1_per_m": 0.09055663363202068,
+   "length_m": 68.56599501556829,
+   "z_min_m": -0.050000000000000266,
+   "radius_min_m": 11.226576892069811,
+   "max_abs_coord_m": 33.257018424949386
+  },
+  {
+   "arm": "flat",
+   "heading_deg": 348.0,
+   "route": "direct",
+   "entry_chord_grade_deg": -0.4365308257564025,
+   "exit_chord_grade_deg": 0.4365308257564025,
+   "start_slope_deg": 0.0,
+   "goal_slope_deg": 0.0,
+   "z_min_m": -0.050000000000000266,
+   "radius_min_m": 0.0,
+   "max_abs_coord_m": 33.257018424949386
+  },
+  {
+   "arm": "flat",
+   "heading_deg": 348.0,
+   "route": "detour_L",
+   "entry_chord_grade_deg": -0.6541672271273214,
+   "exit_chord_grade_deg": 0.6421554258866506,
+   "kappa_max_1_per_m": 0.09055663363203717,
+   "length_m": 68.56599501556829,
+   "z_min_m": -0.046264168208804815,
+   "radius_min_m": 11.226576892069813,
+   "max_abs_coord_m": 33.257018424949386
+  },
+  {
+   "arm": "flat",
+   "heading_deg": 348.0,
+   "route": "detour_R",
+   "entry_chord_grade_deg": -1.0901367148013728,
+   "exit_chord_grade_deg": 0.6541349345963846,
+   "kappa_max_1_per_m": 0.09055663363202068,
+   "length_m": 68.56599501556829,
+   "z_min_m": -0.050000000000000266,
+   "radius_min_m": 11.226576892069811,
+   "max_abs_coord_m": 33.257018424949386
+  },
+  {
+   "arm": "deep",
+   "heading_deg": 24.0,
+   "route": "direct",
+   "entry_chord_grade_deg": -24.200512679172945,
+   "exit_chord_grade_deg": 41.88929499565903,
+   "start_slope_deg": 0.01440744862102913,
+   "goal_slope_deg": 0.0,
+   "z_min_m": -3.236666666666667,
+   "radius_min_m": 0.0,
+   "max_abs_coord_m": 31.06054555984843
+  },
+  {
+   "arm": "deep",
+   "heading_deg": 24.0,
+   "route": "detour_L",
+   "entry_chord_grade_deg": -0.6736677431684783,
+   "exit_chord_grade_deg": 1.0901367148013754,
+   "kappa_max_1_per_m": 0.09055663363202363,
+   "length_m": 68.56599501556829,
+   "z_min_m": -0.09421370808607264,
+   "radius_min_m": 11.226576892069808,
+   "max_abs_coord_m": 31.06054555984843
+  },
+  {
+   "arm": "deep",
+   "heading_deg": 24.0,
+   "route": "detour_R",
+   "entry_chord_grade_deg": -0.8721523516339775,
+   "exit_chord_grade_deg": 0.6541759759422536,
+   "kappa_max_1_per_m": 0.09055663363203756,
+   "length_m": 68.56599501556829,
+   "z_min_m": -0.050000000000000266,
+   "radius_min_m": 11.22657689206981,
+   "max_abs_coord_m": 31.06054555984843
+  },
+  {
+   "arm": "shallow",
+   "heading_deg": 24.0,
+   "route": "direct",
+   "entry_chord_grade_deg": -6.845959419148657,
+   "exit_chord_grade_deg": 13.91117423700059,
+   "start_slope_deg": 0.01440744862102913,
+   "goal_slope_deg": 0.0,
+   "z_min_m": -0.9300000000000002,
+   "radius_min_m": 0.0,
+   "max_abs_coord_m": 31.06054555984843
+  },
+  {
+   "arm": "shallow",
+   "heading_deg": 24.0,
+   "route": "detour_L",
+   "entry_chord_grade_deg": -0.6736677431684783,
+   "exit_chord_grade_deg": 1.0901367148013754,
+   "kappa_max_1_per_m": 0.09055663363202363,
+   "length_m": 68.56599501556829,
+   "z_min_m": -0.06333333333333346,
+   "radius_min_m": 11.226576892069808,
+   "max_abs_coord_m": 31.06054555984843
+  },
+  {
+   "arm": "shallow",
+   "heading_deg": 24.0,
+   "route": "detour_R",
+   "entry_chord_grade_deg": -0.8721523516339775,
+   "exit_chord_grade_deg": 0.6553366819022142,
+   "kappa_max_1_per_m": 0.09055663363203756,
+   "length_m": 68.56599501556829,
+   "z_min_m": -0.050000000000000266,
+   "radius_min_m": 11.22657689206981,
+   "max_abs_coord_m": 31.06054555984843
+  },
+  {
+   "arm": "flat",
+   "heading_deg": 24.0,
+   "route": "direct",
+   "entry_chord_grade_deg": -0.6547804022677007,
+   "exit_chord_grade_deg": 0.6547804022677007,
+   "start_slope_deg": 0.01440744862102913,
+   "goal_slope_deg": 0.0,
+   "z_min_m": -0.06333333333333346,
+   "radius_min_m": 0.0,
+   "max_abs_coord_m": 31.06054555984843
+  },
+  {
+   "arm": "flat",
+   "heading_deg": 24.0,
+   "route": "detour_L",
+   "entry_chord_grade_deg": -0.6736677431684783,
+   "exit_chord_grade_deg": 1.0901367148013754,
+   "kappa_max_1_per_m": 0.09055663363202363,
+   "length_m": 68.56599501556829,
+   "z_min_m": -0.050000000000000266,
+   "radius_min_m": 11.226576892069808,
+   "max_abs_coord_m": 31.06054555984843
+  },
+  {
+   "arm": "flat",
+   "heading_deg": 24.0,
+   "route": "detour_R",
+   "entry_chord_grade_deg": -0.8721523516339775,
+   "exit_chord_grade_deg": 0.6553366819022142,
+   "kappa_max_1_per_m": 0.09055663363203756,
+   "length_m": 68.56599501556829,
+   "z_min_m": -0.050000000000000266,
+   "radius_min_m": 11.22657689206981,
+   "max_abs_coord_m": 31.06054555984843
+  }
+ ],
+ "counts": {
+  "b1": 96,
+  "b2": 112,
+  "b2_reused_from_b1": 89,
+  "b2_new_runs": 23
+ }
+}

@@ -81,7 +81,7 @@ def main() -> None:
     grid = OracleGrid(tmap, [], params)
     lp = LayoutParams(); hl, hw, hh = lp.house_size_m
     house_r = 0.5 * math.hypot(hl, hw) + 0.3
-    features = tmap.meta["features"]
+    features = tmap.features  # simulated frame, not the mirrored meta list (terrain.orient_xy)
     tasks, challenges, skipped = [], [], []
     for fi, f in enumerate(features):
         c = np.array([f["x_m"], f["y_m"]]); sigma = float(f["sigma_m"])

@@ -235,6 +235,28 @@ def _apply_orientation(raw: np.ndarray, orientation: dict[str, Any]) -> np.ndarr
     return arr
 
 
+def orient_xy(x: Any, y: Any, size_m: float, pixels: int, orientation: dict[str, Any]) -> tuple[Any, Any]:
+    """Map a world point from the *generation* frame to the *simulated* frame.
+
+    ``generate_height_field`` returns h[iy, ix] and ``write_arena`` stores each
+    feature's centre in that array's world convention, but the BMP is then
+    re-oriented on load by ``_apply_orientation`` (calibrated against
+    ``RigidTerrain.GetHeight``; every arena carries rot90 0 / flipud True). The
+    stored feature coordinates are therefore NOT in the frame Chrono simulates
+    -- with flipud they are mirrored in y. This applies the same index transform
+    to a point so the two agree. See ``TerrainMap.features``.
+    """
+    res = size_m / pixels
+    half = size_m / 2.0
+    ix = (np.asarray(x, np.float64) + half) / res - 0.5
+    iy = (np.asarray(y, np.float64) + half) / res - 0.5
+    for _ in range(int(orientation.get("rot90", 0)) % 4):
+        ix, iy = iy, pixels - 1 - ix  # np.rot90: element (iy, ix) moves to (n-1-ix, iy)
+    if orientation.get("flipud", False):
+        iy = pixels - 1 - iy
+    return -half + (ix + 0.5) * res, -half + (iy + 0.5) * res
+
+
 class TerrainMap:
     """Privileged-oracle heightfield: bilinear height/gradient queries in world
     coordinates over the SAME quantized data Chrono loads from the BMP."""
@@ -277,6 +299,30 @@ class TerrainMap:
         top = grid[iy0, ix0] * (1 - ax) + grid[iy0, ix1] * ax
         bot = grid[iy1, ix0] * (1 - ax) + grid[iy1, ix1] * ax
         return top * (1 - ay) + bot * ay
+
+    @property
+    def features(self) -> list[dict[str, Any]]:
+        """The authored features in THIS map's frame -- i.e. where Chrono has them.
+
+        ``meta["features"]`` is written in the generation frame and is mirrored in
+        y relative to the loaded/simulated field (``orient_xy``). Always read
+        features through here; reading ``meta["features"]`` directly aims tasks at
+        the mirror image of the feature, which is usually flat ground.
+        """
+        out = []
+        for f in self.meta.get("features", []):
+            x, y = orient_xy(f["x_m"], f["y_m"], self.size_m, self.pixels, self.meta.get("orientation", {}))
+            out.append({**f, "x_m": float(x), "y_m": float(y)})
+        return out
+
+    def feature_relief_m(self, feature: dict[str, Any]) -> float:
+        """Centre height minus the mean of the ring at 1.75 sigma: negative for a
+        crater, positive for a hill. Near zero means the feature is not there."""
+        s = float(feature["sigma_m"])
+        th = np.linspace(0.0, 2.0 * math.pi, 24, endpoint=False)
+        cx, cy = float(feature["x_m"]), float(feature["y_m"])
+        ring = float(np.mean(self.height(cx + 1.75 * s * np.cos(th), cy + 1.75 * s * np.sin(th))))
+        return float(self.height(cx, cy)) - ring
 
     def height(self, x: Any, y: Any) -> np.ndarray:
         return self._bilinear(self.height_grid, x, y)

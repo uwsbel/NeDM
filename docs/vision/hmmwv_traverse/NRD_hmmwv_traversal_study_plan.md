@@ -3,7 +3,7 @@
 **Purpose:** First NRD study where vision is load-bearing — a hierarchical planner/tracker stack on a fixed bumpy arena
 **Simulator:** Project Chrono (HMMWV vehicle stack) with Chrono::Sensor RGB + depth cameras
 **Builds on:** `docs/vision/NRD_overall_project_plan.md` (Phase 3, pulled forward ahead of Phase 2 tabletop manipulation), Study 1 (`docs/vision/double_pen/`), and the state-only NeDM HMMWV stack
-**Status:** v1.17 — 2026-09-07 (§33: design (a) closed on fresh sealed arenas; decision pending); v1.16 (§32); v1.15 (§31: ablation audited); v1.14 — 2026-09-06 (§30: stall diagnosis); v1.4 — revised 2026-09-04 pm (§20: tracker + planner rollout built; ẑ₂ decision now evidence-based); v1.3 2026-09-04 am (§19); v1.2 2026-09-03 (§18); v1.1 2026-08-31 after `NRD_hmmwv_traversal_study_plan_review.md`; §16 = original decision log, §17 = review resolutions
+**Status:** v1.18 — 2026-09-07 (§34: user-requested energy plan and controlled-crater diagnostic; planned, not run); v1.17 (§33: design (a) closed on fresh sealed arenas); v1.16 (§32); v1.15 (§31: ablation audited); v1.14 — 2026-09-06 (§30: stall diagnosis); v1.4 — revised 2026-09-04 pm (§20: tracker + planner rollout built; ẑ₂ decision now evidence-based); v1.3 2026-09-04 am (§19); v1.2 2026-09-03 (§18); v1.1 2026-08-31 after `NRD_hmmwv_traversal_study_plan_review.md`; §16 = original decision log, §17 = review resolutions
 **v1 charter:** Feasibility of the full stack (NRD + planner + tracker) on ONE fixed terrain map, trained and collected locally. Privileged information is allowed anywhere it unblocks v1; deployment-purity upgrades are a ladder, not a v1 gate.
 
 ## 1. Study objective, information contract, and positioning
@@ -763,3 +763,53 @@ cost trade-off among feasible routes (energy / ride-severity penalty on speed, f
 predictor, the imagination ranking cost), collected model-free on fresh arenas, one look — or close the traversal
 study with the negative result as it stands (notes §11–13 are complete and audited). Not: further dynamics training
 or planner work on the stall question.
+
+## 34. v1.18 (2026-09-07): energy evidence and a controlled crater learnability test
+
+The user requested a plan to strengthen the energy-efficiency contribution and proposed one deliberately simplified
+last stall experiment: overfit an NRD to a visible deep crater whose entries consistently fail to escape. The
+[detailed experiment plan](energy_and_crater_experiment_plan.md) defines the two independent branches, controls,
+proposed budgets and continuation gates. It extends the scope of §33 without overturning its negative result.
+
+Energy: audit mechanical-work accounting; compare identical feasible candidate banks against strong analytic and
+direct learned cost predictors at fixed deadline/terminal-state requirements; use new terrain only after the
+existing-data pilot supports an advantage. Report full mission outcomes and computation, not prediction fidelity alone.
+
+Crater: first verify the trap within an explicit speed/control/time envelope in Chrono, with shallow/flat and detour
+controls; then deliberately overfit 24 complete episodes, test held-out controls, and compare visual tokens with
+state-only and privileged-terrain inputs. Zero velocity delta is not a stopping target; learn the actual loss of
+progress and non-escape, including any wheel spin or rollback. A successful demonstration establishes learnability
+and visual conditioning, not superiority over a terrain-aware A* rule or general stall foresight.
+
+Status: **executed 2026-09-07, notes §14.** A0/A1 negative, B1 passed, one latent defect fixed.
+
+## 35. v1.19 (2026-09-07): energy branch closed negative, crater trap verified
+
+**A0.** The study's energy was signed shaft work; switching to positive work changes the best candidate on 33 % of
+layouts, so historical `time + signed/10` results must be recomputed rather than reinterpreted. Recoverable offline
+from the cached 20 Hz power (no recollection). A mission — deadline and terminal-speed accounting — was added; the
+code had none.
+
+**A1 (negative, gate failed).** On 385 layouts of one shared bank, a hand-written analytic work model (climb,
+rolling resistance, acceleration, cornering) chooses cheaper routes than the imagination: work regret 9.55 kJ against
+11.20 (fine-tuned) and 13.23 (frozen). Paired, the imagination costs **+1.5 % to +2.4 % more work**, CIs excluding
+zero on the wrong side, in both the ranking-isolation and full-bank regimes and at every deadline slack. The
+pre-registered bar was a 5 % reduction. Combined with §33, both axes of this benchmark — feasibility and cost — are
+answered by terrain profile and route geometry. **Branch (b) of §32 is closed.**
+
+**B1 (passed).** No existing crater can trap the vehicle (the generator pins crater walls at the slope cap and then
+diffuses them; the steepest coherent wall in f101–f111 is 36.1°, and authored 36–42° walls are escaped at every
+speed on momentum). An authored 47° / 3.2 m bowl traps it: over 38 direct entries — 4 headings × 2/4/6/8 m/s ×
+{tracker, open-loop schedules to full throttle} × 3 perturbations — **0 climbed out over the exit wall**, 36 never
+regained the plain in 60 s, and 2 reversed and left via the deliberately driveable entry ramp. Shallow 26/26, flat
+26/26, exterior detour 2/2, zero asset contact. Claimed only for the tested envelope; reverse gear was never in it.
+
+**Defect fixed.** Arena feature coordinates were stored in the generation frame and are mirrored in y against the
+field Chrono simulates, so every crossing and sequence task since §10 was centred on the mirror image of its feature
+(0–42 % of features sat on their own terrain; 100 % after the fix). Re-collecting f105 with corrected centres does
+not change the §33 conclusion — the arena becomes easier, and the heuristic's headroom moves only 15.4 % → 17.5 %.
+
+**Live thread:** B2/B3 — the deliberate overfit of 24 crater episodes, then held-out control schedules, then the
+three input arms of B4. It tests whether the model can represent a clear terrain–motion relationship at all; it does
+not claim superiority over a terrain-aware A*. Newton remains the simulator host; training remains on the AMD
+cluster.

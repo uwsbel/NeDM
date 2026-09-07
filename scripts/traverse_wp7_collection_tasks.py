@@ -94,7 +94,7 @@ def main() -> None:
     grid = OracleGrid(tmap, [], params)
     lp = LayoutParams()
     smax = math.tan(math.radians(args.place_slope_deg))
-    features = tmap.meta["features"]
+    features = tmap.features  # simulated frame, not the mirrored meta list (terrain.orient_xy)
     tasks, layouts, skipped = [], [], []
 
     def add_layout(cid: str, layout: EpisodeLayout, kind: str, info: dict, runs: list[tuple[str, dict]]):

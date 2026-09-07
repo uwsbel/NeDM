@@ -301,3 +301,16 @@ artifacts/traverse/wp8_collect_f1??/tasks.json
 !assets/traverse/arena_f109/
 !assets/traverse/arena_f110/
 !assets/traverse/arena_f111/
+# WP9 (plan section 34/35): the energy-comparison table and the crater verdict --
+# the small readouts that back notes section 14. The 5745-run truth table, the
+# per-arm prediction dumps, the bowl records and the corrected f105 recollection
+# stay local / on newton.
+!artifacts/traverse/wp9_energy/
+artifacts/traverse/wp9_energy/*
+!artifacts/traverse/wp9_energy/a1_table.txt
+!artifacts/traverse/wp9_energy/a1_table.json
+!artifacts/traverse/wp9_energy/truth_summary.json
+!artifacts/traverse/wp9_bowl_b1/
+artifacts/traverse/wp9_bowl_b1/*
+!artifacts/traverse/wp9_bowl_b1/verdict.json
+!artifacts/traverse/wp9_bowl_b1/design.json

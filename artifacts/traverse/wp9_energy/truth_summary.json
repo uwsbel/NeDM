@@ -1,0 +1,60 @@
+{
+ "n_runs": 5745,
+ "n_layouts": 547,
+ "arenas": [
+  "arena_f101",
+  "arena_f102",
+  "arena_f103",
+  "arena_f104",
+  "arena_f105",
+  "arena_f106",
+  "arena_f107",
+  "arena_f108",
+  "arena_f109",
+  "arena_f110",
+  "arena_f111"
+ ],
+ "joined_collect_rows": 5740,
+ "deadline": {
+  "K": 1.0,
+  "V_REF_MPS": 5.0,
+  "A_ACCEL": 1.5,
+  "rule": "K*(L_min/V_REF + V_REF/A_ACCEL)",
+  "fit_on": [
+   "arena_f101",
+   "arena_f102",
+   "arena_f103",
+   "arena_f104"
+  ],
+  "k_target": 0.5,
+  "grid_compliance": {
+   "1.0": 0.5569
+  }
+ },
+ "min_clearance_m": 0.3,
+ "n_feasible": 4224,
+ "n_compliant": 1843,
+ "layouts_with_a_compliant_candidate": 385,
+ "work_kj": {
+  "all": {
+   "w_pos": 384.59788619091296,
+   "w_neg": -33.29884796548444,
+   "w_signed": 351.29903822542843
+  },
+  "compliant": {
+   "w_pos": 202.38267810736056,
+   "w_neg": -29.046241355907963,
+   "w_signed": 173.3364367514526
+  }
+ },
+ "terminal_speed_mps_compliant": {
+  "mean": 3.1566505562463534,
+  "p95": 4.3313093185424805,
+  "ke_over_wpos_median": 0.0680083678705461
+ },
+ "metric_flips_among_compliant": {
+  "w_pos_vs_signed": 90,
+  "w_pos_ke_vs_w_pos": 26,
+  "n": 330
+ }
+}

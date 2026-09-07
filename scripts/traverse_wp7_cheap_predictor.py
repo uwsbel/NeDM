@@ -11,6 +11,14 @@ Targets: feasible (completed, no stall, no contact), log time, log energy (the l
 Model: a small GRU over the profile + MLP on the globals; trained on the train arenas, selected on the val arena.
 Reports val AUC of infeasibility, time / energy errors on feasible runs, per layout kind; writes predictions.
 
+Backwards-compatible additions for the A1 energy study (defaults unchanged):
+  --target w_pos    regress log of POSITIVE shaft work ``w_pos_kj`` from the A1 truth table
+                    (``artifacts/traverse/wp9_energy/truth.json``) instead of the legacy signed
+                    ``energy_kj`` in labels.json. ``--target legacy`` (default) is the old behaviour.
+  --dump-arenas     also dump predictions for these arenas (they stay OUT of train/val only if they are
+                    listed in --val-arenas/--test-arenas; this flag does not change the split).
+The leave-one-arena-out A1 arm lives in ``scripts/traverse_wp9_arm_cheap.py``.
+
   PYTHONPATH=src python scripts/traverse_wp7_cheap_predictor.py --caches artifacts/traverse/wp7_cache_v1 \
       --val-arenas arena_f105 --out artifacts/traverse/wp7_cheap_v1
 """
@@ -83,7 +91,7 @@ def auc(score, label):
     return float((ranks[l == 1].sum() - n1 * (n1 + 1) / 2) / (n1 * n0))
 
 
-def load_dataset(caches: list[Path], terrain: str, maphead: str | None, device: str):
+def load_dataset(caches: list[Path], terrain: str, maphead: str | None, device: str, energy_of=None):
     manifest, labels = {"episodes": [], "arenas": {}}, {}
     for cache in caches:
         m = json.loads((cache / "cache_manifest.json").read_text())
@@ -100,7 +108,7 @@ def load_dataset(caches: list[Path], terrain: str, maphead: str | None, device: 
         with np.load(cache / f"{key}.npz") as z:
             pts, sp = z["route_waypoints"], z["route_speeds"]
             z1_0 = z["z1"][0]
-            layout = str(z["layout"]); aid = str(z["arena"])
+            layout = str(z["layout"]); aid = str(z["arena"]); z_cand = str(z["candidate"])
             if decoder is not None and layout not in pred_tmaps:
                 _, elev = decoder(z["map_v2"]); pred_tmaps[layout] = decoder.terrain(elev)
         tm = pred_tmaps[layout] if decoder is not None else tmaps[aid]
@@ -108,7 +116,8 @@ def load_dataset(caches: list[Path], terrain: str, maphead: str | None, device: 
         feasible = bool(lab.get("completed")) and not bool(lab.get("stalled")) and not bool(lab.get("contact"))
         rows.append({"key": key, "arena": aid, "kind": lab.get("kind", "unknown"), "layout": layout,
                      "prof": profile_features(pts, sp, tm), "glob": global_features(z1_0, float(lab.get("length_m") or 0.0), sp),
-                     "feasible": feasible, "time_s": float(lab.get("time_s") or np.nan), "energy_kj": float(lab.get("energy_kj") or np.nan),
+                     "feasible": feasible, "time_s": float(lab.get("time_s") or np.nan),
+                     "energy_kj": float(lab.get("energy_kj") or np.nan) if energy_of is None else float(energy_of(layout, str(z_cand))),
                      "status": lab.get("status")})
     return rows
 
@@ -127,12 +136,20 @@ def main() -> None:
     ap.add_argument("--hidden", type=int, default=64)
     ap.add_argument("--weight-decay", type=float, default=1e-3)
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--target", choices=["legacy", "w_pos"], default="legacy",
+                    help="legacy: log(labels.json energy_kj, signed); w_pos: log(truth.json w_pos_kj, positive shaft work)")
+    ap.add_argument("--truth", default="artifacts/traverse/wp9_energy/truth.json")
+    ap.add_argument("--dump-arenas", nargs="*", default=[], help="extra arenas to dump predictions for")
     args = ap.parse_args()
     torch.manual_seed(args.seed); np.random.seed(args.seed)
     dev = "cuda" if torch.cuda.is_available() else "cpu"
     out = Path(args.out); out.mkdir(parents=True, exist_ok=True)
     t0 = time.time()
-    rows = load_dataset([Path(c) for c in args.caches], args.terrain, args.maphead, dev)
+    energy_of = None
+    if args.target == "w_pos":
+        truth = {(r["key"], r["candidate"]): r["w_pos_kj"] for r in json.loads(Path(args.truth).read_text())}
+        energy_of = lambda lay, cand: truth[(lay, cand)]
+    rows = load_dataset([Path(c) for c in args.caches], args.terrain, args.maphead, dev, energy_of)
     train = [r for r in rows if r["arena"] not in args.val_arenas and r["arena"] not in args.test_arenas]
     val = [r for r in rows if r["arena"] in args.val_arenas]
     print(f"{len(rows)} episodes ({time.time() - t0:.0f}s): train {len(train)} feasible {np.mean([r['feasible'] for r in train]):.2f} | "
@@ -180,7 +197,7 @@ def main() -> None:
         o = model(va[0], va[1]).cpu().numpy()
     p_feas = 1 / (1 + np.exp(-o[:, 0])); t_pred, e_pred = np.exp(o[:, 1]), np.exp(o[:, 2])
     feas = np.array([r["feasible"] for r in val]); infeasible = ~feas
-    res = {"n_val": len(val), "best_step": best[1], "val_loss": best[0],
+    res = {"n_val": len(val), "best_step": best[1], "val_loss": best[0], "target": args.target,
            "auc_infeasible": auc(-p_feas, infeasible), "infeasible_rate": float(infeasible.mean()),
            "precision_at_reject_20pct": float(infeasible[np.argsort(p_feas)[: max(1, len(val) // 5)]].mean()),
            "time_mape_feasible": float(np.mean(np.abs(t_pred[feas] - np.array([r["time_s"] for r in val])[feas]) / np.array([r["time_s"] for r in val])[feas])) if feas.any() else None,
@@ -204,7 +221,9 @@ def main() -> None:
                                              "energy_pred": float(np.exp(o_[2])), "feasible": bool(r["feasible"]), "time_s": r["time_s"], "energy_kj": r["energy_kj"],
                                              "status": r["status"], "kind": r["kind"]} for r, o_ in zip(rs, oo)], indent=0))
     dump(val, "val_predictions.json")
-    dump([r for r in rows if r["arena"] in args.test_arenas], "test_predictions.json")  # sealed arenas: predictions only, never looked at during selection
+    dump([r for r in rows if r["arena"] in args.test_arenas], "test_predictions.json")
+    if args.dump_arenas:
+        dump([r for r in rows if r["arena"] in args.dump_arenas], "extra_predictions.json")  # sealed arenas: predictions only, never looked at during selection
     print(json.dumps(res, indent=1))
 
 

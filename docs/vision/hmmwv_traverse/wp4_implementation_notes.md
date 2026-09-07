@@ -2065,3 +2065,168 @@ beat the cheap predictor (§11.5; the post-hoc sealed cost check of §13.12 item
 (b): a benchmark whose decisions are cost trade-offs among feasible routes — where "drive fast" is penalised by energy
 or ride severity and feasibility is handled by the terrain predictor — with the imagination doing the ranking. That is
 a change of the thesis question, and the user's call.
+
+## 14. Energy branch (A0/A1) and the controlled crater (B1) — 2026-09-07, plan §34
+
+Two independent branches of `energy_and_crater_experiment_plan.md` executed in one session. A0/A1 is **negative**:
+a hand-written analytic work model beats the imagination at choosing low-work routes. B1 **passes**: a 47° bowl
+traps the vehicle in every direct entry tested. A latent coordinate defect was found and fixed on the way.
+
+### 14.1 The feature coordinates were mirrored against the simulated terrain (fixed)
+
+`generate_height_field` returns `h[iy, ix]` and `write_arena` stores each feature's centre in that array's frame,
+but the BMP is re-oriented on load by `_apply_orientation`. Every arena carries `flipud: True`, calibrated against
+`RigidTerrain.GetHeight` by the WP0a slice at 0.008 m RMSE against a runner-up of 0.818 m — so the loaded field
+(and Chrono) is the y-mirror of the array the feature list describes. The features were never flipped with it.
+
+Measured relief at each listed centre (centre height minus the mean of the ring at 1.75σ), over all 128 features of
+f101–f111: at the stored coordinate craters read −0.115 m and hills +0.301 m; at (x, −y) they read **−1.671 m and
++2.539 m**. Fraction of features sitting on their own terrain: **0–42 % per arena before, 100 % after.**
+
+Consumers were `traverse_wp6_challenges.py:84` and `traverse_wp7_collection_tasks.py:97`, i.e. every crossing and
+sequence task in §10–§13 was centred on the mirror image of its feature. Fixed by `terrain.orient_xy` +
+`TerrainMap.features` (and `feature_relief_m` as a self-check); the BMP and the stored metadata are untouched, so
+already-collected layout records still describe what was actually driven.
+
+**Impact is real but small, and it does not change any §11–§13 conclusion.** Rebuilding f105's bank with corrected
+centres (`wp9_collect_f105c`, 767 runs on newton) against the original:
+
+| f105 | layouts | with a feasible route | fastest-speed heuristic feasible | heuristic fails, alternative exists | its cost regret |
+|---|---|---|---|---|---|
+| original (mirrored) | 65 | 52 | 44 (84.6 %) | 8 (15.4 %) | 1.079 |
+| corrected | 69 | 63 | 52 (82.5 %) | **11 (17.5 %)** | 1.102 |
+
+Crossing max up-grade rose only 19.5° → 21.2° (steep crossings 19 % → 25 %): the ≤14° start/house placement search
+was already compensating. The corrected arena is *easier overall* (feasible 64 % → 72 %, stalls 93 → 75) because a
+properly centred crossing puts start and goal on flat ground either side, where the mirrored tasks wandered across
+incidental terrain at awkward angles. Headroom for a smarter method moved 15.4 % → 17.5 %. The two banks are not
+paired (different centres give different layouts), so this is a distribution comparison. The §33 negative stands.
+
+### 14.2 A0: the study measured signed shaft work, and the sign is not rank-neutral
+
+Every energy number descends from `engine.GetOutputMotorshaftTorque() × transmission.GetOutputMotorshaftSpeed()`,
+integrated **with its sign** at every 0.002 s substep (`traverse_wp3_chrono_eval.py:407-409`). It is mechanical work
+at the engine–transmission motorshaft — upstream of the torque converter (positive tire-contact work is 58 % of
+positive shaft work) and emphatically not fuel: the installed Chrono engine is a torque map plus a losses map with
+no consumption model anywhere. The review had already asked for positive and braking work to be reported separately
+(`..._review.md:152`); it was never implemented.
+
+`scripts/traverse_wp9_truth.py` rebuilds the truth column for all 5 745 cached runs from the 20 Hz `power` series
+(reproduces the 500 Hz integral to 0.28 % median, so **no recollection is needed**):
+
+* over all runs: W⁺ 384.6 kJ, W⁻ −33.3 kJ, signed 351.3 kJ; negative work is 8.7 % of positive work;
+* **switching signed → W⁺ changes the best candidate on 164 of 492 layouts (33.3 %)**, and on 90 of 330 (27 %) when
+  restricted to mission-compliant candidates. Every historical `time + signed/10` result must be recomputed, not
+  reinterpreted.
+
+It also adds the mission the code never had. Deadline `K·(L_min/V_ref + V_ref/a_accel)` with `V_ref` 5 m/s and
+`a_accel` 1.5, computed from route geometry alone; `K` chosen outcome-blind on f101–f104 to admit ≥ 50 % of bank
+candidates. **K = 1.0 is the floor of the declared grid** (it already admits 55.7 %), so the deadline equals the
+reference profile time with no slack — a floor effect, not a fitted value. It binds hard: 1 843 of 4 224 feasible
+runs are on time. Terminal speed is also uncontrolled (mean 3.16 m/s against a 1.5 m/s profile target, kinetic
+energy a median 6.8 % of W⁺), so `w_pos_ke_kj` is carried as the terminal-matched variant.
+
+### 14.3 A1: an analytic work model beats the imagination — `wp9_energy/a1_table.{json,txt}`
+
+5 745 runs, 547 layouts, 11 arenas, one shared bank, one pick per layout. Regime (a) hands every arm the
+Chrono-compliant candidates, so only cost ranking remains (an oracle diagnostic, not a planner). 385 layouts:
+
+| arm | W⁺ kJ | time s | work regret kJ | regret % | pred/true | MAPE % |
+|---|---|---|---|---|---|---|
+| oracle best | 199.6 | 8.96 | 0.00 | 0.00 | | |
+| **analytic** | **209.2** | 8.96 | **9.55** | **5.49** | 1.006 | 16.7 |
+| imagination, fine-tuned | 210.8 | 9.01 | 11.20 | 6.67 | 1.265 | 33.2 |
+| direct learned predictor | 212.8 | 8.93 | 13.13 | 7.54 | 1.059 | 18.0 |
+| imagination, frozen | 212.9 | 9.12 | 13.23 | 7.33 | 0.951 | 24.3 |
+| fastest commanded speed | 217.1 | 8.66 | 17.47 | 10.86 | | |
+| rule-based profile | 161.1 | 8.44 | 33.72 | 27.37 | | (abstains on 300/385) |
+
+Paired against the strongest inexpensive baseline (analytic), the imagination **costs more work**: frozen +2.17 %
+(CI +0.82 to +3.50, 2/11 arenas favour it), fine-tuned +1.49 % (CI +0.44 to +2.61, 4/11). Adding the geometry floor
+does not help. In the full-bank regime, where feasibility and the deadline must also be predicted, the ordering is
+unchanged (+2.55 % / +1.55 %) and the imagination's picks are slightly *less* compliant (0.59–0.62 vs 0.63).
+
+The pre-registered gate — ≥ 5 % paired work reduction against the strongest inexpensive baseline — **fails**, in the
+wrong direction. It is not a deadline artefact: over slack K ∈ {0.8 … 2.0} the imagination is never best (analytic
+wins at tight deadlines, the learned predictor at loose ones). It is also the least accurate arm at its own pick
+(MAPE 23–33 % against the analytic model's 17 %).
+
+**Reading.** On this family, work is mostly climb plus acceleration — geometry readable from a height map — and
+rolling the vehicle's evolving physical state forward adds variance, not information. Combined with §33 (feasibility
+is a terrain-profile question), *both* axes of the benchmark are answered by cheap terrain-and-route features.
+Branch (b) of §32 is now closed too.
+
+Arm construction, with the defects each had to work around:
+* **analytic** (`traverse_wp9_analytic.py`): climb, rolling resistance, acceleration, cornering and cross-slope terms,
+  non-negative least squares against W⁺ on f101–f104 only. Out-of-arena MAE 31.0 kJ (14.6 %), r 0.843. The WP5
+  geometry floor was refit against W⁺ because the arena_v1 fit under-predicts this family 2.94× and never binds.
+* **direct learned predictor** (`traverse_wp9_arm_cheap.py`): leave-one-arena-out over all 11 arenas, so every
+  prediction is out-of-sample; the existing target `log(max(energy_kj, 1))` against *signed* work was replaced.
+* **imagination** (`traverse_wp9_arm_nrd.py`): **`traverse_wp8_head.py:127` saves `env.energy_kj` without freezing it
+  at termination**, and with `auto_reset=False` finished environments keep integrating — the stored `energy` is
+  2.95× the true value on average (correlation 0.592) and must not be read. Work is reconstructed instead from the
+  imagined 17-D state (`seq[...,15]·seq[...,16]/1000`, masked by `active`), which reproduces wp7's independently
+  stored `img_energy` at r = 0.9999 / 1.6 kJ MAE — at or below the 0.2 s sampling floor. f106/f107 were gap-filled.
+  Only the **frozen** model is clean: `wp8e_mom_s1` trained on f101–f105 with f105 as its selection arena.
+
+All 11 arenas are development data under the governing plan. Nothing here is a sealed confirmation.
+
+### 14.4 B1: a 47° bowl traps the vehicle — `wp9_bowl_b1/verdict.json`
+
+The existing generator cannot make a trap: `terrain.py:159` pins a gaussian crater's peak radial slope at
+`0.95·slope_cap` whatever depth is requested, and `_limit_slopes` then removes a further 4.9° on average (worst
+15.3°) and 15.4 % of the depth. The steepest azimuthally coherent crater wall anywhere in f101–f111 is 36.1°.
+A Chrono sweep over authored bowls found walls of 36/39/42° are escaped at **every** speed — the escapes are
+momentum, not traction (friction 0.9 → 0.5 changed nothing), because entering returns the potential energy.
+
+`src/nedm/traverse/bowl.py` + `traverse_wp9_bowl_arena.py` author a constant-slope bowl by bisecting the wall band
+until the integrated radial slope equals the requested depth exactly, bypassing `_limit_slopes`. Three arms on one
+shared height range — deep (47°, 3.2 m, 4.5 m flat bottom, 15° entry ramp), shallow (0.9 m), flat — measured on the
+final quantised BMP: wall 46.87° against 47.0 requested, depth 3.1966 m against 3.2, quantisation 1.33 cm, arms
+bit-identical outside r = 16.7 m.
+
+`traverse_wp3_chrono_eval.py` gained a third controller kind, `schedule` (open-loop `[[t, value]]` breakpoints, zero-
+order hold, deliberately *not* steering-rate clamped), per-task overrides of every run setting, configurable
+off-route and attitude aborts, `pos_z` and `max_chassis_contact_n`. Verified purely additive: re-running an archived
+collection task reproduces all 33 row fields and all 16 record arrays exactly.
+
+96 runs (`traverse_wp9_bowl_tasks.py`), 4 headings × 2/4/6/8 m/s × {tracker, open-loop schedule to sustained full
+throttle} × 3 initial-condition perturbations, 60 s horizon, stall and off-route aborts off, 85° attitude limit:
+
+| deep arm, 38 direct entries | |
+|---|---|
+| **climbed out over the exit wall** | **0** |
+| never regained the plain in 60 s | 36 |
+| reversed and left via the driveable 15° entry ramp | 2 (at t+13.2 s, t+44.2 s) |
+
+Controls: shallow **26/26**, flat **26/26**, exterior detour **2/2**, all completed, **zero asset contact anywhere**.
+`traverse_wp9_bowl_verdict.py` classifies each entry by where it first regains the plain, because `status` alone
+cannot: the single `completed` deep run turned round inside the bowl, drove back out the entrance and circled to the
+goal on the plain. Plan B1 requires the entry to be driveable, so a ramp exit is a permitted escape direction.
+
+Stated as: **no escape over the wall was observed within this tested envelope** — not "impossible under all actions".
+Reverse gear was never in the envelope (`DriverInputs` carries no gear and `SetDriveMode` is never called).
+
+Two corrections to the exploratory sweep that preceded this: under the tracker, 8 m/s does **not** pitch the vehicle
+over (4/4 trapped, as at 2 and 4 m/s) — all 12 rollovers are open-loop full-throttle entries hitting the bottom at
+~12.9 m/s. Chassis-terrain contact on a tracker-driven trap is **6.8 kN** against a 25 kN vehicle, not the 49–99 kN
+those open-loop entries produce. The trap is a clean bog-down, and the violence is confined to the excluded arm.
+
+A first sweep (`wp9_bowl_b1_withhouse`, kept) had the goal house in the corridor; the open-loop arms ignore the route
+and drove into it, contaminating 13/27 shallow and 13/27 flat control runs with ~280 kN of asset contact. The deep
+arm was never affected. `make_layout` now places no house body, which is what plan B1 asks for.
+
+**Data available for B2/B3:** 36 stuck episodes, 21.2 min of post-entry trapped observation, 24 with ≥ 40 s, full
+17-channel state at 20 Hz with pose, vertical position, power and both contact channels. The B2 bank
+(`wp9_bowl_b2/tasks.json`, 112 entries) reuses 89 of these, so only 23 new runs are needed.
+
+### 14.5 Where this leaves the study
+
+* **The energy contribution as posed is negative.** §33 closed feasibility; §14.3 closes cost. Both axes of this
+  benchmark are answered by terrain profile and route geometry, and the imagination is measurably worse than a
+  physics estimate at the one thing it was still accurate at. Branch (b) of §32 is closed.
+* **B1 passed, so the learnability question is now askable.** The crater is the first case in this study where
+  terrain and outcome are unambiguously linked, with matched shallow/flat controls and a working detour. B2/B3
+  (deliberate overfit of 24 episodes, then held-out control schedules, then the three input arms of B4) is the one
+  live thread. It tests representation, not planning superiority: a terrain-aware A* would solve this arena too.
+* Not done: B2 collection (23 runs), the overfit training (AMD cluster per policy), and B4/B5.

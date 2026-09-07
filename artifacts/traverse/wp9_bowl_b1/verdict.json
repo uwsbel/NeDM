@@ -1,0 +1,399 @@
+{
+ "run": "artifacts/traverse/wp9_bowl_b1",
+ "n_runs": 96,
+ "deep_direct_entries": 38,
+ "outcomes": {
+  "never got out": 36,
+  "left via the entry ramp": 2
+ },
+ "crossed_the_exit_wall": 0,
+ "status_by_arm": {
+  "cal": {
+   "completed": 1
+  },
+  "deep": {
+   "completed": 3,
+   "timeout": 25,
+   "rollover": 12
+  },
+  "flat": {
+   "completed": 26
+  },
+  "shallow": {
+   "completed": 26
+  }
+ },
+ "asset_contact_runs": {
+  "cal": "0/1",
+  "deep": "0/40",
+  "flat": "0/26",
+  "shallow": "0/26"
+ },
+ "geometry": {
+  "deep": {
+   "R_top_m": 7.484076468792746,
+   "depth_m": 3.206111111111111
+  },
+  "shallow": {
+   "R_top_m": 7.484076468792746,
+   "depth_m": 0.8994444444444444
+  },
+  "flat": {
+   "R_top_m": 7.484076468792746,
+   "depth_m": 0.006111111111111289
+  }
+ },
+ "sectors": {
+  "plain_z_m": -0.3,
+  "exit_sector_deg": 60.0,
+  "entry_sector_deg": 40.0
+ },
+ "per_run": [
+  {
+   "outcome": "never got out",
+   "entered_s": 12.65,
+   "deepest_m": -3.236666666666667,
+   "key": "bowl_deep_h000",
+   "candidate": "sch_L1_t015",
+   "status": "timeout",
+   "family": "schedule"
+  },
+  {
+   "outcome": "never got out",
+   "entered_s": 7.6000000000000005,
+   "deepest_m": -3.2366666666666672,
+   "key": "bowl_deep_h000",
+   "candidate": "sch_L2_t022",
+   "status": "rollover",
+   "family": "schedule"
+  },
+  {
+   "outcome": "never got out",
+   "entered_s": 5.65,
+   "deepest_m": -3.2233333333333336,
+   "key": "bowl_deep_h000",
+   "candidate": "sch_L3_t032",
+   "status": "rollover",
+   "family": "schedule"
+  },
+  {
+   "outcome": "never got out",
+   "entered_s": 4.05,
+   "deepest_m": -3.228684895833333,
+   "key": "bowl_deep_h000",
+   "candidate": "sch_L4_t100",
+   "status": "rollover",
+   "family": "schedule"
+  },
+  {
+   "outcome": "never got out",
+   "entered_s": 13.05,
+   "deepest_m": -3.236666666666667,
+   "key": "bowl_deep_h000",
+   "candidate": "trk_v2",
+   "status": "timeout",
+   "family": "tracker"
+  },
+  {
+   "outcome": "never got out",
+   "entered_s": 7.8500000000000005,
+   "deepest_m": -3.2366666666666672,
+   "key": "bowl_deep_h000",
+   "candidate": "trk_v4",
+   "status": "timeout",
+   "family": "tracker"
+  },
+  {
+   "outcome": "never got out",
+   "entered_s": 5.65,
+   "deepest_m": -3.236666666666667,
+   "key": "bowl_deep_h000",
+   "candidate": "trk_v6",
+   "status": "timeout",
+   "family": "tracker"
+  },
+  {
+   "outcome": "never got out",
+   "entered_s": 4.8500000000000005,
+   "deepest_m": -3.232087198893229,
+   "key": "bowl_deep_h000",
+   "candidate": "trk_v8",
+   "status": "timeout",
+   "family": "tracker"
+  },
+  {
+   "outcome": "never got out",
+   "entered_s": 4.05,
+   "deepest_m": -3.2364408365885415,
+   "key": "bowl_deep_h000_p1",
+   "candidate": "sch_L4_p1",
+   "status": "rollover",
+   "family": "schedule"
+  },
+  {
+   "outcome": "never got out",
+   "entered_s": 5.550000000000001,
+   "deepest_m": -3.236666666666667,
+   "key": "bowl_deep_h000_p1",
+   "candidate": "trk_v6_p1",
+   "status": "timeout",
+   "family": "tracker"
+  },
+  {
+   "outcome": "never got out",
+   "entered_s": 4.1000000000000005,
+   "deepest_m": -3.236666666666667,
+   "key": "bowl_deep_h000_p2",
+   "candidate": "sch_L4_p2",
+   "status": "rollover",
+   "family": "schedule"
+  },
+  {
+   "outcome": "never got out",
+   "entered_s": 5.800000000000001,
+   "deepest_m": -3.2366666666666672,
+   "key": "bowl_deep_h000_p2",
+   "candidate": "trk_v6_p2",
+   "status": "timeout",
+   "family": "tracker"
+  },
+  {
+   "outcome": "never got out",
+   "entered_s": 4.1000000000000005,
+   "deepest_m": -3.2233333333333336,
+   "key": "bowl_deep_h000_p3",
+   "candidate": "sch_L4_p3",
+   "status": "rollover",
+   "family": "schedule"
+  },
+  {
+   "outcome": "left via the entry ramp",
+   "entered_s": 5.7,
+   "regained_s": 44.2,
+   "regained_azimuth_deg": 154.5817413330078,
+   "deepest_m": -3.2366666666666672,
+   "key": "bowl_deep_h000_p3",
+   "candidate": "trk_v6_p3",
+   "status": "completed",
+   "family": "tracker"
+  },
+  {
+   "outcome": "never got out",
+   "entered_s": 11.850000000000001,
+   "deepest_m": -3.236666666666667,
+   "key": "bowl_deep_h012",
+   "candidate": "sch_L1_t015",
+   "status": "timeout",
+   "family": "schedule"
+  },
+  {
+   "outcome": "never got out",
+   "entered_s": 7.7,
+   "deepest_m": -3.2366666666666664,
+   "key": "bowl_deep_h012",
+   "candidate": "sch_L2_t022",
+   "status": "timeout",
+   "family": "schedule"
+  },
+  {
+   "outcome": "never got out",
+   "entered_s": 5.65,
+   "deepest_m": -3.236666666666667,
+   "key": "bowl_deep_h012",
+   "candidate": "sch_L3_t032",
+   "status": "rollover",
+   "family": "schedule"
+  },
+  {
+   "outcome": "never got out",
+   "entered_s": 4.05,
+   "deepest_m": -3.2233333333333336,
+   "key": "bowl_deep_h012",
+   "candidate": "sch_L4_t100",
+   "status": "timeout",
+   "family": "schedule"
+  },
+  {
+   "outcome": "never got out",
+   "entered_s": 13.05,
+   "deepest_m": -3.2352006022135416,
+   "key": "bowl_deep_h012",
+   "candidate": "trk_v2",
+   "status": "timeout",
+   "family": "tracker"
+  },
+  {
+   "outcome": "never got out",
+   "entered_s": 7.75,
+   "deepest_m": -3.2351954700611536,
+   "key": "bowl_deep_h012",
+   "candidate": "trk_v4",
+   "status": "timeout",
+   "family": "tracker"
+  },
+  {
+   "outcome": "never got out",
+   "entered_s": 5.65,
+   "deepest_m": -3.229140864262978,
+   "key": "bowl_deep_h012",
+   "candidate": "trk_v6",
+   "status": "timeout",
+   "family": "tracker"
+  },
+  {
+   "outcome": "never got out",
+   "entered_s": 4.8500000000000005,
+   "deepest_m": -3.2347378491299845,
+   "key": "bowl_deep_h012",
+   "candidate": "trk_v8",
+   "status": "timeout",
+   "family": "tracker"
+  },
+  {
+   "outcome": "never got out",
+   "entered_s": 20.6,
+   "deepest_m": -3.2233333333333336,
+   "key": "bowl_deep_h024",
+   "candidate": "sch_L1_t015",
+   "status": "rollover",
+   "family": "schedule"
+  },
+  {
+   "outcome": "never got out",
+   "entered_s": 8.4,
+   "deepest_m": -3.2233333333333336,
+   "key": "bowl_deep_h024",
+   "candidate": "sch_L2_t022",
+   "status": "timeout",
+   "family": "schedule"
+  },
+  {
+   "outcome": "left via the entry ramp",
+   "entered_s": 5.95,
+   "regained_s": 13.15,
+   "regained_azimuth_deg": -179.40354919433594,
+   "deepest_m": -3.2233333333333336,
+   "key": "bowl_deep_h024",
+   "candidate": "sch_L3_t032",
+   "status": "timeout",
+   "family": "schedule"
+  },
+  {
+   "outcome": "never got out",
+   "entered_s": 4.2,
+   "deepest_m": -3.2233333333333336,
+   "key": "bowl_deep_h024",
+   "candidate": "sch_L4_t100",
+   "status": "rollover",
+   "family": "schedule"
+  },
+  {
+   "outcome": "never got out",
+   "entered_s": 13.65,
+   "deepest_m": -3.2233333333333336,
+   "key": "bowl_deep_h024",
+   "candidate": "trk_v2",
+   "status": "timeout",
+   "family": "tracker"
+  },
+  {
+   "outcome": "never got out",
+   "entered_s": 8.05,
+   "deepest_m": -3.2233333333333336,
+   "key": "bowl_deep_h024",
+   "candidate": "trk_v4",
+   "status": "timeout",
+   "family": "tracker"
+  },
+  {
+   "outcome": "never got out",
+   "entered_s": 5.800000000000001,
+   "deepest_m": -3.2233333333333336,
+   "key": "bowl_deep_h024",
+   "candidate": "trk_v6",
+   "status": "timeout",
+   "family": "tracker"
+  },
+  {
+   "outcome": "never got out",
+   "entered_s": 5.1000000000000005,
+   "deepest_m": -3.2233333333333336,
+   "key": "bowl_deep_h024",
+   "candidate": "trk_v8",
+   "status": "timeout",
+   "family": "tracker"
+  },
+  {
+   "outcome": "never got out",
+   "entered_s": 11.600000000000001,
+   "deepest_m": -3.223333333333333,
+   "key": "bowl_deep_h348",
+   "candidate": "sch_L1_t015",
+   "status": "rollover",
+   "family": "schedule"
+  },
+  {
+   "outcome": "never got out",
+   "entered_s": 7.550000000000001,
+   "deepest_m": -3.2333475748697915,
+   "key": "bowl_deep_h348",
+   "candidate": "sch_L2_t022",
+   "status": "timeout",
+   "family": "schedule"
+  },
+  {
+   "outcome": "never got out",
+   "entered_s": 5.6000000000000005,
+   "deepest_m": -3.223333333333333,
+   "key": "bowl_deep_h348",
+   "candidate": "sch_L3_t032",
+   "status": "rollover",
+   "family": "schedule"
+  },
+  {
+   "outcome": "never got out",
+   "entered_s": 4.0,
+   "deepest_m": -3.2233333333333336,
+   "key": "bowl_deep_h348",
+   "candidate": "sch_L4_t100",
+   "status": "rollover",
+   "family": "schedule"
+  },
+  {
+   "outcome": "never got out",
+   "entered_s": 13.200000000000001,
+   "deepest_m": -3.223333333333333,
+   "key": "bowl_deep_h348",
+   "candidate": "trk_v2",
+   "status": "timeout",
+   "family": "tracker"
+  },
+  {
+   "outcome": "never got out",
+   "entered_s": 7.8500000000000005,
+   "deepest_m": -3.223333333333333,
+   "key": "bowl_deep_h348",
+   "candidate": "trk_v4",
+   "status": "timeout",
+   "family": "tracker"
+  },
+  {
+   "outcome": "never got out",
+   "entered_s": 5.7,
+   "deepest_m": -3.223333333333333,
+   "key": "bowl_deep_h348",
+   "candidate": "trk_v6",
+   "status": "timeout",
+   "family": "tracker"
+  },
+  {
+   "outcome": "never got out",
+   "entered_s": 4.9,
+   "deepest_m": -3.223333333333333,
+   "key": "bowl_deep_h348",
+   "candidate": "trk_v8",
+   "status": "timeout",
+   "family": "tracker"
+  }
+ ]
+}

@@ -6,10 +6,16 @@ For each held-out episode the layout is rebuilt in Chrono from the recorded ``me
 (no rendering), and every (controller, route) pair is one independent run in its own
 process (repeat Chrono scene creation in one process crashes -- repo lore):
 
-  controller  = a WP3 run dir (policy + ``policy_meta.json``) or ``follower``
-                (ChPathFollowerDriver, the collection driver, as the scripted bracket)
+  controller  = a WP3 run dir (policy + ``policy_meta.json``), ``follower``
+                (ChPathFollowerDriver, the collection driver, as the scripted bracket), or
+                ``schedule`` (an open-loop schedule given by the task -- see ScheduleController)
   route       = the recorded route (ground truth exists: the real driver drove it) and,
                 with ``--candidates``, the same oracle parameter sweep the NRD scorer used
+
+In ``--tasks-file`` mode every CLI run setting (horizon, stall/off-route/rollover cutoffs, parking,
+localisation) is only a DEFAULT: a task entry overriding any of them, or naming its own ``controller``,
+lets one tasks file mix arms -- e.g. a 25 s tracker run beside a 60 s open-loop run of a trapped
+vehicle with the off-route cutoff and the rollover abort switched off.
 
 The policy sees exactly the imagination env's observation, rebuilt from Chrono's true
 pose/speed (pose privileged in v1 Chrono eval per plan section 1/10), with the same action
@@ -42,7 +48,10 @@ sys.path.insert(0, str(REPO_ROOT / "scripts"))
 SETTLE_S = 0.8
 CTRL_DT_S = 0.05
 CONTACT_EPS_N = 1.0
-ROLL_PITCH_ABORT_RAD = math.radians(60.0)
+ROLL_PITCH_ABORT_DEG = 60.0                # default; per task via 'roll_pitch_abort_deg' / --roll-pitch-abort-deg
+ROLL_PITCH_ABORT_RAD = math.radians(ROLL_PITCH_ABORT_DEG)
+OFF_ROUTE_M = 6.0                          # default; per task via 'off_route_m' / --off-route-m (null/<=0 disables)
+DEFAULT_TRACK = {"search_window": 40, "preview_points": 10, "preview_spacing_m": 1.0}  # wp3_tracker_v1's, for runs with no policy meta
 CANDIDATE_SWEEP = {
     "oracle": {},
     "shortest": {"energy_weight": 0.0},
@@ -55,7 +64,12 @@ CANDIDATE_SWEEP = {
 
 # ----------------------------------------------------------------------------- route geometry (numpy mirror of tracker_env)
 class RouteTracker:
-    def __init__(self, route: dict, meta: dict):
+    def __init__(self, route: dict, meta: dict | None):
+        """``meta``: a policy_meta.json (the search window / preview the policy was trained with).
+        None -- no policy in the run at all (follower or open-loop schedule, no ``ref_meta``) -- falls
+        back to ``DEFAULT_TRACK``, i.e. wp3_tracker_v1's values, so those arms keep the geometry
+        every previous follower run used; only ``preview`` depends on it and only the policy calls that."""
+        meta = DEFAULT_TRACK if meta is None else meta
         self.xy = np.asarray(route["waypoints"], np.float64)
         self.v = np.asarray(route["speeds"], np.float64)
         self.h = np.asarray(route["headings"], np.float64)
@@ -125,6 +139,53 @@ class PolicyController:
         if self.limit is not None:
             driver[0] = min(max(driver[0], last[0] - self.limit), last[0] + self.limit)
         return driver
+
+
+class ScheduleController:
+    """An independently specified open-loop control schedule (plan section B1/B2 interventions):
+    the driver inputs are read off the tasks file, not off the vehicle's state.
+
+    ``task["schedule"] = {"steering": [[t, v], ...], "throttle": [[t, v], ...], "braking": [[t, v], ...]}``.
+    Each channel is a list of (seconds, value) breakpoints held PIECEWISE-CONSTANT (zero-order hold):
+    the value of the last breakpoint at or before t, held to the end of the run after the last one.
+    Zero-order hold, not interpolation, because the schedule is executed on the 20 Hz control tick and a
+    held value is exactly what an operator specification means -- a ramp is written as breakpoints.
+    t is measured from the first DRIVING frame (t = 0 after the settle), so a schedule means the same
+    thing whatever SETTLE_S is. Before its first breakpoint (and if the channel is absent entirely) a
+    channel sits at 0.0, so ``"braking": [[8.0, 1.0]]`` means "brake from 8 s", not "brake from the
+    start", and an unmentioned brake is off rather than the settle's 1.0. Values are clipped to Chrono's
+    ranges (steering -1..1, throttle/braking 0..1).
+
+    Steering rate: the follower arm clamps steering to 2.0/s and the policy arm to its trained
+    ``steering_rate_limit``; a schedule is NOT clamped by default. It is a specified intervention and is
+    executed as written, so the arm means what the tasks file says. A step in the steering column is
+    therefore commanded as a step within one control tick; the row's ``steer_rate_max`` reports the
+    largest step actually commanded, so an implausible slew is disclosed rather than silently smoothed.
+    A schedule that wants a physical limit asks for it: ``"steer_rate": 2.0`` (units 1/s) in the schedule
+    dict re-applies the follower's clamp per control step.
+
+    The task still carries a ``route``: nothing follows it, it is only observed -- cross-track/station
+    logging, the (disableable) off-route cutoff, and the route-end completion test, so an open-loop run
+    that drives off the end of its nominal route is still reported as ``completed``."""
+
+    CHANNELS = ("steering", "throttle", "braking")
+    LIMITS = ((-1.0, 1.0), (0.0, 1.0), (0.0, 1.0))
+
+    def __init__(self, spec: dict):
+        self.t, self.v = {}, {}
+        for ch in self.CHANNELS:
+            pts = np.asarray(spec.get(ch) or [], np.float64).reshape(-1, 2)
+            pts = np.concatenate([[[-math.inf, 0.0]], pts[np.argsort(pts[:, 0], kind="stable")]])  # 0 until the first breakpoint
+            self.t[ch], self.v[ch] = pts[:, 0], pts[:, 1]
+        self.rate = spec.get("steer_rate")
+
+    def act(self, t_s: float, last: np.ndarray) -> np.ndarray:
+        cmd = np.array([float(np.clip(self.v[ch][int(np.searchsorted(self.t[ch], t_s, side="right")) - 1], lo, hi))
+                        for ch, (lo, hi) in zip(self.CHANNELS, self.LIMITS)])
+        if self.rate is not None:
+            d = float(self.rate) * CTRL_DT_S
+            cmd[0] = min(max(cmd[0], last[0] - d), last[0] + d)
+        return cmd
 
 
 # ----------------------------------------------------------------------------- one Chrono run
@@ -197,13 +258,16 @@ def run_one(task: dict) -> dict:
     route = task["route"]
     row = {k: task[k] for k in ("key", "controller", "candidate")}
     row["length_m"] = float(route["stations"][-1])
-    policy = None
-    if task["controller"] != "follower":
+    policy = schedule = None
+    if task["controller"] == "follower":  # ChPathFollowerDriver, the collection driver
+        pmeta = json.loads(Path(task["ref_meta"]).read_text()) if task.get("ref_meta") else None
+    elif task["controller"] == "schedule":  # open-loop, from the tasks file
+        schedule = ScheduleController(task["schedule"])
+        pmeta = json.loads(Path(task["ref_meta"]).read_text()) if task.get("ref_meta") else None
+    else:
         policy = PolicyController(Path(task["controller"]))
         pmeta = policy.meta
-    else:
-        pmeta = json.loads(Path(task["ref_meta"]).read_text())
-    rt = RouteTracker(route, pmeta)
+    rt = RouteTracker(route, pmeta)  # route geometry is still logged (cross-track, station) for every arm
     state_fields = STATE_FIELD_PRESETS["tire_normal_force_omega"]
 
     start_z = float(tmap.height(*layout.start_xy)) + 0.75
@@ -211,15 +275,21 @@ def run_one(task: dict) -> dict:
     loc_mode = task.get("localisation", "true")
     render = None
     dump_frame0 = task.get("dump_frame0")
-    if loc_mode != "true" or dump_frame0:
+    video_cfg = task.get("video")  # {out, panel, every, note}: film the run (traverse_wp8_stall_video.py)
+    if loc_mode != "true" or dump_frame0 or video_cfg:
         from nedm.traverse.scene import RenderSpec
-        render = RenderSpec(width=256, height=256, plan_markers=False)
+        px = int(video_cfg["panel"]) if video_cfg else 256
+        render = RenderSpec(width=px, height=px, with_depth=loc_mode != "true" or bool(dump_frame0), plan_markers=False)
     scene = build_scene(config, layout, tmap, arena_dir, plan=None, render=render)
     hmmwv, system, terrain = scene.hmmwv, scene.system, scene.terrain
     vehicle = hmmwv.GetVehicle()
     engine, transmission = vehicle.GetEngine(), vehicle.GetTransmission()
     dt = float(config["simulation"]["step_size_s"])
     substeps = max(1, int(round(CTRL_DT_S / dt)))
+    video = None
+    if video_cfg:
+        from traverse_wp8_stall_video import VideoRecorder
+        video = VideoRecorder(scene, hmmwv, route, render, 1.0 / dt, video_cfg)
     obstacles = np.asarray(layout.obstacles(), np.float64)
     norm_arena = task.get("norm_arena")
     localiser = CameraLocaliser(Path(task["posehead"]), arena_dir, (REPO_ROOT / norm_arena).resolve() if norm_arena else None) if loc_mode != "true" else None
@@ -229,8 +299,15 @@ def run_one(task: dict) -> dict:
     record = task.get("record")
     rec_fields = STATE_FIELD_PRESETS[task.get("record_preset", "tire_normal_force_omega_pt")]
     rec_z1, rec_act, rec_pose, rec_power = [], [], [], []
+    rec_posz = []  # chassis height, saved SEPARATELY as 'pos_z' so 'pose' stays (x, y, yaw) for every reader
     stall_abort_frames = int(round(task["stall_abort_s"] / CTRL_DT_S)) if task.get("stall_abort_s") else None
     park_frames = int(round(task.get("park_s", 0.0) / CTRL_DT_S))
+    # the two terminations that would end a deliberately trapped run early (plan section B1/B2): both
+    # per task, both disableable (null, or <= 0, keeps driving); neither is judged during the settle
+    off_route_m = task.get("off_route_m", OFF_ROUTE_M)
+    off_route_m = None if off_route_m is None or float(off_route_m) <= 0 else float(off_route_m)
+    abort_deg = task.get("roll_pitch_abort_deg", ROLL_PITCH_ABORT_DEG)
+    abort_rad = None if abort_deg is None or float(abort_deg) <= 0 else math.radians(float(abort_deg))
     end_frame = None  # frame at which the route end was reached (parking follows when park_s > 0)
     est = None  # (x, y, yaw) the tracker uses when localisation != true
     settle_est: list[tuple[float, float, float]] = []
@@ -238,7 +315,7 @@ def run_one(task: dict) -> dict:
     k_xy, k_yaw = float(task.get("loc_gain_xy", 0.3)), float(task.get("loc_gain_yaw", 0.15))
 
     driver = None
-    if policy is None:
+    if policy is None and schedule is None:
         pts = chrono.vector_ChVector3d()
         last_s = -10.0
         for (x, y), s in zip(rt.xy, rt.s):
@@ -262,6 +339,7 @@ def run_one(task: dict) -> dict:
     energy_kj = 0.0
     energy_first16_kj, vx_frame16 = 0.0, None  # the launch the imagination never sees (it starts from frame 16)
     max_contact = 0.0
+    max_chassis_contact = 0.0  # chassis body vs TERRAIN/assets: the bowl's contact spikes (plan section B1), additive field
     max_roll = max_pitch = 0.0
     min_tire_fz = math.inf   # wheel unloading
     unloaded_frames = 0      # frames with any wheel under 500 N (single-frame wheel hop is common on the rough surface)
@@ -286,7 +364,10 @@ def run_one(task: dict) -> dict:
         x_true, y_true, yaw_true = x, y, yaw
         if render is not None:
             scene.manager.Update()
-            rgb_u8, depth_m = scene.rgb_tap.take(), scene.depth_tap.take()
+            rgb_u8 = scene.rgb_tap.take()
+            depth_m = scene.depth_tap.take() if scene.depth_tap is not None else None
+            if video is not None:
+                video.take(frame)
             if dump_frame0 and frame == 0:  # what a live planner gets at t = 0: one frame, the rest state, the true pose
                 from nedm.traverse.storage import encode_depth_mm
                 z1_fields = STATE_FIELD_PRESETS["tire_normal_force_omega_pt"]
@@ -349,6 +430,8 @@ def run_one(task: dict) -> dict:
                 hist = [hist[0]] * (policy.hist - len(hist)) + hist
                 obs = np.concatenate([obs, np.concatenate(hist)])
             cmd = policy.act(obs, last)
+        elif schedule is not None:  # open loop: the tasks file's schedule, timed from the first driving frame
+            cmd = schedule.act(frame * CTRL_DT_S, last)
         else:
             driver.SetDesiredSpeed(0.0 if err["route_end"] else float(err["v_ref"]))
             cmd = None
@@ -366,6 +449,9 @@ def run_one(task: dict) -> dict:
                 if len(obstacles):
                     clear = float(np.min(np.hypot(obstacles[:, 0] - cx, obstacles[:, 1] - cy) - obstacles[:, 2] - 1.3))
                     min_clear = min(min_clear, clear)
+
+        if video is not None and frame >= 0:
+            video.capture(frame, state, cmd if cmd is not None else last, (x_true, y_true), rgb_u8)
 
         frame_contact = 0.0
         for sub in range(substeps):
@@ -391,6 +477,7 @@ def run_one(task: dict) -> dict:
                 rec_z1.append([float(srow[f]) for f in rec_fields])
                 rec_act.append([float(inputs.m_steering), float(inputs.m_throttle), float(inputs.m_braking)])
                 rec_pose.append([float(srow["pos_x_m"]), float(srow["pos_y_m"]), float(srow["yaw_rad"])])
+                rec_posz.append(float(srow["pos_z_m"]))
                 rec_power.append(float(engine.GetOutputMotorshaftTorque()) * float(transmission.GetOutputMotorshaftSpeed()) / 1000.0)
             if frame >= 0:
                 p_kw = float(engine.GetOutputMotorshaftTorque()) * float(transmission.GetOutputMotorshaftSpeed()) / 1000.0
@@ -405,6 +492,8 @@ def run_one(task: dict) -> dict:
             hmmwv.Advance(dt)
             for _, body in scene.asset_bodies:
                 frame_contact = max(frame_contact, float(body.GetContactForce().Length()))
+            if frame >= 0:
+                max_chassis_contact = max(max_chassis_contact, float(hmmwv.GetChassisBody().GetContactForce().Length()))
         max_contact = max(max_contact, frame_contact)
         if driver is not None:
             last = np.array([prev_steer, float(inputs.m_throttle), float(inputs.m_braking)])
@@ -428,13 +517,13 @@ def run_one(task: dict) -> dict:
                 airborne_frames += 1
             if frame >= int(round(2.0 / CTRL_DT_S)) and abs(vx) < 0.3 and float(last[1]) > 0.3:
                 stall_frames += 1
-        if abs(roll) > ROLL_PITCH_ABORT_RAD or abs(pitch) > ROLL_PITCH_ABORT_RAD:
+        if frame >= 0 and abort_rad is not None and (abs(roll) > abort_rad or abs(pitch) > abort_rad):
             status = "rollover"; break
         if end_frame is not None:  # parking after the route end
             if frame - end_frame >= park_frames:
                 break
         else:
-            if frame >= 0 and abs(err["e_ct"]) > 6.0:
+            if frame >= 0 and off_route_m is not None and abs(err["e_ct"]) > off_route_m:
                 status = "off_route"; break
             if stall_abort_frames is not None and stall_frames >= stall_abort_frames:
                 status = "stall"; break
@@ -444,15 +533,20 @@ def run_one(task: dict) -> dict:
                     break
         frame += 1
 
+    if video is not None:
+        video.finish(status)
+
     ct = np.asarray(ct_log) if ct_log else np.zeros(1)
     acts = np.asarray(act_log) if act_log else np.zeros((1, 3))
     if record:
         Path(record).parent.mkdir(parents=True, exist_ok=True)
         np.savez_compressed(record, z1=np.asarray(rec_z1, np.float32).reshape(-1, len(rec_fields)), act=np.asarray(rec_act, np.float32).reshape(-1, 3),
                             pose=np.asarray(rec_pose, np.float32).reshape(-1, 3), power=np.asarray(rec_power, np.float32).reshape(-1, 1),
+                            pos_z=np.asarray(rec_posz, np.float32).reshape(-1, 1),
                             z1_fields=np.array(rec_fields), status=np.array(status), end_frame=np.array(-1 if end_frame is None else end_frame),
                             key=np.array(task["key"]), candidate=np.array(task["candidate"]), arena=np.array(task["arena"]),
                             meta_path=np.array(task["meta_path"]), max_contact_n=np.array(float(max_contact)),
+                            max_chassis_contact_n=np.array(float(max_chassis_contact)),
                             **{f"route_{k}": np.asarray(v, np.float32) for k, v in route.items()})
     if series is not None:
         Path(task["dump_series"]).parent.mkdir(parents=True, exist_ok=True)
@@ -465,6 +559,7 @@ def run_one(task: dict) -> dict:
                max_ct_m=float(ct.max()), mean_speed_err_mps=float(np.mean(ev_log)) if ev_log else 0.0,
                mean_heading_err_deg=float(np.degrees(np.mean(eh_log))) if eh_log else 0.0,
                max_contact_n=float(max_contact), contact=bool(max_contact > CONTACT_EPS_N),
+               max_chassis_contact_n=float(max_chassis_contact),
                max_roll_deg=float(math.degrees(max_roll)), max_pitch_deg=float(math.degrees(max_pitch)),
                min_tire_fz_n=float(min_tire_fz) if math.isfinite(min_tire_fz) else None,
                stall_s=stall_frames * CTRL_DT_S, stalled=bool(stall_frames * CTRL_DT_S >= 1.0), unloaded_s=unloaded_frames * CTRL_DT_S,
@@ -478,16 +573,30 @@ def run_one(task: dict) -> dict:
 
 
 # ----------------------------------------------------------------------------- batch
+def cli_defaults(args) -> dict:
+    """The per-run settings the CLI supplies. A tasks-file entry overrides any of them (``{**defaults, **task}``).
+
+    ``ref_meta`` is the policy meta the RouteTracker borrows its search window/preview from when the run has
+    no policy of its own; with only 'follower'/'schedule' in --runs there is none, and RouteTracker falls back
+    to DEFAULT_TRACK."""
+    ref_meta = next((Path(r) / "policy_meta.json" for r in args.runs if r not in ("follower", "schedule")), None)
+    return {"arena": args.arena, "horizon_s": args.horizon_s, "ref_meta": str(ref_meta) if ref_meta else None,
+            "localisation": args.localisation, "posehead": args.posehead, "loc_gain_xy": args.loc_gain_xy,
+            "loc_gain_yaw": args.loc_gain_yaw, "norm_arena": args.norm_arena, "stall_abort_s": args.stall_abort_s,
+            "park_s": args.park_s, "off_route_m": args.off_route_m, "roll_pitch_abort_deg": args.roll_pitch_abort_deg}
+
+
 def build_tasks(args) -> list[dict]:
     from nedm.traverse import nrd_data as D
     if args.tasks_file:  # explicit runs (e.g. the terrain feasibility sweep): key, meta_path, candidate, route[, dump_frame0]
-        ref_meta = next(Path(r) / "policy_meta.json" for r in args.runs if r != "follower")
+        # every CLI setting here is a DEFAULT the task entry may override, so one tasks file can mix arms
+        # (a 25 s tracker run and a 60 s trapped open-loop run with no off-route cutoff, side by side); a task
+        # entry may also name its own "controller" (then it is not crossed with --runs)
+        defaults = cli_defaults(args)
         tasks = []
         for t in json.loads(Path(args.tasks_file).read_text()):
-            for ctrl in args.runs:
-                tasks.append({**t, "controller": ctrl, "arena": t.get("arena", args.arena), "horizon_s": args.horizon_s, "ref_meta": str(ref_meta),
-                              "localisation": args.localisation, "posehead": args.posehead, "loc_gain_xy": args.loc_gain_xy, "loc_gain_yaw": args.loc_gain_yaw,
-                              "norm_arena": args.norm_arena, "stall_abort_s": args.stall_abort_s, "park_s": args.park_s})
+            for ctrl in ([t["controller"]] if t.get("controller") else args.runs):
+                tasks.append({**defaults, **t, "controller": ctrl})
         if args.skip_existing:
             n0 = len(tasks)
             tasks = [t for t in tasks if not (t.get("record") and Path(t["record"]).exists())]
@@ -506,7 +615,7 @@ def build_tasks(args) -> list[dict]:
         exported_keys = set(json.loads(Path(args.route_file).read_text()))
         keys = [k for k in keys if k in exported_keys]
     tmap = TerrainMap.from_dir(Path(args.arena))
-    ref_meta = next(Path(r) / "policy_meta.json" for r in args.runs if r != "follower")
+    defaults = cli_defaults(args)
     tasks = []
     for key in keys:
         store, ep = key.split("__", 1)
@@ -538,10 +647,8 @@ def build_tasks(args) -> list[dict]:
                                       "headings": plan.headings.tolist(), "stations": plan.stations.tolist()}))
         for ctrl in args.runs:
             for name, route in routes:
-                tasks.append({"key": key, "controller": ctrl, "candidate": name, "route": route,
-                              "meta_path": str(meta_path), "arena": args.arena, "horizon_s": args.horizon_s,
-                              "ref_meta": str(ref_meta), "localisation": args.localisation, "posehead": args.posehead,
-                              "loc_gain_xy": args.loc_gain_xy, "loc_gain_yaw": args.loc_gain_yaw})
+                tasks.append({**defaults, "key": key, "controller": ctrl, "candidate": name, "route": route,
+                              "meta_path": str(meta_path)})
     return tasks
 
 
@@ -568,7 +675,7 @@ def summarize(rows: list[dict]) -> dict:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--runs", nargs="+", required=True, help="WP3 run dirs and/or 'follower'")
+    ap.add_argument("--runs", nargs="+", required=True, help="WP3 run dirs and/or 'follower' / 'schedule'")
     ap.add_argument("--out", required=True)
     ap.add_argument("--cache", default="artifacts/traverse/wp2_z2_cache_v6")
     ap.add_argument("--routes", default="artifacts/traverse/wp3_routes")
@@ -579,7 +686,9 @@ def main() -> int:
     ap.add_argument("--episodes", type=int, default=32)
     ap.add_argument("--candidates", action="store_true")
     ap.add_argument("--route-file", default=None, help="json from the scorer's --export-routes: drive exactly those routes")
-    ap.add_argument("--tasks-file", default=None, help="json list of explicit runs {key, meta_path, candidate, route[, dump_frame0]} (terrain sweeps)")
+    ap.add_argument("--tasks-file", default=None,
+                    help="json list of explicit runs {key, meta_path, candidate, route[, dump_frame0, record, controller, schedule, "
+                         "horizon_s, off_route_m, roll_pitch_abort_deg, stall_abort_s, park_s, ...]} (terrain sweeps, B1/B2 arms)")
     ap.add_argument("--include-recorded", action="store_true")
     ap.add_argument("--localisation", choices=["true", "camera", "fused"], default="true",
                     help="pose the TRACKER sees: Chrono truth (v1), per-frame camera estimate, or odometry+camera filter")
@@ -593,6 +702,11 @@ def main() -> int:
     ap.add_argument("--stall-abort-s", type=float, default=None,
                     help="collection: end the run with status 'stall' after this long with throttle on and no motion")
     ap.add_argument("--park-s", type=float, default=0.0, help="collection: keep recording this long (brakes on) after the route end")
+    ap.add_argument("--off-route-m", type=float, default=OFF_ROUTE_M,
+                    help="end the run with status 'off_route' beyond this cross-track error; <= 0 disables it "
+                         "(a deliberately trapped vehicle, plan section B1, is off its route and must keep driving)")
+    ap.add_argument("--roll-pitch-abort-deg", type=float, default=ROLL_PITCH_ABORT_DEG,
+                    help="end the run with status 'rollover' beyond this |roll| or |pitch| (never during the settle); <= 0 disables it")
     ap.add_argument("--skip-existing", action="store_true", help="tasks-file mode: skip runs whose 'record' file exists; append to rows.jsonl")
     args = ap.parse_args()
 

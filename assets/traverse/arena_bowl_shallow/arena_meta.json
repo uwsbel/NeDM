@@ -1,0 +1,76 @@
+{
+  "size_m": 80.0,
+  "pixels": 512,
+  "resolution_m_per_px": 0.15625,
+  "height_min_m": -3.25,
+  "height_max_m": 0.15,
+  "quantization_step_m": 0.013333333333333332,
+  "seed": 901,
+  "bmp": "arena_000.bmp",
+  "orientation": {
+    "rot90": 0,
+    "flipud": true,
+    "calibrated": true,
+    "rmse_m": 0.008120992072417996,
+    "median_abs_m": 0.005373480689913723,
+    "runner_up_rmse_m": 0.817868874775216,
+    "samples": 400,
+    "note": "Chrono's BMP convention, copied from arena_v1 (calibrated there)"
+  },
+  "features": [
+    {
+      "kind": "bowl",
+      "x_m": 0.0,
+      "y_m": 0.0,
+      "sigma_m": 10.252907044154112,
+      "amplitude_m": 0.9,
+      "R_bottom_m": 4.5,
+      "R_top_m": 7.484076468792746,
+      "R_top_entry_m": 16.442587327269695
+    }
+  ],
+  "slope_stats": {
+    "max": 0.3670325447271523,
+    "p999": 0.32493965251685997,
+    "p99": 0.2698476936677021,
+    "median": 0.0,
+    "flat5deg_fraction": 0.9771003723144531
+  },
+  "slope_cap": null,
+  "bowl": {
+    "wall_deg": 47.0,
+    "depth_m": 3.2,
+    "bottom_radius_m": 4.5,
+    "entry_deg": 15.0,
+    "entry_azimuth_deg": 180.0,
+    "entry_halfwidth_deg": 28.0,
+    "wall_top_deg": null,
+    "entry_top_deg": null,
+    "centre_x_m": 0.0,
+    "centre_y_m": 0.0,
+    "round_m": 0.25,
+    "roughness_amplitude_m": 0.03,
+    "roughness_corr_m": 3.0,
+    "size_m": 80.0,
+    "pixels": 512,
+    "seed": 901,
+    "relief_ring_margin_m": 1.5,
+    "wall_band_m": 2.984076468792746,
+    "entry_band_m": 11.942587327269695,
+    "R_bottom_m": 4.5,
+    "R_top_m": 7.484076468792746,
+    "R_top_entry_m": 16.442587327269695,
+    "round_px": 1.6,
+    "relief_sigma_m": 10.252907044154112,
+    "arm": "shallow",
+    "arm_mode": "scale",
+    "arm_depth_m": 0.9,
+    "arm_wall_deg": 16.783505352339485,
+    "centre_sim_x_m": 0.0,
+    "centre_sim_y_m": 0.0,
+    "shared_height_range": [
+      -3.25,
+      0.15
+    ]
+  }
+}
