@@ -2137,3 +2137,49 @@ nothing reproduces, so the axis is dead.
 harness versions (258 episodes, six arms, 0 disagreements), `NEDM_ACTION_MULT`
 absent from the verdict process by `/proc` read, pychrono `d1d0bd0a` in the
 verdict's own output, and replay 5/5 bit-identical.
+
+### k* has a measurement noise floor of at least 0.15, found by accident
+
+Bisection cell 1 fine-tuned inside v4's **own** surrogate with current code and
+reproduced v4's weights exactly -- **14/14 tensors identical, `||cell1 - v4|| =
+0.000000`**, on both the state dict and the exported policy. So its `k*` run
+measured **the same policy twice**:
+
+```
+  v4       k* = 1.075   "STABLE as deployed (k* > 1)"
+  cell 1   k* = 0.925   "UNSTABLE as deployed (k* < 1)"
+```
+
+> **A spread of 0.15 on identical weights, straddling the threshold the predictor
+> classifies against.**
+
+**What this invalidates:** the gap between v4 (1.075) and armA / armB / the 34-D
+replicate (0.925) **is the noise floor**, so `k*` does not separate them. `base` at
+1.450 and the v4 replication at 0.600 lie outside the band and survive; the middle
+of the ladder does not.
+
+**The threshold is still principled and the resolution is not.** `k*` is read off an
+8-episode screen at each of six gains with the 0.5 crossing interpolated -- a
+binomial on 8 samples cannot resolve a crossing between rungs 0.15 apart. Fixing it
+means more episodes per rung or a finer grid near the crossing.
+
+**Effect on the blind tests:** both remain correct, but for the first (replicate)
+`k* = 0.925` sat inside the noise band and its call was luck; the v4 replication's
+0.600 is far outside it and stands. **rho/|a| is unaffected** -- it is autodiff over
+weights, and cell 1 demonstrated it returns identical values on identical weights.
+
+**Nobody designed this check.** It fell out of a bisection cell that happened to
+reproduce a policy bit-for-bit, and only because the identical rho and |a| were
+questioned rather than accepted as "the fine-tune reproduces."
+
+### Scope note: which commits are inert, and for which runs
+
+Six commits touched the training path after v4's surrogate was trained
+(2026-09-05T01:47). Three are preprocessing-only (`c699338`, `8633631`, `3f5a86c`)
+and **inert for the bisection cells only because those consume v4's
+already-processed dataset.** That is a property of the run, not of the commits: **a
+cell using current preprocessing would carry all three**, including the circular
+unwrap. Of the three that touch `trainer.py`, `212a787` is a stdout print inside a
+try/except and `96a4811` is an additive guard that either raises or does nothing
+(it never raised -- every run completed), leaving `519ad1d`'s `input_noise_sigma`,
+which is gated behind `if self.input_noise_sigma > 0.0`.
