@@ -2089,3 +2089,51 @@ the provenance instrumentation entirely, so it differs from the current one in a
 unknown bundle of ways; "pre-unwrap" names a vintage. **It would establish
 reproducibility and localise the cause to the dataset, which is a strictly weaker
 and more defensible claim than the one the 2x2's axis label implies.**
+
+### v4 DOES NOT REPRODUCE, and both blind predictions were correct
+
+34-D trained on **v4's own dataset** (`go2_corrected_34d_excl`) with today's
+pipeline. Predictions committed at `15f4d69` before the verdict was opened.
+
+```
+  REGISTERED          rho 0.9264, |a| 5.3074   -> 0 of 43
+                      k* = 0.600               -> 0 of 43
+  ACTUAL              0 of 43, 43/43 diverged, median max|raw action| 6.46e34
+                      harness: NOT MEASURABLE -- every treated episode failed the predicate
+```
+
+**Both predictors correct, and on the literal count this time rather than only the
+class.** Second out-of-sample test; the first (replicate, predicted 0, actual 2) was
+correct on class only.
+
+### The ladder, all at nominal gain, one ruler
+
+| arm | dataset | surviving | diverged >1e3 | k* |
+|---|---|---|---|---|
+| base policy | -- | **43 of 43** | 0/43 | 1.450 |
+| **v4 (original)** | v4's, OLD pipeline | **20 of 43** | 23/43 | 1.075 |
+| **v4 REPLICATION** | **v4's, current pipeline** | **0 of 43** | **43/43** | **0.600** |
+| replicate 34-D | current | 2 of 43 | 41/43 | 0.925 |
+| base36 | current | 0 of 43 | 43/43 | 0.906 |
+| armA / armB | current | 0 of 43 | 43/43, 41/43 | 0.925 |
+
+> **v4's 20 of 43 does not reproduce on v4's own data with current code.** The one
+> non-zero fine-tune result this project has is a **single unreproducible run**.
+
+**Everything that used v4 as the positive reference rested on it:** the 34-vs-36
+line, the 17-and-20-of-43 figures, and the postmortem's reading of v4 as the
+configuration that works.
+
+**Unregistered observation, labelled as such:** `k* = 0.600` is the lowest margin of
+any arm -- below every 36-D arm. The current pipeline given v4's *exact data*
+produces less stability margin than the current pipeline given any other data. **So
+the dataset is not the variable either.** What changed between v4 and now is the
+pipeline, and that is not something the 2x2 was built to test.
+
+**The fourth cell is not run.** It was gated on the replication returning ~20;
+nothing reproduces, so the axis is dead.
+
+**Verified before this number joined the ladder:** scoring equivalence across two
+harness versions (258 episodes, six arms, 0 disagreements), `NEDM_ACTION_MULT`
+absent from the verdict process by `/proc` read, pychrono `d1d0bd0a` in the
+verdict's own output, and replay 5/5 bit-identical.

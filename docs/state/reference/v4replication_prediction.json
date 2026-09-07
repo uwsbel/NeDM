@@ -8,7 +8,7 @@
   "thresholds_fixed_at": "w1-rigid-scope.md, replicate epoch 22 of 80, before this fine-tune existed",
   "thresholds_are_fitted": "yes -- to five points, no independent justification. The claim is that a rule fixed in advance predicted an unseen outcome, not that 0.55 is meaningful.",
   "prediction": "0 of 43",
-  "verdict_read_yet": false,
+  "verdict_read_yet": true,
   "reference_points": {
     "v4": [
       0.4591,
@@ -52,5 +52,17 @@
   "both_predictors_agree": true,
   "harness_md5_at_readout": "eb9379203704bf339d105a3db054b03c",
   "harness_note": "ADDED AFTER REGISTRATION, not at prediction time. The harness changed at 02:39:55 between registration and the first readout, which returned NOT MEASURABLE. The ladder was scored on /tmp copy 2a185b2f; this run uses eb937920. Verified equivalent: 258 saved episodes across six arms, 0 disagreements including on returned values, so the number can join the ladder. Future predictions pin the hash at registration.",
-  "ladder_harness_md5": "2a185b2fc6114f26881bde1a882ec8de"
+  "ladder_harness_md5": "2a185b2fc6114f26881bde1a882ec8de",
+  "outcome": {
+    "surviving_pairs": "0 of 43",
+    "harness_status": "NOT MEASURABLE -- 0 surviving pairs",
+    "diverged_over_1e3": "43 of 43",
+    "median_max_raw_action": 6.461e+34,
+    "episode_rows": "min 5, median 180, max 1264 (scoreable needs >=1500)"
+  },
+  "scored": {
+    "rho_rule": "CORRECT -- predicted 0 of 43, actual 0 of 43",
+    "kstar_rule": "CORRECT -- predicted 0 of 43, actual 0 of 43",
+    "note": "Both predictors correct on the literal count this time, not only the class."
+  }
 }
