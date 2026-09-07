@@ -2907,3 +2907,39 @@ gradient away from a failure the model cannot represent.**
 `|v| = 1e35` states would poison it. **The defect is that a bound chosen for numerical
 sanity selects on the outcome, and nothing downstream records that the training
 distribution is conditioned on not having blown up.**
+
+### Base's 43/43 on the verdict is guaranteed by the selection rule, not measured
+
+The baseline corpus is collected with `CKPT = go2_cts_150k.pt` -- **the base controller**
+(`drive_go2_collection.py:33`). The verdict's cell is then built by applying
+`scored()` to each baseline CSV, which returns `None` when
+`len(rows) < SCORED_ROWS + 500` (`run_go2_finetune_verdict.py:157`).
+
+> **So the 43 eligible episodes are exactly the episodes on which the BASE controller
+> ran to completion.** An episode where base failed cannot enter the cell. Base then
+> "scores" 43/43 because it is being re-run on episodes selected for base having
+> survived them -- **up to determinism, which the replay check confirms. The number
+> cannot come out any other way.**
+
+**This is not a defect in the verdict.** It asks whether a fine-tuned arm tracks better
+than base where base works, and conditioning on that is the right cell for that
+question. **The defect is using base's 43/43 as evidence of anything.**
+
+#### What it costs, concretely
+
+**The verdict is structurally incapable of detecting an arm that is BETTER than base
+where base fails.** The two-arm grid contains exactly such a cell:
+
+    pitch -1.5, roll 0.0 and +1.5     base 5/5 fail     v4 0/5 fail
+
+**v4 outperforms base there, and no episode of that kind can ever be in the verdict's
+43.** The verdict's silence about it is a property of the selection, not a finding.
+
+#### And it weakens one leg of the screen's validation
+
+The argument for the clean-cell statistic was that it "agrees with the verdict wherever
+the verdict discriminates: base 43/43 -> 0%, v4 20/43 -> 44%." **The base end of that
+agreement is tautological on the verdict's side.** The v4 and armA points still carry
+it, and **the screen's own base 0/240 on the clean cells is a real measurement** --
+those episodes were not selected for base surviving them. **The validation survives on
+the arms; it should not be quoted with base as its anchor.**
