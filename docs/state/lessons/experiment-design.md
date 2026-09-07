@@ -4161,3 +4161,37 @@ what it means.
 Corollary: a pre-registered refutation is not self-validating. Registering the
 criterion in advance protects against choosing it afterwards. It does nothing about
 collecting the wrong data, and it makes the wrong answer look more authoritative.
+
+## Replicates that consume no randomness are copies
+
+The realisation pilot ran three reps per condition, each with its own `--seed`. In the
+control arm all three came out **bit-identical**: with perturbation scaled to zero and
+spawn, heading, tilt and prewalk fixed, nothing in the episode consumes randomness, so
+the seed changed and the episode did not.
+
+Nothing failed. Three files were written, each analysable, each agreeing perfectly with
+the others -- which reads as excellent reproducibility rather than as an absence of
+replication. The effect was to inflate n threefold and shrink every interval by sqrt(3):
+the `vx` slope interval was [0.157, 0.273] and is [0.023, 0.384] once clustered by
+command level. **The apparent precision was duplication.**
+
+Varying a seed only replicates the quantities that seed actually drives. Before treating
+reps as reps, check that they differ -- `ptp == 0` across a level is the whole test, and
+it now runs in the analysis and prints a warning rather than being trusted.
+
+Related: perfect agreement between replicates is evidence about the pipeline, not about
+the measurement, and should prompt the question of what was supposed to vary.
+
+## A confidence interval that excludes its own point estimate is impossible
+
+The first run of that analysis reported `slope 0.192, 95% CI [-0.125, 0.118]`. A
+percentile interval is built from resamples of the statistic, so it cannot omit the
+statistic. That is not an unlikely result; it is a proof of a bug.
+
+The cause: the bootstrap drew a separate index vector for each array, resampling x and y
+independently. That destroys the pairing, so every resample regressed shuffled commands
+on shuffled outcomes and returned an estimate of the null slope -- an interval centred on
+zero, tight and entirely plausible had the point estimate not been printed beside it.
+
+The check is now an assertion in the script. It costs one line and it catches an entire
+class of resampling error that otherwise produces confident, well-formed, wrong numbers.

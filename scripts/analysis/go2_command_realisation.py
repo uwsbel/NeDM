@@ -33,7 +33,24 @@ def realised(csv_path, col):
 def boot(fn, data, n=4000, seed=0):
     r = np.random.default_rng(seed)
     k = len(data[0])
-    vals = [fn(*[d[r.integers(0, k, k)] for d in data]) for _ in range(n)]
+    # ONE index vector shared by every array. Drawing one per array resamples x and y
+    # independently, which destroys the pairing and regresses shuffled x on shuffled
+    # y -- the bootstrap then estimates the null slope regardless of the data. It is
+    # visible only because the resulting interval did not contain its own point
+    # estimate; a CI that excludes the statistic it is an interval for is impossible.
+    vals = []
+    for _ in range(n):
+        i = r.integers(0, k, k)
+        # A cluster resample can draw the same level k times. The design matrix is
+        # then rank-deficient and lstsq raises rather than returning nan, so the
+        # degenerate draw has to be discarded explicitly -- letting it through
+        # aborts the whole analysis on a resampling artefact, not on the data.
+        if len(np.unique(data[0][i])) < 2:
+            continue
+        try:
+            vals.append(fn(*[d[i] for d in data]))
+        except np.linalg.LinAlgError:
+            continue
     vals = np.array([v for v in vals if np.isfinite(v)])
     if len(vals) < n // 10:
         return float("nan"), float("nan")
@@ -71,21 +88,48 @@ def main():
                 print(f"  {arm:<8} no episodes")
                 continue
             c = np.array([r[0] for r in rec]); v = np.array([r[1] for r in rec])
+            # REPLICATION CHECK. A control episode consumes no randomness once the
+            # perturbation is scaled to zero -- spawn, heading, tilt and prewalk are
+            # all fixed -- so its "reps" come out bit-identical and replicate nothing.
+            # Treating them as independent inflates precision by sqrt(reps). Detect
+            # it rather than assume reps are reps.
+            dup = 0
+            for lv in np.unique(c):
+                g = v[c == lv]
+                if len(g) > 1 and float(np.ptp(g)) == 0.0:
+                    dup += 1
+            if dup:
+                print(f"  {arm:<8} NOTE: {dup} of {len(np.unique(c))} levels have "
+                      "bit-identical reps -- they replicate nothing; "
+                      "intervals below are clustered by level, not by episode")
             half = np.max(np.abs(c)) / 2.0
             m = np.abs(c) <= half
             n_ep, n_sl = len(c), int(m.sum())
-            if n_sl < 3:
-                print(f"  {arm:<8} n={n_ep} but only {n_sl} in the linear half -- "
-                      "slope NOT MEASURABLE")
+            if int(m.sum()) < 3:
+                print(f"  {arm:<8} n={n_ep} but only {int(m.sum())} in the linear "
+                      "half -- slope NOT MEASURABLE")
                 continue
-            slope = float(np.polyfit(c[m], v[m], 1)[0])
-            slo, shi = boot(lambda x, y: np.polyfit(x, y, 1)[0], (c[m], v[m]))
+            # CLUSTER BOOTSTRAP over distinct command levels. Resampling episodes
+            # would count duplicated reps as independent evidence; the unit that was
+            # actually varied is the level.
+            lv_u = np.unique(c[m])
+            lv_mean = np.array([v[m][c[m] == L].mean() for L in lv_u])
+            slope = float(np.polyfit(lv_u, lv_mean, 1)[0])
+            slo, shi = boot(lambda x, y: np.polyfit(x, y, 1)[0], (lv_u, lv_mean))
+            n_sl = len(lv_u)
+            if np.isfinite(slo) and not (slo <= slope <= shi):
+                raise SystemExit(
+                    f"bootstrap CI [{slo:.3f}, {shi:.3f}] excludes the point estimate "
+                    f"{slope:.3f} for {chan}/{arm}. A percentile interval cannot omit "
+                    "its own statistic; the resampling is wrong, not the data.")
             top = np.max(np.abs(c))
             tm = np.abs(np.abs(c) - top) < 1e-9
             ceil = float(np.median(np.abs(v[tm])))
+            # Only +top and -top are distinct here, so this interval rests on 2
+            # clusters and is reported for completeness rather than as inference.
             clo, chi = boot(lambda y: np.median(np.abs(y)), (v[tm],))
             frac = ceil / top if top > 1e-9 else float("nan")
-            print(f"  {arm:<8} n={n_ep:<3} slope {slope:.3f} [{slo:.3f}, {shi:.3f}]"
+            print(f"  {arm:<8} n={n_ep:<3} ({n_sl} levels) slope {slope:.3f} [{slo:.3f}, {shi:.3f}]"
                   f"   ceiling {ceil:.3f} [{clo:.3f}, {chi:.3f}] {unit}"
                   f"  at |cmd|={top:.2f}  ({frac:.0%} of commanded)")
             out[f"{chan}_{arm}"] = dict(n=n_ep, n_slope=n_sl, slope=slope,
