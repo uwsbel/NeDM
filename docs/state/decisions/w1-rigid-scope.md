@@ -3262,3 +3262,59 @@ only the band moved.
 
 **Registering the middle branch explicitly, because the last cell I ran did not have
 one and the answer landed in it.**
+
+### The 15.8-point corpus gap at fixed cell is the PITCH CAP
+
+    v4 surviving pairs, cell (0.02,0.18] held identical on both sides:
+      merged root      20 / 43     46.5%
+      go2_cell_a3     129 / 207    62.3%
+
+**The cell is not a variable in that contrast -- it is the harness default on both
+sides -- so the 15.8 points is a corpus difference.** And the corpora sit on opposite
+sides of `e09e45b`:
+
+    merged root      collected 2026-09-04                pitch ~ U(-3.0, +3.0)
+    go2_cell_a3      HAS tilt sidecars => after 574a6d2 (09-07 02:39)
+                     => after the cap e09e45b (09-05 17:07)  => U(-1.5, +1.5)
+
+**The tilt grid says v4 fails 5/5 at pitch +2.0 and +3.0, at roll 0.0 and roll -3.0,
+where base is clean.** Conditioning on base-eligibility as the verdict does:
+
+    base-eligible pitch span, merged root   (-1.5, +3.0)   width 4.5
+    of which v4 fails, pitch > +2.0                        width 1.0
+    predicted deficit from nose-up alone                   22.2 points
+    OBSERVED                                               15.8 points
+
+**An upper bound overshooting by six points is what a roll-modulated boundary predicts.**
+
+> **Neither 46.5% nor 62.3% is an outlier. One corpus samples v4's nose-up failure
+> region and the other cannot reach it.** Two of tonight's findings meeting: the
+> shifted tilt tolerance, and a collection parameter that changed between the two
+> corpora.
+
+**Which makes `20/43` partly a measurement of a collection parameter that changed after
+it was taken.** The verdict's headline number would have been materially higher had
+that cell been collected two days later.
+
+**Registered:** `go2_cell_sliger` is also post-cap, so **v4 should land near 62% there,
+not 46%.** That is this account's prediction, NOT evidence against it -- the fleet's
+own registration read it the other way. **The structural check is
+`max(|ground_tilt_pitch_deg|)` over both post-cap corpora's sidecars: ~1.5 confirms it
+without any inference from commit dates.**
+
+### armA is at the floor on an unselected population
+
+    go2_cell_a3, all 269 episodes, no cell, no predicate:
+      base   231/269   85.9%      v4  167/269  62.1%      armA  0/269  0.0%
+
+**269 CSVs produced, median 411 rows against a 1500 threshold** -- a plumbing failure
+gives zero files, not 269 short ones. **The floor is real and not an artifact of the
+eligibility rule.**
+
+**And armA's failures run three times LONGER than base's** -- median 411 against 116.
+**armA stays up longer and then always goes down; base goes down fast and rarely.**
+Different modes, invisible in a completion rate.
+
+> **So the selection story separates cleanly: the eligibility rule hides 14 real
+> completions for v4 and hides nothing for armA.** It does not merely flatter base --
+> it conceals capability exactly where capability exists.
