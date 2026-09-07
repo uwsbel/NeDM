@@ -174,6 +174,31 @@ STATE_FIELD_PRESETS = {
                                        + ["pos_z_m", "vel_body_z_mps"]
                                        + ["grav_world_x_mps2", "grav_world_y_mps2",
                                           "grav_world_z_mps2"]),
+    # THE DIMENSIONALITY CONTROL for quadruped_joint_gravworld_pose.
+    #
+    # That preset adds THREE channels to grav_pose, so a gain over it is
+    # attributable to "more inputs" as much as to "tilt is now observable" -- the
+    # two-variables problem, and the reason go2_mix34_base_replicate was dropped
+    # as a counterfactual earlier.
+    #
+    # This arm has the same 39 channels and the same three EXTRA columns, but they
+    # are grav_world SHUFFLED ACROSS EPISODES: identical marginal distribution,
+    # identical scale, identical dimensionality, and no valid correspondence to the
+    # episode they sit in. A permutation control rather than a constant, because
+    # constants have zero variance and the input normalisation would treat them
+    # differently from a real channel.
+    #
+    #   B - A  =  information + dimensionality
+    #   C - A  =  dimensionality alone
+    #   B - C  =  tilt observability, which is the claim
+    #
+    # Built by scripts/ablations/shuffle_gravworld.py, which writes the shuffled
+    # columns under these names so the preset selects them by name like any other.
+    "quadruped_joint_gravshuf_pose": (DEFAULT_STATE_FIELDS + QUADRUPED_JOINT_STATE_FIELDS
+                                      + ["grav_body_x", "grav_body_y", "grav_body_z"]
+                                      + ["pos_z_m", "vel_body_z_mps"]
+                                      + ["grav_shuf_x_mps2", "grav_shuf_y_mps2",
+                                         "grav_shuf_z_mps2"]),
     "quadruped_contact_conditioned": (DEFAULT_STATE_FIELDS + QUADRUPED_JOINT_STATE_FIELDS
                                       + ["grav_body_x", "grav_body_y", "grav_body_z"]
                                       + ["pos_z_m", "vel_body_z_mps"]
