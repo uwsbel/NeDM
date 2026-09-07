@@ -69,6 +69,13 @@ def main() -> int:
         print(f"\nPRECONDITION  arm A in [0.0,+1.0): {k} of {len(g)} complete"
               f"   -> ceiling check {'LIVE' if live else 'VOID'}")
         if live:
+            # A LIVE VERDICT IS NOT SELF-INTERPRETING. The precondition is "arm A
+            # completes ALL of them", so a THIN band is easier to sweep than a thick
+            # one -- the check is most likely to be live exactly where it has least
+            # power. "All 43" and "all 124" are very different evidence for the same
+            # word, so the count travels with the verdict.
+            print(f"   LIVE on {len(g)} episodes -- a thin band is easier to sweep,")
+            print(f"   so read this as evidence proportional to {len(g)}, not as a binary")
             print("   any B gain in that band falsifies the pipeline")
         else:
             print("   band is ordinary evidence; the registered impossibility does not apply")
