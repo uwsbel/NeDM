@@ -2183,3 +2183,36 @@ unwrap. Of the three that touch `trainer.py`, `212a787` is a stdout print inside
 try/except and `96a4811` is an additive guard that either raises or does nothing
 (it never raised -- every run completed), leaving `519ad1d`'s `input_noise_sigma`,
 which is gated behind `if self.input_noise_sigma > 0.0`.
+
+### REGISTERED before the repaired k* re-measurement
+
+The broken criterion **under-detected failure at high gain** -- it scored falls with
+bounded commands as passes, which is why cell1's k=1.50 rung read 0/8 and now reads
+8/8. **So every old `k*` is biased UPWARD**: the 0.5 crossing appeared to sit at a
+higher `k` than it should, because failures above the true crossing were scored as
+survivals.
+
+> **Registered: repaired `k*` values should come in LOWER than their old
+> counterparts, across the board. If any comes in higher, something else is wrong.**
+
+**And the old ladder's status is stronger than "0.15 resolution":**
+
+> Every `k*` in the ladder -- base 1.450, v4 1.075, armA/armB 0.925, base36 0.906,
+> v4rep 0.600 -- was measured on a criterion now known to mis-score an entire failure
+> mode. **They are not noisy readings of the right quantity; they are readings of a
+> different one.** `base` and `v4rep`, which I said survived the noise floor, do not
+> survive this: both were read off curves the broken criterion could have turned over
+> anywhere.
+
+**The deciding measurement is one sweep, not six.** Cell1's weights are v4's, so
+re-running the repaired sweep on v4's checkpoint gives a second repaired reading of
+the *identical* policy:
+
+    agrees with cell1's 0.925   -> the 0.15 spread WAS the criterion; k* is
+                                   repeatable and re-measuring the ladder is worth it
+    differs by ~0.15 again      -> 8-episode rungs are the limit; the repair fixed
+                                   monotonicity, not resolution, and re-measuring
+                                   the ladder at this rung count is pointless
+
+**This is also the first *designed* repeatability check `k*` has had** -- the first
+came free from a bisection accident.
