@@ -122,3 +122,11 @@ instead of 0.4 s. Matching the recorded config gave 100% kept on both arms.
 
 Same lesson as the anchor's RL config: **the module defaults are not what produced the
 artifacts, and the run's own recorded config is the authority.**
+
+## Do not re-run this hopefully
+
+`--command-envelope` is correct and stays -- `wz` at exactly zero was a real defect. It is
+**not** the intervention that closes the yaw hole, and no sampling density will be,
+because the recorded window is open-loop. Closing it is a corpus redesign: record windows
+in which the policy is driving. Spending a full collection on `--command-envelope` and
+expecting the hole to close would repeat this audit at scale.
