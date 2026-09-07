@@ -2024,11 +2024,48 @@ a trajectory, so the effective n is 615. **The prefix result proved that before 
 was run** -- five arc episodes read 30x different from the full arc stratum, which
 is between-episode variance dominating.
 
-**Scope, stated because it has been overstated twice:** this is one-step prediction
-error on the WALKING distribution. It says nothing about excitation-distribution
-accuracy, where the same checkpoints show a ~6x improvement, and nothing about
-closed-loop behaviour, where the tracking split runs in the opposite direction on
-one stratum. **Those are three different measurements and they do not agree.**
+**NAME THE ESTIMAND -- the two defensible summaries differ by 25%:**
+
+    pooled over WINDOWS    base 0.004813  exc25 0.005594   diff +0.000781
+    mean over EPISODES     (the bootstrap above)           diff +0.000978
+
+Long episodes carry more weight in the first; every episode carries equal weight in
+the second. **The figures above are per-EPISODE** -- "how much worse on a typical
+episode" -- which is the estimand a bootstrap over episodes estimates. The
+per-window figure answers "how much worse at a typical timestep" and is what the
+trainer optimises. Neither is wrong; **two numbers 25% apart under one name is how
+the preceding four hours went.**
+
+**Scope, stated because this has been overstated twice:** one-step prediction error
+on the WALKING distribution only.
+
+### The three measurements differ in PRECISION as much as in direction
+
+| measurement | n | interval | |
+|---|---|---|---|
+| one-step, walking dist. | 615 episodes | [+0.00074, +0.00125] | **tight** |
+| one-step, excitation dist. | same checkpoints | ~6x better | large effect |
+| closed-loop tracking | 16-20 episodes | [-0.0593, -0.0104] | **wide**, and does not exclude the -0.020 criterion |
+
+**They are NOT three equally-established results.** The two one-step measurements
+are tight and point opposite ways *by distribution*; the closed-loop measurement is
+imprecise and is being re-measured on ~300 fresh episodes. Whether it belongs in the
+comparison at all depends on that run.
+
+### What the one-step results actually say, and the sentence that survives
+
+Stated in full they are not surprising: **adding out-of-distribution data makes the
+model better there and worse here, monotonically in dose.** That is what mixing data
+does; these numbers measure it cleanly for the first time in this project.
+
+**The finding is that neither one predicts the closed-loop behaviour.**
+
+> **One-step accuracy, on any distribution, does not predict what a policy trained
+> inside that model will do in the plant.**
+
+Six instruments have now hit that wall: the gate, the apparatus ratio, rho(J),
+the flattening measure, lambda, and this. **It is the one claim tonight with a
+tight measurement behind it rather than a string of nulls.**
 
 ### Registered BEFORE the v4 replication's verdict: how to read a positive result
 
