@@ -2862,3 +2862,48 @@ state definition threw it away.
 drew +-1.5 from a corpus collected at +-3.0.** The same mismatch, mirrored, eighteen
 hours after a comment was written describing it. **A reconstruction is only as good as
 the version of the source it duplicates, and nothing in the corpus pins that version.**
+
+### The 500 excluded episodes: verified, and the mechanism is narrower than "no failures"
+
+    dataset_index.json                 3003     <- what the surrogate trains on
+    dataset_index.json.pre_physical    3503
+    dropped                             500     mean 131.5 rows vs 3760.7 kept
+
+`PROVENANCE_NOTE.md:44-48` gives the criterion -- physical admissibility, bounds `2x
+URDF per joint, |dq| <= 60.2, |v| <= 15.0, |w| <= 50.0` -- and records that **499 of
+the 500 had status `diverged`, 1 `fell`, and 344 were inadmissible in 100% of their
+frames.**
+
+**But the training set is NOT failure-free**, which the "the model never saw failure"
+reading would require:
+
+    IN the training index   n=3003   diverged   78 ( 2.6%)   fell  363 (12.1%)
+    EXCLUDED                n= 500   diverged  499 (99.8%)   fell  500 (100.0%)
+
+> **The surrogate saw 363 falls and 78 divergences. What it never saw is the
+> CATASTROPHIC tail -- the episodes where the integrator left the physical envelope.**
+> The exclusion is not "failures removed"; it is "the worst 14% of failures removed,
+> selected with near-perfect correlation to the outcome."
+
+#### Why that is still the sharpest mechanism available
+
+**The mode the fine-tuned policies exhibit is exactly the mode that was filtered.**
+Every screen failure runs to `max|raw action| ~ 1e35` at row ~90 -- non-physical
+magnitudes, the same regime the admissibility bounds excise. **The surrogate was
+trained with 99.8% of that mode removed, and a policy optimised inside it has no
+gradient away from a failure the model cannot represent.**
+
+**Two refinements to the version I was sent:**
+
+1. **It is whole-episode, not per-frame.** 156 of the 500 were admissible in *some*
+   frames, so their pre-divergence prefixes -- the run-up, which is the informative
+   part -- were discarded along with the blown-up remainder.
+2. **The steep-pitch claim rests on reconstructed tilts**, which are the half-scale
+   values from the range error above. The exclusion's outcome-correlation (499/500
+   `diverged`) is recorded in the provenance note and needs no reconstruction; the
+   pitch association does.
+
+**And the exclusion is defensible on its own terms** -- training a dynamics model on
+`|v| = 1e35` states would poison it. **The defect is that a bound chosen for numerical
+sanity selects on the outcome, and nothing downstream records that the training
+distribution is conditioned on not having blown up.**
