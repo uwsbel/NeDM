@@ -2216,3 +2216,32 @@ the *identical* policy:
 
 **This is also the first *designed* repeatability check `k*` has had** -- the first
 came free from a bisection accident.
+
+### REGISTERED: does k* discriminate at all? v4 vs armA, n=40 per rung
+
+**The ladder was never worth rebuilding at n=8.** Binomial sd at p=0.5 is
+`sqrt(0.25/8) = 0.177`, and the rate moves only ~0.25 across the whole 0.85-1.00
+bracket the crossing is interpolated inside -- **so sampling noise is 71% of the
+bracket, and two genuinely different arms will often return the same k\*.** That is
+the identical-number tell again: agreement produced by the instrument.
+
+Resolving `dk* = 0.05` needs the rate pinned to 0.083, i.e. **n ~= 36 per rung**.
+
+**So run the extreme pair, not six sweeps:**
+
+    v4     scores 20 of 43     the only arm that partially works
+    armA   scores  0 of 43
+
+**If k\* cannot separate those two it cannot separate anything, and the other four
+sweeps are wasted. Rungs 0.50 / 0.70 / 0.85 / 0.90 / 0.95 / 1.00 / 1.20 / 1.50** so
+the crossing bracket is not a single step, at 40 episodes per rung.
+
+```
+  intervals DISJOINT    -> k* discriminates; rebuild the full ladder at this resolution
+  intervals OVERLAP     -> k* does not distinguish 20/43 from 0/43, and the stability
+                           half needs a different instrument, not more sweeps
+```
+
+**Per-rung standard errors are reported, not just the interpolated crossing** -- the
+crossing hides the sampling noise that produced it, which is what let 0.925 look
+exact when both bracketing pairs happened to straddle 0.5 symmetrically.

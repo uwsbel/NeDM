@@ -49,15 +49,31 @@ if __name__ == "__main__":
     ap.add_argument("--ckpt", required=True)
     ap.add_argument("--ks", nargs="*", type=float, default=[0.7, 0.85, 1.0, 1.2, 1.5])
     ap.add_argument("--duration-s", type=float, default=20.0)
+    # SEED PASS-THROUGH. Without it every sweep draws the SAME eight episodes per
+    # rung, so two sweeps of one policy agree by construction and measure
+    # determinism rather than repeatability. Two such sweeps were run on 2026-09-07
+    # and reported as a repeatability check; they were one experiment run twice.
+    ap.add_argument("--repeats", type=int, default=1,
+                    help="pool this many x len(CONDITIONS) episodes per rung. n=8 gives a "
+                         "binomial sd of 0.177 at p=0.5, 71%% of the rate span the crossing "
+                         "is interpolated inside; resolving dk*=0.05 needs n~36.")
+    ap.add_argument("--concurrency", type=int, default=1,
+                    help="parallel episode collection; verified identical to serial")
+    ap.add_argument("--seed", type=int, default=0,
+                    help="episode seed; vary it to draw DIFFERENT episodes per rung")
     a = ap.parse_args()
+    print(f"  episode seed {a.seed}")
     print(f"  {'k':>6s} {'divergence rate':>16s}")
     kstar, prev_k, prev_r = None, None, None
     for k in sorted(a.ks):
         # screen() shells out to the collector, which inherits os.environ.
         os.environ["NEDM_ACTION_MULT"] = f"{k:.6f}"
-        v, info = screen(a.ckpt, duration=a.duration_s)
+        v, info = screen(a.ckpt, duration=a.duration_s, seed=a.seed,
+                         concurrency=a.concurrency, repeats=a.repeats)
         r = info["rate"]
-        print(f"  {k:6.2f} {v:>10s} {r:5.2f}")
+        import math
+        se = math.sqrt(max(r*(1-r), 1e-9)/max(info["n"], 1))
+        print(f"  {k:6.2f} {v:>10s} {r:5.2f} +-{se:.3f}   (unbounded {info['unbounded']}, short {info['short']})")
         if kstar is None and r >= 0.5:
             # linear interpolation between the last sub-0.5 rung and this one
             kstar = k if prev_k is None else prev_k + (0.5 - prev_r) * (k - prev_k) / (r - prev_r)
