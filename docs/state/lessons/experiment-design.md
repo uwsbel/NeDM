@@ -4687,41 +4687,6 @@ every rung through nominal. **The floor was a property of the list, not the cont
 
 **Evidence:** arc yaw and pitch tests, commits 4f8f64d and 24a3c7d.
 
-## A confound that compresses a difference hides better than one that inflates it
-
-**The response to a weak instrument is more episodes. The response to an implausible
-result is a look at the design. So a confound that costs you signal buys itself time.**
-
-Three of the standing screen's eight conditions stood the robot on a nose-down slope,
-where the base controller fails regardless of gain or policy. That floor did two things
-at once: it gave base a spurious 35% failure rate, and it pushed the fine-tuned arms
-toward saturation. Restricted to the four cells with no tilt:
-
-    pooled over all 8 cells    base 35%   v4 58%    gap 23 points, dirty reference
-    the four clean cells       base  0%   v4 44%    gap 44 points, perfect reference
-
-**The defect was halving the difference it was hiding in.** Four machines ran for
-hours on the compressed version, and the reading of those hours was "`k*` cannot
-separate the arms, so we need a better statistic" -- **which was true, and which is
-exactly what a suppressed effect looks like from inside.**
-
-Had the confound inflated the gap instead, it would have been caught the first time a
-result failed to replicate. **Suppression produces no contradiction. It produces
-patience.**
-
-> **When an instrument reads weaker than the effect you have other reasons to expect,
-> that is a design question, not a sample-size question.** The tell is not a
-> disagreement between measurements; it is a persistent agreement on a value smaller
-> than it should be.
-
-**How the defect was found:** not by staring at the rate, but by asking why the
-reference controller failed at all, and then changing one factor at a time on a single
-cell. **The base curve was collected to calibrate the arms and instead audited the
-instrument.**
-
-**Evidence:** clean-cell decomposition and the pitch x roll grid, commits 24a3c7d and
-f3ababd.
-
 ## An equivalence can carry the dynamics and not the sensing
 
 **When you argue two experimental setups are the same by transforming one into the
@@ -4876,3 +4841,372 @@ becomes a source of tautology the moment its output is read as a measurement of 
 thing it conditioned on.
 
 **Evidence:** commit 3b778b6.
+
+## The number 40 was a grid dimension, and two of us read it as a sample size within one hour
+
+**Cost:** one inflated coincidence, one p-value off by eight orders of magnitude · **Found:** 2026-09-07 · **Applies to:** any statistic computed on a `repeats x CONDITIONS` pool
+
+The standing screen builds its episode list as
+
+```python
+  jobs = [(f, p, pk, r, pi, seed + rep) for rep in range(repeats) for ... in CONDITIONS]
+```
+
+**8 fixed conditions x 5 seeds = 40 episodes.** The 40 is the size of a grid, not a
+sample. The five repeats inside a condition share family, command params,
+perturbation peak and both ground tilts; and both arms of a comparison run the
+identical job list, so the arms are *paired on condition*.
+
+**Two errors from this in the same hour, in opposite directions, by different
+people:**
+
+| error | wrong null | consequence |
+|---|---|---|
+| three sweeps landing on exactly 15/40 called a "2% coincidence" | `binomial(40, p)`, sd 3.06 | invented an anomaly; nearly retired a correct `--seed` verification |
+| v4 against armA at one rung reported at `p = 6.0e-11` | Fisher exact on 40 v 40 | eight orders of magnitude; the honest floor is ~0.008 |
+
+**Cause.** Both statistics need the number of *independent units*, which is the
+number of conditions, not the number of episodes. A condition sitting at 0/5 or
+5/5 contributes **zero** across-sweep variance, and a paired design over 8 units
+cannot produce a p-value below `2 x (1/2)^8 = 0.0078` however large the effect.
+
+**Fix.** Corrected null: `Var = sum_c repeats * p_c(1-p_c)`, which gave sd 1.67
+against the naive 3.06. Verified on a rung it was not fitted to: at k=0.90 it
+predicts 1.79 and the four sweeps give 1.83.
+
+**And then the correction itself was over-read.** A residual "P = 0.053" was
+computed against that corrected null before noticing that its `p_c` values come
+from five-episode cells. One condition reading 2/5 on one seed and 0/5 on another
+swings the null's sd from 1.67 to 1.26; a second seed's vector, fully saturated,
+puts it at 0.00. **A p-value quoted to two figures against a null whose own sd
+spans [0.0, 1.7] is a precision the null cannot support**, and the parameter was
+estimated from the same cells the test was about.
+
+**The asymmetry worth keeping.** The wrong reading (an abstaining predictor read
+as evidence of an intermediate result) cost nothing, because registered branches
+made it inert. The wrong null propagated much further and triggered a simulation
+plus a re-examination of a verification that had been correct. **A reading is
+visibly an interpretation; a null looks like arithmetic.**
+
+**Instrument fix, kyle-sbel.** `standing_screen.py` now returns `per_condition_failed`,
+`n_conditions` and `repeats_per_condition` alongside the pooled count, so the correct
+unit is available without a re-run. Recovering it for the seed-303 sweeps required
+re-running two rungs because only the pooled `14/40` had been kept. **Recording the
+structure beside the total is cheaper than remembering that the total has structure**,
+and the pooled number is the one that gets quoted.
+
+Seed 303, both rungs: 7 of 8 conditions discordant, all favouring v4, paired sign test
+`p = 0.016`. Clustered SE 0.130 against the printed binomial-on-40 0.075.
+
+**Evidence:** four v4 sweeps at k=0.95 gave 15, 15, 15, 14 (range 1, corrected sd
+1.67); at k=0.90 they gave 20, 23, 21, 24 (sd 1.83 against predicted 1.79).
+Per-condition vectors `[0,0,5,4,2,4,0,0]` and `[0,0,5,5,0,5,0,0]`, different
+patterns summing identically. Related: [effective n is episodes, not
+windows](#) — this is the same denominator error one level further down.
+
+## State the model a null assumes, because a number from an unstated model looks like a measurement
+
+**Cost:** a simulation, and nearly a correct verification · **Found:** 2026-09-07 · **Applies to:** every p-value, coincidence probability, and standard error
+
+Three nulls in one hour, each embedding an unstated model, each wrong:
+
+| statistic reported | model it silently assumed | what was true |
+|---|---|---|
+| "a 2% coincidence" | `binomial(40, p)`: 40 independent episodes | 8 fixed conditions x 5 seeds; saturated conditions carry zero variance |
+| `p = 6.0e-11` | Fisher exact: 40 independent per arm | 8 independent units, paired on condition; floor ~0.008 |
+| "residual `P = 0.053`" | the corrected null's `p_c` are exact | each `p_c` came from a five-episode cell |
+
+The third is the instructive one, because it was quoted **one message after**
+correcting the first. Having accepted that a variance calculation was wrong, the
+corrected version was then treated as exact. Its parameters move the answer
+completely:
+
+```
+  null estimated from                      sd      P(spread this small)
+  seed-0 vector    [0,0,5,4,2,4,0,0]      1.67          0.053
+  cond-4 at 1/5                            1.55          0.068
+  pooled, n=10 per condition               1.30          0.112
+  seed-202 vector  [0,0,5,5,0,5,0,0]      0.00          1.000
+```
+
+**One condition, measured twice, disagreeing by two episodes, swings the null's
+sd by 25%; a second seed's vector puts it at zero.** The same observation supports
+`P` anywhere from 0.05 to 1.0. There was no measurement that could tell 5% from
+50%, so there was no residual to carry.
+
+**The asymmetry that makes this worth its own entry.** In the same hour a *reading*
+was also wrong: an abstaining predictor was read as evidence that a result would
+land between two classes. That cost nothing. It was visibly an interpretation, it
+was challenged within minutes, and registered branches made it inert.
+
+> **A wrong null propagates much further than a wrong reading, because the reading
+> announces itself as an interpretation and the null arrives looking like
+> arithmetic.** `sd = 3.06` reads as a property of the data. It was a modelling
+> choice, and the wrong one.
+
+**Fix.** Report the model beside the number: not "2% coincidence" but "2% under
+binomial(40, p), which assumes the 40 episodes are independent draws." Where a
+null's parameters are themselves estimated, report the p-value's range across
+defensible estimates rather than a single figure. **If that range spans an order of
+magnitude, there is no finding to carry.**
+
+**Evidence:** commits fb4970a, 5c669d3. Related: [the number 40 was a grid
+dimension](#the-number-40-was-a-grid-dimension-and-two-of-us-read-it-as-a-sample-size-within-one-hour).
+
+## A selector that silently does nothing is worse than one that selects wrongly
+
+**Cost:** four boxes, four physics binaries, none recorded · **Found:** 2026-09-07 · **Applies to:** any environment variable used to choose a build or backend
+
+The standing screen launches every collector with
+
+```python
+  subprocess.run(cmd, env=dict(os.environ, PYTHONPATH=CHRONO), ...)
+```
+
+where `CHRONO` defaults to `/home/kyle/chrono-build/bin`. The intent is that every
+episode runs against the locally built physics rather than the packaged one.
+
+**On one of four machines that directory contains no `pychrono` at all**, so the
+import falls straight through to the conda site-packages copy. Verified directly:
+
+```
+  PYTHONPATH=/home/kyle/chrono-build/bin python -c "import pychrono; print(pychrono.__file__)"
+    a3     -> /home/kyle/chrono-build/bin/pychrono/__init__.py
+    sbel   -> .../miniconda3/envs/nedm/.../pychrono/__init__.py     PYTHONPATH IGNORED
+```
+
+No error, no warning, nothing different in the log. **The mechanism intended to
+select the build cannot fire on that box, and the run looks identical to one where
+it did.**
+
+| box | `chrono-build/bin/pychrono/_core.so` | what ran |
+|---|---|---|
+| a3 | `cfbf8af6` | local build |
+| sliger | `60457362` | local build |
+| north | `d1d0bd0a` | local build |
+| sbel | **absent** | conda's `8e9e3865` |
+
+**Three locally built binaries that differ from each other, and a fourth box on the
+packaged one.** None of it recorded in any artifact.
+
+**Why this class is worse than a wrong selection.** A selector that picks the wrong
+thing eventually produces a visible contradiction: two runs disagree, someone
+looks. A selector that has no effect produces results that are *internally*
+consistent on every box, and only disagree across boxes, where the difference is
+attributed to the seed. In this case the affected box sat lowest on both arms of a
+comparison and that was read as sampling variation.
+
+**What survived and why.** Every *within-box* comparison is build-matched and
+unaffected. The conclusion that rested on within-box comparisons held; the
+statements that pooled across boxes ("four seeds, four machines") silently mixed
+seed with build.
+
+**Fix.** Raise when the selector cannot do its job: if `PYTHONPATH` names a
+directory with no `pychrono` in it, fail rather than proceed. And record the
+resolved `pychrono.__file__` and its `_core.so` md5 in every episode's artifact
+beside the checkpoint md5. **The physics build is a condition of the
+measurement.** Same defect as the action multiplier, in the one condition that
+silently differs across the whole fleet.
+
+**Evidence:** `standing_screen._one`; four-box md5 table above.
+
+## A confound that compresses a difference hides better than one that inflates it
+
+**Cost:** four machines, several hours, buying resolution on a compressed measurement · **Found:** 2026-09-07 · **Applies to:** any screen whose conditions were chosen rather than crossed
+
+A standing screen used eight conditions, each with its own `(family, force, roll,
+pitch)`. Nothing was crossed: four factors moved together across eight points.
+**Three of the eight stood the robot on a downhill slope, and the reference
+controller failed those and only those.**
+
+| | pooled over all 8 conditions | restricted to the 4 the reference passes |
+|---|---|---|
+| base | 35% | **0 / 240** |
+| v4 | 58% | 44% |
+| gap | 23 points, dirty reference | **44 points, hard-zero reference** |
+
+**The defective conditions were costing signal, not manufacturing it.** They put a
+floor under the reference and pushed the treated arms toward saturation, halving
+the difference the screen was built to measure.
+
+**Why that direction is the dangerous one.** A confound that *inflates* a
+difference gets caught the first time the difference fails to replicate; something
+disagrees and someone looks. A confound that *compresses* one produces no
+contradiction anywhere. It looks like a weak instrument, and **the standard
+response to a weak instrument is more episodes, not a look at the design.**
+
+What that cost here, concretely: a power analysis that correctly killed an
+underpowered sweep, a redesign at five times the episode count, four machines
+running for hours, and seven independent sweeps of a scalar that was
+summarising a compressed measurement. **Every one of those steps was locally
+correct.** None of them could have found the condition list, because the
+statistics never pointed there.
+
+**Fix.** Cross the factors, or at minimum verify that the reference arm passes
+every condition before reading any rate off the pooled set. **A condition the
+reference fails is not measuring the treatment; it is measuring the condition** —
+and if it saturates the treated arms too, it silently subtracts from the effect
+you are trying to see.
+
+**Postscript on locating the cause.** The first two explanations offered for the
+reference's failures were the command family and a sustained-yaw hypothesis; both
+were refuted by one-variable tests. Pitch was the third label tried on the same
+eight points, and with `n=8` and four correlated factors a separation at
+`P = 0.036` is cheap. **What established pitch was a one-variable re-run holding
+everything else fixed, not the separation.** A later crossed grid then showed the
+pitch boundary is roll-conditional and that peak force does nothing, so even the
+confirmed factor was only half the story.
+
+**Evidence:** base 143 failures on nose-down cells against 0 on level-or-nose-up
+across 240 episodes and three seeds; swept continuously, the boundary is a step
+between pitch -1.5 and -1.0 at roll +1.0, with 5/5 on one side and 0/5 on the
+other.
+
+## A transform applied before the question was asked
+
+**Cost:** a corpus envelope shaped by a statistic blind to the factor it dismissed · **Found:** 2026-09-07 · **Applies to:** any screening correlation on a signed quantity
+
+The collection driver caps ground pitch at ±1.5 deg while leaving roll at ±3.0,
+and the comment above the code gives its reason, measured on ~2000 episodes:
+
+```
+  corr(|pitch|, fell) = +0.427    rising 2% -> 48% across the band
+  corr(|roll|,  fell) = +0.057    and flat
+  "roll does not drive failures"
+```
+
+**Both statistics take an absolute value first.** The roll effect is
+antisymmetric — at the same `|roll| = 3.0`, one sign fails 5/5 and the other
+passes 0/5 — and `|roll|` cancels those two exactly. **The transform removes the
+signal before the correlation is computed, so the near-zero result is guaranteed
+regardless of how large the effect is.**
+
+Reconstructing the tilts (never recorded, but drawn from a seeded RNG and
+therefore recoverable) over 1762 episodes:
+
+| statistic | value |
+|---|---|
+| `corr(\|pitch\|, fell)` | +0.309 |
+| `corr( pitch,  fell)` | **-0.475** |
+| `corr(\|roll\|,  fell)` | -0.008 |
+| `corr( roll,   fell)` | **+0.079** |
+
+Failure rate by roll sign, monotone: 13.0% / 15.8% / 19.9%.
+
+**The `|.|` cost pitch about a third of its signal and cost roll all of it.** The
+decision then compared the two damaged statistics and dismissed the more damaged
+one. **And the resulting envelope removed the regime where the dismissed factor
+matters**: capping pitch at ±1.5 means the corpus never reaches the depth at
+which roll sign decides the outcome outright.
+
+**This is not a wrong number and not a wrong denominator.** The arithmetic is
+correct and the sample is adequate. The defect is that a symmetrising transform
+was applied to a quantity whose effect is antisymmetric, before the question was
+put to it. **A statistic can be blind by construction to exactly the thing it is
+being used to rule out**, and nothing in its value reveals that.
+
+**Fix.** Before screening a signed variable out on a correlation, compute the
+signed version too. If they disagree, the transform is doing the work.
+
+**Two errors on the way to this, both caught by counts rather than by reasoning:**
+the first parser took `parts[-2]` as the command family, which silently dropped
+`vel_step` and `yaw_step` — 40% of episodes, *selected by family* — and was caught
+only because the episode count came to 1091 against 1762 on disk. And the corpus
+was first assumed flat because its config carries no tilt key; a corpus known to
+be tilted has no tilt key either.
+
+**Caveat recorded honestly:** the reconstruction yields `+0.309` where the
+driver's comment says `+0.427`, flat across fall thresholds from 1000 to 3500
+rows, and that gap is unexplained. What argues the reconstruction is sound is
+that randomised inputs cannot produce `corr(pitch, fell) = -0.475`; the residual
+disagreement is in the comparison set, not in the recovered tilts.
+
+## A check aimed at the failure you anticipated is silent on the one you did not
+
+**Cost:** a published figure retracted, degrees wrong by 2x · **Found:** 2026-09-07 · **Applies to:** any value reconstructed by re-running a source
+
+Ground tilts were never recorded in the artifacts, but they are drawn from a
+seeded RNG, so they can be recovered by re-running the draw. The reconstruction
+was checked before use, and the check passed:
+
+> if the recovered tilts were misaligned with the true ones, they would be
+> effectively random and **every** correlation would sit near zero.
+> `corr(pitch, fell) = -0.475` cannot come from randomised inputs.
+
+**That argument is correct and it verified the wrong property.** Pearson
+correlation discards scale. The reconstruction had drawn from the *current*
+driver, which caps pitch at ±1.5; the corpus was collected eighteen hours earlier
+when the range was ±3.0. **Every recovered pitch was exactly half its true
+value**, perfectly aligned episode-for-episode, and the check could not see it.
+
+| | held | verified by the check? |
+|---|---|---|
+| alignment (which episode got which draw) | yes | **yes** |
+| scale (what the draw meant) | no | **no — the statistic discards it** |
+
+**The check was chosen against the failure that seemed likely — a wrong seed, a
+wrong draw order, a mis-parsed filename — and it was completely silent on the one
+that occurred. And it looked like a passing check either way.**
+
+**Cause.** A reconstruction duplicates a source, and **nothing in the artifact
+records which version of that source produced it.** The only thing that pinned it
+was episode mtime against `git log -L`, which worked only because both happened to
+be on the same machine.
+
+**The same contract had already broken once, in the opposite direction**, and the
+commit that fixed it says so: *"the verdict harness used to reconstruct these from
+a seeded RNG duplicated in its own source. That contract broke silently when the
+driver's pitch range was capped and the harness kept deriving ±3.0."* Eighteen
+hours later a reconstruction drew ±1.5 from a corpus collected at ±3.0. **Same
+contract, same silence, mirrored.**
+
+**Fix.** Record the values rather than the recipe. Where a reconstruction is
+unavoidable, pin the source by commit and verify a *scale-carrying* quantity — a
+mean, a range, a single known episode — not only a scale-invariant one.
+
+**What survived.** Correlations, being scale-invariant, were unaffected; every
+statement in degrees was retracted. **The property the flawed check verified was
+the property that let the rest of the work stand**, which is luck rather than
+method.
+
+## A threshold chosen for numerical sanity selected on the outcome
+
+**Cost:** upstream of every arm in the ladder · **Found:** 2026-09-07 · **Applies to:** any admissibility filter applied before training
+
+A dynamics-model corpus drops episodes that leave the physical envelope
+(`2x URDF per joint, |dq| <= 60.2, |v| <= 15.0, |w| <= 50.0`). The bound is
+correct: training on `|v| = 1e35` states would poison the model.
+
+```
+  dataset_index.json                3003     what the surrogate trains on
+  dataset_index.json.pre_physical   3503
+  dropped                            500     mean 131.5 rows against 3760.7 kept
+                                             499 of 500 diverged, 344 inadmissible in 100% of frames
+```
+
+**The filter selects on the outcome.** What it removes is not noise, it is the
+catastrophic tail — and the surviving corpus is conditioned on *not having blown
+up*. 363 falls and 78 divergences do remain, so the model is not failure-blind;
+what it is missing is 99.8% of one specific mode.
+
+**And nothing downstream records the conditioning.** The surrogate's
+`metadata.json` names its raw root and not the admissibility filter, so a reader
+of its provenance cannot discover that the training distribution is censored, let
+alone on what.
+
+**Two separable defects, and the second is the fixable one:**
+
+1. The filter is **whole-episode**. 156 of the 500 were admissible in *some*
+   frames — their pre-divergence run-up, which is the informative part, went out
+   with the blown-up remainder. **Truncating at the first inadmissible frame keeps
+   the approach and drops only the tail.**
+2. The censoring is **unrecorded**, so every downstream result inherits it
+   silently.
+
+**What this does and does not explain.** It can explain how often and where
+policies fine-tuned inside the model lose the robot. **It cannot explain the
+failure signature**, and a control settles that: the base controller, which never
+entered the fine-tuning loop, fails with the same `~1e35` divergence as every
+fine-tuned arm and at the largest magnitude of any of them. The blow-up is what
+the integrator does when any controller loses the robot. **The most visually
+striking part of the failure is the part the mechanism does not account for.**
