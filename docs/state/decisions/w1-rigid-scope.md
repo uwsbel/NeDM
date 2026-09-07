@@ -3649,3 +3649,51 @@ v4 when writing the two-arm summary. **The same transplant, between arms this ti
 
 **Line 3056 and the "SHIFTED rather than shrinking" heading above it are superseded by
 `df63fd0`: the window is NARROWER AND DISPLACED.**
+
+### REGISTERED before the tilt-observability A/B runs
+
+    A   quadruped_joint_grav_pose        36-D   tilt UNOBSERVED   (current definition)
+    B   quadruped_joint_gravworld_pose   39-D   tilt OBSERVED
+    same new corpus, input_noise_sigma = 0 on both, same training seed
+
+#### The design has a dimensionality confound and needs a third arm
+
+**B has three more input channels than A.** Any improvement is currently attributable
+to *more inputs* as much as to *tilt observability*. **The control is a 39-D arm whose
+three extra channels carry no new information** -- duplicate `grav_body_*`, or a fixed
+constant triple. Then:
+
+    B - A     = information + dimensionality
+    C - A     = dimensionality alone
+    B - C     = tilt observability, which is the claim
+
+**Without C, a positive result is not attributable.** It is the same two-variables
+problem as `finetune_go2_34d_replicate`, which we discarded earlier tonight for exactly
+this.
+
+#### And the NeRD number does not transfer
+
+Their 23.3x removes robot-centric framing **entirely** on Ant; ours **adds three
+channels** to an otherwise identical state. **Predicting 23.3x would be a transplant of
+the kind that has failed repeatedly tonight.** Register direction and order of
+magnitude, not their number.
+
+#### Branches, on surrogate one-step val_loss, A/B ratio, paired on the same val episodes
+
+    >= 3x        the effect is large and NeRD-comparable in kind
+    1.3x - 3x    real, and far smaller than NeRD's 23.3x on a smaller intervention
+    1.0x - 1.3x  the channels do not help; tilt is measurable but not learnable here
+    B WORSE      dimensionality costs more than the information buys
+
+**A separate, non-substitutable endpoint:** the downstream verdict/completion rate.
+**A surrogate that predicts tilted dynamics better is not automatically a surrogate a
+policy fine-tunes better inside** -- tonight's 2x2 showed `val_loss` and `rollout_sel`
+disagreeing about the same cell, and `rollout_sel` varying 2.5-3.5x across seeds where
+`val_loss` moved 1.05x. **Register both endpoints; do not let one stand in for the
+other.**
+
+#### The n=1 problem, stated in advance this time
+
+**One surrogate seed per arm gives the sign and nothing about magnitude** -- the
+`input_noise_sigma` 2x2 moved 11 pairs across seeds at fixed sigma. **Two seeds per
+arm, or the result is a direction only.**
