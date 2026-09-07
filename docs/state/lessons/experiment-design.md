@@ -4784,3 +4784,55 @@ measurement.** Same defect as the action multiplier, in the one condition that
 silently differs across the whole fleet.
 
 **Evidence:** `standing_screen._one`; four-box md5 table above.
+
+## A confound that compresses a difference hides better than one that inflates it
+
+**Cost:** four machines, several hours, buying resolution on a compressed measurement · **Found:** 2026-09-07 · **Applies to:** any screen whose conditions were chosen rather than crossed
+
+A standing screen used eight conditions, each with its own `(family, force, roll,
+pitch)`. Nothing was crossed: four factors moved together across eight points.
+**Three of the eight stood the robot on a downhill slope, and the reference
+controller failed those and only those.**
+
+| | pooled over all 8 conditions | restricted to the 4 the reference passes |
+|---|---|---|
+| base | 35% | **0 / 240** |
+| v4 | 58% | 44% |
+| gap | 23 points, dirty reference | **44 points, hard-zero reference** |
+
+**The defective conditions were costing signal, not manufacturing it.** They put a
+floor under the reference and pushed the treated arms toward saturation, halving
+the difference the screen was built to measure.
+
+**Why that direction is the dangerous one.** A confound that *inflates* a
+difference gets caught the first time the difference fails to replicate; something
+disagrees and someone looks. A confound that *compresses* one produces no
+contradiction anywhere. It looks like a weak instrument, and **the standard
+response to a weak instrument is more episodes, not a look at the design.**
+
+What that cost here, concretely: a power analysis that correctly killed an
+underpowered sweep, a redesign at five times the episode count, four machines
+running for hours, and seven independent sweeps of a scalar that was
+summarising a compressed measurement. **Every one of those steps was locally
+correct.** None of them could have found the condition list, because the
+statistics never pointed there.
+
+**Fix.** Cross the factors, or at minimum verify that the reference arm passes
+every condition before reading any rate off the pooled set. **A condition the
+reference fails is not measuring the treatment; it is measuring the condition** —
+and if it saturates the treated arms too, it silently subtracts from the effect
+you are trying to see.
+
+**Postscript on locating the cause.** The first two explanations offered for the
+reference's failures were the command family and a sustained-yaw hypothesis; both
+were refuted by one-variable tests. Pitch was the third label tried on the same
+eight points, and with `n=8` and four correlated factors a separation at
+`P = 0.036` is cheap. **What established pitch was a one-variable re-run holding
+everything else fixed, not the separation.** A later crossed grid then showed the
+pitch boundary is roll-conditional and that peak force does nothing, so even the
+confirmed factor was only half the story.
+
+**Evidence:** base 143 failures on nose-down cells against 0 on level-or-nose-up
+across 240 episodes and three seeds; swept continuously, the boundary is a step
+between pitch -1.5 and -1.0 at roll +1.0, with 5/5 on one side and 0/5 on the
+other.
