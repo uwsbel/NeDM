@@ -38,7 +38,15 @@ def main() -> int:
     root = Path(sys.argv[1])
     apply = "--apply" in sys.argv
     n = done = 0
-    for csv_p in sorted(root.glob("episodes/*.csv")):
+    # BOTH LAYOUTS. A consolidated dataset is <root>/episodes/*.csv, but the
+    # collector writes <root>/<scenario_dir>/episodes/*.csv -- one directory per
+    # episode. The single-pattern glob silently matched nothing on the second,
+    # reported "0 episodes scanned" and exited 0, which reads as success.
+    paths = sorted(root.glob("episodes/*.csv")) or sorted(root.glob("*/episodes/*.csv"))
+    if not paths:
+        print(f"FATAL: no episodes under {root} in either layout", file=sys.stderr)
+        return 2
+    for csv_p in paths:
         rows = list(csv.DictReader(csv_p.open()))
         if not rows:
             continue
