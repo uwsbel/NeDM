@@ -1,0 +1,45 @@
+{
+ "layout": {
+  "episode_id": "arena_f109__x_crater7_h045",
+  "seed": 0,
+  "assets": [
+   {
+    "kind": "house",
+    "x_m": 12.228622852610624,
+    "y_m": 5.521757048718159,
+    "yaw_rad": 0.7853981633974483,
+    "footprint_radius_m": 3.501562118716424,
+    "dims": {
+     "length_m": 5.0,
+     "width_m": 4.0,
+     "wall_height_m": 3.0
+    }
+   }
+  ],
+  "house_xy": [
+   12.228622852610624,
+   5.521757048718159
+  ],
+  "house_yaw": 0.7853981633974483,
+  "start_xy": [
+   -12.520114488918543,
+   -19.226980292811003
+  ],
+  "start_yaw": 0.7853981633974483
+ },
+ "kind": "crossing",
+ "arena": "assets/traverse/arena_f109",
+ "feature": {
+  "kind": "crater",
+  "x_m": 0.20780757243931447,
+  "y_m": -6.499058231453148,
+  "sigma_m": 3.007772519903001,
+  "amplitude_m": 1.7660217075617093
+ },
+ "feature_index": 7,
+ "heading_deg": 45,
+ "offset_m": 0.0,
+ "line_max_up_deg": 24.601737970660643,
+ "line_max_down_deg": 17.89018626036385,
+ "line_relief_m": 3.578380860481754
+}

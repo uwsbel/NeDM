@@ -1,0 +1,5 @@
+arena_f108: 38 layouts, 32 with a feasible route (6 none), heuristic fails on 7 of them (5 stall/timeout, 2 contact-only); 171/402 runs infeasible
+arena_f109: 60 layouts, 58 with a feasible route (2 none), heuristic fails on 7 of them (4 stall/timeout, 3 contact-only); 135/673 runs infeasible
+arena_f110: 58 layouts, 56 with a feasible route (2 none), heuristic fails on 10 of them (5 stall/timeout, 5 contact-only); 162/644 runs infeasible
+arena_f111: 45 layouts, 41 with a feasible route (4 none), heuristic fails on 10 of them (5 stall/timeout, 5 contact-only); 183/478 runs infeasible
+sealed pair: ['arena_f110', 'arena_f111'] -> 20 heuristic-failure layouts with a feasible alternative (10 stall/timeout); target >= 30

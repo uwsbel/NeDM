@@ -3,7 +3,7 @@
 **Purpose:** First NRD study where vision is load-bearing — a hierarchical planner/tracker stack on a fixed bumpy arena
 **Simulator:** Project Chrono (HMMWV vehicle stack) with Chrono::Sensor RGB + depth cameras
 **Builds on:** `docs/vision/NRD_overall_project_plan.md` (Phase 3, pulled forward ahead of Phase 2 tabletop manipulation), Study 1 (`docs/vision/double_pen/`), and the state-only NeDM HMMWV stack
-**Status:** v1.16 — 2026-09-07 (§32: automated follow-up done, decision pending); v1.15 (§31: ablation audited); v1.14 — 2026-09-06 (§30: stall diagnosis); v1.4 — revised 2026-09-04 pm (§20: tracker + planner rollout built; ẑ₂ decision now evidence-based); v1.3 2026-09-04 am (§19); v1.2 2026-09-03 (§18); v1.1 2026-08-31 after `NRD_hmmwv_traversal_study_plan_review.md`; §16 = original decision log, §17 = review resolutions
+**Status:** v1.17 — 2026-09-07 (§33: design (a) closed on fresh sealed arenas; decision pending); v1.16 (§32); v1.15 (§31: ablation audited); v1.14 — 2026-09-06 (§30: stall diagnosis); v1.4 — revised 2026-09-04 pm (§20: tracker + planner rollout built; ẑ₂ decision now evidence-based); v1.3 2026-09-04 am (§19); v1.2 2026-09-03 (§18); v1.1 2026-08-31 after `NRD_hmmwv_traversal_study_plan_review.md`; §16 = original decision log, §17 = review resolutions
 **v1 charter:** Feasibility of the full stack (NRD + planner + tracker) on ONE fixed terrain map, trained and collected locally. Privileged information is allowed anywhere it unblocks v1; deployment-purity upgrades are a ladder, not a v1 gate.
 
 ## 1. Study objective, information contract, and positioning
@@ -747,3 +747,19 @@ family. Three ways the imagination could still carry the planner, none of them t
 (c) **Replanning with the live state (MPC)**: the imagination re-run every second from the true state with the
     candidate's nominal controls; only worth building if (a) gives a gate that works from the live state.
 My order: (a), then (b) with (a)'s gate, (c) only if (a) works. Not: more training of the dynamics loss.
+
+## 33. v1.17 (2026-09-07 08:20): design (a) tested and closed on fresh sealed arenas — decision for the user
+
+Head test (notes §13.12): on the validation arena a predictor reading the stall-trained model's imagined trajectory
+beat the same predictor on the nominal route (+0.06–0.12 AUC) and edged the terrain-profile predictor (+0.03–0.06,
+CIs including zero), passing the pre-registered rule. Four fresh harder arenas were then collected model-free (2 197
+runs; the heuristic still fails on only 34 of 187 layouts) and looked at once (§13.13): the imagination head fell to
+AUC 0.76 and lost to the heuristic as a gate (152 vs 153), while the terrain-profile predictor reached 0.81–0.82 and
+beat the heuristic (155–158). The validation edge was arena-specific. **Design (a) is closed; (c) was closed in §32.**
+
+**What stands.** Feasibility on this family is a terrain-profile question the cheap predictor answers; the imagination's
+accuracy is in time and energy on routes that complete. **Decision for the user:** (b) — re-pose the benchmark as a
+cost trade-off among feasible routes (energy / ride-severity penalty on speed, feasibility gated by the terrain
+predictor, the imagination ranking cost), collected model-free on fresh arenas, one look — or close the traversal
+study with the negative result as it stands (notes §11–13 are complete and audited). Not: further dynamics training
+or planner work on the stall question.

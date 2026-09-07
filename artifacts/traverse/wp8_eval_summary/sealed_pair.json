@@ -1,0 +1,47 @@
+{
+ "pair": [
+  "arena_f110",
+  "arena_f111"
+ ],
+ "counts": {
+  "arena_f108": {
+   "layouts": 38,
+   "with_feasible": 32,
+   "no_solution": 6,
+   "heuristic_fails": 7,
+   "heuristic_fails_stall_or_timeout": 5,
+   "runs": 402,
+   "infeasible_runs": 171
+  },
+  "arena_f109": {
+   "layouts": 60,
+   "with_feasible": 58,
+   "no_solution": 2,
+   "heuristic_fails": 7,
+   "heuristic_fails_stall_or_timeout": 4,
+   "runs": 673,
+   "infeasible_runs": 135
+  },
+  "arena_f110": {
+   "layouts": 58,
+   "with_feasible": 56,
+   "no_solution": 2,
+   "heuristic_fails": 10,
+   "heuristic_fails_stall_or_timeout": 5,
+   "runs": 644,
+   "infeasible_runs": 162
+  },
+  "arena_f111": {
+   "layouts": 45,
+   "with_feasible": 41,
+   "no_solution": 4,
+   "heuristic_fails": 10,
+   "heuristic_fails_stall_or_timeout": 5,
+   "runs": 478,
+   "infeasible_runs": 183
+  }
+ },
+ "heuristic_fail_layouts": 20,
+ "stall_timeout": 10,
+ "target_met": false
+}

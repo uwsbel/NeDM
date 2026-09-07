@@ -2030,3 +2030,38 @@ arenas with enough heuristic-failure layouts to see a +0.05 AUC as picks, one lo
 single look (primary: the state head with the f105 threshold, fastest accepted; comparators: profile-only head,
 frozen-imagination head, heuristic; fixes:breaks sign test; contact-only and no-solution layouts apart) — committed
 before the collection finishes.
+
+### 13.13 The single look at the fresh sealed arenas (2026-09-07 08:13) — negative for the imagination head
+
+The four fresh arenas (`arena_f108`–`f111`, difficulty 1.25) came back at 07:56: 2 197 bank runs, 651 infeasible
+(109 contact-only), 187 layouts with a feasible route. Even at this difficulty the fastest-commanded-speed heuristic
+fails on only 34 of them (19 stall / timeout, 15 contact-only) — the best pair reaches 20, below the pre-registered
+30 — so by the model-free rule the sealed set is all four arenas (`sealed2_count.txt`, `sealed_pair.json`). One look,
+threshold fixed from f105 (0.804), heads trained on f101–f105 with leave-one-arena-out early stopping, three seeds:
+
+| head input (sealed f108–f111, 320 stall + launch, 1 546 feasible) | AUC stall vs feasible [CI] | AUC infeasible | gate + fastest (heuristic 153 / 187) | fixes : breaks |
+|---|---|---|---|---|
+| imagined trajectory of `wp8e_mom_s1`, state | 0.76 / 0.76 / 0.75 [0.70, 0.81] | 0.73 / 0.73 / 0.72 | 152 / 152 / 152 | 1 : 2 |
+| same with crop tokens | 0.76 / 0.76 / 0.77 | 0.75 / 0.75 / 0.76 | 152 / 152 / 151 | 1–2 : 2–3 |
+| imagined trajectory of the frozen model, state | 0.73 / 0.74 / 0.73 | 0.73 / 0.72 / 0.71 | 153 / 154 / 154 | 1 : 0–1 |
+| **terrain-profile features only (true terrain)** | **0.81 / 0.82 / 0.81** [0.75, 0.86] | **0.83 / 0.82 / 0.82** | **155 / 158 / 155** | 4–6 : 1–4 |
+| commanded speed only | 0.66 | 0.65 | 153 | 0 : 0 |
+
+**The validation edge reversed on new, harder terrain.** The imagination head generalises worse than the
+terrain-profile predictor (0.76 against 0.81–0.82; the CIs barely touch), loses to the fastest heuristic as a gate
+(152 against 153, one fix for two breaks), and the stall-trained model's trajectory is only +0.02 over the frozen
+model's here. The profile predictor is the one method that beats the heuristic on this set (155–158 of 187, four to
+six fixes against one to four breaks), and it does so from the true terrain, which the camera-decoded version
+approximates 0.04 AUC worse (§11.4). **Design (a) is closed:** on unseen terrain the imagination is not a better
+feature source for feasibility than the route's terrain profile.
+
+**Where the whole campaign leaves the thesis.** On this terrain family, whether a route stalls is a terrain-profile
+question (commanded speed against slope and roughness) that a cheap predictor answers at AUC 0.82 from the map; the
+world model's imagination, however trained, neither foresees the stall in closed loop nor supplies better features
+for it, because the stall is a contact event its inputs do not resolve and its training data ties every stall to the
+same controller reaction. What the imagination does well is what it was accurate at from the start: time and energy
+on routes that complete (imagined time ratio 0.98), and the cost ranking on free-form and sequence routes where it
+beat the cheap predictor (§11.5; the post-hoc sealed cost check of §13.12 item 6). The one direction left is therefore
+(b): a benchmark whose decisions are cost trade-offs among feasible routes — where "drive fast" is penalised by energy
+or ride severity and feasibility is handled by the terrain predictor — with the imagination doing the ranking. That is
+a change of the thesis question, and the user's call.

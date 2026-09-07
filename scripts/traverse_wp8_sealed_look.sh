@@ -10,8 +10,11 @@ set -e
 cd /home/harry/NeDM; export PYTHONPATH=src; PY=/home/harry/miniconda3/envs/nedm/bin/python; O=artifacts/traverse/wp8_head
 C2=artifacts/traverse/wp8_cache_sealed2; V1=artifacts/traverse/wp7_cache_v1
 FR=artifacts/traverse/wp2_mapv2_pt_dag_ro8_amd/ckpt_best.pt; MS=artifacts/traverse/wp8e_mom_s1/ckpt_best.pt
-PAIR=$($PY -c "import json; print(' '.join(json.load(open('$C2/sealed_pair.json'))['pair']))")
-echo "sealed pair: $PAIR"
+# the pair is used only if it reaches the pre-registered 30 heuristic-failure layouts; otherwise ALL four fresh arenas form the
+# sealed set (decided on the model-free count alone, before any model touches them)
+PAIR=$($PY -c "
+import json; d=json.load(open('$C2/sealed_pair.json')); print(' '.join(d['pair']) if d['target_met'] else ' '.join(sorted(d['counts'])))")
+echo "sealed set: $PAIR"
 # classify the sealed-2 runs (classes for the stall label) -- labels only, no model
 $PY scripts/traverse_wp7_stall_diagnosis.py classify --caches $V1 artifacts/traverse/wp7_cache_sealed $C2 > /dev/null 2>&1
 # imagined sequences on the pair (the only time a model touches these arenas) and the nominal features

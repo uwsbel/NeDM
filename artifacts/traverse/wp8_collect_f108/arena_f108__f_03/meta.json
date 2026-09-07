@@ -1,0 +1,33 @@
+{
+ "layout": {
+  "episode_id": "arena_f108__f_03",
+  "seed": 0,
+  "assets": [
+   {
+    "kind": "house",
+    "x_m": 30.62208772731207,
+    "y_m": 13.180430588336378,
+    "yaw_rad": 0.7109147364954432,
+    "footprint_radius_m": 3.501562118716424,
+    "dims": {
+     "length_m": 5.0,
+     "width_m": 4.0,
+     "wall_height_m": 3.0
+    }
+   }
+  ],
+  "house_xy": [
+   30.62208772731207,
+   13.180430588336378
+  ],
+  "house_yaw": 0.7109147364954432,
+  "start_xy": [
+   -4.400881906451769,
+   -16.978564833042817
+  ],
+  "start_yaw": 0.7109147364954432
+ },
+ "kind": "freeform",
+ "arena": "assets/traverse/arena_f108",
+ "distance_m": 46.21875600656421
+}

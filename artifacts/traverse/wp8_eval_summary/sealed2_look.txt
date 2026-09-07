@@ -1,0 +1,20 @@
+sealed set: arena_f108 arena_f109 arena_f110 arena_f111
+gate threshold (from f105): 0.8035073280334473
+eval ['arena_f108', 'arena_f109', 'arena_f110', 'arena_f111']: 2197 routes, 320 stall+launch, 651 infeasible (109 contact-only), 1546 feasible; train ['arena_f101', 'arena_f102', 'arena_f103', 'arena_f104', 'arena_f105']
+arm                          seed  AUC stall|feas [CI]        AUC infeasible [CI]      within-speed  feas.rej@50%inf  P(stall|acc)  gate+fastest (heuristic 153/187)
+imagined moms1+tracker:state    0  0.757 [0.70,0.81]   0.728 [0.68,0.78]   0.740      0.16          0.09        152/187  fixes 1 (1 stall/timeout) breaks 2
+imagined moms1+tracker:state    1  0.759 [0.71,0.81]   0.728 [0.68,0.78]   0.739      0.19          0.09        152/187  fixes 1 (1 stall/timeout) breaks 2
+imagined moms1+tracker:state    2  0.752 [0.69,0.81]   0.720 [0.67,0.77]   0.737      0.16          0.09        152/187  fixes 1 (1 stall/timeout) breaks 2
+imagined moms1+tracker          0  0.760 [0.70,0.82]   0.754 [0.71,0.80]   0.750      0.14          0.09        152/187  fixes 2 (2 stall/timeout) breaks 3
+imagined moms1+tracker          1  0.760 [0.69,0.82]   0.753 [0.71,0.80]   0.748      0.13          0.10        152/187  fixes 1 (1 stall/timeout) breaks 2
+imagined moms1+tracker          2  0.765 [0.70,0.82]   0.755 [0.71,0.79]   0.755      0.13          0.10        151/187  fixes 1 (1 stall/timeout) breaks 3
+imagined frozen+tracker:state    0  0.733 [0.68,0.80]   0.725 [0.68,0.77]   0.690      0.19          0.09        153/187  fixes 1 (1 stall/timeout) breaks 1
+imagined frozen+tracker:state    1  0.736 [0.68,0.80]   0.722 [0.68,0.77]   0.712      0.11          0.11        154/187  fixes 1 (1 stall/timeout) breaks 0
+imagined frozen+tracker:state    2  0.729 [0.67,0.79]   0.705 [0.66,0.75]   0.698      0.13          0.10        154/187  fixes 1 (1 stall/timeout) breaks 0
+nominal:profile                 0  0.814 [0.75,0.86]   0.830 [0.79,0.86]   0.786      0.20          0.08        155/187  fixes 6 (3 stall/timeout) breaks 4
+nominal:profile                 1  0.815 [0.76,0.86]   0.823 [0.79,0.86]   0.796      0.14          0.09        158/187  fixes 6 (2 stall/timeout) breaks 1
+nominal:profile                 2  0.811 [0.75,0.86]   0.822 [0.78,0.86]   0.766      0.23          0.08        155/187  fixes 4 (1 stall/timeout) breaks 2
+nominal:speed                   0  0.659 [0.61,0.71]   0.647 [0.61,0.69]   0.594      0.00          0.15        153/187  fixes 0 (0 stall/timeout) breaks 0
+nominal:speed                   1  0.664 [0.61,0.71]   0.652 [0.61,0.69]   0.598      0.03          0.14        153/187  fixes 0 (0 stall/timeout) breaks 0
+nominal:speed                   2  0.659 [0.60,0.71]   0.649 [0.61,0.69]   0.596      0.00          0.15        153/187  fixes 0 (0 stall/timeout) breaks 0
+SEALED LOOK DONE

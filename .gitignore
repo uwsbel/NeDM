@@ -291,3 +291,13 @@ artifacts/traverse/wp7_stall_diag/model_tests*.json
 !artifacts/traverse/wp8_eval_summary/
 !artifacts/traverse/wp8_p6_k80_prog/
 artifacts/traverse/wp8_p6_k80_prog/ckpt_last.pt
+!artifacts/traverse/wp8_cache_sealed2/
+artifacts/traverse/wp8_cache_sealed2/*.npz
+!artifacts/traverse/wp8_collect_f1??/
+artifacts/traverse/wp8_collect_f1??/records/
+artifacts/traverse/wp8_collect_f1??/frame0/
+artifacts/traverse/wp8_collect_f1??/tasks.json
+!assets/traverse/arena_f108/
+!assets/traverse/arena_f109/
+!assets/traverse/arena_f110/
+!assets/traverse/arena_f111/
