@@ -2491,3 +2491,46 @@ estimand to "performance away from the known coverage hole."
 **Prefer the paired excess over base.** Saturated conditions contribute zero discordant
 pairs and drop out of a McNemar automatically, with no data-dependent selection rule
 and no change to what is being estimated.
+
+### The registered `arc wz=0` test REFUTES the sustained-yaw reading
+
+    arc  wz=0.3  (as listed)   failed 4/5    max|raw| ~1e35 at rows 89-97
+    arc  wz=0.0  (yaw removed) failed 4/5    max|raw| ~1e35 at rows 89-99
+    the single pass in each: rows 1775, max|raw| 9.4 and 10.2
+
+**Removing the yaw command changes nothing.** The exact separation at P=0.036 was a
+coincidence, exactly as the second branch registered at `4f8f64d` said it would be if
+yaw were a correlate. **Base does not fail `arc` because it is turning.**
+
+**And the failure is not under-actuation.** `warmup_s` is discarded before recording
+(`collect_go2_smoke.py:502,510`), so row 95 is ~1.07 s of *policy-controlled* time --
+these blow up to 1e35 almost immediately, and the episodes that survive run the full
+1775 rows with max|raw| near 10. **Bimodal: instant divergence or clean completion,
+nothing between.**
+
+### REGISTERED: the conditions separate exactly on NOSE-DOWN PITCH
+
+    cond  roll  pitch   base @ k=1.00
+     0     0.0   0.0        0/5
+     2    -2.0   1.5        0/5
+     3     2.5   2.0        0/5
+     6    -2.5   2.5        0/5
+     1     1.5  -1.0        0/5
+     4    -1.5  -2.5        3/5
+     5     3.0  -1.5        5/5
+     7     1.0  -3.0        5/5
+
+**Every condition with pitch >= -1.0 passes; every condition with pitch <= -1.5
+fails.** Perfect separation, and unlike yaw it is a property of the ground the robot
+is standing on rather than of the command.
+
+> **Test: `arc` at the identical 36 N and roll +1.0, with pitch -3.0 (as listed),
+> 0.0, and +3.0. Base, 5 seeds each.**
+>
+>     +3.0 and 0.0 pass, -3.0 fails  -> nose-down ground tilt is the driver; the eight
+>                                       conditions are NOT matched in difficulty and
+>                                       the pooled "failure rate" is substantially a
+>                                       terrain artifact
+>     all three fail ~4/5            -> pitch sign is not the driver either, and the
+>                                       arc cell fails for its force or for something
+>                                       not yet identified
