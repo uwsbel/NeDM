@@ -1806,12 +1806,43 @@ training arenas from the same context (and the same future controls) is the comp
 * **The selection endpoint on this family is not the right test bed.** The fastest candidate is feasible on 44 of 52
   validation and 86 of 93 sealed layouts; half of its failures are contact-only; the bank's slow candidates that stall
   are ones nobody needs to pick. A stall gate's ceiling is +4 layouts on the sealed set and the sealed set is spent.
-* **Next round, in order:** (1) fix the remaining metric defects (approach target, recovery detector) and regenerate
-  the events; (2) retrain the tracker inside `wp8_p6_k80_prog`'s imagination on the multi-arena data (per-episode
-  height field in the tracker env; cluster) and re-run the decision test and the closed-loop stall tests with it —
-  the single experiment that says whether closed-loop discrimination follows the teacher-forced one; (3) generate
-  fresh sealed arenas (f108+) with a committed seed and a difficulty chosen model-free so that the fastest heuristic
-  fails on ≥ 30 layouts that still have a feasible alternative (verified by running only the heuristic's bank in
-  Chrono), commit a pre-registration (checkpoint by rule: the seed-median of the three seeds; decision rule; abstain
-  handling; contact-only and no-solution layouts reported apart), and look once; (4) only if (2) succeeds, the
-  replanning planner. Not: more training-axis sweeps of the same loss on the same events.
+* **Next round, in order** (revised in §13.9 after the fingerprint finding): (1) fix the remaining metric defects
+  (approach target, recovery detector) and regenerate the events; (2) retrain with control-input augmentation so the
+  stall must be read from the state (§13.9, wave 3) and select by a jitter-robust or tracker-in-the-loop test;
+  (3) generate fresh sealed arenas (f108+) with a committed seed and a difficulty chosen model-free so that the
+  fastest heuristic fails on ≥ 30 layouts that still have a feasible alternative (verified by running only the
+  heuristic's bank in Chrono), commit a pre-registration (checkpoint by rule; decision rule; abstain handling;
+  contact-only and no-solution layouts reported apart), and look once; (4) the tracker retraining and the replanning
+  planner only if (2) makes closed-loop discrimination follow the teacher-forced one. Not: more training-axis sweeps
+  of the same loss on the same events.
+
+### 13.9 The stall fingerprint (audit, verified 2026-09-07) and wave 3
+
+The audit's closed-loop analyst found, and an adversarial verifier reproduced, what the stall-trained models actually
+read: **the constancy of the recorded throttle while the vehicle is stuck.** Chrono's tracker holds its output when
+nothing moves (per-step |Δthrottle| 0.015 stuck against 0.031–0.037 moving, at the same level 0.37–0.49). Adding
+zero-mean per-step throttle jitter of σ = 0.03 to the recorded controls — smaller than the imagined tracker's own
+variability (0.026) — removes most of the reproduced stalls of `wp8_p6_k80_prog` (true stops predicted 2 s after the
+stop 0.47 → 0.09, seeded stalls held 0.54 → 0.17, launch failures held under 1 m/s from rest 68 % → 7 %; p .9 / K 120
+0.56 → 0.00) and leaves the frozen model unchanged (0.26 → 0.23, 0.41 → 0.42); the effect scales with the jitter
+(σ = 0.01: 0.47 → 0.33) and steering jitter barely matters. Conversely, feeding the *tracker's* actions open-loop
+reproduces the closed loop exactly, and feeding recorded steering with tracker throttle launches the launch failures
+(vx at 3 s 1.83 m/s against 0.66 with all-recorded controls). Two further findings: the from-rest reproduction on the
+training arena is route memorisation (a corrected wrong-map probe — a different layout's map for every env, since
+rolling the maps by one had left most envs with their own layout — and the healthy-load probe change it by < 0.05),
+and the "stops" that anchored the tests were mostly the last 2 s of a 30 s struggle (the vehicle first drops under
+1 m/s at a median 6 s and rocks for a median 16 s before the detected stop), so the tests measured holding a
+fifteen-second-old stall, not the loss of momentum a planner must foresee.
+
+This re-reads §13.7: the teacher-forced discrimination (AUC 0.89) is largely the control fingerprint, the
+tracker-in-the-loop number (0.71) is the honest one, and the closed-loop gap is not a controller–model pairing problem
+(any live controller varies its throttle) but a shortcut in what was learned. Retraining the tracker would not fix it.
+
+**Wave 3** (`slurm/wp8_launch3.sh`, 8 runs, 2026-09-07 01:00): the wave-1 primary configuration retrained with
+control-input augmentation — per-step Gaussian jitter on the throttle and steering *inputs* (σ 0.02 / 0.03 / 0.05 /
+0.10, physical units; targets unchanged) and, in two runs, a random 0.5 s smoothing of the inputs with probability
+0.3 — with the checkpoint selected by the stall score computed under σ = 0.03 jittered recorded controls
+(`--stall-eval-jitter`), plus an un-augmented control run selected the same way and a second seed. Events are the
+corrected ones (§13.6). Evaluation adds the jitter probe (`pre_rec_jit`, `stuck_rec_jit`) to every analyze table and
+uses the corrected wrong-map probe. The question is single: do the local stall metrics survive the jitter probe, and
+does the tracker-in-the-loop decision test (§13.7) then move toward the teacher-forced one?
