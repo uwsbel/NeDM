@@ -4842,3 +4842,37 @@ line. That works only when the data and the repository are on the same machine, 
 **nothing in the corpus itself would have revealed it.**
 
 **Evidence:** commit 23ccc47.
+
+## A number that could only have come out one way is not a measurement
+
+**Before quoting a value as evidence, ask what else it could have been. If the answer
+is "nothing," it is a property of the procedure and carries no information about the
+system.**
+
+Two instances an hour apart, in opposite directions, neither caught by inspection:
+
+**A control that cannot fail its own selection.** The verdict's cell is built by
+applying `scored()` to baseline CSVs collected with the base controller, rejecting any
+episode under `SCORED_ROWS + 500` rows. So the 43 eligible episodes are exactly those
+where base ran to completion, and base then "scores" 43/43 on them. **Up to
+determinism, which a replay check confirms, that number cannot come out any other
+way** -- and it had been quoted as the anchor validating a new statistic.
+
+**A signature shared by the control.** Every fine-tuned arm's failures blow up to
+`~1e35`, and the exclusion of exactly that mode from the surrogate's training set
+looked like it explained the signature. **Base -- which never entered the fine-tuning
+loop -- blows up at 1.12e35, the largest median of any arm.** The signature is what the
+integrator does when any controller loses the robot. The mechanism survived for *where*
+and *how often*; it never explained *how*, and the vividness of `1e35` is what made it
+feel diagnostic.
+
+> **The tell is the same in both: no control was run, because the number looked like a
+> result rather than a possible artifact.** One query against data already on disk
+> settled each.
+
+**And it composes with the selection lessons.** A conditioning step that is correct for
+its own question -- score only completed episodes, exclude non-physical states --
+becomes a source of tautology the moment its output is read as a measurement of the
+thing it conditioned on.
+
+**Evidence:** commit 3b778b6.
