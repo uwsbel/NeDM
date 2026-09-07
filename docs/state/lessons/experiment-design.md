@@ -4616,3 +4616,55 @@ effect.** It is a real difference of no consequence. The denominator is what mak
 it legible, and an interval never carries one.
 
 **Evidence:** cell3 matched-gain decomposition, commit e9052c1.
+
+## The number 40 was a grid dimension, and two of us read it as a sample size within one hour
+
+**Cost:** one inflated coincidence, one p-value off by eight orders of magnitude · **Found:** 2026-09-07 · **Applies to:** any statistic computed on a `repeats x CONDITIONS` pool
+
+The standing screen builds its episode list as
+
+```python
+  jobs = [(f, p, pk, r, pi, seed + rep) for rep in range(repeats) for ... in CONDITIONS]
+```
+
+**8 fixed conditions x 5 seeds = 40 episodes.** The 40 is the size of a grid, not a
+sample. The five repeats inside a condition share family, command params,
+perturbation peak and both ground tilts; and both arms of a comparison run the
+identical job list, so the arms are *paired on condition*.
+
+**Two errors from this in the same hour, in opposite directions, by different
+people:**
+
+| error | wrong null | consequence |
+|---|---|---|
+| three sweeps landing on exactly 15/40 called a "2% coincidence" | `binomial(40, p)`, sd 3.06 | invented an anomaly; nearly retired a correct `--seed` verification |
+| v4 against armA at one rung reported at `p = 6.0e-11` | Fisher exact on 40 v 40 | eight orders of magnitude; the honest floor is ~0.008 |
+
+**Cause.** Both statistics need the number of *independent units*, which is the
+number of conditions, not the number of episodes. A condition sitting at 0/5 or
+5/5 contributes **zero** across-sweep variance, and a paired design over 8 units
+cannot produce a p-value below `2 x (1/2)^8 = 0.0078` however large the effect.
+
+**Fix.** Corrected null: `Var = sum_c repeats * p_c(1-p_c)`, which gave sd 1.67
+against the naive 3.06. Verified on a rung it was not fitted to: at k=0.90 it
+predicts 1.79 and the four sweeps give 1.83.
+
+**And then the correction itself was over-read.** A residual "P = 0.053" was
+computed against that corrected null before noticing that its `p_c` values come
+from five-episode cells. One condition reading 2/5 on one seed and 0/5 on another
+swings the null's sd from 1.67 to 1.26; a second seed's vector, fully saturated,
+puts it at 0.00. **A p-value quoted to two figures against a null whose own sd
+spans [0.0, 1.7] is a precision the null cannot support**, and the parameter was
+estimated from the same cells the test was about.
+
+**The asymmetry worth keeping.** The wrong reading (an abstaining predictor read
+as evidence of an intermediate result) cost nothing, because registered branches
+made it inert. The wrong null propagated much further and triggered a simulation
+plus a re-examination of a verification that had been correct. **A reading is
+visibly an interpretation; a null looks like arithmetic.**
+
+**Evidence:** four v4 sweeps at k=0.95 gave 15, 15, 15, 14 (range 1, corrected sd
+1.67); at k=0.90 they gave 20, 23, 21, 24 (sd 1.83 against predicted 1.79).
+Per-condition vectors `[0,0,5,4,2,4,0,0]` and `[0,0,5,5,0,5,0,0]`, different
+patterns summing identically. Related: [effective n is episodes, not
+windows](#) — this is the same denominator error one level further down.
