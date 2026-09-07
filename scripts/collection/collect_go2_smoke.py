@@ -163,6 +163,9 @@ def parse_args() -> argparse.Namespace:
     # BEFORE recording begins, so an episode starts mid-gait with velocity and
     # arbitrary phase instead of from rest.
     parser.add_argument("--prewalk-s", type=float, default=0.0)
+    parser.add_argument("--log-warmup", action="store_true",
+                        help="also record the pose ramp, settle and prewalk that are "
+                             "normally discarded. Diagnostic only -- see next_record_s.")
     parser.add_argument("--soil-young", type=float, default=None)
     parser.add_argument("--soil-cohesion", type=float, default=None)
     parser.add_argument("--no-calf-fsi", action="store_true")
@@ -484,7 +487,14 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
     # dynamics are a drop transient rather than locomotion.
     # Recording starts AFTER the prewalk, so the first recorded row is mid-gait.
     warmup_s = args.pose_ramp_seconds + args.settle_seconds + float(args.prewalk_s)
-    next_record_s = warmup_s
+    # --log-warmup RECORDS THE DISCARDED TRANSIENT. The window above is normally
+    # dropped, which means every artefact this project has starts AFTER the policy has
+    # been in closed loop for seconds. A fine-tuned policy was found to be at 1e10 rad
+    # by its first recorded row, so the failure happens entirely inside this window and
+    # nothing in the corpus contains it. Off by default: the rows are a drop transient
+    # and a settle hold, not locomotion, and pooling them with training data would be
+    # the mistake the discard exists to prevent.
+    next_record_s = 0.0 if args.log_warmup else warmup_s
     next_progress_s = 0.0
     sample_index = 0
     fell_at: float | None = None
