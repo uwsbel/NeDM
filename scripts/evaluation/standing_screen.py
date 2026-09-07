@@ -131,6 +131,9 @@ CONDITIONS = [("constant", {"vx": 0.0},                                    0.0, 
               ("arc",      {"vx": -0.06, "wz": 0.3},                      36.0,  1.0, -3.0)]
 
 
+_SEEN_FAILURES = set()   # distinct collector errors already reported
+
+
 def _one(ckpt, fam, params, peak, roll, pitch, duration, seed, keep=None):
     out = keep or tempfile.mkdtemp(prefix="stand_")
     cmd = [PY, "scripts/collection/collect_go2_smoke.py", "--terrain", "rigid",
@@ -146,6 +149,18 @@ def _one(ckpt, fam, params, peak, roll, pitch, duration, seed, keep=None):
                        capture_output=True, text=True)
     files = glob.glob(f"{out}/episodes/*.csv")
     if not files:
+        # The subprocess's stderr was captured and then discarded, so a fully failed
+        # sweep reported "40 conditions produced no episode" and nothing about WHY.
+        # On a3 every episode was dying on a missing URDF, because that box keeps its
+        # assets at a path DEFAULT_ASSETS does not cover -- the exact failure
+        # collect_go2_smoke's own comment predicts. Recovering that took a manual
+        # re-run of the collector. Surface the reason, deduplicated so 40 identical
+        # failures print once.
+        why = (p.stderr or p.stdout or "").strip().splitlines()
+        msg = why[-1] if why else f"exit {p.returncode}, no output"
+        if msg not in _SEEN_FAILURES:
+            _SEEN_FAILURES.add(msg)
+            print(f"  [no episode] {fam}: {msg}", file=sys.stderr, flush=True)
         return None
     rows = list(csv.DictReader(open(files[0])))
     if not rows:
