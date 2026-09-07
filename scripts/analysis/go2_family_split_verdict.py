@@ -159,13 +159,48 @@ def main():
         print(f"    slow  median {np.median(lo_h):+.5f}")
         print(f"    fast  median {np.median(hi_h):+.5f}")
         print(f"  separation  family {sep_f:.5f}   motion {sep_m:.5f}")
+        # FLOOR BEFORE RANKING, BY PERMUTATION. E3 compares two separations; if
+        # neither is distinguishable from chance, "which separates better" is a
+        # percentage difference between two noise values and returns a confident
+        # answer. On matched-gain differences both separations were ~0.00003 and
+        # this reported MOTION winning by 3738%.
+        #
+        # NOT a bootstrap of the separation: the separation is an ABSOLUTE
+        # difference, so its resampled distribution is non-negative and its lower
+        # percentile is essentially always above zero. That floor passes everything,
+        # which is how the first version of this check silently did nothing.
+        # Permuting the group labels gives the distribution of separations
+        # attributable to chance, which is the quantity the floor needs.
+        rng = np.random.default_rng(0)
+        dall = np.array([p["difference"] for p in pairs])
+        is_s = np.array([p["family"] in STRAIGHT for p in pairs])
+        nullf, nullm = [], []
+        for _ in range(2000):
+            pm = rng.permutation(len(dall))
+            nullf.append(abs(np.median(dall[pm][is_s]) - np.median(dall[pm][~is_s])))
+            pv = rng.permutation(len(dall))
+            cc = np.median(vals)
+            lo_b, hi_b = dall[pv][vals <= cc], dall[pv][vals > cc]
+            if len(lo_b) and len(hi_b):
+                nullm.append(abs(np.median(lo_b) - np.median(hi_b)))
+        p_f = float((np.array(nullf) >= sep_f).mean())
+        p_m = float((np.array(nullm) >= sep_m).mean())
+        print(f"  permutation p: family {p_f:.3f}, motion {p_m:.3f}")
+        e3_skip = (p_f > 0.05 and p_m > 0.05)
+        if e3_skip:
+            e3 = None
+            print("  E3 NOT DISCRIMINABLE -- neither separation exceeds what label "
+                  "shuffling produces by chance, so the ranking between them is a "
+                  "comparison of two noise values and is not interpretable.")
         smaller = min(sep_f, sep_m)
-        if abs(sep_f - sep_m) <= E3_TIE_BAND * smaller:
+        if e3_skip:
+            pass
+        elif abs(sep_f - sep_m) <= E3_TIE_BAND * smaller:
             e3 = "tie"
             print(f"  E3 = TIE (within {E3_TIE_BAND:.0%} of the smaller). The two splits are\n"
                   "  collinear in this stratum and cannot be separated without conditions\n"
                   "  that break the correlation -- turning episodes ARE the fast ones here.")
-        else:
+        elif True:
             e3 = "motion" if sep_m > sep_f else "family"
             print(f"  E3 = {e3.upper()} split separates better by "
                   f"{abs(sep_f - sep_m) / smaller:.0%}")
