@@ -56,6 +56,8 @@ def tracker_action_center(policy_dir: Path) -> list[float]:
     """The tracker squashes its outputs around the action mean of the dynamics normaliser it was TRAINED with;
     the imagination env must keep that centre whatever dynamics model it now drives (review audit, notes §12.4)."""
     import torch
+    if str(policy_dir).endswith("pure_pursuit"):
+        return [-0.002858338877558708, 0.2001095563173294, 0.020143987610936165]  # the tracker's centre, for a like-for-like squash
     cfg = json.loads((policy_dir / "env_cfg.json").read_text())
     if isinstance(cfg.get("action_center"), list):
         return [float(v) for v in cfg["action_center"]]

@@ -1886,3 +1886,45 @@ fingerprint; stop training this loss on these events and go to the terrain-readi
 `x_hill1_h180`), a stall/progress head, or the replanning design. (a) holds, (b) fails → the gap is the controller
 pairing; proceed with the tracker inside the augmented model. Checkpoint rule: lowest jitter-robust stall score at
 step ≤ 5 000. One look at f105 per run; the sealed arenas are not touched.
+
+### 13.10 Waves 3 / 3b, the verdict, and the controller in the loop (2026-09-07, automated follow-up)
+
+Automation (`traverse_wp8_followup.sh`, `traverse_wp8_verdict.py`): the twelve augmentation runs were scored as they
+finished, the pre-registered endpoints applied at 03:14, the branch launched without intervention.
+
+**Verdict A_FAIL, informative.** Every augmented run's stall metrics survive tracker-like throttle noise (drops of
+0.00–0.10 under the AR(1) probe) where the un-augmented control run collapses (stops 0.33 → 0.15, held stalls 0.59 →
+0.17, launch failures 0.38 → 0.10), so the augmentation removed the fingerprint; but the robust levels are modest — best
+run `wp8d_ar03` (AR(1) noise): true stops predicted 0.43 (AR 0.33), seeded stalls held 0.48 (0.39), launch failures
+held 0.33 (0.29), no false stops, against 0.24 / 0.22 / 0.20 frozen — below the pre-registered 0.30 / 0.45 / 0.45 on the
+launch level for every run (`wp8_eval/verdict.txt`). Smoothing augmentation lowers the levels further. Reading: once the
+model cannot use the throttle, what it reads from the state on unseen terrain is a real but small stall signal.
+
+**The controller in the loop, three ways** (`decision_*.log`, `pick_*.txt`, all on f105):
+
+| imagination driven by | frozen: AUC stuck-within-8 s · pick | stall-trained `wp8_p6_k80_prog` | augmented `wp8d_ar03` |
+|---|---|---|---|
+| recorded controls (teacher-forced) | 0.76 | 0.89 | 0.85 |
+| the WP3 tracker (trained in the frozen imagination) | 0.65 · 39 / 52 | 0.71 · 41 | 0.71 · 41 |
+| a tracker retrained inside `wp8d_ar03` (2 seeds, 19 min each) | 0.70 | 0.33 | 0.33 · 26 / 30 |
+| pure pursuit (fixed geometric controller) | 0.78 · 41 | 0.32 · 40 | 0.43 · 43 |
+| fastest heuristic | 44 / 52 | | |
+
+1. **A tracker retrained inside the stall-aware imagination exploits it.** It learns control patterns under which the
+   model predicts motion: with it the model rejects 1 of 130 infeasible routes (17–19 of 451 feasible), the pre-stall
+   discrimination inverts (AUC 0.33; 9 % of stuck runs predicted stuck, 50 % of passing ones), and the pick falls to
+   26–30 / 52. The audit's warning that "a tracker trained inside an imagination whose stall signal is a control
+   pattern learns to dither out of imagined stalls" is confirmed. Model-based RL's model-exploitation problem, in one
+   table.
+2. **A fixed controller is not the answer either:** pure pursuit holds a *perfectly* constant throttle at steady speed,
+   a stronger version of the cue than the recorded stalls' 0.015 per step, and the stall-trained models read it in
+   reverse — passing runs predicted stuck (49 %), stuck runs predicted moving (21 %); AUC 0.32–0.43, below chance. The
+   augmentation reduced but did not remove the constancy cue (white and AR(1) noise never produce an exactly constant
+   input). The frozen model, which never learned the cue, is unaffected (0.78).
+3. **The original tracker** gives every model AUC 0.65–0.71 and picks of 39–43 against the heuristic's 44.
+
+**Follow-ups running (cluster):** wave 4 (four runs on the momentum-loss events with the AR(1) augmentation, launched by
+the orchestrator) and wave 5 (four runs adding a *hold* augmentation — random windows get a perfectly constant throttle
+input — with and without the momentum events), both scored automatically with the jitter probes and the decision test.
+The question for both is whether a stall signal read from the state alone can be made large enough to matter, and
+whether any controller can be put in the loop without either exploiting the model or triggering its cues.

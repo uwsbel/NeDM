@@ -176,14 +176,18 @@ def ar1_noise(shape, rho: float, device) -> torch.Tensor:
     return out
 
 
-def augment_actions(act: torch.Tensor, act_std, noise: float, smooth_p: float, rho: float = 0.0) -> torch.Tensor:
+def augment_actions(act: torch.Tensor, act_std, noise: float, smooth_p: float, rho: float = 0.0, hold_p: float = 0.0) -> torch.Tensor:
     """Control-input augmentation (audit 2026-09-07): stall-trained models keyed on the near-constant recorded throttle of a
     stuck vehicle (Chrono's controller holds its output); zero-mean per-step jitter of ``noise`` (physical units, throttle
     and steering) and, with probability ``smooth_p`` per window, a 0.5 s moving average make that fingerprint unavailable,
     so the stall must be read from the state. Applied to the INPUT controls only (context and future); targets unchanged."""
-    if noise <= 0 and smooth_p <= 0:
+    if noise <= 0 and smooth_p <= 0 and hold_p <= 0:
         return act
     a = act
+    if hold_p > 0:  # a perfectly constant throttle over the window (what a fixed controller at steady speed produces) on random windows
+        held = a.clone(); held[:, :, 1] = a[:, :, 1].mean(dim=1, keepdim=True)
+        pick = (torch.rand(a.shape[0], 1, 1, device=a.device) < hold_p).float()
+        a = pick * held + (1 - pick) * a
     if smooth_p > 0:
         k = 10
         sm = F.avg_pool1d(F.pad(a.transpose(1, 2), (k - 1, 0), mode="replicate"), k, stride=1).transpose(1, 2)
@@ -477,6 +481,7 @@ def main() -> None:
     ap.add_argument("--action-noise", type=float, default=0.0,
                     help="per-step Gaussian jitter (physical units) on the throttle and steering INPUTS in training: removes the constant-throttle stall fingerprint")
     ap.add_argument("--action-smooth-p", type=float, default=0.0, help="probability per window of replacing the control inputs by their 0.5 s moving average")
+    ap.add_argument("--action-hold-p", type=float, default=0.0, help="probability per window of replacing the throttle input by its window mean (constant throttle must not mean 'stuck')")
     ap.add_argument("--action-noise-rho", type=float, default=0.0, help="lag-1 autocorrelation of the action noise (0 = white; the imagined tracker's per-step changes have +0.3)")
     ap.add_argument("--event-kind-weights", choices=["uniform", "episodes"], default="uniform",
                     help="episodes: draw event kinds in proportion to the number of episodes offering them (the 'stuck' kind is nearly empty at long horizons)")
@@ -695,7 +700,7 @@ def main() -> None:
         if args.rollout_steps > 0:
             batch = train_data.sample(rng, args.batch, device, extra_steps=args.rollout_steps, event_frac=args.event_frac, event_kinds=args.event_kinds)
             one = {k: v[:, : args.context + 1] if v.dim() >= 2 and k not in ("map", "hm") else v for k, v in batch.items()}
-            aug = (norm.act_std, args.action_noise, args.action_smooth_p, args.action_noise_rho) if (args.action_noise > 0 or args.action_smooth_p > 0) else None
+            aug = (norm.act_std, args.action_noise, args.action_smooth_p, args.action_noise_rho, args.action_hold_p) if (args.action_noise > 0 or args.action_smooth_p > 0 or args.action_hold_p > 0) else None
             loss, parts = step_loss(model, one, args.map_mode, loss_w, args.context_noise, aug)
             ro, ro_parts = rollout_loss(model, batch, args.context, args.rollout_steps, z1_mean_t, z1_std_t, loss_w, args.progress_weight, args.context_noise, aug)
             loss = loss + args.rollout_weight * ro

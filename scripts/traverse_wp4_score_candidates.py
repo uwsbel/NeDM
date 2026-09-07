@@ -212,6 +212,10 @@ def rollout(env: TraverseTrackingEnv, policy, horizon: int, obstacles: torch.Ten
 
 
 def load_policy(run_dir: Path, env: TraverseTrackingEnv, device: str):
+    if str(run_dir).endswith("pure_pursuit"):  # fixed geometric controller: cannot adapt to (exploit) the dynamics model
+        from nedm.traverse.tracker_env import pure_pursuit_actions
+        print("policy: pure pursuit (fixed)", flush=True)
+        return lambda obs, _env=env: pure_pursuit_actions(_env)
     from rsl_rl.runners import OnPolicyRunner
     train_cfg = json.loads((run_dir / "train_cfg.json").read_text())
     ckpts = sorted(run_dir.glob("model_*.pt"), key=lambda p: int(p.stem.split("_")[1]))
