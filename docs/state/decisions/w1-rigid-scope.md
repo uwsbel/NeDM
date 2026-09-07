@@ -2652,3 +2652,29 @@ roll's boundary is, not where the boundary is**, and the arc cell's +1.0 roll is
 arbitrary choice inherited from the defective list. Fix roll at 0.0 and say so, or
 sweep the plane. **Arm-vs-arm comparison at a fixed roll stays valid** -- it is paired,
 and the confound is held constant.
+
+### REGISTERED: does protective roll SHIFT the boundary or REMOVE it?
+
+At roll +1.0 the boundary is a hard step in (-1.5, -1.0]. At roll -3.0 there is no
+boundary anywhere in [-3.0, 0.0]. **Two structures fit that equally:**
+
+    SHIFTED   failure depends on one effective tilt, some f(pitch, roll); roll -3.0
+              just moves the step past -3.0 and it reappears at a steeper pitch
+    REMOVED   a genuine interaction; protective roll eliminates the mode entirely
+
+**These have opposite consequences for the rebuild.** If shifted, the whole thing
+collapses to ONE axis and the rebuild sweeps a scalar. If removed, two axes must be
+crossed and no scalar summarises them.
+
+**Neither the eight cells nor a3's grid can tell them apart -- both stop at pitch
+-3.0, which is inside the region roll -3.0 already protects.**
+
+> **Test: `arc`, base, peak 36 N, `wz` +0.3, roll -3.0, at pitch -4.5, -6.0 and -9.0.
+> Control: roll 0.0 at pitch -4.5, which must fail if the instrument is behaving.**
+>
+>     fails at some deeper pitch  -> SHIFTED; one effective tilt axis; rebuild is 1-D
+>     0/5 at all three           -> REMOVED; real interaction; rebuild must cross both
+
+**Independent replication worth recording:** their pitch +3.0 read 1/5 at roll +1.0
+and my arc test read 1/5 at roll +1.0, on different boxes with different Chrono
+builds. **The nose-up edge is real and reproduces across the build difference.**
