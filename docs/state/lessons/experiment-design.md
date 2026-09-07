@@ -4616,3 +4616,38 @@ effect.** It is a real difference of no consequence. The denominator is what mak
 it legible, and an interval never carries one.
 
 **Evidence:** cell3 matched-gain decomposition, commit e9052c1.
+
+## A wrong null propagates further than a wrong reading
+
+**State the model a null assumes, because a number derived from an unstated model is
+indistinguishable from a measurement.**
+
+Two errors landed within an hour of each other. A *reading* -- "cell 2's abstention
+suggests an intermediate result" -- was challenged within one message, cost nothing,
+and was retracted, because a reading is **visibly an interpretation** and invites
+scrutiny by its form. A *null* -- an across-sweep sd of 3.06 from a binomial that
+assumed a homogeneous failure rate -- survived longer, propagated into a simulation,
+and nearly overturned a `--seed` verification that was correct all along. **It looked
+like arithmetic.**
+
+The corrected null was no safer. Its parameter came from the same five-episode cells
+the test was about:
+
+    null estimated from                     null sd    P(sd <= observed)
+    seed 0 vector    [0,0,5,4,2,4,0,0]        1.67         0.053
+    cond-4 at 1/5    [0,0,5,4,1,4,0,0]        1.55         0.068
+    pooled n=10/cond                          1.30         0.112
+    seed 202 vector  [0,0,5,5,0,5,0,0]        0.00         1.000
+
+**One condition, measured twice, disagreeing by two episodes, moves P from 0.053 to
+1.000.** Every other condition is saturated and contributes nothing. There is no
+measurement here that can tell 5% from 50%, so the residual was dropped rather than
+carried -- **a carried residual invites someone to treat it as a live thread later.**
+
+Same family as `k*` to three decimals off eight coin flips, and an interval quoted
+without its denominator: **a precision the instrument cannot support.** The tell is
+specific -- when a null's parameter is estimated from the same small cells the test
+interrogates, the data is used twice and the estimate's own uncertainty swamps the
+effect.
+
+**Evidence:** four-sweep across-seed comparison, commit ef60570.
