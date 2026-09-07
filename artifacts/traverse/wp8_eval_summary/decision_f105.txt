@@ -1,0 +1,54 @@
+cheap classifiers trained on ['arena_f101', 'arena_f102', 'arena_f103', 'arena_f104']: 111305 windows, 6.2 % stuck within 8 s
+
+=== arena_f105: 47 layouts with en-route stops, 175 decision windows (30 stuck within 8 s, 101 infeasible runs)
+
+175 decision windows; local stuck 30, infeasible runs 101
+predictor                                    AUC local AUC infeasible sens@5%FPR  pred stuck (stuck / pass)
+wp2_mapv2_pt_dag_ro8_amd [recorded controls]      0.82           0.67       0.57                0.67 / 0.59
+wp2_mapv2_pt_dag_ro8_amd [tracker]                0.66           0.62       0.43                0.43 / 0.46
+wp7_ft_mix_amd [recorded controls]                0.83           0.70       0.53                0.73 / 0.68
+wp7_ft_mix_amd [tracker]                          0.72           0.66       0.43                0.47 / 0.52
+wp8_p6_k80_prog [recorded controls]               0.90           0.84       0.77                0.87 / 0.43
+wp8_p6_k80_prog [tracker]                         0.67           0.72       0.43                0.27 / 0.57
+wp8_p6_k80_prog_s2 [recorded controls]            0.86           0.83       0.70                0.83 / 0.43
+wp8_p6_k80_prog_s2 [tracker]                      0.48           0.64       0.17                0.23 / 0.56
+wp8_p9_k80_prog [recorded controls]               0.86           0.84       0.47                0.90 / 0.42
+wp8_p9_k80_prog [tracker]                         0.80           0.70       0.50                0.60 / 0.47
+cheap classifier [context + recorded controls]      0.71           0.86       0.13                0.13 / 0.09
+cheap classifier [context only]                   0.64           0.78       0.03                0.03 / 0.07
+
+decision per layout (fastest among the accepted candidates; fallback fastest): 11 layouts with a feasible candidate at the decision point; the fastest candidate is infeasible on 0 of them
+  outcome accuracy per candidate wp2_mapv2_pt_dag_ro8_amd [rec]: 0.45   (always-pass baseline 0.42)
+  outcome accuracy per candidate wp2_mapv2_pt_dag_ro8_amd [pol]: 0.37   (always-pass baseline 0.42)
+  outcome accuracy per candidate wp7_ft_mix_amd [rec]: 0.49   (always-pass baseline 0.42)
+  outcome accuracy per candidate wp7_ft_mix_amd [pol]: 0.41   (always-pass baseline 0.42)
+  outcome accuracy per candidate wp8_p6_k80_prog [rec]: 0.64   (always-pass baseline 0.42)
+  outcome accuracy per candidate wp8_p6_k80_prog [pol]: 0.41   (always-pass baseline 0.42)
+  outcome accuracy per candidate wp8_p6_k80_prog_s2 [rec]: 0.56   (always-pass baseline 0.42)
+  outcome accuracy per candidate wp8_p6_k80_prog_s2 [pol]: 0.37   (always-pass baseline 0.42)
+  outcome accuracy per candidate wp8_p9_k80_prog [rec]: 0.62   (always-pass baseline 0.42)
+  outcome accuracy per candidate wp8_p9_k80_prog [pol]: 0.42   (always-pass baseline 0.42)
+  fastest heuristic                                    feasible  11/11  regret 1.07
+  oracle (fastest feasible)                            feasible  11/11  regret 1.07
+  wp2_mapv2_pt_dag_ro8_amd gate [recorded controls]    feasible   7/11  regret 1.06
+  wp2_mapv2_pt_dag_ro8_amd gate [tracker]              feasible   9/11  regret 1.15
+  wp7_ft_mix_amd gate [recorded controls]              feasible  10/11  regret 1.11
+  wp7_ft_mix_amd gate [tracker]                        feasible   9/11  regret 1.18
+  wp8_p6_k80_prog gate [recorded controls]             feasible  11/11  regret 1.07
+  wp8_p6_k80_prog gate [tracker]                       feasible   9/11  regret 1.15
+  wp8_p6_k80_prog_s2 gate [recorded controls]          feasible  10/11  regret 1.17
+  wp8_p6_k80_prog_s2 gate [tracker]                    feasible   8/11  regret 1.11
+  wp8_p9_k80_prog gate [recorded controls]             feasible  11/11  regret 1.07
+  wp8_p9_k80_prog gate [tracker]                       feasible  10/11  regret 1.24
+  cheap gate [context + recorded controls]             feasible  11/11  regret 1.07
+  cheap gate [context only]                            feasible  11/11  regret 1.07
+
+speed ladders at the decision point (S = passes / F = stuck or infeasible), Chrono vs each model with recorded controls:
+  arena_f105__x_crater11_h315          Chrono FSSSSSSS | wp2_mapv2_pt_d SFFFFFFF | wp7_ft_mix_amd FFFFFFFF | wp8_p6_k80_pro FSFFSFSS | wp8_p6_k80_pro FSFSSSSS | wp8_p9_k80_pro FSFFSSSS | cheap SSSSSSSS
+  arena_f105__x_crater7_h270           Chrono FFSSSSSS | wp2_mapv2_pt_d SSFFFFFF | wp7_ft_mix_amd FFFFFFFF | wp8_p6_k80_pro SFSFFSSF | wp8_p6_k80_pro SFFFFFFF | wp8_p9_k80_pro SFSFFSSS | cheap SSSSSSSS
+  arena_f105__x_crater9_h090           Chrono FFFSFSSS | wp2_mapv2_pt_d SSSSSSSS | wp7_ft_mix_amd SFSFSFFF | wp8_p6_k80_pro FFFSSSSS | wp8_p6_k80_pro FSSSSSSS | wp8_p9_k80_pro FFFSSSSS | cheap SSSSSSSS
+  arena_f105__x_hill0_h045             Chrono FFSSSSSS | wp2_mapv2_pt_d FFFFFFFF | wp7_ft_mix_amd FFFFFFFF | wp8_p6_k80_pro FSSSSSSS | wp8_p6_k80_pro FFSSSSSS | wp8_p9_k80_pro FFSSSSSS | cheap SSSSSSSS
+  arena_f105__x_hill0_h135             Chrono FSSSSSSS | wp2_mapv2_pt_d FFFFFFFF | wp7_ft_mix_amd FFFFFFFF | wp8_p6_k80_pro FFFFSSSS | wp8_p6_k80_pro SFFFFFFF | wp8_p9_k80_pro SFFFSFFF | cheap SSSSSSSS
+  arena_f105__x_hill1_h090             Chrono FSSSSSSS | wp2_mapv2_pt_d SSSSSSSS | wp7_ft_mix_amd SSSSSSSS | wp8_p6_k80_pro FFSSSSSS | wp8_p6_k80_pro FFSSSSSS | wp8_p9_k80_pro FFSSSSSS | cheap SSSSSSSS
+  arena_f105__x_hill1_h090_sh          Chrono FSSSFSFS | wp2_mapv2_pt_d SSSSSSSS | wp7_ft_mix_amd SSSSSSSS | wp8_p6_k80_pro FSSSSSSS | wp8_p6_k80_pro FSSSSSSS | wp8_p9_k80_pro FSSSSSSS | cheap SSSFSSSS
+  arena_f105__x_hill4_h135             Chrono FFSSSSSS | wp2_mapv2_pt_d SFFFFFFF | wp7_ft_mix_amd FFFFFFFF | wp8_p6_k80_pro SSFFFSSS | wp8_p6_k80_pro SSFFFSFF | wp8_p9_k80_pro SSFFFSSS | cheap FSSSSSSS

@@ -1,0 +1,8 @@
+arenas ['arena_f105']: 52 layouts with a feasible route (13 without), bank sizes 6-13
+method                             layouts picked feasible regret   max rej.feas rej.inf abstain
+------------------------------------------------------------------------------------------------
+rule (slope_aware)                      52     47       31   1.44  2.08        -       -   1/13 
+fastest (mean commanded speed)          52     52       44   1.15  1.56        -       -   0/13 
+slowest (mean commanded speed)          52     52       27   1.40  2.40        -       -   0/13 
+world model: wp8_p3_k80                 52     48       39   1.15  2.18   81/451  59/130   5/13 
+feasible = picked route completed in Chrono without stall or contact; regret = Chrono cost of the pick / best feasible cost; rej.feas / rej.inf = feasible / infeasible bank routes the method rejected (world models: imagination not ok; cheap: p < tau); abstain = layouts with NO feasible bank route on which the method picked nothing

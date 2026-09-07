@@ -1,0 +1,13 @@
+model tests [eval_wp8_p6_k80_prog_s2_f104]: 312 runs; launch=28, stop=78, feasible=206
+
+--- launch (n=28) --- recorded vx@3s 1.29; recorded vx 2 s after the stop 0.31
+model                     rest+rec vx@3s  >1m/s  healthyFz  wrongMap  rest+trk done |  pre+rec vx@+2s   <0.5  wrongMap pre+trk vx   <0.5 | k8 err pre/post | k20 err pre/post
+wp8_p6_k80_prog_s2                  1.25   0.61       1.05      1.24           0.04 |           -0.01   0.79     -0.03      -0.02   0.79 | +0.04 / +0.01   | +0.02 / +0.05   | in-stall +4s 0.35 (<0.5: 0.79)
+
+--- stop (n=78) --- recorded vx@3s 3.11; recorded vx 2 s after the stop 0.09
+model                     rest+rec vx@3s  >1m/s  healthyFz  wrongMap  rest+trk done |  pre+rec vx@+2s   <0.5  wrongMap pre+trk vx   <0.5 | k8 err pre/post | k20 err pre/post
+wp8_p6_k80_prog_s2                  3.09   1.00       3.15      3.10           0.17 |            0.32   0.74      0.33       0.43   0.63 | +0.03 / +0.05   | +0.03 / +0.05   | in-stall +4s -0.18 (<0.5: 0.87)
+
+--- feasible (n=206) --- recorded vx@3s 4.04; recorded vx 2 s after the stop 3.30
+model                     rest+rec vx@3s  >1m/s  healthyFz  wrongMap  rest+trk done |  pre+rec vx@+2s   <0.5  wrongMap pre+trk vx   <0.5 | k8 err pre/post | k20 err pre/post
+wp8_p6_k80_prog_s2                  4.10   1.00       4.13      4.09           0.89 |            3.63   0.01      3.62       3.26   0.04 | +0.02 / +0.02   | +0.03 / +0.01   | in-stall +4s 3.37 (<0.5: 0.01)

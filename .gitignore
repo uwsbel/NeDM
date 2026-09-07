@@ -288,3 +288,6 @@ artifacts/traverse/wp7_collect_f10?/tasks.json
 !artifacts/traverse/wp7_stall_diag/
 artifacts/traverse/wp7_stall_diag/model_tests*.json
 !artifacts/traverse/wp7_imagine_*_lim60/
+!artifacts/traverse/wp8_eval_summary/
+!artifacts/traverse/wp8_p6_k80_prog/
+artifacts/traverse/wp8_p6_k80_prog/ckpt_last.pt

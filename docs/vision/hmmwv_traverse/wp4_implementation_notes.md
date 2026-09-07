@@ -1646,3 +1646,172 @@ predict the stop / hold a stall / keep a launch failure stationary, and does it 
 (3) the imagination on every f105 route and the shared-bank pick table (`pick_f105.json`, `pick_f105.txt`): the
 selection question with the benchmark unchanged. The sealed arenas are not touched by the ablation; one run of the
 chosen configuration on them comes after, with the user.
+
+### 13.4 Results, wave 1 (25 runs) and wave 2 (15 runs) — `wp8_eval/leaderboard_final.txt`
+
+All 40 runs trained and were scored with one harness (`traverse_wp8_eval_runs.sh`). Two defects in that harness were
+found afterwards by the independent audit (§13.6) — the "stop" class included timeouts that were still moving, and the
+"stopped" fractions used the signed speed — so the leaderboard's stall columns overstate stall reproduction; the
+corrected numbers for the key models are in §13.6. What survives from the leaderboard is the comparison *between*
+runs, since every run was scored the same way:
+
+* **Only three axes move the validation stall metrics beyond noise** (an OLS over the 40 runs on the best-checkpoint
+  stall score, residual sd 0.12 m/s): the event fraction p (−0.29 m/s from 0 to 0.6), the rollout horizon (−0.36 from
+  K 8 to 80, matched pairs −0.28 to −0.31 at every p) and the initialisation (from scratch +0.52). Lower learning
+  rate (+0.23) and dropout (+0.20 per 0.1) hurt. The progress loss helps at (p .6, K 80) (0.97 → 0.75) but not at
+  (p .3, K 40) (1.16 → 1.37); delta-scale, vx weight, weight decay, input noise, kind weighting, the data mix and the
+  combined configuration are inside the noise. Seeds: 0.75 / 0.76 / 0.77 on the score, but the f105 local fractions
+  vary by 0.11–0.20 across seeds, so single-pair differences below ~0.15 on those are not interpretable.
+* **Every run over-fits early:** validation one-step loss is lowest at the first evaluation (step 1 000) in 28 of 40
+  runs and rises by a median 15 % by the end; the stall score is best at ≤ 2 000 steps in 24 of 38 fine-tuned runs
+  and worsens by a median 0.18 m/s afterwards while the training loss keeps falling. Longer training is not a lever;
+  regularisation did not fix it (dropout runs start worse).
+* **Training-arena reproduction saturates with horizon**, not with the event share: every K ≥ 40 run predicts 65–78 %
+  of the f104 stops from context (frozen 37 %, K 8 runs 47–54 %) — and the f104 → f105 gap of 0.25–0.30 is the
+  generalisation gap the ablation did not close.
+* **What the imagination actually learned is to reject slow routes, not stalls:** in every run the closed-loop
+  imagination still accepts ≥ 59 % of the f105 stall-abort routes (frozen 86 %, best family 73–86 %), while the
+  acceptance of *timeout* routes fell from 64 / 64 to 40 / 64 (primary) or 16 / 64 (p .9, K 120) at the price of
+  accepting only 392 / 451 or 252 / 451 feasible routes and imagining feasible routes 1.6 s / 6.9 s slower than Chrono.
+* **No axis moves the pick:** own-pick feasible counts span 31–43 of 52 across the 40 runs (mean 38.8, frozen 39,
+  binomial SE ≈ 3) and are uncorrelated with every stall metric (|ρ| ≤ 0.08); the only 2-SE effect is input noise,
+  which lowers it (0.2 → 31 / 52).
+
+### 13.5 The model as a gate in front of the heuristic; sealed second look (pre-registered) — negative
+
+The models' own cost ranking is what loses, not the gate: keeping each model's accepted set but ranking by Chrono's
+true cost gives a feasible pick on 50 / 50 layouts (frozen) and 51 / 51 (primary) — the accepted set almost always
+contains a feasible route, and every own-pick failure is a slow candidate the imagination completes as a normal slow
+crossing while Chrono stalls or times out (imagined 15.5–17 s where Chrono ends at 27–28 s). The cost time + energy /
+10 is what drags the pick into the slow region: it is nearly speed-neutral in Chrono, but the imagined energy gradient
+(slow = cheap) outweighs the imagined time penalty, so the own pick averages 3.4–4.3 m/s where the fastest-accepted
+averages 5.0 m/s. The imagination's acceptance of *stalling* slow routes has a precision barely above the bank's base
+rate (P(feasible | accepted) at v2: frozen 0.40, primary 0.46, base 0.43) and its rejection rate is nearly flat over
+speed while Chrono infeasibility falls from 57 % (v2) to 14 % (v7–9).
+
+Using a model only as a rejecter and driving the FASTEST accepted candidate gave 45–47 / 52 on f105 (heuristic 44,
+frozen 44; best run `wp8_p6_k80_prog` at 47). That number is what the maximum of 40 exchangeable noisy runs looks like
+(distribution over the runs 43:1, 44:13, 45:24, 46:3, 47:1; expected max under the per-layout null 46.5, P(max ≥ 47)
+= 0.51), the metric is structurally protected (a wrongly rejected fastest candidate breaks the pick only when the
+next-fastest accepted route is infeasible — 2 of 187 times — and rejecting everything falls back to the heuristic),
+the individual "fixes" flip between seeds and between `ckpt_best` and `ckpt_last`, and the most-often fixed layout is
+a *contact* failure of the heuristic rejected for an unrelated imagined timeout. Checked once on the sealed arenas with
+the choice fixed in advance (primary `wp8_p6_k80_prog`, its two seeds, two exploratory runs; 93 layouts; 60° limits,
+tracker's own action centre):
+
+| sealed f106 + f107 | own pick | gate + fastest | fixes / breaks vs heuristic | rejected feasible / infeasible (of 843 / 193) |
+|---|---|---|---|---|
+| fastest heuristic | 86 / 93 (regret 1.15) | | | |
+| frozen · earlier fine-tune | 80 · 82 | 86 · 86 | 0 / 0 · 0 / 0 | |
+| **primary** | 76 | **85** | 0 / 1 | 113 / 68 |
+| seed 1 · seed 2 | 77 · 79 | 85 · 87 | 0 / 1 · 1 / 0 | 147 / 112 · 68 / 52 |
+| exploratory p .9 · p .3 | 81 · 80 | 86 · 87 | 0 / 0 · 1 / 0 | 129 / 85 · 159 / 111 |
+
+The gate changes the heuristic's sealed result by −1 to +1 layout; the own picks are below the frozen model's. The
+sealed arenas have now been looked at three times (§11.5, §12.4, here) and have no power for this question anyway: the
+heuristic fails on 7 of 93 layouts, 3 of them contact-only, so a stall gate's ceiling there is +4 and a paired sign
+test at zero breaks would need ≥ 6 fixes. **They must not be used again.** One correction to §13.5's earlier draft: the
+7 sealed failure layouts *do* each have a feasible slower alternative, so a perfect gate could in principle help; the
+issue is power and the model, not the benchmark's ceiling.
+
+### 13.6 Audit corrections (independent review, 2026-09-07) and the corrected numbers
+
+The multi-agent audit of the artifacts found, and I confirmed and fixed:
+
+1. **The "stop" class was mis-defined.** `stuck_from_displacement` could never report a vehicle still moving over the
+   final 2 s window (the tail without a full window counted as stuck), so `crawl` never fired and every timeout that
+   moved ≥ 2 m became a "stop" at frame n − 40. 176 of the 280 training-cache "stops" were such timeouts, 161 of them
+   with mean |vx| > 0.5 m/s over the "stuck" tail; at the frame the stall tests score, Chrono itself had |vx| < 0.5 in
+   only 40 of the 102 f105 "stops". Fixed: the class now requires a stationary tail (or the stall abort); the
+   corrected caches hold 221 stops (161 stall aborts + 60 stationary timeouts), 196 crawls, 209 launch failures.
+2. **Signed speed** in the "predicts the stop" / "holds the stall" fractions (§12.2, §13.4–13.5): rolling backwards
+   counted as stopped. Fixed to |vx|.
+3. **The trainer's stall validation**: the "approach" term scored |predicted vx| against an implicit zero although the
+   recorded speed at that frame averaged 1.2 m/s (because of defect 1); the "stuck" term had 17 windows; the
+   "recovery" events fire at frame 40 for any vehicle that sat with throttle on during the launch window, so the guard
+   is mostly a launch metric (genuine en-route recoveries: 24 train, 9 val). The events file is regenerated from the
+   corrected classes; the trainer's stuck window is 2 s; the approach target and the recovery detector are still to
+   be fixed before any retraining.
+4. **Over-holding**: seeded inside a stall, the primary holds 34 / 42 windows where Chrono was stationary but also
+   41 / 60 where Chrono moved on — per-episode agreement with Chrono 0.52 against the frozen model's 0.67 (f105).
+5. **Reporting**: the leaderboard's in-stall regex dropped negative predicted speeds (35 of 40 runs blank in that
+   column); the heading-flipped layout `x_hill1_h180` (§11.6) costs every model 13 false rejections and one own pick,
+   so the frozen model's "23 rejected feasible" is really 10; the gate+fastest counts depend on whether the
+   slope-aware profile is eligible (47 → 46 without it).
+6. No leakage of the validation arena into training; the evaluation is deterministic (re-running reproduced every
+   committed number); the 60° termination and the tracker's action centre were applied uniformly within wp8 (the
+   action-centre fix only affects the two scratch runs).
+
+**Corrected stall tests** (`wp8_eval/analyze_v2_{f105,f104,sealed}.txt`; true stops only; |vx| < 0.5 m/s):
+
+| from the recorded context | frozen f105 / f104 / sealed | primary `wp8_p6_k80_prog` | `wp8_p9_k80_prog` |
+|---|---|---|---|
+| stop predicted 2 s after Chrono's stop (n 46 / 48 / 75) | 0.24 / 0.25 / 0.23 | 0.39 / 0.58 / 0.44 | 0.50 / 0.56 / 0.39 |
+| mean predicted speed there, m/s (Chrono 0.28 / 0.19 / −0.05) | 2.38 / 1.51 / 1.65 | 0.45 / 0.21 / 0.50 | 0.23 / 0.18 / 0.52 |
+| stall held when seeded 1 s inside, 4 s later | 0.22 / 0.27 / 0.32 | 0.54 / 0.67 / 0.55 | 0.61 / 0.67 / 0.61 |
+| launch failure kept stationary (n 105 / 28 / 41) | 0.20 / 0.18 / 0.24 | 0.55 / 0.71 / 0.41 | 0.39 / 0.64 / 0.32 |
+| mean predicted speed there (Chrono 0.0 / 0.4 / −0.1) | 1.02 / 1.40 / 1.65 | 0.01 / 0.42 / −0.33 | 0.11 / 0.49 / −0.35 |
+| false stops on feasible controls (n 146 / 167 / 364) | 0.03 / 0.01 / 0.06 | 0.01 / 0.00 / 0.03 | 0.00 / 0.00 / 0.03 |
+
+So the honest size of the training effect: on unseen terrain the stall-trained model calls two-fifths to a half of the
+true stops (frozen a quarter), holds half to three-fifths of seeded stalls (a quarter to a third), keeps two-fifths to
+half of the launch failures stationary (a fifth to a quarter), with no false stops — and predicts speeds near zero
+where the frozen model predicts 1.5–2.4 m/s. On the training arena it reaches 0.58 / 0.67 / 0.71. Real, seed-stable
+(seed 2: 0.37 / 0.57 / 0.41 on f105), sealed-confirmed, and smaller than §13.4's draft claimed.
+
+### 13.7 Decision from the real pre-stall state (reviewer step 2), and what stands between context and closed loop
+
+`traverse_wp7_stall_diagnosis.py decision` (`wp8_eval/decision_v2_f105.log`). For every f105 layout with a true stop or a
+launch failure, the decision point is 5 m before the *earliest* stop on that layout (rest for launch failures), so every
+run on the same path is still moving there; each run is seeded from its recorded context at that point and rolled 8 s
+(a) with its recorded controls, (b) with the tracker; predicted stuck = |vx| < 0.5 m/s at the end or < 0.5 m of progress
+in the last second. 105 windows on 33 layouts (33 stuck within 8 s, 73 infeasible runs). A cheap MLP trained on the
+training arenas from the same context (and the same future controls) is the comparison.
+
+| predictor | AUC stuck within 8 s | AUC run infeasible | sensitivity at 5 % false alarms | outcome accuracy per candidate |
+|---|---|---|---|---|
+| frozen, recorded controls | 0.76 | 0.56 | 0.55 | 0.44 |
+| earlier fine-tune, recorded controls | 0.77 | 0.64 | 0.48 | 0.50 |
+| **primary, recorded controls** | **0.89** | **0.84** | **0.76** | **0.61** |
+| seed 2 · p .9, recorded controls | 0.86 · 0.87 | 0.80 · 0.83 | 0.73 · 0.64 | 0.53 · 0.57 |
+| primary, tracker in the loop | 0.71 | 0.68 | 0.39 | 0.38 |
+| seed 2 · p .9, tracker | 0.44 · 0.76 | 0.51 · 0.62 | 0.18 · 0.45 | 0.30 · 0.42 |
+| cheap classifier, context + recorded controls | 0.67 | 0.91 | 0.09 | |
+| cheap classifier, context only | 0.71 | 0.84 | 0.00 | |
+| always-pass baseline | | | | 0.30 |
+
+* **Given the real state and the real controls, the stall-trained model discriminates.** Runs that get stuck within
+  8 s are ranked at AUC 0.89 (frozen 0.76) with 76 % caught at 5 % false alarms — the cheap classifier on identical
+  inputs reaches 0.67 and 9 %. The classifier is *better* on the run-level label (0.91: it reads "slow commanded
+  speed ⇒ infeasible" off the future controls) and blind to the local event; the world model is the reverse. This
+  refutes §12.3's reading of the classifier probe as an information ceiling for the local prediction.
+* **With the tracker generating the controls the discrimination collapses from the same state** (0.89 → 0.71,
+  0.84 → 0.68; a seed to chance). It is not a throttle bias: shifting the recorded throttle by ±0.2 leaves the
+  teacher-forced AUC at 0.85–0.89 (+0.4: 0.82; `decision_f105_throttle.log`). The tracker — trained inside the
+  *frozen* model's imagination — issues a control sequence the stall-trained model has not been paired with, and the
+  closed loop between the two drifts away from the recorded situation. This is the closed-loop gap of §13.4 located:
+  not the state, not the horizon, not the throttle level — the controller–model pairing.
+* **There is no decision to win here:** only 5 crossing ladders on f105 have a feasible candidate at the decision
+  point and the fastest candidate passes on all 5, so no gate beats "drive fast" on this family (the primary as a
+  gate matches it with the recorded controls, 5 / 5; the frozen model loses 1; every tracker-driven gate loses 2–3).
+
+### 13.8 Reading and the next step
+
+* **The reviewer's two open possibilities resolve as follows.** The imagination does *not* fail to distinguish the
+  physics near the event: with the real controls it distinguishes well, on unseen terrain, and better than a cheap
+  classifier from the same inputs. It fails in closed loop because the controller it is paired with was trained in a
+  different imagination, and from rest because the whole approach is imagined. Neither more terrain sensing nor more
+  sampling addresses that; retraining the tracker inside the stall-aware imagination does, and is the prerequisite for
+  the replanning-with-state-updates design the review pointed to.
+* **The selection endpoint on this family is not the right test bed.** The fastest candidate is feasible on 44 of 52
+  validation and 86 of 93 sealed layouts; half of its failures are contact-only; the bank's slow candidates that stall
+  are ones nobody needs to pick. A stall gate's ceiling is +4 layouts on the sealed set and the sealed set is spent.
+* **Next round, in order:** (1) fix the remaining metric defects (approach target, recovery detector) and regenerate
+  the events; (2) retrain the tracker inside `wp8_p6_k80_prog`'s imagination on the multi-arena data (per-episode
+  height field in the tracker env; cluster) and re-run the decision test and the closed-loop stall tests with it —
+  the single experiment that says whether closed-loop discrimination follows the teacher-forced one; (3) generate
+  fresh sealed arenas (f108+) with a committed seed and a difficulty chosen model-free so that the fastest heuristic
+  fails on ≥ 30 layouts that still have a feasible alternative (verified by running only the heuristic's bank in
+  Chrono), commit a pre-registration (checkpoint by rule: the seed-median of the three seeds; decision rule; abstain
+  handling; contact-only and no-solution layouts reported apart), and look once; (4) only if (2) succeeds, the
+  replanning planner. Not: more training-axis sweeps of the same loss on the same events.

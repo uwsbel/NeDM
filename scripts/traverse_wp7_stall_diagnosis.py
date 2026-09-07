@@ -79,10 +79,12 @@ def stuck_from_displacement(pose: np.ndarray, win: int = 40, thr_m: float = 1.0)
         return 0, n
     fwd = np.linalg.norm(pose[win:, :2] - pose[:-win, :2], axis=1)  # fwd[t] = displacement over [t, t+win]
     stuck = fwd < thr_m
+    if not stuck[-1]:
+        return n, 0  # still moving over the final window: not stuck at the end (the 'crawl' case)
     i = len(stuck) - 1
     while i >= 0 and stuck[i]:
         i -= 1
-    start = i + 1  # first t with every later window stuck
+    start = i + 1  # first t with every later window stuck; the tail after it is stationary
     return start, n - start
 
 
@@ -96,7 +98,9 @@ def classify_episode(ep: dict, label: dict, tmap: TerrainMap) -> dict:
     launch_s = float(launched[0] * DT) if len(launched) else None
     end = int(ep["end_frame"]) if int(ep["end_frame"]) >= 0 else n
     stop, run = stuck_from_displacement(pose[:end])
-    stuck_end = run * DT >= 2.0 or status == "stall"
+    stuck_end = run * DT >= 2.0
+    if status == "stall" and not stuck_end:  # aborted for 3 s of cumulative no-motion but rocking > 1 m per 2 s: stop = abort - 3 s
+        stop, run, stuck_end = max(0, end - 60), min(60, end), True
     out = {"arena": str(ep["arena"]), "layout": str(ep["layout"]), "candidate": str(ep["candidate"]), "kind": label.get("kind"),
            "status": status, "stalled": bool(label.get("stalled")), "contact": bool(label.get("contact")), "feasible": bool(label.get("completed")) and not label.get("stalled") and not label.get("contact"),
            "n_frames": n, "end_frame": end, "progress_end_m": float(prog[min(end, n) - 1]), "route_len_m": float(sta[-1]), "launch_s": launch_s,
@@ -426,11 +430,11 @@ def cmd_model(args) -> None:
                     print(f"  {mname:24s} {name:20s} vx@3s  non-feasible: pred {np.nanmean(p3[bad]):.2f} rec {r3[bad].mean():.2f} | feasible ctrl: pred {np.nanmean(p3[~bad]) if (~bad).any() else float('nan'):.2f} rec {r3[~bad].mean() if (~bad).any() else float('nan'):.2f}"
                           f" | pred completes {res[name]['completed'][bad].sum()}/{bad.sum()} vs {res[name]['completed'][~bad].sum()}/{(~bad).sum()}")
                 p_in = at(res["stuck_rec"]["vx"], 79); r_in = np.array([rec_vx[i, min(t_in[i] + 79, n_rec[i] - 1)] for i in range(n)])
-                print(f"  {mname:24s} {'stuck_rec':20s} seeded 1 s into the stall, 4 s later: non-feasible pred {np.nanmean(p_in[bad]):.2f} rec {r_in[bad].mean():.2f} (pred<0.5: {(p_in[bad] < 0.5).sum()}/{bad.sum()})")
+                print(f"  {mname:24s} {'stuck_rec':20s} seeded 1 s into the stall, 4 s later: non-feasible pred {np.nanmean(p_in[bad]):.2f} rec {r_in[bad].mean():.2f} (|pred|<0.5: {(np.abs(p_in[bad]) < 0.5).sum()}/{bad.sum()})")
                 for name in ("pre_rec", "pre_rec_wrongmap", "pre_pol"):
                     s2 = int(round((args.lead_s + 2.0) / DT))
                     p = at(res[name]["vx"], s2); r_ = np.array([rec_vx[i, min(t0[i] + s2, n_rec[i] - 1)] for i in range(n)])
-                    print(f"  {mname:24s} {name:20s} vx 2 s after the stop: non-feasible pred {np.nanmean(p[bad]):.2f} rec {r_[bad].mean():.2f} (pred<0.5: {(p[bad] < 0.5).sum()}/{bad.sum()}) | ctrl pred {np.nanmean(p[~bad]) if (~bad).any() else float('nan'):.2f} rec {r_[~bad].mean() if (~bad).any() else float('nan'):.2f}")
+                    print(f"  {mname:24s} {name:20s} vx 2 s after the stop: non-feasible pred {np.nanmean(p[bad]):.2f} rec {r_[bad].mean():.2f} (|pred|<0.5: {(np.abs(p[bad]) < 0.5).sum()}/{bad.sum()}) | ctrl pred {np.nanmean(p[~bad]) if (~bad).any() else float('nan'):.2f} rec {r_[~bad].mean() if (~bad).any() else float('nan'):.2f}")
                 del env, policy
                 torch.cuda.empty_cache()
     (Path(args.out) / f"model_tests_{args.tag}.json").write_text(json.dumps(results))
@@ -464,12 +468,12 @@ def cmd_analyze(args) -> None:
             d, _ = stat(rows, m, lambda r, x: float(x["rest_pol"]["completed"]))
             s2 = int(round(4.0 / DT))  # lead 2 s + 2 s after the stop (post window 6 s)
             p, _ = stat(rows, m, lambda r, x: vx_at(x["pre_rec"]["vx"], s2))
-            p1, _ = stat(rows, m, lambda r, x: float(vx_at(x["pre_rec"]["vx"], s2) < 0.5))
+            p1, _ = stat(rows, m, lambda r, x: float(abs(vx_at(x["pre_rec"]["vx"], s2)) < 0.5))
             pw, _ = stat(rows, m, lambda r, x: vx_at(x["pre_rec_wrongmap"]["vx"], s2))
             q, _ = stat(rows, m, lambda r, x: vx_at(x["pre_pol"]["vx"], s2))
             si, _ = stat(rows, m, lambda r, x: vx_at(x["stuck_rec"]["vx"], 79) if "stuck_rec" in x else np.nan)
-            si1, _ = stat(rows, m, lambda r, x: float(vx_at(x["stuck_rec"]["vx"], 79) < 0.5) if "stuck_rec" in x else np.nan)
-            q1, _ = stat(rows, m, lambda r, x: float(vx_at(x["pre_pol"]["vx"], s2) < 0.5))
+            si1, _ = stat(rows, m, lambda r, x: float(abs(vx_at(x["stuck_rec"]["vx"], 79)) < 0.5) if "stuck_rec" in x else np.nan)
+            q1, _ = stat(rows, m, lambda r, x: float(abs(vx_at(x["pre_pol"]["vx"], s2)) < 0.5))
             err = np.array([r["models"][m]["local"]["err"] for r in rows], float); err[err < -90] = np.nan
             offs = np.array(rows[0]["models"][m]["local"]["offsets_s"]); ks = rows[0]["models"][m]["local"]["ks"]
             pre_m, post_m = offs < 0, offs >= 0
@@ -653,6 +657,231 @@ def cmd_events(args) -> None:
         print(f"{cache}: {dict(cnt)} -> events.json")
 
 
+# --------------------------------------------------------------------------------- decision from the pre-stall state
+def cmd_decision(args) -> None:
+    """Reviewer plan step 2: does a frozen model choose speeds correctly when started from the REAL state shortly before
+    the difficult terrain? For every layout with en-route stops, the decision point s* = median stop station; every run of
+    the layout on the same path is seeded from its recorded 16-frame context ``lead_m`` before s* and rolled ``horizon_s``
+    (a) with its recorded controls, (b) with the tracker on its own route. Predicted stuck = |vx| < 0.5 at the end or < 0.5 m
+    of displacement in the last second. Scored against the matched Chrono runs (local: stuck within the window; global:
+    feasible), the fastest heuristic, and a cheap classifier trained on the training arenas from the same context (+ the
+    same future controls for the teacher-forced variant)."""
+    import torch
+    from nedm.traverse.oracle import PlanCandidate
+    from nedm.traverse.tracker_env import TraverseTrackingEnv, merge_env_cfg
+    from nedm.traverse.nrd_model import VX
+    from traverse_wp4_score_candidates import load_policy, route_dict
+    from traverse_wp6_imagine_sweep import auc
+    dev = args.device
+    diag = json.loads((Path(args.out) / "classify.json").read_text())["rows"]
+    H = int(round(args.horizon_s / DT)); C = 16
+    COST = lambda c: c["time_s"] + c["energy_kj"] / 10
+    feasible_of = lambda c: bool(c.get("completed")) and not c.get("stalled") and not c.get("contact")
+
+    # ---- cheap classifier on the training arenas (same inputs as the model's teacher-forced variant)
+    def windows(cache, man, arenas, lead, stride=4):
+        X, Xc, Y = [], [], []
+        for k in man["episodes"]:
+            if man["arena_of"][k] not in arenas:
+                continue
+            e = load_episode(cache, k); r = diag.get(k); n = len(e["z1"])
+            stop = int(round(r["stop_s"] / DT)) if (r and r["class"] == "stop") else (0 if (r and r["class"] == "launch") else None)
+            act_pad = np.concatenate([e["act"], np.repeat(e["act"][-1:], lead, axis=0)])
+            for t in range(C, n - 1, stride):
+                if stop is not None and t >= stop:
+                    continue
+                X.append(np.concatenate([e["z1"][t - C:t].ravel(), e["act"][t - C:t].ravel(), act_pad[t:t + lead].ravel()]))
+                Y.append(float(stop is not None and t + lead >= stop))
+        return np.asarray(X, np.float32), np.asarray(Y, np.float32)
+
+    def fit(X, Y, cols, epochs=30, seed=0):
+        torch.manual_seed(seed)
+        mu, sd = X[:, cols].mean(0), X[:, cols].std(0) + 1e-6
+        f = lambda A: torch.tensor((A[:, cols] - mu) / sd, device=dev, dtype=torch.float32)
+        net = torch.nn.Sequential(torch.nn.Linear(len(cols), 256), torch.nn.GELU(), torch.nn.Linear(256, 64), torch.nn.GELU(), torch.nn.Linear(64, 1)).to(dev)
+        opt = torch.optim.AdamW(net.parameters(), lr=1e-3, weight_decay=1e-3)
+        Xt, Yt = f(X), torch.tensor(Y, device=dev); pos_w = torch.tensor([(1 - Y.mean()) / max(Y.mean(), 1e-3)], device=dev)
+        for ep in range(epochs):
+            perm = torch.randperm(len(Xt), device=dev)
+            for i in range(0, len(Xt), 1024):
+                idx = perm[i:i + 1024]
+                loss = torch.nn.functional.binary_cross_entropy_with_logits(net(Xt[idx])[:, 0], Yt[idx], pos_weight=pos_w)
+                opt.zero_grad(); loss.backward(); opt.step()
+        net.eval()
+        return lambda A: torch.sigmoid(net(f(A))[:, 0]).detach().cpu().numpy()
+
+    results = {"windows": [], "layouts": {}}
+    for cdir in args.caches:
+        cache = Path(cdir)
+        man = json.loads((cache / "cache_manifest.json").read_text()); labels = json.loads((cache / "labels.json").read_text())
+        train_arenas = [a for a in args.train_arenas if a in man["arenas"]]
+        clf_full = clf_ctx = None
+        if train_arenas:
+            X, Y = windows(cache, man, train_arenas, H)
+            n_ctx = C * 17 + C * 3
+            clf_full = fit(X, Y, list(range(X.shape[1]))); clf_ctx = fit(X, Y, list(range(n_ctx)))
+            print(f"cheap classifiers trained on {train_arenas}: {len(X)} windows, {100 * Y.mean():.1f} % stuck within {args.horizon_s:.0f} s", flush=True)
+        for aid in args.arenas:
+            if aid not in man["arenas"]:
+                continue
+            # decision layouts and their point s*
+            stops = defaultdict(list)
+            for k in man["episodes"]:
+                r = diag.get(k)
+                if man["arena_of"][k] == aid and r and r["class"] in ("stop", "launch"):
+                    stops[r["layout"]].append((k, r["progress_end_m"] if r["class"] == "stop" else 0.0))
+            eps, wins = {}, []  # window: dict(key, layout, t0, s_star, local_stuck, feasible, mean_speed, cost)
+            for lay, lst in stops.items():
+                s_star = float(min(p for _, p in lst))  # the EARLIEST stop on the layout: every run of the ladder still moves at s* - lead
+                ref = load_episode(cache, lst[0][0]); ref_w = ref["route_waypoints"]
+                for k in man["episodes"]:
+                    if man["arena_of"][k] != aid or labels[k]["layout"] != lay:
+                        continue
+                    e = load_episode(cache, k)
+                    if e["route_waypoints"].shape != ref_w.shape or not np.allclose(e["route_waypoints"], ref_w, atol=0.5):
+                        continue  # a different path (detour): no shared decision point
+                    prog = route_progress(e["pose"], e["route_waypoints"], e["route_stations"]); n = len(e["z1"])
+                    if s_star - args.lead_m <= 0.5:
+                        t0 = C  # decision at rest: the first 16 recorded frames are the context
+                    else:
+                        hit = np.nonzero(prog >= s_star - args.lead_m)[0]
+                        if not len(hit):
+                            continue
+                        t0 = int(hit[0])
+                    if t0 < C or t0 >= n - 1:
+                        continue
+                    r = diag.get(k); stop = int(round(r["stop_s"] / DT)) if (r and r["class"] == "stop") else (0 if (r and r["class"] == "launch") else None)
+                    if stop is not None and 0 < stop <= t0:
+                        continue  # already stuck before the decision point
+                    eps[k] = e
+                    wins.append({"key": k, "layout": lay, "candidate": labels[k]["candidate"], "t0": t0, "s_star": s_star, "station_t0": float(prog[t0]),
+                                 "local_stuck": bool(stop is not None and stop <= t0 + H), "feasible": feasible_of(labels[k]), "status": labels[k]["status"],
+                                 "mean_speed": labels[k]["mean_speed"], "cost": COST(labels[k]), "class": r["class"] if r else "feasible", "n_rec": n})
+            if not wins:
+                continue
+            print(f"\n=== {aid}: {len(stops)} layouts with en-route stops, {len(wins)} decision windows ({sum(w['local_stuck'] for w in wins)} stuck within {args.horizon_s:.0f} s, {sum(not w['feasible'] for w in wins)} infeasible runs)", flush=True)
+            keys = [w["key"] for w in wins]; n = len(keys)
+            # cheap classifier predictions at the decision windows
+            if clf_full is not None:
+                def fut(e, t):
+                    a = e["act"][t:t + H]
+                    return np.concatenate([a, np.repeat(e["act"][-1:], H - len(a), axis=0)]) if len(a) < H else a
+                Xd = np.asarray([np.concatenate([eps[k]["z1"][w["t0"] - C:w["t0"]].ravel(), eps[k]["act"][w["t0"] - C:w["t0"]].ravel(), fut(eps[k], w["t0"]).ravel()]) for k, w in zip(keys, wins)], np.float32)
+                pf, pc = clf_full(Xd), clf_ctx(Xd)
+                for w, a, b in zip(wins, pf, pc):
+                    w["cheap_full_p_stuck"] = float(a); w["cheap_ctx_p_stuck"] = float(b)
+            entries = []
+            for k in keys:
+                z = eps[k]
+                plan = PlanCandidate(waypoints=z["route_waypoints"].astype(float), speeds=z["route_speeds"].astype(float), headings=z["route_headings"].astype(float),
+                                     stations=z["route_stations"].astype(float), meta={"candidate": labels[k]["candidate"]})
+                entries.append((k, route_dict(plan)))
+            t0 = np.array([w["t0"] for w in wins])
+            for ckpt in args.dynamics_checkpoints:
+                mname = Path(ckpt).parent.name
+                cfg = merge_env_cfg({"num_envs": n, "device": dev, "auto_reset": False, "split": "val", "dynamics_checkpoint": ckpt, "arena": man["arenas"][aid],
+                                     "cache": str(cache), "routes": "artifacts/traverse/wp3_routes", "fragment_steps_max": 600, "z1_extra_cache": None, "map_key": "map_v2",
+                                     "termination": {"max_abs_roll_rad": math.radians(60), "max_abs_pitch_rad": math.radians(60)}, "action_center": tracker_action_center(Path(args.policy))})
+                env = TraverseTrackingEnv(cfg, device=dev, entries=entries); policy = load_policy(Path(args.policy), env, dev); b = env.bank
+                ids = torch.arange(n, device=dev)
+                modes = ["rec", "pol"] + [f"rec_thr{o:+.1f}" for o in args.throttle_offsets]
+                for mode in modes:
+                    st = torch.tensor(t0, device=dev)
+                    env.reset_idx(ids, episode_ids=ids, start_frames=st, fragment_steps=torch.full((n,), H, device=dev, dtype=torch.long)); env._compute_observations()
+                    thr_off = float(mode.split("thr")[1]) if mode.startswith("rec_thr") else 0.0
+                    vx_tr = np.full((n, H), np.nan, np.float32); done = np.zeros(n, bool); prog_end = np.zeros(n, np.float32); prog_1s = np.zeros(n, np.float32)
+                    for s_ in range(H):
+                        if mode != "pol":
+                            driver = b.act_raw[ids, torch.clamp(st - 1 + s_, max=b.n_frames - 1)].clone()
+                            if thr_off:
+                                driver[:, 1] = (driver[:, 1] + thr_off).clamp(0.0, 1.0); driver[:, 2] = 0.0
+                            env._nn_step(driver); env.episode_length_buf += 1; err = env._route_errors(); env.last_actions = driver.clone(); env.actions = driver; env._compute_observations()
+                            dn = (err["route_end"] | ~torch.isfinite(env.z1_phys).all(dim=-1)).cpu().numpy()
+                        else:
+                            with torch.no_grad():
+                                a = policy(env.obs_buf)
+                            _, _, dn_t, _ = env.step(a); dn = dn_t.bool().cpu().numpy()
+                        vx_tr[:, s_] = np.where(done, np.nan, env.z1_phys[:, VX].cpu().numpy())
+                        pm = env.progress_m.cpu().numpy(); prog_end = np.where(done, prog_end, pm)
+                        if s_ == H - 21:
+                            prog_1s = pm.copy()
+                        done |= dn
+                    vx_end = np.array([vx_tr[i, max(0, int((~np.isnan(vx_tr[i])).sum()) - 1)] for i in range(n)])
+                    disp_1s = prog_end - prog_1s
+                    stuck = (np.abs(vx_end) < 0.5) | (disp_1s < 0.5)
+                    for i, w in enumerate(wins):
+                        w.setdefault("models", {}).setdefault(mname, {})[mode] = {"vx_end": float(vx_end[i]), "progress_m": float(prog_end[i]), "disp_last1s_m": float(disp_1s[i]), "pred_stuck": bool(stuck[i])}
+                del env, policy; torch.cuda.empty_cache()
+            results["windows"].extend([{**w, "arena": aid} for w in wins])
+    # ---- scoring
+    W = results["windows"]
+    models = sorted(set(m for w in W for m in w.get("models", {})))
+    loc = np.array([w["local_stuck"] for w in W]); glob = np.array([not w["feasible"] for w in W])
+    print(f"\n{len(W)} decision windows; local stuck {loc.sum()}, infeasible runs {glob.sum()}")
+    print(f"{'predictor':44s} {'AUC local':>9s} {'AUC infeasible':>14s} {'sens@5%FPR':>10s} {'pred stuck (stuck / pass)':>26s}")
+    def report(name, score, pred_stuck=None):
+        a1, a2 = auc(score, loc), auc(score, glob)
+        neg = np.sort(score[~loc]); thr = neg[int(0.95 * len(neg))] if len(neg) else np.inf
+        sens = float((score[loc] > thr).mean()) if loc.any() else float("nan")
+        ps = "" if pred_stuck is None else f"{pred_stuck[loc].mean():.2f} / {pred_stuck[~loc].mean():.2f}"
+        print(f"{name:44s} {a1:9.2f} {a2:14.2f} {sens:10.2f} {ps:>26s}")
+    all_modes = sorted(set(md for w in W for m in w.get("models", {}) for md in w["models"][m]), key=lambda x: (x != "rec", x != "pol", x))
+    for m in models:
+        for mode in all_modes:
+            if mode not in W[0]["models"][m]:
+                continue
+            sc = np.array([-w["models"][m][mode]["progress_m"] for w in W]); ps = np.array([w["models"][m][mode]["pred_stuck"] for w in W], float)
+            label = {"rec": "recorded controls", "pol": "tracker"}.get(mode) or ("recorded controls, throttle " + mode.split("thr")[1])
+            report(f"{m} [{label}]", sc, ps)
+    if "cheap_full_p_stuck" in W[0]:
+        report("cheap classifier [context + recorded controls]", np.array([w["cheap_full_p_stuck"] for w in W]), np.array([w["cheap_full_p_stuck"] > 0.5 for w in W], float))
+        report("cheap classifier [context only]", np.array([w["cheap_ctx_p_stuck"] for w in W]), np.array([w["cheap_ctx_p_stuck"] > 0.5 for w in W], float))
+    # decisions per layout: fastest among the accepted (fallback fastest)
+    by = defaultdict(list)
+    for w in W:
+        by[(w["arena"], w["layout"])].append(w)
+    lays = [l for l, ws in by.items() if any(w["feasible"] for w in ws)]
+    def decide(accept):
+        n_f, reg = 0, []
+        for l in lays:
+            ws = by[l]; acc = [w for w in ws if accept(w)] or ws
+            pick = max(acc, key=lambda w: w["mean_speed"]); best = min((w for w in ws if w["feasible"]), key=lambda w: w["cost"])
+            if pick["feasible"]:
+                n_f += 1; reg.append(pick["cost"] / best["cost"])
+        return n_f, float(np.mean(reg)) if reg else float("nan")
+    n_fast_bad = sum(1 for l in lays if not max(by[l], key=lambda w: w["mean_speed"])["feasible"])
+    print(f"\ndecision per layout (fastest among the accepted candidates; fallback fastest): {len(lays)} layouts with a feasible candidate at the decision point; the fastest candidate is infeasible on {n_fast_bad} of them")
+    # per-candidate outcome accuracy (predicted stuck vs Chrono infeasible) on the ladders
+    for m in models:
+        for mode in ("rec", "pol"):
+            acc = np.mean([w["models"][m][mode]["pred_stuck"] == (not w["feasible"]) for w in W])
+            print(f"  outcome accuracy per candidate {m} [{mode}]: {acc:.2f}   (always-pass baseline {np.mean([w['feasible'] for w in W]):.2f})")
+    print(f"  {'fastest heuristic':52s} feasible {decide(lambda w: True)[0]:3d}/{len(lays)}  regret {decide(lambda w: True)[1]:.2f}")
+    print(f"  {'oracle (fastest feasible)':52s} feasible {decide(lambda w: w['feasible'])[0]:3d}/{len(lays)}  regret {decide(lambda w: w['feasible'])[1]:.2f}")
+    for m in models:
+        for mode in ("rec", "pol"):
+            nf_, rg = decide(lambda w, m=m, mode=mode: not w["models"][m][mode]["pred_stuck"])
+            print(f"  {m + ' gate [' + ('recorded controls' if mode == 'rec' else 'tracker') + ']':52s} feasible {nf_:3d}/{len(lays)}  regret {rg:.2f}")
+    if "cheap_full_p_stuck" in W[0]:
+        for nm, key in (("cheap gate [context + recorded controls]", "cheap_full_p_stuck"), ("cheap gate [context only]", "cheap_ctx_p_stuck")):
+            nf_, rg = decide(lambda w, key=key: w[key] < 0.5)
+            print(f"  {nm:52s} feasible {nf_:3d}/{len(lays)}  regret {rg:.2f}")
+    # speed-ladder patterns
+    print("\nspeed ladders at the decision point (S = passes / F = stuck or infeasible), Chrono vs each model with recorded controls:")
+    for l in lays[: args.max_ladders]:
+        ws = sorted([w for w in by[l] if w["candidate"].startswith("direct_v")], key=lambda w: w["mean_speed"])
+        if len(ws) < 3:
+            continue
+        ch = "".join("S" if w["feasible"] else "F" for w in ws)
+        line = f"  {l[1]:36s} Chrono {ch}"
+        for m in models:
+            line += f" | {m[:14]} " + "".join("F" if w["models"][m]["rec"]["pred_stuck"] else "S" for w in ws)
+        if "cheap_full_p_stuck" in ws[0]:
+            line += " | cheap " + "".join("F" if w["cheap_full_p_stuck"] > 0.5 else "S" for w in ws)
+        print(line)
+    (Path(args.out) / f"decision_{args.tag}.json").write_text(json.dumps(results))
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -690,12 +919,25 @@ def main() -> None:
     ev = sub.add_parser("events")
     ev.add_argument("--caches", nargs="+", default=["artifacts/traverse/wp7_cache_v1", "artifacts/traverse/wp7_cache_sealed"])
     ev.add_argument("--out", default="artifacts/traverse/wp7_stall_diag")
+    dc = sub.add_parser("decision")
+    dc.add_argument("--caches", nargs="+", default=["artifacts/traverse/wp7_cache_v1"])
+    dc.add_argument("--arenas", nargs="+", default=["arena_f105"])
+    dc.add_argument("--train-arenas", nargs="+", default=["arena_f101", "arena_f102", "arena_f103", "arena_f104"])
+    dc.add_argument("--dynamics-checkpoints", nargs="+", required=True)
+    dc.add_argument("--policy", default="artifacts/traverse/wp3_tracker_v1")
+    dc.add_argument("--lead-m", type=float, default=5.0)
+    dc.add_argument("--horizon-s", type=float, default=8.0)
+    dc.add_argument("--max-ladders", type=int, default=40)
+    dc.add_argument("--throttle-offsets", type=float, nargs="*", default=[], help="extra teacher-forced variants with the recorded throttle shifted (brake released): stall-prediction sensitivity to the controls")
+    dc.add_argument("--tag", default="f105")
+    dc.add_argument("--device", default="cuda")
+    dc.add_argument("--out", default="artifacts/traverse/wp7_stall_diag")
     an = sub.add_parser("analyze")
     an.add_argument("--out", default="artifacts/traverse/wp7_stall_diag")
     an.add_argument("--tag", default="f105")
     an.add_argument("--examples", type=int, default=3)
     args = ap.parse_args()
-    {"classify": cmd_classify, "model": cmd_model, "analyze": cmd_analyze, "predictable": cmd_predictable, "events": cmd_events}[args.cmd](args)
+    {"classify": cmd_classify, "model": cmd_model, "analyze": cmd_analyze, "predictable": cmd_predictable, "events": cmd_events, "decision": cmd_decision}[args.cmd](args)
 
 
 if __name__ == "__main__":

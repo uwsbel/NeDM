@@ -318,7 +318,7 @@ def stall_eval(model, data: MapBatcher, norm, context: int, device: str, max_per
     ~0); recovery (context ends 1 s before the resume, 3 s) and matched (a feasible sibling at the stalled runs' stop
     station, 4 s): |predicted - recorded| vx at the end -- the guards against 'always stop'. stall_score = mean."""
     model.eval()
-    specs = {"stuck": (lambda ev: [int(ev["stop"]) + 4] if ev.get("stop") is not None else [], 60, "abs"),
+    specs = {"stuck": (lambda ev: [int(ev["stop"]) + 4] if ev.get("stop") is not None else [], 40, "abs"),  # 2 s: most stall aborts end 3 s after the stop
              "approach": (lambda ev: [int(ev["stop"]) - context - 40] if ev.get("stop") is not None else [], 80, "abs"),
              "launch": (lambda ev: [0] if ev.get("launch") else [], 60, "abs"),
              "recovery": (lambda ev: [int(f) - context - 20 for f in ev.get("resume", [])], 60, "err"),

@@ -3,7 +3,7 @@
 **Purpose:** First NRD study where vision is load-bearing — a hierarchical planner/tracker stack on a fixed bumpy arena
 **Simulator:** Project Chrono (HMMWV vehicle stack) with Chrono::Sensor RGB + depth cameras
 **Builds on:** `docs/vision/NRD_overall_project_plan.md` (Phase 3, pulled forward ahead of Phase 2 tabletop manipulation), Study 1 (`docs/vision/double_pen/`), and the state-only NeDM HMMWV stack
-**Status:** v1.14 — 2026-09-06 (§30: stall diagnosis); v1.4 — revised 2026-09-04 pm (§20: tracker + planner rollout built; ẑ₂ decision now evidence-based); v1.3 2026-09-04 am (§19); v1.2 2026-09-03 (§18); v1.1 2026-08-31 after `NRD_hmmwv_traversal_study_plan_review.md`; §16 = original decision log, §17 = review resolutions
+**Status:** v1.15 — 2026-09-07 (§31: ablation audited); v1.14 — 2026-09-06 (§30: stall diagnosis); v1.4 — revised 2026-09-04 pm (§20: tracker + planner rollout built; ẑ₂ decision now evidence-based); v1.3 2026-09-04 am (§19); v1.2 2026-09-03 (§18); v1.1 2026-08-31 after `NRD_hmmwv_traversal_study_plan_review.md`; §16 = original decision log, §17 = review resolutions
 **v1 charter:** Feasibility of the full stack (NRD + planner + tracker) on ONE fixed terrain map, trained and collected locally. Privileged information is allowed anywhere it unblocks v1; deployment-purity upgrades are a ladder, not a v1 gate.
 
 ## 1. Study objective, information contract, and positioning
@@ -688,3 +688,35 @@ heuristic on a benchmark that rewards speed, so they are worth doing only togeth
 benchmark with speed-penalised and detour-only layouts and a cost that penalises speed. Housekeeping first either
 way: one attitude definition in imagination and Chrono, the tracker's own action centre, the heading flip.
 Not worth doing: finer terrain input; more fine-tuning of the same loss.
+
+## 31. v1.15 (2026-09-07): the stall-reproduction ablation, audited — notes §13
+
+**Done.** 40 training runs on the cluster (event-balanced stall windows, 0.4–8 s rollout losses, progress term,
+init, data mix, lr, regularisation, seeds), each scored locally on the validation arena, a training arena and the
+shared-bank pick; an independent multi-agent audit of the artifacts; a decision test from the real pre-stall state.
+
+**What training changed (corrected numbers, notes §13.6).** Fine-tuned with 60 % stall windows, a 4 s rollout loss
+and a progress term, the dynamics model given the recorded state and controls on unseen terrain calls 39–50 % of the
+true stops (frozen 24 %), holds 54–61 % of stalls it is seeded inside (22 %), keeps 39–55 % of launch failures
+stationary (20 %), with 0–1 % false stops; 58–71 % on its training arena. Horizon, event share and initialisation are
+the only axes that matter; every run over-fits after 1–3 k steps; regularisation does not help. From the real state
+5 m before a stall with the real controls it separates runs that get stuck within 8 s at AUC 0.89 (frozen 0.76, a cheap
+classifier on the same inputs 0.67) — the earlier "information ceiling" reading (§30) is withdrawn.
+
+**What it did not change.** Route selection: own picks 31–43 of 52 on validation (frozen 39, fastest 44), the
+model-as-gate on the sealed arenas 85–87 of 93 against the heuristic's 86 (negative; the validation gain of the best run
+was the maximum of 40 noisy runs). The closed loop: with the tracker driving, the same models' discrimination from the
+same state falls to AUC 0.68–0.71, and from rest the imagination still completes most stalled runs. Cause located: the
+tracker was trained inside the frozen model's imagination and issues controls the stall-trained model has not been
+paired with (not a throttle bias: ±0.2 throttle leaves the teacher-forced AUC at 0.85–0.89).
+
+**Audit findings adopted.** The "stop" class had included moving timeouts (detector bug; fixed, events regenerated),
+the stop fractions used signed speed (fixed), the trainer's approach target and recovery detector are mis-specified
+(to fix before retraining), the sealed arenas f106/f107 are spent (three looks) and under-powered for a gate (+4
+ceiling), the heading-flipped layout inflates every model's false rejections by 13.
+
+**Next round (in order, notes §13.8):** (1) fix the remaining metric defects; (2) retrain the tracker inside the
+stall-aware imagination on the multi-arena data and re-run the decision and closed-loop tests — the one experiment
+that decides whether the replanning design is worth building; (3) fresh sealed arenas chosen model-free so the fastest
+heuristic fails on ≥ 30 layouts with a feasible alternative, pre-registered, one look; (4) the replanning planner only
+if (2) succeeds. Not: more sweeps of the same loss.

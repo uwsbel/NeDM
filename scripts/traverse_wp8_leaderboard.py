@@ -22,7 +22,7 @@ def parse_analyze(path: Path) -> dict:
             try:
                 rest_vx, rest_gt1, healthy, wrong, done = map(float, head[1:6])
                 pre = parts[1].split(); pre_vx, pre_lt, pre_wrong, trk_vx, trk_lt = map(float, pre[:5])
-                stall = re.search(r"in-stall \+4s ([\d.]+) \(<0.5: ([\d.]+)\)", line)
+                stall = re.search(r"in-stall \+4s (-?[\d.]+) \(<0.5: ([\d.]+)\)", line)
                 res[cls] = {"rest_rec_vx3": rest_vx, "rest_trk_done": done, "pre_rec_vx": pre_vx, "pre_rec_stop": pre_lt, "pre_trk_stop": trk_lt,
                             "in_stall_vx": float(stall.group(1)) if stall else None, "in_stall_hold": float(stall.group(2)) if stall else None}
             except (ValueError, IndexError):
