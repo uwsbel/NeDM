@@ -3,7 +3,7 @@
 **Purpose:** First NRD study where vision is load-bearing — a hierarchical planner/tracker stack on a fixed bumpy arena
 **Simulator:** Project Chrono (HMMWV vehicle stack) with Chrono::Sensor RGB + depth cameras
 **Builds on:** `docs/vision/NRD_overall_project_plan.md` (Phase 3, pulled forward ahead of Phase 2 tabletop manipulation), Study 1 (`docs/vision/double_pen/`), and the state-only NeDM HMMWV stack
-**Status:** v1.15 — 2026-09-07 (§31: ablation audited); v1.14 — 2026-09-06 (§30: stall diagnosis); v1.4 — revised 2026-09-04 pm (§20: tracker + planner rollout built; ẑ₂ decision now evidence-based); v1.3 2026-09-04 am (§19); v1.2 2026-09-03 (§18); v1.1 2026-08-31 after `NRD_hmmwv_traversal_study_plan_review.md`; §16 = original decision log, §17 = review resolutions
+**Status:** v1.16 — 2026-09-07 (§32: automated follow-up done, decision pending); v1.15 (§31: ablation audited); v1.14 — 2026-09-06 (§30: stall diagnosis); v1.4 — revised 2026-09-04 pm (§20: tracker + planner rollout built; ẑ₂ decision now evidence-based); v1.3 2026-09-04 am (§19); v1.2 2026-09-03 (§18); v1.1 2026-08-31 after `NRD_hmmwv_traversal_study_plan_review.md`; §16 = original decision log, §17 = review resolutions
 **v1 charter:** Feasibility of the full stack (NRD + planner + tracker) on ONE fixed terrain map, trained and collected locally. Privileged information is allowed anywhere it unblocks v1; deployment-purity upgrades are a ladder, not a v1 gate.
 
 ## 1. Study objective, information contract, and positioning
@@ -720,3 +720,30 @@ stall-aware imagination on the multi-arena data and re-run the decision and clos
 that decides whether the replanning design is worth building; (3) fresh sealed arenas chosen model-free so the fastest
 heuristic fails on ≥ 30 layouts with a feasible alternative, pre-registered, one look; (4) the replanning planner only
 if (2) succeeds. Not: more sweeps of the same loss.
+
+## 32. v1.16 (2026-09-07): the automated follow-up ran its course — decision for the user
+
+Since §31: 20 more training runs (control-input augmentation, tracker-matched noise, hold augmentation, events
+re-anchored on the momentum-loss moment), two tracker retrainings inside the stall-aware imagination, a fixed
+controller, all scored automatically under pre-registered endpoints (notes §13.9–13.11).
+
+**Result.** Augmentation removes the throttle fingerprint and leaves a real but small state-based stall signal
+(true stops 0.35–0.43, seeded stalls held 0.48–0.63, launch failures 0.33–0.42, frozen 0.24 / 0.22 / 0.20). In closed
+loop nothing moves: with the tracker the pre-stall discrimination stays at AUC 0.65–0.71 (a context-only classifier
+0.84), a tracker retrained inside the imagination exploits it (rejects 1 of 130 infeasible routes, pick 26–30 / 52),
+pure pursuit triggers the residual constancy cue (AUC 0.32–0.43), and the validation pick never exceeds 43 of 52
+against the heuristic's 44. The sealed arenas were not touched again. The imagination is accurate where it was
+already accurate (time on accepted feasible routes, ratio 0.98) and blind where it was blind.
+
+**Decision (thesis-steering, for the user).** Route selection by imagined completion is exhausted on this terrain
+family. Three ways the imagination could still carry the planner, none of them tested:
+(a) **A learned stall/progress head on the imagination's own state** — trained on the recorded outcomes, read off
+    the imagined trajectory and crop tokens, used as the gate (the cheap classifier's 0.84 shows the state carries it;
+    a head on the model's representation is the "imagination provides the features" version of the thesis). Cheap:
+    no Chrono, one training run, evaluated with the existing pick table.
+(b) **Move the thesis to the cost side**: a benchmark whose decisions are time/energy trade-offs the imagination
+    already gets right (free-form cost ranking won in §11.5) rather than stall/no-stall — fresh arenas where "drive
+    fast" is penalised by energy or ride severity, chosen model-free (`traverse_wp8_sealed_prep.sh` builds them).
+(c) **Replanning with the live state (MPC)**: the imagination re-run every second from the true state with the
+    candidate's nominal controls; only worth building if (a) gives a gate that works from the live state.
+My order: (a), then (b) with (a)'s gate, (c) only if (a) works. Not: more training of the dynamics loss.

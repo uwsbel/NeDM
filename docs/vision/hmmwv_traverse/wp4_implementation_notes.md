@@ -1928,3 +1928,34 @@ the orchestrator) and wave 5 (four runs adding a *hold* augmentation — random 
 input — with and without the momentum events), both scored automatically with the jitter probes and the decision test.
 The question for both is whether a stall signal read from the state alone can be made large enough to matter, and
 whether any controller can be put in the loop without either exploiting the model or triggering its cues.
+
+### 13.11 Waves 4 and 5, and where the automated loop stops (2026-09-07 05:15)
+
+| f105, |vx| < 0.5, true stops · seeded stalls · launch failures (AR(1)-jittered in brackets) | stops | held | launch | tracker-in-loop AUC | pick / 52 |
+|---|---|---|---|---|---|
+| frozen | 0.24 (0.20) | 0.22 (0.20) | 0.20 (0.25) | 0.65 | 39 |
+| stall-trained primary (fingerprint) | 0.39 (0.13) | 0.54 (0.22) | 0.55 (0.10) | 0.71 | 41 |
+| best augmented, wave 3b `wp8d_ar03` | 0.43 (0.33) | 0.48 (0.39) | 0.33 (0.29) | 0.71 | 43 |
+| momentum events, wave 4 `wp8e_mom_k120` (6 s) | 0.35 (0.43) | 0.52 (0.63) | 0.42 (0.42) | 0.50 | — |
+| momentum events, `wp8e_mom_s1` | 0.30 (0.26) | 0.52 (0.41) | 0.36 (0.32) | 0.69 | — |
+| hold augmentation, wave 5 (4 runs) | 0.15–0.28 | 0.24–0.43 | 0.30–0.35 | — | 38–41 |
+
+Re-anchoring the events on the moment of momentum loss gives the most robust state-based stall signal so far (the 6 s
+run is *more* stuck under jitter than without: 0.43 / 0.63 / 0.42) and still misses the pre-registered launch level
+(0.45) narrowly; the constant-throttle hold augmentation lowers every level. With the tracker in the loop no run
+exceeds AUC 0.71 (the k120 run 0.50), and no pick exceeds 43 of 52. Second verdict A_FAIL. The automated loop
+(`traverse_wp8_followup.sh`) ends here by its own rule: **60 training runs, three augmentation families, two event
+definitions, three controllers, and the closed-loop stall foresight of the imagination on this family stays at AUC
+0.65–0.71 while a context-only classifier on the same state reaches 0.84 for run infeasibility.**
+
+**Two observations that close the question as posed.** (1) The teacher-forced discrimination (AUC 0.85–0.90) is
+inflated by the recorded *future* controls, which carry the outcome (the Chrono tracker's reaction to slowing); the
+cheap classifier reaches 0.91 on run infeasibility from context + future controls and 0.84 from the context alone.
+The fair number for "can the imagination foresee the stall from the state" is the closed-loop one. (2) Every
+controller that can be placed in the imagination either exploits the model (a tracker retrained inside it) or feeds
+it a control pattern it has never been paired with (the frozen-trained tracker, pure pursuit); the model's stall
+behaviour is inseparable from the control pattern because in the data the two are inseparable — Chrono's own
+controller reacts to every stall the same way.
+
+**What remains open for the goal "planning takes advantage of the imagination":** not route selection by imagined
+completion on this family. Three designs are still untested and are the decision for the user (plan §32).

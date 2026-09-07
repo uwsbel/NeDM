@@ -1,0 +1,91 @@
+cheap classifiers trained on ['arena_f101', 'arena_f102', 'arena_f103', 'arena_f104']: 111995 windows, 3.4 % stuck within 8 s
+
+=== arena_f105: 33 layouts with en-route stops, 105 decision windows (33 stuck within 8 s, 73 infeasible runs)
+Actor MLP: Sequential(
+  (0): Linear(in_features=38, out_features=512, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=512, out_features=256, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=256, out_features=128, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=128, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=38, out_features=512, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=512, out_features=256, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=256, out_features=128, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=128, out_features=1, bias=True)
+)
+policy artifacts/traverse/wp8_tracker_ar03_s2/model_999.pt
+Actor MLP: Sequential(
+  (0): Linear(in_features=38, out_features=512, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=512, out_features=256, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=256, out_features=128, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=128, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=38, out_features=512, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=512, out_features=256, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=256, out_features=128, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=128, out_features=1, bias=True)
+)
+policy artifacts/traverse/wp8_tracker_ar03_s2/model_999.pt
+Actor MLP: Sequential(
+  (0): Linear(in_features=38, out_features=512, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=512, out_features=256, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=256, out_features=128, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=128, out_features=3, bias=True)
+)
+Critic MLP: Sequential(
+  (0): Linear(in_features=38, out_features=512, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=512, out_features=256, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=256, out_features=128, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=128, out_features=1, bias=True)
+)
+policy artifacts/traverse/wp8_tracker_ar03_s2/model_999.pt
+
+105 decision windows; local stuck 33, infeasible runs 73
+predictor                                    AUC local AUC infeasible sens@5%FPR  pred stuck (stuck / pass)
+wp2_mapv2_pt_dag_ro8_amd [recorded controls]      0.76           0.56       0.55                0.61 / 0.67
+wp2_mapv2_pt_dag_ro8_amd [tracker]                0.70           0.58       0.06                0.58 / 0.51
+wp8_p6_k80_prog [recorded controls]               0.89           0.84       0.76                0.85 / 0.33
+wp8_p6_k80_prog [tracker]                         0.33           0.32       0.06                0.09 / 0.50
+wp8d_ar03 [recorded controls]                     0.85           0.77       0.45                0.79 / 0.40
+wp8d_ar03 [tracker]                               0.33           0.32       0.06                0.09 / 0.50
+cheap classifier [context + recorded controls]      0.67           0.91       0.09                0.15 / 0.11
+cheap classifier [context only]                   0.71           0.84       0.00                0.27 / 0.12
+
+decision per layout (fastest among the accepted candidates; fallback fastest): 5 layouts with a feasible candidate at the decision point; the fastest candidate is infeasible on 0 of them
+  outcome accuracy per candidate wp2_mapv2_pt_dag_ro8_amd [rec]: 0.44   (always-pass baseline 0.30)
+  outcome accuracy per candidate wp2_mapv2_pt_dag_ro8_amd [pol]: 0.42   (always-pass baseline 0.30)
+  outcome accuracy per candidate wp8_p6_k80_prog [rec]: 0.61   (always-pass baseline 0.30)
+  outcome accuracy per candidate wp8_p6_k80_prog [pol]: 0.20   (always-pass baseline 0.30)
+  outcome accuracy per candidate wp8d_ar03 [rec]: 0.54   (always-pass baseline 0.30)
+  outcome accuracy per candidate wp8d_ar03 [pol]: 0.20   (always-pass baseline 0.30)
+  fastest heuristic                                    feasible   5/5  regret 1.06
+  oracle (fastest feasible)                            feasible   5/5  regret 1.06
+  wp2_mapv2_pt_dag_ro8_amd gate [recorded controls]    feasible   4/5  regret 1.05
+  wp2_mapv2_pt_dag_ro8_amd gate [tracker]              feasible   4/5  regret 1.18
+  wp8_p6_k80_prog gate [recorded controls]             feasible   5/5  regret 1.06
+  wp8_p6_k80_prog gate [tracker]                       feasible   3/5  regret 1.18
+  wp8d_ar03 gate [recorded controls]                   feasible   4/5  regret 1.07
+  wp8d_ar03 gate [tracker]                             feasible   3/5  regret 1.18
+  cheap gate [context + recorded controls]             feasible   5/5  regret 1.06
+  cheap gate [context only]                            feasible   5/5  regret 1.06
+
+speed ladders at the decision point (S = passes / F = stuck or infeasible), Chrono vs each model with recorded controls:
