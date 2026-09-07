@@ -2534,3 +2534,46 @@ is standing on rather than of the command.
 >     all three fail ~4/5            -> pitch sign is not the driver either, and the
 >                                       arc cell fails for its force or for something
 >                                       not yet identified
+
+### PITCH TEST RESULT: the ground tilt is the driver, and the conditions are not matched
+
+    arc, identical family / 36 N / roll +1.0 / wz 0.3, only the ground pitch varies:
+
+      pitch -3.0    failed 4/5     rows  97, 91, 97, 1775, 95
+      pitch  0.0    failed 0/5     rows  1775 x5
+      pitch +3.0    failed 1/5     rows  1775, 135, 1775, 1775, 1775
+
+**One variable changed; the rate goes 4/5 to 0/5.** The first registered branch is
+confirmed: **negative ground pitch is what base fails, and the effect is asymmetric --
++3.0 is nearly clean while -3.0 is nearly total.** (Sign convention not verified
+against the collector's frame; the asymmetry is the finding, not its physical name.)
+
+#### This is a defect in the condition list, and I wrote it
+
+The eight conditions were built to carry the verdict's disturbances rather than a
+still command -- which was the right correction to v2. **But each cell got its own
+(family, peak force, roll, pitch) with nothing crossed**, so all four vary together
+across n=8 and the pooled rate is dominated by the factor nobody was tracking.
+
+    conditions with pitch <= -1.5 : 4, 5, 7   -> base fails 3/5, 5/5, 5/5
+    conditions with pitch >= -1.0 : all rest  -> base fails 0/5
+
+**Base's "33-38% failure at nominal gain" is essentially three nose-down cells.** The
+number is a property of the condition list at least as much as of the controller.
+
+#### What survives and what does not
+
+**Survives: every PAIRED comparison.** Arms are run on the identical condition list, so
+a fixed-rung comparison between arms holds the tilt constant and the difference is
+still a difference. armA's cliff in conditions 2, 3 and 6 -- all of which have pitch
+>= -1.0 and which base never fails -- is untouched and if anything sharpened, since
+those are cells with no terrain confound at all.
+
+**Does not survive: any absolute rate read as policy quality**, including "base fails
+35% at nominal gain", the pooled rate as a `k*` replacement, and the rate-vs-`k` curve
+whose crossing `k*` interpolates -- **that curve's height is set by how many nose-down
+cells are in the list.**
+
+> **Do not adopt the pooled rate as the `k*` replacement.** Paired excess over base on
+> matched conditions is unaffected by this and should be used instead. A condition list
+> that crosses tilt against family would fix the instrument, but that is a rebuild.
