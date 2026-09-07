@@ -4651,3 +4651,38 @@ interrogates, the data is used twice and the estimate's own uncertainty swamps t
 effect.
 
 **Evidence:** four-sweep across-seed comparison, commit ef60570.
+
+## Eight cells, four factors, one label per hypothesis
+
+**A condition list where every cell varies every factor cannot attribute anything, and
+it will still separate cleanly on whichever factor you happen to test.**
+
+The standing screen's eight conditions each carry their own family, perturbation peak,
+roll and pitch. Nothing is crossed. Base failed exactly two of them, and the eight
+cells supported three different exact separations in sequence:
+
+    family        yaw_step and arc fail          two unrelated families, no mechanism
+    peak force    corr +0.52                     arc fails at 36 N, constant passes at 72 N
+    sustained yaw EXACT separation, P = 0.036    weave commands yaw but with zero mean
+    ground pitch  EXACT separation               every cell <= -1.5 fails, every other passes
+
+**Sustained yaw had an exact split AND an independent mechanism** -- `yaw_rate` is one
+of the corpus's six coverage holes, with a 101x density gap. It was wrong. A
+one-variable test (`arc` with `wz` set to 0.0, everything else held) failed 4/5,
+identical to `wz=0.3`. **The mechanism made a coincidence look explained.**
+
+Pitch then survived its own one-variable test -- 4/5 at -3.0, 0/5 at 0.0 -- but it is
+the third label tried on the same eight cells, and **the only reason it is believable
+is the test, not the separation.**
+
+> **On n=8 with four confounded factors, an exact separation is worth about one
+> hypothesis, not one conclusion.** P = 1/28 for a 2-of-8 split means roughly one
+> factor in thirty separates by chance -- and with four factors in play, plus every
+> derived quantity, thirty candidates is not a lot.
+
+**The consequence was not academic.** Base's "35% failure rate at nominal gain" was
+about to be adopted as the reference floor for the statistic replacing `k*`. It was
+three cells with steep negative ground pitch; base's failures outside them are zero at
+every rung through nominal. **The floor was a property of the list, not the controller.**
+
+**Evidence:** arc yaw and pitch tests, commits 4f8f64d and 24a3c7d.
