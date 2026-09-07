@@ -4215,3 +4215,78 @@ cannot discriminate instead of naming a winner. Same shape as the interval that 
 its own point estimate, the audit that reported 0/32 too cleanly, and a collaborator's
 assertion tuned to an expectation nobody had measured -- an instrument returning a
 well-formed answer to a question its inputs could not support.
+
+## When a result is cleaner than the world it describes, the cleanliness is the finding
+
+Three faces of one rule, all of which fired tonight and all of which were right:
+
+```
+  uniformity across conditions that should differ
+      +0.318 to +0.359 across five command families, every interval excluding
+      zero, no structure at all. A fine-tune producing an identical effect in
+      five different command regimes is more likely to be something applied to
+      all five. It was: the action multiplier.
+
+  perfect agreement across replicates that should vary
+      three reps per condition, bit-identical. Read as excellent reproducibility.
+      Meant no replication happened.
+
+  a constant to more decimals than the process supports
+      a loop gain matching rho(J) from the weights alone to four decimals across
+      96 episodes -- real, and worth checking precisely because it was too clean.
+```
+
+The common form: **agreement that exceeds what the underlying variability could
+produce is evidence about the apparatus, not about the phenomenon.** It should
+trigger the question "what would have had to vary for this to differ, and did it?"
+before the result is interpreted.
+
+## A two-branch pre-registration assumes the sign
+
+cell5 was registered with two branches: the effect appears at a tracking-capable
+command, or it stays null. The result was a large effect **in the harmful direction** --
+a third outcome neither branch described.
+
+Recording that as a failure of the registration rather than filing the result under the
+nearer branch. The design had implicitly assumed the treatment was neutral-or-helpful,
+which is exactly the assumption a pre-registration is supposed to avoid making, and the
+omission was invisible until reality supplied the missing case.
+
+A registration that enumerates outcomes should either cover the sign-reversed case
+explicitly or say that it does not. **An unanticipated branch is information about the
+design, not about the data.**
+
+## A guard that cannot fail
+
+E3 ranked two separations without checking whether either exceeded chance. The fix was a
+floor: bootstrap each separation, require its lower bound above zero.
+
+**It passed everything, including the case it was written for.** A separation is an
+absolute difference; its resampled distribution is non-negative; a percentile lower bound
+on it is essentially always positive. The guard was structurally incapable of failing,
+and it looked exactly like a working guard -- it printed real numbers, computed from real
+data, in the right place.
+
+It was caught only because the output it was supposed to suppress still appeared
+underneath it.
+
+**Before trusting a new check, construct the case it exists to catch and confirm it
+fails.** A guard is code, it has bugs, and its bugs are silent by nature: a check that
+never fires is indistinguishable from a check on data that never violates it. Permuting
+the group labels -- a null with the same structure as the data -- is the instrument that
+actually answers "is this separation more than chance".
+
+## Run the control against itself
+
+The verdict harness runs the treated arm at reduced gain and the baseline at nominal,
+because the treatment diverges otherwise. That is a defensible engineering choice and an
+indefensible comparison: every difference it reports is treatment plus gain.
+
+The diagnostic cost nothing that had not already been built -- run the **baseline**
+checkpoint through the **treated** code path at the same setting. It took one flag and
+one run, and it moved a +0.33 m/s headline to +0.0015, and a family split of +0.0085 to
++0.00003.
+
+Generally: whenever the arms of a comparison differ in any respect besides the treatment,
+the control-against-itself run is available, and it is usually the cheapest experiment on
+the board. **Ask what else changed between the arms, and then measure that alone.**
