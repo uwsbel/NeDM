@@ -35,5 +35,19 @@
       6.8732,
       "0/43"
     ]
-  }
+  },
+  "kstar": 0.6,
+  "kstar_rule": "SURVIVES iff k* > 1 (principled threshold)",
+  "kstar_prediction": "0 of 43",
+  "kstar_reference": {
+    "base": 1.45,
+    "v4": 1.075,
+    "armA": 0.925,
+    "armB": 0.925,
+    "base36": 0.906,
+    "replicate_34d": 0.925
+  },
+  "kstar_note": "0.600 is the LOWEST margin of any arm measured, below every 36-D arm",
+  "kstar_written_utc": "2026-09-07T09:11:23.244041+00:00",
+  "both_predictors_agree": true
 }
