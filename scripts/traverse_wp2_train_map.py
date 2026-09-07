@@ -119,7 +119,11 @@ class MapBatcher:
         kinds = [k for k in (kinds or self.EVENT_KINDS) if k in tab]
         if not kinds or n <= 0:
             return np.zeros(0, np.int64), np.zeros(0, np.int64)
-        which = rng.integers(0, len(kinds), n)
+        if getattr(self, "kind_weights", "uniform") == "episodes":
+            wk = np.array([len(np.unique(tab[k][0][:, 0])) for k in kinds], float); wk = wk / wk.sum()
+            which = rng.choice(len(kinds), n, p=wk)
+        else:
+            which = rng.integers(0, len(kinds), n)
         ep, t0 = np.zeros(n, np.int64), np.zeros(n, np.int64)
         for ki, kind in enumerate(kinds):
             m = which == ki
@@ -155,7 +159,20 @@ class MapBatcher:
         return out
 
 
-def augment_actions(act: torch.Tensor, act_std, noise: float, smooth_p: float, gen=None) -> torch.Tensor:
+def ar1_noise(shape, rho: float, device) -> torch.Tensor:
+    """unit-variance AR(1) noise along dim 1 (time): n_t = rho n_{t-1} + sqrt(1 - rho^2) e_t"""
+    B, T, C = shape
+    e = torch.randn(B, T, C, device=device)
+    if rho <= 0:
+        return e
+    out = torch.empty_like(e); out[:, 0] = e[:, 0]
+    a = math.sqrt(1 - rho * rho)
+    for t in range(1, T):
+        out[:, t] = rho * out[:, t - 1] + a * e[:, t]
+    return out
+
+
+def augment_actions(act: torch.Tensor, act_std, noise: float, smooth_p: float, rho: float = 0.0) -> torch.Tensor:
     """Control-input augmentation (audit 2026-09-07): stall-trained models keyed on the near-constant recorded throttle of a
     stuck vehicle (Chrono's controller holds its output); zero-mean per-step jitter of ``noise`` (physical units, throttle
     and steering) and, with probability ``smooth_p`` per window, a 0.5 s moving average make that fingerprint unavailable,
@@ -170,7 +187,7 @@ def augment_actions(act: torch.Tensor, act_std, noise: float, smooth_p: float, g
         a = pick * sm + (1 - pick) * a
     if noise > 0:
         scale = torch.tensor([noise / float(act_std[0]), noise / float(act_std[1]), 0.0], device=a.device)
-        a = a + torch.randn_like(a) * scale
+        a = a + ar1_noise(a.shape, rho, a.device) * scale
     return a
 
 
@@ -342,7 +359,7 @@ def stall_eval(model, data: MapBatcher, norm, context: int, device: str, max_per
     station, 4 s): |predicted - recorded| vx at the end -- the guards against 'always stop'. stall_score = mean."""
     model.eval()
     specs = {"stuck": (lambda ev: [int(ev["stop"]) + 4] if ev.get("stop") is not None else [], 40, "abs"),  # 2 s: most stall aborts end 3 s after the stop
-             "approach": (lambda ev: [int(ev["stop"]) - context - 40] if ev.get("stop") is not None else [], 80, "abs"),
+             "approach": (lambda ev: [int(ev["stop"]) - context - 40] if ev.get("stop") is not None else [], 80, "err"),  # audit: |pred - rec|, not |pred|
              "launch": (lambda ev: [0] if ev.get("launch") else [], 60, "abs"),
              "recovery": (lambda ev: [int(f) - context - 20 for f in ev.get("resume", [])], 60, "err"),
              "matched": (lambda ev: [int(f) - context - 40 for f in ev.get("matched", [])], 80, "err")}
@@ -455,6 +472,9 @@ def main() -> None:
     ap.add_argument("--action-noise", type=float, default=0.0,
                     help="per-step Gaussian jitter (physical units) on the throttle and steering INPUTS in training: removes the constant-throttle stall fingerprint")
     ap.add_argument("--action-smooth-p", type=float, default=0.0, help="probability per window of replacing the control inputs by their 0.5 s moving average")
+    ap.add_argument("--action-noise-rho", type=float, default=0.0, help="lag-1 autocorrelation of the action noise (0 = white; the imagined tracker's per-step changes have +0.3)")
+    ap.add_argument("--event-kind-weights", choices=["uniform", "episodes"], default="uniform",
+                    help="episodes: draw event kinds in proportion to the number of episodes offering them (the 'stuck' kind is nearly empty at long horizons)")
     ap.add_argument("--stall-eval-jitter", type=float, default=0.0, help="throttle jitter applied to the recorded controls in the stall validation metrics (fingerprint-robust selection)")
     ap.add_argument("--context-noise", type=float, default=0.0,
                     help="std of Gaussian noise added to the normalised state context in training (targets clean): robustness to the model's own errors in closed loop")
@@ -578,6 +598,7 @@ def main() -> None:
             events.update(json.loads(pth.read_text()))
     train_data = MapBatcher(train_split, norm, args.context, train_maps, hm_bank, events)
     val_data = MapBatcher(val_split, norm, args.context, val_maps, hm_bank, events)
+    train_data.kind_weights = args.event_kind_weights
     if events:
         K = max(args.rollout_steps, 1)
         cnt = {k: (len(v[0]), int(v[1].sum())) for k, v in train_data.event_table(K).items()}
@@ -669,7 +690,7 @@ def main() -> None:
         if args.rollout_steps > 0:
             batch = train_data.sample(rng, args.batch, device, extra_steps=args.rollout_steps, event_frac=args.event_frac, event_kinds=args.event_kinds)
             one = {k: v[:, : args.context + 1] if v.dim() >= 2 and k not in ("map", "hm") else v for k, v in batch.items()}
-            aug = (norm.act_std, args.action_noise, args.action_smooth_p) if (args.action_noise > 0 or args.action_smooth_p > 0) else None
+            aug = (norm.act_std, args.action_noise, args.action_smooth_p, args.action_noise_rho) if (args.action_noise > 0 or args.action_smooth_p > 0) else None
             loss, parts = step_loss(model, one, args.map_mode, loss_w, args.context_noise, aug)
             ro, ro_parts = rollout_loss(model, batch, args.context, args.rollout_steps, z1_mean_t, z1_std_t, loss_w, args.progress_weight, args.context_noise, aug)
             loss = loss + args.rollout_weight * ro

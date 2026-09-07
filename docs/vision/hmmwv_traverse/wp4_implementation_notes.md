@@ -1846,3 +1846,43 @@ control-input augmentation — per-step Gaussian jitter on the throttle and stee
 corrected ones (§13.6). Evaluation adds the jitter probe (`pre_rec_jit`, `stuck_rec_jit`) to every analyze table and
 uses the corrected wrong-map probe. The question is single: do the local stall metrics survive the jitter probe, and
 does the tracker-in-the-loop decision test (§13.7) then move toward the teacher-forced one?
+
+**Audit synthesis, corrections to §13.4–13.5 (16-agent workflow, `wp8_eval_summary/audit_workflow_result.json`).**
+Five axes move the validation stall score beyond noise, not three (learning rate 1e-4 and dropout hurt); p and K act
+as thresholds (p > 0 is a step of about −0.19 m/s that saturates by 0.3; K is a step between 40 and 80), the
+progress-loss effect flips sign between the two grid points and is not identified, the data mix helps at (p .3, K 40,
+progress) by −0.22, the combined configuration is worse because of its dropout, and the K 120 run diverged at step
+4 000 (its row is the 2 000-step checkpoint). "Imagining feasible routes 1.6 s / 6.9 s slower" was an averaging
+artefact over imagined timeouts: on *accepted* feasible routes the imagined time is unbiased (median ratio 0.98).
+The own-pick loss is not "entirely the cost ranking": 1–2 layouts per model are all-rejected and won only by the
+fallback, contacts are 2–4 of each model's failures, and the energy-gradient story holds only for the frozen model —
+the fine-tuned models' imagined cost is as speed-neutral as Chrono's and the drag comes from a minority of slow rough
+climbs imagined far too easy (78 kJ imagined against 248 kJ + stall). The gate metric is compressed, not one-sidedly
+protected (a matched-rate random rejecter scores 43.9 ± 0.7; the fallback is worth +1.6 layouts); the plain fine-tune
+already scores 45; the gate effect on unseen arenas is indistinguishable from zero. The primary's acceptance of
+*stall* routes on f105 did not move (31 / 36, same as the frozen model): what the imagination learned is to time out
+slow routes. A second all-feasible layout with a correct pose, `s_hill4_crater7_t+60_sh`, is rejected 7–9 / 9 by every
+p ≥ 0.6 model and 0 / 9 by the frozen one — an imagination failure worth its own look. The "stuck" training kind is
+nearly empty at the horizons used (62 / 22 / 9 / 4 episodes at K 40 / 80 / 120 / 160) yet drew 12–18 % of every batch,
+and the "recovery" kind was launches from rest (genuine en-route recoveries: 28 train / 10 val after the fix).
+
+**Jitter probe, corrected.** White σ 0.03 noise is about 1.6 × the imagined tracker's per-step change (0.041 vs
+0.026) with the opposite autocorrelation; a tracker-matched AR(1) perturbation (per-step |Δ| 0.025, lag-1 +0.3)
+removes about two thirds of the reproduced stalls, not 70–90 %; state-based discrimination survives it at the frozen
+model's level; "the frozen model is unaffected" is a floor effect. The harness now carries both probes
+(`pre_rec_jit`, `stuck_rec_jit`: white 0.03; `*_jit_ar`, `rest_rec_jit_ar`: AR(1) 0.0265, ρ 0.3).
+
+**Pre-registration for waves 3 / 3b (written 2026-09-07 01:40, before any result).** Wave 3b adds four runs with the
+tracker-matched AR(1) input noise (σ 0.0265, ρ 0.3; 0.05 in one), the recovery events fixed, the stuck kind weighted by
+its episode count and the approach validation scored as |pred − rec|. Endpoints on f105, true stops (n 46) and launch
+failures (n 105), |vx| < 0.5: (a) the augmented model's un-jittered true-stop prediction / in-stall hold / launch hold
+≥ 0.30 / 0.45 / 0.45 (frozen 0.24 / 0.22 / 0.20; primary 0.39 / 0.54 / 0.55) AND a fall of < 0.10 under the AR(1)
+probe; (b) the §13.7 decision test with the tracker in the loop ≥ AUC 0.80 for "stuck within 8 s" (primary 0.71,
+frozen 0.76) with closed-loop feasible completion ≥ 0.90 (primary 0.92). Decision rule: (a) and (b) → the cue was the
+fingerprint and closed-loop discrimination is attainable from the state; proceed to the tracker inside the augmented
+imagination, then fresh sealed arenas (f108+, model-free difficulty, ≥ 30 heuristic-failure layouts with a feasible
+alternative, one look, paired sign test, seed-median checkpoint rule). (a) fails → the stall reproduction was the
+fingerprint; stop training this loss on these events and go to the terrain-reading failures (`s_hill4_crater7_t+60_sh`,
+`x_hill1_h180`), a stall/progress head, or the replanning design. (a) holds, (b) fails → the gap is the controller
+pairing; proceed with the tracker inside the augmented model. Checkpoint rule: lowest jitter-robust stall score at
+step ≤ 5 000. One look at f105 per run; the sealed arenas are not touched.
