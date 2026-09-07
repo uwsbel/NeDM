@@ -1280,3 +1280,69 @@ cost:**
 
 **A positive is not the result. It is permission to go and get the result** at the
 channel set everything else in the study uses.
+
+## 1t. The excitation sweep: what survives a measured floor
+
+**The floor was placed third rather than last, and it caught the number that had
+already been reported.** Two runs of one configuration, differing only in seed:
+
+| metric | exc25 | exc25 seed 2 | base | verdict |
+|---|---|---|---|---|
+| `rollout_sel` | 0.2364 | **0.4167** | 0.4338 | **seed noise** -- 1.76x spread, seed 2 is the baseline |
+| `val_loss` | 0.00662 | 0.00676 | 0.00811 | **real** -- 3% spread, 18% below baseline |
+| `err/signal` 0.5 s | 0.287 | 0.432 | 1.401 | **real** -- spread 0.145 against a gap of ~1.0 |
+
+**Same two runs, three metrics, opposite conclusions.** `rollout_sel` had a seed
+spread that swallowed its effect; the apparatus ratio has one the effect clears
+tenfold. **That is the argument for measuring a floor per metric rather than
+once**, and the 1.8x `rollout_sel` improvement reported earlier is withdrawn.
+
+### What holds
+
+**Excitation data improves the surrogate's open-loop apparatus ratio by 3x to 5x**
+and makes the 0.5 s cell measurable where the baseline is not -- base INCOMPLETE
+at 1.401, every excitation cell PARTIAL. Gain passes at 0.5 s in all three:
+1.156, 1.112, 1.154.
+
+**And it does not need the volume.** The 1/100 cell reads 0.271, the best of the
+three, matching the `val_loss` result and rank saturating at 2,000 rows.
+
+### corr: a class claim, not a per-cell one
+
+    exc25 0.466    exc25_seed2 0.641    exc25_lowvol 0.664
+
+**Each interval straddles 0.5, so no cell passes.** But these are three
+independently trained models -- different seeds, a 100x volume difference -- and
+**two of three exceed the threshold with none below 0.45, mean 0.59.** That is
+evidence about the class of excitation-trained models that three INDETERMINATEs
+read separately would lose.
+
+**The baseline cannot join this comparison.** Its corr reads 0.555, which looks
+comparable, but it sits on an apparatus at 1.401 and is drift-dominated -- not a
+number. Stated explicitly because a reader will otherwise notice it and wonder.
+
+### The 1.0 s failure is now replicated
+
+    40ch unwrap     corr 0.051 [-0.237, 0.330]   FAIL
+    36ch lowvol     corr 0.022 [-0.263, 0.305]   FAIL
+
+**Two independent models, different channel sets, different corpora, both
+measurable at 1.0 s, both showing no action relationship at all.** The study has
+been saying "usable at 0.5 s, not at 1.0 s" on the strength of 1.0 s being
+UNMEASURABLE. It is now measured twice and it fails. **A positive finding
+replacing an absence of evidence.**
+
+### What is NOT established
+
+**That this is the action decorrelation.** The 1/100 cell rules out that the
+benefit scales with excitation VOLUME. It does not rule out that a small amount of
+any varied data would do the same -- 1/100 of 5M is still 50,000 varied rows.
+**The control that would separate them: take excitation STATES and replace their
+actions with what the policy would have commanded**, re-confounding the data while
+holding the state distribution identical. Nothing run so far does this.
+
+**That action sensitivity improved.** What improved is accuracy, which makes the
+gate readable. corr is indeterminate in every cell. **The gate becoming readable is
+a precondition for the fine-tune question, not an answer to it** -- the endpoint is
+a fine-tune inside an excitation-trained surrogate that survives transfer to
+Chrono, and that is one experiment away.
