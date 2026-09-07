@@ -41,6 +41,44 @@ establishes is the negative: **whatever produces the split, it is not the fine-t
 because the fine-tuning compared like-for-like produces +0.00003 with an interval of
 width 0.003 around zero.
 
+## cell3: the multiplier accounts for the entire effect
+
+The zero-disturbance corpus was the last result standing on the asymmetric protocol. I
+had reported its aggregate +0.0097 with all five families positive and every interval
+excluding zero, and described the uniformity as suggestive.
+
+```
+   as reported   armA@0.75 - base@1.0    +0.00971  [+0.00591, +0.01389]   10.4% of err
+   multiplier    base@0.75 - base@1.0    +0.00969  [+0.00590, +0.01321]   10.4% of err
+   matched gain  armA@0.75 - base@0.75   +0.00001  [+0.00000, +0.00001]    0.01% of err
+```
+
+**The multiplier accounts for +0.00969 of the +0.00971.** At matched gain the fine-tune's
+effect is +0.00001, and the family split is +0.00000.
+
+**The predicted mechanism was wrong.** Before running it I argued that if the confound
+explained cell3 it would have to act through a family interaction rather than a common
+shift, since the multiplier had moved cell4's aggregate by only +0.00075. It acted as a
+near-exact common shift instead -- straight +0.00840 against the reported +0.00837,
+turning +0.01141 against +0.01213 -- and it was an order of magnitude larger here than in
+cell4. The disturbance-free corpus is where the multiplier does the most damage, which
+neither of us predicted and which nothing measured beforehand implied.
+
+The matched-gain interval is implausibly tight because a zero-disturbance episode is
+deterministic; the two policies differ by a nearly constant amount. It excludes zero and
+is 0.01% of baseline error, which is a real difference of no consequence.
+
+## All three cells
+
+```
+              disturbance   as reported   multiplier   matched gain   % of err
+   cell3      none            +0.00971     +0.00969      +0.00001       0.01%
+   cell4      matched         -0.00026     +0.00075      -0.00001      -0.01%
+   cell5      matched         +0.32792     +0.23904      +0.00154       0.66%
+```
+
+Every reported tracking effect on this box is accounted for by the action multiplier.
+
 ## E3's replication does not survive
 
 E3 reproduced at 28% against 29% across two corpora and was reported as the one clean
