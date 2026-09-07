@@ -297,9 +297,15 @@ def cmd_model(args) -> None:
                 n_rec = np.array([len(eps[k]["z1"]) for k in keys])
                 H = int(round(args.horizon_s / DT))
 
+                lay_of = np.array([labels[k]["layout"] for k in keys])
                 def wrong_maps():
-                    """swap every env's scene map for the next env's (another layout of the same arena, usually)"""
-                    env.env_maps[:] = torch.roll(env.env_maps, 1, dims=0)
+                    """give every env the scene map of a DIFFERENT layout of the same arena (audit 2026-09-07: rolling by one kept
+                    the same layout for most envs, since the episode list is grouped by layout)"""
+                    rng_m = np.random.default_rng(3); perm = np.arange(n)
+                    for i in range(n):
+                        others = np.nonzero(lay_of != lay_of[i])[0]
+                        perm[i] = rng_m.choice(others) if len(others) else i
+                    env.env_maps[:] = env.env_maps[torch.from_numpy(perm).to(dev)]
 
                 def seed_rest(fz_override=None, map_probe=False):
                     env.reset_idx(ids, episode_ids=ids, start_frames=torch.full((n,), env.context, device=dev, dtype=torch.long), fragment_steps=torch.full((n,), H, device=dev, dtype=torch.long))
@@ -324,7 +330,8 @@ def cmd_model(args) -> None:
                     env.episode_length_buf[:] = 0; env.progress_m[:] = 0
                     env._compute_observations()
 
-                def run(mode: str, t0: np.ndarray, steps: int) -> dict:
+                jit_gen = torch.Generator(device=dev); jit_gen.manual_seed(5)
+                def run(mode: str, t0: np.ndarray, steps: int, jitter: float = 0.0) -> dict:
                     """mode 'rec' = recorded controls (teacher forcing), 'pol' = tracker. t0[i] = frame whose state is the
                     last context frame (rest: 0). Returns vx trajectories (n, steps) and progress."""
                     vx_tr = np.full((n, steps), np.nan, np.float32); pitch_tr = np.full((n, steps), np.nan, np.float32); prog = np.zeros(n, np.float32); done = np.zeros(n, bool); fail = np.zeros(n, bool); complete = np.zeros(n, bool)
@@ -333,6 +340,9 @@ def cmd_model(args) -> None:
                         if mode == "rec":
                             idx = torch.clamp(t0_t + s, max=b.n_frames - 1)
                             driver = b.act_raw[ids, idx]
+                            if jitter > 0:
+                                driver = driver.clone(); driver[:, :2] = driver[:, :2] + jitter * torch.randn(n, 2, device=dev, generator=jit_gen)
+                                driver[:, 0] = driver[:, 0].clamp(-1, 1); driver[:, 1] = driver[:, 1].clamp(0, 1)
                             env._nn_step(driver); env.episode_length_buf += 1
                             err = env._route_errors(); env.last_actions = driver.clone(); env.actions = driver
                             env._compute_observations()
@@ -393,9 +403,11 @@ def cmd_model(args) -> None:
                 for mode in ("rec", "pol"):
                     seed_at(t0); res[f"pre_{mode}"] = run(mode, t0 - 1, int(round(args.post_s / DT)))
                 seed_at(t0, map_probe=True); res["pre_rec_wrongmap"] = run("rec", t0 - 1, int(round(args.post_s / DT)))
+                seed_at(t0); res["pre_rec_jit"] = run("rec", t0 - 1, int(round(args.post_s / DT)), jitter=args.jitter)
                 # seeded INSIDE the stuck phase (1 s after the stop, vehicle stationary, throttle on): does the model hold the stall?
                 t_in = np.clip(t_stop + 20, env.context, n_rec - 2)
                 seed_at(t_in); res["stuck_rec"] = run("rec", t_in - 1, int(round(args.post_s / DT)))
+                seed_at(t_in); res["stuck_rec_jit"] = run("rec", t_in - 1, int(round(args.post_s / DT)), jitter=args.jitter)
                 # local k-step teacher-forced errors around the stop: start frames stop-2s .. stop+1s every 0.2 s, 20 steps each
                 KS = (1, 4, 8, 20)
                 offsets = list(range(-40, 21, 4))
@@ -473,13 +485,15 @@ def cmd_analyze(args) -> None:
             q, _ = stat(rows, m, lambda r, x: vx_at(x["pre_pol"]["vx"], s2))
             si, _ = stat(rows, m, lambda r, x: vx_at(x["stuck_rec"]["vx"], 79) if "stuck_rec" in x else np.nan)
             si1, _ = stat(rows, m, lambda r, x: float(abs(vx_at(x["stuck_rec"]["vx"], 79)) < 0.5) if "stuck_rec" in x else np.nan)
+            pj, _ = stat(rows, m, lambda r, x: float(abs(vx_at(x["pre_rec_jit"]["vx"], s2)) < 0.5) if "pre_rec_jit" in x else np.nan)
+            sj, _ = stat(rows, m, lambda r, x: float(abs(vx_at(x["stuck_rec_jit"]["vx"], 79)) < 0.5) if "stuck_rec_jit" in x else np.nan)
             q1, _ = stat(rows, m, lambda r, x: float(abs(vx_at(x["pre_pol"]["vx"], s2)) < 0.5))
             err = np.array([r["models"][m]["local"]["err"] for r in rows], float); err[err < -90] = np.nan
             offs = np.array(rows[0]["models"][m]["local"]["offsets_s"]); ks = rows[0]["models"][m]["local"]["ks"]
             pre_m, post_m = offs < 0, offs >= 0
             e8 = (np.nanmean(err[:, pre_m, ks.index(8)]), np.nanmean(err[:, post_m, ks.index(8)]))
             e20 = (np.nanmean(err[:, pre_m, ks.index(20)]), np.nanmean(err[:, post_m, ks.index(20)]))
-            print(f"{m:24s} {a:15.2f} {a1:6.2f} {h:10.2f} {w:9.2f} {d:14.2f} | {p:15.2f} {p1:6.2f} {pw:9.2f} {q:10.2f} {q1:6.2f} | {e8[0]:+.2f} / {e8[1]:+.2f}   | {e20[0]:+.2f} / {e20[1]:+.2f}   | in-stall +4s {si:.2f} (<0.5: {si1:.2f})")
+            print(f"{m:24s} {a:15.2f} {a1:6.2f} {h:10.2f} {w:9.2f} {d:14.2f} | {p:15.2f} {p1:6.2f} {pw:9.2f} {q:10.2f} {q1:6.2f} | {e8[0]:+.2f} / {e8[1]:+.2f}   | {e20[0]:+.2f} / {e20[1]:+.2f}   | in-stall +4s {si:.2f} (<0.5: {si1:.2f}) | jittered controls: pre {pj:.2f} in-stall {sj:.2f}")
     # worked examples
     for cls in ("launch", "stop"):
         rows = [r for r in R.values() if r["class"] == cls][: args.examples]
@@ -900,6 +914,7 @@ def main() -> None:
     m.add_argument("--lead-s", type=float, default=2.0, help="start the pre-stop tests this long before the recorded stop")
     m.add_argument("--post-s", type=float, default=6.0, help="length of the pre-stop tests")
     m.add_argument("--camera-start", action="store_true", help="rest tests start at the camera pose estimate (planner) instead of the true pose")
+    m.add_argument("--jitter", type=float, default=0.03, help="throttle/steer jitter (physical) for the fingerprint probe variants pre_rec_jit / stuck_rec_jit")
     m.add_argument("--roll-limit-deg", type=float, default=34.4)
     m.add_argument("--pitch-limit-deg", type=float, default=22.9)
     m.add_argument("--max-per-arena", type=int, default=0)
