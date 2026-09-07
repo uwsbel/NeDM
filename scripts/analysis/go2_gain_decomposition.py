@@ -99,6 +99,23 @@ def main():
     if len(sh) < 20:
         raise SystemExit("too few shared episodes to decompose")
 
+    # HEADROOM. A null means little in a cell where the robot barely executes the
+    # command: the baseline error is then mostly the unrealised command, which is
+    # common to both arms and which no fine-tune acts on. Reporting the deadband
+    # fraction turns "null in this cell" into a quantity a reader can weigh, and
+    # makes a null across cells a claim about the range of headroom it held across.
+    cmds = np.array([b1[k][1] for k in sh])
+    errs = np.array([b1[k][0] for k in sh])
+    real = np.array([abs(abs(b1[k][1]) - b1[k][0]) for k in sh])   # |realised| approx
+    r = float(np.median(real) / np.median(np.abs(cmds)))
+    deadband = (1.0 - r) * float(np.median(np.abs(cmds)))
+    print(f"\n  HEADROOM: median |cmd| {np.median(np.abs(cmds)):.4f}, "
+          f"realised ratio {r:.2f}")
+    print(f"    baseline error {np.median(errs):.4f} m/s, of which deadband "
+          f"~{deadband:.4f} ({100 * deadband / np.median(errs):.0f}%)")
+    print(f"    headroom a tracking effect could act on: "
+          f"~{np.median(errs) - deadband:+.4f} m/s")
+
     legs = (("as_reported", lambda k: tk[k][0] - b1[k][0]),
             ("multiplier",  lambda k: bk[k][0] - b1[k][0]),
             ("matched_gain", lambda k: tk[k][0] - bk[k][0]))
