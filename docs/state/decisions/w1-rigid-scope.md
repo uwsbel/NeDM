@@ -2330,3 +2330,43 @@ flag" is an intent, **not a fact recoverable from the artifacts.**
 verifies, the two cell-2 seeds disagree 22 against 0 on the same flag, the seed
 dominates, and this reading dies. **The prediction actively points away from the
 result I just scored**, which is the strongest form the check could have taken.
+
+### Cell 2's seed caveat is DISCHARGED -- from git, not from the run dirs
+
+The configs are committed and diffable. `go2_mix34_v4dataset` and
+`go2_mix34_v4ds_nonoise` both carry `training.seed = 2026061801` and the same
+`processed_dataset_dir` (`go2_corrected_34d_excl`); the entire diff is `output_dir`,
+`input_noise_sigma` 0.05 -> 0.0, and the metadata block.
+
+> **So 22-against-0 is not two draws that happened to differ. It is one seed, one
+> dataset, one architecture, with one flag flipped.** "Differ only in the noise flag"
+> is verified, not asserted.
+
+**The run dirs still record no seed** -- `metrics.jsonl` has only per-epoch losses.
+That provenance gap is real and worth fixing, but it is not load-bearing here.
+
+#### The remaining n=1 is on the noise-ON side, and seed B does not touch it
+
+    sigma 0.05   seed 2026061801   v4rep     0/43
+    sigma 0.0    seed 2026061801   cell2 A  22/43
+    sigma 0.0    seed 2026061802   cell2 B  running
+    sigma 0.05   seed 2026061802   DOES NOT EXIST   <- the missing cell
+
+**Seed B doubles the noise-off arm and leaves noise-on at n=1**, so a ~20 from B gives
+3-against-1, not a 2x2. Partial mitigation exists -- every `sigma=0.05` arm this
+project has run (v4rep, armA, armB, base36 at 0/43, 34d_replicate at 2/43) sits at
+0-2 across varied datasets and dims -- **but none of those is seed-matched, which is
+the whole point of the cell.**
+
+### REGISTERED before the symmetric cell runs
+
+`go2_mix34_v4dataset` at `training.seed = 2026061802`, flag ON, everything else
+matched:
+
+    ~0 of 43    -> the flag's effect holds on two seeds in BOTH directions; surrogate
+                   seed variance cannot produce 22-against-0 and the 2x2 is closed
+    ~20 of 43   -> the noise-ON arm at seed ...801 was the outlier, the flag is NOT
+                   the variable, and cell 2's reading is withdrawn
+
+**`rollout_sel` varied 2.5x across the two noise-off seeds**, so surrogate-to-surrogate
+spread is exactly the thing that could still produce this at n=1 on one side.
