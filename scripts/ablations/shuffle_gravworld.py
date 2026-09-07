@@ -84,11 +84,42 @@ def main() -> int:
 
     # Verify from disk rather than from the loop that just wrote it.
     same = 0
+    own_v, shuf_v = [[], [], []], [[], [], []]
     for c, own, _ in triples:
         r = next(csv.DictReader(open(c)))
-        if all(abs(float(r[d]) - own[i]) < 1e-9 for i, d in enumerate(DST)):
+        got = [float(r[d]) for d in DST]
+        if all(abs(got[i] - own[i]) < 1e-9 for i in range(3)):
             same += 1
+        for i in range(3):
+            own_v[i].append(own[i]); shuf_v[i].append(got[i])
     print(f"re-read check: {same} of {len(triples)} episodes have shuf == own (must be 0)")
+
+    # A DERANGEMENT ONLY GUARANTEES NO EPISODE KEEPS ITS OWN TRIPLE. It does not
+    # guarantee it received a DISSIMILAR one -- with clustered tilt values an
+    # episode can be handed a nearly identical vector, and the channel would then
+    # still carry the information the control exists to remove. Measure it.
+    def corr(x, y):
+        n = len(x)
+        mx, my = sum(x) / n, sum(y) / n
+        sx = sum((v - mx) ** 2 for v in x) ** 0.5
+        sy = sum((v - my) ** 2 for v in y) ** 0.5
+        if sx == 0 or sy == 0:
+            return float("nan")
+        return sum((a - mx) * (b - my) for a, b in zip(x, y)) / (sx * sy)
+
+    print("correlation of the shuffled channel against the real one, per component:")
+    bad = []
+    for i, name in enumerate(DST):
+        c_ = corr(own_v[i], shuf_v[i])
+        flag = ""
+        if c_ == c_ and abs(c_) > 0.15:
+            flag = "   <- TOO HIGH, the control still carries the signal"
+            bad.append(name)
+        print(f"  {name:20} r = {c_:+.4f}{flag}")
+    if bad:
+        print("FATAL: shuffled channels correlate with the real ones; re-run with "
+              "another --seed", file=sys.stderr)
+        return 1
     return 0 if same == 0 else 1
 
 
