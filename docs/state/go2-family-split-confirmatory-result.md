@@ -69,3 +69,36 @@ forward-velocity deadband, where the robot realises 14-30% of command. Every num
 above is a difference in an error that is mostly the robot not moving. The pairing is
 sound -- both arms face the same deadband on the same episodes -- but no mechanism story
 about *tracking* is supported without addressing that.
+
+## Mechanism test: is the split carried by yaw content? No.
+
+The deadband suggested a mechanism -- straight families command `vx`, realised at 4-5%;
+turning families command `wz`, realised at 0.8-0.9 -- predicting that **realised** |yaw|
+should carry the effect and the family label should add nothing once it is accounted for.
+
+Nested fits of the paired difference (`scripts/analysis/go2_split_mechanism.py`), on the
+corpora already held, no new collection:
+
+```
+   cell4 (matched)   R^2 label 0.0584   yaw 0.0342   both 0.0606
+                     label adds over yaw  +0.0263
+                     yaw adds over label  +0.0022     -> THE LABEL
+   cell3 (none)      all R^2 < 0.006                 -> not interpretable
+```
+
+**The prediction fails.** The family label carries something realised yaw content does
+not, and the reverse is nearly nothing. Whatever separates the strata, it is not simply
+that turning commands get executed and straight ones do not.
+
+The label and yaw content are collinear by construction (r = 0.61 on cell4), so this is
+reported as a nested comparison rather than two independent fits; the only honest
+question is what each adds over the other, and the answer is asymmetric.
+
+What the label might carry instead is open. One candidate not yet tested: within-episode
+command *variation* -- `vel_step`, `yaw_step` and `weave` change command mid-episode
+while `constant` and `arc` do not -- which cuts across the straight/turning split and so
+is separable from it.
+
+On cell3 every R^2 is below 0.006. An earlier ordering of the decision rule reported
+"yaw content accounts for the split" from a 0.0023 difference between two fits that both
+explained nothing; the floor check now runs first.
