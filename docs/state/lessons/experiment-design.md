@@ -4668,3 +4668,52 @@ visibly an interpretation; a null looks like arithmetic.**
 Per-condition vectors `[0,0,5,4,2,4,0,0]` and `[0,0,5,5,0,5,0,0]`, different
 patterns summing identically. Related: [effective n is episodes, not
 windows](#) — this is the same denominator error one level further down.
+
+## State the model a null assumes, because a number from an unstated model looks like a measurement
+
+**Cost:** a simulation, and nearly a correct verification · **Found:** 2026-09-07 · **Applies to:** every p-value, coincidence probability, and standard error
+
+Three nulls in one hour, each embedding an unstated model, each wrong:
+
+| statistic reported | model it silently assumed | what was true |
+|---|---|---|
+| "a 2% coincidence" | `binomial(40, p)`: 40 independent episodes | 8 fixed conditions x 5 seeds; saturated conditions carry zero variance |
+| `p = 6.0e-11` | Fisher exact: 40 independent per arm | 8 independent units, paired on condition; floor ~0.008 |
+| "residual `P = 0.053`" | the corrected null's `p_c` are exact | each `p_c` came from a five-episode cell |
+
+The third is the instructive one, because it was quoted **one message after**
+correcting the first. Having accepted that a variance calculation was wrong, the
+corrected version was then treated as exact. Its parameters move the answer
+completely:
+
+```
+  null estimated from                      sd      P(spread this small)
+  seed-0 vector    [0,0,5,4,2,4,0,0]      1.67          0.053
+  cond-4 at 1/5                            1.55          0.068
+  pooled, n=10 per condition               1.30          0.112
+  seed-202 vector  [0,0,5,5,0,5,0,0]      0.00          1.000
+```
+
+**One condition, measured twice, disagreeing by two episodes, swings the null's
+sd by 25%; a second seed's vector puts it at zero.** The same observation supports
+`P` anywhere from 0.05 to 1.0. There was no measurement that could tell 5% from
+50%, so there was no residual to carry.
+
+**The asymmetry that makes this worth its own entry.** In the same hour a *reading*
+was also wrong: an abstaining predictor was read as evidence that a result would
+land between two classes. That cost nothing. It was visibly an interpretation, it
+was challenged within minutes, and registered branches made it inert.
+
+> **A wrong null propagates much further than a wrong reading, because the reading
+> announces itself as an interpretation and the null arrives looking like
+> arithmetic.** `sd = 3.06` reads as a property of the data. It was a modelling
+> choice, and the wrong one.
+
+**Fix.** Report the model beside the number: not "2% coincidence" but "2% under
+binomial(40, p), which assumes the 40 episodes are independent draws." Where a
+null's parameters are themselves estimated, report the p-value's range across
+defensible estimates rather than a single figure. **If that range spans an order of
+magnitude, there is no finding to carry.**
+
+**Evidence:** commits fb4970a, 5c669d3. Related: [the number 40 was a grid
+dimension](#the-number-40-was-a-grid-dimension-and-two-of-us-read-it-as-a-sample-size-within-one-hour).
