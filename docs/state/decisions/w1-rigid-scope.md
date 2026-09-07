@@ -2774,3 +2774,47 @@ one.
 **A one-line fix exists** (normalise the system's gravity into the body frame instead
 of assuming world -Z) **and it would change every number on this axis, so it must not
 be applied underneath a running comparison.** It is a different experiment.
+
+### The corpus's pitch cap rests on `corr(|roll|, fell)`, which is blind to the roll effect
+
+`drive_go2_collection.py:84-94` records why pitch is capped at +-1.5 while roll runs
++-3.0, measured on 2,000 episodes:
+
+    corr(|pitch|, fell) = +0.427   rising 2% -> 48% across the band
+    corr(|roll|,  fell) = +0.057   and flat
+    "Capping the combined magnitude instead would sacrifice roll range for nothing,
+     since roll does not drive failures."
+
+**The measured quantity is `|roll|`. The effect is antisymmetric in roll.**
+
+    pitch -3.0, roll -3.0  ->  0/5        same |roll| = 3.0
+    pitch -3.0, roll +3.0  ->  5/5        opposite outcomes
+
+**Taking the absolute value cancels the two exactly**, so `corr(|roll|, fell)` is near
+zero *whatever* the sign effect's size. The statistic used to rule roll out cannot
+represent the way roll acts. **`corr(|pitch|, fell)` worked because the pitch effect
+IS roughly symmetric in magnitude; the same transform applied to roll destroyed it.**
+
+> **The corpus's tilt envelope was shaped by a measurement that was blind by
+> construction to the factor it was used to dismiss** -- and the resulting asymmetry
+> (roll fully sampled, pitch capped at half the tested depth) is exactly where the two
+> policies turn out to differ.
+
+#### Which also means the clean-cell statistic is mostly out-of-distribution
+
+Training pitch envelope is +-1.5. The four "clean" conditions:
+
+    cond 0   pitch  0.0    INSIDE
+    cond 2   pitch +1.5    at the CAP
+    cond 3   pitch +2.0    BEYOND
+    cond 6   pitch +2.5    BEYOND
+
+**Only one of the four sits strictly inside the pitch range the surrogate was trained
+over.** Roll is in-distribution throughout (all four within +-3.0). So the headline
+numbers -- base 0%, v4 44%, armA 57%, armB 75%, base36 79% -- are **largely a measure
+of out-of-distribution pitch generalisation**, which is a legitimate and interesting
+thing to measure but is not what the table's column heading says.
+
+**This does not weaken the ordering** -- every arm is equally out-of-distribution, and
+base at a hard 0/240 while fine-tuned arms fail 44-79% OOD is a sharper statement than
+the in-distribution version would be. **It changes the caption, not the result.**
