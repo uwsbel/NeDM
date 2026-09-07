@@ -379,6 +379,38 @@ change is caught by recording provenance at write time and re-verifying it later
 a careful consolidation propagates it perfectly, a hash check confirms it was
 copied exactly, and a rule like "keep everything addressable" preserves it intact.
 
+### 2026-09-07: the same phenomenon, one class further out
+
+Five more parameters silently changed results in a single session. **Not one was
+found by reading code either, and not one was a field with a wrong value.**
+
+| parameter | where it lived | how it was found |
+|---|---|---|
+| ground pitch cap | a literal in the collection driver | a peer asked why two corpora had different ranges |
+| pychrono build | `PYTHONPATH`, selecting nothing on one box | a peer suggested hashing the binary, not just the checkpoint |
+| action multiplier | a CLI flag applied outside the config path | a control that returned *exactly* zero |
+| admissibility filter | a preprocessing step, unrecorded downstream | chasing why a reconstruction undershot a quoted figure |
+| tilt range in a scratch generator | a literal I wrote and forgot | a peer asked where a corpus came from |
+
+**The distinction from the five above is the whole point.** Those were fields that
+existed and said something false, and consumption catches them because a consumer
+eventually does something visibly wrong with the value. **These are parameters that
+were never recorded at all**, and consumption cannot catch them: every consumer
+behaves correctly, every artifact is internally consistent, and nothing disagrees
+until two runs that differ in the unrecorded parameter are compared.
+
+**What found them, in all five cases, was a person asking where a number came
+from.** Not a check firing — no check can fire on a field that does not exist.
+Three of the five were found by the *other* agent asking about *this* agent's
+numbers, which is the part that does not automate.
+
+**The mitigation is therefore different too.** A wrong value is fixed by recording
+provenance at write time and re-verifying it. **An absent parameter is fixed only
+by making absence detectable**: a null field that can be queried, a run that
+refuses when its selector resolves to nothing, an artifact that names the build it
+ran on. **A missing filename token is nothing; a missing JSON key is a null you can
+count.**
+
 ### The one that reached checkpoint selection
 
 `scenario_family` looked like a label. It is the key
