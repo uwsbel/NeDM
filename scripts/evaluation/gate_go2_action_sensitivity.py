@@ -275,6 +275,11 @@ def main():
     ap.add_argument("--root", default=R_DEFAULT)
     ap.add_argument("--episodes", type=int, default=16)
     ap.add_argument("--rel-sigma", type=float, default=0.01)
+    ap.add_argument("--perturb-seed", type=int, default=0,
+                    help="RNG seed for the weight perturbation. The gate's result "
+                         "depends on WHICH draw was taken, so a repeatability check "
+                         "must vary this. It is part of the cache key and is recorded "
+                         "in the output JSON.")
     ap.add_argument("--horizons-s", type=str, default="0.1,0.5,1.0,2.0,6.0")
     ap.add_argument("--device", default="cuda")
     ap.add_argument("--work", default="/home/kyle/sbel-artifacts/datasets/go2_gate")
@@ -339,10 +344,10 @@ def main():
 
     # treated policy
     os.makedirs(a.work, exist_ok=True)
-    tck = f"{a.work}/perturbed_{a.rel_sigma}.pt"
+    tck = f"{a.work}/perturbed_{a.rel_sigma}_seed{a.perturb_seed}.pt"
     if not os.path.exists(tck):
         m = torch.jit.load(BASE_CKPT, map_location="cpu")
-        torch.manual_seed(0); n = 0
+        torch.manual_seed(a.perturb_seed); n = 0
         with torch.no_grad():
             for p in m.parameters():
                 if p.dim() < 2: continue
@@ -352,7 +357,13 @@ def main():
         if n == 0:
             raise SystemExit("perturbed nothing: the two arms would be identical")
         torch.jit.save(m, tck)
-        print(f"  perturbed {n} weight tensors at rel-sigma {a.rel_sigma}")
+        print(f"  perturbed {n} weight tensors at rel-sigma {a.rel_sigma} "
+              f"seed {a.perturb_seed} -> {tck}")
+    else:
+        # A cache hit used to be silent, and the file was keyed on rel_sigma ALONE.
+        # A seed sweep would therefore have reused one draw, reported N identical
+        # results, and printed nothing saying why. Name the draw in use, every run.
+        print(f"  REUSING cached perturbation seed {a.perturb_seed}: {tck}")
 
     keep = {e["episode_id"] for e in json.load(open(a.root + "/dataset_index.json"))["episodes"]
             if e.get("split") == "val"}
@@ -445,7 +456,8 @@ def main():
         print("\nGATE: INCOMPLETE -- no usable episode pairs"); return 2
 
     report = {"checkpoint": a.checkpoint, "episodes": len(rec), "failed": failed,
-              "rel_sigma": a.rel_sigma, "horizons_s": a.horizons_s, "families": {}}
+              "rel_sigma": a.rel_sigma, "perturb_seed": a.perturb_seed,
+              "perturbed_ckpt": tck, "horizons_s": a.horizons_s, "families": {}}
     print(f"\n  usable pairs {len(rec)}, failed {failed}")
     print(f"  mean |action difference| between arms: "
           f"{np.mean([r['da'].mean() for r in rec]):.5f} rad")
