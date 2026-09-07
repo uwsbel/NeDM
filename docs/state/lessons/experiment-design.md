@@ -4464,3 +4464,58 @@ session that a `pkill -f` pattern matched its own invocation.
 **And the general form: after any cleanup or kill, verify the intended end state rather
 than reading the exit code.** A command that was itself killed reports failure in a way
 that looks like the target resisting.
+
+## An improvement on the intervention's own axis is guaranteed by construction
+
+The excitation corpus was collected to add coverage of the excitation distribution. It
+improves surrogate accuracy on the excitation validation split by 6x, 0.742 to 0.123.
+That number has been carried as evidence the corpus was worth collecting.
+
+It is a check that the collection worked, not a result. **The metric is aligned with the
+intervention**: the corpus adds rows in a region, and the instrument measures error in
+that region, so an improvement is what a successful collection means rather than
+something it implies. The consumer is a closed-loop policy optimisation, and nothing in
+the 6x speaks to it.
+
+Sharper than the earlier form of this rule, which was *do not measure open-loop and claim
+closed-loop*. **A large improvement on an aligned axis is more persuasive and not more
+relevant**, and size is the thing that makes it convincing to a reader who has not asked
+what the axis is.
+
+Ask, of any reported gain: **is this metric downstream of the consumer, or downstream of
+the intervention?** If the latter, it is an assay of the intervention, and belongs in the
+methods rather than the results.
+
+## Verify a fix by its effect, not by its output
+
+`--match-corpus` was added so a collector reads its parameters from an existing corpus
+instead of the module defaults. The first version read `action_scale = 0.3` from the
+corpus, printed `--match-corpus: action_scale = 0.3 (from ...)`, and ran at the module
+default of 1.6, because the block was placed after the line that applies the value.
+
+Everything it printed was true. The read was correct, the log line was correct, and the
+program's behaviour had no connection to either.
+
+Caught by running the same seed both ways and comparing **yield**: 12 of 30 windows kept
+against 30 of 30. Not by reading the code and not by reading the output.
+
+**A fix that reports its own success is reporting an intention.** This is distinct from
+the guard lessons above -- those concern checks that cannot fire; this is a check that
+fires correctly and truthfully and is disconnected from the effect.
+
+Third instance of **read-print-discard** in one session, after a sampled command that was
+computed, logged and never applied because `set_time()` was not called, and a summary
+field that recorded a parameter the run did not use. In all three the log is the evidence
+that the value was obtained, and it is silent about whether it was used.
+
+## A negative test needs a location verified to lack the thing
+
+The refusal path of that flag was tested by pointing it at `/tmp`, which felt obviously
+empty of a corpus summary. `/tmp/summary.json` had been there since four days earlier.
+The test passed by accident and proved nothing.
+
+**Construct the negative case; do not select a place you expect it to hold.** An empty
+directory created for the test cannot have been contaminated by days of unrelated work,
+and the natural choice is dangerous precisely because its emptiness is assumed rather
+than established -- on a machine in daily use, the well-known scratch location is the
+least empty place available.
