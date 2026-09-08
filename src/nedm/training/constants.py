@@ -199,6 +199,26 @@ STATE_FIELD_PRESETS = {
                                       + ["pos_z_m", "vel_body_z_mps"]
                                       + ["grav_shuf_x_mps2", "grav_shuf_y_mps2",
                                          "grav_shuf_z_mps2"]),
+    # CONTACT AS INPUT, THE LARGEST FACTOR IN NeRD'S ABLATION and never testable
+    # here until now: every previous corpus wrote foot_*_in_contact as literal NaN
+    # in 100% of rows, so the contact-conditioned preset above could not be built.
+    # go2_gravworld carries them populated -- verified, zero NaN.
+    #
+    # NeRD measures removing the contact input at 19.8x on Ant, their floating-base
+    # walker, and attributes it to ground configurations being unidentifiable from
+    # state alone. Our action-sensitivity gate has never passed: corr 0.310 against
+    # a 0.5 threshold. That gate asks whether the surrogate transmits action
+    # influence the way Chrono does, and a model that cannot see contact is being
+    # asked to predict a system whose dynamics are dominated by making and breaking it.
+    #
+    # Combined with grav_world so contact and observed tilt can be varied separately.
+    "quadruped_contact_gravworld_pose": (DEFAULT_STATE_FIELDS + QUADRUPED_JOINT_STATE_FIELDS
+                                         + ["grav_body_x", "grav_body_y", "grav_body_z"]
+                                         + ["pos_z_m", "vel_body_z_mps"]
+                                         + ["grav_world_x_mps2", "grav_world_y_mps2",
+                                            "grav_world_z_mps2"]
+                                         + ["foot_fl_in_contact", "foot_fr_in_contact",
+                                            "foot_rl_in_contact", "foot_rr_in_contact"]),
     "quadruped_contact_conditioned": (DEFAULT_STATE_FIELDS + QUADRUPED_JOINT_STATE_FIELDS
                                       + ["grav_body_x", "grav_body_y", "grav_body_z"]
                                       + ["pos_z_m", "vel_body_z_mps"]
