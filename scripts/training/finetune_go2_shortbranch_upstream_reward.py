@@ -76,6 +76,10 @@ ap.add_argument("--val-every", type=int, default=50)
 ap.add_argument("--val-branches", type=int, default=512)
 ap.add_argument("--episodes", type=int, default=400)
 ap.add_argument("--seed", type=int, default=0)
+ap.add_argument("--require-substring", default="",
+                help="restrict the branch pool to paths containing this. Was a "
+                     "hardcoded '_s2000000_', which excludes every episode of any "
+                     "corpus but the one it was written for.")
 # DISPLACEMENT TEST: stop when the policy has moved a declared distance in weight space,
 # rather than when a metric plateaus. Isolates ||dW|| from the objective, which the three
 # previous runs confounded -- each used a different reward AND ended at a different ||dW||.
@@ -154,9 +158,21 @@ def scored_cmd(rows):
     c = np.array([float(r["cmd_vx_mps"]) for r in rows])
     w = c[-1000:]
     return float(w[0]) if w.std() <= 1e-6 else None
-paths = [p for p in sorted(glob.glob(a.root + "/episodes/*.json"))
-         if not p.endswith(".config.json") and os.path.basename(p)[:-5] in keep
-         and "_s2000000_" in p]
+# TAKE THE PATHS FROM THE INDEX, NOT FROM A GLOB. A merged index references CSVs
+# that live under per-episode directories elsewhere, so `root/episodes/*.json`
+# matches nothing and the pool comes out empty -- which it did, silently enough
+# that the failure surfaced as "empty range for randrange()" three frames later.
+#
+# The "_s2000000_" filter this replaced was a hardcoded shard name from the
+# previous corpus. On any other collection it excludes everything, and it excluded
+# everything here. It is now --require-substring, defaulting to no filter, so
+# restricting to a shard has to be asked for and is recorded in the invocation.
+_want = getattr(a, "require_substring", "") or ""
+paths = [e["csv_path"][:-4] + ".json" for e in idx
+         if e["episode_id"] in keep and (not _want or _want in e["csv_path"])]
+paths = [p for p in sorted(paths) if os.path.exists(p) or os.path.exists(p[:-5] + ".csv")]
+print(f"  branch pool candidates from index: {len(paths)}"
+      + (f"  (filtered on {_want!r})" if _want else "  (no shard filter)"))
 random.Random(a.seed).shuffle(paths)
 S_all, A_all, C_all, excluded = [], [], [], 0
 for p in paths:
