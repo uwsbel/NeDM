@@ -42,6 +42,9 @@ print(f"episodes in split '{a.split}': {len(eps)}   completion threshold {THRESH
 PY_ = sys.executable
 CH = os.environ.get("PYTHONPATH", "").split(":")[0]
 
+_SEEN = set()   # distinct collector errors already reported
+
+
 def run(e):
     j = e["csv_path"][:-4] + ".json"
     m = json.load(open(j))
@@ -57,9 +60,19 @@ def run(e):
            "--episode-index", "0", "--seed", str(m["seed"]), "--spawn-x-m", "0.0",
            "--spawn-y-m", "0.0", "--heading-deg", "0.0", "--patch-y", "4.0",
            "--output-dir", out, "--overwrite", "--progress-interval-s", "99"]
-    subprocess.run(cmd, env=dict(os.environ), capture_output=True)
+    r = subprocess.run(cmd, env=dict(os.environ), capture_output=True, text=True)
     f = glob.glob(f"{out}/episodes/*.csv")
     n = (sum(1 for _ in open(f[0])) - 1) if f else 0
+    # SURFACE THE COLLECTOR'S ERROR. Capturing stderr and discarding it is the exact
+    # defect fixed in standing_screen.py earlier today, reintroduced here: all 536
+    # episodes returned 0 rows and the only signal was "completed 0 of 536", which
+    # reads as a policy that fails everything rather than a collector that never ran.
+    if n == 0:
+        why = (r.stderr or r.stdout or "").strip().splitlines()
+        msg = why[-1] if why else f"exit {r.returncode}, no output"
+        if msg not in _SEEN:
+            _SEEN.add(msg)
+            print(f"  [no episode] {msg}", file=sys.stderr, flush=True)
     return dict(seed=m["seed"], pitch=float(m["ground_tilt_pitch_deg"]),
                 roll=float(m["ground_tilt_roll_deg"]),
                 family=m["command_family"], rows=n, completed=int(n >= THRESH))
