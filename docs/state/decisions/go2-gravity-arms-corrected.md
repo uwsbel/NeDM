@@ -84,6 +84,44 @@ comparison shows single arms moving by up to 28 points from a checkpoint change 
 A/B/C are being taken to four seeds (B_s3/B_s4, C_s3/C_s4 configs committed, datasets
 staging) which is the first count at which any of this can reach p<0.05.
 
+## THE BASELINE, which every number above must be read against
+
+```
+  policy                        val-split completion (536 episodes)
+  BASE                                96.1%   (515/536)
+  A_s1                                57.8%
+  B_s1                                55.8%
+  D_s1                                52.8%
+  B_s2                                45.9%
+  A_s2                                40.9%
+  C_s2                                37.1%
+  A_s3                                29.9%
+  C_s1                                28.9%
+```
+
+**Every arm is a large degradation.** The best corrected fine-tune completes 57.8%
+against base's 96.1% -- a 38-point loss. No arm is close.
+
+**But base's 96.1% is a selection artefact and must not be quoted as a measurement.**
+The val split consists of episodes on which the base controller ran to completion, so
+base is being re-run on episodes chosen for base surviving them. This project already
+documented that trap: *"the number cannot come out any other way"* up to determinism,
+and the 21 failures are replay nondeterminism. **The defect is using base's rate as
+evidence of anything**; the arms' rates on that same cell are a real measurement, and
+what they measure is damage.
+
+**What this cell structurally cannot show.** It is incapable of detecting an arm that
+beats base where base FAILS -- no such episode can enter it. That is the complement,
+the 522-episode base-failure set on which base completes 0 by construction, and it is
+now being scored on the corrected policies. **The two rates are reported side by side
+and never summed**: this one can only show degradation, that one can only show
+capability, and neither is interpretable alone.
+
+**So the honest reading of everything above:** the arm comparison is a comparison of
+how much damage each arm does, not of which arm helps. Ranking A against B against C
+was answering a question subordinate to the one that matters, which is why
+fine-tuning inside the surrogate costs 38 points at all.
+
 ## val_loss is NOT comparable across these arms
 
 ```
