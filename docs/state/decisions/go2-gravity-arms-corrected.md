@@ -43,6 +43,29 @@ conditioned surrogate produced a worse policy than the cruder one.
 the permutation test is as lopsided as it can be -- and 0.3333 is still the smallest p
 two seeds per arm can produce. The design, not the data, is what fails here.
 
+## UPDATE, same day: a third seed of arm A broke the pattern
+
+Arm A's third seed scored **29.9%** -- below *both* C seeds. One additional seed, and:
+
+```
+              n=2 (A: s1,s2)          n=3 (A: s1,s2,s3)
+  arm A       49.3  sd 12.0           42.8  sd 14.1   (57.8  40.9  29.9)
+  C - A      -16.3  p at floor        -9.8  p 0.4000
+  B - A       +1.5                    +8.0  p 0.5000
+```
+
+**A's range is now 29.9-57.8 and contains C's range (28.9-37.1) entirely.** The
+"C sits below everything on every seed" reading below was an artifact of *which two
+seeds* arm A happened to have, and it did not survive the third.
+
+This is the clearest demonstration available of why the two-seed design was
+unreportable: the pattern was maximally lopsided, perfectly consistent across every
+cell measured, and **wrong**. Nothing about the data at n=2 signalled that -- only the
+floor did, which is why the floor is printed beside every contrast.
+
+**Arm A's between-seed spread is 27.9 points at matched epoch 80.** That is the real
+error bar on any single-seed claim about these arms.
+
 ## What the pattern suggests, and why it is not yet a finding
 
 - **B - A is +1.5 points.** Real gravity channels bought essentially nothing over the
