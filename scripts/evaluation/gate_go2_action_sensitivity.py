@@ -159,7 +159,13 @@ CHRONO = "/home/kyle/chrono-build/bin"
 ASSETS = "/home/kyle/Documents/sbel-reproducibility/2025/multi-terrain-RL"
 BASE_CKPT = "/home/kyle/sbel-artifacts/checkpoints/go2_cts_150k.pt"
 PERTURB_MAX_N, GROUND_M = 120.0, 200.0
-REPO = "/home/kyle/sbel/NeDM"
+# DERIVED, NOT HARDCODED. This named one box's checkout and the gate died with
+# FileNotFoundError on every other one -- the fourth hardcoded per-box path found
+# in this pipeline today, after the collector's assets root, the fine-tune's URDF
+# and policy.py's asset root. __file__ is where this script actually is.
+REPO = os.environ.get("NEDM_REPO",
+                      os.path.dirname(os.path.dirname(os.path.dirname(
+                          os.path.abspath(__file__)))))
 
 
 def spec_for(j):
