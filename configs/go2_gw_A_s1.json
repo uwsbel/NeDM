@@ -83,7 +83,7 @@
     "num_epochs": 80,
     "steps_per_epoch": 2000,
     "max_val_batches": 200,
-    "checkpoint_metric": "rollout_sel",
+    "checkpoint_metric": "val_loss",
     "load_dataset_into_memory": true,
     "pin_memory": false,
     "compile": false,
