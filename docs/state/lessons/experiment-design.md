@@ -5242,3 +5242,43 @@ entered the fine-tuning loop, fails with the same `~1e35` divergence as every
 fine-tuned arm and at the largest magnitude of any of them. The blow-up is what
 the integrator does when any controller loses the robot. **The most visually
 striking part of the failure is the part the mechanism does not account for.**
+
+## A stable size is not a complete file
+
+**Cost:** ~4 h of dead fleet · **Found:** 2026-09-08 · **Applies to:** any dataset shipped between machines
+
+**Expected:** three boxes receive the 3.8 GB arm-D dataset over `ssh sbel 'tar cf -' |
+ssh <host> 'tar xf -'`, and a receiving gate that waits for the directory size to stop
+changing lets training start only once the data has fully landed.
+
+**Happened:** all three transfers exited 0 and all three were truncated. sliger and north
+held 7 of 15 files; a3 held 14 of 15 and its `train_targets.npy` was short by 19M of its
+342,755,322 declared elements. The gate passed on every one of them, and a3 sat in a
+"dataset stable at 3977529034 bytes" state for hours before numpy finally refused the
+array at trainer construction.
+
+**Cause:** two independent defects that mask each other.
+1. A **double-ssh pipe reports the exit status of the last command in the pipeline**, so a
+   dropped stream on the sending side is invisible. `PIPESTATUS[0]` was never checked.
+2. The gate measured **size stability, not integrity.** A truncated file stops growing
+   the instant the stream dies, so it is *maximally* stable. The gate was not weak
+   evidence of completeness, it was **no evidence at all** -- truncation is precisely the
+   failure it cannot distinguish from success.
+
+**Fix:** verify content, never arrival. Take a `sha256sum` manifest at the origin, stage
+one copy, check it against the manifest, then push and re-check on each receiver, and
+promote from `.stage/` to the live path only after the check passes. Where the payload is
+`.npy`, a full `np.load` of every array is the cheaper end-to-end check and catches the
+short-read directly.
+
+**Evidence:** `ValueError: Expected (7971054, 43) = 342755322 elements, could only read
+323561056` at `dataset.py:38`; the origin on sbel loads all 12 arrays clean, so the
+corruption was purely in transit.
+
+**The general form, which is the part worth carrying:** *a completion signal that cannot
+fail is not a check.* Size-stability, an exit code from the wrong end of a pipe, and a
+process still being in the process table are all signals that stay green through the
+failure they are supposed to catch. This is the same defect as keying a paired evaluation
+on a non-unique `episode_id` -- the table looked complete at half its declared n -- and
+the same as a `pgrep -f` wait loop matching its own command string. **Prefer a check that
+can come back negative on data you can name.**
