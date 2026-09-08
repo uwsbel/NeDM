@@ -154,3 +154,42 @@ Rigid terrain, 536 val episodes, `--target-dw 4.0` (all seven fine-tunes stopped
 0.007 of it, over 281-456 updates), fine-tune `--seed 0` throughout. Scoring distributed
 across the fleet with the host recorded per file; the measured cross-machine effect is
 0.2 points on the rate, and a3's pychrono build was not among the two probed.
+
+---
+
+## The matched random-perturbation control: the gradient is doing real work
+
+Every corrected fine-tune stopped at `||dW||` ~= 4.00, which is **0.277% of the policy
+norm** (1445.82). So the obvious deflationary explanation had to be excluded: perhaps
+the policy is simply fragile to *any* move of that size, and the fine-tune's gradient is
+worth no more than noise. That control had never been run, and without it every
+displacement result in this project is uninterpretable.
+
+Three random-direction perturbations of the base policy, sized in closed form to the
+same displacement (realised `||dW||` = 4.007 against the fine-tunes' 4.000-4.007):
+
+```
+  BASE-FAILURE SET (522 episodes)
+  BASE                     106/522   20.3%    <- measured, NOT 0 "by construction"
+  RAND11  ||dW|| 4.007     112/522   21.5%
+  RAND12  ||dW|| 4.007     101/522   19.3%
+  ----------------------------------------
+  C_s2                     211/522   40.4%
+  B_s2                     311/522   59.6%
+  B_s1                     346/522   66.3%
+```
+
+**A random 0.28% weight change does nothing: 19.3% and 21.5% against base's 20.3%.**
+The fine-tuned arms reach 40-66% on the same episodes. The capability gain is therefore
+attributable to the fine-tuning, not to the policy being differently-capable after any
+perturbation of that magnitude.
+
+This is the control coming back **negative**, which is what makes the treated numbers
+mean anything. It also retires the deflationary reading of the whole displacement
+programme: `||dW||` is not just a fragility knob.
+
+**Still open:** the same control on the val split, which decides whether the
+*degradation* is equally attributable. If random scores ~96% there like base, the
+fine-tune causes both halves of the trade. If random also collapses to ~58%, then the
+loss on easy episodes is fragility rather than fine-tuning, and only the gain is the
+method's doing.
