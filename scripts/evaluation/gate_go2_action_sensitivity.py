@@ -149,14 +149,45 @@ import argparse, csv, glob, hashlib, json, math, os, random, subprocess, sys
 from math import comb
 import numpy as np, torch
 
-sys.path.insert(0, "/home/kyle/sbel/NeDM/src")
+# EVERY PER-BOX PATH IN THIS FILE, RESOLVED RATHER THAN ASSERTED.
+#
+# Five constants here named one machine's layout: the src path, the interpreter,
+# the Chrono build, the assets root and REPO below. The gate died on a different
+# box at each one in turn, one relaunch per constant, after successfully loading
+# the surrogate and finding all 536 of its episodes each time.
+#
+# Env var first (the rest of the pipeline sets these), then the known layouts,
+# then a loud failure naming what was tried. An absent asset is a crash; a WRONG
+# one that happens to exist is a silent result on the wrong physics, which is why
+# CHRONO checks for the shared object rather than the directory.
+import os as _os
+_HERE = _os.path.dirname(_os.path.abspath(__file__))
+_REPO_GUESS = _os.path.dirname(_os.path.dirname(_HERE))
+sys.path.insert(0, _os.path.join(_os.environ.get("NEDM_REPO", _REPO_GUESS), "src"))
 from nedm.quadruped.imported_policy import family_seed
 from nedm.training.trainer import HMMWVTrainer
 
+
+def _first(cands, probe, what):
+    for c in cands:
+        if c and _os.path.exists(_os.path.join(c, probe) if probe else c):
+            return c
+    raise SystemExit(f"FATAL: no {what} found; tried {[c for c in cands if c]!r}")
+
+
 R_DEFAULT = "/home/kyle/sbel-artifacts/datasets/go2_comprehensive_merged/flat"
-PY_ = "/home/kyle/miniconda3/envs/nedm/bin/python"
-CHRONO = "/home/kyle/chrono-build/bin"
-ASSETS = "/home/kyle/Documents/sbel-reproducibility/2025/multi-terrain-RL"
+PY_ = _first([_os.environ.get("NEDM_PY", ""),
+              "/home/kyle/miniconda3/envs/nedm/bin/python",
+              "/home/kyle/miniconda3/envs/nedm-src/bin/python", sys.executable],
+             "", "python interpreter")
+CHRONO = _first([_os.environ.get("NEDM_CHRONO_PYTHONPATH", ""),
+                 "/home/kyle/chrono-build/bin",
+                 "/home/kyle/Documents/sbel/chrono-build/bin"],
+                "pychrono/_core.so", "pychrono build")
+ASSETS = _first([_os.environ.get("NEDM_GO2_ASSETS", ""),
+                 "/home/kyle/Documents/sbel/sbel-reproducibility/2025/multi-terrain-RL",
+                 "/home/kyle/Documents/sbel-reproducibility/2025/multi-terrain-RL"],
+                "data/robot/go2_irrvis/urdf/go2_description.urdf", "go2 assets")
 BASE_CKPT = "/home/kyle/sbel-artifacts/checkpoints/go2_cts_150k.pt"
 PERTURB_MAX_N, GROUND_M = 120.0, 200.0
 # DERIVED, NOT HARDCODED. This named one box's checkout and the gate died with
