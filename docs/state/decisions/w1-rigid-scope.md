@@ -4005,3 +4005,36 @@ same walk:
 **If val rises while completion falls, that is model exploitation measured directly**
 rather than inferred -- and where the two curves separate is the usable displacement,
 which is the number the budget should be set from.
+
+### MACHINE-EFFECT RESULT: training is bit-deterministic on one box; the machine is ~2%
+
+    run          epochs   val_loss (min)   rollout_sel (min)
+    north_r1         80       0.000554            0.4201
+    north_r2         80       0.000554            0.4201
+    sbel A_s1        80       0.000565            0.4092
+
+    SAME-BOX  (nondeterminism)     0.00%          0.00%
+    CROSS-BOX (machine + nondet)   1.92%          2.67%
+    MACHINE   (cross - same)       1.92%          2.67%
+
+**The two same-box runs are BIT-IDENTICAL** -- all 49 weight tensors equal under
+`torch.equal`, and the full metric series identical to 12 significant figures. **So
+training is deterministic at fixed seed on this hardware despite the repo setting no
+`cudnn.deterministic`, no `use_deterministic_algorithms` and no `cudnn.benchmark`.**
+Empirically deterministic, not guaranteed so -- **the flags still belong in the trainer,
+because this is a property of the current kernels rather than of the code.**
+
+**Registered branch `(cross - same) < 5%` FIRES: the machine effect is negligible and
+cross-box training runs are comparable at this resolution.**
+
+#### And it retracts a speculation of mine
+
+I suggested the `A_s1` vs `A_s2` gap of 40% on `rollout_sel` might be substantially
+run-to-run rather than seed, and that the noise 2x2's "seed effects of 5 and 11 pairs"
+might therefore be partly nondeterminism. **Same-box nondeterminism is exactly zero, so
+the 40% is entirely the seed and the 2x2's seed attribution stands unamended.**
+
+**This also bears on every cross-machine comparison tonight** -- the four physics
+builds, the k* spread across boxes, the four-shard corpus. **A ~2% training-side machine
+effect does not explain any of them**, though it says nothing about the physics builds,
+which are a separate question measured at one-in-320.
