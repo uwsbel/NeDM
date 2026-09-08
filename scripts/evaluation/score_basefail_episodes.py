@@ -28,6 +28,28 @@ ap.add_argument("--out", required=True)
 ap.add_argument("--concurrency", type=int, default=12)
 a = ap.parse_args()
 eps = json.load(open(a.index))
+
+def _uid(e):
+    """Unique key for an episode, derived from its path rather than trusted.
+
+    The index's own `episode_id` namespaces on the scenario dir but NOT on the
+    shard root, so the same scenario/episode in two shards collides: 522 episodes
+    carried 416 distinct ids, 98 of them shared across off5000000/off7000000.
+    Those are different episodes -- different RNG offsets -- and a downstream
+    dict keyed on the id silently keeps one of each pair. Derive from csv_path,
+    which was already distinct 522 of 522, and refuse to run if that is not
+    unique either. Never trust an id you can recompute.
+    """
+    q = os.path.normpath(e["csv_path"]).split(os.sep)
+    stem = os.path.splitext(q[-1])[0]
+    return "_".join(q[-4:-2] + [stem]) if len(q) >= 4 else stem
+
+_ids = [_uid(e) for e in eps]
+if len(set(_ids)) != len(eps):
+    raise SystemExit(f"FATAL: {len(eps)} episodes yield only {len(set(_ids))} distinct "
+                     f"keys -- pairing would be silently wrong. Refusing to score.")
+for e, u in zip(eps, _ids):
+    e["_uid"] = u
 print(f"policy {a.policy}\nbase-failed episodes: {len(eps)}   threshold {THRESH} rows")
 _SEEN = set()
 
@@ -53,7 +75,8 @@ def run(e):
         msg = why[-1] if why else f"exit {r.returncode}"
         if msg not in _SEEN:
             _SEEN.add(msg); print(f"  [no episode] {msg}", file=sys.stderr, flush=True)
-    return dict(episode_id=e["episode_id"], pitch=e["pitch"], rows=n,
+    return dict(episode_id=e["_uid"], index_episode_id=e["episode_id"],
+                csv_path=e["csv_path"], pitch=e["pitch"], rows=n,
                 completed=int(n >= THRESH))
 
 with ThreadPoolExecutor(max_workers=a.concurrency) as ex:
