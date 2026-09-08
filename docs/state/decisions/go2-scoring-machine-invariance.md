@@ -48,3 +48,17 @@ carry machine as a blocking factor.
 
 **Scope:** rigid terrain, 536 val episodes, two boxes, one policy. It bounds the effect
 for this corpus and these two builds; it is not a general claim about Chrono.
+
+**A gap this measurement does NOT cover.** The fleet carries **three** distinct pychrono
+builds, not two:
+
+```
+  sbel     _core.so  3b0bd530     probed
+  north    _core.so  d1d0bd0a     probed
+  a3       _core.so  cfbf8af6     NOT probed
+```
+
+The 0.93% figure bounds sbel against north. a3 scored two arms in this round and its
+build has never been compared against either. That is a stated limitation, not an
+oversight to be discovered later: if any a3-scored arm ends up carrying a contrast that
+matters, its policy should be re-scored on a probed box before the contrast is reported.
