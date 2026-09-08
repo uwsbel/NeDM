@@ -3967,3 +3967,41 @@ diffs cancelled.**
 **I proposed the edge check as verification of the design; it verifies only that the
 arms differ in one thing.** The distinction was not named until it cost six instant
 failures.
+
+### WITHDRAWN: my `--target-dw` diagnosis. I grepped my own scripts.
+
+I reported "nine invocations, all `--target-dw 8.9`" as a property of the fleet's
+six-arm runs. **All nine files are my own chain scripts on north, written this
+session** -- `run_cell2_chain.sh`, `run_cell2_symmetric.sh`, `run_v4rep_chain.sh` and
+six others. **The fleet's `stage6.sh` contains no `target-dw` at all.**
+
+> **Evidence from one machine's history, reported as a fact about another's runs --
+> the failure I had named four times tonight, committed while naming it.**
+
+**The relocated version is correct and sharper:** the transplanted constant is
+`--updates`, whose default of 1500 was tuned on a different surrogate and corpus.
+**A default is worse than a declared target, because it does not appear in the
+invocation.**
+
+### And the log line that changes what the collapse means
+
+    "DONE. best checkpoint from update 1500, val -0.972206"     budget = 1500
+
+**The best checkpoint is the LAST update.** So validation never peaked -- it improved
+monotonically for the whole budget and the run stopped because the budget ran out.
+**"Ran to convergence" is not what happened; the policy was still walking when time
+expired.**
+
+> **The surrogate's validation reward rises monotonically for 1500 updates while plant
+> completion falls to 2.1%.** The surrogate did not fail to prevent the walk -- **it
+> scored the walk as improvement the entire way.**
+
+**Which makes one addition to the dW sweep worth more than the sweep alone: record
+`val_neg_reward` at each dW checkpoint, not only completion.** Two curves along the
+same walk:
+
+    surrogate val reward  vs  plant completion,  as a function of ||dW||
+
+**If val rises while completion falls, that is model exploitation measured directly**
+rather than inferred -- and where the two curves separate is the usable displacement,
+which is the number the budget should be set from.
