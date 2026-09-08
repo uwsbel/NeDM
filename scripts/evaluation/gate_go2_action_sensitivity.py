@@ -267,7 +267,7 @@ def run_arm(s, ckpt, outdir, switch_ckpt=None, switch_at=None):
     return got[0], None
 
 
-def read_arrays(csv_path, state_fields, action_fields, circular=()):
+def read_arrays(csv_path, state_fields, action_fields, circular=(), carry=None):
     """State and action matrices, deriving the gravity channels when absent.
 
     Arm B comes straight from the collector and has no grav_body_* columns; the
@@ -285,6 +285,25 @@ def read_arrays(csv_path, state_fields, action_fields, circular=()):
             r["grav_body_x"] = -2.0 * (x * z - w * y)
             r["grav_body_y"] = -2.0 * (y * z + w * x)
             r["grav_body_z"] = -(1.0 - 2.0 * (x * x + y * y))
+    # CHANNELS THAT ARE NOT SIMULATOR OUTPUTS. grav_shuf_*_mps2 is written into the
+    # corpus by a preprocessing step -- it is grav_world permuted ACROSS episodes,
+    # the dimensionality control for the observed-gravity arm. The collector does
+    # not emit it, so a freshly re-run episode lacks the column and the arm cannot
+    # be gated at all.
+    #
+    # It is constant within an episode by construction (gravity is set once), so
+    # carrying the episode's value onto its own re-run is exact rather than an
+    # approximation. `carry` supplies it; without it, the field is genuinely
+    # unavailable and the KeyError below is correct.
+    missing = [f for f in state_fields if f not in rows[0]]
+    if missing:
+        if carry is None:
+            raise KeyError(f"{csv_path} lacks {missing} and no carry values were given")
+        for f in missing:
+            if f not in carry:
+                raise KeyError(f"{csv_path} lacks {f} and carry does not supply it")
+            for r in rows:
+                r[f] = carry[f]
     S = np.array([[float(r[f]) for f in state_fields] for r in rows], dtype=np.float64)
     A = np.array([[float(r[f]) for f in action_fields] for r in rows], dtype=np.float64)
     # SAME UNWRAP THE TRAINING SET GOT, or none, per the checkpoint's own metadata.
@@ -491,7 +510,17 @@ def main():
                 failed += 1; print(f"  {s['eid']}: arm B failed {err[:120]}"); continue
             gotB = [got]
         SA, AA = read_arrays(s["csv"], sf, af, circ)
-        SB, AB = read_arrays(gotB[0], sf, af, circ)
+        # Arm A is the CORPUS episode and has every channel, including any written
+        # by preprocessing. Arm B is a fresh Chrono run and has only simulator
+        # outputs. Carry the per-episode constants across from A so a state
+        # definition containing a preprocessed channel can be gated at all.
+        _carry = {}
+        _first = next(csv.DictReader(open(s["csv"])))
+        for f in sf:
+            if f not in _first:
+                continue
+            _carry[f] = _first[f]
+        SB, AB = read_arrays(gotB[0], sf, af, circ, carry=_carry)
         if SA is None or SB is None: failed += 1; continue
         n = min(len(SA), len(SB))
         if n <= B + max(hs_steps): failed += 1; continue
