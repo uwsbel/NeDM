@@ -1,13 +1,27 @@
-"""Score a policy on episodes the BASE controller FAILED.
+"""Score a policy on episodes the BASE controller did not clear.
 
 The val split is selected for base succeeding, so it can only report degradation.
-This is its complement: base completes 0 of these by construction, so it can only
-report capability. Neither is interpretable alone; the pair is, and they are never
-summed -- the same two-conditional-rates form settled on for v4's complement.
+This is its complement, and it can report capability. Neither is interpretable
+alone; the pair is, and they are never summed.
+
+**BASE DOES NOT SCORE 0 HERE. MEASURED: 106/522 = 20.3%.**
+
+An earlier version of this docstring asserted "base completes 0 of these by
+construction" and that claim was propagated into results as though it were a fact.
+It is wrong. The set was selected by `scored()` REJECTION, and `scored()` has five
+rejection paths -- short episode, non-finite values, non-constant command over the
+scored window, insufficient lead-in, joint limits -- of which actually falling over
+is only one. w1-rigid-scope.md records the split as 59% base-failure and 41% other.
+Re-run against a plain completion threshold, roughly a fifth of them complete, to a
+median 3888 rows.
+
+So the baseline on this set is 20.3%, it is a MEASUREMENT and not a construction,
+and every capability claim must be read against it rather than against zero. This
+is the same error as quoting base's 96.1% on the val split as evidence: a number
+implied by a selection rule is not a result.
 
 The set is disproportionately nose-down (443 of 522 in the two steepest bands
-against 74 in the val split), because that is where base fails -- which makes it
-the better test of tilt observability, not merely a complement to it.
+against 74 in the val split), which makes it the better test of tilt observability.
 """
 import argparse, glob, json, os, shutil, subprocess, sys, tempfile
 from concurrent.futures import ThreadPoolExecutor
