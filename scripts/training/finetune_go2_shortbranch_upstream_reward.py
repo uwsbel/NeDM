@@ -108,7 +108,24 @@ RR, PY_ = ix["roll_rate_radps"], ix["ang_vel_body_y_radps"]
 C2I = torch.tensor(CHRONO_TO_IMPORTED, dtype=torch.long, device=DEV)
 DEF = torch.tensor(np.asarray(IMPORTED_DEFAULTS, dtype=np.float32), device=DEV)
 import xml.etree.ElementTree as _ET
-_U = "/home/kyle/Documents/sbel-reproducibility/2025/multi-terrain-RL/data/robot/go2_irrvis/urdf/go2_description.urdf"
+# HARDCODED TO ONE BOX'S LAYOUT. This named dorm-pc's checkout, which has no
+# "sbel/" segment, so every fine-tune on sbel died at the URDF load -- six of them,
+# all reporting FINETUNE FAILED after the surrogates had already trained. The same
+# split cost twenty minutes earlier tonight in the collector, and the collector's
+# fix (NEDM_GO2_ASSETS with a per-box fallback) was never applied here.
+#
+# Search rather than assume, honour the env var the rest of the pipeline sets, and
+# fail loudly naming what was tried.
+import os as _os
+_ASSET_ROOTS = [_os.environ.get("NEDM_GO2_ASSETS", ""),
+                "/home/kyle/Documents/sbel/sbel-reproducibility/2025/multi-terrain-RL",
+                "/home/kyle/Documents/sbel-reproducibility/2025/multi-terrain-RL"]
+_REL = "data/robot/go2_irrvis/urdf/go2_description.urdf"
+_U = next((_os.path.join(r, _REL) for r in _ASSET_ROOTS
+           if r and _os.path.exists(_os.path.join(r, _REL))), None)
+if _U is None:
+    raise SystemExit("FATAL: go2_description.urdf not found under any of "
+                     + repr([r for r in _ASSET_ROOTS if r]))
 _lim = {}
 for _j in _ET.parse(_U).getroot().iter("joint"):
     if _j.get("type") != "revolute" or _j.find("limit") is None: continue

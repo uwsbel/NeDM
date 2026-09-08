@@ -39,7 +39,17 @@ def _harness_observer(torch):
     """
     from nedm import chrono_crm_compat as crm_compat
 
-    root = Path("/home/kyle/Documents/sbel/sbel-reproducibility/2025/multi-terrain-RL")
+    # SAME per-box split as the collector and the fine-tune. This one returns
+    # (None, None) rather than raising when the path is wrong, so on a box with the
+    # other layout it degrades silently instead of failing -- which is worse than
+    # the fine-tune's crash, because nothing downstream announces the fallback.
+    import os as _os
+    _roots = [_os.environ.get("NEDM_GO2_ASSETS", ""),
+              "/home/kyle/Documents/sbel/sbel-reproducibility/2025/multi-terrain-RL",
+              "/home/kyle/Documents/sbel-reproducibility/2025/multi-terrain-RL"]
+    root = next((Path(r) for r in _roots
+                 if r and (Path(r) / "rl_examples/rslrl/chrono_crmenv.py").is_file()),
+                Path(_roots[1]))
     if not (root / "rl_examples/rslrl/chrono_crmenv.py").is_file():
         return None, None
     crm_compat.install_display_stubs()
