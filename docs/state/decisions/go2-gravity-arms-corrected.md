@@ -84,6 +84,32 @@ comparison shows single arms moving by up to 28 points from a checkpoint change 
 A/B/C are being taken to four seeds (B_s3/B_s4, C_s3/C_s4 configs committed, datasets
 staging) which is the first count at which any of this can reach p<0.05.
 
+## val_loss is NOT comparable across these arms
+
+```
+  run     val_loss@80    state dim   note
+  A_s1    5.652e-04       34         baseline, no gravity channels
+  A_s2    5.699e-04       34
+  B_s1    5.300e-04       39         + 3 real gravity channels
+  B_s2    5.586e-04       39
+  C_s1    5.272e-04       39         + 3 permuted gravity channels
+  C_s2    5.435e-04       39
+  D_s1    1.598e-03       43         + contact channels: a DIFFERENT problem
+```
+
+Two traps here, both of which would produce a confident wrong reading:
+
+1. **B and C sit below A**, but they predict three extra channels that are *constant
+   within an episode* and therefore nearly free to predict. A mean-over-channels loss
+   falls when you add easy channels. That is arithmetic, not a better model.
+2. **D looks 3x worse.** It predicts 43 channels including four contact booleans. It is
+   not solving the same prediction problem, and its loss is not on the same scale as
+   anything else in the table.
+
+`checkpoint_metric = val_loss` is still correct, because selection happens **within a
+run** where the channel set is fixed. **Never rank arms by it.** The Chrono completion
+rate is the cross-arm metric, and it is the only one.
+
 ## Scope
 
 Rigid terrain, 536 val episodes, `--target-dw 4.0` (all seven fine-tunes stopped within
