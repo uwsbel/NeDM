@@ -45,6 +45,30 @@ to be resolved by picking a seed. **They are the signature of the wrong unit of
 analysis**, and the tiny `floor` column in those tables — the smallest p the discordance
 count could reach — was measuring how many episodes there are, not how much evidence.
 
+## Two seeds per arm could never have worked, whatever the data said
+
+With the seed as the unit and an exact permutation test over seed labels, the
+smallest two-sided p reachable with n seeds per arm is `2 / C(2n, n)`:
+
+```
+  seeds per arm    smallest possible two-sided p
+      2                0.3333
+      3                0.1000
+      4                0.0286   <- first count that can reach 0.05
+      5                0.0079
+      6                0.0022
+```
+
+**At two seeds per arm, no result can fall below p = 0.33.** Not with a larger
+effect, not with more episodes, not with a better surrogate. Every A/B/C
+comparison to date sat at that count, so at the level that matters it carried no
+power at all, and the `p < 0.0001` it reported came entirely from counting 536
+episodes as 536 independent replicates of an arm.
+
+This also sets the requirement, rather than leaving it to taste: **four seeds per
+arm is the floor**, and it is worth noting that the cost of an arm is now four
+surrogate trainings, not one.
+
 ## It is seed sensitivity, not run-to-run noise
 
 Checked before drawing any conclusion, because the two have the same signature and
