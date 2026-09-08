@@ -163,16 +163,40 @@ REPO = "/home/kyle/sbel/NeDM"
 
 
 def spec_for(j):
+    """READ the collection parameters; do not re-derive them.
+
+    This used to rebuild prewalk, roll and pitch from a seeded RNG duplicated here,
+    and to take the family from a per-episode `.config.json` the current collector
+    does not write. The verdict harness carries a comment about the same
+    reconstruction silently disagreeing with the driver after the ground-pitch cap;
+    tonight the same duplication produced half-scale pitch for hours. The sidecar
+    records the applied values, so use them and fall back only when it does not.
+    """
     m = json.load(open(j))
-    d = os.path.basename(json.load(open(j.replace(".json", ".config.json")))["output_subdir"])
-    fam, idx = d[len("rigid_"):].rsplit("_", 1); idx = int(idx)
+    fam = m.get("command_family")
+    if fam is None:
+        d = os.path.basename(os.path.dirname(os.path.dirname(j)))
+        fam = d[len("rigid_"):].rsplit("_", 1)[0] if d.startswith("rigid_") else d
+    d2 = os.path.basename(os.path.dirname(os.path.dirname(j)))
+    try:
+        idx = int(d2.rsplit("_", 1)[1])
+    except (IndexError, ValueError):
+        idx = int(m.get("episode_index", 0))
     off = int(m.get("seed_offset", 0))
-    tr = random.Random(family_seed(fam, off) + 977 * idx)
+    have = all(k in m for k in ("prewalk_s", "ground_tilt_roll_deg",
+                                "ground_tilt_pitch_deg", "perturb_peak_n"))
+    if have:
+        peak = float(m["perturb_peak_n"]); prewalk = float(m["prewalk_s"])
+        roll = float(m["ground_tilt_roll_deg"]); pitch = float(m["ground_tilt_pitch_deg"])
+    else:
+        tr = random.Random(family_seed(fam, off) + 977 * idx)
+        peak = PERTURB_MAX_N * (idx % 6) / 5.0
+        prewalk = tr.uniform(0.0, 3.0)
+        roll = tr.uniform(-3.0, 3.0); pitch = tr.uniform(-3.0, 3.0)
     return dict(csv=j.replace(".json", ".csv"), eid=m["episode_id"], fam=fam, idx=idx, off=off,
                 params=m["command_params"], duration=m["duration_s"], seed=m["seed"],
                 spawn_x=m["spawn_m"][0], spawn_y=m["spawn_m"][1], heading=m["heading_deg"],
-                peak=PERTURB_MAX_N * (idx % 6) / 5.0, prewalk=tr.uniform(0.0, 3.0),
-                roll=tr.uniform(-3.0, 3.0), pitch=tr.uniform(-3.0, 3.0))
+                peak=peak, prewalk=prewalk, roll=roll, pitch=pitch)
 
 
 def arm_cmd(s, ckpt, outdir, switch_ckpt=None, switch_at=None):
