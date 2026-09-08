@@ -56,9 +56,16 @@ builds, not two:
   sbel     _core.so  3b0bd530     probed
   north    _core.so  d1d0bd0a     probed
   a3       _core.so  cfbf8af6     NOT probed
+  sliger   _core.so  60457362     NOT probed
 ```
 
-The 0.93% figure bounds sbel against north. a3 scored two arms in this round and its
-build has never been compared against either. That is a stated limitation, not an
+Four boxes, **four distinct builds** -- no two machines in this fleet run the same
+pychrono. The probe covers one of the six possible pairs.
+
+The 0.93% figure bounds sbel against north. a3 and sliger scored arms in this round on
+builds never compared against either. **The baseline policy in particular was scored on
+sliger**, and the baseline is the reference every treated arm is read against, so it
+should be re-scored on sbel before any arm-versus-baseline claim is made -- a shifted
+reference moves every contrast at once, which is worse than noise on a single arm. That is a stated limitation, not an
 oversight to be discovered later: if any a3-scored arm ends up carrying a contrast that
 matters, its policy should be re-scored on a probed box before the contrast is reported.
