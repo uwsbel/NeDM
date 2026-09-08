@@ -5282,3 +5282,61 @@ failure they are supposed to catch. This is the same defect as keying a paired e
 on a non-unique `episode_id` -- the table looked complete at half its declared n -- and
 the same as a `pgrep -f` wait loop matching its own command string. **Prefer a check that
 can come back negative on data you can name.**
+
+## Check what a checkpoint named "best" is actually best AT
+
+**Cost:** every gravity-arm result to date · **Found:** 2026-09-08 · **Applies to:** any run that saves a selected checkpoint
+
+**Expected:** `best_val.pt` holds the best model of a training run.
+
+**Happened:** it held epoch 26 for A_s1, epoch 60 for C_s2, epoch 73 for B_s1, and
+**epoch 1** for A_s2, B_s2 and D_s1. Three of seven surrogates were barely-trained
+models, and every fine-tune, gate verdict and Chrono score for months was computed on
+checkpoints of essentially random training maturity.
+
+**Cause:** `checkpoint_metric` was `rollout_sel`, which moves **27-46% between adjacent
+epochs** with no trend. `val_loss` in the same runs moves 3-6% and descends smoothly to
+a minimum at epoch 75-79 every time. Selecting the argmin of a noise-dominated series
+returns whichever epoch drew a lucky number. The selection LOGIC was correct; the
+metric was not selectable-on.
+
+**Fix:** select on a metric that descends. `last.pt` (epoch 80 in every run) was already
+on disk, so no retraining was needed. Selecting on rollout quality was the right intent
+for a closed-loop surrogate and a smoothed multi-epoch version is the better long-term
+criterion -- the failure is single-epoch granularity, not the choice of quantity.
+
+**Evidence:** `metrics.jsonl`, all seven runs; `argmin(val_loss)` e75-e79 against
+`argmin(rollout_sel)` scattered across e1, e26, e60, e73.
+
+**The part worth carrying:** *`best_val.pt` is a name that asserts its own correctness.*
+Nothing downstream ever compared the epoch it carried against the epoch the smooth metric
+would have chosen -- and the argmin needed to catch this sat in `metrics.jsonl` from the
+first run onward. **Before trusting a selected artefact, check the selection criterion's
+lag-1 noise against its total range.** If adjacent epochs move as far as the whole
+training does, the selection is a lottery.
+
+## Never pass a process pattern through ssh that can match the ssh itself
+
+**Cost:** a killed session mid-pipeline · **Found:** 2026-09-08 · **Applies to:** all remote process management
+
+**Expected:** `ssh host 'pkill -f collect_go2_smoke'` kills the collectors.
+
+**Happened:** it killed the ssh session too, silently, so the command chain after it never
+ran and the launch it was supposed to precede never happened -- diagnosed only because the
+tmux session it should have created was absent.
+
+**Cause:** tailscaled's `be-child ssh` wrapper puts the **entire remote command string**
+into the process table, so any `-f` pattern carried in that string matches the process
+carrying it. The `[c]` bracket trick does not help: it protects against `grep` matching
+itself, not against a wrapper that echoes the pattern verbatim.
+
+**Fix:** kill by tmux session (`tmux kill-session -t name`) or by PID collected in a
+prior step. Never by a `-f` pattern that appears in the command being sent. The same
+wrapper makes `pgrep -c` and `ps | grep` **report phantom matches**, which produced
+"chrono=2, finetune=2" on three idle machines.
+
+**Evidence:** `ps -eo cmd` on a3 showing two `/usr/sbin/tailscaled be-child ssh
+... --cmd=...[f]etch_D.sh...` entries and no real match.
+
+**Same family as the truncation lesson above:** read state from **artifacts** -- a file's
+existence, a directory's size, an epoch in `metrics.jsonl` -- not from process listings.
