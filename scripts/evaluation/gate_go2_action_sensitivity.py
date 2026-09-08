@@ -148,6 +148,10 @@ from __future__ import annotations
 import argparse, csv, glob, hashlib, json, math, os, random, subprocess, sys
 from math import comb
 import numpy as np, torch
+import importlib.util as _ilu
+_rs = _ilu.spec_from_file_location(
+    "_gate_rule", os.path.join(os.path.dirname(os.path.abspath(__file__)), "_gate_rule.py"))
+_R = _ilu.module_from_spec(_rs); _rs.loader.exec_module(_R)   # ONE copy of the rule
 
 # EVERY PER-BOX PATH IN THIS FILE, RESOLVED RATHER THAN ASSERTED.
 #
@@ -745,7 +749,8 @@ def main():
             print(f"  {h:>8}s  {parts}")
 
     # --- verdict, against the rule declared in the docstring ------------------
-    PRIMARY, VH, GLO, GHI, CMIN, NMIN = "body_vel", ["0.5", "1.0"], 0.5, 2.0, 0.5, 8
+    PRIMARY, VH, GLO, GHI, CMIN, NMIN = (_R.PRIMARY, _R.VH, _R.GLO,
+                                         _R.GHI, _R.CMIN, _R.NMIN)
     reasons, ok = [], True
     evaluable, any_failing = [], False
     for h in VH:
