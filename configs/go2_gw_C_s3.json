@@ -1,0 +1,97 @@
+{
+  "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_gravworld_C",
+  "output_dir": "/home/kyle/sbel-artifacts/training_runs/go2_gw_C_s3",
+  "validation_dataset_name": "flat",
+  "terrain_conditioning": {
+    "enabled": false,
+    "terrains": [
+      "flat"
+    ]
+  },
+  "train_mix": {
+    "datasets": [
+      {
+        "name": "walking",
+        "terrain": "flat",
+        "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_gravworld_C",
+        "batch_fraction": 1.0
+      }
+    ]
+  },
+  "validation_datasets": [
+    {
+      "name": "flat",
+      "terrain": "flat",
+      "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_gravworld_C",
+      "split": "val",
+      "max_val_batches": 200
+    }
+  ],
+  "validation_loss_weights": {
+    "flat": 1.0
+  },
+  "loss": {
+    "type": "huber",
+    "huber_delta": 1.0,
+    "channel_weight_mode": "equal_domain_combined_std",
+    "channel_weight_datasets": [
+      "/home/kyle/sbel-artifacts/training_datasets/go2_gravworld_C"
+    ]
+  },
+  "rollout_eval": {
+    "num_episodes": 12,
+    "horizons_s": [
+      5.0,
+      10.0
+    ],
+    "selection_horizon_s": 10.0,
+    "datasets": [
+      {
+        "name": "flat",
+        "terrain": "flat",
+        "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_gravworld_C",
+        "split": "val",
+        "weight": 1.0
+      }
+    ]
+  },
+  "model": {
+    "block_size": 128,
+    "n_layer": 6,
+    "n_head": 8,
+    "n_embd": 256,
+    "dropout": 0.0,
+    "bias": false,
+    "head_hidden_dim": 256
+  },
+  "optimizer": {
+    "lr": 0.0003,
+    "min_lr": 3e-05,
+    "weight_decay": 0.1,
+    "betas": [
+      0.9,
+      0.95
+    ],
+    "warmup_steps": 1000,
+    "grad_clip_norm": 1.0
+  },
+  "training": {
+    "seed": 2026090703,
+    "device": "cuda",
+    "batch_size": 64,
+    "num_workers": 0,
+    "num_epochs": 80,
+    "steps_per_epoch": 2000,
+    "max_val_batches": 200,
+    "checkpoint_metric": "val_loss",
+    "load_dataset_into_memory": true,
+    "pin_memory": false,
+    "compile": false,
+    "input_noise_sigma": 0.0
+  },
+  "sweep_recipe": {
+    "version": "go2_gw_C_s3",
+    "slug": "go2_gw_C_s3",
+    "notes": "OBSERVED-GRAVITY ARM C. 39-D, tilt unobserved. Same dimensionality as B with the three extra channels permuted across episodes. THE DIMENSIONALITY CONTROL: B-A is information plus dimensionality, C-A is dimensionality alone, B-C is the claim. Seed 2026090701 (1 of 2). input_noise_sigma=0.0 in all six arms: the 2x2 at d645afd measured that flag as costing 16-22 surviving pairs on two seeds, so carrying it would put a known-harmful setting in every arm. Corpus go2_gravworld, collected 2026-09-07 with grav_world_* logged and the pitch cap lifted to +-3.0; the cap existed because tilt was unlogged and therefore unlearnable, which is the condition this arm removes. Downstream endpoint is the BANDED completion rate on the corpus's own val split, held out from all three arms. Primary comparison B-C. val_loss is diagnostic only: it moved 1.001x and 1.048x across seeds where the verdict moved 5 and 11 pairs."
+  }
+}
