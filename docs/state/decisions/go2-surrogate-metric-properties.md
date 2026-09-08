@@ -30,30 +30,43 @@ for why one-step accuracy and open-loop horizon come apart, and it reproduces he
 endpoint, or an open-loop error at a real horizon. `val_loss` is a diagnostic:
 useful for "did this train at all", not for "is this surrogate better".
 
-## 2. Training is NOT deterministic, at any seed
+## 2. Training is empirically deterministic, but nothing guarantees it
 
 `seed_everything` (`trainer.py:93-98`) seeds `random`, `numpy`, `torch` and
 `torch.cuda`. **Nothing in this repository sets `cudnn.deterministic`,
 `use_deterministic_algorithms` or `cudnn.benchmark`** — verified by grep across
 `src/nedm/` and `scripts/training/`.
 
-So a fixed seed pins the data order and the initialisation and **nothing about
-which GPU kernels are selected.** Two runs of an identical config on an identical
-machine are expected to differ.
+**From that I claimed training could not be reproducible, and that every reported
+"seed effect" was seed plus run-to-run variance. That was wrong, and the
+correction is measured rather than argued:**
 
-**Consequences, in order of how much they cost:**
+| | val_loss | rollout_sel |
+|---|---|---|
+| same box, same seed, two runs | **0.00%** | **0.00%** |
+| cross box, same seed | 1.92% | 2.67% |
+| machine effect (cross − same) | 1.92% | 2.67% |
 
-1. **A cross-machine comparison is uninterpretable without a same-machine
-   control.** The cross-box difference is machine *plus* nondeterminism; only
-   subtracting a same-box repeat isolates the machine.
-2. **"Seed variance" is a misnomer here** for any quantity measured by running two
-   seeds once each. It is seed variance *plus* run-to-run variance, and the split
-   between them has never been measured.
-3. **Retrospective:** seed effects reported on the `input_noise_sigma` 2x2 — 5 and
-   11 surviving pairs — are partly run-to-run. Whatever share that is, the
-   surrogate-seed story there is weaker than it was stated. **Amendment pending a
-   measurement now running.**
+Two runs of one config on one machine came back **bit-identical** — all 49 weight
+tensors equal under `torch.equal`, the full metric series identical to twelve
+significant figures. Not close: the same numbers.
 
-**If determinism is ever wanted**, the switches are absent rather than disabled,
-so this is a change to make deliberately: it costs throughput, and every existing
-result was produced without it.
+**The absent flags did not matter here.** PyTorch happened to select deterministic
+kernels for this model on this hardware. **That is a property of the kernels, not
+of the code**, and it is one library upgrade or architecture change from being
+false. The flags still belong in the trainer; their absence is currently harmless
+rather than correct.
+
+**What this settles:**
+
+1. **The retrospective amendment is withdrawn.** The `input_noise_sigma` 2x2's seed
+   effects of 5 and 11 surviving pairs are entirely the seed, and that attribution
+   stands unchanged.
+2. **A 40% gap between two seeds of one config is entirely seed variance.** Repeats
+   are worthless here — replication has to be across seeds.
+3. **Cross-machine *training* comparisons are sound at about 2%.**
+
+**What it does not settle: the four physics builds.** This measured PyTorch on two
+GPUs, not Chrono on four binaries. That remains bounded only by a
+one-episode-in-320 per-condition figure, and this number must not be quoted as
+licence for pooling the four-shard corpus.
