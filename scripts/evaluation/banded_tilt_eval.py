@@ -48,7 +48,20 @@ def main() -> int:
     arms = {}
     for spec in a.results:
         tag, path = spec.split("=", 1)
-        arms[tag] = {r["seed"]: r for r in json.load(open(path))}
+        recs = json.load(open(path))
+        # Key on episode_id where the scorer emitted one; otherwise on a composite
+        # that is unique. Bare "seed" is NOT unique -- 536 episodes carried 23
+        # distinct seeds -- and keying on it silently collapses the paired set
+        # instead of failing.
+        def key(r):
+            return r.get("episode_id") or (r["seed"], r["pitch"], r.get("roll"),
+                                           r.get("family"))
+        arms[tag] = {key(r): r for r in recs}
+        if len(arms[tag]) != len(recs):
+            print(f"FATAL: {tag} has {len(recs)} records but only {len(arms[tag])} "
+                  f"distinct keys -- the pairing would be silently wrong",
+                  file=sys.stderr)
+            raise SystemExit(2)
     tags = list(arms)
     common = set.intersection(*(set(v) for v in arms.values()))
     print(f"arms: {tags}   episodes common to all: {len(common)}")
