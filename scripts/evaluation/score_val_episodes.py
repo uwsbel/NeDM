@@ -73,7 +73,13 @@ def run(e):
         if msg not in _SEEN:
             _SEEN.add(msg)
             print(f"  [no episode] {msg}", file=sys.stderr, flush=True)
-    return dict(seed=m["seed"], pitch=float(m["ground_tilt_pitch_deg"]),
+    # EPISODE_ID, NOT SEED. Seeds are assigned per family per index and collide
+    # across families and shards: 536 scored episodes carried only 23 distinct
+    # seeds, one repeated 29 times. Keying a comparison on seed silently collapsed
+    # the paired set to 23 -- the same collision that dropped 679 of 789 episodes
+    # in the merger, in a different file.
+    return dict(episode_id=e["episode_id"], seed=m["seed"],
+                pitch=float(m["ground_tilt_pitch_deg"]),
                 roll=float(m["ground_tilt_roll_deg"]),
                 family=m["command_family"], rows=n, completed=int(n >= THRESH))
 
