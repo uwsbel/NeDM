@@ -288,10 +288,19 @@ def main():
     # kyle-sbel episode here is NOT bit-identical -- 147 columns differ from row 0 --
     # so its arms would differ by machine as well as by checkpoint. The branch
     # self-test rejects them anyway; this stops us paying for the Chrono run first.
-    ap.add_argument("--require-substring", default="_s2000000_",
-                    help="Only use episodes whose id contains this. Default keeps to "
-                         "episodes collected on this machine, which are the only ones "
-                         "that replay bit-identically here.")
+    # DEFAULTED TO A SHARD NAME FROM A CORPUS THAT NO LONGER EXISTS. The reason was
+    # sound -- keep to episodes that replay bit-identically on this box -- but the
+    # value names go2_flat_s2000000, and against any other collection it silently
+    # excludes EVERY episode. The gate then reported a pool of zero.
+    #
+    # The identical literal, with the identical effect, was found in the fine-tune's
+    # branch pool two hours ago. Both defaulted to it; neither said so at the point
+    # of use. Default is now no filter, so restricting to a shard has to be asked
+    # for and appears in the invocation.
+    ap.add_argument("--require-substring", default="",
+                    help="Only use episodes whose csv path contains this. Empty means "
+                         "no filter. Was defaulted to '_s2000000_', a shard of a corpus "
+                         "that no longer exists, which excluded everything.")
     ap.add_argument("--branch-row", type=int, default=128,
                     help="Row index at which the two Chrono arms diverge. FIXED across "
                          "contexts on purpose: branching at sequence_length ties the "
