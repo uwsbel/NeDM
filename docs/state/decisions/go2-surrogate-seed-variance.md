@@ -1,5 +1,18 @@
 # The surrogate training seed swings the result further than the arm does
 
+> **CORRECTION, and it changes the cause but not the measurement.** The swing
+> reported below is real and reproduced. Its attribution to seed sensitivity is
+> **wrong**. `checkpoint_metric` was `rollout_sel`, a metric that moves 27-46%
+> between adjacent epochs, so `best_val.pt` held whichever epoch drew a lucky
+> number: A_s1 epoch 26, A_s2 **epoch 1**. The 46-point gap is an epoch-26 model
+> against a barely-trained one, not two draws of a converged model. See
+> [`go2-checkpoint-selection-bug.md`](go2-checkpoint-selection-bug.md).
+>
+> **What survives from this document:** the unit-of-analysis argument and the
+> permutation floor (2 seeds per arm cannot reach p below 0.333). Those are
+> combinatorial and unaffected. **What does not:** every completion rate in the
+> table below, and the claim that the seed is what moved them.
+
 **2026-09-08.** Six fine-tunes (arms A, B, C at two surrogate-training seeds each),
 each scored in Chrono on the same 536 held-out episodes, at two displacement stages.
 
