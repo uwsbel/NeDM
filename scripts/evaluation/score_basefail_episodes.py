@@ -9,7 +9,7 @@ The set is disproportionately nose-down (443 of 522 in the two steepest bands
 against 74 in the val split), because that is where base fails -- which makes it
 the better test of tilt observability, not merely a complement to it.
 """
-import argparse, glob, json, os, subprocess, sys, tempfile
+import argparse, glob, json, os, shutil, subprocess, sys, tempfile
 from concurrent.futures import ThreadPoolExecutor
 import importlib.util
 _C = [os.path.join(os.environ.get("NEDM_REPO", ""), "scripts", "evaluation",
@@ -70,6 +70,10 @@ def run(e):
     r = subprocess.run(cmd, env=dict(os.environ), capture_output=True, text=True)
     f = glob.glob(f"{out}/episodes/*.csv")
     n = (sum(1 for _ in open(f[0])) - 1) if f else 0
+    # Remove the scratch episode. One pass writes 536 of these and only the row count
+    # is ever read; leaving them behind put 67 GB across 16,352 /tmp/score_* directories
+    # on sbel, which is disk the collector then competes for.
+    shutil.rmtree(out, ignore_errors=True)
     if n == 0:
         why = (r.stderr or r.stdout or "").strip().splitlines()
         msg = why[-1] if why else f"exit {r.returncode}"

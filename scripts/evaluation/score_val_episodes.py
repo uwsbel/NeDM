@@ -11,7 +11,7 @@ Ground pitch is read from each episode's sidecar. It is NOT re-derived from a se
 RNG: that reconstruction silently disagreed with the driver after the pitch cap and
 produced half-scale values for hours tonight.
 """
-import argparse, glob, json, math, os, subprocess, sys, tempfile
+import argparse, glob, json, math, os, shutil, subprocess, sys, tempfile
 from concurrent.futures import ThreadPoolExecutor
 import importlib.util
 
@@ -63,6 +63,10 @@ def run(e):
     r = subprocess.run(cmd, env=dict(os.environ), capture_output=True, text=True)
     f = glob.glob(f"{out}/episodes/*.csv")
     n = (sum(1 for _ in open(f[0])) - 1) if f else 0
+    # Remove the scratch episode. One pass writes 536 of these and only the row count
+    # is ever read; leaving them behind put 67 GB across 16,352 /tmp/score_* directories
+    # on sbel, which is disk the collector then competes for.
+    shutil.rmtree(out, ignore_errors=True)
     # SURFACE THE COLLECTOR'S ERROR. Capturing stderr and discarding it is the exact
     # defect fixed in standing_screen.py earlier today, reintroduced here: all 536
     # episodes returned 0 rows and the only signal was "completed 0 of 536", which
