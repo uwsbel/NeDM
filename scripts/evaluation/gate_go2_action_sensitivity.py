@@ -367,9 +367,23 @@ def main():
 
     keep = {e["episode_id"] for e in json.load(open(a.root + "/dataset_index.json"))["episodes"]
             if e.get("split") == "val"}
-    js = [j for j in sorted(glob.glob(a.root + "/episodes/*.json"))
-          if not j.endswith(".config.json") and os.path.basename(j)[:-5] in keep
-          and (a.require_substring in j if a.require_substring else True)]
+    # TAKE PATHS FROM THE INDEX. A merged index references CSVs under per-episode
+    # directories elsewhere, so root/episodes/*.json matches nothing and the gate
+    # silently runs on zero episodes. The fine-tune had the identical bug and it
+    # surfaced three frames later as an unrelated exception.
+    _idx = json.load(open(a.root + "/dataset_index.json"))["episodes"]
+    _byid = {e["episode_id"]: e for e in _idx}
+    js = sorted(e["csv_path"][:-4] + ".json" for eid, e in _byid.items()
+                if eid in keep and (a.require_substring in e["csv_path"]
+                                    if a.require_substring else True))
+    js = [j for j in js if os.path.exists(j)]
+    if not js:
+        js = [j for j in sorted(glob.glob(a.root + "/episodes/*.json"))
+              if not j.endswith(".config.json") and os.path.basename(j)[:-5] in keep
+              and (a.require_substring in j if a.require_substring else True)]
+    print(f"  gate episode pool: {len(js)} val episodes")
+    if not js:
+        raise SystemExit("FATAL: no val episodes found under " + a.root)
     rng = random.Random(0); rng.shuffle(js)
 
     rec, failed = [], 0
