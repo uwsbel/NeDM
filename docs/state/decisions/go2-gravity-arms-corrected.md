@@ -193,3 +193,54 @@ programme: `||dW||` is not just a fragility knob.
 fine-tune causes both halves of the trade. If random also collapses to ~58%, then the
 loss on easy episodes is fragility rather than fine-tuning, and only the gain is the
 method's doing.
+
+### The val-split half of the control: random does nothing there either
+
+```
+                        val split (536)      base-failure set (522)
+  BASE                    96.1%  (515)          20.3%  (106)
+  RAND11  ||dW|| 4.007     96.5%  (517)          21.5%  (112)
+  RAND12  ||dW|| 4.007       -                   19.3%  (101)
+  ------------------------------------------------------------
+  C_s2                     37.1%                 40.4%
+  B_s2                     45.9%                 59.6%
+  B_s1                     55.8%                 66.3%
+```
+
+**The matched random perturbation is flat on BOTH cells.** It neither degrades the easy
+episodes (96.5% against base's 96.1%) nor gains anything on the hard ones (21.5% against
+20.3%). A 0.28% move in a random direction leaves this policy exactly where it was.
+
+**So both halves of the trade are caused by the fine-tuning, not by weight fragility.**
+That is the complete controlled statement:
+
+> Fine-tuning inside the surrogate **trades ~40 points of easy-terrain reliability for
+> ~46 points of hard-terrain capability**, and a displacement-matched random control
+> moves neither.
+
+**Caveat on the comparison, stated rather than glossed:** BASE was scored on sliger
+(`_core.so` 60457362) and RAND11 on sbel (3b0bd530), so the 96.1-vs-96.5 comparison is
+cross-machine. The measured cross-machine effect is 0.2 points, and the difference here
+is 0.4 -- the conclusion "random does not degrade" is not sensitive to it, but a
+same-machine BASE val-split run is queued rather than assumed.
+
+### What this fixes about the earlier reading
+
+Reporting the val split alone made this look like a method that simply damages policies,
+and the degradation half is real. But the method is **not failing to learn** -- it learns
+something the base controller does not have, on exactly the terrain the base controller
+cannot handle, and the control confirms the gradient rather than the perturbation is
+responsible.
+
+The remaining defect is the one the failure-timing analysis identifies: **the objective
+sees 0.1 s and the evaluation runs 41 s.** Fine-tuned policies fall at a median 2.3-3.6 s,
+20-40x their training horizon, with zero survivals past 20 s. Every training branch
+starts from a recorded base-policy state with the observation history warmed on recorded
+observations, so the policy is never optimised on the distribution it induces. It finds
+genuinely better actions for hard terrain and has no mechanism to notice the drift that
+kills it seconds later.
+
+**That names the next experiment**: iterate the data, not the model. Roll the fine-tuned
+policy out, add the states it actually visits to the branch pool, refit. This attacks the
+covariate shift directly, and unlike lengthening the branch it does not require a
+surrogate certified past 0.1 s -- which is the constraint that made v6 fail.
