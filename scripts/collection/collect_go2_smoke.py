@@ -497,6 +497,9 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
     # step and the episode dies with "zero recorded rows", which reads as a physics
     # failure rather than an argument that was never going to work. CRM collection
     # was impossible with default arguments and the error said nothing about why.
+    # NOTE: drive_go2_collection.py already passes a valid CRM spawn (x = 0.9 for
+    # forward travel), so no collection run was ever broken by this -- the trap is
+    # for anyone invoking this collector directly, which is how it was found.
     # Check it up front, name the numbers, and refuse.
     if not (bed[0] + BED_MARGIN <= args.spawn_x_m <= bed[1] - BED_MARGIN
             and bed[2] + BED_MARGIN <= args.spawn_y_m <= bed[3] - BED_MARGIN):
