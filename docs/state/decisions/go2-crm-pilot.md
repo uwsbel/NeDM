@@ -75,3 +75,42 @@ unambiguous deficit in exactly the regime where the method was shown to work.
 - **Command envelope.** The pilot's stratified draw with 2 episodes per family gave
   small commands (|vx| <= 0.17). A corpus must span the measured envelope, and the
   tracking deficit is worse at higher speeds, so the pilot understates the headroom.
+
+
+## The contact Schmitt trigger is mis-tuned for soil, and it is silent about it
+
+`--contact-mode` derives packed per-foot contact from FORCE via a Schmitt trigger, which
+is the natural way to recover contact on CRM given `foot_*_in_contact` is NaN there. But
+its defaults were set on rigid terrain:
+
+```
+  CONTACT_ENGAGE_N  = 60.0     CONTACT_RELEASE_N = 5.0
+```
+
+Measured over 23,500 per-foot samples from 12 CRM corpus episodes:
+
+```
+  per-foot Fz     p50   26.1    p75   64.4    p90   97.9    p95  124.5    p99  197.1
+  fraction of samples above the engage threshold
+      >=  5 N   68.6%
+      >= 20 N   54.0%
+      >= 40 N   41.1%
+      >= 60 N   27.8%   <- the rigid default
+```
+
+**A Go2 foot at rest carries about 40 N (158 N over four feet), and the rigid engage
+threshold is 60 N -- above it.** On compliant soil the force distribution is shifted
+down and smoothed (no impact spikes), so the median stance sample sits at 26 N and is
+classified as SWING. The channel would still be populated and would still look like
+data; it would simply be wrong in a way nothing downstream can detect.
+
+**Set to engage 25 N / release 5 N for CRM**, from the measured distribution rather
+than copied from the rigid constant.
+
+**Stated honestly:** a trotting quadruped spends roughly half its time in stance per
+foot, and 25 N puts the contact fraction near 50% while 60 N puts it at 28%. That duty
+factor is a *sanity check*, not a target -- this robot is barely locomoting on soil
+(0.21 m/s against a commanded 0.5), so its real duty factor may differ. The defensible
+part is that a threshold above the resting per-foot load cannot be right; the exact
+value is a judgement anchored on the measured median, and it is recorded here so it can
+be revisited rather than inherited silently the way the 60 N was.
