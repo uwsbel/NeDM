@@ -278,3 +278,33 @@ arm and the direction is consistent, but it is not established, and the current 
 resolves only effects of ~20 points. This is the same conclusion the variance
 decomposition predicted before the data arrived, which is at least a check that the
 power analysis was right.
+
+## FINAL rigid comparison, three arms at four seeds
+
+```
+  arm    n   mean%    sd     per-seed
+  A      4   41.0   12.1    57.8  40.9  29.9  35.3    baseline, no gravity channels
+  B      4   54.6   16.2    55.8  45.9  76.9  39.9    + real gravity channels
+  D      4   52.8    8.6    52.8  62.7  41.8  54.1    + contact conditioning
+
+  contrast   delta        p     floor    reading
+  B - A     +13.7    0.2571   0.0286    not separated
+  D - A     +11.9    0.1714   0.0286    not separated
+  D - B      -1.8    0.8571   0.0286    not separated
+```
+
+**Both information-carrying arms lead the baseline by 12-14 points, and neither is
+established.** Four seeds could have separated these -- the floor is 0.0286 -- and did
+not. B and D are indistinguishable from each other.
+
+**Arm B's sd is 16.2**, the largest of the three, driven by a single seed at 76.9%
+against its own 39.9%. That one run would have been a headline result on its own; the
+seed-level design is the only reason it is reported as variance instead.
+
+**Status of the rigid arm question: unresolved, direction consistent, not established.**
+Closing it needs 8-10 seeds per arm (4-6 more trainings per arm at ~1.5 h each). The
+project moved to CRM before spending that, on the reasoning that rigid offers ~12-point
+effects against ~20-point resolution while CRM offers a 15-66% tracking deficit.
+
+Arm C stands at three seeds (28.9, 37.1, 40.5); its fourth surrogate is trained but was
+not fine-tuned or scored before the fleet moved to CRM collection.
