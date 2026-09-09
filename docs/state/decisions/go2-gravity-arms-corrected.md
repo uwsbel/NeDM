@@ -244,3 +244,37 @@ kills it seconds later.
 policy out, add the states it actually visits to the branch pool, refit. This attacks the
 covariate shift directly, and unlike lengthening the branch it does not require a
 surrogate certified past 0.1 s -- which is the constraint that made v6 fail.
+
+---
+
+## First four-seed comparison: arm D (contact-conditioned) against arm A (baseline)
+
+```
+  arm    n   mean%    sd     per-seed
+  A      4   41.0    12.1    57.8  40.9  29.9  35.3
+  D      4   52.8     8.6    52.8  62.7  41.8  54.1
+
+  D - A  +11.9   p=0.1714   floor 0.0286   NOT separated
+
+  by band:  A 76.7  43.3  31.9  28.3  51.5  42.7
+            D 94.0  65.0  49.8  37.9  54.2  55.3     D higher in 6 of 6
+```
+
+D leads by 11.9 points and is higher in **every** band. It is still **not separated**:
+p = 0.1714 against an attainable floor of 0.0286, so four seeds could have produced a
+significant result and this data does not. Two of A's four seeds fall inside D's range.
+
+**The 6-of-6 band sweep is not a second piece of evidence.** The bands share the same
+four seeds, so they are not independent draws and a sign test over them would be
+counting one experiment six times.
+
+**What it would take.** Between-seed sd is ~12 and ~9, so the standard error on the
+difference of means is about 7.3 points at n=4. A 11.9-point effect is 1.6 SE. Detecting
+it at p<0.05 needs roughly **8-10 seeds per arm**, which is 4-6 more surrogate trainings
+per arm at ~1.5 h each.
+
+**So the honest status of the arm question:** contact conditioning looks like the best
+arm and the direction is consistent, but it is not established, and the current design
+resolves only effects of ~20 points. This is the same conclusion the variance
+decomposition predicted before the data arrived, which is at least a check that the
+power analysis was right.
