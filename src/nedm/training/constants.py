@@ -212,7 +212,16 @@ STATE_FIELD_PRESETS = {
     # asked to predict a system whose dynamics are dominated by making and breaking it.
     #
     # Combined with grav_world so contact and observed tilt can be varied separately.
-    "quadruped_contact_gravworld_pose": (DEFAULT_STATE_FIELDS + QUADRUPED_JOINT_STATE_FIELDS
+    # CRM WARNING for the contact preset below: `foot_*_in_contact` is NaN in EVERY row
+# on CRM terrain. The feet couple to the soil through FSI and Chrono's contact system
+# sees nothing, so the collector writes NaN rather than a confident False (see
+# collect_go2_smoke.py, "Contact ground truth is meaningful only on rigid").
+# Measured on a CRM probe episode: foot_fl_in_contact NaN 475/475, while
+# foot_fl_force_fz_n is fully populated (-9.5 .. 175 N) from the FSI coupling.
+# So the contact-conditioned arm must use the FORCE channels on CRM, not the
+# booleans -- otherwise it trains on a block of all-NaN features and the arm is
+# silently a no-op with four wasted input dimensions.
+"quadruped_contact_gravworld_pose": (DEFAULT_STATE_FIELDS + QUADRUPED_JOINT_STATE_FIELDS
                                          + ["grav_body_x", "grav_body_y", "grav_body_z"]
                                          + ["pos_z_m", "vel_body_z_mps"]
                                          + ["grav_world_x_mps2", "grav_world_y_mps2",

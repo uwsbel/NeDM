@@ -490,6 +490,24 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
         cx = args.patch_x / 2 - 0.6
         bed = (cx - args.patch_x / 2, cx + args.patch_x / 2,
                -args.patch_y / 2, args.patch_y / 2)
+    # A SPAWN OUTSIDE THE USABLE BED PRODUCES ZERO ROWS AND NO EXPLANATION.
+    # The CRM bed is centred at patch_x/2 - 0.6, so with the 8.0 m default the
+    # usable x-range after BED_MARGIN is [0.20, 6.60] -- and --spawn-x-m defaults
+    # to 0.0, which is OUTSIDE it. The boundary check below then fires on the first
+    # step and the episode dies with "zero recorded rows", which reads as a physics
+    # failure rather than an argument that was never going to work. CRM collection
+    # was impossible with default arguments and the error said nothing about why.
+    # Check it up front, name the numbers, and refuse.
+    if not (bed[0] + BED_MARGIN <= args.spawn_x_m <= bed[1] - BED_MARGIN
+            and bed[2] + BED_MARGIN <= args.spawn_y_m <= bed[3] - BED_MARGIN):
+        raise SystemExit(
+            f"FATAL: spawn ({args.spawn_x_m:.2f}, {args.spawn_y_m:.2f}) is outside the "
+            f"usable bed x[{bed[0] + BED_MARGIN:.2f}, {bed[1] - BED_MARGIN:.2f}] "
+            f"y[{bed[2] + BED_MARGIN:.2f}, {bed[3] - BED_MARGIN:.2f}] "
+            f"(bed x[{bed[0]:.2f}, {bed[1]:.2f}] y[{bed[2]:.2f}, {bed[3]:.2f}], "
+            f"margin {BED_MARGIN}). The episode would record zero rows. "
+            f"Pass --spawn-x-m/--spawn-y-m inside the bed, or enlarge --patch-x/--patch-y.")
+
     boundary_at = None
     solver_diverged_at = None
 
