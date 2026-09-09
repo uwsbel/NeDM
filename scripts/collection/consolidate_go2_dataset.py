@@ -152,8 +152,22 @@ def run(src: Path, out_root: Path, sidecar: Path, seed_offset: int,
             # warmup_s: also missing against the HMMWV entry. No live consumer in
             # the training path, but the two schemas were meant to match and a
             # field absent for no reason is how the next one hides.
-            boundary = m.get("status") == "bed_boundary"
-            assert boundary == (m.get("bed_boundary_at_s") is not None), new_id
+            # An episode can BOTH fall and leave the bed: the loop breaks on the
+            # boundary, and the terminal status is then classified as "fell" because
+            # falling takes precedence. Both facts are true and `status` is a single
+            # field that cannot hold two. Measured on the CRM corpus: 2 episodes of
+            # ~950, both in the lateral family on the wide bed, against 253 clean
+            # ('bed_boundary', True) and 488 clean ('completed', False).
+            #
+            # The assertion is KEPT for every other combination, because it is what
+            # catches schema drift; only this one pairing is admitted, and it is
+            # counted so it stays visible rather than becoming folklore.
+            boundary = m.get("bed_boundary_at_s") is not None
+            st = m.get("status")
+            if boundary and st == "fell":
+                report["fell_at_boundary"] = report.get("fell_at_boundary", 0) + 1
+            else:
+                assert (st == "bed_boundary") == boundary, f"{new_id}: status={st!r} boundary={boundary}"
             entries.append({"episode_id": new_id, "scenario_name": new_id,
                             "scenario_family": f"go2_{terrain}_{fam}_command",
                             "warmup_s": m.get("warmup_s"),
