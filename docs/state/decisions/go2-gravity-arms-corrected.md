@@ -346,3 +346,38 @@ same permutation machinery, and the honest form is the per-seed listing above.
 
 **Between-seed sd is 12-22 points on this cell**, larger than on the val split, so the
 resolution here is worse rather than better despite the effect being larger.
+
+## The random control, completed on ONE box and ONE build
+
+The earlier control compared BASE scored on sliger against RAND11 scored on sbel --
+two different pychrono builds -- and I flagged that as a caveat rather than resolving
+it. d33 has now scored the baseline and all three perturbations itself:
+
+```
+  VAL SPLIT (536 episodes), all on d33, pychrono 10.0.0 py312h98ab86c_677
+    BASE      96.1%
+    RAND11    96.5%
+    RAND12    96.3%
+    RAND13    96.5%
+    RAND: spread 96.3-96.5, mean 96.4, sd 0.11   vs BASE 96.1  ->  delta +0.3
+
+  BASE-FAILURE SET (522 episodes), d33
+    BASE      19.3%
+    RAND13    21.1%
+```
+
+**A displacement-matched random perturbation moves the val-split rate by +0.3 points,
+with a between-draw sd of 0.11.** The fine-tuned arms on the same cell run 29.9% to
+76.9%. **The null is a third of a point wide; the treatment effect is 20 to 66 points.**
+
+That is the cleanest statement the project has of why any of its numbers mean anything:
+`||dW|| = 4.007` in a random direction does essentially nothing, three times over, and
+the same displacement along the surrogate's gradient moves the policy by two orders of
+magnitude more. The deflationary reading -- "the policy is just fragile to a 0.28%
+move" -- is dead.
+
+**Cross-build agreement, measured rather than assumed:** BASE on the val split is 96.1%
+on d33 and 96.1% on sliger, two different builds and different provenance (conda vs
+source). On the base-failure cell it is 19.3% on d33 against 20.3% on sbel, a 1.0-point
+difference -- larger than the 0.2 points measured on the val split, and worth carrying
+as the working figure for that cell rather than the smaller one.
