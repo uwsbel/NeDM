@@ -241,17 +241,30 @@ STATE_FIELD_PRESETS = {
     #      boolean did: magnitude and direction, from which contact is recoverable
     #      by thresholding but not vice versa.
     #
-    # Gravity channels are omitted: CRM episodes are collected on level soil, so a
-    # gravity channel would be a constant and the arm would be measuring nothing.
-    # If tilted CRM is collected later, add gravworld variants THEN rather than
-    # carrying a dead channel now.
+    # CORRECTED. An earlier version of this block omitted gravity "because CRM is
+    # collected on level soil, so the channel would be constant". That conflated two
+    # different quantities: grav_world_* IS constant on level ground, but grav_body_*
+    # is the BODY-FRAME projection of gravity, which varies with the robot's attitude
+    # and is the channel the policy actually consumes as "which way is down".
+    #
+    # It is also mandatory, not merely useful: finetune_go2_shortbranch_upstream_reward
+    # builds the policy observation from the SURROGATE's predicted state via
+    # GRV = [ix["grav_body_x"], ix["grav_body_y"], ix["grav_body_z"]]. A surrogate
+    # without those channels cannot be fine-tuned at all -- the rigid baseline arm is
+    # 36-D and carries them, and the first CRM presets were 33-D and did not.
+    #
+    # The CRM collector does not write grav_body_*; add_gravity_channels.py derives
+    # them exactly from quat_e0..e3, which every CRM CSV already has.
     "quadruped_crm_baseline": (DEFAULT_STATE_FIELDS + QUADRUPED_JOINT_STATE_FIELDS
+                               + ["grav_body_x", "grav_body_y", "grav_body_z"]
                                + ["pos_z_m", "vel_body_z_mps"]),
     "quadruped_crm_forcez": (DEFAULT_STATE_FIELDS + QUADRUPED_JOINT_STATE_FIELDS
+                             + ["grav_body_x", "grav_body_y", "grav_body_z"]
                              + ["pos_z_m", "vel_body_z_mps"]
                              + ["foot_fl_force_fz_n", "foot_fr_force_fz_n",
                                 "foot_rl_force_fz_n", "foot_rr_force_fz_n"]),
     "quadruped_crm_force3d": (DEFAULT_STATE_FIELDS + QUADRUPED_JOINT_STATE_FIELDS
+                              + ["grav_body_x", "grav_body_y", "grav_body_z"]
                               + ["pos_z_m", "vel_body_z_mps"]
                               + [f"foot_{leg}_force_f{ax}_n"
                                  for leg in ("fl", "fr", "rl", "rr")
