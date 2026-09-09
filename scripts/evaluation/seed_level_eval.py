@@ -80,6 +80,13 @@ ap.add_argument("--arm", action="append", required=True,
                 help="NAME=file1.json,file2.json,... one file per surrogate seed")
 ap.add_argument("--min-seeds", type=int, default=3,
                 help="refuse below this; 2 seeds give a variance estimate worth nothing")
+ap.add_argument("--metric", default="completed",
+                help="'completed' scores a RATE (percent of episodes). Any other name is "
+                     "averaged as a continuous per-episode field, e.g. mae_vx for CRM "
+                     "velocity tracking error, where LOWER IS BETTER and the sign of a "
+                     "contrast therefore reads the opposite way.")
+ap.add_argument("--lower-is-better", action="store_true",
+                help="flip the reading of contrast signs; set automatically for mae_*")
 a = ap.parse_args()
 
 arms = {}
@@ -105,20 +112,38 @@ episodes = sorted(next(iter(sets)), key=str)
 print(f"episodes per cell: {len(episodes)}\n")
 
 
+LOWER = a.lower_is_better or a.metric.startswith("mae_")
+
+
 def rate(d, lo=None, hi=None):
-    sel = [d[e] for e in episodes if lo is None or lo <= d[e]["pitch"] < hi]
-    return (100.0 * sum(x["completed"] for x in sel) / len(sel), len(sel)) if sel else (float("nan"), 0)
+    """Percent completed, or the mean of a continuous field.
+
+    Episodes missing the metric are DROPPED, not counted as zero: on CRM an episode
+    with no tracking score is one the collector failed to produce, and scoring it as
+    a perfect zero error would reward exactly the failure it represents.
+    """
+    sel = [d[e] for e in episodes
+           if lo is None or (d[e].get("pitch") is not None and lo <= d[e]["pitch"] < hi)]
+    if a.metric == "completed":
+        return (100.0 * sum(x["completed"] for x in sel) / len(sel), len(sel)) if sel else (float("nan"), 0)
+    vals = [x[a.metric] for x in sel if a.metric in x and x[a.metric] == x[a.metric]]
+    return (sum(vals) / len(vals), len(vals)) if vals else (float("nan"), 0)
 
 
-print("OVERALL, seed as the unit")
-print(f"  {'arm':6s} {'n':>3s}  {'mean%':>7s} {'sd':>6s}   per-seed rates")
+print(f"OVERALL, seed as the unit   metric={a.metric}"
+      + ("   (LOWER IS BETTER)" if LOWER else ""))
+_lbl = "mean%" if a.metric == "completed" else "mean"
+print(f"  {'arm':6s} {'n':>3s}  {_lbl:>9s} {'sd':>8s}   per-seed values")
 means = {}
 for k, ds in arms.items():
     rs = [rate(d)[0] for d in ds]
     m = sum(rs) / len(rs)
     sd = math.sqrt(sum((x - m) ** 2 for x in rs) / (len(rs) - 1)) if len(rs) > 1 else float("nan")
     means[k] = rs
-    print(f"  {k:6s} {len(rs):3d}  {m:7.1f} {sd:6.1f}   " + " ".join(f"{x:.1f}" for x in rs))
+    _f = (lambda v: f"{v:9.1f}") if a.metric == "completed" else (lambda v: f"{v:9.4f}")
+    _g = (lambda v: f"{v:8.1f}") if a.metric == "completed" else (lambda v: f"{v:8.4f}")
+    _h = (lambda v: f"{v:.1f}") if a.metric == "completed" else (lambda v: f"{v:.4f}")
+    print(f"  {k:6s} {len(rs):3d}  {_f(m)} {_g(sd)}   " + " ".join(_h(x) for x in rs))
 
 print("\nCONTRASTS  (difference of arm means, exact permutation over seed labels)")
 print(f"  {'contrast':12s} {'delta':>7s} {'p':>8s} {'floor':>8s}   reading")
@@ -126,9 +151,26 @@ for x, y in itertools.combinations(arms, 2):
     xa, xb = means[x], means[y]
     d = sum(xb) / len(xb) - sum(xa) / len(xa)
     p, floor = perm_p(xa, xb)
-    note = ("cannot resolve: p is at its floor" if abs(p - floor) < 1e-9
-            else "separates" if p < 0.05 else "not separated at this seed count")
-    print(f"  {y}-{x:9s} {d:+7.1f} {p:8.4f} {floor:8.4f}   {note}")
+    # p == floor means the split is as extreme as this seed count PERMITS. Whether
+    # that is a result depends entirely on where the floor sits:
+    #   floor >= 0.05  -> the design could never have reached significance; the data
+    #                     is maximally lopsided and still says nothing (the n=2 case,
+    #                     floor 0.333).
+    #   floor <  0.05  -> it IS a pass, and the strongest one available here.
+    # Conflating the two reported a genuine separation as "cannot resolve".
+    at_floor = abs(p - floor) < 1e-9
+    if floor >= 0.05:
+        note = ("cannot resolve: p is at its floor (%.3f), which is above 0.05 -- this "
+                "seed count could not separate anything" % floor) if at_floor else \
+               "not separated, and the floor %.3f is above 0.05 anyway" % floor
+    elif p < 0.05:
+        note = "SEPARATES" + (" (maximal for this seed count)" if at_floor else "")
+    else:
+        note = "not separated at this seed count"
+    if LOWER and p < 0.05 and floor < 0.05:
+        note += ("  -- %s is BETTER" % (y if d < 0 else x))
+    _d = f"{d:+9.1f}" if a.metric == "completed" else f"{d:+9.4f}"
+    print(f"  {y}-{x:9s} {_d} {p:8.4f} {floor:8.4f}   {note}")
 
 print("\nBY PITCH BAND, seed as the unit")
 for lo, hi in BANDS:
@@ -141,6 +183,9 @@ for lo, hi in BANDS:
     n = rate(next(iter(arms.values()))[0], lo, hi)[1]
     print(f"  [{lo:+.1f},{hi:+.1f})  n={n:4d}   " + "   ".join(row))
 
+if LOWER:
+    print("\nLOWER IS BETTER for this metric: a NEGATIVE delta means the second arm tracks")
+    print("more accurately. Do not read these signs as if they were completion rates.")
 print("\nThe +- column is the between-SEED sd, not a standard error over episodes.")
 print("An arm difference smaller than that sd is not measurable at this seed count,")
 print("however many episodes each cell contains.")
