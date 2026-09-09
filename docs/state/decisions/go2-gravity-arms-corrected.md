@@ -308,3 +308,41 @@ effects against ~20-point resolution while CRM offers a 15-66% tracking deficit.
 
 Arm C stands at three seeds (28.9, 37.1, 40.5); its fourth surrogate is trained but was
 not fine-tuned or scored before the fleet moved to CRM collection.
+
+## Base-failure set at four seeds: the method beats base, the arms do not separate
+
+```
+  reference (no seeds -- one deterministic policy each)
+    BASE                          20.3%
+    RAND  ||dW|| 4.007  (n=2)     19.3, 21.5      mean 20.4%
+
+  arm   n   mean    sd     per-seed
+  A     4   35.8   12.0    53.4  29.9  33.1  26.8
+  B     4   51.9   21.6    66.3  59.6  62.1  19.7
+  C     3   43.6   12.9    32.6  40.4  57.9
+  D     4   53.1   17.7    54.6  63.6  27.6  66.5
+
+  contrast   delta      p      floor
+  B - A     +16.1   0.3143   0.0286    not separated
+  D - A     +17.2   0.1714   0.0286    not separated
+  D - B      +1.1   0.8286   0.0286    not separated
+```
+
+**Two different questions, and they have different answers.**
+
+*Does fine-tuning inside the surrogate add capability where base struggles?* **Yes.**
+**11 of the 12 fine-tuned seeds exceed base (20.3%) and both displacement-matched random
+controls (19.3, 21.5).** The single exception, B_s4 at 19.7%, sits exactly at base level
+rather than below it. Arm means run 16-33 points above the reference.
+
+*Which arm is best?* **Unresolved**, exactly as on the val split. No pairwise contrast
+separates at four seeds despite a floor of 0.0286, and D-B is +1.1 with p=0.83.
+
+**A caution on the 11-of-12 count:** those are 3 arms x 4 seeds, not 12 independent
+draws of one thing, so it is a description of consistency and not a hypothesis test. No
+p-value is attached to it here. BASE and RAND have no seed dimension at all -- each is
+one deterministic policy -- so an arm-versus-base contrast cannot be run through the
+same permutation machinery, and the honest form is the per-seed listing above.
+
+**Between-seed sd is 12-22 points on this cell**, larger than on the val split, so the
+resolution here is worse rather than better despite the effect being larger.
