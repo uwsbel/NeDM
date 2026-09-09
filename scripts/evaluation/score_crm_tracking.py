@@ -85,6 +85,16 @@ def track_error(rows):
     return (out, len(keep)) if out else None
 
 
+def _patch(e, key, default):
+    """Read a terrain patch dimension from the episode's own collector config."""
+    cfg = e["csv_path"][:-4] + ".config.json"
+    try:
+        with open(cfg) as fh:
+            return float(json.load(fh)["terrain"][key])
+    except Exception:
+        return float(default)
+
+
 def run(e):
     m = json.load(open(e["csv_path"][:-4] + ".json"))
     out = tempfile.mkdtemp(prefix="crmtrk_")
@@ -94,7 +104,14 @@ def run(e):
            "--command-params", json.dumps(m["command_params"]),
            "--spawn-x-m", f"{m['spawn_m'][0]:.4f}", "--spawn-y-m", f"{m['spawn_m'][1]:.4f}",
            "--heading-deg", f"{m.get('heading_deg', 0.0):.4f}",
-           "--patch-y", f"{m.get('patch_y', 4.0):.2f}",
+           # patch_y_m lives ONLY in the per-episode collector config, never in the
+           # episode sidecar -- consolidate_go2_dataset.py keeps that file for exactly
+           # this reason. Reading it from the sidecar silently yields the 4.0 default,
+           # which gives a bed of [-2, 2]; the lateral family is collected on an 8 m
+           # bed and spawns at y = +/-3, so every lateral episode was refused by the
+           # spawn guard. The default is the trap, not the guard.
+           "--patch-x", f"{_patch(e, 'patch_x_m', 8.0):.2f}",
+           "--patch-y", f"{_patch(e, 'patch_y_m', 4.0):.2f}",
            "--episode-index", "0", "--seed", str(m["seed"]),
            "--output-dir", out, "--overwrite", "--progress-interval-s", "99"]
     r = subprocess.run(cmd, env=dict(os.environ), capture_output=True, text=True)
