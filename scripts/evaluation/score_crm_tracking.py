@@ -137,8 +137,18 @@ def run(e):
     return rec
 
 
+# PROGRESS. A CRM scoring pass is ~80 minutes and previously printed nothing until it
+# finished, so a run that was merely slow looked identical to one that had hung -- and
+# distinguishing those cost a diagnostic detour mid-round. Report every 10 episodes.
+recs = []
 with ThreadPoolExecutor(max_workers=a.concurrency) as ex:
-    recs = list(ex.map(run, eps))
+    for i, rec in enumerate(ex.map(run, eps), 1):
+        recs.append(rec)
+        if i % 10 == 0 or i == len(eps):
+            done = [r for r in recs if "mae_vx" in r]
+            avg = (sum(r["mae_vx"] for r in done) / len(done)) if done else float("nan")
+            print(f"  [{i}/{len(eps)}] scored {len(done)}  running mean|err_vx| {avg:.4f} m/s",
+                  flush=True)
 
 keys = [r["episode_id"] for r in recs]
 if len(set(keys)) != len(keys):
