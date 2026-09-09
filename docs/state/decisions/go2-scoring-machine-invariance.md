@@ -53,11 +53,25 @@ for this corpus and these two builds; it is not a general claim about Chrono.
 builds, not two:
 
 ```
-  sbel     _core.so  3b0bd530     probed
-  north    _core.so  d1d0bd0a     probed
-  a3       _core.so  cfbf8af6     NOT probed
-  sliger   _core.so  60457362     NOT probed
+  sbel     _core.so  3b0bd530     probed        source build
+  north    _core.so  d1d0bd0a     probed        source build
+  a3       _core.so  cfbf8af6     NOT probed    source build
+  sliger   _core.so  60457362     NOT probed    source build
+  d33      pychrono 10.0.0 py312h98ab86c_677   NOT probed   conda, projectchrono
 ```
+
+**d33 is a fifth build and a different provenance** -- a conda package rather than a
+source build. It was pinned to that exact build string deliberately: conda-forge also
+ships a `pychrono 10.0.0`, a plain `-c projectchrono -c conda-forge` resolves to it,
+and **that build has no `vehicle` module at all**. The pin is load-bearing; without it
+the box imports pychrono and then fails on the first vehicle call.
+
+d33 has **no CUDA** (AMD 9070XT), so it can only ever score, never collect CRM. Note
+that `import pychrono.fsi` SUCCEEDS there regardless -- the conda package bundles
+libcudart -- and the failure appears only at the first device call, error 35, after
+terrain construction has already been paid for. A guard was added to
+`collect_go2_smoke.py` that checks `/dev/nvidiactl` before importing fsi, because a
+check that can only fire after the expensive part is not a check.
 
 Four boxes, **four distinct builds** -- no two machines in this fleet run the same
 pychrono. The probe covers one of the six possible pairs.

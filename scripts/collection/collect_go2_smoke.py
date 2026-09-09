@@ -321,6 +321,25 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
     import pychrono.vehicle as veh
     fsi = None
     if args.terrain == "crm":
+        # FAIL FAST ON A BOX WITH NO CUDA DEVICE. `import pychrono.fsi` SUCCEEDS
+        # without a GPU -- the projectchrono conda package bundles libcudart, so the
+        # import resolves and only the first device call fails, with
+        # cudaGetDeviceCount error 35 ("driver version is insufficient"), partway
+        # into a run that has already paid for terrain construction. Measured on
+        # d33, an AMD-GPU box: import fine, no usable device.
+        #
+        # A guard that can only fire after the expensive part is not a guard. Check
+        # the driver node directly: /dev/nvidiactl exists iff the NVIDIA driver is
+        # loaded, and it does not depend on torch being importable or on which CUDA
+        # runtime pychrono happens to bundle.
+        if not os.path.exists("/dev/nvidiactl"):
+            raise SystemExit(
+                "FATAL: --terrain crm needs a CUDA device and this machine has none "
+                "(/dev/nvidiactl absent). Chrono's FSI/SPH module is CUDA-only. "
+                "`import pychrono.fsi` would succeed here anyway -- the package "
+                "bundles libcudart -- and the run would die at the first GPU call "
+                "after building the terrain. Dispatch CRM to a CUDA box; this one "
+                "can still run rigid collection and scoring, which are CPU-only.")
         import pychrono.fsi as fsi
 
     np.random.seed(args.seed)
