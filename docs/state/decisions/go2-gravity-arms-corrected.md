@@ -381,3 +381,63 @@ on d33 and 96.1% on sliger, two different builds and different provenance (conda
 source). On the base-failure cell it is 19.3% on d33 against 20.3% on sbel, a 1.0-point
 difference -- larger than the 0.2 points measured on the val split, and worth carrying
 as the working figure for that cell rather than the smaller one.
+
+---
+
+# RIGID PROGRAMME COMPLETE: four arms, four seeds, both cells
+
+```
+  VAL SPLIT (536 episodes, base clears them)     BASE-FAILURE (522, base 20.3%)
+  arm    n   mean%    sd                          arm    n   mean%    sd
+  A      4   41.0    12.1                         A      4   35.8    12.0
+  B      4   54.6    16.2                         B      4   51.9    21.6
+  C      4   31.9     8.8                         C      4   36.1    18.4
+  D      4   52.8     8.6                         D      4   53.1    17.7
+
+  contrast   delta      p       contrast   delta      p
+  D - C     +21.0   0.0286      D - C     +17.0   0.2571
+  C - B     -22.8   0.0571      B - A     +16.1   0.3143
+  B - A     +13.7   0.2571      D - A     +17.2   0.1714
+  D - A     +11.9   0.1714      C - B     -15.9   0.2857
+  C - A      -9.1   0.3143      D - A ... D - B    +1.1  0.8286
+  D - B      -1.8   0.8571      C - A      +0.2   1.0000
+```
+
+**One contrast reaches p<0.05: D - C on the val split, +21.0 points at p = 0.0286.**
+Contact conditioning over the permuted-gravity control, which is exactly the comparison
+the arm design was built to make -- an information-carrying arm against one whose
+channels carry no real information.
+
+**And it should NOT be reported as a finding. Three reasons, all decisive:**
+
+**1. Multiplicity, and the design cannot survive it.** Six pairwise contrasts were
+computed per cell. Bonferroni gives 0.05/6 = 0.0083. **The attainable floor at four
+seeds is 0.0286 -- above the corrected threshold.** So at this seed count *no* contrast
+can clear correction no matter how lopsided the data. p = 0.0286 is not "significant
+after correction"; it is the smallest number this design can emit, and it emits it for
+the most extreme split available.
+
+**2. It does not replicate on the other cell.** The same contrast on the base-failure
+set is +17.0 at p = 0.2571. A real arm effect should not be confined to the cell
+selected for base succeeding.
+
+**3. This project has already been burned by exactly this shape.** At two seeds, C sat
+below every other arm on every cell and looked perfectly consistent; a third seed of
+arm A destroyed it. A single p at the floor, in one cell, among six comparisons, is the
+same object.
+
+**What it takes to settle.** Five seeds per arm puts the floor at 0.0079, which clears
+the corrected threshold -- so **one more seed per arm** makes the D-C contrast testable
+rather than merely suggestive. That is 4 more surrogate trainings at ~1.5 h.
+
+## The rigid programme's actual conclusions
+
+- **Fine-tuning inside the surrogate works, and the effect is enormous relative to its
+  control.** Three displacement-matched random perturbations move the val rate by +0.3
+  points (sd 0.11) while the arms move it by 20-66. That is settled.
+- **It trades rather than improves**: ~40 points lost where base already worked,
+  ~16-33 gained where base failed, with base itself at 96.1%/20.3%.
+- **No arm ordering is established.** Direction is consistent -- B and D above A, C
+  lowest on the val split -- and nothing survives multiplicity at four seeds.
+- **The binding constraint is seeds, not episodes.** Between-seed sd is 9-22 points
+  against a within-cell sampling error far smaller.
