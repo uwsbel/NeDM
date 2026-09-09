@@ -228,6 +228,34 @@ STATE_FIELD_PRESETS = {
                                             "grav_world_z_mps2"]
                                          + ["foot_fl_in_contact", "foot_fr_in_contact",
                                             "foot_rl_in_contact", "foot_rr_in_contact"]),
+
+    # ---- CRM (deformable terrain) presets -------------------------------------
+    # CRM is a different measurement problem from rigid and the presets are NOT
+    # interchangeable. Two things force separate entries:
+    #
+    #   1. foot_*_in_contact is NaN in EVERY CRM row (measured 475/475 on a probe).
+    #      The feet couple to the soil through FSI and Chrono's contact system sees
+    #      nothing. The rigid contact preset above would train on an all-NaN block.
+    #   2. foot_*_force_f{x,y,z}_n ARE fully populated on CRM through the FSI
+    #      coupling (-9.5 .. 175 N observed), and carry strictly more than the
+    #      boolean did: magnitude and direction, from which contact is recoverable
+    #      by thresholding but not vice versa.
+    #
+    # Gravity channels are omitted: CRM episodes are collected on level soil, so a
+    # gravity channel would be a constant and the arm would be measuring nothing.
+    # If tilted CRM is collected later, add gravworld variants THEN rather than
+    # carrying a dead channel now.
+    "quadruped_crm_baseline": (DEFAULT_STATE_FIELDS + QUADRUPED_JOINT_STATE_FIELDS
+                               + ["pos_z_m", "vel_body_z_mps"]),
+    "quadruped_crm_forcez": (DEFAULT_STATE_FIELDS + QUADRUPED_JOINT_STATE_FIELDS
+                             + ["pos_z_m", "vel_body_z_mps"]
+                             + ["foot_fl_force_fz_n", "foot_fr_force_fz_n",
+                                "foot_rl_force_fz_n", "foot_rr_force_fz_n"]),
+    "quadruped_crm_force3d": (DEFAULT_STATE_FIELDS + QUADRUPED_JOINT_STATE_FIELDS
+                              + ["pos_z_m", "vel_body_z_mps"]
+                              + [f"foot_{leg}_force_f{ax}_n"
+                                 for leg in ("fl", "fr", "rl", "rr")
+                                 for ax in ("x", "y", "z")]),
     "quadruped_contact_conditioned": (DEFAULT_STATE_FIELDS + QUADRUPED_JOINT_STATE_FIELDS
                                       + ["grav_body_x", "grav_body_y", "grav_body_z"]
                                       + ["pos_z_m", "vel_body_z_mps"]
