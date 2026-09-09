@@ -114,3 +114,35 @@ factor is a *sanity check*, not a target -- this robot is barely locomoting on s
 part is that a threshold above the resting per-foot load cannot be right; the exact
 value is a judgement anchored on the measured median, and it is recorded here so it can
 be revisited rather than inherited silently the way the 60 N was.
+
+
+## Tracking scorer, smoke-tested before the corpus landed
+
+`score_crm_tracking.py` had never executed. Run against 2 pilot episodes with the base
+policy, on north, at concurrency 2:
+
+```
+  scored 2 of 2;  completed 2 of 2 (100.0%)
+  vx: mean|err| 0.1231 m/s   mean cmd -0.147   mean achieved -0.025
+  wall 283 s
+```
+
+**It works, and it immediately reproduces the two things the pilot predicted.**
+Completion is 100% -- the metric that would have been used by default discriminates
+nothing. And the base policy achieved -0.025 m/s against a commanded -0.147: **17% of
+commanded**, an even larger deficit than the 34-85% seen across families earlier.
+
+**Two things this probe changed.**
+
+*The corpus has no root index.* The collector writes `dataset_index.json` PER SCENARIO
+DIRECTORY, with `csv_path` relative to that directory. Consolidation cannot glob for a
+root index; it has to merge the per-scenario ones and absolutise the paths. Learned from
+a 4-episode probe rather than from a failed 960-episode preprocessing run.
+
+*Scoring is expensive and needs sizing now, not later.* 283 s for 2 episodes at
+concurrency 2 is ~140 s per episode. A val split of ~200 episodes is therefore ~1 hour
+per policy on one box at concurrency 8, and the planned set is 8 arms plus baseline plus
+three controls -- about 12 policies. Spread over the four CUDA boxes at the concurrency
+their GPUs allow, that is roughly **5-6 hours of fleet time for one scoring round**,
+comparable to collecting the corpus itself. Either the val split is capped for scoring
+or the arm count is cut; deciding that after training would waste a night.
