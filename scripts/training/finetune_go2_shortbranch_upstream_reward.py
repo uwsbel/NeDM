@@ -78,6 +78,8 @@ ap.add_argument("--objective", choices=["analytic", "ppo"], default="analytic",
                 help="analytic: backpropagate the reward through the frozen surrogate.\n                      ppo: optimise the SAME reward in the SAME surrogate with a\n                      score-function estimator, as the recipe that produced this\n                      policy does.\n\n                      They differ in a way that is measured, not theoretical. Under\n                      backprop a term's influence is its weight times the STIFFNESS of\n                      its path through the model. dof_acc carries weight -2.5e-7 and\n                      6.7%% of the reward, but it is a squared finite difference over\n                      dt, so its path is stiffer by (1/0.02)^2 -- and it takes 47%% of\n                      the gradient at a 5-step branch and 63%% at 15, against tracking's\n                      28%% and 18%%, while tracking is 89%% of the reward's VALUE.\n                      A score-function estimator multiplies grad-log-pi by a SCALAR\n                      reward, so no term can be over-weighted by its Jacobian.\n\n                      This is not a hypothesis about which optimiser is nicer. At\n                      matched ||dW|| = 4.0 a RANDOM direction costs nothing on CRM\n                      (0.1629 vs BASE 0.1632, 37/77 episodes won) while the analytic\n                      direction costs 0.41-0.74 m/s and wins 1-9 of ~50. The damage is\n                      in the direction, not the distance.")
 ap.add_argument("--ppo-sigma", type=float, default=0.15,
                 help="Initial exploration std in RAW action units (recorded raw action std\n                      is ~1.5, so 0.15 is ~10%%). Learned thereafter. The CTS policy's\n                      own training sigma is NOT recoverable -- no config ships with the\n                      checkpoint and it has no std head -- so this is a choice, not a\n                      reconstruction, and it is swept rather than assumed.")
+ap.add_argument("--kl-base", type=float, default=0.0,
+                help="Penalise squared deviation of the mean action from the FROZEN base\n                      policy, on the states actually visited. PPO's KL controller bounds\n                      each update; nothing bounds cumulative drift, and the first PPO\n                      arm reached ||dW|| 7.58 with its best surrogate reward at the most\n                      drifted iterate -- the shape of model exploitation, where the\n                      policy finds where the learned dynamics are wrong rather than\n                      where the robot walks better. The surrogate beats persistence to\n                      about 0.5 s and is not a licence to leave the data.")
 ap.add_argument("--critic-lr", type=float, default=1e-3,
                 help="The critic gets its OWN optimiser at its OWN fixed rate. Sharing one\n                      with the policy broke it twice over: the KL controller throttled\n                      the policy lr to 6e-6, far too slow for a value function starting\n                      from scratch, and a single clip_grad_norm over the union let the\n                      critic's huge early gradient (returns are ~25, initial prediction\n                      ~0) consume the whole norm budget and shrink the policy update.\n                      Measured consequence: explained variance sat at 0.00-0.12, so the\n                      advantages were noise and PPO was taking KL-bounded random walks.")
 ap.add_argument("--det-every", type=int, default=50,
@@ -540,6 +542,12 @@ if a.objective == "ppo":
         return float(torch.sqrt(sum(((p_ - _W0[k]) ** 2).sum()
                                     for k, p_ in policy.named_parameters())))
     LOGSTD = torch.nn.Parameter(torch.full((12,), float(np.log(a.ppo_sigma)), device=DEV))
+    _base = None
+    if a.kl_base > 0.0:
+        _base = BatchedGo2Policy(torch.jit.load(a.policy, map_location=DEV)).to(DEV).eval()
+        for _p in _base.parameters(): _p.requires_grad_(False)
+        print(f"  ANCHOR: squared deviation from the frozen base action, weight {a.kl_base}",
+              flush=True)
     critic = torch.nn.Sequential(
         torch.nn.Linear(policy.obs_dim, 256), torch.nn.ELU(),
         torch.nn.Linear(256, 256), torch.nn.ELU(), torch.nn.Linear(256, 1)).to(DEV)
@@ -662,7 +670,12 @@ if a.objective == "ppo":
                 ent = (LOGSTD.sum() + 0.5 * 12 * float(np.log(2 * np.pi * np.e)))
                 # Separate graphs (vpred depends only on the critic, pol_loss only on the
                 # policy), so no retain_graph is needed and each gets its own norm budget.
-                _popt.zero_grad(); (pol_loss - a.entropy * ent).backward()
+                _anch = 0.0
+                if _base is not None:
+                    with torch.no_grad():
+                        _bmu, _ = _base(fo[sl], fh[sl])
+                    _anch = ((((mu - _bmu) ** 2).sum(1)) * w).sum() / w.sum().clamp_min(1.0)
+                _popt.zero_grad(); (pol_loss - a.entropy * ent + a.kl_base * _anch).backward()
                 torch.nn.utils.clip_grad_norm_(_PPARAMS, 1.0); _popt.step()
                 _copt.zero_grad(); val_loss.backward()
                 torch.nn.utils.clip_grad_norm_(critic.parameters(), 1.0); _copt.step()
