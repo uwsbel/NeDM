@@ -83,6 +83,11 @@ ap.add_argument("--require-substring", default="",
 # DISPLACEMENT TEST: stop when the policy has moved a declared distance in weight space,
 # rather than when a metric plateaus. Isolates ||dW|| from the objective, which the three
 # previous runs confounded -- each used a different reward AND ended at a different ||dW||.
+ap.add_argument("--height-target", type=float, default=None,
+                help="Target pos_z_m for correct_base_height. TERRAIN-RELATIVE and has no "
+                     "default: pos_z_m is absolute world z, so a rigid-calibrated target "
+                     "would read a normally-standing robot on CRM soil as 0.20 m too high "
+                     "and drive it into the ground.")
 ap.add_argument("--ensemble", default="",
                 help="Comma-separated ADDITIONAL surrogate checkpoints. With this set, the "
                      "rollout uses the ensemble MEAN prediction and the reward is penalised "
@@ -130,6 +135,7 @@ JP = [ix[f"joint_{n}_pos_rad"] for n in MOTOR]; JV = [ix[f"joint_{n}_vel_radps"]
 # -- verified bit-identical over 500 rows. The 34-D state carries the body-frame
 # vector under Euler-sounding names, so this is the policy's ang_vel block.
 ANG = [ix["roll_rate_radps"], ix["ang_vel_body_y_radps"], ix["yaw_rate_radps"]]
+PZ = ix.get("pos_z_m")
 GRV = [ix["grav_body_x"], ix["grav_body_y"], ix["grav_body_z"]]
 ATG = torch.tensor([aix[f"joint_{n}_target_rad"] for n in MOTOR], device=DEV)
 VX, VY, WZ = ix["vel_body_x_mps"], ix["vel_body_y_mps"], ix["yaw_rate_radps"]
@@ -166,8 +172,28 @@ LO = torch.tensor(_lo, device=DEV)[C2I]      # chrono order -> policy order
 HI = torch.tensor(_hi, device=DEV)[C2I]
 HIPI = torch.tensor([0, 3, 6, 9], device=DEV)
 HIPD = DEF[HIPI]                              # each hip paired with its OWN default
-print(f"  reward: {len(RT.WEIGHTS)} computable terms, {len(RT.NOT_COMPUTABLE)} omitted; "
-      f"largest omitted is correct_base_height at {RT.NOT_COMPUTABLE['correct_base_height']}")
+# WIRE IN THE GUARD THAT ALREADY EXISTED. go2_reward_terms.wrongly_omitted() was
+# written precisely to stop a reward term being dropped for a reason that had stopped
+# being true -- and was never called from anywhere, so it stopped nothing. Every CRM
+# run so far dropped correct_base_height (-10.0, the LARGEST weight, 10x
+# tracking_lin_vel) despite carrying pos_z_m, which is the term that tells the robot
+# to hold its body up. On soil, where the feet sink ~4 cm, that is not a minor omission.
+_wrong = RT.wrongly_omitted(sf)
+_HEIGHT_TGT = None
+if "correct_base_height" in _wrong:
+    if a.height_target is None:
+        raise SystemExit(
+            "FATAL: this surrogate carries pos_z_m, so correct_base_height "
+            f"({_wrong['correct_base_height']}) IS computable and would otherwise be "
+            "silently dropped. It needs --height-target, which is TERRAIN-RELATIVE: "
+            "pos_z_m is absolute world z, and the CRM soil surface sits ~0.20 m above "
+            "the rigid datum. Measure the base policy's mean pos_z_m on this corpus "
+            "and pass it.")
+    _HEIGHT_TGT = a.height_target
+    print(f"  reward: correct_base_height ENABLED, target pos_z_m = {_HEIGHT_TGT:.4f} m")
+_still = {k: v for k, v in RT.NOT_COMPUTABLE.items() if k not in _wrong}
+print(f"  reward: {len(RT.WEIGHTS) + (1 if _HEIGHT_TGT is not None else 0)} computable "
+      f"terms, {len(_still)} omitted{'' if not _still else '; ' + ', '.join(_still)}")
 def _t(v): return torch.as_tensor(np.asarray(v, dtype=np.float32), device=DEV)
 ANGS, CMDS, DPS, DVS, ACTS = _t(ANG_VEL_SCALE), _t(CMD_SCALE), _t(DOF_POS_SCALE), _t(DOF_VEL_SCALE), _t(ACTION_SCALE)
 
@@ -271,7 +297,9 @@ def rollout(batch, grad=True):
             t = RT.terms(qp, dqp, dq_prev if dq_prev is not None else dqp,
                          nxt[:, [VX, VY]], nxt[:, [RR, PY_]], nxt[:, WZ], cmd,
                          act, a_prev1, a_prev2, LO, HI, HIPD, HIPI,
-                         act * ACTS + DEF)          # PD target, policy frame
+                         act * ACTS + DEF,          # PD target, policy frame
+                         pos_z=(nxt[:, PZ] if _HEIGHT_TGT is not None else None),
+                         height_target=_HEIGHT_TGT)
             _r = RT.total(t)
             if disagree is not None:
                 _r = _r - a.pessimism * disagree      # trust the model less where it argues

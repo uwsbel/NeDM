@@ -92,8 +92,20 @@ def shrunk_limits(urdf_lo, urdf_hi, frac=0.45):
     return m - frac * r, m + frac * r
 
 def terms(q_policy, dq_policy, dq_prev, vxy, wxy, wz, cmd, act, act_prev, act_prev2,
-          lo, hi, hip_default, hip_idx, act_target):
-    """All tensors (B, ...). q_policy/dq_policy are ALREADY in the policy frame."""
+          lo, hi, hip_default, hip_idx, act_target, pos_z=None, height_target=None):
+    """All tensors (B, ...). q_policy/dq_policy are ALREADY in the policy frame.
+
+    pos_z / height_target enable `correct_base_height`, the LARGEST weight in the whole
+    reward (-10.0, ten times tracking_lin_vel). Pass both or neither.
+
+    HEIGHT IS TERRAIN-RELATIVE AND pos_z_m IS NOT. On rigid ground the bed sits at z=0
+    so pos_z IS the height; on CRM the soil surface sits at ~0.20 m (soil_bottom 0.0 +
+    depth 0.20) and the base rides at ~0.553 m for the same ~0.35 m stance. A target
+    calibrated on rigid would therefore read a normally-standing robot on soil as 0.20 m
+    too high and drive it DOWN into the soil -- turning the term that should fix this
+    failure into a worse version of it. height_target must be supplied per terrain by
+    the caller, which is why it has no default.
+    """
     t = {}
     t["tracking_lin_vel"] = torch.exp(-((cmd[:, :2] - vxy) ** 2).sum(1) / TRACKING_SIGMA)
     t["tracking_ang_vel"] = torch.exp(-((cmd[:, 2] - wz) ** 2) / TRACKING_SIGMA)
@@ -112,7 +124,19 @@ def terms(q_policy, dq_policy, dq_prev, vxy, wxy, wz, cmd, act, act_prev, act_pr
     tau = PD_KP * (act_target - q_policy) - PD_KD * dq_policy
     t["torques"]          = (tau ** 2).sum(1)
     t["dof_power"]        = (tau * dq_policy).abs().sum(1)
+    if pos_z is not None:
+        if height_target is None:
+            raise ValueError("pos_z given without height_target: the target is "
+                             "terrain-relative and must not be guessed")
+        t["correct_base_height"] = (pos_z - height_target) ** 2
     return t
 
 def total(t):
-    return sum(WEIGHTS[k] * v for k, v in t.items())
+    """Weighted sum. A term present in `t` but absent from WEIGHTS is a silent zero,
+    so look it up in the merged table and fail loudly instead."""
+    w = dict(WEIGHTS)
+    w["correct_base_height"] = NOT_COMPUTABLE["correct_base_height"]
+    missing = [k for k in t if k not in w]
+    if missing:
+        raise KeyError(f"reward terms with no weight: {missing}")
+    return sum(w[k] * v for k, v in t.items())
