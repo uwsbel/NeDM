@@ -80,6 +80,8 @@ ap.add_argument("--ppo-sigma", type=float, default=0.15,
                 help="Initial exploration std in RAW action units (recorded raw action std\n                      is ~1.5, so 0.15 is ~10%%). Learned thereafter. The CTS policy's\n                      own training sigma is NOT recoverable -- no config ships with the\n                      checkpoint and it has no std head -- so this is a choice, not a\n                      reconstruction, and it is swept rather than assumed.")
 ap.add_argument("--critic-lr", type=float, default=1e-3,
                 help="The critic gets its OWN optimiser at its OWN fixed rate. Sharing one\n                      with the policy broke it twice over: the KL controller throttled\n                      the policy lr to 6e-6, far too slow for a value function starting\n                      from scratch, and a single clip_grad_norm over the union let the\n                      critic's huge early gradient (returns are ~25, initial prediction\n                      ~0) consume the whole norm budget and shrink the policy update.\n                      Measured consequence: explained variance sat at 0.00-0.12, so the\n                      advantages were noise and PPO was taking KL-bounded random walks.")
+ap.add_argument("--det-every", type=int, default=50,
+                help="Deterministic evaluation cadence, in updates. This is both the\n                      progress signal and the checkpoint-selection metric: the\n                      stochastic rew/step at batch 64 swings 1.08-1.19 update to\n                      update and no trend can be read from it.")
 ap.add_argument("--ppo-epochs", type=int, default=5)
 ap.add_argument("--ppo-minibatches", type=int, default=4)
 ap.add_argument("--ppo-clip", type=float, default=0.2)
@@ -618,6 +620,7 @@ if a.objective == "ppo":
           f"/update, sigma init {a.ppo_sigma}, gamma {a.gamma}, lam {a.lam}, "
           f"clip {a.ppo_clip}, KL target {a.ppo_kl}", flush=True)
     rng_ppo = random.Random(a.seed + 4242)
+    _dbest = (-float('inf'), -1)
     _hist_log = []; _t0 = time.time()
     for u in range(1, a.updates + 1):
         OBS, HIS, ACT, LGP, VAL, REW, ALV, lastv, endalive = ppo_rollout(sample(rng_ppo, a.batch))
@@ -668,15 +671,34 @@ if a.objective == "ppo":
         if kl > 2.0 * a.ppo_kl: _lr = max(_lr / 1.5, 1e-7)
         elif kl < 0.5 * a.ppo_kl: _lr = min(_lr * 1.5, 1e-2)
         for g in _popt.param_groups: g["lr"] = _lr
-        if u % 50 == 0 or u == 1:
+        if u % a.det_every == 0 or u == 1:
             with torch.no_grad():
                 _sv = float(LOGSTD.data.exp().mean()); LOGSTD.data.fill_(-20.0)
                 _o = ppo_rollout(sample(random.Random(7777), 256))
                 LOGSTD.data.fill_(float(np.log(max(_sv, 1e-8))))
                 _dr = float((_o[5] * _o[6]).sum() / _o[6].sum().clamp_min(1.0))
                 _ds = float(_o[8].mean())
+            _star = ""
+            # SELECT ON THE DETERMINISTIC REWARD, NOT ON ||dW||.
+            #
+            # PPO takes ppo_epochs x ppo_minibatches = 20 Adam steps per update, so ||dW||
+            # races ahead of learning: the first --target-dw 1.0 arm stopped after ~40
+            # updates, before the critic had even warmed up. ||dW|| was already a poor
+            # trust region for the analytic path (0.52 -> 4.0 is an 8x displacement and
+            # moves behaviour only 15% -> 39%); for PPO it is not a trust region at all,
+            # because the KL controller is. So run a fixed budget, let KL do the bounding,
+            # and keep the checkpoint that is actually best under the deterministic policy.
+            #
+            # This is still a SURROGATE-INTERNAL metric and selecting on it cannot tell us
+            # anything about Chrono. It is only honest about which of ITS OWN iterates is
+            # best, which is more than --target-dw did.
+            if _dr > _dbest[0]:
+                _dbest = (_dr, u); _star = "  <- best"
+                torch.save({"state_dict": policy.state_dict(), "update": u, "dw": _dwp(),
+                            "det_rew_per_step": _dr,
+                            "log_std": LOGSTD.detach().cpu()}, f"{a.out}/best.pt")
             print(f"    [deterministic] rew/step {_dr:+.4f}  survive {_ds:5.1%}  "
-                  f"dW {_dwp():.3f}", flush=True)
+                  f"dW {_dwp():.3f}{_star}", flush=True)
             _hist_log.append({"update": u, "det_rew_per_step": _dr, "det_survive": _ds,
                               "dw": _dwp()})
         if u % 10 == 0 or u == 1:
@@ -700,11 +722,12 @@ if a.objective == "ppo":
                   flush=True)
             _hist_log.append({"update": u, "dw": d, "stopped_on": "target_dw"})
             break
-    else:
-        torch.save({"state_dict": policy.state_dict(), "update": a.updates,
-                    "dw": _dwp(), "log_std": LOGSTD.detach().cpu()}, f"{a.out}/best.pt")
     json.dump(_hist_log, open(f"{a.out}/history.json", "w"), indent=1)
-    print(f"\n  DONE (ppo). ||dW|| {_dwp():.3f} -> {a.out}/best.pt")
+    if _dbest[1] < 0:
+        raise SystemExit("FATAL: no deterministic evaluation ever ran, so nothing was "
+                         "selected. Raise --updates above --det-every.")
+    print(f"\n  DONE (ppo). best deterministic rew/step {_dbest[0]:+.4f} from update "
+          f"{_dbest[1]}, final ||dW|| {_dwp():.3f} -> {a.out}/best.pt")
     raise SystemExit(0)
 
 W0 = {k: v.detach().clone() for k, v in policy.named_parameters()}
