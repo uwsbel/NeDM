@@ -698,12 +698,15 @@ if a.objective == "rslrl":
             _star = ""
             if _dr > _dbest[0]:
                 _dbest = (_dr, u); _star = "  <- best"
-                torch.save({"state_dict": {"student_encoder." + k.split(".", 1)[1] if
-                            k.startswith("student_encoder") else k: v
-                            for k, v in _ac.actor.state_dict().items()},
-                            "actor_state_dict": _ac.actor.state_dict(),
-                            "update": u, "dw": _dwr(), "det_rew_per_step": _dr},
-                           f"{a.out}/best.pt")
+                # export_finetuned_policy.py does load_state_dict(strict=True) into a
+                # BatchedGo2Policy, whose submodules are `student_encoder` and `actor`.
+                # This wrapper names the head `actor_net` to avoid shadowing rsl_rl's own
+                # `actor` attribute, so the key has to be renamed on the way out or the
+                # export fails with a key mismatch AFTER the whole run has finished.
+                _sd = {("actor." + k[len("actor_net."):] if k.startswith("actor_net.")
+                        else k): v for k, v in _ac.actor.state_dict().items()}
+                torch.save({"state_dict": _sd, "update": u, "dw": _dwr(),
+                            "det_rew_per_step": _dr}, f"{a.out}/best.pt")
             print(f"    [deterministic] rew/step {_dr:+.4f}  dW {_dwr():.3f}{_star}",
                   flush=True)
             _hist_log.append({"update": u, "det_rew_per_step": _dr, "dw": _dwr()})
