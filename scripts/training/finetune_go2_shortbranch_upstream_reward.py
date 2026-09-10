@@ -74,6 +74,10 @@ ap.add_argument("--branch-steps", type=int, default=5)    # 0.1 s, the certified
 ap.add_argument("--lr", type=float, default=1e-4)
 ap.add_argument("--freeze-encoder", action="store_true",
                 help="Optimise the ACTOR only. The student encoder is 55% of the\n                      parameters and absorbed 57% of the squared displacement in\n                      every run so far, yet it was trained by supervised regression\n                      onto a privileged teacher latent -- a mapping the branch\n                      objective contains no term to preserve. A global ||dW|| budget\n                      spends itself where the parameters are, so it was mostly an\n                      encoder-drift budget.")
+ap.add_argument("--probe-grad-share", action="store_true",
+                help="Measure each reward term's share of the GRADIENT norm and of the\n                      reward VALUE at the base policy, then exit without training.\n                      These two shares have no reason to match: backprop through a\n                      surrogate weights a term by the stiffness of its path, while a\n                      score-function estimator (PPO) sees reward as a scalar and\n                      cannot. When they diverge sharply, the branch is optimising\n                      something other than the return.")
+ap.add_argument("--min-upright", type=float, default=None,
+                help="Reject branch starts whose grav_body_z exceeds -THIS, i.e. keep\n                      only branches beginning upright. 9.9%% of starts on the flat\n                      corpus begin with grav_body_z > 0 -- the robot fully INVERTED,\n                      post-fall -- where every reward term is meaningless. Off by\n                      default because it changes the branch pool and that has to be\n                      asked for. 0.7 keeps tilt under ~45 deg.")
 ap.add_argument("--reg-scale", type=float, default=1.0,
                 help="Multiplier on the NEGATIVE-weight (penalty) reward terms.\n                      Not a tuning knob -- a diagnostic. Measured on this pipeline,\n                      penalties are 13.9% of reward VALUE but 48-57% of GRADIENT\n                      NORM, because backprop through the surrogate weights a term\n                      by the stiffness of its path, not by its contribution to\n                      return. PPO cannot do this: its score-function estimator sees\n                      reward as a scalar. --reg-scale 0 removes the penalty gradient\n                      entirely and asks whether the tracking gradient alone can move\n                      the policy -- which also tests whether d(vel)/d(action) through\n                      the surrogate is strong enough to carry any signal at all.")
 ap.add_argument("--val-every", type=int, default=50)
@@ -280,6 +284,7 @@ for p in paths:
     P_all.append(np.array([[float(r[f]) for f in PRF] for r in rows], dtype=np.float32))
 print(f"  branch pool: {len(S_all)} episodes; EXCLUDED {excluded} in the verdict's cell", flush=True)
 
+_COLLECT_TERMS = False
 WARM, BS = 5, a.branch_steps
 
 # CONTROL-ROW PARITY IS A PER-EPISODE PROPERTY, NOT A CONSTANT.
@@ -302,6 +307,19 @@ def _parity(Pe):
                          "does not hold for this episode.")
     return int(bc.argmax())
 PAR = [_parity(Pe) for Pe in P_all]
+# Upright mask over candidate branch starts. Kept as a mask rather than applied by
+# rejection sampling so the acceptance rate is REPORTED -- a filter that silently drops
+# most of the pool is a different experiment, not a cleaner one.
+UPR = None
+if a.min_upright is not None:
+    _gz = GRV[2]
+    UPR = [Se[:, _gz] <= -a.min_upright for Se in S_all]
+    _acc = float(np.mean([m.mean() for m in UPR]))
+    print(f"  upright filter: grav_body_z <= {-a.min_upright:.2f}, "
+          f"{100 * _acc:.1f}% of rows accepted", flush=True)
+    if _acc < 0.25:
+        raise SystemExit(f"FATAL: upright filter accepts only {100*_acc:.1f}% of rows. "
+                         "That is a different corpus, not a cleaner one -- refusing.")
 print(f"  control-row parity: {sum(PAR)} odd, {len(PAR) - sum(PAR)} even "
       f"(was hardcoded ODD for all)", flush=True)
 def sample(rng, n):
@@ -311,8 +329,11 @@ def sample(rng, n):
         # 2*BS already reserved the decimated span; kept explicit now that the
         # branch consumes DECIM=2 rows per policy step rather than one.
         lo, hi = L + 2 * WARM + 1, len(S_all[e]) - 2 * BS - 2
-        b = rng.randrange(lo, hi)
-        out.append((e, b if b % 2 == PAR[e] else b + 1))   # per-episode parity
+        for _try in range(50):
+            b = rng.randrange(lo, hi)
+            b = b if b % 2 == PAR[e] else b + 1
+            if UPR is None or UPR[e][b]: break
+        out.append((e, b))
     return out
 
 def obs_from(s, cmd, prev):
@@ -343,7 +364,7 @@ def rollout(batch, grad=True):
             if _ref is not None:
                 rprev, rhist = _ref(obs_from(s, cmd, rprev), rhist)
     ctx = torch.enable_grad() if grad else torch.no_grad()
-    errs = []; rews = []; term_acc = {}
+    errs = []; rews = []; term_acc = {}; term_seq = []
     dq_prev = None
     a_prev1 = prev.clone(); a_prev2 = prev.clone()
     with ctx:
@@ -394,8 +415,39 @@ def rollout(batch, grad=True):
                 # context token but the last was paired with the action one step later.
                 # ~50% of consecutive action rows are identical at 100 Hz, which is why
                 # this corrupted the context quietly instead of breaking outright.
-                _sw = torch.cat([hs, hs[:, -1:]], 1)[:, -L:]
-                _aw = torch.cat([ha, newa.unsqueeze(1)], 1)[:, -L:]
+                # REPLACE THE LAST ACTION, DO NOT APPEND IT.
+                #
+                # `newa` is the last recorded action row with the joint-target channels
+                # overwritten by the policy's target -- it is built to REPLACE ha[:, -1].
+                # Appending it instead ran the action sequence one step ahead of the
+                # state sequence, and the `torch.cat([hs, hs[:, -1:]])` above papered
+                # over the length difference by DUPLICATING the current state. The last
+                # two context tokens then carried the same state under two different
+                # actions: a zero-delta step that occurs nowhere in the corpus, while
+                # the oldest real token was pushed out.
+                #
+                # Training pairs states[i] with actions[i] and targets s[i+1]-s[i], and
+                # the audited open-loop rollout preserves that. So the open-loop gate
+                # certified a forward pass THIS LOOP WAS NOT USING. Measured one-step,
+                # driving RECORDED actions so the policy is not even involved:
+                #
+                #     vel_body_x_mps   nRMSE 0.119 aligned -> 0.684 here   (5.75x)
+                #     yaw_rate_radps         0.110 -> 0.153                (1.39x)
+                #     joint pos (12)         0.034 -> 0.039                (1.15x)
+                #     joint vel (12)         0.263 -> 0.280                (1.06x)
+                #
+                # The damage is almost entirely on vel_body_x_mps -- the channel
+                # tracking_lin_vel is built from, which is 57% of the reward. Over the
+                # branch, vx nRMSE 2.89 -> 4.77. The branch gradient is rotated ~59 deg
+                # (cos +0.52) and points into the opposite half-space on 1 branch in 4,
+                # against a null control of +0.92 for simply dropping a context token.
+                # Worst on UPRIGHT, normally-walking branches, not on fallen ones.
+                #
+                # This is why the reward and the gradient disagreed: the penalty terms
+                # read joint channels, which survived; the tracking terms read velocity,
+                # which did not.
+                _sw = hs[:, -L:]
+                _aw = torch.cat([ha[:, :-1], newa.unsqueeze(1)], 1)[:, -L:]
                 if len(_MEMBERS) == 1:
                     d = _MEMBERS[0].predict_delta(_sw, _aw, terrain=None)[:, -1, :]
                     disagree = None
@@ -428,11 +480,40 @@ def rollout(batch, grad=True):
                 term_acc["pessimism"] = term_acc.get("pessimism", 0.0) - float(
                     (a.pessimism * disagree).mean())
             rews.append(_r)
+            if _COLLECT_TERMS: term_seq.append(t)
             for k, v in t.items(): term_acc[k] = term_acc.get(k, 0.0) + float(v.mean())
             dq_prev = dqp; a_prev2 = a_prev1; a_prev1 = act
             errs.append(torch.stack([nxt[:, VX] - cmd[:, 0], nxt[:, VY] - cmd[:, 1],
                                      nxt[:, WZ] - cmd[:, 2]], dim=1))
+    if _COLLECT_TERMS:
+        return torch.stack(errs, 1), torch.stack(rews, 1), term_acc, term_seq
     return torch.stack(errs, 1), torch.stack(rews, 1), term_acc
+
+if a.probe_grad_share:
+    _COLLECT_TERMS = True
+    _prm = [p for p in policy.parameters() if p.requires_grad]
+    _b = sample(random.Random(1234), a.batch)
+    _e, _r, _acc, _seq = rollout(_b, grad=True)
+    _w = dict(RT.WEIGHTS); _w["correct_base_height"] = RT.NOT_COMPUTABLE["correct_base_height"]
+    _rows = []
+    for _k in _seq[0]:
+        _s = sum(_w[_k] * _t[_k].mean() for _t in _seq)
+        _g = torch.autograd.grad(_s, _prm, retain_graph=True, allow_unused=True)
+        _n = float(torch.sqrt(sum((gi ** 2).sum() for gi in _g if gi is not None)))
+        _v = float(sum(_w[_k] * _t[_k].mean() for _t in _seq))
+        _rows.append((_k, _v, _n))
+    _gt = sum(r[2] for r in _rows); _vp = sum(abs(r[1]) for r in _rows)
+    _trk = sum(r[2] for r in _rows if r[0].startswith("tracking"))
+    print(f"\n  GRADIENT SHARE vs VALUE SHARE at the base policy"
+          f"  (branch {BS} steps = {BS * 0.02:.2f} s, batch {a.batch})")
+    print(f"  {'term':22s} {'weighted value':>15s} {'|grad|':>12s} {'grad share':>11s}")
+    for _k, _v, _n in sorted(_rows, key=lambda r: -r[2]):
+        print(f"  {_k:22s} {_v:15.4f} {_n:12.4f} {100 * _n / max(_gt, 1e-12):10.1f}%")
+    print(f"  {'-' * 64}")
+    print(f"  tracking terms: {100 * _trk / max(_gt, 1e-12):.1f}% of gradient norm, "
+          f"{100 * sum(abs(r[1]) for r in _rows if r[0].startswith('tracking')) / max(_vp, 1e-12):.1f}% "
+          f"of |value|")
+    raise SystemExit(0)
 
 W0 = {k: v.detach().clone() for k, v in policy.named_parameters()}
 def dw():
