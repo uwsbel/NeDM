@@ -17,7 +17,7 @@ excursion, summed -- and it is implemented that way rather than squared.
 """
 import numpy as np, torch
 
-TRACKING_SIGMA = 0.25          # legged_gym default; NOT confirmed against upstream
+TRACKING_SIGMA = 0.25          # CONFIRMED against go2_config.py:166 (see below)
 POLICY_DT = 0.02               # 50 Hz control after decimation 4 -- NOT the 0.01 record step
 
 WEIGHTS = {                    # converged; omitted terms are listed as not computable
@@ -130,6 +130,29 @@ def terms(q_policy, dq_policy, dq_prev, vxy, wxy, wz, cmd, act, act_prev, act_pr
                              "terrain-relative and must not be guessed")
         t["correct_base_height"] = (pos_z - height_target) ** 2
     return t
+
+def total_scaled(t, penalty_scale):
+    """`total()` with the NEGATIVE-weight terms multiplied by `penalty_scale`.
+
+    A diagnostic, not a tuning knob. Under backprop-through-a-surrogate a term's
+    influence on the update is its weight times the STIFFNESS of its path through the
+    model, which has nothing to do with its share of the return. Measured here:
+    penalties are 13.9% of reward value and 48-57% of gradient norm, and at a 25-step
+    branch `tracking_lin_vel` supplies 76% of the reward and 3.9% of the gradient.
+    PPO's score-function estimator is structurally immune -- it multiplies
+    grad-log-pi by a SCALAR reward, so no term can be over-weighted by its Jacobian.
+
+    Setting penalty_scale = 0 leaves only the tracking terms, which answers a question
+    reweighting cannot: whether d(velocity)/d(action) through the surrogate carries
+    usable gradient at all.
+    """
+    w = dict(WEIGHTS)
+    w["correct_base_height"] = NOT_COMPUTABLE["correct_base_height"]
+    missing = [k for k in t if k not in w]
+    if missing:
+        raise KeyError(f"reward terms with no weight: {missing}")
+    return sum((w[k] if w[k] > 0 else w[k] * penalty_scale) * v for k, v in t.items())
+
 
 def total(t):
     """Weighted sum. A term present in `t` but absent from WEIGHTS is a silent zero,

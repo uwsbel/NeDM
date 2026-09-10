@@ -72,6 +72,10 @@ ap.add_argument("--updates", type=int, default=1500)      # FIXED BUDGET
 ap.add_argument("--batch", type=int, default=64)
 ap.add_argument("--branch-steps", type=int, default=5)    # 0.1 s, the certified window
 ap.add_argument("--lr", type=float, default=1e-4)
+ap.add_argument("--freeze-encoder", action="store_true",
+                help="Optimise the ACTOR only. The student encoder is 55% of the\n                      parameters and absorbed 57% of the squared displacement in\n                      every run so far, yet it was trained by supervised regression\n                      onto a privileged teacher latent -- a mapping the branch\n                      objective contains no term to preserve. A global ||dW|| budget\n                      spends itself where the parameters are, so it was mostly an\n                      encoder-drift budget.")
+ap.add_argument("--reg-scale", type=float, default=1.0,
+                help="Multiplier on the NEGATIVE-weight (penalty) reward terms.\n                      Not a tuning knob -- a diagnostic. Measured on this pipeline,\n                      penalties are 13.9% of reward VALUE but 48-57% of GRADIENT\n                      NORM, because backprop through the surrogate weights a term\n                      by the stiffness of its path, not by its contribution to\n                      return. PPO cannot do this: its score-function estimator sees\n                      reward as a scalar. --reg-scale 0 removes the penalty gradient\n                      entirely and asks whether the tracking gradient alone can move\n                      the policy -- which also tests whether d(vel)/d(action) through\n                      the surrogate is strong enough to carry any signal at all.")
 ap.add_argument("--val-every", type=int, default=50)
 ap.add_argument("--val-branches", type=int, default=512)
 ap.add_argument("--episodes", type=int, default=400)
@@ -207,6 +211,13 @@ ANGS, CMDS, DPS, DVS, ACTS = _t(ANG_VEL_SCALE), _t(CMD_SCALE), _t(DOF_POS_SCALE)
 ts = torch.jit.load(a.policy, map_location=DEV)
 policy = BatchedGo2Policy(ts).to(DEV)
 for p in policy.parameters(): p.requires_grad_(True)
+if a.freeze_encoder:
+    _nf = 0
+    for _n, _p in policy.named_parameters():
+        if "student_encoder" in _n:
+            _p.requires_grad_(False); _nf += _p.numel()
+    print(f"  FROZEN: student_encoder, {_nf} parameters ({100*_nf/sum(q.numel() for q in policy.parameters()):.0f}%)",
+          flush=True)
 # A SECOND, FROZEN copy of the same checkpoint. The anchor needs the base policy's
 # action on the SAME branch state, which cannot come from the policy being optimised.
 _ref = None
@@ -214,7 +225,7 @@ if a.anchor > 0.0:
     _ref = BatchedGo2Policy(torch.jit.load(a.policy, map_location=DEV)).to(DEV).eval()
     for _p in _ref.parameters(): _p.requires_grad_(False)
     print(f"  ANCHOR: behaviour-cloning to base policy, weight {a.anchor}", flush=True)
-opt = torch.optim.Adam(policy.parameters(), lr=a.lr)
+opt = torch.optim.Adam([p for p in policy.parameters() if p.requires_grad], lr=a.lr)
 
 # ---- branch pool, with the verdict's episodes EXCLUDED -----------------------
 idx = json.load(open(a.root + "/dataset_index.json"))["episodes"]
@@ -239,7 +250,8 @@ paths = [p for p in sorted(paths) if os.path.exists(p) or os.path.exists(p[:-5] 
 print(f"  branch pool candidates from index: {len(paths)}"
       + (f"  (filtered on {_want!r})" if _want else "  (no shard filter)"))
 random.Random(a.seed).shuffle(paths)
-S_all, A_all, C_all, excluded = [], [], [], 0
+PRF = [f"policy_raw_{n}" for n in MOTOR]   # chrono order, like JP/JV
+S_all, A_all, C_all, P_all, excluded = [], [], [], [], 0
 for p in paths:
     if len(S_all) >= a.episodes: break
     rows = list(csv.DictReader(open(p.replace(".json", ".csv"))))
@@ -251,9 +263,47 @@ for p in paths:
     A_all.append(np.array([[float(r[f]) for f in af] for r in rows], dtype=np.float32))
     C_all.append(np.array([[float(r["cmd_vx_mps"]), float(r["cmd_vy_mps"]),
                             float(r["cmd_wz_radps"])] for r in rows], dtype=np.float32))
+    # THE PREVIOUS ACTION IS RECORDED. It was being invented.
+    #
+    # rollout() started every branch with prev = zeros and self-fed the policy's own
+    # output through the warm-up, while the true previous raw action sat in these
+    # columns the whole time. Measured against the logged action for the same control
+    # step, the FIRST branch action came out at RMS 1.6455 -- larger than the raw-action
+    # standard deviation itself (1.539). Seeding prev from the record: 0.2672.
+    # Every gradient step taken so far was differentiated through a policy whose
+    # opening action was essentially uncorrelated with what the base policy does there.
+    if PRF[0] not in rows[0]:
+        raise SystemExit(
+            f"FATAL: {p} has no {PRF[0]} column. The previous-action observation channel "
+            "is not reconstructible from this corpus, and defaulting it to zeros is the "
+            "bug this check exists to prevent. Re-collect with policy_raw_* recorded.")
+    P_all.append(np.array([[float(r[f]) for f in PRF] for r in rows], dtype=np.float32))
 print(f"  branch pool: {len(S_all)} episodes; EXCLUDED {excluded} in the verdict's cell", flush=True)
 
 WARM, BS = 5, a.branch_steps
+
+# CONTROL-ROW PARITY IS A PER-EPISODE PROPERTY, NOT A CONSTANT.
+# sample() hardcoded "control acts on ODD rows". That is true of the corpus it was
+# written against (go2_merged: 200/200 odd) and false for roughly half the episodes of
+# the two newer ones -- go2_crm_merged splits 102 even / 98 odd -- because the parity is
+# set by where warmup_s + prewalk_s lands on the 0.01 s record grid, and prewalk varies.
+# Read it off the data instead: the raw action is held across the decimation, so the
+# rows where it CHANGES are the control rows.
+def _parity(Pe):
+    ch = np.nonzero(np.abs(np.diff(Pe, axis=0)).max(axis=1) > 0)[0] + 1
+    ch = ch[ch > 50]                                   # skip the pre-walk hold
+    if len(ch) < 20:
+        raise SystemExit("FATAL: cannot determine control-row parity -- fewer than 20 "
+                         "action changes found. Refusing to fall back to a hardcode.")
+    bc = np.bincount(ch % 2, minlength=2)
+    if bc.max() < 0.9 * bc.sum():
+        raise SystemExit(f"FATAL: control rows are not on a consistent parity "
+                         f"(even={bc[0]}, odd={bc[1]}). The 50 Hz-on-100 Hz assumption "
+                         "does not hold for this episode.")
+    return int(bc.argmax())
+PAR = [_parity(Pe) for Pe in P_all]
+print(f"  control-row parity: {sum(PAR)} odd, {len(PAR) - sum(PAR)} even "
+      f"(was hardcoded ODD for all)", flush=True)
 def sample(rng, n):
     out = []
     for _ in range(n):
@@ -262,7 +312,7 @@ def sample(rng, n):
         # branch consumes DECIM=2 rows per policy step rather than one.
         lo, hi = L + 2 * WARM + 1, len(S_all[e]) - 2 * BS - 2
         b = rng.randrange(lo, hi)
-        out.append((e, b if b % 2 == 1 else b + 1))   # control acts on ODD rows
+        out.append((e, b if b % 2 == PAR[e] else b + 1))   # per-episode parity
     return out
 
 def obs_from(s, cmd, prev):
@@ -271,13 +321,21 @@ def obs_from(s, cmd, prev):
     return torch.cat([ang, grav, cmd * CMDS, (q - DEF) * DPS, qd * DVS, prev], dim=1)
 
 def rollout(batch, grad=True):
-    S = torch.tensor(np.stack([S_all[e][b - L:b] for e, b in batch]), device=DEV)
-    A = torch.tensor(np.stack([A_all[e][b - L:b] for e, b in batch]), device=DEV)
+    # WINDOW ENDS ON THE CONTROL ROW. It ended one row short, so the warm-up ran on
+    # rows b-10, b-8, ... b-2 (parity of b) and then the first branch observation was
+    # taken from hs[:, -1] = row b-1, the OPPOSITE parity: a single 0.01 s gap in an
+    # otherwise 0.02 s sequence, at exactly the step whose gradient matters most.
+    S = torch.tensor(np.stack([S_all[e][b - L + 1:b + 1] for e, b in batch]), device=DEV)
+    A = torch.tensor(np.stack([A_all[e][b - L + 1:b + 1] for e, b in batch]), device=DEV)
     cmd = torch.tensor(np.stack([C_all[e][b] for e, b in batch]), device=DEV)
     hist = policy.initial_history(len(batch), DEV)
     rhist = _ref.initial_history(len(batch), DEV) if _ref is not None else None
-    rprev = torch.zeros(len(batch), 12, device=DEV)
-    prev = torch.zeros(len(batch), 12, device=DEV)
+    # Seed from the RECORDED raw action of the control step preceding the warm-up,
+    # mapped chrono -> policy order. No SIGN: policy_raw_* is the network's own output.
+    _p0 = torch.tensor(np.stack([P_all[e][b - 2 * WARM - 2] for e, b in batch]),
+                       device=DEV)[:, C2I]
+    rprev = _p0.clone()
+    prev = _p0.clone()
     with torch.no_grad():                                    # warm-up on RECORDED obs
         for k in range(WARM, 0, -1):
             s = torch.tensor(np.stack([S_all[e][b - 2 * k] for e, b in batch]), device=DEV)
@@ -360,7 +418,7 @@ def rollout(batch, grad=True):
                          act * ACTS + DEF,          # PD target, policy frame
                          pos_z=(nxt[:, PZ] if _HEIGHT_TGT is not None else None),
                          height_target=_HEIGHT_TGT)
-            _r = RT.total(t)
+            _r = RT.total(t) if a.reg_scale == 1.0 else RT.total_scaled(t, a.reg_scale)
             if anchor_pen is not None:
                 _r = _r - a.anchor * anchor_pen
                 term_acc["anchor"] = term_acc.get("anchor", 0.0) - float(
@@ -393,11 +451,22 @@ for u in range(1, a.updates + 1):
     opt.step()
     if a.target_dw is not None and dw() >= a.target_dw:
         d = dw()
+        # MEASURE THE STOP POINT. This wrote val_neg_reward = NaN into best.pt and set
+        # best = (NaN, u), overwriting whatever validation had already selected -- so in
+        # --target-dw mode no checkpoint selection happened at all, contradicting the
+        # protocol declared at the top of this file, and history.json got a bare NaN,
+        # which is not valid JSON. The displacement stop IS the intended deliverable
+        # here, so keep it; just record an honest number for it.
+        with torch.no_grad():
+            _parts = [rollout(VAL[i:i + 128], grad=False) for i in range(0, len(VAL), 128)]
+            _vm = float(-torch.cat([q[1] for q in _parts]).mean())
         torch.save({"state_dict": policy.state_dict(), "update": u, "dw": d,
-                    "val_neg_reward": float("nan")}, f"{a.out}/best.pt")
-        print(f"  update {u:5d}  ||dW|| {d:.3f} >= target {a.target_dw} -- STOPPING", flush=True)
-        hist_log.append({"update": u, "dw": d, "stopped_on": "target_dw"})
-        best = (float("nan"), u)
+                    "val_neg_reward": _vm}, f"{a.out}/best.pt")
+        print(f"  update {u:5d}  ||dW|| {d:.3f} >= target {a.target_dw}  val {_vm:.6f}"
+              f"  -- STOPPING", flush=True)
+        hist_log.append({"update": u, "dw": d, "val_neg_reward": _vm,
+                         "stopped_on": "target_dw"})
+        best = (_vm, u)
         break
     if u % a.val_every == 0 or u == 1:
         with torch.no_grad():
