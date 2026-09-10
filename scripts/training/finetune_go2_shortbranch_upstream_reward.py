@@ -74,7 +74,7 @@ ap.add_argument("--branch-steps", type=int, default=5)    # 0.1 s, the certified
 ap.add_argument("--lr", type=float, default=1e-4)
 ap.add_argument("--freeze-encoder", action="store_true",
                 help="Optimise the ACTOR only. The student encoder is 55% of the\n                      parameters and absorbed 57% of the squared displacement in\n                      every run so far, yet it was trained by supervised regression\n                      onto a privileged teacher latent -- a mapping the branch\n                      objective contains no term to preserve. A global ||dW|| budget\n                      spends itself where the parameters are, so it was mostly an\n                      encoder-drift budget.")
-ap.add_argument("--objective", choices=["analytic", "ppo"], default="analytic",
+ap.add_argument("--objective", choices=["analytic", "ppo", "rslrl"], default="analytic",
                 help="analytic: backpropagate the reward through the frozen surrogate.\n                      ppo: optimise the SAME reward in the SAME surrogate with a\n                      score-function estimator, as the recipe that produced this\n                      policy does.\n\n                      They differ in a way that is measured, not theoretical. Under\n                      backprop a term's influence is its weight times the STIFFNESS of\n                      its path through the model. dof_acc carries weight -2.5e-7 and\n                      6.7%% of the reward, but it is a squared finite difference over\n                      dt, so its path is stiffer by (1/0.02)^2 -- and it takes 47%% of\n                      the gradient at a 5-step branch and 63%% at 15, against tracking's\n                      28%% and 18%%, while tracking is 89%% of the reward's VALUE.\n                      A score-function estimator multiplies grad-log-pi by a SCALAR\n                      reward, so no term can be over-weighted by its Jacobian.\n\n                      This is not a hypothesis about which optimiser is nicer. At\n                      matched ||dW|| = 4.0 a RANDOM direction costs nothing on CRM\n                      (0.1629 vs BASE 0.1632, 37/77 episodes won) while the analytic\n                      direction costs 0.41-0.74 m/s and wins 1-9 of ~50. The damage is\n                      in the direction, not the distance.")
 ap.add_argument("--ppo-sigma", type=float, default=0.15,
                 help="Initial exploration std in RAW action units (recorded raw action std\n                      is ~1.5, so 0.15 is ~10%%). Learned thereafter. The CTS policy's\n                      own training sigma is NOT recoverable -- no config ships with the\n                      checkpoint and it has no std head -- so this is a choice, not a\n                      reconstruction, and it is swept rather than assumed.")
@@ -531,6 +531,192 @@ if a.probe_grad_share:
     print(f"  tracking terms: {100 * _trk / max(_gt, 1e-12):.1f}% of gradient norm, "
           f"{100 * sum(abs(r[1]) for r in _rows if r[0].startswith('tracking')) / max(_vp, 1e-12):.1f}% "
           f"of |value|")
+    raise SystemExit(0)
+
+# ============================ PPO VIA rsl_rl ================================
+# The hand-written --objective ppo above had three bugs in its first hour: GAE zeroed
+# the terminal non-terminal flag so the bootstrap was multiplied by zero, the critic
+# shared an optimiser with the policy and was throttled to 6e-6 by the KL controller,
+# and one grad-norm clip over both let the critic's early gradient eat the budget. All
+# three were in the ALGORITHM, which is the part rsl_rl already gets right and which is
+# installed in this very environment. Three bugs found in an afternoon means assume more.
+#
+# This keeps every piece that is genuinely ours -- corpus, parity, seeded prev, the
+# corrected surrogate window, the upstream reward -- and hands the algorithm to rsl_rl.
+#
+# The imported policy fits rsl_rl's actor contract without an adapter, which is the part
+# that makes this cheap. BatchedGo2Policy does:
+#     history <- cat([history[:, 1:], obs.unsqueeze(1)]);  latent <- enc(history.flat)
+#     out     <- actor(cat([latent, obs]))
+# so if the ENV pushes the observation and hands back the POST-PUSH history flattened to
+# 225, the action is a pure function of that tensor: obs is its last 45 entries. The env
+# becomes Markovian from rsl_rl's point of view, which is exactly what VecEnv wants.
+#
+# One thing this gets for free that the hand-written version never had: rsl_rl
+# distinguishes a TIME-OUT from a TERMINATION and bootstraps the former. Our branch ends
+# after --branch-steps because the surrogate is only trustworthy to ~0.5 s, which is a
+# time-out, not the robot failing. Treating it as terminal is what "everything past the
+# branch is worth zero" meant, and it is handled properly here.
+if a.objective == "rslrl":
+    from rsl_rl.algorithms import PPO as RslPPO
+    from rsl_rl.modules import ActorCritic as RslActorCritic
+
+    OBS45, HIST = policy.obs_dim, policy.hist_len
+    NOBS = OBS45 * HIST
+
+    class _ImportedActor(torch.nn.Module):
+        """rsl_rl calls actor(obs); obs here is the post-push history, flattened."""
+        def __init__(self, src):
+            super().__init__()
+            self.student_encoder = src.student_encoder
+            self.actor_net = src.actor
+        def forward(self, obs):
+            return self.actor_net(torch.cat([self.student_encoder(obs),
+                                             obs[:, -OBS45:]], dim=1))
+
+    _ac = RslActorCritic(num_actor_obs=NOBS, num_critic_obs=NOBS, num_actions=12,
+                         init_noise_std=a.ppo_sigma).to(DEV)
+    _ac.actor = _ImportedActor(policy).to(DEV)
+    if a.freeze_encoder:
+        for _p in _ac.actor.student_encoder.parameters(): _p.requires_grad_(False)
+    _alg = RslPPO(_ac, num_learning_epochs=a.ppo_epochs, num_mini_batches=a.ppo_minibatches,
+                  clip_param=a.ppo_clip, gamma=a.gamma, lam=a.lam, entropy_coef=a.entropy,
+                  learning_rate=a.lr, desired_kl=a.ppo_kl, schedule="adaptive", device=DEV)
+    _alg.init_storage(a.batch, BS, [NOBS], [NOBS], [12])
+
+    _W0r = {k: v.detach().clone() for k, v in _ac.actor.named_parameters()}
+    def _dwr():
+        return float(torch.sqrt(sum(((p_ - _W0r[k]) ** 2).sum()
+                                    for k, p_ in _ac.actor.named_parameters())))
+    _ROLL = ix.get("roll_rad"); _PITCH = ix.get("pitch_rad")
+    if _ROLL is None or _PITCH is None:
+        raise SystemExit("FATAL: --objective rslrl needs roll_rad and pitch_rad for the "
+                         "upstream |roll|,|pitch| > 0.2 termination.")
+
+    class _SurrogateEnv:
+        """Fixed-size sliding windows so a per-environment reset is trivial. The window
+        construction is byte-identical to the analytic branch: replace the last action,
+        never append it, and never duplicate the current state."""
+        def __init__(self, n, rng):
+            self.n, self.rng = n, rng
+            self.hs = torch.zeros(n, L, len(sf), device=DEV)
+            self.ha = torch.zeros(n, L, len(af), device=DEV)
+            self.cmd = torch.zeros(n, 3, device=DEV)
+            self.hist = torch.zeros(n, HIST, OBS45, device=DEV)
+            self.prev = torch.zeros(n, 12, device=DEV)
+            # dof_acc, action_rate and action_smoothness are FUNCTIONS OF HISTORY. A first
+            # version passed the current joint velocity as its own previous value and the
+            # current action as both previous actions, which sets dof_acc identically to
+            # zero -- silently deleting the single term this whole investigation is about,
+            # and turning the run into a partial --reg-scale 0 that did not say so.
+            self.dqp = torch.zeros(n, 12, device=DEV)
+            self.ap1 = torch.zeros(n, 12, device=DEV)
+            self.ap2 = torch.zeros(n, 12, device=DEV)
+            self.fresh = torch.ones(n, dtype=torch.bool, device=DEV)
+            self.age = torch.zeros(n, dtype=torch.long, device=DEV)
+            self.reset_idx(torch.arange(n, device=DEV))
+        def reset_idx(self, ids):
+            if ids.numel() == 0: return
+            batch = sample(self.rng, int(ids.numel()))
+            self.hs[ids] = torch.tensor(np.stack([S_all[e][b - L + 1:b + 1] for e, b in batch]), device=DEV)
+            self.ha[ids] = torch.tensor(np.stack([A_all[e][b - L + 1:b + 1] for e, b in batch]), device=DEV)
+            self.cmd[ids] = torch.tensor(np.stack([C_all[e][b] for e, b in batch]), device=DEV)
+            p0 = torch.tensor(np.stack([P_all[e][b - 2 * WARM - 2] for e, b in batch]),
+                              device=DEV)[:, C2I]
+            h = torch.zeros(int(ids.numel()), HIST, OBS45, device=DEV)
+            pv = p0
+            with torch.no_grad():
+                for k in range(WARM, 0, -1):
+                    s = torch.tensor(np.stack([S_all[e][b - 2 * k] for e, b in batch]), device=DEV)
+                    o = obs_from(s, self.cmd[ids], pv)
+                    h = torch.cat([h[:, 1:], o.unsqueeze(1)], 1)
+                    pv = _ac.actor(h.flatten(1))
+            self.hist[ids] = h; self.prev[ids] = pv
+            self.ap1[ids] = pv; self.ap2[ids] = pv
+            self.dqp[ids] = (SIGN * self.hs[ids][:, -1][:, JV][:, C2I])
+            self.fresh[ids] = True
+            self.age[ids] = 0
+        def observe(self):
+            o = obs_from(self.hs[:, -1], self.cmd, self.prev)
+            self.hist = torch.cat([self.hist[:, 1:], o.unsqueeze(1)], 1)
+            return self.hist.flatten(1)
+        def step(self, act):
+            tgt = torch.zeros_like(act).index_copy(1, C2I, SIGN * (act * ACTS + DEF))
+            for _ in range(2):
+                newa = self.ha[:, -1].clone().index_copy(1, ATG, tgt)
+                _aw = torch.cat([self.ha[:, :-1], newa.unsqueeze(1)], 1)
+                d = _MEMBERS[0].predict_delta(self.hs, _aw, terrain=None)[:, -1, :]
+                nxt = self.hs[:, -1] + d
+                self.hs = torch.cat([self.hs[:, 1:], nxt.unsqueeze(1)], 1)
+                self.ha = torch.cat([self.ha[:, 1:], newa.unsqueeze(1)], 1)
+            qp = SIGN * nxt[:, JP][:, C2I]; dqp = SIGN * nxt[:, JV][:, C2I]
+            t = RT.terms(qp, dqp, self.dqp, nxt[:, [VX, VY]], nxt[:, [RR, PY_]], nxt[:, WZ],
+                         self.cmd, act, self.ap1, self.ap2, LO, HI, HIPD, HIPI,
+                         act * ACTS + DEF,
+                         pos_z=(nxt[:, PZ] if _HEIGHT_TGT is not None else None),
+                         height_target=_HEIGHT_TGT)
+            rew = RT.total(t) if a.reg_scale == 1.0 else RT.total_scaled(t, a.reg_scale)
+            self.dqp = dqp; self.ap2 = self.ap1; self.ap1 = act
+            self.prev = act
+            self.fresh = torch.zeros_like(self.fresh)
+            self.age += 1
+            fell = (nxt[:, _ROLL].abs() > 0.2) | (nxt[:, _PITCH].abs() > 0.2)
+            tout = self.age >= BS
+            done = fell | tout
+            return rew, done, tout
+
+    _env = _SurrogateEnv(a.batch, random.Random(a.seed + 4242))
+    print(f"  rsl_rl PPO: {a.batch} envs x {BS} steps, obs {NOBS}, sigma {a.ppo_sigma}, "
+          f"gamma {a.gamma}, lam {a.lam}, clip {a.ppo_clip}, KL {a.ppo_kl} (adaptive)",
+          flush=True)
+    _obs = _env.observe()
+    _dbest = (-float("inf"), -1); _hist_log = []; _t0 = time.time()
+    for u in range(1, a.updates + 1):
+        _rsum = torch.zeros((), device=DEV); _rn = 0
+        with torch.inference_mode(False):
+            for _ in range(BS):
+                _act = _alg.act(_obs, _obs)
+                _rew, _done, _tout = _env.step(_act)
+                _infos = {"time_outs": _tout}
+                _alg.process_env_step(_rew, _done, _infos)
+                _rsum = _rsum + _rew.mean(); _rn += 1
+                if _done.any(): _env.reset_idx(torch.nonzero(_done).squeeze(-1))
+                _obs = _env.observe()
+            _alg.compute_returns(_obs)
+        _losses = _alg.update()
+        if u % a.det_every == 0 or u == 1:
+            with torch.no_grad():
+                _sv = _ac.std.data.clone(); _ac.std.data.fill_(1e-8)
+                _e2 = _SurrogateEnv(256, random.Random(7777))
+                _o2 = _e2.observe(); _tot = torch.zeros((), device=DEV)
+                for _ in range(BS):
+                    _a2 = _ac.act_inference(_o2)
+                    _r2, _d2, _ = _e2.step(_a2)
+                    _tot = _tot + _r2.mean(); _o2 = _e2.observe()
+                _dr = float(_tot / BS)
+                _ac.std.data.copy_(_sv)
+            _star = ""
+            if _dr > _dbest[0]:
+                _dbest = (_dr, u); _star = "  <- best"
+                torch.save({"state_dict": {"student_encoder." + k.split(".", 1)[1] if
+                            k.startswith("student_encoder") else k: v
+                            for k, v in _ac.actor.state_dict().items()},
+                            "actor_state_dict": _ac.actor.state_dict(),
+                            "update": u, "dw": _dwr(), "det_rew_per_step": _dr},
+                           f"{a.out}/best.pt")
+            print(f"    [deterministic] rew/step {_dr:+.4f}  dW {_dwr():.3f}{_star}",
+                  flush=True)
+            _hist_log.append({"update": u, "det_rew_per_step": _dr, "dw": _dwr()})
+        if u % 25 == 0 or u == 1:
+            print(f"  update {u:5d}  rew/step {float(_rsum)/max(_rn,1):+.4f}  "
+                  f"dW {_dwr():.3f}  lr {_alg.learning_rate:.2e}  "
+                  f"{time.time()-_t0:5.0f}s", flush=True)
+    json.dump(_hist_log, open(f"{a.out}/history.json", "w"), indent=1)
+    if _dbest[1] < 0:
+        raise SystemExit("FATAL: no deterministic evaluation ran; raise --updates above "
+                         "--det-every.")
+    print(f"\n  DONE (rsl_rl). best deterministic rew/step {_dbest[0]:+.4f} from update "
+          f"{_dbest[1]}, final ||dW|| {_dwr():.3f} -> {a.out}/best.pt")
     raise SystemExit(0)
 
 # =============================== PPO IN THE SURROGATE ========================
