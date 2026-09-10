@@ -74,6 +74,18 @@ ap.add_argument("--branch-steps", type=int, default=5)    # 0.1 s, the certified
 ap.add_argument("--lr", type=float, default=1e-4)
 ap.add_argument("--freeze-encoder", action="store_true",
                 help="Optimise the ACTOR only. The student encoder is 55% of the\n                      parameters and absorbed 57% of the squared displacement in\n                      every run so far, yet it was trained by supervised regression\n                      onto a privileged teacher latent -- a mapping the branch\n                      objective contains no term to preserve. A global ||dW|| budget\n                      spends itself where the parameters are, so it was mostly an\n                      encoder-drift budget.")
+ap.add_argument("--objective", choices=["analytic", "ppo"], default="analytic",
+                help="analytic: backpropagate the reward through the frozen surrogate.\n                      ppo: optimise the SAME reward in the SAME surrogate with a\n                      score-function estimator, as the recipe that produced this\n                      policy does.\n\n                      They differ in a way that is measured, not theoretical. Under\n                      backprop a term's influence is its weight times the STIFFNESS of\n                      its path through the model. dof_acc carries weight -2.5e-7 and\n                      6.7%% of the reward, but it is a squared finite difference over\n                      dt, so its path is stiffer by (1/0.02)^2 -- and it takes 47%% of\n                      the gradient at a 5-step branch and 63%% at 15, against tracking's\n                      28%% and 18%%, while tracking is 89%% of the reward's VALUE.\n                      A score-function estimator multiplies grad-log-pi by a SCALAR\n                      reward, so no term can be over-weighted by its Jacobian.\n\n                      This is not a hypothesis about which optimiser is nicer. At\n                      matched ||dW|| = 4.0 a RANDOM direction costs nothing on CRM\n                      (0.1629 vs BASE 0.1632, 37/77 episodes won) while the analytic\n                      direction costs 0.41-0.74 m/s and wins 1-9 of ~50. The damage is\n                      in the direction, not the distance.")
+ap.add_argument("--ppo-sigma", type=float, default=0.15,
+                help="Initial exploration std in RAW action units (recorded raw action std\n                      is ~1.5, so 0.15 is ~10%%). Learned thereafter. The CTS policy's\n                      own training sigma is NOT recoverable -- no config ships with the\n                      checkpoint and it has no std head -- so this is a choice, not a\n                      reconstruction, and it is swept rather than assumed.")
+ap.add_argument("--ppo-epochs", type=int, default=5)
+ap.add_argument("--ppo-minibatches", type=int, default=4)
+ap.add_argument("--ppo-clip", type=float, default=0.2)
+ap.add_argument("--ppo-kl", type=float, default=0.01,
+                help="Target KL per update. The lr is divided by 1.5 above 2x this and\n                      multiplied by 1.5 below half, as the reference PPO does. This is\n                      a real trust region: it bounds movement in ACTION space on the\n                      states actually visited. ||dW|| does not -- measured, going from\n                      ||dW|| 0.52 to 4.0 is an 8x displacement and moves behaviour only\n                      15%% -> 39%%, and under Adam it mostly counts update steps.")
+ap.add_argument("--gamma", type=float, default=0.99)
+ap.add_argument("--lam", type=float, default=0.95)
+ap.add_argument("--entropy", type=float, default=0.01)
 ap.add_argument("--probe-grad-share", action="store_true",
                 help="Measure each reward term's share of the GRADIENT norm and of the\n                      reward VALUE at the base policy, then exit without training.\n                      These two shares have no reason to match: backprop through a\n                      surrogate weights a term by the stiffness of its path, while a\n                      score-function estimator (PPO) sees reward as a scalar and\n                      cannot. When they diverge sharply, the branch is optimising\n                      something other than the return.")
 ap.add_argument("--min-upright", type=float, default=None,
@@ -513,6 +525,157 @@ if a.probe_grad_share:
     print(f"  tracking terms: {100 * _trk / max(_gt, 1e-12):.1f}% of gradient norm, "
           f"{100 * sum(abs(r[1]) for r in _rows if r[0].startswith('tracking')) / max(_vp, 1e-12):.1f}% "
           f"of |value|")
+    raise SystemExit(0)
+
+# =============================== PPO IN THE SURROGATE ========================
+# Everything above -- corpus, parity, seeded prev, obs_from, the corrected surrogate
+# window, the reward -- is shared. Only the estimator changes.
+if a.objective == "ppo":
+    _W0 = {k: v.detach().clone() for k, v in policy.named_parameters()}
+    def _dwp():
+        return float(torch.sqrt(sum(((p_ - _W0[k]) ** 2).sum()
+                                    for k, p_ in policy.named_parameters())))
+    LOGSTD = torch.nn.Parameter(torch.full((12,), float(np.log(a.ppo_sigma)), device=DEV))
+    critic = torch.nn.Sequential(
+        torch.nn.Linear(policy.obs_dim, 256), torch.nn.ELU(),
+        torch.nn.Linear(256, 256), torch.nn.ELU(), torch.nn.Linear(256, 1)).to(DEV)
+    _ROLL = ix.get("roll_rad"); _PITCH = ix.get("pitch_rad")
+    if _ROLL is None or _PITCH is None:
+        raise SystemExit("FATAL: --objective ppo needs roll_rad and pitch_rad to apply the "
+                         "upstream termination (|roll| or |pitch| > 0.2). This surrogate "
+                         "carries neither, and a rollout that cannot END is the failure the "
+                         "analytic branch already has -- refusing to reproduce it.")
+    _popt = torch.optim.Adam(
+        [p for p in policy.parameters() if p.requires_grad] + [LOGSTD] + list(critic.parameters()),
+        lr=a.lr)
+    _lr = a.lr
+
+    def ppo_rollout(batch):
+        """Collect one on-policy batch inside the surrogate. No graph is retained: the
+        gradient comes from grad-log-pi at update time, so the horizon costs memory
+        linearly rather than quadratically. The analytic branch OOMed at 25 steps on a
+        24 GB card; this does not."""
+        S = torch.tensor(np.stack([S_all[e][b - L + 1:b + 1] for e, b in batch]), device=DEV)
+        A = torch.tensor(np.stack([A_all[e][b - L + 1:b + 1] for e, b in batch]), device=DEV)
+        cmd = torch.tensor(np.stack([C_all[e][b] for e, b in batch]), device=DEV)
+        hist = policy.initial_history(len(batch), DEV)
+        prev = torch.tensor(np.stack([P_all[e][b - 2 * WARM - 2] for e, b in batch]),
+                            device=DEV)[:, C2I]
+        with torch.no_grad():
+            for k in range(WARM, 0, -1):
+                s = torch.tensor(np.stack([S_all[e][b - 2 * k] for e, b in batch]), device=DEV)
+                prev, hist = policy(obs_from(s, cmd, prev), hist)
+        hs, ha = S, A
+        alive = torch.ones(len(batch), device=DEV)
+        dq_prev = None; a_prev1 = prev.clone(); a_prev2 = prev.clone()
+        OBS, HIS, ACT, LGP, VAL, REW, ALV = [], [], [], [], [], [], []
+        with torch.no_grad():
+            for _ in range(BS):
+                ob = obs_from(hs[:, -1], cmd, prev)
+                mu, nhist = policy(ob, hist)
+                std = LOGSTD.exp()
+                act = mu + std * torch.randn_like(mu)
+                lgp = (-0.5 * ((act - mu) / std) ** 2 - LOGSTD
+                       - 0.5 * float(np.log(2 * np.pi))).sum(1)
+                OBS.append(ob); HIS.append(hist); ACT.append(act); LGP.append(lgp)
+                VAL.append(critic(ob).squeeze(1)); ALV.append(alive.clone())
+                hist = nhist
+                tgt = torch.zeros_like(act).index_copy(1, C2I, SIGN * (act * ACTS + DEF))
+                for _sub in range(2):
+                    newa = ha[:, -1].clone().index_copy(1, ATG, tgt)
+                    _sw = hs[:, -L:]
+                    _aw = torch.cat([ha[:, :-1], newa.unsqueeze(1)], 1)[:, -L:]
+                    d = _MEMBERS[0].predict_delta(_sw, _aw, terrain=None)[:, -1, :]
+                    nxt = hs[:, -1] + d
+                    hs = torch.cat([hs, nxt.unsqueeze(1)], 1)
+                    ha = torch.cat([ha, newa.unsqueeze(1)], 1)
+                prev = act
+                qp = SIGN * nxt[:, JP][:, C2I]; dqp = SIGN * nxt[:, JV][:, C2I]
+                t = RT.terms(qp, dqp, dq_prev if dq_prev is not None else dqp,
+                             nxt[:, [VX, VY]], nxt[:, [RR, PY_]], nxt[:, WZ], cmd,
+                             act, a_prev1, a_prev2, LO, HI, HIPD, HIPI,
+                             act * ACTS + DEF,
+                             pos_z=(nxt[:, PZ] if _HEIGHT_TGT is not None else None),
+                             height_target=_HEIGHT_TGT)
+                r = RT.total(t) if a.reg_scale == 1.0 else RT.total_scaled(t, a.reg_scale)
+                REW.append(r * alive)
+                # UPSTREAM TERMINATION. Falling must cost the future, or a policy that
+                # sacrifices it pays nothing. The analytic branch has no way to express
+                # this: it is a fixed-length window that always completes.
+                fell = ((nxt[:, _ROLL].abs() > 0.2) | (nxt[:, _PITCH].abs() > 0.2)).float()
+                alive = alive * (1.0 - fell)
+                dq_prev = dqp; a_prev2 = a_prev1; a_prev1 = act
+            lastv = critic(obs_from(hs[:, -1], cmd, prev)).squeeze(1) * alive
+        return (torch.stack(OBS), torch.stack(HIS), torch.stack(ACT), torch.stack(LGP),
+                torch.stack(VAL), torch.stack(REW), torch.stack(ALV), lastv)
+
+    print(f"  PPO in surrogate: {BS} steps x {a.batch} branches = {BS * a.batch} transitions"
+          f"/update, sigma init {a.ppo_sigma}, gamma {a.gamma}, lam {a.lam}, "
+          f"clip {a.ppo_clip}, KL target {a.ppo_kl}", flush=True)
+    rng_ppo = random.Random(a.seed + 4242)
+    _hist_log = []; _t0 = time.time()
+    for u in range(1, a.updates + 1):
+        OBS, HIS, ACT, LGP, VAL, REW, ALV, lastv = ppo_rollout(sample(rng_ppo, a.batch))
+        adv = torch.zeros_like(REW); nextv = lastv; nextadv = torch.zeros_like(lastv)
+        for t_ in range(BS - 1, -1, -1):
+            nonterm = ALV[t_ + 1] if t_ + 1 < BS else torch.zeros_like(ALV[0])
+            delta = REW[t_] + a.gamma * nextv * nonterm - VAL[t_]
+            nextadv = delta + a.gamma * a.lam * nonterm * nextadv
+            adv[t_] = nextadv; nextv = VAL[t_]
+        ret = adv + VAL
+        fo = OBS.reshape(-1, OBS.shape[-1]); fh = HIS.reshape(-1, *HIS.shape[-2:])
+        fa = ACT.reshape(-1, 12); fl = LGP.reshape(-1); fr = ret.reshape(-1)
+        fv = ALV.reshape(-1)
+        fadv = adv.reshape(-1)
+        fadv = (fadv - fadv.mean()) / fadv.std().clamp_min(1e-8)
+        n = fo.shape[0]; mb = max(1, n // a.ppo_minibatches); kls = []
+        for _ep in range(a.ppo_epochs):
+            for i0 in range(0, n, mb):
+                sl = slice(i0, i0 + mb)
+                mu, _ = policy(fo[sl], fh[sl])
+                std = LOGSTD.exp()
+                lgp = (-0.5 * ((fa[sl] - mu) / std) ** 2 - LOGSTD
+                       - 0.5 * float(np.log(2 * np.pi))).sum(1)
+                ratio = (lgp - fl[sl]).exp()
+                w = fv[sl]                     # dead steps contribute nothing
+                s1 = ratio * fadv[sl]
+                s2 = ratio.clamp(1 - a.ppo_clip, 1 + a.ppo_clip) * fadv[sl]
+                pol_loss = -(torch.min(s1, s2) * w).sum() / w.sum().clamp_min(1.0)
+                vpred = critic(fo[sl]).squeeze(1)
+                val_loss = (((vpred - fr[sl]) ** 2) * w).sum() / w.sum().clamp_min(1.0)
+                ent = (LOGSTD.sum() + 0.5 * 12 * float(np.log(2 * np.pi * np.e)))
+                loss = pol_loss + 1.0 * val_loss - a.entropy * ent
+                _popt.zero_grad(); loss.backward()
+                torch.nn.utils.clip_grad_norm_(
+                    [p for p in policy.parameters() if p.requires_grad] + [LOGSTD]
+                    + list(critic.parameters()), 1.0)
+                _popt.step()
+                kls.append(float((fl[sl] - lgp).mean().abs()))
+        kl = float(np.mean(kls))
+        if kl > 2.0 * a.ppo_kl: _lr = max(_lr / 1.5, 1e-7)
+        elif kl < 0.5 * a.ppo_kl: _lr = min(_lr * 1.5, 1e-2)
+        for g in _popt.param_groups: g["lr"] = _lr
+        if u % 10 == 0 or u == 1:
+            mr = float((REW * ALV).sum() / ALV.sum().clamp_min(1.0))
+            surv = float(ALV[-1].mean())
+            print(f"  update {u:5d}  rew/step {mr:+.4f}  survive {surv:5.1%}  "
+                  f"KL {kl:.5f}  lr {_lr:.2e}  sigma {float(LOGSTD.exp().mean()):.3f}  "
+                  f"dW {_dwp():.3f}  {time.time() - _t0:5.0f}s", flush=True)
+            _hist_log.append({"update": u, "rew_per_step": mr, "survive": surv,
+                              "kl": kl, "lr": _lr, "dw": _dwp()})
+        if a.target_dw is not None and _dwp() >= a.target_dw:
+            d = _dwp()
+            torch.save({"state_dict": policy.state_dict(), "update": u, "dw": d,
+                        "log_std": LOGSTD.detach().cpu()}, f"{a.out}/best.pt")
+            print(f"  update {u:5d}  ||dW|| {d:.3f} >= target {a.target_dw} -- STOPPING",
+                  flush=True)
+            _hist_log.append({"update": u, "dw": d, "stopped_on": "target_dw"})
+            break
+    else:
+        torch.save({"state_dict": policy.state_dict(), "update": a.updates,
+                    "dw": _dwp(), "log_std": LOGSTD.detach().cpu()}, f"{a.out}/best.pt")
+    json.dump(_hist_log, open(f"{a.out}/history.json", "w"), indent=1)
+    print(f"\n  DONE (ppo). ||dW|| {_dwp():.3f} -> {a.out}/best.pt")
     raise SystemExit(0)
 
 W0 = {k: v.detach().clone() for k, v in policy.named_parameters()}
