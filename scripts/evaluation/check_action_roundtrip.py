@@ -34,7 +34,7 @@ ap.add_argument("--metadata", required=True, help="processed dataset metadata.js
 ap.add_argument("--index", required=True, help="dataset_index.json with absolute csv_path")
 ap.add_argument("--episodes", type=int, default=3)
 ap.add_argument("--steps", type=int, default=300)
-ap.add_argument("--min-corr", type=float, default=0.5,
+ap.add_argument("--min-corr", type=float, default=0.90,
                 help="fail below this; a NEGATIVE correlation means a sign error")
 a = ap.parse_args()
 
@@ -54,32 +54,103 @@ JV = [ix[f"joint_{n}_vel_radps"] for n in MOTOR]
 ANG = [ix["roll_rate_radps"], ix["ang_vel_body_y_radps"], ix["yaw_rate_radps"]]
 GRV = [ix["grav_body_x"], ix["grav_body_y"], ix["grav_body_z"]]
 
+# THIS GUARD WAS TOO BLUNT TO CATCH WHAT IT EXISTS TO CATCH.
+#
+# Three defects lived inside the pipeline it certifies -- an invented previous-action
+# channel, a hardcoded control-row parity, and a one-row window phase error -- and it
+# passed at +0.89 throughout. Two reasons, both fixed here.
+#
+# 1. It self-fed `prev` from the policy's own output, exactly as the fine-tune did. So it
+#    measured CLOSED-LOOP DIVERGENCE, which is large and grows, and any conversion error
+#    smaller than that divergence was invisible. The previous raw action is recorded in
+#    the policy_raw_* columns; supplying it isolates the conversion, which is what this
+#    script is about. Same trajectory: +0.52 self-fed, +0.986 supplied.
+#
+# 2. It correlated in TARGET space pooled over all 12 joints. The between-joint
+#    IMPORTED_DEFAULTS offsets span -1.5 to +1.0, so that correlation is mostly measuring
+#    that the joints have different defaults. Same trajectory: +0.996 pooled, +0.949
+#    per-joint-centred, +0.52 on the raw action. A --min-corr of 0.5 against the pooled
+#    number would pass a substantially wrong conversion.
+#
+# It now gates on the RAW action, prev supplied from the record, and reports the other
+# three numbers for context rather than deciding on them.
+PRF = [f"policy_raw_{n}" for n in MOTOR]
+
+def control_parity(P):
+    """Rows where the held action CHANGES are the control rows. Parity is per-episode:
+    it is set by where warmup_s + prewalk_s lands on the 0.01 s record grid."""
+    ch = np.nonzero(np.abs(np.diff(P, axis=0)).max(axis=1) > 0)[0] + 1
+    ch = ch[ch > 50]
+    if len(ch) < 20:
+        raise SystemExit("FATAL: fewer than 20 action changes -- cannot determine parity.")
+    bc = np.bincount(ch % 2, minlength=2)
+    if bc.max() < 0.9 * bc.sum():
+        raise SystemExit(f"FATAL: control rows straddle both parities "
+                         f"(even={bc[0]}, odd={bc[1]}).")
+    return int(bc.argmax())
+
 mine, rec = [], []
+mine_raw, rec_raw, self_raw = [], [], []
 for e in eps:
     rows = list(csv.DictReader(open(e["csv_path"])))
-    hist = policy.initial_history(1, "cpu"); prev = torch.zeros(1, 12)
-    start = 401 if 401 % 2 else 402                     # post-warmup, control on ODD rows
+    if PRF[0] not in rows[0]:
+        raise SystemExit(f"FATAL: {e['csv_path']} has no {PRF[0]} column. Without the "
+                         "recorded previous action this check can only measure closed-loop "
+                         "divergence, which is what made it blind.")
+    PR = np.array([[float(r[f]) for f in PRF] for r in rows],
+                  dtype=np.float32)
+    if len(rows) < 500:
+        # A 65-row episode is a robot that fell within a second. It carries too few
+        # control steps to establish parity and nothing worth checking a conversion
+        # against. Skip it; do not fail on it.
+        continue
+    par = control_parity(PR)
+    hist = policy.initial_history(1, "cpu")
+    shist = policy.initial_history(1, "cpu"); sprev = torch.zeros(1, 12)
+    start = 401 if 401 % 2 == par else 402
     for i in range(start, min(start + 2 * a.steps, len(rows) - 2), 2):
+        # prev = the RECORDED raw action of the preceding control step, policy order.
+        prev = torch.tensor(PR[i - 2]).unsqueeze(0)[:, C2I]
         s = torch.tensor(np.array([float(rows[i][f] ) for f in sf], dtype=np.float32)).unsqueeze(0)
         cmd = torch.tensor([[float(rows[i]["cmd_vx_mps"]), float(rows[i]["cmd_vy_mps"]),
                              float(rows[i]["cmd_wz_radps"])]])
         obs = torch.cat([s[:, ANG] * ANGS, s[:, GRV], cmd * CMDS,
                          (SIGN * s[:, JP][:, C2I] - DEF) * DPS,
                          SIGN * s[:, JV][:, C2I] * DVS, prev], dim=1)
+        sobs = torch.cat([s[:, ANG] * ANGS, s[:, GRV], cmd * CMDS,
+                          (SIGN * s[:, JP][:, C2I] - DEF) * DPS,
+                          SIGN * s[:, JV][:, C2I] * DVS, sprev], dim=1)
         with torch.no_grad():
             act, hist = policy(obs, hist)
-        prev = act
+            sact, shist = policy(sobs, shist)
+        sprev = sact
+        mine_raw.append(act[0].numpy())
+        self_raw.append(sact[0].numpy())
+        rec_raw.append(PR[i][CHRONO_TO_IMPORTED])       # recorded raw, policy order
         mine.append(torch.zeros(12).index_copy(
             0, C2I, SIGN * (act * ACTS + DEF)[0]).numpy())
         rec.append(np.array([float(rows[i][f"joint_{n}_target_rad"]) for n in MOTOR],
                             dtype=np.float32))
 
 mine, rec = np.array(mine), np.array(rec)
-corr = float(np.corrcoef(mine.ravel(), rec.ravel())[0, 1])
-rms = float(np.sqrt(((mine - rec) ** 2).mean()))
+mine_raw, rec_raw, self_raw = np.array(mine_raw), np.array(rec_raw), np.array(self_raw)
+
+def _corr(x, y): return float(np.corrcoef(x.ravel(), y.ravel())[0, 1])
+def _centred(x, y): return _corr(x - x.mean(0), y - y.mean(0))
+
+corr = _corr(mine_raw, rec_raw)                      # THE GATED STATISTIC
+rms = float(np.sqrt(((mine_raw - rec_raw) ** 2).mean()))
 print(f"  steps compared     {len(mine)}")
-print(f"  RMS error          {rms:.5f} rad")
-print(f"  correlation        {corr:+.4f}")
+print(f"  --- gated: RAW action, previous action supplied from the record ---")
+print(f"  raw correlation    {corr:+.4f}")
+print(f"  raw RMS            {rms:.5f}   (recorded raw std {rec_raw.std():.3f})")
+print(f"  --- context, not gated ---")
+print(f"  target corr pooled {_corr(mine, rec):+.4f}   <- the old statistic, inflated by")
+print(f"                                        the between-joint default offsets")
+print(f"  target corr centred{_centred(mine, rec):+.4f}")
+print(f"  target RMS         {float(np.sqrt(((mine - rec) ** 2).mean())):.5f} rad")
+print(f"  raw corr SELF-FED  {_corr(self_raw, rec_raw):+.4f}   <- closed-loop divergence,")
+print(f"                                        what this script used to measure")
 if corr < 0:
     raise SystemExit(f"FATAL: correlation {corr:+.4f} is NEGATIVE -- the reconstructed "
                      f"target is the negation of the recorded one. A SIGN is missing "
