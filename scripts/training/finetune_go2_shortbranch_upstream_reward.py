@@ -314,7 +314,21 @@ def rollout(batch, grad=True):
                     ract, rhist = _ref(obs_from(hs[:, -1], cmd, rprev), rhist)
                 anchor_pen = ((act - ract) ** 2).sum(dim=1)
                 rprev = ract
-            tgt = torch.zeros_like(act).index_copy(1, C2I, act * ACTS + DEF)
+            # SIGN ON THE WAY BACK. The read applies it -- obs_from() does
+            # `q = SIGN * s[:, JP][:, C2I]` -- and this scatter is its inverse, so it
+            # must apply SIGN too. It did not, so the joint target written into the
+            # surrogate's action channel was NEGATED.
+            #
+            # Measured against the recorded targets of an episode this very policy
+            # generated: as-written corr -0.8313 (RMS 1.797), with SIGN corr +0.8313
+            # (RMS 0.596). The surrogate was being told the policy commanded the
+            # opposite of what it did, at every branch step.
+            #
+            # This is invisible to everything that guarded this pipeline. The open-loop
+            # audit fed RECORDED actions, so it certified a model that was never the
+            # problem. The displacement-matched random control never enters this loop.
+            # Both were sound and neither could see it.
+            tgt = torch.zeros_like(act).index_copy(1, C2I, SIGN * (act * ACTS + DEF))
             for _sub in range(DECIM):          # hold the action across the decimation
                 newa = ha[:, -1].clone().index_copy(1, ATG, tgt)
                 # ALIGN THE WINDOWS. hs was not extended before slicing while the action
