@@ -263,6 +263,26 @@ STATE_FIELD_PRESETS = {
                              + ["pos_z_m", "vel_body_z_mps"]
                              + ["foot_fl_force_fz_n", "foot_fr_force_fz_n",
                                 "foot_rl_force_fz_n", "foot_rr_force_fz_n"]),
+    # THE TERRAIN-STATE ARM. The forcez/force3d arms above tell the surrogate how hard
+    # the feet are pushed; none of them tell it what the GROUND is doing. Soil deforms
+    # and remembers, so the same robot state and action give different outcomes
+    # depending on history the surrogate cannot see -- it can only learn an average
+    # soil response, and a policy optimised through it exploits exactly that error.
+    # Measured on the CRM corpus (8 episodes, per-foot):
+    #     sinkage_m       mean -0.041  sd 0.027  range -0.225..+0.017   (4 cm sinkage)
+    #     surface_disp_m  mean -0.001  sd 0.004  range -0.023..+0.010
+    #     slip_mps        mean  1.00   sd 0.97   range  0.002..5.28
+    # All three carry signal. NOTE the deletion-candidate warning on surface_disp
+    # above ("reads 0.17-0.23 mm") does NOT hold on this corpus -- it is 10-20x larger
+    # here, so that note is configuration-specific and was checked rather than obeyed.
+    # foot slip is the largest of the three and is absent from every earlier preset.
+    "quadruped_crm_terrain": (DEFAULT_STATE_FIELDS + QUADRUPED_JOINT_STATE_FIELDS
+                              + ["grav_body_x", "grav_body_y", "grav_body_z"]
+                              + ["pos_z_m", "vel_body_z_mps"]
+                              + QUADRUPED_FOOT_FORCE_FIELDS
+                              + QUADRUPED_FOOT_SINKAGE_FIELDS
+                              + QUADRUPED_FOOT_SURFACE_FIELDS
+                              + QUADRUPED_FOOT_SLIP_FIELDS),
     "quadruped_crm_force3d": (DEFAULT_STATE_FIELDS + QUADRUPED_JOINT_STATE_FIELDS
                               + ["grav_body_x", "grav_body_y", "grav_body_z"]
                               + ["pos_z_m", "vel_body_z_mps"]
