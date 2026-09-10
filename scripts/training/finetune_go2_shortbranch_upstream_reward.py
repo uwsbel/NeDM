@@ -244,6 +244,8 @@ def sample(rng, n):
     out = []
     for _ in range(n):
         e = rng.randrange(len(S_all))
+        # 2*BS already reserved the decimated span; kept explicit now that the
+        # branch consumes DECIM=2 rows per policy step rather than one.
         lo, hi = L + 2 * WARM + 1, len(S_all[e]) - 2 * BS - 2
         b = rng.randrange(lo, hi)
         out.append((e, b if b % 2 == 1 else b + 1))   # control acts on ODD rows
@@ -270,27 +272,45 @@ def rollout(batch, grad=True):
     a_prev1 = prev.clone(); a_prev2 = prev.clone()
     with ctx:
         hs, ha = S, A
+        # CONTROL RUNS AT 50 Hz; THE RECORD STEP IS 100 Hz. The warm-up above already
+        # honours this -- it indexes S_all[e][b - 2*k], stride 2 -- and sample() picks an
+        # odd b because "control acts on ODD rows". The branch did NOT: it called the
+        # policy once per SURROGATE step, i.e. at 100 Hz, so the actor's 5-slot
+        # observation buffer was flushed with double-rate samples and the branch was
+        # differentiated through a controller that does not exist at deployment.
+        # A displacement-matched random control cannot expose this, because RAND never
+        # enters this loop -- which is precisely the signature we measured on CRM.
+        #
+        # One policy action now spans DECIM surrogate steps, held constant, exactly as a
+        # 50 Hz PD target is held across two 100 Hz steps. The branch becomes
+        # BS x 0.02 = 0.10 s -- the horizon the docstring always claimed and the gate
+        # certified -- instead of the 0.05 s that was actually being optimised.
+        DECIM = 2
         for _ in range(BS):
             act, hist = policy(obs_from(hs[:, -1], cmd, prev), hist)
             tgt = torch.zeros_like(act).index_copy(1, C2I, act * ACTS + DEF)
-            newa = ha[:, -1].clone().index_copy(1, ATG, tgt)
-            _aw = torch.cat([ha, newa.unsqueeze(1)], 1)[:, -L:]
-            if len(_MEMBERS) == 1:
-                d = _MEMBERS[0].predict_delta(hs[:, -L:], _aw, terrain=None)[:, -1, :]
-                disagree = None
-            else:
-                _ds = torch.stack([m.predict_delta(hs[:, -L:], _aw, terrain=None)[:, -1, :]
-                                   for m in _MEMBERS], 0)
-                d = _ds.mean(0)
-                # Per-channel spread, self-normalised by that channel's spread ACROSS THE
-                # BATCH so no channel dominates through its units alone. Detached scale:
-                # the penalty should push the policy away from disputed states, not
-                # reshape the normaliser.
-                _sd = _ds.std(0)
-                _scale = d.std(0, keepdim=True).detach().clamp_min(1e-6)
-                disagree = (_sd / _scale).mean(dim=1)
-            nxt = hs[:, -1] + d
-            hs = torch.cat([hs, nxt.unsqueeze(1)], 1); ha = torch.cat([ha, newa.unsqueeze(1)], 1)
+            for _sub in range(DECIM):          # hold the action across the decimation
+                newa = ha[:, -1].clone().index_copy(1, ATG, tgt)
+                # ALIGN THE WINDOWS. hs was not extended before slicing while the action
+                # tensor was, so the action window dropped its oldest entry and every
+                # context token but the last was paired with the action one step later.
+                # ~50% of consecutive action rows are identical at 100 Hz, which is why
+                # this corrupted the context quietly instead of breaking outright.
+                _sw = torch.cat([hs, hs[:, -1:]], 1)[:, -L:]
+                _aw = torch.cat([ha, newa.unsqueeze(1)], 1)[:, -L:]
+                if len(_MEMBERS) == 1:
+                    d = _MEMBERS[0].predict_delta(_sw, _aw, terrain=None)[:, -1, :]
+                    disagree = None
+                else:
+                    _ds = torch.stack([m.predict_delta(_sw, _aw, terrain=None)[:, -1, :]
+                                       for m in _MEMBERS], 0)
+                    d = _ds.mean(0)
+                    _sd = _ds.std(0)
+                    _scale = d.std(0, keepdim=True).detach().clamp_min(1e-6)
+                    disagree = (_sd / _scale).mean(dim=1)
+                nxt = hs[:, -1] + d
+                hs = torch.cat([hs, nxt.unsqueeze(1)], 1)
+                ha = torch.cat([ha, newa.unsqueeze(1)], 1)
             prev = act
             qp = SIGN * nxt[:, JP][:, C2I]          # -> POLICY/URDF frame, applied ONCE
             dqp = SIGN * nxt[:, JV][:, C2I]
