@@ -83,6 +83,13 @@ ap.add_argument("--require-substring", default="",
 # DISPLACEMENT TEST: stop when the policy has moved a declared distance in weight space,
 # rather than when a metric plateaus. Isolates ||dW|| from the objective, which the three
 # previous runs confounded -- each used a different reward AND ended at a different ||dW||.
+ap.add_argument("--anchor", type=float, default=0.0,
+                help="Behaviour-cloning anchor: penalise squared action distance from the "
+                     "FROZEN base policy on the same branch states. ||dW|| is a GLOBAL "
+                     "trust region -- it limits how far the weights move, not where the "
+                     "BEHAVIOUR changes -- so it cannot keep the policy inside the region "
+                     "the surrogate was trained on. This can. 0 disables (default), so the "
+                     "unanchored path stays bit-identical.")
 ap.add_argument("--height-target", type=float, default=None,
                 help="Target pos_z_m for correct_base_height. TERRAIN-RELATIVE and has no "
                      "default: pos_z_m is absolute world z, so a rigid-calibrated target "
@@ -200,6 +207,13 @@ ANGS, CMDS, DPS, DVS, ACTS = _t(ANG_VEL_SCALE), _t(CMD_SCALE), _t(DOF_POS_SCALE)
 ts = torch.jit.load(a.policy, map_location=DEV)
 policy = BatchedGo2Policy(ts).to(DEV)
 for p in policy.parameters(): p.requires_grad_(True)
+# A SECOND, FROZEN copy of the same checkpoint. The anchor needs the base policy's
+# action on the SAME branch state, which cannot come from the policy being optimised.
+_ref = None
+if a.anchor > 0.0:
+    _ref = BatchedGo2Policy(torch.jit.load(a.policy, map_location=DEV)).to(DEV).eval()
+    for _p in _ref.parameters(): _p.requires_grad_(False)
+    print(f"  ANCHOR: behaviour-cloning to base policy, weight {a.anchor}", flush=True)
 opt = torch.optim.Adam(policy.parameters(), lr=a.lr)
 
 # ---- branch pool, with the verdict's episodes EXCLUDED -----------------------
@@ -261,11 +275,15 @@ def rollout(batch, grad=True):
     A = torch.tensor(np.stack([A_all[e][b - L:b] for e, b in batch]), device=DEV)
     cmd = torch.tensor(np.stack([C_all[e][b] for e, b in batch]), device=DEV)
     hist = policy.initial_history(len(batch), DEV)
+    rhist = _ref.initial_history(len(batch), DEV) if _ref is not None else None
+    rprev = torch.zeros(len(batch), 12, device=DEV)
     prev = torch.zeros(len(batch), 12, device=DEV)
     with torch.no_grad():                                    # warm-up on RECORDED obs
         for k in range(WARM, 0, -1):
             s = torch.tensor(np.stack([S_all[e][b - 2 * k] for e, b in batch]), device=DEV)
             prev, hist = policy(obs_from(s, cmd, prev), hist)
+            if _ref is not None:
+                rprev, rhist = _ref(obs_from(s, cmd, rprev), rhist)
     ctx = torch.enable_grad() if grad else torch.no_grad()
     errs = []; rews = []; term_acc = {}
     dq_prev = None
@@ -288,6 +306,14 @@ def rollout(batch, grad=True):
         DECIM = 2
         for _ in range(BS):
             act, hist = policy(obs_from(hs[:, -1], cmd, prev), hist)
+            anchor_pen = None
+            if _ref is not None:
+                with torch.no_grad():
+                    # SAME state, SAME command, the reference's OWN action history -- the
+                    # anchor asks "what would base do here", not "what did base do before".
+                    ract, rhist = _ref(obs_from(hs[:, -1], cmd, rprev), rhist)
+                anchor_pen = ((act - ract) ** 2).sum(dim=1)
+                rprev = ract
             tgt = torch.zeros_like(act).index_copy(1, C2I, act * ACTS + DEF)
             for _sub in range(DECIM):          # hold the action across the decimation
                 newa = ha[:, -1].clone().index_copy(1, ATG, tgt)
@@ -321,6 +347,10 @@ def rollout(batch, grad=True):
                          pos_z=(nxt[:, PZ] if _HEIGHT_TGT is not None else None),
                          height_target=_HEIGHT_TGT)
             _r = RT.total(t)
+            if anchor_pen is not None:
+                _r = _r - a.anchor * anchor_pen
+                term_acc["anchor"] = term_acc.get("anchor", 0.0) - float(
+                    (a.anchor * anchor_pen).mean())
             if disagree is not None:
                 _r = _r - a.pessimism * disagree      # trust the model less where it argues
                 term_acc["pessimism"] = term_acc.get("pessimism", 0.0) - float(
