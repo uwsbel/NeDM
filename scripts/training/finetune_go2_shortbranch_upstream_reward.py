@@ -83,6 +83,14 @@ ap.add_argument("--require-substring", default="",
 # DISPLACEMENT TEST: stop when the policy has moved a declared distance in weight space,
 # rather than when a metric plateaus. Isolates ||dW|| from the objective, which the three
 # previous runs confounded -- each used a different reward AND ended at a different ||dW||.
+ap.add_argument("--ensemble", default="",
+                help="Comma-separated ADDITIONAL surrogate checkpoints. With this set, the "
+                     "rollout uses the ensemble MEAN prediction and the reward is penalised "
+                     "by ensemble DISAGREEMENT. See --pessimism.")
+ap.add_argument("--pessimism", type=float, default=1.0,
+                help="Weight on the disagreement penalty. DECLARED, NOT TUNED: sweeping it "
+                     "and reporting the best is the fitting-to-the-verdict pattern the "
+                     "one-shot rule exists to prevent.")
 ap.add_argument("--target-dw", type=float, default=None,
                 help="Save and stop the first time ||W - W_baseline|| reaches this.")
 a = ap.parse_args()
@@ -95,6 +103,23 @@ ck["config"]["training"]["device"] = DEV
 tr = HMMWVTrainer(ck["config"]); tr.model.load_state_dict(ck["model_state_dict"])
 tr.model.to(DEV).eval()
 for p in tr.model.parameters(): p.requires_grad_(False)          # surrogate FROZEN
+# ENSEMBLE. The single-surrogate objective is exploitable: the optimiser finds regions
+# where the model is confidently wrong and the real system disagrees. Measured on CRM --
+# every arm drives the surrogate's own reward up while Chrono achieved velocity goes to
+# zero, and a displacement-matched random control is flat, so it is the LEARNED GRADIENT
+# at fault. Independently-seeded surrogates agree where the data constrained them and
+# diverge where it did not, so their disagreement is a usable ignorance signal.
+_MEMBERS = [tr.model]
+for _extra in [x for x in a.ensemble.split(",") if x]:
+    _c = torch.load(_extra, map_location="cpu", weights_only=False)
+    _c["config"]["training"]["device"] = DEV
+    _t = HMMWVTrainer(_c["config"]); _t.model.load_state_dict(_c["model_state_dict"])
+    _t.model.to(DEV).eval()
+    for _p in _t.model.parameters(): _p.requires_grad_(False)
+    _MEMBERS.append(_t.model)
+if len(_MEMBERS) > 1:
+    print(f"  ENSEMBLE: {len(_MEMBERS)} surrogates, pessimism weight {a.pessimism}", flush=True)
+
 md = json.load(open(ck["config"]["processed_dataset_dir"] + "/metadata.json"))
 sf, af = md["state_fields"], md["action_fields"]; L = tr.sequence_length
 ix = {n: i for i, n in enumerate(sf)}; aix = {n: i for i, n in enumerate(af)}
@@ -223,8 +248,21 @@ def rollout(batch, grad=True):
             act, hist = policy(obs_from(hs[:, -1], cmd, prev), hist)
             tgt = torch.zeros_like(act).index_copy(1, C2I, act * ACTS + DEF)
             newa = ha[:, -1].clone().index_copy(1, ATG, tgt)
-            d = tr.model.predict_delta(hs[:, -L:], torch.cat([ha, newa.unsqueeze(1)], 1)[:, -L:],
-                                       terrain=None)[:, -1, :]
+            _aw = torch.cat([ha, newa.unsqueeze(1)], 1)[:, -L:]
+            if len(_MEMBERS) == 1:
+                d = _MEMBERS[0].predict_delta(hs[:, -L:], _aw, terrain=None)[:, -1, :]
+                disagree = None
+            else:
+                _ds = torch.stack([m.predict_delta(hs[:, -L:], _aw, terrain=None)[:, -1, :]
+                                   for m in _MEMBERS], 0)
+                d = _ds.mean(0)
+                # Per-channel spread, self-normalised by that channel's spread ACROSS THE
+                # BATCH so no channel dominates through its units alone. Detached scale:
+                # the penalty should push the policy away from disputed states, not
+                # reshape the normaliser.
+                _sd = _ds.std(0)
+                _scale = d.std(0, keepdim=True).detach().clamp_min(1e-6)
+                disagree = (_sd / _scale).mean(dim=1)
             nxt = hs[:, -1] + d
             hs = torch.cat([hs, nxt.unsqueeze(1)], 1); ha = torch.cat([ha, newa.unsqueeze(1)], 1)
             prev = act
@@ -234,7 +272,12 @@ def rollout(batch, grad=True):
                          nxt[:, [VX, VY]], nxt[:, [RR, PY_]], nxt[:, WZ], cmd,
                          act, a_prev1, a_prev2, LO, HI, HIPD, HIPI,
                          act * ACTS + DEF)          # PD target, policy frame
-            rews.append(RT.total(t))
+            _r = RT.total(t)
+            if disagree is not None:
+                _r = _r - a.pessimism * disagree      # trust the model less where it argues
+                term_acc["pessimism"] = term_acc.get("pessimism", 0.0) - float(
+                    (a.pessimism * disagree).mean())
+            rews.append(_r)
             for k, v in t.items(): term_acc[k] = term_acc.get(k, 0.0) + float(v.mean())
             dq_prev = dqp; a_prev2 = a_prev1; a_prev1 = act
             errs.append(torch.stack([nxt[:, VX] - cmd[:, 0], nxt[:, VY] - cmd[:, 1],
