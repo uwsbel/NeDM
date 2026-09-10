@@ -78,6 +78,8 @@ ap.add_argument("--objective", choices=["analytic", "ppo"], default="analytic",
                 help="analytic: backpropagate the reward through the frozen surrogate.\n                      ppo: optimise the SAME reward in the SAME surrogate with a\n                      score-function estimator, as the recipe that produced this\n                      policy does.\n\n                      They differ in a way that is measured, not theoretical. Under\n                      backprop a term's influence is its weight times the STIFFNESS of\n                      its path through the model. dof_acc carries weight -2.5e-7 and\n                      6.7%% of the reward, but it is a squared finite difference over\n                      dt, so its path is stiffer by (1/0.02)^2 -- and it takes 47%% of\n                      the gradient at a 5-step branch and 63%% at 15, against tracking's\n                      28%% and 18%%, while tracking is 89%% of the reward's VALUE.\n                      A score-function estimator multiplies grad-log-pi by a SCALAR\n                      reward, so no term can be over-weighted by its Jacobian.\n\n                      This is not a hypothesis about which optimiser is nicer. At\n                      matched ||dW|| = 4.0 a RANDOM direction costs nothing on CRM\n                      (0.1629 vs BASE 0.1632, 37/77 episodes won) while the analytic\n                      direction costs 0.41-0.74 m/s and wins 1-9 of ~50. The damage is\n                      in the direction, not the distance.")
 ap.add_argument("--ppo-sigma", type=float, default=0.15,
                 help="Initial exploration std in RAW action units (recorded raw action std\n                      is ~1.5, so 0.15 is ~10%%). Learned thereafter. The CTS policy's\n                      own training sigma is NOT recoverable -- no config ships with the\n                      checkpoint and it has no std head -- so this is a choice, not a\n                      reconstruction, and it is swept rather than assumed.")
+ap.add_argument("--critic-lr", type=float, default=1e-3,
+                help="The critic gets its OWN optimiser at its OWN fixed rate. Sharing one\n                      with the policy broke it twice over: the KL controller throttled\n                      the policy lr to 6e-6, far too slow for a value function starting\n                      from scratch, and a single clip_grad_norm over the union let the\n                      critic's huge early gradient (returns are ~25, initial prediction\n                      ~0) consume the whole norm budget and shrink the policy update.\n                      Measured consequence: explained variance sat at 0.00-0.12, so the\n                      advantages were noise and PPO was taking KL-bounded random walks.")
 ap.add_argument("--ppo-epochs", type=int, default=5)
 ap.add_argument("--ppo-minibatches", type=int, default=4)
 ap.add_argument("--ppo-clip", type=float, default=0.2)
@@ -545,9 +547,9 @@ if a.objective == "ppo":
                          "upstream termination (|roll| or |pitch| > 0.2). This surrogate "
                          "carries neither, and a rollout that cannot END is the failure the "
                          "analytic branch already has -- refusing to reproduce it.")
-    _popt = torch.optim.Adam(
-        [p for p in policy.parameters() if p.requires_grad] + [LOGSTD] + list(critic.parameters()),
-        lr=a.lr)
+    _PPARAMS = [p for p in policy.parameters() if p.requires_grad] + [LOGSTD]
+    _popt = torch.optim.Adam(_PPARAMS, lr=a.lr)
+    _copt = torch.optim.Adam(critic.parameters(), lr=a.critic_lr)
     _lr = a.lr
 
     def ppo_rollout(batch):
@@ -605,9 +607,12 @@ if a.objective == "ppo":
                 fell = ((nxt[:, _ROLL].abs() > 0.2) | (nxt[:, _PITCH].abs() > 0.2)).float()
                 alive = alive * (1.0 - fell)
                 dq_prev = dqp; a_prev2 = a_prev1; a_prev1 = act
-            lastv = critic(obs_from(hs[:, -1], cmd, prev)).squeeze(1) * alive
+            lastv = critic(obs_from(hs[:, -1], cmd, prev)).squeeze(1)
+        # `alive` here is the mask AFTER the final step. It is returned separately rather
+        # than folded into lastv, because GAE needs it as the non-terminal flag for the
+        # last transition, not just as a scale on the bootstrap.
         return (torch.stack(OBS), torch.stack(HIS), torch.stack(ACT), torch.stack(LGP),
-                torch.stack(VAL), torch.stack(REW), torch.stack(ALV), lastv)
+                torch.stack(VAL), torch.stack(REW), torch.stack(ALV), lastv, alive)
 
     print(f"  PPO in surrogate: {BS} steps x {a.batch} branches = {BS * a.batch} transitions"
           f"/update, sigma init {a.ppo_sigma}, gamma {a.gamma}, lam {a.lam}, "
@@ -615,13 +620,21 @@ if a.objective == "ppo":
     rng_ppo = random.Random(a.seed + 4242)
     _hist_log = []; _t0 = time.time()
     for u in range(1, a.updates + 1):
-        OBS, HIS, ACT, LGP, VAL, REW, ALV, lastv = ppo_rollout(sample(rng_ppo, a.batch))
-        adv = torch.zeros_like(REW); nextv = lastv; nextadv = torch.zeros_like(lastv)
+        OBS, HIS, ACT, LGP, VAL, REW, ALV, lastv, endalive = ppo_rollout(sample(rng_ppo, a.batch))
+        # GAE. ALV[t] is alive at the START of step t, so "did not terminate during
+        # step t" is ALV[t+1], and for the last step it is the mask returned by the
+        # rollout. The previous version used zeros there, which multiplied the bootstrap
+        # by zero and valued everything past the branch at NOTHING -- reintroducing, inside
+        # PPO, the exact defect PPO was added to remove. It made the terminal value a
+        # decoration and left the horizon truncated at 0.5 s with no tail.
+        ALVN = torch.cat([ALV[1:], endalive.unsqueeze(0)], 0)
+        adv = torch.zeros_like(REW); nextadv = torch.zeros_like(lastv)
         for t_ in range(BS - 1, -1, -1):
-            nonterm = ALV[t_ + 1] if t_ + 1 < BS else torch.zeros_like(ALV[0])
+            nextv = lastv if t_ == BS - 1 else VAL[t_ + 1]
+            nonterm = ALVN[t_]
             delta = REW[t_] + a.gamma * nextv * nonterm - VAL[t_]
             nextadv = delta + a.gamma * a.lam * nonterm * nextadv
-            adv[t_] = nextadv; nextv = VAL[t_]
+            adv[t_] = nextadv
         ret = adv + VAL
         fo = OBS.reshape(-1, OBS.shape[-1]); fh = HIS.reshape(-1, *HIS.shape[-2:])
         fa = ACT.reshape(-1, 12); fl = LGP.reshape(-1); fr = ret.reshape(-1)
@@ -644,21 +657,37 @@ if a.objective == "ppo":
                 vpred = critic(fo[sl]).squeeze(1)
                 val_loss = (((vpred - fr[sl]) ** 2) * w).sum() / w.sum().clamp_min(1.0)
                 ent = (LOGSTD.sum() + 0.5 * 12 * float(np.log(2 * np.pi * np.e)))
-                loss = pol_loss + 1.0 * val_loss - a.entropy * ent
-                _popt.zero_grad(); loss.backward()
-                torch.nn.utils.clip_grad_norm_(
-                    [p for p in policy.parameters() if p.requires_grad] + [LOGSTD]
-                    + list(critic.parameters()), 1.0)
-                _popt.step()
+                # Separate graphs (vpred depends only on the critic, pol_loss only on the
+                # policy), so no retain_graph is needed and each gets its own norm budget.
+                _popt.zero_grad(); (pol_loss - a.entropy * ent).backward()
+                torch.nn.utils.clip_grad_norm_(_PPARAMS, 1.0); _popt.step()
+                _copt.zero_grad(); val_loss.backward()
+                torch.nn.utils.clip_grad_norm_(critic.parameters(), 1.0); _copt.step()
                 kls.append(float((fl[sl] - lgp).mean().abs()))
         kl = float(np.mean(kls))
         if kl > 2.0 * a.ppo_kl: _lr = max(_lr / 1.5, 1e-7)
         elif kl < 0.5 * a.ppo_kl: _lr = min(_lr * 1.5, 1e-2)
         for g in _popt.param_groups: g["lr"] = _lr
+        if u % 50 == 0 or u == 1:
+            with torch.no_grad():
+                _sv = float(LOGSTD.data.exp().mean()); LOGSTD.data.fill_(-20.0)
+                _o = ppo_rollout(sample(random.Random(7777), 256))
+                LOGSTD.data.fill_(float(np.log(max(_sv, 1e-8))))
+                _dr = float((_o[5] * _o[6]).sum() / _o[6].sum().clamp_min(1.0))
+                _ds = float(_o[8].mean())
+            print(f"    [deterministic] rew/step {_dr:+.4f}  survive {_ds:5.1%}  "
+                  f"dW {_dwp():.3f}", flush=True)
+            _hist_log.append({"update": u, "det_rew_per_step": _dr, "det_survive": _ds,
+                              "dw": _dwp()})
         if u % 10 == 0 or u == 1:
             mr = float((REW * ALV).sum() / ALV.sum().clamp_min(1.0))
             surv = float(ALV[-1].mean())
-            print(f"  update {u:5d}  rew/step {mr:+.4f}  survive {surv:5.1%}  "
+            # Explained variance of the critic. If this is near zero the value function
+            # is not predicting returns, the advantages are noise, and every number above
+            # it is meaningless -- the one diagnostic that says whether PPO is doing
+            # anything at all, as opposed to taking KL-bounded random walks.
+            _ev = float(1.0 - (ret - VAL).var() / ret.var().clamp_min(1e-8))
+            print(f"  update {u:5d}  rew/step {mr:+.4f}  survive {surv:5.1%}  EV {_ev:+.3f}  "
                   f"KL {kl:.5f}  lr {_lr:.2e}  sigma {float(LOGSTD.exp().mean()):.3f}  "
                   f"dW {_dwp():.3f}  {time.time() - _t0:5.0f}s", flush=True)
             _hist_log.append({"update": u, "rew_per_step": mr, "survive": surv,
