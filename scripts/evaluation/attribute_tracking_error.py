@@ -12,8 +12,12 @@ and record the velocity the SURROGATE believes results. Compare against (a) the 
 (b) what Chrono actually produced for that same policy on that same episode.
 """
 import sys, json, csv, glob, os, argparse, numpy as np, torch
-sys.path.insert(0, "/home/kyle/Documents/sbel/NeDM/src")
-sys.path.insert(0, "/home/kyle/Documents/sbel/NeDM/src/nedm/quadruped")
+# Derive the repo from THIS FILE, not from one box's layout. The hardcoded
+# /home/kyle/Documents/sbel/NeDM meant the script ran only on sbel; a3 and sliger
+# check the repo out at /home/kyle/sbel/NeDM and it died on cd before importing.
+_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.join(_ROOT, "src"))
+sys.path.insert(0, os.path.join(_ROOT, "src", "nedm", "quadruped"))
 from policy_batched import BatchedGo2Policy
 from nedm.quadruped.imported_policy import (CHRONO_TO_IMPORTED, SIGN, IMPORTED_DEFAULTS,
     ANG_VEL_SCALE, CMD_SCALE, DOF_POS_SCALE, DOF_VEL_SCALE, ACTION_SCALE)
