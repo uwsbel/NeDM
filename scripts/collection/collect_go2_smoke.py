@@ -327,10 +327,15 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
         # checkout runs on the NVIDIA desktop fleet AND on the AMD HPC Fund
         # cluster, whose Chrono is built with CHRONO_GPU_BACKEND=HIP. See
         # nedm.quadruped.gpu for why the driver node is the thing to test.
-        from nedm.quadruped.gpu import require_gpu_backend
+        from nedm.quadruped.gpu import require_gpu_backend, verify_chrono_backend
 
-        require_gpu_backend()
+        _gpu = require_gpu_backend()
         import pychrono.fsi as fsi
+
+        # Second half of the same guard: the node proved a GPU is here, this
+        # proves the pychrono just imported is built for it. Still ahead of
+        # terrain construction, which is the expensive part being protected.
+        verify_chrono_backend(_gpu)
 
     np.random.seed(args.seed)
     # Seeded from the episode seed so perturbation timing and direction are part
