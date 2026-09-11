@@ -1,0 +1,97 @@
+{
+  "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_crm_baseline",
+  "output_dir": "/home/kyle/sbel-artifacts/training_runs/go2_crm_abl_w128",
+  "validation_dataset_name": "crm",
+  "terrain_conditioning": {
+    "enabled": false,
+    "terrains": [
+      "crm"
+    ]
+  },
+  "train_mix": {
+    "datasets": [
+      {
+        "name": "walking",
+        "terrain": "crm",
+        "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_crm_baseline",
+        "batch_fraction": 1.0
+      }
+    ]
+  },
+  "validation_datasets": [
+    {
+      "name": "crm",
+      "terrain": "crm",
+      "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_crm_baseline",
+      "split": "val",
+      "max_val_batches": 200
+    }
+  ],
+  "validation_loss_weights": {
+    "crm": 1.0
+  },
+  "loss": {
+    "type": "huber",
+    "huber_delta": 1.0,
+    "channel_weight_mode": "equal_domain_combined_std",
+    "channel_weight_datasets": [
+      "/home/kyle/sbel-artifacts/training_datasets/go2_crm_baseline"
+    ]
+  },
+  "rollout_eval": {
+    "num_episodes": 12,
+    "horizons_s": [
+      5.0,
+      10.0
+    ],
+    "selection_horizon_s": 10.0,
+    "datasets": [
+      {
+        "name": "crm",
+        "terrain": "crm",
+        "processed_dataset_dir": "/home/kyle/sbel-artifacts/training_datasets/go2_crm_baseline",
+        "split": "val",
+        "weight": 1.0
+      }
+    ]
+  },
+  "model": {
+    "block_size": 128,
+    "n_layer": 6,
+    "n_head": 8,
+    "n_embd": 128,
+    "dropout": 0.0,
+    "bias": false,
+    "head_hidden_dim": 256
+  },
+  "optimizer": {
+    "lr": 0.0003,
+    "min_lr": 3e-05,
+    "weight_decay": 0.1,
+    "betas": [
+      0.9,
+      0.95
+    ],
+    "warmup_steps": 1000,
+    "grad_clip_norm": 1.0
+  },
+  "training": {
+    "seed": 2026090901,
+    "device": "cuda",
+    "batch_size": 64,
+    "num_workers": 0,
+    "num_epochs": 80,
+    "steps_per_epoch": 2000,
+    "max_val_batches": 200,
+    "checkpoint_metric": "val_loss",
+    "load_dataset_into_memory": true,
+    "pin_memory": false,
+    "compile": false,
+    "input_noise_sigma": 0.0
+  },
+  "sweep_recipe": {
+    "version": "go2_crm_baseline_s1",
+    "slug": "go2_crm_baseline_s1",
+    "notes": "CRM arm baseline, state preset quadruped_crm_baseline. Deformable terrain. Primary metric is VELOCITY TRACKING ERROR, not completion: the pilot showed nothing falls on CRM, so a completion metric scores every arm, the baseline and a random control at ~100%. checkpoint_metric is val_loss because rollout_sel moves 27-46% between adjacent epochs and selecting on it returned epoch-1 checkpoints for three of seven rigid arms."
+  }
+}
