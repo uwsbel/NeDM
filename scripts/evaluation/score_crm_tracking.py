@@ -154,9 +154,34 @@ keys = [r["episode_id"] for r in recs]
 if len(set(keys)) != len(keys):
     raise SystemExit(f"FATAL: {len(recs)} records but {len(set(keys))} distinct keys -- "
                      f"pairing would be silently wrong")
-json.dump(recs, open(a.out, "w"), indent=1)
-
 ok = [r for r in recs if "mae_vx" in r]
+# A RUN THAT SCORES NOTHING IS A BROKEN MACHINE, NOT A BAD POLICY -- FAIL, DO NOT WRITE.
+#
+# On 2026-09-11 an unattended driver upgrade left a3 and sliger with the NVIDIA kernel
+# module at 580.173.02 while userspace had moved to 580.178.04. Every episode died in
+# terrain.Initialize() with cudaErrorCompatNotSupportedOnDevice. The per-episode failure
+# path is a `continue` -- correct, since one bad episode should not sink a run -- so the
+# scorer sailed through all 80, printed "scored 0 of 80", exited 0, and WROTE A RESULT
+# FILE containing zero scored episodes.
+#
+# That file is worse than no file. The dispatcher reads "a result exists here" and never
+# retries the arm; the aggregator skips it as empty. Two boxes produced nothing for
+# roughly an hour and reported success, and 13 such files had to be hunted down and
+# deleted by hand before the arms could be rescored.
+#
+# The write is moved AFTER this check so the poisoned artefact is never created.
+if not ok:
+    raise SystemExit(
+        f"FATAL: 0 of {len(recs)} episodes scored. Not a policy result -- this machine "
+        "cannot run CRM at all. Check the GPU before anything else:\n"
+        "  nvidia-smi                      (NVML version mismatch => driver upgraded "
+        "under a running kernel module)\n"
+        "  cat /proc/driver/nvidia/version (loaded module) vs the installed libnvidia-ml\n"
+        "Fix without rebooting: stop the display manager (it pins nvidia_drm), rmmod "
+        "nvidia_uvm nvidia_drm nvidia_modeset nvidia, modprobe nvidia nvidia_uvm, start "
+        "it again. NO result file was written, so re-running will retry this arm.")
+
+json.dump(recs, open(a.out, "w"), indent=1)
 comp = sum(r["completed"] for r in recs)
 print(f"  scored {len(ok)} of {len(recs)};  completed {comp} of {len(recs)} "
       f"({100*comp/max(len(recs),1):.1f}%)")

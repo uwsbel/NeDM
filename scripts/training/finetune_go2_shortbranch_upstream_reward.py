@@ -89,6 +89,8 @@ ap.add_argument("--ppo-minibatches", type=int, default=4)
 ap.add_argument("--ppo-clip", type=float, default=0.2)
 ap.add_argument("--ppo-kl", type=float, default=0.01,
                 help="Target KL per update. The lr is divided by 1.5 above 2x this and\n                      multiplied by 1.5 below half, as the reference PPO does. This is\n                      a real trust region: it bounds movement in ACTION space on the\n                      states actually visited. ||dW|| does not -- measured, going from\n                      ||dW|| 0.52 to 4.0 is an 8x displacement and moves behaviour only\n                      15%% -> 39%%, and under Adam it mostly counts update steps.")
+ap.add_argument("--no-timeout-bootstrap", action="store_true",
+                help="Treat the end of a branch as TERMINAL rather than bootstrapping it\n                      with the critic. Sounds like a defect; the evidence says it is\n                      protective. The surrogate beats persistence to ~0.50 s. rsl_rl\n                      bootstraps time-outs, so at gamma 0.99 credit assignment reaches\n                      ~100 steps = 2 s -- four times past where the model is reliable --\n                      and the critic then learns values from surrogate predictions the\n                      surrogate cannot support. Chrono scores are monotone in exactly\n                      this: analytic with NO tail -43.8%%, hand-written PPO terminating\n                      at the branch end -13%% to -22%%, rsl_rl bootstrapping the tail\n                      +10.2%% WORSE.")
 ap.add_argument("--gamma", type=float, default=0.99)
 ap.add_argument("--lam", type=float, default=0.95)
 ap.add_argument("--entropy", type=float, default=0.01)
@@ -706,7 +708,9 @@ if a.objective == "rslrl":
             for _ in range(BS):
                 _act = _alg.act(_obs, _obs)
                 _rew, _done, _tout = _env.step(_act)
-                _infos = {"time_outs": _tout}
+                # Bootstrapping a time-out extends credit assignment past the
+                # surrogate's trust horizon; see --no-timeout-bootstrap.
+                _infos = {} if a.no_timeout_bootstrap else {"time_outs": _tout}
                 _alg.process_env_step(_rew, _done, _infos)
                 _rsum = _rsum + _rew.mean(); _rn += 1
                 if _done.any(): _env.reset_idx(torch.nonzero(_done).squeeze(-1))
