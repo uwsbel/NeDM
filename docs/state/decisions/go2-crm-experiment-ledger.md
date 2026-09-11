@@ -14,6 +14,7 @@ level, so this table does not.
 
 | arm | n | Δ mae_vx | wins | yaw vs base | p |
 |---|---|---|---|---|---|
+| `w_h25_dw1` | 75 | **-44.1%** | 69/75 | -- | <1e-4 |
 | `w_h15_dw2` | 75 | **-43.8%** | 68/75 | 76% | <1e-4 |
 | `b_bal10` | 75 | **-43.7%** | 67/75 | 73% | <1e-4 |
 | `s_h15r0_s3` | 75 | **-42.3%** | 69/75 | 73% | <1e-4 |
@@ -79,22 +80,56 @@ it to `--reg-scale 0`: same result, unmodified objective, and the best yaw of an
 
 ## What is not settled
 
-**Reinforcement learning in the surrogate underperforms, and the reason is not yet proven.**
-With a well-tested implementation and no trust region, PPO on the same reward in the same
-model makes the policy significantly WORSE (+10.2%). Two explanations were tested:
+**Reinforcement learning works, once it is constrained in the right space.** Unanchored
+PPO on the same reward in the same model is insignificant at best (-4.6%, p 0.33; -8.9%,
+p 0.26) and significantly WORSE at full reward (+10.2%, p 0.001). Adding a KL anchor to
+the base policy makes it significant: `z_ppoA30` (KL 0.30) -9.5%, `z_ppoA03` (KL 0.03)
+-22.4%, both p<1e-4. Lighter anchor wins, so the sweep continues below 0.03.
+
+The diagnostic value is in WHICH constraint worked, because two were tried:
 
 - *Trust horizon* -- that credit assignment reaches past the ~0.5 s the model supports.
-  FALSIFIED in isolation: removing the time-out bootstrap does nothing (+2.6%, p 0.50),
-  combining it with a matched discount does nothing (+3.1%, p 0.19), and a matched discount
-  alone is significantly worse (+20.0%, p 0.004). The monotone pattern that motivated this
-  spanned three different implementations and was a coincidence, not a causal ordering.
-- *Drift* -- that exploration noise walks the policy into regions the model predicts badly.
-  Better supported. Ensemble pessimism cuts the post-peak decay by roughly 7x, and the only
-  PPO arm that has never turned over (`f_all`) combines pessimism with the horizon levers
-  that did nothing on their own. Chrono scoring pending.
+  FALSIFIED. Removing the time-out bootstrap does nothing (+1.3%, p 0.73), combining it
+  with a matched discount does nothing (+3.1%, p 0.20), and a matched discount alone is
+  significantly worse (+20.0%, p 0.006). The monotone pattern that motivated this spanned
+  three different implementations and was a coincidence, not a causal ordering. This was
+  predicted before it was measured, and the prediction was wrong.
+- *Policy-space drift* -- that the policy walks away from the behaviour the model was fit
+  on. CONFIRMED, by the anchor result above and by ensemble pessimism cutting post-peak
+  decay roughly 7x.
+
+These are two different horizons and only one binds RL. The analytic objective
+differentiates THROUGH the model, so its limit is in time and the 0.50 s measurement sets
+it. PPO samples, so its limit is distance in policy space, which no rollout length
+controls. Anchored PPO reaches about half the analytic gain from identical inputs; that
+gap is what differentiating through a known model buys over sampling against it.
+
+**The residual is model error, not an optimisation shortfall.** Attribution against
+commanded velocity, both policies, same episodes:
+
+| | commanded | surrogate says | Chrono gives |
+|---|---|---|---|
+| base | 0.4386 | 0.3908 (89%) | 0.3565 (81%) |
+| fine-tuned | 0.4386 | 0.4657 (**106%**) | 0.4282 (98%) |
+
+Stable from 0.5 s to 1.5 s of rollout. Inside the surrogate the fine-tuned policy already
+OVERSHOOTS the command, so there is no optimisation gap left to close against this model.
+The surrogate carries a near-constant 8-9% optimistic velocity bias for BOTH policies --
+constant across policies, so not exploitation and not accumulated drift, but a fixed
+offset in what the model believes the soil returns. That is the kind of error better model
+capacity can remove, which is why the current work is on the surrogate and not the
+optimiser. Run with `scripts/evaluation/attribute_tracking_error.py`.
 
 **One terrain.** Everything here is CRM. Transfer to rigid ground is the case study's
 actual claim and is untested.
+
+**The stop criterion has never been checked against Chrono.** Every rule in use --
+fixed ||dW||, best surrogate-internal reward, fixed budget -- selects one iterate with an
+instrument that cannot see Chrono, and a rule that returns one point cannot report that
+the run peaked early or was still improving at the end. `--ckpt-every` plus
+`scripts/evaluation/score_trajectory.sh` turn this into a measurement; the first run
+(`t_traj`, the pinned config with the dw stop removed, 1500 updates, every 100th iterate
+kept) asks whether ||dW||=1.0 at update ~94 is where the Chrono optimum actually sits.
 
 **No held-out command families.** All eight appear in both the branch pool and the scoring
 set, so this measures adaptation, not generalisation to unseen commands.
@@ -103,9 +138,12 @@ set, so this measures adaptation, not generalisation to unseen commands.
 
 | what | where | answers |
 |---|---|---|
-| `f_pess`, `f_h15`, `f_all`, `e_sig05` | cluster + sliger | does the PPO stack that stopped collapsing transfer to Chrono? |
-| `w_h25_dw1` | cluster + a3 | does the 0.50 s analytic horizon beat 0.30 s, or turn over? |
-| `g_long`, `g_long2` | sbel | `f_all` at 4x budget, two seeds -- it was budget-limited, not converged |
+| `abl_l3`, `abl_w128` | a3 | does LESS surrogate capacity hurt, and how fast? |
+| `abl_l12`, `abl_w512` | sbel | does MORE capacity remove the 8-9% velocity bias? |
+| `abl_ctx32`, `abl_ctx64` | sliger | is the 1.28 s context window doing any work? |
+| `z_ppoA01`, `z_ppoA003`, `z_ppoA03b25`, `z_ppoA03L` | sbel | where does the KL anchor bottom out, and does it compose with branch length and budget? |
+| `t_traj` | sbel | is ||dW||=1.0 the right place to stop, measured rather than assumed? |
+| `f_pess`, `f_h15`, `f_all`, `e_sig05` | cluster + sliger | does the pessimism stack transfer to Chrono? |
 
 ## Next, in priority order
 
@@ -117,8 +155,16 @@ set, so this measures adaptation, not generalisation to unseen commands.
 3. **Resolve the PPO question or close it.** If `g_long` transfers, the drift explanation
    stands and PPO is recoverable. If it does not, record that analytic gradients beat RL for
    this problem class and stop spending on it.
-4. **A second surrogate architecture.** Everything assumes the transformer. Whether the
-   result is a property of the method or of this model class is unknown.
+4. **Model capacity and context, now running.** Promoted from last to concurrent by the
+   attribution result: with the optimiser at 106% of command inside the model, the 8-9%
+   bias is the binding constraint and capacity is the first lever to try against it. Six
+   arms in flight varying depth, width and context against an otherwise identical
+   baseline. A genuinely different model CLASS (not just a resized transformer) remains
+   untested and is the honest version of this question.
+5. **Evaluate the fine-tuned policy in its ORIGINAL simulator.** Everything here is scored
+   in Chrono, the domain fine-tuned toward. Whether the transplant degrades the policy on
+   the rigid ground it was trained on is a real blind spot, and needs a Genesis or Isaac
+   install -- neither is on the fleet today.
 
 ## Operational notes
 
