@@ -237,6 +237,21 @@ stage/assets       100 MB   Go2 URDF + meshes + the base RL model
 stage/checkpoints   93 MB   52 policies
 ```
 
+## `import pychrono.parsers` FAILS ON THE LOGIN NODE, and that is correct
+
+```
+ImportError: libcuda.so.1: cannot open shared object file: No such file or directory
+```
+
+The login node has **no NVIDIA driver at all** -- no `libcuda.so.1` in
+`ldconfig`, no `/dev/nvidia*`, no `nvidia-smi`. `libcuda.so.1` ships with the
+driver, not with the CUDA toolkit module, so anything that links Chrono's CUDA
+libraries cannot import there no matter which modules are loaded.
+
+This is worth knowing because it is exactly what a broken build looks like. Do
+not debug the Chrono tree from the login node: submit `smoke.sbatch`, which
+prints which pychrono, which parsers module and which GPU it actually got.
+
 ## Things that are Euler facts, not preferences
 
 - **`-p` is mandatory.** The default partition has no nodes.
