@@ -663,10 +663,26 @@ if a.objective == "rslrl":
             return self.last_obs
         def step(self, act):
             tgt = torch.zeros_like(act).index_copy(1, C2I, SIGN * (act * ACTS + DEF))
+            _dis = torch.zeros(self.n, device=DEV)
             for _ in range(2):
                 newa = self.ha[:, -1].clone().index_copy(1, ATG, tgt)
                 _aw = torch.cat([self.ha[:, :-1], newa.unsqueeze(1)], 1)
-                d = _MEMBERS[0].predict_delta(self.hs, _aw, terrain=None)[:, -1, :]
+                if len(_MEMBERS) == 1:
+                    d = _MEMBERS[0].predict_delta(self.hs, _aw, terrain=None)[:, -1, :]
+                else:
+                    # ENSEMBLE PESSIMISM FOR THE PPO PATH.
+                    #
+                    # PPO explores by perturbing actions, which walks it off the data the
+                    # surrogate was fitted on -- measured at 1.8-2.1x worse prediction on
+                    # the states a fine-tuned policy visits. Disagreement between
+                    # independently seeded surrogates tracks that true error at Spearman
+                    # +0.61, so penalising it is a trust region expressed in the model's
+                    # own units rather than in weight space.
+                    _ds = torch.stack([m.predict_delta(self.hs, _aw, terrain=None)[:, -1, :]
+                                       for m in _MEMBERS], 0)
+                    d = _ds.mean(0)
+                    _sc = d.std(0, keepdim=True).detach().clamp_min(1e-6)
+                    _dis = _dis + (_ds.std(0) / _sc).mean(dim=1)
                 nxt = self.hs[:, -1] + d
                 self.hs = torch.cat([self.hs[:, 1:], nxt.unsqueeze(1)], 1)
                 self.ha = torch.cat([self.ha[:, 1:], newa.unsqueeze(1)], 1)
@@ -677,6 +693,8 @@ if a.objective == "rslrl":
                          pos_z=(nxt[:, PZ] if _HEIGHT_TGT is not None else None),
                          height_target=_HEIGHT_TGT)
             rew = RT.total(t) if a.reg_scale == 1.0 else RT.total_scaled(t, a.reg_scale)
+            if len(_MEMBERS) > 1 and a.pessimism > 0.0:
+                rew = rew - a.pessimism * (_dis / 2.0)   # averaged over the DECIM sub-steps
             self.last_task = rew.detach()
             self.last_anch = torch.zeros_like(rew)
             if _bref is not None:

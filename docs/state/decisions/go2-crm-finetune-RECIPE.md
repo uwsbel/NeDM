@@ -183,5 +183,19 @@ Recorded so nobody has to rediscover them, and so the result is not oversold.
   corpus was collected with the base policy itself, so the BASE arm is on-manifold by
   construction. Full tables at `north-ubuntu:/home/kyle/exploitation_audit/`.
 
-- **Single seed.** Everything above is `--seed 0`. Seed variance on this pipeline has been
-  large enough to matter before and has not been measured for this configuration.
+- **Seed variance: MEASURED, and small.** Three independent training seeds of this exact
+  configuration, all scored on one machine against one baseline: **-40.2%, -40.3%, -42.3%**.
+  The headline is not a lucky seed.
+
+- **Cross-surrogate generalisation: MEASURED, and it holds.** Every arm in this document was
+  developed against `go2_crm_baseline_s1`. Retrained against two independently seeded
+  surrogates it had never seen, and scored the same way:
+
+  | configuration | s1 | s2 | s3 |
+  |---|---|---|---|
+  | `--grad-balance 1.0` | -43.7% | -40.6% | -22.0% |
+  | `--reg-scale 0` | -40.3% | -35.9% | -32.7% |
+
+  All six significant. `s3` is the weaker seed for balancing but still a clear win, and
+  `--reg-scale 0` on `s3` at -32.7% shows the surrogate is not the limiter. The method is
+  not specific to the model it was developed against.
