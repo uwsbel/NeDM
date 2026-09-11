@@ -9,11 +9,23 @@ interpreter.
 |---|---|---|
 | [`kyle-sbel.md`](kyle-sbel.md) | Kyle's box, RTX 3090 | **Everything.** Dev, docs, training, analysis, manuscript builds |
 | [`kyle-N7-B650E.md`](kyle-N7-B650E.md) | RTX 5070 Ti, 32 cores | Compute. Provisioned 2026-09-02: repo, pychrono, CUDA. No `git-lfs` |
+| [`euler.md`](euler.md) | UW-Madison SBEL cluster, NVIDIA | SLURM. CRM scoring, validated 2026-09-11. **Kyle must open the Duo session; an agent cannot** |
 
-That is the whole list as of 2026-09-02. Both boxes can run work; neither has
-`git-lfs`, so on both, everything under `artifacts/` is a pointer stub rather
-than weights. Anything needing a box outside this table is blocked until access
-exists.
+Neither desktop has `git-lfs`, so on both, everything under `artifacts/` is a
+pointer stub rather than weights.
+
+Euler joined this table on 2026-09-11 and comes with a caveat the desktops do
+not have: **login is passcode + Duo and an agent cannot perform it.** Kyle runs
+`ssh -fN euler` once in a real terminal and agents reuse the master socket with
+`-o BatchMode=yes`. Work there is submitted with `sbatch` and read back later,
+because the socket does not outlive a suspend or a network change.
+
+The AMD HPC Fund cluster is the other machine with real capacity. It has no file
+here because its operating rules are long enough to be their own skill
+(`~/.claude/skills/hpcfund/SKILL.md`); the scoring workflow is in
+[`scripts/cluster/hpcfund/README.md`](../../../scripts/cluster/hpcfund/README.md),
+and Euler's is in
+[`scripts/cluster/euler/README.md`](../../../scripts/cluster/euler/README.md).
 
 Two files cover the fleet rather than any single box:
 [`remote-control.md`](remote-control.md) for how the boxes are reached and what
@@ -36,7 +48,6 @@ every collected dataset assume them — not because they are options.
 |---|---|---|
 | [`reference/newton.md`](reference/newton.md) | RTX 4090 collection box | Holds the raw frame stores and every Study 3 dataset |
 | [`reference/workstation-5090.md`](reference/workstation-5090.md) | Harry's RTX 5090 desktop | Where the published training and eval runs happened |
-| [`reference/euler.md`](reference/euler.md) | UW Euler cluster | Where the SLURM-scale state-only collections ran |
 
 **Do not write a plan whose next step runs on one of these.** If a task needs
 one, say so and stop — that is a blocker to escalate, not a step to attempt.

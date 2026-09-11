@@ -29,8 +29,13 @@ policy `go2_cts_150k.pt`, lines 2-45 are the fine-tuned arms.
 
 ## Validate against the NVIDIA fleet
 
+`compare_to_fleet.py` and `mkindex.py` now live one level up, in
+`scripts/cluster/`, because Euler needs the same two tools and neither of them
+knows anything about this cluster. The copies deployed at
+`/work1/dannegrut/kyle/nedm/` are unaffected.
+
 ```bash
-python compare_to_fleet.py \
+python $NEDM_REPO/scripts/cluster/compare_to_fleet.py \
   --cluster   out/crmtrack_go2_cts_150k_hpcfund.json \
   --reference stage/reference_BASE_nvidia.json
 ```
