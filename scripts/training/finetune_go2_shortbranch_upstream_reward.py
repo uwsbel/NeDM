@@ -687,13 +687,24 @@ if a.objective == "rslrl":
         if u % a.det_every == 0 or u == 1:
             with torch.no_grad():
                 _sv = _ac.std.data.clone(); _ac.std.data.fill_(1e-8)
+                # MASK THE FALLEN. Without this, an environment that terminates keeps
+                # accumulating meaningless reward for the rest of the window and the
+                # metric conflates "tracks worse" with "fell over at step 3", which are
+                # different failures and want different responses. The training reward
+                # above auto-resets and so never sees this, which is exactly why the two
+                # numbers diverged: 0.986 deterministic against 1.131 on-policy.
                 _e2 = _SurrogateEnv(256, random.Random(7777))
-                _o2 = _e2.observe(); _tot = torch.zeros((), device=DEV)
+                _o2 = _e2.observe()
+                _tot = torch.zeros((), device=DEV); _wsum = torch.zeros((), device=DEV)
+                _alive2 = torch.ones(256, device=DEV)
                 for _ in range(BS):
                     _a2 = _ac.act_inference(_o2)
-                    _r2, _d2, _ = _e2.step(_a2)
-                    _tot = _tot + _r2.mean(); _o2 = _e2.observe()
-                _dr = float(_tot / BS)
+                    _r2, _d2, _t2 = _e2.step(_a2)
+                    _tot = _tot + (_r2 * _alive2).sum(); _wsum = _wsum + _alive2.sum()
+                    _alive2 = _alive2 * (~(_d2 & ~_t2)).float()
+                    _o2 = _e2.observe()
+                _dr = float(_tot / _wsum.clamp_min(1.0))
+                _surv2 = float(_alive2.mean())
                 _ac.std.data.copy_(_sv)
             _star = ""
             if _dr > _dbest[0]:
@@ -707,9 +718,10 @@ if a.objective == "rslrl":
                         else k): v for k, v in _ac.actor.state_dict().items()}
                 torch.save({"state_dict": _sd, "update": u, "dw": _dwr(),
                             "det_rew_per_step": _dr}, f"{a.out}/best.pt")
-            print(f"    [deterministic] rew/step {_dr:+.4f}  dW {_dwr():.3f}{_star}",
-                  flush=True)
-            _hist_log.append({"update": u, "det_rew_per_step": _dr, "dw": _dwr()})
+            print(f"    [deterministic] rew/step {_dr:+.4f}  survive {_surv2:5.1%}  "
+                  f"dW {_dwr():.3f}{_star}", flush=True)
+            _hist_log.append({"update": u, "det_rew_per_step": _dr,
+                              "det_survive": _surv2, "dw": _dwr()})
         if u % 25 == 0 or u == 1:
             print(f"  update {u:5d}  rew/step {float(_rsum)/max(_rn,1):+.4f}  "
                   f"dW {_dwr():.3f}  lr {_alg.learning_rate:.2e}  "

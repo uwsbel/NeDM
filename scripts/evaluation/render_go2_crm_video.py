@@ -104,15 +104,19 @@ DEFAULT_ASSETS = os.environ.get(
 # soil.
 CAMERAS = [
     # name          mount    position offset (m)      look-at offset (m)
-    ("chase",       "yaw",   (-2.6,  0.0,  1.00),     (1.2,  0.0, 0.30)),
-    ("side",        "pos",   ( 0.0,  2.8,  0.55),     (0.0,  0.0, 0.28)),
-    ("front_3q",    "yaw",   ( 2.7, -1.9,  0.85),     (0.0,  0.0, 0.28)),
-    ("low_close",   "yaw",   (-1.2, -0.85, 0.15),     (0.4,  0.0, 0.22)),
-    ("topdown",     "pos",   ( 0.0,  0.0,  3.2),      (0.0,  0.001, 0.0)),
+    ("chase",       "yaw",   (-2.15, 0.00, 0.85),     (1.10, 0.00, 0.32)),
+    ("side",        "pos",   ( 0.00, 2.60, 0.62),     (0.00, 0.00, 0.30)),
+    ("front_3q",    "yaw",   ( 2.40,-1.70, 0.78),     (0.00, 0.00, 0.30)),
+    ("low_close",   "yaw",   (-1.55,-1.05, 0.30),     (0.25, 0.00, 0.30)),
+    ("topdown",     "pos",   ( 0.00, 0.00, 2.60),     (0.00, 0.001, 0.00)),
+    # Steep and behind: the robot sits high in frame and the ground it has just
+    # walked over fills the foreground, which is where the tracks are.
+    ("trail",       "yaw",   (-2.20, 0.00, 2.20),     (-0.20, 0.00, 0.00)),
     # World-mounted: these do not move, so the robot crosses the frame and the
     # distance covered is directly readable -- which a tracking shot hides.
-    ("fixed_wide",  "world", ( 4.2, -4.6,  2.30),     (4.2,  0.0, 0.30)),
-    ("fixed_ground","world", ( 5.2, -1.7,  0.10),     (3.2,  0.0, 0.28)),
+    # Framed for a run from x = 1.2 to about x = 7.2 on a 10 x 3.6 m bed.
+    ("fixed_wide",  "world", ( 4.20,-5.20, 1.45),     (4.20, 0.00, 0.35)),
+    ("fixed_ground","world", ( 6.60,-2.60, 0.18),     (3.20, 0.00, 0.30)),
 ]
 
 
@@ -270,7 +274,12 @@ def parse_args() -> argparse.Namespace:
                              "num_fluid_markers * (initial_spacing / this)^3, so setting it "
                              "EQUAL to --spacing draws one sprite per fluid marker and "
                              "anything larger thins them by the cube of the ratio. 0 means "
-                             "'use --spacing'. Nothing renders if this is <= 0.")
+                             "'use --spacing'. Nothing renders if this is <= 0. "
+                             "MEASURED: at --render-ray-recursions 2 the sprites are "
+                             "nearly free (886k of them cost about as much as none at "
+                             "all against CRM's own step), so there is no reason to "
+                             "thin them. It is the RECURSION DEPTH that costs -- 4 "
+                             "instead of 2 added 30%% to a seven-camera run.")
     parser.add_argument("--render-sprite-scale", type=float, default=0.0,
                         help="Uniform scale on the regolith sprite mesh, which is ~7 mm "
                              "across as authored. 0 means 'size it to 1.35x the render "
@@ -280,6 +289,10 @@ def parse_args() -> argparse.Namespace:
                         help="How many of data/models/regolith/particle_N.obj to use as "
                              "sprite templates. More templates means less visible tiling.")
     parser.add_argument("--render-soil-color", default="0.52,0.41,0.29")
+    parser.add_argument("--render-ray-recursions", type=int, default=2,
+                        help="OptiX recursion depth. Chrono defaults to 9, which "
+                             "buys nothing on a matte soil bed and a matte robot "
+                             "and costs real time per frame.")
     parser.add_argument("--render-ground", type=float, default=60.0,
                         help="Edge length of a visual-only plain drawn under the SPH "
                              "bed, so the fixed cameras have a horizon. 0 disables it.")
@@ -694,10 +707,17 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
         import pychrono.sensor as sens
         rd = Path(args.render_dir); rd.mkdir(parents=True, exist_ok=True)
         _rman = sens.ChSensorManager(system)
-        _rman.SetRayRecursions(4)
-        _rman.scene.SetAmbientLight(chrono.ChVector3f(0.35, 0.36, 0.40))
+        _rman.SetRayRecursions(int(args.render_ray_recursions))
+        _rman.scene.SetAmbientLight(chrono.ChVector3f(0.30, 0.31, 0.35))
+        # A LOW sun, 34 degrees rather than the 52 this started at. Foot
+        # depressions here are about 2 cm deep -- one SPH particle -- so they are
+        # nearly invisible under a high sun and read clearly under a raking one,
+        # which is the whole reason for filming on CRM rather than on rigid.
         _rman.scene.AddDirectionalLight(
-            chrono.ChColor(1.0, 0.96, 0.88), math.radians(52.0), math.radians(130.0))
+            chrono.ChColor(1.05, 1.00, 0.90), math.radians(34.0), math.radians(130.0))
+        # Weak opposite fill so the shaded side of the robot does not go to black.
+        _rman.scene.AddDirectionalLight(
+            chrono.ChColor(0.20, 0.22, 0.27), math.radians(48.0), math.radians(-55.0))
         for key in ("yaw", "pos", "world"):
             b = chrono.ChBody(); b.SetFixed(True); b.EnableCollision(False)
             b.SetPos(chrono.ChVector3d(0.0, 0.0, soil_top))
@@ -723,7 +743,7 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
         # only worked example of this API that exists.
         _rspacing = float(args.render_particle_spacing) or float(args.spacing)
         if terrain is not None and _rspacing > 0.0:
-            _sc = float(args.render_sprite_scale) or (1.35 * _rspacing / 0.0071)
+            _sc = float(args.render_sprite_scale) or (1.20 * _rspacing / 0.0071)
             _col = [float(v) for v in args.render_soil_color.split(",")]
             _smat = chrono.ChVisualMaterial()
             _smat.SetAmbientColor(chrono.ChColor(*[c * 0.55 for c in _col]))
