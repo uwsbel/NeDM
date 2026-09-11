@@ -61,12 +61,23 @@ CUDA = "cuda"
 HIP = "hip"
 
 #: Driver node that must be present AND openable for each backend.
+#
+# WSL2 IS A THIRD CASE. Under WSL there is no /dev/nvidiactl at all: the GPU is
+# projected into the VM through Microsoft's paravirtualised /dev/dxg, and CUDA
+# reaches it via a stub libcuda that talks to the host driver. So a perfectly
+# working CUDA box -- north-windows scores CRM through it -- reports "no GPU"
+# on the /dev/nvidiactl test alone. /dev/dxg is CUDA-side for our purposes: the
+# only GPUs WSL projects for compute are NVIDIA ones under this setup, and the
+# Chrono there is a CUDA build.
 NODE = {CUDA: "/dev/nvidiactl", HIP: "/dev/kfd"}
+WSL_CUDA_NODE = "/dev/dxg"
 
 
 def gpu_backend() -> str | None:
     """Return "cuda", "hip", or None if no GPU compute driver is loaded."""
     if os.path.exists("/dev/nvidiactl"):
+        return CUDA
+    if os.path.exists(WSL_CUDA_NODE):        # WSL2 GPU paravirtualisation
         return CUDA
     if os.path.exists("/dev/kfd"):
         return HIP
@@ -79,13 +90,16 @@ def require_gpu_backend(what: str = "--terrain crm") -> str:
     if backend is None:
         raise SystemExit(
             f"FATAL: {what} needs a GPU and this machine has none (no "
-            "/dev/nvidiactl for CUDA, no /dev/kfd for ROCm/HIP). Chrono's "
+            "/dev/nvidiactl or /dev/dxg for CUDA, no /dev/kfd for ROCm/HIP). "
+            "Chrono's "
             "FSI/SPH module is GPU-only. `import pychrono.fsi` would succeed "
             "here anyway -- the package bundles a GPU runtime -- and the run "
             "would die at the first GPU call after building the terrain. "
             "Dispatch CRM to a GPU box; this one can still run rigid "
             "collection and scoring, which are CPU-only.")
     node = NODE[backend]
+    if backend is CUDA and not os.path.exists(node) and os.path.exists(WSL_CUDA_NODE):
+        node = WSL_CUDA_NODE                 # WSL: the real node is /dev/dxg
     if not os.access(node, os.R_OK | os.W_OK):
         raise SystemExit(
             f"FATAL: {what} found {node} but cannot open it. This is a "
