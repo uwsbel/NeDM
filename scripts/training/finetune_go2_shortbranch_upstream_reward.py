@@ -582,6 +582,16 @@ if a.objective == "rslrl":
             return self.actor_net(torch.cat([self.student_encoder(obs),
                                              obs[:, -OBS45:]], dim=1))
 
+    # FROZEN reference for --kl-base. PPO's KL controller bounds each UPDATE; nothing
+    # bounds cumulative drift from the data the surrogate was fitted on, and the rsl_rl
+    # curves peak around update 100 and decline from there while ||dW|| keeps climbing.
+    # That is the trust region failing, not the estimator.
+    _bref = None
+    if a.kl_base > 0.0:
+        _bref = _ImportedActor(BatchedGo2Policy(torch.jit.load(a.policy, map_location=DEV))).to(DEV).eval()
+        for _p in _bref.parameters(): _p.requires_grad_(False)
+        print(f"  ANCHOR: squared deviation from the frozen base action, weight {a.kl_base}",
+              flush=True)
     _ac = RslActorCritic(num_actor_obs=NOBS, num_critic_obs=NOBS, num_actions=12,
                          init_noise_std=a.ppo_sigma).to(DEV)
     _ac.actor = _ImportedActor(policy).to(DEV)
@@ -647,7 +657,8 @@ if a.objective == "rslrl":
         def observe(self):
             o = obs_from(self.hs[:, -1], self.cmd, self.prev)
             self.hist = torch.cat([self.hist[:, 1:], o.unsqueeze(1)], 1)
-            return self.hist.flatten(1)
+            self.last_obs = self.hist.flatten(1)
+            return self.last_obs
         def step(self, act):
             tgt = torch.zeros_like(act).index_copy(1, C2I, SIGN * (act * ACTS + DEF))
             for _ in range(2):
@@ -664,6 +675,13 @@ if a.objective == "rslrl":
                          pos_z=(nxt[:, PZ] if _HEIGHT_TGT is not None else None),
                          height_target=_HEIGHT_TGT)
             rew = RT.total(t) if a.reg_scale == 1.0 else RT.total_scaled(t, a.reg_scale)
+            if _bref is not None:
+                # Penalise the MEANS, not the sampled action. E[(a - mu_base)^2] carries a
+                # sigma^2 term that would quietly push exploration down instead of holding
+                # the policy near the data, which is not what this is for.
+                with torch.no_grad():
+                    _dev = ((_ac.actor(self.last_obs) - _bref(self.last_obs)) ** 2).sum(1)
+                rew = rew - a.kl_base * _dev
             self.dqp = dqp; self.ap2 = self.ap1; self.ap1 = act
             self.prev = act
             self.fresh = torch.zeros_like(self.fresh)
