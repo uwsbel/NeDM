@@ -69,6 +69,23 @@ ap.add_argument("--policy", default="/home/kyle/sbel-artifacts/checkpoints/go2_c
 ap.add_argument("--root", default="/home/kyle/sbel-artifacts/datasets/go2_comprehensive_merged/flat")
 ap.add_argument("--out", default="/home/kyle/sbel-artifacts/finetune_go2_shortbranch")
 ap.add_argument("--updates", type=int, default=1500)      # FIXED BUDGET
+ap.add_argument("--ckpt-every", type=int, default=0,
+                help="Save the policy every N updates as traj/u<N>.pt, IN ADDITION to\n"
+                     "whatever best.pt selection is in force. 0 disables.\n"
+                     "\n"
+                     "Why the trajectory and not just the selected point: every stop rule\n"
+                     "here -- fixed ||dW||, best surrogate-internal reward, fixed budget --\n"
+                     "is a guess at where the Chrono-measured optimum sits, evaluated with\n"
+                     "an instrument that cannot see Chrono. A rule can only ever return one\n"
+                     "point, so it structurally cannot discover that a policy which drifted\n"
+                     "FURTHER is better, or that the run peaked at update 300 and the budget\n"
+                     "should have been a fifth as long. Keeping the whole trajectory turns\n"
+                     "the stop criterion from an assumption into a measurement: score every\n"
+                     "saved iterate in Chrono and read the curve.\n"
+                     "\n"
+                     "Cost is asymmetric and that is the whole argument. Saving is free\n"
+                     "(~7 MB per iterate, and training is 55 s); scoring is 70-90 min per\n"
+                     "iterate, so the trajectory is collected always and scored selectively.")
 ap.add_argument("--batch", type=int, default=64)
 ap.add_argument("--branch-steps", type=int, default=5)    # 0.1 s, the certified window
 ap.add_argument("--lr", type=float, default=1e-4)
@@ -1052,6 +1069,18 @@ def dw():
     return float(torch.sqrt(sum(((p_ - W0[k]) ** 2).sum() for k, p_ in policy.named_parameters())))
 
 vrng = random.Random(a.seed + 991)
+_TRAJ = f"{a.out}/traj"
+if a.ckpt_every > 0:
+    os.makedirs(_TRAJ, exist_ok=True)
+
+def _save_traj(u, **extra):
+    """Snapshot this iterate. Never selection -- selection stays with best.pt."""
+    if a.ckpt_every <= 0 or (u % a.ckpt_every and u != 1):
+        return
+    torch.save({"state_dict": policy.state_dict(), "update": u, "dw": dw(),
+                "log_std": LOGSTD.detach().cpu() if "LOGSTD" in globals() else None,
+                **extra}, f"{_TRAJ}/u{u:05d}.pt")
+
 VAL = sample(vrng, a.val_branches)
 rng = random.Random(a.seed)
 best = (float("inf"), -1); hist_log = []
@@ -1062,6 +1091,7 @@ for u in range(1, a.updates + 1):
     opt.zero_grad(); loss.backward()
     torch.nn.utils.clip_grad_norm_(policy.parameters(), 1.0)
     opt.step()
+    _save_traj(u)
     if a.target_dw is not None and dw() >= a.target_dw:
         d = dw()
         # MEASURE THE STOP POINT. This wrote val_neg_reward = NaN into best.pt and set

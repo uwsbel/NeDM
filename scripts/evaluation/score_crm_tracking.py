@@ -40,6 +40,16 @@ ap.add_argument("--concurrency", type=int, default=8)
 ap.add_argument("--warmup-s", type=float, default=1.25,
                 help="pose ramp + settle; recording already starts after it, this is a "
                      "second guard for episodes collected with --log-warmup")
+ap.add_argument("--limit", type=int, default=0,
+                help="Score only the first N episodes of the split. 0 = all of it.\n"
+                     "\n"
+                     "For SHAPE measurements across many checkpoints -- a fine-tune's\n"
+                     "iterate trajectory, say -- where the question is which iterate is\n"
+                     "best, not what its number is. The subset is the head of the split in\n"
+                     "index order, so it is the same episodes for every checkpoint and the\n"
+                     "comparison is paired; it is NOT a random sample and its mean is not\n"
+                     "an estimate of the full-split mean. Whatever wins here gets re-scored\n"
+                     "on the full split before it is reported as a result.")
 ap.add_argument("--min-rows", type=int, default=200,
                 help="~2 s at 93 rows/s. Below this the mean is noise, and an episode "
                      "that short means the run failed rather than tracked badly.")
@@ -59,6 +69,8 @@ print(f"policy sha256[:12] {_PSHA}")
 
 idx = json.load(open(a.index))["episodes"]
 eps = [e for e in idx if e.get("split") == a.split] or idx
+if a.limit:
+    eps = eps[:a.limit]
 print(f"policy {a.policy}\nepisodes: {len(eps)}  (split {a.split!r})")
 
 PY_ = sys.executable
