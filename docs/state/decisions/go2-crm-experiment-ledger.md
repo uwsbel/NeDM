@@ -40,9 +40,13 @@ level, so this table does not.
 | `c_rsl_anch` | 77 | **+1.5%** | 32/77 | 110% | 0.697 |
 | `e_noboot` | 75 | **+2.6%** | 36/75 | 103% | 0.496 |
 | `e_both` | 76 | **+3.1%** | 34/76 | 97% | 0.193 |
+| `e_sig05` | 77 | **-1.7%** | 42/77 | -- | 0.345 |
+| `f_pess` | 77 | **+5.8%** | 37/77 | -- | 0.014 |
 | `r_rsl_full` | 77 | **+10.2%** | 33/77 | 105% | 0.001 |
+| `f_all` | 75 | **+15.5%** | 32/75 | -- | 0.005 |
 | `e_g96` | 73 | **+20.0%** | 28/73 | 175% | 0.004 |
 | `w_r1` | 75 | **+39.6%** | 22/75 | 428% | <1e-4 |
+| `f_h15` | 77 | **+63.3%** | 5/77 | -- | <1e-4 |
 
 ## What is settled
 
@@ -95,8 +99,29 @@ The diagnostic value is in WHICH constraint worked, because two were tried:
   three different implementations and was a coincidence, not a causal ordering. This was
   predicted before it was measured, and the prediction was wrong.
 - *Policy-space drift* -- that the policy walks away from the behaviour the model was fit
-  on. CONFIRMED, by the anchor result above and by ensemble pessimism cutting post-peak
-  decay roughly 7x.
+  on. CONFIRMED by the KL anchor, which constrains exactly that and is the only thing that
+  moved PPO. But note WHICH drift control worked, because the other one did not:
+
+**Ensemble pessimism does not transfer, and its surrogate-internal evidence was misleading.**
+Pessimism was adopted because it cut post-peak decay roughly 7x INSIDE the surrogate, and
+`f_all` was the first PPO arm that never turned over there at all. Scored in Chrono all
+four arms in that family are worse than base: `e_sig05` -1.7% (p 0.35), `f_pess` +5.8%
+(p 0.014), `f_all` +15.5% (p 0.005), `f_h15` +63.3% (5 of 77 episodes won). The arm with
+the cleanest internal training curve is the second worst of the group.
+
+This is the same lesson as the verification baselines: a suspiciously well-behaved internal
+metric is evidence about the instrument before it is evidence about the method. Not turning
+over inside the model means the optimiser stopped finding things the model rewards, which
+is equally consistent with the model having run out of exploitable error and with the
+policy having stopped improving. It cannot distinguish them, so it should never have been
+read as progress.
+
+The two mechanisms differ in what they measure and that is why one transferred. Pessimism
+penalises ENSEMBLE DISAGREEMENT, a proxy for where the model is uncertain -- and the
+attribution result shows the binding error is a near-constant 8-9% bias present for both
+policies everywhere, which is precisely the error an ensemble cannot see, since all members
+share it. The KL anchor penalises DISTANCE FROM THE BASE POLICY, which is measured on the
+policy and needs no model at all.
 
 These are two different horizons and only one binds RL. The analytic objective
 differentiates THROUGH the model, so its limit is in time and the 0.50 s measurement sets
@@ -143,7 +168,6 @@ set, so this measures adaptation, not generalisation to unseen commands.
 | `abl_ctx32`, `abl_ctx64` | sliger | is the 1.28 s context window doing any work? |
 | `z_ppoA01`, `z_ppoA003`, `z_ppoA03b25`, `z_ppoA03L` | sbel | where does the KL anchor bottom out, and does it compose with branch length and budget? |
 | `t_traj` | sbel | is ||dW||=1.0 the right place to stop, measured rather than assumed? |
-| `f_pess`, `f_h15`, `f_all`, `e_sig05` | cluster + sliger | does the pessimism stack transfer to Chrono? |
 
 ## Next, in priority order
 
