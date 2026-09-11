@@ -24,6 +24,7 @@ Reports per episode so the seed-level evaluator can pair on episode identity, an
 here rather than assumed from the pilot.
 """
 import argparse, csv, glob, json, math, os, shutil, subprocess, sys, tempfile
+import hashlib
 from concurrent.futures import ThreadPoolExecutor
 
 AXES = (("cmd_vx_mps", "vel_body_x_mps"),
@@ -43,6 +44,18 @@ ap.add_argument("--min-rows", type=int, default=200,
                 help="~2 s at 93 rows/s. Below this the mean is noise, and an episode "
                      "that short means the run failed rather than tracked badly.")
 a = ap.parse_args()
+
+# Provenance of the POLICY, carried into every record.
+#
+# The records name the arm only through the output FILENAME, and an arm name is reused
+# whenever a checkpoint is retrained -- which is the normal case, not the exception.
+# Aggregating by filename therefore merged a pre-fix `baseline_s2` scored on a desktop
+# with a post-fix re-score of the same arm on the cluster into one row, silently: the
+# two eras differed by hundreds of percentage points and nothing in the data said so.
+# Stamping the checkpoint hash makes that merge detectable instead of invisible.
+_PSHA = hashlib.sha256(open(a.policy, "rb").read()).hexdigest()[:12]
+_PMTIME = int(os.path.getmtime(a.policy))
+print(f"policy sha256[:12] {_PSHA}")
 
 idx = json.load(open(a.index))["episodes"]
 eps = [e for e in idx if e.get("split") == a.split] or idx
@@ -125,6 +138,7 @@ def run(e):
             _SEEN.add(msg); print(f"  [no episode] {msg}", file=sys.stderr, flush=True)
     t = track_error(rows) if rows else None
     rec = dict(episode_id=uid(e["csv_path"]), csv_path=e["csv_path"],
+               policy_sha256=_PSHA, policy_mtime=_PMTIME,
                family=m["command_family"], rows=len(rows),
                completed=int(len(rows) >= a.min_rows))
     if t:
