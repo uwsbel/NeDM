@@ -145,5 +145,22 @@ Recorded so nobody has to rediscover them, and so the result is not oversold.
   across `branch_steps * DECIM` surrogate forwards, so memory grows with horizon and 25
   steps OOMs a 24 GB card at batch 64. Horizon helped monotonically up to 0.30 s, so this
   is a real ceiling. PPO retains no graph and runs 25 steps at batch 128 comfortably.
+- **The Chrono score itself is not perfectly reproducible for this policy, and that is
+  not yet quantified.** Re-running the SAME policy file on the SAME box: the BASE policy
+  reproduces bit-exactly 7/7 episodes, `w_h15r0` reproduces exactly only 4/7. The likely
+  cause is that the fine-tuned policy operates in a more numerically sensitive regime of
+  the granular solver -- faster motion, more slip -- where SPH's non-associative atomic
+  accumulation amplifies. That is arguably a CONSEQUENCE of the policy being more
+  aggressive rather than a defect in it.
+
+  The consequence for this document: the headline `-0.0637 / 67 of 74 / p = 2.1e-13` comes
+  from a SINGLE scoring run and is quoted here as though it were a fixed quantity. It is
+  not. Until the run-to-run spread in `mae_vx` is measured, treat the effect size as having
+  an unquantified error bar. The effect is large (-40.5%) and the per-episode win count is
+  lopsided (67/74), so it is very unlikely to be noise -- but "unlikely to be noise" is not
+  the same as "measured", and the p-value in particular assumes a determinism the simulator
+  does not provide for this policy. A measurement is in progress; update this section with
+  the number when it lands.
+
 - **Single seed.** Everything above is `--seed 0`. Seed variance on this pipeline has been
   large enough to matter before and has not been measured for this configuration.
