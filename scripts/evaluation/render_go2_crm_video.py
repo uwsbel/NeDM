@@ -115,8 +115,13 @@ CAMERAS = [
     # World-mounted: these do not move, so the robot crosses the frame and the
     # distance covered is directly readable -- which a tracking shot hides.
     # Framed for a run from x = 1.2 to about x = 7.2 on a 10 x 3.6 m bed.
-    ("fixed_wide",  "world", ( 4.20,-5.20, 1.45),     (4.20, 0.00, 0.35)),
-    ("fixed_ground","world", ( 6.60,-2.60, 0.18),     (3.20, 0.00, 0.30)),
+    # Placed at the FAR end of the run and at its START respectively, rather than
+    # broadside to it. A broadside fixed camera only holds the robot for the
+    # couple of seconds it takes to cross a 3 m frame; down the axis of travel it
+    # is in shot for the whole episode and the ground it has covered is the
+    # thing the frame is actually measuring.
+    ("fixed_wide",  "world", ( 9.50,-4.50, 1.80),     (4.00, 0.00, 0.32)),
+    ("fixed_ground","world", (-0.80,-0.85, 0.45),     (6.00, 0.00, 0.08)),
 ]
 
 
@@ -281,10 +286,11 @@ def parse_args() -> argparse.Namespace:
                              "thin them. It is the RECURSION DEPTH that costs -- 4 "
                              "instead of 2 added 30%% to a seven-camera run.")
     parser.add_argument("--render-sprite-scale", type=float, default=0.0,
-                        help="Uniform scale on the regolith sprite mesh, which is ~7 mm "
-                             "across as authored. 0 means 'size it to 1.35x the render "
+                        help="Uniform scale on the regolith sprite mesh, which is ~7.1 mm "
+                             "across as authored. 0 means 'size it to 1.20x the render "
                              "spacing', which is what makes the bed read as a continuous "
-                             "surface rather than a sparse ball pit.")
+                             "surface rather than a sparse ball pit. Below about 1.0 the "
+                             "sprites stop touching and the bed goes see-through.")
     parser.add_argument("--render-sprite-meshes", type=int, default=3,
                         help="How many of data/models/regolith/particle_N.obj to use as "
                              "sprite templates. More templates means less visible tiling.")
@@ -727,13 +733,30 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
         # a sky gradient. Sunk below the surface so it cannot hide a rut: it
         # only shows where the SPH box ends. No collision, no FSI, no physics.
         if args.render_ground > 0.0:
+            # FOUR slabs around the bed, not one slab under it. A single big box
+            # has to sit either below the surface -- and then the bed stands on a
+            # visible pedestal, which is what the fixed cameras saw -- or flush
+            # with it, and then it fills in every rut, which destroys the only
+            # thing CRM is here to show. A surround is flush AND leaves the bed
+            # itself untouched.
             _gnd = chrono.ChBody(); _gnd.SetFixed(True); _gnd.EnableCollision(False)
-            _gbox = chrono.ChVisualShapeBox(args.render_ground, args.render_ground, 0.4)
             _gcol = [float(v) for v in args.render_soil_color.split(",")]
-            _gbox.SetColor(chrono.ChColor(*[c * 0.72 for c in _gcol]))
-            _gnd.AddVisualShape(_gbox, chrono.ChFramed(
-                chrono.ChVector3d(args.patch_x / 2 - 0.6, 0.0, soil_top - 0.06 - 0.2),
-                chrono.QUNIT))
+            _gclr = chrono.ChColor(*[c * 0.92 for c in _gcol])
+            _G = float(args.render_ground)
+            _cx = args.patch_x / 2 - 0.6
+            _hx, _hy = args.patch_x / 2, args.patch_y / 2
+            _tz = soil_top - 0.004 - 0.2          # slab is 0.4 thick; this is its centre
+            _out = (_G - args.patch_x) / 2
+            _outy = (_G - args.patch_y) / 2
+            for _sx, _sy, _px, _py in (
+                    (_out, _G, _cx - _hx - _out / 2, 0.0),          # behind the bed
+                    (_out, _G, _cx + _hx + _out / 2, 0.0),          # beyond the bed
+                    (args.patch_x, _outy, _cx, -_hy - _outy / 2),   # near side
+                    (args.patch_x, _outy, _cx, _hy + _outy / 2)):   # far side
+                _gb = chrono.ChVisualShapeBox(_sx, _sy, 0.4)
+                _gb.SetColor(_gclr)
+                _gnd.AddVisualShape(_gb, chrono.ChFramed(
+                    chrono.ChVector3d(_px, _py, _tz), chrono.QUNIT))
             system.AddBody(_gnd)
         # ---- SOIL, via the native FSI-SPH sprite renderer ------------------
         # Attached BEFORE the cameras. AttachFsiSphSystem calls ReconstructScenes,
