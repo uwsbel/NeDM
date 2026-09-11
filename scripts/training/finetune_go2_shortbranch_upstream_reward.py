@@ -92,6 +92,10 @@ ap.add_argument("--ppo-kl", type=float, default=0.01,
 ap.add_argument("--gamma", type=float, default=0.99)
 ap.add_argument("--lam", type=float, default=0.95)
 ap.add_argument("--entropy", type=float, default=0.01)
+ap.add_argument("--grad-balance", type=float, default=0.0,
+                help="Rescale each reward term so its share of the GRADIENT matches its\n                      share of the RETURN. 0 off, 1 full balancing, values between\n                      partial. This is the principled alternative to --reg-scale 0.\n\n                      --reg-scale 0 WORKS -- it is the necessary ingredient in the only\n                      configuration that beats the base policy on CRM -- but it works by\n                      DELETING reward terms because our estimator mishandles them. It is\n                      a workaround for a defect in the method, not a fix to it, and the\n                      deleted terms do real work: the arms that drop them show small but\n                      consistent drift on the axes that are meant to stay near zero.\n\n                      Backprop through a surrogate weights a term by the STIFFNESS of its\n                      path, so dof_acc -- a squared finite difference over dt, stiffer by\n                      (1/0.02)^2 -- takes 47-63%% of the gradient on 6.7%% of the reward.\n                      A score-function estimator cannot do this because it multiplies\n                      grad-log-pi by a SCALAR. Rescaling by (value share / gradient share)\n                      reproduces that term balance analytically while keeping every term.")
+ap.add_argument("--balance-every", type=int, default=50,
+                help="Recompute the balancing coefficients every N updates. They are a\n                      property of the CURRENT policy and the surrogate's local Jacobian,\n                      not a constant, so they drift as the policy moves.")
 ap.add_argument("--probe-grad-share", action="store_true",
                 help="Measure each reward term's share of the GRADIENT norm and of the\n                      reward VALUE at the base policy, then exit without training.\n                      These two shares have no reason to match: backprop through a\n                      surrogate weights a term by the stiffness of its path, while a\n                      score-function estimator (PPO) sees reward as a scalar and\n                      cannot. When they diverge sharply, the branch is optimising\n                      something other than the return.")
 ap.add_argument("--min-upright", type=float, default=None,
@@ -303,6 +307,7 @@ for p in paths:
 print(f"  branch pool: {len(S_all)} episodes; EXCLUDED {excluded} in the verdict's cell", flush=True)
 
 _COLLECT_TERMS = False
+_BAL = None          # term -> multiplier, set by _recompute_balance()
 WARM, BS = 5, a.branch_steps
 
 # CONTROL-ROW PARITY IS A PER-EPISODE PROPERTY, NOT A CONSTANT.
@@ -488,7 +493,10 @@ def rollout(batch, grad=True):
                          act * ACTS + DEF,          # PD target, policy frame
                          pos_z=(nxt[:, PZ] if _HEIGHT_TGT is not None else None),
                          height_target=_HEIGHT_TGT)
-            _r = RT.total(t) if a.reg_scale == 1.0 else RT.total_scaled(t, a.reg_scale)
+            if _BAL is not None:
+                _r = sum(_BALW[k] * _BAL[k] * v for k, v in t.items())
+            else:
+                _r = RT.total(t) if a.reg_scale == 1.0 else RT.total_scaled(t, a.reg_scale)
             if anchor_pen is not None:
                 _r = _r - a.anchor * anchor_pen
                 term_acc["anchor"] = term_acc.get("anchor", 0.0) - float(
@@ -944,6 +952,45 @@ if a.objective == "ppo":
           f"{_dbest[1]}, final ||dW|| {_dwp():.3f} -> {a.out}/best.pt")
     raise SystemExit(0)
 
+_BALW = dict(RT.WEIGHTS)
+_BALW["correct_base_height"] = RT.NOT_COMPUTABLE["correct_base_height"]
+
+def _recompute_balance():
+    """Set each term's multiplier to (its share of |value|) / (its share of |grad|).
+
+    Measured at the CURRENT policy, because the ratio is a property of the surrogate's
+    local Jacobian and drifts as the policy moves. Anchored on the largest-value term so
+    tracking keeps a multiplier near 1 and the stiff terms scale DOWN, rather than the
+    whole objective being rescaled (which Adam would ignore anyway)."""
+    global _BAL, _COLLECT_TERMS
+    _was, _COLLECT_TERMS = _COLLECT_TERMS, True
+    _bsave, _BAL = _BAL, None                 # measure the UNBALANCED gradient
+    try:
+        _b = sample(random.Random(a.seed + 31337), min(a.batch, 64))
+        _e, _r, _acc, _seq = rollout(_b, grad=True)
+        _prm = [p for p in policy.parameters() if p.requires_grad]
+        _gn, _vv = {}, {}
+        for _k in _seq[0]:
+            _s = sum(_BALW[_k] * _t[_k].mean() for _t in _seq)
+            _g = torch.autograd.grad(_s, _prm, retain_graph=True, allow_unused=True)
+            _gn[_k] = float(torch.sqrt(sum((gi ** 2).sum() for gi in _g if gi is not None)))
+            _vv[_k] = abs(float(_s))
+    finally:
+        _COLLECT_TERMS = _was
+    _gt = max(sum(_gn.values()), 1e-12); _vt = max(sum(_vv.values()), 1e-12)
+    _raw = {k: (_vv[k] / _vt) / max(_gn[k] / _gt, 1e-12) for k in _gn}
+    _anchor = max(_vv, key=_vv.get)
+    _BAL = {k: float(np.clip((_raw[k] / max(_raw[_anchor], 1e-12)) ** a.grad_balance,
+                             1e-3, 1e3)) for k in _raw}
+    return _anchor, _gn, _vv
+
+if a.grad_balance > 0.0:
+    _an, _g0, _v0 = _recompute_balance()
+    print(f"  GRAD-BALANCE {a.grad_balance}: anchored on {_an}; multipliers "
+          + ", ".join(f"{k}={_BAL[k]:.3g}" for k in sorted(_BAL, key=lambda z: -_v0[z])[:6]),
+          flush=True)
+
+
 W0 = {k: v.detach().clone() for k, v in policy.named_parameters()}
 def dw():
     return float(torch.sqrt(sum(((p_ - W0[k]) ** 2).sum() for k, p_ in policy.named_parameters())))
@@ -978,6 +1025,8 @@ for u in range(1, a.updates + 1):
                          "stopped_on": "target_dw"})
         best = (_vm, u)
         break
+    if a.grad_balance > 0.0 and u % a.balance_every == 0:
+        _recompute_balance()
     if u % a.val_every == 0 or u == 1:
         with torch.no_grad():
             parts = [rollout(VAL[i:i + 128], grad=False) for i in range(0, len(VAL), 128)]
