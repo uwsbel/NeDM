@@ -675,12 +675,15 @@ if a.objective == "rslrl":
                          pos_z=(nxt[:, PZ] if _HEIGHT_TGT is not None else None),
                          height_target=_HEIGHT_TGT)
             rew = RT.total(t) if a.reg_scale == 1.0 else RT.total_scaled(t, a.reg_scale)
+            self.last_task = rew.detach()
+            self.last_anch = torch.zeros_like(rew)
             if _bref is not None:
                 # Penalise the MEANS, not the sampled action. E[(a - mu_base)^2] carries a
                 # sigma^2 term that would quietly push exploration down instead of holding
                 # the policy near the data, which is not what this is for.
                 with torch.no_grad():
                     _dev = ((_ac.actor(self.last_obs) - _bref(self.last_obs)) ** 2).sum(1)
+                self.last_anch = (a.kl_base * _dev).detach()
                 rew = rew - a.kl_base * _dev
             self.dqp = dqp; self.ap2 = self.ap1; self.ap1 = act
             self.prev = act
@@ -722,14 +725,25 @@ if a.objective == "rslrl":
                 _e2 = _SurrogateEnv(256, random.Random(7777))
                 _o2 = _e2.observe()
                 _tot = torch.zeros((), device=DEV); _wsum = torch.zeros((), device=DEV)
+                # SEPARATE THE TWO TERMS. Reporting only (task - anchor) makes the curve
+                # unreadable: the anchor penalty grows as the policy drifts, so the number
+                # falls even when task reward is flat, and "the policy got worse" cannot be
+                # told apart from "the policy moved further from base". Selection still uses
+                # the combined value -- that IS the objective -- but the diagnostic must
+                # show both or it cannot diagnose anything.
+                _ttask = torch.zeros((), device=DEV); _tanch = torch.zeros((), device=DEV)
                 _alive2 = torch.ones(256, device=DEV)
                 for _ in range(BS):
                     _a2 = _ac.act_inference(_o2)
                     _r2, _d2, _t2 = _e2.step(_a2)
                     _tot = _tot + (_r2 * _alive2).sum(); _wsum = _wsum + _alive2.sum()
+                    _ttask = _ttask + (_e2.last_task * _alive2).sum()
+                    _tanch = _tanch + (_e2.last_anch * _alive2).sum()
                     _alive2 = _alive2 * (~(_d2 & ~_t2)).float()
                     _o2 = _e2.observe()
                 _dr = float(_tot / _wsum.clamp_min(1.0))
+                _dtask = float(_ttask / _wsum.clamp_min(1.0))
+                _danch = float(_tanch / _wsum.clamp_min(1.0))
                 _surv2 = float(_alive2.mean())
                 _ac.std.data.copy_(_sv)
             _star = ""
@@ -744,9 +758,11 @@ if a.objective == "rslrl":
                         else k): v for k, v in _ac.actor.state_dict().items()}
                 torch.save({"state_dict": _sd, "update": u, "dw": _dwr(),
                             "det_rew_per_step": _dr}, f"{a.out}/best.pt")
-            print(f"    [deterministic] rew/step {_dr:+.4f}  survive {_surv2:5.1%}  "
+            print(f"    [deterministic] rew/step {_dr:+.4f}  (task {_dtask:+.4f}"
+                  f"  anchor {-_danch:+.4f})  survive {_surv2:5.1%}  "
                   f"dW {_dwr():.3f}{_star}", flush=True)
             _hist_log.append({"update": u, "det_rew_per_step": _dr,
+                              "det_task": _dtask, "det_anchor": _danch,
                               "det_survive": _surv2, "dw": _dwr()})
         if u % 25 == 0 or u == 1:
             print(f"  update {u:5d}  rew/step {float(_rsum)/max(_rn,1):+.4f}  "
