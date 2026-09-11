@@ -145,22 +145,43 @@ Recorded so nobody has to rediscover them, and so the result is not oversold.
   across `branch_steps * DECIM` surrogate forwards, so memory grows with horizon and 25
   steps OOMs a 24 GB card at batch 64. Horizon helped monotonically up to 0.30 s, so this
   is a real ceiling. PPO retains no graph and runs 25 steps at batch 128 comfortably.
-- **The Chrono score itself is not perfectly reproducible for this policy, and that is
-  not yet quantified.** Re-running the SAME policy file on the SAME box: the BASE policy
-  reproduces bit-exactly 7/7 episodes, `w_h15r0` reproduces exactly only 4/7. The likely
-  cause is that the fine-tuned policy operates in a more numerically sensitive regime of
-  the granular solver -- faster motion, more slip -- where SPH's non-associative atomic
-  accumulation amplifies. That is arguably a CONSEQUENCE of the policy being more
-  aggressive rather than a defect in it.
+- **Run-to-run noise: MEASURED, and it does not threaten the result.** Re-running the
+  same policy on the same box, BASE reproduces bit-exactly 7/7 episodes while `w_h15r0`
+  reproduces only 4/7 -- the granular solver's atomic accumulation is non-associative.
+  Propagated to the 74-episode mean: same-box SE **+/-0.00037 m/s**, so the -0.0637 effect
+  is **172x the noise**, 95% interval **-40.0% to -40.9%**. Cross-box (a different machine
+  entirely): SE +/-0.00161, still 40x, interval **-38.5% to -42.5%**. The divergence is
+  symmetric, not directional (every replicate |z| < 2), so the run mean is unbiased, and
+  only 1 of 74 episodes has an effect smaller than the run-to-run noise. Quote the interval
+  rather than the bare point estimate, and prefer the cross-box interval when comparing
+  numbers produced on different machines.
 
-  The consequence for this document: the headline `-0.0637 / 67 of 74 / p = 2.1e-13` comes
-  from a SINGLE scoring run and is quoted here as though it were a fixed quantity. It is
-  not. Until the run-to-run spread in `mae_vx` is measured, treat the effect size as having
-  an unquantified error bar. The effect is large (-40.5%) and the per-episode win count is
-  lopsided (67/74), so it is very unlikely to be noise -- but "unlikely to be noise" is not
-  the same as "measured", and the p-value in particular assumes a determinism the simulator
-  does not provide for this policy. A measurement is in progress; update this section with
-  the number when it lands.
+- **Reproducibility is ARM-DEPENDENT and must be measured per arm, not assumed.** `w_r1`
+  reproduces only 28/75 episodes across the same box pair where BASE reproduces 62/77,
+  with sd 0.120 and a **maximum single-episode disagreement of 0.948 m/s**. Its *mean* is
+  stable (+0.0546 on a3 vs +0.0548 on sbel) because the noise averages out over 75
+  episodes, but a single-run per-episode number from an arm like that means little. Before
+  trusting any new arm's score -- especially at larger displacements -- measure its own
+  reproducibility rather than inheriting `w_h15r0`'s.
+
+- **Model exploitation: TESTED, and the evidence contradicts it.** `w_h15r0` does walk off
+  the training distribution (8.72% of visited states beyond the corpus p99, against BASE's
+  0.97%), and the surrogate is correspondingly 1.8-2.1x less accurate there, surviving a
+  speed-confound control. But that degradation is a property of WHERE THE POLICY GOES, not
+  of the model it was optimised against:
+    - `w_h15r0` was fitted against `go2_crm_baseline_s1` alone, so s2/s3 are held out. At
+      h=15 the error ratio is **1.82 for s1, 2.02 for s2, 2.11 for s3** -- the two models
+      the optimiser never touched are slightly WORSE. Difference-in-differences is negative;
+      95% upper bound puts at most ~10% of the degradation on s1 specifically.
+    - The error has no reward-direction. `|true-cmd| - |pred-cmd|` at h=50 is **-0.087 m/s**
+      for `w_h15r0` against -0.018 for BASE: the surrogate OVER-states how badly the
+      fine-tuned policy tracks. The model is pessimistic about this policy, not optimistic.
+    - Ensemble disagreement rises in lockstep (2.23x, 16/16 episodes), i.e. the ensemble
+      correctly signals its own ignorance in that region.
+  This is ordinary epistemic uncertainty, honestly signalled -- not exploitable error the
+  optimiser sought out. Note the test was STACKED toward finding exploitation: the CRM
+  corpus was collected with the base policy itself, so the BASE arm is on-manifold by
+  construction. Full tables at `north-ubuntu:/home/kyle/exploitation_audit/`.
 
 - **Single seed.** Everything above is `--seed 0`. Seed variance on this pipeline has been
   large enough to matter before and has not been measured for this configuration.
