@@ -473,6 +473,16 @@ transfer either, and neither surrogate-side metric currently available does.
 
 ## Operational notes
 
+- **sbel is the only box that can run the analytic fine-tune recipe.** Batch 64 with
+  15-step BPTT OOMs at 7.53 GiB (a3, RTX 5060 Ti) and 5.6 GiB (sliger, RTX 2060) even for a
+  baseline-size surrogate; the 2x-width surrogate OOMs on both by a wider margin. Only the
+  3090 fits it, which is why every successful fine-tune in this document ran there and why
+  fan-out attempts kept dying in ways that looked like unrelated bugs. Reducing the batch
+  would fit, but it changes the arm rather than the surrogate under test, which is the one
+  thing a surrogate comparison must hold fixed. PPO arms are smaller and do run on sliger.
+- **A fine-tune also needs the surrogate's PROCESSED DATASET, not just its checkpoint.**
+  The script loads `training_datasets/<name>/metadata.json` for normalisation, so relaying
+  a `.pt` alone produces a FileNotFoundError that reads like a missing model.
 - **The cluster cannot train, only score and collect.** torch there raises
   `hipErrorFileNotFound` on the first GPU op: the build carries no kernels for the node
   architecture. Chrono's own HIP path is unaffected, which is why scoring and collection
