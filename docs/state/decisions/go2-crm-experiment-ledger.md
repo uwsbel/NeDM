@@ -553,6 +553,36 @@ opposite responses:
 specific episodes to find. This needs no new code, which is why it is the next test rather
 than a corpus audit.
 
+**RIGID DATA IMPROVES THE CRM SURROGATE, on its open-loop metric.** Both arms at the
+32-episode evaluation with the smoothing window, differing only in whether level rigid
+ground is mixed in:
+
+| surrogate | trained on | median rollout_sel | IQR |
+|---|---|---|---|
+| `mixctl` | CRM only | 2.767 | 0.738 |
+| `mixed` | **CRM + rigid, 50/50, terrain-conditioned** | **2.380** | 0.942 |
+
+A 14% reduction. For scale, two CRM-only surrogates at different seeds (`mixctl` 2.767,
+`qbase` 2.652) differ by 4%, so the gap is larger than surrogate-seed noise -- though with
+one run each that is an argument, not a measurement.
+
+Why this matters beyond the number: rigid ground costs about 1,900 episodes per charged
+node-hour against CRM's 200, and records 92% of each episode against CRM's ~25%, because
+there is no SPH solver and no particle bed to walk out of. 800 rigid episodes gave 6.04 h
+for roughly 0.4 node-hours. If the cheap terrain improves the expensive one, the collection
+economics of this line of work change: the answer to "we need more data" stops being "CRM
+is too expensive" and becomes "collect the terrain that is cheap".
+
+Design choices worth recording, since both could have invalidated it. The mix is 50/50
+rather than the 75/25 an older flat+crm config used -- that config targeted flat, this one
+targets CRM, and the rigid corpus is four times larger, so 75% would let rigid dominate the
+gradient. And validation and checkpoint selection are CRM-only, since letting rigid into the
+selection metric rewards a model that is good at the easy terrain.
+
+`mixedft_s0/s1/s2` fine-tune in it against the already-scored `basedft` seeds. Three seeds
+because the soil experiment showed a surrogate can be better on average and far less
+reliable, and open-loop error has twice disagreed with Chrono in this document.
+
 ## Operational notes
 
 - **sbel is the only box that can run the analytic fine-tune recipe.** Batch 64 with
