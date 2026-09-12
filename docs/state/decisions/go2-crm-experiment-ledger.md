@@ -264,9 +264,19 @@ attribution result needs a different response.
 **Less data trains a better surrogate, and that needs explaining before it is believed.**
 `dq25` at 25% of the corpus reaches rollout_sel 0.480 against the full corpus baseline's
 0.524, on byte-identical processed data (same metadata md5, same 17 shards). Taken at face
-value the model is not data-limited and collecting more of the same buys nothing. The
-confound to rule out first is whether `train_episode_fraction` also changes the number of
-gradient steps, in which case the arms differ in optimisation budget as well as in data.
+value the model is not data-limited and collecting more of the same buys nothing. The obvious confound is ruled out. `steps_per_epoch` is fixed in config and the sampler
+draws `steps_per_epoch x batch_size` samples per epoch WITH REPLACEMENT, so all four arms
+take exactly **160,000 gradient steps** (80 x 2000). `train_episode_fraction` changes only
+how many distinct episodes those steps draw from; `dq25` is not under-trained, it is
+equally trained on a quarter of the data. Same seed, same shards, same schedule.
+
+What is NOT ruled out is the instrument. `rollout_sel` is a surrogate-internal open-loop
+score, and today produced two separate cases of an internal number pointing the wrong way:
+the pessimism training curve, and the trajectory validation pick. The result that would
+settle this is a Chrono one -- fine-tune a policy in the `dq25` surrogate and score it
+against the same policy fine-tuned in `baseline_s1`. Until then the claim is that the model
+is not data-limited ON ITS OWN METRIC, which is weaker than it sounds.
+
 `dq50` and `dq75` fill in the curve.
 
 ## In flight
