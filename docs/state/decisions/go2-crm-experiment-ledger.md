@@ -166,9 +166,9 @@ scored in Chrono on an identical 22-episode head of the split.
 | 1500 | 0.0880 | -37.6% | 19/22 | 0.001 |
 
 The recipe stops at ||dW|| 1.0, which happens near update 94. The surrogate-internal
-metric, run to the full budget, selected update 1500. The Chrono optimum is update 800.
-The displacement rule stops roughly eight times too early; the internal metric runs past
-the peak and lands eight points worse than it. Both rules were plausible and both are
+metric, run to the full budget, selected update 1500. On the 22-episode subset the best iterate was update 800; on the full split that arm is
+-41.9% against the pinned arm's -40.3%. See the confirmation below before reading the
+subset numbers as results. Both rules were plausible and both are
 wrong, which is the argument for keeping the trajectory rather than trusting any rule.
 
 Note the shape, not just the peak. Update 1000 wins 17 of 22 episodes yet has p 0.63:
@@ -176,10 +176,35 @@ the median improves while a few episodes fail badly enough to carry the mean. Mi
 iterates are not uniformly worse, they are higher VARIANCE, and a rule reading a single
 scalar cannot see that distinction either.
 
-CAVEAT, and it is not a small one: 22 episodes, and the winner was chosen on the same
-episodes that ranked it. Update 800 and 600 are being re-scored on the full 80-episode
-split before -45.5% is treated as a number rather than a shape. The claim that survives
-regardless is the one about the rules, since it does not depend on which iterate wins.
+CONFIRMED ON THE FULL SPLIT, and the confirmation cut the headline down. Updates 800 and
+600 re-scored on all 80 episodes, paired per episode against the same base:
+
+| arm | n | mae_vx | vs base | wins | p |
+|---|---|---|---|---|---|
+| update 800 | 75 | 0.0910 | **-41.9%** | 67/75 | <1e-4 |
+| update 600 | 75 | 0.0943 | **-39.7%** | 66/75 | <1e-4 |
+| `w_h15r0`, pinned, stops ~update 94 | 75 | 0.0937 | **-40.3%** | 68/75 | <1e-4 |
+
+Update 800 read -45.5% on the 22-episode subset and -41.9% on the full split. The subset
+inflated the arm it had been used to select by 3.6 points, which is the whole reason the
+confirmation step exists and is worth restating: a shape measurement cannot also be the
+number, ever.
+
+So the corrected reading of this experiment, which is weaker than the first pass:
+
+- The displacement stop is NOT leaving large gains on the table. It lands within 1.6
+  points of the best iterate sampled, and adjacent iterates differ by 2.2 points (800 vs
+  600), so 1.6 sits inside iterate-to-iterate noise. "Stops eight times too early" was a
+  statement about update NUMBER that did not survive contact with the Chrono scores.
+- What does survive is narrower: no stop rule tested tracks the Chrono optimum, and the
+  surrogate-internal metric run to a full budget is the worst of them, selecting update
+  1500 (-37.6% on the subset, never re-scored at full split). Keeping the trajectory is
+  worth it as a DIAGNOSTIC -- it is how the 3.6-point subset inflation and the flat region
+  between updates 200 and 800 became visible at all -- not as a source of headroom.
+- The variance observation stands and is arguably the most useful part. Update 1000 wins
+  17 of 22 episodes at p 0.63: the median improves while a few episodes fail badly enough
+  to carry the mean. Mid-training iterates are higher variance, not uniformly worse, and no
+  scalar stop rule can see that.
 
 **The stop criterion, before this measurement.** Every rule in use --
 fixed ||dW||, best surrogate-internal reward, fixed budget -- selects one iterate with an
