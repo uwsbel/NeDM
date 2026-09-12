@@ -898,6 +898,26 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
     # A file that looks like a complete record is complete for one subsystem, and the
     # boundary is invisible from inside the file. Stated here because the next
     # parameter applied outside the config path will look just as absent.
+    # THE EFFECTIVE SOIL, for exactly the reason stated just above.
+    #
+    # --soil-young / --soil-cohesion are applied in build_crm() from `args`, which is not
+    # the config path, so a soil sweep wrote 400 episodes whose resolved config all claimed
+    # young=500000 while the physics actually varied from 2.5e5 to 7.0e5. The variation was
+    # real -- mean trunk height ordered monotonically across the five bins, 0.5426 m on the
+    # softest against 0.5556 m on the stiffest -- but nothing in the recorded metadata could
+    # show it, and a later reader would have concluded the sweep never happened.
+    #
+    # This is the second parameter to land in exactly the trap the comment above describes.
+    # Recording it here does not fix the boundary, it just moves one more parameter across.
+    config["effective_soil"] = {
+        "preset": args.soil,
+        "young": float(args.soil_young) if getattr(args, "soil_young", None) is not None
+                 else float(SOIL_PRESETS[args.soil]["young"]),
+        "cohesion": float(args.soil_cohesion) if getattr(args, "soil_cohesion", None) is not None
+                    else float(SOIL_PRESETS[args.soil]["cohesion"]),
+        "overridden": bool(getattr(args, "soil_young", None) is not None
+                           or getattr(args, "soil_cohesion", None) is not None),
+    }
     config["effective_action_mult"] = float(os.environ.get("NEDM_ACTION_MULT", 1.0))
     config["action_mult_source"] = ("NEDM_ACTION_MULT" if "NEDM_ACTION_MULT" in os.environ
                                     else "default (variable unset)")
