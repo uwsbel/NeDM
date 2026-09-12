@@ -394,23 +394,40 @@ nothing more, and read by median it halves the baseline's open-loop error at an 
 its spread. Width helps, depth is a wash, and the peak-early symptom meant the metric was
 noisy rather than the run being broken.
 
-And it does not matter for the residual. Measured on `last.pt` for both, same episodes:
+**SOIL DIVERSITY REDUCES THE BIAS, and capacity helps too.** CORRECTING THE PREVIOUS
+ENTRY, which was measured on the wrong checkpoint. The copy of the bias script on sbel was
+the pre-patch version reading `best_val.pt`, so those numbers were lucky-epoch draws rather
+than the `last.pt` comparison they were reported as. Re-run properly, on `last.pt` for
+every arm, identical episodes, identical Chrono truth of 0.2814:
 
-| surrogate | rollout_sel median | surrogate says | Chrono gives | over-promise |
+| surrogate | trained on | surrogate says | over-promise | vs baseline |
 |---|---|---|---|---|
-| `baseline_s1` | 2.173 | 88.7% | 79.5% | **+0.0324** |
-| `abl_w512` | 1.109 | 89.6% | 79.5% | **+0.0357** |
+| `baseline_s1` | 1.55 h, one soil | 0.3271 (92.5%) | **+0.0458** | -- |
+| `abl_w512` | 1.55 h, one soil, 2x width | 0.3190 (90.2%) | **+0.0376** | -18% |
+| `go2_crm_soil` | **0.96 h, soil 0.5x-1.4x** | 0.3112 (88.0%) | **+0.0298** | **-35%** |
 
-The wide model is twice as accurate open-loop and its optimistic velocity bias is
-unchanged, marginally worse if anything -- 0.0033 on a base of 0.032 is inside
-episode-sampling noise, so read it as no detectable reduction rather than as a regression.
+Chrono delivers 79.5% of command. Every model still over-promises; the soil-varied one
+does so by a third less than the baseline, on two thirds the data.
 
-That is a dissociation worth keeping: OPEN-LOOP ACCURACY AND THE VELOCITY BIAS ARE NOT THE
-SAME QUANTITY. Halving one leaves the other alone. It also narrows the attribution result:
-"the model is the binding constraint" is still supported, but "therefore add capacity" is
-not. A constant offset present for every policy, unmoved by doubling width, looks like a
-property of what the data CONTAINS -- one soil, so no way to learn how thrust varies with
-soil -- rather than of what the model can represent. The soil-varied surrogate is the test.
+The two checkpoints disagree about the SIGN of the capacity effect -- on `best_val` the
+wide model looks worse than baseline, on `last.pt` it is better -- which is the cleanest
+demonstration yet of why selecting on the minimum of a noisy metric had to go, and why the
+bias ranking now defaults to `last.pt`.
+
+What stands, carefully:
+
+- **The collection campaign paid off.** Varying the one axis the corpus never varied cut
+  the binding residual by about a third, using LESS data than the baseline. This is the
+  first intervention to move the bias at all.
+- **Open-loop accuracy still dissociates from the bias.** The soil surrogate is WORSE
+  open-loop (median 2.842 against the baseline's 2.173) and better on the bias. Fitting the
+  data well and being unbiased about what the soil returns are different things, and
+  `rollout_sel` measures the former.
+- **Caveats.** One run per arm at 24 episodes. The 35% gap is far larger than the ~10%
+  that was inside noise for the earlier best_val comparison, so it is probably real, but a
+  seed repeat would settle it. The soil arm also differs in data QUANTITY (0.96 h against
+  1.55 h), so it is not a pure diversity contrast -- though since `dq25` showed less data
+  is not worse, that confound makes the result more impressive rather than less.
 
 ## Operational notes
 
