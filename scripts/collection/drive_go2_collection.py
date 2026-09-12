@@ -34,6 +34,14 @@ PERTURB_MAX_N = float(os.environ.get("NEDM_PERTURB_MAX_N", "120"))
 TILT_ROLL = float(os.environ.get("NEDM_TILT_ROLL_DEG", "3.0"))
 TILT_PITCH = float(os.environ.get("NEDM_TILT_PITCH_DEG", "1.5"))
 SEED_OFFSET = int(sys.argv[4]) if len(sys.argv) > 4 else 0
+# Defaults the soil spread is applied around. IMPORTED from the constants module, not
+# written as literals here: the collector defaults to the 'soft' preset (young 5.0e5,
+# cohesion 2000), and a first pass at this hardcoded 1e6 / 1e3, which matches neither
+# preset -- it would have centred the whole soil sweep on a soil no episode has ever used.
+from nedm.quadruped.constants import SOIL_PRESETS as _SP
+_SOIL_DEF = _SP[os.environ.get("NEDM_SOIL_PRESET", "soft")]
+_SOIL_YOUNG_DEF = float(_SOIL_DEF["young"])
+_SOIL_COH_DEF = float(_SOIL_DEF["cohesion"])
 # The offset goes in the directory name as well as the metadata: metadata makes the
 # origin recoverable, a path makes it obvious, and two boxes writing identically
 # named directories is how a merge silently overwrites. Offset 0 is unsuffixed, so
@@ -102,6 +110,39 @@ if _NSHARD > 1:
     jobs = [j for n, j in enumerate(jobs) if n % _NSHARD == _SHARD]
     print(f"  shard {_SHARD} of {_NSHARD}: {len(jobs)} episodes")
 
+def _soil_args(fam, i):
+    """Stratified SOIL, the one axis the corpus never varied.
+
+    Every episode ever collected used the single default soil, so the surrogate has seen
+    exactly one terrain stiffness and has no way to represent another. That matters
+    because the measured residual is a near-constant 8-9% OPTIMISTIC velocity bias -- the
+    model believes the ground gives back more than Chrono delivers -- and a model fitted
+    to one soil cannot learn how thrust varies with soil at all; it can only learn the
+    mean of the one it saw.
+
+    Off unless NEDM_SOIL_SPREAD is set, so every existing invocation reproduces bit for
+    bit. The spread is a FRACTION of the default, applied in stratified bins that always
+    include the default itself at bin 0, so the new corpus is a superset of the old
+    conditions rather than a shifted one.
+    """
+    spread = float(os.environ.get("NEDM_SOIL_SPREAD", "0"))
+    if spread <= 0:
+        return []
+    nbin = int(os.environ.get("NEDM_SOIL_BINS", "5"))
+    b = i % nbin                              # bin 0 == default soil, unchanged
+    if b == 0:
+        return []
+    rng = random.Random(family_seed(fam, SEED_OFFSET) + 6421 * i)
+    # Young's modulus and cohesion move together in sign but not magnitude: a stiffer bed
+    # is usually also more cohesive, and drawing them independently would spend most
+    # episodes on physically odd combinations.
+    sgn = 1.0 if b % 2 else -1.0
+    mag = spread * (b + 1) / nbin
+    young = _SOIL_YOUNG_DEF * (1.0 + sgn * mag)
+    coh = _SOIL_COH_DEF * (1.0 + sgn * mag * rng.uniform(0.5, 1.5))
+    return ["--soil-young", f"{young:.4g}", "--soil-cohesion", f"{coh:.4g}"]
+
+
 def cmd(j):
     fam, i, p, x, y, h, py = j
     extra = []
@@ -112,6 +153,7 @@ def cmd(j):
         extra = ["--ground-size-m", f"{GROUND_M}",
                  "--perturb-peak-n", f"{peak:.1f}",
                  "--prewalk-s", f"{tilt_rng.uniform(0.0, 3.0):.2f}",
+                 *_soil_args(fam, i),
                  # ROLL STAYS AT +/-3, PITCH IS CAPPED AT 1.5. Measured on the 2,000
                  # episodes at offset 3,000,000: this quadruped is far weaker in pitch
                  # than in roll, corr(|pitch|, fell) = +0.427 rising 2% -> 48% across
