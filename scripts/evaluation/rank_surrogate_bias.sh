@@ -22,7 +22,19 @@ CHR=${CHR:-$S/crmtrack_BASE_$(hostname).json}
 [ -f "$CHR" ] || { echo "FATAL: no scored base-policy Chrono file on this box"; exit 1; }
 echo "chrono truth: $(basename "$CHR")"
 for run in "$@"; do
-  ck=$S/training_runs/$run/checkpoints/best_val.pt
+  # WHICH CHECKPOINT, and why it is not best_val by default any more.
+  #
+  # best_val.pt is saved at the epoch with the lowest rollout_sel, and rollout_sel is
+  # computed on 12 rollouts and swings by 2-7x between consecutive epochs. Across nine
+  # runs the arm with the lowest MINIMUM had the worst MEDIAN of its last forty epochs,
+  # so best_val.pt is the luckiest evaluation of eighty rather than the best model. Two
+  # surrogates compared through their best_val checkpoints are being compared on which
+  # run drew a better twelve-episode sample.
+  #
+  # last.pt is the final epoch for every run, chosen by no metric at all, so it is the
+  # fair default for comparing MODELS. Set CKPT_NAME=best_val to reproduce the old
+  # behaviour deliberately.
+  ck=$S/training_runs/$run/checkpoints/${CKPT_NAME:-last}.pt
   [ -f "$ck" ] || { printf "  %-22s no checkpoint yet\n" "$run"; continue; }
   printf "  %-22s " "$run"
   $PY scripts/evaluation/attribute_tracking_error.py \
