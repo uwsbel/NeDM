@@ -429,23 +429,47 @@ What stands, carefully:
   1.55 h), so it is not a pure diversity contrast -- though since `dq25` showed less data
   is not worse, that confound makes the result more impressive rather than less.
 
-**The end-to-end test is running.** `soilft` fine-tunes the policy inside the soil-varied
-surrogate under the pinned recipe; `basedft` is the matched control, same recipe against
-the baseline surrogate. Both use `last.pt` of their own surrogate, because the pinned
--40.3% arm used `best_val.pt` and comparing across checkpoint conventions is exactly the
-confound withdrawn twice already today. Both stopped at ||dW|| ~1.0, at updates 88 and 110.
+**THE BIAS IS NOT THE BINDING CONSTRAINT ON TRANSFER, and the prediction was wrong in the
+opposite direction.** The end-to-end test is in, and it reverses the reading of the soil
+result recorded above.
 
-PREDICTION for the soil transplant, recorded before the Chrono scores land: `soilft` beats
-`basedft`, but by less than the 35% bias reduction would naively suggest -- call it a few
-points of tracking error rather than a third. Reasoning: the bias is a CONSTANT offset, so
-correcting it should shift how much velocity the policy asks for, which is a real but
-bounded effect on tracking error; it is not a change in the model's dynamics fidelity,
-which is what would move the result a lot. The honest alternative is that it does nothing
-measurable, in which case the bias is real but not the binding constraint on transfer.
+| arm | fine-tuned in | mae_vx | vs base | wins | p |
+|---|---|---|---|---|---|
+| `basedft` | baseline surrogate | 0.0914 | **-41.6%** | 67/75 | <1e-4 |
+| `soilft` | soil-varied surrogate | 0.0971 | **-37.3%** | 64/74 | <1e-4 |
 
-This is logged in advance for the same reason as the anchor prediction: of the four
-predictions made this way, two were wrong, one was right, and the value is in the record
-rather than in the hit rate.
+Head to head, paired on the 74 shared episodes: soil is **+6.3% worse** than the control,
+33 wins of 74, p 0.0115. Both arms used the pinned recipe, both stopped at ||dW|| ~1.0
+(updates 88 and 110), both used `last.pt` of their own surrogate, so the only difference is
+which model the policy was optimised against.
+
+So the soil surrogate carries a 35% SMALLER velocity bias and produces a WORSE transplanted
+policy. The chain this work was building -- collect the axis the corpus never varied,
+reduce the model's systematic error, transfer better -- does not hold. Reducing the bias
+made transfer worse.
+
+Line up the three quantities and the pattern is the opposite of what was recorded:
+
+| surrogate | open-loop median | bias | transfer |
+|---|---|---|---|
+| `baseline_s1` | 2.173 | +0.0458 | **-41.6%** |
+| `go2_crm_soil` | 2.842 (worse) | +0.0298 (better) | **-37.3%** (worse) |
+
+Transfer follows OPEN-LOOP ACCURACY and not the bias. The earlier entry claimed the
+quantity the trainer minimises is not the quantity that governs transfer; on this evidence
+`rollout_sel` tracked transfer correctly and the bias did not. That claim is withdrawn.
+
+What this does to the attribution result. "The residual is model error, not an optimisation
+shortfall" still stands -- nothing here touches it. "Therefore target the bias" was the
+wrong inference from it, and it was mine. A constant offset is measurable, real, and
+apparently not what limits the transplanted policy.
+
+CONFOUND, and it is resolvable. The soil arm differs from the baseline in data AND in
+open-loop error, so this pairing cannot separate them. `w512ft` fine-tunes in `abl_w512`,
+which holds the corpus fixed and improves open-loop accuracy (median 1.109 against 2.173)
+with a bias in between (+0.0376). PREDICTION, logged before the run: `w512ft` beats
+`basedft`'s -41.6%. If it lands near baseline instead, open-loop accuracy does not predict
+transfer either, and neither surrogate-side metric currently available does.
 
 ## Operational notes
 
