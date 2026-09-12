@@ -90,7 +90,30 @@ p 0.26) and significantly WORSE at full reward (+10.2%, p 0.001). Adding a KL an
 the base policy makes it significant: `z_ppoA30` (KL 0.30) -9.5%, `z_ppoA03` (KL 0.03)
 -22.4%, both p<1e-4. Of the two anchors tried on that path, the lighter won.
 
-**The follow-up anchor sweep was confounded and its conclusion is withdrawn.** `z_ppoA03` and `z_ppoA30` ran with `--objective ppo`, `--det-every 50`, `--branch-steps 25`. The follow-ups `z_ppoA01` (0.01), `z_ppoA003` (0.003) and `z_ppoA03b25` ran with `--objective rslrl` and `--det-every 200`. All three failed to improve on their starting point -- best deterministic reward at update 1 -- and that was briefly read as the anchor having a floor at 0.03. It is not evidence for that: those arms differ from A03 in the optimiser IMPLEMENTATION, not just in `kl-base`. What they do show, consistently with `r_rsl_full` (+10.2%), is that the rsl_rl path fails at every anchor weight tried, while the hand-written PPO path responds to one. `y_a03rep` / `y_a010` / `y_a001` / `y_a0003` re-run the sweep with A03's exact configuration, varying only `kl-base`, with A03 itself reproduced as the anchor point.
+**The follow-up anchor sweep was confounded and its conclusion is withdrawn.** `z_ppoA03` and `z_ppoA30` ran with `--objective ppo`, `--det-every 50`, `--branch-steps 25`. The follow-ups `z_ppoA01` (0.01), `z_ppoA003` (0.003) and `z_ppoA03b25` ran with `--objective rslrl` and `--det-every 200`. All three failed to improve on their starting point -- best deterministic reward at update 1 -- and that was briefly read as the anchor having a floor at 0.03. It is not evidence for that: those arms differ from A03 in the optimiser IMPLEMENTATION, not just in `kl-base`. What they do show, consistently with `r_rsl_full` (+10.2%), is that the rsl_rl path fails at every anchor weight tried, while the hand-written PPO path responds to one. `y_a03rep` / `y_a010` / `y_a001` / `y_a0003` re-run the sweep with A03's exact
+configuration, varying only `kl-base`, with A03 itself reproduced as the anchor point.
+
+The confound diagnosis is now confirmed from the other side. `y_a001` uses kl-base 0.01,
+the same weight as the withdrawn `z_ppoA01`, and on this path it TRAINS: best deterministic
+reward +1.3077 at update 1500, where the rslrl arm at the identical anchor peaked at update
+1. The anchor weight was never the problem.
+
+Surrogate-internal results are monotone in the anchor, and that is the warning rather than
+the finding:
+
+| arm | kl-base | internal reward | best update | final \|\|dW\|\| |
+|---|---|---|---|---|
+| `y_a001` | 0.01 | +1.3077 | 1500 | 6.81 |
+| `y_a03rep` | 0.03 | +1.2993 | 1500 | 5.82 |
+| `y_a010` | 0.10 | +1.2785 | 1450 | 5.09 |
+
+A looser anchor scores higher inside the model and travels further from the data it was fit
+on. That is the exact shape of model exploitation, and an internal metric cannot tell it
+apart from genuine improvement -- the same confusion that made ensemble pessimism look
+protective. PREDICTION, recorded before the Chrono scores land: `y_a001` will rank at or
+below `y_a03rep` in Chrono despite winning on every surrogate-internal number. If it wins
+in Chrono instead, the drift ceiling is higher than assumed and the anchor should be swept
+lower still.
 
 The diagnostic value is in WHICH constraint worked, because two were tried:
 
