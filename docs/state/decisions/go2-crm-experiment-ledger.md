@@ -464,7 +464,15 @@ shortfall" still stands -- nothing here touches it. "Therefore target the bias" 
 wrong inference from it, and it was mine. A constant offset is measurable, real, and
 apparently not what limits the transplanted policy.
 
-CONFOUND, and it is resolvable. The soil arm differs from the baseline in data AND in
+CONFOUND ONE, being removed by collection. The soil surrogate trained on 0.96 h against
+the baseline's 1.55 h, so "soil diversity hurt transfer" and "less data hurt transfer" are
+not separated by this pair. A second soil wave of 800 episodes (seed offset 10200000) is
+collecting now, which takes the soil corpus to roughly 2.9 h and past the baseline. If a
+soil surrogate with MORE data than the baseline still transfers worse, diversity is the
+cause; if it catches up, the first result was a quantity artefact and the collection
+strategy is vindicated after all.
+
+CONFOUND TWO, and it is resolvable. The soil arm differs from the baseline in data AND in
 open-loop error, so this pairing cannot separate them. `w512ft` fine-tunes in `abl_w512`,
 which holds the corpus fixed and improves open-loop accuracy (median 1.109 against 2.173)
 with a bias in between (+0.0376). PREDICTION, logged before the run: `w512ft` beats
