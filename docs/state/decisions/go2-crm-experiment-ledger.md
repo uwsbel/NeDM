@@ -148,7 +148,38 @@ optimiser. Run with `scripts/evaluation/attribute_tracking_error.py`.
 **One terrain.** Everything here is CRM. Transfer to rigid ground is the case study's
 actual claim and is untested.
 
-**The stop criterion has never been checked against Chrono.** Every rule in use --
+**Neither stop rule finds the Chrono optimum.** MEASURED, on `t_traj`: the pinned config
+with the displacement stop removed, 1500 updates, every 100th iterate kept, eight of them
+scored in Chrono on an identical 22-episode head of the split.
+
+| update | mae_vx | vs base | wins | p |
+|---|---|---|---|---|
+| 1 | 0.1474 | -0.8% | 11/23 | 0.66 |
+| 200 | 0.0857 | -39.2% | 18/22 | <1e-4 |
+| 400 | 0.0857 | -39.2% | 17/22 | <1e-4 |
+| 600 | 0.0814 | -42.3% | 19/22 | <1e-4 |
+| **800** | **0.0768** | **-45.5%** | 19/22 | <1e-4 |
+| 1000 | 0.1122 | -20.4% | 17/22 | 0.63 |
+| 1200 | 0.1093 | -22.5% | 18/22 | 0.18 |
+| 1500 | 0.0880 | -37.6% | 19/22 | 0.001 |
+
+The recipe stops at ||dW|| 1.0, which happens near update 94. The surrogate-internal
+metric, run to the full budget, selected update 1500. The Chrono optimum is update 800.
+The displacement rule stops roughly eight times too early; the internal metric runs past
+the peak and lands eight points worse than it. Both rules were plausible and both are
+wrong, which is the argument for keeping the trajectory rather than trusting any rule.
+
+Note the shape, not just the peak. Update 1000 wins 17 of 22 episodes yet has p 0.63:
+the median improves while a few episodes fail badly enough to carry the mean. Mid-training
+iterates are not uniformly worse, they are higher VARIANCE, and a rule reading a single
+scalar cannot see that distinction either.
+
+CAVEAT, and it is not a small one: 22 episodes, and the winner was chosen on the same
+episodes that ranked it. Update 800 and 600 are being re-scored on the full 80-episode
+split before -45.5% is treated as a number rather than a shape. The claim that survives
+regardless is the one about the rules, since it does not depend on which iterate wins.
+
+**The stop criterion, before this measurement.** Every rule in use --
 fixed ||dW||, best surrogate-internal reward, fixed budget -- selects one iterate with an
 instrument that cannot see Chrono, and a rule that returns one point cannot report that
 the run peaked early or was still improving at the end. `--ckpt-every` plus
