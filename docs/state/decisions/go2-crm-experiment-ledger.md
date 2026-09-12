@@ -525,6 +525,34 @@ proportional transfer gain -- the bias moved a lot and transfer moved a little, 
 remain loosely coupled at best. Three seeds is enough to kill the reversal, not enough to
 size the benefit.
 
+**THE COMPUTE-LIMITED HYPOTHESIS IS LARGELY FALSIFIED, so "more data is worse" stands.**
+At epoch 247 of 320, on the quieter 32-episode evaluation:
+
+| arm | data | gradient steps | median rollout_sel | IQR |
+|---|---|---|---|---|
+| `qdq25` | 25% | 160k | **0.755** | 0.220 |
+| `qbase4x` | 100% | **640k** | 2.305 | 0.387 |
+| `qbase` | 100% | 160k | 2.652 | 0.585 |
+
+Quadrupling the budget buys the full corpus 13% (2.652 -> 2.305) and leaves it three times
+worse than a quarter of the data at a quarter of the compute. The obvious explanation --
+that a fixed `steps_per_epoch` means the full corpus simply gets fewer passes per episode
+and is undertrained -- does not survive.
+
+So something about using less of THIS corpus is better, and two explanations call for
+opposite responses:
+
+- **a subset of the corpus is harmful** and `dq25`'s particular draw happens to miss it. Then
+  the corpus is salvageable and the work is to find those episodes.
+- **the fraction is what matters** for any draw, which would make it a fact about
+  optimisation dynamics on this data rather than about bad episodes, and hunting for
+  culprits would waste effort.
+
+`qdq25b` and `qdq25c` take a different 25% under seeds 101 and 202. If they also land near
+0.755 it is the fraction; if they land near 2.6 the first draw was lucky and there are
+specific episodes to find. This needs no new code, which is why it is the next test rather
+than a corpus audit.
+
 ## Operational notes
 
 - **sbel is the only box that can run the analytic fine-tune recipe.** Batch 64 with
