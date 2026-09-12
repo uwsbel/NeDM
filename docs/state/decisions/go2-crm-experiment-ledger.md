@@ -429,6 +429,24 @@ What stands, carefully:
   1.55 h), so it is not a pure diversity contrast -- though since `dq25` showed less data
   is not worse, that confound makes the result more impressive rather than less.
 
+**The end-to-end test is running.** `soilft` fine-tunes the policy inside the soil-varied
+surrogate under the pinned recipe; `basedft` is the matched control, same recipe against
+the baseline surrogate. Both use `last.pt` of their own surrogate, because the pinned
+-40.3% arm used `best_val.pt` and comparing across checkpoint conventions is exactly the
+confound withdrawn twice already today. Both stopped at ||dW|| ~1.0, at updates 88 and 110.
+
+PREDICTION for the soil transplant, recorded before the Chrono scores land: `soilft` beats
+`basedft`, but by less than the 35% bias reduction would naively suggest -- call it a few
+points of tracking error rather than a third. Reasoning: the bias is a CONSTANT offset, so
+correcting it should shift how much velocity the policy asks for, which is a real but
+bounded effect on tracking error; it is not a change in the model's dynamics fidelity,
+which is what would move the result a lot. The honest alternative is that it does nothing
+measurable, in which case the bias is real but not the binding constraint on transfer.
+
+This is logged in advance for the same reason as the anchor prediction: of the four
+predictions made this way, two were wrong, one was right, and the value is in the record
+rather than in the hit rate.
+
 ## Operational notes
 
 - **The cluster cannot train, only score and collect.** torch there raises
