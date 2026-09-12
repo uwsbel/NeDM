@@ -511,6 +511,37 @@ with a bias in between (+0.0376). PREDICTION, logged before the run: `w512ft` be
 `basedft`'s -41.6%. If it lands near baseline instead, open-loop accuracy does not predict
 transfer either, and neither surrogate-side metric currently available does.
 
+**Superseded-schema data archived: 46 roots, 78.78 GB.** `datasets/` went from 138 GB to
+63 GB and from 76 roots to 30. MOVED to `datasets_archive/`, not deleted, with
+`ARCHIVE_MANIFEST.json` recording each root's file count, size, column count and reason;
+reversible with a single `mv`.
+
+Two guards produced the list, because an archive that breaks a live experiment is worse
+than no archive:
+
+- the root must be UNIFORMLY old-schema. The four `go2_gravworld_off*` roots are MIXED,
+  5-15% of their episodes predating `grav_body_*`, and the merged index draws all 2,607 of
+  its episodes from them, so they stay.
+- nothing live may reference it, checked against every processed training dataset and every
+  merged index.
+
+Verified after the move: `go2_crm_merged` resolves 795 of 795 and `go2_gravworld_merged`
+2,607 of 2,607. The four `go2_crm_*_c` indices appear broken to an absolute-path check
+because they store RELATIVE `csv_path` values; their files are all present.
+
+**Correction on the gravity corpus, arrived at properly this time.** An earlier entry
+concluded the 27.88 h corpus is gravity-randomised by reading the `grav_shuf_*` columns.
+Those are a PLACEBO: `shuffle_gravworld.py` writes them as `grav_world` permuted across
+episodes, a dimensionality control so that a gain from adding three tilt channels cannot be
+confused with a gain from adding three channels of anything. The real channel is
+`grav_world_*`, and it carries 25 distinct vectors in 25 sampled episodes, |g| 9.810 tilted
+up to about 3 degrees. So the conclusion stands, but it was reached from the control column
+rather than the real one, which was luck.
+
+Physically that tilt is rigid ground at a VARYING SLOPE, which is genuine terrain variation
+rather than a defect. What is missing is a level-ground corpus to pair against CRM, which
+`collect_rigid.sbatch` now collects with tilt pinned to zero.
+
 ## Operational notes
 
 - **sbel is the only box that can run the analytic fine-tune recipe.** Batch 64 with
