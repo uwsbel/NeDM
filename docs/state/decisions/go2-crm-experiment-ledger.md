@@ -461,86 +461,37 @@ What stands, carefully:
   1.55 h), so it is not a pure diversity contrast -- though since `dq25` showed less data
   is not worse, that confound makes the result more impressive rather than less.
 
-**THE BIAS IS NOT THE BINDING CONSTRAINT ON TRANSFER, and the prediction was wrong in the
-opposite direction.** The end-to-end test is in, and it reverses the reading of the soil
-result recorded above.
+**SEED REPLICATION OVERTURNS THE REVERSAL, AND THE STATISTIC THAT PRODUCED IT.** Three
+independent fine-tune seeds per surrogate, each scored on the full 80-episode split and
+paired per episode:
 
-| arm | fine-tuned in | mae_vx | vs base | wins | p |
+| seed | soil mae_vx | control mae_vx | soil - control | soil wins | p |
 |---|---|---|---|---|---|
-| `basedft` | baseline surrogate | 0.0914 | **-41.6%** | 67/75 | <1e-4 |
-| `soilft` | soil-varied surrogate | 0.0971 | **-37.3%** | 64/74 | <1e-4 |
+| 0 | 0.0971 | 0.0914 | **+6.3%** worse | 33/74 | 0.0117 |
+| 1 | 0.0851 | 0.0922 | **-7.7%** better | 51/75 | 0.0001 |
+| 2 | 0.0850 | 0.0931 | **-8.7%** better | 50/75 | 0.0034 |
+| **pooled** | | | **-3.4%** better | 134/224 | **0.0206** |
 
-Head to head, paired on the 74 shared episodes: soil is **+6.3% worse** than the control,
-33 wins of 74, p 0.0115. Both arms used the pinned recipe, both stopped at ||dW|| ~1.0
-(updates 88 and 110), both used `last.pt` of their own surrogate, so the only difference is
-which model the policy was optimised against.
+Two findings, and the second matters more than the first.
 
-So the soil surrogate carries a 35% SMALLER velocity bias and produces a WORSE transplanted
-policy. The chain this work was building -- collect the axis the corpus never varied,
-reduce the model's systematic error, transfer better -- does not hold. Reducing the bias
-made transfer worse.
+**Soil diversity does not hurt transfer.** The earlier entry -- less bias, worse transfer --
+rested on seed 0 alone. Two further seeds reverse it and the pooled evidence favours the
+soil surrogate. That conclusion is withdrawn.
 
-Line up the three quantities and the pattern is the opposite of what was recorded:
+**Every seed pair is individually significant and they disagree about the sign.** p 0.0117,
+0.0001 and 0.0034, pointing +6.3%, -7.7%, -8.7%. The paired-episode bootstrap treats
+episode variation as the ONLY noise source; it is structurally blind to seed-to-seed
+variance in the fine-tune, which is roughly +/-8% here. So a per-seed p-value cannot
+establish which surrogate is better no matter how small it gets, and one was used to
+overturn a published result. Any future surrogate-vs-surrogate claim in this document needs
+replicate SEEDS, not more episodes.
 
-| surrogate | open-loop median | bias | transfer |
-|---|---|---|---|
-| `baseline_s1` | 2.173 | +0.0458 | **-41.6%** |
-| `go2_crm_soil` | 2.842 (worse) | +0.0298 (better) | **-37.3%** (worse) |
-
-Transfer follows OPEN-LOOP ACCURACY and not the bias. The earlier entry claimed the
-quantity the trainer minimises is not the quantity that governs transfer; on this evidence
-`rollout_sel` tracked transfer correctly and the bias did not. That claim is withdrawn.
-
-What this does to the attribution result. "The residual is model error, not an optimisation
-shortfall" still stands -- nothing here touches it. "Therefore target the bias" was the
-wrong inference from it, and it was mine. A constant offset is measurable, real, and
-apparently not what limits the transplanted policy.
-
-CONFOUND ONE, being removed by collection. The soil surrogate trained on 0.96 h against
-the baseline's 1.55 h, so "soil diversity hurt transfer" and "less data hurt transfer" are
-not separated by this pair. A second soil wave of 800 episodes (seed offset 10200000) is
-collecting now, which takes the soil corpus to roughly 2.9 h and past the baseline. If a
-soil surrogate with MORE data than the baseline still transfers worse, diversity is the
-cause; if it catches up, the first result was a quantity artefact and the collection
-strategy is vindicated after all.
-
-CONFOUND TWO, and it is resolvable. The soil arm differs from the baseline in data AND in
-open-loop error, so this pairing cannot separate them. `w512ft` fine-tunes in `abl_w512`,
-which holds the corpus fixed and improves open-loop accuracy (median 1.109 against 2.173)
-with a bias in between (+0.0376). PREDICTION, logged before the run: `w512ft` beats
-`basedft`'s -41.6%. If it lands near baseline instead, open-loop accuracy does not predict
-transfer either, and neither surrogate-side metric currently available does.
-
-**Superseded-schema data archived: 46 roots, 78.78 GB.** `datasets/` went from 138 GB to
-63 GB and from 76 roots to 30. MOVED to `datasets_archive/`, not deleted, with
-`ARCHIVE_MANIFEST.json` recording each root's file count, size, column count and reason;
-reversible with a single `mv`.
-
-Two guards produced the list, because an archive that breaks a live experiment is worse
-than no archive:
-
-- the root must be UNIFORMLY old-schema. The four `go2_gravworld_off*` roots are MIXED,
-  5-15% of their episodes predating `grav_body_*`, and the merged index draws all 2,607 of
-  its episodes from them, so they stay.
-- nothing live may reference it, checked against every processed training dataset and every
-  merged index.
-
-Verified after the move: `go2_crm_merged` resolves 795 of 795 and `go2_gravworld_merged`
-2,607 of 2,607. The four `go2_crm_*_c` indices appear broken to an absolute-path check
-because they store RELATIVE `csv_path` values; their files are all present.
-
-**Correction on the gravity corpus, arrived at properly this time.** An earlier entry
-concluded the 27.88 h corpus is gravity-randomised by reading the `grav_shuf_*` columns.
-Those are a PLACEBO: `shuffle_gravworld.py` writes them as `grav_world` permuted across
-episodes, a dimensionality control so that a gain from adding three tilt channels cannot be
-confused with a gain from adding three channels of anything. The real channel is
-`grav_world_*`, and it carries 25 distinct vectors in 25 sampled episodes, |g| 9.810 tilted
-up to about 3 degrees. So the conclusion stands, but it was reached from the control column
-rather than the real one, which was luck.
-
-Physically that tilt is rigid ground at a VARYING SLOPE, which is genuine terrain variation
-rather than a defect. What is missing is a level-ground corpus to pair against CRM, which
-`collect_rigid.sbatch` now collects with tilt pinned to zero.
+What survives, stated at the strength the evidence supports: the soil-varied surrogate is
+probably mildly better for transfer, by about 3% of control, with a spread across seeds
+larger than the effect. It is NOT the case that a 35% reduction in velocity bias bought a
+proportional transfer gain -- the bias moved a lot and transfer moved a little, so the two
+remain loosely coupled at best. Three seeds is enough to kill the reversal, not enough to
+size the benefit.
 
 ## Operational notes
 
