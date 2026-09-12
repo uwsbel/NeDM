@@ -486,6 +486,38 @@ establish which surrogate is better no matter how small it gets, and one was use
 overturn a published result. Any future surrogate-vs-surrogate claim in this document needs
 replicate SEEDS, not more episodes.
 
+REFINEMENT, and it corrects the paragraph above as well as an over-broad audit that
+followed it. The seed spread is NOT a uniform property of the fine-tune. It is a property
+of the SURROGATE being fine-tuned in:
+
+| surrogate | three fine-tune seeds | spread | sd |
+|---|---|---|---|
+| `baseline_s1` | -41.6%, -41.1%, -40.5% | **1.1 pts** | **0.43** |
+| `go2_crm_soil` | -37.3%, -45.6%, -45.7% | **8.4 pts** | **3.92** |
+
+**REPRODUCIBILITY IS A PROPERTY OF THE SURROGATE.** The baseline surrogate yields fine-tunes
+that land within a point of each other across seeds. The soil surrogate is nine times more
+variable: two of its seeds reach -45.6% and -45.7%, clearly better than anything the
+baseline produces, and one reaches -37.3%, clearly worse.
+
+That changes the reading in three ways:
+
+- **Soil is better on average, by about 1.8 points** (-42.9% mean against -41.1%), which
+  agrees with the pooled paired test. The headline is not the mean though, it is the
+  variance.
+- **The soil surrogate's best fine-tunes beat the baseline's best.** -45.7% is the lowest
+  tracking error any arm in this document has reached. Whatever soil diversity buys, it is
+  available but not reliably so.
+- **The audit that followed the previous entry was alarmist.** Applying the soil surrogate's
+  +/-8% spread to every arm suggested 268 arm pairs were indistinguishable. With the
+  baseline surrogate's actual sd of 0.43, the rankings among baseline-surrogate arms stand.
+  What needs replicate seeds is any comparison INVOLVING the soil surrogate, or any
+  surrogate whose seed stability has not been measured.
+
+A surrogate that sometimes produces an excellent policy and sometimes a mediocre one is a
+different kind of object from one that reliably produces a good one, and the distinction is
+invisible to a single run. Measuring it costs three fine-tunes, which is 55 seconds each.
+
 What survives, stated at the strength the evidence supports: the soil-varied surrogate is
 probably mildly better for transfer, by about 3% of control, with a spread across seeds
 larger than the effect. It is NOT the case that a 35% reduction in velocity bias bought a
