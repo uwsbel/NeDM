@@ -240,6 +240,35 @@ kept) asks whether ||dW||=1.0 at update ~94 is where the Chrono optimum actually
 **No held-out command families.** All eight appear in both the branch pool and the scoring
 set, so this measures adaptation, not generalisation to unseen commands.
 
+**The first capacity ablation tested capacity at one learning rate, which is not the same
+thing.** Every arm held `lr=3e-4` and `warmup=1000`, the values tuned for the 6x256
+baseline. Both larger arms then peaked almost immediately and degraded for the rest of
+training:
+
+| arm | n_layer x n_embd | best rollout_sel | at epoch |
+|---|---|---|---|
+| `abl_l12` | 12 x 256 | 1.124 | **1** of 80 |
+| `abl_w512` | 6 x 512 | 0.652 | **4** of 80 |
+| `abl_w128` | 6 x 128 | 0.601 | 26 |
+| `abl_l3` | 3 x 256 | 0.701 | 33 |
+| `baseline_s1` | 6 x 256 | **0.524** | 29 |
+
+Peaking at epoch 1 of 80 is what a learning rate too high for the model looks like, not
+what a model failing to benefit from capacity looks like. The smaller arms, which converge
+normally, are informative; the larger two are not, and "bigger is worse" must not be read
+off this table. `l12lr1` / `l12lr03` / `w512lr1` / `w512lr03` re-run the two larger arms at
+a third and a tenth of the baseline LR with warmup lengthened in proportion. If they still
+fail to beat 6x256 at their own best LR, capacity genuinely is not the lever and the
+attribution result needs a different response.
+
+**Less data trains a better surrogate, and that needs explaining before it is believed.**
+`dq25` at 25% of the corpus reaches rollout_sel 0.480 against the full corpus baseline's
+0.524, on byte-identical processed data (same metadata md5, same 17 shards). Taken at face
+value the model is not data-limited and collecting more of the same buys nothing. The
+confound to rule out first is whether `train_episode_fraction` also changes the number of
+gradient steps, in which case the arms differ in optimisation budget as well as in data.
+`dq50` and `dq75` fill in the curve.
+
 ## In flight
 
 | what | where | answers |
