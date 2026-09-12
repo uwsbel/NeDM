@@ -84,6 +84,24 @@ for fam in COMMAND_FAMILIES:
         jobs.append((fam, i, p, x, y, h, py))
 print(f"{len(jobs)} episodes: {len(COMMAND_FAMILIES)} families x {N_PER_FAM}")
 
+# SHARDING, for running one collection across many cluster nodes.
+#
+# The jobs list above is a pure function of (families, N_PER_FAM, SEED_OFFSET, WIDE) --
+# stratified_params is seeded and spawn_for hashes its inputs -- so every shard builds the
+# IDENTICAL list and then takes a stride of it. That is what makes a sharded collection
+# the same dataset as an unsharded one rather than merely a similar one: episode i has the
+# same parameters, spawn, seed and output directory name whichever node produces it.
+#
+# Stride, not contiguous blocks: episode index drives the perturbation bin
+# (peak = PERTURB_MAX_N * (i % 6) / 5), so a contiguous block would hand one shard all the
+# undisturbed episodes and another all the hardest ones. If a shard dies, a stride loses a
+# spread of the envelope instead of a corner of it.
+_SHARD = int(os.environ.get("NEDM_SHARD", "0"))
+_NSHARD = int(os.environ.get("NEDM_NSHARD", "1"))
+if _NSHARD > 1:
+    jobs = [j for n, j in enumerate(jobs) if n % _NSHARD == _SHARD]
+    print(f"  shard {_SHARD} of {_NSHARD}: {len(jobs)} episodes")
+
 def cmd(j):
     fam, i, p, x, y, h, py = j
     extra = []
