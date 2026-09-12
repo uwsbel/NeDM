@@ -374,6 +374,44 @@ should be treated as settled, including the capacity and context ablations.
    the rigid ground it was trained on is a real blind spot, and needs a Genesis or Isaac
    install -- neither is on the fleet today.
 
+**Capacity is not the lever for the bias, and the LR hypothesis was wrong.** Two
+corrections, both against things recorded above.
+
+The claim that the larger arms needed a lower learning rate is FALSIFIED for width. At the
+baseline LR the wide model is the best and most stable arm measured; at a third of it, it
+falls apart:
+
+| arm | lr | median last 40 | IQR |
+|---|---|---|---|
+| `abl_w512` | 3e-4 | **1.109** | **0.208** |
+| `w512lr1` | 1e-4 | 2.692 | 2.799 |
+| `l12lr1` | 1e-4 | 2.169 | 1.071 |
+| `baseline_s1` | 3e-4 | 2.173 | 1.679 |
+| `abl_l12` | 3e-4 | 2.346 | 0.751 |
+
+So `abl_w512` was never badly trained. Its "best at epoch 4" was the min-of-noise artefact,
+nothing more, and read by median it halves the baseline's open-loop error at an eighth of
+its spread. Width helps, depth is a wash, and the peak-early symptom meant the metric was
+noisy rather than the run being broken.
+
+And it does not matter for the residual. Measured on `last.pt` for both, same episodes:
+
+| surrogate | rollout_sel median | surrogate says | Chrono gives | over-promise |
+|---|---|---|---|---|
+| `baseline_s1` | 2.173 | 88.7% | 79.5% | **+0.0324** |
+| `abl_w512` | 1.109 | 89.6% | 79.5% | **+0.0357** |
+
+The wide model is twice as accurate open-loop and its optimistic velocity bias is
+unchanged, marginally worse if anything -- 0.0033 on a base of 0.032 is inside
+episode-sampling noise, so read it as no detectable reduction rather than as a regression.
+
+That is a dissociation worth keeping: OPEN-LOOP ACCURACY AND THE VELOCITY BIAS ARE NOT THE
+SAME QUANTITY. Halving one leaves the other alone. It also narrows the attribution result:
+"the model is the binding constraint" is still supported, but "therefore add capacity" is
+not. A constant offset present for every policy, unmoved by doubling width, looks like a
+property of what the data CONTAINS -- one soil, so no way to learn how thrust varies with
+soil -- rather than of what the model can represent. The soil-varied surrogate is the test.
+
 ## Operational notes
 
 - **The cluster cannot train, only score and collect.** torch there raises
