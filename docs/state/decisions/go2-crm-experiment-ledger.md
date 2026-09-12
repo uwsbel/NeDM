@@ -88,7 +88,9 @@ it to `--reg-scale 0`: same result, unmodified objective, and the best yaw of an
 PPO on the same reward in the same model is insignificant at best (-4.6%, p 0.33; -8.9%,
 p 0.26) and significantly WORSE at full reward (+10.2%, p 0.001). Adding a KL anchor to
 the base policy makes it significant: `z_ppoA30` (KL 0.30) -9.5%, `z_ppoA03` (KL 0.03)
--22.4%, both p<1e-4. Lighter anchor wins, so the sweep continues below 0.03.
+-22.4%, both p<1e-4. Of the two anchors tried on that path, the lighter won.
+
+**The follow-up anchor sweep was confounded and its conclusion is withdrawn.** `z_ppoA03` and `z_ppoA30` ran with `--objective ppo`, `--det-every 50`, `--branch-steps 25`. The follow-ups `z_ppoA01` (0.01), `z_ppoA003` (0.003) and `z_ppoA03b25` ran with `--objective rslrl` and `--det-every 200`. All three failed to improve on their starting point -- best deterministic reward at update 1 -- and that was briefly read as the anchor having a floor at 0.03. It is not evidence for that: those arms differ from A03 in the optimiser IMPLEMENTATION, not just in `kl-base`. What they do show, consistently with `r_rsl_full` (+10.2%), is that the rsl_rl path fails at every anchor weight tried, while the hand-written PPO path responds to one. `y_a03rep` / `y_a010` / `y_a001` / `y_a0003` re-run the sweep with A03's exact configuration, varying only `kl-base`, with A03 itself reproduced as the anchor point.
 
 The diagnostic value is in WHICH constraint worked, because two were tried:
 
