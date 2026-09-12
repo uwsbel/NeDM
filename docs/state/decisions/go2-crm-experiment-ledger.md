@@ -110,10 +110,33 @@ the finding:
 A looser anchor scores higher inside the model and travels further from the data it was fit
 on. That is the exact shape of model exploitation, and an internal metric cannot tell it
 apart from genuine improvement -- the same confusion that made ensemble pessimism look
-protective. PREDICTION, recorded before the Chrono scores land: `y_a001` will rank at or
-below `y_a03rep` in Chrono despite winning on every surrogate-internal number. If it wins
-in Chrono instead, the drift ceiling is higher than assumed and the anchor should be swept
-lower still.
+protective. RESULT, and the prediction held. Scored on the full split against the same base:
+
+| arm | kl-base | vs base | wins | p | internal reward | final \|\|dW\|\| |
+|---|---|---|---|---|---|---|
+| `y_a010` | 0.10 | -11.0% | 57/77 | <1e-4 | +1.2785 | 5.09 |
+| `y_a03rep` | 0.03 | **-22.1%** | 60/75 | <1e-4 | +1.2993 | 5.82 |
+| `y_a001` | 0.01 | -4.4% | 53/74 | **0.84** | **+1.3077** | **6.81** |
+
+Three things follow.
+
+**The anchor has an interior optimum at 0.03.** Not a floor to sweep past and not a
+monotone knob: 0.10 is too tight to help much, 0.01 is too loose to help at all.
+
+**`y_a03rep` reproduces `z_ppoA03` to within 0.3 points** (-22.1% against -22.4%), so the
+configuration and the original result are both sound.
+
+**Model exploitation is now demonstrated rather than hypothesised.** `y_a001` won EVERY
+surrogate-internal number -- highest deterministic reward of the three -- while travelling
+furthest from the data the model was fit on, and in Chrono it is statistically
+indistinguishable from the unmodified base policy (p 0.84). Looser anchor, better internal
+score, more drift, no real gain. That is the whole mechanism in one arm.
+
+Note what this does to the claim withdrawn above. "0.03 is a floor, lighter is worse" turns
+out to be TRUE, but the evidence offered for it at the time was confounded and worthless --
+those arms differed in optimiser implementation, not anchor weight. Right conclusion,
+invalid reasoning. It is recorded twice on purpose: a claim that later proves correct does
+not retroactively make the bad evidence good, and the withdrawal was still the right call.
 
 The diagnostic value is in WHICH constraint worked, because two were tried:
 
