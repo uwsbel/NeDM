@@ -193,6 +193,38 @@ offset in what the model believes the soil returns. That is the kind of error be
 capacity can remove, which is why the current work is on the surrogate and not the
 optimiser. Run with `scripts/evaluation/attribute_tracking_error.py`.
 
+**The 27.88 h corpus is gravity-randomised, not rigid, and its metadata is thin.** Worth
+stating because it has been referred to as "rigid terrain data we already have", including
+by me, and that is wrong twice over.
+
+Every episode carries a DIFFERENT gravity vector: 30 distinct vectors in 30 sampled, all of
+magnitude 9.810 but tilted up to about 3 degrees off vertical, recorded in three
+`grav_shuf_*` columns the CRM corpus does not have. A surrogate fitted to it learns
+locomotion under a tilting gravity field. That is its own experiment, not a rigid-ground
+analogue of the CRM work.
+
+Its records are also far thinner. Measured, not assumed:
+
+| | deformable soil | gravity-randomised flat |
+|---|---|---|
+| recorded hours | 1.55 | 27.88 |
+| CSV columns | 174 | 177 (superset) |
+| key signals populated | 100% | 92-100% |
+| **per-episode metadata fields** | **56** | **9** |
+| fall / divergence flags | recorded | absent |
+| commanded velocities per episode | recorded | absent (family recoverable from the name) |
+| git provenance | recorded | absent |
+| `foot_force_source` | recorded (FSI) | absent |
+| impossible joint jumps, sampled | 2 of 388 | 0 of 120 |
+| truncated episodes | common, bed-limited | none seen |
+
+It cuts both ways. The larger corpus is physically CLEANER -- no diverged solves in the
+sample and no truncation, because there is no particle bed to walk out of. What it lacks is
+the record. On CRM two blown-up solves were caught because the flags and checks existed;
+here health had to be measured directly, since there is nothing to look up. A separate
+`basefail_index.json` holds 416 base-controller failures and those are already excluded
+from the main index, so that part was handled correctly when it was built.
+
 **One terrain.** Everything here is CRM. Transfer to rigid ground is the case study's
 actual claim and is untested.
 
