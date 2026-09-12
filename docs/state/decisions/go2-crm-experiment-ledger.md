@@ -302,6 +302,47 @@ is not data-limited ON ITS OWN METRIC, which is weaker than it sounds.
 
 `dq50` and `dq75` fill in the curve.
 
+**The surrogate selection metric is too noisy to rank anything from one run, and
+`best_val.pt` is chosen by its minimum.** This invalidates several comparisons recorded
+above and is the most important methodological finding of this line of work.
+
+`rollout_sel` is computed on 12 rollout episodes, and within a single run it swings by a
+factor of 2 to 7 between consecutive epochs -- `baseline_s1`'s last five epochs read 1.676,
+3.574, 2.773, 3.038, 2.206. Its reported "best" of 0.524 is the MINIMUM OF 80 NOISY DRAWS,
+a statistic dominated by how noisy the run was rather than by how good the model is. The
+trainer then saves `best_val.pt` at that epoch, so every surrogate checkpoint in this
+project is the luckiest of 80 twelve-episode evaluations, not the best model.
+
+Re-ranked on the median of the last 40 epochs, which is what should have been compared:
+
+| run | min(80) as reported | median last 40 | IQR |
+|---|---|---|---|
+| `dq25` | 0.480 | **0.694** | **0.142** |
+| `dq50` | 0.583 | 1.015 | 0.278 |
+| `abl_w512` | 0.652 | 1.109 | 0.208 |
+| `abl_w128` | 0.601 | 1.429 | 0.466 |
+| `abl_l3` | 0.701 | 1.525 | 0.743 |
+| `baseline_s3` | 1.039 | 1.819 | 0.691 |
+| `dq75` | 0.779 | 2.054 | 0.824 |
+| `baseline_s1` | **0.524** | **2.173** | **1.679** |
+| `abl_l12` | 1.124 | 2.346 | 0.751 |
+
+What changes:
+
+- **`baseline_s1` won on min by being the noisiest run in the set.** Its median is the
+  worst of all nine and its IQR is twelve times `dq25`'s. The surrogate every experiment in
+  this document was built against was selected this way.
+- **"Bigger is worse" was wrong for width.** `abl_w512` beats the baseline on median
+  (1.109 against 2.173) while the min statistic said the opposite. Depth still looks bad.
+- **`dq25` survives and strengthens.** Best median AND tightest IQR, so it is not a
+  min-of-noise artefact. Less data trains a more stable surrogate here, at matched gradient
+  steps.
+
+Two fixes follow, neither yet applied: raise `rollout_eval.num_episodes` well above 12 so
+a single evaluation means something, and select checkpoints on a smoothed metric rather
+than a raw minimum. Until both land, no single-run surrogate comparison in this document
+should be treated as settled, including the capacity and context ablations.
+
 ## In flight
 
 | what | where | answers |

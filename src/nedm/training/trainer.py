@@ -532,6 +532,23 @@ class HMMWVTrainer:
         # because both explicitly set rollout_sel. On this default it would have
         # been selected on the wrong data with nothing to indicate it.
         self.checkpoint_metric = str(training_cfg.get("checkpoint_metric", "val_loss"))
+        # SMOOTHING WINDOW FOR CHECKPOINT SELECTION.
+        #
+        # rollout_sel is computed on rollout_eval.num_episodes rollouts -- 12 in every Go2
+        # config -- and on CRM it swings by a factor of 2 to 7 between consecutive epochs.
+        # Selecting on its raw minimum therefore saves the epoch whose twelve episodes
+        # happened to go well, not the best model: measured across nine runs, the arm with
+        # the LOWEST minimum (baseline_s1, 0.524) had the WORST median of the last forty
+        # epochs (2.173) and an IQR of 1.679, twelve times the tightest run in the set. It
+        # won by being noisy.
+        #
+        # With a window > 1 the metric compared is the trailing median, which is robust to
+        # a single lucky evaluation and still tracks real improvement. Default 1 preserves
+        # the old behaviour exactly, so existing configs reproduce and this has to be asked
+        # for. Raising rollout_eval.num_episodes is the other half of the fix and is
+        # independent of this one.
+        self.checkpoint_metric_window = int(training_cfg.get("checkpoint_metric_window", 1))
+        self._ckpt_metric_history: list[float] = []
         self.metrics_path = self.output_dir / "metrics.jsonl"
         self.input_noise_sigma = float(config.get("training", {}).get("input_noise_sigma", 0.0))
         self.best_val_loss = float("inf")
@@ -1059,6 +1076,19 @@ class HMMWVTrainer:
         with self.metrics_path.open("a") as fp:
             fp.write(json.dumps(record) + "\n")
 
+    def _smoothed_metric(self, value: float) -> float:
+        """Trailing median of the checkpoint metric, or the raw value when window == 1."""
+        self._ckpt_metric_history.append(value)
+        w = self.checkpoint_metric_window
+        if w <= 1:
+            return value
+        window = self._ckpt_metric_history[-w:]
+        ordered = sorted(window)
+        mid = len(ordered) // 2
+        if len(ordered) % 2:
+            return ordered[mid]
+        return 0.5 * (ordered[mid - 1] + ordered[mid])
+
     def train(self) -> Path:
         train_iterator = mixed_infinite_loader(
             self.train_loaders, self.train_terrain_ids if self.terrain_enabled else None
@@ -1089,7 +1119,8 @@ class HMMWVTrainer:
             self.save_checkpoint("last", epoch, record)
             if self.checkpoint_metric not in record:
                 raise KeyError(f"checkpoint metric {self.checkpoint_metric!r} was not logged")
-            checkpoint_value = float(record[self.checkpoint_metric])
+            checkpoint_value = self._smoothed_metric(float(record[self.checkpoint_metric]))
+            record[f"{self.checkpoint_metric}_smoothed"] = checkpoint_value
             if checkpoint_value < self.best_val_loss:
                 self.best_val_loss = checkpoint_value
                 self.save_checkpoint("best_val", epoch, record)
