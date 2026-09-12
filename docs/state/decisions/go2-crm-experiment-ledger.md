@@ -376,6 +376,25 @@ should be treated as settled, including the capacity and context ablations.
 
 ## Operational notes
 
+- **The cluster cannot train, only score and collect.** torch there raises
+  `hipErrorFileNotFound` on the first GPU op: the build carries no kernels for the node
+  architecture. Chrono's own HIP path is unaffected, which is why scoring and collection
+  work and why this was not obvious. Preprocessing is CPU-only and does run there, so the
+  usable division is: collect and preprocess on the cluster, relay the processed dataset
+  (~115 MB) to a desktop, train there.
+- **a3 has no git credentials**, so `git pull` fails and any commit made there never
+  reaches origin. A local commit on a3 also makes later `--ff-only` pulls abort, which
+  silently starves it of new configs -- its runs then die on a missing config file rather
+  than on anything real. Commit from sbel; reset a3 to origin when it diverges.
+- **Only sbel holds a complete CRM corpus** unless repaired. a3 is missing a 246 MB
+  collection and its CRM CSVs predate the `grav_body_*` columns; sliger was missing 689
+  episodes and had 108 more at the old schema, both since fixed from sbel over Tailscale.
+- **Capacity, tentatively.** With a learning rate suited to its size, 12 layers reaches
+  parity with 6 and not better: median of the last forty epochs 2.169 against the
+  baseline's 2.173, up from 2.346 at the baseline LR. All three sit well inside their own
+  IQRs, so this separates nothing yet; `qbase` and `qw512` at 32 rollout episodes are the
+  version to believe.
+
 - **The cluster scores, the desktops train.** 24 mi2101x nodes complete a full sweep in one
   ~90 minute pass at 0.1x charge; a desktop box does exactly one arm in that time. Measured:
   0.149 charged node-hours per policy.
