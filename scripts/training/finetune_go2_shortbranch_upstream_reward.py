@@ -69,6 +69,21 @@ ap.add_argument("--policy", default="/home/kyle/sbel-artifacts/checkpoints/go2_c
 ap.add_argument("--root", default="/home/kyle/sbel-artifacts/datasets/go2_comprehensive_merged/flat")
 ap.add_argument("--out", default="/home/kyle/sbel-artifacts/finetune_go2_shortbranch")
 ap.add_argument("--updates", type=int, default=1500)      # FIXED BUDGET
+ap.add_argument("--exclude-families", default="",
+                help="Comma-separated command families to keep OUT of the branch pool, e.g.\n"
+                     "'weave,pivot'. Empty (the default) uses every family, so existing\n"
+                     "invocations are unchanged.\n"
+                     "\n"
+                     "This exists to convert 'the policy adapts' into 'the policy\n"
+                     "generalises'. All eight families currently appear in BOTH the branch\n"
+                     "pool and the scoring set, so every reported gain is measured on\n"
+                     "commands the fine-tune optimised against. Holding two out and scoring\n"
+                     "on all eight separates adaptation from generalisation, and the two are\n"
+                     "different claims.\n"
+                     "\n"
+                     "Matched against the episode FILENAME, which encodes the family as\n"
+                     "go2_crm_s<offset>_<family>_<index>. Substring matching is deliberate:\n"
+                     "'stop_and_go' must not be caught by a filter for 'go'.")
 ap.add_argument("--terrain-id", type=int, default=None,
                 help="Terrain index for a TERRAIN-CONDITIONED surrogate. Required by such a\n"
                      "model and meaningless to any other, so it defaults to None and every\n"
@@ -302,11 +317,33 @@ def scored_cmd(rows):
 # everything here. It is now --require-substring, defaulting to no filter, so
 # restricting to a shard has to be asked for and is recorded in the invocation.
 _want = getattr(a, "require_substring", "") or ""
+_drop = [f.strip() for f in (getattr(a, "exclude_families", "") or "").split(",") if f.strip()]
+
+def _family_of(csv_path):
+    """Family from the filename: go2_crm_s<offset>_<family>_<index>.csv"""
+    stem = os.path.basename(csv_path)[:-4]
+    parts = stem.split("_")
+    # drop the go2_crm_s<offset> prefix and the trailing index; what remains is the family,
+    # which may itself contain underscores (stop_and_go, vel_step, yaw_step)
+    return "_".join(parts[3:-1]) if len(parts) > 4 else ""
+
 paths = [e["csv_path"][:-4] + ".json" for e in idx
-         if e["episode_id"] in keep and (not _want or _want in e["csv_path"])]
+         if e["episode_id"] in keep and (not _want or _want in e["csv_path"])
+         and _family_of(e["csv_path"]) not in _drop]
 paths = [p for p in sorted(paths) if os.path.exists(p) or os.path.exists(p[:-5] + ".csv")]
 print(f"  branch pool candidates from index: {len(paths)}"
-      + (f"  (filtered on {_want!r})" if _want else "  (no shard filter)"))
+      + (f"  (filtered on {_want!r})" if _want else "  (no shard filter)")
+      + (f"  EXCLUDING families {_drop}" if _drop else ""))
+if _drop:
+    _kept = sorted({_family_of(e["csv_path"]) for e in idx if e["episode_id"] in keep}
+                   - set(_drop))
+    print(f"  families in branch pool: {_kept}")
+    _seen = {_family_of(e["csv_path"]) for e in idx if e["episode_id"] in keep}
+    _missing = [f for f in _drop if f not in _seen]
+    if _missing:
+        raise SystemExit(f"FATAL: --exclude-families names {_missing} which match no episode; "
+                         f"families present are {sorted(_seen)}. A typo here would silently "
+                         "exclude nothing and the run would look like a held-out experiment.")
 random.Random(a.seed).shuffle(paths)
 PRF = [f"policy_raw_{n}" for n in MOTOR]   # chrono order, like JP/JV
 S_all, A_all, C_all, P_all, excluded = [], [], [], [], 0

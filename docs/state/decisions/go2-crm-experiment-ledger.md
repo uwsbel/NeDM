@@ -705,6 +705,39 @@ variance findings are the only lead -- the baseline surrogate yields fine-tunes 
 while soil yields sd 4.93 and the wide model sd 3.93, so whatever the property is, it shows
 up as reproducibility rather than as accuracy.
 
+**THE ANCHOR DOES NOT CONTROL ORIGINAL-DOMAIN RETENTION; THE SIZE OF THE CRM GAIN DOES.**
+Prediction logged before the run and falsified by it.
+
+The KL anchor penalises distance from the base policy in policy space, so it looked like it
+should also bound how much of the base policy's rigid-ground competence is forgotten -- a
+free win if true. Measured in MuJoCo, five commanded speeds per policy:
+
+| policy | CRM gain | rigid mae_vx at 0.7/0.9/1.1 vs base | falls |
+|---|---|---|---|
+| base | -- | -- | 0/5 |
+| kl 0.10 | -11.0% | **+1.9%** | 1/5 |
+| kl 0.03 | -22.1% | **+64.4%** | **4/5** |
+| kl 0.01 | -4.4% | -35.2% | 0/5 |
+| analytic, unanchored | -41.6% | +53.8% | 0/5 |
+
+Retention does NOT order with anchor strength: kl 0.03 is the worst retainer in the set
+despite being anchored more tightly than kl 0.01. The prediction was that tighter anchor
+means less forgetting, and it is wrong.
+
+What retention does track is HOW MUCH THE POLICY GAINED ON CRM. kl 0.01 gained essentially
+nothing (-4.4%, p 0.84, statistically indistinguishable from base) and kept its rigid
+competence; the arms with real CRM gains lost heavily. So this is a tradeoff rather than a
+mechanism, and the anchor is not a dial that buys both.
+
+One cell is practically useful. **kl 0.10 buys -11.0% on CRM for +1.9% on rigid**, which is
+close to free, against the analytic arm's -41.6% for +53.8%. If a deployed policy must walk
+on both terrains, the best CRM number is not the right choice and the anchored PPO arm
+nobody favoured on the CRM leaderboard is.
+
+CAVEAT: one run per (policy, speed) cell, and falls are stochastic -- kl 0.03's 4 of 5 is
+the kind of number that can move. The broad tradeoff is visible across four policies and
+five speeds; the specific ordering between kl 0.03 and the analytic arm is not established.
+
 ## Operational notes
 
 - **sbel is the only box that can run the analytic fine-tune recipe.** Batch 64 with
