@@ -25,6 +25,7 @@ class WindowedHMMWVDataset(Dataset):
         sequence_length: int,
         max_windows: int | None = None,
         episode_fraction: float | None = None,
+        exclude_source_datasets: list[str] | None = None,
         seed: int = 0,
         load_into_memory: bool = False,
         load_frames: bool = False,
@@ -54,6 +55,42 @@ class WindowedHMMWVDataset(Dataset):
         # smaller fraction is a prefix of a larger one (20% ⊂ 40% ⊂ ...). Only
         # the small index arrays are subset; the states/targets/actions memmaps
         # are untouched (dropped-episode rows are simply never sampled).
+        # DROP WHOLE SOURCE COLLECTIONS, for leave-one-collection-out.
+        #
+        # Three independent 25% subsets each train a better surrogate than the full corpus
+        # (0.755, 0.979, 1.447 against 2.652) and quadrupling the gradient budget recovers
+        # only 15% of that gap, so the corpus contains something that hurts and every random
+        # draw dilutes it differently. A random subset cannot say WHAT, because each draw
+        # mixes all four collections.
+        #
+        # `source_datasets` in the split index names the collection each episode came from,
+        # so dropping one is exact rather than approximate. Applied BEFORE episode_fraction
+        # so the two compose in the obvious order: choose which collections, then subsample
+        # within them.
+        if exclude_source_datasets:
+            meta_p = self.processed_root / f"{split}_episodes.json"
+            srcs = json.loads(meta_p.read_text()).get("source_datasets", [])
+            if len(srcs) != int(self.episode_lengths.shape[0]):
+                raise ValueError(
+                    f"source_datasets has {len(srcs)} entries but the split has "
+                    f"{self.episode_lengths.shape[0]} episodes; refusing to filter on a "
+                    "misaligned index rather than silently dropping the wrong episodes")
+            drop = set(exclude_source_datasets)
+            keep_idx = np.array([i for i, sname in enumerate(srcs) if sname not in drop],
+                                dtype=np.int64)
+            if keep_idx.size == 0:
+                raise ValueError(f"exclude_source_datasets={sorted(drop)} removed every "
+                                 f"episode; sources present are {sorted(set(srcs))}")
+            if keep_idx.size == len(srcs):
+                raise ValueError(f"exclude_source_datasets={sorted(drop)} matched nothing; "
+                                 f"sources present are {sorted(set(srcs))}. A typo here "
+                                 "would train on the full corpus while the run name claims "
+                                 "otherwise.")
+            self.episode_starts = self.episode_starts[keep_idx]
+            self.episode_lengths = self.episode_lengths[keep_idx]
+            if self.frame_offsets is not None:
+                self.frame_offsets = self.frame_offsets[keep_idx]
+
         if episode_fraction is not None and 0.0 < episode_fraction < 1.0:
             n_ep = int(self.episode_lengths.shape[0])
             keep = round(episode_fraction * n_ep)
