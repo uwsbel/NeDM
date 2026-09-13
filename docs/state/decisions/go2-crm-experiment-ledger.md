@@ -292,8 +292,34 @@ the run peaked early or was still improving at the end. `--ckpt-every` plus
 (`t_traj`, the pinned config with the dw stop removed, 1500 updates, every 100th iterate
 kept) asks whether ||dW||=1.0 at update ~94 is where the Chrono optimum actually sits.
 
-**No held-out command families.** All eight appear in both the branch pool and the scoring
-set, so this measures adaptation, not generalisation to unseen commands.
+**GENERALISATION IS WITHIN BEHAVIOUR CLASS, NOT ACROSS IT.** Two command families held out
+of the fine-tune's branch pool, scored on all eight, three seeds per set. The two sets
+disagree completely, which is the finding:
+
+| held out of the branch pool | seen families | held-out families | gap | p |
+|---|---|---|---|---|
+| `pivot`, `weave` | -30.5% | -31.7% | **-1.2 pts** | 0.85 |
+| `lateral`, `stop_and_go` | -42.6% | **-14.5%** | **+28.1 pts** | <1e-4 |
+
+Two sets rather than one was the point. Either alone would have supported a confident and
+wrong conclusion -- set A that the fine-tune generalises freely, set B that it does not
+generalise at all.
+
+What separates them is whether a behavioural NEIGHBOUR survives in the pool. Holding out
+`pivot` and `weave` leaves `arc` and `yaw_step`, which are also turning behaviours, and
+generalisation is perfect. Holding out `lateral` and `stop_and_go` leaves nothing comparable:
+`lateral` is the only family with dominant sideways velocity and `stop_and_go` the only one
+with velocity discontinuities. Generalisation then collapses to about a third of the
+seen-family gain.
+
+So the honest form of the headline claim: the fine-tune ADAPTS to the commands in its branch
+pool and generalises to unseen commands only when a behaviourally similar family is present.
+That is weaker than "-40% tracking error" reads, and it is a design instruction rather than
+a limitation -- a branch pool needs coverage of behaviour CLASSES, not of command count.
+
+This is a hypothesis fitted to two data points and it should be tested by holding out a
+family whose neighbour is explicitly present or absent by construction. It is not proven by
+these two sets; it is the only account consistent with both.
 
 **The first capacity ablation tested capacity at one learning rate, which is not the same
 thing.** Every arm held `lr=3e-4` and `warmup=1000`, the values tuned for the 6x256
