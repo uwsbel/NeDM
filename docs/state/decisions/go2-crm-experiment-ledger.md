@@ -794,6 +794,39 @@ what surfaced it. The numbers above are from the reseeded runs.
 apart and within surrogate-seed spread, so the 14% open-loop gain over `mixctl`'s 2.767 is
 real and not a lucky draw. It still buys nothing in transfer.
 
+**DOES ANY SURROGATE PROPERTY PREDICT ANYTHING? ONE CANDIDATE SURVIVES A LEVERAGE CHECK.**
+All four surrogates with both an open-loop profile and a measured fine-tune distribution:
+
+| surrogate | open-loop median | open-loop IQR | transfer mean | transfer sd | seeds |
+|---|---|---|---|---|---|
+| `baseline_s1` | 2.173 | 1.679 | -40.4% | 1.48 | 6 |
+| `go2_crm_soil` | 2.842 | 0.535 | -39.9% | 4.93 | 6 |
+| `go2_crm_mixed` | 2.380 | 0.942 | -40.5% | 1.65 | 3 |
+| `abl_w512` | 1.109 | 0.208 | -36.3% | 3.93 | 3 |
+
+Two candidate relationships, and the LEVERAGE CHECK separates them:
+
+| relationship | r, all four | r, leave-one-out range |
+|---|---|---|
+| open-loop accuracy -> transfer gain | -0.872 | **+0.895 without `w512`** |
+| open-loop IQR -> fine-tune sd | -0.798 | -0.723 to -0.895, sign stable |
+
+**REJECTED: accuracy anti-predicts transfer.** At face value r -0.872 says the more accurate
+the surrogate the worse the policy, which would have been a striking headline. It is one
+point. Drop `abl_w512` and the correlation reverses to +0.895. Not claimable, and it is the
+kind of number that would have been reported if the leverage check had not been run.
+
+**TENTATIVE, and the only survivor: a surrogate whose own evaluation is MORE stable produces
+fine-tunes that are LESS reproducible.** Negative under every single-point deletion. If real,
+it is useful in a way none of the accuracy metrics were, because fine-tune reproducibility is
+the property that actually distinguished the surrogates -- but it is backwards from the
+obvious guess, that a well-behaved model gives well-behaved optimisation.
+
+With n=4 even a leave-one-out-robust correlation is weak. The `lco93/94/95/96` runs will add
+four more surrogates; three fine-tune seeds in each takes this to n=8 and costs 12 fine-tunes
+at 55 s plus one scoring pass. That is the cheapest way to find out whether this is the first
+real predictor in the whole programme or the second artefact.
+
 ## Operational notes
 
 - **sbel is the only box that can run the analytic fine-tune recipe.** Batch 64 with
