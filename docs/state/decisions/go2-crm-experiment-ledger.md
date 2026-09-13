@@ -620,6 +620,54 @@ transplanting to Chrono gives about -40% tracking error against the base policy,
 surrogate tried, reproducibly across six seeds. The method works. What fails is the attempt
 to make it work BETTER by improving the surrogate along any axis measured so far.
 
+**ORIGINAL-DOMAIN EVALUATION: THE FINE-TUNED POLICY IS WORSE ON RIGID GROUND, AND THE
+DAMAGE SCALES WITH SPEED.** The NRD author's question, finally answerable.
+
+Not the training simulator. The policy is from `wty-yy/go2_rl_gym`, a legged_gym-family
+repo, so its true training domain is Isaac Gym -- archived, developer-account download,
+Python 3.8. What that repo ships is a MuJoCo sim-to-sim deploy config, and we already had it
+verbatim at `checkpoints/go2_mujoco.yaml`: kp 20, kd 0.5, dt 0.002, decimation 10, and the
+same scales and default angles the Chrono adapter reimplemented. MuJoCo flat ground with the
+authors' own config is a genuine third domain, independent of both Chrono and the surrogate.
+
+Six fine-tune seeds against the base policy, five commanded speeds, 8 s each:
+
+| commanded vx | base mae_vx | fine-tuned mean | delta |
+|---|---|---|---|
+| 0.3 | 0.343 | 0.189 | **-44.9%** better |
+| 0.5 | 0.328 | 0.338 | +3.2% |
+| 0.7 | 0.290 | 0.391 | +34.8% worse |
+| 0.9 | 0.258 | 0.399 | +55.0% worse |
+| 1.1 | 0.165 | 0.367 | **+122.0%** worse |
+
+Falls: base 0 of 5, fine-tuned 6 of 30. Mean survival 400/400 against 367/400.
+
+**The dose-response is the evidence.** The degradation is monotone in commanded speed and
+crosses over near 0.5 m/s, which is the mechanism showing itself rather than a single
+suspicious comparison. CRM fine-tuning teaches the policy to ask MORE of the ground -- that
+is precisely how it wins on soil, where the medium yields underfoot. On rigid ground there
+is nothing to sink into, so the same extra command is pure overshoot, and overshoot grows
+with speed.
+
+**What this is NOT.** The obvious follow-up guess -- that the CRM evaluation only samples
+the low-speed regime where the damage is invisible -- is wrong, and was checked before being
+written down. CRM scoring commands have median 0.594 m/s and mean 0.709, with 45% of
+episodes commanding at or above 0.7. The evaluation covers exactly the band where MuJoCo
+shows the regression. So this is not a coverage artefact: the policy is genuinely better on
+deformable soil across the speed range AND genuinely worse on rigid ground, which is domain
+SPECIALISATION rather than a hidden defect.
+
+That reframes the -40% headline without weakening it. The method buys a real and large gain
+on the terrain it is tuned for, and the cost is paid somewhere the CRM verdict harness
+cannot see by construction. Anyone deploying a surrogate-fine-tuned policy on mixed terrain
+needs this measurement; nothing in the Chrono pipeline would ever surface it.
+
+Harness: `scripts/evaluation/eval_go2_mujoco.py`. Joint order verified from actuator names
+at load (menagerie's FL/FR/RL/RR happens to match the policy's, so the permutation is the
+identity -- but a wrong one yields a plausible 45-vector with left and right legs swapped),
+and the hip sign convention, unverifiable from the MJCF's zero-hip home pose, checked
+physically by requiring a sensible settle at the policy's own defaults.
+
 ## Operational notes
 
 - **sbel is the only box that can run the analytic fine-tune recipe.** Batch 64 with
