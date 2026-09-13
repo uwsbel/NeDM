@@ -583,6 +583,43 @@ selection metric rewards a model that is good at the easy terrain.
 because the soil experiment showed a surrogate can be better on average and far less
 reliable, and open-loop error has twice disagreed with Chrono in this document.
 
+**AT SIX SEEDS BOTH INTERVENTIONS ARE NULL, AND THE THREE-SEED RESULT WAS UNDERPOWERED.**
+This supersedes every earlier entry about soil diversity and about mixing rigid data.
+
+| surrogate | n | seeds (% vs base) | mean | sd | best seed |
+|---|---|---|---|---|---|
+| `baseline_s1` | 6 | -41.6 -41.1 -40.5 -37.2 -41.3 -40.7 | **-40.4** | 1.48 | -41.6 |
+| `go2_crm_soil` | 6 | -37.3 -45.6 -45.7 -31.9 -37.5 -41.7 | **-39.9** | **4.93** | -45.7 |
+| `go2_crm_mixed` | 3 | -39.2 -39.5 -42.8 | **-40.5** | 1.65 | -42.8 |
+
+Pooled paired: soil vs baseline +0.0005, p 0.62. Mixed vs baseline +0.0006, p 0.63. Neither
+surrogate produces a better transplanted policy than the plain CRM one.
+
+**The three-seed pooled test was still underpowered.** At n=3 it gave p 0.0206 favouring
+soil and an entry was written around "soil helps by about 3%". At n=6 the same test gives
+p 0.62 and the effect is gone. That is the third time this claim moved: one seed said soil
+hurt, three said soil helped, six say no difference. The lesson is not "use more seeds", it
+is that a significant p-value from the smallest sample that produces one is worth nothing,
+and that was the reasoning used each time.
+
+**Soil's variance is the only surviving effect.** sd 4.93 against the baseline's 1.48. Its
+best seed reaches -45.7%, the lowest tracking error in this document, and its worst reaches
+-31.9%, the worst of any working arm. Same mean, three times the spread. A surrogate with
+that profile is worth something only if the best draw can be identified WITHOUT a Chrono
+verdict, and nothing measured here predicts which seed will be good.
+
+**Open-loop accuracy does not predict transfer.** The mixed surrogate is 14% better
+open-loop (median rollout_sel 2.380 against 2.767) and 0% better in Chrono. Together with
+the bias result -- 35% less optimistic velocity bias, no transfer gain -- that is two
+independent surrogate-quality metrics that improve substantially while the transplanted
+policy does not move. The quantity the trainer minimises, the model's systematic error, and
+the policy's Chrono score are three loosely related things.
+
+What this does NOT overturn: the headline. Fine-tuning in a learned surrogate and
+transplanting to Chrono gives about -40% tracking error against the base policy, from every
+surrogate tried, reproducibly across six seeds. The method works. What fails is the attempt
+to make it work BETTER by improving the surrogate along any axis measured so far.
+
 ## Operational notes
 
 - **sbel is the only box that can run the analytic fine-tune recipe.** Batch 64 with

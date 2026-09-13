@@ -69,6 +69,19 @@ ap.add_argument("--policy", default="/home/kyle/sbel-artifacts/checkpoints/go2_c
 ap.add_argument("--root", default="/home/kyle/sbel-artifacts/datasets/go2_comprehensive_merged/flat")
 ap.add_argument("--out", default="/home/kyle/sbel-artifacts/finetune_go2_shortbranch")
 ap.add_argument("--updates", type=int, default=1500)      # FIXED BUDGET
+ap.add_argument("--terrain-id", type=int, default=None,
+                help="Terrain index for a TERRAIN-CONDITIONED surrogate. Required by such a\n"
+                     "model and meaningless to any other, so it defaults to None and every\n"
+                     "existing invocation is unchanged.\n"
+                     "\n"
+                     "The index is the position in the config's terrain_conditioning.terrains\n"
+                     "list, NOT a global constant: go2_crm_mixed.json lists [\"crm\",\"flat\"],\n"
+                     "so CRM is 0 there. A model trained with the list the other way round\n"
+                     "would silently roll the policy forward on the wrong terrain, since both\n"
+                     "ids are valid and the dynamics differ. Read the list, do not assume.\n"
+                     "\n"
+                     "Passing nothing to a conditioned model raises rather than guessing,\n"
+                     "which is how this flag came to exist.")
 ap.add_argument("--ckpt-every", type=int, default=0,
                 help="Save the policy every N updates as traj/u<N>.pt, IN ADDITION to\n"
                      "whatever best.pt selection is in force. 0 disables.\n"
@@ -491,10 +504,10 @@ def rollout(batch, grad=True):
                 _sw = hs[:, -L:]
                 _aw = torch.cat([ha[:, :-1], newa.unsqueeze(1)], 1)[:, -L:]
                 if len(_MEMBERS) == 1:
-                    d = _MEMBERS[0].predict_delta(_sw, _aw, terrain=None)[:, -1, :]
+                    d = _MEMBERS[0].predict_delta(_sw, _aw, terrain=a.terrain_id)[:, -1, :]
                     disagree = None
                 else:
-                    _ds = torch.stack([m.predict_delta(_sw, _aw, terrain=None)[:, -1, :]
+                    _ds = torch.stack([m.predict_delta(_sw, _aw, terrain=a.terrain_id)[:, -1, :]
                                        for m in _MEMBERS], 0)
                     d = _ds.mean(0)
                     _sd = _ds.std(0)
@@ -685,7 +698,7 @@ if a.objective == "rslrl":
                 newa = self.ha[:, -1].clone().index_copy(1, ATG, tgt)
                 _aw = torch.cat([self.ha[:, :-1], newa.unsqueeze(1)], 1)
                 if len(_MEMBERS) == 1:
-                    d = _MEMBERS[0].predict_delta(self.hs, _aw, terrain=None)[:, -1, :]
+                    d = _MEMBERS[0].predict_delta(self.hs, _aw, terrain=a.terrain_id)[:, -1, :]
                 else:
                     # ENSEMBLE PESSIMISM FOR THE PPO PATH.
                     #
@@ -695,7 +708,7 @@ if a.objective == "rslrl":
                     # independently seeded surrogates tracks that true error at Spearman
                     # +0.61, so penalising it is a trust region expressed in the model's
                     # own units rather than in weight space.
-                    _ds = torch.stack([m.predict_delta(self.hs, _aw, terrain=None)[:, -1, :]
+                    _ds = torch.stack([m.predict_delta(self.hs, _aw, terrain=a.terrain_id)[:, -1, :]
                                        for m in _MEMBERS], 0)
                     d = _ds.mean(0)
                     _sc = d.std(0, keepdim=True).detach().clamp_min(1e-6)
@@ -879,7 +892,7 @@ if a.objective == "ppo":
                     newa = ha[:, -1].clone().index_copy(1, ATG, tgt)
                     _sw = hs[:, -L:]
                     _aw = torch.cat([ha[:, :-1], newa.unsqueeze(1)], 1)[:, -L:]
-                    d = _MEMBERS[0].predict_delta(_sw, _aw, terrain=None)[:, -1, :]
+                    d = _MEMBERS[0].predict_delta(_sw, _aw, terrain=a.terrain_id)[:, -1, :]
                     nxt = hs[:, -1] + d
                     hs = torch.cat([hs, nxt.unsqueeze(1)], 1)
                     ha = torch.cat([ha, newa.unsqueeze(1)], 1)
