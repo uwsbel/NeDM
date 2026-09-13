@@ -866,6 +866,49 @@ A per-episode cut is the next granularity, but the collection-level null argues 
 spending on it: harm spread evenly enough that removing 187 episodes does nothing while
 removing 476 random ones transforms the model does not look like a set of bad episodes.
 
+**THE LAST CANDIDATE PREDICTOR DIES AT n=8.** Twelve fine-tunes in the four leave-one-out
+surrogates, three seeds each, scored on the full split.
+
+| arm | drops | surrogate median | three transfer seeds | mean | sd |
+|---|---|---|---|---|---|
+| `lco93` | `s9300000` | 2.191 | -39.2, -27.3, -39.5 | -35.3% | 5.66 |
+| `lco94` | `s9400000` | 2.183 | -42.5, -42.2, -38.8 | **-41.2%** | 1.68 |
+| `lco95` | `s9500000` | **2.885** | -42.5, -41.3, -39.2 | -41.0% | 1.35 |
+| `lco96` | `s9600000` | 2.192 | -40.0, -39.9, -38.2 | -39.3% | 0.83 |
+| `baseline_s1` | nothing | 2.652 | six seeds | -40.4% | 1.48 |
+
+**Dropping a collection does not reach the policy.** Surrogate medians span 2.183 to 2.885,
+a 32% spread, while transfer means span -35.3% to -41.2% and every one sits inside seed
+noise of the baseline's -40.4%. `lco95` has the WORST surrogate of the four and ties for the
+best policy. `lco93`'s -35.3% is one outlier seed at -27.3 against its own -39.2 and -39.5.
+
+**And the reproducibility correlation does not survive doubling the sample.**
+
+| | r(surrogate open-loop IQR, fine-tune sd) |
+|---|---|
+| n=4, the original surrogates | **-0.798**, stable under every single-point deletion |
+| n=8, adding the four lco arms | **-0.331** |
+
+So the one relationship that survived a leverage check at n=4 was still noise. Four points
+is not enough for a leave-one-out to mean anything, which is worth stating plainly because
+the leave-one-out was run precisely to avoid claiming an artefact and it did not save us.
+
+THE PROGRAMME'S RESULT, now closed. Across eight surrogates, every property measurable
+without running Chrono is uninformative about transfer:
+
+| surrogate property | range across arms | effect on transfer |
+|---|---|---|
+| systematic velocity bias | +0.0298 to +0.0458 | none |
+| open-loop median error | 0.755 to 2.885 (3.8x) | none |
+| open-loop IQR | 0.208 to 1.679 (8x) | none |
+| model capacity | 3x256 to 6x512 | none |
+| training-data fraction | 25% to 100% | none |
+| which collection is dropped | four ways | none |
+
+Every arm that trains at all transplants to about -40%. The method is robust to the
+surrogate in a way that is genuinely useful -- you do not need a good model, you need a
+model -- and completely opaque in that nothing measurable predicts the residual variation.
+
 ## Operational notes
 
 - **sbel is the only box that can run the analytic fine-tune recipe.** Batch 64 with
