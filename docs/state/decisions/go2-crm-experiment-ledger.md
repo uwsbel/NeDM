@@ -827,6 +827,45 @@ four more surrogates; three fine-tune seeds in each takes this to n=8 and costs 
 at 55 s plus one scoring pass. That is the cheapest way to find out whether this is the first
 real predictor in the whole programme or the second artefact.
 
+**NO SINGLE COLLECTION IS THE CULPRIT; THE EFFECT IS IN THE FRACTION.** Leave-one-out
+across all four source collections, each arm keeping 75% of the corpus:
+
+| arm | drops | median rollout_sel | IQR |
+|---|---|---|---|
+| `lco94` | `go2_crm_s9400000` | 2.183 | 0.293 |
+| `lco93` | `go2_crm_s9300000` | 2.191 | 0.575 |
+| `lco96` | `go2_crm_s9600000` | 2.523 | 0.701 |
+| `lco95` | `go2_crm_s9500000` | **2.885** | 0.390 |
+| `qbase` | nothing, 100% | 2.652 | 0.585 |
+| `qdq25` | random 75%, keeps 25% | **0.755** | 0.220 |
+
+Grouped by how much data survives:
+
+| fraction kept | n | range | mean |
+|---|---|---|---|
+| 100% | 2 | 2.261 - 2.652 | 2.457 |
+| 75% | 4 | 2.183 - 2.885 | 2.446 |
+| 25% | 3 | 0.755 - 1.447 | 1.060 |
+
+Removing a quarter of the corpus changes essentially nothing -- 2.446 against 2.457, and one
+arm is worse than the full corpus. Removing three quarters changes everything. If specific
+episodes were poisoning training, dropping a whole collection would find them, and no
+collection-level cut comes within 1.4 of what a random quarter achieves.
+
+So the harmful-subset hypothesis is REJECTED at collection granularity. Combined with 4x
+compute recovering only 15%, the surviving explanation is about optimisation dynamics on
+this corpus rather than about bad data: something in fitting the full distribution is worse
+than fitting a quarter of it, at matched gradient steps.
+
+That is unexplained and it is now the most interesting open question in this line of work,
+because it inverts the assumption the whole collection effort rested on. Two waves of
+collection were run on the premise that more and more varied data makes a better surrogate.
+On this terrain, at this model size and step budget, it does not.
+
+A per-episode cut is the next granularity, but the collection-level null argues against
+spending on it: harm spread evenly enough that removing 187 episodes does nothing while
+removing 476 random ones transforms the model does not look like a set of bad episodes.
+
 ## Operational notes
 
 - **sbel is the only box that can run the analytic fine-tune recipe.** Batch 64 with
