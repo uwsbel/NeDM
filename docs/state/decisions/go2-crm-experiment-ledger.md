@@ -668,6 +668,43 @@ identity -- but a wrong one yields a plausible 45-vector with left and right leg
 and the hip sign convention, unverifiable from the MJCF's zero-hip home pose, checked
 physically by requiring a sensible settle at the policy's own defaults.
 
+**NO SURROGATE-SIDE METRIC PREDICTS TRANSFER.** The wide surrogate closes this out. Both
+arms at batch 32, three seeds each, because the wide model needs more than the 3090's
+23.56 GB at the recipe's batch 64 and running only ONE arm at the smaller batch would
+confound the surrogate with the batch.
+
+| surrogate | open-loop quality | three seeds | mean | sd |
+|---|---|---|---|---|
+| `abl_w512` | **2x more accurate** (median 1.109 vs 2.173) | -41.4, -35.5, -31.9 | **-36.3%** | 3.93 |
+| `baseline_s1` | reference | -40.9, -37.5, -42.0 | **-40.2%** | 1.91 |
+
+Stated at the strength the evidence supports: the pooled paired-episode test gives p 0.0012,
+and that number is NOT the answer. A paired-episode bootstrap is blind to seed variance,
+which is the error that moved the soil claim three times in this document. At the seed level
+two of three favour the baseline and the 3.9-point gap sits at about one standard deviation.
+So: the twice-as-accurate surrogate does not produce a better policy, and may produce a
+worse one. Three seeds cannot settle which.
+
+The pattern across three independent interventions is what is solid:
+
+| surrogate improvement | magnitude | effect on the transplanted policy |
+|---|---|---|
+| soil diversity -> less velocity bias | -35% | none, p 0.62, six seeds |
+| rigid mixing -> better open-loop | +14% | none, p 0.63, three seeds |
+| 2x width -> much better open-loop | 2x | none, trending worse, three seeds |
+
+Every quantity we can compute about a surrogate WITHOUT running Chrono -- its systematic
+bias, its open-loop reconstruction error, and the model capacity that drives both -- is
+uninformative about how well a policy fine-tuned inside it will transplant. That is a
+negative result about the whole improve-the-model programme, and it is more useful than any
+of the individual arms would have been, because it says where not to spend effort.
+
+It also leaves the real question open and sharper: something determines whether a given
+surrogate yields a -45.7% policy or a -31.9% one, and nothing measured here is it. The
+variance findings are the only lead -- the baseline surrogate yields fine-tunes at sd 1.48
+while soil yields sd 4.93 and the wide model sd 3.93, so whatever the property is, it shows
+up as reproducibility rather than as accuracy.
+
 ## Operational notes
 
 - **sbel is the only box that can run the analytic fine-tune recipe.** Batch 64 with
