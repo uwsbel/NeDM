@@ -738,6 +738,36 @@ CAVEAT: one run per (policy, speed) cell, and falls are stochastic -- kl 0.03's 
 the kind of number that can move. The broad tradeoff is visible across four policies and
 five speeds; the specific ordering between kl 0.03 and the analytic arm is not established.
 
+**THREE QUARTER-CORPUS DRAWS, ALL BEATING THE FULL CORPUS, ALL DIFFERENT FROM EACH OTHER.**
+The discriminator resolves, and the answer is neither of the two options it was framed
+around.
+
+| arm | data | median rollout_sel | IQR |
+|---|---|---|---|
+| `qdq25` seed A | 25% | **0.755** | 0.220 |
+| `qdq25c` seed C | 25% | **0.979** | 0.205 |
+| `qdq25b` seed B | 25% | **1.447** | 0.577 |
+| `qbase` | 100% | 2.652 | 0.585 |
+| `qbase4x` | 100%, 4x compute | 2.261 | 0.410 |
+
+Not one lucky draw: all three quarter-corpus subsets beat the full corpus decisively. Not
+the fraction alone either: they differ from each other by nearly 2x, so WHICH episodes are
+drawn matters substantially on top of how many.
+
+The reading that fits: using less of this corpus is reliably better, and the specific subset
+then modulates by how much. Together with 4x compute buying only 15%, that makes it a
+property of the corpus rather than an optimisation artefact, and points at some episodes
+being actively harmful and diluted to different degrees by each draw.
+
+NOTE ON THE EARLIER RUN OF THIS TEST. The first attempt produced qdq25b and qdq25c identical
+to qdq25 to four decimal places, because the generator wrote `config["seed"]` while the
+trainer reads `config["training"]["seed"]`. Two "different" runs agreeing that precisely is
+what surfaced it. The numbers above are from the reseeded runs.
+
+**The mixed surrogate reproduces.** `mixed_s2` at 2.519 against `mixed`'s 2.380, about 5.8%
+apart and within surrogate-seed spread, so the 14% open-loop gain over `mixctl`'s 2.767 is
+real and not a lucky draw. It still buys nothing in transfer.
+
 ## Operational notes
 
 - **sbel is the only box that can run the analytic fine-tune recipe.** Batch 64 with
