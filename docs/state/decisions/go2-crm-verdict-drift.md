@@ -117,3 +117,58 @@ reloaded again, so it awaits Kyle's decision.
   placed on the correct side of a boundary like this one.
 - **Score BASE in the same session as every arm.** This was nearly reported as a
   reproducibility failure because the baseline was five days and one driver old.
+
+## RETRACTION (2026-09-15, same day): the driver attribution is NOT supported
+
+The section above attributes the drift to the NVIDIA kernel module going 595.84 ->
+595.91.07. **That attribution is withdrawn.** The timeline argument it rests on has a
+hole that kills it.
+
+**The hole.** The 2026-09-11 06:11 unattended-upgrade included `libnvidia-compute-595`,
+which provides `libcuda.so`. If the running kernel module had remained 595.84 after that
+point, every CUDA process would have failed with a version mismatch from 06:11 onward.
+The `w_h15r0` verdict ran successfully at 09:42 that morning. Therefore the module was
+almost certainly already reloaded before that verdict, and both September runs and both
+2026-09-15 runs were on the same driver. The driver cannot then explain the difference.
+
+**A second candidate that was missed.** `score_crm_tracking.py --concurrency` defaults
+to **8**; the recipe specifies **4**. Every 2026-09-15 run here used 4. What the
+September runs used is not recorded anywhere. Concurrency sets how many Chrono FSI sims
+share the GPU at once, which on a non-deterministic SPH solver is a plausible systematic
+effect, not merely a speed knob.
+
+## What is actually established
+
+**1. The verdict harness is non-deterministic per episode.** Same policy, same day, two
+runs: identical row count on only 46/77 episodes, identical `mae_vx` on 9/77, median
+per-episode relative difference 3.38%, max 46.4%.
+
+**2. That noise averages out in aggregate.** The same two runs agree to **0.8%** on the
+77-episode mean. So the aggregate statistic is stable within a day even though
+individual episodes are not.
+
+**3. The September-to-today shift is far larger than that noise.** Median per-episode
+difference 34.9%, aggregate difference 21.8% on BASE. That is roughly 27x the same-day
+aggregate noise, so something changed systematically.
+
+**4. The cause is unidentified.** Excluded: the policy (sha256 identical), the fine-tune
+(bit-identical, update 94 / dW 1.002 / val -1.438482), the evaluation code (scored at
+both `0df6995` and `d140ff4`, agreeing to 0.8%), pychrono (unchanged since May), and the
+machine. Remaining candidates include scorer concurrency, GPU driver, and thermal or
+clock state. None is confirmed.
+
+**5. The fine-tuned policy moved more than BASE** (+82% vs +21.8%). This is the one
+substantive observation, and it survives not knowing the cause: whatever shifted, the
+specialised policy was several times more sensitive to it. But with the cause unknown it
+cannot yet be called numerical specialisation rather than, say, a policy that simply
+operates nearer a failure boundary.
+
+## Operationally, the fix does not depend on the cause
+
+- **Score BASE in the same session, with the same flags, as every arm.** This alone
+  would have prevented the entire episode.
+- **Stamp the environment into every verdict**: driver version, concurrency, host. The
+  harness already stamps policy sha256; none of the rest is recorded, which is why this
+  could not be settled after the fact.
+- **The ledger's rows are not mutually comparable** and need re-scoring in one session
+  before that table can be read as one experiment again.
