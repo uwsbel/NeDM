@@ -327,10 +327,24 @@ def _family_of(csv_path):
     # which may itself contain underscores (stop_and_go, vel_step, yaw_step)
     return "_".join(parts[3:-1]) if len(parts) > 4 else ""
 
-paths = [e["csv_path"][:-4] + ".json" for e in idx
+# csv_path may be RELATIVE to the index directory or absolute, depending on which
+# collection wrote the index: go2_crm_9300000_c stores "episodes/<ep>.csv" while the
+# older merged corpora stored absolute paths. Resolving against a.root makes both work.
+# Left unresolved, every existence check below fails, the pool comes out empty, and the
+# failure surfaces as "empty range for randrange()" three frames later -- the same silent
+# emptiness the comment above this block is about.
+def _resolve(cp):
+    return cp if os.path.isabs(cp) else os.path.join(a.root, cp)
+
+paths = [_resolve(e["csv_path"])[:-4] + ".json" for e in idx
          if e["episode_id"] in keep and (not _want or _want in e["csv_path"])
          and _family_of(e["csv_path"]) not in _drop]
 paths = [p for p in sorted(paths) if os.path.exists(p) or os.path.exists(p[:-5] + ".csv")]
+if not paths:
+    raise SystemExit(
+        f"FATAL: branch pool is empty. The index at {a.root}/dataset_index.json lists "
+        f"{len(idx)} episodes but none resolved to a file on disk. Check --root, and "
+        f"check whether csv_path is relative to the index directory.")
 print(f"  branch pool candidates from index: {len(paths)}"
       + (f"  (filtered on {_want!r})" if _want else "  (no shard filter)")
       + (f"  EXCLUDING families {_drop}" if _drop else ""))

@@ -68,6 +68,13 @@ _PMTIME = int(os.path.getmtime(a.policy))
 print(f"policy sha256[:12] {_PSHA}")
 
 idx = json.load(open(a.index))["episodes"]
+
+# csv_path may be RELATIVE to the index directory (go2_crm_9300000_c writes
+# "episodes/<ep>.csv") or absolute (the older merged corpora). Resolve against the
+# index's own directory so both work; unresolved, every episode read fails.
+_IDXDIR = os.path.dirname(os.path.abspath(a.index))
+def _rp(cp):
+    return cp if os.path.isabs(cp) else os.path.join(_IDXDIR, cp)
 eps = [e for e in idx if e.get("split") == a.split] or idx
 if a.limit:
     eps = eps[:a.limit]
@@ -112,7 +119,7 @@ def track_error(rows):
 
 def _patch(e, key, default):
     """Read a terrain patch dimension from the episode's own collector config."""
-    cfg = e["csv_path"][:-4] + ".config.json"
+    cfg = _rp(e["csv_path"])[:-4] + ".config.json"
     try:
         with open(cfg) as fh:
             return float(json.load(fh)["terrain"][key])
@@ -121,7 +128,7 @@ def _patch(e, key, default):
 
 
 def run(e):
-    m = json.load(open(e["csv_path"][:-4] + ".json"))
+    m = json.load(open(_rp(e["csv_path"])[:-4] + ".json"))
     out = tempfile.mkdtemp(prefix="crmtrk_")
     cmd = [PY_, "scripts/collection/collect_go2_smoke.py", "--terrain", "crm",
            "--duration-s", str(m["duration_s"]), "--imported-ckpt", a.policy,
