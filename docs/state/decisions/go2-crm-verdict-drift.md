@@ -67,3 +67,53 @@ already known to be under-recorded, which makes it the first place to look.
   failure because the baseline was four days old.
 - The capacity transfer test now has a same-day baseline (0.1877) and a same-day
   control (0.1671). The 6x1024 arm still needs a GPU that fits it at batch 64.
+
+## CAUSE IDENTIFIED (2026-09-15): the NVIDIA kernel module changed
+
+The drift is not in the repo, the policy, the dataset or pychrono. It is the GPU driver.
+
+```
+2026-09-02 23:32   system boots, module 595.84 loaded          <- last reboot
+2026-09-10 16:17   BASE scored          0.1541                 module 595.84
+2026-09-11 06:11   unattended-upgrade installs nvidia 595.91.07
+                   (packages only; the RUNNING module stays 595.84, which is
+                    what later produced the NVML version mismatch)
+2026-09-11 09:42   w_h15r0 scored       0.0918                 module 595.84
+   ...             rmmod/modprobe to clear the NVML mismatch   module -> 595.91.07
+2026-09-15         BASE scored          0.1877                 module 595.91.07
+2026-09-15         SAME policy scored   0.1671                 module 595.91.07
+```
+
+`uptime -s` is still 2026-09-02 and `/proc/driver/nvidia/version` reads 595.91.07, so
+the module changed mid-flight via the manual reload, with no reboot. Both September
+runs are on the old module; both September-15 runs are on the new one.
+
+| | 595.84 | 595.91.07 | change |
+|---|---|---|---|
+| BASE | 0.1541 | 0.1877 | +21.8% |
+| fine-tuned `w_h15r0` | 0.0918 | 0.1671 | **+82.0%** |
+| **measured effect** | **-40.4%** | **-10.2%** | |
+
+**Both pairs are internally valid.** September compared two runs on 595.84; today
+compares two runs on 595.91.07. Neither pair may be compared across the boundary.
+
+**The fine-tuned policy is about 4x more sensitive to the driver change than the base
+policy** (+82% vs +22%). A policy optimised inside a surrogate is specialised not only
+to terrain and command family, as already documented, but to the numerical behaviour of
+the simulator it was scored against. That is the substantive result here.
+
+### Status of the claim
+
+Timeline evidence, not a controlled test. The controlled test is to reload 595.84 and
+re-score; it is a system-level change to kyle-sbel and would re-break NVML until
+reloaded again, so it awaits Kyle's decision.
+
+### What this changes
+
+- **The ledger cannot be read as one experiment.** Its rows span 2026-09-07 to
+  2026-09-12, straddling the 09-11 driver upgrade AND the later module reload.
+- **Record the driver with every verdict.** The harness already stamps policy sha256;
+  it should stamp `/proc/driver/nvidia/version` too. Without it a verdict cannot be
+  placed on the correct side of a boundary like this one.
+- **Score BASE in the same session as every arm.** This was nearly reported as a
+  reproducibility failure because the baseline was five days and one driver old.
