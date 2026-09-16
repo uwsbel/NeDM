@@ -67,6 +67,46 @@ _PSHA = hashlib.sha256(open(a.policy, "rb").read()).hexdigest()[:12]
 _PMTIME = int(os.path.getmtime(a.policy))
 print(f"policy sha256[:12] {_PSHA}")
 
+# WHICH pychrono is about to run, resolved the only way that is trustworthy: by asking
+# the same interpreter, with the same environment, that will run the episode subprocess.
+# Inspecting this process's own import is not equivalent -- the subprocess inherits
+# PYTHONPATH and may resolve differently.
+def _chrono_provenance():
+    import subprocess, hashlib
+    probe = ("import pychrono,os;"
+             "print(os.path.dirname(pychrono.__file__))")
+    try:
+        out = subprocess.run([sys.executable, "-c", probe],
+                             capture_output=True, text=True, timeout=120)
+        path = out.stdout.strip().splitlines()[-1] if out.stdout.strip() else ""
+    except Exception as exc:
+        return "", "", f"probe failed: {exc}"
+    if not path:
+        return "", "", "pychrono did not import in the scoring interpreter"
+    so = os.path.join(path, "_core.so")
+    if not os.path.exists(so):
+        cands = [f for f in os.listdir(path) if f.startswith("_core") and f.endswith(".so")]
+        so = os.path.join(path, cands[0]) if cands else ""
+    md5 = hashlib.md5(open(so, "rb").read()).hexdigest()[:16] if so and os.path.exists(so) else ""
+    return path, md5, ""
+
+_CHRONO_PATH, _CHRONO_MD5, _CHRONO_ERR = _chrono_provenance()
+print(f"pychrono {_CHRONO_PATH or '<unresolved>'}  md5 {_CHRONO_MD5 or '?'}"
+      + (f"  [{_CHRONO_ERR}]" if _CHRONO_ERR else ""))
+
+# If the environment names a Chrono and the import ignored it, that is the exact failure
+# this guard exists for: the operator believed one build was in use while another ran.
+_WANT = os.environ.get("NEDM_CHRONO_PYTHONPATH", "")
+if _WANT and _CHRONO_PATH and not os.path.abspath(_CHRONO_PATH).startswith(os.path.abspath(_WANT)):
+    raise SystemExit(
+        "FATAL: NEDM_CHRONO_PYTHONPATH points at\n"
+        f"    {_WANT}\n"
+        "but pychrono actually resolved to\n"
+        f"    {_CHRONO_PATH}\n"
+        "A verdict scored against an unintended Chrono build is not comparable to any "
+        "other verdict: on kyle-sbel the two builds differ by 53% on the same policy. "
+        "Put the intended build first on PYTHONPATH, or unset the variable deliberately.")
+
 idx = json.load(open(a.index))["episodes"]
 
 # csv_path may be RELATIVE to the index directory (go2_crm_9300000_c writes
@@ -158,6 +198,7 @@ def run(e):
     t = track_error(rows) if rows else None
     rec = dict(episode_id=uid(e["csv_path"]), csv_path=e["csv_path"],
                policy_sha256=_PSHA, policy_mtime=_PMTIME,
+               chrono_md5=_CHRONO_MD5, chrono_path=_CHRONO_PATH,
                family=m["command_family"], rows=len(rows),
                completed=int(len(rows) >= a.min_rows))
     if t:
