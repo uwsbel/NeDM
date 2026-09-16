@@ -52,9 +52,16 @@ ROOT = os.environ.get("NEDM_DATASET_ROOT",
 PY = os.environ.get("NEDM_PY", "/home/kyle/miniconda3/envs/nedm-src/bin/python")
 CKPT = os.environ.get("NEDM_GO2_CKPT", "/home/kyle/sbel-artifacts/checkpoints/go2_cts_150k.pt")
 os.makedirs(f"{ROOT}/logs", exist_ok=True)
+# APPEND, do not replace. Whatever else is on PYTHONPATH may be carrying the
+# interpreter's dependencies: on hpcfund numpy and torch come from the shared stack at
+# /share/sw/ai/pytorch/2.10.0 via env-scoring.sh, and replacing PYTHONPATH dropped them,
+# so every episode died with "No module named 'numpy'" while this driver printed normal
+# progress and exited rc=0 with nothing on disk. The Chrono path still goes first.
+_chrono = os.environ.get("NEDM_CHRONO_PYTHONPATH",
+                         "/home/kyle/Documents/sbel/chrono-build/bin")
+_inherited = os.environ.get("PYTHONPATH", "")
 env = dict(os.environ,
-           PYTHONPATH=os.environ.get("NEDM_CHRONO_PYTHONPATH",
-                                     "/home/kyle/Documents/sbel/chrono-build/bin"),
+           PYTHONPATH=(_chrono + os.pathsep + _inherited) if _inherited else _chrono,
            NEDM_SEED_OFFSET=str(SEED_OFFSET))
 
 def spawn_for(fam, p, terrain):
