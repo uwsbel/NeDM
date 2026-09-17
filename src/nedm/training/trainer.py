@@ -62,6 +62,13 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default=None,
         help="Resume model/optimizer/global_step from a previous checkpoint.",
     )
+    parser.add_argument(
+        "--reset-best-metric",
+        action="store_true",
+        help="On resume, forget the restored best score and re-select from this point. "
+             "Use when the selection metric itself changed, so old and new numbers are "
+             "not comparable; weights and optimiser state are still restored.",
+    )
     return parser.parse_args(argv)
 
 
@@ -87,6 +94,8 @@ def merge_cli_overrides(config: dict[str, Any], args: argparse.Namespace) -> dic
         merged["training"]["max_val_windows"] = int(args.max_val_windows)
     if args.resume_from_checkpoint is not None:
         merged["training"]["resume_from_checkpoint"] = str(args.resume_from_checkpoint)
+    if args.reset_best_metric:
+        merged["training"]["reset_best_metric"] = True
     return merged
 
 
@@ -396,9 +405,26 @@ class HMMWVTrainer:
             seed=self.seed + 1,
             load_into_memory=load_dataset_into_memory,
         )
+        # A PREFIX IS NOT A SAMPLE. max_val_batches caps how many batches the metric
+        # consumes, and an unshuffled loader makes that cap take the FIRST windows of
+        # an episode-ordered split -- so a few episodes, and a minority of the command
+        # families. The cap is fixed while corpora grow, so it degrades with scale:
+        # 4 of 8 families at 88,848 windows, 1 of 8 at 1,994,997. Draw a fixed random
+        # subset of the same size instead: same cost, still deterministic epoch to
+        # epoch because the index list is built once, but representative of the split.
+        _cap = self.max_val_batches * batch_size
+        _total = self.val_dataset.total_windows
+        if _cap < _total:
+            _rng = random.Random(self.seed + 1337)
+            self.val_indices = list(range(_total))
+            _rng.shuffle(self.val_indices)
+            self.val_indices = self.val_indices[:_cap]
+        else:
+            self.val_indices = None
         self.val_loader = DataLoader(
             self.val_dataset,
             batch_size=batch_size,
+            sampler=self.val_indices,
             shuffle=False,
             drop_last=False,
             num_workers=num_workers,
@@ -423,17 +449,19 @@ class HMMWVTrainer:
             _vfam = self.val_dataset.split_metadata.get("scenario_families")
             if _vfam:
                 import numpy as _np
-                _seen = self.max_val_batches * batch_size
+                _used = (self.val_indices if self.val_indices is not None
+                         else list(range(min(self.max_val_batches * batch_size,
+                                            self.val_dataset.total_windows))))
+                _seen = len(_used)
                 _cum = self.val_dataset.cumulative_windows
-                _ep = _np.searchsorted(_cum, _np.arange(min(_seen, self.val_dataset.total_windows)),
-                                       side="right")
+                _ep = _np.searchsorted(_cum, _np.asarray(_used), side="right")
                 _mix: dict[str, int] = {}
                 for _e in _np.unique(_ep):
                     _mix[str(_vfam[int(_e)])] = _mix.get(str(_vfam[int(_e)]), 0) + 1
                 _tot = len(set(map(str, _vfam)))
-                print(f"val_loss composition: {min(_seen, self.val_dataset.total_windows):,} of "
+                print(f"val_loss composition: {_seen:,} of "
                       f"{self.val_dataset.total_windows:,} windows "
-                      f"({min(_seen, self.val_dataset.total_windows)/max(self.val_dataset.total_windows,1):.2%}), "
+                      f"({_seen/max(self.val_dataset.total_windows,1):.2%}), "
                       f"{len(_np.unique(_ep))} episodes, "
                       f"{len(_mix)} of {_tot} families: {_mix}", flush=True)
         except Exception as _e:  # never let an audit print break training
@@ -1069,6 +1097,14 @@ class HMMWVTrainer:
             metrics = checkpoint["metrics"]
             if self.checkpoint_metric in metrics or "val_loss" in metrics:
                 self.best_val_loss = float(metrics.get(self.checkpoint_metric, metrics["val_loss"]))
+        if self.config.get("training", {}).get("reset_best_metric"):
+            print(
+                f"  --reset-best-metric: discarding restored best "
+                f"{self.checkpoint_metric}={self.best_val_loss} and re-selecting from "
+                f"epoch {self.start_epoch + 1}. Weights and optimiser state are kept; "
+                f"only the comparison baseline is dropped, because the metric changed."
+            )
+            self.best_val_loss = float("inf")
         print(
             f"resumed from {checkpoint_path} at epoch {self.start_epoch}, "
             f"global_step {self.global_step}, best {self.checkpoint_metric}={self.best_val_loss}"
