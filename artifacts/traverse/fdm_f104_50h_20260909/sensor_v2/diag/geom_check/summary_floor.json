@@ -1,0 +1,56 @@
+[
+ {
+  "arena": "arena_f104_50h_v1",
+  "v2_mae": 0.00714,
+  "v1_mae": 0.02723,
+  "improvement_x": 3.81,
+  "bmp_quant_step_m": 0.02235,
+  "quantization_floor_mae_m": 0.00559,
+  "v2_mae_over_floor": 1.28
+ },
+ {
+  "arena": "arena_g203",
+  "v2_mae": 0.00746,
+  "v1_mae": 0.03358,
+  "improvement_x": 4.5,
+  "bmp_quant_step_m": 0.02412,
+  "quantization_floor_mae_m": 0.00603,
+  "v2_mae_over_floor": 1.24
+ },
+ {
+  "arena": "arena_g216",
+  "v2_mae": 0.00759,
+  "v1_mae": 0.03365,
+  "improvement_x": 4.43,
+  "bmp_quant_step_m": 0.02549,
+  "quantization_floor_mae_m": 0.00637,
+  "v2_mae_over_floor": 1.19
+ },
+ {
+  "arena": "arena_g217",
+  "v2_mae": 0.00796,
+  "v1_mae": 0.03908,
+  "improvement_x": 4.91,
+  "bmp_quant_step_m": 0.02275,
+  "quantization_floor_mae_m": 0.00569,
+  "v2_mae_over_floor": 1.4
+ },
+ {
+  "arena": "arena_g228",
+  "v2_mae": 0.0074,
+  "v1_mae": 0.03711,
+  "improvement_x": 5.02,
+  "bmp_quant_step_m": 0.0249,
+  "quantization_floor_mae_m": 0.00623,
+  "v2_mae_over_floor": 1.19
+ },
+ {
+  "arena": "arena_g231",
+  "v2_mae": 0.00873,
+  "v1_mae": 0.04209,
+  "improvement_x": 4.82,
+  "bmp_quant_step_m": 0.02588,
+  "quantization_floor_mae_m": 0.00647,
+  "v2_mae_over_floor": 1.35
+ }
+]

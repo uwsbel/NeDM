@@ -1,0 +1,24 @@
+{
+ "cfg": {
+  "arch": "hazard",
+  "label": "unsafe",
+  "speed_drop": 0.3,
+  "pair_w": 1.0,
+  "name": "H6_hazarch_routelabel",
+  "seed": 1,
+  "epochs": 30
+ },
+ "dev": {
+  "P_unsafe": 0.9621061094120906,
+  "W_unsafe": 0.9656521739130435,
+  "Wn_unsafe": 2300,
+  "G_unsafe": 0.9250814332247557,
+  "Gn_unsafe": 307,
+  "P_fail": 0.9131948227115918,
+  "W_fail": 0.9227539882451721,
+  "Wn_fail": 1191,
+  "G_fail": 0.8308457711442786,
+  "Gn_fail": 201,
+  "train_s": 107.7
+ }
+}

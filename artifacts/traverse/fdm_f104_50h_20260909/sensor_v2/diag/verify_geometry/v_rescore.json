@@ -1,0 +1,29 @@
+{
+ "checked_groups": [
+  "g231_s2_group_0000",
+  "g231_s2_group_0001",
+  "g231_s2_group_0002",
+  "g231_s2_group_0003",
+  "g231_s2_group_0004",
+  "g231_s2_group_0005",
+  "g231_s2_group_0006",
+  "g231_s2_group_0007"
+ ],
+ "max_abs_score_diff": {
+  "proposal_n2_v1": 0.0,
+  "proposal_n2_v2": 0.0,
+  "proposal_e0_v1": 0.0,
+  "proposal_e0_v2": 0.0,
+  "proposal_d_v1": 0.0,
+  "proposal_d_v2": 0.0,
+  "fixed2_n2_v1": 0.0,
+  "fixed2_n2_v2": 0.0,
+  "fixed2_e0_v1": 0.0,
+  "fixed2_e0_v2": 0.0,
+  "fixed2_d_v1": 0.0,
+  "fixed2_d_v2": 0.0
+ },
+ "elev_channel_max_abs_diff": 2.3831525020057143e-07,
+ "argmin_match": 96,
+ "argmin_total": 96
+}

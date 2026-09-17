@@ -1,0 +1,15 @@
+{
+  "scope": "Idealized prescribed-speed path time only, without acceleration lag, terrain, stalls, early stops, or tasksettle. Not a Chrono duration forecast.",
+  "summed_reference_time_hours": 24.97665731120719,
+  "mean_reference_time_s": 14.985994386724318,
+  "reference_time_s_quantiles": [
+    6.205123603425579,
+    8.463770327961118,
+    13.358167337654411,
+    24.013862341211563,
+    42.275650272970864
+  ],
+  "actual_target_s": 180000,
+  "actual_average_s_needed_for6000episodes": 30.0,
+  "reserve_recommended": true
+}

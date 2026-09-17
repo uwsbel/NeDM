@@ -1,0 +1,182 @@
+[
+ {
+  "group": "g216_v2_group_0092",
+  "arena": "g216",
+  "affected_cells": 520,
+  "shadow_cells": 76,
+  "need_p99": 0.1402446864072326,
+  "need_max": 0.21548258498697237,
+  "radius": 33.98436919562439
+ },
+ {
+  "group": "g216_v2_group_0038",
+  "arena": "g216",
+  "affected_cells": 499,
+  "shadow_cells": 53,
+  "need_p99": 0.09626115632061946,
+  "need_max": 0.18120049214548084,
+  "radius": 34.89856054690168
+ },
+ {
+  "group": "g216_v2_group_0079",
+  "arena": "g216",
+  "affected_cells": 519,
+  "shadow_cells": 78,
+  "need_p99": 0.15842028492962196,
+  "need_max": 0.23450443994194936,
+  "radius": 43.77837442269617
+ },
+ {
+  "group": "g216_v2_group_0043",
+  "arena": "g216",
+  "affected_cells": 522,
+  "shadow_cells": 76,
+  "need_p99": 0.1731023399231573,
+  "need_max": 0.22989432426819967,
+  "radius": 37.71181083266464
+ },
+ {
+  "group": "g216_v2_group_0087",
+  "arena": "g216",
+  "affected_cells": 524,
+  "shadow_cells": 84,
+  "need_p99": 0.13630972039913705,
+  "need_max": 0.18388978245119314,
+  "radius": 37.731170079681554
+ },
+ {
+  "group": "g216_v2_group_0046",
+  "arena": "g216",
+  "affected_cells": 531,
+  "shadow_cells": 81,
+  "need_p99": 0.1967268142561113,
+  "need_max": 0.26342294425475377,
+  "radius": 37.24367435740051
+ },
+ {
+  "group": "g216_v2_group_0000",
+  "arena": "g216",
+  "affected_cells": 440,
+  "shadow_cells": 3,
+  "need_p99": 0.0,
+  "need_max": 0.0,
+  "radius": 5.308437961795435
+ },
+ {
+  "group": "g216_v2_group_0086",
+  "arena": "g216",
+  "affected_cells": 508,
+  "shadow_cells": 62,
+  "need_p99": 0.0889792275435405,
+  "need_max": 0.17190175450111433,
+  "radius": 30.28406497694343
+ },
+ {
+  "group": "g216_v2_group_0074",
+  "arena": "g216",
+  "affected_cells": 520,
+  "shadow_cells": 70,
+  "need_p99": 0.22957779260339847,
+  "need_max": 0.43962947884703985,
+  "radius": 31.772551429537614
+ },
+ {
+  "group": "g231_v2_group_0043",
+  "arena": "g231",
+  "affected_cells": 527,
+  "shadow_cells": 89,
+  "need_p99": 0.29133238410572754,
+  "need_max": 0.4957341881953101,
+  "radius": 33.93295908043057
+ },
+ {
+  "group": "g231_v2_group_0072",
+  "arena": "g231",
+  "affected_cells": 548,
+  "shadow_cells": 97,
+  "need_p99": 0.26037754119240974,
+  "need_max": 0.35196830319972117,
+  "radius": 41.7230174433297
+ },
+ {
+  "group": "g216_v2_group_0019",
+  "arena": "g216",
+  "affected_cells": 526,
+  "shadow_cells": 81,
+  "need_p99": 0.1583441605614977,
+  "need_max": 0.19835361998653367,
+  "radius": 37.52416760001814
+ },
+ {
+  "group": "g216_v2_group_0078",
+  "arena": "g216",
+  "affected_cells": 524,
+  "shadow_cells": 75,
+  "need_p99": 0.25728091310562173,
+  "need_max": 0.33199060208093467,
+  "radius": 34.86857554484246
+ },
+ {
+  "group": "g231_v2_group_0025",
+  "arena": "g231",
+  "affected_cells": 469,
+  "shadow_cells": 29,
+  "need_p99": 0.0,
+  "need_max": 0.0,
+  "radius": 16.913417703229463
+ },
+ {
+  "group": "g231_v2_group_0000",
+  "arena": "g231",
+  "affected_cells": 463,
+  "shadow_cells": 21,
+  "need_p99": 0.0,
+  "need_max": 0.05030519329989014,
+  "radius": 14.229882522577908
+ },
+ {
+  "group": "g216_v2_group_0072",
+  "arena": "g216",
+  "affected_cells": 508,
+  "shadow_cells": 75,
+  "need_p99": 0.14029248387659649,
+  "need_max": 0.21344647211564105,
+  "radius": 41.69125325321684
+ },
+ {
+  "group": "g231_v2_group_0066",
+  "arena": "g231",
+  "affected_cells": 497,
+  "shadow_cells": 61,
+  "need_p99": 0.06988273499047559,
+  "need_max": 0.28292590459200384,
+  "radius": 29.685646870862588
+ },
+ {
+  "group": "g216_v2_group_0015",
+  "arena": "g216",
+  "affected_cells": 440,
+  "shadow_cells": 0,
+  "need_p99": 0.0,
+  "need_max": 0.0,
+  "radius": 7.991089860228321
+ },
+ {
+  "group": "g231_v2_group_0034",
+  "arena": "g231",
+  "affected_cells": 525,
+  "shadow_cells": 73,
+  "need_p99": 0.25880368506940504,
+  "need_max": 0.30901988668708547,
+  "radius": 33.06275752452377
+ },
+ {
+  "group": "g216_v2_group_0070",
+  "arena": "g216",
+  "affected_cells": 497,
+  "shadow_cells": 59,
+  "need_p99": 0.035181220852769646,
+  "need_max": 0.08068209695839279,
+  "radius": 32.059147386437544
+ }
+]

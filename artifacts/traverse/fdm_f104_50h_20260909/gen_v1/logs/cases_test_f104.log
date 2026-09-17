@@ -1,0 +1,3 @@
+6700 existing start/goal pairs will be avoided (margin 2.0 m)
+  200 groups after 46341 attempts
+{"groups": 200, "episodes": 2400, "attempts": 46341, "splits": {"train": 180, "val": 9, "test": 11}}

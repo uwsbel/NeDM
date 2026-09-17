@@ -1,0 +1,68 @@
+{
+ "fixed2/d": {
+  "n": 514,
+  "median_mean_sep_m": 1.1737557708105717,
+  "p90_mean_sep_m": 6.037718577313517,
+  "median_max_sep_m": 2.5122327757063054,
+  "p90_max_sep_m": 11.481149477341832,
+  "frac_mean_sep_under_1m": 0.43190661478599224,
+  "frac_max_sep_under_2m": 0.4143968871595331,
+  "median_abs_dspeed": 0.000605076436957841,
+  "median_abs_dlen": 0.7921560061503836
+ },
+ "fixed2/e0": {
+  "n": 424,
+  "median_mean_sep_m": 0.9726098507164682,
+  "p90_mean_sep_m": 4.9599064527697925,
+  "median_max_sep_m": 1.9755469606214968,
+  "p90_max_sep_m": 8.97919476930295,
+  "frac_mean_sep_under_1m": 0.5094339622641509,
+  "frac_max_sep_under_2m": 0.5023584905660378,
+  "median_abs_dspeed": 0.0005106768943586859,
+  "median_abs_dlen": 0.5645194074965154
+ },
+ "fixed2/n2": {
+  "n": 475,
+  "median_mean_sep_m": 0.9947525136364023,
+  "p90_mean_sep_m": 5.555305595662348,
+  "median_max_sep_m": 2.148241693193419,
+  "p90_max_sep_m": 9.764880322723869,
+  "frac_mean_sep_under_1m": 0.5010526315789474,
+  "frac_max_sep_under_2m": 0.4863157894736842,
+  "median_abs_dspeed": 0.0005351740106034342,
+  "median_abs_dlen": 0.7924385514148682
+ },
+ "proposal/d": {
+  "n": 303,
+  "median_mean_sep_m": 2.294494026507943,
+  "p90_mean_sep_m": 5.397967909070364,
+  "median_max_sep_m": 4.690919804532739,
+  "p90_max_sep_m": 9.95892740006819,
+  "frac_mean_sep_under_1m": 0.13861386138613863,
+  "frac_max_sep_under_2m": 0.13861386138613863,
+  "median_abs_dspeed": 0.747558931249745,
+  "median_abs_dlen": 1.1030313839134394
+ },
+ "proposal/e0": {
+  "n": 234,
+  "median_mean_sep_m": 2.1299380791821307,
+  "p90_mean_sep_m": 5.56705698612605,
+  "median_max_sep_m": 4.537244752920699,
+  "p90_max_sep_m": 10.00326256900223,
+  "frac_mean_sep_under_1m": 0.12393162393162394,
+  "frac_max_sep_under_2m": 0.11965811965811966,
+  "median_abs_dspeed": 0.47109545071888426,
+  "median_abs_dlen": 1.2561923598539515
+ },
+ "proposal/n2": {
+  "n": 258,
+  "median_mean_sep_m": 2.182393173942414,
+  "p90_mean_sep_m": 5.819795028502094,
+  "median_max_sep_m": 4.502884044633617,
+  "p90_max_sep_m": 10.13822630573992,
+  "frac_mean_sep_under_1m": 0.13565891472868216,
+  "frac_max_sep_under_2m": 0.14728682170542637,
+  "median_abs_dspeed": 0.5102556183183478,
+  "median_abs_dlen": 1.2144146797609672
+ }
+}

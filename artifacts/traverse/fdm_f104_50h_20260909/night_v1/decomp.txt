@@ -1,0 +1,9 @@
+within-group risk variation split, 73 test groups with the full 3 offsets x 3 speeds table
+
+                                     speed  terrain/geometry  interaction
+  TRUTH, unsafe                        48.8%            23.5%        27.6%
+  TRUTH, fail                          39.1%            22.2%        38.7%
+  OLD production                    61.3%            17.5%        21.2%
+  NEW H1 ensemble                   53.8%            22.5%        23.8%
+  A1_old_unsafe                     61.3%            17.4%        21.3%
+  H6_hazarch_routelabel             50.1%            24.3%        25.6%

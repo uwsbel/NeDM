@@ -1,0 +1,32 @@
+{
+ "H": {
+  "cases": 20,
+  "changed_pick": 14,
+  "unsafe_A": 0,
+  "unsafe_C": 0,
+  "fail_A": 0,
+  "fail_C": 0,
+  "median_time_A": 13.850000000000001,
+  "median_time_C": 14.100000000000001,
+  "median_tilt_A": 21.28758430480957,
+  "median_tilt_C": 22.45596218109131,
+  "discordant_C_worse": 0,
+  "discordant_A_worse": 0,
+  "p": 1.0
+ },
+ "Dabs": {
+  "cases": 20,
+  "changed_pick": 9,
+  "unsafe_A": 0,
+  "unsafe_C": 0,
+  "fail_A": 0,
+  "fail_C": 0,
+  "median_time_A": 10.875,
+  "median_time_C": 11.450000000000001,
+  "median_tilt_A": 24.9915714263916,
+  "median_tilt_C": 25.276415824890137,
+  "discordant_C_worse": 0,
+  "discordant_A_worse": 0,
+  "p": 1.0
+ }
+}

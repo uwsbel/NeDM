@@ -1,0 +1,130 @@
+{
+  "schema": "f104_reserve_prefix_integrity_v1",
+  "all_checks_pass": true,
+  "initial_manifest_unchanged": true,
+  "initial500records_reproduced_exactly": true,
+  "verified_initial_prefix_files": 6500,
+  "verified_new_files": 13000,
+  "new_groups": 1000,
+  "new_episodes": 12000,
+  "combined_groups": 1500,
+  "combined_episodes": 18000,
+  "source_generator_sha256": "872e92b5309f9056ae24ddddd099f29398f607dc92ec8afab50c49329a18f526",
+  "initial_manifest_sha256": "d5ddac50a4d253562597e53261acd21b56721dfadd0ceeaa16dd4091a1715702",
+  "reserve_manifest_sha256": "1b6e38e0f1aeb47e7e15e8f42f98f8e0e91d425d8e06cf3d9b8b1d411aaea8dd",
+  "reserve_manifest": "artifacts/traverse/fdm_f104_50h_20260909/cases_reserve_v1/cases.json",
+  "reserve_split_episode_counts": {
+    "train": 10728,
+    "val": 660,
+    "test": 612
+  },
+  "combined_split_episode_counts": {
+    "train": 16104,
+    "val": 1020,
+    "test": 876
+  },
+  "reserve_profile_episode_counts": {
+    "constant_2": 3000,
+    "constant_4": 3000,
+    "constant_6": 3000,
+    "smooth_2_6_2": 3000
+  },
+  "reserve_stratum_group_counts": {
+    "crater_cross_slope": 222,
+    "long_traverse": 167,
+    "roughness_transfer": 84,
+    "hill_entry_cross_exit": 140,
+    "crater_entry_cross_exit": 112,
+    "hill_cross_slope": 275
+  },
+  "reserve_targeted_feature_group_counts": {
+    "8": 84,
+    "None": 251,
+    "0": 83,
+    "1": 83,
+    "2": 83,
+    "3": 83,
+    "4": 83,
+    "5": 83,
+    "6": 83,
+    "7": 83,
+    "9": 1
+  },
+  "reserve_geometry_feature_coverage": [
+    {
+      "feature_index": 0,
+      "kind": "hill",
+      "minimum_reference_center_distance_m": 0.0007960216971094263,
+      "routes_within_sigma": 1024,
+      "routes_within1m": 292
+    },
+    {
+      "feature_index": 1,
+      "kind": "hill",
+      "minimum_reference_center_distance_m": 0.0013280431541853857,
+      "routes_within_sigma": 2152,
+      "routes_within1m": 472
+    },
+    {
+      "feature_index": 2,
+      "kind": "hill",
+      "minimum_reference_center_distance_m": 0.0007601730673763934,
+      "routes_within_sigma": 1576,
+      "routes_within1m": 444
+    },
+    {
+      "feature_index": 3,
+      "kind": "hill",
+      "minimum_reference_center_distance_m": 0.0019209465768681097,
+      "routes_within_sigma": 1220,
+      "routes_within1m": 352
+    },
+    {
+      "feature_index": 4,
+      "kind": "hill",
+      "minimum_reference_center_distance_m": 0.001801572526590001,
+      "routes_within_sigma": 1572,
+      "routes_within1m": 472
+    },
+    {
+      "feature_index": 5,
+      "kind": "crater",
+      "minimum_reference_center_distance_m": 0.004158000729438458,
+      "routes_within_sigma": 924,
+      "routes_within1m": 224
+    },
+    {
+      "feature_index": 6,
+      "kind": "crater",
+      "minimum_reference_center_distance_m": 0.0084756033746445,
+      "routes_within_sigma": 944,
+      "routes_within1m": 244
+    },
+    {
+      "feature_index": 7,
+      "kind": "crater",
+      "minimum_reference_center_distance_m": 0.003613944638789794,
+      "routes_within_sigma": 1196,
+      "routes_within1m": 376
+    },
+    {
+      "feature_index": 8,
+      "kind": "crater",
+      "minimum_reference_center_distance_m": 0.004202573825625663,
+      "routes_within_sigma": 1256,
+      "routes_within1m": 384
+    },
+    {
+      "feature_index": 9,
+      "kind": "crater",
+      "minimum_reference_center_distance_m": 0.16985871160453497,
+      "routes_within_sigma": 60,
+      "routes_within1m": 4
+    }
+  ],
+  "original6000episodes_not_repeated_in_reserve": true,
+  "native_physics_outcomes_used": false,
+  "nominal_combined_cap_hours": 600.0,
+  "required_actual_recorded_hours": 50.0,
+  "actual_hours_not_claimed_by_generation": true
+}

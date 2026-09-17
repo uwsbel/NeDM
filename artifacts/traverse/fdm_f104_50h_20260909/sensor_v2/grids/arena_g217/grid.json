@@ -1,0 +1,25 @@
+{
+ "camera": {
+  "width": 1024,
+  "height": 1024,
+  "hfov_rad": 0.8203047484373349,
+  "cam_height_m": 110.0,
+  "depth_ray_scale": 1.0,
+  "max_depth_m": 180.0,
+  "backend": "Vulkan_RT_lavapipe",
+  "depth_measurement": "Euclidean_ray_range_m",
+  "model_image_size": 512,
+  "elevation_scale_m": 10.0,
+  "observation_mode": "One static vehicle-free global terrain RGB-D map; same physical terrain shared by all episodes"
+ },
+ "mpp": 0.15625,
+ "half_extent_m": 40.0,
+ "n": 512,
+ "camera_height_m": 110.0,
+ "focal_px": 1177.5193841849634,
+ "row0": "+y",
+ "fill": "none: empty cells are invalid",
+ "source": "back-projected sensor pixels only; no authored heights",
+ "coverage_fraction": 1.0,
+ "mean_pixels_per_cell": 2.8060531616210938
+}

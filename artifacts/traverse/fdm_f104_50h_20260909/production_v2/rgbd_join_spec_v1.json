@@ -1,0 +1,48 @@
+{
+  "schema": "f104_static_rgbd_join_spec_v1",
+  "production_contract_sha256": "e4422720f1fa11fccefb77a0bef008616e705174697884f6494af5b0351eb84b",
+  "observation_remote": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/static_map_v1/observation.npz",
+  "observation_sha256": "faffac47c001efced7b817c923f76abd989621e201b900ee8ec42fb48e200267",
+  "observation_metadata_sha256": "cc269e00f31ff4211055217a22427de061449eb1a6ae342dbf91f3e3af0a4913",
+  "arena_bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+  "arena_meta_sha256": "0242ac249715efd138d7d09b6f86a262781a555b11e99506866e111d4caa1b6a",
+  "camera": {
+    "width": 1024,
+    "height": 1024,
+    "hfov_rad": 0.8203047484373349,
+    "cam_height_m": 110.0,
+    "depth_ray_scale": 1.0,
+    "max_depth_m": 180.0,
+    "backend": "Vulkan_RT_lavapipe",
+    "depth_measurement": "Euclidean_ray_range_m",
+    "model_image_size": 512,
+    "elevation_scale_m": 10.0,
+    "observation_mode": "One static vehicle-free global terrain RGB-D map; same physical terrain shared by all episodes"
+  },
+  "camera_sha256": "e4eda85cded23db0fea3d473576ee83109776956ac66f6a8d3b2a85aca8f6c27",
+  "material": {
+    "friction": 0.9,
+    "restitution": 0.01,
+    "young_modulus_pa": 20000000.0
+  },
+  "material_sha256": "845f2d3bfe86416de076ad1a7df488ac61245453022fee6de9f5e5636d2a5ef0",
+  "runtime_match_checked": true,
+  "runtime_file_count": 108,
+  "runtime_fingerprint_sha256": "83e585cead32404fe2bfea82382d188d3ea4b24b5cd7accaabc01b6265b32f99",
+  "episode_admission": "Only independent-audit-valid production_v2 completion ledger IDs; all pilots and production_v1 excluded.",
+  "per_episode_inputs": [
+    "measured state17",
+    "measured XY yaw pose",
+    "causal action/state history",
+    "goal",
+    "reference"
+  ],
+  "global_observation": "One measured RGBD terrain image, shared only within this exact immutable arena/material/camera.",
+  "future_window_rule": "Use actual measured N intervals and terminal endpoint. No repeated/padded intervals contribute dataset hours or ground-truth futures.",
+  "projection_requirement": "Use camera110m and elevation10m above; inherited headless collection_meta CAMERA400 is not image metadata.",
+  "privileged_audit_inputs_excluded": [
+    "native_height_audit.npz",
+    "authored feature center geometry"
+  ],
+  "pack_status": "Join contract prepared and map/runtime verified. Training-window packing and FDM retraining are next steps, not completed here."
+}

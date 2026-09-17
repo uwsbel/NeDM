@@ -1,0 +1,23 @@
+{
+ "cfg": {
+  "arch": "hazard",
+  "label": "hazard",
+  "speed_drop": 0.3,
+  "name": "H2_haz_sdrop",
+  "seed": 2,
+  "epochs": 30
+ },
+ "dev": {
+  "P_unsafe": 0.9775358107043722,
+  "W_unsafe": 0.9765217391304348,
+  "Wn_unsafe": 2300,
+  "G_unsafe": 0.9446254071661238,
+  "Gn_unsafe": 307,
+  "P_fail": 0.9339714159728166,
+  "W_fail": 0.9361880772460117,
+  "Wn_fail": 1191,
+  "G_fail": 0.8855721393034826,
+  "Gn_fail": 201,
+  "train_s": 30.5
+ }
+}

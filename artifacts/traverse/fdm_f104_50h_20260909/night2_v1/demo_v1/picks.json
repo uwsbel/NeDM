@@ -1,0 +1,1346 @@
+[
+ {
+  "group": "f104_t3_group_1249",
+  "shard": 17,
+  "roles": {
+   "optimal": {
+    "detour_m": 8.19,
+    "mean_speed": 2.78,
+    "max_speed": 4.09,
+    "length_m": 46.9,
+    "rise_m": 1.7,
+    "dip_m": 0.01,
+    "role": "optimal",
+    "risk": 0.00020766258239746094,
+    "cand_index": 107,
+    "anchor": false,
+    "rank": 0
+   },
+   "suboptimal": {
+    "detour_m": 3.08,
+    "mean_speed": 2.13,
+    "max_speed": 5.7,
+    "length_m": 43.9,
+    "rise_m": 3.65,
+    "dip_m": 0.01,
+    "role": "suboptimal",
+    "risk": 0.10489135980606079,
+    "cand_index": 146,
+    "anchor": false,
+    "rank": 15
+   },
+   "risky": {
+    "detour_m": 0.0,
+    "mean_speed": 1.99,
+    "max_speed": 2.0,
+    "length_m": 43.3,
+    "rise_m": 3.38,
+    "dip_m": 0.01,
+    "role": "risky",
+    "risk": 1.0,
+    "cand_index": 0,
+    "anchor": true,
+    "rank": 98
+   }
+  },
+  "p_min": 0.00020766258239746094,
+  "p_max": 1.0,
+  "p_median": 1.0
+ },
+ {
+  "group": "f104_t2_group_0248",
+  "shard": 2,
+  "roles": {
+   "optimal": {
+    "detour_m": 3.18,
+    "mean_speed": 3.2,
+    "max_speed": 4.69,
+    "length_m": 55.7,
+    "rise_m": 3.03,
+    "dip_m": 1.65,
+    "role": "optimal",
+    "risk": 9.465217590332031e-05,
+    "cand_index": 192,
+    "anchor": false,
+    "rank": 0
+   },
+   "suboptimal": {
+    "detour_m": 9.51,
+    "mean_speed": 2.54,
+    "max_speed": 4.86,
+    "length_m": 58.8,
+    "rise_m": 2.67,
+    "dip_m": 1.5,
+    "role": "suboptimal",
+    "risk": 0.10581082105636597,
+    "cand_index": 20,
+    "anchor": false,
+    "rank": 39
+   },
+   "risky": {
+    "detour_m": 0.0,
+    "mean_speed": 1.99,
+    "max_speed": 2.0,
+    "length_m": 54.3,
+    "rise_m": 2.52,
+    "dip_m": 1.15,
+    "role": "risky",
+    "risk": 1.0,
+    "cand_index": 0,
+    "anchor": true,
+    "rank": 160
+   }
+  },
+  "p_min": 9.465217590332031e-05,
+  "p_max": 1.0,
+  "p_median": 0.9999919533729553
+ },
+ {
+  "group": "f104_t3_group_0782",
+  "shard": 2,
+  "roles": {
+   "optimal": {
+    "detour_m": 4.51,
+    "mean_speed": 3.3,
+    "max_speed": 5.32,
+    "length_m": 32.5,
+    "rise_m": 3.22,
+    "dip_m": 0.16,
+    "role": "optimal",
+    "risk": 0.00025266408920288086,
+    "cand_index": 227,
+    "anchor": false,
+    "rank": 0
+   },
+   "suboptimal": {
+    "detour_m": 5.68,
+    "mean_speed": 3.23,
+    "max_speed": 5.35,
+    "length_m": 32.9,
+    "rise_m": 2.93,
+    "dip_m": 0.16,
+    "role": "suboptimal",
+    "risk": 0.10389739274978638,
+    "cand_index": 123,
+    "anchor": false,
+    "rank": 52
+   },
+   "risky": {
+    "detour_m": 0.0,
+    "mean_speed": 1.99,
+    "max_speed": 2.0,
+    "length_m": 30.5,
+    "rise_m": 3.0,
+    "dip_m": 0.16,
+    "role": "risky",
+    "risk": 1.0,
+    "cand_index": 0,
+    "anchor": true,
+    "rank": 213
+   }
+  },
+  "p_min": 0.00025266408920288086,
+  "p_max": 1.0,
+  "p_median": 0.9356979727745056
+ },
+ {
+  "group": "f104_t3_group_2980",
+  "shard": 21,
+  "roles": {
+   "optimal": {
+    "detour_m": 6.1,
+    "mean_speed": 3.23,
+    "max_speed": 4.1,
+    "length_m": 51.6,
+    "rise_m": 3.46,
+    "dip_m": 0.24,
+    "role": "optimal",
+    "risk": 0.0001443028450012207,
+    "cand_index": 235,
+    "anchor": false,
+    "rank": 0
+   },
+   "suboptimal": {
+    "detour_m": 5.38,
+    "mean_speed": 3.58,
+    "max_speed": 6.0,
+    "length_m": 49.8,
+    "rise_m": 3.26,
+    "dip_m": 0.37,
+    "role": "suboptimal",
+    "risk": 0.09859001636505127,
+    "cand_index": 89,
+    "anchor": false,
+    "rank": 18
+   },
+   "risky": {
+    "detour_m": 0.0,
+    "mean_speed": 1.99,
+    "max_speed": 2.0,
+    "length_m": 48.4,
+    "rise_m": 3.33,
+    "dip_m": 1.44,
+    "role": "risky",
+    "risk": 1.0,
+    "cand_index": 0,
+    "anchor": true,
+    "rank": 110
+   }
+  },
+  "p_min": 0.0001443028450012207,
+  "p_max": 1.0,
+  "p_median": 1.0
+ },
+ {
+  "group": "f104_t3_group_1875",
+  "shard": 7,
+  "roles": {
+   "optimal": {
+    "detour_m": 4.0,
+    "mean_speed": 5.49,
+    "max_speed": 6.0,
+    "length_m": 33.7,
+    "rise_m": 3.0,
+    "dip_m": -0.08,
+    "role": "optimal",
+    "risk": 0.0010877251625061035,
+    "cand_index": 5,
+    "anchor": true,
+    "rank": 0
+   },
+   "suboptimal": {
+    "detour_m": 2.88,
+    "mean_speed": 3.55,
+    "max_speed": 5.23,
+    "length_m": 33.7,
+    "rise_m": 3.73,
+    "dip_m": -0.08,
+    "role": "suboptimal",
+    "risk": 0.05924975872039795,
+    "cand_index": 78,
+    "anchor": false,
+    "rank": 12
+   },
+   "risky": {
+    "detour_m": 0.0,
+    "mean_speed": 1.99,
+    "max_speed": 2.0,
+    "length_m": 32.5,
+    "rise_m": 3.68,
+    "dip_m": -0.08,
+    "role": "risky",
+    "risk": 1.0,
+    "cand_index": 0,
+    "anchor": true,
+    "rank": 106
+   }
+  },
+  "p_min": 0.0010877251625061035,
+  "p_max": 1.0,
+  "p_median": 1.0
+ },
+ {
+  "group": "f104_t3_group_0812",
+  "shard": 27,
+  "roles": {
+   "optimal": {
+    "detour_m": 5.97,
+    "mean_speed": 3.3,
+    "max_speed": 4.95,
+    "length_m": 41.9,
+    "rise_m": 2.75,
+    "dip_m": 0.25,
+    "role": "optimal",
+    "risk": 0.0002460479736328125,
+    "cand_index": 212,
+    "anchor": false,
+    "rank": 0
+   },
+   "suboptimal": {
+    "detour_m": 6.03,
+    "mean_speed": 2.22,
+    "max_speed": 4.47,
+    "length_m": 41.5,
+    "rise_m": 2.75,
+    "dip_m": 0.41,
+    "role": "suboptimal",
+    "risk": 0.10665953159332275,
+    "cand_index": 108,
+    "anchor": false,
+    "rank": 39
+   },
+   "risky": {
+    "detour_m": 7.41,
+    "mean_speed": 1.92,
+    "max_speed": 3.21,
+    "length_m": 42.7,
+    "rise_m": 2.75,
+    "dip_m": 0.27,
+    "role": "risky",
+    "risk": 1.0,
+    "cand_index": 9,
+    "anchor": false,
+    "rank": 205
+   }
+  },
+  "p_min": 0.0002460479736328125,
+  "p_max": 1.0,
+  "p_median": 0.9995425939559937
+ },
+ {
+  "group": "f104_t3_group_3171",
+  "shard": 21,
+  "roles": {
+   "optimal": {
+    "detour_m": 0.0,
+    "mean_speed": 5.46,
+    "max_speed": 6.0,
+    "length_m": 31.3,
+    "rise_m": 3.72,
+    "dip_m": 0.49,
+    "role": "optimal",
+    "risk": 0.0022318363189697266,
+    "cand_index": 2,
+    "anchor": true,
+    "rank": 0
+   },
+   "suboptimal": {
+    "detour_m": 5.21,
+    "mean_speed": 3.42,
+    "max_speed": 4.54,
+    "length_m": 33.5,
+    "rise_m": 2.33,
+    "dip_m": 0.51,
+    "role": "suboptimal",
+    "risk": 0.08393722772598267,
+    "cand_index": 87,
+    "anchor": false,
+    "rank": 14
+   },
+   "risky": {
+    "detour_m": 4.0,
+    "mean_speed": 1.99,
+    "max_speed": 2.0,
+    "length_m": 32.6,
+    "rise_m": 3.24,
+    "dip_m": 0.49,
+    "role": "risky",
+    "risk": 1.0,
+    "cand_index": 6,
+    "anchor": true,
+    "rank": 174
+   }
+  },
+  "p_min": 0.0022318363189697266,
+  "p_max": 1.0,
+  "p_median": 0.9997342824935913
+ },
+ {
+  "group": "f104_t2_group_0735",
+  "shard": 13,
+  "roles": {
+   "optimal": {
+    "detour_m": 3.63,
+    "mean_speed": 3.79,
+    "max_speed": 5.39,
+    "length_m": 35.1,
+    "rise_m": 2.12,
+    "dip_m": 0.38,
+    "role": "optimal",
+    "risk": 0.00022983551025390625,
+    "cand_index": 178,
+    "anchor": false,
+    "rank": 0
+   },
+   "suboptimal": {
+    "detour_m": 2.97,
+    "mean_speed": 3.01,
+    "max_speed": 3.68,
+    "length_m": 34.6,
+    "rise_m": 3.73,
+    "dip_m": 0.15,
+    "role": "suboptimal",
+    "risk": 0.12101525068283081,
+    "cand_index": 80,
+    "anchor": false,
+    "rank": 32
+   },
+   "risky": {
+    "detour_m": 0.0,
+    "mean_speed": 1.99,
+    "max_speed": 2.0,
+    "length_m": 33.6,
+    "rise_m": 3.26,
+    "dip_m": 0.12,
+    "role": "risky",
+    "risk": 1.0,
+    "cand_index": 0,
+    "anchor": true,
+    "rank": 162
+   }
+  },
+  "p_min": 0.00022983551025390625,
+  "p_max": 1.0,
+  "p_median": 0.9999935626983643
+ },
+ {
+  "group": "f104_t3_group_2115",
+  "shard": 10,
+  "roles": {
+   "optimal": {
+    "detour_m": 4.0,
+    "mean_speed": 3.87,
+    "max_speed": 4.0,
+    "length_m": 36.3,
+    "rise_m": 2.94,
+    "dip_m": -0.03,
+    "role": "optimal",
+    "risk": 0.0007876157760620117,
+    "cand_index": 4,
+    "anchor": true,
+    "rank": 0
+   },
+   "suboptimal": {
+    "detour_m": 9.65,
+    "mean_speed": 2.13,
+    "max_speed": 2.66,
+    "length_m": 41.0,
+    "rise_m": 2.94,
+    "dip_m": 1.4,
+    "role": "suboptimal",
+    "risk": 0.09712517261505127,
+    "cand_index": 183,
+    "anchor": false,
+    "rank": 25
+   },
+   "risky": {
+    "detour_m": 0.0,
+    "mean_speed": 1.99,
+    "max_speed": 2.0,
+    "length_m": 35.2,
+    "rise_m": 3.07,
+    "dip_m": 0.12,
+    "role": "risky",
+    "risk": 1.0,
+    "cand_index": 0,
+    "anchor": true,
+    "rank": 160
+   }
+  },
+  "p_min": 0.0007876157760620117,
+  "p_max": 1.0,
+  "p_median": 0.9999908208847046
+ },
+ {
+  "group": "f104_t3_group_0687",
+  "shard": 4,
+  "roles": {
+   "optimal": {
+    "detour_m": 4.0,
+    "mean_speed": 5.69,
+    "max_speed": 6.0,
+    "length_m": 54.2,
+    "rise_m": 3.17,
+    "dip_m": 1.63,
+    "role": "optimal",
+    "risk": 0.0007040500640869141,
+    "cand_index": 5,
+    "anchor": true,
+    "rank": 0
+   },
+   "suboptimal": {
+    "detour_m": 5.11,
+    "mean_speed": 3.04,
+    "max_speed": 3.79,
+    "length_m": 55.6,
+    "rise_m": 1.46,
+    "dip_m": 1.65,
+    "role": "suboptimal",
+    "risk": 0.10046929121017456,
+    "cand_index": 96,
+    "anchor": false,
+    "rank": 16
+   },
+   "risky": {
+    "detour_m": 0.0,
+    "mean_speed": 1.99,
+    "max_speed": 2.0,
+    "length_m": 53.5,
+    "rise_m": 3.6,
+    "dip_m": 1.45,
+    "role": "risky",
+    "risk": 1.0,
+    "cand_index": 0,
+    "anchor": true,
+    "rank": 93
+   }
+  },
+  "p_min": 0.0007040500640869141,
+  "p_max": 1.0,
+  "p_median": 1.0
+ },
+ {
+  "group": "f104_t2_group_0591",
+  "shard": 22,
+  "roles": {
+   "optimal": {
+    "detour_m": 4.0,
+    "mean_speed": 3.86,
+    "max_speed": 4.0,
+    "length_m": 32.9,
+    "rise_m": 1.93,
+    "dip_m": 0.27,
+    "role": "optimal",
+    "risk": 0.0014836788177490234,
+    "cand_index": 7,
+    "anchor": true,
+    "rank": 0
+   },
+   "suboptimal": {
+    "detour_m": 7.7,
+    "mean_speed": 2.38,
+    "max_speed": 5.21,
+    "length_m": 35.9,
+    "rise_m": 1.93,
+    "dip_m": 1.37,
+    "role": "suboptimal",
+    "risk": 0.10089230537414551,
+    "cand_index": 193,
+    "anchor": false,
+    "rank": 19
+   },
+   "risky": {
+    "detour_m": 0.0,
+    "mean_speed": 1.99,
+    "max_speed": 2.0,
+    "length_m": 31.7,
+    "rise_m": 3.23,
+    "dip_m": 0.27,
+    "role": "risky",
+    "risk": 1.0,
+    "cand_index": 0,
+    "anchor": true,
+    "rank": 158
+   }
+  },
+  "p_min": 0.0014836788177490234,
+  "p_max": 1.0,
+  "p_median": 0.9999552965164185
+ },
+ {
+  "group": "f104_t3_group_2683",
+  "shard": 0,
+  "roles": {
+   "optimal": {
+    "detour_m": 8.83,
+    "mean_speed": 3.95,
+    "max_speed": 5.41,
+    "length_m": 52.6,
+    "rise_m": 2.82,
+    "dip_m": 0.34,
+    "role": "optimal",
+    "risk": 0.00024181604385375977,
+    "cand_index": 82,
+    "anchor": false,
+    "rank": 0
+   },
+   "suboptimal": {
+    "detour_m": 8.63,
+    "mean_speed": 2.17,
+    "max_speed": 2.66,
+    "length_m": 54.5,
+    "rise_m": 3.08,
+    "dip_m": 0.34,
+    "role": "suboptimal",
+    "risk": 0.12793993949890137,
+    "cand_index": 125,
+    "anchor": false,
+    "rank": 9
+   },
+   "risky": {
+    "detour_m": 0.0,
+    "mean_speed": 1.99,
+    "max_speed": 2.0,
+    "length_m": 49.1,
+    "rise_m": 3.56,
+    "dip_m": 1.05,
+    "role": "risky",
+    "risk": 1.0,
+    "cand_index": 0,
+    "anchor": true,
+    "rank": 131
+   }
+  },
+  "p_min": 0.00024181604385375977,
+  "p_max": 1.0,
+  "p_median": 0.9999999403953552
+ },
+ {
+  "group": "f104_t2_group_0487",
+  "shard": 7,
+  "roles": {
+   "optimal": {
+    "detour_m": 2.06,
+    "mean_speed": 3.64,
+    "max_speed": 4.36,
+    "length_m": 49.9,
+    "rise_m": 1.72,
+    "dip_m": 0.8,
+    "role": "optimal",
+    "risk": 0.00015693902969360352,
+    "cand_index": 248,
+    "anchor": false,
+    "rank": 0
+   },
+   "suboptimal": {
+    "detour_m": 5.58,
+    "mean_speed": 2.72,
+    "max_speed": 2.96,
+    "length_m": 52.9,
+    "rise_m": 0.84,
+    "dip_m": 1.43,
+    "role": "suboptimal",
+    "risk": 0.09025335311889648,
+    "cand_index": 105,
+    "anchor": false,
+    "rank": 43
+   },
+   "risky": {
+    "detour_m": 7.21,
+    "mean_speed": 1.1,
+    "max_speed": 3.11,
+    "length_m": 52.9,
+    "rise_m": 2.18,
+    "dip_m": 0.19,
+    "role": "risky",
+    "risk": 1.0,
+    "cand_index": 12,
+    "anchor": false,
+    "rank": 208
+   }
+  },
+  "p_min": 0.00015693902969360352,
+  "p_max": 1.0,
+  "p_median": 0.9994966983795166
+ },
+ {
+  "group": "f104_t3_group_1375",
+  "shard": 3,
+  "roles": {
+   "optimal": {
+    "detour_m": 0.0,
+    "mean_speed": 3.91,
+    "max_speed": 4.0,
+    "length_m": 52.4,
+    "rise_m": 1.66,
+    "dip_m": 0.96,
+    "role": "optimal",
+    "risk": 0.00021207332611083984,
+    "cand_index": 1,
+    "anchor": true,
+    "rank": 0
+   },
+   "suboptimal": {
+    "detour_m": 3.04,
+    "mean_speed": 3.28,
+    "max_speed": 5.03,
+    "length_m": 54.3,
+    "rise_m": 2.25,
+    "dip_m": 1.11,
+    "role": "suboptimal",
+    "risk": 0.1118972897529602,
+    "cand_index": 137,
+    "anchor": false,
+    "rank": 33
+   },
+   "risky": {
+    "detour_m": 3.45,
+    "mean_speed": 1.47,
+    "max_speed": 1.77,
+    "length_m": 54.3,
+    "rise_m": 1.58,
+    "dip_m": 0.45,
+    "role": "risky",
+    "risk": 1.0,
+    "cand_index": 10,
+    "anchor": false,
+    "rank": 194
+   }
+  },
+  "p_min": 0.00021207332611083984,
+  "p_max": 1.0,
+  "p_median": 0.999967098236084
+ },
+ {
+  "group": "f104_t2_group_0260",
+  "shard": 19,
+  "roles": {
+   "optimal": {
+    "detour_m": 7.8,
+    "mean_speed": 3.91,
+    "max_speed": 5.73,
+    "length_m": 50.7,
+    "rise_m": 2.4,
+    "dip_m": 0.27,
+    "role": "optimal",
+    "risk": 5.745887756347656e-05,
+    "cand_index": 184,
+    "anchor": false,
+    "rank": 0
+   },
+   "suboptimal": {
+    "detour_m": 5.85,
+    "mean_speed": 2.13,
+    "max_speed": 2.48,
+    "length_m": 48.4,
+    "rise_m": 3.2,
+    "dip_m": 0.22,
+    "role": "suboptimal",
+    "risk": 0.09345477819442749,
+    "cand_index": 240,
+    "anchor": false,
+    "rank": 42
+   },
+   "risky": {
+    "detour_m": 4.0,
+    "mean_speed": 1.99,
+    "max_speed": 2.0,
+    "length_m": 47.5,
+    "rise_m": 3.13,
+    "dip_m": 0.38,
+    "role": "risky",
+    "risk": 1.0,
+    "cand_index": 3,
+    "anchor": true,
+    "rank": 145
+   }
+  },
+  "p_min": 5.745887756347656e-05,
+  "p_max": 1.0,
+  "p_median": 0.9999988079071045
+ },
+ {
+  "group": "f104_t3_group_1637",
+  "shard": 5,
+  "roles": {
+   "optimal": {
+    "detour_m": 7.67,
+    "mean_speed": 2.74,
+    "max_speed": 3.36,
+    "length_m": 36.2,
+    "rise_m": 3.67,
+    "dip_m": 0.15,
+    "role": "optimal",
+    "risk": 0.0006470084190368652,
+    "cand_index": 71,
+    "anchor": false,
+    "rank": 0
+   },
+   "suboptimal": {
+    "detour_m": 4.0,
+    "mean_speed": 3.86,
+    "max_speed": 4.0,
+    "length_m": 33.5,
+    "rise_m": 3.6,
+    "dip_m": 0.15,
+    "role": "suboptimal",
+    "risk": 0.09745973348617554,
+    "cand_index": 7,
+    "anchor": true,
+    "rank": 15
+   },
+   "risky": {
+    "detour_m": 0.0,
+    "mean_speed": 1.99,
+    "max_speed": 2.0,
+    "length_m": 32.3,
+    "rise_m": 3.11,
+    "dip_m": 1.4,
+    "role": "risky",
+    "risk": 1.0,
+    "cand_index": 0,
+    "anchor": true,
+    "rank": 110
+   }
+  },
+  "p_min": 0.0006470084190368652,
+  "p_max": 1.0,
+  "p_median": 1.0
+ },
+ {
+  "group": "f104_t3_group_1531",
+  "shard": 17,
+  "roles": {
+   "optimal": {
+    "detour_m": 8.66,
+    "mean_speed": 2.58,
+    "max_speed": 3.55,
+    "length_m": 43.9,
+    "rise_m": 1.89,
+    "dip_m": 0.38,
+    "role": "optimal",
+    "risk": 0.007355749607086182,
+    "cand_index": 171,
+    "anchor": false,
+    "rank": 0
+   },
+   "suboptimal": {
+    "detour_m": 6.42,
+    "mean_speed": 2.8,
+    "max_speed": 4.1,
+    "length_m": 42.0,
+    "rise_m": 1.68,
+    "dip_m": 0.37,
+    "role": "suboptimal",
+    "risk": 0.10062247514724731,
+    "cand_index": 93,
+    "anchor": false,
+    "rank": 30
+   },
+   "risky": {
+    "detour_m": 0.0,
+    "mean_speed": 1.99,
+    "max_speed": 2.0,
+    "length_m": 39.4,
+    "rise_m": 3.52,
+    "dip_m": 1.05,
+    "role": "risky",
+    "risk": 1.0,
+    "cand_index": 0,
+    "anchor": true,
+    "rank": 145
+   }
+  },
+  "p_min": 0.007355749607086182,
+  "p_max": 1.0,
+  "p_median": 0.9999986886978149
+ },
+ {
+  "group": "f104_t3_group_2114",
+  "shard": 13,
+  "roles": {
+   "optimal": {
+    "detour_m": 4.0,
+    "mean_speed": 3.85,
+    "max_speed": 4.0,
+    "length_m": 31.8,
+    "rise_m": 2.78,
+    "dip_m": 0.63,
+    "role": "optimal",
+    "risk": 0.00018519163131713867,
+    "cand_index": 4,
+    "anchor": true,
+    "rank": 0
+   },
+   "suboptimal": {
+    "detour_m": 5.52,
+    "mean_speed": 2.36,
+    "max_speed": 3.18,
+    "length_m": 33.6,
+    "rise_m": 3.21,
+    "dip_m": 0.63,
+    "role": "suboptimal",
+    "risk": 0.10962694883346558,
+    "cand_index": 64,
+    "anchor": false,
+    "rank": 63
+   },
+   "risky": {
+    "detour_m": 6.17,
+    "mean_speed": 1.52,
+    "max_speed": 2.73,
+    "length_m": 34.0,
+    "rise_m": 2.77,
+    "dip_m": 0.63,
+    "role": "risky",
+    "risk": 1.0,
+    "cand_index": 25,
+    "anchor": false,
+    "rank": 228
+   }
+  },
+  "p_min": 0.00018519163131713867,
+  "p_max": 1.0,
+  "p_median": 0.9665735960006714
+ },
+ {
+  "group": "f104_t3_group_0907",
+  "shard": 10,
+  "roles": {
+   "optimal": {
+    "detour_m": 9.71,
+    "mean_speed": 3.12,
+    "max_speed": 5.01,
+    "length_m": 52.3,
+    "rise_m": 3.69,
+    "dip_m": 0.4,
+    "role": "optimal",
+    "risk": 0.0002726912498474121,
+    "cand_index": 138,
+    "anchor": false,
+    "rank": 0
+   },
+   "suboptimal": {
+    "detour_m": 7.18,
+    "mean_speed": 2.25,
+    "max_speed": 4.15,
+    "length_m": 50.6,
+    "rise_m": 3.65,
+    "dip_m": 0.4,
+    "role": "suboptimal",
+    "risk": 0.11642861366271973,
+    "cand_index": 125,
+    "anchor": false,
+    "rank": 16
+   },
+   "risky": {
+    "detour_m": 4.0,
+    "mean_speed": 1.99,
+    "max_speed": 2.0,
+    "length_m": 48.7,
+    "rise_m": 3.47,
+    "dip_m": 0.4,
+    "role": "risky",
+    "risk": 1.0,
+    "cand_index": 3,
+    "anchor": true,
+    "rank": 151
+   }
+  },
+  "p_min": 0.0002726912498474121,
+  "p_max": 1.0,
+  "p_median": 0.9999963641166687
+ },
+ {
+  "group": "f104_t3_group_0987",
+  "shard": 7,
+  "roles": {
+   "optimal": {
+    "detour_m": 9.54,
+    "mean_speed": 2.72,
+    "max_speed": 4.39,
+    "length_m": 48.4,
+    "rise_m": 2.44,
+    "dip_m": 0.51,
+    "role": "optimal",
+    "risk": 0.001172482967376709,
+    "cand_index": 79,
+    "anchor": false,
+    "rank": 0
+   },
+   "suboptimal": {
+    "detour_m": 4.0,
+    "mean_speed": 3.9,
+    "max_speed": 4.0,
+    "length_m": 44.8,
+    "rise_m": 3.67,
+    "dip_m": 1.1,
+    "role": "suboptimal",
+    "risk": 0.09923571348190308,
+    "cand_index": 4,
+    "anchor": true,
+    "rank": 26
+   },
+   "risky": {
+    "detour_m": 0.0,
+    "mean_speed": 1.99,
+    "max_speed": 2.0,
+    "length_m": 43.9,
+    "rise_m": 3.12,
+    "dip_m": 1.05,
+    "role": "risky",
+    "risk": 1.0,
+    "cand_index": 0,
+    "anchor": true,
+    "rank": 160
+   }
+  },
+  "p_min": 0.001172482967376709,
+  "p_max": 1.0,
+  "p_median": 0.9999864101409912
+ },
+ {
+  "group": "f104_t3_group_0992",
+  "shard": 18,
+  "roles": {
+   "optimal": {
+    "detour_m": 8.96,
+    "mean_speed": 4.13,
+    "max_speed": 5.36,
+    "length_m": 44.6,
+    "rise_m": 2.42,
+    "dip_m": 0.25,
+    "role": "optimal",
+    "risk": 0.0002377033233642578,
+    "cand_index": 242,
+    "anchor": false,
+    "rank": 0
+   },
+   "suboptimal": {
+    "detour_m": 4.37,
+    "mean_speed": 2.0,
+    "max_speed": 2.95,
+    "length_m": 40.3,
+    "rise_m": 2.27,
+    "dip_m": 0.25,
+    "role": "suboptimal",
+    "risk": 0.09694176912307739,
+    "cand_index": 74,
+    "anchor": false,
+    "rank": 44
+   },
+   "risky": {
+    "detour_m": 5.09,
+    "mean_speed": 1.65,
+    "max_speed": 3.27,
+    "length_m": 40.1,
+    "rise_m": 2.27,
+    "dip_m": 1.16,
+    "role": "risky",
+    "risk": 1.0,
+    "cand_index": 9,
+    "anchor": false,
+    "rank": 184
+   }
+  },
+  "p_min": 0.0002377033233642578,
+  "p_max": 1.0,
+  "p_median": 0.999807596206665
+ },
+ {
+  "group": "f104_t3_group_2499",
+  "shard": 5,
+  "roles": {
+   "optimal": {
+    "detour_m": 3.95,
+    "mean_speed": 2.9,
+    "max_speed": 4.03,
+    "length_m": 32.1,
+    "rise_m": 3.15,
+    "dip_m": -0.22,
+    "role": "optimal",
+    "risk": 0.0019423961639404297,
+    "cand_index": 234,
+    "anchor": false,
+    "rank": 0
+   },
+   "suboptimal": {
+    "detour_m": 3.04,
+    "mean_speed": 2.99,
+    "max_speed": 4.13,
+    "length_m": 31.5,
+    "rise_m": 3.14,
+    "dip_m": -0.22,
+    "role": "suboptimal",
+    "risk": 0.10852843523025513,
+    "cand_index": 22,
+    "anchor": false,
+    "rank": 17
+   },
+   "risky": {
+    "detour_m": 0.0,
+    "mean_speed": 1.99,
+    "max_speed": 2.0,
+    "length_m": 30.3,
+    "rise_m": 3.3,
+    "dip_m": -0.22,
+    "role": "risky",
+    "risk": 1.0,
+    "cand_index": 0,
+    "anchor": true,
+    "rank": 136
+   }
+  },
+  "p_min": 0.0019423961639404297,
+  "p_max": 1.0,
+  "p_median": 0.9999997019767761
+ },
+ {
+  "group": "f104_t3_group_1664",
+  "shard": 24,
+  "roles": {
+   "optimal": {
+    "detour_m": 7.76,
+    "mean_speed": 3.31,
+    "max_speed": 6.0,
+    "length_m": 58.4,
+    "rise_m": 3.11,
+    "dip_m": 0.25,
+    "role": "optimal",
+    "risk": 7.617473602294922e-05,
+    "cand_index": 64,
+    "anchor": false,
+    "rank": 0
+   },
+   "suboptimal": {
+    "detour_m": 2.59,
+    "mean_speed": 2.88,
+    "max_speed": 4.15,
+    "length_m": 56.3,
+    "rise_m": 3.15,
+    "dip_m": 1.39,
+    "role": "suboptimal",
+    "risk": 0.09782141447067261,
+    "cand_index": 179,
+    "anchor": false,
+    "rank": 31
+   },
+   "risky": {
+    "detour_m": 0.0,
+    "mean_speed": 1.99,
+    "max_speed": 2.0,
+    "length_m": 55.6,
+    "rise_m": 2.92,
+    "dip_m": 1.63,
+    "role": "risky",
+    "risk": 1.0,
+    "cand_index": 0,
+    "anchor": true,
+    "rank": 142
+   }
+  },
+  "p_min": 7.617473602294922e-05,
+  "p_max": 1.0,
+  "p_median": 0.9999986290931702
+ },
+ {
+  "group": "f104_t3_group_2775",
+  "shard": 7,
+  "roles": {
+   "optimal": {
+    "detour_m": 8.87,
+    "mean_speed": 3.19,
+    "max_speed": 4.4,
+    "length_m": 41.8,
+    "rise_m": 2.39,
+    "dip_m": 0.21,
+    "role": "optimal",
+    "risk": 0.012591004371643066,
+    "cand_index": 198,
+    "anchor": false,
+    "rank": 0
+   },
+   "suboptimal": {
+    "detour_m": 9.4,
+    "mean_speed": 1.85,
+    "max_speed": 2.61,
+    "length_m": 42.1,
+    "rise_m": 2.39,
+    "dip_m": 0.22,
+    "role": "suboptimal",
+    "risk": 0.08954620361328125,
+    "cand_index": 253,
+    "anchor": false,
+    "rank": 8
+   },
+   "risky": {
+    "detour_m": 4.0,
+    "mean_speed": 1.99,
+    "max_speed": 2.0,
+    "length_m": 37.8,
+    "rise_m": 2.81,
+    "dip_m": 0.69,
+    "role": "risky",
+    "risk": 1.0,
+    "cand_index": 3,
+    "anchor": true,
+    "rank": 111
+   }
+  },
+  "p_min": 0.012591004371643066,
+  "p_max": 1.0,
+  "p_median": 1.0
+ },
+ {
+  "group": "f104_t2_group_0596",
+  "shard": 7,
+  "roles": {
+   "optimal": {
+    "detour_m": 6.91,
+    "mean_speed": 2.94,
+    "max_speed": 3.84,
+    "length_m": 37.7,
+    "rise_m": 2.78,
+    "dip_m": 0.24,
+    "role": "optimal",
+    "risk": 0.00036710500717163086,
+    "cand_index": 26,
+    "anchor": false,
+    "rank": 0
+   },
+   "suboptimal": {
+    "detour_m": 5.56,
+    "mean_speed": 3.5,
+    "max_speed": 5.15,
+    "length_m": 36.0,
+    "rise_m": 2.78,
+    "dip_m": 0.6,
+    "role": "suboptimal",
+    "risk": 0.06944239139556885,
+    "cand_index": 167,
+    "anchor": false,
+    "rank": 38
+   },
+   "risky": {
+    "detour_m": 7.11,
+    "mean_speed": 1.45,
+    "max_speed": 2.52,
+    "length_m": 37.7,
+    "rise_m": 2.78,
+    "dip_m": 0.18,
+    "role": "risky",
+    "risk": 1.0,
+    "cand_index": 12,
+    "anchor": false,
+    "rank": 205
+   }
+  },
+  "p_min": 0.00036710500717163086,
+  "p_max": 1.0,
+  "p_median": 0.9998961687088013
+ },
+ {
+  "group": "f104_t2_group_0266",
+  "shard": 17,
+  "roles": {
+   "optimal": {
+    "detour_m": 9.75,
+    "mean_speed": 3.31,
+    "max_speed": 3.93,
+    "length_m": 51.1,
+    "rise_m": 1.26,
+    "dip_m": 0.07,
+    "role": "optimal",
+    "risk": 5.3942203521728516e-05,
+    "cand_index": 162,
+    "anchor": false,
+    "rank": 0
+   },
+   "suboptimal": {
+    "detour_m": 6.17,
+    "mean_speed": 3.75,
+    "max_speed": 4.8,
+    "length_m": 49.3,
+    "rise_m": 2.03,
+    "dip_m": 0.14,
+    "role": "suboptimal",
+    "risk": 0.10269898176193237,
+    "cand_index": 177,
+    "anchor": false,
+    "rank": 84
+   },
+   "risky": {
+    "detour_m": 0.0,
+    "mean_speed": 1.99,
+    "max_speed": 2.0,
+    "length_m": 45.7,
+    "rise_m": 2.51,
+    "dip_m": 0.36,
+    "role": "risky",
+    "risk": 1.0,
+    "cand_index": 0,
+    "anchor": true,
+    "rank": 223
+   }
+  },
+  "p_min": 5.3942203521728516e-05,
+  "p_max": 1.0,
+  "p_median": 0.8066422939300537
+ },
+ {
+  "group": "f104_t3_group_1904",
+  "shard": 25,
+  "roles": {
+   "optimal": {
+    "detour_m": 4.05,
+    "mean_speed": 4.37,
+    "max_speed": 5.68,
+    "length_m": 34.3,
+    "rise_m": 1.72,
+    "dip_m": 1.65,
+    "role": "optimal",
+    "risk": 9.304285049438477e-05,
+    "cand_index": 145,
+    "anchor": false,
+    "rank": 0
+   },
+   "suboptimal": {
+    "detour_m": 4.56,
+    "mean_speed": 2.62,
+    "max_speed": 4.62,
+    "length_m": 34.8,
+    "rise_m": 1.72,
+    "dip_m": 0.22,
+    "role": "suboptimal",
+    "risk": 0.10058802366256714,
+    "cand_index": 50,
+    "anchor": false,
+    "rank": 51
+   },
+   "risky": {
+    "detour_m": 0.0,
+    "mean_speed": 1.99,
+    "max_speed": 2.0,
+    "length_m": 32.8,
+    "rise_m": 1.72,
+    "dip_m": 1.2,
+    "role": "risky",
+    "risk": 1.0,
+    "cand_index": 0,
+    "anchor": true,
+    "rank": 190
+   }
+  },
+  "p_min": 9.304285049438477e-05,
+  "p_max": 1.0,
+  "p_median": 0.999847412109375
+ },
+ {
+  "group": "f104_t3_group_2336",
+  "shard": 5,
+  "roles": {
+   "optimal": {
+    "detour_m": 4.76,
+    "mean_speed": 3.25,
+    "max_speed": 4.13,
+    "length_m": 39.2,
+    "rise_m": 0.58,
+    "dip_m": 0.24,
+    "role": "optimal",
+    "risk": 6.92605972290039e-05,
+    "cand_index": 58,
+    "anchor": false,
+    "rank": 0
+   },
+   "suboptimal": {
+    "detour_m": 2.11,
+    "mean_speed": 2.28,
+    "max_speed": 3.04,
+    "length_m": 38.0,
+    "rise_m": 0.99,
+    "dip_m": 1.62,
+    "role": "suboptimal",
+    "risk": 0.09953802824020386,
+    "cand_index": 93,
+    "anchor": false,
+    "rank": 94
+   },
+   "risky": {
+    "detour_m": 5.55,
+    "mean_speed": 1.74,
+    "max_speed": 3.75,
+    "length_m": 39.5,
+    "rise_m": 1.13,
+    "dip_m": 0.35,
+    "role": "risky",
+    "risk": 1.0,
+    "cand_index": 16,
+    "anchor": false,
+    "rank": 210
+   }
+  },
+  "p_min": 6.92605972290039e-05,
+  "p_max": 1.0,
+  "p_median": 0.7901512384414673
+ }
+]

@@ -1,0 +1,24 @@
+{
+ "cfg": {
+  "arch": "old",
+  "label": "unsafe",
+  "speed_drop": 0.5,
+  "pair_w": 1.0,
+  "name": "A3_old_unsafe_sdrop_pair",
+  "seed": 0,
+  "epochs": 30
+ },
+ "dev": {
+  "P_unsafe": 0.8936746644359101,
+  "W_unsafe": 0.9021739130434783,
+  "Wn_unsafe": 2300,
+  "G_unsafe": 0.8566775244299675,
+  "Gn_unsafe": 307,
+  "P_fail": 0.8506445672191528,
+  "W_fail": 0.8530646515533166,
+  "Wn_fail": 1191,
+  "G_fail": 0.7313432835820896,
+  "Gn_fail": 201,
+  "train_s": 21.7
+ }
+}

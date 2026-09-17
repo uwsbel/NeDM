@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "scope": "CPU ownership/control fixtures; no Chrono physics",
+  "declared_task_count": 18000,
+  "shards": 46,
+  "weight_sum": 2008,
+  "all_tasks_uniquely_owned": true,
+  "concurrent_threads": 20,
+  "fixture_completed_tasks": 80,
+  "existing_shard_refused": true,
+  "stop_prevents_new_claims": true,
+  "inflight_completion_after_stop_retained": true,
+  "base_worker_sha256": "7fcfadc429c7f893f71a72e9635c3879fcd9d395a16870b70af5a0a5d0962ab1",
+  "shard_worker_sha256": "7ec1213e17c89dd1d1b6a28edbe1296e49d4ec94068ced9accbb120d5f23a12e"
+}

@@ -1,0 +1,15 @@
+# F104 collector wrapper pilot
+
+AMD job **412401 completed successfully in 1 minute 50 seconds**. All eight declared trials completed; the audit found no errors. These pilot episodes contain **220.05 measured traversal seconds** (0.061125 hours), excluding settling. The [machine-readable audit](audit.json) binds the [declared protocol](protocol.json), source, runtime and episode artifact hashes.
+
+Six 30-second-cap replays span slow and fast hill routes, a speed-switching route, crater routes, and the previous blocked timeout. Each replay matches all **240 existing arrays exactly** across trajectory, initial anchor, rich telemetry and rich intervals: 1,440 exact array comparisons in total. Each outcome and elapsed duration also matches its original control. The 16 additional fields record geometric terrain normals below the wheel hubs and tire-force projections onto those normals; all were finite. These are explicitly not tire-internal contact-patch normals or normal-load measurements.
+
+Two 60-second controls replay the blocked crater reference with the truncation guard enabled and disabled. Both timed out at 60 seconds. Their physical state, pose, applied controls, work, 214 rich telemetry fields and terminal pose are identical. The enabled guard confirmed blockage at 26 seconds, then cancelled its pending stop at 29 seconds when measured 2-second XY diameter grew to 0.2531 m, above the declared 0.25 m bound. Later cancellations likewise corresponded to real motion (0.2669 m and 0.2795 m diameter); throttle remained 1.0. Thus this pilot validates unchanged physics and cancellation when the bounded-motion criterion fails. **The native final early-stop branch was not exercised**; that branch and its earliest possible 34-second deadline passed the separate CPU contract checks.
+
+All settled-start and native-height checks passed. The maximum per-run terrain-height p95 error was **0.02054 m**, with maximum absolute error **0.02759 m**, against the exact 80 m F104 BMP and declared [-1.8, 3.9] m vertical range. Every completion marker, measured terminal endpoint, interval-duration count, rich solver-step power integration and post-step risk coverage passed validation.
+
+The earlier job **412398 failed before settling or traversal** because the new read-only height check queried unbound Bullet geometry immediately after scene creation. Its outputs remain in [wrapper_pilot_v1](../wrapper_pilot_v1/). The corrected wrapper performs that check after the original 0.8-second settling and before traversal, without explicitly binding collision geometry or changing native physics. No failed-attempt seconds count toward the dataset.
+
+Validated wrapper SHA-256: `0cb1d4ba7c719d78029675cbbbf85b21d7221231269e6c6fc730e337638e155d`.
+
+Source: immutable `pilot_source_v1`, manifest SHA-256 `811059b8f48a55dc2997c948d4081c738091332fe130608fbc4876196bec61ee`; runtime matches the original `pilot_runtime_412394.json` exactly. Production should count its own independently verified episode completion markers and retain the existing distinction between asset-only legacy outcome flags and asset-or-chassis rich contact labels.

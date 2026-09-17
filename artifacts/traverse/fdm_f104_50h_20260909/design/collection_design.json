@@ -1,0 +1,129 @@
+{
+  "source_bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+  "copied_bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+  "source_meta_sha256": "fde8a7a35f19460d8c85c1ea3ca44dde321d70e5dbcec529b5e4dea545b61bf9",
+  "generator_sha256": "872e92b5309f9056ae24ddddd099f29398f607dc92ec8afab50c49329a18f526",
+  "groups": 500,
+  "episodes": 6000,
+  "attempts": 47240,
+  "stratum_schedule": "Round-robin target; after1000 unsuccessful geometry attempts advance target without relaxing geometry gates",
+  "maximum_episode_s": 120.0,
+  "potential_hours": 200.0,
+  "required_actual_hours": 50,
+  "actual_hours_are_not_yet_collected": true,
+  "mean_actual_seconds_needed_per_episode": 30.0,
+  "stratum_group_counts": {
+    "crater_cross_slope": 111,
+    "crater_entry_cross_exit": 56,
+    "hill_cross_slope": 140,
+    "hill_entry_cross_exit": 70,
+    "long_traverse": 82,
+    "roughness_transfer": 41
+  },
+  "split_episode_counts": {
+    "train": 5376,
+    "val": 360,
+    "test": 264
+  },
+  "start_gates": {
+    "footprint_m": [
+      6,
+      3
+    ],
+    "height_range_m": 0.65,
+    "max_grade_deg": 12,
+    "fitted_grade_deg": 6,
+    "plane_residual_max_m": 0.2,
+    "require_native_settle_gate": true
+  },
+  "feature_world_coordinates": [
+    {
+      "kind": "hill",
+      "x_m": -27.757909754352987,
+      "y_m": -2.4510231669677722,
+      "sigma_m": 6.515694437108607,
+      "amplitude_m": 3.0042197091960503
+    },
+    {
+      "kind": "hill",
+      "x_m": 16.37584718708743,
+      "y_m": -20.82080590517199,
+      "sigma_m": 6.076444445882041,
+      "amplitude_m": 3.2976335737412037
+    },
+    {
+      "kind": "hill",
+      "x_m": -8.568459716704545,
+      "y_m": 15.017657244923456,
+      "sigma_m": 4.648266484680474,
+      "amplitude_m": 3.092453525016909
+    },
+    {
+      "kind": "hill",
+      "x_m": 19.09313138916044,
+      "y_m": -3.8500678179604932,
+      "sigma_m": 4.376235693822825,
+      "amplitude_m": 4.09741316891273
+    },
+    {
+      "kind": "hill",
+      "x_m": 3.9794508373601474,
+      "y_m": 14.982635602656217,
+      "sigma_m": 5.1252078674664014,
+      "amplitude_m": 3.4117836545435303
+    },
+    {
+      "kind": "crater",
+      "x_m": 12.66912289659625,
+      "y_m": 28.130621562593788,
+      "sigma_m": 3.507777036251178,
+      "amplitude_m": 1.657991098064693
+    },
+    {
+      "kind": "crater",
+      "x_m": 30.184298424159707,
+      "y_m": -0.03967975143876856,
+      "sigma_m": 3.4703759231168894,
+      "amplitude_m": 1.688653200712389
+    },
+    {
+      "kind": "crater",
+      "x_m": 12.659259589506405,
+      "y_m": 2.605443803350539,
+      "sigma_m": 2.8257789650810343,
+      "amplitude_m": 1.9930525226125573
+    },
+    {
+      "kind": "crater",
+      "x_m": 2.4423069261397146,
+      "y_m": -23.24670572619615,
+      "sigma_m": 3.289862738909955,
+      "amplitude_m": 1.8167311405172766
+    },
+    {
+      "kind": "crater",
+      "x_m": -24.87359122051533,
+      "y_m": 29.02318218897561,
+      "sigma_m": 3.648410599310883,
+      "amplitude_m": 1.357562279495342
+    }
+  ],
+  "no_added_assets": true,
+  "orientation": {
+    "rot90": 0,
+    "flipud": true,
+    "calibrated": true,
+    "rmse_m": 0.008120992072417996,
+    "median_abs_m": 0.005373480689913723,
+    "runner_up_rmse_m": 0.817868874775216,
+    "samples": 400,
+    "note": "Chrono's BMP convention, copied from arena_v1 (calibrated there)"
+  },
+  "native_f104_orientation_audit_pending": true,
+  "limits": [
+    "Geometry-feasible is not physically traversable",
+    "Same terrain across splits",
+    "Post-failure dwell is bounded by runner",
+    "No guaranteed recovery or failure label before physics"
+  ]
+}

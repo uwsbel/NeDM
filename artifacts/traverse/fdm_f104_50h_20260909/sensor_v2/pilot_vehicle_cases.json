@@ -1,0 +1,202 @@
+[
+ {
+  "case": "artifacts/traverse/fdm_f104_50h_20260909/sensor_v2/cases_g216/cases/g216_v2_group_0092.json",
+  "group": "g216_v2_group_0092",
+  "arena": "g216",
+  "max_grade": 0.5923043397054576,
+  "p90_grade": 0.48625088257388077,
+  "max_curv": 1.0482498352480986e-14,
+  "start_slope": 0.0815686274509801,
+  "relief": 4.358534784482563
+ },
+ {
+  "case": "artifacts/traverse/fdm_f104_50h_20260909/sensor_v2/cases_g216/cases/g216_v2_group_0038.json",
+  "group": "g216_v2_group_0038",
+  "arena": "g216",
+  "max_grade": 0.5860467248562364,
+  "p90_grade": 0.46660582069987716,
+  "max_curv": 6.549199647035955e-15,
+  "start_slope": 0.08728402334916302,
+  "relief": 5.110241021956912
+ },
+ {
+  "case": "artifacts/traverse/fdm_f104_50h_20260909/sensor_v2/cases_g216/cases/g216_v2_group_0079.json",
+  "group": "g216_v2_group_0079",
+  "arena": "g216",
+  "max_grade": 0.5844178605215975,
+  "p90_grade": 0.48314675420726044,
+  "max_curv": 1.176773963590398e-14,
+  "start_slope": 0.03595755080132316,
+  "relief": 4.588221040487064
+ },
+ {
+  "case": "artifacts/traverse/fdm_f104_50h_20260909/sensor_v2/cases_g216/cases/g216_v2_group_0043.json",
+  "group": "g216_v2_group_0043",
+  "arena": "g216",
+  "max_grade": 0.5759680347147156,
+  "p90_grade": 0.45162520935364736,
+  "max_curv": 9.984745671982047e-15,
+  "start_slope": 0.07713225384317852,
+  "relief": 2.4381184750066285
+ },
+ {
+  "case": "artifacts/traverse/fdm_f104_50h_20260909/sensor_v2/cases_g216/cases/g216_v2_group_0087.json",
+  "group": "g216_v2_group_0087",
+  "arena": "g216",
+  "max_grade": 0.5730383572568806,
+  "p90_grade": 0.430358810779111,
+  "max_curv": 1.1038235219914626e-14,
+  "start_slope": 0.08602051305317457,
+  "relief": 2.4327425007604884
+ },
+ {
+  "case": "artifacts/traverse/fdm_f104_50h_20260909/sensor_v2/cases_g216/cases/g216_v2_group_0046.json",
+  "group": "g216_v2_group_0046",
+  "arena": "g216",
+  "max_grade": 0.5704632683254439,
+  "p90_grade": 0.5052606513162443,
+  "max_curv": 1.111827749092863e-14,
+  "start_slope": 0.08749397229496524,
+  "relief": 4.383724639536281
+ },
+ {
+  "case": "artifacts/traverse/fdm_f104_50h_20260909/sensor_v2/cases_g216/cases/g216_v2_group_0000.json",
+  "group": "g216_v2_group_0000",
+  "arena": "g216",
+  "max_grade": 0.5704260678233303,
+  "p90_grade": 0.5058910394758899,
+  "max_curv": 2.853834464999333e-15,
+  "start_slope": 0.009584337337500278,
+  "relief": 4.602982082478655
+ },
+ {
+  "case": "artifacts/traverse/fdm_f104_50h_20260909/sensor_v2/cases_g216/cases/g216_v2_group_0086.json",
+  "group": "g216_v2_group_0086",
+  "arena": "g216",
+  "max_grade": 0.5679165116540512,
+  "p90_grade": 0.4981074290429685,
+  "max_curv": 1.386261737574861e-14,
+  "start_slope": 0.030078376884808154,
+  "relief": 2.4301564895842676
+ },
+ {
+  "case": "artifacts/traverse/fdm_f104_50h_20260909/sensor_v2/cases_g216/cases/g216_v2_group_0074.json",
+  "group": "g216_v2_group_0074",
+  "arena": "g216",
+  "max_grade": 0.4927002493389733,
+  "p90_grade": 0.4341599320189454,
+  "max_curv": 1.3853398457549984e-14,
+  "start_slope": 0.08668593228933395,
+  "relief": 2.0489731221377676
+ },
+ {
+  "case": "artifacts/traverse/fdm_f104_50h_20260909/sensor_v2/cases_g231/cases/g231_v2_group_0043.json",
+  "group": "g231_v2_group_0043",
+  "arena": "g231",
+  "max_grade": 0.5012568503123365,
+  "p90_grade": 0.4266354603041924,
+  "max_curv": 1.3704123193160032e-14,
+  "start_slope": 0.01963219986462686,
+  "relief": 2.1714449641569615
+ },
+ {
+  "case": "artifacts/traverse/fdm_f104_50h_20260909/sensor_v2/cases_g231/cases/g231_v2_group_0072.json",
+  "group": "g231_v2_group_0072",
+  "arena": "g231",
+  "max_grade": 0.41404664178863726,
+  "p90_grade": 0.3649729749065603,
+  "max_curv": 1.3459108773751548e-14,
+  "start_slope": 0.08282352941176327,
+  "relief": 2.0138054497245417
+ },
+ {
+  "case": "artifacts/traverse/fdm_f104_50h_20260909/sensor_v2/cases_g216/cases/g216_v2_group_0019.json",
+  "group": "g216_v2_group_0019",
+  "arena": "g216",
+  "max_grade": 0.4713256271309272,
+  "p90_grade": 0.39160447239370766,
+  "max_curv": 1.2766533449543557e-14,
+  "start_slope": 0.08592013344598659,
+  "relief": 1.4622908517884827
+ },
+ {
+  "case": "artifacts/traverse/fdm_f104_50h_20260909/sensor_v2/cases_g216/cases/g216_v2_group_0078.json",
+  "group": "g216_v2_group_0078",
+  "arena": "g216",
+  "max_grade": 0.405829037441432,
+  "p90_grade": 0.38189723153256744,
+  "max_curv": 1.262830528610912e-14,
+  "start_slope": 0.09359279756315741,
+  "relief": 3.804782767845568
+ },
+ {
+  "case": "artifacts/traverse/fdm_f104_50h_20260909/sensor_v2/cases_g231/cases/g231_v2_group_0025.json",
+  "group": "g231_v2_group_0025",
+  "arena": "g231",
+  "max_grade": 0.37222322262959107,
+  "p90_grade": 0.32338421834845044,
+  "max_curv": 1.2608681829517987e-14,
+  "start_slope": 0.11467465309396803,
+  "relief": 2.6635492055131103
+ },
+ {
+  "case": "artifacts/traverse/fdm_f104_50h_20260909/sensor_v2/cases_g231/cases/g231_v2_group_0000.json",
+  "group": "g231_v2_group_0000",
+  "arena": "g231",
+  "max_grade": 0.5008916674770578,
+  "p90_grade": 0.4510693769930524,
+  "max_curv": 6.756523205881275e-15,
+  "start_slope": 0.1656470588235286,
+  "relief": 4.482569887982112
+ },
+ {
+  "case": "artifacts/traverse/fdm_f104_50h_20260909/sensor_v2/cases_g216/cases/g216_v2_group_0072.json",
+  "group": "g216_v2_group_0072",
+  "arena": "g216",
+  "max_grade": 0.45803655626459716,
+  "p90_grade": 0.3597912524412685,
+  "max_curv": 9.267444290745299e-15,
+  "start_slope": 0.16313725490196046,
+  "relief": 3.546051121144052
+ },
+ {
+  "case": "artifacts/traverse/fdm_f104_50h_20260909/sensor_v2/cases_g231/cases/g231_v2_group_0066.json",
+  "group": "g231_v2_group_0066",
+  "arena": "g231",
+  "max_grade": 0.460583048410145,
+  "p90_grade": 0.4358878115704336,
+  "max_curv": 6.502935154703531e-15,
+  "start_slope": 0.1569723977248278,
+  "relief": 3.511558332306587
+ },
+ {
+  "case": "artifacts/traverse/fdm_f104_50h_20260909/sensor_v2/cases_g216/cases/g216_v2_group_0015.json",
+  "group": "g216_v2_group_0015",
+  "arena": "g216",
+  "max_grade": 0.2563525327042906,
+  "p90_grade": 0.21420751028882393,
+  "max_curv": 1.1985837899248425e-14,
+  "start_slope": 0.04263471077596036,
+  "relief": 2.0932927304080255
+ },
+ {
+  "case": "artifacts/traverse/fdm_f104_50h_20260909/sensor_v2/cases_g231/cases/g231_v2_group_0034.json",
+  "group": "g231_v2_group_0034",
+  "arena": "g231",
+  "max_grade": 0.2595656510160763,
+  "p90_grade": 0.21980613333415236,
+  "max_curv": 9.916735716967579e-15,
+  "start_slope": 0.08282362735105968,
+  "relief": 2.3663211877601222
+ },
+ {
+  "case": "artifacts/traverse/fdm_f104_50h_20260909/sensor_v2/cases_g216/cases/g216_v2_group_0070.json",
+  "group": "g216_v2_group_0070",
+  "arena": "g216",
+  "max_grade": 0.26293808623668613,
+  "p90_grade": 0.23241931481078568,
+  "max_curv": 7.568008699527696e-15,
+  "start_slope": 0.038891714507455495,
+  "relief": 2.552185790281052
+ }
+]

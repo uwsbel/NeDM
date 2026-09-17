@@ -1,0 +1,27 @@
+{
+ "deployed_D_checkpoint_norm": {
+  "channels": [
+   "depth_rel",
+   "ray_sec1",
+   "speed"
+  ],
+  "sd": [
+   2.72326,
+   0.017,
+   1.74168
+  ],
+  "mu": [
+   -2.11891,
+   0.02545,
+   3.31789
+  ],
+  "source": "artifacts/traverse/fdm_f104_50h_20260909/sensor_v1/final/D_s0.pt"
+ },
+ "raw_unit_weight_ratio": 109.70744680851064,
+ "standardized_unit_coefficients": [
+  -2.662258976,
+  1.82325
+ ],
+ "standardized_unit_ratio": 1.4601722067736185,
+ "note": "sensor_train.py:83-84 standardises every continuous channel on the fit set, so the model never sees the raw 148:1 scale gap"
+}

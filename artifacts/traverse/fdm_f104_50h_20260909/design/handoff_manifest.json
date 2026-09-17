@@ -1,0 +1,22 @@
+{
+  "schema": "f104_collection_design_handoff_v1",
+  "files_sha256": {
+    "scripts/generate_traverse_f104_collection.py": "872e92b5309f9056ae24ddddd099f29398f607dc92ec8afab50c49329a18f526",
+    "artifacts/traverse/fdm_f104_50h_20260909/cases/cases.json": "d5ddac50a4d253562597e53261acd21b56721dfadd0ceeaa16dd4091a1715702",
+    "artifacts/traverse/fdm_f104_50h_20260909/cases/pilot_manifest.json": "35576c2d9d66b4e9057930b683b31ea5c2c44ee30c542dab3ad08fd1b6e37d67",
+    "artifacts/traverse/fdm_f104_50h_20260909/cases_reserve_v1/cases.json": "1b6e38e0f1aeb47e7e15e8f42f98f8e0e91d425d8e06cf3d9b8b1d411aaea8dd",
+    "artifacts/traverse/fdm_f104_50h_20260909/design/collection_design.json": "9a65993448ca886df899fd6b8ed0d1fc8e9825fb8a0e9eaf8cc93260b399e5a0",
+    "artifacts/traverse/fdm_f104_50h_20260909/design/generator_attempt_v1.json": "473bf9af3c03539b28af09ef44375b54fecc0e7ba03f09561b4075a4bded97f0",
+    "artifacts/traverse/fdm_f104_50h_20260909/design/geometry_integrity.json": "6d57c35476ea470e3fa7bd2acb3ef2685164659aa7d7b016dce6331d4ce57451",
+    "artifacts/traverse/fdm_f104_50h_20260909/design/raster_feature_audit.json": "8a6c28b0fa67804588f23beb39861d1b0e8e923fb6bad5e9c9b0f4374ff9dc81",
+    "artifacts/traverse/fdm_f104_50h_20260909/design/reference_duration_capacity.json": "59977b103e49b326e946b134430db22b43da85830f1f7de9c299ec563231ead2",
+    "artifacts/traverse/fdm_f104_50h_20260909/design/reserve_integrity_v1.json": "3ed7c5116dc5cdda91d5724fbcbff7c16e94952357182781519992c92c17624a",
+    "artifacts/traverse/fdm_f104_50h_20260909/design/README.md": "799c1d88ee9db89d65bab67341110b92b314c8ce6e8d68c6fe85ea8a5fc0d5ca",
+    "assets/traverse/arena_f104_50h_v1/arena_000.bmp": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+    "assets/traverse/arena_f104_50h_v1/arena_meta.json": "0242ac249715efd138d7d09b6f86a262781a555b11e99506866e111d4caa1b6a"
+  },
+  "actual_50h_collection_complete": false,
+  "initial_episodes": 6000,
+  "reserve_episodes": 12000,
+  "native_simulation_validation_owner": "root / long_terrain_design; no native validation claimed by generator"
+}

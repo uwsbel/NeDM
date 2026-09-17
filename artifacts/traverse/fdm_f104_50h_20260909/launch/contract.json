@@ -1,0 +1,47 @@
+{
+  "schema": "f104_50h_production_contract_v1",
+  "campaign_root": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/production_v1",
+  "source_root": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/source_v1",
+  "source_manifest_sha256": "e55eace6ebeb989682bf4b806f1a45e7fa7cf1ca0427836778f1d9d5d3998e9f",
+  "collector_path": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/source_v1/scripts/collect_traverse_f104.py",
+  "collector_sha256": "0cb1d4ba7c719d78029675cbbbf85b21d7221231269e6c6fc730e337638e155d",
+  "worker_sha256": "7fcfadc429c7f893f71a72e9635c3879fcd9d395a16870b70af5a0a5d0962ab1",
+  "task_file": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/production_v1/tasks.json",
+  "task_sha256": "2a306f67d20725d3aedbffb54c558a80d1e76be1070b6d593e6e4fd91f6ab6f4",
+  "target_seconds": 180000.0,
+  "dt": 0.05,
+  "horizon_s": 120.0,
+  "chrono_data": "/work1/dannegrut/harry/nrd/chrono-build/data",
+  "runtime_fingerprint": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/pilot_runtime_412394.json",
+  "runtime_fingerprint_sha256": "83e585cead32404fe2bfea82382d188d3ea4b24b5cd7accaabc01b6265b32f99",
+  "episode_wall_timeout_s": 3600,
+  "max_attempts": 1,
+  "quota_scope": "Total validated measured traversal time across train/val/test. Excludes settling, all pilot attempts, failed or partial episodes, and repeated windows.",
+  "arena": {
+    "size_m": [
+      80,
+      80
+    ],
+    "height_range_m": [
+      -1.8,
+      3.9
+    ],
+    "bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed"
+  },
+  "split_scope": "Deterministic group split; twelve sibling route variants share split. Same physical arena in all splits; no scene-generalization claim.",
+  "rgbd_join": {
+    "observation": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/static_map_v1/observation.npz",
+    "metadata": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/static_map_v1/observation.json",
+    "rule": "Use the campaign terrain-only RGBD camera110m metadata, each episode measured state/pose/history, and exact map hashes. Legacy collection_meta CAMERA400 fields are not the image source."
+  },
+  "physics": {
+    "vehicle": "HMMWV_Full",
+    "terrain": "RigidTerrain height map",
+    "tire": "TMEASY",
+    "solver_dt_s": 0.002,
+    "tire_dt_s": 0.001,
+    "settle_s": 0.8,
+    "controller": "unchanged native Chrono PID path follower"
+  },
+  "learning_scope": "Collection only. FDM has not been retrained on this dataset yet."
+}

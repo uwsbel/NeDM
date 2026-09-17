@@ -1,0 +1,400 @@
+{
+  "schema": "f104_raster_feature_target_audit_v1",
+  "scope": "Actual copiedBMP geometry only. This verifies authored feature coordinate interpretation and commanded-reference coverage; no actual vehicle visitation, nativeheight result, failure, or recovery claim.",
+  "terrain_mapping": "TerrainMap.from_dir applies metadataorientation flipud=true. TerrainMap.features transforms original authoring y to its mirrored world coordinate. Raster center/ring/extrema evidence below independently tests that interpretation.",
+  "all_feature_signs_correct": true,
+  "features": [
+    {
+      "feature_index": 0,
+      "kind": "hill",
+      "sigma_m": 6.515694437108607,
+      "generator_target_matches_transformed_coordinates": true,
+      "raw_metadata": {
+        "xy_m": [
+          -27.757909754352987,
+          2.4510231669677722
+        ],
+        "center_height_m": 2.38,
+        "ring_mean_height_m": 0.8116595336803603,
+        "center_minus_ring_relief_m": 1.5683404663196396,
+        "local_extreme_xy_m": [
+          -30.36418752919643,
+          -4.064671270140835
+        ],
+        "local_extreme_height_m": 2.8494117647058825
+      },
+      "generator_world": {
+        "xy_m": [
+          -27.757909754352987,
+          -2.4510231669677722
+        ],
+        "center_height_m": 2.6041574925993443,
+        "ring_mean_height_m": 0.6568961559337902,
+        "center_minus_ring_relief_m": 1.947261336665554,
+        "local_extreme_xy_m": [
+          -30.36418752919643,
+          -3.97135186895978
+        ],
+        "local_extreme_height_m": 2.8494117647058825
+      },
+      "targeted_groups": 42,
+      "routes_center_within1m": 140,
+      "routes_within_sigma": 560,
+      "minimum_reference_center_distance_m": 0.017227853599625826,
+      "closest_route": "routes/f104_v1_group_0000/route_00.json"
+    },
+    {
+      "feature_index": 1,
+      "kind": "hill",
+      "sigma_m": 6.076444445882041,
+      "generator_target_matches_transformed_coordinates": true,
+      "raw_metadata": {
+        "xy_m": [
+          16.37584718708743,
+          20.820805905171994
+        ],
+        "center_height_m": 0.3111846824930389,
+        "ring_mean_height_m": 0.4285245134302616,
+        "center_minus_ring_relief_m": -0.11733983093722272,
+        "local_extreme_xy_m": [
+          10.29940274120539,
+          14.744361459289953
+        ],
+        "local_extreme_height_m": 1.6734665820093308
+      },
+      "generator_world": {
+        "xy_m": [
+          16.37584718708743,
+          -20.82080590517199
+        ],
+        "center_height_m": 3.318823529411765,
+        "ring_mean_height_m": 0.8092753634961899,
+        "center_minus_ring_relief_m": 2.509548165915575,
+        "local_extreme_xy_m": [
+          16.17329903889136,
+          -21.83354664615233
+        ],
+        "local_extreme_height_m": 3.341176470588236
+      },
+      "targeted_groups": 42,
+      "routes_center_within1m": 216,
+      "routes_within_sigma": 1000,
+      "minimum_reference_center_distance_m": 0.010502545945824877,
+      "closest_route": "routes/f104_v1_group_0433/route_00.json"
+    },
+    {
+      "feature_index": 2,
+      "kind": "hill",
+      "sigma_m": 4.648266484680474,
+      "generator_target_matches_transformed_coordinates": true,
+      "raw_metadata": {
+        "xy_m": [
+          -8.568459716704545,
+          -15.017657244923463
+        ],
+        "center_height_m": -0.08174861010704723,
+        "ring_mean_height_m": 0.03992809780560208,
+        "center_minus_ring_relief_m": -0.12167670791264931,
+        "local_extreme_xy_m": [
+          -10.737650742888766,
+          -19.665923729603936
+        ],
+        "local_extreme_height_m": 0.3011764705882356
+      },
+      "generator_world": {
+        "xy_m": [
+          -8.568459716704545,
+          15.017657244923456
+        ],
+        "center_height_m": 3.4586665416780207,
+        "ring_mean_height_m": 1.1491349912203108,
+        "center_minus_ring_relief_m": 2.30953155045771,
+        "local_extreme_xy_m": [
+          -7.948690852080482,
+          14.707772812611424
+        ],
+        "local_extreme_height_m": 3.4976470588235298
+      },
+      "targeted_groups": 42,
+      "routes_center_within1m": 224,
+      "routes_within_sigma": 800,
+      "minimum_reference_center_distance_m": 0.02110086742703359,
+      "closest_route": "routes/f104_v1_group_0002/route_00.json"
+    },
+    {
+      "feature_index": 3,
+      "kind": "hill",
+      "sigma_m": 4.376235693822825,
+      "generator_target_matches_transformed_coordinates": true,
+      "raw_metadata": {
+        "xy_m": [
+          19.09313138916044,
+          3.850067817960486
+        ],
+        "center_height_m": 0.7263985055883522,
+        "ring_mean_height_m": 0.8189514600550087,
+        "center_minus_ring_relief_m": -0.09255295446665657,
+        "local_extreme_xy_m": [
+          18.801382342905587,
+          -0.5261678758623392
+        ],
+        "local_extreme_height_m": 2.776428267540849
+      },
+      "generator_world": {
+        "xy_m": [
+          19.09313138916044,
+          -3.8500678179604932
+        ],
+        "center_height_m": 3.8844414389154007,
+        "ring_mean_height_m": 0.9671829423377112,
+        "center_minus_ring_relief_m": 2.9172584965776895,
+        "local_extreme_xy_m": [
+          18.947256866033015,
+          -3.99594234108792
+        ],
+        "local_extreme_height_m": 3.898345189792599
+      },
+      "targeted_groups": 42,
+      "routes_center_within1m": 172,
+      "routes_within_sigma": 592,
+      "minimum_reference_center_distance_m": 0.010265568507408878,
+      "closest_route": "routes/f104_v1_group_0471/route_00.json"
+    },
+    {
+      "feature_index": 4,
+      "kind": "hill",
+      "sigma_m": 5.1252078674664014,
+      "generator_target_matches_transformed_coordinates": true,
+      "raw_metadata": {
+        "xy_m": [
+          3.9794508373601474,
+          -14.982635602656224
+        ],
+        "center_height_m": 0.6437540387399816,
+        "ring_mean_height_m": 0.42584868832376055,
+        "center_minus_ring_relief_m": 0.21790535041622106,
+        "local_extreme_xy_m": [
+          9.104658704826548,
+          -19.595322683375983
+        ],
+        "local_extreme_height_m": 1.81603117471401
+      },
+      "generator_world": {
+        "xy_m": [
+          3.9794508373601474,
+          14.982635602656217
+        ],
+        "center_height_m": 3.7973581433805785,
+        "ring_mean_height_m": 1.151501798304752,
+        "center_minus_ring_relief_m": 2.645856345075827,
+        "local_extreme_xy_m": [
+          3.1252495261157467,
+          15.153475864905097
+        ],
+        "local_extreme_height_m": 3.855294117647059
+      },
+      "targeted_groups": 42,
+      "routes_center_within1m": 280,
+      "routes_within_sigma": 928,
+      "minimum_reference_center_distance_m": 0.05809871100884443,
+      "closest_route": "routes/f104_v1_group_0364/route_00.json"
+    },
+    {
+      "feature_index": 5,
+      "kind": "crater",
+      "sigma_m": 3.507777036251178,
+      "generator_target_matches_transformed_coordinates": true,
+      "raw_metadata": {
+        "xy_m": [
+          12.66912289659625,
+          -28.13062156259378
+        ],
+        "center_height_m": 1.110314587210631,
+        "ring_mean_height_m": 1.1524337635835502,
+        "center_minus_ring_relief_m": -0.042119176372919176,
+        "local_extreme_xy_m": [
+          13.370678303846486,
+          -31.638398598844958
+        ],
+        "local_extreme_height_m": 0.21208321221229814
+      },
+      "generator_world": {
+        "xy_m": [
+          12.66912289659625,
+          28.130621562593788
+        ],
+        "center_height_m": -1.7776470588235296,
+        "ring_mean_height_m": 0.21357085447060875,
+        "center_minus_ring_relief_m": -1.9912179132941383,
+        "local_extreme_xy_m": [
+          12.318345192971131,
+          28.130621562593788
+        ],
+        "local_extreme_height_m": -1.7776470588235296
+      },
+      "targeted_groups": 42,
+      "routes_center_within1m": 128,
+      "routes_within_sigma": 464,
+      "minimum_reference_center_distance_m": 0.06509977063511384,
+      "closest_route": "routes/f104_v1_group_0473/route_00.json"
+    },
+    {
+      "feature_index": 6,
+      "kind": "crater",
+      "sigma_m": 3.4703759231168894,
+      "generator_target_matches_transformed_coordinates": true,
+      "raw_metadata": {
+        "xy_m": [
+          30.184298424159707,
+          0.03967975143876856
+        ],
+        "center_height_m": -1.2322499008764463,
+        "ring_mean_height_m": 0.5363973279175335,
+        "center_minus_ring_relief_m": -1.7686472287939798,
+        "local_extreme_xy_m": [
+          30.762694411345855,
+          -0.6543954331846096
+        ],
+        "local_extreme_height_m": -1.263529411764706
+      },
+      "generator_world": {
+        "xy_m": [
+          30.184298424159707,
+          -0.03967975143876856
+        ],
+        "center_height_m": -1.2286113522217446,
+        "ring_mean_height_m": 0.5421981294265357,
+        "center_minus_ring_relief_m": -1.7708094816482802,
+        "local_extreme_xy_m": [
+          30.762694411345855,
+          -0.6180757386249169
+        ],
+        "local_extreme_height_m": -1.263529411764706
+      },
+      "targeted_groups": 42,
+      "routes_center_within1m": 124,
+      "routes_within_sigma": 464,
+      "minimum_reference_center_distance_m": 0.017957030139391414,
+      "closest_route": "routes/f104_v1_group_0114/route_00.json"
+    },
+    {
+      "feature_index": 7,
+      "kind": "crater",
+      "sigma_m": 2.8257789650810343,
+      "generator_target_matches_transformed_coordinates": true,
+      "raw_metadata": {
+        "xy_m": [
+          12.659259589506412,
+          -2.605443803350532
+        ],
+        "center_height_m": 1.2418397620167196,
+        "ring_mean_height_m": 1.0542261732686495,
+        "center_minus_ring_relief_m": 0.1876135887480701,
+        "local_extreme_xy_m": [
+          10.11605852093348,
+          0.22033516173050227
+        ],
+        "local_extreme_height_m": -0.5442182486268928
+      },
+      "generator_world": {
+        "xy_m": [
+          12.659259589506405,
+          2.605443803350539
+        ],
+        "center_height_m": -0.6854000403758431,
+        "ring_mean_height_m": 0.8254805092950773,
+        "center_minus_ring_relief_m": -1.5108805496709206,
+        "local_extreme_xy_m": [
+          11.99991116432083,
+          3.547370125044217
+        ],
+        "local_extreme_height_m": -0.9854193678357641
+      },
+      "targeted_groups": 42,
+      "routes_center_within1m": 172,
+      "routes_within_sigma": 648,
+      "minimum_reference_center_distance_m": 0.013590960790239751,
+      "closest_route": "routes/f104_v1_group_0151/route_00.json"
+    },
+    {
+      "feature_index": 8,
+      "kind": "crater",
+      "sigma_m": 3.289862738909955,
+      "generator_target_matches_transformed_coordinates": true,
+      "raw_metadata": {
+        "xy_m": [
+          2.4423069261397146,
+          23.246705726196154
+        ],
+        "center_height_m": 0.6430426744732161,
+        "ring_mean_height_m": 1.0901399242128176,
+        "center_minus_ring_relief_m": -0.4470972497396015,
+        "local_extreme_xy_m": [
+          -0.29924535628524773,
+          26.536568465106107
+        ],
+        "local_extreme_height_m": -0.5109961474787104
+      },
+      "generator_world": {
+        "xy_m": [
+          2.4423069261397146,
+          -23.24670572619615
+        ],
+        "center_height_m": -1.2022786041946953,
+        "ring_mean_height_m": 0.5436232756825132,
+        "center_minus_ring_relief_m": -1.7459018798772086,
+        "local_extreme_xy_m": [
+          1.0166997392787342,
+          -23.35636781749315
+        ],
+        "local_extreme_height_m": -1.531764705882353
+      },
+      "targeted_groups": 41,
+      "routes_center_within1m": 228,
+      "routes_within_sigma": 596,
+      "minimum_reference_center_distance_m": 0.044800666249615886,
+      "closest_route": "routes/f104_v1_group_0224/route_00.json"
+    },
+    {
+      "feature_index": 9,
+      "kind": "crater",
+      "sigma_m": 3.648410599310883,
+      "generator_target_matches_transformed_coordinates": true,
+      "raw_metadata": {
+        "xy_m": [
+          -24.87359122051533,
+          -29.023182188975618
+        ],
+        "center_height_m": 0.010588235294117565,
+        "ring_mean_height_m": 0.12031361952574607,
+        "center_minus_ring_relief_m": -0.1097253842316285,
+        "local_extreme_xy_m": [
+          -22.31970380099771,
+          -28.171886382469747
+        ],
+        "local_extreme_height_m": -0.12352941176470589
+      },
+      "generator_world": {
+        "xy_m": [
+          -24.87359122051533,
+          29.02318218897561
+        ],
+        "center_height_m": -1.4561677825537316,
+        "ring_mean_height_m": 0.06477902567268734,
+        "center_minus_ring_relief_m": -1.520946808226419,
+        "local_extreme_xy_m": [
+          -23.90068172736576,
+          28.536727442400828
+        ],
+        "local_extreme_height_m": -1.576470588235294
+      },
+      "targeted_groups": 0,
+      "routes_center_within1m": 0,
+      "routes_within_sigma": 24,
+      "minimum_reference_center_distance_m": 1.5539141168605815,
+      "closest_route": "routes/f104_v1_group_0374/route_04.json"
+    }
+  ],
+  "note_boundary_crater9": "No full12sibling targetgroup passed current geometric initialization/path gates; independent long/general references may still visit its neighborhood as counted. This is not physical evidence of impossibility.",
+  "native_orientation_audit_pending": true
+}

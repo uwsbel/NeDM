@@ -1,0 +1,160 @@
+{
+  "submitted_unix_s": 1789016325.395606,
+  "submissions": [
+    {
+      "partition": "mi2104x",
+      "workers_per_node": 128,
+      "nodes": 5,
+      "shard_offset": 0,
+      "argv": [
+        "sbatch",
+        "--parsable",
+        "-p",
+        "mi2104x",
+        "-c",
+        "128",
+        "--export",
+        "ALL,F104_SHARD_OFFSET=0",
+        "--array",
+        "0-4",
+        "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/launch/production_v2.sbatch"
+      ],
+      "returncode": 0,
+      "stdout": "412450\n",
+      "stderr": "sbatch: ---------------------------------------------------------------\nsbatch: AMD AI & HPC Fund Job Submission Filter\nsbatch: ---------------------------------------------------------------\nsbatch: --> ok: runtime limit specified\nsbatch:    --> ok: partition provided mi2104x\nsbatch: --> ok: Billing account-> dannegrut/harry\nsbatch: --> checking single partition...\nsbatch:     --> ok: mi2104x\nsbatch: --> checking job limits...\nsbatch:     --> requested runlimit = 4.0 hours (ok)\nsbatch: --> checking partition access restrictions...\nsbatch:     --> ok: partition = mi2104x\nsbatch: --> checking job size restrictions...\nsbatch: --> checking for active accounting allocation(s)...\nsbatch:     --> alloc_dannegrut_06222026_06302027 - ACTIVE: expires on Wednesday, June 30 2027\nsbatch: --> checking allocation balance...\nsbatch:     --> Used 352.32 of 1500 (ok)\nsbatch: --> checking max job limit...\nsbatch:     --> ok: number of jobs in queue  = 0\n",
+      "job_id": "412450"
+    },
+    {
+      "partition": "mi3258x",
+      "workers_per_node": 256,
+      "nodes": 1,
+      "shard_offset": 5,
+      "argv": [
+        "sbatch",
+        "--parsable",
+        "-p",
+        "mi3258x",
+        "-c",
+        "256",
+        "--export",
+        "ALL,F104_SHARD_OFFSET=5",
+        "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/launch/production_v2.sbatch"
+      ],
+      "returncode": 0,
+      "stdout": "412451\n",
+      "stderr": "sbatch: ---------------------------------------------------------------\nsbatch: AMD AI & HPC Fund Job Submission Filter\nsbatch: ---------------------------------------------------------------\nsbatch: --> ok: runtime limit specified\nsbatch:    --> ok: partition provided mi3258x\nsbatch: --> ok: Billing account-> dannegrut/harry\nsbatch: --> checking single partition...\nsbatch:     --> ok: mi3258x\nsbatch: --> checking job limits...\nsbatch:     --> requested runlimit = 4.0 hours (ok)\nsbatch: --> checking partition access restrictions...\nsbatch:     --> ok: partition = mi3258x\nsbatch: --> checking job size restrictions...\nsbatch: --> checking for active accounting allocation(s)...\nsbatch:     --> alloc_dannegrut_06222026_06302027 - ACTIVE: expires on Wednesday, June 30 2027\nsbatch: --> checking allocation balance...\nsbatch:     --> Used 352.32 of 1500 (ok)\nsbatch: --> checking max job limit...\nsbatch:     --> ok: number of jobs in queue  = 1\n",
+      "job_id": "412451"
+    },
+    {
+      "partition": "mi3008x",
+      "workers_per_node": 192,
+      "nodes": 1,
+      "shard_offset": 6,
+      "argv": [
+        "sbatch",
+        "--parsable",
+        "-p",
+        "mi3008x",
+        "-c",
+        "192",
+        "--export",
+        "ALL,F104_SHARD_OFFSET=6",
+        "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/launch/production_v2.sbatch"
+      ],
+      "returncode": 0,
+      "stdout": "412454\n",
+      "stderr": "sbatch: ---------------------------------------------------------------\nsbatch: AMD AI & HPC Fund Job Submission Filter\nsbatch: ---------------------------------------------------------------\nsbatch: --> ok: runtime limit specified\nsbatch:    --> ok: partition provided mi3008x\nsbatch: --> ok: Billing account-> dannegrut/harry\nsbatch: --> checking single partition...\nsbatch:     --> ok: mi3008x\nsbatch: --> checking job limits...\nsbatch:     --> requested runlimit = 4.0 hours (ok)\nsbatch: --> checking partition access restrictions...\nsbatch:     --> ok: partition = mi3008x\nsbatch: --> checking job size restrictions...\nsbatch:     --> requested nodes = 1 (ok)\nsbatch: --> checking for active accounting allocation(s)...\nsbatch:     --> alloc_dannegrut_06222026_06302027 - ACTIVE: expires on Wednesday, June 30 2027\nsbatch: --> checking allocation balance...\nsbatch:     --> Used 352.32 of 1500 (ok)\nsbatch: --> checking max job limit...\nsbatch:     --> ok: number of jobs in queue  = 4\n",
+      "job_id": "412454"
+    },
+    {
+      "partition": "mi3508x",
+      "workers_per_node": 256,
+      "nodes": 1,
+      "shard_offset": 7,
+      "argv": [
+        "sbatch",
+        "--parsable",
+        "-p",
+        "mi3508x",
+        "-c",
+        "256",
+        "--export",
+        "ALL,F104_SHARD_OFFSET=7",
+        "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/launch/production_v2.sbatch"
+      ],
+      "returncode": 0,
+      "stdout": "412455\n",
+      "stderr": "sbatch: ---------------------------------------------------------------\nsbatch: AMD AI & HPC Fund Job Submission Filter\nsbatch: ---------------------------------------------------------------\nsbatch: --> ok: runtime limit specified\nsbatch:    --> ok: partition provided mi3508x\nsbatch: --> ok: Billing account-> dannegrut/harry\nsbatch: --> checking single partition...\nsbatch:     --> ok: mi3508x\nsbatch: --> checking job limits...\nsbatch:     --> requested runlimit = 4.0 hours (ok)\nsbatch: --> checking partition access restrictions...\nsbatch:     --> ok: group-based access granted to restricted partition = mi3508x\nsbatch: --> checking job size restrictions...\nsbatch:     --> requested nodes = 1 (ok)\nsbatch: --> checking for active accounting allocation(s)...\nsbatch:     --> alloc_dannegrut_06222026_06302027 - ACTIVE: expires on Wednesday, June 30 2027\nsbatch: --> checking allocation balance...\nsbatch:     --> Used 352.32 of 1500 (ok)\nsbatch: --> checking max job limit...\nsbatch:     --> ok: number of jobs in queue  = 5\n",
+      "job_id": "412455"
+    },
+    {
+      "partition": "mi2101x",
+      "workers_per_node": 16,
+      "nodes": 24,
+      "shard_offset": 8,
+      "argv": [
+        "sbatch",
+        "--parsable",
+        "-p",
+        "mi2101x",
+        "-c",
+        "16",
+        "--export",
+        "ALL,F104_SHARD_OFFSET=8",
+        "--array",
+        "0-23",
+        "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/launch/production_v2.sbatch"
+      ],
+      "returncode": 0,
+      "stdout": "412456\n",
+      "stderr": "sbatch: ---------------------------------------------------------------\nsbatch: AMD AI & HPC Fund Job Submission Filter\nsbatch: ---------------------------------------------------------------\nsbatch: --> ok: runtime limit specified\nsbatch:    --> ok: partition provided mi2101x\nsbatch: --> ok: Billing account-> dannegrut/harry\nsbatch: --> checking single partition...\nsbatch:     --> ok: mi2101x\nsbatch: --> checking job limits...\nsbatch:     --> requested runlimit = 4.0 hours (ok)\nsbatch: --> checking partition access restrictions...\nsbatch:     --> ok: partition = mi2101x\nsbatch: --> checking job size restrictions...\nsbatch:     --> requested nodes = 1 (ok)\nsbatch: --> checking for active accounting allocation(s)...\nsbatch:     --> alloc_dannegrut_06222026_06302027 - ACTIVE: expires on Wednesday, June 30 2027\nsbatch: --> checking allocation balance...\nsbatch:     --> Used 352.32 of 1500 (ok)\nsbatch: --> checking max job limit...\nsbatch:     --> ok: number of jobs in queue  = 6\n",
+      "job_id": "412456"
+    },
+    {
+      "partition": "mi3001x",
+      "workers_per_node": 16,
+      "nodes": 7,
+      "shard_offset": 32,
+      "argv": [
+        "sbatch",
+        "--parsable",
+        "-p",
+        "mi3001x",
+        "-c",
+        "16",
+        "--export",
+        "ALL,F104_SHARD_OFFSET=32",
+        "--array",
+        "0-6",
+        "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/launch/production_v2.sbatch"
+      ],
+      "returncode": 0,
+      "stdout": "412480\n",
+      "stderr": "sbatch: ---------------------------------------------------------------\nsbatch: AMD AI & HPC Fund Job Submission Filter\nsbatch: ---------------------------------------------------------------\nsbatch: --> ok: runtime limit specified\nsbatch:    --> ok: partition provided mi3001x\nsbatch: --> ok: Billing account-> dannegrut/harry\nsbatch: --> checking single partition...\nsbatch:     --> ok: mi3001x\nsbatch: --> checking job limits...\nsbatch:     --> requested runlimit = 4.0 hours (ok)\nsbatch: --> checking partition access restrictions...\nsbatch:     --> ok: partition = mi3001x\nsbatch: --> checking job size restrictions...\nsbatch:     --> requested nodes = 1 (ok)\nsbatch: --> checking for active accounting allocation(s)...\nsbatch:     --> alloc_dannegrut_06222026_06302027 - ACTIVE: expires on Wednesday, June 30 2027\nsbatch: --> checking allocation balance...\nsbatch:     --> Used 352.32 of 1500 (ok)\nsbatch: --> checking max job limit...\nsbatch:     --> ok: number of jobs in queue  = 7\n",
+      "job_id": "412480"
+    },
+    {
+      "partition": "mi3501x",
+      "workers_per_node": 24,
+      "nodes": 7,
+      "shard_offset": 39,
+      "argv": [
+        "sbatch",
+        "--parsable",
+        "-p",
+        "mi3501x",
+        "-c",
+        "24",
+        "--export",
+        "ALL,F104_SHARD_OFFSET=39",
+        "--array",
+        "0-6",
+        "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/launch/production_v2.sbatch"
+      ],
+      "returncode": 0,
+      "stdout": "412481\n",
+      "stderr": "sbatch: ---------------------------------------------------------------\nsbatch: AMD AI & HPC Fund Job Submission Filter\nsbatch: ---------------------------------------------------------------\nsbatch: --> ok: runtime limit specified\nsbatch:    --> ok: partition provided mi3501x\nsbatch: --> ok: Billing account-> dannegrut/harry\nsbatch: --> checking single partition...\nsbatch:     --> ok: mi3501x\nsbatch: --> checking job limits...\nsbatch:     --> requested runlimit = 4.0 hours (ok)\nsbatch: --> checking partition access restrictions...\nsbatch:     --> ok: group-based access granted to restricted partition = mi3501x\nsbatch: --> checking job size restrictions...\nsbatch:     --> requested nodes = 1 (ok)\nsbatch: --> checking for active accounting allocation(s)...\nsbatch:     --> alloc_dannegrut_06222026_06302027 - ACTIVE: expires on Wednesday, June 30 2027\nsbatch: --> checking allocation balance...\nsbatch:     --> Used 352.32 of 1500 (ok)\nsbatch: --> checking max job limit...\nsbatch:     --> ok: number of jobs in queue  = 31\n",
+      "job_id": "412481"
+    }
+  ]
+}

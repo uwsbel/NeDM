@@ -1,0 +1,22 @@
+{
+ "cfg": {
+  "arch": "old",
+  "label": "unsafe",
+  "name": "A1_old_unsafe",
+  "seed": 1,
+  "epochs": 30
+ },
+ "dev": {
+  "P_unsafe": 0.9228650736312625,
+  "W_unsafe": 0.9256521739130434,
+  "Wn_unsafe": 2300,
+  "G_unsafe": 0.8534201954397395,
+  "Gn_unsafe": 307,
+  "P_fail": 0.8862630664280341,
+  "W_fail": 0.8866498740554156,
+  "Wn_fail": 1191,
+  "G_fail": 0.7860696517412935,
+  "Gn_fail": 201,
+  "train_s": 7.4
+ }
+}

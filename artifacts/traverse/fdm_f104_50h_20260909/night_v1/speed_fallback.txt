@@ -1,0 +1,12 @@
+groups where the 2 m/s pick AND both straight routes have Chrono outcomes: 88 of 123
+
+  OLD-era: always 2 m/s, old model (paired result)     unsafe   0.0%   fail   0.0%   choices {'old': 88}
+88 groups with all three options driven
+
+  OLD model, 2 m/s geometry                      unsafe  43.2%  fail  12.5%
+  NEW model, 2 m/s geometry                      unsafe  17.0%  fail   6.8%
+  NEW + fallback to lowest-risk option if p>=0.01 unsafe   3.4%  fail   0.0%   {'2 m/s geometry': 67, '6 m/s straight': 20, '4 m/s straight': 1}
+  NEW + fallback to lowest-risk option if p>=0.05 unsafe   4.5%  fail   0.0%   {'2 m/s geometry': 71, '6 m/s straight': 17}
+  NEW, always lowest predicted risk of the three unsafe   0.0%  fail   0.0%   {'4 m/s straight': 39, '6 m/s straight': 37, '2 m/s geometry': 12}
+  always 4 m/s straight (no model)               unsafe  21.6%  fail   9.1%
+  always 6 m/s straight (no model)               unsafe   1.1%  fail   0.0%

@@ -1,0 +1,160 @@
+{
+  "schema": "f104_static_map_independent_audit_v1",
+  "created_utc": "2026-09-10T04:54:14.273819+00:00",
+  "all_checks_pass": true,
+  "checks": {
+    "download_hashes_all4_match": true,
+    "npz_content_hash_matches_metadata": true,
+    "source_manifest_hash_matches_remote": true,
+    "capture_script_hash_matches_local": true,
+    "exact_requested_bmp_hash": true,
+    "arena_meta_hash_matches": true,
+    "native_audit4096_points": true,
+    "saved_bmp_values_recompute_exactly": true,
+    "native_bmp_p95_below5cm": true,
+    "measured_range_native_p95_below2cm": true,
+    "correct_orientation_better_than_all_mirror_controls": true,
+    "all_arena_corners_visible": true,
+    "rgb_depth_terrain_outline_exact": true,
+    "rgbd_encoding_exact": true,
+    "rgbd_finite": true,
+    "no_anchor_or_native_truth_in_input_npz": true,
+    "no_rendered_vehicle_or_goal_marker_declared": true
+  },
+  "scope": "Read-only saved AMD job412395 artifacts. No sensor rerender, vehicle simulation, new native height query, model inference or training.",
+  "camera": {
+    "width": 1024,
+    "height": 1024,
+    "hfov_rad": 0.8203047484373349,
+    "cam_height_m": 110.0,
+    "depth_ray_scale": 1.0,
+    "max_depth_m": 180.0,
+    "backend": "Vulkan_RT_lavapipe",
+    "depth_measurement": "Euclidean_ray_range_m",
+    "model_image_size": 512,
+    "elevation_scale_m": 10.0,
+    "observation_mode": "One static vehicle-free global terrain RGB-D map; same physical terrain shared by all episodes"
+  },
+  "measured_ray_range_vs_saved_native_surface_m": {
+    "count": 4096,
+    "median_abs_m": 0.0010296649304208927,
+    "p95_abs_m": 0.008833604870702061,
+    "max_abs_m": 0.014698968921550204,
+    "rmse_m": 0.003517433211232499,
+    "signed_mean_m": 0.0018409467234133288
+  },
+  "measured_height_vs_saved_native_surface_m": {
+    "count": 4096,
+    "median_abs_m": 0.000996150694163589,
+    "p95_abs_m": 0.00855613275903977,
+    "max_abs_m": 0.014476836541732041,
+    "rmse_m": 0.003379992199286719,
+    "signed_mean_m": -0.0017706483567097552
+  },
+  "orientation_alternative_ray_range_errors_m": {
+    "mirror_y": {
+      "count": 4096,
+      "median_abs_m": 0.4701662373852429,
+      "p95_abs_m": 2.728213271508949,
+      "max_abs_m": 3.5939543759090498,
+      "rmse_m": 1.1748394649164005,
+      "signed_mean_m": -0.02023634796070074
+    },
+    "mirror_x": {
+      "count": 4096,
+      "median_abs_m": 0.4268401690165433,
+      "p95_abs_m": 2.3368927903813272,
+      "max_abs_m": 3.829381678351723,
+      "rmse_m": 1.0066635596677123,
+      "signed_mean_m": -0.013200699943179559
+    },
+    "rotate180": {
+      "count": 4096,
+      "median_abs_m": 0.5625596240047486,
+      "p95_abs_m": 2.7916506156071,
+      "max_abs_m": 3.8852938356099287,
+      "rmse_m": 1.271882978332239,
+      "signed_mean_m": -0.024165872182737566
+    },
+    "transpose": {
+      "count": 4096,
+      "median_abs_m": 0.44356490107990965,
+      "p95_abs_m": 2.864343863201416,
+      "max_abs_m": 4.139001109612622,
+      "rmse_m": 1.248802161356269,
+      "signed_mean_m": -0.031963204213117345
+    }
+  },
+  "native_height_minus_bilinear_bmp_m": {
+    "count": 4096,
+    "median_abs_m": 0.005567617749157039,
+    "p95_abs_m": 0.02048517470223246,
+    "max_abs_m": 0.03296266300411177,
+    "rmse_m": 0.009816197775569049,
+    "signed_mean_m": 0.003459525490190309
+  },
+  "all_interior_pixel_depth_height_minus_bilinear_bmp_m": {
+    "count": 696960,
+    "median_abs_m": 0.005192750302395285,
+    "p95_abs_m": 0.018920973183285124,
+    "max_abs_m": 0.040736851619127275,
+    "rmse_m": 0.008793400561441444,
+    "signed_mean_m": 0.0014574548843570034
+  },
+  "sampling": "Project all4096savednativeXYZ points into measureddepth, bilinearlysamplemetricrayrange, comparetoEuclideanexpectedrange. Interpolationerror included; no residual-based sample exclusion.",
+  "raw_shape": [
+    1024,
+    1024,
+    3
+  ],
+  "model_input_shape": [
+    4,
+    512,
+    512
+  ],
+  "raw_depth_valid_fraction": 0.6990547180175781,
+  "sky_rgb": [
+    191,
+    218,
+    246
+  ],
+  "rgb_terrain_mask_vs_valid_depth_iou": 1.0,
+  "rgb_depth_terrain_mask_mismatched_pixels": 0,
+  "rgb_outline_limit": "Identical terrain/sky masks check coarseRGB/depthboundary registration; no roofmarker exists in this vehicle-free image, so internalRGBshading alone is not a universal correspondence proof.",
+  "all_arena_corners_min_margin_px": 67.57186270123907,
+  "raw_ground_spacing_m_per_pixel": 0.09341672118301309,
+  "model_ground_spacing_m_per_pixel": 0.18683344236602617,
+  "model_encoding_max_abs_error": 0.0,
+  "input_file_sha256": {
+    "native_height_audit.npz": "259b048d26b088bbd96b5bdace5ebb387d7a602142134f77e384068b41f22588",
+    "rgb.png": "c07d379b440132a9312fcbdb7173b08c4a012197a71586aab8108873fbbfef2d",
+    "observation.npz": "faffac47c001efced7b817c923f76abd989621e201b900ee8ec42fb48e200267",
+    "observation.json": "cc269e00f31ff4211055217a22427de061449eb1a6ae342dbf91f3e3af0a4913"
+  },
+  "camera_canonical_json_sha256": "e4eda85cded23db0fea3d473576ee83109776956ac66f6a8d3b2a85aca8f6c27",
+  "terrain_material_from_audited_source": {
+    "friction": 0.9,
+    "restitution": 0.01,
+    "young_modulus_pa": 20000000.0
+  },
+  "material_canonical_json_sha256": "845f2d3bfe86416de076ad1a7df488ac61245453022fee6de9f5e5636d2a5ef0",
+  "material_evidence": "capture_traverse_f104_map.py materialconstants match src/nedm/traverse/scene.py build_config friction0.9,restitution0.01,Young2e7; numericmaterialhash is recorded here because mapmetadata doesnot contain one explicitly.",
+  "runtime_file_hash_count": 108,
+  "join_requirements": [
+    "Bind map by observationNPZ hash, exactBMP/meta hashes, camera parameters, source/material and runtime identities.",
+    "Use each episode own anchor_state.npz state/pose/history and its own goal/reference. Sharedmap has no state/pose and cannot supply an episodeanchor.",
+    "For moving training anchors, derive causalstate/history/pose from that episode actualtrajectory prefix; retain sharedstaticmap only as the image source.",
+    "Set model/pack camera_height_m=110, hfov47degrees, elevation_scale_m=10, image512; do not inherit diverse400m/40m defaults for patchprojection.",
+    "Preserve pixel floats asrendered; no nativeheight_audit.npz arrays or terrainfeaturemetadata may enter model inputs.",
+    "Match rigidterrain material0.9/.01/2e7 across joined episodes and flag runtime/source differences rather than assuming sharedanchor parity.",
+    "Scenario or route outcomes do not select, alter or replace the staticmap."
+  ],
+  "join_anchor_status": "Episode-by-episode joins are not executed by this map audit; requirements documented for deferred packer.",
+  "source_sha256": {
+    "capture_traverse_f104_map.py": "0fcc80bedb48e174f7945d9c3ea9f0f4c4953977e40b35326b1e70754960ccc3",
+    "source_manifest": "811059b8f48a55dc2997c948d4081c738091332fe130608fbc4876196bec61ee",
+    "camera.py": "afa800abe495eac47d75d95e4f3c1b2a26ecc18f56afbb97853fee281c378275",
+    "fdm_diverse_data.py": "5c5cf1a0098df044a6317b43e76adc5e4fe3ed530b53e6e33c51210abd2dc58c"
+  },
+  "observation_job": "412395"
+}

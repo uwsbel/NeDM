@@ -1,0 +1,22 @@
+{
+ "cfg": {
+  "arch": "hazard",
+  "label": "hazard",
+  "name": "H1_haz",
+  "seed": 1,
+  "epochs": 30
+ },
+ "dev": {
+  "P_unsafe": 0.9787213527945114,
+  "W_unsafe": 0.9791304347826087,
+  "Wn_unsafe": 2300,
+  "G_unsafe": 0.9478827361563518,
+  "Gn_unsafe": 307,
+  "P_fail": 0.9341633595310352,
+  "W_fail": 0.9387069689336692,
+  "Wn_fail": 1191,
+  "G_fail": 0.8756218905472637,
+  "Gn_fail": 201,
+  "train_s": 19.5
+ }
+}

@@ -1,0 +1,117 @@
+{
+  "schema": "f104_wrapper_pilot_v2",
+  "source_root": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/pilot_source_v1",
+  "source_manifest_sha256": "811059b8f48a55dc2997c948d4081c738091332fe130608fbc4876196bec61ee",
+  "wrapper": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/wrapper_pilot_v2/code/collect_traverse_f104.py",
+  "wrapper_sha256": "0cb1d4ba7c719d78029675cbbbf85b21d7221231269e6c6fc730e337638e155d",
+  "runtime_fingerprint": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/pilot_runtime_412394.json",
+  "environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "LP_NUM_THREADS": "4"
+  },
+  "selection_basis": "Six existing references span slow/fast/speed-switch goals and the sole bounded 30 s crater case. Its 60 s enabled/disabled continuation tests truncation without changing physical controls. No physical tuning.",
+  "declared_count": 8,
+  "max_workers": 12,
+  "tasks": [
+    {
+      "id": "parity_g0000_r00",
+      "mode": "parity_30s",
+      "case": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/pilot_source_v1/artifacts/traverse/fdm_f104_50h_20260909/cases/f104_v1_group_0000.json",
+      "case_sha256": "e08e529de1d40a6619d9cc0a6890c125f7eb65f837f0c69a12d87917e029b808",
+      "route": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/pilot_source_v1/artifacts/traverse/fdm_f104_50h_20260909/cases/routes/f104_v1_group_0000/route_00.json",
+      "route_sha256": "cf5e9aed2ce7ea73a0a119bee3ad27b9ec22afbf2cf482fe39881c2ed9fd6a44",
+      "out": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/wrapper_pilot_v2/raw/parity_g0000_r00",
+      "horizon_s": 30.0,
+      "disable_early_stop": false,
+      "baseline": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/pilot_runs_v1/f104_v1_group_0000_route_00"
+    },
+    {
+      "id": "parity_g0000_r02",
+      "mode": "parity_30s",
+      "case": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/pilot_source_v1/artifacts/traverse/fdm_f104_50h_20260909/cases/f104_v1_group_0000.json",
+      "case_sha256": "e08e529de1d40a6619d9cc0a6890c125f7eb65f837f0c69a12d87917e029b808",
+      "route": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/pilot_source_v1/artifacts/traverse/fdm_f104_50h_20260909/cases/routes/f104_v1_group_0000/route_02.json",
+      "route_sha256": "937cfeab771b04bae989db660a58805c3f4561574659b2e63378878e3f3960fe",
+      "out": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/wrapper_pilot_v2/raw/parity_g0000_r02",
+      "horizon_s": 30.0,
+      "disable_early_stop": false,
+      "baseline": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/pilot_runs_v1/f104_v1_group_0000_route_02"
+    },
+    {
+      "id": "parity_g0001_r03",
+      "mode": "parity_30s",
+      "case": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/pilot_source_v1/artifacts/traverse/fdm_f104_50h_20260909/cases/f104_v1_group_0001.json",
+      "case_sha256": "5550a5eadd7416ab53de2ae22e91f5e40f460474cc73121993c9dedb696ba0c3",
+      "route": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/pilot_source_v1/artifacts/traverse/fdm_f104_50h_20260909/cases/routes/f104_v1_group_0001/route_03.json",
+      "route_sha256": "c6125f8050fe29257e763066ed9f49d27df915e6b370d999c31d537f8084bc0d",
+      "out": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/wrapper_pilot_v2/raw/parity_g0001_r03",
+      "horizon_s": 30.0,
+      "disable_early_stop": false,
+      "baseline": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/pilot_runs_v1/f104_v1_group_0001_route_03"
+    },
+    {
+      "id": "parity_g0005_r00",
+      "mode": "parity_30s",
+      "case": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/pilot_source_v1/artifacts/traverse/fdm_f104_50h_20260909/cases/f104_v1_group_0005.json",
+      "case_sha256": "f62ad61f1460bf7ffdc573b1fec82bfb5a42f8924521d3753883179d5b288ea4",
+      "route": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/pilot_source_v1/artifacts/traverse/fdm_f104_50h_20260909/cases/routes/f104_v1_group_0005/route_00.json",
+      "route_sha256": "286fa3a9f636de7eac00b96ad252522bf20cc1c8cedae4856909b9fd5ab7e42e",
+      "out": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/wrapper_pilot_v2/raw/parity_g0005_r00",
+      "horizon_s": 30.0,
+      "disable_early_stop": false,
+      "baseline": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/pilot_runs_v1/f104_v1_group_0005_route_00"
+    },
+    {
+      "id": "parity_g0006_r02",
+      "mode": "parity_30s",
+      "case": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/pilot_source_v1/artifacts/traverse/fdm_f104_50h_20260909/cases/f104_v1_group_0006.json",
+      "case_sha256": "3fb16053e3d440bf7f906961e59321f120f1883a9ff1b74b1fc62758803a0428",
+      "route": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/pilot_source_v1/artifacts/traverse/fdm_f104_50h_20260909/cases/routes/f104_v1_group_0006/route_02.json",
+      "route_sha256": "d064d4df121eaa4dc9258d5d5988f8357dbe767c0fae3debad3d1024f51e94f5",
+      "out": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/wrapper_pilot_v2/raw/parity_g0006_r02",
+      "horizon_s": 30.0,
+      "disable_early_stop": false,
+      "baseline": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/pilot_runs_v1/f104_v1_group_0006_route_02"
+    },
+    {
+      "id": "parity_g0007_r00",
+      "mode": "parity_30s",
+      "case": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/pilot_source_v1/artifacts/traverse/fdm_f104_50h_20260909/cases/f104_v1_group_0007.json",
+      "case_sha256": "7bc2a61f06f85b1f7bbb289eb4db8d13a363ed2b9e0126628e67a850656163c0",
+      "route": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/pilot_source_v1/artifacts/traverse/fdm_f104_50h_20260909/cases/routes/f104_v1_group_0007/route_00.json",
+      "route_sha256": "efb1f7a88fc7097ab282b74bd7df59915afea4943428f08e9b485896411c130f",
+      "out": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/wrapper_pilot_v2/raw/parity_g0007_r00",
+      "horizon_s": 30.0,
+      "disable_early_stop": false,
+      "baseline": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/pilot_runs_v1/f104_v1_group_0007_route_00"
+    },
+    {
+      "id": "blocked60_enabled",
+      "mode": "long_tail_stop",
+      "case": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/pilot_source_v1/artifacts/traverse/fdm_f104_50h_20260909/cases/f104_v1_group_0007.json",
+      "case_sha256": "7bc2a61f06f85b1f7bbb289eb4db8d13a363ed2b9e0126628e67a850656163c0",
+      "route": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/pilot_source_v1/artifacts/traverse/fdm_f104_50h_20260909/cases/routes/f104_v1_group_0007/route_00.json",
+      "route_sha256": "efb1f7a88fc7097ab282b74bd7df59915afea4943428f08e9b485896411c130f",
+      "out": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/wrapper_pilot_v2/raw/blocked60_enabled",
+      "horizon_s": 60.0,
+      "disable_early_stop": false,
+      "baseline": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/pilot_runs_v1/f104_v1_group_0007_route_00"
+    },
+    {
+      "id": "blocked60_disabled_control",
+      "mode": "long_tail_control",
+      "case": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/pilot_source_v1/artifacts/traverse/fdm_f104_50h_20260909/cases/f104_v1_group_0007.json",
+      "case_sha256": "7bc2a61f06f85b1f7bbb289eb4db8d13a363ed2b9e0126628e67a850656163c0",
+      "route": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/pilot_source_v1/artifacts/traverse/fdm_f104_50h_20260909/cases/routes/f104_v1_group_0007/route_00.json",
+      "route_sha256": "efb1f7a88fc7097ab282b74bd7df59915afea4943428f08e9b485896411c130f",
+      "out": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/wrapper_pilot_v2/raw/blocked60_disabled_control",
+      "horizon_s": 60.0,
+      "disable_early_stop": true,
+      "baseline": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/pilot_runs_v1/f104_v1_group_0007_route_00"
+    }
+  ],
+  "prior_failed_pilot": "wrapper_pilot_v1/job412398, native height probe before original Bullet initialization returned fallback zero before traversal. No physical episode counted.",
+  "correction": "Read-only native height probe moved after original settling, before traversal; no explicit collision binding call or physics change."
+}

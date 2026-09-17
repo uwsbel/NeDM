@@ -1,0 +1,574 @@
+{
+  "schema": "f104_wrapper_pilot_audit_v1",
+  "protocol_sha256": "a4273d257462f728fd6b4182b09a0aa13f5f44d1d3bfa06afa7ece5e287ca2bb",
+  "batch_result_sha256": "0457586bf2cd3679348098c29cb0d1e5c2ba1092ae984aa6c7d04fdeb95eb5c1",
+  "job": "412401",
+  "declared_trials": 8,
+  "all_passed": true,
+  "errors": [],
+  "actual_completed_seconds": 220.05,
+  "rows": [
+    {
+      "id": "parity_g0000_r00",
+      "mode": "parity_30s",
+      "returncode": 0,
+      "errors": [],
+      "status": "goal_reached",
+      "actual_elapsed_s": 21.85,
+      "frames": 437,
+      "bounded_blockage": false,
+      "stop_events": [],
+      "native_height_p95_m": 0.020543262593885902,
+      "native_height_max_m": 0.02759368066226925,
+      "artifact_hashes_verified": 16,
+      "rich": {
+        "passed": true,
+        "rows": 438,
+        "intervals": 437,
+        "sample_fields": 214,
+        "solver_step_intervals": 437,
+        "fields_with_missing_samples": [
+          "command_desired_speed_mps",
+          "command_parked"
+        ],
+        "trajectory_parity": "Pose, applied actions, engine-interface power and solver-step work match trajectory.npz"
+      },
+      "parity": {
+        "trajectory.npz": {
+          "arrays": 12,
+          "all_exact": true,
+          "different": [],
+          "new_fields": []
+        },
+        "anchor_state.npz": {
+          "arrays": 5,
+          "all_exact": true,
+          "different": [],
+          "new_fields": []
+        },
+        "rich_telemetry.npz": {
+          "arrays": 198,
+          "all_exact": true,
+          "different": [],
+          "new_fields": [
+            "tire_fl_force_projected_terrain_normal_n",
+            "tire_fl_terrain_normal_under_hub_world_x_unit",
+            "tire_fl_terrain_normal_under_hub_world_y_unit",
+            "tire_fl_terrain_normal_under_hub_world_z_unit",
+            "tire_fr_force_projected_terrain_normal_n",
+            "tire_fr_terrain_normal_under_hub_world_x_unit",
+            "tire_fr_terrain_normal_under_hub_world_y_unit",
+            "tire_fr_terrain_normal_under_hub_world_z_unit",
+            "tire_rl_force_projected_terrain_normal_n",
+            "tire_rl_terrain_normal_under_hub_world_x_unit",
+            "tire_rl_terrain_normal_under_hub_world_y_unit",
+            "tire_rl_terrain_normal_under_hub_world_z_unit",
+            "tire_rr_force_projected_terrain_normal_n",
+            "tire_rr_terrain_normal_under_hub_world_x_unit",
+            "tire_rr_terrain_normal_under_hub_world_y_unit",
+            "tire_rr_terrain_normal_under_hub_world_z_unit"
+          ]
+        },
+        "rich_intervals.npz": {
+          "arrays": 25,
+          "all_exact": true,
+          "different": [],
+          "new_fields": []
+        }
+      },
+      "new_normal_and_projected_force_fields_finite": true
+    },
+    {
+      "id": "parity_g0000_r02",
+      "mode": "parity_30s",
+      "returncode": 0,
+      "errors": [],
+      "status": "goal_reached",
+      "actual_elapsed_s": 8.25,
+      "frames": 165,
+      "bounded_blockage": false,
+      "stop_events": [],
+      "native_height_p95_m": 0.020543262593885902,
+      "native_height_max_m": 0.02759368066226925,
+      "artifact_hashes_verified": 16,
+      "rich": {
+        "passed": true,
+        "rows": 166,
+        "intervals": 165,
+        "sample_fields": 214,
+        "solver_step_intervals": 165,
+        "fields_with_missing_samples": [
+          "command_desired_speed_mps",
+          "command_parked"
+        ],
+        "trajectory_parity": "Pose, applied actions, engine-interface power and solver-step work match trajectory.npz"
+      },
+      "parity": {
+        "trajectory.npz": {
+          "arrays": 12,
+          "all_exact": true,
+          "different": [],
+          "new_fields": []
+        },
+        "anchor_state.npz": {
+          "arrays": 5,
+          "all_exact": true,
+          "different": [],
+          "new_fields": []
+        },
+        "rich_telemetry.npz": {
+          "arrays": 198,
+          "all_exact": true,
+          "different": [],
+          "new_fields": [
+            "tire_fl_force_projected_terrain_normal_n",
+            "tire_fl_terrain_normal_under_hub_world_x_unit",
+            "tire_fl_terrain_normal_under_hub_world_y_unit",
+            "tire_fl_terrain_normal_under_hub_world_z_unit",
+            "tire_fr_force_projected_terrain_normal_n",
+            "tire_fr_terrain_normal_under_hub_world_x_unit",
+            "tire_fr_terrain_normal_under_hub_world_y_unit",
+            "tire_fr_terrain_normal_under_hub_world_z_unit",
+            "tire_rl_force_projected_terrain_normal_n",
+            "tire_rl_terrain_normal_under_hub_world_x_unit",
+            "tire_rl_terrain_normal_under_hub_world_y_unit",
+            "tire_rl_terrain_normal_under_hub_world_z_unit",
+            "tire_rr_force_projected_terrain_normal_n",
+            "tire_rr_terrain_normal_under_hub_world_x_unit",
+            "tire_rr_terrain_normal_under_hub_world_y_unit",
+            "tire_rr_terrain_normal_under_hub_world_z_unit"
+          ]
+        },
+        "rich_intervals.npz": {
+          "arrays": 25,
+          "all_exact": true,
+          "different": [],
+          "new_fields": []
+        }
+      },
+      "new_normal_and_projected_force_fields_finite": true
+    },
+    {
+      "id": "parity_g0001_r03",
+      "mode": "parity_30s",
+      "returncode": 0,
+      "errors": [],
+      "status": "goal_reached",
+      "actual_elapsed_s": 10.75,
+      "frames": 215,
+      "bounded_blockage": false,
+      "stop_events": [],
+      "native_height_p95_m": 0.020543262593885902,
+      "native_height_max_m": 0.02759368066226925,
+      "artifact_hashes_verified": 16,
+      "rich": {
+        "passed": true,
+        "rows": 216,
+        "intervals": 215,
+        "sample_fields": 214,
+        "solver_step_intervals": 215,
+        "fields_with_missing_samples": [
+          "command_desired_speed_mps",
+          "command_parked"
+        ],
+        "trajectory_parity": "Pose, applied actions, engine-interface power and solver-step work match trajectory.npz"
+      },
+      "parity": {
+        "trajectory.npz": {
+          "arrays": 12,
+          "all_exact": true,
+          "different": [],
+          "new_fields": []
+        },
+        "anchor_state.npz": {
+          "arrays": 5,
+          "all_exact": true,
+          "different": [],
+          "new_fields": []
+        },
+        "rich_telemetry.npz": {
+          "arrays": 198,
+          "all_exact": true,
+          "different": [],
+          "new_fields": [
+            "tire_fl_force_projected_terrain_normal_n",
+            "tire_fl_terrain_normal_under_hub_world_x_unit",
+            "tire_fl_terrain_normal_under_hub_world_y_unit",
+            "tire_fl_terrain_normal_under_hub_world_z_unit",
+            "tire_fr_force_projected_terrain_normal_n",
+            "tire_fr_terrain_normal_under_hub_world_x_unit",
+            "tire_fr_terrain_normal_under_hub_world_y_unit",
+            "tire_fr_terrain_normal_under_hub_world_z_unit",
+            "tire_rl_force_projected_terrain_normal_n",
+            "tire_rl_terrain_normal_under_hub_world_x_unit",
+            "tire_rl_terrain_normal_under_hub_world_y_unit",
+            "tire_rl_terrain_normal_under_hub_world_z_unit",
+            "tire_rr_force_projected_terrain_normal_n",
+            "tire_rr_terrain_normal_under_hub_world_x_unit",
+            "tire_rr_terrain_normal_under_hub_world_y_unit",
+            "tire_rr_terrain_normal_under_hub_world_z_unit"
+          ]
+        },
+        "rich_intervals.npz": {
+          "arrays": 25,
+          "all_exact": true,
+          "different": [],
+          "new_fields": []
+        }
+      },
+      "new_normal_and_projected_force_fields_finite": true
+    },
+    {
+      "id": "parity_g0005_r00",
+      "mode": "parity_30s",
+      "returncode": 0,
+      "errors": [],
+      "status": "goal_reached",
+      "actual_elapsed_s": 23.35,
+      "frames": 467,
+      "bounded_blockage": false,
+      "stop_events": [],
+      "native_height_p95_m": 0.020543262593885902,
+      "native_height_max_m": 0.02759368066226925,
+      "artifact_hashes_verified": 16,
+      "rich": {
+        "passed": true,
+        "rows": 468,
+        "intervals": 467,
+        "sample_fields": 214,
+        "solver_step_intervals": 467,
+        "fields_with_missing_samples": [
+          "command_desired_speed_mps",
+          "command_parked"
+        ],
+        "trajectory_parity": "Pose, applied actions, engine-interface power and solver-step work match trajectory.npz"
+      },
+      "parity": {
+        "trajectory.npz": {
+          "arrays": 12,
+          "all_exact": true,
+          "different": [],
+          "new_fields": []
+        },
+        "anchor_state.npz": {
+          "arrays": 5,
+          "all_exact": true,
+          "different": [],
+          "new_fields": []
+        },
+        "rich_telemetry.npz": {
+          "arrays": 198,
+          "all_exact": true,
+          "different": [],
+          "new_fields": [
+            "tire_fl_force_projected_terrain_normal_n",
+            "tire_fl_terrain_normal_under_hub_world_x_unit",
+            "tire_fl_terrain_normal_under_hub_world_y_unit",
+            "tire_fl_terrain_normal_under_hub_world_z_unit",
+            "tire_fr_force_projected_terrain_normal_n",
+            "tire_fr_terrain_normal_under_hub_world_x_unit",
+            "tire_fr_terrain_normal_under_hub_world_y_unit",
+            "tire_fr_terrain_normal_under_hub_world_z_unit",
+            "tire_rl_force_projected_terrain_normal_n",
+            "tire_rl_terrain_normal_under_hub_world_x_unit",
+            "tire_rl_terrain_normal_under_hub_world_y_unit",
+            "tire_rl_terrain_normal_under_hub_world_z_unit",
+            "tire_rr_force_projected_terrain_normal_n",
+            "tire_rr_terrain_normal_under_hub_world_x_unit",
+            "tire_rr_terrain_normal_under_hub_world_y_unit",
+            "tire_rr_terrain_normal_under_hub_world_z_unit"
+          ]
+        },
+        "rich_intervals.npz": {
+          "arrays": 25,
+          "all_exact": true,
+          "different": [],
+          "new_fields": []
+        }
+      },
+      "new_normal_and_projected_force_fields_finite": true
+    },
+    {
+      "id": "parity_g0006_r02",
+      "mode": "parity_30s",
+      "returncode": 0,
+      "errors": [],
+      "status": "goal_reached",
+      "actual_elapsed_s": 5.8500000000000005,
+      "frames": 117,
+      "bounded_blockage": false,
+      "stop_events": [],
+      "native_height_p95_m": 0.020543262593885902,
+      "native_height_max_m": 0.02759368066226925,
+      "artifact_hashes_verified": 16,
+      "rich": {
+        "passed": true,
+        "rows": 118,
+        "intervals": 117,
+        "sample_fields": 214,
+        "solver_step_intervals": 117,
+        "fields_with_missing_samples": [
+          "command_desired_speed_mps",
+          "command_parked"
+        ],
+        "trajectory_parity": "Pose, applied actions, engine-interface power and solver-step work match trajectory.npz"
+      },
+      "parity": {
+        "trajectory.npz": {
+          "arrays": 12,
+          "all_exact": true,
+          "different": [],
+          "new_fields": []
+        },
+        "anchor_state.npz": {
+          "arrays": 5,
+          "all_exact": true,
+          "different": [],
+          "new_fields": []
+        },
+        "rich_telemetry.npz": {
+          "arrays": 198,
+          "all_exact": true,
+          "different": [],
+          "new_fields": [
+            "tire_fl_force_projected_terrain_normal_n",
+            "tire_fl_terrain_normal_under_hub_world_x_unit",
+            "tire_fl_terrain_normal_under_hub_world_y_unit",
+            "tire_fl_terrain_normal_under_hub_world_z_unit",
+            "tire_fr_force_projected_terrain_normal_n",
+            "tire_fr_terrain_normal_under_hub_world_x_unit",
+            "tire_fr_terrain_normal_under_hub_world_y_unit",
+            "tire_fr_terrain_normal_under_hub_world_z_unit",
+            "tire_rl_force_projected_terrain_normal_n",
+            "tire_rl_terrain_normal_under_hub_world_x_unit",
+            "tire_rl_terrain_normal_under_hub_world_y_unit",
+            "tire_rl_terrain_normal_under_hub_world_z_unit",
+            "tire_rr_force_projected_terrain_normal_n",
+            "tire_rr_terrain_normal_under_hub_world_x_unit",
+            "tire_rr_terrain_normal_under_hub_world_y_unit",
+            "tire_rr_terrain_normal_under_hub_world_z_unit"
+          ]
+        },
+        "rich_intervals.npz": {
+          "arrays": 25,
+          "all_exact": true,
+          "different": [],
+          "new_fields": []
+        }
+      },
+      "new_normal_and_projected_force_fields_finite": true
+    },
+    {
+      "id": "parity_g0007_r00",
+      "mode": "parity_30s",
+      "returncode": 0,
+      "errors": [],
+      "status": "timeout",
+      "actual_elapsed_s": 30.0,
+      "frames": 600,
+      "bounded_blockage": true,
+      "stop_events": [
+        {
+          "kind": "confirmation_started",
+          "interval_end_s": 24.0,
+          "first_qualifying_window_start_s": 22.0
+        },
+        {
+          "kind": "confirmed_tail_started",
+          "interval_end_s": 26.0,
+          "scheduled_stop_s": 34.0
+        },
+        {
+          "kind": "pending_stop_cancelled",
+          "interval_end_s": 29.0,
+          "confirmation_began_s": 24.0,
+          "reason": "Current measured bounded-effortful window no longer qualifies"
+        },
+        {
+          "kind": "confirmation_started",
+          "interval_end_s": 29.700000000000003,
+          "first_qualifying_window_start_s": 27.700000000000003
+        }
+      ],
+      "native_height_p95_m": 0.020543262593885902,
+      "native_height_max_m": 0.02759368066226925,
+      "artifact_hashes_verified": 16,
+      "rich": {
+        "passed": true,
+        "rows": 601,
+        "intervals": 600,
+        "sample_fields": 214,
+        "solver_step_intervals": 600,
+        "fields_with_missing_samples": [
+          "command_desired_speed_mps",
+          "command_parked"
+        ],
+        "trajectory_parity": "Pose, applied actions, engine-interface power and solver-step work match trajectory.npz"
+      },
+      "parity": {
+        "trajectory.npz": {
+          "arrays": 12,
+          "all_exact": true,
+          "different": [],
+          "new_fields": []
+        },
+        "anchor_state.npz": {
+          "arrays": 5,
+          "all_exact": true,
+          "different": [],
+          "new_fields": []
+        },
+        "rich_telemetry.npz": {
+          "arrays": 198,
+          "all_exact": true,
+          "different": [],
+          "new_fields": [
+            "tire_fl_force_projected_terrain_normal_n",
+            "tire_fl_terrain_normal_under_hub_world_x_unit",
+            "tire_fl_terrain_normal_under_hub_world_y_unit",
+            "tire_fl_terrain_normal_under_hub_world_z_unit",
+            "tire_fr_force_projected_terrain_normal_n",
+            "tire_fr_terrain_normal_under_hub_world_x_unit",
+            "tire_fr_terrain_normal_under_hub_world_y_unit",
+            "tire_fr_terrain_normal_under_hub_world_z_unit",
+            "tire_rl_force_projected_terrain_normal_n",
+            "tire_rl_terrain_normal_under_hub_world_x_unit",
+            "tire_rl_terrain_normal_under_hub_world_y_unit",
+            "tire_rl_terrain_normal_under_hub_world_z_unit",
+            "tire_rr_force_projected_terrain_normal_n",
+            "tire_rr_terrain_normal_under_hub_world_x_unit",
+            "tire_rr_terrain_normal_under_hub_world_y_unit",
+            "tire_rr_terrain_normal_under_hub_world_z_unit"
+          ]
+        },
+        "rich_intervals.npz": {
+          "arrays": 25,
+          "all_exact": true,
+          "different": [],
+          "new_fields": []
+        }
+      },
+      "new_normal_and_projected_force_fields_finite": true
+    },
+    {
+      "id": "blocked60_enabled",
+      "mode": "long_tail_stop",
+      "returncode": 0,
+      "errors": [],
+      "status": "timeout",
+      "actual_elapsed_s": 60.0,
+      "frames": 1200,
+      "bounded_blockage": true,
+      "stop_events": [
+        {
+          "kind": "confirmation_started",
+          "interval_end_s": 24.0,
+          "first_qualifying_window_start_s": 22.0
+        },
+        {
+          "kind": "confirmed_tail_started",
+          "interval_end_s": 26.0,
+          "scheduled_stop_s": 34.0
+        },
+        {
+          "kind": "pending_stop_cancelled",
+          "interval_end_s": 29.0,
+          "confirmation_began_s": 24.0,
+          "reason": "Current measured bounded-effortful window no longer qualifies"
+        },
+        {
+          "kind": "confirmation_started",
+          "interval_end_s": 29.700000000000003,
+          "first_qualifying_window_start_s": 27.700000000000003
+        },
+        {
+          "kind": "pending_stop_cancelled",
+          "interval_end_s": 30.450000000000003,
+          "confirmation_began_s": 29.700000000000003,
+          "reason": "Current measured bounded-effortful window no longer qualifies"
+        },
+        {
+          "kind": "confirmation_started",
+          "interval_end_s": 31.75,
+          "first_qualifying_window_start_s": 29.75
+        },
+        {
+          "kind": "pending_stop_cancelled",
+          "interval_end_s": 33.4,
+          "confirmation_began_s": 31.75,
+          "reason": "Current measured bounded-effortful window no longer qualifies"
+        },
+        {
+          "kind": "confirmation_started",
+          "interval_end_s": 59.2,
+          "first_qualifying_window_start_s": 57.2
+        }
+      ],
+      "native_height_p95_m": 0.020543262593885902,
+      "native_height_max_m": 0.02759368066226925,
+      "artifact_hashes_verified": 16,
+      "rich": {
+        "passed": true,
+        "rows": 1201,
+        "intervals": 1200,
+        "sample_fields": 214,
+        "solver_step_intervals": 1200,
+        "fields_with_missing_samples": [
+          "command_desired_speed_mps",
+          "command_parked"
+        ],
+        "trajectory_parity": "Pose, applied actions, engine-interface power and solver-step work match trajectory.npz"
+      },
+      "parity": {},
+      "new_normal_and_projected_force_fields_finite": true
+    },
+    {
+      "id": "blocked60_disabled_control",
+      "mode": "long_tail_control",
+      "returncode": 0,
+      "errors": [],
+      "status": "timeout",
+      "actual_elapsed_s": 60.0,
+      "frames": 1200,
+      "bounded_blockage": true,
+      "stop_events": [],
+      "native_height_p95_m": 0.020543262593885902,
+      "native_height_max_m": 0.02759368066226925,
+      "artifact_hashes_verified": 16,
+      "rich": {
+        "passed": true,
+        "rows": 1201,
+        "intervals": 1200,
+        "sample_fields": 214,
+        "solver_step_intervals": 1200,
+        "fields_with_missing_samples": [
+          "command_desired_speed_mps",
+          "command_parked"
+        ],
+        "trajectory_parity": "Pose, applied actions, engine-interface power and solver-step work match trajectory.npz"
+      },
+      "parity": {},
+      "new_normal_and_projected_force_fields_finite": true
+    }
+  ],
+  "continuation": {
+    "enabled_status": "timeout",
+    "enabled_elapsed_s": 60.0,
+    "disabled_status": "timeout",
+    "disabled_elapsed_s": 60.0,
+    "trajectory_prefix_exact": {
+      "state": true,
+      "pose": true,
+      "action": true,
+      "power_kw": true,
+      "contact_n": true,
+      "parked": true,
+      "positive_work_kj_per_interval": true
+    },
+    "rich_preinterval_prefix_exact": true,
+    "rich_preinterval_arrays": 214,
+    "actual_terminal_pose_exact": true,
+    "native_early_stop_exercised": false
+  },
+  "prior_failed_pilot_preserved": "wrapper_pilot_v1/job412398"
+}

@@ -1,0 +1,2630 @@
+[
+  {
+    "id": "f104_v1_group_0012__tent_best",
+    "group_id": "f104_v1_group_0012",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 5.419427573372104e-09,
+    "reach_m": 0.33347624299203776,
+    "nominal_id": "f104_v1_group_0012_route_00"
+  },
+  {
+    "id": "f104_v1_group_0012__tent_worst",
+    "group_id": "f104_v1_group_0012",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 1.7573254808667116e-05,
+    "reach_m": 0.41119303396554924,
+    "nominal_id": "f104_v1_group_0012_route_00"
+  },
+  {
+    "id": "f104_v1_group_0012__smooth_best",
+    "group_id": "f104_v1_group_0012",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 6.322465329056115e-10,
+    "reach_m": 1.0523666348573442,
+    "nominal_id": "f104_v1_group_0012_route_00"
+  },
+  {
+    "id": "f104_v1_group_0012__smooth_worst",
+    "group_id": "f104_v1_group_0012",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 7.874674338381737e-05,
+    "reach_m": 0.6350074854237096,
+    "nominal_id": "f104_v1_group_0012_route_00"
+  },
+  {
+    "id": "f104_v1_group_0045__tent_best",
+    "group_id": "f104_v1_group_0045",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 0.1596178412437439,
+    "reach_m": 0.24042520320213284,
+    "nominal_id": "f104_v1_group_0045_route_00"
+  },
+  {
+    "id": "f104_v1_group_0045__tent_worst",
+    "group_id": "f104_v1_group_0045",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.9863604307174683,
+    "reach_m": 0.6275290793873605,
+    "nominal_id": "f104_v1_group_0045_route_00"
+  },
+  {
+    "id": "f104_v1_group_0045__smooth_best",
+    "group_id": "f104_v1_group_0045",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 0.00021235983876977116,
+    "reach_m": 3.7731000107065427,
+    "nominal_id": "f104_v1_group_0045_route_00"
+  },
+  {
+    "id": "f104_v1_group_0045__smooth_worst",
+    "group_id": "f104_v1_group_0045",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.994758665561676,
+    "reach_m": 1.4827607446922348,
+    "nominal_id": "f104_v1_group_0045_route_00"
+  },
+  {
+    "id": "f104_v1_group_0063__tent_best",
+    "group_id": "f104_v1_group_0063",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 0.8677018284797668,
+    "reach_m": 0.6856660790571196,
+    "nominal_id": "f104_v1_group_0063_route_00"
+  },
+  {
+    "id": "f104_v1_group_0063__tent_worst",
+    "group_id": "f104_v1_group_0063",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.9978877902030945,
+    "reach_m": 0.9039793460396484,
+    "nominal_id": "f104_v1_group_0063_route_00"
+  },
+  {
+    "id": "f104_v1_group_0063__smooth_best",
+    "group_id": "f104_v1_group_0063",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 1.1702139090630226e-05,
+    "reach_m": 3.953586024670323,
+    "nominal_id": "f104_v1_group_0063_route_00"
+  },
+  {
+    "id": "f104_v1_group_0063__smooth_worst",
+    "group_id": "f104_v1_group_0063",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9975040555000305,
+    "reach_m": 1.2001145142907832,
+    "nominal_id": "f104_v1_group_0063_route_00"
+  },
+  {
+    "id": "f104_v1_group_0069__tent_best",
+    "group_id": "f104_v1_group_0069",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 2.9288128189364215e-06,
+    "reach_m": 0.7411929644764075,
+    "nominal_id": "f104_v1_group_0069_route_00"
+  },
+  {
+    "id": "f104_v1_group_0069__tent_worst",
+    "group_id": "f104_v1_group_0069",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.9863834381103516,
+    "reach_m": 0.46899959766526095,
+    "nominal_id": "f104_v1_group_0069_route_00"
+  },
+  {
+    "id": "f104_v1_group_0069__smooth_best",
+    "group_id": "f104_v1_group_0069",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 9.906788278613021e-08,
+    "reach_m": 1.1909446095001592,
+    "nominal_id": "f104_v1_group_0069_route_00"
+  },
+  {
+    "id": "f104_v1_group_0069__smooth_worst",
+    "group_id": "f104_v1_group_0069",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.985160231590271,
+    "reach_m": 3.2267025347722367,
+    "nominal_id": "f104_v1_group_0069_route_00"
+  },
+  {
+    "id": "f104_v1_group_0074__tent_best",
+    "group_id": "f104_v1_group_0074",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 0.515975296497345,
+    "reach_m": 0.7235418820610983,
+    "nominal_id": "f104_v1_group_0074_route_00"
+  },
+  {
+    "id": "f104_v1_group_0074__tent_worst",
+    "group_id": "f104_v1_group_0074",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.9849547147750854,
+    "reach_m": 0.8474556265252162,
+    "nominal_id": "f104_v1_group_0074_route_00"
+  },
+  {
+    "id": "f104_v1_group_0074__smooth_best",
+    "group_id": "f104_v1_group_0074",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 0.4764941334724426,
+    "reach_m": 3.827240839546362,
+    "nominal_id": "f104_v1_group_0074_route_00"
+  },
+  {
+    "id": "f104_v1_group_0074__smooth_worst",
+    "group_id": "f104_v1_group_0074",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9912891387939453,
+    "reach_m": 4.09957523407368,
+    "nominal_id": "f104_v1_group_0074_route_00"
+  },
+  {
+    "id": "f104_v1_group_0091__tent_best",
+    "group_id": "f104_v1_group_0091",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 0.0005804647807963192,
+    "reach_m": 0.7644454350640033,
+    "nominal_id": "f104_v1_group_0091_route_00"
+  },
+  {
+    "id": "f104_v1_group_0091__tent_worst",
+    "group_id": "f104_v1_group_0091",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.9876486659049988,
+    "reach_m": 1.3390883744149022,
+    "nominal_id": "f104_v1_group_0091_route_00"
+  },
+  {
+    "id": "f104_v1_group_0091__smooth_best",
+    "group_id": "f104_v1_group_0091",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 3.933716925530462e-06,
+    "reach_m": 3.9443103320324777,
+    "nominal_id": "f104_v1_group_0091_route_00"
+  },
+  {
+    "id": "f104_v1_group_0091__smooth_worst",
+    "group_id": "f104_v1_group_0091",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9953476786613464,
+    "reach_m": 1.645563500297623,
+    "nominal_id": "f104_v1_group_0091_route_00"
+  },
+  {
+    "id": "f104_v1_group_0118__tent_best",
+    "group_id": "f104_v1_group_0118",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 4.1420538110514826e-08,
+    "reach_m": 0.49948210879915755,
+    "nominal_id": "f104_v1_group_0118_route_00"
+  },
+  {
+    "id": "f104_v1_group_0118__tent_worst",
+    "group_id": "f104_v1_group_0118",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.8538542985916138,
+    "reach_m": 1.4367136976427202,
+    "nominal_id": "f104_v1_group_0118_route_00"
+  },
+  {
+    "id": "f104_v1_group_0118__smooth_best",
+    "group_id": "f104_v1_group_0118",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 7.687955161372884e-09,
+    "reach_m": 0.7048127711648831,
+    "nominal_id": "f104_v1_group_0118_route_00"
+  },
+  {
+    "id": "f104_v1_group_0118__smooth_worst",
+    "group_id": "f104_v1_group_0118",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9602569937705994,
+    "reach_m": 3.3278848051146075,
+    "nominal_id": "f104_v1_group_0118_route_00"
+  },
+  {
+    "id": "f104_v1_group_0129__tent_best",
+    "group_id": "f104_v1_group_0129",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 2.4802322514005937e-05,
+    "reach_m": 1.2644759746379544,
+    "nominal_id": "f104_v1_group_0129_route_00"
+  },
+  {
+    "id": "f104_v1_group_0129__tent_worst",
+    "group_id": "f104_v1_group_0129",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.7599914073944092,
+    "reach_m": 0.3364330467872511,
+    "nominal_id": "f104_v1_group_0129_route_00"
+  },
+  {
+    "id": "f104_v1_group_0129__smooth_best",
+    "group_id": "f104_v1_group_0129",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 2.3196250253931794e-08,
+    "reach_m": 5.529092414353931,
+    "nominal_id": "f104_v1_group_0129_route_00"
+  },
+  {
+    "id": "f104_v1_group_0129__smooth_worst",
+    "group_id": "f104_v1_group_0129",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9702839255332947,
+    "reach_m": 2.5543820449687193,
+    "nominal_id": "f104_v1_group_0129_route_00"
+  },
+  {
+    "id": "f104_v1_group_0154__tent_best",
+    "group_id": "f104_v1_group_0154",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 3.0905071835007902e-09,
+    "reach_m": 0.5435823496272696,
+    "nominal_id": "f104_v1_group_0154_route_00"
+  },
+  {
+    "id": "f104_v1_group_0154__tent_worst",
+    "group_id": "f104_v1_group_0154",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.013879255391657352,
+    "reach_m": 0.6483446179260608,
+    "nominal_id": "f104_v1_group_0154_route_00"
+  },
+  {
+    "id": "f104_v1_group_0154__smooth_best",
+    "group_id": "f104_v1_group_0154",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 6.909760319473435e-09,
+    "reach_m": 3.7586991082592647,
+    "nominal_id": "f104_v1_group_0154_route_00"
+  },
+  {
+    "id": "f104_v1_group_0154__smooth_worst",
+    "group_id": "f104_v1_group_0154",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9983671307563782,
+    "reach_m": 2.678540826732271,
+    "nominal_id": "f104_v1_group_0154_route_00"
+  },
+  {
+    "id": "f104_v1_group_0190__tent_best",
+    "group_id": "f104_v1_group_0190",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 0.0003131921694148332,
+    "reach_m": 0.4883016983338789,
+    "nominal_id": "f104_v1_group_0190_route_00"
+  },
+  {
+    "id": "f104_v1_group_0190__tent_worst",
+    "group_id": "f104_v1_group_0190",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.9740025997161865,
+    "reach_m": 1.450360328675072,
+    "nominal_id": "f104_v1_group_0190_route_00"
+  },
+  {
+    "id": "f104_v1_group_0190__smooth_best",
+    "group_id": "f104_v1_group_0190",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 0.00016663847782183439,
+    "reach_m": 0.9065740830646627,
+    "nominal_id": "f104_v1_group_0190_route_00"
+  },
+  {
+    "id": "f104_v1_group_0190__smooth_worst",
+    "group_id": "f104_v1_group_0190",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9932430386543274,
+    "reach_m": 4.139361460272176,
+    "nominal_id": "f104_v1_group_0190_route_00"
+  },
+  {
+    "id": "f104_v1_group_0200__tent_best",
+    "group_id": "f104_v1_group_0200",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 0.0009721960523165762,
+    "reach_m": 1.3621288405425551,
+    "nominal_id": "f104_v1_group_0200_route_00"
+  },
+  {
+    "id": "f104_v1_group_0200__tent_worst",
+    "group_id": "f104_v1_group_0200",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.9701888561248779,
+    "reach_m": 0.4748635840625398,
+    "nominal_id": "f104_v1_group_0200_route_00"
+  },
+  {
+    "id": "f104_v1_group_0200__smooth_best",
+    "group_id": "f104_v1_group_0200",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 1.3067965483060107e-05,
+    "reach_m": 1.146778708522058,
+    "nominal_id": "f104_v1_group_0200_route_00"
+  },
+  {
+    "id": "f104_v1_group_0200__smooth_worst",
+    "group_id": "f104_v1_group_0200",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9782747030258179,
+    "reach_m": 3.0593616771037455,
+    "nominal_id": "f104_v1_group_0200_route_00"
+  },
+  {
+    "id": "f104_v1_group_0201__tent_best",
+    "group_id": "f104_v1_group_0201",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 0.6207355856895447,
+    "reach_m": 0.278482698652303,
+    "nominal_id": "f104_v1_group_0201_route_00"
+  },
+  {
+    "id": "f104_v1_group_0201__tent_worst",
+    "group_id": "f104_v1_group_0201",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.9835457801818848,
+    "reach_m": 0.8385902592652884,
+    "nominal_id": "f104_v1_group_0201_route_00"
+  },
+  {
+    "id": "f104_v1_group_0201__smooth_best",
+    "group_id": "f104_v1_group_0201",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 9.290763358649201e-08,
+    "reach_m": 1.7897393993133628,
+    "nominal_id": "f104_v1_group_0201_route_00"
+  },
+  {
+    "id": "f104_v1_group_0201__smooth_worst",
+    "group_id": "f104_v1_group_0201",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9879192113876343,
+    "reach_m": 1.9797225615337355,
+    "nominal_id": "f104_v1_group_0201_route_00"
+  },
+  {
+    "id": "f104_v1_group_0221__tent_best",
+    "group_id": "f104_v1_group_0221",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 0.00012033367966068909,
+    "reach_m": 1.0820965860748395,
+    "nominal_id": "f104_v1_group_0221_route_00"
+  },
+  {
+    "id": "f104_v1_group_0221__tent_worst",
+    "group_id": "f104_v1_group_0221",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.37481945753097534,
+    "reach_m": 0.8581211020584465,
+    "nominal_id": "f104_v1_group_0221_route_00"
+  },
+  {
+    "id": "f104_v1_group_0221__smooth_best",
+    "group_id": "f104_v1_group_0221",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 4.380194877739996e-05,
+    "reach_m": 1.886233246277491,
+    "nominal_id": "f104_v1_group_0221_route_00"
+  },
+  {
+    "id": "f104_v1_group_0221__smooth_worst",
+    "group_id": "f104_v1_group_0221",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.8513568639755249,
+    "reach_m": 2.522579550663504,
+    "nominal_id": "f104_v1_group_0221_route_00"
+  },
+  {
+    "id": "f104_v1_group_0228__tent_best",
+    "group_id": "f104_v1_group_0228",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 4.5783585811420835e-09,
+    "reach_m": 0.3640289493888565,
+    "nominal_id": "f104_v1_group_0228_route_00"
+  },
+  {
+    "id": "f104_v1_group_0228__tent_worst",
+    "group_id": "f104_v1_group_0228",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.00012172701099188998,
+    "reach_m": 0.6644161314625517,
+    "nominal_id": "f104_v1_group_0228_route_00"
+  },
+  {
+    "id": "f104_v1_group_0228__smooth_best",
+    "group_id": "f104_v1_group_0228",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 1.0268410122193927e-08,
+    "reach_m": 2.6967776475928504,
+    "nominal_id": "f104_v1_group_0228_route_00"
+  },
+  {
+    "id": "f104_v1_group_0228__smooth_worst",
+    "group_id": "f104_v1_group_0228",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.0004666685708798468,
+    "reach_m": 1.7036297334657218,
+    "nominal_id": "f104_v1_group_0228_route_00"
+  },
+  {
+    "id": "f104_v1_group_0246__tent_best",
+    "group_id": "f104_v1_group_0246",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 1.061058242157742e-06,
+    "reach_m": 0.2874430178495625,
+    "nominal_id": "f104_v1_group_0246_route_00"
+  },
+  {
+    "id": "f104_v1_group_0246__tent_worst",
+    "group_id": "f104_v1_group_0246",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.8042013049125671,
+    "reach_m": 0.41582300671305605,
+    "nominal_id": "f104_v1_group_0246_route_00"
+  },
+  {
+    "id": "f104_v1_group_0246__smooth_best",
+    "group_id": "f104_v1_group_0246",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 1.1700834789962755e-07,
+    "reach_m": 1.6130080774895945,
+    "nominal_id": "f104_v1_group_0246_route_00"
+  },
+  {
+    "id": "f104_v1_group_0246__smooth_worst",
+    "group_id": "f104_v1_group_0246",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.8607177138328552,
+    "reach_m": 0.5530175330222173,
+    "nominal_id": "f104_v1_group_0246_route_00"
+  },
+  {
+    "id": "f104_v1_group_0262__tent_best",
+    "group_id": "f104_v1_group_0262",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 2.9515499377907872e-08,
+    "reach_m": 0.8084182640987083,
+    "nominal_id": "f104_v1_group_0262_route_00"
+  },
+  {
+    "id": "f104_v1_group_0262__tent_worst",
+    "group_id": "f104_v1_group_0262",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.7708802819252014,
+    "reach_m": 0.9253649125885951,
+    "nominal_id": "f104_v1_group_0262_route_00"
+  },
+  {
+    "id": "f104_v1_group_0262__smooth_best",
+    "group_id": "f104_v1_group_0262",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 3.937229919870333e-08,
+    "reach_m": 2.833628015089399,
+    "nominal_id": "f104_v1_group_0262_route_00"
+  },
+  {
+    "id": "f104_v1_group_0262__smooth_worst",
+    "group_id": "f104_v1_group_0262",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9768263697624207,
+    "reach_m": 4.117116891948802,
+    "nominal_id": "f104_v1_group_0262_route_00"
+  },
+  {
+    "id": "f104_v1_group_0389__tent_best",
+    "group_id": "f104_v1_group_0389",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 0.0006662100786343217,
+    "reach_m": 1.480620376678519,
+    "nominal_id": "f104_v1_group_0389_route_00"
+  },
+  {
+    "id": "f104_v1_group_0389__tent_worst",
+    "group_id": "f104_v1_group_0389",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.9434974193572998,
+    "reach_m": 1.6523490758914858,
+    "nominal_id": "f104_v1_group_0389_route_00"
+  },
+  {
+    "id": "f104_v1_group_0389__smooth_best",
+    "group_id": "f104_v1_group_0389",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 0.00025052952696569264,
+    "reach_m": 1.5104065884319324,
+    "nominal_id": "f104_v1_group_0389_route_00"
+  },
+  {
+    "id": "f104_v1_group_0389__smooth_worst",
+    "group_id": "f104_v1_group_0389",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9735142588615417,
+    "reach_m": 1.352697008807216,
+    "nominal_id": "f104_v1_group_0389_route_00"
+  },
+  {
+    "id": "f104_v1_group_0404__tent_best",
+    "group_id": "f104_v1_group_0404",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 0.000841907924041152,
+    "reach_m": 0.546506491918904,
+    "nominal_id": "f104_v1_group_0404_route_00"
+  },
+  {
+    "id": "f104_v1_group_0404__tent_worst",
+    "group_id": "f104_v1_group_0404",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.9673124551773071,
+    "reach_m": 1.0867884815028594,
+    "nominal_id": "f104_v1_group_0404_route_00"
+  },
+  {
+    "id": "f104_v1_group_0404__smooth_best",
+    "group_id": "f104_v1_group_0404",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 0.0011065854923799634,
+    "reach_m": 1.4893801600087944,
+    "nominal_id": "f104_v1_group_0404_route_00"
+  },
+  {
+    "id": "f104_v1_group_0404__smooth_worst",
+    "group_id": "f104_v1_group_0404",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9839611053466797,
+    "reach_m": 2.2599255678757033,
+    "nominal_id": "f104_v1_group_0404_route_00"
+  },
+  {
+    "id": "f104_v1_group_0426__tent_best",
+    "group_id": "f104_v1_group_0426",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 7.629155902577622e-07,
+    "reach_m": 0.17790940666221003,
+    "nominal_id": "f104_v1_group_0426_route_00"
+  },
+  {
+    "id": "f104_v1_group_0426__tent_worst",
+    "group_id": "f104_v1_group_0426",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.8213208317756653,
+    "reach_m": 1.4428220331126744,
+    "nominal_id": "f104_v1_group_0426_route_00"
+  },
+  {
+    "id": "f104_v1_group_0426__smooth_best",
+    "group_id": "f104_v1_group_0426",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 4.150583947648556e-07,
+    "reach_m": 2.772113739367686,
+    "nominal_id": "f104_v1_group_0426_route_00"
+  },
+  {
+    "id": "f104_v1_group_0426__smooth_worst",
+    "group_id": "f104_v1_group_0426",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9831706881523132,
+    "reach_m": 1.943323633184149,
+    "nominal_id": "f104_v1_group_0426_route_00"
+  },
+  {
+    "id": "f104_v1_group_0430__tent_best",
+    "group_id": "f104_v1_group_0430",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 1.2274034219550423e-11,
+    "reach_m": 0.9674756307294718,
+    "nominal_id": "f104_v1_group_0430_route_00"
+  },
+  {
+    "id": "f104_v1_group_0430__tent_worst",
+    "group_id": "f104_v1_group_0430",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.3112192153930664,
+    "reach_m": 0.8120211357083008,
+    "nominal_id": "f104_v1_group_0430_route_00"
+  },
+  {
+    "id": "f104_v1_group_0430__smooth_best",
+    "group_id": "f104_v1_group_0430",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 2.5939811063024898e-11,
+    "reach_m": 1.9497554237131483,
+    "nominal_id": "f104_v1_group_0430_route_00"
+  },
+  {
+    "id": "f104_v1_group_0430__smooth_worst",
+    "group_id": "f104_v1_group_0430",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.7303443551063538,
+    "reach_m": 4.037363957599608,
+    "nominal_id": "f104_v1_group_0430_route_00"
+  },
+  {
+    "id": "f104_v1_group_0450__tent_best",
+    "group_id": "f104_v1_group_0450",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 0.00011338391050230712,
+    "reach_m": 1.0761286606727756,
+    "nominal_id": "f104_v1_group_0450_route_00"
+  },
+  {
+    "id": "f104_v1_group_0450__tent_worst",
+    "group_id": "f104_v1_group_0450",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.9903954863548279,
+    "reach_m": 0.38136080713398607,
+    "nominal_id": "f104_v1_group_0450_route_00"
+  },
+  {
+    "id": "f104_v1_group_0450__smooth_best",
+    "group_id": "f104_v1_group_0450",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 3.189663999592085e-08,
+    "reach_m": 3.6095158724700434,
+    "nominal_id": "f104_v1_group_0450_route_00"
+  },
+  {
+    "id": "f104_v1_group_0450__smooth_worst",
+    "group_id": "f104_v1_group_0450",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.993371844291687,
+    "reach_m": 1.4549445812061004,
+    "nominal_id": "f104_v1_group_0450_route_00"
+  },
+  {
+    "id": "f104_v1_group_0469__tent_best",
+    "group_id": "f104_v1_group_0469",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 0.7275600433349609,
+    "reach_m": 0.9863868290723374,
+    "nominal_id": "f104_v1_group_0469_route_00"
+  },
+  {
+    "id": "f104_v1_group_0469__tent_worst",
+    "group_id": "f104_v1_group_0469",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.9750630855560303,
+    "reach_m": 1.5197339924191877,
+    "nominal_id": "f104_v1_group_0469_route_00"
+  },
+  {
+    "id": "f104_v1_group_0469__smooth_best",
+    "group_id": "f104_v1_group_0469",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 0.6650233864784241,
+    "reach_m": 1.843057238353573,
+    "nominal_id": "f104_v1_group_0469_route_00"
+  },
+  {
+    "id": "f104_v1_group_0469__smooth_worst",
+    "group_id": "f104_v1_group_0469",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9966692328453064,
+    "reach_m": 3.926612225090499,
+    "nominal_id": "f104_v1_group_0469_route_00"
+  },
+  {
+    "id": "f104_v1_group_0512__tent_best",
+    "group_id": "f104_v1_group_0512",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 7.381649425042269e-07,
+    "reach_m": 1.203688803919663,
+    "nominal_id": "f104_v1_group_0512_route_00"
+  },
+  {
+    "id": "f104_v1_group_0512__tent_worst",
+    "group_id": "f104_v1_group_0512",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.9554628133773804,
+    "reach_m": 0.7266533476823457,
+    "nominal_id": "f104_v1_group_0512_route_00"
+  },
+  {
+    "id": "f104_v1_group_0512__smooth_best",
+    "group_id": "f104_v1_group_0512",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 1.5395602570578149e-09,
+    "reach_m": 1.6864942491041996,
+    "nominal_id": "f104_v1_group_0512_route_00"
+  },
+  {
+    "id": "f104_v1_group_0512__smooth_worst",
+    "group_id": "f104_v1_group_0512",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9874653220176697,
+    "reach_m": 3.322474347388212,
+    "nominal_id": "f104_v1_group_0512_route_00"
+  },
+  {
+    "id": "f104_v1_group_0537__tent_best",
+    "group_id": "f104_v1_group_0537",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 4.056071901552315e-15,
+    "reach_m": 1.2501145899423602,
+    "nominal_id": "f104_v1_group_0537_route_00"
+  },
+  {
+    "id": "f104_v1_group_0537__tent_worst",
+    "group_id": "f104_v1_group_0537",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 5.248756451692316e-08,
+    "reach_m": 0.510779803879985,
+    "nominal_id": "f104_v1_group_0537_route_00"
+  },
+  {
+    "id": "f104_v1_group_0537__smooth_best",
+    "group_id": "f104_v1_group_0537",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 1.0759870116883218e-15,
+    "reach_m": 1.4965613743809447,
+    "nominal_id": "f104_v1_group_0537_route_00"
+  },
+  {
+    "id": "f104_v1_group_0537__smooth_worst",
+    "group_id": "f104_v1_group_0537",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 2.9189806809881702e-05,
+    "reach_m": 2.0206323980145227,
+    "nominal_id": "f104_v1_group_0537_route_00"
+  },
+  {
+    "id": "f104_v1_group_0542__tent_best",
+    "group_id": "f104_v1_group_0542",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 1.0128946996701416e-05,
+    "reach_m": 0.8844525676935602,
+    "nominal_id": "f104_v1_group_0542_route_00"
+  },
+  {
+    "id": "f104_v1_group_0542__tent_worst",
+    "group_id": "f104_v1_group_0542",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.9482622146606445,
+    "reach_m": 0.963934497105454,
+    "nominal_id": "f104_v1_group_0542_route_00"
+  },
+  {
+    "id": "f104_v1_group_0542__smooth_best",
+    "group_id": "f104_v1_group_0542",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 1.7665591656168544e-07,
+    "reach_m": 2.4616117728615436,
+    "nominal_id": "f104_v1_group_0542_route_00"
+  },
+  {
+    "id": "f104_v1_group_0542__smooth_worst",
+    "group_id": "f104_v1_group_0542",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9757718443870544,
+    "reach_m": 1.2224549218589458,
+    "nominal_id": "f104_v1_group_0542_route_00"
+  },
+  {
+    "id": "f104_v1_group_0568__tent_best",
+    "group_id": "f104_v1_group_0568",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 0.9480836391448975,
+    "reach_m": 1.7973873584633666,
+    "nominal_id": "f104_v1_group_0568_route_00"
+  },
+  {
+    "id": "f104_v1_group_0568__tent_worst",
+    "group_id": "f104_v1_group_0568",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.9902054667472839,
+    "reach_m": 0.2542512414423786,
+    "nominal_id": "f104_v1_group_0568_route_00"
+  },
+  {
+    "id": "f104_v1_group_0568__smooth_best",
+    "group_id": "f104_v1_group_0568",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 0.10565555095672607,
+    "reach_m": 2.4451600626859005,
+    "nominal_id": "f104_v1_group_0568_route_00"
+  },
+  {
+    "id": "f104_v1_group_0568__smooth_worst",
+    "group_id": "f104_v1_group_0568",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9915739893913269,
+    "reach_m": 1.8243004180748401,
+    "nominal_id": "f104_v1_group_0568_route_00"
+  },
+  {
+    "id": "f104_v1_group_0577__tent_best",
+    "group_id": "f104_v1_group_0577",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 0.0005000562523491681,
+    "reach_m": 0.6492053794226568,
+    "nominal_id": "f104_v1_group_0577_route_00"
+  },
+  {
+    "id": "f104_v1_group_0577__tent_worst",
+    "group_id": "f104_v1_group_0577",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.9728147387504578,
+    "reach_m": 1.3712480613104263,
+    "nominal_id": "f104_v1_group_0577_route_00"
+  },
+  {
+    "id": "f104_v1_group_0577__smooth_best",
+    "group_id": "f104_v1_group_0577",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 9.335445065516979e-05,
+    "reach_m": 3.586735712452498,
+    "nominal_id": "f104_v1_group_0577_route_00"
+  },
+  {
+    "id": "f104_v1_group_0577__smooth_worst",
+    "group_id": "f104_v1_group_0577",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9881729483604431,
+    "reach_m": 1.8523809100177195,
+    "nominal_id": "f104_v1_group_0577_route_00"
+  },
+  {
+    "id": "f104_v1_group_0581__tent_best",
+    "group_id": "f104_v1_group_0581",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 0.00028475566068664193,
+    "reach_m": 0.2934484974665824,
+    "nominal_id": "f104_v1_group_0581_route_00"
+  },
+  {
+    "id": "f104_v1_group_0581__tent_worst",
+    "group_id": "f104_v1_group_0581",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.899700939655304,
+    "reach_m": 0.5445377853968023,
+    "nominal_id": "f104_v1_group_0581_route_00"
+  },
+  {
+    "id": "f104_v1_group_0581__smooth_best",
+    "group_id": "f104_v1_group_0581",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 0.0009153214632533491,
+    "reach_m": 1.107897381123714,
+    "nominal_id": "f104_v1_group_0581_route_00"
+  },
+  {
+    "id": "f104_v1_group_0581__smooth_worst",
+    "group_id": "f104_v1_group_0581",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9824355244636536,
+    "reach_m": 1.7144044418722364,
+    "nominal_id": "f104_v1_group_0581_route_00"
+  },
+  {
+    "id": "f104_v1_group_0618__tent_best",
+    "group_id": "f104_v1_group_0618",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 1.4665956449277928e-08,
+    "reach_m": 0.5421264494158695,
+    "nominal_id": "f104_v1_group_0618_route_00"
+  },
+  {
+    "id": "f104_v1_group_0618__tent_worst",
+    "group_id": "f104_v1_group_0618",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.008074531331658363,
+    "reach_m": 0.8739778161794169,
+    "nominal_id": "f104_v1_group_0618_route_00"
+  },
+  {
+    "id": "f104_v1_group_0618__smooth_best",
+    "group_id": "f104_v1_group_0618",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 7.807861345313083e-13,
+    "reach_m": 5.280248673791359,
+    "nominal_id": "f104_v1_group_0618_route_00"
+  },
+  {
+    "id": "f104_v1_group_0618__smooth_worst",
+    "group_id": "f104_v1_group_0618",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.06459042429924011,
+    "reach_m": 1.7473970003704538,
+    "nominal_id": "f104_v1_group_0618_route_00"
+  },
+  {
+    "id": "f104_v1_group_0637__tent_best",
+    "group_id": "f104_v1_group_0637",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 0.9807155132293701,
+    "reach_m": 1.0992820520123647,
+    "nominal_id": "f104_v1_group_0637_route_00"
+  },
+  {
+    "id": "f104_v1_group_0637__tent_worst",
+    "group_id": "f104_v1_group_0637",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.9940392971038818,
+    "reach_m": 1.5472148734573818,
+    "nominal_id": "f104_v1_group_0637_route_00"
+  },
+  {
+    "id": "f104_v1_group_0637__smooth_best",
+    "group_id": "f104_v1_group_0637",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 0.8117828965187073,
+    "reach_m": 2.413590388440213,
+    "nominal_id": "f104_v1_group_0637_route_00"
+  },
+  {
+    "id": "f104_v1_group_0637__smooth_worst",
+    "group_id": "f104_v1_group_0637",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9966791868209839,
+    "reach_m": 4.3771030938853865,
+    "nominal_id": "f104_v1_group_0637_route_00"
+  },
+  {
+    "id": "f104_v1_group_0641__tent_best",
+    "group_id": "f104_v1_group_0641",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 0.0010858041932806373,
+    "reach_m": 1.3628803364482645,
+    "nominal_id": "f104_v1_group_0641_route_00"
+  },
+  {
+    "id": "f104_v1_group_0641__tent_worst",
+    "group_id": "f104_v1_group_0641",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.954505980014801,
+    "reach_m": 0.41776318235194915,
+    "nominal_id": "f104_v1_group_0641_route_00"
+  },
+  {
+    "id": "f104_v1_group_0641__smooth_best",
+    "group_id": "f104_v1_group_0641",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 9.350841310151736e-07,
+    "reach_m": 3.7683639570616014,
+    "nominal_id": "f104_v1_group_0641_route_00"
+  },
+  {
+    "id": "f104_v1_group_0641__smooth_worst",
+    "group_id": "f104_v1_group_0641",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9280125498771667,
+    "reach_m": 2.9580149590072207,
+    "nominal_id": "f104_v1_group_0641_route_00"
+  },
+  {
+    "id": "f104_v1_group_0681__tent_best",
+    "group_id": "f104_v1_group_0681",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 0.01656978949904442,
+    "reach_m": 1.6454101699313388,
+    "nominal_id": "f104_v1_group_0681_route_00"
+  },
+  {
+    "id": "f104_v1_group_0681__tent_worst",
+    "group_id": "f104_v1_group_0681",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.99125075340271,
+    "reach_m": 0.9557416684416895,
+    "nominal_id": "f104_v1_group_0681_route_00"
+  },
+  {
+    "id": "f104_v1_group_0681__smooth_best",
+    "group_id": "f104_v1_group_0681",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 1.302622187893121e-08,
+    "reach_m": 5.660035474576718,
+    "nominal_id": "f104_v1_group_0681_route_00"
+  },
+  {
+    "id": "f104_v1_group_0681__smooth_worst",
+    "group_id": "f104_v1_group_0681",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9926354289054871,
+    "reach_m": 1.8896064921965219,
+    "nominal_id": "f104_v1_group_0681_route_00"
+  },
+  {
+    "id": "f104_v1_group_0682__tent_best",
+    "group_id": "f104_v1_group_0682",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 3.869171294468288e-08,
+    "reach_m": 1.4023371757489809,
+    "nominal_id": "f104_v1_group_0682_route_00"
+  },
+  {
+    "id": "f104_v1_group_0682__tent_worst",
+    "group_id": "f104_v1_group_0682",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.9382781982421875,
+    "reach_m": 1.0564691005058788,
+    "nominal_id": "f104_v1_group_0682_route_00"
+  },
+  {
+    "id": "f104_v1_group_0682__smooth_best",
+    "group_id": "f104_v1_group_0682",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 4.56964938111426e-10,
+    "reach_m": 4.339906951695895,
+    "nominal_id": "f104_v1_group_0682_route_00"
+  },
+  {
+    "id": "f104_v1_group_0682__smooth_worst",
+    "group_id": "f104_v1_group_0682",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9611678719520569,
+    "reach_m": 3.932211920516843,
+    "nominal_id": "f104_v1_group_0682_route_00"
+  },
+  {
+    "id": "f104_v1_group_0698__tent_best",
+    "group_id": "f104_v1_group_0698",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 0.01093920599669218,
+    "reach_m": 1.1140190893033783,
+    "nominal_id": "f104_v1_group_0698_route_00"
+  },
+  {
+    "id": "f104_v1_group_0698__tent_worst",
+    "group_id": "f104_v1_group_0698",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.9820968508720398,
+    "reach_m": 0.9030228605405219,
+    "nominal_id": "f104_v1_group_0698_route_00"
+  },
+  {
+    "id": "f104_v1_group_0698__smooth_best",
+    "group_id": "f104_v1_group_0698",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 5.762114597018808e-05,
+    "reach_m": 2.181188883535371,
+    "nominal_id": "f104_v1_group_0698_route_00"
+  },
+  {
+    "id": "f104_v1_group_0698__smooth_worst",
+    "group_id": "f104_v1_group_0698",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.988132655620575,
+    "reach_m": 0.8950288792517229,
+    "nominal_id": "f104_v1_group_0698_route_00"
+  },
+  {
+    "id": "f104_v1_group_0705__tent_best",
+    "group_id": "f104_v1_group_0705",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 6.31572402198799e-05,
+    "reach_m": 1.4507398633871285,
+    "nominal_id": "f104_v1_group_0705_route_00"
+  },
+  {
+    "id": "f104_v1_group_0705__tent_worst",
+    "group_id": "f104_v1_group_0705",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.06186912581324577,
+    "reach_m": 0.574611256574917,
+    "nominal_id": "f104_v1_group_0705_route_00"
+  },
+  {
+    "id": "f104_v1_group_0705__smooth_best",
+    "group_id": "f104_v1_group_0705",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 5.769449217041256e-06,
+    "reach_m": 3.525972380513704,
+    "nominal_id": "f104_v1_group_0705_route_00"
+  },
+  {
+    "id": "f104_v1_group_0705__smooth_worst",
+    "group_id": "f104_v1_group_0705",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.20115041732788086,
+    "reach_m": 0.8710866267242822,
+    "nominal_id": "f104_v1_group_0705_route_00"
+  },
+  {
+    "id": "f104_v1_group_0739__tent_best",
+    "group_id": "f104_v1_group_0739",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 7.718696906522382e-06,
+    "reach_m": 0.7741856058725366,
+    "nominal_id": "f104_v1_group_0739_route_00"
+  },
+  {
+    "id": "f104_v1_group_0739__tent_worst",
+    "group_id": "f104_v1_group_0739",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.9909295439720154,
+    "reach_m": 1.4416477677002202,
+    "nominal_id": "f104_v1_group_0739_route_00"
+  },
+  {
+    "id": "f104_v1_group_0739__smooth_best",
+    "group_id": "f104_v1_group_0739",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 4.541615908237873e-06,
+    "reach_m": 2.8599157964878117,
+    "nominal_id": "f104_v1_group_0739_route_00"
+  },
+  {
+    "id": "f104_v1_group_0739__smooth_worst",
+    "group_id": "f104_v1_group_0739",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9956010580062866,
+    "reach_m": 2.1240374516606058,
+    "nominal_id": "f104_v1_group_0739_route_00"
+  },
+  {
+    "id": "f104_v1_group_0744__tent_best",
+    "group_id": "f104_v1_group_0744",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 2.5528433980070986e-05,
+    "reach_m": 0.27624375649092303,
+    "nominal_id": "f104_v1_group_0744_route_00"
+  },
+  {
+    "id": "f104_v1_group_0744__tent_worst",
+    "group_id": "f104_v1_group_0744",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.986746609210968,
+    "reach_m": 0.8294125700036418,
+    "nominal_id": "f104_v1_group_0744_route_00"
+  },
+  {
+    "id": "f104_v1_group_0744__smooth_best",
+    "group_id": "f104_v1_group_0744",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 1.085316853277618e-05,
+    "reach_m": 2.6405431579439194,
+    "nominal_id": "f104_v1_group_0744_route_00"
+  },
+  {
+    "id": "f104_v1_group_0744__smooth_worst",
+    "group_id": "f104_v1_group_0744",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9851690530776978,
+    "reach_m": 2.5969364147427156,
+    "nominal_id": "f104_v1_group_0744_route_00"
+  },
+  {
+    "id": "f104_v1_group_0760__tent_best",
+    "group_id": "f104_v1_group_0760",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 0.0558050163090229,
+    "reach_m": 0.6766681686548139,
+    "nominal_id": "f104_v1_group_0760_route_00"
+  },
+  {
+    "id": "f104_v1_group_0760__tent_worst",
+    "group_id": "f104_v1_group_0760",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.9723191857337952,
+    "reach_m": 0.9546578627731207,
+    "nominal_id": "f104_v1_group_0760_route_00"
+  },
+  {
+    "id": "f104_v1_group_0760__smooth_best",
+    "group_id": "f104_v1_group_0760",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 0.004044633824378252,
+    "reach_m": 1.3183121055756535,
+    "nominal_id": "f104_v1_group_0760_route_00"
+  },
+  {
+    "id": "f104_v1_group_0760__smooth_worst",
+    "group_id": "f104_v1_group_0760",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9898543953895569,
+    "reach_m": 1.9919832912549358,
+    "nominal_id": "f104_v1_group_0760_route_00"
+  },
+  {
+    "id": "f104_v1_group_0777__tent_best",
+    "group_id": "f104_v1_group_0777",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 0.0005108908517286181,
+    "reach_m": 1.0180057807266518,
+    "nominal_id": "f104_v1_group_0777_route_00"
+  },
+  {
+    "id": "f104_v1_group_0777__tent_worst",
+    "group_id": "f104_v1_group_0777",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.888921856880188,
+    "reach_m": 0.7317876415761168,
+    "nominal_id": "f104_v1_group_0777_route_00"
+  },
+  {
+    "id": "f104_v1_group_0777__smooth_best",
+    "group_id": "f104_v1_group_0777",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 9.386830015500891e-07,
+    "reach_m": 4.014335451110027,
+    "nominal_id": "f104_v1_group_0777_route_00"
+  },
+  {
+    "id": "f104_v1_group_0777__smooth_worst",
+    "group_id": "f104_v1_group_0777",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9239200949668884,
+    "reach_m": 1.9400922595689354,
+    "nominal_id": "f104_v1_group_0777_route_00"
+  },
+  {
+    "id": "f104_v1_group_0792__tent_best",
+    "group_id": "f104_v1_group_0792",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 7.995559826667886e-06,
+    "reach_m": 0.7023636477865376,
+    "nominal_id": "f104_v1_group_0792_route_00"
+  },
+  {
+    "id": "f104_v1_group_0792__tent_worst",
+    "group_id": "f104_v1_group_0792",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.3163275122642517,
+    "reach_m": 0.9024715238452459,
+    "nominal_id": "f104_v1_group_0792_route_00"
+  },
+  {
+    "id": "f104_v1_group_0792__smooth_best",
+    "group_id": "f104_v1_group_0792",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 0.00012074229016434401,
+    "reach_m": 0.6981998573638135,
+    "nominal_id": "f104_v1_group_0792_route_00"
+  },
+  {
+    "id": "f104_v1_group_0792__smooth_worst",
+    "group_id": "f104_v1_group_0792",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9087650775909424,
+    "reach_m": 2.0826237387718587,
+    "nominal_id": "f104_v1_group_0792_route_00"
+  },
+  {
+    "id": "f104_v1_group_0840__tent_best",
+    "group_id": "f104_v1_group_0840",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 0.006246309727430344,
+    "reach_m": 0.5031163518318071,
+    "nominal_id": "f104_v1_group_0840_route_00"
+  },
+  {
+    "id": "f104_v1_group_0840__tent_worst",
+    "group_id": "f104_v1_group_0840",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.9006555080413818,
+    "reach_m": 0.7738757833727844,
+    "nominal_id": "f104_v1_group_0840_route_00"
+  },
+  {
+    "id": "f104_v1_group_0840__smooth_best",
+    "group_id": "f104_v1_group_0840",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 0.002052358351647854,
+    "reach_m": 3.9121111381142377,
+    "nominal_id": "f104_v1_group_0840_route_00"
+  },
+  {
+    "id": "f104_v1_group_0840__smooth_worst",
+    "group_id": "f104_v1_group_0840",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9239086508750916,
+    "reach_m": 0.6286486532004857,
+    "nominal_id": "f104_v1_group_0840_route_00"
+  },
+  {
+    "id": "f104_v1_group_0893__tent_best",
+    "group_id": "f104_v1_group_0893",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 0.003170647658407688,
+    "reach_m": 0.7816008408467644,
+    "nominal_id": "f104_v1_group_0893_route_00"
+  },
+  {
+    "id": "f104_v1_group_0893__tent_worst",
+    "group_id": "f104_v1_group_0893",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.8781867027282715,
+    "reach_m": 0.4270546907106643,
+    "nominal_id": "f104_v1_group_0893_route_00"
+  },
+  {
+    "id": "f104_v1_group_0893__smooth_best",
+    "group_id": "f104_v1_group_0893",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 2.6693379595599254e-07,
+    "reach_m": 2.9489467323412617,
+    "nominal_id": "f104_v1_group_0893_route_00"
+  },
+  {
+    "id": "f104_v1_group_0893__smooth_worst",
+    "group_id": "f104_v1_group_0893",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9500656127929688,
+    "reach_m": 0.9127482003755737,
+    "nominal_id": "f104_v1_group_0893_route_00"
+  },
+  {
+    "id": "f104_v1_group_0899__tent_best",
+    "group_id": "f104_v1_group_0899",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 0.0071090892888605595,
+    "reach_m": 0.7881698927837855,
+    "nominal_id": "f104_v1_group_0899_route_00"
+  },
+  {
+    "id": "f104_v1_group_0899__tent_worst",
+    "group_id": "f104_v1_group_0899",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.9929632544517517,
+    "reach_m": 0.9869079326258612,
+    "nominal_id": "f104_v1_group_0899_route_00"
+  },
+  {
+    "id": "f104_v1_group_0899__smooth_best",
+    "group_id": "f104_v1_group_0899",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 1.2099443665647414e-05,
+    "reach_m": 4.534878795811649,
+    "nominal_id": "f104_v1_group_0899_route_00"
+  },
+  {
+    "id": "f104_v1_group_0899__smooth_worst",
+    "group_id": "f104_v1_group_0899",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9955757856369019,
+    "reach_m": 2.597868964643183,
+    "nominal_id": "f104_v1_group_0899_route_00"
+  },
+  {
+    "id": "f104_v1_group_0915__tent_best",
+    "group_id": "f104_v1_group_0915",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 1.6249417967628688e-05,
+    "reach_m": 0.9534508477477,
+    "nominal_id": "f104_v1_group_0915_route_00"
+  },
+  {
+    "id": "f104_v1_group_0915__tent_worst",
+    "group_id": "f104_v1_group_0915",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.9302668571472168,
+    "reach_m": 1.2746297089276486,
+    "nominal_id": "f104_v1_group_0915_route_00"
+  },
+  {
+    "id": "f104_v1_group_0915__smooth_best",
+    "group_id": "f104_v1_group_0915",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 3.7813091324778725e-08,
+    "reach_m": 4.244676500502999,
+    "nominal_id": "f104_v1_group_0915_route_00"
+  },
+  {
+    "id": "f104_v1_group_0915__smooth_worst",
+    "group_id": "f104_v1_group_0915",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9732286334037781,
+    "reach_m": 4.174502914218438,
+    "nominal_id": "f104_v1_group_0915_route_00"
+  },
+  {
+    "id": "f104_v1_group_0928__tent_best",
+    "group_id": "f104_v1_group_0928",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 0.3134746253490448,
+    "reach_m": 1.1254432466898736,
+    "nominal_id": "f104_v1_group_0928_route_00"
+  },
+  {
+    "id": "f104_v1_group_0928__tent_worst",
+    "group_id": "f104_v1_group_0928",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.9963484406471252,
+    "reach_m": 1.1226631577173212,
+    "nominal_id": "f104_v1_group_0928_route_00"
+  },
+  {
+    "id": "f104_v1_group_0928__smooth_best",
+    "group_id": "f104_v1_group_0928",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 3.327275044284761e-05,
+    "reach_m": 4.485333071568293,
+    "nominal_id": "f104_v1_group_0928_route_00"
+  },
+  {
+    "id": "f104_v1_group_0928__smooth_worst",
+    "group_id": "f104_v1_group_0928",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9968948364257812,
+    "reach_m": 1.0132720046284975,
+    "nominal_id": "f104_v1_group_0928_route_00"
+  },
+  {
+    "id": "f104_v1_group_0933__tent_best",
+    "group_id": "f104_v1_group_0933",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 7.115997505025007e-06,
+    "reach_m": 1.4971940795875667,
+    "nominal_id": "f104_v1_group_0933_route_00"
+  },
+  {
+    "id": "f104_v1_group_0933__tent_worst",
+    "group_id": "f104_v1_group_0933",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.986927330493927,
+    "reach_m": 0.7582156735258736,
+    "nominal_id": "f104_v1_group_0933_route_00"
+  },
+  {
+    "id": "f104_v1_group_0933__smooth_best",
+    "group_id": "f104_v1_group_0933",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 7.452033656818458e-09,
+    "reach_m": 1.8193923386428272,
+    "nominal_id": "f104_v1_group_0933_route_00"
+  },
+  {
+    "id": "f104_v1_group_0933__smooth_worst",
+    "group_id": "f104_v1_group_0933",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9920493960380554,
+    "reach_m": 2.691007266081611,
+    "nominal_id": "f104_v1_group_0933_route_00"
+  },
+  {
+    "id": "f104_v1_group_0942__tent_best",
+    "group_id": "f104_v1_group_0942",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 7.38115846221632e-10,
+    "reach_m": 0.36951345361512844,
+    "nominal_id": "f104_v1_group_0942_route_00"
+  },
+  {
+    "id": "f104_v1_group_0942__tent_worst",
+    "group_id": "f104_v1_group_0942",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 4.2464802390895784e-05,
+    "reach_m": 1.2345430542895945,
+    "nominal_id": "f104_v1_group_0942_route_00"
+  },
+  {
+    "id": "f104_v1_group_0942__smooth_best",
+    "group_id": "f104_v1_group_0942",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 7.137524512396132e-12,
+    "reach_m": 3.9391200955559778,
+    "nominal_id": "f104_v1_group_0942_route_00"
+  },
+  {
+    "id": "f104_v1_group_0942__smooth_worst",
+    "group_id": "f104_v1_group_0942",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.05129258707165718,
+    "reach_m": 1.9911051293633601,
+    "nominal_id": "f104_v1_group_0942_route_00"
+  },
+  {
+    "id": "f104_v1_group_1000__tent_best",
+    "group_id": "f104_v1_group_1000",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 0.9890536665916443,
+    "reach_m": 0.9081377353202341,
+    "nominal_id": "f104_v1_group_1000_route_00"
+  },
+  {
+    "id": "f104_v1_group_1000__tent_worst",
+    "group_id": "f104_v1_group_1000",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.9966633915901184,
+    "reach_m": 0.3973752201484009,
+    "nominal_id": "f104_v1_group_1000_route_00"
+  },
+  {
+    "id": "f104_v1_group_1000__smooth_best",
+    "group_id": "f104_v1_group_1000",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 0.6802462339401245,
+    "reach_m": 3.3643381464802142,
+    "nominal_id": "f104_v1_group_1000_route_00"
+  },
+  {
+    "id": "f104_v1_group_1000__smooth_worst",
+    "group_id": "f104_v1_group_1000",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.996483325958252,
+    "reach_m": 0.1317222241975693,
+    "nominal_id": "f104_v1_group_1000_route_00"
+  },
+  {
+    "id": "f104_v1_group_1003__tent_best",
+    "group_id": "f104_v1_group_1003",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 3.547334017639514e-06,
+    "reach_m": 0.49506519732471,
+    "nominal_id": "f104_v1_group_1003_route_00"
+  },
+  {
+    "id": "f104_v1_group_1003__tent_worst",
+    "group_id": "f104_v1_group_1003",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.9287593364715576,
+    "reach_m": 0.5144220602713313,
+    "nominal_id": "f104_v1_group_1003_route_00"
+  },
+  {
+    "id": "f104_v1_group_1003__smooth_best",
+    "group_id": "f104_v1_group_1003",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 5.058878969066427e-07,
+    "reach_m": 2.3565895737149316,
+    "nominal_id": "f104_v1_group_1003_route_00"
+  },
+  {
+    "id": "f104_v1_group_1003__smooth_worst",
+    "group_id": "f104_v1_group_1003",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9470052123069763,
+    "reach_m": 1.7336122565942853,
+    "nominal_id": "f104_v1_group_1003_route_00"
+  },
+  {
+    "id": "f104_v1_group_1006__tent_best",
+    "group_id": "f104_v1_group_1006",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 0.9944438338279724,
+    "reach_m": 1.688830810456997,
+    "nominal_id": "f104_v1_group_1006_route_00"
+  },
+  {
+    "id": "f104_v1_group_1006__tent_worst",
+    "group_id": "f104_v1_group_1006",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.9975817203521729,
+    "reach_m": 0.40410569334510416,
+    "nominal_id": "f104_v1_group_1006_route_00"
+  },
+  {
+    "id": "f104_v1_group_1006__smooth_best",
+    "group_id": "f104_v1_group_1006",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 0.05500969663262367,
+    "reach_m": 2.581591136281694,
+    "nominal_id": "f104_v1_group_1006_route_00"
+  },
+  {
+    "id": "f104_v1_group_1006__smooth_worst",
+    "group_id": "f104_v1_group_1006",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9983956217765808,
+    "reach_m": 2.701811937793051,
+    "nominal_id": "f104_v1_group_1006_route_00"
+  },
+  {
+    "id": "f104_v1_group_1011__tent_best",
+    "group_id": "f104_v1_group_1011",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 5.110252914164448e-06,
+    "reach_m": 1.0424204663925754,
+    "nominal_id": "f104_v1_group_1011_route_00"
+  },
+  {
+    "id": "f104_v1_group_1011__tent_worst",
+    "group_id": "f104_v1_group_1011",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.8258854746818542,
+    "reach_m": 0.6225198846704638,
+    "nominal_id": "f104_v1_group_1011_route_00"
+  },
+  {
+    "id": "f104_v1_group_1011__smooth_best",
+    "group_id": "f104_v1_group_1011",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 4.614398221747251e-06,
+    "reach_m": 0.5145270234521614,
+    "nominal_id": "f104_v1_group_1011_route_00"
+  },
+  {
+    "id": "f104_v1_group_1011__smooth_worst",
+    "group_id": "f104_v1_group_1011",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.8858071565628052,
+    "reach_m": 2.1223134351642097,
+    "nominal_id": "f104_v1_group_1011_route_00"
+  },
+  {
+    "id": "f104_v1_group_1109__tent_best",
+    "group_id": "f104_v1_group_1109",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 6.428931556001771e-06,
+    "reach_m": 0.5797395904195545,
+    "nominal_id": "f104_v1_group_1109_route_00"
+  },
+  {
+    "id": "f104_v1_group_1109__tent_worst",
+    "group_id": "f104_v1_group_1109",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.8063369393348694,
+    "reach_m": 0.8349978606432565,
+    "nominal_id": "f104_v1_group_1109_route_00"
+  },
+  {
+    "id": "f104_v1_group_1109__smooth_best",
+    "group_id": "f104_v1_group_1109",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 1.2948706853421754e-06,
+    "reach_m": 0.8051264237331575,
+    "nominal_id": "f104_v1_group_1109_route_00"
+  },
+  {
+    "id": "f104_v1_group_1109__smooth_worst",
+    "group_id": "f104_v1_group_1109",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.8813369870185852,
+    "reach_m": 1.7146975418459758,
+    "nominal_id": "f104_v1_group_1109_route_00"
+  },
+  {
+    "id": "f104_v1_group_1140__tent_best",
+    "group_id": "f104_v1_group_1140",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 0.000188845515367575,
+    "reach_m": 0.2811269278061705,
+    "nominal_id": "f104_v1_group_1140_route_00"
+  },
+  {
+    "id": "f104_v1_group_1140__tent_worst",
+    "group_id": "f104_v1_group_1140",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.96036297082901,
+    "reach_m": 0.4477269740550663,
+    "nominal_id": "f104_v1_group_1140_route_00"
+  },
+  {
+    "id": "f104_v1_group_1140__smooth_best",
+    "group_id": "f104_v1_group_1140",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 1.979521812245366e-06,
+    "reach_m": 2.315318217134005,
+    "nominal_id": "f104_v1_group_1140_route_00"
+  },
+  {
+    "id": "f104_v1_group_1140__smooth_worst",
+    "group_id": "f104_v1_group_1140",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9711443781852722,
+    "reach_m": 1.1399515254091679,
+    "nominal_id": "f104_v1_group_1140_route_00"
+  },
+  {
+    "id": "f104_v1_group_1202__tent_best",
+    "group_id": "f104_v1_group_1202",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 0.24203717708587646,
+    "reach_m": 0.7154622862157797,
+    "nominal_id": "f104_v1_group_1202_route_00"
+  },
+  {
+    "id": "f104_v1_group_1202__tent_worst",
+    "group_id": "f104_v1_group_1202",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.9907698035240173,
+    "reach_m": 0.31581829435077075,
+    "nominal_id": "f104_v1_group_1202_route_00"
+  },
+  {
+    "id": "f104_v1_group_1202__smooth_best",
+    "group_id": "f104_v1_group_1202",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 0.002778236521407962,
+    "reach_m": 1.6343942489938401,
+    "nominal_id": "f104_v1_group_1202_route_00"
+  },
+  {
+    "id": "f104_v1_group_1202__smooth_worst",
+    "group_id": "f104_v1_group_1202",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9934664368629456,
+    "reach_m": 0.6121788252736496,
+    "nominal_id": "f104_v1_group_1202_route_00"
+  },
+  {
+    "id": "f104_v1_group_1209__tent_best",
+    "group_id": "f104_v1_group_1209",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 0.003930701408535242,
+    "reach_m": 1.2360908110970088,
+    "nominal_id": "f104_v1_group_1209_route_00"
+  },
+  {
+    "id": "f104_v1_group_1209__tent_worst",
+    "group_id": "f104_v1_group_1209",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.9842485785484314,
+    "reach_m": 0.8607973352192769,
+    "nominal_id": "f104_v1_group_1209_route_00"
+  },
+  {
+    "id": "f104_v1_group_1209__smooth_best",
+    "group_id": "f104_v1_group_1209",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 9.853422670857981e-05,
+    "reach_m": 2.223717089107005,
+    "nominal_id": "f104_v1_group_1209_route_00"
+  },
+  {
+    "id": "f104_v1_group_1209__smooth_worst",
+    "group_id": "f104_v1_group_1209",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9885008335113525,
+    "reach_m": 3.157363299554998,
+    "nominal_id": "f104_v1_group_1209_route_00"
+  },
+  {
+    "id": "f104_v1_group_1210__tent_best",
+    "group_id": "f104_v1_group_1210",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 8.912108654139314e-14,
+    "reach_m": 1.135213598034904,
+    "nominal_id": "f104_v1_group_1210_route_00"
+  },
+  {
+    "id": "f104_v1_group_1210__tent_worst",
+    "group_id": "f104_v1_group_1210",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 6.850984277662064e-07,
+    "reach_m": 0.38204475548072414,
+    "nominal_id": "f104_v1_group_1210_route_00"
+  },
+  {
+    "id": "f104_v1_group_1210__smooth_best",
+    "group_id": "f104_v1_group_1210",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 1.8460056481475404e-14,
+    "reach_m": 1.830843370187661,
+    "nominal_id": "f104_v1_group_1210_route_00"
+  },
+  {
+    "id": "f104_v1_group_1210__smooth_worst",
+    "group_id": "f104_v1_group_1210",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.0003349705075379461,
+    "reach_m": 2.529512597091258,
+    "nominal_id": "f104_v1_group_1210_route_00"
+  },
+  {
+    "id": "f104_v1_group_1212__tent_best",
+    "group_id": "f104_v1_group_1212",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 9.618585927739787e-10,
+    "reach_m": 0.6144088729461911,
+    "nominal_id": "f104_v1_group_1212_route_00"
+  },
+  {
+    "id": "f104_v1_group_1212__tent_worst",
+    "group_id": "f104_v1_group_1212",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.0008112982613965869,
+    "reach_m": 0.6737349448686937,
+    "nominal_id": "f104_v1_group_1212_route_00"
+  },
+  {
+    "id": "f104_v1_group_1212__smooth_best",
+    "group_id": "f104_v1_group_1212",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 2.2194789062179865e-10,
+    "reach_m": 2.534853009134038,
+    "nominal_id": "f104_v1_group_1212_route_00"
+  },
+  {
+    "id": "f104_v1_group_1212__smooth_worst",
+    "group_id": "f104_v1_group_1212",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.0024158854503184557,
+    "reach_m": 1.0914516557104177,
+    "nominal_id": "f104_v1_group_1212_route_00"
+  },
+  {
+    "id": "f104_v1_group_1217__tent_best",
+    "group_id": "f104_v1_group_1217",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 0.00029972149059176445,
+    "reach_m": 1.1292228042102535,
+    "nominal_id": "f104_v1_group_1217_route_00"
+  },
+  {
+    "id": "f104_v1_group_1217__tent_worst",
+    "group_id": "f104_v1_group_1217",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.6478309631347656,
+    "reach_m": 0.6918563760703236,
+    "nominal_id": "f104_v1_group_1217_route_00"
+  },
+  {
+    "id": "f104_v1_group_1217__smooth_best",
+    "group_id": "f104_v1_group_1217",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 9.0076455308008e-06,
+    "reach_m": 3.8193383383344703,
+    "nominal_id": "f104_v1_group_1217_route_00"
+  },
+  {
+    "id": "f104_v1_group_1217__smooth_worst",
+    "group_id": "f104_v1_group_1217",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9263272285461426,
+    "reach_m": 1.5131028964453177,
+    "nominal_id": "f104_v1_group_1217_route_00"
+  },
+  {
+    "id": "f104_v1_group_1222__tent_best",
+    "group_id": "f104_v1_group_1222",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 0.0002071634226012975,
+    "reach_m": 0.9161703839897718,
+    "nominal_id": "f104_v1_group_1222_route_00"
+  },
+  {
+    "id": "f104_v1_group_1222__tent_worst",
+    "group_id": "f104_v1_group_1222",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.9879384636878967,
+    "reach_m": 1.2224446691470958,
+    "nominal_id": "f104_v1_group_1222_route_00"
+  },
+  {
+    "id": "f104_v1_group_1222__smooth_best",
+    "group_id": "f104_v1_group_1222",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 2.2131992238882958e-08,
+    "reach_m": 2.85686482752753,
+    "nominal_id": "f104_v1_group_1222_route_00"
+  },
+  {
+    "id": "f104_v1_group_1222__smooth_worst",
+    "group_id": "f104_v1_group_1222",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.988580048084259,
+    "reach_m": 2.710981567964875,
+    "nominal_id": "f104_v1_group_1222_route_00"
+  },
+  {
+    "id": "f104_v1_group_1230__tent_best",
+    "group_id": "f104_v1_group_1230",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 2.587617620175564e-10,
+    "reach_m": 1.9392023827578573,
+    "nominal_id": "f104_v1_group_1230_route_00"
+  },
+  {
+    "id": "f104_v1_group_1230__tent_worst",
+    "group_id": "f104_v1_group_1230",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.00010419853060739115,
+    "reach_m": 1.0583209125328834,
+    "nominal_id": "f104_v1_group_1230_route_00"
+  },
+  {
+    "id": "f104_v1_group_1230__smooth_best",
+    "group_id": "f104_v1_group_1230",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 6.8159232598230535e-12,
+    "reach_m": 2.872192144127235,
+    "nominal_id": "f104_v1_group_1230_route_00"
+  },
+  {
+    "id": "f104_v1_group_1230__smooth_worst",
+    "group_id": "f104_v1_group_1230",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.06027283892035484,
+    "reach_m": 1.7283254851479315,
+    "nominal_id": "f104_v1_group_1230_route_00"
+  },
+  {
+    "id": "f104_v1_group_1241__tent_best",
+    "group_id": "f104_v1_group_1241",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 0.9907310605049133,
+    "reach_m": 1.2952541827186954,
+    "nominal_id": "f104_v1_group_1241_route_00"
+  },
+  {
+    "id": "f104_v1_group_1241__tent_worst",
+    "group_id": "f104_v1_group_1241",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.998761773109436,
+    "reach_m": 0.5954078183778142,
+    "nominal_id": "f104_v1_group_1241_route_00"
+  },
+  {
+    "id": "f104_v1_group_1241__smooth_best",
+    "group_id": "f104_v1_group_1241",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 0.899501383304596,
+    "reach_m": 2.989212295671545,
+    "nominal_id": "f104_v1_group_1241_route_00"
+  },
+  {
+    "id": "f104_v1_group_1241__smooth_worst",
+    "group_id": "f104_v1_group_1241",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9986338019371033,
+    "reach_m": 0.8406735224353425,
+    "nominal_id": "f104_v1_group_1241_route_00"
+  },
+  {
+    "id": "f104_v1_group_1253__tent_best",
+    "group_id": "f104_v1_group_1253",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 0.00010526863479753956,
+    "reach_m": 0.6022903917916055,
+    "nominal_id": "f104_v1_group_1253_route_00"
+  },
+  {
+    "id": "f104_v1_group_1253__tent_worst",
+    "group_id": "f104_v1_group_1253",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.7475010752677917,
+    "reach_m": 0.31860510098353056,
+    "nominal_id": "f104_v1_group_1253_route_00"
+  },
+  {
+    "id": "f104_v1_group_1253__smooth_best",
+    "group_id": "f104_v1_group_1253",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 2.9194789021858014e-05,
+    "reach_m": 2.9988182116180355,
+    "nominal_id": "f104_v1_group_1253_route_00"
+  },
+  {
+    "id": "f104_v1_group_1253__smooth_worst",
+    "group_id": "f104_v1_group_1253",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.8986149430274963,
+    "reach_m": 1.72203117091707,
+    "nominal_id": "f104_v1_group_1253_route_00"
+  },
+  {
+    "id": "f104_v1_group_1257__tent_best",
+    "group_id": "f104_v1_group_1257",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 4.056280289432834e-08,
+    "reach_m": 1.450190090561203,
+    "nominal_id": "f104_v1_group_1257_route_00"
+  },
+  {
+    "id": "f104_v1_group_1257__tent_worst",
+    "group_id": "f104_v1_group_1257",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.14437063038349152,
+    "reach_m": 0.37481546678323,
+    "nominal_id": "f104_v1_group_1257_route_00"
+  },
+  {
+    "id": "f104_v1_group_1257__smooth_best",
+    "group_id": "f104_v1_group_1257",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 3.2396713350174577e-12,
+    "reach_m": 3.1771506960753007,
+    "nominal_id": "f104_v1_group_1257_route_00"
+  },
+  {
+    "id": "f104_v1_group_1257__smooth_worst",
+    "group_id": "f104_v1_group_1257",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.044277485460042953,
+    "reach_m": 1.2685418377826727,
+    "nominal_id": "f104_v1_group_1257_route_00"
+  },
+  {
+    "id": "f104_v1_group_1259__tent_best",
+    "group_id": "f104_v1_group_1259",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 0.0002996294933836907,
+    "reach_m": 1.2747462632103752,
+    "nominal_id": "f104_v1_group_1259_route_00"
+  },
+  {
+    "id": "f104_v1_group_1259__tent_worst",
+    "group_id": "f104_v1_group_1259",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.9928221106529236,
+    "reach_m": 1.4218549354317127,
+    "nominal_id": "f104_v1_group_1259_route_00"
+  },
+  {
+    "id": "f104_v1_group_1259__smooth_best",
+    "group_id": "f104_v1_group_1259",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 0.00018411378550808877,
+    "reach_m": 1.3663861285060652,
+    "nominal_id": "f104_v1_group_1259_route_00"
+  },
+  {
+    "id": "f104_v1_group_1259__smooth_worst",
+    "group_id": "f104_v1_group_1259",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9966065883636475,
+    "reach_m": 2.9214244815105004,
+    "nominal_id": "f104_v1_group_1259_route_00"
+  },
+  {
+    "id": "f104_v1_group_1286__tent_best",
+    "group_id": "f104_v1_group_1286",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 0.43895986676216125,
+    "reach_m": 1.066938583355751,
+    "nominal_id": "f104_v1_group_1286_route_00"
+  },
+  {
+    "id": "f104_v1_group_1286__tent_worst",
+    "group_id": "f104_v1_group_1286",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.9959555864334106,
+    "reach_m": 1.3559202843601261,
+    "nominal_id": "f104_v1_group_1286_route_00"
+  },
+  {
+    "id": "f104_v1_group_1286__smooth_best",
+    "group_id": "f104_v1_group_1286",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 0.10844717919826508,
+    "reach_m": 2.1278528609335923,
+    "nominal_id": "f104_v1_group_1286_route_00"
+  },
+  {
+    "id": "f104_v1_group_1286__smooth_worst",
+    "group_id": "f104_v1_group_1286",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9974061846733093,
+    "reach_m": 2.4751756534316813,
+    "nominal_id": "f104_v1_group_1286_route_00"
+  },
+  {
+    "id": "f104_v1_group_1297__tent_best",
+    "group_id": "f104_v1_group_1297",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 1.269236804546381e-07,
+    "reach_m": 0.6681997945953512,
+    "nominal_id": "f104_v1_group_1297_route_00"
+  },
+  {
+    "id": "f104_v1_group_1297__tent_worst",
+    "group_id": "f104_v1_group_1297",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.00046670527081005275,
+    "reach_m": 0.9798841251109598,
+    "nominal_id": "f104_v1_group_1297_route_00"
+  },
+  {
+    "id": "f104_v1_group_1297__smooth_best",
+    "group_id": "f104_v1_group_1297",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 2.344023073419521e-07,
+    "reach_m": 0.9271409100413722,
+    "nominal_id": "f104_v1_group_1297_route_00"
+  },
+  {
+    "id": "f104_v1_group_1297__smooth_worst",
+    "group_id": "f104_v1_group_1297",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.17401860654354095,
+    "reach_m": 3.767502933116586,
+    "nominal_id": "f104_v1_group_1297_route_00"
+  },
+  {
+    "id": "f104_v1_group_1305__tent_best",
+    "group_id": "f104_v1_group_1305",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 3.332819460410974e-06,
+    "reach_m": 0.9917030351630496,
+    "nominal_id": "f104_v1_group_1305_route_00"
+  },
+  {
+    "id": "f104_v1_group_1305__tent_worst",
+    "group_id": "f104_v1_group_1305",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.9932509064674377,
+    "reach_m": 0.49545761089277796,
+    "nominal_id": "f104_v1_group_1305_route_00"
+  },
+  {
+    "id": "f104_v1_group_1305__smooth_best",
+    "group_id": "f104_v1_group_1305",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 6.728778645381794e-10,
+    "reach_m": 2.159327109607283,
+    "nominal_id": "f104_v1_group_1305_route_00"
+  },
+  {
+    "id": "f104_v1_group_1305__smooth_worst",
+    "group_id": "f104_v1_group_1305",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9960750937461853,
+    "reach_m": 2.416676504037894,
+    "nominal_id": "f104_v1_group_1305_route_00"
+  },
+  {
+    "id": "f104_v1_group_1329__tent_best",
+    "group_id": "f104_v1_group_1329",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 0.9758569598197937,
+    "reach_m": 1.091663059578872,
+    "nominal_id": "f104_v1_group_1329_route_00"
+  },
+  {
+    "id": "f104_v1_group_1329__tent_worst",
+    "group_id": "f104_v1_group_1329",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.9950280785560608,
+    "reach_m": 1.1958123205785884,
+    "nominal_id": "f104_v1_group_1329_route_00"
+  },
+  {
+    "id": "f104_v1_group_1329__smooth_best",
+    "group_id": "f104_v1_group_1329",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 0.9505367875099182,
+    "reach_m": 2.86016587599568,
+    "nominal_id": "f104_v1_group_1329_route_00"
+  },
+  {
+    "id": "f104_v1_group_1329__smooth_worst",
+    "group_id": "f104_v1_group_1329",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9962085485458374,
+    "reach_m": 2.0195155279146797,
+    "nominal_id": "f104_v1_group_1329_route_00"
+  },
+  {
+    "id": "f104_v1_group_1355__tent_best",
+    "group_id": "f104_v1_group_1355",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 2.410716660961043e-06,
+    "reach_m": 0.5409642947619503,
+    "nominal_id": "f104_v1_group_1355_route_00"
+  },
+  {
+    "id": "f104_v1_group_1355__tent_worst",
+    "group_id": "f104_v1_group_1355",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.01510225422680378,
+    "reach_m": 1.3841262780028778,
+    "nominal_id": "f104_v1_group_1355_route_00"
+  },
+  {
+    "id": "f104_v1_group_1355__smooth_best",
+    "group_id": "f104_v1_group_1355",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 2.4328653580596438e-06,
+    "reach_m": 0.9696576219717417,
+    "nominal_id": "f104_v1_group_1355_route_00"
+  },
+  {
+    "id": "f104_v1_group_1355__smooth_worst",
+    "group_id": "f104_v1_group_1355",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9046863913536072,
+    "reach_m": 3.5307565578893123,
+    "nominal_id": "f104_v1_group_1355_route_00"
+  },
+  {
+    "id": "f104_v1_group_1381__tent_best",
+    "group_id": "f104_v1_group_1381",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 0.8646314740180969,
+    "reach_m": 0.6155676119345552,
+    "nominal_id": "f104_v1_group_1381_route_00"
+  },
+  {
+    "id": "f104_v1_group_1381__tent_worst",
+    "group_id": "f104_v1_group_1381",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.9618455171585083,
+    "reach_m": 1.238353496153145,
+    "nominal_id": "f104_v1_group_1381_route_00"
+  },
+  {
+    "id": "f104_v1_group_1381__smooth_best",
+    "group_id": "f104_v1_group_1381",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 0.0019894361030310392,
+    "reach_m": 3.838673239451383,
+    "nominal_id": "f104_v1_group_1381_route_00"
+  },
+  {
+    "id": "f104_v1_group_1381__smooth_worst",
+    "group_id": "f104_v1_group_1381",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9769367575645447,
+    "reach_m": 2.2700612243772804,
+    "nominal_id": "f104_v1_group_1381_route_00"
+  },
+  {
+    "id": "f104_v1_group_1383__tent_best",
+    "group_id": "f104_v1_group_1383",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 0.815750241279602,
+    "reach_m": 0.9989437240071224,
+    "nominal_id": "f104_v1_group_1383_route_00"
+  },
+  {
+    "id": "f104_v1_group_1383__tent_worst",
+    "group_id": "f104_v1_group_1383",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.9818480014801025,
+    "reach_m": 1.0252818037608966,
+    "nominal_id": "f104_v1_group_1383_route_00"
+  },
+  {
+    "id": "f104_v1_group_1383__smooth_best",
+    "group_id": "f104_v1_group_1383",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 0.018548008054494858,
+    "reach_m": 2.533223673203044,
+    "nominal_id": "f104_v1_group_1383_route_00"
+  },
+  {
+    "id": "f104_v1_group_1383__smooth_worst",
+    "group_id": "f104_v1_group_1383",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9859252572059631,
+    "reach_m": 1.8200151953390629,
+    "nominal_id": "f104_v1_group_1383_route_00"
+  },
+  {
+    "id": "f104_v1_group_1434__tent_best",
+    "group_id": "f104_v1_group_1434",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 3.7227830034680665e-05,
+    "reach_m": 0.9098351763575382,
+    "nominal_id": "f104_v1_group_1434_route_00"
+  },
+  {
+    "id": "f104_v1_group_1434__tent_worst",
+    "group_id": "f104_v1_group_1434",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.7412216067314148,
+    "reach_m": 0.5422112055852449,
+    "nominal_id": "f104_v1_group_1434_route_00"
+  },
+  {
+    "id": "f104_v1_group_1434__smooth_best",
+    "group_id": "f104_v1_group_1434",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 7.804432016200735e-07,
+    "reach_m": 2.2739368451717676,
+    "nominal_id": "f104_v1_group_1434_route_00"
+  },
+  {
+    "id": "f104_v1_group_1434__smooth_worst",
+    "group_id": "f104_v1_group_1434",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.9646857380867004,
+    "reach_m": 2.117067891984989,
+    "nominal_id": "f104_v1_group_1434_route_00"
+  },
+  {
+    "id": "f104_v1_group_1474__tent_best",
+    "group_id": "f104_v1_group_1474",
+    "arm": "tent",
+    "pick": "best",
+    "predicted_fail": 5.425643934131585e-09,
+    "reach_m": 0.6148558456036178,
+    "nominal_id": "f104_v1_group_1474_route_00"
+  },
+  {
+    "id": "f104_v1_group_1474__tent_worst",
+    "group_id": "f104_v1_group_1474",
+    "arm": "tent",
+    "pick": "worst",
+    "predicted_fail": 0.13171878457069397,
+    "reach_m": 0.7439703691462923,
+    "nominal_id": "f104_v1_group_1474_route_00"
+  },
+  {
+    "id": "f104_v1_group_1474__smooth_best",
+    "group_id": "f104_v1_group_1474",
+    "arm": "smooth",
+    "pick": "best",
+    "predicted_fail": 5.095754040951306e-09,
+    "reach_m": 1.00810347919007,
+    "nominal_id": "f104_v1_group_1474_route_00"
+  },
+  {
+    "id": "f104_v1_group_1474__smooth_worst",
+    "group_id": "f104_v1_group_1474",
+    "arm": "smooth",
+    "pick": "worst",
+    "predicted_fail": 0.446180522441864,
+    "reach_m": 3.1825633291387962,
+    "nominal_id": "f104_v1_group_1474_route_00"
+  }
+]

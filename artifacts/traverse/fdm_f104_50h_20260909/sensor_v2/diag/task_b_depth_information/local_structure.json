@@ -1,0 +1,382 @@
+{
+ "note": "slopes in m/m; dd is the v1 depth_rel channel, z the back-projected height",
+ "per_arena": {
+  "f104": {
+   "identity_check_max_abs_m": 1.0364950056684918e-05,
+   "dd_variance_split": {
+    "dd_std_m": 2.621713609616757,
+    "perspective_term_std_m": 2.324679505451647,
+    "terrain_term_std_m": 0.9772626673813462,
+    "perspective_over_terrain_std_ratio": 2.3787663061772455,
+    "corr_perspective_terrain": 0.11317018156428489
+   },
+   "cross_slope_m_per_m": {
+    "true_height_slope": {
+     "std": 0.11993874953455601,
+     "mean": 0.006333891063919034,
+     "p50_abs": 0.060012471360081976,
+     "p95_abs": 0.25772978844344796,
+     "max_abs": 0.4872213298272269
+    },
+    "raw_depth_channel_slope": {
+     "std": 0.22371239035381243,
+     "mean": -0.026910268755514877,
+     "p50_abs": 0.16103875052695177,
+     "p95_abs": 0.430826398110857,
+     "max_abs": 0.7094689986285041
+    },
+    "perspective_only_slope": {
+     "std": 0.1771372015434417,
+     "mean": -0.02061607540421301,
+     "p50_abs": 0.15213263791604226,
+     "p95_abs": 0.2981062488154701,
+     "max_abs": 0.37182682314487064
+    },
+    "rms_gap_depth_minus_true": 0.17823653413778742,
+    "corr_depth_vs_true": -0.6165758866076336,
+    "note": "dd ~ -z*s + perspective, so a faithful channel would give slope(dd) ~ -slope(z)"
+   },
+   "along_route_slope_per_station": {
+    "true_height_slope": {
+     "std": 0.01266181698197728,
+     "mean": 0.007932687576295451,
+     "p50_abs": 0.007459633060673949,
+     "p95_abs": 0.032012107061783014,
+     "max_abs": 0.0535218634708021
+    },
+    "raw_depth_channel_slope": {
+     "std": 0.04093711443006291,
+     "mean": -0.010766874753465352,
+     "p50_abs": 0.03143719645027559,
+     "p95_abs": 0.0788653933375595,
+     "max_abs": 0.12507626847810865
+    },
+    "perspective_only_slope": {
+     "std": 0.03771603150043724,
+     "mean": -0.002656506618309215,
+     "p50_abs": 0.030353102003631383,
+     "p95_abs": 0.06859844938157604,
+     "max_abs": 0.12043400341149325
+    },
+    "corr_depth_vs_true": -0.4015073793504148
+   }
+  },
+  "g203": {
+   "identity_check_max_abs_m": 1.0399368642888263e-05,
+   "dd_variance_split": {
+    "dd_std_m": 2.4745608932252265,
+    "perspective_term_std_m": 2.3881828896397574,
+    "terrain_term_std_m": 0.9575909956887676,
+    "perspective_over_terrain_std_ratio": 2.4939487739460273,
+    "corr_perspective_terrain": -0.10865055244803051
+   },
+   "cross_slope_m_per_m": {
+    "true_height_slope": {
+     "std": 0.12265535426711206,
+     "mean": -0.0017366670418144112,
+     "p50_abs": 0.055311628183870414,
+     "p95_abs": 0.26721003275208693,
+     "max_abs": 0.4582919289631879
+    },
+    "raw_depth_channel_slope": {
+     "std": 0.23062042342719222,
+     "mean": -0.03061303749188596,
+     "p50_abs": 0.18007410764694212,
+     "p95_abs": 0.4386661889675849,
+     "max_abs": 0.7673604184930978
+    },
+    "perspective_only_slope": {
+     "std": 0.18376786622967045,
+     "mean": -0.0324420889089935,
+     "p50_abs": 0.17454294034248263,
+     "p95_abs": 0.29295721866245467,
+     "max_abs": 0.3703074116123498
+    },
+    "rms_gap_depth_minus_true": 0.18673416146800803,
+    "corr_depth_vs_true": -0.6081800660706972,
+    "note": "dd ~ -z*s + perspective, so a faithful channel would give slope(dd) ~ -slope(z)"
+   },
+   "along_route_slope_per_station": {
+    "true_height_slope": {
+     "std": 0.013337439219450232,
+     "mean": 0.006441499505419013,
+     "p50_abs": 0.006919024648211156,
+     "p95_abs": 0.03251539462520363,
+     "max_abs": 0.05553800957989753
+    },
+    "raw_depth_channel_slope": {
+     "std": 0.03952272718366358,
+     "mean": -0.010471301849379323,
+     "p50_abs": 0.03224082340947763,
+     "p95_abs": 0.07408665547513775,
+     "max_abs": 0.1502070426940918
+    },
+    "perspective_only_slope": {
+     "std": 0.04047976015816606,
+     "mean": -0.0038078390569101766,
+     "p50_abs": 0.030392703403359863,
+     "p95_abs": 0.07380390263760968,
+     "max_abs": 0.11244112804457417
+    },
+    "corr_depth_vs_true": -0.11173242336670228
+   }
+  },
+  "g216": {
+   "identity_check_max_abs_m": 1.0372317370110906e-05,
+   "dd_variance_split": {
+    "dd_std_m": 2.5693790593979133,
+    "perspective_term_std_m": 2.115368740276405,
+    "terrain_term_std_m": 1.0788312908371251,
+    "perspective_over_terrain_std_ratio": 1.9607966122626765,
+    "corr_perspective_terrain": 0.21099774947062014
+   },
+   "cross_slope_m_per_m": {
+    "true_height_slope": {
+     "std": 0.12629504886330978,
+     "mean": 0.014370632667025382,
+     "p50_abs": 0.0711663450168642,
+     "p95_abs": 0.2661929521544412,
+     "max_abs": 0.44221055350522065
+    },
+    "raw_depth_channel_slope": {
+     "std": 0.23011354563696565,
+     "mean": -0.032152826499722474,
+     "p50_abs": 0.19691401159062105,
+     "p95_abs": 0.3914214061989504,
+     "max_abs": 0.703070360463816
+    },
+    "perspective_only_slope": {
+     "std": 0.17922432857560971,
+     "mean": -0.017153772296842482,
+     "p50_abs": 0.1641081890331753,
+     "p95_abs": 0.28865796160906865,
+     "max_abs": 0.363976708911499
+    },
+    "rms_gap_depth_minus_true": 0.17968733520870925,
+    "corr_depth_vs_true": -0.6353846120086001,
+    "note": "dd ~ -z*s + perspective, so a faithful channel would give slope(dd) ~ -slope(z)"
+   },
+   "along_route_slope_per_station": {
+    "true_height_slope": {
+     "std": 0.013830259878416417,
+     "mean": 0.006656849159177924,
+     "p50_abs": 0.008906887412117911,
+     "p95_abs": 0.032654987571338404,
+     "max_abs": 0.061548637341375535
+    },
+    "raw_depth_channel_slope": {
+     "std": 0.038390344481971206,
+     "mean": -0.02007419035123991,
+     "p50_abs": 0.032687702129262974,
+     "p95_abs": 0.07893603385348863,
+     "max_abs": 0.14431947384302998
+    },
+    "perspective_only_slope": {
+     "std": 0.03231562937678353,
+     "mean": -0.013305339366767527,
+     "p50_abs": 0.023812836223597245,
+     "p95_abs": 0.06529143166072053,
+     "max_abs": 0.09586353997896598
+    },
+    "corr_depth_vs_true": -0.5839634009233545
+   }
+  },
+  "g217": {
+   "identity_check_max_abs_m": 1.04229625859098e-05,
+   "dd_variance_split": {
+    "dd_std_m": 2.433796594548007,
+    "perspective_term_std_m": 2.1646502832593857,
+    "terrain_term_std_m": 1.096779761479479,
+    "perspective_over_terrain_std_ratio": 1.97364170937967,
+    "corr_perspective_terrain": 0.007314046897313662
+   },
+   "cross_slope_m_per_m": {
+    "true_height_slope": {
+     "std": 0.12084985403107201,
+     "mean": 0.01208790395327406,
+     "p50_abs": 0.0658736340756364,
+     "p95_abs": 0.2558265470762454,
+     "max_abs": 0.45106832385793616
+    },
+    "raw_depth_channel_slope": {
+     "std": 0.22433789357573308,
+     "mean": -0.04042246568918352,
+     "p50_abs": 0.17999115481096162,
+     "p95_abs": 0.435912096780889,
+     "max_abs": 0.6224712988909553
+    },
+    "perspective_only_slope": {
+     "std": 0.18488269888268094,
+     "mean": -0.02801312107096329,
+     "p50_abs": 0.17909972606137986,
+     "p95_abs": 0.2900362813296475,
+     "max_abs": 0.3627208168817037
+    },
+    "rms_gap_depth_minus_true": 0.18634269541172732,
+    "corr_depth_vs_true": -0.5719301069866224,
+    "note": "dd ~ -z*s + perspective, so a faithful channel would give slope(dd) ~ -slope(z)"
+   },
+   "along_route_slope_per_station": {
+    "true_height_slope": {
+     "std": 0.013775550410374461,
+     "mean": 0.00996851039503437,
+     "p50_abs": 0.011403419759499253,
+     "p95_abs": 0.032588870703733064,
+     "max_abs": 0.054043072258327295
+    },
+    "raw_depth_channel_slope": {
+     "std": 0.03910074314827428,
+     "mean": -0.00906348852116776,
+     "p50_abs": 0.026006463813202,
+     "p95_abs": 0.08432981380938034,
+     "max_abs": 0.12382045933023206
+    },
+    "perspective_only_slope": {
+     "std": 0.0353154179068602,
+     "mean": 0.0012094155364347026,
+     "p50_abs": 0.026320424832394378,
+     "p95_abs": 0.06920874457261184,
+     "max_abs": 0.10306907856788217
+    },
+    "corr_depth_vs_true": -0.44867106048635647
+   }
+  },
+  "g228": {
+   "identity_check_max_abs_m": 1.0410995589626992e-05,
+   "dd_variance_split": {
+    "dd_std_m": 2.637905985898047,
+    "perspective_term_std_m": 2.2374866184684765,
+    "terrain_term_std_m": 1.1693822206884392,
+    "perspective_over_terrain_std_ratio": 1.9133920277590866,
+    "corr_perspective_terrain": 0.11174316659740632
+   },
+   "cross_slope_m_per_m": {
+    "true_height_slope": {
+     "std": 0.12589978455262027,
+     "mean": 0.009918343646094075,
+     "p50_abs": 0.05309612931867412,
+     "p95_abs": 0.2731187873530361,
+     "max_abs": 0.5608255307728827
+    },
+    "raw_depth_channel_slope": {
+     "std": 0.20550015592304918,
+     "mean": -0.030796587160329368,
+     "p50_abs": 0.15623634071911083,
+     "p95_abs": 0.37279562001134836,
+     "max_abs": 0.8022626674536505
+    },
+    "perspective_only_slope": {
+     "std": 0.16594944696705752,
+     "mean": -0.02068366010980566,
+     "p50_abs": 0.1402607084146688,
+     "p95_abs": 0.2822931854936307,
+     "max_abs": 0.36451300477226106
+    },
+    "rms_gap_depth_minus_true": 0.1664374758148755,
+    "corr_depth_vs_true": -0.5955285812424207,
+    "note": "dd ~ -z*s + perspective, so a faithful channel would give slope(dd) ~ -slope(z)"
+   },
+   "along_route_slope_per_station": {
+    "true_height_slope": {
+     "std": 0.015672370250699206,
+     "mean": 0.009956219455385877,
+     "p50_abs": 0.011070182297663473,
+     "p95_abs": 0.037984775628109424,
+     "max_abs": 0.062348080948812064
+    },
+    "raw_depth_channel_slope": {
+     "std": 0.042505542392933124,
+     "mean": -0.012253868590072065,
+     "p50_abs": 0.03251407936351278,
+     "p95_abs": 0.08608708013103053,
+     "max_abs": 0.1351703794117446
+    },
+    "perspective_only_slope": {
+     "std": 0.038249736646684684,
+     "mean": -0.0020652305311562626,
+     "p50_abs": 0.02843627447525801,
+     "p95_abs": 0.07264545073926384,
+     "max_abs": 0.11007453080556566
+    },
+    "corr_depth_vs_true": -0.4489458152737969
+   }
+  },
+  "g231": {
+   "identity_check_max_abs_m": 1.0402912888896054e-05,
+   "dd_variance_split": {
+    "dd_std_m": 2.4853640828559067,
+    "perspective_term_std_m": 2.453155132024243,
+    "terrain_term_std_m": 1.0494688359226154,
+    "perspective_over_terrain_std_ratio": 2.33752070385931,
+    "corr_perspective_terrain": -0.18300965546786244
+   },
+   "cross_slope_m_per_m": {
+    "true_height_slope": {
+     "std": 0.1340367053494847,
+     "mean": 0.006071151189629379,
+     "p50_abs": 0.07521294131996306,
+     "p95_abs": 0.2838334177175681,
+     "max_abs": 0.43988126597170923
+    },
+    "raw_depth_channel_slope": {
+     "std": 0.22993426950655993,
+     "mean": -0.021284125146250485,
+     "p50_abs": 0.1610726403255089,
+     "p95_abs": 0.4533355530570536,
+     "max_abs": 0.7349086219189214
+    },
+    "perspective_only_slope": {
+     "std": 0.17668589074204066,
+     "mean": -0.015002696391068429,
+     "p50_abs": 0.15123073756489164,
+     "p95_abs": 0.2956569687478437,
+     "max_abs": 0.37909913960527597
+    },
+    "rms_gap_depth_minus_true": 0.1776709026540995,
+    "corr_depth_vs_true": -0.640826790027987,
+    "note": "dd ~ -z*s + perspective, so a faithful channel would give slope(dd) ~ -slope(z)"
+   },
+   "along_route_slope_per_station": {
+    "true_height_slope": {
+     "std": 0.016003811773149725,
+     "mean": 0.0025101309848758425,
+     "p50_abs": 0.009386308929275517,
+     "p95_abs": 0.033189794849882895,
+     "max_abs": 0.0631214900658463
+    },
+    "raw_depth_channel_slope": {
+     "std": 0.03815343357391618,
+     "mean": -0.0078017198288462585,
+     "p50_abs": 0.028752470865386286,
+     "p95_abs": 0.07521562015187258,
+     "max_abs": 0.12206604436227564
+    },
+    "perspective_only_slope": {
+     "std": 0.04180136317970102,
+     "mean": -0.0051806271990439915,
+     "p50_abs": 0.033423959687075205,
+     "p95_abs": 0.07835317079160285,
+     "max_abs": 0.1171736332793744
+    },
+    "corr_depth_vs_true": 0.010419015811640292
+   }
+  }
+ },
+ "linear_readout_fitted_on_f104": {
+  "form": "z - z0 ~= w0*depth_rel + w1*ray_sec1 + w2*ray_sec1_at_start + b",
+  "weights": {
+   "depth_rel": -0.9775916563014284,
+   "ray_sec1": 107.25205439287342,
+   "ray_sec1_start": -107.51052859406123,
+   "bias": 0.008018901746297047
+  },
+  "channel_std": {
+   "depth_rel": 2.621713609616757,
+   "ray_sec1": 0.01765965022518727,
+   "ray_sec1_start": 0.022473243346227096
+  },
+  "weight_ratio_sec_over_depth": 109.71048464002394,
+  "rmse_on_f104_m": 0.012202887331379505,
+  "naive_no_sec_rmse_m": 2.6208319128607895
+ }
+}

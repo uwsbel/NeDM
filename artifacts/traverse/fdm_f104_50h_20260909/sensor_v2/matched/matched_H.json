@@ -1,0 +1,56 @@
+[
+ {
+  "variant": "H",
+  "channels": [
+   "z_rel",
+   "grade",
+   "cross",
+   "speed",
+   "valid"
+  ],
+  "seed": 2,
+  "steps": 6330,
+  "secs": 296.3,
+  "n_fit": 54180,
+  "rank": {
+   "P_unsafe": 0.9541114107347346,
+   "W_unsafe": 0.9539602574867059,
+   "Wn_unsafe": 7146,
+   "G_unsafe": 0.9033018867924528,
+   "Gn_unsafe": 848,
+   "P_fail": 0.8913137669096886,
+   "W_fail": 0.8676470588235294,
+   "Wn_fail": 3944,
+   "G_fail": 0.7582236842105263,
+   "Gn_fail": 608
+  },
+  "choice": {
+   "cells": 1200,
+   "picked_unsafe": 0.15166666666666667,
+   "avoidable_unsafe": 0.0275,
+   "unavoidable": 0.12416666666666666,
+   "random_pick": 0.2972222222222224
+  },
+  "choice_all": {
+   "cells": 2400,
+   "picked_unsafe": 0.07958333333333334,
+   "avoidable_unsafe": 0.0175,
+   "unavoidable": 0.06208333333333333,
+   "random_pick": 0.1971686507936505
+  },
+  "choice_g216": {
+   "cells": 600,
+   "picked_unsafe": 0.11333333333333333,
+   "avoidable_unsafe": 0.03,
+   "unavoidable": 0.08333333333333333,
+   "random_pick": 0.2500000000000001
+  },
+  "choice_g231": {
+   "cells": 600,
+   "picked_unsafe": 0.19,
+   "avoidable_unsafe": 0.025,
+   "unavoidable": 0.165,
+   "random_pick": 0.34444444444444433
+  }
+ }
+]

@@ -1,0 +1,90 @@
+{
+  "schema": "f104_collection_geometry_integrity_v1",
+  "all_checks_pass": true,
+  "source_bmp_exact": true,
+  "case_count": 500,
+  "route_count": 6000,
+  "hash_verified_files": 6500,
+  "pilot_first96_routes_preserved": true,
+  "groups_per_feature_index": {
+    "0": 42,
+    "1": 42,
+    "2": 42,
+    "3": 42,
+    "4": 42,
+    "5": 42,
+    "6": 42,
+    "7": 42,
+    "8": 41,
+    "None": 123
+  },
+  "episodes_per_speed_profile": {
+    "constant_2": 1500,
+    "constant_4": 1500,
+    "constant_6": 1500,
+    "smooth_2_6_2": 1500
+  },
+  "episodes_per_split": {
+    "train": 5376,
+    "val": 360,
+    "test": 264
+  },
+  "split_proportions_actual": {
+    "train": 0.896,
+    "val": 0.06,
+    "test": 0.044
+  },
+  "split_proportions_nominal": {
+    "train": 0.9,
+    "val": 0.05,
+    "test": 0.05
+  },
+  "all_12_siblings_in_same_split": true,
+  "route_length_m_quantiles": [
+    28.22976527487715,
+    33.07034513567424,
+    44.57982601051584,
+    58.42601609428449,
+    83.55067855999071
+  ],
+  "maximum_abs_waypoint_coordinate_m": 34.42175325420633,
+  "minimum_boundary_center_margin_m": 5.57824674579367,
+  "max_reference_curvature_inv_m": 0.09867924946368628,
+  "collection_reference_curvature_cap_inv_m": 0.1,
+  "planner_curvature_policy_not_applied": "Collection intentionally covers broader commanded PID references; no claim that all references are eligible under frozen deployment0.025m^-1 gate.",
+  "heading_bin_counts_8directions": [
+    78,
+    52,
+    40,
+    67,
+    97,
+    75,
+    64,
+    27
+  ],
+  "start_xy_min_m": [
+    -33.90892909557742,
+    -33.2872898816781
+  ],
+  "start_xy_max_m": [
+    33.92680439835586,
+    33.07133486914902
+  ],
+  "feature_center_distance_m_quantiles": [
+    0.010265568507408878,
+    0.18931451247209238,
+    2.797141651524284,
+    6.069858455384795,
+    8.161773321963354
+  ],
+  "potential_hours_at_caps": 200.0,
+  "actual_required_hours": 50.0,
+  "actual_recorded_hours_at_design_time": 0.0,
+  "mean_actual_seconds_per_episode_needed": 30.0,
+  "static_terrain_only_rgbd_can_be_joined_after_headless_collection": true,
+  "native_orientation_and_start_settle_validation": "Owned by root/AMD pilot; not claimed by this geometry integrity audit",
+  "cases_manifest_sha256": "d5ddac50a4d253562597e53261acd21b56721dfadd0ceeaa16dd4091a1715702",
+  "pilot_manifest_sha256": "35576c2d9d66b4e9057930b683b31ea5c2c44ee30c542dab3ad08fd1b6e37d67",
+  "generator_sha256": "872e92b5309f9056ae24ddddd099f29398f607dc92ec8afab50c49329a18f526",
+  "copied_bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed"
+}

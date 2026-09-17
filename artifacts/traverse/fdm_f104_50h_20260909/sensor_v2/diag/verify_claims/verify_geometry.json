@@ -1,0 +1,236 @@
+{
+ "arena_f104_50h_v1": {
+  "n_cells": 262144,
+  "empty_cells": 0,
+  "v2": {
+   "mae": 0.007118991150188542,
+   "p95": 0.020768771665061254,
+   "max": 0.056018364148981536,
+   "bias": 0.0017508852442462198,
+   "corr": 0.999938616024481
+  },
+  "v1_flat": {
+   "mae": 0.17568938875344936,
+   "p95": 0.1343045300536863,
+   "max": 58.706329033378246,
+   "bias": -0.13995897855915795,
+   "corr": 0.3581351752293182
+  },
+  "bmp_quant_step_m": 0.02235294117647059,
+  "orientation_mae": {
+   "identity": 0.007118991150188542,
+   "flipud": 0.7569360128414171,
+   "fliplr": 0.6474213015223703,
+   "transpose": 0.7393622487279321,
+   "rot180": 0.8453808385591062
+  },
+  "shipped_grid_json_keys": [
+   "camera",
+   "camera_height_m",
+   "coverage_fraction",
+   "fill",
+   "focal_px",
+   "half_extent_m",
+   "mean_pixels_per_cell",
+   "mpp",
+   "n",
+   "row0",
+   "source"
+  ]
+ },
+ "arena_g203": {
+  "n_cells": 262144,
+  "empty_cells": 0,
+  "v2": {
+   "mae": 0.00743611595545322,
+   "p95": 0.022687983835444566,
+   "max": 0.0744696741945603,
+   "bias": 0.0016875011538648585,
+   "corr": 0.9999353566121566
+  },
+  "v1_flat": {
+   "mae": 0.14392382725180325,
+   "p95": 0.17572564310188304,
+   "max": 58.63032603804966,
+   "bias": -0.10083522304711762,
+   "corr": 0.41241103771946425
+  },
+  "bmp_quant_step_m": 0.024117647058823532,
+  "orientation_mae": {
+   "identity": 0.00743611595545322,
+   "flipud": 0.9923373425515644,
+   "fliplr": 0.9879409003622747,
+   "transpose": 0.7192797699129408,
+   "rot180": 0.6859231675918903
+  },
+  "shipped_grid_json_keys": [
+   "camera",
+   "camera_height_m",
+   "coverage_fraction",
+   "fill",
+   "focal_px",
+   "half_extent_m",
+   "mean_pixels_per_cell",
+   "mpp",
+   "n",
+   "row0",
+   "source"
+  ]
+ },
+ "arena_g216": {
+  "n_cells": 262144,
+  "empty_cells": 0,
+  "v2": {
+   "mae": 0.00756224457257173,
+   "p95": 0.022285866164693385,
+   "max": 0.07673185102495506,
+   "bias": 0.00196725961833428,
+   "corr": 0.9999434943758458
+  },
+  "v1_flat": {
+   "mae": 0.15105625874898645,
+   "p95": 0.15424190632670434,
+   "max": 58.66841905261188,
+   "bias": -0.10580223626638662,
+   "corr": 0.4198116795107277
+  },
+  "bmp_quant_step_m": 0.025490196078431372,
+  "orientation_mae": {
+   "identity": 0.00756224457257173,
+   "flipud": 0.8357477754559255,
+   "fliplr": 0.852719095395631,
+   "transpose": 0.9455527348110299,
+   "rot180": 0.957098007867381
+  },
+  "shipped_grid_json_keys": [
+   "camera",
+   "camera_height_m",
+   "coverage_fraction",
+   "fill",
+   "focal_px",
+   "half_extent_m",
+   "mean_pixels_per_cell",
+   "mpp",
+   "n",
+   "row0",
+   "source"
+  ]
+ },
+ "arena_g217": {
+  "n_cells": 262144,
+  "empty_cells": 0,
+  "v2": {
+   "mae": 0.00793619217874961,
+   "p95": 0.023662256194095645,
+   "max": 0.07228489216051814,
+   "bias": 0.0017612642805046616,
+   "corr": 0.9999348549882959
+  },
+  "v1_flat": {
+   "mae": 0.13075770301997458,
+   "p95": 0.1756725427579032,
+   "max": 57.82617399915891,
+   "bias": -0.08109023265856216,
+   "corr": 0.4488512069122326
+  },
+  "bmp_quant_step_m": 0.022745098039215685,
+  "orientation_mae": {
+   "identity": 0.00793619217874961,
+   "flipud": 0.8320025636218614,
+   "fliplr": 0.9377018331327023,
+   "transpose": 1.0047278815531366,
+   "rot180": 1.1320008019932555
+  },
+  "shipped_grid_json_keys": [
+   "camera",
+   "camera_height_m",
+   "coverage_fraction",
+   "fill",
+   "focal_px",
+   "half_extent_m",
+   "mean_pixels_per_cell",
+   "mpp",
+   "n",
+   "row0",
+   "source"
+  ]
+ },
+ "arena_g228": {
+  "n_cells": 262144,
+  "empty_cells": 0,
+  "v2": {
+   "mae": 0.00737398797277578,
+   "p95": 0.023274255544238873,
+   "max": 0.06488953169654388,
+   "bias": 0.00229072943277758,
+   "corr": 0.9999499479245679
+  },
+  "v1_flat": {
+   "mae": 0.18038007292550776,
+   "p95": 0.19886773988742731,
+   "max": 57.09128505141318,
+   "bias": -0.130096688242725,
+   "corr": 0.41819078771688517
+  },
+  "bmp_quant_step_m": 0.02490196078431373,
+  "orientation_mae": {
+   "identity": 0.00737398797277578,
+   "flipud": 0.9553705400930075,
+   "fliplr": 1.0976707244780528,
+   "transpose": 0.716531477297839,
+   "rot180": 1.1143757779852168
+  },
+  "shipped_grid_json_keys": [
+   "camera",
+   "camera_height_m",
+   "coverage_fraction",
+   "fill",
+   "focal_px",
+   "half_extent_m",
+   "mean_pixels_per_cell",
+   "mpp",
+   "n",
+   "row0",
+   "source"
+  ]
+ },
+ "arena_g231": {
+  "n_cells": 262144,
+  "empty_cells": 0,
+  "v2": {
+   "mae": 0.008700983011349948,
+   "p95": 0.02483910887381599,
+   "max": 0.06480080783367148,
+   "bias": 0.0023388544026182764,
+   "corr": 0.999927955959597
+  },
+  "v1_flat": {
+   "mae": 0.21006833740458603,
+   "p95": 0.2169406419019695,
+   "max": 58.716590786936536,
+   "bias": -0.15628745511038097,
+   "corr": 0.3776753885561132
+  },
+  "bmp_quant_step_m": 0.02588235294117647,
+  "orientation_mae": {
+   "identity": 0.008700983011349948,
+   "flipud": 0.8959049615701277,
+   "fliplr": 0.8783525073935671,
+   "transpose": 0.9212867565357956,
+   "rot180": 0.9241417466170324
+  },
+  "shipped_grid_json_keys": [
+   "camera",
+   "camera_height_m",
+   "coverage_fraction",
+   "fill",
+   "focal_px",
+   "half_extent_m",
+   "mean_pixels_per_cell",
+   "mpp",
+   "n",
+   "row0",
+   "source"
+  ]
+ }
+}

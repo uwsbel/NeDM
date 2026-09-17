@@ -1,0 +1,674 @@
+[
+ {
+  "id": "f104_t3_group_1249__optimal",
+  "group_id": "f104_t3_group_1249",
+  "role": "optimal",
+  "risk": 0.00020766258239746094,
+  "shard": 17,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_1249__suboptimal",
+  "group_id": "f104_t3_group_1249",
+  "role": "suboptimal",
+  "risk": 0.10489135980606079,
+  "shard": 17,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_1249__risky",
+  "group_id": "f104_t3_group_1249",
+  "role": "risky",
+  "risk": 1.0,
+  "shard": 17,
+  "run": true
+ },
+ {
+  "id": "f104_t2_group_0248__optimal",
+  "group_id": "f104_t2_group_0248",
+  "role": "optimal",
+  "risk": 9.465217590332031e-05,
+  "shard": 2,
+  "run": true
+ },
+ {
+  "id": "f104_t2_group_0248__suboptimal",
+  "group_id": "f104_t2_group_0248",
+  "role": "suboptimal",
+  "risk": 0.10581082105636597,
+  "shard": 2,
+  "run": true
+ },
+ {
+  "id": "f104_t2_group_0248__risky",
+  "group_id": "f104_t2_group_0248",
+  "role": "risky",
+  "risk": 1.0,
+  "shard": 2,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_0782__optimal",
+  "group_id": "f104_t3_group_0782",
+  "role": "optimal",
+  "risk": 0.00025266408920288086,
+  "shard": 2,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_0782__suboptimal",
+  "group_id": "f104_t3_group_0782",
+  "role": "suboptimal",
+  "risk": 0.10389739274978638,
+  "shard": 2,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_0782__risky",
+  "group_id": "f104_t3_group_0782",
+  "role": "risky",
+  "risk": 1.0,
+  "shard": 2,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_2980__optimal",
+  "group_id": "f104_t3_group_2980",
+  "role": "optimal",
+  "risk": 0.0001443028450012207,
+  "shard": 21,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_2980__suboptimal",
+  "group_id": "f104_t3_group_2980",
+  "role": "suboptimal",
+  "risk": 0.09859001636505127,
+  "shard": 21,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_2980__risky",
+  "group_id": "f104_t3_group_2980",
+  "role": "risky",
+  "risk": 1.0,
+  "shard": 21,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_1875__optimal",
+  "group_id": "f104_t3_group_1875",
+  "role": "optimal",
+  "risk": 0.0010877251625061035,
+  "shard": 7,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_1875__suboptimal",
+  "group_id": "f104_t3_group_1875",
+  "role": "suboptimal",
+  "risk": 0.05924975872039795,
+  "shard": 7,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_1875__risky",
+  "group_id": "f104_t3_group_1875",
+  "role": "risky",
+  "risk": 1.0,
+  "shard": 7,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_0812__optimal",
+  "group_id": "f104_t3_group_0812",
+  "role": "optimal",
+  "risk": 0.0002460479736328125,
+  "shard": 27,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_0812__suboptimal",
+  "group_id": "f104_t3_group_0812",
+  "role": "suboptimal",
+  "risk": 0.10665953159332275,
+  "shard": 27,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_0812__risky",
+  "group_id": "f104_t3_group_0812",
+  "role": "risky",
+  "risk": 1.0,
+  "shard": 27,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_3171__optimal",
+  "group_id": "f104_t3_group_3171",
+  "role": "optimal",
+  "risk": 0.0022318363189697266,
+  "shard": 21,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_3171__suboptimal",
+  "group_id": "f104_t3_group_3171",
+  "role": "suboptimal",
+  "risk": 0.08393722772598267,
+  "shard": 21,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_3171__risky",
+  "group_id": "f104_t3_group_3171",
+  "role": "risky",
+  "risk": 1.0,
+  "shard": 21,
+  "run": true
+ },
+ {
+  "id": "f104_t2_group_0735__optimal",
+  "group_id": "f104_t2_group_0735",
+  "role": "optimal",
+  "risk": 0.00022983551025390625,
+  "shard": 13,
+  "run": true
+ },
+ {
+  "id": "f104_t2_group_0735__suboptimal",
+  "group_id": "f104_t2_group_0735",
+  "role": "suboptimal",
+  "risk": 0.12101525068283081,
+  "shard": 13,
+  "run": true
+ },
+ {
+  "id": "f104_t2_group_0735__risky",
+  "group_id": "f104_t2_group_0735",
+  "role": "risky",
+  "risk": 1.0,
+  "shard": 13,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_2115__optimal",
+  "group_id": "f104_t3_group_2115",
+  "role": "optimal",
+  "risk": 0.0007876157760620117,
+  "shard": 10,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_2115__suboptimal",
+  "group_id": "f104_t3_group_2115",
+  "role": "suboptimal",
+  "risk": 0.09712517261505127,
+  "shard": 10,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_2115__risky",
+  "group_id": "f104_t3_group_2115",
+  "role": "risky",
+  "risk": 1.0,
+  "shard": 10,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_0687__optimal",
+  "group_id": "f104_t3_group_0687",
+  "role": "optimal",
+  "risk": 0.0007040500640869141,
+  "shard": 4,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_0687__suboptimal",
+  "group_id": "f104_t3_group_0687",
+  "role": "suboptimal",
+  "risk": 0.10046929121017456,
+  "shard": 4,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_0687__risky",
+  "group_id": "f104_t3_group_0687",
+  "role": "risky",
+  "risk": 1.0,
+  "shard": 4,
+  "run": true
+ },
+ {
+  "id": "f104_t2_group_0591__optimal",
+  "group_id": "f104_t2_group_0591",
+  "role": "optimal",
+  "risk": 0.0014836788177490234,
+  "shard": 22,
+  "run": true
+ },
+ {
+  "id": "f104_t2_group_0591__suboptimal",
+  "group_id": "f104_t2_group_0591",
+  "role": "suboptimal",
+  "risk": 0.10089230537414551,
+  "shard": 22,
+  "run": true
+ },
+ {
+  "id": "f104_t2_group_0591__risky",
+  "group_id": "f104_t2_group_0591",
+  "role": "risky",
+  "risk": 1.0,
+  "shard": 22,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_2683__optimal",
+  "group_id": "f104_t3_group_2683",
+  "role": "optimal",
+  "risk": 0.00024181604385375977,
+  "shard": 0,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_2683__suboptimal",
+  "group_id": "f104_t3_group_2683",
+  "role": "suboptimal",
+  "risk": 0.12793993949890137,
+  "shard": 0,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_2683__risky",
+  "group_id": "f104_t3_group_2683",
+  "role": "risky",
+  "risk": 1.0,
+  "shard": 0,
+  "run": true
+ },
+ {
+  "id": "f104_t2_group_0487__optimal",
+  "group_id": "f104_t2_group_0487",
+  "role": "optimal",
+  "risk": 0.00015693902969360352,
+  "shard": 7,
+  "run": true
+ },
+ {
+  "id": "f104_t2_group_0487__suboptimal",
+  "group_id": "f104_t2_group_0487",
+  "role": "suboptimal",
+  "risk": 0.09025335311889648,
+  "shard": 7,
+  "run": true
+ },
+ {
+  "id": "f104_t2_group_0487__risky",
+  "group_id": "f104_t2_group_0487",
+  "role": "risky",
+  "risk": 1.0,
+  "shard": 7,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_1375__optimal",
+  "group_id": "f104_t3_group_1375",
+  "role": "optimal",
+  "risk": 0.00021207332611083984,
+  "shard": 3,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_1375__suboptimal",
+  "group_id": "f104_t3_group_1375",
+  "role": "suboptimal",
+  "risk": 0.1118972897529602,
+  "shard": 3,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_1375__risky",
+  "group_id": "f104_t3_group_1375",
+  "role": "risky",
+  "risk": 1.0,
+  "shard": 3,
+  "run": true
+ },
+ {
+  "id": "f104_t2_group_0260__optimal",
+  "group_id": "f104_t2_group_0260",
+  "role": "optimal",
+  "risk": 5.745887756347656e-05,
+  "shard": 19,
+  "run": true
+ },
+ {
+  "id": "f104_t2_group_0260__suboptimal",
+  "group_id": "f104_t2_group_0260",
+  "role": "suboptimal",
+  "risk": 0.09345477819442749,
+  "shard": 19,
+  "run": true
+ },
+ {
+  "id": "f104_t2_group_0260__risky",
+  "group_id": "f104_t2_group_0260",
+  "role": "risky",
+  "risk": 1.0,
+  "shard": 19,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_1637__optimal",
+  "group_id": "f104_t3_group_1637",
+  "role": "optimal",
+  "risk": 0.0006470084190368652,
+  "shard": 5,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_1637__suboptimal",
+  "group_id": "f104_t3_group_1637",
+  "role": "suboptimal",
+  "risk": 0.09745973348617554,
+  "shard": 5,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_1637__risky",
+  "group_id": "f104_t3_group_1637",
+  "role": "risky",
+  "risk": 1.0,
+  "shard": 5,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_1531__optimal",
+  "group_id": "f104_t3_group_1531",
+  "role": "optimal",
+  "risk": 0.007355749607086182,
+  "shard": 17,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_1531__suboptimal",
+  "group_id": "f104_t3_group_1531",
+  "role": "suboptimal",
+  "risk": 0.10062247514724731,
+  "shard": 17,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_1531__risky",
+  "group_id": "f104_t3_group_1531",
+  "role": "risky",
+  "risk": 1.0,
+  "shard": 17,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_2114__optimal",
+  "group_id": "f104_t3_group_2114",
+  "role": "optimal",
+  "risk": 0.00018519163131713867,
+  "shard": 13,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_2114__suboptimal",
+  "group_id": "f104_t3_group_2114",
+  "role": "suboptimal",
+  "risk": 0.10962694883346558,
+  "shard": 13,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_2114__risky",
+  "group_id": "f104_t3_group_2114",
+  "role": "risky",
+  "risk": 1.0,
+  "shard": 13,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_0907__optimal",
+  "group_id": "f104_t3_group_0907",
+  "role": "optimal",
+  "risk": 0.0002726912498474121,
+  "shard": 10,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_0907__suboptimal",
+  "group_id": "f104_t3_group_0907",
+  "role": "suboptimal",
+  "risk": 0.11642861366271973,
+  "shard": 10,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_0907__risky",
+  "group_id": "f104_t3_group_0907",
+  "role": "risky",
+  "risk": 1.0,
+  "shard": 10,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_0987__optimal",
+  "group_id": "f104_t3_group_0987",
+  "role": "optimal",
+  "risk": 0.001172482967376709,
+  "shard": 7,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_0987__suboptimal",
+  "group_id": "f104_t3_group_0987",
+  "role": "suboptimal",
+  "risk": 0.09923571348190308,
+  "shard": 7,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_0987__risky",
+  "group_id": "f104_t3_group_0987",
+  "role": "risky",
+  "risk": 1.0,
+  "shard": 7,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_0992__optimal",
+  "group_id": "f104_t3_group_0992",
+  "role": "optimal",
+  "risk": 0.0002377033233642578,
+  "shard": 18,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_0992__suboptimal",
+  "group_id": "f104_t3_group_0992",
+  "role": "suboptimal",
+  "risk": 0.09694176912307739,
+  "shard": 18,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_0992__risky",
+  "group_id": "f104_t3_group_0992",
+  "role": "risky",
+  "risk": 1.0,
+  "shard": 18,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_2499__optimal",
+  "group_id": "f104_t3_group_2499",
+  "role": "optimal",
+  "risk": 0.0019423961639404297,
+  "shard": 5,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_2499__suboptimal",
+  "group_id": "f104_t3_group_2499",
+  "role": "suboptimal",
+  "risk": 0.10852843523025513,
+  "shard": 5,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_2499__risky",
+  "group_id": "f104_t3_group_2499",
+  "role": "risky",
+  "risk": 1.0,
+  "shard": 5,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_1664__optimal",
+  "group_id": "f104_t3_group_1664",
+  "role": "optimal",
+  "risk": 7.617473602294922e-05,
+  "shard": 24,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_1664__suboptimal",
+  "group_id": "f104_t3_group_1664",
+  "role": "suboptimal",
+  "risk": 0.09782141447067261,
+  "shard": 24,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_1664__risky",
+  "group_id": "f104_t3_group_1664",
+  "role": "risky",
+  "risk": 1.0,
+  "shard": 24,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_2775__optimal",
+  "group_id": "f104_t3_group_2775",
+  "role": "optimal",
+  "risk": 0.012591004371643066,
+  "shard": 7,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_2775__suboptimal",
+  "group_id": "f104_t3_group_2775",
+  "role": "suboptimal",
+  "risk": 0.08954620361328125,
+  "shard": 7,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_2775__risky",
+  "group_id": "f104_t3_group_2775",
+  "role": "risky",
+  "risk": 1.0,
+  "shard": 7,
+  "run": true
+ },
+ {
+  "id": "f104_t2_group_0596__optimal",
+  "group_id": "f104_t2_group_0596",
+  "role": "optimal",
+  "risk": 0.00036710500717163086,
+  "shard": 7,
+  "run": true
+ },
+ {
+  "id": "f104_t2_group_0596__suboptimal",
+  "group_id": "f104_t2_group_0596",
+  "role": "suboptimal",
+  "risk": 0.06944239139556885,
+  "shard": 7,
+  "run": true
+ },
+ {
+  "id": "f104_t2_group_0596__risky",
+  "group_id": "f104_t2_group_0596",
+  "role": "risky",
+  "risk": 1.0,
+  "shard": 7,
+  "run": true
+ },
+ {
+  "id": "f104_t2_group_0266__optimal",
+  "group_id": "f104_t2_group_0266",
+  "role": "optimal",
+  "risk": 5.3942203521728516e-05,
+  "shard": 17,
+  "run": true
+ },
+ {
+  "id": "f104_t2_group_0266__suboptimal",
+  "group_id": "f104_t2_group_0266",
+  "role": "suboptimal",
+  "risk": 0.10269898176193237,
+  "shard": 17,
+  "run": true
+ },
+ {
+  "id": "f104_t2_group_0266__risky",
+  "group_id": "f104_t2_group_0266",
+  "role": "risky",
+  "risk": 1.0,
+  "shard": 17,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_1904__optimal",
+  "group_id": "f104_t3_group_1904",
+  "role": "optimal",
+  "risk": 9.304285049438477e-05,
+  "shard": 25,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_1904__suboptimal",
+  "group_id": "f104_t3_group_1904",
+  "role": "suboptimal",
+  "risk": 0.10058802366256714,
+  "shard": 25,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_1904__risky",
+  "group_id": "f104_t3_group_1904",
+  "role": "risky",
+  "risk": 1.0,
+  "shard": 25,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_2336__optimal",
+  "group_id": "f104_t3_group_2336",
+  "role": "optimal",
+  "risk": 6.92605972290039e-05,
+  "shard": 5,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_2336__suboptimal",
+  "group_id": "f104_t3_group_2336",
+  "role": "suboptimal",
+  "risk": 0.09953802824020386,
+  "shard": 5,
+  "run": true
+ },
+ {
+  "id": "f104_t3_group_2336__risky",
+  "group_id": "f104_t3_group_2336",
+  "role": "risky",
+  "risk": 1.0,
+  "shard": 5,
+  "run": true
+ }
+]

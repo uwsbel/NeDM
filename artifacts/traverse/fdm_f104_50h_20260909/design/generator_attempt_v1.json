@@ -1,0 +1,9 @@
+{
+  "source_sha256": "c41cbbbeed6831c24f54c210b5acd9dde2fa0786862037d6c9f5bf8d2c9aede0",
+  "status": "geometry_generation_stopped",
+  "groups_generated": 9,
+  "attempts": 500000,
+  "blocked_stratum": "boundary crater feature9 central entry/exit under unchanged start/route geometry gates",
+  "valid_pilot_preserved": true,
+  "physics_jobs_affected": false
+}

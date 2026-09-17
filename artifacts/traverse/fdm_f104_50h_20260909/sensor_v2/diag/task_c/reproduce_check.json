@@ -1,0 +1,11 @@
+{
+ "groups": 1200,
+ "tries_identical": 1200,
+ "n_risk": 25200,
+ "median_rel_err": 0.0,
+ "p99_rel_err": 0.0,
+ "max_rel_err": 0.0,
+ "rank_mismatches": 0,
+ "argmin_reproduced": 7200,
+ "argmin_total": 7200
+}

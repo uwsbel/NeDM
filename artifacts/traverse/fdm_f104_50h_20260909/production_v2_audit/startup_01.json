@@ -1,0 +1,111 @@
+{
+  "schema": "f104_static_startup_audit_v1",
+  "observed_utc": "2026-09-10T05:02:40.827879+00:00",
+  "contract_sha256": "e4422720f1fa11fccefb77a0bef008616e705174697884f6494af5b0351eb84b",
+  "scope": "Early operational snapshot; running durations and completion-order outcomes are not final cohort statistics",
+  "errors": [],
+  "initial_state_pass": 4958,
+  "initial_state_fail": [],
+  "native_height_pass": 4958,
+  "native_height_fail": [],
+  "failure_rows": [],
+  "states": {
+    "running": 44
+  },
+  "observed_stop_events": {
+    "confirmation_started": 440,
+    "pending_stop_cancelled": 263,
+    "confirmed_tail_started": 265,
+    "prolonged_blockage_terminated": 177,
+    "terrain_bounds_exit": 9
+  },
+  "raw_checks": [
+    {
+      "id": "f104_v1_group_1241_route_00",
+      "status": "prolonged_blockage_terminated",
+      "actual_elapsed_s": 42.800000000000004,
+      "artifact_hashes_valid": true,
+      "solver_coverage_valid": true,
+      "raw_bounded_windows": 201,
+      "max_window_diameter_m": 0.24476682982923872,
+      "last_confirmation_start_s": 32.800000000000004
+    },
+    {
+      "id": "f104_v1_group_0339_route_00",
+      "status": "prolonged_blockage_terminated",
+      "actual_elapsed_s": 102.75,
+      "artifact_hashes_valid": true,
+      "solver_coverage_valid": true,
+      "raw_bounded_windows": 201,
+      "max_window_diameter_m": 0.24861705752235497,
+      "last_confirmation_start_s": 92.75
+    },
+    {
+      "id": "f104_v1_group_1047_route_00",
+      "status": "rollover",
+      "actual_elapsed_s": 56.35,
+      "artifact_hashes_valid": true,
+      "solver_coverage_valid": true,
+      "actual_terminal_roll_pitch_deg": [
+        -60.949462890625,
+        -9.261331558227539
+      ]
+    },
+    {
+      "id": "f104_v1_group_1042_route_03",
+      "status": "terrain_bounds_exit",
+      "actual_elapsed_s": 64.60000000000001,
+      "artifact_hashes_valid": true,
+      "solver_coverage_valid": true,
+      "actual_terminal_xy_m": [
+        -40.05058375009827,
+        31.32451175057589
+      ]
+    }
+  ],
+  "distinct_ledger_entries": 3653,
+  "ledger_seconds": 58102.8,
+  "ledger_statuses": {
+    "goal_reached": 3457,
+    "prolonged_blockage_terminated": 177,
+    "rollover": 8,
+    "terrain_bounds_exit": 9,
+    "timeout": 2
+  },
+  "duration_histogram": {
+    "bins_s": [
+      0,
+      5,
+      10,
+      15,
+      20,
+      30,
+      34,
+      40,
+      60,
+      90,
+      120.001
+    ],
+    "counts": [
+      0,
+      1170,
+      1217,
+      493,
+      412,
+      58,
+      152,
+      115,
+      31,
+      5
+    ],
+    "quantiles_s": {
+      "min": 5.550000000000001,
+      "median": 12.3,
+      "p90": 29.74000000000001,
+      "p99": 58.02000000000003,
+      "max": 120.0
+    }
+  },
+  "metadata_stop_sequences_checked": 177,
+  "all_native_startup_and_raw_checks_passed": true
+}

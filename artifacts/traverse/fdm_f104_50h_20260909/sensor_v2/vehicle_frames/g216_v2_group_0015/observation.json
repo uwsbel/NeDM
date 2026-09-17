@@ -1,0 +1,28 @@
+{
+ "schema": "vehicle_included_overhead_rgbd_v1",
+ "case_id": "g216_v2_group_0015",
+ "arena": "assets/traverse/arena_g216",
+ "camera": {
+  "width": 1024,
+  "height": 1024,
+  "hfov_rad": 0.8203047484373349,
+  "cam_height_m": 110.0,
+  "depth_ray_scale": 1.0,
+  "max_depth_m": 180.0,
+  "backend": "Vulkan_RT_lavapipe",
+  "depth_measurement": "Euclidean_ray_range_m",
+  "model_image_size": 512,
+  "elevation_scale_m": 10.0,
+  "observation_mode": "One overhead RGB-D frame per planning decision, vehicle present, after the 0.8 s settle"
+ },
+ "measured_pose_xy_yaw": [
+  -4.20411460374731,
+  6.795802936578024,
+  2.454224361311039
+ ],
+ "chassis_ref_z_m": 0.6175484711023489,
+ "settle_s": 0.8,
+ "vehicle_present": true,
+ "valid_depth_fraction": 0.7001590728759766,
+ "wall_s": 26.30226707458496
+}

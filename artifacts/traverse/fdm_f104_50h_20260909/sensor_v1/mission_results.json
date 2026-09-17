@@ -1,0 +1,30 @@
+{
+ "n2": {
+  "n": 100,
+  "success": 0.99,
+  "goals": 4.97,
+  "slide": 0.01,
+  "tilt30": 0.12,
+  "median_time": 53.1,
+  "failures": {
+   "no_route": 1
+  }
+ },
+ "s": {
+  "n": 100,
+  "success": 0.96,
+  "goals": 4.88,
+  "slide": 0.03,
+  "tilt30": 0.13,
+  "median_time": 46.5,
+  "failures": {
+   "no_route": 2,
+   "prolonged_blockage_terminated": 2
+  }
+ },
+ "success_s_vs_n2": {
+  "s_better": 1,
+  "n2_better": 4,
+  "p": 0.375
+ }
+}

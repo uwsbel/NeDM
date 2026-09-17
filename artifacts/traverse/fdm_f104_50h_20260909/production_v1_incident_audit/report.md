@@ -1,0 +1,11 @@
+# Canceled F104 production queue incident
+
+The first production attempt was canceled after multiple nodes claimed the same episode and shared queue state became inconsistent. All `production_v1` artifacts are preserved and **excluded from the 50-hour quota**, including completed episodes. The collector, native controller, physics and runtime were not changed by this incident audit.
+
+The [read-only audit](audit.json) found 14 duplicate-output failures, 28 node errors reading the shared `queue/state.json`, and two completion-claim ownership failures. Task IDs in the frozen 18,000-task manifest are unique. For example, task index 537 (`f104_v1_group_0312_route_10`) was associated with nodes from both jobs 412408 and 412446. These are orchestration failures, consistent with cross-node locking/filesystem coherence problems; this audit did not independently isolate the filesystem's locking semantics.
+
+All **909 recorded native terrain checks and all 909 settled-start checks passed**. There were no `collection_failure.json` records or rejected native starts. The 474 completion markers described 473 goal completions and one prolonged-blockage termination, totaling 5,689.85 nominal measured seconds. These markers are retained as diagnostic artifacts; that subtotal is not production credit, and the entire canceled cohort is excluded rather than salvaged selectively. Other directories contain interrupted attempts, not additional completed episodes.
+
+The blocked reference `f104_v1_group_0907_route_04` independently validates the native early-stop branch: it recorded **680 intervals, exactly 34.0 seconds**, after confirmation began at 24 seconds and the 8-second recovery tail began at 26 seconds. All 201 sliding 2-second windows from confirmation through termination remained effortful, nonparking and spatially bounded; maximum XY diameter was 0.06466 m, below the declared 0.25 m limit. All 17 artifact hashes and full rich solver-step/post-step coverage passed. Its measured terminal endpoint is retained. This closes the earlier pilot's native-stop coverage gap while adding **zero seconds** to the production quota.
+
+The recovery plan uses disjoint static shards and per-node ledgers. This report evaluates the preserved failed attempt only; the replacement queue requires its own operational checks.

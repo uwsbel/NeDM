@@ -1,0 +1,122 @@
+[
+ {
+  "id": "f104_t2_group_0735__optimal",
+  "group": "f104_t2_group_0735",
+  "role": "optimal",
+  "shard": 0,
+  "status": "goal_reached",
+  "elapsed_s": 10.3
+ },
+ {
+  "id": "f104_t2_group_0735__suboptimal",
+  "group": "f104_t2_group_0735",
+  "role": "suboptimal",
+  "shard": 1,
+  "status": "goal_reached",
+  "elapsed_s": 28.25
+ },
+ {
+  "id": "f104_t2_group_0735__risky",
+  "group": "f104_t2_group_0735",
+  "role": "risky",
+  "shard": 2,
+  "status": "prolonged_blockage_terminated",
+  "elapsed_s": 96.5
+ },
+ {
+  "id": "f104_t2_group_0248__optimal",
+  "group": "f104_t2_group_0248",
+  "role": "optimal",
+  "shard": 3,
+  "status": "goal_reached",
+  "elapsed_s": 19.400000000000002
+ },
+ {
+  "id": "f104_t2_group_0248__suboptimal",
+  "group": "f104_t2_group_0248",
+  "role": "suboptimal",
+  "shard": 4,
+  "status": "goal_reached",
+  "elapsed_s": 31.8
+ },
+ {
+  "id": "f104_t2_group_0248__risky",
+  "group": "f104_t2_group_0248",
+  "role": "risky",
+  "shard": 5,
+  "status": "prolonged_blockage_terminated",
+  "elapsed_s": 37.1
+ },
+ {
+  "id": "f104_t3_group_0987__optimal",
+  "group": "f104_t3_group_0987",
+  "role": "optimal",
+  "shard": 6,
+  "status": "goal_reached",
+  "elapsed_s": 19.8
+ },
+ {
+  "id": "f104_t3_group_0987__suboptimal",
+  "group": "f104_t3_group_0987",
+  "role": "suboptimal",
+  "shard": 7,
+  "status": "goal_reached",
+  "elapsed_s": 12.65
+ },
+ {
+  "id": "f104_t3_group_0987__risky",
+  "group": "f104_t3_group_0987",
+  "role": "risky",
+  "shard": 8,
+  "status": "prolonged_blockage_terminated",
+  "elapsed_s": 40.75
+ },
+ {
+  "id": "f104_t3_group_2336__optimal",
+  "group": "f104_t3_group_2336",
+  "role": "optimal",
+  "shard": 9,
+  "status": "goal_reached",
+  "elapsed_s": 11.8
+ },
+ {
+  "id": "f104_t3_group_2336__suboptimal",
+  "group": "f104_t3_group_2336",
+  "role": "suboptimal",
+  "shard": 10,
+  "status": "goal_reached",
+  "elapsed_s": 17.1
+ },
+ {
+  "id": "f104_t3_group_2336__risky",
+  "group": "f104_t3_group_2336",
+  "role": "risky",
+  "shard": 11,
+  "status": "prolonged_blockage_terminated",
+  "elapsed_s": 64.5
+ },
+ {
+  "id": "f104_t3_group_0687__optimal",
+  "group": "f104_t3_group_0687",
+  "role": "optimal",
+  "shard": 12,
+  "status": "goal_reached",
+  "elapsed_s": 10.05
+ },
+ {
+  "id": "f104_t3_group_0687__suboptimal",
+  "group": "f104_t3_group_0687",
+  "role": "suboptimal",
+  "shard": 13,
+  "status": "goal_reached",
+  "elapsed_s": 21.55
+ },
+ {
+  "id": "f104_t3_group_0687__risky",
+  "group": "f104_t3_group_0687",
+  "role": "risky",
+  "shard": 14,
+  "status": "timeout",
+  "elapsed_s": 120.0
+ }
+]

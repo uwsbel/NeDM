@@ -1,0 +1,7802 @@
+{
+ "f104_t3_group_0492": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.15,
+   "back_s": 0.0,
+   "min_vx": 2.3175902366638184,
+   "max_tilt": 14.205731391906738,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.4,
+   "back_s": 0.0,
+   "min_vx": 0.5826312899589539,
+   "max_tilt": 15.734898567199707,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0290": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 8.3,
+   "back_s": 0.0,
+   "min_vx": 1.8421876430511475,
+   "max_tilt": 25.615633010864258,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 8.35,
+   "back_s": 0.0,
+   "min_vx": 1.8194148540496826,
+   "max_tilt": 23.49170684814453,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2282": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.200000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.057756185531616,
+   "max_tilt": 15.072336196899414,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.200000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.057756185531616,
+   "max_tilt": 15.072336196899414,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1249": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 17.5,
+   "back_s": 0.0,
+   "min_vx": 1.6064643859863281,
+   "max_tilt": 30.959766387939453,
+   "tilt35": 0,
+   "tilt30": 1,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 8.8,
+   "back_s": 0.0,
+   "min_vx": 2.9676053524017334,
+   "max_tilt": 25.938629150390625,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0590": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.05,
+   "back_s": 0.0,
+   "min_vx": 1.8970048427581787,
+   "max_tilt": 8.844269752502441,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 16.35,
+   "back_s": 0.0,
+   "min_vx": 1.7848581075668335,
+   "max_tilt": 11.653921127319336,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0248": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 19.400000000000002,
+   "back_s": 0.0,
+   "min_vx": 1.9579048156738281,
+   "max_tilt": 25.73103141784668,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.850000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.635204792022705,
+   "max_tilt": 18.076793670654297,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0364": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.25,
+   "back_s": 0.0,
+   "min_vx": 1.5044949054718018,
+   "max_tilt": 28.29169464111328,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.15,
+   "back_s": 0.0,
+   "min_vx": 2.4141664505004883,
+   "max_tilt": 28.55596160888672,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0416": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.600000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.7194281816482544,
+   "max_tilt": 6.060224533081055,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.55,
+   "back_s": 0.0,
+   "min_vx": 1.939976453781128,
+   "max_tilt": 25.58648681640625,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2067": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 19.700000000000003,
+   "back_s": 0.0,
+   "min_vx": 1.7515391111373901,
+   "max_tilt": 27.876056671142578,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 19.700000000000003,
+   "back_s": 0.0,
+   "min_vx": 1.7515391111373901,
+   "max_tilt": 27.876056671142578,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0782": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.350000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.9067860841751099,
+   "max_tilt": 23.420499801635742,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.350000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.9067860841751099,
+   "max_tilt": 23.420499801635742,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2246": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 14.5,
+   "back_s": 0.0,
+   "min_vx": 1.891553282737732,
+   "max_tilt": 15.464653968811035,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.75,
+   "back_s": 0.0,
+   "min_vx": 2.56231427192688,
+   "max_tilt": 20.205474853515625,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0740": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 27.25,
+   "back_s": 0.0,
+   "min_vx": 1.3018492460250854,
+   "max_tilt": 12.220709800720215,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 20.85,
+   "back_s": 0.0,
+   "min_vx": 1.9246495962142944,
+   "max_tilt": 20.179546356201172,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0484": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.9,
+   "back_s": 0.0,
+   "min_vx": 2.057922124862671,
+   "max_tilt": 26.876842498779297,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.9,
+   "back_s": 0.0,
+   "min_vx": 1.8651221990585327,
+   "max_tilt": 25.086835861206055,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2690": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.55,
+   "back_s": 0.0,
+   "min_vx": 1.9654879570007324,
+   "max_tilt": 23.372468948364258,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.350000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.3377541303634644,
+   "max_tilt": 24.14665985107422,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1093": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 16.0,
+   "back_s": 0.0,
+   "min_vx": 2.2055766582489014,
+   "max_tilt": 14.648183822631836,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 16.0,
+   "back_s": 0.0,
+   "min_vx": 2.2055766582489014,
+   "max_tilt": 14.648183822631836,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2904": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 16.25,
+   "back_s": 0.0,
+   "min_vx": 1.4139554500579834,
+   "max_tilt": 11.175298690795898,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.950000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.4061918258666992,
+   "max_tilt": 20.22476577758789,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2504": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.15,
+   "back_s": 0.0,
+   "min_vx": 1.681594729423523,
+   "max_tilt": 6.985367298126221,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.05,
+   "back_s": 0.0,
+   "min_vx": 1.8570016622543335,
+   "max_tilt": 5.558892726898193,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0680": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 5.7,
+   "back_s": 0.0,
+   "min_vx": 3.5572078227996826,
+   "max_tilt": 16.499853134155273,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 5.7,
+   "back_s": 0.0,
+   "min_vx": 3.5572078227996826,
+   "max_tilt": 16.499853134155273,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2296": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.0,
+   "back_s": 0.0,
+   "min_vx": 1.7659233808517456,
+   "max_tilt": 16.878206253051758,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.0,
+   "back_s": 0.0,
+   "min_vx": 1.7659233808517456,
+   "max_tilt": 16.878206253051758,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0001": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.850000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.4607683420181274,
+   "max_tilt": 17.388702392578125,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 18.5,
+   "back_s": 0.0,
+   "min_vx": 1.212674617767334,
+   "max_tilt": 19.44957160949707,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_3015": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 14.3,
+   "back_s": 0.0,
+   "min_vx": 1.844102144241333,
+   "max_tilt": 29.100080490112305,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.9,
+   "back_s": 0.0,
+   "min_vx": 1.3983783721923828,
+   "max_tilt": 26.33475685119629,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0183": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 27.25,
+   "back_s": 0.0,
+   "min_vx": 0.4819735586643219,
+   "max_tilt": 23.234407424926758,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 21.1,
+   "back_s": 0.0,
+   "min_vx": 0.8851048350334167,
+   "max_tilt": 25.747770309448242,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1192": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.200000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.1437368392944336,
+   "max_tilt": 24.984054565429688,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.200000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.1437368392944336,
+   "max_tilt": 24.984054565429688,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2702": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.5,
+   "back_s": 0.0,
+   "min_vx": 2.516505718231201,
+   "max_tilt": 21.46097755432129,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.200000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.9456125497817993,
+   "max_tilt": 24.040258407592773,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0892": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 14.15,
+   "back_s": 0.0,
+   "min_vx": 2.7370681762695312,
+   "max_tilt": 12.992128372192383,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 17.900000000000002,
+   "back_s": 0.0,
+   "min_vx": 1.6885504722595215,
+   "max_tilt": 24.342269897460938,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0595": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.8,
+   "back_s": 0.0,
+   "min_vx": 2.1681067943573,
+   "max_tilt": 26.787517547607422,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.950000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.9400449991226196,
+   "max_tilt": 21.02803611755371,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_3062": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 8.6,
+   "back_s": 0.0,
+   "min_vx": 2.8596229553222656,
+   "max_tilt": 24.31693458557129,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 8.6,
+   "back_s": 0.0,
+   "min_vx": 2.8596229553222656,
+   "max_tilt": 24.31693458557129,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2659": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 17.25,
+   "back_s": 0.0,
+   "min_vx": 1.7329341173171997,
+   "max_tilt": 15.355443954467773,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.3,
+   "back_s": 0.0,
+   "min_vx": 3.1051135063171387,
+   "max_tilt": 19.884315490722656,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2980": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.850000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.6563117504119873,
+   "max_tilt": 25.469005584716797,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.850000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.6563117504119873,
+   "max_tilt": 25.469005584716797,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0721": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.15,
+   "back_s": 0.0,
+   "min_vx": 2.1881587505340576,
+   "max_tilt": 18.934492111206055,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.05,
+   "back_s": 0.0,
+   "min_vx": 2.272498607635498,
+   "max_tilt": 17.06707763671875,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1027": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.0,
+   "back_s": 0.0,
+   "min_vx": 2.7206146717071533,
+   "max_tilt": 15.992462158203125,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 18.150000000000002,
+   "back_s": 0.0,
+   "min_vx": 1.4342900514602661,
+   "max_tilt": 11.623575210571289,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1875": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 7.800000000000001,
+   "back_s": 0.0,
+   "min_vx": 3.176368474960327,
+   "max_tilt": 30.593942642211914,
+   "tilt35": 0,
+   "tilt30": 1,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 7.050000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.674589157104492,
+   "max_tilt": 27.147912979125977,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0964": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 17.0,
+   "back_s": 0.0,
+   "min_vx": 1.083624243736267,
+   "max_tilt": 22.186296463012695,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 16.25,
+   "back_s": 0.0,
+   "min_vx": 1.2977595329284668,
+   "max_tilt": 24.308225631713867,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1860": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.8,
+   "back_s": 0.0,
+   "min_vx": 2.712355136871338,
+   "max_tilt": 14.757355690002441,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.75,
+   "back_s": 0.0,
+   "min_vx": 1.7125416994094849,
+   "max_tilt": 15.343498229980469,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0832": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.9,
+   "back_s": 0.0,
+   "min_vx": 3.0661044120788574,
+   "max_tilt": 22.012197494506836,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.9,
+   "back_s": 0.0,
+   "min_vx": 3.0661044120788574,
+   "max_tilt": 22.012197494506836,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1310": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.850000000000001,
+   "back_s": 0.0,
+   "min_vx": 3.087451696395874,
+   "max_tilt": 9.984275817871094,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.9,
+   "back_s": 0.0,
+   "min_vx": 1.4752451181411743,
+   "max_tilt": 10.421416282653809,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0605": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 8.700000000000001,
+   "back_s": 0.0,
+   "min_vx": 3.3388445377349854,
+   "max_tilt": 22.403274536132812,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.75,
+   "back_s": 0.0,
+   "min_vx": 1.7233052253723145,
+   "max_tilt": 26.516250610351562,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_3172": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.700000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.8769538402557373,
+   "max_tilt": 24.548053741455078,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.700000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.5700955390930176,
+   "max_tilt": 26.307069778442383,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1692": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.8,
+   "back_s": 0.0,
+   "min_vx": 1.6830036640167236,
+   "max_tilt": 19.036821365356445,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 24.5,
+   "back_s": 0.0,
+   "min_vx": 1.3318232297897339,
+   "max_tilt": 18.93768310546875,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1958": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.65,
+   "back_s": 0.0,
+   "min_vx": 2.3029723167419434,
+   "max_tilt": 15.428271293640137,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.65,
+   "back_s": 0.0,
+   "min_vx": 2.3029723167419434,
+   "max_tilt": 15.428271293640137,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0254": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.15,
+   "back_s": 0.0,
+   "min_vx": 2.0783588886260986,
+   "max_tilt": 27.285524368286133,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.15,
+   "back_s": 0.0,
+   "min_vx": 2.0783588886260986,
+   "max_tilt": 27.285524368286133,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0972": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.8,
+   "back_s": 0.0,
+   "min_vx": 2.7225983142852783,
+   "max_tilt": 20.27414894104004,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 18.400000000000002,
+   "back_s": 0.0,
+   "min_vx": 2.055964469909668,
+   "max_tilt": 21.978511810302734,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2024": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 8.85,
+   "back_s": 0.0,
+   "min_vx": 3.008849859237671,
+   "max_tilt": 19.13041877746582,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.3,
+   "back_s": 0.0,
+   "min_vx": 1.7975214719772339,
+   "max_tilt": 16.90921401977539,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0103": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.350000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.4729702472686768,
+   "max_tilt": 13.994725227355957,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.600000000000001,
+   "back_s": 0.0,
+   "min_vx": 0.5832833051681519,
+   "max_tilt": 27.39126205444336,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0243": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.75,
+   "back_s": 0.0,
+   "min_vx": 1.888811469078064,
+   "max_tilt": 27.246179580688477,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 20.05,
+   "back_s": 0.0,
+   "min_vx": 1.2274023294448853,
+   "max_tilt": 22.13394546508789,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1908": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.05,
+   "back_s": 0.0,
+   "min_vx": 2.4348700046539307,
+   "max_tilt": 17.395038604736328,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 14.100000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.166391134262085,
+   "max_tilt": 15.771824836730957,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0256": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.5,
+   "back_s": 0.0,
+   "min_vx": 2.535876989364624,
+   "max_tilt": 25.98526382446289,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 16.95,
+   "back_s": 0.0,
+   "min_vx": 1.4443997144699097,
+   "max_tilt": 26.55646514892578,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1035": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.8,
+   "back_s": 0.0,
+   "min_vx": 2.5785512924194336,
+   "max_tilt": 23.704858779907227,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 30.1,
+   "back_s": 0.0,
+   "min_vx": 0.6118192672729492,
+   "max_tilt": 27.47420310974121,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0796": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 8.0,
+   "back_s": 0.0,
+   "min_vx": 2.9731225967407227,
+   "max_tilt": 23.76471519470215,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.05,
+   "back_s": 0.0,
+   "min_vx": 2.326718330383301,
+   "max_tilt": 25.279420852661133,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0784": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.75,
+   "back_s": 0.0,
+   "min_vx": 1.2672373056411743,
+   "max_tilt": 22.714582443237305,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.05,
+   "back_s": 0.0,
+   "min_vx": 1.8831464052200317,
+   "max_tilt": 25.69965171813965,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2971": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.3,
+   "back_s": 0.0,
+   "min_vx": 3.3357789516448975,
+   "max_tilt": 11.611318588256836,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 14.0,
+   "back_s": 0.0,
+   "min_vx": 2.186365842819214,
+   "max_tilt": 13.329390525817871,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0038": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 14.100000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.5596923828125,
+   "max_tilt": 13.522401809692383,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.5,
+   "back_s": 0.0,
+   "min_vx": 1.3813481330871582,
+   "max_tilt": 25.31615447998047,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1072": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.75,
+   "back_s": 0.0,
+   "min_vx": 2.592651844024658,
+   "max_tilt": 25.620933532714844,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.75,
+   "back_s": 0.0,
+   "min_vx": 2.592651844024658,
+   "max_tilt": 25.620933532714844,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0436": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.3,
+   "back_s": 0.0,
+   "min_vx": 2.5134902000427246,
+   "max_tilt": 25.911333084106445,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.3,
+   "back_s": 0.0,
+   "min_vx": 2.5134902000427246,
+   "max_tilt": 25.911333084106445,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0001": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 14.5,
+   "back_s": 0.0,
+   "min_vx": 2.455439805984497,
+   "max_tilt": 14.134551048278809,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 14.9,
+   "back_s": 0.0,
+   "min_vx": 1.9073821306228638,
+   "max_tilt": 19.504199981689453,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0123": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 8.200000000000001,
+   "back_s": 0.0,
+   "min_vx": 3.2657625675201416,
+   "max_tilt": 31.177011489868164,
+   "tilt35": 0,
+   "tilt30": 1,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.65,
+   "back_s": 0.0,
+   "min_vx": 2.4804036617279053,
+   "max_tilt": 26.98845672607422,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1555": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.350000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.5909992456436157,
+   "max_tilt": 28.030248641967773,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.950000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.378157377243042,
+   "max_tilt": 17.337203979492188,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1166": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.75,
+   "back_s": 0.0,
+   "min_vx": 2.474642515182495,
+   "max_tilt": 18.966550827026367,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 18.6,
+   "back_s": 0.0,
+   "min_vx": 1.7965364456176758,
+   "max_tilt": 19.718172073364258,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1863": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.5,
+   "back_s": 0.0,
+   "min_vx": 2.8612539768218994,
+   "max_tilt": 20.373363494873047,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.55,
+   "back_s": 0.0,
+   "min_vx": 2.1153368949890137,
+   "max_tilt": 20.100984573364258,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2402": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.8,
+   "back_s": 0.0,
+   "min_vx": 2.3547348976135254,
+   "max_tilt": 11.94960880279541,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.0,
+   "back_s": 0.0,
+   "min_vx": 1.8903329372406006,
+   "max_tilt": 18.910200119018555,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0859": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 16.25,
+   "back_s": 0.0,
+   "min_vx": 1.9610437154769897,
+   "max_tilt": 24.63265609741211,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 18.150000000000002,
+   "back_s": 0.0,
+   "min_vx": 2.2201600074768066,
+   "max_tilt": 18.546432495117188,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2563": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.600000000000001,
+   "back_s": 0.0,
+   "min_vx": 0.9654501676559448,
+   "max_tilt": 33.45631790161133,
+   "tilt35": 0,
+   "tilt30": 1,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.55,
+   "back_s": 0.0,
+   "min_vx": 1.0340946912765503,
+   "max_tilt": 12.461649894714355,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1924": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.5,
+   "back_s": 0.0,
+   "min_vx": 2.878795623779297,
+   "max_tilt": 26.808076858520508,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 22.1,
+   "back_s": 0.0,
+   "min_vx": 0.9837350249290466,
+   "max_tilt": 24.225114822387695,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0812": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.350000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.658506155014038,
+   "max_tilt": 16.71433448791504,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.450000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.599008798599243,
+   "max_tilt": 17.9382381439209,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1083": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.15,
+   "back_s": 0.0,
+   "min_vx": 1.4882750511169434,
+   "max_tilt": 24.341060638427734,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.15,
+   "back_s": 0.0,
+   "min_vx": 1.4882750511169434,
+   "max_tilt": 24.341060638427734,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0540": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.850000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.805697202682495,
+   "max_tilt": 15.906494140625,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.8,
+   "back_s": 0.0,
+   "min_vx": 2.6419732570648193,
+   "max_tilt": 15.650325775146484,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0343": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 7.75,
+   "back_s": 0.0,
+   "min_vx": 3.254770278930664,
+   "max_tilt": 34.428104400634766,
+   "tilt35": 0,
+   "tilt30": 1,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 1,
+   "unsafe": 1,
+   "status": "timeout",
+   "elapsed": 120.0,
+   "back_s": 0.0,
+   "min_vx": -0.03509297966957092,
+   "max_tilt": 22.64441680908203,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 1
+  }
+ },
+ "f104_t3_group_3019": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.350000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.790155291557312,
+   "max_tilt": 15.138148307800293,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.350000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.790155291557312,
+   "max_tilt": 15.138148307800293,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_3171": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 6.4,
+   "back_s": 0.0,
+   "min_vx": 3.8675270080566406,
+   "max_tilt": 24.77112579345703,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 6.4,
+   "back_s": 0.0,
+   "min_vx": 3.8675270080566406,
+   "max_tilt": 24.77112579345703,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2611": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 16.45,
+   "back_s": 0.0,
+   "min_vx": 1.7269865274429321,
+   "max_tilt": 14.390497207641602,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 27.35,
+   "back_s": 0.0,
+   "min_vx": 0.6094962954521179,
+   "max_tilt": 14.654345512390137,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0735": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.3,
+   "back_s": 0.0,
+   "min_vx": 2.3430123329162598,
+   "max_tilt": 25.387527465820312,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.3,
+   "back_s": 0.0,
+   "min_vx": 2.3430123329162598,
+   "max_tilt": 25.387527465820312,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2115": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.700000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.555241823196411,
+   "max_tilt": 31.01433753967285,
+   "tilt35": 0,
+   "tilt30": 1,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 16.6,
+   "back_s": 0.0,
+   "min_vx": 0.3929639756679535,
+   "max_tilt": 24.122331619262695,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0511": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.1,
+   "back_s": 0.0,
+   "min_vx": 2.5618181228637695,
+   "max_tilt": 23.156463623046875,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 16.150000000000002,
+   "back_s": 0.0,
+   "min_vx": 1.3697032928466797,
+   "max_tilt": 20.618825912475586,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0559": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.15,
+   "back_s": 0.0,
+   "min_vx": 2.704301357269287,
+   "max_tilt": 12.990921974182129,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.5,
+   "back_s": 0.0,
+   "min_vx": 1.3416005373001099,
+   "max_tilt": 19.813966751098633,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0687": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.05,
+   "back_s": 0.0,
+   "min_vx": 3.6946218013763428,
+   "max_tilt": 28.740962982177734,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 26.35,
+   "back_s": 0.0,
+   "min_vx": -0.07547740638256073,
+   "max_tilt": 23.653793334960938,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0085": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.700000000000001,
+   "back_s": 0.0,
+   "min_vx": 3.03648042678833,
+   "max_tilt": 14.169875144958496,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.5,
+   "back_s": 0.0,
+   "min_vx": 2.013803720474243,
+   "max_tilt": 20.30906867980957,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0698": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.15,
+   "back_s": 0.0,
+   "min_vx": 2.6370902061462402,
+   "max_tilt": 23.664255142211914,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.25,
+   "back_s": 0.0,
+   "min_vx": 1.6398022174835205,
+   "max_tilt": 26.267860412597656,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0771": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 21.85,
+   "back_s": 0.0,
+   "min_vx": 1.394040822982788,
+   "max_tilt": 21.34666633605957,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 22.400000000000002,
+   "back_s": 0.0,
+   "min_vx": 0.5889695286750793,
+   "max_tilt": 25.441646575927734,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0591": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 8.6,
+   "back_s": 0.0,
+   "min_vx": 2.7698466777801514,
+   "max_tilt": 28.791099548339844,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.05,
+   "back_s": 0.0,
+   "min_vx": 1.918116807937622,
+   "max_tilt": 22.930652618408203,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0710": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 7.7,
+   "back_s": 0.0,
+   "min_vx": 3.2050647735595703,
+   "max_tilt": 21.88775634765625,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.8,
+   "back_s": 0.0,
+   "min_vx": 1.8719066381454468,
+   "max_tilt": 21.863937377929688,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0620": {
+  "base": {
+   "fail": 1,
+   "unsafe": 1,
+   "status": "timeout",
+   "elapsed": 120.0,
+   "back_s": 49.35,
+   "min_vx": -3.0859973430633545,
+   "max_tilt": 26.664318084716797,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 1
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.350000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.8715238571166992,
+   "max_tilt": 19.797128677368164,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1868": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.200000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.4092333316802979,
+   "max_tilt": 17.680994033813477,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.200000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.4092333316802979,
+   "max_tilt": 17.680994033813477,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0914": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.8,
+   "back_s": 0.0,
+   "min_vx": 2.490706205368042,
+   "max_tilt": 20.734222412109375,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.850000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.161142349243164,
+   "max_tilt": 24.712112426757812,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0662": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.200000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.9009584188461304,
+   "max_tilt": 9.227290153503418,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.15,
+   "back_s": 0.0,
+   "min_vx": 2.5775537490844727,
+   "max_tilt": 27.16354751586914,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2263": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.350000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.8977885246276855,
+   "max_tilt": 32.64160919189453,
+   "tilt35": 0,
+   "tilt30": 1,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 20.650000000000002,
+   "back_s": 0.0,
+   "min_vx": 1.5629440546035767,
+   "max_tilt": 22.921560287475586,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0482": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.450000000000001,
+   "back_s": 0.0,
+   "min_vx": 3.1158511638641357,
+   "max_tilt": 26.088171005249023,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.950000000000001,
+   "back_s": 0.0,
+   "min_vx": 0.6040982604026794,
+   "max_tilt": 25.236234664916992,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0293": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 7.3500000000000005,
+   "back_s": 0.0,
+   "min_vx": 3.552887201309204,
+   "max_tilt": 26.232154846191406,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 7.4,
+   "back_s": 0.0,
+   "min_vx": 3.000185489654541,
+   "max_tilt": 23.862085342407227,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0589": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.5,
+   "back_s": 0.0,
+   "min_vx": 3.01961612701416,
+   "max_tilt": 20.373369216918945,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.850000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.8946430683135986,
+   "max_tilt": 16.874624252319336,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0284": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 8.15,
+   "back_s": 0.0,
+   "min_vx": 3.4514307975769043,
+   "max_tilt": 20.970605850219727,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.4,
+   "back_s": 0.0,
+   "min_vx": 1.1965384483337402,
+   "max_tilt": 14.052227973937988,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0122": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.05,
+   "back_s": 0.0,
+   "min_vx": 1.501407265663147,
+   "max_tilt": 23.895294189453125,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 8.200000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.965327262878418,
+   "max_tilt": 22.581655502319336,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2756": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 23.8,
+   "back_s": 0.0,
+   "min_vx": 1.0142163038253784,
+   "max_tilt": 16.721593856811523,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 16.900000000000002,
+   "back_s": 0.0,
+   "min_vx": 1.9092153310775757,
+   "max_tilt": 20.05154037475586,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_3128": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.55,
+   "back_s": 0.0,
+   "min_vx": 2.4615440368652344,
+   "max_tilt": 25.012624740600586,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 16.35,
+   "back_s": 0.0,
+   "min_vx": 1.6294509172439575,
+   "max_tilt": 17.37525749206543,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1728": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.700000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.7890424728393555,
+   "max_tilt": 18.637601852416992,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.55,
+   "back_s": 0.0,
+   "min_vx": 1.7290133237838745,
+   "max_tilt": 18.170116424560547,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2317": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 18.1,
+   "back_s": 0.0,
+   "min_vx": 1.2478716373443604,
+   "max_tilt": 19.575645446777344,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.55,
+   "back_s": 0.0,
+   "min_vx": 0.9561613202095032,
+   "max_tilt": 19.679162979125977,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1934": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 16.900000000000002,
+   "back_s": 0.0,
+   "min_vx": 2.0030319690704346,
+   "max_tilt": 26.013038635253906,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.3,
+   "back_s": 0.0,
+   "min_vx": 2.6656441688537598,
+   "max_tilt": 26.63958168029785,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0891": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 19.400000000000002,
+   "back_s": 0.0,
+   "min_vx": 1.0370253324508667,
+   "max_tilt": 35.71668243408203,
+   "tilt35": 1,
+   "tilt30": 1,
+   "unsafe_or_tilt": 1
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 16.7,
+   "back_s": 0.0,
+   "min_vx": 2.118579626083374,
+   "max_tilt": 27.466827392578125,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2727": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.75,
+   "back_s": 0.0,
+   "min_vx": 2.5958669185638428,
+   "max_tilt": 30.137842178344727,
+   "tilt35": 0,
+   "tilt30": 1,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 8.15,
+   "back_s": 0.0,
+   "min_vx": 2.885390281677246,
+   "max_tilt": 26.919761657714844,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1400": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 14.15,
+   "back_s": 0.0,
+   "min_vx": 2.5711145401000977,
+   "max_tilt": 18.851076126098633,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 18.6,
+   "back_s": 0.0,
+   "min_vx": 1.755886197090149,
+   "max_tilt": 22.696170806884766,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1645": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 8.6,
+   "back_s": 0.0,
+   "min_vx": 2.995725154876709,
+   "max_tilt": 18.00714111328125,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.8,
+   "back_s": 0.0,
+   "min_vx": 1.7740756273269653,
+   "max_tilt": 19.23412322998047,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2071": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.1,
+   "back_s": 0.0,
+   "min_vx": 3.312060594558716,
+   "max_tilt": 19.179187774658203,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.15,
+   "back_s": 0.0,
+   "min_vx": 2.071000814437866,
+   "max_tilt": 11.128700256347656,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0007": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 14.05,
+   "back_s": 0.0,
+   "min_vx": 1.8106929063796997,
+   "max_tilt": 12.356532096862793,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 27.650000000000002,
+   "back_s": 0.0,
+   "min_vx": 0.5257315635681152,
+   "max_tilt": 19.438535690307617,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0508": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.350000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.285167694091797,
+   "max_tilt": 24.1474666595459,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 20.3,
+   "back_s": 0.0,
+   "min_vx": 0.8837109208106995,
+   "max_tilt": 25.6722354888916,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0763": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.350000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.916436195373535,
+   "max_tilt": 14.618083000183105,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 20.650000000000002,
+   "back_s": 0.0,
+   "min_vx": 1.288565993309021,
+   "max_tilt": 19.491395950317383,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0519": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.950000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.6030442714691162,
+   "max_tilt": 17.133630752563477,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.9,
+   "back_s": 0.0,
+   "min_vx": 1.3862779140472412,
+   "max_tilt": 17.191247940063477,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1921": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.15,
+   "back_s": 0.0,
+   "min_vx": 3.2970211505889893,
+   "max_tilt": 14.84177017211914,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 14.25,
+   "back_s": 0.0,
+   "min_vx": 1.7735908031463623,
+   "max_tilt": 17.950090408325195,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0278": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 7.5,
+   "back_s": 0.0,
+   "min_vx": 3.378495693206787,
+   "max_tilt": 22.51996421813965,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 7.5,
+   "back_s": 0.0,
+   "min_vx": 3.378495693206787,
+   "max_tilt": 22.51996421813965,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0152": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 16.1,
+   "back_s": 0.0,
+   "min_vx": 2.174168825149536,
+   "max_tilt": 17.572359085083008,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.850000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.7972673177719116,
+   "max_tilt": 16.88009262084961,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0217": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 18.400000000000002,
+   "back_s": 0.0,
+   "min_vx": 1.5189495086669922,
+   "max_tilt": 14.49940299987793,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 22.0,
+   "back_s": 0.0,
+   "min_vx": 1.159416913986206,
+   "max_tilt": 15.711653709411621,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0224": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.65,
+   "back_s": 0.0,
+   "min_vx": 2.479421854019165,
+   "max_tilt": 19.40143394470215,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.65,
+   "back_s": 0.0,
+   "min_vx": 2.479421854019165,
+   "max_tilt": 19.40143394470215,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2943": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.9,
+   "back_s": 0.0,
+   "min_vx": 1.9176446199417114,
+   "max_tilt": 24.937850952148438,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.9,
+   "back_s": 0.0,
+   "min_vx": 1.9176446199417114,
+   "max_tilt": 24.937850952148438,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1135": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.850000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.854367971420288,
+   "max_tilt": 13.704155921936035,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 16.900000000000002,
+   "back_s": 0.0,
+   "min_vx": 1.6029951572418213,
+   "max_tilt": 12.145297050476074,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0307": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 8.15,
+   "back_s": 0.0,
+   "min_vx": 3.362379312515259,
+   "max_tilt": 14.475196838378906,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.55,
+   "back_s": 0.0,
+   "min_vx": 1.354952335357666,
+   "max_tilt": 13.140518188476562,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0651": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 16.150000000000002,
+   "back_s": 0.0,
+   "min_vx": 1.5990550518035889,
+   "max_tilt": 25.644453048706055,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 22.150000000000002,
+   "back_s": 0.0,
+   "min_vx": 1.0147154331207275,
+   "max_tilt": 23.629459381103516,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1216": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 23.150000000000002,
+   "back_s": 0.0,
+   "min_vx": 1.4813646078109741,
+   "max_tilt": 18.780559539794922,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 23.450000000000003,
+   "back_s": 0.0,
+   "min_vx": 1.1838679313659668,
+   "max_tilt": 24.884572982788086,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1142": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 16.7,
+   "back_s": 0.0,
+   "min_vx": 1.589174747467041,
+   "max_tilt": 25.289073944091797,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 16.7,
+   "back_s": 0.0,
+   "min_vx": 1.589174747467041,
+   "max_tilt": 25.289073944091797,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1100": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.100000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.1797528266906738,
+   "max_tilt": 17.601163864135742,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 6.4,
+   "back_s": 0.0,
+   "min_vx": 3.226536750793457,
+   "max_tilt": 19.845354080200195,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1165": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.75,
+   "back_s": 0.0,
+   "min_vx": 3.4535775184631348,
+   "max_tilt": 15.190154075622559,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 17.400000000000002,
+   "back_s": 0.0,
+   "min_vx": 1.270190954208374,
+   "max_tilt": 18.3062686920166,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0494": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.8,
+   "back_s": 0.0,
+   "min_vx": 2.8374183177948,
+   "max_tilt": 23.091140747070312,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.8,
+   "back_s": 0.0,
+   "min_vx": 2.8374183177948,
+   "max_tilt": 23.091140747070312,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0148": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 14.75,
+   "back_s": 0.0,
+   "min_vx": 1.105505347251892,
+   "max_tilt": 27.72836685180664,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.3,
+   "back_s": 0.0,
+   "min_vx": 1.9404690265655518,
+   "max_tilt": 23.572795867919922,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0600": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.350000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.3399860858917236,
+   "max_tilt": 16.087499618530273,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.700000000000001,
+   "back_s": 0.0,
+   "min_vx": 0.8939018845558167,
+   "max_tilt": 14.9779634475708,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2020": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 14.0,
+   "back_s": 0.0,
+   "min_vx": 1.608998417854309,
+   "max_tilt": 24.00095558166504,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.9,
+   "back_s": 0.0,
+   "min_vx": 3.1281399726867676,
+   "max_tilt": 23.413301467895508,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2932": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.3,
+   "back_s": 0.0,
+   "min_vx": 3.2486608028411865,
+   "max_tilt": 27.420814514160156,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.15,
+   "back_s": 0.0,
+   "min_vx": 1.7421774864196777,
+   "max_tilt": 23.169904708862305,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1442": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 16.1,
+   "back_s": 0.0,
+   "min_vx": 1.9081854820251465,
+   "max_tilt": 16.734399795532227,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.15,
+   "back_s": 0.0,
+   "min_vx": 2.4736082553863525,
+   "max_tilt": 25.416126251220703,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0764": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.8,
+   "back_s": 0.0,
+   "min_vx": 1.9513094425201416,
+   "max_tilt": 19.004257202148438,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.8,
+   "back_s": 0.0,
+   "min_vx": 1.9513094425201416,
+   "max_tilt": 19.004257202148438,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0516": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.3,
+   "back_s": 0.0,
+   "min_vx": 1.7773529291152954,
+   "max_tilt": 14.301939010620117,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 14.700000000000001,
+   "back_s": 0.0,
+   "min_vx": 0.9747309684753418,
+   "max_tilt": 15.379530906677246,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2584": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.55,
+   "back_s": 0.0,
+   "min_vx": 1.7079827785491943,
+   "max_tilt": 14.08541488647461,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.600000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.325997233390808,
+   "max_tilt": 16.66069221496582,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_3091": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.8,
+   "back_s": 0.0,
+   "min_vx": 2.531651258468628,
+   "max_tilt": 33.938751220703125,
+   "tilt35": 0,
+   "tilt30": 1,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 14.15,
+   "back_s": 0.0,
+   "min_vx": 2.207350015640259,
+   "max_tilt": 28.90210723876953,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0962": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.55,
+   "back_s": 0.0,
+   "min_vx": 2.4297068119049072,
+   "max_tilt": 10.032546043395996,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 17.0,
+   "back_s": 0.0,
+   "min_vx": 0.6907477974891663,
+   "max_tilt": 23.486026763916016,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0212": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.950000000000001,
+   "back_s": 0.0,
+   "min_vx": 0.8768155574798584,
+   "max_tilt": 25.148212432861328,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.8,
+   "back_s": 0.0,
+   "min_vx": 0.7478644847869873,
+   "max_tilt": 25.227519989013672,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2331": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.05,
+   "back_s": 0.0,
+   "min_vx": 2.2191503047943115,
+   "max_tilt": 23.499006271362305,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 14.3,
+   "back_s": 0.0,
+   "min_vx": 2.155512571334839,
+   "max_tilt": 25.576393127441406,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0547": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 8.35,
+   "back_s": 0.0,
+   "min_vx": 3.429116725921631,
+   "max_tilt": 31.24367332458496,
+   "tilt35": 0,
+   "tilt30": 1,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.350000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.8196965456008911,
+   "max_tilt": 14.50158405303955,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1022": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.65,
+   "back_s": 0.0,
+   "min_vx": 2.1648099422454834,
+   "max_tilt": 9.012460708618164,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.05,
+   "back_s": 0.0,
+   "min_vx": 1.4540659189224243,
+   "max_tilt": 14.665436744689941,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0152": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 17.2,
+   "back_s": 0.0,
+   "min_vx": 1.5179533958435059,
+   "max_tilt": 14.711089134216309,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 14.950000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.72512149810791,
+   "max_tilt": 21.627120971679688,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0517": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.55,
+   "back_s": 0.0,
+   "min_vx": 2.61291766166687,
+   "max_tilt": 15.542899131774902,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.950000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.184221029281616,
+   "max_tilt": 15.58256721496582,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_3004": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.05,
+   "back_s": 0.0,
+   "min_vx": 0.9395416378974915,
+   "max_tilt": 14.622788429260254,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.4,
+   "back_s": 0.0,
+   "min_vx": 2.1978397369384766,
+   "max_tilt": 25.94285774230957,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0463": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 18.6,
+   "back_s": 0.0,
+   "min_vx": 1.7110447883605957,
+   "max_tilt": 16.96111297607422,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 21.8,
+   "back_s": 0.0,
+   "min_vx": 1.1625746488571167,
+   "max_tilt": 12.752782821655273,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0488": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 8.9,
+   "back_s": 0.0,
+   "min_vx": 3.6233139038085938,
+   "max_tilt": 25.427078247070312,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 14.55,
+   "back_s": 0.0,
+   "min_vx": 1.996337890625,
+   "max_tilt": 15.335339546203613,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2683": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 14.100000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.700810670852661,
+   "max_tilt": 19.49378776550293,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 14.100000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.700810670852661,
+   "max_tilt": 19.49378776550293,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2823": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 14.05,
+   "back_s": 0.0,
+   "min_vx": 1.4553269147872925,
+   "max_tilt": 24.019716262817383,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.4,
+   "back_s": 0.0,
+   "min_vx": 2.4236791133880615,
+   "max_tilt": 21.94217872619629,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1444": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.700000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.5080803632736206,
+   "max_tilt": 29.088794708251953,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.8,
+   "back_s": 0.0,
+   "min_vx": 1.6023093461990356,
+   "max_tilt": 24.573461532592773,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_3183": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.4,
+   "back_s": 0.0,
+   "min_vx": 2.0921006202697754,
+   "max_tilt": 27.49433135986328,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.4,
+   "back_s": 0.0,
+   "min_vx": 2.0921006202697754,
+   "max_tilt": 27.49433135986328,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0172": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.850000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.5750627517700195,
+   "max_tilt": 26.016170501708984,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.8,
+   "back_s": 0.0,
+   "min_vx": 2.752196788787842,
+   "max_tilt": 25.725915908813477,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0240": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.75,
+   "back_s": 0.0,
+   "min_vx": 1.4564818143844604,
+   "max_tilt": 16.032629013061523,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.75,
+   "back_s": 0.0,
+   "min_vx": 1.9671694040298462,
+   "max_tilt": 18.180761337280273,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2473": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.05,
+   "back_s": 0.0,
+   "min_vx": 2.930015802383423,
+   "max_tilt": 16.864469528198242,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.950000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.2105616331100464,
+   "max_tilt": 15.050350189208984,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_3043": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.200000000000001,
+   "back_s": 0.0,
+   "min_vx": 3.596925735473633,
+   "max_tilt": 13.381498336791992,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.55,
+   "back_s": 0.0,
+   "min_vx": 1.920484185218811,
+   "max_tilt": 23.876995086669922,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2676": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.450000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.981050729751587,
+   "max_tilt": 15.264181137084961,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.450000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.981050729751587,
+   "max_tilt": 15.264181137084961,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0008": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.5,
+   "back_s": 0.0,
+   "min_vx": 2.344510316848755,
+   "max_tilt": 16.60103988647461,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.5,
+   "back_s": 0.0,
+   "min_vx": 2.344510316848755,
+   "max_tilt": 16.60103988647461,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0988": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.65,
+   "back_s": 0.0,
+   "min_vx": 2.4078714847564697,
+   "max_tilt": 26.803064346313477,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.700000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.1473188400268555,
+   "max_tilt": 24.17232894897461,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0799": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.25,
+   "back_s": 0.0,
+   "min_vx": 3.4826886653900146,
+   "max_tilt": 29.056692123413086,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.3,
+   "back_s": 0.0,
+   "min_vx": 2.7582173347473145,
+   "max_tilt": 20.54086685180664,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0115": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 17.55,
+   "back_s": 0.0,
+   "min_vx": 1.581823706626892,
+   "max_tilt": 22.378368377685547,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 17.55,
+   "back_s": 0.0,
+   "min_vx": 1.581823706626892,
+   "max_tilt": 22.378368377685547,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1902": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.450000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.921269178390503,
+   "max_tilt": 10.098382949829102,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.75,
+   "back_s": 0.0,
+   "min_vx": 1.9813218116760254,
+   "max_tilt": 19.495655059814453,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1808": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 8.35,
+   "back_s": 0.0,
+   "min_vx": 1.5184212923049927,
+   "max_tilt": 24.914751052856445,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 8.35,
+   "back_s": 0.0,
+   "min_vx": 1.5184212923049927,
+   "max_tilt": 24.914751052856445,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0127": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 8.6,
+   "back_s": 0.0,
+   "min_vx": 2.023611307144165,
+   "max_tilt": 27.760759353637695,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.100000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.7615790367126465,
+   "max_tilt": 16.838083267211914,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2583": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 8.35,
+   "back_s": 0.0,
+   "min_vx": 1.590361475944519,
+   "max_tilt": 30.851774215698242,
+   "tilt35": 0,
+   "tilt30": 1,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.4,
+   "back_s": 0.0,
+   "min_vx": 1.713875651359558,
+   "max_tilt": 27.03570556640625,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1800": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 8.4,
+   "back_s": 0.0,
+   "min_vx": 2.377974510192871,
+   "max_tilt": 17.81273078918457,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.5,
+   "back_s": 0.0,
+   "min_vx": 1.7487670183181763,
+   "max_tilt": 18.00264549255371,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0684": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.8,
+   "back_s": 0.0,
+   "min_vx": 2.0936338901519775,
+   "max_tilt": 14.758049011230469,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 8.35,
+   "back_s": 0.0,
+   "min_vx": 2.177382707595825,
+   "max_tilt": 16.161542892456055,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0676": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.65,
+   "back_s": 0.0,
+   "min_vx": 2.7371647357940674,
+   "max_tilt": 27.24846839904785,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 19.1,
+   "back_s": 0.0,
+   "min_vx": 1.633162260055542,
+   "max_tilt": 26.831130981445312,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2476": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.15,
+   "back_s": 0.0,
+   "min_vx": 2.178041458129883,
+   "max_tilt": 14.728270530700684,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.55,
+   "back_s": 0.0,
+   "min_vx": 1.7920637130737305,
+   "max_tilt": 16.694454193115234,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1940": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.15,
+   "back_s": 0.0,
+   "min_vx": 3.0121450424194336,
+   "max_tilt": 25.006624221801758,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.15,
+   "back_s": 0.0,
+   "min_vx": 3.0121450424194336,
+   "max_tilt": 25.006624221801758,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0666": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 16.75,
+   "back_s": 0.0,
+   "min_vx": 1.4589251279830933,
+   "max_tilt": 19.163660049438477,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 18.05,
+   "back_s": 0.0,
+   "min_vx": 1.127853512763977,
+   "max_tilt": 22.204774856567383,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0136": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.3,
+   "back_s": 0.0,
+   "min_vx": 2.8798365592956543,
+   "max_tilt": 33.15760040283203,
+   "tilt35": 0,
+   "tilt30": 1,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 19.900000000000002,
+   "back_s": 0.0,
+   "min_vx": 1.1236238479614258,
+   "max_tilt": 28.791141510009766,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0108": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.55,
+   "back_s": 0.0,
+   "min_vx": 2.463336706161499,
+   "max_tilt": 16.858388900756836,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.25,
+   "back_s": 0.0,
+   "min_vx": 2.0693843364715576,
+   "max_tilt": 17.894052505493164,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0040": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.600000000000001,
+   "back_s": 0.0,
+   "min_vx": 3.3879809379577637,
+   "max_tilt": 25.957544326782227,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.350000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.5160212516784668,
+   "max_tilt": 27.87396812438965,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1585": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.8,
+   "back_s": 0.0,
+   "min_vx": 2.457225799560547,
+   "max_tilt": 18.075098037719727,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.9,
+   "back_s": 0.0,
+   "min_vx": 1.9506133794784546,
+   "max_tilt": 20.318450927734375,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2048": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.950000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.4455854892730713,
+   "max_tilt": 25.043439865112305,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 17.900000000000002,
+   "back_s": 0.0,
+   "min_vx": 2.0476722717285156,
+   "max_tilt": 18.494895935058594,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_3040": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 16.400000000000002,
+   "back_s": 0.0,
+   "min_vx": 2.191420793533325,
+   "max_tilt": 18.657798767089844,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 23.700000000000003,
+   "back_s": 0.0,
+   "min_vx": 1.2352241277694702,
+   "max_tilt": 11.31552505493164,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0602": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.55,
+   "back_s": 0.0,
+   "min_vx": 2.8229799270629883,
+   "max_tilt": 22.376737594604492,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.700000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.705673098564148,
+   "max_tilt": 22.436912536621094,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2143": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.15,
+   "back_s": 0.0,
+   "min_vx": 2.2062828540802,
+   "max_tilt": 13.383524894714355,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 22.75,
+   "back_s": 0.0,
+   "min_vx": 1.2271760702133179,
+   "max_tilt": 10.963773727416992,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2670": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.75,
+   "back_s": 0.0,
+   "min_vx": 1.864946722984314,
+   "max_tilt": 21.379791259765625,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.600000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.4499486684799194,
+   "max_tilt": 7.17408561706543,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0230": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.75,
+   "back_s": 0.0,
+   "min_vx": 2.686781883239746,
+   "max_tilt": 21.667041778564453,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.75,
+   "back_s": 0.0,
+   "min_vx": 2.686781883239746,
+   "max_tilt": 21.667041778564453,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0396": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.75,
+   "back_s": 0.0,
+   "min_vx": 3.4125702381134033,
+   "max_tilt": 16.906482696533203,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.5,
+   "back_s": 0.0,
+   "min_vx": 3.5101466178894043,
+   "max_tilt": 16.062952041625977,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2728": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.05,
+   "back_s": 0.0,
+   "min_vx": 2.463057518005371,
+   "max_tilt": 15.679159164428711,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.8,
+   "back_s": 0.0,
+   "min_vx": 1.1880769729614258,
+   "max_tilt": 18.698322296142578,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0180": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.3,
+   "back_s": 0.0,
+   "min_vx": 2.057258367538452,
+   "max_tilt": 19.278350830078125,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.100000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.8302496671676636,
+   "max_tilt": 15.82822322845459,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0200": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.600000000000001,
+   "back_s": 0.0,
+   "min_vx": 3.2056009769439697,
+   "max_tilt": 17.953683853149414,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.600000000000001,
+   "back_s": 0.0,
+   "min_vx": 3.2056009769439697,
+   "max_tilt": 17.953683853149414,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0471": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 14.450000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.717057704925537,
+   "max_tilt": 25.324535369873047,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 14.450000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.717057704925537,
+   "max_tilt": 25.324535369873047,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2864": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.15,
+   "back_s": 0.0,
+   "min_vx": 2.5735888481140137,
+   "max_tilt": 18.247316360473633,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.5,
+   "back_s": 0.0,
+   "min_vx": 2.0831828117370605,
+   "max_tilt": 16.982404708862305,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1086": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.0,
+   "back_s": 0.0,
+   "min_vx": 2.302633285522461,
+   "max_tilt": 22.916513442993164,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.8,
+   "back_s": 0.0,
+   "min_vx": 1.7806551456451416,
+   "max_tilt": 21.679840087890625,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0807": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.450000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.1861939430236816,
+   "max_tilt": 28.193252563476562,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 8.85,
+   "back_s": 0.0,
+   "min_vx": 3.2068493366241455,
+   "max_tilt": 24.378156661987305,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1778": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.5,
+   "back_s": 0.0,
+   "min_vx": 1.9441229104995728,
+   "max_tilt": 14.61506175994873,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.75,
+   "back_s": 0.0,
+   "min_vx": 2.628798007965088,
+   "max_tilt": 17.74320411682129,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1578": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 7.550000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.812164068222046,
+   "max_tilt": 29.272092819213867,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.05,
+   "back_s": 0.0,
+   "min_vx": 2.3492534160614014,
+   "max_tilt": 19.789398193359375,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0183": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 27.05,
+   "back_s": 0.0,
+   "min_vx": 0.13481491804122925,
+   "max_tilt": 26.800045013427734,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.200000000000001,
+   "back_s": 0.0,
+   "min_vx": 3.1621601581573486,
+   "max_tilt": 25.030744552612305,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0652": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 17.2,
+   "back_s": 0.0,
+   "min_vx": 1.5260257720947266,
+   "max_tilt": 23.22282600402832,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.9,
+   "back_s": 0.0,
+   "min_vx": 1.4091744422912598,
+   "max_tilt": 26.88595962524414,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0392": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 19.85,
+   "back_s": 0.0,
+   "min_vx": 1.485344409942627,
+   "max_tilt": 15.264909744262695,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 21.900000000000002,
+   "back_s": 0.0,
+   "min_vx": 1.503828763961792,
+   "max_tilt": 14.997390747070312,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2420": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 16.0,
+   "back_s": 0.0,
+   "min_vx": 2.206313371658325,
+   "max_tilt": 14.668588638305664,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 17.6,
+   "back_s": 0.0,
+   "min_vx": 0.8662035465240479,
+   "max_tilt": 25.5845890045166,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1051": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.05,
+   "back_s": 0.0,
+   "min_vx": 2.167816638946533,
+   "max_tilt": 32.18859100341797,
+   "tilt35": 0,
+   "tilt30": 1,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.850000000000001,
+   "back_s": 0.0,
+   "min_vx": 0.6255835890769958,
+   "max_tilt": 17.936725616455078,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0136": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.65,
+   "back_s": 0.0,
+   "min_vx": 2.362014055252075,
+   "max_tilt": 23.8837890625,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 8.25,
+   "back_s": 0.0,
+   "min_vx": 3.359830141067505,
+   "max_tilt": 26.456655502319336,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1184": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.950000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.864421844482422,
+   "max_tilt": 6.910231590270996,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.75,
+   "back_s": 0.0,
+   "min_vx": 1.4029759168624878,
+   "max_tilt": 24.43977165222168,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0985": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.25,
+   "back_s": 0.0,
+   "min_vx": 2.5589890480041504,
+   "max_tilt": 17.159175872802734,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 18.900000000000002,
+   "back_s": 0.0,
+   "min_vx": 0.6483322381973267,
+   "max_tilt": 18.5441951751709,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0008": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.75,
+   "back_s": 0.0,
+   "min_vx": 1.9967800378799438,
+   "max_tilt": 21.117692947387695,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 8.450000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.3150405883789062,
+   "max_tilt": 19.948104858398438,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0487": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 14.75,
+   "back_s": 0.0,
+   "min_vx": 1.3628952503204346,
+   "max_tilt": 31.088897705078125,
+   "tilt35": 0,
+   "tilt30": 1,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 14.4,
+   "back_s": 0.0,
+   "min_vx": 2.247783899307251,
+   "max_tilt": 22.935195922851562,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0744": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 23.0,
+   "back_s": 0.0,
+   "min_vx": 1.3141403198242188,
+   "max_tilt": 13.395519256591797,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.75,
+   "back_s": 0.0,
+   "min_vx": 0.523920476436615,
+   "max_tilt": 18.665786743164062,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1516": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.8,
+   "back_s": 0.0,
+   "min_vx": 3.0261716842651367,
+   "max_tilt": 24.78390884399414,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 16.35,
+   "back_s": 0.0,
+   "min_vx": 0.9506927132606506,
+   "max_tilt": 25.37171173095703,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2617": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.0,
+   "back_s": 0.0,
+   "min_vx": 2.3115224838256836,
+   "max_tilt": 21.037370681762695,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.0,
+   "back_s": 0.0,
+   "min_vx": 2.3115224838256836,
+   "max_tilt": 21.037370681762695,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2572": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.850000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.3897664546966553,
+   "max_tilt": 27.290019989013672,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.850000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.3897664546966553,
+   "max_tilt": 27.290019989013672,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1128": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.5,
+   "back_s": 0.0,
+   "min_vx": 2.433946371078491,
+   "max_tilt": 21.056062698364258,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 8.55,
+   "back_s": 0.0,
+   "min_vx": 2.9794716835021973,
+   "max_tilt": 17.944271087646484,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2401": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 20.05,
+   "back_s": 0.0,
+   "min_vx": 1.3652435541152954,
+   "max_tilt": 10.816717147827148,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.0,
+   "back_s": 0.0,
+   "min_vx": 2.4692976474761963,
+   "max_tilt": 19.44304847717285,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1190": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.850000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.5397262573242188,
+   "max_tilt": 18.45020866394043,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 14.5,
+   "back_s": 0.0,
+   "min_vx": 1.080994963645935,
+   "max_tilt": 22.135299682617188,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1932": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.15,
+   "back_s": 0.0,
+   "min_vx": 3.370302438735962,
+   "max_tilt": 14.951240539550781,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.450000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.4629040956497192,
+   "max_tilt": 19.927282333374023,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0218": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.3,
+   "back_s": 0.0,
+   "min_vx": 1.9282665252685547,
+   "max_tilt": 23.726221084594727,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.100000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.2366645336151123,
+   "max_tilt": 24.16932487487793,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2906": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.65,
+   "back_s": 0.0,
+   "min_vx": 3.1551461219787598,
+   "max_tilt": 20.983173370361328,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.65,
+   "back_s": 0.0,
+   "min_vx": 1.6753851175308228,
+   "max_tilt": 24.702238082885742,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1000": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.9,
+   "back_s": 0.0,
+   "min_vx": 1.830625057220459,
+   "max_tilt": 26.548229217529297,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.9,
+   "back_s": 0.0,
+   "min_vx": 1.830625057220459,
+   "max_tilt": 26.548229217529297,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0112": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 7.45,
+   "back_s": 0.0,
+   "min_vx": 3.285038471221924,
+   "max_tilt": 27.05959129333496,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 7.45,
+   "back_s": 0.0,
+   "min_vx": 3.285038471221924,
+   "max_tilt": 27.05959129333496,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0219": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 8.15,
+   "back_s": 0.0,
+   "min_vx": 1.7082549333572388,
+   "max_tilt": 30.39453125,
+   "tilt35": 0,
+   "tilt30": 1,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 7.15,
+   "back_s": 0.0,
+   "min_vx": 1.5863269567489624,
+   "max_tilt": 28.019075393676758,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2342": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 19.5,
+   "back_s": 0.0,
+   "min_vx": 1.5316901206970215,
+   "max_tilt": 20.251176834106445,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.8,
+   "back_s": 0.0,
+   "min_vx": 1.5698702335357666,
+   "max_tilt": 27.0946044921875,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1939": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 18.6,
+   "back_s": 0.0,
+   "min_vx": 1.7144737243652344,
+   "max_tilt": 16.590652465820312,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 17.85,
+   "back_s": 0.0,
+   "min_vx": 1.8460712432861328,
+   "max_tilt": 23.386157989501953,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1003": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.3,
+   "back_s": 0.0,
+   "min_vx": 1.857136607170105,
+   "max_tilt": 23.31622886657715,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.3,
+   "back_s": 0.0,
+   "min_vx": 1.857136607170105,
+   "max_tilt": 23.31622886657715,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1375": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.450000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.9106194972991943,
+   "max_tilt": 24.07193946838379,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 30.200000000000003,
+   "back_s": 0.0,
+   "min_vx": 0.6481220722198486,
+   "max_tilt": 23.098697662353516,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0388": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.65,
+   "back_s": 0.0,
+   "min_vx": 3.0823121070861816,
+   "max_tilt": 24.273696899414062,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.65,
+   "back_s": 0.0,
+   "min_vx": 3.0823121070861816,
+   "max_tilt": 24.273696899414062,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0759": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.55,
+   "back_s": 0.0,
+   "min_vx": 2.5732336044311523,
+   "max_tilt": 33.41075134277344,
+   "tilt35": 0,
+   "tilt30": 1,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.55,
+   "back_s": 0.0,
+   "min_vx": 1.2177271842956543,
+   "max_tilt": 19.627626419067383,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0115": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.950000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.042372465133667,
+   "max_tilt": 14.576432228088379,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.950000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.042372465133667,
+   "max_tilt": 14.576432228088379,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0260": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.700000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.2733317613601685,
+   "max_tilt": 15.09172534942627,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.700000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.2733317613601685,
+   "max_tilt": 15.09172534942627,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0361": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.25,
+   "back_s": 0.0,
+   "min_vx": 3.507755994796753,
+   "max_tilt": 15.914087295532227,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.05,
+   "back_s": 0.0,
+   "min_vx": 1.7395597696304321,
+   "max_tilt": 20.653324127197266,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_3096": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.450000000000001,
+   "back_s": 0.0,
+   "min_vx": 3.1734793186187744,
+   "max_tilt": 16.856433868408203,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 33.5,
+   "back_s": 0.0,
+   "min_vx": 0.6024917364120483,
+   "max_tilt": 21.592510223388672,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_3066": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 8.85,
+   "back_s": 0.0,
+   "min_vx": 3.4626972675323486,
+   "max_tilt": 19.873661041259766,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.200000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.7482112646102905,
+   "max_tilt": 21.000484466552734,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1351": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.05,
+   "back_s": 0.0,
+   "min_vx": 2.8204095363616943,
+   "max_tilt": 11.578995704650879,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.600000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.9281957149505615,
+   "max_tilt": 17.60210609436035,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1598": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.350000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.501326084136963,
+   "max_tilt": 26.03226661682129,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.350000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.501326084136963,
+   "max_tilt": 26.03226661682129,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_3198": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.200000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.541159987449646,
+   "max_tilt": 26.119176864624023,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.600000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.9789199829101562,
+   "max_tilt": 20.46255111694336,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1637": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.200000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.7221430540084839,
+   "max_tilt": 26.5366153717041,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.200000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.7221430540084839,
+   "max_tilt": 26.5366153717041,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_3135": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 19.650000000000002,
+   "back_s": 0.0,
+   "min_vx": 1.1824992895126343,
+   "max_tilt": 31.763906478881836,
+   "tilt35": 0,
+   "tilt30": 1,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 8.200000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.4635013341903687,
+   "max_tilt": 28.31772804260254,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1912": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.450000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.714794635772705,
+   "max_tilt": 26.235240936279297,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 22.0,
+   "back_s": 0.0,
+   "min_vx": 1.6009873151779175,
+   "max_tilt": 25.97989273071289,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1556": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.700000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.5273215770721436,
+   "max_tilt": 18.9909725189209,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.700000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.5273215770721436,
+   "max_tilt": 18.9909725189209,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0356": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 8.15,
+   "back_s": 0.0,
+   "min_vx": 2.2456421852111816,
+   "max_tilt": 11.879327774047852,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.100000000000001,
+   "back_s": 0.0,
+   "min_vx": 0.8559562563896179,
+   "max_tilt": 10.807683944702148,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1829": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 14.55,
+   "back_s": 0.0,
+   "min_vx": 1.2212305068969727,
+   "max_tilt": 24.522850036621094,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.100000000000001,
+   "back_s": 0.0,
+   "min_vx": 0.7904096841812134,
+   "max_tilt": 26.386083602905273,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2042": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 18.85,
+   "back_s": 0.0,
+   "min_vx": 1.4746896028518677,
+   "max_tilt": 22.92555809020996,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.9,
+   "back_s": 0.0,
+   "min_vx": 3.114089250564575,
+   "max_tilt": 22.20835304260254,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2564": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.450000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.917041778564453,
+   "max_tilt": 24.930484771728516,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.450000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.917041778564453,
+   "max_tilt": 24.930484771728516,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0015": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.850000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.5649771690368652,
+   "max_tilt": 24.139333724975586,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 22.900000000000002,
+   "back_s": 0.0,
+   "min_vx": 0.7506983280181885,
+   "max_tilt": 24.542171478271484,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1712": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 21.1,
+   "back_s": 0.0,
+   "min_vx": 1.520826816558838,
+   "max_tilt": 9.135163307189941,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 20.3,
+   "back_s": 0.0,
+   "min_vx": 1.206831693649292,
+   "max_tilt": 23.690046310424805,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1153": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.4,
+   "back_s": 0.0,
+   "min_vx": 2.0733094215393066,
+   "max_tilt": 18.154998779296875,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 16.05,
+   "back_s": 0.0,
+   "min_vx": 1.7637375593185425,
+   "max_tilt": 19.872465133666992,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1531": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 18.05,
+   "back_s": 0.0,
+   "min_vx": 1.5803687572479248,
+   "max_tilt": 16.05316162109375,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 18.05,
+   "back_s": 0.0,
+   "min_vx": 1.5803687572479248,
+   "max_tilt": 16.05316162109375,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0591": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.5,
+   "back_s": 0.0,
+   "min_vx": 1.9896109104156494,
+   "max_tilt": 21.705533981323242,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.5,
+   "back_s": 0.0,
+   "min_vx": 1.9896109104156494,
+   "max_tilt": 21.705533981323242,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0348": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.200000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.282367467880249,
+   "max_tilt": 18.07378578186035,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 17.35,
+   "back_s": 0.0,
+   "min_vx": 1.8394930362701416,
+   "max_tilt": 15.658598899841309,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0877": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.55,
+   "back_s": 0.0,
+   "min_vx": 0.8459110856056213,
+   "max_tilt": 15.529426574707031,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.55,
+   "back_s": 0.0,
+   "min_vx": 0.8459110856056213,
+   "max_tilt": 15.529426574707031,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_3080": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.75,
+   "back_s": 0.0,
+   "min_vx": 1.2722759246826172,
+   "max_tilt": 19.23147964477539,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 16.95,
+   "back_s": 0.0,
+   "min_vx": 1.393094539642334,
+   "max_tilt": 14.439155578613281,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2461": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.450000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.7529709339141846,
+   "max_tilt": 16.243513107299805,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 17.6,
+   "back_s": 0.0,
+   "min_vx": 0.9504165649414062,
+   "max_tilt": 16.236793518066406,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0288": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 14.100000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.489497184753418,
+   "max_tilt": 16.02077293395996,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 19.700000000000003,
+   "back_s": 0.0,
+   "min_vx": 1.352757453918457,
+   "max_tilt": 18.8646297454834,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2240": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 20.5,
+   "back_s": 0.0,
+   "min_vx": 1.2296626567840576,
+   "max_tilt": 20.816486358642578,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 20.5,
+   "back_s": 0.0,
+   "min_vx": 1.2296626567840576,
+   "max_tilt": 20.816486358642578,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0733": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.05,
+   "back_s": 0.0,
+   "min_vx": 2.931304454803467,
+   "max_tilt": 16.011125564575195,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.75,
+   "back_s": 0.0,
+   "min_vx": 1.4736130237579346,
+   "max_tilt": 17.14967155456543,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_3014": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.950000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.060333728790283,
+   "max_tilt": 22.215436935424805,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.450000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.5302793979644775,
+   "max_tilt": 27.4482421875,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0548": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 24.900000000000002,
+   "back_s": 0.0,
+   "min_vx": 1.3337277173995972,
+   "max_tilt": 21.182615280151367,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 24.900000000000002,
+   "back_s": 0.0,
+   "min_vx": 1.3337277173995972,
+   "max_tilt": 21.182615280151367,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0451": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.5,
+   "back_s": 0.0,
+   "min_vx": 3.262575387954712,
+   "max_tilt": 23.923404693603516,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.950000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.6226625442504883,
+   "max_tilt": 15.775985717773438,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1466": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 21.200000000000003,
+   "back_s": 0.0,
+   "min_vx": 1.4431570768356323,
+   "max_tilt": 25.674461364746094,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 21.200000000000003,
+   "back_s": 0.0,
+   "min_vx": 1.4431570768356323,
+   "max_tilt": 25.674461364746094,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0343": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.5,
+   "back_s": 0.0,
+   "min_vx": 1.9424721002578735,
+   "max_tilt": 14.398661613464355,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 16.95,
+   "back_s": 0.0,
+   "min_vx": 1.8074404001235962,
+   "max_tilt": 18.23286247253418,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0523": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.200000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.673060655593872,
+   "max_tilt": 16.886943817138672,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 18.150000000000002,
+   "back_s": 0.0,
+   "min_vx": 1.7311129570007324,
+   "max_tilt": 13.009982109069824,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0151": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.200000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.6562654972076416,
+   "max_tilt": 33.79244613647461,
+   "tilt35": 0,
+   "tilt30": 1,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.350000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.204740285873413,
+   "max_tilt": 19.24930191040039,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2114": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 8.65,
+   "back_s": 0.0,
+   "min_vx": 2.714285373687744,
+   "max_tilt": 22.263832092285156,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 8.65,
+   "back_s": 0.0,
+   "min_vx": 2.714285373687744,
+   "max_tilt": 22.263832092285156,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0782": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.15,
+   "back_s": 0.0,
+   "min_vx": 2.02534556388855,
+   "max_tilt": 26.027057647705078,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.15,
+   "back_s": 0.0,
+   "min_vx": 2.02534556388855,
+   "max_tilt": 26.027057647705078,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0710": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.850000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.451329231262207,
+   "max_tilt": 28.33401870727539,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.8,
+   "back_s": 0.0,
+   "min_vx": 2.114300489425659,
+   "max_tilt": 24.75326919555664,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0028": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.8,
+   "back_s": 0.0,
+   "min_vx": 2.015312671661377,
+   "max_tilt": 26.652633666992188,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.05,
+   "back_s": 0.0,
+   "min_vx": 1.9025472402572632,
+   "max_tilt": 25.12732696533203,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0560": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.950000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.1603574752807617,
+   "max_tilt": 17.001468658447266,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.15,
+   "back_s": 0.0,
+   "min_vx": 1.7447587251663208,
+   "max_tilt": 18.427955627441406,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0907": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 17.75,
+   "back_s": 0.0,
+   "min_vx": 1.9831660985946655,
+   "max_tilt": 30.009307861328125,
+   "tilt35": 0,
+   "tilt30": 1,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.75,
+   "back_s": 0.0,
+   "min_vx": 2.1338002681732178,
+   "max_tilt": 22.929105758666992,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1075": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.9,
+   "back_s": 0.0,
+   "min_vx": 2.1962270736694336,
+   "max_tilt": 11.067075729370117,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.9,
+   "back_s": 0.0,
+   "min_vx": 2.1962270736694336,
+   "max_tilt": 11.067075729370117,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0603": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.25,
+   "back_s": 0.0,
+   "min_vx": 1.589782953262329,
+   "max_tilt": 30.04311752319336,
+   "tilt35": 0,
+   "tilt30": 1,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.05,
+   "back_s": 0.0,
+   "min_vx": 0.3147859275341034,
+   "max_tilt": 26.246906280517578,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0268": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 18.3,
+   "back_s": 0.0,
+   "min_vx": 1.630340337753296,
+   "max_tilt": 14.789591789245605,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 18.3,
+   "back_s": 0.0,
+   "min_vx": 1.630340337753296,
+   "max_tilt": 14.789591789245605,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1688": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.950000000000001,
+   "back_s": 0.0,
+   "min_vx": 3.491746425628662,
+   "max_tilt": 16.79326629638672,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.55,
+   "back_s": 0.0,
+   "min_vx": 2.3741650581359863,
+   "max_tilt": 16.34428596496582,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0004": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.75,
+   "back_s": 0.0,
+   "min_vx": 2.0052390098571777,
+   "max_tilt": 25.233423233032227,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 16.650000000000002,
+   "back_s": 0.0,
+   "min_vx": 1.6201138496398926,
+   "max_tilt": 25.60145378112793,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1586": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 16.400000000000002,
+   "back_s": 0.0,
+   "min_vx": 1.834631085395813,
+   "max_tilt": 26.266021728515625,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 16.400000000000002,
+   "back_s": 0.0,
+   "min_vx": 1.834631085395813,
+   "max_tilt": 26.266021728515625,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2488": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.65,
+   "back_s": 0.0,
+   "min_vx": 1.6985046863555908,
+   "max_tilt": 25.35837745666504,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.65,
+   "back_s": 0.0,
+   "min_vx": 1.6985046863555908,
+   "max_tilt": 25.35837745666504,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2796": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.8,
+   "back_s": 0.0,
+   "min_vx": 2.0017879009246826,
+   "max_tilt": 17.732717514038086,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.15,
+   "back_s": 0.0,
+   "min_vx": 1.4472492933273315,
+   "max_tilt": 15.124228477478027,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1370": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 17.95,
+   "back_s": 0.0,
+   "min_vx": 2.007478952407837,
+   "max_tilt": 21.92039680480957,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 19.150000000000002,
+   "back_s": 0.0,
+   "min_vx": 0.7152482867240906,
+   "max_tilt": 25.823360443115234,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1147": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 21.200000000000003,
+   "back_s": 0.0,
+   "min_vx": 1.7032681703567505,
+   "max_tilt": 24.070302963256836,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 21.200000000000003,
+   "back_s": 0.0,
+   "min_vx": 1.7032681703567505,
+   "max_tilt": 24.070302963256836,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0908": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.700000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.033402919769287,
+   "max_tilt": 16.961271286010742,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.700000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.033402919769287,
+   "max_tilt": 16.961271286010742,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2384": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.75,
+   "back_s": 0.0,
+   "min_vx": 1.8510329723358154,
+   "max_tilt": 9.309350967407227,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.55,
+   "back_s": 0.0,
+   "min_vx": 1.3842582702636719,
+   "max_tilt": 8.653133392333984,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0987": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 19.8,
+   "back_s": 0.0,
+   "min_vx": 0.9246194362640381,
+   "max_tilt": 16.033761978149414,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 19.8,
+   "back_s": 0.0,
+   "min_vx": 0.9246194362640381,
+   "max_tilt": 16.033761978149414,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2080": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.600000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.9294424057006836,
+   "max_tilt": 25.34621238708496,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.9,
+   "back_s": 0.0,
+   "min_vx": 1.851169228553772,
+   "max_tilt": 25.13543128967285,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0643": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 19.25,
+   "back_s": 0.0,
+   "min_vx": 1.5603245496749878,
+   "max_tilt": 28.525436401367188,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 21.85,
+   "back_s": 0.0,
+   "min_vx": 1.2928814888000488,
+   "max_tilt": 21.030366897583008,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_3067": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 7.800000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.5752766132354736,
+   "max_tilt": 29.95684242248535,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.950000000000001,
+   "back_s": 0.0,
+   "min_vx": 0.6907499432563782,
+   "max_tilt": 19.573802947998047,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2486": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 14.0,
+   "back_s": 0.0,
+   "min_vx": 1.57479727268219,
+   "max_tilt": 14.798562049865723,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.200000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.7560689449310303,
+   "max_tilt": 25.662935256958008,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0360": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.950000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.8063277006149292,
+   "max_tilt": 19.494909286499023,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 17.55,
+   "back_s": 0.0,
+   "min_vx": 1.784568190574646,
+   "max_tilt": 15.549872398376465,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2570": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.65,
+   "back_s": 0.0,
+   "min_vx": 3.632798910140991,
+   "max_tilt": 30.089847564697266,
+   "tilt35": 0,
+   "tilt30": 1,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 21.950000000000003,
+   "back_s": 0.0,
+   "min_vx": 0.5558876395225525,
+   "max_tilt": 25.335098266601562,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0992": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.700000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.9288661479949951,
+   "max_tilt": 15.808762550354004,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.200000000000001,
+   "back_s": 0.0,
+   "min_vx": 3.229487895965576,
+   "max_tilt": 15.909112930297852,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1411": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 22.150000000000002,
+   "back_s": 0.0,
+   "min_vx": 1.1920750141143799,
+   "max_tilt": 12.481282234191895,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 14.8,
+   "back_s": 0.0,
+   "min_vx": 0.9026711583137512,
+   "max_tilt": 22.727867126464844,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2091": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 14.25,
+   "back_s": 0.0,
+   "min_vx": 1.5644301176071167,
+   "max_tilt": 16.070362091064453,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.700000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.0888595581054688,
+   "max_tilt": 17.93854331970215,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1851": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.4,
+   "back_s": 0.0,
+   "min_vx": 1.160981297492981,
+   "max_tilt": 20.96518325805664,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.4,
+   "back_s": 0.0,
+   "min_vx": 1.160981297492981,
+   "max_tilt": 20.96518325805664,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2499": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.3,
+   "back_s": 0.0,
+   "min_vx": 1.8695131540298462,
+   "max_tilt": 29.945783615112305,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 7.75,
+   "back_s": 0.0,
+   "min_vx": 2.4506349563598633,
+   "max_tilt": 26.913118362426758,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0280": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.25,
+   "back_s": 0.0,
+   "min_vx": 1.911534309387207,
+   "max_tilt": 21.473501205444336,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 7.75,
+   "back_s": 0.0,
+   "min_vx": 1.894702672958374,
+   "max_tilt": 26.1754093170166,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2498": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 18.85,
+   "back_s": 0.0,
+   "min_vx": 0.49111196398735046,
+   "max_tilt": 24.594432830810547,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.8,
+   "back_s": 0.0,
+   "min_vx": 1.2715791463851929,
+   "max_tilt": 19.65332794189453,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1664": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 21.05,
+   "back_s": 0.0,
+   "min_vx": 1.10537588596344,
+   "max_tilt": 19.19866371154785,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 21.05,
+   "back_s": 0.0,
+   "min_vx": 1.10537588596344,
+   "max_tilt": 19.19866371154785,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_0756": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.450000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.668414831161499,
+   "max_tilt": 20.85103416442871,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 22.150000000000002,
+   "back_s": 0.0,
+   "min_vx": 1.2949676513671875,
+   "max_tilt": 20.891357421875,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_3104": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 19.25,
+   "back_s": 0.0,
+   "min_vx": 1.369832992553711,
+   "max_tilt": 20.36429214477539,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.350000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.9309484958648682,
+   "max_tilt": 17.88518714904785,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2076": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 18.05,
+   "back_s": 0.0,
+   "min_vx": 1.3507800102233887,
+   "max_tilt": 10.685768127441406,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 21.700000000000003,
+   "back_s": 0.0,
+   "min_vx": 1.0086506605148315,
+   "max_tilt": 18.36139678955078,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0715": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 21.3,
+   "back_s": 0.0,
+   "min_vx": 1.876660943031311,
+   "max_tilt": 27.11873435974121,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 16.650000000000002,
+   "back_s": 0.0,
+   "min_vx": 2.171393871307373,
+   "max_tilt": 16.382781982421875,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1168": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 14.15,
+   "back_s": 0.0,
+   "min_vx": 1.6507407426834106,
+   "max_tilt": 21.930213928222656,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 25.400000000000002,
+   "back_s": 0.0,
+   "min_vx": 0.8471194505691528,
+   "max_tilt": 25.9180965423584,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1131": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.65,
+   "back_s": 0.0,
+   "min_vx": 2.488002300262451,
+   "max_tilt": 19.017107009887695,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.65,
+   "back_s": 0.0,
+   "min_vx": 2.488002300262451,
+   "max_tilt": 19.017107009887695,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2775": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.9,
+   "back_s": 0.0,
+   "min_vx": 1.5468666553497314,
+   "max_tilt": 23.001909255981445,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 35.7,
+   "back_s": 0.0,
+   "min_vx": 0.09429531544446945,
+   "max_tilt": 22.318706512451172,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2803": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.100000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.1433098316192627,
+   "max_tilt": 15.751272201538086,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.100000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.1433098316192627,
+   "max_tilt": 15.751272201538086,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2392": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 10.350000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.796132802963257,
+   "max_tilt": 23.275663375854492,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.3,
+   "back_s": 0.0,
+   "min_vx": 1.7239328622817993,
+   "max_tilt": 22.992868423461914,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0596": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.700000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.255472183227539,
+   "max_tilt": 16.61272621154785,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 12.4,
+   "back_s": 0.0,
+   "min_vx": 2.6489675045013428,
+   "max_tilt": 16.40256118774414,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0139": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.600000000000001,
+   "back_s": 0.0,
+   "min_vx": 3.039292812347412,
+   "max_tilt": 11.980886459350586,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 14.75,
+   "back_s": 0.0,
+   "min_vx": 1.5803446769714355,
+   "max_tilt": 16.127164840698242,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1838": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 14.15,
+   "back_s": 0.0,
+   "min_vx": 2.009126663208008,
+   "max_tilt": 14.771368026733398,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 18.650000000000002,
+   "back_s": 0.0,
+   "min_vx": 0.9057381749153137,
+   "max_tilt": 13.608105659484863,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1459": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 18.5,
+   "back_s": 0.0,
+   "min_vx": 1.943163275718689,
+   "max_tilt": 12.249515533447266,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 18.5,
+   "back_s": 0.0,
+   "min_vx": 1.943163275718689,
+   "max_tilt": 12.249515533447266,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2511": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.1,
+   "back_s": 0.0,
+   "min_vx": 3.153594732284546,
+   "max_tilt": 18.176191329956055,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.3,
+   "back_s": 0.0,
+   "min_vx": 1.857643723487854,
+   "max_tilt": 13.33430290222168,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1661": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.55,
+   "back_s": 0.0,
+   "min_vx": 2.0153658390045166,
+   "max_tilt": 25.122886657714844,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 1,
+   "status": "goal_reached",
+   "elapsed": 23.650000000000002,
+   "back_s": 0.05,
+   "min_vx": -0.1965579241514206,
+   "max_tilt": 9.245208740234375,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 1
+  }
+ },
+ "f104_t3_group_0636": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.700000000000001,
+   "back_s": 0.0,
+   "min_vx": 1.6329047679901123,
+   "max_tilt": 17.451610565185547,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.0,
+   "back_s": 0.0,
+   "min_vx": 1.917428970336914,
+   "max_tilt": 21.36765480041504,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1212": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.15,
+   "back_s": 0.0,
+   "min_vx": 1.8807168006896973,
+   "max_tilt": 20.46001434326172,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.75,
+   "back_s": 0.0,
+   "min_vx": 1.4011765718460083,
+   "max_tilt": 15.142736434936523,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t2_group_0266": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 15.200000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.1356606483459473,
+   "max_tilt": 14.663151741027832,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 17.1,
+   "back_s": 0.0,
+   "min_vx": 1.8448340892791748,
+   "max_tilt": 25.685842514038086,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2472": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.05,
+   "back_s": 0.0,
+   "min_vx": 2.387507200241089,
+   "max_tilt": 15.753472328186035,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 13.8,
+   "back_s": 0.0,
+   "min_vx": 1.6236459016799927,
+   "max_tilt": 21.85130500793457,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1028": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 16.25,
+   "back_s": 0.0,
+   "min_vx": 1.8100109100341797,
+   "max_tilt": 16.410621643066406,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 16.25,
+   "back_s": 0.0,
+   "min_vx": 1.8100109100341797,
+   "max_tilt": 16.410621643066406,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1644": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.950000000000001,
+   "back_s": 0.0,
+   "min_vx": 2.3735978603363037,
+   "max_tilt": 18.433551788330078,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 22.700000000000003,
+   "back_s": 0.0,
+   "min_vx": 1.6381402015686035,
+   "max_tilt": 16.623647689819336,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_1904": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 9.05,
+   "back_s": 0.0,
+   "min_vx": 1.6705278158187866,
+   "max_tilt": 24.509159088134766,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 8.8,
+   "back_s": 0.0,
+   "min_vx": 2.3327231407165527,
+   "max_tilt": 12.464259147644043,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ },
+ "f104_t3_group_2336": {
+  "base": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.8,
+   "back_s": 0.0,
+   "min_vx": 2.71113657951355,
+   "max_tilt": 10.226658821105957,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  },
+  "tilt": {
+   "fail": 0,
+   "unsafe": 0,
+   "status": "goal_reached",
+   "elapsed": 11.5,
+   "back_s": 0.0,
+   "min_vx": 1.6588839292526245,
+   "max_tilt": 11.53255844116211,
+   "tilt35": 0,
+   "tilt30": 0,
+   "unsafe_or_tilt": 0
+  }
+ }
+}

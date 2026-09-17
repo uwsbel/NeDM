@@ -1,0 +1,51 @@
+{
+  "schema": "f104_declared_geometry_figure_v1",
+  "scope": "Frozen commanded geometry only; no physical output files opened",
+  "group_count": 1500,
+  "unique_group_ids": 1500,
+  "unique_spatial_references": 4500,
+  "episode_variants": 18000,
+  "split_group_counts": {
+    "train": 1342,
+    "val": 85,
+    "test": 73
+  },
+  "representative_group_count": 21,
+  "representative_group_ids": [
+    "f104_v1_group_0372",
+    "f104_v1_group_0373",
+    "f104_v1_group_0374",
+    "f104_v1_group_0375",
+    "f104_v1_group_0376",
+    "f104_v1_group_0377",
+    "f104_v1_group_0378",
+    "f104_v1_group_0379",
+    "f104_v1_group_0380",
+    "f104_v1_group_0381",
+    "f104_v1_group_1116",
+    "f104_v1_group_1117",
+    "f104_v1_group_1118",
+    "f104_v1_group_1119",
+    "f104_v1_group_1120",
+    "f104_v1_group_1121",
+    "f104_v1_group_1122",
+    "f104_v1_group_1123",
+    "f104_v1_group_1124",
+    "f104_v1_group_1126",
+    "f104_v1_group_1185"
+  ],
+  "representative_selection": "Within each feature-index stratum and general-route stratum, choose nearest group index to25th/75thpercentile; deduplicate",
+  "occupancy_method": "2m grid; one count per spatial reference/cell containing at least one existing<=0.5mreference waypoint; speed siblings collapsed; no footprint inflation",
+  "maximum_spatial_references_per_cell": 351,
+  "native_simulation_or_model_inference_performed": false,
+  "source_sha256": {
+    "artifacts/traverse/fdm_f104_50h_20260909/cases/cases.json": "d5ddac50a4d253562597e53261acd21b56721dfadd0ceeaa16dd4091a1715702",
+    "artifacts/traverse/fdm_f104_50h_20260909/cases_reserve_v1/cases.json": "1b6e38e0f1aeb47e7e15e8f42f98f8e0e91d425d8e06cf3d9b8b1d411aaea8dd"
+  },
+  "bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+  "script_sha256": "5f48ef26ec263b92c21e4c123946ebb1eaf3f2778db4b3e096ddbe5a199cf8ce",
+  "output_sha256": {
+    "declared_geometry_overview.png": "cb801ad25d40aebf7dc64bd360a2669774924a336c1c3a5118c66eb95661e761",
+    "declared_geometry_overview.pdf": "9df36863271fd2bf7adf50b1f814fffbef9dbd8e5efcd6f9d0fa704ba86c55bf"
+  }
+}

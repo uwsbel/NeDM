@@ -1,0 +1,44 @@
+{
+ "f104": {
+  "arena": "arena_f104_50h_v1",
+  "n_routes_total": 2008,
+  "n_routes_sampled": 1004,
+  "n_points": 767196,
+  "n_groups": 400
+ },
+ "g203": {
+  "arena": "arena_g203",
+  "n_routes_total": 2027,
+  "n_routes_sampled": 1014,
+  "n_points": 776570,
+  "n_groups": 400
+ },
+ "g216": {
+  "arena": "arena_g216",
+  "n_routes_total": 2047,
+  "n_routes_sampled": 1024,
+  "n_points": 783944,
+  "n_groups": 400
+ },
+ "g217": {
+  "arena": "arena_g217",
+  "n_routes_total": 2076,
+  "n_routes_sampled": 1038,
+  "n_points": 796126,
+  "n_groups": 400
+ },
+ "g228": {
+  "arena": "arena_g228",
+  "n_routes_total": 2026,
+  "n_routes_sampled": 1013,
+  "n_points": 776649,
+  "n_groups": 400
+ },
+ "g231": {
+  "arena": "arena_g231",
+  "n_routes_total": 2003,
+  "n_routes_sampled": 1002,
+  "n_points": 766568,
+  "n_groups": 400
+ }
+}

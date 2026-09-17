@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "scope": "CPU accounting-only fixtures; no Chrono physics",
+  "concurrent_processes": 6,
+  "unique_completed": 19,
+  "completed_frames": 133,
+  "target_frames": 100,
+  "stop_new_claims_at_quota": true,
+  "inflight_completions_retained": true,
+  "crash_between_ledger_and_state_recovered_once": true,
+  "failed_partial_counts_zero": true,
+  "initialize_refuses_reset": true,
+  "worker_sha256": "7fcfadc429c7f893f71a72e9635c3879fcd9d395a16870b70af5a0a5d0962ab1"
+}

@@ -1,0 +1,4202 @@
+[
+ {
+  "mission": "missions/f104/f104_mission_000.json",
+  "mission_id": "f104_mission_000",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 0
+ },
+ {
+  "mission": "missions/f104/f104_mission_000.json",
+  "mission_id": "f104_mission_000",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 0
+ },
+ {
+  "mission": "missions/f104/f104_mission_000.json",
+  "mission_id": "f104_mission_000",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 0
+ },
+ {
+  "mission": "missions/f104/f104_mission_001.json",
+  "mission_id": "f104_mission_001",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 0
+ },
+ {
+  "mission": "missions/f104/f104_mission_001.json",
+  "mission_id": "f104_mission_001",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 0
+ },
+ {
+  "mission": "missions/f104/f104_mission_001.json",
+  "mission_id": "f104_mission_001",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 0
+ },
+ {
+  "mission": "missions/f104/f104_mission_002.json",
+  "mission_id": "f104_mission_002",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 0
+ },
+ {
+  "mission": "missions/f104/f104_mission_002.json",
+  "mission_id": "f104_mission_002",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 0
+ },
+ {
+  "mission": "missions/f104/f104_mission_002.json",
+  "mission_id": "f104_mission_002",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 0
+ },
+ {
+  "mission": "missions/f104/f104_mission_003.json",
+  "mission_id": "f104_mission_003",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 0
+ },
+ {
+  "mission": "missions/f104/f104_mission_003.json",
+  "mission_id": "f104_mission_003",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 0
+ },
+ {
+  "mission": "missions/f104/f104_mission_003.json",
+  "mission_id": "f104_mission_003",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 0
+ },
+ {
+  "mission": "missions/f104/f104_mission_004.json",
+  "mission_id": "f104_mission_004",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 0
+ },
+ {
+  "mission": "missions/f104/f104_mission_004.json",
+  "mission_id": "f104_mission_004",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 0
+ },
+ {
+  "mission": "missions/f104/f104_mission_004.json",
+  "mission_id": "f104_mission_004",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 0
+ },
+ {
+  "mission": "missions/f104/f104_mission_005.json",
+  "mission_id": "f104_mission_005",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 0
+ },
+ {
+  "mission": "missions/f104/f104_mission_005.json",
+  "mission_id": "f104_mission_005",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 0
+ },
+ {
+  "mission": "missions/f104/f104_mission_005.json",
+  "mission_id": "f104_mission_005",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 0
+ },
+ {
+  "mission": "missions/f104/f104_mission_006.json",
+  "mission_id": "f104_mission_006",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 0
+ },
+ {
+  "mission": "missions/f104/f104_mission_006.json",
+  "mission_id": "f104_mission_006",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 0
+ },
+ {
+  "mission": "missions/f104/f104_mission_006.json",
+  "mission_id": "f104_mission_006",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 0
+ },
+ {
+  "mission": "missions/f104/f104_mission_007.json",
+  "mission_id": "f104_mission_007",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 1
+ },
+ {
+  "mission": "missions/f104/f104_mission_007.json",
+  "mission_id": "f104_mission_007",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 1
+ },
+ {
+  "mission": "missions/f104/f104_mission_007.json",
+  "mission_id": "f104_mission_007",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 1
+ },
+ {
+  "mission": "missions/f104/f104_mission_008.json",
+  "mission_id": "f104_mission_008",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 1
+ },
+ {
+  "mission": "missions/f104/f104_mission_008.json",
+  "mission_id": "f104_mission_008",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 1
+ },
+ {
+  "mission": "missions/f104/f104_mission_008.json",
+  "mission_id": "f104_mission_008",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 1
+ },
+ {
+  "mission": "missions/f104/f104_mission_009.json",
+  "mission_id": "f104_mission_009",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 1
+ },
+ {
+  "mission": "missions/f104/f104_mission_009.json",
+  "mission_id": "f104_mission_009",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 1
+ },
+ {
+  "mission": "missions/f104/f104_mission_009.json",
+  "mission_id": "f104_mission_009",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 1
+ },
+ {
+  "mission": "missions/f104/f104_mission_010.json",
+  "mission_id": "f104_mission_010",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 1
+ },
+ {
+  "mission": "missions/f104/f104_mission_010.json",
+  "mission_id": "f104_mission_010",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 1
+ },
+ {
+  "mission": "missions/f104/f104_mission_010.json",
+  "mission_id": "f104_mission_010",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 1
+ },
+ {
+  "mission": "missions/f104/f104_mission_011.json",
+  "mission_id": "f104_mission_011",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 1
+ },
+ {
+  "mission": "missions/f104/f104_mission_011.json",
+  "mission_id": "f104_mission_011",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 1
+ },
+ {
+  "mission": "missions/f104/f104_mission_011.json",
+  "mission_id": "f104_mission_011",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 1
+ },
+ {
+  "mission": "missions/f104/f104_mission_012.json",
+  "mission_id": "f104_mission_012",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 1
+ },
+ {
+  "mission": "missions/f104/f104_mission_012.json",
+  "mission_id": "f104_mission_012",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 1
+ },
+ {
+  "mission": "missions/f104/f104_mission_012.json",
+  "mission_id": "f104_mission_012",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 1
+ },
+ {
+  "mission": "missions/f104/f104_mission_013.json",
+  "mission_id": "f104_mission_013",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 1
+ },
+ {
+  "mission": "missions/f104/f104_mission_013.json",
+  "mission_id": "f104_mission_013",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 1
+ },
+ {
+  "mission": "missions/f104/f104_mission_013.json",
+  "mission_id": "f104_mission_013",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 1
+ },
+ {
+  "mission": "missions/f104/f104_mission_014.json",
+  "mission_id": "f104_mission_014",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 2
+ },
+ {
+  "mission": "missions/f104/f104_mission_014.json",
+  "mission_id": "f104_mission_014",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 2
+ },
+ {
+  "mission": "missions/f104/f104_mission_014.json",
+  "mission_id": "f104_mission_014",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 2
+ },
+ {
+  "mission": "missions/f104/f104_mission_015.json",
+  "mission_id": "f104_mission_015",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 2
+ },
+ {
+  "mission": "missions/f104/f104_mission_015.json",
+  "mission_id": "f104_mission_015",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 2
+ },
+ {
+  "mission": "missions/f104/f104_mission_015.json",
+  "mission_id": "f104_mission_015",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 2
+ },
+ {
+  "mission": "missions/f104/f104_mission_016.json",
+  "mission_id": "f104_mission_016",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 2
+ },
+ {
+  "mission": "missions/f104/f104_mission_016.json",
+  "mission_id": "f104_mission_016",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 2
+ },
+ {
+  "mission": "missions/f104/f104_mission_016.json",
+  "mission_id": "f104_mission_016",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 2
+ },
+ {
+  "mission": "missions/f104/f104_mission_017.json",
+  "mission_id": "f104_mission_017",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 2
+ },
+ {
+  "mission": "missions/f104/f104_mission_017.json",
+  "mission_id": "f104_mission_017",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 2
+ },
+ {
+  "mission": "missions/f104/f104_mission_017.json",
+  "mission_id": "f104_mission_017",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 2
+ },
+ {
+  "mission": "missions/f104/f104_mission_018.json",
+  "mission_id": "f104_mission_018",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 2
+ },
+ {
+  "mission": "missions/f104/f104_mission_018.json",
+  "mission_id": "f104_mission_018",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 2
+ },
+ {
+  "mission": "missions/f104/f104_mission_018.json",
+  "mission_id": "f104_mission_018",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 2
+ },
+ {
+  "mission": "missions/f104/f104_mission_019.json",
+  "mission_id": "f104_mission_019",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 2
+ },
+ {
+  "mission": "missions/f104/f104_mission_019.json",
+  "mission_id": "f104_mission_019",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 2
+ },
+ {
+  "mission": "missions/f104/f104_mission_019.json",
+  "mission_id": "f104_mission_019",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 2
+ },
+ {
+  "mission": "missions/f104/f104_mission_020.json",
+  "mission_id": "f104_mission_020",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 2
+ },
+ {
+  "mission": "missions/f104/f104_mission_020.json",
+  "mission_id": "f104_mission_020",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 2
+ },
+ {
+  "mission": "missions/f104/f104_mission_020.json",
+  "mission_id": "f104_mission_020",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 2
+ },
+ {
+  "mission": "missions/f104/f104_mission_021.json",
+  "mission_id": "f104_mission_021",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 3
+ },
+ {
+  "mission": "missions/f104/f104_mission_021.json",
+  "mission_id": "f104_mission_021",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 3
+ },
+ {
+  "mission": "missions/f104/f104_mission_021.json",
+  "mission_id": "f104_mission_021",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 3
+ },
+ {
+  "mission": "missions/f104/f104_mission_022.json",
+  "mission_id": "f104_mission_022",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 3
+ },
+ {
+  "mission": "missions/f104/f104_mission_022.json",
+  "mission_id": "f104_mission_022",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 3
+ },
+ {
+  "mission": "missions/f104/f104_mission_022.json",
+  "mission_id": "f104_mission_022",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 3
+ },
+ {
+  "mission": "missions/f104/f104_mission_023.json",
+  "mission_id": "f104_mission_023",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 3
+ },
+ {
+  "mission": "missions/f104/f104_mission_023.json",
+  "mission_id": "f104_mission_023",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 3
+ },
+ {
+  "mission": "missions/f104/f104_mission_023.json",
+  "mission_id": "f104_mission_023",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 3
+ },
+ {
+  "mission": "missions/f104/f104_mission_024.json",
+  "mission_id": "f104_mission_024",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 3
+ },
+ {
+  "mission": "missions/f104/f104_mission_024.json",
+  "mission_id": "f104_mission_024",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 3
+ },
+ {
+  "mission": "missions/f104/f104_mission_024.json",
+  "mission_id": "f104_mission_024",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 3
+ },
+ {
+  "mission": "missions/f104/f104_mission_025.json",
+  "mission_id": "f104_mission_025",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 3
+ },
+ {
+  "mission": "missions/f104/f104_mission_025.json",
+  "mission_id": "f104_mission_025",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 3
+ },
+ {
+  "mission": "missions/f104/f104_mission_025.json",
+  "mission_id": "f104_mission_025",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 3
+ },
+ {
+  "mission": "missions/f104/f104_mission_026.json",
+  "mission_id": "f104_mission_026",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 3
+ },
+ {
+  "mission": "missions/f104/f104_mission_026.json",
+  "mission_id": "f104_mission_026",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 3
+ },
+ {
+  "mission": "missions/f104/f104_mission_026.json",
+  "mission_id": "f104_mission_026",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 3
+ },
+ {
+  "mission": "missions/f104/f104_mission_027.json",
+  "mission_id": "f104_mission_027",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 3
+ },
+ {
+  "mission": "missions/f104/f104_mission_027.json",
+  "mission_id": "f104_mission_027",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 3
+ },
+ {
+  "mission": "missions/f104/f104_mission_027.json",
+  "mission_id": "f104_mission_027",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 3
+ },
+ {
+  "mission": "missions/f104/f104_mission_028.json",
+  "mission_id": "f104_mission_028",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 4
+ },
+ {
+  "mission": "missions/f104/f104_mission_028.json",
+  "mission_id": "f104_mission_028",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 4
+ },
+ {
+  "mission": "missions/f104/f104_mission_028.json",
+  "mission_id": "f104_mission_028",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 4
+ },
+ {
+  "mission": "missions/f104/f104_mission_029.json",
+  "mission_id": "f104_mission_029",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 4
+ },
+ {
+  "mission": "missions/f104/f104_mission_029.json",
+  "mission_id": "f104_mission_029",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 4
+ },
+ {
+  "mission": "missions/f104/f104_mission_029.json",
+  "mission_id": "f104_mission_029",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 4
+ },
+ {
+  "mission": "missions/f104/f104_mission_030.json",
+  "mission_id": "f104_mission_030",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 4
+ },
+ {
+  "mission": "missions/f104/f104_mission_030.json",
+  "mission_id": "f104_mission_030",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 4
+ },
+ {
+  "mission": "missions/f104/f104_mission_030.json",
+  "mission_id": "f104_mission_030",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 4
+ },
+ {
+  "mission": "missions/f104/f104_mission_031.json",
+  "mission_id": "f104_mission_031",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 4
+ },
+ {
+  "mission": "missions/f104/f104_mission_031.json",
+  "mission_id": "f104_mission_031",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 4
+ },
+ {
+  "mission": "missions/f104/f104_mission_031.json",
+  "mission_id": "f104_mission_031",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 4
+ },
+ {
+  "mission": "missions/f104/f104_mission_032.json",
+  "mission_id": "f104_mission_032",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 4
+ },
+ {
+  "mission": "missions/f104/f104_mission_032.json",
+  "mission_id": "f104_mission_032",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 4
+ },
+ {
+  "mission": "missions/f104/f104_mission_032.json",
+  "mission_id": "f104_mission_032",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 4
+ },
+ {
+  "mission": "missions/f104/f104_mission_033.json",
+  "mission_id": "f104_mission_033",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 4
+ },
+ {
+  "mission": "missions/f104/f104_mission_033.json",
+  "mission_id": "f104_mission_033",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 4
+ },
+ {
+  "mission": "missions/f104/f104_mission_033.json",
+  "mission_id": "f104_mission_033",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 4
+ },
+ {
+  "mission": "missions/f104/f104_mission_034.json",
+  "mission_id": "f104_mission_034",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 4
+ },
+ {
+  "mission": "missions/f104/f104_mission_034.json",
+  "mission_id": "f104_mission_034",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 4
+ },
+ {
+  "mission": "missions/f104/f104_mission_034.json",
+  "mission_id": "f104_mission_034",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 4
+ },
+ {
+  "mission": "missions/f104/f104_mission_035.json",
+  "mission_id": "f104_mission_035",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 5
+ },
+ {
+  "mission": "missions/f104/f104_mission_035.json",
+  "mission_id": "f104_mission_035",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 5
+ },
+ {
+  "mission": "missions/f104/f104_mission_035.json",
+  "mission_id": "f104_mission_035",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 5
+ },
+ {
+  "mission": "missions/f104/f104_mission_036.json",
+  "mission_id": "f104_mission_036",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 5
+ },
+ {
+  "mission": "missions/f104/f104_mission_036.json",
+  "mission_id": "f104_mission_036",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 5
+ },
+ {
+  "mission": "missions/f104/f104_mission_036.json",
+  "mission_id": "f104_mission_036",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 5
+ },
+ {
+  "mission": "missions/f104/f104_mission_037.json",
+  "mission_id": "f104_mission_037",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 5
+ },
+ {
+  "mission": "missions/f104/f104_mission_037.json",
+  "mission_id": "f104_mission_037",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 5
+ },
+ {
+  "mission": "missions/f104/f104_mission_037.json",
+  "mission_id": "f104_mission_037",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 5
+ },
+ {
+  "mission": "missions/f104/f104_mission_038.json",
+  "mission_id": "f104_mission_038",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 5
+ },
+ {
+  "mission": "missions/f104/f104_mission_038.json",
+  "mission_id": "f104_mission_038",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 5
+ },
+ {
+  "mission": "missions/f104/f104_mission_038.json",
+  "mission_id": "f104_mission_038",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 5
+ },
+ {
+  "mission": "missions/f104/f104_mission_039.json",
+  "mission_id": "f104_mission_039",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 5
+ },
+ {
+  "mission": "missions/f104/f104_mission_039.json",
+  "mission_id": "f104_mission_039",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 5
+ },
+ {
+  "mission": "missions/f104/f104_mission_039.json",
+  "mission_id": "f104_mission_039",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 5
+ },
+ {
+  "mission": "missions/f104/f104_mission_040.json",
+  "mission_id": "f104_mission_040",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 5
+ },
+ {
+  "mission": "missions/f104/f104_mission_040.json",
+  "mission_id": "f104_mission_040",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 5
+ },
+ {
+  "mission": "missions/f104/f104_mission_040.json",
+  "mission_id": "f104_mission_040",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 5
+ },
+ {
+  "mission": "missions/f104/f104_mission_041.json",
+  "mission_id": "f104_mission_041",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 5
+ },
+ {
+  "mission": "missions/f104/f104_mission_041.json",
+  "mission_id": "f104_mission_041",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 5
+ },
+ {
+  "mission": "missions/f104/f104_mission_041.json",
+  "mission_id": "f104_mission_041",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 5
+ },
+ {
+  "mission": "missions/f104/f104_mission_042.json",
+  "mission_id": "f104_mission_042",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 6
+ },
+ {
+  "mission": "missions/f104/f104_mission_042.json",
+  "mission_id": "f104_mission_042",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 6
+ },
+ {
+  "mission": "missions/f104/f104_mission_042.json",
+  "mission_id": "f104_mission_042",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 6
+ },
+ {
+  "mission": "missions/f104/f104_mission_043.json",
+  "mission_id": "f104_mission_043",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 6
+ },
+ {
+  "mission": "missions/f104/f104_mission_043.json",
+  "mission_id": "f104_mission_043",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 6
+ },
+ {
+  "mission": "missions/f104/f104_mission_043.json",
+  "mission_id": "f104_mission_043",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 6
+ },
+ {
+  "mission": "missions/f104/f104_mission_044.json",
+  "mission_id": "f104_mission_044",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 6
+ },
+ {
+  "mission": "missions/f104/f104_mission_044.json",
+  "mission_id": "f104_mission_044",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 6
+ },
+ {
+  "mission": "missions/f104/f104_mission_044.json",
+  "mission_id": "f104_mission_044",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 6
+ },
+ {
+  "mission": "missions/f104/f104_mission_045.json",
+  "mission_id": "f104_mission_045",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 6
+ },
+ {
+  "mission": "missions/f104/f104_mission_045.json",
+  "mission_id": "f104_mission_045",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 6
+ },
+ {
+  "mission": "missions/f104/f104_mission_045.json",
+  "mission_id": "f104_mission_045",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 6
+ },
+ {
+  "mission": "missions/f104/f104_mission_046.json",
+  "mission_id": "f104_mission_046",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 6
+ },
+ {
+  "mission": "missions/f104/f104_mission_046.json",
+  "mission_id": "f104_mission_046",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 6
+ },
+ {
+  "mission": "missions/f104/f104_mission_046.json",
+  "mission_id": "f104_mission_046",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 6
+ },
+ {
+  "mission": "missions/f104/f104_mission_047.json",
+  "mission_id": "f104_mission_047",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 6
+ },
+ {
+  "mission": "missions/f104/f104_mission_047.json",
+  "mission_id": "f104_mission_047",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 6
+ },
+ {
+  "mission": "missions/f104/f104_mission_047.json",
+  "mission_id": "f104_mission_047",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 6
+ },
+ {
+  "mission": "missions/f104/f104_mission_048.json",
+  "mission_id": "f104_mission_048",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 6
+ },
+ {
+  "mission": "missions/f104/f104_mission_048.json",
+  "mission_id": "f104_mission_048",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 6
+ },
+ {
+  "mission": "missions/f104/f104_mission_048.json",
+  "mission_id": "f104_mission_048",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 6
+ },
+ {
+  "mission": "missions/f104/f104_mission_049.json",
+  "mission_id": "f104_mission_049",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 7
+ },
+ {
+  "mission": "missions/f104/f104_mission_049.json",
+  "mission_id": "f104_mission_049",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 7
+ },
+ {
+  "mission": "missions/f104/f104_mission_049.json",
+  "mission_id": "f104_mission_049",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 7
+ },
+ {
+  "mission": "missions/f104/f104_mission_050.json",
+  "mission_id": "f104_mission_050",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 7
+ },
+ {
+  "mission": "missions/f104/f104_mission_050.json",
+  "mission_id": "f104_mission_050",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 7
+ },
+ {
+  "mission": "missions/f104/f104_mission_050.json",
+  "mission_id": "f104_mission_050",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 7
+ },
+ {
+  "mission": "missions/f104/f104_mission_051.json",
+  "mission_id": "f104_mission_051",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 7
+ },
+ {
+  "mission": "missions/f104/f104_mission_051.json",
+  "mission_id": "f104_mission_051",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 7
+ },
+ {
+  "mission": "missions/f104/f104_mission_051.json",
+  "mission_id": "f104_mission_051",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 7
+ },
+ {
+  "mission": "missions/f104/f104_mission_052.json",
+  "mission_id": "f104_mission_052",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 7
+ },
+ {
+  "mission": "missions/f104/f104_mission_052.json",
+  "mission_id": "f104_mission_052",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 7
+ },
+ {
+  "mission": "missions/f104/f104_mission_052.json",
+  "mission_id": "f104_mission_052",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 7
+ },
+ {
+  "mission": "missions/f104/f104_mission_053.json",
+  "mission_id": "f104_mission_053",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 7
+ },
+ {
+  "mission": "missions/f104/f104_mission_053.json",
+  "mission_id": "f104_mission_053",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 7
+ },
+ {
+  "mission": "missions/f104/f104_mission_053.json",
+  "mission_id": "f104_mission_053",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 7
+ },
+ {
+  "mission": "missions/f104/f104_mission_054.json",
+  "mission_id": "f104_mission_054",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 7
+ },
+ {
+  "mission": "missions/f104/f104_mission_054.json",
+  "mission_id": "f104_mission_054",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 7
+ },
+ {
+  "mission": "missions/f104/f104_mission_054.json",
+  "mission_id": "f104_mission_054",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 7
+ },
+ {
+  "mission": "missions/f104/f104_mission_055.json",
+  "mission_id": "f104_mission_055",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 7
+ },
+ {
+  "mission": "missions/f104/f104_mission_055.json",
+  "mission_id": "f104_mission_055",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 7
+ },
+ {
+  "mission": "missions/f104/f104_mission_055.json",
+  "mission_id": "f104_mission_055",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 7
+ },
+ {
+  "mission": "missions/f104/f104_mission_056.json",
+  "mission_id": "f104_mission_056",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 8
+ },
+ {
+  "mission": "missions/f104/f104_mission_056.json",
+  "mission_id": "f104_mission_056",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 8
+ },
+ {
+  "mission": "missions/f104/f104_mission_056.json",
+  "mission_id": "f104_mission_056",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 8
+ },
+ {
+  "mission": "missions/f104/f104_mission_057.json",
+  "mission_id": "f104_mission_057",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 8
+ },
+ {
+  "mission": "missions/f104/f104_mission_057.json",
+  "mission_id": "f104_mission_057",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 8
+ },
+ {
+  "mission": "missions/f104/f104_mission_057.json",
+  "mission_id": "f104_mission_057",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 8
+ },
+ {
+  "mission": "missions/f104/f104_mission_058.json",
+  "mission_id": "f104_mission_058",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 8
+ },
+ {
+  "mission": "missions/f104/f104_mission_058.json",
+  "mission_id": "f104_mission_058",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 8
+ },
+ {
+  "mission": "missions/f104/f104_mission_058.json",
+  "mission_id": "f104_mission_058",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 8
+ },
+ {
+  "mission": "missions/f104/f104_mission_059.json",
+  "mission_id": "f104_mission_059",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 8
+ },
+ {
+  "mission": "missions/f104/f104_mission_059.json",
+  "mission_id": "f104_mission_059",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 8
+ },
+ {
+  "mission": "missions/f104/f104_mission_059.json",
+  "mission_id": "f104_mission_059",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 8
+ },
+ {
+  "mission": "missions/f104/f104_mission_060.json",
+  "mission_id": "f104_mission_060",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 8
+ },
+ {
+  "mission": "missions/f104/f104_mission_060.json",
+  "mission_id": "f104_mission_060",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 8
+ },
+ {
+  "mission": "missions/f104/f104_mission_060.json",
+  "mission_id": "f104_mission_060",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 8
+ },
+ {
+  "mission": "missions/f104/f104_mission_061.json",
+  "mission_id": "f104_mission_061",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 8
+ },
+ {
+  "mission": "missions/f104/f104_mission_061.json",
+  "mission_id": "f104_mission_061",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 8
+ },
+ {
+  "mission": "missions/f104/f104_mission_061.json",
+  "mission_id": "f104_mission_061",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 8
+ },
+ {
+  "mission": "missions/f104/f104_mission_062.json",
+  "mission_id": "f104_mission_062",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 8
+ },
+ {
+  "mission": "missions/f104/f104_mission_062.json",
+  "mission_id": "f104_mission_062",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 8
+ },
+ {
+  "mission": "missions/f104/f104_mission_062.json",
+  "mission_id": "f104_mission_062",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 8
+ },
+ {
+  "mission": "missions/f104/f104_mission_063.json",
+  "mission_id": "f104_mission_063",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 9
+ },
+ {
+  "mission": "missions/f104/f104_mission_063.json",
+  "mission_id": "f104_mission_063",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 9
+ },
+ {
+  "mission": "missions/f104/f104_mission_063.json",
+  "mission_id": "f104_mission_063",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 9
+ },
+ {
+  "mission": "missions/f104/f104_mission_064.json",
+  "mission_id": "f104_mission_064",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 9
+ },
+ {
+  "mission": "missions/f104/f104_mission_064.json",
+  "mission_id": "f104_mission_064",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 9
+ },
+ {
+  "mission": "missions/f104/f104_mission_064.json",
+  "mission_id": "f104_mission_064",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 9
+ },
+ {
+  "mission": "missions/f104/f104_mission_065.json",
+  "mission_id": "f104_mission_065",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 9
+ },
+ {
+  "mission": "missions/f104/f104_mission_065.json",
+  "mission_id": "f104_mission_065",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 9
+ },
+ {
+  "mission": "missions/f104/f104_mission_065.json",
+  "mission_id": "f104_mission_065",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 9
+ },
+ {
+  "mission": "missions/f104/f104_mission_066.json",
+  "mission_id": "f104_mission_066",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 9
+ },
+ {
+  "mission": "missions/f104/f104_mission_066.json",
+  "mission_id": "f104_mission_066",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 9
+ },
+ {
+  "mission": "missions/f104/f104_mission_066.json",
+  "mission_id": "f104_mission_066",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 9
+ },
+ {
+  "mission": "missions/f104/f104_mission_067.json",
+  "mission_id": "f104_mission_067",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 9
+ },
+ {
+  "mission": "missions/f104/f104_mission_067.json",
+  "mission_id": "f104_mission_067",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 9
+ },
+ {
+  "mission": "missions/f104/f104_mission_067.json",
+  "mission_id": "f104_mission_067",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 9
+ },
+ {
+  "mission": "missions/f104/f104_mission_068.json",
+  "mission_id": "f104_mission_068",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 9
+ },
+ {
+  "mission": "missions/f104/f104_mission_068.json",
+  "mission_id": "f104_mission_068",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 9
+ },
+ {
+  "mission": "missions/f104/f104_mission_068.json",
+  "mission_id": "f104_mission_068",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 9
+ },
+ {
+  "mission": "missions/f104/f104_mission_069.json",
+  "mission_id": "f104_mission_069",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 9
+ },
+ {
+  "mission": "missions/f104/f104_mission_069.json",
+  "mission_id": "f104_mission_069",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 9
+ },
+ {
+  "mission": "missions/f104/f104_mission_069.json",
+  "mission_id": "f104_mission_069",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 9
+ },
+ {
+  "mission": "missions/f104/f104_mission_070.json",
+  "mission_id": "f104_mission_070",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 10
+ },
+ {
+  "mission": "missions/f104/f104_mission_070.json",
+  "mission_id": "f104_mission_070",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 10
+ },
+ {
+  "mission": "missions/f104/f104_mission_070.json",
+  "mission_id": "f104_mission_070",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 10
+ },
+ {
+  "mission": "missions/f104/f104_mission_071.json",
+  "mission_id": "f104_mission_071",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 10
+ },
+ {
+  "mission": "missions/f104/f104_mission_071.json",
+  "mission_id": "f104_mission_071",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 10
+ },
+ {
+  "mission": "missions/f104/f104_mission_071.json",
+  "mission_id": "f104_mission_071",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 10
+ },
+ {
+  "mission": "missions/f104/f104_mission_072.json",
+  "mission_id": "f104_mission_072",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 10
+ },
+ {
+  "mission": "missions/f104/f104_mission_072.json",
+  "mission_id": "f104_mission_072",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 10
+ },
+ {
+  "mission": "missions/f104/f104_mission_072.json",
+  "mission_id": "f104_mission_072",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 10
+ },
+ {
+  "mission": "missions/f104/f104_mission_073.json",
+  "mission_id": "f104_mission_073",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 10
+ },
+ {
+  "mission": "missions/f104/f104_mission_073.json",
+  "mission_id": "f104_mission_073",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 10
+ },
+ {
+  "mission": "missions/f104/f104_mission_073.json",
+  "mission_id": "f104_mission_073",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 10
+ },
+ {
+  "mission": "missions/f104/f104_mission_074.json",
+  "mission_id": "f104_mission_074",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 10
+ },
+ {
+  "mission": "missions/f104/f104_mission_074.json",
+  "mission_id": "f104_mission_074",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 10
+ },
+ {
+  "mission": "missions/f104/f104_mission_074.json",
+  "mission_id": "f104_mission_074",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 10
+ },
+ {
+  "mission": "missions/f104/f104_mission_075.json",
+  "mission_id": "f104_mission_075",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 10
+ },
+ {
+  "mission": "missions/f104/f104_mission_075.json",
+  "mission_id": "f104_mission_075",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 10
+ },
+ {
+  "mission": "missions/f104/f104_mission_075.json",
+  "mission_id": "f104_mission_075",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 10
+ },
+ {
+  "mission": "missions/f104/f104_mission_076.json",
+  "mission_id": "f104_mission_076",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 10
+ },
+ {
+  "mission": "missions/f104/f104_mission_076.json",
+  "mission_id": "f104_mission_076",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 10
+ },
+ {
+  "mission": "missions/f104/f104_mission_076.json",
+  "mission_id": "f104_mission_076",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 10
+ },
+ {
+  "mission": "missions/f104/f104_mission_077.json",
+  "mission_id": "f104_mission_077",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 11
+ },
+ {
+  "mission": "missions/f104/f104_mission_077.json",
+  "mission_id": "f104_mission_077",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 11
+ },
+ {
+  "mission": "missions/f104/f104_mission_077.json",
+  "mission_id": "f104_mission_077",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 11
+ },
+ {
+  "mission": "missions/f104/f104_mission_078.json",
+  "mission_id": "f104_mission_078",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 11
+ },
+ {
+  "mission": "missions/f104/f104_mission_078.json",
+  "mission_id": "f104_mission_078",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 11
+ },
+ {
+  "mission": "missions/f104/f104_mission_078.json",
+  "mission_id": "f104_mission_078",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 11
+ },
+ {
+  "mission": "missions/f104/f104_mission_079.json",
+  "mission_id": "f104_mission_079",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 11
+ },
+ {
+  "mission": "missions/f104/f104_mission_079.json",
+  "mission_id": "f104_mission_079",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 11
+ },
+ {
+  "mission": "missions/f104/f104_mission_079.json",
+  "mission_id": "f104_mission_079",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 11
+ },
+ {
+  "mission": "missions/f104/f104_mission_080.json",
+  "mission_id": "f104_mission_080",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 11
+ },
+ {
+  "mission": "missions/f104/f104_mission_080.json",
+  "mission_id": "f104_mission_080",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 11
+ },
+ {
+  "mission": "missions/f104/f104_mission_080.json",
+  "mission_id": "f104_mission_080",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 11
+ },
+ {
+  "mission": "missions/f104/f104_mission_081.json",
+  "mission_id": "f104_mission_081",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 11
+ },
+ {
+  "mission": "missions/f104/f104_mission_081.json",
+  "mission_id": "f104_mission_081",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 11
+ },
+ {
+  "mission": "missions/f104/f104_mission_081.json",
+  "mission_id": "f104_mission_081",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 11
+ },
+ {
+  "mission": "missions/f104/f104_mission_082.json",
+  "mission_id": "f104_mission_082",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 11
+ },
+ {
+  "mission": "missions/f104/f104_mission_082.json",
+  "mission_id": "f104_mission_082",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 11
+ },
+ {
+  "mission": "missions/f104/f104_mission_082.json",
+  "mission_id": "f104_mission_082",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 11
+ },
+ {
+  "mission": "missions/f104/f104_mission_083.json",
+  "mission_id": "f104_mission_083",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 11
+ },
+ {
+  "mission": "missions/f104/f104_mission_083.json",
+  "mission_id": "f104_mission_083",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 11
+ },
+ {
+  "mission": "missions/f104/f104_mission_083.json",
+  "mission_id": "f104_mission_083",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 11
+ },
+ {
+  "mission": "missions/f104/f104_mission_084.json",
+  "mission_id": "f104_mission_084",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 12
+ },
+ {
+  "mission": "missions/f104/f104_mission_084.json",
+  "mission_id": "f104_mission_084",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 12
+ },
+ {
+  "mission": "missions/f104/f104_mission_084.json",
+  "mission_id": "f104_mission_084",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 12
+ },
+ {
+  "mission": "missions/f104/f104_mission_085.json",
+  "mission_id": "f104_mission_085",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 12
+ },
+ {
+  "mission": "missions/f104/f104_mission_085.json",
+  "mission_id": "f104_mission_085",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 12
+ },
+ {
+  "mission": "missions/f104/f104_mission_085.json",
+  "mission_id": "f104_mission_085",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 12
+ },
+ {
+  "mission": "missions/f104/f104_mission_086.json",
+  "mission_id": "f104_mission_086",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 12
+ },
+ {
+  "mission": "missions/f104/f104_mission_086.json",
+  "mission_id": "f104_mission_086",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 12
+ },
+ {
+  "mission": "missions/f104/f104_mission_086.json",
+  "mission_id": "f104_mission_086",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 12
+ },
+ {
+  "mission": "missions/f104/f104_mission_087.json",
+  "mission_id": "f104_mission_087",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 12
+ },
+ {
+  "mission": "missions/f104/f104_mission_087.json",
+  "mission_id": "f104_mission_087",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 12
+ },
+ {
+  "mission": "missions/f104/f104_mission_087.json",
+  "mission_id": "f104_mission_087",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 12
+ },
+ {
+  "mission": "missions/f104/f104_mission_088.json",
+  "mission_id": "f104_mission_088",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 12
+ },
+ {
+  "mission": "missions/f104/f104_mission_088.json",
+  "mission_id": "f104_mission_088",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 12
+ },
+ {
+  "mission": "missions/f104/f104_mission_088.json",
+  "mission_id": "f104_mission_088",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 12
+ },
+ {
+  "mission": "missions/f104/f104_mission_089.json",
+  "mission_id": "f104_mission_089",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 12
+ },
+ {
+  "mission": "missions/f104/f104_mission_089.json",
+  "mission_id": "f104_mission_089",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 12
+ },
+ {
+  "mission": "missions/f104/f104_mission_089.json",
+  "mission_id": "f104_mission_089",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 12
+ },
+ {
+  "mission": "missions/f104/f104_mission_090.json",
+  "mission_id": "f104_mission_090",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 12
+ },
+ {
+  "mission": "missions/f104/f104_mission_090.json",
+  "mission_id": "f104_mission_090",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 12
+ },
+ {
+  "mission": "missions/f104/f104_mission_090.json",
+  "mission_id": "f104_mission_090",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 12
+ },
+ {
+  "mission": "missions/f104/f104_mission_091.json",
+  "mission_id": "f104_mission_091",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 13
+ },
+ {
+  "mission": "missions/f104/f104_mission_091.json",
+  "mission_id": "f104_mission_091",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 13
+ },
+ {
+  "mission": "missions/f104/f104_mission_091.json",
+  "mission_id": "f104_mission_091",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 13
+ },
+ {
+  "mission": "missions/f104/f104_mission_092.json",
+  "mission_id": "f104_mission_092",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 13
+ },
+ {
+  "mission": "missions/f104/f104_mission_092.json",
+  "mission_id": "f104_mission_092",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 13
+ },
+ {
+  "mission": "missions/f104/f104_mission_092.json",
+  "mission_id": "f104_mission_092",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 13
+ },
+ {
+  "mission": "missions/f104/f104_mission_093.json",
+  "mission_id": "f104_mission_093",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 13
+ },
+ {
+  "mission": "missions/f104/f104_mission_093.json",
+  "mission_id": "f104_mission_093",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 13
+ },
+ {
+  "mission": "missions/f104/f104_mission_093.json",
+  "mission_id": "f104_mission_093",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 13
+ },
+ {
+  "mission": "missions/f104/f104_mission_094.json",
+  "mission_id": "f104_mission_094",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 13
+ },
+ {
+  "mission": "missions/f104/f104_mission_094.json",
+  "mission_id": "f104_mission_094",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 13
+ },
+ {
+  "mission": "missions/f104/f104_mission_094.json",
+  "mission_id": "f104_mission_094",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 13
+ },
+ {
+  "mission": "missions/f104/f104_mission_095.json",
+  "mission_id": "f104_mission_095",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 13
+ },
+ {
+  "mission": "missions/f104/f104_mission_095.json",
+  "mission_id": "f104_mission_095",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 13
+ },
+ {
+  "mission": "missions/f104/f104_mission_095.json",
+  "mission_id": "f104_mission_095",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 13
+ },
+ {
+  "mission": "missions/f104/f104_mission_096.json",
+  "mission_id": "f104_mission_096",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 13
+ },
+ {
+  "mission": "missions/f104/f104_mission_096.json",
+  "mission_id": "f104_mission_096",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 13
+ },
+ {
+  "mission": "missions/f104/f104_mission_096.json",
+  "mission_id": "f104_mission_096",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 13
+ },
+ {
+  "mission": "missions/f104/f104_mission_097.json",
+  "mission_id": "f104_mission_097",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 13
+ },
+ {
+  "mission": "missions/f104/f104_mission_097.json",
+  "mission_id": "f104_mission_097",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 13
+ },
+ {
+  "mission": "missions/f104/f104_mission_097.json",
+  "mission_id": "f104_mission_097",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 13
+ },
+ {
+  "mission": "missions/f104/f104_mission_098.json",
+  "mission_id": "f104_mission_098",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 14
+ },
+ {
+  "mission": "missions/f104/f104_mission_098.json",
+  "mission_id": "f104_mission_098",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 14
+ },
+ {
+  "mission": "missions/f104/f104_mission_098.json",
+  "mission_id": "f104_mission_098",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 14
+ },
+ {
+  "mission": "missions/f104/f104_mission_099.json",
+  "mission_id": "f104_mission_099",
+  "arena": "f104",
+  "arm": "n2",
+  "shard": 14
+ },
+ {
+  "mission": "missions/f104/f104_mission_099.json",
+  "mission_id": "f104_mission_099",
+  "arena": "f104",
+  "arm": "rule",
+  "shard": 14
+ },
+ {
+  "mission": "missions/f104/f104_mission_099.json",
+  "mission_id": "f104_mission_099",
+  "arena": "f104",
+  "arm": "straight6",
+  "shard": 14
+ },
+ {
+  "mission": "missions/g228/g228_mission_000.json",
+  "mission_id": "g228_mission_000",
+  "arena": "g228",
+  "arm": "n2",
+  "shard": 14
+ },
+ {
+  "mission": "missions/g228/g228_mission_000.json",
+  "mission_id": "g228_mission_000",
+  "arena": "g228",
+  "arm": "rule",
+  "shard": 14
+ },
+ {
+  "mission": "missions/g228/g228_mission_000.json",
+  "mission_id": "g228_mission_000",
+  "arena": "g228",
+  "arm": "straight6",
+  "shard": 14
+ },
+ {
+  "mission": "missions/g228/g228_mission_001.json",
+  "mission_id": "g228_mission_001",
+  "arena": "g228",
+  "arm": "n2",
+  "shard": 14
+ },
+ {
+  "mission": "missions/g228/g228_mission_001.json",
+  "mission_id": "g228_mission_001",
+  "arena": "g228",
+  "arm": "rule",
+  "shard": 14
+ },
+ {
+  "mission": "missions/g228/g228_mission_001.json",
+  "mission_id": "g228_mission_001",
+  "arena": "g228",
+  "arm": "straight6",
+  "shard": 14
+ },
+ {
+  "mission": "missions/g228/g228_mission_002.json",
+  "mission_id": "g228_mission_002",
+  "arena": "g228",
+  "arm": "n2",
+  "shard": 14
+ },
+ {
+  "mission": "missions/g228/g228_mission_002.json",
+  "mission_id": "g228_mission_002",
+  "arena": "g228",
+  "arm": "rule",
+  "shard": 14
+ },
+ {
+  "mission": "missions/g228/g228_mission_002.json",
+  "mission_id": "g228_mission_002",
+  "arena": "g228",
+  "arm": "straight6",
+  "shard": 14
+ },
+ {
+  "mission": "missions/g228/g228_mission_003.json",
+  "mission_id": "g228_mission_003",
+  "arena": "g228",
+  "arm": "n2",
+  "shard": 14
+ },
+ {
+  "mission": "missions/g228/g228_mission_003.json",
+  "mission_id": "g228_mission_003",
+  "arena": "g228",
+  "arm": "rule",
+  "shard": 14
+ },
+ {
+  "mission": "missions/g228/g228_mission_003.json",
+  "mission_id": "g228_mission_003",
+  "arena": "g228",
+  "arm": "straight6",
+  "shard": 14
+ },
+ {
+  "mission": "missions/g228/g228_mission_004.json",
+  "mission_id": "g228_mission_004",
+  "arena": "g228",
+  "arm": "n2",
+  "shard": 14
+ },
+ {
+  "mission": "missions/g228/g228_mission_004.json",
+  "mission_id": "g228_mission_004",
+  "arena": "g228",
+  "arm": "rule",
+  "shard": 14
+ },
+ {
+  "mission": "missions/g228/g228_mission_004.json",
+  "mission_id": "g228_mission_004",
+  "arena": "g228",
+  "arm": "straight6",
+  "shard": 14
+ },
+ {
+  "mission": "missions/g228/g228_mission_005.json",
+  "mission_id": "g228_mission_005",
+  "arena": "g228",
+  "arm": "n2",
+  "shard": 15
+ },
+ {
+  "mission": "missions/g228/g228_mission_005.json",
+  "mission_id": "g228_mission_005",
+  "arena": "g228",
+  "arm": "rule",
+  "shard": 15
+ },
+ {
+  "mission": "missions/g228/g228_mission_005.json",
+  "mission_id": "g228_mission_005",
+  "arena": "g228",
+  "arm": "straight6",
+  "shard": 15
+ },
+ {
+  "mission": "missions/g228/g228_mission_006.json",
+  "mission_id": "g228_mission_006",
+  "arena": "g228",
+  "arm": "n2",
+  "shard": 15
+ },
+ {
+  "mission": "missions/g228/g228_mission_006.json",
+  "mission_id": "g228_mission_006",
+  "arena": "g228",
+  "arm": "rule",
+  "shard": 15
+ },
+ {
+  "mission": "missions/g228/g228_mission_006.json",
+  "mission_id": "g228_mission_006",
+  "arena": "g228",
+  "arm": "straight6",
+  "shard": 15
+ },
+ {
+  "mission": "missions/g228/g228_mission_007.json",
+  "mission_id": "g228_mission_007",
+  "arena": "g228",
+  "arm": "n2",
+  "shard": 15
+ },
+ {
+  "mission": "missions/g228/g228_mission_007.json",
+  "mission_id": "g228_mission_007",
+  "arena": "g228",
+  "arm": "rule",
+  "shard": 15
+ },
+ {
+  "mission": "missions/g228/g228_mission_007.json",
+  "mission_id": "g228_mission_007",
+  "arena": "g228",
+  "arm": "straight6",
+  "shard": 15
+ },
+ {
+  "mission": "missions/g228/g228_mission_008.json",
+  "mission_id": "g228_mission_008",
+  "arena": "g228",
+  "arm": "n2",
+  "shard": 15
+ },
+ {
+  "mission": "missions/g228/g228_mission_008.json",
+  "mission_id": "g228_mission_008",
+  "arena": "g228",
+  "arm": "rule",
+  "shard": 15
+ },
+ {
+  "mission": "missions/g228/g228_mission_008.json",
+  "mission_id": "g228_mission_008",
+  "arena": "g228",
+  "arm": "straight6",
+  "shard": 15
+ },
+ {
+  "mission": "missions/g228/g228_mission_009.json",
+  "mission_id": "g228_mission_009",
+  "arena": "g228",
+  "arm": "n2",
+  "shard": 15
+ },
+ {
+  "mission": "missions/g228/g228_mission_009.json",
+  "mission_id": "g228_mission_009",
+  "arena": "g228",
+  "arm": "rule",
+  "shard": 15
+ },
+ {
+  "mission": "missions/g228/g228_mission_009.json",
+  "mission_id": "g228_mission_009",
+  "arena": "g228",
+  "arm": "straight6",
+  "shard": 15
+ },
+ {
+  "mission": "missions/g228/g228_mission_010.json",
+  "mission_id": "g228_mission_010",
+  "arena": "g228",
+  "arm": "n2",
+  "shard": 15
+ },
+ {
+  "mission": "missions/g228/g228_mission_010.json",
+  "mission_id": "g228_mission_010",
+  "arena": "g228",
+  "arm": "rule",
+  "shard": 15
+ },
+ {
+  "mission": "missions/g228/g228_mission_010.json",
+  "mission_id": "g228_mission_010",
+  "arena": "g228",
+  "arm": "straight6",
+  "shard": 15
+ },
+ {
+  "mission": "missions/g228/g228_mission_011.json",
+  "mission_id": "g228_mission_011",
+  "arena": "g228",
+  "arm": "n2",
+  "shard": 15
+ },
+ {
+  "mission": "missions/g228/g228_mission_011.json",
+  "mission_id": "g228_mission_011",
+  "arena": "g228",
+  "arm": "rule",
+  "shard": 15
+ },
+ {
+  "mission": "missions/g228/g228_mission_011.json",
+  "mission_id": "g228_mission_011",
+  "arena": "g228",
+  "arm": "straight6",
+  "shard": 15
+ },
+ {
+  "mission": "missions/g228/g228_mission_012.json",
+  "mission_id": "g228_mission_012",
+  "arena": "g228",
+  "arm": "n2",
+  "shard": 16
+ },
+ {
+  "mission": "missions/g228/g228_mission_012.json",
+  "mission_id": "g228_mission_012",
+  "arena": "g228",
+  "arm": "rule",
+  "shard": 16
+ },
+ {
+  "mission": "missions/g228/g228_mission_012.json",
+  "mission_id": "g228_mission_012",
+  "arena": "g228",
+  "arm": "straight6",
+  "shard": 16
+ },
+ {
+  "mission": "missions/g228/g228_mission_013.json",
+  "mission_id": "g228_mission_013",
+  "arena": "g228",
+  "arm": "n2",
+  "shard": 16
+ },
+ {
+  "mission": "missions/g228/g228_mission_013.json",
+  "mission_id": "g228_mission_013",
+  "arena": "g228",
+  "arm": "rule",
+  "shard": 16
+ },
+ {
+  "mission": "missions/g228/g228_mission_013.json",
+  "mission_id": "g228_mission_013",
+  "arena": "g228",
+  "arm": "straight6",
+  "shard": 16
+ },
+ {
+  "mission": "missions/g228/g228_mission_014.json",
+  "mission_id": "g228_mission_014",
+  "arena": "g228",
+  "arm": "n2",
+  "shard": 16
+ },
+ {
+  "mission": "missions/g228/g228_mission_014.json",
+  "mission_id": "g228_mission_014",
+  "arena": "g228",
+  "arm": "rule",
+  "shard": 16
+ },
+ {
+  "mission": "missions/g228/g228_mission_014.json",
+  "mission_id": "g228_mission_014",
+  "arena": "g228",
+  "arm": "straight6",
+  "shard": 16
+ },
+ {
+  "mission": "missions/g228/g228_mission_015.json",
+  "mission_id": "g228_mission_015",
+  "arena": "g228",
+  "arm": "n2",
+  "shard": 16
+ },
+ {
+  "mission": "missions/g228/g228_mission_015.json",
+  "mission_id": "g228_mission_015",
+  "arena": "g228",
+  "arm": "rule",
+  "shard": 16
+ },
+ {
+  "mission": "missions/g228/g228_mission_015.json",
+  "mission_id": "g228_mission_015",
+  "arena": "g228",
+  "arm": "straight6",
+  "shard": 16
+ },
+ {
+  "mission": "missions/g228/g228_mission_016.json",
+  "mission_id": "g228_mission_016",
+  "arena": "g228",
+  "arm": "n2",
+  "shard": 16
+ },
+ {
+  "mission": "missions/g228/g228_mission_016.json",
+  "mission_id": "g228_mission_016",
+  "arena": "g228",
+  "arm": "rule",
+  "shard": 16
+ },
+ {
+  "mission": "missions/g228/g228_mission_016.json",
+  "mission_id": "g228_mission_016",
+  "arena": "g228",
+  "arm": "straight6",
+  "shard": 16
+ },
+ {
+  "mission": "missions/g228/g228_mission_017.json",
+  "mission_id": "g228_mission_017",
+  "arena": "g228",
+  "arm": "n2",
+  "shard": 16
+ },
+ {
+  "mission": "missions/g228/g228_mission_017.json",
+  "mission_id": "g228_mission_017",
+  "arena": "g228",
+  "arm": "rule",
+  "shard": 16
+ },
+ {
+  "mission": "missions/g228/g228_mission_017.json",
+  "mission_id": "g228_mission_017",
+  "arena": "g228",
+  "arm": "straight6",
+  "shard": 16
+ },
+ {
+  "mission": "missions/g228/g228_mission_018.json",
+  "mission_id": "g228_mission_018",
+  "arena": "g228",
+  "arm": "n2",
+  "shard": 16
+ },
+ {
+  "mission": "missions/g228/g228_mission_018.json",
+  "mission_id": "g228_mission_018",
+  "arena": "g228",
+  "arm": "rule",
+  "shard": 16
+ },
+ {
+  "mission": "missions/g228/g228_mission_018.json",
+  "mission_id": "g228_mission_018",
+  "arena": "g228",
+  "arm": "straight6",
+  "shard": 16
+ },
+ {
+  "mission": "missions/g228/g228_mission_019.json",
+  "mission_id": "g228_mission_019",
+  "arena": "g228",
+  "arm": "n2",
+  "shard": 17
+ },
+ {
+  "mission": "missions/g228/g228_mission_019.json",
+  "mission_id": "g228_mission_019",
+  "arena": "g228",
+  "arm": "rule",
+  "shard": 17
+ },
+ {
+  "mission": "missions/g228/g228_mission_019.json",
+  "mission_id": "g228_mission_019",
+  "arena": "g228",
+  "arm": "straight6",
+  "shard": 17
+ },
+ {
+  "mission": "missions/g203/g203_mission_000.json",
+  "mission_id": "g203_mission_000",
+  "arena": "g203",
+  "arm": "n2",
+  "shard": 17
+ },
+ {
+  "mission": "missions/g203/g203_mission_000.json",
+  "mission_id": "g203_mission_000",
+  "arena": "g203",
+  "arm": "rule",
+  "shard": 17
+ },
+ {
+  "mission": "missions/g203/g203_mission_000.json",
+  "mission_id": "g203_mission_000",
+  "arena": "g203",
+  "arm": "straight6",
+  "shard": 17
+ },
+ {
+  "mission": "missions/g203/g203_mission_001.json",
+  "mission_id": "g203_mission_001",
+  "arena": "g203",
+  "arm": "n2",
+  "shard": 17
+ },
+ {
+  "mission": "missions/g203/g203_mission_001.json",
+  "mission_id": "g203_mission_001",
+  "arena": "g203",
+  "arm": "rule",
+  "shard": 17
+ },
+ {
+  "mission": "missions/g203/g203_mission_001.json",
+  "mission_id": "g203_mission_001",
+  "arena": "g203",
+  "arm": "straight6",
+  "shard": 17
+ },
+ {
+  "mission": "missions/g203/g203_mission_002.json",
+  "mission_id": "g203_mission_002",
+  "arena": "g203",
+  "arm": "n2",
+  "shard": 17
+ },
+ {
+  "mission": "missions/g203/g203_mission_002.json",
+  "mission_id": "g203_mission_002",
+  "arena": "g203",
+  "arm": "rule",
+  "shard": 17
+ },
+ {
+  "mission": "missions/g203/g203_mission_002.json",
+  "mission_id": "g203_mission_002",
+  "arena": "g203",
+  "arm": "straight6",
+  "shard": 17
+ },
+ {
+  "mission": "missions/g203/g203_mission_003.json",
+  "mission_id": "g203_mission_003",
+  "arena": "g203",
+  "arm": "n2",
+  "shard": 17
+ },
+ {
+  "mission": "missions/g203/g203_mission_003.json",
+  "mission_id": "g203_mission_003",
+  "arena": "g203",
+  "arm": "rule",
+  "shard": 17
+ },
+ {
+  "mission": "missions/g203/g203_mission_003.json",
+  "mission_id": "g203_mission_003",
+  "arena": "g203",
+  "arm": "straight6",
+  "shard": 17
+ },
+ {
+  "mission": "missions/g203/g203_mission_004.json",
+  "mission_id": "g203_mission_004",
+  "arena": "g203",
+  "arm": "n2",
+  "shard": 17
+ },
+ {
+  "mission": "missions/g203/g203_mission_004.json",
+  "mission_id": "g203_mission_004",
+  "arena": "g203",
+  "arm": "rule",
+  "shard": 17
+ },
+ {
+  "mission": "missions/g203/g203_mission_004.json",
+  "mission_id": "g203_mission_004",
+  "arena": "g203",
+  "arm": "straight6",
+  "shard": 17
+ },
+ {
+  "mission": "missions/g203/g203_mission_005.json",
+  "mission_id": "g203_mission_005",
+  "arena": "g203",
+  "arm": "n2",
+  "shard": 17
+ },
+ {
+  "mission": "missions/g203/g203_mission_005.json",
+  "mission_id": "g203_mission_005",
+  "arena": "g203",
+  "arm": "rule",
+  "shard": 17
+ },
+ {
+  "mission": "missions/g203/g203_mission_005.json",
+  "mission_id": "g203_mission_005",
+  "arena": "g203",
+  "arm": "straight6",
+  "shard": 17
+ },
+ {
+  "mission": "missions/g203/g203_mission_006.json",
+  "mission_id": "g203_mission_006",
+  "arena": "g203",
+  "arm": "n2",
+  "shard": 18
+ },
+ {
+  "mission": "missions/g203/g203_mission_006.json",
+  "mission_id": "g203_mission_006",
+  "arena": "g203",
+  "arm": "rule",
+  "shard": 18
+ },
+ {
+  "mission": "missions/g203/g203_mission_006.json",
+  "mission_id": "g203_mission_006",
+  "arena": "g203",
+  "arm": "straight6",
+  "shard": 18
+ },
+ {
+  "mission": "missions/g203/g203_mission_007.json",
+  "mission_id": "g203_mission_007",
+  "arena": "g203",
+  "arm": "n2",
+  "shard": 18
+ },
+ {
+  "mission": "missions/g203/g203_mission_007.json",
+  "mission_id": "g203_mission_007",
+  "arena": "g203",
+  "arm": "rule",
+  "shard": 18
+ },
+ {
+  "mission": "missions/g203/g203_mission_007.json",
+  "mission_id": "g203_mission_007",
+  "arena": "g203",
+  "arm": "straight6",
+  "shard": 18
+ },
+ {
+  "mission": "missions/g203/g203_mission_008.json",
+  "mission_id": "g203_mission_008",
+  "arena": "g203",
+  "arm": "n2",
+  "shard": 18
+ },
+ {
+  "mission": "missions/g203/g203_mission_008.json",
+  "mission_id": "g203_mission_008",
+  "arena": "g203",
+  "arm": "rule",
+  "shard": 18
+ },
+ {
+  "mission": "missions/g203/g203_mission_008.json",
+  "mission_id": "g203_mission_008",
+  "arena": "g203",
+  "arm": "straight6",
+  "shard": 18
+ },
+ {
+  "mission": "missions/g203/g203_mission_009.json",
+  "mission_id": "g203_mission_009",
+  "arena": "g203",
+  "arm": "n2",
+  "shard": 18
+ },
+ {
+  "mission": "missions/g203/g203_mission_009.json",
+  "mission_id": "g203_mission_009",
+  "arena": "g203",
+  "arm": "rule",
+  "shard": 18
+ },
+ {
+  "mission": "missions/g203/g203_mission_009.json",
+  "mission_id": "g203_mission_009",
+  "arena": "g203",
+  "arm": "straight6",
+  "shard": 18
+ },
+ {
+  "mission": "missions/g203/g203_mission_010.json",
+  "mission_id": "g203_mission_010",
+  "arena": "g203",
+  "arm": "n2",
+  "shard": 18
+ },
+ {
+  "mission": "missions/g203/g203_mission_010.json",
+  "mission_id": "g203_mission_010",
+  "arena": "g203",
+  "arm": "rule",
+  "shard": 18
+ },
+ {
+  "mission": "missions/g203/g203_mission_010.json",
+  "mission_id": "g203_mission_010",
+  "arena": "g203",
+  "arm": "straight6",
+  "shard": 18
+ },
+ {
+  "mission": "missions/g203/g203_mission_011.json",
+  "mission_id": "g203_mission_011",
+  "arena": "g203",
+  "arm": "n2",
+  "shard": 18
+ },
+ {
+  "mission": "missions/g203/g203_mission_011.json",
+  "mission_id": "g203_mission_011",
+  "arena": "g203",
+  "arm": "rule",
+  "shard": 18
+ },
+ {
+  "mission": "missions/g203/g203_mission_011.json",
+  "mission_id": "g203_mission_011",
+  "arena": "g203",
+  "arm": "straight6",
+  "shard": 18
+ },
+ {
+  "mission": "missions/g203/g203_mission_012.json",
+  "mission_id": "g203_mission_012",
+  "arena": "g203",
+  "arm": "n2",
+  "shard": 18
+ },
+ {
+  "mission": "missions/g203/g203_mission_012.json",
+  "mission_id": "g203_mission_012",
+  "arena": "g203",
+  "arm": "rule",
+  "shard": 18
+ },
+ {
+  "mission": "missions/g203/g203_mission_012.json",
+  "mission_id": "g203_mission_012",
+  "arena": "g203",
+  "arm": "straight6",
+  "shard": 18
+ },
+ {
+  "mission": "missions/g203/g203_mission_013.json",
+  "mission_id": "g203_mission_013",
+  "arena": "g203",
+  "arm": "n2",
+  "shard": 19
+ },
+ {
+  "mission": "missions/g203/g203_mission_013.json",
+  "mission_id": "g203_mission_013",
+  "arena": "g203",
+  "arm": "rule",
+  "shard": 19
+ },
+ {
+  "mission": "missions/g203/g203_mission_013.json",
+  "mission_id": "g203_mission_013",
+  "arena": "g203",
+  "arm": "straight6",
+  "shard": 19
+ },
+ {
+  "mission": "missions/g203/g203_mission_014.json",
+  "mission_id": "g203_mission_014",
+  "arena": "g203",
+  "arm": "n2",
+  "shard": 19
+ },
+ {
+  "mission": "missions/g203/g203_mission_014.json",
+  "mission_id": "g203_mission_014",
+  "arena": "g203",
+  "arm": "rule",
+  "shard": 19
+ },
+ {
+  "mission": "missions/g203/g203_mission_014.json",
+  "mission_id": "g203_mission_014",
+  "arena": "g203",
+  "arm": "straight6",
+  "shard": 19
+ },
+ {
+  "mission": "missions/g203/g203_mission_015.json",
+  "mission_id": "g203_mission_015",
+  "arena": "g203",
+  "arm": "n2",
+  "shard": 19
+ },
+ {
+  "mission": "missions/g203/g203_mission_015.json",
+  "mission_id": "g203_mission_015",
+  "arena": "g203",
+  "arm": "rule",
+  "shard": 19
+ },
+ {
+  "mission": "missions/g203/g203_mission_015.json",
+  "mission_id": "g203_mission_015",
+  "arena": "g203",
+  "arm": "straight6",
+  "shard": 19
+ },
+ {
+  "mission": "missions/g203/g203_mission_016.json",
+  "mission_id": "g203_mission_016",
+  "arena": "g203",
+  "arm": "n2",
+  "shard": 19
+ },
+ {
+  "mission": "missions/g203/g203_mission_016.json",
+  "mission_id": "g203_mission_016",
+  "arena": "g203",
+  "arm": "rule",
+  "shard": 19
+ },
+ {
+  "mission": "missions/g203/g203_mission_016.json",
+  "mission_id": "g203_mission_016",
+  "arena": "g203",
+  "arm": "straight6",
+  "shard": 19
+ },
+ {
+  "mission": "missions/g203/g203_mission_017.json",
+  "mission_id": "g203_mission_017",
+  "arena": "g203",
+  "arm": "n2",
+  "shard": 19
+ },
+ {
+  "mission": "missions/g203/g203_mission_017.json",
+  "mission_id": "g203_mission_017",
+  "arena": "g203",
+  "arm": "rule",
+  "shard": 19
+ },
+ {
+  "mission": "missions/g203/g203_mission_017.json",
+  "mission_id": "g203_mission_017",
+  "arena": "g203",
+  "arm": "straight6",
+  "shard": 19
+ },
+ {
+  "mission": "missions/g203/g203_mission_018.json",
+  "mission_id": "g203_mission_018",
+  "arena": "g203",
+  "arm": "n2",
+  "shard": 19
+ },
+ {
+  "mission": "missions/g203/g203_mission_018.json",
+  "mission_id": "g203_mission_018",
+  "arena": "g203",
+  "arm": "rule",
+  "shard": 19
+ },
+ {
+  "mission": "missions/g203/g203_mission_018.json",
+  "mission_id": "g203_mission_018",
+  "arena": "g203",
+  "arm": "straight6",
+  "shard": 19
+ },
+ {
+  "mission": "missions/g203/g203_mission_019.json",
+  "mission_id": "g203_mission_019",
+  "arena": "g203",
+  "arm": "n2",
+  "shard": 19
+ },
+ {
+  "mission": "missions/g203/g203_mission_019.json",
+  "mission_id": "g203_mission_019",
+  "arena": "g203",
+  "arm": "rule",
+  "shard": 19
+ },
+ {
+  "mission": "missions/g203/g203_mission_019.json",
+  "mission_id": "g203_mission_019",
+  "arena": "g203",
+  "arm": "straight6",
+  "shard": 19
+ },
+ {
+  "mission": "missions/g217/g217_mission_000.json",
+  "mission_id": "g217_mission_000",
+  "arena": "g217",
+  "arm": "n2",
+  "shard": 20
+ },
+ {
+  "mission": "missions/g217/g217_mission_000.json",
+  "mission_id": "g217_mission_000",
+  "arena": "g217",
+  "arm": "rule",
+  "shard": 20
+ },
+ {
+  "mission": "missions/g217/g217_mission_000.json",
+  "mission_id": "g217_mission_000",
+  "arena": "g217",
+  "arm": "straight6",
+  "shard": 20
+ },
+ {
+  "mission": "missions/g217/g217_mission_001.json",
+  "mission_id": "g217_mission_001",
+  "arena": "g217",
+  "arm": "n2",
+  "shard": 20
+ },
+ {
+  "mission": "missions/g217/g217_mission_001.json",
+  "mission_id": "g217_mission_001",
+  "arena": "g217",
+  "arm": "rule",
+  "shard": 20
+ },
+ {
+  "mission": "missions/g217/g217_mission_001.json",
+  "mission_id": "g217_mission_001",
+  "arena": "g217",
+  "arm": "straight6",
+  "shard": 20
+ },
+ {
+  "mission": "missions/g217/g217_mission_002.json",
+  "mission_id": "g217_mission_002",
+  "arena": "g217",
+  "arm": "n2",
+  "shard": 20
+ },
+ {
+  "mission": "missions/g217/g217_mission_002.json",
+  "mission_id": "g217_mission_002",
+  "arena": "g217",
+  "arm": "rule",
+  "shard": 20
+ },
+ {
+  "mission": "missions/g217/g217_mission_002.json",
+  "mission_id": "g217_mission_002",
+  "arena": "g217",
+  "arm": "straight6",
+  "shard": 20
+ },
+ {
+  "mission": "missions/g217/g217_mission_003.json",
+  "mission_id": "g217_mission_003",
+  "arena": "g217",
+  "arm": "n2",
+  "shard": 20
+ },
+ {
+  "mission": "missions/g217/g217_mission_003.json",
+  "mission_id": "g217_mission_003",
+  "arena": "g217",
+  "arm": "rule",
+  "shard": 20
+ },
+ {
+  "mission": "missions/g217/g217_mission_003.json",
+  "mission_id": "g217_mission_003",
+  "arena": "g217",
+  "arm": "straight6",
+  "shard": 20
+ },
+ {
+  "mission": "missions/g217/g217_mission_004.json",
+  "mission_id": "g217_mission_004",
+  "arena": "g217",
+  "arm": "n2",
+  "shard": 20
+ },
+ {
+  "mission": "missions/g217/g217_mission_004.json",
+  "mission_id": "g217_mission_004",
+  "arena": "g217",
+  "arm": "rule",
+  "shard": 20
+ },
+ {
+  "mission": "missions/g217/g217_mission_004.json",
+  "mission_id": "g217_mission_004",
+  "arena": "g217",
+  "arm": "straight6",
+  "shard": 20
+ },
+ {
+  "mission": "missions/g217/g217_mission_005.json",
+  "mission_id": "g217_mission_005",
+  "arena": "g217",
+  "arm": "n2",
+  "shard": 20
+ },
+ {
+  "mission": "missions/g217/g217_mission_005.json",
+  "mission_id": "g217_mission_005",
+  "arena": "g217",
+  "arm": "rule",
+  "shard": 20
+ },
+ {
+  "mission": "missions/g217/g217_mission_005.json",
+  "mission_id": "g217_mission_005",
+  "arena": "g217",
+  "arm": "straight6",
+  "shard": 20
+ },
+ {
+  "mission": "missions/g217/g217_mission_006.json",
+  "mission_id": "g217_mission_006",
+  "arena": "g217",
+  "arm": "n2",
+  "shard": 20
+ },
+ {
+  "mission": "missions/g217/g217_mission_006.json",
+  "mission_id": "g217_mission_006",
+  "arena": "g217",
+  "arm": "rule",
+  "shard": 20
+ },
+ {
+  "mission": "missions/g217/g217_mission_006.json",
+  "mission_id": "g217_mission_006",
+  "arena": "g217",
+  "arm": "straight6",
+  "shard": 20
+ },
+ {
+  "mission": "missions/g217/g217_mission_007.json",
+  "mission_id": "g217_mission_007",
+  "arena": "g217",
+  "arm": "n2",
+  "shard": 21
+ },
+ {
+  "mission": "missions/g217/g217_mission_007.json",
+  "mission_id": "g217_mission_007",
+  "arena": "g217",
+  "arm": "rule",
+  "shard": 21
+ },
+ {
+  "mission": "missions/g217/g217_mission_007.json",
+  "mission_id": "g217_mission_007",
+  "arena": "g217",
+  "arm": "straight6",
+  "shard": 21
+ },
+ {
+  "mission": "missions/g217/g217_mission_008.json",
+  "mission_id": "g217_mission_008",
+  "arena": "g217",
+  "arm": "n2",
+  "shard": 21
+ },
+ {
+  "mission": "missions/g217/g217_mission_008.json",
+  "mission_id": "g217_mission_008",
+  "arena": "g217",
+  "arm": "rule",
+  "shard": 21
+ },
+ {
+  "mission": "missions/g217/g217_mission_008.json",
+  "mission_id": "g217_mission_008",
+  "arena": "g217",
+  "arm": "straight6",
+  "shard": 21
+ },
+ {
+  "mission": "missions/g217/g217_mission_009.json",
+  "mission_id": "g217_mission_009",
+  "arena": "g217",
+  "arm": "n2",
+  "shard": 21
+ },
+ {
+  "mission": "missions/g217/g217_mission_009.json",
+  "mission_id": "g217_mission_009",
+  "arena": "g217",
+  "arm": "rule",
+  "shard": 21
+ },
+ {
+  "mission": "missions/g217/g217_mission_009.json",
+  "mission_id": "g217_mission_009",
+  "arena": "g217",
+  "arm": "straight6",
+  "shard": 21
+ },
+ {
+  "mission": "missions/g217/g217_mission_010.json",
+  "mission_id": "g217_mission_010",
+  "arena": "g217",
+  "arm": "n2",
+  "shard": 21
+ },
+ {
+  "mission": "missions/g217/g217_mission_010.json",
+  "mission_id": "g217_mission_010",
+  "arena": "g217",
+  "arm": "rule",
+  "shard": 21
+ },
+ {
+  "mission": "missions/g217/g217_mission_010.json",
+  "mission_id": "g217_mission_010",
+  "arena": "g217",
+  "arm": "straight6",
+  "shard": 21
+ },
+ {
+  "mission": "missions/g217/g217_mission_011.json",
+  "mission_id": "g217_mission_011",
+  "arena": "g217",
+  "arm": "n2",
+  "shard": 21
+ },
+ {
+  "mission": "missions/g217/g217_mission_011.json",
+  "mission_id": "g217_mission_011",
+  "arena": "g217",
+  "arm": "rule",
+  "shard": 21
+ },
+ {
+  "mission": "missions/g217/g217_mission_011.json",
+  "mission_id": "g217_mission_011",
+  "arena": "g217",
+  "arm": "straight6",
+  "shard": 21
+ },
+ {
+  "mission": "missions/g217/g217_mission_012.json",
+  "mission_id": "g217_mission_012",
+  "arena": "g217",
+  "arm": "n2",
+  "shard": 21
+ },
+ {
+  "mission": "missions/g217/g217_mission_012.json",
+  "mission_id": "g217_mission_012",
+  "arena": "g217",
+  "arm": "rule",
+  "shard": 21
+ },
+ {
+  "mission": "missions/g217/g217_mission_012.json",
+  "mission_id": "g217_mission_012",
+  "arena": "g217",
+  "arm": "straight6",
+  "shard": 21
+ },
+ {
+  "mission": "missions/g217/g217_mission_013.json",
+  "mission_id": "g217_mission_013",
+  "arena": "g217",
+  "arm": "n2",
+  "shard": 21
+ },
+ {
+  "mission": "missions/g217/g217_mission_013.json",
+  "mission_id": "g217_mission_013",
+  "arena": "g217",
+  "arm": "rule",
+  "shard": 21
+ },
+ {
+  "mission": "missions/g217/g217_mission_013.json",
+  "mission_id": "g217_mission_013",
+  "arena": "g217",
+  "arm": "straight6",
+  "shard": 21
+ },
+ {
+  "mission": "missions/g217/g217_mission_014.json",
+  "mission_id": "g217_mission_014",
+  "arena": "g217",
+  "arm": "n2",
+  "shard": 22
+ },
+ {
+  "mission": "missions/g217/g217_mission_014.json",
+  "mission_id": "g217_mission_014",
+  "arena": "g217",
+  "arm": "rule",
+  "shard": 22
+ },
+ {
+  "mission": "missions/g217/g217_mission_014.json",
+  "mission_id": "g217_mission_014",
+  "arena": "g217",
+  "arm": "straight6",
+  "shard": 22
+ },
+ {
+  "mission": "missions/g217/g217_mission_015.json",
+  "mission_id": "g217_mission_015",
+  "arena": "g217",
+  "arm": "n2",
+  "shard": 22
+ },
+ {
+  "mission": "missions/g217/g217_mission_015.json",
+  "mission_id": "g217_mission_015",
+  "arena": "g217",
+  "arm": "rule",
+  "shard": 22
+ },
+ {
+  "mission": "missions/g217/g217_mission_015.json",
+  "mission_id": "g217_mission_015",
+  "arena": "g217",
+  "arm": "straight6",
+  "shard": 22
+ },
+ {
+  "mission": "missions/g217/g217_mission_016.json",
+  "mission_id": "g217_mission_016",
+  "arena": "g217",
+  "arm": "n2",
+  "shard": 22
+ },
+ {
+  "mission": "missions/g217/g217_mission_016.json",
+  "mission_id": "g217_mission_016",
+  "arena": "g217",
+  "arm": "rule",
+  "shard": 22
+ },
+ {
+  "mission": "missions/g217/g217_mission_016.json",
+  "mission_id": "g217_mission_016",
+  "arena": "g217",
+  "arm": "straight6",
+  "shard": 22
+ },
+ {
+  "mission": "missions/g217/g217_mission_017.json",
+  "mission_id": "g217_mission_017",
+  "arena": "g217",
+  "arm": "n2",
+  "shard": 22
+ },
+ {
+  "mission": "missions/g217/g217_mission_017.json",
+  "mission_id": "g217_mission_017",
+  "arena": "g217",
+  "arm": "rule",
+  "shard": 22
+ },
+ {
+  "mission": "missions/g217/g217_mission_017.json",
+  "mission_id": "g217_mission_017",
+  "arena": "g217",
+  "arm": "straight6",
+  "shard": 22
+ },
+ {
+  "mission": "missions/g217/g217_mission_018.json",
+  "mission_id": "g217_mission_018",
+  "arena": "g217",
+  "arm": "n2",
+  "shard": 22
+ },
+ {
+  "mission": "missions/g217/g217_mission_018.json",
+  "mission_id": "g217_mission_018",
+  "arena": "g217",
+  "arm": "rule",
+  "shard": 22
+ },
+ {
+  "mission": "missions/g217/g217_mission_018.json",
+  "mission_id": "g217_mission_018",
+  "arena": "g217",
+  "arm": "straight6",
+  "shard": 22
+ },
+ {
+  "mission": "missions/g217/g217_mission_019.json",
+  "mission_id": "g217_mission_019",
+  "arena": "g217",
+  "arm": "n2",
+  "shard": 22
+ },
+ {
+  "mission": "missions/g217/g217_mission_019.json",
+  "mission_id": "g217_mission_019",
+  "arena": "g217",
+  "arm": "rule",
+  "shard": 22
+ },
+ {
+  "mission": "missions/g217/g217_mission_019.json",
+  "mission_id": "g217_mission_019",
+  "arena": "g217",
+  "arm": "straight6",
+  "shard": 22
+ },
+ {
+  "mission": "missions/g216/g216_mission_000.json",
+  "mission_id": "g216_mission_000",
+  "arena": "g216",
+  "arm": "n2",
+  "shard": 22
+ },
+ {
+  "mission": "missions/g216/g216_mission_000.json",
+  "mission_id": "g216_mission_000",
+  "arena": "g216",
+  "arm": "rule",
+  "shard": 22
+ },
+ {
+  "mission": "missions/g216/g216_mission_000.json",
+  "mission_id": "g216_mission_000",
+  "arena": "g216",
+  "arm": "straight6",
+  "shard": 22
+ },
+ {
+  "mission": "missions/g216/g216_mission_001.json",
+  "mission_id": "g216_mission_001",
+  "arena": "g216",
+  "arm": "n2",
+  "shard": 23
+ },
+ {
+  "mission": "missions/g216/g216_mission_001.json",
+  "mission_id": "g216_mission_001",
+  "arena": "g216",
+  "arm": "rule",
+  "shard": 23
+ },
+ {
+  "mission": "missions/g216/g216_mission_001.json",
+  "mission_id": "g216_mission_001",
+  "arena": "g216",
+  "arm": "straight6",
+  "shard": 23
+ },
+ {
+  "mission": "missions/g216/g216_mission_002.json",
+  "mission_id": "g216_mission_002",
+  "arena": "g216",
+  "arm": "n2",
+  "shard": 23
+ },
+ {
+  "mission": "missions/g216/g216_mission_002.json",
+  "mission_id": "g216_mission_002",
+  "arena": "g216",
+  "arm": "rule",
+  "shard": 23
+ },
+ {
+  "mission": "missions/g216/g216_mission_002.json",
+  "mission_id": "g216_mission_002",
+  "arena": "g216",
+  "arm": "straight6",
+  "shard": 23
+ },
+ {
+  "mission": "missions/g216/g216_mission_003.json",
+  "mission_id": "g216_mission_003",
+  "arena": "g216",
+  "arm": "n2",
+  "shard": 23
+ },
+ {
+  "mission": "missions/g216/g216_mission_003.json",
+  "mission_id": "g216_mission_003",
+  "arena": "g216",
+  "arm": "rule",
+  "shard": 23
+ },
+ {
+  "mission": "missions/g216/g216_mission_003.json",
+  "mission_id": "g216_mission_003",
+  "arena": "g216",
+  "arm": "straight6",
+  "shard": 23
+ },
+ {
+  "mission": "missions/g216/g216_mission_004.json",
+  "mission_id": "g216_mission_004",
+  "arena": "g216",
+  "arm": "n2",
+  "shard": 23
+ },
+ {
+  "mission": "missions/g216/g216_mission_004.json",
+  "mission_id": "g216_mission_004",
+  "arena": "g216",
+  "arm": "rule",
+  "shard": 23
+ },
+ {
+  "mission": "missions/g216/g216_mission_004.json",
+  "mission_id": "g216_mission_004",
+  "arena": "g216",
+  "arm": "straight6",
+  "shard": 23
+ },
+ {
+  "mission": "missions/g216/g216_mission_005.json",
+  "mission_id": "g216_mission_005",
+  "arena": "g216",
+  "arm": "n2",
+  "shard": 23
+ },
+ {
+  "mission": "missions/g216/g216_mission_005.json",
+  "mission_id": "g216_mission_005",
+  "arena": "g216",
+  "arm": "rule",
+  "shard": 23
+ },
+ {
+  "mission": "missions/g216/g216_mission_005.json",
+  "mission_id": "g216_mission_005",
+  "arena": "g216",
+  "arm": "straight6",
+  "shard": 23
+ },
+ {
+  "mission": "missions/g216/g216_mission_006.json",
+  "mission_id": "g216_mission_006",
+  "arena": "g216",
+  "arm": "n2",
+  "shard": 23
+ },
+ {
+  "mission": "missions/g216/g216_mission_006.json",
+  "mission_id": "g216_mission_006",
+  "arena": "g216",
+  "arm": "rule",
+  "shard": 23
+ },
+ {
+  "mission": "missions/g216/g216_mission_006.json",
+  "mission_id": "g216_mission_006",
+  "arena": "g216",
+  "arm": "straight6",
+  "shard": 23
+ },
+ {
+  "mission": "missions/g216/g216_mission_007.json",
+  "mission_id": "g216_mission_007",
+  "arena": "g216",
+  "arm": "n2",
+  "shard": 23
+ },
+ {
+  "mission": "missions/g216/g216_mission_007.json",
+  "mission_id": "g216_mission_007",
+  "arena": "g216",
+  "arm": "rule",
+  "shard": 23
+ },
+ {
+  "mission": "missions/g216/g216_mission_007.json",
+  "mission_id": "g216_mission_007",
+  "arena": "g216",
+  "arm": "straight6",
+  "shard": 23
+ },
+ {
+  "mission": "missions/g216/g216_mission_008.json",
+  "mission_id": "g216_mission_008",
+  "arena": "g216",
+  "arm": "n2",
+  "shard": 24
+ },
+ {
+  "mission": "missions/g216/g216_mission_008.json",
+  "mission_id": "g216_mission_008",
+  "arena": "g216",
+  "arm": "rule",
+  "shard": 24
+ },
+ {
+  "mission": "missions/g216/g216_mission_008.json",
+  "mission_id": "g216_mission_008",
+  "arena": "g216",
+  "arm": "straight6",
+  "shard": 24
+ },
+ {
+  "mission": "missions/g216/g216_mission_009.json",
+  "mission_id": "g216_mission_009",
+  "arena": "g216",
+  "arm": "n2",
+  "shard": 24
+ },
+ {
+  "mission": "missions/g216/g216_mission_009.json",
+  "mission_id": "g216_mission_009",
+  "arena": "g216",
+  "arm": "rule",
+  "shard": 24
+ },
+ {
+  "mission": "missions/g216/g216_mission_009.json",
+  "mission_id": "g216_mission_009",
+  "arena": "g216",
+  "arm": "straight6",
+  "shard": 24
+ },
+ {
+  "mission": "missions/g216/g216_mission_010.json",
+  "mission_id": "g216_mission_010",
+  "arena": "g216",
+  "arm": "n2",
+  "shard": 24
+ },
+ {
+  "mission": "missions/g216/g216_mission_010.json",
+  "mission_id": "g216_mission_010",
+  "arena": "g216",
+  "arm": "rule",
+  "shard": 24
+ },
+ {
+  "mission": "missions/g216/g216_mission_010.json",
+  "mission_id": "g216_mission_010",
+  "arena": "g216",
+  "arm": "straight6",
+  "shard": 24
+ },
+ {
+  "mission": "missions/g216/g216_mission_011.json",
+  "mission_id": "g216_mission_011",
+  "arena": "g216",
+  "arm": "n2",
+  "shard": 24
+ },
+ {
+  "mission": "missions/g216/g216_mission_011.json",
+  "mission_id": "g216_mission_011",
+  "arena": "g216",
+  "arm": "rule",
+  "shard": 24
+ },
+ {
+  "mission": "missions/g216/g216_mission_011.json",
+  "mission_id": "g216_mission_011",
+  "arena": "g216",
+  "arm": "straight6",
+  "shard": 24
+ },
+ {
+  "mission": "missions/g216/g216_mission_012.json",
+  "mission_id": "g216_mission_012",
+  "arena": "g216",
+  "arm": "n2",
+  "shard": 24
+ },
+ {
+  "mission": "missions/g216/g216_mission_012.json",
+  "mission_id": "g216_mission_012",
+  "arena": "g216",
+  "arm": "rule",
+  "shard": 24
+ },
+ {
+  "mission": "missions/g216/g216_mission_012.json",
+  "mission_id": "g216_mission_012",
+  "arena": "g216",
+  "arm": "straight6",
+  "shard": 24
+ },
+ {
+  "mission": "missions/g216/g216_mission_013.json",
+  "mission_id": "g216_mission_013",
+  "arena": "g216",
+  "arm": "n2",
+  "shard": 24
+ },
+ {
+  "mission": "missions/g216/g216_mission_013.json",
+  "mission_id": "g216_mission_013",
+  "arena": "g216",
+  "arm": "rule",
+  "shard": 24
+ },
+ {
+  "mission": "missions/g216/g216_mission_013.json",
+  "mission_id": "g216_mission_013",
+  "arena": "g216",
+  "arm": "straight6",
+  "shard": 24
+ },
+ {
+  "mission": "missions/g216/g216_mission_014.json",
+  "mission_id": "g216_mission_014",
+  "arena": "g216",
+  "arm": "n2",
+  "shard": 24
+ },
+ {
+  "mission": "missions/g216/g216_mission_014.json",
+  "mission_id": "g216_mission_014",
+  "arena": "g216",
+  "arm": "rule",
+  "shard": 24
+ },
+ {
+  "mission": "missions/g216/g216_mission_014.json",
+  "mission_id": "g216_mission_014",
+  "arena": "g216",
+  "arm": "straight6",
+  "shard": 24
+ },
+ {
+  "mission": "missions/g216/g216_mission_015.json",
+  "mission_id": "g216_mission_015",
+  "arena": "g216",
+  "arm": "n2",
+  "shard": 25
+ },
+ {
+  "mission": "missions/g216/g216_mission_015.json",
+  "mission_id": "g216_mission_015",
+  "arena": "g216",
+  "arm": "rule",
+  "shard": 25
+ },
+ {
+  "mission": "missions/g216/g216_mission_015.json",
+  "mission_id": "g216_mission_015",
+  "arena": "g216",
+  "arm": "straight6",
+  "shard": 25
+ },
+ {
+  "mission": "missions/g216/g216_mission_016.json",
+  "mission_id": "g216_mission_016",
+  "arena": "g216",
+  "arm": "n2",
+  "shard": 25
+ },
+ {
+  "mission": "missions/g216/g216_mission_016.json",
+  "mission_id": "g216_mission_016",
+  "arena": "g216",
+  "arm": "rule",
+  "shard": 25
+ },
+ {
+  "mission": "missions/g216/g216_mission_016.json",
+  "mission_id": "g216_mission_016",
+  "arena": "g216",
+  "arm": "straight6",
+  "shard": 25
+ },
+ {
+  "mission": "missions/g216/g216_mission_017.json",
+  "mission_id": "g216_mission_017",
+  "arena": "g216",
+  "arm": "n2",
+  "shard": 25
+ },
+ {
+  "mission": "missions/g216/g216_mission_017.json",
+  "mission_id": "g216_mission_017",
+  "arena": "g216",
+  "arm": "rule",
+  "shard": 25
+ },
+ {
+  "mission": "missions/g216/g216_mission_017.json",
+  "mission_id": "g216_mission_017",
+  "arena": "g216",
+  "arm": "straight6",
+  "shard": 25
+ },
+ {
+  "mission": "missions/g216/g216_mission_018.json",
+  "mission_id": "g216_mission_018",
+  "arena": "g216",
+  "arm": "n2",
+  "shard": 25
+ },
+ {
+  "mission": "missions/g216/g216_mission_018.json",
+  "mission_id": "g216_mission_018",
+  "arena": "g216",
+  "arm": "rule",
+  "shard": 25
+ },
+ {
+  "mission": "missions/g216/g216_mission_018.json",
+  "mission_id": "g216_mission_018",
+  "arena": "g216",
+  "arm": "straight6",
+  "shard": 25
+ },
+ {
+  "mission": "missions/g216/g216_mission_019.json",
+  "mission_id": "g216_mission_019",
+  "arena": "g216",
+  "arm": "n2",
+  "shard": 25
+ },
+ {
+  "mission": "missions/g216/g216_mission_019.json",
+  "mission_id": "g216_mission_019",
+  "arena": "g216",
+  "arm": "rule",
+  "shard": 25
+ },
+ {
+  "mission": "missions/g216/g216_mission_019.json",
+  "mission_id": "g216_mission_019",
+  "arena": "g216",
+  "arm": "straight6",
+  "shard": 25
+ },
+ {
+  "mission": "missions/g231/g231_mission_000.json",
+  "mission_id": "g231_mission_000",
+  "arena": "g231",
+  "arm": "n2",
+  "shard": 25
+ },
+ {
+  "mission": "missions/g231/g231_mission_000.json",
+  "mission_id": "g231_mission_000",
+  "arena": "g231",
+  "arm": "rule",
+  "shard": 25
+ },
+ {
+  "mission": "missions/g231/g231_mission_000.json",
+  "mission_id": "g231_mission_000",
+  "arena": "g231",
+  "arm": "straight6",
+  "shard": 25
+ },
+ {
+  "mission": "missions/g231/g231_mission_001.json",
+  "mission_id": "g231_mission_001",
+  "arena": "g231",
+  "arm": "n2",
+  "shard": 25
+ },
+ {
+  "mission": "missions/g231/g231_mission_001.json",
+  "mission_id": "g231_mission_001",
+  "arena": "g231",
+  "arm": "rule",
+  "shard": 25
+ },
+ {
+  "mission": "missions/g231/g231_mission_001.json",
+  "mission_id": "g231_mission_001",
+  "arena": "g231",
+  "arm": "straight6",
+  "shard": 25
+ },
+ {
+  "mission": "missions/g231/g231_mission_002.json",
+  "mission_id": "g231_mission_002",
+  "arena": "g231",
+  "arm": "n2",
+  "shard": 26
+ },
+ {
+  "mission": "missions/g231/g231_mission_002.json",
+  "mission_id": "g231_mission_002",
+  "arena": "g231",
+  "arm": "rule",
+  "shard": 26
+ },
+ {
+  "mission": "missions/g231/g231_mission_002.json",
+  "mission_id": "g231_mission_002",
+  "arena": "g231",
+  "arm": "straight6",
+  "shard": 26
+ },
+ {
+  "mission": "missions/g231/g231_mission_003.json",
+  "mission_id": "g231_mission_003",
+  "arena": "g231",
+  "arm": "n2",
+  "shard": 26
+ },
+ {
+  "mission": "missions/g231/g231_mission_003.json",
+  "mission_id": "g231_mission_003",
+  "arena": "g231",
+  "arm": "rule",
+  "shard": 26
+ },
+ {
+  "mission": "missions/g231/g231_mission_003.json",
+  "mission_id": "g231_mission_003",
+  "arena": "g231",
+  "arm": "straight6",
+  "shard": 26
+ },
+ {
+  "mission": "missions/g231/g231_mission_004.json",
+  "mission_id": "g231_mission_004",
+  "arena": "g231",
+  "arm": "n2",
+  "shard": 26
+ },
+ {
+  "mission": "missions/g231/g231_mission_004.json",
+  "mission_id": "g231_mission_004",
+  "arena": "g231",
+  "arm": "rule",
+  "shard": 26
+ },
+ {
+  "mission": "missions/g231/g231_mission_004.json",
+  "mission_id": "g231_mission_004",
+  "arena": "g231",
+  "arm": "straight6",
+  "shard": 26
+ },
+ {
+  "mission": "missions/g231/g231_mission_005.json",
+  "mission_id": "g231_mission_005",
+  "arena": "g231",
+  "arm": "n2",
+  "shard": 26
+ },
+ {
+  "mission": "missions/g231/g231_mission_005.json",
+  "mission_id": "g231_mission_005",
+  "arena": "g231",
+  "arm": "rule",
+  "shard": 26
+ },
+ {
+  "mission": "missions/g231/g231_mission_005.json",
+  "mission_id": "g231_mission_005",
+  "arena": "g231",
+  "arm": "straight6",
+  "shard": 26
+ },
+ {
+  "mission": "missions/g231/g231_mission_006.json",
+  "mission_id": "g231_mission_006",
+  "arena": "g231",
+  "arm": "n2",
+  "shard": 26
+ },
+ {
+  "mission": "missions/g231/g231_mission_006.json",
+  "mission_id": "g231_mission_006",
+  "arena": "g231",
+  "arm": "rule",
+  "shard": 26
+ },
+ {
+  "mission": "missions/g231/g231_mission_006.json",
+  "mission_id": "g231_mission_006",
+  "arena": "g231",
+  "arm": "straight6",
+  "shard": 26
+ },
+ {
+  "mission": "missions/g231/g231_mission_007.json",
+  "mission_id": "g231_mission_007",
+  "arena": "g231",
+  "arm": "n2",
+  "shard": 26
+ },
+ {
+  "mission": "missions/g231/g231_mission_007.json",
+  "mission_id": "g231_mission_007",
+  "arena": "g231",
+  "arm": "rule",
+  "shard": 26
+ },
+ {
+  "mission": "missions/g231/g231_mission_007.json",
+  "mission_id": "g231_mission_007",
+  "arena": "g231",
+  "arm": "straight6",
+  "shard": 26
+ },
+ {
+  "mission": "missions/g231/g231_mission_008.json",
+  "mission_id": "g231_mission_008",
+  "arena": "g231",
+  "arm": "n2",
+  "shard": 26
+ },
+ {
+  "mission": "missions/g231/g231_mission_008.json",
+  "mission_id": "g231_mission_008",
+  "arena": "g231",
+  "arm": "rule",
+  "shard": 26
+ },
+ {
+  "mission": "missions/g231/g231_mission_008.json",
+  "mission_id": "g231_mission_008",
+  "arena": "g231",
+  "arm": "straight6",
+  "shard": 26
+ },
+ {
+  "mission": "missions/g231/g231_mission_009.json",
+  "mission_id": "g231_mission_009",
+  "arena": "g231",
+  "arm": "n2",
+  "shard": 27
+ },
+ {
+  "mission": "missions/g231/g231_mission_009.json",
+  "mission_id": "g231_mission_009",
+  "arena": "g231",
+  "arm": "rule",
+  "shard": 27
+ },
+ {
+  "mission": "missions/g231/g231_mission_009.json",
+  "mission_id": "g231_mission_009",
+  "arena": "g231",
+  "arm": "straight6",
+  "shard": 27
+ },
+ {
+  "mission": "missions/g231/g231_mission_010.json",
+  "mission_id": "g231_mission_010",
+  "arena": "g231",
+  "arm": "n2",
+  "shard": 27
+ },
+ {
+  "mission": "missions/g231/g231_mission_010.json",
+  "mission_id": "g231_mission_010",
+  "arena": "g231",
+  "arm": "rule",
+  "shard": 27
+ },
+ {
+  "mission": "missions/g231/g231_mission_010.json",
+  "mission_id": "g231_mission_010",
+  "arena": "g231",
+  "arm": "straight6",
+  "shard": 27
+ },
+ {
+  "mission": "missions/g231/g231_mission_011.json",
+  "mission_id": "g231_mission_011",
+  "arena": "g231",
+  "arm": "n2",
+  "shard": 27
+ },
+ {
+  "mission": "missions/g231/g231_mission_011.json",
+  "mission_id": "g231_mission_011",
+  "arena": "g231",
+  "arm": "rule",
+  "shard": 27
+ },
+ {
+  "mission": "missions/g231/g231_mission_011.json",
+  "mission_id": "g231_mission_011",
+  "arena": "g231",
+  "arm": "straight6",
+  "shard": 27
+ },
+ {
+  "mission": "missions/g231/g231_mission_012.json",
+  "mission_id": "g231_mission_012",
+  "arena": "g231",
+  "arm": "n2",
+  "shard": 27
+ },
+ {
+  "mission": "missions/g231/g231_mission_012.json",
+  "mission_id": "g231_mission_012",
+  "arena": "g231",
+  "arm": "rule",
+  "shard": 27
+ },
+ {
+  "mission": "missions/g231/g231_mission_012.json",
+  "mission_id": "g231_mission_012",
+  "arena": "g231",
+  "arm": "straight6",
+  "shard": 27
+ },
+ {
+  "mission": "missions/g231/g231_mission_013.json",
+  "mission_id": "g231_mission_013",
+  "arena": "g231",
+  "arm": "n2",
+  "shard": 27
+ },
+ {
+  "mission": "missions/g231/g231_mission_013.json",
+  "mission_id": "g231_mission_013",
+  "arena": "g231",
+  "arm": "rule",
+  "shard": 27
+ },
+ {
+  "mission": "missions/g231/g231_mission_013.json",
+  "mission_id": "g231_mission_013",
+  "arena": "g231",
+  "arm": "straight6",
+  "shard": 27
+ },
+ {
+  "mission": "missions/g231/g231_mission_014.json",
+  "mission_id": "g231_mission_014",
+  "arena": "g231",
+  "arm": "n2",
+  "shard": 27
+ },
+ {
+  "mission": "missions/g231/g231_mission_014.json",
+  "mission_id": "g231_mission_014",
+  "arena": "g231",
+  "arm": "rule",
+  "shard": 27
+ },
+ {
+  "mission": "missions/g231/g231_mission_014.json",
+  "mission_id": "g231_mission_014",
+  "arena": "g231",
+  "arm": "straight6",
+  "shard": 27
+ },
+ {
+  "mission": "missions/g231/g231_mission_015.json",
+  "mission_id": "g231_mission_015",
+  "arena": "g231",
+  "arm": "n2",
+  "shard": 27
+ },
+ {
+  "mission": "missions/g231/g231_mission_015.json",
+  "mission_id": "g231_mission_015",
+  "arena": "g231",
+  "arm": "rule",
+  "shard": 27
+ },
+ {
+  "mission": "missions/g231/g231_mission_015.json",
+  "mission_id": "g231_mission_015",
+  "arena": "g231",
+  "arm": "straight6",
+  "shard": 27
+ },
+ {
+  "mission": "missions/g231/g231_mission_016.json",
+  "mission_id": "g231_mission_016",
+  "arena": "g231",
+  "arm": "n2",
+  "shard": 28
+ },
+ {
+  "mission": "missions/g231/g231_mission_016.json",
+  "mission_id": "g231_mission_016",
+  "arena": "g231",
+  "arm": "rule",
+  "shard": 28
+ },
+ {
+  "mission": "missions/g231/g231_mission_016.json",
+  "mission_id": "g231_mission_016",
+  "arena": "g231",
+  "arm": "straight6",
+  "shard": 28
+ },
+ {
+  "mission": "missions/g231/g231_mission_017.json",
+  "mission_id": "g231_mission_017",
+  "arena": "g231",
+  "arm": "n2",
+  "shard": 28
+ },
+ {
+  "mission": "missions/g231/g231_mission_017.json",
+  "mission_id": "g231_mission_017",
+  "arena": "g231",
+  "arm": "rule",
+  "shard": 28
+ },
+ {
+  "mission": "missions/g231/g231_mission_017.json",
+  "mission_id": "g231_mission_017",
+  "arena": "g231",
+  "arm": "straight6",
+  "shard": 28
+ },
+ {
+  "mission": "missions/g231/g231_mission_018.json",
+  "mission_id": "g231_mission_018",
+  "arena": "g231",
+  "arm": "n2",
+  "shard": 28
+ },
+ {
+  "mission": "missions/g231/g231_mission_018.json",
+  "mission_id": "g231_mission_018",
+  "arena": "g231",
+  "arm": "rule",
+  "shard": 28
+ },
+ {
+  "mission": "missions/g231/g231_mission_018.json",
+  "mission_id": "g231_mission_018",
+  "arena": "g231",
+  "arm": "straight6",
+  "shard": 28
+ },
+ {
+  "mission": "missions/g231/g231_mission_019.json",
+  "mission_id": "g231_mission_019",
+  "arena": "g231",
+  "arm": "n2",
+  "shard": 28
+ },
+ {
+  "mission": "missions/g231/g231_mission_019.json",
+  "mission_id": "g231_mission_019",
+  "arena": "g231",
+  "arm": "rule",
+  "shard": 28
+ },
+ {
+  "mission": "missions/g231/g231_mission_019.json",
+  "mission_id": "g231_mission_019",
+  "arena": "g231",
+  "arm": "straight6",
+  "shard": 28
+ }
+]

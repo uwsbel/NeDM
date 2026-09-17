@@ -1,0 +1,142 @@
+{
+ "task": "Task B - what information does each depth representation actually carry",
+ "date": "2026-09-15",
+ "inputs": {
+  "captures": "artifacts/traverse/fdm_f104_50h_20260909/sensor_v1/maps/<arena>/observation.{npz,json}",
+  "routes": "artifacts/traverse/fdm_f104_50h_20260909/sensor_v1/{test,test2}_<tag>/routes/*.json",
+  "sampler": "scripts/sensor_dataset.py imported directly (corridor addresses, bilinear depth, d0 rule, sec channel)",
+  "evaluation_reference_only": "nedm.traverse.terrain.TerrainMap (never an input)"
+ },
+ "scale": {
+  "arenas": 6, "groups_per_arena": 400, "routes_per_arena": "2003-2076",
+  "corridor_points_analysed": 4661827,
+  "corridor_subsample": "every 2nd route, every 2nd station, every 2nd lateral; arena-edge points |x| or |y| > 39.5 m dropped"
+ },
+ "sanity": {
+  "zpix_equals_H_minus_depth_over_sec_max_abs_m": 1.45e-05,
+  "zpix_vs_v1_height_channel_mae_m": [0.0028, 0.0062],
+  "zpix_vs_simulator_height_at_backprojected_xy_mae_m": [0.0074, 0.0119],
+  "v1_valid_mask_rejects_all_edge_contaminated_depth": true
+ },
+ "part1_algebra": {
+  "identity": "z_i - z_0 = d_0 (1/s_0 - 1/s_i) - dd_i/s_i = (H - z_0)(1 - s_0/s_i) - dd_i/s_i",
+  "verdict_algebra": "CONFIRMED: undetermined without d_0 unless s_i = s_0",
+  "verdict_in_practice": "REFUTED as a material loss, because s_0 is itself in the D tensor (ray_sec1 at cell [0,16]) and pins d_0",
+  "crossgroup_spread_of_true_relative_height_given_dd_and_sec_m": {
+   "f104": 0.743, "g203": 0.764, "g216": 0.737, "g217": 0.785, "g228": 0.837, "g231": 0.824,
+   "pooled": 0.891, "max_observed_gap_m": 7.25
+  },
+  "crossgroup_spread_given_dd_sec_and_start_sec_m": {
+   "f104": 0.007, "g203": 0.007, "g216": 0.008, "g217": 0.007, "g228": 0.008, "g231": 0.008,
+   "pooled": 0.0081, "max_observed_gap_m": 0.141,
+   "bin_width_floor_m": 0.0058
+  },
+  "verified_example_pair_f104": {
+   "point_A": {"x_m": 21.397, "y_m": -3.843, "depth_m": 108.5071, "sec": 1.019342, "delta_d_m": -4.2355,
+               "z_m": 3.5519, "z_minus_z0_m": 3.8351, "simulator_height_m": 3.5412},
+   "point_B": {"x_m": 0.833, "y_m": -21.809, "depth_m": 113.5333, "sec": 1.019493, "delta_d_m": -4.2438,
+               "z_m": -1.3626, "z_minus_z0_m": -1.3830, "simulator_height_m": -1.3710},
+   "identical_D_cell_input": "delta_d differs by 8 mm, sec by 1.5e-4",
+   "true_height_gap_m": 5.218,
+   "resolved_by": "start sec 1.0223 vs 1.0709 (both present in the same tensor at cell [0,16])"
+  }
+ },
+ "part2_d0": {
+  "per_group_d0_m": {
+   "f104": {"mean": 114.10, "std": 2.54, "min": 109.68, "max": 120.10},
+   "g203": {"mean": 114.33, "std": 2.29, "span": 9.6},
+   "g216": {"mean": 115.06, "std": 1.86, "span": 9.0},
+   "g217": {"mean": 113.80, "std": 1.77, "span": 9.0},
+   "g228": {"mean": 113.87, "std": 2.15, "span": 9.4},
+   "g231": {"mean": 114.16, "std": 2.33, "span": 8.9},
+   "pooled_range_m": [109.68, 120.10]
+  },
+  "decomposition": "d0 = (H - z0) sec(theta0); start heights z0 have std 0.18-0.38 m, so the spread of d0 is essentially the spread of sec(theta0)",
+  "start_height_z0_std_m": {"f104": 0.177, "g203": 0.230, "g216": 0.242, "g217": 0.382, "g228": 0.211, "g231": 0.258},
+  "how_much_it_explains": {
+   "ambiguity_given_dd_and_sec_m": "0.74-0.84",
+   "ambiguity_given_dd_sec_and_start_sec_m": "0.007-0.008",
+   "fraction_of_the_ambiguity_removed_by_start_sec_alone": 0.991,
+   "residual_attributable_to_d0_beyond_start_sec_m_rms": 0.004,
+   "residual_worst_case_m": 0.141
+  },
+  "histogram": "counts per 0.5 m bin in shift.json -> d0_histogram; figure d0_histogram.png"
+ },
+ "part3_recoverability": {
+  "target": "z - z0 (the quantity the deployed height channel carries); fit on f104 groups only",
+  "mlp_rmse_m": {
+   "a_cell_[dd,sec]":            {"f104_heldout": 0.7935, "g203": 0.9001, "g216": 0.8628, "g217": 1.0514, "g228": 1.0641, "g231": 1.0057},
+   "a_plus_[dd,sec,sec0]":       {"f104_heldout": 0.0054, "g203": 0.0118, "g216": 0.0088, "g217": 0.0098, "g228": 0.0101, "g231": 0.0121},
+   "b_[d,sec,d0,sec0]":          {"f104_heldout": 0.0022, "g203": 0.0062, "g216": 0.0039, "g217": 0.0105, "g228": 0.0044, "g231": 0.0052},
+   "c_[d,rx,ry,d0,sec0]":        {"f104_heldout": 0.0081, "g203": 0.0236, "g216": 0.0208, "g217": 0.0341, "g228": 0.0208, "g231": 0.0213},
+   "d_[z,z0]":                   {"f104_heldout": 0.0011, "g203": 0.0088, "g216": 0.0018, "g217": 0.0259, "g228": 0.0021, "g231": 0.0073}
+  },
+  "target_std_m": {"f104_heldout": 0.966, "g203": 0.931, "g216": 1.054, "g217": 1.070, "g228": 1.146, "g231": 1.019},
+  "nonparametric_ceiling_r2_a_cell": {"f104_heldout": 0.33, "g203": 0.05, "g216": 0.32, "g217": 0.03, "g228": 0.12, "g231": 0.02},
+  "closed_forms": {
+   "b_and_c_and_d": "z = H - d/sec exactly; RMSE 0.0 m on every arena",
+   "a_plus_one_constant": "z - z0 = Qbar (1 - sec0/sec) - dd/sec with Qbar = 109.953 m fitted on f104: RMSE 0.0047 m on f104 held out, 0.0045-0.0081 m on the five unseen arenas"
+  },
+  "linear_readout_fitted_on_f104": {
+   "form": "z - z0 = -0.9776*depth_rel + 107.25*ray_sec1 - 107.51*ray_sec1(start) + 0.008",
+   "rmse_m": 0.0122,
+   "weight_ratio_sec_over_depth": 109.7,
+   "channel_std": {"depth_rel": 2.6217, "ray_sec1": 0.01766, "ray_sec1_start": 0.02247},
+   "input_scale_ratio_depth_over_sec": 148.5,
+   "rmse_if_the_sec_terms_are_dropped_m": 2.62
+  },
+  "local_structure": {
+   "depth_rel_identity": "depth_rel = (H - z0)(sec - sec0) - (z - z0) sec",
+   "perspective_term_std_m": [2.115, 2.453],
+   "terrain_term_std_m": [0.958, 1.169],
+   "perspective_over_terrain_ratio": [1.91, 2.49],
+   "lateral_slope_within_one_station_m_per_m": {
+    "true_cross_slope_std": [0.120, 0.134],
+    "raw_depth_channel_slope_std": [0.206, 0.231],
+    "perspective_only_contribution_std": [0.166, 0.185],
+    "corr_raw_channel_vs_true": [-0.641, -0.572]
+   },
+   "local_slope_decode_with_one_plugin_constant": {
+    "form": "dz/dl = -(1/s) d(depth_rel)/dl + ((D + depth_rel)/s^2) d(sec)/dl, D = 115.211 m fitted on f104",
+    "rmse_m_per_m": {"f104": 0.0031, "g203": 0.0031, "g216": 0.0025, "g217": 0.0030, "g228": 0.0029, "g231": 0.0031},
+    "r2": "0.9993-0.9996",
+    "without_the_sec_term_rmse_m_per_m": [0.160, 0.180],
+    "without_the_sec_term_r2": [-1.21, -0.61]
+   }
+  },
+  "architecture_note": "scripts/gen_riskmodel.Net: four 3x3 convolutions (receptive field 9 stations) then f.mean(-1)/f.amax(-1) collapse the lateral axis before the BiGRU runs along stations, so the start cell's sec cannot reach a distant station until after the lateral profile has been pooled"
+ },
+ "part4_shift": {
+  "two_sample_classifier_auc_f104_vs_other_arenas_mean": {
+   "backprojected_height_z": 0.563,
+   "backprojected_relative_height_z_minus_z0": 0.562,
+   "v1_relative_depth_plus_sec": 0.626,
+   "absolute_range_plus_sec": 0.644,
+   "v1_relative_depth_plus_sec_plus_start_sec": 0.721,
+   "absolute_range_plus_ray_direction": 0.893
+  },
+  "fraction_of_unseen_arena_points_in_cells_f104_never_occupied": {
+   "backprojected_height_z": 0.0001,
+   "backprojected_relative_height_z_minus_z0": 0.0011,
+   "v1_relative_depth_plus_sec": 0.0015,
+   "absolute_range_plus_sec": 0.0433,
+   "v1_relative_depth_plus_sec_plus_start_sec": 0.0714,
+   "absolute_range_plus_ray_direction": 0.5288
+  },
+  "largest_per_channel_shifts_vs_f104": {
+   "ray_sec1_at_start": "Cohen d up to +0.384 (g216), KS 0.262",
+   "depth_rel": "Cohen d up to -0.321 (g216), KS 0.154",
+   "ray_y": "Cohen d up to -0.439 (g203), KS 0.197",
+   "relative_height": "Cohen d up to -0.197, KS 0.120"
+  }
+ },
+ "verdict": {
+  "missing_information": "ruled out at the 1 cm level: the delivered D tensor determines z - z0 to 4.5-12 mm on all six arenas",
+  "harder_transform": "supported and quantified: the required correction is 1.9-2.5x larger than the signal it hides, needs a 110:1 weight against a channel 148x smaller in scale, and the height offset term needs the route-start cell, which the CNN front end cannot reach before it pools the lateral axis",
+  "cross_arena_shift": "real but second order for the D channels themselves (AUC 0.63-0.72, 0.2-7.1% unseen cells) versus height (AUC 0.56, 0.01-0.1%); it matters because a partly-learned correction leaves a position-dependent residual that is deterministic on one static training arena",
+  "not_tested_here": "no trained checkpoint was probed and no closed-loop run was made; these are representational measurements, not a measurement of what the D checkpoint computes"
+ },
+ "scripts": ["extract_corridor_points.py", "analyze_ambiguity.py", "analyze_ambiguity_crossgroup.py",
+             "analyze_recoverability.py", "analyze_shift.py", "analyze_local_structure.py",
+             "analyze_local_slope.py", "plot_d0_histogram.py"]
+}

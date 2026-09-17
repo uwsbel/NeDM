@@ -1,0 +1,72 @@
+{
+  "method": "Every eighth raw sensor pixel; both world-coordinate assignments inside +/-38 m; BMP bilinear height reference.",
+  "limitation": "Checks raw point geometry, not a corrected rasterizer, route ranking, or closed-loop performance.",
+  "arenas": [
+    {
+      "arena": "arena_f104_50h_v1",
+      "sample_count": 10201,
+      "flat_grid_height_mae_m": 0.028220500976887223,
+      "backprojected_height_mae_m": 0.006415472526083044,
+      "flat_grid_height_p95_m": 0.13591749605037373,
+      "backprojected_height_p95_m": 0.01904950193331234,
+      "xy_shift_p95_m": 0.5275404695474993,
+      "xy_shift_max_m": 0.8657539309022684,
+      "observation_sha256": "faffac47c001efced7b817c923f76abd989621e201b900ee8ec42fb48e200267"
+    },
+    {
+      "arena": "arena_g203",
+      "sample_count": 10201,
+      "flat_grid_height_mae_m": 0.03425311775165823,
+      "backprojected_height_mae_m": 0.006587174306703497,
+      "flat_grid_height_p95_m": 0.17687651503322188,
+      "backprojected_height_p95_m": 0.020146058801248312,
+      "xy_shift_p95_m": 0.7624921627605383,
+      "xy_shift_max_m": 1.2040975429405876,
+      "observation_sha256": "f5dc58159fcc13e1e52daca3764f962999a4eaab66142d556a754c1e74059184"
+    },
+    {
+      "arena": "arena_g216",
+      "sample_count": 10201,
+      "flat_grid_height_mae_m": 0.0350044609710109,
+      "backprojected_height_mae_m": 0.00680302484579864,
+      "flat_grid_height_p95_m": 0.1587070831051447,
+      "backprojected_height_p95_m": 0.020367156838315914,
+      "xy_shift_p95_m": 0.6372882540680874,
+      "xy_shift_max_m": 1.0441173229480123,
+      "observation_sha256": "7104017a92d67d75d870680332034e062f9510cc30b393bf4a5a6928abdcf491"
+    },
+    {
+      "arena": "arena_g217",
+      "sample_count": 10201,
+      "flat_grid_height_mae_m": 0.03930614866965208,
+      "backprojected_height_mae_m": 0.007111319418921171,
+      "flat_grid_height_p95_m": 0.1704665596756021,
+      "backprojected_height_p95_m": 0.020792847427971495,
+      "xy_shift_p95_m": 0.7766928819369406,
+      "xy_shift_max_m": 1.4988691880110585,
+      "observation_sha256": "2d9de3bec5d522b67fc28c32cae0d371bc3ec8135f6c977d80ceb9ea70be0e76"
+    },
+    {
+      "arena": "arena_g228",
+      "sample_count": 10201,
+      "flat_grid_height_mae_m": 0.03830257297024033,
+      "backprojected_height_mae_m": 0.0064813090166967085,
+      "flat_grid_height_p95_m": 0.2043002535709364,
+      "backprojected_height_p95_m": 0.020638467936222593,
+      "xy_shift_p95_m": 0.7579621582974132,
+      "xy_shift_max_m": 1.2570287904966702,
+      "observation_sha256": "6bfc1e538e574be594244c6bb2ee5af73b5684ca0c2c4a9270d1333ce6da3cb6"
+    },
+    {
+      "arena": "arena_g231",
+      "sample_count": 10201,
+      "flat_grid_height_mae_m": 0.04459989498617461,
+      "backprojected_height_mae_m": 0.00791750880273725,
+      "flat_grid_height_p95_m": 0.2194603519120144,
+      "backprojected_height_p95_m": 0.022379549845775476,
+      "xy_shift_p95_m": 0.7485160550799025,
+      "xy_shift_max_m": 1.2354284767292834,
+      "observation_sha256": "90d05ffea131986e039a9aa054397c154e8bedd8cd4292668afdea7dc67e9591"
+    }
+  ]
+}

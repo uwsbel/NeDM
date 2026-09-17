@@ -1,0 +1,176 @@
+{
+ "proposal/n2": {
+  "pairs": 169,
+  "v1_correct_frac": 0.8165680473372781,
+  "v2_correct_frac": 0.8402366863905325,
+  "only_v1": 3,
+  "only_v2": 7,
+  "naive_sign_p": 0.34375,
+  "n_groups_with_pairs": 75,
+  "n_groups_with_any_discordant_pair": 8,
+  "one_pair_per_group": {
+   "n": 75,
+   "only_v1": 1,
+   "only_v2": 2,
+   "p": 1.0,
+   "v1_correct_frac": 0.9066666666666666,
+   "v2_correct_frac": 0.92
+  },
+  "cluster_bootstrap_diff": {
+   "mean": 0.02373288693488694,
+   "ci": [
+    -0.01704788961038965,
+    0.0685714285714285
+   ],
+   "p_two_sided": 0.323
+  },
+  "cluster_sign_test_p": 0.4422,
+  "groups_net_v2_better": 5,
+  "groups_net_v1_better": 3
+ },
+ "proposal/e0": {
+  "pairs": 169,
+  "v1_correct_frac": 0.7751479289940828,
+  "v2_correct_frac": 0.8284023668639053,
+  "only_v1": 1,
+  "only_v2": 10,
+  "naive_sign_p": 0.01171875,
+  "n_groups_with_pairs": 75,
+  "n_groups_with_any_discordant_pair": 7,
+  "one_pair_per_group": {
+   "n": 75,
+   "only_v1": 0,
+   "only_v2": 4,
+   "p": 0.125,
+   "v1_correct_frac": 0.84,
+   "v2_correct_frac": 0.8933333333333333
+  },
+  "cluster_bootstrap_diff": {
+   "mean": 0.0525965914214205,
+   "ci": [
+    0.006024096385542241,
+    0.1097578598618356
+   ],
+   "p_two_sided": 0.031
+  },
+  "cluster_sign_test_p": 0.0778,
+  "groups_net_v2_better": 6,
+  "groups_net_v1_better": 1
+ },
+ "proposal/d": {
+  "pairs": 169,
+  "v1_correct_frac": 0.7159763313609467,
+  "v2_correct_frac": 0.7396449704142012,
+  "only_v1": 4,
+  "only_v2": 8,
+  "naive_sign_p": 0.3876953125,
+  "n_groups_with_pairs": 75,
+  "n_groups_with_any_discordant_pair": 9,
+  "one_pair_per_group": {
+   "n": 75,
+   "only_v1": 1,
+   "only_v2": 6,
+   "p": 0.125,
+   "v1_correct_frac": 0.6933333333333334,
+   "v2_correct_frac": 0.76
+  },
+  "cluster_bootstrap_diff": {
+   "mean": 0.024121168160724196,
+   "ci": [
+    -0.01807228915662651,
+    0.06779922577945181
+   ],
+   "p_two_sided": 0.33
+  },
+  "cluster_sign_test_p": 0.43455,
+  "groups_net_v2_better": 6,
+  "groups_net_v1_better": 2
+ },
+ "fixed2/n2": {
+  "pairs": 260,
+  "v1_correct_frac": 0.6653846153846154,
+  "v2_correct_frac": 0.7384615384615385,
+  "only_v1": 10,
+  "only_v2": 29,
+  "naive_sign_p": 0.0033778479119064286,
+  "n_groups_with_pairs": 149,
+  "n_groups_with_any_discordant_pair": 33,
+  "one_pair_per_group": {
+   "n": 149,
+   "only_v1": 6,
+   "only_v2": 15,
+   "p": 0.0783538818359375,
+   "v1_correct_frac": 0.7046979865771812,
+   "v2_correct_frac": 0.7651006711409396
+  },
+  "cluster_bootstrap_diff": {
+   "mean": 0.0732118254135587,
+   "ci": [
+    0.023713080825371113,
+    0.1250118821292776
+   ],
+   "p_two_sided": 0.0035
+  },
+  "cluster_sign_test_p": 0.0077,
+  "groups_net_v2_better": 23,
+  "groups_net_v1_better": 9
+ },
+ "fixed2/e0": {
+  "pairs": 260,
+  "v1_correct_frac": 0.5961538461538461,
+  "v2_correct_frac": 0.6346153846153846,
+  "only_v1": 11,
+  "only_v2": 21,
+  "naive_sign_p": 0.11018416518345475,
+  "n_groups_with_pairs": 149,
+  "n_groups_with_any_discordant_pair": 30,
+  "one_pair_per_group": {
+   "n": 149,
+   "only_v1": 9,
+   "only_v2": 13,
+   "p": 0.5234670639038086,
+   "v1_correct_frac": 0.610738255033557,
+   "v2_correct_frac": 0.6375838926174496
+  },
+  "cluster_bootstrap_diff": {
+   "mean": 0.03847281506453309,
+   "ci": [
+    -0.007575757575757569,
+    0.08461538461538465
+   ],
+   "p_two_sided": 0.12
+  },
+  "cluster_sign_test_p": 0.1323,
+  "groups_net_v2_better": 21,
+  "groups_net_v1_better": 9
+ },
+ "fixed2/d": {
+  "pairs": 260,
+  "v1_correct_frac": 0.4076923076923077,
+  "v2_correct_frac": 0.4576923076923077,
+  "only_v1": 8,
+  "only_v2": 21,
+  "naive_sign_p": 0.0241195447742939,
+  "n_groups_with_pairs": 149,
+  "n_groups_with_any_discordant_pair": 25,
+  "one_pair_per_group": {
+   "n": 149,
+   "only_v1": 6,
+   "only_v2": 13,
+   "p": 0.1670684814453125,
+   "v1_correct_frac": 0.3624161073825503,
+   "v2_correct_frac": 0.40939597315436244
+  },
+  "cluster_bootstrap_diff": {
+   "mean": 0.04972753244305052,
+   "ci": [
+    0.003936621892851622,
+    0.0957854406130268
+   ],
+   "p_two_sided": 0.035
+  },
+  "cluster_sign_test_p": 0.04635,
+  "groups_net_v2_better": 18,
+  "groups_net_v1_better": 7
+ }
+}

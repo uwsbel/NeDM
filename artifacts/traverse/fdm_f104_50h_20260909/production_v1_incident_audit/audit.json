@@ -1,0 +1,106 @@
+{
+  "schema": "f104_production_v1_incident_audit_v1",
+  "observed_utc": "2026-09-10T04:56:19.226936+00:00",
+  "count_toward_production_quota": false,
+  "production_contract_sha256": "b7932beffa32f49eb4d76034cfe04a6e64058fd6d10b7b943a379505503033e5",
+  "run_directories": 909,
+  "initial_state_pass": 909,
+  "initial_state_fail": [],
+  "native_height_pass": 909,
+  "native_height_fail": [],
+  "collector_failures": [],
+  "marked_complete": 474,
+  "marked_completed_frames": 113797,
+  "statuses": {
+    "goal_reached": 473,
+    "prolonged_blockage_terminated": 1
+  },
+  "stop_examples": [
+    {
+      "id": "f104_v1_group_0907_route_04",
+      "elapsed_s": 34.0,
+      "events": [
+        {
+          "kind": "confirmation_started",
+          "interval_end_s": 24.0,
+          "first_qualifying_window_start_s": 22.0
+        },
+        {
+          "kind": "confirmed_tail_started",
+          "interval_end_s": 26.0,
+          "scheduled_stop_s": 34.0
+        },
+        {
+          "kind": "prolonged_blockage_terminated",
+          "interval_end_s": 34.0
+        }
+      ]
+    }
+  ],
+  "node_statuses": {
+    "running": 12,
+    "failed": 30
+  },
+  "node_fatal_last_lines": {
+    "FileNotFoundError: [Errno 2] No such file or directory: '/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/production_v1/queue/state.json'": 28,
+    "ValueError: Completion does not own an active claim": 2
+  },
+  "marked_completed_elapsed_s": 5689.85,
+  "queue_failure_count": 14,
+  "queue_failure_categories": {
+    "duplicate_output": 14
+  },
+  "queue_duplicate_examples": [
+    {
+      "id": "f104_v1_group_0312_route_10",
+      "failed_index": 537,
+      "failure_recorded_node": "412446_k007-005-v7.hpcfund_61573",
+      "output_owner_index": 537,
+      "output_owner_node": "412408_k007-004.hpcfund_2830844"
+    },
+    {
+      "id": "f104_v1_group_0016_route_06",
+      "failed_index": 540,
+      "failure_recorded_node": "412446_k007-005-v7.hpcfund_61573",
+      "output_owner_index": 540,
+      "output_owner_node": "412408_k007-004.hpcfund_2830844"
+    },
+    {
+      "id": "f104_v1_group_1396_route_07",
+      "failed_index": 541,
+      "failure_recorded_node": "412446_k007-005-v7.hpcfund_61573",
+      "output_owner_index": 541,
+      "output_owner_node": "412446_k007-005-v7.hpcfund_61573"
+    },
+    {
+      "id": "f104_v1_group_0898_route_06",
+      "failed_index": 542,
+      "failure_recorded_node": "412446_k007-005-v7.hpcfund_61573",
+      "output_owner_index": 542,
+      "output_owner_node": "412446_k007-005-v7.hpcfund_61573"
+    },
+    {
+      "id": "f104_v1_group_1072_route_06",
+      "failed_index": 549,
+      "failure_recorded_node": "412446_k007-005-v7.hpcfund_61573",
+      "output_owner_index": 549,
+      "output_owner_node": "412446_k007-005-v7.hpcfund_61573"
+    }
+  ],
+  "task_ids_unique": true,
+  "queue_incident_interpretation": "Observed duplicate claims and shared-state/claim ownership failures are orchestration defects. Cross-node locking/filesystem coherence is implicated; no isolated filesystem semantics benchmark was performed.",
+  "native_stop_checks": [
+    {
+      "id": "f104_v1_group_0907_route_04",
+      "all_artifact_hashes_valid": true,
+      "verified_artifact_count": 17,
+      "rich_solver_coverage_passed": true,
+      "frames": 680,
+      "actual_elapsed_s": 34.0,
+      "continuous_qualifying_windows": 201,
+      "maximum_qualifying_window_diameter_m": 0.06466366826604568,
+      "earliest_34s_policy_branch_exercised": true,
+      "quota_credit_seconds": 0.0
+    }
+  ]
+}

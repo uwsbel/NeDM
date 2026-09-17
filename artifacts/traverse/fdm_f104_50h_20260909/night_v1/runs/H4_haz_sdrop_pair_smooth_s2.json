@@ -1,0 +1,26 @@
+{
+ "cfg": {
+  "arch": "hazard",
+  "label": "hazard",
+  "speed_drop": 0.3,
+  "pair_w": 1.0,
+  "jitter": true,
+  "gradpen": 0.1,
+  "name": "H4_haz_sdrop_pair_smooth",
+  "seed": 2,
+  "epochs": 30
+ },
+ "dev": {
+  "P_unsafe": 0.9700586116799661,
+  "W_unsafe": 0.9682608695652174,
+  "Wn_unsafe": 2300,
+  "G_unsafe": 0.9348534201954397,
+  "Gn_unsafe": 307,
+  "P_fail": 0.9259798199880683,
+  "W_fail": 0.929471032745592,
+  "Wn_fail": 1191,
+  "G_fail": 0.8656716417910447,
+  "Gn_fail": 201,
+  "train_s": 622.5
+ }
+}

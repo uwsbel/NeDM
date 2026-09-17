@@ -1,0 +1,25 @@
+{
+ "cfg": {
+  "arch": "hazard",
+  "label": "hazard",
+  "speed_drop": 0.3,
+  "pair_w": 1.0,
+  "dq": true,
+  "name": "H5_haz_sdrop_pair_dq",
+  "seed": 1,
+  "epochs": 30
+ },
+ "dev": {
+  "P_unsafe": 0.9773321093143139,
+  "W_unsafe": 0.9782608695652174,
+  "Wn_unsafe": 2300,
+  "G_unsafe": 0.9478827361563518,
+  "Gn_unsafe": 307,
+  "P_fail": 0.9296889995590486,
+  "W_fail": 0.9319899244332494,
+  "Wn_fail": 1191,
+  "G_fail": 0.845771144278607,
+  "Gn_fail": 201,
+  "train_s": 86.0
+ }
+}

@@ -1,0 +1,2 @@
+200 existing start/goal pairs will be avoided (margin 2.0 m)
+{"groups": 150, "episodes": 1800, "attempts": 28606, "splits": {"train": 132, "val": 6, "test": 12}}

@@ -1,0 +1,104 @@
+{
+ "proposal/n2": {
+  "n_flip": 258,
+  "v1pick_rank_under_v2": {
+   "median": 1.0,
+   "p90": 4.0,
+   "max": 25
+  },
+  "v2pick_rank_under_v1": {
+   "median": 1.0,
+   "p90": 4.0,
+   "max": 20
+  },
+  "median_dP_v1": 1.5698476735659384e-05,
+  "median_dP_v2": 1.63331951954504e-05,
+  "frac_v1pick_still_top10_under_v2": 0.9728682170542635,
+  "frac_v2pick_was_top10_under_v1": 0.9806201550387597
+ },
+ "proposal/e0": {
+  "n_flip": 234,
+  "v1pick_rank_under_v2": {
+   "median": 1.0,
+   "p90": 3.0,
+   "max": 84
+  },
+  "v2pick_rank_under_v1": {
+   "median": 1.0,
+   "p90": 3.700000000000017,
+   "max": 15
+  },
+  "median_dP_v1": 1.2354621896526474e-05,
+  "median_dP_v2": 1.8104254858986035e-05,
+  "frac_v1pick_still_top10_under_v2": 0.9957264957264957,
+  "frac_v2pick_was_top10_under_v1": 0.9871794871794872
+ },
+ "proposal/d": {
+  "n_flip": 303,
+  "v1pick_rank_under_v2": {
+   "median": 1.0,
+   "p90": 10.0,
+   "max": 134
+  },
+  "v2pick_rank_under_v1": {
+   "median": 1.0,
+   "p90": 4.0,
+   "max": 40
+  },
+  "median_dP_v1": 5.081960215180814e-05,
+  "median_dP_v2": 6.236137408921483e-05,
+  "frac_v1pick_still_top10_under_v2": 0.8877887788778878,
+  "frac_v2pick_was_top10_under_v1": 0.9801980198019802
+ },
+ "fixed2/n2": {
+  "n_flip": 475,
+  "v1pick_rank_under_v2": {
+   "median": 2.0,
+   "p90": 12.0,
+   "max": 103
+  },
+  "v2pick_rank_under_v1": {
+   "median": 2.0,
+   "p90": 14.600000000000023,
+   "max": 72
+  },
+  "median_dP_v1": 4.767767925017985e-05,
+  "median_dP_v2": 4.317409036447284e-05,
+  "frac_v1pick_still_top10_under_v2": 0.871578947368421,
+  "frac_v2pick_was_top10_under_v1": 0.84
+ },
+ "fixed2/e0": {
+  "n_flip": 424,
+  "v1pick_rank_under_v2": {
+   "median": 2.0,
+   "p90": 10.0,
+   "max": 94
+  },
+  "v2pick_rank_under_v1": {
+   "median": 2.0,
+   "p90": 11.699999999999989,
+   "max": 152
+  },
+  "median_dP_v1": 0.00018461831319677158,
+  "median_dP_v2": 0.00017767324423312303,
+  "frac_v1pick_still_top10_under_v2": 0.8773584905660378,
+  "frac_v2pick_was_top10_under_v1": 0.875
+ },
+ "fixed2/d": {
+  "n_flip": 514,
+  "v1pick_rank_under_v2": {
+   "median": 3.0,
+   "p90": 30.399999999999977,
+   "max": 228
+  },
+  "v2pick_rank_under_v1": {
+   "median": 3.0,
+   "p90": 12.0,
+   "max": 73
+  },
+  "median_dP_v1": 0.00037788698644419805,
+  "median_dP_v2": 0.0008459722438323714,
+  "frac_v1pick_still_top10_under_v2": 0.7490272373540856,
+  "frac_v2pick_was_top10_under_v1": 0.8599221789883269
+ }
+}

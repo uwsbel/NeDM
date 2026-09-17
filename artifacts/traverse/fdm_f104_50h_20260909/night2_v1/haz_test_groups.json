@@ -1,0 +1,1807 @@
+{
+ "rule": "hazard test: hill/crater strata only, never trained on, >= 2.0 m 4-D margin from every training group (deliberately smaller than the main test: hazard-adjacent start/goals are dense, and the audit showed a 6 m margin buys no terrain novelty anyway), >= 3 m apart, excludes all groups used earlier tonight",
+ "margin_m": 2.0,
+ "n": 300,
+ "groups": [
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0492",
+   "margin_m": 5.52,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0290",
+   "margin_m": 5.37,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2282",
+   "margin_m": 5.24,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1249",
+   "margin_m": 5.23,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0590",
+   "margin_m": 5.19,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0248",
+   "margin_m": 5.18,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0364",
+   "margin_m": 5.12,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0416",
+   "margin_m": 5.1,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2067",
+   "margin_m": 5.08,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0782",
+   "margin_m": 5.02,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2246",
+   "margin_m": 5.0,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0740",
+   "margin_m": 4.93,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0484",
+   "margin_m": 4.9,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2690",
+   "margin_m": 4.85,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1093",
+   "margin_m": 4.67,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2904",
+   "margin_m": 4.66,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2504",
+   "margin_m": 4.61,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0680",
+   "margin_m": 4.56,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2296",
+   "margin_m": 4.53,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0001",
+   "margin_m": 4.5,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_3015",
+   "margin_m": 4.49,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0183",
+   "margin_m": 4.47,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1192",
+   "margin_m": 4.46,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2702",
+   "margin_m": 4.4,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0892",
+   "margin_m": 4.4,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0595",
+   "margin_m": 4.39,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_3062",
+   "margin_m": 4.36,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2659",
+   "margin_m": 4.35,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2980",
+   "margin_m": 4.32,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0721",
+   "margin_m": 4.29,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1027",
+   "margin_m": 4.29,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1875",
+   "margin_m": 4.28,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0964",
+   "margin_m": 4.24,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1860",
+   "margin_m": 4.24,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0832",
+   "margin_m": 4.19,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1310",
+   "margin_m": 4.17,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0605",
+   "margin_m": 4.17,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_3172",
+   "margin_m": 4.16,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1692",
+   "margin_m": 4.15,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1958",
+   "margin_m": 4.15,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0254",
+   "margin_m": 4.13,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0972",
+   "margin_m": 4.13,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2024",
+   "margin_m": 4.1,
+   "stratum": "crater_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0103",
+   "margin_m": 4.07,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0243",
+   "margin_m": 4.07,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1908",
+   "margin_m": 4.06,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0256",
+   "margin_m": 4.0,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1035",
+   "margin_m": 3.99,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0796",
+   "margin_m": 3.99,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0784",
+   "margin_m": 3.99,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2971",
+   "margin_m": 3.99,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0038",
+   "margin_m": 3.98,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1072",
+   "margin_m": 3.98,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0436",
+   "margin_m": 3.98,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0001",
+   "margin_m": 3.97,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0123",
+   "margin_m": 3.97,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1555",
+   "margin_m": 3.97,
+   "stratum": "crater_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1166",
+   "margin_m": 3.95,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1863",
+   "margin_m": 3.95,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2402",
+   "margin_m": 3.94,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0859",
+   "margin_m": 3.94,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2563",
+   "margin_m": 3.94,
+   "stratum": "crater_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1924",
+   "margin_m": 3.94,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0812",
+   "margin_m": 3.94,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1083",
+   "margin_m": 3.94,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0540",
+   "margin_m": 3.93,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0343",
+   "margin_m": 3.93,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_3019",
+   "margin_m": 3.92,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_3171",
+   "margin_m": 3.92,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2611",
+   "margin_m": 3.92,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0735",
+   "margin_m": 3.92,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2115",
+   "margin_m": 3.91,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0511",
+   "margin_m": 3.91,
+   "stratum": "crater_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0559",
+   "margin_m": 3.91,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0687",
+   "margin_m": 3.91,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0085",
+   "margin_m": 3.91,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0698",
+   "margin_m": 3.89,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0771",
+   "margin_m": 3.89,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0591",
+   "margin_m": 3.88,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0710",
+   "margin_m": 3.88,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0620",
+   "margin_m": 3.88,
+   "stratum": "crater_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1868",
+   "margin_m": 3.87,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0914",
+   "margin_m": 3.87,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0662",
+   "margin_m": 3.86,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2263",
+   "margin_m": 3.86,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0482",
+   "margin_m": 3.86,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0293",
+   "margin_m": 3.85,
+   "stratum": "crater_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0589",
+   "margin_m": 3.85,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0284",
+   "margin_m": 3.85,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0122",
+   "margin_m": 3.85,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2756",
+   "margin_m": 3.84,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_3128",
+   "margin_m": 3.84,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1728",
+   "margin_m": 3.84,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2317",
+   "margin_m": 3.84,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1934",
+   "margin_m": 3.83,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0891",
+   "margin_m": 3.83,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2727",
+   "margin_m": 3.83,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1400",
+   "margin_m": 3.83,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1645",
+   "margin_m": 3.82,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2071",
+   "margin_m": 3.82,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0007",
+   "margin_m": 3.82,
+   "stratum": "crater_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0508",
+   "margin_m": 3.81,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0763",
+   "margin_m": 3.81,
+   "stratum": "crater_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0519",
+   "margin_m": 3.81,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1921",
+   "margin_m": 3.81,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0278",
+   "margin_m": 3.81,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0152",
+   "margin_m": 3.79,
+   "stratum": "crater_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0217",
+   "margin_m": 3.79,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0224",
+   "margin_m": 3.79,
+   "stratum": "crater_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2943",
+   "margin_m": 3.79,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1135",
+   "margin_m": 3.78,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0307",
+   "margin_m": 3.78,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0651",
+   "margin_m": 3.77,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1216",
+   "margin_m": 3.77,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1142",
+   "margin_m": 3.77,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1100",
+   "margin_m": 3.77,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1165",
+   "margin_m": 3.76,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0494",
+   "margin_m": 3.76,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0148",
+   "margin_m": 3.75,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0600",
+   "margin_m": 3.75,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2020",
+   "margin_m": 3.75,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2932",
+   "margin_m": 3.75,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1442",
+   "margin_m": 3.74,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0764",
+   "margin_m": 3.74,
+   "stratum": "crater_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0516",
+   "margin_m": 3.74,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2584",
+   "margin_m": 3.73,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_3091",
+   "margin_m": 3.73,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0962",
+   "margin_m": 3.73,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0212",
+   "margin_m": 3.72,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2331",
+   "margin_m": 3.72,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0547",
+   "margin_m": 3.72,
+   "stratum": "crater_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1022",
+   "margin_m": 3.72,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0152",
+   "margin_m": 3.72,
+   "stratum": "crater_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0517",
+   "margin_m": 3.72,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_3004",
+   "margin_m": 3.72,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0463",
+   "margin_m": 3.72,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0488",
+   "margin_m": 3.71,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2683",
+   "margin_m": 3.71,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2823",
+   "margin_m": 3.7,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1444",
+   "margin_m": 3.7,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_3183",
+   "margin_m": 3.7,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0172",
+   "margin_m": 3.69,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0240",
+   "margin_m": 3.69,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2473",
+   "margin_m": 3.69,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_3043",
+   "margin_m": 3.69,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2676",
+   "margin_m": 3.69,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0008",
+   "margin_m": 3.69,
+   "stratum": "crater_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0988",
+   "margin_m": 3.69,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0799",
+   "margin_m": 3.68,
+   "stratum": "crater_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0115",
+   "margin_m": 3.68,
+   "stratum": "crater_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1902",
+   "margin_m": 3.68,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1808",
+   "margin_m": 3.68,
+   "stratum": "crater_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0127",
+   "margin_m": 3.68,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2583",
+   "margin_m": 3.67,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1800",
+   "margin_m": 3.67,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0684",
+   "margin_m": 3.66,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0676",
+   "margin_m": 3.66,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2476",
+   "margin_m": 3.66,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1940",
+   "margin_m": 3.66,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0666",
+   "margin_m": 3.65,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0136",
+   "margin_m": 3.65,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0108",
+   "margin_m": 3.65,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0040",
+   "margin_m": 3.65,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1585",
+   "margin_m": 3.64,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2048",
+   "margin_m": 3.64,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_3040",
+   "margin_m": 3.64,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0602",
+   "margin_m": 3.64,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2143",
+   "margin_m": 3.64,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2670",
+   "margin_m": 3.64,
+   "stratum": "crater_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0230",
+   "margin_m": 3.64,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0396",
+   "margin_m": 3.64,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2728",
+   "margin_m": 3.64,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0180",
+   "margin_m": 3.63,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0200",
+   "margin_m": 3.63,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0471",
+   "margin_m": 3.63,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2864",
+   "margin_m": 3.62,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1086",
+   "margin_m": 3.62,
+   "stratum": "crater_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0807",
+   "margin_m": 3.62,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1778",
+   "margin_m": 3.62,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1578",
+   "margin_m": 3.62,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0183",
+   "margin_m": 3.62,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0652",
+   "margin_m": 3.62,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0392",
+   "margin_m": 3.61,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2420",
+   "margin_m": 3.6,
+   "stratum": "crater_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1051",
+   "margin_m": 3.6,
+   "stratum": "crater_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0136",
+   "margin_m": 3.6,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1184",
+   "margin_m": 3.6,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0985",
+   "margin_m": 3.6,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0008",
+   "margin_m": 3.6,
+   "stratum": "crater_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0487",
+   "margin_m": 3.6,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0744",
+   "margin_m": 3.6,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1516",
+   "margin_m": 3.6,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2617",
+   "margin_m": 3.59,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2572",
+   "margin_m": 3.59,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1128",
+   "margin_m": 3.59,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2401",
+   "margin_m": 3.59,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1190",
+   "margin_m": 3.59,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1932",
+   "margin_m": 3.59,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0218",
+   "margin_m": 3.59,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2906",
+   "margin_m": 3.58,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1000",
+   "margin_m": 3.58,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0112",
+   "margin_m": 3.58,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0219",
+   "margin_m": 3.58,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2342",
+   "margin_m": 3.57,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1939",
+   "margin_m": 3.57,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1003",
+   "margin_m": 3.57,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1375",
+   "margin_m": 3.57,
+   "stratum": "crater_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0388",
+   "margin_m": 3.56,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0759",
+   "margin_m": 3.56,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0115",
+   "margin_m": 3.56,
+   "stratum": "crater_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0260",
+   "margin_m": 3.56,
+   "stratum": "crater_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0361",
+   "margin_m": 3.55,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_3096",
+   "margin_m": 3.55,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_3066",
+   "margin_m": 3.55,
+   "stratum": "crater_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1351",
+   "margin_m": 3.55,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1598",
+   "margin_m": 3.55,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_3198",
+   "margin_m": 3.54,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1637",
+   "margin_m": 3.54,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_3135",
+   "margin_m": 3.54,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1912",
+   "margin_m": 3.54,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1556",
+   "margin_m": 3.54,
+   "stratum": "crater_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0356",
+   "margin_m": 3.54,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1829",
+   "margin_m": 3.54,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2042",
+   "margin_m": 3.53,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2564",
+   "margin_m": 3.53,
+   "stratum": "crater_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0015",
+   "margin_m": 3.53,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1712",
+   "margin_m": 3.53,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1153",
+   "margin_m": 3.53,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1531",
+   "margin_m": 3.53,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0591",
+   "margin_m": 3.53,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0348",
+   "margin_m": 3.52,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0877",
+   "margin_m": 3.52,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_3080",
+   "margin_m": 3.52,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2461",
+   "margin_m": 3.52,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0288",
+   "margin_m": 3.52,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2240",
+   "margin_m": 3.51,
+   "stratum": "crater_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0733",
+   "margin_m": 3.51,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_3014",
+   "margin_m": 3.51,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0548",
+   "margin_m": 3.51,
+   "stratum": "crater_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0451",
+   "margin_m": 3.51,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1466",
+   "margin_m": 3.5,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0343",
+   "margin_m": 3.5,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0523",
+   "margin_m": 3.49,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0151",
+   "margin_m": 3.48,
+   "stratum": "crater_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2114",
+   "margin_m": 3.48,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0782",
+   "margin_m": 3.48,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0710",
+   "margin_m": 3.48,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0028",
+   "margin_m": 3.48,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0560",
+   "margin_m": 3.48,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0907",
+   "margin_m": 3.48,
+   "stratum": "crater_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1075",
+   "margin_m": 3.47,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0603",
+   "margin_m": 3.47,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0268",
+   "margin_m": 3.47,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1688",
+   "margin_m": 3.47,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0004",
+   "margin_m": 3.47,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1586",
+   "margin_m": 3.46,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2488",
+   "margin_m": 3.46,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2796",
+   "margin_m": 3.45,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1370",
+   "margin_m": 3.45,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1147",
+   "margin_m": 3.45,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0908",
+   "margin_m": 3.44,
+   "stratum": "crater_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2384",
+   "margin_m": 3.44,
+   "stratum": "crater_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0987",
+   "margin_m": 3.43,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2080",
+   "margin_m": 3.43,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0643",
+   "margin_m": 3.43,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_3067",
+   "margin_m": 3.43,
+   "stratum": "crater_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2486",
+   "margin_m": 3.43,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0360",
+   "margin_m": 3.43,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2570",
+   "margin_m": 3.42,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0992",
+   "margin_m": 3.42,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1411",
+   "margin_m": 3.42,
+   "stratum": "crater_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2091",
+   "margin_m": 3.42,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1851",
+   "margin_m": 3.42,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2499",
+   "margin_m": 3.42,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0280",
+   "margin_m": 3.42,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2498",
+   "margin_m": 3.41,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1664",
+   "margin_m": 3.41,
+   "stratum": "crater_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0756",
+   "margin_m": 3.4,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_3104",
+   "margin_m": 3.4,
+   "stratum": "crater_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2076",
+   "margin_m": 3.4,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0715",
+   "margin_m": 3.4,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1168",
+   "margin_m": 3.4,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1131",
+   "margin_m": 3.39,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2775",
+   "margin_m": 3.39,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2803",
+   "margin_m": 3.39,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2392",
+   "margin_m": 3.39,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0596",
+   "margin_m": 3.38,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0139",
+   "margin_m": 3.38,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1838",
+   "margin_m": 3.38,
+   "stratum": "hill_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1459",
+   "margin_m": 3.38,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2511",
+   "margin_m": 3.37,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1661",
+   "margin_m": 3.37,
+   "stratum": "crater_entry_cross_exit"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_0636",
+   "margin_m": 3.37,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1212",
+   "margin_m": 3.37,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test2",
+   "group": "f104_t2_group_0266",
+   "margin_m": 3.37,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2472",
+   "margin_m": 3.37,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1028",
+   "margin_m": 3.37,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1644",
+   "margin_m": 3.37,
+   "stratum": "hill_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_1904",
+   "margin_m": 3.37,
+   "stratum": "crater_cross_slope"
+  },
+  {
+   "dir": "cases_test3",
+   "group": "f104_t3_group_2336",
+   "margin_m": 3.37,
+   "stratum": "crater_cross_slope"
+  }
+ ]
+}

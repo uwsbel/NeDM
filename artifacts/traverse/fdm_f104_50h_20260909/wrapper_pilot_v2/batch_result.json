@@ -1,0 +1,56 @@
+{
+  "job": "412401",
+  "protocol_sha256": "a4273d257462f728fd6b4182b09a0aa13f5f44d1d3bfa06afa7ece5e287ca2bb",
+  "started_unix_s": 1789015559.0772917,
+  "finished_unix_s": 1789015668.7707627,
+  "rows": [
+    {
+      "id": "parity_g0000_r00",
+      "returncode": 0,
+      "wall_s": 44.307825326919556,
+      "out": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/wrapper_pilot_v2/raw/parity_g0000_r00"
+    },
+    {
+      "id": "parity_g0000_r02",
+      "returncode": 0,
+      "wall_s": 25.597670555114746,
+      "out": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/wrapper_pilot_v2/raw/parity_g0000_r02"
+    },
+    {
+      "id": "parity_g0001_r03",
+      "returncode": 0,
+      "wall_s": 31.2241792678833,
+      "out": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/wrapper_pilot_v2/raw/parity_g0001_r03"
+    },
+    {
+      "id": "parity_g0005_r00",
+      "returncode": 0,
+      "wall_s": 44.19052863121033,
+      "out": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/wrapper_pilot_v2/raw/parity_g0005_r00"
+    },
+    {
+      "id": "parity_g0006_r02",
+      "returncode": 0,
+      "wall_s": 24.452231645584106,
+      "out": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/wrapper_pilot_v2/raw/parity_g0006_r02"
+    },
+    {
+      "id": "parity_g0007_r00",
+      "returncode": 0,
+      "wall_s": 60.60329842567444,
+      "out": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/wrapper_pilot_v2/raw/parity_g0007_r00"
+    },
+    {
+      "id": "blocked60_enabled",
+      "returncode": 0,
+      "wall_s": 108.9292905330658,
+      "out": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/wrapper_pilot_v2/raw/blocked60_enabled"
+    },
+    {
+      "id": "blocked60_disabled_control",
+      "returncode": 0,
+      "wall_s": 109.68798279762268,
+      "out": "/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909/wrapper_pilot_v2/raw/blocked60_disabled_control"
+    }
+  ]
+}

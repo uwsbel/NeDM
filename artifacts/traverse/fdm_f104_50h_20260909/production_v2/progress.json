@@ -1,0 +1,45 @@
+{
+  "schema": "f104_global_ledger_progress_v2",
+  "contract_sha256": "e4422720f1fa11fccefb77a0bef008616e705174697884f6494af5b0351eb84b",
+  "observed_unix_s": 1789017142.579908,
+  "target_hours": 50,
+  "completed_frames": 4782510,
+  "completed_seconds": 239125.5,
+  "completed_hours": 66.42375,
+  "completed_episodes": 11412,
+  "unique_groups": 1500,
+  "by_split": {
+    "train": {
+      "episodes": 10183,
+      "frames": 4256140,
+      "seconds": 212807.0
+    },
+    "test": {
+      "episodes": 567,
+      "frames": 251011,
+      "seconds": 12550.550000000001
+    },
+    "val": {
+      "episodes": 662,
+      "frames": 275359,
+      "seconds": 13767.95
+    }
+  },
+  "outcome_statuses": {
+    "goal_reached": 10151,
+    "prolonged_blockage_terminated": 1048,
+    "rollover": 21,
+    "terrain_bounds_exit": 40,
+    "timeout": 152
+  },
+  "shards_observed": 46,
+  "shard_statuses": {
+    "complete": 46
+  },
+  "inflight": 0,
+  "failed_episodes": 0,
+  "started_workers": 2008,
+  "quota_reached": true,
+  "elapsed_wall_min": 13.620410589377085,
+  "accounting": "Only distinct validated completion ledger entries, integer intervals x0.05s; production_v1 and pilots excluded."
+}

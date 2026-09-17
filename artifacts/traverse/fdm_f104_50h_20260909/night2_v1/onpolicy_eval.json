@@ -1,0 +1,56 @@
+[
+ {
+  "tag": "designed only",
+  "seed": 0,
+  "fit_rows": 19463,
+  "auc_unsafe": 0.9434320425208808,
+  "auc_fail": 0.8298518799848082,
+  "pick_unsafe": 0.09411764705882353,
+  "pairs": 2634
+ },
+ {
+  "tag": "designed only",
+  "seed": 1,
+  "fit_rows": 19463,
+  "auc_unsafe": 0.925208807896735,
+  "auc_fail": 0.8036460311431827,
+  "pick_unsafe": 0.10588235294117647,
+  "pairs": 2634
+ },
+ {
+  "tag": "designed only",
+  "seed": 2,
+  "fit_rows": 19463,
+  "auc_unsafe": 0.931283219438117,
+  "auc_fail": 0.8093429548044057,
+  "pick_unsafe": 0.10980392156862745,
+  "pairs": 2634
+ },
+ {
+  "tag": "designed + on-policy",
+  "seed": 0,
+  "fit_rows": 26783,
+  "auc_unsafe": 0.9681093394077449,
+  "auc_fail": 0.8522597797189517,
+  "pick_unsafe": 0.09411764705882353,
+  "pairs": 2634
+ },
+ {
+  "tag": "designed + on-policy",
+  "seed": 1,
+  "fit_rows": 26783,
+  "auc_unsafe": 0.9703872437357631,
+  "auc_fail": 0.8533991644511963,
+  "pick_unsafe": 0.07058823529411765,
+  "pairs": 2634
+ },
+ {
+  "tag": "designed + on-policy",
+  "seed": 2,
+  "fit_rows": 26783,
+  "auc_unsafe": 0.9684889901290813,
+  "auc_fail": 0.8465628560577289,
+  "pick_unsafe": 0.0784313725490196,
+  "pairs": 2634
+ }
+]

@@ -1,0 +1,161 @@
+[
+ {
+  "variant": "Dabs",
+  "channels": [
+   "range_abs",
+   "sec1",
+   "speed",
+   "valid"
+  ],
+  "seed": 0,
+  "steps": 6330,
+  "secs": 230.8,
+  "n_fit": 54180,
+  "rank": {
+   "P_unsafe": 0.9414812899412656,
+   "W_unsafe": 0.9536803806325217,
+   "Wn_unsafe": 7146,
+   "G_unsafe": 0.9033018867924528,
+   "Gn_unsafe": 848,
+   "P_fail": 0.8709911922120612,
+   "W_fail": 0.8653651115618661,
+   "Wn_fail": 3944,
+   "G_fail": 0.7615131578947368,
+   "Gn_fail": 608
+  },
+  "choice": {
+   "cells": 1200,
+   "picked_unsafe": 0.1525,
+   "avoidable_unsafe": 0.028333333333333332,
+   "unavoidable": 0.12416666666666666,
+   "random_pick": 0.2972222222222224
+  },
+  "choice_all": {
+   "cells": 2400,
+   "picked_unsafe": 0.07958333333333334,
+   "avoidable_unsafe": 0.0175,
+   "unavoidable": 0.06208333333333333,
+   "random_pick": 0.1971686507936505
+  },
+  "choice_g216": {
+   "cells": 600,
+   "picked_unsafe": 0.09833333333333333,
+   "avoidable_unsafe": 0.015,
+   "unavoidable": 0.08333333333333333,
+   "random_pick": 0.2500000000000001
+  },
+  "choice_g231": {
+   "cells": 600,
+   "picked_unsafe": 0.20666666666666667,
+   "avoidable_unsafe": 0.041666666666666664,
+   "unavoidable": 0.165,
+   "random_pick": 0.34444444444444433
+  }
+ },
+ {
+  "variant": "Dabs",
+  "channels": [
+   "range_abs",
+   "sec1",
+   "speed",
+   "valid"
+  ],
+  "seed": 1,
+  "steps": 6330,
+  "secs": 206.3,
+  "n_fit": 54180,
+  "rank": {
+   "P_unsafe": 0.9442484577592257,
+   "W_unsafe": 0.9584382871536524,
+   "Wn_unsafe": 7146,
+   "G_unsafe": 0.9068396226415094,
+   "Gn_unsafe": 848,
+   "P_fail": 0.8707100225462514,
+   "W_fail": 0.8696754563894523,
+   "Wn_fail": 3944,
+   "G_fail": 0.7713815789473685,
+   "Gn_fail": 608
+  },
+  "choice": {
+   "cells": 1200,
+   "picked_unsafe": 0.15166666666666667,
+   "avoidable_unsafe": 0.0275,
+   "unavoidable": 0.12416666666666666,
+   "random_pick": 0.2972222222222224
+  },
+  "choice_all": {
+   "cells": 2400,
+   "picked_unsafe": 0.08125,
+   "avoidable_unsafe": 0.019166666666666665,
+   "unavoidable": 0.06208333333333333,
+   "random_pick": 0.1971686507936505
+  },
+  "choice_g216": {
+   "cells": 600,
+   "picked_unsafe": 0.09666666666666666,
+   "avoidable_unsafe": 0.013333333333333334,
+   "unavoidable": 0.08333333333333333,
+   "random_pick": 0.2500000000000001
+  },
+  "choice_g231": {
+   "cells": 600,
+   "picked_unsafe": 0.20666666666666667,
+   "avoidable_unsafe": 0.041666666666666664,
+   "unavoidable": 0.165,
+   "random_pick": 0.34444444444444433
+  }
+ },
+ {
+  "variant": "Dabs",
+  "channels": [
+   "range_abs",
+   "sec1",
+   "speed",
+   "valid"
+  ],
+  "seed": 2,
+  "steps": 6330,
+  "secs": 211.5,
+  "n_fit": 54180,
+  "rank": {
+   "P_unsafe": 0.9469376823907503,
+   "W_unsafe": 0.9599776098516652,
+   "Wn_unsafe": 7146,
+   "G_unsafe": 0.9127358490566038,
+   "Gn_unsafe": 848,
+   "P_fail": 0.8723588488769016,
+   "W_fail": 0.8679006085192698,
+   "Wn_fail": 3944,
+   "G_fail": 0.7697368421052632,
+   "Gn_fail": 608
+  },
+  "choice": {
+   "cells": 1200,
+   "picked_unsafe": 0.14916666666666667,
+   "avoidable_unsafe": 0.025,
+   "unavoidable": 0.12416666666666666,
+   "random_pick": 0.2972222222222224
+  },
+  "choice_all": {
+   "cells": 2400,
+   "picked_unsafe": 0.07916666666666666,
+   "avoidable_unsafe": 0.017083333333333332,
+   "unavoidable": 0.06208333333333333,
+   "random_pick": 0.1971686507936505
+  },
+  "choice_g216": {
+   "cells": 600,
+   "picked_unsafe": 0.09666666666666666,
+   "avoidable_unsafe": 0.013333333333333334,
+   "unavoidable": 0.08333333333333333,
+   "random_pick": 0.2500000000000001
+  },
+  "choice_g231": {
+   "cells": 600,
+   "picked_unsafe": 0.20166666666666666,
+   "avoidable_unsafe": 0.03666666666666667,
+   "unavoidable": 0.165,
+   "random_pick": 0.34444444444444433
+  }
+ }
+]

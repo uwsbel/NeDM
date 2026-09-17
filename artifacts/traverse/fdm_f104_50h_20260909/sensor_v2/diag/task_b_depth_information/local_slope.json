@@ -1,0 +1,59 @@
+{
+ "plugin_absolute_range_constant_m": 115.21126179057987,
+ "per_arena": {
+  "f104": {
+   "n_stations": 48192,
+   "true_cross_slope_std_m_per_m": 0.11993874953455601,
+   "plugin_local_decode_rmse_m_per_m": 0.003102457040129371,
+   "plugin_local_decode_r2": 0.9993308977045752,
+   "plugin_local_decode_p95_abs": 0.006358271466607095,
+   "no_sec_correction_rmse_m_per_m": 0.17107152045064372,
+   "no_sec_correction_r2": -1.0344002352578836
+  },
+  "g203": {
+   "n_stations": 48672,
+   "true_cross_slope_std_m_per_m": 0.12265535426711206,
+   "plugin_local_decode_rmse_m_per_m": 0.003092787529732056,
+   "plugin_local_decode_r2": 0.9993641903007002,
+   "plugin_local_decode_p95_abs": 0.006130380497235348,
+   "no_sec_correction_rmse_m_per_m": 0.1792415696491918,
+   "no_sec_correction_r2": -1.1355239898230312
+  },
+  "g216": {
+   "n_stations": 49152,
+   "true_cross_slope_std_m_per_m": 0.12629504886330978,
+   "plugin_local_decode_rmse_m_per_m": 0.002459854219470974,
+   "plugin_local_decode_r2": 0.9996206447583242,
+   "plugin_local_decode_p95_abs": 0.005035113365862402,
+   "no_sec_correction_rmse_m_per_m": 0.17279917007252366,
+   "no_sec_correction_r2": -0.8720207318431248
+  },
+  "g217": {
+   "n_stations": 49824,
+   "true_cross_slope_std_m_per_m": 0.12084985403107201,
+   "plugin_local_decode_rmse_m_per_m": 0.002987159226114386,
+   "plugin_local_decode_r2": 0.9993890235300384,
+   "plugin_local_decode_p95_abs": 0.005495325601970344,
+   "no_sec_correction_rmse_m_per_m": 0.1797305377671586,
+   "no_sec_correction_r2": -1.2118286904025064
+  },
+  "g228": {
+   "n_stations": 48624,
+   "true_cross_slope_std_m_per_m": 0.12589978455262027,
+   "plugin_local_decode_rmse_m_per_m": 0.002935602588264392,
+   "plugin_local_decode_r2": 0.9994563185067054,
+   "plugin_local_decode_p95_abs": 0.00568532582051316,
+   "no_sec_correction_rmse_m_per_m": 0.1604402524360496,
+   "no_sec_correction_r2": -0.6239651286721706
+  },
+  "g231": {
+   "n_stations": 48096,
+   "true_cross_slope_std_m_per_m": 0.1340367053494847,
+   "plugin_local_decode_rmse_m_per_m": 0.0030763823367927243,
+   "plugin_local_decode_r2": 0.9994732153278096,
+   "plugin_local_decode_p95_abs": 0.006256910365628216,
+   "no_sec_correction_rmse_m_per_m": 0.17000603758784097,
+   "no_sec_correction_r2": -0.6087227438811469
+  }
+ }
+}

@@ -1,0 +1,1024 @@
+{
+  "schema": 1,
+  "campaign": "fdm_f104_50h_20260909",
+  "records": [
+    {
+      "scene_id": "f104_v1_group_0000",
+      "split": "train",
+      "family": "f104",
+      "evaluation_stratum": "hill_entry_cross_exit",
+      "case": "f104_v1_group_0000.json",
+      "routes": [
+        "routes/f104_v1_group_0000/route_00.json",
+        "routes/f104_v1_group_0000/route_01.json",
+        "routes/f104_v1_group_0000/route_02.json",
+        "routes/f104_v1_group_0000/route_03.json",
+        "routes/f104_v1_group_0000/route_04.json",
+        "routes/f104_v1_group_0000/route_05.json",
+        "routes/f104_v1_group_0000/route_06.json",
+        "routes/f104_v1_group_0000/route_07.json",
+        "routes/f104_v1_group_0000/route_08.json",
+        "routes/f104_v1_group_0000/route_09.json",
+        "routes/f104_v1_group_0000/route_10.json",
+        "routes/f104_v1_group_0000/route_11.json"
+      ],
+      "case_sha256": "e08e529de1d40a6619d9cc0a6890c125f7eb65f837f0c69a12d87917e029b808",
+      "route_sha256": [
+        "cf5e9aed2ce7ea73a0a119bee3ad27b9ec22afbf2cf482fe39881c2ed9fd6a44",
+        "309b4e95cdbbd3db6022c6d47dfcf7a31a242a13f40e321a90f207a93e695c58",
+        "937cfeab771b04bae989db660a58805c3f4561574659b2e63378878e3f3960fe",
+        "c52b7bc7dcdd85e4dd9acb521c404dc7d03f9dc86d7a7c9e9da4e7d9c953e8a1",
+        "bf9c1c0106381beb12316d53c7f37d6d7df8cce05960692c6c82a657112d84d3",
+        "722dfba4f13227a2c14813937df0f9d9dfa3df336ae1e367de62c62b601f6d2d",
+        "9f0bbf28b8cc5c957c7b7216da05c045efd49c8dff84236b4d1187973ea85aca",
+        "7bd3c40c33bb3e0019a1c1769f8eddf817667a5a9b4d642b760c758b08c44aaa",
+        "40c5182ab4705ce2195082b1ed565c67945e1704f1acccc084fd35fe670fc502",
+        "dbbf630e8c50bdadab01839f5e8c0311ff797a17a1abed35fc59334655defd37",
+        "cc194fceadc6589bc02d911b75f40e7071ef8ebcb799d9b5c9b56ef6f33e05e4",
+        "2ffadb9c65f6fa5c615cea7100832c9d9ddf942688d10f289a9d719c9bfe01b3"
+      ],
+      "arena": "assets/traverse/arena_f104_50h_v1",
+      "arena_bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+      "arena_meta_sha256": "0242ac249715efd138d7d09b6f86a262781a555b11e99506866e111d4caa1b6a",
+      "geometry_initialization": {
+        "height_range_m": 0.2776193642318403,
+        "max_grade_deg": 7.909497671065179,
+        "fitted_grade_deg": 3.4531386931930323,
+        "plane_residual_max_m": 0.12089531408345892,
+        "sample_count": 91,
+        "rectangle_m": [
+          6,
+          3
+        ],
+        "method": "Bilinear quantized BMP; native settling pending"
+      },
+      "feature_index": 0,
+      "route_lengths_m": [
+        45.266630884940845,
+        45.266630884940845,
+        45.266630884940845,
+        45.266630884940845,
+        46.12621089783539,
+        46.12621089783539,
+        46.12621089783539,
+        46.12621089783539,
+        46.12621089783535,
+        46.12621089783535,
+        46.12621089783535,
+        46.12621089783535
+      ],
+      "reference_geometry_checks": [
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 4.397182703817221e-14,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 4.397182703817221e-14,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 4.397182703817221e-14,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.03848597365550287,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.03848597365550287,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.03848597365550287,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.03848597365551669,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.03848597365551669,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.03848597365551669,
+          "min_clearance_m": null
+        }
+      ],
+      "split_group_start_cell_8m": [
+        -4,
+        -4
+      ],
+      "horizon_s": 120.0
+    },
+    {
+      "scene_id": "f104_v1_group_0001",
+      "split": "train",
+      "family": "f104",
+      "evaluation_stratum": "hill_entry_cross_exit",
+      "case": "f104_v1_group_0001.json",
+      "routes": [
+        "routes/f104_v1_group_0001/route_00.json",
+        "routes/f104_v1_group_0001/route_01.json",
+        "routes/f104_v1_group_0001/route_02.json",
+        "routes/f104_v1_group_0001/route_03.json",
+        "routes/f104_v1_group_0001/route_04.json",
+        "routes/f104_v1_group_0001/route_05.json",
+        "routes/f104_v1_group_0001/route_06.json",
+        "routes/f104_v1_group_0001/route_07.json",
+        "routes/f104_v1_group_0001/route_08.json",
+        "routes/f104_v1_group_0001/route_09.json",
+        "routes/f104_v1_group_0001/route_10.json",
+        "routes/f104_v1_group_0001/route_11.json"
+      ],
+      "case_sha256": "5550a5eadd7416ab53de2ae22e91f5e40f460474cc73121993c9dedb696ba0c3",
+      "route_sha256": [
+        "ee1a701b42bf433ced91aefe0f968e9bc9f162d4c196c9a5fff458823ead04b9",
+        "e520adc3c39f0f7b7399944f343d24dd8ea653a26aa4e08fac7406d91b107b79",
+        "8133628af3717f1043986280e3aef335c175bc95322707ff99e52d95c25cf3b1",
+        "c6125f8050fe29257e763066ed9f49d27df915e6b370d999c31d537f8084bc0d",
+        "7d82e97cb11bfe15b4ea29dc9aa098f4e3e2836e18bedf293ecd055e980cfd39",
+        "1ff498c4771496c0ff842eaead81834b93a9948f966d94400de1b1ae6b5b0eb8",
+        "ee968cb6352556df505af57e517fa91c6b44fb11c0e319e11b26cd882013ff14",
+        "7895e52b5af132b22045dcc11fdfa7e6e7ce5557110f4003e5954c18726270a2",
+        "fc9ef0dac4e49db269d4bbd5b2608cac8e1394b8aefa67ee94a6fc5886e14b08",
+        "5983eafe2861c25c299941ad24d7948bc87f1253f4bc38c3eeb87815145e3f67",
+        "4db6df8301f9ae10425dcdf3348f62723dedecc6cf493d608cc8876bc05e035a",
+        "15ae0c698d5de39b65085b1b6848bbd5bc5f5ef8e7d41ab30f1339c985e04808"
+      ],
+      "arena": "assets/traverse/arena_f104_50h_v1",
+      "arena_bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+      "arena_meta_sha256": "0242ac249715efd138d7d09b6f86a262781a555b11e99506866e111d4caa1b6a",
+      "geometry_initialization": {
+        "height_range_m": 0.35764705882352943,
+        "max_grade_deg": 6.3534001216344,
+        "fitted_grade_deg": 2.868951952802975,
+        "plane_residual_max_m": 0.09055805719801531,
+        "sample_count": 91,
+        "rectangle_m": [
+          6,
+          3
+        ],
+        "method": "Bilinear quantized BMP; native settling pending"
+      },
+      "feature_index": 1,
+      "route_lengths_m": [
+        36.06312391430915,
+        36.06312391430915,
+        36.06312391430915,
+        36.06312391430915,
+        37.13344070335993,
+        37.13344070335993,
+        37.13344070335993,
+        37.13344070335993,
+        37.13344070335994,
+        37.13344070335994,
+        37.13344070335994,
+        37.13344070335994
+      ],
+      "reference_geometry_checks": [
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 4.074760174316754e-14,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 4.074760174316754e-14,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 4.074760174316754e-14,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.06058279548685785,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.06058279548685785,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.06058279548685785,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.0605827954868362,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.0605827954868362,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.0605827954868362,
+          "min_clearance_m": null
+        }
+      ],
+      "split_group_start_cell_8m": [
+        0,
+        -1
+      ],
+      "horizon_s": 120.0
+    },
+    {
+      "scene_id": "f104_v1_group_0002",
+      "split": "train",
+      "family": "f104",
+      "evaluation_stratum": "hill_entry_cross_exit",
+      "case": "f104_v1_group_0002.json",
+      "routes": [
+        "routes/f104_v1_group_0002/route_00.json",
+        "routes/f104_v1_group_0002/route_01.json",
+        "routes/f104_v1_group_0002/route_02.json",
+        "routes/f104_v1_group_0002/route_03.json",
+        "routes/f104_v1_group_0002/route_04.json",
+        "routes/f104_v1_group_0002/route_05.json",
+        "routes/f104_v1_group_0002/route_06.json",
+        "routes/f104_v1_group_0002/route_07.json",
+        "routes/f104_v1_group_0002/route_08.json",
+        "routes/f104_v1_group_0002/route_09.json",
+        "routes/f104_v1_group_0002/route_10.json",
+        "routes/f104_v1_group_0002/route_11.json"
+      ],
+      "case_sha256": "43adb3ec13752b6eef6f7abc2ad96b44679c4dade4f9e0119a411b1fdadec1a3",
+      "route_sha256": [
+        "fe162492314aed1f4af4e7603a62fbec7a32f928538a056bbb7f4ecc84a983ad",
+        "b3b3cd7ec9de240e9aadddff5a70cfbb5037d339b693e8b6a6dbb3e5ebe42e5d",
+        "8c1aee0509911d0cc4ddde19183ab1eaa4fcbcf04588111785c096ba46442dae",
+        "6b477f5a1b6e5da362d2efb814f85696101409e52460e963ec171473cbdf9e7f",
+        "31528d2ff041f5c40555b557adfdae6e186b0d65f545afac3dde4bb1bd04e8dc",
+        "dc95ea487ad14449643f45abf000bdc466ec8c48c38224b33bd5f5fc888ddbe4",
+        "3e4c64144d2bb676bc70881d8e284815035f0353fd185e4705d4f803134b1724",
+        "f80b88ecd370a53b63350d31b7c13803810031a3ff5c55877541402cb2558b92",
+        "6f98bdd6fa812a6952cd7a954aac70f01cf9b8729c2391996ebe9b64d3ca92dc",
+        "3f03c5d2f612dc7bc7da987d3382d42843a52a096cb84b707a2544f6199fe43f",
+        "89cae6272ba6438b933f2696775f63f160fc14cd95f094eee75ee4e0b94ef796",
+        "fd6f5d5e6e292c517ed5db112e798b1d9c23100b1429739acdfed11ae62545f9"
+      ],
+      "arena": "assets/traverse/arena_f104_50h_v1",
+      "arena_bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+      "arena_meta_sha256": "0242ac249715efd138d7d09b6f86a262781a555b11e99506866e111d4caa1b6a",
+      "geometry_initialization": {
+        "height_range_m": 0.4720185559131679,
+        "max_grade_deg": 11.047000689861147,
+        "fitted_grade_deg": 2.8550470308997715,
+        "plane_residual_max_m": 0.17807321674684645,
+        "sample_count": 91,
+        "rectangle_m": [
+          6,
+          3
+        ],
+        "method": "Bilinear quantized BMP; native settling pending"
+      },
+      "feature_index": 2,
+      "route_lengths_m": [
+        50.069970077419555,
+        50.069970077419555,
+        50.069970077419555,
+        50.069970077419555,
+        50.84911075668155,
+        50.84911075668155,
+        50.84911075668155,
+        50.84911075668155,
+        50.84911075668154,
+        50.84911075668154,
+        50.84911075668154,
+        50.84911075668154
+      ],
+      "reference_geometry_checks": [
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 2.668283484639448e-14,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 2.668283484639448e-14,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 2.668283484639448e-14,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.03146435411436296,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.03146435411436296,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.03146435411436296,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.03146435411437132,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.03146435411437132,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.03146435411437132,
+          "min_clearance_m": null
+        }
+      ],
+      "split_group_start_cell_8m": [
+        3,
+        1
+      ],
+      "horizon_s": 120.0
+    },
+    {
+      "scene_id": "f104_v1_group_0003",
+      "split": "train",
+      "family": "f104",
+      "evaluation_stratum": "hill_entry_cross_exit",
+      "case": "f104_v1_group_0003.json",
+      "routes": [
+        "routes/f104_v1_group_0003/route_00.json",
+        "routes/f104_v1_group_0003/route_01.json",
+        "routes/f104_v1_group_0003/route_02.json",
+        "routes/f104_v1_group_0003/route_03.json",
+        "routes/f104_v1_group_0003/route_04.json",
+        "routes/f104_v1_group_0003/route_05.json",
+        "routes/f104_v1_group_0003/route_06.json",
+        "routes/f104_v1_group_0003/route_07.json",
+        "routes/f104_v1_group_0003/route_08.json",
+        "routes/f104_v1_group_0003/route_09.json",
+        "routes/f104_v1_group_0003/route_10.json",
+        "routes/f104_v1_group_0003/route_11.json"
+      ],
+      "case_sha256": "5315c982d4da61a96d3d1bf117294ffe98d13468ed58a04d7cddc01de61b8ac2",
+      "route_sha256": [
+        "ab8e0f94ebcbffd0a0c3a0e83a082742ed8b260dd526573cb6e551cb9cb3fc1a",
+        "9001e8e6b9fe116eedc89589357faedb53c641e4b92fbfe9c6a2336fb49eccf6",
+        "4a29c3c7512ef962b3d465d96cd6dd36687cef368adc61c8164fb146d4fede58",
+        "060ede34f17ab56eb85bd1530315e14f36ac7f63969868e9aa67201f3338002c",
+        "98473c65f4142e1360c53cb425be413c7e5ec4f7cf401712569fa8166f37ef23",
+        "11e28ed6b83fa58dbd2748905fe6b002324b6bef63a924a1cb62ffbc790ad3b8",
+        "3b55dcfd00bb1b064a9834d08ad995f0b5c3e3f5b5f2a87bc10f3932821d5937",
+        "e87e60c634d3959a82a93465dad9ab8cc78b9e6878696cb70e6bcd9c46860169",
+        "d50fee44dca3a6f45e6f02b020f6cc8dd7690368a49ac988ff0abd43348c2566",
+        "ab6836080e2f15d98c65770d659aa86f40f3e495b0b45444671f24e74c4ec31b",
+        "68f47908f7ed88ab3e3e301a6c10f5b48ba9949a1836a36226c53743e7f0a7f2",
+        "0cafc41f366fd9903bb70733346a86f957527e78c5800471a5ec56f7ff1e02e7"
+      ],
+      "arena": "assets/traverse/arena_f104_50h_v1",
+      "arena_bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+      "arena_meta_sha256": "0242ac249715efd138d7d09b6f86a262781a555b11e99506866e111d4caa1b6a",
+      "geometry_initialization": {
+        "height_range_m": 0.3421788840021034,
+        "max_grade_deg": 8.352850868987483,
+        "fitted_grade_deg": 2.8716489144758013,
+        "plane_residual_max_m": 0.18474233372191523,
+        "sample_count": 91,
+        "rectangle_m": [
+          6,
+          3
+        ],
+        "method": "Bilinear quantized BMP; native settling pending"
+      },
+      "feature_index": 3,
+      "route_lengths_m": [
+        47.76128332854942,
+        47.76128332854942,
+        47.76128332854942,
+        47.76128332854942,
+        48.57714286482905,
+        48.57714286482905,
+        48.57714286482905,
+        48.57714286482905,
+        48.57714286482908,
+        48.57714286482908,
+        48.57714286482908,
+        48.57714286482908
+      ],
+      "reference_geometry_checks": [
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 2.7384968940013168e-14,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 2.7384968940013168e-14,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 2.7384968940013168e-14,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.034597964410397,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.034597964410397,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.034597964410397,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.034597964410397995,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.034597964410397995,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.034597964410397995,
+          "min_clearance_m": null
+        }
+      ],
+      "split_group_start_cell_8m": [
+        -2,
+        -3
+      ],
+      "horizon_s": 120.0
+    },
+    {
+      "scene_id": "f104_v1_group_0004",
+      "split": "train",
+      "family": "f104",
+      "evaluation_stratum": "hill_entry_cross_exit",
+      "case": "f104_v1_group_0004.json",
+      "routes": [
+        "routes/f104_v1_group_0004/route_00.json",
+        "routes/f104_v1_group_0004/route_01.json",
+        "routes/f104_v1_group_0004/route_02.json",
+        "routes/f104_v1_group_0004/route_03.json",
+        "routes/f104_v1_group_0004/route_04.json",
+        "routes/f104_v1_group_0004/route_05.json",
+        "routes/f104_v1_group_0004/route_06.json",
+        "routes/f104_v1_group_0004/route_07.json",
+        "routes/f104_v1_group_0004/route_08.json",
+        "routes/f104_v1_group_0004/route_09.json",
+        "routes/f104_v1_group_0004/route_10.json",
+        "routes/f104_v1_group_0004/route_11.json"
+      ],
+      "case_sha256": "f787c18a8daf55b9c695e980074cf652949d785a351a8d9edfa578958df873b7",
+      "route_sha256": [
+        "4c73a5cf332a212925e7bd09182ee85b992d816faa600969f52600af644da21e",
+        "5934ba88b9e7e433dfdd97423c89a3c8502892ce0b77f168857be798adca4260",
+        "0dd2ff817e20a173fc90dfa28a390bb7ea65356f1f831871cf82a5e8ed819dfa",
+        "4d102b4bf4d4117a513f5085e3d3fe53001cdc03ebd675209c72d8dcbdc2ce7c",
+        "7b57a6733a593d165bad56c09085b1d2c99ffa236877c6727742696469544c64",
+        "2689dd71f5ef378ce9bebf582a5b573f1ccc3a9f212062a3ce92fa9efaefd226",
+        "bf89086ca5f18b38db1629ed693f2157745289c40978e22712d93b0931bcb34a",
+        "a247c94738d3e0021361014236dae8c5ef2cf530ca400176137dc7ed364e8847",
+        "d625f4b09ec44ec7397a9a77bc5c78b6e1fb2fc700568aad40bc0cab28be7aec",
+        "70af72d812284b06541ffd60c953faebb4946e9314b20be987f7dbbf55777e7c",
+        "9cd6c38752e5a3bab787904a5010b15ba78bbb02f8fb6dfc79630a8a6583d04a",
+        "75dbce73dca683bd31350011dd41f2303fec3be536855318c660f9e15720e63b"
+      ],
+      "arena": "assets/traverse/arena_f104_50h_v1",
+      "arena_bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+      "arena_meta_sha256": "0242ac249715efd138d7d09b6f86a262781a555b11e99506866e111d4caa1b6a",
+      "geometry_initialization": {
+        "height_range_m": 0.284067817701749,
+        "max_grade_deg": 9.087183452534019,
+        "fitted_grade_deg": 3.4296157638351414,
+        "plane_residual_max_m": 0.0637932779369561,
+        "sample_count": 91,
+        "rectangle_m": [
+          6,
+          3
+        ],
+        "method": "Bilinear quantized BMP; native settling pending"
+      },
+      "feature_index": 4,
+      "route_lengths_m": [
+        39.694877118195194,
+        39.694877118195194,
+        39.694877118195194,
+        39.694877118195194,
+        40.67098251336192,
+        40.67098251336192,
+        40.67098251336192,
+        40.67098251336192,
+        40.670982513361906,
+        40.670982513361906,
+        40.670982513361906,
+        40.670982513361906
+      ],
+      "reference_geometry_checks": [
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 4.8394545702547284e-14,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 4.8394545702547284e-14,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 4.8394545702547284e-14,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.05007610084177801,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.05007610084177801,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.05007610084177801,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.050076100841770506,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.050076100841770506,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.050076100841770506,
+          "min_clearance_m": null
+        }
+      ],
+      "split_group_start_cell_8m": [
+        2,
+        0
+      ],
+      "horizon_s": 120.0
+    },
+    {
+      "scene_id": "f104_v1_group_0005",
+      "split": "train",
+      "family": "f104",
+      "evaluation_stratum": "crater_entry_cross_exit",
+      "case": "f104_v1_group_0005.json",
+      "routes": [
+        "routes/f104_v1_group_0005/route_00.json",
+        "routes/f104_v1_group_0005/route_01.json",
+        "routes/f104_v1_group_0005/route_02.json",
+        "routes/f104_v1_group_0005/route_03.json",
+        "routes/f104_v1_group_0005/route_04.json",
+        "routes/f104_v1_group_0005/route_05.json",
+        "routes/f104_v1_group_0005/route_06.json",
+        "routes/f104_v1_group_0005/route_07.json",
+        "routes/f104_v1_group_0005/route_08.json",
+        "routes/f104_v1_group_0005/route_09.json",
+        "routes/f104_v1_group_0005/route_10.json",
+        "routes/f104_v1_group_0005/route_11.json"
+      ],
+      "case_sha256": "f62ad61f1460bf7ffdc573b1fec82bfb5a42f8924521d3753883179d5b288ea4",
+      "route_sha256": [
+        "286fa3a9f636de7eac00b96ad252522bf20cc1c8cedae4856909b9fd5ab7e42e",
+        "17a54d8e6f0996eda070f04e4d829033a59185e0febdbc1d36139ca689173230",
+        "ae6e93ac52e30194cbf04379fb4b6d3d1c26a53cc48c2a9457dd3be8bdd14dbd",
+        "306d4dc01b82c2c35e0547ea9ef608ea8d3866f2409f6c7ff9b1ed52c32b516c",
+        "87306756f19f10a1ead0cd26cea1a0f956980ab43c2bb1370292ae8f090c2515",
+        "2cb69f72e3b278504c32811c219acfd16737ace7bc05c729694ba3dba82bb659",
+        "825d88b279445c2171f237d07912af56f15d5217f23365f4d29bab5dcb8dd4d9",
+        "fdb36dea80cf442ba647d137427006eb82c46b9738c96e85502255f2de1ea4ce",
+        "1529f8c13c749013841045ecb0b9e1973adf5ddf28550d0348db815666c4aad7",
+        "4c16cfe59221fe0b0afa3ebb6fbbbae26b8a349c9f80b2559f8715666c9be02c",
+        "e935a2945eb73f6d20ed9083bdb5622069c4b335a09525cac5dd892b590ab5f1",
+        "a5c9ac12883bfc6ce719d664c5edb22221211eec1d22a91419f21f17c0948636"
+      ],
+      "arena": "assets/traverse/arena_f104_50h_v1",
+      "arena_bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+      "arena_meta_sha256": "0242ac249715efd138d7d09b6f86a262781a555b11e99506866e111d4caa1b6a",
+      "geometry_initialization": {
+        "height_range_m": 0.22267363648648208,
+        "max_grade_deg": 8.318707727956724,
+        "fitted_grade_deg": 0.7191341468001389,
+        "plane_residual_max_m": 0.12359626711071514,
+        "sample_count": 91,
+        "rectangle_m": [
+          6,
+          3
+        ],
+        "method": "Bilinear quantized BMP; native settling pending"
+      },
+      "feature_index": 5,
+      "route_lengths_m": [
+        47.44999837702327,
+        47.44999837702327,
+        47.44999837702327,
+        47.44999837702327,
+        48.27106979497466,
+        48.27106979497466,
+        48.27106979497466,
+        48.27106979497466,
+        48.27106979497466,
+        48.27106979497466,
+        48.27106979497466,
+        48.27106979497466
+      ],
+      "reference_geometry_checks": [
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 5.703026966887184e-14,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 5.703026966887184e-14,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 5.703026966887184e-14,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.03502985854211756,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.03502985854211756,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.03502985854211756,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.03502985854210354,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.03502985854210354,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.03502985854210354,
+          "min_clearance_m": null
+        }
+      ],
+      "split_group_start_cell_8m": [
+        -2,
+        3
+      ],
+      "horizon_s": 120.0
+    },
+    {
+      "scene_id": "f104_v1_group_0006",
+      "split": "val",
+      "family": "f104",
+      "evaluation_stratum": "crater_entry_cross_exit",
+      "case": "f104_v1_group_0006.json",
+      "routes": [
+        "routes/f104_v1_group_0006/route_00.json",
+        "routes/f104_v1_group_0006/route_01.json",
+        "routes/f104_v1_group_0006/route_02.json",
+        "routes/f104_v1_group_0006/route_03.json",
+        "routes/f104_v1_group_0006/route_04.json",
+        "routes/f104_v1_group_0006/route_05.json",
+        "routes/f104_v1_group_0006/route_06.json",
+        "routes/f104_v1_group_0006/route_07.json",
+        "routes/f104_v1_group_0006/route_08.json",
+        "routes/f104_v1_group_0006/route_09.json",
+        "routes/f104_v1_group_0006/route_10.json",
+        "routes/f104_v1_group_0006/route_11.json"
+      ],
+      "case_sha256": "3fb16053e3d440bf7f906961e59321f120f1883a9ff1b74b1fc62758803a0428",
+      "route_sha256": [
+        "ed22f29a71021339af1f20bfb87bc241b4135809be379e022083781d16a23467",
+        "a5ced69e64beaa9b3c1e6ffffd3654741e8468a3fbbb1ab279bd7f40cb465611",
+        "d064d4df121eaa4dc9258d5d5988f8357dbe767c0fae3debad3d1024f51e94f5",
+        "3dd51125e9655a1400ca5f499275568392824646172dd35b4f09a83befbe2872",
+        "424dbe86f67055a6ed197a12ec938813e3ee263d6c20872b3642b0b9da5febcc",
+        "346889cacaf2844d26335a5d910cc5954df36938b658110f3f78a22fb0cc2b41",
+        "be5bf71b03b9d9caae7124c1687da09c9e0b4d818ba10e1f37a87cc5d0d5c5bf",
+        "77e719a4bfa617249156cd339fc6eb1722a7a3ecb7fd37503a2495adb988aa04",
+        "ad9f26b2cbfcba2708bf9aa78c0059e25ca088a9ca973ab20dc777240ad5e6c1",
+        "5b3aa874e4f220dc9ea3e639c19686e8e5c8ffbd67fd050a945f85d459a94755",
+        "84a5af8da75b64482ef675db7f02260b9323295ab6c687307b8addb756134733",
+        "b053c29c21a8d52d80e090411a0e1249e68a1af558d187265103aa1bd13ff5e9"
+      ],
+      "arena": "assets/traverse/arena_f104_50h_v1",
+      "arena_bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+      "arena_meta_sha256": "0242ac249715efd138d7d09b6f86a262781a555b11e99506866e111d4caa1b6a",
+      "geometry_initialization": {
+        "height_range_m": 0.5110000826017745,
+        "max_grade_deg": 8.08772654988194,
+        "fitted_grade_deg": 4.123261612406081,
+        "plane_residual_max_m": 0.08347810454633114,
+        "sample_count": 91,
+        "rectangle_m": [
+          6,
+          3
+        ],
+        "method": "Bilinear quantized BMP; native settling pending"
+      },
+      "feature_index": 6,
+      "route_lengths_m": [
+        29.426424507962622,
+        29.426424507962622,
+        29.426424507962622,
+        29.426424507962622,
+        30.724131965605615,
+        30.724131965605615,
+        30.724131965605615,
+        30.724131965605615,
+        30.724131965605626,
+        30.724131965605626,
+        30.724131965605626,
+        30.724131965605626
+      ],
+      "reference_geometry_checks": [
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 4.319783713649179e-14,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 4.319783713649179e-14,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 4.319783713649179e-14,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.0908510675126421,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.0908510675126421,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.0908510675126421,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.09085106751264331,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.09085106751264331,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.09085106751264331,
+          "min_clearance_m": null
+        }
+      ],
+      "split_group_start_cell_8m": [
+        3,
+        -2
+      ],
+      "horizon_s": 120.0
+    },
+    {
+      "scene_id": "f104_v1_group_0007",
+      "split": "train",
+      "family": "f104",
+      "evaluation_stratum": "crater_entry_cross_exit",
+      "case": "f104_v1_group_0007.json",
+      "routes": [
+        "routes/f104_v1_group_0007/route_00.json",
+        "routes/f104_v1_group_0007/route_01.json",
+        "routes/f104_v1_group_0007/route_02.json",
+        "routes/f104_v1_group_0007/route_03.json",
+        "routes/f104_v1_group_0007/route_04.json",
+        "routes/f104_v1_group_0007/route_05.json",
+        "routes/f104_v1_group_0007/route_06.json",
+        "routes/f104_v1_group_0007/route_07.json",
+        "routes/f104_v1_group_0007/route_08.json",
+        "routes/f104_v1_group_0007/route_09.json",
+        "routes/f104_v1_group_0007/route_10.json",
+        "routes/f104_v1_group_0007/route_11.json"
+      ],
+      "case_sha256": "7bc2a61f06f85b1f7bbb289eb4db8d13a363ed2b9e0126628e67a850656163c0",
+      "route_sha256": [
+        "efb1f7a88fc7097ab282b74bd7df59915afea4943428f08e9b485896411c130f",
+        "cfc9dd1f072d995ff075ed3528f381afd37b937ed6b3fca916d6f38b715753f9",
+        "ba83cff67b3b3d1114b9c6eb9070510d09c24764e74a03299c509ef7c6af9154",
+        "a12740c01a2ff95bcebe61155954dc121b265a9cf301e21601b06918e8a8a435",
+        "2065406b2730b0e1ae93d9b8e2a485ebab14e42ac4fe827d32c4d68bfca0c63a",
+        "c36028cb7d14c9c986a386969e5a86cbf96a957dd8aa5fb6dfa7414335ecf589",
+        "04006c9523669be5afe841dcc2b70f1674fabb8ea2a979027be2243f623b7b02",
+        "20f4513841b2f5a10a861d28761a5713c8897c93d430d43ba6c83758994996b8",
+        "43bfa58c3a23e1fcdacfb86807f1b1433fd40538fefd5a6e0f46382fa22b348b",
+        "59227497fd2ab864d61d22016a67885119f7ef620478fe2ccfe4cf1a081ca057",
+        "93f952f786d33fb2b2ac44504b7e29e10a78ab345b26ea0ecf23cea35f93621c",
+        "4952ab9dda2f15bca4ab9b9ad1f35e82b738ab6ce88814b92a2a94a3bafa30e1"
+      ],
+      "arena": "assets/traverse/arena_f104_50h_v1",
+      "arena_bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+      "arena_meta_sha256": "0242ac249715efd138d7d09b6f86a262781a555b11e99506866e111d4caa1b6a",
+      "geometry_initialization": {
+        "height_range_m": 0.2682352941176471,
+        "max_grade_deg": 7.253555971286583,
+        "fitted_grade_deg": 2.3241841905799903,
+        "plane_residual_max_m": 0.16469157053325711,
+        "sample_count": 91,
+        "rectangle_m": [
+          6,
+          3
+        ],
+        "method": "Bilinear quantized BMP; native settling pending"
+      },
+      "feature_index": 7,
+      "route_lengths_m": [
+        36.02908427672395,
+        36.02908427672395,
+        36.02908427672395,
+        36.02908427672395,
+        37.1003695172173,
+        37.1003695172173,
+        37.1003695172173,
+        37.1003695172173,
+        37.100369517217295,
+        37.100369517217295,
+        37.100369517217295,
+        37.100369517217295
+      ],
+      "reference_geometry_checks": [
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 2.424088356260685e-14,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 2.424088356260685e-14,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 2.424088356260685e-14,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.06069726039618782,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.06069726039618782,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.06069726039618782,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.06069726039618793,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.06069726039618793,
+          "min_clearance_m": null
+        },
+        {
+          "valid": true,
+          "reasons": [],
+          "max_curvature": 0.06069726039618793,
+          "min_clearance_m": null
+        }
+      ],
+      "split_group_start_cell_8m": [
+        -1,
+        -2
+      ],
+      "horizon_s": 120.0
+    }
+  ],
+  "geometry_only": true,
+  "no_route_outcomes_inspected": true
+}
