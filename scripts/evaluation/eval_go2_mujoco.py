@@ -103,13 +103,29 @@ for k in range(n_ctrl):
     vx_err.append(abs(v_local[0] - a.vx)); vy_err.append(abs(v_local[1] - a.vy))
     wz_err.append(abs(w_local[2] - a.wz)); heights.append(float(d.qpos[2]))
 
+def _mean(xs):
+    return float(np.mean(xs)) if xs else None
+
+
 res = {"policy": os.path.basename(a.policy), "cmd": [a.vx, a.vy, a.wz],
-       "control_steps": len(vx_err), "of": n_ctrl, "fell": fell,
-       "mae_vx": float(np.mean(vx_err)) if vx_err else None,
-       "mae_vy": float(np.mean(vy_err)) if vy_err else None,
-       "mae_wz": float(np.mean(wz_err)) if wz_err else None,
-       "mean_height": float(np.mean(heights)) if heights else None}
-print(f"  {res['policy']}: mae_vx {res['mae_vx']:.4f}  height {res['mean_height']:.3f}  "
-      f"fell={fell}  steps {len(vx_err)}/{n_ctrl}")
+       "control_steps": len(vx_err), "of": n_ctrl, "fell": fell}
+
+# A fall truncates the episode, and the truncated steps are the bad ones, so a mean
+# over what survives flatters the failure. Report no comparable number in that case:
+# the partial values are kept, but under names that cannot be averaged by accident.
+_fields = {"mae_vx": vx_err, "mae_vy": vy_err, "mae_wz": wz_err, "mean_height": heights}
+if fell:
+    res["fell_at_step"] = len(vx_err)
+    for _k, _v in _fields.items():
+        res[_k] = None
+        res[_k + "_truncated"] = _mean(_v)
+    print(f"  {res['policy']}: FELL at step {len(vx_err)}/{n_ctrl} -- no tracking error "
+          f"reported (truncated mae_vx would have been "
+          f"{res['mae_vx_truncated']:.4f}, which flatters the failure)")
+else:
+    for _k, _v in _fields.items():
+        res[_k] = _mean(_v)
+    print(f"  {res['policy']}: mae_vx {res['mae_vx']:.4f}  height {res['mean_height']:.3f}  "
+          f"fell=False  steps {len(vx_err)}/{n_ctrl}")
 if a.out:
     json.dump(res, open(a.out, "w"), indent=1)
