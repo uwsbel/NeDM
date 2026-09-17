@@ -1,0 +1,638 @@
+{
+  "schema": 2,
+  "cohort_state": "complete",
+  "source_domain": "focused_v1_standard_chrono_pid_vulkan",
+  "training_scope": "focus-only; no legacy rows or silent label substitution",
+  "camera": {
+    "width": 256,
+    "height": 256,
+    "hfov_deg": 47.0,
+    "cam_height_m": 100.0,
+    "depth_ray_scale": 1.0,
+    "depth_convention": "Euclidean_ray_range_m",
+    "backend": "Vulkan"
+  },
+  "controller_domain": "Standard ChPathFollowerDriver, steering(.8,0,0), speed(.6,.05,0), lookahead5m, advance every physics substep, initialized before0.8s settle; geometric reference z uses terrainheight+.5m inside simulator, never model input",
+  "cohort_manifests": {
+    "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_focused_v1/cases/cases.json": "69a88f040f75e343ceafb8b7c7c976de3b3d7268e77cb778257ec791673d410a"
+  },
+  "split_rule": "Predeclared scene-level split, all sibling routes kept together; no protected-test or demo scenes",
+  "scene_splits": {
+    "focus_obstacle_train_000": "train",
+    "focus_obstacle_train_001": "train",
+    "focus_obstacle_train_002": "train",
+    "focus_obstacle_train_003": "train",
+    "focus_obstacle_train_004": "train",
+    "focus_obstacle_train_005": "train",
+    "focus_obstacle_train_006": "train",
+    "focus_obstacle_train_007": "train",
+    "focus_obstacle_train_008": "train",
+    "focus_obstacle_train_009": "train",
+    "focus_obstacle_train_010": "train",
+    "focus_obstacle_train_011": "train",
+    "focus_obstacle_train_012": "train",
+    "focus_obstacle_train_013": "train",
+    "focus_obstacle_train_014": "train",
+    "focus_obstacle_train_015": "train",
+    "focus_obstacle_val_000": "val",
+    "focus_obstacle_val_001": "val",
+    "focus_obstacle_val_002": "val",
+    "focus_obstacle_val_003": "val"
+  },
+  "missing_episodes": [],
+  "selection": "Every predeclared sibling, including failures, safe routes and moving routes; no outcome filtering",
+  "reference_confound": "Geometric routes use declared uniform4/6m/s cruise plus distance-to-end braking; no terrain-authored speed limits or obstacle-conditioned route filtering",
+  "validation_distribution": "Designed failure-focused development cohort; prevalence is not natural deployment calibration",
+  "commands_fields": [
+    "reference_ego_x_m",
+    "reference_ego_y_m",
+    "sin_reference_heading",
+    "cos_reference_heading",
+    "reference_speed_mps"
+  ],
+  "global_fields": [
+    "remaining_route_m",
+    "goal_ego_x_m",
+    "goal_ego_y_m",
+    "elapsed_recording_s",
+    "anchor_world_x_over40",
+    "anchor_world_y_over40",
+    "sin_anchor_world_yaw",
+    "cos_anchor_world_yaw"
+  ],
+  "history_fields": [
+    "vel_body_x_mps",
+    "vel_body_y_mps",
+    "roll_rad",
+    "pitch_rad",
+    "roll_rate_radps",
+    "ang_vel_body_y_radps",
+    "yaw_rate_radps",
+    "tire_fl_force_wheel_fz_n",
+    "tire_fr_force_wheel_fz_n",
+    "tire_rl_force_wheel_fz_n",
+    "tire_rr_force_wheel_fz_n",
+    "tire_fl_spindle_omega_radps",
+    "tire_fr_spindle_omega_radps",
+    "tire_rl_spindle_omega_radps",
+    "tire_rr_spindle_omega_radps",
+    "engine_motor_speed_radps",
+    "engine_motorshaft_torque_nm",
+    "previous_driver_steering",
+    "previous_driver_throttle",
+    "previous_driver_braking",
+    "ego_x",
+    "ego_y",
+    "sin_yaw",
+    "cos_yaw"
+  ],
+  "event_names": [
+    "contact",
+    "rollover",
+    "low_progress"
+  ],
+  "head2_default": "events[...,2] remains low_progress",
+  "extra_target": "sustained_stall with sustained_stall_mask; trainer must explicitly select and archive target name",
+  "sustained_stall_definition": "Any entirely future contiguous40 intervals (2s at20Hz) with |body_vx|<0.3m/s, throttle>0.3 and no parking; interval flags use left-endpoint measured state and applied control. No global startup grace. Prefixes under2s masked. Positive remains valid after truncation; negative needs complete prefix.",
+  "low_progress_definition": "Net displacement<0.15m/s times prefix duration and mean throttle>0.3, prefix>=2s, measured endpoint, no route-end parking; retained unchanged",
+  "contact_definition": "Uncapped per-interval asset contact max>1N, interval[i,i+1); known positives survive truncation, missing negatives censored",
+  "work_definition": "Cumulative positive shaft work using exact per-physics-substep integral saved for each20Hz interval; kJ",
+  "startup_padding": "Unrecorded history repeats first measured state/pose and synthetic [steer0,throttle0,brake1]; not measured settle telemetry. Available history count is min(16,1+anchor).",
+  "observation": "Actual sparse current RGB-D only; no future image, terrain/BMP, asset geometry, or future measured station input",
+  "image_encoding": {
+    "shape": [
+      4,
+      128,
+      128
+    ],
+    "dtype": "float16",
+    "rgb": "box-resized uint8/255",
+    "depth": "observed Euclidean ray depth -> RGB-registered elevation; fixed clip(z/10,-1,1), invalid=-2"
+  },
+  "horizon_s": 4.0,
+  "output_dt_s": 0.2,
+  "history_frames": 16,
+  "source_domain_codes": {
+    "1": "focused_v1_standard_chrono_pid_vulkan"
+  },
+  "code_sha256": {
+    "scripts/traverse_fdm_rgbd_focused_prepare.py": "28c73991516278bac264c9438923228f4a50b16740b9514d44be06e4bf6f851a",
+    "src/nedm/traverse/fdm_data.py": "a42631801f0770304901ddcdc48d4d626965a7485ce4648252d8f6c1d2b37276",
+    "src/nedm/traverse/fdm_rgbd_data.py": "ae18b0e21bb86cc16a5eecf9938f0c90a1b6593144327edfb9324f2463a4d422"
+  },
+  "splits": {
+    "train": {
+      "episodes": 96,
+      "scenes": 16,
+      "windows": 908,
+      "scene_ids": [
+        "focus_obstacle_train_000",
+        "focus_obstacle_train_001",
+        "focus_obstacle_train_002",
+        "focus_obstacle_train_003",
+        "focus_obstacle_train_004",
+        "focus_obstacle_train_005",
+        "focus_obstacle_train_006",
+        "focus_obstacle_train_007",
+        "focus_obstacle_train_008",
+        "focus_obstacle_train_009",
+        "focus_obstacle_train_010",
+        "focus_obstacle_train_011",
+        "focus_obstacle_train_012",
+        "focus_obstacle_train_013",
+        "focus_obstacle_train_014",
+        "focus_obstacle_train_015"
+      ],
+      "event_support": {
+        "contact": {
+          "all": {
+            "windows": 908,
+            "positive_windows": 285,
+            "positive_episodes": 34,
+            "positive_scenes": 14,
+            "positive_horizon_labels": 5149,
+            "valid_horizon_labels": 15518
+          },
+          "anchor0": {
+            "windows": 96,
+            "positive_windows": 34,
+            "positive_episodes": 34,
+            "positive_scenes": 14,
+            "positive_horizon_labels": 342,
+            "valid_horizon_labels": 1920
+          },
+          "anchor_lt2s": {
+            "windows": 192,
+            "positive_windows": 68,
+            "positive_episodes": 34,
+            "positive_scenes": 14,
+            "positive_horizon_labels": 854,
+            "valid_horizon_labels": 3840
+          },
+          "anchor_ge2s": {
+            "windows": 716,
+            "positive_windows": 217,
+            "positive_episodes": 33,
+            "positive_scenes": 14,
+            "positive_horizon_labels": 4295,
+            "valid_horizon_labels": 11678
+          },
+          "before_first_contact": {
+            "positive_windows": 91,
+            "positive_episodes": 34
+          }
+        },
+        "rollover": {
+          "all": {
+            "windows": 908,
+            "positive_windows": 0,
+            "positive_episodes": 0,
+            "positive_scenes": 0,
+            "positive_horizon_labels": 0,
+            "valid_horizon_labels": 14768
+          },
+          "anchor0": {
+            "windows": 96,
+            "positive_windows": 0,
+            "positive_episodes": 0,
+            "positive_scenes": 0,
+            "positive_horizon_labels": 0,
+            "valid_horizon_labels": 1920
+          },
+          "anchor_lt2s": {
+            "windows": 192,
+            "positive_windows": 0,
+            "positive_episodes": 0,
+            "positive_scenes": 0,
+            "positive_horizon_labels": 0,
+            "valid_horizon_labels": 3840
+          },
+          "anchor_ge2s": {
+            "windows": 716,
+            "positive_windows": 0,
+            "positive_episodes": 0,
+            "positive_scenes": 0,
+            "positive_horizon_labels": 0,
+            "valid_horizon_labels": 10928
+          },
+          "before_first_contact": {
+            "positive_windows": 0,
+            "positive_episodes": 0
+          }
+        },
+        "low_progress": {
+          "all": {
+            "windows": 908,
+            "positive_windows": 213,
+            "positive_episodes": 38,
+            "positive_scenes": 16,
+            "positive_horizon_labels": 1714,
+            "valid_horizon_labels": 7191
+          },
+          "anchor0": {
+            "windows": 96,
+            "positive_windows": 6,
+            "positive_episodes": 6,
+            "positive_scenes": 1,
+            "positive_horizon_labels": 66,
+            "valid_horizon_labels": 1056
+          },
+          "anchor_lt2s": {
+            "windows": 192,
+            "positive_windows": 14,
+            "positive_episodes": 8,
+            "positive_scenes": 2,
+            "positive_horizon_labels": 120,
+            "valid_horizon_labels": 2112
+          },
+          "anchor_ge2s": {
+            "windows": 716,
+            "positive_windows": 199,
+            "positive_episodes": 38,
+            "positive_scenes": 16,
+            "positive_horizon_labels": 1594,
+            "valid_horizon_labels": 5079
+          },
+          "before_first_contact": {
+            "positive_windows": 39,
+            "positive_episodes": 15
+          },
+          "before_observed_completed2s_onset": {
+            "positive_windows": 75,
+            "positive_episodes": 37
+          }
+        },
+        "sustained_stall": {
+          "all": {
+            "windows": 908,
+            "positive_windows": 228,
+            "positive_episodes": 33,
+            "positive_scenes": 14,
+            "positive_horizon_labels": 2111,
+            "valid_horizon_labels": 7571
+          },
+          "anchor0": {
+            "windows": 96,
+            "positive_windows": 7,
+            "positive_episodes": 7,
+            "positive_scenes": 2,
+            "positive_horizon_labels": 27,
+            "valid_horizon_labels": 1056
+          },
+          "anchor_lt2s": {
+            "windows": 192,
+            "positive_windows": 36,
+            "positive_episodes": 29,
+            "positive_scenes": 13,
+            "positive_horizon_labels": 142,
+            "valid_horizon_labels": 2112
+          },
+          "anchor_ge2s": {
+            "windows": 716,
+            "positive_windows": 192,
+            "positive_episodes": 29,
+            "positive_scenes": 14,
+            "positive_horizon_labels": 1969,
+            "valid_horizon_labels": 5459
+          },
+          "before_first_contact": {
+            "positive_windows": 60,
+            "positive_episodes": 33
+          },
+          "before_observed_completed2s_onset": {
+            "positive_windows": 124,
+            "positive_episodes": 33
+          }
+        }
+      },
+      "shapes": {
+        "trajectory": [
+          908,
+          20,
+          4
+        ],
+        "work": [
+          908,
+          20,
+          1
+        ],
+        "events": [
+          908,
+          20,
+          3
+        ],
+        "trajectory_mask": [
+          908,
+          20,
+          1
+        ],
+        "event_mask": [
+          908,
+          20,
+          3
+        ],
+        "sustained_stall": [
+          908,
+          20,
+          1
+        ],
+        "sustained_stall_mask": [
+          908,
+          20,
+          1
+        ],
+        "commands": [
+          908,
+          20,
+          5
+        ],
+        "nominal_pose": [
+          908,
+          20,
+          4
+        ],
+        "global_features": [
+          908,
+          8
+        ],
+        "history": [
+          908,
+          16,
+          24
+        ],
+        "episode_index": [
+          908
+        ],
+        "anchor": [
+          908
+        ],
+        "source_domain": [
+          908
+        ],
+        "scene_index": [
+          908
+        ]
+      },
+      "sha256": "ce01f047d411a29b043223720f27824739455602a473537a3fc5f799007c5409",
+      "rgbd_file": "train_rgbd.npy",
+      "rgbd_shape": [
+        908,
+        4,
+        128,
+        128
+      ],
+      "rgbd_sha256": "30484c912ea4702185244630ee4791cce9d1fda98f5c306a16276a4841f35e4e"
+    },
+    "val": {
+      "episodes": 24,
+      "scenes": 4,
+      "windows": 222,
+      "scene_ids": [
+        "focus_obstacle_val_000",
+        "focus_obstacle_val_001",
+        "focus_obstacle_val_002",
+        "focus_obstacle_val_003"
+      ],
+      "event_support": {
+        "contact": {
+          "all": {
+            "windows": 222,
+            "positive_windows": 80,
+            "positive_episodes": 8,
+            "positive_scenes": 4,
+            "positive_horizon_labels": 1500,
+            "valid_horizon_labels": 3804
+          },
+          "anchor0": {
+            "windows": 24,
+            "positive_windows": 8,
+            "positive_episodes": 8,
+            "positive_scenes": 4,
+            "positive_horizon_labels": 90,
+            "valid_horizon_labels": 480
+          },
+          "anchor_lt2s": {
+            "windows": 48,
+            "positive_windows": 16,
+            "positive_episodes": 8,
+            "positive_scenes": 4,
+            "positive_horizon_labels": 220,
+            "valid_horizon_labels": 960
+          },
+          "anchor_ge2s": {
+            "windows": 174,
+            "positive_windows": 64,
+            "positive_episodes": 8,
+            "positive_scenes": 4,
+            "positive_horizon_labels": 1280,
+            "valid_horizon_labels": 2844
+          },
+          "before_first_contact": {
+            "positive_windows": 17,
+            "positive_episodes": 8
+          }
+        },
+        "rollover": {
+          "all": {
+            "windows": 222,
+            "positive_windows": 0,
+            "positive_episodes": 0,
+            "positive_scenes": 0,
+            "positive_horizon_labels": 0,
+            "valid_horizon_labels": 3564
+          },
+          "anchor0": {
+            "windows": 24,
+            "positive_windows": 0,
+            "positive_episodes": 0,
+            "positive_scenes": 0,
+            "positive_horizon_labels": 0,
+            "valid_horizon_labels": 480
+          },
+          "anchor_lt2s": {
+            "windows": 48,
+            "positive_windows": 0,
+            "positive_episodes": 0,
+            "positive_scenes": 0,
+            "positive_horizon_labels": 0,
+            "valid_horizon_labels": 960
+          },
+          "anchor_ge2s": {
+            "windows": 174,
+            "positive_windows": 0,
+            "positive_episodes": 0,
+            "positive_scenes": 0,
+            "positive_horizon_labels": 0,
+            "valid_horizon_labels": 2604
+          },
+          "before_first_contact": {
+            "positive_windows": 0,
+            "positive_episodes": 0
+          }
+        },
+        "low_progress": {
+          "all": {
+            "windows": 222,
+            "positive_windows": 55,
+            "positive_episodes": 8,
+            "positive_scenes": 4,
+            "positive_horizon_labels": 478,
+            "valid_horizon_labels": 1727
+          },
+          "anchor0": {
+            "windows": 24,
+            "positive_windows": 0,
+            "positive_episodes": 0,
+            "positive_scenes": 0,
+            "positive_horizon_labels": 0,
+            "valid_horizon_labels": 264
+          },
+          "anchor_lt2s": {
+            "windows": 48,
+            "positive_windows": 0,
+            "positive_episodes": 0,
+            "positive_scenes": 0,
+            "positive_horizon_labels": 0,
+            "valid_horizon_labels": 528
+          },
+          "anchor_ge2s": {
+            "windows": 174,
+            "positive_windows": 55,
+            "positive_episodes": 8,
+            "positive_scenes": 4,
+            "positive_horizon_labels": 478,
+            "valid_horizon_labels": 1199
+          },
+          "before_first_contact": {
+            "positive_windows": 0,
+            "positive_episodes": 0
+          },
+          "before_observed_completed2s_onset": {
+            "positive_windows": 17,
+            "positive_episodes": 8
+          }
+        },
+        "sustained_stall": {
+          "all": {
+            "windows": 222,
+            "positive_windows": 64,
+            "positive_episodes": 8,
+            "positive_scenes": 4,
+            "positive_horizon_labels": 618,
+            "valid_horizon_labels": 1847
+          },
+          "anchor0": {
+            "windows": 24,
+            "positive_windows": 0,
+            "positive_episodes": 0,
+            "positive_scenes": 0,
+            "positive_horizon_labels": 0,
+            "valid_horizon_labels": 264
+          },
+          "anchor_lt2s": {
+            "windows": 48,
+            "positive_windows": 8,
+            "positive_episodes": 8,
+            "positive_scenes": 4,
+            "positive_horizon_labels": 25,
+            "valid_horizon_labels": 528
+          },
+          "anchor_ge2s": {
+            "windows": 174,
+            "positive_windows": 56,
+            "positive_episodes": 8,
+            "positive_scenes": 4,
+            "positive_horizon_labels": 593,
+            "valid_horizon_labels": 1319
+          },
+          "before_first_contact": {
+            "positive_windows": 9,
+            "positive_episodes": 8
+          },
+          "before_observed_completed2s_onset": {
+            "positive_windows": 32,
+            "positive_episodes": 8
+          }
+        }
+      },
+      "shapes": {
+        "trajectory": [
+          222,
+          20,
+          4
+        ],
+        "work": [
+          222,
+          20,
+          1
+        ],
+        "events": [
+          222,
+          20,
+          3
+        ],
+        "trajectory_mask": [
+          222,
+          20,
+          1
+        ],
+        "event_mask": [
+          222,
+          20,
+          3
+        ],
+        "sustained_stall": [
+          222,
+          20,
+          1
+        ],
+        "sustained_stall_mask": [
+          222,
+          20,
+          1
+        ],
+        "commands": [
+          222,
+          20,
+          5
+        ],
+        "nominal_pose": [
+          222,
+          20,
+          4
+        ],
+        "global_features": [
+          222,
+          8
+        ],
+        "history": [
+          222,
+          16,
+          24
+        ],
+        "episode_index": [
+          222
+        ],
+        "anchor": [
+          222
+        ],
+        "source_domain": [
+          222
+        ],
+        "scene_index": [
+          222
+        ]
+      },
+      "sha256": "93adc014fbbbc07811f26e112bc6f6753730a4943fb922d7354253839b5ca880",
+      "rgbd_file": "val_rgbd.npy",
+      "rgbd_shape": [
+        222,
+        4,
+        128,
+        128
+      ],
+      "rgbd_sha256": "85b02e5fd5fcfb2ab96cf14b3b377e03e2cb72cd96bb6d4c25b5ab3421b60c2b"
+    }
+  },
+  "normalization_sha256": "79e429b47143c1387842c3048b43f80f2e7d1ea59b2284a0bec332473a8b41a4"
+}

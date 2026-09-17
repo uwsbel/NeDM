@@ -1,0 +1,15 @@
+{
+  "rule_sha256": "34cafee06b79799a14cbf8cc788512cfee756232d390d44787841566e74c4d8b",
+  "core_freeze_sha256": "29684ce59cdd68e9b1f7310dcd2e63c55d021f6ff6712b83f99d286722efeb33",
+  "new_helper_snapshot_sha256": "cd447879130f11d2472e6d627bf90b24c012cc5f755b7c6f16cb17f686ff84de",
+  "superseded_job": 412135,
+  "old_partial_inventory_sha256": "d0a78206d918b5460ce41d3fd26444daabd4ffa632d9dc16bf785113aeed25fd",
+  "new_video_fps": 1,
+  "full_physics_horizon_s": 180,
+  "physics_source_unchanged": true,
+  "new_output": "rolling_failure_1hz",
+  "new_task_id": "diverse_v1_test_rolling_hills_00_selected_rgbd_energy_video1",
+  "new_job_id": 412145,
+  "submitted_unix": 1788996081.2584465,
+  "cancellation_requested_only_for": 412135
+}

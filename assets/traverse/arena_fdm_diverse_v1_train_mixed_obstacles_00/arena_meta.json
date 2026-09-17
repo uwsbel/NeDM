@@ -1,0 +1,155 @@
+{
+  "size_m": 240.0,
+  "pixels": 512,
+  "resolution_m_per_px": 0.46875,
+  "height_min_m": -4.1499999999999995,
+  "height_max_m": 10.5,
+  "quantization_step_m": 0.057450980392156854,
+  "bmp": "arena_000.bmp",
+  "seed": 2026101400,
+  "orientation": {
+    "rot90": 0,
+    "flipud": true,
+    "calibrated": true,
+    "calibration_source": "assets/traverse/arena_v1/arena_meta.json",
+    "scope": "Inherited BMP coordinate transform only; no new Chrono height residual claim"
+  },
+  "features": [],
+  "authoring_features": [
+    {
+      "kind": "smooth_hill",
+      "center_xy_canonical_m": [
+        -17.403517875477768,
+        -20.300919787140813
+      ],
+      "amplitude_m": 1.9147521216918513,
+      "sigma_x_m": 48.0,
+      "sigma_y_m": 48.0,
+      "yaw_rad": 0.0
+    },
+    {
+      "kind": "smooth_hill",
+      "center_xy_canonical_m": [
+        -45.63713473973248,
+        -13.801203665319683
+      ],
+      "amplitude_m": 6.88671946850322,
+      "sigma_x_m": 5.2,
+      "sigma_y_m": 5.2,
+      "yaw_rad": 0.0
+    },
+    {
+      "kind": "smooth_hill",
+      "center_xy_canonical_m": [
+        17.119434732969893,
+        20.827076204910547
+      ],
+      "amplitude_m": 9.609996442341455,
+      "sigma_x_m": 8.0,
+      "sigma_y_m": 8.0,
+      "yaw_rad": 0.0
+    },
+    {
+      "kind": "smooth_hill",
+      "center_xy_canonical_m": [
+        55.21780314153042,
+        -22.20019623956002
+      ],
+      "amplitude_m": 7.599997837804024,
+      "sigma_x_m": 6.0,
+      "sigma_y_m": 6.0,
+      "yaw_rad": 0.0
+    },
+    {
+      "kind": "smooth_basin",
+      "center_xy_canonical_m": [
+        30.0,
+        -48.0
+      ],
+      "amplitude_m": -5.0,
+      "sigma_x_m": 12.0,
+      "sigma_y_m": 24.0,
+      "yaw_rad": 0.2
+    },
+    {
+      "kind": "coherent_roughness",
+      "rms_design_m": 0.24,
+      "correlation_m": 1.8
+    },
+    {
+      "kind": "gentle_control_corridor",
+      "offset_m": -44.0,
+      "core_half_width_m": 6.0,
+      "blend_width_m": 10.0,
+      "relief_m": 3.084166145386958,
+      "semantics": "Geometry control only; no claim of Chrono passability"
+    }
+  ],
+  "family": "mixed_obstacles",
+  "scene_rotation_rad": 0.0,
+  "canonical_to_world": "world = R(scene_rotation_rad) @ canonical",
+  "authoring_feature_scope": "Simulator construction only; never model input",
+  "launch_pads": {
+    "canonical_centers_xy_m": [
+      [
+        -100.0,
+        -55.0
+      ],
+      [
+        100.0,
+        55.0
+      ]
+    ],
+    "flat_radius_m": 10.0,
+    "transition_width_m": 12.0,
+    "profile": "quintic smootherstep"
+  },
+  "split": "train",
+  "evaluation_stratum": "unseen_layout",
+  "heightfield_convention": "World grid h[iy,ix], +x columns and +y rows, pixel centers at -size/2+(i+0.5)*size/pixels. BMP rows are vertically reversed. TerrainMap reverses them back; BMP remains truth.",
+  "geometry_audit": {
+    "height_min_m": -4.0925490196078425,
+    "height_max_m": 10.385098039215684,
+    "relief_m": 14.477647058823527,
+    "quantization_step_m": 0.057450980392156854,
+    "resolution_m_per_px": 0.46875,
+    "native_slope_stats": {
+      "max": 1.5135301803176746,
+      "p999": 1.1686957636610058,
+      "p99": 0.7146536596871838,
+      "median": 0.1225620915032683,
+      "flat5deg_fraction": 0.44881439208984375
+    },
+    "grade_measurement_span_m": 0.9375,
+    "max_grade_deg": 56.54698073448805,
+    "p99_grade_deg": 35.55163487913834,
+    "fraction_over_30deg": 0.01956170703575548,
+    "fraction_over_40deg": 0.004163783160322953,
+    "flat_pads": [
+      {
+        "name": "launch",
+        "center_xy_m": [
+          -100.0,
+          -55.0
+        ],
+        "verified_radius_m": 8.0,
+        "sample_count": 1360,
+        "height_range_m": 0.0,
+        "max_slope_deg": 0.0,
+        "height_m": -0.013529411764706012
+      },
+      {
+        "name": "arrival",
+        "center_xy_m": [
+          100.0,
+          55.0
+        ],
+        "verified_radius_m": 8.0,
+        "sample_count": 1360,
+        "height_range_m": 0.0,
+        "max_slope_deg": 0.0,
+        "height_m": -0.013529411764706012
+      }
+    ]
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "source_sha256": "fca6e10ba760db8f8652b41bc0bad2ba347c7bfcb36cb718b1736f1a041a0a9f",
+  "reviewed_source_sha256": {
+    "src/nedm/traverse/fdm_diverse_model.py": "c718978c934a7aaafdd113eb1ebe1907e5dc9fd89e4e35410512b9be88ad4e03",
+    "src/nedm/traverse/fdm_diverse_data.py": "5c5cf1a0098df044a6317b43e76adc5e4fe3ed530b53e6e33c51210abd2dc58c",
+    "scripts/traverse_fdm_rgbd_diverse_train.py": "8e9f9665622cbbdacefcce61b9e260fe1b30cca3a5064e610e99833559739ea7"
+  },
+  "optimizer_created": false,
+  "training_updates": 0,
+  "device": "cpu",
+  "passed": true,
+  "physical_patch_projection_max_abs_error": 2.980232238769531e-07,
+  "quarter_turn_crop_max_abs_errors": [
+    2.384185791015625e-07,
+    2.384185791015625e-07,
+    1.1920928955078125e-07
+  ],
+  "nominal_twist_roundtrip_max_abs_error": 0.0,
+  "checkpoint_prediction_max_abs_error": 0.0,
+  "checks": [
+    "400m metric ray depth and40m elevation scale",
+    "512px candidate perspective and left/forward axes",
+    "three quarter-turn coordinate augmentations",
+    "RGB-only crop geometry excludes depth",
+    "blank patch intervention",
+    "60\u00d70.2s command horizon",
+    "body-twist integration",
+    "targets do not enter model inference",
+    "positive monotone work in declared units",
+    "attitude mask excludes finite masked targets",
+    "patch checkpoint round-trip"
+  ]
+}

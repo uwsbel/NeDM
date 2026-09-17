@@ -1,0 +1,212 @@
+[
+  {
+    "i": 0,
+    "offset": -8.0,
+    "speed": 4.0,
+    "valid": true,
+    "cost": 18.949901958540483,
+    "predicted_goal_progress_m": 6.821682237303548,
+    "contact_probability": 3.0715138564119115e-05,
+    "low_progress_probability": 2.0716857761726715e-05
+  },
+  {
+    "i": 1,
+    "offset": -8.0,
+    "speed": 5.0,
+    "valid": true,
+    "cost": 20.093799738484357,
+    "predicted_goal_progress_m": 6.458111024796391,
+    "contact_probability": 7.284697494469583e-05,
+    "low_progress_probability": 2.0101109839743003e-05
+  },
+  {
+    "i": 2,
+    "offset": -8.0,
+    "speed": 6.0,
+    "valid": true,
+    "cost": 20.113856797915847,
+    "predicted_goal_progress_m": 6.452653689107187,
+    "contact_probability": 0.00010326781921321526,
+    "low_progress_probability": 2.2605338017456234e-05
+  },
+  {
+    "i": 3,
+    "offset": -6.0,
+    "speed": 4.0,
+    "valid": true,
+    "cost": 16.32543368010234,
+    "predicted_goal_progress_m": 7.828297378314954,
+    "contact_probability": 2.2738004190614447e-05,
+    "low_progress_probability": 3.2362062484025955e-05
+  },
+  {
+    "i": 4,
+    "offset": -6.0,
+    "speed": 5.0,
+    "valid": true,
+    "cost": 17.564200864914294,
+    "predicted_goal_progress_m": 7.319941937876468,
+    "contact_probability": 3.162146458635107e-05,
+    "low_progress_probability": 2.3916849386296235e-05
+  },
+  {
+    "i": 5,
+    "offset": -6.0,
+    "speed": 6.0,
+    "valid": true,
+    "cost": 17.988964821185263,
+    "predicted_goal_progress_m": 7.159833991634805,
+    "contact_probability": 3.146606104564853e-05,
+    "low_progress_probability": 1.888613223854918e-05
+  },
+  {
+    "i": 6,
+    "offset": -4.0,
+    "speed": 4.0,
+    "valid": true,
+    "cost": 9.286069032907493,
+    "predicted_goal_progress_m": 12.692509492894658,
+    "contact_probability": 1.1630838798737386e-06,
+    "low_progress_probability": 9.181274072034284e-05
+  },
+  {
+    "i": 7,
+    "offset": -4.0,
+    "speed": 5.0,
+    "valid": true,
+    "cost": 6.982696547334416,
+    "predicted_goal_progress_m": 15.664400410612036,
+    "contact_probability": 8.108122528938111e-07,
+    "low_progress_probability": 1.4516304872813635e-05
+  },
+  {
+    "i": 8,
+    "offset": -4.0,
+    "speed": 6.0,
+    "valid": true,
+    "cost": 5.593031742626368,
+    "predicted_goal_progress_m": 18.090344956397473,
+    "contact_probability": 7.431652306877368e-07,
+    "low_progress_probability": 2.2403421553462977e-06
+  },
+  {
+    "i": 9,
+    "offset": 0.0,
+    "speed": 4.0,
+    "valid": true,
+    "cost": 27.52819690650232,
+    "predicted_goal_progress_m": 4.78733752801638,
+    "contact_probability": 0.00015771813923493028,
+    "low_progress_probability": 0.0004547897260636091
+  },
+  {
+    "i": 10,
+    "offset": 0.0,
+    "speed": 5.0,
+    "valid": true,
+    "cost": 26.038545770914652,
+    "predicted_goal_progress_m": 5.052372168305261,
+    "contact_probability": 0.00019876328587997705,
+    "low_progress_probability": 0.00048202957259491086
+  },
+  {
+    "i": 11,
+    "offset": 0.0,
+    "speed": 6.0,
+    "valid": true,
+    "cost": 25.688271656510786,
+    "predicted_goal_progress_m": 5.120650741232954,
+    "contact_probability": 0.0002561570727266371,
+    "low_progress_probability": 0.0005903512937948108
+  },
+  {
+    "i": 12,
+    "offset": 4.0,
+    "speed": 4.0,
+    "valid": true,
+    "cost": 9.577496142327304,
+    "predicted_goal_progress_m": 12.384056882325446,
+    "contact_probability": 2.7626185783447e-06,
+    "low_progress_probability": 5.3829262469662353e-05
+  },
+  {
+    "i": 13,
+    "offset": 4.0,
+    "speed": 5.0,
+    "valid": true,
+    "cost": 7.4315671651285005,
+    "predicted_goal_progress_m": 14.99401108143632,
+    "contact_probability": 2.337400474061724e-06,
+    "low_progress_probability": 6.937388661754085e-06
+  },
+  {
+    "i": 14,
+    "offset": 4.0,
+    "speed": 6.0,
+    "valid": true,
+    "cost": 6.995867669471556,
+    "predicted_goal_progress_m": 15.642832249360591,
+    "contact_probability": 1.6583928754698718e-06,
+    "low_progress_probability": 8.040668149078556e-07
+  },
+  {
+    "i": 15,
+    "offset": 6.0,
+    "speed": 4.0,
+    "valid": true,
+    "cost": 9.219688681072844,
+    "predicted_goal_progress_m": 12.761228346483566,
+    "contact_probability": 1.9025062556465855e-06,
+    "low_progress_probability": 4.6099867176963016e-05
+  },
+  {
+    "i": 16,
+    "offset": 6.0,
+    "speed": 5.0,
+    "valid": true,
+    "cost": 6.873220415700384,
+    "predicted_goal_progress_m": 15.83456578907644,
+    "contact_probability": 1.1349454780429369e-06,
+    "low_progress_probability": 4.2487918108236045e-06
+  },
+  {
+    "i": 17,
+    "offset": 6.0,
+    "speed": 6.0,
+    "valid": true,
+    "cost": 5.761723774834357,
+    "predicted_goal_progress_m": 17.76364251844734,
+    "contact_probability": 7.059672384457372e-07,
+    "low_progress_probability": 4.271512636933039e-07
+  },
+  {
+    "i": 18,
+    "offset": 8.0,
+    "speed": 4.0,
+    "valid": true,
+    "cost": 9.991326667967177,
+    "predicted_goal_progress_m": 11.971137987196041,
+    "contact_probability": 1.9847411749651656e-06,
+    "low_progress_probability": 4.7678331611678004e-05
+  },
+  {
+    "i": 19,
+    "offset": 8.0,
+    "speed": 5.0,
+    "valid": true,
+    "cost": 7.627491534451486,
+    "predicted_goal_progress_m": 14.716548212987625,
+    "contact_probability": 1.179764922198956e-06,
+    "low_progress_probability": 4.859651198785286e-06
+  },
+  {
+    "i": 20,
+    "offset": 8.0,
+    "speed": 6.0,
+    "valid": true,
+    "cost": 6.269145408666456,
+    "predicted_goal_progress_m": 16.837206310362173,
+    "contact_probability": 7.827098329471482e-07,
+    "low_progress_probability": 5.565754577219195e-07
+  }
+]

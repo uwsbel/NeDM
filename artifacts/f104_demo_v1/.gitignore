@@ -1,0 +1,8 @@
+# Allowlist: only the files below are committed from this folder (see the repository .gitignore).
+/*
+!/.gitignore
+!/README.md
+!/s1_1_optimal.mp4
+!/s1_2_suboptimal.mp4
+!/s1_3_risky.mp4
+!/scenarios.png

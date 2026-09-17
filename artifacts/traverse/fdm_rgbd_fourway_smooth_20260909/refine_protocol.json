@@ -1,0 +1,17 @@
+{
+  "geometry": "center0,sigma4.5",
+  "new_height_m": [
+    6.6,
+    6.7,
+    6.8,
+    6.9
+  ],
+  "new_reference": "straight6m/s family01",
+  "existing_controls": [
+    "H6.5straight4m/s family00",
+    "H7straight4m/s family00"
+  ],
+  "horizon_override_s": 25,
+  "reason": "Observe sustained behavior beyond original15s diagnostic cutoff and test original4m/s command without changingphysics/PID/friction",
+  "selection": "Physics-only bounded refinement before any final NNpredictionfreeze; preserve all earlierresults"
+}

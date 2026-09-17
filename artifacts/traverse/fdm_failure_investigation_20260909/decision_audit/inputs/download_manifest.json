@@ -1,0 +1,1475 @@
+{
+  "scope": "POST-HOC DIAGNOSTIC; original test evaluation remains frozen",
+  "files": [
+    {
+      "path": "raw/diverse_v1_test_cross_slopes_00_selected_rgbd_time/trajectory.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_cross_slopes_00_selected_rgbd_time/trajectory.npz",
+      "sha256": "6cd6de18590f1df2927f377bb7c52afc349ea5dd639f10ec95246e54245db181",
+      "bytes": 92856
+    },
+    {
+      "path": "raw/diverse_v1_test_cross_slopes_00_selected_rgbd_time/rich_intervals.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_cross_slopes_00_selected_rgbd_time/rich_intervals.npz",
+      "sha256": "13156f6ee79280247af705284c80e00593481cde70c4ded330ef590aa4545659",
+      "bytes": 100412
+    },
+    {
+      "path": "raw/diverse_v1_test_cross_slopes_00_selected_rgbd_time/rich_telemetry.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_cross_slopes_00_selected_rgbd_time/rich_telemetry.npz",
+      "sha256": "6a741fa9162b398c17885c5cfc81c6fc2aeb4a69a1126f19a8f80457c0465152",
+      "bytes": 1183290
+    },
+    {
+      "path": "raw/diverse_v1_test_cross_slopes_00_selected_rgbd_time/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_cross_slopes_00_selected_rgbd_time/outcome.json",
+      "sha256": "c7494422fb05b846170066c0c748fe3861ba84de69fc0c3effce7ecd2262e919",
+      "bytes": 66072
+    },
+    {
+      "path": "raw/diverse_v1_test_cross_slopes_00_selected_rgbd_time/online_protocol.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_cross_slopes_00_selected_rgbd_time/online_protocol.json",
+      "sha256": "b4bd1e40e898117d6ece1afe35f7a9163b5c72e96832284b8611188bcae3e48d",
+      "bytes": 4287
+    },
+    {
+      "path": "raw/diverse_v1_test_cross_slopes_00_selected_rgbd_time/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_cross_slopes_00_selected_rgbd_time/simulation_provenance.json",
+      "sha256": "6d3d2fae31e3addd4e3aeee8c68d201bc7436f5cbde270373815fdc4e1419752",
+      "bytes": 20416
+    },
+    {
+      "path": "raw/diverse_v1_test_cross_slopes_00_selected_rgbd_time/anchor_equality.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_cross_slopes_00_selected_rgbd_time/anchor_equality.json",
+      "sha256": "85d84aa387f0373a01b3adeffb1ea23d6e1442b4af0dc2d94e36914ac09df415",
+      "bytes": 211
+    },
+    {
+      "path": "raw/diverse_v1_test_cross_slopes_00_selected_rgbd_time/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_cross_slopes_00_selected_rgbd_time/anchor_state.npz",
+      "sha256": "2f291348ffbc376a623bc59bfd870e4f86dd7328d57b3182baab28e6f6d9521e",
+      "bytes": 1162
+    },
+    {
+      "path": "raw/diverse_v1_test_cross_slopes_00_selected_rgbd_time/decisions/decision_00000.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_cross_slopes_00_selected_rgbd_time/decisions/decision_00000.json",
+      "sha256": "c2f11cde44c1c75fd0e03aec84b31767efbd045ec6961999d42aa2e2db15e712",
+      "bytes": 1451941
+    },
+    {
+      "path": "observations/diverse_v1_test_cross_slopes_00/observation.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/observations/diverse_v1_test_cross_slopes_00/observation.npz",
+      "sha256": "630773bbb99c81c17cb1733786cae6418009947ba80afe429b69f9be99abd703",
+      "bytes": 2798853
+    },
+    {
+      "path": "observations/diverse_v1_test_cross_slopes_00/observation.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/observations/diverse_v1_test_cross_slopes_00/observation.json",
+      "sha256": "8390292663eabf9aa880932ab7d1f3777fc3537a8c3035aadcfb11c895eead24",
+      "bytes": 950
+    },
+    {
+      "path": "observations/diverse_v1_test_cross_slopes_00/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/observations/diverse_v1_test_cross_slopes_00/simulation_provenance.json",
+      "sha256": "604d44994a27ef916f6b6527675e2071eb35424ca8d8bfe5415f265195335584",
+      "bytes": 20478
+    },
+    {
+      "path": "raw/diverse_v1_test_rolling_hills_00_selected_rgbd_time/trajectory.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rolling_hills_00_selected_rgbd_time/trajectory.npz",
+      "sha256": "ea673a8868a11701d61d2167c073e8b9479c895b385593ac918bc6839194cae8",
+      "bytes": 387729
+    },
+    {
+      "path": "raw/diverse_v1_test_rolling_hills_00_selected_rgbd_time/rich_intervals.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rolling_hills_00_selected_rgbd_time/rich_intervals.npz",
+      "sha256": "630d5674f5bb6af5cb0bd7dd7ce81642d83e77ab978383ee840c7bb5caa22eaf",
+      "bytes": 411538
+    },
+    {
+      "path": "raw/diverse_v1_test_rolling_hills_00_selected_rgbd_time/rich_telemetry.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rolling_hills_00_selected_rgbd_time/rich_telemetry.npz",
+      "sha256": "94a0f335e254e1169b45808c9f1c2340ea642c752c21733847f2cde26262c9ef",
+      "bytes": 5005116
+    },
+    {
+      "path": "raw/diverse_v1_test_rolling_hills_00_selected_rgbd_time/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rolling_hills_00_selected_rgbd_time/outcome.json",
+      "sha256": "ffff83ee0aff9604040c6ba3eff3bd793562c4d353f2d931886ab96c74bf6b58",
+      "bytes": 126089
+    },
+    {
+      "path": "raw/diverse_v1_test_rolling_hills_00_selected_rgbd_time/online_protocol.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rolling_hills_00_selected_rgbd_time/online_protocol.json",
+      "sha256": "e3bd75e3c2b3507068deb13b5058941845f2e98d72e76ccf67bd8067060ccacb",
+      "bytes": 4287
+    },
+    {
+      "path": "raw/diverse_v1_test_rolling_hills_00_selected_rgbd_time/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rolling_hills_00_selected_rgbd_time/simulation_provenance.json",
+      "sha256": "83d49366c8cfae1099d26a86c0ba1d3c4927e78041ed1b9107cc976117ba78e7",
+      "bytes": 20416
+    },
+    {
+      "path": "raw/diverse_v1_test_rolling_hills_00_selected_rgbd_time/anchor_equality.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rolling_hills_00_selected_rgbd_time/anchor_equality.json",
+      "sha256": "9c58dfc0c7d63d5f44665ea2852c50cf5fb0d27e31ecb5641238923875fc2c78",
+      "bytes": 211
+    },
+    {
+      "path": "raw/diverse_v1_test_rolling_hills_00_selected_rgbd_time/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rolling_hills_00_selected_rgbd_time/anchor_state.npz",
+      "sha256": "c872114b7e21ece72440102bb17e9dc0d34e4ab56e51745c12ba4415e1b4095d",
+      "bytes": 1163
+    },
+    {
+      "path": "raw/diverse_v1_test_rolling_hills_00_selected_rgbd_time/decisions/decision_00000.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rolling_hills_00_selected_rgbd_time/decisions/decision_00000.json",
+      "sha256": "6836b413b8cad3524e40733118c67f3aea77caaa03271936928a6e918529e92c",
+      "bytes": 1445406
+    },
+    {
+      "path": "observations/diverse_v1_test_rolling_hills_00/observation.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/observations/diverse_v1_test_rolling_hills_00/observation.npz",
+      "sha256": "cbafddf6bf98f0d8ecf3ad3581f4d10add48846cd7afc99e738c6e6ff22966d5",
+      "bytes": 2724231
+    },
+    {
+      "path": "observations/diverse_v1_test_rolling_hills_00/observation.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/observations/diverse_v1_test_rolling_hills_00/observation.json",
+      "sha256": "00dff2e6208ef48bf06e7134564ac2e957aa019a96f6e0ad1f22bb3f7ecc5b15",
+      "bytes": 952
+    },
+    {
+      "path": "observations/diverse_v1_test_rolling_hills_00/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/observations/diverse_v1_test_rolling_hills_00/simulation_provenance.json",
+      "sha256": "4e7ceed80f591a0644c8585c7c287f27ce89863099bdad59b46e93be84bb8bef",
+      "bytes": 20478
+    },
+    {
+      "path": "raw/diverse_v1_test_rough_mosaic_00_selected_rgbd_time/trajectory.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rough_mosaic_00_selected_rgbd_time/trajectory.npz",
+      "sha256": "d37b62846a138433145926b1d6c89448342a8046c0123e4885d02a91d538f51c",
+      "bytes": 390931
+    },
+    {
+      "path": "raw/diverse_v1_test_rough_mosaic_00_selected_rgbd_time/rich_intervals.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rough_mosaic_00_selected_rgbd_time/rich_intervals.npz",
+      "sha256": "4b5b8514fbb65c202ec3d09a315c5e5c2a7709fca6432591190d42fe1a4fe720",
+      "bytes": 416976
+    },
+    {
+      "path": "raw/diverse_v1_test_rough_mosaic_00_selected_rgbd_time/rich_telemetry.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rough_mosaic_00_selected_rgbd_time/rich_telemetry.npz",
+      "sha256": "93ab6a218dcd7274db7b54b9872d854cdb90813676f5b412e049fdeeb6d31fbc",
+      "bytes": 5028776
+    },
+    {
+      "path": "raw/diverse_v1_test_rough_mosaic_00_selected_rgbd_time/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rough_mosaic_00_selected_rgbd_time/outcome.json",
+      "sha256": "7bb36f8040935fd67c4084a7b53396ea939a7d4f8e08edcc1c84e874763c78cb",
+      "bytes": 125547
+    },
+    {
+      "path": "raw/diverse_v1_test_rough_mosaic_00_selected_rgbd_time/online_protocol.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rough_mosaic_00_selected_rgbd_time/online_protocol.json",
+      "sha256": "5740ef90068d2df9abeabf4a61111f242440b43803a6e4ceea927716eed1f69d",
+      "bytes": 4287
+    },
+    {
+      "path": "raw/diverse_v1_test_rough_mosaic_00_selected_rgbd_time/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rough_mosaic_00_selected_rgbd_time/simulation_provenance.json",
+      "sha256": "1cb1c38e8763b312828e9c9e95fa302ac486fa259598a2e1128a795edd4a4268",
+      "bytes": 20416
+    },
+    {
+      "path": "raw/diverse_v1_test_rough_mosaic_00_selected_rgbd_time/anchor_equality.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rough_mosaic_00_selected_rgbd_time/anchor_equality.json",
+      "sha256": "10300ebf9d490cee9507866f012e6ca26ccc5d46ea8ee05d24ee2943ad0d1662",
+      "bytes": 211
+    },
+    {
+      "path": "raw/diverse_v1_test_rough_mosaic_00_selected_rgbd_time/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rough_mosaic_00_selected_rgbd_time/anchor_state.npz",
+      "sha256": "90e6921c5ebe69ea4491ff458792d6b34b58780161b0386c745c5e0fe07023f8",
+      "bytes": 1164
+    },
+    {
+      "path": "raw/diverse_v1_test_rough_mosaic_00_selected_rgbd_time/decisions/decision_00000.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rough_mosaic_00_selected_rgbd_time/decisions/decision_00000.json",
+      "sha256": "a4596e4127b7abbfd055c6f452fc1f41418cfd8f8f92ea1be4bd522fb9bc166c",
+      "bytes": 1454016
+    },
+    {
+      "path": "observations/diverse_v1_test_rough_mosaic_00/observation.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/observations/diverse_v1_test_rough_mosaic_00/observation.npz",
+      "sha256": "702c737dd1e039cfb0785584135c835fc4c14adb1ea39754324e3958d5b839cb",
+      "bytes": 3114290
+    },
+    {
+      "path": "observations/diverse_v1_test_rough_mosaic_00/observation.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/observations/diverse_v1_test_rough_mosaic_00/observation.json",
+      "sha256": "531aa3f60f32ea6c7aaa6c99a5a33bcd09762c7eb4f8f8cf460a3dda5379094b",
+      "bytes": 951
+    },
+    {
+      "path": "observations/diverse_v1_test_rough_mosaic_00/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/observations/diverse_v1_test_rough_mosaic_00/simulation_provenance.json",
+      "sha256": "2990c0719543ce1b531612534e72a590f91e91f06a2030d2051f4da57ddff7df",
+      "bytes": 20478
+    },
+    {
+      "path": "raw/diverse_v1_test_cross_slopes_00_selected_rgbd_energy/trajectory.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_cross_slopes_00_selected_rgbd_energy/trajectory.npz",
+      "sha256": "74c174f0b51e4c6de1d9ea6265439fa7b174f59eb2734ae297e010c6c3a48aae",
+      "bytes": 92807
+    },
+    {
+      "path": "raw/diverse_v1_test_cross_slopes_00_selected_rgbd_energy/rich_intervals.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_cross_slopes_00_selected_rgbd_energy/rich_intervals.npz",
+      "sha256": "1396196ad90da4de4ff9a26162b0dd5776a6798127052b51162774c357200bda",
+      "bytes": 100413
+    },
+    {
+      "path": "raw/diverse_v1_test_cross_slopes_00_selected_rgbd_energy/rich_telemetry.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_cross_slopes_00_selected_rgbd_energy/rich_telemetry.npz",
+      "sha256": "23a1defa54b5938972ee9df8456e30829114662b440d806b3e97c12f20a1a3ee",
+      "bytes": 1182606
+    },
+    {
+      "path": "raw/diverse_v1_test_cross_slopes_00_selected_rgbd_energy/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_cross_slopes_00_selected_rgbd_energy/outcome.json",
+      "sha256": "cd41f2b4b219fa1dddc48c842d48af7ced5d0b7faedfda09d795f792ae47a0f2",
+      "bytes": 68354
+    },
+    {
+      "path": "raw/diverse_v1_test_cross_slopes_00_selected_rgbd_energy/online_protocol.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_cross_slopes_00_selected_rgbd_energy/online_protocol.json",
+      "sha256": "0b915dc9ffd800d340bcb33cdb3647c5228ec33b618366ba824cbe8da7ac6db7",
+      "bytes": 4290
+    },
+    {
+      "path": "raw/diverse_v1_test_cross_slopes_00_selected_rgbd_energy/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_cross_slopes_00_selected_rgbd_energy/simulation_provenance.json",
+      "sha256": "6d3d2fae31e3addd4e3aeee8c68d201bc7436f5cbde270373815fdc4e1419752",
+      "bytes": 20416
+    },
+    {
+      "path": "raw/diverse_v1_test_cross_slopes_00_selected_rgbd_energy/anchor_equality.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_cross_slopes_00_selected_rgbd_energy/anchor_equality.json",
+      "sha256": "85d84aa387f0373a01b3adeffb1ea23d6e1442b4af0dc2d94e36914ac09df415",
+      "bytes": 211
+    },
+    {
+      "path": "raw/diverse_v1_test_cross_slopes_00_selected_rgbd_energy/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_cross_slopes_00_selected_rgbd_energy/anchor_state.npz",
+      "sha256": "2f291348ffbc376a623bc59bfd870e4f86dd7328d57b3182baab28e6f6d9521e",
+      "bytes": 1162
+    },
+    {
+      "path": "raw/diverse_v1_test_cross_slopes_00_selected_rgbd_energy/decisions/decision_00000.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_cross_slopes_00_selected_rgbd_energy/decisions/decision_00000.json",
+      "sha256": "8531c1f47f3cdb896c4dcd3162a3dd6039c986de4c2cf107883460d301b762fb",
+      "bytes": 1463744
+    },
+    {
+      "path": "raw/diverse_v1_test_rolling_hills_00_selected_rgbd_energy/trajectory.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rolling_hills_00_selected_rgbd_energy/trajectory.npz",
+      "sha256": "99c7b955a0e0e26079718b3e846779681071a070539f3cbe5bb56e59d886ba9a",
+      "bytes": 385687
+    },
+    {
+      "path": "raw/diverse_v1_test_rolling_hills_00_selected_rgbd_energy/rich_intervals.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rolling_hills_00_selected_rgbd_energy/rich_intervals.npz",
+      "sha256": "8fb28930446518511168df843a13f54084a20d6009593fbd4c24eff21ddc2d73",
+      "bytes": 407805
+    },
+    {
+      "path": "raw/diverse_v1_test_rolling_hills_00_selected_rgbd_energy/rich_telemetry.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rolling_hills_00_selected_rgbd_energy/rich_telemetry.npz",
+      "sha256": "ffed4f2d278a9ec59734ef9723109d088dc0a14549b6367daf2cbb6087c814c4",
+      "bytes": 4977905
+    },
+    {
+      "path": "raw/diverse_v1_test_rolling_hills_00_selected_rgbd_energy/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rolling_hills_00_selected_rgbd_energy/outcome.json",
+      "sha256": "408297e5affc49f3ddb94ed4565facf6daf9425fe22a42b34c5bc61cfd3fe5b0",
+      "bytes": 123596
+    },
+    {
+      "path": "raw/diverse_v1_test_rolling_hills_00_selected_rgbd_energy/online_protocol.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rolling_hills_00_selected_rgbd_energy/online_protocol.json",
+      "sha256": "105e0c71c7d53ad6c74d7b7683b37eeb4582c25b6c6e1a57b6fe923cb6371d1c",
+      "bytes": 4290
+    },
+    {
+      "path": "raw/diverse_v1_test_rolling_hills_00_selected_rgbd_energy/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rolling_hills_00_selected_rgbd_energy/simulation_provenance.json",
+      "sha256": "83d49366c8cfae1099d26a86c0ba1d3c4927e78041ed1b9107cc976117ba78e7",
+      "bytes": 20416
+    },
+    {
+      "path": "raw/diverse_v1_test_rolling_hills_00_selected_rgbd_energy/anchor_equality.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rolling_hills_00_selected_rgbd_energy/anchor_equality.json",
+      "sha256": "9c58dfc0c7d63d5f44665ea2852c50cf5fb0d27e31ecb5641238923875fc2c78",
+      "bytes": 211
+    },
+    {
+      "path": "raw/diverse_v1_test_rolling_hills_00_selected_rgbd_energy/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rolling_hills_00_selected_rgbd_energy/anchor_state.npz",
+      "sha256": "c872114b7e21ece72440102bb17e9dc0d34e4ab56e51745c12ba4415e1b4095d",
+      "bytes": 1163
+    },
+    {
+      "path": "raw/diverse_v1_test_rolling_hills_00_selected_rgbd_energy/decisions/decision_00000.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rolling_hills_00_selected_rgbd_energy/decisions/decision_00000.json",
+      "sha256": "d63fd63f1285c5a82214206ccef72bc609376539abdd7ceeba0e2766663b3996",
+      "bytes": 1439954
+    },
+    {
+      "path": "raw/diverse_v1_test_rough_mosaic_00_selected_rgbd_energy/trajectory.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rough_mosaic_00_selected_rgbd_energy/trajectory.npz",
+      "sha256": "fd1aefbfa2cf579fa6cad628bfd4bf9a11d7fabcbce9676381b98392b36116a9",
+      "bytes": 383680
+    },
+    {
+      "path": "raw/diverse_v1_test_rough_mosaic_00_selected_rgbd_energy/rich_intervals.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rough_mosaic_00_selected_rgbd_energy/rich_intervals.npz",
+      "sha256": "22885e301b35cf29c8a56a1c2d6bfb222eb02338b17ee957290df6a3d41e691c",
+      "bytes": 409105
+    },
+    {
+      "path": "raw/diverse_v1_test_rough_mosaic_00_selected_rgbd_energy/rich_telemetry.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rough_mosaic_00_selected_rgbd_energy/rich_telemetry.npz",
+      "sha256": "f4bdeb7f95dca1a0a1352fd04d9f6546ba83abc6bcd536134f14542125267109",
+      "bytes": 5002137
+    },
+    {
+      "path": "raw/diverse_v1_test_rough_mosaic_00_selected_rgbd_energy/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rough_mosaic_00_selected_rgbd_energy/outcome.json",
+      "sha256": "72199b4a5930858f662fa08903b84bf7b797630a53f3977a942c601003c02a8c",
+      "bytes": 121522
+    },
+    {
+      "path": "raw/diverse_v1_test_rough_mosaic_00_selected_rgbd_energy/online_protocol.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rough_mosaic_00_selected_rgbd_energy/online_protocol.json",
+      "sha256": "66e6464a0a6c6ab02e57846d9c6c76607eac3c3b74b40dd4d7d6d41a081cfbe0",
+      "bytes": 4290
+    },
+    {
+      "path": "raw/diverse_v1_test_rough_mosaic_00_selected_rgbd_energy/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rough_mosaic_00_selected_rgbd_energy/simulation_provenance.json",
+      "sha256": "1cb1c38e8763b312828e9c9e95fa302ac486fa259598a2e1128a795edd4a4268",
+      "bytes": 20416
+    },
+    {
+      "path": "raw/diverse_v1_test_rough_mosaic_00_selected_rgbd_energy/anchor_equality.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rough_mosaic_00_selected_rgbd_energy/anchor_equality.json",
+      "sha256": "10300ebf9d490cee9507866f012e6ca26ccc5d46ea8ee05d24ee2943ad0d1662",
+      "bytes": 211
+    },
+    {
+      "path": "raw/diverse_v1_test_rough_mosaic_00_selected_rgbd_energy/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rough_mosaic_00_selected_rgbd_energy/anchor_state.npz",
+      "sha256": "90e6921c5ebe69ea4491ff458792d6b34b58780161b0386c745c5e0fe07023f8",
+      "bytes": 1164
+    },
+    {
+      "path": "raw/diverse_v1_test_rough_mosaic_00_selected_rgbd_energy/decisions/decision_00000.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rough_mosaic_00_selected_rgbd_energy/decisions/decision_00000.json",
+      "sha256": "0d970574296b72dc5bacfdb067b07b7a9687e8f1699a07f5545c593f3be30cf0",
+      "bytes": 1448675
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_00/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_00/outcome.json",
+      "sha256": "77542b032a8c627ce7012ed01ccfda6ac37b6f09e003183e828270612607281a",
+      "bytes": 40862
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_00/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_00/simulation_provenance.json",
+      "sha256": "4e7ceed80f591a0644c8585c7c287f27ce89863099bdad59b46e93be84bb8bef",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_00/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_00/anchor_state.npz",
+      "sha256": "c872114b7e21ece72440102bb17e9dc0d34e4ab56e51745c12ba4415e1b4095d",
+      "bytes": 1163
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_00/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_rolling_hills_00/family_00.json",
+      "sha256": "0dbe1f3acdb6a86a6f9d68cec4e1a948d9ff1c39baf003fe542aee8fe4b0cb2b",
+      "bytes": 55221
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_01/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_01/outcome.json",
+      "sha256": "9af51498e922d1f2a725b23b42a85571588a9da11b6c5228d940137d85d2ed53",
+      "bytes": 56014
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_01/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_01/simulation_provenance.json",
+      "sha256": "4e7ceed80f591a0644c8585c7c287f27ce89863099bdad59b46e93be84bb8bef",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_01/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_01/anchor_state.npz",
+      "sha256": "c872114b7e21ece72440102bb17e9dc0d34e4ab56e51745c12ba4415e1b4095d",
+      "bytes": 1163
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_01/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_rolling_hills_00/family_01.json",
+      "sha256": "48c9e344981131fc355d68cce48359b23896f6f0cf22ee5b15ec81d80223ec18",
+      "bytes": 55308
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_02/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_02/outcome.json",
+      "sha256": "4abbc3ca5522a9e28b59cd205cc7bbffb244361a7023139da6cfa45071bcbc03",
+      "bytes": 60257
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_02/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_02/simulation_provenance.json",
+      "sha256": "4e7ceed80f591a0644c8585c7c287f27ce89863099bdad59b46e93be84bb8bef",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_02/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_02/anchor_state.npz",
+      "sha256": "c872114b7e21ece72440102bb17e9dc0d34e4ab56e51745c12ba4415e1b4095d",
+      "bytes": 1163
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_02/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_rolling_hills_00/family_02.json",
+      "sha256": "88db68b8ebef413a533a1348cefbef331317654c3f9b280baf7da215630506a2",
+      "bytes": 55449
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_03/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_03/outcome.json",
+      "sha256": "23901bd7172b0b6be0d6862a046d8c338ee1017ba9dd9f38d2489ebd07cd9df4",
+      "bytes": 56468
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_03/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_03/simulation_provenance.json",
+      "sha256": "4e7ceed80f591a0644c8585c7c287f27ce89863099bdad59b46e93be84bb8bef",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_03/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_03/anchor_state.npz",
+      "sha256": "c872114b7e21ece72440102bb17e9dc0d34e4ab56e51745c12ba4415e1b4095d",
+      "bytes": 1163
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_03/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_rolling_hills_00/family_03.json",
+      "sha256": "42c221bc515cc0e0c4b612effacb1064cae131925b91cb9ea25c0de4fb79cf0d",
+      "bytes": 55232
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_04/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_04/outcome.json",
+      "sha256": "6c3b33530fd6c2eb5ad97b239d1830775581fbb798363fd89014bfe366a92d43",
+      "bytes": 64009
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_04/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_04/simulation_provenance.json",
+      "sha256": "4e7ceed80f591a0644c8585c7c287f27ce89863099bdad59b46e93be84bb8bef",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_04/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_04/anchor_state.npz",
+      "sha256": "c872114b7e21ece72440102bb17e9dc0d34e4ab56e51745c12ba4415e1b4095d",
+      "bytes": 1163
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_04/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_rolling_hills_00/family_04.json",
+      "sha256": "24dfa906c94f478e36a06b4cb84d2ad434e25dbe946e86551c504a1d427cbad6",
+      "bytes": 55319
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_05/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_05/outcome.json",
+      "sha256": "3cc813d67ff2f06365cc8e0cc6925610b5ae91da1dfabb8f44f8be37b1eb73ae",
+      "bytes": 66467
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_05/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_05/simulation_provenance.json",
+      "sha256": "4e7ceed80f591a0644c8585c7c287f27ce89863099bdad59b46e93be84bb8bef",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_05/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_05/anchor_state.npz",
+      "sha256": "c872114b7e21ece72440102bb17e9dc0d34e4ab56e51745c12ba4415e1b4095d",
+      "bytes": 1163
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_05/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_rolling_hills_00/family_05.json",
+      "sha256": "2284b4352c4157d9da8b4d64366f2c5f85e99922cd3bedf53c9839fbf9c54535",
+      "bytes": 55459
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_06/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_06/outcome.json",
+      "sha256": "bbac61d62aae2336e68bcf3999f758565bd3f1c0afdfedb9d1fec014a11ff4bf",
+      "bytes": 61871
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_06/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_06/simulation_provenance.json",
+      "sha256": "4e7ceed80f591a0644c8585c7c287f27ce89863099bdad59b46e93be84bb8bef",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_06/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_06/anchor_state.npz",
+      "sha256": "c872114b7e21ece72440102bb17e9dc0d34e4ab56e51745c12ba4415e1b4095d",
+      "bytes": 1163
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_06/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_rolling_hills_00/family_06.json",
+      "sha256": "e0c5ff337d456cd51490303a149a399df3b5bfba4ea98e7e86896551c9b08b31",
+      "bytes": 55414
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_07/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_07/outcome.json",
+      "sha256": "3144c886cff77afa3d910795a3190fd8f84c60d637fabf5aed331d9f64cfb2fe",
+      "bytes": 66688
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_07/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_07/simulation_provenance.json",
+      "sha256": "4e7ceed80f591a0644c8585c7c287f27ce89863099bdad59b46e93be84bb8bef",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_07/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_07/anchor_state.npz",
+      "sha256": "c872114b7e21ece72440102bb17e9dc0d34e4ab56e51745c12ba4415e1b4095d",
+      "bytes": 1163
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_07/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_rolling_hills_00/family_07.json",
+      "sha256": "278c56da3f310f80a733c918aa2b69fa9f1b13605c8718e68717b86882954bce",
+      "bytes": 55499
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_08/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_08/outcome.json",
+      "sha256": "475f293d79fa358229df30e2e56c4db6989c070d80fd179b92d319a0eb8d2483",
+      "bytes": 68195
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_08/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_08/simulation_provenance.json",
+      "sha256": "4e7ceed80f591a0644c8585c7c287f27ce89863099bdad59b46e93be84bb8bef",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_08/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_08/anchor_state.npz",
+      "sha256": "c872114b7e21ece72440102bb17e9dc0d34e4ab56e51745c12ba4415e1b4095d",
+      "bytes": 1163
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_08/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_rolling_hills_00/family_08.json",
+      "sha256": "d216a5d2eacdf93f7cdab27c240fcac64d8a39dd471a9e144022c51c65cd256a",
+      "bytes": 55640
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_09/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_09/outcome.json",
+      "sha256": "52c614966ccd5052e16572eab16c521e58c783785e0493045c4944638985f5fb",
+      "bytes": 2804
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_09/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_09/simulation_provenance.json",
+      "sha256": "4e7ceed80f591a0644c8585c7c287f27ce89863099bdad59b46e93be84bb8bef",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_09/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_09/anchor_state.npz",
+      "sha256": "c872114b7e21ece72440102bb17e9dc0d34e4ab56e51745c12ba4415e1b4095d",
+      "bytes": 1163
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_09/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_rolling_hills_00/family_09.json",
+      "sha256": "cac65b5c38a338256519c956d0ca3860e16ba2b385851beead0c20686269efaa",
+      "bytes": 55145
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_10/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_10/outcome.json",
+      "sha256": "3ce7abbd1dd4614aebddbf2a57fa5db4616f21c17bc63d29e32a436c794a15bb",
+      "bytes": 2801
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_10/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_10/simulation_provenance.json",
+      "sha256": "4e7ceed80f591a0644c8585c7c287f27ce89863099bdad59b46e93be84bb8bef",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_10/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_10/anchor_state.npz",
+      "sha256": "c872114b7e21ece72440102bb17e9dc0d34e4ab56e51745c12ba4415e1b4095d",
+      "bytes": 1163
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_10/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_rolling_hills_00/family_10.json",
+      "sha256": "928952f667e0a4d724c79bc18a47379c306f7e23835ee46451c118637174d17f",
+      "bytes": 55231
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_11/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_11/outcome.json",
+      "sha256": "b65747452fd452a08b087a21866d5d9e5fcbc7c16ab0aac247134d23807608a4",
+      "bytes": 2804
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_11/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_11/simulation_provenance.json",
+      "sha256": "4e7ceed80f591a0644c8585c7c287f27ce89863099bdad59b46e93be84bb8bef",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_11/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_11/anchor_state.npz",
+      "sha256": "c872114b7e21ece72440102bb17e9dc0d34e4ab56e51745c12ba4415e1b4095d",
+      "bytes": 1163
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_11/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_rolling_hills_00/family_11.json",
+      "sha256": "09f66e57ce650a16f1fc1ef028ab62e7275f7edd52ac16206ac9a381bfdfa3ed",
+      "bytes": 55358
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_12/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_12/outcome.json",
+      "sha256": "9037c773631f03a83375fc785f43e623d36034e726abb089f139370c90c72728",
+      "bytes": 2807
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_12/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_12/simulation_provenance.json",
+      "sha256": "4e7ceed80f591a0644c8585c7c287f27ce89863099bdad59b46e93be84bb8bef",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_12/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_12/anchor_state.npz",
+      "sha256": "c872114b7e21ece72440102bb17e9dc0d34e4ab56e51745c12ba4415e1b4095d",
+      "bytes": 1163
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_12/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_rolling_hills_00/family_12.json",
+      "sha256": "314a94dff992e176c4194c398a8d03d604fd89f3b574baa64d40f2edbb58a400",
+      "bytes": 55437
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_13/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_13/outcome.json",
+      "sha256": "1da42027080394e107d47ebe16369448e2ccdd9f395c1fe169815c05dfa4cac6",
+      "bytes": 2830
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_13/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_13/simulation_provenance.json",
+      "sha256": "4e7ceed80f591a0644c8585c7c287f27ce89863099bdad59b46e93be84bb8bef",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_13/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_13/anchor_state.npz",
+      "sha256": "c872114b7e21ece72440102bb17e9dc0d34e4ab56e51745c12ba4415e1b4095d",
+      "bytes": 1163
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_13/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_rolling_hills_00/family_13.json",
+      "sha256": "7e16e2c9fd0d93af0a5774dfd7d65d876a21d851ed0ae427e2863057304238ed",
+      "bytes": 55524
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_14/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_14/outcome.json",
+      "sha256": "a8ab1911858bfc200feeea2bfae12f5dc834cc06bd08afe18c37e0494423272c",
+      "bytes": 2800
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_14/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_14/simulation_provenance.json",
+      "sha256": "4e7ceed80f591a0644c8585c7c287f27ce89863099bdad59b46e93be84bb8bef",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_14/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rolling_hills_00/family_14/anchor_state.npz",
+      "sha256": "c872114b7e21ece72440102bb17e9dc0d34e4ab56e51745c12ba4415e1b4095d",
+      "bytes": 1163
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rolling_hills_00/family_14/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_rolling_hills_00/family_14.json",
+      "sha256": "4ecb01a81e8b22b0f38c7c6c2892350200160c2e03d20bdab40b6f03325146ba",
+      "bytes": 55651
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_00/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_00/outcome.json",
+      "sha256": "f61fa3a8c489755b6f63abbbd73b449423e8d54a596d27205672694bb32a15a6",
+      "bytes": 56202
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_00/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_00/simulation_provenance.json",
+      "sha256": "2990c0719543ce1b531612534e72a590f91e91f06a2030d2051f4da57ddff7df",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_00/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_00/anchor_state.npz",
+      "sha256": "90e6921c5ebe69ea4491ff458792d6b34b58780161b0386c745c5e0fe07023f8",
+      "bytes": 1164
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_00/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_rough_mosaic_00/family_00.json",
+      "sha256": "18b6469f187fd1a7f1e320617d0f1e9b308993a6295a1d6e8808800ccab680ff",
+      "bytes": 55720
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_01/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_01/outcome.json",
+      "sha256": "2a1ffa23dde5e5a2319699b3929403063fdbd9ff0816d80ca49a1e41f84937f4",
+      "bytes": 60363
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_01/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_01/simulation_provenance.json",
+      "sha256": "2990c0719543ce1b531612534e72a590f91e91f06a2030d2051f4da57ddff7df",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_01/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_01/anchor_state.npz",
+      "sha256": "90e6921c5ebe69ea4491ff458792d6b34b58780161b0386c745c5e0fe07023f8",
+      "bytes": 1164
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_01/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_rough_mosaic_00/family_01.json",
+      "sha256": "30e7147d7f3bd96a1fd77341237d9e1ed73a1725870ab55f3ad58095a95cb59b",
+      "bytes": 55807
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_02/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_02/outcome.json",
+      "sha256": "7a622d88af00503a31632400579d19e5a46db781968b9eba79146f47b3efd5e1",
+      "bytes": 64434
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_02/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_02/simulation_provenance.json",
+      "sha256": "2990c0719543ce1b531612534e72a590f91e91f06a2030d2051f4da57ddff7df",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_02/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_02/anchor_state.npz",
+      "sha256": "90e6921c5ebe69ea4491ff458792d6b34b58780161b0386c745c5e0fe07023f8",
+      "bytes": 1164
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_02/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_rough_mosaic_00/family_02.json",
+      "sha256": "8f85e3ff5e2017835e9e62362a88d9eb9133ae2ebb76d9d04200a65127a0dbe7",
+      "bytes": 55949
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_03/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_03/outcome.json",
+      "sha256": "09a0d5bb5175e26eaebadc6cd34ea490f8b6a065a5bb56273a04e1cac0180eb4",
+      "bytes": 58058
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_03/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_03/simulation_provenance.json",
+      "sha256": "2990c0719543ce1b531612534e72a590f91e91f06a2030d2051f4da57ddff7df",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_03/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_03/anchor_state.npz",
+      "sha256": "90e6921c5ebe69ea4491ff458792d6b34b58780161b0386c745c5e0fe07023f8",
+      "bytes": 1164
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_03/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_rough_mosaic_00/family_03.json",
+      "sha256": "e7bb017a353ec10570d0941e37804dcc8b276780bcb52b1969c1cecad578726c",
+      "bytes": 55686
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_04/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_04/outcome.json",
+      "sha256": "7c86a40465528114b1d161460f9b0e98154181c355f138b4ebfb5deb6b2893da",
+      "bytes": 64809
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_04/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_04/simulation_provenance.json",
+      "sha256": "2990c0719543ce1b531612534e72a590f91e91f06a2030d2051f4da57ddff7df",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_04/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_04/anchor_state.npz",
+      "sha256": "90e6921c5ebe69ea4491ff458792d6b34b58780161b0386c745c5e0fe07023f8",
+      "bytes": 1164
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_04/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_rough_mosaic_00/family_04.json",
+      "sha256": "cfa7b802a14b7778848b4e36ec9d0dd5d28b061cd96d70f27f1c44a384e69273",
+      "bytes": 55772
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_05/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_05/outcome.json",
+      "sha256": "ced8dda89265f63ab159a0c29e175de874a1d281ef51b607ae0013c78bdfde6a",
+      "bytes": 2799
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_05/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_05/simulation_provenance.json",
+      "sha256": "2990c0719543ce1b531612534e72a590f91e91f06a2030d2051f4da57ddff7df",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_05/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_05/anchor_state.npz",
+      "sha256": "90e6921c5ebe69ea4491ff458792d6b34b58780161b0386c745c5e0fe07023f8",
+      "bytes": 1164
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_05/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_rough_mosaic_00/family_05.json",
+      "sha256": "446a8aafb78141b02c2ca1847368386a5df3c5bae630ae928e71d8c464848fcb",
+      "bytes": 55912
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_06/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_06/outcome.json",
+      "sha256": "b2766b1cd6bcc044e131d861b19c6fc55a82b6e74dce1883cf2b5a28ba0f749b",
+      "bytes": 48531
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_06/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_06/simulation_provenance.json",
+      "sha256": "2990c0719543ce1b531612534e72a590f91e91f06a2030d2051f4da57ddff7df",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_06/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_06/anchor_state.npz",
+      "sha256": "90e6921c5ebe69ea4491ff458792d6b34b58780161b0386c745c5e0fe07023f8",
+      "bytes": 1164
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_06/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_rough_mosaic_00/family_06.json",
+      "sha256": "ee2042cf1a949d54c8e3c7ad869f2329f30097cfa4f2179126ef9c1a7a2fe44e",
+      "bytes": 55794
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_07/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_07/outcome.json",
+      "sha256": "6baddd260d5c7e0418ad0fff5584a9b5a223ea9770659259da316a7cd60b93e0",
+      "bytes": 51719
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_07/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_07/simulation_provenance.json",
+      "sha256": "2990c0719543ce1b531612534e72a590f91e91f06a2030d2051f4da57ddff7df",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_07/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_07/anchor_state.npz",
+      "sha256": "90e6921c5ebe69ea4491ff458792d6b34b58780161b0386c745c5e0fe07023f8",
+      "bytes": 1164
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_07/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_rough_mosaic_00/family_07.json",
+      "sha256": "f6429b395b33cdee6f0aedcd8b2041512862538cccec6075d51df86f87e9ce59",
+      "bytes": 55879
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_08/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_08/outcome.json",
+      "sha256": "50c4d4664f8bb4af4702b8e248de15fb143722caf6f706f9225efbebe9739c71",
+      "bytes": 2797
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_08/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_08/simulation_provenance.json",
+      "sha256": "2990c0719543ce1b531612534e72a590f91e91f06a2030d2051f4da57ddff7df",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_08/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_08/anchor_state.npz",
+      "sha256": "90e6921c5ebe69ea4491ff458792d6b34b58780161b0386c745c5e0fe07023f8",
+      "bytes": 1164
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_08/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_rough_mosaic_00/family_08.json",
+      "sha256": "361095f1af7b7baed1b89985ea3d12239fe35f8dc964167423725914839a738e",
+      "bytes": 56020
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_09/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_09/outcome.json",
+      "sha256": "e828d528ee931cb897f9989d62dadb56b0486306878ae1bfd089955b426be480",
+      "bytes": 2805
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_09/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_09/simulation_provenance.json",
+      "sha256": "2990c0719543ce1b531612534e72a590f91e91f06a2030d2051f4da57ddff7df",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_09/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_09/anchor_state.npz",
+      "sha256": "90e6921c5ebe69ea4491ff458792d6b34b58780161b0386c745c5e0fe07023f8",
+      "bytes": 1164
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_09/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_rough_mosaic_00/family_09.json",
+      "sha256": "c9cd846093c190eee130e902c8e1580e072558844c48b48e2d8ba65ad43b5dce",
+      "bytes": 55580
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_10/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_10/outcome.json",
+      "sha256": "2765548e3a6b36de382638fa790396b4b9674d527364298c66dc51fa322e1977",
+      "bytes": 2800
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_10/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_10/simulation_provenance.json",
+      "sha256": "2990c0719543ce1b531612534e72a590f91e91f06a2030d2051f4da57ddff7df",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_10/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_10/anchor_state.npz",
+      "sha256": "90e6921c5ebe69ea4491ff458792d6b34b58780161b0386c745c5e0fe07023f8",
+      "bytes": 1164
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_10/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_rough_mosaic_00/family_10.json",
+      "sha256": "e8c6923cf2103f9cc09c39543ff65e926979db5d6a4d3474f0e5b8bf89a500d0",
+      "bytes": 55667
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_11/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_11/outcome.json",
+      "sha256": "ddddf3442e9c1401d14db7f26eefa83e8c7263329691fd1104cf019941686bfe",
+      "bytes": 2826
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_11/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_11/simulation_provenance.json",
+      "sha256": "2990c0719543ce1b531612534e72a590f91e91f06a2030d2051f4da57ddff7df",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_11/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_11/anchor_state.npz",
+      "sha256": "90e6921c5ebe69ea4491ff458792d6b34b58780161b0386c745c5e0fe07023f8",
+      "bytes": 1164
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_11/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_rough_mosaic_00/family_11.json",
+      "sha256": "37299c07c90ce817a3a5468957a7e2bbfe6f7912ac9c1a324b5e8aec92c19222",
+      "bytes": 55792
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_12/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_12/outcome.json",
+      "sha256": "00a9568a7e11877754134a37da852195b62437d692b704845e986e77e7875157",
+      "bytes": 61564
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_12/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_12/simulation_provenance.json",
+      "sha256": "2990c0719543ce1b531612534e72a590f91e91f06a2030d2051f4da57ddff7df",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_12/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_12/anchor_state.npz",
+      "sha256": "90e6921c5ebe69ea4491ff458792d6b34b58780161b0386c745c5e0fe07023f8",
+      "bytes": 1164
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_12/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_rough_mosaic_00/family_12.json",
+      "sha256": "fdf10a71b0f4c0e84d0c4e9134a148728c8d4441c0b09bd6ef8b4e06fb2b94a2",
+      "bytes": 55656
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_13/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_13/outcome.json",
+      "sha256": "a80b0b472f79373f7d9cb5dc29315ac3a5bd6c398f5bd2056d423b652142aa9c",
+      "bytes": 56764
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_13/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_13/simulation_provenance.json",
+      "sha256": "2990c0719543ce1b531612534e72a590f91e91f06a2030d2051f4da57ddff7df",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_13/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_13/anchor_state.npz",
+      "sha256": "90e6921c5ebe69ea4491ff458792d6b34b58780161b0386c745c5e0fe07023f8",
+      "bytes": 1164
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_13/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_rough_mosaic_00/family_13.json",
+      "sha256": "7a72a8bcb8cb07c1d9b43dad9b08e04e1494384a809a7e8c6d7a07930ed30fe6",
+      "bytes": 55744
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_14/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_14/outcome.json",
+      "sha256": "bb24c2b2421d6a358f83d69a4bdb9214b2d263c25d44562bb4ce240f99b30e9b",
+      "bytes": 2785
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_14/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_14/simulation_provenance.json",
+      "sha256": "2990c0719543ce1b531612534e72a590f91e91f06a2030d2051f4da57ddff7df",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_14/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_rough_mosaic_00/family_14/anchor_state.npz",
+      "sha256": "90e6921c5ebe69ea4491ff458792d6b34b58780161b0386c745c5e0fe07023f8",
+      "bytes": 1164
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_rough_mosaic_00/family_14/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_rough_mosaic_00/family_14.json",
+      "sha256": "30573c4e700b8b54c0bcecac7ce5caa5bbafe8cb62a1efdd2372441c990e7e72",
+      "bytes": 55868
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_00/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_00/outcome.json",
+      "sha256": "315d8483fddc8a2647aacc7b312ff8d10cad75f456cebcc0be2cf9eb458fe876",
+      "bytes": 56862
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_00/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_00/simulation_provenance.json",
+      "sha256": "604d44994a27ef916f6b6527675e2071eb35424ca8d8bfe5415f265195335584",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_00/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_00/anchor_state.npz",
+      "sha256": "2f291348ffbc376a623bc59bfd870e4f86dd7328d57b3182baab28e6f6d9521e",
+      "bytes": 1162
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_00/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_cross_slopes_00/family_00.json",
+      "sha256": "8b9b2fcb5b9021c7f129899544e4325f3fb6dbc05f844e36bccda5ce567694a6",
+      "bytes": 55720
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_01/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_01/outcome.json",
+      "sha256": "680f5938f33b814012a45d52b399bf6e73e4de8eba688a1412def24de97a048d",
+      "bytes": 27524
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_01/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_01/simulation_provenance.json",
+      "sha256": "604d44994a27ef916f6b6527675e2071eb35424ca8d8bfe5415f265195335584",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_01/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_01/anchor_state.npz",
+      "sha256": "2f291348ffbc376a623bc59bfd870e4f86dd7328d57b3182baab28e6f6d9521e",
+      "bytes": 1162
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_01/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_cross_slopes_00/family_01.json",
+      "sha256": "9b0f5a9899bfdc5b3cb973cd8991d89a573d9eec2ebe0ecaaecce29e5920bf18",
+      "bytes": 55807
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_02/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_02/outcome.json",
+      "sha256": "4af1652a630b70b41612db054f5a472d7b7dc8de2a1a0761fdca511a8dee2bc1",
+      "bytes": 36949
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_02/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_02/simulation_provenance.json",
+      "sha256": "604d44994a27ef916f6b6527675e2071eb35424ca8d8bfe5415f265195335584",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_02/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_02/anchor_state.npz",
+      "sha256": "2f291348ffbc376a623bc59bfd870e4f86dd7328d57b3182baab28e6f6d9521e",
+      "bytes": 1162
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_02/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_cross_slopes_00/family_02.json",
+      "sha256": "1d25cd9ac6e56dff95db40f0e13565249732414715977ade972b30c930f920c8",
+      "bytes": 55949
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_03/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_03/outcome.json",
+      "sha256": "ff487b60f6174e4e2c259cb0851880c8133c53c91d26ad8e616c85c68b9f3c47",
+      "bytes": 14988
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_03/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_03/simulation_provenance.json",
+      "sha256": "604d44994a27ef916f6b6527675e2071eb35424ca8d8bfe5415f265195335584",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_03/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_03/anchor_state.npz",
+      "sha256": "2f291348ffbc376a623bc59bfd870e4f86dd7328d57b3182baab28e6f6d9521e",
+      "bytes": 1162
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_03/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_cross_slopes_00/family_03.json",
+      "sha256": "0de157139df8cb46b8ebbd59bdbc622c52de4787991b03ffdfc7d8c27dac9742",
+      "bytes": 55686
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_04/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_04/outcome.json",
+      "sha256": "e61fc5a36e8a826b3f2186827271226cd9550bc449677ed25fcbd2da6d854ed5",
+      "bytes": 54138
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_04/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_04/simulation_provenance.json",
+      "sha256": "604d44994a27ef916f6b6527675e2071eb35424ca8d8bfe5415f265195335584",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_04/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_04/anchor_state.npz",
+      "sha256": "2f291348ffbc376a623bc59bfd870e4f86dd7328d57b3182baab28e6f6d9521e",
+      "bytes": 1162
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_04/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_cross_slopes_00/family_04.json",
+      "sha256": "5358d92f86d43a3d2ad575cc7f1193da177e0321ca6543be746c8d246bef1f7e",
+      "bytes": 55772
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_05/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_05/outcome.json",
+      "sha256": "5780f44343b5a0acaf7410df156f5b57b910cb9383d0f0ccf6307755c0ae1315",
+      "bytes": 23489
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_05/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_05/simulation_provenance.json",
+      "sha256": "604d44994a27ef916f6b6527675e2071eb35424ca8d8bfe5415f265195335584",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_05/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_05/anchor_state.npz",
+      "sha256": "2f291348ffbc376a623bc59bfd870e4f86dd7328d57b3182baab28e6f6d9521e",
+      "bytes": 1162
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_05/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_cross_slopes_00/family_05.json",
+      "sha256": "a1de2bf43fd849137083fdc7bf756e5834d3006c40265d46341e7ff63fffe9cb",
+      "bytes": 55912
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_06/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_06/outcome.json",
+      "sha256": "0ed7253171d5fad2a8c7792057f419fe5ec0c3482b7837212607b25552fe1cb5",
+      "bytes": 8857
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_06/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_06/simulation_provenance.json",
+      "sha256": "604d44994a27ef916f6b6527675e2071eb35424ca8d8bfe5415f265195335584",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_06/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_06/anchor_state.npz",
+      "sha256": "2f291348ffbc376a623bc59bfd870e4f86dd7328d57b3182baab28e6f6d9521e",
+      "bytes": 1162
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_06/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_cross_slopes_00/family_06.json",
+      "sha256": "b84accfbbcab3f6572727c4521670177d5207e0b6ce11493da2ce1d1cced0989",
+      "bytes": 55794
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_07/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_07/outcome.json",
+      "sha256": "de8fb89eab2e8a306d18006b529ccc696afa4b5724b663b84771e5c4ff7e0e9d",
+      "bytes": 13818
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_07/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_07/simulation_provenance.json",
+      "sha256": "604d44994a27ef916f6b6527675e2071eb35424ca8d8bfe5415f265195335584",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_07/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_07/anchor_state.npz",
+      "sha256": "2f291348ffbc376a623bc59bfd870e4f86dd7328d57b3182baab28e6f6d9521e",
+      "bytes": 1162
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_07/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_cross_slopes_00/family_07.json",
+      "sha256": "5dbeaed43c0129a6a827d0a543213f1af8c9846f3082899d1a7ae676638e6598",
+      "bytes": 55879
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_08/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_08/outcome.json",
+      "sha256": "9516022ad40245680610bb4fcc0f39de9f47ce2afe2bf82791847e09d077189e",
+      "bytes": 2786
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_08/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_08/simulation_provenance.json",
+      "sha256": "604d44994a27ef916f6b6527675e2071eb35424ca8d8bfe5415f265195335584",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_08/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_08/anchor_state.npz",
+      "sha256": "2f291348ffbc376a623bc59bfd870e4f86dd7328d57b3182baab28e6f6d9521e",
+      "bytes": 1162
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_08/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_cross_slopes_00/family_08.json",
+      "sha256": "10435a5a4cb0d6786acd692323877270ab5287bbad7571e31a9980cce74db95e",
+      "bytes": 56020
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_09/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_09/outcome.json",
+      "sha256": "bf045f6a1e83aa29d33488c8b020ef57545ce9c9205ade77ab95cd74aad4ab58",
+      "bytes": 6085
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_09/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_09/simulation_provenance.json",
+      "sha256": "604d44994a27ef916f6b6527675e2071eb35424ca8d8bfe5415f265195335584",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_09/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_09/anchor_state.npz",
+      "sha256": "2f291348ffbc376a623bc59bfd870e4f86dd7328d57b3182baab28e6f6d9521e",
+      "bytes": 1162
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_09/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_cross_slopes_00/family_09.json",
+      "sha256": "34123ba9e31a1d828a2ea93fd1eb6565fe734ebdfc6deda9ecca4fff50fccbd3",
+      "bytes": 55580
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_10/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_10/outcome.json",
+      "sha256": "7553ab088a6f94345de10280c9a5c2c8cf770410f93ec89790ae23afdf332fc5",
+      "bytes": 4605
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_10/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_10/simulation_provenance.json",
+      "sha256": "604d44994a27ef916f6b6527675e2071eb35424ca8d8bfe5415f265195335584",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_10/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_10/anchor_state.npz",
+      "sha256": "2f291348ffbc376a623bc59bfd870e4f86dd7328d57b3182baab28e6f6d9521e",
+      "bytes": 1162
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_10/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_cross_slopes_00/family_10.json",
+      "sha256": "9c458234cc11bd5d88bffccfbf3c34d239653ee65d180afaf19160f960cfc52d",
+      "bytes": 55667
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_11/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_11/outcome.json",
+      "sha256": "b392343f3cf58535105b038a1a58c29e55ff6294edeb1f3bcf8d1906e2e7671d",
+      "bytes": 10891
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_11/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_11/simulation_provenance.json",
+      "sha256": "604d44994a27ef916f6b6527675e2071eb35424ca8d8bfe5415f265195335584",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_11/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_11/anchor_state.npz",
+      "sha256": "2f291348ffbc376a623bc59bfd870e4f86dd7328d57b3182baab28e6f6d9521e",
+      "bytes": 1162
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_11/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_cross_slopes_00/family_11.json",
+      "sha256": "63c9585395745499045d9e113405d324099356fd6a87992f947c23b8f2e58c0d",
+      "bytes": 55792
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_12/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_12/outcome.json",
+      "sha256": "aa7bf6b9a4a8235ef663039358b40f1dfe66c090522a27495e48ce2335acb344",
+      "bytes": 2792
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_12/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_12/simulation_provenance.json",
+      "sha256": "604d44994a27ef916f6b6527675e2071eb35424ca8d8bfe5415f265195335584",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_12/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_12/anchor_state.npz",
+      "sha256": "2f291348ffbc376a623bc59bfd870e4f86dd7328d57b3182baab28e6f6d9521e",
+      "bytes": 1162
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_12/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_cross_slopes_00/family_12.json",
+      "sha256": "7f693185cacf7e5630e0ef76035ea70d243796b3709817c22f5c09ced613b4a2",
+      "bytes": 55656
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_13/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_13/outcome.json",
+      "sha256": "b7b81204ce087ef29d3fec890e6294e03d56bbea1de85e6c97506c3f0d015c0c",
+      "bytes": 2786
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_13/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_13/simulation_provenance.json",
+      "sha256": "604d44994a27ef916f6b6527675e2071eb35424ca8d8bfe5415f265195335584",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_13/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_13/anchor_state.npz",
+      "sha256": "2f291348ffbc376a623bc59bfd870e4f86dd7328d57b3182baab28e6f6d9521e",
+      "bytes": 1162
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_13/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_cross_slopes_00/family_13.json",
+      "sha256": "dbc3a943d9e648b103716e809401d88ff576645b5a99bfa0f5f459809a339fdd",
+      "bytes": 55744
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_14/outcome.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_14/outcome.json",
+      "sha256": "b11ea4a8a7cd10186c96aa72db6cd350c2b43aa57d246c3ab1a1300ffab6cd95",
+      "bytes": 2785
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_14/simulation_provenance.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_14/simulation_provenance.json",
+      "sha256": "604d44994a27ef916f6b6527675e2071eb35424ca8d8bfe5415f265195335584",
+      "bytes": 20478
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_14/anchor_state.npz",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw/diverse_v1_test_cross_slopes_00/family_14/anchor_state.npz",
+      "sha256": "2f291348ffbc376a623bc59bfd870e4f86dd7328d57b3182baab28e6f6d9521e",
+      "bytes": 1162
+    },
+    {
+      "path": "fixed_references/diverse_v1_test_cross_slopes_00/family_14/reference.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_test_cross_slopes_00/family_14.json",
+      "sha256": "9b56e31d941b7360002c89e956f36a4adcef18e298de7686c6eda0b7888ae38d",
+      "bytes": 55868
+    },
+    {
+      "path": "declarations/protected_test_online_v1.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/protected_test_online_v1.json",
+      "sha256": "24592255b407f97c9140b6338d5a6206ba843689001e3ca52a5c735d9fdce6f1",
+      "bytes": 34177
+    },
+    {
+      "path": "declarations/source_manifest.json",
+      "remote_source": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v9/source_manifest.json",
+      "sha256": "c2ec8b81acd066c75e46cf658c8aa5e67661f92cf3a35a6da97575b03812382a",
+      "bytes": 123925
+    }
+  ]
+}

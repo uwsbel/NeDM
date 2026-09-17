@@ -1,0 +1,21 @@
+{
+  "frame_count": 11,
+  "rendered_frames_match_current_physics": true,
+  "exact_differences_vs_prior_no_video_identical_reference": {
+    "state": 0.0,
+    "action": 0.0,
+    "pose": 0.0,
+    "power_kw": 0.0,
+    "contact_n": 0.0
+  },
+  "anchor_equality": {
+    "state17_max_abs_difference": 0.0,
+    "pose_max_abs_difference": 8.997444069791527e-07,
+    "rgb_equal": true,
+    "depth_max_abs_difference_m": 0.0,
+    "anchor_observation_sha256": "1b6da26be293351b33876ad050eedf9d53469647e211b652408c7d67865b7760",
+    "matched": true
+  },
+  "job": "411803",
+  "failed_smoke": "411798 visualization launch counter started401; rejected before physics; corrected reader accepts monotonicfreshcounter"
+}

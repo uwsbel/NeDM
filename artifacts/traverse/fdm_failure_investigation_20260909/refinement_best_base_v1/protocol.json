@@ -1,0 +1,46 @@
+{
+  "scope": "post_hoc_refinement_counterfactual",
+  "created_utc": "2026-09-10T01:51:16.679639+00:00",
+  "source_root": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v9",
+  "source_manifest_sha256": "c2ec8b81acd066c75e46cf658c8aa5e67661f92cf3a35a6da97575b03812382a",
+  "wrapper_sha256": "44ad3f2ab9930620b9ad3c3a43e65306a2ccf09d038c5ba2caac6f6d5b077335",
+  "tasks": [
+    {
+      "id": "diverse_v1_test_rough_mosaic_00_selected_rgbd_time_best_unrefined",
+      "original_trial_id": "diverse_v1_test_rough_mosaic_00_selected_rgbd_time",
+      "mode": "best_unrefined",
+      "original_root": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rough_mosaic_00_selected_rgbd_time",
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v9/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_test_rough_mosaic_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_rgbd_s11/last.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/observations/diverse_v1_test_rough_mosaic_00/observation.npz",
+        "horizon-s": 180,
+        "planning-device": "cpu",
+        "planning-mode": "plan_once",
+        "replan-period-s": 1,
+        "cost-mode": "time_risk",
+        "cost-config": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/validation_cost_time_v1.json",
+        "mppi-samples": 64,
+        "mppi-iterations": 2,
+        "seed": 11
+      },
+      "out": "/work1/dannegrut/harry/experiments/fdm_failure_investigation_20260909/refinement_best_base_v1/runs/diverse_v1_test_rough_mosaic_00_selected_rgbd_time_best_unrefined",
+      "original_sha256": {
+        "trajectory.npz": "d37b62846a138433145926b1d6c89448342a8046c0123e4885d02a91d538f51c",
+        "rich_telemetry.npz": "93ab6a218dcd7274db7b54b9872d854cdb90813676f5b412e049fdeeb6d31fbc",
+        "rich_intervals.npz": "4b5b8514fbb65c202ec3d09a315c5e5c2a7709fca6432591190d42fe1a4fe720",
+        "anchor_state.npz": "90e6921c5ebe69ea4491ff458792d6b34b58780161b0386c745c5e0fe07023f8",
+        "outcome.json": "7bb36f8040935fd67c4084a7b53396ea939a7d4f8e08edcc1c84e874763c78cb",
+        "decisions/decision_00000.json": "a4596e4127b7abbfd055c6f452fc1f41418cfd8f8f92ea1be4bd522fb9bc166c",
+        "online_protocol.json": "5740ef90068d2df9abeabf4a61111f242440b43803a6e4ceea927716eed1f69d",
+        "simulation_provenance.json": "1cb1c38e8763b312828e9c9e95fa302ac486fa259598a2e1128a795edd4a4268",
+        "anchor_equality.json": "10300ebf9d490cee9507866f012e6ca26ccc5d46ea8ee05d24ee2943ad0d1662"
+      }
+    }
+  ],
+  "decision": "Additional single distinct best-unrefined control: rough time-risk family12 has lower original cost than selected parent6; final MPPI refinement changes winner. Other three trials have best-unrefined identical to selected parent, already covered by v2. No outcome-based route selection; argmin of existing frozen launch scores only.",
+  "prior_attempt": {
+    "job": 412221,
+    "issue": "Diagnostic launch guard used float32 observation goal instead of the frozen runner float64 case goal; all attempts stopped before traversal. Exact comparison now uses the same case goal, without relaxed tolerance. No simulator/model/control changes."
+  }
+}

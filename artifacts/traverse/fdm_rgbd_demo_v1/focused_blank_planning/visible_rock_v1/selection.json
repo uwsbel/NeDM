@@ -1,0 +1,161 @@
+{
+  "route": null,
+  "abstained": true,
+  "reason": "all families exceed declared predicted-risk limits",
+  "family_scores": [
+    {
+      "family_index": 0,
+      "cost": null,
+      "unfiltered_cost": 75.79558886813851,
+      "allowed_by_predicted_risk": false,
+      "estimated_time_to_goal_s": 16.60206528803912,
+      "predicted_goal_progress_m": 8.06281870824709,
+      "predicted_terminal_goal_distance_m": 27.902041941738272,
+      "contact_probability": 0.9999967813491821,
+      "low_progress_probability": 8.077468381662012e-12,
+      "reference_meta": {
+        "candidate": "rgbd_geometric_family",
+        "lateral_offset_m": 0.0,
+        "cruise_speed_mps": 4.0,
+        "fdm_station": 0.0
+      }
+    },
+    {
+      "family_index": 1,
+      "cost": null,
+      "unfiltered_cost": 71.07045213253996,
+      "allowed_by_predicted_risk": false,
+      "estimated_time_to_goal_s": 12.170364426283419,
+      "predicted_goal_progress_m": 10.998803150943885,
+      "predicted_terminal_goal_distance_m": 24.966057499041476,
+      "contact_probability": 0.9999994039535522,
+      "low_progress_probability": 3.922710689607811e-08,
+      "reference_meta": {
+        "candidate": "rgbd_geometric_family",
+        "lateral_offset_m": 0.0,
+        "cruise_speed_mps": 6.0,
+        "fdm_station": 0.0
+      }
+    },
+    {
+      "family_index": 2,
+      "cost": null,
+      "unfiltered_cost": 76.80305826533677,
+      "allowed_by_predicted_risk": false,
+      "estimated_time_to_goal_s": 17.565557115558796,
+      "predicted_goal_progress_m": 7.620563453770256,
+      "predicted_terminal_goal_distance_m": 28.344297196215106,
+      "contact_probability": 0.9999926090240479,
+      "low_progress_probability": 6.302288877400863e-13,
+      "reference_meta": {
+        "candidate": "rgbd_geometric_family",
+        "lateral_offset_m": -8.0,
+        "cruise_speed_mps": 4.0,
+        "fdm_station": 0.0
+      }
+    },
+    {
+      "family_index": 3,
+      "cost": null,
+      "unfiltered_cost": 69.88075266655449,
+      "allowed_by_predicted_risk": false,
+      "estimated_time_to_goal_s": 11.088153616887901,
+      "predicted_goal_progress_m": 12.072293298323874,
+      "predicted_terminal_goal_distance_m": 23.892567351661487,
+      "contact_probability": 0.9999971389770508,
+      "low_progress_probability": 6.8126548846692e-10,
+      "reference_meta": {
+        "candidate": "rgbd_geometric_family",
+        "lateral_offset_m": -8.0,
+        "cruise_speed_mps": 6.0,
+        "fdm_station": 0.0
+      }
+    },
+    {
+      "family_index": 4,
+      "cost": null,
+      "unfiltered_cost": 75.24962939986558,
+      "allowed_by_predicted_risk": false,
+      "estimated_time_to_goal_s": 16.17164373425715,
+      "predicted_goal_progress_m": 8.277417237208901,
+      "predicted_terminal_goal_distance_m": 27.68744341277646,
+      "contact_probability": 0.9984287619590759,
+      "low_progress_probability": 4.7578753437083066e-11,
+      "reference_meta": {
+        "candidate": "rgbd_geometric_family",
+        "lateral_offset_m": 8.0,
+        "cruise_speed_mps": 4.0,
+        "fdm_station": 0.0
+      }
+    },
+    {
+      "family_index": 5,
+      "cost": null,
+      "unfiltered_cost": 72.04088481566117,
+      "allowed_by_predicted_risk": false,
+      "estimated_time_to_goal_s": 13.262577489371639,
+      "predicted_goal_progress_m": 10.093018699209388,
+      "predicted_terminal_goal_distance_m": 25.871841950775973,
+      "contact_probability": 0.9964601397514343,
+      "low_progress_probability": 1.597811327691545e-09,
+      "reference_meta": {
+        "candidate": "rgbd_geometric_family",
+        "lateral_offset_m": 8.0,
+        "cruise_speed_mps": 6.0,
+        "fdm_station": 0.0
+      }
+    }
+  ],
+  "checks": [
+    {
+      "valid": true,
+      "reasons": [],
+      "max_curvature": 0.0004250995739173824,
+      "min_clearance_m": null
+    },
+    {
+      "valid": true,
+      "reasons": [],
+      "max_curvature": 0.0004250995739173824,
+      "min_clearance_m": null
+    },
+    {
+      "valid": true,
+      "reasons": [],
+      "max_curvature": 0.12200213707694389,
+      "min_clearance_m": null
+    },
+    {
+      "valid": true,
+      "reasons": [],
+      "max_curvature": 0.12200213707694389,
+      "min_clearance_m": null
+    },
+    {
+      "valid": true,
+      "reasons": [],
+      "max_curvature": 0.1217856705018693,
+      "min_clearance_m": null
+    },
+    {
+      "valid": true,
+      "reasons": [],
+      "max_curvature": 0.1217856705018693,
+      "min_clearance_m": null
+    }
+  ],
+  "model_evaluations": 6,
+  "cost_config": {
+    "goal_radius_m": 2.5,
+    "contact_penalty_s": 60.0,
+    "low_progress_penalty_s": 60.0,
+    "terminal_progress_weight": 0.1,
+    "minimum_progress_speed_mps": 0.5,
+    "maximum_remaining_time_s": 120.0,
+    "refine_families": 3,
+    "max_contact_probability": 0.35,
+    "max_low_progress_probability": 0.5
+  },
+  "image_intervention": "blank",
+  "progress_event_definition": "sustained_stall"
+}

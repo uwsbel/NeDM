@@ -1,0 +1,28 @@
+{
+  "schema": "fdm_protected_offline_source_v1",
+  "scope": "Guarded frozen-checkpoint inference and unchanged report helpers, no optimizer. Sources prepared before first protected data read by this analysis.",
+  "files": {
+    "scripts/evaluate_traverse_fdm_diverse_sealed_test.py": "18610aba0faffe93a452b5a498e4dc88b154a975199a8d4ff39ed17f7906f72c",
+    "scripts/traverse_fdm_rgbd_diverse_report.py": "371bcf9c39d89d919f2fcf2477d18772764a23b75f1de5bbfafc88c18ab07f59",
+    "scripts/traverse_fdm_rgbd_diverse_report_pair.py": "485cc9af7073b012c9cbc449a5d076b54597b00556d26a28680d487234cb704a",
+    "scripts/traverse_fdm_rgbd_diverse_train.py": "3df8ed0876df8cb97f00a621e30823c907ead5045409be671e3e5bca2e2196f4",
+    "scripts/traverse_fdm_train.py": "5445074a423597f9bf99d38a9128417668110112b442a7c146bc27587ce83fc4",
+    "slurm/traverse_fdm_rgbd_diverse_sealed_test.sbatch": "101b6cf6f00e6d493ffc760741c26c5aed20e452747f4feaf09150a3956d98d9",
+    "src/nedm/__init__.py": "0b92e78ad52036c9e3c282ced58aadf360940c587b126ce5b4bb8a1974cfad12",
+    "src/nedm/training/__init__.py": "e31c32e00aed2865995b688c409185d1ccae5021d5e9de688e4be79c449d12bf",
+    "src/nedm/training/constants.py": "8760562e7b3f1da9f28f0b1a6aa3e37ecb83f26dbdab65be67bcc16c44a27c18",
+    "src/nedm/traverse/__init__.py": "e1e2a4132cea059cff09f3d1f351f0bcd20cd903ef67830dc3d26d9908bdd013",
+    "src/nedm/traverse/fdm_bounded_targets.py": "d5b82ff843dea7fba710c5ba408f53c5918f3028b0df884febf0f41632c824c3",
+    "src/nedm/traverse/fdm_data.py": "a42631801f0770304901ddcdc48d4d626965a7485ce4648252d8f6c1d2b37276",
+    "src/nedm/traverse/fdm_diverse_data.py": "5c5cf1a0098df044a6317b43e76adc5e4fe3ed530b53e6e33c51210abd2dc58c",
+    "src/nedm/traverse/fdm_diverse_model.py": "0d1d4948d47be678631a3b98a415c88c6234bd5a9e9642c3f91ba084630bf829",
+    "src/nedm/traverse/fdm_diverse_targets.py": "ae7b0319ff3f44b470f296c078176a2ef6bc3533192a27b716b760e29272fbbe",
+    "src/nedm/traverse/fdm_model.py": "0f58486f5c3c6aea7a1a6763acc0364cd0a7d5fd80cc0173e1bea9f76b8f4a42",
+    "src/nedm/traverse/fdm_report_metrics.py": "fce51710c685b690cd3fc77e308eab3694b8dac59795d9451ec0c3afb0ab9241"
+  },
+  "upstream_manifests": {
+    "training_v3": "97c2d437561d923e6ca98e91977615c8d1bf0526f55006a94742ee8db9979084",
+    "reporting_v1": "bafec59e21c737b4f911704a2a3d08f904d97145f6dc5cb95b0e5c41929a6455",
+    "packing_v3": "50523e5cbc40a9ac751be6366cc72904ec173000285a6cbc5112aa563673bd41"
+  }
+}

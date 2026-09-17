@@ -1,0 +1,50 @@
+{
+  "title": "RGB-D + MPPI: commands capped at the collected 6 m/s ceiling\nAdditional development control; actual goal progress and complete outcomes",
+  "scenes": [
+    {
+      "title": "Visible obstacle",
+      "observation": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_demo_v1/observations/visible_rock_v1/observation.npz",
+      "selection": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_demo_v1/combined_capped_planning/visible_rock_v1/selection.json",
+      "execution": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_demo_v1/combined_capped_physical_selected/visible_rock_v1",
+      "alternatives": [
+        "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_demo_v1/physical_families/visible_rock_v1/family_00",
+        "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_demo_v1/physical_families/visible_rock_v1/family_01",
+        "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_demo_v1/physical_families/visible_rock_v1/family_02",
+        "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_demo_v1/physical_families/visible_rock_v1/family_03",
+        "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_demo_v1/physical_families/visible_rock_v1/family_04",
+        "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_demo_v1/physical_families/visible_rock_v1/family_05"
+      ],
+      "goal_radius_m": 2.5
+    },
+    {
+      "title": "Terrain blockage",
+      "observation": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_stall_demo_v1/observations/terrain_blockage_diagnostic_v1/observation.npz",
+      "selection": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_stall_demo_v1/combined_capped_planning/terrain_blockage_diagnostic_v1/selection.json",
+      "execution": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_stall_demo_v1/combined_capped_physical_selected/terrain_blockage_diagnostic_v1",
+      "alternatives": [
+        "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_stall_demo_v1/physical_families/terrain_blockage_diagnostic_v1/family_00",
+        "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_stall_demo_v1/physical_families/terrain_blockage_diagnostic_v1/family_01",
+        "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_stall_demo_v1/physical_families/terrain_blockage_diagnostic_v1/family_02",
+        "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_stall_demo_v1/physical_families/terrain_blockage_diagnostic_v1/family_03",
+        "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_stall_demo_v1/physical_families/terrain_blockage_diagnostic_v1/family_04",
+        "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_stall_demo_v1/physical_families/terrain_blockage_diagnostic_v1/family_05"
+      ],
+      "goal_radius_m": 2.5
+    },
+    {
+      "title": "Hill crossing",
+      "observation": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_demo_v1/observations/hill0_f111_near/observation.npz",
+      "selection": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_demo_v1/combined_capped_planning/hill0_f111_near/selection.json",
+      "execution": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_demo_v1/combined_capped_physical_selected/hill0_f111_near",
+      "alternatives": [
+        "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_demo_v1/physical_families/hill0_f111_near/family_00",
+        "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_demo_v1/physical_families/hill0_f111_near/family_01",
+        "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_demo_v1/physical_families/hill0_f111_near/family_02",
+        "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_demo_v1/physical_families/hill0_f111_near/family_03",
+        "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_demo_v1/physical_families/hill0_f111_near/family_04",
+        "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_demo_v1/physical_families/hill0_f111_near/family_05"
+      ],
+      "goal_radius_m": 2.5
+    }
+  ]
+}

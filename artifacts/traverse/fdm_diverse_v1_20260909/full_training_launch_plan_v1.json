@@ -1,0 +1,31 @@
+{
+  "source": "snapshots/training_v3",
+  "horizons": [
+    20,
+    60
+  ],
+  "updates": 5000,
+  "batch": 32,
+  "eval_every": 1000,
+  "arms": [
+    "rgbd_s11",
+    "blank_s11",
+    "rgbd_s29",
+    "blank_s29"
+  ],
+  "comparability": "Same anchors/images, shared4s labels, matchedupdateanddrawbudgetwithinseed; horizons differ in total forecastpoints/parametercount/computetime, which are reported.",
+  "commands": {
+    "60": [
+      "sbatch",
+      "--parsable",
+      "--export=ALL,CODE_ROOT=/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/training_v3,DATA_ROOT=/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/packs/full_pair_v1/h60,OUT_ROOT=/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3,STEPS=5000,EVAL_EVERY=1000,BATCH=32",
+      "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/training_v3/slurm/traverse_fdm_rgbd_diverse_train.sbatch"
+    ],
+    "20": [
+      "sbatch",
+      "--parsable",
+      "--export=ALL,CODE_ROOT=/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/training_v3,DATA_ROOT=/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/packs/full_pair_v1/h20,OUT_ROOT=/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h20_v3,STEPS=5000,EVAL_EVERY=1000,BATCH=32",
+      "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/training_v3/slurm/traverse_fdm_rgbd_diverse_train.sbatch"
+    ]
+  }
+}

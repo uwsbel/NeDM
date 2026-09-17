@@ -1,0 +1,39 @@
+{
+  "anchor": "probes/refine/smooth_strength_gaussian_h6p5_s4p5_cx0/family_00/observation.npz",
+  "siblings": [
+    {
+      "observation": "probes/siblings/smooth_strength_gaussian_h6p5_s4p5_cx0/family_03/observation.npz",
+      "max_absolute_difference": {
+        "state": 0.0,
+        "pose": 0.0,
+        "rgb": 0.0,
+        "depth_m": 0.0,
+        "history": 0.0,
+        "rgbd": 0.0
+      }
+    },
+    {
+      "observation": "probes/siblings/smooth_strength_gaussian_h6p5_s4p5_cx0/family_04/observation.npz",
+      "max_absolute_difference": {
+        "state": 0.0,
+        "pose": 0.0,
+        "rgb": 0.0,
+        "depth_m": 0.0,
+        "history": 0.0,
+        "rgbd": 0.0
+      }
+    },
+    {
+      "observation": "probes/siblings/smooth_strength_gaussian_h6p5_s4p5_cx0/family_05/observation.npz",
+      "max_absolute_difference": {
+        "state": 0.0,
+        "pose": 0.0,
+        "rgb": 0.0,
+        "depth_m": 0.0,
+        "history": 0.0,
+        "rgbd": 0.0
+      }
+    }
+  ],
+  "all_exact": true
+}

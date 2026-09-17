@@ -1,0 +1,2180 @@
+{
+  "passed": true,
+  "trial_id": "diverse_v1_test_cross_slopes_00_selected_rgbd_energy",
+  "video_trial_id": "diverse_v1_test_cross_slopes_00_selected_rgbd_energy_video5",
+  "source_manifest_sha256": "c2ec8b81acd066c75e46cf658c8aa5e67661f92cf3a35a6da97575b03812382a",
+  "arrays": {
+    "trajectory.npz": {
+      "state": {
+        "shape": [
+          824,
+          17
+        ],
+        "dtype": "float32",
+        "array_sha256": "7f48a376cccc4ef03733308a5d64d2dbe8a8d080d3ba8bdca7be5c9eee4d965c",
+        "exact": true
+      },
+      "action": {
+        "shape": [
+          824,
+          3
+        ],
+        "dtype": "float32",
+        "array_sha256": "a907eafa69af0b3794ce58d532f77466bc3dbe6e4d649e40847bebe0c6e05025",
+        "exact": true
+      },
+      "pose": {
+        "shape": [
+          824,
+          3
+        ],
+        "dtype": "float64",
+        "array_sha256": "168f22f90408ab5387937b67ea7cc7f4146296a5555513e559f2c346ecdef1d6",
+        "exact": true
+      },
+      "terminal_pose": {
+        "shape": [
+          3
+        ],
+        "dtype": "float64",
+        "array_sha256": "0003bc29bb0f7f7f04435d82e141ca42cc5c30e99af17fc195ae09e57d0dc032",
+        "exact": true
+      },
+      "power_kw": {
+        "shape": [
+          824
+        ],
+        "dtype": "float64",
+        "array_sha256": "c704e8e64f229ed902d469415c81bae216b9ece7f0e3a2aede1fd8062ecb5398",
+        "exact": true
+      },
+      "contact_n": {
+        "shape": [
+          824
+        ],
+        "dtype": "float64",
+        "array_sha256": "accbbd5b1d011687769150ed2455578f5b7fb560d4c7a02934fe9c09c7152053",
+        "exact": true
+      },
+      "terminal_state": {
+        "shape": [
+          17
+        ],
+        "dtype": "float32",
+        "array_sha256": "261845169a2028740584f0726f290d7a87ee1f55e182a9b4c4208d313c471fa9",
+        "exact": true
+      },
+      "terminal_parked": {
+        "shape": [],
+        "dtype": "bool",
+        "array_sha256": "6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d",
+        "exact": true
+      },
+      "parked": {
+        "shape": [
+          824
+        ],
+        "dtype": "bool",
+        "array_sha256": "7de592043d3613deb65a36d48372038b1b0a910e79f60b360988df59a391e970",
+        "exact": true
+      },
+      "positive_work_kj_per_interval": {
+        "shape": [
+          824
+        ],
+        "dtype": "float64",
+        "array_sha256": "26f89732796a1f2aee35281dc7c2a6a56e2e3437add879e41b2614351c1f31a2",
+        "exact": true
+      },
+      "state_fields": {
+        "shape": [
+          17
+        ],
+        "dtype": "<U27",
+        "array_sha256": "f9b77bee539c8d5815a9f96f5d3be9f193df7b2038ffcfd09d66f81d91c5cdb9",
+        "exact": true
+      },
+      "dt_s": {
+        "shape": [],
+        "dtype": "float32",
+        "array_sha256": "0b9d79ff0fc4d0a77ef398763bbe45c445501e826219f2b6a1aa709411ab631d",
+        "exact": true
+      }
+    },
+    "rich_telemetry.npz": {
+      "acc_com_world_x_mps2": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "6f85b42c93dbdd8baa7c796fd789ea52fdefd6626571d973289074e000a0c3d7",
+        "exact": true
+      },
+      "acc_com_world_y_mps2": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "e95ad8b2ac208f52ffadcda1271f8a5e1a293cfe0e60408a8c6c032f67f4f56a",
+        "exact": true
+      },
+      "acc_com_world_z_mps2": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "d0dd3add5c36130feae6f3608ba51a6ccbc2c6d297ca2e63e848218b52410601",
+        "exact": true
+      },
+      "ang_acc_world_x_radps2": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "230696498c5b43934a8b5433c5f10abec2d3f206ee5dd7d693bb9fcb8e9177fa",
+        "exact": true
+      },
+      "ang_acc_world_y_radps2": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "6f2911daf824413ea312756f96d96a76e2492500c40ad4eb9d1bddefdfac943c",
+        "exact": true
+      },
+      "ang_acc_world_z_radps2": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "9b1b26e5642b0b1c64a13fed763d2e12ee4b98c264c5922c888ec9a0ee40b42a",
+        "exact": true
+      },
+      "ang_vel_body_x_radps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "71f8f9afc107bc29fd7082dde4deecc22c811fcd5387c0a201aa3128f355dd39",
+        "exact": true
+      },
+      "ang_vel_body_y_radps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "0294cc570b07fd02811126c909d7f3105438affc8de32278e2130239286237ba",
+        "exact": true
+      },
+      "ang_vel_body_z_radps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "1caf1e00749fa35c9baecb3aa8ba2e02365502c6c8540753406e096c59f08830",
+        "exact": true
+      },
+      "ang_vel_world_x_radps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "9bfaad333aaa78cf46729ea045df7dca7187de56d2cd714da49f71c0e400dc32",
+        "exact": true
+      },
+      "ang_vel_world_y_radps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "6ae4e11ddb743391ed5abe18789f4d28fda11b675bff71ba7c1f97f6cc2b56a5",
+        "exact": true
+      },
+      "ang_vel_world_z_radps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "1521bc8f3d7afbee5d05fa542d1077953987119015e4229e8944a2eb9697c43b",
+        "exact": true
+      },
+      "asset_contact_max_resultant_n": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "96c0ebe1a2a44fb298c8e15670afb5dd043b4c3f5dc23e1bbae52ebfef7d7633",
+        "exact": true
+      },
+      "body_slip_rad": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "aecd2842e4664c553df9b5855826dcdcb0388473d00c770914faeab64f3a81e4",
+        "exact": true
+      },
+      "chassis_contact_force_world_x_n": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "96c0ebe1a2a44fb298c8e15670afb5dd043b4c3f5dc23e1bbae52ebfef7d7633",
+        "exact": true
+      },
+      "chassis_contact_force_world_y_n": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "96c0ebe1a2a44fb298c8e15670afb5dd043b4c3f5dc23e1bbae52ebfef7d7633",
+        "exact": true
+      },
+      "chassis_contact_force_world_z_n": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "96c0ebe1a2a44fb298c8e15670afb5dd043b4c3f5dc23e1bbae52ebfef7d7633",
+        "exact": true
+      },
+      "chassis_contact_resultant_n": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "96c0ebe1a2a44fb298c8e15670afb5dd043b4c3f5dc23e1bbae52ebfef7d7633",
+        "exact": true
+      },
+      "chassis_contact_torque_world_x_nm": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "96c0ebe1a2a44fb298c8e15670afb5dd043b4c3f5dc23e1bbae52ebfef7d7633",
+        "exact": true
+      },
+      "chassis_contact_torque_world_y_nm": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "96c0ebe1a2a44fb298c8e15670afb5dd043b4c3f5dc23e1bbae52ebfef7d7633",
+        "exact": true
+      },
+      "chassis_contact_torque_world_z_nm": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "96c0ebe1a2a44fb298c8e15670afb5dd043b4c3f5dc23e1bbae52ebfef7d7633",
+        "exact": true
+      },
+      "chrono_time_s": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "4d0d7759ce79e83dd4bce7a4f43eba2ee53002d522a3a5e64f7c28eb04cdfec2",
+        "exact": true
+      },
+      "command_desired_speed_mps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "ef65c31d22fb8b5fff6237e9f44dca49f3980b3d288735548e99741fe7d9607d",
+        "exact": true
+      },
+      "command_parked": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "fb1810469e91e2f93fc5fc275ce9222b88e36b48a481b6a687f60bcce05c3d10",
+        "exact": true
+      },
+      "command_planner_paused": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "fb1810469e91e2f93fc5fc275ce9222b88e36b48a481b6a687f60bcce05c3d10",
+        "exact": true
+      },
+      "driveline_driveshaft_speed_radps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "2e58e1e630cdd5f0231a20a7330323c8b1bd9416d1b6ea9d81dd8f541488ad22",
+        "exact": true
+      },
+      "driver_braking": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "76ff851d333be0827539bb6a31ea3ece4ce3cf6b3c9fd1f3cd2e0aaad2eff50a",
+        "exact": true
+      },
+      "driver_steering": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "50d589815f5af42121fcdeb08d4952e263008bc1e9951e1675ddf6e7c184af8c",
+        "exact": true
+      },
+      "driver_throttle": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "7d060b05af18c5c06b0852e552f2486a40a638e891a0e8debe3d53e7032ac8cb",
+        "exact": true
+      },
+      "driveshaft_power_kw": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "99dcc3286f9973a99fba603915ed962930c443bf5d1420b4d58c8320f5bc41d4",
+        "exact": true
+      },
+      "engine_interface_power_kw": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "8420b754d95ef0da4d69b011e9aaeda84f4a8ad6ef58691466a8abe0dfd9c3df",
+        "exact": true
+      },
+      "engine_motor_speed_radps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "e400b79f5a40fb077b48bf66072ba8ad3075b487e06291baf0e8ad82f3c4a445",
+        "exact": true
+      },
+      "engine_motorshaft_torque_nm": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "0ba310bbca76313cc7fb666593f9defb1aee392c23a45610f4171358b35a6037",
+        "exact": true
+      },
+      "engine_rotor_power_kw": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "8420b754d95ef0da4d69b011e9aaeda84f4a8ad6ef58691466a8abe0dfd9c3df",
+        "exact": true
+      },
+      "frame": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "e3b50f7a87ad37e943e55c63d5ee8718a263b58715e45519213d5ba309c95bce",
+        "exact": true
+      },
+      "is_terminal": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "e758e6173c25f3238e2c5c007947e48c8aff5fc1e5c37d8c17ccb2be094a89a5",
+        "exact": true
+      },
+      "pitch_rad": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "545ae96d29be81858c48e708c07ec7523fef986bbec683e84d34e6b95df74614",
+        "exact": true
+      },
+      "pitch_rate_radps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "0294cc570b07fd02811126c909d7f3105438affc8de32278e2130239286237ba",
+        "exact": true
+      },
+      "pos_world_x_m": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "b48ab16bf4ad0fba4a6c27f2e4d2eb25899bb3459323f1938228663e082bd9c5",
+        "exact": true
+      },
+      "pos_world_y_m": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "e2c9642cf749c2994edf6d3632bd35910754692d303a8bf94e8daefeddfab9ae",
+        "exact": true
+      },
+      "pos_world_z_m": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "81033613b40995d04b7e9bac96471d8846240549dc2ab86497538ccf959605af",
+        "exact": true
+      },
+      "quat_e0": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "25410f9dee2ebcb2c5cf6418fe11a7664368d860410159c71524e22ad7cc7bab",
+        "exact": true
+      },
+      "quat_e1": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "eb15b3dce5ddd8e79f4b666fcee76b72e6ff612244892e5b385b07f894376b52",
+        "exact": true
+      },
+      "quat_e2": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "df2a4baadd27238135f20f21c5391e56694f23c158f050e57072b5d4856cef8d",
+        "exact": true
+      },
+      "quat_e3": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "a8188487329e282a6032bda114483fc6a555edcc28663deb4895731fbe2d8b7b",
+        "exact": true
+      },
+      "roll_rad": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "98f96b4eecb4ce59a116512560d2524b100f9e8176f2a3fe493411eb90aed1a8",
+        "exact": true
+      },
+      "roll_rate_radps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "71f8f9afc107bc29fd7082dde4deecc22c811fcd5387c0a201aa3128f355dd39",
+        "exact": true
+      },
+      "time_s": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "e19986a8ed3ae2ca7e31305592177c2a798cd819d00980529eaca349c0f1380b",
+        "exact": true
+      },
+      "tire_fl_angular_velocity_world_x_radps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "d250c5bcfda9ba9c5a1a3a79a583509c421ceb1e741bcd5bb41ffcc3d891a1be",
+        "exact": true
+      },
+      "tire_fl_angular_velocity_world_y_radps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "32083190924cdc3b2f2a33fb7fdedaf9c201e3f4e4e19e6fe777fce0cab917b3",
+        "exact": true
+      },
+      "tire_fl_angular_velocity_world_z_radps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "57984bed95b34afbede826fd2098f19d490bcf05c896cd890f3cf8343b381e5b",
+        "exact": true
+      },
+      "tire_fl_axle_speed_radps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "83cd74ba84326dbe4b591a4c0b37423b805a69020835302762e7744e2355fcaf",
+        "exact": true
+      },
+      "tire_fl_camber_angle_rad": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "b75b50b9069e6d7ee84383bfa632fd430f3ecaffeb70f10809ae2b288df020c7",
+        "exact": true
+      },
+      "tire_fl_circumferential_speed_mps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "6c0889f73fe35832d589e3bb7d33968190a340150e879a5a540fa9371174c7ce",
+        "exact": true
+      },
+      "tire_fl_deflection_m": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "e2220e8883fd94f42b9cae965bd1c026f7c405a32be6f3d52bd504018a1e9b06",
+        "exact": true
+      },
+      "tire_fl_driveline_spindle_torque_nm": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "7834d24c237e2d524a1452d8613f7ed55ecf8c3f56206c9add5992b79bffd2cb",
+        "exact": true
+      },
+      "tire_fl_force_horizontal_heading_n": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "1837faa2926e6a1103a4ec420a82a09c13eff5fa94126ca708c915512d47c3f2",
+        "exact": true
+      },
+      "tire_fl_force_world_vertical_n": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "b357b4f7fd2fa5c0934efba69a15eccc0e02bc24222bb73adf2c5b2472f91073",
+        "exact": true
+      },
+      "tire_fl_force_world_x_n": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "9075f31a193884f855ed18c94c936a12a538a2418e46e579d231db3356658ea2",
+        "exact": true
+      },
+      "tire_fl_force_world_y_n": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "c7d064487bd561f698b72db6450736468488fdbf2c60edd851fc30ade85ab0fd",
+        "exact": true
+      },
+      "tire_fl_force_world_z_n": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "b357b4f7fd2fa5c0934efba69a15eccc0e02bc24222bb73adf2c5b2472f91073",
+        "exact": true
+      },
+      "tire_fl_horizontal_slip_ratio": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "70f7c0a781c660e51e8c59ae5f2f09048f35a5e7a1d6a7b5535637a936ba273b",
+        "exact": true
+      },
+      "tire_fl_horizontal_slip_speed_mps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "26f114fbf2d0da23651f64e02ac6e8fc37501c302e5b5a69fd08b1eb507086c8",
+        "exact": true
+      },
+      "tire_fl_hub_velocity_world_x_mps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "5f4a6ba9f6e4dc010f57c4c5b6bdb5768376916fa55041b59bf874ad0bff498a",
+        "exact": true
+      },
+      "tire_fl_hub_velocity_world_y_mps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "5bf64a6cd80d43df1fba5f6da223de0bf649554276419293674d02b7d72ed85f",
+        "exact": true
+      },
+      "tire_fl_hub_velocity_world_z_mps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "fbc8f878d7c7106d8736c7d37ff70fae173799ddcc42766f77c86028c5346a0c",
+        "exact": true
+      },
+      "tire_fl_hub_world_x_m": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "7df363afbbe9e0f9ab90479b61bc43e257951056084de52bb7fda077d7b1b6d7",
+        "exact": true
+      },
+      "tire_fl_hub_world_y_m": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "45b668c8cd6f31347cd3ba5c7a63a46c4dfbb14128a2c82875e965fe23f65937",
+        "exact": true
+      },
+      "tire_fl_hub_world_z_m": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "11b01be12281d2c650b66eb2367e9577574985931017beb05e308b797607fb0f",
+        "exact": true
+      },
+      "tire_fl_longitudinal_slip": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "edfb6b37c0f71d17a40da1f750189a5a6122b28327e1adadcedd5fff0056f422",
+        "exact": true
+      },
+      "tire_fl_moment_world_x_nm": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "bb02801ebedfdcf899c4b6827a1476021bd391e55de9167a578bed6bc698f6b8",
+        "exact": true
+      },
+      "tire_fl_moment_world_y_nm": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "9e8f7276f069351be4f98c4f53f8e349357e8cbe31901d0c0914f4566994c08e",
+        "exact": true
+      },
+      "tire_fl_moment_world_z_nm": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "1ba4293a47048fd2f66901f9d89ae95e35b183b85bd4ece63b91a98565992b5f",
+        "exact": true
+      },
+      "tire_fl_radius_m": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "a94794623cee7de63f1cbb0c4bd96261de098fa7b28217c4a1315852c8711ad1",
+        "exact": true
+      },
+      "tire_fl_slip_angle_rad": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "771299407268168bb28bb4347f65e5828cee27e96655e82b081b4898d40447f8",
+        "exact": true
+      },
+      "tire_fl_spindle_omega_radps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "7b24a044111a9b47d72ed1028ea9eeedafe884b21d12ca84bb00f33ae2ef532e",
+        "exact": true
+      },
+      "tire_fl_suspension_shock_force_n": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "076df46d7f24172be7ce6033ab6dea597ae1751d994f58451b132185a9fa627c",
+        "exact": true
+      },
+      "tire_fl_suspension_shock_length_m": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "bfe9aba65741deabe2841ab5ebb4ceb6467bb3fc3f7a997602411c7175f56eab",
+        "exact": true
+      },
+      "tire_fl_suspension_shock_velocity_mps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "72c64e6977e8e2c8f76a031c8c0f30f9c2b128aee16f748f6926db33518cf28a",
+        "exact": true
+      },
+      "tire_fl_suspension_spring_deformation_m": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "1e35ced0f121ef78081385a73f064772241269def19875504080178228ecafd7",
+        "exact": true
+      },
+      "tire_fl_suspension_spring_force_n": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "f1a5716315636cc3e1d348e7b1796681e290a8f2862700626d49a49395b91359",
+        "exact": true
+      },
+      "tire_fl_suspension_spring_length_m": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "b32acfecc42e4614b9080428910004efe8c78749f1743ba11f7768318da2c97a",
+        "exact": true
+      },
+      "tire_fl_wheel_vx_horizontal_mps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "301f59ca08f3749feb044ebc27a5b25d28e6e6f735a889f62e92c65cb0d07735",
+        "exact": true
+      },
+      "tire_fr_angular_velocity_world_x_radps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "9fbb7ca517d3a14fc872a9ef21402c7daedd5eea1d06d0d523db7f5760938277",
+        "exact": true
+      },
+      "tire_fr_angular_velocity_world_y_radps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "3d9d21bb8b2f7b3bcd7f9ea9dacd1b569c49c2c31948bb386669573ad82577d6",
+        "exact": true
+      },
+      "tire_fr_angular_velocity_world_z_radps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "45048f2c94f85138911554820e1a15a4b06be396795cc97f3c8cdc2d6b4a6ede",
+        "exact": true
+      },
+      "tire_fr_axle_speed_radps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "fcaef150e469b51e34909bcaae7a9960f6947f028a2ae7873c682c63380412a1",
+        "exact": true
+      },
+      "tire_fr_camber_angle_rad": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "8efca85b537fdd338064bd0ddf5c52bfc3b904b10c05bc5d7da6e2f63699837d",
+        "exact": true
+      },
+      "tire_fr_circumferential_speed_mps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "276c5ef33f0f4c6353e36e7be4737cd18722af4659785c57e6c25c6bad3186b4",
+        "exact": true
+      },
+      "tire_fr_deflection_m": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "5877bfd4d428f2709cadaa1f2974c2a4696db9cec75a9d2956a8d5570134e636",
+        "exact": true
+      },
+      "tire_fr_driveline_spindle_torque_nm": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "7834d24c237e2d524a1452d8613f7ed55ecf8c3f56206c9add5992b79bffd2cb",
+        "exact": true
+      },
+      "tire_fr_force_horizontal_heading_n": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "2dab1c7e85a7bf0e21335feba36545f0bd9c8eec18097736c316d22d1d0cf639",
+        "exact": true
+      },
+      "tire_fr_force_world_vertical_n": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "74978db58e5a1785a6b1aa0f5c51d7802e56d75213366a8cc9429134cf2cfc35",
+        "exact": true
+      },
+      "tire_fr_force_world_x_n": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "600004bd938daf2187a6b98d80cfc3110c5d68310e87820b19cee3a7c0677dfd",
+        "exact": true
+      },
+      "tire_fr_force_world_y_n": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "68111f418dfc043060b38d64db626409d9e24812ee0dbd8013756cdf4e9e8655",
+        "exact": true
+      },
+      "tire_fr_force_world_z_n": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "74978db58e5a1785a6b1aa0f5c51d7802e56d75213366a8cc9429134cf2cfc35",
+        "exact": true
+      },
+      "tire_fr_horizontal_slip_ratio": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "af235d54d2f4655561f82eb5e9ea57aacff4fd0d4601e8ef08958df3dd60ae8b",
+        "exact": true
+      },
+      "tire_fr_horizontal_slip_speed_mps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "1f8e5c0acbb643501c9296cb0ff355422bc56cb40a9383fe04e927ca925c0771",
+        "exact": true
+      },
+      "tire_fr_hub_velocity_world_x_mps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "76a95996cf7526896a2f9550082903a665a4398295a84e26f010d38bb028e1b9",
+        "exact": true
+      },
+      "tire_fr_hub_velocity_world_y_mps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "4c957f835389f603f027fa2d428043e60b3d52e93eba5e76db3357fe837e27dd",
+        "exact": true
+      },
+      "tire_fr_hub_velocity_world_z_mps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "146bdd6db67397f0b9ef7e80cc2092b9c6f7a1b0e477a060990d9cea1d405faa",
+        "exact": true
+      },
+      "tire_fr_hub_world_x_m": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "9bc38d65a21c3bf11d81e665e640df7883a11b242485189c7eac9ffed6130b1e",
+        "exact": true
+      },
+      "tire_fr_hub_world_y_m": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "24eaa29304a7cccaacca3e9dc78f50333c7a07de0368dd5dcad728ee0014c6f2",
+        "exact": true
+      },
+      "tire_fr_hub_world_z_m": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "c4aa98d1f7b1c7883538f51393684dc357ab67ba419046b72c87d62564af7938",
+        "exact": true
+      },
+      "tire_fr_longitudinal_slip": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "640d4ace6a8b405889a779b7cc0af6154764b8938452f3a349f0b7916361e888",
+        "exact": true
+      },
+      "tire_fr_moment_world_x_nm": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "ced3820889741cb59e6f2d389c5c5fdfb59e0417de05694c52b5547c4e811b0c",
+        "exact": true
+      },
+      "tire_fr_moment_world_y_nm": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "2deaa7d84f12a1af91e0f67eb57f7aeb5aba810e69dd0c2d64fc90f3c36d97ea",
+        "exact": true
+      },
+      "tire_fr_moment_world_z_nm": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "f1d22f4cb8430ff14fddb4ebeebee456d6c8fb1f8f35f55098c38ca1aa4a7973",
+        "exact": true
+      },
+      "tire_fr_radius_m": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "ef0afe53bcc47161fa5bbd57e320d7eac7936bd2639e802a54a9971a2e052455",
+        "exact": true
+      },
+      "tire_fr_slip_angle_rad": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "3292c1dde240cf5fcd1993a7e807c5f5839683cb4f9fae8514bca1670b468c5e",
+        "exact": true
+      },
+      "tire_fr_spindle_omega_radps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "662804238aba0fa919b93bdebb61f631eaac6214b35f4de5cbb9c6c88f56c3ce",
+        "exact": true
+      },
+      "tire_fr_suspension_shock_force_n": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "171a5495b41ea8c11df4b16b6535ef3d8cf145cb8d9a3743052f95563ed4781e",
+        "exact": true
+      },
+      "tire_fr_suspension_shock_length_m": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "9718e50abca579e3782d9029a5541fc9d09f0b4f89f1d057d4b273ea0b63e763",
+        "exact": true
+      },
+      "tire_fr_suspension_shock_velocity_mps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "9ea08ad596d351d557936397f7358248e534d8792f276edeb61728e6cec69e0a",
+        "exact": true
+      },
+      "tire_fr_suspension_spring_deformation_m": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "b77e82a9c9171adb80f2fb436341f69897b3822d5bd1cbda9d78f495b74f17af",
+        "exact": true
+      },
+      "tire_fr_suspension_spring_force_n": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "1075a86b7739516f2fb6b5e66b1f24bc7fb85a7cfbb5fa1bdba8c5e31e0c9c0c",
+        "exact": true
+      },
+      "tire_fr_suspension_spring_length_m": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "226db0146f1237de24d11279c330a4bfb833072de1e426325afcadfda36e8288",
+        "exact": true
+      },
+      "tire_fr_wheel_vx_horizontal_mps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "d869e6876101f47daa708285c101edc2ba4aad521ba132f3683402589020d898",
+        "exact": true
+      },
+      "tire_rl_angular_velocity_world_x_radps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "006c91280a50f0c2fc2f59503634e2860a5295498a0deae11ebd5c29262a62a2",
+        "exact": true
+      },
+      "tire_rl_angular_velocity_world_y_radps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "cccf6d309ec31f45bc82e4067954b6181f25576b77978f098d86bf4224e9a02c",
+        "exact": true
+      },
+      "tire_rl_angular_velocity_world_z_radps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "d2d52ca1077cc87809c3cf1c4392c66c8f4450ddf1b7d55ee4776fc319c5e29d",
+        "exact": true
+      },
+      "tire_rl_axle_speed_radps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "0c87278a0749bdcd765d64c4f6b5c793a357c44c151226a2794e22312505cc0f",
+        "exact": true
+      },
+      "tire_rl_camber_angle_rad": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "5d012825c8c95451f879d23e39009824af3a1f82dbe606288cab5459c42a3ad1",
+        "exact": true
+      },
+      "tire_rl_circumferential_speed_mps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "7f8cbb3af91fafce9f69740cfa0370654b1b2fbf0a9cb3ad20a3a2f7d682a469",
+        "exact": true
+      },
+      "tire_rl_deflection_m": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "93a323d082cfffbe5bdbd4f7e50b1df7a34536d6d66da98071f3e40eb019640f",
+        "exact": true
+      },
+      "tire_rl_driveline_spindle_torque_nm": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "e323f16298545bca28d864f56b58aae8f90229c41208af8d6213830b9dcd8163",
+        "exact": true
+      },
+      "tire_rl_force_horizontal_heading_n": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "8ff1463837188147de1cef003223c2435c09b07594ee252fe2043de753c1e5f6",
+        "exact": true
+      },
+      "tire_rl_force_world_vertical_n": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "93e88ebc7d428ead1853d0c7731d2cc2ae15810fd34ce1e672ea6d04d72ad3f7",
+        "exact": true
+      },
+      "tire_rl_force_world_x_n": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "0f965ff9ff77ea7afef4c5e9bf08d37ac0907210bde61752c42e61108803533e",
+        "exact": true
+      },
+      "tire_rl_force_world_y_n": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "27fbda4ad70ebf1436d65665dbbe7c57301039d023632cf55b050a5acd214da0",
+        "exact": true
+      },
+      "tire_rl_force_world_z_n": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "93e88ebc7d428ead1853d0c7731d2cc2ae15810fd34ce1e672ea6d04d72ad3f7",
+        "exact": true
+      },
+      "tire_rl_horizontal_slip_ratio": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "0b1064483a841c66d0913a149affee8ada60483dac9f41f6ecdcde79e2952850",
+        "exact": true
+      },
+      "tire_rl_horizontal_slip_speed_mps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "9f2e9268acf9d031d4b30eedb5b96e6ab9fa1e5101028074498641229533bda6",
+        "exact": true
+      },
+      "tire_rl_hub_velocity_world_x_mps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "3ed85efd548dcb60c78db8141e8bac508a8f5806fe343db50a951fb8515f73a3",
+        "exact": true
+      },
+      "tire_rl_hub_velocity_world_y_mps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "922dc99d7dae515c39ed7e98d6407b2df7fad0387d0fbcaa7e3d42710ece1a86",
+        "exact": true
+      },
+      "tire_rl_hub_velocity_world_z_mps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "17afe93406049d33a1ea8a78007d201b42c63d17fb7e69bc900b0758bb83ffac",
+        "exact": true
+      },
+      "tire_rl_hub_world_x_m": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "7c8daf3c60f5364c642ceb0b6fcd415f96a50af2edcd7f8410efbd508e5bf389",
+        "exact": true
+      },
+      "tire_rl_hub_world_y_m": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "6ae4fe92cb4c71f8bcc38d2ab217f31d1239295495b5625687467ebc99ae4ef9",
+        "exact": true
+      },
+      "tire_rl_hub_world_z_m": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "a5338b262a8c84fca16c8c5b2e3fe0ab0551380c20873acd2f6b77bf3c874ccf",
+        "exact": true
+      },
+      "tire_rl_longitudinal_slip": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "f8a75b5a4f32cd7f1026b4b34973b3bc62a17b7c756fd3565188533c06d548f5",
+        "exact": true
+      },
+      "tire_rl_moment_world_x_nm": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "706394669d351ce80541861406c18296d435b508c58a4b0b394ee8a3d608855a",
+        "exact": true
+      },
+      "tire_rl_moment_world_y_nm": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "208cd041bf9f0ec4ba1f7e40711c87a85f182cbc7a56fd7a6eae4915657faaca",
+        "exact": true
+      },
+      "tire_rl_moment_world_z_nm": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "39a882654f83f4939b12680d1fe5b8157227db1dbce7d274ef95ed8126ad73d1",
+        "exact": true
+      },
+      "tire_rl_radius_m": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "f47dc84a0b44118ed2f68b8e701318815c2c837e6c166dc436c0b93fc5426d8b",
+        "exact": true
+      },
+      "tire_rl_slip_angle_rad": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "8b3735060677486d71ac3d2a3c75b4945b4d6580bb2c6cb17774b14ba2981658",
+        "exact": true
+      },
+      "tire_rl_spindle_omega_radps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "ca99531c967b4b621d9e8994c62ac825b7479918feb4242215796dac3ee1ffa7",
+        "exact": true
+      },
+      "tire_rl_suspension_shock_force_n": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "34d267c1143e837eeeefa0bf7fd0b43e5733eccd9b281f638fe454b6c6ee3f9f",
+        "exact": true
+      },
+      "tire_rl_suspension_shock_length_m": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "c571aa123f911eb317f5fca06415fd67457407ec9d165b76652aa8bff40be22a",
+        "exact": true
+      },
+      "tire_rl_suspension_shock_velocity_mps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "42ed692dd5f12411654e4fb522f175f9e0e01ba0612526cb1d4cfe1bc0c55361",
+        "exact": true
+      },
+      "tire_rl_suspension_spring_deformation_m": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "03af9d5fad7d78063dc49bc235e169be4067be8f7c3cb01ba14894ab6b2f8fa7",
+        "exact": true
+      },
+      "tire_rl_suspension_spring_force_n": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "1efde5f1a47ee9b8e3c370cdb469c46014b4e0458ecb1283d46a51254fa1a67e",
+        "exact": true
+      },
+      "tire_rl_suspension_spring_length_m": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "40789c56ede881724f3750543bd9b695a7334b8894615ad5574b01c87c06d44d",
+        "exact": true
+      },
+      "tire_rl_wheel_vx_horizontal_mps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "68580ca4ec683ee8acc860ffcd9a242051bd5665ba9062dd5b53bd2a8a2f4cd6",
+        "exact": true
+      },
+      "tire_rr_angular_velocity_world_x_radps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "36593fc346badd8af260fd36cced762feb3653445196031325580c919d3dc991",
+        "exact": true
+      },
+      "tire_rr_angular_velocity_world_y_radps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "7ca8b6abed8277cb44641c601aa5b21e429aa83cd58e9c40be79e00c50700b12",
+        "exact": true
+      },
+      "tire_rr_angular_velocity_world_z_radps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "c0daa32619723d10e9ef9d67716d7cefdecfb5572a4a5e4361b45752b1beb915",
+        "exact": true
+      },
+      "tire_rr_axle_speed_radps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "ad04e4bcb20f8f62be547f0196bc7ab1e82c3b4a8f425932ade0d8a9dfd0b346",
+        "exact": true
+      },
+      "tire_rr_camber_angle_rad": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "3cd883c0eb0ee7b76141c0998e610bb4a65570cf3e33082a2a27843a1e1aea0e",
+        "exact": true
+      },
+      "tire_rr_circumferential_speed_mps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "4a8bb9a5d7ffd381b0d0014abe1602b09ce20190add3668fa1ad9d18e90b1013",
+        "exact": true
+      },
+      "tire_rr_deflection_m": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "1643b92b2f472498ac9f1e4e18e98754c70aa733e4e871bb7f2a8c6cfba21559",
+        "exact": true
+      },
+      "tire_rr_driveline_spindle_torque_nm": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "e323f16298545bca28d864f56b58aae8f90229c41208af8d6213830b9dcd8163",
+        "exact": true
+      },
+      "tire_rr_force_horizontal_heading_n": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "9aa41598acdb15d7921a811dc2f1569635c241eb3e52b368dbfdb9110e43e004",
+        "exact": true
+      },
+      "tire_rr_force_world_vertical_n": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "709abffb940cdabafb499f12d67961a2cbf3c3838bf6ae83e063a794924cfece",
+        "exact": true
+      },
+      "tire_rr_force_world_x_n": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "4a7316316e0531d68fc982631e849ddf61e13980f6260e3b50bd103fbd073202",
+        "exact": true
+      },
+      "tire_rr_force_world_y_n": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "fe589a30e7ca33640daf746c48cd5c979aa2f2e44cdb62312dde698904b6c983",
+        "exact": true
+      },
+      "tire_rr_force_world_z_n": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "709abffb940cdabafb499f12d67961a2cbf3c3838bf6ae83e063a794924cfece",
+        "exact": true
+      },
+      "tire_rr_horizontal_slip_ratio": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "197c8a330278aab299af2441fc678979ed05fda30bf4867da7533d879a55399b",
+        "exact": true
+      },
+      "tire_rr_horizontal_slip_speed_mps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "5c5c4fc2cdb9580468692c0ee9d10ad34e225f110194adc6ed64cb8fdc541532",
+        "exact": true
+      },
+      "tire_rr_hub_velocity_world_x_mps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "575317b60c5a440892b9d1379381641f630857347dc81a1a84e612bf62b1cc80",
+        "exact": true
+      },
+      "tire_rr_hub_velocity_world_y_mps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "70354c1ef2c7a57a20d02b84853715f049c733419631a2be6b8de3bc7b69a1ee",
+        "exact": true
+      },
+      "tire_rr_hub_velocity_world_z_mps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "50b8bb9948afa7c3a272b1a68d6efcdcb661f3a60e7c6376bf2b74aa8adb5476",
+        "exact": true
+      },
+      "tire_rr_hub_world_x_m": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "0b663a8763b0e654292143457bfffefed87dfe669d93262e29170cb30ddb847e",
+        "exact": true
+      },
+      "tire_rr_hub_world_y_m": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "31daf943e69fa3307f4a31885abb7b1f787dbdce3952911960d9620b61f589fd",
+        "exact": true
+      },
+      "tire_rr_hub_world_z_m": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "0752901bb8106280a16fdfecef29ddc23e28d5a8a30f217ec7f932894d1d5d38",
+        "exact": true
+      },
+      "tire_rr_longitudinal_slip": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "ddcc4855d0f00ad5223c74c6bcaba3b40595dfc02697f0bc32d3dd343c6dd6ce",
+        "exact": true
+      },
+      "tire_rr_moment_world_x_nm": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "bbce40a8903bf30359189166c01be3b9a289aa3ad6e88ac2292f66168f06a4ea",
+        "exact": true
+      },
+      "tire_rr_moment_world_y_nm": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "259c3055ac6df1e3dffdab890784b91473b12eca66e7c7db6a10855a9bc182c6",
+        "exact": true
+      },
+      "tire_rr_moment_world_z_nm": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "3118a590fbca67569d5b2e1c58135084da045e2e0c411fbf9d3a371cbcfc8ad0",
+        "exact": true
+      },
+      "tire_rr_radius_m": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "b806f1631ab31b27afa4756ebd66e7f5c90557a1afec00f1c4d7cc149008e710",
+        "exact": true
+      },
+      "tire_rr_slip_angle_rad": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "c89ace813bccedf315eed1b3d0b591e6cb2b1a980dfe7eb05dd7a005e89fe2a7",
+        "exact": true
+      },
+      "tire_rr_spindle_omega_radps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "dd946367c90786e5f5c59d0bfc8488d2554313041061393cff0efeedd1727aae",
+        "exact": true
+      },
+      "tire_rr_suspension_shock_force_n": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "744d711d7bdce24a21b257503ed96fee6d609f4898e28d9708a91e0423140636",
+        "exact": true
+      },
+      "tire_rr_suspension_shock_length_m": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "6d367489f0b1a14259f6d547f4815f5173bbb3f9296762b41a301c258193f33c",
+        "exact": true
+      },
+      "tire_rr_suspension_shock_velocity_mps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "654ae19f8cf5d407f479f2276770fd5949366c77c7c86d4f8831db6c6cf15d5f",
+        "exact": true
+      },
+      "tire_rr_suspension_spring_deformation_m": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "206a8b34b31ec2fad6fccc757d2adadcdb3a98de3d30875bf514847fb9ade1b6",
+        "exact": true
+      },
+      "tire_rr_suspension_spring_force_n": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "91a3debf910fc2a595f5f7f66770a4d3503fa40fa58c31678d9e5f0258d8c165",
+        "exact": true
+      },
+      "tire_rr_suspension_spring_length_m": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "79f65d67d0807d6e54b3e3e489cd4a19a24178a481d7bf0d2ee7588e34ac2193",
+        "exact": true
+      },
+      "tire_rr_wheel_vx_horizontal_mps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "a1f1c79bf7200934ffd80acf37720d8f08dfbc307d59b35e9e035bc26d1e7a4d",
+        "exact": true
+      },
+      "transmission_current_gear": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "420258fa8fe116d422e99208dd195cfb12cb95dab35891f32afceb11f28e39e2",
+        "exact": true
+      },
+      "transmission_driveshaft_torque_nm": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "c4a4ab9dbc0f46c9d8c5588bd6b1a136320cf9bdd9dd62656f95dae0e44d10cf",
+        "exact": true
+      },
+      "transmission_motorshaft_speed_radps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "e400b79f5a40fb077b48bf66072ba8ad3075b487e06291baf0e8ad82f3c4a445",
+        "exact": true
+      },
+      "vel_body_x_mps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "2061bfd6788df1f7266fa7c784a52d8c948ed277984a6ee173909e4f3b044d58",
+        "exact": true
+      },
+      "vel_body_y_mps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "e63602e78ec3bf036a95d42c7d36b88d1b4b6459793f888900c4f5a72f7ee8db",
+        "exact": true
+      },
+      "vel_body_z_mps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "43c3588f012a2cd1190c981da293f9b496cb1735543da2fede19f73f1daddbb9",
+        "exact": true
+      },
+      "vel_world_x_mps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "5f5f80d028080a01cdd8fedeedb9acb85ea24e2f112a5aab55a47e400246668f",
+        "exact": true
+      },
+      "vel_world_y_mps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "15391f97a9c9d9165848a73433d91e5308a416afd5c402256e54f02324a7fea8",
+        "exact": true
+      },
+      "vel_world_z_mps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "2ceb9ae717d993b08b6d226087a08c1f097402f920ee7a95dcbf87518bc16020",
+        "exact": true
+      },
+      "yaw_rad": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "8c3b72f6bdbb752912c897c609a1abc9321bfba082b1dc0e7948c3d8353965c7",
+        "exact": true
+      },
+      "yaw_rate_radps": {
+        "shape": [
+          825
+        ],
+        "dtype": "float64",
+        "array_sha256": "1caf1e00749fa35c9baecb3aa8ba2e02365502c6c8540753406e096c59f08830",
+        "exact": true
+      }
+    },
+    "rich_intervals.npz": {
+      "frame": {
+        "shape": [
+          824
+        ],
+        "dtype": "float64",
+        "array_sha256": "e7eb3aee2341e2a23559f7c8888c4be53152a99616f679fa08bfc3656222e24e",
+        "exact": true
+      },
+      "start_time_s": {
+        "shape": [
+          824
+        ],
+        "dtype": "float64",
+        "array_sha256": "27f21b0173ffb953ec864ea9e075af3a575e1ca806976e4b70bf89179aecddaf",
+        "exact": true
+      },
+      "end_time_s": {
+        "shape": [
+          824
+        ],
+        "dtype": "float64",
+        "array_sha256": "1e7b70d040c68ae9d7786048f7dcbe7c803e518061bf600ab3713123d1e83932",
+        "exact": true
+      },
+      "duration_s": {
+        "shape": [
+          824
+        ],
+        "dtype": "float64",
+        "array_sha256": "ee571a92fff36a1e6018927090816694f3e030e288f774c10ce1bd82482c1493",
+        "exact": true
+      },
+      "physics_power_sample_count": {
+        "shape": [
+          824
+        ],
+        "dtype": "float64",
+        "array_sha256": "39cef24051c77fafb71fd53d012350aa109fa44c0d8e6b6c4789256b2b14feea",
+        "exact": true
+      },
+      "post_step_risk_sample_count": {
+        "shape": [
+          824
+        ],
+        "dtype": "float64",
+        "array_sha256": "39cef24051c77fafb71fd53d012350aa109fa44c0d8e6b6c4789256b2b14feea",
+        "exact": true
+      },
+      "solver_step_work": {
+        "shape": [
+          824
+        ],
+        "dtype": "float64",
+        "array_sha256": "694c02127eeba9df073fc1b534dc8559598ae988db39f117091e8268606015ed",
+        "exact": true
+      },
+      "engine_interface_signed_work_kj": {
+        "shape": [
+          824
+        ],
+        "dtype": "float64",
+        "array_sha256": "1c5dffe064b63b24bfe742b771aee3af2624d2a38fc3f91d66c5c871a944b23b",
+        "exact": true
+      },
+      "engine_interface_positive_work_kj": {
+        "shape": [
+          824
+        ],
+        "dtype": "float64",
+        "array_sha256": "48a4fb3a70d1dc25e1ea66fd0e0b7db030a020eab7c341c55909771d0c8c9f91",
+        "exact": true
+      },
+      "engine_interface_negative_magnitude_work_kj": {
+        "shape": [
+          824
+        ],
+        "dtype": "float64",
+        "array_sha256": "d7ef6a0c35f83c4df44c26c4346f50f6878b83b1f73a59ea8376e76d34b8604e",
+        "exact": true
+      },
+      "engine_interface_mean_power_kw": {
+        "shape": [
+          824
+        ],
+        "dtype": "float64",
+        "array_sha256": "0c2cc06827103d8bb38889366fd417628fda5ca74e5a831836227c9276a41bf9",
+        "exact": true
+      },
+      "engine_rotor_signed_work_kj": {
+        "shape": [
+          824
+        ],
+        "dtype": "float64",
+        "array_sha256": "1c5dffe064b63b24bfe742b771aee3af2624d2a38fc3f91d66c5c871a944b23b",
+        "exact": true
+      },
+      "engine_rotor_positive_work_kj": {
+        "shape": [
+          824
+        ],
+        "dtype": "float64",
+        "array_sha256": "48a4fb3a70d1dc25e1ea66fd0e0b7db030a020eab7c341c55909771d0c8c9f91",
+        "exact": true
+      },
+      "engine_rotor_negative_magnitude_work_kj": {
+        "shape": [
+          824
+        ],
+        "dtype": "float64",
+        "array_sha256": "d7ef6a0c35f83c4df44c26c4346f50f6878b83b1f73a59ea8376e76d34b8604e",
+        "exact": true
+      },
+      "engine_rotor_mean_power_kw": {
+        "shape": [
+          824
+        ],
+        "dtype": "float64",
+        "array_sha256": "0c2cc06827103d8bb38889366fd417628fda5ca74e5a831836227c9276a41bf9",
+        "exact": true
+      },
+      "driveshaft_signed_work_kj": {
+        "shape": [
+          824
+        ],
+        "dtype": "float64",
+        "array_sha256": "461311f998b36ec919c52bc86f39f5e57c9f2c88d17ca3e23b985d2ee5593977",
+        "exact": true
+      },
+      "driveshaft_positive_work_kj": {
+        "shape": [
+          824
+        ],
+        "dtype": "float64",
+        "array_sha256": "512866bb174a675c5e0e4d23a888fc217bb6f167f9bc4b56554217b0c02bceab",
+        "exact": true
+      },
+      "driveshaft_negative_magnitude_work_kj": {
+        "shape": [
+          824
+        ],
+        "dtype": "float64",
+        "array_sha256": "4f3bdfab6445ae763bd6da905457b770f96eb8eacd9d05e69c27ef921b2fe2c6",
+        "exact": true
+      },
+      "driveshaft_mean_power_kw": {
+        "shape": [
+          824
+        ],
+        "dtype": "float64",
+        "array_sha256": "cc69d72b1e02645898adb5151faa2cbd5da783ff8bcae826768af4c0da1e2c5b",
+        "exact": true
+      },
+      "max_abs_roll_rad": {
+        "shape": [
+          824
+        ],
+        "dtype": "float64",
+        "array_sha256": "9c35a96ca5af09148ff706b0d18747a9c25052f54f534f4e060a1af2b55cdda1",
+        "exact": true
+      },
+      "max_abs_pitch_rad": {
+        "shape": [
+          824
+        ],
+        "dtype": "float64",
+        "array_sha256": "046384df79e8db5af6cd16c7bdbe727bdc574637bef96597b07014595020b4e7",
+        "exact": true
+      },
+      "max_chassis_contact_resultant_n": {
+        "shape": [
+          824
+        ],
+        "dtype": "float64",
+        "array_sha256": "accbbd5b1d011687769150ed2455578f5b7fb560d4c7a02934fe9c09c7152053",
+        "exact": true
+      },
+      "max_asset_contact_max_resultant_n": {
+        "shape": [
+          824
+        ],
+        "dtype": "float64",
+        "array_sha256": "accbbd5b1d011687769150ed2455578f5b7fb560d4c7a02934fe9c09c7152053",
+        "exact": true
+      },
+      "endpoint_max_abs_native_longitudinal_slip": {
+        "shape": [
+          824
+        ],
+        "dtype": "float64",
+        "array_sha256": "3d860b5823891a3514a8f404f4e7e7fbe916064b3936dcbd31589e3ca96b666e",
+        "exact": true
+      },
+      "endpoint_min_world_vertical_tire_force_n": {
+        "shape": [
+          824
+        ],
+        "dtype": "float64",
+        "array_sha256": "7d43b8fae75586bddef21ecda6b67526a204d84e7e13ee80176c75d4caaf8f1c",
+        "exact": true
+      }
+    },
+    "anchor_state.npz": {
+      "state": {
+        "shape": [
+          17
+        ],
+        "dtype": "float32",
+        "array_sha256": "51a110dba92bb28c3b5f4d74957e316473cef4c38de3a043cc3873d0d85fe591",
+        "exact": true
+      },
+      "pose": {
+        "shape": [
+          3
+        ],
+        "dtype": "float64",
+        "array_sha256": "a2a34471ec90057ec8cfec0c6f406f3c47684a51c5a0e5bcd35d3eff7cb6a877",
+        "exact": true
+      },
+      "history": {
+        "shape": [
+          16,
+          24
+        ],
+        "dtype": "float32",
+        "array_sha256": "20f9b528e3837c17ccbe7eb81f77e2f86f1e9944bc5a65c944126e2d4ca2ec6b",
+        "exact": true
+      },
+      "goal_xy": {
+        "shape": [
+          2
+        ],
+        "dtype": "float64",
+        "array_sha256": "dcd601f86d611da8e488f050097784423c280afa76df525bea78cd9ff66495e7",
+        "exact": true
+      },
+      "goal_radius_m": {
+        "shape": [],
+        "dtype": "float32",
+        "array_sha256": "ea2845900b5856c9bf354b1aa9761b5aa6888e5ed61738fe9579ca42bc0f6054",
+        "exact": true
+      }
+    }
+  },
+  "array_count": 241,
+  "decisions": [
+    {
+      "file": "decision_00000.json",
+      "frame": 0,
+      "route_sha256": "34a682e3ff732c28fb334b791e6248137e2837b05bfbaa55e0ae60bd1320fcbf",
+      "abstained": false,
+      "driver_route_fingerprint": "ef41d1e514a1d58fb97562dc0969d1cc8005fc70a9d97776e5469307891f3ab7",
+      "all_other_decision_fields_exact": true
+    }
+  ],
+  "runtime_and_protocol_exact": true,
+  "outcome_exact_except_wall_timings": true,
+  "frame_count": 207,
+  "physical_elapsed_s": 41.2,
+  "frame_sha256": {
+    "frames/frame_000000.png": "705d6f29ff66cdd917fe256b55fc1ae31cf1c63e6352aaa08caf2b7f25ee9c1a",
+    "frames/frame_000001.png": "4a56744b0fa6146a38d01bedbc86e32c8f6fe477490b7c7e2129cfff47e4f99b",
+    "frames/frame_000002.png": "42048227866f6b75bf191684c8ec254828aed7ab1d7774b7377a2faece2a014c",
+    "frames/frame_000003.png": "24272aaaccd884f7c6f061ce5eb91a587380ec855cc749a66a3b9522be65872c",
+    "frames/frame_000004.png": "7397aa77d48f33daf8b234a0e338e9193e135f746467a699a0faa73dd1d349ff",
+    "frames/frame_000005.png": "bce5ed86d20aea2116016133269f9e9beb6288f31b58412c70e1b5c245c3f783",
+    "frames/frame_000006.png": "4d82a1e7f781f07ac11073286b7cce4d867601e02d0c093e1a03d4978e634ff9",
+    "frames/frame_000007.png": "8d499db0f0029e18adf4d720bcff8bc7efda3a506150be5d8532a7ab6230cf2c",
+    "frames/frame_000008.png": "a7b61d8c6953751facf67d710dbe74282d50868a97f612c674cd0d4aad694c1d",
+    "frames/frame_000009.png": "926004c042f7935feaa374a5f3fa20ba83995ef2779ab0009927370c1d266b42",
+    "frames/frame_000010.png": "6d3153c98ee33eb28d560979d4a4f1e2fbec2a6aef9f6bde346a32ee5fe662fd",
+    "frames/frame_000011.png": "6e3fa38cde3e239d7ca871cb002db4f13ee5784ebaa9e03dc4ede509bdb94349",
+    "frames/frame_000012.png": "eb773b4bae1c7d03673c45cf256ecc6bf3ce28dc83842bf20e44ea21a2ee774c",
+    "frames/frame_000013.png": "d070de14deef0e7279ef9a77cc1881f4269f349f2dd0501b47af19b23c4d528b",
+    "frames/frame_000014.png": "34eacb907245ee015a585a3b2fef2f9d10e6c4084ca09671fdc370bcf4f158ec",
+    "frames/frame_000015.png": "0034591aa4d8a4265df0e9234b77d05736978bc5bbf1c25150532b2ebeb03f68",
+    "frames/frame_000016.png": "7ee7fc713f78812e232d2963fa8c22b36a06e7a03afa731fc28d6437ee76db0a",
+    "frames/frame_000017.png": "5bfa99629290d98e7aee955cb519866cedd3a1a264dd6c7c19c75e382008b86f",
+    "frames/frame_000018.png": "c90f229f102894ea8e926eda4b0e408961ff7ea4790ebc0edac8bb3a55ed7790",
+    "frames/frame_000019.png": "9ee599535abddfa742975f90777d201bbc12e693de00d2e0898b85b7870cc9b2",
+    "frames/frame_000020.png": "ff88d04abfce154bcd27d18e64a4124a12f7d4d36cc986f007feb2e01e5edaf5",
+    "frames/frame_000021.png": "4cec5027db5720301614f5adb1bf56cc0224c0a7c43c1f4cd6d4c01cb55bce40",
+    "frames/frame_000022.png": "8432593f58cbbdf335b40d1c395d04eb77e6afb7d65920ee5f634b3ee4b939f5",
+    "frames/frame_000023.png": "09639bd1d12522d623e216bbde5dcc24e38efa1106ba577a1682f4ffab1d13d6",
+    "frames/frame_000024.png": "062b34f1db8aa462767b508920341ebfbc287b53fbe731443b32f71c9799167d",
+    "frames/frame_000025.png": "56867380bf825df0a9a46896debbcdad8df65ab94d2b1796c3f8ffb96ec4e367",
+    "frames/frame_000026.png": "5948c488398221b929523e584c1e3d5774c2a5d9684a2992fb8ff141bf0a5b34",
+    "frames/frame_000027.png": "78a3af6be7c77f5ab44d1f780fed28f39061e1b74d9acdee6fc99d9c1cd09ebd",
+    "frames/frame_000028.png": "e1ce5d4d241cb284b0cfc4eeb89a8c91dbf5cddc4593d6a57ef9068873b1b721",
+    "frames/frame_000029.png": "22924c998c62035bedb8903cf4df757fba49ead98b6519d565532d87f2da4d09",
+    "frames/frame_000030.png": "b6de0b587046b855fff37bdabbb3f7a9f6909da05aeb5ed05dcf15922598d0c0",
+    "frames/frame_000031.png": "6fd5167883fe40404ae4d359e39d6fb8b1bdfde42062e2e061342d0066dbb0b8",
+    "frames/frame_000032.png": "5cebf97dd9e63cb08d53a317252fd70cf557ffa952bb4c0a7c4e149730819ea2",
+    "frames/frame_000033.png": "95601ded222a01617be8ec952c88b0364a8668bd577d8f12f2a4083fca8ae43d",
+    "frames/frame_000034.png": "647c48750e855758e916f1cdba32e6f924c204eb2e3832a2f90c31981d17e0c2",
+    "frames/frame_000035.png": "ab9d3e0b54d7a6ae7849fade0bf2a239933d814a0ff0b14e7ec6dfe0cae79813",
+    "frames/frame_000036.png": "edad090e77b872c942a1445fe09731f66dbaa724c31b130210678b37738280ba",
+    "frames/frame_000037.png": "f2f7fe87a9caf3b0f7fa9dcde49ef599e130b6d48e3e8c74707df74fa5f4eb20",
+    "frames/frame_000038.png": "36888a1f9f721801445685d2512d82bf07f913eb2d960030514ccc56ce9ebe78",
+    "frames/frame_000039.png": "665bc127b87d256be3a04dc9c9e8f84a3294d2a9a8712a101522fcaa7a92a090",
+    "frames/frame_000040.png": "25bb15531a3b26d1c45795ab5bf81d9911ee843ba4ffe7c05504154ea46388ba",
+    "frames/frame_000041.png": "bc846500eb8d29ede1d405dc52554fcc28b1b3f01f29d7914ed2458b5b5bd06e",
+    "frames/frame_000042.png": "cc623ef34dd89d56040e3cdfa234e93be23b1f6f45f9d0ff28d9254832d7b6ea",
+    "frames/frame_000043.png": "791b1e812eca7158d18e3fe92b365b4dd0331c96c18526217515de9a6907a67c",
+    "frames/frame_000044.png": "41b2631e2d1711872931f18d25db9fbbf6be9fc0327be49f45387538c66fa0bb",
+    "frames/frame_000045.png": "51b8b3f567342de888e79ebca09ab77ebeb896018b4a3ef644bc5e97e5f18807",
+    "frames/frame_000046.png": "210bb99ea771c4e1289fcf32f7c1b0eb77c35e21099d877e924c143d12ef7814",
+    "frames/frame_000047.png": "1df7cf1c2ef8d36d750b76434c8ef33261ff7915345bb94ec83504dc134d1421",
+    "frames/frame_000048.png": "bdf9ddd91ac267646e1ef24e7d9f3d2f7640561ad17d4eba978e8614087f9e22",
+    "frames/frame_000049.png": "4e8863f06b5fd3f898a693159430c70d0f1e98eb6abb110066e03422993e962d",
+    "frames/frame_000050.png": "822c69b9e0cef27a24be09a979de545f4da70a4abe0866f6c410414f699c60c9",
+    "frames/frame_000051.png": "3488dcc56b706870cdd0f0b45da4047beb85a614cf5bc7d7a2d8f25f94d80433",
+    "frames/frame_000052.png": "83760de8fdc993d08288f432871a466a491bb5a822dd217571c4dd47d5ca2855",
+    "frames/frame_000053.png": "e515ab97e2947ac124ac9c034a0f675823c699bbe0369fcfa56cb5e55876d5ea",
+    "frames/frame_000054.png": "cf92fbf992f130263151f4325173f5006d48887896a6e78e888121c6173e6694",
+    "frames/frame_000055.png": "629bcca060d37294730f83c6f278a6aa1646d1ff92bf1c940212a76e0c864732",
+    "frames/frame_000056.png": "c29ef9ba5cabaefb348ea6c217ce73caac50288192d5b4231d3271ea18194d13",
+    "frames/frame_000057.png": "fd47150937c5276cc48c9b067e8bc3116acc590c03596637cd3ccd4af2bb8a6e",
+    "frames/frame_000058.png": "f826f36df2b48c6ba3f8a0b6f392d1e25a0e24c732b874af2669ef4e2bb0b270",
+    "frames/frame_000059.png": "59bc52b20bf4a3d757fd823e6b6543df53c147dfc8eab79a73de946928068ac1",
+    "frames/frame_000060.png": "b3e333b113c79780862de62bdbe0d738d6277bc51d75f62f4e6d8abedf4611bb",
+    "frames/frame_000061.png": "84c40fa845b5012ec19390238552fac62b25935493be7e8525be7920aea7bfff",
+    "frames/frame_000062.png": "5a844204dcb8a2bee2448acba44fbc6ea5124a0baaf2b2fe1a10419f519aecf0",
+    "frames/frame_000063.png": "cbad0f021ae498729568a011339dfd40932977c8646eb55167479fd4fb6a439d",
+    "frames/frame_000064.png": "0de2d5664cb52e0b6a45882e0dd88d533c1dae3d49882ef25c2c2542a3fcc294",
+    "frames/frame_000065.png": "f54b245543d5b8c692c72cd9912687a2242759011edd001209c5b7aa730fa20b",
+    "frames/frame_000066.png": "cf3a46520de6a6fb141bc59877c6089d89407065076c8ef264f66d32f48c1476",
+    "frames/frame_000067.png": "9159c6fc910d12717e1cd0ac2c5a4355e789bb0ab10da97429e48630c9856e4d",
+    "frames/frame_000068.png": "ea4f5dc9eab1a4af45a2eb9c9b550b2c38554bd131182c4148f0dd95dbd2040d",
+    "frames/frame_000069.png": "c1eb6ab9bb014d95ba6a5445f595122db1fdded9cb6b24c243f6c21a1eeba213",
+    "frames/frame_000070.png": "f90bfc027332385724ec7ff9e46a1b38e9d9002e5717d9db671554d3534d8071",
+    "frames/frame_000071.png": "c3e03df190df9694927bfa997d09b6b64e097e6c503316ea4b6b52ab7258a526",
+    "frames/frame_000072.png": "0ec461e21687d6cefa783d6ebb17f79d8101a9aea84a7f066a0ed69ef894a302",
+    "frames/frame_000073.png": "b09f71d2c13cc943069a67a82d54b18734b5679e1b5ae654cd90e032d5766cf7",
+    "frames/frame_000074.png": "f70a70bd3f25a27f7f463e86efea1e0067e6eb7f9b5e92b5c481f608f6974deb",
+    "frames/frame_000075.png": "7d5ca0b2efef334b21dbd9f9e6588c02e1befeafd0dba0bc713b58e2973f3924",
+    "frames/frame_000076.png": "2c1c699bd04e2e7041c1ec1481678e872b7f5e010c5adad1a01441f383546a2d",
+    "frames/frame_000077.png": "253a6f6aa9f15ddd0edbf8aeb6b5df27103a040f2ff5dbaaf4b9e85b29c48f04",
+    "frames/frame_000078.png": "3c7423b68c996e804bdc14ad0591c4969cef5c804d616ecc161348c39f1a2a34",
+    "frames/frame_000079.png": "007781c8f8c2f1a7c385bbefd419146fde7dd0cfabb61f018927ca39c5a9fea5",
+    "frames/frame_000080.png": "6beee9290a5da4ffb951542890bf75e08e6b678647275de3602896f71ac6f5cf",
+    "frames/frame_000081.png": "d135a748ce7b8cb5d1e0bd7c2757ece2c00531b6afc930064cd0c0d4d116f5e7",
+    "frames/frame_000082.png": "776f1f2bb5f91aea2286ee8cf0ad5f61443830622832dbfdc9ab119338d619de",
+    "frames/frame_000083.png": "259a7802b036285ce988fa6da0b3d314b7d20378b24b268260dcdc7fa0f7a227",
+    "frames/frame_000084.png": "dc5fe24414a24f1a255c29434558ce2b4a6820643708804585071d3701fd8d33",
+    "frames/frame_000085.png": "29d1129d2585e95470657a36aa25143a7e6276dc27ef08f8a886cce19d5b4087",
+    "frames/frame_000086.png": "5eaa693ce5a68d2be98f64bed43506883ff8e599eeb160495f4eb48523a0df6b",
+    "frames/frame_000087.png": "2c43c27f0994e3bff0692c157dc15c7023aca03f844255b24c39bdb1be184b0a",
+    "frames/frame_000088.png": "28ed08ddf41d70aae7e7a9edfc067dcc3e37350f3e4f073e92f9c100ba5fecee",
+    "frames/frame_000089.png": "8427390e10c48df67cc3ecaecf71fe45d8be04febb287dfb155b06cc17f75b8f",
+    "frames/frame_000090.png": "c77601eb53d145470fb5a9c914c33e4ea64aa73b3ad6f2c2477342000e898ae4",
+    "frames/frame_000091.png": "bd4f3b38c75c7168cad25c7b62ef09edbaf27a5a351ffb821824d837db5d8f6e",
+    "frames/frame_000092.png": "417627678e1425d4095c7ea0cf2f6df7b8654262971caefb0c552f2e21712f28",
+    "frames/frame_000093.png": "feeba6de40e3ee1d69a5fffb48409bb10f6617a37b4555b1232aa19a06acb330",
+    "frames/frame_000094.png": "a028a2bbaf8bdf4552ec4562ab880402f59069e9d41670b843384e4b716f5acb",
+    "frames/frame_000095.png": "80c2653c216419c6a76d24ce2c1cd22e607a017e934afd586f98dcc19856abaa",
+    "frames/frame_000096.png": "74f10e7ad9f8cd7b417d2978e92873f692eceedea73362ea036eb93e1c012abc",
+    "frames/frame_000097.png": "22d043779554eabf2f5fb109fb821e75ae85d50583cc97c9d502a7eebdf8d690",
+    "frames/frame_000098.png": "e0bc62ace3833b8b3867a80cafbd9c4127a02ee1da70cb6d896ea1c9d19ef705",
+    "frames/frame_000099.png": "b5a211ca49680584f8ea11f163b5eaf32b58f148dc2c60e349ea6db6aa0fb0c4",
+    "frames/frame_000100.png": "fe7ac84e19b2d8511bdf0030d1ce116a4df9fd2f9ecb7011967b0afb9c489d40",
+    "frames/frame_000101.png": "5d227169adfe110caf2137a4da0393b725735b40260a7e03df91ff9fbcf75053",
+    "frames/frame_000102.png": "eca17e68a5471ad9ac73ba97701aa270740085445f00290662a2217ca0b26b87",
+    "frames/frame_000103.png": "44d2a4056baf0c5beb81fd6b98f9c6b313c5ab04ab080388a49b3973a47ab099",
+    "frames/frame_000104.png": "7251e091d15d55594c97e07afe80d4c9e984f2e975bc1d8ed1c38d172465527c",
+    "frames/frame_000105.png": "d3f57bfe5727452ffaa07d331a935ca221c55e2a2647aa79fd3d0453574c7a55",
+    "frames/frame_000106.png": "cd6d2f7e76372600d354203339ea5428f8500485e02ba72873725f6e01abf3d2",
+    "frames/frame_000107.png": "3be4d22238febdcab686c243d61028eab8ba7d0f6da7914184150b3a14227681",
+    "frames/frame_000108.png": "230b3da06c443a95703875305151669ca75a1d68b20e15e31be2b8558c4c33b8",
+    "frames/frame_000109.png": "2f99de0836a632bb02d3d4ca0f86e6917472a5094f25df9945a6d95a61ad089b",
+    "frames/frame_000110.png": "d43d5ccba1175eee242c85eb5b342eca564a36d9ce4050e835f5d8fd82b4255c",
+    "frames/frame_000111.png": "76c899559c8c236253aa6a004402c05ffd16286f58af53a15acaf758853d2170",
+    "frames/frame_000112.png": "0210a9c2fbfaa4d72f3d13a164a1c622f74df6634a442b63a7aaffd7f7e1b0cd",
+    "frames/frame_000113.png": "a91c99752d99a2390ff70135d266cd54b769e723c621486b0c6cd57f36ecb737",
+    "frames/frame_000114.png": "8eea730c17714061488580a04dfb62cd7f8276d27896afca964229da42e2a0d3",
+    "frames/frame_000115.png": "177accb4bb205d727f288147e3ce36ce407d4b100fa2fa39bdc27a0d0843bda0",
+    "frames/frame_000116.png": "0ca41e805fdb26333e2c1e1494a6e00ee1073d86f634da53d121f16310854508",
+    "frames/frame_000117.png": "1b2ead5fb5d8ada9b74206e4cd235c7cbb5a9c4ada6787586362ed180893677c",
+    "frames/frame_000118.png": "35b7c01d284583bb23157f386173324156af33a9805141381504627fc28f0d5d",
+    "frames/frame_000119.png": "99f96109f92cac407d06010f38935efdf4e433b16032c8a3aa5c319460ffd448",
+    "frames/frame_000120.png": "8a49ee15f3ea0b4fd8e9b51934e82de5ff03b53264c6f6ab9b74f5725489f14e",
+    "frames/frame_000121.png": "5764b7e6c91dc449797a0e8f5807c3a46c1573106b794729c4a00b1bf924251b",
+    "frames/frame_000122.png": "01b3f560a3cca76e245b4e974ad87170d5d02ebbfbfc83463e8a3a9773d4f088",
+    "frames/frame_000123.png": "2f444c05c4c3774cd9a9abaa85650fd08dc46996c643f19800f1c844472ce3a8",
+    "frames/frame_000124.png": "696f049d8afdc8899f6fb44867f11db299349e48d9d445e32b2249b5299d4adc",
+    "frames/frame_000125.png": "f771194f149d22e88c713bfb8997934b7030f16796d80b9535d8c38772700eed",
+    "frames/frame_000126.png": "c57c775f41b8e237654b2d82afa10c618a80cbacb979c8fed873d7ef4f53099b",
+    "frames/frame_000127.png": "802d9048e532543f35ff24d1eda14d48aa87a1c68d4f4780665ca899eacd15f2",
+    "frames/frame_000128.png": "effb3ba7b1094b7e3015f5adcec731f39e6969f1dde9bc19342eb1a9fa4fd5e7",
+    "frames/frame_000129.png": "6fde2c0a5efe85c1efdae310203cd5317ba2461d29c250f55c33eadf045171c7",
+    "frames/frame_000130.png": "dfa3a0a0815eeeff0b4dc95cc52190577ab1ab576965c85a17fe12155c3cdb89",
+    "frames/frame_000131.png": "5428b807f11b272e11c797ba4b68a0c0da4462f43d3bbe5bc52629304aa49d94",
+    "frames/frame_000132.png": "faefc7fc4260c63dab146e9f19826b4a66ad85e6521fb279ea1af438937ca54a",
+    "frames/frame_000133.png": "40a049a184b9b448495a834f174ea0cd001297c3c84c4797a76fd01c0047948e",
+    "frames/frame_000134.png": "460a091be39006ac8927a82acb22c02a0a9b0426bad60d9bb45eec5feeebd379",
+    "frames/frame_000135.png": "f8ed5086ae6c98cb10b4f3513cc927dcc1770d4774d2c673fa18af380a275e33",
+    "frames/frame_000136.png": "a4eb70ffed6195c2ba1afda6666f3f5a10b2e14a5f432c80b4af0fefda34c4c8",
+    "frames/frame_000137.png": "cdaa8434f10359bad9de8b5b1f3411da7ac1e12a744248157cd0e3002d328c38",
+    "frames/frame_000138.png": "2f0fa0fafbfc1ca88e255ccc35f9d15c772635f904ab754cf727ec32c2dfee73",
+    "frames/frame_000139.png": "85428ef0bcfb7d5fb423ed5eeb769f59aa69d7f0bf921740db8b517227ab4c03",
+    "frames/frame_000140.png": "2f4a00f74ce62a92f10c7d4c1cf603cba4e9d520d1759a87445e58eb1c626226",
+    "frames/frame_000141.png": "19267fea3b4d88eac1c4d95ff9b1352e954f7c7362b4d5c99c833b0bec320f25",
+    "frames/frame_000142.png": "deabefd624b19edaa88b60a7bf438b008c4f4286ea157d43321e0d8c13b42ed6",
+    "frames/frame_000143.png": "20909eb7b8f53d98da189b369426f43e19a67e1e0f23ed6b6062a25ba2915745",
+    "frames/frame_000144.png": "6584775d391cb446a9847405916bca410cb2407292dfe40e7de771a7fe21880a",
+    "frames/frame_000145.png": "dd94167a9fe72dd37e2b3d5df13613f12b07573b3bb5d7b6c2290c9d3f5166da",
+    "frames/frame_000146.png": "f4d09f1b4a049284fbde0e2529c860f7520a616bff52bffb0520ff83664cc1b5",
+    "frames/frame_000147.png": "ad980a184e8e889109666372d656e0c4711f2a11acd03ae8e6a4d4c17d89c44e",
+    "frames/frame_000148.png": "7fb1b9d80dd3e130b0fda4d7780566f0cea647b78c815d04ff2e44deae5d9994",
+    "frames/frame_000149.png": "cab82b9c1e78981f1bf5c4c5822f71dbb4b773bac81ad46a1045078a463541f3",
+    "frames/frame_000150.png": "965284526e7fc9e8ef28ac3d86592b6d7d9979ce3ef469820e013fe411fd4553",
+    "frames/frame_000151.png": "4e8077346a5b0a9965a880d7e4b072d2cdb0a654c42c7785892d46584fb8e25d",
+    "frames/frame_000152.png": "0b702007276f5dd4af33339ee943a527fe1b02976dec9f16d298e35a6c3f8597",
+    "frames/frame_000153.png": "9611a32508a1975908814acaa55c024c2afe023c1e776533bef62250ce0b3b61",
+    "frames/frame_000154.png": "a6986b669f832213685c359eae372e2aeb708e0e03b58767a376561ad03d3f2e",
+    "frames/frame_000155.png": "d299a0ab5b9066f99a66d3e7ad5c6deb08e4d0df1966f61a69d94002f5839e2e",
+    "frames/frame_000156.png": "c16de71db4eb4c3ba8f686133558d64406c2d001f20ef753894f9c195d33ddb1",
+    "frames/frame_000157.png": "eacdd031929189f31ca61cd636cf3a9ff42a59593497ff8aba34e572bd1b4d1f",
+    "frames/frame_000158.png": "3f8174d3c71bfd40754c9da631aad13a0886e934b26f752b6a888e2cd691c83c",
+    "frames/frame_000159.png": "24ec4ddbb0cb5334d9e7c3ee067107334e67730818739c8b3f3215aec94e67f7",
+    "frames/frame_000160.png": "b88e15cc7d227712306aaf9c3d6ac26b861c6f1273c31317b76ab6f1dd0ccda7",
+    "frames/frame_000161.png": "75e6e66cfa37ba34be096fd6d38683ac4cc7191cbcf6c92354a87005edb02d52",
+    "frames/frame_000162.png": "b04792feb424b35d2a01f197c394279b1065ce280541a18eb68dd36906330471",
+    "frames/frame_000163.png": "606eeabacda035fabe4bd8826e8d76fa67a80db27d7543898a654fe67e20d922",
+    "frames/frame_000164.png": "2886c6f15de5210032e78374750652c5579bbd9339cfdc8cfe1feb73a5b4e052",
+    "frames/frame_000165.png": "d67945f152e65dbb1bd05faa473b82f0eda6745bddd32f0d8257b6f8f149495e",
+    "frames/frame_000166.png": "7d86766711f0577c83c0fb87e8961adca2afc0e019675effb93b1816f1aa0f23",
+    "frames/frame_000167.png": "9ad5a990b49547e3f50e3631a45eb746b23ed37a6b84a0f775a21c519fb5333f",
+    "frames/frame_000168.png": "82485ec10a10f8ac94c0aab409fc71755acdf7db768633bc990ee1fc5fe752fb",
+    "frames/frame_000169.png": "858838c1131702faec961c2da2b2247dd3d1501239b3a7c6fc9fef1ef39f6347",
+    "frames/frame_000170.png": "30ad51e4ecc5e14f7f6b7023b6b5360ca74117947804f1c3e6b4656dac048bf5",
+    "frames/frame_000171.png": "789d674dc72af370cecff0f3ebe4607d242703f49eeb4dd5a9bd6ccbf9f3fe3d",
+    "frames/frame_000172.png": "2a15434bbb564cf4948faefe465b585f5bb3d5ce2f24ed18fc9978427a55a657",
+    "frames/frame_000173.png": "eb210b9072709a6f730ef738565ad0f7086142024351a8af4faed60c4d1427ca",
+    "frames/frame_000174.png": "e75116e79a82821223a21d7a8d1d19879b720b31a265b9f4ffaa4ded4448bedc",
+    "frames/frame_000175.png": "9013fa44d3e032d029b688f84dc229661a99a1f18a051573920add0adf5a721e",
+    "frames/frame_000176.png": "59a6c763cd8920c4051ef0e41b9b4fd0a833c0ced9274c435bbf526ebe5da0c1",
+    "frames/frame_000177.png": "02b9bf46852b43fc9bde4435f4bd0f0db04eaf4f2b60eba0358f60248e3f7754",
+    "frames/frame_000178.png": "b24fd7563f936187fd036a517c2106cdf42117b1610100d2cea8d9d4192dded6",
+    "frames/frame_000179.png": "0f25f59b3bdbdd6fdfa6cedb7bd8d4cc68de3154d2ef51adaa68723907777883",
+    "frames/frame_000180.png": "cb24b0d178417403b461e85e138e3e7fd2e6ce799ebe5b859e78f7642f19c115",
+    "frames/frame_000181.png": "db30f050e074cbec3a83e63ba15a57349898f1d67264c04ce41c2bb601a6110e",
+    "frames/frame_000182.png": "e06a2d74ca05aae9700c6746b4e43745655b596eb432cd03e1176fd73266a6e4",
+    "frames/frame_000183.png": "f738340594927fe1b23b2021247f4ba066c4a66211dc7a1fd3d420b1b5739f6a",
+    "frames/frame_000184.png": "1a89956d4dd4bfd6990edbacd0f95dfccf8e942d95fae8ca6725e8b70b2aef0e",
+    "frames/frame_000185.png": "afb722abb9438b3ee1c2c72a1759f66ef38aeb02f48f0dfb7fc072790b22890c",
+    "frames/frame_000186.png": "ab7216396daa81e249228e996db86fc36657defff4776f9d18182916f1178af4",
+    "frames/frame_000187.png": "9f6900095166bbf6c4ac925a8cdb71435c25f7ac2562e4573ddc2e828b359903",
+    "frames/frame_000188.png": "d1c53a25ab6d2aa224fa124e680ff2e75be1c4f38fbb3e2e1685890a1153b0ed",
+    "frames/frame_000189.png": "ce7a37d363c3f8f421fe9e996eae44741c927ffcb75895f2b276ef2441b2d626",
+    "frames/frame_000190.png": "a51651ed82b80d6b679861750329533133d102fdb7da26a0c83eca0b59c1d74c",
+    "frames/frame_000191.png": "478d43b24aae9339fccd5caf8c2c4a93790b34b24794cd0664f2868996858304",
+    "frames/frame_000192.png": "0b08727e24078965b1a86a584d6a434d6e60955b18b4984f7837e008970d0fd4",
+    "frames/frame_000193.png": "aaf7410b226f17fd3c9f9cd0789fa1bc3765e18174898c0dee7cc32f660cb17e",
+    "frames/frame_000194.png": "ca145e5e86417e7f193529f655db5f56d1e319c26df5a0c75b2e2112bb4ac4a0",
+    "frames/frame_000195.png": "00426e7799cecf8c195d398e6de44a7b998b40ddbb2cdd84e4eca5a847e35b41",
+    "frames/frame_000196.png": "8afba3e95543e9c613565b32e102a98ec82c4c19888b9fdca054c049e4fe8165",
+    "frames/frame_000197.png": "ba09c0be345625bce301f37e03664bced9d100dc47b939b73d23a2a916be831c",
+    "frames/frame_000198.png": "d280e50f5b2066d7a26d5962c6c73537ad62955282940e092cdceccfd649c1cd",
+    "frames/frame_000199.png": "48b9a7097dd04a9fa9ad18bdf06623d15f5f79a9b2c7e8fce7a68d59f8b51b49",
+    "frames/frame_000200.png": "01e7265779e02d99dd6038c504a62d1f01f6b4ffedbb7ec09aceefa4e1fef596",
+    "frames/frame_000201.png": "9a7afae65a36d533671e844ea10aa204ebac820466814e0dc4811b0d09ac99fc",
+    "frames/frame_000202.png": "e0d740d8431f0175733ff603ae0942a5df6094de45c8d0cf842768d5e29299c7",
+    "frames/frame_000203.png": "690d5f554d3c6c9c7a1a53bbf7e74bfc2ceef79a1677813a1d73332669731a31",
+    "frames/frame_000204.png": "c58e9aa6f66cd5dc5103b04438b203e278d8ad36046871207aa6294710b8b222",
+    "frames/frame_000205.png": "0434dec3f5049feee704b6fdfd955be615b2df8091bd85f0853910090c5b64db",
+    "frames/frame_000206.png": "465fd4199d25bb559635804295b1cddb4271918b1fbe7c5f5198582a35f77570"
+  },
+  "video_payload_sha256": {
+    "trajectory.npz": "74c174f0b51e4c6de1d9ea6265439fa7b174f59eb2734ae297e010c6c3a48aae",
+    "rich_telemetry.npz": "23a1defa54b5938972ee9df8456e30829114662b440d806b3e97c12f20a1a3ee",
+    "rich_intervals.npz": "1396196ad90da4de4ff9a26162b0dd5776a6798127052b51162774c357200bda",
+    "anchor_state.npz": "2f291348ffbc376a623bc59bfd870e4f86dd7328d57b3182baab28e6f6d9521e",
+    "online_protocol.json": "0b915dc9ffd800d340bcb33cdb3647c5228ec33b618366ba824cbe8da7ac6db7",
+    "anchor_equality.json": "85d84aa387f0373a01b3adeffb1ea23d6e1442b4af0dc2d94e36914ac09df415",
+    "initial_settle_reference.json": "46c7eebdefc19b7337e9dbd5b2e49dd7d95c380c55dc8e642a8db509c06ad13b",
+    "outcome.json": "df4b756fb970cb221158f0d36cd58588cabebfc12f84dbf5d70941228a784295",
+    "online_planning_summary.json": "8910d828523f450a5f38e1decc4be5d73d078f01cadb3f47a39b1747ee826518",
+    "simulation_provenance.json": "5afeb2a3abe2391f8f6c359d50081fbf53cdf200e01a994f7203544f6dd5a9c0",
+    "decisions/decision_00000.json": "7b3d4b02669be03a926a14e58e81be16d0c1d4346ced808ff9d3d22adbe36c89"
+  },
+  "claim": "The passive camera replay reproduces every stored physical array and decision exactly. Actual rendered frames are registered to those measured states."
+}

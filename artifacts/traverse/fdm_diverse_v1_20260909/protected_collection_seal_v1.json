@@ -1,0 +1,13 @@
+{
+  "scope": "Predeclared protected-test reference collection; model never scores these during collection",
+  "created_utc": "2026-09-09T21:57:15.273660+00:00",
+  "manifest_sha256": "2e066280e8f667eb020fd455a12017579f6543546262bfb3687363e3821f02e1",
+  "split": "test",
+  "scene_count": 6,
+  "routes_per_scene": 15,
+  "declared_routes": 90,
+  "horizon_s": 180,
+  "source_snapshot": "campaign_v2",
+  "output": "protected_test_cohort_v2",
+  "seal": "Do not inspect test images, outcomes, support, or metrics until final model/cost/protocol freeze. Only marker counts/process errors/byte integrity may be monitored beforehand. These records never train or tune model/costs."
+}

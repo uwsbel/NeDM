@@ -1,0 +1,186 @@
+{
+  "job_id": "412085",
+  "complete": true,
+  "pair_complete_sha256": "bcab4e09cdf21cb75c75377b2866c1c75af30595c4122b6c005a152c2230d41b",
+  "source_manifest_sha256": "50523e5cbc40a9ac751be6366cc72904ec173000285a6cbc5112aa563673bd41",
+  "horizons": {
+    "h60": {
+      "manifest_sha256": "3a915d235ed94990e2a5aee729d884ab791230e1f82e43380c670559d2b7d7b3",
+      "splits": {
+        "train": {
+          "windows": 53830,
+          "episodes": 360,
+          "scenes": 24,
+          "event_support": {
+            "contact": {
+              "positive_windows": 26717,
+              "positive_episodes": 203,
+              "positive_scenes": 24
+            },
+            "rollover": {
+              "positive_windows": 221,
+              "positive_episodes": 19,
+              "positive_scenes": 9
+            },
+            "low_progress": {
+              "positive_windows": 35144,
+              "positive_episodes": 271,
+              "positive_scenes": 24
+            },
+            "bounded_motion": {
+              "positive_windows": 33340,
+              "positive_episodes": 257,
+              "positive_scenes": 24
+            },
+            "sustained_stall": {
+              "positive_windows": 32160,
+              "positive_episodes": 253,
+              "positive_scenes": 24
+            },
+            "asset_contact": {
+              "positive_windows": 24950,
+              "positive_episodes": 175,
+              "positive_scenes": 22
+            },
+            "chassis_contact": {
+              "positive_windows": 26717,
+              "positive_episodes": 203,
+              "positive_scenes": 24
+            }
+          }
+        },
+        "val": {
+          "windows": 13625,
+          "episodes": 90,
+          "scenes": 6,
+          "event_support": {
+            "contact": {
+              "positive_windows": 7826,
+              "positive_episodes": 57,
+              "positive_scenes": 6
+            },
+            "rollover": {
+              "positive_windows": 48,
+              "positive_episodes": 4,
+              "positive_scenes": 2
+            },
+            "low_progress": {
+              "positive_windows": 9087,
+              "positive_episodes": 68,
+              "positive_scenes": 6
+            },
+            "bounded_motion": {
+              "positive_windows": 8829,
+              "positive_episodes": 62,
+              "positive_scenes": 6
+            },
+            "sustained_stall": {
+              "positive_windows": 8477,
+              "positive_episodes": 60,
+              "positive_scenes": 6
+            },
+            "asset_contact": {
+              "positive_windows": 7470,
+              "positive_episodes": 51,
+              "positive_scenes": 6
+            },
+            "chassis_contact": {
+              "positive_windows": 7826,
+              "positive_episodes": 57,
+              "positive_scenes": 6
+            }
+          }
+        }
+      }
+    },
+    "h20": {
+      "manifest_sha256": "751a89190725b63ed9fdc018fe3b162b1ddc44a8e516bd957c59968040974ab1",
+      "splits": {
+        "train": {
+          "windows": 53830,
+          "episodes": 360,
+          "scenes": 24,
+          "event_support": {
+            "contact": {
+              "positive_windows": 24714,
+              "positive_episodes": 203,
+              "positive_scenes": 24
+            },
+            "rollover": {
+              "positive_windows": 76,
+              "positive_episodes": 19,
+              "positive_scenes": 9
+            },
+            "low_progress": {
+              "positive_windows": 32564,
+              "positive_episodes": 269,
+              "positive_scenes": 24
+            },
+            "bounded_motion": {
+              "positive_windows": 30141,
+              "positive_episodes": 257,
+              "positive_scenes": 24
+            },
+            "sustained_stall": {
+              "positive_windows": 29086,
+              "positive_episodes": 253,
+              "positive_scenes": 24
+            },
+            "asset_contact": {
+              "positive_windows": 23422,
+              "positive_episodes": 175,
+              "positive_scenes": 22
+            },
+            "chassis_contact": {
+              "positive_windows": 24714,
+              "positive_episodes": 203,
+              "positive_scenes": 24
+            }
+          }
+        },
+        "val": {
+          "windows": 13625,
+          "episodes": 90,
+          "scenes": 6,
+          "event_support": {
+            "contact": {
+              "positive_windows": 7321,
+              "positive_episodes": 57,
+              "positive_scenes": 6
+            },
+            "rollover": {
+              "positive_windows": 16,
+              "positive_episodes": 4,
+              "positive_scenes": 2
+            },
+            "low_progress": {
+              "positive_windows": 8591,
+              "positive_episodes": 68,
+              "positive_scenes": 6
+            },
+            "bounded_motion": {
+              "positive_windows": 8084,
+              "positive_episodes": 62,
+              "positive_scenes": 6
+            },
+            "sustained_stall": {
+              "positive_windows": 7778,
+              "positive_episodes": 60,
+              "positive_scenes": 6
+            },
+            "asset_contact": {
+              "positive_windows": 7037,
+              "positive_episodes": 51,
+              "positive_scenes": 6
+            },
+            "chassis_contact": {
+              "positive_windows": 7321,
+              "positive_episodes": 57,
+              "positive_scenes": 6
+            }
+          }
+        }
+      }
+    }
+  }
+}

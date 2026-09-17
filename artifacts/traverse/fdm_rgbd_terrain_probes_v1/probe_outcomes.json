@@ -1,0 +1,164 @@
+{
+  "terrain_probe_compact47/family_00": {
+    "status": "timeout",
+    "goal_time_s": null,
+    "safe_goal_reached": false,
+    "goal_progress_m": 13.439854913520207,
+    "longest_consecutive_effortful_near_zero_speed_s": 0.65,
+    "path_length_m": 18.7236999047379,
+    "net_displacement_m": 13.439907541325029
+  },
+  "terrain_probe_compact47/family_01": {
+    "status": "rollover",
+    "goal_time_s": null,
+    "safe_goal_reached": false,
+    "goal_progress_m": 13.942224343819635,
+    "longest_consecutive_effortful_near_zero_speed_s": 0.15000000000000002,
+    "path_length_m": 13.946680209075291,
+    "net_displacement_m": 13.942326453432516
+  },
+  "terrain_probe_compact47/family_02": {
+    "status": "goal_reached",
+    "goal_time_s": 10.0,
+    "safe_goal_reached": true,
+    "goal_progress_m": 33.381023681551255,
+    "longest_consecutive_effortful_near_zero_speed_s": 0.15000000000000002,
+    "path_length_m": 36.54983088098055,
+    "net_displacement_m": 33.63661810640897
+  },
+  "terrain_probe_compact47/family_03": {
+    "status": "goal_reached",
+    "goal_time_s": 7.0,
+    "safe_goal_reached": true,
+    "goal_progress_m": 33.467584779380616,
+    "longest_consecutive_effortful_near_zero_speed_s": 0.15000000000000002,
+    "path_length_m": 36.71014960709415,
+    "net_displacement_m": 33.715252095263104
+  },
+  "terrain_probe_compact47/family_04": {
+    "status": "goal_reached",
+    "goal_time_s": 9.950000000000001,
+    "safe_goal_reached": true,
+    "goal_progress_m": 33.43112322635535,
+    "longest_consecutive_effortful_near_zero_speed_s": 0.15000000000000002,
+    "path_length_m": 36.435122948295486,
+    "net_displacement_m": 33.66955655786263
+  },
+  "terrain_probe_compact47/family_05": {
+    "status": "goal_reached",
+    "goal_time_s": 7.0,
+    "safe_goal_reached": true,
+    "goal_progress_m": 33.46262672726959,
+    "longest_consecutive_effortful_near_zero_speed_s": 0.15000000000000002,
+    "path_length_m": 36.60970296144218,
+    "net_displacement_m": 33.68716694624546
+  },
+  "terrain_probe_compact52/family_00": {
+    "status": "rollover",
+    "goal_time_s": null,
+    "safe_goal_reached": false,
+    "goal_progress_m": 14.466220989854197,
+    "longest_consecutive_effortful_near_zero_speed_s": 0.15000000000000002,
+    "path_length_m": 14.51691410447859,
+    "net_displacement_m": 14.4680665062573
+  },
+  "terrain_probe_compact52/family_01": {
+    "status": "rollover",
+    "goal_time_s": null,
+    "safe_goal_reached": false,
+    "goal_progress_m": 13.4572916377838,
+    "longest_consecutive_effortful_near_zero_speed_s": 0.15000000000000002,
+    "path_length_m": 13.534628277873706,
+    "net_displacement_m": 13.463609940049245
+  },
+  "terrain_probe_compact52/family_02": {
+    "status": "timeout",
+    "goal_time_s": null,
+    "safe_goal_reached": false,
+    "goal_progress_m": 32.38070051066745,
+    "longest_consecutive_effortful_near_zero_speed_s": 0.15000000000000002,
+    "path_length_m": 35.624383829921214,
+    "net_displacement_m": 32.64156943861698
+  },
+  "terrain_probe_compact52/family_03": {
+    "status": "goal_reached",
+    "goal_time_s": 7.5,
+    "safe_goal_reached": true,
+    "goal_progress_m": 33.47612658640545,
+    "longest_consecutive_effortful_near_zero_speed_s": 0.15000000000000002,
+    "path_length_m": 38.94726372102377,
+    "net_displacement_m": 33.55599900355254
+  },
+  "terrain_probe_compact52/family_04": {
+    "status": "timeout",
+    "goal_time_s": null,
+    "safe_goal_reached": false,
+    "goal_progress_m": 31.516029365765693,
+    "longest_consecutive_effortful_near_zero_speed_s": 0.15000000000000002,
+    "path_length_m": 34.45485524527368,
+    "net_displacement_m": 31.773825326519365
+  },
+  "terrain_probe_compact52/family_05": {
+    "status": "goal_reached",
+    "goal_time_s": 7.2,
+    "safe_goal_reached": true,
+    "goal_progress_m": 33.51310029895413,
+    "longest_consecutive_effortful_near_zero_speed_s": 0.15000000000000002,
+    "path_length_m": 37.06804013449892,
+    "net_displacement_m": 33.75105641644282
+  },
+  "terrain_probe_gaussian/family_00": {
+    "status": "timeout",
+    "goal_time_s": null,
+    "safe_goal_reached": false,
+    "goal_progress_m": 8.744686821911479,
+    "longest_consecutive_effortful_near_zero_speed_s": 0.25,
+    "path_length_m": 19.888438305002722,
+    "net_displacement_m": 8.745299343280651
+  },
+  "terrain_probe_gaussian/family_01": {
+    "status": "goal_reached",
+    "goal_time_s": 7.800000000000001,
+    "safe_goal_reached": true,
+    "goal_progress_m": 33.60489538886816,
+    "longest_consecutive_effortful_near_zero_speed_s": 0.25,
+    "path_length_m": 33.69162898734829,
+    "net_displacement_m": 33.60508399066149
+  },
+  "terrain_probe_gaussian/family_02": {
+    "status": "goal_reached",
+    "goal_time_s": 9.700000000000001,
+    "safe_goal_reached": true,
+    "goal_progress_m": 33.586303295965116,
+    "longest_consecutive_effortful_near_zero_speed_s": 0.25,
+    "path_length_m": 36.70320630253042,
+    "net_displacement_m": 33.84259466231094
+  },
+  "terrain_probe_gaussian/family_03": {
+    "status": "goal_reached",
+    "goal_time_s": 7.0,
+    "safe_goal_reached": true,
+    "goal_progress_m": 33.593624049082734,
+    "longest_consecutive_effortful_near_zero_speed_s": 0.25,
+    "path_length_m": 36.81090717413382,
+    "net_displacement_m": 33.83974780754941
+  },
+  "terrain_probe_gaussian/family_04": {
+    "status": "goal_reached",
+    "goal_time_s": 9.65,
+    "safe_goal_reached": true,
+    "goal_progress_m": 33.589785123142335,
+    "longest_consecutive_effortful_near_zero_speed_s": 0.25,
+    "path_length_m": 36.69963220950767,
+    "net_displacement_m": 33.828567143186156
+  },
+  "terrain_probe_gaussian/family_05": {
+    "status": "goal_reached",
+    "goal_time_s": 6.95,
+    "safe_goal_reached": true,
+    "goal_progress_m": 33.637677531216696,
+    "longest_consecutive_effortful_near_zero_speed_s": 0.25,
+    "path_length_m": 36.83611568331477,
+    "net_displacement_m": 33.86445084948241
+  }
+}

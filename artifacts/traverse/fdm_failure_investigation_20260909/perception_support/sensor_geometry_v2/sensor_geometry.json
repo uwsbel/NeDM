@@ -1,0 +1,604 @@
+{
+  "script_sha256": "a82cecbf743241ed274ab06eb7affe6a50a21eba49efd9d925cfaf9eaf1c49c6",
+  "geometry_helper_sha256": "609c4b104286883d463a5706c420efbf53a659298cbd2502b238e620ce354eb9",
+  "scope": "Read-only existing fixed test observations after explicit unseal; no new simulation rollout, model forward, fitting or renderer changes.",
+  "scenes": {
+    "diverse_v1_test_rough_mosaic_00": {
+      "camera_audit": {
+        "observation_sha256": "702c737dd1e039cfb0785584135c835fc4c14adb1ea39754324e3958d5b839cb",
+        "camera_metadata_sha256": "531aa3f60f32ea6c7aaa6c99a5a33bcd09762c7eb4f8f8cf460a3dda5379094b",
+        "camera": {
+          "width": 1024,
+          "height": 1024,
+          "hfov_rad": 0.8203047484373349,
+          "cam_height_m": 400.0,
+          "depth_ray_scale": 1.0,
+          "max_depth_m": 600.0,
+          "backend": "Vulkan_RT_lavapipe",
+          "depth_measurement": "Euclidean_ray_range_m",
+          "model_image_size": 512,
+          "elevation_scale_m": 40.0,
+          "observation_mode": "single pre-drive global RGB-D snapshot reused causally"
+        },
+        "raw_shape": [
+          1024,
+          1024,
+          3
+        ],
+        "model_rgbd_shape": [
+          4,
+          512,
+          512
+        ],
+        "metric_depth_dtype": "float64 for audit; source dtype retained in observation",
+        "valid_raw_depth_fraction": 0.47592735290527344,
+        "unobstructed_interior_pixels": 468358,
+        "excluded_asset_margin_m": 4.0,
+        "excluded_vehicle_radius_m": 7.0,
+        "interior_edge_margin_m": 3.0,
+        "arena_corner_min_image_margin_px": 151.539928411169,
+        "all_arena_corners_visible": true,
+        "coverage_width_at_zero_elevation_m": 347.8498999687469,
+        "depth_elevation_vs_chrono_m": {
+          "all": {
+            "count": 2048,
+            "median_abs_m": 0.001449807893294519,
+            "p95_abs_m": 0.007164432178581132,
+            "rmse_m": 0.0032352101437859346,
+            "max_abs_m": 0.01150525348333531,
+            "signed_mean_m": -0.0021625190557315876
+          },
+          "inner_arena": {
+            "count": 552,
+            "median_abs_m": 0.0016333980352101207,
+            "p95_abs_m": 0.007210903802118193,
+            "rmse_m": 0.003337504914505088,
+            "max_abs_m": 0.01081126237272656,
+            "signed_mean_m": -0.002256275016653853
+          },
+          "outer_arena": {
+            "count": 837,
+            "median_abs_m": 0.0014095064244088462,
+            "p95_abs_m": 0.007185415231299429,
+            "rmse_m": 0.0032777492227600655,
+            "max_abs_m": 0.01150525348333531,
+            "signed_mean_m": -0.0022099363411330203
+          },
+          "southwest": {
+            "count": 503,
+            "median_abs_m": 0.0015774375479509217,
+            "p95_abs_m": 0.007185867581131332,
+            "rmse_m": 0.003362605484623826,
+            "max_abs_m": 0.01134774292580687,
+            "signed_mean_m": -0.002281027248324933
+          },
+          "northwest": {
+            "count": 545,
+            "median_abs_m": 0.0015754048968119605,
+            "p95_abs_m": 0.0067034179479151116,
+            "rmse_m": 0.003145418597131652,
+            "max_abs_m": 0.01150525348333531,
+            "signed_mean_m": -0.0021376240651147364
+          },
+          "southeast": {
+            "count": 503,
+            "median_abs_m": 0.0011792740356213471,
+            "p95_abs_m": 0.007588677299452228,
+            "rmse_m": 0.0032973823264591117,
+            "max_abs_m": 0.010570160012377983,
+            "signed_mean_m": -0.0021688295419434686
+          },
+          "northeast": {
+            "count": 497,
+            "median_abs_m": 0.0012995189786124683,
+            "p95_abs_m": 0.0069462270641793104,
+            "rmse_m": 0.0031357801609662073,
+            "max_abs_m": 0.01081126237272656,
+            "signed_mean_m": -0.0020634928473757634
+          }
+        },
+        "depth_elevation_vs_bmp_m": {
+          "count": 2048,
+          "median_abs_m": 0.022505953811585044,
+          "p95_abs_m": 0.08546027231773394,
+          "rmse_m": 0.040512684385963005,
+          "max_abs_m": 0.1869353711299082,
+          "signed_mean_m": -0.001115875985259323
+        },
+        "same_ray_xy_bmp_vs_chrono_m": {
+          "count": 2048,
+          "median_abs_m": 0.022683899376316846,
+          "p95_abs_m": 0.08432515950283415,
+          "rmse_m": 0.0406454006743103,
+          "max_abs_m": 0.18715718629927647,
+          "signed_mean_m": -0.0010466430704722646
+        },
+        "model_encoding_max_abs_error": 0.0,
+        "model_invalid_fraction": 0.5261383056640625,
+        "valid_model_elevation_fraction_at_clip_limit": 0.0,
+        "rgb_marker_alignment": {
+          "available": true,
+          "truth_sha256": "3305ed6e5e94d265f1c09b3563c1c5e14332d4815b109aa8c39610741d0eeba4",
+          "expected_pixel_uv": [
+            806.7250743383051,
+            349.1258146698907
+          ],
+          "blue_marker_pixels": 3,
+          "search_radius_px": 12,
+          "scope": "One roof marker checks RGB world projection; terrain depth residuals separately check range/FOV across the arena",
+          "detected": true,
+          "detected_pixel_uv": [
+            804.6666666666666,
+            350.0
+          ],
+          "pixel_error": 2.236345709866571
+        },
+        "exclusion_rule": "Masks depend only on bounds, finite range and declared asset/vehicle footprints; never exclude pixels according to measured error",
+        "limits": "Terrain residual is geometric sensor calibration, not learned accuracy. One RGB marker cannot prove every object boundary is registered."
+      },
+      "contact_profiles": [
+        {
+          "trial_id": "diverse_v1_test_rough_mosaic_00_selected_rgbd_energy",
+          "scene_id": "diverse_v1_test_rough_mosaic_00",
+          "event": "chassis",
+          "time_s": 12.55,
+          "pose": [
+            32.01100192503339,
+            34.43121865807347,
+            -2.864820655640325
+          ],
+          "array_prefix": "contact_0",
+          "grid_shape": [
+            81,
+            81
+          ]
+        },
+        {
+          "trial_id": "diverse_v1_test_rough_mosaic_00_selected_rgbd_energy",
+          "scene_id": "diverse_v1_test_rough_mosaic_00",
+          "event": "asset",
+          "time_s": 13.05,
+          "pose": [
+            29.67991013204667,
+            33.55313981189122,
+            -3.1078392765134972
+          ],
+          "array_prefix": "contact_1",
+          "grid_shape": [
+            81,
+            81
+          ]
+        },
+        {
+          "trial_id": "diverse_v1_test_rough_mosaic_00_selected_rgbd_time",
+          "scene_id": "diverse_v1_test_rough_mosaic_00",
+          "event": "chassis",
+          "time_s": 11.75,
+          "pose": [
+            36.51459273610623,
+            34.73181591892113,
+            -2.916341138431225
+          ],
+          "array_prefix": "contact_2",
+          "grid_shape": [
+            81,
+            81
+          ]
+        },
+        {
+          "trial_id": "diverse_v1_test_rough_mosaic_00_selected_rgbd_time",
+          "scene_id": "diverse_v1_test_rough_mosaic_00",
+          "event": "asset",
+          "time_s": 13.100000000000001,
+          "pose": [
+            29.730073568219872,
+            33.7573892061089,
+            -2.965844907853738
+          ],
+          "array_prefix": "contact_3",
+          "grid_shape": [
+            81,
+            81
+          ]
+        }
+      ],
+      "assets": [
+        {
+          "index": 0,
+          "kind": "rock",
+          "x_m": 38.05304792544183,
+          "y_m": 22.170802670325486,
+          "yaw_rad": -0.15699882110271401,
+          "footprint_radius_m": 1.323842709272945,
+          "dims": {
+            "edge_m": 1.8721963139025413,
+            "height_m": 1.8007083948794376
+          },
+          "top_elevation_m": 2.9584451504241125,
+          "raw_top_face_depth_hits": 31,
+          "raw_top_face_z_max_error_m": 3.550837531829387e-05,
+          "raw_top_face_rgb_mean": [
+            198.0,
+            191.0,
+            186.0
+          ],
+          "raw_projected_edge_pixels": 5.552435063012734
+        },
+        {
+          "index": 1,
+          "kind": "rock",
+          "x_m": 26.25001291446713,
+          "y_m": 33.72809658206394,
+          "yaw_rad": -1.5499960719854615,
+          "footprint_radius_m": 1.7872535506010616,
+          "dims": {
+            "edge_m": 2.5275582106594903,
+            "height_m": 0.9315408580897679
+          },
+          "top_elevation_m": 1.834281312090787,
+          "raw_top_face_depth_hits": 52,
+          "raw_top_face_z_max_error_m": 4.775953228697283e-05,
+          "raw_top_face_rgb_mean": [
+            198.0,
+            191.0,
+            186.0
+          ],
+          "raw_projected_edge_pixels": 7.47489964107196
+        },
+        {
+          "index": 2,
+          "kind": "rock",
+          "x_m": -63.50950256614146,
+          "y_m": -42.45482071684633,
+          "yaw_rad": -2.372898555261154,
+          "footprint_radius_m": 1.605666213530353,
+          "dims": {
+            "edge_m": 2.2707549358188794,
+            "height_m": 0.97877129889715
+          },
+          "top_elevation_m": 0.7111671407231158,
+          "raw_top_face_depth_hits": 45,
+          "raw_top_face_z_max_error_m": 5.428959938014177e-05,
+          "raw_top_face_rgb_mean": [
+            197.0,
+            191.0,
+            186.0
+          ],
+          "raw_projected_edge_pixels": 6.69655080136632
+        },
+        {
+          "index": 3,
+          "kind": "rock",
+          "x_m": -15.13287389350115,
+          "y_m": -47.05375436568963,
+          "yaw_rad": 0.9494003033990888,
+          "footprint_radius_m": 1.079018847590503,
+          "dims": {
+            "edge_m": 1.525963088318677,
+            "height_m": 1.3833230098279221
+          },
+          "top_elevation_m": 2.4394164949744983,
+          "raw_top_face_depth_hits": 21,
+          "raw_top_face_z_max_error_m": 0.07899794917333125,
+          "raw_top_face_rgb_mean": [
+            193.0952380952381,
+            186.28571428571428,
+            181.52380952380952
+          ],
+          "raw_projected_edge_pixels": 4.519691313973736
+        },
+        {
+          "index": 4,
+          "kind": "rock",
+          "x_m": 47.23802825931841,
+          "y_m": 25.778349404667225,
+          "yaw_rad": 0.2085258055574477,
+          "footprint_radius_m": 1.1330649475327144,
+          "dims": {
+            "edge_m": 1.602395815850324,
+            "height_m": 1.895460703476856
+          },
+          "top_elevation_m": 2.736905998300292,
+          "raw_top_face_depth_hits": 23,
+          "raw_top_face_z_max_error_m": 0.06297964460400385,
+          "raw_top_face_rgb_mean": [
+            192.43478260869566,
+            186.1304347826087,
+            181.3913043478261
+          ],
+          "raw_projected_edge_pixels": 4.749628552942204
+        },
+        {
+          "index": 5,
+          "kind": "rock",
+          "x_m": -13.648882316571829,
+          "y_m": 17.3121524230643,
+          "yaw_rad": 0.5220069442455713,
+          "footprint_radius_m": 1.460540085422548,
+          "dims": {
+            "edge_m": 2.0655155971941266,
+            "height_m": 1.8995225770475779
+          },
+          "top_elevation_m": 2.052271508685612,
+          "raw_top_face_depth_hits": 37,
+          "raw_top_face_z_max_error_m": 4.3146887287903724e-05,
+          "raw_top_face_rgb_mean": [
+            198.0,
+            191.0,
+            186.0
+          ],
+          "raw_projected_edge_pixels": 6.111819417221652
+        }
+      ],
+      "case_sha256": "3b499b410c1169ce8aeeafaffbc531aa93ed9914d3f91e813c8aa41bc598916f",
+      "physics_source_manifest_sha256": "c2ec8b81acd066c75e46cf658c8aa5e67661f92cf3a35a6da97575b03812382a"
+    },
+    "diverse_v1_test_rolling_hills_00": {
+      "camera_audit": {
+        "observation_sha256": "cbafddf6bf98f0d8ecf3ad3581f4d10add48846cd7afc99e738c6e6ff22966d5",
+        "camera_metadata_sha256": "00dff2e6208ef48bf06e7134564ac2e957aa019a96f6e0ad1f22bb3f7ecc5b15",
+        "camera": {
+          "width": 1024,
+          "height": 1024,
+          "hfov_rad": 0.8203047484373349,
+          "cam_height_m": 400.0,
+          "depth_ray_scale": 1.0,
+          "max_depth_m": 600.0,
+          "backend": "Vulkan_RT_lavapipe",
+          "depth_measurement": "Euclidean_ray_range_m",
+          "model_image_size": 512,
+          "elevation_scale_m": 40.0,
+          "observation_mode": "single pre-drive global RGB-D snapshot reused causally"
+        },
+        "raw_shape": [
+          1024,
+          1024,
+          3
+        ],
+        "model_rgbd_shape": [
+          4,
+          512,
+          512
+        ],
+        "metric_depth_dtype": "float64 for audit; source dtype retained in observation",
+        "valid_raw_depth_fraction": 0.47549915313720703,
+        "unobstructed_interior_pixels": 470809,
+        "excluded_asset_margin_m": 4.0,
+        "excluded_vehicle_radius_m": 7.0,
+        "interior_edge_margin_m": 3.0,
+        "arena_corner_min_image_margin_px": 147.17790098699084,
+        "all_arena_corners_visible": true,
+        "coverage_width_at_zero_elevation_m": 347.8498999687469,
+        "depth_elevation_vs_chrono_m": {
+          "all": {
+            "count": 2048,
+            "median_abs_m": 0.0021854327379742244,
+            "p95_abs_m": 0.0063051490201161174,
+            "rmse_m": 0.0032554900521791267,
+            "max_abs_m": 0.011589357136642775,
+            "signed_mean_m": -0.0025422688461855525
+          },
+          "inner_arena": {
+            "count": 527,
+            "median_abs_m": 0.0019171330464473613,
+            "p95_abs_m": 0.006947793448563288,
+            "rmse_m": 0.003351919992625693,
+            "max_abs_m": 0.011589357136642775,
+            "signed_mean_m": -0.002414904665045985
+          },
+          "outer_arena": {
+            "count": 850,
+            "median_abs_m": 0.0022821426668997447,
+            "p95_abs_m": 0.005782703529499144,
+            "rmse_m": 0.0032237362545492923,
+            "max_abs_m": 0.009622093702262191,
+            "signed_mean_m": -0.0026613756726542575
+          },
+          "southwest": {
+            "count": 494,
+            "median_abs_m": 0.0021967320917894995,
+            "p95_abs_m": 0.005803257459893981,
+            "rmse_m": 0.0032235615994764635,
+            "max_abs_m": 0.010623104532101024,
+            "signed_mean_m": -0.0025542027410694235
+          },
+          "northwest": {
+            "count": 511,
+            "median_abs_m": 0.002207997933169281,
+            "p95_abs_m": 0.006671270137047713,
+            "rmse_m": 0.0033461195439498633,
+            "max_abs_m": 0.010074669113805612,
+            "signed_mean_m": -0.0026262171911850952
+          },
+          "southeast": {
+            "count": 498,
+            "median_abs_m": 0.0020526576452937206,
+            "p95_abs_m": 0.006004209797359294,
+            "rmse_m": 0.003091851100207282,
+            "max_abs_m": 0.009384242736757642,
+            "signed_mean_m": -0.0024281812230130535
+          },
+          "northeast": {
+            "count": 545,
+            "median_abs_m": 0.002240990676966703,
+            "p95_abs_m": 0.006556425946030228,
+            "rmse_m": 0.0033427304398638783,
+            "max_abs_m": 0.011589357136642775,
+            "signed_mean_m": -0.0025569893745754713
+          }
+        },
+        "depth_elevation_vs_bmp_m": {
+          "count": 2048,
+          "median_abs_m": 0.006817381855923843,
+          "p95_abs_m": 0.04022799491295398,
+          "rmse_m": 0.019497059271656132,
+          "max_abs_m": 0.12007822608291363,
+          "signed_mean_m": 0.004432351338869709
+        },
+        "same_ray_xy_bmp_vs_chrono_m": {
+          "count": 2048,
+          "median_abs_m": 0.007954470008528662,
+          "p95_abs_m": 0.04132012336691828,
+          "rmse_m": 0.020400924347208867,
+          "max_abs_m": 0.12188837978505163,
+          "signed_mean_m": -0.006974620185055262
+        },
+        "model_encoding_max_abs_error": 0.0,
+        "model_invalid_fraction": 0.5270767211914062,
+        "valid_model_elevation_fraction_at_clip_limit": 0.0,
+        "rgb_marker_alignment": {
+          "available": true,
+          "truth_sha256": "a3ad57f17796f84be991e8edb2933d43cdc5e9554da885f1c79b7d98ab751989",
+          "expected_pixel_uv": [
+            673.8760322248123,
+            806.728124353036
+          ],
+          "blue_marker_pixels": 2,
+          "search_radius_px": 12,
+          "scope": "One roof marker checks RGB world projection; terrain depth residuals separately check range/FOV across the arena",
+          "detected": true,
+          "detected_pixel_uv": [
+            673.5,
+            804.5
+          ],
+          "pixel_error": 2.25963235210721
+        },
+        "exclusion_rule": "Masks depend only on bounds, finite range and declared asset/vehicle footprints; never exclude pixels according to measured error",
+        "limits": "Terrain residual is geometric sensor calibration, not learned accuracy. One RGB marker cannot prove every object boundary is registered."
+      },
+      "contact_profiles": [
+        {
+          "trial_id": "diverse_v1_test_rolling_hills_00_selected_rgbd_energy",
+          "scene_id": "diverse_v1_test_rolling_hills_00",
+          "event": "chassis",
+          "time_s": 30.5,
+          "pose": [
+            -6.594682981629614,
+            13.140891813766766,
+            2.100465706351407
+          ],
+          "array_prefix": "contact_0",
+          "grid_shape": [
+            81,
+            81
+          ]
+        },
+        {
+          "trial_id": "diverse_v1_test_rolling_hills_00_selected_rgbd_energy",
+          "scene_id": "diverse_v1_test_rolling_hills_00",
+          "event": "asset",
+          "time_s": 30.5,
+          "pose": [
+            -6.594682981629614,
+            13.140891813766766,
+            2.100465706351407
+          ],
+          "array_prefix": "contact_1",
+          "grid_shape": [
+            81,
+            81
+          ]
+        },
+        {
+          "trial_id": "diverse_v1_test_rolling_hills_00_selected_rgbd_time",
+          "scene_id": "diverse_v1_test_rolling_hills_00",
+          "event": "chassis",
+          "time_s": 29.75,
+          "pose": [
+            -6.6808377415669975,
+            13.297135470695721,
+            2.1131261253912954
+          ],
+          "array_prefix": "contact_2",
+          "grid_shape": [
+            81,
+            81
+          ]
+        },
+        {
+          "trial_id": "diverse_v1_test_rolling_hills_00_selected_rgbd_time",
+          "scene_id": "diverse_v1_test_rolling_hills_00",
+          "event": "asset",
+          "time_s": 29.75,
+          "pose": [
+            -6.6808377415669975,
+            13.297135470695721,
+            2.1131261253912954
+          ],
+          "array_prefix": "contact_3",
+          "grid_shape": [
+            81,
+            81
+          ]
+        }
+      ],
+      "assets": [
+        {
+          "index": 0,
+          "kind": "rock",
+          "x_m": -8.904588314893921,
+          "y_m": 15.512739539227134,
+          "yaw_rad": -1.6905748604801283,
+          "footprint_radius_m": 1.1543516237791978,
+          "dims": {
+            "edge_m": 1.6324997220959463,
+            "height_m": 1.4908435613507325
+          },
+          "top_elevation_m": 5.843109485692587,
+          "raw_top_face_depth_hits": 25,
+          "raw_top_face_z_max_error_m": 2.885864871160493e-05,
+          "raw_top_face_rgb_mean": [
+            198.0,
+            191.0,
+            186.0
+          ],
+          "raw_projected_edge_pixels": 4.8769921665869385
+        },
+        {
+          "index": 1,
+          "kind": "rock",
+          "x_m": 29.69138692242224,
+          "y_m": -18.33816499339034,
+          "yaw_rad": 0.42577668036400906,
+          "footprint_radius_m": 1.9373000901715356,
+          "dims": {
+            "edge_m": 2.739756061907206,
+            "height_m": 1.3877408431217677
+          },
+          "top_elevation_m": 2.583765659276342,
+          "raw_top_face_depth_hits": 67,
+          "raw_top_face_z_max_error_m": 5.093313782422726e-05,
+          "raw_top_face_rgb_mean": [
+            198.0,
+            191.0,
+            186.0
+          ],
+          "raw_projected_edge_pixels": 8.117725427562913
+        },
+        {
+          "index": 2,
+          "kind": "rock",
+          "x_m": 19.744735557456444,
+          "y_m": -57.46241526065391,
+          "yaw_rad": 1.9160755072735922,
+          "footprint_radius_m": 0.8999363540380361,
+          "dims": {
+            "edge_m": 1.272702197153186,
+            "height_m": 1.8882457383335594
+          },
+          "top_elevation_m": 2.4209908363727752,
+          "raw_top_face_depth_hits": 15,
+          "raw_top_face_z_max_error_m": 0.07745738591513351,
+          "raw_top_face_rgb_mean": [
+            192.53333333333333,
+            186.6,
+            181.66666666666666
+          ],
+          "raw_projected_edge_pixels": 3.7693929329802573
+        }
+      ],
+      "case_sha256": "fa305f0d4fd3d36fc4196ce3b059d691c3eb8f4261cc344c8ad8733ef33afc0c",
+      "physics_source_manifest_sha256": "c2ec8b81acd066c75e46cf658c8aa5e67661f92cf3a35a6da97575b03812382a"
+    }
+  }
+}

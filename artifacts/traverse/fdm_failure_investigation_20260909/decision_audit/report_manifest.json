@@ -1,0 +1,22 @@
+{
+  "scope": "POST-HOC DIAGNOSTIC",
+  "physical_counterfactual_sha256": {
+    "report.md": "52ad48c84cb010240ff17e02294e068887562448f842f51d18b4682a1fcb90f5",
+    "report.json": "4321236fce45f5fe14f1c61f339b7bc517a9738b5ad8954f2969d117711ad99a",
+    "ranking_counterfactual.png": "55b411ce4e874e9af05a82d9e5b4e7209617a9a80ea5127c61a8b4b8a98d9b15"
+  },
+  "inference_provenance_sha256": "9d776805baa06fc8f9f499c189d186ef2a83861621e230696d74f77ee879a4ec",
+  "report_source_sha256": "e94d9914747f8d92a90e0d3e677e12d0f296eed5f74330d2806f88ddbda641d2",
+  "artifacts": {
+    "report.md": "54ae00c3e8946e4fa9d75735b289433a5d85955867e941957b2acf881e6d11ea",
+    "audit.json": "a1258064a8e13c2549e44c8af5f2c64ea40e7a18df06bbff84d8d5c981661f55",
+    "causal_risk.png": "c1bd03eddb01bfb4510a4045aaa7448d1965c7ebc58d6556b7059ba60aa2f3d3",
+    "causal_risk.pdf": "145c2307ac4b546a20a6c7fdcb5423858c5edf302056519378c35ed2a0fe1aed",
+    "forecast_and_tracking_error.png": "b8e45429fcecf2a43268aefa01129eb74015cc2bf5f8fb1d9e763d1b9db3006a",
+    "forecast_and_tracking_error.pdf": "189f0b42a9e0284f3e08b1da7edde1d1f8c1870a302cc2447fd4fb8a70dd72df",
+    "summary.csv": "94026bdae2e6618622dca7d864f401c582329bbd40a9a5cfbeeb6cced50b1713",
+    "launch_cost_decomposition.csv": "1002463a87e1fb0c2a0f9bacdf9f8be83ed117d9935e36e0f4ccd2a7c06e48f1",
+    "native_curve_audit.json": "e1ada23f9e80476fc8014e7a0eb48a1a00fbf31a84f46fc901d33882312b43d9",
+    "audit_native_curve.py": "04948797cc34e018c260f040793b88ff900bdce755ec8c0988fce7d21cbc8016"
+  }
+}

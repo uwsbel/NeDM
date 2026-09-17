@@ -1,0 +1,7 @@
+{
+  "snapshot": "83d62378c36e",
+  "local_code": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_source/83d62378c36e",
+  "remote_code": "/work1/dannegrut/harry/experiments/traverse_mppi_20260908/code/83d62378c36e",
+  "data_root": "/work1/dannegrut/harry/experiments/traverse_mppi_20260908/data/fdm_rgbd_focused_pack_v2",
+  "progress_target": "bounded_motion"
+}

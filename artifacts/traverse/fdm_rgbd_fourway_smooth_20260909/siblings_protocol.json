@@ -1,0 +1,15 @@
+{
+  "stage": "geometry_development_before_NN_scores",
+  "reason": "Check unchanged rock-side6 and clear-side4/6 for the lower H6.5 straight4 stop and stronger H6.7 straight6 sustained stop. Preserve H6.6/H6.8 crossings showing nonmonotonic response.",
+  "cases": [
+    "smooth_strength_gaussian_h6p5_s4p5_cx0",
+    "smooth_refine_gaussian_h6p7_s4p5_cx0"
+  ],
+  "families": [
+    3,
+    4,
+    5
+  ],
+  "horizon_override_s": 25,
+  "unchanged": "PID/friction/power/launch/reference geometry/camera/model; no training or NN score search"
+}

@@ -1,0 +1,15 @@
+{
+  "selection": "Two lower-grade climb failures from basic8, now checking passive contact/slip diagnostics and both unchangedgeometricdetours; no NN scores used",
+  "cases": [
+    "smooth_probe_gaussian_h5p5_s3p5",
+    "smooth_probe_gaussian_h6_s4p5"
+  ],
+  "families": [
+    "01",
+    "03",
+    "05"
+  ],
+  "observer_sha256": "7f6cf106bb0edb01ce07fa3fa5429b45e380f41d3740e025acb8bcaa25a80be2",
+  "outputs": "probes/instrumented/<case>/family_<id>",
+  "basic_screen_preserved": true
+}

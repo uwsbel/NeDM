@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "policy": {
+    "version": "retained_and_nearby_global_v1",
+    "nearby_distance_m": 2.0,
+    "nearby_heading_deg": 15.0,
+    "ordering": "active reference, nearby original families, fresh current-pose families; exact duplicates removed",
+    "inputs": "measured pose, goal, previously proposed references; no terrain or outcomes"
+  },
+  "native_reference_preserved": true,
+  "input_routes_unmodified": true,
+  "active_station_and_command_features_exact": true,
+  "exact_geometry_speed_duplicates_removed": true,
+  "nearby_distance_heading_boundaries_and_angle_wrap_verified": true,
+  "active_route_retained_even_when_far_with_model_risk_check_still_required": true,
+  "future_metadata_excluded_from_model_commands": true,
+  "source_sha256": "1ba9ed694b1699ff57e184867e506c6ad143c048502b9882028f6327b4149db2"
+}

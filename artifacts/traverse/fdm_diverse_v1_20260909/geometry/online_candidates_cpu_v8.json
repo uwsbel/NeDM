@@ -1,0 +1,89 @@
+{
+  "passed": true,
+  "policy": {
+    "version": "retained_and_nearby_global_v2",
+    "nearby_distance_m": 2.0,
+    "nearby_heading_deg": 15.0,
+    "max_reference_curvature_inv_m": 0.025,
+    "curvature_basis": "360 training references max0.016669/m; limit rounded to1.5times this geometric maximum, not a learned safety guarantee",
+    "ordering": "active reference, nearby original families, fresh current-pose families; exact duplicates removed",
+    "inputs": "measured pose, goal, previously proposed references; no terrain or outcomes",
+    "invalid_fresh_candidates": "Reject and log individual geometry-contract failures; corrupt active/original references still raise"
+  },
+  "native_reference_preserved": true,
+  "input_routes_unmodified": true,
+  "active_station_and_command_features_exact": true,
+  "exact_geometry_speed_duplicates_removed": true,
+  "nearby_distance_heading_boundaries_and_angle_wrap_verified": true,
+  "active_route_retained_even_when_far_with_model_risk_check_still_required": true,
+  "future_metadata_excluded_from_model_commands": true,
+  "reversed_heading_regression": {
+    "pose": [
+      -100.0,
+      0.0,
+      3.141592653589793
+    ],
+    "goal": [
+      100.0,
+      0.0
+    ],
+    "accepted": 13,
+    "rejected": [
+      {
+        "candidate_origin": "fresh_family_00",
+        "reference_sha256": "2b22ea0f65058b49b1e0d11292a1e81392d95fb47916a16e46dd1bf5c8b20301",
+        "reason": "reference_contract",
+        "detail": "Reference contains a cusp or sharp segment-heading reversal",
+        "reference_meta": {
+          "candidate": "rgbd_geometric_family",
+          "lateral_offset_m": 0.0,
+          "cruise_speed_mps": 2.0,
+          "fdm_station": 0.0
+        }
+      },
+      {
+        "candidate_origin": "fresh_family_01",
+        "reference_sha256": "2c8618b31d2dceac62244b0b12938dbe394db3e28c8e1819552bc93523e78f01",
+        "reason": "reference_contract",
+        "detail": "Reference contains a cusp or sharp segment-heading reversal",
+        "reference_meta": {
+          "candidate": "rgbd_geometric_family",
+          "lateral_offset_m": 0.0,
+          "cruise_speed_mps": 4.0,
+          "fdm_station": 0.0
+        }
+      },
+      {
+        "candidate_origin": "fresh_family_02",
+        "reference_sha256": "30f29cb63129516635502efe3004afc71fdc7ec1732ae3a66505bb6f3d820e36",
+        "reason": "reference_contract",
+        "detail": "Reference contains a cusp or sharp segment-heading reversal",
+        "reference_meta": {
+          "candidate": "rgbd_geometric_family",
+          "lateral_offset_m": 0.0,
+          "cruise_speed_mps": 6.0,
+          "fdm_station": 0.0
+        }
+      }
+    ],
+    "all_accepted_geometry_speed_goal_station_contracts_pass": true,
+    "replay_arrays_metadata_and_rejections_exact": true,
+    "input_reference_unmodified": true
+  },
+  "corrupt_active_and_frozen_original_raise": [
+    "active/speed_shape",
+    "original/speed_shape",
+    "active/speed_nan",
+    "original/speed_nan",
+    "active/speed_negative",
+    "original/speed_negative",
+    "active/speed_above_support",
+    "original/speed_above_support",
+    "active/station_corruption",
+    "original/station_corruption",
+    "active/zero_length_segment",
+    "original/zero_length_segment"
+  ],
+  "wrong_goal_active_raises": true,
+  "source_sha256": "20afa3efa04d89fe62f27cec4ae060cd654cc28ae33b6bce433fabf85f6498ad"
+}

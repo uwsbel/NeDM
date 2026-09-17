@@ -1,0 +1,297 @@
+{
+  "complete": true,
+  "all_three_native_parity_passed": true,
+  "all_three_transfer_hashes_verified": true,
+  "physics_source_manifest_sha256": "c2ec8b81acd066c75e46cf658c8aa5e67661f92cf3a35a6da97575b03812382a",
+  "core_freeze_sha256": "29684ce59cdd68e9b1f7310dcd2e63c55d021f6ff6712b83f99d286722efeb33",
+  "selected_checkpoint_step": 5000,
+  "planning_mode": "plan_once",
+  "passive_demo_camera_is_never_model_input": true,
+  "model_observation": "One frozen pre-drive RGB-D snapshot; separate from the passive demo camera",
+  "entries": [
+    {
+      "directory": "cross_time",
+      "title": "Cross-slope: time + risk",
+      "trial_id": "diverse_v1_test_cross_slopes_00_selected_rgbd_time",
+      "native_video_job": 412134,
+      "video_sample_hz": 5.0,
+      "physical_duration_s": 41.25,
+      "actual_frames": 208,
+      "parity_array_count": 241,
+      "status": "goal_reached",
+      "schema_safe_goal_reached": true,
+      "schema_contact": false,
+      "schema_rollover": false,
+      "bounded_stall": false,
+      "positive_engine_interface_work_kj": 275.1749376788097,
+      "goal_progress_m": 225.28837763900066,
+      "max_abs_roll_deg": 2.6347609943507813,
+      "max_abs_pitch_deg": 4.286387312227448,
+      "maximum_encoded_timestamp_error_s": 6.856737400084967e-12,
+      "checkpoint_sha256": "0251cb87ddd25b6dfd8c628680f3470983ca4ca36ef65a05bb966021a4691a20",
+      "paths": {
+        "video": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_diverse_v1_20260909/demos/protected_v1/cross_time/report/selected_trial/actual_chrono.mp4",
+        "overview": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_diverse_v1_20260909/demos/protected_v1/cross_time/report/selected_trial/overview.png",
+        "overview_pdf": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_diverse_v1_20260909/demos/protected_v1/cross_time/report/selected_trial/overview.pdf",
+        "telemetry": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_diverse_v1_20260909/demos/protected_v1/cross_time/report/telemetry.png",
+        "telemetry_pdf": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_diverse_v1_20260909/demos/protected_v1/cross_time/report/telemetry.pdf",
+        "slip": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_diverse_v1_20260909/demos/protected_v1/cross_time/report/slip_diagnostics.png",
+        "parity": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_diverse_v1_20260909/demos/protected_v1/cross_time/parity.json",
+        "report": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_diverse_v1_20260909/demos/protected_v1/cross_time/report/selected_trial/report.json",
+        "video_provenance": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_diverse_v1_20260909/demos/protected_v1/cross_time/report/selected_trial/video_provenance.json"
+      },
+      "sha256": {
+        "video": "a67b1a6da6fcbca2528d784ad3dc8bdd2dfb1afb94f34892a334e16d83a46f6d",
+        "overview": "efa33500b591dcb35e9df7cd33f18384725f69cc6f64233be104007a1d3add59",
+        "overview_pdf": "4a540bb28bdab2e1cbf78071ef37684980e5928e1dbca7d163bb448bd448770a",
+        "telemetry": "fa034a33c838820d1cb24a03380c66e17d2963391e9f351c64dda064b1fb1732",
+        "telemetry_pdf": "7e15cbbb327a24e179db1d8de32b4cfc9dd03a4ecba656ad3a16bc6eca73d5ab",
+        "slip": "74060120d153260deb83c5fe90623754697d3c028c26f29f4812afef323e03bc",
+        "parity": "37daf25a3216ff7c4f98d6660e506a58dc7da4be174a4a2c043ade162006758b",
+        "report": "de053ba69137d099528aa47a7f04c36b2451345336d3a6a744ee423b500ed7df",
+        "video_provenance": "7bbd38a5f4ed96e34738ba0361e07b4ca7c268c32e2dbef2c23c58a11c0f9577"
+      },
+      "measured_events_and_launch_prediction": {
+        "contact_threshold_n": 1.0,
+        "asset_contact_intervals_s": [],
+        "chassis_contact_intervals_s": [],
+        "combined_contact_intervals_s": [],
+        "bounded_window_count": 0,
+        "bounded_window_duration_s": 2.0,
+        "first_bounded_window_s": null,
+        "union_of_qualifying_bounded_windows_s": [],
+        "planner_pause_intervals_s": [],
+        "planner_pause_duration_s": 0.0,
+        "bounded_definition": "41 measured endpoints with XY diameter <=0.25 m over2 s, all40 throttle intervals >0.3, no deliberate parking; onset is confirmed only after the full window.",
+        "launch_abstained": false,
+        "selected_reference_matches_saved_base_family": false,
+        "saved_launch_base_family_risk": {
+          "contact_probability": 0.08793990314006805,
+          "low_progress_probability": 0.013388022780418396,
+          "rollover_probability": 0.0005673154373653233,
+          "contact_risk_supported": true,
+          "rollover_risk_supported": true,
+          "stall_risk_supported": true
+        },
+        "saved_risk_scope": "Saved launch score for the selected base family before MPPI refinement; not a recorded score for the final refined reference",
+        "recomputed_selected_reference_12s_risk": {
+          "contact": 0.08899974822998047,
+          "rollover": 0.0005738621694035828,
+          "bounded_motion": 0.013457300141453743
+        },
+        "recomputed_selected_reference_allowed_by_predicted_risk": true,
+        "raw_bounded_output_diagnostic": {
+          "maximum": 0.5378276109695435,
+          "time_s": 0.2,
+          "scope": "Raw head output includes unsupervised t<2 s; not the planner-eligible bounded-motion risk"
+        },
+        "recomputed_risk_scope": "Frozen-checkpoint CPU forecast using only launch RGB-D, causal history and selected reference; existing frozen scorer cost_breakdown applies goal-prefix and bounded-motion >=2 s eligibility masks. Finite12 s forecast, not a full-route guarantee.",
+        "final_mean_gate": "Frozen ReferenceMPPI.optimize evaluates the final weighted mean through the same scorer and retains it only if finite and no worse than the best allowed sample."
+      }
+    },
+    {
+      "directory": "cross_energy",
+      "title": "Cross-slope: time + risk + work",
+      "trial_id": "diverse_v1_test_cross_slopes_00_selected_rgbd_energy",
+      "native_video_job": 412133,
+      "video_sample_hz": 5.0,
+      "physical_duration_s": 41.2,
+      "actual_frames": 207,
+      "parity_array_count": 241,
+      "status": "goal_reached",
+      "schema_safe_goal_reached": true,
+      "schema_contact": false,
+      "schema_rollover": false,
+      "bounded_stall": false,
+      "positive_engine_interface_work_kj": 273.37863441979675,
+      "goal_progress_m": 225.2996391271887,
+      "max_abs_roll_deg": 2.574742414900562,
+      "max_abs_pitch_deg": 4.276999971907743,
+      "maximum_encoded_timestamp_error_s": 6.856737400084967e-12,
+      "checkpoint_sha256": "0251cb87ddd25b6dfd8c628680f3470983ca4ca36ef65a05bb966021a4691a20",
+      "paths": {
+        "video": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_diverse_v1_20260909/demos/protected_v1/cross_energy/report/selected_trial/actual_chrono.mp4",
+        "overview": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_diverse_v1_20260909/demos/protected_v1/cross_energy/report/selected_trial/overview.png",
+        "overview_pdf": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_diverse_v1_20260909/demos/protected_v1/cross_energy/report/selected_trial/overview.pdf",
+        "telemetry": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_diverse_v1_20260909/demos/protected_v1/cross_energy/report/telemetry.png",
+        "telemetry_pdf": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_diverse_v1_20260909/demos/protected_v1/cross_energy/report/telemetry.pdf",
+        "slip": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_diverse_v1_20260909/demos/protected_v1/cross_energy/report/slip_diagnostics.png",
+        "parity": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_diverse_v1_20260909/demos/protected_v1/cross_energy/parity.json",
+        "report": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_diverse_v1_20260909/demos/protected_v1/cross_energy/report/selected_trial/report.json",
+        "video_provenance": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_diverse_v1_20260909/demos/protected_v1/cross_energy/report/selected_trial/video_provenance.json"
+      },
+      "sha256": {
+        "video": "ffcce52fbe2c47f817039145528ffde290abd05adfeda63b582fa921dba2a652",
+        "overview": "9f9a7c211b099d0ecacf096b8aff0f83d1561937215a83c1b1b3f1fe7adb036b",
+        "overview_pdf": "080426496118a840e4ec6f41cd00fdd43522fc76582c5bff073b28319cc8c2e6",
+        "telemetry": "61c79290c9086f7ba61873695a93015118007f93928af479fef1ca9167c34b63",
+        "telemetry_pdf": "845d84b289251d4dbcfb28745b97cac0bc65e998adccb47c3b24ac742f5794ca",
+        "slip": "14c30bb6b6f934d8f4b084942189df363e390fd05512a567b36961ce040189b4",
+        "parity": "a009dfb4d1d70e3fe77baa413ca98402d1f41bdab163b20342b136810c0d3a81",
+        "report": "c02395177722554805c5a4720d5e864e763cd0ce168f87b004fb231fbe7e061a",
+        "video_provenance": "1307d3d14c4d7ab50e4d72e3e732f41235fd59ed281110c7ca0e5d893a0b9029"
+      },
+      "measured_events_and_launch_prediction": {
+        "contact_threshold_n": 1.0,
+        "asset_contact_intervals_s": [],
+        "chassis_contact_intervals_s": [],
+        "combined_contact_intervals_s": [],
+        "bounded_window_count": 0,
+        "bounded_window_duration_s": 2.0,
+        "first_bounded_window_s": null,
+        "union_of_qualifying_bounded_windows_s": [],
+        "planner_pause_intervals_s": [],
+        "planner_pause_duration_s": 0.0,
+        "bounded_definition": "41 measured endpoints with XY diameter <=0.25 m over2 s, all40 throttle intervals >0.3, no deliberate parking; onset is confirmed only after the full window.",
+        "launch_abstained": false,
+        "selected_reference_matches_saved_base_family": false,
+        "saved_launch_base_family_risk": {
+          "contact_probability": 0.08793990314006805,
+          "low_progress_probability": 0.013388022780418396,
+          "rollover_probability": 0.0005673154373653233,
+          "contact_risk_supported": true,
+          "rollover_risk_supported": true,
+          "stall_risk_supported": true
+        },
+        "saved_risk_scope": "Saved launch score for the selected base family before MPPI refinement; not a recorded score for the final refined reference",
+        "recomputed_selected_reference_12s_risk": {
+          "contact": 0.08977515995502472,
+          "rollover": 0.0005751114222221076,
+          "bounded_motion": 0.013533618301153183
+        },
+        "recomputed_selected_reference_allowed_by_predicted_risk": true,
+        "raw_bounded_output_diagnostic": {
+          "maximum": 0.5378545522689819,
+          "time_s": 0.2,
+          "scope": "Raw head output includes unsupervised t<2 s; not the planner-eligible bounded-motion risk"
+        },
+        "recomputed_risk_scope": "Frozen-checkpoint CPU forecast using only launch RGB-D, causal history and selected reference; existing frozen scorer cost_breakdown applies goal-prefix and bounded-motion >=2 s eligibility masks. Finite12 s forecast, not a full-route guarantee.",
+        "final_mean_gate": "Frozen ReferenceMPPI.optimize evaluates the final weighted mean through the same scorer and retains it only if finite and no worse than the best allowed sample."
+      }
+    },
+    {
+      "directory": "rolling_failure_1hz",
+      "title": "Rolling hills: failure, time + risk + work",
+      "trial_id": "diverse_v1_test_rolling_hills_00_selected_rgbd_energy",
+      "native_video_job": 412145,
+      "video_sample_hz": 1.0,
+      "physical_duration_s": 180.0,
+      "actual_frames": 181,
+      "parity_array_count": 241,
+      "status": "timeout",
+      "schema_safe_goal_reached": false,
+      "schema_contact": true,
+      "schema_rollover": false,
+      "bounded_stall": true,
+      "positive_engine_interface_work_kj": 12348.599125001636,
+      "goal_progress_m": 129.0389728304565,
+      "max_abs_roll_deg": 37.66091043732752,
+      "max_abs_pitch_deg": 22.87247037070913,
+      "maximum_encoded_timestamp_error_s": 1.3517365005100146e-10,
+      "checkpoint_sha256": "0251cb87ddd25b6dfd8c628680f3470983ca4ca36ef65a05bb966021a4691a20",
+      "paths": {
+        "video": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_diverse_v1_20260909/demos/protected_v1/rolling_failure_1hz/report/selected_trial/actual_chrono.mp4",
+        "overview": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_diverse_v1_20260909/demos/protected_v1/rolling_failure_1hz/report/selected_trial/overview.png",
+        "overview_pdf": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_diverse_v1_20260909/demos/protected_v1/rolling_failure_1hz/report/selected_trial/overview.pdf",
+        "telemetry": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_diverse_v1_20260909/demos/protected_v1/rolling_failure_1hz/report/telemetry.png",
+        "telemetry_pdf": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_diverse_v1_20260909/demos/protected_v1/rolling_failure_1hz/report/telemetry.pdf",
+        "slip": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_diverse_v1_20260909/demos/protected_v1/rolling_failure_1hz/report/slip_diagnostics.png",
+        "parity": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_diverse_v1_20260909/demos/protected_v1/rolling_failure_1hz/parity.json",
+        "report": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_diverse_v1_20260909/demos/protected_v1/rolling_failure_1hz/report/selected_trial/report.json",
+        "video_provenance": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_diverse_v1_20260909/demos/protected_v1/rolling_failure_1hz/report/selected_trial/video_provenance.json"
+      },
+      "sha256": {
+        "video": "0439c69849ff498a4977e1060725e8fc6703d36decc2d05640e24a2124a7e349",
+        "overview": "09e08228f8cb7e1b8490805dcf9adbc26e7bd8004bb2ce4b3cbb0d36f7ebd149",
+        "overview_pdf": "b4f1e553e5edb75c467ee40241fba551ba3a07501faf5ae563fba7383a0eca04",
+        "telemetry": "ec3b5534bc9d7547564fdbeed25480321771ce4834541bddcad50120d6fa6d82",
+        "telemetry_pdf": "630b263cef9b5acce6f8da0be0ef4aaa01cbb604e135bb294b43385cafb6552d",
+        "slip": "4ebe619a4438daa249eeb4a5023cb94a1a09dda9d2a9605b9b51e2467edae595",
+        "parity": "adbcbb99b3dfd8b5343159e426ff1699e2c37bdbff9c4a24d53efa185a2ede37",
+        "report": "a641718db0ae9dda69586abe2ea8ffec529ebd6aecca833a26be0f5f72c7d74a",
+        "video_provenance": "263029b0525b19036adb65c774e903807fe754bcc6a985b97f2337a515ef724c"
+      },
+      "measured_events_and_launch_prediction": {
+        "contact_threshold_n": 1.0,
+        "asset_contact_intervals_s": [
+          [
+            30.449999999993558,
+            30.849999999993337
+          ],
+          [
+            31.199999999993143,
+            180.00000000013517
+          ]
+        ],
+        "chassis_contact_intervals_s": [
+          [
+            30.449999999993558,
+            30.849999999993337
+          ],
+          [
+            31.199999999993143,
+            180.00000000013517
+          ]
+        ],
+        "combined_contact_intervals_s": [
+          [
+            30.449999999993558,
+            30.849999999993337
+          ],
+          [
+            31.199999999993143,
+            180.00000000013517
+          ]
+        ],
+        "bounded_window_count": 2943,
+        "bounded_window_duration_s": 2.0,
+        "first_bounded_window_s": [
+          30.89999999999331,
+          32.899999999995224
+        ],
+        "union_of_qualifying_bounded_windows_s": [
+          [
+            30.89999999999331,
+            180.00000000013517
+          ]
+        ],
+        "planner_pause_intervals_s": [],
+        "planner_pause_duration_s": 0.0,
+        "bounded_definition": "41 measured endpoints with XY diameter <=0.25 m over2 s, all40 throttle intervals >0.3, no deliberate parking; onset is confirmed only after the full window.",
+        "launch_abstained": false,
+        "selected_reference_matches_saved_base_family": false,
+        "saved_launch_base_family_risk": {
+          "contact_probability": 0.12847107648849487,
+          "low_progress_probability": 0.017431193962693214,
+          "rollover_probability": 0.0008926530135795474,
+          "contact_risk_supported": true,
+          "rollover_risk_supported": true,
+          "stall_risk_supported": true
+        },
+        "saved_risk_scope": "Saved launch score for the selected base family before MPPI refinement; not a recorded score for the final refined reference",
+        "recomputed_selected_reference_12s_risk": {
+          "contact": 0.12770816683769226,
+          "rollover": 0.0008886702707968652,
+          "bounded_motion": 0.0171748585999012
+        },
+        "recomputed_selected_reference_allowed_by_predicted_risk": true,
+        "raw_bounded_output_diagnostic": {
+          "maximum": 0.5358173847198486,
+          "time_s": 0.2,
+          "scope": "Raw head output includes unsupervised t<2 s; not the planner-eligible bounded-motion risk"
+        },
+        "recomputed_risk_scope": "Frozen-checkpoint CPU forecast using only launch RGB-D, causal history and selected reference; existing frozen scorer cost_breakdown applies goal-prefix and bounded-motion >=2 s eligibility masks. Finite12 s forecast, not a full-route guarantee.",
+        "final_mean_gate": "Frozen ReferenceMPPI.optimize evaluates the final weighted mean through the same scorer and retains it only if finite and no worse than the best allowed sample."
+      }
+    }
+  ],
+  "illustrative_pair": {
+    "work_saving_fraction": 0.006527859238073752,
+    "time_change_fraction": -0.001212121212121109,
+    "scope": "One rule-selected illustrative safe pair. No cohort-wide energy-efficiency claim; validation energy gate did not pass."
+  },
+  "index_sha256": "e2b642c85aec7abb7a89121125bbd820de2d4fe5a5ba2ab319339540287cbbef",
+  "builder_sha256": "956d3d44247edb5cbd59f6259ae7ede4977327f03f13837a8c29a6557ead856f",
+  "media_policy_sha256": "2b5e818772cfe11ca584a876281a94452a02cf7520ab83f49814351338ba164c",
+  "visual_qa": "Individual overviews, telemetry plots and actual camera frames visually inspected; encoded timestamps and frame inventories verified."
+}

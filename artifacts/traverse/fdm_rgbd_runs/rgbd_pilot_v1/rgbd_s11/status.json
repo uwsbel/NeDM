@@ -1,0 +1,18 @@
+{
+  "arm": "rgbd",
+  "best_step": 1500,
+  "best_validation_loss": 0.1986009951634961,
+  "device": "cuda",
+  "draw_digest": "eb6cbe0c17dc99061adb790e9dde06d16486c5711f75398987a40c380bce9b54",
+  "hostname": "k007-001.hpcfund",
+  "model_family": "rgbd_reference_gru",
+  "new_updates": 3000,
+  "pid": 1064401,
+  "seed": 11,
+  "slurm_job_id": "409531",
+  "state": "complete",
+  "step": 3000,
+  "training_seconds": 65.68572534713894,
+  "updates_per_second": 45.67202362683006,
+  "wall_seconds_this_invocation": 69.15365238115191
+}

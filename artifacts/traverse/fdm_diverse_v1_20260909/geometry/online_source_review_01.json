@@ -1,0 +1,12 @@
+{
+  "reviewed_sha256": {
+    "scripts/traverse_fdm_rgbd_diverse_online.py": "2d086ea8aa83e22eee0b65e9b99689d0f9048754aa48802b3d26ece14ca6f643",
+    "src/nedm/traverse/fdm_online_driver.py": "494e85478bde7b11774f0f590a34c27a0ddacd0f01e78c06b05444f8f9c8279e",
+    "src/nedm/traverse/fdm_diverse_planner.py": "91f5035cab3ffecbbcbc196c2490a1b25f42febbfd865e95a1d977ce66c6a65a"
+  },
+  "findings_addressed": [
+    "Measured asset OR chassis event schema exposed separately from legacy asset-only fields",
+    "Applied-input and requested-reference timing explicitly recorded"
+  ],
+  "remaining_gate": "Development-only actual online smoke; no protected test inspected"
+}

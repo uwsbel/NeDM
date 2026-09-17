@@ -1,0 +1,292 @@
+{
+  "passed": true,
+  "primary": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/pilot_w8/raw/diverse_v1_train_rolling_hills_00/family_14",
+  "comparisons": {
+    "render_rich": {
+      "all_physical_arrays_exact": true,
+      "arrays": {
+        "state": {
+          "exact": true,
+          "shape": [
+            827,
+            17
+          ],
+          "maximum_absolute_difference": 0.0
+        },
+        "action": {
+          "exact": true,
+          "shape": [
+            827,
+            3
+          ],
+          "maximum_absolute_difference": 0.0
+        },
+        "pose": {
+          "exact": true,
+          "shape": [
+            827,
+            3
+          ],
+          "maximum_absolute_difference": 0.0
+        },
+        "terminal_pose": {
+          "exact": true,
+          "shape": [
+            3
+          ],
+          "maximum_absolute_difference": 0.0
+        },
+        "power_kw": {
+          "exact": true,
+          "shape": [
+            827
+          ],
+          "maximum_absolute_difference": 0.0
+        },
+        "contact_n": {
+          "exact": true,
+          "shape": [
+            827
+          ],
+          "maximum_absolute_difference": 0.0
+        },
+        "terminal_state": {
+          "exact": true,
+          "shape": [
+            17
+          ],
+          "maximum_absolute_difference": 0.0
+        },
+        "terminal_parked": {
+          "exact": true,
+          "shape": [],
+          "maximum_absolute_difference": null
+        },
+        "parked": {
+          "exact": true,
+          "shape": [
+            827
+          ],
+          "maximum_absolute_difference": null
+        },
+        "positive_work_kj_per_interval": {
+          "exact": true,
+          "shape": [
+            827
+          ],
+          "maximum_absolute_difference": 0.0
+        },
+        "dt_s": {
+          "exact": true,
+          "shape": [],
+          "maximum_absolute_difference": 0.0
+        }
+      },
+      "provenance_checks": {
+        "case_sha256": true,
+        "source_sha256": true,
+        "runtime_sha256": true,
+        "physics_dt_s": true,
+        "camera": true,
+        "driver": true,
+        "terrain_texture_sha256": true
+      },
+      "contact_events_exact": true,
+      "outcome_checks": {
+        "case_id": true,
+        "status": true,
+        "goal_reached": true,
+        "contact_free_goal_reached": true,
+        "safe_goal_reached": true,
+        "goal_time_s": true,
+        "elapsed_s": true,
+        "goal_radius_m": true,
+        "initial_goal_distance_m": true,
+        "final_goal_distance_m": true,
+        "goal_progress_m": true,
+        "net_displacement_m": true,
+        "path_length_m": true,
+        "asset_contact": true,
+        "max_asset_contact_n": true,
+        "first_asset_contact_interval_start_s": true,
+        "longest_consecutive_effortful_near_zero_speed_s": true,
+        "sustained_near_stop": true,
+        "sustained_near_stop_definition": true,
+        "bounded_blockage_v1": true,
+        "bounded_blockage_v1_windows": true,
+        "bounded_blockage_v1_definition": true,
+        "safe_goal_reached_with_bounded_blockage_v1": true,
+        "low_net_progress_4s_windows": true,
+        "low_progress_warning": true,
+        "positive_work_kj": true,
+        "frames": true,
+        "route_sha256": true,
+        "case_sha256": true,
+        "driver": true,
+        "camera": true,
+        "measurement_scope": true,
+        "mechanical_work_definition": true
+      },
+      "primary_trajectory_sha256": "18072cf90901430cc7c3c76cddf8d0e3b18892cabbc760d091078e1cb244ee4f",
+      "counterpart_trajectory_sha256": "18072cf90901430cc7c3c76cddf8d0e3b18892cabbc760d091078e1cb244ee4f"
+    },
+    "headless_no_rich": {
+      "all_physical_arrays_exact": true,
+      "arrays": {
+        "state": {
+          "exact": true,
+          "shape": [
+            827,
+            17
+          ],
+          "maximum_absolute_difference": 0.0
+        },
+        "action": {
+          "exact": true,
+          "shape": [
+            827,
+            3
+          ],
+          "maximum_absolute_difference": 0.0
+        },
+        "pose": {
+          "exact": true,
+          "shape": [
+            827,
+            3
+          ],
+          "maximum_absolute_difference": 0.0
+        },
+        "terminal_pose": {
+          "exact": true,
+          "shape": [
+            3
+          ],
+          "maximum_absolute_difference": 0.0
+        },
+        "power_kw": {
+          "exact": true,
+          "shape": [
+            827
+          ],
+          "maximum_absolute_difference": 0.0
+        },
+        "contact_n": {
+          "exact": true,
+          "shape": [
+            827
+          ],
+          "maximum_absolute_difference": 0.0
+        },
+        "terminal_state": {
+          "exact": true,
+          "shape": [
+            17
+          ],
+          "maximum_absolute_difference": 0.0
+        },
+        "terminal_parked": {
+          "exact": true,
+          "shape": [],
+          "maximum_absolute_difference": null
+        },
+        "parked": {
+          "exact": true,
+          "shape": [
+            827
+          ],
+          "maximum_absolute_difference": null
+        },
+        "positive_work_kj_per_interval": {
+          "exact": true,
+          "shape": [
+            827
+          ],
+          "maximum_absolute_difference": 0.0
+        },
+        "dt_s": {
+          "exact": true,
+          "shape": [],
+          "maximum_absolute_difference": 0.0
+        }
+      },
+      "provenance_checks": {
+        "case_sha256": true,
+        "source_sha256": true,
+        "runtime_sha256": true,
+        "physics_dt_s": true,
+        "camera": true,
+        "driver": true,
+        "terrain_texture_sha256": true
+      },
+      "contact_events_exact": true,
+      "outcome_checks": {
+        "case_id": true,
+        "status": true,
+        "goal_reached": true,
+        "contact_free_goal_reached": true,
+        "safe_goal_reached": true,
+        "goal_time_s": true,
+        "elapsed_s": true,
+        "goal_radius_m": true,
+        "initial_goal_distance_m": true,
+        "final_goal_distance_m": true,
+        "goal_progress_m": true,
+        "net_displacement_m": true,
+        "path_length_m": true,
+        "asset_contact": true,
+        "max_asset_contact_n": true,
+        "first_asset_contact_interval_start_s": true,
+        "longest_consecutive_effortful_near_zero_speed_s": true,
+        "sustained_near_stop": true,
+        "sustained_near_stop_definition": true,
+        "bounded_blockage_v1": true,
+        "bounded_blockage_v1_windows": true,
+        "bounded_blockage_v1_definition": true,
+        "safe_goal_reached_with_bounded_blockage_v1": true,
+        "low_net_progress_4s_windows": true,
+        "low_progress_warning": true,
+        "positive_work_kj": true,
+        "frames": true,
+        "route_sha256": true,
+        "case_sha256": true,
+        "driver": true,
+        "camera": true,
+        "measurement_scope": true,
+        "mechanical_work_definition": true
+      },
+      "primary_trajectory_sha256": "18072cf90901430cc7c3c76cddf8d0e3b18892cabbc760d091078e1cb244ee4f",
+      "counterpart_trajectory_sha256": "18072cf90901430cc7c3c76cddf8d0e3b18892cabbc760d091078e1cb244ee4f"
+    }
+  },
+  "rich_telemetry": {
+    "primary_headless": {
+      "passed": true,
+      "rows": 828,
+      "intervals": 827,
+      "sample_fields": 174,
+      "solver_step_intervals": 827,
+      "fields_with_missing_samples": [
+        "command_desired_speed_mps",
+        "command_parked"
+      ],
+      "trajectory_parity": "Pose, applied actions, engine-interface power and solver-step work match trajectory.npz"
+    },
+    "render_rich": {
+      "passed": true,
+      "rows": 828,
+      "intervals": 827,
+      "sample_fields": 174,
+      "solver_step_intervals": 827,
+      "fields_with_missing_samples": [
+        "command_desired_speed_mps",
+        "command_parked"
+      ],
+      "trajectory_parity": "Pose, applied actions, engine-interface power and solver-step work match trajectory.npz"
+    }
+  },
+  "physics_scope": "60s same route and controller; renderer and passive rich observer toggled independently",
+  "physical_job_id": "412058",
+  "comparison_job_id": null,
+  "comparison_source_sha256": "8c16ee35bb935a5e2559ee65f7b908e53a74a7db0efa9879e91fa8c1cbcf2f35"
+}

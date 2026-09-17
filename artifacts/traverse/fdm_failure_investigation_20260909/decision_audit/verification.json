@@ -1,0 +1,50 @@
+{
+  "passed": true,
+  "source_files_verified": 86,
+  "links_verified": 11,
+  "trials": [
+    {
+      "trial_id": "diverse_v1_test_cross_slopes_00_selected_rgbd_energy",
+      "anchors": 17,
+      "arrays_sha256": "9c8ffd2bad720e8c98d16a382cbc9bd2badf4d03356cb6a8245e51f0a1b66837",
+      "launch_history_exact": true,
+      "saved_base_score_max_abs_difference": 2.1668084031034596e-05
+    },
+    {
+      "trial_id": "diverse_v1_test_cross_slopes_00_selected_rgbd_time",
+      "anchors": 17,
+      "arrays_sha256": "f03c56c3ec8d56aa811e1f1a5076b0b2b78ac89bc84f713d668640d2b96c5226",
+      "launch_history_exact": true,
+      "saved_base_score_max_abs_difference": 1.2430697097443044e-05
+    },
+    {
+      "trial_id": "diverse_v1_test_rolling_hills_00_selected_rgbd_energy",
+      "anchors": 33,
+      "arrays_sha256": "e193fcd756f5fcad10f4dcce4af70a69c6d95c688fcaa20d5a875dc074b9d426",
+      "launch_history_exact": true,
+      "saved_base_score_max_abs_difference": 1.4098658880357107e-05
+    },
+    {
+      "trial_id": "diverse_v1_test_rolling_hills_00_selected_rgbd_time",
+      "anchors": 32,
+      "arrays_sha256": "e3f26afab88a1e940a9eee2c2153ad4b8b24c1f53e9fdd6c53b2bd2dc13deee3",
+      "launch_history_exact": true,
+      "saved_base_score_max_abs_difference": 1.1184787979345856e-05
+    },
+    {
+      "trial_id": "diverse_v1_test_rough_mosaic_00_selected_rgbd_energy",
+      "anchors": 22,
+      "arrays_sha256": "008588882c5f08e77956360cfc881a9da4a11130cd07cee07d9e5fa21efbe378",
+      "launch_history_exact": true,
+      "saved_base_score_max_abs_difference": 1.4441226824146725e-05
+    },
+    {
+      "trial_id": "diverse_v1_test_rough_mosaic_00_selected_rgbd_time",
+      "anchors": 23,
+      "arrays_sha256": "31d1cb60f8e2d52154530d667e6d05282850132f14684db14e586ba30785d857",
+      "launch_history_exact": true,
+      "saved_base_score_max_abs_difference": 1.1736071158452432e-05
+    }
+  ],
+  "interpretation": "All forecast arrays finite,144 causal anchors x17references x60steps,17source candidates includes final plus16savedlaunchfamilies; bounded labels masked before2s; exact launch history and measured source hashes verified."
+}

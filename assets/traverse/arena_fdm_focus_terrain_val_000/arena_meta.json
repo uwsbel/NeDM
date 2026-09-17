@@ -1,0 +1,30 @@
+{
+  "size_m": 80.0,
+  "pixels": 512,
+  "resolution_m_per_px": 0.15625,
+  "height_min_m": -0.1,
+  "height_max_m": 1.7684181357307978,
+  "quantization_step_m": 0.007327129944042344,
+  "bmp": "arena_000.bmp",
+  "seed": 2026090817,
+  "orientation": {
+    "rot90": 0,
+    "flipud": true,
+    "calibrated": true,
+    "rmse_m": 0.008120992072417996,
+    "median_abs_m": 0.005373480689913723,
+    "runner_up_rmse_m": 0.817868874775216,
+    "samples": 400
+  },
+  "features": [],
+  "authored_training_probe": {
+    "kind": "rounded steep mesa",
+    "amplitude_m": 1.6684181357307977,
+    "core_radius_m": 1.3034586614475143,
+    "wall_width_m": 1.0219601781914873,
+    "center_xy": [
+      1.4081240628143892,
+      0.44592424077776993
+    ]
+  }
+}

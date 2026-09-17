@@ -1,0 +1,41 @@
+{
+  "checkpoint_sha256": "3aa2f403cc7786857be67682e5b78f052a7329115f3df0a9dd852385453162a3",
+  "checkpoint": "combined_patch_rgbd_s11_last5000",
+  "mppi_config": {
+    "samples": 64,
+    "iterations": 2,
+    "temperature": 1.0,
+    "knots": 3,
+    "lateral_sigma_m": 0.35,
+    "speed_sigma_mps": 0.4,
+    "max_lateral_m": 1.0,
+    "max_speed_delta_mps": 1.0,
+    "min_speed_mps": 0.0,
+    "max_speed_mps": 6.0,
+    "noise_correlation": 0.6,
+    "max_curvature_inv_m": 0.125,
+    "max_accel_mps2": 1.5,
+    "max_decel_mps2": 2.0,
+    "half_width_m": 1.3,
+    "half_length_m": 2.6,
+    "clearance_margin_m": 0.1,
+    "arena_half_extent_m": 40.0,
+    "path_step_m": 0.25
+  },
+  "scoring_config": {
+    "goal_radius_m": 2.5,
+    "contact_penalty_s": 60.0,
+    "low_progress_penalty_s": 60.0,
+    "terminal_progress_weight": 0.1,
+    "minimum_progress_speed_mps": 0.5,
+    "maximum_remaining_time_s": 120.0,
+    "refine_families": 3,
+    "max_contact_probability": 0.35,
+    "max_low_progress_probability": 0.5
+  },
+  "reason": "Additional development control restricting speed to focused training cruise ceiling; previous primary choices exceed6m/s. Other costs, families and seed unchanged.",
+  "scope": "Post-hoc declared development ablation; does not prove geometric training support or global optimality.",
+  "observation_sha256": "1b6da26be293351b33876ad050eedf9d53469647e211b652408c7d67865b7760",
+  "image_intervention": "normal",
+  "planner_sha256": "ece10c8b39c4f295cb4564747c594bdabc916e9b5e50cdd2a4e92e9331d63ac0"
+}

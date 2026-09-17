@@ -1,0 +1,33 @@
+{
+  "version": "validation_plan_once_ablation_v1",
+  "created_utc": "2026-09-09T22:39:57.806807+00:00",
+  "protected_test_opened": false,
+  "question": "Do repeated reference changes lose routes that an initial FDM+MPPI decision followed by nativePID could complete?",
+  "comparison": "Same start/map/model/cost/candidatebudget; plan_once performs only frame0 MPPI thenexecutes exact selectedfullroute. Receding v8 remains unchanged baseline.",
+  "models": [
+    {
+      "arm": "rgbd_s11",
+      "checkpoint": "best4000",
+      "role": "original predeclaredprimary"
+    },
+    {
+      "arm": "rgbd_s11",
+      "checkpoint": "last5000",
+      "role": "validation-only fixedbudgetalternative motivated bybetterpreonsetrisk and5/6 initiallibrarysafechoices; notdeclaredprimary replacement"
+    }
+  ],
+  "energy_weights_s_per_kj": [
+    0,
+    0.02,
+    0.2,
+    0.5
+  ],
+  "scenes": "all6 validation scenes, nofiltering",
+  "trials": 48,
+  "horizon_s": 180,
+  "mppi_samples": 64,
+  "mppi_iterations": 2,
+  "seed": 11,
+  "selection_status": "No test/model change authorized by this analysis alone; reportbothmodels andallcosts first. Reuseoriginalenergygate separately foreach complete6scenegrid.",
+  "outcome_schema": "samecollisionORchassis,bounded2s,rollover60,andfullsafecompletion"
+}

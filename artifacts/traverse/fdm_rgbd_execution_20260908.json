@@ -1,0 +1,267 @@
+{
+  "data_pack": "fdm_rgbd_fast_v1",
+  "source_snapshot": "78cf98ea8610",
+  "branch": "traverse_mppi",
+  "local_root": "/home/harry/NeDM-traverse_mppi",
+  "remote_root": "/work1/dannegrut/harry/experiments/traverse_mppi_20260908",
+  "training_location": "AMD only",
+  "jobs": [
+    {
+      "id": 409527,
+      "stage": "RGB-D modality smoke",
+      "variants": 8,
+      "steps_each": 100,
+      "status": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed_s": 27
+    },
+    {
+      "id": 409531,
+      "stage": "RGB-D modality pilot",
+      "variants": 8,
+      "steps_each": 3000,
+      "status": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed_s": 79
+    },
+    {
+      "id": 409565,
+      "stage": "focused RGB-D architecture and blank-control smoke",
+      "variants": 8,
+      "steps_each": 100,
+      "status": "COMPLETED",
+      "elapsed_s": 38
+    },
+    {
+      "id": 409566,
+      "stage": "focused RGB-D architecture and blank-control pilot",
+      "variants": 8,
+      "steps_each": 5000,
+      "status": "COMPLETED",
+      "elapsed_s": 274,
+      "exit_code": "0:0"
+    },
+    {
+      "id": 409580,
+      "stage": "combined RGB-D and bounded-motion smoke",
+      "variants": 8,
+      "steps_each": 100,
+      "status": "COMPLETED",
+      "elapsed_s": 45,
+      "exit_code": "0:0"
+    },
+    {
+      "id": 409581,
+      "stage": "combined RGB-D and bounded-motion pilot",
+      "variants": 8,
+      "steps_each": 5000,
+      "status": "COMPLETED",
+      "elapsed_s": 286,
+      "exit_code": "0:0"
+    }
+  ],
+  "physics_jobs": [
+    {
+      "id": 409524,
+      "stage": "initial calibration and observation",
+      "status": "superseded: missing grass texture path"
+    },
+    {
+      "id": 409526,
+      "stage": "calibration and valid observation",
+      "status": "COMPLETED",
+      "elapsed_s": 19
+    },
+    {
+      "id": 409530,
+      "stage": "paired initial-context smoke",
+      "status": "COMPLETED",
+      "elapsed_s": 19
+    },
+    {
+      "id": 409534,
+      "stage": "12 physical families and2 renderer replays",
+      "status": "COMPLETED",
+      "elapsed_s": 49
+    },
+    {
+      "id": 409539,
+      "stage": "2 actual selected MPPI references",
+      "status": "COMPLETED",
+      "elapsed_s": 40
+    },
+    {
+      "id": 409545,
+      "stage": "120 predeclared focused obstacle sibling rollouts",
+      "status": "COMPLETED",
+      "elapsed_s": 291
+    },
+    {
+      "id": 409553,
+      "stage": "18 training-only terrain failure probes",
+      "status": "COMPLETED",
+      "elapsed_s": 56
+    },
+    {
+      "id": 409563,
+      "stage": "18 training-only mesa blockage probes",
+      "status": "COMPLETED",
+      "elapsed_s": 53
+    },
+    {
+      "id": 409568,
+      "stage": "72 predeclared focused terrain siblings",
+      "status": "COMPLETED",
+      "elapsed_s": 161,
+      "exit_code": "0:0"
+    },
+    {
+      "id": 409569,
+      "stage": "held-out diagnostic observation only",
+      "status": "COMPLETED",
+      "elapsed_s": 18
+    },
+    {
+      "id": 409579,
+      "stage": "two focused-v1 primary MPPI references",
+      "status": "COMPLETED",
+      "elapsed_s": 27
+    },
+    {
+      "id": 409584,
+      "stage": "optional observed-depth controller check",
+      "status": "FAILED before physics; missing optional SciPy dependency, removed for retry"
+    },
+    {
+      "id": 409585,
+      "stage": "observed-depth-only PID altitude on rock",
+      "status": "COMPLETED",
+      "elapsed_s": 27
+    },
+    {
+      "id": 409589,
+      "stage": "six terrain diagnostic families plus primary and blank refinements",
+      "status": "COMPLETED",
+      "elapsed_s": 31
+    },
+    {
+      "id": 409591,
+      "stage": "combined primary rock and hill regressions",
+      "status": "COMPLETED",
+      "elapsed_s": 28
+    },
+    {
+      "id": 409592,
+      "stage": "three6m/s capped development refinements",
+      "status": "COMPLETED",
+      "elapsed_s": 28
+    }
+  ],
+  "milestone_met": true,
+  "demonstration_protocol": "fdm_rgbd_demo_v1/selection_protocol.json",
+  "first_physical_result": "Selected hill route reached safely in6.90s; selected rock route collided and stalled; no stall-avoidance evidence in hill scene where all6 alternatives passed.",
+  "focused_v1": {
+    "data_pack": "fdm_rgbd_focused_pack_v1",
+    "source_snapshot": "0aef256e52f0",
+    "primary": "patch_rgbd_s11/last.pt",
+    "primary_steps": 5000,
+    "head_2": "sustained_stall",
+    "train_scenes": 16,
+    "val_scenes": 4,
+    "train_episodes": 96,
+    "val_episodes": 24,
+    "all_optimizer_updates_on_AMD": true,
+    "offline_selection": {
+      "primary_safe_goal": 4,
+      "held_out_scenes": 4,
+      "primary_time_regret_s": 0.0,
+      "matched_blank_trained_s11_safe_goal": 4,
+      "matched_blank_trained_s11_mean_time_regret_s": 0.35,
+      "same_model_blank_safe_goal": 1,
+      "same_model_blank_abstentions": 3,
+      "scope": "held-out focused development scenes, six physically recorded families, no MPPI refinement in this metric"
+    },
+    "physical_mppi": {
+      "visible_rock_v1": {
+        "safe_goal": true,
+        "goal_time_s": 6.55,
+        "fastest_sampled_safe_s": 7.0
+      },
+      "hill0_f111_near": {
+        "safe_goal": true,
+        "goal_time_s": 6.85,
+        "fastest_sampled_safe_s": 7.1
+      },
+      "all_selected_contact_and_blockage_free": true,
+      "matched_initial_observation": true
+    }
+  },
+  "focused_v2": {
+    "data_pack": "fdm_rgbd_focused_pack_v2",
+    "manifest_sha256": "959ac3b8367405ace7caec7974cf2060b825753c84e44bb9addd6af1682cde30",
+    "source_snapshot": "83d62378c36e",
+    "primary": "patch_rgbd_s11/last.pt",
+    "primary_steps": 5000,
+    "head_2": "bounded_motion",
+    "head_2_semantic_version": 2,
+    "train_scenes": 24,
+    "val_scenes": 8,
+    "train_episodes": 144,
+    "val_episodes": 48,
+    "terrain_horizon_limit": "No from-rest confirmed bounded terrain event by4s; early progress separates eventual blocked/safe outcomes.",
+    "offline_selection": {
+      "primary_safe_goal": 8,
+      "held_out_scenes": 8,
+      "primary_mean_time_regret_s": 0.0125,
+      "patch_rgbd_s29_safe_goal": 8,
+      "matched_blank_safe_goals": [
+        6,
+        5
+      ],
+      "same_model_blank_safe_goals": 7,
+      "same_model_shuffle_safe_goals": 7
+    },
+    "physical": {
+      "visible_rock_v1": {
+        "primary_goal_time_s": 6.6000000000000005,
+        "capped_goal_time_s": 6.9,
+        "fastest_safe_sampled_s": 7.0,
+        "primary_contact": false,
+        "primary_strict_stall": false,
+        "primary_bounded_blockage": false,
+        "capped_contact": false,
+        "capped_strict_stall": false,
+        "capped_bounded_blockage": false
+      },
+      "terrain_blockage_diagnostic_v1": {
+        "primary_goal_time_s": 6.6000000000000005,
+        "capped_goal_time_s": 6.95,
+        "fastest_safe_sampled_s": 7.0,
+        "primary_contact": false,
+        "primary_strict_stall": false,
+        "primary_bounded_blockage": false,
+        "capped_contact": false,
+        "capped_strict_stall": false,
+        "capped_bounded_blockage": false
+      },
+      "hill0_f111_near": {
+        "primary_goal_time_s": 6.9,
+        "capped_goal_time_s": 7.4,
+        "fastest_safe_sampled_s": 7.1000000000000005,
+        "primary_contact": false,
+        "primary_strict_stall": false,
+        "primary_bounded_blockage": false,
+        "capped_contact": false,
+        "capped_strict_stall": false,
+        "capped_bounded_blockage": false
+      }
+    }
+  },
+  "milestone_scope": "Initial fixed-reference RGB-D route-choice demonstration in Chrono; not online replanning, calibrated safety or arbitrary-terrain/global-time-optimality claim.",
+  "remaining_limits": [
+    "Four-second terrain event horizon ends before confirmed blockage; avoidance is through predicted motion/progress.",
+    "Primary MPPI speeds exceed focused6m/s cruise; capped control remains safe but hill is0.30s slower than best sampled safe route.",
+    "Primary controller retains terrain-z reference height; only separate flat-rock ablation uses observed depth alone.",
+    "Eight held-out development scenes and three physical demonstrations are a small designed distribution."
+  ]
+}

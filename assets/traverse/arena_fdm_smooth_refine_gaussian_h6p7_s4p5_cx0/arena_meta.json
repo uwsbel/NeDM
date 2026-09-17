@@ -1,0 +1,35 @@
+{
+  "size_m": 80.0,
+  "pixels": 512,
+  "resolution_m_per_px": 0.15625,
+  "height_min_m": -0.1,
+  "height_max_m": 6.8,
+  "quantization_step_m": 0.027058823529411764,
+  "bmp": "arena_000.bmp",
+  "seed": 2026090901,
+  "orientation": {
+    "rot90": 0,
+    "flipud": true,
+    "calibrated": true,
+    "rmse_m": 0.008120992072417996,
+    "median_abs_m": 0.005373480689913723,
+    "runner_up_rmse_m": 0.817868874775216,
+    "samples": 400
+  },
+  "features": [],
+  "orientation_calibration_scope": "Inherited coordinate-transform calibration from arena_v1; its fit statistics are not a fresh height accuracy measurement on this hill",
+  "smooth_hill": {
+    "kind": "gaussian",
+    "height_m": 6.7,
+    "extent_m": 4.5,
+    "center_xy": [
+      0.0,
+      0.0
+    ],
+    "formula": "H exp(-0.5 (r/sigma)^2); infinitely differentiable rounded toe and crest",
+    "analytic_max_grade_degrees": 42.08382768114415,
+    "quantized_center_difference_max_grade_degrees": 44.63262670873318,
+    "quantized_max_neighbor_height_difference_m": 0.16235294117647125,
+    "quantization_note": "Chrono uses the continuous triangulated8-bit heightfield; report measured physical grade as well as analytic design"
+  }
+}

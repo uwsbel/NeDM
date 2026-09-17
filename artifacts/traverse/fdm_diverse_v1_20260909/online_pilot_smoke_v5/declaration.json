@@ -1,0 +1,78 @@
+{
+  "tasks_sha256": "bb38469ab305f64fc8bf811d690972486ad9ee27a4484c3ab0b8a1de284d17c0",
+  "tasks": [
+    {
+      "id": "rolling_headless",
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v5/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_train_rolling_hills_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/pilot_learning_h60_v3/patch_rgbd_s11/best.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/full_cohort_v2/observations/diverse_v1_train_rolling_hills_00/observation.npz",
+        "horizon-s": 4,
+        "planning-device": "cpu",
+        "replan-period-s": 1,
+        "cost-mode": "energy_risk",
+        "cost-config": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/pilot_smoke_cost_v4.json",
+        "mppi-samples": 16,
+        "mppi-iterations": 1,
+        "seed": 11,
+        "video-fps": 0
+      }
+    },
+    {
+      "id": "rolling_video",
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v5/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_train_rolling_hills_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/pilot_learning_h60_v3/patch_rgbd_s11/best.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/full_cohort_v2/observations/diverse_v1_train_rolling_hills_00/observation.npz",
+        "horizon-s": 4,
+        "planning-device": "cpu",
+        "replan-period-s": 1,
+        "cost-mode": "energy_risk",
+        "cost-config": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/pilot_smoke_cost_v4.json",
+        "mppi-samples": 16,
+        "mppi-iterations": 1,
+        "seed": 11,
+        "video-fps": 2
+      }
+    },
+    {
+      "id": "mixed_energy",
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v5/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_val_mixed_obstacles_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/pilot_learning_h60_v3/patch_rgbd_s11/best.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/full_cohort_v2/observations/diverse_v1_val_mixed_obstacles_00/observation.npz",
+        "horizon-s": 8,
+        "planning-device": "cpu",
+        "replan-period-s": 1,
+        "cost-mode": "energy_risk",
+        "cost-config": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/pilot_smoke_cost_v4.json",
+        "mppi-samples": 16,
+        "mppi-iterations": 1,
+        "seed": 11,
+        "video-fps": 0
+      }
+    },
+    {
+      "id": "rolling_longer",
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v5/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_train_rolling_hills_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/pilot_learning_h60_v3/patch_rgbd_s11/best.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/full_cohort_v2/observations/diverse_v1_train_rolling_hills_00/observation.npz",
+        "horizon-s": 20,
+        "planning-device": "cpu",
+        "replan-period-s": 1,
+        "cost-mode": "time_risk",
+        "cost-config": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/pilot_smoke_cost_v4.json",
+        "mppi-samples": 16,
+        "mppi-iterations": 1,
+        "seed": 11,
+        "video-fps": 0
+      }
+    }
+  ],
+  "workers": 4,
+  "slurm_job_id": "412081",
+  "source_manifest_sha256": "ab86e525ef213b868c23e66150b06d990d8e93580bce548e36c5a9f1f2d69e30",
+  "batch_script_sha256": "c8b511b6429ca72e11d1a6fafdc32a25df5c3e3df7e6ac1e976e23e5d298ec9a",
+  "started_unix": 1788990691.6334705
+}

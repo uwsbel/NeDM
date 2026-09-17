@@ -1,0 +1,114 @@
+{
+  "title": "One RGB-D scene,592 scored candidates,4 Chrono checks",
+  "observation_npz": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_fourway_20260909/observations/fourway_v1/observation.npz",
+  "observation_metadata_json": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_fourway_20260909/observations/fourway_v1/observation.json",
+  "predictions_npz": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_fourway_20260909/prediction/candidates.npz",
+  "diagnostics_json": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_fourway_20260909/prediction/candidates.json",
+  "anchor_pose": [
+    -17.97566795349121,
+    -0.019650034606456757,
+    -0.00678986357524991
+  ],
+  "goal_xy": [
+    18.0,
+    0.0
+  ],
+  "routes": [
+    {
+      "id": "01_selected",
+      "category": "best",
+      "label": "MPPI selected",
+      "color": "#087f5b",
+      "candidate_id": "89cdfe84c0da6199c0b2f74ce7384b2b3a31557b1a5117f79c88a76dee980a53",
+      "reference_json": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_fourway_20260909/prediction/routes/01_selected.json",
+      "role_semantics": "Lowest model cost among the scored, allowed candidates; physical optimum is not known",
+      "route_sha256": "65d7ca843588ac61ca78b127f797653d8939e01bbdf535243f65bba99ef14d92",
+      "model_prediction": {
+        "goal_progress_4s_m": 17.246092617242738,
+        "contact_probability_4s_prefix_max": 6.927365916453709e-07,
+        "bounded_motion_probability_4s_prefix_max": 4.4325008730083937e-07,
+        "cost": 6.039692585165501,
+        "estimated_time_to_goal_s": 7.76423368768881
+      },
+      "actual_dir": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_fourway_20260909/actual/01_selected"
+    },
+    {
+      "id": "02_collision",
+      "category": "collision",
+      "label": "Rock-crossing test",
+      "color": "#d23b3b",
+      "candidate_id": "f9723397760592bb7d18b49d5284d36aefc4aecc781a7b3fa0c16197674c978d",
+      "reference_json": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_fourway_20260909/prediction/routes/02_collision.json",
+      "role_semantics": "Scene-designed collision hypothesis; actual predicted contact probability is reported without alteration",
+      "route_sha256": "38a2f5b5d13d4e5b4a2e2a554f1e526ea2a011d935eee6f1901839d066d4bb0b",
+      "model_prediction": {
+        "goal_progress_4s_m": 6.452653689107187,
+        "contact_probability_4s_prefix_max": 0.00010326781921321526,
+        "bounded_motion_probability_4s_prefix_max": 2.2605338017456234e-05,
+        "cost": 20.113856797915847,
+        "estimated_time_to_goal_s": 20.751569777538243
+      },
+      "actual_dir": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_fourway_20260909/actual/02_collision",
+      "prediction_caveat": "Model predicts poor progress but contact probability is only0.0103%; collision is a scene hypothesis to validate."
+    },
+    {
+      "id": "03_stall",
+      "category": "stall",
+      "label": "Terrain-stall test",
+      "color": "#d97706",
+      "candidate_id": "b86b8ad53a9a5782d971b66742ac640915d203031c22893bffeaf9b89e047743",
+      "reference_json": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_fourway_20260909/prediction/routes/03_stall.json",
+      "role_semantics": "Scene-designed terrain-stall hypothesis; a later stall may lie outside the4s learned event horizon",
+      "route_sha256": "636f5c9580fa9689a236734773f5779381368bad497a60286fbccc4e7ab15297",
+      "model_prediction": {
+        "goal_progress_4s_m": 5.120650741232954,
+        "contact_probability_4s_prefix_max": 0.0002561570727266371,
+        "bounded_motion_probability_4s_prefix_max": 0.0005903512937948108,
+        "cost": 25.688271656510786,
+        "estimated_time_to_goal_s": 26.149546228875625
+      },
+      "actual_dir": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_fourway_20260909/actual/03_stall",
+      "prediction_caveat": "Model predicts poor progress; confirmed bounded-stop probability by4s is only0.0590%. Later stall may exceed its horizon."
+    },
+    {
+      "id": "04_progress",
+      "category": "low_progress",
+      "label": "Slower clear route",
+      "color": "#7441b5",
+      "candidate_id": "b5d6a5a1c1c65a5fb44a3455bd709ac0c2f2faa67446eec6ffce5303ef2000e3",
+      "reference_json": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_fourway_20260909/prediction/routes/04_progress.json",
+      "role_semantics": "Lower progress means less goal progress at the same4s horizon; a4m/s command may still reach the goal later",
+      "route_sha256": "6cbab85b73210dddbdc04d8d05aa9040c1072ad5f6c12de1dec29f668b772218",
+      "model_prediction": {
+        "goal_progress_4s_m": 11.971137987196041,
+        "contact_probability_4s_prefix_max": 1.9847411749651656e-06,
+        "bounded_motion_probability_4s_prefix_max": 4.7678331611678004e-05,
+        "cost": 9.991326667967177,
+        "estimated_time_to_goal_s": 11.185460682435998
+      },
+      "actual_dir": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_fourway_20260909/actual/04_progress",
+      "prediction_caveat": "Less progress is compared at4s; this safe4m/s reference may still reach the goal later."
+    }
+  ],
+  "output_dir": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_fourway_20260909/deliverables",
+  "comparison_horizon_s": 4.0,
+  "goal_radius_m": 2.5,
+  "scope": "Fixed trained model; scene-role names are experimental hypotheses, not fabricated NN classifications. Solid traces end at4s; dashedtail iscommand only. No physicaloutcomes used when freezingpredictions.",
+  "scene_annotations": [
+    {
+      "label": "Steep berm",
+      "xy": [
+        -8.0,
+        0.0
+      ]
+    },
+    {
+      "label": "Rock",
+      "xy": [
+        -8.0,
+        -4.6
+      ]
+    }
+  ],
+  "scene_annotation_scope": "Authoring metadata used only to label the rendered overview; never an input to the frozen NN/scorer/MPPI."
+}

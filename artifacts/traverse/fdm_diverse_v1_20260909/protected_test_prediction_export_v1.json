@@ -1,0 +1,27 @@
+{
+  "schema": "fdm_frozen_prediction_export_v1",
+  "sealed_utc": "2026-09-09T23:06:42.053844+00:00",
+  "producer_job_id": "412126",
+  "inference_device": "cuda:0 on AMD MI3501x",
+  "root": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/reports/protected_test_offline_gpu_v1",
+  "core_freeze_sha256": "29684ce59cdd68e9b1f7310dcd2e63c55d021f6ff6712b83f99d286722efeb33",
+  "producer_source_manifest_file": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/test_offline_v1/source_manifest.json",
+  "producer_source_manifest_sha256": "385aa09092a28801a8f68f092d9aee0330358f0ca92226b1054d3ce5177c999d",
+  "producer_supplement_file": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/offline_evaluation_freeze_v2.json",
+  "producer_supplement_sha256": "c444305339fc87f90c66320cf480433ef27f0d0e4f4c79df297a623a8d743dec",
+  "producer_log_file": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/logs/fdm_test_offline_412126.out",
+  "producer_log_sha256": "eac808055953d9e029b1e046de2ad891dcff2d0dc899099216a4fb7af7adafcc",
+  "test_pack_manifest_sha256": "708612fa1da0aadc6b1d20f8fed064084d09faa6a7d495c6bfda9c67eb209cfd",
+  "files": {
+    "rgbd_metrics.json": "863c595b9ffd16561986943fc04f8dc89f3b642f1761c2f44304fd7f386621b0",
+    "blank_metrics.json": "b695c16a04adb3e68aa19d0736bec2342207c14d5fc6fbc622b659abb1dcfbb9",
+    "fixed_reference_support.json": "2902cd5fc4d03bc562e522405e46116a1b7f1571e242eb80037ec22ffcda9dcb",
+    "rgbd_test_predictions_normal.npz": "2be0a3bcc49af59f0c4355d3e147bc29aa09abffa8626b0f7d3697a2519398a4",
+    "rgbd_test_predictions_shuffle.npz": "236d3466fe9fa9942d92c0d31fa9c826c5c7d859e524f4029ea26c7bfcb2ccf7",
+    "rgbd_test_predictions_blank.npz": "4c77fa36c69f55e846c64983ad4224a7610b110a3c179f4cd0a791c1fe8564a0",
+    "blank_test_predictions_normal.npz": "6e2dee2d6281e6a598c583afa2a5b84a2978e3755d73109c68ff824b8cc89496",
+    "blank_test_predictions_shuffle.npz": "c8992ed1422a7f524bafec05e28f1fb2eeb98d90b1659b3c1d6f54bb60801fab",
+    "blank_test_predictions_blank.npz": "c8fa1e5443432ce9c7e6df08c6a31282351c9bfde2744823acbed278ab6d0c3b"
+  },
+  "producer_failure": "All six inference passes and full physical support complete. Final first-party import audit encountered nonexistent PyTorch synthetic _ops.py. All completed exports preserved; no inference rerun."
+}

@@ -1,0 +1,92 @@
+{
+  "created_utc": "2026-09-09T23:20:28.465592+00:00",
+  "operation": "Read-only process/source/frame-file audit; no job launched, stopped or modified by this agent",
+  "jobs": {
+    "cross_energy": 412133,
+    "cross_time": 412134,
+    "rolling_failure": 412135
+  },
+  "allocation": {
+    "partition": "mi2101x",
+    "cpus_per_job": 16,
+    "failure_node": "k006-004-v5",
+    "failure_pid": 1401982,
+    "allowed_cpus": "0-15"
+  },
+  "selected_process_environment": {
+    "LP_NUM_THREADS": null,
+    "OMP_NUM_THREADS": "4",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "4",
+    "MESA_SHADER_CACHE_DIR": "/work1/dannegrut/harry/nrd/mesa_cache",
+    "VK_DRIVER_FILES": "/work1/dannegrut/harry/nrd/toolchain/lvp/lvp_icd.json"
+  },
+  "thread_observation": {
+    "total_threads": 38,
+    "named_llvmpipe_threads": 16,
+    "named_llvmpipe_threads_observed_idle": true,
+    "unnamed_render_compute_pool_size_inferred": 16,
+    "active_cpu_core_equivalent_in_2s_sample": 9.67,
+    "machine_cpu_fraction_sample": {
+      "user": 0.593,
+      "system": 0.009,
+      "idle": 0.398,
+      "iowait": 0.0,
+      "steal": 0.0
+    }
+  },
+  "accounting_limit": "sstat AveCPU returned an overflow value; discarded. CPU evidence comes from /proc process/thread counters and /proc/stat, not Slurm AveCPU.",
+  "frame_samples": {
+    "cross_time": {
+      "completed_frames": 125,
+      "expected_frames": 208,
+      "last20_mean_s_per_frame": 2.811,
+      "last20_median_s_per_frame": 2.784,
+      "overall_mean_s_per_frame": 2.908
+    },
+    "cross_energy": {
+      "completed_frames": 116,
+      "expected_frames": 207,
+      "last20_mean_s_per_frame": 3.026,
+      "last20_median_s_per_frame": 3.024,
+      "overall_mean_s_per_frame": 3.019
+    },
+    "rolling_failure": {
+      "completed_frames": 116,
+      "expected_frames": 901,
+      "last20_mean_s_per_frame": 2.932,
+      "last20_median_s_per_frame": 2.923,
+      "overall_mean_s_per_frame": 3.022
+    }
+  },
+  "forecast_at_recorded_sample": {
+    "remaining_failure_minutes": 38.36,
+    "approx_total_failure_minutes": "46-47",
+    "condition": "Only if measured cadence persists; not a completion guarantee"
+  },
+  "source_inspection": {
+    "env_file": "/work1/dannegrut/harry/nrd/env.sh",
+    "nrd_use_lavapipe": "Only sets library and Vulkan ICD paths; does not set LP_NUM_THREADS",
+    "camera_adapter": "online_v9/scripts/traverse_fdm_rgbd_diverse_video.py",
+    "vulkan_scheduler": "/home1/harry/chrono/src/chrono_sensor/vulkan/ChVulkanRTEngine.cpp:78",
+    "scheduler_behavior": "One filter/render application per due sensor per UpdateSensors call; no loop rendering every missed 500 Hz interval"
+  },
+  "proposed_benchmark_not_launched": {
+    "cpus": 32,
+    "graphics_threads": [
+      16,
+      32
+    ],
+    "physics_omp_threads": 4,
+    "same_host_requirement": true,
+    "physical_prefix_s": 7,
+    "capture_hz": 5,
+    "parity_requirement": "Exact causal state/pose/action, terminal endpoints, interval work and rich telemetry over first140 physics telemetry intervals; media output never model input",
+    "performance_claim": "Unknown until measured; LP32 on current16-vCPU allocation risks oversubscription"
+  },
+  "parent_decision": "No32CPUbenchmark. Keep success videos at5Hz; a separate rich-agent-owned failure replay will use1Hz over all180s, with exact timestamps and strict full-trajectory parity. Old partialrender preserved; this agent did not stop it.",
+  "references": [
+    "https://docs.mesa3d.org/envvars.html#envvar-LP_NUM_THREADS",
+    "https://docs.mesa3d.org/drivers/llvmpipe.html"
+  ]
+}

@@ -1,0 +1,115 @@
+{
+  "title": "Smooth hill: 567 scored candidates, four Chrono checks",
+  "observation_npz": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_fourway_smooth_20260909/observations/fourway_smooth_v1/observation.npz",
+  "observation_metadata_json": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_fourway_smooth_20260909/observations/fourway_smooth_v1/observation.json",
+  "predictions_npz": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_fourway_smooth_20260909/prediction/candidates.npz",
+  "diagnostics_json": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_fourway_smooth_20260909/prediction/candidates.json",
+  "anchor_pose": [
+    -17.966136932373047,
+    -0.018488898873329163,
+    -0.007071250583976507
+  ],
+  "goal_xy": [
+    18.0,
+    0.0
+  ],
+  "routes": [
+    {
+      "id": "01_selected",
+      "category": "best",
+      "label": "MPPI selected",
+      "color": "#087f5b",
+      "candidate_id": "9117109f089e35e6678c3e88121a42dd46cc51726e8404ee8d52961ac9eafca6",
+      "reference_json": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_fourway_smooth_20260909/prediction/routes/01_selected.json",
+      "role_semantics": "Lowest model cost among the scored, allowed candidates; physical optimum is not known",
+      "route_sha256": "849069838e959d0be39c2dd065f6d7233c062a61b93677b3ad36793ca4f6cb67",
+      "model_prediction": {
+        "goal_progress_4s_m": 17.0432454585091,
+        "contact_probability_4s_prefix_max": 1.5330097085097805e-05,
+        "bounded_motion_probability_4s_prefix_max": 1.918619148000289e-07,
+        "cost": 6.151012616196623,
+        "estimated_time_to_goal_s": 7.8544058444933285
+      },
+      "actual_dir": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_fourway_smooth_20260909/actual/01_selected"
+    },
+    {
+      "id": "02_collision",
+      "category": "collision",
+      "label": "Rock-crossing test",
+      "color": "#d23b3b",
+      "candidate_id": "9ab262a61f9e42ffd59a2e3d4caa3dd89ec3a7fda57a4a00dd8521c743a989ee",
+      "reference_json": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_fourway_smooth_20260909/prediction/routes/02_collision.json",
+      "role_semantics": "Scene-designed collision hypothesis; actual predicted contact probability is reported without alteration",
+      "route_sha256": "3de3082a4f60220b11f1557f4c692e46a5d5a3c7fca0b53f6693958207c953c0",
+      "model_prediction": {
+        "goal_progress_4s_m": 8.73053893257763,
+        "contact_probability_4s_prefix_max": 0.011407331563532352,
+        "bounded_motion_probability_4s_prefix_max": 9.397683243150823e-06,
+        "cost": 15.144859754590842,
+        "estimated_time_to_goal_s": 15.33290988932406
+      },
+      "actual_dir": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_fourway_smooth_20260909/actual/02_collision",
+      "prediction_caveat": "Rock-crossing hypothesis; model contact probability by 4 s is 1.141%. Chrono determines the outcome."
+    },
+    {
+      "id": "03_stall",
+      "category": "stall",
+      "label": "Smooth-hill stall test (4 m/s)",
+      "color": "#d97706",
+      "candidate_id": "c392e03f361f2634873a2bd80b7e628902a675c440a94fabd0e6b63558eed00f",
+      "reference_json": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_fourway_smooth_20260909/prediction/routes/03_stall.json",
+      "role_semantics": "Scene-designed terrain-stall hypothesis; a later stall may lie outside the4s learned event horizon",
+      "route_sha256": "9b3270e0b7652d1b01265f6ca81862ec67dc08a621ddce927ee3463102e7b453",
+      "model_prediction": {
+        "goal_progress_4s_m": 9.645091770468305,
+        "contact_probability_4s_prefix_max": 0.000818627595435828,
+        "bounded_motion_probability_4s_prefix_max": 4.350865492597222e-05,
+        "cost": 12.966254046359937,
+        "estimated_time_to_goal_s": 13.879035049549213
+      },
+      "actual_dir": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_fourway_smooth_20260909/actual/03_stall",
+      "prediction_caveat": "Straight 4 m/s command; model confirmed-stop probability by 4 s is 0.0044%. Later stall may exceed its horizon."
+    },
+    {
+      "id": "04_progress",
+      "category": "low_progress",
+      "label": "Slower clear route",
+      "color": "#7441b5",
+      "candidate_id": "e5cc96f633e523cc94a7977f966ba2de3e33a2a42a99ba4b8d157a9f1271c4c2",
+      "reference_json": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_fourway_smooth_20260909/prediction/routes/04_progress.json",
+      "role_semantics": "Lower progress means less goal progress at the same4s horizon; a4m/s command may still reach the goal later",
+      "route_sha256": "cd3f597db72f660b8bd9b5a308e96f4890e67de12804fc809107cfe36620c1be",
+      "model_prediction": {
+        "goal_progress_4s_m": 11.597316172547714,
+        "contact_probability_4s_prefix_max": 8.905982213036623e-06,
+        "bounded_motion_probability_4s_prefix_max": 3.6658446333603933e-05,
+        "cost": 10.38572168008493,
+        "estimated_time_to_goal_s": 11.542719431528678
+      },
+      "actual_dir": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_fourway_smooth_20260909/actual/04_progress",
+      "prediction_caveat": "Clear 4 m/s detour; less progress is compared at 4 s, not failure to reach the goal."
+    }
+  ],
+  "output_dir": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_fourway_smooth_20260909/visualization",
+  "comparison_horizon_s": 4.0,
+  "goal_radius_m": 2.5,
+  "scope": "Fixed checkpoint, exact original six command references, 567 scored candidates. Geometry chosen from physical probes before model scoring; final four references/forecasts frozen before videos. Solid=learned 4s motion; dashed=remaining commanded path. Labels are test roles, not NN event classifications.",
+  "scene_annotations": [
+    {
+      "label": "Smooth steep hill",
+      "xy": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "label": "Rock",
+      "xy": [
+        -8.0,
+        -4.6
+      ]
+    }
+  ],
+  "scene_annotation_scope": "Authoring metadata labels the visual only; no hill geometry or obstacle coordinates enter model/scorer/MPPI.",
+  "hill_stall_context": "4 m/s straight command can stall on the selected smooth hill; same-hill 6 m/s straight control succeeds. Fixed vehicle/friction/PID."
+}

@@ -1,0 +1,472 @@
+{
+  "scope": "Predeclared6scene24trial validationenergygrid withcontinuitypolicyv7 beforeanygridoutcomes",
+  "energy_selection_spec": "energy_selection_spec_v1.json",
+  "tasks": [
+    {
+      "id": "diverse_v1_val_rolling_hills_00_time",
+      "scene_id": "diverse_v1_val_rolling_hills_00",
+      "split": "val",
+      "energy_weight_s_per_kj": 0,
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_val_rolling_hills_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_rgbd_s11/best.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/full_cohort_v2/observations/diverse_v1_val_rolling_hills_00/observation.npz",
+        "horizon-s": 180,
+        "planning-device": "cpu",
+        "replan-period-s": 1,
+        "cost-mode": "time_risk",
+        "cost-config": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/validation_cost_time_v1.json",
+        "mppi-samples": 64,
+        "mppi-iterations": 2,
+        "seed": 11
+      }
+    },
+    {
+      "id": "diverse_v1_val_ridge_passes_00_time",
+      "scene_id": "diverse_v1_val_ridge_passes_00",
+      "split": "val",
+      "energy_weight_s_per_kj": 0,
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_val_ridge_passes_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_rgbd_s11/best.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/full_cohort_v2/observations/diverse_v1_val_ridge_passes_00/observation.npz",
+        "horizon-s": 180,
+        "planning-device": "cpu",
+        "replan-period-s": 1,
+        "cost-mode": "time_risk",
+        "cost-config": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/validation_cost_time_v1.json",
+        "mppi-samples": 64,
+        "mppi-iterations": 2,
+        "seed": 11
+      }
+    },
+    {
+      "id": "diverse_v1_val_cross_slopes_00_time",
+      "scene_id": "diverse_v1_val_cross_slopes_00",
+      "split": "val",
+      "energy_weight_s_per_kj": 0,
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_val_cross_slopes_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_rgbd_s11/best.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/full_cohort_v2/observations/diverse_v1_val_cross_slopes_00/observation.npz",
+        "horizon-s": 180,
+        "planning-device": "cpu",
+        "replan-period-s": 1,
+        "cost-mode": "time_risk",
+        "cost-config": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/validation_cost_time_v1.json",
+        "mppi-samples": 64,
+        "mppi-iterations": 2,
+        "seed": 11
+      }
+    },
+    {
+      "id": "diverse_v1_val_valley_network_00_time",
+      "scene_id": "diverse_v1_val_valley_network_00",
+      "split": "val",
+      "energy_weight_s_per_kj": 0,
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_val_valley_network_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_rgbd_s11/best.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/full_cohort_v2/observations/diverse_v1_val_valley_network_00/observation.npz",
+        "horizon-s": 180,
+        "planning-device": "cpu",
+        "replan-period-s": 1,
+        "cost-mode": "time_risk",
+        "cost-config": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/validation_cost_time_v1.json",
+        "mppi-samples": 64,
+        "mppi-iterations": 2,
+        "seed": 11
+      }
+    },
+    {
+      "id": "diverse_v1_val_rough_mosaic_00_time",
+      "scene_id": "diverse_v1_val_rough_mosaic_00",
+      "split": "val",
+      "energy_weight_s_per_kj": 0,
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_val_rough_mosaic_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_rgbd_s11/best.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/full_cohort_v2/observations/diverse_v1_val_rough_mosaic_00/observation.npz",
+        "horizon-s": 180,
+        "planning-device": "cpu",
+        "replan-period-s": 1,
+        "cost-mode": "time_risk",
+        "cost-config": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/validation_cost_time_v1.json",
+        "mppi-samples": 64,
+        "mppi-iterations": 2,
+        "seed": 11
+      }
+    },
+    {
+      "id": "diverse_v1_val_mixed_obstacles_00_time",
+      "scene_id": "diverse_v1_val_mixed_obstacles_00",
+      "split": "val",
+      "energy_weight_s_per_kj": 0,
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_val_mixed_obstacles_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_rgbd_s11/best.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/full_cohort_v2/observations/diverse_v1_val_mixed_obstacles_00/observation.npz",
+        "horizon-s": 180,
+        "planning-device": "cpu",
+        "replan-period-s": 1,
+        "cost-mode": "time_risk",
+        "cost-config": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/validation_cost_time_v1.json",
+        "mppi-samples": 64,
+        "mppi-iterations": 2,
+        "seed": 11
+      }
+    },
+    {
+      "id": "diverse_v1_val_rolling_hills_00_energy002",
+      "scene_id": "diverse_v1_val_rolling_hills_00",
+      "split": "val",
+      "energy_weight_s_per_kj": 0.02,
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_val_rolling_hills_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_rgbd_s11/best.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/full_cohort_v2/observations/diverse_v1_val_rolling_hills_00/observation.npz",
+        "horizon-s": 180,
+        "planning-device": "cpu",
+        "replan-period-s": 1,
+        "cost-mode": "energy_risk",
+        "cost-config": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/validation_cost_energy002_v1.json",
+        "mppi-samples": 64,
+        "mppi-iterations": 2,
+        "seed": 11
+      }
+    },
+    {
+      "id": "diverse_v1_val_ridge_passes_00_energy002",
+      "scene_id": "diverse_v1_val_ridge_passes_00",
+      "split": "val",
+      "energy_weight_s_per_kj": 0.02,
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_val_ridge_passes_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_rgbd_s11/best.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/full_cohort_v2/observations/diverse_v1_val_ridge_passes_00/observation.npz",
+        "horizon-s": 180,
+        "planning-device": "cpu",
+        "replan-period-s": 1,
+        "cost-mode": "energy_risk",
+        "cost-config": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/validation_cost_energy002_v1.json",
+        "mppi-samples": 64,
+        "mppi-iterations": 2,
+        "seed": 11
+      }
+    },
+    {
+      "id": "diverse_v1_val_cross_slopes_00_energy002",
+      "scene_id": "diverse_v1_val_cross_slopes_00",
+      "split": "val",
+      "energy_weight_s_per_kj": 0.02,
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_val_cross_slopes_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_rgbd_s11/best.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/full_cohort_v2/observations/diverse_v1_val_cross_slopes_00/observation.npz",
+        "horizon-s": 180,
+        "planning-device": "cpu",
+        "replan-period-s": 1,
+        "cost-mode": "energy_risk",
+        "cost-config": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/validation_cost_energy002_v1.json",
+        "mppi-samples": 64,
+        "mppi-iterations": 2,
+        "seed": 11
+      }
+    },
+    {
+      "id": "diverse_v1_val_valley_network_00_energy002",
+      "scene_id": "diverse_v1_val_valley_network_00",
+      "split": "val",
+      "energy_weight_s_per_kj": 0.02,
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_val_valley_network_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_rgbd_s11/best.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/full_cohort_v2/observations/diverse_v1_val_valley_network_00/observation.npz",
+        "horizon-s": 180,
+        "planning-device": "cpu",
+        "replan-period-s": 1,
+        "cost-mode": "energy_risk",
+        "cost-config": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/validation_cost_energy002_v1.json",
+        "mppi-samples": 64,
+        "mppi-iterations": 2,
+        "seed": 11
+      }
+    },
+    {
+      "id": "diverse_v1_val_rough_mosaic_00_energy002",
+      "scene_id": "diverse_v1_val_rough_mosaic_00",
+      "split": "val",
+      "energy_weight_s_per_kj": 0.02,
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_val_rough_mosaic_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_rgbd_s11/best.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/full_cohort_v2/observations/diverse_v1_val_rough_mosaic_00/observation.npz",
+        "horizon-s": 180,
+        "planning-device": "cpu",
+        "replan-period-s": 1,
+        "cost-mode": "energy_risk",
+        "cost-config": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/validation_cost_energy002_v1.json",
+        "mppi-samples": 64,
+        "mppi-iterations": 2,
+        "seed": 11
+      }
+    },
+    {
+      "id": "diverse_v1_val_mixed_obstacles_00_energy002",
+      "scene_id": "diverse_v1_val_mixed_obstacles_00",
+      "split": "val",
+      "energy_weight_s_per_kj": 0.02,
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_val_mixed_obstacles_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_rgbd_s11/best.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/full_cohort_v2/observations/diverse_v1_val_mixed_obstacles_00/observation.npz",
+        "horizon-s": 180,
+        "planning-device": "cpu",
+        "replan-period-s": 1,
+        "cost-mode": "energy_risk",
+        "cost-config": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/validation_cost_energy002_v1.json",
+        "mppi-samples": 64,
+        "mppi-iterations": 2,
+        "seed": 11
+      }
+    },
+    {
+      "id": "diverse_v1_val_rolling_hills_00_energy020",
+      "scene_id": "diverse_v1_val_rolling_hills_00",
+      "split": "val",
+      "energy_weight_s_per_kj": 0.2,
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_val_rolling_hills_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_rgbd_s11/best.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/full_cohort_v2/observations/diverse_v1_val_rolling_hills_00/observation.npz",
+        "horizon-s": 180,
+        "planning-device": "cpu",
+        "replan-period-s": 1,
+        "cost-mode": "energy_risk",
+        "cost-config": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/validation_cost_energy020_v1.json",
+        "mppi-samples": 64,
+        "mppi-iterations": 2,
+        "seed": 11
+      }
+    },
+    {
+      "id": "diverse_v1_val_ridge_passes_00_energy020",
+      "scene_id": "diverse_v1_val_ridge_passes_00",
+      "split": "val",
+      "energy_weight_s_per_kj": 0.2,
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_val_ridge_passes_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_rgbd_s11/best.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/full_cohort_v2/observations/diverse_v1_val_ridge_passes_00/observation.npz",
+        "horizon-s": 180,
+        "planning-device": "cpu",
+        "replan-period-s": 1,
+        "cost-mode": "energy_risk",
+        "cost-config": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/validation_cost_energy020_v1.json",
+        "mppi-samples": 64,
+        "mppi-iterations": 2,
+        "seed": 11
+      }
+    },
+    {
+      "id": "diverse_v1_val_cross_slopes_00_energy020",
+      "scene_id": "diverse_v1_val_cross_slopes_00",
+      "split": "val",
+      "energy_weight_s_per_kj": 0.2,
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_val_cross_slopes_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_rgbd_s11/best.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/full_cohort_v2/observations/diverse_v1_val_cross_slopes_00/observation.npz",
+        "horizon-s": 180,
+        "planning-device": "cpu",
+        "replan-period-s": 1,
+        "cost-mode": "energy_risk",
+        "cost-config": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/validation_cost_energy020_v1.json",
+        "mppi-samples": 64,
+        "mppi-iterations": 2,
+        "seed": 11
+      }
+    },
+    {
+      "id": "diverse_v1_val_valley_network_00_energy020",
+      "scene_id": "diverse_v1_val_valley_network_00",
+      "split": "val",
+      "energy_weight_s_per_kj": 0.2,
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_val_valley_network_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_rgbd_s11/best.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/full_cohort_v2/observations/diverse_v1_val_valley_network_00/observation.npz",
+        "horizon-s": 180,
+        "planning-device": "cpu",
+        "replan-period-s": 1,
+        "cost-mode": "energy_risk",
+        "cost-config": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/validation_cost_energy020_v1.json",
+        "mppi-samples": 64,
+        "mppi-iterations": 2,
+        "seed": 11
+      }
+    },
+    {
+      "id": "diverse_v1_val_rough_mosaic_00_energy020",
+      "scene_id": "diverse_v1_val_rough_mosaic_00",
+      "split": "val",
+      "energy_weight_s_per_kj": 0.2,
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_val_rough_mosaic_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_rgbd_s11/best.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/full_cohort_v2/observations/diverse_v1_val_rough_mosaic_00/observation.npz",
+        "horizon-s": 180,
+        "planning-device": "cpu",
+        "replan-period-s": 1,
+        "cost-mode": "energy_risk",
+        "cost-config": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/validation_cost_energy020_v1.json",
+        "mppi-samples": 64,
+        "mppi-iterations": 2,
+        "seed": 11
+      }
+    },
+    {
+      "id": "diverse_v1_val_mixed_obstacles_00_energy020",
+      "scene_id": "diverse_v1_val_mixed_obstacles_00",
+      "split": "val",
+      "energy_weight_s_per_kj": 0.2,
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_val_mixed_obstacles_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_rgbd_s11/best.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/full_cohort_v2/observations/diverse_v1_val_mixed_obstacles_00/observation.npz",
+        "horizon-s": 180,
+        "planning-device": "cpu",
+        "replan-period-s": 1,
+        "cost-mode": "energy_risk",
+        "cost-config": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/validation_cost_energy020_v1.json",
+        "mppi-samples": 64,
+        "mppi-iterations": 2,
+        "seed": 11
+      }
+    },
+    {
+      "id": "diverse_v1_val_rolling_hills_00_energy050",
+      "scene_id": "diverse_v1_val_rolling_hills_00",
+      "split": "val",
+      "energy_weight_s_per_kj": 0.5,
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_val_rolling_hills_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_rgbd_s11/best.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/full_cohort_v2/observations/diverse_v1_val_rolling_hills_00/observation.npz",
+        "horizon-s": 180,
+        "planning-device": "cpu",
+        "replan-period-s": 1,
+        "cost-mode": "energy_risk",
+        "cost-config": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/validation_cost_energy050_v1.json",
+        "mppi-samples": 64,
+        "mppi-iterations": 2,
+        "seed": 11
+      }
+    },
+    {
+      "id": "diverse_v1_val_ridge_passes_00_energy050",
+      "scene_id": "diverse_v1_val_ridge_passes_00",
+      "split": "val",
+      "energy_weight_s_per_kj": 0.5,
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_val_ridge_passes_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_rgbd_s11/best.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/full_cohort_v2/observations/diverse_v1_val_ridge_passes_00/observation.npz",
+        "horizon-s": 180,
+        "planning-device": "cpu",
+        "replan-period-s": 1,
+        "cost-mode": "energy_risk",
+        "cost-config": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/validation_cost_energy050_v1.json",
+        "mppi-samples": 64,
+        "mppi-iterations": 2,
+        "seed": 11
+      }
+    },
+    {
+      "id": "diverse_v1_val_cross_slopes_00_energy050",
+      "scene_id": "diverse_v1_val_cross_slopes_00",
+      "split": "val",
+      "energy_weight_s_per_kj": 0.5,
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_val_cross_slopes_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_rgbd_s11/best.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/full_cohort_v2/observations/diverse_v1_val_cross_slopes_00/observation.npz",
+        "horizon-s": 180,
+        "planning-device": "cpu",
+        "replan-period-s": 1,
+        "cost-mode": "energy_risk",
+        "cost-config": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/validation_cost_energy050_v1.json",
+        "mppi-samples": 64,
+        "mppi-iterations": 2,
+        "seed": 11
+      }
+    },
+    {
+      "id": "diverse_v1_val_valley_network_00_energy050",
+      "scene_id": "diverse_v1_val_valley_network_00",
+      "split": "val",
+      "energy_weight_s_per_kj": 0.5,
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_val_valley_network_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_rgbd_s11/best.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/full_cohort_v2/observations/diverse_v1_val_valley_network_00/observation.npz",
+        "horizon-s": 180,
+        "planning-device": "cpu",
+        "replan-period-s": 1,
+        "cost-mode": "energy_risk",
+        "cost-config": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/validation_cost_energy050_v1.json",
+        "mppi-samples": 64,
+        "mppi-iterations": 2,
+        "seed": 11
+      }
+    },
+    {
+      "id": "diverse_v1_val_rough_mosaic_00_energy050",
+      "scene_id": "diverse_v1_val_rough_mosaic_00",
+      "split": "val",
+      "energy_weight_s_per_kj": 0.5,
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_val_rough_mosaic_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_rgbd_s11/best.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/full_cohort_v2/observations/diverse_v1_val_rough_mosaic_00/observation.npz",
+        "horizon-s": 180,
+        "planning-device": "cpu",
+        "replan-period-s": 1,
+        "cost-mode": "energy_risk",
+        "cost-config": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/validation_cost_energy050_v1.json",
+        "mppi-samples": 64,
+        "mppi-iterations": 2,
+        "seed": 11
+      }
+    },
+    {
+      "id": "diverse_v1_val_mixed_obstacles_00_energy050",
+      "scene_id": "diverse_v1_val_mixed_obstacles_00",
+      "split": "val",
+      "energy_weight_s_per_kj": 0.5,
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_val_mixed_obstacles_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_rgbd_s11/best.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/full_cohort_v2/observations/diverse_v1_val_mixed_obstacles_00/observation.npz",
+        "horizon-s": 180,
+        "planning-device": "cpu",
+        "replan-period-s": 1,
+        "cost-mode": "energy_risk",
+        "cost-config": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/validation_cost_energy050_v1.json",
+        "mppi-samples": 64,
+        "mppi-iterations": 2,
+        "seed": 11
+      }
+    }
+  ],
+  "energy_selection_spec_sha256": "bdef9b039d6dff5022c5b9815c5e30e269d9c2f14d78721c52a75c4f9c844fc2",
+  "supersedes_unexecuted": "full_validation_grid_v1.json",
+  "frozen_training": {
+    "checkpoint_sha256": "65945dd3ca79621f5cf2467e0a19f66cdb943faf798565be0affe657132df33f",
+    "checkpoint_step": 4000,
+    "training_completed_step": 5000,
+    "status_sha256": "6dede6bd6b512ab3d8b812a1d351a07e1303fd9f6405d8b54da92f15ddf4d815",
+    "train_val_pack_manifest_sha256": "3a915d235ed94990e2a5aee729d884ab791230e1f82e43380c670559d2b7d7b3"
+  },
+  "source_manifest_sha256": "a6cd57f77fe981a17909cc5163c3ee72f12bba82f32739ad192f651151389d16"
+}

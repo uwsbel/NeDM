@@ -1,0 +1,56 @@
+[
+  {
+    "case": "smooth_refine_gaussian_h6p7_s4p5_cx0",
+    "family": "family_03",
+    "goal_time": null,
+    "asset_peak_n": 250798.61392521107,
+    "stop_s": 11.600000000000001,
+    "chassis_peak_n": 123207.07286875175,
+    "progress_m": 6.20072124285338
+  },
+  {
+    "case": "smooth_refine_gaussian_h6p7_s4p5_cx0",
+    "family": "family_04",
+    "goal_time": 15.350000000000001,
+    "asset_peak_n": 0.0,
+    "stop_s": 0.8500000000000001,
+    "chassis_peak_n": 0.0,
+    "progress_m": 33.546252255087126
+  },
+  {
+    "case": "smooth_refine_gaussian_h6p7_s4p5_cx0",
+    "family": "family_05",
+    "goal_time": 7.8500000000000005,
+    "asset_peak_n": 0.0,
+    "stop_s": 0.25,
+    "chassis_peak_n": 0.0,
+    "progress_m": 33.57888569092089
+  },
+  {
+    "case": "smooth_strength_gaussian_h6p5_s4p5_cx0",
+    "family": "family_03",
+    "goal_time": null,
+    "asset_peak_n": 133267.76571539594,
+    "stop_s": 11.8,
+    "chassis_peak_n": 126586.33953553492,
+    "progress_m": 6.507735424731596
+  },
+  {
+    "case": "smooth_strength_gaussian_h6p5_s4p5_cx0",
+    "family": "family_04",
+    "goal_time": 14.5,
+    "asset_peak_n": 0.0,
+    "stop_s": 0.25,
+    "chassis_peak_n": 0.0,
+    "progress_m": 33.46662080223162
+  },
+  {
+    "case": "smooth_strength_gaussian_h6p5_s4p5_cx0",
+    "family": "family_05",
+    "goal_time": 7.800000000000001,
+    "asset_peak_n": 0.0,
+    "stop_s": 0.25,
+    "chassis_peak_n": 0.0,
+    "progress_m": 33.56830060183154
+  }
+]

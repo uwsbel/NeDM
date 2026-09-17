@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "physical_job_id": "412058",
+  "slurm_elapsed": "00:02:32",
+  "physical_subprocesses_completed": 6,
+  "physical_subprocesses_exit_zero": true,
+  "all4_geometry_audits_passed": true,
+  "both_physics_parity_comparisons_exact": true,
+  "analysis_correction": {
+    "original_slurm_exit_code": 2,
+    "cause": "Post-run comparison expected route_sha256 in simulation_provenance; it is in outcome.json.",
+    "physical_results_unchanged": true,
+    "corrected_comparison_passed": true,
+    "submitted_wrapper": "run_checks_submitted.py",
+    "corrected_wrapper": "run_checks.py"
+  },
+  "actual_camera_preview": "actual_camera_preview.png",
+  "next_gate": "campaign_v2 corrected passive suspension getters compared against the same physical primary"
+}

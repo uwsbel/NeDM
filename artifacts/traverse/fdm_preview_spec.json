@@ -1,0 +1,8 @@
+{
+  "source_episode": "/home/harry/NeDM/artifacts/traverse/full_v3/ep_2824_oracle",
+  "selection_rule": "first oracle-family episode in outcome-independent validation identity list",
+  "anchor_frame": 40,
+  "seed": 11,
+  "checkpoint": "history_s11/last.pt",
+  "purpose": "offline MPPI model-scoring integration; no new physical outcome"
+}

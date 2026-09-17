@@ -1,0 +1,14 @@
+{
+  "training_performed": false,
+  "cached_vs_direct_inference": true,
+  "multiple_kinematic_route_families": true,
+  "time_progress_risk_tradeoff": true,
+  "unsupervised_early_low_progress_excluded": true,
+  "seeded_mppi_deterministic": true,
+  "all_high_risk_abstention": true,
+  "post_arrival_parking_excluded": true,
+  "cusp_and_station_consistency": true,
+  "candidate_patch_cached_parity": true,
+  "authored_obstacles_or_terrain_inputs": false,
+  "model_evaluations": 24
+}

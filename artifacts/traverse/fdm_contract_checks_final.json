@@ -1,0 +1,85 @@
+{
+  "model": {
+    "profile": {
+      "parameters": 7504,
+      "batch_parity": true,
+      "retained_input_gradients": true,
+      "finite_masked_backward": true
+    },
+    "no_history": {
+      "parameters": 19248,
+      "batch_parity": true,
+      "retained_input_gradients": true,
+      "finite_masked_backward": true
+    },
+    "history": {
+      "parameters": 19248,
+      "batch_parity": true,
+      "retained_input_gradients": true,
+      "finite_masked_backward": true
+    },
+    "no_terrain": {
+      "parameters": 19248,
+      "batch_parity": true,
+      "retained_input_gradients": true,
+      "finite_masked_backward": true
+    }
+  },
+  "training_performed": false,
+  "data": {
+    "frozen_split_and_aliases": true,
+    "causal_history_and_station": true,
+    "nominal_path_uses_known_reference": true,
+    "pose_and_work_interval_timing": true,
+    "contact_and_rollover_endpoint_timing": true,
+    "censored_event_positives": true,
+    "parking_and_effort_labels": true,
+    "rollback_preserved": true
+  },
+  "trainer": {
+    "structural_event_masks_keep_negatives": true,
+    "unsupported_event_excluded": true,
+    "binary_validity_normalization": true,
+    "padding_zero_after_normalization": true,
+    "work_units_kj": true,
+    "masked_evaluation_batch_parity": true
+  },
+  "scorer": {
+    "causal_station_retained": true,
+    "early_contact_risk_retained": true,
+    "ineligible_low_progress_and_rollover_excluded": true,
+    "ego_to_world_goal_cost": true,
+    "scorer_batch_parity": true,
+    "future_geometry_check": true
+  },
+  "pack": {
+    "train": {
+      "episodes": 1000,
+      "windows": 20000,
+      "positive_episodes": {
+        "contact": 49,
+        "rollover": 0,
+        "low_progress": 61
+      },
+      "positive_windows": {
+        "contact": 703,
+        "rollover": 0,
+        "low_progress": 497
+      }
+    },
+    "val": {
+      "episodes": 250,
+      "windows": 5000,
+      "positive_episodes": {
+        "contact": 11,
+        "rollover": 0,
+        "low_progress": 10
+      },
+      "positive_windows": {
+        "contact": 136,
+        "rollover": 0,
+        "low_progress": 82
+      }
+    }
+  }
+}

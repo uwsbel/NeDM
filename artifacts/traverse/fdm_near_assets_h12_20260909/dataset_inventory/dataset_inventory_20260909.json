@@ -1,0 +1,87 @@
+{
+  "schema": "fdm_dataset_inventory_v1",
+  "verified_utc": "2026-09-10T04:20:23Z",
+  "checkpoint": {
+    "file": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_rgbd_s11/last.pt",
+    "sha256": "0251cb87ddd25b6dfd8c628680f3470983ca4ca36ef65a05bb966021a4691a20",
+    "arm": "rgbd",
+    "seed": 11,
+    "optimizer_updates": 5000,
+    "forecast_steps": 60,
+    "forecast_dt_s": 0.2,
+    "forecast_horizon_s": 12.0,
+    "training_pack": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/packs/full_pair_v1/h60",
+    "training_pack_manifest_sha256": "3a915d235ed94990e2a5aee729d884ab791230e1f82e43380c670559d2b7d7b3"
+  },
+  "recording_definition": {
+    "episode": "One distinct fixed-reference Chrono HMMWV execution from a scene launch; all declared outcomes retained.",
+    "seconds": "Sum of each completed raw outcome.json elapsed_s, independently checked against frames multiplied by the 0.05 s recording interval.",
+    "excluded": "Unrecorded 0.8 s settling, observation-only passes, retries, later planner evaluations/diagnostics, repeated optimizer draws and overlapping forecast windows.",
+    "record_dt_s": 0.05,
+    "maximum_episode_duration_s": 180,
+    "not_wall_clock_time": true,
+    "not_caps_multiplied_by_episode_count": true
+  },
+  "terrain_families": ["rolling_hills", "ridge_passes", "cross_slopes", "valley_network", "rough_mosaic", "mixed_obstacles"],
+  "arena_size_m": [240, 240],
+  "references_per_arena": 15,
+  "geometric_reference_offsets_m": [0, -22, 22, -44, 44],
+  "commanded_cruise_speeds_mps": [2, 4, 6],
+  "rgbd_observation": "One measured global RGB-D snapshot per scene; raw 1024x1024, encoded model input 4x512x512. Terrain and obstacles are static within a scene.",
+  "splits": {
+    "train": {
+      "episodes": 360,
+      "scenes": 24,
+      "scenes_per_terrain_family": 4,
+      "recorded_intervals": 1075344,
+      "actual_seconds": 53767.2,
+      "actual_hours": 14.935333333333333,
+      "forecast_windows": 53830,
+      "used_for_optimizer_updates": true,
+      "raw_root": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/full_cohort_v2/raw",
+      "episode_list": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/packs/full_pair_v1/h60/train_episodes.json",
+      "episode_list_sha256": "ad9967e7bd304cd7ff19c3586ad35f60ecba7418f10c3542c1ac2603caf3216a",
+      "outcome_inventory_sha256": "6c8df1294bf0d29c2c55e40e289419f47bcdef240c9c24baeef6a1df6a621c6d"
+    },
+    "val": {
+      "episodes": 90,
+      "scenes": 6,
+      "scenes_per_terrain_family": 1,
+      "recorded_intervals": 272201,
+      "actual_seconds": 13610.05,
+      "actual_hours": 3.7805694444444444,
+      "forecast_windows": 13625,
+      "used_for_optimizer_updates": false,
+      "raw_root": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/full_cohort_v2/raw",
+      "episode_list": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/packs/full_pair_v1/h60/val_episodes.json",
+      "episode_list_sha256": "f4a385b675f9d4e6c925ba51c51d15beea1989fcc63d55fc962b7163d21fa52f",
+      "outcome_inventory_sha256": "dee3867e7a98362026ee07d77775e42a54462739db85164a1861e5a8240d2604"
+    },
+    "test": {
+      "episodes": 90,
+      "scenes": 6,
+      "scenes_per_terrain_family": 1,
+      "recorded_intervals": 257716,
+      "actual_seconds": 12885.8,
+      "actual_hours": 3.579388888888889,
+      "used_for_optimizer_updates": false,
+      "included_in_training_pack": false,
+      "raw_root": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/raw",
+      "outcome_inventory_sha256": "8a6277322cb09275da2f6486968d5471719dc8ba9f9d65eba2e92dc6505416b3"
+    }
+  },
+  "train_plus_validation": {"episodes": 450, "scenes": 30, "actual_seconds": 67377.25, "actual_hours": 18.715902777777778},
+  "all_reference_data": {"episodes": 540, "scenes": 36, "actual_seconds": 80263.05, "actual_hours": 22.295291666666667},
+  "verification": {
+    "checkpoint_args_and_data_manifest_loaded_directly": true,
+    "train_val_episode_list_hashes_match_pack_manifest": true,
+    "train_val_episode_source_paths_and_frame_counts_match_exact_raw_sets": true,
+    "all_540_raw_outcome_hashes_match_collection_completion_markers": true,
+    "all_540_case_and_reference_hashes_match_original_collection_manifest": true,
+    "all_540_elapsed_values_match_recorded_interval_counts": true,
+    "collection_manifest": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/cases.json",
+    "collection_manifest_sha256": "2e066280e8f667eb020fd455a12017579f6543546262bfb3687363e3821f02e1",
+    "outcome_inventory_digest_definition": "For records and routes in original collection manifest order within each split: SHA256(concatenated UTF-8 absolute outcome path + NUL + outcome file SHA256 + NUL + decimal frames + NUL + Python repr(elapsed_s) + newline).",
+    "new_training_or_physics_run": false
+  }
+}

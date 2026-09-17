@@ -1,0 +1,98 @@
+{
+  "schema": 1,
+  "inputs": {
+    "manifest": "a3c44401b6d6cb3010063f0560c1c17fe21b83c34c88c0b635d0be3416530d5e",
+    "observation": "0cde99296ad64d68b24476a40122c87cc11870c055f7c73ace1646a8a9208e80",
+    "predictions": "f649e31b47c990c6bb9f5615642a74fa62616bee8291dae69b1e2c9f88c2796d",
+    "reference_01_selected": "849069838e959d0be39c2dd065f6d7233c062a61b93677b3ad36793ca4f6cb67",
+    "reference_02_collision": "3de3082a4f60220b11f1557f4c692e46a5d5a3c7fca0b53f6693958207c953c0",
+    "reference_03_stall": "9b3270e0b7652d1b01265f6ca81862ec67dc08a621ddce927ee3463102e7b453",
+    "reference_04_progress": "cd3f597db72f660b8bd9b5a308e96f4890e67de12804fc809107cfe36620c1be"
+  },
+  "compositor_sha256": "6fb7455dea4dc52e40ecec791b315516226147bfcd53e1b6ede3bd4e7612da98",
+  "prediction_horizon_s": 4.0,
+  "camera": {
+    "width": 256,
+    "height": 256,
+    "hfov_rad": 0.8203047484373349,
+    "cam_height_m": 100.0,
+    "depth_ray_scale": 1.0,
+    "max_depth_m": 250.0,
+    "backend": "Vulkan_RT_lavapipe",
+    "depth_measurement": "Euclidean_ray_range_m"
+  },
+  "projection": "Perspective camera with current observed-depth surface lookup; unknown depth uses elevation0; future XY forecasts do not supply future height/images",
+  "overview_png_sha256": "35186bede4c75be1fa3a4c98399d08efce17775a9148c0cf25d6e868421c776e",
+  "overview_pdf_sha256": "7556fe59526084d5ebeb6b50f297ce179b0871b30e7eab51c413dc61d5dd7feb",
+  "routes": [
+    {
+      "id": "01_selected",
+      "category": "best",
+      "video": "route_01_selected_best.mp4",
+      "video_sha256": "4be87c0cbe907140b024fcb19a5176daf3e1b14a15f1d51ce2476c0577162b0b",
+      "actual_frames": 82,
+      "encoded_frames": 92,
+      "explicit_final_hold_frames": 10,
+      "actual_timestamp_start_s": 0.0,
+      "actual_timestamp_end_s": 8.1,
+      "source_png_sha256_chain": "0208fbc414fc4c405d46bdc4063df327ae5d67e816d9ecab9f66238fb5687c49",
+      "trajectory_sha256": "70553d860f91241c732d4a72dedf2af0d7050b56162563963bfe159974b20651",
+      "frame_times_sha256": "0d287c394de726690eb6a90fc29ecfd273df6b66343b229f838f2478102a14bc",
+      "outcome_sha256": "5739cef34074df20a5d8f4d215f80e6d3bc85346db29d65516df4b178101ccc0",
+      "video_semantics": "Actual rendered Chrono frames in timestamp order, annotated, encoded10fps; no synthesized/interpolated scene frames"
+    },
+    {
+      "id": "02_collision",
+      "category": "collision",
+      "video": "route_02_collision_collision.mp4",
+      "video_sha256": "845bfbfcfcbf7b64d1fba596177c223bcca476f33af67959bd39358b066fd765",
+      "actual_frames": 251,
+      "encoded_frames": 261,
+      "explicit_final_hold_frames": 10,
+      "actual_timestamp_start_s": 0.0,
+      "actual_timestamp_end_s": 25.0,
+      "source_png_sha256_chain": "ba8a0666a158479dc26c50932c4f8ae6abd6dda362d7d73453467225f4a51bf1",
+      "trajectory_sha256": "2fe81e754de59ed0d4b2950e94aa32a28ca2e2e2a9b1edcf4ead14517154ac23",
+      "frame_times_sha256": "0b05492e4e07af487d7ff04ae492b838767bb84f3bc0edd8b380337a25b0b932",
+      "outcome_sha256": "169820d495585293bfb7e99c4dff498bfbc1ae272464d65e1823274a5fa58653",
+      "video_semantics": "Actual rendered Chrono frames in timestamp order, annotated, encoded10fps; no synthesized/interpolated scene frames"
+    },
+    {
+      "id": "03_stall",
+      "category": "stall",
+      "video": "route_03_stall_stall.mp4",
+      "video_sha256": "ff07c27ff8c93722bcf3384c5a11ccfa363996a103828266da511afc3cf51191",
+      "actual_frames": 251,
+      "encoded_frames": 261,
+      "explicit_final_hold_frames": 10,
+      "actual_timestamp_start_s": 0.0,
+      "actual_timestamp_end_s": 25.0,
+      "source_png_sha256_chain": "399b0765c519e1bf2c28cc320b98ac466fae0b131f459157fb9ab5211f467b64",
+      "trajectory_sha256": "7ba94acc46c1e9174ade9c071bdac7a412582621ec00065091e5654e19c3f127",
+      "frame_times_sha256": "0b05492e4e07af487d7ff04ae492b838767bb84f3bc0edd8b380337a25b0b932",
+      "outcome_sha256": "799ab966221def35998138e8ecb1c194c4243a5bde015d2e0d8b5a7bc5be29f7",
+      "video_semantics": "Actual rendered Chrono frames in timestamp order, annotated, encoded10fps; no synthesized/interpolated scene frames"
+    },
+    {
+      "id": "04_progress",
+      "category": "low_progress",
+      "video": "route_04_progress_low_progress.mp4",
+      "video_sha256": "61151716db9dc5ab76f95d15906469a035a9d99b945ab714ec54c8c633a61a8f",
+      "actual_frames": 146,
+      "encoded_frames": 156,
+      "explicit_final_hold_frames": 10,
+      "actual_timestamp_start_s": 0.0,
+      "actual_timestamp_end_s": 14.5,
+      "source_png_sha256_chain": "fb879db7d3fdc93187f6f36c627bff9d21950715eae93d8bb2513b9d073b0334",
+      "trajectory_sha256": "94b849b541a495c3abb151ecfdc2d2a87fc3c1661c43a334e97e111be77f4a23",
+      "frame_times_sha256": "cc673ff3e5567d96733c56246cf50a014d80a23785da1370e3c14a6822a11235",
+      "outcome_sha256": "31a350e0e0c0f96805a526e8e548db5ba7baa73a0ead4d4685557b5eeb618b60",
+      "video_semantics": "Actual rendered Chrono frames in timestamp order, annotated, encoded10fps; no synthesized/interpolated scene frames"
+    }
+  ],
+  "comparison": {
+    "video": "four_route_comparison.mp4",
+    "sha256": "bc1c1e75958c6a5d751cfce6247dd97c58313badaa663eb6f77bee9ace4d2c4f",
+    "note": "Completed recordings hold their last frame with the displayed completion status; individual videos retain native duration."
+  }
+}

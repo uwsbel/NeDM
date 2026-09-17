@@ -1,0 +1,8 @@
+{
+  "state17_max_abs_difference": 0.0,
+  "pose_max_abs_difference": 7.098993783927199e-07,
+  "rgb_equal": true,
+  "depth_max_abs_difference_m": 0.0,
+  "anchor_observation_sha256": "ed5e3cb4a4e8b35b7d107cbd65def3252a2d21097151278f3b17a4c9ad3503d5",
+  "matched": true
+}

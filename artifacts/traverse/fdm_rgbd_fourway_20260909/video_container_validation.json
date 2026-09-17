@@ -1,0 +1,83 @@
+{
+  "four_videos_present": true,
+  "h264_yuv420p_compatible": true,
+  "rows": [
+    {
+      "path": "visualization/route_01_selected_best.mp4",
+      "programs": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "width": 1280,
+          "height": 720,
+          "pix_fmt": "yuv420p",
+          "avg_frame_rate": "10/1",
+          "nb_frames": "80"
+        }
+      ],
+      "format": {
+        "duration": "8.000000",
+        "size": "4921438"
+      },
+      "sha256": "bf97a2055341f91a69a1d79a2617b3c6244a87f47e2fe4dd9cbbdda4e269c854"
+    },
+    {
+      "path": "visualization/route_02_collision_collision.mp4",
+      "programs": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "width": 1280,
+          "height": 720,
+          "pix_fmt": "yuv420p",
+          "avg_frame_rate": "10/1",
+          "nb_frames": "161"
+        }
+      ],
+      "format": {
+        "duration": "16.100000",
+        "size": "7718302"
+      },
+      "sha256": "8dd866e93254ed842078fbb2afc806e4049e5f180a85fdeb6fe589cd79842a56"
+    },
+    {
+      "path": "visualization/route_03_stall_stall.mp4",
+      "programs": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "width": 1280,
+          "height": 720,
+          "pix_fmt": "yuv420p",
+          "avg_frame_rate": "10/1",
+          "nb_frames": "161"
+        }
+      ],
+      "format": {
+        "duration": "16.100000",
+        "size": "10350235"
+      },
+      "sha256": "b3febef66aa1ed1c98392f2013fc7a1854d1f7fbb250f2a0ff7ee4ceb36078fc"
+    },
+    {
+      "path": "visualization/route_04_progress_low_progress.mp4",
+      "programs": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "width": 1280,
+          "height": 720,
+          "pix_fmt": "yuv420p",
+          "avg_frame_rate": "10/1",
+          "nb_frames": "108"
+        }
+      ],
+      "format": {
+        "duration": "10.800000",
+        "size": "6793156"
+      },
+      "sha256": "a9194b42dd4bc3eb6ca5d3ccebd5d15c4da6d3976d24f81451343f42105583e3"
+    }
+  ],
+  "refresh_reason": "Final compositor status/footer font fit; unchanged physical source frames and telemetry."
+}

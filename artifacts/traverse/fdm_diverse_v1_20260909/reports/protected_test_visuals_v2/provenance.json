@@ -1,0 +1,29 @@
+{
+  "freeze_sha256": "29684ce59cdd68e9b1f7310dcd2e63c55d021f6ff6712b83f99d286722efeb33",
+  "audited_report_sha256": "711fb646dec0805b80cb0757b33d665da89f5b40907c8195024eb5f6773232f7",
+  "script_sha256": "22f0e1fa788d3364bf3739629d9436609137ae5b8db61a57db0d0df8b61a7f3e",
+  "all_30_trials_retained": true,
+  "single_shared_source_runtime_signature": true,
+  "source_runtime_signature_sha256": "e48ad2af4934ba7aad250448c1412d3997149d559935b35a25e0d48dec14bd1d",
+  "paired_summary": {
+    "selected_rgbd_energy_vs_time": {
+      "safe_pairs": 4,
+      "mean_work_saving_fraction": 0.0032558893078328544,
+      "mean_time_increase_fraction": -0.004782304719807257
+    },
+    "matched_blank_energy_vs_time": {
+      "safe_pairs": 3,
+      "mean_work_saving_fraction": 0.004488509904426581,
+      "mean_time_increase_fraction": 0.018854413086134558
+    }
+  },
+  "training_controls_proof_sha256": "70cbd4780daaeda74e8d1ba4baddaf4206ebf4e0410c5eabd5e54e39b256ee5c",
+  "figures_sha256": {
+    "all_30_trials.png": "224795ebc6702eb7c49660ca10fce6022e9de270aab36fb3c84244cf125e1183",
+    "all_30_trials.pdf": "72eacf140c4d1b5f7d2e96e65ec1ab7e7d0cbf561a92458aed4fe37ff9b44cb7",
+    "paired_safe_energy.png": "4f9b0245ba9f7ed31e7c32e9082bd71f10263ecfed2c4bf3589c4718797c83d9",
+    "paired_safe_energy.pdf": "caf3515b36cfe328ef984bbc2718092e9cc0dc927733a98e9eb159a1a7fda9c7"
+  },
+  "model_or_parameter_selection_performed": false,
+  "simulation_or_training_performed": false
+}

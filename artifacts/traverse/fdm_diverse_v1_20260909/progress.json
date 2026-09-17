@@ -1,0 +1,181 @@
+{
+  "phase": "first_campaign_complete",
+  "main_checkout": "read-only",
+  "worktree": "traverse_mppi",
+  "geometry": {
+    "size_m": 240,
+    "train_scenes": 24,
+    "validation_scenes": 6,
+    "protected_test_scenes": 6,
+    "routes_per_scene": 15,
+    "full_horizon_s": 180
+  },
+  "jobs": {
+    "pilot_collection": 412053,
+    "pilot_geometry_and_passivity": 412058,
+    "telemetry_v2_passivity": 412065,
+    "full_train_val_collection": 412066,
+    "pilot_training_smoke": 412067,
+    "pilot_learning": 412071,
+    "native_pid_adapter_parity": 412076,
+    "pilot_online_smoke": 412080,
+    "native_pid_moving_update": 412077,
+    "pilot_online_smoke_v5": 412081,
+    "pilot_long_online": 412083,
+    "protected_reference_collection_sealed": 412084,
+    "full_pair_packing": 412085,
+    "full_h60_training": 412086,
+    "full_h20_training": 412090,
+    "full_offline_report": 412094,
+    "continuity_integration_smoke": 412097,
+    "full_validation_energy_grid": 412098,
+    "full_validation_cohort_report_attempt1": 412099,
+    "full_validation_energy_grid_v3": 412103,
+    "initial_reference_diagnostic": 412101,
+    "invalid_grid_audit": 412102,
+    "full_validation_energy_grid_v3_audit": 412106,
+    "plan_once_best_validation": 412114,
+    "plan_once_last_validation": 412113,
+    "plan_once_best_audit": 412115,
+    "plan_once_last_audit": 412116,
+    "final_validation_selection": 412119,
+    "protected_online": 412122,
+    "protected_online_audit": 412124,
+    "protected_pack_cpu": 412125,
+    "protected_offline_gpu": 412126,
+    "protected_offline_finalize_success": 412139,
+    "demo_cross_time": 412134,
+    "demo_cross_energy": 412133,
+    "demo_rolling_failure": 412135,
+    "demo_rolling_failure_1hz": 412145
+  },
+  "snapshots": {
+    "pilot_collection": "collection_pilot_v1",
+    "full_collection": "campaign_v2",
+    "training": "training_v3",
+    "online": "online_v9"
+  },
+  "ready_packs": [
+    "pilot_h60_v2",
+    "pilot_h20_v2",
+    "full_pair_v1/h60",
+    "full_pair_v1/h20"
+  ],
+  "completed_gates": [
+    "flat launch geometry",
+    "global RGB-D calibration",
+    "headless-renderer physical parity",
+    "rich observer physical parity",
+    "typed suspension getters",
+    "complete pilot joins and censored labels",
+    "four AMD100-update training smoke arms",
+    "four AMD1000-update pilot learning arms",
+    "native PID adapter repeated-route physical parity",
+    "native PID changed-route while moving, speed-controller preserved",
+    "all450train/valroutesand30maps complete,zero collectionerrors",
+    "all8fullAMDtrainingarms complete5000updatesandcontrols",
+    "full offline8arm2horizonreport complete",
+    "v7continuity20sphysicalsmokes completedbothnormal exits",
+    "Full 72-trial valid physical validation comparison and frozen selection",
+    "All 30 protected physical trials and artifact audits",
+    "Protected reference and six-pass forecast audit",
+    "All three full Chrono camera replays pass exact 241-array and decision parity; videos encoded and visually verified"
+  ],
+  "pending": [],
+  "model_limits": [
+    "global sensing is one pre-drive overhead snapshot",
+    "attitude predicts0.2s endpoints not500Hzpeak",
+    "time/energy beyond12s forecast are cost extrapolations",
+    "rollover validation has only4positive routes",
+    "all collection safe completions use outer44m reference offsets"
+  ],
+  "pilot_learning_conclusion": "1000-update RGBD not reliably better than matched blank on one validation arena; full diverse data required",
+  "online_smoke_status": "Complete: corrected receding validation grid has 24/24 valid trials; both 24-trial plan-once comparisons and the predeclared configuration selection are complete.",
+  "protected_test_status": "Complete: unsealed at 22:56:01 UTC only after concrete checkpoint/source/cost/task freeze. All 30 physical trials and six offline prediction passes are audited. No test training or tuning.",
+  "full_collection": {
+    "routes": 450,
+    "maps": 30,
+    "failed_tasks": 0,
+    "wall_s": 2343.9934621509165,
+    "schema_safe_goals": 103
+  },
+  "training_windows": 53830,
+  "validation_windows": 13625,
+  "primary_checkpoint": {
+    "path": "runs/full_learning_h60_v3/patch_rgbd_s11/best.pt",
+    "step": 4000,
+    "training_budget": 5000,
+    "sha256": "65945dd3ca79621f5cf2467e0a19f66cdb943faf798565be0affe657132df33f"
+  },
+  "updated_utc": "2026-09-09T23:41:03.318071+00:00",
+  "full_receding_validation": {
+    "source": "online_v8",
+    "all24verified": true,
+    "safe_goals_by_weight": {
+      "0": 4,
+      ".02": 4,
+      ".2": 2,
+      ".5": 1
+    },
+    "selected_energy_weight": 0.02,
+    "energy_gate_passed": false,
+    "paired_default_work_change_fraction": 0.06677,
+    "paired_default_time_change_fraction": 0.00133,
+    "safe_pairs_default": 3
+  },
+  "protected_freeze_sha256": "29684ce59cdd68e9b1f7310dcd2e63c55d021f6ff6712b83f99d286722efeb33",
+  "validation_selected": {
+    "planning_mode": "plan_once",
+    "checkpoint_kind": "last",
+    "step": 5000,
+    "safe_goals_time": 5,
+    "safe_goals_energy": 4,
+    "energy_weight": 0.02,
+    "energy_gate_passed": false
+  },
+  "protected_test_windows": 12901,
+  "protected_test_pack_manifest_sha256": "708612fa1da0aadc6b1d20f8fed064084d09faa6a7d495c6bfda9c67eb209cfd",
+  "protected_physical_results": {
+    "trials": 30,
+    "all_artifacts_valid": true,
+    "safe_goals": {
+      "rgbd_time": 4,
+      "rgbd_energy": 4,
+      "blank_time": 3,
+      "blank_energy": 3,
+      "original_receding_time": 4
+    },
+    "scenes": 6,
+    "rgbd_safe_pairs": 4,
+    "mean_work_saving_fraction": 0.0032559,
+    "mean_time_change_fraction": -0.0047823,
+    "energy_gate_met": false
+  },
+  "protected_offline_complete": true,
+  "demo_status": {
+    "cross_time": "Complete: 412134, 41.25 s, 208 native frames at 5 Hz; exact parity and local video verified.",
+    "cross_energy": "Complete: 412133, 41.20 s, 207 native frames at 5 Hz; exact parity and local video verified.",
+    "rolling_failure": "Complete: 412145, 180 s, 181 native frames at 1 Hz; exact parity and local video verified. Contact/blockage; no planner abstention. Earlier partial 5 Hz render retained."
+  },
+  "campaign_outcome": "Partially positive transfer; the experiment and deliverables are complete, but reliable joint time/risk/energy performance is not established.",
+  "milestone_assessment": {
+    "diverse_data_and_amd_training": "met",
+    "protected_safe_goal_count": "4/6; limited predeclared count gate met",
+    "vision_prediction": "positive but incomplete",
+    "energy_savings_5_percent": "not met; mean paired safe work savings 0.3256%",
+    "joint_reliable_planner": "not established"
+  },
+  "remaining_research": [
+    "Whole-reference remaining time/work and failure supervision",
+    "Varied speed profiles and bounded reference perturbations",
+    "Better pre-failure risk calibration and consistent receding route commitment",
+    "New protected cohort for any subsequent tuning"
+  ],
+  "deliverables": {
+    "results": "../../../docs/vision/hmmwv_traverse/fdm_diverse_results_20260909.md",
+    "protected_outcomes": "reports/protected_test_visuals_v2/all_30_trials.png",
+    "demo_index": "demos/protected_v1/index.md",
+    "demo_manifest": "demos/protected_v1/complete.json"
+  },
+  "demo_manifest_sha256": "426eb090649b47aa0dbf8fc3954f63600e1fb489879dc0e435fec92623b8fe5c"
+}

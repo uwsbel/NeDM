@@ -1,0 +1,128 @@
+{
+  "terrain_probe_mesa12/family_00": {
+    "status": "timeout",
+    "goal_time_s": null,
+    "safe_goal_reached": false,
+    "goal_progress_m": 6.223116390898127,
+    "longest_consecutive_effortful_near_zero_speed_s": 0.9500000000000001
+  },
+  "terrain_probe_mesa12/family_01": {
+    "status": "timeout",
+    "goal_time_s": null,
+    "safe_goal_reached": false,
+    "goal_progress_m": 6.294550094740551,
+    "longest_consecutive_effortful_near_zero_speed_s": 0.25
+  },
+  "terrain_probe_mesa12/family_02": {
+    "status": "goal_reached",
+    "goal_time_s": 9.700000000000001,
+    "safe_goal_reached": true,
+    "goal_progress_m": 33.68183890580085,
+    "longest_consecutive_effortful_near_zero_speed_s": 0.25
+  },
+  "terrain_probe_mesa12/family_03": {
+    "status": "goal_reached",
+    "goal_time_s": 7.0,
+    "safe_goal_reached": true,
+    "goal_progress_m": 33.63937674647607,
+    "longest_consecutive_effortful_near_zero_speed_s": 0.25
+  },
+  "terrain_probe_mesa12/family_04": {
+    "status": "goal_reached",
+    "goal_time_s": 9.65,
+    "safe_goal_reached": true,
+    "goal_progress_m": 33.60214570382883,
+    "longest_consecutive_effortful_near_zero_speed_s": 0.25
+  },
+  "terrain_probe_mesa12/family_05": {
+    "status": "goal_reached",
+    "goal_time_s": 6.95,
+    "safe_goal_reached": true,
+    "goal_progress_m": 33.644445030577735,
+    "longest_consecutive_effortful_near_zero_speed_s": 0.25
+  },
+  "terrain_probe_mesa18/family_00": {
+    "status": "timeout",
+    "goal_time_s": null,
+    "safe_goal_reached": false,
+    "goal_progress_m": 6.052761476100866,
+    "longest_consecutive_effortful_near_zero_speed_s": 0.8
+  },
+  "terrain_probe_mesa18/family_01": {
+    "status": "timeout",
+    "goal_time_s": null,
+    "safe_goal_reached": false,
+    "goal_progress_m": 6.0584343137225005,
+    "longest_consecutive_effortful_near_zero_speed_s": 0.55
+  },
+  "terrain_probe_mesa18/family_02": {
+    "status": "goal_reached",
+    "goal_time_s": 9.65,
+    "safe_goal_reached": true,
+    "goal_progress_m": 33.606485342354645,
+    "longest_consecutive_effortful_near_zero_speed_s": 0.25
+  },
+  "terrain_probe_mesa18/family_03": {
+    "status": "goal_reached",
+    "goal_time_s": 6.95,
+    "safe_goal_reached": true,
+    "goal_progress_m": 33.59875860335807,
+    "longest_consecutive_effortful_near_zero_speed_s": 0.25
+  },
+  "terrain_probe_mesa18/family_04": {
+    "status": "goal_reached",
+    "goal_time_s": 9.600000000000001,
+    "safe_goal_reached": true,
+    "goal_progress_m": 33.51930544378247,
+    "longest_consecutive_effortful_near_zero_speed_s": 0.25
+  },
+  "terrain_probe_mesa18/family_05": {
+    "status": "goal_reached",
+    "goal_time_s": 6.9,
+    "safe_goal_reached": true,
+    "goal_progress_m": 33.56869707597955,
+    "longest_consecutive_effortful_near_zero_speed_s": 0.25
+  },
+  "terrain_probe_mesa24/family_00": {
+    "status": "timeout",
+    "goal_time_s": null,
+    "safe_goal_reached": false,
+    "goal_progress_m": 5.359274159142618,
+    "longest_consecutive_effortful_near_zero_speed_s": 0.35000000000000003
+  },
+  "terrain_probe_mesa24/family_01": {
+    "status": "timeout",
+    "goal_time_s": null,
+    "safe_goal_reached": false,
+    "goal_progress_m": 5.388767176494984,
+    "longest_consecutive_effortful_near_zero_speed_s": 0.25
+  },
+  "terrain_probe_mesa24/family_02": {
+    "status": "goal_reached",
+    "goal_time_s": 9.65,
+    "safe_goal_reached": true,
+    "goal_progress_m": 33.61953664159113,
+    "longest_consecutive_effortful_near_zero_speed_s": 0.25
+  },
+  "terrain_probe_mesa24/family_03": {
+    "status": "goal_reached",
+    "goal_time_s": 6.95,
+    "safe_goal_reached": true,
+    "goal_progress_m": 33.64062550295401,
+    "longest_consecutive_effortful_near_zero_speed_s": 0.25
+  },
+  "terrain_probe_mesa24/family_04": {
+    "status": "goal_reached",
+    "goal_time_s": 9.65,
+    "safe_goal_reached": true,
+    "goal_progress_m": 33.679336596154315,
+    "longest_consecutive_effortful_near_zero_speed_s": 0.25
+  },
+  "terrain_probe_mesa24/family_05": {
+    "status": "goal_reached",
+    "goal_time_s": 6.9,
+    "safe_goal_reached": true,
+    "goal_progress_m": 33.53621874796272,
+    "longest_consecutive_effortful_near_zero_speed_s": 0.25
+  }
+}

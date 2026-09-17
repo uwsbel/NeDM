@@ -1,0 +1,75 @@
+{
+  "size_m": 80.0,
+  "pixels": 512,
+  "resolution_m_per_px": 0.15625,
+  "height_min_m": -3.0,
+  "height_max_m": 0.1,
+  "quantization_step_m": 0.01215686274509804,
+  "seed": 2026090811,
+  "bmp": "arena_000.bmp",
+  "orientation": {
+    "rot90": 0,
+    "flipud": true,
+    "calibrated": true,
+    "rmse_m": 0.008120992072417996,
+    "median_abs_m": 0.005373480689913723,
+    "runner_up_rmse_m": 0.817868874775216,
+    "samples": 400
+  },
+  "features": [
+    {
+      "kind": "bowl",
+      "x_m": 0.0,
+      "y_m": 0.0,
+      "sigma_m": 8.39782064267094,
+      "amplitude_m": 3.0,
+      "R_bottom_m": 2.0,
+      "R_top_m": 4.3438567489479825,
+      "R_top_entry_m": 13.196186124674146
+    }
+  ],
+  "slope_stats": {
+    "max": 1.3249530411763912,
+    "p999": 1.284353994279641,
+    "p99": 0.3346473201924036,
+    "median": 0.0,
+    "flat5deg_fraction": 0.9706840515136719
+  },
+  "slope_cap": null,
+  "bowl": {
+    "wall_deg": 52.0,
+    "depth_m": 3.0,
+    "bottom_radius_m": 2.0,
+    "entry_deg": 15.0,
+    "entry_azimuth_deg": 180.0,
+    "entry_halfwidth_deg": 28.0,
+    "wall_top_deg": null,
+    "entry_top_deg": null,
+    "centre_x_m": 0.0,
+    "centre_y_m": 0.0,
+    "round_m": 0.25,
+    "roughness_amplitude_m": 0.02,
+    "roughness_corr_m": 3.0,
+    "size_m": 80.0,
+    "pixels": 512,
+    "seed": 2026090811,
+    "relief_ring_margin_m": 1.5,
+    "wall_band_m": 2.3438567489479825,
+    "entry_band_m": 11.196186124674146,
+    "R_bottom_m": 2.0,
+    "R_top_m": 4.3438567489479825,
+    "R_top_entry_m": 13.196186124674146,
+    "round_px": 1.6,
+    "relief_sigma_m": 8.39782064267094,
+    "arm": "deep",
+    "arm_mode": "scale",
+    "arm_depth_m": 3.0,
+    "arm_wall_deg": 52.0,
+    "centre_sim_x_m": 0.0,
+    "centre_sim_y_m": 0.0,
+    "shared_height_range": [
+      -3.0,
+      0.1
+    ]
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "created_utc": "2026-09-09T17:56:49.563751+00:00",
+  "request": "Replace the rock-like central berm with a smooth steep hill that can cause an effortful climbing stall; repeat the four-route media validation.",
+  "previous_artifacts_preserved": "artifacts/traverse/fdm_rgbd_fourway_20260909",
+  "worktree": "/home/harry/NeDM-traverse_mppi",
+  "branch": "traverse_mppi",
+  "checkpoint": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_runs/rgbd_focused_pilot_v2/patch_rgbd_s11/last.pt",
+  "checkpoint_sha256": "3aa2f403cc7786857be67682e5b78f052a7329115f3df0a9dd852385453162a3",
+  "training": false,
+  "all_new_physics_and_rendering": "AMD cluster, bounded parallel jobs",
+  "geometry_development": {
+    "selection_basis": "Physical shape and Chrono outcome probes only; no model-score-based geometry search.",
+    "intent": "Broad continuous hill, gradual toe and crest, no narrow near-vertical mesa wall.",
+    "preferred_choice": "A less severe smooth slope producing sustained effortful failure while leaving a safe detour.",
+    "controls": "Keep vehicle, friction, powertrain, native PID, start, goal and six reference families fixed; disclose any necessary scene-footprint change.",
+    "diagnostics": "Retain all probes; inspect measured pitch, height, effort, progress, wheel behavior and chassis/terrain clearance or contact evidence.",
+    "interpretation": "Asset contact absence alone cannot exclude underbody terrain blocking. Report only failure mechanisms supported by telemetry."
+  },
+  "final_validation": {
+    "initial_observation": "Generate actual current RGB-D and measured vehicle context on the selected hill.",
+    "planner": "Existing RGB-D checkpoint and MPPI scorer/config; 4 s horizon; 6 m/s command ceiling; seed 11.",
+    "freeze": "Save all model forecasts and four references before the final four recorded executions.",
+    "scope": "Scene was intentionally selected using prior geometry probes; not an untouched test or unbiased benchmark.",
+    "risk_policy": "Preserve actual probabilities and any prediction failures; do not label hypotheses as positive model classifications.",
+    "outputs": [
+      "updated prediction overview",
+      "four actual Chrono videos",
+      "old/new physical hill profile",
+      "prediction versus actual report"
+    ]
+  }
+}

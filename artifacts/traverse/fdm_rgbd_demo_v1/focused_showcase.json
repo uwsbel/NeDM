@@ -1,0 +1,35 @@
+{
+  "title": "RGB-D + MPPI: measured Chrono route choices\nSame starting observation and state for every route; focused obstacle model",
+  "scenes": [
+    {
+      "title": "Visible obstacle",
+      "observation": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_demo_v1/observations/visible_rock_v1/observation.npz",
+      "selection": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_demo_v1/focused_planning/visible_rock_v1/selection.json",
+      "execution": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_demo_v1/focused_physical_selected/visible_rock_v1",
+      "alternatives": [
+        "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_demo_v1/physical_families/visible_rock_v1/family_00",
+        "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_demo_v1/physical_families/visible_rock_v1/family_01",
+        "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_demo_v1/physical_families/visible_rock_v1/family_02",
+        "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_demo_v1/physical_families/visible_rock_v1/family_03",
+        "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_demo_v1/physical_families/visible_rock_v1/family_04",
+        "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_demo_v1/physical_families/visible_rock_v1/family_05"
+      ],
+      "goal_radius_m": 2.5
+    },
+    {
+      "title": "Hill crossing",
+      "observation": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_demo_v1/observations/hill0_f111_near/observation.npz",
+      "selection": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_demo_v1/focused_planning/hill0_f111_near/selection.json",
+      "execution": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_demo_v1/focused_physical_selected/hill0_f111_near",
+      "alternatives": [
+        "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_demo_v1/physical_families/hill0_f111_near/family_00",
+        "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_demo_v1/physical_families/hill0_f111_near/family_01",
+        "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_demo_v1/physical_families/hill0_f111_near/family_02",
+        "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_demo_v1/physical_families/hill0_f111_near/family_03",
+        "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_demo_v1/physical_families/hill0_f111_near/family_04",
+        "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_demo_v1/physical_families/hill0_f111_near/family_05"
+      ],
+      "goal_radius_m": 2.5
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "scope": "Final smooth-hill stall video, measured 20\u201325 s interval",
+  "input_sha256": "ada1fa92de137e9aa8c3e3bf683aa3c2d1e78c70a0a7ba3a012120395d3ec169",
+  "median_pitch_deg": -34.490035781908055,
+  "median_yaw_deg": 0.7948298965169686,
+  "minimum_throttle": 1.0,
+  "maximum_braking": 0.0,
+  "gears": [
+    1.0
+  ],
+  "maximum_chassis_contact_resultant_n_full_run": 0.0,
+  "wheels": {
+    "tire_fl": {
+      "median_raw_world_z_force_n": 3882.0169416129747,
+      "median_native_tire_slip": 25.173498521015123,
+      "median_circumferential_speed_mps": 4.969854248488898,
+      "median_horizontal_hub_speed_mps": 0.10184212805055208
+    },
+    "tire_fr": {
+      "median_raw_world_z_force_n": 3731.628178119595,
+      "median_native_tire_slip": 30.095990495811428,
+      "median_circumferential_speed_mps": 8.49884182169573,
+      "median_horizontal_hub_speed_mps": 0.0801323670200621
+    },
+    "tire_rl": {
+      "median_raw_world_z_force_n": 8492.219300623095,
+      "median_native_tire_slip": 0.9736452943823657,
+      "median_circumferential_speed_mps": 0.4727783978582334,
+      "median_horizontal_hub_speed_mps": 0.06137462483328465
+    },
+    "tire_rr": {
+      "median_raw_world_z_force_n": 6943.729999578409,
+      "median_native_tire_slip": 1.0491385264602253,
+      "median_circumferential_speed_mps": 0.40108769239453324,
+      "median_horizontal_hub_speed_mps": 0.050908035917408036
+    }
+  },
+  "caveat": "World-Z tire force is a raw load proxy, not exact contact-normal load. No sampled chassis resultant does not exclude every brief/cancelling contact. Native tire slip retains the TMeasy convention."
+}

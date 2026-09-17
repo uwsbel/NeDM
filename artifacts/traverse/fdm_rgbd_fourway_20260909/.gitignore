@@ -1,0 +1,21 @@
+# Allowlist: only the files below are committed from this folder (see the repository .gitignore).
+/*
+!/.gitignore
+!/*.md
+!/*.json
+!/actual/
+/actual/*
+!/actual/*/
+/actual/*/*
+!/actual/*/outcome.json
+!/cases/
+!/prediction/
+/prediction/*
+!/prediction/frozen_artifacts.json
+!/prediction/selection.json
+!/prediction/routes/
+!/visualization/
+/visualization/*
+!/visualization/prediction_overview.pdf
+!/visualization/prediction_overview.png
+!/visualization/*.json

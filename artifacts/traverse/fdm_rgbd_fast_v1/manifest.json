@@ -1,0 +1,270 @@
+{
+  "schema": 1,
+  "observation": "Actual current RGB-D, calibrated registration; no BMP or asset geometry input",
+  "camera": {
+    "width": 256,
+    "height": 256,
+    "hfov_deg": 47.0,
+    "cam_height_m": 100.0,
+    "depth_ray_scale": 1.2,
+    "depth_convention": "ray",
+    "depth_offset_m": 80.0,
+    "depth_no_hit": 65535,
+    "image_up": "+Y world (north-up)"
+  },
+  "image_encoding": {
+    "shape": [
+      4,
+      128,
+      128
+    ],
+    "dtype": "float16",
+    "rgb": "box-resized uint8 /255",
+    "depth": "observed ray depth -> RGB-registered elevation, fixed clip(z/10,-1,1); invalid=-2; conservative validity in box resize"
+  },
+  "commands_fields": [
+    "reference_ego_x_m",
+    "reference_ego_y_m",
+    "sin_reference_heading",
+    "cos_reference_heading",
+    "reference_speed_mps"
+  ],
+  "global_fields": [
+    "remaining_route_m",
+    "goal_ego_x_m",
+    "goal_ego_y_m",
+    "elapsed_recording_s",
+    "anchor_world_x_over40",
+    "anchor_world_y_over40",
+    "sin_anchor_world_yaw",
+    "cos_anchor_world_yaw"
+  ],
+  "localization": "Measured current world XY/yaw supplies path/image correspondence; not an end-to-end localization claim",
+  "reference_confound": "Archived reference speeds may already contain authored slope/curvature limits. Commands are known actions, but matched evaluation must include uniform/non-terrain-authored speed proposals and image ablations.",
+  "controller_domain": "standard ChPathFollowerDriver: substep PID, initialized before 0.8 s settle",
+  "history_fields": [
+    "vel_body_x_mps",
+    "vel_body_y_mps",
+    "roll_rad",
+    "pitch_rad",
+    "roll_rate_radps",
+    "ang_vel_body_y_radps",
+    "yaw_rate_radps",
+    "tire_fl_force_wheel_fz_n",
+    "tire_fr_force_wheel_fz_n",
+    "tire_rl_force_wheel_fz_n",
+    "tire_rr_force_wheel_fz_n",
+    "tire_fl_spindle_omega_radps",
+    "tire_fr_spindle_omega_radps",
+    "tire_rl_spindle_omega_radps",
+    "tire_rr_spindle_omega_radps",
+    "engine_motor_speed_radps",
+    "engine_motorshaft_torque_nm",
+    "previous_driver_steering",
+    "previous_driver_throttle",
+    "previous_driver_braking",
+    "ego_x",
+    "ego_y",
+    "sin_yaw",
+    "cos_yaw"
+  ],
+  "startup_padding": "Unrecorded history repeats first measured state/pose and synthetic [steer=0,throttle=0,brake=1]; not actual settle telemetry. Available history count=min(16,1+round(global_features[3]/0.05)).",
+  "event_names": [
+    "contact",
+    "rollover",
+    "low_progress"
+  ],
+  "horizon_s": 4.0,
+  "output_dt_s": 0.2,
+  "history_frames": 16,
+  "base_pack_manifest_sha256": "5279c9c28998d014817dc5985a9e48e3b7adceba1e40dd90325965262773a5e2",
+  "split_rule": "Frozen legacy layout split; partial/full canonical aliases; stable hash for unseen identities; test payloads never opened",
+  "selection": "Lowest SHA256(fdm_fast_v1:canonical_id), before reading outcomes; nominal-route families only",
+  "code_sha256": {
+    "scripts/traverse_fdm_rgbd_prepare.py": "698533dc917d36faaba1f7e2a99a7bf214125022f74dee0d1f15af27e26e280b",
+    "src/nedm/traverse/fdm_rgbd_data.py": "ae18b0e21bb86cc16a5eecf9938f0c90a1b6593144327edfb9324f2463a4d422",
+    "src/nedm/traverse/fdm_data.py": "a42631801f0770304901ddcdc48d4d626965a7485ce4648252d8f6c1d2b37276",
+    "src/nedm/traverse/storage.py": "96976f13509cdf6b03c230cb7b9b852d3dab7f639878874affd739f3ee31e4ad"
+  },
+  "splits": {
+    "train": {
+      "episodes": 1000,
+      "windows": 20000,
+      "frames": 400000,
+      "statuses": {
+        "complete": 1000
+      },
+      "source_stores": {
+        "full_v3": 733,
+        "full_v1": 130,
+        "full_v2": 137
+      },
+      "event_positive_targets": {
+        "contact": 12187,
+        "rollover": 0,
+        "low_progress": 4685
+      },
+      "event_valid_targets": {
+        "contact": 371330,
+        "rollover": 366000,
+        "low_progress": 163015
+      },
+      "event_positive_windows": {
+        "contact": 703,
+        "rollover": 0,
+        "low_progress": 497
+      },
+      "shapes": {
+        "history": [
+          20000,
+          16,
+          24
+        ],
+        "trajectory": [
+          20000,
+          20,
+          4
+        ],
+        "work": [
+          20000,
+          20,
+          1
+        ],
+        "events": [
+          20000,
+          20,
+          3
+        ],
+        "trajectory_mask": [
+          20000,
+          20,
+          1
+        ],
+        "event_mask": [
+          20000,
+          20,
+          3
+        ],
+        "episode_index": [
+          20000
+        ],
+        "anchor": [
+          20000
+        ],
+        "commands": [
+          20000,
+          20,
+          5
+        ],
+        "nominal_pose": [
+          20000,
+          20,
+          4
+        ],
+        "global_features": [
+          20000,
+          8
+        ]
+      },
+      "sha256": "d0e156bad6434917e9acff698099002040737d19c9faab01bc6a2b180a8078c1",
+      "rgbd_file": "train_rgbd.npy",
+      "rgbd_shape": [
+        20000,
+        4,
+        128,
+        128
+      ],
+      "rgbd_sha256": "bbeeebf913015230e73f16c0cd1940309e29572110ffc53a44a5b246d760f7f8"
+    },
+    "val": {
+      "episodes": 250,
+      "windows": 5000,
+      "frames": 100000,
+      "statuses": {
+        "complete": 250
+      },
+      "source_stores": {
+        "full_v3": 165,
+        "full_v2": 45,
+        "full_v1": 40
+      },
+      "event_positive_targets": {
+        "contact": 2310,
+        "rollover": 0,
+        "low_progress": 786
+      },
+      "event_valid_targets": {
+        "contact": 92800,
+        "rollover": 91500,
+        "low_progress": 40564
+      },
+      "event_positive_windows": {
+        "contact": 136,
+        "rollover": 0,
+        "low_progress": 82
+      },
+      "shapes": {
+        "history": [
+          5000,
+          16,
+          24
+        ],
+        "trajectory": [
+          5000,
+          20,
+          4
+        ],
+        "work": [
+          5000,
+          20,
+          1
+        ],
+        "events": [
+          5000,
+          20,
+          3
+        ],
+        "trajectory_mask": [
+          5000,
+          20,
+          1
+        ],
+        "event_mask": [
+          5000,
+          20,
+          3
+        ],
+        "episode_index": [
+          5000
+        ],
+        "anchor": [
+          5000
+        ],
+        "commands": [
+          5000,
+          20,
+          5
+        ],
+        "nominal_pose": [
+          5000,
+          20,
+          4
+        ],
+        "global_features": [
+          5000,
+          8
+        ]
+      },
+      "sha256": "0c2a6e757bfa68ac804efdcb0ec98305b4faf838c740b01d33dfedce833cb744",
+      "rgbd_file": "val_rgbd.npy",
+      "rgbd_shape": [
+        5000,
+        4,
+        128,
+        128
+      ],
+      "rgbd_sha256": "f9daf2e35b58393d5ebf7f5a08bcbd7aef518a55b31c01f786da88446d00d03b"
+    }
+  },
+  "normalization_sha256": "a91efdc6e7f43b0b55b6729ac840fccce8218e29ca5344868777fcaf887684ad"
+}

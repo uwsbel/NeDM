@@ -1,0 +1,844 @@
+{
+  "schema": "fdm_diverse_pack_v1",
+  "event_schema": "fdm_diverse_events_v1_asset_or_chassis",
+  "cohort_state": "complete",
+  "bounded_motion_version": 2,
+  "sustained_stall_version": 1,
+  "cohort_manifests": {
+    "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/cases.json": "2e066280e8f667eb020fd455a12017579f6543546262bfb3687363e3821f02e1"
+  },
+  "scene_splits": {
+    "diverse_v1_train_rolling_hills_00": "train",
+    "diverse_v1_train_rolling_hills_01": "train",
+    "diverse_v1_train_rolling_hills_02": "train",
+    "diverse_v1_train_rolling_hills_03": "train",
+    "diverse_v1_train_ridge_passes_00": "train",
+    "diverse_v1_train_ridge_passes_01": "train",
+    "diverse_v1_train_ridge_passes_02": "train",
+    "diverse_v1_train_ridge_passes_03": "train",
+    "diverse_v1_train_cross_slopes_00": "train",
+    "diverse_v1_train_cross_slopes_01": "train",
+    "diverse_v1_train_cross_slopes_02": "train",
+    "diverse_v1_train_cross_slopes_03": "train",
+    "diverse_v1_train_valley_network_00": "train",
+    "diverse_v1_train_valley_network_01": "train",
+    "diverse_v1_train_valley_network_02": "train",
+    "diverse_v1_train_valley_network_03": "train",
+    "diverse_v1_train_rough_mosaic_00": "train",
+    "diverse_v1_train_rough_mosaic_01": "train",
+    "diverse_v1_train_rough_mosaic_02": "train",
+    "diverse_v1_train_rough_mosaic_03": "train",
+    "diverse_v1_train_mixed_obstacles_00": "train",
+    "diverse_v1_train_mixed_obstacles_01": "train",
+    "diverse_v1_train_mixed_obstacles_02": "train",
+    "diverse_v1_train_mixed_obstacles_03": "train",
+    "diverse_v1_val_rolling_hills_00": "val",
+    "diverse_v1_val_ridge_passes_00": "val",
+    "diverse_v1_val_cross_slopes_00": "val",
+    "diverse_v1_val_valley_network_00": "val",
+    "diverse_v1_val_rough_mosaic_00": "val",
+    "diverse_v1_val_mixed_obstacles_00": "val"
+  },
+  "selection": "All declared sibling routes, every uniform anchor; no outcome filtering or event-conditioned oversampling",
+  "split_rule": "Scene-disjoint; byte-identical heightmaps cannot cross splits. Test not opened by default invocation.",
+  "anchor_stride_frames": 20,
+  "frame_dt_s": 0.05,
+  "horizon_steps": 60,
+  "horizon_s": 12.0,
+  "output_dt_s": 0.2,
+  "history_fields": [
+    "vel_body_x_mps",
+    "vel_body_y_mps",
+    "roll_rad",
+    "pitch_rad",
+    "roll_rate_radps",
+    "ang_vel_body_y_radps",
+    "yaw_rate_radps",
+    "tire_fl_force_wheel_fz_n",
+    "tire_fr_force_wheel_fz_n",
+    "tire_rl_force_wheel_fz_n",
+    "tire_rr_force_wheel_fz_n",
+    "tire_fl_spindle_omega_radps",
+    "tire_fr_spindle_omega_radps",
+    "tire_rl_spindle_omega_radps",
+    "tire_rr_spindle_omega_radps",
+    "engine_motor_speed_radps",
+    "engine_motorshaft_torque_nm",
+    "previous_driver_steering",
+    "previous_driver_throttle",
+    "previous_driver_braking",
+    "ego_x",
+    "ego_y",
+    "sin_yaw",
+    "cos_yaw"
+  ],
+  "command_fields": [
+    "reference_ego_x_m",
+    "reference_ego_y_m",
+    "sin_reference_heading",
+    "cos_reference_heading",
+    "reference_speed_mps"
+  ],
+  "global_fields": [
+    "remaining_route_m",
+    "goal_ego_x_m",
+    "goal_ego_y_m",
+    "elapsed_recording_s",
+    "anchor_world_x_over40",
+    "anchor_world_y_over40",
+    "sin_anchor_world_yaw",
+    "cos_anchor_world_yaw"
+  ],
+  "event_names": [
+    "contact",
+    "rollover",
+    "low_progress"
+  ],
+  "extra_event_targets": [
+    "bounded_motion",
+    "sustained_stall",
+    "asset_contact",
+    "chassis_contact"
+  ],
+  "contact_definition": "Any future interval with an asset OR chassis resultant contact >1 N; positive survives censoring. Main enriched event schema differs explicitly from legacy asset-only. Raw sources and separate labels retained; threshold not tuned on test.",
+  "rollover_definition": "Any future post-physics-step abs roll OR abs pitch >60 degrees; raw sampled extrema and signed endpoint targets also retained.",
+  "bounded_motion_definition": "Entirely future 2s window, measured 41-endpoint XY diameter<=0.25m, all40 throttle>0.3, no parking or measured goal arrival. Prefix<2s masked; known positive survives censoring.",
+  "sustained_stall_definition": "Entirely future2s contiguous |body vx|<0.3m/s, every throttle>0.3, no parked/goal-arrived endpoints. Separate from bounded motion; no startup grace.",
+  "low_progress_definition": "Measured prefix>=2s, net XY<0.15m/s times duration, mean throttle>0.3, no parking/arrival; complete endpoint needed.",
+  "work_definition": "Cumulative engine_interface_positive_work_kj over exact recorded intervals; solver-step quadrature of positive engine torque*transmission motorshaft feedback speed, not fuel energy.",
+  "attitude_definition": "Signed roll/pitch at actual future endpoint, per-axis mask. Cumulative abs roll/pitch interval maxima are separate reporting targets, not substituted endpoint labels.",
+  "censoring": "Trajectory/work/attitude require measured end and finite needed labels. Known cumulative contact/rollover/stall positives remain valid beyond termination; unknown negatives masked.",
+  "observation": "One measured pre-drive GLOBAL RGB-D map per scene, reused at all anchors. This is a fixed sensor snapshot, not current per-anchor onboard vision; assumes terrain/obstacle scene static.",
+  "planner_inputs": "history, commands, global_features, nominal_pose and image_index-selected RGB-D only. Authored BMP, friction/config, asset inventory and future telemetry are labels/provenance only.",
+  "startup_history": "First measured state/pose repeated to16 samples, synthetic past steering0/throttle0/brake1; no measured settling history claimed.",
+  "camera": {
+    "width": 1024,
+    "height": 1024,
+    "hfov_rad": 0.8203047484373349,
+    "cam_height_m": 400.0,
+    "depth_ray_scale": 1.0,
+    "max_depth_m": 600.0,
+    "backend": "Vulkan_RT_lavapipe",
+    "depth_measurement": "Euclidean_ray_range_m",
+    "model_image_size": 512,
+    "elevation_scale_m": 40.0,
+    "observation_mode": "single pre-drive global RGB-D snapshot reused causally"
+  },
+  "image_size": 512,
+  "elevation_scale_m": 40.0,
+  "image_storage": "split_rgbd.npy has one float16[4,512,512] encoding per scene; image_index maps each window to its shared image",
+  "source_sha256": {
+    "scripts/traverse_fdm_rgbd_diverse_chrono.py": "2996c567f248126e7e25498a8a74124caf5c5d5fb01e62aaee3c631df2bdb920",
+    "src/nedm/traverse/scene.py": "b4f4f6b8d037cb1b1618c8d662d4e1e72078b9e98495683763f29f5d195fda65",
+    "src/nedm/hmmwv_data.py": "3e6fd41c6f9c4db13c34f5c0d2b7d9dea891bbafcc886ec9f4dfa5285b26dcc2",
+    "src/nedm/traverse/terrain.py": "fc9869f513dc6ee705322d72b36ea16b32ce3b1cbafeb81fbde8e86af8046d9e",
+    "src/nedm/traverse/layout.py": "014c717fcf5a8608dd57e32fdfbe511ada6dbdc794b5ba5059e7db7f8d7bf98a",
+    "src/nedm/traverse/fdm_data.py": "a42631801f0770304901ddcdc48d4d626965a7485ce4648252d8f6c1d2b37276",
+    "src/nedm/traverse/fdm_diverse_data.py": "5c5cf1a0098df044a6317b43e76adc5e4fe3ed530b53e6e33c51210abd2dc58c",
+    "src/nedm/traverse/fdm_rich_telemetry.py": "86fa14ba5913a05db66cad30df99876a1c43fae57ba420433945f9400295252c"
+  },
+  "runtime_sha256": {
+    "/work1/dannegrut/harry/nrd/chrono-build/bin/pychrono/__init__.py": "a52f5f394f0901b9b9c0a60f0bbdc078fc45d9c6e85067fe3033ddd0f79b59f8",
+    "/work1/dannegrut/harry/nrd/chrono-build/bin/pychrono/_core.so": "4b5f74b4b4d96ba9c680775373142f6d5f34a92ed76a53c3b7f0dfbdd43b7420",
+    "/work1/dannegrut/harry/nrd/chrono-build/bin/pychrono/_sensor.so": "8313ff155966a8d86d68d26afbd3b2b1c072557c64c16ca518bdf8cdc7d554bd",
+    "/work1/dannegrut/harry/nrd/chrono-build/bin/pychrono/_vehicle.so": "cffab60b7250130228c172b22785d5758da52c67050006d937fbdc1b44acc451",
+    "/work1/dannegrut/harry/nrd/chrono-build/bin/pychrono/core.py": "8264ed777682c20cc38541a59a0f9648c0d3f9b19ef98277ae36b055e923788f",
+    "/work1/dannegrut/harry/nrd/chrono-build/bin/pychrono/fea.py": "c3150d02c427bcb78113387213e2e3951728277ecaf51dd4d31af6403e84f8de",
+    "/work1/dannegrut/harry/nrd/chrono-build/bin/pychrono/postprocess.py": "ce0158783aca2f0bc3a2ef0db592a720c18defba2bd7aa926f7cc1e7e5527334",
+    "/work1/dannegrut/harry/nrd/chrono-build/bin/pychrono/robot.py": "7036ce90b92da782ad644ab59e8fe3547d140a8fb348dd5c8215dfdd15c0d4df",
+    "/work1/dannegrut/harry/nrd/chrono-build/bin/pychrono/sensor.py": "a4a190454d75c423bd47922ae11dd269680ec83dd5a661f1da3b1cb88e953f27",
+    "/work1/dannegrut/harry/nrd/chrono-build/bin/pychrono/vehicle.py": "ec1aca3a1c9efc3f3ecca68a66f0dc056b44a17de9e71fb75762178536ea6dd4",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/sensor/textures/grass_texture.jpg": "3efb560ba5e8832f2ea0c8ab348f171d8389a18fc92d92e7cff99dfb8a3d4701",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/POV-Ray/hmmwv_chassis.inc": "1178e042e2304141d804fa0558b29f35cd21dcc53a460033f2c413ec55414ae3",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/POV-Ray/hmmwv_chassis_flatbed_POV_geom.inc": "8b6fb17f0669b5efec5046781bf8773cec6615467bb778852c3384f8cb684edf",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/POV-Ray/hmmwv_chassis_flatbed_POV_mat.inc": "83dc8d99f16ed48d78695a6cd6fcc53f0f4ef8a2655a93942f799483306e95ec",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/POV-Ray/hmmwv_chassis_mat.inc": "bc98ded142754e8f6ee79078afa892bebc764dd4b1975d59e86ebd50c84ad1c3",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/POV-Ray/hmmwv_rim.inc": "556e628d60cef9f9ff716544f92439fcb6640d688753cf812b6d6225057053cf",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/POV-Ray/hmmwv_rim_mat.inc": "47020c3ada6088657f03ae06cb9f46f030a608a66788882f6b3e59da4dd71006",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/POV-Ray/hmmwv_tire_left.inc": "090275f5c22df2a98199328c9b3cdc8881cd5dd89375b49151a4e427fb3cc4c8",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/POV-Ray/hmmwv_tire_left_mat.inc": "f5734abe5889f1b8b0b8084f6093f9333036e491c9089da7e3c0fdaaf5f038e3",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/POV-Ray/hmmwv_tire_right.inc": "2740a956dba5264472bfd7fb500933fc813d3be32588f1da7ec02207608c2edb",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/POV-Ray/hmmwv_tire_right_mat.inc": "bf16001d1df9e21e123a7c4d3bbf9c9c89aa852c9bd2ad22f7647118ffe73a08",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/POV-Ray/lugged_wheel_POV_geom.inc": "c022135288cbef0b8db13df409bc1cb1269085519801813c34905e353e7126b6",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/POV-Ray/lugged_wheel_POV_mat.inc": "d1229548b41722180a4993a8030bf3640c50ffabe8d66f071ae1578f6d453f75",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/README.md": "49ec0af98f7aa6b44ccd09e7a5f185fa2b946c5ca424a655af1a2ed0c8b45252",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/SpeedController.json": "8fc05d48da38176d03d22abde0b4874136a80140e418eb55bfa37e8fd5cf61cd",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/SteeringController.json": "e9ab1cc1f533a2375f4fe53bf5d3dc633341a78209269192cecc99f7dbe38073",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/SteeringControllerSR.json": "5509f7fb4604adb937fb9bf8dc305890a3ef467721c1bdf8a52748bac11982ca",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/brake/HMMWV_BrakeShafts_Front.json": "11785c623ea5b7615f4a729a60ed60451c9c97f4ccda7620d9c9b7e31030eaf2",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/brake/HMMWV_BrakeShafts_Rear.json": "b07746df18066e60684421d9edb99962aff94ceb40307551e0cff7cc7f61b89d",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/brake/HMMWV_BrakeSimple_Front.json": "b2d496e8223bde03b6a645b422198a4934510b87f98d6e44c2d55ffadf6d0c2c",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/brake/HMMWV_BrakeSimple_Rear.json": "67c8ee0717440f496e8251a0a17c10038bd99f78c21c31e866896e8f4e30586e",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/chassis/HMMWV_Chassis.json": "f10feb169a10464b46d8c942727729fc669657573c6c1b582187b8ea89532a82",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/driveline/HMMWV_Driveline2WD.json": "bbc7664e6e14eb0cce79a081365f9fd4c1b4dfbfbbcbc0555770e772b635376e",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/driveline/HMMWV_Driveline4WD.json": "bc1865abf4c5041207b4d529fbdaf8f0d3a9fa7672337fe91b7beade44bfafe9",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/driveline/HMMWV_DrivelineSimple.json": "c0e7b2483afd6c180be562c1e9cd7a50145829ef5c6ae28a6dffc88d7f9a2f2c",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/driver/HumanController.json": "a35086ceef30e280e3cfd58abf08518cacd17e04820dbd9702a6893ec3e91989",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/hmmwv_chassis.mtl": "51b971eb21cd82f5d4a56206cf584d127e841aae961936c5cd57908b8f21199c",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/hmmwv_chassis.obj": "15c0ad3090cbb7a997bfdd7584b39730bc0f21ee2ccfc3cc405aa4fd44bc1b6c",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/hmmwv_chassis_col.obj": "f55c4efbc1924712701200f226661251d0ca02bde6f42dabe333a749d82f8980",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/hmmwv_chassis_flatbed.obj": "8aeeb4ac0710ca83c552ccb4cf82bc987f923021b458ca884884eed58f00384e",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/hmmwv_chassis_simple.obj": "9006c7a2dd6f185a45ed06a55b3c1937fc62b9ae3ece0249cba49be8ffe01d94",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/hmmwv_rim.mtl": "b925441d1ca9add6711b38647ac0d8a921c7c907c8dda23e93ae4f5048251435",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/hmmwv_rim.obj": "35616d4433b8dde4f901f4bd49e24580a6a48a80e6fa48091dca6673f8c0006c",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/hmmwv_tire_coarse.obj": "f0a6374fbdcc738f32900227759151a2c9ff70760111598591a71687aa9493a6",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/hmmwv_tire_coarse_closed.obj": "7b20aeb008f111108a45318308f59379143a0e5f5c91693e760c5a7436ca76ac",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/hmmwv_tire_fine.obj": "54ff15cf3dbb5cff29e71665a3e5f3284ab60e89e4478d19aba3f6ec0b87cad0",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/hmmwv_tire_left.mtl": "12a242f3a6ccd16aa50bb606d5e3219c108d631ac9104df773d8217fccd80178",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/hmmwv_tire_left.obj": "c56d0793d318938ccf4c919b7cb91212850801f7b3520746a2405ca4ced87ca4",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/hmmwv_tire_right.mtl": "12a242f3a6ccd16aa50bb606d5e3219c108d631ac9104df773d8217fccd80178",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/hmmwv_tire_right.obj": "3382d9898e41511c59afa9c695915cd75c7911dab9c09ecd82b15909d9ece191",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/lugged_wheel.obj": "46c4be5f92f0e557966799d01a85e9397ac708851427cacc54d316705cedd5c6",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/lugged_wheel_section.obj": "972ee7292fd61b5d7410b1a71b6fe23a8e6ea530a6b126433b3d1b1d602eb2d8",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/pactest.tir": "9d0b75bd109e8fde53b578fc9cc11829d06570819892df7f497be251783b9842",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/powertrain/HMMWV_AutomaticTransmissionShafts.json": "7cbf28e7cdff3789966700f8f2823cfe3cc5a5d0211e320ace8711b290dae423",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/powertrain/HMMWV_AutomaticTransmissionSimpleCVT.json": "9bfab5fa6f55ff02a42c82def3dcbb23277ac96c709e0816fba88389c7b8d0d3",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/powertrain/HMMWV_AutomaticTransmissionSimpleMap.json": "a670d06a9821a182627e6d7e007088c6d8b35c0d8cdd3c3ba4142c3d16462893",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/powertrain/HMMWV_EngineShafts.json": "14c5aee24e8cd9beb1b6c55908aef7d573b186e6a59d7ce73e88d044eb28d111",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/powertrain/HMMWV_EngineSimple.json": "47c66496546008f191a98c9be548e6353c873319d4b7ec2351220423c15f6418",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/powertrain/HMMWV_EngineSimpleMap.json": "84fbdbac29d1362cbda390ccb149c3532125bf967f2b89c4d23f7830629cba9c",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/powertrain/engine.txt": "76387d7677b6a2e2db4d2efc971d2cb0717de1364c4d8d5ae5cc8139ecca1370",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/powertrain/tc.txt": "4f6f4a137957f5f3660e6099358b12cf99af5e55742d5472c72f6eace4632038",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/steering/HMMWV_PitmanArm.json": "5c7fa85b42d197767fd665c4bd6958132f47f1742b0ec7fb90065d34ae2ae71c",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/steering/HMMWV_RackPinion.json": "b5d7b4f94bba312239f7a01612c7b42bd04161977d65bbd2daa14d0dc7d31912",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/suspension/HMMWV_DoubleWishboneFront.json": "cd70b6dd212a440e67172b547d3ab0a9b015e2fa11c59545be806ade7ee4bbc6",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/suspension/HMMWV_DoubleWishboneFront_bushings.json": "cdca1dab48ec48e20705a54f5833f8c569a8938b41cfbcaecd27a1ecbef991b8",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/suspension/HMMWV_DoubleWishboneFront_mapShock.json": "82e3ddfb67935e6c204fbcec52d88915ec0b15a4f34d1ea28f5c0cc97c171bee",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/suspension/HMMWV_DoubleWishboneFront_replica.json": "bfcbb0c251a8e36e42ccf79c7de4967713c8b6963c8c56ef6124f03583b9960a",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/suspension/HMMWV_DoubleWishboneRear.json": "a13eadbcddaf4b0dfd0298585fe7fc620f84d33bf6f17d3efe68a0d3fc490480",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/suspension/HMMWV_DoubleWishboneRear_bushings.json": "e29d84087e94cae544ed34e52f0a4b857372de5ddc1dd5a2296f720d301fa959",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/suspension/HMMWV_DoubleWishboneRear_mapShock.json": "d3d12bd6dd1723c1771f4b7240a0d45e141ad117be54053c19b7cbf06abb785d",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/suspension/HMMWV_DoubleWishboneReducedFront.json": "6fa8fd5a0de5671a8c0d3fa984282392f215d3a747373f34c0e096bfb20d5490",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/suspension/HMMWV_DoubleWishboneReducedRear.json": "5a7fd7c6597ac9eff8ce9b22d5d707907b8032659aa9f1fc2ec8a519c9ec059f",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/suspension/HMMWV_ThreeLinkIRS.json": "ee09f6a688cf4d02ba7381c72fdca882bc20493197927820dc3f2ce409b9b4fc",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/suspensionTest/HMMWV_ST_front.json": "16d7d6676a0b8f860aa80e03e5e02478f3f2183f1bbc5b92834782b7f4214c10",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/suspensionTest/HMMWV_ST_front_replica.json": "d89f226bdcdd01c726449f03a216f464dff532f6b90d3bb744b68c304ac65416",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/suspensionTest/HMMWV_ST_rear.json": "023f1b416a7822daf9699085edf9483ce24e3d7e221c3c6589a0675eee268cb1",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/suspensionTest/ST_inputs.dat": "42700ba821ce72b0cad8b88e147397a9e3aea3680e96f9d25a223a76c73a6b01",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/tire/HMMWV_ANCF4Tire.json": "24c2a28bf31dc71cc0e06a2bc560093ca1dfa34436e11953cae3d817c43717e8",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/tire/HMMWV_ANCF4Tire_Lumped.json": "8bc2754cf3f87bc78cf6185cbae04a36b892796679ce2f7dacf3354b42dc7364",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/tire/HMMWV_ANCF8Tire.json": "df2de13f3816b0c4af790cbe9f95571496f1f01d3e029e6f5adccc8fac67542d",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/tire/HMMWV_ANCF8Tire_Lumped.json": "cd8363f7701ba7767296b689efe3088216f0ffb1078e6ac7530c12bc135fc9e5",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/tire/HMMWV_FEATire.json": "f608bf4242a041e48ff0079dfd2bc2ce7119e29a017b9e80272559d9ba27d51a",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/tire/HMMWV_FialaTire.json": "59eb2143d625c29256936e9cd5d9f5ea301e7116eae58882b17ccd11e91ecd29",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/tire/HMMWV_Fiala_converted.json": "5c4dc09bce9445f13c7ea1afbf7525ce8f5fb012a7ed256d17e2d6042bfb6e4f",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/tire/HMMWV_Pac02Tire.json": "b1cf8f13d4310e602af1747ba57291688039240e567ef4e7da1c7a77986cc87c",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/tire/HMMWV_Pac02Tire.tir": "f068b90393cd34b0c7a39d87548bf7806f2b0e91ab898dc77af5153031bc71cd",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/tire/HMMWV_Pac89Tire.json": "547e6b63aff5b63d26c1b1f4884d1247185f37341198d3747d582945179a7c8d",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/tire/HMMWV_PacejkaTire.json": "263d0c74c5e52c71f896cb51fb424be5f65a78d2a95fccac002535ff0d5e3df7",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/tire/HMMWV_ReissnerTire.json": "1a55061a54b48834dbab9f648ebc589d421e4108826c37362ea8ffce45fbf9e1",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/tire/HMMWV_RigidMeshTire.json": "f21f2c5c9e8f814852b713dde0d79fde0c3c5d600195ee4214072870c3497697",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/tire/HMMWV_RigidMeshTire_Coarse.json": "a79bd1c831c617b071978826207befa3a20945aad6c4ca85f2f7fb275afb031b",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/tire/HMMWV_RigidMeshTire_CoarseClosed.json": "d6ba2622d79dba77412bc9c8585ce3aa089403311caa4f188f140f525a7d9a92",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/tire/HMMWV_RigidTire.json": "2b8042f4b56a94d38997404bb4764e086a4a212e2d9d14252e99d0670c9387df",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/tire/HMMWV_TMeasyTire.json": "c7bfe07e106441a0c967d81609d634e9dfbaae80c346559ea783a3babdf4d78e",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/tire/HMMWV_TMsimpleTire.json": "7b2644c0283549668d0e0c677cc0f83e5c06ab72ae20aaa25204ce04557adfaa",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/tire/HMMWV_lugged_coarse.inp": "b5e585e8095eb7f2f2df5873933f3c027a4b6759614600458568aefbd7d5e7e2",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/tire/HMMWV_pacejka.tir": "f1f99b3965cd5f7316f07eeb5f2407ea9f40e7126b484179378859060281c110",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/vehicle/HMMWV_Vehicle.json": "8f87369fbfe355c850ea7532dc7fdd3abd717bd140f914d44c349eda364ddc40",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/vehicle/HMMWV_Vehicle_4WD.json": "0e52b1153d862fc500560a9f69412b692b6381b497aef3bc14e467e47cef5e9b",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/vehicle/HMMWV_Vehicle_balanced.json": "8f87369fbfe355c850ea7532dc7fdd3abd717bd140f914d44c349eda364ddc40",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/vehicle/HMMWV_Vehicle_bushings.json": "6112a093863af02ad8d437f647db3679b6b8bcfef328413e8ec0580234461604",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/vehicle/HMMWV_Vehicle_mapShock.json": "a3382e0c6d38155bcebb9bca8b3c31f5f3a88d27a81768ecac683804a72481f7",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/vehicle/HMMWV_Vehicle_replica.json": "7ba6e4ab93bea325e9b30c238468622667139f508648f5a0a9e32ddd1b9f4b09",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/vehicle/HMMWV_Vehicle_simple.json": "d864a11d3108648d775da0c398cc75f7c31248ba7a87d5cf41a56ee9e10c7c4a",
+    "/work1/dannegrut/harry/nrd/chrono-build/data/vehicle/hmmwv/wheel/HMMWV_Wheel.json": "0b327d66be074adfce3dbd9bdedb0bee1beca63b5867dbb01659c9894428e991",
+    "/work1/dannegrut/harry/nrd/chrono-build/lib/libChrono_core.so": "cb1015234ea5621426773bfb05aa9aba448bd0bc9d4a19258a5bf53bb87e6d01",
+    "/work1/dannegrut/harry/nrd/chrono-build/lib/libChrono_sensor.so": "f6aa9e304445aa3f14f6b723cb9fea5c7e6f36b52397cea7b7014c7934830c73",
+    "/work1/dannegrut/harry/nrd/chrono-build/lib/libChrono_vehicle.so": "09ee59c80ec9f831062bff5aebf10f2e970cc01718ba88e13d86fb475d5190a8"
+  },
+  "source_archive_root": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2",
+  "arena_archive_root": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2",
+  "preparation_workers": 8,
+  "preparation_sha256": {
+    "scripts/traverse_fdm_rgbd_diverse_prepare.py": "e168fdb7fe37d5c314280d0879cb3fbef2b8b1464544b283f6f7ac963ec909b1",
+    "scripts/check_traverse_fdm_rich_telemetry.py": "4a2061b30a5855fe82fe208a6beaedc200daea35f31528e8ac07bcdf99434c3a",
+    "src/nedm/__init__.py": "0b92e78ad52036c9e3c282ced58aadf360940c587b126ce5b4bb8a1974cfad12",
+    "src/nedm/training/__init__.py": "e31c32e00aed2865995b688c409185d1ccae5021d5e9de688e4be79c449d12bf",
+    "src/nedm/training/constants.py": "8760562e7b3f1da9f28f0b1a6aa3e37ecb83f26dbdab65be67bcc16c44a27c18",
+    "src/nedm/traverse/__init__.py": "e1e2a4132cea059cff09f3d1f351f0bcd20cd903ef67830dc3d26d9908bdd013",
+    "src/nedm/traverse/fdm_bounded_targets.py": "d5b82ff843dea7fba710c5ba408f53c5918f3028b0df884febf0f41632c824c3",
+    "src/nedm/traverse/fdm_data.py": "a42631801f0770304901ddcdc48d4d626965a7485ce4648252d8f6c1d2b37276",
+    "src/nedm/traverse/fdm_diverse_data.py": "5c5cf1a0098df044a6317b43e76adc5e4fe3ed530b53e6e33c51210abd2dc58c",
+    "src/nedm/traverse/fdm_diverse_targets.py": "ae7b0319ff3f44b470f296c078176a2ef6bc3533192a27b716b760e29272fbbe",
+    "src/nedm/traverse/fdm_rgbd_data.py": "ae18b0e21bb86cc16a5eecf9938f0c90a1b6593144327edfb9324f2463a4d422",
+    "src/nedm/traverse/fdm_rich_telemetry.py": "86fa14ba5913a05db66cad30df99876a1c43fae57ba420433945f9400295252c"
+  },
+  "collection_protocol_sha256": null,
+  "normalization_from": null,
+  "splits": {
+    "train": {
+      "episodes": 360,
+      "scenes": 24,
+      "scene_ids": [
+        "diverse_v1_train_cross_slopes_00",
+        "diverse_v1_train_cross_slopes_01",
+        "diverse_v1_train_cross_slopes_02",
+        "diverse_v1_train_cross_slopes_03",
+        "diverse_v1_train_mixed_obstacles_00",
+        "diverse_v1_train_mixed_obstacles_01",
+        "diverse_v1_train_mixed_obstacles_02",
+        "diverse_v1_train_mixed_obstacles_03",
+        "diverse_v1_train_ridge_passes_00",
+        "diverse_v1_train_ridge_passes_01",
+        "diverse_v1_train_ridge_passes_02",
+        "diverse_v1_train_ridge_passes_03",
+        "diverse_v1_train_rolling_hills_00",
+        "diverse_v1_train_rolling_hills_01",
+        "diverse_v1_train_rolling_hills_02",
+        "diverse_v1_train_rolling_hills_03",
+        "diverse_v1_train_rough_mosaic_00",
+        "diverse_v1_train_rough_mosaic_01",
+        "diverse_v1_train_rough_mosaic_02",
+        "diverse_v1_train_rough_mosaic_03",
+        "diverse_v1_train_valley_network_00",
+        "diverse_v1_train_valley_network_01",
+        "diverse_v1_train_valley_network_02",
+        "diverse_v1_train_valley_network_03"
+      ],
+      "windows": 53830,
+      "shapes": {
+        "trajectory": [
+          53830,
+          60,
+          4
+        ],
+        "trajectory_mask": [
+          53830,
+          60,
+          1
+        ],
+        "work": [
+          53830,
+          60,
+          1
+        ],
+        "work_mask": [
+          53830,
+          60,
+          1
+        ],
+        "events": [
+          53830,
+          60,
+          3
+        ],
+        "event_mask": [
+          53830,
+          60,
+          3
+        ],
+        "bounded_motion": [
+          53830,
+          60,
+          1
+        ],
+        "bounded_motion_mask": [
+          53830,
+          60,
+          1
+        ],
+        "sustained_stall": [
+          53830,
+          60,
+          1
+        ],
+        "sustained_stall_mask": [
+          53830,
+          60,
+          1
+        ],
+        "asset_contact": [
+          53830,
+          60,
+          1
+        ],
+        "asset_contact_mask": [
+          53830,
+          60,
+          1
+        ],
+        "chassis_contact": [
+          53830,
+          60,
+          1
+        ],
+        "chassis_contact_mask": [
+          53830,
+          60,
+          1
+        ],
+        "attitude": [
+          53830,
+          60,
+          2
+        ],
+        "attitude_mask": [
+          53830,
+          60,
+          2
+        ],
+        "attitude_peak_abs": [
+          53830,
+          60,
+          2
+        ],
+        "attitude_peak_abs_mask": [
+          53830,
+          60,
+          2
+        ],
+        "commands": [
+          53830,
+          60,
+          5
+        ],
+        "nominal_pose": [
+          53830,
+          60,
+          4
+        ],
+        "global_features": [
+          53830,
+          8
+        ],
+        "history": [
+          53830,
+          16,
+          24
+        ],
+        "episode_index": [
+          53830
+        ],
+        "anchor": [
+          53830
+        ],
+        "scene_index": [
+          53830
+        ],
+        "image_index": [
+          53830
+        ],
+        "source_domain": [
+          53830
+        ]
+      },
+      "sha256": "01687d0e68da01040242ef2ae130114ec7634e30f34e57c5c2997013f03601c0",
+      "rgbd_file": "train_rgbd.npy",
+      "rgbd_shape": [
+        24,
+        4,
+        512,
+        512
+      ],
+      "rgbd_sha256": "ca588f7f81ffe8d2b5c25d7f84db85d1719c2edc652909974b137555166446db",
+      "event_support": {
+        "contact": {
+          "all": {
+            "windows": 53830,
+            "positive_windows": 26717,
+            "positive_episodes": 203,
+            "positive_scenes": 24,
+            "positive_horizon_labels": 1514328,
+            "valid_horizon_labels": 3165776
+          },
+          "anchor0": {
+            "windows": 360,
+            "positive_windows": 32,
+            "positive_episodes": 32,
+            "positive_scenes": 15,
+            "positive_horizon_labels": 432,
+            "valid_horizon_labels": 21587
+          }
+        },
+        "rollover": {
+          "all": {
+            "windows": 53830,
+            "positive_windows": 221,
+            "positive_episodes": 19,
+            "positive_scenes": 9,
+            "positive_horizon_labels": 7077,
+            "valid_horizon_labels": 3113718
+          },
+          "anchor0": {
+            "windows": 360,
+            "positive_windows": 4,
+            "positive_episodes": 4,
+            "positive_scenes": 4,
+            "positive_horizon_labels": 53,
+            "valid_horizon_labels": 21600
+          }
+        },
+        "low_progress": {
+          "all": {
+            "windows": 53830,
+            "positive_windows": 35144,
+            "positive_episodes": 271,
+            "positive_scenes": 24,
+            "positive_horizon_labels": 1544342,
+            "valid_horizon_labels": 2624143
+          },
+          "anchor0": {
+            "windows": 360,
+            "positive_windows": 0,
+            "positive_episodes": 0,
+            "positive_scenes": 0,
+            "positive_horizon_labels": 0,
+            "valid_horizon_labels": 18307
+          }
+        },
+        "bounded_motion": {
+          "all": {
+            "windows": 53830,
+            "positive_windows": 33340,
+            "positive_episodes": 257,
+            "positive_scenes": 24,
+            "positive_horizon_labels": 1600049,
+            "valid_horizon_labels": 2682205
+          },
+          "anchor0": {
+            "windows": 360,
+            "positive_windows": 10,
+            "positive_episodes": 10,
+            "positive_scenes": 7,
+            "positive_horizon_labels": 85,
+            "valid_horizon_labels": 18307
+          }
+        },
+        "sustained_stall": {
+          "all": {
+            "windows": 53830,
+            "positive_windows": 32160,
+            "positive_episodes": 253,
+            "positive_scenes": 24,
+            "positive_horizon_labels": 1544700,
+            "valid_horizon_labels": 2679834
+          },
+          "anchor0": {
+            "windows": 360,
+            "positive_windows": 9,
+            "positive_episodes": 9,
+            "positive_scenes": 7,
+            "positive_horizon_labels": 58,
+            "valid_horizon_labels": 18307
+          }
+        },
+        "asset_contact": {
+          "all": {
+            "windows": 53830,
+            "positive_windows": 24950,
+            "positive_episodes": 175,
+            "positive_scenes": 22,
+            "positive_horizon_labels": 1429507,
+            "valid_horizon_labels": 3158672
+          },
+          "anchor0": {
+            "windows": 360,
+            "positive_windows": 20,
+            "positive_episodes": 20,
+            "positive_scenes": 9,
+            "positive_horizon_labels": 273,
+            "valid_horizon_labels": 21547
+          }
+        },
+        "chassis_contact": {
+          "all": {
+            "windows": 53830,
+            "positive_windows": 26717,
+            "positive_episodes": 203,
+            "positive_scenes": 24,
+            "positive_horizon_labels": 1514328,
+            "valid_horizon_labels": 3165776
+          },
+          "anchor0": {
+            "windows": 360,
+            "positive_windows": 32,
+            "positive_episodes": 32,
+            "positive_scenes": 15,
+            "positive_horizon_labels": 432,
+            "valid_horizon_labels": 21587
+          }
+        }
+      },
+      "episodes_sha256": "ad9967e7bd304cd7ff19c3586ad35f60ecba7418f10c3542c1ac2603caf3216a"
+    },
+    "val": {
+      "episodes": 90,
+      "scenes": 6,
+      "scene_ids": [
+        "diverse_v1_val_cross_slopes_00",
+        "diverse_v1_val_mixed_obstacles_00",
+        "diverse_v1_val_ridge_passes_00",
+        "diverse_v1_val_rolling_hills_00",
+        "diverse_v1_val_rough_mosaic_00",
+        "diverse_v1_val_valley_network_00"
+      ],
+      "windows": 13625,
+      "shapes": {
+        "trajectory": [
+          13625,
+          60,
+          4
+        ],
+        "trajectory_mask": [
+          13625,
+          60,
+          1
+        ],
+        "work": [
+          13625,
+          60,
+          1
+        ],
+        "work_mask": [
+          13625,
+          60,
+          1
+        ],
+        "events": [
+          13625,
+          60,
+          3
+        ],
+        "event_mask": [
+          13625,
+          60,
+          3
+        ],
+        "bounded_motion": [
+          13625,
+          60,
+          1
+        ],
+        "bounded_motion_mask": [
+          13625,
+          60,
+          1
+        ],
+        "sustained_stall": [
+          13625,
+          60,
+          1
+        ],
+        "sustained_stall_mask": [
+          13625,
+          60,
+          1
+        ],
+        "asset_contact": [
+          13625,
+          60,
+          1
+        ],
+        "asset_contact_mask": [
+          13625,
+          60,
+          1
+        ],
+        "chassis_contact": [
+          13625,
+          60,
+          1
+        ],
+        "chassis_contact_mask": [
+          13625,
+          60,
+          1
+        ],
+        "attitude": [
+          13625,
+          60,
+          2
+        ],
+        "attitude_mask": [
+          13625,
+          60,
+          2
+        ],
+        "attitude_peak_abs": [
+          13625,
+          60,
+          2
+        ],
+        "attitude_peak_abs_mask": [
+          13625,
+          60,
+          2
+        ],
+        "commands": [
+          13625,
+          60,
+          5
+        ],
+        "nominal_pose": [
+          13625,
+          60,
+          4
+        ],
+        "global_features": [
+          13625,
+          8
+        ],
+        "history": [
+          13625,
+          16,
+          24
+        ],
+        "episode_index": [
+          13625
+        ],
+        "anchor": [
+          13625
+        ],
+        "scene_index": [
+          13625
+        ],
+        "image_index": [
+          13625
+        ],
+        "source_domain": [
+          13625
+        ]
+      },
+      "sha256": "a587776e662c57f01c6d6f77287f1237814e41124e3a69804cf5e54ef5b8991f",
+      "rgbd_file": "val_rgbd.npy",
+      "rgbd_shape": [
+        6,
+        4,
+        512,
+        512
+      ],
+      "rgbd_sha256": "907e4961d146bdf177694b0e90808f6604fd2080b1cae375e3d23e7295686564",
+      "event_support": {
+        "contact": {
+          "all": {
+            "windows": 13625,
+            "positive_windows": 7826,
+            "positive_episodes": 57,
+            "positive_scenes": 6,
+            "positive_horizon_labels": 447160,
+            "valid_horizon_labels": 803190
+          },
+          "anchor0": {
+            "windows": 90,
+            "positive_windows": 12,
+            "positive_episodes": 12,
+            "positive_scenes": 4,
+            "positive_horizon_labels": 172,
+            "valid_horizon_labels": 5400
+          }
+        },
+        "rollover": {
+          "all": {
+            "windows": 13625,
+            "positive_windows": 48,
+            "positive_episodes": 4,
+            "positive_scenes": 2,
+            "positive_horizon_labels": 1500,
+            "valid_horizon_labels": 788268
+          },
+          "anchor0": {
+            "windows": 90,
+            "positive_windows": 0,
+            "positive_episodes": 0,
+            "positive_scenes": 0,
+            "positive_horizon_labels": 0,
+            "valid_horizon_labels": 5400
+          }
+        },
+        "low_progress": {
+          "all": {
+            "windows": 13625,
+            "positive_windows": 9087,
+            "positive_episodes": 68,
+            "positive_scenes": 6,
+            "positive_horizon_labels": 410718,
+            "valid_horizon_labels": 664620
+          },
+          "anchor0": {
+            "windows": 90,
+            "positive_windows": 0,
+            "positive_episodes": 0,
+            "positive_scenes": 0,
+            "positive_horizon_labels": 0,
+            "valid_horizon_labels": 4590
+          }
+        },
+        "bounded_motion": {
+          "all": {
+            "windows": 13625,
+            "positive_windows": 8829,
+            "positive_episodes": 62,
+            "positive_scenes": 6,
+            "positive_horizon_labels": 426923,
+            "valid_horizon_labels": 680110
+          },
+          "anchor0": {
+            "windows": 90,
+            "positive_windows": 4,
+            "positive_episodes": 4,
+            "positive_scenes": 3,
+            "positive_horizon_labels": 31,
+            "valid_horizon_labels": 4590
+          }
+        },
+        "sustained_stall": {
+          "all": {
+            "windows": 13625,
+            "positive_windows": 8477,
+            "positive_episodes": 60,
+            "positive_scenes": 6,
+            "positive_horizon_labels": 410295,
+            "valid_horizon_labels": 679835
+          },
+          "anchor0": {
+            "windows": 90,
+            "positive_windows": 3,
+            "positive_episodes": 3,
+            "positive_scenes": 3,
+            "positive_horizon_labels": 25,
+            "valid_horizon_labels": 4590
+          }
+        },
+        "asset_contact": {
+          "all": {
+            "windows": 13625,
+            "positive_windows": 7470,
+            "positive_episodes": 51,
+            "positive_scenes": 6,
+            "positive_horizon_labels": 429130,
+            "valid_horizon_labels": 801960
+          },
+          "anchor0": {
+            "windows": 90,
+            "positive_windows": 9,
+            "positive_episodes": 9,
+            "positive_scenes": 4,
+            "positive_horizon_labels": 121,
+            "valid_horizon_labels": 5400
+          }
+        },
+        "chassis_contact": {
+          "all": {
+            "windows": 13625,
+            "positive_windows": 7826,
+            "positive_episodes": 57,
+            "positive_scenes": 6,
+            "positive_horizon_labels": 447160,
+            "valid_horizon_labels": 803190
+          },
+          "anchor0": {
+            "windows": 90,
+            "positive_windows": 12,
+            "positive_episodes": 12,
+            "positive_scenes": 4,
+            "positive_horizon_labels": 172,
+            "valid_horizon_labels": 5400
+          }
+        }
+      },
+      "episodes_sha256": "f4a385b675f9d4e6c925ba51c51d15beea1989fcc63d55fc962b7163d21fa52f"
+    }
+  },
+  "normalization_sha256": "6a6607b5c0a21b4add1dc25ee050440c8644f8204f4b93d0471bf22ab54a2235"
+}

@@ -1,0 +1,5 @@
+trial_id,scene_id,energy_weight_s_per_kj,process_exit_code,artifact_valid,verified_schema_safe_goal,status,elapsed_s,goal_time_s,goal_progress_m,positive_work_kj,schema_contact,schema_rollover,bounded_blockage_v1,planning_decisions,planning_abstentions,planning_abstention_fraction,commanded_zero_speed_pause_s
+diverse_v1_val_mixed_obstacles_00_time_risk,diverse_v1_val_mixed_obstacles_00,0.0,0,True,False,timeout,180.0,,53.03892424706814,3508.5742430666946,False,False,True,180,111,0.6166666666666667,111.0000000001369
+diverse_v1_val_mixed_obstacles_00_energy_risk,diverse_v1_val_mixed_obstacles_00,0.02,0,True,False,timeout,180.0,,65.93054105372153,2935.255403448715,False,False,True,180,117,0.65,117.00000000013604
+diverse_v1_val_ridge_passes_00_time_risk,diverse_v1_val_ridge_passes_00,0.0,0,True,False,timeout,180.0,,31.417102608511726,4340.314026827609,True,False,True,180,105,0.5833333333333334,105.00000000013044
+diverse_v1_val_ridge_passes_00_energy_risk,diverse_v1_val_ridge_passes_00,0.02,0,True,False,timeout,180.0,,31.42329832623662,5590.321291011924,True,False,True,180,104,0.5777777777777777,104.00000000013277

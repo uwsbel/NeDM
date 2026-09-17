@@ -1,0 +1,42 @@
+{
+  "scope": "Post-hoc development ablation capped at6m/s to match focused training speed support; preserves primary default protocol results",
+  "job": "409592 completed28s",
+  "rows": [
+    {
+      "case": "hill0_f111_near",
+      "status": "goal_reached",
+      "goal_time_s": 7.4,
+      "safe_goal_reached": true,
+      "asset_contact": false,
+      "sustained_near_stop": false,
+      "bounded_blockage_v1": false,
+      "goal_progress_m": 33.53323354115179,
+      "route_sha256": "432ee271a1bbcce80a306e9cbaf40fe13fb75cc1624ec71e43ad24e4aa4babe2",
+      "anchor_matched": true
+    },
+    {
+      "case": "visible_rock_v1",
+      "status": "goal_reached",
+      "goal_time_s": 6.9,
+      "safe_goal_reached": true,
+      "asset_contact": false,
+      "sustained_near_stop": false,
+      "bounded_blockage_v1": false,
+      "goal_progress_m": 33.50282544611065,
+      "route_sha256": "d12da3f25869d323d2fab9867a8ab35caeded6cd45770ec11cc8557000a7089d",
+      "anchor_matched": true
+    },
+    {
+      "case": "terrain_blockage_diagnostic_v1",
+      "status": "goal_reached",
+      "goal_time_s": 6.95,
+      "safe_goal_reached": true,
+      "asset_contact": false,
+      "sustained_near_stop": false,
+      "bounded_blockage_v1": false,
+      "goal_progress_m": 33.60926259403358,
+      "route_sha256": "3eec60995be93cf8ce72d468971a4ad471224521050351a6b75fef8e4c2f90c3",
+      "anchor_matched": true
+    }
+  ]
+}

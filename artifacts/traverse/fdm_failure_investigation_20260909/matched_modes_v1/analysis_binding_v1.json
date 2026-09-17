@@ -1,0 +1,14 @@
+{
+  "bound_utc": "2026-09-10T01:46:14.338050+00:00",
+  "protocol_sha256": "3e6aa61925682d63f40ddf82765ba2371231217d939355a6509b244769b1cc64",
+  "files_sha256": {
+    "run.sbatch": "d909765f78610eec2f19506605def7b7c2976210999011a74e82007ab748ec7c",
+    "check_analysis.py": "3901df863cdba974adb0fe66da2bd0284be15ad679c785608b7972789a401b86",
+    "analyze.py": "6beb496b50257956e1a6bb176cfc02d063a2c1b21e466b96a5e3f225ba62c169",
+    "online_cohort.py": "a2fc3a9f5984b2dc23c25fca0f42ab034fb32098db7731dd0db8c82b343bc941",
+    "preflight.py": "c0fbfa1aa79cf5259f851931cf9d5ada1f2d60190b22989d2d95243d0df44dc0",
+    "prepare.py": "265235ca775bf6a18f729d935e07206bc8e9b6fc941782d1db7f96403148d37a",
+    "audit.sbatch": "0bccdaf739741e1e3d2ffc86cbf79b92042328c69eb8735764310add11c19ef7"
+  },
+  "scope": "Post-hoc diagnostics only; unchanged original protected results; no model/cost/source tuning"
+}

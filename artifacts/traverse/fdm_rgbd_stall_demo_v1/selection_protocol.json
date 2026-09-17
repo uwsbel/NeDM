@@ -1,0 +1,36 @@
+{
+  "primary_model": "patch_rgbd_s11/last.pt",
+  "primary_steps": 5000,
+  "training_data": "fdm_rgbd_focused_pack_v2",
+  "progress_event_definition": "bounded_motion",
+  "progress_event_version": 2,
+  "scoring_config": "artifacts/traverse/fdm_rgbd_demo_v1/scoring_config.json",
+  "mppi": {
+    "samples": 64,
+    "iterations": 2,
+    "seed": 11
+  },
+  "candidate_families": {
+    "offsets": [
+      0,
+      -8,
+      8
+    ],
+    "speeds": [
+      4,
+      6
+    ]
+  },
+  "primary_demo": "terrain_blockage_diagnostic_v1",
+  "observation_sha256": "bcbf2f528a1a373b0ec2afb73b7f07fd767d55400f0f591c8251cda79801cd56",
+  "intervention": "same model with blank image, identical state/goal/candidates/seed/cost",
+  "physical_test": "Execute all6families and selectednormal reference only after bothnormal/blankselection files saved; ifblankselects distinctrouteexecuteittoo",
+  "additional_development_cases": [
+    "visible_rock_v1",
+    "hill0_f111_near"
+  ],
+  "scope": "First fixed-reference terrain blockage demonstration; separate from train/validation scene manifests; training-only mesas informed terrain construction; not continuous replanning or arbitrary terrain generalization",
+  "source_snapshot": "83d62378c36e",
+  "data_manifest_sha256": "959ac3b8367405ace7caec7974cf2060b825753c84e44bb9addd6af1682cde30",
+  "training_job": 409581
+}

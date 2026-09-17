@@ -1,0 +1,230 @@
+{
+  "scope": "Posthoc physical diagnostic only; quantized terrain truth is not fed to predictor/planner. No source geometry or raw telemetry modified.",
+  "comparison_note": "0.5m secants describe spatially averaged local slope; native ray-hit normals may differ at a single contact facet. Several large discrepancies mean projections using queried normals must not be interpreted as exact contact-frame forces. Root cause is not established.",
+  "upstream_source": "https://raw.githubusercontent.com/projectchrono/chrono/main/src/chrono_vehicle/terrain/RigidTerrain.cpp",
+  "upstream_note": "Current upstream MeshPatch::FindPoint returns terrain-specific RayHit point/normal. This is context, not verification of the cluster build or proof of a bug.",
+  "rows": [
+    {
+      "case": "smooth_refine_gaussian_h6p7_s4p5_cx0",
+      "family": "family_01",
+      "window_s": [
+        20,
+        25
+      ],
+      "diagnostic_npz_sha256": "8a332fd2ecae58e43da2e610ea7cd22a4d43156f1d4cf8cf15433702e130b1ad",
+      "arena_bmp_sha256": "0c52b39fb491f348febd3a1f3a34306347b04a87089e389bff8056e4fdea94c9",
+      "rows": {
+        "chassis": {
+          "median_xy": [
+            -10.438814936333305,
+            -0.40670761430233104
+          ],
+          "measured_height_median_m": 0.46814727783203125,
+          "map_height_median_m": 0.4590699147629762,
+          "measured_minus_map_height_median_m": 0.009077769605417785,
+          "normal_getter_tilt_median_deg": 0.15967189485789815,
+          "quantized_map_0point5m_secant_grade_median_deg": 13.452950961903253
+        },
+        "tire_fl": {
+          "median_xy": [
+            -8.6981499551973,
+            -0.03800499759784825
+          ],
+          "measured_height_median_m": 1.0368973016738892,
+          "map_height_median_m": 1.027370180223429,
+          "measured_minus_map_height_median_m": 0.009497881928498764,
+          "normal_getter_tilt_median_deg": 0.6210077582419876,
+          "quantized_map_0point5m_secant_grade_median_deg": 24.957822640208494,
+          "raw_world_force_median_xyz_n": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "raw_world_vertical_force_mean_n": 9321.61774763375,
+          "raw_world_vertical_loaded_fraction": 0.48,
+          "direct_native_slip_median": 0.12831782649471846,
+          "direct_native_slip_median_when_world_vertical_loaded": 0.6075535244832366,
+          "horizontal_wheel_heading_speed_median_mps": 0.002089870936667861,
+          "circumferential_speed_median_mps": -0.07733372714188516
+        },
+        "tire_fr": {
+          "median_xy": [
+            -9.042556768706977,
+            -1.7110703241535568
+          ],
+          "measured_height_median_m": 0.8334931135177612,
+          "map_height_median_m": 0.8269073968149018,
+          "measured_minus_map_height_median_m": 0.006611241169597382,
+          "normal_getter_tilt_median_deg": 18.874418688162205,
+          "quantized_map_0point5m_secant_grade_median_deg": 21.16036661842551,
+          "raw_world_force_median_xyz_n": [
+            845.3562289473194,
+            -31.26954504280853,
+            1896.9848290036084
+          ],
+          "raw_world_vertical_force_mean_n": 2207.943115793716,
+          "raw_world_vertical_loaded_fraction": 1.0,
+          "direct_native_slip_median": 969.278040490975,
+          "direct_native_slip_median_when_world_vertical_loaded": 969.278040490975,
+          "horizontal_wheel_heading_speed_median_mps": -0.00686547215951786,
+          "circumferential_speed_median_mps": 71.83411446746484
+        },
+        "tire_rl": {
+          "median_xy": [
+            -11.689608104917387,
+            0.9037325510049492
+          ],
+          "measured_height_median_m": 0.22541968524456024,
+          "map_height_median_m": 0.22230912577012918,
+          "measured_minus_map_height_median_m": 0.003102648802176519,
+          "normal_getter_tilt_median_deg": 0.66947090320585,
+          "quantized_map_0point5m_secant_grade_median_deg": 6.931800792274896,
+          "raw_world_force_median_xyz_n": [
+            880.6711510724529,
+            -196.3841771028732,
+            2507.0140488867064
+          ],
+          "raw_world_vertical_force_mean_n": 2510.2508500971426,
+          "raw_world_vertical_loaded_fraction": 1.0,
+          "direct_native_slip_median": 0.22781834825891767,
+          "direct_native_slip_median_when_world_vertical_loaded": 0.22781834825891767,
+          "horizontal_wheel_heading_speed_median_mps": -0.007876682717042255,
+          "circumferential_speed_median_mps": 0.008176963357847507
+        },
+        "tire_rr": {
+          "median_xy": [
+            -12.198008517065588,
+            -0.7661139226031085
+          ],
+          "measured_height_median_m": 0.17160044610500336,
+          "map_height_median_m": 0.17058823529411762,
+          "measured_minus_map_height_median_m": 0.001012210810885733,
+          "normal_getter_tilt_median_deg": 0.6440359049953404,
+          "quantized_map_0point5m_secant_grade_median_deg": 6.27771758024072,
+          "raw_world_force_median_xyz_n": [
+            2314.2200876288216,
+            534.5914948889422,
+            11069.316060900665
+          ],
+          "raw_world_vertical_force_mean_n": 11285.351908120161,
+          "raw_world_vertical_loaded_fraction": 1.0,
+          "direct_native_slip_median": 0.027417885194478527,
+          "direct_native_slip_median_when_world_vertical_loaded": 0.027417885194478527,
+          "horizontal_wheel_heading_speed_median_mps": -0.00113263698128089,
+          "circumferential_speed_median_mps": -0.0007455530713637866
+        }
+      }
+    },
+    {
+      "case": "smooth_strength_gaussian_h6p5_s4p5_cx0",
+      "family": "family_00",
+      "window_s": [
+        20,
+        25
+      ],
+      "diagnostic_npz_sha256": "ada1fa92de137e9aa8c3e3bf683aa3c2d1e78c70a0a7ba3a012120395d3ec169",
+      "arena_bmp_sha256": "ca6cef6a4bb340f2272281e079e1c7d63ec53890ef6a30e5d26ec794c6f2039b",
+      "rows": {
+        "chassis": {
+          "median_xy": [
+            -7.077804879390058,
+            -0.02521278283076562
+          ],
+          "measured_height_median_m": 1.9035422801971436,
+          "map_height_median_m": 1.8918231650471267,
+          "measured_minus_map_height_median_m": 0.010954125998100306,
+          "normal_getter_tilt_median_deg": 33.453628464871706,
+          "quantized_map_0point5m_secant_grade_median_deg": 33.92585980750239
+        },
+        "tire_fl": {
+          "median_xy": [
+            -5.635339583842196,
+            0.8601612385309285
+          ],
+          "measured_height_median_m": 2.9228668212890625,
+          "map_height_median_m": 2.9161388120908525,
+          "measured_minus_map_height_median_m": 0.010193594668131745,
+          "normal_getter_tilt_median_deg": 33.752477510972746,
+          "quantized_map_0point5m_secant_grade_median_deg": 38.58758158477618,
+          "raw_world_force_median_xyz_n": [
+            0.0,
+            0.0,
+            3882.0169416129747
+          ],
+          "raw_world_vertical_force_mean_n": 4722.227608815568,
+          "raw_world_vertical_loaded_fraction": 0.56,
+          "direct_native_slip_median": 25.173498521015123,
+          "direct_native_slip_median_when_world_vertical_loaded": 30.6692161451018,
+          "horizontal_wheel_heading_speed_median_mps": 0.10184212805055208,
+          "circumferential_speed_median_mps": 4.969854248488898
+        },
+        "tire_fr": {
+          "median_xy": [
+            -5.63187354680298,
+            -0.8739067515161223
+          ],
+          "measured_height_median_m": 2.922812819480896,
+          "map_height_median_m": 2.914625298488441,
+          "measured_minus_map_height_median_m": 0.010493801484527943,
+          "normal_getter_tilt_median_deg": 39.62039788187819,
+          "quantized_map_0point5m_secant_grade_median_deg": 38.558113870923705,
+          "raw_world_force_median_xyz_n": [
+            0.0,
+            0.0,
+            3731.628178119595
+          ],
+          "raw_world_vertical_force_mean_n": 5611.682886670324,
+          "raw_world_vertical_loaded_fraction": 0.63,
+          "direct_native_slip_median": 30.095990495811428,
+          "direct_native_slip_median_when_world_vertical_loaded": 17.996851769628574,
+          "horizontal_wheel_heading_speed_median_mps": 0.0801323670200621,
+          "circumferential_speed_median_mps": 8.49884182169573
+        },
+        "tire_rl": {
+          "median_xy": [
+            -8.376781286912701,
+            0.8415237978844158
+          ],
+          "measured_height_median_m": 1.1353334784507751,
+          "map_height_median_m": 1.1265934253698284,
+          "measured_minus_map_height_median_m": 0.009187693586477974,
+          "normal_getter_tilt_median_deg": 26.293285782873706,
+          "quantized_map_0point5m_secant_grade_median_deg": 25.13268955480068,
+          "raw_world_force_median_xyz_n": [
+            -314.9596259075007,
+            168.84588718230546,
+            8492.219300623095
+          ],
+          "raw_world_vertical_force_mean_n": 8539.764241965095,
+          "raw_world_vertical_loaded_fraction": 0.84,
+          "direct_native_slip_median": 0.9736452943823657,
+          "direct_native_slip_median_when_world_vertical_loaded": 0.8398942621739874,
+          "horizontal_wheel_heading_speed_median_mps": 0.06137462483328465,
+          "circumferential_speed_median_mps": 0.4727783978582334
+        },
+        "tire_rr": {
+          "median_xy": [
+            -8.372298921888856,
+            -0.9161025216329719
+          ],
+          "measured_height_median_m": 1.1373178958892822,
+          "map_height_median_m": 1.1283822223067363,
+          "measured_minus_map_height_median_m": 0.009054138403607026,
+          "normal_getter_tilt_median_deg": 26.263737177183287,
+          "quantized_map_0point5m_secant_grade_median_deg": 26.050164533482516,
+          "raw_world_force_median_xyz_n": [
+            70.57069111239856,
+            -80.9680223364563,
+            6943.729999578409
+          ],
+          "raw_world_vertical_force_mean_n": 7191.471567146962,
+          "raw_world_vertical_loaded_fraction": 0.91,
+          "direct_native_slip_median": 1.0491385264602253,
+          "direct_native_slip_median_when_world_vertical_loaded": 0.9647259017518401,
+          "horizontal_wheel_heading_speed_median_mps": 0.050908035917408036,
+          "circumferential_speed_median_mps": 0.40108769239453324
+        }
+      }
+    }
+  ]
+}

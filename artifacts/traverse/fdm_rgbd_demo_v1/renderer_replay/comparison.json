@@ -1,0 +1,33 @@
+{
+  "protocol": "Same static scene and nominal camera; separate original OptiX and new AMD Vulkan runtimes",
+  "depth": "Each image uses its recorded or measured camera ray calibration; no true heightmap is used in this comparison",
+  "limits": "Residual simulator settle and rendering differences may affect the vehicle pixels. Agreement is not identity of physics or proof of policy transfer.",
+  "scenes": [
+    {
+      "id": "full_v3__ep_4235_spline",
+      "rgb_mae_0_255": 0.503265380859375,
+      "rgb_p95_abs_difference_0_255": 1.0,
+      "old_registered_valid_fraction": 0.82537841796875,
+      "new_registered_valid_fraction": 0.84771728515625,
+      "common_registered_valid_fraction": 0.82537841796875,
+      "registered_elevation_mae_m": 0.022828564047813416,
+      "registered_elevation_median_abs_difference_m": 0.008241832256317139,
+      "registered_elevation_p95_abs_difference_m": 0.021827353164553642,
+      "original_frame_sha256": "b9d48fca465d0ae85c6b3c18d3c03fb5ac4170f3769b24e4bd8bcf051a5acd01",
+      "vulkan_frame_sha256": "8dc3c0a670756c42d9af3c21a66cf6bcb76a7bca0ec8b1f1c5408edbc08db955"
+    },
+    {
+      "id": "full_v2__ep_0252_spline",
+      "rgb_mae_0_255": 0.5051015218098959,
+      "rgb_p95_abs_difference_0_255": 1.0,
+      "old_registered_valid_fraction": 0.82537841796875,
+      "new_registered_valid_fraction": 0.84771728515625,
+      "common_registered_valid_fraction": 0.82537841796875,
+      "registered_elevation_mae_m": 0.01973874308168888,
+      "registered_elevation_median_abs_difference_m": 0.008080973289906979,
+      "registered_elevation_p95_abs_difference_m": 0.020426873117685318,
+      "original_frame_sha256": "941fb058faf97b23dabec5f0beaa1bd8914eaf1496bf0a9acf4db103153fd506",
+      "vulkan_frame_sha256": "a9608f807fdad8d2907b803f33207141857b31d60a7d5ed6ee30ba1968d9adc5"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "passed": true,
+  "checks": [
+    "protected_test_blocked_by_default",
+    "prepare_changes_only_video_fps",
+    "source_task_immutable",
+    "generated_shell_syntax",
+    "no_plotting_on_amd",
+    "all_array_and_decision_parity",
+    "wall_timings_permitted",
+    "frame_state_pose_action_timestamps_registered",
+    "complete_transfer_verified",
+    "changed_transfer_rejected",
+    "changed_physics_rejected",
+    "changed_dtype_rejected",
+    "changed_selected_route_rejected",
+    "changed_source_rejected"
+  ],
+  "scope": "Synthetic fixture tests only; no Chrono run, validation trial selection or protected data access",
+  "helper_sha256": "5354a8420a9b93bbb7f97f4e039922636343a56a7d0b0f7fae0df5afa73663cb",
+  "checker_sha256": "d4b55fc8c290b116b317fe45fb90207f9866bbb41acdcccb94245b2ae681fe11",
+  "executable_source_files_verified": 86,
+  "source_manifest_sha256": "c2ec8b81acd066c75e46cf658c8aa5e67661f92cf3a35a6da97575b03812382a"
+}

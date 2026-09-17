@@ -1,0 +1,25 @@
+{
+  "command": [
+    "taskset",
+    "--cpu-list",
+    "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15",
+    "/work1/dannegrut/harry/venvs/nedm/bin/python",
+    "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/scripts/traverse_fdm_rgbd_diverse_chrono.py",
+    "collect",
+    "--case",
+    "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_train_rolling_hills_00.json",
+    "--route",
+    "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/routes/diverse_v1_train_rolling_hills_00/family_14.json",
+    "--chrono-data",
+    "/work1/dannegrut/harry/nrd/chrono-build/data",
+    "--horizon-s",
+    "60",
+    "--out",
+    "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/pilot_checks_v2/rich_headless"
+  ],
+  "job_id": "412065",
+  "source_snapshot": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2",
+  "checker_source_sha256": "a01f36eb7eb78db1404c89c509ba45efdcece289a0ea9b1ed1fb29ec3bf069ab",
+  "runtime_fingerprint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/pilot_w8/batches/runtime_412053_1788988195_5b48387b.json",
+  "primary": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/pilot_w8/raw/diverse_v1_train_rolling_hills_00/family_14"
+}

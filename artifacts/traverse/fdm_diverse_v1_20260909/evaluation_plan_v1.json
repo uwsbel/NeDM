@@ -1,0 +1,54 @@
+{
+  "version": "evaluation_plan_v1_before_full_training",
+  "created_utc": "2026-09-09T21:48:45.418628+00:00",
+  "protected_test_outcomes_opened": false,
+  "scope": "Exploratory broader-domain validation; fixed six-scene test gives measured evidence, not a universal safety guarantee",
+  "primary_model": {
+    "horizon_s": 12,
+    "arm": "rgbd",
+    "seed": 11,
+    "checkpoint": "minimum training-declared composite validation loss within fixed5000updates"
+  },
+  "offline_controls": [
+    "matched blank seeds11and29",
+    "RGBD seed29",
+    "same-checkpoint blank and unique-scene image shuffle",
+    "matched4s horizon"
+  ],
+  "validation_workflow": [
+    "offline scene-macro, pre-onset risk and4/8/12s pose/work/attitude metrics",
+    "all6 validation arenas online with same model time_risk versus energy_risk",
+    "inspect all failures/abstentions; version any change before test freeze"
+  ],
+  "frozen_test_required": [
+    "checkpoint sha",
+    "source snapshot sha",
+    "training pack sha",
+    "cost configs including risk thresholds",
+    "candidate budget",
+    "seed and replanning cadence",
+    "all6testsceneids and paired arms"
+  ],
+  "physical_protocol": {
+    "horizon_s": 180,
+    "goal_radius_m": 3,
+    "replan_period_s": 1,
+    "observation": "One fixed pre-drive measured RGBD with measured current state/history",
+    "controller": "Native PID with persistent speed integral and steering-only reset for changed path",
+    "comparison": "same model, planning seed, candidates and solver; energy cost zero versus positive",
+    "collision": "asset OR chassis resultant>1N at solver-rate observations",
+    "rollover": "absroll OR abspitch>60deg at solver-rate observations",
+    "stall": "bounded2s:41point XYdiameter<=0.25m,all40throttle>0.3,notparking",
+    "primary_success": "goal within180s without any declared collision/rollover/boundedstall",
+    "energy": "positive engine-interface mechanical work, not fuel",
+    "time_energy_comparison": "paired safe full-goal completions only; report unconditional success denominator separately"
+  },
+  "milestone_gates": {
+    "data": "complete declared cohort, scene-disjoint splits, calibratedmaps/flatlaunches/richchannelintegrity",
+    "vision": "RGBD advantage assessed against matched blank and same-checkpoint image controls with scene-level results; no win claimed from aggregate already-failed detection",
+    "complex_planning": "at least4of6 protected arenas safe full-goal completion; report every arena and baseline rather than cherry-picked demonstration",
+    "energy_tradeoff": "at least5percent mean mechanical-work reduction on paired safe completions with no more25percent mean traversal-time increase; report sample count, every pair and unconditional completion-rate change",
+    "risk": "no empirical safety claim unless pre-onset hazard discrimination/calibration and actual physical outcomes agree; unsupported heads remain explicit"
+  },
+  "failure_policy": "If gates fail, report which part failed and keep all outcomes. A successful collection or training process does not establish successful planning."
+}

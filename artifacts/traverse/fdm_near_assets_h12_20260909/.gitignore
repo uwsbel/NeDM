@@ -1,0 +1,20 @@
+# Allowlist: only the files below are committed from this folder (see the repository .gitignore).
+/*
+!/.gitignore
+!/*.json
+!/protocol.md
+!/dataset_inventory/
+!/predictions/
+/predictions/*
+!/predictions/*/
+/predictions/*/*
+!/predictions/*/reporting_manifest.json
+!/predictions/*/selection.json
+!/scene_design/
+/scene_design/*
+!/scene_design/near_assets_h12_val_mixed_obstacles_00.json
+!/scene_design/near_assets_h12_val_rolling_hills_00.json
+!/scene_design/near_assets_h12_val_rough_mosaic_00.json
+!/scene_design/observation_audit.json
+!/scene_design/observation_audit.md
+!/scene_design/scene_spec_v2.json

@@ -1,0 +1,38 @@
+{
+  "case": "cases/fourway_smooth_v1.json",
+  "observation": "observations/fourway_smooth_v1/observation.npz",
+  "case_sha256": "5eec4883eab7f9391f40cc2b0d1e1dd5d392878c5edc8326f9b94cc9512b9c0e",
+  "observation_sha256": "0cde99296ad64d68b24476a40122c87cc11870c055f7c73ace1646a8a9208e80",
+  "frozen_prediction_manifest_sha256": "70a740e3e043581feb16b28fe05385ab5205678d548d8b580e2de4207ded648b",
+  "frozen_prediction_artifacts": {
+    "candidates.json": "4b2c744db0c7f8ee992f236647db5a48f61c1be2f1b15cb249d2436b78650fa2",
+    "candidates.npz": "f649e31b47c990c6bb9f5615642a74fa62616bee8291dae69b1e2c9f88c2796d",
+    "routes/01_selected.json": "849069838e959d0be39c2dd065f6d7233c062a61b93677b3ad36793ca4f6cb67",
+    "routes/02_collision.json": "3de3082a4f60220b11f1557f4c692e46a5d5a3c7fca0b53f6693958207c953c0",
+    "routes/03_stall.json": "9b3270e0b7652d1b01265f6ca81862ec67dc08a621ddce927ee3463102e7b453",
+    "routes/04_progress.json": "cd3f597db72f660b8bd9b5a308e96f4890e67de12804fc809107cfe36620c1be",
+    "selection.json": "646b2b013db82ce0bf913d3080d653b06dcf579294ccd650988a4c8681e53e72"
+  },
+  "source_sha256": {
+    "scripts/traverse_fdm_rgbd_chrono.py": "a783a19f34721f4d851244d26df16e60c8600932cceabb0d9f7af005252f4c7f",
+    "scripts/traverse_fdm_rgbd_video.py": "4d3a799518bb766533eabdff25cf57531606936e38457b3373419be6b6481994",
+    "scripts/traverse_fdm_rgbd_smooth_video.py": "b973959f6082c6114315f17104d8886b13985568a84fa188d84ae41fdceda58b",
+    "src/nedm/traverse/fdm_slope_probe.py": "7f6cf106bb0edb01ce07fa3fa5429b45e380f41d3740e025acb8bcaa25a80be2"
+  },
+  "runs": [
+    "01_selected",
+    "02_collision",
+    "03_stall",
+    "04_progress"
+  ],
+  "output": "actual/<id>",
+  "physical_horizon_s": 25,
+  "camera": "Actual640x48010fps oblique visualization camera after measuredRGBD/state equality; originalmodelcamera unchanged",
+  "selection": "Scene and diagnostic roles chosen using disclosed geometry probes; allNNpredictions and finalreferencecommands frozen before finalrecorded execution",
+  "training": false,
+  "diagnostic_probe_parity": {
+    "02_collision": "probes/siblings/smooth_strength_gaussian_h6p5_s4p5_cx0/family_03",
+    "03_stall": "probes/refine/smooth_strength_gaussian_h6p5_s4p5_cx0/family_00",
+    "04_progress": "probes/siblings/smooth_strength_gaussian_h6p5_s4p5_cx0/family_04"
+  }
+}

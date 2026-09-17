@@ -1,0 +1,107 @@
+{
+  "rgbd_best4000": {
+    "contact": {
+      "positive": 12,
+      "negative": 78,
+      "threshold": 0.35,
+      "TP": 0,
+      "FP": 0,
+      "FN": 12,
+      "max_probability": 0.25204920768737793,
+      "Brier": 0.11220715987003689,
+      "AUROC": 0.8397435897435898
+    },
+    "rollover": {
+      "positive": 0,
+      "negative": 90,
+      "threshold": 0.35,
+      "TP": 0,
+      "FP": 0,
+      "FN": 0,
+      "max_probability": 0.02692471444606781,
+      "Brier": 2.561469855202808e-05,
+      "AUROC": null
+    },
+    "bounded_motion": {
+      "positive": 4,
+      "negative": 86,
+      "threshold": 0.5,
+      "TP": 0,
+      "FP": 0,
+      "FN": 4,
+      "max_probability": 0.07957979291677475,
+      "Brier": 0.0407420498828817,
+      "AUROC": 0.9040697674418605
+    }
+  },
+  "rgbd_last5000": {
+    "contact": {
+      "positive": 12,
+      "negative": 78,
+      "threshold": 0.35,
+      "TP": 5,
+      "FP": 4,
+      "FN": 7,
+      "max_probability": 0.6888377666473389,
+      "Brier": 0.07523753965519463,
+      "AUROC": 0.9348290598290598
+    },
+    "rollover": {
+      "positive": 0,
+      "negative": 90,
+      "threshold": 0.35,
+      "TP": 0,
+      "FP": 0,
+      "FN": 0,
+      "max_probability": 0.10108385980129242,
+      "Brier": 0.00013679422004800708,
+      "AUROC": null
+    },
+    "bounded_motion": {
+      "positive": 4,
+      "negative": 86,
+      "threshold": 0.5,
+      "TP": 0,
+      "FP": 0,
+      "FN": 4,
+      "max_probability": 0.12194550782442093,
+      "Brier": 0.0383890779912252,
+      "AUROC": 0.9622093023255814
+    }
+  },
+  "blank_best2000": {
+    "contact": {
+      "positive": 12,
+      "negative": 78,
+      "threshold": 0.35,
+      "TP": 0,
+      "FP": 0,
+      "FN": 12,
+      "max_probability": 0.11803460866212845,
+      "Brier": 0.11487600742277836,
+      "AUROC": 0.7852564102564102
+    },
+    "rollover": {
+      "positive": 0,
+      "negative": 90,
+      "threshold": 0.35,
+      "TP": 0,
+      "FP": 0,
+      "FN": 0,
+      "max_probability": 0.03585232049226761,
+      "Brier": 0.0003149247600886859,
+      "AUROC": null
+    },
+    "bounded_motion": {
+      "positive": 4,
+      "negative": 86,
+      "threshold": 0.5,
+      "TP": 0,
+      "FP": 0,
+      "FN": 4,
+      "max_probability": 0.05505939573049545,
+      "Brier": 0.04186059964779221,
+      "AUROC": 0.8023255813953488
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "arm": "rgbd",
+  "augmentation_digest": "e735f5db8bb3398cf12846d4426197bd18e60cc9f81fae44ddebb818ac4b0a5f",
+  "best_step": 4000,
+  "best_validation_loss": 0.23270820245224774,
+  "device": "cuda:0",
+  "draw_digest": "61757696fcdf7bec29ceba2877d2925f5a99c8a8d01d684f341a8fdee17d5b8a",
+  "hostname": "k007-005-v2.hpcfund",
+  "model_family": "diverse_rgbd_reference_gru",
+  "new_updates": 5000,
+  "pid": 2583287,
+  "seed": 11,
+  "slurm_job_id": "412087",
+  "state": "complete",
+  "step": 5000,
+  "training_seconds": 375.0144751018379,
+  "updates_per_second": 13.33281868291141,
+  "wall_seconds_this_invocation": 449.571814883966
+}

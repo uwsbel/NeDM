@@ -1,0 +1,9 @@
+{
+  "created_utc": "2026-09-09T22:58:59.707577+00:00",
+  "core_freeze_sha256": "29684ce59cdd68e9b1f7310dcd2e63c55d021f6ff6712b83f99d286722efeb33",
+  "scope": "Choose illustrativemedia only afterall30protectedtrials audited; no model/costselection",
+  "paired_scene": "Lexicographically first scene_id for which selected_rgbd_time and selected_rgbd_energy bothfinishstrictschema-safe; renderbothfulltrials withallargsidenticalexceptpassive5Hzcamera",
+  "fallback_if_no_safe_pair": "Lexicographicallyfirstscene withselected_rgbd_time safe; renderit andsameseenenergycomparison, explicitlylabel anyfailure. Ifnosafetimegoals, lexicographicallyfirsttestscene renderbothasfailures.",
+  "failure_example": "Also renderlexicographicallyfirstselected_rgbd_energy failedfullgoal ifdifferentfrompairedscene; includealloutcomesinaggregate",
+  "claim": "ActualChronophysicalreplays; exacttelemetry/decisionsparityrequired. Fullselectedreference versus12sforecast versusactualtrace labeled separately. Small/negativeenergychanges shown asmeasured, notimprovement."
+}

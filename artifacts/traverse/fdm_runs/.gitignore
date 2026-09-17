@@ -1,0 +1,16 @@
+# Allowlist: only the files below are committed from this folder (see the repository .gitignore).
+/*
+!/.gitignore
+!/pilot_v1/
+/pilot_v1/*
+!/pilot_v1/comparison.json
+!/pilot_v1/*.md
+!/pilot_v1/mppi_preview.json
+!/pilot_v1/history_s11/
+/pilot_v1/history_s11/*
+!/pilot_v1/history_s11/config.json
+!/pilot_v1/history_s11/last.pt
+!/pilot_v1/history_s11/normalization.json
+!/smoke_v1/
+/smoke_v1/*
+!/smoke_v1/comparison.md

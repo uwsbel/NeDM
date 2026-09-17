@@ -1,0 +1,21 @@
+{
+  "rule_sha256": "519bdf0d1ac83147dfc603754126371e5459dbf8ee434aead6df2f0224e178c6",
+  "core_freeze_sha256": "29684ce59cdd68e9b1f7310dcd2e63c55d021f6ff6712b83f99d286722efeb33",
+  "protected_report_sha256": "711fb646dec0805b80cb0757b33d665da89f5b40907c8195024eb5f6773232f7",
+  "helper_snapshot_sha256": "733ac959f867250cda79c6ae88ee36e4bee287936e7ed11ad81bcccda422ae36",
+  "rule_applied": true,
+  "trials": [
+    {
+      "directory": "cross_time",
+      "trial_id": "diverse_v1_test_cross_slopes_00_selected_rgbd_time"
+    },
+    {
+      "directory": "cross_energy",
+      "trial_id": "diverse_v1_test_cross_slopes_00_selected_rgbd_energy"
+    },
+    {
+      "directory": "rolling_failure",
+      "trial_id": "diverse_v1_test_rolling_hills_00_selected_rgbd_energy"
+    }
+  ]
+}

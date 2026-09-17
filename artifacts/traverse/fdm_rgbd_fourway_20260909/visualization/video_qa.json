@@ -1,0 +1,74 @@
+{
+  "all_passed": true,
+  "source_rendered_frames": 470,
+  "individual_videos": 4,
+  "comparison_video": 1,
+  "qa": [
+    {
+      "file": "route_01_selected_best.mp4",
+      "bytes": 4921438,
+      "codec_name": "h264",
+      "width": 1280,
+      "height": 720,
+      "pix_fmt": "yuv420p",
+      "r_frame_rate": "10/1",
+      "nb_frames": "80",
+      "duration": "8.000000",
+      "physical_recording_end_s": 6.8500000000000005,
+      "sha256": "bf97a2055341f91a69a1d79a2617b3c6244a87f47e2fe4dd9cbbdda4e269c854"
+    },
+    {
+      "file": "route_02_collision_collision.mp4",
+      "bytes": 7718302,
+      "codec_name": "h264",
+      "width": 1280,
+      "height": 720,
+      "pix_fmt": "yuv420p",
+      "r_frame_rate": "10/1",
+      "nb_frames": "161",
+      "duration": "16.100000",
+      "physical_recording_end_s": 15.0,
+      "sha256": "8dd866e93254ed842078fbb2afc806e4049e5f180a85fdeb6fe589cd79842a56"
+    },
+    {
+      "file": "route_03_stall_stall.mp4",
+      "bytes": 10350235,
+      "codec_name": "h264",
+      "width": 1280,
+      "height": 720,
+      "pix_fmt": "yuv420p",
+      "r_frame_rate": "10/1",
+      "nb_frames": "161",
+      "duration": "16.100000",
+      "physical_recording_end_s": 15.0,
+      "sha256": "b3febef66aa1ed1c98392f2013fc7a1854d1f7fbb250f2a0ff7ee4ceb36078fc"
+    },
+    {
+      "file": "route_04_progress_low_progress.mp4",
+      "bytes": 6793156,
+      "codec_name": "h264",
+      "width": 1280,
+      "height": 720,
+      "pix_fmt": "yuv420p",
+      "r_frame_rate": "10/1",
+      "nb_frames": "108",
+      "duration": "10.800000",
+      "physical_recording_end_s": 9.65,
+      "sha256": "a9194b42dd4bc3eb6ca5d3ccebd5d15c4da6d3976d24f81451343f42105583e3"
+    },
+    {
+      "file": "four_route_comparison.mp4",
+      "bytes": 5953932,
+      "codec_name": "h264",
+      "width": 1280,
+      "height": 720,
+      "pix_fmt": "yuv420p",
+      "r_frame_rate": "10/1",
+      "nb_frames": "161",
+      "duration": "16.100000",
+      "physical_recording_end_s": null,
+      "sha256": "e1fae470f1fe15212464db850e5170fc44c842d7b88073a77638b9ceafce5384"
+    }
+  ],
+  "timing": "HUD uses actual recording timestamps; 10 fps rendering can display the final half-period sample 0.05 s later. Every individual video adds 1 s explicitly marked final-frame hold. MP4 duration is not physical time."
+}

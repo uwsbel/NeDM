@@ -1,0 +1,19 @@
+{
+  "measured": [
+    {
+      "run": "time_risk_20s",
+      "native_absolute_slip_peak": 4187.746058660296,
+      "peak_recording_time_s": 17.85000000000054,
+      "body_forward_velocity_at_peak_mps": -0.04489857040800056,
+      "maximum_absolute_horizontal_slip_speed_mps": 50.723115196369896
+    },
+    {
+      "run": "energy_risk_video_4s",
+      "native_absolute_slip_peak": 10.727004918398285,
+      "peak_recording_time_s": 0.10000000000000009,
+      "body_forward_velocity_at_peak_mps": -0.0024003896432874434,
+      "maximum_absolute_horizontal_slip_speed_mps": 3.578022566253017
+    }
+  ],
+  "scope": "Native tire ratio and separately derived horizontal slip speed; raw arrays unchanged"
+}

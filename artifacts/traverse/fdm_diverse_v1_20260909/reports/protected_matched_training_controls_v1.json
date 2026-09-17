@@ -1,0 +1,65 @@
+{
+  "freeze_sha256": "29684ce59cdd68e9b1f7310dcd2e63c55d021f6ff6712b83f99d286722efeb33",
+  "script_sha256": "64cd0bcacf56770f7023fc469ffe313946b7c248e04d5da64c6826989c520250",
+  "checkpoint_files": {
+    "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_rgbd_s11/last.pt": "0251cb87ddd25b6dfd8c628680f3470983ca4ca36ef65a05bb966021a4691a20",
+    "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_blank_s11/last.pt": "14cc3302ede9e514feee08285bcef3e12d554fc7db4d9a7770bf13c8d59e0a1a"
+  },
+  "checks": {
+    "model_config": {
+      "equal": true,
+      "excluded_fields": [
+        "arm"
+      ],
+      "sha256": [
+        "acfbdc334b2214bc74db63ebc0fac94fee700bbbfbb6437021a0ba8fdafea8d3",
+        "acfbdc334b2214bc74db63ebc0fac94fee700bbbfbb6437021a0ba8fdafea8d3"
+      ]
+    },
+    "args": {
+      "equal": true,
+      "excluded_fields": [
+        "arm",
+        "out"
+      ],
+      "sha256": [
+        "75df9bcc10af989e4625fef893cd31b5aa4b7f7efef4d5ee93f5bbbc2ba8830e",
+        "75df9bcc10af989e4625fef893cd31b5aa4b7f7efef4d5ee93f5bbbc2ba8830e"
+      ]
+    },
+    "normalization": {
+      "equal": true,
+      "excluded_fields": [],
+      "sha256": [
+        "80cb97de7fcbdd93d5847e06ebd43caaf2134d78471019061b7a783a50731100",
+        "80cb97de7fcbdd93d5847e06ebd43caaf2134d78471019061b7a783a50731100"
+      ]
+    },
+    "provenance": {
+      "equal": true,
+      "excluded_fields": [
+        "hostname"
+      ],
+      "sha256": [
+        "cd4e3e309813213d93c08514965166794d936a316cbfa6a648a73c5be1739740",
+        "cd4e3e309813213d93c08514965166794d936a316cbfa6a648a73c5be1739740"
+      ]
+    },
+    "draw_digest": {
+      "equal": true,
+      "values": [
+        "61757696fcdf7bec29ceba2877d2925f5a99c8a8d01d684f341a8fdee17d5b8a",
+        "61757696fcdf7bec29ceba2877d2925f5a99c8a8d01d684f341a8fdee17d5b8a"
+      ]
+    },
+    "augmentation_digest": {
+      "equal": true,
+      "values": [
+        "e735f5db8bb3398cf12846d4426197bd18e60cc9f81fae44ddebb818ac4b0a5f",
+        "e735f5db8bb3398cf12846d4426197bd18e60cc9f81fae44ddebb818ac4b0a5f"
+      ]
+    }
+  },
+  "all_matched": true,
+  "method": "CPU metadata inspection only; no model construction, optimizer, simulation or protected observation/outcome read"
+}

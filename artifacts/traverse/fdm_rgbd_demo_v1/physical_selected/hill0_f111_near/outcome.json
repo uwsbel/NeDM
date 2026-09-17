@@ -1,0 +1,58 @@
+{
+  "case_id": "hill0_f111_near",
+  "status": "goal_reached",
+  "goal_reached": true,
+  "contact_free_goal_reached": true,
+  "safe_goal_reached": true,
+  "goal_time_s": 6.9,
+  "elapsed_s": 6.9,
+  "goal_radius_m": 2.5,
+  "initial_goal_distance_m": 35.93973406398041,
+  "final_goal_distance_m": 2.4811918100863046,
+  "goal_progress_m": 33.45854225389411,
+  "net_displacement_m": 33.47398339885807,
+  "path_length_m": 33.62126151444855,
+  "asset_contact": false,
+  "max_asset_contact_n": 0.0,
+  "first_asset_contact_interval_start_s": null,
+  "longest_consecutive_effortful_near_zero_speed_s": 0.0,
+  "sustained_near_stop": false,
+  "low_net_progress_4s_windows": [],
+  "low_progress_warning": "Net motion under 0.6 m in 4 s may include rollback; sustained near-zero-speed is reported separately.",
+  "positive_work_kj": 313.3734271462545,
+  "frames": 138,
+  "wall_s": 25.07010817527771,
+  "route_sha256": "ea98e399211c1353e1613a6422795344a21c535882b7a8bfc0886a800e1c7b22",
+  "case_sha256": "58a0398d633c745c47aeb7f39d4ccc862c377c03606bfcd12b0b9a67fd04a7aa",
+  "driver": {
+    "name": "ChPathFollowerDriver",
+    "steering_gains": [
+      0.8,
+      0.0,
+      0.0
+    ],
+    "speed_gains": [
+      0.6,
+      0.05,
+      0.0
+    ],
+    "lookahead_m": 5.0,
+    "steer_rate_per_s": 2.0,
+    "path_min_spacing_m": 2.0,
+    "path_z": "privileged terrain height + 0.5 m",
+    "initialization": "before 0.8 s settle; steering held straight during settle",
+    "control_period_s": 0.05,
+    "advance": "every physics substep"
+  },
+  "camera": {
+    "width": 256,
+    "height": 256,
+    "hfov_rad": 0.8203047484373349,
+    "cam_height_m": 100.0,
+    "depth_ray_scale": 1.0,
+    "max_depth_m": 250.0,
+    "backend": "Vulkan_RT_lavapipe",
+    "depth_measurement": "Euclidean_ray_range_m"
+  },
+  "measurement_scope": "Actual Chrono execution of a fixed selected reference; this is not a receding-horizon replan result."
+}

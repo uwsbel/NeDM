@@ -1,0 +1,155 @@
+{
+  "passed": true,
+  "job_id": "412076",
+  "wall_s": 60.60695135965943,
+  "numeric_array_comparisons": {
+    "state": {
+      "exact": true,
+      "shape": [
+        827,
+        17
+      ],
+      "maximum_absolute_difference": 0.0
+    },
+    "action": {
+      "exact": true,
+      "shape": [
+        827,
+        3
+      ],
+      "maximum_absolute_difference": 0.0
+    },
+    "pose": {
+      "exact": true,
+      "shape": [
+        827,
+        3
+      ],
+      "maximum_absolute_difference": 0.0
+    },
+    "terminal_pose": {
+      "exact": true,
+      "shape": [
+        3
+      ],
+      "maximum_absolute_difference": 0.0
+    },
+    "power_kw": {
+      "exact": true,
+      "shape": [
+        827
+      ],
+      "maximum_absolute_difference": 0.0
+    },
+    "contact_n": {
+      "exact": true,
+      "shape": [
+        827
+      ],
+      "maximum_absolute_difference": 0.0
+    },
+    "terminal_state": {
+      "exact": true,
+      "shape": [
+        17
+      ],
+      "maximum_absolute_difference": 0.0
+    },
+    "terminal_parked": {
+      "exact": true,
+      "shape": [],
+      "maximum_absolute_difference": null
+    },
+    "parked": {
+      "exact": true,
+      "shape": [
+        827
+      ],
+      "maximum_absolute_difference": null
+    },
+    "positive_work_kj_per_interval": {
+      "exact": true,
+      "shape": [
+        827
+      ],
+      "maximum_absolute_difference": 0.0
+    },
+    "dt_s": {
+      "exact": true,
+      "shape": [],
+      "maximum_absolute_difference": 0.0
+    }
+  },
+  "identical_update_count": 42,
+  "initial_driver_behavior_and_unchanged_updates_exact": true,
+  "trajectory_file_sha_equal": true,
+  "speed_only_update": {
+    "update_index": 43,
+    "chrono_time_s": 42.15000000000555,
+    "current_pose": [
+      -97.31218978725869,
+      -53.8817016539704,
+      -2.678875189866902
+    ],
+    "previous_route_fingerprint": "5e78af7aec539b39833c8f0ee249c168195865605866be550ed1b27dceb19449",
+    "route_fingerprint": "6e5e5b81101843da447f99323d48009c918bc70ab4ced0408971a6037e78169b",
+    "identical_reference": false,
+    "geometry_changed": false,
+    "speed_profile_changed": true,
+    "curve_mutated": false,
+    "steering_reset": false,
+    "speed_controller_reset": false,
+    "whole_driver_reset": false,
+    "native_curve_identity_preserved": true,
+    "knot_count": 115,
+    "native_interpolant_max_error_m": null,
+    "current_desired_speed_changed_by_update": false
+  },
+  "geometry_update_after_physics": {
+    "update_index": 44,
+    "chrono_time_s": 42.15000000000555,
+    "current_pose": [
+      -97.31218978725869,
+      -53.8817016539704,
+      -2.678875189866902
+    ],
+    "previous_route_fingerprint": "6e5e5b81101843da447f99323d48009c918bc70ab4ced0408971a6037e78169b",
+    "route_fingerprint": "e4595b6f7e8b390e3144ec76e9f1e14bd48de19df9f943406a89273930765dc0",
+    "identical_reference": false,
+    "geometry_changed": true,
+    "speed_profile_changed": false,
+    "curve_mutated": true,
+    "steering_reset": true,
+    "speed_controller_reset": false,
+    "whole_driver_reset": false,
+    "native_curve_identity_preserved": true,
+    "knot_count": 115,
+    "native_interpolant_max_error_m": 1.588831555447697e-14,
+    "current_desired_speed_changed_by_update": false
+  },
+  "speed_controller_pointer_and_current_speed_preserved": true,
+  "steering_shared_curve_observes_mutation": true,
+  "rich_telemetry": {
+    "passed": true,
+    "rows": 828,
+    "intervals": 827,
+    "sample_fields": 198,
+    "solver_step_intervals": 827,
+    "fields_with_missing_samples": [
+      "command_desired_speed_mps",
+      "command_parked"
+    ],
+    "trajectory_parity": "Pose, applied actions, engine-interface power and solver-step work match trajectory.npz"
+  },
+  "bindings": {
+    "setPoints_doc": "setPoints(ChBezierCurve self, vector_ChVector3d points, vector_ChVector3d inCV, vector_ChVector3d outCV)",
+    "steering_Reset_doc": "Reset(ChSteeringController self, ChFrameMovingd ref_frame)"
+  },
+  "source_evidence": {
+    "Chrono_SOURCE_DIR": "/home1/harry/chrono",
+    "setPoints": "src/chrono/core/ChBezierCurve.h:85 and.cpp:233",
+    "steering_only_reset": "src/chrono_vehicle/utils/ChSteeringController.cpp:57",
+    "whole_driver_reset_avoided": "src/chrono_vehicle/driver/ChPathFollowerDriver.cpp:79"
+  },
+  "scope": "Matched no-change updates during actual traversal; changed-path binding/mutation checked only after the physical rollout, so no changed-route driving performance claim"
+}

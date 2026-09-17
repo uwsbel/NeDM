@@ -1,0 +1,65 @@
+{
+  "scope": "Predesignated two-validation-scene long integration diagnostic with pilot model; no test or final generalization claim",
+  "tasks": [
+    {
+      "id": "diverse_v1_val_mixed_obstacles_00_time_risk",
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v6/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_val_mixed_obstacles_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/pilot_learning_h60_v3/patch_rgbd_s11/best.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/full_cohort_v2/observations/diverse_v1_val_mixed_obstacles_00/observation.npz",
+        "horizon-s": 180,
+        "planning-device": "cpu",
+        "replan-period-s": 1,
+        "cost-mode": "time_risk",
+        "mppi-samples": 64,
+        "mppi-iterations": 2,
+        "seed": 11
+      }
+    },
+    {
+      "id": "diverse_v1_val_mixed_obstacles_00_energy_risk",
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v6/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_val_mixed_obstacles_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/pilot_learning_h60_v3/patch_rgbd_s11/best.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/full_cohort_v2/observations/diverse_v1_val_mixed_obstacles_00/observation.npz",
+        "horizon-s": 180,
+        "planning-device": "cpu",
+        "replan-period-s": 1,
+        "cost-mode": "energy_risk",
+        "mppi-samples": 64,
+        "mppi-iterations": 2,
+        "seed": 11
+      }
+    },
+    {
+      "id": "diverse_v1_val_ridge_passes_00_time_risk",
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v6/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_val_ridge_passes_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/pilot_learning_h60_v3/patch_rgbd_s11/best.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/full_cohort_v2/observations/diverse_v1_val_ridge_passes_00/observation.npz",
+        "horizon-s": 180,
+        "planning-device": "cpu",
+        "replan-period-s": 1,
+        "cost-mode": "time_risk",
+        "mppi-samples": 64,
+        "mppi-iterations": 2,
+        "seed": 11
+      }
+    },
+    {
+      "id": "diverse_v1_val_ridge_passes_00_energy_risk",
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v6/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_val_ridge_passes_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/pilot_learning_h60_v3/patch_rgbd_s11/best.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/full_cohort_v2/observations/diverse_v1_val_ridge_passes_00/observation.npz",
+        "horizon-s": 180,
+        "planning-device": "cpu",
+        "replan-period-s": 1,
+        "cost-mode": "energy_risk",
+        "mppi-samples": 64,
+        "mppi-iterations": 2,
+        "seed": 11
+      }
+    }
+  ]
+}

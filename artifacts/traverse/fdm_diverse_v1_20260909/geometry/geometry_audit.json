@@ -1,0 +1,1703 @@
+{
+  "source_sha256": "ef8a9d0a5a03fe68a5c50075f2a7b872b9ca0cc1d7f7dedea10e7ca64e09ea27",
+  "scenes": 36,
+  "routes": 540,
+  "unique_bmp_sha256": 36,
+  "all_72_pad_checks_passed": true,
+  "all_540_reference_checks_passed": true,
+  "stats": [
+    {
+      "scene_id": "diverse_v1_train_rolling_hills_00",
+      "split": "train",
+      "height_min_m": -0.30156862745098034,
+      "height_max_m": 12.051568627450981,
+      "relief_m": 12.353137254901961,
+      "quantization_step_m": 0.049215686274509805,
+      "resolution_m_per_px": 0.46875,
+      "native_slope_stats": {
+        "max": 1.4135177689838025,
+        "p999": 1.0499346405228764,
+        "p99": 0.6122118381620585,
+        "median": 0.07424159041163861,
+        "flat5deg_fraction": 0.5697822570800781
+      },
+      "grade_measurement_span_m": 0.9375,
+      "max_grade_deg": 54.72231728249321,
+      "p99_grade_deg": 31.47546158236954,
+      "fraction_over_30deg": 0.013279507881584007,
+      "fraction_over_40deg": 0.0033371780084582854,
+      "flat_pads": [
+        {
+          "name": "launch",
+          "center_xy_m": [
+            100.0,
+            54.999999999999986
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": -0.006274509803921524
+        },
+        {
+          "name": "arrival",
+          "center_xy_m": [
+            -100.0,
+            -54.999999999999986
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": -0.006274509803921524
+        }
+      ]
+    },
+    {
+      "scene_id": "diverse_v1_train_rolling_hills_01",
+      "split": "train",
+      "height_min_m": -0.29529411764705876,
+      "height_max_m": 12.89764705882353,
+      "relief_m": 13.192941176470589,
+      "quantization_step_m": 0.052352941176470595,
+      "resolution_m_per_px": 0.46875,
+      "native_slope_stats": {
+        "max": 2.6529898498498605,
+        "p999": 1.8553492363340076,
+        "p99": 0.8301679174973153,
+        "median": 0.07897412207134454,
+        "flat5deg_fraction": 0.6607780456542969
+      },
+      "grade_measurement_span_m": 0.9375,
+      "max_grade_deg": 69.3469073367854,
+      "p99_grade_deg": 39.69836926648063,
+      "fraction_over_30deg": 0.021610918877354862,
+      "fraction_over_40deg": 0.009677047289504036,
+      "flat_pads": [
+        {
+          "name": "launch",
+          "center_xy_m": [
+            -100.0,
+            -55.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": 0.018823529411764794
+        },
+        {
+          "name": "arrival",
+          "center_xy_m": [
+            100.0,
+            55.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": 0.018823529411764794
+        }
+      ]
+    },
+    {
+      "scene_id": "diverse_v1_train_rolling_hills_02",
+      "split": "train",
+      "height_min_m": -0.3758823529411765,
+      "height_max_m": 8.925882352941176,
+      "relief_m": 9.301764705882352,
+      "quantization_step_m": 0.03705882352941176,
+      "resolution_m_per_px": 0.46875,
+      "native_slope_stats": {
+        "max": 0.9953251559615914,
+        "p999": 0.7905882352941173,
+        "p99": 0.5548217332705545,
+        "median": 0.05590303023027771,
+        "flat5deg_fraction": 0.5945892333984375
+      },
+      "grade_measurement_span_m": 0.9375,
+      "max_grade_deg": 44.8657620576804,
+      "p99_grade_deg": 29.022465425176247,
+      "fraction_over_30deg": 0.007996924259900038,
+      "fraction_over_40deg": 0.00046905036524413685,
+      "flat_pads": [
+        {
+          "name": "launch",
+          "center_xy_m": [
+            54.99999999999999,
+            -100.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": -0.0052941176470588935
+        },
+        {
+          "name": "arrival",
+          "center_xy_m": [
+            -54.99999999999999,
+            100.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": -0.0052941176470588935
+        }
+      ]
+    },
+    {
+      "scene_id": "diverse_v1_train_rolling_hills_03",
+      "split": "train",
+      "height_min_m": -0.4386274509803922,
+      "height_max_m": 13.594313725490197,
+      "relief_m": 14.03294117647059,
+      "quantization_step_m": 0.05568627450980393,
+      "resolution_m_per_px": 0.46875,
+      "native_slope_stats": {
+        "max": 1.9044669698904333,
+        "p999": 1.3713253112030188,
+        "p99": 0.6560800060405084,
+        "median": 0.08400243695978224,
+        "flat5deg_fraction": 0.6736793518066406
+      },
+      "grade_measurement_span_m": 0.9375,
+      "max_grade_deg": 62.29687547538933,
+      "p99_grade_deg": 33.26807947109723,
+      "fraction_over_30deg": 0.021334102268358322,
+      "fraction_over_40deg": 0.0026643598615916954,
+      "flat_pads": [
+        {
+          "name": "launch",
+          "center_xy_m": [
+            -100.0,
+            -55.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": 0.006862745098039191
+        },
+        {
+          "name": "arrival",
+          "center_xy_m": [
+            100.0,
+            55.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": 0.006862745098039191
+        }
+      ]
+    },
+    {
+      "scene_id": "diverse_v1_train_ridge_passes_00",
+      "split": "train",
+      "height_min_m": -0.2503921568627451,
+      "height_max_m": 12.250392156862747,
+      "relief_m": 12.500784313725491,
+      "quantization_step_m": 0.04980392156862746,
+      "resolution_m_per_px": 0.46875,
+      "native_slope_stats": {
+        "max": 2.4489038349306083,
+        "p999": 1.8068915984456915,
+        "p99": 0.9577098289859903,
+        "median": 0.07512894009783344,
+        "flat5deg_fraction": 0.5996284484863281
+      },
+      "grade_measurement_span_m": 0.9375,
+      "max_grade_deg": 67.7875489969508,
+      "p99_grade_deg": 43.76249713502965,
+      "fraction_over_30deg": 0.08836601307189543,
+      "fraction_over_40deg": 0.021922337562475972,
+      "flat_pads": [
+        {
+          "name": "launch",
+          "center_xy_m": [
+            -54.99999999999998,
+            100.00000000000001
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": -0.001372549019607816
+        },
+        {
+          "name": "arrival",
+          "center_xy_m": [
+            54.99999999999998,
+            -100.00000000000001
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": -0.001372549019607816
+        }
+      ]
+    },
+    {
+      "scene_id": "diverse_v1_train_ridge_passes_01",
+      "split": "train",
+      "height_min_m": -0.3645098039215686,
+      "height_max_m": 10.36450980392157,
+      "relief_m": 10.729019607843139,
+      "quantization_step_m": 0.04274509803921569,
+      "resolution_m_per_px": 0.46875,
+      "native_slope_stats": {
+        "max": 1.835154142475123,
+        "p999": 1.3686028391392184,
+        "p99": 0.821971428027347,
+        "median": 0.06448074386349482,
+        "flat5deg_fraction": 0.5879707336425781
+      },
+      "grade_measurement_span_m": 0.9375,
+      "max_grade_deg": 61.41344361869391,
+      "p99_grade_deg": 39.419227736917925,
+      "fraction_over_30deg": 0.07713187235678585,
+      "fraction_over_40deg": 0.008854286812764322,
+      "flat_pads": [
+        {
+          "name": "launch",
+          "center_xy_m": [
+            100.0,
+            54.999999999999986
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": 0.020196078431372555
+        },
+        {
+          "name": "arrival",
+          "center_xy_m": [
+            -100.0,
+            -54.999999999999986
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": 0.020196078431372555
+        }
+      ]
+    },
+    {
+      "scene_id": "diverse_v1_train_ridge_passes_02",
+      "split": "train",
+      "height_min_m": -0.4007843137254902,
+      "height_max_m": 12.050784313725492,
+      "relief_m": 12.451568627450982,
+      "quantization_step_m": 0.049215686274509805,
+      "resolution_m_per_px": 0.46875,
+      "native_slope_stats": {
+        "max": 2.0257209419190625,
+        "p999": 1.4708456396367464,
+        "p99": 0.8399477124183022,
+        "median": 0.07424159041163861,
+        "flat5deg_fraction": 0.5508575439453125
+      },
+      "grade_measurement_span_m": 0.9375,
+      "max_grade_deg": 63.726685066791106,
+      "p99_grade_deg": 40.02850274345354,
+      "fraction_over_30deg": 0.10410995770857362,
+      "fraction_over_40deg": 0.01623606305267205,
+      "flat_pads": [
+        {
+          "name": "launch",
+          "center_xy_m": [
+            54.99999999999999,
+            -100.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": -0.007058823529411784
+        },
+        {
+          "name": "arrival",
+          "center_xy_m": [
+            -54.99999999999999,
+            100.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": -0.007058823529411784
+        }
+      ]
+    },
+    {
+      "scene_id": "diverse_v1_train_ridge_passes_03",
+      "split": "train",
+      "height_min_m": -0.24980392156862744,
+      "height_max_m": 12.449803921568627,
+      "relief_m": 12.699607843137255,
+      "quantization_step_m": 0.050196078431372554,
+      "resolution_m_per_px": 0.46875,
+      "native_slope_stats": {
+        "max": 1.7266932150081495,
+        "p999": 1.2545404969613208,
+        "p99": 0.856679738562092,
+        "median": 0.07572050655529675,
+        "flat5deg_fraction": 0.5517158508300781
+      },
+      "grade_measurement_span_m": 0.9375,
+      "max_grade_deg": 59.92307973783554,
+      "p99_grade_deg": 40.58599464696257,
+      "fraction_over_30deg": 0.10911572472126105,
+      "fraction_over_40deg": 0.014056132256824299,
+      "flat_pads": [
+        {
+          "name": "launch",
+          "center_xy_m": [
+            -100.0,
+            -55.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": 0.0011764705882353343
+        },
+        {
+          "name": "arrival",
+          "center_xy_m": [
+            100.0,
+            55.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": 0.0011764705882353343
+        }
+      ]
+    },
+    {
+      "scene_id": "diverse_v1_train_cross_slopes_00",
+      "split": "train",
+      "height_min_m": -0.5976470588235294,
+      "height_max_m": 12.64764705882353,
+      "relief_m": 13.24529411764706,
+      "quantization_step_m": 0.052352941176470595,
+      "resolution_m_per_px": 0.46875,
+      "native_slope_stats": {
+        "max": 2.2997611483553704,
+        "p999": 1.5971527761577213,
+        "p99": 0.8053811790212901,
+        "median": 0.07897412207134462,
+        "flat5deg_fraction": 0.6140213012695312
+      },
+      "grade_measurement_span_m": 0.9375,
+      "max_grade_deg": 66.49925842794168,
+      "p99_grade_deg": 38.8473146818383,
+      "fraction_over_30deg": 0.03332179930795848,
+      "fraction_over_40deg": 0.0085121107266436,
+      "flat_pads": [
+        {
+          "name": "launch",
+          "center_xy_m": [
+            54.99999999999999,
+            -100.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": -0.021764705882352908
+        },
+        {
+          "name": "arrival",
+          "center_xy_m": [
+            -54.99999999999999,
+            100.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": -0.021764705882352908
+        }
+      ]
+    },
+    {
+      "scene_id": "diverse_v1_train_cross_slopes_01",
+      "split": "train",
+      "height_min_m": -0.603921568627451,
+      "height_max_m": 11.453921568627452,
+      "relief_m": 12.057843137254903,
+      "quantization_step_m": 0.04803921568627451,
+      "resolution_m_per_px": 0.46875,
+      "native_slope_stats": {
+        "max": 1.902169617715574,
+        "p999": 1.3293280351007994,
+        "p99": 0.7336713538306315,
+        "median": 0.07246689103924887,
+        "flat5deg_fraction": 0.5801124572753906
+      },
+      "grade_measurement_span_m": 0.9375,
+      "max_grade_deg": 62.268400585524304,
+      "p99_grade_deg": 36.266429951009606,
+      "fraction_over_30deg": 0.030980392156862744,
+      "fraction_over_40deg": 0.0033410226835832372,
+      "flat_pads": [
+        {
+          "name": "launch",
+          "center_xy_m": [
+            100.0,
+            54.999999999999986
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": 0.020588235294117574
+        },
+        {
+          "name": "arrival",
+          "center_xy_m": [
+            -100.0,
+            -54.999999999999986
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": 0.020588235294117574
+        }
+      ]
+    },
+    {
+      "scene_id": "diverse_v1_train_cross_slopes_02",
+      "split": "train",
+      "height_min_m": -0.5519607843137255,
+      "height_max_m": 11.800980392156864,
+      "relief_m": 12.35294117647059,
+      "quantization_step_m": 0.04901960784313726,
+      "resolution_m_per_px": 0.46875,
+      "native_slope_stats": {
+        "max": 2.206015488599111,
+        "p999": 1.6410305700889112,
+        "p99": 0.6696077633916702,
+        "median": 0.073945807182907,
+        "flat5deg_fraction": 0.5496292114257812
+      },
+      "grade_measurement_span_m": 0.9375,
+      "max_grade_deg": 65.61492924552222,
+      "p99_grade_deg": 33.80657167024019,
+      "fraction_over_30deg": 0.022741253364090733,
+      "fraction_over_40deg": 0.004171472510572856,
+      "flat_pads": [
+        {
+          "name": "launch",
+          "center_xy_m": [
+            -54.99999999999998,
+            100.00000000000001
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": -0.012745098039215641
+        },
+        {
+          "name": "arrival",
+          "center_xy_m": [
+            54.99999999999998,
+            -100.00000000000001
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": -0.012745098039215641
+        }
+      ]
+    },
+    {
+      "scene_id": "diverse_v1_train_cross_slopes_03",
+      "split": "train",
+      "height_min_m": -0.4905882352941177,
+      "height_max_m": 13.29529411764706,
+      "relief_m": 13.785882352941178,
+      "quantization_step_m": 0.05470588235294118,
+      "resolution_m_per_px": 0.46875,
+      "native_slope_stats": {
+        "max": 2.2787551995586486,
+        "p999": 1.5798459387900516,
+        "p99": 0.9058812528641146,
+        "median": 0.08252352081612412,
+        "flat5deg_fraction": 0.6427574157714844
+      },
+      "grade_measurement_span_m": 0.9375,
+      "max_grade_deg": 66.30640051715214,
+      "p99_grade_deg": 42.172840801924096,
+      "fraction_over_30deg": 0.036451364859669357,
+      "fraction_over_40deg": 0.013144944252210689,
+      "flat_pads": [
+        {
+          "name": "launch",
+          "center_xy_m": [
+            100.0,
+            54.999999999999986
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": 0.0017647058823528905
+        },
+        {
+          "name": "arrival",
+          "center_xy_m": [
+            -100.0,
+            -54.999999999999986
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": 0.0017647058823528905
+        }
+      ]
+    },
+    {
+      "scene_id": "diverse_v1_train_valley_network_00",
+      "split": "train",
+      "height_min_m": -6.248823529411764,
+      "height_max_m": 6.448823529411763,
+      "relief_m": 12.697647058823527,
+      "quantization_step_m": 0.05058823529411764,
+      "resolution_m_per_px": 0.46875,
+      "native_slope_stats": {
+        "max": 1.8139172680803874,
+        "p999": 1.647351249484225,
+        "p99": 1.075161010625713,
+        "median": 0.10792156862745231,
+        "flat5deg_fraction": 0.41302490234375
+      },
+      "grade_measurement_span_m": 0.9375,
+      "max_grade_deg": 61.132356825366294,
+      "p99_grade_deg": 47.18184694231257,
+      "fraction_over_30deg": 0.0335678585159554,
+      "fraction_over_40deg": 0.016309111880046138,
+      "flat_pads": [
+        {
+          "name": "launch",
+          "center_xy_m": [
+            -54.99999999999998,
+            100.00000000000001
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": 0.0241176470588238
+        },
+        {
+          "name": "arrival",
+          "center_xy_m": [
+            54.99999999999998,
+            -100.00000000000001
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": 0.0241176470588238
+        }
+      ]
+    },
+    {
+      "scene_id": "diverse_v1_train_valley_network_01",
+      "split": "train",
+      "height_min_m": -5.959019607843137,
+      "height_max_m": 4.4090196078431365,
+      "relief_m": 10.368039215686274,
+      "quantization_step_m": 0.04098039215686274,
+      "resolution_m_per_px": 0.46875,
+      "native_slope_stats": {
+        "max": 1.522422641091351,
+        "p999": 1.2684135691989769,
+        "p99": 0.8247642589698637,
+        "median": 0.09774393878116736,
+        "flat5deg_fraction": 0.450408935546875
+      },
+      "grade_measurement_span_m": 0.9375,
+      "max_grade_deg": 56.70117667079381,
+      "p99_grade_deg": 39.671797022477115,
+      "fraction_over_30deg": 0.020049980776624374,
+      "fraction_over_40deg": 0.009357939254133026,
+      "flat_pads": [
+        {
+          "name": "launch",
+          "center_xy_m": [
+            54.99999999999999,
+            -100.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": -0.016862745098039866
+        },
+        {
+          "name": "arrival",
+          "center_xy_m": [
+            -54.99999999999999,
+            100.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": -0.016862745098039866
+        }
+      ]
+    },
+    {
+      "scene_id": "diverse_v1_train_valley_network_02",
+      "split": "train",
+      "height_min_m": -6.487647058823529,
+      "height_max_m": 9.28764705882353,
+      "relief_m": 15.77529411764706,
+      "quantization_step_m": 0.0623529411764706,
+      "resolution_m_per_px": 0.46875,
+      "native_slope_stats": {
+        "max": 1.9741203331055912,
+        "p999": 1.795764705882353,
+        "p99": 0.9522754715026164,
+        "median": 0.0940590667366605,
+        "flat5deg_fraction": 0.3092231750488281
+      },
+      "grade_measurement_span_m": 0.9375,
+      "max_grade_deg": 63.13529036478982,
+      "p99_grade_deg": 43.80753589550089,
+      "fraction_over_30deg": 0.036582083813917726,
+      "fraction_over_40deg": 0.015263360246059208,
+      "flat_pads": [
+        {
+          "name": "launch",
+          "center_xy_m": [
+            -100.0,
+            -55.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": -0.0029411764705873367
+        },
+        {
+          "name": "arrival",
+          "center_xy_m": [
+            100.0,
+            55.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": -0.0029411764705873367
+        }
+      ]
+    },
+    {
+      "scene_id": "diverse_v1_train_valley_network_03",
+      "split": "train",
+      "height_min_m": -6.503137254901961,
+      "height_max_m": 5.306274509803921,
+      "relief_m": 11.809411764705882,
+      "quantization_step_m": 0.04686274509803921,
+      "resolution_m_per_px": 0.46875,
+      "native_slope_stats": {
+        "max": 1.5029366104809938,
+        "p999": 1.35057242544498,
+        "p99": 0.8483063000023066,
+        "median": 0.1117741692282248,
+        "flat5deg_fraction": 0.38928985595703125
+      },
+      "grade_measurement_span_m": 0.9375,
+      "max_grade_deg": 56.36163327503474,
+      "p99_grade_deg": 40.35714395088493,
+      "fraction_over_30deg": 0.021922337562475972,
+      "fraction_over_40deg": 0.010084582852748943,
+      "flat_pads": [
+        {
+          "name": "launch",
+          "center_xy_m": [
+            54.99999999999999,
+            -100.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": 0.010784313725490158
+        },
+        {
+          "name": "arrival",
+          "center_xy_m": [
+            -54.99999999999999,
+            100.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": 0.010784313725490158
+        }
+      ]
+    },
+    {
+      "scene_id": "diverse_v1_train_rough_mosaic_00",
+      "split": "train",
+      "height_min_m": -1.6011764705882354,
+      "height_max_m": 10.751176470588236,
+      "relief_m": 12.352352941176472,
+      "quantization_step_m": 0.04882352941176471,
+      "resolution_m_per_px": 0.46875,
+      "native_slope_stats": {
+        "max": 1.3669968239909085,
+        "p999": 1.027147220477007,
+        "p99": 0.7510858186378323,
+        "median": 0.26039215686274514,
+        "flat5deg_fraction": 0.1540069580078125
+      },
+      "grade_measurement_span_m": 0.9375,
+      "max_grade_deg": 53.81338792139188,
+      "p99_grade_deg": 37.17207483238109,
+      "fraction_over_30deg": 0.05468281430219146,
+      "fraction_over_40deg": 0.004855824682814302,
+      "flat_pads": [
+        {
+          "name": "launch",
+          "center_xy_m": [
+            -100.0,
+            -55.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": 0.010000000000000009
+        },
+        {
+          "name": "arrival",
+          "center_xy_m": [
+            100.0,
+            55.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": 0.010000000000000009
+        }
+      ]
+    },
+    {
+      "scene_id": "diverse_v1_train_rough_mosaic_01",
+      "split": "train",
+      "height_min_m": -2.6558823529411764,
+      "height_max_m": 5.1872549019607845,
+      "relief_m": 7.843137254901961,
+      "quantization_step_m": 0.03137254901960784,
+      "resolution_m_per_px": 0.46875,
+      "native_slope_stats": {
+        "max": 1.2125813747948548,
+        "p999": 0.863605987593299,
+        "p99": 0.6898791112144578,
+        "median": 0.24362197799422391,
+        "flat5deg_fraction": 0.1524658203125
+      },
+      "grade_measurement_span_m": 0.9375,
+      "max_grade_deg": 50.48804385462555,
+      "p99_grade_deg": 34.569445171999824,
+      "fraction_over_30deg": 0.034509803921568626,
+      "fraction_over_40deg": 0.0013033448673587082,
+      "flat_pads": [
+        {
+          "name": "launch",
+          "center_xy_m": [
+            54.99999999999999,
+            -100.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": 0.010784313725490158
+        },
+        {
+          "name": "arrival",
+          "center_xy_m": [
+            -54.99999999999999,
+            100.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": 0.010784313725490158
+        }
+      ]
+    },
+    {
+      "scene_id": "diverse_v1_train_rough_mosaic_02",
+      "split": "train",
+      "height_min_m": -2.5031372549019606,
+      "height_max_m": 9.653137254901962,
+      "relief_m": 12.156274509803922,
+      "quantization_step_m": 0.04843137254901961,
+      "resolution_m_per_px": 0.46875,
+      "native_slope_stats": {
+        "max": 1.1329951191146546,
+        "p999": 0.8917921246333332,
+        "p99": 0.7250844873959108,
+        "median": 0.2583006535947713,
+        "flat5deg_fraction": 0.14905929565429688
+      },
+      "grade_measurement_span_m": 0.9375,
+      "max_grade_deg": 48.567850255696406,
+      "p99_grade_deg": 35.94528471979212,
+      "fraction_over_30deg": 0.05063821607074202,
+      "fraction_over_40deg": 0.0023452518262206843,
+      "flat_pads": [
+        {
+          "name": "launch",
+          "center_xy_m": [
+            -54.99999999999998,
+            100.00000000000001
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": 0.015294117647059124
+        },
+        {
+          "name": "arrival",
+          "center_xy_m": [
+            54.99999999999998,
+            -100.00000000000001
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": 0.015294117647059124
+        }
+      ]
+    },
+    {
+      "scene_id": "diverse_v1_train_rough_mosaic_03",
+      "split": "train",
+      "height_min_m": -1.9180392156862744,
+      "height_max_m": 8.409019607843138,
+      "relief_m": 10.327058823529413,
+      "quantization_step_m": 0.04098039215686275,
+      "resolution_m_per_px": 0.46875,
+      "native_slope_stats": {
+        "max": 1.3823080386409232,
+        "p999": 0.9262495374613692,
+        "p99": 0.7235692715638362,
+        "median": 0.2548850083184664,
+        "flat5deg_fraction": 0.14934539794921875
+      },
+      "grade_measurement_span_m": 0.9375,
+      "max_grade_deg": 54.116978909986955,
+      "p99_grade_deg": 35.8883434487584,
+      "fraction_over_30deg": 0.045482506728181465,
+      "fraction_over_40deg": 0.0028835063437139563,
+      "flat_pads": [
+        {
+          "name": "launch",
+          "center_xy_m": [
+            54.99999999999999,
+            -100.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": 0.008039215686274748
+        },
+        {
+          "name": "arrival",
+          "center_xy_m": [
+            -54.99999999999999,
+            100.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": 0.008039215686274748
+        }
+      ]
+    },
+    {
+      "scene_id": "diverse_v1_train_mixed_obstacles_00",
+      "split": "train",
+      "height_min_m": -4.0925490196078425,
+      "height_max_m": 10.385098039215684,
+      "relief_m": 14.477647058823527,
+      "quantization_step_m": 0.057450980392156854,
+      "resolution_m_per_px": 0.46875,
+      "native_slope_stats": {
+        "max": 1.5135301803176746,
+        "p999": 1.1686957636610058,
+        "p99": 0.7146536596871838,
+        "median": 0.1225620915032683,
+        "flat5deg_fraction": 0.44881439208984375
+      },
+      "grade_measurement_span_m": 0.9375,
+      "max_grade_deg": 56.54698073448805,
+      "p99_grade_deg": 35.55163487913834,
+      "fraction_over_30deg": 0.01956170703575548,
+      "fraction_over_40deg": 0.004163783160322953,
+      "flat_pads": [
+        {
+          "name": "launch",
+          "center_xy_m": [
+            -100.0,
+            -55.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": -0.013529411764706012
+        },
+        {
+          "name": "arrival",
+          "center_xy_m": [
+            100.0,
+            55.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": -0.013529411764706012
+        }
+      ]
+    },
+    {
+      "scene_id": "diverse_v1_train_mixed_obstacles_01",
+      "split": "train",
+      "height_min_m": -4.640588235294118,
+      "height_max_m": 10.331176470588236,
+      "relief_m": 14.971764705882354,
+      "quantization_step_m": 0.05941176470588236,
+      "resolution_m_per_px": 0.46875,
+      "native_slope_stats": {
+        "max": 1.5651865004650365,
+        "p999": 1.142464874735257,
+        "p99": 0.7405904661624608,
+        "median": 0.12674509803921505,
+        "flat5deg_fraction": 0.2720146179199219
+      },
+      "grade_measurement_span_m": 0.9375,
+      "max_grade_deg": 57.42542982542298,
+      "p99_grade_deg": 36.566422508773755,
+      "fraction_over_30deg": 0.02219146482122261,
+      "fraction_over_40deg": 0.004244521337946943,
+      "flat_pads": [
+        {
+          "name": "launch",
+          "center_xy_m": [
+            54.99999999999999,
+            -100.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": -0.006470588235293562
+        },
+        {
+          "name": "arrival",
+          "center_xy_m": [
+            -54.99999999999999,
+            100.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": -0.006470588235293562
+        }
+      ]
+    },
+    {
+      "scene_id": "diverse_v1_train_mixed_obstacles_02",
+      "split": "train",
+      "height_min_m": -5.034705882352941,
+      "height_max_m": 9.49235294117647,
+      "relief_m": 14.527058823529412,
+      "quantization_step_m": 0.05764705882352941,
+      "resolution_m_per_px": 0.46875,
+      "native_slope_stats": {
+        "max": 1.2205455420519913,
+        "p999": 0.8203815393156909,
+        "p99": 0.6149019607843135,
+        "median": 0.12298039215686268,
+        "flat5deg_fraction": 0.44501495361328125
+      },
+      "grade_measurement_span_m": 0.9375,
+      "max_grade_deg": 50.67203966793185,
+      "p99_grade_deg": 31.587439821537924,
+      "fraction_over_30deg": 0.012425990003844676,
+      "fraction_over_40deg": 0.0008112264513648596,
+      "flat_pads": [
+        {
+          "name": "launch",
+          "center_xy_m": [
+            54.99999999999999,
+            -100.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": -0.01941176470588246
+        },
+        {
+          "name": "arrival",
+          "center_xy_m": [
+            -54.99999999999999,
+            100.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": -0.01941176470588246
+        }
+      ]
+    },
+    {
+      "scene_id": "diverse_v1_train_mixed_obstacles_03",
+      "split": "train",
+      "height_min_m": -4.943921568627451,
+      "height_max_m": 9.187843137254903,
+      "relief_m": 14.131764705882354,
+      "quantization_step_m": 0.056078431372549024,
+      "resolution_m_per_px": 0.46875,
+      "native_slope_stats": {
+        "max": 2.0927400682989874,
+        "p999": 1.5280526725710024,
+        "p99": 0.7660312813200699,
+        "median": 0.11963398692810472,
+        "flat5deg_fraction": 0.43973541259765625
+      },
+      "grade_measurement_span_m": 0.9375,
+      "max_grade_deg": 64.45954981269406,
+      "p99_grade_deg": 37.45324431834044,
+      "fraction_over_30deg": 0.022433679354094578,
+      "fraction_over_40deg": 0.007831603229527105,
+      "flat_pads": [
+        {
+          "name": "launch",
+          "center_xy_m": [
+            -54.99999999999998,
+            100.00000000000001
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": -0.009019607843137045
+        },
+        {
+          "name": "arrival",
+          "center_xy_m": [
+            54.99999999999998,
+            -100.00000000000001
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": -0.009019607843137045
+        }
+      ]
+    },
+    {
+      "scene_id": "diverse_v1_val_rolling_hills_00",
+      "split": "val",
+      "height_min_m": -0.3680392156862745,
+      "height_max_m": 9.918039215686274,
+      "relief_m": 10.286078431372548,
+      "quantization_step_m": 0.04098039215686274,
+      "resolution_m_per_px": 0.46875,
+      "native_slope_stats": {
+        "max": 1.4431719613142207,
+        "p999": 1.1874983490953546,
+        "p99": 0.6614889210223482,
+        "median": 0.06181869480491024,
+        "flat5deg_fraction": 0.6674575805664062
+      },
+      "grade_measurement_span_m": 0.9375,
+      "max_grade_deg": 55.281210230435896,
+      "p99_grade_deg": 33.48419437076479,
+      "fraction_over_30deg": 0.01698961937716263,
+      "fraction_over_40deg": 0.004367550941945406,
+      "flat_pads": [
+        {
+          "name": "launch",
+          "center_xy_m": [
+            100.0,
+            54.999999999999986
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": 0.0007843137254901489
+        },
+        {
+          "name": "arrival",
+          "center_xy_m": [
+            -100.0,
+            -54.999999999999986
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": 0.0007843137254901489
+        }
+      ]
+    },
+    {
+      "scene_id": "diverse_v1_val_ridge_passes_00",
+      "split": "val",
+      "height_min_m": -0.3145098039215686,
+      "height_max_m": 10.414509803921568,
+      "relief_m": 10.729019607843137,
+      "quantization_step_m": 0.04274509803921569,
+      "resolution_m_per_px": 0.46875,
+      "native_slope_stats": {
+        "max": 1.835154142475121,
+        "p999": 1.4956196993567652,
+        "p99": 1.0030849673202615,
+        "median": 0.06448074386349482,
+        "flat5deg_fraction": 0.5885353088378906
+      },
+      "grade_measurement_span_m": 0.9375,
+      "max_grade_deg": 61.41344361869388,
+      "p99_grade_deg": 45.08824162255714,
+      "fraction_over_30deg": 0.08798154555940023,
+      "fraction_over_40deg": 0.023314109957708575,
+      "flat_pads": [
+        {
+          "name": "launch",
+          "center_xy_m": [
+            -100.0,
+            -55.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": -0.015294117647058791
+        },
+        {
+          "name": "arrival",
+          "center_xy_m": [
+            100.0,
+            55.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": -0.015294117647058791
+        }
+      ]
+    },
+    {
+      "scene_id": "diverse_v1_val_cross_slopes_00",
+      "split": "val",
+      "height_min_m": -0.46019607843137256,
+      "height_max_m": 10.810196078431373,
+      "relief_m": 11.270392156862746,
+      "quantization_step_m": 0.04490196078431373,
+      "resolution_m_per_px": 0.46875,
+      "native_slope_stats": {
+        "max": 1.9265633245265148,
+        "p999": 1.5542046909764782,
+        "p99": 0.651448208418388,
+        "median": 0.06773435937954278,
+        "flat5deg_fraction": 0.5324325561523438
+      },
+      "grade_measurement_span_m": 0.9375,
+      "max_grade_deg": 62.568025131778754,
+      "p99_grade_deg": 33.08216022970715,
+      "fraction_over_30deg": 0.01827374086889658,
+      "fraction_over_40deg": 0.005786236063052672,
+      "flat_pads": [
+        {
+          "name": "launch",
+          "center_xy_m": [
+            -100.0,
+            -55.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": -0.011176470588235343
+        },
+        {
+          "name": "arrival",
+          "center_xy_m": [
+            100.0,
+            55.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": -0.011176470588235343
+        }
+      ]
+    },
+    {
+      "scene_id": "diverse_v1_val_valley_network_00",
+      "split": "val",
+      "height_min_m": -6.500588235294117,
+      "height_max_m": 6.000588235294118,
+      "relief_m": 12.501176470588234,
+      "quantization_step_m": 0.04941176470588235,
+      "resolution_m_per_px": 0.46875,
+      "native_slope_stats": {
+        "max": 1.7950976686905953,
+        "p999": 1.5820546580875352,
+        "p99": 0.8498568167618231,
+        "median": 0.10541176470588312,
+        "flat5deg_fraction": 0.4329681396484375
+      },
+      "grade_measurement_span_m": 0.9375,
+      "max_grade_deg": 60.87901180790646,
+      "p99_grade_deg": 40.35977351073585,
+      "fraction_over_30deg": 0.025001922337562477,
+      "fraction_over_40deg": 0.010303729334871203,
+      "flat_pads": [
+        {
+          "name": "launch",
+          "center_xy_m": [
+            -54.99999999999998,
+            100.00000000000001
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": 0.021764705882353574
+        },
+        {
+          "name": "arrival",
+          "center_xy_m": [
+            54.99999999999998,
+            -100.00000000000001
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": 0.021764705882353574
+        }
+      ]
+    },
+    {
+      "scene_id": "diverse_v1_val_rough_mosaic_00",
+      "split": "val",
+      "height_min_m": -2.9137254901960783,
+      "height_max_m": 7.913725490196079,
+      "relief_m": 10.827450980392157,
+      "quantization_step_m": 0.043137254901960784,
+      "resolution_m_per_px": 0.46875,
+      "native_slope_stats": {
+        "max": 1.1731077573755953,
+        "p999": 0.9485837779198807,
+        "p99": 0.7362091503267971,
+        "median": 0.2477879754393919,
+        "flat5deg_fraction": 0.13311004638671875
+      },
+      "grade_measurement_span_m": 0.9375,
+      "max_grade_deg": 49.55451148374415,
+      "p99_grade_deg": 36.3608404044079,
+      "fraction_over_30deg": 0.04641291810841984,
+      "fraction_over_40deg": 0.00352556708958093,
+      "flat_pads": [
+        {
+          "name": "launch",
+          "center_xy_m": [
+            54.99999999999999,
+            -100.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": 0.019607843137255276
+        },
+        {
+          "name": "arrival",
+          "center_xy_m": [
+            -54.99999999999999,
+            100.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": 0.019607843137255276
+        }
+      ]
+    },
+    {
+      "scene_id": "diverse_v1_val_mixed_obstacles_00",
+      "split": "val",
+      "height_min_m": -3.5874509803921564,
+      "height_max_m": 10.593725490196078,
+      "relief_m": 14.181176470588234,
+      "quantization_step_m": 0.05627450980392157,
+      "resolution_m_per_px": 0.46875,
+      "native_slope_stats": {
+        "max": 1.639494099424032,
+        "p999": 0.9845019580628249,
+        "p99": 0.68440334013794,
+        "median": 0.12005228758169911,
+        "flat5deg_fraction": 0.4648170471191406
+      },
+      "grade_measurement_span_m": 0.9375,
+      "max_grade_deg": 58.61913696548882,
+      "p99_grade_deg": 34.38786879861452,
+      "fraction_over_30deg": 0.017074202229911573,
+      "fraction_over_40deg": 0.003106497500961169,
+      "flat_pads": [
+        {
+          "name": "launch",
+          "center_xy_m": [
+            -100.0,
+            -55.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": 0.014117647058824012
+        },
+        {
+          "name": "arrival",
+          "center_xy_m": [
+            100.0,
+            55.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": 0.014117647058824012
+        }
+      ]
+    },
+    {
+      "scene_id": "diverse_v1_test_rolling_hills_00",
+      "split": "test",
+      "height_min_m": -0.30156862745098034,
+      "height_max_m": 12.100784313725491,
+      "relief_m": 12.40235294117647,
+      "quantization_step_m": 0.049215686274509805,
+      "resolution_m_per_px": 0.46875,
+      "native_slope_stats": {
+        "max": 1.3869473665754146,
+        "p999": 0.9390900912563821,
+        "p99": 0.6408042791213929,
+        "median": 0.07424159041163853,
+        "flat5deg_fraction": 0.6355247497558594
+      },
+      "grade_measurement_span_m": 0.9375,
+      "max_grade_deg": 54.208098728563556,
+      "p99_grade_deg": 32.651922535456706,
+      "fraction_over_30deg": 0.017700884275278737,
+      "fraction_over_40deg": 0.0014955786236063053,
+      "flat_pads": [
+        {
+          "name": "launch",
+          "center_xy_m": [
+            54.99999999999999,
+            -100.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": -0.006274509803921524
+        },
+        {
+          "name": "arrival",
+          "center_xy_m": [
+            -54.99999999999999,
+            100.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": -0.006274509803921524
+        }
+      ]
+    },
+    {
+      "scene_id": "diverse_v1_test_ridge_passes_00",
+      "split": "test",
+      "height_min_m": -1.9909803921568625,
+      "height_max_m": 12.940980392156863,
+      "relief_m": 14.931960784313725,
+      "quantization_step_m": 0.059019607843137256,
+      "resolution_m_per_px": 0.46875,
+      "native_slope_stats": {
+        "max": 2.0184667532993683,
+        "p999": 1.6136440014685978,
+        "p99": 0.9464098739639742,
+        "median": 0.08903075184822001,
+        "flat5deg_fraction": 0.4242286682128906
+      },
+      "grade_measurement_span_m": 0.9375,
+      "max_grade_deg": 63.64500962347373,
+      "p99_grade_deg": 43.42288483402447,
+      "fraction_over_30deg": 0.09845828527489427,
+      "fraction_over_40deg": 0.022806612841214918,
+      "flat_pads": [
+        {
+          "name": "launch",
+          "center_xy_m": [
+            -54.99999999999998,
+            100.00000000000001
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": 0.01568627450980431
+        },
+        {
+          "name": "arrival",
+          "center_xy_m": [
+            54.99999999999998,
+            -100.00000000000001
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": 0.01568627450980431
+        }
+      ]
+    },
+    {
+      "scene_id": "diverse_v1_test_cross_slopes_00",
+      "split": "test",
+      "height_min_m": -0.4505882352941176,
+      "height_max_m": 12.05058823529412,
+      "relief_m": 12.501176470588238,
+      "quantization_step_m": 0.049411764705882356,
+      "resolution_m_per_px": 0.46875,
+      "native_slope_stats": {
+        "max": 2.1922099260475933,
+        "p999": 1.595169455479731,
+        "p99": 0.8498568167618232,
+        "median": 0.07453737364037022,
+        "flat5deg_fraction": 0.6042442321777344
+      },
+      "grade_measurement_span_m": 0.9375,
+      "max_grade_deg": 65.47939251757025,
+      "p99_grade_deg": 40.35977351073584,
+      "fraction_over_30deg": 0.03181468665897732,
+      "fraction_over_40deg": 0.01091118800461361,
+      "flat_pads": [
+        {
+          "name": "launch",
+          "center_xy_m": [
+            100.0,
+            54.999999999999986
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": -0.005882352941176394
+        },
+        {
+          "name": "arrival",
+          "center_xy_m": [
+            -100.0,
+            -54.999999999999986
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": -0.005882352941176394
+        }
+      ]
+    },
+    {
+      "scene_id": "diverse_v1_test_valley_network_00",
+      "split": "test",
+      "height_min_m": -6.991960784313726,
+      "height_max_m": 7.691960784313726,
+      "relief_m": 14.68392156862745,
+      "quantization_step_m": 0.058039215686274515,
+      "resolution_m_per_px": 0.46875,
+      "native_slope_stats": {
+        "max": 1.7597701184633148,
+        "p999": 1.6356032689494915,
+        "p99": 1.0952731147366128,
+        "median": 0.13843160707763397,
+        "flat5deg_fraction": 0.2564125061035156
+      },
+      "grade_measurement_span_m": 0.9375,
+      "max_grade_deg": 60.39233455698579,
+      "p99_grade_deg": 47.78456422558725,
+      "fraction_over_30deg": 0.049980776624375244,
+      "fraction_over_40deg": 0.020745866974240676,
+      "flat_pads": [
+        {
+          "name": "launch",
+          "center_xy_m": [
+            -100.0,
+            -55.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": -0.027254901960784395
+        },
+        {
+          "name": "arrival",
+          "center_xy_m": [
+            100.0,
+            55.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": -0.027254901960784395
+        }
+      ]
+    },
+    {
+      "scene_id": "diverse_v1_test_rough_mosaic_00",
+      "split": "test",
+      "height_min_m": -2.124313725490196,
+      "height_max_m": 7.374313725490197,
+      "relief_m": 9.498627450980393,
+      "quantization_step_m": 0.03784313725490196,
+      "resolution_m_per_px": 0.46875,
+      "native_slope_stats": {
+        "max": 1.0595597872700624,
+        "p999": 0.8732503795006119,
+        "p99": 0.7049621113597042,
+        "median": 0.24553687181125364,
+        "flat5deg_fraction": 0.14624404907226562
+      },
+      "grade_measurement_span_m": 0.9375,
+      "max_grade_deg": 46.65645768065611,
+      "p99_grade_deg": 35.18238647985555,
+      "fraction_over_30deg": 0.040449826989619374,
+      "fraction_over_40deg": 0.0017531718569780853,
+      "flat_pads": [
+        {
+          "name": "launch",
+          "center_xy_m": [
+            100.0,
+            54.999999999999986
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": -0.005098039215686079
+        },
+        {
+          "name": "arrival",
+          "center_xy_m": [
+            -100.0,
+            -54.999999999999986
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": -0.005098039215686079
+        }
+      ]
+    },
+    {
+      "scene_id": "diverse_v1_test_mixed_obstacles_00",
+      "split": "test",
+      "height_min_m": -3.8780392156862744,
+      "height_max_m": 14.328039215686278,
+      "relief_m": 18.206078431372553,
+      "quantization_step_m": 0.07196078431372549,
+      "resolution_m_per_px": 0.46875,
+      "native_slope_stats": {
+        "max": 1.4482702537891867,
+        "p999": 1.19900094371043,
+        "p99": 0.8302665525303744,
+        "median": 0.1085524449445078,
+        "flat5deg_fraction": 0.3287544250488281
+      },
+      "grade_measurement_span_m": 0.9375,
+      "max_grade_deg": 55.3757411811339,
+      "p99_grade_deg": 39.70171473663271,
+      "fraction_over_30deg": 0.031199538638985006,
+      "fraction_over_40deg": 0.009900038446751249,
+      "flat_pads": [
+        {
+          "name": "launch",
+          "center_xy_m": [
+            -100.0,
+            -55.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": 0.007843137254902821
+        },
+        {
+          "name": "arrival",
+          "center_xy_m": [
+            100.0,
+            55.0
+          ],
+          "verified_radius_m": 8.0,
+          "sample_count": 1360,
+          "height_range_m": 0.0,
+          "max_slope_deg": 0.0,
+          "height_m": 0.007843137254902821
+        }
+      ]
+    }
+  ],
+  "limits": "Geometry validation is not a Chrono execution or calibrated physical slope/normal check. Pixel coordinates use existing TerrainMap convention; inherited transform needs runtime spot-check at new scale."
+}

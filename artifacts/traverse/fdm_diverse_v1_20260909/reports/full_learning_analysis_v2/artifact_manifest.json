@@ -1,0 +1,14 @@
+{
+  "schema": "fdm_full_forecast_analysis_artifacts_v1",
+  "files": {
+    "forecast_validation.png": "3363773dace09d01f4b286456fed096b7e47ce63898c9b490e22c4a1deadb73d",
+    "evidence.json": "5c4bdebd83e32da9b41d4b58e3ed89745c29b6c51f7abbdebaa2449b5010dbab",
+    "forecast_validation.pdf": "38ec6ce094163dfef523ce980b10643d8c6192ed2262795b1e66ffeae9b736a2",
+    "download_verification.json": "3b6ded94871c7a99bdafb34ab6a689f6db2e1843359ef688a05184f025b967e5",
+    "evidence_source.py": "11e6d74dcf86973913c515acceded4801f1de43d63a480025a6f8a267c76e228",
+    "evidence.md": "008e4a507054aa65152782b1bde82cbcca03b6cd0b2b159cf4006ea721dccf8a"
+  },
+  "plot_visually_checked": true,
+  "job_id": "412094",
+  "test_data_opened": false
+}

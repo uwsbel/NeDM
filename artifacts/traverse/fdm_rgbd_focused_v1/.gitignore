@@ -1,0 +1,6 @@
+# Allowlist: only the files below are committed from this folder (see the repository .gitignore).
+/*
+!/.gitignore
+!/paired_initial_state_audit.json
+!/terrain_collection_outcomes.json
+!/support_audit/

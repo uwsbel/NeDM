@@ -1,0 +1,47 @@
+{
+  "declared": 8,
+  "finished": 8,
+  "failures": [],
+  "results": [
+    {
+      "id": "diverse_v1_test_rough_mosaic_00_selected_rgbd_energy_parent_family",
+      "exit_code": 0,
+      "wall_s": 151.13799858093262
+    },
+    {
+      "id": "diverse_v1_test_rough_mosaic_00_selected_rgbd_time_parent_family",
+      "exit_code": 0,
+      "wall_s": 159.90019702911377
+    },
+    {
+      "id": "diverse_v1_test_rolling_hills_00_selected_rgbd_energy_replay_selected",
+      "exit_code": 0,
+      "wall_s": 208.70617008209229
+    },
+    {
+      "id": "diverse_v1_test_rolling_hills_00_selected_rgbd_time_replay_selected",
+      "exit_code": 0,
+      "wall_s": 209.18881583213806
+    },
+    {
+      "id": "diverse_v1_test_rolling_hills_00_selected_rgbd_energy_parent_family",
+      "exit_code": 0,
+      "wall_s": 218.69977164268494
+    },
+    {
+      "id": "diverse_v1_test_rolling_hills_00_selected_rgbd_time_parent_family",
+      "exit_code": 0,
+      "wall_s": 218.87070035934448
+    },
+    {
+      "id": "diverse_v1_test_rough_mosaic_00_selected_rgbd_energy_replay_selected",
+      "exit_code": 0,
+      "wall_s": 221.61099219322205
+    },
+    {
+      "id": "diverse_v1_test_rough_mosaic_00_selected_rgbd_time_replay_selected",
+      "exit_code": 0,
+      "wall_s": 222.21309113502502
+    }
+  ]
+}

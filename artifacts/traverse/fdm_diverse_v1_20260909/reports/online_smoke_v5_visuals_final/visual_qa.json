@@ -1,0 +1,12 @@
+{
+  "render_source_sha256": "956401b5d598d2b887fbf50c3ba7e984946f8636e1385f1234de9b36fed45b45",
+  "adjustment": "Move slip-peak labels inside the plot; no physical data or replay forecast changed",
+  "reviewed_files": [
+    "time_risk_20s/overview.png",
+    "telemetry.png",
+    "slip_diagnostics.png",
+    "observed_elevation.png",
+    "time_risk_20s/candidate_scores.png"
+  ],
+  "native_absolute_slip_full_peak": 4187.746058660296
+}

@@ -1,0 +1,625 @@
+{
+  "job_id": 412098,
+  "batch_result_sha256": "0fe64749d0c923ae54a0aee5ce27aac7bc153e8782b603aefa8526c691531ea0",
+  "declared": 24,
+  "finished": 24,
+  "process_failures": 15,
+  "runs": [
+    {
+      "trial_id": "diverse_v1_val_cross_slopes_00_energy002",
+      "exit_code": 1,
+      "result_sha256": "3d005b42ef29f728c5cd5ec10d1bc8c93d4e961b9948e8801b22e3d968a0bdb0",
+      "log_sha256": "f39fe1765bf80a0a7f77130f71d8152e35f0ffbb12b42a3a27056382ce64f9be",
+      "last_log_lines": [
+        "Traceback (most recent call last):",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 594, in <module>",
+        "    main()",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 590, in main",
+        "    run_chrono(args)",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 342, in run_chrono",
+        "    families = online_route_families(pose, goal, route, original_families,",
+        "               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_online_candidates.py\", line 59, in online_route_families",
+        "    proposals += [locate_reference(reference, pose, f\"fresh_family_{index:02d}\")",
+        "                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_online_candidates.py\", line 27, in locate_reference",
+        "    check_reference_contract(route)",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_diverse_planner.py\", line 33, in check_reference_contract",
+        "    raise ValueError(\"Reference contains a cusp or sharp segment-heading reversal\")",
+        "ValueError: Reference contains a cusp or sharp segment-heading reversal"
+      ],
+      "saved_decision_count": 56,
+      "last_saved_decision": "decision_00055.json",
+      "required_terminal_outputs_present": {
+        "outcome.json": false,
+        "trajectory.npz": false,
+        "rich_telemetry.npz": false,
+        "rich_intervals.npz": false
+      }
+    },
+    {
+      "trial_id": "diverse_v1_val_cross_slopes_00_energy020",
+      "exit_code": 1,
+      "result_sha256": "af93f80e349d8a4cc66bdef44ed0b936e2f5be7ca78a6529eb1bd37817008780",
+      "log_sha256": "f39fe1765bf80a0a7f77130f71d8152e35f0ffbb12b42a3a27056382ce64f9be",
+      "last_log_lines": [
+        "Traceback (most recent call last):",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 594, in <module>",
+        "    main()",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 590, in main",
+        "    run_chrono(args)",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 342, in run_chrono",
+        "    families = online_route_families(pose, goal, route, original_families,",
+        "               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_online_candidates.py\", line 59, in online_route_families",
+        "    proposals += [locate_reference(reference, pose, f\"fresh_family_{index:02d}\")",
+        "                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_online_candidates.py\", line 27, in locate_reference",
+        "    check_reference_contract(route)",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_diverse_planner.py\", line 33, in check_reference_contract",
+        "    raise ValueError(\"Reference contains a cusp or sharp segment-heading reversal\")",
+        "ValueError: Reference contains a cusp or sharp segment-heading reversal"
+      ],
+      "saved_decision_count": 77,
+      "last_saved_decision": "decision_00076.json",
+      "required_terminal_outputs_present": {
+        "outcome.json": false,
+        "trajectory.npz": false,
+        "rich_telemetry.npz": false,
+        "rich_intervals.npz": false
+      }
+    },
+    {
+      "trial_id": "diverse_v1_val_cross_slopes_00_energy050",
+      "exit_code": 1,
+      "result_sha256": "97cb4d805e97989411788e93de67950621d406567548070550f6aab5614a0457",
+      "log_sha256": "f39fe1765bf80a0a7f77130f71d8152e35f0ffbb12b42a3a27056382ce64f9be",
+      "last_log_lines": [
+        "Traceback (most recent call last):",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 594, in <module>",
+        "    main()",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 590, in main",
+        "    run_chrono(args)",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 342, in run_chrono",
+        "    families = online_route_families(pose, goal, route, original_families,",
+        "               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_online_candidates.py\", line 59, in online_route_families",
+        "    proposals += [locate_reference(reference, pose, f\"fresh_family_{index:02d}\")",
+        "                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_online_candidates.py\", line 27, in locate_reference",
+        "    check_reference_contract(route)",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_diverse_planner.py\", line 33, in check_reference_contract",
+        "    raise ValueError(\"Reference contains a cusp or sharp segment-heading reversal\")",
+        "ValueError: Reference contains a cusp or sharp segment-heading reversal"
+      ],
+      "saved_decision_count": 47,
+      "last_saved_decision": "decision_00046.json",
+      "required_terminal_outputs_present": {
+        "outcome.json": false,
+        "trajectory.npz": false,
+        "rich_telemetry.npz": false,
+        "rich_intervals.npz": false
+      }
+    },
+    {
+      "trial_id": "diverse_v1_val_cross_slopes_00_time",
+      "exit_code": 1,
+      "result_sha256": "2aa720b35b04a645ce0cf24594a190742d4acdf9f3476a082a226cec22dbd409",
+      "log_sha256": "f39fe1765bf80a0a7f77130f71d8152e35f0ffbb12b42a3a27056382ce64f9be",
+      "last_log_lines": [
+        "Traceback (most recent call last):",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 594, in <module>",
+        "    main()",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 590, in main",
+        "    run_chrono(args)",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 342, in run_chrono",
+        "    families = online_route_families(pose, goal, route, original_families,",
+        "               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_online_candidates.py\", line 59, in online_route_families",
+        "    proposals += [locate_reference(reference, pose, f\"fresh_family_{index:02d}\")",
+        "                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_online_candidates.py\", line 27, in locate_reference",
+        "    check_reference_contract(route)",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_diverse_planner.py\", line 33, in check_reference_contract",
+        "    raise ValueError(\"Reference contains a cusp or sharp segment-heading reversal\")",
+        "ValueError: Reference contains a cusp or sharp segment-heading reversal"
+      ],
+      "saved_decision_count": 53,
+      "last_saved_decision": "decision_00052.json",
+      "required_terminal_outputs_present": {
+        "outcome.json": false,
+        "trajectory.npz": false,
+        "rich_telemetry.npz": false,
+        "rich_intervals.npz": false
+      }
+    },
+    {
+      "trial_id": "diverse_v1_val_mixed_obstacles_00_energy002",
+      "exit_code": 1,
+      "result_sha256": "27e216cf4092b2909bd11bd9a8be27618c5c47c6264f18b1df9f57a1cd0bb292",
+      "log_sha256": "f39fe1765bf80a0a7f77130f71d8152e35f0ffbb12b42a3a27056382ce64f9be",
+      "last_log_lines": [
+        "Traceback (most recent call last):",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 594, in <module>",
+        "    main()",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 590, in main",
+        "    run_chrono(args)",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 342, in run_chrono",
+        "    families = online_route_families(pose, goal, route, original_families,",
+        "               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_online_candidates.py\", line 59, in online_route_families",
+        "    proposals += [locate_reference(reference, pose, f\"fresh_family_{index:02d}\")",
+        "                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_online_candidates.py\", line 27, in locate_reference",
+        "    check_reference_contract(route)",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_diverse_planner.py\", line 33, in check_reference_contract",
+        "    raise ValueError(\"Reference contains a cusp or sharp segment-heading reversal\")",
+        "ValueError: Reference contains a cusp or sharp segment-heading reversal"
+      ],
+      "saved_decision_count": 64,
+      "last_saved_decision": "decision_00063.json",
+      "required_terminal_outputs_present": {
+        "outcome.json": false,
+        "trajectory.npz": false,
+        "rich_telemetry.npz": false,
+        "rich_intervals.npz": false
+      }
+    },
+    {
+      "trial_id": "diverse_v1_val_mixed_obstacles_00_energy020",
+      "exit_code": 1,
+      "result_sha256": "f3baa906bff12f948c0426b836f40df735f1db63a08c292b0b7ec67cd7ec486b",
+      "log_sha256": "f39fe1765bf80a0a7f77130f71d8152e35f0ffbb12b42a3a27056382ce64f9be",
+      "last_log_lines": [
+        "Traceback (most recent call last):",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 594, in <module>",
+        "    main()",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 590, in main",
+        "    run_chrono(args)",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 342, in run_chrono",
+        "    families = online_route_families(pose, goal, route, original_families,",
+        "               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_online_candidates.py\", line 59, in online_route_families",
+        "    proposals += [locate_reference(reference, pose, f\"fresh_family_{index:02d}\")",
+        "                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_online_candidates.py\", line 27, in locate_reference",
+        "    check_reference_contract(route)",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_diverse_planner.py\", line 33, in check_reference_contract",
+        "    raise ValueError(\"Reference contains a cusp or sharp segment-heading reversal\")",
+        "ValueError: Reference contains a cusp or sharp segment-heading reversal"
+      ],
+      "saved_decision_count": 136,
+      "last_saved_decision": "decision_00135.json",
+      "required_terminal_outputs_present": {
+        "outcome.json": false,
+        "trajectory.npz": false,
+        "rich_telemetry.npz": false,
+        "rich_intervals.npz": false
+      }
+    },
+    {
+      "trial_id": "diverse_v1_val_mixed_obstacles_00_energy050",
+      "exit_code": 1,
+      "result_sha256": "166d73df56b2cc4915d3e2a31358b5e2988004f3f3c1c1b42f57759df47fb88b",
+      "log_sha256": "f39fe1765bf80a0a7f77130f71d8152e35f0ffbb12b42a3a27056382ce64f9be",
+      "last_log_lines": [
+        "Traceback (most recent call last):",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 594, in <module>",
+        "    main()",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 590, in main",
+        "    run_chrono(args)",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 342, in run_chrono",
+        "    families = online_route_families(pose, goal, route, original_families,",
+        "               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_online_candidates.py\", line 59, in online_route_families",
+        "    proposals += [locate_reference(reference, pose, f\"fresh_family_{index:02d}\")",
+        "                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_online_candidates.py\", line 27, in locate_reference",
+        "    check_reference_contract(route)",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_diverse_planner.py\", line 33, in check_reference_contract",
+        "    raise ValueError(\"Reference contains a cusp or sharp segment-heading reversal\")",
+        "ValueError: Reference contains a cusp or sharp segment-heading reversal"
+      ],
+      "saved_decision_count": 175,
+      "last_saved_decision": "decision_00174.json",
+      "required_terminal_outputs_present": {
+        "outcome.json": false,
+        "trajectory.npz": false,
+        "rich_telemetry.npz": false,
+        "rich_intervals.npz": false
+      }
+    },
+    {
+      "trial_id": "diverse_v1_val_mixed_obstacles_00_time",
+      "exit_code": 1,
+      "result_sha256": "43dbe7355bb47c2ac0123ae3cbdb41beadaea4ae5c709738166e6321b82c1290",
+      "log_sha256": "f39fe1765bf80a0a7f77130f71d8152e35f0ffbb12b42a3a27056382ce64f9be",
+      "last_log_lines": [
+        "Traceback (most recent call last):",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 594, in <module>",
+        "    main()",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 590, in main",
+        "    run_chrono(args)",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 342, in run_chrono",
+        "    families = online_route_families(pose, goal, route, original_families,",
+        "               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_online_candidates.py\", line 59, in online_route_families",
+        "    proposals += [locate_reference(reference, pose, f\"fresh_family_{index:02d}\")",
+        "                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_online_candidates.py\", line 27, in locate_reference",
+        "    check_reference_contract(route)",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_diverse_planner.py\", line 33, in check_reference_contract",
+        "    raise ValueError(\"Reference contains a cusp or sharp segment-heading reversal\")",
+        "ValueError: Reference contains a cusp or sharp segment-heading reversal"
+      ],
+      "saved_decision_count": 65,
+      "last_saved_decision": "decision_00064.json",
+      "required_terminal_outputs_present": {
+        "outcome.json": false,
+        "trajectory.npz": false,
+        "rich_telemetry.npz": false,
+        "rich_intervals.npz": false
+      }
+    },
+    {
+      "trial_id": "diverse_v1_val_ridge_passes_00_energy002",
+      "exit_code": 1,
+      "result_sha256": "6476b54df565960db46b5e10ffa75788edb291bd10dade1a7de9c69f4fd7aa47",
+      "log_sha256": "f39fe1765bf80a0a7f77130f71d8152e35f0ffbb12b42a3a27056382ce64f9be",
+      "last_log_lines": [
+        "Traceback (most recent call last):",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 594, in <module>",
+        "    main()",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 590, in main",
+        "    run_chrono(args)",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 342, in run_chrono",
+        "    families = online_route_families(pose, goal, route, original_families,",
+        "               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_online_candidates.py\", line 59, in online_route_families",
+        "    proposals += [locate_reference(reference, pose, f\"fresh_family_{index:02d}\")",
+        "                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_online_candidates.py\", line 27, in locate_reference",
+        "    check_reference_contract(route)",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_diverse_planner.py\", line 33, in check_reference_contract",
+        "    raise ValueError(\"Reference contains a cusp or sharp segment-heading reversal\")",
+        "ValueError: Reference contains a cusp or sharp segment-heading reversal"
+      ],
+      "saved_decision_count": 68,
+      "last_saved_decision": "decision_00067.json",
+      "required_terminal_outputs_present": {
+        "outcome.json": false,
+        "trajectory.npz": false,
+        "rich_telemetry.npz": false,
+        "rich_intervals.npz": false
+      }
+    },
+    {
+      "trial_id": "diverse_v1_val_ridge_passes_00_energy020",
+      "exit_code": 0,
+      "result_sha256": "215a427de39a2a3b4b4434d5a6d3b127ab8169fab66512e3a056c1547cb7bb74",
+      "log_sha256": "d38ff79ca17128549537e1c74c8b3996e9da66f95bb772418d081fef9386efb4",
+      "last_log_lines": [],
+      "saved_decision_count": 180,
+      "last_saved_decision": "decision_00179.json",
+      "required_terminal_outputs_present": {
+        "outcome.json": true,
+        "trajectory.npz": true,
+        "rich_telemetry.npz": true,
+        "rich_intervals.npz": true
+      }
+    },
+    {
+      "trial_id": "diverse_v1_val_ridge_passes_00_energy050",
+      "exit_code": 0,
+      "result_sha256": "e569d21c435c566ac02cf28c12d192a4c34369b1ee458f9517e4494aa9e20160",
+      "log_sha256": "0cf2eeede061b1d00e0629bc59308c57b30dfdc25273e2796af6aeab69783866",
+      "last_log_lines": [],
+      "saved_decision_count": 180,
+      "last_saved_decision": "decision_00179.json",
+      "required_terminal_outputs_present": {
+        "outcome.json": true,
+        "trajectory.npz": true,
+        "rich_telemetry.npz": true,
+        "rich_intervals.npz": true
+      }
+    },
+    {
+      "trial_id": "diverse_v1_val_ridge_passes_00_time",
+      "exit_code": 0,
+      "result_sha256": "df775cff616e8a52c2b1f4805b0bd1ed085bf74aaa790db6b23ff052966feb80",
+      "log_sha256": "5c8584e0aa742e5afd5026c4ebe9250411f313a6dd4ff1a205aa715b07f8451d",
+      "last_log_lines": [],
+      "saved_decision_count": 180,
+      "last_saved_decision": "decision_00179.json",
+      "required_terminal_outputs_present": {
+        "outcome.json": true,
+        "trajectory.npz": true,
+        "rich_telemetry.npz": true,
+        "rich_intervals.npz": true
+      }
+    },
+    {
+      "trial_id": "diverse_v1_val_rolling_hills_00_energy002",
+      "exit_code": 1,
+      "result_sha256": "2c8aa0a7f74d7c7b4deb4bc1c60af5cf43ef12a1632b059075cf703ccf165e13",
+      "log_sha256": "f39fe1765bf80a0a7f77130f71d8152e35f0ffbb12b42a3a27056382ce64f9be",
+      "last_log_lines": [
+        "Traceback (most recent call last):",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 594, in <module>",
+        "    main()",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 590, in main",
+        "    run_chrono(args)",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 342, in run_chrono",
+        "    families = online_route_families(pose, goal, route, original_families,",
+        "               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_online_candidates.py\", line 59, in online_route_families",
+        "    proposals += [locate_reference(reference, pose, f\"fresh_family_{index:02d}\")",
+        "                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_online_candidates.py\", line 27, in locate_reference",
+        "    check_reference_contract(route)",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_diverse_planner.py\", line 33, in check_reference_contract",
+        "    raise ValueError(\"Reference contains a cusp or sharp segment-heading reversal\")",
+        "ValueError: Reference contains a cusp or sharp segment-heading reversal"
+      ],
+      "saved_decision_count": 47,
+      "last_saved_decision": "decision_00046.json",
+      "required_terminal_outputs_present": {
+        "outcome.json": false,
+        "trajectory.npz": false,
+        "rich_telemetry.npz": false,
+        "rich_intervals.npz": false
+      }
+    },
+    {
+      "trial_id": "diverse_v1_val_rolling_hills_00_energy020",
+      "exit_code": 0,
+      "result_sha256": "c42bc2bae40c29072d132d4dad5d78e8cd976a76d436884e79e919ce7d47d737",
+      "log_sha256": "377c4d5eda0fc150a6a876074a8f233dea2b7c3209a83cc97e50a4185f231123",
+      "last_log_lines": [],
+      "saved_decision_count": 180,
+      "last_saved_decision": "decision_00179.json",
+      "required_terminal_outputs_present": {
+        "outcome.json": true,
+        "trajectory.npz": true,
+        "rich_telemetry.npz": true,
+        "rich_intervals.npz": true
+      }
+    },
+    {
+      "trial_id": "diverse_v1_val_rolling_hills_00_energy050",
+      "exit_code": 0,
+      "result_sha256": "83b91fefea843c8b1486208e90ee382eb0db787947dcc8fc5b433b2a5eb59c8c",
+      "log_sha256": "fb4e10cf295367f9118e764caa0602c8f26c7878ffa2bb15431d5810bd3013ab",
+      "last_log_lines": [],
+      "saved_decision_count": 180,
+      "last_saved_decision": "decision_00179.json",
+      "required_terminal_outputs_present": {
+        "outcome.json": true,
+        "trajectory.npz": true,
+        "rich_telemetry.npz": true,
+        "rich_intervals.npz": true
+      }
+    },
+    {
+      "trial_id": "diverse_v1_val_rolling_hills_00_time",
+      "exit_code": 1,
+      "result_sha256": "f59cd799fa14208f0135edaa8918f76b7406fdef4c0ec489d02d57ccc99fd795",
+      "log_sha256": "f39fe1765bf80a0a7f77130f71d8152e35f0ffbb12b42a3a27056382ce64f9be",
+      "last_log_lines": [
+        "Traceback (most recent call last):",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 594, in <module>",
+        "    main()",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 590, in main",
+        "    run_chrono(args)",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 342, in run_chrono",
+        "    families = online_route_families(pose, goal, route, original_families,",
+        "               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_online_candidates.py\", line 59, in online_route_families",
+        "    proposals += [locate_reference(reference, pose, f\"fresh_family_{index:02d}\")",
+        "                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_online_candidates.py\", line 27, in locate_reference",
+        "    check_reference_contract(route)",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_diverse_planner.py\", line 33, in check_reference_contract",
+        "    raise ValueError(\"Reference contains a cusp or sharp segment-heading reversal\")",
+        "ValueError: Reference contains a cusp or sharp segment-heading reversal"
+      ],
+      "saved_decision_count": 46,
+      "last_saved_decision": "decision_00045.json",
+      "required_terminal_outputs_present": {
+        "outcome.json": false,
+        "trajectory.npz": false,
+        "rich_telemetry.npz": false,
+        "rich_intervals.npz": false
+      }
+    },
+    {
+      "trial_id": "diverse_v1_val_rough_mosaic_00_energy002",
+      "exit_code": 1,
+      "result_sha256": "20845c6b7cbafa1978517098bc91d2a8fed6c851c57f86e8249ef48fc23eb3c2",
+      "log_sha256": "f39fe1765bf80a0a7f77130f71d8152e35f0ffbb12b42a3a27056382ce64f9be",
+      "last_log_lines": [
+        "Traceback (most recent call last):",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 594, in <module>",
+        "    main()",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 590, in main",
+        "    run_chrono(args)",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 342, in run_chrono",
+        "    families = online_route_families(pose, goal, route, original_families,",
+        "               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_online_candidates.py\", line 59, in online_route_families",
+        "    proposals += [locate_reference(reference, pose, f\"fresh_family_{index:02d}\")",
+        "                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_online_candidates.py\", line 27, in locate_reference",
+        "    check_reference_contract(route)",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_diverse_planner.py\", line 33, in check_reference_contract",
+        "    raise ValueError(\"Reference contains a cusp or sharp segment-heading reversal\")",
+        "ValueError: Reference contains a cusp or sharp segment-heading reversal"
+      ],
+      "saved_decision_count": 95,
+      "last_saved_decision": "decision_00094.json",
+      "required_terminal_outputs_present": {
+        "outcome.json": false,
+        "trajectory.npz": false,
+        "rich_telemetry.npz": false,
+        "rich_intervals.npz": false
+      }
+    },
+    {
+      "trial_id": "diverse_v1_val_rough_mosaic_00_energy020",
+      "exit_code": 0,
+      "result_sha256": "1275699b54010011d99ff31b82910e4f1d194f2fada73b3ff0cc4331ecde250f",
+      "log_sha256": "a3ea888edb0a4bc4331195af17f829dfb1a590730e7a92b1aa66d350e3e70fd8",
+      "last_log_lines": [],
+      "saved_decision_count": 180,
+      "last_saved_decision": "decision_00179.json",
+      "required_terminal_outputs_present": {
+        "outcome.json": true,
+        "trajectory.npz": true,
+        "rich_telemetry.npz": true,
+        "rich_intervals.npz": true
+      }
+    },
+    {
+      "trial_id": "diverse_v1_val_rough_mosaic_00_energy050",
+      "exit_code": 0,
+      "result_sha256": "485eee7d5a5c02fd196ef9f9639a8aabb2bc97472f67ca544ddb0569daec36c9",
+      "log_sha256": "c6c4156fcfb2a06b96993cab4198576be0c86f4b170ee5f583fbb3b674a45832",
+      "last_log_lines": [],
+      "saved_decision_count": 180,
+      "last_saved_decision": "decision_00179.json",
+      "required_terminal_outputs_present": {
+        "outcome.json": true,
+        "trajectory.npz": true,
+        "rich_telemetry.npz": true,
+        "rich_intervals.npz": true
+      }
+    },
+    {
+      "trial_id": "diverse_v1_val_rough_mosaic_00_time",
+      "exit_code": 0,
+      "result_sha256": "62dfeb027c62b1d8c006a17703e4d8d0beecea91076600cf85b6a459788fa306",
+      "log_sha256": "8bd956e3d3a467e52dc6b62f657aa2747a7b7b436da7881bc9fe15ca74f897e5",
+      "last_log_lines": [],
+      "saved_decision_count": 180,
+      "last_saved_decision": "decision_00179.json",
+      "required_terminal_outputs_present": {
+        "outcome.json": true,
+        "trajectory.npz": true,
+        "rich_telemetry.npz": true,
+        "rich_intervals.npz": true
+      }
+    },
+    {
+      "trial_id": "diverse_v1_val_valley_network_00_energy002",
+      "exit_code": 1,
+      "result_sha256": "eadbd38207067bfe53fe3af3ec2a0f74c44a8806064544d90f56243dfcebc879",
+      "log_sha256": "f39fe1765bf80a0a7f77130f71d8152e35f0ffbb12b42a3a27056382ce64f9be",
+      "last_log_lines": [
+        "Traceback (most recent call last):",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 594, in <module>",
+        "    main()",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 590, in main",
+        "    run_chrono(args)",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 342, in run_chrono",
+        "    families = online_route_families(pose, goal, route, original_families,",
+        "               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_online_candidates.py\", line 59, in online_route_families",
+        "    proposals += [locate_reference(reference, pose, f\"fresh_family_{index:02d}\")",
+        "                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_online_candidates.py\", line 27, in locate_reference",
+        "    check_reference_contract(route)",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_diverse_planner.py\", line 33, in check_reference_contract",
+        "    raise ValueError(\"Reference contains a cusp or sharp segment-heading reversal\")",
+        "ValueError: Reference contains a cusp or sharp segment-heading reversal"
+      ],
+      "saved_decision_count": 38,
+      "last_saved_decision": "decision_00037.json",
+      "required_terminal_outputs_present": {
+        "outcome.json": false,
+        "trajectory.npz": false,
+        "rich_telemetry.npz": false,
+        "rich_intervals.npz": false
+      }
+    },
+    {
+      "trial_id": "diverse_v1_val_valley_network_00_energy020",
+      "exit_code": 1,
+      "result_sha256": "83042659afbe3a2f9c74696a1f1030b3297a9b0edb2aef933d42c952462b2d48",
+      "log_sha256": "f39fe1765bf80a0a7f77130f71d8152e35f0ffbb12b42a3a27056382ce64f9be",
+      "last_log_lines": [
+        "Traceback (most recent call last):",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 594, in <module>",
+        "    main()",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 590, in main",
+        "    run_chrono(args)",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 342, in run_chrono",
+        "    families = online_route_families(pose, goal, route, original_families,",
+        "               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_online_candidates.py\", line 59, in online_route_families",
+        "    proposals += [locate_reference(reference, pose, f\"fresh_family_{index:02d}\")",
+        "                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_online_candidates.py\", line 27, in locate_reference",
+        "    check_reference_contract(route)",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_diverse_planner.py\", line 33, in check_reference_contract",
+        "    raise ValueError(\"Reference contains a cusp or sharp segment-heading reversal\")",
+        "ValueError: Reference contains a cusp or sharp segment-heading reversal"
+      ],
+      "saved_decision_count": 43,
+      "last_saved_decision": "decision_00042.json",
+      "required_terminal_outputs_present": {
+        "outcome.json": false,
+        "trajectory.npz": false,
+        "rich_telemetry.npz": false,
+        "rich_intervals.npz": false
+      }
+    },
+    {
+      "trial_id": "diverse_v1_val_valley_network_00_energy050",
+      "exit_code": 0,
+      "result_sha256": "092d6d1759c2e05d200af8d070d8c98a3443c3dbf7921fa1cfd2a77820334365",
+      "log_sha256": "30dfe1926608e32f7033fc9cbe8fe9660e8d6be928f5a129daec22fe3e715919",
+      "last_log_lines": [],
+      "saved_decision_count": 180,
+      "last_saved_decision": "decision_00179.json",
+      "required_terminal_outputs_present": {
+        "outcome.json": true,
+        "trajectory.npz": true,
+        "rich_telemetry.npz": true,
+        "rich_intervals.npz": true
+      }
+    },
+    {
+      "trial_id": "diverse_v1_val_valley_network_00_time",
+      "exit_code": 1,
+      "result_sha256": "57bbd446f151e36c050566798616aa51d8dad2e73c20994a31ee029120274610",
+      "log_sha256": "f39fe1765bf80a0a7f77130f71d8152e35f0ffbb12b42a3a27056382ce64f9be",
+      "last_log_lines": [
+        "Traceback (most recent call last):",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 594, in <module>",
+        "    main()",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 590, in main",
+        "    run_chrono(args)",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/scripts/traverse_fdm_rgbd_diverse_online.py\", line 342, in run_chrono",
+        "    families = online_route_families(pose, goal, route, original_families,",
+        "               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_online_candidates.py\", line 59, in online_route_families",
+        "    proposals += [locate_reference(reference, pose, f\"fresh_family_{index:02d}\")",
+        "                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_online_candidates.py\", line 27, in locate_reference",
+        "    check_reference_contract(route)",
+        "  File \"/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v7/src/nedm/traverse/fdm_diverse_planner.py\", line 33, in check_reference_contract",
+        "    raise ValueError(\"Reference contains a cusp or sharp segment-heading reversal\")",
+        "ValueError: Reference contains a cusp or sharp segment-heading reversal"
+      ],
+      "saved_decision_count": 38,
+      "last_saved_decision": "decision_00037.json",
+      "required_terminal_outputs_present": {
+        "outcome.json": false,
+        "trajectory.npz": false,
+        "rich_telemetry.npz": false,
+        "rich_intervals.npz": false
+      }
+    }
+  ],
+  "selection": "blocked_incomplete_or_invalid_grid"
+}

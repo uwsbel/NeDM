@@ -1,0 +1,9 @@
+{
+  "observation_sha256": "1b6da26be293351b33876ad050eedf9d53469647e211b652408c7d67865b7760",
+  "checkpoint_sha256": "0d2dc6cbd4ed36676e5efd1f548e8b4540cf93a488718aab7d0c0b2da4fe6590",
+  "seed": 11,
+  "image_intervention": "blank",
+  "inputs": "saved RGB-D, current pose, causal startup history, elapsed time, goal, geometric references",
+  "forbidden_inputs": "no terrain BMP, asset list, future state/action, physical outcome or simulator construction manifest",
+  "interpretation": "Learned predictions and costs; evaluate the saved references in Chrono for actual outcomes."
+}

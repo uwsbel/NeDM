@@ -1,0 +1,454 @@
+{
+  "scene_count": 32,
+  "all_scene_siblings_equal": true,
+  "rows": [
+    {
+      "cohort": "raw",
+      "scene": "focus_obstacle_train_000",
+      "families": 6,
+      "max_abs_difference": {
+        "state": 0.0,
+        "pose": 0.0,
+        "rgb": 0.0,
+        "depth_m": 0.0,
+        "history": 0.0
+      },
+      "all_exact": true,
+      "rgb_equal": true
+    },
+    {
+      "cohort": "raw",
+      "scene": "focus_obstacle_train_001",
+      "families": 6,
+      "max_abs_difference": {
+        "state": 0.0,
+        "pose": 0.0,
+        "rgb": 0.0,
+        "depth_m": 0.0,
+        "history": 0.0
+      },
+      "all_exact": true,
+      "rgb_equal": true
+    },
+    {
+      "cohort": "raw",
+      "scene": "focus_obstacle_train_002",
+      "families": 6,
+      "max_abs_difference": {
+        "state": 0.0,
+        "pose": 0.0,
+        "rgb": 0.0,
+        "depth_m": 0.0,
+        "history": 0.0
+      },
+      "all_exact": true,
+      "rgb_equal": true
+    },
+    {
+      "cohort": "raw",
+      "scene": "focus_obstacle_train_003",
+      "families": 6,
+      "max_abs_difference": {
+        "state": 0.0,
+        "pose": 0.0,
+        "rgb": 0.0,
+        "depth_m": 0.0,
+        "history": 0.0
+      },
+      "all_exact": true,
+      "rgb_equal": true
+    },
+    {
+      "cohort": "raw",
+      "scene": "focus_obstacle_train_004",
+      "families": 6,
+      "max_abs_difference": {
+        "state": 0.0,
+        "pose": 0.0,
+        "rgb": 0.0,
+        "depth_m": 0.0,
+        "history": 0.0
+      },
+      "all_exact": true,
+      "rgb_equal": true
+    },
+    {
+      "cohort": "raw",
+      "scene": "focus_obstacle_train_005",
+      "families": 6,
+      "max_abs_difference": {
+        "state": 0.0,
+        "pose": 0.0,
+        "rgb": 0.0,
+        "depth_m": 0.0,
+        "history": 0.0
+      },
+      "all_exact": true,
+      "rgb_equal": true
+    },
+    {
+      "cohort": "raw",
+      "scene": "focus_obstacle_train_006",
+      "families": 6,
+      "max_abs_difference": {
+        "state": 0.0,
+        "pose": 0.0,
+        "rgb": 0.0,
+        "depth_m": 0.0,
+        "history": 0.0
+      },
+      "all_exact": true,
+      "rgb_equal": true
+    },
+    {
+      "cohort": "raw",
+      "scene": "focus_obstacle_train_007",
+      "families": 6,
+      "max_abs_difference": {
+        "state": 0.0,
+        "pose": 0.0,
+        "rgb": 0.0,
+        "depth_m": 0.0,
+        "history": 0.0
+      },
+      "all_exact": true,
+      "rgb_equal": true
+    },
+    {
+      "cohort": "raw",
+      "scene": "focus_obstacle_train_008",
+      "families": 6,
+      "max_abs_difference": {
+        "state": 0.0,
+        "pose": 0.0,
+        "rgb": 0.0,
+        "depth_m": 0.0,
+        "history": 0.0
+      },
+      "all_exact": true,
+      "rgb_equal": true
+    },
+    {
+      "cohort": "raw",
+      "scene": "focus_obstacle_train_009",
+      "families": 6,
+      "max_abs_difference": {
+        "state": 0.0,
+        "pose": 0.0,
+        "rgb": 0.0,
+        "depth_m": 0.0,
+        "history": 0.0
+      },
+      "all_exact": true,
+      "rgb_equal": true
+    },
+    {
+      "cohort": "raw",
+      "scene": "focus_obstacle_train_010",
+      "families": 6,
+      "max_abs_difference": {
+        "state": 0.0,
+        "pose": 0.0,
+        "rgb": 0.0,
+        "depth_m": 0.0,
+        "history": 0.0
+      },
+      "all_exact": true,
+      "rgb_equal": true
+    },
+    {
+      "cohort": "raw",
+      "scene": "focus_obstacle_train_011",
+      "families": 6,
+      "max_abs_difference": {
+        "state": 0.0,
+        "pose": 0.0,
+        "rgb": 0.0,
+        "depth_m": 0.0,
+        "history": 0.0
+      },
+      "all_exact": true,
+      "rgb_equal": true
+    },
+    {
+      "cohort": "raw",
+      "scene": "focus_obstacle_train_012",
+      "families": 6,
+      "max_abs_difference": {
+        "state": 0.0,
+        "pose": 0.0,
+        "rgb": 0.0,
+        "depth_m": 0.0,
+        "history": 0.0
+      },
+      "all_exact": true,
+      "rgb_equal": true
+    },
+    {
+      "cohort": "raw",
+      "scene": "focus_obstacle_train_013",
+      "families": 6,
+      "max_abs_difference": {
+        "state": 0.0,
+        "pose": 0.0,
+        "rgb": 0.0,
+        "depth_m": 0.0,
+        "history": 0.0
+      },
+      "all_exact": true,
+      "rgb_equal": true
+    },
+    {
+      "cohort": "raw",
+      "scene": "focus_obstacle_train_014",
+      "families": 6,
+      "max_abs_difference": {
+        "state": 0.0,
+        "pose": 0.0,
+        "rgb": 0.0,
+        "depth_m": 0.0,
+        "history": 0.0
+      },
+      "all_exact": true,
+      "rgb_equal": true
+    },
+    {
+      "cohort": "raw",
+      "scene": "focus_obstacle_train_015",
+      "families": 6,
+      "max_abs_difference": {
+        "state": 0.0,
+        "pose": 0.0,
+        "rgb": 0.0,
+        "depth_m": 0.0,
+        "history": 0.0
+      },
+      "all_exact": true,
+      "rgb_equal": true
+    },
+    {
+      "cohort": "raw",
+      "scene": "focus_obstacle_val_000",
+      "families": 6,
+      "max_abs_difference": {
+        "state": 0.0,
+        "pose": 0.0,
+        "rgb": 0.0,
+        "depth_m": 0.0,
+        "history": 0.0
+      },
+      "all_exact": true,
+      "rgb_equal": true
+    },
+    {
+      "cohort": "raw",
+      "scene": "focus_obstacle_val_001",
+      "families": 6,
+      "max_abs_difference": {
+        "state": 0.0,
+        "pose": 0.0,
+        "rgb": 0.0,
+        "depth_m": 0.0,
+        "history": 0.0
+      },
+      "all_exact": true,
+      "rgb_equal": true
+    },
+    {
+      "cohort": "raw",
+      "scene": "focus_obstacle_val_002",
+      "families": 6,
+      "max_abs_difference": {
+        "state": 0.0,
+        "pose": 0.0,
+        "rgb": 0.0,
+        "depth_m": 0.0,
+        "history": 0.0
+      },
+      "all_exact": true,
+      "rgb_equal": true
+    },
+    {
+      "cohort": "raw",
+      "scene": "focus_obstacle_val_003",
+      "families": 6,
+      "max_abs_difference": {
+        "state": 0.0,
+        "pose": 0.0,
+        "rgb": 0.0,
+        "depth_m": 0.0,
+        "history": 0.0
+      },
+      "all_exact": true,
+      "rgb_equal": true
+    },
+    {
+      "cohort": "terrain_raw",
+      "scene": "focus_terrain_train_000",
+      "families": 6,
+      "max_abs_difference": {
+        "state": 0.0,
+        "pose": 0.0,
+        "rgb": 0.0,
+        "depth_m": 0.0,
+        "history": 0.0
+      },
+      "all_exact": true,
+      "rgb_equal": true
+    },
+    {
+      "cohort": "terrain_raw",
+      "scene": "focus_terrain_train_001",
+      "families": 6,
+      "max_abs_difference": {
+        "state": 0.0,
+        "pose": 0.0,
+        "rgb": 0.0,
+        "depth_m": 0.0,
+        "history": 0.0
+      },
+      "all_exact": true,
+      "rgb_equal": true
+    },
+    {
+      "cohort": "terrain_raw",
+      "scene": "focus_terrain_train_002",
+      "families": 6,
+      "max_abs_difference": {
+        "state": 0.0,
+        "pose": 0.0,
+        "rgb": 0.0,
+        "depth_m": 0.0,
+        "history": 0.0
+      },
+      "all_exact": true,
+      "rgb_equal": true
+    },
+    {
+      "cohort": "terrain_raw",
+      "scene": "focus_terrain_train_003",
+      "families": 6,
+      "max_abs_difference": {
+        "state": 0.0,
+        "pose": 0.0,
+        "rgb": 0.0,
+        "depth_m": 0.0,
+        "history": 0.0
+      },
+      "all_exact": true,
+      "rgb_equal": true
+    },
+    {
+      "cohort": "terrain_raw",
+      "scene": "focus_terrain_train_004",
+      "families": 6,
+      "max_abs_difference": {
+        "state": 0.0,
+        "pose": 0.0,
+        "rgb": 0.0,
+        "depth_m": 0.0,
+        "history": 0.0
+      },
+      "all_exact": true,
+      "rgb_equal": true
+    },
+    {
+      "cohort": "terrain_raw",
+      "scene": "focus_terrain_train_005",
+      "families": 6,
+      "max_abs_difference": {
+        "state": 0.0,
+        "pose": 0.0,
+        "rgb": 0.0,
+        "depth_m": 0.0,
+        "history": 0.0
+      },
+      "all_exact": true,
+      "rgb_equal": true
+    },
+    {
+      "cohort": "terrain_raw",
+      "scene": "focus_terrain_train_006",
+      "families": 6,
+      "max_abs_difference": {
+        "state": 0.0,
+        "pose": 0.0,
+        "rgb": 0.0,
+        "depth_m": 0.0,
+        "history": 0.0
+      },
+      "all_exact": true,
+      "rgb_equal": true
+    },
+    {
+      "cohort": "terrain_raw",
+      "scene": "focus_terrain_train_007",
+      "families": 6,
+      "max_abs_difference": {
+        "state": 0.0,
+        "pose": 0.0,
+        "rgb": 0.0,
+        "depth_m": 0.0,
+        "history": 0.0
+      },
+      "all_exact": true,
+      "rgb_equal": true
+    },
+    {
+      "cohort": "terrain_raw",
+      "scene": "focus_terrain_val_000",
+      "families": 6,
+      "max_abs_difference": {
+        "state": 0.0,
+        "pose": 0.0,
+        "rgb": 0.0,
+        "depth_m": 0.0,
+        "history": 0.0
+      },
+      "all_exact": true,
+      "rgb_equal": true
+    },
+    {
+      "cohort": "terrain_raw",
+      "scene": "focus_terrain_val_001",
+      "families": 6,
+      "max_abs_difference": {
+        "state": 0.0,
+        "pose": 0.0,
+        "rgb": 0.0,
+        "depth_m": 0.0,
+        "history": 0.0
+      },
+      "all_exact": true,
+      "rgb_equal": true
+    },
+    {
+      "cohort": "terrain_raw",
+      "scene": "focus_terrain_val_002",
+      "families": 6,
+      "max_abs_difference": {
+        "state": 0.0,
+        "pose": 0.0,
+        "rgb": 0.0,
+        "depth_m": 0.0,
+        "history": 0.0
+      },
+      "all_exact": true,
+      "rgb_equal": true
+    },
+    {
+      "cohort": "terrain_raw",
+      "scene": "focus_terrain_val_003",
+      "families": 6,
+      "max_abs_difference": {
+        "state": 0.0,
+        "pose": 0.0,
+        "rgb": 0.0,
+        "depth_m": 0.0,
+        "history": 0.0
+      },
+      "all_exact": true,
+      "rgb_equal": true
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "job_id": "412076",
+  "source_snapshot": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2",
+  "adapter_sha256": "494e85478bde7b11774f0f590a34c27a0ddacd0f01e78c06b05444f8f9c8279e",
+  "checker_sha256": "8b14d8d23b0966f38d7352acb4fd4885afb3ab172de3ee2103232b5c2c4e351f",
+  "baseline": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/pilot_checks_v2/rich_headless",
+  "physics_change": "Runner make_driver is replaced only in this process by adapter factory",
+  "update_schedule": "Same reference requested every1s from the0.8s settled start; all updates must be no-ops"
+}

@@ -1,0 +1,1808 @@
+{
+  "scope": "Training reference geometry only, no validation/test outcomes",
+  "count": 360,
+  "max_curvature_inv_m": 0.016668970419020768,
+  "p95_curvature_inv_m": 0.016668970419013707,
+  "rows": [
+    {
+      "scene": "diverse_v1_train_rolling_hills_00",
+      "route": "routes/diverse_v1_train_rolling_hills_00/family_00.json",
+      "maximum_curvature_inv_m": 1.297592072021514e-13
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_00",
+      "route": "routes/diverse_v1_train_rolling_hills_00/family_01.json",
+      "maximum_curvature_inv_m": 1.297592072021514e-13
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_00",
+      "route": "routes/diverse_v1_train_rolling_hills_00/family_02.json",
+      "maximum_curvature_inv_m": 1.297592072021514e-13
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_00",
+      "route": "routes/diverse_v1_train_rolling_hills_00/family_03.json",
+      "maximum_curvature_inv_m": 0.00833475602383101
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_00",
+      "route": "routes/diverse_v1_train_rolling_hills_00/family_04.json",
+      "maximum_curvature_inv_m": 0.00833475602383101
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_00",
+      "route": "routes/diverse_v1_train_rolling_hills_00/family_05.json",
+      "maximum_curvature_inv_m": 0.00833475602383101
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_00",
+      "route": "routes/diverse_v1_train_rolling_hills_00/family_06.json",
+      "maximum_curvature_inv_m": 0.008334756023847466
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_00",
+      "route": "routes/diverse_v1_train_rolling_hills_00/family_07.json",
+      "maximum_curvature_inv_m": 0.008334756023847466
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_00",
+      "route": "routes/diverse_v1_train_rolling_hills_00/family_08.json",
+      "maximum_curvature_inv_m": 0.008334756023847466
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_00",
+      "route": "routes/diverse_v1_train_rolling_hills_00/family_09.json",
+      "maximum_curvature_inv_m": 0.016668970419010002
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_00",
+      "route": "routes/diverse_v1_train_rolling_hills_00/family_10.json",
+      "maximum_curvature_inv_m": 0.016668970419010002
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_00",
+      "route": "routes/diverse_v1_train_rolling_hills_00/family_11.json",
+      "maximum_curvature_inv_m": 0.016668970419010002
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_00",
+      "route": "routes/diverse_v1_train_rolling_hills_00/family_12.json",
+      "maximum_curvature_inv_m": 0.016668970418988932
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_00",
+      "route": "routes/diverse_v1_train_rolling_hills_00/family_13.json",
+      "maximum_curvature_inv_m": 0.016668970418988932
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_00",
+      "route": "routes/diverse_v1_train_rolling_hills_00/family_14.json",
+      "maximum_curvature_inv_m": 0.016668970418988932
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_01",
+      "route": "routes/diverse_v1_train_rolling_hills_01/family_00.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_01",
+      "route": "routes/diverse_v1_train_rolling_hills_01/family_01.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_01",
+      "route": "routes/diverse_v1_train_rolling_hills_01/family_02.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_01",
+      "route": "routes/diverse_v1_train_rolling_hills_01/family_03.json",
+      "maximum_curvature_inv_m": 0.008334756023834503
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_01",
+      "route": "routes/diverse_v1_train_rolling_hills_01/family_04.json",
+      "maximum_curvature_inv_m": 0.008334756023834503
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_01",
+      "route": "routes/diverse_v1_train_rolling_hills_01/family_05.json",
+      "maximum_curvature_inv_m": 0.008334756023834503
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_01",
+      "route": "routes/diverse_v1_train_rolling_hills_01/family_06.json",
+      "maximum_curvature_inv_m": 0.008334756023831654
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_01",
+      "route": "routes/diverse_v1_train_rolling_hills_01/family_07.json",
+      "maximum_curvature_inv_m": 0.008334756023831654
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_01",
+      "route": "routes/diverse_v1_train_rolling_hills_01/family_08.json",
+      "maximum_curvature_inv_m": 0.008334756023831654
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_01",
+      "route": "routes/diverse_v1_train_rolling_hills_01/family_09.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_01",
+      "route": "routes/diverse_v1_train_rolling_hills_01/family_10.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_01",
+      "route": "routes/diverse_v1_train_rolling_hills_01/family_11.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_01",
+      "route": "routes/diverse_v1_train_rolling_hills_01/family_12.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_01",
+      "route": "routes/diverse_v1_train_rolling_hills_01/family_13.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_01",
+      "route": "routes/diverse_v1_train_rolling_hills_01/family_14.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_02",
+      "route": "routes/diverse_v1_train_rolling_hills_02/family_00.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_02",
+      "route": "routes/diverse_v1_train_rolling_hills_02/family_01.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_02",
+      "route": "routes/diverse_v1_train_rolling_hills_02/family_02.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_02",
+      "route": "routes/diverse_v1_train_rolling_hills_02/family_03.json",
+      "maximum_curvature_inv_m": 0.00833475602382207
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_02",
+      "route": "routes/diverse_v1_train_rolling_hills_02/family_04.json",
+      "maximum_curvature_inv_m": 0.00833475602382207
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_02",
+      "route": "routes/diverse_v1_train_rolling_hills_02/family_05.json",
+      "maximum_curvature_inv_m": 0.00833475602382207
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_02",
+      "route": "routes/diverse_v1_train_rolling_hills_02/family_06.json",
+      "maximum_curvature_inv_m": 0.008334756023856516
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_02",
+      "route": "routes/diverse_v1_train_rolling_hills_02/family_07.json",
+      "maximum_curvature_inv_m": 0.008334756023856516
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_02",
+      "route": "routes/diverse_v1_train_rolling_hills_02/family_08.json",
+      "maximum_curvature_inv_m": 0.008334756023856516
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_02",
+      "route": "routes/diverse_v1_train_rolling_hills_02/family_09.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_02",
+      "route": "routes/diverse_v1_train_rolling_hills_02/family_10.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_02",
+      "route": "routes/diverse_v1_train_rolling_hills_02/family_11.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_02",
+      "route": "routes/diverse_v1_train_rolling_hills_02/family_12.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_02",
+      "route": "routes/diverse_v1_train_rolling_hills_02/family_13.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_02",
+      "route": "routes/diverse_v1_train_rolling_hills_02/family_14.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_03",
+      "route": "routes/diverse_v1_train_rolling_hills_03/family_00.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_03",
+      "route": "routes/diverse_v1_train_rolling_hills_03/family_01.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_03",
+      "route": "routes/diverse_v1_train_rolling_hills_03/family_02.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_03",
+      "route": "routes/diverse_v1_train_rolling_hills_03/family_03.json",
+      "maximum_curvature_inv_m": 0.008334756023834503
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_03",
+      "route": "routes/diverse_v1_train_rolling_hills_03/family_04.json",
+      "maximum_curvature_inv_m": 0.008334756023834503
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_03",
+      "route": "routes/diverse_v1_train_rolling_hills_03/family_05.json",
+      "maximum_curvature_inv_m": 0.008334756023834503
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_03",
+      "route": "routes/diverse_v1_train_rolling_hills_03/family_06.json",
+      "maximum_curvature_inv_m": 0.008334756023831654
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_03",
+      "route": "routes/diverse_v1_train_rolling_hills_03/family_07.json",
+      "maximum_curvature_inv_m": 0.008334756023831654
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_03",
+      "route": "routes/diverse_v1_train_rolling_hills_03/family_08.json",
+      "maximum_curvature_inv_m": 0.008334756023831654
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_03",
+      "route": "routes/diverse_v1_train_rolling_hills_03/family_09.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_03",
+      "route": "routes/diverse_v1_train_rolling_hills_03/family_10.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_03",
+      "route": "routes/diverse_v1_train_rolling_hills_03/family_11.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_03",
+      "route": "routes/diverse_v1_train_rolling_hills_03/family_12.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_03",
+      "route": "routes/diverse_v1_train_rolling_hills_03/family_13.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_03",
+      "route": "routes/diverse_v1_train_rolling_hills_03/family_14.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_00",
+      "route": "routes/diverse_v1_train_ridge_passes_00/family_00.json",
+      "maximum_curvature_inv_m": 1.5715900546115557e-13
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_00",
+      "route": "routes/diverse_v1_train_ridge_passes_00/family_01.json",
+      "maximum_curvature_inv_m": 1.5715900546115557e-13
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_00",
+      "route": "routes/diverse_v1_train_ridge_passes_00/family_02.json",
+      "maximum_curvature_inv_m": 1.5715900546115557e-13
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_00",
+      "route": "routes/diverse_v1_train_ridge_passes_00/family_03.json",
+      "maximum_curvature_inv_m": 0.008334756023841485
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_00",
+      "route": "routes/diverse_v1_train_ridge_passes_00/family_04.json",
+      "maximum_curvature_inv_m": 0.008334756023841485
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_00",
+      "route": "routes/diverse_v1_train_ridge_passes_00/family_05.json",
+      "maximum_curvature_inv_m": 0.008334756023841485
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_00",
+      "route": "routes/diverse_v1_train_ridge_passes_00/family_06.json",
+      "maximum_curvature_inv_m": 0.008334756023838525
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_00",
+      "route": "routes/diverse_v1_train_ridge_passes_00/family_07.json",
+      "maximum_curvature_inv_m": 0.008334756023838525
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_00",
+      "route": "routes/diverse_v1_train_ridge_passes_00/family_08.json",
+      "maximum_curvature_inv_m": 0.008334756023838525
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_00",
+      "route": "routes/diverse_v1_train_ridge_passes_00/family_09.json",
+      "maximum_curvature_inv_m": 0.016668970418999125
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_00",
+      "route": "routes/diverse_v1_train_ridge_passes_00/family_10.json",
+      "maximum_curvature_inv_m": 0.016668970418999125
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_00",
+      "route": "routes/diverse_v1_train_ridge_passes_00/family_11.json",
+      "maximum_curvature_inv_m": 0.016668970418999125
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_00",
+      "route": "routes/diverse_v1_train_ridge_passes_00/family_12.json",
+      "maximum_curvature_inv_m": 0.016668970419020768
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_00",
+      "route": "routes/diverse_v1_train_ridge_passes_00/family_13.json",
+      "maximum_curvature_inv_m": 0.016668970419020768
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_00",
+      "route": "routes/diverse_v1_train_ridge_passes_00/family_14.json",
+      "maximum_curvature_inv_m": 0.016668970419020768
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_01",
+      "route": "routes/diverse_v1_train_ridge_passes_01/family_00.json",
+      "maximum_curvature_inv_m": 1.297592072021514e-13
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_01",
+      "route": "routes/diverse_v1_train_ridge_passes_01/family_01.json",
+      "maximum_curvature_inv_m": 1.297592072021514e-13
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_01",
+      "route": "routes/diverse_v1_train_ridge_passes_01/family_02.json",
+      "maximum_curvature_inv_m": 1.297592072021514e-13
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_01",
+      "route": "routes/diverse_v1_train_ridge_passes_01/family_03.json",
+      "maximum_curvature_inv_m": 0.00833475602383101
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_01",
+      "route": "routes/diverse_v1_train_ridge_passes_01/family_04.json",
+      "maximum_curvature_inv_m": 0.00833475602383101
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_01",
+      "route": "routes/diverse_v1_train_ridge_passes_01/family_05.json",
+      "maximum_curvature_inv_m": 0.00833475602383101
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_01",
+      "route": "routes/diverse_v1_train_ridge_passes_01/family_06.json",
+      "maximum_curvature_inv_m": 0.008334756023847466
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_01",
+      "route": "routes/diverse_v1_train_ridge_passes_01/family_07.json",
+      "maximum_curvature_inv_m": 0.008334756023847466
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_01",
+      "route": "routes/diverse_v1_train_ridge_passes_01/family_08.json",
+      "maximum_curvature_inv_m": 0.008334756023847466
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_01",
+      "route": "routes/diverse_v1_train_ridge_passes_01/family_09.json",
+      "maximum_curvature_inv_m": 0.016668970419010002
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_01",
+      "route": "routes/diverse_v1_train_ridge_passes_01/family_10.json",
+      "maximum_curvature_inv_m": 0.016668970419010002
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_01",
+      "route": "routes/diverse_v1_train_ridge_passes_01/family_11.json",
+      "maximum_curvature_inv_m": 0.016668970419010002
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_01",
+      "route": "routes/diverse_v1_train_ridge_passes_01/family_12.json",
+      "maximum_curvature_inv_m": 0.016668970418988932
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_01",
+      "route": "routes/diverse_v1_train_ridge_passes_01/family_13.json",
+      "maximum_curvature_inv_m": 0.016668970418988932
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_01",
+      "route": "routes/diverse_v1_train_ridge_passes_01/family_14.json",
+      "maximum_curvature_inv_m": 0.016668970418988932
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_02",
+      "route": "routes/diverse_v1_train_ridge_passes_02/family_00.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_02",
+      "route": "routes/diverse_v1_train_ridge_passes_02/family_01.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_02",
+      "route": "routes/diverse_v1_train_ridge_passes_02/family_02.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_02",
+      "route": "routes/diverse_v1_train_ridge_passes_02/family_03.json",
+      "maximum_curvature_inv_m": 0.00833475602382207
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_02",
+      "route": "routes/diverse_v1_train_ridge_passes_02/family_04.json",
+      "maximum_curvature_inv_m": 0.00833475602382207
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_02",
+      "route": "routes/diverse_v1_train_ridge_passes_02/family_05.json",
+      "maximum_curvature_inv_m": 0.00833475602382207
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_02",
+      "route": "routes/diverse_v1_train_ridge_passes_02/family_06.json",
+      "maximum_curvature_inv_m": 0.008334756023856516
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_02",
+      "route": "routes/diverse_v1_train_ridge_passes_02/family_07.json",
+      "maximum_curvature_inv_m": 0.008334756023856516
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_02",
+      "route": "routes/diverse_v1_train_ridge_passes_02/family_08.json",
+      "maximum_curvature_inv_m": 0.008334756023856516
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_02",
+      "route": "routes/diverse_v1_train_ridge_passes_02/family_09.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_02",
+      "route": "routes/diverse_v1_train_ridge_passes_02/family_10.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_02",
+      "route": "routes/diverse_v1_train_ridge_passes_02/family_11.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_02",
+      "route": "routes/diverse_v1_train_ridge_passes_02/family_12.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_02",
+      "route": "routes/diverse_v1_train_ridge_passes_02/family_13.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_02",
+      "route": "routes/diverse_v1_train_ridge_passes_02/family_14.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_03",
+      "route": "routes/diverse_v1_train_ridge_passes_03/family_00.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_03",
+      "route": "routes/diverse_v1_train_ridge_passes_03/family_01.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_03",
+      "route": "routes/diverse_v1_train_ridge_passes_03/family_02.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_03",
+      "route": "routes/diverse_v1_train_ridge_passes_03/family_03.json",
+      "maximum_curvature_inv_m": 0.008334756023834503
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_03",
+      "route": "routes/diverse_v1_train_ridge_passes_03/family_04.json",
+      "maximum_curvature_inv_m": 0.008334756023834503
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_03",
+      "route": "routes/diverse_v1_train_ridge_passes_03/family_05.json",
+      "maximum_curvature_inv_m": 0.008334756023834503
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_03",
+      "route": "routes/diverse_v1_train_ridge_passes_03/family_06.json",
+      "maximum_curvature_inv_m": 0.008334756023831654
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_03",
+      "route": "routes/diverse_v1_train_ridge_passes_03/family_07.json",
+      "maximum_curvature_inv_m": 0.008334756023831654
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_03",
+      "route": "routes/diverse_v1_train_ridge_passes_03/family_08.json",
+      "maximum_curvature_inv_m": 0.008334756023831654
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_03",
+      "route": "routes/diverse_v1_train_ridge_passes_03/family_09.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_03",
+      "route": "routes/diverse_v1_train_ridge_passes_03/family_10.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_03",
+      "route": "routes/diverse_v1_train_ridge_passes_03/family_11.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_03",
+      "route": "routes/diverse_v1_train_ridge_passes_03/family_12.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_03",
+      "route": "routes/diverse_v1_train_ridge_passes_03/family_13.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_03",
+      "route": "routes/diverse_v1_train_ridge_passes_03/family_14.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_00",
+      "route": "routes/diverse_v1_train_cross_slopes_00/family_00.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_00",
+      "route": "routes/diverse_v1_train_cross_slopes_00/family_01.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_00",
+      "route": "routes/diverse_v1_train_cross_slopes_00/family_02.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_00",
+      "route": "routes/diverse_v1_train_cross_slopes_00/family_03.json",
+      "maximum_curvature_inv_m": 0.00833475602382207
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_00",
+      "route": "routes/diverse_v1_train_cross_slopes_00/family_04.json",
+      "maximum_curvature_inv_m": 0.00833475602382207
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_00",
+      "route": "routes/diverse_v1_train_cross_slopes_00/family_05.json",
+      "maximum_curvature_inv_m": 0.00833475602382207
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_00",
+      "route": "routes/diverse_v1_train_cross_slopes_00/family_06.json",
+      "maximum_curvature_inv_m": 0.008334756023856516
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_00",
+      "route": "routes/diverse_v1_train_cross_slopes_00/family_07.json",
+      "maximum_curvature_inv_m": 0.008334756023856516
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_00",
+      "route": "routes/diverse_v1_train_cross_slopes_00/family_08.json",
+      "maximum_curvature_inv_m": 0.008334756023856516
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_00",
+      "route": "routes/diverse_v1_train_cross_slopes_00/family_09.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_00",
+      "route": "routes/diverse_v1_train_cross_slopes_00/family_10.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_00",
+      "route": "routes/diverse_v1_train_cross_slopes_00/family_11.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_00",
+      "route": "routes/diverse_v1_train_cross_slopes_00/family_12.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_00",
+      "route": "routes/diverse_v1_train_cross_slopes_00/family_13.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_00",
+      "route": "routes/diverse_v1_train_cross_slopes_00/family_14.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_01",
+      "route": "routes/diverse_v1_train_cross_slopes_01/family_00.json",
+      "maximum_curvature_inv_m": 1.297592072021514e-13
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_01",
+      "route": "routes/diverse_v1_train_cross_slopes_01/family_01.json",
+      "maximum_curvature_inv_m": 1.297592072021514e-13
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_01",
+      "route": "routes/diverse_v1_train_cross_slopes_01/family_02.json",
+      "maximum_curvature_inv_m": 1.297592072021514e-13
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_01",
+      "route": "routes/diverse_v1_train_cross_slopes_01/family_03.json",
+      "maximum_curvature_inv_m": 0.00833475602383101
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_01",
+      "route": "routes/diverse_v1_train_cross_slopes_01/family_04.json",
+      "maximum_curvature_inv_m": 0.00833475602383101
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_01",
+      "route": "routes/diverse_v1_train_cross_slopes_01/family_05.json",
+      "maximum_curvature_inv_m": 0.00833475602383101
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_01",
+      "route": "routes/diverse_v1_train_cross_slopes_01/family_06.json",
+      "maximum_curvature_inv_m": 0.008334756023847466
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_01",
+      "route": "routes/diverse_v1_train_cross_slopes_01/family_07.json",
+      "maximum_curvature_inv_m": 0.008334756023847466
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_01",
+      "route": "routes/diverse_v1_train_cross_slopes_01/family_08.json",
+      "maximum_curvature_inv_m": 0.008334756023847466
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_01",
+      "route": "routes/diverse_v1_train_cross_slopes_01/family_09.json",
+      "maximum_curvature_inv_m": 0.016668970419010002
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_01",
+      "route": "routes/diverse_v1_train_cross_slopes_01/family_10.json",
+      "maximum_curvature_inv_m": 0.016668970419010002
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_01",
+      "route": "routes/diverse_v1_train_cross_slopes_01/family_11.json",
+      "maximum_curvature_inv_m": 0.016668970419010002
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_01",
+      "route": "routes/diverse_v1_train_cross_slopes_01/family_12.json",
+      "maximum_curvature_inv_m": 0.016668970418988932
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_01",
+      "route": "routes/diverse_v1_train_cross_slopes_01/family_13.json",
+      "maximum_curvature_inv_m": 0.016668970418988932
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_01",
+      "route": "routes/diverse_v1_train_cross_slopes_01/family_14.json",
+      "maximum_curvature_inv_m": 0.016668970418988932
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_02",
+      "route": "routes/diverse_v1_train_cross_slopes_02/family_00.json",
+      "maximum_curvature_inv_m": 1.5715900546115557e-13
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_02",
+      "route": "routes/diverse_v1_train_cross_slopes_02/family_01.json",
+      "maximum_curvature_inv_m": 1.5715900546115557e-13
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_02",
+      "route": "routes/diverse_v1_train_cross_slopes_02/family_02.json",
+      "maximum_curvature_inv_m": 1.5715900546115557e-13
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_02",
+      "route": "routes/diverse_v1_train_cross_slopes_02/family_03.json",
+      "maximum_curvature_inv_m": 0.008334756023841485
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_02",
+      "route": "routes/diverse_v1_train_cross_slopes_02/family_04.json",
+      "maximum_curvature_inv_m": 0.008334756023841485
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_02",
+      "route": "routes/diverse_v1_train_cross_slopes_02/family_05.json",
+      "maximum_curvature_inv_m": 0.008334756023841485
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_02",
+      "route": "routes/diverse_v1_train_cross_slopes_02/family_06.json",
+      "maximum_curvature_inv_m": 0.008334756023838525
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_02",
+      "route": "routes/diverse_v1_train_cross_slopes_02/family_07.json",
+      "maximum_curvature_inv_m": 0.008334756023838525
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_02",
+      "route": "routes/diverse_v1_train_cross_slopes_02/family_08.json",
+      "maximum_curvature_inv_m": 0.008334756023838525
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_02",
+      "route": "routes/diverse_v1_train_cross_slopes_02/family_09.json",
+      "maximum_curvature_inv_m": 0.016668970418999125
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_02",
+      "route": "routes/diverse_v1_train_cross_slopes_02/family_10.json",
+      "maximum_curvature_inv_m": 0.016668970418999125
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_02",
+      "route": "routes/diverse_v1_train_cross_slopes_02/family_11.json",
+      "maximum_curvature_inv_m": 0.016668970418999125
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_02",
+      "route": "routes/diverse_v1_train_cross_slopes_02/family_12.json",
+      "maximum_curvature_inv_m": 0.016668970419020768
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_02",
+      "route": "routes/diverse_v1_train_cross_slopes_02/family_13.json",
+      "maximum_curvature_inv_m": 0.016668970419020768
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_02",
+      "route": "routes/diverse_v1_train_cross_slopes_02/family_14.json",
+      "maximum_curvature_inv_m": 0.016668970419020768
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_03",
+      "route": "routes/diverse_v1_train_cross_slopes_03/family_00.json",
+      "maximum_curvature_inv_m": 1.297592072021514e-13
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_03",
+      "route": "routes/diverse_v1_train_cross_slopes_03/family_01.json",
+      "maximum_curvature_inv_m": 1.297592072021514e-13
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_03",
+      "route": "routes/diverse_v1_train_cross_slopes_03/family_02.json",
+      "maximum_curvature_inv_m": 1.297592072021514e-13
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_03",
+      "route": "routes/diverse_v1_train_cross_slopes_03/family_03.json",
+      "maximum_curvature_inv_m": 0.00833475602383101
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_03",
+      "route": "routes/diverse_v1_train_cross_slopes_03/family_04.json",
+      "maximum_curvature_inv_m": 0.00833475602383101
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_03",
+      "route": "routes/diverse_v1_train_cross_slopes_03/family_05.json",
+      "maximum_curvature_inv_m": 0.00833475602383101
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_03",
+      "route": "routes/diverse_v1_train_cross_slopes_03/family_06.json",
+      "maximum_curvature_inv_m": 0.008334756023847466
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_03",
+      "route": "routes/diverse_v1_train_cross_slopes_03/family_07.json",
+      "maximum_curvature_inv_m": 0.008334756023847466
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_03",
+      "route": "routes/diverse_v1_train_cross_slopes_03/family_08.json",
+      "maximum_curvature_inv_m": 0.008334756023847466
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_03",
+      "route": "routes/diverse_v1_train_cross_slopes_03/family_09.json",
+      "maximum_curvature_inv_m": 0.016668970419010002
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_03",
+      "route": "routes/diverse_v1_train_cross_slopes_03/family_10.json",
+      "maximum_curvature_inv_m": 0.016668970419010002
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_03",
+      "route": "routes/diverse_v1_train_cross_slopes_03/family_11.json",
+      "maximum_curvature_inv_m": 0.016668970419010002
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_03",
+      "route": "routes/diverse_v1_train_cross_slopes_03/family_12.json",
+      "maximum_curvature_inv_m": 0.016668970418988932
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_03",
+      "route": "routes/diverse_v1_train_cross_slopes_03/family_13.json",
+      "maximum_curvature_inv_m": 0.016668970418988932
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_03",
+      "route": "routes/diverse_v1_train_cross_slopes_03/family_14.json",
+      "maximum_curvature_inv_m": 0.016668970418988932
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_00",
+      "route": "routes/diverse_v1_train_valley_network_00/family_00.json",
+      "maximum_curvature_inv_m": 1.5715900546115557e-13
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_00",
+      "route": "routes/diverse_v1_train_valley_network_00/family_01.json",
+      "maximum_curvature_inv_m": 1.5715900546115557e-13
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_00",
+      "route": "routes/diverse_v1_train_valley_network_00/family_02.json",
+      "maximum_curvature_inv_m": 1.5715900546115557e-13
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_00",
+      "route": "routes/diverse_v1_train_valley_network_00/family_03.json",
+      "maximum_curvature_inv_m": 0.008334756023841485
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_00",
+      "route": "routes/diverse_v1_train_valley_network_00/family_04.json",
+      "maximum_curvature_inv_m": 0.008334756023841485
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_00",
+      "route": "routes/diverse_v1_train_valley_network_00/family_05.json",
+      "maximum_curvature_inv_m": 0.008334756023841485
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_00",
+      "route": "routes/diverse_v1_train_valley_network_00/family_06.json",
+      "maximum_curvature_inv_m": 0.008334756023838525
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_00",
+      "route": "routes/diverse_v1_train_valley_network_00/family_07.json",
+      "maximum_curvature_inv_m": 0.008334756023838525
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_00",
+      "route": "routes/diverse_v1_train_valley_network_00/family_08.json",
+      "maximum_curvature_inv_m": 0.008334756023838525
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_00",
+      "route": "routes/diverse_v1_train_valley_network_00/family_09.json",
+      "maximum_curvature_inv_m": 0.016668970418999125
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_00",
+      "route": "routes/diverse_v1_train_valley_network_00/family_10.json",
+      "maximum_curvature_inv_m": 0.016668970418999125
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_00",
+      "route": "routes/diverse_v1_train_valley_network_00/family_11.json",
+      "maximum_curvature_inv_m": 0.016668970418999125
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_00",
+      "route": "routes/diverse_v1_train_valley_network_00/family_12.json",
+      "maximum_curvature_inv_m": 0.016668970419020768
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_00",
+      "route": "routes/diverse_v1_train_valley_network_00/family_13.json",
+      "maximum_curvature_inv_m": 0.016668970419020768
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_00",
+      "route": "routes/diverse_v1_train_valley_network_00/family_14.json",
+      "maximum_curvature_inv_m": 0.016668970419020768
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_01",
+      "route": "routes/diverse_v1_train_valley_network_01/family_00.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_01",
+      "route": "routes/diverse_v1_train_valley_network_01/family_01.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_01",
+      "route": "routes/diverse_v1_train_valley_network_01/family_02.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_01",
+      "route": "routes/diverse_v1_train_valley_network_01/family_03.json",
+      "maximum_curvature_inv_m": 0.00833475602382207
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_01",
+      "route": "routes/diverse_v1_train_valley_network_01/family_04.json",
+      "maximum_curvature_inv_m": 0.00833475602382207
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_01",
+      "route": "routes/diverse_v1_train_valley_network_01/family_05.json",
+      "maximum_curvature_inv_m": 0.00833475602382207
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_01",
+      "route": "routes/diverse_v1_train_valley_network_01/family_06.json",
+      "maximum_curvature_inv_m": 0.008334756023856516
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_01",
+      "route": "routes/diverse_v1_train_valley_network_01/family_07.json",
+      "maximum_curvature_inv_m": 0.008334756023856516
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_01",
+      "route": "routes/diverse_v1_train_valley_network_01/family_08.json",
+      "maximum_curvature_inv_m": 0.008334756023856516
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_01",
+      "route": "routes/diverse_v1_train_valley_network_01/family_09.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_01",
+      "route": "routes/diverse_v1_train_valley_network_01/family_10.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_01",
+      "route": "routes/diverse_v1_train_valley_network_01/family_11.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_01",
+      "route": "routes/diverse_v1_train_valley_network_01/family_12.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_01",
+      "route": "routes/diverse_v1_train_valley_network_01/family_13.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_01",
+      "route": "routes/diverse_v1_train_valley_network_01/family_14.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_02",
+      "route": "routes/diverse_v1_train_valley_network_02/family_00.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_02",
+      "route": "routes/diverse_v1_train_valley_network_02/family_01.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_02",
+      "route": "routes/diverse_v1_train_valley_network_02/family_02.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_02",
+      "route": "routes/diverse_v1_train_valley_network_02/family_03.json",
+      "maximum_curvature_inv_m": 0.008334756023834503
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_02",
+      "route": "routes/diverse_v1_train_valley_network_02/family_04.json",
+      "maximum_curvature_inv_m": 0.008334756023834503
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_02",
+      "route": "routes/diverse_v1_train_valley_network_02/family_05.json",
+      "maximum_curvature_inv_m": 0.008334756023834503
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_02",
+      "route": "routes/diverse_v1_train_valley_network_02/family_06.json",
+      "maximum_curvature_inv_m": 0.008334756023831654
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_02",
+      "route": "routes/diverse_v1_train_valley_network_02/family_07.json",
+      "maximum_curvature_inv_m": 0.008334756023831654
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_02",
+      "route": "routes/diverse_v1_train_valley_network_02/family_08.json",
+      "maximum_curvature_inv_m": 0.008334756023831654
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_02",
+      "route": "routes/diverse_v1_train_valley_network_02/family_09.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_02",
+      "route": "routes/diverse_v1_train_valley_network_02/family_10.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_02",
+      "route": "routes/diverse_v1_train_valley_network_02/family_11.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_02",
+      "route": "routes/diverse_v1_train_valley_network_02/family_12.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_02",
+      "route": "routes/diverse_v1_train_valley_network_02/family_13.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_02",
+      "route": "routes/diverse_v1_train_valley_network_02/family_14.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_03",
+      "route": "routes/diverse_v1_train_valley_network_03/family_00.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_03",
+      "route": "routes/diverse_v1_train_valley_network_03/family_01.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_03",
+      "route": "routes/diverse_v1_train_valley_network_03/family_02.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_03",
+      "route": "routes/diverse_v1_train_valley_network_03/family_03.json",
+      "maximum_curvature_inv_m": 0.00833475602382207
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_03",
+      "route": "routes/diverse_v1_train_valley_network_03/family_04.json",
+      "maximum_curvature_inv_m": 0.00833475602382207
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_03",
+      "route": "routes/diverse_v1_train_valley_network_03/family_05.json",
+      "maximum_curvature_inv_m": 0.00833475602382207
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_03",
+      "route": "routes/diverse_v1_train_valley_network_03/family_06.json",
+      "maximum_curvature_inv_m": 0.008334756023856516
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_03",
+      "route": "routes/diverse_v1_train_valley_network_03/family_07.json",
+      "maximum_curvature_inv_m": 0.008334756023856516
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_03",
+      "route": "routes/diverse_v1_train_valley_network_03/family_08.json",
+      "maximum_curvature_inv_m": 0.008334756023856516
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_03",
+      "route": "routes/diverse_v1_train_valley_network_03/family_09.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_03",
+      "route": "routes/diverse_v1_train_valley_network_03/family_10.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_03",
+      "route": "routes/diverse_v1_train_valley_network_03/family_11.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_03",
+      "route": "routes/diverse_v1_train_valley_network_03/family_12.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_03",
+      "route": "routes/diverse_v1_train_valley_network_03/family_13.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_03",
+      "route": "routes/diverse_v1_train_valley_network_03/family_14.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_00",
+      "route": "routes/diverse_v1_train_rough_mosaic_00/family_00.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_00",
+      "route": "routes/diverse_v1_train_rough_mosaic_00/family_01.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_00",
+      "route": "routes/diverse_v1_train_rough_mosaic_00/family_02.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_00",
+      "route": "routes/diverse_v1_train_rough_mosaic_00/family_03.json",
+      "maximum_curvature_inv_m": 0.008334756023834503
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_00",
+      "route": "routes/diverse_v1_train_rough_mosaic_00/family_04.json",
+      "maximum_curvature_inv_m": 0.008334756023834503
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_00",
+      "route": "routes/diverse_v1_train_rough_mosaic_00/family_05.json",
+      "maximum_curvature_inv_m": 0.008334756023834503
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_00",
+      "route": "routes/diverse_v1_train_rough_mosaic_00/family_06.json",
+      "maximum_curvature_inv_m": 0.008334756023831654
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_00",
+      "route": "routes/diverse_v1_train_rough_mosaic_00/family_07.json",
+      "maximum_curvature_inv_m": 0.008334756023831654
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_00",
+      "route": "routes/diverse_v1_train_rough_mosaic_00/family_08.json",
+      "maximum_curvature_inv_m": 0.008334756023831654
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_00",
+      "route": "routes/diverse_v1_train_rough_mosaic_00/family_09.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_00",
+      "route": "routes/diverse_v1_train_rough_mosaic_00/family_10.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_00",
+      "route": "routes/diverse_v1_train_rough_mosaic_00/family_11.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_00",
+      "route": "routes/diverse_v1_train_rough_mosaic_00/family_12.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_00",
+      "route": "routes/diverse_v1_train_rough_mosaic_00/family_13.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_00",
+      "route": "routes/diverse_v1_train_rough_mosaic_00/family_14.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_01",
+      "route": "routes/diverse_v1_train_rough_mosaic_01/family_00.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_01",
+      "route": "routes/diverse_v1_train_rough_mosaic_01/family_01.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_01",
+      "route": "routes/diverse_v1_train_rough_mosaic_01/family_02.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_01",
+      "route": "routes/diverse_v1_train_rough_mosaic_01/family_03.json",
+      "maximum_curvature_inv_m": 0.00833475602382207
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_01",
+      "route": "routes/diverse_v1_train_rough_mosaic_01/family_04.json",
+      "maximum_curvature_inv_m": 0.00833475602382207
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_01",
+      "route": "routes/diverse_v1_train_rough_mosaic_01/family_05.json",
+      "maximum_curvature_inv_m": 0.00833475602382207
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_01",
+      "route": "routes/diverse_v1_train_rough_mosaic_01/family_06.json",
+      "maximum_curvature_inv_m": 0.008334756023856516
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_01",
+      "route": "routes/diverse_v1_train_rough_mosaic_01/family_07.json",
+      "maximum_curvature_inv_m": 0.008334756023856516
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_01",
+      "route": "routes/diverse_v1_train_rough_mosaic_01/family_08.json",
+      "maximum_curvature_inv_m": 0.008334756023856516
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_01",
+      "route": "routes/diverse_v1_train_rough_mosaic_01/family_09.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_01",
+      "route": "routes/diverse_v1_train_rough_mosaic_01/family_10.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_01",
+      "route": "routes/diverse_v1_train_rough_mosaic_01/family_11.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_01",
+      "route": "routes/diverse_v1_train_rough_mosaic_01/family_12.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_01",
+      "route": "routes/diverse_v1_train_rough_mosaic_01/family_13.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_01",
+      "route": "routes/diverse_v1_train_rough_mosaic_01/family_14.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_02",
+      "route": "routes/diverse_v1_train_rough_mosaic_02/family_00.json",
+      "maximum_curvature_inv_m": 1.5715900546115557e-13
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_02",
+      "route": "routes/diverse_v1_train_rough_mosaic_02/family_01.json",
+      "maximum_curvature_inv_m": 1.5715900546115557e-13
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_02",
+      "route": "routes/diverse_v1_train_rough_mosaic_02/family_02.json",
+      "maximum_curvature_inv_m": 1.5715900546115557e-13
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_02",
+      "route": "routes/diverse_v1_train_rough_mosaic_02/family_03.json",
+      "maximum_curvature_inv_m": 0.008334756023841485
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_02",
+      "route": "routes/diverse_v1_train_rough_mosaic_02/family_04.json",
+      "maximum_curvature_inv_m": 0.008334756023841485
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_02",
+      "route": "routes/diverse_v1_train_rough_mosaic_02/family_05.json",
+      "maximum_curvature_inv_m": 0.008334756023841485
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_02",
+      "route": "routes/diverse_v1_train_rough_mosaic_02/family_06.json",
+      "maximum_curvature_inv_m": 0.008334756023838525
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_02",
+      "route": "routes/diverse_v1_train_rough_mosaic_02/family_07.json",
+      "maximum_curvature_inv_m": 0.008334756023838525
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_02",
+      "route": "routes/diverse_v1_train_rough_mosaic_02/family_08.json",
+      "maximum_curvature_inv_m": 0.008334756023838525
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_02",
+      "route": "routes/diverse_v1_train_rough_mosaic_02/family_09.json",
+      "maximum_curvature_inv_m": 0.016668970418999125
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_02",
+      "route": "routes/diverse_v1_train_rough_mosaic_02/family_10.json",
+      "maximum_curvature_inv_m": 0.016668970418999125
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_02",
+      "route": "routes/diverse_v1_train_rough_mosaic_02/family_11.json",
+      "maximum_curvature_inv_m": 0.016668970418999125
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_02",
+      "route": "routes/diverse_v1_train_rough_mosaic_02/family_12.json",
+      "maximum_curvature_inv_m": 0.016668970419020768
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_02",
+      "route": "routes/diverse_v1_train_rough_mosaic_02/family_13.json",
+      "maximum_curvature_inv_m": 0.016668970419020768
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_02",
+      "route": "routes/diverse_v1_train_rough_mosaic_02/family_14.json",
+      "maximum_curvature_inv_m": 0.016668970419020768
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_03",
+      "route": "routes/diverse_v1_train_rough_mosaic_03/family_00.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_03",
+      "route": "routes/diverse_v1_train_rough_mosaic_03/family_01.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_03",
+      "route": "routes/diverse_v1_train_rough_mosaic_03/family_02.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_03",
+      "route": "routes/diverse_v1_train_rough_mosaic_03/family_03.json",
+      "maximum_curvature_inv_m": 0.00833475602382207
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_03",
+      "route": "routes/diverse_v1_train_rough_mosaic_03/family_04.json",
+      "maximum_curvature_inv_m": 0.00833475602382207
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_03",
+      "route": "routes/diverse_v1_train_rough_mosaic_03/family_05.json",
+      "maximum_curvature_inv_m": 0.00833475602382207
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_03",
+      "route": "routes/diverse_v1_train_rough_mosaic_03/family_06.json",
+      "maximum_curvature_inv_m": 0.008334756023856516
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_03",
+      "route": "routes/diverse_v1_train_rough_mosaic_03/family_07.json",
+      "maximum_curvature_inv_m": 0.008334756023856516
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_03",
+      "route": "routes/diverse_v1_train_rough_mosaic_03/family_08.json",
+      "maximum_curvature_inv_m": 0.008334756023856516
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_03",
+      "route": "routes/diverse_v1_train_rough_mosaic_03/family_09.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_03",
+      "route": "routes/diverse_v1_train_rough_mosaic_03/family_10.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_03",
+      "route": "routes/diverse_v1_train_rough_mosaic_03/family_11.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_03",
+      "route": "routes/diverse_v1_train_rough_mosaic_03/family_12.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_03",
+      "route": "routes/diverse_v1_train_rough_mosaic_03/family_13.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_03",
+      "route": "routes/diverse_v1_train_rough_mosaic_03/family_14.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_00",
+      "route": "routes/diverse_v1_train_mixed_obstacles_00/family_00.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_00",
+      "route": "routes/diverse_v1_train_mixed_obstacles_00/family_01.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_00",
+      "route": "routes/diverse_v1_train_mixed_obstacles_00/family_02.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_00",
+      "route": "routes/diverse_v1_train_mixed_obstacles_00/family_03.json",
+      "maximum_curvature_inv_m": 0.008334756023834503
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_00",
+      "route": "routes/diverse_v1_train_mixed_obstacles_00/family_04.json",
+      "maximum_curvature_inv_m": 0.008334756023834503
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_00",
+      "route": "routes/diverse_v1_train_mixed_obstacles_00/family_05.json",
+      "maximum_curvature_inv_m": 0.008334756023834503
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_00",
+      "route": "routes/diverse_v1_train_mixed_obstacles_00/family_06.json",
+      "maximum_curvature_inv_m": 0.008334756023831654
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_00",
+      "route": "routes/diverse_v1_train_mixed_obstacles_00/family_07.json",
+      "maximum_curvature_inv_m": 0.008334756023831654
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_00",
+      "route": "routes/diverse_v1_train_mixed_obstacles_00/family_08.json",
+      "maximum_curvature_inv_m": 0.008334756023831654
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_00",
+      "route": "routes/diverse_v1_train_mixed_obstacles_00/family_09.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_00",
+      "route": "routes/diverse_v1_train_mixed_obstacles_00/family_10.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_00",
+      "route": "routes/diverse_v1_train_mixed_obstacles_00/family_11.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_00",
+      "route": "routes/diverse_v1_train_mixed_obstacles_00/family_12.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_00",
+      "route": "routes/diverse_v1_train_mixed_obstacles_00/family_13.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_00",
+      "route": "routes/diverse_v1_train_mixed_obstacles_00/family_14.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_01",
+      "route": "routes/diverse_v1_train_mixed_obstacles_01/family_00.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_01",
+      "route": "routes/diverse_v1_train_mixed_obstacles_01/family_01.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_01",
+      "route": "routes/diverse_v1_train_mixed_obstacles_01/family_02.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_01",
+      "route": "routes/diverse_v1_train_mixed_obstacles_01/family_03.json",
+      "maximum_curvature_inv_m": 0.00833475602382207
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_01",
+      "route": "routes/diverse_v1_train_mixed_obstacles_01/family_04.json",
+      "maximum_curvature_inv_m": 0.00833475602382207
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_01",
+      "route": "routes/diverse_v1_train_mixed_obstacles_01/family_05.json",
+      "maximum_curvature_inv_m": 0.00833475602382207
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_01",
+      "route": "routes/diverse_v1_train_mixed_obstacles_01/family_06.json",
+      "maximum_curvature_inv_m": 0.008334756023856516
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_01",
+      "route": "routes/diverse_v1_train_mixed_obstacles_01/family_07.json",
+      "maximum_curvature_inv_m": 0.008334756023856516
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_01",
+      "route": "routes/diverse_v1_train_mixed_obstacles_01/family_08.json",
+      "maximum_curvature_inv_m": 0.008334756023856516
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_01",
+      "route": "routes/diverse_v1_train_mixed_obstacles_01/family_09.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_01",
+      "route": "routes/diverse_v1_train_mixed_obstacles_01/family_10.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_01",
+      "route": "routes/diverse_v1_train_mixed_obstacles_01/family_11.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_01",
+      "route": "routes/diverse_v1_train_mixed_obstacles_01/family_12.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_01",
+      "route": "routes/diverse_v1_train_mixed_obstacles_01/family_13.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_01",
+      "route": "routes/diverse_v1_train_mixed_obstacles_01/family_14.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_02",
+      "route": "routes/diverse_v1_train_mixed_obstacles_02/family_00.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_02",
+      "route": "routes/diverse_v1_train_mixed_obstacles_02/family_01.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_02",
+      "route": "routes/diverse_v1_train_mixed_obstacles_02/family_02.json",
+      "maximum_curvature_inv_m": 1.8467018501388107e-13
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_02",
+      "route": "routes/diverse_v1_train_mixed_obstacles_02/family_03.json",
+      "maximum_curvature_inv_m": 0.00833475602382207
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_02",
+      "route": "routes/diverse_v1_train_mixed_obstacles_02/family_04.json",
+      "maximum_curvature_inv_m": 0.00833475602382207
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_02",
+      "route": "routes/diverse_v1_train_mixed_obstacles_02/family_05.json",
+      "maximum_curvature_inv_m": 0.00833475602382207
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_02",
+      "route": "routes/diverse_v1_train_mixed_obstacles_02/family_06.json",
+      "maximum_curvature_inv_m": 0.008334756023856516
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_02",
+      "route": "routes/diverse_v1_train_mixed_obstacles_02/family_07.json",
+      "maximum_curvature_inv_m": 0.008334756023856516
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_02",
+      "route": "routes/diverse_v1_train_mixed_obstacles_02/family_08.json",
+      "maximum_curvature_inv_m": 0.008334756023856516
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_02",
+      "route": "routes/diverse_v1_train_mixed_obstacles_02/family_09.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_02",
+      "route": "routes/diverse_v1_train_mixed_obstacles_02/family_10.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_02",
+      "route": "routes/diverse_v1_train_mixed_obstacles_02/family_11.json",
+      "maximum_curvature_inv_m": 0.016668970418992176
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_02",
+      "route": "routes/diverse_v1_train_mixed_obstacles_02/family_12.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_02",
+      "route": "routes/diverse_v1_train_mixed_obstacles_02/family_13.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_02",
+      "route": "routes/diverse_v1_train_mixed_obstacles_02/family_14.json",
+      "maximum_curvature_inv_m": 0.016668970419013707
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_03",
+      "route": "routes/diverse_v1_train_mixed_obstacles_03/family_00.json",
+      "maximum_curvature_inv_m": 1.5715900546115557e-13
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_03",
+      "route": "routes/diverse_v1_train_mixed_obstacles_03/family_01.json",
+      "maximum_curvature_inv_m": 1.5715900546115557e-13
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_03",
+      "route": "routes/diverse_v1_train_mixed_obstacles_03/family_02.json",
+      "maximum_curvature_inv_m": 1.5715900546115557e-13
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_03",
+      "route": "routes/diverse_v1_train_mixed_obstacles_03/family_03.json",
+      "maximum_curvature_inv_m": 0.008334756023841485
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_03",
+      "route": "routes/diverse_v1_train_mixed_obstacles_03/family_04.json",
+      "maximum_curvature_inv_m": 0.008334756023841485
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_03",
+      "route": "routes/diverse_v1_train_mixed_obstacles_03/family_05.json",
+      "maximum_curvature_inv_m": 0.008334756023841485
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_03",
+      "route": "routes/diverse_v1_train_mixed_obstacles_03/family_06.json",
+      "maximum_curvature_inv_m": 0.008334756023838525
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_03",
+      "route": "routes/diverse_v1_train_mixed_obstacles_03/family_07.json",
+      "maximum_curvature_inv_m": 0.008334756023838525
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_03",
+      "route": "routes/diverse_v1_train_mixed_obstacles_03/family_08.json",
+      "maximum_curvature_inv_m": 0.008334756023838525
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_03",
+      "route": "routes/diverse_v1_train_mixed_obstacles_03/family_09.json",
+      "maximum_curvature_inv_m": 0.016668970418999125
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_03",
+      "route": "routes/diverse_v1_train_mixed_obstacles_03/family_10.json",
+      "maximum_curvature_inv_m": 0.016668970418999125
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_03",
+      "route": "routes/diverse_v1_train_mixed_obstacles_03/family_11.json",
+      "maximum_curvature_inv_m": 0.016668970418999125
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_03",
+      "route": "routes/diverse_v1_train_mixed_obstacles_03/family_12.json",
+      "maximum_curvature_inv_m": 0.016668970419020768
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_03",
+      "route": "routes/diverse_v1_train_mixed_obstacles_03/family_13.json",
+      "maximum_curvature_inv_m": 0.016668970419020768
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_03",
+      "route": "routes/diverse_v1_train_mixed_obstacles_03/family_14.json",
+      "maximum_curvature_inv_m": 0.016668970419020768
+    }
+  ]
+}

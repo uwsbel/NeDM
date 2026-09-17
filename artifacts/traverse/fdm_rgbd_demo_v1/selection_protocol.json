@@ -1,0 +1,35 @@
+{
+  "selection_model": "rgbd_s11/last.pt",
+  "training_steps": 3000,
+  "selection_rule": "predeclared fixed-budget RGB-D seed11; no model selection from physical demo outcomes",
+  "training_source_snapshot": "78cf98ea8610",
+  "data": "fdm_rgbd_fast_v1",
+  "risk_thresholds": {
+    "contact": 0.35,
+    "low_progress": 0.5
+  },
+  "costs": {
+    "contact_penalty_s": 60,
+    "low_progress_penalty_s": 60,
+    "terminal_progress_weight": 0.1
+  },
+  "cases": [
+    "visible_rock_v1",
+    "hill0_f111_near"
+  ],
+  "families": {
+    "speeds": [
+      4,
+      6
+    ],
+    "offsets": [
+      0,
+      -8,
+      8
+    ]
+  },
+  "all_families_physically_evaluated": true,
+  "rgbd_selected_reference_extra_execution": true,
+  "image_intervention": "blank same-trained-RGBD-model inference for attribution",
+  "scope": "paired from-rest fixed-reference selection demonstration; not continuous replanning or untouched test generalization"
+}

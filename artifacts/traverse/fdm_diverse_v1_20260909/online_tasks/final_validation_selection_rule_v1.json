@@ -1,0 +1,41 @@
+{
+  "version": "final_validation_selection_rule_v1",
+  "created_utc": "2026-09-09T22:44:52.420149+00:00",
+  "before_plan_once_outcomes": true,
+  "protected_test_opened": false,
+  "status": "selectionruleonly; concretefreeze mustfollow completevalidcohorts",
+  "eligible_configurations": [
+    {
+      "planning_mode": "receding",
+      "checkpoint_kind": "best",
+      "preference_order": 0,
+      "grid": "full_validation_grid_v3.json"
+    },
+    {
+      "planning_mode": "plan_once",
+      "checkpoint_kind": "best",
+      "preference_order": 1,
+      "grid": "plan_once_best_grid_v1.json"
+    },
+    {
+      "planning_mode": "plan_once",
+      "checkpoint_kind": "last",
+      "preference_order": 2,
+      "grid": "plan_once_last_grid_v1.json"
+    }
+  ],
+  "required_integrity": "Each candidate requiresall24declaredtrials complete andchecksumverified; no incompletecohort selection. Keepalloriginalinvalidv2trialrecords separately.",
+  "cost_selection": "Perconfiguration use originalfourweight energygate: at least3 pairedsafe,meanworksave>=5percent,meantimeincrease<=25percent,nosafecountdrop; selectsmallestqualifyingweight; ifnonequalifyuse.02 withgatefailed.",
+  "configuration_selection": "Maximize schema-safe validationgoals at its selectedenergyweight over6scenes; tiebreak mostsafe atweight0; thenenergygatepassed; thenlowestpreference_order. No safe-onlytime orenergycrosssubset comparison.",
+  "primary_reference": "Original predeclared model best4000 remains a reportedbaseline; any selectedalternative explicitly labeledvalidationselected.",
+  "protected_trial_arms": [
+    "selectedRGBDtime",
+    "selectedRGBDenergy",
+    "matchedblanktime",
+    "matchedblankenergy",
+    "originalbestrecedingtime"
+  ],
+  "matched_blank": "Same horizon,trainingseed,5000updatebudget,andselectedcheckpointkind as selectedRGBD; equalplanningmode/costs/seed/candidatebudget.",
+  "fixed_reference_baseline": "Choose -44m offset and6m/s beforetest basedon4/6valsuccess; reportprotectedphysicalrecords for thisfixedside. Also reportperarena safe-referenceavailability as hindsightfeasibilityonly.",
+  "test_seal": "Do notreadtestimages/outcomes orscoretestuntil concretecheckpoint,source,cost,taskmanifestSHAfreeze iswritten."
+}

@@ -1,0 +1,42 @@
+{
+  "frozen_utc": "2026-09-09T18:27:18.015566+00:00",
+  "case": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_fourway_smooth_20260909/cases/fourway_smooth_v1.json",
+  "case_sha256": "5eec4883eab7f9391f40cc2b0d1e1dd5d392878c5edc8326f9b94cc9512b9c0e",
+  "arena_bmp_sha256": "ca6cef6a4bb340f2272281e079e1c7d63ec53890ef6a30e5d26ec794c6f2039b",
+  "arena_meta_sha256": "c43bbf5a943ab44a339007e24e2389c7707e77a972a42e8c340b6a2938bd063f",
+  "checkpoint": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_runs/rgbd_focused_pilot_v2/patch_rgbd_s11/last.pt",
+  "checkpoint_sha256": "3aa2f403cc7786857be67682e5b78f052a7329115f3df0a9dd852385453162a3",
+  "prediction_horizon_s": 4.0,
+  "physical_horizon_s": 25.0,
+  "selected_hill": {
+    "kind": "gaussian",
+    "height_m": 6.5,
+    "extent_m": 4.5,
+    "center_xy": [
+      0.0,
+      0.0
+    ],
+    "formula": "H exp(-0.5 (r/sigma)^2); infinitely differentiable rounded toe and crest",
+    "analytic_max_grade_degrees": 41.22159636256615,
+    "quantized_center_difference_max_grade_degrees": 43.79033052975163,
+    "quantized_max_neighbor_height_difference_m": 0.15764705882352947,
+    "quantization_note": "Chrono uses the continuous triangulated8-bit heightfield; report measured physical grade as well as analytic design"
+  },
+  "stall_family_index": 0,
+  "stall_command_speed_mps": 4.0,
+  "base_reference_manifest": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_fourway_smooth_20260909/cases/base_references.json",
+  "base_reference_sha256": [
+    "9b3270e0b7652d1b01265f6ca81862ec67dc08a621ddce927ee3463102e7b453",
+    "4cd9ae9e569b757f2907d2f0959b8df62d7a24205b296af6fcdff5602565d890",
+    "f73a5d7ab1accef596eee1159c452172db9538cf5e23ac807758d398b3ea1da4",
+    "3de3082a4f60220b11f1557f4c692e46a5d5a3c7fca0b53f6693958207c953c0",
+    "cd3f597db72f660b8bd9b5a308e96f4890e67de12804fc809107cfe36620c1be",
+    "6e7cb71a34dee6b1e92fe4c69f43be03386649093b76bfd607bf4e153412f3ff"
+  ],
+  "observation": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_fourway_smooth_20260909/observations/fourway_smooth_v1/observation.npz",
+  "observation_sha256": "0cde99296ad64d68b24476a40122c87cc11870c055f7c73ace1646a8a9208e80",
+  "selection_scope": "Geometry and three diagnostic roles informed by disclosed physical probes; NN weights fixed and no NN scores read during geometry search. Final4 model forecasts/references will be frozen before recorded validation.",
+  "motion_claim": "Aligned uphill low-progress/wheel-slip stall at4m/s, not assertion all commands on this hill fail; straight6m/s control succeeds.",
+  "normal_query_caveat": "Use raw tire forces/direct slip/pose/height profiles for mechanism. Queried GetNormal-derived projections are approximate and not exact calibrated tire-contact-frame loads.",
+  "training": false
+}

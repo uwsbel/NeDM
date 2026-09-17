@@ -1,0 +1,14 @@
+{
+  "model": "patch_rgbd_s11/last.pt",
+  "steps": 5000,
+  "source_snapshot": "0aef256e52f0",
+  "training_data": "fdm_rgbd_focused_pack_v1",
+  "progress_event_definition": "sustained_stall",
+  "weights_and_thresholds": "unchanged from first selection protocol",
+  "development_cases": [
+    "visible_rock_v1",
+    "hill0_f111_near"
+  ],
+  "comparison": "rgbd vs blank x patch vs global x seeds11/29; all quarter-turn augmentation enabled",
+  "scope": "iterative development demonstration after known first-pilot failure; original demo scenes excluded from focused training"
+}

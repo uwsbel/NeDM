@@ -1,0 +1,43 @@
+{
+  "job": "411846 completed40s",
+  "rows": [
+    {
+      "case": "smooth_strength_gaussian_h6p5_s4p5_cx0",
+      "route": "family_01",
+      "goal_time_s": 8.75,
+      "status": "goal_reached",
+      "asset_contact": false,
+      "goal_progress_m": 33.493065594927515,
+      "bounded_blockage": false,
+      "strict_near_stop": false,
+      "longest_near_stop_s": 0.25,
+      "max_chassis_contact_n": 0.0,
+      "first_chassis_contact_s": null,
+      "initial_xy": [
+        -17.966136550754037,
+        -0.018488897982668666
+      ],
+      "initial_vx": 0.05135342851281166,
+      "min_vx": 0.04814932495355606
+    },
+    {
+      "case": "smooth_strength_gaussian_h7_s4p5_cx0",
+      "route": "family_01",
+      "goal_time_s": null,
+      "status": "timeout",
+      "asset_contact": false,
+      "goal_progress_m": 9.626888720282661,
+      "bounded_blockage": false,
+      "strict_near_stop": false,
+      "longest_near_stop_s": 0.8,
+      "max_chassis_contact_n": 0.0,
+      "first_chassis_contact_s": null,
+      "initial_xy": [
+        -17.967898731591806,
+        -0.018036271374583326
+      ],
+      "initial_vx": 0.05125659704208374,
+      "min_vx": -3.045637845993042
+    }
+  ]
+}

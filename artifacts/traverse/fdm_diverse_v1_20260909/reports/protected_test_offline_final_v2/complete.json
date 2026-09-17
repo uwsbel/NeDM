@@ -1,0 +1,15 @@
+{
+  "complete": true,
+  "freeze_sha256": "29684ce59cdd68e9b1f7310dcd2e63c55d021f6ff6712b83f99d286722efeb33",
+  "offline_freeze_sha256": "ad65cbeda742edab906e9b4c683062dec883e9ac4aa789cc31e6b6427c88072d",
+  "report_sha256": "e799eed0189741f3b788b8560c9ad5ec3a45e74ffdcb6fb5253e9c4c250585c1",
+  "support_sha256": "2902cd5fc4d03bc562e522405e46116a1b7f1571e242eb80037ec22ffcda9dcb",
+  "completed_utc": "2026-09-09T23:13:15.712802+00:00",
+  "predictions_recomputed": false,
+  "summary_recomputations_verified": 6,
+  "raw_support_recomputed_verified": true,
+  "models": 2,
+  "controls_each": 3,
+  "episodes": 90,
+  "scenes": 6
+}

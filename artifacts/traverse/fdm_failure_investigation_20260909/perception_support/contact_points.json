@@ -1,0 +1,90 @@
+[
+  {
+    "trial_id": "diverse_v1_test_rolling_hills_00_selected_rgbd_energy",
+    "scene_id": "diverse_v1_test_rolling_hills_00",
+    "event": "chassis",
+    "time_s": 30.5,
+    "pose": [
+      -6.594682981629614,
+      13.140891813766766,
+      2.100465706351407
+    ]
+  },
+  {
+    "trial_id": "diverse_v1_test_rolling_hills_00_selected_rgbd_energy",
+    "scene_id": "diverse_v1_test_rolling_hills_00",
+    "event": "asset",
+    "time_s": 30.5,
+    "pose": [
+      -6.594682981629614,
+      13.140891813766766,
+      2.100465706351407
+    ]
+  },
+  {
+    "trial_id": "diverse_v1_test_rolling_hills_00_selected_rgbd_time",
+    "scene_id": "diverse_v1_test_rolling_hills_00",
+    "event": "chassis",
+    "time_s": 29.75,
+    "pose": [
+      -6.6808377415669975,
+      13.297135470695721,
+      2.1131261253912954
+    ]
+  },
+  {
+    "trial_id": "diverse_v1_test_rolling_hills_00_selected_rgbd_time",
+    "scene_id": "diverse_v1_test_rolling_hills_00",
+    "event": "asset",
+    "time_s": 29.75,
+    "pose": [
+      -6.6808377415669975,
+      13.297135470695721,
+      2.1131261253912954
+    ]
+  },
+  {
+    "trial_id": "diverse_v1_test_rough_mosaic_00_selected_rgbd_energy",
+    "scene_id": "diverse_v1_test_rough_mosaic_00",
+    "event": "chassis",
+    "time_s": 12.55,
+    "pose": [
+      32.01100192503339,
+      34.43121865807347,
+      -2.864820655640325
+    ]
+  },
+  {
+    "trial_id": "diverse_v1_test_rough_mosaic_00_selected_rgbd_energy",
+    "scene_id": "diverse_v1_test_rough_mosaic_00",
+    "event": "asset",
+    "time_s": 13.05,
+    "pose": [
+      29.67991013204667,
+      33.55313981189122,
+      -3.1078392765134972
+    ]
+  },
+  {
+    "trial_id": "diverse_v1_test_rough_mosaic_00_selected_rgbd_time",
+    "scene_id": "diverse_v1_test_rough_mosaic_00",
+    "event": "chassis",
+    "time_s": 11.75,
+    "pose": [
+      36.51459273610623,
+      34.73181591892113,
+      -2.916341138431225
+    ]
+  },
+  {
+    "trial_id": "diverse_v1_test_rough_mosaic_00_selected_rgbd_time",
+    "scene_id": "diverse_v1_test_rough_mosaic_00",
+    "event": "asset",
+    "time_s": 13.100000000000001,
+    "pose": [
+      29.730073568219872,
+      33.7573892061089,
+      -2.965844907853738
+    ]
+  }
+]

@@ -1,0 +1,97 @@
+{
+  "job": "411839 completed40s",
+  "rows": [
+    {
+      "case": "smooth_probe_gaussian_h5p5_s3p5",
+      "route": "family_01",
+      "goal_time_s": null,
+      "status": "timeout",
+      "asset_contact": false,
+      "goal_progress_m": 3.8827008942842625,
+      "bounded_blockage": false,
+      "strict_near_stop": false,
+      "max_chassis_contact_n": 0.0,
+      "first_chassis_contact_s": null,
+      "optional_errors": {},
+      "max_passive_delta": {
+        "state": 0.0,
+        "action": 0.0,
+        "pose": 0.0,
+        "power_kw": 0.0,
+        "contact_n": 0.0
+      }
+    },
+    {
+      "case": "smooth_probe_gaussian_h5p5_s3p5",
+      "route": "family_03",
+      "goal_time_s": null,
+      "status": "timeout",
+      "asset_contact": false,
+      "goal_progress_m": 0.4574082726605937,
+      "bounded_blockage": true,
+      "strict_near_stop": false,
+      "max_chassis_contact_n": 0.0,
+      "first_chassis_contact_s": null,
+      "optional_errors": {}
+    },
+    {
+      "case": "smooth_probe_gaussian_h5p5_s3p5",
+      "route": "family_05",
+      "goal_time_s": null,
+      "status": "timeout",
+      "asset_contact": false,
+      "goal_progress_m": 2.763921011753119,
+      "bounded_blockage": false,
+      "strict_near_stop": false,
+      "max_chassis_contact_n": 0.0,
+      "first_chassis_contact_s": null,
+      "optional_errors": {}
+    },
+    {
+      "case": "smooth_probe_gaussian_h6_s4p5",
+      "route": "family_01",
+      "goal_time_s": null,
+      "status": "timeout",
+      "asset_contact": false,
+      "goal_progress_m": 3.7371060967498337,
+      "bounded_blockage": true,
+      "strict_near_stop": false,
+      "max_chassis_contact_n": 0.0,
+      "first_chassis_contact_s": null,
+      "optional_errors": {},
+      "max_passive_delta": {
+        "state": 0.0,
+        "action": 0.0,
+        "pose": 0.0,
+        "power_kw": 0.0,
+        "contact_n": 0.0
+      }
+    },
+    {
+      "case": "smooth_probe_gaussian_h6_s4p5",
+      "route": "family_03",
+      "goal_time_s": null,
+      "status": "timeout",
+      "asset_contact": false,
+      "goal_progress_m": 1.7703570099336972,
+      "bounded_blockage": false,
+      "strict_near_stop": false,
+      "max_chassis_contact_n": 0.0,
+      "first_chassis_contact_s": null,
+      "optional_errors": {}
+    },
+    {
+      "case": "smooth_probe_gaussian_h6_s4p5",
+      "route": "family_05",
+      "goal_time_s": null,
+      "status": "timeout",
+      "asset_contact": false,
+      "goal_progress_m": -0.38588519226636464,
+      "bounded_blockage": false,
+      "strict_near_stop": false,
+      "max_chassis_contact_n": 0.0,
+      "first_chassis_contact_s": null,
+      "optional_errors": {}
+    }
+  ]
+}

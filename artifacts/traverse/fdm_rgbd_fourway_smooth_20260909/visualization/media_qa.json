@@ -1,0 +1,130 @@
+{
+  "schema": 1,
+  "videos": [
+    {
+      "file": "four_route_comparison.mp4",
+      "sha256": "bc1c1e75958c6a5d751cfce6247dd97c58313badaa663eb6f77bee9ace4d2c4f",
+      "decode": "pass",
+      "programs": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "width": 1280,
+          "height": 720,
+          "pix_fmt": "yuv420p",
+          "r_frame_rate": "10/1",
+          "duration": "26.100000",
+          "nb_frames": "261"
+        }
+      ],
+      "format": {
+        "duration": "26.100000",
+        "size": "8146252"
+      }
+    },
+    {
+      "file": "route_01_selected_best.mp4",
+      "sha256": "4be87c0cbe907140b024fcb19a5176daf3e1b14a15f1d51ce2476c0577162b0b",
+      "decode": "pass",
+      "programs": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "width": 1280,
+          "height": 720,
+          "pix_fmt": "yuv420p",
+          "r_frame_rate": "10/1",
+          "duration": "9.200000",
+          "nb_frames": "92"
+        }
+      ],
+      "format": {
+        "duration": "9.200000",
+        "size": "6438523"
+      }
+    },
+    {
+      "file": "route_02_collision_collision.mp4",
+      "sha256": "845bfbfcfcbf7b64d1fba596177c223bcca476f33af67959bd39358b066fd765",
+      "decode": "pass",
+      "programs": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "width": 1280,
+          "height": 720,
+          "pix_fmt": "yuv420p",
+          "r_frame_rate": "10/1",
+          "duration": "26.100000",
+          "nb_frames": "261"
+        }
+      ],
+      "format": {
+        "duration": "26.100000",
+        "size": "14987031"
+      }
+    },
+    {
+      "file": "route_03_stall_stall.mp4",
+      "sha256": "ff07c27ff8c93722bcf3384c5a11ccfa363996a103828266da511afc3cf51191",
+      "decode": "pass",
+      "programs": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "width": 1280,
+          "height": 720,
+          "pix_fmt": "yuv420p",
+          "r_frame_rate": "10/1",
+          "duration": "26.100000",
+          "nb_frames": "261"
+        }
+      ],
+      "format": {
+        "duration": "26.100000",
+        "size": "7798022"
+      }
+    },
+    {
+      "file": "route_04_progress_low_progress.mp4",
+      "sha256": "61151716db9dc5ab76f95d15906469a035a9d99b945ab714ec54c8c633a61a8f",
+      "decode": "pass",
+      "programs": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "width": 1280,
+          "height": 720,
+          "pix_fmt": "yuv420p",
+          "r_frame_rate": "10/1",
+          "duration": "15.600000",
+          "nb_frames": "156"
+        }
+      ],
+      "format": {
+        "duration": "15.600000",
+        "size": "11537001"
+      }
+    }
+  ],
+  "visual_qa": {
+    "status": "pass",
+    "keyframes": [
+      "qa_selected_goal.png",
+      "qa_collision_2p2s.png",
+      "qa_stall_18s.png",
+      "qa_stall_hold.png",
+      "qa_slow_goal.png",
+      "qa_comparison_18s.png"
+    ],
+    "checks": [
+      "Selected and slower final frames report goal reached at physical 8.10 and 14.50 s.",
+      "Collision frame at 2.20 s shows contact observed.",
+      "Smooth hill frame at 18.00 s shows incline, contact none, bounded stop yes.",
+      "One-second individual terminal hold explicitly marked as no additional simulation.",
+      "Forecast inset remains frozen at initial 4 s, cyan trail only extends to measured timestamp.",
+      "Right-panel and HUD labels inspected at original resolution and enlarged crops; no clipped content.",
+      "2x2 comparison holds completed safe-route recordings at their labeled final measured times."
+    ]
+  }
+}

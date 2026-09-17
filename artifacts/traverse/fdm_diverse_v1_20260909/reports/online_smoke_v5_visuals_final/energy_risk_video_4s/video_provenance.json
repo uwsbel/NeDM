@@ -1,0 +1,83 @@
+{
+  "available": true,
+  "file": "artifacts/traverse/fdm_diverse_v1_20260909/reports/online_smoke_v5_visuals_final/energy_risk_video_4s/actual_chrono.mp4",
+  "sha256": "da2197bd4ef420807d06976e4e0e0a7a50e49de8c23001afcd2621b3c24256e3",
+  "frames": 9,
+  "physical_duration_s": 3.9999999999996927,
+  "container_duration_s": 4.001,
+  "maximum_timestamp_error_s": 3.0730973321624333e-13,
+  "terminal_hold_s": 0.001,
+  "pixels": "Original actual Chrono PNGs; no invented frames, motion interpolation or predicted vehicle rendering",
+  "command": [
+    "ffmpeg",
+    "-nostdin",
+    "-hide_banner",
+    "-loglevel",
+    "error",
+    "-n",
+    "-safe",
+    "0",
+    "-f",
+    "concat",
+    "-i",
+    "artifacts/traverse/fdm_diverse_v1_20260909/reports/online_smoke_v5_visuals_final/energy_risk_video_4s/actual_frames.ffconcat",
+    "-fps_mode",
+    "vfr",
+    "-c:v",
+    "libx264",
+    "-crf",
+    "19",
+    "-pix_fmt",
+    "yuv420p",
+    "-video_track_timescale",
+    "1000",
+    "artifacts/traverse/fdm_diverse_v1_20260909/reports/online_smoke_v5_visuals_final/energy_risk_video_4s/actual_chrono.mp4"
+  ],
+  "frame_sources": [
+    {
+      "file": "frames/frame_000000.png",
+      "sha256": "4e4ec492c13c867109a6921c00daef2d5cd5322e54e7ffd7abe6c70555049511",
+      "simulation_time_s": 0.8000000000000006
+    },
+    {
+      "file": "frames/frame_000001.png",
+      "sha256": "d9a7fd2bde6e565a725bd71a9e781a7edd5ab71216b15964395d45cfb081478a",
+      "simulation_time_s": 1.300000000000001
+    },
+    {
+      "file": "frames/frame_000002.png",
+      "sha256": "bad665dc864ea3fd54186adc4f0d5da268c39f00b74855c36bc6a00e799eca0f",
+      "simulation_time_s": 1.8000000000000014
+    },
+    {
+      "file": "frames/frame_000003.png",
+      "sha256": "490e090ddc9021b8b59d4f764f9de9ae0525e3f72edfa89feb56ed88cb070eff",
+      "simulation_time_s": 2.2999999999999683
+    },
+    {
+      "file": "frames/frame_000004.png",
+      "sha256": "c1481ad096c6560d3e86f61c8d4c99c9236100fded5ed7a374ae54b77ade8a6c",
+      "simulation_time_s": 2.7999999999999132
+    },
+    {
+      "file": "frames/frame_000005.png",
+      "sha256": "4e317c4a79d100b28c82af88fdf34f3f7cce9c1e8a7149b48c4551f6c3a017dd",
+      "simulation_time_s": 3.299999999999858
+    },
+    {
+      "file": "frames/frame_000006.png",
+      "sha256": "1dfe7ada650362905d3b2efe476d983870c0f038d791fbbbeca5a791dff32b90",
+      "simulation_time_s": 3.799999999999803
+    },
+    {
+      "file": "frames/frame_000007.png",
+      "sha256": "b9ebdaaaaa4174a98ebb4ebd90dfcc7f09746e68d8937370b6d8e44c8f2717ad",
+      "simulation_time_s": 4.2999999999997485
+    },
+    {
+      "file": "frames/frame_000008.png",
+      "sha256": "5eeb0835600b3ef964f12afdce3443f4dd16972aa28650e3f2244a82ad2ae85e",
+      "simulation_time_s": 4.799999999999693
+    }
+  ]
+}

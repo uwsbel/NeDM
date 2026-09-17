@@ -1,0 +1,62 @@
+{
+  "same_start_goal_assets_settle_and_families": true,
+  "case_hashes_verified": true,
+  "rows": [
+    {
+      "case": "smooth_probe_gaussian_h3p5_s3p5",
+      "height_m": 3.5,
+      "grade_0p5m_deg": 31.6,
+      "start_terrain_height_m": 0.06,
+      "rock_ground_height_m": 1.472
+    },
+    {
+      "case": "smooth_probe_gaussian_h4p5_s3p5",
+      "height_m": 4.5,
+      "grade_0p5m_deg": 38.27,
+      "start_terrain_height_m": 0.071,
+      "rock_ground_height_m": 1.897
+    },
+    {
+      "case": "smooth_probe_gaussian_h5p5_s3p5",
+      "height_m": 5.5,
+      "grade_0p5m_deg": 43.73,
+      "start_terrain_height_m": 0.086,
+      "rock_ground_height_m": 2.322
+    },
+    {
+      "case": "smooth_probe_gaussian_h6p5_s3p5",
+      "height_m": 6.5,
+      "grade_0p5m_deg": 48.36,
+      "start_terrain_height_m": 0.11,
+      "rock_ground_height_m": 2.747
+    },
+    {
+      "case": "smooth_probe_gaussian_h6_s4p5",
+      "height_m": 6.0,
+      "grade_0p5m_deg": 39.58,
+      "start_terrain_height_m": 0.515,
+      "rock_ground_height_m": 3.554
+    },
+    {
+      "case": "smooth_probe_gaussian_h8_s4p5",
+      "height_m": 8.0,
+      "grade_0p5m_deg": 47.55,
+      "start_terrain_height_m": 0.681,
+      "rock_ground_height_m": 4.735
+    },
+    {
+      "case": "smooth_probe_quintic_h4_r8",
+      "height_m": 4.0,
+      "grade_0p5m_deg": 43.49,
+      "start_terrain_height_m": -0.001,
+      "rock_ground_height_m": 1.441
+    },
+    {
+      "case": "smooth_probe_quintic_h5_r8",
+      "height_m": 5.0,
+      "grade_0p5m_deg": 49.59,
+      "start_terrain_height_m": 0.002,
+      "rock_ground_height_m": 1.807
+    }
+  ]
+}

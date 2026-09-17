@@ -1,0 +1,13 @@
+{
+  "phase": "observing_nearby_starts",
+  "jobs": {
+    "observe": 412328
+  },
+  "num_starts": 3,
+  "selected_rollouts_planned": 12,
+  "horizon_s": 12,
+  "main_checkout": "read-only",
+  "training": "none",
+  "scene_spec_sha256": "e1062493be83d2912b80eae8add39cf7bce6a87b07b7cd6bf76e9669bfb713a2",
+  "planner_sha256": "b57ac961aa827803d870d1b54bc19fc073a83419180cbc83a34745f16870e4cb"
+}

@@ -1,0 +1,16 @@
+{
+  "id": "01_selected",
+  "category": "best",
+  "video": "route_01_selected_best.mp4",
+  "video_sha256": "876946f92f244a6964ab6f5c7ed50262e3117db500640d643f6e227345391f47",
+  "actual_frames": 70,
+  "encoded_frames": 80,
+  "explicit_final_hold_frames": 10,
+  "actual_timestamp_start_s": 0.0,
+  "actual_timestamp_end_s": 6.8500000000000005,
+  "source_png_sha256_chain": "439e30b72b7f352268062837422e9fbab26a867adbf592705aa3932ab2535139",
+  "trajectory_sha256": "b019305c3fd2c49b6adee45e11e76d70e49ca8e1361993ec4158bbcaa0025b1e",
+  "frame_times_sha256": "c6cad950666234ad0bcbfeb2f40f1f699b8e09de93f45095340901c6ff6965e2",
+  "outcome_sha256": "d05e60743fb9a6a448aae9cca1ba53829c90db84beef187238abf32912c82656",
+  "video_semantics": "Actual rendered Chrono frames in timestamp order, annotated, encoded10fps; no synthesized/interpolated scene frames"
+}

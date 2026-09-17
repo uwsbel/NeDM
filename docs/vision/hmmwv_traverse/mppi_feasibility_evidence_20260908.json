@@ -1,0 +1,247 @@
+{
+  "observed_at_utc": "2026-09-08T23:18:37.649149+00:00",
+  "purpose": "Read-only feasibility assessment; no new training or collection results",
+  "source_checkout": {
+    "path": "/home/harry/NeDM",
+    "head": "4b6f2a173b9fc8a15b776c3f6134e349911de2e7",
+    "branch": "nrd_vision",
+    "dirty": true
+  },
+  "isolated_worktree": {
+    "path": "/home/harry/NeDM-traverse_mppi",
+    "base_commit": "4b6f2a173b9fc8a15b776c3f6134e349911de2e7",
+    "branch": "traverse_mppi",
+    "active_uncommitted_source_changes_copied": false
+  },
+  "fdm_commit": "06f5d8033bafed4f6838662af99ba31cbd4f5ce0",
+  "sources": [
+    {
+      "path": "/home/harry/NeDM/scripts/traverse_collect.py",
+      "sha256": "af7757df1924bcf8ce875cdb92da8fd349c4b1320622d8e4aba10d22b27b0e04",
+      "size_bytes": 16447
+    },
+    {
+      "path": "/home/harry/NeDM/scripts/traverse_wp7_cheap_predictor.py",
+      "sha256": "839f0643f60e0be69f83c6cda18d0a69263d5495ef27e274c092222932e6acc4",
+      "size_bytes": 14358
+    },
+    {
+      "path": "/home/harry/NeDM/scripts/traverse_wp9_arm_cheap.py",
+      "sha256": "0d27f88b29e98fdf63112481a759f41c33ee65008f718d118fce1a2d2d3e403a",
+      "size_bytes": 27461
+    },
+    {
+      "path": "/home/harry/NeDM/scripts/traverse_wp5_sample_planner.py",
+      "sha256": "33dff9ab2117482faa4e4b85ca788320307c3e16e9d6d45a05c25fe9c3e2c3da",
+      "size_bytes": 29797
+    },
+    {
+      "path": "/home/harry/NeDM/scripts/traverse_wp7_build_cache.py",
+      "sha256": "e886a52cf3d6341d7b5eab9e20f20d6a17293c30a4301d2db932f00c9d952e38",
+      "size_bytes": 13315
+    },
+    {
+      "path": "/home/harry/NeDM/scripts/traverse_state_prepare.py",
+      "sha256": "d4dfea7c1aabdbfd631614413cc07a5ec09e391ba9fc30ba1e812b24ca84c382",
+      "size_bytes": 6773
+    },
+    {
+      "path": "/home/harry/NeDM/scripts/traverse_state_collect.py",
+      "sha256": "ae159a424db52465c705483865872388dce5c0cdaa09b96f6e0c584bf3487b26",
+      "size_bytes": 8080
+    },
+    {
+      "path": "/home/harry/NeDM/src/nedm/traverse/state_controller.py",
+      "sha256": "2392982d5beed3232406617f52242d743bb865dbfd4d3846a5d1a1e0c18bc2ac",
+      "size_bytes": 1816
+    },
+    {
+      "path": "/home/harry/NeDM/src/nedm/traverse/planner_s.py",
+      "sha256": "786e74d47f61c490e1cedb69efabedaa664753179dacb555f7c5b1ab8089f06c",
+      "size_bytes": 9641
+    },
+    {
+      "path": "/home/harry/NeDM/src/nedm/traverse/nrd_model.py",
+      "sha256": "6568381e7f2125a74baf1b8d5618f884f88c12b31435000066f7779a6b949818",
+      "size_bytes": 5316
+    },
+    {
+      "path": "/home/harry/NeDM/src/nedm/traverse/tracker_env.py",
+      "sha256": "d59cb61f366b814c8bc01eef29d63fb3ebed37a2e5325dd8987590f0f661d14d",
+      "size_bytes": 28662
+    },
+    {
+      "path": "/home/harry/NeDM/src/nedm/traverse/perception.py",
+      "sha256": "3799558a9742f01354404234043d2620bcfd50fc025a94e0c985348fd5915c16",
+      "size_bytes": 20839
+    },
+    {
+      "path": "/home/harry/NeDM/docs/vision/hmmwv_traverse/wp4_implementation_notes.md",
+      "sha256": "08e805df810e7af2306b4efac398f1a96660ed2ba02c1fe2ef57888fc3af6416",
+      "size_bytes": 180722
+    },
+    {
+      "path": "/home/harry/NeDM/docs/vision/hmmwv_traverse/stall_independent_audit_20260908.md",
+      "sha256": "258c04c168243d201370a7d511d510e1ebc0b651ba464c9f39dc915a800ca184",
+      "size_bytes": 18662
+    },
+    {
+      "path": "/home/harry/NeDM/docs/vision/hmmwv_traverse/state_ablation_20260908.md",
+      "sha256": "b430d117aab4bdc9aef7dc5ce62b9370d01d9c9c56ed23541ebedf07190ab632",
+      "size_bytes": 10435
+    },
+    {
+      "path": "/home/harry/NeDM/artifacts/traverse/wp8_head/results_sealed2.json",
+      "sha256": "b5d5f1403625788d7d539cf5241fc09e9ada8b480287ebaad8b7e422ffbaad2c",
+      "size_bytes": 908371
+    },
+    {
+      "path": "/home/harry/NeDM/artifacts/traverse/wp9_energy/a1_table.json",
+      "sha256": "d12a82f33b842263db8ff2dab26ecefebd0e4519f91d3d959a85ac2145f01f7b",
+      "size_bytes": 1618277
+    },
+    {
+      "path": "/home/harry/NeDM/artifacts/traverse/wp2_z2_cache_v6/cache_manifest.json",
+      "sha256": "b767937d9056faa7227c37af50d46395d4787fc6e82c395e411420d3e578319b",
+      "size_bytes": 323286
+    },
+    {
+      "path": "/home/harry/NeDM/artifacts/traverse/state_ablation_20260908/data/manifest.json",
+      "sha256": "88aab0476831fcde1308dc2ec4d2a2c97532b787a40841afeaad1f375367779e",
+      "size_bytes": 4985
+    },
+    {
+      "path": "/home/harry/NeuralReducedDynamic-LiteratureReview/off-road-nav/fdm/exts/fdm/fdm/model/fdm_model.py",
+      "sha256": "869f51c1f20af49e4007b01f4525b66b6eb54e6f137eef584adfa060fcf8153a",
+      "size_bytes": 74552
+    },
+    {
+      "path": "/home/harry/NeuralReducedDynamic-LiteratureReview/off-road-nav/fdm/exts/fdm/fdm/model/fdm_model_cfg.py",
+      "sha256": "98df539ed091cfde2181b51ce24798f8a2b9b5999e5b9741bc67b1b4a41f0527",
+      "size_bytes": 13864
+    },
+    {
+      "path": "/home/harry/NeuralReducedDynamic-LiteratureReview/off-road-nav/fdm/exts/fdm/fdm/planner/sampling_planner/planner_cfg.py",
+      "sha256": "6ad3a109dcfb280f49009ee2cdd0daa112e50418fc7c75f73933227e2f420f2d",
+      "size_bytes": 4265
+    },
+    {
+      "path": "/home/harry/NeuralReducedDynamic-LiteratureReview/off-road-nav/fdm/exts/fdm/fdm/planner/sampling_planner/trajectory_optimizer_mbrl.py",
+      "sha256": "96b922071767b2d86e8a1e079e115f882936554748a28fa3a7054b724938a30d",
+      "size_bytes": 50764
+    },
+    {
+      "path": "/home/harry/NeuralReducedDynamic-LiteratureReview/off-road-nav/learnedPerceptiveForwardDynamicsModel.pdf",
+      "sha256": "41c3267f317e235076d3035e3cc3829c92e77f4b70e0fb312085ebd0d4e261f4",
+      "size_bytes": 14927259
+    }
+  ],
+  "data_audit": {
+    "full_stores": [
+      {
+        "name": "full_v1",
+        "episodes": 1000,
+        "frames": 399928,
+        "reference_path_episodes": 800
+      },
+      {
+        "name": "full_v2",
+        "episodes": 1000,
+        "frames": 399881,
+        "reference_path_episodes": 800
+      },
+      {
+        "name": "full_v3",
+        "episodes": 5000,
+        "frames": 1999170,
+        "reference_path_episodes": 4000
+      },
+      {
+        "name": "full_v4",
+        "episodes": 5000,
+        "frames": 1998648,
+        "reference_path_episodes": 4000
+      }
+    ],
+    "full_v4_partial_duplicate_metadata": 2335,
+    "full_stores_terrain": "arena_v1",
+    "wp7_wp8": {
+      "episodes": 5745,
+      "frames": 1812491,
+      "status_counts": {
+        "completed": 4596,
+        "stall": 509,
+        "timeout": 575,
+        "off_route": 46,
+        "rollover": 19
+      }
+    },
+    "state_bank": {
+      "episodes": 6821,
+      "split_counts": {
+        "train": 5161,
+        "val": 770,
+        "diagnostic": 510,
+        "test": 380
+      },
+      "native_pid_train": {
+        "episodes": 616,
+        "layouts": 154,
+        "frames": 145208,
+        "completed": 558,
+        "timeout": 50,
+        "off_route": 8
+      },
+      "native_pid_val": {
+        "episodes": 48,
+        "layouts": 12,
+        "frames": 17756,
+        "completed": 27,
+        "timeout": 21
+      }
+    },
+    "method": "Actual local metadata/payload inspection and manifest/label recount; no newly collected data"
+  },
+  "remote_observations": {
+    "host": "amd / login1.hpcfund",
+    "active_jobs_at_initial_check": [
+      {
+        "id": 409318,
+        "name": "state_train",
+        "state": "RUNNING"
+      },
+      {
+        "id": 409356,
+        "name": "state_full_audit",
+        "state": "PENDING Dependency"
+      }
+    ],
+    "verified_directory_root": "/work1/dannegrut/harry/nedm/artifacts/traverse",
+    "verified_directories": [
+      "wp7_cache_v1",
+      "wp7_cache_sealed",
+      "wp8_cache_sealed2",
+      "full_v1",
+      "full_v2",
+      "full_v3",
+      "full_v4_partial"
+    ],
+    "full_v4_found_at_that_root": false,
+    "remote_payload_checksums_verified": false,
+    "scheduler_mi3508x_idle_nodes_at_check": 2,
+    "availability_is_time_specific": true
+  },
+  "actions": {
+    "new_training_jobs": [],
+    "new_collection_jobs": [],
+    "production_source_files_modified": [],
+    "worktree_created": true,
+    "assessment_files_created": true
+  },
+  "review": {
+    "fdm_paper_code": "independent read-only review and PDF rendering; root inspected page5",
+    "data": "independent read-only schema, metadata and split audit",
+    "existing_results": "independent recomputation of saved AUCs and selected-route outcomes",
+    "assessment_review": "horizon matching, censoring, history ablation, and MPPI mean validation corrected after independent review"
+  }
+}

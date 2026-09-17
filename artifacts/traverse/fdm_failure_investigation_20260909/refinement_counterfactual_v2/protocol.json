@@ -1,0 +1,270 @@
+{
+  "scope": "post_hoc_refinement_counterfactual",
+  "created_utc": "2026-09-10T01:48:05.392148+00:00",
+  "source_root": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v9",
+  "source_manifest_sha256": "c2ec8b81acd066c75e46cf658c8aa5e67661f92cf3a35a6da97575b03812382a",
+  "wrapper_sha256": "26c5f9e2abc7934a3f2f3523f1394ae8485c533a43bb870b1d2a5815f65a1456",
+  "tasks": [
+    {
+      "id": "diverse_v1_test_rolling_hills_00_selected_rgbd_time_replay_selected",
+      "original_trial_id": "diverse_v1_test_rolling_hills_00_selected_rgbd_time",
+      "mode": "replay_selected",
+      "original_root": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rolling_hills_00_selected_rgbd_time",
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v9/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_test_rolling_hills_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_rgbd_s11/last.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/observations/diverse_v1_test_rolling_hills_00/observation.npz",
+        "horizon-s": 180,
+        "planning-device": "cpu",
+        "planning-mode": "plan_once",
+        "replan-period-s": 1,
+        "cost-mode": "time_risk",
+        "cost-config": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/validation_cost_time_v1.json",
+        "mppi-samples": 64,
+        "mppi-iterations": 2,
+        "seed": 11
+      },
+      "out": "/work1/dannegrut/harry/experiments/fdm_failure_investigation_20260909/refinement_counterfactual_v2/runs/diverse_v1_test_rolling_hills_00_selected_rgbd_time_replay_selected",
+      "original_sha256": {
+        "trajectory.npz": "ea673a8868a11701d61d2167c073e8b9479c895b385593ac918bc6839194cae8",
+        "rich_telemetry.npz": "94a0f335e254e1169b45808c9f1c2340ea642c752c21733847f2cde26262c9ef",
+        "rich_intervals.npz": "630d5674f5bb6af5cb0bd7dd7ce81642d83e77ab978383ee840c7bb5caa22eaf",
+        "anchor_state.npz": "c872114b7e21ece72440102bb17e9dc0d34e4ab56e51745c12ba4415e1b4095d",
+        "outcome.json": "ffff83ee0aff9604040c6ba3eff3bd793562c4d353f2d931886ab96c74bf6b58",
+        "decisions/decision_00000.json": "6836b413b8cad3524e40733118c67f3aea77caaa03271936928a6e918529e92c",
+        "online_protocol.json": "e3bd75e3c2b3507068deb13b5058941845f2e98d72e76ccf67bd8067060ccacb",
+        "simulation_provenance.json": "83d49366c8cfae1099d26a86c0ba1d3c4927e78041ed1b9107cc976117ba78e7",
+        "anchor_equality.json": "9c58dfc0c7d63d5f44665ea2852c50cf5fb0d27e31ecb5641238923875fc2c78"
+      }
+    },
+    {
+      "id": "diverse_v1_test_rolling_hills_00_selected_rgbd_time_parent_family",
+      "original_trial_id": "diverse_v1_test_rolling_hills_00_selected_rgbd_time",
+      "mode": "parent_family",
+      "original_root": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rolling_hills_00_selected_rgbd_time",
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v9/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_test_rolling_hills_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_rgbd_s11/last.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/observations/diverse_v1_test_rolling_hills_00/observation.npz",
+        "horizon-s": 180,
+        "planning-device": "cpu",
+        "planning-mode": "plan_once",
+        "replan-period-s": 1,
+        "cost-mode": "time_risk",
+        "cost-config": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/validation_cost_time_v1.json",
+        "mppi-samples": 64,
+        "mppi-iterations": 2,
+        "seed": 11
+      },
+      "out": "/work1/dannegrut/harry/experiments/fdm_failure_investigation_20260909/refinement_counterfactual_v2/runs/diverse_v1_test_rolling_hills_00_selected_rgbd_time_parent_family",
+      "original_sha256": {
+        "trajectory.npz": "ea673a8868a11701d61d2167c073e8b9479c895b385593ac918bc6839194cae8",
+        "rich_telemetry.npz": "94a0f335e254e1169b45808c9f1c2340ea642c752c21733847f2cde26262c9ef",
+        "rich_intervals.npz": "630d5674f5bb6af5cb0bd7dd7ce81642d83e77ab978383ee840c7bb5caa22eaf",
+        "anchor_state.npz": "c872114b7e21ece72440102bb17e9dc0d34e4ab56e51745c12ba4415e1b4095d",
+        "outcome.json": "ffff83ee0aff9604040c6ba3eff3bd793562c4d353f2d931886ab96c74bf6b58",
+        "decisions/decision_00000.json": "6836b413b8cad3524e40733118c67f3aea77caaa03271936928a6e918529e92c",
+        "online_protocol.json": "e3bd75e3c2b3507068deb13b5058941845f2e98d72e76ccf67bd8067060ccacb",
+        "simulation_provenance.json": "83d49366c8cfae1099d26a86c0ba1d3c4927e78041ed1b9107cc976117ba78e7",
+        "anchor_equality.json": "9c58dfc0c7d63d5f44665ea2852c50cf5fb0d27e31ecb5641238923875fc2c78"
+      }
+    },
+    {
+      "id": "diverse_v1_test_rough_mosaic_00_selected_rgbd_time_replay_selected",
+      "original_trial_id": "diverse_v1_test_rough_mosaic_00_selected_rgbd_time",
+      "mode": "replay_selected",
+      "original_root": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rough_mosaic_00_selected_rgbd_time",
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v9/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_test_rough_mosaic_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_rgbd_s11/last.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/observations/diverse_v1_test_rough_mosaic_00/observation.npz",
+        "horizon-s": 180,
+        "planning-device": "cpu",
+        "planning-mode": "plan_once",
+        "replan-period-s": 1,
+        "cost-mode": "time_risk",
+        "cost-config": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/validation_cost_time_v1.json",
+        "mppi-samples": 64,
+        "mppi-iterations": 2,
+        "seed": 11
+      },
+      "out": "/work1/dannegrut/harry/experiments/fdm_failure_investigation_20260909/refinement_counterfactual_v2/runs/diverse_v1_test_rough_mosaic_00_selected_rgbd_time_replay_selected",
+      "original_sha256": {
+        "trajectory.npz": "d37b62846a138433145926b1d6c89448342a8046c0123e4885d02a91d538f51c",
+        "rich_telemetry.npz": "93ab6a218dcd7274db7b54b9872d854cdb90813676f5b412e049fdeeb6d31fbc",
+        "rich_intervals.npz": "4b5b8514fbb65c202ec3d09a315c5e5c2a7709fca6432591190d42fe1a4fe720",
+        "anchor_state.npz": "90e6921c5ebe69ea4491ff458792d6b34b58780161b0386c745c5e0fe07023f8",
+        "outcome.json": "7bb36f8040935fd67c4084a7b53396ea939a7d4f8e08edcc1c84e874763c78cb",
+        "decisions/decision_00000.json": "a4596e4127b7abbfd055c6f452fc1f41418cfd8f8f92ea1be4bd522fb9bc166c",
+        "online_protocol.json": "5740ef90068d2df9abeabf4a61111f242440b43803a6e4ceea927716eed1f69d",
+        "simulation_provenance.json": "1cb1c38e8763b312828e9c9e95fa302ac486fa259598a2e1128a795edd4a4268",
+        "anchor_equality.json": "10300ebf9d490cee9507866f012e6ca26ccc5d46ea8ee05d24ee2943ad0d1662"
+      }
+    },
+    {
+      "id": "diverse_v1_test_rough_mosaic_00_selected_rgbd_time_parent_family",
+      "original_trial_id": "diverse_v1_test_rough_mosaic_00_selected_rgbd_time",
+      "mode": "parent_family",
+      "original_root": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rough_mosaic_00_selected_rgbd_time",
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v9/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_test_rough_mosaic_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_rgbd_s11/last.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/observations/diverse_v1_test_rough_mosaic_00/observation.npz",
+        "horizon-s": 180,
+        "planning-device": "cpu",
+        "planning-mode": "plan_once",
+        "replan-period-s": 1,
+        "cost-mode": "time_risk",
+        "cost-config": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/validation_cost_time_v1.json",
+        "mppi-samples": 64,
+        "mppi-iterations": 2,
+        "seed": 11
+      },
+      "out": "/work1/dannegrut/harry/experiments/fdm_failure_investigation_20260909/refinement_counterfactual_v2/runs/diverse_v1_test_rough_mosaic_00_selected_rgbd_time_parent_family",
+      "original_sha256": {
+        "trajectory.npz": "d37b62846a138433145926b1d6c89448342a8046c0123e4885d02a91d538f51c",
+        "rich_telemetry.npz": "93ab6a218dcd7274db7b54b9872d854cdb90813676f5b412e049fdeeb6d31fbc",
+        "rich_intervals.npz": "4b5b8514fbb65c202ec3d09a315c5e5c2a7709fca6432591190d42fe1a4fe720",
+        "anchor_state.npz": "90e6921c5ebe69ea4491ff458792d6b34b58780161b0386c745c5e0fe07023f8",
+        "outcome.json": "7bb36f8040935fd67c4084a7b53396ea939a7d4f8e08edcc1c84e874763c78cb",
+        "decisions/decision_00000.json": "a4596e4127b7abbfd055c6f452fc1f41418cfd8f8f92ea1be4bd522fb9bc166c",
+        "online_protocol.json": "5740ef90068d2df9abeabf4a61111f242440b43803a6e4ceea927716eed1f69d",
+        "simulation_provenance.json": "1cb1c38e8763b312828e9c9e95fa302ac486fa259598a2e1128a795edd4a4268",
+        "anchor_equality.json": "10300ebf9d490cee9507866f012e6ca26ccc5d46ea8ee05d24ee2943ad0d1662"
+      }
+    },
+    {
+      "id": "diverse_v1_test_rolling_hills_00_selected_rgbd_energy_replay_selected",
+      "original_trial_id": "diverse_v1_test_rolling_hills_00_selected_rgbd_energy",
+      "mode": "replay_selected",
+      "original_root": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rolling_hills_00_selected_rgbd_energy",
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v9/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_test_rolling_hills_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_rgbd_s11/last.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/observations/diverse_v1_test_rolling_hills_00/observation.npz",
+        "horizon-s": 180,
+        "planning-device": "cpu",
+        "planning-mode": "plan_once",
+        "replan-period-s": 1,
+        "cost-mode": "energy_risk",
+        "cost-config": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/validation_cost_energy002_v1.json",
+        "mppi-samples": 64,
+        "mppi-iterations": 2,
+        "seed": 11
+      },
+      "out": "/work1/dannegrut/harry/experiments/fdm_failure_investigation_20260909/refinement_counterfactual_v2/runs/diverse_v1_test_rolling_hills_00_selected_rgbd_energy_replay_selected",
+      "original_sha256": {
+        "trajectory.npz": "99c7b955a0e0e26079718b3e846779681071a070539f3cbe5bb56e59d886ba9a",
+        "rich_telemetry.npz": "ffed4f2d278a9ec59734ef9723109d088dc0a14549b6367daf2cbb6087c814c4",
+        "rich_intervals.npz": "8fb28930446518511168df843a13f54084a20d6009593fbd4c24eff21ddc2d73",
+        "anchor_state.npz": "c872114b7e21ece72440102bb17e9dc0d34e4ab56e51745c12ba4415e1b4095d",
+        "outcome.json": "408297e5affc49f3ddb94ed4565facf6daf9425fe22a42b34c5bc61cfd3fe5b0",
+        "decisions/decision_00000.json": "d63fd63f1285c5a82214206ccef72bc609376539abdd7ceeba0e2766663b3996",
+        "online_protocol.json": "105e0c71c7d53ad6c74d7b7683b37eeb4582c25b6c6e1a57b6fe923cb6371d1c",
+        "simulation_provenance.json": "83d49366c8cfae1099d26a86c0ba1d3c4927e78041ed1b9107cc976117ba78e7",
+        "anchor_equality.json": "9c58dfc0c7d63d5f44665ea2852c50cf5fb0d27e31ecb5641238923875fc2c78"
+      }
+    },
+    {
+      "id": "diverse_v1_test_rolling_hills_00_selected_rgbd_energy_parent_family",
+      "original_trial_id": "diverse_v1_test_rolling_hills_00_selected_rgbd_energy",
+      "mode": "parent_family",
+      "original_root": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rolling_hills_00_selected_rgbd_energy",
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v9/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_test_rolling_hills_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_rgbd_s11/last.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/observations/diverse_v1_test_rolling_hills_00/observation.npz",
+        "horizon-s": 180,
+        "planning-device": "cpu",
+        "planning-mode": "plan_once",
+        "replan-period-s": 1,
+        "cost-mode": "energy_risk",
+        "cost-config": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/validation_cost_energy002_v1.json",
+        "mppi-samples": 64,
+        "mppi-iterations": 2,
+        "seed": 11
+      },
+      "out": "/work1/dannegrut/harry/experiments/fdm_failure_investigation_20260909/refinement_counterfactual_v2/runs/diverse_v1_test_rolling_hills_00_selected_rgbd_energy_parent_family",
+      "original_sha256": {
+        "trajectory.npz": "99c7b955a0e0e26079718b3e846779681071a070539f3cbe5bb56e59d886ba9a",
+        "rich_telemetry.npz": "ffed4f2d278a9ec59734ef9723109d088dc0a14549b6367daf2cbb6087c814c4",
+        "rich_intervals.npz": "8fb28930446518511168df843a13f54084a20d6009593fbd4c24eff21ddc2d73",
+        "anchor_state.npz": "c872114b7e21ece72440102bb17e9dc0d34e4ab56e51745c12ba4415e1b4095d",
+        "outcome.json": "408297e5affc49f3ddb94ed4565facf6daf9425fe22a42b34c5bc61cfd3fe5b0",
+        "decisions/decision_00000.json": "d63fd63f1285c5a82214206ccef72bc609376539abdd7ceeba0e2766663b3996",
+        "online_protocol.json": "105e0c71c7d53ad6c74d7b7683b37eeb4582c25b6c6e1a57b6fe923cb6371d1c",
+        "simulation_provenance.json": "83d49366c8cfae1099d26a86c0ba1d3c4927e78041ed1b9107cc976117ba78e7",
+        "anchor_equality.json": "9c58dfc0c7d63d5f44665ea2852c50cf5fb0d27e31ecb5641238923875fc2c78"
+      }
+    },
+    {
+      "id": "diverse_v1_test_rough_mosaic_00_selected_rgbd_energy_replay_selected",
+      "original_trial_id": "diverse_v1_test_rough_mosaic_00_selected_rgbd_energy",
+      "mode": "replay_selected",
+      "original_root": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rough_mosaic_00_selected_rgbd_energy",
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v9/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_test_rough_mosaic_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_rgbd_s11/last.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/observations/diverse_v1_test_rough_mosaic_00/observation.npz",
+        "horizon-s": 180,
+        "planning-device": "cpu",
+        "planning-mode": "plan_once",
+        "replan-period-s": 1,
+        "cost-mode": "energy_risk",
+        "cost-config": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/validation_cost_energy002_v1.json",
+        "mppi-samples": 64,
+        "mppi-iterations": 2,
+        "seed": 11
+      },
+      "out": "/work1/dannegrut/harry/experiments/fdm_failure_investigation_20260909/refinement_counterfactual_v2/runs/diverse_v1_test_rough_mosaic_00_selected_rgbd_energy_replay_selected",
+      "original_sha256": {
+        "trajectory.npz": "fd1aefbfa2cf579fa6cad628bfd4bf9a11d7fabcbce9676381b98392b36116a9",
+        "rich_telemetry.npz": "f4bdeb7f95dca1a0a1352fd04d9f6546ba83abc6bcd536134f14542125267109",
+        "rich_intervals.npz": "22885e301b35cf29c8a56a1c2d6bfb222eb02338b17ee957290df6a3d41e691c",
+        "anchor_state.npz": "90e6921c5ebe69ea4491ff458792d6b34b58780161b0386c745c5e0fe07023f8",
+        "outcome.json": "72199b4a5930858f662fa08903b84bf7b797630a53f3977a942c601003c02a8c",
+        "decisions/decision_00000.json": "0d970574296b72dc5bacfdb067b07b7a9687e8f1699a07f5545c593f3be30cf0",
+        "online_protocol.json": "66e6464a0a6c6ab02e57846d9c6c76607eac3c3b74b40dd4d7d6d41a081cfbe0",
+        "simulation_provenance.json": "1cb1c38e8763b312828e9c9e95fa302ac486fa259598a2e1128a795edd4a4268",
+        "anchor_equality.json": "10300ebf9d490cee9507866f012e6ca26ccc5d46ea8ee05d24ee2943ad0d1662"
+      }
+    },
+    {
+      "id": "diverse_v1_test_rough_mosaic_00_selected_rgbd_energy_parent_family",
+      "original_trial_id": "diverse_v1_test_rough_mosaic_00_selected_rgbd_energy",
+      "mode": "parent_family",
+      "original_root": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_protected_test_v1/diverse_v1_test_rough_mosaic_00_selected_rgbd_energy",
+      "arguments": {
+        "case": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v9/artifacts/traverse/fdm_diverse_v1_20260909/cases/diverse_v1_test_rough_mosaic_00.json",
+        "checkpoint": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_rgbd_s11/last.pt",
+        "scene-observation": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/observations/diverse_v1_test_rough_mosaic_00/observation.npz",
+        "horizon-s": 180,
+        "planning-device": "cpu",
+        "planning-mode": "plan_once",
+        "replan-period-s": 1,
+        "cost-mode": "energy_risk",
+        "cost-config": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/validation_cost_energy002_v1.json",
+        "mppi-samples": 64,
+        "mppi-iterations": 2,
+        "seed": 11
+      },
+      "out": "/work1/dannegrut/harry/experiments/fdm_failure_investigation_20260909/refinement_counterfactual_v2/runs/diverse_v1_test_rough_mosaic_00_selected_rgbd_energy_parent_family",
+      "original_sha256": {
+        "trajectory.npz": "fd1aefbfa2cf579fa6cad628bfd4bf9a11d7fabcbce9676381b98392b36116a9",
+        "rich_telemetry.npz": "f4bdeb7f95dca1a0a1352fd04d9f6546ba83abc6bcd536134f14542125267109",
+        "rich_intervals.npz": "22885e301b35cf29c8a56a1c2d6bfb222eb02338b17ee957290df6a3d41e691c",
+        "anchor_state.npz": "90e6921c5ebe69ea4491ff458792d6b34b58780161b0386c745c5e0fe07023f8",
+        "outcome.json": "72199b4a5930858f662fa08903b84bf7b797630a53f3977a942c601003c02a8c",
+        "decisions/decision_00000.json": "0d970574296b72dc5bacfdb067b07b7a9687e8f1699a07f5545c593f3be30cf0",
+        "online_protocol.json": "66e6464a0a6c6ab02e57846d9c6c76607eac3c3b74b40dd4d7d6d41a081cfbe0",
+        "simulation_provenance.json": "1cb1c38e8763b312828e9c9e95fa302ac486fa259598a2e1128a795edd4a4268",
+        "anchor_equality.json": "10300ebf9d490cee9507866f012e6ca26ccc5d46ea8ee05d24ee2943ad0d1662"
+      }
+    }
+  ],
+  "decision": "No new policy/model selection. Replay controls must match every stored physical array before interpreting paired parent interventions. Both cost arms retained, even when their parent references coincide.",
+  "prior_attempt": {
+    "job": 412221,
+    "issue": "Diagnostic launch guard used float32 observation goal instead of the frozen runner float64 case goal; all attempts stopped before traversal. Exact comparison now uses the same case goal, without relaxed tolerance. No simulator/model/control changes."
+  }
+}

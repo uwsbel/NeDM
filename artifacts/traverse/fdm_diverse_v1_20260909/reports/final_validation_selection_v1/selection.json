@@ -1,0 +1,1771 @@
+{
+  "rule_sha256": "da11f67eb9c9bc77188afb8b851b0678bab0495e62d0f17544bca7119682c647",
+  "script_sha256": "afd66c42055a6b4a82d92b4112f2700d29f3808fe1954d8d8bb121a4ee7ce935",
+  "errors": [],
+  "selection_state": "validation_selected",
+  "concrete_freeze_written": false,
+  "concrete_freeze_required_before_test": true,
+  "protected_test_opened": false,
+  "candidates": [
+    {
+      "planning_mode": "receding",
+      "checkpoint_kind": "best",
+      "preference_order": 0,
+      "grid": "full_validation_grid_v3.json",
+      "selected_weight_s_per_kj": 0.02,
+      "selected_weight_safe_goals": 4,
+      "zero_weight_safe_goals": 4,
+      "declared_scenes": 6,
+      "energy_gate_passed": false,
+      "checkpoint_sha256": "65945dd3ca79621f5cf2467e0a19f66cdb943faf798565be0affe657132df33f",
+      "checkpoint_step": 4000,
+      "source_manifest_sha256": "23a9ce714b2ce70b6cf2b8c911cd83313a3454e9c836dc1c3f41501adb0103e7",
+      "task_file_sha256": "e192536cd331706d70481e8642cc6d743c9b0bd87d397cfd125d633dfcf810e6",
+      "cohort_report_sha256": "6b55dd3ee8e49a09b21a2cb5410e941fc4da2d98042fbed8d945ffeac16c5f7d",
+      "energy_spec_sha256": "bdef9b039d6dff5022c5b9815c5e30e269d9c2f14d78721c52a75c4f9c844fc2",
+      "energy_gate": {
+        "selection_state": "complete_valid_grid_no_qualifier_default_retained",
+        "selected_weight_s_per_kj": 0.02,
+        "gate_passed": false,
+        "freeze_allowed": true,
+        "baseline_unconditional_safe_goal_count": 4,
+        "candidate_evaluations": [
+          {
+            "energy_weight_s_per_kj": 0.02,
+            "paired_safe_scenes": 3,
+            "mean_work_saving_fraction": -0.06677189290188894,
+            "mean_time_increase_fraction": 0.001329879807327905,
+            "unconditional_safe_goal_count": 4,
+            "gates": {
+              "at_least_three_safe_pairs": true,
+              "mean_work_saving_at_least_five_percent": false,
+              "mean_time_increase_at_most_twentyfive_percent": true,
+              "no_unconditional_success_count_drop": true
+            },
+            "qualifies": false
+          },
+          {
+            "energy_weight_s_per_kj": 0.2,
+            "paired_safe_scenes": 2,
+            "mean_work_saving_fraction": -0.9443711563498306,
+            "mean_time_increase_fraction": 0.3252051566005053,
+            "unconditional_safe_goal_count": 2,
+            "gates": {
+              "at_least_three_safe_pairs": false,
+              "mean_work_saving_at_least_five_percent": false,
+              "mean_time_increase_at_most_twentyfive_percent": false,
+              "no_unconditional_success_count_drop": false
+            },
+            "qualifies": false
+          },
+          {
+            "energy_weight_s_per_kj": 0.5,
+            "paired_safe_scenes": 1,
+            "mean_work_saving_fraction": 0.4564899078460717,
+            "mean_time_increase_fraction": -0.11449016100178899,
+            "unconditional_safe_goal_count": 1,
+            "gates": {
+              "at_least_three_safe_pairs": false,
+              "mean_work_saving_at_least_five_percent": true,
+              "mean_time_increase_at_most_twentyfive_percent": true,
+              "no_unconditional_success_count_drop": false
+            },
+            "qualifies": false
+          }
+        ],
+        "paired_scene_tradeoffs": [
+          {
+            "scene_id": "diverse_v1_val_rolling_hills_00",
+            "candidate_weight_s_per_kj": 0.02,
+            "candidate_trial_id": "diverse_v1_val_rolling_hills_00_energy002",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_rolling_hills_00_time"
+          },
+          {
+            "scene_id": "diverse_v1_val_ridge_passes_00",
+            "candidate_weight_s_per_kj": 0.02,
+            "candidate_trial_id": "diverse_v1_val_ridge_passes_00_energy002",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_ridge_passes_00_time"
+          },
+          {
+            "scene_id": "diverse_v1_val_cross_slopes_00",
+            "candidate_weight_s_per_kj": 0.02,
+            "candidate_trial_id": "diverse_v1_val_cross_slopes_00_energy002",
+            "eligible": true,
+            "reason": null,
+            "work_saving_fraction": -0.1539950020465568,
+            "time_increase_fraction": 0.05008944543828253,
+            "baseline_trial_id": "diverse_v1_val_cross_slopes_00_time"
+          },
+          {
+            "scene_id": "diverse_v1_val_valley_network_00",
+            "candidate_weight_s_per_kj": 0.02,
+            "candidate_trial_id": "diverse_v1_val_valley_network_00_energy002",
+            "eligible": true,
+            "reason": null,
+            "work_saving_fraction": -0.014313523071272982,
+            "time_increase_fraction": 0.0012210012210012167,
+            "baseline_trial_id": "diverse_v1_val_valley_network_00_time"
+          },
+          {
+            "scene_id": "diverse_v1_val_rough_mosaic_00",
+            "candidate_weight_s_per_kj": 0.02,
+            "candidate_trial_id": "diverse_v1_val_rough_mosaic_00_energy002",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_rough_mosaic_00_time"
+          },
+          {
+            "scene_id": "diverse_v1_val_mixed_obstacles_00",
+            "candidate_weight_s_per_kj": 0.02,
+            "candidate_trial_id": "diverse_v1_val_mixed_obstacles_00_energy002",
+            "eligible": true,
+            "reason": null,
+            "work_saving_fraction": -0.03200715358783701,
+            "time_increase_fraction": -0.04732080723730003,
+            "baseline_trial_id": "diverse_v1_val_mixed_obstacles_00_time"
+          },
+          {
+            "scene_id": "diverse_v1_val_rolling_hills_00",
+            "candidate_weight_s_per_kj": 0.2,
+            "candidate_trial_id": "diverse_v1_val_rolling_hills_00_energy020",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_rolling_hills_00_time"
+          },
+          {
+            "scene_id": "diverse_v1_val_ridge_passes_00",
+            "candidate_weight_s_per_kj": 0.2,
+            "candidate_trial_id": "diverse_v1_val_ridge_passes_00_energy020",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_ridge_passes_00_time"
+          },
+          {
+            "scene_id": "diverse_v1_val_cross_slopes_00",
+            "candidate_weight_s_per_kj": 0.2,
+            "candidate_trial_id": "diverse_v1_val_cross_slopes_00_energy020",
+            "eligible": true,
+            "reason": null,
+            "work_saving_fraction": -0.9188308782239074,
+            "time_increase_fraction": 0.5161001788908763,
+            "baseline_trial_id": "diverse_v1_val_cross_slopes_00_time"
+          },
+          {
+            "scene_id": "diverse_v1_val_valley_network_00",
+            "candidate_weight_s_per_kj": 0.2,
+            "candidate_trial_id": "diverse_v1_val_valley_network_00_energy020",
+            "eligible": true,
+            "reason": null,
+            "work_saving_fraction": -0.9699114344757538,
+            "time_increase_fraction": 0.13431013431013428,
+            "baseline_trial_id": "diverse_v1_val_valley_network_00_time"
+          },
+          {
+            "scene_id": "diverse_v1_val_rough_mosaic_00",
+            "candidate_weight_s_per_kj": 0.2,
+            "candidate_trial_id": "diverse_v1_val_rough_mosaic_00_energy020",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_rough_mosaic_00_time"
+          },
+          {
+            "scene_id": "diverse_v1_val_mixed_obstacles_00",
+            "candidate_weight_s_per_kj": 0.2,
+            "candidate_trial_id": "diverse_v1_val_mixed_obstacles_00_energy020",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_mixed_obstacles_00_time"
+          },
+          {
+            "scene_id": "diverse_v1_val_rolling_hills_00",
+            "candidate_weight_s_per_kj": 0.5,
+            "candidate_trial_id": "diverse_v1_val_rolling_hills_00_energy050",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_rolling_hills_00_time"
+          },
+          {
+            "scene_id": "diverse_v1_val_ridge_passes_00",
+            "candidate_weight_s_per_kj": 0.5,
+            "candidate_trial_id": "diverse_v1_val_ridge_passes_00_energy050",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_ridge_passes_00_time"
+          },
+          {
+            "scene_id": "diverse_v1_val_cross_slopes_00",
+            "candidate_weight_s_per_kj": 0.5,
+            "candidate_trial_id": "diverse_v1_val_cross_slopes_00_energy050",
+            "eligible": true,
+            "reason": null,
+            "work_saving_fraction": 0.4564899078460717,
+            "time_increase_fraction": -0.11449016100178899,
+            "baseline_trial_id": "diverse_v1_val_cross_slopes_00_time"
+          },
+          {
+            "scene_id": "diverse_v1_val_valley_network_00",
+            "candidate_weight_s_per_kj": 0.5,
+            "candidate_trial_id": "diverse_v1_val_valley_network_00_energy050",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_valley_network_00_time"
+          },
+          {
+            "scene_id": "diverse_v1_val_rough_mosaic_00",
+            "candidate_weight_s_per_kj": 0.5,
+            "candidate_trial_id": "diverse_v1_val_rough_mosaic_00_energy050",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_rough_mosaic_00_time"
+          },
+          {
+            "scene_id": "diverse_v1_val_mixed_obstacles_00",
+            "candidate_weight_s_per_kj": 0.5,
+            "candidate_trial_id": "diverse_v1_val_mixed_obstacles_00_energy050",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_mixed_obstacles_00_time"
+          }
+        ],
+        "claim": "Default retained; no energy-efficiency or optimum claim"
+      }
+    },
+    {
+      "planning_mode": "plan_once",
+      "checkpoint_kind": "best",
+      "preference_order": 1,
+      "grid": "plan_once_best_grid_v1.json",
+      "selected_weight_s_per_kj": 0.02,
+      "selected_weight_safe_goals": 2,
+      "zero_weight_safe_goals": 3,
+      "declared_scenes": 6,
+      "energy_gate_passed": false,
+      "checkpoint_sha256": "65945dd3ca79621f5cf2467e0a19f66cdb943faf798565be0affe657132df33f",
+      "checkpoint_step": 4000,
+      "source_manifest_sha256": "c2ec8b81acd066c75e46cf658c8aa5e67661f92cf3a35a6da97575b03812382a",
+      "task_file_sha256": "44f85813786650b8526f56129f7f7ef2daa0c0eb0b7094e249c776764aed7ee0",
+      "cohort_report_sha256": "d95e8ce64decff0af514f8e70800ea50b7ae1e9af662e975b792ea0fe2d5939f",
+      "energy_spec_sha256": "a9b7b4f0d5532f9dc35f3bcccb2f83d72b1d36a85dd6f3b386fa15bf95107b98",
+      "energy_gate": {
+        "selection_state": "complete_valid_grid_no_qualifier_default_retained",
+        "selected_weight_s_per_kj": 0.02,
+        "gate_passed": false,
+        "freeze_allowed": true,
+        "baseline_unconditional_safe_goal_count": 3,
+        "candidate_evaluations": [
+          {
+            "energy_weight_s_per_kj": 0.02,
+            "paired_safe_scenes": 2,
+            "mean_work_saving_fraction": 0.0013127822161487779,
+            "mean_time_increase_fraction": -0.0006060606060605545,
+            "unconditional_safe_goal_count": 2,
+            "gates": {
+              "at_least_three_safe_pairs": false,
+              "mean_work_saving_at_least_five_percent": false,
+              "mean_time_increase_at_most_twentyfive_percent": true,
+              "no_unconditional_success_count_drop": false
+            },
+            "qualifies": false
+          },
+          {
+            "energy_weight_s_per_kj": 0.2,
+            "paired_safe_scenes": 1,
+            "mean_work_saving_fraction": 0.0240919794017469,
+            "mean_time_increase_fraction": 0.05454545454545445,
+            "unconditional_safe_goal_count": 1,
+            "gates": {
+              "at_least_three_safe_pairs": false,
+              "mean_work_saving_at_least_five_percent": false,
+              "mean_time_increase_at_most_twentyfive_percent": true,
+              "no_unconditional_success_count_drop": false
+            },
+            "qualifies": false
+          },
+          {
+            "energy_weight_s_per_kj": 0.5,
+            "paired_safe_scenes": 0,
+            "mean_work_saving_fraction": null,
+            "mean_time_increase_fraction": null,
+            "unconditional_safe_goal_count": 0,
+            "gates": {
+              "at_least_three_safe_pairs": false,
+              "mean_work_saving_at_least_five_percent": false,
+              "mean_time_increase_at_most_twentyfive_percent": false,
+              "no_unconditional_success_count_drop": false
+            },
+            "qualifies": false
+          }
+        ],
+        "paired_scene_tradeoffs": [
+          {
+            "scene_id": "diverse_v1_val_rolling_hills_00",
+            "candidate_weight_s_per_kj": 0.02,
+            "candidate_trial_id": "diverse_v1_val_rolling_hills_00_energy002_once_best",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_rolling_hills_00_time_once_best"
+          },
+          {
+            "scene_id": "diverse_v1_val_ridge_passes_00",
+            "candidate_weight_s_per_kj": 0.02,
+            "candidate_trial_id": "diverse_v1_val_ridge_passes_00_energy002_once_best",
+            "eligible": true,
+            "reason": null,
+            "work_saving_fraction": 6.00163264488085e-05,
+            "time_increase_fraction": -0.001212121212121109,
+            "baseline_trial_id": "diverse_v1_val_ridge_passes_00_time_once_best"
+          },
+          {
+            "scene_id": "diverse_v1_val_cross_slopes_00",
+            "candidate_weight_s_per_kj": 0.02,
+            "candidate_trial_id": "diverse_v1_val_cross_slopes_00_energy002_once_best",
+            "eligible": true,
+            "reason": null,
+            "work_saving_fraction": 0.0025655481058487473,
+            "time_increase_fraction": 0.0,
+            "baseline_trial_id": "diverse_v1_val_cross_slopes_00_time_once_best"
+          },
+          {
+            "scene_id": "diverse_v1_val_valley_network_00",
+            "candidate_weight_s_per_kj": 0.02,
+            "candidate_trial_id": "diverse_v1_val_valley_network_00_energy002_once_best",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_valley_network_00_time_once_best"
+          },
+          {
+            "scene_id": "diverse_v1_val_rough_mosaic_00",
+            "candidate_weight_s_per_kj": 0.02,
+            "candidate_trial_id": "diverse_v1_val_rough_mosaic_00_energy002_once_best",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_rough_mosaic_00_time_once_best"
+          },
+          {
+            "scene_id": "diverse_v1_val_mixed_obstacles_00",
+            "candidate_weight_s_per_kj": 0.02,
+            "candidate_trial_id": "diverse_v1_val_mixed_obstacles_00_energy002_once_best",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_mixed_obstacles_00_time_once_best"
+          },
+          {
+            "scene_id": "diverse_v1_val_rolling_hills_00",
+            "candidate_weight_s_per_kj": 0.2,
+            "candidate_trial_id": "diverse_v1_val_rolling_hills_00_energy020_once_best",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_rolling_hills_00_time_once_best"
+          },
+          {
+            "scene_id": "diverse_v1_val_ridge_passes_00",
+            "candidate_weight_s_per_kj": 0.2,
+            "candidate_trial_id": "diverse_v1_val_ridge_passes_00_energy020_once_best",
+            "eligible": true,
+            "reason": null,
+            "work_saving_fraction": 0.0240919794017469,
+            "time_increase_fraction": 0.05454545454545445,
+            "baseline_trial_id": "diverse_v1_val_ridge_passes_00_time_once_best"
+          },
+          {
+            "scene_id": "diverse_v1_val_cross_slopes_00",
+            "candidate_weight_s_per_kj": 0.2,
+            "candidate_trial_id": "diverse_v1_val_cross_slopes_00_energy020_once_best",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_cross_slopes_00_time_once_best"
+          },
+          {
+            "scene_id": "diverse_v1_val_valley_network_00",
+            "candidate_weight_s_per_kj": 0.2,
+            "candidate_trial_id": "diverse_v1_val_valley_network_00_energy020_once_best",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_valley_network_00_time_once_best"
+          },
+          {
+            "scene_id": "diverse_v1_val_rough_mosaic_00",
+            "candidate_weight_s_per_kj": 0.2,
+            "candidate_trial_id": "diverse_v1_val_rough_mosaic_00_energy020_once_best",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_rough_mosaic_00_time_once_best"
+          },
+          {
+            "scene_id": "diverse_v1_val_mixed_obstacles_00",
+            "candidate_weight_s_per_kj": 0.2,
+            "candidate_trial_id": "diverse_v1_val_mixed_obstacles_00_energy020_once_best",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_mixed_obstacles_00_time_once_best"
+          },
+          {
+            "scene_id": "diverse_v1_val_rolling_hills_00",
+            "candidate_weight_s_per_kj": 0.5,
+            "candidate_trial_id": "diverse_v1_val_rolling_hills_00_energy050_once_best",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_rolling_hills_00_time_once_best"
+          },
+          {
+            "scene_id": "diverse_v1_val_ridge_passes_00",
+            "candidate_weight_s_per_kj": 0.5,
+            "candidate_trial_id": "diverse_v1_val_ridge_passes_00_energy050_once_best",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_ridge_passes_00_time_once_best"
+          },
+          {
+            "scene_id": "diverse_v1_val_cross_slopes_00",
+            "candidate_weight_s_per_kj": 0.5,
+            "candidate_trial_id": "diverse_v1_val_cross_slopes_00_energy050_once_best",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_cross_slopes_00_time_once_best"
+          },
+          {
+            "scene_id": "diverse_v1_val_valley_network_00",
+            "candidate_weight_s_per_kj": 0.5,
+            "candidate_trial_id": "diverse_v1_val_valley_network_00_energy050_once_best",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_valley_network_00_time_once_best"
+          },
+          {
+            "scene_id": "diverse_v1_val_rough_mosaic_00",
+            "candidate_weight_s_per_kj": 0.5,
+            "candidate_trial_id": "diverse_v1_val_rough_mosaic_00_energy050_once_best",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_rough_mosaic_00_time_once_best"
+          },
+          {
+            "scene_id": "diverse_v1_val_mixed_obstacles_00",
+            "candidate_weight_s_per_kj": 0.5,
+            "candidate_trial_id": "diverse_v1_val_mixed_obstacles_00_energy050_once_best",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_mixed_obstacles_00_time_once_best"
+          }
+        ],
+        "claim": "Default retained; no energy-efficiency or optimum claim"
+      }
+    },
+    {
+      "planning_mode": "plan_once",
+      "checkpoint_kind": "last",
+      "preference_order": 2,
+      "grid": "plan_once_last_grid_v1.json",
+      "selected_weight_s_per_kj": 0.02,
+      "selected_weight_safe_goals": 4,
+      "zero_weight_safe_goals": 5,
+      "declared_scenes": 6,
+      "energy_gate_passed": false,
+      "checkpoint_sha256": "0251cb87ddd25b6dfd8c628680f3470983ca4ca36ef65a05bb966021a4691a20",
+      "checkpoint_step": 5000,
+      "source_manifest_sha256": "c2ec8b81acd066c75e46cf658c8aa5e67661f92cf3a35a6da97575b03812382a",
+      "task_file_sha256": "3d5e9b41a5242663535802377e20eedf444f99be84f02315eeb9aeecad5a3923",
+      "cohort_report_sha256": "3650d41fda42a3bf3c5571ce37d024e13033dd7792e78e4e74b457ce45b572ad",
+      "energy_spec_sha256": "25f254845d4ecc8ff835151deae6dda3af2d0f4521d58f2f8c5354c566fe5331",
+      "energy_gate": {
+        "selection_state": "complete_valid_grid_no_qualifier_default_retained",
+        "selected_weight_s_per_kj": 0.02,
+        "gate_passed": false,
+        "freeze_allowed": true,
+        "baseline_unconditional_safe_goal_count": 5,
+        "candidate_evaluations": [
+          {
+            "energy_weight_s_per_kj": 0.02,
+            "paired_safe_scenes": 4,
+            "mean_work_saving_fraction": 0.003159668049166786,
+            "mean_time_increase_fraction": -0.008949880668257748,
+            "unconditional_safe_goal_count": 4,
+            "gates": {
+              "at_least_three_safe_pairs": true,
+              "mean_work_saving_at_least_five_percent": false,
+              "mean_time_increase_at_most_twentyfive_percent": true,
+              "no_unconditional_success_count_drop": false
+            },
+            "qualifies": false
+          },
+          {
+            "energy_weight_s_per_kj": 0.2,
+            "paired_safe_scenes": 2,
+            "mean_work_saving_fraction": -2.4614174628168985,
+            "mean_time_increase_fraction": 0.07146307948217268,
+            "unconditional_safe_goal_count": 2,
+            "gates": {
+              "at_least_three_safe_pairs": false,
+              "mean_work_saving_at_least_five_percent": false,
+              "mean_time_increase_at_most_twentyfive_percent": true,
+              "no_unconditional_success_count_drop": false
+            },
+            "qualifies": false
+          },
+          {
+            "energy_weight_s_per_kj": 0.5,
+            "paired_safe_scenes": 1,
+            "mean_work_saving_fraction": 0.021020077711192964,
+            "mean_time_increase_fraction": 0.053333333333333455,
+            "unconditional_safe_goal_count": 1,
+            "gates": {
+              "at_least_three_safe_pairs": false,
+              "mean_work_saving_at_least_five_percent": false,
+              "mean_time_increase_at_most_twentyfive_percent": true,
+              "no_unconditional_success_count_drop": false
+            },
+            "qualifies": false
+          }
+        ],
+        "paired_scene_tradeoffs": [
+          {
+            "scene_id": "diverse_v1_val_rolling_hills_00",
+            "candidate_weight_s_per_kj": 0.02,
+            "candidate_trial_id": "diverse_v1_val_rolling_hills_00_energy002_once_last",
+            "eligible": true,
+            "reason": null,
+            "work_saving_fraction": 0.003614476720138482,
+            "time_increase_fraction": 0.0,
+            "baseline_trial_id": "diverse_v1_val_rolling_hills_00_time_once_last"
+          },
+          {
+            "scene_id": "diverse_v1_val_ridge_passes_00",
+            "candidate_weight_s_per_kj": 0.02,
+            "candidate_trial_id": "diverse_v1_val_ridge_passes_00_energy002_once_last",
+            "eligible": true,
+            "reason": null,
+            "work_saving_fraction": 0.006110007131455375,
+            "time_increase_fraction": 0.0,
+            "baseline_trial_id": "diverse_v1_val_ridge_passes_00_time_once_last"
+          },
+          {
+            "scene_id": "diverse_v1_val_cross_slopes_00",
+            "candidate_weight_s_per_kj": 0.02,
+            "candidate_trial_id": "diverse_v1_val_cross_slopes_00_energy002_once_last",
+            "eligible": true,
+            "reason": null,
+            "work_saving_fraction": 0.004283137314722407,
+            "time_increase_fraction": -0.017899761336515496,
+            "baseline_trial_id": "diverse_v1_val_cross_slopes_00_time_once_last"
+          },
+          {
+            "scene_id": "diverse_v1_val_valley_network_00",
+            "candidate_weight_s_per_kj": 0.02,
+            "candidate_trial_id": "diverse_v1_val_valley_network_00_energy002_once_last",
+            "eligible": true,
+            "reason": null,
+            "work_saving_fraction": -0.0013689489696491197,
+            "time_increase_fraction": -0.017899761336515496,
+            "baseline_trial_id": "diverse_v1_val_valley_network_00_time_once_last"
+          },
+          {
+            "scene_id": "diverse_v1_val_rough_mosaic_00",
+            "candidate_weight_s_per_kj": 0.02,
+            "candidate_trial_id": "diverse_v1_val_rough_mosaic_00_energy002_once_last",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_rough_mosaic_00_time_once_last"
+          },
+          {
+            "scene_id": "diverse_v1_val_mixed_obstacles_00",
+            "candidate_weight_s_per_kj": 0.02,
+            "candidate_trial_id": "diverse_v1_val_mixed_obstacles_00_energy002_once_last",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_mixed_obstacles_00_time_once_last"
+          },
+          {
+            "scene_id": "diverse_v1_val_rolling_hills_00",
+            "candidate_weight_s_per_kj": 0.2,
+            "candidate_trial_id": "diverse_v1_val_rolling_hills_00_energy020_once_last",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_rolling_hills_00_time_once_last"
+          },
+          {
+            "scene_id": "diverse_v1_val_ridge_passes_00",
+            "candidate_weight_s_per_kj": 0.2,
+            "candidate_trial_id": "diverse_v1_val_ridge_passes_00_energy020_once_last",
+            "eligible": true,
+            "reason": null,
+            "work_saving_fraction": 0.02537755472854364,
+            "time_increase_fraction": 0.059393939393939554,
+            "baseline_trial_id": "diverse_v1_val_ridge_passes_00_time_once_last"
+          },
+          {
+            "scene_id": "diverse_v1_val_cross_slopes_00",
+            "candidate_weight_s_per_kj": 0.2,
+            "candidate_trial_id": "diverse_v1_val_cross_slopes_00_energy020_once_last",
+            "eligible": true,
+            "reason": null,
+            "work_saving_fraction": -4.948212480362341,
+            "time_increase_fraction": 0.0835322195704058,
+            "baseline_trial_id": "diverse_v1_val_cross_slopes_00_time_once_last"
+          },
+          {
+            "scene_id": "diverse_v1_val_valley_network_00",
+            "candidate_weight_s_per_kj": 0.2,
+            "candidate_trial_id": "diverse_v1_val_valley_network_00_energy020_once_last",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_valley_network_00_time_once_last"
+          },
+          {
+            "scene_id": "diverse_v1_val_rough_mosaic_00",
+            "candidate_weight_s_per_kj": 0.2,
+            "candidate_trial_id": "diverse_v1_val_rough_mosaic_00_energy020_once_last",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_rough_mosaic_00_time_once_last"
+          },
+          {
+            "scene_id": "diverse_v1_val_mixed_obstacles_00",
+            "candidate_weight_s_per_kj": 0.2,
+            "candidate_trial_id": "diverse_v1_val_mixed_obstacles_00_energy020_once_last",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_mixed_obstacles_00_time_once_last"
+          },
+          {
+            "scene_id": "diverse_v1_val_rolling_hills_00",
+            "candidate_weight_s_per_kj": 0.5,
+            "candidate_trial_id": "diverse_v1_val_rolling_hills_00_energy050_once_last",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_rolling_hills_00_time_once_last"
+          },
+          {
+            "scene_id": "diverse_v1_val_ridge_passes_00",
+            "candidate_weight_s_per_kj": 0.5,
+            "candidate_trial_id": "diverse_v1_val_ridge_passes_00_energy050_once_last",
+            "eligible": true,
+            "reason": null,
+            "work_saving_fraction": 0.021020077711192964,
+            "time_increase_fraction": 0.053333333333333455,
+            "baseline_trial_id": "diverse_v1_val_ridge_passes_00_time_once_last"
+          },
+          {
+            "scene_id": "diverse_v1_val_cross_slopes_00",
+            "candidate_weight_s_per_kj": 0.5,
+            "candidate_trial_id": "diverse_v1_val_cross_slopes_00_energy050_once_last",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_cross_slopes_00_time_once_last"
+          },
+          {
+            "scene_id": "diverse_v1_val_valley_network_00",
+            "candidate_weight_s_per_kj": 0.5,
+            "candidate_trial_id": "diverse_v1_val_valley_network_00_energy050_once_last",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_valley_network_00_time_once_last"
+          },
+          {
+            "scene_id": "diverse_v1_val_rough_mosaic_00",
+            "candidate_weight_s_per_kj": 0.5,
+            "candidate_trial_id": "diverse_v1_val_rough_mosaic_00_energy050_once_last",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_rough_mosaic_00_time_once_last"
+          },
+          {
+            "scene_id": "diverse_v1_val_mixed_obstacles_00",
+            "candidate_weight_s_per_kj": 0.5,
+            "candidate_trial_id": "diverse_v1_val_mixed_obstacles_00_energy050_once_last",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_mixed_obstacles_00_time_once_last"
+          }
+        ],
+        "claim": "Default retained; no energy-efficiency or optimum claim"
+      }
+    }
+  ],
+  "ranked_configurations": [
+    {
+      "planning_mode": "plan_once",
+      "checkpoint_kind": "last",
+      "preference_order": 2,
+      "grid": "plan_once_last_grid_v1.json",
+      "selected_weight_s_per_kj": 0.02,
+      "selected_weight_safe_goals": 4,
+      "zero_weight_safe_goals": 5,
+      "declared_scenes": 6,
+      "energy_gate_passed": false,
+      "checkpoint_sha256": "0251cb87ddd25b6dfd8c628680f3470983ca4ca36ef65a05bb966021a4691a20",
+      "checkpoint_step": 5000,
+      "source_manifest_sha256": "c2ec8b81acd066c75e46cf658c8aa5e67661f92cf3a35a6da97575b03812382a",
+      "task_file_sha256": "3d5e9b41a5242663535802377e20eedf444f99be84f02315eeb9aeecad5a3923",
+      "cohort_report_sha256": "3650d41fda42a3bf3c5571ce37d024e13033dd7792e78e4e74b457ce45b572ad",
+      "energy_spec_sha256": "25f254845d4ecc8ff835151deae6dda3af2d0f4521d58f2f8c5354c566fe5331",
+      "energy_gate": {
+        "selection_state": "complete_valid_grid_no_qualifier_default_retained",
+        "selected_weight_s_per_kj": 0.02,
+        "gate_passed": false,
+        "freeze_allowed": true,
+        "baseline_unconditional_safe_goal_count": 5,
+        "candidate_evaluations": [
+          {
+            "energy_weight_s_per_kj": 0.02,
+            "paired_safe_scenes": 4,
+            "mean_work_saving_fraction": 0.003159668049166786,
+            "mean_time_increase_fraction": -0.008949880668257748,
+            "unconditional_safe_goal_count": 4,
+            "gates": {
+              "at_least_three_safe_pairs": true,
+              "mean_work_saving_at_least_five_percent": false,
+              "mean_time_increase_at_most_twentyfive_percent": true,
+              "no_unconditional_success_count_drop": false
+            },
+            "qualifies": false
+          },
+          {
+            "energy_weight_s_per_kj": 0.2,
+            "paired_safe_scenes": 2,
+            "mean_work_saving_fraction": -2.4614174628168985,
+            "mean_time_increase_fraction": 0.07146307948217268,
+            "unconditional_safe_goal_count": 2,
+            "gates": {
+              "at_least_three_safe_pairs": false,
+              "mean_work_saving_at_least_five_percent": false,
+              "mean_time_increase_at_most_twentyfive_percent": true,
+              "no_unconditional_success_count_drop": false
+            },
+            "qualifies": false
+          },
+          {
+            "energy_weight_s_per_kj": 0.5,
+            "paired_safe_scenes": 1,
+            "mean_work_saving_fraction": 0.021020077711192964,
+            "mean_time_increase_fraction": 0.053333333333333455,
+            "unconditional_safe_goal_count": 1,
+            "gates": {
+              "at_least_three_safe_pairs": false,
+              "mean_work_saving_at_least_five_percent": false,
+              "mean_time_increase_at_most_twentyfive_percent": true,
+              "no_unconditional_success_count_drop": false
+            },
+            "qualifies": false
+          }
+        ],
+        "paired_scene_tradeoffs": [
+          {
+            "scene_id": "diverse_v1_val_rolling_hills_00",
+            "candidate_weight_s_per_kj": 0.02,
+            "candidate_trial_id": "diverse_v1_val_rolling_hills_00_energy002_once_last",
+            "eligible": true,
+            "reason": null,
+            "work_saving_fraction": 0.003614476720138482,
+            "time_increase_fraction": 0.0,
+            "baseline_trial_id": "diverse_v1_val_rolling_hills_00_time_once_last"
+          },
+          {
+            "scene_id": "diverse_v1_val_ridge_passes_00",
+            "candidate_weight_s_per_kj": 0.02,
+            "candidate_trial_id": "diverse_v1_val_ridge_passes_00_energy002_once_last",
+            "eligible": true,
+            "reason": null,
+            "work_saving_fraction": 0.006110007131455375,
+            "time_increase_fraction": 0.0,
+            "baseline_trial_id": "diverse_v1_val_ridge_passes_00_time_once_last"
+          },
+          {
+            "scene_id": "diverse_v1_val_cross_slopes_00",
+            "candidate_weight_s_per_kj": 0.02,
+            "candidate_trial_id": "diverse_v1_val_cross_slopes_00_energy002_once_last",
+            "eligible": true,
+            "reason": null,
+            "work_saving_fraction": 0.004283137314722407,
+            "time_increase_fraction": -0.017899761336515496,
+            "baseline_trial_id": "diverse_v1_val_cross_slopes_00_time_once_last"
+          },
+          {
+            "scene_id": "diverse_v1_val_valley_network_00",
+            "candidate_weight_s_per_kj": 0.02,
+            "candidate_trial_id": "diverse_v1_val_valley_network_00_energy002_once_last",
+            "eligible": true,
+            "reason": null,
+            "work_saving_fraction": -0.0013689489696491197,
+            "time_increase_fraction": -0.017899761336515496,
+            "baseline_trial_id": "diverse_v1_val_valley_network_00_time_once_last"
+          },
+          {
+            "scene_id": "diverse_v1_val_rough_mosaic_00",
+            "candidate_weight_s_per_kj": 0.02,
+            "candidate_trial_id": "diverse_v1_val_rough_mosaic_00_energy002_once_last",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_rough_mosaic_00_time_once_last"
+          },
+          {
+            "scene_id": "diverse_v1_val_mixed_obstacles_00",
+            "candidate_weight_s_per_kj": 0.02,
+            "candidate_trial_id": "diverse_v1_val_mixed_obstacles_00_energy002_once_last",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_mixed_obstacles_00_time_once_last"
+          },
+          {
+            "scene_id": "diverse_v1_val_rolling_hills_00",
+            "candidate_weight_s_per_kj": 0.2,
+            "candidate_trial_id": "diverse_v1_val_rolling_hills_00_energy020_once_last",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_rolling_hills_00_time_once_last"
+          },
+          {
+            "scene_id": "diverse_v1_val_ridge_passes_00",
+            "candidate_weight_s_per_kj": 0.2,
+            "candidate_trial_id": "diverse_v1_val_ridge_passes_00_energy020_once_last",
+            "eligible": true,
+            "reason": null,
+            "work_saving_fraction": 0.02537755472854364,
+            "time_increase_fraction": 0.059393939393939554,
+            "baseline_trial_id": "diverse_v1_val_ridge_passes_00_time_once_last"
+          },
+          {
+            "scene_id": "diverse_v1_val_cross_slopes_00",
+            "candidate_weight_s_per_kj": 0.2,
+            "candidate_trial_id": "diverse_v1_val_cross_slopes_00_energy020_once_last",
+            "eligible": true,
+            "reason": null,
+            "work_saving_fraction": -4.948212480362341,
+            "time_increase_fraction": 0.0835322195704058,
+            "baseline_trial_id": "diverse_v1_val_cross_slopes_00_time_once_last"
+          },
+          {
+            "scene_id": "diverse_v1_val_valley_network_00",
+            "candidate_weight_s_per_kj": 0.2,
+            "candidate_trial_id": "diverse_v1_val_valley_network_00_energy020_once_last",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_valley_network_00_time_once_last"
+          },
+          {
+            "scene_id": "diverse_v1_val_rough_mosaic_00",
+            "candidate_weight_s_per_kj": 0.2,
+            "candidate_trial_id": "diverse_v1_val_rough_mosaic_00_energy020_once_last",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_rough_mosaic_00_time_once_last"
+          },
+          {
+            "scene_id": "diverse_v1_val_mixed_obstacles_00",
+            "candidate_weight_s_per_kj": 0.2,
+            "candidate_trial_id": "diverse_v1_val_mixed_obstacles_00_energy020_once_last",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_mixed_obstacles_00_time_once_last"
+          },
+          {
+            "scene_id": "diverse_v1_val_rolling_hills_00",
+            "candidate_weight_s_per_kj": 0.5,
+            "candidate_trial_id": "diverse_v1_val_rolling_hills_00_energy050_once_last",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_rolling_hills_00_time_once_last"
+          },
+          {
+            "scene_id": "diverse_v1_val_ridge_passes_00",
+            "candidate_weight_s_per_kj": 0.5,
+            "candidate_trial_id": "diverse_v1_val_ridge_passes_00_energy050_once_last",
+            "eligible": true,
+            "reason": null,
+            "work_saving_fraction": 0.021020077711192964,
+            "time_increase_fraction": 0.053333333333333455,
+            "baseline_trial_id": "diverse_v1_val_ridge_passes_00_time_once_last"
+          },
+          {
+            "scene_id": "diverse_v1_val_cross_slopes_00",
+            "candidate_weight_s_per_kj": 0.5,
+            "candidate_trial_id": "diverse_v1_val_cross_slopes_00_energy050_once_last",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_cross_slopes_00_time_once_last"
+          },
+          {
+            "scene_id": "diverse_v1_val_valley_network_00",
+            "candidate_weight_s_per_kj": 0.5,
+            "candidate_trial_id": "diverse_v1_val_valley_network_00_energy050_once_last",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_valley_network_00_time_once_last"
+          },
+          {
+            "scene_id": "diverse_v1_val_rough_mosaic_00",
+            "candidate_weight_s_per_kj": 0.5,
+            "candidate_trial_id": "diverse_v1_val_rough_mosaic_00_energy050_once_last",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_rough_mosaic_00_time_once_last"
+          },
+          {
+            "scene_id": "diverse_v1_val_mixed_obstacles_00",
+            "candidate_weight_s_per_kj": 0.5,
+            "candidate_trial_id": "diverse_v1_val_mixed_obstacles_00_energy050_once_last",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_mixed_obstacles_00_time_once_last"
+          }
+        ],
+        "claim": "Default retained; no energy-efficiency or optimum claim"
+      }
+    },
+    {
+      "planning_mode": "receding",
+      "checkpoint_kind": "best",
+      "preference_order": 0,
+      "grid": "full_validation_grid_v3.json",
+      "selected_weight_s_per_kj": 0.02,
+      "selected_weight_safe_goals": 4,
+      "zero_weight_safe_goals": 4,
+      "declared_scenes": 6,
+      "energy_gate_passed": false,
+      "checkpoint_sha256": "65945dd3ca79621f5cf2467e0a19f66cdb943faf798565be0affe657132df33f",
+      "checkpoint_step": 4000,
+      "source_manifest_sha256": "23a9ce714b2ce70b6cf2b8c911cd83313a3454e9c836dc1c3f41501adb0103e7",
+      "task_file_sha256": "e192536cd331706d70481e8642cc6d743c9b0bd87d397cfd125d633dfcf810e6",
+      "cohort_report_sha256": "6b55dd3ee8e49a09b21a2cb5410e941fc4da2d98042fbed8d945ffeac16c5f7d",
+      "energy_spec_sha256": "bdef9b039d6dff5022c5b9815c5e30e269d9c2f14d78721c52a75c4f9c844fc2",
+      "energy_gate": {
+        "selection_state": "complete_valid_grid_no_qualifier_default_retained",
+        "selected_weight_s_per_kj": 0.02,
+        "gate_passed": false,
+        "freeze_allowed": true,
+        "baseline_unconditional_safe_goal_count": 4,
+        "candidate_evaluations": [
+          {
+            "energy_weight_s_per_kj": 0.02,
+            "paired_safe_scenes": 3,
+            "mean_work_saving_fraction": -0.06677189290188894,
+            "mean_time_increase_fraction": 0.001329879807327905,
+            "unconditional_safe_goal_count": 4,
+            "gates": {
+              "at_least_three_safe_pairs": true,
+              "mean_work_saving_at_least_five_percent": false,
+              "mean_time_increase_at_most_twentyfive_percent": true,
+              "no_unconditional_success_count_drop": true
+            },
+            "qualifies": false
+          },
+          {
+            "energy_weight_s_per_kj": 0.2,
+            "paired_safe_scenes": 2,
+            "mean_work_saving_fraction": -0.9443711563498306,
+            "mean_time_increase_fraction": 0.3252051566005053,
+            "unconditional_safe_goal_count": 2,
+            "gates": {
+              "at_least_three_safe_pairs": false,
+              "mean_work_saving_at_least_five_percent": false,
+              "mean_time_increase_at_most_twentyfive_percent": false,
+              "no_unconditional_success_count_drop": false
+            },
+            "qualifies": false
+          },
+          {
+            "energy_weight_s_per_kj": 0.5,
+            "paired_safe_scenes": 1,
+            "mean_work_saving_fraction": 0.4564899078460717,
+            "mean_time_increase_fraction": -0.11449016100178899,
+            "unconditional_safe_goal_count": 1,
+            "gates": {
+              "at_least_three_safe_pairs": false,
+              "mean_work_saving_at_least_five_percent": true,
+              "mean_time_increase_at_most_twentyfive_percent": true,
+              "no_unconditional_success_count_drop": false
+            },
+            "qualifies": false
+          }
+        ],
+        "paired_scene_tradeoffs": [
+          {
+            "scene_id": "diverse_v1_val_rolling_hills_00",
+            "candidate_weight_s_per_kj": 0.02,
+            "candidate_trial_id": "diverse_v1_val_rolling_hills_00_energy002",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_rolling_hills_00_time"
+          },
+          {
+            "scene_id": "diverse_v1_val_ridge_passes_00",
+            "candidate_weight_s_per_kj": 0.02,
+            "candidate_trial_id": "diverse_v1_val_ridge_passes_00_energy002",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_ridge_passes_00_time"
+          },
+          {
+            "scene_id": "diverse_v1_val_cross_slopes_00",
+            "candidate_weight_s_per_kj": 0.02,
+            "candidate_trial_id": "diverse_v1_val_cross_slopes_00_energy002",
+            "eligible": true,
+            "reason": null,
+            "work_saving_fraction": -0.1539950020465568,
+            "time_increase_fraction": 0.05008944543828253,
+            "baseline_trial_id": "diverse_v1_val_cross_slopes_00_time"
+          },
+          {
+            "scene_id": "diverse_v1_val_valley_network_00",
+            "candidate_weight_s_per_kj": 0.02,
+            "candidate_trial_id": "diverse_v1_val_valley_network_00_energy002",
+            "eligible": true,
+            "reason": null,
+            "work_saving_fraction": -0.014313523071272982,
+            "time_increase_fraction": 0.0012210012210012167,
+            "baseline_trial_id": "diverse_v1_val_valley_network_00_time"
+          },
+          {
+            "scene_id": "diverse_v1_val_rough_mosaic_00",
+            "candidate_weight_s_per_kj": 0.02,
+            "candidate_trial_id": "diverse_v1_val_rough_mosaic_00_energy002",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_rough_mosaic_00_time"
+          },
+          {
+            "scene_id": "diverse_v1_val_mixed_obstacles_00",
+            "candidate_weight_s_per_kj": 0.02,
+            "candidate_trial_id": "diverse_v1_val_mixed_obstacles_00_energy002",
+            "eligible": true,
+            "reason": null,
+            "work_saving_fraction": -0.03200715358783701,
+            "time_increase_fraction": -0.04732080723730003,
+            "baseline_trial_id": "diverse_v1_val_mixed_obstacles_00_time"
+          },
+          {
+            "scene_id": "diverse_v1_val_rolling_hills_00",
+            "candidate_weight_s_per_kj": 0.2,
+            "candidate_trial_id": "diverse_v1_val_rolling_hills_00_energy020",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_rolling_hills_00_time"
+          },
+          {
+            "scene_id": "diverse_v1_val_ridge_passes_00",
+            "candidate_weight_s_per_kj": 0.2,
+            "candidate_trial_id": "diverse_v1_val_ridge_passes_00_energy020",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_ridge_passes_00_time"
+          },
+          {
+            "scene_id": "diverse_v1_val_cross_slopes_00",
+            "candidate_weight_s_per_kj": 0.2,
+            "candidate_trial_id": "diverse_v1_val_cross_slopes_00_energy020",
+            "eligible": true,
+            "reason": null,
+            "work_saving_fraction": -0.9188308782239074,
+            "time_increase_fraction": 0.5161001788908763,
+            "baseline_trial_id": "diverse_v1_val_cross_slopes_00_time"
+          },
+          {
+            "scene_id": "diverse_v1_val_valley_network_00",
+            "candidate_weight_s_per_kj": 0.2,
+            "candidate_trial_id": "diverse_v1_val_valley_network_00_energy020",
+            "eligible": true,
+            "reason": null,
+            "work_saving_fraction": -0.9699114344757538,
+            "time_increase_fraction": 0.13431013431013428,
+            "baseline_trial_id": "diverse_v1_val_valley_network_00_time"
+          },
+          {
+            "scene_id": "diverse_v1_val_rough_mosaic_00",
+            "candidate_weight_s_per_kj": 0.2,
+            "candidate_trial_id": "diverse_v1_val_rough_mosaic_00_energy020",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_rough_mosaic_00_time"
+          },
+          {
+            "scene_id": "diverse_v1_val_mixed_obstacles_00",
+            "candidate_weight_s_per_kj": 0.2,
+            "candidate_trial_id": "diverse_v1_val_mixed_obstacles_00_energy020",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_mixed_obstacles_00_time"
+          },
+          {
+            "scene_id": "diverse_v1_val_rolling_hills_00",
+            "candidate_weight_s_per_kj": 0.5,
+            "candidate_trial_id": "diverse_v1_val_rolling_hills_00_energy050",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_rolling_hills_00_time"
+          },
+          {
+            "scene_id": "diverse_v1_val_ridge_passes_00",
+            "candidate_weight_s_per_kj": 0.5,
+            "candidate_trial_id": "diverse_v1_val_ridge_passes_00_energy050",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_ridge_passes_00_time"
+          },
+          {
+            "scene_id": "diverse_v1_val_cross_slopes_00",
+            "candidate_weight_s_per_kj": 0.5,
+            "candidate_trial_id": "diverse_v1_val_cross_slopes_00_energy050",
+            "eligible": true,
+            "reason": null,
+            "work_saving_fraction": 0.4564899078460717,
+            "time_increase_fraction": -0.11449016100178899,
+            "baseline_trial_id": "diverse_v1_val_cross_slopes_00_time"
+          },
+          {
+            "scene_id": "diverse_v1_val_valley_network_00",
+            "candidate_weight_s_per_kj": 0.5,
+            "candidate_trial_id": "diverse_v1_val_valley_network_00_energy050",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_valley_network_00_time"
+          },
+          {
+            "scene_id": "diverse_v1_val_rough_mosaic_00",
+            "candidate_weight_s_per_kj": 0.5,
+            "candidate_trial_id": "diverse_v1_val_rough_mosaic_00_energy050",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_rough_mosaic_00_time"
+          },
+          {
+            "scene_id": "diverse_v1_val_mixed_obstacles_00",
+            "candidate_weight_s_per_kj": 0.5,
+            "candidate_trial_id": "diverse_v1_val_mixed_obstacles_00_energy050",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_mixed_obstacles_00_time"
+          }
+        ],
+        "claim": "Default retained; no energy-efficiency or optimum claim"
+      }
+    },
+    {
+      "planning_mode": "plan_once",
+      "checkpoint_kind": "best",
+      "preference_order": 1,
+      "grid": "plan_once_best_grid_v1.json",
+      "selected_weight_s_per_kj": 0.02,
+      "selected_weight_safe_goals": 2,
+      "zero_weight_safe_goals": 3,
+      "declared_scenes": 6,
+      "energy_gate_passed": false,
+      "checkpoint_sha256": "65945dd3ca79621f5cf2467e0a19f66cdb943faf798565be0affe657132df33f",
+      "checkpoint_step": 4000,
+      "source_manifest_sha256": "c2ec8b81acd066c75e46cf658c8aa5e67661f92cf3a35a6da97575b03812382a",
+      "task_file_sha256": "44f85813786650b8526f56129f7f7ef2daa0c0eb0b7094e249c776764aed7ee0",
+      "cohort_report_sha256": "d95e8ce64decff0af514f8e70800ea50b7ae1e9af662e975b792ea0fe2d5939f",
+      "energy_spec_sha256": "a9b7b4f0d5532f9dc35f3bcccb2f83d72b1d36a85dd6f3b386fa15bf95107b98",
+      "energy_gate": {
+        "selection_state": "complete_valid_grid_no_qualifier_default_retained",
+        "selected_weight_s_per_kj": 0.02,
+        "gate_passed": false,
+        "freeze_allowed": true,
+        "baseline_unconditional_safe_goal_count": 3,
+        "candidate_evaluations": [
+          {
+            "energy_weight_s_per_kj": 0.02,
+            "paired_safe_scenes": 2,
+            "mean_work_saving_fraction": 0.0013127822161487779,
+            "mean_time_increase_fraction": -0.0006060606060605545,
+            "unconditional_safe_goal_count": 2,
+            "gates": {
+              "at_least_three_safe_pairs": false,
+              "mean_work_saving_at_least_five_percent": false,
+              "mean_time_increase_at_most_twentyfive_percent": true,
+              "no_unconditional_success_count_drop": false
+            },
+            "qualifies": false
+          },
+          {
+            "energy_weight_s_per_kj": 0.2,
+            "paired_safe_scenes": 1,
+            "mean_work_saving_fraction": 0.0240919794017469,
+            "mean_time_increase_fraction": 0.05454545454545445,
+            "unconditional_safe_goal_count": 1,
+            "gates": {
+              "at_least_three_safe_pairs": false,
+              "mean_work_saving_at_least_five_percent": false,
+              "mean_time_increase_at_most_twentyfive_percent": true,
+              "no_unconditional_success_count_drop": false
+            },
+            "qualifies": false
+          },
+          {
+            "energy_weight_s_per_kj": 0.5,
+            "paired_safe_scenes": 0,
+            "mean_work_saving_fraction": null,
+            "mean_time_increase_fraction": null,
+            "unconditional_safe_goal_count": 0,
+            "gates": {
+              "at_least_three_safe_pairs": false,
+              "mean_work_saving_at_least_five_percent": false,
+              "mean_time_increase_at_most_twentyfive_percent": false,
+              "no_unconditional_success_count_drop": false
+            },
+            "qualifies": false
+          }
+        ],
+        "paired_scene_tradeoffs": [
+          {
+            "scene_id": "diverse_v1_val_rolling_hills_00",
+            "candidate_weight_s_per_kj": 0.02,
+            "candidate_trial_id": "diverse_v1_val_rolling_hills_00_energy002_once_best",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_rolling_hills_00_time_once_best"
+          },
+          {
+            "scene_id": "diverse_v1_val_ridge_passes_00",
+            "candidate_weight_s_per_kj": 0.02,
+            "candidate_trial_id": "diverse_v1_val_ridge_passes_00_energy002_once_best",
+            "eligible": true,
+            "reason": null,
+            "work_saving_fraction": 6.00163264488085e-05,
+            "time_increase_fraction": -0.001212121212121109,
+            "baseline_trial_id": "diverse_v1_val_ridge_passes_00_time_once_best"
+          },
+          {
+            "scene_id": "diverse_v1_val_cross_slopes_00",
+            "candidate_weight_s_per_kj": 0.02,
+            "candidate_trial_id": "diverse_v1_val_cross_slopes_00_energy002_once_best",
+            "eligible": true,
+            "reason": null,
+            "work_saving_fraction": 0.0025655481058487473,
+            "time_increase_fraction": 0.0,
+            "baseline_trial_id": "diverse_v1_val_cross_slopes_00_time_once_best"
+          },
+          {
+            "scene_id": "diverse_v1_val_valley_network_00",
+            "candidate_weight_s_per_kj": 0.02,
+            "candidate_trial_id": "diverse_v1_val_valley_network_00_energy002_once_best",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_valley_network_00_time_once_best"
+          },
+          {
+            "scene_id": "diverse_v1_val_rough_mosaic_00",
+            "candidate_weight_s_per_kj": 0.02,
+            "candidate_trial_id": "diverse_v1_val_rough_mosaic_00_energy002_once_best",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_rough_mosaic_00_time_once_best"
+          },
+          {
+            "scene_id": "diverse_v1_val_mixed_obstacles_00",
+            "candidate_weight_s_per_kj": 0.02,
+            "candidate_trial_id": "diverse_v1_val_mixed_obstacles_00_energy002_once_best",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_mixed_obstacles_00_time_once_best"
+          },
+          {
+            "scene_id": "diverse_v1_val_rolling_hills_00",
+            "candidate_weight_s_per_kj": 0.2,
+            "candidate_trial_id": "diverse_v1_val_rolling_hills_00_energy020_once_best",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_rolling_hills_00_time_once_best"
+          },
+          {
+            "scene_id": "diverse_v1_val_ridge_passes_00",
+            "candidate_weight_s_per_kj": 0.2,
+            "candidate_trial_id": "diverse_v1_val_ridge_passes_00_energy020_once_best",
+            "eligible": true,
+            "reason": null,
+            "work_saving_fraction": 0.0240919794017469,
+            "time_increase_fraction": 0.05454545454545445,
+            "baseline_trial_id": "diverse_v1_val_ridge_passes_00_time_once_best"
+          },
+          {
+            "scene_id": "diverse_v1_val_cross_slopes_00",
+            "candidate_weight_s_per_kj": 0.2,
+            "candidate_trial_id": "diverse_v1_val_cross_slopes_00_energy020_once_best",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_cross_slopes_00_time_once_best"
+          },
+          {
+            "scene_id": "diverse_v1_val_valley_network_00",
+            "candidate_weight_s_per_kj": 0.2,
+            "candidate_trial_id": "diverse_v1_val_valley_network_00_energy020_once_best",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_valley_network_00_time_once_best"
+          },
+          {
+            "scene_id": "diverse_v1_val_rough_mosaic_00",
+            "candidate_weight_s_per_kj": 0.2,
+            "candidate_trial_id": "diverse_v1_val_rough_mosaic_00_energy020_once_best",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_rough_mosaic_00_time_once_best"
+          },
+          {
+            "scene_id": "diverse_v1_val_mixed_obstacles_00",
+            "candidate_weight_s_per_kj": 0.2,
+            "candidate_trial_id": "diverse_v1_val_mixed_obstacles_00_energy020_once_best",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_mixed_obstacles_00_time_once_best"
+          },
+          {
+            "scene_id": "diverse_v1_val_rolling_hills_00",
+            "candidate_weight_s_per_kj": 0.5,
+            "candidate_trial_id": "diverse_v1_val_rolling_hills_00_energy050_once_best",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_rolling_hills_00_time_once_best"
+          },
+          {
+            "scene_id": "diverse_v1_val_ridge_passes_00",
+            "candidate_weight_s_per_kj": 0.5,
+            "candidate_trial_id": "diverse_v1_val_ridge_passes_00_energy050_once_best",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_ridge_passes_00_time_once_best"
+          },
+          {
+            "scene_id": "diverse_v1_val_cross_slopes_00",
+            "candidate_weight_s_per_kj": 0.5,
+            "candidate_trial_id": "diverse_v1_val_cross_slopes_00_energy050_once_best",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_cross_slopes_00_time_once_best"
+          },
+          {
+            "scene_id": "diverse_v1_val_valley_network_00",
+            "candidate_weight_s_per_kj": 0.5,
+            "candidate_trial_id": "diverse_v1_val_valley_network_00_energy050_once_best",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_valley_network_00_time_once_best"
+          },
+          {
+            "scene_id": "diverse_v1_val_rough_mosaic_00",
+            "candidate_weight_s_per_kj": 0.5,
+            "candidate_trial_id": "diverse_v1_val_rough_mosaic_00_energy050_once_best",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_rough_mosaic_00_time_once_best"
+          },
+          {
+            "scene_id": "diverse_v1_val_mixed_obstacles_00",
+            "candidate_weight_s_per_kj": 0.5,
+            "candidate_trial_id": "diverse_v1_val_mixed_obstacles_00_energy050_once_best",
+            "eligible": false,
+            "reason": "Both trials did not reach verified schema-safe full goals",
+            "work_saving_fraction": null,
+            "time_increase_fraction": null,
+            "baseline_trial_id": "diverse_v1_val_mixed_obstacles_00_time_once_best"
+          }
+        ],
+        "claim": "Default retained; no energy-efficiency or optimum claim"
+      }
+    }
+  ],
+  "selected_configuration": {
+    "planning_mode": "plan_once",
+    "checkpoint_kind": "last",
+    "preference_order": 2,
+    "grid": "plan_once_last_grid_v1.json",
+    "selected_weight_s_per_kj": 0.02,
+    "selected_weight_safe_goals": 4,
+    "zero_weight_safe_goals": 5,
+    "declared_scenes": 6,
+    "energy_gate_passed": false,
+    "checkpoint_sha256": "0251cb87ddd25b6dfd8c628680f3470983ca4ca36ef65a05bb966021a4691a20",
+    "checkpoint_step": 5000,
+    "source_manifest_sha256": "c2ec8b81acd066c75e46cf658c8aa5e67661f92cf3a35a6da97575b03812382a",
+    "task_file_sha256": "3d5e9b41a5242663535802377e20eedf444f99be84f02315eeb9aeecad5a3923",
+    "cohort_report_sha256": "3650d41fda42a3bf3c5571ce37d024e13033dd7792e78e4e74b457ce45b572ad",
+    "energy_spec_sha256": "25f254845d4ecc8ff835151deae6dda3af2d0f4521d58f2f8c5354c566fe5331",
+    "energy_gate": {
+      "selection_state": "complete_valid_grid_no_qualifier_default_retained",
+      "selected_weight_s_per_kj": 0.02,
+      "gate_passed": false,
+      "freeze_allowed": true,
+      "baseline_unconditional_safe_goal_count": 5,
+      "candidate_evaluations": [
+        {
+          "energy_weight_s_per_kj": 0.02,
+          "paired_safe_scenes": 4,
+          "mean_work_saving_fraction": 0.003159668049166786,
+          "mean_time_increase_fraction": -0.008949880668257748,
+          "unconditional_safe_goal_count": 4,
+          "gates": {
+            "at_least_three_safe_pairs": true,
+            "mean_work_saving_at_least_five_percent": false,
+            "mean_time_increase_at_most_twentyfive_percent": true,
+            "no_unconditional_success_count_drop": false
+          },
+          "qualifies": false
+        },
+        {
+          "energy_weight_s_per_kj": 0.2,
+          "paired_safe_scenes": 2,
+          "mean_work_saving_fraction": -2.4614174628168985,
+          "mean_time_increase_fraction": 0.07146307948217268,
+          "unconditional_safe_goal_count": 2,
+          "gates": {
+            "at_least_three_safe_pairs": false,
+            "mean_work_saving_at_least_five_percent": false,
+            "mean_time_increase_at_most_twentyfive_percent": true,
+            "no_unconditional_success_count_drop": false
+          },
+          "qualifies": false
+        },
+        {
+          "energy_weight_s_per_kj": 0.5,
+          "paired_safe_scenes": 1,
+          "mean_work_saving_fraction": 0.021020077711192964,
+          "mean_time_increase_fraction": 0.053333333333333455,
+          "unconditional_safe_goal_count": 1,
+          "gates": {
+            "at_least_three_safe_pairs": false,
+            "mean_work_saving_at_least_five_percent": false,
+            "mean_time_increase_at_most_twentyfive_percent": true,
+            "no_unconditional_success_count_drop": false
+          },
+          "qualifies": false
+        }
+      ],
+      "paired_scene_tradeoffs": [
+        {
+          "scene_id": "diverse_v1_val_rolling_hills_00",
+          "candidate_weight_s_per_kj": 0.02,
+          "candidate_trial_id": "diverse_v1_val_rolling_hills_00_energy002_once_last",
+          "eligible": true,
+          "reason": null,
+          "work_saving_fraction": 0.003614476720138482,
+          "time_increase_fraction": 0.0,
+          "baseline_trial_id": "diverse_v1_val_rolling_hills_00_time_once_last"
+        },
+        {
+          "scene_id": "diverse_v1_val_ridge_passes_00",
+          "candidate_weight_s_per_kj": 0.02,
+          "candidate_trial_id": "diverse_v1_val_ridge_passes_00_energy002_once_last",
+          "eligible": true,
+          "reason": null,
+          "work_saving_fraction": 0.006110007131455375,
+          "time_increase_fraction": 0.0,
+          "baseline_trial_id": "diverse_v1_val_ridge_passes_00_time_once_last"
+        },
+        {
+          "scene_id": "diverse_v1_val_cross_slopes_00",
+          "candidate_weight_s_per_kj": 0.02,
+          "candidate_trial_id": "diverse_v1_val_cross_slopes_00_energy002_once_last",
+          "eligible": true,
+          "reason": null,
+          "work_saving_fraction": 0.004283137314722407,
+          "time_increase_fraction": -0.017899761336515496,
+          "baseline_trial_id": "diverse_v1_val_cross_slopes_00_time_once_last"
+        },
+        {
+          "scene_id": "diverse_v1_val_valley_network_00",
+          "candidate_weight_s_per_kj": 0.02,
+          "candidate_trial_id": "diverse_v1_val_valley_network_00_energy002_once_last",
+          "eligible": true,
+          "reason": null,
+          "work_saving_fraction": -0.0013689489696491197,
+          "time_increase_fraction": -0.017899761336515496,
+          "baseline_trial_id": "diverse_v1_val_valley_network_00_time_once_last"
+        },
+        {
+          "scene_id": "diverse_v1_val_rough_mosaic_00",
+          "candidate_weight_s_per_kj": 0.02,
+          "candidate_trial_id": "diverse_v1_val_rough_mosaic_00_energy002_once_last",
+          "eligible": false,
+          "reason": "Both trials did not reach verified schema-safe full goals",
+          "work_saving_fraction": null,
+          "time_increase_fraction": null,
+          "baseline_trial_id": "diverse_v1_val_rough_mosaic_00_time_once_last"
+        },
+        {
+          "scene_id": "diverse_v1_val_mixed_obstacles_00",
+          "candidate_weight_s_per_kj": 0.02,
+          "candidate_trial_id": "diverse_v1_val_mixed_obstacles_00_energy002_once_last",
+          "eligible": false,
+          "reason": "Both trials did not reach verified schema-safe full goals",
+          "work_saving_fraction": null,
+          "time_increase_fraction": null,
+          "baseline_trial_id": "diverse_v1_val_mixed_obstacles_00_time_once_last"
+        },
+        {
+          "scene_id": "diverse_v1_val_rolling_hills_00",
+          "candidate_weight_s_per_kj": 0.2,
+          "candidate_trial_id": "diverse_v1_val_rolling_hills_00_energy020_once_last",
+          "eligible": false,
+          "reason": "Both trials did not reach verified schema-safe full goals",
+          "work_saving_fraction": null,
+          "time_increase_fraction": null,
+          "baseline_trial_id": "diverse_v1_val_rolling_hills_00_time_once_last"
+        },
+        {
+          "scene_id": "diverse_v1_val_ridge_passes_00",
+          "candidate_weight_s_per_kj": 0.2,
+          "candidate_trial_id": "diverse_v1_val_ridge_passes_00_energy020_once_last",
+          "eligible": true,
+          "reason": null,
+          "work_saving_fraction": 0.02537755472854364,
+          "time_increase_fraction": 0.059393939393939554,
+          "baseline_trial_id": "diverse_v1_val_ridge_passes_00_time_once_last"
+        },
+        {
+          "scene_id": "diverse_v1_val_cross_slopes_00",
+          "candidate_weight_s_per_kj": 0.2,
+          "candidate_trial_id": "diverse_v1_val_cross_slopes_00_energy020_once_last",
+          "eligible": true,
+          "reason": null,
+          "work_saving_fraction": -4.948212480362341,
+          "time_increase_fraction": 0.0835322195704058,
+          "baseline_trial_id": "diverse_v1_val_cross_slopes_00_time_once_last"
+        },
+        {
+          "scene_id": "diverse_v1_val_valley_network_00",
+          "candidate_weight_s_per_kj": 0.2,
+          "candidate_trial_id": "diverse_v1_val_valley_network_00_energy020_once_last",
+          "eligible": false,
+          "reason": "Both trials did not reach verified schema-safe full goals",
+          "work_saving_fraction": null,
+          "time_increase_fraction": null,
+          "baseline_trial_id": "diverse_v1_val_valley_network_00_time_once_last"
+        },
+        {
+          "scene_id": "diverse_v1_val_rough_mosaic_00",
+          "candidate_weight_s_per_kj": 0.2,
+          "candidate_trial_id": "diverse_v1_val_rough_mosaic_00_energy020_once_last",
+          "eligible": false,
+          "reason": "Both trials did not reach verified schema-safe full goals",
+          "work_saving_fraction": null,
+          "time_increase_fraction": null,
+          "baseline_trial_id": "diverse_v1_val_rough_mosaic_00_time_once_last"
+        },
+        {
+          "scene_id": "diverse_v1_val_mixed_obstacles_00",
+          "candidate_weight_s_per_kj": 0.2,
+          "candidate_trial_id": "diverse_v1_val_mixed_obstacles_00_energy020_once_last",
+          "eligible": false,
+          "reason": "Both trials did not reach verified schema-safe full goals",
+          "work_saving_fraction": null,
+          "time_increase_fraction": null,
+          "baseline_trial_id": "diverse_v1_val_mixed_obstacles_00_time_once_last"
+        },
+        {
+          "scene_id": "diverse_v1_val_rolling_hills_00",
+          "candidate_weight_s_per_kj": 0.5,
+          "candidate_trial_id": "diverse_v1_val_rolling_hills_00_energy050_once_last",
+          "eligible": false,
+          "reason": "Both trials did not reach verified schema-safe full goals",
+          "work_saving_fraction": null,
+          "time_increase_fraction": null,
+          "baseline_trial_id": "diverse_v1_val_rolling_hills_00_time_once_last"
+        },
+        {
+          "scene_id": "diverse_v1_val_ridge_passes_00",
+          "candidate_weight_s_per_kj": 0.5,
+          "candidate_trial_id": "diverse_v1_val_ridge_passes_00_energy050_once_last",
+          "eligible": true,
+          "reason": null,
+          "work_saving_fraction": 0.021020077711192964,
+          "time_increase_fraction": 0.053333333333333455,
+          "baseline_trial_id": "diverse_v1_val_ridge_passes_00_time_once_last"
+        },
+        {
+          "scene_id": "diverse_v1_val_cross_slopes_00",
+          "candidate_weight_s_per_kj": 0.5,
+          "candidate_trial_id": "diverse_v1_val_cross_slopes_00_energy050_once_last",
+          "eligible": false,
+          "reason": "Both trials did not reach verified schema-safe full goals",
+          "work_saving_fraction": null,
+          "time_increase_fraction": null,
+          "baseline_trial_id": "diverse_v1_val_cross_slopes_00_time_once_last"
+        },
+        {
+          "scene_id": "diverse_v1_val_valley_network_00",
+          "candidate_weight_s_per_kj": 0.5,
+          "candidate_trial_id": "diverse_v1_val_valley_network_00_energy050_once_last",
+          "eligible": false,
+          "reason": "Both trials did not reach verified schema-safe full goals",
+          "work_saving_fraction": null,
+          "time_increase_fraction": null,
+          "baseline_trial_id": "diverse_v1_val_valley_network_00_time_once_last"
+        },
+        {
+          "scene_id": "diverse_v1_val_rough_mosaic_00",
+          "candidate_weight_s_per_kj": 0.5,
+          "candidate_trial_id": "diverse_v1_val_rough_mosaic_00_energy050_once_last",
+          "eligible": false,
+          "reason": "Both trials did not reach verified schema-safe full goals",
+          "work_saving_fraction": null,
+          "time_increase_fraction": null,
+          "baseline_trial_id": "diverse_v1_val_rough_mosaic_00_time_once_last"
+        },
+        {
+          "scene_id": "diverse_v1_val_mixed_obstacles_00",
+          "candidate_weight_s_per_kj": 0.5,
+          "candidate_trial_id": "diverse_v1_val_mixed_obstacles_00_energy050_once_last",
+          "eligible": false,
+          "reason": "Both trials did not reach verified schema-safe full goals",
+          "work_saving_fraction": null,
+          "time_increase_fraction": null,
+          "baseline_trial_id": "diverse_v1_val_mixed_obstacles_00_time_once_last"
+        }
+      ],
+      "claim": "Default retained; no energy-efficiency or optimum claim"
+    }
+  },
+  "interpretation": "Selection uses whole-scene safe-goal counts and the predeclared tie breaks; it does not establish held-out test performance or replace reporting of the original primary baseline."
+}

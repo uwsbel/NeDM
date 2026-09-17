@@ -1,0 +1,322 @@
+{
+  "source_pack": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_fast_v1",
+  "definitions": {
+    "positive_window": "Any valid positive output among horizon endpoints0.2..4.0s. Counts are window/episode counts, not independent outcomes.",
+    "early_anchor": "anchor<40 raw20Hz frames; sampled pack anchors0s and1s.",
+    "contact": "Any asset force>1N in intervals[anchor,endpoint); raw event lists capped2000, missing negatives censored after last known frame.",
+    "pre_first_contact": "anchor<earliest recorded positive contact interval; never-contact episodes count as precontact for low-progress comparison.",
+    "low_progress": "Net displacement<0.15m/s times prefix duration, mean future throttle>0.3, duration>=2s, no deliberate route-end parking, endpoint measured.",
+    "observed_low_progress_onset": "First measured endpoint of a2s interval satisfying same low-progress/effort/no-parking test at20Hz. This is an onset proxy, not a physical event timestamp.",
+    "before_onset": "Anchor earlier than observed low-progress onset. A positive window can still start after actual speed reduction.",
+    "split": "Frozen legacy seed20260902 identity split; train1000episodes, val250; no test data read."
+  },
+  "splits": {
+    "train": {
+      "episodes": 1000,
+      "groups": {
+        "anchor0": {
+          "windows": 1000,
+          "contact": {
+            "positive_windows": 0,
+            "positive_episodes": 0,
+            "supervised_windows": 1000,
+            "positive_horizon_labels": 0,
+            "valid_horizon_labels": 20000,
+            "pre_first_contact_positive_windows": 0,
+            "pre_first_contact_positive_episodes": 0
+          },
+          "low_progress": {
+            "positive_windows": 0,
+            "positive_episodes": 0,
+            "supervised_windows": 1000,
+            "positive_horizon_labels": 0,
+            "valid_horizon_labels": 11000,
+            "pre_first_contact_positive_windows": 0,
+            "pre_first_contact_positive_episodes": 0
+          }
+        },
+        "anchor_lt2s": {
+          "windows": 2000,
+          "contact": {
+            "positive_windows": 1,
+            "positive_episodes": 1,
+            "supervised_windows": 2000,
+            "positive_horizon_labels": 2,
+            "valid_horizon_labels": 40000,
+            "pre_first_contact_positive_windows": 1,
+            "pre_first_contact_positive_episodes": 1
+          },
+          "low_progress": {
+            "positive_windows": 1,
+            "positive_episodes": 1,
+            "supervised_windows": 2000,
+            "positive_horizon_labels": 3,
+            "valid_horizon_labels": 22000,
+            "pre_first_contact_positive_windows": 1,
+            "pre_first_contact_positive_episodes": 1
+          }
+        },
+        "anchor_ge2s": {
+          "windows": 18000,
+          "contact": {
+            "positive_windows": 702,
+            "positive_episodes": 49,
+            "supervised_windows": 18000,
+            "positive_horizon_labels": 12185,
+            "valid_horizon_labels": 331330,
+            "pre_first_contact_positive_windows": 192,
+            "pre_first_contact_positive_episodes": 49
+          },
+          "low_progress": {
+            "positive_windows": 496,
+            "positive_episodes": 61,
+            "supervised_windows": 13571,
+            "positive_horizon_labels": 4682,
+            "valid_horizon_labels": 141015,
+            "pre_first_contact_positive_windows": 73,
+            "pre_first_contact_positive_episodes": 21
+          }
+        },
+        "all": {
+          "windows": 20000,
+          "contact": {
+            "positive_windows": 703,
+            "positive_episodes": 49,
+            "supervised_windows": 20000,
+            "positive_horizon_labels": 12187,
+            "valid_horizon_labels": 371330,
+            "pre_first_contact_positive_windows": 193,
+            "pre_first_contact_positive_episodes": 49
+          },
+          "low_progress": {
+            "positive_windows": 497,
+            "positive_episodes": 61,
+            "supervised_windows": 15571,
+            "positive_horizon_labels": 4685,
+            "valid_horizon_labels": 163015,
+            "pre_first_contact_positive_windows": 74,
+            "pre_first_contact_positive_episodes": 21
+          }
+        }
+      },
+      "contact_before_first": {
+        "windows": 193,
+        "episodes": 49
+      },
+      "contact_at_or_after_first": {
+        "windows": 510,
+        "episodes": 47
+      },
+      "low_progress_before_observed_onset": {
+        "windows": 114,
+        "episodes": 61
+      },
+      "low_progress_at_or_after_observed_onset": {
+        "windows": 383,
+        "episodes": 57
+      },
+      "first_contact_before4s_episodes": 0,
+      "positive_windows_by_anchor_s": {
+        "contact": {
+          "0.0": 0,
+          "1.0": 1,
+          "2.0": 11,
+          "3.0": 20,
+          "4.0": 27,
+          "5.0": 35,
+          "6.0": 40,
+          "7.0": 41,
+          "8.0": 43,
+          "9.0": 44,
+          "10.0": 44,
+          "11.0": 44,
+          "12.0": 43,
+          "13.0": 43,
+          "14.0": 43,
+          "15.0": 44,
+          "16.0": 46,
+          "17.0": 46,
+          "18.0": 44,
+          "19.0": 44
+        },
+        "low_progress": {
+          "0.0": 0,
+          "1.0": 1,
+          "2.0": 1,
+          "3.0": 2,
+          "4.0": 1,
+          "5.0": 3,
+          "6.0": 14,
+          "7.0": 22,
+          "8.0": 29,
+          "9.0": 40,
+          "10.0": 46,
+          "11.0": 47,
+          "12.0": 49,
+          "13.0": 48,
+          "14.0": 50,
+          "15.0": 46,
+          "16.0": 49,
+          "17.0": 49,
+          "18.0": 0,
+          "19.0": 0
+        }
+      },
+      "npz_sha256": "d0e156bad6434917e9acff698099002040737d19c9faab01bc6a2b180a8078c1"
+    },
+    "val": {
+      "episodes": 250,
+      "groups": {
+        "anchor0": {
+          "windows": 250,
+          "contact": {
+            "positive_windows": 0,
+            "positive_episodes": 0,
+            "supervised_windows": 250,
+            "positive_horizon_labels": 0,
+            "valid_horizon_labels": 5000,
+            "pre_first_contact_positive_windows": 0,
+            "pre_first_contact_positive_episodes": 0
+          },
+          "low_progress": {
+            "positive_windows": 0,
+            "positive_episodes": 0,
+            "supervised_windows": 250,
+            "positive_horizon_labels": 0,
+            "valid_horizon_labels": 2750,
+            "pre_first_contact_positive_windows": 0,
+            "pre_first_contact_positive_episodes": 0
+          }
+        },
+        "anchor_lt2s": {
+          "windows": 500,
+          "contact": {
+            "positive_windows": 0,
+            "positive_episodes": 0,
+            "supervised_windows": 500,
+            "positive_horizon_labels": 0,
+            "valid_horizon_labels": 10000,
+            "pre_first_contact_positive_windows": 0,
+            "pre_first_contact_positive_episodes": 0
+          },
+          "low_progress": {
+            "positive_windows": 0,
+            "positive_episodes": 0,
+            "supervised_windows": 500,
+            "positive_horizon_labels": 0,
+            "valid_horizon_labels": 5500,
+            "pre_first_contact_positive_windows": 0,
+            "pre_first_contact_positive_episodes": 0
+          }
+        },
+        "anchor_ge2s": {
+          "windows": 4500,
+          "contact": {
+            "positive_windows": 136,
+            "positive_episodes": 11,
+            "supervised_windows": 4500,
+            "positive_horizon_labels": 2310,
+            "valid_horizon_labels": 82800,
+            "pre_first_contact_positive_windows": 43,
+            "pre_first_contact_positive_episodes": 11
+          },
+          "low_progress": {
+            "positive_windows": 82,
+            "positive_episodes": 10,
+            "supervised_windows": 3378,
+            "positive_horizon_labels": 786,
+            "valid_horizon_labels": 35064,
+            "pre_first_contact_positive_windows": 7,
+            "pre_first_contact_positive_episodes": 3
+          }
+        },
+        "all": {
+          "windows": 5000,
+          "contact": {
+            "positive_windows": 136,
+            "positive_episodes": 11,
+            "supervised_windows": 5000,
+            "positive_horizon_labels": 2310,
+            "valid_horizon_labels": 92800,
+            "pre_first_contact_positive_windows": 43,
+            "pre_first_contact_positive_episodes": 11
+          },
+          "low_progress": {
+            "positive_windows": 82,
+            "positive_episodes": 10,
+            "supervised_windows": 3878,
+            "positive_horizon_labels": 786,
+            "valid_horizon_labels": 40564,
+            "pre_first_contact_positive_windows": 7,
+            "pre_first_contact_positive_episodes": 3
+          }
+        }
+      },
+      "contact_before_first": {
+        "windows": 43,
+        "episodes": 11
+      },
+      "contact_at_or_after_first": {
+        "windows": 93,
+        "episodes": 9
+      },
+      "low_progress_before_observed_onset": {
+        "windows": 20,
+        "episodes": 10
+      },
+      "low_progress_at_or_after_observed_onset": {
+        "windows": 62,
+        "episodes": 9
+      },
+      "first_contact_before4s_episodes": 0,
+      "positive_windows_by_anchor_s": {
+        "contact": {
+          "0.0": 0,
+          "1.0": 0,
+          "2.0": 0,
+          "3.0": 4,
+          "4.0": 4,
+          "5.0": 8,
+          "6.0": 8,
+          "7.0": 7,
+          "8.0": 8,
+          "9.0": 8,
+          "10.0": 8,
+          "11.0": 8,
+          "12.0": 8,
+          "13.0": 8,
+          "14.0": 8,
+          "15.0": 9,
+          "16.0": 10,
+          "17.0": 10,
+          "18.0": 10,
+          "19.0": 10
+        },
+        "low_progress": {
+          "0.0": 0,
+          "1.0": 0,
+          "2.0": 0,
+          "3.0": 0,
+          "4.0": 0,
+          "5.0": 0,
+          "6.0": 0,
+          "7.0": 3,
+          "8.0": 4,
+          "9.0": 8,
+          "10.0": 7,
+          "11.0": 7,
+          "12.0": 9,
+          "13.0": 8,
+          "14.0": 9,
+          "15.0": 9,
+          "16.0": 9,
+          "17.0": 9,
+          "18.0": 0,
+          "19.0": 0
+        }
+      },
+      "npz_sha256": "0c2a6e757bfa68ac804efdcb0ec98305b4faf838c740b01d33dfedce833cb744"
+    }
+  },
+  "interpretation": "There are no supervised from-rest failure positives. The model can exploit time/history/current-contact shortcuts; weak new-scene visual ranking cannot be attributed to encoder architecture alone. Need paired safe/failing references with near-term failure visible before contact, grouped by new scene."
+}

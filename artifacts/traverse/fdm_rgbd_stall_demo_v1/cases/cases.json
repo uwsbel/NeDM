@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "records": [
+    {
+      "scene_id": "terrain_blockage_diagnostic_v1",
+      "split": "diagnostic",
+      "case": "terrain_blockage_diagnostic_v1.json",
+      "routes": [
+        "routes/terrain_blockage_diagnostic_v1/family_00.json",
+        "routes/terrain_blockage_diagnostic_v1/family_01.json",
+        "routes/terrain_blockage_diagnostic_v1/family_02.json",
+        "routes/terrain_blockage_diagnostic_v1/family_03.json",
+        "routes/terrain_blockage_diagnostic_v1/family_04.json",
+        "routes/terrain_blockage_diagnostic_v1/family_05.json"
+      ],
+      "case_sha256": "336d57941ebdbf7dda5d875d1114d785b359b8641f3e4d8652a26c7c914dad70",
+      "route_sha256": [
+        "b64016cb76527884cfc5f30ff5418dc5e3a9fa4f1483638fa25114d8699b7537",
+        "9b86c53dfa219ab3f16c318c92b0f167ff29a6428482b6e7a8e945e620f424b7",
+        "0cda5866614b144ac7f5aa0a7f2ef412299d13a0648bf621fbfc8e4dbf92da7e",
+        "ab57b50abb8345d2d497d5bdd2b9484443bcb806ab1f6ea4d2a85dad3c1b4c4e",
+        "d95a158c31dc91a86ada481e81d8100ff4ddf04f59304504bce1626131365264",
+        "55a2e08fcc22a02d3f6d3d4dbf1809be06c42321c2c8f01915c6c3075cbff09b"
+      ]
+    }
+  ],
+  "cases": [
+    "terrain_blockage_diagnostic_v1.json"
+  ],
+  "selection": "Declared after training-side physics probes, before model scores on this layout; no later geometry tuning"
+}

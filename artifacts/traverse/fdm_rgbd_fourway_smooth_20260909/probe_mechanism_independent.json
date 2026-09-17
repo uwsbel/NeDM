@@ -1,0 +1,1030 @@
+{
+  "schema": 1,
+  "scope": "Independent read-only analysis of the six already completed instrumented smooth-hill physics probes; no NN inference, training, geometry changes or physics reruns",
+  "bounded_motion_definition": "Any entirely future contiguous40 action intervals (2s at20Hz) whose41 measured XY pose endpoints have maximum pairwise separation<=0.25m, with EVERY applied throttle>0.3, no parked pose/interval, and no pose at/after first measured goal arrival (distance<=declared goal radius). No instantaneous velocity threshold and no global startup grace. Prefixes under2s masked. Known positives remain valid after truncation; a negative needs the complete prefix. Intended very slow motion is outside this4/6m/s traversal-command cohort; throttle alone does not encode requested speed.",
+  "diagnostic_thresholds": {
+    "loaded_force_threshold_n": 200,
+    "wheelspin_native_abs_slip_threshold": 0.5,
+    "wheelspin_forward_circumferential_speed_threshold_mps": 0.5,
+    "wheelspin_max_abs_surface_hub_speed_mps": 0.3,
+    "note": "Descriptive post-run diagnostic thresholds, not model targets or calibrated proof of traction saturation"
+  },
+  "rows": [
+    {
+      "case": "smooth_probe_gaussian_h5p5_s3p5",
+      "family": "family_01",
+      "source_dir": "artifacts/traverse/fdm_rgbd_fourway_smooth_20260909/probes/instrumented/smooth_probe_gaussian_h5p5_s3p5/family_01",
+      "hashes": {
+        "trajectory.npz": "059a456134f6971d2183334ed1bef359df10fbbb4cb5bcde05b08c7f8f402cca",
+        "outcome.json": "1aa50b52d5bda3aff51674570b125ed4f3479d341299e84103a1eb33f6bc0eb5",
+        "slope_diagnostics.npz": "5219957a4f2dfee906e01c1c511a9a8fa0170a28ad1b3c88e2fb5cfc7b0e8fd9",
+        "slope_diagnostics.json": "3ece0f0143657c0744e2f517aa4fe520a7486344c790dee313b4ff4da3276231"
+      },
+      "observer_hash": "7f6cf106bb0edb01ce07fa3fa5429b45e380f41d3740e025acb8bcaa25a80be2",
+      "optional_getter_errors": {},
+      "status": "timeout",
+      "goal_reached": false,
+      "goal_time_s": null,
+      "asset_contact": false,
+      "first_bounded_confirmation_s": null,
+      "first_bounded_interval_start_s": null,
+      "goal_progress_m": 3.8827008942842625,
+      "initial_pose": [
+        -18.066632797054947,
+        -0.011261740853505686,
+        -0.002574552847727442
+      ],
+      "initial_body_vx_mps": -0.06367439776659012,
+      "initial_pitch_deg": -5.110416889190674,
+      "initial_world_vertical_tire_forces_n": [
+        6513.2060546875,
+        6684.21044921875,
+        6019.869140625,
+        6489.25341796875
+      ],
+      "rollback_time_vx_below_minus_point3_s": 6.2,
+      "last5s_xy_diameter_m": 1.6545034879514235,
+      "throttle_min_after2s": 1.0,
+      "brake_max_after2s": 0.0,
+      "max_sampled_chassis_contact_resultant_n": 0.0,
+      "basic_vs_instrumented_max_abs_difference": {
+        "state": 0.0,
+        "pose": 0.0,
+        "action": 0.0,
+        "terminal_state": 0.0,
+        "terminal_pose": 0.0,
+        "power_kw": 0.0,
+        "contact_n": 0.0,
+        "positive_work_kj_per_interval": 0.0
+      },
+      "windows": {
+        "after2s": {
+          "samples": 260,
+          "median_pitch_deg": -35.79871707291119,
+          "median_chassis_reference_height_above_ground_m": 0.8316917915807905,
+          "median_runner_shaft_power_kw": 58.3046837845346,
+          "gears": [
+            1.0,
+            2.0
+          ],
+          "max_chassis_contact_resultant_n": 0.0,
+          "wheels": {
+            "tire_fl": {
+              "loaded_fraction_fn_gt200n": 0.4230769230769231,
+              "median_normal_force_n": 0.0,
+              "median_tangent_force_n": 0.0,
+              "median_native_slip": 2.7239834966793293,
+              "median_slip_while_loaded": 1.4817194904041475,
+              "median_circumferential_speed_mps": 2.398489973570358,
+              "median_surface_tangent_hub_speed_mps": -0.16668963435479747,
+              "loaded_stationary_wheelspin_fraction": 0.06153846153846154
+            },
+            "tire_fr": {
+              "loaded_fraction_fn_gt200n": 0.33076923076923076,
+              "median_normal_force_n": 0.0,
+              "median_tangent_force_n": 0.0,
+              "median_native_slip": 15.314145467963026,
+              "median_slip_while_loaded": 21.155329118089053,
+              "median_circumferential_speed_mps": 12.33431588104636,
+              "median_surface_tangent_hub_speed_mps": -0.17811272787178187,
+              "loaded_stationary_wheelspin_fraction": 0.08461538461538462
+            },
+            "tire_rl": {
+              "loaded_fraction_fn_gt200n": 0.8038461538461539,
+              "median_normal_force_n": 7895.06407465323,
+              "median_tangent_force_n": 2205.9629627064987,
+              "median_native_slip": 0.27582987937974657,
+              "median_slip_while_loaded": 0.19734421569345606,
+              "median_circumferential_speed_mps": 0.3580298012354475,
+              "median_surface_tangent_hub_speed_mps": -0.1838741368550953,
+              "loaded_stationary_wheelspin_fraction": 0.038461538461538464
+            },
+            "tire_rr": {
+              "loaded_fraction_fn_gt200n": 0.7153846153846154,
+              "median_normal_force_n": 6305.20997543684,
+              "median_tangent_force_n": 2275.8177109556323,
+              "median_native_slip": 0.46771797523796116,
+              "median_slip_while_loaded": 0.2577190213124596,
+              "median_circumferential_speed_mps": 0.7979552054231017,
+              "median_surface_tangent_hub_speed_mps": -0.18077528846926766,
+              "loaded_stationary_wheelspin_fraction": 0.05
+            }
+          }
+        },
+        "last5s": {
+          "samples": 100,
+          "median_pitch_deg": -34.343799006481355,
+          "median_chassis_reference_height_above_ground_m": 0.8381703156165625,
+          "median_runner_shaft_power_kw": 57.57383359889276,
+          "gears": [
+            1.0,
+            2.0
+          ],
+          "max_chassis_contact_resultant_n": 0.0,
+          "wheels": {
+            "tire_fl": {
+              "loaded_fraction_fn_gt200n": 0.47,
+              "median_normal_force_n": 0.0,
+              "median_tangent_force_n": 0.0,
+              "median_native_slip": 2.6251001002016414,
+              "median_slip_while_loaded": 0.872794261380694,
+              "median_circumferential_speed_mps": 1.6329595618438937,
+              "median_surface_tangent_hub_speed_mps": -0.10672784118059069,
+              "loaded_stationary_wheelspin_fraction": 0.05
+            },
+            "tire_fr": {
+              "loaded_fraction_fn_gt200n": 0.4,
+              "median_normal_force_n": 0.0,
+              "median_tangent_force_n": 0.0,
+              "median_native_slip": 23.60891696886225,
+              "median_slip_while_loaded": 33.04732004397727,
+              "median_circumferential_speed_mps": 13.58945263417127,
+              "median_surface_tangent_hub_speed_mps": -0.14237653216613064,
+              "loaded_stationary_wheelspin_fraction": 0.15
+            },
+            "tire_rl": {
+              "loaded_fraction_fn_gt200n": 0.85,
+              "median_normal_force_n": 8086.0302836111905,
+              "median_tangent_force_n": 2313.360856278866,
+              "median_native_slip": 0.2956627656611537,
+              "median_slip_while_loaded": 0.2975584624271336,
+              "median_circumferential_speed_mps": 0.29572181142576853,
+              "median_surface_tangent_hub_speed_mps": -0.1884997253918768,
+              "loaded_stationary_wheelspin_fraction": 0.06
+            },
+            "tire_rr": {
+              "loaded_fraction_fn_gt200n": 0.77,
+              "median_normal_force_n": 6951.766171318615,
+              "median_tangent_force_n": 2333.4522616958584,
+              "median_native_slip": 0.3711509455279106,
+              "median_slip_while_loaded": 0.20659609738014917,
+              "median_circumferential_speed_mps": 0.7670513000959012,
+              "median_surface_tangent_hub_speed_mps": -0.09662936315437118,
+              "loaded_stationary_wheelspin_fraction": 0.04
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "smooth_probe_gaussian_h5p5_s3p5",
+      "family": "family_03",
+      "source_dir": "artifacts/traverse/fdm_rgbd_fourway_smooth_20260909/probes/instrumented/smooth_probe_gaussian_h5p5_s3p5/family_03",
+      "hashes": {
+        "trajectory.npz": "05ea1f6ccbcdda6305e77774cfdab0c7ec804e8c3e9e2f70b7d11e5da0567025",
+        "outcome.json": "2afc90cb0255e223aa3cc482262d6c64a93907e858eee06f3af24e78369741b0",
+        "slope_diagnostics.npz": "5e999479bd3e200b2e86b30d3e961322bcab795a8b646a48848cd415dffd10c7",
+        "slope_diagnostics.json": "722c22efcb129251be71722e0c40782ad6ca84c0e24ad32028d4f112158e7682"
+      },
+      "observer_hash": "7f6cf106bb0edb01ce07fa3fa5429b45e380f41d3740e025acb8bcaa25a80be2",
+      "optional_getter_errors": {},
+      "status": "timeout",
+      "goal_reached": false,
+      "goal_time_s": null,
+      "asset_contact": false,
+      "first_bounded_confirmation_s": 9.5,
+      "first_bounded_interval_start_s": 7.5,
+      "goal_progress_m": 0.4574082726605937,
+      "initial_pose": [
+        -18.066632797054947,
+        -0.011261740853505686,
+        -0.002574552847727442
+      ],
+      "initial_body_vx_mps": -0.06367439776659012,
+      "initial_pitch_deg": -5.110416889190674,
+      "initial_world_vertical_tire_forces_n": [
+        6513.2060546875,
+        6684.21044921875,
+        6019.869140625,
+        6489.25341796875
+      ],
+      "rollback_time_vx_below_minus_point3_s": 5.15,
+      "last5s_xy_diameter_m": 0.7023543254352662,
+      "throttle_min_after2s": 1.0,
+      "brake_max_after2s": 0.0,
+      "max_sampled_chassis_contact_resultant_n": 0.0,
+      "basic_vs_instrumented_max_abs_difference": null,
+      "windows": {
+        "after2s": {
+          "samples": 260,
+          "median_pitch_deg": -3.6421193019836564,
+          "median_chassis_reference_height_above_ground_m": 0.6230608200498289,
+          "median_runner_shaft_power_kw": 28.28897293212836,
+          "gears": [
+            2.0,
+            3.0
+          ],
+          "max_chassis_contact_resultant_n": 0.0,
+          "wheels": {
+            "tire_fl": {
+              "loaded_fraction_fn_gt200n": 0.9423076923076923,
+              "median_normal_force_n": 10495.057529238748,
+              "median_tangent_force_n": 219.21838251995166,
+              "median_native_slip": 0.05209527194788747,
+              "median_slip_while_loaded": 0.0343450878512122,
+              "median_circumferential_speed_mps": -0.07790797728757498,
+              "median_surface_tangent_hub_speed_mps": -0.16271539122151682,
+              "loaded_stationary_wheelspin_fraction": 0.023076923076923078
+            },
+            "tire_fr": {
+              "loaded_fraction_fn_gt200n": 0.7923076923076923,
+              "median_normal_force_n": 1978.7309157228442,
+              "median_tangent_force_n": 295.63090036297046,
+              "median_native_slip": 0.08135938362555697,
+              "median_slip_while_loaded": 0.04652417265159797,
+              "median_circumferential_speed_mps": 0.11952978316295906,
+              "median_surface_tangent_hub_speed_mps": -0.24804597089154645,
+              "loaded_stationary_wheelspin_fraction": 0.007692307692307693
+            },
+            "tire_rl": {
+              "loaded_fraction_fn_gt200n": 0.43846153846153846,
+              "median_normal_force_n": 0.0,
+              "median_tangent_force_n": 0.0,
+              "median_native_slip": 217.17435719265882,
+              "median_slip_while_loaded": 235.75046111287804,
+              "median_circumferential_speed_mps": 76.36963104988097,
+              "median_surface_tangent_hub_speed_mps": -0.13533393935700935,
+              "loaded_stationary_wheelspin_fraction": 0.21153846153846154
+            },
+            "tire_rr": {
+              "loaded_fraction_fn_gt200n": 1.0,
+              "median_normal_force_n": 11596.59427771727,
+              "median_tangent_force_n": 923.5597285667724,
+              "median_native_slip": 0.02185231076897534,
+              "median_slip_while_loaded": 0.02185231076897534,
+              "median_circumferential_speed_mps": -0.18732880473905883,
+              "median_surface_tangent_hub_speed_mps": -0.2467047380535783,
+              "loaded_stationary_wheelspin_fraction": 0.0038461538461538464
+            }
+          }
+        },
+        "last5s": {
+          "samples": 100,
+          "median_pitch_deg": -3.2124598145396672,
+          "median_chassis_reference_height_above_ground_m": 0.6185237408109148,
+          "median_runner_shaft_power_kw": 22.317497744275105,
+          "gears": [
+            3.0
+          ],
+          "max_chassis_contact_resultant_n": 0.0,
+          "wheels": {
+            "tire_fl": {
+              "loaded_fraction_fn_gt200n": 1.0,
+              "median_normal_force_n": 10457.910354428699,
+              "median_tangent_force_n": 219.21838251995166,
+              "median_native_slip": 0.06657549900149068,
+              "median_slip_while_loaded": 0.06657549900149068,
+              "median_circumferential_speed_mps": -0.057141633178594865,
+              "median_surface_tangent_hub_speed_mps": -0.09785838926496454,
+              "loaded_stationary_wheelspin_fraction": 0.02
+            },
+            "tire_fr": {
+              "loaded_fraction_fn_gt200n": 0.97,
+              "median_normal_force_n": 2274.7105631034856,
+              "median_tangent_force_n": 358.5790635001908,
+              "median_native_slip": 0.036921579451588506,
+              "median_slip_while_loaded": 0.03484746078677101,
+              "median_circumferential_speed_mps": -0.07194445915337236,
+              "median_surface_tangent_hub_speed_mps": -0.07139665884265385,
+              "loaded_stationary_wheelspin_fraction": 0.0
+            },
+            "tire_rl": {
+              "loaded_fraction_fn_gt200n": 0.73,
+              "median_normal_force_n": 1232.1431978130686,
+              "median_tangent_force_n": 0.0,
+              "median_native_slip": 305.670165178356,
+              "median_slip_while_loaded": 298.697889614648,
+              "median_circumferential_speed_mps": 78.14172463757045,
+              "median_surface_tangent_hub_speed_mps": -0.08635534659628935,
+              "loaded_stationary_wheelspin_fraction": 0.45
+            },
+            "tire_rr": {
+              "loaded_fraction_fn_gt200n": 1.0,
+              "median_normal_force_n": 11204.900645291937,
+              "median_tangent_force_n": 867.5398195495808,
+              "median_native_slip": 0.049419022524445716,
+              "median_slip_while_loaded": 0.049419022524445716,
+              "median_circumferential_speed_mps": -0.04416106542631814,
+              "median_surface_tangent_hub_speed_mps": -0.09262492738221956,
+              "loaded_stationary_wheelspin_fraction": 0.0
+            }
+          }
+        },
+        "first_bounded_interval": {
+          "samples": 40,
+          "median_pitch_deg": -3.9929023845876475,
+          "median_chassis_reference_height_above_ground_m": 0.6555900216820405,
+          "median_runner_shaft_power_kw": 16.820921640396598,
+          "gears": [
+            3.0
+          ],
+          "max_chassis_contact_resultant_n": 0.0,
+          "wheels": {
+            "tire_fl": {
+              "loaded_fraction_fn_gt200n": 1.0,
+              "median_normal_force_n": 11217.752843422015,
+              "median_tangent_force_n": 427.48147962559824,
+              "median_native_slip": 0.04078459597990625,
+              "median_slip_while_loaded": 0.04078459597990625,
+              "median_circumferential_speed_mps": -0.02021467797464435,
+              "median_surface_tangent_hub_speed_mps": -0.010852091210840749,
+              "loaded_stationary_wheelspin_fraction": 0.05
+            },
+            "tire_fr": {
+              "loaded_fraction_fn_gt200n": 0.925,
+              "median_normal_force_n": 1829.243241583064,
+              "median_tangent_force_n": 174.5766145922848,
+              "median_native_slip": 0.018880472221378855,
+              "median_slip_while_loaded": 0.010210192613515051,
+              "median_circumferential_speed_mps": -0.01777511059570651,
+              "median_surface_tangent_hub_speed_mps": 0.010231858999788018,
+              "loaded_stationary_wheelspin_fraction": 0.025
+            },
+            "tire_rl": {
+              "loaded_fraction_fn_gt200n": 0.0,
+              "median_normal_force_n": 0.0,
+              "median_tangent_force_n": 0.0,
+              "median_native_slip": 346.35867782389255,
+              "median_slip_while_loaded": null,
+              "median_circumferential_speed_mps": 80.93798508452613,
+              "median_surface_tangent_hub_speed_mps": -0.03530141941558807,
+              "loaded_stationary_wheelspin_fraction": 0.0
+            },
+            "tire_rr": {
+              "loaded_fraction_fn_gt200n": 1.0,
+              "median_normal_force_n": 12149.220389133221,
+              "median_tangent_force_n": 913.511383319084,
+              "median_native_slip": 0.056245664914959075,
+              "median_slip_while_loaded": 0.056245664914959075,
+              "median_circumferential_speed_mps": 0.026295052300052923,
+              "median_surface_tangent_hub_speed_mps": 0.01320499339595001,
+              "loaded_stationary_wheelspin_fraction": 0.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "smooth_probe_gaussian_h5p5_s3p5",
+      "family": "family_05",
+      "source_dir": "artifacts/traverse/fdm_rgbd_fourway_smooth_20260909/probes/instrumented/smooth_probe_gaussian_h5p5_s3p5/family_05",
+      "hashes": {
+        "trajectory.npz": "060b36ae555da4ca33a067ec00f34d7ea1ee5b47bc3392f6f8004e452127908a",
+        "outcome.json": "eaab08260f80700e647bb08e83e225e8964bcde608fb168ab04468438c4f0695",
+        "slope_diagnostics.npz": "c4a2018d7062eccb944e4ff490f6345a154c563232ea488e98057ab177d21dd2",
+        "slope_diagnostics.json": "ae09a818c794a13d90f36da4620b2c7bdc192c2f541f23fa2f2963799e73dab7"
+      },
+      "observer_hash": "7f6cf106bb0edb01ce07fa3fa5429b45e380f41d3740e025acb8bcaa25a80be2",
+      "optional_getter_errors": {},
+      "status": "timeout",
+      "goal_reached": false,
+      "goal_time_s": null,
+      "asset_contact": false,
+      "first_bounded_confirmation_s": null,
+      "first_bounded_interval_start_s": null,
+      "goal_progress_m": 2.763921011753119,
+      "initial_pose": [
+        -18.066632797054947,
+        -0.011261740853505686,
+        -0.002574552847727442
+      ],
+      "initial_body_vx_mps": -0.06367439776659012,
+      "initial_pitch_deg": -5.110416889190674,
+      "initial_world_vertical_tire_forces_n": [
+        6513.2060546875,
+        6684.21044921875,
+        6019.869140625,
+        6489.25341796875
+      ],
+      "rollback_time_vx_below_minus_point3_s": 6.6000000000000005,
+      "last5s_xy_diameter_m": 3.303434749090553,
+      "throttle_min_after2s": 1.0,
+      "brake_max_after2s": 0.0,
+      "max_sampled_chassis_contact_resultant_n": 0.0,
+      "basic_vs_instrumented_max_abs_difference": null,
+      "windows": {
+        "after2s": {
+          "samples": 260,
+          "median_pitch_deg": -4.111556150741024,
+          "median_chassis_reference_height_above_ground_m": 0.6253093502262488,
+          "median_runner_shaft_power_kw": 65.11388488123488,
+          "gears": [
+            2.0,
+            3.0
+          ],
+          "max_chassis_contact_resultant_n": 0.0,
+          "wheels": {
+            "tire_fl": {
+              "loaded_fraction_fn_gt200n": 0.7769230769230769,
+              "median_normal_force_n": 5215.734353641123,
+              "median_tangent_force_n": 604.8545011156207,
+              "median_native_slip": 0.06728941666185136,
+              "median_slip_while_loaded": 0.05671251103593722,
+              "median_circumferential_speed_mps": -0.3338117880595214,
+              "median_surface_tangent_hub_speed_mps": -0.6745781105316426,
+              "loaded_stationary_wheelspin_fraction": 0.015384615384615385
+            },
+            "tire_fr": {
+              "loaded_fraction_fn_gt200n": 0.7961538461538461,
+              "median_normal_force_n": 6131.322216667511,
+              "median_tangent_force_n": 534.7828408149544,
+              "median_native_slip": 0.08345620083258248,
+              "median_slip_while_loaded": 0.06572744842008471,
+              "median_circumferential_speed_mps": -0.26137377273208795,
+              "median_surface_tangent_hub_speed_mps": -0.42134302513319255,
+              "loaded_stationary_wheelspin_fraction": 0.019230769230769232
+            },
+            "tire_rl": {
+              "loaded_fraction_fn_gt200n": 0.9115384615384615,
+              "median_normal_force_n": 9576.516182005667,
+              "median_tangent_force_n": 734.6172278699194,
+              "median_native_slip": 0.032500774035585586,
+              "median_slip_while_loaded": 0.026200536305132898,
+              "median_circumferential_speed_mps": -0.28547813755021845,
+              "median_surface_tangent_hub_speed_mps": -0.45100190412938557,
+              "loaded_stationary_wheelspin_fraction": 0.011538461538461539
+            },
+            "tire_rr": {
+              "loaded_fraction_fn_gt200n": 0.40384615384615385,
+              "median_normal_force_n": 0.0,
+              "median_tangent_force_n": 0.0,
+              "median_native_slip": 62.54248278100927,
+              "median_slip_while_loaded": 47.614673963056454,
+              "median_circumferential_speed_mps": 59.98849651143213,
+              "median_surface_tangent_hub_speed_mps": -0.20447343228346374,
+              "loaded_stationary_wheelspin_fraction": 0.05
+            }
+          }
+        },
+        "last5s": {
+          "samples": 100,
+          "median_pitch_deg": -4.156055574134602,
+          "median_chassis_reference_height_above_ground_m": 0.6221266371840107,
+          "median_runner_shaft_power_kw": 59.71532501713929,
+          "gears": [
+            2.0,
+            3.0
+          ],
+          "max_chassis_contact_resultant_n": 0.0,
+          "wheels": {
+            "tire_fl": {
+              "loaded_fraction_fn_gt200n": 0.85,
+              "median_normal_force_n": 7325.008607667529,
+              "median_tangent_force_n": 764.1094798247528,
+              "median_native_slip": 0.06200701663497801,
+              "median_slip_while_loaded": 0.06695455925189764,
+              "median_circumferential_speed_mps": -0.6615058739408591,
+              "median_surface_tangent_hub_speed_mps": -0.8765718591088528,
+              "loaded_stationary_wheelspin_fraction": 0.01
+            },
+            "tire_fr": {
+              "loaded_fraction_fn_gt200n": 0.73,
+              "median_normal_force_n": 4035.691014229628,
+              "median_tangent_force_n": 192.24690941880692,
+              "median_native_slip": 0.09125352307682294,
+              "median_slip_while_loaded": 0.08834520436033172,
+              "median_circumferential_speed_mps": -0.5107403104079188,
+              "median_surface_tangent_hub_speed_mps": -0.6440659688301746,
+              "loaded_stationary_wheelspin_fraction": 0.03
+            },
+            "tire_rl": {
+              "loaded_fraction_fn_gt200n": 0.82,
+              "median_normal_force_n": 8663.330972218013,
+              "median_tangent_force_n": 640.3609499293625,
+              "median_native_slip": 0.06882033314115127,
+              "median_slip_while_loaded": 0.030233507292141235,
+              "median_circumferential_speed_mps": -0.27198263736700296,
+              "median_surface_tangent_hub_speed_mps": -0.5790507430356109,
+              "loaded_stationary_wheelspin_fraction": 0.02
+            },
+            "tire_rr": {
+              "loaded_fraction_fn_gt200n": 0.42,
+              "median_normal_force_n": 0.0,
+              "median_tangent_force_n": 0.0,
+              "median_native_slip": 78.90665651386186,
+              "median_slip_while_loaded": 67.51535670476008,
+              "median_circumferential_speed_mps": 68.69872958290698,
+              "median_surface_tangent_hub_speed_mps": -0.3506289362994591,
+              "loaded_stationary_wheelspin_fraction": 0.06
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "smooth_probe_gaussian_h6_s4p5",
+      "family": "family_01",
+      "source_dir": "artifacts/traverse/fdm_rgbd_fourway_smooth_20260909/probes/instrumented/smooth_probe_gaussian_h6_s4p5/family_01",
+      "hashes": {
+        "trajectory.npz": "596fbed1b69027f890728f13430b56c7cbb4c6d7a5a9ce0c9e6a87f61ec01fea",
+        "outcome.json": "f23c8668942135142f14aee34ecc46a70d2eaee622d9e52d3302e0d821e802ae",
+        "slope_diagnostics.npz": "cb2d92a4d8d913d054b1b3ea49f093894c13979b152acc9fa0eb3b04b6ebb719",
+        "slope_diagnostics.json": "8cc82c35254bcba97dddcd929d92e9d58dc6740b7b970784474aaddd50b1b00f"
+      },
+      "observer_hash": "7f6cf106bb0edb01ce07fa3fa5429b45e380f41d3740e025acb8bcaa25a80be2",
+      "optional_getter_errors": {},
+      "status": "timeout",
+      "goal_reached": false,
+      "goal_time_s": null,
+      "asset_contact": false,
+      "first_bounded_confirmation_s": 5.9,
+      "first_bounded_interval_start_s": 3.9000000000000004,
+      "goal_progress_m": 3.7371060967498337,
+      "initial_pose": [
+        -18.74450580192741,
+        -0.13238772408687863,
+        -0.1140034620773295
+      ],
+      "initial_body_vx_mps": -0.6627481579780579,
+      "initial_pitch_deg": -35.019805908203125,
+      "initial_world_vertical_tire_forces_n": [
+        0.0,
+        0.0,
+        11899.5419921875,
+        14591.3974609375
+      ],
+      "rollback_time_vx_below_minus_point3_s": 4.3,
+      "last5s_xy_diameter_m": 0.17837151463084056,
+      "throttle_min_after2s": 1.0,
+      "brake_max_after2s": 0.0,
+      "max_sampled_chassis_contact_resultant_n": 0.0,
+      "basic_vs_instrumented_max_abs_difference": {
+        "state": 0.0,
+        "pose": 0.0,
+        "action": 0.0,
+        "terminal_state": 0.0,
+        "terminal_pose": 0.0,
+        "power_kw": 0.0,
+        "contact_n": 0.0,
+        "positive_work_kj_per_interval": 0.0
+      },
+      "windows": {
+        "after2s": {
+          "samples": 260,
+          "median_pitch_deg": -34.869233203384645,
+          "median_chassis_reference_height_above_ground_m": 0.7460266372346074,
+          "median_runner_shaft_power_kw": 60.94305298862605,
+          "gears": [
+            1.0,
+            2.0
+          ],
+          "max_chassis_contact_resultant_n": 0.0,
+          "wheels": {
+            "tire_fl": {
+              "loaded_fraction_fn_gt200n": 0.6615384615384615,
+              "median_normal_force_n": 3205.000036939565,
+              "median_tangent_force_n": 1613.274414140134,
+              "median_native_slip": 5.730046183627596,
+              "median_slip_while_loaded": 4.33418368500169,
+              "median_circumferential_speed_mps": 2.460707446919781,
+              "median_surface_tangent_hub_speed_mps": -0.05493827243086398,
+              "loaded_stationary_wheelspin_fraction": 0.16538461538461538
+            },
+            "tire_fr": {
+              "loaded_fraction_fn_gt200n": 0.48846153846153845,
+              "median_normal_force_n": 0.0,
+              "median_tangent_force_n": 0.0,
+              "median_native_slip": 28.138540848367544,
+              "median_slip_while_loaded": 36.22950922032353,
+              "median_circumferential_speed_mps": 10.335538221500904,
+              "median_surface_tangent_hub_speed_mps": -0.052546986727126134,
+              "loaded_stationary_wheelspin_fraction": 0.26153846153846155
+            },
+            "tire_rl": {
+              "loaded_fraction_fn_gt200n": 0.7615384615384615,
+              "median_normal_force_n": 7529.334324957437,
+              "median_tangent_force_n": 2270.7591618122347,
+              "median_native_slip": 1.1537132775606223,
+              "median_slip_while_loaded": 0.7245498264975093,
+              "median_circumferential_speed_mps": 0.5427107595093152,
+              "median_surface_tangent_hub_speed_mps": -0.03511399699493922,
+              "loaded_stationary_wheelspin_fraction": 0.15384615384615385
+            },
+            "tire_rr": {
+              "loaded_fraction_fn_gt200n": 0.6961538461538461,
+              "median_normal_force_n": 5881.899611659444,
+              "median_tangent_force_n": 2432.2111790481285,
+              "median_native_slip": 1.7534812639917234,
+              "median_slip_while_loaded": 0.9796961421093568,
+              "median_circumferential_speed_mps": 0.9568653103133418,
+              "median_surface_tangent_hub_speed_mps": -0.07083366916744897,
+              "loaded_stationary_wheelspin_fraction": 0.13076923076923078
+            }
+          }
+        },
+        "last5s": {
+          "samples": 100,
+          "median_pitch_deg": -32.888112707868835,
+          "median_chassis_reference_height_above_ground_m": 0.7507286171949024,
+          "median_runner_shaft_power_kw": 53.072656306857155,
+          "gears": [
+            1.0
+          ],
+          "max_chassis_contact_resultant_n": 0.0,
+          "wheels": {
+            "tire_fl": {
+              "loaded_fraction_fn_gt200n": 0.87,
+              "median_normal_force_n": 4083.650222811836,
+              "median_tangent_force_n": 2530.624349569718,
+              "median_native_slip": 9.756117389946425,
+              "median_slip_while_loaded": 4.502023308602711,
+              "median_circumferential_speed_mps": 0.8293173133324867,
+              "median_surface_tangent_hub_speed_mps": -0.0006515443496416529,
+              "loaded_stationary_wheelspin_fraction": 0.29
+            },
+            "tire_fr": {
+              "loaded_fraction_fn_gt200n": 0.65,
+              "median_normal_force_n": 3236.6863526808825,
+              "median_tangent_force_n": 1756.177107646026,
+              "median_native_slip": 123.34188597404244,
+              "median_slip_while_loaded": 163.17894933288312,
+              "median_circumferential_speed_mps": 13.390380874109528,
+              "median_surface_tangent_hub_speed_mps": -0.017133410108576167,
+              "loaded_stationary_wheelspin_fraction": 0.52
+            },
+            "tire_rl": {
+              "loaded_fraction_fn_gt200n": 0.89,
+              "median_normal_force_n": 7868.890889408902,
+              "median_tangent_force_n": 2783.726063075943,
+              "median_native_slip": 2.238196694545029,
+              "median_slip_while_loaded": 2.001983425902427,
+              "median_circumferential_speed_mps": 0.2808701218474524,
+              "median_surface_tangent_hub_speed_mps": -0.003651905404428415,
+              "loaded_stationary_wheelspin_fraction": 0.26
+            },
+            "tire_rr": {
+              "loaded_fraction_fn_gt200n": 0.73,
+              "median_normal_force_n": 5906.871995278849,
+              "median_tangent_force_n": 2331.605346520459,
+              "median_native_slip": 2.540917343294014,
+              "median_slip_while_loaded": 1.1517291990093674,
+              "median_circumferential_speed_mps": 0.48810305740566706,
+              "median_surface_tangent_hub_speed_mps": 0.009819588465951525,
+              "loaded_stationary_wheelspin_fraction": 0.21
+            }
+          }
+        },
+        "first_bounded_interval": {
+          "samples": 40,
+          "median_pitch_deg": -38.40908820614868,
+          "median_chassis_reference_height_above_ground_m": 0.669377892510262,
+          "median_runner_shaft_power_kw": 59.53255251700552,
+          "gears": [
+            1.0
+          ],
+          "max_chassis_contact_resultant_n": 0.0,
+          "wheels": {
+            "tire_fl": {
+              "loaded_fraction_fn_gt200n": 0.675,
+              "median_normal_force_n": 3692.115942039193,
+              "median_tangent_force_n": 1838.4628256976634,
+              "median_native_slip": 13.742574515435418,
+              "median_slip_while_loaded": 6.96232535339018,
+              "median_circumferential_speed_mps": 4.752269394315917,
+              "median_surface_tangent_hub_speed_mps": 0.020624582168181308,
+              "loaded_stationary_wheelspin_fraction": 0.225
+            },
+            "tire_fr": {
+              "loaded_fraction_fn_gt200n": 0.6,
+              "median_normal_force_n": 2282.321217217904,
+              "median_tangent_force_n": 2150.7090689339866,
+              "median_native_slip": 29.211526545675305,
+              "median_slip_while_loaded": 32.31305375340891,
+              "median_circumferential_speed_mps": 6.660315890248404,
+              "median_surface_tangent_hub_speed_mps": 0.009878657242644799,
+              "loaded_stationary_wheelspin_fraction": 0.325
+            },
+            "tire_rl": {
+              "loaded_fraction_fn_gt200n": 0.675,
+              "median_normal_force_n": 6449.289229905164,
+              "median_tangent_force_n": 1842.721952204609,
+              "median_native_slip": 3.3809882866224577,
+              "median_slip_while_loaded": 0.9049889233163337,
+              "median_circumferential_speed_mps": 0.7783005764669533,
+              "median_surface_tangent_hub_speed_mps": -0.014503030021213281,
+              "loaded_stationary_wheelspin_fraction": 0.075
+            },
+            "tire_rr": {
+              "loaded_fraction_fn_gt200n": 0.65,
+              "median_normal_force_n": 3770.5957099940915,
+              "median_tangent_force_n": 2613.9131314131437,
+              "median_native_slip": 9.354783418151275,
+              "median_slip_while_loaded": 6.016387187618229,
+              "median_circumferential_speed_mps": 1.885503507600085,
+              "median_surface_tangent_hub_speed_mps": 0.09961354827768384,
+              "loaded_stationary_wheelspin_fraction": 0.175
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "smooth_probe_gaussian_h6_s4p5",
+      "family": "family_03",
+      "source_dir": "artifacts/traverse/fdm_rgbd_fourway_smooth_20260909/probes/instrumented/smooth_probe_gaussian_h6_s4p5/family_03",
+      "hashes": {
+        "trajectory.npz": "ce8c8f8faeae02a2d15bfb66a1632e096a9417c4c949c7779a0a81491ae1001b",
+        "outcome.json": "24e50cf883c8c8c5ba213cb497ade05b64020904a3bf863e717ec8574361c7ae",
+        "slope_diagnostics.npz": "e1dd6074297efd1ec0fe1bfadc690e8139962e20282001b61d7cb05144e16b6c",
+        "slope_diagnostics.json": "7e0346fa819343122c7b14182124e7fa885f20ff35b1cf5f310d9d72c3fbb614"
+      },
+      "observer_hash": "7f6cf106bb0edb01ce07fa3fa5429b45e380f41d3740e025acb8bcaa25a80be2",
+      "optional_getter_errors": {},
+      "status": "timeout",
+      "goal_reached": false,
+      "goal_time_s": null,
+      "asset_contact": false,
+      "first_bounded_confirmation_s": null,
+      "first_bounded_interval_start_s": null,
+      "goal_progress_m": 1.7703570099336972,
+      "initial_pose": [
+        -18.74450580192741,
+        -0.13238772408687863,
+        -0.1140034620773295
+      ],
+      "initial_body_vx_mps": -0.6627481579780579,
+      "initial_pitch_deg": -35.019805908203125,
+      "initial_world_vertical_tire_forces_n": [
+        0.0,
+        0.0,
+        11899.5419921875,
+        14591.3974609375
+      ],
+      "rollback_time_vx_below_minus_point3_s": 6.550000000000001,
+      "last5s_xy_diameter_m": 4.698016587555784,
+      "throttle_min_after2s": 1.0,
+      "brake_max_after2s": 0.0,
+      "max_sampled_chassis_contact_resultant_n": 0.0,
+      "basic_vs_instrumented_max_abs_difference": null,
+      "windows": {
+        "after2s": {
+          "samples": 260,
+          "median_pitch_deg": -6.614909556192599,
+          "median_chassis_reference_height_above_ground_m": 0.6505054025473949,
+          "median_runner_shaft_power_kw": 71.93157229819988,
+          "gears": [
+            2.0,
+            3.0
+          ],
+          "max_chassis_contact_resultant_n": 0.0,
+          "wheels": {
+            "tire_fl": {
+              "loaded_fraction_fn_gt200n": 0.8846153846153846,
+              "median_normal_force_n": 9385.782560703075,
+              "median_tangent_force_n": 730.4570368620755,
+              "median_native_slip": 0.047202617117793555,
+              "median_slip_while_loaded": 0.03272015537970546,
+              "median_circumferential_speed_mps": -0.06876681521530532,
+              "median_surface_tangent_hub_speed_mps": -0.1258321194996252,
+              "loaded_stationary_wheelspin_fraction": 0.007692307692307693
+            },
+            "tire_fr": {
+              "loaded_fraction_fn_gt200n": 0.5692307692307692,
+              "median_normal_force_n": 1669.8602563663762,
+              "median_tangent_force_n": 1.0275494603631046,
+              "median_native_slip": 0.3771955557300223,
+              "median_slip_while_loaded": 0.12917677648255718,
+              "median_circumferential_speed_mps": 2.617687584218485,
+              "median_surface_tangent_hub_speed_mps": -0.11379407198259706,
+              "loaded_stationary_wheelspin_fraction": 0.026923076923076925
+            },
+            "tire_rl": {
+              "loaded_fraction_fn_gt200n": 0.33076923076923076,
+              "median_normal_force_n": 0.0,
+              "median_tangent_force_n": 0.0,
+              "median_native_slip": 43.64408582590953,
+              "median_slip_while_loaded": 63.280690747176465,
+              "median_circumferential_speed_mps": 47.6621243909221,
+              "median_surface_tangent_hub_speed_mps": -0.07521683609117435,
+              "loaded_stationary_wheelspin_fraction": 0.057692307692307696
+            },
+            "tire_rr": {
+              "loaded_fraction_fn_gt200n": 0.9884615384615385,
+              "median_normal_force_n": 11524.038899255796,
+              "median_tangent_force_n": 1165.571543293203,
+              "median_native_slip": 0.013368704028650796,
+              "median_slip_while_loaded": 0.01293654838647664,
+              "median_circumferential_speed_mps": -0.06932193608923189,
+              "median_surface_tangent_hub_speed_mps": -0.09796349048016559,
+              "loaded_stationary_wheelspin_fraction": 0.0038461538461538464
+            }
+          }
+        },
+        "last5s": {
+          "samples": 100,
+          "median_pitch_deg": -3.83208064678541,
+          "median_chassis_reference_height_above_ground_m": 0.6214113735860887,
+          "median_runner_shaft_power_kw": 62.40810402168125,
+          "gears": [
+            3.0
+          ],
+          "max_chassis_contact_resultant_n": 0.0,
+          "wheels": {
+            "tire_fl": {
+              "loaded_fraction_fn_gt200n": 0.97,
+              "median_normal_force_n": 8775.426540683377,
+              "median_tangent_force_n": 1028.7099485762878,
+              "median_native_slip": 0.011288640049262041,
+              "median_slip_while_loaded": 0.012388041408404056,
+              "median_circumferential_speed_mps": 0.25797127232579986,
+              "median_surface_tangent_hub_speed_mps": 0.3490429180506581,
+              "loaded_stationary_wheelspin_fraction": 0.0
+            },
+            "tire_fr": {
+              "loaded_fraction_fn_gt200n": 0.77,
+              "median_normal_force_n": 3318.725956031546,
+              "median_tangent_force_n": 498.27084879106246,
+              "median_native_slip": 0.06935912491525748,
+              "median_slip_while_loaded": 0.05675512188560838,
+              "median_circumferential_speed_mps": 0.4688308993744025,
+              "median_surface_tangent_hub_speed_mps": 0.4258298124013805,
+              "loaded_stationary_wheelspin_fraction": 0.0
+            },
+            "tire_rl": {
+              "loaded_fraction_fn_gt200n": 0.52,
+              "median_normal_force_n": 475.92248857630875,
+              "median_tangent_force_n": 0.0,
+              "median_native_slip": 61.59896529015608,
+              "median_slip_while_loaded": 64.78071560083592,
+              "median_circumferential_speed_mps": 63.781516764781685,
+              "median_surface_tangent_hub_speed_mps": 0.24176532014973576,
+              "loaded_stationary_wheelspin_fraction": 0.07
+            },
+            "tire_rr": {
+              "loaded_fraction_fn_gt200n": 0.99,
+              "median_normal_force_n": 10590.236036051363,
+              "median_tangent_force_n": 1149.0150681268226,
+              "median_native_slip": 0.02422393627101426,
+              "median_slip_while_loaded": 0.024971773154874248,
+              "median_circumferential_speed_mps": 0.3334453961280393,
+              "median_surface_tangent_hub_speed_mps": 0.41925895939774394,
+              "loaded_stationary_wheelspin_fraction": 0.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "case": "smooth_probe_gaussian_h6_s4p5",
+      "family": "family_05",
+      "source_dir": "artifacts/traverse/fdm_rgbd_fourway_smooth_20260909/probes/instrumented/smooth_probe_gaussian_h6_s4p5/family_05",
+      "hashes": {
+        "trajectory.npz": "54163cd4a4b81f0e312a3a5859abeb45c0a63be37ccd68e9be08c2bacdd90c9b",
+        "outcome.json": "82384811bb3222f186331ded1445acbf3817eddb193466650f78ec984ae85bd4",
+        "slope_diagnostics.npz": "0e46190b88d330f67e0ce5388604b1ea0b475e9a678a232906af0653acd3fa65",
+        "slope_diagnostics.json": "23922114bc2007d6ddd2b625d9336214432eb65867e509ceb97304353885c6ff"
+      },
+      "observer_hash": "7f6cf106bb0edb01ce07fa3fa5429b45e380f41d3740e025acb8bcaa25a80be2",
+      "optional_getter_errors": {},
+      "status": "timeout",
+      "goal_reached": false,
+      "goal_time_s": null,
+      "asset_contact": false,
+      "first_bounded_confirmation_s": null,
+      "first_bounded_interval_start_s": null,
+      "goal_progress_m": -0.38588519226636464,
+      "initial_pose": [
+        -18.74450580192741,
+        -0.13238772408687863,
+        -0.1140034620773295
+      ],
+      "initial_body_vx_mps": -0.6627481579780579,
+      "initial_pitch_deg": -35.019805908203125,
+      "initial_world_vertical_tire_forces_n": [
+        0.0,
+        0.0,
+        11899.5419921875,
+        14591.3974609375
+      ],
+      "rollback_time_vx_below_minus_point3_s": 7.300000000000001,
+      "last5s_xy_diameter_m": 5.894223908838917,
+      "throttle_min_after2s": 1.0,
+      "brake_max_after2s": 0.0,
+      "max_sampled_chassis_contact_resultant_n": 0.0,
+      "basic_vs_instrumented_max_abs_difference": null,
+      "windows": {
+        "after2s": {
+          "samples": 260,
+          "median_pitch_deg": -7.079125457289444,
+          "median_chassis_reference_height_above_ground_m": 0.6541095950048337,
+          "median_runner_shaft_power_kw": 69.57692625808644,
+          "gears": [
+            2.0,
+            3.0
+          ],
+          "max_chassis_contact_resultant_n": 0.0,
+          "wheels": {
+            "tire_fl": {
+              "loaded_fraction_fn_gt200n": 0.6,
+              "median_normal_force_n": 2720.406336797023,
+              "median_tangent_force_n": 465.55076896705975,
+              "median_native_slip": 0.2451378736351026,
+              "median_slip_while_loaded": 0.08155660816603622,
+              "median_circumferential_speed_mps": 2.8539207308176606,
+              "median_surface_tangent_hub_speed_mps": -0.5042741852793493,
+              "loaded_stationary_wheelspin_fraction": 0.011538461538461539
+            },
+            "tire_fr": {
+              "loaded_fraction_fn_gt200n": 0.8884615384615384,
+              "median_normal_force_n": 8045.612491681473,
+              "median_tangent_force_n": 1194.405292175132,
+              "median_native_slip": 0.06370576432062225,
+              "median_slip_while_loaded": 0.050909154229510284,
+              "median_circumferential_speed_mps": -0.2650294574785057,
+              "median_surface_tangent_hub_speed_mps": -0.45648656388290787,
+              "loaded_stationary_wheelspin_fraction": 0.007692307692307693
+            },
+            "tire_rl": {
+              "loaded_fraction_fn_gt200n": 0.9961538461538462,
+              "median_normal_force_n": 10829.754798914775,
+              "median_tangent_force_n": 1282.9942309246562,
+              "median_native_slip": 0.01642534068164378,
+              "median_slip_while_loaded": 0.015812970252510987,
+              "median_circumferential_speed_mps": -0.45288293578036587,
+              "median_surface_tangent_hub_speed_mps": -0.5100640952503824,
+              "loaded_stationary_wheelspin_fraction": 0.0
+            },
+            "tire_rr": {
+              "loaded_fraction_fn_gt200n": 0.4653846153846154,
+              "median_normal_force_n": 0.0,
+              "median_tangent_force_n": 0.0,
+              "median_native_slip": 36.318412747779206,
+              "median_slip_while_loaded": 39.62592441846795,
+              "median_circumferential_speed_mps": 47.32375396774401,
+              "median_surface_tangent_hub_speed_mps": -0.479161050558082,
+              "loaded_stationary_wheelspin_fraction": 0.05384615384615385
+            }
+          }
+        },
+        "last5s": {
+          "samples": 100,
+          "median_pitch_deg": -3.6240556605834495,
+          "median_chassis_reference_height_above_ground_m": 0.6234119126026973,
+          "median_runner_shaft_power_kw": 65.27232406201392,
+          "gears": [
+            2.0,
+            3.0
+          ],
+          "max_chassis_contact_resultant_n": 0.0,
+          "wheels": {
+            "tire_fl": {
+              "loaded_fraction_fn_gt200n": 0.73,
+              "median_normal_force_n": 3940.240098767736,
+              "median_tangent_force_n": 895.6617763519962,
+              "median_native_slip": 0.06459383780526248,
+              "median_slip_while_loaded": 0.044243107254633256,
+              "median_circumferential_speed_mps": -0.5185288892677669,
+              "median_surface_tangent_hub_speed_mps": -1.380225931034014,
+              "loaded_stationary_wheelspin_fraction": 0.0
+            },
+            "tire_fr": {
+              "loaded_fraction_fn_gt200n": 0.93,
+              "median_normal_force_n": 8020.545050410483,
+              "median_tangent_force_n": 1274.1083072090883,
+              "median_native_slip": 0.047436907381744844,
+              "median_slip_while_loaded": 0.04623345244057316,
+              "median_circumferential_speed_mps": -1.095900988732644,
+              "median_surface_tangent_hub_speed_mps": -1.2651085206625408,
+              "loaded_stationary_wheelspin_fraction": 0.0
+            },
+            "tire_rl": {
+              "loaded_fraction_fn_gt200n": 0.99,
+              "median_normal_force_n": 9796.219774483576,
+              "median_tangent_force_n": 1576.282574391087,
+              "median_native_slip": 0.03864777303769448,
+              "median_slip_while_loaded": 0.037752409013209275,
+              "median_circumferential_speed_mps": -1.2958449711210065,
+              "median_surface_tangent_hub_speed_mps": -1.4359010602843258,
+              "loaded_stationary_wheelspin_fraction": 0.0
+            },
+            "tire_rr": {
+              "loaded_fraction_fn_gt200n": 0.61,
+              "median_normal_force_n": 2544.458076034917,
+              "median_tangent_force_n": 103.08150691785947,
+              "median_native_slip": 40.77519669691543,
+              "median_slip_while_loaded": 40.06457061445417,
+              "median_circumferential_speed_mps": 65.6258376521335,
+              "median_surface_tangent_hub_speed_mps": -1.1486042689188682,
+              "loaded_stationary_wheelspin_fraction": 0.06
+            }
+          }
+        }
+      }
+    }
+  ],
+  "conclusions": [
+    "Instrumented straight runs exactly reproduce all compared basic telemetry arrays.",
+    "No chassis contact resultant was sampled in any of the six runs; pair identities and continuous-time contact census are unavailable.",
+    "The H5.5/sigma3.5 straight run repeatedly rolls back/reclimbs and never satisfies bounded-motion v2 within15s. High front-wheel spin often occurs while unloaded.",
+    "The H6/sigma4.5 straight run confirms bounded motion at5.9s and stays within a.178m XY diameter in the last5s despite full throttle, zero brake, loaded-wheel slip and essentially zero hub progress. Its launch is not a settled from-rest condition.",
+    "All current right/left detours also fail on the broad near-start hill footprint; neither scene is a valid four-route demonstration yet.",
+    "Recommend moving the broad H6/sigma4.5 hill later, preferably centerx0, then probing straight/left/right unchanged physics. This repairs launch and lets route separation develop. A later stationary stall cannot be guaranteed from these runs."
+  ],
+  "limitations": [
+    "Only20Hz chassis contact resultants; zero cannot rule out brief or cancelling contacts.",
+    "Chassis reference height and vertical hub-radius gaps are not exact underbody clearance.",
+    "Power is the existing runner torque/speed product; gear, slip and force observations do not establish an engine-power limit or tire-friction saturation by themselves.",
+    "Large tire-model slip on an unloaded wheel is not evidence of useful traction.",
+    "Bounded motion and failure to climb are distinct; rollback is not relabeled stationary stall."
+  ]
+}

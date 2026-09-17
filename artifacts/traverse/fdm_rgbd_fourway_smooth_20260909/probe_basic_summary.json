@@ -1,0 +1,158 @@
+{
+  "job": "411834 completed43s",
+  "scope": "Firstpass basic17D telemetry; asset-contact=0 does not by itself rule out underbody/terrain blocking",
+  "rows": [
+    {
+      "case": "smooth_probe_gaussian_h3p5_s3p5",
+      "analytic_max_grade_deg": 31.238095803848648,
+      "status": "goal_reached",
+      "goal_time_s": 7.3500000000000005,
+      "goal_progress_m": 33.538244649002735,
+      "path_length_m": 33.5659429923105,
+      "asset_contact": false,
+      "sustained_near_stop": false,
+      "longest_near_stop_s": 0.25,
+      "bounded_blockage": false,
+      "x_extent_m": [
+        -18.03760419998937,
+        15.500921573440323
+      ],
+      "max_abs_pitch_deg": 29.66151237487793,
+      "min_vx_mps": 0.05065765604376793,
+      "positive_work_kj": 268.5079082364347
+    },
+    {
+      "case": "smooth_probe_gaussian_h4p5_s3p5",
+      "analytic_max_grade_deg": 37.94800111994063,
+      "status": "goal_reached",
+      "goal_time_s": 8.65,
+      "goal_progress_m": 33.66171702662858,
+      "path_length_m": 33.76108956911258,
+      "asset_contact": false,
+      "sustained_near_stop": false,
+      "longest_near_stop_s": 0.25,
+      "bounded_blockage": false,
+      "x_extent_m": [
+        -18.049925976558274,
+        15.611836742382401
+      ],
+      "max_abs_pitch_deg": 36.246700286865234,
+      "min_vx_mps": 0.036869414150714874,
+      "positive_work_kj": 302.0366430720133
+    },
+    {
+      "case": "smooth_probe_gaussian_h5p5_s3p5",
+      "analytic_max_grade_deg": 43.62500334290743,
+      "status": "timeout",
+      "goal_time_s": null,
+      "goal_progress_m": 3.8827008942842625,
+      "path_length_m": 14.318507004939875,
+      "asset_contact": false,
+      "sustained_near_stop": false,
+      "longest_near_stop_s": 0.55,
+      "bounded_blockage": false,
+      "x_extent_m": [
+        -18.09288966274062,
+        -12.200255269764813
+      ],
+      "max_abs_pitch_deg": 44.05738067626953,
+      "min_vx_mps": -2.0372626781463623,
+      "positive_work_kj": 823.4761463036076
+    },
+    {
+      "case": "smooth_probe_gaussian_h6_s4p5",
+      "analytic_max_grade_deg": 38.96272949973257,
+      "status": "timeout",
+      "goal_time_s": null,
+      "goal_progress_m": 3.7371060967498337,
+      "path_length_m": 9.18894704164007,
+      "asset_contact": false,
+      "sustained_near_stop": false,
+      "longest_near_stop_s": 1.9000000000000001,
+      "bounded_blockage": true,
+      "x_extent_m": [
+        -18.932797864029876,
+        -12.764520595935547
+      ],
+      "max_abs_pitch_deg": 41.00912857055664,
+      "min_vx_mps": -1.3407955169677734,
+      "positive_work_kj": 916.8968736743402
+    },
+    {
+      "case": "smooth_probe_gaussian_h6p5_s3p5",
+      "analytic_max_grade_deg": 48.40219653691371,
+      "status": "timeout",
+      "goal_time_s": null,
+      "goal_progress_m": 3.0289053119433333,
+      "path_length_m": 22.528152190587146,
+      "asset_contact": false,
+      "sustained_near_stop": false,
+      "longest_near_stop_s": 0.30000000000000004,
+      "bounded_blockage": false,
+      "x_extent_m": [
+        -19.398172795173917,
+        -12.90899053960065
+      ],
+      "max_abs_pitch_deg": 46.11957550048828,
+      "min_vx_mps": -3.4686801433563232,
+      "positive_work_kj": 931.8213946792079
+    },
+    {
+      "case": "smooth_probe_gaussian_h8_s4p5",
+      "analytic_max_grade_deg": 47.15698282468181,
+      "status": "rollover",
+      "goal_time_s": null,
+      "goal_progress_m": -0.24042184669485778,
+      "path_length_m": 0.24042195853034523,
+      "asset_contact": false,
+      "sustained_near_stop": false,
+      "longest_near_stop_s": 0.0,
+      "bounded_blockage": false,
+      "x_extent_m": [
+        -21.252005811677545,
+        -21.0115839512659
+      ],
+      "max_abs_pitch_deg": 11.402800559997559,
+      "min_vx_mps": 4.4959187507629395,
+      "positive_work_kj": 0.0844964212355818
+    },
+    {
+      "case": "smooth_probe_quintic_h4_r8",
+      "analytic_max_grade_deg": 43.15238973400541,
+      "status": "goal_reached",
+      "goal_time_s": 7.5,
+      "goal_progress_m": 33.59950498754682,
+      "path_length_m": 33.80949534166014,
+      "asset_contact": false,
+      "sustained_near_stop": false,
+      "longest_near_stop_s": 0.25,
+      "bounded_blockage": false,
+      "x_extent_m": [
+        -17.974298214388252,
+        15.625218513614849
+      ],
+      "max_abs_pitch_deg": 42.381317138671875,
+      "min_vx_mps": 0.041317813098430634,
+      "positive_work_kj": 303.63643009787546
+    },
+    {
+      "case": "smooth_probe_quintic_h5_r8",
+      "analytic_max_grade_deg": 49.52476847283419,
+      "status": "timeout",
+      "goal_time_s": null,
+      "goal_progress_m": 2.2184434160016764,
+      "path_length_m": 18.642184557498666,
+      "asset_contact": false,
+      "sustained_near_stop": false,
+      "longest_near_stop_s": 0.9,
+      "bounded_blockage": false,
+      "x_extent_m": [
+        -17.96018221547381,
+        -12.040005394877157
+      ],
+      "max_abs_pitch_deg": 49.793636322021484,
+      "min_vx_mps": -2.6635818481445312,
+      "positive_work_kj": 977.8891642333393
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+[
+  {
+    "scene": "terrain_probe_mesa12",
+    "route": "family_00",
+    "last4_net_m": 0.10725820557029267,
+    "last4_path_m": 1.7165581888089383,
+    "last4_bbox_diag_m": 0.27320241020750585,
+    "last4_speed_abs_mean": 0.43792828917503357,
+    "last4_speed_abs_max": 1.3684934377670288,
+    "last4_throttle_mean": 1.0,
+    "last4_vx_under03_fraction": 0.45
+  },
+  {
+    "scene": "terrain_probe_mesa12",
+    "route": "family_01",
+    "last4_net_m": 0.31908537142166965,
+    "last4_path_m": 2.709795160355263,
+    "last4_bbox_diag_m": 0.4436354237998392,
+    "last4_speed_abs_mean": 0.6792497634887695,
+    "last4_speed_abs_max": 2.1120615005493164,
+    "last4_throttle_mean": 1.0,
+    "last4_vx_under03_fraction": 0.2625
+  },
+  {
+    "scene": "terrain_probe_mesa18",
+    "route": "family_00",
+    "last4_net_m": 0.005813121778990763,
+    "last4_path_m": 0.8550764627159892,
+    "last4_bbox_diag_m": 0.09111477090507304,
+    "last4_speed_abs_mean": 0.2122102677822113,
+    "last4_speed_abs_max": 0.4815864562988281,
+    "last4_throttle_mean": 1.0,
+    "last4_vx_under03_fraction": 0.7125
+  },
+  {
+    "scene": "terrain_probe_mesa18",
+    "route": "family_01",
+    "last4_net_m": 0.10829977662907775,
+    "last4_path_m": 2.683536777684106,
+    "last4_bbox_diag_m": 0.6669722658026769,
+    "last4_speed_abs_mean": 0.6723960041999817,
+    "last4_speed_abs_max": 2.111388921737671,
+    "last4_throttle_mean": 1.0,
+    "last4_vx_under03_fraction": 0.35
+  },
+  {
+    "scene": "terrain_probe_mesa24",
+    "route": "family_00",
+    "last4_net_m": 0.029295752118127155,
+    "last4_path_m": 1.3745954704355992,
+    "last4_bbox_diag_m": 0.17545813123908544,
+    "last4_speed_abs_mean": 0.34763890504837036,
+    "last4_speed_abs_max": 0.9262617230415344,
+    "last4_throttle_mean": 1.0,
+    "last4_vx_under03_fraction": 0.4
+  },
+  {
+    "scene": "terrain_probe_mesa24",
+    "route": "family_01",
+    "last4_net_m": 0.632265754195929,
+    "last4_path_m": 3.406118929087064,
+    "last4_bbox_diag_m": 0.7481314563430737,
+    "last4_speed_abs_mean": 0.8404778242111206,
+    "last4_speed_abs_max": 2.2070367336273193,
+    "last4_throttle_mean": 1.0,
+    "last4_vx_under03_fraction": 0.175
+  }
+]

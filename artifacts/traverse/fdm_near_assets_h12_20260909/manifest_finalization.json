@@ -1,0 +1,20 @@
+[
+  {
+    "start_id": "near_assets_h12_val_mixed_obstacles_00",
+    "original_manifest_sha256": "c6620508eba192b3cecbde86d308f5050e7101a31808ab3fb80ffa3edcc34f53",
+    "final_manifest_sha256": "53e5e9c47eb4f63ff762a22695f12f545254e363a844b9dce1e4a59e93c79e51",
+    "changes": "Bind physical wrapper and native anchor; clarify rejected fallback labels. Forecasts, costs, candidate selection and references unchanged."
+  },
+  {
+    "start_id": "near_assets_h12_val_rolling_hills_00",
+    "original_manifest_sha256": "56b587266ce3f5dc62f7b688278fd679a8edd4d696ab9ee604cf81140056b68d",
+    "final_manifest_sha256": "97a7c68d37cdc755127b89c893e9b2a6554084d764461a8fcdb2172c165aa501",
+    "changes": "Bind physical wrapper and native anchor; clarify rejected fallback labels. Forecasts, costs, candidate selection and references unchanged."
+  },
+  {
+    "start_id": "near_assets_h12_val_rough_mosaic_00",
+    "original_manifest_sha256": "847e450ad3ec1acdfaa22ece096c7c15bf0912e062544a10b29ee9b81bc103ce",
+    "final_manifest_sha256": "284d442055a042236ff3497d8dd3575b71348ba40c17441779841bcd61e7345b",
+    "changes": "Bind physical wrapper and native anchor; clarify rejected fallback labels. Forecasts, costs, candidate selection and references unchanged."
+  }
+]

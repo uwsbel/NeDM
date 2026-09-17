@@ -1,0 +1,63 @@
+{
+  "case_id": "fourway_smooth_v1",
+  "status": "goal_reached",
+  "goal_reached": true,
+  "contact_free_goal_reached": true,
+  "safe_goal_reached": true,
+  "goal_time_s": 14.5,
+  "elapsed_s": 14.5,
+  "goal_radius_m": 2.5,
+  "initial_goal_distance_m": 35.96614130299265,
+  "final_goal_distance_m": 2.499520500761036,
+  "goal_progress_m": 33.46662080223162,
+  "net_displacement_m": 33.73410924464199,
+  "path_length_m": 37.31402626118401,
+  "asset_contact": false,
+  "max_asset_contact_n": 0.0,
+  "first_asset_contact_interval_start_s": null,
+  "longest_consecutive_effortful_near_zero_speed_s": 0.25,
+  "sustained_near_stop": false,
+  "sustained_near_stop_definition": "Contiguous >=2 s recorded intervals with abs(body vx)<0.3 m/s, commanded throttle>0.3, not deliberate parking; no global startup grace",
+  "bounded_blockage_v1": false,
+  "bounded_blockage_v1_windows": [],
+  "bounded_blockage_v1_definition": "A contiguous 2 s window: maximum pairwise XY separation of its 41 measured endpoints <=0.25 m, all 40 commanded throttle intervals>0.3, no deliberate parking",
+  "safe_goal_reached_with_bounded_blockage_v1": true,
+  "low_net_progress_4s_windows": [],
+  "low_progress_warning": "Net motion under 0.6 m in 4 s may include rollback; sustained near-zero-speed is reported separately.",
+  "positive_work_kj": 671.0141941322926,
+  "frames": 290,
+  "wall_s": 299.82614946365356,
+  "route_sha256": "cd3f597db72f660b8bd9b5a308e96f4890e67de12804fc809107cfe36620c1be",
+  "case_sha256": "5eec4883eab7f9391f40cc2b0d1e1dd5d392878c5edc8326f9b94cc9512b9c0e",
+  "driver": {
+    "name": "ChPathFollowerDriver",
+    "steering_gains": [
+      0.8,
+      0.0,
+      0.0
+    ],
+    "speed_gains": [
+      0.6,
+      0.05,
+      0.0
+    ],
+    "lookahead_m": 5.0,
+    "steer_rate_per_s": 2.0,
+    "path_min_spacing_m": 2.0,
+    "path_z": "privileged terrain height + 0.5 m",
+    "initialization": "before 0.8 s settle; steering held straight during settle",
+    "control_period_s": 0.05,
+    "advance": "every physics substep"
+  },
+  "camera": {
+    "width": 256,
+    "height": 256,
+    "hfov_rad": 0.8203047484373349,
+    "cam_height_m": 100.0,
+    "depth_ray_scale": 1.0,
+    "max_depth_m": 250.0,
+    "backend": "Vulkan_RT_lavapipe",
+    "depth_measurement": "Euclidean_ray_range_m"
+  },
+  "measurement_scope": "Actual Chrono execution of a fixed selected reference; this is not a receding-horizon replan result."
+}

@@ -1,0 +1,70 @@
+{
+  "schema": "fdm_perception_support_diagnostic_v1",
+  "status": "complete",
+  "scope": "Frozen-data diagnosis only; no training, model/cost edits, learned inference or vehicle rollout in these diagnostics. Current test was already explicitly unsealed.",
+  "report": "report.md",
+  "exact_sampler_digest_matches": {
+    "narrow": true,
+    "diverse": true
+  },
+  "actual_launch_positive_row_draws": {
+    "narrow": {
+      "contact": 8083,
+      "bounded": 3691
+    },
+    "diverse": {
+      "contact": 87,
+      "bounded": 23
+    }
+  },
+  "prior_failure_training_window_percent": {
+    "narrow": 24.384787472035793,
+    "diverse": 65.50622329556009
+  },
+  "camera_depth_vs_native_terrain_p95_error_mm": {
+    "rough_mosaic": 7.164432178581132,
+    "rolling_hills": 6.305149020116118
+  },
+  "offending_rock_candidate_source_edge_pixels": {
+    "rough_mosaic": 3.7374498205359794,
+    "rolling_hills": 2.438496083293469
+  },
+  "offending_rock_global_context_edge_pixels": {
+    "rough_mosaic": 0.9343624551339949,
+    "rolling_hills": 0.6096240208233672
+  },
+  "sampled_patch_invalid_fraction": 0.0,
+  "confirmed_exclusions": [
+    "No measured large current camera/depth registration error",
+    "No absent obstacle depth or invalid near-term crop in inspected failures",
+    "No final MPPI mean rescore/gate bypass, per independent root audit"
+  ],
+  "unresolved_hypotheses": [
+    "Sparse prospective launch-risk exposure and altered training mixture",
+    "Few-pixel local object representation and coarser global context",
+    "Finite-risk-horizon/full-route-objective mismatch; rough-time additionally fails within horizon"
+  ],
+  "caveats": [
+    "Correlated window repeats are not independent trials",
+    "Different narrow/diverse horizons, contact definitions, and model contract",
+    "Counts describe completed seed11 runs, not a training remedy",
+    "Patch JSON median-named center-error field computes mean; not used in report",
+    "Raw contact points use interval ends; event onset times use interval starts"
+  ],
+  "jobs": {
+    "exposure": 412217,
+    "sampler_replay": 412231,
+    "native_sensor_geometry": 412229
+  },
+  "known_failed_attempts": [
+    {
+      "job": 412224,
+      "stage": "import before work",
+      "retained": true
+    }
+  ],
+  "figures": [
+    "training_exposure.png",
+    "sensor_resolution.png"
+  ]
+}

@@ -1,0 +1,4 @@
+# Allowlist: only the files below are committed from this folder (see the repository .gitignore).
+/*
+!/.gitignore
+!/sensor_input_20260915/

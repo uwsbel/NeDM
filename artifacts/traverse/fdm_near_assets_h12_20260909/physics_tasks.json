@@ -1,0 +1,98 @@
+[
+  {
+    "start_id": "near_assets_h12_val_mixed_obstacles_00",
+    "candidate_id": "preferred_1",
+    "manifest": "/work1/dannegrut/harry/experiments/fdm_near_assets_h12_20260909/predictions/near_assets_h12_val_mixed_obstacles_00/reporting_manifest.json",
+    "manifest_sha256": "53e5e9c47eb4f63ff762a22695f12f545254e363a844b9dce1e4a59e93c79e51",
+    "out": "/work1/dannegrut/harry/experiments/fdm_near_assets_h12_20260909/runs/near_assets_h12_val_mixed_obstacles_00/preferred_1",
+    "video_fps": 5
+  },
+  {
+    "start_id": "near_assets_h12_val_mixed_obstacles_00",
+    "candidate_id": "preferred_2",
+    "manifest": "/work1/dannegrut/harry/experiments/fdm_near_assets_h12_20260909/predictions/near_assets_h12_val_mixed_obstacles_00/reporting_manifest.json",
+    "manifest_sha256": "53e5e9c47eb4f63ff762a22695f12f545254e363a844b9dce1e4a59e93c79e51",
+    "out": "/work1/dannegrut/harry/experiments/fdm_near_assets_h12_20260909/runs/near_assets_h12_val_mixed_obstacles_00/preferred_2",
+    "video_fps": 5
+  },
+  {
+    "start_id": "near_assets_h12_val_mixed_obstacles_00",
+    "candidate_id": "risky_1",
+    "manifest": "/work1/dannegrut/harry/experiments/fdm_near_assets_h12_20260909/predictions/near_assets_h12_val_mixed_obstacles_00/reporting_manifest.json",
+    "manifest_sha256": "53e5e9c47eb4f63ff762a22695f12f545254e363a844b9dce1e4a59e93c79e51",
+    "out": "/work1/dannegrut/harry/experiments/fdm_near_assets_h12_20260909/runs/near_assets_h12_val_mixed_obstacles_00/risky_1",
+    "video_fps": 5
+  },
+  {
+    "start_id": "near_assets_h12_val_mixed_obstacles_00",
+    "candidate_id": "risky_2",
+    "manifest": "/work1/dannegrut/harry/experiments/fdm_near_assets_h12_20260909/predictions/near_assets_h12_val_mixed_obstacles_00/reporting_manifest.json",
+    "manifest_sha256": "53e5e9c47eb4f63ff762a22695f12f545254e363a844b9dce1e4a59e93c79e51",
+    "out": "/work1/dannegrut/harry/experiments/fdm_near_assets_h12_20260909/runs/near_assets_h12_val_mixed_obstacles_00/risky_2",
+    "video_fps": 5
+  },
+  {
+    "start_id": "near_assets_h12_val_rolling_hills_00",
+    "candidate_id": "preferred_1",
+    "manifest": "/work1/dannegrut/harry/experiments/fdm_near_assets_h12_20260909/predictions/near_assets_h12_val_rolling_hills_00/reporting_manifest.json",
+    "manifest_sha256": "97a7c68d37cdc755127b89c893e9b2a6554084d764461a8fcdb2172c165aa501",
+    "out": "/work1/dannegrut/harry/experiments/fdm_near_assets_h12_20260909/runs/near_assets_h12_val_rolling_hills_00/preferred_1",
+    "video_fps": 0
+  },
+  {
+    "start_id": "near_assets_h12_val_rolling_hills_00",
+    "candidate_id": "preferred_2",
+    "manifest": "/work1/dannegrut/harry/experiments/fdm_near_assets_h12_20260909/predictions/near_assets_h12_val_rolling_hills_00/reporting_manifest.json",
+    "manifest_sha256": "97a7c68d37cdc755127b89c893e9b2a6554084d764461a8fcdb2172c165aa501",
+    "out": "/work1/dannegrut/harry/experiments/fdm_near_assets_h12_20260909/runs/near_assets_h12_val_rolling_hills_00/preferred_2",
+    "video_fps": 0
+  },
+  {
+    "start_id": "near_assets_h12_val_rolling_hills_00",
+    "candidate_id": "risky_1",
+    "manifest": "/work1/dannegrut/harry/experiments/fdm_near_assets_h12_20260909/predictions/near_assets_h12_val_rolling_hills_00/reporting_manifest.json",
+    "manifest_sha256": "97a7c68d37cdc755127b89c893e9b2a6554084d764461a8fcdb2172c165aa501",
+    "out": "/work1/dannegrut/harry/experiments/fdm_near_assets_h12_20260909/runs/near_assets_h12_val_rolling_hills_00/risky_1",
+    "video_fps": 0
+  },
+  {
+    "start_id": "near_assets_h12_val_rolling_hills_00",
+    "candidate_id": "risky_2",
+    "manifest": "/work1/dannegrut/harry/experiments/fdm_near_assets_h12_20260909/predictions/near_assets_h12_val_rolling_hills_00/reporting_manifest.json",
+    "manifest_sha256": "97a7c68d37cdc755127b89c893e9b2a6554084d764461a8fcdb2172c165aa501",
+    "out": "/work1/dannegrut/harry/experiments/fdm_near_assets_h12_20260909/runs/near_assets_h12_val_rolling_hills_00/risky_2",
+    "video_fps": 0
+  },
+  {
+    "start_id": "near_assets_h12_val_rough_mosaic_00",
+    "candidate_id": "preferred_1",
+    "manifest": "/work1/dannegrut/harry/experiments/fdm_near_assets_h12_20260909/predictions/near_assets_h12_val_rough_mosaic_00/reporting_manifest.json",
+    "manifest_sha256": "284d442055a042236ff3497d8dd3575b71348ba40c17441779841bcd61e7345b",
+    "out": "/work1/dannegrut/harry/experiments/fdm_near_assets_h12_20260909/runs/near_assets_h12_val_rough_mosaic_00/preferred_1",
+    "video_fps": 0
+  },
+  {
+    "start_id": "near_assets_h12_val_rough_mosaic_00",
+    "candidate_id": "preferred_2",
+    "manifest": "/work1/dannegrut/harry/experiments/fdm_near_assets_h12_20260909/predictions/near_assets_h12_val_rough_mosaic_00/reporting_manifest.json",
+    "manifest_sha256": "284d442055a042236ff3497d8dd3575b71348ba40c17441779841bcd61e7345b",
+    "out": "/work1/dannegrut/harry/experiments/fdm_near_assets_h12_20260909/runs/near_assets_h12_val_rough_mosaic_00/preferred_2",
+    "video_fps": 0
+  },
+  {
+    "start_id": "near_assets_h12_val_rough_mosaic_00",
+    "candidate_id": "risky_1",
+    "manifest": "/work1/dannegrut/harry/experiments/fdm_near_assets_h12_20260909/predictions/near_assets_h12_val_rough_mosaic_00/reporting_manifest.json",
+    "manifest_sha256": "284d442055a042236ff3497d8dd3575b71348ba40c17441779841bcd61e7345b",
+    "out": "/work1/dannegrut/harry/experiments/fdm_near_assets_h12_20260909/runs/near_assets_h12_val_rough_mosaic_00/risky_1",
+    "video_fps": 0
+  },
+  {
+    "start_id": "near_assets_h12_val_rough_mosaic_00",
+    "candidate_id": "risky_2",
+    "manifest": "/work1/dannegrut/harry/experiments/fdm_near_assets_h12_20260909/predictions/near_assets_h12_val_rough_mosaic_00/reporting_manifest.json",
+    "manifest_sha256": "284d442055a042236ff3497d8dd3575b71348ba40c17441779841bcd61e7345b",
+    "out": "/work1/dannegrut/harry/experiments/fdm_near_assets_h12_20260909/runs/near_assets_h12_val_rough_mosaic_00/risky_2",
+    "video_fps": 0
+  }
+]

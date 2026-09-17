@@ -1,0 +1,44 @@
+{
+  "schema": "fdm_full_pair_launch_v3",
+  "state": "submitted",
+  "collection_job_id": "412066",
+  "source_manifest_sha256": "50523e5cbc40a9ac751be6366cc72904ec173000285a6cbc5112aa563673bd41",
+  "source_root": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/packing_v3",
+  "command_argv": [
+    "sbatch",
+    "--parsable",
+    "--export=ALL,PACK_CODE_ROOT=/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/packing_v3,COLLECTION_CODE_ROOT=/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2,MANIFEST=/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/cases.json,COLLECTED_ROOT=/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/full_cohort_v2,PACK_OUT=/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/packs/full_pair_v1",
+    "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/packing_v3/slurm/traverse_fdm_rgbd_diverse_pack.sbatch"
+  ],
+  "command_shell": "sbatch --parsable --export=ALL,PACK_CODE_ROOT=/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/packing_v3,COLLECTION_CODE_ROOT=/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2,MANIFEST=/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/cases.json,COLLECTED_ROOT=/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/full_cohort_v2,PACK_OUT=/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/packs/full_pair_v1 /work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/packing_v3/slurm/traverse_fdm_rgbd_diverse_pack.sbatch",
+  "out": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/packs/full_pair_v1",
+  "resources": {
+    "partition": "mi2101x",
+    "nodes": 1,
+    "cpus": 16,
+    "walltime_minutes": 30,
+    "requested_memory": null,
+    "requested_gpu": null
+  },
+  "required_gates": [
+    "Final collection completed with450routes+30observations",
+    "Hash-valid atomic completion marker for every selected output",
+    "360train90valroutes;24train6valuniquephysicalmaps",
+    "Same immutable campaign_v2source/runtime/camera and full180scollectioncap",
+    "Rich telemetry validation, complete source/archive/settled-observation joins",
+    "No test data/outcome filtering"
+  ],
+  "pair_contract": "H60preparedonce;H20exactprefixonidenticalepisodes/anchors/images; shorter command normalization uses train only",
+  "supersedes_launch_plan_sha256": "80dd226d006b32e0ee00916a54619ac97077cfc20d4b12020328306df7e80d9e",
+  "preparation_workers": 8,
+  "immutable_snapshot_selfcheck_passed": true,
+  "pre_submission_integrity": {
+    "atomic_markers_verified": 480,
+    "train_routes": 360,
+    "val_routes": 90,
+    "observations": 30,
+    "source_payload_bytes_verified": 3345806241,
+    "report_remote": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/audits/full_pack_integrity_v3/collection_integrity.json"
+  },
+  "job_id": "412085"
+}

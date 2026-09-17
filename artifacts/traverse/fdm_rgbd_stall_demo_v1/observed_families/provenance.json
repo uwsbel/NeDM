@@ -1,0 +1,66 @@
+{
+  "observation_sha256": "bcbf2f528a1a373b0ec2afb73b7f07fd767d55400f0f591c8251cda79801cd56",
+  "generation": "Fixed six geometric families from measured pose and goal only; no physical outcomes used",
+  "checks": [
+    {
+      "family": 0,
+      "route_sha256": "90ebbdfda8e2ea71bf7a1b0833d822fdd7bc5b825f549b4f81bc60655a4e0c05",
+      "validity": {
+        "valid": true,
+        "reasons": [],
+        "max_curvature": 0.0005187916953227124,
+        "min_clearance_m": null
+      }
+    },
+    {
+      "family": 1,
+      "route_sha256": "a8688b2ec95baa7c206b0ec0c03d843ced6ef8df24b1f19049776ea2d90c2f0f",
+      "validity": {
+        "valid": true,
+        "reasons": [],
+        "max_curvature": 0.0005187916953227124,
+        "min_clearance_m": null
+      }
+    },
+    {
+      "family": 2,
+      "route_sha256": "824d6406a55f8dfda9962472779108821bb55fc0e487cc8187bec4f339dae81d",
+      "validity": {
+        "valid": true,
+        "reasons": [],
+        "max_curvature": 0.12120073322539682,
+        "min_clearance_m": null
+      }
+    },
+    {
+      "family": 3,
+      "route_sha256": "58b975d5aee1aab9224e0996e5a078075800bd6ee1ebf4ea80ad1d76a81c075c",
+      "validity": {
+        "valid": true,
+        "reasons": [],
+        "max_curvature": 0.12120073322539682,
+        "min_clearance_m": null
+      }
+    },
+    {
+      "family": 4,
+      "route_sha256": "395891b5c6b1b34b5edc815d51f2fd997b69062ffffe39695daf0e5ae5559616",
+      "validity": {
+        "valid": true,
+        "reasons": [],
+        "max_curvature": 0.12146390182092112,
+        "min_clearance_m": null
+      }
+    },
+    {
+      "family": 5,
+      "route_sha256": "a77a03977a452e6b550f3eb616a39cc5080069935aece431469be0c4103abf45",
+      "validity": {
+        "valid": true,
+        "reasons": [],
+        "max_curvature": 0.12146390182092112,
+        "min_clearance_m": null
+      }
+    }
+  ]
+}

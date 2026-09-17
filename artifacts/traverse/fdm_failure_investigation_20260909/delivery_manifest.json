@@ -1,0 +1,20 @@
+{
+  "schema": "fdm_failure_investigation_delivery_v1",
+  "scope": "post-hoc diagnostics; no new protected score or selected configuration",
+  "files": {
+    "README.md": "bc71942759507feb7ee3ce9a6e018ebbe513fbcf77a5e4b554b1e7c22b54c69a",
+    "progress.json": "176aad1e19f9b4e90251e3eb2e120333a6e52ab0719b1f637fe85da4ccac785e",
+    "protocol.md": "1c40089fc66f748a7f6072f8cb00afa0c22405769a062af277074a2525634fdb",
+    "refinement_summary/report.md": "52ad48c84cb010240ff17e02294e068887562448f842f51d18b4682a1fcb90f5",
+    "refinement_summary/report.json": "4321236fce45f5fe14f1c61f339b7bc517a9738b5ad8954f2969d117711ad99a",
+    "refinement_summary/ranking_counterfactual.png": "55b411ce4e874e9af05a82d9e5b4e7209617a9a80ea5127c61a8b4b8a98d9b15",
+    "refinement_summary/ranking_counterfactual.pdf": "dd2cdd6297e070f89b642beece8c7ea71f5ba0e6684705bf7f4b2d208dc8de73",
+    "decision_audit/report_manifest.json": "0d7c2d852ae81ce3f4e321b872868e8f9642e1cd6384596f2fbe8d57b4993a4b",
+    "perception_support/manifest.json": "727febe87ec8ffeac0c74a8a49286eb422f75e0fe017da3e55b713ec9fa76546",
+    "matched_modes_v1/findings.md": "8b258a3de5ef358e8b7891882043ed58a5f74ea78fbc6a2171a4738d235ceea7",
+    "matched_modes_v1/report_v1/report.json": "c191aaa89829a158cc7af20de629bd903cdf0ae6b8c8efc6bf8a3ca345ecc9af",
+    "../../../docs/vision/hmmwv_traverse/fdm_failure_investigation_20260909.md": "4eca40f9042db62a55324e9155db546341c47f32c3a8c4b2f78968863c8eb58a",
+    "../../../scripts/diagnose_traverse_fdm_refinement_counterfactual.py": "44ad3f2ab9930620b9ad3c3a43e65306a2ccf09d038c5ba2caac6f6d5b077335",
+    "../../../scripts/report_traverse_fdm_failure_counterfactual.py": "f01cac8d392648f5edcc0d7320b92ab6932039c9bdfd6b551a001cd16bbeb61c"
+  }
+}

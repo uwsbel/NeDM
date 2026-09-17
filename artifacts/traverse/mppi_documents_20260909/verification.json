@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "unique_documents": 177,
+  "narratives": 103,
+  "duplicate_paths": 10,
+  "external_large_support_count": 7,
+  "archive_bytes": 8804906,
+  "archive_sha256": "ef5cc17766f90080193d4b7b8404eefaafece8284c8c6f5e1ed93d351b5246cf",
+  "index_sha256": "92cfa2c61cbcc090308a39c55fed82a0a632cfd6cd81194a35ef6b66f57c4063",
+  "manifest_sha256": "d6e4b9ea2c72d7d2fd02852585cf7eced475a0afff4b00e6bdd1d5bb4b04a584",
+  "index_links_exist": true,
+  "portable_document_links_exist": true,
+  "original_and_archived_payload_hashes_match": true,
+  "zip_crc_test_passed": true
+}

@@ -1,0 +1,12 @@
+{
+  "declared": 1,
+  "finished": 1,
+  "failures": [],
+  "results": [
+    {
+      "id": "diverse_v1_test_rough_mosaic_00_selected_rgbd_time_best_unrefined",
+      "exit_code": 0,
+      "wall_s": 62.71689772605896
+    }
+  ]
+}

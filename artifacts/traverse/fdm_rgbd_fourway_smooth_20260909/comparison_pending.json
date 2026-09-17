@@ -1,0 +1,158 @@
+{
+  "schema": 1,
+  "comparison_script_sha256": "a7769d35cd9755547223c9660d8fb16edb36804f2c414ac861fe2d4740e731e7",
+  "frozen_verification": {
+    "prediction_manifest_sha256": "70a740e3e043581feb16b28fe05385ab5205678d548d8b580e2de4207ded648b",
+    "prediction_artifacts": {
+      "candidates.json": "4b2c744db0c7f8ee992f236647db5a48f61c1be2f1b15cb249d2436b78650fa2",
+      "candidates.npz": "f649e31b47c990c6bb9f5615642a74fa62616bee8291dae69b1e2c9f88c2796d",
+      "routes/01_selected.json": "849069838e959d0be39c2dd065f6d7233c062a61b93677b3ad36793ca4f6cb67",
+      "routes/02_collision.json": "3de3082a4f60220b11f1557f4c692e46a5d5a3c7fca0b53f6693958207c953c0",
+      "routes/03_stall.json": "9b3270e0b7652d1b01265f6ca81862ec67dc08a621ddce927ee3463102e7b453",
+      "routes/04_progress.json": "cd3f597db72f660b8bd9b5a308e96f4890e67de12804fc809107cfe36620c1be",
+      "selection.json": "646b2b013db82ce0bf913d3080d653b06dcf579294ccd650988a4c8681e53e72"
+    },
+    "checkpoint_sha256": "3aa2f403cc7786857be67682e5b78f052a7329115f3df0a9dd852385453162a3",
+    "checkpoint_status": "verified",
+    "observation_sha256": "0cde99296ad64d68b24476a40122c87cc11870c055f7c73ace1646a8a9208e80",
+    "execution_protocol_sha256": "0ed988f8f9c5d06870a46e3a32d181a60dc61d8b549921015254ada552dba1f7"
+  },
+  "unique_frozen_candidates": 567,
+  "model_event_definition": "bounded_motion",
+  "bounded_motion_v2_definition": "Any entirely future contiguous40 action intervals (2s at20Hz) whose41 measured XY pose endpoints have maximum pairwise separation<=0.25m, with EVERY applied throttle>0.3, no parked pose/interval, and no pose at/after first measured goal arrival (distance<=declared goal radius). No instantaneous velocity threshold and no global startup grace. Prefixes under2s masked. Known positives remain valid after truncation; a negative needs the complete prefix. Intended very slow motion is outside this4/6m/s traversal-command cohort; throttle alone does not encode requested speed.",
+  "cost_config": {
+    "goal_radius_m": 2.5,
+    "contact_penalty_s": 60.0,
+    "low_progress_penalty_s": 60.0,
+    "terminal_progress_weight": 0.1,
+    "minimum_progress_speed_mps": 0.5,
+    "maximum_remaining_time_s": 120.0,
+    "refine_families": 3,
+    "max_contact_probability": 0.35,
+    "max_low_progress_probability": 0.5
+  },
+  "shared_initial_observation_verified": false,
+  "routes": [
+    {
+      "id": "01_selected",
+      "role_hypothesis": "MPPI selected",
+      "role_semantics": "Lowest model cost among the scored, allowed candidates; physical optimum is not known",
+      "candidate_id": "9117109f089e35e6678c3e88121a42dd46cc51726e8404ee8d52961ac9eafca6",
+      "available": true,
+      "actual_folder": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_fourway_smooth_20260909/actual/01_selected",
+      "source_sha256": {
+        "trajectory.npz": "70553d860f91241c732d4a72dedf2af0d7050b56162563963bfe159974b20651",
+        "outcome.json": "5739cef34074df20a5d8f4d215f80e6d3bc85346db29d65516df4b178101ccc0",
+        "observation.npz": "0cde99296ad64d68b24476a40122c87cc11870c055f7c73ace1646a8a9208e80",
+        "anchor_equality.json": "abc07a3fcf2239af504ca65f6172969b6ff3cff2073feedddfa006cafc96e448",
+        "simulation_provenance.json": "fd7de8498cd39414363d6494e3040fdd5127e9cf88c5d2ccc8fed3c5ccd6d29f",
+        "contact_events.json": "104e7379729108cbf2fef92d7a28b0b9bc927a3dfa4b5dc84e73388a5b238022"
+      },
+      "shared_initial_observation": {
+        "reported_match": true,
+        "expected_observation_sha256_matches": true,
+        "rgb_equal": true,
+        "depth_max_abs_difference_m": 0.0,
+        "state_max_abs_difference": 0.0,
+        "pose_max_abs_difference": 0.0,
+        "history_max_abs_difference": 0.0,
+        "goal_max_abs_difference": 0.0,
+        "first_telemetry_pose_matches": true,
+        "first_telemetry_state_matches": true,
+        "verified": true
+      },
+      "forecast_horizon_s": 4.0,
+      "measured_duration_s": 8.100000120699406,
+      "forecast_comparison": {
+        "observed_predicted_points": 20,
+        "complete_horizon_observed": true,
+        "predicted_goal_progress_m": 17.0432454585091,
+        "measured_goal_progress_m": 14.612761870262414,
+        "goal_progress_error_predicted_minus_measured_m": 2.4304835882466875,
+        "xy_ade_m": 0.6763355523110011,
+        "xy_fde_m": 2.4633399729287686,
+        "contact": {
+          "predicted_probability": 1.5330097085097805e-05,
+          "declared_threshold": 0.35,
+          "predicted_high_risk": false,
+          "measured_within_horizon": false,
+          "horizon_label_observed": true,
+          "first_measured_time_s": null,
+          "within_horizon_false_negative": false,
+          "within_horizon_false_positive": false,
+          "later_event_outside_forecast": false,
+          "first_contact_interval_start_s": null,
+          "time_resolution": "First20Hz interval with >1N contact; event time is interval-localized"
+        },
+        "bounded_motion": {
+          "predicted_probability": 1.918619148000289e-07,
+          "declared_threshold": 0.5,
+          "predicted_high_risk": false,
+          "measured_within_horizon": false,
+          "horizon_label_observed": true,
+          "first_measured_time_s": null,
+          "within_horizon_false_negative": false,
+          "within_horizon_false_positive": false,
+          "later_event_outside_forecast": false,
+          "first_qualifying_window_start_s": null
+        }
+      },
+      "full_run": {
+        "status": "goal_reached",
+        "goal_reached": true,
+        "goal_time_s": 8.1,
+        "contact": false,
+        "bounded_motion_v2": false,
+        "strict_stall": false,
+        "first_strict_stall_confirmed_s": null,
+        "first_bounded_motion_confirmed_s": null,
+        "first_contact_s": null,
+        "goal_progress_m": 33.62613415146367,
+        "target_safe_goal": true,
+        "recorded_safe_goal": true,
+        "legacy_bounded_blockage_v1": false
+      },
+      "estimated_time_to_goal": {
+        "value_s": 7.8544058444933285,
+        "interpretation": "Analytic extrapolation from four-second predicted progress; not a learned full-route travel-time forecast"
+      },
+      "role_hypothesis_assessment": {
+        "supported_by_actual_outcome": null,
+        "basis": "Post-execution check of the frozen scene-role hypothesis; not a neural-network risk classification."
+      }
+    },
+    {
+      "id": "02_collision",
+      "role_hypothesis": "Rock-crossing test",
+      "role_semantics": "Scene-designed collision hypothesis; actual predicted contact probability is reported without alteration",
+      "candidate_id": "9ab262a61f9e42ffd59a2e3d4caa3dd89ec3a7fda57a4a00dd8521c743a989ee",
+      "available": false,
+      "unavailable": "Complete actual telemetry/outcome/anchor artifacts have not arrived"
+    },
+    {
+      "id": "03_stall",
+      "role_hypothesis": "Terrain-stall test",
+      "role_semantics": "Scene-designed terrain-stall hypothesis; a later stall may lie outside the4s learned event horizon",
+      "candidate_id": "c392e03f361f2634873a2bd80b7e628902a675c440a94fabd0e6b63558eed00f",
+      "available": false,
+      "unavailable": "Complete actual telemetry/outcome/anchor artifacts have not arrived"
+    },
+    {
+      "id": "04_progress",
+      "role_hypothesis": "Slower clear route",
+      "role_semantics": "Lower progress means less goal progress at the same4s horizon; a4m/s command may still reach the goal later",
+      "candidate_id": "e5cc96f633e523cc94a7977f966ba2de3e33a2a42a99ba4b8d157a9f1271c4c2",
+      "available": false,
+      "unavailable": "Complete actual telemetry/outcome/anchor artifacts have not arrived"
+    }
+  ],
+  "four_route_selection_assessment": {
+    "all_four_runs_available": false,
+    "selected_route": "01_selected",
+    "fastest_tested_safe_route": null,
+    "selected_time_regret_s": null,
+    "selected_is_fastest_among_tested_safe_routes": null,
+    "scope": "Only these four preselected, physically executed references; no global route-optimality claim",
+    "statement": "Comparison pending complete actual runs."
+  }
+}

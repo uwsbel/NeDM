@@ -1,0 +1,19 @@
+{
+  "date": "2026-09-09",
+  "case_sha256": "2577903bab48fc345dad39b375ab1aa53e5aa79e4f614aed311b0b939c6f378d",
+  "checkpoint": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_runs/rgbd_focused_pilot_v2/patch_rgbd_s11/last.pt",
+  "checkpoint_sha256": "3aa2f403cc7786857be67682e5b78f052a7329115f3df0a9dd852385453162a3",
+  "retraining": false,
+  "prediction_horizon_s": 4.0,
+  "physical_max_duration_s": 15.0,
+  "comparison": "One shared actual RGB-D/state observation; save predictions and four routes before executing allfour; authored geometry only for simulation.",
+  "desired_categories": [
+    "model-selected minimum cost",
+    "collision-hypothesis route",
+    "terrain-stall-hypothesis route",
+    "safe lower progress at same4s horizon"
+  ],
+  "label_policy": "Actual network risk/progress preserved even if category hypothesis unsupported; report outcome disagreements and horizon mismatches.",
+  "speed_ceiling_mps": 6.0,
+  "scene_construction": "Composes previously validated rock/mesa physical mechanisms but new joint layout; purposeful demonstration, not an unbiased benchmark."
+}

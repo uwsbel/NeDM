@@ -1,0 +1,33 @@
+{
+  "cross_time": {
+    "job": 412134,
+    "parity_sha256": "37daf25a3216ff7c4f98d6660e506a58dc7da4be174a4a2c043ade162006758b",
+    "parity_array_count": 241,
+    "video_sha256": "a67b1a6da6fcbca2528d784ad3dc8bdd2dfb1afb94f34892a334e16d83a46f6d",
+    "physical_duration_s": 41.25000000000543,
+    "sampled_frames": 208,
+    "video_sample_hz": 5,
+    "max_timestamp_error_s": 6.856737400084967e-12,
+    "schema_safe_goal_reached": true,
+    "positive_work_kj": 275.1749376788097,
+    "goal_time_s": 41.25
+  },
+  "cross_energy": {
+    "job": 412133,
+    "parity_sha256": "a009dfb4d1d70e3fe77baa413ca98402d1f41bdab163b20342b136810c0d3a81",
+    "parity_array_count": 241,
+    "video_sha256": "ffcce52fbe2c47f817039145528ffde290abd05adfeda63b582fa921dba2a652",
+    "physical_duration_s": 41.20000000000537,
+    "sampled_frames": 207,
+    "video_sample_hz": 5,
+    "max_timestamp_error_s": 6.856737400084967e-12,
+    "schema_safe_goal_reached": true,
+    "positive_work_kj": 273.37863441979675,
+    "goal_time_s": 41.2
+  },
+  "pair_comparison": {
+    "work_change_fraction": -0.006527859238073752,
+    "time_change_fraction": -0.001212121212121109,
+    "scope": "This explicitly selected illustrative safe pair; broad energy gate did not pass."
+  }
+}

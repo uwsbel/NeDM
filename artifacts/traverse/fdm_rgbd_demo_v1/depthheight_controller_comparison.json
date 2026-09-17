@@ -1,0 +1,76 @@
+{
+  "scope": "Optional controller altitude ablation on the exact same fixed obstacle-v1 selected route. Not the primary combined-v2 benchmark.",
+  "terrain_truth_height": {
+    "goal_reached": true,
+    "goal_time_s": 6.550000000000001,
+    "safe_goal_reached": true,
+    "asset_contact": false,
+    "sustained_near_stop": false,
+    "bounded_blockage_v1": false,
+    "goal_progress_m": 33.49979737908026,
+    "positive_work_kj": 173.29349146811776,
+    "driver": {
+      "name": "ChPathFollowerDriver",
+      "steering_gains": [
+        0.8,
+        0.0,
+        0.0
+      ],
+      "speed_gains": [
+        0.6,
+        0.05,
+        0.0
+      ],
+      "lookahead_m": 5.0,
+      "steer_rate_per_s": 2.0,
+      "path_min_spacing_m": 2.0,
+      "path_z": "privileged terrain height + 0.5 m",
+      "initialization": "before 0.8 s settle; steering held straight during settle",
+      "control_period_s": 0.05,
+      "advance": "every physics substep"
+    },
+    "route_sha256": "99c2f2aca034ddd8424aaf4e6a1170333971d7a156322e8cd0c057075db6e528"
+  },
+  "current_depth_height": {
+    "goal_reached": true,
+    "goal_time_s": 6.550000000000001,
+    "safe_goal_reached": true,
+    "asset_contact": false,
+    "sustained_near_stop": false,
+    "bounded_blockage_v1": false,
+    "goal_progress_m": 33.50553083826612,
+    "positive_work_kj": 173.25032919639273,
+    "driver": {
+      "name": "ChPathFollowerDriver",
+      "steering_gains": [
+        0.8,
+        0.0,
+        0.0
+      ],
+      "speed_gains": [
+        0.6,
+        0.05,
+        0.0
+      ],
+      "lookahead_m": 5.0,
+      "steer_rate_per_s": 2.0,
+      "path_min_spacing_m": 2.0,
+      "path_z": "nearest current measured depth surface + 0.5 m; no terrain fallback",
+      "initialization": "before 0.8 s settle; steering held straight during settle",
+      "control_period_s": 0.05,
+      "advance": "every physics substep"
+    },
+    "route_sha256": "99c2f2aca034ddd8424aaf4e6a1170333971d7a156322e8cd0c057075db6e528"
+  },
+  "matched_anchor": {
+    "state17_max_abs_difference": 0.0,
+    "pose_max_abs_difference": 8.997444069791527e-07,
+    "rgb_equal": true,
+    "depth_max_abs_difference_m": 0.0,
+    "anchor_observation_sha256": "1b6da26be293351b33876ad050eedf9d53469647e211b652408c7d67865b7760",
+    "matched": true
+  },
+  "helper_sha256": "34f89a26b6fdbd98d8121d40bd22ee17184b1f4a6e1f5ad8df354c5bc3a644ca",
+  "initial_failed_job": "409584 failed before physics: missing SciPy; replaced with NumPy-only implementation",
+  "successful_job": "409585 completed27s; no training"
+}

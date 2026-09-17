@@ -1,0 +1,1325 @@
+{
+  "observed_utc": "2026-09-09T22:06:28.723251+00:00",
+  "job_id": "412066",
+  "declared_routes": 450,
+  "declared_splits": {
+    "train": 360,
+    "val": 90
+  },
+  "completed_routes": 450,
+  "remaining_routes": 0,
+  "declared_observations": 30,
+  "completed_observations": 30,
+  "errors": [],
+  "outcome_counts": {
+    "goal_reached": 109,
+    "timeout": 318,
+    "rollover": 23
+  },
+  "positive_episode_flags": {
+    "asset_contact": 226,
+    "sustained_near_stop": 313,
+    "bounded_blockage_v1": 319,
+    "safe_goal_reached": 103
+  },
+  "sample_rows_including_terminals": 1347995,
+  "physics_intervals": 1347545,
+  "solver_step_work_intervals": 1347545,
+  "post_step_risk_intervals": 1347545,
+  "observation_joins_matched": 450,
+  "distinct_source_maps": 1,
+  "distinct_runtime_maps": 1,
+  "rich_fields_missing": {
+    "command_desired_speed_mps": {
+      "finite": 1347545,
+      "missing": 450,
+      "episodes": 450
+    },
+    "command_parked": {
+      "finite": 1347545,
+      "missing": 450,
+      "episodes": 450
+    }
+  },
+  "rich_field_count": 198,
+  "rich_field_coverage": {
+    "engine_motor_speed_radps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "engine_motorshaft_torque_nm": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "transmission_motorshaft_speed_radps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "transmission_driveshaft_torque_nm": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "driveline_driveshaft_speed_radps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "engine_interface_power_kw": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "engine_rotor_power_kw": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "driveshaft_power_kw": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "roll_rad": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "pitch_rad": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "chassis_contact_resultant_n": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "asset_contact_max_resultant_n": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "frame": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "is_terminal": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "chrono_time_s": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "time_s": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "driver_steering": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "driver_throttle": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "driver_braking": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "command_desired_speed_mps": {
+      "finite": 1347545,
+      "missing": 450,
+      "episodes": 450
+    },
+    "command_parked": {
+      "finite": 1347545,
+      "missing": 450,
+      "episodes": 450
+    },
+    "pos_world_x_m": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "pos_world_y_m": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "pos_world_z_m": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "vel_world_x_mps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "vel_world_y_mps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "vel_world_z_mps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "vel_body_x_mps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "vel_body_y_mps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "vel_body_z_mps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "acc_com_world_x_mps2": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "acc_com_world_y_mps2": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "acc_com_world_z_mps2": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "ang_vel_world_x_radps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "ang_vel_world_y_radps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "ang_vel_world_z_radps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "ang_vel_body_x_radps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "ang_vel_body_y_radps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "ang_vel_body_z_radps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "ang_acc_world_x_radps2": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "ang_acc_world_y_radps2": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "ang_acc_world_z_radps2": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "quat_e0": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "quat_e1": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "quat_e2": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "quat_e3": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "roll_rate_radps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "pitch_rate_radps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "yaw_rate_radps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "yaw_rad": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "body_slip_rad": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "transmission_current_gear": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "chassis_contact_force_world_x_n": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "chassis_contact_force_world_y_n": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "chassis_contact_force_world_z_n": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "chassis_contact_torque_world_x_nm": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "chassis_contact_torque_world_y_nm": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "chassis_contact_torque_world_z_nm": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fl_longitudinal_slip": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fl_slip_angle_rad": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fl_camber_angle_rad": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fl_deflection_m": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fl_radius_m": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fl_force_world_x_n": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fl_force_world_y_n": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fl_force_world_z_n": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fl_moment_world_x_nm": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fl_moment_world_y_nm": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fl_moment_world_z_nm": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fl_hub_world_x_m": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fl_hub_world_y_m": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fl_hub_world_z_m": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fl_hub_velocity_world_x_mps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fl_hub_velocity_world_y_mps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fl_hub_velocity_world_z_mps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fl_angular_velocity_world_x_radps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fl_angular_velocity_world_y_radps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fl_angular_velocity_world_z_radps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fl_spindle_omega_radps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fl_wheel_vx_horizontal_mps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fl_circumferential_speed_mps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fl_horizontal_slip_speed_mps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fl_horizontal_slip_ratio": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fl_force_horizontal_heading_n": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fl_force_world_vertical_n": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fl_axle_speed_radps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fl_driveline_spindle_torque_nm": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fl_suspension_spring_force_n": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fl_suspension_spring_length_m": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fl_suspension_spring_deformation_m": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fl_suspension_shock_force_n": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fl_suspension_shock_length_m": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fl_suspension_shock_velocity_mps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fr_longitudinal_slip": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fr_slip_angle_rad": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fr_camber_angle_rad": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fr_deflection_m": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fr_radius_m": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fr_force_world_x_n": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fr_force_world_y_n": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fr_force_world_z_n": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fr_moment_world_x_nm": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fr_moment_world_y_nm": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fr_moment_world_z_nm": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fr_hub_world_x_m": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fr_hub_world_y_m": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fr_hub_world_z_m": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fr_hub_velocity_world_x_mps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fr_hub_velocity_world_y_mps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fr_hub_velocity_world_z_mps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fr_angular_velocity_world_x_radps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fr_angular_velocity_world_y_radps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fr_angular_velocity_world_z_radps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fr_spindle_omega_radps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fr_wheel_vx_horizontal_mps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fr_circumferential_speed_mps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fr_horizontal_slip_speed_mps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fr_horizontal_slip_ratio": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fr_force_horizontal_heading_n": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fr_force_world_vertical_n": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fr_axle_speed_radps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fr_driveline_spindle_torque_nm": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fr_suspension_spring_force_n": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fr_suspension_spring_length_m": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fr_suspension_spring_deformation_m": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fr_suspension_shock_force_n": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fr_suspension_shock_length_m": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_fr_suspension_shock_velocity_mps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rl_longitudinal_slip": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rl_slip_angle_rad": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rl_camber_angle_rad": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rl_deflection_m": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rl_radius_m": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rl_force_world_x_n": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rl_force_world_y_n": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rl_force_world_z_n": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rl_moment_world_x_nm": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rl_moment_world_y_nm": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rl_moment_world_z_nm": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rl_hub_world_x_m": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rl_hub_world_y_m": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rl_hub_world_z_m": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rl_hub_velocity_world_x_mps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rl_hub_velocity_world_y_mps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rl_hub_velocity_world_z_mps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rl_angular_velocity_world_x_radps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rl_angular_velocity_world_y_radps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rl_angular_velocity_world_z_radps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rl_spindle_omega_radps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rl_wheel_vx_horizontal_mps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rl_circumferential_speed_mps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rl_horizontal_slip_speed_mps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rl_horizontal_slip_ratio": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rl_force_horizontal_heading_n": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rl_force_world_vertical_n": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rl_axle_speed_radps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rl_driveline_spindle_torque_nm": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rl_suspension_spring_force_n": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rl_suspension_spring_length_m": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rl_suspension_spring_deformation_m": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rl_suspension_shock_force_n": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rl_suspension_shock_length_m": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rl_suspension_shock_velocity_mps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rr_longitudinal_slip": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rr_slip_angle_rad": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rr_camber_angle_rad": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rr_deflection_m": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rr_radius_m": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rr_force_world_x_n": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rr_force_world_y_n": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rr_force_world_z_n": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rr_moment_world_x_nm": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rr_moment_world_y_nm": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rr_moment_world_z_nm": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rr_hub_world_x_m": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rr_hub_world_y_m": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rr_hub_world_z_m": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rr_hub_velocity_world_x_mps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rr_hub_velocity_world_y_mps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rr_hub_velocity_world_z_mps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rr_angular_velocity_world_x_radps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rr_angular_velocity_world_y_radps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rr_angular_velocity_world_z_radps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rr_spindle_omega_radps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rr_wheel_vx_horizontal_mps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rr_circumferential_speed_mps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rr_horizontal_slip_speed_mps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rr_horizontal_slip_ratio": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rr_force_horizontal_heading_n": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rr_force_world_vertical_n": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rr_axle_speed_radps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rr_driveline_spindle_torque_nm": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rr_suspension_spring_force_n": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rr_suspension_spring_length_m": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rr_suspension_spring_deformation_m": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rr_suspension_shock_force_n": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rr_suspension_shock_length_m": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    },
+    "tire_rr_suspension_shock_velocity_mps": {
+      "finite": 1347995,
+      "missing": 0,
+      "episodes": 450
+    }
+  },
+  "raw_bytes_completed": 3260077395,
+  "observations": [
+    {
+      "scene": "diverse_v1_val_mixed_obstacles_00",
+      "valid_depth_fraction": 0.4756479263305664,
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "model_image_size": 512
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_02",
+      "valid_depth_fraction": 0.4757356643676758,
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "model_image_size": 512
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_00",
+      "valid_depth_fraction": 0.4751768112182617,
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "model_image_size": 512
+    },
+    {
+      "scene": "diverse_v1_val_cross_slopes_00",
+      "valid_depth_fraction": 0.4754638671875,
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "model_image_size": 512
+    },
+    {
+      "scene": "diverse_v1_val_rough_mosaic_00",
+      "valid_depth_fraction": 0.4760169982910156,
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "model_image_size": 512
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_01",
+      "valid_depth_fraction": 0.4759817123413086,
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "model_image_size": 512
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_02",
+      "valid_depth_fraction": 0.4760456085205078,
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "model_image_size": 512
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_03",
+      "valid_depth_fraction": 0.47537899017333984,
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "model_image_size": 512
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_03",
+      "valid_depth_fraction": 0.47594738006591797,
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "model_image_size": 512
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_03",
+      "valid_depth_fraction": 0.47566699981689453,
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "model_image_size": 512
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_02",
+      "valid_depth_fraction": 0.475250244140625,
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "model_image_size": 512
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_00",
+      "valid_depth_fraction": 0.4761362075805664,
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "model_image_size": 512
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_00",
+      "valid_depth_fraction": 0.47589874267578125,
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "model_image_size": 512
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_01",
+      "valid_depth_fraction": 0.47548389434814453,
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "model_image_size": 512
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_01",
+      "valid_depth_fraction": 0.47585391998291016,
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "model_image_size": 512
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_01",
+      "valid_depth_fraction": 0.47543907165527344,
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "model_image_size": 512
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_00",
+      "valid_depth_fraction": 0.47562122344970703,
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "model_image_size": 512
+    },
+    {
+      "scene": "diverse_v1_val_valley_network_00",
+      "valid_depth_fraction": 0.4753847122192383,
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "model_image_size": 512
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_01",
+      "valid_depth_fraction": 0.47574615478515625,
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "model_image_size": 512
+    },
+    {
+      "scene": "diverse_v1_train_ridge_passes_02",
+      "valid_depth_fraction": 0.475921630859375,
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "model_image_size": 512
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_03",
+      "valid_depth_fraction": 0.4752826690673828,
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "model_image_size": 512
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_00",
+      "valid_depth_fraction": 0.47557926177978516,
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "model_image_size": 512
+    },
+    {
+      "scene": "diverse_v1_val_ridge_passes_00",
+      "valid_depth_fraction": 0.4758939743041992,
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "model_image_size": 512
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_03",
+      "valid_depth_fraction": 0.47557544708251953,
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "model_image_size": 512
+    },
+    {
+      "scene": "diverse_v1_train_mixed_obstacles_00",
+      "valid_depth_fraction": 0.4756937026977539,
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "model_image_size": 512
+    },
+    {
+      "scene": "diverse_v1_train_cross_slopes_02",
+      "valid_depth_fraction": 0.47553348541259766,
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "model_image_size": 512
+    },
+    {
+      "scene": "diverse_v1_train_rolling_hills_02",
+      "valid_depth_fraction": 0.4754352569580078,
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "model_image_size": 512
+    },
+    {
+      "scene": "diverse_v1_val_rolling_hills_00",
+      "valid_depth_fraction": 0.4756202697753906,
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "model_image_size": 512
+    },
+    {
+      "scene": "diverse_v1_train_rough_mosaic_03",
+      "valid_depth_fraction": 0.4759531021118164,
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "model_image_size": 512
+    },
+    {
+      "scene": "diverse_v1_train_valley_network_01",
+      "valid_depth_fraction": 0.47529029846191406,
+      "raw_size": [
+        1024,
+        1024
+      ],
+      "model_image_size": 512
+    }
+  ],
+  "depth_fraction_note": "Global camera footprint exceeds 240 m terrain; outside-terrain rays are invalid. Full geometry checks assess in-arena coverage separately.",
+  "scope": "Completed outputs from train/validation job 412066 only. No protected-test directory is inspected.",
+  "slurm_completion": {
+    "state": "COMPLETED",
+    "exit_code": "0:0",
+    "elapsed": "00:39:05",
+    "node": "k003-004"
+  },
+  "batch_completion": {
+    "processed": 480,
+    "completed": 480,
+    "reused": 0,
+    "failed": 0,
+    "wall_s": 2343.9934621509165
+  }
+}

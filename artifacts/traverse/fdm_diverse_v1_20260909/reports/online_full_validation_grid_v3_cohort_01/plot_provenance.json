@@ -1,0 +1,12 @@
+{
+  "renderer_script_sha256": "84a5b7aadf94cd30fb1208b2bd69d6e97a148c25eca4254bddefdf00ea80d4de",
+  "source_report_sha256": "6b55dd3ee8e49a09b21a2cb5410e941fc4da2d98042fbed8d945ffeac16c5f7d",
+  "unchanged_audit_artifacts_sha256": {
+    "cohort_report.json": "6b55dd3ee8e49a09b21a2cb5410e941fc4da2d98042fbed8d945ffeac16c5f7d",
+    "all_trials.csv": "32fdbc9f21bef29245b12dc68179f4375fc389cd8f5e9c10445218aaea1e1020",
+    "report.md": "4d0cbd48bc5780adc91d110b21d411a1dbc65aed6b4f13f9e54a940fe5a9ea1e"
+  },
+  "render_location": "local CPU",
+  "physics_or_training_rerun": false,
+  "figure_sha256": "b5f9bc80d9f4bb930dcf2b0524c1d00889acfc2bbdf738c2f43c98a994d2e45d"
+}

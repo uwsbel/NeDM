@@ -1,0 +1,135 @@
+{
+  "median_ref_xyz": [
+    -10.438814936333305,
+    -0.40670761430233104,
+    1.1672832031281903
+  ],
+  "chassis_terrain_grade_deg": [
+    0.11285750581718629,
+    0.15967189485789815,
+    0.18961309756655417
+  ],
+  "ref_ground_z_median": 0.46814727783203125,
+  "roll_pitch_yaw_median_deg": {
+    "roll": 4.489387253603332,
+    "pitch": -13.2649248854764,
+    "yaw": -17.595507088578945
+  },
+  "steering_min_median_max": [
+    1.0,
+    1.0,
+    1.0
+  ],
+  "throttle_min_max": [
+    1.0,
+    1.0
+  ],
+  "brake_min_max": [
+    0.0,
+    0.0
+  ],
+  "gear_unique": [
+    3.0
+  ],
+  "wheel_stats": {
+    "tire_fl": {
+      "position_median_xyz": [
+        -8.6981499551973,
+        -0.03800499759784825,
+        1.504029800687983
+      ],
+      "terrain_grade_deg": [
+        0.5618530441492092,
+        0.6210077582419876,
+        0.7014840360112237
+      ],
+      "wheel_heading_tangent_grade_deg": [
+        0.13280616954972624,
+        0.16550430844650268,
+        0.18421335872659303
+      ],
+      "load_mean_median_n": [
+        9319.880388362582,
+        0.0
+      ],
+      "direct_slip_median": 0.12831782649471846,
+      "hub_tangent_speed_median": 0.0019662571737412496,
+      "circumferential_speed_median": -0.07733372714188516
+    },
+    "tire_fr": {
+      "position_median_xyz": [
+        -9.042556768706977,
+        -1.7110703241535568,
+        1.3333847874051934
+      ],
+      "terrain_grade_deg": [
+        0.32274337572390377,
+        18.874418688162205,
+        18.93314058617388
+      ],
+      "wheel_heading_tangent_grade_deg": [
+        0.16992189455397405,
+        18.641512523094796,
+        18.669066378273193
+      ],
+      "load_mean_median_n": [
+        2164.3747830987313,
+        2090.4276218690193
+      ],
+      "direct_slip_median": 969.278040490975,
+      "hub_tangent_speed_median": -0.002551585301902018,
+      "circumferential_speed_median": 71.83411446746484
+    },
+    "tire_rl": {
+      "position_median_xyz": [
+        -11.689608104917387,
+        0.9037325510049492,
+        0.6962036761119799
+      ],
+      "terrain_grade_deg": [
+        0.5407553475398125,
+        0.66947090320585,
+        0.7336553133810145
+      ],
+      "wheel_heading_tangent_grade_deg": [
+        -0.6037291796298305,
+        -0.5533034112272164,
+        -0.023599122151873767
+      ],
+      "load_mean_median_n": [
+        2517.3093399675618,
+        2510.4434707740893
+      ],
+      "direct_slip_median": 0.22781834825891767,
+      "hub_tangent_speed_median": -0.007961372716527866,
+      "circumferential_speed_median": 0.008176963357847507
+    },
+    "tire_rr": {
+      "position_median_xyz": [
+        -12.198008517065588,
+        -0.7661139226031085,
+        0.614089014321258
+      ],
+      "terrain_grade_deg": [
+        0.40976579072798114,
+        0.6440359049953404,
+        0.6871989526023594
+      ],
+      "wheel_heading_tangent_grade_deg": [
+        -0.48531082204972636,
+        -0.2993138996258567,
+        0.2444109871445016
+      ],
+      "load_mean_median_n": [
+        11297.955699893993,
+        11096.599325100167
+      ],
+      "direct_slip_median": 0.027417885194478527,
+      "hub_tangent_speed_median": -0.0010812602652398697,
+      "circumferential_speed_median": -0.0007455530713637866
+    }
+  },
+  "parked_any_last5s": false,
+  "remaining_goal_distance_m": 28.44543661450128,
+  "nominal_route_speed_at_stopped_x_mps": 6.0
+}

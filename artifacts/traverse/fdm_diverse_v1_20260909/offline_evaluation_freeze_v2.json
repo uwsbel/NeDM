@@ -1,0 +1,52 @@
+{
+  "schema": "fdm_protected_offline_freeze_v1",
+  "frozen_utc": "2026-09-09T23:00:51.360882+00:00",
+  "core_freeze_file": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_freeze_v1.json",
+  "core_freeze_sha256": "29684ce59cdd68e9b1f7310dcd2e63c55d021f6ff6712b83f99d286722efeb33",
+  "protected_data_read_by_this_analysis_before_supplement": true,
+  "offline_evaluation": {
+    "source_manifest_file": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/test_offline_v1/source_manifest.json",
+    "source_manifest_sha256": "385aa09092a28801a8f68f092d9aee0330358f0ca92226b1054d3ce5177c999d",
+    "rgbd_checkpoint_path": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_rgbd_s11/last.pt",
+    "blank_checkpoint_path": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_blank_s11/last.pt",
+    "checkpoint_steps": {
+      "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_rgbd_s11/last.pt": 5000,
+      "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_blank_s11/last.pt": 5000
+    },
+    "training_pack_path": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/packs/full_pair_v1/h60",
+    "training_pack_manifest_sha256": "3a915d235ed94990e2a5aee729d884ab791230e1f82e43380c670559d2b7d7b3",
+    "packing_source_manifest_sha256": "50523e5cbc40a9ac751be6366cc72904ec173000285a6cbc5112aa563673bd41",
+    "fixed_reference_baseline": {
+      "lateral_offset_m": -44.0,
+      "cruise_speed_mps": 6.0,
+      "expected_route_index": 11
+    },
+    "controls": [
+      "normal",
+      "shuffle",
+      "blank"
+    ],
+    "shuffle_seed": 20260908,
+    "risk_thresholds": {
+      "contact": 0.35,
+      "rollover": 0.35,
+      "bounded_motion": 0.5
+    },
+    "horizons_s": [
+      4,
+      8,
+      12
+    ],
+    "selection": "All90references, all6scenes, everyuniform1sanchor. No outcome filtering or model/cost selection. Hindsight reference support reported only as feasibility.",
+    "pack_output": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/packs/protected_test_h60_v1",
+    "report_output": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/reports/protected_test_offline_gpu_v1",
+    "inference_runtime": {
+      "partition": "mi3501x",
+      "device": "cuda:0",
+      "module": "pytorch/2.10.0",
+      "mode": "Inference only, no optimizer",
+      "reason": "Identical frozen evaluation API and checkpoint; GPU batch inference after CPU-only packing."
+    }
+  },
+  "source_supersession": "CPU job412125 prepares the unchanged test pack; inference moves to AMD MI350X for faster feedback, no checkpoint/source/input/metric changes. Previous supplement retained."
+}

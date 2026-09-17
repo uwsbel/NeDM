@@ -1,0 +1,120 @@
+{
+  "schema": 1,
+  "purpose": "Physical-scene verification; never a scorer input or stall label",
+  "sampling": {
+    "height": "TerrainMap bilinear lookup of quantized and oriented BMP",
+    "sample_step_m": 0.05000000000000071,
+    "grade": "atan centered elevation difference divided by grade_span_m",
+    "grade_span_m": 0.5,
+    "curve_smoothing": "none"
+  },
+  "profiles": [
+    {
+      "label": "Original steep berm",
+      "arena": "/home/harry/NeDM-traverse_mppi/assets/traverse/arena_fdm_fourway_20260909",
+      "arena_meta_sha256": "643e02bfdc05146e644031defdf582229a46d4f567092d2463bc6912f3eb35cd",
+      "bmp_path": "/home/harry/NeDM-traverse_mppi/assets/traverse/arena_fdm_fourway_20260909/arena_000.bmp",
+      "bmp_sha256": "fa90587cd2f910343aee1554e5494f6797db6c8081f7a8848d7fd61bd52aecee",
+      "center_xy_m": [
+        -8.0,
+        0.0
+      ],
+      "travel_heading_deg": 0.0,
+      "grid_resolution_m": 0.15625,
+      "height_quantization_step_m": 0.00823529411764706,
+      "orientation": {
+        "rot90": 0,
+        "flipud": true,
+        "calibrated": true,
+        "rmse_m": 0.008120992072417996,
+        "median_abs_m": 0.005373480689913723,
+        "runner_up_rmse_m": 0.817868874775216,
+        "samples": 400
+      },
+      "orientation_calibration_scope": null,
+      "orientation_provenance": null,
+      "authored_feature": {
+        "kind": "rounded steep mesa",
+        "amplitude_m": 1.9,
+        "core_radius_m": 1.55,
+        "wall_width_m": 0.9,
+        "center_xy": [
+          -8.0,
+          0.0
+        ]
+      },
+      "peak_elevation_m": 1.901176470588235,
+      "peak_station_m": -1.4499999999999993,
+      "endpoint_mean_elevation_m": -0.0011764705882352927,
+      "relief_above_endpoint_mean_m": 1.9023529411764704,
+      "positive_grade_max_deg": 70.35684566048464,
+      "negative_grade_min_deg": -70.10203750641445,
+      "one_grid_span_positive_grade_max_deg": 72.45199149445278,
+      "one_grid_span_m": 0.15625,
+      "ascent_10pct_station_m": -2.285937500000001,
+      "ascent_90pct_station_m": -1.710685483870969,
+      "ascent_10_to_90pct_width_m": 0.575252016129032,
+      "ascent_width_definition": "First rising-side 10% to 90% of relief above endpoint mean; linear interpolation between samples.",
+      "approx_active_width_m": 4.800000000000001,
+      "active_width_definition": "Elevation above endpoint mean exceeds max(0.02m, 1% of relief)."
+    },
+    {
+      "label": "Smooth steep hill",
+      "arena": "/home/harry/NeDM-traverse_mppi/assets/traverse/arena_fdm_fourway_smooth_20260909",
+      "arena_meta_sha256": "c43bbf5a943ab44a339007e24e2389c7707e77a972a42e8c340b6a2938bd063f",
+      "bmp_path": "/home/harry/NeDM-traverse_mppi/assets/traverse/arena_fdm_fourway_smooth_20260909/arena_000.bmp",
+      "bmp_sha256": "ca6cef6a4bb340f2272281e079e1c7d63ec53890ef6a30e5d26ec794c6f2039b",
+      "center_xy_m": [
+        0.0,
+        0.0
+      ],
+      "travel_heading_deg": 0.0,
+      "grid_resolution_m": 0.15625,
+      "height_quantization_step_m": 0.026274509803921566,
+      "orientation": {
+        "rot90": 0,
+        "flipud": true,
+        "calibrated": true
+      },
+      "orientation_calibration_scope": "Inherited coordinate-transform calibration from arena_v1; its fit statistics are not a fresh height accuracy measurement on this hill",
+      "orientation_provenance": {
+        "transform_source": "assets/traverse/arena_v1/arena_meta.json",
+        "scope": "Inherited coordinate transform on unchanged 80 m / 512 pixel grid; source-arena fit errors are not calibration measurements on this new hill."
+      },
+      "authored_feature": {
+        "kind": "gaussian",
+        "height_m": 6.5,
+        "extent_m": 4.5,
+        "center_xy": [
+          0.0,
+          0.0
+        ],
+        "formula": "H exp(-0.5 (r/sigma)^2); infinitely differentiable rounded toe and crest",
+        "analytic_max_grade_degrees": 41.22159636256615,
+        "quantized_center_difference_max_grade_degrees": 43.79033052975163,
+        "quantized_max_neighbor_height_difference_m": 0.15764705882352947,
+        "quantization_note": "Chrono uses the continuous triangulated8-bit heightfield; report measured physical grade as well as analytic design"
+      },
+      "peak_elevation_m": 6.494901960784313,
+      "peak_station_m": -0.1999999999999993,
+      "endpoint_mean_elevation_m": 0.005098039215686259,
+      "relief_above_endpoint_mean_m": 6.489803921568627,
+      "positive_grade_max_deg": 41.77547739348032,
+      "negative_grade_min_deg": -41.77547739348052,
+      "one_grid_span_positive_grade_max_deg": 44.4807215068726,
+      "one_grid_span_m": 0.15625,
+      "ascent_10pct_station_m": -9.6328125,
+      "ascent_90pct_station_m": -2.058593750000003,
+      "ascent_10_to_90pct_width_m": 7.5742187499999964,
+      "ascent_width_definition": "First rising-side 10% to 90% of relief above endpoint mean; linear interpolation between samples.",
+      "approx_active_width_m": 27.1,
+      "active_width_definition": "Elevation above endpoint mean exceeds max(0.02m, 1% of relief)."
+    }
+  ],
+  "script_sha256": "3ea2d4bb8f1513ad975cb859570d3612d42e43015abc40999f8eb3c0438133ec",
+  "outputs_sha256": {
+    "terrain_profiles.csv": "dc2f857a30b22e9032e3533e9615b462183059bc146b1fa7d540dc0d9e4d8ef9",
+    "terrain_profile_comparison.png": "cf811270d4fa08dec560bc02004146308e6ad51e9b6355a3c36a6437511e76ff",
+    "terrain_profile_comparison.pdf": "800fccd241ec9a082a92658f6830df115b7544dba17cd0540ffbe2059849f2ce"
+  }
+}

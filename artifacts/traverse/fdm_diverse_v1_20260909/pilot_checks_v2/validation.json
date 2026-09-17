@@ -1,0 +1,263 @@
+{
+  "passed": true,
+  "job_id": "412065",
+  "wall_s": 61.757383832708,
+  "arrays": {
+    "state": {
+      "exact": true,
+      "shape": [
+        827,
+        17
+      ],
+      "maximum_absolute_difference": 0.0
+    },
+    "action": {
+      "exact": true,
+      "shape": [
+        827,
+        3
+      ],
+      "maximum_absolute_difference": 0.0
+    },
+    "pose": {
+      "exact": true,
+      "shape": [
+        827,
+        3
+      ],
+      "maximum_absolute_difference": 0.0
+    },
+    "terminal_pose": {
+      "exact": true,
+      "shape": [
+        3
+      ],
+      "maximum_absolute_difference": 0.0
+    },
+    "power_kw": {
+      "exact": true,
+      "shape": [
+        827
+      ],
+      "maximum_absolute_difference": 0.0
+    },
+    "contact_n": {
+      "exact": true,
+      "shape": [
+        827
+      ],
+      "maximum_absolute_difference": 0.0
+    },
+    "terminal_state": {
+      "exact": true,
+      "shape": [
+        17
+      ],
+      "maximum_absolute_difference": 0.0
+    },
+    "terminal_parked": {
+      "exact": true,
+      "shape": [],
+      "maximum_absolute_difference": null
+    },
+    "parked": {
+      "exact": true,
+      "shape": [
+        827
+      ],
+      "maximum_absolute_difference": null
+    },
+    "positive_work_kj_per_interval": {
+      "exact": true,
+      "shape": [
+        827
+      ],
+      "maximum_absolute_difference": 0.0
+    },
+    "dt_s": {
+      "exact": true,
+      "shape": [],
+      "maximum_absolute_difference": 0.0
+    }
+  },
+  "source_changes": {
+    "src/nedm/traverse/fdm_rich_telemetry.py": {
+      "pilot": "f6c665efdfe7d73efd4a0d13f1dcdbe158dfdddea53633855c746bf481c09e91",
+      "new": "86fa14ba5913a05db66cad30df99876a1c43fae57ba420433945f9400295252c"
+    }
+  },
+  "only_passive_observer_changed": true,
+  "fixed_physics_contract": {
+    "case_sha256": true,
+    "arena_meta_sha256": true,
+    "arena_bmp_sha256": true,
+    "runtime_sha256": true,
+    "physics_dt_s": true,
+    "camera": true,
+    "driver": true,
+    "terrain_texture_sha256": true
+  },
+  "contact_events_exact": true,
+  "rich_telemetry": {
+    "passed": true,
+    "rows": 828,
+    "intervals": 827,
+    "sample_fields": 198,
+    "solver_step_intervals": 827,
+    "fields_with_missing_samples": [
+      "command_desired_speed_mps",
+      "command_parked"
+    ],
+    "trajectory_parity": "Pose, applied actions, engine-interface power and solver-step work match trajectory.npz"
+  },
+  "suspension_fields": {
+    "tire_fl_suspension_shock_force_n": {
+      "finite_count": 828,
+      "total_count": 828,
+      "min": -16500.159474061784,
+      "max": 4703.247702452005
+    },
+    "tire_fl_suspension_shock_length_m": {
+      "finite_count": 828,
+      "total_count": 828,
+      "min": 0.4006326878754321,
+      "max": 0.4372981749231662
+    },
+    "tire_fl_suspension_shock_velocity_mps": {
+      "finite_count": 828,
+      "total_count": 828,
+      "min": -0.7447978318844857,
+      "max": 0.4456345621496665
+    },
+    "tire_fl_suspension_spring_deformation_m": {
+      "finite_count": 828,
+      "total_count": 828,
+      "min": -0.06456507654012844,
+      "max": -0.027716912499420043
+    },
+    "tire_fl_suspension_spring_force_n": {
+      "finite_count": 828,
+      "total_count": 828,
+      "min": 4506.372604611264,
+      "max": 21018.857941258786
+    },
+    "tire_fl_suspension_spring_length_m": {
+      "finite_count": 828,
+      "total_count": 828,
+      "min": 0.2744349234598716,
+      "max": 0.31128308750058
+    },
+    "tire_fr_suspension_shock_force_n": {
+      "finite_count": 828,
+      "total_count": 828,
+      "min": -14276.334215750769,
+      "max": 4738.1864727308475
+    },
+    "tire_fr_suspension_shock_length_m": {
+      "finite_count": 828,
+      "total_count": 828,
+      "min": 0.39840279230472053,
+      "max": 0.4422794173772164
+    },
+    "tire_fr_suspension_shock_velocity_mps": {
+      "finite_count": 828,
+      "total_count": 828,
+      "min": -0.5409651260787129,
+      "max": 0.3478125783205606
+    },
+    "tire_fr_suspension_spring_deformation_m": {
+      "finite_count": 828,
+      "total_count": 828,
+      "min": -0.06679442199568814,
+      "max": -0.022676523372948287
+    },
+    "tire_fr_suspension_spring_force_n": {
+      "finite_count": 828,
+      "total_count": 828,
+      "min": 2398.980366405384,
+      "max": 22581.909557264444
+    },
+    "tire_fr_suspension_spring_length_m": {
+      "finite_count": 828,
+      "total_count": 828,
+      "min": 0.2722055780043119,
+      "max": 0.31632347662705174
+    },
+    "tire_rl_suspension_shock_force_n": {
+      "finite_count": 828,
+      "total_count": 828,
+      "min": -13458.649957722184,
+      "max": 5023.0493837847725
+    },
+    "tire_rl_suspension_shock_length_m": {
+      "finite_count": 828,
+      "total_count": 828,
+      "min": 0.3967996877920667,
+      "max": 0.4280903349711941
+    },
+    "tire_rl_suspension_shock_velocity_mps": {
+      "finite_count": 828,
+      "total_count": 828,
+      "min": -0.3455706244939899,
+      "max": 0.3625092348368034
+    },
+    "tire_rl_suspension_spring_deformation_m": {
+      "finite_count": 828,
+      "total_count": 828,
+      "min": -0.0440804864919917,
+      "max": -0.013165535324268007
+    },
+    "tire_rl_suspension_spring_force_n": {
+      "finite_count": 828,
+      "total_count": 828,
+      "min": 2954.7820061815064,
+      "max": 23848.137919746754
+    },
+    "tire_rl_suspension_spring_length_m": {
+      "finite_count": 828,
+      "total_count": 828,
+      "min": 0.3379195135080083,
+      "max": 0.368834464675732
+    },
+    "tire_rr_suspension_shock_force_n": {
+      "finite_count": 828,
+      "total_count": 828,
+      "min": -17680.146943027295,
+      "max": 20815.239865224776
+    },
+    "tire_rr_suspension_shock_length_m": {
+      "finite_count": 828,
+      "total_count": 828,
+      "min": 0.3946981149118416,
+      "max": 0.4288400210542447
+    },
+    "tire_rr_suspension_shock_velocity_mps": {
+      "finite_count": 828,
+      "total_count": 828,
+      "min": -1.432025626194029,
+      "max": 0.5047813918747915
+    },
+    "tire_rr_suspension_spring_deformation_m": {
+      "finite_count": 828,
+      "total_count": 828,
+      "min": -0.04615639229973634,
+      "max": -0.01242450321594657
+    },
+    "tire_rr_suspension_spring_force_n": {
+      "finite_count": 828,
+      "total_count": 828,
+      "min": 2546.441116651288,
+      "max": 25872.44501273409
+    },
+    "tire_rr_suspension_spring_length_m": {
+      "finite_count": 828,
+      "total_count": 828,
+      "min": 0.33584360770026367,
+      "max": 0.36957549678405344
+    }
+  },
+  "all24_suspension_fields_finite": true,
+  "swig_memory_warning_count": 0,
+  "primary_trajectory_sha256": "18072cf90901430cc7c3c76cddf8d0e3b18892cabbc760d091078e1cb244ee4f",
+  "new_trajectory_sha256": "18072cf90901430cc7c3c76cddf8d0e3b18892cabbc760d091078e1cb244ee4f"
+}

@@ -1,0 +1,10 @@
+{
+  "scope": "Full train/validation collection only. Protected test output was not inspected.",
+  "files": {
+    "full_collection_audit_412066.json": "a17c19c55c045230f99cdd468fa54611668492edfc12a22cde2df8488d01bb9a",
+    "full_route_support.json": "0324fb56eb187ba41e3f8397498b5520f3a5817c9f1f72de9617ed5bbfb11b15",
+    "audits/full_collection_readonly_v1/fdm_diverse_coverage_monitor.py": "a124a20058930ea6ccf3fc6100a2385a7ac79a2e6e29ff06db02883b954aa441",
+    "audits/full_collection_readonly_v1/fdm_diverse_route_support_audit.py": "b17be99499ec99f3217d8cc54cf1f13c2037c5194e96ad7945f805d1167ca1c6",
+    "audits/full_collection_readonly_v1/fdm_diverse_frozen_inputs_audit.py": "cb09dfe3977b6cc192013cb78ca6a80c1b98b7eaa6b4d273e88d43a0f6a743bb"
+  }
+}

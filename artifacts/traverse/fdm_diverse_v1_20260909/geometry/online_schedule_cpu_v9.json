@@ -1,0 +1,50 @@
+{
+  "passed": true,
+  "scope": "Actual production decision block with CPU stand-ins; no Chrono physical parity claimed",
+  "schedule_comparisons": 28800,
+  "receding_schedule_matches_previous": true,
+  "same_frame_zero_inputs_seed_and_family": true,
+  "cases": [
+    {
+      "mode": "receding",
+      "initial_abstention": false,
+      "frames": 3600,
+      "planner_calls": 180,
+      "reference_updates": 180,
+      "later_planner_calls": 179,
+      "final_paused": false
+    },
+    {
+      "mode": "plan_once",
+      "initial_abstention": false,
+      "frames": 3600,
+      "planner_calls": 1,
+      "reference_updates": 1,
+      "later_planner_calls": 0,
+      "final_paused": false
+    },
+    {
+      "mode": "receding",
+      "initial_abstention": true,
+      "frames": 3600,
+      "planner_calls": 180,
+      "reference_updates": 0,
+      "later_planner_calls": 179,
+      "final_paused": true
+    },
+    {
+      "mode": "plan_once",
+      "initial_abstention": true,
+      "frames": 3600,
+      "planner_calls": 1,
+      "reference_updates": 0,
+      "later_planner_calls": 0,
+      "final_paused": true
+    }
+  ],
+  "source_sha256": {
+    "scripts/traverse_fdm_rgbd_diverse_online.py": "b57ea977eddd2960a600b27023b9499d0ae14e638a8d321a0a3ff8db28486105",
+    "scripts/traverse_fdm_rgbd_diverse_online_batch.py": "52c4c11e8fa40106abb5331f997adf177e929f2b6ab4f2b958ede4ebbac39e8d",
+    "scripts/check_traverse_fdm_online_schedule.py": "99dd5fc58e2ff6a876a732d2de2d850a689c74c4e6ed65c961d3e20dfe451a80"
+  }
+}

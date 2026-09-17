@@ -1,0 +1,36 @@
+{
+  "passed": true,
+  "scope": "CPU no-optimizer contract tests; no simulated physics, trained accuracy or closed-loop success claim",
+  "history": {
+    "future_state_pose_and_current_future_actions_ignored": true,
+    "previous_applied_action_changes_history": true,
+    "startup_synthetic_brake_exact": true,
+    "online_prefix_equals_full_recording_history": true
+  },
+  "costs": {
+    "progress_improves_cost": true,
+    "energy_only_affects_enabled_arm": true,
+    "world_ego_rotation_invariant": true,
+    "risk_gates": {
+      "contact": true,
+      "rollover": true,
+      "stall": true
+    },
+    "hard_attitude_gate": true,
+    "required_head_support_enforced": true,
+    "unsupported_rollover_reported_unavailable": true,
+    "post_arrival_events_ignored": true,
+    "contact_at_arrival_is_counted": true,
+    "stall_requires_two_second_future": true
+  },
+  "references": {
+    "valid_family_count": 15,
+    "total_families": 15
+  },
+  "sha256": {
+    "src/nedm/traverse/fdm_data.py": "a42631801f0770304901ddcdc48d4d626965a7485ce4648252d8f6c1d2b37276",
+    "src/nedm/traverse/fdm_diverse_data.py": "5c5cf1a0098df044a6317b43e76adc5e4fe3ed530b53e6e33c51210abd2dc58c",
+    "src/nedm/traverse/fdm_diverse_planner.py": "91f5035cab3ffecbbcbc196c2490a1b25f42febbfd865e95a1d977ce66c6a65a",
+    "src/nedm/traverse/fdm_mppi.py": "17224db79e2f325878a555645173a5ebba965ae1d82c1048dbf91a8c39dd9e1a"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "goal_radius_m": 3.0,
+  "contact_penalty_s": 60.0,
+  "low_progress_penalty_s": 60.0,
+  "terminal_progress_weight": 0.1,
+  "minimum_progress_speed_mps": 0.5,
+  "maximum_remaining_time_s": 360.0,
+  "refine_families": 3,
+  "max_contact_probability": 0.35,
+  "max_low_progress_probability": 0.5,
+  "max_rollover_probability": 0.35,
+  "rollover_penalty_s": 120.0,
+  "energy_weight_s_per_kj": 0.02,
+  "attitude_penalty_s": 10.0,
+  "soft_roll_deg": 25.0,
+  "soft_pitch_deg": 35.0,
+  "hard_roll_deg": 55.0,
+  "hard_pitch_deg": 55.0
+}

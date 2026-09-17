@@ -1,0 +1,144 @@
+{
+  "size_m": 240.0,
+  "pixels": 512,
+  "resolution_m_per_px": 0.46875,
+  "height_min_m": -0.55,
+  "height_max_m": 10.9,
+  "quantization_step_m": 0.04490196078431373,
+  "bmp": "arena_000.bmp",
+  "seed": 2026111100,
+  "orientation": {
+    "rot90": 0,
+    "flipud": true,
+    "calibrated": true,
+    "calibration_source": "assets/traverse/arena_v1/arena_meta.json",
+    "scope": "Inherited BMP coordinate transform only; no new Chrono height residual claim"
+  },
+  "features": [],
+  "authoring_features": [
+    {
+      "kind": "smooth_hill",
+      "center_xy_canonical_m": [
+        -9.341812624028623,
+        -13.124865022927562
+      ],
+      "amplitude_m": 1.6701359794570534,
+      "sigma_x_m": 48.0,
+      "sigma_y_m": 48.0,
+      "yaw_rad": 0.0
+    },
+    {
+      "kind": "banked_elongated_hill",
+      "center_xy_canonical_m": [
+        -49.87510456914441,
+        -11.11729072096383
+      ],
+      "amplitude_m": 8.872603354688081,
+      "sigma_x_m": 9.866913154515162,
+      "sigma_y_m": 26.805956391033522,
+      "yaw_rad": -0.00809123190612604
+    },
+    {
+      "kind": "banked_elongated_hill",
+      "center_xy_canonical_m": [
+        16.155586679920695,
+        22.232279579393744
+      ],
+      "amplitude_m": 9.618420265079555,
+      "sigma_x_m": 8.859882367710512,
+      "sigma_y_m": 32.76623566274318,
+      "yaw_rad": 0.3644010647392949
+    },
+    {
+      "kind": "banked_elongated_hill",
+      "center_xy_canonical_m": [
+        66.78705213670654,
+        48.31196073625548
+      ],
+      "amplitude_m": 9.953844322045926,
+      "sigma_x_m": 10.670384463882737,
+      "sigma_y_m": 26.906544844844174,
+      "yaw_rad": -0.44872525500594285
+    },
+    {
+      "kind": "coherent_roughness",
+      "rms_design_m": 0.15,
+      "correlation_m": 2.0
+    },
+    {
+      "kind": "gentle_control_corridor",
+      "offset_m": -44.0,
+      "core_half_width_m": 6.0,
+      "blend_width_m": 10.0,
+      "relief_m": 2.0347414881167594,
+      "semantics": "Geometry control only; no claim of Chrono passability"
+    }
+  ],
+  "family": "cross_slopes",
+  "scene_rotation_rad": 0.0,
+  "canonical_to_world": "world = R(scene_rotation_rad) @ canonical",
+  "authoring_feature_scope": "Simulator construction only; never model input",
+  "launch_pads": {
+    "canonical_centers_xy_m": [
+      [
+        -100.0,
+        -55.0
+      ],
+      [
+        100.0,
+        55.0
+      ]
+    ],
+    "flat_radius_m": 10.0,
+    "transition_width_m": 12.0,
+    "profile": "quintic smootherstep"
+  },
+  "split": "val",
+  "evaluation_stratum": "unseen_layout",
+  "heightfield_convention": "World grid h[iy,ix], +x columns and +y rows, pixel centers at -size/2+(i+0.5)*size/pixels. BMP rows are vertically reversed. TerrainMap reverses them back; BMP remains truth.",
+  "geometry_audit": {
+    "height_min_m": -0.46019607843137256,
+    "height_max_m": 10.810196078431373,
+    "relief_m": 11.270392156862746,
+    "quantization_step_m": 0.04490196078431373,
+    "resolution_m_per_px": 0.46875,
+    "native_slope_stats": {
+      "max": 1.9265633245265148,
+      "p999": 1.5542046909764782,
+      "p99": 0.651448208418388,
+      "median": 0.06773435937954278,
+      "flat5deg_fraction": 0.5324325561523438
+    },
+    "grade_measurement_span_m": 0.9375,
+    "max_grade_deg": 62.568025131778754,
+    "p99_grade_deg": 33.08216022970715,
+    "fraction_over_30deg": 0.01827374086889658,
+    "fraction_over_40deg": 0.005786236063052672,
+    "flat_pads": [
+      {
+        "name": "launch",
+        "center_xy_m": [
+          -100.0,
+          -55.0
+        ],
+        "verified_radius_m": 8.0,
+        "sample_count": 1360,
+        "height_range_m": 0.0,
+        "max_slope_deg": 0.0,
+        "height_m": -0.011176470588235343
+      },
+      {
+        "name": "arrival",
+        "center_xy_m": [
+          100.0,
+          55.0
+        ],
+        "verified_radius_m": 8.0,
+        "sample_count": 1360,
+        "height_range_m": 0.0,
+        "max_slope_deg": 0.0,
+        "height_m": -0.011176470588235343
+      }
+    ]
+  }
+}

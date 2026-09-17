@@ -1,0 +1,477 @@
+{
+  "schema": 2,
+  "cohort_state": "incomplete_audit_only",
+  "source_domain": "focused_v1_standard_chrono_pid_vulkan",
+  "training_scope": "focus-only; no legacy rows or silent label substitution",
+  "camera": {
+    "width": 256,
+    "height": 256,
+    "hfov_deg": 47.0,
+    "cam_height_m": 100.0,
+    "depth_ray_scale": 1.0,
+    "depth_convention": "Euclidean_ray_range_m",
+    "backend": "Vulkan"
+  },
+  "controller_domain": "Standard ChPathFollowerDriver, steering(.8,0,0), speed(.6,.05,0), lookahead5m, advance every physics substep, initialized before0.8s settle; geometric reference z uses terrainheight+.5m inside simulator, never model input",
+  "cohort_manifests": {
+    "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_rgbd_focused_v1/cases/cases.json": "69a88f040f75e343ceafb8b7c7c976de3b3d7268e77cb778257ec791673d410a"
+  },
+  "split_rule": "Predeclared scene-level split, all sibling routes kept together; no protected-test or demo scenes",
+  "scene_splits": {
+    "focus_obstacle_train_000": "train",
+    "focus_obstacle_train_001": "train",
+    "focus_obstacle_train_002": "train",
+    "focus_obstacle_train_003": "train",
+    "focus_obstacle_train_004": "train",
+    "focus_obstacle_train_005": "train",
+    "focus_obstacle_train_006": "train",
+    "focus_obstacle_train_007": "train",
+    "focus_obstacle_train_008": "train",
+    "focus_obstacle_train_009": "train",
+    "focus_obstacle_train_010": "train",
+    "focus_obstacle_train_011": "train",
+    "focus_obstacle_train_012": "train",
+    "focus_obstacle_train_013": "train",
+    "focus_obstacle_train_014": "train",
+    "focus_obstacle_train_015": "train",
+    "focus_obstacle_val_000": "val",
+    "focus_obstacle_val_001": "val",
+    "focus_obstacle_val_002": "val",
+    "focus_obstacle_val_003": "val"
+  },
+  "missing_episodes": [
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_001/family_00",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_001/family_01",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_001/family_02",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_001/family_03",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_001/family_04",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_001/family_05",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_002/family_00",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_002/family_01",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_002/family_02",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_002/family_03",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_002/family_04",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_002/family_05",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_003/family_00",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_003/family_01",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_003/family_02",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_003/family_03",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_003/family_04",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_003/family_05",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_004/family_00",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_004/family_01",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_004/family_02",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_004/family_03",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_004/family_04",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_004/family_05",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_005/family_00",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_005/family_01",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_005/family_02",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_005/family_03",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_005/family_04",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_005/family_05",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_006/family_00",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_006/family_01",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_006/family_02",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_006/family_03",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_006/family_04",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_006/family_05",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_007/family_00",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_007/family_01",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_007/family_02",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_007/family_03",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_007/family_04",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_007/family_05",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_008/family_00",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_008/family_01",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_008/family_02",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_008/family_03",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_008/family_04",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_008/family_05",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_009/family_00",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_009/family_01",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_009/family_02",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_009/family_03",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_009/family_04",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_009/family_05",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_010/family_00",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_010/family_01",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_010/family_02",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_010/family_03",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_010/family_04",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_010/family_05",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_011/family_00",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_011/family_01",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_011/family_02",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_011/family_03",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_011/family_04",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_011/family_05",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_012/family_00",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_012/family_01",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_012/family_02",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_012/family_03",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_012/family_04",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_012/family_05",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_013/family_00",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_013/family_01",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_013/family_02",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_013/family_03",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_013/family_04",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_013/family_05",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_014/family_00",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_014/family_01",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_014/family_02",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_014/family_03",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_014/family_04",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_014/family_05",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_015/family_00",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_015/family_01",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_015/family_02",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_015/family_03",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_015/family_04",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_train_015/family_05",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_val_000/family_00",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_val_000/family_01",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_val_000/family_02",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_val_000/family_03",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_val_000/family_04",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_val_000/family_05",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_val_001/family_00",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_val_001/family_01",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_val_001/family_02",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_val_001/family_03",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_val_001/family_04",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_val_001/family_05",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_val_002/family_00",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_val_002/family_01",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_val_002/family_02",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_val_002/family_03",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_val_002/family_04",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_val_002/family_05",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_val_003/family_00",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_val_003/family_01",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_val_003/family_02",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_val_003/family_03",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_val_003/family_04",
+    "artifacts/traverse/fdm_rgbd_focused_v1/raw/focus_obstacle_val_003/family_05"
+  ],
+  "selection": "Every predeclared sibling, including failures, safe routes and moving routes; no outcome filtering",
+  "validation_distribution": "Designed failure-focused development cohort; prevalence is not natural deployment calibration",
+  "commands_fields": [
+    "reference_ego_x_m",
+    "reference_ego_y_m",
+    "sin_reference_heading",
+    "cos_reference_heading",
+    "reference_speed_mps"
+  ],
+  "global_fields": [
+    "remaining_route_m",
+    "goal_ego_x_m",
+    "goal_ego_y_m",
+    "elapsed_recording_s",
+    "anchor_world_x_over40",
+    "anchor_world_y_over40",
+    "sin_anchor_world_yaw",
+    "cos_anchor_world_yaw"
+  ],
+  "history_fields": [
+    "vel_body_x_mps",
+    "vel_body_y_mps",
+    "roll_rad",
+    "pitch_rad",
+    "roll_rate_radps",
+    "ang_vel_body_y_radps",
+    "yaw_rate_radps",
+    "tire_fl_force_wheel_fz_n",
+    "tire_fr_force_wheel_fz_n",
+    "tire_rl_force_wheel_fz_n",
+    "tire_rr_force_wheel_fz_n",
+    "tire_fl_spindle_omega_radps",
+    "tire_fr_spindle_omega_radps",
+    "tire_rl_spindle_omega_radps",
+    "tire_rr_spindle_omega_radps",
+    "engine_motor_speed_radps",
+    "engine_motorshaft_torque_nm",
+    "previous_driver_steering",
+    "previous_driver_throttle",
+    "previous_driver_braking",
+    "ego_x",
+    "ego_y",
+    "sin_yaw",
+    "cos_yaw"
+  ],
+  "event_names": [
+    "contact",
+    "rollover",
+    "low_progress"
+  ],
+  "head2_default": "events[...,2] remains low_progress",
+  "extra_target": "sustained_stall with sustained_stall_mask; trainer must explicitly select and archive target name",
+  "sustained_stall_definition": "Any entirely future contiguous40 intervals (2s at20Hz) with |body_vx|<0.3m/s, throttle>0.3 and no parking; interval flags use left-endpoint measured state and applied control. No global startup grace. Prefixes under2s masked. Positive remains valid after truncation; negative needs complete prefix.",
+  "low_progress_definition": "Net displacement<0.15m/s times prefix duration and mean throttle>0.3, prefix>=2s, measured endpoint, no route-end parking; retained unchanged",
+  "contact_definition": "Uncapped per-interval asset contact max>1N, interval[i,i+1); known positives survive truncation, missing negatives censored",
+  "work_definition": "Cumulative positive shaft work using exact per-physics-substep integral saved for each20Hz interval; kJ",
+  "startup_padding": "Unrecorded history repeats first measured state/pose and synthetic [steer0,throttle0,brake1]; not measured settle telemetry. Available history count is min(16,1+anchor).",
+  "observation": "Actual sparse current RGB-D only; no future image, terrain/BMP, asset geometry, or future measured station input",
+  "image_encoding": {
+    "shape": [
+      4,
+      128,
+      128
+    ],
+    "dtype": "float16",
+    "rgb": "box-resized uint8/255",
+    "depth": "observed Euclidean ray depth -> RGB-registered elevation; fixed clip(z/10,-1,1), invalid=-2"
+  },
+  "horizon_s": 4.0,
+  "output_dt_s": 0.2,
+  "history_frames": 16,
+  "source_domain_codes": {
+    "1": "focused_v1_standard_chrono_pid_vulkan"
+  },
+  "code_sha256": {
+    "scripts/traverse_fdm_rgbd_focused_prepare.py": "4b428b11b65e3dd337a3ae4e799d8e655e33842758039d2f3ce1777f5cb31367",
+    "src/nedm/traverse/fdm_data.py": "a42631801f0770304901ddcdc48d4d626965a7485ce4648252d8f6c1d2b37276",
+    "src/nedm/traverse/fdm_rgbd_data.py": "ae18b0e21bb86cc16a5eecf9938f0c90a1b6593144327edfb9324f2463a4d422"
+  },
+  "splits": {
+    "train": {
+      "episodes": 6,
+      "scenes": 1,
+      "windows": 56,
+      "scene_ids": [
+        "focus_obstacle_train_000"
+      ],
+      "event_support": {
+        "contact": {
+          "all": {
+            "windows": 56,
+            "positive_windows": 26,
+            "positive_episodes": 4,
+            "positive_scenes": 1,
+            "positive_horizon_labels": 484,
+            "valid_horizon_labels": 944
+          },
+          "anchor0": {
+            "windows": 6,
+            "positive_windows": 4,
+            "positive_episodes": 4,
+            "positive_scenes": 1,
+            "positive_horizon_labels": 52,
+            "valid_horizon_labels": 120
+          },
+          "anchor_lt2s": {
+            "windows": 12,
+            "positive_windows": 8,
+            "positive_episodes": 4,
+            "positive_scenes": 1,
+            "positive_horizon_labels": 124,
+            "valid_horizon_labels": 240
+          },
+          "anchor_ge2s": {
+            "windows": 44,
+            "positive_windows": 18,
+            "positive_episodes": 4,
+            "positive_scenes": 1,
+            "positive_horizon_labels": 360,
+            "valid_horizon_labels": 704
+          },
+          "before_first_contact": {
+            "positive_windows": 8,
+            "positive_episodes": 4
+          }
+        },
+        "rollover": {
+          "all": {
+            "windows": 56,
+            "positive_windows": 0,
+            "positive_episodes": 0,
+            "positive_scenes": 0,
+            "positive_horizon_labels": 0,
+            "valid_horizon_labels": 884
+          },
+          "anchor0": {
+            "windows": 6,
+            "positive_windows": 0,
+            "positive_episodes": 0,
+            "positive_scenes": 0,
+            "positive_horizon_labels": 0,
+            "valid_horizon_labels": 120
+          },
+          "anchor_lt2s": {
+            "windows": 12,
+            "positive_windows": 0,
+            "positive_episodes": 0,
+            "positive_scenes": 0,
+            "positive_horizon_labels": 0,
+            "valid_horizon_labels": 240
+          },
+          "anchor_ge2s": {
+            "windows": 44,
+            "positive_windows": 0,
+            "positive_episodes": 0,
+            "positive_scenes": 0,
+            "positive_horizon_labels": 0,
+            "valid_horizon_labels": 644
+          },
+          "before_first_contact": {
+            "positive_windows": 0,
+            "positive_episodes": 0
+          }
+        },
+        "low_progress": {
+          "all": {
+            "windows": 56,
+            "positive_windows": 14,
+            "positive_episodes": 2,
+            "positive_scenes": 1,
+            "positive_horizon_labels": 124,
+            "valid_horizon_labels": 428
+          },
+          "anchor0": {
+            "windows": 6,
+            "positive_windows": 0,
+            "positive_episodes": 0,
+            "positive_scenes": 0,
+            "positive_horizon_labels": 0,
+            "valid_horizon_labels": 66
+          },
+          "anchor_lt2s": {
+            "windows": 12,
+            "positive_windows": 0,
+            "positive_episodes": 0,
+            "positive_scenes": 0,
+            "positive_horizon_labels": 0,
+            "valid_horizon_labels": 132
+          },
+          "anchor_ge2s": {
+            "windows": 44,
+            "positive_windows": 14,
+            "positive_episodes": 2,
+            "positive_scenes": 1,
+            "positive_horizon_labels": 124,
+            "valid_horizon_labels": 296
+          },
+          "before_first_contact": {
+            "positive_windows": 0,
+            "positive_episodes": 0
+          },
+          "before_observed_completed2s_onset": {
+            "positive_windows": 4,
+            "positive_episodes": 2
+          }
+        },
+        "sustained_stall": {
+          "all": {
+            "windows": 56,
+            "positive_windows": 17,
+            "positive_episodes": 2,
+            "positive_scenes": 1,
+            "positive_horizon_labels": 165,
+            "valid_horizon_labels": 458
+          },
+          "anchor0": {
+            "windows": 6,
+            "positive_windows": 1,
+            "positive_episodes": 1,
+            "positive_scenes": 1,
+            "positive_horizon_labels": 1,
+            "valid_horizon_labels": 66
+          },
+          "anchor_lt2s": {
+            "windows": 12,
+            "positive_windows": 3,
+            "positive_episodes": 2,
+            "positive_scenes": 1,
+            "positive_horizon_labels": 12,
+            "valid_horizon_labels": 132
+          },
+          "anchor_ge2s": {
+            "windows": 44,
+            "positive_windows": 14,
+            "positive_episodes": 2,
+            "positive_scenes": 1,
+            "positive_horizon_labels": 153,
+            "valid_horizon_labels": 326
+          },
+          "before_first_contact": {
+            "positive_windows": 3,
+            "positive_episodes": 2
+          },
+          "before_observed_completed2s_onset": {
+            "positive_windows": 8,
+            "positive_episodes": 2
+          }
+        }
+      },
+      "shapes": {
+        "trajectory": [
+          56,
+          20,
+          4
+        ],
+        "work": [
+          56,
+          20,
+          1
+        ],
+        "events": [
+          56,
+          20,
+          3
+        ],
+        "trajectory_mask": [
+          56,
+          20,
+          1
+        ],
+        "event_mask": [
+          56,
+          20,
+          3
+        ],
+        "sustained_stall": [
+          56,
+          20,
+          1
+        ],
+        "sustained_stall_mask": [
+          56,
+          20,
+          1
+        ],
+        "commands": [
+          56,
+          20,
+          5
+        ],
+        "nominal_pose": [
+          56,
+          20,
+          4
+        ],
+        "global_features": [
+          56,
+          8
+        ],
+        "history": [
+          56,
+          16,
+          24
+        ],
+        "episode_index": [
+          56
+        ],
+        "anchor": [
+          56
+        ],
+        "source_domain": [
+          56
+        ],
+        "scene_index": [
+          56
+        ]
+      }
+    }
+  }
+}

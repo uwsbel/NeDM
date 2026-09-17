@@ -1,0 +1,30 @@
+{
+  "schema": "fdm_full_report_pair_launch_v1",
+  "state": "queued_after_all_training_success",
+  "job_id": "412094",
+  "training_dependencies": [
+    "412086",
+    "412090"
+  ],
+  "command_shell": "sbatch --parsable --dependency=afterok:412086:412090 --export=ALL,REPORT_CODE_ROOT=/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/reporting_v1,PACK_PAIR=/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/packs/full_pair_v1,RUNS_H60=/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3,RUNS_H20=/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h20_v3,RAW_ROOT=/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/full_cohort_v2/raw,REPORT_OUT=/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/reports/full_learning_pair_v1 /work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/reporting_v1/slurm/traverse_fdm_rgbd_diverse_report.sbatch",
+  "command_argv": [
+    "sbatch",
+    "--parsable",
+    "--dependency=afterok:412086:412090",
+    "--export=ALL,REPORT_CODE_ROOT=/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/reporting_v1,PACK_PAIR=/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/packs/full_pair_v1,RUNS_H60=/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3,RUNS_H20=/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h20_v3,RAW_ROOT=/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/full_cohort_v2/raw,REPORT_OUT=/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/reports/full_learning_pair_v1",
+    "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/reporting_v1/slurm/traverse_fdm_rgbd_diverse_report.sbatch"
+  ],
+  "source_manifest_sha256": "bafec59e21c737b4f911704a2a3d08f904d97145f6dc5cb95b0e5c41929a6455",
+  "env": {
+    "REPORT_CODE_ROOT": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/reporting_v1",
+    "PACK_PAIR": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/packs/full_pair_v1",
+    "RUNS_H60": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3",
+    "RUNS_H20": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h20_v3",
+    "RAW_ROOT": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/full_cohort_v2/raw",
+    "REPORT_OUT": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/reports/full_learning_pair_v1"
+  },
+  "cpu_only": true,
+  "all8statuses_must_be_complete_at_update5000": true,
+  "large_predictions_stay_on_AMD": true,
+  "test_data_opened": false
+}

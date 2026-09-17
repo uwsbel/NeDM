@@ -1,0 +1,214 @@
+{
+  "schema": 1,
+  "scene_id": "diverse_v1_train_ridge_passes_00",
+  "split": "train",
+  "source_sha256": "609c4b104286883d463a5706c420efbf53a659298cbd2502b238e620ce354eb9",
+  "case_sha256": "bb04c23991c740547f6a455aeda885725c2718b7a5fc72b97d1547d7b9a552b3",
+  "arena_bmp_sha256": "b728aca6496868caeaf7fb88c49424ff8ed685075a283d92c92c6723ffd8c35e",
+  "arena_meta_sha256": "dd2da943e2e50361c7491ce7e17d72303b5d62a7fe2cf66561419af9efd06539",
+  "world_height_chrono_minus_bmp_m": {
+    "count": 4000,
+    "median_abs_m": 0.007575944883748631,
+    "p95_abs_m": 0.07146522251541092,
+    "rmse_m": 0.029929242370490754,
+    "max_abs_m": 0.2456282192256225,
+    "signed_mean_m": 0.0077691686223488425
+  },
+  "flat_pads": [
+    {
+      "name": "launch",
+      "center_xy_m": [
+        -54.99999999999998,
+        100.00000000000001
+      ],
+      "radius_m": 8.0,
+      "height_range_m": 0.004521176335401833,
+      "fitted_grade_deg": 0.0005756173343427725,
+      "height_vs_bmp": {
+        "count": 288,
+        "median_abs_m": 0.002443447918950681,
+        "p95_abs_m": 0.004759727779629741,
+        "rmse_m": 0.003137560820707815,
+        "max_abs_m": 0.004914979951310072,
+        "signed_mean_m": 0.002828164466306244
+      },
+      "sample_count": 288
+    },
+    {
+      "name": "arrival",
+      "center_xy_m": [
+        54.99999999999998,
+        -100.00000000000001
+      ],
+      "radius_m": 8.0,
+      "height_range_m": 0.004474067653063685,
+      "fitted_grade_deg": 0.002476153839943703,
+      "height_vs_bmp": {
+        "count": 288,
+        "median_abs_m": 0.0024593727782770136,
+        "p95_abs_m": 0.004760967556241069,
+        "rmse_m": 0.0031866730650122682,
+        "max_abs_m": 0.004888852162140522,
+        "signed_mean_m": 0.0028910301702542596
+      },
+      "sample_count": 288
+    }
+  ],
+  "query_ray_origin_z_m": 22.35,
+  "geometry_only_no_simulation": true,
+  "orientation_modified": false,
+  "observation": {
+    "observation_sha256": "a02d7bcb7e9ce8f2ac0060bdcd549cb9fbb38ebf266c9527d35640c80c2366d8",
+    "camera_metadata_sha256": "4d8af2a9c48692ad8336ad9b31065a866dad54687f5242c3ff8fe87fdbb4fa33",
+    "camera": {
+      "width": 1024,
+      "height": 1024,
+      "hfov_rad": 0.8203047484373349,
+      "cam_height_m": 400.0,
+      "depth_ray_scale": 1.0,
+      "max_depth_m": 600.0,
+      "backend": "Vulkan_RT_lavapipe",
+      "depth_measurement": "Euclidean_ray_range_m",
+      "model_image_size": 512,
+      "elevation_scale_m": 40.0,
+      "observation_mode": "single pre-drive global RGB-D snapshot reused causally"
+    },
+    "raw_shape": [
+      1024,
+      1024,
+      3
+    ],
+    "model_rgbd_shape": [
+      4,
+      512,
+      512
+    ],
+    "metric_depth_dtype": "float64 for audit; source dtype retained in observation",
+    "valid_raw_depth_fraction": 0.47589874267578125,
+    "unobstructed_interior_pixels": 468411,
+    "excluded_asset_margin_m": 4.0,
+    "excluded_vehicle_radius_m": 7.0,
+    "interior_edge_margin_m": 3.0,
+    "arena_corner_min_image_margin_px": 146.98993653502998,
+    "all_arena_corners_visible": true,
+    "coverage_width_at_zero_elevation_m": 347.8498999687469,
+    "depth_elevation_vs_chrono_m": {
+      "all": {
+        "count": 4096,
+        "median_abs_m": 0.002318376794391952,
+        "p95_abs_m": 0.007007960391362644,
+        "rmse_m": 0.003507082435975712,
+        "max_abs_m": 0.012337152760153458,
+        "signed_mean_m": -0.002778791259113178
+      },
+      "inner_arena": {
+        "count": 1068,
+        "median_abs_m": 0.0023318803403071797,
+        "p95_abs_m": 0.007590158606771524,
+        "rmse_m": 0.003715153774690888,
+        "max_abs_m": 0.011917001350752798,
+        "signed_mean_m": -0.0028436478852236096
+      },
+      "outer_arena": {
+        "count": 1688,
+        "median_abs_m": 0.0022623129045200585,
+        "p95_abs_m": 0.005524957584475483,
+        "rmse_m": 0.0031393058809209757,
+        "max_abs_m": 0.011324035939935584,
+        "signed_mean_m": -0.002598552790660783
+      },
+      "southwest": {
+        "count": 1038,
+        "median_abs_m": 0.0022451250987955973,
+        "p95_abs_m": 0.007257957910545087,
+        "rmse_m": 0.003596698160564059,
+        "max_abs_m": 0.012337152760153458,
+        "signed_mean_m": -0.0027822685599094626
+      },
+      "northwest": {
+        "count": 988,
+        "median_abs_m": 0.002351983895152898,
+        "p95_abs_m": 0.006787444830129628,
+        "rmse_m": 0.0034355782292252984,
+        "max_abs_m": 0.011717602750877631,
+        "signed_mean_m": -0.0027776550446545964
+      },
+      "southeast": {
+        "count": 1035,
+        "median_abs_m": 0.0024255002050495023,
+        "p95_abs_m": 0.007186782811021431,
+        "rmse_m": 0.003664828567583768,
+        "max_abs_m": 0.01177846531970772,
+        "signed_mean_m": -0.0029059577421808192
+      },
+      "northeast": {
+        "count": 1035,
+        "median_abs_m": 0.002246882354029367,
+        "p95_abs_m": 0.0067259481297128314,
+        "rmse_m": 0.0033171850375488874,
+        "max_abs_m": 0.012098638448435395,
+        "signed_mean_m": -0.0026492220143629623
+      }
+    },
+    "depth_elevation_vs_bmp_m": {
+      "count": 4096,
+      "median_abs_m": 0.0065930450878956826,
+      "p95_abs_m": 0.07055289186823877,
+      "rmse_m": 0.028724337368089218,
+      "max_abs_m": 0.25265128104395185,
+      "signed_mean_m": 0.004477992737499063
+    },
+    "same_ray_xy_bmp_vs_chrono_m": {
+      "count": 4096,
+      "median_abs_m": 0.006862365322752799,
+      "p95_abs_m": 0.07067061935603769,
+      "rmse_m": 0.029387371518903912,
+      "max_abs_m": 0.2459312893061698,
+      "signed_mean_m": -0.00725678399661224
+    },
+    "model_encoding_max_abs_error": 0.0,
+    "model_invalid_fraction": 0.5263633728027344,
+    "valid_model_elevation_fraction_at_clip_limit": 0.0,
+    "rgb_marker_alignment": {
+      "available": true,
+      "truth_sha256": "084a96bd1c15472878aad6f94518ea07b8cacefe71d736714c73a0a16ccfe5d1",
+      "expected_pixel_uv": [
+        349.1266568657897,
+        216.2757944760893
+      ],
+      "blue_marker_pixels": 3,
+      "search_radius_px": 12,
+      "scope": "One roof marker checks RGB world projection; terrain depth residuals separately check range/FOV across the arena",
+      "detected": true,
+      "detected_pixel_uv": [
+        350.0,
+        218.33333333333334
+      ],
+      "pixel_error": 2.2352168528224374
+    },
+    "exclusion_rule": "Masks depend only on bounds, finite range and declared asset/vehicle footprints; never exclude pixels according to measured error",
+    "limits": "Terrain residual is geometric sensor calibration, not learned accuracy. One RGB marker cannot prove every object boundary is registered."
+  },
+  "gates": {
+    "world_median_abs_m": 0.09960784313725492,
+    "world_p95_abs_m": 0.35,
+    "pad_height_range_m": 0.02,
+    "pad_fitted_grade_deg": 0.2,
+    "camera_median_abs_m": 0.1,
+    "camera_p95_abs_m": 0.35,
+    "model_encoding_max_abs_error": 1e-06,
+    "rgb_marker_max_pixel_error": 4.0
+  },
+  "checks": {
+    "world_height_median": true,
+    "world_height_p95": true,
+    "flat_pads": true,
+    "camera_coverage": true,
+    "camera_depth_median": true,
+    "camera_depth_p95": true,
+    "model_encoding": true,
+    "rgb_marker_alignment": true
+  },
+  "all_available_checks_passed": true,
+  "wall_s": 14.689918586984277
+}

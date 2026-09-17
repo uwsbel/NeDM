@@ -1,0 +1,10 @@
+{
+  "complete": true,
+  "source_manifest_sha256": "bafec59e21c737b4f911704a2a3d08f904d97145f6dc5cb95b0e5c41929a6455",
+  "comparison_sha256": "d64d3decc2401bd3947cc60c4c1e0ea0771f73e52bb30f6a0593fd3a5818cd78",
+  "wall_s": 163.7188488948159,
+  "test_data_opened": false,
+  "training_or_inference_performed": false,
+  "h60_report_sha256": "3fdecf3bf0a495278754908b5b96a8646d5f1d13a0e4b118e562623b03bd5f1b",
+  "h20_report_sha256": "af178858e27e39cbfcf64eb86d4fd74536d15dcf368e60f35238391dc46fc4a3"
+}

@@ -1,0 +1,301 @@
+{
+  "architecture": "HMMWV adaptation: spatial CNN + history GRU + command-conditioned forward GRU + joint residual-velocity/risk heads",
+  "code": {
+    "scripts/traverse_fdm_rgbd_train.py": "175b96c7b3905520a41de133bc68105f62860901c15548fffdea01123d79dd77",
+    "scripts/traverse_fdm_train.py": "5445074a423597f9bf99d38a9128417668110112b442a7c146bc27587ce83fc4",
+    "src/nedm/traverse/fdm_model.py": "0f58486f5c3c6aea7a1a6763acc0364cd0a7d5fd80cc0173e1bea9f76b8f4a42",
+    "src/nedm/traverse/fdm_rgbd_data.py": "ae18b0e21bb86cc16a5eecf9938f0c90a1b6593144327edfb9324f2463a4d422",
+    "src/nedm/traverse/fdm_rgbd_model.py": "3f7af749948606d28fa97f78f3552da49d48d290bb97a05a2b14cd8e5f56bd36"
+  },
+  "data": {
+    "manifest.json": "6ef85c82b49b155e305fac9824f9a736aeb77f74a3f5c8b3daea5497c8833537",
+    "train.npz": "d0e156bad6434917e9acff698099002040737d19c9faab01bc6a2b180a8078c1",
+    "train_rgbd.npy": "bbeeebf913015230e73f16c0cd1940309e29572110ffc53a44a5b246d760f7f8",
+    "val.npz": "0c2a6e757bfa68ac804efdcb0ec98305b4faf838c740b01d33dfedce833cb744",
+    "val_rgbd.npy": "f9daf2e35b58393d5ebf7f5a08bcbd7aef518a55b31c01f786da88446d00d03b"
+  },
+  "data_manifest": {
+    "base_pack_manifest_sha256": "5279c9c28998d014817dc5985a9e48e3b7adceba1e40dd90325965262773a5e2",
+    "camera": {
+      "cam_height_m": 100.0,
+      "depth_convention": "ray",
+      "depth_no_hit": 65535,
+      "depth_offset_m": 80.0,
+      "depth_ray_scale": 1.2,
+      "height": 256,
+      "hfov_deg": 47.0,
+      "image_up": "+Y world (north-up)",
+      "width": 256
+    },
+    "code_sha256": {
+      "scripts/traverse_fdm_rgbd_prepare.py": "698533dc917d36faaba1f7e2a99a7bf214125022f74dee0d1f15af27e26e280b",
+      "src/nedm/traverse/fdm_data.py": "a42631801f0770304901ddcdc48d4d626965a7485ce4648252d8f6c1d2b37276",
+      "src/nedm/traverse/fdm_rgbd_data.py": "ae18b0e21bb86cc16a5eecf9938f0c90a1b6593144327edfb9324f2463a4d422",
+      "src/nedm/traverse/storage.py": "96976f13509cdf6b03c230cb7b9b852d3dab7f639878874affd739f3ee31e4ad"
+    },
+    "commands_fields": [
+      "reference_ego_x_m",
+      "reference_ego_y_m",
+      "sin_reference_heading",
+      "cos_reference_heading",
+      "reference_speed_mps"
+    ],
+    "controller_domain": "standard ChPathFollowerDriver: substep PID, initialized before 0.8 s settle",
+    "event_names": [
+      "contact",
+      "rollover",
+      "low_progress"
+    ],
+    "global_fields": [
+      "remaining_route_m",
+      "goal_ego_x_m",
+      "goal_ego_y_m",
+      "elapsed_recording_s",
+      "anchor_world_x_over40",
+      "anchor_world_y_over40",
+      "sin_anchor_world_yaw",
+      "cos_anchor_world_yaw"
+    ],
+    "history_fields": [
+      "vel_body_x_mps",
+      "vel_body_y_mps",
+      "roll_rad",
+      "pitch_rad",
+      "roll_rate_radps",
+      "ang_vel_body_y_radps",
+      "yaw_rate_radps",
+      "tire_fl_force_wheel_fz_n",
+      "tire_fr_force_wheel_fz_n",
+      "tire_rl_force_wheel_fz_n",
+      "tire_rr_force_wheel_fz_n",
+      "tire_fl_spindle_omega_radps",
+      "tire_fr_spindle_omega_radps",
+      "tire_rl_spindle_omega_radps",
+      "tire_rr_spindle_omega_radps",
+      "engine_motor_speed_radps",
+      "engine_motorshaft_torque_nm",
+      "previous_driver_steering",
+      "previous_driver_throttle",
+      "previous_driver_braking",
+      "ego_x",
+      "ego_y",
+      "sin_yaw",
+      "cos_yaw"
+    ],
+    "history_frames": 16,
+    "horizon_s": 4.0,
+    "image_encoding": {
+      "depth": "observed ray depth -> RGB-registered elevation, fixed clip(z/10,-1,1); invalid=-2; conservative validity in box resize",
+      "dtype": "float16",
+      "rgb": "box-resized uint8 /255",
+      "shape": [
+        4,
+        128,
+        128
+      ]
+    },
+    "localization": "Measured current world XY/yaw supplies path/image correspondence; not an end-to-end localization claim",
+    "normalization_sha256": "a91efdc6e7f43b0b55b6729ac840fccce8218e29ca5344868777fcaf887684ad",
+    "observation": "Actual current RGB-D, calibrated registration; no BMP or asset geometry input",
+    "output_dt_s": 0.2,
+    "reference_confound": "Archived reference speeds may already contain authored slope/curvature limits. Commands are known actions, but matched evaluation must include uniform/non-terrain-authored speed proposals and image ablations.",
+    "schema": 1,
+    "selection": "Lowest SHA256(fdm_fast_v1:canonical_id), before reading outcomes; nominal-route families only",
+    "split_rule": "Frozen legacy layout split; partial/full canonical aliases; stable hash for unseen identities; test payloads never opened",
+    "splits": {
+      "train": {
+        "episodes": 1000,
+        "event_positive_targets": {
+          "contact": 12187,
+          "low_progress": 4685,
+          "rollover": 0
+        },
+        "event_positive_windows": {
+          "contact": 703,
+          "low_progress": 497,
+          "rollover": 0
+        },
+        "event_valid_targets": {
+          "contact": 371330,
+          "low_progress": 163015,
+          "rollover": 366000
+        },
+        "frames": 400000,
+        "rgbd_file": "train_rgbd.npy",
+        "rgbd_sha256": "bbeeebf913015230e73f16c0cd1940309e29572110ffc53a44a5b246d760f7f8",
+        "rgbd_shape": [
+          20000,
+          4,
+          128,
+          128
+        ],
+        "sha256": "d0e156bad6434917e9acff698099002040737d19c9faab01bc6a2b180a8078c1",
+        "shapes": {
+          "anchor": [
+            20000
+          ],
+          "commands": [
+            20000,
+            20,
+            5
+          ],
+          "episode_index": [
+            20000
+          ],
+          "event_mask": [
+            20000,
+            20,
+            3
+          ],
+          "events": [
+            20000,
+            20,
+            3
+          ],
+          "global_features": [
+            20000,
+            8
+          ],
+          "history": [
+            20000,
+            16,
+            24
+          ],
+          "nominal_pose": [
+            20000,
+            20,
+            4
+          ],
+          "trajectory": [
+            20000,
+            20,
+            4
+          ],
+          "trajectory_mask": [
+            20000,
+            20,
+            1
+          ],
+          "work": [
+            20000,
+            20,
+            1
+          ]
+        },
+        "source_stores": {
+          "full_v1": 130,
+          "full_v2": 137,
+          "full_v3": 733
+        },
+        "statuses": {
+          "complete": 1000
+        },
+        "windows": 20000
+      },
+      "val": {
+        "episodes": 250,
+        "event_positive_targets": {
+          "contact": 2310,
+          "low_progress": 786,
+          "rollover": 0
+        },
+        "event_positive_windows": {
+          "contact": 136,
+          "low_progress": 82,
+          "rollover": 0
+        },
+        "event_valid_targets": {
+          "contact": 92800,
+          "low_progress": 40564,
+          "rollover": 91500
+        },
+        "frames": 100000,
+        "rgbd_file": "val_rgbd.npy",
+        "rgbd_sha256": "f9daf2e35b58393d5ebf7f5a08bcbd7aef518a55b31c01f786da88446d00d03b",
+        "rgbd_shape": [
+          5000,
+          4,
+          128,
+          128
+        ],
+        "sha256": "0c2a6e757bfa68ac804efdcb0ec98305b4faf838c740b01d33dfedce833cb744",
+        "shapes": {
+          "anchor": [
+            5000
+          ],
+          "commands": [
+            5000,
+            20,
+            5
+          ],
+          "episode_index": [
+            5000
+          ],
+          "event_mask": [
+            5000,
+            20,
+            3
+          ],
+          "events": [
+            5000,
+            20,
+            3
+          ],
+          "global_features": [
+            5000,
+            8
+          ],
+          "history": [
+            5000,
+            16,
+            24
+          ],
+          "nominal_pose": [
+            5000,
+            20,
+            4
+          ],
+          "trajectory": [
+            5000,
+            20,
+            4
+          ],
+          "trajectory_mask": [
+            5000,
+            20,
+            1
+          ],
+          "work": [
+            5000,
+            20,
+            1
+          ]
+        },
+        "source_stores": {
+          "full_v1": 40,
+          "full_v2": 45,
+          "full_v3": 165
+        },
+        "statuses": {
+          "complete": 250
+        },
+        "windows": 5000
+      }
+    },
+    "startup_padding": "Unrecorded history repeats first measured state/pose and synthetic [steer=0,throttle=0,brake=1]; not actual settle telemetry. Available history count=min(16,1+round(global_features[3]/0.05))."
+  },
+  "device_name": "AMD Instinct MI350X",
+  "excluded_inputs": [
+    "authored terrain",
+    "BMP profile",
+    "authored obstacle clearance",
+    "future measured images",
+    "future executed controls"
+  ],
+  "git_head": null,
+  "hostname": "k007-001.hpcfund",
+  "input_source": "measured current RGB-D and causal vehicle history",
+  "numpy_version": "2.4.3",
+  "selection": "best fixed natural-validation masked loss; image controls are evaluation only; no protected test loading",
+  "torch_version": "2.10.0+rocm7.1"
+}

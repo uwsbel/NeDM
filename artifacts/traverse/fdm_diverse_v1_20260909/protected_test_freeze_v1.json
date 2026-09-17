@@ -1,0 +1,87 @@
+{
+  "schema": "fdm_protected_test_freeze_v1",
+  "frozen_utc": "2026-09-09T22:56:01.093906+00:00",
+  "test_unseal_authorized": true,
+  "test_outcomes_opened_before_freeze": false,
+  "tasks_file": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/protected_test_online_v1.json",
+  "tasks_sha256": "24592255b407f97c9140b6338d5a6206ba843689001e3ca52a5c735d9fdce6f1",
+  "source_root": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/online_v9",
+  "source_manifest_sha256": "c2ec8b81acd066c75e46cf658c8aa5e67661f92cf3a35a6da97575b03812382a",
+  "checkpoint_files": {
+    "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_rgbd_s11/last.pt": "0251cb87ddd25b6dfd8c628680f3470983ca4ca36ef65a05bb966021a4691a20",
+    "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_blank_s11/last.pt": "14cc3302ede9e514feee08285bcef3e12d554fc7db4d9a7770bf13c8d59e0a1a",
+    "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_rgbd_s11/best.pt": "65945dd3ca79621f5cf2467e0a19f66cdb943faf798565be0affe657132df33f"
+  },
+  "cost_files": {
+    "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/validation_cost_time_v1.json": "a516ce44bab110ba10008ff87339892b22e424fc99e7713ceba8bf5d11297afa",
+    "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/online_tasks/validation_cost_energy002_v1.json": "9fd1a36880247936ee4b3f215c10287e1b7912cf950b6d450bb3043979bca734"
+  },
+  "observation_files": {
+    "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/observations/diverse_v1_test_cross_slopes_00/observation.npz": "630773bbb99c81c17cb1733786cae6418009947ba80afe429b69f9be99abd703",
+    "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/observations/diverse_v1_test_mixed_obstacles_00/observation.npz": "99e57aee8a57d9657095c3aee6ecc73796143f2e46f17e05308720879c156513",
+    "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/observations/diverse_v1_test_ridge_passes_00/observation.npz": "e6c85d4140236901fdb7c52a703784d427f0313142ac75700e3cec00094a7fa5",
+    "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/observations/diverse_v1_test_rolling_hills_00/observation.npz": "cbafddf6bf98f0d8ecf3ad3581f4d10add48846cd7afc99e738c6e6ff22966d5",
+    "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/observations/diverse_v1_test_rough_mosaic_00/observation.npz": "702c737dd1e039cfb0785584135c835fc4c14adb1ea39754324e3958d5b839cb",
+    "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2/observations/diverse_v1_test_valley_network_00/observation.npz": "21cafbbbcc1169cfe5bdf9710e088493af976328b67598620b597323105f01c0"
+  },
+  "training_pack_manifest_sha256": "3a915d235ed94990e2a5aee729d884ab791230e1f82e43380c670559d2b7d7b3",
+  "training_pack_path": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/packs/full_pair_v1/h60",
+  "test_scene_ids": [
+    "diverse_v1_test_cross_slopes_00",
+    "diverse_v1_test_mixed_obstacles_00",
+    "diverse_v1_test_ridge_passes_00",
+    "diverse_v1_test_rolling_hills_00",
+    "diverse_v1_test_rough_mosaic_00",
+    "diverse_v1_test_valley_network_00"
+  ],
+  "arms": [
+    "selected_rgbd_time",
+    "selected_rgbd_energy",
+    "matched_blank_time",
+    "matched_blank_energy",
+    "original_best_receding_time"
+  ],
+  "primary": {
+    "planning_mode": "plan_once",
+    "checkpoint_kind": "last",
+    "checkpoint_step": 5000,
+    "energy_weight_s_per_kj": 0.02,
+    "energy_gate_passed_on_validation": false,
+    "rgbd_checkpoint_path": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_rgbd_s11/last.pt",
+    "blank_checkpoint_path": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/runs/full_learning_h60_v3/patch_blank_s11/last.pt"
+  },
+  "selection_rule_sha256": "da11f67eb9c9bc77188afb8b851b0678bab0495e62d0f17544bca7119682c647",
+  "validation_selection_file": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/reports/final_validation_configuration_selection_v1/selection.json",
+  "validation_selection_sha256": "19e22412d47ec8b30f4c05063469c31cf58bc6a5564950d0d40b0482a4c0a520",
+  "validation_report_sha256": {
+    "full_validation_grid_v3.json": "6b55dd3ee8e49a09b21a2cb5410e941fc4da2d98042fbed8d945ffeac16c5f7d",
+    "plan_once_best_grid_v1.json": "d95e8ce64decff0af514f8e70800ea50b7ae1e9af662e975b792ea0fe2d5939f",
+    "plan_once_last_grid_v1.json": "3650d41fda42a3bf3c5571ce37d024e13033dd7792e78e4e74b457ce45b572ad"
+  },
+  "protected_collection_manifest_file": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2/artifacts/traverse/fdm_diverse_v1_20260909/cases/cases.json",
+  "protected_collection_manifest_sha256": "2e066280e8f667eb020fd455a12017579f6543546262bfb3687363e3821f02e1",
+  "protected_collection_split": "test",
+  "protected_collection_horizon_s": 180,
+  "protected_collection_root": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/protected_test_cohort_v2",
+  "physical_protocol": {
+    "horizon_s": 180,
+    "goal_radius_m": 3,
+    "replan_period_s": 1,
+    "observation": "One fixed pre-drive measured RGBD with measured current state/history",
+    "controller": "Native PID with persistent speed integral and steering-only reset for changed path",
+    "comparison": "same model, planning seed, candidates and solver; energy cost zero versus positive",
+    "collision": "asset OR chassis resultant>1N at solver-rate observations",
+    "rollover": "absroll OR abspitch>60deg at solver-rate observations",
+    "stall": "bounded2s:41point XYdiameter<=0.25m,all40throttle>0.3,notparking",
+    "primary_success": "goal within180s without any declared collision/rollover/boundedstall",
+    "energy": "positive engine-interface mechanical work, not fuel",
+    "time_energy_comparison": "paired safe full-goal completions only; report unconditional success denominator separately"
+  },
+  "fixed_reference_baseline": {
+    "lateral_offset_m": -44,
+    "cruise_speed_mps": 6,
+    "selection": "Declaredbeforetest usingvalidation4/6safe; hindsightbestof15 separatelyreportedonlyasfeasibility"
+  },
+  "evaluation_policy": "Runall30declaredtrials andretainfailures. No testselection/tuning. Offlineinferenceonly withthese frozencheckpoints/normalization; anyanalysisadapter separatelyhashboundtothisimmutablefreeze beforeits execution.",
+  "source_transition": "online_v9 adds explicit plan_once scheduling and count metadata to v8; default receding scheduler verified identical over28800CPUcases; underlying model,cost,MPPI,driver,terrain and candidate helper unchanged."
+}

@@ -1,0 +1,23 @@
+{
+  "schema": "fdm_online_validation_energy_selection_v1",
+  "scope": "Preregistered validation-only selection; six declared validation scenes, no protected test access",
+  "expected_scene_count": 6,
+  "expected_trial_count": 24,
+  "energy_weights_s_per_kj": [0.0, 0.02, 0.2, 0.5],
+  "baseline_weight_s_per_kj": 0.0,
+  "minimum_schema_safe_scene_pairs": 3,
+  "minimum_mean_work_saving_fraction": 0.05,
+  "maximum_mean_time_increase_fraction": 0.25,
+  "success_gate": "Candidate unconditional schema-safe full-goal success count over all six declared scenes must be at least the zero-weight baseline count; missing, invalid and failed trials never disappear from denominators",
+  "paired_eligibility": "Both runs must be checksum-verified, successfully completed processes that reached the supplied full goal with schema_safe_goal_reached=true. Timeout, abstention, collision, rollover and blockage trials cannot enter time/work tradeoff fractions",
+  "work_saving_fraction_per_scene": "1 - candidate_positive_engine_interface_work_kj / baseline_positive_engine_interface_work_kj",
+  "time_increase_fraction_per_scene": "candidate_goal_time_s / baseline_goal_time_s - 1",
+  "aggregation": "Unweighted arithmetic mean of per-scene fractions across eligible paired safe goals; each scene has equal weight",
+  "qualification": "At least three of six eligible safe pairs, mean work saving >= 0.05, mean time increase <= 0.25, and no unconditional safe-success count drop",
+  "tie_break": "Choose the smallest qualifying weight in [0.02, 0.2, 0.5]",
+  "complete_valid_grid_without_qualifier": "Retain declared default weight 0.02 with gate_passed=false; no optimum or energy-efficiency improvement claim",
+  "incomplete_or_invalid_grid": "Block selection and freeze; selected_weight=null until the declared grid is complete and valid. Do not silently choose the default",
+  "model_declaration": {"forecast_horizon_s": 12.0, "training_seed": 11, "training_update_budget": 5000, "checkpoint_rule": "Validation-best checkpoint from the predeclared 5000-update run; the selected checkpoint step may precede 5000"},
+  "matched_conditions": "Same scene, observation, model checkpoint, native controller, source/runtime, horizon, seed and MPPI settings across compared weights. Only the energy coefficient differs",
+  "reporting": "Unconditional success and all individual trials first; paired-safe tradeoffs second. One or two safe pairs are descriptive case evidence only"
+}

@@ -1,0 +1,360 @@
+{
+  "scope": "Exact CPU sampler replay, verified against completed training draw digest. No optimizer/model forward. Counts are repeated training presentations, not independent trials.",
+  "torch_version": "2.10.0+rocm7.1",
+  "packs": {
+    "narrow": {
+      "draw_digest": "fbdd11bd4231f027f6c25a97070aa96249e122efeb5a938a539f3cc98eb27a9b",
+      "completed_training_draw_digest_matches": true,
+      "total_draws": 320000,
+      "unique_sampled_windows": 1341,
+      "never_sampled_windows": 0,
+      "draw_frequency_quantiles": [
+        189.0,
+        228.0,
+        239.0,
+        249.0,
+        264.0,
+        292.0
+      ],
+      "groups": {
+        "all": {
+          "actual_row_draws": 320000,
+          "positive_exposure": {
+            "contact": {
+              "at_last_horizon_row_draws": 67828,
+              "at_any_horizon_row_draws": 67828,
+              "positive_horizon_element_draws": 1225998,
+              "valid_horizon_element_draws": 5360731,
+              "batches_with_last_horizon_positive": 5000,
+              "unique_positive_windows_drawn": 285,
+              "event_pos_weight": 3.366284715478734
+            },
+            "rollover": {
+              "at_last_horizon_row_draws": 0,
+              "at_any_horizon_row_draws": 0,
+              "positive_horizon_element_draws": 0,
+              "valid_horizon_element_draws": 5182306,
+              "batches_with_last_horizon_positive": 0,
+              "unique_positive_windows_drawn": 0,
+              "event_pos_weight": 1.0
+            },
+            "bounded": {
+              "at_last_horizon_row_draws": 77530,
+              "at_any_horizon_row_draws": 77530,
+              "positive_horizon_element_draws": 738631,
+              "valid_horizon_element_draws": 2662663,
+              "batches_with_last_horizon_positive": 5000,
+              "unique_positive_windows_drawn": 326,
+              "event_pos_weight": 2.5990976474379632
+            }
+          }
+        },
+        "anchor0": {
+          "actual_row_draws": 34103,
+          "positive_exposure": {
+            "contact": {
+              "at_last_horizon_row_draws": 8083,
+              "at_any_horizon_row_draws": 8083,
+              "positive_horizon_element_draws": 81461,
+              "valid_horizon_element_draws": 682060,
+              "batches_with_last_horizon_positive": 4004,
+              "unique_positive_windows_drawn": 34,
+              "event_pos_weight": 3.366284715478734
+            },
+            "rollover": {
+              "at_last_horizon_row_draws": 0,
+              "at_any_horizon_row_draws": 0,
+              "positive_horizon_element_draws": 0,
+              "valid_horizon_element_draws": 682060,
+              "batches_with_last_horizon_positive": 0,
+              "unique_positive_windows_drawn": 0,
+              "event_pos_weight": 1.0
+            },
+            "bounded": {
+              "at_last_horizon_row_draws": 3691,
+              "at_any_horizon_row_draws": 3691,
+              "positive_horizon_element_draws": 17652,
+              "valid_horizon_element_draws": 375133,
+              "batches_with_last_horizon_positive": 2592,
+              "unique_positive_windows_drawn": 16,
+              "event_pos_weight": 2.5990976474379632
+            }
+          }
+        },
+        "anchor_lt2s": {
+          "actual_row_draws": 68282,
+          "positive_exposure": {
+            "contact": {
+              "at_last_horizon_row_draws": 16179,
+              "at_any_horizon_row_draws": 16179,
+              "positive_horizon_element_draws": 203734,
+              "valid_horizon_element_draws": 1365640,
+              "batches_with_last_horizon_positive": 4811,
+              "unique_positive_windows_drawn": 68,
+              "event_pos_weight": 3.366284715478734
+            },
+            "rollover": {
+              "at_last_horizon_row_draws": 0,
+              "at_any_horizon_row_draws": 0,
+              "positive_horizon_element_draws": 0,
+              "valid_horizon_element_draws": 1365640,
+              "batches_with_last_horizon_positive": 0,
+              "unique_positive_windows_drawn": 0,
+              "event_pos_weight": 1.0
+            },
+            "bounded": {
+              "at_last_horizon_row_draws": 11032,
+              "at_any_horizon_row_draws": 11032,
+              "positive_horizon_element_draws": 61611,
+              "valid_horizon_element_draws": 751102,
+              "batches_with_last_horizon_positive": 4481,
+              "unique_positive_windows_drawn": 47,
+              "event_pos_weight": 2.5990976474379632
+            }
+          }
+        },
+        "pre_first_any_failure": {
+          "actual_row_draws": 242058,
+          "positive_exposure": {
+            "contact": {
+              "at_last_horizon_row_draws": 21638,
+              "at_any_horizon_row_draws": 21638,
+              "positive_horizon_element_draws": 305361,
+              "valid_horizon_element_draws": 4009641,
+              "batches_with_last_horizon_positive": 4945,
+              "unique_positive_windows_drawn": 91,
+              "event_pos_weight": 3.366284715478734
+            },
+            "rollover": {
+              "at_last_horizon_row_draws": 0,
+              "at_any_horizon_row_draws": 0,
+              "positive_horizon_element_draws": 0,
+              "valid_horizon_element_draws": 4009641,
+              "batches_with_last_horizon_positive": 0,
+              "unique_positive_windows_drawn": 0,
+              "event_pos_weight": 1.0
+            },
+            "bounded": {
+              "at_last_horizon_row_draws": 30857,
+              "at_any_horizon_row_draws": 30857,
+              "positive_horizon_element_draws": 225459,
+              "valid_horizon_element_draws": 2006402,
+              "batches_with_last_horizon_positive": 4996,
+              "unique_positive_windows_drawn": 130,
+              "event_pos_weight": 2.5990976474379632
+            }
+          }
+        },
+        "prior_any_failure": {
+          "actual_row_draws": 77942,
+          "positive_exposure": {
+            "contact": {
+              "at_last_horizon_row_draws": 46190,
+              "at_any_horizon_row_draws": 46190,
+              "positive_horizon_element_draws": 920637,
+              "valid_horizon_element_draws": 1351090,
+              "batches_with_last_horizon_positive": 5000,
+              "unique_positive_windows_drawn": 194,
+              "event_pos_weight": 3.366284715478734
+            },
+            "rollover": {
+              "at_last_horizon_row_draws": 0,
+              "at_any_horizon_row_draws": 0,
+              "positive_horizon_element_draws": 0,
+              "valid_horizon_element_draws": 1172665,
+              "batches_with_last_horizon_positive": 0,
+              "unique_positive_windows_drawn": 0,
+              "event_pos_weight": 1.0
+            },
+            "bounded": {
+              "at_last_horizon_row_draws": 46673,
+              "at_any_horizon_row_draws": 46673,
+              "positive_horizon_element_draws": 513172,
+              "valid_horizon_element_draws": 656261,
+              "batches_with_last_horizon_positive": 5000,
+              "unique_positive_windows_drawn": 196,
+              "event_pos_weight": 2.5990976474379632
+            }
+          }
+        }
+      }
+    },
+    "diverse": {
+      "draw_digest": "61757696fcdf7bec29ceba2877d2925f5a99c8a8d01d684f341a8fdee17d5b8a",
+      "completed_training_draw_digest_matches": true,
+      "total_draws": 160000,
+      "unique_sampled_windows": 51075,
+      "never_sampled_windows": 2755,
+      "draw_frequency_quantiles": [
+        0.0,
+        2.0,
+        3.0,
+        4.0,
+        6.0,
+        13.0
+      ],
+      "groups": {
+        "all": {
+          "actual_row_draws": 160000,
+          "positive_exposure": {
+            "contact": {
+              "at_last_horizon_row_draws": 79472,
+              "at_any_horizon_row_draws": 79472,
+              "positive_horizon_element_draws": 4506251,
+              "valid_horizon_element_draws": 9410360,
+              "batches_with_last_horizon_positive": 5000,
+              "unique_positive_windows_drawn": 25319,
+              "event_pos_weight": 1.0905484148744526
+            },
+            "rollover": {
+              "at_last_horizon_row_draws": 652,
+              "at_any_horizon_row_draws": 652,
+              "positive_horizon_element_draws": 20476,
+              "valid_horizon_element_draws": 9255789,
+              "batches_with_last_horizon_positive": 609,
+              "unique_positive_windows_drawn": 211,
+              "event_pos_weight": 20.0
+            },
+            "bounded": {
+              "at_last_horizon_row_draws": 99087,
+              "at_any_horizon_row_draws": 99087,
+              "positive_horizon_element_draws": 4757979,
+              "valid_horizon_element_draws": 7972131,
+              "batches_with_last_horizon_positive": 5000,
+              "unique_positive_windows_drawn": 31611,
+              "event_pos_weight": 1.0
+            }
+          }
+        },
+        "anchor0": {
+          "actual_row_draws": 1100,
+          "positive_exposure": {
+            "contact": {
+              "at_last_horizon_row_draws": 87,
+              "at_any_horizon_row_draws": 87,
+              "positive_horizon_element_draws": 1038,
+              "valid_horizon_element_draws": 65922,
+              "batches_with_last_horizon_positive": 86,
+              "unique_positive_windows_drawn": 30,
+              "event_pos_weight": 1.0905484148744526
+            },
+            "rollover": {
+              "at_last_horizon_row_draws": 17,
+              "at_any_horizon_row_draws": 17,
+              "positive_horizon_element_draws": 163,
+              "valid_horizon_element_draws": 66000,
+              "batches_with_last_horizon_positive": 17,
+              "unique_positive_windows_drawn": 4,
+              "event_pos_weight": 20.0
+            },
+            "bounded": {
+              "at_last_horizon_row_draws": 23,
+              "at_any_horizon_row_draws": 23,
+              "positive_horizon_element_draws": 199,
+              "valid_horizon_element_draws": 55937,
+              "batches_with_last_horizon_positive": 23,
+              "unique_positive_windows_drawn": 10,
+              "event_pos_weight": 1.0
+            }
+          }
+        },
+        "anchor_lt2s": {
+          "actual_row_draws": 2205,
+          "positive_exposure": {
+            "contact": {
+              "at_last_horizon_row_draws": 201,
+              "at_any_horizon_row_draws": 201,
+              "positive_horizon_element_draws": 2778,
+              "valid_horizon_element_draws": 132158,
+              "batches_with_last_horizon_positive": 194,
+              "unique_positive_windows_drawn": 69,
+              "event_pos_weight": 1.0905484148744526
+            },
+            "rollover": {
+              "at_last_horizon_row_draws": 28,
+              "at_any_horizon_row_draws": 28,
+              "positive_horizon_element_draws": 367,
+              "valid_horizon_element_draws": 132300,
+              "batches_with_last_horizon_positive": 28,
+              "unique_positive_windows_drawn": 8,
+              "event_pos_weight": 20.0
+            },
+            "bounded": {
+              "at_last_horizon_row_draws": 57,
+              "at_any_horizon_row_draws": 57,
+              "positive_horizon_element_draws": 616,
+              "valid_horizon_element_draws": 112088,
+              "batches_with_last_horizon_positive": 57,
+              "unique_positive_windows_drawn": 22,
+              "event_pos_weight": 1.0
+            }
+          }
+        },
+        "pre_first_any_failure": {
+          "actual_row_draws": 54986,
+          "positive_exposure": {
+            "contact": {
+              "at_last_horizon_row_draws": 6350,
+              "at_any_horizon_row_draws": 6350,
+              "positive_horizon_element_draws": 195976,
+              "valid_horizon_element_draws": 3196165,
+              "batches_with_last_horizon_positive": 3620,
+              "unique_positive_windows_drawn": 2056,
+              "event_pos_weight": 1.0905484148744526
+            },
+            "rollover": {
+              "at_last_horizon_row_draws": 154,
+              "at_any_horizon_row_draws": 154,
+              "positive_horizon_element_draws": 4852,
+              "valid_horizon_element_draws": 3198479,
+              "batches_with_last_horizon_positive": 150,
+              "unique_positive_windows_drawn": 48,
+              "event_pos_weight": 20.0
+            },
+            "bounded": {
+              "at_last_horizon_row_draws": 6742,
+              "at_any_horizon_row_draws": 6742,
+              "positive_horizon_element_draws": 174338,
+              "valid_horizon_element_draws": 2702299,
+              "batches_with_last_horizon_positive": 3704,
+              "unique_positive_windows_drawn": 2202,
+              "event_pos_weight": 1.0
+            }
+          }
+        },
+        "prior_any_failure": {
+          "actual_row_draws": 105014,
+          "positive_exposure": {
+            "contact": {
+              "at_last_horizon_row_draws": 73122,
+              "at_any_horizon_row_draws": 73122,
+              "positive_horizon_element_draws": 4310275,
+              "valid_horizon_element_draws": 6214195,
+              "batches_with_last_horizon_positive": 5000,
+              "unique_positive_windows_drawn": 23263,
+              "event_pos_weight": 1.0905484148744526
+            },
+            "rollover": {
+              "at_last_horizon_row_draws": 498,
+              "at_any_horizon_row_draws": 498,
+              "positive_horizon_element_draws": 15624,
+              "valid_horizon_element_draws": 6057310,
+              "batches_with_last_horizon_positive": 473,
+              "unique_positive_windows_drawn": 163,
+              "event_pos_weight": 20.0
+            },
+            "bounded": {
+              "at_last_horizon_row_draws": 92345,
+              "at_any_horizon_row_draws": 92345,
+              "positive_horizon_element_draws": 4583641,
+              "valid_horizon_element_draws": 5269832,
+              "batches_with_last_horizon_positive": 5000,
+              "unique_positive_windows_drawn": 29409,
+              "event_pos_weight": 1.0
+            }
+          }
+        }
+      }
+    }
+  }
+}

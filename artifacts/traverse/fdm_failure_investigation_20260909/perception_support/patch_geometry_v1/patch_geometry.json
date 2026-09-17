@@ -1,0 +1,3352 @@
+{
+  "scope": "Actual frozen RGB-D and causal command feature sampling. No checkpoint weights, neural forward, optimizer or simulator truth enters these pixel crops. BMP heights appear only in labeled audit overlays.",
+  "source_sha256": "a84508ee1fc27c8ec148d79374143a899a1661f42ba4cdc9acaf915f93b6b4b7",
+  "model_source_sha256": "0d1d4948d47be678631a3b98a415c88c6234bd5a9e9642c3f91ba084630bf829",
+  "torch_version": "2.12.0+cu130",
+  "runtime": "local CPU deterministic coordinate/image transforms, no learned inference",
+  "scenes": {
+    "diverse_v1_test_rough_mosaic_00": {
+      "observation_sha256": "702c737dd1e039cfb0785584135c835fc4c14adb1ea39754324e3958d5b839cb",
+      "raw_ground_m_per_pixel": 0.3396971679382294,
+      "candidate_input_ground_m_per_pixel": 0.6793943358764588,
+      "global_context_ground_m_per_pixel": 2.7175773435058352,
+      "patch_sample_spacing_m": 0.5333333333333333,
+      "patch_span_m": 8,
+      "depth_normalization_m": 40,
+      "assets": [
+        {
+          "index": 0,
+          "edge_m": 1.8721963139025413,
+          "height_m": 1.8007083948794376,
+          "raw_projected_edge_pixels": 5.552435063012734,
+          "candidate_input_edge_pixels": 2.776217531506367,
+          "global_context_edge_pixels": 0.6940543828765917,
+          "flat_ground_depth_channel_contrast": 0.04501770987198594
+        },
+        {
+          "index": 1,
+          "edge_m": 2.5275582106594903,
+          "height_m": 0.9315408580897679,
+          "raw_projected_edge_pixels": 7.474899641071959,
+          "candidate_input_edge_pixels": 3.7374498205359794,
+          "global_context_edge_pixels": 0.9343624551339949,
+          "flat_ground_depth_channel_contrast": 0.0232885214522442
+        },
+        {
+          "index": 2,
+          "edge_m": 2.2707549358188794,
+          "height_m": 0.97877129889715,
+          "raw_projected_edge_pixels": 6.69655080136632,
+          "candidate_input_edge_pixels": 3.34827540068316,
+          "global_context_edge_pixels": 0.83706885017079,
+          "flat_ground_depth_channel_contrast": 0.02446928247242875
+        },
+        {
+          "index": 3,
+          "edge_m": 1.525963088318677,
+          "height_m": 1.3833230098279221,
+          "raw_projected_edge_pixels": 4.519691313973736,
+          "candidate_input_edge_pixels": 2.259845656986868,
+          "global_context_edge_pixels": 0.564961414246717,
+          "flat_ground_depth_channel_contrast": 0.03458307524569805
+        },
+        {
+          "index": 4,
+          "edge_m": 1.602395815850324,
+          "height_m": 1.895460703476856,
+          "raw_projected_edge_pixels": 4.749628552942204,
+          "candidate_input_edge_pixels": 2.374814276471102,
+          "global_context_edge_pixels": 0.5937035691177756,
+          "flat_ground_depth_channel_contrast": 0.0473865175869214
+        },
+        {
+          "index": 5,
+          "edge_m": 2.0655155971941266,
+          "height_m": 1.8995225770475779,
+          "raw_projected_edge_pixels": 6.111819417221652,
+          "candidate_input_edge_pixels": 3.055909708610826,
+          "global_context_edge_pixels": 0.7639774271527064,
+          "flat_ground_depth_channel_contrast": 0.04748806442618945
+        }
+      ]
+    },
+    "diverse_v1_test_rolling_hills_00": {
+      "observation_sha256": "cbafddf6bf98f0d8ecf3ad3581f4d10add48846cd7afc99e738c6e6ff22966d5",
+      "raw_ground_m_per_pixel": 0.3396971679382294,
+      "candidate_input_ground_m_per_pixel": 0.6793943358764588,
+      "global_context_ground_m_per_pixel": 2.7175773435058352,
+      "patch_sample_spacing_m": 0.5333333333333333,
+      "patch_span_m": 8,
+      "depth_normalization_m": 40,
+      "assets": [
+        {
+          "index": 0,
+          "edge_m": 1.6324997220959463,
+          "height_m": 1.4908435613507325,
+          "raw_projected_edge_pixels": 4.8769921665869385,
+          "candidate_input_edge_pixels": 2.4384960832934692,
+          "global_context_edge_pixels": 0.6096240208233673,
+          "flat_ground_depth_channel_contrast": 0.037271089033768315
+        },
+        {
+          "index": 1,
+          "edge_m": 2.739756061907206,
+          "height_m": 1.3877408431217677,
+          "raw_projected_edge_pixels": 8.117725427562913,
+          "candidate_input_edge_pixels": 4.058862713781457,
+          "global_context_edge_pixels": 1.0147156784453641,
+          "flat_ground_depth_channel_contrast": 0.034693521078044194
+        },
+        {
+          "index": 2,
+          "edge_m": 1.272702197153186,
+          "height_m": 1.8882457383335594,
+          "raw_projected_edge_pixels": 3.769392932980258,
+          "candidate_input_edge_pixels": 1.884696466490129,
+          "global_context_edge_pixels": 0.4711741166225322,
+          "flat_ground_depth_channel_contrast": 0.047206143458338984
+        }
+      ]
+    }
+  },
+  "trials": {
+    "diverse_v1_test_rolling_hills_00_selected_rgbd_energy": {
+      "feature_sha256": "e193fcd756f5fcad10f4dcce4af70a69c6d95c688fcaa20d5a875dc074b9d426",
+      "raw_trajectory_sha256": "99c7b955a0e0e26079718b3e846779681071a070539f3cbe5bb56e59d886ba9a",
+      "first_chassis_positive_interval_start_s": 30.450000000000003,
+      "first_chassis_positive_interval_end_s": 30.5,
+      "first_asset_positive_interval_start_s": 30.450000000000003,
+      "first_asset_positive_interval_end_s": 30.5,
+      "actual_chassis_contact_endpoint_xy": [
+        -6.594682981629614,
+        13.140891813766766
+      ],
+      "actual_asset_contact_endpoint_xy": [
+        -6.594682981629614,
+        13.140891813766766
+      ],
+      "asset_index_visualized": 0,
+      "anchors": [
+        {
+          "anchor_s": 0.0,
+          "nearest_rock_patch_index": 59,
+          "nearest_rock_patch_nominal_future_s": 12.0,
+          "rock_distance_to_patch_center_m": 60.022850743535685,
+          "rock_center_patch_pixel_uv": [
+            3.1711432370565196,
+            -104.95955962965826
+          ],
+          "rock_center_inside_patch": false,
+          "rock_nearest_patch_elevation_range_m": [
+            0.818365752696991,
+            1.2605140209197998
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 228.26638793945312,
+          "actual_future_same_time_center_error_median_m": 4.481284169314969,
+          "actual_future_same_time_max_lateral_m": 0.12623780146913788,
+          "actual_future_same_time_max_longitudinal_m": 5.317915155735515,
+          "actual_future_inside_same_time_patch_fraction": 0.16666666666666666,
+          "first_chassis_location_min_distance_to_any_patch_m": 56.82487267202829
+        },
+        {
+          "anchor_s": 2.0,
+          "nearest_rock_patch_index": 59,
+          "nearest_rock_patch_nominal_future_s": 12.0,
+          "rock_distance_to_patch_center_m": 53.53398997394807,
+          "rock_center_patch_pixel_uv": [
+            4.858953149193949,
+            -92.8414824331934
+          ],
+          "rock_center_inside_patch": false,
+          "rock_nearest_patch_elevation_range_m": [
+            1.1191858053207397,
+            1.7062315940856934
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 221.7733612060547,
+          "actual_future_same_time_center_error_median_m": 1.0726913139272833,
+          "actual_future_same_time_max_lateral_m": 0.13137024210045573,
+          "actual_future_same_time_max_longitudinal_m": 1.7019487288597785,
+          "actual_future_inside_same_time_patch_fraction": 1.0,
+          "first_chassis_location_min_distance_to_any_patch_m": 50.333273929124715,
+          "change_from_previous_anchor": {
+            "dt_s": 2.0,
+            "remaining_reference_m": -6.4930267333984375,
+            "patch_mean_abs_normalized_change": 0.017722275108098984,
+            "patch_max_abs_normalized_change": 0.4020118713378906,
+            "patch_centers_max_displacement_m": 6.493042469024658
+          }
+        },
+        {
+          "anchor_s": 4.0,
+          "nearest_rock_patch_index": 59,
+          "nearest_rock_patch_nominal_future_s": 12.0,
+          "rock_distance_to_patch_center_m": 41.05231488983486,
+          "rock_center_patch_pixel_uv": [
+            5.1686972740985375,
+            -69.43777742203872
+          ],
+          "rock_center_inside_patch": false,
+          "rock_nearest_patch_elevation_range_m": [
+            1.6673009395599365,
+            7.231154441833496
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 209.28675842285156,
+          "actual_future_same_time_center_error_median_m": 0.753758136999028,
+          "actual_future_same_time_max_lateral_m": 0.13159810765982788,
+          "actual_future_same_time_max_longitudinal_m": 1.2153280686380508,
+          "actual_future_inside_same_time_patch_fraction": 1.0,
+          "first_chassis_location_min_distance_to_any_patch_m": 37.84723912226794,
+          "change_from_previous_anchor": {
+            "dt_s": 2.0,
+            "remaining_reference_m": -12.486602783203125,
+            "patch_mean_abs_normalized_change": 0.02916361205279827,
+            "patch_max_abs_normalized_change": 0.4266066551208496,
+            "patch_centers_max_displacement_m": 12.486617088317871
+          }
+        },
+        {
+          "anchor_s": 6.0,
+          "nearest_rock_patch_index": 59,
+          "nearest_rock_patch_nominal_future_s": 12.0,
+          "rock_distance_to_patch_center_m": 29.072021505719004,
+          "rock_center_patch_pixel_uv": [
+            5.412886559354236,
+            -46.97006923118886
+          ],
+          "rock_center_inside_patch": false,
+          "rock_nearest_patch_elevation_range_m": [
+            3.1971323490142822,
+            8.33059310913086
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 197.2996063232422,
+          "actual_future_same_time_center_error_median_m": 1.3402626819666363,
+          "actual_future_same_time_max_lateral_m": 0.6200309730912092,
+          "actual_future_same_time_max_longitudinal_m": 7.925919384297832,
+          "actual_future_inside_same_time_patch_fraction": 0.9333333333333333,
+          "first_chassis_location_min_distance_to_any_patch_m": 25.86057772826631,
+          "change_from_previous_anchor": {
+            "dt_s": 2.0,
+            "remaining_reference_m": -11.987152099609375,
+            "patch_mean_abs_normalized_change": 0.050285838544368744,
+            "patch_max_abs_normalized_change": 0.5633755922317505,
+            "patch_centers_max_displacement_m": 11.98715591430664
+          }
+        },
+        {
+          "anchor_s": 8.0,
+          "nearest_rock_patch_index": 59,
+          "nearest_rock_patch_nominal_future_s": 12.0,
+          "rock_distance_to_patch_center_m": 16.598845134665815,
+          "rock_center_patch_pixel_uv": [
+            5.9720710390229526,
+            -23.585305943284062
+          ],
+          "rock_center_inside_patch": false,
+          "rock_nearest_patch_elevation_range_m": [
+            3.421603202819824,
+            4.800509929656982
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 184.8128204345703,
+          "actual_future_same_time_center_error_median_m": 3.8561964216717115,
+          "actual_future_same_time_max_lateral_m": 1.373575494458695,
+          "actual_future_same_time_max_longitudinal_m": 24.91549161326644,
+          "actual_future_inside_same_time_patch_fraction": 0.75,
+          "first_chassis_location_min_distance_to_any_patch_m": 13.374299768159727,
+          "change_from_previous_anchor": {
+            "dt_s": 2.0,
+            "remaining_reference_m": -12.486785888671875,
+            "patch_mean_abs_normalized_change": 0.0695606917142868,
+            "patch_max_abs_normalized_change": 0.5695788860321045,
+            "patch_centers_max_displacement_m": 12.486777305603027
+          }
+        },
+        {
+          "anchor_s": 10.0,
+          "nearest_rock_patch_index": 59,
+          "nearest_rock_patch_nominal_future_s": 12.0,
+          "rock_distance_to_patch_center_m": 4.168689835737701,
+          "rock_center_patch_pixel_uv": [
+            6.014904184039859,
+            -0.17391242617030622
+          ],
+          "rock_center_inside_patch": false,
+          "rock_nearest_patch_elevation_range_m": [
+            3.8886961936950684,
+            5.843129634857178
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 172.3251953125,
+          "actual_future_same_time_center_error_median_m": 9.519624320532786,
+          "actual_future_same_time_max_lateral_m": 1.9009241788303655,
+          "actual_future_same_time_max_longitudinal_m": 41.00181014992884,
+          "actual_future_inside_same_time_patch_fraction": 0.5833333333333334,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.8872568884434365,
+          "change_from_previous_anchor": {
+            "dt_s": 2.0,
+            "remaining_reference_m": -12.487625122070312,
+            "patch_mean_abs_normalized_change": 0.07460355758666992,
+            "patch_max_abs_normalized_change": 0.5698161125183105,
+            "patch_centers_max_displacement_m": 12.487626075744629
+          }
+        },
+        {
+          "anchor_s": 11.0,
+          "nearest_rock_patch_index": 57,
+          "nearest_rock_patch_nominal_future_s": 11.600000000000001,
+          "rock_distance_to_patch_center_m": 0.9356110504481178,
+          "rock_center_patch_pixel_uv": [
+            6.015197856820744,
+            6.5657471928888835
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.5320773124694824,
+            5.843119144439697
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 166.3306884765625,
+          "actual_future_same_time_center_error_median_m": 13.207193591818857,
+          "actual_future_same_time_max_lateral_m": 1.900924463839175,
+          "actual_future_same_time_max_longitudinal_m": 46.31271261057198,
+          "actual_future_inside_same_time_patch_fraction": 0.5,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.3097516156063894,
+          "change_from_previous_anchor": {
+            "dt_s": 1.0,
+            "remaining_reference_m": -5.9945068359375,
+            "patch_mean_abs_normalized_change": 0.05397222191095352,
+            "patch_max_abs_normalized_change": 0.4569540023803711,
+            "patch_centers_max_displacement_m": 5.9945173263549805
+          }
+        },
+        {
+          "anchor_s": 11.25,
+          "nearest_rock_patch_index": 56,
+          "nearest_rock_patch_nominal_future_s": 11.4,
+          "rock_distance_to_patch_center_m": 0.8166593726808041,
+          "rock_center_patch_pixel_uv": [
+            6.015196998350135,
+            7.1257744003668675
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.524893283843994,
+            5.843121528625488
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 164.83200073242188,
+          "actual_future_same_time_center_error_median_m": 14.190744896217398,
+          "actual_future_same_time_max_lateral_m": 1.8995658071955361,
+          "actual_future_same_time_max_longitudinal_m": 47.432932672795786,
+          "actual_future_inside_same_time_patch_fraction": 0.48333333333333334,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.594380552655854,
+          "change_from_previous_anchor": {
+            "dt_s": 0.25,
+            "remaining_reference_m": -1.498687744140625,
+            "patch_mean_abs_normalized_change": 0.018268577754497528,
+            "patch_max_abs_normalized_change": 0.4136859178543091,
+            "patch_centers_max_displacement_m": 1.4986823797225952
+          }
+        },
+        {
+          "anchor_s": 11.350000000000001,
+          "nearest_rock_patch_index": 56,
+          "nearest_rock_patch_nominal_future_s": 11.4,
+          "rock_distance_to_patch_center_m": 0.8468093424100083,
+          "rock_center_patch_pixel_uv": [
+            6.0152043291089345,
+            8.062483309027995
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.5122032165527344,
+            5.843121528625488
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 164.3324432373047,
+          "actual_future_same_time_center_error_median_m": 14.558600011035702,
+          "actual_future_same_time_max_lateral_m": 1.9093208610625645,
+          "actual_future_same_time_max_longitudinal_m": 47.75132512989839,
+          "actual_future_inside_same_time_patch_fraction": 0.4666666666666667,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.09976058362652271,
+          "change_from_previous_anchor": {
+            "dt_s": 0.10000000000000142,
+            "remaining_reference_m": -0.4995574951171875,
+            "patch_mean_abs_normalized_change": 0.007184440735727549,
+            "patch_max_abs_normalized_change": 0.2995377779006958,
+            "patch_centers_max_displacement_m": 0.4995676279067993
+          }
+        },
+        {
+          "anchor_s": 11.4,
+          "nearest_rock_patch_index": 55,
+          "nearest_rock_patch_nominal_future_s": 11.200000000000001,
+          "rock_distance_to_patch_center_m": 0.8873900957320618,
+          "rock_center_patch_pixel_uv": [
+            6.015202542402546,
+            6.749137324579836
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.5300376415252686,
+            5.8431291580200195
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 163.83287048339844,
+          "actual_future_same_time_center_error_median_m": 14.825831078506436,
+          "actual_future_same_time_max_lateral_m": 1.9007687360068708,
+          "actual_future_same_time_max_longitudinal_m": 48.14983733600752,
+          "actual_future_inside_same_time_patch_fraction": 0.4666666666666667,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.40712069913102755,
+          "change_from_previous_anchor": {
+            "dt_s": 0.049999999999998934,
+            "remaining_reference_m": -0.49957275390625,
+            "patch_mean_abs_normalized_change": 0.0071888635866343975,
+            "patch_max_abs_normalized_change": 0.30013179779052734,
+            "patch_centers_max_displacement_m": 0.4995778203010559
+          }
+        },
+        {
+          "anchor_s": 11.450000000000001,
+          "nearest_rock_patch_index": 55,
+          "nearest_rock_patch_nominal_future_s": 11.200000000000001,
+          "rock_distance_to_patch_center_m": 0.7980745100093989,
+          "rock_center_patch_pixel_uv": [
+            6.0151977190966095,
+            7.685860897799949
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.5163631439208984,
+            5.843118667602539
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 163.3332977294922,
+          "actual_future_same_time_center_error_median_m": 15.147417562232581,
+          "actual_future_same_time_max_lateral_m": 1.8988688020781304,
+          "actual_future_same_time_max_longitudinal_m": 48.54181608264055,
+          "actual_future_inside_same_time_patch_fraction": 0.45,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.2966491476500792,
+          "change_from_previous_anchor": {
+            "dt_s": 0.05000000000000071,
+            "remaining_reference_m": -0.49957275390625,
+            "patch_mean_abs_normalized_change": 0.007189995143562555,
+            "patch_max_abs_normalized_change": 0.2962350845336914,
+            "patch_centers_max_displacement_m": 0.49957534670829773
+          }
+        },
+        {
+          "anchor_s": 11.5,
+          "nearest_rock_patch_index": 55,
+          "nearest_rock_patch_nominal_future_s": 11.200000000000001,
+          "rock_distance_to_patch_center_m": 0.7980745100093989,
+          "rock_center_patch_pixel_uv": [
+            6.015197809087556,
+            7.685861611233813
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.5163631439208984,
+            5.843118667602539
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 163.3332977294922,
+          "actual_future_same_time_center_error_median_m": 15.194860024085404,
+          "actual_future_same_time_max_lateral_m": 1.907835239983875,
+          "actual_future_same_time_max_longitudinal_m": 48.42979697588554,
+          "actual_future_inside_same_time_patch_fraction": 0.45,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.29664701872015553,
+          "change_from_previous_anchor": {
+            "dt_s": 0.049999999999998934,
+            "remaining_reference_m": 0.0,
+            "patch_mean_abs_normalized_change": 3.42514496765034e-08,
+            "patch_max_abs_normalized_change": 6.9141387939453125e-06,
+            "patch_centers_max_displacement_m": 6.106495220592478e-06
+          }
+        },
+        {
+          "anchor_s": 12.0,
+          "nearest_rock_patch_index": 52,
+          "nearest_rock_patch_nominal_future_s": 10.600000000000001,
+          "rock_distance_to_patch_center_m": 0.9383628399291584,
+          "rock_center_patch_pixel_uv": [
+            6.015203276952287,
+            6.556085960802939
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.532177209854126,
+            5.843119144439697
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 160.33583068847656,
+          "actual_future_same_time_center_error_median_m": 17.2542457420623,
+          "actual_future_same_time_max_lateral_m": 1.9488793217633962,
+          "actual_future_same_time_max_longitudinal_m": 50.059725794665184,
+          "actual_future_inside_same_time_patch_fraction": 0.4166666666666667,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.30463237121153486,
+          "change_from_previous_anchor": {
+            "dt_s": 0.5,
+            "remaining_reference_m": -2.997467041015625,
+            "patch_mean_abs_normalized_change": 0.03307095170021057,
+            "patch_max_abs_normalized_change": 0.43656396865844727,
+            "patch_centers_max_displacement_m": 2.997474193572998
+          }
+        },
+        {
+          "anchor_s": 14.0,
+          "nearest_rock_patch_index": 42,
+          "nearest_rock_patch_nominal_future_s": 8.6,
+          "rock_distance_to_patch_center_m": 0.7920244287523425,
+          "rock_center_patch_pixel_uv": [
+            6.015199615911304,
+            7.473004786459715
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.519298553466797,
+            5.8431196212768555
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 147.84681701660156,
+          "actual_future_same_time_center_error_median_m": 26.375631374110522,
+          "actual_future_same_time_max_lateral_m": 4.310130100959817,
+          "actual_future_same_time_max_longitudinal_m": 54.12353720395774,
+          "actual_future_inside_same_time_patch_fraction": 0.23333333333333334,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.40963399563717695,
+          "change_from_previous_anchor": {
+            "dt_s": 2.0,
+            "remaining_reference_m": -12.489013671875,
+            "patch_mean_abs_normalized_change": 0.08061058074235916,
+            "patch_max_abs_normalized_change": 0.5696861743927002,
+            "patch_centers_max_displacement_m": 12.489014625549316
+          }
+        },
+        {
+          "anchor_s": 16.0,
+          "nearest_rock_patch_index": 33,
+          "nearest_rock_patch_nominal_future_s": 6.800000000000001,
+          "rock_distance_to_patch_center_m": 0.8107848529627938,
+          "rock_center_patch_pixel_uv": [
+            6.015199308745621,
+            7.826252366579904
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.514657497406006,
+            5.8431291580200195
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 136.85842895507812,
+          "actual_future_same_time_center_error_median_m": 34.58783674857451,
+          "actual_future_same_time_max_lateral_m": 4.325672349618202,
+          "actual_future_same_time_max_longitudinal_m": 55.52482220616355,
+          "actual_future_inside_same_time_patch_fraction": 0.08333333333333333,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.22242627128304135,
+          "change_from_previous_anchor": {
+            "dt_s": 2.0,
+            "remaining_reference_m": -10.988388061523438,
+            "patch_mean_abs_normalized_change": 0.07501856237649918,
+            "patch_max_abs_normalized_change": 0.5539243221282959,
+            "patch_centers_max_displacement_m": 10.988397598266602
+          }
+        },
+        {
+          "anchor_s": 18.0,
+          "nearest_rock_patch_index": 30,
+          "nearest_rock_patch_nominal_future_s": 6.2,
+          "rock_distance_to_patch_center_m": 0.795007798964655,
+          "rock_center_patch_pixel_uv": [
+            6.015195008233503,
+            7.631759472044101
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.5170695781707764,
+            5.843118667602539
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 133.36215209960938,
+          "actual_future_same_time_center_error_median_m": 34.350350075908715,
+          "actual_future_same_time_max_lateral_m": 4.420192973598827,
+          "actual_future_same_time_max_longitudinal_m": 47.0212826638987,
+          "actual_future_inside_same_time_patch_fraction": 0.03333333333333333,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.3253311171801916,
+          "change_from_previous_anchor": {
+            "dt_s": 2.0,
+            "remaining_reference_m": -3.49627685546875,
+            "patch_mean_abs_normalized_change": 0.030359480530023575,
+            "patch_max_abs_normalized_change": 0.44678986072540283,
+            "patch_centers_max_displacement_m": 3.496286630630493
+          }
+        },
+        {
+          "anchor_s": 18.400000000000002,
+          "nearest_rock_patch_index": 30,
+          "nearest_rock_patch_nominal_future_s": 6.2,
+          "rock_distance_to_patch_center_m": 0.7950080361722069,
+          "rock_center_patch_pixel_uv": [
+            6.015194313175999,
+            7.6317566749793
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.5170695781707764,
+            5.843118667602539
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 133.36215209960938,
+          "actual_future_same_time_center_error_median_m": 33.282297901583796,
+          "actual_future_same_time_max_lateral_m": 4.435625014905854,
+          "actual_future_same_time_max_longitudinal_m": 44.620621487224945,
+          "actual_future_inside_same_time_patch_fraction": 0.03333333333333333,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.3253309244718711,
+          "change_from_previous_anchor": {
+            "dt_s": 0.40000000000000213,
+            "remaining_reference_m": 0.0,
+            "patch_mean_abs_normalized_change": 2.502589957487089e-08,
+            "patch_max_abs_normalized_change": 6.318092346191406e-06,
+            "patch_centers_max_displacement_m": 7.864199687901419e-06
+          }
+        },
+        {
+          "anchor_s": 18.45,
+          "nearest_rock_patch_index": 30,
+          "nearest_rock_patch_nominal_future_s": 6.2,
+          "rock_distance_to_patch_center_m": 0.7950071829195835,
+          "rock_center_patch_pixel_uv": [
+            6.015195427388881,
+            7.631751131248439
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.5170695781707764,
+            5.843118667602539
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 133.36215209960938,
+          "actual_future_same_time_center_error_median_m": 33.13913436775691,
+          "actual_future_same_time_max_lateral_m": 4.438701123509192,
+          "actual_future_same_time_max_longitudinal_m": 44.31340171286025,
+          "actual_future_inside_same_time_patch_fraction": 0.03333333333333333,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.3253326691207894,
+          "change_from_previous_anchor": {
+            "dt_s": 0.04999999999999716,
+            "remaining_reference_m": 0.0,
+            "patch_mean_abs_normalized_change": 3.585264352068407e-08,
+            "patch_max_abs_normalized_change": 9.298324584960938e-06,
+            "patch_centers_max_displacement_m": 8.529922524758149e-06
+          }
+        },
+        {
+          "anchor_s": 18.5,
+          "nearest_rock_patch_index": 30,
+          "nearest_rock_patch_nominal_future_s": 6.2,
+          "rock_distance_to_patch_center_m": 0.9007289809147716,
+          "rock_center_patch_pixel_uv": [
+            6.015199225538485,
+            6.695240473775492
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.5306694507598877,
+            5.843117713928223
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 133.8616180419922,
+          "actual_future_same_time_center_error_median_m": 32.497125858925735,
+          "actual_future_same_time_max_lateral_m": 4.440485976323107,
+          "actual_future_same_time_max_longitudinal_m": 43.51765639316981,
+          "actual_future_inside_same_time_patch_fraction": 0.03333333333333333,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.3784759744844793,
+          "change_from_previous_anchor": {
+            "dt_s": 0.05000000000000071,
+            "remaining_reference_m": 0.4994659423828125,
+            "patch_mean_abs_normalized_change": 0.005982331931591034,
+            "patch_max_abs_normalized_change": 0.2980155944824219,
+            "patch_centers_max_displacement_m": 0.4994785487651825
+          }
+        },
+        {
+          "anchor_s": 20.0,
+          "nearest_rock_patch_index": 34,
+          "nearest_rock_patch_nominal_future_s": 7.0,
+          "rock_distance_to_patch_center_m": 0.8762235465922564,
+          "rock_center_patch_pixel_uv": [
+            6.015204794001445,
+            8.203254266051342
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.510985851287842,
+            5.843121528625488
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 137.85736083984375,
+          "actual_future_same_time_center_error_median_m": 23.966974308402005,
+          "actual_future_same_time_max_lateral_m": 4.445277320835981,
+          "actual_future_same_time_max_longitudinal_m": 33.40826196460501,
+          "actual_future_inside_same_time_patch_fraction": 0.03333333333333333,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.03866183893499759,
+          "change_from_previous_anchor": {
+            "dt_s": 1.5,
+            "remaining_reference_m": 3.9957427978515625,
+            "patch_mean_abs_normalized_change": 0.03419883921742439,
+            "patch_max_abs_normalized_change": 0.4425700902938843,
+            "patch_centers_max_displacement_m": 3.995746374130249
+          }
+        },
+        {
+          "anchor_s": 20.85,
+          "nearest_rock_patch_index": 36,
+          "nearest_rock_patch_nominal_future_s": 7.4,
+          "rock_distance_to_patch_center_m": 0.8391769894252086,
+          "rock_center_patch_pixel_uv": [
+            6.015203978628702,
+            8.02071788293871
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.5125985145568848,
+            5.84311580657959
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 140.35472106933594,
+          "actual_future_same_time_center_error_median_m": 18.683958694210453,
+          "actual_future_same_time_max_lateral_m": 4.418121716431859,
+          "actual_future_same_time_max_longitudinal_m": 30.88603617925026,
+          "actual_future_inside_same_time_patch_fraction": 0.03333333333333333,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.1209470959558871,
+          "change_from_previous_anchor": {
+            "dt_s": 0.8500000000000014,
+            "remaining_reference_m": 2.4973602294921875,
+            "patch_mean_abs_normalized_change": 0.025605235248804092,
+            "patch_max_abs_normalized_change": 0.443859338760376,
+            "patch_centers_max_displacement_m": 2.4973723888397217
+          }
+        },
+        {
+          "anchor_s": 20.900000000000002,
+          "nearest_rock_patch_index": 36,
+          "nearest_rock_patch_nominal_future_s": 7.4,
+          "rock_distance_to_patch_center_m": 0.8391784316382191,
+          "rock_center_patch_pixel_uv": [
+            6.015202201374625,
+            8.020720986345948
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.5125985145568848,
+            5.84311580657959
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 140.35472106933594,
+          "actual_future_same_time_center_error_median_m": 18.514591791141378,
+          "actual_future_same_time_max_lateral_m": 4.417568194107028,
+          "actual_future_same_time_max_longitudinal_m": 30.888283828078592,
+          "actual_future_inside_same_time_patch_fraction": 0.03333333333333333,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.12094698404261818,
+          "change_from_previous_anchor": {
+            "dt_s": 0.05000000000000071,
+            "remaining_reference_m": 0.0,
+            "patch_mean_abs_normalized_change": 3.2177499775798424e-08,
+            "patch_max_abs_normalized_change": 6.9141387939453125e-06,
+            "patch_centers_max_displacement_m": 5.7220458984375e-06
+          }
+        },
+        {
+          "anchor_s": 20.950000000000003,
+          "nearest_rock_patch_index": 36,
+          "nearest_rock_patch_nominal_future_s": 7.4,
+          "rock_distance_to_patch_center_m": 0.8391796798372639,
+          "rock_center_patch_pixel_uv": [
+            6.0151992874948625,
+            8.020719993288612
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.5125985145568848,
+            5.84311580657959
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 140.35472106933594,
+          "actual_future_same_time_center_error_median_m": 18.345336202704836,
+          "actual_future_same_time_max_lateral_m": 4.410345958689356,
+          "actual_future_same_time_max_longitudinal_m": 30.891677276880575,
+          "actual_future_inside_same_time_patch_fraction": 0.03333333333333333,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.12094731978775408,
+          "change_from_previous_anchor": {
+            "dt_s": 0.05000000000000071,
+            "remaining_reference_m": 0.0,
+            "patch_mean_abs_normalized_change": 3.82072045113091e-08,
+            "patch_max_abs_normalized_change": 6.9141387939453125e-06,
+            "patch_centers_max_displacement_m": 7.864199687901419e-06
+          }
+        },
+        {
+          "anchor_s": 22.0,
+          "nearest_rock_patch_index": 37,
+          "nearest_rock_patch_nominal_future_s": 7.6000000000000005,
+          "rock_distance_to_patch_center_m": 0.9253728686619151,
+          "rock_center_patch_pixel_uv": [
+            6.015208923676078,
+            8.397706890344
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.5096096992492676,
+            5.843120098114014
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 141.35365295410156,
+          "actual_future_same_time_center_error_median_m": 13.737033467450171,
+          "actual_future_same_time_max_lateral_m": 4.167948558614402,
+          "actual_future_same_time_max_longitudinal_m": 29.9017961015196,
+          "actual_future_inside_same_time_patch_fraction": 0.05,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.0914046620038941,
+          "change_from_previous_anchor": {
+            "dt_s": 1.0499999999999972,
+            "remaining_reference_m": 0.998931884765625,
+            "patch_mean_abs_normalized_change": 0.012452824972569942,
+            "patch_max_abs_normalized_change": 0.44309020042419434,
+            "patch_centers_max_displacement_m": 0.9989450573921204
+          }
+        },
+        {
+          "anchor_s": 24.0,
+          "nearest_rock_patch_index": 34,
+          "nearest_rock_patch_nominal_future_s": 7.0,
+          "rock_distance_to_patch_center_m": 0.8016084575955551,
+          "rock_center_patch_pixel_uv": [
+            6.0151972541461,
+            7.266724332329468
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.5225460529327393,
+            5.843120574951172
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 138.35682678222656,
+          "actual_future_same_time_center_error_median_m": 10.157833402610922,
+          "actual_future_same_time_max_lateral_m": 4.146605977347076,
+          "actual_future_same_time_max_longitudinal_m": 32.900385399944255,
+          "actual_future_inside_same_time_patch_fraction": 0.2833333333333333,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.5193516212779407,
+          "change_from_previous_anchor": {
+            "dt_s": 2.0,
+            "remaining_reference_m": -2.996826171875,
+            "patch_mean_abs_normalized_change": 0.030304528772830963,
+            "patch_max_abs_normalized_change": 0.4324491024017334,
+            "patch_centers_max_displacement_m": 2.996831178665161
+          }
+        },
+        {
+          "anchor_s": 26.0,
+          "nearest_rock_patch_index": 27,
+          "nearest_rock_patch_nominal_future_s": 5.6000000000000005,
+          "rock_distance_to_patch_center_m": 0.7926018376738831,
+          "rock_center_patch_pixel_uv": [
+            6.015197209031747,
+            7.437242182679949
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.5198333263397217,
+            5.8431196212768555
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 129.8658905029297,
+          "actual_future_same_time_center_error_median_m": 13.18166030696636,
+          "actual_future_same_time_max_lateral_m": 3.878905502898638,
+          "actual_future_same_time_max_longitudinal_m": 41.41209164054826,
+          "actual_future_inside_same_time_patch_fraction": 0.4666666666666667,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.4286442125071706,
+          "change_from_previous_anchor": {
+            "dt_s": 2.0,
+            "remaining_reference_m": -8.490936279296875,
+            "patch_mean_abs_normalized_change": 0.05470526963472366,
+            "patch_max_abs_normalized_change": 0.5212575197219849,
+            "patch_centers_max_displacement_m": 8.490942001342773
+          }
+        },
+        {
+          "anchor_s": 28.0,
+          "nearest_rock_patch_index": 19,
+          "nearest_rock_patch_nominal_future_s": 4.0,
+          "rock_distance_to_patch_center_m": 0.804815458573224,
+          "rock_center_patch_pixel_uv": [
+            6.015201682558086,
+            7.2306628524698935
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.5231542587280273,
+            5.843120574951172
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 120.37606811523438,
+          "actual_future_same_time_center_error_median_m": 19.208832765352703,
+          "actual_future_same_time_max_lateral_m": 0.8431561687562628,
+          "actual_future_same_time_max_longitudinal_m": 50.85259723618333,
+          "actual_future_inside_same_time_patch_fraction": 0.25,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.5385427344383473,
+          "change_from_previous_anchor": {
+            "dt_s": 2.0,
+            "remaining_reference_m": -9.489822387695312,
+            "patch_mean_abs_normalized_change": 0.042248476296663284,
+            "patch_max_abs_normalized_change": 0.4736771583557129,
+            "patch_centers_max_displacement_m": 9.489856719970703
+          }
+        },
+        {
+          "anchor_s": 30.0,
+          "nearest_rock_patch_index": 5,
+          "nearest_rock_patch_nominal_future_s": 1.2000000000000002,
+          "rock_distance_to_patch_center_m": 0.9158007500660779,
+          "rock_center_patch_pixel_uv": [
+            6.015203023114907,
+            6.637503052915315
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.5313162803649902,
+            5.843118667602539
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 103.89241027832031,
+          "actual_future_same_time_center_error_median_m": 32.138765340088305,
+          "actual_future_same_time_max_lateral_m": 0.9230001143842799,
+          "actual_future_same_time_max_longitudinal_m": 67.34823153264341,
+          "actual_future_inside_same_time_patch_fraction": 0.11666666666666667,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.3478176139262374,
+          "change_from_previous_anchor": {
+            "dt_s": 2.0,
+            "remaining_reference_m": -16.483657836914062,
+            "patch_mean_abs_normalized_change": 0.0626089796423912,
+            "patch_max_abs_normalized_change": 0.4464315176010132,
+            "patch_centers_max_displacement_m": 16.48366928100586
+          }
+        },
+        {
+          "anchor_s": 30.400000000000002,
+          "nearest_rock_patch_index": 2,
+          "nearest_rock_patch_nominal_future_s": 0.6000000000000001,
+          "rock_distance_to_patch_center_m": 0.9717670038628355,
+          "rock_center_patch_pixel_uv": [
+            6.01520465754617,
+            6.443923862163715
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.5332653522491455,
+            5.8431196212768555
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 100.3956527709961,
+          "actual_future_same_time_center_error_median_m": 35.46951528099828,
+          "actual_future_same_time_max_lateral_m": 0.9410435968117419,
+          "actual_future_same_time_max_longitudinal_m": 70.8320986247016,
+          "actual_future_inside_same_time_patch_fraction": 0.06666666666666667,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.24527165359634412,
+          "change_from_previous_anchor": {
+            "dt_s": 0.40000000000000213,
+            "remaining_reference_m": -3.4967575073242188,
+            "patch_mean_abs_normalized_change": 0.02977798692882061,
+            "patch_max_abs_normalized_change": 0.435184121131897,
+            "patch_centers_max_displacement_m": 3.4967610836029053
+          }
+        },
+        {
+          "anchor_s": 30.450000000000003,
+          "nearest_rock_patch_index": 2,
+          "nearest_rock_patch_nominal_future_s": 0.6000000000000001,
+          "rock_distance_to_patch_center_m": 0.7944508079028577,
+          "rock_center_patch_pixel_uv": [
+            6.015199521129622,
+            7.380577601513375
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.520704746246338,
+            5.843120098114014
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 99.8961181640625,
+          "actual_future_same_time_center_error_median_m": 35.96168248544552,
+          "actual_future_same_time_max_lateral_m": 0.9433212956289339,
+          "actual_future_same_time_max_longitudinal_m": 71.33609675676593,
+          "actual_future_inside_same_time_patch_fraction": 0.05,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.7432389548245599,
+          "change_from_previous_anchor": {
+            "dt_s": 0.05000000000000071,
+            "remaining_reference_m": -0.49953460693359375,
+            "patch_mean_abs_normalized_change": 0.005786295048892498,
+            "patch_max_abs_normalized_change": 0.2980235815048218,
+            "patch_centers_max_displacement_m": 0.4995407164096832
+          }
+        },
+        {
+          "anchor_s": 30.5,
+          "nearest_rock_patch_index": 2,
+          "nearest_rock_patch_nominal_future_s": 0.6000000000000001,
+          "rock_distance_to_patch_center_m": 0.9039165073524563,
+          "rock_center_patch_pixel_uv": [
+            6.015203803662233,
+            8.317236004778698
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.510136365890503,
+            5.843120574951172
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 99.39657592773438,
+          "actual_future_same_time_center_error_median_m": 36.46172698038665,
+          "actual_future_same_time_max_lateral_m": 0.9457976893513447,
+          "actual_future_same_time_max_longitudinal_m": 71.83986099994902,
+          "actual_future_inside_same_time_patch_fraction": 0.05,
+          "first_chassis_location_min_distance_to_any_patch_m": 1.242468125342282,
+          "change_from_previous_anchor": {
+            "dt_s": 0.04999999999999716,
+            "remaining_reference_m": -0.499542236328125,
+            "patch_mean_abs_normalized_change": 0.005725832190364599,
+            "patch_max_abs_normalized_change": 0.29943227767944336,
+            "patch_centers_max_displacement_m": 0.4995763301849365
+          }
+        },
+        {
+          "anchor_s": 32.0,
+          "nearest_rock_patch_index": 2,
+          "nearest_rock_patch_nominal_future_s": 0.6000000000000001,
+          "rock_distance_to_patch_center_m": 0.9039165073524563,
+          "rock_center_patch_pixel_uv": [
+            6.015204000356574,
+            8.317236361352704
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.510136365890503,
+            5.843120574951172
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 99.39657592773438,
+          "actual_future_same_time_center_error_median_m": 36.46491793049189,
+          "actual_future_same_time_max_lateral_m": 0.9491784817111935,
+          "actual_future_same_time_max_longitudinal_m": 71.84289324722783,
+          "actual_future_inside_same_time_patch_fraction": 0.05,
+          "first_chassis_location_min_distance_to_any_patch_m": 1.2424673109769704,
+          "change_from_previous_anchor": {
+            "dt_s": 1.5,
+            "remaining_reference_m": 0.0,
+            "patch_mean_abs_normalized_change": 5.1886704710568665e-08,
+            "patch_max_abs_normalized_change": 6.318092346191406e-06,
+            "patch_centers_max_displacement_m": 8.529922524758149e-06
+          }
+        },
+        {
+          "anchor_s": 32.45,
+          "nearest_rock_patch_index": 2,
+          "nearest_rock_patch_nominal_future_s": 0.6000000000000001,
+          "rock_distance_to_patch_center_m": 0.903914878865768,
+          "rock_center_patch_pixel_uv": [
+            6.015205777592,
+            8.317233257934594
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.510136842727661,
+            5.843120574951172
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 99.39657592773438,
+          "actual_future_same_time_center_error_median_m": 36.46352849060535,
+          "actual_future_same_time_max_lateral_m": 0.9500978496625692,
+          "actual_future_same_time_max_longitudinal_m": 71.83118461884797,
+          "actual_future_inside_same_time_patch_fraction": 0.05,
+          "first_chassis_location_min_distance_to_any_patch_m": 1.242468125342282,
+          "change_from_previous_anchor": {
+            "dt_s": 0.45000000000000284,
+            "remaining_reference_m": 0.0,
+            "patch_mean_abs_normalized_change": 6.754623171900676e-08,
+            "patch_max_abs_normalized_change": 6.9141387939453125e-06,
+            "patch_centers_max_displacement_m": 1.52587890625e-05
+          }
+        }
+      ]
+    },
+    "diverse_v1_test_rolling_hills_00_selected_rgbd_time": {
+      "feature_sha256": "e3f26afab88a1e940a9eee2c2153ad4b8b24c1f53e9fdd6c53b2bd2dc13deee3",
+      "raw_trajectory_sha256": "ea673a8868a11701d61d2167c073e8b9479c895b385593ac918bc6839194cae8",
+      "first_chassis_positive_interval_start_s": 29.700000000000003,
+      "first_chassis_positive_interval_end_s": 29.75,
+      "first_asset_positive_interval_start_s": 29.700000000000003,
+      "first_asset_positive_interval_end_s": 29.75,
+      "actual_chassis_contact_endpoint_xy": [
+        -6.6808377415669975,
+        13.297135470695721
+      ],
+      "actual_asset_contact_endpoint_xy": [
+        -6.6808377415669975,
+        13.297135470695721
+      ],
+      "asset_index_visualized": 0,
+      "anchors": [
+        {
+          "anchor_s": 0.0,
+          "nearest_rock_patch_index": 59,
+          "nearest_rock_patch_nominal_future_s": 12.0,
+          "rock_distance_to_patch_center_m": 60.05852020469817,
+          "rock_center_patch_pixel_uv": [
+            3.1617409782671024,
+            -105.02613099369425
+          ],
+          "rock_center_inside_patch": false,
+          "rock_nearest_patch_elevation_range_m": [
+            0.8189550638198853,
+            1.258083462715149
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 228.26646423339844,
+          "actual_future_same_time_center_error_median_m": 4.481516877943201,
+          "actual_future_same_time_max_lateral_m": 0.12171533301577542,
+          "actual_future_same_time_max_longitudinal_m": 5.323519523985147,
+          "actual_future_inside_same_time_patch_fraction": 0.16666666666666666,
+          "first_chassis_location_min_distance_to_any_patch_m": 57.038949031491306
+        },
+        {
+          "anchor_s": 2.0,
+          "nearest_rock_patch_index": 59,
+          "nearest_rock_patch_nominal_future_s": 12.0,
+          "rock_distance_to_patch_center_m": 53.5769376954051,
+          "rock_center_patch_pixel_uv": [
+            4.856765260726252,
+            -92.92197674625369
+          ],
+          "rock_center_inside_patch": false,
+          "rock_nearest_patch_elevation_range_m": [
+            1.1168162822723389,
+            1.7055391073226929
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 221.77342224121094,
+          "actual_future_same_time_center_error_median_m": 1.0702799928705449,
+          "actual_future_same_time_max_lateral_m": 0.1268459423373226,
+          "actual_future_same_time_max_longitudinal_m": 1.701161026045531,
+          "actual_future_inside_same_time_patch_fraction": 1.0,
+          "first_chassis_location_min_distance_to_any_patch_m": 50.55461827319531,
+          "change_from_previous_anchor": {
+            "dt_s": 2.0,
+            "remaining_reference_m": -6.4930419921875,
+            "patch_mean_abs_normalized_change": 0.017718438059091568,
+            "patch_max_abs_normalized_change": 0.4020118713378906,
+            "patch_centers_max_displacement_m": 6.493034362792969
+          }
+        },
+        {
+          "anchor_s": 4.0,
+          "nearest_rock_patch_index": 59,
+          "nearest_rock_patch_nominal_future_s": 12.0,
+          "rock_distance_to_patch_center_m": 41.09501820780618,
+          "rock_center_patch_pixel_uv": [
+            5.16929303843259,
+            -69.51790035062882
+          ],
+          "rock_center_inside_patch": false,
+          "rock_nearest_patch_elevation_range_m": [
+            1.6670681238174438,
+            7.206752777099609
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 209.2868194580078,
+          "actual_future_same_time_center_error_median_m": 0.7500905994363747,
+          "actual_future_same_time_max_lateral_m": 0.12706950860469018,
+          "actual_future_same_time_max_longitudinal_m": 1.215043918776242,
+          "actual_future_inside_same_time_patch_fraction": 1.0,
+          "first_chassis_location_min_distance_to_any_patch_m": 38.068344522268475,
+          "change_from_previous_anchor": {
+            "dt_s": 2.0,
+            "remaining_reference_m": -12.486602783203125,
+            "patch_mean_abs_normalized_change": 0.02908310480415821,
+            "patch_max_abs_normalized_change": 0.42689716815948486,
+            "patch_centers_max_displacement_m": 12.486845016479492
+          }
+        },
+        {
+          "anchor_s": 6.0,
+          "nearest_rock_patch_index": 59,
+          "nearest_rock_patch_nominal_future_s": 12.0,
+          "rock_distance_to_patch_center_m": 29.11308018963506,
+          "rock_center_patch_pixel_uv": [
+            5.415020885504703,
+            -47.04719408832862
+          ],
+          "rock_center_inside_patch": false,
+          "rock_nearest_patch_elevation_range_m": [
+            3.19492244720459,
+            8.334867477416992
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 197.29966735839844,
+          "actual_future_same_time_center_error_median_m": 1.3437628616242951,
+          "actual_future_same_time_max_lateral_m": 0.8445235800891897,
+          "actual_future_same_time_max_longitudinal_m": 8.009160922387787,
+          "actual_future_inside_same_time_patch_fraction": 0.9333333333333333,
+          "first_chassis_location_min_distance_to_any_patch_m": 26.080056877774854,
+          "change_from_previous_anchor": {
+            "dt_s": 2.0,
+            "remaining_reference_m": -11.987152099609375,
+            "patch_mean_abs_normalized_change": 0.05019617825746536,
+            "patch_max_abs_normalized_change": 0.5639762878417969,
+            "patch_centers_max_displacement_m": 11.988761901855469
+          }
+        },
+        {
+          "anchor_s": 8.0,
+          "nearest_rock_patch_index": 59,
+          "nearest_rock_patch_nominal_future_s": 12.0,
+          "rock_distance_to_patch_center_m": 16.634795243260985,
+          "rock_center_patch_pixel_uv": [
+            5.974972100857332,
+            -23.652935171354063
+          ],
+          "rock_center_inside_patch": false,
+          "rock_nearest_patch_elevation_range_m": [
+            3.4210638999938965,
+            4.796693801879883
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 184.81288146972656,
+          "actual_future_same_time_center_error_median_m": 3.925122795942993,
+          "actual_future_same_time_max_lateral_m": 1.867664395549122,
+          "actual_future_same_time_max_longitudinal_m": 25.58835694943868,
+          "actual_future_inside_same_time_patch_fraction": 0.75,
+          "first_chassis_location_min_distance_to_any_patch_m": 13.588711801708323,
+          "change_from_previous_anchor": {
+            "dt_s": 2.0,
+            "remaining_reference_m": -12.486785888671875,
+            "patch_mean_abs_normalized_change": 0.06956027448177338,
+            "patch_max_abs_normalized_change": 0.569913387298584,
+            "patch_centers_max_displacement_m": 12.491836547851562
+          }
+        },
+        {
+          "anchor_s": 10.0,
+          "nearest_rock_patch_index": 59,
+          "nearest_rock_patch_nominal_future_s": 12.0,
+          "rock_distance_to_patch_center_m": 4.194591088349568,
+          "rock_center_patch_pixel_uv": [
+            6.017928823971199,
+            -0.22395362522825923
+          ],
+          "rock_center_inside_patch": false,
+          "rock_nearest_patch_elevation_range_m": [
+            3.8934173583984375,
+            5.8431291580200195
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 172.32525634765625,
+          "actual_future_same_time_center_error_median_m": 9.69621587022512,
+          "actual_future_same_time_max_lateral_m": 1.9644707045421885,
+          "actual_future_same_time_max_longitudinal_m": 41.102799958912556,
+          "actual_future_inside_same_time_patch_fraction": 0.5833333333333334,
+          "first_chassis_location_min_distance_to_any_patch_m": 1.0922984269270188,
+          "change_from_previous_anchor": {
+            "dt_s": 2.0,
+            "remaining_reference_m": -12.487625122070312,
+            "patch_mean_abs_normalized_change": 0.07461460679769516,
+            "patch_max_abs_normalized_change": 0.569792628288269,
+            "patch_centers_max_displacement_m": 12.496996879577637
+          }
+        },
+        {
+          "anchor_s": 11.0,
+          "nearest_rock_patch_index": 57,
+          "nearest_rock_patch_nominal_future_s": 11.600000000000001,
+          "rock_distance_to_patch_center_m": 0.945325023335141,
+          "rock_center_patch_pixel_uv": [
+            6.01820928642054,
+            6.527376049983554
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.5326223373413086,
+            5.8431196212768555
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 166.3307342529297,
+          "actual_future_same_time_center_error_median_m": 13.35521422046543,
+          "actual_future_same_time_max_lateral_m": 1.9645768786757998,
+          "actual_future_same_time_max_longitudinal_m": 45.53757371413405,
+          "actual_future_inside_same_time_patch_fraction": 0.5,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.11554835170826246,
+          "change_from_previous_anchor": {
+            "dt_s": 1.0,
+            "remaining_reference_m": -5.9945220947265625,
+            "patch_mean_abs_normalized_change": 0.0540037527680397,
+            "patch_max_abs_normalized_change": 0.4576462507247925,
+            "patch_centers_max_displacement_m": 6.0007405281066895
+          }
+        },
+        {
+          "anchor_s": 11.25,
+          "nearest_rock_patch_index": 56,
+          "nearest_rock_patch_nominal_future_s": 11.4,
+          "rock_distance_to_patch_center_m": 0.8198849891413263,
+          "rock_center_patch_pixel_uv": [
+            6.018211673450984,
+            7.090675627427025
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.525571346282959,
+            5.843121528625488
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 164.83204650878906,
+          "actual_future_same_time_center_error_median_m": 14.318189744028258,
+          "actual_future_same_time_max_lateral_m": 2.2724577547811826,
+          "actual_future_same_time_max_longitudinal_m": 46.317019655773194,
+          "actual_future_inside_same_time_patch_fraction": 0.48333333333333334,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.4112840593671273,
+          "change_from_previous_anchor": {
+            "dt_s": 0.25,
+            "remaining_reference_m": -1.498687744140625,
+            "patch_mean_abs_normalized_change": 0.018284887075424194,
+            "patch_max_abs_normalized_change": 0.4211585521697998,
+            "patch_centers_max_displacement_m": 1.5004264116287231
+          }
+        },
+        {
+          "anchor_s": 11.350000000000001,
+          "nearest_rock_patch_index": 56,
+          "nearest_rock_patch_nominal_future_s": 11.4,
+          "rock_distance_to_patch_center_m": 0.8390392530102597,
+          "rock_center_patch_pixel_uv": [
+            6.018214285026293,
+            8.028455329006631
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.512692928314209,
+            5.843115329742432
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 164.33248901367188,
+          "actual_future_same_time_center_error_median_m": 14.674974902228241,
+          "actual_future_same_time_max_lateral_m": 2.5151355558888255,
+          "actual_future_same_time_max_longitudinal_m": 46.49091165468543,
+          "actual_future_inside_same_time_patch_fraction": 0.4666666666666667,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.2928221946368918,
+          "change_from_previous_anchor": {
+            "dt_s": 0.10000000000000142,
+            "remaining_reference_m": -0.4995574951171875,
+            "patch_mean_abs_normalized_change": 0.007192481774836779,
+            "patch_max_abs_normalized_change": 0.30050790309906006,
+            "patch_centers_max_displacement_m": 0.5001420974731445
+          }
+        },
+        {
+          "anchor_s": 11.4,
+          "nearest_rock_patch_index": 55,
+          "nearest_rock_patch_nominal_future_s": 11.200000000000001,
+          "rock_distance_to_patch_center_m": 0.894018414254499,
+          "rock_center_patch_pixel_uv": [
+            6.018207875437258,
+            6.7162768675838125
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.5305774211883545,
+            5.843129634857178
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 163.83291625976562,
+          "actual_future_same_time_center_error_median_m": 14.93927949794765,
+          "actual_future_same_time_max_lateral_m": 2.632944900296195,
+          "actual_future_same_time_max_longitudinal_m": 46.82000421191914,
+          "actual_future_inside_same_time_patch_fraction": 0.4666666666666667,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.21326316594611874,
+          "change_from_previous_anchor": {
+            "dt_s": 0.049999999999998934,
+            "remaining_reference_m": -0.49957275390625,
+            "patch_mean_abs_normalized_change": 0.007195406127721071,
+            "patch_max_abs_normalized_change": 0.3007168769836426,
+            "patch_centers_max_displacement_m": 0.5001897811889648
+          }
+        },
+        {
+          "anchor_s": 11.450000000000001,
+          "nearest_rock_patch_index": 55,
+          "nearest_rock_patch_nominal_future_s": 11.200000000000001,
+          "rock_distance_to_patch_center_m": 0.7945596690310934,
+          "rock_center_patch_pixel_uv": [
+            6.018200372525895,
+            7.654181875275695
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.5169315338134766,
+            5.843119144439697
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 163.33334350585938,
+          "actual_future_same_time_center_error_median_m": 15.271453330237735,
+          "actual_future_same_time_max_lateral_m": 2.7503364421759073,
+          "actual_future_same_time_max_longitudinal_m": 47.14194845451752,
+          "actual_future_inside_same_time_patch_fraction": 0.45,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.4914256199582321,
+          "change_from_previous_anchor": {
+            "dt_s": 0.05000000000000071,
+            "remaining_reference_m": -0.49957275390625,
+            "patch_mean_abs_normalized_change": 0.007198728155344725,
+            "patch_max_abs_normalized_change": 0.297951340675354,
+            "patch_centers_max_displacement_m": 0.5002121329307556
+          }
+        },
+        {
+          "anchor_s": 11.5,
+          "nearest_rock_patch_index": 55,
+          "nearest_rock_patch_nominal_future_s": 11.200000000000001,
+          "rock_distance_to_patch_center_m": 0.7945546551751104,
+          "rock_center_patch_pixel_uv": [
+            6.018208446096239,
+            7.654168622576988
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.516932487487793,
+            5.843118667602539
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 163.33334350585938,
+          "actual_future_same_time_center_error_median_m": 15.29524283586127,
+          "actual_future_same_time_max_lateral_m": 2.868050929210785,
+          "actual_future_same_time_max_longitudinal_m": 46.95943766783245,
+          "actual_future_inside_same_time_patch_fraction": 0.45,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.49142992871535784,
+          "change_from_previous_anchor": {
+            "dt_s": 0.049999999999998934,
+            "remaining_reference_m": 0.0,
+            "patch_mean_abs_normalized_change": 7.480090857825417e-08,
+            "patch_max_abs_normalized_change": 7.033348083496094e-06,
+            "patch_centers_max_displacement_m": 8.834365871734917e-06
+          }
+        },
+        {
+          "anchor_s": 12.0,
+          "nearest_rock_patch_index": 52,
+          "nearest_rock_patch_nominal_future_s": 10.600000000000001,
+          "rock_distance_to_patch_center_m": 0.9440636596623593,
+          "rock_center_patch_pixel_uv": [
+            6.018211252484706,
+            6.531689762168787
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.5325794219970703,
+            5.8431196212768555
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 160.33587646484375,
+          "actual_future_same_time_center_error_median_m": 17.279964120663042,
+          "actual_future_same_time_max_lateral_m": 3.870682644624832,
+          "actual_future_same_time_max_longitudinal_m": 47.891402734136435,
+          "actual_future_inside_same_time_patch_fraction": 0.4166666666666667,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.11772294956723318,
+          "change_from_previous_anchor": {
+            "dt_s": 0.5,
+            "remaining_reference_m": -2.997467041015625,
+            "patch_mean_abs_normalized_change": 0.03310730308294296,
+            "patch_max_abs_normalized_change": 0.4315531253814697,
+            "patch_centers_max_displacement_m": 3.0013620853424072
+          }
+        },
+        {
+          "anchor_s": 14.0,
+          "nearest_rock_patch_index": 42,
+          "nearest_rock_patch_nominal_future_s": 8.6,
+          "rock_distance_to_patch_center_m": 0.9426995178543661,
+          "rock_center_patch_pixel_uv": [
+            6.018213048071106,
+            6.536370673855208
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.5325324535369873,
+            5.843119144439697
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 148.34632873535156,
+          "actual_future_same_time_center_error_median_m": 25.459412351587755,
+          "actual_future_same_time_max_lateral_m": 4.603824119700715,
+          "actual_future_same_time_max_longitudinal_m": 50.17500715360545,
+          "actual_future_inside_same_time_patch_fraction": 0.25,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.12008608586432022,
+          "change_from_previous_anchor": {
+            "dt_s": 2.0,
+            "remaining_reference_m": -11.989547729492188,
+            "patch_mean_abs_normalized_change": 0.0796082466840744,
+            "patch_max_abs_normalized_change": 0.5651603937149048,
+            "patch_centers_max_displacement_m": 12.0024995803833
+          }
+        },
+        {
+          "anchor_s": 16.0,
+          "nearest_rock_patch_index": 33,
+          "nearest_rock_patch_nominal_future_s": 6.800000000000001,
+          "rock_distance_to_patch_center_m": 0.8092068227847578,
+          "rock_center_patch_pixel_uv": [
+            6.018205815477595,
+            7.8261478590301605
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.514822006225586,
+            5.8431291580200195
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 136.85845947265625,
+          "actual_future_same_time_center_error_median_m": 33.403173608107515,
+          "actual_future_same_time_max_lateral_m": 4.609509434322735,
+          "actual_future_same_time_max_longitudinal_m": 50.889330421597805,
+          "actual_future_inside_same_time_patch_fraction": 0.08333333333333333,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.40005032062519963,
+          "change_from_previous_anchor": {
+            "dt_s": 2.0,
+            "remaining_reference_m": -11.487869262695312,
+            "patch_mean_abs_normalized_change": 0.07643584907054901,
+            "patch_max_abs_normalized_change": 0.5585281848907471,
+            "patch_centers_max_displacement_m": 11.487868309020996
+          }
+        },
+        {
+          "anchor_s": 17.650000000000002,
+          "nearest_rock_patch_index": 30,
+          "nearest_rock_patch_nominal_future_s": 6.2,
+          "rock_distance_to_patch_center_m": 0.7934019737530885,
+          "rock_center_patch_pixel_uv": [
+            6.018208050887735,
+            7.631650171805568
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.517228603363037,
+            5.843119144439697
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 133.3621826171875,
+          "actual_future_same_time_center_error_median_m": 33.08051217657232,
+          "actual_future_same_time_max_lateral_m": 4.665792633782459,
+          "actual_future_same_time_max_longitudinal_m": 44.48089695879071,
+          "actual_future_inside_same_time_patch_fraction": 0.05,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.503405064232423,
+          "change_from_previous_anchor": {
+            "dt_s": 1.6500000000000021,
+            "remaining_reference_m": -3.49627685546875,
+            "patch_mean_abs_normalized_change": 0.030360255390405655,
+            "patch_max_abs_normalized_change": 0.44714486598968506,
+            "patch_centers_max_displacement_m": 3.496288537979126
+          }
+        },
+        {
+          "anchor_s": 17.7,
+          "nearest_rock_patch_index": 30,
+          "nearest_rock_patch_nominal_future_s": 6.2,
+          "rock_distance_to_patch_center_m": 0.7934027560962843,
+          "rock_center_patch_pixel_uv": [
+            6.018206499255206,
+            7.631649283054308
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.517228603363037,
+            5.843119144439697
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 133.3621826171875,
+          "actual_future_same_time_center_error_median_m": 32.938034913003634,
+          "actual_future_same_time_max_lateral_m": 4.668558641161338,
+          "actual_future_same_time_max_longitudinal_m": 44.19110206078067,
+          "actual_future_inside_same_time_patch_fraction": 0.05,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.5034071963226793,
+          "change_from_previous_anchor": {
+            "dt_s": 0.04999999999999716,
+            "remaining_reference_m": 0.0,
+            "patch_mean_abs_normalized_change": 2.5771321077172615e-08,
+            "patch_max_abs_normalized_change": 6.9141387939453125e-06,
+            "patch_centers_max_displacement_m": 8.529922524758149e-06
+          }
+        },
+        {
+          "anchor_s": 17.75,
+          "nearest_rock_patch_index": 30,
+          "nearest_rock_patch_nominal_future_s": 6.2,
+          "rock_distance_to_patch_center_m": 0.793404392223771,
+          "rock_center_patch_pixel_uv": [
+            6.0182038330014285,
+            7.631653937951896
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.517228603363037,
+            5.843119144439697
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 133.3621826171875,
+          "actual_future_same_time_center_error_median_m": 32.79449640936319,
+          "actual_future_same_time_max_lateral_m": 4.667322157996171,
+          "actual_future_same_time_max_longitudinal_m": 43.89527496596567,
+          "actual_future_inside_same_time_patch_fraction": 0.05,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.5034065403762982,
+          "change_from_previous_anchor": {
+            "dt_s": 0.05000000000000071,
+            "remaining_reference_m": 0.0,
+            "patch_mean_abs_normalized_change": 3.3445516578467505e-08,
+            "patch_max_abs_normalized_change": 7.033348083496094e-06,
+            "patch_centers_max_displacement_m": 1.160194915428292e-05
+          }
+        },
+        {
+          "anchor_s": 18.0,
+          "nearest_rock_patch_index": 30,
+          "nearest_rock_patch_nominal_future_s": 6.2,
+          "rock_distance_to_patch_center_m": 0.7934036098821886,
+          "rock_center_patch_pixel_uv": [
+            6.018205384633958,
+            7.631654826703155
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.517228603363037,
+            5.843119144439697
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 133.3621826171875,
+          "actual_future_same_time_center_error_median_m": 32.08124181678498,
+          "actual_future_same_time_max_lateral_m": 4.670755307216668,
+          "actual_future_same_time_max_longitudinal_m": 42.39237020563146,
+          "actual_future_inside_same_time_patch_fraction": 0.03333333333333333,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.5034061302775507,
+          "change_from_previous_anchor": {
+            "dt_s": 0.25,
+            "remaining_reference_m": 0.0,
+            "patch_mean_abs_normalized_change": 2.5996511610060224e-08,
+            "patch_max_abs_normalized_change": 7.033348083496094e-06,
+            "patch_centers_max_displacement_m": 1.160194915428292e-05
+          }
+        },
+        {
+          "anchor_s": 20.0,
+          "nearest_rock_patch_index": 34,
+          "nearest_rock_patch_nominal_future_s": 7.0,
+          "rock_distance_to_patch_center_m": 0.8000318550760507,
+          "rock_center_patch_pixel_uv": [
+            6.018205686856077,
+            7.266623276153065
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.5226941108703613,
+            5.843120574951172
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 138.35687255859375,
+          "actual_future_same_time_center_error_median_m": 21.072837932591337,
+          "actual_future_same_time_max_lateral_m": 4.657440792320887,
+          "actual_future_same_time_max_longitudinal_m": 32.88765957810257,
+          "actual_future_inside_same_time_patch_fraction": 0.03333333333333333,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.5047948336548039,
+          "change_from_previous_anchor": {
+            "dt_s": 2.0,
+            "remaining_reference_m": 4.99468994140625,
+            "patch_mean_abs_normalized_change": 0.04026838019490242,
+            "patch_max_abs_normalized_change": 0.45198166370391846,
+            "patch_centers_max_displacement_m": 4.994690895080566
+          }
+        },
+        {
+          "anchor_s": 20.05,
+          "nearest_rock_patch_index": 35,
+          "nearest_rock_patch_nominal_future_s": 7.2,
+          "rock_distance_to_patch_center_m": 0.9779641213312127,
+          "rock_center_patch_pixel_uv": [
+            6.018219105843974,
+            8.580147047100473
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.5088248252868652,
+            5.843119144439697
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 138.85633850097656,
+          "actual_future_same_time_center_error_median_m": 20.411646968673878,
+          "actual_future_same_time_max_lateral_m": 4.652847297104771,
+          "actual_future_same_time_max_longitudinal_m": 32.39310078113051,
+          "actual_future_inside_same_time_patch_fraction": 0.03333333333333333,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.038255340462791734,
+          "change_from_previous_anchor": {
+            "dt_s": 0.05000000000000071,
+            "remaining_reference_m": 0.4994659423828125,
+            "patch_mean_abs_normalized_change": 0.006529622711241245,
+            "patch_max_abs_normalized_change": 0.30020713806152344,
+            "patch_centers_max_displacement_m": 0.4994777739048004
+          }
+        },
+        {
+          "anchor_s": 20.1,
+          "nearest_rock_patch_index": 35,
+          "nearest_rock_patch_nominal_future_s": 7.2,
+          "rock_distance_to_patch_center_m": 0.9779672137918799,
+          "rock_center_patch_pixel_uv": [
+            6.018217102605226,
+            8.580154142419525
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.5088248252868652,
+            5.843119144439697
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 138.85633850097656,
+          "actual_future_same_time_center_error_median_m": 20.24506229439201,
+          "actual_future_same_time_max_lateral_m": 4.655807027639745,
+          "actual_future_same_time_max_longitudinal_m": 32.39742782014472,
+          "actual_future_inside_same_time_patch_fraction": 0.03333333333333333,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.03825195129763803,
+          "change_from_previous_anchor": {
+            "dt_s": 0.05000000000000071,
+            "remaining_reference_m": 0.0,
+            "patch_mean_abs_normalized_change": 3.104523926822367e-08,
+            "patch_max_abs_normalized_change": 6.9141387939453125e-06,
+            "patch_centers_max_displacement_m": 4.2649612623790745e-06
+          }
+        },
+        {
+          "anchor_s": 20.150000000000002,
+          "nearest_rock_patch_index": 35,
+          "nearest_rock_patch_nominal_future_s": 7.2,
+          "rock_distance_to_patch_center_m": 0.9779664347440027,
+          "rock_center_patch_pixel_uv": [
+            6.01822020590375,
+            8.58015591986353
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.5088248252868652,
+            5.843119144439697
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 138.85633850097656,
+          "actual_future_same_time_center_error_median_m": 20.077630054412968,
+          "actual_future_same_time_max_lateral_m": 4.654755555759466,
+          "actual_future_same_time_max_longitudinal_m": 32.40131663422974,
+          "actual_future_inside_same_time_patch_fraction": 0.03333333333333333,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.038250208451386394,
+          "change_from_previous_anchor": {
+            "dt_s": 0.05000000000000071,
+            "remaining_reference_m": 0.0,
+            "patch_mean_abs_normalized_change": 3.24201501200605e-08,
+            "patch_max_abs_normalized_change": 6.794929504394531e-06,
+            "patch_centers_max_displacement_m": 7.62939453125e-06
+          }
+        },
+        {
+          "anchor_s": 22.0,
+          "nearest_rock_patch_index": 37,
+          "nearest_rock_patch_nominal_future_s": 7.6000000000000005,
+          "rock_distance_to_patch_center_m": 0.9239757368882126,
+          "rock_center_patch_pixel_uv": [
+            6.018215006218886,
+            8.397614554757856
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.5097904205322266,
+            5.843120098114014
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 141.3536834716797,
+          "actual_future_same_time_center_error_median_m": 11.263030608685813,
+          "actual_future_same_time_max_lateral_m": 4.390605567153997,
+          "actual_future_same_time_max_longitudinal_m": 29.88801501549095,
+          "actual_future_inside_same_time_patch_fraction": 0.06666666666666667,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.1009112416270439,
+          "change_from_previous_anchor": {
+            "dt_s": 1.8499999999999979,
+            "remaining_reference_m": 2.497344970703125,
+            "patch_mean_abs_normalized_change": 0.026253854855895042,
+            "patch_max_abs_normalized_change": 0.4230484962463379,
+            "patch_centers_max_displacement_m": 2.4973630905151367
+          }
+        },
+        {
+          "anchor_s": 24.0,
+          "nearest_rock_patch_index": 32,
+          "nearest_rock_patch_nominal_future_s": 6.6000000000000005,
+          "rock_distance_to_patch_center_m": 0.9496664505483848,
+          "rock_center_patch_pixel_uv": [
+            6.01820711743731,
+            6.5126227376459385
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.532768487930298,
+            5.8431196212768555
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 136.35899353027344,
+          "actual_future_same_time_center_error_median_m": 10.218241840960987,
+          "actual_future_same_time_max_lateral_m": 4.380631598080564,
+          "actual_future_same_time_max_longitudinal_m": 34.89846234574234,
+          "actual_future_inside_same_time_patch_fraction": 0.4666666666666667,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.10814879054751197,
+          "change_from_previous_anchor": {
+            "dt_s": 2.0,
+            "remaining_reference_m": -4.99468994140625,
+            "patch_mean_abs_normalized_change": 0.04363451153039932,
+            "patch_max_abs_normalized_change": 0.4265092611312866,
+            "patch_centers_max_displacement_m": 4.994714260101318
+          }
+        },
+        {
+          "anchor_s": 26.0,
+          "nearest_rock_patch_index": 24,
+          "nearest_rock_patch_nominal_future_s": 5.0,
+          "rock_distance_to_patch_center_m": 0.8021240318624023,
+          "rock_center_patch_pixel_uv": [
+            6.018206262931585,
+            7.242607780457744
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.5230979919433594,
+            5.843120574951172
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 126.36967468261719,
+          "actual_future_same_time_center_error_median_m": 15.08156992245327,
+          "actual_future_same_time_max_lateral_m": 2.669491233997647,
+          "actual_future_same_time_max_longitudinal_m": 44.88037783364274,
+          "actual_future_inside_same_time_patch_fraction": 0.38333333333333336,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.49202208575814405,
+          "change_from_previous_anchor": {
+            "dt_s": 2.0,
+            "remaining_reference_m": -9.98931884765625,
+            "patch_mean_abs_normalized_change": 0.05557059496641159,
+            "patch_max_abs_normalized_change": 0.5423424243927002,
+            "patch_centers_max_displacement_m": 9.989317893981934
+          }
+        },
+        {
+          "anchor_s": 28.0,
+          "nearest_rock_patch_index": 14,
+          "nearest_rock_patch_nominal_future_s": 3.0,
+          "rock_distance_to_patch_center_m": 0.8044207436386628,
+          "rock_center_patch_pixel_uv": [
+            6.018206088361361,
+            7.218535814541942
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.5235073566436768,
+            5.843120574951172
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 114.38251495361328,
+          "actual_future_same_time_center_error_median_m": 23.415895371747904,
+          "actual_future_same_time_max_lateral_m": 0.8653701365249589,
+          "actual_future_same_time_max_longitudinal_m": 56.86345152474168,
+          "actual_future_inside_same_time_patch_fraction": 0.21666666666666667,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.47922673729893245,
+          "change_from_previous_anchor": {
+            "dt_s": 2.0,
+            "remaining_reference_m": -11.987159729003906,
+            "patch_mean_abs_normalized_change": 0.047664012759923935,
+            "patch_max_abs_normalized_change": 0.43998217582702637,
+            "patch_centers_max_displacement_m": 11.98716926574707
+          }
+        },
+        {
+          "anchor_s": 29.650000000000002,
+          "nearest_rock_patch_index": 2,
+          "nearest_rock_patch_nominal_future_s": 0.6000000000000001,
+          "rock_distance_to_patch_center_m": 0.7928560700008778,
+          "rock_center_patch_pixel_uv": [
+            6.018204769337336,
+            7.380510830874031
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.5208559036254883,
+            5.843120098114014
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 99.89612579345703,
+          "actual_future_same_time_center_error_median_m": 35.9616119822047,
+          "actual_future_same_time_max_lateral_m": 0.9380478694991758,
+          "actual_future_same_time_max_longitudinal_m": 71.3281731084341,
+          "actual_future_inside_same_time_patch_fraction": 0.05,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.5653788217219055,
+          "change_from_previous_anchor": {
+            "dt_s": 1.6500000000000021,
+            "remaining_reference_m": -14.48638916015625,
+            "patch_mean_abs_normalized_change": 0.06080205366015434,
+            "patch_max_abs_normalized_change": 0.44515931606292725,
+            "patch_centers_max_displacement_m": 14.486385345458984
+          }
+        },
+        {
+          "anchor_s": 29.700000000000003,
+          "nearest_rock_patch_index": 2,
+          "nearest_rock_patch_nominal_future_s": 0.6000000000000001,
+          "rock_distance_to_patch_center_m": 0.7928543951337652,
+          "rock_center_patch_pixel_uv": [
+            6.018208098481869,
+            7.380508616374567
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.5208559036254883,
+            5.843120098114014
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 99.89612579345703,
+          "actual_future_same_time_center_error_median_m": 35.96344555536396,
+          "actual_future_same_time_max_lateral_m": 0.938121493120228,
+          "actual_future_same_time_max_longitudinal_m": 71.32795130218167,
+          "actual_future_inside_same_time_patch_fraction": 0.05,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.5653782922970743,
+          "change_from_previous_anchor": {
+            "dt_s": 0.05000000000000071,
+            "remaining_reference_m": 0.0,
+            "patch_mean_abs_normalized_change": 5.5670444254474205e-08,
+            "patch_max_abs_normalized_change": 6.9141387939453125e-06,
+            "patch_centers_max_displacement_m": 1.078959303413285e-05
+          }
+        },
+        {
+          "anchor_s": 29.75,
+          "nearest_rock_patch_index": 2,
+          "nearest_rock_patch_nominal_future_s": 0.6000000000000001,
+          "rock_distance_to_patch_center_m": 0.9024936925318583,
+          "rock_center_patch_pixel_uv": [
+            6.018214174853732,
+            8.317171617998968
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.510315179824829,
+            5.843120098114014
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 99.39659118652344,
+          "actual_future_same_time_center_error_median_m": 36.46360300744626,
+          "actual_future_same_time_max_lateral_m": 0.9405582322718153,
+          "actual_future_same_time_max_longitudinal_m": 71.82743847195547,
+          "actual_future_inside_same_time_patch_fraction": 0.05,
+          "first_chassis_location_min_distance_to_any_patch_m": 1.0643162365908894,
+          "change_from_previous_anchor": {
+            "dt_s": 0.04999999999999716,
+            "remaining_reference_m": -0.49953460693359375,
+            "patch_mean_abs_normalized_change": 0.00572588574141264,
+            "patch_max_abs_normalized_change": 0.299674391746521,
+            "patch_centers_max_displacement_m": 0.4995616376399994
+          }
+        },
+        {
+          "anchor_s": 30.0,
+          "nearest_rock_patch_index": 1,
+          "nearest_rock_patch_nominal_future_s": 0.4,
+          "rock_distance_to_patch_center_m": 0.8334256640130066,
+          "rock_center_patch_pixel_uv": [
+            6.018208926078814,
+            7.003771648203933
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.5268452167510986,
+            5.84311580657959
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 98.89704895019531,
+          "actual_future_same_time_center_error_median_m": 36.96791469950856,
+          "actual_future_same_time_max_lateral_m": 0.9431961397261119,
+          "actual_future_same_time_max_longitudinal_m": 72.32616689141612,
+          "actual_future_inside_same_time_patch_fraction": 0.03333333333333333,
+          "first_chassis_location_min_distance_to_any_patch_m": 1.563637418438627,
+          "change_from_previous_anchor": {
+            "dt_s": 0.25,
+            "remaining_reference_m": -0.499542236328125,
+            "patch_mean_abs_normalized_change": 0.005649767350405455,
+            "patch_max_abs_normalized_change": 0.30032503604888916,
+            "patch_centers_max_displacement_m": 0.49954813718795776
+          }
+        },
+        {
+          "anchor_s": 31.700000000000003,
+          "nearest_rock_patch_index": 2,
+          "nearest_rock_patch_nominal_future_s": 0.6000000000000001,
+          "rock_distance_to_patch_center_m": 0.9024941882910209,
+          "rock_center_patch_pixel_uv": [
+            6.018212623209692,
+            8.317170729267692
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            3.510315179824829,
+            5.843120098114014
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 99.39659118652344,
+          "actual_future_same_time_center_error_median_m": 36.46336222893493,
+          "actual_future_same_time_max_lateral_m": 0.9414189259691312,
+          "actual_future_same_time_max_longitudinal_m": 71.82479702254673,
+          "actual_future_inside_same_time_patch_fraction": 0.05,
+          "first_chassis_location_min_distance_to_any_patch_m": 1.0643143648420925,
+          "change_from_previous_anchor": {
+            "dt_s": 1.7000000000000028,
+            "remaining_reference_m": 0.499542236328125,
+            "patch_mean_abs_normalized_change": 0.005649751052260399,
+            "patch_max_abs_normalized_change": 0.30032503604888916,
+            "patch_centers_max_displacement_m": 0.4995477497577667
+          }
+        }
+      ]
+    },
+    "diverse_v1_test_rough_mosaic_00_selected_rgbd_energy": {
+      "feature_sha256": "008588882c5f08e77956360cfc881a9da4a11130cd07cee07d9e5fa21efbe378",
+      "raw_trajectory_sha256": "fd1aefbfa2cf579fa6cad628bfd4bf9a11d7fabcbce9676381b98392b36116a9",
+      "first_chassis_positive_interval_start_s": 12.5,
+      "first_chassis_positive_interval_end_s": 12.55,
+      "first_asset_positive_interval_start_s": 13.0,
+      "first_asset_positive_interval_end_s": 13.05,
+      "actual_chassis_contact_endpoint_xy": [
+        32.01100192503339,
+        34.43121865807347
+      ],
+      "actual_asset_contact_endpoint_xy": [
+        29.67991013204667,
+        33.55313981189122
+      ],
+      "asset_index_visualized": 1,
+      "anchors": [
+        {
+          "anchor_s": 0.0,
+          "nearest_rock_patch_index": 59,
+          "nearest_rock_patch_nominal_future_s": 12.0,
+          "rock_distance_to_patch_center_m": 5.363128100511072,
+          "rock_center_patch_pixel_uv": [
+            10.561324738230482,
+            -2.0785551654994294
+          ],
+          "rock_center_inside_patch": false,
+          "rock_nearest_patch_elevation_range_m": [
+            -0.26782625913619995,
+            1.7473583221435547
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 232.85952758789062,
+          "actual_future_same_time_center_error_median_m": 4.325210924564734,
+          "actual_future_same_time_max_lateral_m": 0.28168671717612703,
+          "actual_future_same_time_max_longitudinal_m": 5.283989091300834,
+          "actual_future_inside_same_time_patch_fraction": 0.2833333333333333,
+          "first_chassis_location_min_distance_to_any_patch_m": 1.1055192700706604
+        },
+        {
+          "anchor_s": 0.4,
+          "nearest_rock_patch_index": 59,
+          "nearest_rock_patch_nominal_future_s": 12.0,
+          "rock_distance_to_patch_center_m": 5.363124021637642,
+          "rock_center_patch_pixel_uv": [
+            10.561313755686516,
+            -2.0785506660954733
+          ],
+          "rock_center_inside_patch": false,
+          "rock_nearest_patch_elevation_range_m": [
+            -0.26782625913619995,
+            1.7473583221435547
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 232.85952758789062,
+          "actual_future_same_time_center_error_median_m": 2.0011762550431413,
+          "actual_future_same_time_max_lateral_m": 0.775963834241701,
+          "actual_future_same_time_max_longitudinal_m": 2.8863755305640972,
+          "actual_future_inside_same_time_patch_fraction": 1.0,
+          "first_chassis_location_min_distance_to_any_patch_m": 1.1055140599208864,
+          "change_from_previous_anchor": {
+            "dt_s": 0.4,
+            "remaining_reference_m": 0.0,
+            "patch_mean_abs_normalized_change": 7.56875948582092e-08,
+            "patch_max_abs_normalized_change": 4.315376281738281e-05,
+            "patch_centers_max_displacement_m": 1.1444091796875e-05
+          }
+        },
+        {
+          "anchor_s": 0.45,
+          "nearest_rock_patch_index": 59,
+          "nearest_rock_patch_nominal_future_s": 12.0,
+          "rock_distance_to_patch_center_m": 5.363126198090164,
+          "rock_center_patch_pixel_uv": [
+            10.56132389702194,
+            -2.078551689562451
+          ],
+          "rock_center_inside_patch": false,
+          "rock_nearest_patch_elevation_range_m": [
+            -0.26782625913619995,
+            1.7473583221435547
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 232.85952758789062,
+          "actual_future_same_time_center_error_median_m": 1.708180284549088,
+          "actual_future_same_time_max_lateral_m": 0.8388581450991337,
+          "actual_future_same_time_max_longitudinal_m": 2.580156775528953,
+          "actual_future_inside_same_time_patch_fraction": 1.0,
+          "first_chassis_location_min_distance_to_any_patch_m": 1.1055192700706604,
+          "change_from_previous_anchor": {
+            "dt_s": 0.04999999999999999,
+            "remaining_reference_m": 0.0,
+            "patch_mean_abs_normalized_change": 6.587901424381926e-08,
+            "patch_max_abs_normalized_change": 4.315376281738281e-05,
+            "patch_centers_max_displacement_m": 1.5728399375802837e-05
+          }
+        },
+        {
+          "anchor_s": 0.5,
+          "nearest_rock_patch_index": 59,
+          "nearest_rock_patch_nominal_future_s": 12.0,
+          "rock_distance_to_patch_center_m": 5.363120490827462,
+          "rock_center_patch_pixel_uv": [
+            10.561319025145519,
+            -2.07854203180571
+          ],
+          "rock_center_inside_patch": false,
+          "rock_nearest_patch_elevation_range_m": [
+            -0.267823189496994,
+            1.7473583221435547
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 232.85952758789062,
+          "actual_future_same_time_center_error_median_m": 1.4160098636775658,
+          "actual_future_same_time_max_lateral_m": 0.9015308769321084,
+          "actual_future_same_time_max_longitudinal_m": 2.2852658958728926,
+          "actual_future_inside_same_time_patch_fraction": 1.0,
+          "first_chassis_location_min_distance_to_any_patch_m": 1.1055138783306464,
+          "change_from_previous_anchor": {
+            "dt_s": 0.04999999999999999,
+            "remaining_reference_m": 0.0,
+            "patch_mean_abs_normalized_change": 8.897498560145323e-08,
+            "patch_max_abs_normalized_change": 4.315376281738281e-05,
+            "patch_centers_max_displacement_m": 1.52587890625e-05
+          }
+        },
+        {
+          "anchor_s": 0.55,
+          "nearest_rock_patch_index": 59,
+          "nearest_rock_patch_nominal_future_s": 12.0,
+          "rock_distance_to_patch_center_m": 4.889812362029006,
+          "rock_center_patch_pixel_uv": [
+            10.571568721480732,
+            -1.1385757889485997
+          ],
+          "rock_center_inside_patch": false,
+          "rock_nearest_patch_elevation_range_m": [
+            -0.2701682150363922,
+            1.8159987926483154
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 232.36007690429688,
+          "actual_future_same_time_center_error_median_m": 1.6178319270688681,
+          "actual_future_same_time_max_lateral_m": 0.9599725332836755,
+          "actual_future_same_time_max_longitudinal_m": 2.4880918220688697,
+          "actual_future_inside_same_time_patch_fraction": 1.0,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.9625072951466,
+          "change_from_previous_anchor": {
+            "dt_s": 0.050000000000000044,
+            "remaining_reference_m": -0.49945068359375,
+            "patch_mean_abs_normalized_change": 0.005478793289512396,
+            "patch_max_abs_normalized_change": 0.6872745752334595,
+            "patch_centers_max_displacement_m": 0.49948203563690186
+          }
+        },
+        {
+          "anchor_s": 0.9500000000000001,
+          "nearest_rock_patch_index": 59,
+          "nearest_rock_patch_nominal_future_s": 12.0,
+          "rock_distance_to_patch_center_m": 3.963230407846183,
+          "rock_center_patch_pixel_uv": [
+            10.589919968763615,
+            0.7418196887291797
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            -0.2634676694869995,
+            2.0398833751678467
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 231.36111450195312,
+          "actual_future_same_time_center_error_median_m": 0.49524122113889446,
+          "actual_future_same_time_max_lateral_m": 0.9614124737022014,
+          "actual_future_same_time_max_longitudinal_m": 1.0879014259611595,
+          "actual_future_inside_same_time_patch_fraction": 1.0,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.9926945077261619,
+          "change_from_previous_anchor": {
+            "dt_s": 0.4,
+            "remaining_reference_m": -0.99896240234375,
+            "patch_mean_abs_normalized_change": 0.009529993869364262,
+            "patch_max_abs_normalized_change": 0.8966689109802246,
+            "patch_centers_max_displacement_m": 0.9989608526229858
+          }
+        },
+        {
+          "anchor_s": 1.0,
+          "nearest_rock_patch_index": 59,
+          "nearest_rock_patch_nominal_future_s": 12.0,
+          "rock_distance_to_patch_center_m": 3.9632341554189217,
+          "rock_center_patch_pixel_uv": [
+            10.589921675627599,
+            0.7418127428173873
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            -0.2634676694869995,
+            2.0398833751678467
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 231.36111450195312,
+          "actual_future_same_time_center_error_median_m": 0.4615088666113001,
+          "actual_future_same_time_max_lateral_m": 0.9971855267375367,
+          "actual_future_same_time_max_longitudinal_m": 0.8750798417364397,
+          "actual_future_inside_same_time_patch_fraction": 1.0,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.9926945077261619,
+          "change_from_previous_anchor": {
+            "dt_s": 0.04999999999999993,
+            "remaining_reference_m": 0.0,
+            "patch_mean_abs_normalized_change": 7.48125330574112e-08,
+            "patch_max_abs_normalized_change": 2.7298927307128906e-05,
+            "patch_centers_max_displacement_m": 1.206313208967913e-05
+          }
+        },
+        {
+          "anchor_s": 1.05,
+          "nearest_rock_patch_index": 59,
+          "nearest_rock_patch_nominal_future_s": 12.0,
+          "rock_distance_to_patch_center_m": 3.515225141397763,
+          "rock_center_patch_pixel_uv": [
+            10.597849949096185,
+            1.6823349069168612
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            -0.22616100311279297,
+            2.1821107864379883
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 230.86160278320312,
+          "actual_future_same_time_center_error_median_m": 0.474056493535934,
+          "actual_future_same_time_max_lateral_m": 0.9972056068997386,
+          "actual_future_same_time_max_longitudinal_m": 0.9790958766480622,
+          "actual_future_inside_same_time_patch_fraction": 1.0,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.9942131193935171,
+          "change_from_previous_anchor": {
+            "dt_s": 0.050000000000000044,
+            "remaining_reference_m": -0.49951171875,
+            "patch_mean_abs_normalized_change": 0.005363105796277523,
+            "patch_max_abs_normalized_change": 0.6855772733688354,
+            "patch_centers_max_displacement_m": 0.49952808022499084
+          }
+        },
+        {
+          "anchor_s": 2.0,
+          "nearest_rock_patch_index": 57,
+          "nearest_rock_patch_nominal_future_s": 11.600000000000001,
+          "rock_distance_to_patch_center_m": 1.7362522917219163,
+          "rock_center_patch_pixel_uv": [
+            10.62195537178183,
+            6.57723295377651
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            0.29575785994529724,
+            2.5767102241516113
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 225.8631134033203,
+          "actual_future_same_time_center_error_median_m": 0.890387658230709,
+          "actual_future_same_time_max_lateral_m": 0.996413667571146,
+          "actual_future_same_time_max_longitudinal_m": 5.430046537213305,
+          "actual_future_inside_same_time_patch_fraction": 0.9666666666666667,
+          "first_chassis_location_min_distance_to_any_patch_m": 1.0622302276558522,
+          "change_from_previous_anchor": {
+            "dt_s": 0.95,
+            "remaining_reference_m": -4.9984893798828125,
+            "patch_mean_abs_normalized_change": 0.023501791059970856,
+            "patch_max_abs_normalized_change": 0.5190532207489014,
+            "patch_centers_max_displacement_m": 4.9984846115112305
+          }
+        },
+        {
+          "anchor_s": 4.0,
+          "nearest_rock_patch_index": 47,
+          "nearest_rock_patch_nominal_future_s": 9.600000000000001,
+          "rock_distance_to_patch_center_m": 1.7202743885379634,
+          "rock_center_patch_pixel_uv": [
+            10.622144778425866,
+            6.689965987051034
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            0.29958170652389526,
+            2.579455852508545
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 213.8032989501953,
+          "actual_future_same_time_center_error_median_m": 2.8710363420477663,
+          "actual_future_same_time_max_lateral_m": 0.9965138273592797,
+          "actual_future_same_time_max_longitudinal_m": 17.931748282479255,
+          "actual_future_inside_same_time_patch_fraction": 0.8,
+          "first_chassis_location_min_distance_to_any_patch_m": 1.0890730534732955,
+          "change_from_previous_anchor": {
+            "dt_s": 2.0,
+            "remaining_reference_m": -12.059814453125,
+            "patch_mean_abs_normalized_change": 0.04375864937901497,
+            "patch_max_abs_normalized_change": 0.4020671844482422,
+            "patch_centers_max_displacement_m": 12.059816360473633
+          }
+        },
+        {
+          "anchor_s": 6.0,
+          "nearest_rock_patch_index": 37,
+          "nearest_rock_patch_nominal_future_s": 7.6000000000000005,
+          "rock_distance_to_patch_center_m": 1.6789474593420828,
+          "rock_center_patch_pixel_uv": [
+            10.622469648365767,
+            7.0996825004582504
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            0.30464497208595276,
+            2.583467960357666
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 201.5858917236328,
+          "actual_future_same_time_center_error_median_m": 7.000471839770477,
+          "actual_future_same_time_max_lateral_m": 2.204840548346155,
+          "actual_future_same_time_max_longitudinal_m": 31.342647925985727,
+          "actual_future_inside_same_time_patch_fraction": 0.6333333333333333,
+          "first_chassis_location_min_distance_to_any_patch_m": 1.0710710560624257,
+          "change_from_previous_anchor": {
+            "dt_s": 2.0,
+            "remaining_reference_m": -12.2174072265625,
+            "patch_mean_abs_normalized_change": 0.05228428542613983,
+            "patch_max_abs_normalized_change": 0.40751540660858154,
+            "patch_centers_max_displacement_m": 12.217395782470703
+          }
+        },
+        {
+          "anchor_s": 8.0,
+          "nearest_rock_patch_index": 27,
+          "nearest_rock_patch_nominal_future_s": 5.6000000000000005,
+          "rock_distance_to_patch_center_m": 1.6756434549286938,
+          "rock_center_patch_pixel_uv": [
+            10.622442938213,
+            7.848504237637351
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            0.3172638714313507,
+            2.6071786880493164
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 189.189208984375,
+          "actual_future_same_time_center_error_median_m": 13.443472942621417,
+          "actual_future_same_time_max_lateral_m": 6.140901653136806,
+          "actual_future_same_time_max_longitudinal_m": 44.19863403279042,
+          "actual_future_inside_same_time_patch_fraction": 0.4666666666666667,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.9643337544110678,
+          "change_from_previous_anchor": {
+            "dt_s": 2.0,
+            "remaining_reference_m": -12.396682739257812,
+            "patch_mean_abs_normalized_change": 0.05875156819820404,
+            "patch_max_abs_normalized_change": 0.40908384323120117,
+            "patch_centers_max_displacement_m": 12.396677017211914
+          }
+        },
+        {
+          "anchor_s": 10.0,
+          "nearest_rock_patch_index": 16,
+          "nearest_rock_patch_nominal_future_s": 3.4000000000000004,
+          "rock_distance_to_patch_center_m": 1.7415045905930076,
+          "rock_center_patch_pixel_uv": [
+            10.621891842553781,
+            6.542862240314344
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            0.2946011424064636,
+            2.5758676528930664
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 176.6813507080078,
+          "actual_future_same_time_center_error_median_m": 22.353600832665382,
+          "actual_future_same_time_max_lateral_m": 12.155675821651453,
+          "actual_future_same_time_max_longitudinal_m": 56.745357947125285,
+          "actual_future_inside_same_time_patch_fraction": 0.3,
+          "first_chassis_location_min_distance_to_any_patch_m": 1.0546125628318592,
+          "change_from_previous_anchor": {
+            "dt_s": 2.0,
+            "remaining_reference_m": -12.507858276367188,
+            "patch_mean_abs_normalized_change": 0.06339830905199051,
+            "patch_max_abs_normalized_change": 0.455127477645874,
+            "patch_centers_max_displacement_m": 12.507852554321289
+          }
+        },
+        {
+          "anchor_s": 12.0,
+          "nearest_rock_patch_index": 6,
+          "nearest_rock_patch_nominal_future_s": 1.4000000000000001,
+          "rock_distance_to_patch_center_m": 1.7451969088741799,
+          "rock_center_patch_pixel_uv": [
+            10.621843247935503,
+            6.519349027422273
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            0.29381197690963745,
+            2.5752851963043213
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 164.69383239746094,
+          "actual_future_same_time_center_error_median_m": 32.854432598431394,
+          "actual_future_same_time_max_lateral_m": 15.612574272691806,
+          "actual_future_same_time_max_longitudinal_m": 65.50323052486877,
+          "actual_future_inside_same_time_patch_fraction": 0.13333333333333333,
+          "first_chassis_location_min_distance_to_any_patch_m": 1.0495477921248162,
+          "change_from_previous_anchor": {
+            "dt_s": 2.0,
+            "remaining_reference_m": -11.987518310546875,
+            "patch_mean_abs_normalized_change": 0.06564291566610336,
+            "patch_max_abs_normalized_change": 0.4785768985748291,
+            "patch_centers_max_displacement_m": 11.987489700317383
+          }
+        },
+        {
+          "anchor_s": 12.450000000000001,
+          "nearest_rock_patch_index": 4,
+          "nearest_rock_patch_nominal_future_s": 1.0,
+          "rock_distance_to_patch_center_m": 1.6969921507483317,
+          "rock_center_patch_pixel_uv": [
+            10.622368574289961,
+            6.887587334510942
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            0.3034065067768097,
+            2.582967758178711
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 162.0984344482422,
+          "actual_future_same_time_center_error_median_m": 35.31030997867031,
+          "actual_future_same_time_max_lateral_m": 16.394507066181315,
+          "actual_future_same_time_max_longitudinal_m": 67.39930934669916,
+          "actual_future_inside_same_time_patch_fraction": 0.08333333333333333,
+          "first_chassis_location_min_distance_to_any_patch_m": 1.142176358825466,
+          "change_from_previous_anchor": {
+            "dt_s": 0.45000000000000107,
+            "remaining_reference_m": -2.59539794921875,
+            "patch_mean_abs_normalized_change": 0.04805734008550644,
+            "patch_max_abs_normalized_change": 0.4851163625717163,
+            "patch_centers_max_displacement_m": 2.595390796661377
+          }
+        },
+        {
+          "anchor_s": 12.5,
+          "nearest_rock_patch_index": 4,
+          "nearest_rock_patch_nominal_future_s": 1.0,
+          "rock_distance_to_patch_center_m": 1.6766731079161645,
+          "rock_center_patch_pixel_uv": [
+            10.622406478384628,
+            7.865810545164936
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            0.3175162672996521,
+            2.607774257659912
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 161.5800323486328,
+          "actual_future_same_time_center_error_median_m": 35.8082354858878,
+          "actual_future_same_time_max_lateral_m": 16.564919617185,
+          "actual_future_same_time_max_longitudinal_m": 67.83510370932706,
+          "actual_future_inside_same_time_patch_fraction": 0.08333333333333333,
+          "first_chassis_location_min_distance_to_any_patch_m": 1.4878723526325035,
+          "change_from_previous_anchor": {
+            "dt_s": 0.049999999999998934,
+            "remaining_reference_m": -0.518402099609375,
+            "patch_mean_abs_normalized_change": 0.01398840919137001,
+            "patch_max_abs_normalized_change": 0.3109757900238037,
+            "patch_centers_max_displacement_m": 0.5183929204940796
+          }
+        },
+        {
+          "anchor_s": 12.55,
+          "nearest_rock_patch_index": 4,
+          "nearest_rock_patch_nominal_future_s": 1.0,
+          "rock_distance_to_patch_center_m": 1.67667663020131,
+          "rock_center_patch_pixel_uv": [
+            10.62241259759838,
+            7.865815024182215
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            0.3175162672996521,
+            2.607774257659912
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 161.5800323486328,
+          "actual_future_same_time_center_error_median_m": 35.80759040463767,
+          "actual_future_same_time_max_lateral_m": 16.547751323196216,
+          "actual_future_same_time_max_longitudinal_m": 67.8070331610376,
+          "actual_future_inside_same_time_patch_fraction": 0.08333333333333333,
+          "first_chassis_location_min_distance_to_any_patch_m": 1.4878765580488187,
+          "change_from_previous_anchor": {
+            "dt_s": 0.05000000000000071,
+            "remaining_reference_m": 0.0,
+            "patch_mean_abs_normalized_change": 1.0022139207421787e-07,
+            "patch_max_abs_normalized_change": 1.3113021850585938e-05,
+            "patch_centers_max_displacement_m": 7.4025033427460585e-06
+          }
+        },
+        {
+          "anchor_s": 12.950000000000001,
+          "nearest_rock_patch_index": 2,
+          "nearest_rock_patch_nominal_future_s": 0.6000000000000001,
+          "rock_distance_to_patch_center_m": 1.670866986566112,
+          "rock_center_patch_pixel_uv": [
+            10.622448528309913,
+            7.244609386852885
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            0.30780863761901855,
+            2.586827278137207
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 159.5089874267578,
+          "actual_future_same_time_center_error_median_m": 37.834704298546164,
+          "actual_future_same_time_max_lateral_m": 17.217364199133698,
+          "actual_future_same_time_max_longitudinal_m": 69.52102160466511,
+          "actual_future_inside_same_time_patch_fraction": 0.05,
+          "first_chassis_location_min_distance_to_any_patch_m": 3.3498249336825743,
+          "change_from_previous_anchor": {
+            "dt_s": 0.40000000000000036,
+            "remaining_reference_m": -2.071044921875,
+            "patch_mean_abs_normalized_change": 0.044137291610240936,
+            "patch_max_abs_normalized_change": 0.4826204776763916,
+            "patch_centers_max_displacement_m": 2.071047782897949
+          }
+        },
+        {
+          "anchor_s": 13.0,
+          "nearest_rock_patch_index": 2,
+          "nearest_rock_patch_nominal_future_s": 0.6000000000000001,
+          "rock_distance_to_patch_center_m": 1.6708663644792967,
+          "rock_center_patch_pixel_uv": [
+            10.622447641371977,
+            7.244612851403345
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            0.30780914425849915,
+            2.586827278137207
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 159.5089874267578,
+          "actual_future_same_time_center_error_median_m": 37.83884722764353,
+          "actual_future_same_time_max_lateral_m": 17.214301593490337,
+          "actual_future_same_time_max_longitudinal_m": 69.50969995056712,
+          "actual_future_inside_same_time_patch_fraction": 0.05,
+          "first_chassis_location_min_distance_to_any_patch_m": 3.3498285096870974,
+          "change_from_previous_anchor": {
+            "dt_s": 0.049999999999998934,
+            "remaining_reference_m": 0.0,
+            "patch_mean_abs_normalized_change": 1.511058798087106e-07,
+            "patch_max_abs_normalized_change": 7.271766662597656e-06,
+            "patch_centers_max_displacement_m": 9.725607924337965e-06
+          }
+        },
+        {
+          "anchor_s": 13.05,
+          "nearest_rock_patch_index": 2,
+          "nearest_rock_patch_nominal_future_s": 0.6000000000000001,
+          "rock_distance_to_patch_center_m": 1.7087153451815749,
+          "rock_center_patch_pixel_uv": [
+            10.621622737071188,
+            8.22115871088979
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            0.3224664330482483,
+            2.6201889514923096
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 158.99188232421875,
+          "actual_future_same_time_center_error_median_m": 38.351662489927726,
+          "actual_future_same_time_max_lateral_m": 17.3904864267583,
+          "actual_future_same_time_max_longitudinal_m": 69.96463083197179,
+          "actual_future_inside_same_time_patch_fraction": 0.05,
+          "first_chassis_location_min_distance_to_any_patch_m": 3.8486335908272173,
+          "change_from_previous_anchor": {
+            "dt_s": 0.05000000000000071,
+            "remaining_reference_m": -0.5171051025390625,
+            "patch_mean_abs_normalized_change": 0.014191382564604282,
+            "patch_max_abs_normalized_change": 0.3051304817199707,
+            "patch_centers_max_displacement_m": 0.5171006917953491
+          }
+        },
+        {
+          "anchor_s": 14.0,
+          "nearest_rock_patch_index": 2,
+          "nearest_rock_patch_nominal_future_s": 0.6000000000000001,
+          "rock_distance_to_patch_center_m": 1.670866986566112,
+          "rock_center_patch_pixel_uv": [
+            10.622448595402616,
+            7.244610153847765
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            0.30780863761901855,
+            2.586827278137207
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 159.5089874267578,
+          "actual_future_same_time_center_error_median_m": 37.910391118066414,
+          "actual_future_same_time_max_lateral_m": 17.266769684989058,
+          "actual_future_same_time_max_longitudinal_m": 69.66948990842947,
+          "actual_future_inside_same_time_patch_fraction": 0.05,
+          "first_chassis_location_min_distance_to_any_patch_m": 3.3498285096870974,
+          "change_from_previous_anchor": {
+            "dt_s": 0.9499999999999993,
+            "remaining_reference_m": 0.5171051025390625,
+            "patch_mean_abs_normalized_change": 0.014191443100571632,
+            "patch_max_abs_normalized_change": 0.3051304817199707,
+            "patch_centers_max_displacement_m": 0.5171053409576416
+          }
+        },
+        {
+          "anchor_s": 14.5,
+          "nearest_rock_patch_index": 2,
+          "nearest_rock_patch_nominal_future_s": 0.6000000000000001,
+          "rock_distance_to_patch_center_m": 1.6708699705790437,
+          "rock_center_patch_pixel_uv": [
+            10.622454570472897,
+            7.244614625279218
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            0.30780914425849915,
+            2.5868287086486816
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 159.5089874267578,
+          "actual_future_same_time_center_error_median_m": 37.949882193440416,
+          "actual_future_same_time_max_lateral_m": 17.39383539104441,
+          "actual_future_same_time_max_longitudinal_m": 70.03146013213147,
+          "actual_future_inside_same_time_patch_fraction": 0.05,
+          "first_chassis_location_min_distance_to_any_patch_m": 3.3498285096870974,
+          "change_from_previous_anchor": {
+            "dt_s": 0.5,
+            "remaining_reference_m": 0.0,
+            "patch_mean_abs_normalized_change": 9.614064566676461e-08,
+            "patch_max_abs_normalized_change": 1.430511474609375e-05,
+            "patch_centers_max_displacement_m": 6.624433353863424e-06
+          }
+        }
+      ]
+    },
+    "diverse_v1_test_rough_mosaic_00_selected_rgbd_time": {
+      "feature_sha256": "31d1cb60f8e2d52154530d667e6d05282850132f14684db14e586ba30785d857",
+      "raw_trajectory_sha256": "d37b62846a138433145926b1d6c89448342a8046c0123e4885d02a91d538f51c",
+      "first_chassis_positive_interval_start_s": 11.700000000000001,
+      "first_chassis_positive_interval_end_s": 11.75,
+      "first_asset_positive_interval_start_s": 13.05,
+      "first_asset_positive_interval_end_s": 13.100000000000001,
+      "actual_chassis_contact_endpoint_xy": [
+        36.51459273610623,
+        34.73181591892113
+      ],
+      "actual_asset_contact_endpoint_xy": [
+        29.730073568219872,
+        33.7573892061089
+      ],
+      "asset_index_visualized": 1,
+      "anchors": [
+        {
+          "anchor_s": 0.0,
+          "nearest_rock_patch_index": 59,
+          "nearest_rock_patch_nominal_future_s": 12.0,
+          "rock_distance_to_patch_center_m": 5.297877098615264,
+          "rock_center_patch_pixel_uv": [
+            10.39757272250863,
+            -2.0015199656897877
+          ],
+          "rock_center_inside_patch": false,
+          "rock_nearest_patch_elevation_range_m": [
+            -0.29165971279144287,
+            1.7450815439224243
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 232.9368896484375,
+          "actual_future_same_time_center_error_median_m": 4.319741066963848,
+          "actual_future_same_time_max_lateral_m": 0.17797608496959882,
+          "actual_future_same_time_max_longitudinal_m": 5.285904752440603,
+          "actual_future_inside_same_time_patch_fraction": 0.2833333333333333,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.324109031523443
+        },
+        {
+          "anchor_s": 1.0,
+          "nearest_rock_patch_index": 59,
+          "nearest_rock_patch_nominal_future_s": 12.0,
+          "rock_distance_to_patch_center_m": 3.890572755435307,
+          "rock_center_patch_pixel_uv": [
+            10.433895789900523,
+            0.8211743096396967
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            -0.2888824939727783,
+            1.9960472583770752
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 231.43846130371094,
+          "actual_future_same_time_center_error_median_m": 0.4475500120382414,
+          "actual_future_same_time_max_lateral_m": 0.7118920828662545,
+          "actual_future_same_time_max_longitudinal_m": 0.9053570089893257,
+          "actual_future_inside_same_time_patch_fraction": 1.0,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.5774879443553997,
+          "change_from_previous_anchor": {
+            "dt_s": 1.0,
+            "remaining_reference_m": -1.4984283447265625,
+            "patch_mean_abs_normalized_change": 0.012217522598803043,
+            "patch_max_abs_normalized_change": 0.88812255859375,
+            "patch_centers_max_displacement_m": 1.4984331130981445
+          }
+        },
+        {
+          "anchor_s": 1.05,
+          "nearest_rock_patch_index": 59,
+          "nearest_rock_patch_nominal_future_s": 12.0,
+          "rock_distance_to_patch_center_m": 3.439281284056247,
+          "rock_center_patch_pixel_uv": [
+            10.44374173126958,
+            1.7624478438774598
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            -0.22188690304756165,
+            2.13922381401062
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 230.93894958496094,
+          "actual_future_same_time_center_error_median_m": 0.46096143716637616,
+          "actual_future_same_time_max_lateral_m": 0.7125439540278717,
+          "actual_future_same_time_max_longitudinal_m": 0.981236021583819,
+          "actual_future_inside_same_time_patch_fraction": 1.0,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.07803369725270966,
+          "change_from_previous_anchor": {
+            "dt_s": 0.050000000000000044,
+            "remaining_reference_m": -0.49951171875,
+            "patch_mean_abs_normalized_change": 0.005214868113398552,
+            "patch_max_abs_normalized_change": 0.6854956150054932,
+            "patch_centers_max_displacement_m": 0.4995279014110565
+          }
+        },
+        {
+          "anchor_s": 1.1,
+          "nearest_rock_patch_index": 59,
+          "nearest_rock_patch_nominal_future_s": 12.0,
+          "rock_distance_to_patch_center_m": 3.439284190656345,
+          "rock_center_patch_pixel_uv": [
+            10.44373663719487,
+            1.7624391049666381
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            -0.22188690304756165,
+            2.13922381401062
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 230.93894958496094,
+          "actual_future_same_time_center_error_median_m": 0.46749817987389447,
+          "actual_future_same_time_max_lateral_m": 0.7177529496348772,
+          "actual_future_same_time_max_longitudinal_m": 1.0003553344503118,
+          "actual_future_inside_same_time_patch_fraction": 1.0,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.07803629616950129,
+          "change_from_previous_anchor": {
+            "dt_s": 0.050000000000000044,
+            "remaining_reference_m": 0.0,
+            "patch_mean_abs_normalized_change": 9.149891155857404e-08,
+            "patch_max_abs_normalized_change": 5.602836608886719e-05,
+            "patch_centers_max_displacement_m": 1.5728399375802837e-05
+          }
+        },
+        {
+          "anchor_s": 2.0,
+          "nearest_rock_patch_index": 57,
+          "nearest_rock_patch_nominal_future_s": 11.600000000000001,
+          "rock_distance_to_patch_center_m": 1.647367792552422,
+          "rock_center_patch_pixel_uv": [
+            10.472713270139993,
+            6.661100954755078
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            0.2967846095561981,
+            2.568309783935547
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 225.94049072265625,
+          "actual_future_same_time_center_error_median_m": 0.8852580678228018,
+          "actual_future_same_time_max_lateral_m": 0.7119466192492362,
+          "actual_future_same_time_max_longitudinal_m": 5.591951389221515,
+          "actual_future_inside_same_time_patch_fraction": 0.9666666666666667,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.12054254569839146,
+          "change_from_previous_anchor": {
+            "dt_s": 0.8999999999999999,
+            "remaining_reference_m": -4.9984588623046875,
+            "patch_mean_abs_normalized_change": 0.022953566163778305,
+            "patch_max_abs_normalized_change": 0.5188542604446411,
+            "patch_centers_max_displacement_m": 4.998461723327637
+          }
+        },
+        {
+          "anchor_s": 3.0,
+          "nearest_rock_patch_index": 52,
+          "nearest_rock_patch_nominal_future_s": 10.600000000000001,
+          "rock_distance_to_patch_center_m": 1.6435065167425593,
+          "rock_center_patch_pixel_uv": [
+            10.472761148831204,
+            6.688338666556538
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            0.2976570129394531,
+            2.569078207015991
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 219.92604064941406,
+          "actual_future_same_time_center_error_median_m": 1.6638974188340592,
+          "actual_future_same_time_max_lateral_m": 0.7119582031725143,
+          "actual_future_same_time_max_longitudinal_m": 12.266619080590875,
+          "actual_future_inside_same_time_patch_fraction": 0.8833333333333333,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.13498192417460889,
+          "change_from_previous_anchor": {
+            "dt_s": 1.0,
+            "remaining_reference_m": -6.0144500732421875,
+            "patch_mean_abs_normalized_change": 0.028103703632950783,
+            "patch_max_abs_normalized_change": 0.4233098030090332,
+            "patch_centers_max_displacement_m": 6.0144453048706055
+          }
+        },
+        {
+          "anchor_s": 3.5,
+          "nearest_rock_patch_index": 50,
+          "nearest_rock_patch_nominal_future_s": 10.200000000000001,
+          "rock_distance_to_patch_center_m": 1.5969196909248442,
+          "rock_center_patch_pixel_uv": [
+            10.473851420335343,
+            7.848693586151455
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            0.321929931640625,
+            2.59942889213562
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 216.90838623046875,
+          "actual_future_same_time_center_error_median_m": 2.2616971414448273,
+          "actual_future_same_time_max_lateral_m": 0.7176695264701699,
+          "actual_future_same_time_max_longitudinal_m": 15.759289905421543,
+          "actual_future_inside_same_time_patch_fraction": 0.85,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.44741531285137826,
+          "change_from_previous_anchor": {
+            "dt_s": 0.5,
+            "remaining_reference_m": -3.0176544189453125,
+            "patch_mean_abs_normalized_change": 0.02793692797422409,
+            "patch_max_abs_normalized_change": 0.4601554870605469,
+            "patch_centers_max_displacement_m": 3.0176587104797363
+          }
+        },
+        {
+          "anchor_s": 3.7,
+          "nearest_rock_patch_index": 49,
+          "nearest_rock_patch_nominal_future_s": 10.0,
+          "rock_distance_to_patch_center_m": 1.662553865420306,
+          "rock_center_patch_pixel_uv": [
+            10.475395584190737,
+            8.42978933435824
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            0.32350605726242065,
+            2.6197078227996826
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 215.39633178710938,
+          "actual_future_same_time_center_error_median_m": 2.4091830743079203,
+          "actual_future_same_time_max_lateral_m": 0.7177902129172007,
+          "actual_future_same_time_max_longitudinal_m": 17.470318546296117,
+          "actual_future_inside_same_time_patch_fraction": 0.8333333333333334,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.13539221929790948,
+          "change_from_previous_anchor": {
+            "dt_s": 0.20000000000000018,
+            "remaining_reference_m": -1.512054443359375,
+            "patch_mean_abs_normalized_change": 0.01997239701449871,
+            "patch_max_abs_normalized_change": 0.4785722494125366,
+            "patch_centers_max_displacement_m": 1.5120593309402466
+          }
+        },
+        {
+          "anchor_s": 3.75,
+          "nearest_rock_patch_index": 49,
+          "nearest_rock_patch_nominal_future_s": 10.0,
+          "rock_distance_to_patch_center_m": 1.662553865420306,
+          "rock_center_patch_pixel_uv": [
+            10.475395584190737,
+            8.42978933435824
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            0.32350605726242065,
+            2.6197078227996826
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 215.39633178710938,
+          "actual_future_same_time_center_error_median_m": 2.613854973408394,
+          "actual_future_same_time_max_lateral_m": 0.7193840649635622,
+          "actual_future_same_time_max_longitudinal_m": 17.518602683419438,
+          "actual_future_inside_same_time_patch_fraction": 0.8333333333333334,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.13538853698234352,
+          "change_from_previous_anchor": {
+            "dt_s": 0.04999999999999982,
+            "remaining_reference_m": 0.0,
+            "patch_mean_abs_normalized_change": 8.227839032315387e-08,
+            "patch_max_abs_normalized_change": 1.5139579772949219e-05,
+            "patch_centers_max_displacement_m": 1.52587890625e-05
+          }
+        },
+        {
+          "anchor_s": 3.8000000000000003,
+          "nearest_rock_patch_index": 48,
+          "nearest_rock_patch_nominal_future_s": 9.8,
+          "rock_distance_to_patch_center_m": 1.5979338018518174,
+          "rock_center_patch_pixel_uv": [
+            10.473205610654546,
+            7.130110090258315
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            0.3122043013572693,
+            2.5808191299438477
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 214.8917999267578,
+          "actual_future_same_time_center_error_median_m": 2.5936057815327964,
+          "actual_future_same_time_max_lateral_m": 0.7119799559151891,
+          "actual_future_same_time_max_longitudinal_m": 18.071027947450386,
+          "actual_future_inside_same_time_patch_fraction": 0.8166666666666667,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.3691949257202167,
+          "change_from_previous_anchor": {
+            "dt_s": 0.050000000000000266,
+            "remaining_reference_m": -0.5045318603515625,
+            "patch_mean_abs_normalized_change": 0.007939490489661694,
+            "patch_max_abs_normalized_change": 0.3486992120742798,
+            "patch_centers_max_displacement_m": 0.5045379996299744
+          }
+        },
+        {
+          "anchor_s": 3.85,
+          "nearest_rock_patch_index": 48,
+          "nearest_rock_patch_nominal_future_s": 9.8,
+          "rock_distance_to_patch_center_m": 1.5979387830695875,
+          "rock_center_patch_pixel_uv": [
+            10.473214399464013,
+            7.130105082765867
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            0.31220462918281555,
+            2.5808191299438477
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 214.8917999267578,
+          "actual_future_same_time_center_error_median_m": 2.815169179674031,
+          "actual_future_same_time_max_lateral_m": 0.7123977443940654,
+          "actual_future_same_time_max_longitudinal_m": 18.11808978866927,
+          "actual_future_inside_same_time_patch_fraction": 0.8166666666666667,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.36918836798126753,
+          "change_from_previous_anchor": {
+            "dt_s": 0.04999999999999982,
+            "remaining_reference_m": 0.0,
+            "patch_mean_abs_normalized_change": 1.6245490996880108e-07,
+            "patch_max_abs_normalized_change": 1.5497207641601562e-05,
+            "patch_centers_max_displacement_m": 1.160194915428292e-05
+          }
+        },
+        {
+          "anchor_s": 4.0,
+          "nearest_rock_patch_index": 47,
+          "nearest_rock_patch_nominal_future_s": 9.600000000000001,
+          "rock_distance_to_patch_center_m": 1.63246079383072,
+          "rock_center_patch_pixel_uv": [
+            10.472908622440334,
+            6.771506395390932
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            0.30033719539642334,
+            2.5714011192321777
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 213.88194274902344,
+          "actual_future_same_time_center_error_median_m": 3.0009328292553037,
+          "actual_future_same_time_max_lateral_m": 0.7119886556791217,
+          "actual_future_same_time_max_longitudinal_m": 19.265062993091792,
+          "actual_future_inside_same_time_patch_fraction": 0.8,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.17907175420968838,
+          "change_from_previous_anchor": {
+            "dt_s": 0.1499999999999999,
+            "remaining_reference_m": -1.009857177734375,
+            "patch_mean_abs_normalized_change": 0.014960145577788353,
+            "patch_max_abs_normalized_change": 0.45117712020874023,
+            "patch_centers_max_displacement_m": 1.009868860244751
+          }
+        },
+        {
+          "anchor_s": 6.0,
+          "nearest_rock_patch_index": 37,
+          "nearest_rock_patch_nominal_future_s": 7.6000000000000005,
+          "rock_distance_to_patch_center_m": 1.5955262437840658,
+          "rock_center_patch_pixel_uv": [
+            10.473212401517095,
+            7.168716724050776
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            0.31351301074028015,
+            2.580979824066162
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 201.6713409423828,
+          "actual_future_same_time_center_error_median_m": 7.373575770147759,
+          "actual_future_same_time_max_lateral_m": 2.4331031048982723,
+          "actual_future_same_time_max_longitudinal_m": 32.777735330601054,
+          "actual_future_inside_same_time_patch_fraction": 0.6333333333333333,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.38966792840995856,
+          "change_from_previous_anchor": {
+            "dt_s": 2.0,
+            "remaining_reference_m": -12.210601806640625,
+            "patch_mean_abs_normalized_change": 0.0512828603386879,
+            "patch_max_abs_normalized_change": 0.4265110492706299,
+            "patch_centers_max_displacement_m": 12.210610389709473
+          }
+        },
+        {
+          "anchor_s": 8.0,
+          "nearest_rock_patch_index": 27,
+          "nearest_rock_patch_nominal_future_s": 5.6000000000000005,
+          "rock_distance_to_patch_center_m": 1.5994432253377047,
+          "rock_center_patch_pixel_uv": [
+            10.473908541773431,
+            7.8867891083158765
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            0.3216056823730469,
+            2.6007463932037354
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 189.28802490234375,
+          "actual_future_same_time_center_error_median_m": 14.065805603347176,
+          "actual_future_same_time_max_lateral_m": 6.450359313192406,
+          "actual_future_same_time_max_longitudinal_m": 45.157187840371066,
+          "actual_future_inside_same_time_patch_fraction": 0.4666666666666667,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.4270445058904624,
+          "change_from_previous_anchor": {
+            "dt_s": 2.0,
+            "remaining_reference_m": -12.383316040039062,
+            "patch_mean_abs_normalized_change": 0.0579153448343277,
+            "patch_max_abs_normalized_change": 0.4388620853424072,
+            "patch_centers_max_displacement_m": 12.383305549621582
+          }
+        },
+        {
+          "anchor_s": 10.0,
+          "nearest_rock_patch_index": 16,
+          "nearest_rock_patch_nominal_future_s": 3.4000000000000004,
+          "rock_distance_to_patch_center_m": 1.6603908958428135,
+          "rock_center_patch_pixel_uv": [
+            10.472528631834923,
+            6.57463895266236
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            0.29403790831565857,
+            2.565864324569702
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 176.7863311767578,
+          "actual_future_same_time_center_error_median_m": 22.917523218922312,
+          "actual_future_same_time_max_lateral_m": 10.954169518619484,
+          "actual_future_same_time_max_longitudinal_m": 56.1727087514464,
+          "actual_future_inside_same_time_patch_fraction": 0.2833333333333333,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.0747322763636533,
+          "change_from_previous_anchor": {
+            "dt_s": 2.0,
+            "remaining_reference_m": -12.501693725585938,
+            "patch_mean_abs_normalized_change": 0.06293775141239166,
+            "patch_max_abs_normalized_change": 0.4696561098098755,
+            "patch_centers_max_displacement_m": 12.501683235168457
+          }
+        },
+        {
+          "anchor_s": 11.65,
+          "nearest_rock_patch_index": 8,
+          "nearest_rock_patch_nominal_future_s": 1.8,
+          "rock_distance_to_patch_center_m": 1.5960909619088761,
+          "rock_center_patch_pixel_uv": [
+            10.473213979873515,
+            7.159301712777456
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            0.3131939470767975,
+            2.5809404850006104
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 166.87632751464844,
+          "actual_future_same_time_center_error_median_m": 31.564140173199046,
+          "actual_future_same_time_max_lateral_m": 15.555115234353064,
+          "actual_future_same_time_max_longitudinal_m": 65.74722652207632,
+          "actual_future_inside_same_time_patch_fraction": 0.15,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.38467662855413093,
+          "change_from_previous_anchor": {
+            "dt_s": 1.6500000000000004,
+            "remaining_reference_m": -9.910003662109375,
+            "patch_mean_abs_normalized_change": 0.06299538165330887,
+            "patch_max_abs_normalized_change": 0.40542399883270264,
+            "patch_centers_max_displacement_m": 9.909953117370605
+          }
+        },
+        {
+          "anchor_s": 11.700000000000001,
+          "nearest_rock_patch_index": 8,
+          "nearest_rock_patch_nominal_future_s": 1.8,
+          "rock_distance_to_patch_center_m": 1.6219998281854575,
+          "rock_center_patch_pixel_uv": [
+            10.474415184035935,
+            8.134076888491553
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            0.31968867778778076,
+            2.6093926429748535
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 166.35577392578125,
+          "actual_future_same_time_center_error_median_m": 32.05117323355328,
+          "actual_future_same_time_max_lateral_m": 15.79204470772671,
+          "actual_future_same_time_max_longitudinal_m": 66.23514194652773,
+          "actual_future_inside_same_time_patch_fraction": 0.15,
+          "first_chassis_location_min_distance_to_any_patch_m": 0.9052130092355327,
+          "change_from_previous_anchor": {
+            "dt_s": 0.05000000000000071,
+            "remaining_reference_m": -0.5205535888671875,
+            "patch_mean_abs_normalized_change": 0.013498794287443161,
+            "patch_max_abs_normalized_change": 0.3566371202468872,
+            "patch_centers_max_displacement_m": 0.5205520987510681
+          }
+        },
+        {
+          "anchor_s": 11.75,
+          "nearest_rock_patch_index": 7,
+          "nearest_rock_patch_nominal_future_s": 1.6,
+          "rock_distance_to_patch_center_m": 1.6220167547601936,
+          "rock_center_patch_pixel_uv": [
+            10.473029024558972,
+            6.859304400885648
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            0.3031952381134033,
+            2.573826313018799
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 165.83538818359375,
+          "actual_future_same_time_center_error_median_m": 32.550926790851086,
+          "actual_future_same_time_max_lateral_m": 16.028389237058477,
+          "actual_future_same_time_max_longitudinal_m": 66.72336865717045,
+          "actual_future_inside_same_time_patch_fraction": 0.13333333333333333,
+          "first_chassis_location_min_distance_to_any_patch_m": 1.4255920843315748,
+          "change_from_previous_anchor": {
+            "dt_s": 0.049999999999998934,
+            "remaining_reference_m": -0.5203857421875,
+            "patch_mean_abs_normalized_change": 0.013535469770431519,
+            "patch_max_abs_normalized_change": 0.35633981227874756,
+            "patch_centers_max_displacement_m": 0.5203893184661865
+          }
+        },
+        {
+          "anchor_s": 12.0,
+          "nearest_rock_patch_index": 6,
+          "nearest_rock_patch_nominal_future_s": 1.4000000000000001,
+          "rock_distance_to_patch_center_m": 1.6630358460507755,
+          "rock_center_patch_pixel_uv": [
+            10.472490695310226,
+            6.557969352190339
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            0.29351210594177246,
+            2.56538987159729
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 164.795166015625,
+          "actual_future_same_time_center_error_median_m": 33.561993014007186,
+          "actual_future_same_time_max_lateral_m": 16.539446959804167,
+          "actual_future_same_time_max_longitudinal_m": 67.75405634678327,
+          "actual_future_inside_same_time_patch_fraction": 0.11666666666666667,
+          "first_chassis_location_min_distance_to_any_patch_m": 2.4658047371239937,
+          "change_from_previous_anchor": {
+            "dt_s": 0.25,
+            "remaining_reference_m": -1.04022216796875,
+            "patch_mean_abs_normalized_change": 0.025341633707284927,
+            "patch_max_abs_normalized_change": 0.4569554328918457,
+            "patch_centers_max_displacement_m": 1.040229082107544
+          }
+        },
+        {
+          "anchor_s": 13.0,
+          "nearest_rock_patch_index": 2,
+          "nearest_rock_patch_nominal_future_s": 0.6000000000000001,
+          "rock_distance_to_patch_center_m": 1.5896429251687816,
+          "rock_center_patch_pixel_uv": [
+            10.473180460538968,
+            7.290100204759979
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            0.3176639974117279,
+            2.581460952758789
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 159.60696411132812,
+          "actual_future_same_time_center_error_median_m": 38.81196880496995,
+          "actual_future_same_time_max_lateral_m": 18.72966114805566,
+          "actual_future_same_time_max_longitudinal_m": 72.46662554663051,
+          "actual_future_inside_same_time_patch_fraction": 0.05,
+          "first_chassis_location_min_distance_to_any_patch_m": 7.653852609397198,
+          "change_from_previous_anchor": {
+            "dt_s": 1.0,
+            "remaining_reference_m": -5.188201904296875,
+            "patch_mean_abs_normalized_change": 0.057147033512592316,
+            "patch_max_abs_normalized_change": 0.47962141036987305,
+            "patch_centers_max_displacement_m": 5.188165664672852
+          }
+        },
+        {
+          "anchor_s": 13.05,
+          "nearest_rock_patch_index": 2,
+          "nearest_rock_patch_nominal_future_s": 0.6000000000000001,
+          "rock_distance_to_patch_center_m": 1.5896458906151039,
+          "rock_center_patch_pixel_uv": [
+            10.473186411688834,
+            7.290105546357224
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            0.3176639974117279,
+            2.581460952758789
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 159.60696411132812,
+          "actual_future_same_time_center_error_median_m": 38.82801800262973,
+          "actual_future_same_time_max_lateral_m": 18.719060673151805,
+          "actual_future_same_time_max_longitudinal_m": 72.45665462442875,
+          "actual_future_inside_same_time_patch_fraction": 0.05,
+          "first_chassis_location_min_distance_to_any_patch_m": 7.653854458425232,
+          "change_from_previous_anchor": {
+            "dt_s": 0.05000000000000071,
+            "remaining_reference_m": 0.0,
+            "patch_mean_abs_normalized_change": 1.1003881894566803e-07,
+            "patch_max_abs_normalized_change": 1.1444091796875e-05,
+            "patch_centers_max_displacement_m": 7.864199687901419e-06
+          }
+        },
+        {
+          "anchor_s": 13.100000000000001,
+          "nearest_rock_patch_index": 2,
+          "nearest_rock_patch_nominal_future_s": 0.6000000000000001,
+          "rock_distance_to_patch_center_m": 1.6372040004142991,
+          "rock_center_patch_pixel_uv": [
+            10.474710883977236,
+            8.25796154190883
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            0.3209311068058014,
+            2.613783836364746
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 159.0895233154297,
+          "actual_future_same_time_center_error_median_m": 39.354662897452016,
+          "actual_future_same_time_max_lateral_m": 18.914980553242998,
+          "actual_future_same_time_max_longitudinal_m": 72.91124041962907,
+          "actual_future_inside_same_time_patch_fraction": 0.05,
+          "first_chassis_location_min_distance_to_any_patch_m": 8.171257196539583,
+          "change_from_previous_anchor": {
+            "dt_s": 0.05000000000000071,
+            "remaining_reference_m": -0.5174407958984375,
+            "patch_mean_abs_normalized_change": 0.014149169437587261,
+            "patch_max_abs_normalized_change": 0.3578568696975708,
+            "patch_centers_max_displacement_m": 0.5174456834793091
+          }
+        },
+        {
+          "anchor_s": 13.700000000000001,
+          "nearest_rock_patch_index": 2,
+          "nearest_rock_patch_nominal_future_s": 0.6000000000000001,
+          "rock_distance_to_patch_center_m": 1.637207847988116,
+          "rock_center_patch_pixel_uv": [
+            10.4747187267166,
+            8.25795997976876
+          ],
+          "rock_center_inside_patch": true,
+          "rock_nearest_patch_elevation_range_m": [
+            0.3209311068058014,
+            2.6137852668762207
+          ],
+          "patch_invalid_fraction": 0.0,
+          "remaining_reference_m": 159.0895233154297,
+          "actual_future_same_time_center_error_median_m": 39.54528342034777,
+          "actual_future_same_time_max_lateral_m": 18.76169056522138,
+          "actual_future_same_time_max_longitudinal_m": 72.6959826100659,
+          "actual_future_inside_same_time_patch_fraction": 0.03333333333333333,
+          "first_chassis_location_min_distance_to_any_patch_m": 8.171257196539583,
+          "change_from_previous_anchor": {
+            "dt_s": 0.5999999999999996,
+            "remaining_reference_m": 0.0,
+            "patch_mean_abs_normalized_change": 1.402385407800466e-07,
+            "patch_max_abs_normalized_change": 1.0609626770019531e-05,
+            "patch_centers_max_displacement_m": 7.448434644174995e-06
+          }
+        }
+      ]
+    }
+  }
+}

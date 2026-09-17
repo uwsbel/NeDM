@@ -1,0 +1,25 @@
+{
+  "physics": {
+    "job_id": 412215,
+    "state": "COMPLETED",
+    "exit_code": "0:0",
+    "elapsed_s": 374,
+    "start_utc": "2026-09-10T01:42:15Z",
+    "end_utc": "2026-09-10T01:48:29Z",
+    "workers": 24,
+    "requested_cpus": 128
+  },
+  "audit": {
+    "job_id": 412220,
+    "state": "COMPLETED",
+    "exit_code": "0:0",
+    "elapsed_s": 65,
+    "start_utc": "2026-09-10T01:48:55Z",
+    "end_utc": "2026-09-10T01:50:00Z",
+    "requested_cpus": 8
+  },
+  "audit_errors": [],
+  "no_training_or_rendering": true,
+  "protocol_sha256": "3e6aa61925682d63f40ddf82765ba2371231217d939355a6509b244769b1cc64",
+  "report_sha256": "c191aaa89829a158cc7af20de629bd903cdf0ae6b8c8efc6bf8a3ca345ecc9af"
+}

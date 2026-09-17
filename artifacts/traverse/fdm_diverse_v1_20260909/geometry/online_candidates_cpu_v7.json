@@ -1,0 +1,36 @@
+{
+  "passed": true,
+  "policy": {
+    "version": "retained_and_nearby_global_v1",
+    "nearby_distance_m": 2.0,
+    "nearby_heading_deg": 15.0,
+    "max_reference_curvature_inv_m": 0.025,
+    "curvature_basis": "360 training references max0.016669/m; limit rounded to1.5times this geometric maximum, not a learned safety guarantee",
+    "ordering": "active reference, nearby original families, fresh current-pose families; exact duplicates removed",
+    "inputs": "measured pose, goal, previously proposed references; no terrain or outcomes"
+  },
+  "native_reference_preserved": true,
+  "input_routes_unmodified": true,
+  "active_station_and_command_features_exact": true,
+  "exact_geometry_speed_duplicates_removed": true,
+  "nearby_distance_heading_boundaries_and_angle_wrap_verified": true,
+  "active_route_retained_even_when_far_with_model_risk_check_still_required": true,
+  "future_metadata_excluded_from_model_commands": true,
+  "source_sha256": "5e239ff1bacca70ac6d7c4c3dd282aeb6b7c06055c775e42defb6407096935d2",
+  "curvature_gate_checks": {
+    "20.0": {
+      "valid": false,
+      "reasons": [
+        "curvature"
+      ],
+      "max_curvature": 0.05000000000035564,
+      "min_clearance_m": null
+    },
+    "60.0": {
+      "valid": true,
+      "reasons": [],
+      "max_curvature": 0.01666666666677769,
+      "min_clearance_m": null
+    }
+  }
+}

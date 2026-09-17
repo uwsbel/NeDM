@@ -1,0 +1,23 @@
+[
+  {
+    "id": "near_assets_h12_val_mixed_obstacles_00",
+    "case": "/work1/dannegrut/harry/experiments/fdm_near_assets_h12_20260909/scene_design/near_assets_h12_val_mixed_obstacles_00.json",
+    "observation_out": "/work1/dannegrut/harry/experiments/fdm_near_assets_h12_20260909/observations/near_assets_h12_val_mixed_obstacles_00",
+    "prediction_request": "/work1/dannegrut/harry/experiments/fdm_near_assets_h12_20260909/requests/near_assets_h12_val_mixed_obstacles_00.json",
+    "prediction_out": "/work1/dannegrut/harry/experiments/fdm_near_assets_h12_20260909/predictions/near_assets_h12_val_mixed_obstacles_00"
+  },
+  {
+    "id": "near_assets_h12_val_rough_mosaic_00",
+    "case": "/work1/dannegrut/harry/experiments/fdm_near_assets_h12_20260909/scene_design/near_assets_h12_val_rough_mosaic_00.json",
+    "observation_out": "/work1/dannegrut/harry/experiments/fdm_near_assets_h12_20260909/observations/near_assets_h12_val_rough_mosaic_00",
+    "prediction_request": "/work1/dannegrut/harry/experiments/fdm_near_assets_h12_20260909/requests/near_assets_h12_val_rough_mosaic_00.json",
+    "prediction_out": "/work1/dannegrut/harry/experiments/fdm_near_assets_h12_20260909/predictions/near_assets_h12_val_rough_mosaic_00"
+  },
+  {
+    "id": "near_assets_h12_val_rolling_hills_00",
+    "case": "/work1/dannegrut/harry/experiments/fdm_near_assets_h12_20260909/scene_design/near_assets_h12_val_rolling_hills_00.json",
+    "observation_out": "/work1/dannegrut/harry/experiments/fdm_near_assets_h12_20260909/observations/near_assets_h12_val_rolling_hills_00",
+    "prediction_request": "/work1/dannegrut/harry/experiments/fdm_near_assets_h12_20260909/requests/near_assets_h12_val_rolling_hills_00.json",
+    "prediction_out": "/work1/dannegrut/harry/experiments/fdm_near_assets_h12_20260909/predictions/near_assets_h12_val_rolling_hills_00"
+  }
+]

@@ -1,0 +1,9 @@
+{
+  "job_id": "412077",
+  "source_snapshot": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/snapshots/campaign_v2",
+  "adapter_sha256": "494e85478bde7b11774f0f590a34c27a0ddacd0f01e78c06b05444f8f9c8279e",
+  "checker_sha256": "368b6a7d998d2c07632e9bf5bb89febc4d17089c2c4a7672172394ff1b989140",
+  "baseline": "/work1/dannegrut/harry/experiments/fdm_diverse_v1_20260909/pilot_checks_v2/rich_headless",
+  "physics_change": "Runner make_driver is replaced only in this process by adapter factory",
+  "update_schedule": "Changed route once at 8 s after settlement, while moving; fixed 6 m/s cruise request retained"
+}

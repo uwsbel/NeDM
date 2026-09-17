@@ -1,0 +1,14 @@
+{
+  "created_utc": "2026-09-09T23:18:51.414702+00:00",
+  "core_freeze_sha256": "29684ce59cdd68e9b1f7310dcd2e63c55d021f6ff6712b83f99d286722efeb33",
+  "scope": "Media-only cadence amendment; exactsame predeclaredscenes and frozenmodel/cost/physics. No evaluation or selection changes.",
+  "paired_scene": "Unchanged lexicographicfirstsafeRGBDpair cross_slopes; keep5Hz640x480passivecamera forbothfull41srollouts",
+  "fallback_if_no_safe_pair": "Lexicographicallyfirstscene withselected_rgbd_time safe; renderit andsameseenenergycomparison, explicitlylabel anyfailure. Ifnosafetimegoals, lexicographicallyfirsttestscene renderbothasfailures.",
+  "failure_example": "Unchanged lexicographicfirstfailedenergycase rolling_hills; recordfull180s at1Hz640x480passivecamera andclearlylabel1Hzsampling",
+  "claim": "ActualChronophysicalreplays; exacttelemetry/decisionsparityrequired. Fullselectedreference versus12sforecast versusactualtrace labeled separately. Small/negativeenergychanges shown asmeasured, notimprovement.",
+  "parent_rule_sha256": "519bdf0d1ac83147dfc603754126371e5459dbf8ee434aead6df2f0224e178c6",
+  "reason": "Measured5HzVulkansoftwarecapture2.93s/frame; 785remainingframes imply38minmore. Failure1Hzretainsfullphysicalduration and20Hzraw/substepintegratedtelemetry at muchlowerrendercost.",
+  "parity": "No relaxation: everyphysics/decision/anchorarray exact againstfrozenheadlessrun, pluscorrectdeclaredvideoFPS/timestamps/frameposes. No artificialmotion interpolation.",
+  "superseded_render_job": 412135,
+  "preserve_partial_files": true
+}

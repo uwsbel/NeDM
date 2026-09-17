@@ -6,6 +6,7 @@ __pycache__/
 
 # Project Chrono is treated as a local simulator dependency, not vendored source.
 chrono/
+/chrono
 
 # ---------------------------------------------------------------------------
 # artifacts/
@@ -314,3 +315,38 @@ artifacts/traverse/wp9_energy/*
 artifacts/traverse/wp9_bowl_b1/*
 !artifacts/traverse/wp9_bowl_b1/verdict.json
 !artifacts/traverse/wp9_bowl_b1/design.json
+
+# --- Learned route-risk planner milestone, 2026-09-08..16 (docs/progress.md, docs/vision/hmmwv_traverse/) --------
+# Re-include each study folder; the folder's own .gitignore then allowlists what is committed from it: written
+# records, result summaries, figures, final checkpoints (LFS), mission/case definitions and a few deliverable
+# videos. Per-run folders, tensors, frames and most videos stay local and on the cluster (see "Gaps in the
+# committed record" in docs/progress.md). The per-folder lists were generated from a reviewed file list.
+!artifacts/f104_demo_v1/
+!artifacts/reviews/
+!artifacts/traverse/fdm_active_snapshot.json
+!artifacts/traverse/fdm_contract_checks_final.json
+!artifacts/traverse/fdm_diverse_v1_20260909/
+!artifacts/traverse/fdm_execution_20260908.json
+!artifacts/traverse/fdm_f104_50h_20260909/
+!artifacts/traverse/fdm_failure_investigation_20260909/
+!artifacts/traverse/fdm_near_assets_h12_20260909/
+!artifacts/traverse/fdm_preview_spec.json
+!artifacts/traverse/fdm_rgbd_active_snapshot.json
+!artifacts/traverse/fdm_rgbd_demo_v1/
+!artifacts/traverse/fdm_rgbd_execution_20260908.json
+!artifacts/traverse/fdm_rgbd_fast_v1/
+!artifacts/traverse/fdm_rgbd_focused_pack_v1/
+!artifacts/traverse/fdm_rgbd_focused_pack_v2/
+!artifacts/traverse/fdm_rgbd_focused_snapshot.json
+!artifacts/traverse/fdm_rgbd_focused_v1/
+!artifacts/traverse/fdm_rgbd_focused_v2_snapshot.json
+!artifacts/traverse/fdm_rgbd_fourway_20260909/
+!artifacts/traverse/fdm_rgbd_fourway_smooth_20260909/
+!artifacts/traverse/fdm_rgbd_planner_checks.json
+!artifacts/traverse/fdm_rgbd_runs/
+!artifacts/traverse/fdm_rgbd_source/
+!artifacts/traverse/fdm_rgbd_stall_demo_v1/
+!artifacts/traverse/fdm_rgbd_terrain_probes_mesa_v1/
+!artifacts/traverse/fdm_rgbd_terrain_probes_v1/
+!artifacts/traverse/fdm_runs/
+!artifacts/traverse/mppi_documents_20260909/

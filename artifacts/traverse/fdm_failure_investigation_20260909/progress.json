@@ -1,0 +1,52 @@
+{
+  "phase": "complete",
+  "created_utc": "2026-09-10T01:43:43.862659+00:00",
+  "worktree": "traverse_mppi",
+  "main_checkout": "read-only",
+  "training": "no optimizer updates performed",
+  "experiments": [
+    "matched_modes_v1",
+    "decision_audit",
+    "perception_support",
+    "refinement_counterfactual_v2",
+    "refinement_best_base_v1"
+  ],
+  "original_protected_results": "unchanged; test additions are post-hoc diagnostics",
+  "jobs": {
+    "matched_online_final5000": 412215,
+    "matched_online_audit": 412220,
+    "parent_reference_counterfactual": 412223,
+    "parent_reference_counterfactual_attempt1": 412221,
+    "parent_reference_counterfactual_verified": 412223,
+    "best_unrefined_reference_verified": 412227
+  },
+  "verified_physics": {
+    "matched_online_trials": 24,
+    "original_mode_controls": 24,
+    "reference_interventions_and_replays": 9,
+    "exact_selected_replay_controls": 4,
+    "arrays_per_replay": 241
+  },
+  "original_freeze_verified_unchanged": true,
+  "completed_utc": "2026-09-10T02:12:16.892853+00:00",
+  "pending": [],
+  "failed_attempts": [
+    {
+      "job": 412221,
+      "reason": "exact launch goal guard caught float32 observation versus frozen float64 case goal; all trials aborted before traversal; corrected source frozen as v2"
+    }
+  ],
+  "conclusions": [
+    "Finite-horizon acceptance is not full-route safety",
+    "In-horizon false acceptance independently verified",
+    "One physically verified harmful refinement-induced ranking change",
+    "Matched online mode has scene-specific gains and losses",
+    "Sensor and training-support findings are diagnostics, not validated fixes"
+  ],
+  "delivery_validation": {
+    "artifact_dependency_hashes_checked": 47,
+    "report_links_checked": 18,
+    "root_scripts_compile": true,
+    "original_freeze_sha256": "29684ce59cdd68e9b1f7310dcd2e63c55d021f6ff6712b83f99d286722efeb33"
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "observed_utc": "2026-09-09T22:46:36.927994+00:00",
+  "scope": "Supplemental command-overlap diagnostic, primary event/success definitions unchanged. No simulation/model changes.",
+  "timing": "Planner paused and desired speed requests reconstructed at recorded new_request_first_applied_time_s on2ms grid. Counts concern half-open2s windows of40recorded intervals; do not relabel measured bounded events.",
+  "trials": [
+    {
+      "scene_id": "diverse_v1_val_ridge_passes_00",
+      "bounded_window_count": 301,
+      "counts": {
+        "planner_paused": {
+          "any": 301,
+          "all": 297,
+          "none": 0,
+          "partly": 4,
+          "overlap_fraction_mean": 0.9994883720930232,
+          "whole_run_duration_s": 95.0
+        },
+        "desired_speed_zero": {
+          "any": 301,
+          "all": 297,
+          "none": 0,
+          "partly": 4,
+          "overlap_fraction_mean": 0.9994883720930232,
+          "whole_run_duration_s": 95.0
+        },
+        "either_paused_or_zero": {
+          "any": 301,
+          "all": 297,
+          "none": 0,
+          "partly": 4,
+          "overlap_fraction_mean": 0.9994883720930232,
+          "whole_run_duration_s": 95.0
+        }
+      },
+      "first_window": {
+        "start_s": 24.650000000000002,
+        "end_s": 26.650000000000002,
+        "paused_overlap_s": 2.0,
+        "zero_desired_overlap_s": 2.0
+      },
+      "primary_outcome_sha256": "addaa1c87f83122f992246ea9e54a0fb5dbc0bdec58a181e4e05cd74a3ee6629"
+    },
+    {
+      "scene_id": "diverse_v1_val_rough_mosaic_00",
+      "bounded_window_count": 0,
+      "counts": {
+        "planner_paused": {
+          "any": 0,
+          "all": 0,
+          "none": 0,
+          "partly": 0,
+          "overlap_fraction_mean": null,
+          "whole_run_duration_s": 80.998
+        },
+        "desired_speed_zero": {
+          "any": 0,
+          "all": 0,
+          "none": 0,
+          "partly": 0,
+          "overlap_fraction_mean": null,
+          "whole_run_duration_s": 80.998
+        },
+        "either_paused_or_zero": {
+          "any": 0,
+          "all": 0,
+          "none": 0,
+          "partly": 0,
+          "overlap_fraction_mean": null,
+          "whole_run_duration_s": 80.998
+        }
+      },
+      "first_window": null,
+      "primary_outcome_sha256": "7c01ad53d2800627f8aa5af048d05d6e14ca6cbd29c4a26efcac4345bcb29250"
+    }
+  ]
+}

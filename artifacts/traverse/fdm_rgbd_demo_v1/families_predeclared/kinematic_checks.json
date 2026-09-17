@@ -1,0 +1,78 @@
+{
+  "visible_rock_v1": [
+    {
+      "valid": true,
+      "reasons": [],
+      "max_curvature": 0.0004250995739173824,
+      "min_clearance_m": null
+    },
+    {
+      "valid": true,
+      "reasons": [],
+      "max_curvature": 0.0004250995739173824,
+      "min_clearance_m": null
+    },
+    {
+      "valid": true,
+      "reasons": [],
+      "max_curvature": 0.12200213707694389,
+      "min_clearance_m": null
+    },
+    {
+      "valid": true,
+      "reasons": [],
+      "max_curvature": 0.12200213707694389,
+      "min_clearance_m": null
+    },
+    {
+      "valid": true,
+      "reasons": [],
+      "max_curvature": 0.1217856705018693,
+      "min_clearance_m": null
+    },
+    {
+      "valid": true,
+      "reasons": [],
+      "max_curvature": 0.1217856705018693,
+      "min_clearance_m": null
+    }
+  ],
+  "hill0_f111_near": [
+    {
+      "valid": true,
+      "reasons": [],
+      "max_curvature": 0.0004538314522199034,
+      "min_clearance_m": null
+    },
+    {
+      "valid": true,
+      "reasons": [],
+      "max_curvature": 0.0004538314522199034,
+      "min_clearance_m": null
+    },
+    {
+      "valid": true,
+      "reasons": [],
+      "max_curvature": 0.12217970453373843,
+      "min_clearance_m": null
+    },
+    {
+      "valid": true,
+      "reasons": [],
+      "max_curvature": 0.12217970453373843,
+      "min_clearance_m": null
+    },
+    {
+      "valid": true,
+      "reasons": [],
+      "max_curvature": 0.12194860845414375,
+      "min_clearance_m": null
+    },
+    {
+      "valid": true,
+      "reasons": [],
+      "max_curvature": 0.12194860845414375,
+      "min_clearance_m": null
+    }
+  ]
+}

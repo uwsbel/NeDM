@@ -1,0 +1,41 @@
+{
+  "started_utc": "2026-09-09T00:22:15.293125+00:00",
+  "branch": "traverse_mppi",
+  "local_root": "/home/harry/NeDM-traverse_mppi",
+  "remote_root": "/work1/dannegrut/harry/experiments/traverse_mppi_20260908",
+  "data": "fdm_fast_data_v2",
+  "code_snapshot": "3fb9df94454b",
+  "jobs": [
+    {
+      "id": 409459,
+      "stage": "smoke",
+      "steps_per_model": 100,
+      "variants": 8,
+      "batch": 128,
+      "status": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed_s": 19
+    },
+    {
+      "id": 409462,
+      "stage": "pilot",
+      "steps_per_model": 1000,
+      "variants": 8,
+      "batch": 128,
+      "status": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed_s": 27
+    }
+  ],
+  "real_training_location": "AMD cluster only",
+  "simulation_collection_jobs": [],
+  "phase": "first offline pilot complete",
+  "reports": [
+    "fdm_runs/pilot_v1/comparison.md",
+    "fdm_runs/pilot_v1/strata.md",
+    "../../docs/vision/hmmwv_traverse/mppi_progress_20260908.md"
+  ],
+  "closed_loop_chrono_evaluated": false,
+  "contract_checks": "fdm_contract_checks_final.json",
+  "offline_preview": "fdm_runs/pilot_v1/mppi_preview.json"
+}
