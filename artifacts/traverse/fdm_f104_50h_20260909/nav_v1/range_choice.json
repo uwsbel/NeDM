@@ -1,0 +1,86 @@
+{
+ "Dabs": {
+  "unlimited": {
+   "cells": 1200,
+   "picked_unsafe": 0.15166666666666667,
+   "avoidable_unsafe": 0.0275,
+   "unavoidable": 0.12416666666666666,
+   "random_pick": 0.2972222222222224,
+   "mean_valid_fraction": 0.9558629918981482
+  },
+  "30 m": {
+   "cells": 1200,
+   "picked_unsafe": 0.1825,
+   "avoidable_unsafe": 0.058333333333333334,
+   "unavoidable": 0.12416666666666666,
+   "random_pick": 0.2972222222222224,
+   "mean_valid_fraction": 0.6561501736111112
+  },
+  "25 m": {
+   "cells": 1200,
+   "picked_unsafe": 0.20166666666666666,
+   "avoidable_unsafe": 0.0775,
+   "unavoidable": 0.12416666666666666,
+   "random_pick": 0.2972222222222224,
+   "mean_valid_fraction": 0.538857421875
+  },
+  "20 m": {
+   "cells": 1200,
+   "picked_unsafe": 0.22,
+   "avoidable_unsafe": 0.09583333333333334,
+   "unavoidable": 0.12416666666666666,
+   "random_pick": 0.2972222222222224,
+   "mean_valid_fraction": 0.42047417534722215
+  },
+  "15 m": {
+   "cells": 1200,
+   "picked_unsafe": 0.23416666666666666,
+   "avoidable_unsafe": 0.11,
+   "unavoidable": 0.12416666666666666,
+   "random_pick": 0.2972222222222224,
+   "mean_valid_fraction": 0.301160300925926
+  }
+ },
+ "H": {
+  "unlimited": {
+   "cells": 1200,
+   "picked_unsafe": 0.1475,
+   "avoidable_unsafe": 0.023333333333333334,
+   "unavoidable": 0.12416666666666666,
+   "random_pick": 0.2972222222222224,
+   "mean_valid_fraction": 0.9558629918981482
+  },
+  "30 m": {
+   "cells": 1200,
+   "picked_unsafe": 0.18083333333333335,
+   "avoidable_unsafe": 0.056666666666666664,
+   "unavoidable": 0.12416666666666666,
+   "random_pick": 0.2972222222222224,
+   "mean_valid_fraction": 0.6561501736111112
+  },
+  "25 m": {
+   "cells": 1200,
+   "picked_unsafe": 0.20583333333333334,
+   "avoidable_unsafe": 0.08166666666666667,
+   "unavoidable": 0.12416666666666666,
+   "random_pick": 0.2972222222222224,
+   "mean_valid_fraction": 0.538857421875
+  },
+  "20 m": {
+   "cells": 1200,
+   "picked_unsafe": 0.22416666666666665,
+   "avoidable_unsafe": 0.1,
+   "unavoidable": 0.12416666666666666,
+   "random_pick": 0.2972222222222224,
+   "mean_valid_fraction": 0.42047417534722215
+  },
+  "15 m": {
+   "cells": 1200,
+   "picked_unsafe": 0.24166666666666667,
+   "avoidable_unsafe": 0.1175,
+   "unavoidable": 0.12416666666666666,
+   "random_pick": 0.2972222222222224,
+   "mean_valid_fraction": 0.301160300925926
+  }
+ }
+}

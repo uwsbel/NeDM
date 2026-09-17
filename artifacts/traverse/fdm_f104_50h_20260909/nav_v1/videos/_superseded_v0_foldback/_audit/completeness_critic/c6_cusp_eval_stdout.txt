@@ -1,0 +1,12 @@
+== local eval
+('mission_complete', False) 99 
+('prolonged_blockage_terminated', False) 11 ['g203_nav_001__W', 'g204_nav_001__R1', 'g204_nav_003__R1', 'g213_nav_002__R1L', 'g216_nav_000__R1', 'g216_nav_000__R2', 'g216_nav_000__W', 'g228_nav_001__R1L', 'g228_nav_001__R2', 'g231_nav_000__R1L', 'g234_nav_003__R1L']
+('prolonged_blockage_terminated', True) 1 ['g203_nav_001__R1(1)']
+('rollover', False) 1 ['g223_nav_003__R2']
+('terrain_bounds_exit', False) 2 ['f104_nav_003__W', 'g223_nav_000__R1L']
+('terrain_bounds_exit', True) 6 ['g203_nav_000__R1L(4)', 'g204_nav_001__R1L(3)', 'g204_nav_001__R2(2)', 'g204_nav_003__R2(2)', 'g213_nav_001__R1(6)', 'g234_nav_000__R1(3)']
+== AMD main
+('mission_complete', False) 94 
+('mission_complete', True) 3 ['g204_nav_002__R1L(1)', 'g204_nav_003__W(1)', 'g216_nav_000__R1(1)']
+('prolonged_blockage_terminated', False) 9 ['f104_nav_001__W', 'g203_nav_001__R1L', 'g204_nav_000__R2', 'g216_nav_000__W', 'g216_nav_001__R1L', 'g228_nav_001__R1', 'g231_nav_001__R1', 'g231_nav_001__W', 'g234_nav_003__R2']
+('terrain_bounds_exit', True) 14 ['f104_nav_001__R1L(9)', 'g204_nav_001__R1(3)', 'g204_nav_001__R1L(3)', 'g204_nav_001__R2(2)', 'g204_nav_003__R1(2)', 'g204_nav_003__R1L(2)', 'g204_nav_003__R2(2)', 'g213_nav_001__R1(6)', 'g213_nav_001__R1L(5)', 'g223_nav_000__R1(3)', 'g223_nav_000__R2(1)', 'g223_nav_002__R2(1)', 'g234_nav_000__R2(2)', 'g234_nav_003__R1L(2)']

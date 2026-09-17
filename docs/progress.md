@@ -333,6 +333,229 @@ miss as the teacher. Notes:
 
 ---
 
+## Follow-on project: learned terrain-risk route planner (f104 arena)
+
+Beyond the manuscript's scope; worktree `traverse_mppi`. An HMMWV in Chrono must reach a goal across one fixed
+80 x 80 m arena of hills and craters (arena "f104", `assets/traverse/arena_f104_50h_v1`). The work deliberately
+overfits one arena first. Full records live next to the data: `artifacts/traverse/fdm_f104_50h_20260909/`
+(`night_v1/LOG.md`, `night2_v1/{PLAN,LOG,REPORT}.md`, `gen_v1/{PLAN,LOG}.md`). The written records, result
+summaries, figures, final checkpoints and mission definitions are in git (committed 2026-09-16); the bulk data
+(per-run folders, tensors, rendered frames, most videos) stays local and on the cluster.
+
+**Pipeline (inference).**
+
+1. *Map.* One vehicle-free overhead depth image of the arena (`static_map_v1/`, 512 x 512, 0.187 m/px), or the
+   arena heightmap encoded the same way (`scripts/gen_planner.set_map`; identical pick on 32/40 f104 pools, top-5 on
+   40/40). There is no onboard perception.
+2. *Route proposal* (`scripts/f104_n2_sampler.py`). 256 candidates from the straight start-to-goal route: 9 fixed
+   routes (lateral offset 0/-4/+4 m x 2/4/6 m/s) plus random ones built from a 3-mode sine lateral offset (capped
+   by the 0.125 /m curvature limit) and 4 speed knots with no forced slow-down except a 2 m/s^2 stopping cone at the
+   goal. Candidates that break curvature, acceleration or arena limits are rejected.
+3. *Risk model* (`scripts/gen_riskmodel.py`, weights `night2_v1/final/N2_s{0..4}.pt`, 256,677 parameters each,
+   5-seed ensemble). Input per candidate: a 6 x 96 x 32 corridor (96 stations along the route x 32 lateral samples
+   over +-6 m; channels height, along-path grade, cross-slope, commanded speed, valid mask, constant) plus 5 numbers
+   (goal dx, dy, distance, start heading, route length). No vehicle state. Architecture: 4 conv layers that never
+   pool along the route -> lateral mean+max -> per-station features + context + position -> Conv1d(k=5) ->
+   BiGRU(64) -> hazard logit per station; P(unsafe) = 1 - exp(-sum softplus). Trained with a discrete-time survival
+   loss on "unsafe" = did not reach goal OR slid backwards under throttle (after a 1 s settle).
+4. *Selection.* argmin predicted risk (no time term). 0.4 s for the whole plan on the workstation GPU.
+5. *Execution.* Chrono's stock `ChPathFollowerDriver` on a Bezier through the waypoints (steering PID look-ahead
+   5 m gains 0.8/0/0, speed PI 0.6/0.05), 20 Hz, 2 ms physics. Route chosen once; no replanning (except the
+   multi-goal missions below, which replan at each goal).
+
+**Data.** 36,199 driven routes (about 200 h simulated) over 2,700 start/goal groups on f104; the deployed model
+trained on 31,851. Waves: original 1,500 groups x 12 designed routes (66.4 h, `production_v2`), 1,200 new groups x 12
+designed routes (`production_v3`), 9,309 routes drawn from the planner's own proposals (`production_v4`). Tensors:
+`night2_v1/station_ds_all.npz`. Collection is cheap: the 66.4 h wave took 13.6 wall minutes on ~2,000 cluster workers.
+
+**Milestones (Chrono, paired arms in one cluster job; unsafe = failed or slid back).**
+
+| Date | Test | Result |
+|---|---|---|
+| 09-10 | 123 held-out groups, 2 m/s geometry-only planning | new station-preserving model: failed 15.4% -> 6.5%, unsafe 44.7% -> 17.9% |
+| 09-12 | 300 hill/crater groups, speed free (`night2_v1/closed_haz`) | night-1 planner -> night-2 planner: failed 3.7% -> 0.3%, unsafe 9.7% -> 0.3% (28 vs 0, p < 1e-8) |
+| 09-12 | same, speed fixed at 2 m/s, only the model differs | unsafe 4.3% -> 0.7% (12 vs 1, p = 0.003) |
+| 09-12 | tilt added to the label (`N2T_s*`) | runs past 30 deg 22 -> 0 of 300 |
+| 09-14 | 15 demo videos (`artifacts/f104_demo_v1`) | model's best / ~10% / worst route per scenario: 0/26, 4/26, 26/26 unsafe |
+
+What the gains are made of (09-12 decomposition of the 29 unsafe control runs): 29 -> 13 by letting candidates
+swing wider (old model), -> 2 by the new model on the same candidates, -> 1 by also letting them approach fast. The
+biggest single factor is speed/momentum.
+
+**Honest status after the 09-14 audit (9 agents + 3 verifiers).**
+
+- The pipeline works, but with speed free the deployed planner never beat "always drive 6 m/s straight" on its own
+  label on f104 (failed 1 vs 1, unsafe 1 vs 4, p = 0.375). Its wins over simple rules are at a fixed 2 m/s.
+- Offline the model is more than a speed reader or a memorised map: same-speed ranking ~0.95 vs 0.88 for the best
+  lookup; scored zero-shot on 6,633 routes from 24 other arenas it keeps within-start/goal ranking 0.90 (f104 bank
+  0.94), 0.87 on mirror-image left/right detours where shape/speed rules score 0.5. But its confident tail does not
+  transfer (catch rate at 5% false alarms 0.87 -> 0.51) and its lead over a hand terrain+speed rule is only
+  +0.04-0.08.
+- Known errors in the night-2 report: "the two models never picked the same route (523 groups)" is false (117 were
+  identical); the 6 m/s baseline's worst tilt on the hazard set is 59.5 deg (a rollover), not 45.9.
+- The model ranks well but is badly calibrated (median predicted 0.008% vs realised 0.33%): read scores as an ordering.
+
+**Where things are.**
+
+| What | Path |
+|---|---|
+| Arena, static map | `assets/traverse/arena_f104_50h_v1`, `artifacts/.../static_map_v1/` |
+| Frozen collector + generator | `scripts/collect_traverse_f104.py`, `scripts/generate_traverse_f104_collection.py`; cluster copy `source_v1/` |
+| Labels + tensors | `scripts/f104_n2_dataset.py` (cluster), `scripts/f104_n2_merge.py` -> `night2_v1/station_ds_all.npz` |
+| Training | `scripts/f104_n2_train.py` (architecture x state sweep), `f104_n2_final.py` (scaling), `f104_n2_deploy.py` (ensemble) |
+| Deployed model | `night2_v1/final/N2_s*.pt` (tilt-aware variant `N2T_s*`); night-1 control model `night_v1/final/H1_full_s*.pt` |
+| Planner as one module | `scripts/gen_planner.py` (map, proposal, corridor, model, hand rule, plan) |
+| Night-2 closed-loop tests | `scripts/f104_n2_{cand,pick,analyze,ext*,haz*,tilt*}.py`; results `night2_v1/closed*/results.json` |
+| Demo videos | `scripts/f104_demo_*.py`; `artifacts/f104_demo_v1/` |
+| Cluster campaign | `/work1/dannegrut/harry/experiments/fdm_f104_50h_20260909` (`production_v2..v4`, test run dirs, `gen_v1/`) |
+
+**Cleanup (2026-09-15).** Kept everything needed to explain and re-derive the results above; deleted what was
+rebuildable or superseded. Manifests with sizes: `artifacts/.../CLEANUP_2026-09-15_{local.tsv,scripts.txt}` and the
+cluster's `CLEANUP_2026-09-15_cluster.tsv`.
+- Local 36 GB -> 4.8 GB: candidate caches (`testcand*`, night-1 `cand/`, 18 GB, rebuildable from md5 seeds),
+  intermediate tensors (`station_ds_{fix,A1,A2,tilt}`, night-1 `station_ds`, feature caches), rendered frames and
+  Blender exports (videos kept), the superseded first video set, early 09-10 risk-head dataset, unused start/goal pools,
+  and the per-run rich telemetry of the local training-data copy.
+- Cluster 52 GB -> 10 GB: Blender exports, the aborted first production attempt and pilots, and per-run rich
+  telemetry everywhere (labels only need `trajectory.npz`, `outcome.json`, `command_reference.npz`, `case.json`; note
+  `episode_complete.json` still lists the deleted files' hashes).
+- 42 superseded or one-off f104 scripts removed (untracked; archived at
+  `~/NeDM-archive/traverse_mppi_removed_f104_scripts_2026-09-15.tar.gz`, 62 KB). Kept scripts all import cleanly.
+- Not touched (other research lines, for a separate decision): locally `artifacts/traverse/fdm_rgbd_*`,
+  `fdm_diverse_v1_20260909` (~8 GB), `training_runs`, `rl_runs`; on the cluster `fdm_diverse_v1_20260909` (14 GB),
+  `traverse_mppi_20260908` (7.2 GB), `state_ablation_20260908` (5.8 GB), `mppi_claude_20260908` (1.9 GB),
+  `fdm_failure_investigation_20260909` (1.7 GB); the `~/NeDM-mppi-claude` worktree.
+
+**Overnight 2026-09-15: longer tasks and new arenas** (`gen_v1/`, pre-registered in `gen_v1/PLAN.md`, report
+`gen_v1/REPORT.md`, figure `gen_v1/results.png`; model frozen).
+
+- *Five goals in a row* (one continuous simulation, replanning from the measured pose at each goal; 100 missions on
+  f104, 100 on new arenas). f104: the model's planner completed **99%** of missions vs 91% for a hand terrain+speed
+  rule and 90% for a 6 m/s straight line (10 vs 1, p = 0.012; 8 vs 0, p = 0.008), slid in 2% vs 7% / 11%, but took
+  54 s vs 36 s / 30 s. New arenas: 94% / 89% / 94%, slides 7% / 15% / 16%, leaned past 30 deg 9% / 21% / 42%.
+- *Five never-seen arenas* from the same terrain generator (closest 5 of 40 seeds), 200 hill/crater start/goals each.
+  Single goal, failed or slid: model 1.3%, hand rule 1.8%, straight 6 m/s 4.5% (model vs rule p = 0.42 — the
+  pre-registered primary test was null; vs straight p < 1e-5). At a fixed 2 m/s: 5.9% vs 13.6% vs 59.8% (model safer
+  than the rule on all 5 arenas). Offline ranking on 9,000 routes collected there: 0.955 within a start/goal, 0.905 at
+  matched speed (f104 held-out: 0.991 / 0.985; hand rule 0.902 / 0.778). The model is ~4 s slower per goal.
+- *Data*: 15,639 labelled routes on the new arenas, tensors `gen_v1/station_ds_gen_v1.npz`, not yet used for training.
+- Code: `scripts/gen_*.py` (planner module, cases, pools, missions, cluster runners, analyses, figures).
+
+**Sensor channels as the network input, 2026-09-15** (`sensor_v1/`, pre-registered `PLAN.md`, `REPORT.md`).
+One overhead RGB-D capture per arena (`scripts/sensor_capture_map.py`; the f104 re-capture is byte-identical to the
+original), ten-channel corridors (`scripts/sensor_dataset.py`), same network/rows/schedule trained on the cluster
+(`scripts/sensor_train.py`), planner support in `scripts/gen_planner.py` (`set_sensor_map`, `SensorRiskModel`).
+- Raw depth (+ camera ray angle) matches the current model on f104 but is significantly worse on the five new arenas,
+  replicated on two fresh 1,200-start/goal Chrono tests (2 m/s unsafe 9.4% vs 7.2%, then 9.3% vs 5.7%).
+- Depth converted to height with the known camera intrinsics, without the hand-made slope channels (E0,
+  `sensor_v1/final/E0_s*.pt`): not different from the current model (2 m/s 6.5% vs 5.7%, p = 0.30; speed free
+  1.0% vs 0.75%, non-inferior), though the 2 m/s upper bound (+2.25) misses the declared +2.0 margin.
+- Colour channels hurt transfer to new arenas offline (within-start/goal ranking 0.85-0.87 vs 0.94-0.95).
+
+**Corrected depth->world pipeline and matched height/depth training, 2026-09-15** (`sensor_v2/`, `REPORT.md`;
+prompted by the independent review in `artifacts/reviews/sensor_input_20260915/`).
+- `scripts/sensor_map_v2.py` back-projects every depth pixel with the camera intrinsics into a metric world grid
+  (the old sampler assumed flat ground). Height error against the authored heightmap falls from 0.027-0.044 m to
+  0.0071-0.0087 m (0.0008 m per pixel against the terrain Chrono actually simulates); verified by two independent
+  re-implementations against orientation, intrinsics, registration, aggregation and edge tests.
+- Repo-level finding: `TerrainMap`, the privileged height oracle, is offset from Chrono's `RigidTerrain` by a pure
+  511/512 radial scale (up to 0.078 m at the arena edge). Every previous "authored height" reference inherits it.
+- Matched training (identical rows/labels/seeds/budget, split by whole arena, train f104+g228+g203+g217, held out
+  g216+g231), primary metric route choice at matched speed: height + slopes 14.50% unsafe picks, height only 14.50%,
+  absolute range + ray secant 14.92% (+0.42 [-0.42, +1.25]), relative range (the old depth arm) 15.58%
+  (+1.08 [+0.25, +2.00]). Direct depth matches height once the geometry is corrected and absolute range is kept.
+- Chrono pilot (200 held-out-arena start/goals, 1,066 drives): no difference resolvable - 2 m/s unsafe 6.0% height vs
+  5.0% depth vs 7.5% old-depth, speed-free 0.5/0.0/0.5%, identical travel time. Geometric accuracy improved 4-10x; a
+  planning gain is not demonstrated. Next: ~1,200 fixed-speed start/goals on genuinely new arenas.
+
+**Vehicle-included depth input (pilot, 2026-09-15)** (`sensor_v2/VEHICLE_PILOT.md`). One overhead RGB-D frame per
+planning decision with the HMMWV present after the settle (`scripts/vehicle_capture.py`), a footprint-based exclusion
+zone at the measured pose (`scripts/vehicle_corridor.py`), corridor coordinates preserved and hidden ground never
+filled. Measured: the vehicle plus its shadow reaches at most 0.50 m outside the bare footprint, so a 1.5 m margin
+covers it; 5.2% of corridor samples become invalid. Vehicle-included + mask is identical to vehicle-free + mask
+(0.0000 m, same pick 20/20). 63 drives: 0 unsafe and 0 failures in both conditions. On 1,200 labelled choices the mask
+costs +0.33 points (height) / -0.09 (depth). Preprocessing works; retraining not justified yet.
+
+**Continuous sensor-driven waypoint navigation (nav_v1, 2026-09-16)** (`nav_v1/REPORT.md`, `PLAN.md`, `LOG.md`,
+`RUNNING.md`). One Chrono rollout per mission, the vehicle never reset: at every planning decision the simulator
+renders one overhead depth frame **with the HMMWV in it**, back-projects it to the metric grid, masks the vehicle's
+own footprint, builds 256 candidate corridors from that single frame and hands the lowest-risk route to the path
+follower (`scripts/nav_runner.py`, `scripts/nav_online.py`). 30 missions on 10 arenas (6 development + 4 never seen:
+g213, g204, g234, g223), 5-8 waypoints, 150-228 m; 120 rollouts, 5,043 decisions, 29.9 km driven.
+
+- **It works.** One decision per waypoint completes 27/30 missions and 96.5% of waypoints, and **16/16 on the four
+  arenas never seen before**. The random-pick control with the identical loop completes 6/30 against 24/30,
+  reaches 45.2% of waypoints against 87.9%, takes 166 s a mission against 76 s, and slides backwards in 28 of 30.
+- **Replanning every 1-2 s did not improve completion in the AMD campaign, but that comparison is confounded by a
+  runner bug (found 09-16).** Plan-once completed 27/30, stalled on 3 and never left the terrain; every 2 s completed 23/30, every 1 s 24/30 and every 1 s with the planning delay charged 23/30, stalling on 2 each but with 4-5 runs each that drove off the arena. **All 14 of those exits followed a rescue route that doubled back on itself**: when no normal candidate was valid, the stand-in goal
+  could sit directly behind the vehicle, and the route checker scored the resulting sharp reversal as curvature 0.
+  Replanning asks for rescue routes far more often, so the exits landed on those arms. The earlier explanation
+  (re-anchoring at the drifted pose with no boundary term) is withdrawn. Fix: routes that turn more than 45 deg
+  between consecutive points are rejected; the fixed 120-run re-run is in progress on luffy
+  (`nav_v1/local_luffy/`). Legs with a backward slide are the same across arms. Travel time favours replanning by 3-6 s per mission when planning
+  is free and goes the other way (+3.1 s) once the measured planning delay is charged; every CI includes zero. The
+  value of replanning is not demonstrated with the whole arena visible at every decision — which is the condition
+  these runs are in.
+- **Latency, separated from the simulator.** Per decision on a campaign node: 2.6 s (median) of Chrono's software depth render plus 1.5-1.8 s of planner. The planner alone is **0.42 s (2.4 Hz) on an MI350X** and 0.71 s on that
+  node's CPU, and the risk network is only 42 ms of it; candidate generation and corridor extraction dominate.
+  The `R1L` arm charges the measured algorithmic latency back to the simulation.
+- **Rest vs moving needs no retraining.** The model reads no vehicle state, so a route scores the same parked or at
+  6 m/s; 83% of decisions (every-2 s arm) are taken above 2 m/s and 10 slide events follow 802 periodic decisions
+  taken while moving (1.2%, the same rate as at waypoints). The dangerous group is decisions taken when the vehicle
+  has *already* dropped below 2 m/s (78 of 147 followed by a slide), which no route choice fixes.
+- **Limited sensing range is where retraining pays.** Cropping the frame to a radius around the vehicle, measured on
+  1,200 labelled choices: avoidable unsafe picks go 2.3% (whole arena) -> 5.7% (30 m) -> 10.0% (20 m) -> 11.8%
+  (15 m) against 17.3% for random. Retraining the whole matched pipeline on 20 m corridors recovers 1.25-1.33 points
+  of that (9.58 -> 8.33% depth, 10.00 -> 8.67% height): the loss is mostly missing terrain, not distribution shift.
+- **Six infrastructure defects were found and fixed before the reported campaign**, each one hitting the replanning
+  arms harder for reasons unrelated to planning (LOG.md has every measurement): the path follower's speed integrator
+  resets on every route change; carrying it then needs anti-windup; a waypoint can be unreachable by every shape the
+  frozen route builder tries; rescue arcs at the 8 m minimum radius are untrackable at 4 m/s; routes were allowed to
+  touch the terrain edge; and a fixed planning margin cripples the planner once the vehicle is outside it. A
+  seventh, the doubled-back rescue routes above, was found after the campaign.
+- **Depth render latency** (`render_latency_v1/README.md`). The 2.6 s per frame on the cluster is Chrono's Vulkan
+  ray tracing running on a CPU software driver (~1.9 s) plus Chrono rebuilding the whole ~800k-triangle scene every
+  frame (~0.8 s). The same 1024x1024 depth frame takes 7 ms with OptiX on the workstation's RTX 5090 (user's
+  source-built Chrono with the depth-FOV fix) and matches the cluster's depth to 5e-5 m.
+- **Local re-run on luffy** (OptiX; `scripts/nav_local.py`, `scripts/nav_local_batch.py`; `nav_v1/LOG.md`). Per
+  decision 0.9-1.1 s with six runs sharing the CPU, now dominated by candidate generation, not rendering. The first
+  local re-run (before the fix, `local_luffy_v0_foldback/`; it had the same bug, so it is not independent confirmation) gave the same picture as the cluster: plan-once 27/30
+  (16/16 unseen), every 2 s 25/30, every 1 s 24/30, delay-charged 23/30.
+
+**Gaps in the committed record (checked 2026-09-16, before the first push of this branch).** What git holds for
+this project is the written records, result summaries, figures, final checkpoints (LFS) and mission definitions.
+These things are *not* checkable from git alone:
+
+- *Start/goal definitions of the night-2 test groups* (1,007 groups): only the group IDs are committed
+  (`night2_v1/*_test_groups.json`). The case files are local (`cases_{test,ext,haz}_final/`) and on the cluster;
+  the 4,000-group pools they were drawn from were deleted on 09-15.
+- *Removed scripts*: the 15 night-1 analysis scripts deleted in the 09-15 cleanup (including the night-1 checkpoint
+  scorer and the only loaders of `night_v1/final/A1_full_s*.pt`) exist only in the archive tarball named above.
+- *Numbers with no saved output file*: the 09-14 audit's offline ranking figures (0.95 vs 0.88, the 24-arena
+  zero-shot scores); night-1 LOG steps 3, 8 and 11; night-2's fourth-audit re-runs; the sensor_v2 matched
+  3-seed ensemble table (14.50 / 14.50 / 14.92 / 15.58%; only per-seed rows were saved, and `matched_H.json`
+  holds seed 2 only); the vehicle-pilot mask cost (+0.33 / -0.09); the gen_v1 heightmap-vs-depth-map check
+  (32/40 identical picks; the `gen_planner.py` docstring quotes different figures); the nav_v1 controller checks
+  in its REPORT section 2; the nav_v1 leak re-check in its LOG (0.078 m, 6.9 m/s, 82%).
+- *nav_v1 per-run files* (`main/runs/*/{decisions,routes}.json`, trajectories; local and cluster): only the
+  per-run outcomes are committed, so the rescue-route extent behind the correction is recorded only in the saved
+  output `videos/_superseded_v0_foldback/_audit/completeness_critic/c6_cusp_eval_stdout.txt`.
+- *Videos and case files left out on purpose*: 12 of the 15 f104 demo videos (scenario 1 is committed), the
+  per-route four-route MP4s of the RGB-D line, and the f104 collection `cases/cases.json` files that
+  `fdm_f104_50h_collection_20260909.md` links.
+- *Cluster job scripts*: the nav_v1 and night-2 test `.sbatch` files (and the night-2 runners) are copied as run into
+  `scripts/`; they point at cluster paths and at the campaign's frozen code copies.
+- *Cluster only*: nav_v1's random-pick control (`R1rand`) and the checkpoints retrained on 20 m corridors
+  (`nav_v1/r20_choice.json` is the committed record); production_v3/v4 and the frozen `source_v1/`.
+- *Earlier RGB-D / MPPI line* (`docs/vision/hmmwv_traverse/`): `protected_test_offline_final_v2/report.json`
+  (10.3 MB, its SHA is in `complete.json`) and the matched blank-image checkpoint (AMD only) are not committed; the
+  43.91% contact risk quoted for the smooth-hill straight route is only in the uncommitted `candidates.json`.
+  `mppi_document_index_20260909.md` is a local-machine index: its links are absolute paths on the workstation and
+  55 of them point at files that are not committed (it is left unedited because its hash is recorded in
+  `mppi_documents_20260909/verification.json`).
+
+---
+
 ## Superseded work
 
 Kept as a record of what was tried. These runs and caches still exist locally but

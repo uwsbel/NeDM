@@ -1,0 +1,22 @@
+{
+ "Dabs": {
+  "unlimited": {
+   "cells": 1200,
+   "picked_unsafe": 0.2075,
+   "avoidable_unsafe": 0.08333333333333333,
+   "unavoidable": 0.12416666666666666,
+   "random_pick": 0.2972222222222224,
+   "mean_valid_fraction": 0.42047417534722215
+  }
+ },
+ "H": {
+  "unlimited": {
+   "cells": 1200,
+   "picked_unsafe": 0.21083333333333334,
+   "avoidable_unsafe": 0.08666666666666667,
+   "unavoidable": 0.12416666666666666,
+   "random_pick": 0.2972222222222224,
+   "mean_valid_fraction": 0.42047417534722215
+  }
+ }
+}

@@ -1,0 +1,357 @@
+{
+ "label": "sustained_rgbd_1024",
+ "size": 1024,
+ "with_rgb": true,
+ "scene_build_s": 8.82159759499973,
+ "settle_physics_s": 12.500793987999714,
+ "gpu_baseline_before_build": {
+  "t": 1789591983.6184847,
+  "mem_used_mib": 173.0,
+  "util_pct": 0.0,
+  "compute_apps": ""
+ },
+ "regimes": {
+  "moving": {
+   "frames": 300,
+   "physics_steps_between_frames": 25,
+   "render_s": {
+    "median": 0.01754913900003885,
+    "p10": 0.015197363899733318,
+    "p90": 0.018029114000000845,
+    "p99": 0.018499341149390603,
+    "max": 0.061367109000457276,
+    "mean": 0.016859095679953195
+   },
+   "update_median_s": 0.010084997500598547,
+   "take_median_s": 0.0074663335003606335,
+   "physics_between_median_s": 0.04725933099962276,
+   "render_only_fps_from_median": 56.982852548936236,
+   "render_only_fps_from_mean": 59.315162508335455,
+   "loop_wall_s": 19.70757423500072,
+   "loop_fps_including_physics": 15.222573637053664,
+   "process_cpu_s_per_wall_s": 1.0094488333154956,
+   "render_s_first10": [
+    0.061367109000457276,
+    0.018027603000518866,
+    0.017837296999459795,
+    0.017652542000178073,
+    0.01786907899986545,
+    0.017752194999957283,
+    0.017924759999914386,
+    0.017727933999594825,
+    0.017738814000040293,
+    0.017629629999646568
+   ],
+   "render_s_last10": [
+    0.0152733699997043,
+    0.015135476000068593,
+    0.015913309000097797,
+    0.015307861000110279,
+    0.015631589999429707,
+    0.015906808999716304,
+    0.01550458699966839,
+    0.015291220000108297,
+    0.015461255000445817,
+    0.01509874499970465
+   ],
+   "freshness": {
+    "frames_checked": 300,
+    "vehicle_pixels_median": 1252.5,
+    "moved_between_frames_median_m": 0.2032010645312225,
+    "centroid_minus_current_pose_forward_m": {
+     "median": -0.15818216647473404,
+     "std": 0.04937136419876065
+    },
+    "centroid_minus_current_pose_left_m": {
+     "median": 0.1167487553081524,
+     "std": 0.09802371542673331
+    },
+    "centroid_minus_previous_frame_pose_forward_m": {
+     "median": 0.032131834260492355,
+     "std": 0.05314646609585795
+    },
+    "note": "a fresh frame gives a constant body-frame offset to the CURRENT pose (small std); a one-frame-stale frame would be constant relative to the PREVIOUS pose instead"
+   }
+  },
+  "tight": {
+   "frames": 300,
+   "physics_steps_between_frames": 1,
+   "render_s": {
+    "median": 0.025202024999998685,
+    "p10": 0.0249346872001297,
+    "p90": 0.029132456799925422,
+    "p99": 0.02973773673049436,
+    "max": 0.0303666420004447,
+    "mean": 0.025517018163339646
+   },
+   "update_median_s": 0.00980325249975067,
+   "take_median_s": 0.015389151500130538,
+   "physics_between_median_s": 0.0055147459997897386,
+   "render_only_fps_from_median": 39.67935116325185,
+   "render_only_fps_from_mean": 39.18953200561271,
+   "loop_wall_s": 9.328036290000455,
+   "loop_fps_including_physics": 32.16110987063767,
+   "process_cpu_s_per_wall_s": 1.0207024305004648,
+   "render_s_first10": [
+    0.01497940999979619,
+    0.01529647000006662,
+    0.015284299999620998,
+    0.015099164000275778,
+    0.015273630000592675,
+    0.015208188000542577,
+    0.015384092999738641,
+    0.014997501999459928,
+    0.015037352000035753,
+    0.015010381999672973
+   ],
+   "render_s_last10": [
+    0.02500821800003905,
+    0.024883705000320333,
+    0.025097280999943905,
+    0.0250089780001872,
+    0.025023529000463895,
+    0.02526661600040825,
+    0.02513181300037104,
+    0.02493991699975595,
+    0.0252320059998965,
+    0.025216054000338772
+   ]
+  }
+ },
+ "gpu": {
+  "settle": {
+   "samples": 2,
+   "mem_used_mib_max": 833.0,
+   "mem_used_mib_median": 503.0,
+   "util_pct_median": 0.0,
+   "util_pct_max": 0.0
+  },
+  "moving": {
+   "samples": 18,
+   "mem_used_mib_max": 1563.0,
+   "mem_used_mib_median": 1563.0,
+   "util_pct_median": 2.0,
+   "util_pct_max": 2.0
+  },
+  "tight": {
+   "samples": 8,
+   "mem_used_mib_max": 1563.0,
+   "mem_used_mib_median": 1563.0,
+   "util_pct_median": 4.0,
+   "util_pct_max": 4.0
+  }
+ },
+ "gpu_compute_apps_example": "105924, 1382",
+ "gpu_samples": [
+  {
+   "t": 1789592004.4209962,
+   "mem_used_mib": 173.0,
+   "util_pct": 0.0,
+   "compute_apps": "105924, 652",
+   "tag": "settle"
+  },
+  {
+   "t": 1789592005.5738573,
+   "mem_used_mib": 833.0,
+   "util_pct": 0.0,
+   "compute_apps": "105924, 652",
+   "tag": "settle"
+  },
+  {
+   "t": 1789592006.6995661,
+   "mem_used_mib": 1563.0,
+   "util_pct": 0.0,
+   "compute_apps": "105924, 1382",
+   "tag": "moving"
+  },
+  {
+   "t": 1789592007.8502445,
+   "mem_used_mib": 1563.0,
+   "util_pct": 1.0,
+   "compute_apps": "105924, 1382",
+   "tag": "moving"
+  },
+  {
+   "t": 1789592009.035537,
+   "mem_used_mib": 1563.0,
+   "util_pct": 1.0,
+   "compute_apps": "105924, 1382",
+   "tag": "moving"
+  },
+  {
+   "t": 1789592010.1665251,
+   "mem_used_mib": 1563.0,
+   "util_pct": 1.0,
+   "compute_apps": "105924, 1382",
+   "tag": "moving"
+  },
+  {
+   "t": 1789592011.3029003,
+   "mem_used_mib": 1563.0,
+   "util_pct": 1.0,
+   "compute_apps": "105924, 1382",
+   "tag": "moving"
+  },
+  {
+   "t": 1789592012.3988724,
+   "mem_used_mib": 1563.0,
+   "util_pct": 1.0,
+   "compute_apps": "105924, 1382",
+   "tag": "moving"
+  },
+  {
+   "t": 1789592013.5422175,
+   "mem_used_mib": 1563.0,
+   "util_pct": 2.0,
+   "compute_apps": "105924, 1382",
+   "tag": "moving"
+  },
+  {
+   "t": 1789592014.6754751,
+   "mem_used_mib": 1563.0,
+   "util_pct": 2.0,
+   "compute_apps": "105924, 1382",
+   "tag": "moving"
+  },
+  {
+   "t": 1789592015.7802145,
+   "mem_used_mib": 1563.0,
+   "util_pct": 2.0,
+   "compute_apps": "105924, 1382",
+   "tag": "moving"
+  },
+  {
+   "t": 1789592016.932449,
+   "mem_used_mib": 1563.0,
+   "util_pct": 2.0,
+   "compute_apps": "105924, 1382",
+   "tag": "moving"
+  },
+  {
+   "t": 1789592018.0592344,
+   "mem_used_mib": 1563.0,
+   "util_pct": 2.0,
+   "compute_apps": "105924, 1382",
+   "tag": "moving"
+  },
+  {
+   "t": 1789592019.2172194,
+   "mem_used_mib": 1563.0,
+   "util_pct": 1.0,
+   "compute_apps": "105924, 1382",
+   "tag": "moving"
+  },
+  {
+   "t": 1789592020.3199823,
+   "mem_used_mib": 1563.0,
+   "util_pct": 2.0,
+   "compute_apps": "105924, 1382",
+   "tag": "moving"
+  },
+  {
+   "t": 1789592021.4701993,
+   "mem_used_mib": 1563.0,
+   "util_pct": 2.0,
+   "compute_apps": "105924, 1382",
+   "tag": "moving"
+  },
+  {
+   "t": 1789592022.6139362,
+   "mem_used_mib": 1563.0,
+   "util_pct": 2.0,
+   "compute_apps": "105924, 1382",
+   "tag": "moving"
+  },
+  {
+   "t": 1789592023.7278185,
+   "mem_used_mib": 1563.0,
+   "util_pct": 2.0,
+   "compute_apps": "105924, 1382",
+   "tag": "moving"
+  },
+  {
+   "t": 1789592024.8752723,
+   "mem_used_mib": 1563.0,
+   "util_pct": 2.0,
+   "compute_apps": "105924, 1382",
+   "tag": "moving"
+  },
+  {
+   "t": 1789592026.0290737,
+   "mem_used_mib": 1563.0,
+   "util_pct": 2.0,
+   "compute_apps": "105924, 1382",
+   "tag": "moving"
+  },
+  {
+   "t": 1789592027.1132777,
+   "mem_used_mib": 1563.0,
+   "util_pct": 3.0,
+   "compute_apps": "105924, 1382",
+   "tag": "tight"
+  },
+  {
+   "t": 1789592028.1920562,
+   "mem_used_mib": 1563.0,
+   "util_pct": 4.0,
+   "compute_apps": "105924, 1382",
+   "tag": "tight"
+  },
+  {
+   "t": 1789592029.2595994,
+   "mem_used_mib": 1563.0,
+   "util_pct": 4.0,
+   "compute_apps": "105924, 1382",
+   "tag": "tight"
+  },
+  {
+   "t": 1789592030.3469968,
+   "mem_used_mib": 1563.0,
+   "util_pct": 4.0,
+   "compute_apps": "105924, 1382",
+   "tag": "tight"
+  },
+  {
+   "t": 1789592031.4191394,
+   "mem_used_mib": 1563.0,
+   "util_pct": 3.0,
+   "compute_apps": "105924, 1382",
+   "tag": "tight"
+  },
+  {
+   "t": 1789592032.4856696,
+   "mem_used_mib": 1563.0,
+   "util_pct": 4.0,
+   "compute_apps": "105924, 1382",
+   "tag": "tight"
+  },
+  {
+   "t": 1789592033.5709333,
+   "mem_used_mib": 1563.0,
+   "util_pct": 4.0,
+   "compute_apps": "105924, 1382",
+   "tag": "tight"
+  },
+  {
+   "t": 1789592034.6538517,
+   "mem_used_mib": 1563.0,
+   "util_pct": 4.0,
+   "compute_apps": "105924, 1382",
+   "tag": "tight"
+  },
+  {
+   "t": 1789592035.705443,
+   "mem_used_mib": 1563.0,
+   "util_pct": 3.0,
+   "compute_apps": "105924, 1382",
+   "tag": "done"
+  },
+  {
+   "t": 1789592036.7576158,
+   "mem_used_mib": 1563.0,
+   "util_pct": 0.0,
+   "compute_apps": "105924, 1382",
+   "tag": "done"
+  }
+ ]
+}

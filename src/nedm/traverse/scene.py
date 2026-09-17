@@ -220,6 +220,8 @@ class RenderSpec:
     cam_height_m: float = 100.0
     hfov_rad: float = math.radians(47.0)
     with_depth: bool = True
+    with_rgb: bool = True  # the overhead RGB camera doubles the software-rasteriser cost; depth-only planners
+                           # (scripts/nav_runner.py) switch it off, which changes nothing they read
     max_depth_m: float = 250.0
     plan_markers: bool = False  # showcase only; OFF for data collection
     light_elevation_deg: float = 55.0  # WP0b geometry probes use ~80 (less shading bias)
@@ -428,13 +430,14 @@ def build_scene(
 
         trigger_rate_hz = 1.0 / float(config["simulation"]["step_size_s"])
         pose = overhead_camera_pose(render.cam_height_m)
-        rgb_cam = sens.ChCameraSensor(patch_body, trigger_rate_hz, pose, render.width, render.height, render.hfov_rad)
-        rgb_cam.SetName("overhead_rgb")
-        rgb_cam.SetLag(0.0)
-        rgb_cam.SetCollectionWindow(0.0)
-        rgb_cam.PushFilter(sens.ChFilterRGBA8Access())
-        manager.AddSensor(rgb_cam)
-        rgb_tap = _rgb_tap(rgb_cam)
+        if render.with_rgb:
+            rgb_cam = sens.ChCameraSensor(patch_body, trigger_rate_hz, pose, render.width, render.height, render.hfov_rad)
+            rgb_cam.SetName("overhead_rgb")
+            rgb_cam.SetLag(0.0)
+            rgb_cam.SetCollectionWindow(0.0)
+            rgb_cam.PushFilter(sens.ChFilterRGBA8Access())
+            manager.AddSensor(rgb_cam)
+            rgb_tap = _rgb_tap(rgb_cam)
 
         if render.with_depth:
             depth_cam = sens.ChDepthCamera(

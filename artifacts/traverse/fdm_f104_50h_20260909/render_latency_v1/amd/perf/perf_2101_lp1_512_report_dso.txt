@@ -1,0 +1,33 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 30K of event 'cpu-clock:u'
+# Event count (approx.): 123120000000
+#
+# Overhead  Shared Object       
+# ........  ....................
+#
+    74.20%  [JIT] tid 180004    
+    21.17%  libChrono_core.so   
+     1.66%  libChrono_sensor.so 
+     1.41%  libc.so.6           
+     0.97%  libvulkan_lvp.so    
+     0.22%  libpython3.12.so.1.0
+     0.21%  libstdc++.so.6      
+     0.04%  ld-linux-x86-64.so.2
+     0.04%  libm.so.6           
+     0.03%  libChrono_vehicle.so
+     0.02%  _core.so            
+     0.01%  _sensor.so          
+     0.01%  [vdso]              
+     0.01%  _vehicle.so         
+     0.01%  libgcc_s.so.1       
+     0.00%  libcrypto.so.3.5.1  
+     0.00%  libzstd.so.1        
+
+
+#
+# (Tip: To add Node.js USDT(User-Level Statically Defined Tracing): perf buildid-cache --add `which node`)
+#

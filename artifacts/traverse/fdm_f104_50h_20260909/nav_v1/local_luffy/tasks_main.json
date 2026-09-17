@@ -1,0 +1,1082 @@
+[
+ {
+  "mission": "f104_nav_000",
+  "arm": "R1",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "f104_nav_001",
+  "arm": "R1",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "f104_nav_002",
+  "arm": "R1",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "f104_nav_003",
+  "arm": "R1",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g203_nav_000",
+  "arm": "R1",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g203_nav_001",
+  "arm": "R1",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g204_nav_000",
+  "arm": "R1",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g204_nav_001",
+  "arm": "R1",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g204_nav_002",
+  "arm": "R1",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g204_nav_003",
+  "arm": "R1",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g213_nav_000",
+  "arm": "R1",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g213_nav_001",
+  "arm": "R1",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g213_nav_002",
+  "arm": "R1",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g213_nav_003",
+  "arm": "R1",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g216_nav_000",
+  "arm": "R1",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g216_nav_001",
+  "arm": "R1",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g217_nav_000",
+  "arm": "R1",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g217_nav_001",
+  "arm": "R1",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g223_nav_000",
+  "arm": "R1",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g223_nav_001",
+  "arm": "R1",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g223_nav_002",
+  "arm": "R1",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g223_nav_003",
+  "arm": "R1",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g228_nav_000",
+  "arm": "R1",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g228_nav_001",
+  "arm": "R1",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g231_nav_000",
+  "arm": "R1",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g231_nav_001",
+  "arm": "R1",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g234_nav_000",
+  "arm": "R1",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g234_nav_001",
+  "arm": "R1",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g234_nav_002",
+  "arm": "R1",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g234_nav_003",
+  "arm": "R1",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "f104_nav_000",
+  "arm": "R1L",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": -2.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "f104_nav_001",
+  "arm": "R1L",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": -2.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "f104_nav_002",
+  "arm": "R1L",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": -2.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "f104_nav_003",
+  "arm": "R1L",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": -2.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g203_nav_000",
+  "arm": "R1L",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": -2.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g203_nav_001",
+  "arm": "R1L",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": -2.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g204_nav_000",
+  "arm": "R1L",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": -2.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g204_nav_001",
+  "arm": "R1L",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": -2.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g204_nav_002",
+  "arm": "R1L",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": -2.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g204_nav_003",
+  "arm": "R1L",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": -2.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g213_nav_000",
+  "arm": "R1L",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": -2.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g213_nav_001",
+  "arm": "R1L",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": -2.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g213_nav_002",
+  "arm": "R1L",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": -2.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g213_nav_003",
+  "arm": "R1L",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": -2.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g216_nav_000",
+  "arm": "R1L",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": -2.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g216_nav_001",
+  "arm": "R1L",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": -2.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g217_nav_000",
+  "arm": "R1L",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": -2.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g217_nav_001",
+  "arm": "R1L",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": -2.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g223_nav_000",
+  "arm": "R1L",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": -2.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g223_nav_001",
+  "arm": "R1L",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": -2.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g223_nav_002",
+  "arm": "R1L",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": -2.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g223_nav_003",
+  "arm": "R1L",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": -2.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g228_nav_000",
+  "arm": "R1L",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": -2.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g228_nav_001",
+  "arm": "R1L",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": -2.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g231_nav_000",
+  "arm": "R1L",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": -2.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g231_nav_001",
+  "arm": "R1L",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": -2.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g234_nav_000",
+  "arm": "R1L",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": -2.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g234_nav_001",
+  "arm": "R1L",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": -2.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g234_nav_002",
+  "arm": "R1L",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": -2.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g234_nav_003",
+  "arm": "R1L",
+  "mode": "periodic",
+  "period": 1.0,
+  "latency_s": -2.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "f104_nav_000",
+  "arm": "R2",
+  "mode": "periodic",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "f104_nav_001",
+  "arm": "R2",
+  "mode": "periodic",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "f104_nav_002",
+  "arm": "R2",
+  "mode": "periodic",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "f104_nav_003",
+  "arm": "R2",
+  "mode": "periodic",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g203_nav_000",
+  "arm": "R2",
+  "mode": "periodic",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g203_nav_001",
+  "arm": "R2",
+  "mode": "periodic",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g204_nav_000",
+  "arm": "R2",
+  "mode": "periodic",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g204_nav_001",
+  "arm": "R2",
+  "mode": "periodic",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g204_nav_002",
+  "arm": "R2",
+  "mode": "periodic",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g204_nav_003",
+  "arm": "R2",
+  "mode": "periodic",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g213_nav_000",
+  "arm": "R2",
+  "mode": "periodic",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g213_nav_001",
+  "arm": "R2",
+  "mode": "periodic",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g213_nav_002",
+  "arm": "R2",
+  "mode": "periodic",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g213_nav_003",
+  "arm": "R2",
+  "mode": "periodic",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g216_nav_000",
+  "arm": "R2",
+  "mode": "periodic",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g216_nav_001",
+  "arm": "R2",
+  "mode": "periodic",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g217_nav_000",
+  "arm": "R2",
+  "mode": "periodic",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g217_nav_001",
+  "arm": "R2",
+  "mode": "periodic",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g223_nav_000",
+  "arm": "R2",
+  "mode": "periodic",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g223_nav_001",
+  "arm": "R2",
+  "mode": "periodic",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g223_nav_002",
+  "arm": "R2",
+  "mode": "periodic",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g223_nav_003",
+  "arm": "R2",
+  "mode": "periodic",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g228_nav_000",
+  "arm": "R2",
+  "mode": "periodic",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g228_nav_001",
+  "arm": "R2",
+  "mode": "periodic",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g231_nav_000",
+  "arm": "R2",
+  "mode": "periodic",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g231_nav_001",
+  "arm": "R2",
+  "mode": "periodic",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g234_nav_000",
+  "arm": "R2",
+  "mode": "periodic",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g234_nav_001",
+  "arm": "R2",
+  "mode": "periodic",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g234_nav_002",
+  "arm": "R2",
+  "mode": "periodic",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g234_nav_003",
+  "arm": "R2",
+  "mode": "periodic",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "f104_nav_000",
+  "arm": "W",
+  "mode": "waypoint",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "f104_nav_001",
+  "arm": "W",
+  "mode": "waypoint",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "f104_nav_002",
+  "arm": "W",
+  "mode": "waypoint",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "f104_nav_003",
+  "arm": "W",
+  "mode": "waypoint",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g203_nav_000",
+  "arm": "W",
+  "mode": "waypoint",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g203_nav_001",
+  "arm": "W",
+  "mode": "waypoint",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g204_nav_000",
+  "arm": "W",
+  "mode": "waypoint",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g204_nav_001",
+  "arm": "W",
+  "mode": "waypoint",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g204_nav_002",
+  "arm": "W",
+  "mode": "waypoint",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g204_nav_003",
+  "arm": "W",
+  "mode": "waypoint",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g213_nav_000",
+  "arm": "W",
+  "mode": "waypoint",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g213_nav_001",
+  "arm": "W",
+  "mode": "waypoint",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g213_nav_002",
+  "arm": "W",
+  "mode": "waypoint",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g213_nav_003",
+  "arm": "W",
+  "mode": "waypoint",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g216_nav_000",
+  "arm": "W",
+  "mode": "waypoint",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g216_nav_001",
+  "arm": "W",
+  "mode": "waypoint",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g217_nav_000",
+  "arm": "W",
+  "mode": "waypoint",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g217_nav_001",
+  "arm": "W",
+  "mode": "waypoint",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g223_nav_000",
+  "arm": "W",
+  "mode": "waypoint",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g223_nav_001",
+  "arm": "W",
+  "mode": "waypoint",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g223_nav_002",
+  "arm": "W",
+  "mode": "waypoint",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g223_nav_003",
+  "arm": "W",
+  "mode": "waypoint",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g228_nav_000",
+  "arm": "W",
+  "mode": "waypoint",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g228_nav_001",
+  "arm": "W",
+  "mode": "waypoint",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g231_nav_000",
+  "arm": "W",
+  "mode": "waypoint",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g231_nav_001",
+  "arm": "W",
+  "mode": "waypoint",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g234_nav_000",
+  "arm": "W",
+  "mode": "waypoint",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g234_nav_001",
+  "arm": "W",
+  "mode": "waypoint",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g234_nav_002",
+  "arm": "W",
+  "mode": "waypoint",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ },
+ {
+  "mission": "g234_nav_003",
+  "arm": "W",
+  "mode": "waypoint",
+  "period": 2.0,
+  "latency_s": 0.0,
+  "shard": 0,
+  "save_frames": false
+ }
+]

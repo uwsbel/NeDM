@@ -1,0 +1,32 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 93K of event 'cpu-clock:u'
+# Event count (approx.): 374048000000
+#
+# Overhead  Shared Object                 
+# ........  ..............................
+#
+    94.76%  [JIT] tid 3213058             
+     3.94%  libChrono_core.so             
+     0.47%  libc.so.6                     
+     0.42%  libChrono_sensor.so           
+     0.28%  libvulkan_lvp.so              
+     0.04%  libstdc++.so.6                
+     0.04%  libpython3.12.so.1.0          
+     0.01%  ld-linux-x86-64.so.2          
+     0.01%  libm.so.6                     
+     0.01%  _core.so                      
+     0.00%  libChrono_vehicle.so          
+     0.00%  _sensor.so                    
+     0.00%  [vdso]                        
+     0.00%  libgcc_s.so.1                 
+     0.00%  libhsa-runtime64.so.1.18.70200
+     0.00%  libz.so.1                     
+
+
+#
+# (Tip: Show individual samples with: perf script)
+#

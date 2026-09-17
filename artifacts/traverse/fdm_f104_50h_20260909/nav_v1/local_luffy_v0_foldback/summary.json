@@ -1,0 +1,1183 @@
+{
+ "n_runs": 120,
+ "arms": [
+  "R1",
+  "R1L",
+  "R2",
+  "W"
+ ],
+ "by_arm": {
+  "R1": {
+   "n": 30,
+   "complete": 24,
+   "complete_rate": 0.8,
+   "waypoints_reached": 5.933333333333334,
+   "waypoint_rate": 0.8944723618090452,
+   "unsafe": 11,
+   "any_slide": 9,
+   "median_time_s": 75.0,
+   "median_distance_m": 247.90629429007038,
+   "max_tilt_deg_p90": 31.407645797729494,
+   "decisions_mean": 69.93333333333334,
+   "lat_p50_s": 1.0608766712530269,
+   "statuses": {
+    "mission_complete": 24,
+    "prolonged_blockage_terminated": 4,
+    "terrain_bounds_exit": 2
+   },
+   "legs": {
+    "n": 184,
+    "reached": 178,
+    "with_slide": 10,
+    "median_time_s": 10.15,
+    "backward_s_total": 56.050000000000004,
+    "tilt_over_30": 7
+   }
+  },
+  "R1L": {
+   "n": 30,
+   "complete": 23,
+   "complete_rate": 0.7666666666666667,
+   "waypoints_reached": 5.733333333333333,
+   "waypoint_rate": 0.864321608040201,
+   "unsafe": 8,
+   "any_slide": 7,
+   "median_time_s": 82.325,
+   "median_distance_m": 255.01995238045936,
+   "max_tilt_deg_p90": 30.79408779144287,
+   "decisions_mean": 72.63333333333334,
+   "lat_p50_s": 0.9969485312494726,
+   "statuses": {
+    "mission_complete": 23,
+    "prolonged_blockage_terminated": 4,
+    "terrain_bounds_exit": 3
+   },
+   "legs": {
+    "n": 179,
+    "reached": 172,
+    "with_slide": 7,
+    "median_time_s": 10.75,
+    "backward_s_total": 86.4,
+    "tilt_over_30": 8
+   }
+  },
+  "R2": {
+   "n": 30,
+   "complete": 25,
+   "complete_rate": 0.8333333333333334,
+   "waypoints_reached": 6.2,
+   "waypoint_rate": 0.9346733668341709,
+   "unsafe": 12,
+   "any_slide": 9,
+   "median_time_s": 78.375,
+   "median_distance_m": 242.04130210979295,
+   "max_tilt_deg_p90": 33.108198928833005,
+   "decisions_mean": 40.6,
+   "lat_p50_s": 1.0271771882489702,
+   "statuses": {
+    "mission_complete": 25,
+    "prolonged_blockage_terminated": 2,
+    "rollover": 1,
+    "terrain_bounds_exit": 2
+   },
+   "legs": {
+    "n": 191,
+    "reached": 186,
+    "with_slide": 12,
+    "median_time_s": 10.450000000000001,
+    "backward_s_total": 76.0,
+    "tilt_over_30": 9
+   }
+  },
+  "W": {
+   "n": 30,
+   "complete": 27,
+   "complete_rate": 0.9,
+   "waypoints_reached": 6.366666666666666,
+   "waypoint_rate": 0.9597989949748744,
+   "unsafe": 5,
+   "any_slide": 4,
+   "median_time_s": 76.55000000000001,
+   "median_distance_m": 244.52831917696443,
+   "max_tilt_deg_p90": 31.53570098876953,
+   "decisions_mean": 6.466666666666667,
+   "lat_p50_s": 0.8551297847525348,
+   "statuses": {
+    "mission_complete": 27,
+    "prolonged_blockage_terminated": 2,
+    "terrain_bounds_exit": 1
+   },
+   "legs": {
+    "n": 194,
+    "reached": 191,
+    "with_slide": 4,
+    "median_time_s": 10.55,
+    "backward_s_total": 41.1,
+    "tilt_over_30": 9
+   }
+  }
+ },
+ "by_arm_dev": {
+  "R1": {
+   "n": 14,
+   "complete": 12,
+   "complete_rate": 0.8571428571428571,
+   "waypoints_reached": 6.214285714285714,
+   "waypoint_rate": 0.925531914893617,
+   "unsafe": 4,
+   "any_slide": 4,
+   "median_time_s": 76.2,
+   "median_distance_m": 244.9759900696424,
+   "max_tilt_deg_p90": 30.29642276763916,
+   "decisions_mean": 73.21428571428571,
+   "lat_p50_s": 1.0697835215014493,
+   "statuses": {
+    "mission_complete": 12,
+    "prolonged_blockage_terminated": 2
+   },
+   "legs": {
+    "n": 89,
+    "reached": 87,
+    "with_slide": 4,
+    "median_time_s": 10.15,
+    "backward_s_total": 28.400000000000002,
+    "tilt_over_30": 3
+   }
+  },
+  "R1L": {
+   "n": 14,
+   "complete": 11,
+   "complete_rate": 0.7857142857142857,
+   "waypoints_reached": 5.857142857142857,
+   "waypoint_rate": 0.8723404255319149,
+   "unsafe": 4,
+   "any_slide": 4,
+   "median_time_s": 85.25,
+   "median_distance_m": 248.41072609002651,
+   "max_tilt_deg_p90": 30.845688247680663,
+   "decisions_mean": 72.78571428571429,
+   "lat_p50_s": 0.9997975227497591,
+   "statuses": {
+    "mission_complete": 11,
+    "prolonged_blockage_terminated": 2,
+    "terrain_bounds_exit": 1
+   },
+   "legs": {
+    "n": 85,
+    "reached": 82,
+    "with_slide": 4,
+    "median_time_s": 10.4,
+    "backward_s_total": 52.650000000000006,
+    "tilt_over_30": 5
+   }
+  },
+  "R2": {
+   "n": 14,
+   "complete": 12,
+   "complete_rate": 0.8571428571428571,
+   "waypoints_reached": 6.357142857142857,
+   "waypoint_rate": 0.9468085106382979,
+   "unsafe": 5,
+   "any_slide": 5,
+   "median_time_s": 78.15,
+   "median_distance_m": 245.9962095905021,
+   "max_tilt_deg_p90": 33.386283493041994,
+   "decisions_mean": 40.714285714285715,
+   "lat_p50_s": 1.0088453019970984,
+   "statuses": {
+    "mission_complete": 12,
+    "prolonged_blockage_terminated": 2
+   },
+   "legs": {
+    "n": 91,
+    "reached": 89,
+    "with_slide": 5,
+    "median_time_s": 10.200000000000001,
+    "backward_s_total": 46.25,
+    "tilt_over_30": 5
+   }
+  },
+  "W": {
+   "n": 14,
+   "complete": 11,
+   "complete_rate": 0.7857142857142857,
+   "waypoints_reached": 6.142857142857143,
+   "waypoint_rate": 0.9148936170212766,
+   "unsafe": 4,
+   "any_slide": 3,
+   "median_time_s": 80.17500000000001,
+   "median_distance_m": 245.0341341132568,
+   "max_tilt_deg_p90": 33.17664642333985,
+   "decisions_mean": 6.357142857142857,
+   "lat_p50_s": 0.8627644670013979,
+   "statuses": {
+    "mission_complete": 11,
+    "prolonged_blockage_terminated": 2,
+    "terrain_bounds_exit": 1
+   },
+   "legs": {
+    "n": 89,
+    "reached": 86,
+    "with_slide": 3,
+    "median_time_s": 10.700000000000001,
+    "backward_s_total": 33.25,
+    "tilt_over_30": 6
+   }
+  }
+ },
+ "by_arm_unseen": {
+  "R1": {
+   "n": 16,
+   "complete": 12,
+   "complete_rate": 0.75,
+   "waypoints_reached": 5.6875,
+   "waypoint_rate": 0.8666666666666667,
+   "unsafe": 7,
+   "any_slide": 5,
+   "median_time_s": 73.9,
+   "median_distance_m": 248.34609996967134,
+   "max_tilt_deg_p90": 32.25447654724121,
+   "decisions_mean": 67.0625,
+   "lat_p50_s": 1.0552493660006803,
+   "statuses": {
+    "mission_complete": 12,
+    "prolonged_blockage_terminated": 2,
+    "terrain_bounds_exit": 2
+   },
+   "legs": {
+    "n": 95,
+    "reached": 91,
+    "with_slide": 6,
+    "median_time_s": 10.15,
+    "backward_s_total": 27.650000000000002,
+    "tilt_over_30": 4
+   }
+  },
+  "R1L": {
+   "n": 16,
+   "complete": 12,
+   "complete_rate": 0.75,
+   "waypoints_reached": 5.625,
+   "waypoint_rate": 0.8571428571428571,
+   "unsafe": 4,
+   "any_slide": 3,
+   "median_time_s": 80.25,
+   "median_distance_m": 262.2387168648285,
+   "max_tilt_deg_p90": 30.121335983276367,
+   "decisions_mean": 72.5,
+   "lat_p50_s": 0.9950905300011073,
+   "statuses": {
+    "mission_complete": 12,
+    "prolonged_blockage_terminated": 2,
+    "terrain_bounds_exit": 2
+   },
+   "legs": {
+    "n": 94,
+    "reached": 90,
+    "with_slide": 3,
+    "median_time_s": 10.900000000000002,
+    "backward_s_total": 33.75,
+    "tilt_over_30": 3
+   }
+  },
+  "R2": {
+   "n": 16,
+   "complete": 13,
+   "complete_rate": 0.8125,
+   "waypoints_reached": 6.0625,
+   "waypoint_rate": 0.9238095238095239,
+   "unsafe": 7,
+   "any_slide": 4,
+   "median_time_s": 78.375,
+   "median_distance_m": 236.89798821408795,
+   "max_tilt_deg_p90": 31.7327880859375,
+   "decisions_mean": 40.5,
+   "lat_p50_s": 1.0370975472487771,
+   "statuses": {
+    "mission_complete": 13,
+    "rollover": 1,
+    "terrain_bounds_exit": 2
+   },
+   "legs": {
+    "n": 100,
+    "reached": 97,
+    "with_slide": 7,
+    "median_time_s": 11.0,
+    "backward_s_total": 29.75,
+    "tilt_over_30": 4
+   }
+  },
+  "W": {
+   "n": 16,
+   "complete": 16,
+   "complete_rate": 1.0,
+   "waypoints_reached": 6.5625,
+   "waypoint_rate": 1.0,
+   "unsafe": 1,
+   "any_slide": 1,
+   "median_time_s": 71.45,
+   "median_distance_m": 236.3434732220208,
+   "max_tilt_deg_p90": 30.609172821044922,
+   "decisions_mean": 6.5625,
+   "lat_p50_s": 0.8544905034987096,
+   "statuses": {
+    "mission_complete": 16
+   },
+   "legs": {
+    "n": 105,
+    "reached": 105,
+    "with_slide": 1,
+    "median_time_s": 10.3,
+    "backward_s_total": 7.8500000000000005,
+    "tilt_over_30": 3
+   }
+  }
+ },
+ "latency": {
+  "R1": {
+   "render_s": {
+    "mean": 0.008184990497107822,
+    "p50": 0.0076524095002241665,
+    "p95": 0.009882774251855152
+   },
+   "backproject_s": {
+    "mean": 0.057500322342394126,
+    "p50": 0.051196634500229266,
+    "p95": 0.09023677135010072
+   },
+   "propose_s": {
+    "mean": 0.6764344276022339,
+    "p50": 0.6599838659985835,
+    "p95": 1.1352516153503527
+   },
+   "mask_s": {
+    "mean": 0.0023003192531031837,
+    "p50": 0.0019776404988078866,
+    "p95": 0.0042193755503831185
+   },
+   "corridor_s": {
+    "mean": 0.2585671048915502,
+    "p50": 0.2887577225010318,
+    "p95": 0.42696599315240746
+   },
+   "score_s": {
+    "mean": 0.049836124365416165,
+    "p50": 0.047337376501673134,
+    "p95": 0.08694004260214568
+   },
+   "sense_to_plan_s": {
+    "mean": 1.0528232889518054,
+    "p50": 1.054924205498537,
+    "p95": 1.4320778926959974,
+    "max": 2.154175372001191,
+    "n": 2094,
+    "implied_hz_p50": 0.9479354012238435
+   }
+  },
+  "R1L": {
+   "render_s": {
+    "mean": 0.008181785114245348,
+    "p50": 0.0077217529997142265,
+    "p95": 0.009957457949894888
+   },
+   "backproject_s": {
+    "mean": 0.05784313794195124,
+    "p50": 0.05114461299854156,
+    "p95": 0.09335208315260382
+   },
+   "propose_s": {
+    "mean": 0.6208914133484781,
+    "p50": 0.5525923390014214,
+    "p95": 1.093331086002399
+   },
+   "mask_s": {
+    "mean": 0.0023465441579258203,
+    "p50": 0.002014708999922732,
+    "p95": 0.004128137501174933
+   },
+   "corridor_s": {
+    "mean": 0.2716426372844999,
+    "p50": 0.2961409540002933,
+    "p95": 0.40985374539941405
+   },
+   "score_s": {
+    "mean": 0.051430185734813505,
+    "p50": 0.049643398000625893,
+    "p95": 0.08321978199910518
+   },
+   "sense_to_plan_s": {
+    "mean": 1.0123357035819138,
+    "p50": 0.9908091569996031,
+    "p95": 1.3840040409973882,
+    "max": 2.3159690590000537,
+    "n": 2172,
+    "implied_hz_p50": 1.0092760981622624
+   }
+  },
+  "R2": {
+   "render_s": {
+    "mean": 0.008541120830846717,
+    "p50": 0.007701613500103122,
+    "p95": 0.00966620389990567
+   },
+   "backproject_s": {
+    "mean": 0.05598535333334595,
+    "p50": 0.05165463199955411,
+    "p95": 0.07955616200015357
+   },
+   "propose_s": {
+    "mean": 0.6533424720049453,
+    "p50": 0.6177579009981855,
+    "p95": 1.1441904887476995
+   },
+   "mask_s": {
+    "mean": 0.0021641464074893743,
+    "p50": 0.0019645310003397753,
+    "p95": 0.003777022498798034
+   },
+   "corridor_s": {
+    "mean": 0.2562199044694671,
+    "p50": 0.29174826799862785,
+    "p95": 0.3851446722012043
+   },
+   "score_s": {
+    "mean": 0.05193761476726445,
+    "p50": 0.04927106149989413,
+    "p95": 0.07821620125014307
+   },
+   "sense_to_plan_s": {
+    "mean": 1.0281906118133588,
+    "p50": 1.0252000539967412,
+    "p95": 1.4135504061996471,
+    "max": 2.0885142519982764,
+    "n": 1212,
+    "implied_hz_p50": 0.9754193789802305
+   }
+  },
+  "W": {
+   "render_s": {
+    "mean": 0.015222184417616143,
+    "p50": 0.008168509002643987,
+    "p95": 0.055013159299960535
+   },
+   "backproject_s": {
+    "mean": 0.056958963871233975,
+    "p50": 0.05402406899884227,
+    "p95": 0.07478709730148693
+   },
+   "propose_s": {
+    "mean": 0.49460021098440343,
+    "p50": 0.35910634949868836,
+    "p95": 1.190554663799776
+   },
+   "mask_s": {
+    "mean": 0.0020731891390917637,
+    "p50": 0.002050562499789521,
+    "p95": 0.002949729149258928
+   },
+   "corridor_s": {
+    "mean": 0.2718942302268523,
+    "p50": 0.2940779054988525,
+    "p95": 0.33641161319865204
+   },
+   "score_s": {
+    "mean": 0.08530054718031567,
+    "p50": 0.05132312850037124,
+    "p95": 0.2969326712003749
+   },
+   "sense_to_plan_s": {
+    "mean": 0.9260493258195133,
+    "p50": 0.8561884215014288,
+    "p95": 1.4676342395478057,
+    "max": 1.9826722319994587,
+    "n": 194,
+    "implied_hz_p50": 1.1679672077863192
+   }
+  }
+ },
+ "paired_vs_reference": {
+  "R1": {
+   "n_paired": 30,
+   "time_mean_diff_s": -4.44,
+   "time_ci": [
+    -11.221666666666664,
+    1.6917499999999923
+   ],
+   "waypoints_mean_diff": -0.43333333333333335,
+   "waypoints_ci": [
+    -1.0333333333333334,
+    0.13333333333333333
+   ],
+   "complete_arm_only": 1,
+   "complete_ref_only": 4,
+   "unsafe_arm": 11,
+   "unsafe_ref": 5
+  },
+  "R1L": {
+   "n_paired": 30,
+   "time_mean_diff_s": 5.071666666666667,
+   "time_ci": [
+    -4.761833333333334,
+    15.091666666666665
+   ],
+   "waypoints_mean_diff": -0.6333333333333333,
+   "waypoints_ci": [
+    -1.4,
+    0.1
+   ],
+   "complete_arm_only": 3,
+   "complete_ref_only": 7,
+   "unsafe_arm": 8,
+   "unsafe_ref": 5
+  },
+  "R2": {
+   "n_paired": 30,
+   "time_mean_diff_s": 3.593333333333334,
+   "time_ci": [
+    -5.995124999999999,
+    13.833374999999995
+   ],
+   "waypoints_mean_diff": -0.16666666666666666,
+   "waypoints_ci": [
+    -0.6666666666666666,
+    0.3
+   ],
+   "complete_arm_only": 2,
+   "complete_ref_only": 4,
+   "unsafe_arm": 12,
+   "unsafe_ref": 5
+  }
+ },
+ "divergent_missions": [
+  {
+   "mission": "f104_nav_003",
+   "arm": "R1",
+   "arena": "f104",
+   "unseen": false,
+   "arm_status": "mission_complete",
+   "ref_status": "terrain_bounds_exit",
+   "arm_goals": 6,
+   "ref_goals": 2,
+   "arm_time_s": 52.150000000000006,
+   "ref_time_s": 33.75,
+   "arm_slide": false,
+   "ref_slide": false
+  },
+  {
+   "mission": "g203_nav_000",
+   "arm": "R1",
+   "arena": "g203",
+   "unseen": false,
+   "arm_status": "mission_complete",
+   "ref_status": "mission_complete",
+   "arm_goals": 6,
+   "ref_goals": 6,
+   "arm_time_s": 66.35000000000001,
+   "ref_time_s": 70.60000000000001,
+   "arm_slide": false,
+   "ref_slide": true
+  },
+  {
+   "mission": "g203_nav_001",
+   "arm": "R1",
+   "arena": "g203",
+   "unseen": false,
+   "arm_status": "prolonged_blockage_terminated",
+   "ref_status": "prolonged_blockage_terminated",
+   "arm_goals": 4,
+   "ref_goals": 4,
+   "arm_time_s": 98.7,
+   "ref_time_s": 140.35,
+   "arm_slide": true,
+   "ref_slide": true
+  },
+  {
+   "mission": "g204_nav_001",
+   "arm": "R1",
+   "arena": "g204",
+   "unseen": true,
+   "arm_status": "prolonged_blockage_terminated",
+   "ref_status": "mission_complete",
+   "arm_goals": 1,
+   "ref_goals": 6,
+   "arm_time_s": 43.25,
+   "ref_time_s": 102.7,
+   "arm_slide": true,
+   "ref_slide": false
+  },
+  {
+   "mission": "g204_nav_003",
+   "arm": "R1",
+   "arena": "g204",
+   "unseen": true,
+   "arm_status": "prolonged_blockage_terminated",
+   "ref_status": "mission_complete",
+   "arm_goals": 4,
+   "ref_goals": 8,
+   "arm_time_s": 105.2,
+   "ref_time_s": 82.45,
+   "arm_slide": true,
+   "ref_slide": false
+  },
+  {
+   "mission": "g213_nav_001",
+   "arm": "R1",
+   "arena": "g213",
+   "unseen": true,
+   "arm_status": "terrain_bounds_exit",
+   "ref_status": "mission_complete",
+   "arm_goals": 2,
+   "ref_goals": 6,
+   "arm_time_s": 29.5,
+   "ref_time_s": 78.25,
+   "arm_slide": false,
+   "ref_slide": false
+  },
+  {
+   "mission": "g213_nav_003",
+   "arm": "R1",
+   "arena": "g213",
+   "unseen": true,
+   "arm_status": "mission_complete",
+   "ref_status": "mission_complete",
+   "arm_goals": 8,
+   "ref_goals": 8,
+   "arm_time_s": 79.7,
+   "ref_time_s": 88.15,
+   "arm_slide": true,
+   "ref_slide": false
+  },
+  {
+   "mission": "g217_nav_000",
+   "arm": "R1",
+   "arena": "g217",
+   "unseen": false,
+   "arm_status": "mission_complete",
+   "ref_status": "mission_complete",
+   "arm_goals": 7,
+   "ref_goals": 7,
+   "arm_time_s": 96.25,
+   "ref_time_s": 81.30000000000001,
+   "arm_slide": true,
+   "ref_slide": false
+  },
+  {
+   "mission": "g223_nav_000",
+   "arm": "R1",
+   "arena": "g223",
+   "unseen": true,
+   "arm_status": "mission_complete",
+   "ref_status": "mission_complete",
+   "arm_goals": 6,
+   "ref_goals": 6,
+   "arm_time_s": 71.60000000000001,
+   "ref_time_s": 66.10000000000001,
+   "arm_slide": true,
+   "ref_slide": false
+  },
+  {
+   "mission": "g228_nav_000",
+   "arm": "R1",
+   "arena": "g228",
+   "unseen": false,
+   "arm_status": "mission_complete",
+   "ref_status": "mission_complete",
+   "arm_goals": 8,
+   "ref_goals": 8,
+   "arm_time_s": 77.05000000000001,
+   "ref_time_s": 92.65,
+   "arm_slide": false,
+   "ref_slide": false
+  },
+  {
+   "mission": "g228_nav_001",
+   "arm": "R1",
+   "arena": "g228",
+   "unseen": false,
+   "arm_status": "mission_complete",
+   "ref_status": "mission_complete",
+   "arm_goals": 6,
+   "ref_goals": 6,
+   "arm_time_s": 83.5,
+   "ref_time_s": 73.75,
+   "arm_slide": true,
+   "ref_slide": false
+  },
+  {
+   "mission": "g234_nav_000",
+   "arm": "R1",
+   "arena": "g234",
+   "unseen": true,
+   "arm_status": "terrain_bounds_exit",
+   "ref_status": "mission_complete",
+   "arm_goals": 4,
+   "ref_goals": 5,
+   "arm_time_s": 60.650000000000006,
+   "ref_time_s": 57.550000000000004,
+   "arm_slide": false,
+   "ref_slide": false
+  },
+  {
+   "mission": "f104_nav_001",
+   "arm": "R1L",
+   "arena": "f104",
+   "unseen": false,
+   "arm_status": "mission_complete",
+   "ref_status": "mission_complete",
+   "arm_goals": 7,
+   "ref_goals": 7,
+   "arm_time_s": 89.0,
+   "ref_time_s": 85.15,
+   "arm_slide": true,
+   "ref_slide": false
+  },
+  {
+   "mission": "f104_nav_003",
+   "arm": "R1L",
+   "arena": "f104",
+   "unseen": false,
+   "arm_status": "mission_complete",
+   "ref_status": "terrain_bounds_exit",
+   "arm_goals": 6,
+   "ref_goals": 2,
+   "arm_time_s": 53.150000000000006,
+   "ref_time_s": 33.75,
+   "arm_slide": false,
+   "ref_slide": false
+  },
+  {
+   "mission": "g203_nav_000",
+   "arm": "R1L",
+   "arena": "g203",
+   "unseen": false,
+   "arm_status": "terrain_bounds_exit",
+   "ref_status": "mission_complete",
+   "arm_goals": 2,
+   "ref_goals": 6,
+   "arm_time_s": 61.7,
+   "ref_time_s": 70.60000000000001,
+   "arm_slide": true,
+   "ref_slide": true
+  },
+  {
+   "mission": "g203_nav_001",
+   "arm": "R1L",
+   "arena": "g203",
+   "unseen": false,
+   "arm_status": "mission_complete",
+   "ref_status": "prolonged_blockage_terminated",
+   "arm_goals": 6,
+   "ref_goals": 4,
+   "arm_time_s": 102.0,
+   "ref_time_s": 140.35,
+   "arm_slide": false,
+   "ref_slide": true
+  },
+  {
+   "mission": "g204_nav_001",
+   "arm": "R1L",
+   "arena": "g204",
+   "unseen": true,
+   "arm_status": "terrain_bounds_exit",
+   "ref_status": "mission_complete",
+   "arm_goals": 3,
+   "ref_goals": 6,
+   "arm_time_s": 51.150000000000006,
+   "ref_time_s": 102.7,
+   "arm_slide": false,
+   "ref_slide": false
+  },
+  {
+   "mission": "g204_nav_002",
+   "arm": "R1L",
+   "arena": "g204",
+   "unseen": true,
+   "arm_status": "mission_complete",
+   "ref_status": "mission_complete",
+   "arm_goals": 6,
+   "ref_goals": 6,
+   "arm_time_s": 82.15,
+   "ref_time_s": 64.65,
+   "arm_slide": false,
+   "ref_slide": false
+  },
+  {
+   "mission": "g213_nav_002",
+   "arm": "R1L",
+   "arena": "g213",
+   "unseen": true,
+   "arm_status": "prolonged_blockage_terminated",
+   "ref_status": "mission_complete",
+   "arm_goals": 5,
+   "ref_goals": 6,
+   "arm_time_s": 151.25,
+   "ref_time_s": 66.2,
+   "arm_slide": true,
+   "ref_slide": false
+  },
+  {
+   "mission": "g213_nav_003",
+   "arm": "R1L",
+   "arena": "g213",
+   "unseen": true,
+   "arm_status": "mission_complete",
+   "ref_status": "mission_complete",
+   "arm_goals": 8,
+   "ref_goals": 8,
+   "arm_time_s": 117.65,
+   "ref_time_s": 88.15,
+   "arm_slide": false,
+   "ref_slide": false
+  },
+  {
+   "mission": "g216_nav_000",
+   "arm": "R1L",
+   "arena": "g216",
+   "unseen": false,
+   "arm_status": "mission_complete",
+   "ref_status": "prolonged_blockage_terminated",
+   "arm_goals": 8,
+   "ref_goals": 6,
+   "arm_time_s": 115.5,
+   "ref_time_s": 94.75,
+   "arm_slide": false,
+   "ref_slide": true
+  },
+  {
+   "mission": "g217_nav_000",
+   "arm": "R1L",
+   "arena": "g217",
+   "unseen": false,
+   "arm_status": "mission_complete",
+   "ref_status": "mission_complete",
+   "arm_goals": 7,
+   "ref_goals": 7,
+   "arm_time_s": 98.9,
+   "ref_time_s": 81.30000000000001,
+   "arm_slide": false,
+   "ref_slide": false
+  },
+  {
+   "mission": "g217_nav_001",
+   "arm": "R1L",
+   "arena": "g217",
+   "unseen": false,
+   "arm_status": "mission_complete",
+   "ref_status": "mission_complete",
+   "arm_goals": 8,
+   "ref_goals": 8,
+   "arm_time_s": 95.80000000000001,
+   "ref_time_s": 115.0,
+   "arm_slide": false,
+   "ref_slide": false
+  },
+  {
+   "mission": "g223_nav_000",
+   "arm": "R1L",
+   "arena": "g223",
+   "unseen": true,
+   "arm_status": "terrain_bounds_exit",
+   "ref_status": "mission_complete",
+   "arm_goals": 0,
+   "ref_goals": 6,
+   "arm_time_s": 22.25,
+   "ref_time_s": 66.10000000000001,
+   "arm_slide": true,
+   "ref_slide": false
+  },
+  {
+   "mission": "g223_nav_002",
+   "arm": "R1L",
+   "arena": "g223",
+   "unseen": true,
+   "arm_status": "mission_complete",
+   "ref_status": "mission_complete",
+   "arm_goals": 7,
+   "ref_goals": 7,
+   "arm_time_s": 120.10000000000001,
+   "ref_time_s": 88.85000000000001,
+   "arm_slide": false,
+   "ref_slide": false
+  },
+  {
+   "mission": "g228_nav_001",
+   "arm": "R1L",
+   "arena": "g228",
+   "unseen": false,
+   "arm_status": "prolonged_blockage_terminated",
+   "ref_status": "mission_complete",
+   "arm_goals": 2,
+   "ref_goals": 6,
+   "arm_time_s": 83.35000000000001,
+   "ref_time_s": 73.75,
+   "arm_slide": true,
+   "ref_slide": false
+  },
+  {
+   "mission": "g231_nav_000",
+   "arm": "R1L",
+   "arena": "g231",
+   "unseen": false,
+   "arm_status": "prolonged_blockage_terminated",
+   "ref_status": "mission_complete",
+   "arm_goals": 1,
+   "ref_goals": 5,
+   "arm_time_s": 93.7,
+   "ref_time_s": 56.800000000000004,
+   "arm_slide": true,
+   "ref_slide": false
+  },
+  {
+   "mission": "g231_nav_001",
+   "arm": "R1L",
+   "arena": "g231",
+   "unseen": false,
+   "arm_status": "mission_complete",
+   "ref_status": "mission_complete",
+   "arm_goals": 7,
+   "ref_goals": 7,
+   "arm_time_s": 86.75,
+   "ref_time_s": 69.95,
+   "arm_slide": false,
+   "ref_slide": false
+  },
+  {
+   "mission": "g234_nav_000",
+   "arm": "R1L",
+   "arena": "g234",
+   "unseen": true,
+   "arm_status": "mission_complete",
+   "ref_status": "mission_complete",
+   "arm_goals": 5,
+   "ref_goals": 5,
+   "arm_time_s": 77.25,
+   "ref_time_s": 57.550000000000004,
+   "arm_slide": false,
+   "ref_slide": false
+  },
+  {
+   "mission": "g234_nav_002",
+   "arm": "R1L",
+   "arena": "g234",
+   "unseen": true,
+   "arm_status": "mission_complete",
+   "ref_status": "mission_complete",
+   "arm_goals": 7,
+   "ref_goals": 7,
+   "arm_time_s": 124.30000000000001,
+   "ref_time_s": 79.0,
+   "arm_slide": false,
+   "ref_slide": false
+  },
+  {
+   "mission": "g234_nav_003",
+   "arm": "R1L",
+   "arena": "g234",
+   "unseen": true,
+   "arm_status": "prolonged_blockage_terminated",
+   "ref_status": "mission_complete",
+   "arm_goals": 2,
+   "ref_goals": 7,
+   "arm_time_s": 56.6,
+   "ref_time_s": 102.45,
+   "arm_slide": true,
+   "ref_slide": true
+  },
+  {
+   "mission": "f104_nav_001",
+   "arm": "R2",
+   "arena": "f104",
+   "unseen": false,
+   "arm_status": "mission_complete",
+   "ref_status": "mission_complete",
+   "arm_goals": 7,
+   "ref_goals": 7,
+   "arm_time_s": 137.85,
+   "ref_time_s": 85.15,
+   "arm_slide": true,
+   "ref_slide": false
+  },
+  {
+   "mission": "f104_nav_003",
+   "arm": "R2",
+   "arena": "f104",
+   "unseen": false,
+   "arm_status": "mission_complete",
+   "ref_status": "terrain_bounds_exit",
+   "arm_goals": 6,
+   "ref_goals": 2,
+   "arm_time_s": 53.650000000000006,
+   "ref_time_s": 33.75,
+   "arm_slide": false,
+   "ref_slide": false
+  },
+  {
+   "mission": "g203_nav_000",
+   "arm": "R2",
+   "arena": "g203",
+   "unseen": false,
+   "arm_status": "mission_complete",
+   "ref_status": "mission_complete",
+   "arm_goals": 6,
+   "ref_goals": 6,
+   "arm_time_s": 91.35000000000001,
+   "ref_time_s": 70.60000000000001,
+   "arm_slide": true,
+   "ref_slide": true
+  },
+  {
+   "mission": "g203_nav_001",
+   "arm": "R2",
+   "arena": "g203",
+   "unseen": false,
+   "arm_status": "mission_complete",
+   "ref_status": "prolonged_blockage_terminated",
+   "arm_goals": 6,
+   "ref_goals": 4,
+   "arm_time_s": 98.35000000000001,
+   "ref_time_s": 140.35,
+   "arm_slide": false,
+   "ref_slide": true
+  },
+  {
+   "mission": "g204_nav_001",
+   "arm": "R2",
+   "arena": "g204",
+   "unseen": true,
+   "arm_status": "terrain_bounds_exit",
+   "ref_status": "mission_complete",
+   "arm_goals": 3,
+   "ref_goals": 6,
+   "arm_time_s": 48.2,
+   "ref_time_s": 102.7,
+   "arm_slide": false,
+   "ref_slide": false
+  },
+  {
+   "mission": "g204_nav_003",
+   "arm": "R2",
+   "arena": "g204",
+   "unseen": true,
+   "arm_status": "terrain_bounds_exit",
+   "ref_status": "mission_complete",
+   "arm_goals": 7,
+   "ref_goals": 8,
+   "arm_time_s": 76.45,
+   "ref_time_s": 82.45,
+   "arm_slide": false,
+   "ref_slide": false
+  },
+  {
+   "mission": "g213_nav_000",
+   "arm": "R2",
+   "arena": "g213",
+   "unseen": true,
+   "arm_status": "mission_complete",
+   "ref_status": "mission_complete",
+   "arm_goals": 7,
+   "ref_goals": 7,
+   "arm_time_s": 131.45000000000002,
+   "ref_time_s": 74.85000000000001,
+   "arm_slide": true,
+   "ref_slide": false
+  },
+  {
+   "mission": "g216_nav_001",
+   "arm": "R2",
+   "arena": "g216",
+   "unseen": false,
+   "arm_status": "mission_complete",
+   "ref_status": "mission_complete",
+   "arm_goals": 7,
+   "ref_goals": 7,
+   "arm_time_s": 94.5,
+   "ref_time_s": 83.80000000000001,
+   "arm_slide": true,
+   "ref_slide": false
+  },
+  {
+   "mission": "g223_nav_000",
+   "arm": "R2",
+   "arena": "g223",
+   "unseen": true,
+   "arm_status": "mission_complete",
+   "ref_status": "mission_complete",
+   "arm_goals": 6,
+   "ref_goals": 6,
+   "arm_time_s": 146.05,
+   "ref_time_s": 66.10000000000001,
+   "arm_slide": true,
+   "ref_slide": false
+  },
+  {
+   "mission": "g223_nav_001",
+   "arm": "R2",
+   "arena": "g223",
+   "unseen": true,
+   "arm_status": "mission_complete",
+   "ref_status": "mission_complete",
+   "arm_goals": 6,
+   "ref_goals": 6,
+   "arm_time_s": 108.10000000000001,
+   "ref_time_s": 64.65,
+   "arm_slide": true,
+   "ref_slide": false
+  },
+  {
+   "mission": "g223_nav_003",
+   "arm": "R2",
+   "arena": "g223",
+   "unseen": true,
+   "arm_status": "rollover",
+   "ref_status": "mission_complete",
+   "arm_goals": 4,
+   "ref_goals": 8,
+   "arm_time_s": 36.800000000000004,
+   "ref_time_s": 68.05,
+   "arm_slide": false,
+   "ref_slide": false
+  },
+  {
+   "mission": "g228_nav_000",
+   "arm": "R2",
+   "arena": "g228",
+   "unseen": false,
+   "arm_status": "mission_complete",
+   "ref_status": "mission_complete",
+   "arm_goals": 8,
+   "ref_goals": 8,
+   "arm_time_s": 72.10000000000001,
+   "ref_time_s": 92.65,
+   "arm_slide": false,
+   "ref_slide": false
+  },
+  {
+   "mission": "g228_nav_001",
+   "arm": "R2",
+   "arena": "g228",
+   "unseen": false,
+   "arm_status": "prolonged_blockage_terminated",
+   "ref_status": "mission_complete",
+   "arm_goals": 3,
+   "ref_goals": 6,
+   "arm_time_s": 73.8,
+   "ref_time_s": 73.75,
+   "arm_slide": true,
+   "ref_slide": false
+  },
+  {
+   "mission": "g234_nav_000",
+   "arm": "R2",
+   "arena": "g234",
+   "unseen": true,
+   "arm_status": "mission_complete",
+   "ref_status": "mission_complete",
+   "arm_goals": 5,
+   "ref_goals": 5,
+   "arm_time_s": 91.85000000000001,
+   "ref_time_s": 57.550000000000004,
+   "arm_slide": false,
+   "ref_slide": false
+  }
+ ]
+}

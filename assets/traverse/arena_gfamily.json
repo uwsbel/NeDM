@@ -1,0 +1,38 @@
+{
+ "arena_g213": {
+  "seed": 213,
+  "difficulty": 1.0,
+  "slope_cap_deg": 29.556024750745596,
+  "roughness_m": 0.24171933649708718,
+  "roughness_corr_m": 2.404510154208137,
+  "n_hills": 5,
+  "n_craters": 6
+ },
+ "arena_g204": {
+  "seed": 204,
+  "difficulty": 1.0,
+  "slope_cap_deg": 28.755045649174278,
+  "roughness_m": 0.2555567640360696,
+  "roughness_corr_m": 2.618595381084085,
+  "n_hills": 6,
+  "n_craters": 5
+ },
+ "arena_g234": {
+  "seed": 234,
+  "difficulty": 1.0,
+  "slope_cap_deg": 30.60294242416928,
+  "roughness_m": 0.20860866254893207,
+  "roughness_corr_m": 2.281878458590547,
+  "n_hills": 7,
+  "n_craters": 5
+ },
+ "arena_g223": {
+  "seed": 223,
+  "difficulty": 1.0,
+  "slope_cap_deg": 31.20716234957543,
+  "roughness_m": 0.20327593178208087,
+  "roughness_corr_m": 2.6753856459937086,
+  "n_hills": 6,
+  "n_craters": 5
+ }
+}

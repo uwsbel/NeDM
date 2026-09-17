@@ -1,0 +1,680 @@
+{
+ "label": "bd_vk5090_1024",
+ "size": 1024,
+ "env": {
+  "VK_ICD_FILENAMES": "/usr/share/vulkan/icd.d/nvidia_icd.json",
+  "LP_NUM_THREADS": null,
+  "MESA_SHADER_CACHE_DIR": null
+ },
+ "scene_build_s": 0.6435260349999226,
+ "first_frame": {
+  "update": {
+   "wall_s": 1.1323486470000717,
+   "main_thread_cpu_s": 1.0155725279999999,
+   "other_threads_cpu_s": 0.014061503000000641,
+   "proc_main_thread_cpu_s": 1.01,
+   "proc_other_threads_cpu_s": 0.0,
+   "proc_other_threads_active": 0,
+   "proc_busiest_other_thread_cpu_s": 0.0,
+   "threads_total": 24
+  },
+  "take": {
+   "wall_s": 0.0014802490004512947,
+   "main_thread_cpu_s": 0.000746949999999913,
+   "other_threads_cpu_s": 2.1800000000737896e-05,
+   "proc_main_thread_cpu_s": 0.0,
+   "proc_other_threads_cpu_s": 0.0,
+   "proc_other_threads_active": 0,
+   "proc_busiest_other_thread_cpu_s": 0.0,
+   "threads_total": 24
+  },
+  "revision_before": 4,
+  "revision_after": 5
+ },
+ "scene_stats": {
+  "bodies": 21,
+  "other_items": 21,
+  "visible_shapes": 12,
+  "boxes": 1,
+  "spheres": 0,
+  "cylinders": 0,
+  "triangle_meshes": 10,
+  "unsupported_shapes": 1
+ },
+ "regimes": {
+  "time_only": {
+   "frames": [
+    {
+     "update": {
+      "wall_s": 0.004082952999851841,
+      "main_thread_cpu_s": 0.0035941609999987634,
+      "other_threads_cpu_s": 3.111000000188824e-05,
+      "proc_main_thread_cpu_s": 0.0,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     },
+     "update_changed_revision": false,
+     "take": {
+      "wall_s": 0.0002952430004370399,
+      "main_thread_cpu_s": 0.00029561000000022375,
+      "other_threads_cpu_s": -3.1999999983156613e-07,
+      "proc_main_thread_cpu_s": 0.02,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     }
+    },
+    {
+     "update": {
+      "wall_s": 0.003997331999926246,
+      "main_thread_cpu_s": 0.0035173210000003508,
+      "other_threads_cpu_s": -9.000000016357035e-07,
+      "proc_main_thread_cpu_s": 0.0,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     },
+     "update_changed_revision": false,
+     "take": {
+      "wall_s": 0.000227292999625206,
+      "main_thread_cpu_s": 0.00022756999999984373,
+      "other_threads_cpu_s": -4.000000011217253e-07,
+      "proc_main_thread_cpu_s": 0.0,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     }
+    },
+    {
+     "update": {
+      "wall_s": 0.003971162000198092,
+      "main_thread_cpu_s": 0.0034868210000009725,
+      "other_threads_cpu_s": 2.1320000000102368e-05,
+      "proc_main_thread_cpu_s": 0.01,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     },
+     "update_changed_revision": false,
+     "take": {
+      "wall_s": 0.00026347299990447937,
+      "main_thread_cpu_s": 0.0002637500000002291,
+      "other_threads_cpu_s": -2.9999999995311555e-07,
+      "proc_main_thread_cpu_s": 0.0,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     }
+    },
+    {
+     "update": {
+      "wall_s": 0.004015411999716889,
+      "main_thread_cpu_s": 0.003542681000000769,
+      "other_threads_cpu_s": -8.200000003455443e-07,
+      "proc_main_thread_cpu_s": 0.01,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     },
+     "update_changed_revision": false,
+     "take": {
+      "wall_s": 0.0002801040000122157,
+      "main_thread_cpu_s": 0.00028033000000071695,
+      "other_threads_cpu_s": -3.6000000136482413e-07,
+      "proc_main_thread_cpu_s": 0.0,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     }
+    },
+    {
+     "update": {
+      "wall_s": 0.0039688020005996805,
+      "main_thread_cpu_s": 0.0034920510000002736,
+      "other_threads_cpu_s": 2.1749999998377234e-05,
+      "proc_main_thread_cpu_s": 0.01,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     },
+     "update_changed_revision": false,
+     "take": {
+      "wall_s": 0.0002833929993357742,
+      "main_thread_cpu_s": 0.00028348000000022466,
+      "other_threads_cpu_s": -2.600000001962144e-07,
+      "proc_main_thread_cpu_s": 0.0,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     }
+    }
+   ],
+   "median": {
+    "stage_wall_s": null,
+    "stage_main_thread_cpu_s": null,
+    "stage_other_threads_cpu_s": null,
+    "update_wall_s": 0.003997331999926246,
+    "update_main_thread_cpu_s": 0.0035173210000003508,
+    "update_other_threads_cpu_s": 2.1320000000102368e-05,
+    "take_wall_s": 0.0002801040000122157,
+    "take_main_thread_cpu_s": 0.00028033000000071695,
+    "take_other_threads_cpu_s": -3.1999999983156613e-07
+   },
+   "scene_rebuilt_each_frame": false
+  },
+  "one_step": {
+   "frames": [
+    {
+     "stage": {
+      "wall_s": 0.5134303559998443,
+      "main_thread_cpu_s": 0.5134112949999992,
+      "other_threads_cpu_s": 0.002547670000000224,
+      "proc_main_thread_cpu_s": 0.52,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     },
+     "stage_changed_scene": true,
+     "update": {
+      "wall_s": 0.22011013599967555,
+      "main_thread_cpu_s": 0.20485576499999958,
+      "other_threads_cpu_s": 0.0006595500000017296,
+      "proc_main_thread_cpu_s": 0.21,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     },
+     "update_changed_revision": false,
+     "take": {
+      "wall_s": 0.0007637600001544342,
+      "main_thread_cpu_s": 0.0007667110000006971,
+      "other_threads_cpu_s": -2.789999999919246e-06,
+      "proc_main_thread_cpu_s": 0.0,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     }
+    },
+    {
+     "stage": {
+      "wall_s": 0.4767549580001287,
+      "main_thread_cpu_s": 0.4767313150000003,
+      "other_threads_cpu_s": 0.001195159999999973,
+      "proc_main_thread_cpu_s": 0.47,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     },
+     "stage_changed_scene": true,
+     "update": {
+      "wall_s": 0.21919964500011702,
+      "main_thread_cpu_s": 0.203700993,
+      "other_threads_cpu_s": 0.0007800699999993554,
+      "proc_main_thread_cpu_s": 0.21,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     },
+     "update_changed_revision": false,
+     "take": {
+      "wall_s": 0.0006847579998066067,
+      "main_thread_cpu_s": 0.0006855799999989642,
+      "other_threads_cpu_s": -6.59999997765226e-07,
+      "proc_main_thread_cpu_s": 0.0,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     }
+    },
+    {
+     "stage": {
+      "wall_s": 0.4734682040007101,
+      "main_thread_cpu_s": 0.4734484840000004,
+      "other_threads_cpu_s": 0.0012506100000013731,
+      "proc_main_thread_cpu_s": 0.48,
+      "proc_other_threads_cpu_s": 0.01,
+      "proc_other_threads_active": 1,
+      "proc_busiest_other_thread_cpu_s": 0.01,
+      "threads_total": 24
+     },
+     "stage_changed_scene": true,
+     "update": {
+      "wall_s": 0.2659808910002539,
+      "main_thread_cpu_s": 0.2048763229999988,
+      "other_threads_cpu_s": 0.0008462700000020362,
+      "proc_main_thread_cpu_s": 0.22,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     },
+     "update_changed_revision": false,
+     "take": {
+      "wall_s": 0.0006024169997544959,
+      "main_thread_cpu_s": 0.0006025499999999795,
+      "other_threads_cpu_s": 1.2879999999881875e-05,
+      "proc_main_thread_cpu_s": 0.0,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     }
+    },
+    {
+     "stage": {
+      "wall_s": 0.48471978999987186,
+      "main_thread_cpu_s": 0.4846931869999995,
+      "other_threads_cpu_s": 0.0012860899999989073,
+      "proc_main_thread_cpu_s": 0.48,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     },
+     "stage_changed_scene": true,
+     "update": {
+      "wall_s": 0.33189700999992056,
+      "main_thread_cpu_s": 0.21072148500000054,
+      "other_threads_cpu_s": 0.0009676399999989371,
+      "proc_main_thread_cpu_s": 0.22,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     },
+     "update_changed_revision": false,
+     "take": {
+      "wall_s": 0.0005330169997250778,
+      "main_thread_cpu_s": 0.0005324200000025314,
+      "other_threads_cpu_s": 2.7999999474559445e-07,
+      "proc_main_thread_cpu_s": 0.0,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     }
+    },
+    {
+     "stage": {
+      "wall_s": 0.48792743099966174,
+      "main_thread_cpu_s": 0.4879251779999976,
+      "other_threads_cpu_s": 0.0013261510000006638,
+      "proc_main_thread_cpu_s": 0.49,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     },
+     "stage_changed_scene": true,
+     "update": {
+      "wall_s": 0.2669946149999305,
+      "main_thread_cpu_s": 0.20576655599999683,
+      "other_threads_cpu_s": 0.0008161600000029523,
+      "proc_main_thread_cpu_s": 0.21,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     },
+     "update_changed_revision": false,
+     "take": {
+      "wall_s": 0.0005968580007902347,
+      "main_thread_cpu_s": 0.0005986609999979464,
+      "other_threads_cpu_s": -1.6599999987931824e-06,
+      "proc_main_thread_cpu_s": 0.0,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     }
+    }
+   ],
+   "median": {
+    "stage_wall_s": 0.48471978999987186,
+    "stage_main_thread_cpu_s": 0.4846931869999995,
+    "stage_other_threads_cpu_s": 0.0012860899999989073,
+    "update_wall_s": 0.2659808910002539,
+    "update_main_thread_cpu_s": 0.2048763229999988,
+    "update_other_threads_cpu_s": 0.0008161600000029523,
+    "take_wall_s": 0.0006024169997544959,
+    "take_main_thread_cpu_s": 0.0006025499999999795,
+    "take_other_threads_cpu_s": -6.59999997765226e-07
+   },
+   "scene_rebuilt_each_frame": true
+  },
+  "moving": {
+   "frames": [
+    {
+     "stage": {
+      "wall_s": 0.48079005799991137,
+      "main_thread_cpu_s": 0.4807889060000008,
+      "other_threads_cpu_s": 0.0013291600000009396,
+      "proc_main_thread_cpu_s": 0.49,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     },
+     "stage_changed_scene": true,
+     "update": {
+      "wall_s": 0.32896004099984566,
+      "main_thread_cpu_s": 0.20888372499999974,
+      "other_threads_cpu_s": 0.0009508400000015627,
+      "proc_main_thread_cpu_s": 0.21,
+      "proc_other_threads_cpu_s": 0.01,
+      "proc_other_threads_active": 1,
+      "proc_busiest_other_thread_cpu_s": 0.01,
+      "threads_total": 24
+     },
+     "update_changed_revision": false,
+     "take": {
+      "wall_s": 0.0006129480007075472,
+      "main_thread_cpu_s": 0.000613399999998876,
+      "other_threads_cpu_s": -5.700000009767336e-07,
+      "proc_main_thread_cpu_s": 0.01,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     }
+    },
+    {
+     "stage": {
+      "wall_s": 0.46997815600025206,
+      "main_thread_cpu_s": 0.4699779329999991,
+      "other_threads_cpu_s": 0.0018318000000014933,
+      "proc_main_thread_cpu_s": 0.48,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     },
+     "stage_changed_scene": true,
+     "update": {
+      "wall_s": 0.32843239399971935,
+      "main_thread_cpu_s": 0.20819177499999952,
+      "other_threads_cpu_s": 0.0010552809999992974,
+      "proc_main_thread_cpu_s": 0.2,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     },
+     "update_changed_revision": false,
+     "take": {
+      "wall_s": 0.0006257679997361265,
+      "main_thread_cpu_s": 0.0006253709999981538,
+      "other_threads_cpu_s": 2.000000165480742e-08,
+      "proc_main_thread_cpu_s": 0.01,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     }
+    },
+    {
+     "stage": {
+      "wall_s": 0.4817874390000725,
+      "main_thread_cpu_s": 0.48176794599999795,
+      "other_threads_cpu_s": 0.00200665100000208,
+      "proc_main_thread_cpu_s": 0.49,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     },
+     "stage_changed_scene": true,
+     "update": {
+      "wall_s": 0.32847973400021147,
+      "main_thread_cpu_s": 0.20854671500000066,
+      "other_threads_cpu_s": 0.0010191899999973941,
+      "proc_main_thread_cpu_s": 0.21,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     },
+     "update_changed_revision": false,
+     "take": {
+      "wall_s": 0.0005870280001545325,
+      "main_thread_cpu_s": 0.0005870309999984613,
+      "other_threads_cpu_s": 2.000000165480742e-08,
+      "proc_main_thread_cpu_s": 0.0,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     }
+    },
+    {
+     "stage": {
+      "wall_s": 0.47268355899996095,
+      "main_thread_cpu_s": 0.4726836839999997,
+      "other_threads_cpu_s": 0.0018725800000005677,
+      "proc_main_thread_cpu_s": 0.47,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     },
+     "stage_changed_scene": true,
+     "update": {
+      "wall_s": 0.30310454400023445,
+      "main_thread_cpu_s": 0.20920091500000026,
+      "other_threads_cpu_s": 0.0009033910000013634,
+      "proc_main_thread_cpu_s": 0.22,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     },
+     "update_changed_revision": false,
+     "take": {
+      "wall_s": 0.0006772090000595199,
+      "main_thread_cpu_s": 0.0006783899999973642,
+      "other_threads_cpu_s": -1.2699999984988608e-06,
+      "proc_main_thread_cpu_s": 0.0,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     }
+    },
+    {
+     "stage": {
+      "wall_s": 0.4828878620000978,
+      "main_thread_cpu_s": 0.48287461700000023,
+      "other_threads_cpu_s": 0.0018262109999973575,
+      "proc_main_thread_cpu_s": 0.49,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     },
+     "stage_changed_scene": true,
+     "update": {
+      "wall_s": 0.33378344100037793,
+      "main_thread_cpu_s": 0.2137024760000017,
+      "other_threads_cpu_s": 0.000990620999996139,
+      "proc_main_thread_cpu_s": 0.21,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     },
+     "update_changed_revision": false,
+     "take": {
+      "wall_s": 0.0006079879995013471,
+      "main_thread_cpu_s": 0.0006090599999986068,
+      "other_threads_cpu_s": -1.6199999990362812e-06,
+      "proc_main_thread_cpu_s": 0.0,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     }
+    }
+   ],
+   "median": {
+    "stage_wall_s": 0.48079005799991137,
+    "stage_main_thread_cpu_s": 0.4807889060000008,
+    "stage_other_threads_cpu_s": 0.0018318000000014933,
+    "update_wall_s": 0.32847973400021147,
+    "update_main_thread_cpu_s": 0.20888372499999974,
+    "update_other_threads_cpu_s": 0.000990620999996139,
+    "take_wall_s": 0.0006129480007075472,
+    "take_main_thread_cpu_s": 0.000613399999998876,
+    "take_other_threads_cpu_s": -5.700000009767336e-07
+   },
+   "scene_rebuilt_each_frame": true
+  },
+  "time_only_again": {
+   "frames": [
+    {
+     "update": {
+      "wall_s": 0.009514604000287363,
+      "main_thread_cpu_s": 0.0037243410000016297,
+      "other_threads_cpu_s": 1.8599999997093164e-05,
+      "proc_main_thread_cpu_s": 0.01,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     },
+     "update_changed_revision": false,
+     "take": {
+      "wall_s": 0.0003592550001485506,
+      "main_thread_cpu_s": 0.00035985999999965657,
+      "other_threads_cpu_s": -6.399999996631323e-07,
+      "proc_main_thread_cpu_s": 0.0,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     }
+    },
+    {
+     "update": {
+      "wall_s": 0.008857565000653267,
+      "main_thread_cpu_s": 0.0035565609999999026,
+      "other_threads_cpu_s": -7.500000016591457e-07,
+      "proc_main_thread_cpu_s": 0.01,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     },
+     "update_changed_revision": false,
+     "take": {
+      "wall_s": 0.00025345300036860863,
+      "main_thread_cpu_s": 0.0002539500000011685,
+      "other_threads_cpu_s": -5.900000026315411e-07,
+      "proc_main_thread_cpu_s": 0.01,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     }
+    },
+    {
+     "update": {
+      "wall_s": 0.008821485000225948,
+      "main_thread_cpu_s": 0.003504701000000665,
+      "other_threads_cpu_s": 1.9129999998312996e-05,
+      "proc_main_thread_cpu_s": 0.01,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     },
+     "update_changed_revision": false,
+     "take": {
+      "wall_s": 0.0002505729999029427,
+      "main_thread_cpu_s": 0.00025086000000129616,
+      "other_threads_cpu_s": -4.5000000170603016e-07,
+      "proc_main_thread_cpu_s": 0.0,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     }
+    },
+    {
+     "update": {
+      "wall_s": 0.0039053810005498235,
+      "main_thread_cpu_s": 0.0035268819999991763,
+      "other_threads_cpu_s": 2.050000000153318e-05,
+      "proc_main_thread_cpu_s": 0.0,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     },
+     "update_changed_revision": false,
+     "take": {
+      "wall_s": 0.00023439300002792152,
+      "main_thread_cpu_s": 0.0002349399999985735,
+      "other_threads_cpu_s": -5.799999982514237e-07,
+      "proc_main_thread_cpu_s": 0.01,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     }
+    },
+    {
+     "update": {
+      "wall_s": 0.003859029000523151,
+      "main_thread_cpu_s": 0.003490810999998928,
+      "other_threads_cpu_s": 1.9140000002693114e-05,
+      "proc_main_thread_cpu_s": 0.0,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     },
+     "update_changed_revision": false,
+     "take": {
+      "wall_s": 0.00021885300066060154,
+      "main_thread_cpu_s": 0.000219369999999941,
+      "other_threads_cpu_s": -6.299999988357285e-07,
+      "proc_main_thread_cpu_s": 0.0,
+      "proc_other_threads_cpu_s": 0.0,
+      "proc_other_threads_active": 0,
+      "proc_busiest_other_thread_cpu_s": 0.0,
+      "threads_total": 24
+     }
+    }
+   ],
+   "median": {
+    "stage_wall_s": null,
+    "stage_main_thread_cpu_s": null,
+    "stage_other_threads_cpu_s": null,
+    "update_wall_s": 0.008821485000225948,
+    "update_main_thread_cpu_s": 0.0035268819999991763,
+    "update_other_threads_cpu_s": 1.9129999998312996e-05,
+    "take_wall_s": 0.0002505729999029427,
+    "take_main_thread_cpu_s": 0.00025086000000129616,
+    "take_other_threads_cpu_s": -5.900000026315411e-07
+   },
+   "scene_rebuilt_each_frame": false
+  }
+ }
+}

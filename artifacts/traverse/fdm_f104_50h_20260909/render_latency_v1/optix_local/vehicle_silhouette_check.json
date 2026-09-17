@@ -1,0 +1,48 @@
+{
+ "optix_rgbd": {
+  "depth_silhouette_px": 1200,
+  "rgb_silhouette_px": 932,
+  "otsu_colour_threshold": 66.23819696621584,
+  "iou_at_zero_shift": 0.7766666666666666,
+  "best_shift_du_dv_px": [
+   0,
+   0
+  ],
+  "iou_at_best_shift": 0.7766666666666666,
+  "centroid_depth_uv": [
+   523.9433333333334,
+   453.93
+  ],
+  "centroid_rgb_uv": [
+   523.9817596566523,
+   451.59871244635195
+  ],
+  "centroid_rgb_minus_depth_px": [
+   0.038,
+   -2.331
+  ]
+ },
+ "amd_lavapipe": {
+  "depth_silhouette_px": 1198,
+  "rgb_silhouette_px": 837,
+  "otsu_colour_threshold": 37.14522995443588,
+  "iou_at_zero_shift": 0.6986644407345576,
+  "best_shift_du_dv_px": [
+   0,
+   0
+  ],
+  "iou_at_best_shift": 0.6986644407345576,
+  "centroid_depth_uv": [
+   523.949916527546,
+   453.90734557595994
+  ],
+  "centroid_rgb_uv": [
+   524.5388291517323,
+   449.70131421744327
+  ],
+  "centroid_rgb_minus_depth_px": [
+   0.589,
+   -4.206
+  ]
+ }
+}

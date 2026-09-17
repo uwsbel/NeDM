@@ -1,0 +1,40 @@
+mode=empty tex=1 faces=522242 sizeof(tri)=576
+initial sync 0.18235 s rev 2 visible_shapes 1
+no-motion sync 4.9 us rev 2
+no-motion sync 5.29 us rev 2
+no-motion sync 0.76 us rev 2
+moved sync 0.230499 s rev 2
+moved sync 0.218313 s rev 2
+moved sync 0.217527 s rev 2
+moved sync 0.218905 s rev 2
+
+mode=empty tex=0 faces=522242 sizeof(tri)=576
+initial sync 0.154167 s rev 2 visible_shapes 1
+no-motion sync 4.12 us rev 2
+no-motion sync 0.79 us rev 2
+no-motion sync 0.7 us rev 2
+moved sync 0.193563 s rev 2
+moved sync 0.192232 s rev 2
+moved sync 0.192382 s rev 2
+moved sync 0.193217 s rev 2
+
+mode=null tex=1 faces=522242 sizeof(tri)=576
+initial sync 0.180512 s rev 2 visible_shapes 1
+no-motion sync 3.47 us rev 2
+no-motion sync 0.62 us rev 2
+no-motion sync 0.58 us rev 2
+moved sync 5.8e-07 s rev 2
+moved sync 5.5e-07 s rev 2
+moved sync 5.4e-07 s rev 2
+moved sync 5.3e-07 s rev 2
+
+mode=mesh tex=1 faces=522242 sizeof(tri)=576
+initial sync 0.671531 s rev 2 visible_shapes 6
+no-motion sync 6.921 us rev 2
+no-motion sync 1.35 us rev 2
+no-motion sync 1.17 us rev 2
+moved sync 0.740295 s rev 3
+moved sync 0.70492 s rev 4
+moved sync 0.72129 s rev 5
+moved sync 0.713188 s rev 6
+

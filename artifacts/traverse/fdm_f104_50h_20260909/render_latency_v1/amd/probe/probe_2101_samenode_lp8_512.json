@@ -1,0 +1,444 @@
+{
+ "label": "probe_2101_samenode_lp8_512",
+ "host": "k006-004-v3.hpcfund",
+ "pid": 1908044,
+ "cpus": 16,
+ "affinity": 16,
+ "case": "g216_v2_group_0000",
+ "with_rgb": false,
+ "hide_vehicle": false,
+ "env": {
+  "LP_NUM_THREADS": "8",
+  "VK_ICD_FILENAMES": "/work1/dannegrut/harry/nrd/toolchain/lvp/lvp_icd.json",
+  "MESA_SHADER_CACHE_DIR": "/work1/dannegrut/harry/nrd/mesa_cache",
+  "LP_NATIVE_VECTOR_WIDTH": null,
+  "OMP_NUM_THREADS": "1"
+ },
+ "clock": "time.monotonic (CLOCK_MONOTONIC)",
+ "sizes": {
+  "512": {
+   "dt": 0.002,
+   "scene_build_s": 0.6531362181995064,
+   "scene_build_main_cpu_s": 0.61,
+   "scene_build_worker_cpu_s": 0.0,
+   "settle_physics_s": 23.663979154080153,
+   "first_frame": {
+    "update_s": 3.3992583809886128,
+    "take_s": 0.000344590051099658,
+    "total_s": 3.3996029710397124,
+    "mono": [
+     1665350.461723702,
+     1665353.861326673
+    ],
+    "cpu_user_sys_split": {
+     "main_user_s": 1.3199999999999967,
+     "main_sys_s": 0.67,
+     "workers_user_s": 7.379999999999999,
+     "workers_sys_s": 0.31
+    },
+    "proc_user_s": 8.77,
+    "proc_sys_s": 0.9700000000000001,
+    "rev_before": 4,
+    "rev_after": 5,
+    "rebuilt": true,
+    "main_cpu_s": 1.990000000000002,
+    "worker_cpu_s": 7.689999999999999,
+    "worker_cpu_by_name": {
+     "python": 7.689999999999999
+    },
+    "proc_cpu_s": 9.739999999999998
+   },
+   "thread_census": {
+    "python": 10,
+    "llvmpipe-N": 8,
+    "python:disk$N": 1
+   },
+   "n_threads": 19,
+   "scene_stats": {
+    "bodies": 21,
+    "other_items": 21,
+    "visible_shapes": 12,
+    "boxes": 1,
+    "spheres": 0,
+    "cylinders": 0,
+    "triangle_meshes": 10,
+    "unsupported_shapes": 1
+   },
+   "primitive_triangles": "TypeError(\"'SwigPyObject' object is not iterable\")",
+   "regimes": {
+    "frozen": {
+     "frames": [
+      {
+       "update_s": 0.9969307780265808,
+       "take_s": 0.0002701298799365759,
+       "total_s": 0.9972009079065174,
+       "mono": [
+        1665353.864139508,
+        1665354.861340416
+       ],
+       "cpu_user_sys_split": {
+        "main_user_s": 0.0,
+        "main_sys_s": 0.0,
+        "workers_user_s": 7.41,
+        "workers_sys_s": 0.0
+       },
+       "proc_user_s": 7.420000000000002,
+       "proc_sys_s": 0.0,
+       "rev_before": 5,
+       "rev_after": 5,
+       "rebuilt": false,
+       "main_cpu_s": 0.0,
+       "worker_cpu_s": 7.41,
+       "worker_cpu_by_name": {
+        "python": 7.41
+       },
+       "proc_cpu_s": 7.420000000000002
+      },
+      {
+       "update_s": 0.9970170941669494,
+       "take_s": 0.00026421784423291683,
+       "total_s": 0.9972813120111823,
+       "mono": [
+        1665354.863205894,
+        1665355.860487206
+       ],
+       "cpu_user_sys_split": {
+        "main_user_s": 0.0,
+        "main_sys_s": 0.0,
+        "workers_user_s": 7.5,
+        "workers_sys_s": 0.0
+       },
+       "proc_user_s": 7.479999999999997,
+       "proc_sys_s": 0.0,
+       "rev_before": 5,
+       "rev_after": 5,
+       "rebuilt": false,
+       "main_cpu_s": 0.0,
+       "worker_cpu_s": 7.5,
+       "worker_cpu_by_name": {
+        "python": 7.5
+       },
+       "proc_cpu_s": 7.479999999999997
+      },
+      {
+       "update_s": 1.002336003119126,
+       "take_s": 0.0002512750215828419,
+       "total_s": 1.0025872781407088,
+       "mono": [
+        1665355.86232901,
+        1665356.864916288
+       ],
+       "cpu_user_sys_split": {
+        "main_user_s": 0.0,
+        "main_sys_s": 0.0,
+        "workers_user_s": 7.520000000000001,
+        "workers_sys_s": 0.0
+       },
+       "proc_user_s": 7.530000000000001,
+       "proc_sys_s": 0.0,
+       "rev_before": 5,
+       "rev_after": 5,
+       "rebuilt": false,
+       "main_cpu_s": 0.0,
+       "worker_cpu_s": 7.52,
+       "worker_cpu_by_name": {
+        "python": 7.52
+       },
+       "proc_cpu_s": 7.530000000000001
+      }
+     ],
+     "physics_between_s": [
+      3.055809065699577e-05,
+      1.905602402985096e-05,
+      1.671118661761284e-05
+     ],
+     "total_median_s": 0.9972813120111823,
+     "total_min_s": 0.9972009079065174,
+     "total_max_s": 1.0025872781407088,
+     "main_cpu_median_s": 0.0,
+     "worker_cpu_median_s": 7.5,
+     "rebuilt_count": 0
+    },
+    "static": {
+     "frames": [
+      {
+       "update_s": 1.8571407990530133,
+       "take_s": 0.0002673331182450056,
+       "total_s": 1.8574081321712583,
+       "mono": [
+        1665356.896113867,
+        1665358.753521999
+       ],
+       "cpu_user_sys_split": {
+        "main_user_s": 0.36999999999999744,
+        "main_sys_s": 0.3799999999999999,
+        "workers_user_s": 7.519999999999998,
+        "workers_sys_s": 0.03999999999999998
+       },
+       "proc_user_s": 7.900000000000006,
+       "proc_sys_s": 0.4099999999999999,
+       "rev_before": 5,
+       "rev_after": 6,
+       "rebuilt": true,
+       "main_cpu_s": 0.75,
+       "worker_cpu_s": 7.5600000000000005,
+       "worker_cpu_by_name": {
+        "python": 7.5600000000000005
+       },
+       "proc_cpu_s": 8.31000000000001
+      },
+      {
+       "update_s": 1.825067097088322,
+       "take_s": 0.0002544999588280916,
+       "total_s": 1.8253215970471501,
+       "mono": [
+        1665358.759492799,
+        1665360.584814396
+       ],
+       "cpu_user_sys_split": {
+        "main_user_s": 0.38000000000000256,
+        "main_sys_s": 0.3500000000000001,
+        "workers_user_s": 7.540000000000001,
+        "workers_sys_s": 0.030000000000000027
+       },
+       "proc_user_s": 7.919999999999995,
+       "proc_sys_s": 0.3799999999999999,
+       "rev_before": 6,
+       "rev_after": 7,
+       "rebuilt": true,
+       "main_cpu_s": 0.7299999999999969,
+       "worker_cpu_s": 7.570000000000002,
+       "worker_cpu_by_name": {
+        "python": 7.570000000000002
+       },
+       "proc_cpu_s": 8.299999999999997
+      },
+      {
+       "update_s": 1.785128195071593,
+       "take_s": 0.00027268403209745884,
+       "total_s": 1.7854008791036904,
+       "mono": [
+        1665360.590758675,
+        1665362.376159554
+       ],
+       "cpu_user_sys_split": {
+        "main_user_s": 0.379999999999999,
+        "main_sys_s": 0.2799999999999998,
+        "workers_user_s": 7.749999999999999,
+        "workers_sys_s": 0.03999999999999998
+       },
+       "proc_user_s": 8.11,
+       "proc_sys_s": 0.3200000000000003,
+       "rev_before": 7,
+       "rev_after": 8,
+       "rebuilt": true,
+       "main_cpu_s": 0.6600000000000001,
+       "worker_cpu_s": 7.789999999999999,
+       "worker_cpu_by_name": {
+        "python": 7.789999999999999
+       },
+       "proc_cpu_s": 8.429999999999993
+      }
+     ],
+     "physics_between_s": [
+      0.0045908179599791765,
+      0.004118876997381449,
+      0.004147280007600784
+     ],
+     "total_median_s": 1.8253215970471501,
+     "total_min_s": 1.7854008791036904,
+     "total_max_s": 1.8574081321712583,
+     "main_cpu_median_s": 0.7299999999999969,
+     "worker_cpu_median_s": 7.570000000000002,
+     "rebuilt_count": 3
+    },
+    "moving": {
+     "frames": [
+      {
+       "update_s": 1.717316972091794,
+       "take_s": 0.00027785496786236763,
+       "total_s": 1.7175948270596564,
+       "mono": [
+        1665362.716567041,
+        1665364.434161868
+       ],
+       "cpu_user_sys_split": {
+        "main_user_s": 0.35999999999999943,
+        "main_sys_s": 0.27,
+        "workers_user_s": 7.429999999999999,
+        "workers_sys_s": 0.020000000000000018
+       },
+       "proc_user_s": 7.810000000000002,
+       "proc_sys_s": 0.2999999999999998,
+       "rev_before": 8,
+       "rev_after": 9,
+       "rebuilt": true,
+       "main_cpu_s": 0.6300000000000026,
+       "worker_cpu_s": 7.449999999999999,
+       "worker_cpu_by_name": {
+        "python": 7.449999999999999
+       },
+       "proc_cpu_s": 8.11
+      },
+      {
+       "update_s": 1.857325877994299,
+       "take_s": 0.0003118780441582203,
+       "total_s": 1.8576377560384572,
+       "mono": [
+        1665364.774474835,
+        1665366.632112591
+       ],
+       "cpu_user_sys_split": {
+        "main_user_s": 0.379999999999999,
+        "main_sys_s": 0.38000000000000034,
+        "workers_user_s": 7.45,
+        "workers_sys_s": 0.03999999999999998
+       },
+       "proc_user_s": 7.829999999999998,
+       "proc_sys_s": 0.41000000000000014,
+       "rev_before": 9,
+       "rev_after": 10,
+       "rebuilt": true,
+       "main_cpu_s": 0.759999999999998,
+       "worker_cpu_s": 7.49,
+       "worker_cpu_by_name": {
+        "python": 7.49
+       },
+       "proc_cpu_s": 8.240000000000009
+      },
+      {
+       "update_s": 1.8193690120242536,
+       "take_s": 0.0002527169417589903,
+       "total_s": 1.8196217289660126,
+       "mono": [
+        1665366.949297146,
+        1665368.768918875
+       ],
+       "cpu_user_sys_split": {
+        "main_user_s": 0.41000000000000014,
+        "main_sys_s": 0.27,
+        "workers_user_s": 7.700000000000001,
+        "workers_sys_s": 0.050000000000000044
+       },
+       "proc_user_s": 8.11,
+       "proc_sys_s": 0.31000000000000005,
+       "rev_before": 10,
+       "rev_after": 11,
+       "rebuilt": true,
+       "main_cpu_s": 0.6800000000000033,
+       "worker_cpu_s": 7.75,
+       "worker_cpu_by_name": {
+        "python": 7.75
+       },
+       "proc_cpu_s": 8.420000000000002
+      }
+     ],
+     "physics_between_s": [
+      0.3376056228298694,
+      0.33824565913528204,
+      0.31515998602844775
+     ],
+     "total_median_s": 1.8196217289660126,
+     "total_min_s": 1.7175948270596564,
+     "total_max_s": 1.8576377560384572,
+     "main_cpu_median_s": 0.6800000000000033,
+     "worker_cpu_median_s": 7.49,
+     "rebuilt_count": 3
+    },
+    "frozen_after": {
+     "frames": [
+      {
+       "update_s": 1.0009665009565651,
+       "take_s": 0.000317269004881382,
+       "total_s": 1.0012837699614465,
+       "mono": [
+        1665368.771071825,
+        1665369.772355595
+       ],
+       "cpu_user_sys_split": {
+        "main_user_s": 0.0,
+        "main_sys_s": 0.0,
+        "workers_user_s": 7.490000000000002,
+        "workers_sys_s": 0.0
+       },
+       "proc_user_s": 7.509999999999991,
+       "proc_sys_s": 0.009999999999999787,
+       "rev_before": 11,
+       "rev_after": 11,
+       "rebuilt": false,
+       "main_cpu_s": 0.0,
+       "worker_cpu_s": 7.490000000000002,
+       "worker_cpu_by_name": {
+        "python": 7.490000000000002
+       },
+       "proc_cpu_s": 7.519999999999982
+      },
+      {
+       "update_s": 1.0272395259235054,
+       "take_s": 0.00025311694480478764,
+       "total_s": 1.0274926428683102,
+       "mono": [
+        1665369.774311772,
+        1665370.801804415
+       ],
+       "cpu_user_sys_split": {
+        "main_user_s": 0.010000000000001563,
+        "main_sys_s": 0.0,
+        "workers_user_s": 7.760000000000002,
+        "workers_sys_s": 0.0
+       },
+       "proc_user_s": 7.77000000000001,
+       "proc_sys_s": 0.0,
+       "rev_before": 11,
+       "rev_after": 11,
+       "rebuilt": false,
+       "main_cpu_s": 0.00999999999999801,
+       "worker_cpu_s": 7.760000000000002,
+       "worker_cpu_by_name": {
+        "python": 7.760000000000002
+       },
+       "proc_cpu_s": 7.77000000000001
+      },
+      {
+       "update_s": 1.0079589870292693,
+       "take_s": 0.0002822729293256998,
+       "total_s": 1.008241259958595,
+       "mono": [
+        1665370.803796351,
+        1665371.812037611
+       ],
+       "cpu_user_sys_split": {
+        "main_user_s": 0.0,
+        "main_sys_s": 0.0,
+        "workers_user_s": 7.669999999999996,
+        "workers_sys_s": 0.0
+       },
+       "proc_user_s": 7.659999999999997,
+       "proc_sys_s": 0.0,
+       "rev_before": 11,
+       "rev_after": 11,
+       "rebuilt": false,
+       "main_cpu_s": 0.0,
+       "worker_cpu_s": 7.669999999999996,
+       "worker_cpu_by_name": {
+        "python": 7.669999999999996
+       },
+       "proc_cpu_s": 7.659999999999997
+      }
+     ],
+     "physics_between_s": [
+      1.5208963304758072e-05,
+      1.6931910067796707e-05,
+      2.7401838451623917e-05
+     ],
+     "total_median_s": 1.008241259958595,
+     "total_min_s": 1.0012837699614465,
+     "total_max_s": 1.0274926428683102,
+     "main_cpu_median_s": 0.0,
+     "worker_cpu_median_s": 7.669999999999996,
+     "rebuilt_count": 0
+    }
+   }
+  }
+ }
+}

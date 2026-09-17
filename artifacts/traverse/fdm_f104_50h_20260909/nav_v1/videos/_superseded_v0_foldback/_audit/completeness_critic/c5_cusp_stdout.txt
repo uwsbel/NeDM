@@ -1,0 +1,9 @@
+g204_nav_003__R2 route 36 n pts 33 cusp at point 4 anchor-nearest point index 0 curv full 0.000 sliced 0.000 limit 0.125
+g204_nav_003__R2 route 37 n pts 33 cusp at point 4 anchor-nearest point index 0 curv full 0.000 sliced 0.000 limit 0.125
+g204_nav_003__R1L route 60 n pts 33 cusp at point 4 anchor-nearest point index 0 curv full 0.000 sliced 0.000 limit 0.125
+g204_nav_003__R1L route 61 n pts 33 cusp at point 4 anchor-nearest point index 0 curv full 0.000 sliced 0.000 limit 0.125
+g204_nav_003__R1L route 62 n pts 33 cusp at point 4 anchor-nearest point index 0 curv full 0.000 sliced 0.000 limit 0.125
+g203_nav_001__R1L route 76 n pts 51 cusp at point 7 anchor-nearest point index 0 curv full 0.000 sliced 0.000 limit 0.125
+g203_nav_001__R1L route 77 n pts 52 cusp at point 7 anchor-nearest point index 0 curv full 0.000 sliced 0.000 limit 0.125
+g203_nav_001__R1L route 78 n pts 33 cusp at point 4 anchor-nearest point index 0 curv full 0.000 sliced 0.000 limit 0.125
+g203_nav_001__R1L route 79 n pts 33 cusp at point 4 anchor-nearest point index 0 curv full 0.000 sliced 0.000 limit 0.125

@@ -1,0 +1,163 @@
+{
+ "mission": "g223_nav_003",
+ "arena": "assets/traverse/arena_g223",
+ "mode": "periodic",
+ "period_s": 1.0,
+ "latency_s_setting": -2.0,
+ "path_heights": "sensed",
+ "mask": true,
+ "rgb_rendered": false,
+ "torch_threads": 1,
+ "device": "cuda",
+ "video_dir": null,
+ "chase_cam": false,
+ "reachable_speed_clip": false,
+ "sense_radius_m": 0.0,
+ "pick": "model",
+ "fallback_speed_mps": 2.0,
+ "keep_current": false,
+ "switch_margin": 0.0,
+ "status": "mission_complete",
+ "goals_reached": 8,
+ "n_goals": 8,
+ "success": true,
+ "total_time_s": 82.5,
+ "distance_m": 274.2315355475964,
+ "any_slide": false,
+ "back_s": 0.0,
+ "max_tilt_deg": 22.858142852783203,
+ "n_decisions": 70,
+ "n_decisions_skipped_near_goal": 8,
+ "sense_to_plan_s": {
+  "mean": 1.0572193976139845,
+  "p50": 1.0808759835053934,
+  "p95": 1.372786247199292,
+  "max": 1.6799667480008793
+ },
+ "legs": [
+  {
+   "goal_index": 0,
+   "start_frame": 0,
+   "route_id": 0,
+   "status": "goal_reached",
+   "elapsed_s": 8.15,
+   "end_frame": 163,
+   "slid": false,
+   "back_s": 0.0,
+   "max_tilt_deg": 8.550858497619629
+  },
+  {
+   "goal_index": 1,
+   "start_frame": 163,
+   "start_pose": [
+    8.702413834339719,
+    -24.357709435530513,
+    -0.145603366751454
+   ],
+   "route_id": 7,
+   "status": "goal_reached",
+   "elapsed_s": 7.800000000000001,
+   "end_frame": 319,
+   "slid": false,
+   "back_s": 0.0,
+   "max_tilt_deg": 22.858142852783203
+  },
+  {
+   "goal_index": 2,
+   "start_frame": 319,
+   "start_pose": [
+    26.313664529631776,
+    0.48271020417756144,
+    1.2552337628821486
+   ],
+   "route_id": 13,
+   "status": "goal_reached",
+   "elapsed_s": 8.4,
+   "end_frame": 487,
+   "slid": false,
+   "back_s": 0.0,
+   "max_tilt_deg": 21.32175636291504
+  },
+  {
+   "goal_index": 3,
+   "start_frame": 487,
+   "start_pose": [
+    18.718708588504775,
+    25.31801225433015,
+    1.550964180595429
+   ],
+   "route_id": 20,
+   "status": "goal_reached",
+   "elapsed_s": 12.75,
+   "end_frame": 742,
+   "slid": false,
+   "back_s": 0.0,
+   "max_tilt_deg": 11.114144325256348
+  },
+  {
+   "goal_index": 4,
+   "start_frame": 742,
+   "start_pose": [
+    -12.068752922785636,
+    18.62708336800225,
+    -2.203210068507172
+   ],
+   "route_id": 30,
+   "status": "goal_reached",
+   "elapsed_s": 7.15,
+   "end_frame": 885,
+   "slid": false,
+   "back_s": 0.0,
+   "max_tilt_deg": 6.220627307891846
+  },
+  {
+   "goal_index": 5,
+   "start_frame": 885,
+   "start_pose": [
+    -19.99389110125578,
+    -2.7313641675268157,
+    -1.6195792024407085
+   ],
+   "route_id": 36,
+   "status": "goal_reached",
+   "elapsed_s": 8.4,
+   "end_frame": 1053,
+   "slid": false,
+   "back_s": 0.0,
+   "max_tilt_deg": 10.3329439163208
+  },
+  {
+   "goal_index": 6,
+   "start_frame": 1053,
+   "start_pose": [
+    -10.269423056075794,
+    -28.71297357903029,
+    -1.3248568981175362
+   ],
+   "route_id": 44,
+   "status": "goal_reached",
+   "elapsed_s": 14.65,
+   "end_frame": 1346,
+   "slid": false,
+   "back_s": 0.0,
+   "max_tilt_deg": 8.09856128692627
+  },
+  {
+   "goal_index": 7,
+   "start_frame": 1346,
+   "start_pose": [
+    12.445981293263719,
+    -9.143946683020589,
+    1.5637533175095628
+   ],
+   "route_id": 56,
+   "status": "goal_reached",
+   "elapsed_s": 15.200000000000001,
+   "end_frame": 1650,
+   "slid": false,
+   "back_s": 0.0,
+   "max_tilt_deg": 21.524259567260742
+  }
+ ],
+ "wall_s": 204.88423943519592
+}

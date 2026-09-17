@@ -1,0 +1,99 @@
+{
+ "mission": "g204_nav_001",
+ "arena": "assets/traverse/arena_g204",
+ "mode": "periodic",
+ "period_s": 1.0,
+ "latency_s_setting": -2.0,
+ "path_heights": "sensed",
+ "mask": true,
+ "rgb_rendered": false,
+ "torch_threads": 1,
+ "device": "cuda",
+ "video_dir": null,
+ "chase_cam": false,
+ "reachable_speed_clip": false,
+ "sense_radius_m": 0.0,
+ "pick": "model",
+ "fallback_speed_mps": 2.0,
+ "keep_current": false,
+ "switch_margin": 0.0,
+ "status": "terrain_bounds_exit",
+ "goals_reached": 3,
+ "n_goals": 6,
+ "success": false,
+ "total_time_s": 51.150000000000006,
+ "distance_m": 182.67286880760253,
+ "any_slide": false,
+ "back_s": 0.0,
+ "max_tilt_deg": 23.844444274902344,
+ "n_decisions": 49,
+ "n_decisions_skipped_near_goal": 3,
+ "sense_to_plan_s": {
+  "mean": 0.8972341450422933,
+  "p50": 0.8720673179996083,
+  "p95": 1.2412909590006165,
+  "max": 1.377379640001891
+ },
+ "legs": [
+  {
+   "goal_index": 0,
+   "start_frame": 0,
+   "route_id": 0,
+   "status": "goal_reached",
+   "elapsed_s": 9.5,
+   "end_frame": 190,
+   "slid": false,
+   "back_s": 0.0,
+   "max_tilt_deg": 10.131401062011719
+  },
+  {
+   "goal_index": 1,
+   "start_frame": 190,
+   "start_pose": [
+    -2.3402611346327533,
+    -1.5861929004040447,
+    -2.078538170454392
+   ],
+   "route_id": 9,
+   "status": "goal_reached",
+   "elapsed_s": 11.9,
+   "end_frame": 428,
+   "slid": false,
+   "back_s": 0.0,
+   "max_tilt_deg": 20.87313461303711
+  },
+  {
+   "goal_index": 2,
+   "start_frame": 428,
+   "start_pose": [
+    12.366122294958528,
+    -28.26185184367454,
+    -0.28894827885920665
+   ],
+   "route_id": 20,
+   "status": "goal_reached",
+   "elapsed_s": 25.3,
+   "end_frame": 934,
+   "slid": false,
+   "back_s": 0.0,
+   "max_tilt_deg": 23.844444274902344
+  },
+  {
+   "goal_index": 3,
+   "start_frame": 934,
+   "start_pose": [
+    -17.905432134237618,
+    -30.831133668628105,
+    -1.682459059559293
+   ],
+   "route_id": 44,
+   "status": "terrain_bounds_exit",
+   "elapsed_s": 4.45,
+   "end_frame": 1023,
+   "slid": false,
+   "back_s": 0.0,
+   "max_tilt_deg": 14.539851188659668
+  }
+ ],
+ "wall_s": 137.42019629478455
+}

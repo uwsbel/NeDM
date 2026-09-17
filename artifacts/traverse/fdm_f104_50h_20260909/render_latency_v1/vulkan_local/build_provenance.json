@@ -1,0 +1,39 @@
+{
+ "build_dir": "/home/harry/chrono_build_vulkan_bench",
+ "source_dir": "/home/harry/chrono_src_amd_mirror",
+ "source": "git archive of commit f54254fa9f (the commit the AMD cluster build was made from; src/chrono_sensor identical to /home/harry/chrono working tree) plus the 7 uncommitted/untracked python-binding files copied verbatim from the AMD source tree (/home1/harry/chrono): chrono_python/CMakeLists.txt, sensor/ChFilter.i, ChModuleSensor.i, ChSensor.i, ChSensorBuffer.i, ChRenderSensors.i, ChSceneVulkan.i (md5-verified identical). Without them a Vulkan-only pychrono.sensor has no camera classes at all.",
+ "cmake": {
+  "CH_ENABLE_MODULE_PYTHON:BOOL": "ON",
+  "CH_ENABLE_MODULE_SENSOR:BOOL": "ON",
+  "CH_ENABLE_MODULE_VEHICLE:BOOL": "ON",
+  "CH_ENABLE_MODULE_VEHICLE_MODELS:BOOL": "ON",
+  "CH_ENABLE_OPENMP:BOOL": "ON",
+  "CH_USE_SENSOR_OPTIX:BOOL": "OFF",
+  "CH_USE_SENSOR_VULKAN_RT:BOOL": "ON",
+  "CH_USE_SENSOR_VULKAN_RT_GPU:BOOL": "ON",
+  "CH_USE_SIMD:BOOL": "ON",
+  "CMAKE_BUILD_TYPE:STRING": "Release",
+  "CMAKE_CXX_COMPILER:STRING": "/usr/bin/g++-13",
+  "Python3_EXECUTABLE:UNINITIALIZED": "/usr/bin/python3.12",
+  "Vulkan_GLSLANG_VALIDATOR_EXECUTABLE:FILEPATH": "/home/harry/tools/vulkan_sdk/bin/glslangValidator",
+  "Vulkan_INCLUDE_DIR:PATH": "/usr/include",
+  "Vulkan_LIBRARY:FILEPATH": "/usr/lib/x86_64-linux-gnu/libvulkan.so",
+  "CMAKE_GENERATOR:INTERNAL": "Ninja"
+ },
+ "build_targets": "ninja -j14 Chrono_sensor_vulkan_spv core vehicle sensor (10 min)",
+ "shader_compiler": "AMD toolchain glslangValidator 16.1.0 rsynced to /home/harry/tools/vulkan_sdk (+ /home/harry/tools/glslang/lib)",
+ "spirv_md5": {
+  "chrono_sensor_vkrt.rchit.spv": "1fa4fa6d460593e6daefc3b5b8bb93f9",
+  "chrono_sensor_vkrt.rgen.spv": "ba7e394f0efa8d0f16360b2798ef8af5",
+  "chrono_sensor_vkrt.rmiss.spv": "bda67e431896ac4afa942ee1f2346c04",
+  "chrono_sensor_vkrt_shadow.rahit.spv": "f350c650a56237fb2b0db1e8d094133e",
+  "chrono_sensor_vkrt_shadow.rmiss.spv": "6d990779b02620b5f5c20ec7ff4f338a"
+ },
+ "spirv_identical_to_amd_build": true,
+ "icds": {
+  "nvidia": "/usr/share/vulkan/icd.d/nvidia_icd.json",
+  "lavapipe_system": "/usr/share/vulkan/icd.d/lvp_icd.json (mesa-vulkan-drivers 25.2.8)",
+  "lavapipe_amd_build": "/home/harry/tools/lvp_amd/lvp_icd.json with LD_LIBRARY_PATH=/home/harry/tools/lvp_amd/lib_min (copied from /work1/dannegrut/harry/nrd/toolchain/lvp, bundled libstdc++ left out)"
+ },
+ "device_confirmation": "every run log (logs/*.log) has VK_LOADER_DEBUG=driver output and the engine line \"Chrono::Sensor Vulkan RT device: ...\" (verbose manager via bench_verbose.py); no run fell back to the CPU path"
+}

@@ -1,0 +1,9 @@
+{"file":"tris_chrono_order.f32","order":"child0_first","triangles":522242,"rays":16384,"hit_rays":11454,"mean_hit_t":114.121891,"inner_nodes_per_ray":34.79,"triangle_tests_per_ray":1.45}
+{"file":"tris_chrono_order.f32","order":"nearer_child_first","triangles":522242,"rays":16384,"hit_rays":11454,"mean_hit_t":114.121891,"inner_nodes_per_ray":30.87,"triangle_tests_per_ray":1.41}
+{"file":"tris_morton_order.f32","order":"child0_first","triangles":522242,"rays":16384,"hit_rays":11454,"mean_hit_t":114.121891,"inner_nodes_per_ray":94.50,"triangle_tests_per_ray":1.46}
+{"file":"tris_morton_order.f32","order":"nearer_child_first","triangles":522242,"rays":16384,"hit_rays":11454,"mean_hit_t":114.121891,"inner_nodes_per_ray":74.78,"triangle_tests_per_ray":1.42}
+{"file":"tris_vehicle_then_terrain.f32","order":"child0_first","triangles":796553,"rays":16384,"hit_rays":11454,"mean_hit_t":114.119323,"inner_nodes_per_ray":40.02,"triangle_tests_per_ray":1.52}
+{"file":"tris_vehicle_then_terrain.f32","order":"nearer_child_first","triangles":796553,"rays":16384,"hit_rays":11454,"mean_hit_t":114.119323,"inner_nodes_per_ray":36.13,"triangle_tests_per_ray":1.48}
+{"file":"tris_terrain_then_vehicle.f32","order":"child0_first","triangles":796553,"rays":16384,"hit_rays":11454,"mean_hit_t":114.119323,"inner_nodes_per_ray":39.82,"triangle_tests_per_ray":1.53}
+{"file":"tris_terrain_then_vehicle.f32","order":"nearer_child_first","triangles":796553,"rays":16384,"hit_rays":11454,"mean_hit_t":114.119323,"inner_nodes_per_ray":35.87,"triangle_tests_per_ray":1.49}
+{"file":"tris_random_order.f32","order":"nearer_child_first","triangles":522242,"rays":64,"hit_rays":49,"mean_hit_t":114.430432,"inner_nodes_per_ray":119899.67,"triangle_tests_per_ray":1.47}

@@ -1,0 +1,669 @@
+{
+ "freq": 250.0,
+ "main_tid": 166649,
+ "regimes": {
+  "1024/first": {
+   "wall_s": 4.620135735953227,
+   "cpu_s": 30.04,
+   "n_threads_sampled": 18,
+   "cpu_s_by_thread": {
+    "main": 1.224,
+    "other": 28.816
+   },
+   "cpu_s_by_dso_main": {
+    "libvulkan_lvp.so": 0.8320000000000001,
+    "libChrono_sensor.so": 0.228,
+    "libc.so.6": 0.148,
+    "libstdc++.so.6": 0.016
+   },
+   "cpu_s_by_dso_other": {
+    "perf-166649.map": 28.560000000000002,
+    "libc.so.6": 0.168,
+    "libvulkan_lvp.so": 0.084,
+    "libzstd.so.1": 0.004
+   },
+   "top_sym_main": [
+    [
+     "[unknown] [libvulkan_lvp.so]",
+     0.8320000000000001
+    ],
+    [
+     "__memmove_avx_unaligned_erms [libc.so.6]",
+     0.092
+    ],
+    [
+     "chrono::sensor::(anonymous namespace)::FillTrianglePrimitive(chrono::sensor::ChVulkanRTPrimitive&, std::shared_ptr<chrono::ChTriangleMeshConnected> const&, chro [libChrono_sensor.so]",
+     0.052000000000000005
+    ],
+    [
+     "chrono::sensor::ChVulkanRTGpuRenderer::AddMesh(chrono::sensor::ChVulkanRTPrimitive const&) [libChrono_sensor.so]",
+     0.04
+    ],
+    [
+     "chrono::sensor::ChVulkanRTPrimitive* std::__do_uninit_copy<chrono::sensor::ChVulkanRTPrimitive const*, chrono::sensor::ChVulkanRTPrimitive*>(chrono::sensor::ChV [libChrono_sensor.so]",
+     0.032
+    ],
+    [
+     "chrono::sensor::(anonymous namespace)::ChVulkanRTGpuVertex& std::vector<chrono::sensor::(anonymous namespace)::ChVulkanRTGpuVertex, std::allocator<chrono::senso [libChrono_sensor.so]",
+     0.02
+    ],
+    [
+     "chrono::sensor::(anonymous namespace)::FillTrianglePrimitive(chrono::sensor::ChVulkanRTPrimitive&, std::shared_ptr<chrono::ChTriangleMeshConnected> const&, chro [libChrono_sensor.so]",
+     0.016
+    ],
+    [
+     "std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_assign(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocat [libstdc++.so.6]",
+     0.016
+    ],
+    [
+     "void std::vector<chrono::sensor::ChVulkanRTPrimitive, std::allocator<chrono::sensor::ChVulkanRTPrimitive> >::_M_realloc_insert<chrono::sensor::ChVulkanRTPrimiti [libChrono_sensor.so]",
+     0.016
+    ],
+    [
+     "_int_free [libc.so.6]",
+     0.016
+    ],
+    [
+     "malloc [libc.so.6]",
+     0.012
+    ],
+    [
+     "unsigned int& std::vector<unsigned int, std::allocator<unsigned int> >::emplace_back<unsigned int>(unsigned int&&) [clone .isra.0] [libChrono_sensor.so]",
+     0.012
+    ],
+    [
+     "chrono::sensor::(anonymous namespace)::ExpandAABB(chrono::sensor::ChVulkanRTPrimitive&, chrono::ChVector3<double> const&) [libChrono_sensor.so]",
+     0.008
+    ],
+    [
+     "chrono::sensor::ChVulkanRTMaterial::ChVulkanRTMaterial() [libChrono_sensor.so]",
+     0.008
+    ],
+    [
+     "chrono::sensor::ChVulkanRTMaterial::ChVulkanRTMaterial(chrono::sensor::ChVulkanRTMaterial const&) [libChrono_sensor.so]",
+     0.008
+    ],
+    [
+     "chrono::sensor::ChVulkanRTGpuRenderer::RegisterTexture(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, bool) [libChrono_sensor.so]",
+     0.008
+    ],
+    [
+     "std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_assign(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocat [libChrono_sensor.so]",
+     0.004
+    ],
+    [
+     "__GI___qsort_r [libc.so.6]",
+     0.004
+    ],
+    [
+     "unlink_chunk.constprop.0 [libc.so.6]",
+     0.004
+    ],
+    [
+     "_int_malloc [libc.so.6]",
+     0.004
+    ],
+    [
+     "__memcmp_avx2_movbe [libc.so.6]",
+     0.004
+    ],
+    [
+     "malloc_consolidate [libc.so.6]",
+     0.004
+    ],
+    [
+     "cfree@GLIBC_2.2.5 [libc.so.6]",
+     0.004
+    ],
+    [
+     "pthread_cond_signal@@GLIBC_2.3.2 [libc.so.6]",
+     0.004
+    ],
+    [
+     "chrono::sensor::ChFilterDepthToRGBA8::Apply() [libChrono_sensor.so]",
+     0.004
+    ]
+   ],
+   "top_sym_other": [
+    [
+     "[unknown] [perf-166649.map]",
+     28.560000000000002
+    ],
+    [
+     "__memmove_avx_unaligned_erms [libc.so.6]",
+     0.08
+    ],
+    [
+     "[unknown] [libvulkan_lvp.so]",
+     0.08
+    ],
+    [
+     "__memset_avx2_unaligned_erms [libc.so.6]",
+     0.032
+    ],
+    [
+     "_int_free [libc.so.6]",
+     0.016
+    ],
+    [
+     "_int_memalign [libc.so.6]",
+     0.016
+    ],
+    [
+     "_int_malloc [libc.so.6]",
+     0.008
+    ],
+    [
+     "cfree@GLIBC_2.2.5 [libc.so.6]",
+     0.008
+    ],
+    [
+     "[unknown] [libzstd.so.1]",
+     0.004
+    ],
+    [
+     "__posix_memalign [libc.so.6]",
+     0.004
+    ],
+    [
+     "free@plt [libvulkan_lvp.so]",
+     0.004
+    ],
+    [
+     "_mid_memalign.constprop.0 [libc.so.6]",
+     0.004
+    ]
+   ]
+  },
+  "1024/frozen": {
+   "wall_s": 5.748414312954992,
+   "cpu_s": 85.292,
+   "n_threads_sampled": 18,
+   "cpu_s_by_thread": {
+    "other": 85.276,
+    "main": 0.016
+   },
+   "cpu_s_by_dso_main": {
+    "libc.so.6": 0.008,
+    "libChrono_sensor.so": 0.008
+   },
+   "cpu_s_by_dso_other": {
+    "perf-166649.map": 85.0,
+    "libc.so.6": 0.20800000000000002,
+    "libvulkan_lvp.so": 0.068
+   },
+   "top_sym_main": [
+    [
+     "__memmove_avx_unaligned_erms [libc.so.6]",
+     0.008
+    ],
+    [
+     "chrono::sensor::ChFilterDepthToRGBA8::Apply() [libChrono_sensor.so]",
+     0.008
+    ]
+   ],
+   "top_sym_other": [
+    [
+     "[unknown] [perf-166649.map]",
+     85.0
+    ],
+    [
+     "_int_free [libc.so.6]",
+     0.1
+    ],
+    [
+     "[unknown] [libvulkan_lvp.so]",
+     0.06
+    ],
+    [
+     "_int_malloc [libc.so.6]",
+     0.036000000000000004
+    ],
+    [
+     "_int_memalign [libc.so.6]",
+     0.028
+    ],
+    [
+     "_mid_memalign.constprop.0 [libc.so.6]",
+     0.02
+    ],
+    [
+     "cfree@GLIBC_2.2.5 [libc.so.6]",
+     0.016
+    ],
+    [
+     "free@plt [libvulkan_lvp.so]",
+     0.008
+    ],
+    [
+     "__posix_memalign [libc.so.6]",
+     0.004
+    ],
+    [
+     "__memmove_avx_unaligned_erms [libc.so.6]",
+     0.004
+    ]
+   ]
+  },
+  "1024/frozen_after": {
+   "wall_s": 5.750513072125614,
+   "cpu_s": 85.176,
+   "n_threads_sampled": 18,
+   "cpu_s_by_thread": {
+    "other": 85.156,
+    "main": 0.02
+   },
+   "cpu_s_by_dso_main": {
+    "libc.so.6": 0.016,
+    "libChrono_sensor.so": 0.004
+   },
+   "cpu_s_by_dso_other": {
+    "perf-166649.map": 84.804,
+    "libc.so.6": 0.28,
+    "libvulkan_lvp.so": 0.07200000000000001
+   },
+   "top_sym_main": [
+    [
+     "__memmove_avx_unaligned_erms [libc.so.6]",
+     0.016
+    ],
+    [
+     "chrono::sensor::ChFilterDepthToRGBA8::Apply() [libChrono_sensor.so]",
+     0.004
+    ]
+   ],
+   "top_sym_other": [
+    [
+     "[unknown] [perf-166649.map]",
+     84.804
+    ],
+    [
+     "_int_free [libc.so.6]",
+     0.128
+    ],
+    [
+     "_int_malloc [libc.so.6]",
+     0.064
+    ],
+    [
+     "[unknown] [libvulkan_lvp.so]",
+     0.064
+    ],
+    [
+     "cfree@GLIBC_2.2.5 [libc.so.6]",
+     0.044
+    ],
+    [
+     "_int_memalign [libc.so.6]",
+     0.024
+    ],
+    [
+     "free@plt [libvulkan_lvp.so]",
+     0.008
+    ],
+    [
+     "alloc_perturb [libc.so.6]",
+     0.004
+    ],
+    [
+     "_mid_memalign.constprop.0 [libc.so.6]",
+     0.004
+    ],
+    [
+     "unlink_chunk.constprop.0 [libc.so.6]",
+     0.004
+    ],
+    [
+     "__memmove_avx_unaligned_erms [libc.so.6]",
+     0.004
+    ],
+    [
+     "__posix_memalign [libc.so.6]",
+     0.004
+    ]
+   ]
+  },
+  "1024/moving": {
+   "wall_s": 8.275246458360925,
+   "cpu_s": 87.052,
+   "n_threads_sampled": 18,
+   "cpu_s_by_thread": {
+    "main": 1.052,
+    "other": 86.0
+   },
+   "cpu_s_by_dso_main": {
+    "libChrono_sensor.so": 0.8320000000000001,
+    "libc.so.6": 0.132,
+    "libstdc++.so.6": 0.068,
+    "libm.so.6": 0.012,
+    "_sensor.so": 0.008
+   },
+   "cpu_s_by_dso_other": {
+    "perf-166649.map": 85.48,
+    "libc.so.6": 0.336,
+    "libvulkan_lvp.so": 0.184
+   },
+   "top_sym_main": [
+    [
+     "chrono::sensor::(anonymous namespace)::FillTrianglePrimitive(chrono::sensor::ChVulkanRTPrimitive&, std::shared_ptr<chrono::ChTriangleMeshConnected> const&, chro [libChrono_sensor.so]",
+     0.156
+    ],
+    [
+     "chrono::sensor::ChVulkanRTGpuRenderer::AddMesh(chrono::sensor::ChVulkanRTPrimitive const&) [libChrono_sensor.so]",
+     0.148
+    ],
+    [
+     "__memmove_avx_unaligned_erms [libc.so.6]",
+     0.132
+    ],
+    [
+     "chrono::sensor::ChVulkanRTPrimitive* std::__do_uninit_copy<chrono::sensor::ChVulkanRTPrimitive const*, chrono::sensor::ChVulkanRTPrimitive*>(chrono::sensor::ChV [libChrono_sensor.so]",
+     0.096
+    ],
+    [
+     "chrono::sensor::(anonymous namespace)::ChVulkanRTGpuVertex& std::vector<chrono::sensor::(anonymous namespace)::ChVulkanRTGpuVertex, std::allocator<chrono::senso [libChrono_sensor.so]",
+     0.076
+    ],
+    [
+     "std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_assign(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocat [libstdc++.so.6]",
+     0.068
+    ],
+    [
+     "std::vector<chrono::sensor::ChVulkanRTPrimitive, std::allocator<chrono::sensor::ChVulkanRTPrimitive> >::~vector() [libChrono_sensor.so]",
+     0.068
+    ],
+    [
+     "void std::vector<chrono::sensor::ChVulkanRTPrimitive, std::allocator<chrono::sensor::ChVulkanRTPrimitive> >::_M_realloc_insert<chrono::sensor::ChVulkanRTPrimiti [libChrono_sensor.so]",
+     0.056
+    ],
+    [
+     "chrono::sensor::(anonymous namespace)::ExpandAABB(chrono::sensor::ChVulkanRTPrimitive&, chrono::ChVector3<double> const&) [libChrono_sensor.so]",
+     0.056
+    ],
+    [
+     "void std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_construct<char*>(char*, char*, std::forward_iterator_tag) [clone .const [libChrono_sensor.so]",
+     0.04
+    ],
+    [
+     "chrono::sensor::(anonymous namespace)::FillTrianglePrimitive(chrono::sensor::ChVulkanRTPrimitive&, std::shared_ptr<chrono::ChTriangleMeshConnected> const&, chro [libChrono_sensor.so]",
+     0.028
+    ],
+    [
+     "chrono::sensor::ChVulkanRTMaterial::ChVulkanRTMaterial() [libChrono_sensor.so]",
+     0.028
+    ],
+    [
+     "chrono::sensor::ChVulkanRTMaterial::ChVulkanRTMaterial(chrono::sensor::ChVulkanRTMaterial const&) [libChrono_sensor.so]",
+     0.024
+    ],
+    [
+     "unsigned int& std::vector<unsigned int, std::allocator<unsigned int> >::emplace_back<unsigned int>(unsigned int&&) [clone .isra.0] [libChrono_sensor.so]",
+     0.02
+    ],
+    [
+     "__sqrt_finite [libm.so.6]",
+     0.012
+    ],
+    [
+     "chrono::sensor::ChVulkanRTMaterial::~ChVulkanRTMaterial() [_sensor.so]",
+     0.008
+    ],
+    [
+     "std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_assign(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocat [libChrono_sensor.so]",
+     0.008
+    ],
+    [
+     "chrono::sensor::ChVulkanRTGpuRenderer::RegisterTexture(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, bool) [libChrono_sensor.so]",
+     0.008
+    ],
+    [
+     "chrono::sensor::ChFilterDepthToRGBA8::Apply() [libChrono_sensor.so]",
+     0.008
+    ],
+    [
+     "chrono::sensor::ChVulkanRTScene::SyncFromSystem(chrono::ChSystem*)::{lambda(std::shared_ptr<chrono::ChVisualModel> const&, chrono::ChFrame<double> const&, chron [libChrono_sensor.so]",
+     0.004
+    ],
+    [
+     "std::_Hashtable<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::pair<std::__cxx11::basic_string<char, std::char_traits<cha [libChrono_sensor.so]",
+     0.004
+    ],
+    [
+     "chrono::sensor::(anonymous namespace)::ChVulkanRTGpuMaterial& std::vector<chrono::sensor::(anonymous namespace)::ChVulkanRTGpuMaterial, std::allocator<chrono::s [libChrono_sensor.so]",
+     0.004
+    ]
+   ],
+   "top_sym_other": [
+    [
+     "[unknown] [perf-166649.map]",
+     85.48
+    ],
+    [
+     "[unknown] [libvulkan_lvp.so]",
+     0.176
+    ],
+    [
+     "__memmove_avx_unaligned_erms [libc.so.6]",
+     0.108
+    ],
+    [
+     "_int_free [libc.so.6]",
+     0.092
+    ],
+    [
+     "_int_malloc [libc.so.6]",
+     0.052000000000000005
+    ],
+    [
+     "cfree@GLIBC_2.2.5 [libc.so.6]",
+     0.028
+    ],
+    [
+     "_int_memalign [libc.so.6]",
+     0.016
+    ],
+    [
+     "_mid_memalign.constprop.0 [libc.so.6]",
+     0.016
+    ],
+    [
+     "__memset_avx2_unaligned_erms [libc.so.6]",
+     0.012
+    ],
+    [
+     "unlink_chunk.constprop.0 [libc.so.6]",
+     0.008
+    ],
+    [
+     "free@plt [libvulkan_lvp.so]",
+     0.008
+    ],
+    [
+     "alloc_perturb [libc.so.6]",
+     0.004
+    ]
+   ]
+  },
+  "1024/static": {
+   "wall_s": 8.218542774906382,
+   "cpu_s": 86.784,
+   "n_threads_sampled": 18,
+   "cpu_s_by_thread": {
+    "main": 1.1280000000000001,
+    "other": 85.656
+   },
+   "cpu_s_by_dso_main": {
+    "libChrono_sensor.so": 0.836,
+    "libc.so.6": 0.164,
+    "libstdc++.so.6": 0.10400000000000001,
+    "libm.so.6": 0.02,
+    "_sensor.so": 0.004
+   },
+   "cpu_s_by_dso_other": {
+    "perf-166649.map": 85.07600000000001,
+    "libc.so.6": 0.356,
+    "libvulkan_lvp.so": 0.224
+   },
+   "top_sym_main": [
+    [
+     "__memmove_avx_unaligned_erms [libc.so.6]",
+     0.16
+    ],
+    [
+     "chrono::sensor::(anonymous namespace)::FillTrianglePrimitive(chrono::sensor::ChVulkanRTPrimitive&, std::shared_ptr<chrono::ChTriangleMeshConnected> const&, chro [libChrono_sensor.so]",
+     0.152
+    ],
+    [
+     "chrono::sensor::ChVulkanRTPrimitive* std::__do_uninit_copy<chrono::sensor::ChVulkanRTPrimitive const*, chrono::sensor::ChVulkanRTPrimitive*>(chrono::sensor::ChV [libChrono_sensor.so]",
+     0.14400000000000002
+    ],
+    [
+     "chrono::sensor::ChVulkanRTGpuRenderer::AddMesh(chrono::sensor::ChVulkanRTPrimitive const&) [libChrono_sensor.so]",
+     0.14400000000000002
+    ],
+    [
+     "std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_assign(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocat [libstdc++.so.6]",
+     0.10400000000000001
+    ],
+    [
+     "chrono::sensor::(anonymous namespace)::ChVulkanRTGpuVertex& std::vector<chrono::sensor::(anonymous namespace)::ChVulkanRTGpuVertex, std::allocator<chrono::senso [libChrono_sensor.so]",
+     0.088
+    ],
+    [
+     "std::vector<chrono::sensor::ChVulkanRTPrimitive, std::allocator<chrono::sensor::ChVulkanRTPrimitive> >::~vector() [libChrono_sensor.so]",
+     0.068
+    ],
+    [
+     "void std::vector<chrono::sensor::ChVulkanRTPrimitive, std::allocator<chrono::sensor::ChVulkanRTPrimitive> >::_M_realloc_insert<chrono::sensor::ChVulkanRTPrimiti [libChrono_sensor.so]",
+     0.052000000000000005
+    ],
+    [
+     "chrono::sensor::(anonymous namespace)::ExpandAABB(chrono::sensor::ChVulkanRTPrimitive&, chrono::ChVector3<double> const&) [libChrono_sensor.so]",
+     0.048
+    ],
+    [
+     "void std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_construct<char*>(char*, char*, std::forward_iterator_tag) [clone .const [libChrono_sensor.so]",
+     0.04
+    ],
+    [
+     "chrono::sensor::ChVulkanRTMaterial::ChVulkanRTMaterial() [libChrono_sensor.so]",
+     0.024
+    ],
+    [
+     "chrono::sensor::ChVulkanRTMaterial::ChVulkanRTMaterial(chrono::sensor::ChVulkanRTMaterial const&) [libChrono_sensor.so]",
+     0.024
+    ],
+    [
+     "__sqrt_finite [libm.so.6]",
+     0.02
+    ],
+    [
+     "chrono::sensor::ChVulkanRTGpuRenderer::RegisterTexture(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, bool) [libChrono_sensor.so]",
+     0.02
+    ],
+    [
+     "chrono::sensor::ChFilterDepthToRGBA8::Apply() [libChrono_sensor.so]",
+     0.012
+    ],
+    [
+     "std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_assign(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocat [libChrono_sensor.so]",
+     0.004
+    ],
+    [
+     "unsigned int& std::vector<unsigned int, std::allocator<unsigned int> >::emplace_back<unsigned int>(unsigned int&&) [clone .isra.0] [libChrono_sensor.so]",
+     0.004
+    ],
+    [
+     "__memset_avx2_unaligned_erms [libc.so.6]",
+     0.004
+    ],
+    [
+     "chrono::sensor::ChVulkanRTMaterial::~ChVulkanRTMaterial() [_sensor.so]",
+     0.004
+    ],
+    [
+     "chrono::sensor::ChVulkanRTMaterial::ChVulkanRTMaterial()@plt [libChrono_sensor.so]",
+     0.004
+    ],
+    [
+     "chrono::sensor::(anonymous namespace)::FillTrianglePrimitive(chrono::sensor::ChVulkanRTPrimitive&, std::shared_ptr<chrono::ChTriangleMeshConnected> const&, chro [libChrono_sensor.so]",
+     0.004
+    ],
+    [
+     "chrono::sensor::(anonymous namespace)::ChVulkanRTGpuMaterial& std::vector<chrono::sensor::(anonymous namespace)::ChVulkanRTGpuMaterial, std::allocator<chrono::s [libChrono_sensor.so]",
+     0.004
+    ]
+   ],
+   "top_sym_other": [
+    [
+     "[unknown] [perf-166649.map]",
+     85.07600000000001
+    ],
+    [
+     "[unknown] [libvulkan_lvp.so]",
+     0.212
+    ],
+    [
+     "_int_free [libc.so.6]",
+     0.092
+    ],
+    [
+     "__memmove_avx_unaligned_erms [libc.so.6]",
+     0.088
+    ],
+    [
+     "cfree@GLIBC_2.2.5 [libc.so.6]",
+     0.048
+    ],
+    [
+     "_int_malloc [libc.so.6]",
+     0.04
+    ],
+    [
+     "__memset_avx2_unaligned_erms [libc.so.6]",
+     0.028
+    ],
+    [
+     "_int_memalign [libc.so.6]",
+     0.028
+    ],
+    [
+     "unlink_chunk.constprop.0 [libc.so.6]",
+     0.016
+    ],
+    [
+     "free@plt [libvulkan_lvp.so]",
+     0.012
+    ],
+    [
+     "_mid_memalign.constprop.0 [libc.so.6]",
+     0.012
+    ],
+    [
+     "alloc_perturb [libc.so.6]",
+     0.004
+    ]
+   ]
+  }
+ },
+ "tid_sample_counts": {
+  "166649": 7481,
+  "166678": 5984,
+  "166674": 5975,
+  "166677": 5956,
+  "166669": 5907,
+  "166672": 5894,
+  "166670": 5882,
+  "166675": 5835,
+  "166671": 5765,
+  "166667": 5763,
+  "166679": 5761,
+  "166681": 5712,
+  "166676": 5688,
+  "166680": 5680,
+  "166673": 5635,
+  "166682": 5567,
+  "166668": 5562,
+  "166650": 160
+ }
+}

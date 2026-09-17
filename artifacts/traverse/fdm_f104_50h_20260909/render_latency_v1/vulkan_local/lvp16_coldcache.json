@@ -1,0 +1,78 @@
+{
+ "label": "lvp16_coldcache",
+ "host": "luffy",
+ "cpus": 16,
+ "pychrono": "/home/harry/chrono_build_vulkan_bench/bin/pychrono/__init__.py",
+ "env": {
+  "VK_ICD_FILENAMES": "/usr/share/vulkan/icd.d/lvp_icd.json",
+  "LP_NUM_THREADS": "16",
+  "OMP_NUM_THREADS": null,
+  "CUDA_VISIBLE_DEVICES": null,
+  "MESA_SHADER_CACHE_DIR": "/home/harry/chrono_build_vulkan_bench/mesa_cache"
+ },
+ "case": "g216_v2_group_0000",
+ "with_rgb": false,
+ "import_s": 0.019333590999849548,
+ "sizes": {
+  "256": {
+   "scene_build_s": 0.33913290100008453,
+   "settle_physics_s": 11.95082617099979,
+   "first_frame": {
+    "update_s": 30.819209766999847,
+    "take_s": 7.858000026317313e-05
+   },
+   "valid_fraction": 0.7004547119140625,
+   "depth_min": 106.64823150634766,
+   "depth_max": 123.71646118164062,
+   "pose_after_settle": [
+    1.0866899110112678,
+    5.195955492703678,
+    -1.8351569667421734
+   ],
+   "regimes": {
+    "static": {
+     "n": 2,
+     "update_s": [
+      1.2289750300005835,
+      1.1268085720003
+     ],
+     "take_s": [
+      7.261000064318068e-05,
+      7.217999882414006e-05
+     ],
+     "physics_between_s": [
+      0.002247777998491074,
+      0.002332288000616245
+     ],
+     "total_median_s": 1.1779641960001754,
+     "total_min_s": 1.1268807519991242,
+     "total_max_s": 1.2290476400012267,
+     "update_median_s": 1.1778918010004418,
+     "take_median_s": 7.239499973366037e-05,
+     "fps_median": 0.8489222366821844
+    },
+    "moving": {
+     "n": 2,
+     "update_s": [
+      1.1977827139999135,
+      1.163212867000766
+     ],
+     "take_s": [
+      7.222100066428538e-05,
+      6.835000021965243e-05
+     ],
+     "physics_between_s": [
+      0.1880431449990283,
+      0.18925105100061046
+     ],
+     "total_median_s": 1.1805680760007817,
+     "total_min_s": 1.1632812170009856,
+     "total_max_s": 1.1978549350005778,
+     "update_median_s": 1.1804977905003398,
+     "take_median_s": 7.02855004419689e-05,
+     "fps_median": 0.847049840096928
+    }
+   }
+  }
+ }
+}

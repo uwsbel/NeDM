@@ -1,0 +1,659 @@
+{
+ "label": "probe_2101_lp16_512",
+ "host": "k006-005-v4.hpcfund",
+ "pid": 166092,
+ "cpus": 16,
+ "affinity": 16,
+ "case": "g216_v2_group_0000",
+ "with_rgb": false,
+ "env": {
+  "LP_NUM_THREADS": "16",
+  "VK_ICD_FILENAMES": "/work1/dannegrut/harry/nrd/toolchain/lvp/lvp_icd.json",
+  "MESA_SHADER_CACHE_DIR": "/work1/dannegrut/harry/nrd/mesa_cache",
+  "LP_NATIVE_VECTOR_WIDTH": null,
+  "OMP_NUM_THREADS": "1"
+ },
+ "clock": "time.monotonic (CLOCK_MONOTONIC)",
+ "sizes": {
+  "512": {
+   "dt": 0.002,
+   "scene_build_s": 0.6644565910100937,
+   "scene_build_main_cpu_s": 0.6100000000000001,
+   "scene_build_worker_cpu_s": 0.0,
+   "settle_physics_s": 25.84638384799473,
+   "first_frame": {
+    "update_s": 3.097690536873415,
+    "take_s": 0.000553507125005126,
+    "total_s": 3.0982440439984202,
+    "mono": [
+     1648368.020777333,
+     1648371.119021377
+    ],
+    "cpu_user_sys_split": {
+     "main_user_s": 1.3299999999999983,
+     "main_sys_s": 0.69,
+     "workers_user_s": 7.3500000000000005,
+     "workers_sys_s": 0.33
+    },
+    "proc_user_s": 8.75,
+    "proc_sys_s": 1.03,
+    "rev_before": 4,
+    "rev_after": 5,
+    "rebuilt": true,
+    "main_cpu_s": 2.0199999999999996,
+    "worker_cpu_s": 7.680000000000001,
+    "worker_cpu_by_name": {
+     "python": 7.680000000000001
+    },
+    "proc_cpu_s": 9.780000000000001
+   },
+   "thread_census": {
+    "python": 18,
+    "llvmpipe-N": 16,
+    "python:disk$N": 1
+   },
+   "n_threads": 35,
+   "scene_stats": {
+    "bodies": 21,
+    "other_items": 21,
+    "visible_shapes": 12,
+    "boxes": 1,
+    "spheres": 0,
+    "cylinders": 0,
+    "triangle_meshes": 10,
+    "unsupported_shapes": 1
+   },
+   "primitive_triangles": "TypeError(\"'SwigPyObject' object is not iterable\")",
+   "regimes": {
+    "frozen": {
+     "frames": [
+      {
+       "update_s": 0.5437129121273756,
+       "take_s": 0.000500907888635993,
+       "total_s": 0.5442138200160116,
+       "mono": [
+        1648371.124028816,
+        1648371.668242636
+       ],
+       "cpu_user_sys_split": {
+        "main_user_s": 0.0,
+        "main_sys_s": 0.0,
+        "workers_user_s": 7.55,
+        "workers_sys_s": 0.0
+       },
+       "proc_user_s": 7.530000000000001,
+       "proc_sys_s": 0.010000000000000009,
+       "rev_before": 5,
+       "rev_after": 5,
+       "rebuilt": false,
+       "main_cpu_s": 0.0,
+       "worker_cpu_s": 7.550000000000001,
+       "worker_cpu_by_name": {
+        "python": 7.550000000000001
+       },
+       "proc_cpu_s": 7.539999999999999
+      },
+      {
+       "update_s": 0.48903405806049705,
+       "take_s": 0.0004677949473261833,
+       "total_s": 0.48950185300782323,
+       "mono": [
+        1648371.67141781,
+        1648372.160919663
+       ],
+       "cpu_user_sys_split": {
+        "main_user_s": 0.0,
+        "main_sys_s": 0.010000000000000009,
+        "workers_user_s": 7.23,
+        "workers_sys_s": 0.0
+       },
+       "proc_user_s": 7.269999999999996,
+       "proc_sys_s": 0.0,
+       "rev_before": 5,
+       "rev_after": 5,
+       "rebuilt": false,
+       "main_cpu_s": 0.010000000000001563,
+       "worker_cpu_s": 7.2299999999999995,
+       "worker_cpu_by_name": {
+        "python": 7.2299999999999995
+       },
+       "proc_cpu_s": 7.269999999999996
+      },
+      {
+       "update_s": 0.4882752229459584,
+       "take_s": 0.000273135956376791,
+       "total_s": 0.48854835890233517,
+       "mono": [
+        1648372.164128371,
+        1648372.65267673
+       ],
+       "cpu_user_sys_split": {
+        "main_user_s": 0.010000000000001563,
+        "main_sys_s": 0.0,
+        "workers_user_s": 7.13,
+        "workers_sys_s": 0.0
+       },
+       "proc_user_s": 7.130000000000003,
+       "proc_sys_s": 0.0,
+       "rev_before": 5,
+       "rev_after": 5,
+       "rebuilt": false,
+       "main_cpu_s": 0.00999999999999801,
+       "worker_cpu_s": 7.130000000000001,
+       "worker_cpu_by_name": {
+        "python": 7.130000000000001
+       },
+       "proc_cpu_s": 7.130000000000003
+      },
+      {
+       "update_s": 0.4944935131352395,
+       "take_s": 0.00047896592877805233,
+       "total_s": 0.49497247906401753,
+       "mono": [
+        1648372.65564367,
+        1648373.150616149
+       ],
+       "cpu_user_sys_split": {
+        "main_user_s": 0.0,
+        "main_sys_s": 0.0,
+        "workers_user_s": 7.289999999999997,
+        "workers_sys_s": 0.0
+       },
+       "proc_user_s": 7.299999999999997,
+       "proc_sys_s": 0.0,
+       "rev_before": 5,
+       "rev_after": 5,
+       "rebuilt": false,
+       "main_cpu_s": 0.0,
+       "worker_cpu_s": 7.289999999999999,
+       "worker_cpu_by_name": {
+        "python": 7.289999999999999
+       },
+       "proc_cpu_s": 7.29999999999999
+      },
+      {
+       "update_s": 0.4839952189940959,
+       "take_s": 0.0005318459589034319,
+       "total_s": 0.48452706495299935,
+       "mono": [
+        1648373.153756367,
+        1648373.638283432
+       ],
+       "cpu_user_sys_split": {
+        "main_user_s": 0.0,
+        "main_sys_s": 0.0,
+        "workers_user_s": 7.16,
+        "workers_sys_s": 0.0
+       },
+       "proc_user_s": 7.150000000000006,
+       "proc_sys_s": 0.0,
+       "rev_before": 5,
+       "rev_after": 5,
+       "rebuilt": false,
+       "main_cpu_s": 0.0,
+       "worker_cpu_s": 7.160000000000002,
+       "worker_cpu_by_name": {
+        "python": 7.160000000000002
+       },
+       "proc_cpu_s": 7.150000000000006
+      }
+     ],
+     "physics_between_s": [
+      3.889505751430988e-05,
+      2.786284312605858e-05,
+      2.1009938791394234e-05,
+      1.6120029613375664e-05,
+      1.970701850950718e-05
+     ],
+     "total_median_s": 0.48950185300782323,
+     "total_min_s": 0.48452706495299935,
+     "total_max_s": 0.5442138200160116,
+     "main_cpu_median_s": 0.0,
+     "worker_cpu_median_s": 7.2299999999999995,
+     "rebuilt_count": 0
+    },
+    "static": {
+     "frames": [
+      {
+       "update_s": 1.359018144197762,
+       "take_s": 0.0006846049800515175,
+       "total_s": 1.3597027491778135,
+       "mono": [
+        1648373.670177708,
+        1648375.029880457
+       ],
+       "cpu_user_sys_split": {
+        "main_user_s": 0.36999999999999744,
+        "main_sys_s": 0.3999999999999999,
+        "workers_user_s": 7.280000000000001,
+        "workers_sys_s": 0.02999999999999997
+       },
+       "proc_user_s": 7.659999999999997,
+       "proc_sys_s": 0.42999999999999994,
+       "rev_before": 5,
+       "rev_after": 6,
+       "rebuilt": true,
+       "main_cpu_s": 0.7699999999999996,
+       "worker_cpu_s": 7.3100000000000005,
+       "worker_cpu_by_name": {
+        "python": 7.3100000000000005
+       },
+       "proc_cpu_s": 8.090000000000003
+      },
+      {
+       "update_s": 1.3922924790531397,
+       "take_s": 0.0004976310301572084,
+       "total_s": 1.392790110083297,
+       "mono": [
+        1648375.057606831,
+        1648376.450396941
+       ],
+       "cpu_user_sys_split": {
+        "main_user_s": 0.35999999999999943,
+        "main_sys_s": 0.3400000000000003,
+        "workers_user_s": 7.5699999999999985,
+        "workers_sys_s": 0.030000000000000027
+       },
+       "proc_user_s": 7.920000000000002,
+       "proc_sys_s": 0.3700000000000001,
+       "rev_before": 6,
+       "rev_after": 7,
+       "rebuilt": true,
+       "main_cpu_s": 0.7000000000000028,
+       "worker_cpu_s": 7.600000000000001,
+       "worker_cpu_by_name": {
+        "python": 7.600000000000001
+       },
+       "proc_cpu_s": 8.290000000000006
+      },
+      {
+       "update_s": 1.2843609391711652,
+       "take_s": 0.00027577183209359646,
+       "total_s": 1.2846367110032588,
+       "mono": [
+        1648376.459059093,
+        1648377.743695804
+       ],
+       "cpu_user_sys_split": {
+        "main_user_s": 0.35999999999999943,
+        "main_sys_s": 0.3299999999999996,
+        "workers_user_s": 7.2900000000000045,
+        "workers_sys_s": 0.03999999999999998
+       },
+       "proc_user_s": 7.659999999999997,
+       "proc_sys_s": 0.3599999999999999,
+       "rev_before": 7,
+       "rev_after": 8,
+       "rebuilt": true,
+       "main_cpu_s": 0.6900000000000013,
+       "worker_cpu_s": 7.329999999999999,
+       "worker_cpu_by_name": {
+        "python": 7.329999999999999
+       },
+       "proc_cpu_s": 8.019999999999996
+      },
+      {
+       "update_s": 1.2892558868043125,
+       "take_s": 0.0004964880645275116,
+       "total_s": 1.28975237486884,
+       "mono": [
+        1648377.751957307,
+        1648379.041709682
+       ],
+       "cpu_user_sys_split": {
+        "main_user_s": 0.35999999999999943,
+        "main_sys_s": 0.31000000000000005,
+        "workers_user_s": 7.579999999999996,
+        "workers_sys_s": 0.030000000000000027
+       },
+       "proc_user_s": 7.939999999999998,
+       "proc_sys_s": 0.3500000000000001,
+       "rev_before": 8,
+       "rev_after": 9,
+       "rebuilt": true,
+       "main_cpu_s": 0.6700000000000017,
+       "worker_cpu_s": 7.609999999999999,
+       "worker_cpu_by_name": {
+        "python": 7.609999999999999
+       },
+       "proc_cpu_s": 8.289999999999992
+      },
+      {
+       "update_s": 1.290265125920996,
+       "take_s": 0.0002698199823498726,
+       "total_s": 1.290534945903346,
+       "mono": [
+        1648379.050395658,
+        1648380.340930604
+       ],
+       "cpu_user_sys_split": {
+        "main_user_s": 0.35999999999999943,
+        "main_sys_s": 0.3400000000000003,
+        "workers_user_s": 7.409999999999999,
+        "workers_sys_s": 0.02999999999999997
+       },
+       "proc_user_s": 7.789999999999992,
+       "proc_sys_s": 0.3700000000000001,
+       "rev_before": 9,
+       "rev_after": 10,
+       "rebuilt": true,
+       "main_cpu_s": 0.7000000000000028,
+       "worker_cpu_s": 7.4399999999999995,
+       "worker_cpu_by_name": {
+        "python": 7.4399999999999995
+       },
+       "proc_cpu_s": 8.159999999999997
+      }
+     ],
+     "physics_between_s": [
+      0.005504559027031064,
+      0.024488551076501608,
+      0.00543056009337306,
+      0.005164016038179398,
+      0.005533555056899786
+     ],
+     "total_median_s": 1.290534945903346,
+     "total_min_s": 1.2846367110032588,
+     "total_max_s": 1.392790110083297,
+     "main_cpu_median_s": 0.7000000000000028,
+     "worker_cpu_median_s": 7.4399999999999995,
+     "rebuilt_count": 5
+    },
+    "moving": {
+     "frames": [
+      {
+       "update_s": 1.3422666559927166,
+       "take_s": 0.0005098739638924599,
+       "total_s": 1.342776529956609,
+       "mono": [
+        1648380.644548058,
+        1648381.987324588
+       ],
+       "cpu_user_sys_split": {
+        "main_user_s": 0.370000000000001,
+        "main_sys_s": 0.2999999999999998,
+        "workers_user_s": 7.550000000000002,
+        "workers_sys_s": 0.040000000000000036
+       },
+       "proc_user_s": 7.8999999999999915,
+       "proc_sys_s": 0.33999999999999986,
+       "rev_before": 10,
+       "rev_after": 11,
+       "rebuilt": true,
+       "main_cpu_s": 0.6700000000000017,
+       "worker_cpu_s": 7.5900000000000025,
+       "worker_cpu_by_name": {
+        "python": 7.5900000000000025
+       },
+       "proc_cpu_s": 8.239999999999995
+      },
+      {
+       "update_s": 1.2483324150089175,
+       "take_s": 0.0002679869066923857,
+       "total_s": 1.2486004019156098,
+       "mono": [
+        1648382.294050351,
+        1648383.542650753
+       ],
+       "cpu_user_sys_split": {
+        "main_user_s": 0.35999999999999943,
+        "main_sys_s": 0.2999999999999998,
+        "workers_user_s": 7.28,
+        "workers_sys_s": 0.030000000000000027
+       },
+       "proc_user_s": 7.6299999999999955,
+       "proc_sys_s": 0.33000000000000007,
+       "rev_before": 11,
+       "rev_after": 12,
+       "rebuilt": true,
+       "main_cpu_s": 0.6600000000000037,
+       "worker_cpu_s": 7.309999999999999,
+       "worker_cpu_by_name": {
+        "python": 7.309999999999999
+       },
+       "proc_cpu_s": 7.9599999999999795
+      },
+      {
+       "update_s": 1.2579123720061034,
+       "take_s": 0.0005023099947720766,
+       "total_s": 1.2584146820008755,
+       "mono": [
+        1648383.87060431,
+        1648385.129018992
+       ],
+       "cpu_user_sys_split": {
+        "main_user_s": 0.370000000000001,
+        "main_sys_s": 0.29000000000000004,
+        "workers_user_s": 7.480000000000002,
+        "workers_sys_s": 0.039999999999999925
+       },
+       "proc_user_s": 7.849999999999994,
+       "proc_sys_s": 0.33000000000000007,
+       "rev_before": 12,
+       "rev_after": 13,
+       "rebuilt": true,
+       "main_cpu_s": 0.6599999999999966,
+       "worker_cpu_s": 7.5200000000000005,
+       "worker_cpu_by_name": {
+        "python": 7.5200000000000005
+       },
+       "proc_cpu_s": 8.179999999999978
+      },
+      {
+       "update_s": 1.2707154450472444,
+       "take_s": 0.0004969399888068438,
+       "total_s": 1.2712123850360513,
+       "mono": [
+        1648385.445849303,
+        1648386.717061688
+       ],
+       "cpu_user_sys_split": {
+        "main_user_s": 0.379999999999999,
+        "main_sys_s": 0.2999999999999998,
+        "workers_user_s": 7.319999999999998,
+        "workers_sys_s": 0.030000000000000027
+       },
+       "proc_user_s": 7.689999999999998,
+       "proc_sys_s": 0.33000000000000007,
+       "rev_before": 13,
+       "rev_after": 14,
+       "rebuilt": true,
+       "main_cpu_s": 0.6799999999999997,
+       "worker_cpu_s": 7.350000000000001,
+       "worker_cpu_by_name": {
+        "python": 7.350000000000001
+       },
+       "proc_cpu_s": 8.02000000000001
+      },
+      {
+       "update_s": 1.2865276671946049,
+       "take_s": 0.00026839692145586014,
+       "total_s": 1.2867960641160607,
+       "mono": [
+        1648387.051049786,
+        1648388.33784585
+       ],
+       "cpu_user_sys_split": {
+        "main_user_s": 0.3500000000000014,
+        "main_sys_s": 0.3200000000000003,
+        "workers_user_s": 7.240000000000002,
+        "workers_sys_s": 0.050000000000000044
+       },
+       "proc_user_s": 7.610000000000014,
+       "proc_sys_s": 0.34999999999999964,
+       "rev_before": 14,
+       "rev_after": 15,
+       "rebuilt": true,
+       "main_cpu_s": 0.6700000000000017,
+       "worker_cpu_s": 7.289999999999997,
+       "worker_cpu_by_name": {
+        "python": 7.289999999999997
+       },
+       "proc_cpu_s": 7.960000000000008
+      }
+     ],
+     "physics_between_s": [
+      0.30011016014032066,
+      0.3033041509333998,
+      0.32460989407263696,
+      0.3133592871017754,
+      0.3305486040189862
+     ],
+     "total_median_s": 1.2712123850360513,
+     "total_min_s": 1.2486004019156098,
+     "total_max_s": 1.342776529956609,
+     "main_cpu_median_s": 0.6700000000000017,
+     "worker_cpu_median_s": 7.350000000000001,
+     "rebuilt_count": 5
+    },
+    "frozen_after": {
+     "frames": [
+      {
+       "update_s": 0.500134679954499,
+       "take_s": 0.0004665530286729336,
+       "total_s": 0.5006012329831719,
+       "mono": [
+        1648388.341217777,
+        1648388.84181901
+       ],
+       "cpu_user_sys_split": {
+        "main_user_s": 0.0,
+        "main_sys_s": 0.0,
+        "workers_user_s": 7.350000000000004,
+        "workers_sys_s": 0.0
+       },
+       "proc_user_s": 7.349999999999994,
+       "proc_sys_s": 0.0,
+       "rev_before": 15,
+       "rev_after": 15,
+       "rebuilt": false,
+       "main_cpu_s": 0.0,
+       "worker_cpu_s": 7.350000000000002,
+       "worker_cpu_by_name": {
+        "python": 7.350000000000002
+       },
+       "proc_cpu_s": 7.349999999999994
+      },
+      {
+       "update_s": 0.4856391488574445,
+       "take_s": 0.0002517350949347019,
+       "total_s": 0.4858908839523792,
+       "mono": [
+        1648388.844978945,
+        1648389.330869829
+       ],
+       "cpu_user_sys_split": {
+        "main_user_s": 0.0,
+        "main_sys_s": 0.0,
+        "workers_user_s": 7.15,
+        "workers_sys_s": 0.0
+       },
+       "proc_user_s": 7.150000000000006,
+       "proc_sys_s": 0.0,
+       "rev_before": 15,
+       "rev_after": 15,
+       "rebuilt": false,
+       "main_cpu_s": 0.0,
+       "worker_cpu_s": 7.1499999999999995,
+       "worker_cpu_by_name": {
+        "python": 7.1499999999999995
+       },
+       "proc_cpu_s": 7.150000000000006
+      },
+      {
+       "update_s": 0.5072223639581352,
+       "take_s": 0.0004765409976243973,
+       "total_s": 0.5076989049557596,
+       "mono": [
+        1648389.333887416,
+        1648389.841586321
+       ],
+       "cpu_user_sys_split": {
+        "main_user_s": 0.0,
+        "main_sys_s": 0.0,
+        "workers_user_s": 7.49,
+        "workers_sys_s": 0.0
+       },
+       "proc_user_s": 7.5,
+       "proc_sys_s": 0.009999999999999787,
+       "rev_before": 15,
+       "rev_after": 15,
+       "rebuilt": false,
+       "main_cpu_s": 0.0,
+       "worker_cpu_s": 7.489999999999999,
+       "worker_cpu_by_name": {
+        "python": 7.489999999999999
+       },
+       "proc_cpu_s": 7.509999999999991
+      },
+      {
+       "update_s": 0.4883231830317527,
+       "take_s": 0.0006838638801127672,
+       "total_s": 0.4890070469118655,
+       "mono": [
+        1648389.844783748,
+        1648390.333790795
+       ],
+       "cpu_user_sys_split": {
+        "main_user_s": 0.0,
+        "main_sys_s": 0.0,
+        "workers_user_s": 7.149999999999999,
+        "workers_sys_s": 0.0
+       },
+       "proc_user_s": 7.1699999999999875,
+       "proc_sys_s": 0.0,
+       "rev_before": 15,
+       "rev_after": 15,
+       "rebuilt": false,
+       "main_cpu_s": 0.0,
+       "worker_cpu_s": 7.149999999999999,
+       "worker_cpu_by_name": {
+        "python": 7.149999999999999
+       },
+       "proc_cpu_s": 7.1699999999999875
+      },
+      {
+       "update_s": 0.5220059319399297,
+       "take_s": 0.0004921101499348879,
+       "total_s": 0.5224980420898646,
+       "mono": [
+        1648390.336973052,
+        1648390.859471094
+       ],
+       "cpu_user_sys_split": {
+        "main_user_s": 0.0,
+        "main_sys_s": 0.009999999999999787,
+        "workers_user_s": 7.670000000000002,
+        "workers_sys_s": 0.0
+       },
+       "proc_user_s": 7.639999999999986,
+       "proc_sys_s": 0.010000000000000675,
+       "rev_before": 15,
+       "rev_after": 15,
+       "rebuilt": false,
+       "main_cpu_s": 0.010000000000005116,
+       "worker_cpu_s": 7.670000000000002,
+       "worker_cpu_by_name": {
+        "python": 7.670000000000002
+       },
+       "proc_cpu_s": 7.650000000000006
+      }
+     ],
+     "physics_between_s": [
+      1.5829922631382942e-05,
+      2.118898555636406e-05,
+      1.5528174117207527e-05,
+      1.9488157704472542e-05,
+      1.9907020032405853e-05
+     ],
+     "total_median_s": 0.5006012329831719,
+     "total_min_s": 0.4858908839523792,
+     "total_max_s": 0.5224980420898646,
+     "main_cpu_median_s": 0.0,
+     "worker_cpu_median_s": 7.350000000000002,
+     "rebuilt_count": 0
+    }
+   }
+  }
+ }
+}
