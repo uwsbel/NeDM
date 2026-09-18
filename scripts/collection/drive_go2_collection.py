@@ -117,6 +117,36 @@ if _NSHARD > 1:
     jobs = [j for n, j in enumerate(jobs) if n % _NSHARD == _SHARD]
     print(f"  shard {_SHARD} of {_NSHARD}: {len(jobs)} episodes")
 
+def _payload_args(fam, i):
+    """Stratified PAYLOAD, the other axis the corpus never varied.
+
+    Every episode ever collected carried nothing. Under load the policy behaves
+    non-linearly: tracking improves to 8 kg as weight buys traction on soft ground, then
+    it falls at 9 kg. The reduced state has no payload channel, so a surrogate must infer
+    the load from the response -- the same demand soil variation makes of it.
+
+    Off unless NEDM_PAYLOAD_MAX is set. Bin 0 is unloaded, so this widens the corpus
+    rather than shifting it. The ceiling sits below the measured failure boundary: a
+    corpus collected where the base policy falls is a corpus of truncated episodes, and
+    those episodes would also enter the branch pool the fine-tune samples from.
+    """
+    pmax = float(os.environ.get("NEDM_PAYLOAD_MAX", "0"))
+    if pmax <= 0:
+        return []
+    nbin = int(os.environ.get("NEDM_PAYLOAD_BINS", "5"))
+    b = i % nbin                              # bin 0 == unloaded, unchanged
+    if b == 0:
+        return []
+    rng = random.Random(family_seed(fam, SEED_OFFSET) + 9173 * i)
+    # Jitter within the bin so the corpus covers the interval rather than nbin-1 spikes.
+    # Bins tile [0, pmax] evenly. Dividing by nbin-1 instead would clip the top bin to a
+    # spike at pmax rather than an interval, putting a fifth of the corpus on one value.
+    lo = pmax * b / nbin
+    hi = pmax * (b + 1) / nbin
+    kg = rng.uniform(lo, hi)
+    return ["--payload-kg", f"{kg:.3f}"]
+
+
 def _soil_args(fam, i):
     """Stratified SOIL, the one axis the corpus never varied.
 
@@ -152,12 +182,16 @@ def _soil_args(fam, i):
 
 def cmd(j):
     fam, i, p, x, y, h, py = j
-    extra = []
+    # PAYLOAD APPLIES IN EVERY MODE. The block below is gated on WIDE, and a payload
+    # placed inside it produced a 240-episode collection in which every episode was
+    # unloaded while the driver reported success. Load has nothing to do with how wide
+    # the command envelope is.
+    extra = list(_payload_args(fam, i))
     if WIDE:
         # One stratified bin per episode index, including exactly zero at i==0.
         peak = PERTURB_MAX_N * (i % 6) / 5.0
         tilt_rng = random.Random(family_seed(fam, SEED_OFFSET) + 977 * i)
-        extra = ["--ground-size-m", f"{GROUND_M}",
+        extra += ["--ground-size-m", f"{GROUND_M}",
                  "--perturb-peak-n", f"{peak:.1f}",
                  "--prewalk-s", f"{tilt_rng.uniform(0.0, 3.0):.2f}",
                  *_soil_args(fam, i),
