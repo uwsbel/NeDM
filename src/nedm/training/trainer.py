@@ -581,6 +581,9 @@ class HMMWVTrainer:
         self._ckpt_metric_history: list[float] = []
         self.metrics_path = self.output_dir / "metrics.jsonl"
         self.input_noise_sigma = float(config.get("training", {}).get("input_noise_sigma", 0.0))
+        _tr = config.get("training", {})
+        self.rollout_loss_steps = int(_tr.get("rollout_loss_steps", 0))
+        self.rollout_loss_weight = float(_tr.get("rollout_loss_weight", 1.0))
         self.best_val_loss = float("inf")
         self.global_step = 0
         self.start_epoch = 0
@@ -686,6 +689,37 @@ class HMMWVTrainer:
             )
         return residual.pow(2).mean()
 
+    def _rollout_loss(self, batch: dict[str, torch.Tensor], steps: int) -> torch.Tensor:
+        """K-step autoregressive loss under the RECORDED actions.
+
+        The model is rolled on its own predictions and compared to the true trajectory at
+        every step, which is the thing one-step teacher forcing cannot see: a model can be
+        excellent one step ahead and compound badly over fifteen, and the fine-tune rolls
+        fifteen. Targets are the tail of the window, so no extra data is required.
+        """
+        states, actions = batch["states"], batch["actions"]
+        terrain = batch.get("terrain_ids")
+        B, L, _ = states.shape
+        ctx = L - steps
+        if ctx < 2:
+            return states.new_zeros(())
+        hist = states[:, :ctx]
+        total = states.new_zeros(())
+        for k in range(steps):
+            pred_norm = self.model(hist, actions[:, k:k + ctx], terrain=terrain)
+            delta = self.model.denormalize_target(pred_norm)[:, -1]
+            nxt = hist[:, -1] + delta
+            true = states[:, ctx + k]
+            # Compare in normalised STATE space so channels spanning 0.04 to 15 contribute
+            # comparably, matching how the one-step loss is weighted.
+            resid = (nxt - true) / self.model.state_std
+            if self.channel_weights is not None:
+                resid = resid * torch.sqrt(self.channel_weights)
+            total = total + torch.nn.functional.huber_loss(
+                resid, torch.zeros_like(resid), delta=self.huber_delta, reduction="mean")
+            hist = torch.cat([hist, nxt.unsqueeze(1)], dim=1)[:, -ctx:]
+        return total / steps
+
     def training_step(self, batch: dict[str, torch.Tensor]) -> float:
         batch = move_batch(batch, self.device)
         lr = self.scheduled_lr()
@@ -716,6 +750,9 @@ class HMMWVTrainer:
         prediction_norm = self.model(states, batch["actions"], terrain=batch.get("terrain_ids"))
         target_norm = self.model.normalize_target(batch["targets"])
         loss = self._compute_loss(prediction_norm, target_norm)
+        if self.rollout_loss_steps > 0:
+            loss = loss + self.rollout_loss_weight * self._rollout_loss(
+                batch, self.rollout_loss_steps)
         loss.backward()
         clip_grad_norm_(self.model.parameters(), self.grad_clip_norm)
         self.optimizer.step()
