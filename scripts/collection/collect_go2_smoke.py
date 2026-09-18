@@ -170,6 +170,11 @@ def parse_args() -> argparse.Namespace:
                         help="multiply applied perturbation force/torque by this "
                              "(1.0 = normal, 0.0 = matched control with identical draws)")
     # Per-episode ground tilt, degrees, applied as roll and pitch of the static box.
+    parser.add_argument("--payload-kg", type=float, default=0.0,
+                        help="Mass rigidly carried on the trunk, in kg. Trunk mass and "
+                             "inertia scale together, modelling a load distributed like "
+                             "the trunk rather than a point mass at one corner. The base "
+                             "policy was never trained carrying anything.")
     parser.add_argument("--ground-tilt-roll-deg", type=float, default=0.0)
     parser.add_argument("--ground-tilt-pitch-deg", type=float, default=0.0)
     # NON-QUIESCENT START: seconds of policy-driven walking after the settle and
@@ -421,6 +426,19 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
     # error is not a validation. If you add a reference quantity here, give it a
     # two-sided bound -- the ratio should be near 1.0 and both directions are
     # informative.
+    # PAYLOAD. Applied before robot_mass is taken, so the recorded mass and every
+    # force check downstream see the loaded robot rather than the bare one.
+    if args.payload_kg:
+        _trunk = robot.base()
+        _m0 = _trunk.GetMass()
+        _scale = (_m0 + args.payload_kg) / _m0
+        _I = _trunk.GetInertiaXX()
+        _trunk.SetMass(_m0 + args.payload_kg)
+        _trunk.SetInertiaXX(chrono.ChVector3d(_I.x * _scale, _I.y * _scale, _I.z * _scale))
+        print(f"  payload {args.payload_kg:.2f} kg on trunk: "
+              f"{_m0:.3f} -> {_trunk.GetMass():.3f} kg (inertia scaled {_scale:.3f}x)",
+              flush=True)
+
     robot_mass = sum(b.GetMass() for b in system.GetBodies())
 
     if rigid:
@@ -822,6 +840,7 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
 
         "seed": int(args.seed),
         "action_noise_sigma_rad": float(args.action_noise_sigma_rad),
+        "payload_kg": float(args.payload_kg),
         "heading_deg": float(args.heading_deg),
         "spawn_m": [float(args.spawn_x_m), float(args.spawn_y_m), float(spawn_z)],
         "soil_top_m": float(soil_top),
