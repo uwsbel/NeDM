@@ -1,0 +1,29 @@
+world rigid fixed2=False deployed tag 'gen_night2'; reference picks /home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_f104_50h_20260909/gen_v1/test_g216/picks arm 'n2' (found)
+5 ensemble members from artifacts/traverse/fdm_f104_50h_20260909/night2_v1/final/N2_s*.pt on cuda
+  10/200  46s  A=-9.17 B=-9.08 C=-9.82 D=-8.10 E=-8.95  ref 10/10
+  20/200  91s  A=-9.69 B=-9.80 C=-9.85 D=-9.69 E=-9.73  ref 20/20
+  30/200  135s  A=-8.47 B=-8.95 C=-9.04 D=-8.47 E=-8.92  ref 30/30
+  40/200  178s  A=-9.48 B=-9.95 C=-9.99 D=-9.72 E=-9.77  ref 40/40
+  50/200  222s  A=-8.19 B=-8.93 C=-9.45 D=-8.19 E=-9.18  ref 50/50
+  60/200  266s  A=-9.53 B=-9.55 C=-9.53 D=-9.55 E=-9.53  ref 60/60
+  70/200  307s  A=-9.83 B=-9.62 C=-10.01 D=-9.81 E=-9.61  ref 70/70
+  80/200  348s  A=-7.93 B=-9.18 C=-9.25 D=-9.04 E=-9.11  ref 80/80
+  90/200  392s  A=-9.62 B=-9.74 C=-9.88 D=-9.67 E=-9.81  ref 90/90
+  100/200  435s  A=-9.67 B=-9.81 C=-9.83 D=-9.59 E=-9.76  ref 100/100
+  110/200  478s  A=-9.55 B=-9.86 C=-9.97 D=-9.51 E=-9.89  ref 110/110
+  120/200  521s  A=-9.58 B=-10.04 C=-10.05 D=-9.98 E=-10.03  ref 120/120
+  130/200  564s  A=-9.19 B=-9.84 C=-9.81 D=-9.57 E=-9.80  ref 130/130
+  140/200  609s  A=-9.41 B=-9.61 C=-9.54 D=-9.26 E=-9.41  ref 140/140
+  150/200  653s  A=-7.78 B=-8.89 C=-9.04 D=-8.66 E=-8.18  ref 150/150
+  160/200  697s  A=-9.11 B=-9.01 C=-9.35 D=-8.96 E=-9.13  ref 160/160
+  170/200  742s  A=-9.62 B=-9.92 C=-9.96 D=-9.64 E=-9.89  ref 170/170
+  180/200  786s  A=-9.64 B=-9.14 C=-9.64 D=-9.24 E=-9.16  ref 180/180
+  190/200  832s  A=-9.67 B=-9.87 C=-9.93 D=-9.78 E=-9.76  ref 190/190
+  200/200  874s  A=-9.17 B=-9.32 C=-9.49 D=-9.23 E=-9.25  ref 200/200
+{"world": "rigid", "fixed2": false, "n_groups": 200, "arms": ["A", "B", "C", "D", "E"], "tags": {"A": "gen_night2", "B": "n2iter_cem4x64", "C": "n2iter_cem8x64", "D": "gen_night2_512", "E": "n2iter_cem4x64_pess"}, "deployed_tag": "gen_night2", "models": "artifacts/traverse/fdm_f104_50h_20260909/night2_v1/final/N2_s*.pt", "map_root": null, "rigid_arena": "assets/traverse/arena_g216", "n_distinct_routes": 961, "n_new_drives": 761, "selftest_groups": [["g216_test_group_0000", 256], ["g216_test_group_0001", 256], ["g216_test_group_0002", 256], ["g216_test_group_0003", 256], ["g216_test_group_0004", 256]], "corridors_batched": true, "float16_scoring": true, "wall_s_total": 874.2536699771881, "agreement": {"A=B": 5, "A=C": 2, "A=D": 27, "A=E": 5, "B=C": 0, "B=D": 4, "B=E": 1, "C=D": 1, "C=E": 1, "D=E": 4}}
+A oneshot256       z_mean -9.262 (med -9.472) z_pess -8.699 P 0.0001 T 15.0s v 3.45  wall 0.54s/group
+B cem4x64          z_mean -9.542 (med -9.722) z_pess -9.064 P 0.0001 T 14.0s v 3.58  dz vs A -0.280 (med -0.201) improved 177/200 same 5  wall 0.71s/group
+C cem8x64          z_mean -9.665 (med -9.807) z_pess -9.198 P 0.0001 T 13.6s v 3.69  dz vs A -0.403 (med -0.284) improved 193/200 same 2  wall 1.31s/group
+D oneshot512       z_mean -9.355 (med -9.556) z_pess -8.782 P 0.0001 T 15.6s v 3.41  dz vs A -0.093 (med -0.023) improved 116/200 same 27  wall 1.10s/group
+E cem4x64_pess     z_mean -9.457 (med -9.624) z_pess -9.118 P 0.0001 T 14.7s v 3.47  dz vs A -0.195 (med -0.121) improved 154/200 same 5  wall 0.70s/group
+reference check: 200/200 A picks equal 'n2' in /home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_f104_50h_20260909/gen_v1/test_g216/picks; 961 distinct routes, 761 new drives; agreement {'A=B': 5, 'A=C': 2, 'A=D': 27, 'A=E': 5, 'B=C': 0, 'B=D': 4, 'B=E': 1, 'C=D': 1, 'C=E': 1, 'D=E': 4}

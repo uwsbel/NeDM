@@ -1,0 +1,16 @@
+200/200 groups with every arm; missing drives 0
+  PRIMARY_B:A    fail   1.5% vs   9.0%  diff -7.5 [-12.0, -3.5]  worse 2 vs 17  p=0.0007  identical picks 5
+  C:A            fail   1.5% vs   9.0%  diff -7.5 [-11.5, -4.0]  worse 1 vs 16  p=0.0003  identical picks 2
+  D:A            fail  10.0% vs   9.0%  diff +1.0 [-3.0, +5.0]  worse 9 vs 7  p=0.8036  identical picks 19
+  E:B            fail   4.5% vs   1.5%  diff +3.0 [+1.0, +5.5]  worse 6 vs 0  p=0.0312  identical picks 3
+  F:B            fail   5.5% vs   1.5%  diff +4.0 [+0.5, +7.5]  worse 10 vs 2  p=0.0386  identical picks 7
+  C:D            fail   1.5% vs  10.0%  diff -8.5 [-12.5, -4.5]  worse 1 vs 18  p=0.0001  identical picks 3
+  E:A            fail   4.5% vs   9.0%  diff -4.5 [-9.0, +0.0]  worse 6 vs 15  p=0.0784  identical picks 4
+  arm: goal reached / unsafe / tilt30 / median time / median work / mean predicted P / confident failures
+   A:  91.0%    9.0%   0.5%   17.0 s     440 kJ  P 0.051  7
+   B:  98.5%    1.5%   0.5%   14.7 s     431 kJ  P 0.019  0
+   C:  98.5%    1.5%   1.0%   14.0 s     421 kJ  P 0.006  2
+   D:  90.0%   10.0%   1.5%   16.8 s     418 kJ  P 0.044  6
+   E:  95.5%    4.5%   1.5%   15.0 s     423 kJ  P 0.029  0
+   F:  94.5%    5.5%   1.5%    9.8 s     523 kJ  P 0.040  1
+  A/A reproduction vs reference drives: {'agree': 184, 'total': 184}

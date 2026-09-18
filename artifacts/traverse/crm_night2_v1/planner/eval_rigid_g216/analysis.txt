@@ -1,0 +1,13 @@
+200/200 groups with every arm; missing drives 0
+  PRIMARY_B:A    unsafe   0.0% vs   1.0%  diff -1.0 [-2.5, +0.0]  worse 0 vs 2  p=0.5000  identical picks 5
+  C:A            unsafe   0.0% vs   1.0%  diff -1.0 [-2.5, +0.0]  worse 0 vs 2  p=0.5000  identical picks 2
+  D:A            unsafe   1.0% vs   1.0%  diff +0.0 [-1.5, +1.5]  worse 1 vs 1  p=1.0000  identical picks 27
+  E:B            unsafe   0.5% vs   0.0%  diff +0.5 [+0.0, +1.5]  worse 1 vs 0  p=1.0000  identical picks 1
+  E:A            unsafe   0.5% vs   1.0%  diff -0.5 [-2.5, +1.0]  worse 1 vs 2  p=1.0000  identical picks 5
+  C:D            unsafe   0.0% vs   1.0%  diff -1.0 [-2.5, +0.0]  worse 0 vs 2  p=0.5000  identical picks 1
+  arm: goal reached / unsafe / tilt30 / median time / median work / mean predicted P / confident failures
+   A: 100.0%    1.0%   7.5%   13.4 s     165 kJ  P 0.000  0
+   B: 100.0%    0.0%   4.5%   12.9 s     170 kJ  P 0.000  0
+   C: 100.0%    0.0%   2.5%   12.2 s     172 kJ  P 0.000  0
+   D:  99.5%    1.0%   2.5%   13.5 s     170 kJ  P 0.000  1
+   E: 100.0%    0.5%   4.0%   13.4 s     169 kJ  P 0.000  0

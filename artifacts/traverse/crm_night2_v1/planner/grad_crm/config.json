@@ -1,0 +1,44 @@
+{
+ "cases": "artifacts/traverse/crm_f104_v1/cases_eval/cases",
+ "map_root": "artifacts/traverse/crm_f104_v1/map_root",
+ "models": "artifacts/traverse/crm_f104_v1/train_v1/deploy/CRM_N2_s*.pt",
+ "out": "artifacts/traverse/crm_night2_v1/planner/grad_crm",
+ "arms": "G,H",
+ "pool_tag": "crm_proposal",
+ "topk": 16,
+ "rigid_models": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_f104_50h_20260909/night2_v1/final/N2_s*.pt",
+ "twin": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_night2_v1/datasets/twin_crm.npz",
+ "eval_picks": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_f104_v1/eval_v1/picks",
+ "eval_results": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_f104_v1/eval_v1/results.json",
+ "steps": 60,
+ "lr_a": 0.02,
+ "lr_dv": 0.1,
+ "patience": 15,
+ "trust": 0.0,
+ "lomo_starts": 17,
+ "case_prefix": "cases_eval/cases",
+ "route_prefix": "night2_v1/planner/grad_crm/routes",
+ "reuse_route_prefix": "eval_v1/routes",
+ "limit": 0,
+ "device": "cuda",
+ "verbose": false,
+ "arms_spec": {
+  "G": {
+   "objective": "logit",
+   "C_fail": 0.0,
+   "lam_E": 0.0,
+   "abstain": 0.3,
+   "unit": "logit"
+  },
+  "H": {
+   "objective": "expected_cost_energy",
+   "C_fail": 120.0,
+   "lam_E": 1.0,
+   "abstain": 1.0,
+   "unit": "s"
+  }
+ },
+ "commit": "c81c3f9f338e88e36467d588e56735b989488203",
+ "started": "2026-09-18 00:40:43",
+ "selection_rule": "candidates = float64-validated finals of the full-ensemble rows; choose by the pessimistic objective (max member); abstain (keep the pool argmin) if the pessimistic gain over the pool argmin is below ARMS[arm].abstain (0.3 logit for G, 1.0 s of expected cost for H)"
+}

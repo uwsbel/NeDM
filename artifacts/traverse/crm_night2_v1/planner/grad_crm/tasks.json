@@ -1,0 +1,3639 @@
+[
+ {
+  "id": "f104_crm_eval_group_0000__G",
+  "group": "f104_crm_eval_group_0000",
+  "case": "cases_eval/cases/f104_crm_eval_group_0000.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0000__G.json",
+  "run": true,
+  "tier": 0,
+  "episode_seed": 1704392612
+ },
+ {
+  "id": "f104_crm_eval_group_0000__H",
+  "group": "f104_crm_eval_group_0000",
+  "case": "cases_eval/cases/f104_crm_eval_group_0000.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0000__H.json",
+  "run": true,
+  "tier": 0,
+  "episode_seed": 2059277660
+ },
+ {
+  "id": "f104_crm_eval_group_0001__G",
+  "group": "f104_crm_eval_group_0001",
+  "case": "cases_eval/cases/f104_crm_eval_group_0001.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0001__G.json",
+  "run": true,
+  "tier": 1,
+  "episode_seed": 2025262388
+ },
+ {
+  "id": "f104_crm_eval_group_0001__H",
+  "group": "f104_crm_eval_group_0001",
+  "case": "cases_eval/cases/f104_crm_eval_group_0001.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0001__H.json",
+  "run": true,
+  "tier": 1,
+  "episode_seed": 135723507
+ },
+ {
+  "id": "f104_crm_eval_group_0002__G",
+  "group": "f104_crm_eval_group_0002",
+  "case": "cases_eval/cases/f104_crm_eval_group_0002.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0002__G.json",
+  "run": true,
+  "tier": 2,
+  "episode_seed": 3353582212
+ },
+ {
+  "id": "f104_crm_eval_group_0002__H",
+  "group": "f104_crm_eval_group_0002",
+  "case": "cases_eval/cases/f104_crm_eval_group_0002.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0002__H.json",
+  "run": true,
+  "tier": 2,
+  "episode_seed": 3064285138
+ },
+ {
+  "id": "f104_crm_eval_group_0003__G",
+  "group": "f104_crm_eval_group_0003",
+  "case": "cases_eval/cases/f104_crm_eval_group_0003.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0003__G.json",
+  "run": true,
+  "tier": 3,
+  "episode_seed": 778242999
+ },
+ {
+  "id": "f104_crm_eval_group_0003__H",
+  "group": "f104_crm_eval_group_0003",
+  "case": "cases_eval/cases/f104_crm_eval_group_0003.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0003__H.json",
+  "run": true,
+  "tier": 3,
+  "episode_seed": 417415425
+ },
+ {
+  "id": "f104_crm_eval_group_0004__G",
+  "group": "f104_crm_eval_group_0004",
+  "case": "cases_eval/cases/f104_crm_eval_group_0004.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0004__G.json",
+  "run": true,
+  "tier": 4,
+  "episode_seed": 2660099817
+ },
+ {
+  "id": "f104_crm_eval_group_0004__H",
+  "group": "f104_crm_eval_group_0004",
+  "case": "cases_eval/cases/f104_crm_eval_group_0004.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0004__H.json",
+  "run": true,
+  "tier": 4,
+  "episode_seed": 998211529
+ },
+ {
+  "id": "f104_crm_eval_group_0005__G",
+  "group": "f104_crm_eval_group_0005",
+  "case": "cases_eval/cases/f104_crm_eval_group_0005.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0005__G.json",
+  "run": true,
+  "tier": 5,
+  "episode_seed": 435212601
+ },
+ {
+  "id": "f104_crm_eval_group_0005__H",
+  "group": "f104_crm_eval_group_0005",
+  "case": "cases_eval/cases/f104_crm_eval_group_0005.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0005__H.json",
+  "run": true,
+  "tier": 5,
+  "episode_seed": 285726391
+ },
+ {
+  "id": "f104_crm_eval_group_0006__G",
+  "group": "f104_crm_eval_group_0006",
+  "case": "cases_eval/cases/f104_crm_eval_group_0006.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0006__G.json",
+  "run": true,
+  "tier": 6,
+  "episode_seed": 1697671070
+ },
+ {
+  "id": "f104_crm_eval_group_0006__H",
+  "group": "f104_crm_eval_group_0006",
+  "case": "cases_eval/cases/f104_crm_eval_group_0006.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0006__H.json",
+  "run": true,
+  "tier": 6,
+  "episode_seed": 2388095996
+ },
+ {
+  "id": "f104_crm_eval_group_0007__G",
+  "group": "f104_crm_eval_group_0007",
+  "case": "cases_eval/cases/f104_crm_eval_group_0007.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0007__G.json",
+  "run": true,
+  "tier": 7,
+  "episode_seed": 1801930351
+ },
+ {
+  "id": "f104_crm_eval_group_0007__H",
+  "group": "f104_crm_eval_group_0007",
+  "case": "cases_eval/cases/f104_crm_eval_group_0007.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0007__H.json",
+  "run": true,
+  "tier": 7,
+  "episode_seed": 506339660
+ },
+ {
+  "id": "f104_crm_eval_group_0008__G",
+  "group": "f104_crm_eval_group_0008",
+  "case": "cases_eval/cases/f104_crm_eval_group_0008.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0008__G.json",
+  "run": true,
+  "tier": 8,
+  "episode_seed": 1430109282
+ },
+ {
+  "id": "f104_crm_eval_group_0008__H",
+  "group": "f104_crm_eval_group_0008",
+  "case": "cases_eval/cases/f104_crm_eval_group_0008.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0008__H.json",
+  "run": true,
+  "tier": 8,
+  "episode_seed": 3365333066
+ },
+ {
+  "id": "f104_crm_eval_group_0009__G",
+  "group": "f104_crm_eval_group_0009",
+  "case": "cases_eval/cases/f104_crm_eval_group_0009.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0009__G.json",
+  "run": true,
+  "tier": 9,
+  "episode_seed": 141981232
+ },
+ {
+  "id": "f104_crm_eval_group_0009__H",
+  "group": "f104_crm_eval_group_0009",
+  "case": "cases_eval/cases/f104_crm_eval_group_0009.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0009__H.json",
+  "run": true,
+  "tier": 9,
+  "episode_seed": 746111178
+ },
+ {
+  "id": "f104_crm_eval_group_0010__G",
+  "group": "f104_crm_eval_group_0010",
+  "case": "cases_eval/cases/f104_crm_eval_group_0010.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0010__G.json",
+  "run": true,
+  "tier": 10,
+  "episode_seed": 900056163
+ },
+ {
+  "id": "f104_crm_eval_group_0010__H",
+  "group": "f104_crm_eval_group_0010",
+  "case": "cases_eval/cases/f104_crm_eval_group_0010.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0010__H.json",
+  "run": true,
+  "tier": 10,
+  "episode_seed": 2363942444
+ },
+ {
+  "id": "f104_crm_eval_group_0011__G",
+  "group": "f104_crm_eval_group_0011",
+  "case": "cases_eval/cases/f104_crm_eval_group_0011.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0011__G.json",
+  "run": true,
+  "tier": 11,
+  "episode_seed": 2441677917
+ },
+ {
+  "id": "f104_crm_eval_group_0011__H",
+  "group": "f104_crm_eval_group_0011",
+  "case": "cases_eval/cases/f104_crm_eval_group_0011.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0011__H.json",
+  "run": true,
+  "tier": 11,
+  "episode_seed": 2338097139
+ },
+ {
+  "id": "f104_crm_eval_group_0012__G",
+  "group": "f104_crm_eval_group_0012",
+  "case": "cases_eval/cases/f104_crm_eval_group_0012.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0012__G.json",
+  "run": true,
+  "tier": 12,
+  "episode_seed": 401556427
+ },
+ {
+  "id": "f104_crm_eval_group_0012__H",
+  "group": "f104_crm_eval_group_0012",
+  "case": "cases_eval/cases/f104_crm_eval_group_0012.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0012__H.json",
+  "run": true,
+  "tier": 12,
+  "episode_seed": 396621238
+ },
+ {
+  "id": "f104_crm_eval_group_0013__G",
+  "group": "f104_crm_eval_group_0013",
+  "case": "cases_eval/cases/f104_crm_eval_group_0013.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0013__G.json",
+  "run": true,
+  "tier": 13,
+  "episode_seed": 1394247700
+ },
+ {
+  "id": "f104_crm_eval_group_0013__H",
+  "group": "f104_crm_eval_group_0013",
+  "case": "cases_eval/cases/f104_crm_eval_group_0013.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0013__H.json",
+  "run": true,
+  "tier": 13,
+  "episode_seed": 93970439
+ },
+ {
+  "id": "f104_crm_eval_group_0014__G",
+  "group": "f104_crm_eval_group_0014",
+  "case": "cases_eval/cases/f104_crm_eval_group_0014.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0014__G.json",
+  "run": true,
+  "tier": 14,
+  "episode_seed": 1280518760
+ },
+ {
+  "id": "f104_crm_eval_group_0014__H",
+  "group": "f104_crm_eval_group_0014",
+  "case": "cases_eval/cases/f104_crm_eval_group_0014.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0014__H.json",
+  "run": true,
+  "tier": 14,
+  "episode_seed": 2233694816
+ },
+ {
+  "id": "f104_crm_eval_group_0015__G",
+  "group": "f104_crm_eval_group_0015",
+  "case": "cases_eval/cases/f104_crm_eval_group_0015.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0015__G.json",
+  "run": true,
+  "tier": 15,
+  "episode_seed": 1915263057
+ },
+ {
+  "id": "f104_crm_eval_group_0015__H",
+  "group": "f104_crm_eval_group_0015",
+  "case": "cases_eval/cases/f104_crm_eval_group_0015.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0015__H.json",
+  "run": true,
+  "tier": 15,
+  "episode_seed": 3719887492
+ },
+ {
+  "id": "f104_crm_eval_group_0016__G",
+  "group": "f104_crm_eval_group_0016",
+  "case": "cases_eval/cases/f104_crm_eval_group_0016.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0016__G.json",
+  "run": true,
+  "tier": 16,
+  "episode_seed": 2464449615
+ },
+ {
+  "id": "f104_crm_eval_group_0016__H",
+  "group": "f104_crm_eval_group_0016",
+  "case": "cases_eval/cases/f104_crm_eval_group_0016.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0016__H.json",
+  "run": true,
+  "tier": 16,
+  "episode_seed": 2329979138
+ },
+ {
+  "id": "f104_crm_eval_group_0017__G",
+  "group": "f104_crm_eval_group_0017",
+  "case": "cases_eval/cases/f104_crm_eval_group_0017.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0017__G.json",
+  "run": true,
+  "tier": 17,
+  "episode_seed": 1674903062
+ },
+ {
+  "id": "f104_crm_eval_group_0017__H",
+  "group": "f104_crm_eval_group_0017",
+  "case": "cases_eval/cases/f104_crm_eval_group_0017.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0017__H.json",
+  "run": true,
+  "tier": 17,
+  "episode_seed": 1931427644
+ },
+ {
+  "id": "f104_crm_eval_group_0018__crm",
+  "group": "f104_crm_eval_group_0018",
+  "case": "cases_eval/cases/f104_crm_eval_group_0018.json",
+  "route": "eval_v1/routes/f104_crm_eval_group_0018__crm.json",
+  "run": false,
+  "tier": 18,
+  "episode_seed": 2399285186,
+  "reuse": "eval_v1/runs/f104_crm_eval_group_0018__crm"
+ },
+ {
+  "id": "f104_crm_eval_group_0018__H",
+  "group": "f104_crm_eval_group_0018",
+  "case": "cases_eval/cases/f104_crm_eval_group_0018.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0018__H.json",
+  "run": true,
+  "tier": 18,
+  "episode_seed": 576010775
+ },
+ {
+  "id": "f104_crm_eval_group_0019__G",
+  "group": "f104_crm_eval_group_0019",
+  "case": "cases_eval/cases/f104_crm_eval_group_0019.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0019__G.json",
+  "run": true,
+  "tier": 19,
+  "episode_seed": 3043062729
+ },
+ {
+  "id": "f104_crm_eval_group_0019__H",
+  "group": "f104_crm_eval_group_0019",
+  "case": "cases_eval/cases/f104_crm_eval_group_0019.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0019__H.json",
+  "run": true,
+  "tier": 19,
+  "episode_seed": 769713337
+ },
+ {
+  "id": "f104_crm_eval_group_0020__G",
+  "group": "f104_crm_eval_group_0020",
+  "case": "cases_eval/cases/f104_crm_eval_group_0020.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0020__G.json",
+  "run": true,
+  "tier": 20,
+  "episode_seed": 2371218426
+ },
+ {
+  "id": "f104_crm_eval_group_0020__H",
+  "group": "f104_crm_eval_group_0020",
+  "case": "cases_eval/cases/f104_crm_eval_group_0020.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0020__H.json",
+  "run": true,
+  "tier": 20,
+  "episode_seed": 358742915
+ },
+ {
+  "id": "f104_crm_eval_group_0021__crm",
+  "group": "f104_crm_eval_group_0021",
+  "case": "cases_eval/cases/f104_crm_eval_group_0021.json",
+  "route": "eval_v1/routes/f104_crm_eval_group_0021__crm.json",
+  "run": false,
+  "tier": 21,
+  "episode_seed": 3744267410,
+  "reuse": "eval_v1/runs/f104_crm_eval_group_0021__crm"
+ },
+ {
+  "id": "f104_crm_eval_group_0021__H",
+  "group": "f104_crm_eval_group_0021",
+  "case": "cases_eval/cases/f104_crm_eval_group_0021.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0021__H.json",
+  "run": true,
+  "tier": 21,
+  "episode_seed": 1737649246
+ },
+ {
+  "id": "f104_crm_eval_group_0022__G",
+  "group": "f104_crm_eval_group_0022",
+  "case": "cases_eval/cases/f104_crm_eval_group_0022.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0022__G.json",
+  "run": true,
+  "tier": 22,
+  "episode_seed": 1444394046
+ },
+ {
+  "id": "f104_crm_eval_group_0022__H",
+  "group": "f104_crm_eval_group_0022",
+  "case": "cases_eval/cases/f104_crm_eval_group_0022.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0022__H.json",
+  "run": true,
+  "tier": 22,
+  "episode_seed": 3835870044
+ },
+ {
+  "id": "f104_crm_eval_group_0023__G",
+  "group": "f104_crm_eval_group_0023",
+  "case": "cases_eval/cases/f104_crm_eval_group_0023.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0023__G.json",
+  "run": true,
+  "tier": 23,
+  "episode_seed": 3947818077
+ },
+ {
+  "id": "f104_crm_eval_group_0023__H",
+  "group": "f104_crm_eval_group_0023",
+  "case": "cases_eval/cases/f104_crm_eval_group_0023.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0023__H.json",
+  "run": true,
+  "tier": 23,
+  "episode_seed": 209465218
+ },
+ {
+  "id": "f104_crm_eval_group_0024__G",
+  "group": "f104_crm_eval_group_0024",
+  "case": "cases_eval/cases/f104_crm_eval_group_0024.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0024__G.json",
+  "run": true,
+  "tier": 24,
+  "episode_seed": 1661845964
+ },
+ {
+  "id": "f104_crm_eval_group_0024__H",
+  "group": "f104_crm_eval_group_0024",
+  "case": "cases_eval/cases/f104_crm_eval_group_0024.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0024__H.json",
+  "run": true,
+  "tier": 24,
+  "episode_seed": 2128330853
+ },
+ {
+  "id": "f104_crm_eval_group_0025__G",
+  "group": "f104_crm_eval_group_0025",
+  "case": "cases_eval/cases/f104_crm_eval_group_0025.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0025__G.json",
+  "run": true,
+  "tier": 25,
+  "episode_seed": 439470742
+ },
+ {
+  "id": "f104_crm_eval_group_0025__H",
+  "group": "f104_crm_eval_group_0025",
+  "case": "cases_eval/cases/f104_crm_eval_group_0025.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0025__H.json",
+  "run": true,
+  "tier": 25,
+  "episode_seed": 396243900
+ },
+ {
+  "id": "f104_crm_eval_group_0026__G",
+  "group": "f104_crm_eval_group_0026",
+  "case": "cases_eval/cases/f104_crm_eval_group_0026.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0026__G.json",
+  "run": true,
+  "tier": 26,
+  "episode_seed": 2810567715
+ },
+ {
+  "id": "f104_crm_eval_group_0026__H",
+  "group": "f104_crm_eval_group_0026",
+  "case": "cases_eval/cases/f104_crm_eval_group_0026.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0026__H.json",
+  "run": true,
+  "tier": 26,
+  "episode_seed": 1708115670
+ },
+ {
+  "id": "f104_crm_eval_group_0027__G",
+  "group": "f104_crm_eval_group_0027",
+  "case": "cases_eval/cases/f104_crm_eval_group_0027.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0027__G.json",
+  "run": true,
+  "tier": 27,
+  "episode_seed": 4226367331
+ },
+ {
+  "id": "f104_crm_eval_group_0027__H",
+  "group": "f104_crm_eval_group_0027",
+  "case": "cases_eval/cases/f104_crm_eval_group_0027.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0027__H.json",
+  "run": true,
+  "tier": 27,
+  "episode_seed": 3634774782
+ },
+ {
+  "id": "f104_crm_eval_group_0028__G",
+  "group": "f104_crm_eval_group_0028",
+  "case": "cases_eval/cases/f104_crm_eval_group_0028.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0028__G.json",
+  "run": true,
+  "tier": 28,
+  "episode_seed": 2434864138
+ },
+ {
+  "id": "f104_crm_eval_group_0028__H",
+  "group": "f104_crm_eval_group_0028",
+  "case": "cases_eval/cases/f104_crm_eval_group_0028.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0028__H.json",
+  "run": true,
+  "tier": 28,
+  "episode_seed": 1744058628
+ },
+ {
+  "id": "f104_crm_eval_group_0029__G",
+  "group": "f104_crm_eval_group_0029",
+  "case": "cases_eval/cases/f104_crm_eval_group_0029.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0029__G.json",
+  "run": true,
+  "tier": 29,
+  "episode_seed": 2172736552
+ },
+ {
+  "id": "f104_crm_eval_group_0029__H",
+  "group": "f104_crm_eval_group_0029",
+  "case": "cases_eval/cases/f104_crm_eval_group_0029.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0029__H.json",
+  "run": true,
+  "tier": 29,
+  "episode_seed": 270625021
+ },
+ {
+  "id": "f104_crm_eval_group_0030__crm",
+  "group": "f104_crm_eval_group_0030",
+  "case": "cases_eval/cases/f104_crm_eval_group_0030.json",
+  "route": "eval_v1/routes/f104_crm_eval_group_0030__crm.json",
+  "run": false,
+  "tier": 30,
+  "episode_seed": 112256597,
+  "reuse": "eval_v1/runs/f104_crm_eval_group_0030__crm"
+ },
+ {
+  "id": "f104_crm_eval_group_0030__H",
+  "group": "f104_crm_eval_group_0030",
+  "case": "cases_eval/cases/f104_crm_eval_group_0030.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0030__H.json",
+  "run": true,
+  "tier": 30,
+  "episode_seed": 3762001391
+ },
+ {
+  "id": "f104_crm_eval_group_0031__G",
+  "group": "f104_crm_eval_group_0031",
+  "case": "cases_eval/cases/f104_crm_eval_group_0031.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0031__G.json",
+  "run": true,
+  "tier": 31,
+  "episode_seed": 3830280554
+ },
+ {
+  "id": "f104_crm_eval_group_0031__H",
+  "group": "f104_crm_eval_group_0031",
+  "case": "cases_eval/cases/f104_crm_eval_group_0031.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0031__H.json",
+  "run": true,
+  "tier": 31,
+  "episode_seed": 3682702259
+ },
+ {
+  "id": "f104_crm_eval_group_0032__crm",
+  "group": "f104_crm_eval_group_0032",
+  "case": "cases_eval/cases/f104_crm_eval_group_0032.json",
+  "route": "eval_v1/routes/f104_crm_eval_group_0032__crm.json",
+  "run": false,
+  "tier": 32,
+  "episode_seed": 578045733,
+  "reuse": "eval_v1/runs/f104_crm_eval_group_0032__crm"
+ },
+ {
+  "id": "f104_crm_eval_group_0032__H",
+  "group": "f104_crm_eval_group_0032",
+  "case": "cases_eval/cases/f104_crm_eval_group_0032.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0032__H.json",
+  "run": true,
+  "tier": 32,
+  "episode_seed": 2343211694
+ },
+ {
+  "id": "f104_crm_eval_group_0033__G",
+  "group": "f104_crm_eval_group_0033",
+  "case": "cases_eval/cases/f104_crm_eval_group_0033.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0033__G.json",
+  "run": true,
+  "tier": 33,
+  "episode_seed": 2865943409
+ },
+ {
+  "id": "f104_crm_eval_group_0033__H",
+  "group": "f104_crm_eval_group_0033",
+  "case": "cases_eval/cases/f104_crm_eval_group_0033.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0033__H.json",
+  "run": true,
+  "tier": 33,
+  "episode_seed": 3690501301
+ },
+ {
+  "id": "f104_crm_eval_group_0034__G",
+  "group": "f104_crm_eval_group_0034",
+  "case": "cases_eval/cases/f104_crm_eval_group_0034.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0034__G.json",
+  "run": true,
+  "tier": 34,
+  "episode_seed": 4128221615
+ },
+ {
+  "id": "f104_crm_eval_group_0034__H",
+  "group": "f104_crm_eval_group_0034",
+  "case": "cases_eval/cases/f104_crm_eval_group_0034.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0034__H.json",
+  "run": true,
+  "tier": 34,
+  "episode_seed": 418892660
+ },
+ {
+  "id": "f104_crm_eval_group_0035__G",
+  "group": "f104_crm_eval_group_0035",
+  "case": "cases_eval/cases/f104_crm_eval_group_0035.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0035__G.json",
+  "run": true,
+  "tier": 35,
+  "episode_seed": 12132585
+ },
+ {
+  "id": "f104_crm_eval_group_0035__H",
+  "group": "f104_crm_eval_group_0035",
+  "case": "cases_eval/cases/f104_crm_eval_group_0035.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0035__H.json",
+  "run": true,
+  "tier": 35,
+  "episode_seed": 13906222
+ },
+ {
+  "id": "f104_crm_eval_group_0036__G",
+  "group": "f104_crm_eval_group_0036",
+  "case": "cases_eval/cases/f104_crm_eval_group_0036.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0036__G.json",
+  "run": true,
+  "tier": 36,
+  "episode_seed": 1225977021
+ },
+ {
+  "id": "f104_crm_eval_group_0036__H",
+  "group": "f104_crm_eval_group_0036",
+  "case": "cases_eval/cases/f104_crm_eval_group_0036.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0036__H.json",
+  "run": true,
+  "tier": 36,
+  "episode_seed": 3178378595
+ },
+ {
+  "id": "f104_crm_eval_group_0037__G",
+  "group": "f104_crm_eval_group_0037",
+  "case": "cases_eval/cases/f104_crm_eval_group_0037.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0037__G.json",
+  "run": true,
+  "tier": 37,
+  "episode_seed": 3378459230
+ },
+ {
+  "id": "f104_crm_eval_group_0037__H",
+  "group": "f104_crm_eval_group_0037",
+  "case": "cases_eval/cases/f104_crm_eval_group_0037.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0037__H.json",
+  "run": true,
+  "tier": 37,
+  "episode_seed": 4110200902
+ },
+ {
+  "id": "f104_crm_eval_group_0038__G",
+  "group": "f104_crm_eval_group_0038",
+  "case": "cases_eval/cases/f104_crm_eval_group_0038.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0038__G.json",
+  "run": true,
+  "tier": 38,
+  "episode_seed": 2049358329
+ },
+ {
+  "id": "f104_crm_eval_group_0038__H",
+  "group": "f104_crm_eval_group_0038",
+  "case": "cases_eval/cases/f104_crm_eval_group_0038.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0038__H.json",
+  "run": true,
+  "tier": 38,
+  "episode_seed": 3639274165
+ },
+ {
+  "id": "f104_crm_eval_group_0039__G",
+  "group": "f104_crm_eval_group_0039",
+  "case": "cases_eval/cases/f104_crm_eval_group_0039.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0039__G.json",
+  "run": true,
+  "tier": 39,
+  "episode_seed": 4121113409
+ },
+ {
+  "id": "f104_crm_eval_group_0039__H",
+  "group": "f104_crm_eval_group_0039",
+  "case": "cases_eval/cases/f104_crm_eval_group_0039.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0039__H.json",
+  "run": true,
+  "tier": 39,
+  "episode_seed": 1285645082
+ },
+ {
+  "id": "f104_crm_eval_group_0040__G",
+  "group": "f104_crm_eval_group_0040",
+  "case": "cases_eval/cases/f104_crm_eval_group_0040.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0040__G.json",
+  "run": true,
+  "tier": 40,
+  "episode_seed": 625247152
+ },
+ {
+  "id": "f104_crm_eval_group_0040__H",
+  "group": "f104_crm_eval_group_0040",
+  "case": "cases_eval/cases/f104_crm_eval_group_0040.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0040__H.json",
+  "run": true,
+  "tier": 40,
+  "episode_seed": 1344780852
+ },
+ {
+  "id": "f104_crm_eval_group_0041__G",
+  "group": "f104_crm_eval_group_0041",
+  "case": "cases_eval/cases/f104_crm_eval_group_0041.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0041__G.json",
+  "run": true,
+  "tier": 41,
+  "episode_seed": 719624826
+ },
+ {
+  "id": "f104_crm_eval_group_0041__H",
+  "group": "f104_crm_eval_group_0041",
+  "case": "cases_eval/cases/f104_crm_eval_group_0041.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0041__H.json",
+  "run": true,
+  "tier": 41,
+  "episode_seed": 803154332
+ },
+ {
+  "id": "f104_crm_eval_group_0042__G",
+  "group": "f104_crm_eval_group_0042",
+  "case": "cases_eval/cases/f104_crm_eval_group_0042.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0042__G.json",
+  "run": true,
+  "tier": 42,
+  "episode_seed": 136337872
+ },
+ {
+  "id": "f104_crm_eval_group_0042__H",
+  "group": "f104_crm_eval_group_0042",
+  "case": "cases_eval/cases/f104_crm_eval_group_0042.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0042__H.json",
+  "run": true,
+  "tier": 42,
+  "episode_seed": 749440456
+ },
+ {
+  "id": "f104_crm_eval_group_0043__G",
+  "group": "f104_crm_eval_group_0043",
+  "case": "cases_eval/cases/f104_crm_eval_group_0043.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0043__G.json",
+  "run": true,
+  "tier": 43,
+  "episode_seed": 1788060478
+ },
+ {
+  "id": "f104_crm_eval_group_0043__H",
+  "group": "f104_crm_eval_group_0043",
+  "case": "cases_eval/cases/f104_crm_eval_group_0043.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0043__H.json",
+  "run": true,
+  "tier": 43,
+  "episode_seed": 2661057894
+ },
+ {
+  "id": "f104_crm_eval_group_0044__G",
+  "group": "f104_crm_eval_group_0044",
+  "case": "cases_eval/cases/f104_crm_eval_group_0044.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0044__G.json",
+  "run": true,
+  "tier": 44,
+  "episode_seed": 370029547
+ },
+ {
+  "id": "f104_crm_eval_group_0044__H",
+  "group": "f104_crm_eval_group_0044",
+  "case": "cases_eval/cases/f104_crm_eval_group_0044.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0044__H.json",
+  "run": true,
+  "tier": 44,
+  "episode_seed": 2366492461
+ },
+ {
+  "id": "f104_crm_eval_group_0045__G",
+  "group": "f104_crm_eval_group_0045",
+  "case": "cases_eval/cases/f104_crm_eval_group_0045.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0045__G.json",
+  "run": true,
+  "tier": 45,
+  "episode_seed": 3163969034
+ },
+ {
+  "id": "f104_crm_eval_group_0045__H",
+  "group": "f104_crm_eval_group_0045",
+  "case": "cases_eval/cases/f104_crm_eval_group_0045.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0045__H.json",
+  "run": true,
+  "tier": 45,
+  "episode_seed": 1698128818
+ },
+ {
+  "id": "f104_crm_eval_group_0046__G",
+  "group": "f104_crm_eval_group_0046",
+  "case": "cases_eval/cases/f104_crm_eval_group_0046.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0046__G.json",
+  "run": true,
+  "tier": 46,
+  "episode_seed": 1849005723
+ },
+ {
+  "id": "f104_crm_eval_group_0046__H",
+  "group": "f104_crm_eval_group_0046",
+  "case": "cases_eval/cases/f104_crm_eval_group_0046.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0046__H.json",
+  "run": true,
+  "tier": 46,
+  "episode_seed": 243696809
+ },
+ {
+  "id": "f104_crm_eval_group_0047__G",
+  "group": "f104_crm_eval_group_0047",
+  "case": "cases_eval/cases/f104_crm_eval_group_0047.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0047__G.json",
+  "run": true,
+  "tier": 47,
+  "episode_seed": 57145099
+ },
+ {
+  "id": "f104_crm_eval_group_0047__H",
+  "group": "f104_crm_eval_group_0047",
+  "case": "cases_eval/cases/f104_crm_eval_group_0047.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0047__H.json",
+  "run": true,
+  "tier": 47,
+  "episode_seed": 2222249455
+ },
+ {
+  "id": "f104_crm_eval_group_0048__G",
+  "group": "f104_crm_eval_group_0048",
+  "case": "cases_eval/cases/f104_crm_eval_group_0048.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0048__G.json",
+  "run": true,
+  "tier": 48,
+  "episode_seed": 3714917594
+ },
+ {
+  "id": "f104_crm_eval_group_0048__H",
+  "group": "f104_crm_eval_group_0048",
+  "case": "cases_eval/cases/f104_crm_eval_group_0048.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0048__H.json",
+  "run": true,
+  "tier": 48,
+  "episode_seed": 668771815
+ },
+ {
+  "id": "f104_crm_eval_group_0049__G",
+  "group": "f104_crm_eval_group_0049",
+  "case": "cases_eval/cases/f104_crm_eval_group_0049.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0049__G.json",
+  "run": true,
+  "tier": 49,
+  "episode_seed": 2561721633
+ },
+ {
+  "id": "f104_crm_eval_group_0049__H",
+  "group": "f104_crm_eval_group_0049",
+  "case": "cases_eval/cases/f104_crm_eval_group_0049.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0049__H.json",
+  "run": true,
+  "tier": 49,
+  "episode_seed": 2618555055
+ },
+ {
+  "id": "f104_crm_eval_group_0050__crm",
+  "group": "f104_crm_eval_group_0050",
+  "case": "cases_eval/cases/f104_crm_eval_group_0050.json",
+  "route": "eval_v1/routes/f104_crm_eval_group_0050__crm.json",
+  "run": false,
+  "tier": 50,
+  "episode_seed": 2389409992,
+  "reuse": "eval_v1/runs/f104_crm_eval_group_0050__crm"
+ },
+ {
+  "id": "f104_crm_eval_group_0050__H",
+  "group": "f104_crm_eval_group_0050",
+  "case": "cases_eval/cases/f104_crm_eval_group_0050.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0050__H.json",
+  "run": true,
+  "tier": 50,
+  "episode_seed": 2355730587
+ },
+ {
+  "id": "f104_crm_eval_group_0051__G",
+  "group": "f104_crm_eval_group_0051",
+  "case": "cases_eval/cases/f104_crm_eval_group_0051.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0051__G.json",
+  "run": true,
+  "tier": 51,
+  "episode_seed": 1181933172
+ },
+ {
+  "id": "f104_crm_eval_group_0051__H",
+  "group": "f104_crm_eval_group_0051",
+  "case": "cases_eval/cases/f104_crm_eval_group_0051.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0051__H.json",
+  "run": true,
+  "tier": 51,
+  "episode_seed": 954891758
+ },
+ {
+  "id": "f104_crm_eval_group_0052__crm",
+  "group": "f104_crm_eval_group_0052",
+  "case": "cases_eval/cases/f104_crm_eval_group_0052.json",
+  "route": "eval_v1/routes/f104_crm_eval_group_0052__crm.json",
+  "run": false,
+  "tier": 52,
+  "episode_seed": 2251171443,
+  "reuse": "eval_v1/runs/f104_crm_eval_group_0052__crm"
+ },
+ {
+  "id": "f104_crm_eval_group_0052__H",
+  "group": "f104_crm_eval_group_0052",
+  "case": "cases_eval/cases/f104_crm_eval_group_0052.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0052__H.json",
+  "run": true,
+  "tier": 52,
+  "episode_seed": 638371922
+ },
+ {
+  "id": "f104_crm_eval_group_0053__G",
+  "group": "f104_crm_eval_group_0053",
+  "case": "cases_eval/cases/f104_crm_eval_group_0053.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0053__G.json",
+  "run": true,
+  "tier": 53,
+  "episode_seed": 3429329170
+ },
+ {
+  "id": "f104_crm_eval_group_0053__H",
+  "group": "f104_crm_eval_group_0053",
+  "case": "cases_eval/cases/f104_crm_eval_group_0053.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0053__H.json",
+  "run": true,
+  "tier": 53,
+  "episode_seed": 950297388
+ },
+ {
+  "id": "f104_crm_eval_group_0054__G",
+  "group": "f104_crm_eval_group_0054",
+  "case": "cases_eval/cases/f104_crm_eval_group_0054.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0054__G.json",
+  "run": true,
+  "tier": 54,
+  "episode_seed": 3800152687
+ },
+ {
+  "id": "f104_crm_eval_group_0054__H",
+  "group": "f104_crm_eval_group_0054",
+  "case": "cases_eval/cases/f104_crm_eval_group_0054.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0054__H.json",
+  "run": true,
+  "tier": 54,
+  "episode_seed": 1417603978
+ },
+ {
+  "id": "f104_crm_eval_group_0055__G",
+  "group": "f104_crm_eval_group_0055",
+  "case": "cases_eval/cases/f104_crm_eval_group_0055.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0055__G.json",
+  "run": true,
+  "tier": 55,
+  "episode_seed": 258481962
+ },
+ {
+  "id": "f104_crm_eval_group_0055__H",
+  "group": "f104_crm_eval_group_0055",
+  "case": "cases_eval/cases/f104_crm_eval_group_0055.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0055__H.json",
+  "run": true,
+  "tier": 55,
+  "episode_seed": 4160063856
+ },
+ {
+  "id": "f104_crm_eval_group_0056__G",
+  "group": "f104_crm_eval_group_0056",
+  "case": "cases_eval/cases/f104_crm_eval_group_0056.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0056__G.json",
+  "run": true,
+  "tier": 56,
+  "episode_seed": 1918134785
+ },
+ {
+  "id": "f104_crm_eval_group_0056__H",
+  "group": "f104_crm_eval_group_0056",
+  "case": "cases_eval/cases/f104_crm_eval_group_0056.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0056__H.json",
+  "run": true,
+  "tier": 56,
+  "episode_seed": 2854892834
+ },
+ {
+  "id": "f104_crm_eval_group_0057__G",
+  "group": "f104_crm_eval_group_0057",
+  "case": "cases_eval/cases/f104_crm_eval_group_0057.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0057__G.json",
+  "run": true,
+  "tier": 57,
+  "episode_seed": 338283915
+ },
+ {
+  "id": "f104_crm_eval_group_0057__H",
+  "group": "f104_crm_eval_group_0057",
+  "case": "cases_eval/cases/f104_crm_eval_group_0057.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0057__H.json",
+  "run": true,
+  "tier": 57,
+  "episode_seed": 3582113309
+ },
+ {
+  "id": "f104_crm_eval_group_0058__crm",
+  "group": "f104_crm_eval_group_0058",
+  "case": "cases_eval/cases/f104_crm_eval_group_0058.json",
+  "route": "eval_v1/routes/f104_crm_eval_group_0058__crm.json",
+  "run": false,
+  "tier": 58,
+  "episode_seed": 3037373127,
+  "reuse": "eval_v1/runs/f104_crm_eval_group_0058__crm"
+ },
+ {
+  "id": "f104_crm_eval_group_0058__H",
+  "group": "f104_crm_eval_group_0058",
+  "case": "cases_eval/cases/f104_crm_eval_group_0058.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0058__H.json",
+  "run": true,
+  "tier": 58,
+  "episode_seed": 2058807047
+ },
+ {
+  "id": "f104_crm_eval_group_0059__G",
+  "group": "f104_crm_eval_group_0059",
+  "case": "cases_eval/cases/f104_crm_eval_group_0059.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0059__G.json",
+  "run": true,
+  "tier": 59,
+  "episode_seed": 2805825454
+ },
+ {
+  "id": "f104_crm_eval_group_0059__H",
+  "group": "f104_crm_eval_group_0059",
+  "case": "cases_eval/cases/f104_crm_eval_group_0059.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0059__H.json",
+  "run": true,
+  "tier": 59,
+  "episode_seed": 685801544
+ },
+ {
+  "id": "f104_crm_eval_group_0060__crm",
+  "group": "f104_crm_eval_group_0060",
+  "case": "cases_eval/cases/f104_crm_eval_group_0060.json",
+  "route": "eval_v1/routes/f104_crm_eval_group_0060__crm.json",
+  "run": false,
+  "tier": 60,
+  "episode_seed": 181908434,
+  "reuse": "eval_v1/runs/f104_crm_eval_group_0060__crm"
+ },
+ {
+  "id": "f104_crm_eval_group_0060__H",
+  "group": "f104_crm_eval_group_0060",
+  "case": "cases_eval/cases/f104_crm_eval_group_0060.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0060__H.json",
+  "run": true,
+  "tier": 60,
+  "episode_seed": 1887571606
+ },
+ {
+  "id": "f104_crm_eval_group_0061__G",
+  "group": "f104_crm_eval_group_0061",
+  "case": "cases_eval/cases/f104_crm_eval_group_0061.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0061__G.json",
+  "run": true,
+  "tier": 61,
+  "episode_seed": 289175264
+ },
+ {
+  "id": "f104_crm_eval_group_0061__H",
+  "group": "f104_crm_eval_group_0061",
+  "case": "cases_eval/cases/f104_crm_eval_group_0061.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0061__H.json",
+  "run": true,
+  "tier": 61,
+  "episode_seed": 658270611
+ },
+ {
+  "id": "f104_crm_eval_group_0062__G",
+  "group": "f104_crm_eval_group_0062",
+  "case": "cases_eval/cases/f104_crm_eval_group_0062.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0062__G.json",
+  "run": true,
+  "tier": 62,
+  "episode_seed": 594226230
+ },
+ {
+  "id": "f104_crm_eval_group_0062__H",
+  "group": "f104_crm_eval_group_0062",
+  "case": "cases_eval/cases/f104_crm_eval_group_0062.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0062__H.json",
+  "run": true,
+  "tier": 62,
+  "episode_seed": 2548756336
+ },
+ {
+  "id": "f104_crm_eval_group_0063__G",
+  "group": "f104_crm_eval_group_0063",
+  "case": "cases_eval/cases/f104_crm_eval_group_0063.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0063__G.json",
+  "run": true,
+  "tier": 63,
+  "episode_seed": 3935321600
+ },
+ {
+  "id": "f104_crm_eval_group_0063__H",
+  "group": "f104_crm_eval_group_0063",
+  "case": "cases_eval/cases/f104_crm_eval_group_0063.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0063__H.json",
+  "run": true,
+  "tier": 63,
+  "episode_seed": 1807440448
+ },
+ {
+  "id": "f104_crm_eval_group_0064__G",
+  "group": "f104_crm_eval_group_0064",
+  "case": "cases_eval/cases/f104_crm_eval_group_0064.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0064__G.json",
+  "run": true,
+  "tier": 64,
+  "episode_seed": 2658573742
+ },
+ {
+  "id": "f104_crm_eval_group_0064__H",
+  "group": "f104_crm_eval_group_0064",
+  "case": "cases_eval/cases/f104_crm_eval_group_0064.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0064__H.json",
+  "run": true,
+  "tier": 64,
+  "episode_seed": 1514932912
+ },
+ {
+  "id": "f104_crm_eval_group_0065__G",
+  "group": "f104_crm_eval_group_0065",
+  "case": "cases_eval/cases/f104_crm_eval_group_0065.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0065__G.json",
+  "run": true,
+  "tier": 65,
+  "episode_seed": 1146835145
+ },
+ {
+  "id": "f104_crm_eval_group_0065__H",
+  "group": "f104_crm_eval_group_0065",
+  "case": "cases_eval/cases/f104_crm_eval_group_0065.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0065__H.json",
+  "run": true,
+  "tier": 65,
+  "episode_seed": 251205336
+ },
+ {
+  "id": "f104_crm_eval_group_0066__G",
+  "group": "f104_crm_eval_group_0066",
+  "case": "cases_eval/cases/f104_crm_eval_group_0066.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0066__G.json",
+  "run": true,
+  "tier": 66,
+  "episode_seed": 82581384
+ },
+ {
+  "id": "f104_crm_eval_group_0066__H",
+  "group": "f104_crm_eval_group_0066",
+  "case": "cases_eval/cases/f104_crm_eval_group_0066.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0066__H.json",
+  "run": true,
+  "tier": 66,
+  "episode_seed": 4151495114
+ },
+ {
+  "id": "f104_crm_eval_group_0067__G",
+  "group": "f104_crm_eval_group_0067",
+  "case": "cases_eval/cases/f104_crm_eval_group_0067.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0067__G.json",
+  "run": true,
+  "tier": 67,
+  "episode_seed": 3337098022
+ },
+ {
+  "id": "f104_crm_eval_group_0067__H",
+  "group": "f104_crm_eval_group_0067",
+  "case": "cases_eval/cases/f104_crm_eval_group_0067.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0067__H.json",
+  "run": true,
+  "tier": 67,
+  "episode_seed": 3445674983
+ },
+ {
+  "id": "f104_crm_eval_group_0068__G",
+  "group": "f104_crm_eval_group_0068",
+  "case": "cases_eval/cases/f104_crm_eval_group_0068.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0068__G.json",
+  "run": true,
+  "tier": 68,
+  "episode_seed": 473903615
+ },
+ {
+  "id": "f104_crm_eval_group_0068__H",
+  "group": "f104_crm_eval_group_0068",
+  "case": "cases_eval/cases/f104_crm_eval_group_0068.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0068__H.json",
+  "run": true,
+  "tier": 68,
+  "episode_seed": 2550813220
+ },
+ {
+  "id": "f104_crm_eval_group_0069__crm",
+  "group": "f104_crm_eval_group_0069",
+  "case": "cases_eval/cases/f104_crm_eval_group_0069.json",
+  "route": "eval_v1/routes/f104_crm_eval_group_0069__crm.json",
+  "run": false,
+  "tier": 69,
+  "episode_seed": 3195601267,
+  "reuse": "eval_v1/runs/f104_crm_eval_group_0069__crm"
+ },
+ {
+  "id": "f104_crm_eval_group_0069__H",
+  "group": "f104_crm_eval_group_0069",
+  "case": "cases_eval/cases/f104_crm_eval_group_0069.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0069__H.json",
+  "run": true,
+  "tier": 69,
+  "episode_seed": 611364777
+ },
+ {
+  "id": "f104_crm_eval_group_0070__crm",
+  "group": "f104_crm_eval_group_0070",
+  "case": "cases_eval/cases/f104_crm_eval_group_0070.json",
+  "route": "eval_v1/routes/f104_crm_eval_group_0070__crm.json",
+  "run": false,
+  "tier": 70,
+  "episode_seed": 510594169,
+  "reuse": "eval_v1/runs/f104_crm_eval_group_0070__crm"
+ },
+ {
+  "id": "f104_crm_eval_group_0070__H",
+  "group": "f104_crm_eval_group_0070",
+  "case": "cases_eval/cases/f104_crm_eval_group_0070.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0070__H.json",
+  "run": true,
+  "tier": 70,
+  "episode_seed": 1324557464
+ },
+ {
+  "id": "f104_crm_eval_group_0071__G",
+  "group": "f104_crm_eval_group_0071",
+  "case": "cases_eval/cases/f104_crm_eval_group_0071.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0071__G.json",
+  "run": true,
+  "tier": 71,
+  "episode_seed": 142077372
+ },
+ {
+  "id": "f104_crm_eval_group_0071__H",
+  "group": "f104_crm_eval_group_0071",
+  "case": "cases_eval/cases/f104_crm_eval_group_0071.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0071__H.json",
+  "run": true,
+  "tier": 71,
+  "episode_seed": 610947289
+ },
+ {
+  "id": "f104_crm_eval_group_0072__G",
+  "group": "f104_crm_eval_group_0072",
+  "case": "cases_eval/cases/f104_crm_eval_group_0072.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0072__G.json",
+  "run": true,
+  "tier": 72,
+  "episode_seed": 809124831
+ },
+ {
+  "id": "f104_crm_eval_group_0072__H",
+  "group": "f104_crm_eval_group_0072",
+  "case": "cases_eval/cases/f104_crm_eval_group_0072.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0072__H.json",
+  "run": true,
+  "tier": 72,
+  "episode_seed": 3230715619
+ },
+ {
+  "id": "f104_crm_eval_group_0073__G",
+  "group": "f104_crm_eval_group_0073",
+  "case": "cases_eval/cases/f104_crm_eval_group_0073.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0073__G.json",
+  "run": true,
+  "tier": 73,
+  "episode_seed": 1272661433
+ },
+ {
+  "id": "f104_crm_eval_group_0073__H",
+  "group": "f104_crm_eval_group_0073",
+  "case": "cases_eval/cases/f104_crm_eval_group_0073.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0073__H.json",
+  "run": true,
+  "tier": 73,
+  "episode_seed": 1656540615
+ },
+ {
+  "id": "f104_crm_eval_group_0074__G",
+  "group": "f104_crm_eval_group_0074",
+  "case": "cases_eval/cases/f104_crm_eval_group_0074.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0074__G.json",
+  "run": true,
+  "tier": 74,
+  "episode_seed": 4130924469
+ },
+ {
+  "id": "f104_crm_eval_group_0074__H",
+  "group": "f104_crm_eval_group_0074",
+  "case": "cases_eval/cases/f104_crm_eval_group_0074.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0074__H.json",
+  "run": true,
+  "tier": 74,
+  "episode_seed": 4018851462
+ },
+ {
+  "id": "f104_crm_eval_group_0075__G",
+  "group": "f104_crm_eval_group_0075",
+  "case": "cases_eval/cases/f104_crm_eval_group_0075.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0075__G.json",
+  "run": true,
+  "tier": 75,
+  "episode_seed": 3873880356
+ },
+ {
+  "id": "f104_crm_eval_group_0075__H",
+  "group": "f104_crm_eval_group_0075",
+  "case": "cases_eval/cases/f104_crm_eval_group_0075.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0075__H.json",
+  "run": true,
+  "tier": 75,
+  "episode_seed": 2870243474
+ },
+ {
+  "id": "f104_crm_eval_group_0076__G",
+  "group": "f104_crm_eval_group_0076",
+  "case": "cases_eval/cases/f104_crm_eval_group_0076.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0076__G.json",
+  "run": true,
+  "tier": 76,
+  "episode_seed": 1014291195
+ },
+ {
+  "id": "f104_crm_eval_group_0076__H",
+  "group": "f104_crm_eval_group_0076",
+  "case": "cases_eval/cases/f104_crm_eval_group_0076.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0076__H.json",
+  "run": true,
+  "tier": 76,
+  "episode_seed": 1430376606
+ },
+ {
+  "id": "f104_crm_eval_group_0077__G",
+  "group": "f104_crm_eval_group_0077",
+  "case": "cases_eval/cases/f104_crm_eval_group_0077.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0077__G.json",
+  "run": true,
+  "tier": 77,
+  "episode_seed": 3300820630
+ },
+ {
+  "id": "f104_crm_eval_group_0077__H",
+  "group": "f104_crm_eval_group_0077",
+  "case": "cases_eval/cases/f104_crm_eval_group_0077.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0077__H.json",
+  "run": true,
+  "tier": 77,
+  "episode_seed": 1764081764
+ },
+ {
+  "id": "f104_crm_eval_group_0078__G",
+  "group": "f104_crm_eval_group_0078",
+  "case": "cases_eval/cases/f104_crm_eval_group_0078.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0078__G.json",
+  "run": true,
+  "tier": 78,
+  "episode_seed": 4101087377
+ },
+ {
+  "id": "f104_crm_eval_group_0078__H",
+  "group": "f104_crm_eval_group_0078",
+  "case": "cases_eval/cases/f104_crm_eval_group_0078.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0078__H.json",
+  "run": true,
+  "tier": 78,
+  "episode_seed": 2156005692
+ },
+ {
+  "id": "f104_crm_eval_group_0079__crm",
+  "group": "f104_crm_eval_group_0079",
+  "case": "cases_eval/cases/f104_crm_eval_group_0079.json",
+  "route": "eval_v1/routes/f104_crm_eval_group_0079__crm.json",
+  "run": false,
+  "tier": 79,
+  "episode_seed": 1811610557,
+  "reuse": "eval_v1/runs/f104_crm_eval_group_0079__crm"
+ },
+ {
+  "id": "f104_crm_eval_group_0079__H",
+  "group": "f104_crm_eval_group_0079",
+  "case": "cases_eval/cases/f104_crm_eval_group_0079.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0079__H.json",
+  "run": true,
+  "tier": 79,
+  "episode_seed": 4105714220
+ },
+ {
+  "id": "f104_crm_eval_group_0080__crm",
+  "group": "f104_crm_eval_group_0080",
+  "case": "cases_eval/cases/f104_crm_eval_group_0080.json",
+  "route": "eval_v1/routes/f104_crm_eval_group_0080__crm.json",
+  "run": false,
+  "tier": 80,
+  "episode_seed": 2364216310,
+  "reuse": "eval_v1/runs/f104_crm_eval_group_0080__crm"
+ },
+ {
+  "id": "f104_crm_eval_group_0080__H",
+  "group": "f104_crm_eval_group_0080",
+  "case": "cases_eval/cases/f104_crm_eval_group_0080.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0080__H.json",
+  "run": true,
+  "tier": 80,
+  "episode_seed": 4210230033
+ },
+ {
+  "id": "f104_crm_eval_group_0081__G",
+  "group": "f104_crm_eval_group_0081",
+  "case": "cases_eval/cases/f104_crm_eval_group_0081.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0081__G.json",
+  "run": true,
+  "tier": 81,
+  "episode_seed": 3460567549
+ },
+ {
+  "id": "f104_crm_eval_group_0081__H",
+  "group": "f104_crm_eval_group_0081",
+  "case": "cases_eval/cases/f104_crm_eval_group_0081.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0081__H.json",
+  "run": true,
+  "tier": 81,
+  "episode_seed": 1768635286
+ },
+ {
+  "id": "f104_crm_eval_group_0082__G",
+  "group": "f104_crm_eval_group_0082",
+  "case": "cases_eval/cases/f104_crm_eval_group_0082.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0082__G.json",
+  "run": true,
+  "tier": 82,
+  "episode_seed": 2827689257
+ },
+ {
+  "id": "f104_crm_eval_group_0082__H",
+  "group": "f104_crm_eval_group_0082",
+  "case": "cases_eval/cases/f104_crm_eval_group_0082.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0082__H.json",
+  "run": true,
+  "tier": 82,
+  "episode_seed": 1451219959
+ },
+ {
+  "id": "f104_crm_eval_group_0083__G",
+  "group": "f104_crm_eval_group_0083",
+  "case": "cases_eval/cases/f104_crm_eval_group_0083.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0083__G.json",
+  "run": true,
+  "tier": 83,
+  "episode_seed": 597720250
+ },
+ {
+  "id": "f104_crm_eval_group_0083__H",
+  "group": "f104_crm_eval_group_0083",
+  "case": "cases_eval/cases/f104_crm_eval_group_0083.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0083__H.json",
+  "run": true,
+  "tier": 83,
+  "episode_seed": 4107883014
+ },
+ {
+  "id": "f104_crm_eval_group_0084__G",
+  "group": "f104_crm_eval_group_0084",
+  "case": "cases_eval/cases/f104_crm_eval_group_0084.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0084__G.json",
+  "run": true,
+  "tier": 84,
+  "episode_seed": 457210791
+ },
+ {
+  "id": "f104_crm_eval_group_0084__H",
+  "group": "f104_crm_eval_group_0084",
+  "case": "cases_eval/cases/f104_crm_eval_group_0084.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0084__H.json",
+  "run": true,
+  "tier": 84,
+  "episode_seed": 2130803837
+ },
+ {
+  "id": "f104_crm_eval_group_0085__G",
+  "group": "f104_crm_eval_group_0085",
+  "case": "cases_eval/cases/f104_crm_eval_group_0085.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0085__G.json",
+  "run": true,
+  "tier": 85,
+  "episode_seed": 851981842
+ },
+ {
+  "id": "f104_crm_eval_group_0085__H",
+  "group": "f104_crm_eval_group_0085",
+  "case": "cases_eval/cases/f104_crm_eval_group_0085.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0085__H.json",
+  "run": true,
+  "tier": 85,
+  "episode_seed": 2819423744
+ },
+ {
+  "id": "f104_crm_eval_group_0086__G",
+  "group": "f104_crm_eval_group_0086",
+  "case": "cases_eval/cases/f104_crm_eval_group_0086.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0086__G.json",
+  "run": true,
+  "tier": 86,
+  "episode_seed": 3005546850
+ },
+ {
+  "id": "f104_crm_eval_group_0086__H",
+  "group": "f104_crm_eval_group_0086",
+  "case": "cases_eval/cases/f104_crm_eval_group_0086.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0086__H.json",
+  "run": true,
+  "tier": 86,
+  "episode_seed": 934640166
+ },
+ {
+  "id": "f104_crm_eval_group_0087__G",
+  "group": "f104_crm_eval_group_0087",
+  "case": "cases_eval/cases/f104_crm_eval_group_0087.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0087__G.json",
+  "run": true,
+  "tier": 87,
+  "episode_seed": 1573355752
+ },
+ {
+  "id": "f104_crm_eval_group_0087__H",
+  "group": "f104_crm_eval_group_0087",
+  "case": "cases_eval/cases/f104_crm_eval_group_0087.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0087__H.json",
+  "run": true,
+  "tier": 87,
+  "episode_seed": 224354754
+ },
+ {
+  "id": "f104_crm_eval_group_0088__G",
+  "group": "f104_crm_eval_group_0088",
+  "case": "cases_eval/cases/f104_crm_eval_group_0088.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0088__G.json",
+  "run": true,
+  "tier": 88,
+  "episode_seed": 3835169979
+ },
+ {
+  "id": "f104_crm_eval_group_0088__H",
+  "group": "f104_crm_eval_group_0088",
+  "case": "cases_eval/cases/f104_crm_eval_group_0088.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0088__H.json",
+  "run": true,
+  "tier": 88,
+  "episode_seed": 4233489639
+ },
+ {
+  "id": "f104_crm_eval_group_0089__G",
+  "group": "f104_crm_eval_group_0089",
+  "case": "cases_eval/cases/f104_crm_eval_group_0089.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0089__G.json",
+  "run": true,
+  "tier": 89,
+  "episode_seed": 3177963932
+ },
+ {
+  "id": "f104_crm_eval_group_0089__H",
+  "group": "f104_crm_eval_group_0089",
+  "case": "cases_eval/cases/f104_crm_eval_group_0089.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0089__H.json",
+  "run": true,
+  "tier": 89,
+  "episode_seed": 1261727702
+ },
+ {
+  "id": "f104_crm_eval_group_0090__crm",
+  "group": "f104_crm_eval_group_0090",
+  "case": "cases_eval/cases/f104_crm_eval_group_0090.json",
+  "route": "eval_v1/routes/f104_crm_eval_group_0090__crm.json",
+  "run": false,
+  "tier": 90,
+  "episode_seed": 2183907369,
+  "reuse": "eval_v1/runs/f104_crm_eval_group_0090__crm"
+ },
+ {
+  "id": "f104_crm_eval_group_0090__H",
+  "group": "f104_crm_eval_group_0090",
+  "case": "cases_eval/cases/f104_crm_eval_group_0090.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0090__H.json",
+  "run": true,
+  "tier": 90,
+  "episode_seed": 3201122136
+ },
+ {
+  "id": "f104_crm_eval_group_0091__G",
+  "group": "f104_crm_eval_group_0091",
+  "case": "cases_eval/cases/f104_crm_eval_group_0091.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0091__G.json",
+  "run": true,
+  "tier": 91,
+  "episode_seed": 993647703
+ },
+ {
+  "id": "f104_crm_eval_group_0091__H",
+  "group": "f104_crm_eval_group_0091",
+  "case": "cases_eval/cases/f104_crm_eval_group_0091.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0091__H.json",
+  "run": true,
+  "tier": 91,
+  "episode_seed": 2726211355
+ },
+ {
+  "id": "f104_crm_eval_group_0092__G",
+  "group": "f104_crm_eval_group_0092",
+  "case": "cases_eval/cases/f104_crm_eval_group_0092.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0092__G.json",
+  "run": true,
+  "tier": 92,
+  "episode_seed": 3865783693
+ },
+ {
+  "id": "f104_crm_eval_group_0092__H",
+  "group": "f104_crm_eval_group_0092",
+  "case": "cases_eval/cases/f104_crm_eval_group_0092.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0092__H.json",
+  "run": true,
+  "tier": 92,
+  "episode_seed": 1285305207
+ },
+ {
+  "id": "f104_crm_eval_group_0093__G",
+  "group": "f104_crm_eval_group_0093",
+  "case": "cases_eval/cases/f104_crm_eval_group_0093.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0093__G.json",
+  "run": true,
+  "tier": 93,
+  "episode_seed": 1739606980
+ },
+ {
+  "id": "f104_crm_eval_group_0093__H",
+  "group": "f104_crm_eval_group_0093",
+  "case": "cases_eval/cases/f104_crm_eval_group_0093.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0093__H.json",
+  "run": true,
+  "tier": 93,
+  "episode_seed": 2310944884
+ },
+ {
+  "id": "f104_crm_eval_group_0094__G",
+  "group": "f104_crm_eval_group_0094",
+  "case": "cases_eval/cases/f104_crm_eval_group_0094.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0094__G.json",
+  "run": true,
+  "tier": 94,
+  "episode_seed": 1858806562
+ },
+ {
+  "id": "f104_crm_eval_group_0094__H",
+  "group": "f104_crm_eval_group_0094",
+  "case": "cases_eval/cases/f104_crm_eval_group_0094.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0094__H.json",
+  "run": true,
+  "tier": 94,
+  "episode_seed": 1743894901
+ },
+ {
+  "id": "f104_crm_eval_group_0095__G",
+  "group": "f104_crm_eval_group_0095",
+  "case": "cases_eval/cases/f104_crm_eval_group_0095.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0095__G.json",
+  "run": true,
+  "tier": 95,
+  "episode_seed": 813439704
+ },
+ {
+  "id": "f104_crm_eval_group_0095__H",
+  "group": "f104_crm_eval_group_0095",
+  "case": "cases_eval/cases/f104_crm_eval_group_0095.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0095__H.json",
+  "run": true,
+  "tier": 95,
+  "episode_seed": 721330881
+ },
+ {
+  "id": "f104_crm_eval_group_0096__G",
+  "group": "f104_crm_eval_group_0096",
+  "case": "cases_eval/cases/f104_crm_eval_group_0096.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0096__G.json",
+  "run": true,
+  "tier": 96,
+  "episode_seed": 147671798
+ },
+ {
+  "id": "f104_crm_eval_group_0096__H",
+  "group": "f104_crm_eval_group_0096",
+  "case": "cases_eval/cases/f104_crm_eval_group_0096.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0096__H.json",
+  "run": true,
+  "tier": 96,
+  "episode_seed": 16758848
+ },
+ {
+  "id": "f104_crm_eval_group_0097__crm",
+  "group": "f104_crm_eval_group_0097",
+  "case": "cases_eval/cases/f104_crm_eval_group_0097.json",
+  "route": "eval_v1/routes/f104_crm_eval_group_0097__crm.json",
+  "run": false,
+  "tier": 97,
+  "episode_seed": 2967147915,
+  "reuse": "eval_v1/runs/f104_crm_eval_group_0097__crm"
+ },
+ {
+  "id": "f104_crm_eval_group_0097__H",
+  "group": "f104_crm_eval_group_0097",
+  "case": "cases_eval/cases/f104_crm_eval_group_0097.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0097__H.json",
+  "run": true,
+  "tier": 97,
+  "episode_seed": 4161246780
+ },
+ {
+  "id": "f104_crm_eval_group_0098__G",
+  "group": "f104_crm_eval_group_0098",
+  "case": "cases_eval/cases/f104_crm_eval_group_0098.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0098__G.json",
+  "run": true,
+  "tier": 98,
+  "episode_seed": 3408478055
+ },
+ {
+  "id": "f104_crm_eval_group_0098__H",
+  "group": "f104_crm_eval_group_0098",
+  "case": "cases_eval/cases/f104_crm_eval_group_0098.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0098__H.json",
+  "run": true,
+  "tier": 98,
+  "episode_seed": 809848314
+ },
+ {
+  "id": "f104_crm_eval_group_0099__crm",
+  "group": "f104_crm_eval_group_0099",
+  "case": "cases_eval/cases/f104_crm_eval_group_0099.json",
+  "route": "eval_v1/routes/f104_crm_eval_group_0099__crm.json",
+  "run": false,
+  "tier": 99,
+  "episode_seed": 1798751361,
+  "reuse": "eval_v1/runs/f104_crm_eval_group_0099__crm"
+ },
+ {
+  "id": "f104_crm_eval_group_0099__H",
+  "group": "f104_crm_eval_group_0099",
+  "case": "cases_eval/cases/f104_crm_eval_group_0099.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0099__H.json",
+  "run": true,
+  "tier": 99,
+  "episode_seed": 3383844061
+ },
+ {
+  "id": "f104_crm_eval_group_0100__G",
+  "group": "f104_crm_eval_group_0100",
+  "case": "cases_eval/cases/f104_crm_eval_group_0100.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0100__G.json",
+  "run": true,
+  "tier": 100,
+  "episode_seed": 1599935072
+ },
+ {
+  "id": "f104_crm_eval_group_0100__H",
+  "group": "f104_crm_eval_group_0100",
+  "case": "cases_eval/cases/f104_crm_eval_group_0100.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0100__H.json",
+  "run": true,
+  "tier": 100,
+  "episode_seed": 2982950423
+ },
+ {
+  "id": "f104_crm_eval_group_0101__G",
+  "group": "f104_crm_eval_group_0101",
+  "case": "cases_eval/cases/f104_crm_eval_group_0101.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0101__G.json",
+  "run": true,
+  "tier": 101,
+  "episode_seed": 4180130513
+ },
+ {
+  "id": "f104_crm_eval_group_0101__H",
+  "group": "f104_crm_eval_group_0101",
+  "case": "cases_eval/cases/f104_crm_eval_group_0101.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0101__H.json",
+  "run": true,
+  "tier": 101,
+  "episode_seed": 3406707693
+ },
+ {
+  "id": "f104_crm_eval_group_0102__G",
+  "group": "f104_crm_eval_group_0102",
+  "case": "cases_eval/cases/f104_crm_eval_group_0102.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0102__G.json",
+  "run": true,
+  "tier": 102,
+  "episode_seed": 3219369571
+ },
+ {
+  "id": "f104_crm_eval_group_0102__H",
+  "group": "f104_crm_eval_group_0102",
+  "case": "cases_eval/cases/f104_crm_eval_group_0102.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0102__H.json",
+  "run": true,
+  "tier": 102,
+  "episode_seed": 2775662010
+ },
+ {
+  "id": "f104_crm_eval_group_0103__crm",
+  "group": "f104_crm_eval_group_0103",
+  "case": "cases_eval/cases/f104_crm_eval_group_0103.json",
+  "route": "eval_v1/routes/f104_crm_eval_group_0103__crm.json",
+  "run": false,
+  "tier": 103,
+  "episode_seed": 1780389877,
+  "reuse": "eval_v1/runs/f104_crm_eval_group_0103__crm"
+ },
+ {
+  "id": "f104_crm_eval_group_0103__H",
+  "group": "f104_crm_eval_group_0103",
+  "case": "cases_eval/cases/f104_crm_eval_group_0103.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0103__H.json",
+  "run": true,
+  "tier": 103,
+  "episode_seed": 1366313885
+ },
+ {
+  "id": "f104_crm_eval_group_0104__G",
+  "group": "f104_crm_eval_group_0104",
+  "case": "cases_eval/cases/f104_crm_eval_group_0104.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0104__G.json",
+  "run": true,
+  "tier": 104,
+  "episode_seed": 3108593665
+ },
+ {
+  "id": "f104_crm_eval_group_0104__H",
+  "group": "f104_crm_eval_group_0104",
+  "case": "cases_eval/cases/f104_crm_eval_group_0104.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0104__H.json",
+  "run": true,
+  "tier": 104,
+  "episode_seed": 2230325746
+ },
+ {
+  "id": "f104_crm_eval_group_0105__crm",
+  "group": "f104_crm_eval_group_0105",
+  "case": "cases_eval/cases/f104_crm_eval_group_0105.json",
+  "route": "eval_v1/routes/f104_crm_eval_group_0105__crm.json",
+  "run": false,
+  "tier": 105,
+  "episode_seed": 2677315939,
+  "reuse": "eval_v1/runs/f104_crm_eval_group_0105__crm"
+ },
+ {
+  "id": "f104_crm_eval_group_0105__H",
+  "group": "f104_crm_eval_group_0105",
+  "case": "cases_eval/cases/f104_crm_eval_group_0105.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0105__H.json",
+  "run": true,
+  "tier": 105,
+  "episode_seed": 2810053837
+ },
+ {
+  "id": "f104_crm_eval_group_0106__G",
+  "group": "f104_crm_eval_group_0106",
+  "case": "cases_eval/cases/f104_crm_eval_group_0106.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0106__G.json",
+  "run": true,
+  "tier": 106,
+  "episode_seed": 658588358
+ },
+ {
+  "id": "f104_crm_eval_group_0106__H",
+  "group": "f104_crm_eval_group_0106",
+  "case": "cases_eval/cases/f104_crm_eval_group_0106.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0106__H.json",
+  "run": true,
+  "tier": 106,
+  "episode_seed": 1930034997
+ },
+ {
+  "id": "f104_crm_eval_group_0107__G",
+  "group": "f104_crm_eval_group_0107",
+  "case": "cases_eval/cases/f104_crm_eval_group_0107.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0107__G.json",
+  "run": true,
+  "tier": 107,
+  "episode_seed": 1323911998
+ },
+ {
+  "id": "f104_crm_eval_group_0107__H",
+  "group": "f104_crm_eval_group_0107",
+  "case": "cases_eval/cases/f104_crm_eval_group_0107.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0107__H.json",
+  "run": true,
+  "tier": 107,
+  "episode_seed": 2546666618
+ },
+ {
+  "id": "f104_crm_eval_group_0108__G",
+  "group": "f104_crm_eval_group_0108",
+  "case": "cases_eval/cases/f104_crm_eval_group_0108.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0108__G.json",
+  "run": true,
+  "tier": 108,
+  "episode_seed": 4121106431
+ },
+ {
+  "id": "f104_crm_eval_group_0108__H",
+  "group": "f104_crm_eval_group_0108",
+  "case": "cases_eval/cases/f104_crm_eval_group_0108.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0108__H.json",
+  "run": true,
+  "tier": 108,
+  "episode_seed": 2303279661
+ },
+ {
+  "id": "f104_crm_eval_group_0109__G",
+  "group": "f104_crm_eval_group_0109",
+  "case": "cases_eval/cases/f104_crm_eval_group_0109.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0109__G.json",
+  "run": true,
+  "tier": 109,
+  "episode_seed": 766719865
+ },
+ {
+  "id": "f104_crm_eval_group_0109__H",
+  "group": "f104_crm_eval_group_0109",
+  "case": "cases_eval/cases/f104_crm_eval_group_0109.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0109__H.json",
+  "run": true,
+  "tier": 109,
+  "episode_seed": 769423705
+ },
+ {
+  "id": "f104_crm_eval_group_0110__G",
+  "group": "f104_crm_eval_group_0110",
+  "case": "cases_eval/cases/f104_crm_eval_group_0110.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0110__G.json",
+  "run": true,
+  "tier": 110,
+  "episode_seed": 3481908058
+ },
+ {
+  "id": "f104_crm_eval_group_0110__H",
+  "group": "f104_crm_eval_group_0110",
+  "case": "cases_eval/cases/f104_crm_eval_group_0110.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0110__H.json",
+  "run": true,
+  "tier": 110,
+  "episode_seed": 3083345197
+ },
+ {
+  "id": "f104_crm_eval_group_0111__G",
+  "group": "f104_crm_eval_group_0111",
+  "case": "cases_eval/cases/f104_crm_eval_group_0111.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0111__G.json",
+  "run": true,
+  "tier": 111,
+  "episode_seed": 4151607674
+ },
+ {
+  "id": "f104_crm_eval_group_0111__H",
+  "group": "f104_crm_eval_group_0111",
+  "case": "cases_eval/cases/f104_crm_eval_group_0111.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0111__H.json",
+  "run": true,
+  "tier": 111,
+  "episode_seed": 557965558
+ },
+ {
+  "id": "f104_crm_eval_group_0112__G",
+  "group": "f104_crm_eval_group_0112",
+  "case": "cases_eval/cases/f104_crm_eval_group_0112.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0112__G.json",
+  "run": true,
+  "tier": 112,
+  "episode_seed": 1729629839
+ },
+ {
+  "id": "f104_crm_eval_group_0112__H",
+  "group": "f104_crm_eval_group_0112",
+  "case": "cases_eval/cases/f104_crm_eval_group_0112.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0112__H.json",
+  "run": true,
+  "tier": 112,
+  "episode_seed": 1477461274
+ },
+ {
+  "id": "f104_crm_eval_group_0113__G",
+  "group": "f104_crm_eval_group_0113",
+  "case": "cases_eval/cases/f104_crm_eval_group_0113.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0113__G.json",
+  "run": true,
+  "tier": 113,
+  "episode_seed": 3203634414
+ },
+ {
+  "id": "f104_crm_eval_group_0113__H",
+  "group": "f104_crm_eval_group_0113",
+  "case": "cases_eval/cases/f104_crm_eval_group_0113.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0113__H.json",
+  "run": true,
+  "tier": 113,
+  "episode_seed": 3156392178
+ },
+ {
+  "id": "f104_crm_eval_group_0114__G",
+  "group": "f104_crm_eval_group_0114",
+  "case": "cases_eval/cases/f104_crm_eval_group_0114.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0114__G.json",
+  "run": true,
+  "tier": 114,
+  "episode_seed": 1794002900
+ },
+ {
+  "id": "f104_crm_eval_group_0114__H",
+  "group": "f104_crm_eval_group_0114",
+  "case": "cases_eval/cases/f104_crm_eval_group_0114.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0114__H.json",
+  "run": true,
+  "tier": 114,
+  "episode_seed": 3382657183
+ },
+ {
+  "id": "f104_crm_eval_group_0115__crm",
+  "group": "f104_crm_eval_group_0115",
+  "case": "cases_eval/cases/f104_crm_eval_group_0115.json",
+  "route": "eval_v1/routes/f104_crm_eval_group_0115__crm.json",
+  "run": false,
+  "tier": 115,
+  "episode_seed": 813207580,
+  "reuse": "eval_v1/runs/f104_crm_eval_group_0115__crm"
+ },
+ {
+  "id": "f104_crm_eval_group_0115__H",
+  "group": "f104_crm_eval_group_0115",
+  "case": "cases_eval/cases/f104_crm_eval_group_0115.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0115__H.json",
+  "run": true,
+  "tier": 115,
+  "episode_seed": 519654602
+ },
+ {
+  "id": "f104_crm_eval_group_0116__G",
+  "group": "f104_crm_eval_group_0116",
+  "case": "cases_eval/cases/f104_crm_eval_group_0116.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0116__G.json",
+  "run": true,
+  "tier": 116,
+  "episode_seed": 2616071661
+ },
+ {
+  "id": "f104_crm_eval_group_0116__H",
+  "group": "f104_crm_eval_group_0116",
+  "case": "cases_eval/cases/f104_crm_eval_group_0116.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0116__H.json",
+  "run": true,
+  "tier": 116,
+  "episode_seed": 3677786152
+ },
+ {
+  "id": "f104_crm_eval_group_0117__G",
+  "group": "f104_crm_eval_group_0117",
+  "case": "cases_eval/cases/f104_crm_eval_group_0117.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0117__G.json",
+  "run": true,
+  "tier": 117,
+  "episode_seed": 975676927
+ },
+ {
+  "id": "f104_crm_eval_group_0117__H",
+  "group": "f104_crm_eval_group_0117",
+  "case": "cases_eval/cases/f104_crm_eval_group_0117.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0117__H.json",
+  "run": true,
+  "tier": 117,
+  "episode_seed": 1516079448
+ },
+ {
+  "id": "f104_crm_eval_group_0118__G",
+  "group": "f104_crm_eval_group_0118",
+  "case": "cases_eval/cases/f104_crm_eval_group_0118.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0118__G.json",
+  "run": true,
+  "tier": 118,
+  "episode_seed": 2520995120
+ },
+ {
+  "id": "f104_crm_eval_group_0118__H",
+  "group": "f104_crm_eval_group_0118",
+  "case": "cases_eval/cases/f104_crm_eval_group_0118.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0118__H.json",
+  "run": true,
+  "tier": 118,
+  "episode_seed": 3733616647
+ },
+ {
+  "id": "f104_crm_eval_group_0119__G",
+  "group": "f104_crm_eval_group_0119",
+  "case": "cases_eval/cases/f104_crm_eval_group_0119.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0119__G.json",
+  "run": true,
+  "tier": 119,
+  "episode_seed": 1987476826
+ },
+ {
+  "id": "f104_crm_eval_group_0119__H",
+  "group": "f104_crm_eval_group_0119",
+  "case": "cases_eval/cases/f104_crm_eval_group_0119.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0119__H.json",
+  "run": true,
+  "tier": 119,
+  "episode_seed": 2712123394
+ },
+ {
+  "id": "f104_crm_eval_group_0120__crm",
+  "group": "f104_crm_eval_group_0120",
+  "case": "cases_eval/cases/f104_crm_eval_group_0120.json",
+  "route": "eval_v1/routes/f104_crm_eval_group_0120__crm.json",
+  "run": false,
+  "tier": 120,
+  "episode_seed": 481540495,
+  "reuse": "eval_v1/runs/f104_crm_eval_group_0120__crm"
+ },
+ {
+  "id": "f104_crm_eval_group_0120__H",
+  "group": "f104_crm_eval_group_0120",
+  "case": "cases_eval/cases/f104_crm_eval_group_0120.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0120__H.json",
+  "run": true,
+  "tier": 120,
+  "episode_seed": 3337365735
+ },
+ {
+  "id": "f104_crm_eval_group_0121__G",
+  "group": "f104_crm_eval_group_0121",
+  "case": "cases_eval/cases/f104_crm_eval_group_0121.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0121__G.json",
+  "run": true,
+  "tier": 121,
+  "episode_seed": 1258359320
+ },
+ {
+  "id": "f104_crm_eval_group_0121__H",
+  "group": "f104_crm_eval_group_0121",
+  "case": "cases_eval/cases/f104_crm_eval_group_0121.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0121__H.json",
+  "run": true,
+  "tier": 121,
+  "episode_seed": 1988789853
+ },
+ {
+  "id": "f104_crm_eval_group_0122__G",
+  "group": "f104_crm_eval_group_0122",
+  "case": "cases_eval/cases/f104_crm_eval_group_0122.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0122__G.json",
+  "run": true,
+  "tier": 122,
+  "episode_seed": 3783523102
+ },
+ {
+  "id": "f104_crm_eval_group_0122__H",
+  "group": "f104_crm_eval_group_0122",
+  "case": "cases_eval/cases/f104_crm_eval_group_0122.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0122__H.json",
+  "run": true,
+  "tier": 122,
+  "episode_seed": 918591580
+ },
+ {
+  "id": "f104_crm_eval_group_0123__G",
+  "group": "f104_crm_eval_group_0123",
+  "case": "cases_eval/cases/f104_crm_eval_group_0123.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0123__G.json",
+  "run": true,
+  "tier": 123,
+  "episode_seed": 2133118969
+ },
+ {
+  "id": "f104_crm_eval_group_0123__H",
+  "group": "f104_crm_eval_group_0123",
+  "case": "cases_eval/cases/f104_crm_eval_group_0123.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0123__H.json",
+  "run": true,
+  "tier": 123,
+  "episode_seed": 3181692926
+ },
+ {
+  "id": "f104_crm_eval_group_0124__G",
+  "group": "f104_crm_eval_group_0124",
+  "case": "cases_eval/cases/f104_crm_eval_group_0124.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0124__G.json",
+  "run": true,
+  "tier": 124,
+  "episode_seed": 1082871188
+ },
+ {
+  "id": "f104_crm_eval_group_0124__H",
+  "group": "f104_crm_eval_group_0124",
+  "case": "cases_eval/cases/f104_crm_eval_group_0124.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0124__H.json",
+  "run": true,
+  "tier": 124,
+  "episode_seed": 1679463681
+ },
+ {
+  "id": "f104_crm_eval_group_0125__G",
+  "group": "f104_crm_eval_group_0125",
+  "case": "cases_eval/cases/f104_crm_eval_group_0125.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0125__G.json",
+  "run": true,
+  "tier": 125,
+  "episode_seed": 2008714090
+ },
+ {
+  "id": "f104_crm_eval_group_0125__H",
+  "group": "f104_crm_eval_group_0125",
+  "case": "cases_eval/cases/f104_crm_eval_group_0125.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0125__H.json",
+  "run": true,
+  "tier": 125,
+  "episode_seed": 2330495506
+ },
+ {
+  "id": "f104_crm_eval_group_0126__G",
+  "group": "f104_crm_eval_group_0126",
+  "case": "cases_eval/cases/f104_crm_eval_group_0126.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0126__G.json",
+  "run": true,
+  "tier": 126,
+  "episode_seed": 3580823024
+ },
+ {
+  "id": "f104_crm_eval_group_0126__H",
+  "group": "f104_crm_eval_group_0126",
+  "case": "cases_eval/cases/f104_crm_eval_group_0126.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0126__H.json",
+  "run": true,
+  "tier": 126,
+  "episode_seed": 2895667832
+ },
+ {
+  "id": "f104_crm_eval_group_0127__G",
+  "group": "f104_crm_eval_group_0127",
+  "case": "cases_eval/cases/f104_crm_eval_group_0127.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0127__G.json",
+  "run": true,
+  "tier": 127,
+  "episode_seed": 811209336
+ },
+ {
+  "id": "f104_crm_eval_group_0127__H",
+  "group": "f104_crm_eval_group_0127",
+  "case": "cases_eval/cases/f104_crm_eval_group_0127.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0127__H.json",
+  "run": true,
+  "tier": 127,
+  "episode_seed": 3921205233
+ },
+ {
+  "id": "f104_crm_eval_group_0128__G",
+  "group": "f104_crm_eval_group_0128",
+  "case": "cases_eval/cases/f104_crm_eval_group_0128.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0128__G.json",
+  "run": true,
+  "tier": 128,
+  "episode_seed": 3822660879
+ },
+ {
+  "id": "f104_crm_eval_group_0128__H",
+  "group": "f104_crm_eval_group_0128",
+  "case": "cases_eval/cases/f104_crm_eval_group_0128.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0128__H.json",
+  "run": true,
+  "tier": 128,
+  "episode_seed": 2823595370
+ },
+ {
+  "id": "f104_crm_eval_group_0129__crm",
+  "group": "f104_crm_eval_group_0129",
+  "case": "cases_eval/cases/f104_crm_eval_group_0129.json",
+  "route": "eval_v1/routes/f104_crm_eval_group_0129__crm.json",
+  "run": false,
+  "tier": 129,
+  "episode_seed": 1736359551,
+  "reuse": "eval_v1/runs/f104_crm_eval_group_0129__crm"
+ },
+ {
+  "id": "f104_crm_eval_group_0129__H",
+  "group": "f104_crm_eval_group_0129",
+  "case": "cases_eval/cases/f104_crm_eval_group_0129.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0129__H.json",
+  "run": true,
+  "tier": 129,
+  "episode_seed": 61605693
+ },
+ {
+  "id": "f104_crm_eval_group_0130__G",
+  "group": "f104_crm_eval_group_0130",
+  "case": "cases_eval/cases/f104_crm_eval_group_0130.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0130__G.json",
+  "run": true,
+  "tier": 130,
+  "episode_seed": 2748838313
+ },
+ {
+  "id": "f104_crm_eval_group_0130__H",
+  "group": "f104_crm_eval_group_0130",
+  "case": "cases_eval/cases/f104_crm_eval_group_0130.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0130__H.json",
+  "run": true,
+  "tier": 130,
+  "episode_seed": 2143984312
+ },
+ {
+  "id": "f104_crm_eval_group_0131__crm",
+  "group": "f104_crm_eval_group_0131",
+  "case": "cases_eval/cases/f104_crm_eval_group_0131.json",
+  "route": "eval_v1/routes/f104_crm_eval_group_0131__crm.json",
+  "run": false,
+  "tier": 131,
+  "episode_seed": 1150117850,
+  "reuse": "eval_v1/runs/f104_crm_eval_group_0131__crm"
+ },
+ {
+  "id": "f104_crm_eval_group_0131__H",
+  "group": "f104_crm_eval_group_0131",
+  "case": "cases_eval/cases/f104_crm_eval_group_0131.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0131__H.json",
+  "run": true,
+  "tier": 131,
+  "episode_seed": 3217331869
+ },
+ {
+  "id": "f104_crm_eval_group_0132__G",
+  "group": "f104_crm_eval_group_0132",
+  "case": "cases_eval/cases/f104_crm_eval_group_0132.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0132__G.json",
+  "run": true,
+  "tier": 132,
+  "episode_seed": 886979128
+ },
+ {
+  "id": "f104_crm_eval_group_0132__H",
+  "group": "f104_crm_eval_group_0132",
+  "case": "cases_eval/cases/f104_crm_eval_group_0132.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0132__H.json",
+  "run": true,
+  "tier": 132,
+  "episode_seed": 883498002
+ },
+ {
+  "id": "f104_crm_eval_group_0133__G",
+  "group": "f104_crm_eval_group_0133",
+  "case": "cases_eval/cases/f104_crm_eval_group_0133.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0133__G.json",
+  "run": true,
+  "tier": 133,
+  "episode_seed": 3367763406
+ },
+ {
+  "id": "f104_crm_eval_group_0133__H",
+  "group": "f104_crm_eval_group_0133",
+  "case": "cases_eval/cases/f104_crm_eval_group_0133.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0133__H.json",
+  "run": true,
+  "tier": 133,
+  "episode_seed": 3248418081
+ },
+ {
+  "id": "f104_crm_eval_group_0134__G",
+  "group": "f104_crm_eval_group_0134",
+  "case": "cases_eval/cases/f104_crm_eval_group_0134.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0134__G.json",
+  "run": true,
+  "tier": 134,
+  "episode_seed": 3363947859
+ },
+ {
+  "id": "f104_crm_eval_group_0134__H",
+  "group": "f104_crm_eval_group_0134",
+  "case": "cases_eval/cases/f104_crm_eval_group_0134.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0134__H.json",
+  "run": true,
+  "tier": 134,
+  "episode_seed": 2779922271
+ },
+ {
+  "id": "f104_crm_eval_group_0135__G",
+  "group": "f104_crm_eval_group_0135",
+  "case": "cases_eval/cases/f104_crm_eval_group_0135.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0135__G.json",
+  "run": true,
+  "tier": 135,
+  "episode_seed": 2078079207
+ },
+ {
+  "id": "f104_crm_eval_group_0135__H",
+  "group": "f104_crm_eval_group_0135",
+  "case": "cases_eval/cases/f104_crm_eval_group_0135.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0135__H.json",
+  "run": true,
+  "tier": 135,
+  "episode_seed": 3555209651
+ },
+ {
+  "id": "f104_crm_eval_group_0136__G",
+  "group": "f104_crm_eval_group_0136",
+  "case": "cases_eval/cases/f104_crm_eval_group_0136.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0136__G.json",
+  "run": true,
+  "tier": 136,
+  "episode_seed": 269497696
+ },
+ {
+  "id": "f104_crm_eval_group_0136__H",
+  "group": "f104_crm_eval_group_0136",
+  "case": "cases_eval/cases/f104_crm_eval_group_0136.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0136__H.json",
+  "run": true,
+  "tier": 136,
+  "episode_seed": 2054252513
+ },
+ {
+  "id": "f104_crm_eval_group_0137__G",
+  "group": "f104_crm_eval_group_0137",
+  "case": "cases_eval/cases/f104_crm_eval_group_0137.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0137__G.json",
+  "run": true,
+  "tier": 137,
+  "episode_seed": 843335010
+ },
+ {
+  "id": "f104_crm_eval_group_0137__H",
+  "group": "f104_crm_eval_group_0137",
+  "case": "cases_eval/cases/f104_crm_eval_group_0137.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0137__H.json",
+  "run": true,
+  "tier": 137,
+  "episode_seed": 459829068
+ },
+ {
+  "id": "f104_crm_eval_group_0138__G",
+  "group": "f104_crm_eval_group_0138",
+  "case": "cases_eval/cases/f104_crm_eval_group_0138.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0138__G.json",
+  "run": true,
+  "tier": 138,
+  "episode_seed": 2319630819
+ },
+ {
+  "id": "f104_crm_eval_group_0138__H",
+  "group": "f104_crm_eval_group_0138",
+  "case": "cases_eval/cases/f104_crm_eval_group_0138.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0138__H.json",
+  "run": true,
+  "tier": 138,
+  "episode_seed": 1398328700
+ },
+ {
+  "id": "f104_crm_eval_group_0139__crm",
+  "group": "f104_crm_eval_group_0139",
+  "case": "cases_eval/cases/f104_crm_eval_group_0139.json",
+  "route": "eval_v1/routes/f104_crm_eval_group_0139__crm.json",
+  "run": false,
+  "tier": 139,
+  "episode_seed": 2541408528,
+  "reuse": "eval_v1/runs/f104_crm_eval_group_0139__crm"
+ },
+ {
+  "id": "f104_crm_eval_group_0139__H",
+  "group": "f104_crm_eval_group_0139",
+  "case": "cases_eval/cases/f104_crm_eval_group_0139.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0139__H.json",
+  "run": true,
+  "tier": 139,
+  "episode_seed": 3575719752
+ },
+ {
+  "id": "f104_crm_eval_group_0140__G",
+  "group": "f104_crm_eval_group_0140",
+  "case": "cases_eval/cases/f104_crm_eval_group_0140.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0140__G.json",
+  "run": true,
+  "tier": 140,
+  "episode_seed": 878751681
+ },
+ {
+  "id": "f104_crm_eval_group_0140__H",
+  "group": "f104_crm_eval_group_0140",
+  "case": "cases_eval/cases/f104_crm_eval_group_0140.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0140__H.json",
+  "run": true,
+  "tier": 140,
+  "episode_seed": 1766035337
+ },
+ {
+  "id": "f104_crm_eval_group_0141__G",
+  "group": "f104_crm_eval_group_0141",
+  "case": "cases_eval/cases/f104_crm_eval_group_0141.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0141__G.json",
+  "run": true,
+  "tier": 141,
+  "episode_seed": 1378814852
+ },
+ {
+  "id": "f104_crm_eval_group_0141__H",
+  "group": "f104_crm_eval_group_0141",
+  "case": "cases_eval/cases/f104_crm_eval_group_0141.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0141__H.json",
+  "run": true,
+  "tier": 141,
+  "episode_seed": 291753690
+ },
+ {
+  "id": "f104_crm_eval_group_0142__G",
+  "group": "f104_crm_eval_group_0142",
+  "case": "cases_eval/cases/f104_crm_eval_group_0142.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0142__G.json",
+  "run": true,
+  "tier": 142,
+  "episode_seed": 2437169215
+ },
+ {
+  "id": "f104_crm_eval_group_0142__H",
+  "group": "f104_crm_eval_group_0142",
+  "case": "cases_eval/cases/f104_crm_eval_group_0142.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0142__H.json",
+  "run": true,
+  "tier": 142,
+  "episode_seed": 3223906811
+ },
+ {
+  "id": "f104_crm_eval_group_0143__G",
+  "group": "f104_crm_eval_group_0143",
+  "case": "cases_eval/cases/f104_crm_eval_group_0143.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0143__G.json",
+  "run": true,
+  "tier": 143,
+  "episode_seed": 2865033490
+ },
+ {
+  "id": "f104_crm_eval_group_0143__H",
+  "group": "f104_crm_eval_group_0143",
+  "case": "cases_eval/cases/f104_crm_eval_group_0143.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0143__H.json",
+  "run": true,
+  "tier": 143,
+  "episode_seed": 2189397237
+ },
+ {
+  "id": "f104_crm_eval_group_0144__G",
+  "group": "f104_crm_eval_group_0144",
+  "case": "cases_eval/cases/f104_crm_eval_group_0144.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0144__G.json",
+  "run": true,
+  "tier": 144,
+  "episode_seed": 1151799476
+ },
+ {
+  "id": "f104_crm_eval_group_0144__H",
+  "group": "f104_crm_eval_group_0144",
+  "case": "cases_eval/cases/f104_crm_eval_group_0144.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0144__H.json",
+  "run": true,
+  "tier": 144,
+  "episode_seed": 1453789919
+ },
+ {
+  "id": "f104_crm_eval_group_0145__G",
+  "group": "f104_crm_eval_group_0145",
+  "case": "cases_eval/cases/f104_crm_eval_group_0145.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0145__G.json",
+  "run": true,
+  "tier": 145,
+  "episode_seed": 3953742781
+ },
+ {
+  "id": "f104_crm_eval_group_0145__H",
+  "group": "f104_crm_eval_group_0145",
+  "case": "cases_eval/cases/f104_crm_eval_group_0145.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0145__H.json",
+  "run": true,
+  "tier": 145,
+  "episode_seed": 673903712
+ },
+ {
+  "id": "f104_crm_eval_group_0146__G",
+  "group": "f104_crm_eval_group_0146",
+  "case": "cases_eval/cases/f104_crm_eval_group_0146.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0146__G.json",
+  "run": true,
+  "tier": 146,
+  "episode_seed": 2686620123
+ },
+ {
+  "id": "f104_crm_eval_group_0146__H",
+  "group": "f104_crm_eval_group_0146",
+  "case": "cases_eval/cases/f104_crm_eval_group_0146.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0146__H.json",
+  "run": true,
+  "tier": 146,
+  "episode_seed": 3538384720
+ },
+ {
+  "id": "f104_crm_eval_group_0147__G",
+  "group": "f104_crm_eval_group_0147",
+  "case": "cases_eval/cases/f104_crm_eval_group_0147.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0147__G.json",
+  "run": true,
+  "tier": 147,
+  "episode_seed": 317564649
+ },
+ {
+  "id": "f104_crm_eval_group_0147__H",
+  "group": "f104_crm_eval_group_0147",
+  "case": "cases_eval/cases/f104_crm_eval_group_0147.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0147__H.json",
+  "run": true,
+  "tier": 147,
+  "episode_seed": 3789910457
+ },
+ {
+  "id": "f104_crm_eval_group_0148__G",
+  "group": "f104_crm_eval_group_0148",
+  "case": "cases_eval/cases/f104_crm_eval_group_0148.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0148__G.json",
+  "run": true,
+  "tier": 148,
+  "episode_seed": 3886170840
+ },
+ {
+  "id": "f104_crm_eval_group_0148__H",
+  "group": "f104_crm_eval_group_0148",
+  "case": "cases_eval/cases/f104_crm_eval_group_0148.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0148__H.json",
+  "run": true,
+  "tier": 148,
+  "episode_seed": 2009830253
+ },
+ {
+  "id": "f104_crm_eval_group_0149__crm",
+  "group": "f104_crm_eval_group_0149",
+  "case": "cases_eval/cases/f104_crm_eval_group_0149.json",
+  "route": "eval_v1/routes/f104_crm_eval_group_0149__crm.json",
+  "run": false,
+  "tier": 149,
+  "episode_seed": 4099834208,
+  "reuse": "eval_v1/runs/f104_crm_eval_group_0149__crm"
+ },
+ {
+  "id": "f104_crm_eval_group_0149__H",
+  "group": "f104_crm_eval_group_0149",
+  "case": "cases_eval/cases/f104_crm_eval_group_0149.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0149__H.json",
+  "run": true,
+  "tier": 149,
+  "episode_seed": 4117948884
+ },
+ {
+  "id": "f104_crm_eval_group_0150__crm",
+  "group": "f104_crm_eval_group_0150",
+  "case": "cases_eval/cases/f104_crm_eval_group_0150.json",
+  "route": "eval_v1/routes/f104_crm_eval_group_0150__crm.json",
+  "run": false,
+  "tier": 150,
+  "episode_seed": 2084771554,
+  "reuse": "eval_v1/runs/f104_crm_eval_group_0150__crm"
+ },
+ {
+  "id": "f104_crm_eval_group_0150__H",
+  "group": "f104_crm_eval_group_0150",
+  "case": "cases_eval/cases/f104_crm_eval_group_0150.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0150__H.json",
+  "run": true,
+  "tier": 150,
+  "episode_seed": 2681956091
+ },
+ {
+  "id": "f104_crm_eval_group_0151__G",
+  "group": "f104_crm_eval_group_0151",
+  "case": "cases_eval/cases/f104_crm_eval_group_0151.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0151__G.json",
+  "run": true,
+  "tier": 151,
+  "episode_seed": 3036539346
+ },
+ {
+  "id": "f104_crm_eval_group_0151__H",
+  "group": "f104_crm_eval_group_0151",
+  "case": "cases_eval/cases/f104_crm_eval_group_0151.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0151__H.json",
+  "run": true,
+  "tier": 151,
+  "episode_seed": 3469380277
+ },
+ {
+  "id": "f104_crm_eval_group_0152__G",
+  "group": "f104_crm_eval_group_0152",
+  "case": "cases_eval/cases/f104_crm_eval_group_0152.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0152__G.json",
+  "run": true,
+  "tier": 152,
+  "episode_seed": 873381564
+ },
+ {
+  "id": "f104_crm_eval_group_0152__H",
+  "group": "f104_crm_eval_group_0152",
+  "case": "cases_eval/cases/f104_crm_eval_group_0152.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0152__H.json",
+  "run": true,
+  "tier": 152,
+  "episode_seed": 288465627
+ },
+ {
+  "id": "f104_crm_eval_group_0153__G",
+  "group": "f104_crm_eval_group_0153",
+  "case": "cases_eval/cases/f104_crm_eval_group_0153.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0153__G.json",
+  "run": true,
+  "tier": 153,
+  "episode_seed": 1314980769
+ },
+ {
+  "id": "f104_crm_eval_group_0153__H",
+  "group": "f104_crm_eval_group_0153",
+  "case": "cases_eval/cases/f104_crm_eval_group_0153.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0153__H.json",
+  "run": true,
+  "tier": 153,
+  "episode_seed": 1080643036
+ },
+ {
+  "id": "f104_crm_eval_group_0154__G",
+  "group": "f104_crm_eval_group_0154",
+  "case": "cases_eval/cases/f104_crm_eval_group_0154.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0154__G.json",
+  "run": true,
+  "tier": 154,
+  "episode_seed": 4156205376
+ },
+ {
+  "id": "f104_crm_eval_group_0154__H",
+  "group": "f104_crm_eval_group_0154",
+  "case": "cases_eval/cases/f104_crm_eval_group_0154.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0154__H.json",
+  "run": true,
+  "tier": 154,
+  "episode_seed": 2626309947
+ },
+ {
+  "id": "f104_crm_eval_group_0155__G",
+  "group": "f104_crm_eval_group_0155",
+  "case": "cases_eval/cases/f104_crm_eval_group_0155.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0155__G.json",
+  "run": true,
+  "tier": 155,
+  "episode_seed": 3408440210
+ },
+ {
+  "id": "f104_crm_eval_group_0155__H",
+  "group": "f104_crm_eval_group_0155",
+  "case": "cases_eval/cases/f104_crm_eval_group_0155.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0155__H.json",
+  "run": true,
+  "tier": 155,
+  "episode_seed": 3852656183
+ },
+ {
+  "id": "f104_crm_eval_group_0156__G",
+  "group": "f104_crm_eval_group_0156",
+  "case": "cases_eval/cases/f104_crm_eval_group_0156.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0156__G.json",
+  "run": true,
+  "tier": 156,
+  "episode_seed": 1110520077
+ },
+ {
+  "id": "f104_crm_eval_group_0156__H",
+  "group": "f104_crm_eval_group_0156",
+  "case": "cases_eval/cases/f104_crm_eval_group_0156.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0156__H.json",
+  "run": true,
+  "tier": 156,
+  "episode_seed": 1964127281
+ },
+ {
+  "id": "f104_crm_eval_group_0157__crm",
+  "group": "f104_crm_eval_group_0157",
+  "case": "cases_eval/cases/f104_crm_eval_group_0157.json",
+  "route": "eval_v1/routes/f104_crm_eval_group_0157__crm.json",
+  "run": false,
+  "tier": 157,
+  "episode_seed": 3306530819,
+  "reuse": "eval_v1/runs/f104_crm_eval_group_0157__crm"
+ },
+ {
+  "id": "f104_crm_eval_group_0157__H",
+  "group": "f104_crm_eval_group_0157",
+  "case": "cases_eval/cases/f104_crm_eval_group_0157.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0157__H.json",
+  "run": true,
+  "tier": 157,
+  "episode_seed": 3233224041
+ },
+ {
+  "id": "f104_crm_eval_group_0158__crm",
+  "group": "f104_crm_eval_group_0158",
+  "case": "cases_eval/cases/f104_crm_eval_group_0158.json",
+  "route": "eval_v1/routes/f104_crm_eval_group_0158__crm.json",
+  "run": false,
+  "tier": 158,
+  "episode_seed": 818014102,
+  "reuse": "eval_v1/runs/f104_crm_eval_group_0158__crm"
+ },
+ {
+  "id": "f104_crm_eval_group_0158__H",
+  "group": "f104_crm_eval_group_0158",
+  "case": "cases_eval/cases/f104_crm_eval_group_0158.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0158__H.json",
+  "run": true,
+  "tier": 158,
+  "episode_seed": 399734074
+ },
+ {
+  "id": "f104_crm_eval_group_0159__G",
+  "group": "f104_crm_eval_group_0159",
+  "case": "cases_eval/cases/f104_crm_eval_group_0159.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0159__G.json",
+  "run": true,
+  "tier": 159,
+  "episode_seed": 277536040
+ },
+ {
+  "id": "f104_crm_eval_group_0159__H",
+  "group": "f104_crm_eval_group_0159",
+  "case": "cases_eval/cases/f104_crm_eval_group_0159.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0159__H.json",
+  "run": true,
+  "tier": 159,
+  "episode_seed": 3442507675
+ },
+ {
+  "id": "f104_crm_eval_group_0160__G",
+  "group": "f104_crm_eval_group_0160",
+  "case": "cases_eval/cases/f104_crm_eval_group_0160.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0160__G.json",
+  "run": true,
+  "tier": 160,
+  "episode_seed": 37029616
+ },
+ {
+  "id": "f104_crm_eval_group_0160__H",
+  "group": "f104_crm_eval_group_0160",
+  "case": "cases_eval/cases/f104_crm_eval_group_0160.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0160__H.json",
+  "run": true,
+  "tier": 160,
+  "episode_seed": 1124733674
+ },
+ {
+  "id": "f104_crm_eval_group_0161__crm",
+  "group": "f104_crm_eval_group_0161",
+  "case": "cases_eval/cases/f104_crm_eval_group_0161.json",
+  "route": "eval_v1/routes/f104_crm_eval_group_0161__crm.json",
+  "run": false,
+  "tier": 161,
+  "episode_seed": 2195713995,
+  "reuse": "eval_v1/runs/f104_crm_eval_group_0161__crm"
+ },
+ {
+  "id": "f104_crm_eval_group_0161__H",
+  "group": "f104_crm_eval_group_0161",
+  "case": "cases_eval/cases/f104_crm_eval_group_0161.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0161__H.json",
+  "run": true,
+  "tier": 161,
+  "episode_seed": 2260796019
+ },
+ {
+  "id": "f104_crm_eval_group_0162__G",
+  "group": "f104_crm_eval_group_0162",
+  "case": "cases_eval/cases/f104_crm_eval_group_0162.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0162__G.json",
+  "run": true,
+  "tier": 162,
+  "episode_seed": 2882638687
+ },
+ {
+  "id": "f104_crm_eval_group_0162__H",
+  "group": "f104_crm_eval_group_0162",
+  "case": "cases_eval/cases/f104_crm_eval_group_0162.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0162__H.json",
+  "run": true,
+  "tier": 162,
+  "episode_seed": 27339114
+ },
+ {
+  "id": "f104_crm_eval_group_0163__G",
+  "group": "f104_crm_eval_group_0163",
+  "case": "cases_eval/cases/f104_crm_eval_group_0163.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0163__G.json",
+  "run": true,
+  "tier": 163,
+  "episode_seed": 1102453533
+ },
+ {
+  "id": "f104_crm_eval_group_0163__H",
+  "group": "f104_crm_eval_group_0163",
+  "case": "cases_eval/cases/f104_crm_eval_group_0163.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0163__H.json",
+  "run": true,
+  "tier": 163,
+  "episode_seed": 3537707769
+ },
+ {
+  "id": "f104_crm_eval_group_0164__G",
+  "group": "f104_crm_eval_group_0164",
+  "case": "cases_eval/cases/f104_crm_eval_group_0164.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0164__G.json",
+  "run": true,
+  "tier": 164,
+  "episode_seed": 400937657
+ },
+ {
+  "id": "f104_crm_eval_group_0164__H",
+  "group": "f104_crm_eval_group_0164",
+  "case": "cases_eval/cases/f104_crm_eval_group_0164.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0164__H.json",
+  "run": true,
+  "tier": 164,
+  "episode_seed": 1259890144
+ },
+ {
+  "id": "f104_crm_eval_group_0165__G",
+  "group": "f104_crm_eval_group_0165",
+  "case": "cases_eval/cases/f104_crm_eval_group_0165.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0165__G.json",
+  "run": true,
+  "tier": 165,
+  "episode_seed": 3508925072
+ },
+ {
+  "id": "f104_crm_eval_group_0165__H",
+  "group": "f104_crm_eval_group_0165",
+  "case": "cases_eval/cases/f104_crm_eval_group_0165.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0165__H.json",
+  "run": true,
+  "tier": 165,
+  "episode_seed": 2119141894
+ },
+ {
+  "id": "f104_crm_eval_group_0166__crm",
+  "group": "f104_crm_eval_group_0166",
+  "case": "cases_eval/cases/f104_crm_eval_group_0166.json",
+  "route": "eval_v1/routes/f104_crm_eval_group_0166__crm.json",
+  "run": false,
+  "tier": 166,
+  "episode_seed": 3803250736,
+  "reuse": "eval_v1/runs/f104_crm_eval_group_0166__crm"
+ },
+ {
+  "id": "f104_crm_eval_group_0166__H",
+  "group": "f104_crm_eval_group_0166",
+  "case": "cases_eval/cases/f104_crm_eval_group_0166.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0166__H.json",
+  "run": true,
+  "tier": 166,
+  "episode_seed": 4000390027
+ },
+ {
+  "id": "f104_crm_eval_group_0167__G",
+  "group": "f104_crm_eval_group_0167",
+  "case": "cases_eval/cases/f104_crm_eval_group_0167.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0167__G.json",
+  "run": true,
+  "tier": 167,
+  "episode_seed": 2896431480
+ },
+ {
+  "id": "f104_crm_eval_group_0167__H",
+  "group": "f104_crm_eval_group_0167",
+  "case": "cases_eval/cases/f104_crm_eval_group_0167.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0167__H.json",
+  "run": true,
+  "tier": 167,
+  "episode_seed": 4259810880
+ },
+ {
+  "id": "f104_crm_eval_group_0168__crm",
+  "group": "f104_crm_eval_group_0168",
+  "case": "cases_eval/cases/f104_crm_eval_group_0168.json",
+  "route": "eval_v1/routes/f104_crm_eval_group_0168__crm.json",
+  "run": false,
+  "tier": 168,
+  "episode_seed": 986645124,
+  "reuse": "eval_v1/runs/f104_crm_eval_group_0168__crm"
+ },
+ {
+  "id": "f104_crm_eval_group_0168__H",
+  "group": "f104_crm_eval_group_0168",
+  "case": "cases_eval/cases/f104_crm_eval_group_0168.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0168__H.json",
+  "run": true,
+  "tier": 168,
+  "episode_seed": 1123903269
+ },
+ {
+  "id": "f104_crm_eval_group_0169__crm",
+  "group": "f104_crm_eval_group_0169",
+  "case": "cases_eval/cases/f104_crm_eval_group_0169.json",
+  "route": "eval_v1/routes/f104_crm_eval_group_0169__crm.json",
+  "run": false,
+  "tier": 169,
+  "episode_seed": 2033033987,
+  "reuse": "eval_v1/runs/f104_crm_eval_group_0169__crm"
+ },
+ {
+  "id": "f104_crm_eval_group_0169__H",
+  "group": "f104_crm_eval_group_0169",
+  "case": "cases_eval/cases/f104_crm_eval_group_0169.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0169__H.json",
+  "run": true,
+  "tier": 169,
+  "episode_seed": 3343917199
+ },
+ {
+  "id": "f104_crm_eval_group_0170__crm",
+  "group": "f104_crm_eval_group_0170",
+  "case": "cases_eval/cases/f104_crm_eval_group_0170.json",
+  "route": "eval_v1/routes/f104_crm_eval_group_0170__crm.json",
+  "run": false,
+  "tier": 170,
+  "episode_seed": 1842883392,
+  "reuse": "eval_v1/runs/f104_crm_eval_group_0170__crm"
+ },
+ {
+  "id": "f104_crm_eval_group_0170__H",
+  "group": "f104_crm_eval_group_0170",
+  "case": "cases_eval/cases/f104_crm_eval_group_0170.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0170__H.json",
+  "run": true,
+  "tier": 170,
+  "episode_seed": 3066608815
+ },
+ {
+  "id": "f104_crm_eval_group_0171__G",
+  "group": "f104_crm_eval_group_0171",
+  "case": "cases_eval/cases/f104_crm_eval_group_0171.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0171__G.json",
+  "run": true,
+  "tier": 171,
+  "episode_seed": 1227105351
+ },
+ {
+  "id": "f104_crm_eval_group_0171__H",
+  "group": "f104_crm_eval_group_0171",
+  "case": "cases_eval/cases/f104_crm_eval_group_0171.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0171__H.json",
+  "run": true,
+  "tier": 171,
+  "episode_seed": 2773158745
+ },
+ {
+  "id": "f104_crm_eval_group_0172__G",
+  "group": "f104_crm_eval_group_0172",
+  "case": "cases_eval/cases/f104_crm_eval_group_0172.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0172__G.json",
+  "run": true,
+  "tier": 172,
+  "episode_seed": 2729434776
+ },
+ {
+  "id": "f104_crm_eval_group_0172__H",
+  "group": "f104_crm_eval_group_0172",
+  "case": "cases_eval/cases/f104_crm_eval_group_0172.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0172__H.json",
+  "run": true,
+  "tier": 172,
+  "episode_seed": 3462777424
+ },
+ {
+  "id": "f104_crm_eval_group_0173__G",
+  "group": "f104_crm_eval_group_0173",
+  "case": "cases_eval/cases/f104_crm_eval_group_0173.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0173__G.json",
+  "run": true,
+  "tier": 173,
+  "episode_seed": 3968832554
+ },
+ {
+  "id": "f104_crm_eval_group_0173__H",
+  "group": "f104_crm_eval_group_0173",
+  "case": "cases_eval/cases/f104_crm_eval_group_0173.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0173__H.json",
+  "run": true,
+  "tier": 173,
+  "episode_seed": 554958454
+ },
+ {
+  "id": "f104_crm_eval_group_0174__G",
+  "group": "f104_crm_eval_group_0174",
+  "case": "cases_eval/cases/f104_crm_eval_group_0174.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0174__G.json",
+  "run": true,
+  "tier": 174,
+  "episode_seed": 396036898
+ },
+ {
+  "id": "f104_crm_eval_group_0174__H",
+  "group": "f104_crm_eval_group_0174",
+  "case": "cases_eval/cases/f104_crm_eval_group_0174.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0174__H.json",
+  "run": true,
+  "tier": 174,
+  "episode_seed": 455961955
+ },
+ {
+  "id": "f104_crm_eval_group_0175__G",
+  "group": "f104_crm_eval_group_0175",
+  "case": "cases_eval/cases/f104_crm_eval_group_0175.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0175__G.json",
+  "run": true,
+  "tier": 175,
+  "episode_seed": 4273748324
+ },
+ {
+  "id": "f104_crm_eval_group_0175__H",
+  "group": "f104_crm_eval_group_0175",
+  "case": "cases_eval/cases/f104_crm_eval_group_0175.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0175__H.json",
+  "run": true,
+  "tier": 175,
+  "episode_seed": 3333374468
+ },
+ {
+  "id": "f104_crm_eval_group_0176__G",
+  "group": "f104_crm_eval_group_0176",
+  "case": "cases_eval/cases/f104_crm_eval_group_0176.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0176__G.json",
+  "run": true,
+  "tier": 176,
+  "episode_seed": 1906470734
+ },
+ {
+  "id": "f104_crm_eval_group_0176__H",
+  "group": "f104_crm_eval_group_0176",
+  "case": "cases_eval/cases/f104_crm_eval_group_0176.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0176__H.json",
+  "run": true,
+  "tier": 176,
+  "episode_seed": 3518010453
+ },
+ {
+  "id": "f104_crm_eval_group_0177__G",
+  "group": "f104_crm_eval_group_0177",
+  "case": "cases_eval/cases/f104_crm_eval_group_0177.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0177__G.json",
+  "run": true,
+  "tier": 177,
+  "episode_seed": 3583887608
+ },
+ {
+  "id": "f104_crm_eval_group_0177__H",
+  "group": "f104_crm_eval_group_0177",
+  "case": "cases_eval/cases/f104_crm_eval_group_0177.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0177__H.json",
+  "run": true,
+  "tier": 177,
+  "episode_seed": 749403482
+ },
+ {
+  "id": "f104_crm_eval_group_0178__crm",
+  "group": "f104_crm_eval_group_0178",
+  "case": "cases_eval/cases/f104_crm_eval_group_0178.json",
+  "route": "eval_v1/routes/f104_crm_eval_group_0178__crm.json",
+  "run": false,
+  "tier": 178,
+  "episode_seed": 2792819536,
+  "reuse": "eval_v1/runs/f104_crm_eval_group_0178__crm"
+ },
+ {
+  "id": "f104_crm_eval_group_0178__H",
+  "group": "f104_crm_eval_group_0178",
+  "case": "cases_eval/cases/f104_crm_eval_group_0178.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0178__H.json",
+  "run": true,
+  "tier": 178,
+  "episode_seed": 2160258760
+ },
+ {
+  "id": "f104_crm_eval_group_0179__G",
+  "group": "f104_crm_eval_group_0179",
+  "case": "cases_eval/cases/f104_crm_eval_group_0179.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0179__G.json",
+  "run": true,
+  "tier": 179,
+  "episode_seed": 3489957154
+ },
+ {
+  "id": "f104_crm_eval_group_0179__H",
+  "group": "f104_crm_eval_group_0179",
+  "case": "cases_eval/cases/f104_crm_eval_group_0179.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0179__H.json",
+  "run": true,
+  "tier": 179,
+  "episode_seed": 1786022613
+ },
+ {
+  "id": "f104_crm_eval_group_0180__crm",
+  "group": "f104_crm_eval_group_0180",
+  "case": "cases_eval/cases/f104_crm_eval_group_0180.json",
+  "route": "eval_v1/routes/f104_crm_eval_group_0180__crm.json",
+  "run": false,
+  "tier": 180,
+  "episode_seed": 760010686,
+  "reuse": "eval_v1/runs/f104_crm_eval_group_0180__crm"
+ },
+ {
+  "id": "f104_crm_eval_group_0180__H",
+  "group": "f104_crm_eval_group_0180",
+  "case": "cases_eval/cases/f104_crm_eval_group_0180.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0180__H.json",
+  "run": true,
+  "tier": 180,
+  "episode_seed": 2910909330
+ },
+ {
+  "id": "f104_crm_eval_group_0181__crm",
+  "group": "f104_crm_eval_group_0181",
+  "case": "cases_eval/cases/f104_crm_eval_group_0181.json",
+  "route": "eval_v1/routes/f104_crm_eval_group_0181__crm.json",
+  "run": false,
+  "tier": 181,
+  "episode_seed": 253163053,
+  "reuse": "eval_v1/runs/f104_crm_eval_group_0181__crm"
+ },
+ {
+  "id": "f104_crm_eval_group_0181__H",
+  "group": "f104_crm_eval_group_0181",
+  "case": "cases_eval/cases/f104_crm_eval_group_0181.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0181__H.json",
+  "run": true,
+  "tier": 181,
+  "episode_seed": 2156803941
+ },
+ {
+  "id": "f104_crm_eval_group_0182__crm",
+  "group": "f104_crm_eval_group_0182",
+  "case": "cases_eval/cases/f104_crm_eval_group_0182.json",
+  "route": "eval_v1/routes/f104_crm_eval_group_0182__crm.json",
+  "run": false,
+  "tier": 182,
+  "episode_seed": 3858164037,
+  "reuse": "eval_v1/runs/f104_crm_eval_group_0182__crm"
+ },
+ {
+  "id": "f104_crm_eval_group_0182__H",
+  "group": "f104_crm_eval_group_0182",
+  "case": "cases_eval/cases/f104_crm_eval_group_0182.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0182__H.json",
+  "run": true,
+  "tier": 182,
+  "episode_seed": 3621479362
+ },
+ {
+  "id": "f104_crm_eval_group_0183__G",
+  "group": "f104_crm_eval_group_0183",
+  "case": "cases_eval/cases/f104_crm_eval_group_0183.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0183__G.json",
+  "run": true,
+  "tier": 183,
+  "episode_seed": 971043741
+ },
+ {
+  "id": "f104_crm_eval_group_0183__H",
+  "group": "f104_crm_eval_group_0183",
+  "case": "cases_eval/cases/f104_crm_eval_group_0183.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0183__H.json",
+  "run": true,
+  "tier": 183,
+  "episode_seed": 4170198050
+ },
+ {
+  "id": "f104_crm_eval_group_0184__G",
+  "group": "f104_crm_eval_group_0184",
+  "case": "cases_eval/cases/f104_crm_eval_group_0184.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0184__G.json",
+  "run": true,
+  "tier": 184,
+  "episode_seed": 1786136390
+ },
+ {
+  "id": "f104_crm_eval_group_0184__H",
+  "group": "f104_crm_eval_group_0184",
+  "case": "cases_eval/cases/f104_crm_eval_group_0184.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0184__H.json",
+  "run": true,
+  "tier": 184,
+  "episode_seed": 3797689978
+ },
+ {
+  "id": "f104_crm_eval_group_0185__G",
+  "group": "f104_crm_eval_group_0185",
+  "case": "cases_eval/cases/f104_crm_eval_group_0185.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0185__G.json",
+  "run": true,
+  "tier": 185,
+  "episode_seed": 1420945713
+ },
+ {
+  "id": "f104_crm_eval_group_0185__H",
+  "group": "f104_crm_eval_group_0185",
+  "case": "cases_eval/cases/f104_crm_eval_group_0185.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0185__H.json",
+  "run": true,
+  "tier": 185,
+  "episode_seed": 2012301788
+ },
+ {
+  "id": "f104_crm_eval_group_0186__G",
+  "group": "f104_crm_eval_group_0186",
+  "case": "cases_eval/cases/f104_crm_eval_group_0186.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0186__G.json",
+  "run": true,
+  "tier": 186,
+  "episode_seed": 941250589
+ },
+ {
+  "id": "f104_crm_eval_group_0186__H",
+  "group": "f104_crm_eval_group_0186",
+  "case": "cases_eval/cases/f104_crm_eval_group_0186.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0186__H.json",
+  "run": true,
+  "tier": 186,
+  "episode_seed": 38109026
+ },
+ {
+  "id": "f104_crm_eval_group_0187__G",
+  "group": "f104_crm_eval_group_0187",
+  "case": "cases_eval/cases/f104_crm_eval_group_0187.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0187__G.json",
+  "run": true,
+  "tier": 187,
+  "episode_seed": 202139530
+ },
+ {
+  "id": "f104_crm_eval_group_0187__H",
+  "group": "f104_crm_eval_group_0187",
+  "case": "cases_eval/cases/f104_crm_eval_group_0187.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0187__H.json",
+  "run": true,
+  "tier": 187,
+  "episode_seed": 3355760946
+ },
+ {
+  "id": "f104_crm_eval_group_0188__G",
+  "group": "f104_crm_eval_group_0188",
+  "case": "cases_eval/cases/f104_crm_eval_group_0188.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0188__G.json",
+  "run": true,
+  "tier": 188,
+  "episode_seed": 1332659754
+ },
+ {
+  "id": "f104_crm_eval_group_0188__H",
+  "group": "f104_crm_eval_group_0188",
+  "case": "cases_eval/cases/f104_crm_eval_group_0188.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0188__H.json",
+  "run": true,
+  "tier": 188,
+  "episode_seed": 1576577482
+ },
+ {
+  "id": "f104_crm_eval_group_0189__G",
+  "group": "f104_crm_eval_group_0189",
+  "case": "cases_eval/cases/f104_crm_eval_group_0189.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0189__G.json",
+  "run": true,
+  "tier": 189,
+  "episode_seed": 302162444
+ },
+ {
+  "id": "f104_crm_eval_group_0189__H",
+  "group": "f104_crm_eval_group_0189",
+  "case": "cases_eval/cases/f104_crm_eval_group_0189.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0189__H.json",
+  "run": true,
+  "tier": 189,
+  "episode_seed": 2527629693
+ },
+ {
+  "id": "f104_crm_eval_group_0190__crm",
+  "group": "f104_crm_eval_group_0190",
+  "case": "cases_eval/cases/f104_crm_eval_group_0190.json",
+  "route": "eval_v1/routes/f104_crm_eval_group_0190__crm.json",
+  "run": false,
+  "tier": 190,
+  "episode_seed": 2476976935,
+  "reuse": "eval_v1/runs/f104_crm_eval_group_0190__crm"
+ },
+ {
+  "id": "f104_crm_eval_group_0190__H",
+  "group": "f104_crm_eval_group_0190",
+  "case": "cases_eval/cases/f104_crm_eval_group_0190.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0190__H.json",
+  "run": true,
+  "tier": 190,
+  "episode_seed": 1475456070
+ },
+ {
+  "id": "f104_crm_eval_group_0191__G",
+  "group": "f104_crm_eval_group_0191",
+  "case": "cases_eval/cases/f104_crm_eval_group_0191.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0191__G.json",
+  "run": true,
+  "tier": 191,
+  "episode_seed": 1565339204
+ },
+ {
+  "id": "f104_crm_eval_group_0191__H",
+  "group": "f104_crm_eval_group_0191",
+  "case": "cases_eval/cases/f104_crm_eval_group_0191.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0191__H.json",
+  "run": true,
+  "tier": 191,
+  "episode_seed": 2159680253
+ },
+ {
+  "id": "f104_crm_eval_group_0192__G",
+  "group": "f104_crm_eval_group_0192",
+  "case": "cases_eval/cases/f104_crm_eval_group_0192.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0192__G.json",
+  "run": true,
+  "tier": 192,
+  "episode_seed": 2991141496
+ },
+ {
+  "id": "f104_crm_eval_group_0192__H",
+  "group": "f104_crm_eval_group_0192",
+  "case": "cases_eval/cases/f104_crm_eval_group_0192.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0192__H.json",
+  "run": true,
+  "tier": 192,
+  "episode_seed": 3955318088
+ },
+ {
+  "id": "f104_crm_eval_group_0193__G",
+  "group": "f104_crm_eval_group_0193",
+  "case": "cases_eval/cases/f104_crm_eval_group_0193.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0193__G.json",
+  "run": true,
+  "tier": 193,
+  "episode_seed": 3591284704
+ },
+ {
+  "id": "f104_crm_eval_group_0193__H",
+  "group": "f104_crm_eval_group_0193",
+  "case": "cases_eval/cases/f104_crm_eval_group_0193.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0193__H.json",
+  "run": true,
+  "tier": 193,
+  "episode_seed": 1002138888
+ },
+ {
+  "id": "f104_crm_eval_group_0194__G",
+  "group": "f104_crm_eval_group_0194",
+  "case": "cases_eval/cases/f104_crm_eval_group_0194.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0194__G.json",
+  "run": true,
+  "tier": 194,
+  "episode_seed": 2265429711
+ },
+ {
+  "id": "f104_crm_eval_group_0194__H",
+  "group": "f104_crm_eval_group_0194",
+  "case": "cases_eval/cases/f104_crm_eval_group_0194.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0194__H.json",
+  "run": true,
+  "tier": 194,
+  "episode_seed": 611377412
+ },
+ {
+  "id": "f104_crm_eval_group_0195__G",
+  "group": "f104_crm_eval_group_0195",
+  "case": "cases_eval/cases/f104_crm_eval_group_0195.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0195__G.json",
+  "run": true,
+  "tier": 195,
+  "episode_seed": 907823466
+ },
+ {
+  "id": "f104_crm_eval_group_0195__H",
+  "group": "f104_crm_eval_group_0195",
+  "case": "cases_eval/cases/f104_crm_eval_group_0195.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0195__H.json",
+  "run": true,
+  "tier": 195,
+  "episode_seed": 952304420
+ },
+ {
+  "id": "f104_crm_eval_group_0196__G",
+  "group": "f104_crm_eval_group_0196",
+  "case": "cases_eval/cases/f104_crm_eval_group_0196.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0196__G.json",
+  "run": true,
+  "tier": 196,
+  "episode_seed": 1222299350
+ },
+ {
+  "id": "f104_crm_eval_group_0196__H",
+  "group": "f104_crm_eval_group_0196",
+  "case": "cases_eval/cases/f104_crm_eval_group_0196.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0196__H.json",
+  "run": true,
+  "tier": 196,
+  "episode_seed": 2341941599
+ },
+ {
+  "id": "f104_crm_eval_group_0197__crm",
+  "group": "f104_crm_eval_group_0197",
+  "case": "cases_eval/cases/f104_crm_eval_group_0197.json",
+  "route": "eval_v1/routes/f104_crm_eval_group_0197__crm.json",
+  "run": false,
+  "tier": 197,
+  "episode_seed": 1138450008,
+  "reuse": "eval_v1/runs/f104_crm_eval_group_0197__crm"
+ },
+ {
+  "id": "f104_crm_eval_group_0197__H",
+  "group": "f104_crm_eval_group_0197",
+  "case": "cases_eval/cases/f104_crm_eval_group_0197.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0197__H.json",
+  "run": true,
+  "tier": 197,
+  "episode_seed": 1681996655
+ },
+ {
+  "id": "f104_crm_eval_group_0198__G",
+  "group": "f104_crm_eval_group_0198",
+  "case": "cases_eval/cases/f104_crm_eval_group_0198.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0198__G.json",
+  "run": true,
+  "tier": 198,
+  "episode_seed": 1618358636
+ },
+ {
+  "id": "f104_crm_eval_group_0198__H",
+  "group": "f104_crm_eval_group_0198",
+  "case": "cases_eval/cases/f104_crm_eval_group_0198.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0198__H.json",
+  "run": true,
+  "tier": 198,
+  "episode_seed": 4148335279
+ },
+ {
+  "id": "f104_crm_eval_group_0199__G",
+  "group": "f104_crm_eval_group_0199",
+  "case": "cases_eval/cases/f104_crm_eval_group_0199.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0199__G.json",
+  "run": true,
+  "tier": 199,
+  "episode_seed": 1220490259
+ },
+ {
+  "id": "f104_crm_eval_group_0199__H",
+  "group": "f104_crm_eval_group_0199",
+  "case": "cases_eval/cases/f104_crm_eval_group_0199.json",
+  "route": "night2_v1/planner/grad_crm/routes/f104_crm_eval_group_0199__H.json",
+  "run": true,
+  "tier": 199,
+  "episode_seed": 3799877695
+ }
+]

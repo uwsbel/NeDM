@@ -393,3 +393,30 @@ artifacts/traverse/crm_f104_v1/demo_v1/*
 !artifacts/traverse/crm_f104_v1/demo_v1/video_2_suboptimal_goal_reached_slower.mp4
 !artifacts/traverse/crm_f104_v1/demo_v1/video_3_risky_bogged_down.mp4
 artifacts/traverse/crm_f104_v1/cases_eval/cases/routes/
+
+# CRM night 2 (2026-09-17/18): network design, energy head, velocity input, iterated + gradient planners (curated allowlist)
+!artifacts/traverse/crm_night2_v1/
+artifacts/traverse/crm_night2_v1/*
+!artifacts/traverse/crm_night2_v1/PLAN.md
+!artifacts/traverse/crm_night2_v1/PLAN.sha256
+!artifacts/traverse/crm_night2_v1/LOG.md
+!artifacts/traverse/crm_night2_v1/REPORT.md
+!artifacts/traverse/crm_night2_v1/run_stage*.sh
+!artifacts/traverse/crm_night2_v1/scout/
+artifacts/traverse/crm_night2_v1/scout/energy_scan/
+!artifacts/traverse/crm_night2_v1/proto/
+!artifacts/traverse/crm_night2_v1/figures/
+!artifacts/traverse/crm_night2_v1/cluster_train/
+!artifacts/traverse/crm_night2_v1/stageA/
+!artifacts/traverse/crm_night2_v1/stageB/
+!artifacts/traverse/crm_night2_v1/stageC/
+artifacts/traverse/crm_night2_v1/stage*/*_logits.npz
+artifacts/traverse/crm_night2_v1/stage*/*.pt
+!artifacts/traverse/crm_night2_v1/energy_baselines/
+!artifacts/traverse/crm_night2_v1/moving_v1/
+artifacts/traverse/crm_night2_v1/moving_v1/out/
+!artifacts/traverse/crm_night2_v1/planner/
+artifacts/traverse/crm_night2_v1/planner/eval_*/runs/
+
+# night-1 CRM collection drives (15k episodes) stay on the cluster / local disk only
+artifacts/traverse/crm_f104_v1/collect_v1/runs/

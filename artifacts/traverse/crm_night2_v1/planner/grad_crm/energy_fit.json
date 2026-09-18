@@ -1,0 +1,67 @@
+{
+ "pool": "full",
+ "names": [
+  "grade",
+  "desc",
+  "roll",
+  "accel",
+  "brake",
+  "aero",
+  "time",
+  "cross",
+  "tract",
+  "tract2",
+  "tract_lowv",
+  "tract_hiv",
+  "grade_lowv",
+  "kemax",
+  "undul",
+  "one"
+ ],
+ "w": [
+  0.5521390066859816,
+  0.0,
+  0.34010182007651674,
+  0.0,
+  0.0,
+  48.15294344088712,
+  2.294564186467459,
+  1.2289990736438448,
+  0.0,
+  1.9529592840503323,
+  0.11855757012670633,
+  0.0,
+  0.7020904816171711,
+  0.0,
+  0.0,
+  127.45713518893395
+ ],
+ "stats": {
+  "n_train": 4463,
+  "n_heldout": 377,
+  "train_mae_kj": 72.6436271167908,
+  "heldout_mae_kj": 77.79584670255205,
+  "heldout_spearman": 0.7218146246025924,
+  "heldout_mape_pct": 13.70996465491799,
+  "true_mean_kj": 554.1648094744721
+ },
+ "coefficients_nonzero": {
+  "grade": 0.5521390066859816,
+  "roll": 0.34010182007651674,
+  "aero": 48.15294344088712,
+  "time": 2.294564186467459,
+  "cross": 1.2289990736438448,
+  "tract2": 1.9529592840503323,
+  "tract_lowv": 0.11855757012670633,
+  "grade_lowv": 0.7020904816171711,
+  "one": 127.45713518893395
+ },
+ "source": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_night2_v1/datasets/twin_crm.npz",
+ "target": "total_wplus (kJ) of clean goal-reached CRM routes",
+ "nominal_constants": {
+  "MASS_KG": 2548.41997961264,
+  "CRR_NOM": 0.01,
+  "CDA_NOM": 3.5,
+  "RHO_AIR": 1.2
+ }
+}

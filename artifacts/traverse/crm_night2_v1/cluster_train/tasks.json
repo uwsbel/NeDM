@@ -1,0 +1,254 @@
+[
+ {
+  "stage": "stageA",
+  "ds": "twin_rigid",
+  "world": "rigid",
+  "arch": "tx128_4",
+  "lr": "0.001",
+  "extra": "",
+  "idx": 0
+ },
+ {
+  "stage": "stageA",
+  "ds": "twin_rigid",
+  "world": "rigid",
+  "arch": "tx128_4",
+  "lr": "0.002",
+  "extra": "",
+  "idx": 1
+ },
+ {
+  "stage": "stageA",
+  "ds": "twin_rigid",
+  "world": "rigid",
+  "arch": "patch4_128_4",
+  "lr": "0.001",
+  "extra": "",
+  "idx": 2
+ },
+ {
+  "stage": "stageA",
+  "ds": "twin_rigid",
+  "world": "rigid",
+  "arch": "patch4_128_4",
+  "lr": "0.002",
+  "extra": "",
+  "idx": 3
+ },
+ {
+  "stage": "stageA",
+  "ds": "twin_rigid",
+  "world": "rigid",
+  "arch": "tx_conv",
+  "lr": "0.001",
+  "extra": "",
+  "idx": 4
+ },
+ {
+  "stage": "stageA",
+  "ds": "twin_rigid",
+  "world": "rigid",
+  "arch": "tx_conv",
+  "lr": "0.002",
+  "extra": "",
+  "idx": 5
+ },
+ {
+  "stage": "stageA",
+  "ds": "twin_rigid",
+  "world": "rigid",
+  "arch": "tx96_4",
+  "lr": "0.001",
+  "extra": "",
+  "idx": 6
+ },
+ {
+  "stage": "stageB",
+  "ds": "twin_crm",
+  "world": "crm",
+  "arch": "gru",
+  "lr": "0.002",
+  "extra": "--energy 0.1",
+  "idx": 7
+ },
+ {
+  "stage": "stageB",
+  "ds": "twin_crm",
+  "world": "crm",
+  "arch": "tx96_2",
+  "lr": "0.001",
+  "extra": "--energy 0.1",
+  "idx": 8
+ },
+ {
+  "stage": "stageB",
+  "ds": "twin_crm",
+  "world": "crm",
+  "arch": "tx128_4",
+  "lr": "0.001",
+  "extra": "--energy 0.1",
+  "idx": 9
+ },
+ {
+  "stage": "stageB",
+  "ds": "twin_crm",
+  "world": "crm",
+  "arch": "gru",
+  "lr": "0.002",
+  "extra": "--energy 0.3",
+  "idx": 10
+ },
+ {
+  "stage": "stageB",
+  "ds": "twin_crm",
+  "world": "crm",
+  "arch": "tx96_2",
+  "lr": "0.001",
+  "extra": "--energy 0.3",
+  "idx": 11
+ },
+ {
+  "stage": "stageB",
+  "ds": "twin_crm",
+  "world": "crm",
+  "arch": "tx128_4",
+  "lr": "0.001",
+  "extra": "--energy 0.3",
+  "idx": 12
+ },
+ {
+  "stage": "stageB",
+  "ds": "twin_crm",
+  "world": "crm",
+  "arch": "gru",
+  "lr": "0.002",
+  "extra": "--energy 1",
+  "idx": 13
+ },
+ {
+  "stage": "stageB",
+  "ds": "twin_crm",
+  "world": "crm",
+  "arch": "tx96_2",
+  "lr": "0.001",
+  "extra": "--energy 1",
+  "idx": 14
+ },
+ {
+  "stage": "stageB",
+  "ds": "twin_crm",
+  "world": "crm",
+  "arch": "tx128_4",
+  "lr": "0.001",
+  "extra": "--energy 1",
+  "idx": 15
+ },
+ {
+  "stage": "stageB",
+  "ds": "twin_rigid",
+  "world": "rigid",
+  "arch": "gru",
+  "lr": "0.002",
+  "extra": "--energy 0.1",
+  "idx": 16
+ },
+ {
+  "stage": "stageB",
+  "ds": "twin_rigid",
+  "world": "rigid",
+  "arch": "tx96_2",
+  "lr": "0.001",
+  "extra": "--energy 0.1",
+  "idx": 17
+ },
+ {
+  "stage": "stageB",
+  "ds": "twin_rigid",
+  "world": "rigid",
+  "arch": "tx128_4",
+  "lr": "0.001",
+  "extra": "--energy 0.1",
+  "idx": 18
+ },
+ {
+  "stage": "stageB",
+  "ds": "twin_rigid",
+  "world": "rigid",
+  "arch": "gru",
+  "lr": "0.002",
+  "extra": "--energy 0.3",
+  "idx": 19
+ },
+ {
+  "stage": "stageB",
+  "ds": "twin_rigid",
+  "world": "rigid",
+  "arch": "tx96_2",
+  "lr": "0.001",
+  "extra": "--energy 0.3",
+  "idx": 20
+ },
+ {
+  "stage": "stageB",
+  "ds": "twin_rigid",
+  "world": "rigid",
+  "arch": "tx128_4",
+  "lr": "0.001",
+  "extra": "--energy 0.3",
+  "idx": 21
+ },
+ {
+  "stage": "stageB",
+  "ds": "twin_rigid",
+  "world": "rigid",
+  "arch": "gru",
+  "lr": "0.002",
+  "extra": "--energy 1",
+  "idx": 22
+ },
+ {
+  "stage": "stageB",
+  "ds": "twin_rigid",
+  "world": "rigid",
+  "arch": "tx96_2",
+  "lr": "0.001",
+  "extra": "--energy 1",
+  "idx": 23
+ },
+ {
+  "stage": "stageB",
+  "ds": "twin_rigid",
+  "world": "rigid",
+  "arch": "tx128_4",
+  "lr": "0.001",
+  "extra": "--energy 1",
+  "idx": 24
+ },
+ {
+  "stage": "stageC",
+  "ds": "reanchor_crm",
+  "world": "crm",
+  "arch": "tx96_2",
+  "lr": "0.001",
+  "extra": "--ctx geom --save",
+  "idx": 25
+ },
+ {
+  "stage": "stageC",
+  "ds": "reanchor_crm",
+  "world": "crm",
+  "arch": "tx96_2",
+  "lr": "0.001",
+  "extra": "--ctx chassis --save",
+  "idx": 26
+ },
+ {
+  "stage": "stageC",
+  "ds": "reanchor_rigid",
+  "world": "rigid",
+  "arch": "tx96_2",
+  "lr": "0.001",
+  "extra": "--ctx geom --save",
+  "idx": 27
+ }
+]

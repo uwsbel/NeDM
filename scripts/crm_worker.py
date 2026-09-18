@@ -69,6 +69,8 @@ def worker(gpu):
     env = dict(os.environ)
     if os.environ.get('CRM_CUDA'):
         env['CUDA_VISIBLE_DEVICES'] = str(gpu)
+    elif os.environ.get('CRM_NO_GPU_BIND'):  # CPU workers (rigid Chrono): no device filtering
+        pass
     else:  # filter at the ROCr layer so the process sees exactly one device, which HIP then calls device 0
         env['ROCR_VISIBLE_DEVICES'], env['HIP_VISIBLE_DEVICES'] = str(gpu), '0'
     env['OMP_NUM_THREADS'] = env.get('CRM_OMP', '4')
@@ -86,13 +88,14 @@ def worker(gpu):
         if not try_claim(tid):
             continue
         run_dir = OUT / 'runs' / tid
-        cmd = [PY, '-P', '-u', str(ROOT / 'source/scripts/crm_collect.py'), '--source-root', str(ROOT / 'source'),
+        collector = os.environ.get('CRM_COLLECTOR', str(ROOT / 'source/scripts/crm_collect.py'))
+        cmd = [PY, '-P', '-u', collector, '--source-root', str(ROOT / 'source'),
                '--case', str(ROOT / t['case']), '--route', str(ROOT / t['route']), '--out', str(run_dir),
-               '--chrono-data', CHRONO_DATA, '--horizon-s', '120']
+               '--chrono-data', CHRONO_DATA, '--horizon-s', '120'] + list(t.get('extra', []))
         if t.get('episode_seed') is not None:
             cmd += ['--episode-seed', str(t['episode_seed'])]
         config = t.get('config') or CONFIG
-        if config:
+        if config and 'crm_collect' in collector:
             cmd += ['--crm-config', str(ROOT / config)]
         started = time.time()
         with open(OUT / 'logs' / f'{tid}.log', 'a') as lg:
