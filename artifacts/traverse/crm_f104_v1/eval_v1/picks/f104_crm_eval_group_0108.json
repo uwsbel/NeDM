@@ -1,0 +1,104 @@
+{
+ "group": "f104_crm_eval_group_0108",
+ "n_proposal": 256,
+ "n_fixed2": 256,
+ "tries": 291,
+ "arms": {
+  "straight6": {
+   "route_id": "f104_crm_eval_group_0108__straight6",
+   "pool": "proposal",
+   "index": 2,
+   "mean_speed": 5.61285396706256,
+   "length_m": 43.52829663482808,
+   "max_lateral_m": 0.0,
+   "logit_crm": 2.1230562210083006,
+   "logit_rigid": -5.7508392333984375,
+   "rank_crm": 37,
+   "rank_rigid": 6
+  },
+  "straight2": {
+   "route_id": "f104_crm_eval_group_0108__straight2",
+   "pool": "proposal",
+   "index": 0,
+   "mean_speed": 1.9930558983576212,
+   "length_m": 43.52829663482808,
+   "max_lateral_m": 0.0,
+   "logit_crm": 3.7411116123199464,
+   "logit_rigid": 3.2129114151000975,
+   "rank_crm": 166,
+   "rank_rigid": 178
+  },
+  "crm": {
+   "route_id": "f104_crm_eval_group_0108__crm",
+   "pool": "proposal",
+   "index": 31,
+   "mean_speed": 3.6504567638151277,
+   "length_m": 47.36704068637267,
+   "max_lateral_m": 7.130976653623423,
+   "logit_crm": -6.9305572509765625,
+   "logit_rigid": -8.661019706726075,
+   "rank_crm": 0,
+   "rank_rigid": 0
+  },
+  "rigid": {
+   "route_id": "f104_crm_eval_group_0108__crm",
+   "pool": "proposal",
+   "index": 31,
+   "mean_speed": 3.6504567638151277,
+   "length_m": 47.36704068637267,
+   "max_lateral_m": 7.130976653623423,
+   "logit_crm": -6.9305572509765625,
+   "logit_rigid": -8.661019706726075,
+   "rank_crm": 0,
+   "rank_rigid": 0
+  },
+  "crm_fixed2": {
+   "route_id": "f104_crm_eval_group_0108__crm_fixed2",
+   "pool": "fixed2",
+   "index": 209,
+   "mean_speed": 1.994756239466013,
+   "length_m": 48.5614622382949,
+   "max_lateral_m": 8.672983818061109,
+   "logit_crm": -6.497591495513916,
+   "logit_rigid": -7.46115140914917,
+   "rank_crm": 0,
+   "rank_rigid": 2
+  },
+  "rigid_fixed2": {
+   "route_id": "f104_crm_eval_group_0108__rigid_fixed2",
+   "pool": "fixed2",
+   "index": 66,
+   "mean_speed": 1.9953559576592965,
+   "length_m": 48.85371478920754,
+   "max_lateral_m": 9.396485179567385,
+   "logit_crm": -6.257665538787842,
+   "logit_rigid": -7.638236236572266,
+   "rank_crm": 2,
+   "rank_rigid": 0
+  },
+  "crm_pess": {
+   "route_id": "f104_crm_eval_group_0108__crm",
+   "pool": "proposal",
+   "index": 31,
+   "mean_speed": 3.6504567638151277,
+   "length_m": 47.36704068637267,
+   "max_lateral_m": 7.130976653623423,
+   "logit_crm": -6.9305572509765625,
+   "logit_rigid": -8.661019706726075,
+   "rank_crm": 0,
+   "rank_rigid": 0
+  },
+  "rigid_pess": {
+   "route_id": "f104_crm_eval_group_0108__crm",
+   "pool": "proposal",
+   "index": 31,
+   "mean_speed": 3.6504567638151277,
+   "length_m": 47.36704068637267,
+   "max_lateral_m": 7.130976653623423,
+   "logit_crm": -6.9305572509765625,
+   "logit_rigid": -8.661019706726075,
+   "rank_crm": 0,
+   "rank_rigid": 0
+  }
+ }
+}

@@ -1,0 +1,46 @@
+
+The following have been reloaded with a version change:
+  1) rocm/7.2.0 => rocm/7.1.0
+
+device cuda AMD Instinct MI350X
+=== CRM_N2 ['elev_rel', 'grade', 'cross', 'speed', 'valid']  fit 10974  dev 2847  heldout 1414  unsafe(fit) 0.675 fail(fit) 0.674
+/work1/dannegrut/harry/experiments/crm_f104_20260916/source/scripts/crm_train.py:123: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:836.)
+  dev=metrics(s[D.dev], D.d, D.dev), test=metrics(s[D.test], D.d, D.test), final_loss=float(loss))
+  CRM_N2 s0  dev G 0.938 W 0.980 P 0.987 | heldout G 0.955 W 0.981 P 0.987 | 55.2s
+  CRM_N2 s1  dev G 0.919 W 0.978 P 0.985 | heldout G 0.947 W 0.976 P 0.984 | 39.2s
+  CRM_N2 s2  dev G 0.935 W 0.980 P 0.985 | heldout G 0.939 W 0.981 P 0.984 | 39.2s
+  CRM_N2 s3  dev G 0.954 W 0.981 P 0.987 | heldout G 0.962 W 0.979 P 0.985 | 39.4s
+  CRM_N2 s4  dev G 0.915 W 0.976 P 0.985 | heldout G 0.955 W 0.982 P 0.985 | 39.3s
+ensemble heldout {"P_unsafe": 0.9870878298703923, "W_unsafe": 0.9816046966731898, "Wn_unsafe": 2555, "G_unsafe": 0.9545454545454546, "Gn_unsafe": 132, "P_fail": 0.9870878298703923, "W_fail": 0.9816046966731898, "Wn_fail": 2555, "G_fail": 0.9545454545454546, "Gn_fail": 132}
+exit: 0
+
+----------------------------------------------------------------------
+Omnistat Report Card for Job Id: 423894
+----------------------------------------------------------------------
+
+Job Overview (Num Nodes = 1, Machine = HPC Fund)
+ --> Start time = 2026-09-17 02:43:19
+ --> End   time = 2026-09-17 02:49:49
+ --> Duration   = 390 secs
+
+GPU Statistics:
+
+           | Utilization (%)  |  Memory Use (%)  | Temperature (C)  |    Power (W)     | Energy (kWh) |
+     GPU # |    Max     Mean  |    Max     Mean  |    Max     Mean  |    Max     Mean  |    Total     |
+    ---------------------------------------------------------------------------------------------------
+         0 |   87.00   79.43  |    1.24    1.19  |   70.00   69.71  |  447.00  436.21  |   4.76e-02   |
+
+Approximate Total GPU Energy Consumed = 4.76e-02 kWh
+
+Host Statistics:
+
+    # CPUs | CPU Utilization (%)  |    Memory Use (%)    |
+           |    Max       Mean    |    Max       Mean    |
+    ------------------------------------------------------
+        24 |   15.20     12.57    |   23.64     15.89    |
+
+--
+Query interval = 30.000 secs
+Query execution time = 0.1 secs
+Version = 1.13.0

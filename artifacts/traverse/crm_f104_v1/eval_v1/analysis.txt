@@ -1,0 +1,35 @@
+200/200 groups with every arm driven
+  PRIMARY_fail_crm_vs_rigid          crm   9.0% vs rigid  32.0%  diff -23.0 [-29.0, -17.0]  crm worse 1 / rigid worse 47  p=0.0000
+  secondary_unsafe_crm_vs_rigid      crm   9.0% vs rigid  32.0%  diff -23.0 [-29.5, -17.5]  crm worse 1 / rigid worse 47  p=0.0000
+  fail_crm_fixed2_vs_rigid_fixed2           25.0% vs  43.0%  diff -18.0 [-23.5, -12.5]  2 vs 38  p=0.0000
+  unsafe_crm_fixed2_vs_rigid_fixed2         25.0% vs  43.0%  diff -18.0 [-23.5, -12.5]  2 vs 38  p=0.0000
+  tilt30_crm_fixed2_vs_rigid_fixed2          0.0% vs   0.0%  diff +0.0 [+0.0, +0.0]  0 vs 0  p=1.0000
+  fail_crm_pess_vs_rigid_pess                8.0% vs  32.5%  diff -24.5 [-30.5, -18.5]  0 vs 49  p=0.0000
+  unsafe_crm_pess_vs_rigid_pess              8.0% vs  32.5%  diff -24.5 [-30.5, -18.5]  0 vs 49  p=0.0000
+  tilt30_crm_pess_vs_rigid_pess              0.5% vs   2.5%  diff -2.0 [-4.5, +0.0]  1 vs 5  p=0.2188
+  fail_crm_vs_straight6                      9.0% vs  33.5%  diff -24.5 [-31.5, -17.5]  7 vs 56  p=0.0000
+  unsafe_crm_vs_straight6                    9.0% vs  33.5%  diff -24.5 [-31.5, -17.5]  7 vs 56  p=0.0000
+  tilt30_crm_vs_straight6                    0.5% vs   4.0%  diff -3.5 [-6.0, -1.5]  0 vs 7  p=0.0156
+  fail_rigid_vs_straight6                   32.0% vs  33.5%  diff -1.5 [-9.0, +6.0]  29 vs 32  p=0.7982
+  unsafe_rigid_vs_straight6                 32.0% vs  33.5%  diff -1.5 [-9.0, +6.5]  29 vs 32  p=0.7982
+  tilt30_rigid_vs_straight6                  1.0% vs   4.0%  diff -3.0 [-6.0, +0.0]  2 vs 8  p=0.1094
+  fail_crm_vs_crm_pess                       9.0% vs   8.0%  diff +1.0 [-1.0, +3.0]  3 vs 1  p=0.6250
+  unsafe_crm_vs_crm_pess                     9.0% vs   8.0%  diff +1.0 [-1.0, +3.0]  3 vs 1  p=0.6250
+  tilt30_crm_vs_crm_pess                     0.5% vs   0.5%  diff +0.0 [+0.0, +0.0]  0 vs 0  p=1.0000
+  fail_crm_fixed2_vs_straight2              25.0% vs  87.0%  diff -62.0 [-68.5, -55.0]  1 vs 125  p=0.0000
+  unsafe_crm_fixed2_vs_straight2            25.0% vs  87.0%  diff -62.0 [-69.0, -55.5]  1 vs 125  p=0.0000
+  tilt30_crm_fixed2_vs_straight2             0.0% vs   0.0%  diff +0.0 [+0.0, +0.0]  0 vs 0  p=1.0000
+  fail_rigid_fixed2_vs_straight2            43.0% vs  87.0%  diff -44.0 [-51.0, -36.5]  4 vs 92  p=0.0000
+  unsafe_rigid_fixed2_vs_straight2          43.0% vs  87.0%  diff -44.0 [-51.5, -36.5]  4 vs 92  p=0.0000
+  tilt30_rigid_fixed2_vs_straight2           0.0% vs   0.0%  diff +0.0 [+0.0, +0.0]  0 vs 0  p=1.0000
+
+  arm: goal reached / unsafe / tilt>30 / median time to goal / mean commanded speed
+   crm            91.0%    9.0%    0.5%   17.1 s  3.30 m/s  {'goal_reached': 182, 'soil_breakthrough_terminated': 13, 'prolonged_blockage_terminated': 4, 'timeout': 1}
+   rigid          68.0%   32.0%    1.0%   14.2 s  3.49 m/s  {'goal_reached': 136, 'soil_breakthrough_terminated': 50, 'prolonged_blockage_terminated': 14}
+   crm_fixed2     75.0%   25.0%    0.0%   23.0 s  1.99 m/s  {'goal_reached': 150, 'prolonged_blockage_terminated': 9, 'soil_breakthrough_terminated': 41}
+   rigid_fixed2   57.0%   43.0%    0.0%   22.6 s  1.99 m/s  {'goal_reached': 114, 'soil_breakthrough_terminated': 61, 'prolonged_blockage_terminated': 25}
+   crm_pess       92.0%    8.0%    0.5%   17.4 s  3.33 m/s  {'goal_reached': 184, 'soil_breakthrough_terminated': 12, 'prolonged_blockage_terminated': 3, 'timeout': 1}
+   rigid_pess     67.5%   32.5%    2.5%   15.2 s  3.45 m/s  {'goal_reached': 135, 'soil_breakthrough_terminated': 46, 'prolonged_blockage_terminated': 18, 'timeout': 1}
+   straight6      66.5%   33.5%    4.0%    9.6 s  5.57 m/s  {'goal_reached': 133, 'soil_breakthrough_terminated': 57, 'prolonged_blockage_terminated': 10}
+   straight2      13.0%   87.0%    0.0%   21.0 s  1.99 m/s  {'soil_breakthrough_terminated': 150, 'prolonged_blockage_terminated': 24, 'goal_reached': 26}
+  identical picks crm==rigid: 26  fixed2: 31

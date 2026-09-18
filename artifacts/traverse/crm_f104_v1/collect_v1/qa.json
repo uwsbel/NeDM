@@ -1,0 +1,62 @@
+{
+ "collect_dir": "/work1/dannegrut/harry/experiments/crm_f104_20260916/collect_v1",
+ "episodes_with_marker": 15236,
+ "validated_episodes": 15235,
+ "validated_hours": 91.51005555555555,
+ "flagged": {
+  "unstalled_break": 1
+ },
+ "flagged_hours": 0.002597222222222222,
+ "by_split": {
+  "train": {
+   "episodes": 13821,
+   "hours": 83.08097222222223,
+   "groups": 1089
+  },
+  "val": {
+   "episodes": 713,
+   "hours": 4.326444444444444,
+   "groups": 56
+  },
+  "test": {
+   "episodes": 701,
+   "hours": 4.1026388888888885,
+   "groups": 55
+  }
+ },
+ "status": {
+  "prolonged_blockage_terminated": 1985,
+  "soil_breakthrough_terminated": 8372,
+  "goal_reached": 4867,
+  "rollover": 2,
+  "timeout": 9
+ },
+ "fail_rate": 0.6805382343288481,
+ "by_kind": {
+  "designed": {
+   "n": 9168,
+   "fail": 0.5758071553228621
+  },
+  "on_policy": {
+   "n": 6067,
+   "fail": 0.8388000659304434
+  }
+ },
+ "routes_per_group": {
+  "13": 835,
+  "12": 365
+ },
+ "stalled_before_break": {
+  "True": 8372,
+  "False": 2
+ },
+ "mean_rtf": 0.3763639463665412,
+ "hosts": 48,
+ "flagged_ids": [
+  {
+   "id": "f104_v2_group_0211_route_11",
+   "flag": "unstalled_break",
+   "detail": null
+  }
+ ]
+}

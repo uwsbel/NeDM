@@ -1,0 +1,55 @@
+{
+ "collect_dir": "artifacts/traverse/crm_f104_v1/eval_v1",
+ "episodes_with_marker": 1240,
+ "validated_episodes": 1240,
+ "validated_hours": 6.609166666666667,
+ "flagged": {},
+ "flagged_hours": 0.0,
+ "by_split": {
+  "train": {
+   "episodes": 1175,
+   "hours": 6.256972222222223,
+   "groups": 189
+  },
+  "val": {
+   "episodes": 36,
+   "hours": 0.18912500000000002,
+   "groups": 6
+  },
+  "test": {
+   "episodes": 29,
+   "hours": 0.16306944444444446,
+   "groups": 5
+  }
+ },
+ "status": {
+  "goal_reached": 767,
+  "soil_breakthrough_terminated": 381,
+  "prolonged_blockage_terminated": 91,
+  "timeout": 1
+ },
+ "fail_rate": 0.3814516129032258,
+ "by_kind": {
+  "designed": {
+   "n": 1240,
+   "fail": 0.3814516129032258
+  },
+  "on_policy": {
+   "n": 0,
+   "fail": NaN
+  }
+ },
+ "routes_per_group": {
+  "5": 39,
+  "8": 16,
+  "6": 86,
+  "7": 55,
+  "4": 4
+ },
+ "stalled_before_break": {
+  "True": 381
+ },
+ "mean_rtf": 0.39911001470267016,
+ "hosts": 36,
+ "flagged_ids": []
+}

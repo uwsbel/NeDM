@@ -350,3 +350,46 @@ artifacts/traverse/wp9_bowl_b1/*
 !artifacts/traverse/fdm_rgbd_terrain_probes_v1/
 !artifacts/traverse/fdm_runs/
 !artifacts/traverse/mppi_documents_20260909/
+# CRM (deformable soil) f104 night, 2026-09-16/17: plan/log/report, figures, frozen physics config, QA summary, the
+# evaluation picks/routes/results, the CRM-trained ensemble, the demo picture + three small videos. Episodes, datasets,
+# pilot runs, particle-visible videos and rendered frames stay local / on the cluster.
+!artifacts/traverse/crm_f104_v1/
+artifacts/traverse/crm_f104_v1/*
+!artifacts/traverse/crm_f104_v1/PLAN.md
+!artifacts/traverse/crm_f104_v1/PLAN.sha256
+!artifacts/traverse/crm_f104_v1/LOG.md
+!artifacts/traverse/crm_f104_v1/REPORT.md
+!artifacts/traverse/crm_f104_v1/rigid_labels_station_ds_all.npz
+!artifacts/traverse/crm_f104_v1/scout/
+!artifacts/traverse/crm_f104_v1/figures/
+!artifacts/traverse/crm_f104_v1/configs/
+!artifacts/traverse/crm_f104_v1/maps/
+!artifacts/traverse/crm_f104_v1/grids/
+!artifacts/traverse/crm_f104_v1/cases_eval/
+!artifacts/traverse/crm_f104_v1/collect_v1/
+!artifacts/traverse/crm_f104_v1/pilot/
+artifacts/traverse/crm_f104_v1/pilot/*
+!artifacts/traverse/crm_f104_v1/pilot/pilot_labels.json
+!artifacts/traverse/crm_f104_v1/train_v1/
+artifacts/traverse/crm_f104_v1/train_v1/*
+!artifacts/traverse/crm_f104_v1/train_v1/deploy/
+artifacts/traverse/crm_f104_v1/train_v1/deploy/*_logits.npz
+!artifacts/traverse/crm_f104_v1/train_v1/holdout/
+artifacts/traverse/crm_f104_v1/train_v1/holdout/*.pt
+artifacts/traverse/crm_f104_v1/train_v1/holdout/*_logits.npz
+!artifacts/traverse/crm_f104_v1/train_v1/offline_heldout.json
+!artifacts/traverse/crm_f104_v1/train_v1/model_sha256.txt
+!artifacts/traverse/crm_f104_v1/train_v1/train_*.out
+!artifacts/traverse/crm_f104_v1/eval_v1/
+artifacts/traverse/crm_f104_v1/eval_v1/runs/
+!artifacts/traverse/crm_f104_v1/demo_v1/
+artifacts/traverse/crm_f104_v1/demo_v1/*
+!artifacts/traverse/crm_f104_v1/demo_v1/README.md
+!artifacts/traverse/crm_f104_v1/demo_v1/planner_scoring.png
+!artifacts/traverse/crm_f104_v1/demo_v1/demo_summary.json
+!artifacts/traverse/crm_f104_v1/demo_v1/pool.npz
+!artifacts/traverse/crm_f104_v1/demo_v1/routes/
+!artifacts/traverse/crm_f104_v1/demo_v1/video_1_planner_pick_goal_reached.mp4
+!artifacts/traverse/crm_f104_v1/demo_v1/video_2_suboptimal_goal_reached_slower.mp4
+!artifacts/traverse/crm_f104_v1/demo_v1/video_3_risky_bogged_down.mp4
+artifacts/traverse/crm_f104_v1/cases_eval/cases/routes/

@@ -1,0 +1,32 @@
+{
+ "145": {
+  "name": "A  planner pick",
+  "risk": 0.0037200683751580366,
+  "rank": 1,
+  "mean_speed": 3.543160703755152,
+  "lateral_m": 9.252941271855843,
+  "length_m": 56.93699137774284,
+  "status": "goal_reached",
+  "elapsed_s": 18.05
+ },
+ "183": {
+  "name": "B  suboptimal",
+  "risk": 0.4604651418815827,
+  "rank": 6,
+  "mean_speed": 2.2605109677088646,
+  "lateral_m": 8.882862280403783,
+  "length_m": 56.12790888932047,
+  "status": "goal_reached",
+  "elapsed_s": 29.3
+ },
+ "0": {
+  "name": "C  risky",
+  "risk": 1.0,
+  "rank": 185,
+  "mean_speed": 1.99422358835904,
+  "lateral_m": 5.0825673663802e-15,
+  "length_m": 52.04091986493524,
+  "status": "soil_breakthrough_terminated",
+  "elapsed_s": 23.3
+ }
+}

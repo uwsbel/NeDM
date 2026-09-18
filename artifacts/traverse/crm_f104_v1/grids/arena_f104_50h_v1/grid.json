@@ -1,0 +1,33 @@
+{
+ "camera": {
+  "width": 1024,
+  "height": 1024,
+  "hfov_rad": 0.8203047484373349,
+  "cam_height_m": 110.0,
+  "depth_ray_scale": 1.0,
+  "max_depth_m": 180.0,
+  "backend": "OptiX_luffy_RTX5090_fork_fovfix_9e1a0448b",
+  "depth_measurement": "Euclidean_ray_range_m",
+  "model_image_size": 512,
+  "elevation_scale_m": 10.0,
+  "observation_mode": "One static vehicle-free global terrain RGB-D map of the UNDEFORMED surface (rigid-mesh proxy)"
+ },
+ "mpp": 0.15625,
+ "half_extent_m": 40.0,
+ "n": 512,
+ "camera_height_m": 110.0,
+ "focal_px": 1177.5193841849634,
+ "source_image_row0": "+y (capture convention)",
+ "grid_index_order": "grid[row, col] with row = y bin (increasing +y), col = x bin (increasing +x)",
+ "fill": "none: empty cells are invalid",
+ "source": "back-projected sensor pixels only; no authored heights",
+ "coverage_fraction": 1.0,
+ "pixels_per_cell": {
+  "mean": 2.7962188720703125,
+  "min": 1.0,
+  "p5": 1.0,
+  "p50": 2.0,
+  "frac_single_pixel": 0.10715484619140625
+ },
+ "empty_cell_policy": "z/range/sec are NaN and cover is 0; consumers must use the cover mask (scripts/sensor_dataset_v2.tensor12 marks such points invalid)"
+}

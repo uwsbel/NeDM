@@ -1,0 +1,38 @@
+{
+ "rows": "heldout",
+ "n_routes": 1414,
+ "n_groups": 111,
+ "fail_rate": 0.7333804809052333,
+ "scorers": {
+  "crm_trained": {
+   "pooled_auc": 0.9876531209953217,
+   "within_group_auc": 0.9855185909980431,
+   "picked_route_fail_rate": 0.22522522522522523
+  },
+  "rigid_frozen": {
+   "pooled_auc": 0.9104614668409434,
+   "within_group_auc": 0.8833659491193738,
+   "picked_route_fail_rate": 0.3963963963963964
+  },
+  "faster_is_safer": {
+   "pooled_auc": 0.7607334972080757,
+   "within_group_auc": 0.837573385518591,
+   "picked_route_fail_rate": 0.45045045045045046
+  },
+  "random": {
+   "pooled_auc": 0.5148497630125669,
+   "within_group_auc": 0.501761252446184,
+   "picked_route_fail_rate": 0.7747747747747747
+  }
+ },
+ "oracle_picked_fail_rate": 0.18018018018018017,
+ "picked_fail_crm_minus_rigid": {
+  "diff": -0.17117117117117117,
+  "ci95": [
+   -0.24324324324324326,
+   -0.09909909909909909
+  ],
+  "crm_worse": 1,
+  "rigid_worse": 20
+ }
+}
