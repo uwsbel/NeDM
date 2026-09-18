@@ -16,7 +16,12 @@ from .robot import Go2Robot
 def build_crm(chrono, fsi, veh, system, robot, args):
     terrain = veh.CRMTerrain(system, args.spacing)
     terrain.SetVerbose(False)
-    terrain.SetGravitationalAcceleration(chrono.ChVector3d(0, 0, -GRAVITY))
+    # INHERIT THE SYSTEM GRAVITY, do not restate it. A slope is modelled by tilting the
+    # gravity vector on the system, and hardcoding (0,0,-GRAVITY) here silently overwrote
+    # that on the coupled FSI system: a 0/5/10/15/20 degree pitch sweep produced
+    # bit-identical episodes. The episode record stores the intended vector, so the
+    # corpus would have claimed a tilt it was never simulated with.
+    terrain.SetGravitationalAcceleration(system.GetGravitationalAcceleration())
     terrain.SetStepSizeCFD(args.step)
 
     # Preset, then explicit overrides. The presets are the two we have evidence
