@@ -117,6 +117,40 @@ if _NSHARD > 1:
     jobs = [j for n, j in enumerate(jobs) if n % _NSHARD == _SHARD]
     print(f"  shard {_SHARD} of {_NSHARD}: {len(jobs)} episodes")
 
+def _disturb_args(fam, i):
+    """Widen the corpus AROUND the policy's trajectory, without leaving it.
+
+    Two knobs, both already supported by the episode collector and neither previously
+    reachable from the sweep. Action noise perturbs what the policy asks for; body pushes
+    perturb what the world does to it. Together they populate the states a fine-tuned
+    policy actually visits, which an undisturbed corpus never contains.
+
+    Off unless NEDM_ACTION_NOISE_RAD or NEDM_PERTURB_N is set. Bin 0 is undisturbed, so
+    the result is a superset of the ordinary corpus rather than a shifted one, and the
+    branch pool the fine-tune samples still contains clean gait to start from.
+    """
+    sigma = float(os.environ.get("NEDM_ACTION_NOISE_RAD", "0"))
+    push = float(os.environ.get("NEDM_PERTURB_N", "0"))
+    if sigma <= 0 and push <= 0:
+        return []
+    nbin = int(os.environ.get("NEDM_DISTURB_BINS", "4"))
+    b = i % nbin
+    if b == 0:
+        return []
+    rng = random.Random(family_seed(fam, SEED_OFFSET) + 7741 * i)
+    out = []
+    if sigma > 0:
+        # Scale with the bin so the corpus covers a range of disturbance rather than one
+        # level, and jitter inside the bin for the same reason the payload axis does.
+        lo, hi = sigma * b / nbin, sigma * (b + 1) / nbin
+        out += ["--action-noise-sigma-rad", f"{rng.uniform(lo, hi):.4f}"]
+    if push > 0:
+        lo, hi = push * b / nbin, push * (b + 1) / nbin
+        out += ["--perturb-peak-n", f"{rng.uniform(lo, hi):.2f}",
+                "--perturb-mean-interval-s", f"{rng.uniform(1.5, 3.0):.2f}"]
+    return out
+
+
 def _payload_args(fam, i):
     """Stratified PAYLOAD, the other axis the corpus never varied.
 
@@ -186,7 +220,7 @@ def cmd(j):
     # placed inside it produced a 240-episode collection in which every episode was
     # unloaded while the driver reported success. Load has nothing to do with how wide
     # the command envelope is.
-    extra = list(_payload_args(fam, i))
+    extra = list(_payload_args(fam, i)) + list(_disturb_args(fam, i))
     if WIDE:
         # One stratified bin per episode index, including exactly zero at i==0.
         peak = PERTURB_MAX_N * (i % 6) / 5.0
