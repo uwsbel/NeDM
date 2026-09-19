@@ -117,6 +117,14 @@ ap.add_argument("--ckpt-every", type=int, default=0,
 ap.add_argument("--batch", type=int, default=64)
 ap.add_argument("--branch-steps", type=int, default=5)    # 0.1 s, the certified window
 ap.add_argument("--lr", type=float, default=1e-4)
+ap.add_argument("--ppo-schedule", choices=["adaptive", "fixed"], default="adaptive",
+                help="rsl_rl's adaptive rule halves the learning rate whenever measured "
+                     "KL exceeds desired_kl, with a hard floor at 1e-5. Fine-tuning a "
+                     "PRETRAINED policy starts from a sharply peaked distribution that "
+                     "can exceed a from-scratch desired_kl on the first update, which "
+                     "drives the rate to that floor and keeps it there for the whole "
+                     "run. Use fixed for a controlled comparison, so the step size is an "
+                     "experimental variable rather than something renegotiated mid-run.")
 ap.add_argument("--freeze-encoder", action="store_true",
                 help="Optimise the ACTOR only. The student encoder is 55%% of the\n                      parameters and absorbed 57%% of the squared displacement in\n                      every run so far, yet it was trained by supervised regression\n                      onto a privileged teacher latent -- a mapping the branch\n                      objective contains no term to preserve. A global ||dW|| budget\n                      spends itself where the parameters are, so it was mostly an\n                      encoder-drift budget.")
 ap.add_argument("--objective", choices=["analytic", "rslrl"], default="analytic",
@@ -682,7 +690,8 @@ if a.objective == "rslrl":
         for _p in _ac.actor.student_encoder.parameters(): _p.requires_grad_(False)
     _alg = RslPPO(_ac, num_learning_epochs=a.ppo_epochs, num_mini_batches=a.ppo_minibatches,
                   clip_param=a.ppo_clip, gamma=a.gamma, lam=a.lam, entropy_coef=a.entropy,
-                  learning_rate=a.lr, desired_kl=a.ppo_kl, schedule="adaptive", device=DEV)
+                  learning_rate=a.lr, desired_kl=a.ppo_kl,
+                  schedule=a.ppo_schedule, device=DEV)
     _alg.init_storage(a.batch, BS, [NOBS], [NOBS], [12])
 
     _W0r = {k: v.detach().clone() for k, v in _ac.actor.named_parameters()}
@@ -868,8 +877,11 @@ if a.objective == "rslrl":
                               "det_task": _dtask, "det_anchor": _danch,
                               "det_survive": _surv2, "dw": _dwr()})
         if u % 25 == 0 or u == 1:
+            # lr AND the floor it can collapse to: a run pinned at 1e-5 is not measuring
+            # the algorithm, and that has to be legible while the run is still going.
+            _pin = " PINNED" if _alg.learning_rate <= 1.0000001e-5 else ""
             print(f"  update {u:5d}  rew/step {float(_rsum)/max(_rn,1):+.4f}  "
-                  f"dW {_dwr():.3f}  lr {_alg.learning_rate:.2e}  "
+                  f"dW {_dwr():.3f}  lr {_alg.learning_rate:.2e}{_pin}  "
                   f"{time.time()-_t0:5.0f}s", flush=True)
         # THE SAME STOPPING RULE AS THE ANALYTIC ARM. Without this the flag was accepted
         # and ignored, because the rsl_rl block exits before the analytic loop that
