@@ -117,6 +117,15 @@ ap.add_argument("--ckpt-every", type=int, default=0,
 ap.add_argument("--batch", type=int, default=64)
 ap.add_argument("--branch-steps", type=int, default=5)    # 0.1 s, the certified window
 ap.add_argument("--lr", type=float, default=1e-4)
+ap.add_argument("--ppo-critic-warmup", type=int, default=0,
+                help="freeze the actor for this many updates so the critic can fit a "
+                     "baseline before the displacement budget starts counting. Measured "
+                     "without it: value_loss starts at 52.5 with a +6.86 advantage bias, "
+                     "the actor travels 0.347 on the first update alone for no gain, and "
+                     "the reward only starts rising past update 20 at ||dW|| over 2 -- "
+                     "beyond the stopping rule. The analytic objective has no critic and "
+                     "is charged nothing, so a matched-stop comparison without this is "
+                     "comparing budgets rather than optimisers.")
 ap.add_argument("--ppo-diag", action="store_true",
                 help="report the PPO estimator internals -- value loss, surrogate loss, "
                      "advantage statistics, and how much of the return spread is across "
@@ -818,7 +827,21 @@ if a.objective == "rslrl":
           flush=True)
     _obs = _env.observe()
     _dbest = (-float("inf"), -1); _hist_log = []; _t0 = time.time()
+    if a.ppo_critic_warmup > 0:
+        for _p in _ac.actor.parameters():
+            _p.requires_grad_(False)
+        print(f"  CRITIC WARM-UP: actor frozen for {a.ppo_critic_warmup} updates; "
+              f"displacement is counted from the end of it", flush=True)
+
     for u in range(1, a.updates + 1):
+        if a.ppo_critic_warmup > 0 and u == a.ppo_critic_warmup + 1:
+            for _p in _ac.actor.parameters():
+                _p.requires_grad_(True)
+            # Re-latch rather than assume: a frozen actor should not have moved, but the
+            # origin is what every dW number is measured against and it is cheap to be sure.
+            _W0r = {k: v.detach().clone() for k, v in _ac.actor.named_parameters()}
+            print(f"  warm-up done at update {u - 1}; actor released, "
+                  f"||dW|| origin re-latched", flush=True)
         _rsum = torch.zeros((), device=DEV); _rn = 0
         with torch.inference_mode(False):
             for _ in range(BS):
