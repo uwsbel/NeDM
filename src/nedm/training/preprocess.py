@@ -212,6 +212,28 @@ def _processing_provenance() -> dict:
     return out
 
 
+def _assert_channels_carry_signal(states, state_fields, source):
+    """A propagated channel must actually contain something.
+
+    An all-NaN channel trains to NaN from the first batch; a constant channel divides by a
+    zero standard deviation during normalisation. Both fail far from here and look like
+    model problems rather than data problems, so they are caught at the point the array is
+    built, where the field name is still in hand.
+    """
+    finite = np.isfinite(states)
+    dead = [state_fields[i] for i in range(states.shape[1]) if not finite[:, i].any()]
+    if dead:
+        raise ValueError(
+            f"FATAL: state channel(s) {dead} are entirely non-finite in {source}. "
+            f"The column exists but carries no values, so every window built from it "
+            f"would train to NaN. Fix the collector or drop the channel from the preset."
+        )
+    # NO ZERO-VARIANCE CHECK HERE. This runs per episode, and a channel that is constant
+    # within one episode is not necessarily degenerate: payload_kg and robot_mass_kg are
+    # constant by construction, since the load is attached before the episode starts and
+    # never changes. A constant-channel check belongs at corpus level, after the episodes
+    # are concatenated, where "constant everywhere" actually means what it says.
+
 def read_episode_csv(
     csv_path: Path,
     state_fields: list[str],
@@ -241,6 +263,7 @@ def read_episode_csv(
                 contact_rows.append([float(row[field]) for field in contact_fields])
 
     states = np.asarray(state_rows, dtype=np.float32)
+    _assert_channels_carry_signal(states, state_fields, str(csv_path))
     actions = np.asarray(action_rows, dtype=np.float32)
     rollout = np.asarray(rollout_rows, dtype=np.float32)
     contact = np.asarray(contact_rows, dtype=np.float64) if contact_fields else None
