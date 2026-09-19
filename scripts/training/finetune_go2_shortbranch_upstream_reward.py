@@ -871,10 +871,31 @@ if a.objective == "rslrl":
             print(f"  update {u:5d}  rew/step {float(_rsum)/max(_rn,1):+.4f}  "
                   f"dW {_dwr():.3f}  lr {_alg.learning_rate:.2e}  "
                   f"{time.time()-_t0:5.0f}s", flush=True)
+        # THE SAME STOPPING RULE AS THE ANALYTIC ARM. Without this the flag was accepted
+        # and ignored, because the rsl_rl block exits before the analytic loop that
+        # enforces it, and the baseline ran to ||dW|| 3.610 against an analytic arm
+        # stopped at 1.0. Displacement is the dominant axis of exploitability here, so an
+        # unmatched stop turns a stopping-rule difference into an apparent algorithm
+        # difference.
+        #
+        # Semantics match the analytic path: at the stop the CURRENT iterate is the
+        # deliverable and overwrites reward-based selection.
+        if a.target_dw is not None and _dwr() >= a.target_dw:
+            _d = _dwr()
+            _sd = {("actor." + k[len("actor_net."):] if k.startswith("actor_net.")
+                    else k): v for k, v in _ac.actor.state_dict().items()}
+            torch.save({"state_dict": _sd, "update": u, "dw": _d,
+                        "stopped_on": "target_dw"}, f"{a.out}/best.pt")
+            _dbest = (float("nan"), u)
+            _hist_log.append({"update": u, "dw": _d, "stopped_on": "target_dw"})
+            print(f"  update {u:5d}  ||dW|| {_d:.3f} >= target {a.target_dw}"
+                  f"  -- STOPPING", flush=True)
+            break
     json.dump(_hist_log, open(f"{a.out}/history.json", "w"), indent=1)
     if _dbest[1] < 0:
         raise SystemExit("FATAL: no deterministic evaluation ran; raise --updates above "
-                         "--det-every.")
+                         "--det-every, or set --target-dw so the run stops on "
+                         "displacement instead.")
     print(f"\n  DONE (rsl_rl). best deterministic rew/step {_dbest[0]:+.4f} from update "
           f"{_dbest[1]}, final ||dW|| {_dwr():.3f} -> {a.out}/best.pt")
     raise SystemExit(0)
