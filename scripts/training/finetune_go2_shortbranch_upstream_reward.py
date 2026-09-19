@@ -117,6 +117,14 @@ ap.add_argument("--ckpt-every", type=int, default=0,
 ap.add_argument("--batch", type=int, default=64)
 ap.add_argument("--branch-steps", type=int, default=5)    # 0.1 s, the certified window
 ap.add_argument("--lr", type=float, default=1e-4)
+ap.add_argument("--ppo-diag", action="store_true",
+                help="report the PPO estimator internals -- value loss, surrogate loss, "
+                     "advantage statistics, and how much of the return spread is across "
+                     "environments rather than within one episode. The last of these is "
+                     "the one that matters here: each environment is a branch from a "
+                     "different recorded state, so if across-env spread dominates, the "
+                     "advantage is measuring which branch was drawn rather than which "
+                     "action was taken.")
 ap.add_argument("--ppo-schedule", choices=["adaptive", "fixed"], default="adaptive",
                 help="rsl_rl's adaptive rule halves the learning rate whenever measured "
                      "KL exceeds desired_kl, with a hard floor at 1e-5. Fine-tuning a "
@@ -825,6 +833,25 @@ if a.objective == "rslrl":
                 _obs = _env.observe()
             _alg.compute_returns(_obs)
         _losses = _alg.update()
+        # PPO-DIAG. The losses were computed and discarded, which is why three learning
+        # rates and two discounts could all fail without anyone being able to say which
+        # part of the estimator was at fault. Reported on the same cadence as the rest.
+        if a.ppo_diag and (u % a.det_every == 0 or u == 1):
+            _vl, _sl = (float(_losses[0]), float(_losses[1])) if isinstance(_losses, (tuple, list)) \
+                else (float(_losses.get("value_function", float("nan"))),
+                      float(_losses.get("surrogate", float("nan"))))
+            _st = _alg.storage
+            _adv = (_st.returns - _st.values)
+            _rt = _st.returns
+            # Spread ACROSS environments against spread WITHIN one environment's episode.
+            # If the first dominates, the advantage is reporting which branch was drawn
+            # rather than which action was taken, and a fresh critic cannot remove that.
+            _across = float(_rt.mean(dim=0).std())
+            _within = float(_rt.std(dim=0).mean())
+            print(f"    [ppo-diag] value_loss {_vl:9.4f}  surrogate {_sl:+9.5f}  "
+                  f"adv mean {float(_adv.mean()):+8.4f} std {float(_adv.std()):8.4f}  "
+                  f"return across-env sd {_across:7.3f} within-env sd {_within:7.3f}  "
+                  f"ratio {_across / max(_within, 1e-9):6.2f}", flush=True)
         if u % a.det_every == 0 or u == 1:
             with torch.no_grad():
                 _sv = _ac.std.data.clone(); _ac.std.data.fill_(1e-8)
