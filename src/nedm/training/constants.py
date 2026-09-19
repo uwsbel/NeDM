@@ -258,6 +258,22 @@ STATE_FIELD_PRESETS = {
     "quadruped_crm_baseline": (DEFAULT_STATE_FIELDS + QUADRUPED_JOINT_STATE_FIELDS
                                + ["grav_body_x", "grav_body_y", "grav_body_z"]
                                + ["pos_z_m", "vel_body_z_mps"]),
+    # THE PAYLOAD-CONDITIONED ARM. On the payload corpus the carried mass varies from
+    # 0 to 8 kg, and NOTHING in the 36-D state says what is being carried. Two episodes
+    # with identical pose, joint state and action then evolve differently, so the
+    # surrogate cannot fit both and fits their average instead. An averaged response is
+    # invented structure, and invented structure is what a policy optimiser climbs --
+    # the same failure the force channels were added to answer for contact.
+    #
+    # Constant per episode, taken from the sidecar by add_payload_channel.py, so this
+    # needs no re-collection.
+    #
+    # The control is the SAME corpus under quadruped_crm_baseline. Without that arm a
+    # payload surrogate only shows that payload data helps, not that conditioning does.
+    "quadruped_crm_payload": (DEFAULT_STATE_FIELDS + QUADRUPED_JOINT_STATE_FIELDS
+                              + ["grav_body_x", "grav_body_y", "grav_body_z"]
+                              + ["pos_z_m", "vel_body_z_mps"]
+                              + ["payload_kg", "robot_mass_kg"]),
     "quadruped_crm_forcez": (DEFAULT_STATE_FIELDS + QUADRUPED_JOINT_STATE_FIELDS
                              + ["grav_body_x", "grav_body_y", "grav_body_z"]
                              + ["pos_z_m", "vel_body_z_mps"]
