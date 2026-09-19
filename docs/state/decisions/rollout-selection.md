@@ -115,3 +115,40 @@ Under the metric that does compare, every arm that departs from the 36-D baselin
 better than it, in both directions -- dropping channels (34-D, 31-D) and adding them
 (48-D). Whether any of that reaches the delivered policy is still open and is what the
 Chrono verdicts now queued will say.
+
+## Addendum 2: the abstraction spread was mostly a selection artifact
+
+Comparing each ladder arm at its best-val epoch against the same arm at its best-rollout
+epoch:
+
+```
+  arm                 best-val  its 10s  ep      best-roll  its val  ep
+  31-D joint          0.019099    2.415  44          0.614  0.019486 18
+  34-D joint_grav     0.018461    1.563  24          0.543  0.018593 37
+  36-D baseline       0.013448    3.830  54          0.524  0.013652 29
+  40-D contact_cond   0.021953    1.639  50          0.473  0.022217 24
+  40-D forcez         0.011697    2.044  49          0.632  0.030314  1
+  48-D force3d        0.014513    1.387  41          0.656  0.014991 78
+  52-D terrain        0.021242    3.614  50          0.547  0.023705 13
+  2.61 h reference    0.017866    0.841   6          0.531  0.019410 34
+```
+
+Read down the "its 10s" column and the abstractions look very different: 1.39 to 3.83, a
+factor of 2.8. Read down "best-roll" and they do not: 0.47 to 0.66, a factor of 1.4, with
+no clear ordering by dimension.
+
+For the 36-D baseline alone, moving the selection epoch takes rollout from 3.830 to
+0.524. That single-arm effect is larger than the entire spread between abstractions. So a
+ladder assembled from val-selected checkpoints is largely comparing which epoch val_loss
+happened to land on, not which channels the model propagates.
+
+Every arm is therefore being retrained under rollout_sel selection before any of them is
+fine-tuned, since otherwise the Chrono verdicts would inherit the same artifact.
+
+One entry deserves suspicion rather than acceptance. forcez reaches its best rollout at
+EPOCH 1, with val_loss 0.030314, which is 2.6x worse than its converged value. A model
+that predicts very little motion scores errdist near 1.0 for free, because its trajectory
+stays put while the true one moves, so a number below 1 from an almost untrained model
+needs explaining rather than crediting. It is below the static floor, so it is doing
+something, but epoch-1 checkpoints should not be selected on this metric without a
+guard, and the smoothing window of 3 is not enough to prevent it.
