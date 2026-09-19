@@ -76,10 +76,23 @@ def main() -> int:
     b_host, b_build = host_of(a.base, b_recs)
     a_host, a_build = host_of(a.arm, a_recs)
     if (b_host != a_host or b_build != a_build) and not a.allow_cross_host:
-        print(f"REFUSED: base is {b_host} {sorted(b_build)}, arm is {a_host} {sorted(a_build)}.\n"
-              f"  Replay is not machine-invariant and the difference would carry a machine\n"
-              f"  effect. Score both on one box, or pass --allow-cross-host knowingly.",
-              file=sys.stderr)
+        # UNKNOWN provenance is not the same failure as MISMATCHED provenance, and saying
+        # "different build" about a file that simply predates the stamping sends the
+        # reader looking for a difference that is not there.
+        missing = [n for n, bl in (("base", b_build), ("arm", a_build)) if not bl]
+        if missing:
+            print(f"REFUSED: {' and '.join(missing)} carries NO chrono_md5, so the build it\n"
+                  f"  was scored under is unknown and cannot be checked against the other.\n"
+                  f"  Unstamped CRM scores on this project are mostly from an era whose\n"
+                  f"  numbers were later found unusable, so this is not a formality.\n"
+                  f"  Run scripts/evaluation/backfill_chrono_provenance.py if the build is\n"
+                  f"  genuinely known, re-score otherwise, or pass --allow-cross-host.",
+                  file=sys.stderr)
+        else:
+            print(f"REFUSED: base is {b_host} {sorted(b_build)}, arm is {a_host} {sorted(a_build)}.\n"
+                  f"  Replay is not machine-invariant and the difference would carry a machine\n"
+                  f"  effect. Score both on one box, or pass --allow-cross-host knowingly.",
+                  file=sys.stderr)
         return 2
 
     bd = {r["episode_id"]: r for r in b_recs}
