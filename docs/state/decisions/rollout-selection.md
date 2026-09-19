@@ -80,3 +80,38 @@ now in flight is the test.
 The retrains selecting on `rollout_sel` for the 26.1 h and 36-D arms are running. Until
 they are fine-tuned and scored, the claim that better rollout selection yields a better
 delivered policy is an inference from the correlation, not a demonstration.
+
+## Addendum: val_loss is not comparable across abstractions
+
+A prediction recorded before the sub-floor arms ran -- that a state which propagates fewer
+and easier channels would be competitive or better on one-step val_loss -- was wrong, and
+wrong in a way that matters more than the prediction did.
+
+```
+  arm                      val_loss   5s err/dist   10s err/dist
+  36-D baseline            0.013448        2.012         3.830
+  34-D joint_grav          0.018461        1.357         1.563
+  31-D joint               0.019099        1.370         2.415
+  48-D force3d             0.014513        1.298         1.387
+```
+
+Both sub-floor arms come out 37-42% WORSE on one-step loss, not better. But the
+comparison should never have been made: val_loss is a weighted mean over the channels an
+arm actually propagates, with weights derived per dataset from that dataset's own channel
+statistics. Two arms with different state dimensions are averaging different quantities
+under different weights, so their val_loss values are not on a common scale and their
+ordering carries no information about which model is better.
+
+The rollout metric does not have this problem. `errdist` is planar position error over
+distance travelled, computed from `pos_x_m`, `pos_y_m` and `yaw_rad`, which every arm
+recovers analytically outside the propagated state. It is the same physical quantity in
+the same units regardless of how many channels the model carries.
+
+So on the channel axis there is only one comparable metric available, and it is the
+multi-step one. That is a stronger statement than the dose-ladder correlation: there,
+one-step loss was comparable and merely ranked badly; here it is not comparable at all.
+
+Under the metric that does compare, every arm that departs from the 36-D baseline rolls
+better than it, in both directions -- dropping channels (34-D, 31-D) and adding them
+(48-D). Whether any of that reaches the delivered policy is still open and is what the
+Chrono verdicts now queued will say.
