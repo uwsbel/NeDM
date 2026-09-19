@@ -50,6 +50,10 @@ ap.add_argument("--limit", type=int, default=0,
                      "comparison is paired; it is NOT a random sample and its mean is not\n"
                      "an estimate of the full-split mean. Whatever wins here gets re-scored\n"
                      "on the full split before it is reported as a result.")
+ap.add_argument("--payload-kg", type=float, default=0.0,
+                help="carry this mass on the trunk during every scored episode; the "
+                     "flag is omitted from the episode command when 0 so unloaded "
+                     "arms stay byte-identical to what is already recorded")
 ap.add_argument("--min-rows", type=int, default=200,
                 help="~2 s at 93 rows/s. Below this the mean is noise, and an episode "
                      "that short means the run failed rather than tracked badly.")
@@ -186,6 +190,8 @@ def run(e):
            "--patch-y", f"{_patch(e, 'patch_y_m', 4.0):.2f}",
            "--episode-index", "0", "--seed", str(m["seed"]),
            "--output-dir", out, "--overwrite", "--progress-interval-s", "99"]
+    if a.payload_kg > 0:
+        cmd += ["--payload-kg", f"{a.payload_kg:.3f}"]
     r = subprocess.run(cmd, env=dict(os.environ), capture_output=True, text=True)
     f = glob.glob(f"{out}/episodes/*.csv")
     rows = list(csv.DictReader(open(f[0]))) if f else []
@@ -201,6 +207,18 @@ def run(e):
                chrono_md5=_CHRONO_MD5, chrono_path=_CHRONO_PATH,
                family=m["command_family"], rows=len(rows),
                completed=int(len(rows) >= a.min_rows))
+    # A loaded robot fails by toppling, not by tracking badly, and the tracking metric
+    # cannot tell the difference on its own. Record the height so the caller can split
+    # "fell" from "tracked poorly" instead of averaging the two together.
+    try:
+        z = [float(r["pos_z_m"]) for r in rows if r.get("pos_z_m") not in (None, "")]
+    except (TypeError, ValueError):
+        z = []
+    if z:
+        rec["min_z_m"] = min(z)
+        rec["upright"] = int(min(z) >= 0.20)
+    if a.payload_kg > 0:
+        rec["payload_kg"] = a.payload_kg
     if t:
         axes, n = t
         rec["scored_rows"] = n
