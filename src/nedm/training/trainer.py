@@ -1196,7 +1196,16 @@ class HMMWVTrainer:
                 raise KeyError(f"checkpoint metric {self.checkpoint_metric!r} was not logged")
             checkpoint_value = self._smoothed_metric(float(record[self.checkpoint_metric]))
             record[f"{self.checkpoint_metric}_smoothed"] = checkpoint_value
-            if checkpoint_value < self.best_val_loss:
+            # NOT ELIGIBLE UNTIL THE WINDOW IS FULL. A trailing median over w epochs does
+            # no smoothing at all for the first w-1: at epoch 1 the history holds one
+            # value and the median IS that value, so the first epoch sets the bar
+            # unsmoothed. On a noisy multi-step metric that is enough to hand the run to a
+            # barely-trained checkpoint -- lsel_force3d selected epoch 1 at twice its
+            # converged one-step error, because a model predicting little motion has a
+            # trajectory that does not diverge, and error-over-distance rewards that.
+            _eligible = len(self._ckpt_metric_history) >= self.checkpoint_metric_window
+            record[f"{self.checkpoint_metric}_eligible"] = _eligible
+            if _eligible and checkpoint_value < self.best_val_loss:
                 self.best_val_loss = checkpoint_value
                 self.save_checkpoint("best_val", epoch, record)
             print(json.dumps(record, indent=2))
