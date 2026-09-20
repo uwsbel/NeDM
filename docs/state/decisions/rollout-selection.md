@@ -77,6 +77,10 @@ policy (-34.8% against -40.6%), which is the opposite ordering. Whether rollout 
 ranks abstractions as well as it ranks data volumes is open, and the abstraction ladder
 now in flight is the test.
 
+RESOLVED, see Addendum 3: the ladder returned and the answer is no. Rollout fidelity
+anti-predicts transfer on the channel axis. The forcez ordering above was the effect,
+not an outlier, and the rule is confined to the data axis.
+
 The retrains selecting on `rollout_sel` for the 26.1 h and 36-D arms are running. Until
 they are fine-tuned and scored, the claim that better rollout selection yields a better
 delivered policy is an inference from the correlation, not a demonstration.
@@ -192,3 +196,77 @@ Cross-box drift, measured incidentally: the 26.1 h val-selected arm reads -19.8%
 and -22.7% on euler, the 36-D val-selected -40.6% and -39.5%. Gaps of 1 to 3 points here,
 against 6.6 points seen earlier between sbel and north on a different arm. Same-box
 comparison remains the only safe basis and is what the table above uses.
+
+## Addendum 3: rollout fidelity does not rank abstractions. Question closed, answer no
+
+The test named in "Not established" has returned. Three arms, one corpus, every one
+selected on `rollout_sel` so checkpoint selection cannot confound the comparison, all
+fine-tuned to the same displacement stop and scored on one box:
+
+```
+  arm                      vx        vy        wz      n
+  36-D baseline         -40.9%    -23.4%    -25.2%    74
+  48-D force 3-axis     -36.3%    -15.4%    -25.5%    75
+  40-D contact flags    -20.5%    +11.0%     -7.8%    75
+```
+
+Adding channels monotonically hurts. Twelve foot-force components cost 4.6 points of
+forward tracking against the baseline; four binary contact flags cost 20.4 and push
+lateral tracking back above the policy they started from.
+
+Against the fidelity metric, at matched selection:
+
+```
+  arm                 10s rollout   transfer
+  40-D contact flags      0.473      -20.5%    best rollout, worst policy
+  48-D force3d            0.656      -36.3%
+  36-D baseline           0.693      -40.9%    worst rollout, best policy
+```
+
+Perfectly reversed. On the data axis better multi-step fidelity means a better delivered
+policy at rho +0.90; on the channel axis it means a worse one, and it is not a near miss
+or a single outlier -- the ordering inverts across all three arms. The `forcez`
+counterexample recorded above was not noise. It was the effect.
+
+### What survives
+
+The causal selection result is untouched: within a fixed abstraction, retraining under
+rollout selection improved all three command channels on both corpora, same everything
+else. That experiment did not vary the channel set and this result does not bear on it.
+
+So the rule has a domain, and the domain is narrower than Addendum 1 implied. Rollout
+fidelity is a sound way to pick a checkpoint inside one state definition, and an unsound
+way to pick between state definitions -- here it would have chosen the worst of the three.
+Addendum 1 argued that on the channel axis the multi-step metric is the ONLY comparable
+one, since `val_loss` is not commensurable across different channel counts. That argument
+still holds and its conclusion is now worse than it looked: the only comparable metric
+available on that axis is also anti-predictive on it. Abstractions have to be ranked by
+Chrono verdict, and there is currently no cheap proxy for that choice.
+
+### Why, most likely
+
+Untested, and stated as the reading that fits rather than a result. `errdist` measures how
+well a model reproduces a recorded trajectory. Extra channels give the model more ways to
+do that, including ways that carry no information about how an action changes the next
+state. The optimiser does not consume trajectories, it differentiates through transitions,
+so a model can improve on the thing the metric scores while getting no better, or worse,
+at the thing the fine-tune actually uses. Fidelity to a replay and fidelity of the
+gradient are different properties. The data axis moves both together, which is why the
+correlation looked general; the channel axis separates them.
+
+### Bracketing the abstraction
+
+With the sub-floor arms, the Go2's state is now bounded from both sides:
+
+```
+  below 36-D   unusable at any accuracy -- the policy's observation needs projected
+               gravity, the reward's largest term needs base height
+  at    36-D   best delivered policy
+  above 36-D   monotonically worse
+```
+
+The best abstraction is exactly the closure of the control interface: the minimal set
+containing everything the controller reads and everything the objective reads. Nothing
+less can be run, and nothing more helps. That is a sharper claim than "use a small state"
+and it is falsifiable -- a channel outside the closure that improved transfer would break
+it. Three tried so far, none did.
