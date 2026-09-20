@@ -270,3 +270,59 @@ containing everything the controller reads and everything the objective reads. N
 less can be run, and nothing more helps. That is a sharper claim than "use a small state"
 and it is falsifiable -- a channel outside the closure that improved transfer would break
 it. Three tried so far, none did.
+
+## The selection control, repaired: the result holds
+
+The causal selection experiment previously paired a val-selected arm trained on sbel
+against a rollout-selected arm trained on euler, while its own generator claimed "same
+corpus, epochs, batch, seed and architecture -- so any difference in the delivered policy
+is attributable to checkpoint selection alone". The host differed, and before 2026-09-17
+the two hosts were not even measuring `val_loss` the same way, so that sentence was not
+true of the arms it described.
+
+`go2_crm_valw256e` repairs it: val-selected, trained on euler, everything else matched to
+`go2_crm_sel_baseline`. Both fine-tuned to the same displacement stop and scored on the
+same box against the same base.
+
+```
+  selection rule            vx        vy        wz      n
+  val_loss                -39.8%    -13.5%    -20.0%    75
+  rollout_sel             -40.9%    -23.4%    -25.2%    74
+```
+
+Rollout selection wins on all three channels, and the off-axis margins are the large
+ones: 9.9 points of lateral tracking and 5.2 of yaw, against 1.1 of forward. That matches
+the mechanism already recorded for this effect, which is that selection mostly repairs
+off-axis damage rather than buying forward speed.
+
+### The confound was real and immaterial
+
+Worth stating plainly, because it is the useful part. The old, confounded pairing read
+-39.5% against -40.9%. The repaired, fully matched pairing reads -39.8% against -40.9%.
+The val-selected arm moved by 0.3 points and the conclusion did not move at all.
+
+So the cross-host defect was genuine, and checking it cost one training run, one
+fine-tune and one verdict. It is better to have a confound that was checked and found
+not to matter than one that was flagged and left open, because only the first kind can
+be quoted.
+
+### Why this matters for what is still in question
+
+The rollout-selection thesis rests on two independent legs:
+
+  1. a CORRELATION on the dose ladder, where ten-second rollout fidelity ranks delivered
+     policy at rho +0.90 while one-step val_loss ranks it at rho -0.80, and
+  2. this CAUSAL A/B, where one corpus and one architecture are trained twice and differ
+     only in which epoch is kept.
+
+Leg 1 is currently in question, because the dose ladder finished hours before `6c0cb18d`
+and its val_loss values are prefix-measured on a subset whose coverage degrades with
+corpus size -- the same axis the ladder varies. Leg 2 does not depend on the dose ladder,
+on any val_loss comparison across that commit, or on the correlation holding. It is a
+direct experiment on a single corpus.
+
+So the practical rule -- select checkpoints on multi-step rollout fidelity rather than
+one-step loss, within a fixed abstraction -- survives on leg 2 regardless of how the dose
+ladder recomputation turns out. What would be lost if leg 1 collapses is the explanation
+for WHY val_loss is the wrong metric, not the evidence that rollout selection delivers a
+better policy.
