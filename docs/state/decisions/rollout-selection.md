@@ -152,3 +152,43 @@ stays put while the true one moves, so a number below 1 from an almost untrained
 needs explaining rather than crediting. It is below the static floor, so it is doing
 something, but epoch-1 checkpoints should not be selected on this metric without a
 guard, and the smoothing window of 3 is not enough to prevent it.
+
+## Confirmed causally: selection changes the delivered policy
+
+The correlational result above is now an intervention. Two surrogates were retrained
+identically except for `checkpoint_metric`, fine-tuned under the same protocol to the same
+stop, and scored on ONE box against ONE base:
+
+```
+  arm                                vx        vy        wz      n
+  26.1 h corpus, val-selected     -22.7%    +27.7%     +7.1%     74
+  26.1 h corpus, rollout-selected -27.8%     +6.6%     -9.2%     75
+  36-D corpus,   val-selected     -39.5%    -10.9%    -20.1%     75
+  36-D corpus,   rollout-selected -40.9%    -23.4%    -25.2%     74
+```
+
+Selecting on ten-second rollout fidelity instead of one-step loss improves ALL THREE
+command channels on BOTH corpora. Nothing else differs: same data, same epochs, same
+batch, same seed, same architecture, same stopping rule, same scoring subset, same Chrono
+build.
+
+The off-axis repair is the larger effect. On the 26.1 h corpus lateral tracking moves from
+27.7% WORSE than base to 6.6% worse, and yaw from 7.1% worse to 9.2% better. That failure
+-- a large surrogate buying forward speed by degrading heading -- is the signature this
+study has been documenting on the data axis throughout, and checkpoint selection removes
+most of it.
+
+Forward tracking on the 36-D arm barely moves (-39.5% to -40.9%), which is consistent
+with it already sitting near the best result available; the headroom that exists there is
+off-axis, and that is where the gain appears.
+
+## What this does not do
+
+It does not meet the original goal. The large surrogate still delivers a worse policy than
+the small one, -27.8% against -40.9%. Selection narrows the gap from 20.8 points to 13.1,
+which is a substantial improvement to a negative result rather than a reversal of it.
+
+Cross-box drift, measured incidentally: the 26.1 h val-selected arm reads -19.8% on sbel
+and -22.7% on euler, the 36-D val-selected -40.6% and -39.5%. Gaps of 1 to 3 points here,
+against 6.6 points seen earlier between sbel and north on a different arm. Same-box
+comparison remains the only safe basis and is what the table above uses.
