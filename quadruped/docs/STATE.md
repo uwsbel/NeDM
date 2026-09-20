@@ -29,6 +29,20 @@ yet. Nothing is running.
 `crm_verdict.py`, the Chrono scene setup, the gravity and contact derivations. Everything
 else from the old tree is being replaced, not wrapped.
 
+## Fleet facts, probed 2026-09-20
+
+- **NAS**: `/mnt/nas/Main`, 30 TB with 29 TB free, mounted on all four desktops. Artifact
+  root for everything the clusters do not hold.
+- **The conda Chrono trap is live on all four desktops.** They import
+  `8e9e386546fe0b33`, not the pinned source build. See `STANDARD.md`.
+- All four desktops have `chrono-src` at the correct pin `698282895`; only the import
+  path is wrong.
+- **euler default partition has zero nodes** -- an sbatch without `-p` goes nowhere.
+- **hpcfund torch reports cuda_avail True and dies at the first nn.Linear.** Chrono only.
+- numpy is split three ways and is ABI-locked to each host's pychrono. Do not unify.
+- d33 (AMD 9070 XT, gfx1201, ROCm 7.2.4) is being given a ROCm torch; acceptance is a real
+  GEMM plus backward pass, never `is_available()`.
+
 ## Nothing is running
 
 Confirmed idle: euler queue empty, sbel/north/a3 clear.

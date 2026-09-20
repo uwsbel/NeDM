@@ -87,3 +87,29 @@ selecting untouched.
 **The cheap proxy does not rank abstractions.** Rollout fidelity ranks data volumes at
 rho +0.90 and ranks abstractions backwards. Selection within one state definition is
 sound; selection between definitions is not.
+
+## Silent failure modes found during the rebuild inventory
+
+**A buffer sized before the data is read.** `preprocess.py` pre-sizes the output memmap
+from `dataset_index.json`'s declared `rows` BEFORE any CSV is opened, while the actual
+written length comes from the CSV. Any row-dropping scheme that does not also update the
+index leaves uninitialised rows at the tail of a memmap -- no error, no warning, just
+numbers that were never written being trained on.
+→ Size from what was read, or verify the fill reached the allocation.
+
+**A guard keyed on a filename.** `crm_verdict.py` refuses to pair score files across hosts,
+which is correct and load-bearing. It extracts the host by parsing the FILENAME
+(`..._<host>.json`). A file that does not follow that convention yields the same token on
+both sides, the comparison passes, and the cross-host guard silently does nothing.
+→ A guard that can pass vacuously is worse than no guard; key it on recorded content.
+
+**A threshold hardcoded inside a metric.** The fall test `min_z < 0.20` is a literal inside
+`summarise()`. Changing it changes what "fall" means with nothing recording that it moved.
+→ Thresholds that define a metric belong in `metric_defs`, stamped into the manifest.
+
+**RNG draw order is part of the contract.** The collector documents that the ORDER of
+random draws is load-bearing for replay: multiplying a draw by zero still consumes it, and
+reordering draws inside an existing corpus's seed changes every subsequent value. A
+force-only episode once replayed with different forces because a torque draw moved.
+→ Rewriting a sampler breaks replay of existing corpora even when the distribution is
+identical. Version the sampler and never edit one in place.

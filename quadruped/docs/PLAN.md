@@ -448,3 +448,64 @@ happened to be identically zero. That class of error is invisible until it is no
 The stateful-policy handling, the history buffer, the reset-per-episode requirement, the
 5-call warm-up, the inherited sign negation, and the estimator confound. None of them need
 to be modelled, worked around, or argued about in the new pipeline.
+
+## 9b. Correction: the constraint is the build family, not the hostname
+
+Section 9 said collection runs on hpcfund or euler and named the desktops as excluded.
+That framing was wrong, and `d33-ubuntu` is the case that shows why.
+
+### d33 is collection-capable
+
+```
+  host     d33-ubuntu  (reports hostname `d33`)
+  GPU      AMD Radeon 9070 XT, Navi 48 / RDNA4, amdgpu, ROCm 7.2.4
+  CPU      24 cores, 46 GB RAM, 835 GB free
+  Chrono   ~/chrono-hip-build -- pychrono, fsi, vehicle and parsers all import
+  torch    2.12.0+cpu, cuda_available False
+```
+
+It has a working HIP Chrono with FSI, which is what CRM needs, and parsers, which is what
+the Go2 URDF needs. It can collect. It cannot train, because the environment's torch is a
+CPU-only build; that is a fixable packaging issue, not a hardware limit.
+
+### The real rule
+
+Replay is not build-invariant, which is why `crm_verdict.py` already refuses to pair
+scores across Chrono builds. The fleet holds TWO BUILD FAMILIES:
+
+```
+  AMD / HIP     hpcfund (MI210), d33 (9070 XT)
+  NVIDIA / CUDA euler (A100, H100, RTX)
+```
+
+Mixing families inside one corpus is the hazard, and it exists whether or not desktops are
+involved -- hpcfund and euler are already in different families. Naming permitted hosts
+does not prevent it; recording and checking the build does.
+
+So the rule becomes:
+
+- **One corpus, one Chrono build hash.** `collect.py` writes the hash into the manifest and
+  refuses to append episodes carrying a different one.
+- **A verdict pairs only within one build**, already enforced.
+- **Host permission is about capability, not identity.** `params/machines.yaml` records what
+  each host can do, and `doctor.py` checks the requested action against it.
+
+That admits d33 as a legitimate collection host for a corpus collected wholly on d33,
+while still preventing the silent mixing that the hostname rule was really aiming at.
+
+### Capability table
+
+```
+  host          collect   train   fine-tune   evaluate   note
+  hpcfund         yes      no        no         yes      torch fails a GEMM on MI210
+  euler           yes      yes       yes        yes      A100/H100; the only trainer today
+  d33-ubuntu      yes      no*       no*        yes      *CPU-only torch; ROCm build would fix
+  sbel-ubuntu     yes      yes       yes        yes      24 GB, smallest that fine-tunes
+  north-ubuntu    yes      yes       no         yes      16 GB, OOMs on the 15-step branch
+  a3-ubuntu       yes      yes       no         yes      8 GB, OOMs
+```
+
+Collection preference is unchanged and is about throughput economics, not correctness:
+hpcfund first, because one node is one MI210 plus 16 cores and a CRM episode fills it
+exactly at the best GPU-hours-per-charge ratio on that machine; euler second; the desktops
+for whole small corpora where a dedicated box is simpler than a queue.

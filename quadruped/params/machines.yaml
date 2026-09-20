@@ -1,0 +1,139 @@
+# Fleet registry. Probed 2026-09-20; every value here was measured, not assumed.
+#
+# doctor.py checks a requested action against this file and refuses if the host is not
+# permitted for it. The point is that a host's CAPABILITY is recorded once, here, instead
+# of being rediscovered by a job failing three hours in.
+#
+# THE STANDARD. Every host runs a conda env or venv named `nedm`, and that env imports
+# the Chrono built from the NeDM pin 698282895 + patches 0001/0002. Nothing imports the
+# conda-forge pychrono package. See `chrono.trap` below for why that rule exists.
+
+standard:
+  env_name: nedm                      # one name everywhere; sbel's `nedm-src` is retired
+  chrono_pin: "698282895"             # + patches 0001, 0002
+  numpy_is_abi_locked: true           # pychrono is compiled against the host's exact numpy
+
+chrono:
+  # The conda-forge build is byte-identical on every desktop, which makes it look like the
+  # consistent choice. It is the wrong binary: it is not the NeDM pin and lacks the
+  # patches. It has already produced one wrong result -- a capacity arm scored -9.5% on
+  # sbel against this build where euler read -39.6% on the same policy.
+  trap:
+    md5: 8e9e386546fe0b33
+    what: conda-forge pychrono-10.0.0-py312h98ab86c_677
+    rule: never import; doctor.py fails the run if this hash is what resolves
+
+  # Same source, same commit, different toolchain per host, so the hashes differ. That is
+  # expected and harmless PROVIDED one corpus is collected against one hash, which
+  # collect.py enforces by writing the hash into the manifest.
+  builds:
+    euler:        { path: /srv/home/kasha2/chrono-build,        md5: a1d697dc3693b7ca }
+    euler_parsers:{ path: /srv/home/kasha2/chrono-build-parsers, md5: 4489e0f802125279 }
+    hpcfund:      { path: /work1/dannegrut/kyle/chrono-build,   md5: 638429f1170e0b22 }
+    sbel-ubuntu:  { path: /home/kyle/Documents/sbel/chrono-build, md5: 3b0bd530d06f54a4 }
+    north-ubuntu: { path: /home/kyle/chrono-build,              md5: d1d0bd0ac8ee990a }
+    a3-ubuntu:    { path: /home/kyle/chrono-build,              md5: cfbf8af6bcd2ec7d }
+    d33-ubuntu:   { path: /home/kyle/chrono-hip-build,          md5: 53102025cf46c612 }
+
+storage:
+  # Mounted on all four desktops. 30 TB, 29 TB free. This is the artifact root for
+  # anything the clusters do not hold, and it is why north's 90%-full local disk is not a
+  # constraint on what north may be asked to do.
+  nas:
+    unc: //100.99.2.50/Main
+    mount: /mnt/nas/Main
+    size_tb: 30
+    free_tb: 29
+    mounted_on: [sbel-ubuntu, north-ubuntu, a3-ubuntu, d33-ubuntu]
+    also: /mnt/nas/ProtectArchive
+  note: euler and hpcfund do NOT see the NAS; they keep their own roots and sync.
+
+hosts:
+
+  euler:
+    hostname: euler-login-3.engr.wisc.edu
+    kind: slurm
+    python: /srv/home/kasha2/venvs/nedm/bin/python      # 3.12.14
+    torch: "2.6.0+cu124"
+    numpy: "1.26.4"
+    artifact_root: /srv/home/kasha2/nedm
+    can: [collect, train, finetune, evaluate]
+    gotchas:
+      - "the venv cannot import pychrono alone; source activate-nedm.sh first (PYTHONPATH)"
+      - "the DEFAULT partition `none` contains ZERO nodes: an sbatch without -p goes nowhere"
+      - "research and interactive are preemptible (tier 200/100); sbel is priority 400 but only 2 nodes"
+      - "backup status unknown; never the only copy of anything"
+    partitions:
+      research:    { nodes: 33, gpus: all, preemptible: true }
+      interactive: { nodes: 33, gpus: all, preemptible: true }
+      sbel:        { nodes: 2,  gpus: "rtx2080ti:2 + a100:4", preemptible: false }
+    gpus:
+      h100:       { nodes: [euler29, euler30], per_node: 4, cores: 128, ram_gb: 2000 }
+      a100:       { nodes: [euler17, euler19], per_node: 4, cores: 48,  ram_gb: 251 }
+      rtxa4500:   { nodes: [euler05, euler06, euler07, euler08], per_node: 8 }
+      rtx4000ada: { nodes: [euler01, euler02, euler03, euler04, euler09, euler10], per_node: 8 }
+
+  hpcfund:
+    hostname: login1.hpcfund
+    kind: slurm
+    python: /work1/dannegrut/kyle/venvs/nedm/bin/python  # 3.12.12
+    torch: "2.10.0+rocm7.1"
+    numpy: "2.4.3"
+    artifact_root: /work1/dannegrut/kyle
+    can: [collect, evaluate]
+    cannot: [train, finetune]
+    gotchas:
+      - "torch imports and reports cuda_avail True, then dies at the first nn.Linear with
+         hipErrorFileNotFound -- missing Tensile kernels for gfx90a. Verified across 8
+         configurations. is_available() is NOT evidence the GPU works."
+      - "$WORK has no backup and its 2 TB is shared with the whole dannegrut project"
+      - "always pass -p explicitly; nodes bill whole"
+    preferred_for: collect          # one node = 1 MI210 + 16 cores = exactly one CRM episode
+
+  sbel-ubuntu:
+    hostname: kyle-sbel
+    gpu: { model: "RTX 3090", vram_mib: 24576 }
+    cores: 16
+    ram_gb: 30
+    python: /home/kyle/miniconda3/envs/nedm/bin/python
+    torch: "2.12.0+cu130"
+    numpy: "2.4.6"
+    disk_free_gb: 1014
+    can: [collect, train, finetune, evaluate]
+    note: "smallest VRAM that fits the 15-step branch at batch 64"
+
+  north-ubuntu:
+    hostname: north-ubuntu
+    gpu: { model: "RTX 5070 Ti", vram_mib: 16303 }
+    cores: 32
+    ram_gb: 60
+    python: /home/kyle/miniconda3/envs/nedm/bin/python
+    torch: "2.12.0+cu130"
+    numpy: "2.4.6"
+    disk_free_gb: 89                 # 90% full: use the NAS, not the local disk
+    can: [collect, train, evaluate]
+    cannot: [finetune]               # OOMs the 15-step branch at batch 64
+
+  a3-ubuntu:
+    hostname: kyle-B650M-D3HP        # alias does NOT match hostname
+    gpu: { model: "RTX 5060 Ti", vram_mib: 8151 }
+    cores: 12
+    ram_gb: 30
+    python: /home/kyle/miniconda3/envs/nedm/bin/python
+    torch: "2.12.0+cu130"
+    numpy: "2.4.6"
+    disk_free_gb: 294
+    can: [collect, evaluate]
+    cannot: [finetune]               # 8 GB, smallest on the fleet
+
+  d33-ubuntu:
+    hostname: d33                    # alias does NOT match hostname
+    gpu: { model: "AMD Radeon 9070 XT", arch: gfx1201, rocm: "7.2.4" }
+    cores: 24
+    ram_gb: 46
+    python: /home/kyle/miniconda3/envs/nedm/bin/python
+    torch: "PENDING rocm7.0 install; verify with a real GEMM, not is_available()"
+    disk_free_gb: 835
+    can: [collect, evaluate]
+    cannot: [train, finetune]        # revisit once the ROCm torch passes a GEMM test
+    note: "only AMD desktop; its Chrono is the HIP build"
