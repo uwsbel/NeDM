@@ -3,6 +3,7 @@ from __future__ import annotations
 # The collector owns these names; importing keeps one source of truth for the
 # column ordering. quadruped.dataset is pure stdlib and pulls in no simulator.
 from nedm.quadruped.dataset import (
+    PERTURB_FIELDS,
     COMMAND_ACTION_FIELDS as _COMMAND_ACTION_FIELDS,
     JOINT_ACTION_FIELDS as _JOINT_ACTION_FIELDS,
     JOINT_STATE_FIELDS as _JOINT_STATE_FIELDS,
@@ -258,6 +259,24 @@ STATE_FIELD_PRESETS = {
     "quadruped_crm_baseline": (DEFAULT_STATE_FIELDS + QUADRUPED_JOINT_STATE_FIELDS
                                + ["grav_body_x", "grav_body_y", "grav_body_z"]
                                + ["pos_z_m", "vel_body_z_mps"]),
+    # THE DISTURBANCE-CONDITIONED ARM, and the same argument as the payload preset
+    # below, applied to the channel it was never applied to. On the coverage corpus
+    # three quarters of episodes carry external body pushes, and NOTHING in the 36-D
+    # state says a push is happening. Two transitions with identical pose, joint state
+    # and action then evolve differently according to a force the model cannot see, so
+    # it fits their average -- which is invented structure, and invented structure is
+    # what a policy optimiser climbs.
+    #
+    # The force is already logged. PERTURB_FIELDS has carried it since the collector
+    # was written, world frame at the base COG, zero when nothing is pushing, and its
+    # own comment says logging keeps "is this a model input?" a modelling choice. This
+    # preset is that choice being made. It costs nothing at fine-tuning time, where the
+    # channels are identically zero, and it lets the pushed transitions teach how a
+    # force propagates instead of blurring the unpushed ones.
+    "quadruped_crm_perturb": (DEFAULT_STATE_FIELDS + QUADRUPED_JOINT_STATE_FIELDS
+                              + ["grav_body_x", "grav_body_y", "grav_body_z"]
+                              + ["pos_z_m", "vel_body_z_mps"]
+                              + PERTURB_FIELDS),
     # THE PAYLOAD-CONDITIONED ARM. On the payload corpus the carried mass varies from
     # 0 to 8 kg, and NOTHING in the 36-D state says what is being carried. Two episodes
     # with identical pose, joint state and action then evolve differently, so the
