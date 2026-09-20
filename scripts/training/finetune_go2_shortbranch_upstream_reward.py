@@ -235,6 +235,35 @@ if len(_MEMBERS) > 1:
     print(f"  ENSEMBLE: {len(_MEMBERS)} surrogates, pessimism weight {a.pessimism}", flush=True)
 
 md = json.load(open(ck["config"]["processed_dataset_dir"] + "/metadata.json"))
+def _assert_pool_has_channels(rows, state_fields, source):
+    """Every channel the surrogate propagates must actually carry values here.
+
+    The surrogate can be sound and the pool still unusable: a column the model reads may
+    be present but unpopulated on this machine, and NaN then reaches the optimiser as a
+    number. `dW nan` never compares greater than the target, so the stopping rule cannot
+    fire and the run continues to its ceiling rather than stopping where it should.
+    """
+    import math as _m
+    dead = []
+    for field in state_fields:
+        vals = []
+        for r in rows[:200]:
+            v = r.get(field)
+            try:
+                vals.append(float(v))
+            except (TypeError, ValueError):
+                continue
+        if vals and not any(_m.isfinite(v) for v in vals):
+            dead.append(field)
+    if dead:
+        raise SystemExit(
+            f"FATAL: branch pool at {source} carries no finite values for {dead}, which "
+            f"this surrogate propagates. The columns exist but are unpopulated on this "
+            f"machine. Every branch would be NaN, and because dW would also be NaN the "
+            f"displacement stop could never fire. Derive the missing channels for this "
+            f"copy of the corpus before fine-tuning against it."
+        )
+
 sf, af = md["state_fields"], md["action_fields"]; L = tr.sequence_length
 ix = {n: i for i, n in enumerate(sf)}; aix = {n: i for i, n in enumerate(af)}
 MOTOR = ["rr_hip","rr_thigh","rr_calf","rl_hip","rl_thigh","rl_calf",
@@ -390,6 +419,10 @@ for p in paths:
     if len(S_all) >= a.episodes: break
     rows = list(csv.DictReader(open(p.replace(".json", ".csv"))))
     if len(rows) < L + 400: continue
+    if not S_all:
+        # First episode that will actually be used. Checked here rather than on the index
+        # because an unpopulated column is a property of these files on this machine.
+        _assert_pool_has_channels(rows, sf, p)
     cmd = scored_cmd(rows)
     if cmd is not None and -0.18 < cmd <= -0.02:      # THE VERDICT'S CELL
         excluded += 1; continue
