@@ -4,6 +4,7 @@ import math
 from dataclasses import dataclass
 
 import torch
+import torch.utils.checkpoint
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -125,6 +126,12 @@ class ContinuousTransformer(nn.Module):
         self.final_norm = LayerNorm(config.n_embd, bias=config.bias)
         self.apply(self._init_weights)
 
+        # Recompute block activations in the backward pass instead of storing them.
+        # Off by default: every recorded result was produced without it, and the same
+        # command must keep reproducing them. Turned on only where the activations do
+        # not fit, which today is the 6x1024 arm under 15-step BPTT on a 40 GB card.
+        self.grad_checkpointing = False
+
     def _init_weights(self, module: nn.Module) -> None:
         if isinstance(module, nn.Linear):
             nn.init.normal_(module.weight, mean=0.0, std=0.02)
@@ -143,6 +150,28 @@ class ContinuousTransformer(nn.Module):
         x = self.input_proj(x) + self.position_embedding(positions)
         x = self.dropout(x)
         for block in self.blocks:
-            x = block(x)
+            if self.grad_checkpointing and torch.is_grad_enabled():
+                # NOT gated on self.training: during fine-tuning the surrogate is frozen
+                # and in eval(), yet its activations are still held, because the graph
+                # carries gradients back to the actions that produced them. eval() is
+                # what makes this exact rather than merely close -- no dropout to
+                # reproduce -- but checkpoint preserves RNG state regardless.
+                x = torch.utils.checkpoint.checkpoint(block, x, use_reentrant=False)
+            else:
+                x = block(x)
         return self.final_norm(x)
 
+
+def enable_grad_checkpointing(module: nn.Module) -> int:
+    """Turn checkpointing on for every transformer inside `module`; return how many.
+
+    The caller is expected to assert on the count. The surrogate is reached through a
+    wrapper, so setting the flag on the object in hand is exactly the mistake that
+    produces a silent no-op followed by the same out-of-memory failure.
+    """
+    n = 0
+    for m in module.modules():
+        if isinstance(m, ContinuousTransformer):
+            m.grad_checkpointing = True
+            n += 1
+    return n

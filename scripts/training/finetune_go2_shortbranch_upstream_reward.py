@@ -205,6 +205,10 @@ ap.add_argument("--pessimism", type=float, default=1.0,
                 help="Weight on the disagreement penalty. DECLARED, NOT TUNED: sweeping it "
                      "and reporting the best is the fitting-to-the-verdict pattern the "
                      "one-shot rule exists to prevent.")
+ap.add_argument("--grad-checkpoint", action="store_true",
+                help="Recompute surrogate block activations in the backward pass. Same "
+                     "gradient, same batch, one extra forward pass. Needed for the 6x1024 "
+                     "arm, which OOMs on a 40 GB A100 at the batch the comparison fixes.")
 ap.add_argument("--target-dw", type=float, default=None,
                 help="Save and stop the first time ||W - W_baseline|| reaches this.")
 a = ap.parse_args()
@@ -217,6 +221,18 @@ ck["config"]["training"]["device"] = DEV
 tr = HMMWVTrainer(ck["config"]); tr.model.load_state_dict(ck["model_state_dict"])
 tr.model.to(DEV).eval()
 for p in tr.model.parameters(): p.requires_grad_(False)          # surrogate FROZEN
+if a.grad_checkpoint:
+    # Applies to the scoring ensemble too, further down, for the same reason.
+    from nedm.training.model_transformer import enable_grad_checkpointing as _egc
+    _n = _egc(tr.model)
+    if _n == 0:
+        raise SystemExit(
+            "FATAL: --grad-checkpoint found no transformer to enable it on. The flag "
+            "would have been accepted and ignored, and the run would have OOMed at "
+            "full memory with nothing explaining why."
+        )
+    print(f"  grad checkpointing ON for {_n} transformer(s): activations recomputed, "
+          f"batch and gradient unchanged")
 # ENSEMBLE. The single-surrogate objective is exploitable: the optimiser finds regions
 # where the model is confidently wrong and the real system disagrees. Measured on CRM --
 # every arm drives the surrogate's own reward up while Chrono achieved velocity goes to
@@ -230,6 +246,7 @@ for _extra in [x for x in a.ensemble.split(",") if x]:
     _t = HMMWVTrainer(_c["config"]); _t.model.load_state_dict(_c["model_state_dict"])
     _t.model.to(DEV).eval()
     for _p in _t.model.parameters(): _p.requires_grad_(False)
+    if a.grad_checkpoint: _egc(_t.model)
     _MEMBERS.append(_t.model)
 if len(_MEMBERS) > 1:
     print(f"  ENSEMBLE: {len(_MEMBERS)} surrogates, pessimism weight {a.pessimism}", flush=True)
