@@ -1,0 +1,85 @@
+# Channel sets. Moved out of module globals so a preset is data, not code.
+#
+# The 36-D baseline is the closure of the control interface: everything the controller
+# reads plus everything the objective reads. The previous study bracketed it from both
+# sides -- below it nothing runs at any accuracy, and no enrichment above it beat it.
+
+base: &base
+  - vel_body_x_mps
+  - vel_body_y_mps
+  - roll_rad
+  - pitch_rad
+  - roll_rate_radps
+  - ang_vel_body_y_radps
+  - yaw_rate_radps
+
+joints: &joints
+  # Chrono order: RR, RL, FR, FL. The policy uses FR, FL, RR, RL; see transforms.py.
+  - joint_rr_hip_pos_rad
+  - joint_rr_thigh_pos_rad
+  - joint_rr_calf_pos_rad
+  - joint_rl_hip_pos_rad
+  - joint_rl_thigh_pos_rad
+  - joint_rl_calf_pos_rad
+  - joint_fr_hip_pos_rad
+  - joint_fr_thigh_pos_rad
+  - joint_fr_calf_pos_rad
+  - joint_fl_hip_pos_rad
+  - joint_fl_thigh_pos_rad
+  - joint_fl_calf_pos_rad
+  - joint_rr_hip_vel_radps
+  - joint_rr_thigh_vel_radps
+  - joint_rr_calf_vel_radps
+  - joint_rl_hip_vel_radps
+  - joint_rl_thigh_vel_radps
+  - joint_rl_calf_vel_radps
+  - joint_fr_hip_vel_radps
+  - joint_fr_thigh_vel_radps
+  - joint_fr_calf_vel_radps
+  - joint_fl_hip_vel_radps
+  - joint_fl_thigh_vel_radps
+  - joint_fl_calf_vel_radps
+
+gravity: &gravity [grav_body_x, grav_body_y, grav_body_z]
+height:  &height  [pos_z_m, vel_body_z_mps]
+
+presets:
+
+  crm_baseline:
+    dim: 36
+    fields: [*base, *joints, *gravity, *height]
+    note: >
+      The default. grav_body_* are derived from the quaternion, not from logged
+      roll/pitch, which does not reproduce Chrono's value.
+
+  crm_perturb:
+    dim: 39
+    fields: [*base, *joints, *gravity, *height,
+             [perturb_body_x_n, perturb_body_y_n, perturb_body_z_n]]
+    note: >
+      Baseline plus the push in the BODY frame, derived from the logged world-frame force
+      and the quaternion. Three channels, not six: the torque channel was never driven.
+      Kept as an option for a corpus with sustained or frequent disturbance. It is NOT the
+      answer for an impulse corpus, where the channel is zero on ~97% of rows and zero at
+      fine-tuning time -- there, segmentation is the right tool.
+
+actions:
+  # 12 joint position targets, Chrono order.
+  fields:
+    - joint_rr_hip_target_rad
+    - joint_rr_thigh_target_rad
+    - joint_rr_calf_target_rad
+    - joint_rl_hip_target_rad
+    - joint_rl_thigh_target_rad
+    - joint_rl_calf_target_rad
+    - joint_fr_hip_target_rad
+    - joint_fr_thigh_target_rad
+    - joint_fr_calf_target_rad
+    - joint_fl_hip_target_rad
+    - joint_fl_thigh_target_rad
+    - joint_fl_calf_target_rad
+
+rollout:
+  # Recovered analytically outside the propagated state, so errdist is the same physical
+  # quantity in the same units regardless of how many channels a preset carries.
+  fields: [pos_x_m, pos_y_m, yaw_rad]

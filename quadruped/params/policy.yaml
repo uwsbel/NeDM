@@ -1,0 +1,78 @@
+# Base policy: rl_sar `policy/go2/robot_lab/policy.pt`
+#
+# Transcribed from the upstream config, then VERIFIED against the downloaded checkpoint.
+# Nothing here is inherited on faith; the old policy's sign convention was, and a sign-flip
+# bug followed.
+
+source:
+  repo: https://github.com/fan-ziqi/rl_sar
+  path: policy/go2/robot_lab/policy.pt
+  sha256_prefix: 9f14cb95e74ac9e5e30954da
+  bytes: 769376
+
+# Verified by loading the checkpoint, not read from a README.
+architecture:
+  kind: plain_mlp                 # torch.jit TorchScript
+  layers: [[512, 45], [256, 512], [128, 256], [12, 128]]
+  state_dict_entries: 8           # no encoder, estimator, history or normaliser buffers
+  normaliser: none                # "Identity" upstream means there is no module at all
+  stateless: true                 # verified: same input twice -> identical output, and an
+                                  # interleaved random input leaves no carry-over
+
+observation:
+  dim: 45
+  terms: [ang_vel, gravity_vec, commands, dof_pos, dof_vel, actions]   # 3+3+3+12+12+12
+  clip: 100.0
+  history: []                     # memoryless; this is the whole reason for choosing it
+  scales:
+    lin_vel: 2.0
+    ang_vel: 0.25
+    dof_pos: 1.0
+    dof_vel: 0.05
+    commands: [1.0, 1.0, 1.0]
+  # The command vector is [vx*lin_vel, vy*lin_vel, wz*ang_vel]. The OLD policy's notes
+  # record a bug where yaw was scaled by lin_vel instead of ang_vel and it went unnoticed
+  # because the yaw command was identically zero. Here the two scales are separate fields,
+  # so the mistake is expressible and must be checked, not assumed away.
+
+action:
+  dim: 12
+  scale: [0.125, 0.25, 0.25,      # per joint: hip, thigh, calf -- NOT uniform
+          0.125, 0.25, 0.25,
+          0.125, 0.25, 0.25,
+          0.125, 0.25, 0.25]
+  clip: [-100.0, 100.0]
+  # target = default_dof_pos + action * action_scale
+
+control:
+  dt: 0.005
+  decimation: 4                   # 50 Hz control, which matches our collector exactly
+  kp: 20.0
+  kd: 0.5
+  torque_limit_nm: 23.5
+
+joints:
+  # rl_sar order. Ours is RR, RL, FR, FL -- a remap is REQUIRED.
+  policy_order: [FR_hip, FR_thigh, FR_calf,
+                 FL_hip, FL_thigh, FL_calf,
+                 RR_hip, RR_thigh, RR_calf,
+                 RL_hip, RL_thigh, RL_calf]
+  chrono_order: [rr_hip, rr_thigh, rr_calf,
+                 rl_hip, rl_thigh, rl_calf,
+                 fr_hip, fr_thigh, fr_calf,
+                 fl_hip, fl_thigh, fl_calf]
+  # chrono index for each policy index. Self-inverse, since it swaps the front and rear
+  # pairs: applying it twice returns the identity.
+  policy_to_chrono: [6, 7, 8, 9, 10, 11, 0, 1, 2, 3, 4, 5]
+  default_pos: [0.00, 0.80, -1.50,
+                0.00, 0.80, -1.50,
+                0.00, 0.80, -1.50,
+                0.00, 0.80, -1.50]
+
+sign:
+  # DELIBERATELY UNSET. The old harness negated joint positions, velocities and targets,
+  # and its own documentation says no source records why. It is established here by
+  # round-trip test against Chrono (check_action_roundtrip), and written back into this
+  # file with the evidence. Until then, collect.py refuses to run.
+  value: null
+  established_by: null

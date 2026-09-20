@@ -1,0 +1,95 @@
+# What perturbs the robot during collection, and why each one is admissible.
+#
+# THE RULE: an excitation is admissible iff it enters through a quantity the model reads,
+# or through the initial condition. Anything else leaves an unexplained acceleration, and
+# adding a channel for it produces an input that is identically zero at fine-tuning time.
+
+action_injection:
+  # NOT optional, and not decoration. Measured on the previous corpus: only ~4% of action
+  # variance survives conditioning on the state, over an effectively rank-2 subspace of a
+  # 12-dimensional action. A model fit to that can ignore the action entirely and still
+  # fit -- while d s'/d a is the single quantity fine-tuning consumes.
+  enabled: true
+  kind: ou                        # Ornstein-Uhlenbeck on the joint target
+  # Per-step i.i.d. noise is REJECTED: at 50 Hz on a position target it sits above the
+  # bandwidth the PD loop and leg inertia can follow, so the target moves and the body
+  # does not. That yields action variance with no state response, which teaches the model
+  # that actions barely matter -- the opposite of what is needed.
+  tau_s: 0.15                     # correlation time, ~7 control steps; inside the band
+  per_joint_independent: true     # shared noise would leave the residual low-rank
+  sigma_rad:
+    distribution: log_uniform     # one corpus spans scales, as the dose ladder spans volume
+    low: 0.005
+    high: 0.15                    # ceiling is empirical; see calibration below
+  applied: after_policy_before_actuation
+  logged: applied                 # log the INJECTED target. Logging the clean one would
+                                  # recreate the confound while hiding it.
+
+probes:
+  # Single-joint excitation on a minority of episodes. This is finite-differencing the
+  # Jacobian inside the data, and it is what Gate 2 compares against Chrono.
+  # OU covers the coordinated multi-joint directions a policy actually explores; probes
+  # pin down the individual columns. Neither alone does both.
+  enabled: true
+  fraction: 0.15
+  kind: single_joint_chirp
+  joints_per_episode: 1
+  amplitude_rad: [0.02, 0.12]
+  chirp_hz: [0.5, 6.0]
+
+push:
+  # Admissible ONLY because the push window never enters the corpus. The recovery after a
+  # shove is fully explainable -- post-push velocity and pose are in the state -- and is
+  # exactly the off-manifold coverage we want. The interval during which the force acts is
+  # not, because its cause is not a model input.
+  enabled: true
+  direction: uniform_sphere       # NOT the previous +/-16.7 degree disc. Sampled as
+                                  # z ~ U(-1,1), theta ~ U(0,2pi), r = sqrt(1-z^2), then
+                                  # scaled -- so it is a unit direction and "peak N" means
+                                  # what it says. The old sampler was not normalised and
+                                  # its magnitude varied with elevation.
+  magnitude_n:
+    distribution: log_uniform
+    low: 8.0
+    high: 140.0
+  duration_s: 0.10
+  events_per_episode: 2           # NOT a Poisson stream every 2 s: see segmentation
+  torque: disabled                # the torque channel was never driven; carrying it adds
+                                  # three identically-zero inputs
+
+  segmentation:
+    # Rows are never deleted in place. Windows are built inside an episode as
+    # length - sequence_length + 1, so removing rows from the middle silently produces
+    # windows that span a temporal jump. Episodes are SPLIT instead.
+    split_at_pushes: true
+    guard_steps: 2                # dropped either side of the force window
+    # Window count is superlinear in segment length: 1,475 rows at S=128 gives 1,348
+    # windows, but seven 190-row segments give 441. So the push schedule is sized around
+    # the training window rather than inherited.
+    min_segment_rows: 512         # >= 4x the sequence length
+
+initial_state:
+  # The cheapest form of the same coverage. A push delivered during unrecorded warmup
+  # costs no segments at all and produces the same off-nominal starting state.
+  randomised: true
+  warmup_push: true               # push during warmup, before recording starts
+  joint_offset_rad: [-0.15, 0.15]
+  base_vel_mps: [-0.4, 0.4]
+  base_tilt_rad: [-0.12, 0.12]
+  base_height_offset_m: [-0.04, 0.04]
+
+commands:
+  # Carried over from the old tree, which is the one part of it worth keeping wholesale:
+  # eight families with measured parameter envelopes, stratified sampling, and crc32 seeds
+  # (not hash(), because PYTHONHASHSEED salting once made a collection non-reproducible).
+  families: [constant, vel_step, arc, lateral, pivot, weave, yaw_step, stop_and_go]
+  stratified: true
+  seed_fn: crc32
+
+calibration:
+  # The first job on the new pipeline. The usable injection ceiling is empirical: enough
+  # injection and the robot simply falls. The two gates make it self-correcting -- too
+  # little fails Gate 1 action identifiability, too much spikes the truncation rate.
+  sweep: sigma_rad
+  measure: [truncation_rate, action_residual_variance, action_residual_rank]
+  sets: action_injection.sigma_rad
