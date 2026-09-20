@@ -827,6 +827,7 @@ if a.objective == "rslrl":
           flush=True)
     _obs = _env.observe()
     _dbest = (-float("inf"), -1); _hist_log = []; _t0 = time.time()
+    _best_in_budget = (-float("inf"), -1, None)
     if a.ppo_critic_warmup > 0:
         for _p in _ac.actor.parameters():
             _p.requires_grad_(False)
@@ -909,6 +910,12 @@ if a.objective == "rslrl":
                 _surv2 = float(_alive2.mean())
                 _ac.std.data.copy_(_sv)
             _star = ""
+            # Keep the best policy seen INSIDE the budget. The displacement stop below
+            # used to export the terminal iterate unconditionally, which on a declining
+            # run means shipping the worst weights the run produced.
+            if a.target_dw is not None and _dwr() <= a.target_dw and _dr > _best_in_budget[0]:
+                _best_in_budget = (_dr, u, {k: v.detach().clone()
+                                            for k, v in _ac.actor.state_dict().items()})
             if _dr > _dbest[0]:
                 _dbest = (_dr, u); _star = "  <- best"
                 # export_finetuned_policy.py does load_state_dict(strict=True) into a
@@ -944,12 +951,28 @@ if a.objective == "rslrl":
         # deliverable and overwrites reward-based selection.
         if a.target_dw is not None and _dwr() >= a.target_dw:
             _d = _dwr()
+            # Export the best policy INSIDE the budget rather than the terminal
+            # iterate. On the analytic path these coincide, because its reward rises to
+            # the stop. On a declining PPO run they do not, and taking the last one ships
+            # weights the surrogate has already scored below the starting policy.
+            _term = {k: v.detach().clone() for k, v in _ac.actor.state_dict().items()}
+            _pick, _pick_u, _why = _term, u, "terminal"
+            if _best_in_budget[2] is not None:
+                _pick, _pick_u, _why = _best_in_budget[2], _best_in_budget[1], "best_in_budget"
             _sd = {("actor." + k[len("actor_net."):] if k.startswith("actor_net.")
-                    else k): v for k, v in _ac.actor.state_dict().items()}
-            torch.save({"state_dict": _sd, "update": u, "dw": _d,
-                        "stopped_on": "target_dw"}, f"{a.out}/best.pt")
+                    else k): v for k, v in _pick.items()}
+            torch.save({"state_dict": _sd, "update": _pick_u, "dw": _d,
+                        "stopped_on": "target_dw", "selected": _why,
+                        "det_rew_per_step": (_best_in_budget[0]
+                                             if _why == "best_in_budget" else None)},
+                       f"{a.out}/best.pt")
             _dbest = (float("nan"), u)
-            _hist_log.append({"update": u, "dw": _d, "stopped_on": "target_dw"})
+            _hist_log.append({"update": u, "dw": _d, "stopped_on": "target_dw",
+                              "selected": _why, "selected_update": _pick_u,
+                              "terminal_update": u})
+            print(f"  exporting {_why} (update {_pick_u}"
+                  + (f", det reward {_best_in_budget[0]:+.4f}"
+                     if _why == "best_in_budget" else "") + ")", flush=True)
             print(f"  update {u:5d}  ||dW|| {_d:.3f} >= target {a.target_dw}"
                   f"  -- STOPPING", flush=True)
             break
