@@ -139,3 +139,13 @@ artifacts/analysis/*
 # (see docs/vision/double_pen/implementation_notes.md). Datasets, caches, and
 # training runs for NRD stay local-only for now.
 !artifacts/nrd_eval/
+
+# quadruped: artifacts are referenced by manifest, never committed
+quadruped/data/*/bytes/
+quadruped/data/*/*.csv
+quadruped/data/*/*.npy
+quadruped/data/*/*.npz
+quadruped/data/*/*.tar*
+quadruped/models/*/*.pt
+quadruped/models/*/*.pth
+quadruped/results/*/raw/
