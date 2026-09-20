@@ -27,8 +27,11 @@ chrono:
   # expected and harmless PROVIDED one corpus is collected against one hash, which
   # collect.py enforces by writing the hash into the manifest.
   builds:
-    euler:        { path: /srv/home/kasha2/chrono-build,        md5: a1d697dc3693b7ca }
-    euler_parsers:{ path: /srv/home/kasha2/chrono-build-parsers, md5: 4489e0f802125279 }
+    # Go2 needs ChParserURDF, which the primary build does NOT carry: its
+    # pychrono.parsers is absent. The parsers build is the Go2 build on euler, and
+    # its hash is the one already stamped into every recorded CRM verdict.
+    euler:         { path: /srv/home/kasha2/chrono-build-parsers, md5: 4489e0f802125279 }
+    euler_primary: { path: /srv/home/kasha2/chrono-build,         md5: a1d697dc3693b7ca }
     hpcfund:      { path: /work1/dannegrut/kyle/chrono-build,   md5: 638429f1170e0b22 }
     sbel-ubuntu:  { path: /home/kyle/Documents/sbel/chrono-build, md5: 3b0bd530d06f54a4 }
     north-ubuntu: { path: /home/kyle/chrono-build,              md5: d1d0bd0ac8ee990a }
@@ -60,6 +63,10 @@ hosts:
     can: [collect, train, finetune, evaluate]
     gotchas:
       - "the venv cannot import pychrono alone; source activate-nedm.sh first (PYTHONPATH)"
+      - "activate-nedm.sh selects the PRIMARY build, which has no pychrono.parsers. Go2
+         needs ChParserURDF, so the quadruped pipeline points PYTHONPATH at
+         chrono-build-parsers from this registry rather than trusting the activate script.
+         The old sbatch scripts did it by hand with NEDM_CHRONO=...chrono-build-parsers."
       - "the DEFAULT partition `none` contains ZERO nodes: an sbatch without -p goes nowhere"
       - "research and interactive are preemptible (tier 200/100); sbel is priority 400 but only 2 nodes"
       - "backup status unknown; never the only copy of anything"
@@ -82,6 +89,11 @@ hosts:
     artifact_root: /work1/dannegrut/kyle
     can: [collect, evaluate]
     cannot: [train, finetune]
+    cannot_because:
+      train: "torch reports cuda_avail True then dies at the first nn.Linear with
+              hipErrorFileNotFound -- missing Tensile kernels for gfx90a, verified
+              across 8 configurations"
+      finetune: "same as train"
     gotchas:
       - "torch imports and reports cuda_avail True, then dies at the first nn.Linear with
          hipErrorFileNotFound -- missing Tensile kernels for gfx90a. Verified across 8
@@ -116,7 +128,10 @@ hosts:
     numpy: "2.4.6"
     disk_free_gb: 89                 # 90% full: use the NAS, not the local disk
     can: [collect, train, evaluate]
-    cannot: [finetune]               # OOMs the 15-step branch at batch 64
+    cannot: [finetune]
+    cannot_because:
+      finetune: "16 GB VRAM; the 15-step branch at batch 64 OOMs, and the batch is a
+                 lever on exploitability so it may not be reduced to fit"
 
   a3-ubuntu:
     hostname: kyle-B650M-D3HP        # alias does NOT match hostname
@@ -128,7 +143,9 @@ hosts:
     numpy: "2.4.6"
     disk_free_gb: 294
     can: [collect, evaluate]
-    cannot: [finetune]               # 8 GB, smallest on the fleet
+    cannot: [finetune]
+    cannot_because:
+      finetune: "8 GB VRAM, smallest on the fleet"
 
   d33-ubuntu:
     hostname: d33                    # alias does NOT match hostname
@@ -141,5 +158,7 @@ hosts:
     vram_mib: 16304
     disk_free_gb: 835
     can: [collect, train, evaluate]
-    cannot: [finetune]               # 16 GB, same class as north which OOMs the 15-step branch
+    cannot: [finetune]
+    cannot_because:
+      finetune: "16 GB VRAM, same class as north, which OOMs the 15-step branch at batch 64"
     note: "only AMD desktop; Chrono is the HIP build. rocm7.0 wheel on a 7.2.4 system is fine."

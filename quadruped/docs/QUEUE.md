@@ -4,12 +4,24 @@ Ordered. Top item is next. Move an item to STATE.md when done, with its result.
 
 ## Now
 
-1. **Params layer.** `machines.yaml` (collection hosts, GPU memory, Chrono build hash),
-   `excitation.yaml`, `presets.yaml`, `training.yaml`, `transforms.py`.
-2. **`doctor.py`.** Preflight: host permitted for the action requested, Chrono build hash
-   matches the manifest, dataset integrity, preset/checkpoint agreement, GPU memory.
-3. **Policy adoption.** Fetch `robot_lab/policy.pt`, assert the load gates, establish sign
-   and observation layout by round-trip test against Chrono.
+1. **Policy adoption.** Fetch rl_sar `robot_lab/policy.pt`. Assert the load gates:
+   Identity normaliser, `observations_history == []`, no encoder/estimator keys in the
+   state dict, obs and action dimensions as built. Then establish the joint sign
+   convention and channel ordering by round-trip test against Chrono -- never inherited,
+   since the old policy's was carried on faith and a sign flip followed.
+2. **Remaining params.** `excitation.yaml` (OU sigma ladder, probe fraction, push schedule
+   and sphere sampling, initial-state bounds), `presets.yaml` (channel sets, moved out of
+   `dataset.py` module globals), `training.yaml`, `transforms.py` (quaternion projected
+   gravity, world-to-body rotation).
+
+## Done
+
+- **`params/machines.yaml`** -- fleet registry, every value measured.
+- **`doctor.py`** -- preflight, tested on euler, sbel, a3 and d33 across pass and fail
+  paths. Refuses the conda trap hash, refuses an action a host cannot do, and verifies
+  torch with a real GEMM rather than `is_available()`.
+- **Fleet standardised** -- pinned source build and env name `nedm` on all four desktops;
+  d33 given a working ROCm torch.
 
 ## Next
 
