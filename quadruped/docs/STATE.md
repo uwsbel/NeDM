@@ -33,8 +33,12 @@ else from the old tree is being replaced, not wrapped.
 
 - **NAS**: `/mnt/nas/Main`, 30 TB with 29 TB free, mounted on all four desktops. Artifact
   root for everything the clusters do not hold.
-- **The conda Chrono trap is live on all four desktops.** They import
-  `8e9e386546fe0b33`, not the pinned source build. See `STANDARD.md`.
+- **The conda Chrono trap is RESOLVED.** All four desktops now import their pinned source
+  build, verified by hash: sbel `3b0bd530`, north `d1d0bd0a`, a3 `cfbf8af6`,
+  d33 `53102025`. The conda package is removed from every env.
+- **Env name standardised to `nedm`** on all four; sbel's `nedm-src` retired.
+- **d33 is now trainable**: torch 2.10.0+rocm7.0, verified by a real GEMM forward and
+  backward, not by `is_available()`.
 - All four desktops have `chrono-src` at the correct pin `698282895`; only the import
   path is wrong.
 - **euler default partition has zero nodes** -- an sbatch without `-p` goes nowhere.

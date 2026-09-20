@@ -92,6 +92,10 @@ hosts:
 
   sbel-ubuntu:
     hostname: kyle-sbel
+    # Its Chrono build RUNPATHs into the removed nedm-src env. A compat directory of
+    # symlinks at ~/miniconda3/envs/nedm-src/lib satisfies that; the real fix is a rebuild
+    # or patchelf, neither of which is urgent. See LESSONS.md.
+    quirk: runpath_compat_shim
     gpu: { model: "RTX 3090", vram_mib: 24576 }
     cores: 16
     ram_gb: 30
@@ -132,8 +136,10 @@ hosts:
     cores: 24
     ram_gb: 46
     python: /home/kyle/miniconda3/envs/nedm/bin/python
-    torch: "PENDING rocm7.0 install; verify with a real GEMM, not is_available()"
+    torch: "2.10.0+rocm7.0"          # verified by a real GEMM fwd+bwd, not is_available()
+    numpy: "2.4.6"
+    vram_mib: 16304
     disk_free_gb: 835
-    can: [collect, evaluate]
-    cannot: [train, finetune]        # revisit once the ROCm torch passes a GEMM test
-    note: "only AMD desktop; its Chrono is the HIP build"
+    can: [collect, train, evaluate]
+    cannot: [finetune]               # 16 GB, same class as north which OOMs the 15-step branch
+    note: "only AMD desktop; Chrono is the HIP build. rocm7.0 wheel on a 7.2.4 system is fine."

@@ -113,3 +113,23 @@ reordering draws inside an existing corpus's seed changes every subsequent value
 force-only episode once replayed with different forces because a torque draw moved.
 → Rewriting a sampler breaks replay of existing corpora even when the distribution is
 identical. Version the sampler and never edit one in place.
+
+## Removing a conda env can break binaries that RUNPATH into it
+
+Standardising the fleet meant retiring sbel's redundant `nedm-src`, which held exactly one
+package `nedm` lacked: the conda Chrono trap. Removing it immediately broke pychrono in
+`nedm`, which had just been pointed at the source build.
+
+The source build's RUNPATH is
+`/home/kyle/Documents/sbel/chrono-build/lib:/home/kyle/miniconda3/envs/nedm-src/lib:` --
+it resolves `libpython3.12.so.1.0` and `libtinyxml2.so.11` out of the env that was
+deleted. Nothing in the package list showed that dependency, because it is a link-time
+path baked into the ELF, not a declared requirement.
+
+Fixed with a compat directory of symlinks at the old path, which is a shim rather than a
+repair; the real fix is a rebuild with a corrected RUNPATH, or patchelf, which was not
+installed. Recorded so the shim is not mistaken for the intended state.
+
+→ Before removing an environment, check what RUNPATHs into it: `readelf -d <so> | grep
+RUNPATH`. A package list does not show link-time paths.
+→ `parsers` failing is not cosmetic: it is what loads the Go2 URDF.
