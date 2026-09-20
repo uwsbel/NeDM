@@ -24,10 +24,19 @@ import statistics as st
 import sys
 import time
 
-sys.path.insert(0, "/home/kyle/Documents/sbel/NeDM/src")
+_CANDS = ("/home/kyle/Documents/sbel/NeDM", "/home/kyle/sbel/NeDM",
+          "/srv/home/kasha2/nedm/NeDM")
+REPO = next((c for c in _CANDS if os.path.isdir(c)), None)
+if REPO is None:
+    raise SystemExit("FATAL: no NeDM checkout found in " + repr(_CANDS))
+sys.path.insert(0, REPO + "/src")
 import torch
 
-S = "/home/kyle/sbel-artifacts"
+_ARTS = ("/home/kyle/sbel-artifacts", "/srv/home/kasha2/nedm")
+S = next((c for c in _ARTS if os.path.isdir(c)), None)
+if S is None:
+    raise SystemExit("FATAL: no artifact root found in " + repr(_ARTS))
+DATASET_DIR = os.path.join(S, "training_datasets", "go2_crm_baseline")
 DEV = "cuda" if torch.cuda.is_available() else "cpu"
 
 # ---- 1. surrogate throughput ------------------------------------------------
@@ -111,16 +120,33 @@ else:
 # Transitions consumed by one fine-tune to reach the stopping rule.
 UPDATES = {"analytic dW 1.0": 94, "analytic dW 2.0": 205, "analytic dW 4.0": 1147}
 print()
+t_chrono_dw1 = None          # the dW 1.0 arm is the deployed recipe; break-even uses it
 for label, upd in UPDATES.items():
     consumed = upd * BATCH * BRANCH
     t_surr = consumed / surr_rate
     line = f"  {label:<18} {upd:>5} updates  {consumed:>9,} transitions  surrogate {t_surr:7.1f} s"
     if chrono_rate:
         t_chrono = consumed / chrono_rate
+        if label == "analytic dW 1.0": t_chrono_dw1 = t_chrono
         line += f"  chrono {t_chrono / 3600:7.1f} h  speedup {t_chrono / t_surr:,.0f}x"
     print(line)
 
 if chrono_rate:
     print()
     print(f"  per-transition speedup: {surr_rate / chrono_rate:,.0f}x")
-    print(f"  corpus collection to amortise: 24.1 h of Chrono wall-clock, paid once")
+    # Derived, not asserted: the corpus actually on disk, at the Chrono rate measured
+    # above. A hardcoded figure sat here previously and no record reproduced it.
+    _man = os.path.join(DATASET_DIR, "metadata.json")
+    if os.path.exists(_man):
+        _sp = json.load(open(_man)).get("splits", {})
+        _tot = sum(int(v.get("transition_count", 0)) for v in _sp.values())
+        _eps = sum(int(v.get("episode_count", 0)) for v in _sp.values())
+        if _tot:
+            _h = _tot / chrono_rate / 3600.0
+            print(f"  corpus on disk: {_eps:,} episodes / {_tot:,} transitions")
+            print(f"  collection to amortise: {_h:.1f} h of single-worker Chrono, paid once")
+            if t_chrono_dw1:
+                print(f"  break-even: {_h / (t_chrono_dw1 / 3600.0):.1f} fine-tunes "
+                      f"at {t_chrono_dw1 / 3600.0:.1f} h saved each")
+    else:
+        print(f"  corpus cost: NOT COMPUTED, no manifest at {_man}")

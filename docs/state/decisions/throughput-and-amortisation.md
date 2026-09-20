@@ -88,3 +88,38 @@ candidates per verdict is high enough to amortise a 24.1 h corpus.
 `scripts/throughput/measure_finetune_throughput.py`, which is the script this file's
 numbers came from, committed alongside it. Surrogate side times 64x15 branch batches on
 the target GPU; Chrono side reads `wall_clock_s` and `rows` from the episode sidecars.
+
+## Correction: the corpus cost was an invented constant
+
+The amortisation section above used "24.1 h of Chrono wall-clock, paid once" and derived
+a break-even of about four fine-tunes from it. A provenance audit found that 24.1 h was a
+hardcoded f-string literal in `measure_finetune_throughput.py` -- nothing computed it, and
+no collection log, node-hour tally or sidecar aggregation reproduces it. It was an
+invented numerator carrying a derived conclusion, which is the same defect class as the
+throughput figures this file was written to fix.
+
+The script now computes it from the corpus manifest on disk at the Chrono rate it
+measures in the same run. The corrected figures:
+
+```
+  corpus on disk                795 episodes / 555,851 transitions
+  at 4.17 transitions/s         37.0 h of single-worker Chrono
+  one fine-tune saves (dW 1.0)   6.0 h
+  break-even                    6.2 fine-tunes
+```
+
+So the corpus is HALF AGAIN more expensive than recorded, and the break-even is 6.2
+fine-tunes rather than 4. The direction of the conclusion is unchanged and the margin is
+still comfortable, because this study has run dozens of arms against this corpus, but the
+numbers to quote are the ones above.
+
+Two caveats travel with them. The 37.0 h is the full corpus including the validation
+split; train alone is 447,372 transitions, or 29.8 h, and which to quote depends on
+whether the val episodes are counted as collection cost, which they are, since they had
+to be simulated. And 4.17 transitions/s is a mean over a 53x range, so this is an
+order-of-magnitude figure like every other number resting on that rate.
+
+An independent sanity check from a different direction, recorded in `go2-crm-pilot.md`:
+"A 2000-episode corpus at 16 s is roughly 10 hours of FLEET time." That is fleet rather
+than single-worker and a different episode length, so it does not contradict 37.0 h
+single-worker; it is the same cost divided across concurrent boxes.
