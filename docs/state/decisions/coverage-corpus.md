@@ -122,3 +122,20 @@ If it does NOT recover, the distribution-mismatch reading survives and the cover
 stands on firmer ground than it does today.
 
 Either way the current wcov numbers should not be quoted as a coverage result.
+
+
+### CORRECTION: the reference corpus is pushed too, so this confound is common-mode
+
+The section above assumed the reference corpus was clean. It is not. Its episode sidecars
+record a push ladder: of 635 training episodes, 105 at 0 N and the rest spread over 24,
+48, 72, 96 and 120 N, so 83% carry pushes. Per-row push-active rates are comparable
+between the two corpora, about 3.6% for the baseline source and 3.1% for the coverage
+source.
+
+So the unobserved-input defect is real and it is COMMON-MODE. It cannot explain why the
+coverage corpus delivers a worse policy, because the corpus it is being compared against
+has the same defect at the same rate. The distribution reading demoted above is back to
+being as plausible as it was, and the coverage question is open rather than explained.
+
+What the defect does bear on is the HEADLINE result, which is trained on this same pushed
+corpus. That is where the masking experiment belongs.
