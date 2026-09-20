@@ -260,6 +260,43 @@ def build_collector_config(args: argparse.Namespace, soil: dict[str, Any]) -> di
     return config
 
 
+# A joint cannot traverse pi in one control step. The Go2's joints are bounded well inside
+# a full turn, and at any physical rate a 20 ms step covers a small fraction of their
+# range, so this threshold sits far above real motion rather than near it: the clean
+# corpus's largest legitimate per-step change is well below pi and the divergences are at
+# 4 to 13 radians.
+_MAX_JOINT_STEP_RAD = math.pi
+
+
+def first_implausible_row(rows: list[dict[str, Any]]) -> int | None:
+    """Index of the first row where a joint moved faster than physics allows, or None.
+
+    Same policy as first_nonfinite_row, for the divergences that never go non-finite. The
+    contact solver can fail while every number it writes stays finite, which passes the
+    NaN check and reaches disk looking like motion.
+
+    The row RETURNED is the one holding the impossible value, so the caller cuts before
+    it and keeps the approach. That matters: the states leading into a solver failure are
+    real, and a surrogate that never sees them cannot represent a region the optimiser can
+    still steer into.
+    """
+    joint_keys = [k for k in (rows[0] if rows else {})
+                  if k.startswith("joint_") and k.endswith("_pos_rad")]
+    if not joint_keys:
+        return None
+    prev: dict[str, float] = {}
+    for index, row in enumerate(rows):
+        for key in joint_keys:
+            value = row.get(key)
+            if not isinstance(value, float) or not math.isfinite(value):
+                continue
+            last = prev.get(key)
+            if last is not None and abs(value - last) > _MAX_JOINT_STEP_RAD:
+                return index
+            prev[key] = value
+    return None
+
+
 def first_nonfinite_row(rows: list[dict[str, Any]], allow_nan: set[str]) -> int | None:
     """Index of the first row carrying a non-finite value, or None.
 
@@ -790,7 +827,17 @@ def run_episode(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any
     allow_nan = {f for f in foot_field_names() if f.endswith("_surface_disp_m")}
     allow_nan |= set(POLICY_RAW_ACTION_FIELDS)
     allow_nan |= {f for f in foot_field_names() if f.endswith("_in_contact")}
-    diverged_at = first_nonfinite_row(rows, allow_nan)
+    # Two ways the solver fails: it produces a NaN, or it produces finite nonsense. Cut
+    # at whichever comes first -- truncating at a later NaN would keep rows that were
+    # already garbage by the time it appeared.
+    _nonfinite_at = first_nonfinite_row(rows, allow_nan)
+    _implausible_at = first_implausible_row(rows)
+    diverged_at = min([x for x in (_nonfinite_at, _implausible_at) if x is not None],
+                      default=None)
+    if diverged_at is not None:
+        print(f"  solver divergence at sample {diverged_at} "
+              f"(non-finite={_nonfinite_at}, implausible-joint-step={_implausible_at}); "
+              f"truncating and labelling", flush=True)
     if diverged_at is not None:
         if diverged_at < 50:
             raise ValueError(
