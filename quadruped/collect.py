@@ -46,6 +46,21 @@ LEGS = ("rr", "rl", "fr", "fl")
 START_INSET_M = 1.0
 EDGE_MARGIN_M = 0.5
 
+# Ceiling on how far the bed may grow. Patch length is nearly free per step, but it
+# is not free in memory or build time, and an unbounded bed would let one mistyped
+# command allocate tens of millions of particles. 30 m holds a 20 s episode at the
+# top of the vx range; beyond that the command is slowed instead.
+MAX_PATCH_X = 30.0
+MAX_PATCH_Y = 12.0
+
+# The real ceiling is GPU memory, not length. Per-step cost barely depends on particle
+# count once an active domain is on (docs/COST.md), so length is cheap to BUY but not
+# cheap to STORE: 26.9 x 12.0 x 0.2 m at 0.02 m spacing is 8.1 M particles, against the
+# 1.77 M the cost benchmark actually exercised. A budget expressed in particles says what
+# is really constrained; the length caps above only bound one axis each and miss the
+# product. Over budget, the bed is shrunk and the command slowed to match.
+MAX_PARTICLES = 4_000_000
+
 
 def _start_edge(v0, peak, lo, hi):
     """Where to spawn along one axis: the near edge if the robot moves along it.
@@ -224,7 +239,7 @@ def run_episode(chrono, ep_index, seed, args, exc, pol_cfg, urdf):
     # to ~8 s, which is shorter than the 10 s rollout the evaluation wants to measure.
     if getattr(args, "long_run", False):
         _bx = args.patch_x - 1.0
-        _by = args.patch_y - 1.0
+        _by = args.patch_y - 1.0  # nominal bed; the real one is sized below
         _need = 0.8 * _dur_req
         _k = 1.0
         if pk_vx > 1e-6:
@@ -248,14 +263,72 @@ def run_episode(chrono, ep_index, seed, args, exc, pol_cfg, urdf):
     # centred robot can only use half of it in the direction it is going.
     ep_cfg = exc["episode"]
     margin = EDGE_MARGIN_M
-    bud_x = args.patch_x - START_INSET_M - EDGE_MARGIN_M
-    bud_y = args.patch_y - START_INSET_M - EDGE_MARGIN_M
     # Expected achieved speed, from the measured CRM envelope: roughly 0.75-0.88 of
     # command, so 0.8 is used rather than the command itself, which would over-reserve.
     exp_vx, exp_vy = 0.8 * pk_vx, 0.8 * pk_vy
-    t_lim = min(bud_x / exp_vx if exp_vx > 1e-6 else 1e9,
-                bud_y / exp_vy if exp_vy > 1e-6 else 1e9)
-    _dur = max(min(_dur_req, t_lim), ep_cfg["min_duration_s"])
+
+    def _budget(px, py):
+        return (px - START_INSET_M - EDGE_MARGIN_M, py - START_INSET_M - EDGE_MARGIN_M)
+
+    def _t_lim(px, py):
+        """Longest run the bed holds, INCLUDING the warmup.
+
+        The old version divided the budget by the speed and stopped there, then computed
+        travel as `exp_vx * (dur + warmup)`. The robot walks during warmup too, so that
+        overran the bed by exp_vx * warmup on every episode. It also took
+        `max(..., min_duration_s)`, which let the floor override the limit entirely and
+        produce an episode that cannot physically fit -- which is what the spawn guard
+        caught: 7.2 m of travel requested on 6.5 m of runway.
+        """
+        bx, by = _budget(px, py)
+        return min(bx / exp_vx - args.warmup_s if exp_vx > 1e-6 else 1e9,
+                   by / exp_vy - args.warmup_s if exp_vy > 1e-6 else 1e9)
+
+    # THE BED GROWS TO THE EPISODE, not the other way round. The old comment here said
+    # "the patch sets the episode", which was right when patch size was believed to cost
+    # per step. It does not: 4x the particles costs 4.5% more per step, because every SPH
+    # kernel launches over the active set rather than over all markers (docs/COST.md). So
+    # buying soil is the cheap way to keep a fast command at full duration, and clamping
+    # the episode was paying for a constraint that does not exist.
+    # SLACK, because the grown bed has to clear the same check it was sized against and
+    # sizing it to exactly `need` leaves that on a floating-point knife edge.
+    _slack = 0.2
+    _want = exp_vx * (_dur_req + args.warmup_s), exp_vy * (_dur_req + args.warmup_s)
+    patch_x = min(MAX_PATCH_X,
+                  max(args.patch_x, _want[0] + START_INSET_M + EDGE_MARGIN_M + _slack))
+    patch_y = min(MAX_PATCH_Y,
+                  max(args.patch_y, _want[1] + START_INSET_M + EDGE_MARGIN_M + _slack))
+
+    # Shrink to the particle budget before anything else is derived from the bed.
+    _cells = (patch_x / args.spacing) * (patch_y / args.spacing) * (args.depth / args.spacing)
+    if _cells > MAX_PARTICLES:
+        _shrink = (MAX_PARTICLES / _cells) ** 0.5     # both horizontal axes equally
+        patch_x = max(args.patch_x, patch_x * _shrink)
+        patch_y = max(args.patch_y, patch_y * _shrink)
+
+    _dur = min(_dur_req, _t_lim(patch_x, patch_y))
+    if _dur < ep_cfg["min_duration_s"]:
+        # The bed is at its cap and still cannot hold the shortest episode worth keeping.
+        # SLOW THE COMMAND rather than shorten further: a segment below min_duration is
+        # discarded anyway, so the choice is between a slower episode and no episode.
+        _dur = ep_cfg["min_duration_s"]
+        bx, by = _budget(patch_x, patch_y)
+        _k = 1.0
+        if exp_vx > 1e-6:
+            _k = min(_k, (bx / (_dur + args.warmup_s)) / exp_vx)
+        if exp_vy > 1e-6:
+            _k = min(_k, (by / (_dur + args.warmup_s)) / exp_vy)
+        _k = max(_k, 1e-3)
+        _inner2, _s2 = sched_fn, float(_k)
+
+        def sched_fn(t, _f=_inner2, _s=_s2):      # noqa: F811
+            c = _f(t)
+            return (c[0] * _s, c[1] * _s, c[2])
+        exp_vx *= _k
+        exp_vy *= _k
+        pk_vx *= _k
+        pk_vy *= _k
+
     _travel = exp_vx * (_dur + args.warmup_s)
     _s0 = sched_fn(0.0)
     # DERIVED FROM THE BED, NOT RECOMPUTED FROM patch_x. Recomputing it is what broke:
@@ -263,14 +336,14 @@ def run_episode(chrono, ep_index, seed, args, exc, pol_cfg, urdf):
     # patch centred on the origin, while the bed was actually being built at
     # x = patch_x/2 - 0.6. See crm_patch_bounds.
     (plo_x, plo_y, _), (phi_x, phi_y, _) = crm_patch_bounds(
-        args.patch_x, args.patch_y, args.depth)
+        patch_x, patch_y, args.depth)
     sx = _start_edge(_s0[0], pk_vx, plo_x, phi_x)
     sy = _start_edge(_s0[1], pk_vy, plo_y, phi_y)
     if args.terrain == "rigid":
         sx = sy = 0.0        # the rigid floor is sized to the travel instead
     system, robot, terrain, soil_top, dt = build_scene(
         chrono, args.terrain, urdf, args.spacing, args.step, args.soil,
-        args.patch_x, args.patch_y, args.depth, travel_m=_travel,
+        patch_x, patch_y, args.depth, travel_m=_travel,
         spawn_xy=(float(sx), float(sy)))
     # The guard the placement bug got past. Checks the bed Chrono built, not the
     # arithmetic that asked for it, and fails before any simulation time is spent.
