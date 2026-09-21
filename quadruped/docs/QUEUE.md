@@ -4,56 +4,44 @@ Ordered. Top item is next. Move an item to STATE.md when done, with its result.
 
 ## Now
 
-1. **Active-domain calibration, stage 1.** `active_domain_study.py` against a 2.0 m
-   reference, paired within case, noise floor first. Running on sbel.
-2. **Active-domain calibration, stage 2.** Re-check the chosen value against `none`, the
-   unapproximated solve, on the same cases. Stage 1 cannot separate "0.5 agrees with 2.0"
-   from "0.5 and 2.0 share a bias", and at 37x real time the true reference is affordable.
-3. **Settling test.** Does `free_flow_duration = 0.1 s` leave the robot walking onto
-   never-settled soil? `--free-flow-s` exists for this. Systematic across the whole corpus
-   if real, so it is answered before collection, not after.
-4. **Re-measure the CRM walk numbers.** The 64% CRM tracking figure in STATE.md predates
-   the patch-placement fix. Re-run `walk_check.py` on the corrected geometry.
-5. **Small CRM corpus.** The one Kyle approved, at the patch size that falls out of the
-   cost result rather than the one assumed before it.
-6. **Full-scale collection on hpcfund**, once the above settle the per-episode cost.
-3. **`train.py`**, then **`finetune.py`** (`--method {analytic,ppo}`), then `evaluate.py`.
-
-## Done
-
-- **`params/machines.yaml`** -- fleet registry, every value measured.
-- **`doctor.py`** -- preflight, tested on euler, sbel, a3 and d33 across pass and fail
-  paths. Refuses the conda trap hash, refuses an action a host cannot do, and verifies
-  torch with a real GEMM rather than `is_available()`.
-- **Fleet standardised** -- pinned source build and env name `nedm` on all four desktops;
-  d33 given a working ROCm torch.
-- **Policy adopted and verified.** rl_sar `robot_lab/policy.pt`: plain MLP, 8 state_dict
-  entries, statelessness confirmed empirically. Load gates refuse an encoder, a wrong
-  entry count, a non-empty history, or a dimension mismatch.
-- **Sign convention established at -1 by physics**, not inherited, with the evidence
-  written into `params/policy.yaml`. A command-scaling bug was found in the same run.
-- **`lib/excitation.py`** -- OU injection, sphere-uniform pushes, chirp probes, push
-  scheduling that refuses infeasible schedules. 30-check self-test.
-- **The robot walks**, rigid 95% and CRM 64% tracking.
+1. **Verify the v2 smoke corpus.** Six episodes at drift-aware bed sizing. Three in, all
+   keeping every row, where v1 truncated two of six. Confirm the remaining three and run
+   `corpus_check.py` for the four gates.
+2. **Confirm the active domain.** Replication at seed 77 on sbel. The first ensemble gave
+   no measurable bias for either 0.5 m or 1.0 m against the unapproximated solve, with
+   0.5 m costing 1.7x less. If it replicates, 0.5 m is the setting and the corpus gets a
+   1.6x speedup per episode.
 
 ## Next
 
-4. **`collect.py`.** Excitation layer, failure gating with truncation, episode splitting
-   at pushes, manifest emission.
-5. **Calibration sweep.** OU sigma against truncation rate and action identifiability.
-   Sets the operating range by measurement rather than guess.
-6. **`train.py`**, then **`finetune.py`** (`--method {analytic,ppo}`), then `evaluate.py`.
+3. **Stage hpcfund and validate on `devel`.** The tree, `src/nedm`, the policy and the
+   URDF assets are not there. The branch is euler-local, so moving it is a deliberate
+   step -- either rsync through a workstation or push to the remote, which is Kyle's call
+   since it publishes to the shared lab repo. Then one episode on `devel` at 0.1x charge
+   before anything larger, per the cluster rules.
+4. **Full-scale collection.** Sized once the per-episode cost is settled by (2).
+5. **`finetune.py`**, with `--method {analytic,ppo}`. Analytic is the method that works
+   today; PPO is the one Kyle wants to get working to get away from an implementation
+   that is hacky and only suits a simple task.
+6. **Gate 3** (rollout horizon) in the training path.
 
-## Gates before any corpus is accepted
+## Open questions, not blocking
 
-- Gate 1 action identifiability: residual action variance and effective rank
-- Gate 2 Jacobian: model `d s'/d a` vs Chrono finite differences -- NEVER RUN BEFORE
-- Gate 3 rollout horizon: err/dist vs horizon, no-motion floor at 1.0
-- Gate 4 coverage: state occupancy and command balance
-
-## Deferred, carried from the old tree
-
-- Why gradients beat PPO. Sample budget is refuted; the in-distribution hypothesis is
-  untested. Cheap: truncate PPO to 15 steps from recorded starts.
-- Dose-ladder `val_loss` recomputation under the fixed sampler. The rho = -0.80 result has
-  a confound aligned with its own independent variable.
+- **Does truncation bias the corpus?** Episodes that drift most get cut shortest, so
+  surviving data over-represents low-drift behaviour. v2 sizing makes truncation rare,
+  which shrinks the problem, but the residual rate should be reported per corpus rather
+  than assumed to be zero.
+- **Is there a machine effect on CRM at all?** The claim was withdrawn as unproven, not
+  established. a3 cannot run the reference, so a like-for-like replication needs a third
+  machine that can, or the question stays open. It costs nothing to keep comparisons
+  within one machine meanwhile.
+- **What is the real variance of the tracking metric?** 5.7 points is a floor, measured by
+  perturbing spawn alone. A corpus varies command, soil realisation and initial state too,
+  so the honest number should come from the episode distribution rather than one knob.
+- **The four unexplained HMMWV divergences** in `docs/SOIL.md`: `free_surface_threshold`
+  2.0 against the design doc's 0.8, `num_proximity_search_steps` 4 where the doc said not
+  to raise it without comparing force and sinkage, our 4x coarser MBS/CFD coupling, and
+  the uncalibrated active-domain sizes on both sides. Worth raising with Zhang rather than
+  silently adopting either side.
+- **Their bed is 0.25 m deep**, above the ~0.22 m at which we measured a CRM bed heaving
+  and carrying bodies. Measured at our spacing and mass, so uncertain for theirs.

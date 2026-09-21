@@ -1,127 +1,104 @@
 # State
 
-**Updated:** 2026-09-20 (cost) · **Branch:** `kyle/quadruped-pipeline` (off `kyle/locomotion`)
+**Updated:** 2026-09-20 (evening) · **Branch:** `kyle/quadruped-pipeline` (off `kyle/locomotion`)
 
 ## Where this is
 
-The policy walks, on both terrains, through the new pipeline. Measured 2026-09-21,
-`walk_check.py`, 0.5 m/s commanded:
+`collect.py` produces clean CRM corpora and `train.py` fits an NN-ROM on them. Both were
+exercised end to end today. `finetune.py` and Gate 3 remain unbuilt.
+
+The base policy walks on both terrains. Quoted as replicate means, because a single CRM
+run does not support a number (see `docs/EVALUATION.md`):
 
 ```
-  rigid   mean_z 0.342   upright +1.000   vx +0.473   tracking 95%
-  crm     mean_z 0.504   upright +0.999   vx +0.321   tracking 64%
+  rigid   97.0% +/- 0.1  (n=8)        CRM   74.7% +/- 5.7  (n=8, wide spawn spread)
+  gap     22.2 +/- 5.6
 ```
 
-Base sits 0.292 m above the rigid surface and 0.304 m above the soil surface, so it is
-standing on the bed rather than sinking into it.
+**That gap is the headroom the study is about.** It is smaller and far noisier than the
+single-run "95 against 64" it replaces.
 
-**Collection is verified end to end** on rigid: 3 episodes, 0% truncation, 98.6% of rows
-and 3 segments per episode kept, 0 push-active rows surviving into any segment, manifest
-written with the Chrono hash. The OU sigma range is now calibrated by measurement rather
-than guessed, and at the chosen setting the corpus carries 29.2% identifiable action
-variance over an effective rank of 8.96, against the previous corpus's 4% over rank 2.
+## What was decided today
 
-**That 95% against 64% is the headroom the whole study is about**, reproduced from scratch
-with a different base policy than the previous work used. Fine-tuning has something to
-close.
-
-Built and self-tested so far: `doctor.py`, `lib/policy.py`, `lib/validity.py`,
-`lib/provenance.py`, `lib/excitation.py`, the full `params/` layer, `establish_sign.py`,
-`walk_check.py`, `collect.py`, `corpus_check.py`, `evaluate.py`, `patch_cost.py`,
-`active_domain_study.py`. Not yet built: `train.py`, `finetune.py`, and Gate 3 in the
-training path.
-
-## The soil was not where the spawn rule thought it was
-
-Found 2026-09-20 by a cost benchmark whose five configurations returned bit-identical
-dynamics. `build_crm` centred the bed at `x = patch_x/2 - 0.6`, so an 8 m patch ran
-x [-0.600, +7.400], while the collector spawned a +x episode at -3.500 -- the near edge of
-a bed centred on the origin. The robot free-fell for the whole episode.
-
-It would not have failed loudly. The offset is +x only, so backward-commanded episodes
-spawn on the bed and collect normally while forward ones truncate below `min_segment_rows`
-and vanish. The corpus would have been silently missing most of a vx [-1.0, 1.5] range
-while passing every gate, and the symptom at full scale reads as "the policy cannot walk
-on CRM". Fixed in `89c898b8`: `crm_patch_bounds()` is the single source of truth, the bed
-is centred, and three guards were added -- built-bounds check, spawn-on-bed assertion, and
-an `off_bed` validity check that fires at the edge rather than when `base_height` finally
-trips.
-
-**Blast radius: none, checked rather than assumed.** No CRM corpus had been collected yet
-(`data/` holds only its README), so no data carries the fault. `walk_check.py` spawns at
-the origin, which is on the bed under both the old convention and the new one, so the
-rigid 95% and CRM 64% tracking figures stand. Only `collect.py`'s far-end spawn was
-affected, and it had not yet been run on soil. The bug was caught one step before it
-would have produced a corpus.
-
-## Cost: patch length is nearly free
-
-Measured 2026-09-20, `patch_cost.py`, full detail in `docs/COST.md`. Four times the
-particles (444k -> 1.77M) costs 4.5% more per step, because every SPH kernel launches over
-the compacted active set rather than over all markers. **The active domain is the only
-cost knob**: 3.81x real time at 0.5 m, 6.18x at 1.0 m (the value inherited from Chrono's
-Viper demo), 14.11x at 2.0 m, 36.95x with none at all.
-
-That inherited 1.0 m is therefore worth a factor of 6, and is uncalibrated. It is also not
-a free approximation -- outside the box a particle's velocity is zeroed every step -- so
-`active_domain_study.py` is calibrating it against the unapproximated solve before it is
-trusted.
-
-The SCM-style moving patch exists (`ConstructMovingPatch`) and is the wrong tool: +x only
-while our commands cover vy and wz, relocated soil is reset to zero stress and zero
-velocity, and no demo combines it with an active domain. See `docs/COST.md`.
-
-## What is decided
-
-| decision | value | why |
+| decision | value | on what evidence |
 |---|---|---|
-| base policy | rl_sar `robot_lab/policy.pt` | plain rsl_rl MLP, Identity normaliser, `observations_history: []` -- memoryless |
-| excitation default | OU per-joint action injection ON, pushes ON | the action derivative is unidentifiable without injection |
-| push handling | episode SPLIT at each push, active window dropped | the recovery is admissible, the force window is not |
-| push direction | uniform over the sphere | current code is a +/-16.7 degree disc |
-| collection host | hpcfund preferred, euler fallback | one node = one CRM episode; hpcfund cannot train |
-| data/models in git | manifests only | `.git` is already 502 MB; one checkpoint is 911 MB |
+| base policy | keep rl_sar `robot_lab/policy.pt` | see "the policy drifts" below |
+| active domain | 0.5 m (provisional) | no measurable bias over 1.0 m at 1.7x the cost; replication running |
+| free-flow duration | 0.1 s, unchanged | the bed compacts 0.3 mm total, complete within 0.5 s |
+| soil preset | `soft`, not `hmmwv_reference` | 5.6x lower variance on the gap; see `docs/SOIL.md` |
+| moving patch | not used | +x only, and our commands cover vy and wz |
+| bed sizing | from the planned path, widened for yaw drift | see below |
+| checkpoint selection | smoothed rollout errdist at 10 s | one-step val_loss ranks corpora with the wrong sign |
 
-## What is NOT decided
+## The policy drifts, and it is the policy
 
-- Corpus size, pending the calibration sweep. Episode length is 20 s, set by the push
-  segmentation arithmetic in `excitation.yaml`.
-- Active-domain size, pending `active_domain_study.py`. This sets the cost of the entire
-  corpus, so it is the last thing to settle before full-scale collection.
-- Patch size, which is now nearly free and should be sized for the longest episode wanted
-  rather than traded against cost.
-- Whether soil ahead of the robot ever settles. `free_flow_duration` is 0.1 s and the
-  active domain freezes everything outside it, so the robot may always be stepping onto
-  settling rather than settled material. Untested, and systematic across the corpus if
-  real.
-- OU sigma range and correlation time, same.
-- Whether soil parameters vary within a corpus or are fixed per corpus.
+With the yaw command held at ZERO the robot turns at 0.126 rad/s on rigid ground -- the
+terrain it was trained on -- and at 0.124 to 0.309 rad/s on CRM. Over a 20 s episode that
+is 70 to 350 degrees of unplanned heading. A straight command walks an arc.
 
-## Inherited, not yet ported
+**This is a property of the policy, not an integration fault.** Yaw tracking is left-right
+symmetric (+1.0 -> +0.941, -1.0 -> -0.935; +0.5 -> +0.559, -0.5 -> -0.541) and the offset
+collapses from 0.126 at zero command to 0.003 at unit command. That is a deadband, not an
+asymmetry. The URDF hips are non-mirrored (`axis 1 0 0` both sides, symmetric limits) and
+`default_pos` is identical across all four legs, so the uniform sign convention is
+consistent.
 
-`crm_verdict.py`, the Chrono scene setup, the gravity and contact derivations. Everything
-else from the old tree is being replaced, not wrapped.
+**Kept rather than replaced.** A base policy with a measurable yaw deficiency is headroom
+for fine-tuning, not an obstacle to it. Switching to the HIM policy would work
+mechanically -- a 6-step observation history is a function of the NN-ROM's state sequence
+and the estimator head is differentiable -- but its estimator was fit on rigid dynamics,
+so CRM fine-tuning would train estimator and policy together, and a policy with more
+expressive surface makes NN-ROM exploitation easier, which is our known failure mode.
 
-## Fleet facts, probed 2026-09-20
+## Collection
 
-- **NAS**: `/mnt/nas/Main`, 30 TB with 29 TB free, mounted on all four desktops. Artifact
-  root for everything the clusters do not hold.
-- **The conda Chrono trap is RESOLVED.** All four desktops now import their pinned source
-  build, verified by hash: sbel `3b0bd530`, north `d1d0bd0a`, a3 `cfbf8af6`,
-  d33 `53102025`. The conda package is removed from every env.
-- **Env name standardised to `nedm`** on all four; sbel's `nedm-src` retired.
-- **d33 is now trainable**: torch 2.10.0+rocm7.0, verified by a real GEMM forward and
-  backward, not by `is_available()`.
-- All four desktops have `chrono-src` at the correct pin `698282895`; only the import
-  path is wrong.
-- **euler default partition has zero nodes** -- an sbatch without `-p` goes nowhere.
-- **hpcfund torch reports cuda_avail True and dies at the first nn.Linear.** Chrono only.
-- numpy is split three ways and is ABI-locked to each host's pychrono. Do not unify.
-- d33 (AMD 9070 XT, gfx1201, ROCm 7.2.4) is being given a ROCm torch; acceptance is a real
-  GEMM plus backward pass, never `is_available()`.
+The bed is sized from the PLANNED PATH, dead-reckoned from the command schedule, and
+widened by integrating at the commanded yaw rate plus and minus 0.25 rad/s. Three
+successive versions of this were wrong and each was caught by a guard rather than by
+inspection:
+
+1. The bed was not where the spawn rule thought it was (`89c898b8`) -- caught by a cost
+   benchmark returning bit-identical results for five different configurations.
+2. The travel budget ignored warmup travel and let the duration floor override the bed
+   limit (`d0147967`) -- caught by the spawn assertion added in (1).
+3. The budget was blind to yaw, so `weave` left the bed after 7.33 s (`df6bb874`) --
+   caught by the `off_bed` check added in (1).
+
+After all three, the 6-episode smoke corpus keeps every row it collects, where the first
+version kept 86% and truncated two of six episodes.
+
+## Cost
+
+Full detail in `docs/COST.md`. The short version, with one correction:
+
+- The active domain is the cost. 3.81x real time at 0.5 m, 6.18x at 1.0 m, 36.95x with
+  none at all.
+- **Patch length is nearly free only up to about 2 M particles.** An earlier version of
+  this file said it was free generally, extrapolated from a benchmark that only spanned
+  444k to 1.77M. Measured further: 3.5 M is +34% per step, 7.1 M is +82%, 13.3 M is +170%.
+  So a drift-proof disc-shaped bed is not affordable and the bed is sized to the path.
+
+## Tooling added today
+
+`namecheck.py` compares names read against names bound per function with a real scope
+chain, because `py_compile` accepts a function that reads a name nothing assigns and one
+such bug cost three minutes of GPU. Its first real catch was worse than the bug that
+motivated it: **`doctor.py` was verifying nothing.** `_no_driver` had been inserted into
+the middle of `check_chrono`, so the trap-hash refusal and the build-md5 comparison sat
+below a `return` and never ran. Any run that passed doctor since `39f317eb` was checked
+against nothing (`5e3df653`).
+
+## Fleet
+
+- **hpcfund can run CRM** -- verified, not assumed: `_fsi.so` and `libChrono_fsisph.so`
+  are built and a `go2_crm_scoreset` from earlier work is on disk. The `quadruped/` tree,
+  `src/nedm`, the policy and the URDF assets are NOT staged there yet, and the branch is
+  euler-local so it has to be moved deliberately.
+- **a3 cannot run the unapproximated reference.** Its display GPU's watchdog kills the
+  long kernels: `cudaErrorLaunchTimeout`. Ensemble replication therefore runs on sbel.
+- sbel, north, a3 all import their pinned source builds.
 
 ## Running
 
-sbel: `active_domain_study.py`, calibrating the active domain against a 2.0 m reference
-with the noise floor measured from two identical runs per case. euler queue empty,
-north/a3/d33 clear.
+sbel: active-domain replication at seed 77. north: the 6-episode CRM corpus at v2 bed
+sizing.
