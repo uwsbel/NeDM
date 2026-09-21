@@ -132,14 +132,35 @@ Three reasons it is the wrong tool here, in order of severity:
 Since patch length is nearly free, the moving patch would buy us memory we do not need at
 the price of all three of those. **Use a long static bed and a calibrated active domain.**
 
-## Open, not yet measured
+## Settled: the bed does not meaningfully settle, so 0.1 s of free flow is enough
 
-**Does the soil ahead of the robot ever settle?** With an active domain on,
-`SetFreeFlowDuration(t)` is what lets the whole bed settle under gravity, and it disables
-the active domain entirely while `time < t` (`SphFluidDynamics.cu:243`). Ours is set to
-0.1 s. Outside the active box a particle's velocity is zeroed every step, so soil the
-robot has not yet reached stays frozen at its initial lattice state and begins settling
-only when the robot arrives and activates it. If that transient is significant, every
-episode is walking onto soil that is settling rather than settled, and the effect is
-systematic across the whole corpus. `active_domain_study.py --free-flow-s` exists to test
-it. This must be answered before full-scale collection, not after.
+Measured on north, `settling_test.py`, three commands, total warmup held fixed at 2.5 s so
+only the free-flow fraction varies.
+
+| free flow | bulk compaction | surface | warmup wall |
+|---|---|---|---|
+| 0.1 s (inherited) | -0.000344 m | 0.000000 m | 13.2 s |
+| 0.5 s | -0.000297 m | 0.000000 m | 22.9 s |
+| 1.0 s | -0.000289 m | 0.000000 m | 34.8 s |
+| 2.0 s | -0.000289 m | 0.000000 m | 59.0 s |
+
+**Total bulk compaction is 0.3 mm on a 200 mm bed, about 0.15%, and it is complete within
+0.5 s.** The difference between the inherited 0.1 s and a twenty-times-longer 2.0 s is
+55 micrometres. There is essentially no settling to miss, so the worry that soil ahead of
+the robot is frozen mid-settle and starts moving only when the robot arrives is not
+supported: the soil is laid out at rest density and stays there.
+
+The behavioural differences across arms -- mean vx moving by 0.01 to 0.07 m/s -- do not
+converge as free flow lengthens and are within the chaotic scatter established in
+`docs/EVALUATION.md` (sd 3.4 points of tracking, about 0.017 m/s at a 0.5 m/s command).
+They are noise, which is what negligible settling predicts.
+
+**Decision: keep `free_flow_duration` at 0.1 s.** A longer one costs 4.5x the warmup
+(59 s against 13 s per episode, and that is pure overhead repeated on every episode of the
+corpus) and buys 55 micrometres of compaction.
+
+Two caveats recorded rather than buried. The surface percentile did not move at all in any
+arm, which is a suspiciously round zero; bulk compaction is nonzero and varies with free
+flow, so particle positions are genuinely live, but the surface statistic should not be
+leaned on. And this was measured on one soil preset (`soft`) at one spacing; a denser or
+deeper bed is not covered by it.
