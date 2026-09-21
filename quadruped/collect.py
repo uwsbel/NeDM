@@ -356,8 +356,19 @@ def run_episode(chrono, ep_index, seed, args, exc, pol_cfg, urdf):
     min_rows = seg_cfg["min_segment_rows"]
     out = [kept[a:b] for a, b in segs if b - a >= min_rows]
     dropped_short = sum(1 for a, b in segs if 0 < b - a < min_rows)
-    return out, verdict, {"sigma_rad": float(sigma), "n_rows": len(rows),
+
+    # THE EXCISED ROWS ARE KEPT, SEPARATELY. They are excluded from dynamics training
+    # because their cause is not a model input, but they are the only recording of how
+    # this robot responds to a measured force -- and collection is the expensive step.
+    # A disturbance-conditioned model would need exactly these rows, and discarding them
+    # means recollecting to get them back.
+    _covered = set()
+    for _a, _b in segs:
+        _covered.update(range(_a, _b))
+    excised = [r for i, r in enumerate(kept) if i not in _covered]
+    return out, excised, tail, verdict, {"sigma_rad": float(sigma), "n_rows": len(rows),
                           "kept": len(kept), "segments": len(out),
+                          "excised_rows": len(excised), "failed_rows": len(tail),
                           "family": fam, "family_params": fam_p,
                           "duration_s": round(dur, 2), "pushes": n_push,
                           "dropped_short_segments": dropped_short,
@@ -417,6 +428,7 @@ def main() -> int:
 
     t0 = time.time()
     verdicts, written, total_rows, short = [], 0, 0, 0
+    n_push_rows = n_fail_rows = 0
     fam_rng = np.random.default_rng(a.seed)
     fams = ([a.family] * a.episodes if a.family
             else CMD.stratified_families(a.episodes, fam_rng,
@@ -425,8 +437,8 @@ def main() -> int:
     for k in range(a.episodes):
         a.family = fams[k]
         fam_counts[fams[k]] = fam_counts.get(fams[k], 0) + 1
-        segs, verdict, meta = run_episode(chrono, k, a.seed + k, a, exc, pol_cfg,
-                                          Path(a.urdf))
+        segs, excised, failtail, verdict, meta = run_episode(
+            chrono, k, a.seed + k, a, exc, pol_cfg, Path(a.urdf))
         verdicts.append(verdict)
         short += meta["dropped_short_segments"]
         for j, seg in enumerate(segs):
@@ -437,6 +449,18 @@ def main() -> int:
                 w.writerows(seg)
             written += 1
             total_rows += len(seg)
+        # Kept out of training, kept on disk. The failing tail is where the simulator
+        # broke, which is the boundary a fine-tuned policy must be held inside.
+        for sub, rowset in (("pushes", excised), ("failures", failtail)):
+            if not rowset:
+                continue
+            (out / sub).mkdir(parents=True, exist_ok=True)
+            with open(out / sub / f"{a.corpus}_{k:04d}.csv", "w", newline="") as fh:
+                wtr = csv.DictWriter(fh, fieldnames=fields, extrasaction="ignore")
+                wtr.writeheader()
+                wtr.writerows(rowset)
+        n_push_rows += len(excised)
+        n_fail_rows += len(failtail)
         status = "ok" if verdict.ok else f"truncated@{verdict.row}({verdict.check})"
         print(f"  ep {k:3d}  {meta['family']:<12s} {meta['duration_s']:5.1f}s "
               f"push {meta['pushes']}  sigma {meta['sigma_rad']:.3f}  "
@@ -452,6 +476,7 @@ def main() -> int:
                "episodes": a.episodes, "segments": written, "rows": total_rows,
                "failures": summary, "family_balance": fam_counts,
                "dropped_short_segments": short,
+               "sidecar_rows": {"pushes": n_push_rows, "failures": n_fail_rows},
                "command_ranges": exc["commands"]["ranges"],
                "excitation": {"action_injection": exc["action_injection"],
                               "push": {"enabled": bool(a.pushes),
@@ -462,6 +487,8 @@ def main() -> int:
     PROV.write(out / "manifest.json", man)
     print(f"\n{written} segments, {total_rows} rows, {summary['truncated']} truncated "
           f"({summary['rate']:.0%})")
+    print(f"sidecars: {n_push_rows} push rows, {n_fail_rows} failure rows "
+          f"(excluded from training, kept on disk)")
     print(f"wall clock {man['wall_clock_s']} s -> {out}/manifest.json")
     return 0
 
