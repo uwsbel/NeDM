@@ -44,7 +44,7 @@ def load_params():
 
 
 def build_scene(chrono, kind, urdf, spacing, step, soil, patch_x, patch_y, depth,
-                travel_m=0.0):
+                travel_m=0.0, spawn_xy=(0.0, 0.0)):
     """Returns (system, robot, terrain, soil_top, dt). See walk_check.py for the
     provenance of every constant here; each one was established by a failure."""
     from nedm.quadruped.robot import Go2Robot
@@ -91,7 +91,8 @@ def build_scene(chrono, kind, urdf, spacing, step, soil, patch_x, patch_y, depth
 
     # Clears the FULLY EXTENDED leg: the parser starts every joint at zero.
     spawn_z = soil_top + (0.02 if rigid else 2.0 * spacing) + leg_reach
-    init = chrono.ChFramed(chrono.ChVector3d(0, 0, spawn_z), chrono.ChQuaterniond(1, 0, 0, 0))
+    init = chrono.ChFramed(chrono.ChVector3d(spawn_xy[0], spawn_xy[1], spawn_z),
+                           chrono.ChQuaterniond(1, 0, 0, 0))
 
     os.chdir(urdf.parent)
     try:
@@ -121,18 +122,73 @@ def run_episode(chrono, ep_index, seed, args, exc, pol_cfg, urdf):
     from nedm.quadruped.dataset import capture_row, csv_field_names
 
     rng = np.random.default_rng(seed)
-    _dur = args.duration_s or exc["episode"]["duration_s"]
-    _travel = abs(args.vx) * (_dur + args.warmup_s)
+
+    # THE COMMAND IS DRAWN FIRST, because it sets how far the robot travels and therefore
+    # how long the episode may be and where it must start. Drawing it after the scene was
+    # built meant the duration limit was computed from the CLI default rather than from
+    # the command actually used, so every episode ran the full 20 s regardless of speed.
+    ep_cfg0 = exc["episode"]
+    _dur_req = args.duration_s or ep_cfg0["duration_s"]
+    if args.family == "fixed":
+        fam, fam_p = "fixed", {}
+        sched_fn = lambda t: (args.vx, args.vy, args.wz)  # noqa: E731
+    else:
+        fam = args.family
+        _ranges = {k: tuple(v) for k, v in exc["commands"]["ranges"].items()}
+        # RESAMPLED MID-EPISODE, matching training. The policy was trained with the
+        # command redrawn every 10 s, so a step change partway through is the nominal
+        # case it was optimised against, and holding one command for a whole episode is
+        # the off-nominal one. One draw per window, so the draw count is fixed by the
+        # duration rather than by the values drawn.
+        _every = float(exc["commands"].get("resample_s") or _dur_req)
+        _n_win = max(1, int(math.ceil(_dur_req / _every)))
+        _subs = []
+        for _w in range(_n_win):
+            _p = CMD.draw_params(fam, rng, _ranges)
+            _subs.append(CMD.schedule(fam, _p, _every, rng))
+        fam_p = {"windows": _n_win, "resample_s": _every}
+
+        def sched_fn(t, _subs=_subs, _every=_every, _n=_n_win):
+            w = min(int(t / _every), _n - 1)
+            return _subs[w](t - w * _every)
+    # Peak demanded speed over the whole schedule, not the value at t=0: vel_step and
+    # stop_and_go change command mid-episode and weave sweeps yaw continuously.
+    _probe = [sched_fn(t) for t in np.linspace(0.0, _dur_req, 64)]
+    pk_vx = max(abs(c[0]) for c in _probe)
+    pk_vy = max(abs(c[1]) for c in _probe)
+    # THE PATCH SETS THE EPISODE, NOT THE OTHER WAY ROUND. Duration is not a free
+    # parameter: the robot runs off the bed after a fixed distance, so fix the TRAVEL
+    # budget and let duration follow from the command. A 20 s episode at 1.5 m/s needs
+    # 30 m of soil; the same patch holds a 20 s episode at 0.4 m/s comfortably.
+    #
+    # Spawning at the FAR END rather than the centre doubles the usable patch, since a
+    # centred robot can only use half of it in the direction it is going.
+    ep_cfg = exc["episode"]
+    margin = 0.5
+    bud_x, bud_y = args.patch_x - 2 * margin, args.patch_y - 2 * margin
+    # Expected achieved speed, from the measured CRM envelope: roughly 0.75-0.88 of
+    # command, so 0.8 is used rather than the command itself, which would over-reserve.
+    exp_vx, exp_vy = 0.8 * pk_vx, 0.8 * pk_vy
+    t_lim = min(bud_x / exp_vx if exp_vx > 1e-6 else 1e9,
+                bud_y / exp_vy if exp_vy > 1e-6 else 1e9)
+    _dur = max(min(_dur_req, t_lim), ep_cfg["min_duration_s"])
+    _travel = exp_vx * (_dur + args.warmup_s)
+    _s0 = sched_fn(0.0)
+    sx = -np.sign(_s0[0]) * (args.patch_x / 2 - margin) if pk_vx > 1e-6 else 0.0
+    sy = -np.sign(_s0[1]) * (args.patch_y / 2 - margin) if pk_vy > 1e-6 else 0.0
+    if args.terrain == "rigid":
+        sx = sy = 0.0        # the rigid floor is sized to the travel instead
     system, robot, terrain, soil_top, dt = build_scene(
         chrono, args.terrain, urdf, args.spacing, args.step, args.soil,
-        args.patch_x, args.patch_y, args.depth, travel_m=_travel)
+        args.patch_x, args.patch_y, args.depth, travel_m=_travel,
+        spawn_xy=(float(sx), float(sy)))
 
     pol = Go2Policy(args.policy, cfg=pol_cfg)
 
     ep = exc["episode"]
     rec_dt = 1.0 / ep["record_hz"]
     ctrl_dt = 1.0 / ep["control_hz"]
-    dur = args.duration_s or ep["duration_s"]
+    dur = _dur
 
     ai = exc["action_injection"]
     if args.sigma is not None:
@@ -146,24 +202,22 @@ def run_episode(chrono, ep_index, seed, args, exc, pol_cfg, urdf):
 
     pu = exc["push"]
     seg_cfg = pu["segmentation"]
+    # A schedule that cannot fit raises, so ask for only as many pushes as the (possibly
+    # shortened) episode can hold rather than letting a fast episode fail outright.
+    rows_avail = int(dur / rec_dt)
+    drop = int(math.ceil(pu["duration_s"] / rec_dt)) + 2 * seg_cfg["guard_steps"] + 1
+    fits = 0
+    while ((fits + 2) * seg_cfg["min_segment_rows"] + (fits + 1) * drop) <= rows_avail:
+        fits += 1
+    n_push = min(args.pushes, fits)
+
     sched = None
-    if pu["enabled"] and args.pushes:
-        sched = EX.PushSchedule(duration_s=dur, events_per_episode=args.pushes, rng=rng,
+    if pu["enabled"] and n_push:
+        sched = EX.PushSchedule(duration_s=dur, events_per_episode=n_push, rng=rng,
                                 warmup_s=1.0, push_duration_s=pu["duration_s"],
                                 guard_steps=seg_cfg["guard_steps"],
                                 min_segment_rows=seg_cfg["min_segment_rows"], dt=rec_dt)
 
-    # Command schedule. Fixed only if the caller pinned one; otherwise the family for
-    # this episode drives a time-varying command, which is the point -- transients are the
-    # richest rows and a constant command never produces them.
-    if args.family == "fixed":
-        sched_fn = lambda t: (args.vx, args.vy, args.wz)  # noqa: E731
-        fam, fam_p = "fixed", {}
-    else:
-        fam = args.family
-        fam_p = CMD.draw_params(fam, rng, {k: tuple(v) for k, v in
-                                           exc["commands"]["ranges"].items()})
-        sched_fn = CMD.schedule(fam, fam_p, dur, rng)
     cmd = np.array(sched_fn(0.0), dtype=np.float32)
     pol.command = cmd
 
@@ -237,6 +291,7 @@ def run_episode(chrono, ep_index, seed, args, exc, pol_cfg, urdf):
     return out, verdict, {"sigma_rad": float(sigma), "n_rows": len(rows),
                           "kept": len(kept), "segments": len(out),
                           "family": fam, "family_params": fam_p,
+                          "duration_s": round(dur, 2), "pushes": n_push,
                           "dropped_short_segments": dropped_short,
                           "events": (sched.event_times() if sched else [])}
 
@@ -315,7 +370,8 @@ def main() -> int:
             written += 1
             total_rows += len(seg)
         status = "ok" if verdict.ok else f"truncated@{verdict.row}({verdict.check})"
-        print(f"  ep {k:3d}  {meta['family']:<12s} sigma {meta['sigma_rad']:.3f}  "
+        print(f"  ep {k:3d}  {meta['family']:<12s} {meta['duration_s']:5.1f}s "
+              f"push {meta['pushes']}  sigma {meta['sigma_rad']:.3f}  "
               f"rows {meta['n_rows']} -> kept {meta['kept']}  "
               f"seg {meta['segments']}  {status}", flush=True)
 

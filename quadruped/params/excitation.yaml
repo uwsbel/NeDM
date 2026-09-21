@@ -10,7 +10,8 @@
 # in recorded rows at dt = 0.01. Computing them at the control rate instead doubles every
 # duration and makes a feasible schedule look impossible -- which it did, once.
 episode:
-  duration_s: 20.0
+  duration_s: 20.0          # requested; the patch may shorten it, see below
+  min_duration_s: 6.0       # below this an episode yields no full training window
   record_hz: 100          # dt 0.01; the rate segmentation and training windows use
   control_hz: 50          # dt 0.02; the rate the policy and injection act at
 
@@ -113,9 +114,12 @@ initial_state:
   # costs no segments at all and produces the same off-nominal starting state.
   randomised: true
   warmup_push: true               # push during warmup, before recording starts
+  # Matched to the training reset (reset_root_state_uniform): velocity +/-0.5 on every
+  # linear and angular axis, yaw uniform. Starting a corpus from a narrower reset than the
+  # policy was trained from would collect only the easy part of its own basin.
   joint_offset_rad: [-0.15, 0.15]
-  base_vel_mps: [-0.4, 0.4]
-  base_tilt_rad: [-0.12, 0.12]   # ROLL AND PITCH ONLY. Yaw is not tilt, and the state is
+  base_vel_mps: [-0.5, 0.5]
+  base_tilt_rad: [-0.15, 0.15]   # ROLL AND PITCH ONLY. Yaw is not tilt, and the state is
                                  # yaw-free by construction, so a randomised yaw would be
                                  # an excitation the model cannot see -- inadmissible under
                                  # the rule at the top of this file. Heading variation
@@ -136,6 +140,11 @@ commands:
   families: [constant, vel_step, arc, lateral, pivot, weave, yaw_step, stop_and_go,
              random, random_walk]
   stratified: true          # balanced assignment then shuffled, not drawn per episode
+  # The policy was trained with the command RESAMPLED every 10 s, so a step change
+  # mid-episode is a transient it expects and was optimised against. Holding one command
+  # for a whole episode is the off-nominal case, not the nominal one. Applied on top of
+  # the family schedule, so a family still shapes the command and this changes its draw.
+  resample_s: 10.0
   seed_fn: crc32            # not hash(): PYTHONHASHSEED salting broke replay once
 
   # MEASURED ON THIS POLICY, on rigid, 6 s per point, body-frame tracking:
@@ -146,14 +155,26 @@ commands:
   # DIFFERENT checkpoint, and its notes record that the narrow ranges before them sampled
   # only the band where that policy worked worst, making the plant look like it tracked at
   # 63%. Inheriting a range is the same mistake as inheriting a sign.
+  # HOW THE BASE POLICY WAS TRAINED (robot_lab velocity_env_cfg):
+  #   lin_vel_x (-1.0, 1.0)   lin_vel_y (-1.0, 1.0)   ang_vel_z (-1.0, 1.0)
+  #   episode_length_s 20.0   resampling_time_range (10.0, 10.0)
+  # So the policy has NEVER seen a command past 1.0 on any axis. Our own envelope sweep
+  # shows it still tracks at 95% out to vx 2.0, but that is the policy extrapolating from
+  # its own training, and a corpus built mostly out there would be collected in a regime
+  # the policy was never fit for.
+  #
+  # The ranges below stay inside training on vy and wz and stretch to 1.5 on vx, which is
+  # comfortably beyond any fine-tuning target of ~0.5 -- which is the point, since the
+  # corpus must cover where a fine-tuned policy will go -- while staying near the regime
+  # the policy handles reliably.
   ranges:
-    vx:       [-1.0, 2.0]
+    vx:       [-1.0, 1.5]
     vy:       [-1.0, 1.0]
-    wz:       [-3.0, 3.0]
-    vx0:      [-1.0, 2.0]
-    vx1:      [-1.0, 2.0]
-    wz1:      [-3.0, 3.0]
-    wz_amp:   [0.2, 3.0]
+    wz:       [-1.5, 1.5]
+    vx0:      [-1.0, 1.5]
+    vx1:      [-1.0, 1.5]
+    wz1:      [-1.5, 1.5]
+    wz_amp:   [0.2, 1.5]
     t_switch: [4.0, 12.0]
     freq:     [0.05, 0.30]
     period:   [2.0, 6.0]
@@ -166,3 +187,21 @@ calibration:
   sweep: sigma_rad
   measure: [truncation_rate, action_residual_variance, action_residual_rank]
   sets: action_injection.sigma_rad
+
+not_copied_from_training:
+  # robot_lab randomises actuator stiffness and damping by 0.5x to 2.0x per reset
+  # (randomize_actuator_gains). That is excellent for a policy, which learns to be robust
+  # to it, and INADMISSIBLE here under this file's own rule: the gain changes how a target
+  # becomes a torque, nothing in the 36-D state says what the gain is, and two episodes
+  # with identical state and action would evolve differently. It is the payload problem
+  # exactly. It could be admitted as a per-episode channel, like payload_kg, but it is not
+  # admitted by default.
+  actuator_gain_randomisation: {reason: "unobserved parameter; would need its own channel"}
+
+  # Training pushes with push_by_setting_velocity, which SETS the base velocity rather
+  # than applying a force: an instantaneous jump with no cause in (state, action). That is
+  # strictly unmodelable rather than merely unlogged, which is a stronger reason to excise
+  # the window than the force case. Our pushes stay force-based and segmented; the
+  # training magnitude, +/-0.5 m/s every 10-15 s, is useful mainly as evidence of what
+  # disturbance the policy already absorbs.
+  velocity_teleport_push: {reason: "a state discontinuity cannot be predicted from (s, a)"}
