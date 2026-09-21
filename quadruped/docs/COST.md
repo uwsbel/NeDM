@@ -164,3 +164,50 @@ arm, which is a suspiciously round zero; bulk compaction is nonzero and varies w
 flow, so particle positions are genuinely live, but the surface statistic should not be
 leaned on. And this was measured on one soil preset (`soft`) at one spacing; a denser or
 deeper bed is not covered by it.
+
+## Decided: the active domain is 0.5 m
+
+Two independent 12-case ensembles on sbel, seeds 20260920 and 77, each against the
+unapproximated solve, each with a null arm. Pooled, n = 21 after the gait gate:
+
+| arm | mean_vx | speed | mean_z | cost |
+|---|---|---|---|---|
+| null (control) | 0.00000 | 0.00000 | 0.00000 | -- |
+| **0.5 m** | +0.0044 (t 0.66) | -0.0082 (t -1.31) | +0.0012 (t 1.41) | **3.81x RT** |
+| 1.0 m | +0.0005 (t 0.06) | -0.0109 (t -1.28) | -0.0003 (t -0.22) | 6.18x RT |
+
+**Nothing reaches significance on either arm.** Neither box is distinguishable from the
+unapproximated solve, and neither is distinguishable from the other. So the cheaper one
+wins: 0.5 m runs at 3.81x real time against 6.18x, a 1.6x saving on every episode of
+every corpus.
+
+Resolution, stated rather than implied: a mean_vx bias above 0.013 m/s would have shown
+at 2 se. Below that this measurement cannot see, and "no detectable bias" means exactly
+that and not "no bias".
+
+### The first run's significant result did not replicate
+
+Run 1 reported `speed` for the 0.5 m box at -0.0182, t = -3.56, flagged as clear of the
+null. Run 2 gave +0.0028, t = +0.26 -- opposite sign, nothing there. Pooled it is -0.0082
+at t = -1.31.
+
+That is the third result today that looked significant and did not survive replication,
+after the machine effect and the bias-versus-speed correlation. All three came from small
+samples of a chaotic system, and all three would have been believed if the replication had
+not been run. The habit worth keeping is the cheap one: **a single ensemble is a
+hypothesis, not a result**, and a second seed costs one job.
+
+Worth noting what survived in the other direction: both arms and both runs put `speed`
+slightly negative, four measurements with a consistent sign and none individually
+significant. There may be a real speed bias of one to three percent that n = 21 cannot
+resolve. It is not claimed here, but it is the reason to use the SAME active domain for
+collection and for the Chrono evaluation -- a common-mode bias cancels in the paired
+comparison the study actually reports, and an uncommon one does not.
+
+### One number from these runs that should not be used
+
+The ensembles' own ms/step figures disagree between runs by 2.3x on identical
+configurations -- the null arm reads 73.6 ms/step in run 1 and 169.2 in run 2, same bed,
+same settings. Something else was contending for the GPU. Cost numbers come from
+`patch_cost.py`, which was run on an idle machine for that purpose; the ensemble's timings
+are incidental and unreliable.
