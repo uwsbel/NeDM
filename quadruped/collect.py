@@ -65,9 +65,19 @@ MAX_PARTICLES = 4_000_000
 # Unplanned yaw rate, measured rather than assumed. On rigid ground with the yaw command
 # held at zero the policy turns at +0.126 rad/s; in the first CRM corpus a `constant`
 # episode drifted +0.124 rad/s and a `lateral` one +0.309. 0.25 sits above the typical
-# case and below the worst, which is the right place for a sizing allowance: covering the
-# worst case everywhere would buy soil for an outcome most episodes do not have.
-YAW_DRIFT_RADPS = 0.25
+# case and below the worst.
+#
+# RAISED FROM 0.25 AFTER MEASURING IT. The 60-episode pilot truncated 6 of its first 30
+# episodes on `off_bed`, all of them in families that change command mid-episode --
+# `random`, `vel_step`, `yaw_step` -- and four of those six still kept 91-95% of their
+# rows. Marginal misses, not gross ones, which is what a slightly-too-small allowance
+# looks like. 0.35 covers the 0.309 rad/s worst case actually observed rather than sitting
+# just under it.
+#
+# The cost of being generous here is small and the cost of being tight is not: truncation
+# is correlated with drift, so the episodes cut shortest are the ones that drifted most,
+# and a corpus trimmed that way over-represents well-behaved locomotion.
+YAW_DRIFT_RADPS = 0.35
 
 
 def plan_path(sched_fn, dur_s, warmup_s, speed_factor=0.8, dt=0.05,
