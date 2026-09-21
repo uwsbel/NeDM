@@ -693,6 +693,71 @@ def main() -> int:
                                          exc["commands"]["families"]))
     fam_counts = {}
     skipped = []
+    # THE MANIFEST IS WRITTEN AFTER EVERY EPISODE, not once at the end. Shard 1 of the v2
+    # run died in its 33rd episode on a Chrono GPU fault (illegal memory access in
+    # SphBceManager), which aborts the process; written only at the end, the manifest
+    # never existed and the 32 finished episodes on disk could not be merged or traced.
+    # Now a crash costs the episode in flight. `complete` says whether the run finished,
+    # and merge_corpus refuses an incomplete shard unless told to accept it.
+    #
+    # The static part -- code hashes, the Chrono build md5, the configuration -- is built
+    # once; only the running totals change per episode. Written atomically, so a crash
+    # mid-write cannot leave a truncated manifest beside good data.
+    base_man = PROV.manifest(
+        "corpus", REPO,
+        metric_defs={"validity": "v1", "sampler": EX.SAMPLER_VERSION},
+        # "fixed_command", NOT "command". provenance.manifest() records sys.argv under
+        # "command" -- the invocation, which is what reproducing a run requires -- and a
+        # key here of the same name silently replaced it. Every corpus manifest therefore
+        # lost its invocation and stored [0.5, 0.0, 0.0] instead: the fixed-family default
+        # velocity, which is not even the command used, since episodes draw from families.
+        extra={"corpus": a.corpus, "terrain": a.terrain,
+               "fixed_command": [a.vx, a.vy, a.wz],
+               # How a row relates to the policy, which every consumer that rebuilds the
+               # observation from a row depends on. Corpora without these fields were
+               # captured one physics step late with policy_raw in policy order, and the
+               # fine-tune refuses them.
+               "row_capture": "pre_step",
+               "policy_raw_order": "chrono",
+               "policy": {"path": str(a.policy), "sha256": PROV.sha256(a.policy)},
+               "episodes": a.episodes,
+               "split": {"val_episodes": sorted(val_set), "val_fraction": a.val_fraction},
+               "long_episodes": sorted(long_set),
+               "command_ranges": exc["commands"]["ranges"],
+               "excitation": {"action_injection": exc["action_injection"],
+                              # pushes_req, NOT a.pushes. a.pushes is the loop
+                              # variable, reassigned every episode to 0 for long runs
+                              # and the requested count otherwise, so at this point it
+                              # holds whatever the LAST episode happened to be. Written
+                              # that way, a corpus whose final episode was a long run
+                              # recorded itself as having no pushes at all while three
+                              # quarters of its episodes had two -- found when the
+                              # merge refused two identically-configured shards.
+                              "push": {"enabled": bool(pushes_req),
+                                       "events_per_episode": pushes_req,
+                                       "long_episodes_are_push_free": True,
+                                       "direction": exc["push"]["direction"]}}},
+        notes=f"{a.episodes} episodes on {a.terrain}")
+
+    def write_manifest(done, complete):
+        m = dict(base_man)
+        m.update({
+            "complete": complete, "episodes_done": done,
+            "updated_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "outputs": [{"path": str(out), "segments": written, "rows": total_rows}],
+            "segments": written, "rows": total_rows,
+            "failures": VAL.summarise(verdicts), "family_balance": fam_counts,
+            "dropped_short_segments": short,
+            # Episodes whose scene could not be built. Recorded because skipping by
+            # command is a selection on command, and an empty list is itself a claim.
+            "skipped_episodes": skipped,
+            "sidecar_rows": {"pushes": n_push_rows, "failures": n_fail_rows},
+            "wall_clock_s": round(time.time() - t0, 1)})
+        tmp = out / "manifest.json.tmp"
+        PROV.write(tmp, m)
+        os.replace(tmp, out / "manifest.json")
+        return m
+
     for k in range(a.episodes):
         a.family = fams[k]
         a.split = "val" if k in val_set else "train"
@@ -721,6 +786,7 @@ def main() -> int:
                     f"{len(skipped)} of {k + 1} episodes could not be built. That is a "
                     f"broken setup, not bad luck; stopping rather than writing a corpus "
                     f"of whatever survived. Last reason: {str(e)[:200]}")
+            write_manifest(k + 1, False)
             continue
         verdicts.append(verdict)
         short += meta["dropped_short_segments"]
@@ -749,52 +815,10 @@ def main() -> int:
               f"push {meta['pushes']}  sigma {meta['sigma_rad']:.3f}  "
               f"rows {meta['n_rows']} -> kept {meta['kept']}  "
               f"seg {meta['segments']}  {status}", flush=True)
+        write_manifest(k + 1, False)
 
-    summary = VAL.summarise(verdicts)
-    man = PROV.manifest(
-        "corpus", REPO,
-        outputs=[{"path": str(out), "segments": written, "rows": total_rows}],
-        metric_defs={"validity": "v1", "sampler": EX.SAMPLER_VERSION},
-        # "fixed_command", NOT "command". provenance.manifest() records sys.argv under
-        # "command" -- the invocation, which is what reproducing a run requires -- and a
-        # key here of the same name silently replaced it. Every corpus manifest therefore
-        # lost its invocation and stored [0.5, 0.0, 0.0] instead: the fixed-family default
-        # velocity, which is not even the command used, since episodes draw from families.
-        extra={"corpus": a.corpus, "terrain": a.terrain,
-               "fixed_command": [a.vx, a.vy, a.wz],
-               # How a row relates to the policy, which every consumer that rebuilds the
-               # observation from a row depends on. Corpora without these fields were
-               # captured one physics step late with policy_raw in policy order, and the
-               # fine-tune refuses them.
-               "row_capture": "pre_step",
-               "policy_raw_order": "chrono",
-               "policy": {"path": str(a.policy), "sha256": PROV.sha256(a.policy)},
-               "episodes": a.episodes, "segments": written, "rows": total_rows,
-               "failures": summary, "family_balance": fam_counts,
-               "dropped_short_segments": short,
-               # Episodes whose scene could not be built. Recorded because skipping by
-               # command is a selection on command, and an empty list is itself a claim.
-               "skipped_episodes": skipped,
-               "split": {"val_episodes": sorted(val_set), "val_fraction": a.val_fraction},
-               "long_episodes": sorted(long_set),
-               "sidecar_rows": {"pushes": n_push_rows, "failures": n_fail_rows},
-               "command_ranges": exc["commands"]["ranges"],
-               "excitation": {"action_injection": exc["action_injection"],
-                              # pushes_req, NOT a.pushes. a.pushes is the loop
-                              # variable, reassigned every episode to 0 for long runs
-                              # and the requested count otherwise, so at this point it
-                              # holds whatever the LAST episode happened to be. Written
-                              # that way, a corpus whose final episode was a long run
-                              # recorded itself as having no pushes at all while three
-                              # quarters of its episodes had two -- found when the
-                              # merge refused two identically-configured shards.
-                              "push": {"enabled": bool(pushes_req),
-                                       "events_per_episode": pushes_req,
-                                       "long_episodes_are_push_free": True,
-                                       "direction": exc["push"]["direction"]}},
-               "wall_clock_s": round(time.time() - t0, 1)},
-        notes=f"{a.episodes} episodes on {a.terrain}")
-    PROV.write(out / "manifest.json", man)
+    man = write_manifest(a.episodes, True)
+    summary = man["failures"]
     print(f"\n{written} segments, {total_rows} rows, {summary['truncated']} truncated "
           f"({summary['rate']:.0%})")
     print(f"sidecars: {n_push_rows} push rows, {n_fail_rows} failure rows "

@@ -108,6 +108,10 @@ def main() -> int:
     ap.add_argument("--shards", nargs="+", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--name", required=True)
+    ap.add_argument("--allow-incomplete", action="store_true",
+                    help="accept shards whose manifest says complete=false (a run that "
+                         "died partway); only their finished episodes are merged, and the "
+                         "merged manifest lists them")
     a = ap.parse_args()
 
     shards = [Path(s) for s in a.shards]
@@ -116,6 +120,18 @@ def main() -> int:
             raise SystemExit(f"{s} is not a directory")
     mans = [(s.name, load(s)) for s in shards]
     check_comparable(mans)
+    # A shard still being collected, or one whose run died, writes complete=false. Merging
+    # it by accident would take a partial corpus for a whole one -- and one still running
+    # would keep adding files under the merge. Manifests from before the field existed were
+    # written only at the end of a finished run, so a missing field means complete.
+    incomplete = [(n, m.get("episodes_done"), m.get("episodes")) for n, m in mans
+                  if m.get("complete") is False]
+    if incomplete and not a.allow_incomplete:
+        raise SystemExit(
+            "incomplete shard(s): " + ", ".join(f"{n} ({d}/{e} episodes)" for n, d, e in
+                                                 incomplete)
+            + ". Either the run is still going or it died partway. Pass --allow-incomplete "
+              "to merge only their finished episodes; the merged manifest will say so.")
 
     out = Path(a.out) / a.name
     if out.exists():
@@ -127,7 +143,13 @@ def main() -> int:
     val_eps, provenance, rows, segs = [], [], 0, 0
     for (sname, man), sdir in zip(mans, shards, strict=True):
         n_ep = int(man.get("episodes", 0))
+        # For a shard that died partway, only episodes the manifest counts as finished. A
+        # crash between writing an episode's files and updating the manifest leaves files
+        # the record does not vouch for.
+        limit = int(man["episodes_done"]) if man.get("complete") is False else None
         local_val = set(man.get("split", {}).get("val_episodes", []))
+        if limit is not None:
+            local_val = {v for v in local_val if v < limit}
         val_eps += [ep_off + v for v in sorted(local_val)]
         moved = 0
         for sub in ("episodes", "failures", "pushes"):
@@ -142,6 +164,8 @@ def main() -> int:
                                     if x.isdigit() and len(x) == 4)
                 except StopIteration:
                     raise SystemExit(f"cannot find an episode number in {f.name!r}")
+                if limit is not None and int(parts[ep_field]) >= limit:
+                    continue
                 new_ep = ep_off + int(parts[ep_field])
                 parts[ep_field] = f"{new_ep:04d}"
                 parts[:ep_field] = [a.name]
@@ -152,7 +176,9 @@ def main() -> int:
                            "run_id": man.get("run_id"), "host": man.get("host"),
                            "seed": man.get("command", {}).get("seed")
                            if isinstance(man.get("command"), dict) else None,
-                           "wall_clock_s": man.get("wall_clock_s")})
+                           "wall_clock_s": man.get("wall_clock_s"),
+                           "complete": man.get("complete", True),
+                           "episodes_done": man.get("episodes_done", n_ep)})
         rows += int(man.get("rows", 0))
         segs += int(man.get("segments", 0))
         ep_off += n_ep
@@ -160,7 +186,10 @@ def main() -> int:
     base = dict(mans[0][1])
     base.update({
         "corpus": a.name,
+        # The episode INDEX space, which partial shards leave gaps in; episodes_done is
+        # how many actually finished, and is the number to quote.
         "episodes": ep_off,
+        "episodes_done": sum(int(p["episodes_done"]) for p in provenance),
         "segments": segs,
         "rows": rows,
         "split": {"val_episodes": sorted(val_eps),
@@ -175,11 +204,16 @@ def main() -> int:
         # audited when one node turns out to have been wrong.
         "host": sorted({_host_name(p["host"]) for p in provenance if p.get("host")}),
         "run_id": None,
+        "complete": True,
+        "incomplete_shards": [{"shard": n, "episodes_done": d, "episodes": e}
+                              for n, d, e in incomplete],
     })
     (out / "manifest.json").write_text(json.dumps(base, indent=2))
 
     print(f"merged {len(shards)} shards -> {out}")
-    print(f"  {ep_off} episodes, {segs} segments, {rows:,} rows")
+    done = sum(int(p["episodes_done"]) for p in provenance)
+    print(f"  {done} episodes finished (index space {ep_off}), {segs} segments, "
+          f"{rows:,} rows")
     print(f"  val episodes: {len(val_eps)} of {ep_off} "
           f"({100 * len(val_eps) / max(ep_off, 1):.0f}%)")
     actual = len(list((out / 'episodes').glob('*.csv')))
