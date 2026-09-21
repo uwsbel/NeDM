@@ -74,5 +74,5 @@ sign:
   # and its own documentation says no source records why. It is established here by
   # round-trip test against Chrono (check_action_roundtrip), and written back into this
   # file with the evidence. Until then, collect.py refuses to run.
-  value: null
-  established_by: null
+  value: -1.0
+  established_by: "rigid-ground probe 3.0s cmd=[1.0, 0.0, 0.0]: upright +0.999 vs -0.149, min_z 0.277 vs 0.090"

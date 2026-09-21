@@ -60,6 +60,12 @@ class Go2Policy:
         s = o["scales"]
         self.s_ang, self.s_lin = float(s["ang_vel"]), float(s["lin_vel"])
         self.s_qpos, self.s_qvel = float(s["dof_pos"]), float(s["dof_vel"])
+        # COMMANDS USE commands_scale, NOT lin_vel_scale/ang_vel_scale. Those two scale
+        # the OBSERVED base velocity, and this policy has no base-linear-velocity term at
+        # all -- that is what makes its observation 45 wide and not 48. Applying
+        # lin_vel_scale here doubles the command: measured, a 0.5 m/s request produced
+        # 0.989 m/s achieved, which is exactly the factor of 2.0.
+        self.s_cmd = np.asarray(s.get("commands", [1.0, 1.0, 1.0]), dtype=np.float32)
 
         j = self.cfg["joints"]
         self.p2c = np.asarray(j["policy_to_chrono"], dtype=np.int64)
@@ -143,11 +149,7 @@ class Go2Policy:
         r = base.GetRot()
         grav = T.projected_gravity(r.e0, r.e1, r.e2, r.e3).astype(np.float32)
 
-        # [vx, vy] by lin_vel_scale and wz by ang_vel_scale. Scaling yaw by lin_vel is a
-        # recorded past mistake that stayed invisible because the yaw command was zero.
-        cmd = np.array([self.command[0] * self.s_lin,
-                        self.command[1] * self.s_lin,
-                        self.command[2] * self.s_ang], dtype=np.float32)
+        cmd = (self.command * self.s_cmd).astype(np.float32)
 
         q = self.sign * robot.joint_pos().astype(np.float32)[self.p2c]
         qd = self.sign * robot.joint_vel().astype(np.float32)[self.p2c]

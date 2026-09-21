@@ -133,3 +133,50 @@ installed. Recorded so the shim is not mistaken for the intended state.
 → Before removing an environment, check what RUNPATHs into it: `readelf -d <so> | grep
 RUNPATH`. A package list does not show link-time paths.
 → `parsers` failing is not cosmetic: it is what loads the Go2 URDF.
+
+## Standing up a Chrono scene: four settings that all fail the same way
+
+Establishing the sign convention took six attempts, and every failed one looked like "the
+policy cannot stand". None of them were the policy. Recorded because the symptom is
+identical in all four cases and gives no hint which is wrong.
+
+**Collision envelope and margin are GLOBAL defaults read at model construction.**
+`ChCollisionModel.SetDefaultSuggestedEnvelope/Margin(0.0025)` must run before any body is
+built. Setting them afterwards leaves the ground and the robot with whatever was in force
+earlier.
+
+**`apply_pd()` is a no-op on the position plant.** With `actuation="position"` the joint
+is driven by a constraint and the policy's gains are never applied, so it is a different
+controller than the one the policy was trained against. Use `actuation="torque"` and call
+`apply_pd()` EVERY PHYSICS STEP, not every control step. `PD_KP/PD_KD` are 20.0/0.5, which
+is exactly rl_sar's `rl_kp`/`rl_kd`.
+
+**The URDF references meshes by relative path**, so the process must `chdir` to the URDF's
+directory around construction or the collision geometry silently fails to load.
+
+**Spawn must clear the FULLY EXTENDED leg, not the standing height.** This was the real
+one. The parser starts every joint at zero, which is legs straight down and 0.42 m of
+reach. Spawning at a plausible standing height of 0.38 m put the feet at z = -0.046
+against a ground surface at +0.05, so the robot began the episode already penetrating the
+floor, settled onto its trunk at 0.093, and stayed there with its legs through the ground.
+Four contacts were reported the whole time, which made it look like collision was working.
+`measure_leg_reach()` in terrain.py exists for exactly this.
+
+The diagnostic that finally separated them was printing foot height at spawn, before any
+step. A configuration that is already invalid at t=0 cannot be diagnosed from what happens
+after t=0.
+
+## A scale that applies to an observation the policy does not have
+
+rl_sar's config carries `lin_vel_scale: 2.0` and `commands_scale: [1.0, 1.0, 1.0]`. The
+first scales an OBSERVED base linear velocity -- which this policy does not have, and its
+absence is why its observation is 45 wide rather than 48. Applying it to the command
+doubles the command.
+
+It was caught because the robot walked at 0.989 m/s when asked for 0.5, and 2.0 is not a
+subtle factor. With `commands_scale` the tracking is 0.5 -> 0.473 and 1.0 -> 0.989.
+
+The old policy's notes record the mirror-image mistake: yaw scaled by `lin_vel_scale`
+instead of `ang_vel_scale`, invisible because the yaw command was identically zero. Both
+are the same failure -- a scale applied to the wrong term -- and neither shows up as an
+error, only as a number that is wrong by a clean factor.
