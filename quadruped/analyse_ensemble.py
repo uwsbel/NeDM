@@ -36,6 +36,16 @@ def walked(b):
     return (MIN_MEAN_Z <= b["mean_z"] <= MAX_MEAN_Z) and b["mean_up"] >= MIN_MEAN_UP
 
 
+def pearson(x, y):
+    n = len(x)
+    mx, my = sum(x) / n, sum(y) / n
+    sx = math.sqrt(sum((a - mx) ** 2 for a in x))
+    sy = math.sqrt(sum((b - my) ** 2 for b in y))
+    if sx == 0 or sy == 0:
+        return float("nan")
+    return sum((a - mx) * (b - my) for a, b in zip(x, y)) / (sx * sy)
+
+
 def mean_sd(v):
     n = len(v)
     if n == 0:
@@ -106,10 +116,24 @@ def report(label, cases):
                 se = sd / math.sqrt(nn)
                 print(f"    -> resolution: a mean_vx bias larger than {2 * se:+.4f} m/s "
                       f"would have shown at 2 se")
-        cost = [c["arms"][arm]["ms_per_step"] for c in cases if arm in c["arms"]]
+        cost = [c["arms"][arm]["ms_per_step"] for c in usable]
         if cost:
             cm, _, _ = mean_sd(cost)
             print(f"    cost      {cm:.2f} ms/step")
+
+        # DOES THE BIAS GROW WITH SPEED? Reported here, gated, because the in-run summary
+        # computes it ungated and got it spectacularly wrong: with one fallen-robot case
+        # included it found r = -0.799 for the 0.5 m box and r = +0.800 for the 1.0 m box,
+        # both past the p=.05 threshold and pointing in opposite directions. Gated, they
+        # become +0.362 and -0.137, neither significant and both with the sign reversed.
+        # One case in twelve manufactured two significant correlations out of nothing.
+        if arm != "null" and len(usable) >= 4:
+            spd = [c["none"]["speed"] for c in usable]
+            dv = [c["arms"][arm]["delta"]["mean_vx"] for c in usable]
+            r = pearson(spd, dv)
+            crit = 2.0 / math.sqrt(len(usable))      # rough p=.05 threshold
+            verdict = "significant" if abs(r) > crit else "not significant"
+            print(f"    bias vs speed: r = {r:+.3f}  ({verdict} at n={len(usable)})")
 
 
 def main() -> int:
