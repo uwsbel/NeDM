@@ -201,8 +201,11 @@ def load_policy_torch(torch, path, dev):
 RAW_FIELDS = [f"policy_raw_{l}_{s}" for l in ("rr", "rl", "fr", "fl")
               for s in ("hip", "thigh", "calf")]
 CMD_FIELDS = ["cmd_vx_mps", "cmd_vy_mps", "cmd_wz_radps"]
-EXTRA_FIELDS = ["time_s"] + CMD_FIELDS + RAW_FIELDS
-_T, _CMD, _RAW = 0, slice(1, 4), slice(4, 16)
+# The OU noise the collector added to the policy's target, chrono order, already signed.
+INJ_FIELDS = [f"action_injection_{l}_{s}_rad" for l in ("rr", "rl", "fr", "fl")
+              for s in ("hip", "thigh", "calf")]
+EXTRA_FIELDS = ["time_s"] + CMD_FIELDS + RAW_FIELDS + INJ_FIELDS
+_T, _CMD, _RAW, _INJ = 0, slice(1, 4), slice(4, 16), slice(16, 28)
 
 
 def build_pool(corpus, ctx, ctrl_dt):
@@ -283,6 +286,106 @@ def check_start_reproduction(torch, obs, policy, b):
             f"corpus was collected by THIS policy with row_capture=pre_step, and that "
             f"ObsBuilder matches lib/policy.py (obs_truth.py tests exactly that).")
     return rms / max(spread, 1e-12)
+
+
+def advance(model, torch, hist_s, hist_a, act):
+    """One model step. THE ONLY PLACE the state and action histories are aligned.
+
+    `hist_a` holds the actions for every row of `hist_s` but the last; `act` is the one
+    applied at the last row. The model pairs state row j with action row j, exactly as
+    `train.py` fits and rolls it. Every rollout in this file steps through here, so the
+    alignment is written once and tested once.
+    """
+    a_win = torch.cat([hist_a, act[:, None]], dim=1)
+    nxt = hist_s[:, -1] + model.predict_delta(hist_s, a_win)[:, -1]
+    return nxt, torch.cat([hist_s[:, 1:], nxt[:, None]], dim=1), a_win[:, 1:]
+
+
+def closed_loop(torch, model, obs, policy, b, cmd, steps, hold, inj=None):
+    """Roll the deterministic policy inside the model: `steps` control steps, each action
+    held for `hold` model steps. Returns the predicted states, (B, steps*hold, S).
+
+    The analytic loss differentiates through this; the fidelity check runs it with the
+    recorded injection noise added (`inj`, (B, steps*hold, 12), chrono order) so that on a
+    faithful loop it takes the very actions the robot took.
+    """
+    hist_s, hist_a, last_raw = b["states"], b["acts"], b["last_raw"]
+    out = []
+    for c in range(steps):
+        o = obs.observe(hist_s[:, -1], cmd, last_raw)
+        last_raw = torch.clamp(policy(o), *obs.act_clip)
+        act = obs.action_from_raw(last_raw)
+        if inj is not None:
+            act = act + inj[:, c * hold]
+        for _h in range(hold):
+            nxt, hist_s, hist_a = advance(model, torch, hist_s, hist_a, act)
+            out.append(nxt)
+    return torch.stack(out, dim=1)
+
+
+def check_loop_fidelity(torch, model, obs, policy, corpus, ctx, steps, hold, ctrl_dt, p2c,
+                        ix, dev, n=256, seed=0):
+    """Does the closed loop inside the model reproduce the recorded closed loop?
+
+    The start check proves the FIRST observation is right. This proves the whole branch:
+    from held-out starts, the base policy is rolled inside the model exactly as the
+    fine-tune rolls it -- same hold, same alignment, same observation -- but with the
+    recorded injection noise added back, so that on a faithful loop it takes the very
+    actions the robot took. Its predicted velocities are compared with the recorded ones,
+    and so are those of an OPEN-loop rollout of the recorded actions from the same starts.
+
+    Open-loop error is the model's own error. Closed-loop error adds whatever the loop
+    gets wrong -- timing, alignment, observation -- compounded through the policy's
+    feedback. On a faithful loop the two are close; the ratio is the number to read.
+
+    REPORTED, NOT GATED, because its power is unproven. A negative control on a barely
+    trained rigid smoke model -- the policy stepped every model step, the v1 timing fault
+    -- scored the same ratio (0.99) as the correct loop: over 0.30 s the model's own error
+    swamped the difference. The start check is what refuses; this is a number to read
+    beside it until a negative control on a real model shows it can tell the two apart.
+    """
+    need = steps * hold
+    pool = []
+    for si, r in enumerate(corpus.val):
+        ph = r["extra"][:, _T] / ctrl_dt
+        for k in range(max(r["n"] - ctx - need, 0)):
+            j = k + ctx - 1
+            if abs(ph[j] - round(ph[j])) < 1e-6:
+                pool.append((si, k))
+    if not pool:
+        print("loop check: skipped, no held-out segment is long enough")
+        return None
+    rng = random.Random(seed)
+    picks = [pool[rng.randrange(len(pool))] for _ in range(min(n, len(pool)))]
+    f = lambda x: torch.tensor(np.stack(x), dtype=torch.float32, device=dev)  # noqa: E731
+    segs = corpus.val
+    S0 = f([segs[si]["state"][k:k + ctx] for si, k in picks])
+    A_hist = f([segs[si]["action"][k:k + ctx - 1] for si, k in picks])
+    A_fut = f([segs[si]["action"][k + ctx - 1:k + ctx - 1 + need] for si, k in picks])
+    S_fut = f([segs[si]["state"][k + ctx:k + ctx + need] for si, k in picks])
+    E = f([segs[si]["extra"][k + ctx - 2:k + ctx - 1 + need] for si, k in picks])
+    cmd = E[:, 1, _CMD]
+    vel = [ix["vel_body_x_mps"], ix["vel_body_y_mps"], ix["yaw_rate_radps"]]
+
+    b = {"states": S0, "acts": A_hist, "last_raw": E[:, 0, _RAW][:, p2c]}
+    with torch.no_grad():
+        pred_closed = closed_loop(torch, model, obs, policy, b, cmd, steps, hold,
+                                  inj=E[:, 1:1 + need, _INJ])[..., vel]
+        hs, ha, pred_open = S0, A_hist, []
+        for m in range(need):
+            nxt, hs, ha = advance(model, torch, hs, ha, A_fut[:, m])
+            pred_open.append(nxt[:, vel])
+        pred_open = torch.stack(pred_open, dim=1)
+
+    e_open = float(torch.sqrt(((pred_open - S_fut[..., vel]) ** 2).mean()))
+    e_closed = float(torch.sqrt(((pred_closed - S_fut[..., vel]) ** 2).mean()))
+    ratio = e_closed / max(e_open, 1e-12)
+    print(f"loop check ({len(picks)} held-out starts, {need} model steps): velocity RMSE "
+          f"open-loop {e_open:.4f}, closed-loop {e_closed:.4f}  (ratio {ratio:.2f})")
+    if ratio > 2.0:
+        print("  WARNING: the closed loop inside the model is far worse than the model "
+              "itself. The fine-tune will be optimising a loop that is not the robot's.")
+    return {"open": e_open, "closed": e_closed, "ratio": ratio, "n": len(picks)}
 
 
 # ------------------------------------------------------------------------ ppo
@@ -416,10 +519,7 @@ def ppo_rollout(torch, model, obs_b, actor, critic, b, steps, hold, cmd, ix,
             act = obs_b.action_from_raw(last_raw)
             r = 0.0
             for _h in range(hold):
-                a_win = torch.cat([hist_a, act[:, None]], dim=1)
-                nxt = hist_s[:, -1] + model.predict_delta(hist_s, a_win)[:, -1]
-                hist_s = torch.cat([hist_s[:, 1:], nxt[:, None]], dim=1)
-                hist_a = a_win[:, 1:]
+                nxt, hist_s, hist_a = advance(model, torch, hist_s, hist_a, act)
                 rh = step_reward(torch, nxt, cmd, ix, upright_weight)
                 if ood is not None and ood_weight > 0:
                     c = ood.cost(torch, nxt, act)
@@ -473,23 +573,12 @@ def branch_loss(torch, model, obs, policy, b, cmd, steps, hold, ix):
     fed the model an action stream that changed every row where every recorded one is
     held for two, and labelled 15 model steps "0.30 s" when they were 0.15 s.
     """
-    hist_s, hist_a, last_raw = b["states"], b["acts"], b["last_raw"]
-    track, upright = [], []
-    for _ in range(steps):
-        o = obs.observe(hist_s[:, -1], cmd, last_raw)
-        last_raw = torch.clamp(policy(o), *obs.act_clip)
-        act = obs.action_from_raw(last_raw)
-        for _h in range(hold):
-            a_win = torch.cat([hist_a, act[:, None]], dim=1)
-            nxt = hist_s[:, -1] + model.predict_delta(hist_s, a_win)[:, -1]
-            hist_s = torch.cat([hist_s[:, 1:], nxt[:, None]], dim=1)
-            hist_a = a_win[:, 1:]
-            v = torch.stack([nxt[:, ix["vel_body_x_mps"]], nxt[:, ix["vel_body_y_mps"]],
-                             nxt[:, ix["yaw_rate_radps"]]], dim=-1)
-            track.append(((v - cmd) ** 2).sum(-1))
-            # grav_body_z is -1 when level; anything above that is the trunk pitching over.
-            upright.append((nxt[:, ix["grav_body_z"]] + 1.0) ** 2)
-    return torch.stack(track).mean(), torch.stack(upright).mean()
+    pred = closed_loop(torch, model, obs, policy, b, cmd, steps, hold)
+    v = pred[..., [ix["vel_body_x_mps"], ix["vel_body_y_mps"], ix["yaw_rate_radps"]]]
+    track = ((v - cmd[:, None]) ** 2).sum(-1)
+    # grav_body_z is -1 when level; anything above that is the trunk pitching over.
+    upright = (pred[..., ix["grav_body_z"]] + 1.0) ** 2
+    return track.mean(), upright.mean()
 
 
 def branch_cmd(torch, a, b, ranges, rng, dev):
@@ -748,6 +837,8 @@ def main() -> int:
                      ctx, p2c, dev)
     start_err = check_start_reproduction(torch, obs, policy, b0)
     del b0
+    loop = check_loop_fidelity(torch, model, obs, policy, corpus, ctx, a.steps, hold,
+                               ctrl_dt, p2c, ix, dev, seed=a.seed)
 
     rng = random.Random(a.seed)
     opt = torch.optim.Adam(params, lr=a.lr)
@@ -767,7 +858,8 @@ def main() -> int:
                 "lr": a.lr, "clip_eps": a.clip_eps, "gamma": a.gamma, "lam": a.lam,
                 "ppo_epochs": a.ppo_epochs, "init_log_std": a.init_log_std,
                 "hold": hold, "ctrl_dt": ctrl_dt, "dt_s": dt_s, "command_source": a.command,
-                "start_reproduction": start_err, "corpus_row_capture": man.get("row_capture"),
+                "start_reproduction": start_err, "loop_fidelity": loop,
+                "corpus_row_capture": man.get("row_capture"),
                 "policy_params": n_par, "theta0_norm": base_norm, "seed": a.seed,
                 "model": str(a.model), "base_policy": str(a.policy),
                 "corpus": str(a.corpus)}
@@ -822,7 +914,8 @@ def main() -> int:
             "method": a.method, "iters_run": it, "dw": dw, "target_dw": a.target_dw,
             "branches": a.branches, "steps": a.steps, "lr": a.lr, "seed": a.seed,
             "hold": hold, "ctrl_dt": ctrl_dt, "dt_s": dt_s, "command_source": a.command,
-            "start_reproduction": start_err, "corpus_row_capture": man.get("row_capture"),
+            "start_reproduction": start_err, "loop_fidelity": loop,
+                "corpus_row_capture": man.get("row_capture"),
             "model": str(a.model), "base_policy": str(a.policy),
             "corpus": str(a.corpus), "seconds": round(time.perf_counter() - t0, 1)}
     (out / "finetune.json").write_text(json.dumps(meta, indent=2))
