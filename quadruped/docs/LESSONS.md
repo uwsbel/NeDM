@@ -292,3 +292,42 @@ Eleven probes on `devel` and `mi2101x`, both at 0.1x charge, came to roughly 0.1
 against a 1500-hour shared allocation. The compute was free; the wall clock was not. The
 expensive resource in a debugging session is the number of round trips, and every guess
 that gets tested by rerunning the whole pipeline spends one to learn a single bit.
+
+## The policy was never rolled; something that resembled it was
+
+Both v1 fine-tunes made the policy worse in Chrono: analytic fell in 5 of 16 episodes and
+left the corpus region (Gate 4, 29.4% outside); PPO stayed upright and in-corpus and still
+tracked worse in 16 of 16 paired episodes (mae_vx +58%, t = +9.7). In the model, both had
+improved. The cause was not the methods. It was that the thing being optimised inside the
+NN-ROM was not the policy the robot runs, for three independent reasons:
+
+1. **The corpus recorded the state after the action, not before it.** `collect.py`
+   captured each row after `DoStepDynamics`. On a control row that one physics step is the
+   PD kick from the target just set, so the recorded joint velocities were 0.91 of their
+   own spread away from what the policy had observed, and the policy's output from a
+   recorded row differed from its real output by 36% of its spread on rigid ground and
+   ~60% on CRM. For training the NN-ROM this is harmless -- it is a consistent
+   row-to-row map. For rolling a policy on those rows it is fatal: the observation
+   already contains the consequence of the action it is supposed to choose.
+2. **The policy ran at the record rate.** Rows are 100 Hz, the policy acts at 50 Hz, and
+   the fine-tune called the policy on every model step. Inside the model it ran twice as
+   fast as on the robot, fed the model an action stream that changed every row where every
+   recorded one is held for two, and "15 steps = 0.30 s" was 0.15 s.
+3. **The action history was shifted one row.** The rollout appended the policy's action to
+   a window already ending in the recorded one, so the model saw state row j paired with
+   action row j+1 -- a pairing it was never trained on -- from the first step.
+
+**Why nothing caught it.** Every check that existed looked at the model (horizon profile,
+floor, lottery) or at the outcome (Gate 4, the paired Chrono test). None asked whether the
+closed loop inside the model was the closed loop on the robot. The paired test did catch
+the consequence, which is what it is for; it cannot say why.
+
+**The test that finds all three is one line of arithmetic:** rebuild the observation from
+a recorded row, run the base policy on it, and compare with the output the policy actually
+recorded at that row. A faithful loop agrees to float rounding (8.8e-07 against a spread of
+1.55 on the fixed corpus). The broken one missed by 60%.
+→ Before optimising a policy inside any surrogate, prove the surrogate loop reproduces the
+policy's recorded behaviour at its start states. `finetune.py` now refuses to run unless
+it does (`check_start_reproduction`), `obs_truth.py` checks the observation block by block
+against a live Chrono run, and corpora are stamped `row_capture=pre_step` so the old ones
+are refused rather than silently reused.

@@ -17,6 +17,7 @@ someone reading an older document. Each says what replaced it.
 | PPO figures of +217.5% and +438.6% | export defect | terminal iterate of a declining run was exported instead of best-in-budget |
 | "~20x slower than real time" for CRM | unsourced | 7.5x measured directly on this terrain; RTF 0.1136 over 152 episodes |
 | "795 episodes / 447,372 transitions" | mis-paired | 447,372 is the train split; 795 episodes is 555,851 transitions |
+| v1 fine-tune results: analytic 5/16 falls and +1.13 m/s mae_vx; PPO +58% mae_vx, worse in 16/16 | not evidence about either method | the policy rolled inside the NN-ROM was not the robot's policy (post-step capture, 100 Hz stepping, shifted action history; `07f440a4`). Rerun on the v2 corpus |
 
 ## Standing cautions
 
