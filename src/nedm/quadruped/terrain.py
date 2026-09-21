@@ -12,6 +12,9 @@ from .constants import (CALF_BODIES, FOOT_BODIES, GRAVITY, MOTOR_NAMES,
                           SOIL_PRESETS)
 from .robot import Go2Robot
 
+# Overridable per call via args.active_domain_m; this is the studied default.
+ACTIVE_DOMAIN_M = 0.5
+
 
 def build_crm(chrono, fsi, veh, system, robot, args):
     terrain = veh.CRMTerrain(system, args.spacing)
@@ -126,7 +129,23 @@ def build_crm(chrono, fsi, veh, system, robot, args):
         except Exception as exc:  # noqa: BLE001
             print(f"  FSI registration failed for {name}: {type(exc).__name__}: {exc}")
 
-    terrain.SetActiveDomain(chrono.ChVector3d(1.0, 1.0, 1.0))
+    # ACTIVE DOMAIN, the single knob that sets what a corpus costs. Full extent, and the
+    # box is centred on EACH FSI solid's own origin -- our eight are the four feet and
+    # four calves -- not once on the robot.
+    #
+    # 0.5 m, decided by measurement rather than inherited. The 1.0 m it replaces came from
+    # demo_ROBOT_Viper_CRM. Two independent 12-case ensembles against the unapproximated
+    # solve, each with a null arm, pooled n=21: neither 0.5 m nor 1.0 m is distinguishable
+    # from no approximation at all, nor from each other, on any of six behavioural
+    # metrics. So the cheaper wins -- 3.81x real time against 6.18x. See docs/COST.md.
+    #
+    # What the measurement could NOT see: a mean_vx bias below 0.013 m/s. Both arms in
+    # both runs put mean speed slightly low, four consistent signs and no individual
+    # significance, so a one to three percent bias is not excluded. That is why the same
+    # value must be used for collection AND for the Chrono evaluation: a common-mode bias
+    # cancels in the paired comparison the study reports, and an uncommon one does not.
+    ad = float(getattr(args, "active_domain_m", ACTIVE_DOMAIN_M))
+    terrain.SetActiveDomain(chrono.ChVector3d(ad, ad, ad))
     crm_compat.set_free_flow_duration(terrain, 0.1)
     lo, hi = crm_patch_bounds(args.patch_x, args.patch_y, args.depth, args.soil_bottom)
     terrain.Construct(
