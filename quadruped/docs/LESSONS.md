@@ -244,3 +244,51 @@ configurations -- same `mean_z`, same `up`, same 0.029 m travelled. Identical ou
 configurations that should differ is the signal; the fall-through was the explanation. A
 sweep whose arms do not differ has told you something even when it has not told you what
 you asked.
+
+## A diagnostic that touches the resource it diagnoses can break what it checks
+
+`doctor.py` verifies a host before a run. On hpcfund it made the run impossible.
+
+The probe is a real GEMM, because `torch.cuda.is_available()` returning True is not
+evidence the GPU computes -- which that host proves, since its GEMM dies with
+`hipErrorFileNotFound`. But a failed HIP context does not stay inside the process that
+created it. Run `doctor` as its own process, then collect, and Chrono's `Initialize()`
+dies with `std::bad_alloc: hipErrorNoDevice` -- no device at all -- on a node where
+`rocminfo` enumerates gfx90a, a plain `hipMalloc` succeeds, and a 6.6 M particle bed with
+eight FSI bodies builds without complaint.
+
+The fix is to not probe what the action will not use. Collection runs the policy on CPU
+and never opens a GEMM; the registry already records that this host cannot train. The
+probe still runs, and still fails hard, for `train` and `finetune`, which is where it was
+always earning its keep.
+
+### Ten jobs, and what actually found it
+
+Four genuine defects were repaired on the way to this one, each of which really was
+broken: the registry matched login nodes but not compute nodes, the registered Chrono
+build had no `pychrono.parsers` and could not open a URDF, a failed GEMM was fatal for
+actions that do not need a GPU, and the job script loaded no modules. Fixing each changed
+nothing, because none was the blocker.
+
+What worked was not the next hypothesis. It was **removing a variable**: one run with
+`--skip-doctor` completed in 4m34s and named the culprit immediately. That experiment was
+available from job three and would have cost one submission.
+
+Three habits to keep from it:
+
+- **Read the whole error, not the tail.** The doubled GEMM warning -- doctor running
+  twice, once per process -- was in the full stderr for eight jobs. Tailing works until
+  the informative part is not at the end.
+- **A disconfirmation refutes the version you tested, not the family.** A single-process
+  probe-then-Chrono test passed, and that was taken as clearing the probe entirely. The
+  failing configuration was two processes, which is a different claim.
+- **One-factor-at-a-time is blind to interactions.** A bare bed of 3.5 M particles passed,
+  and the full `build_crm` at 4 x 4 passed, so both factors were cleared -- and the cell
+  where they meet was never run. It turned out to be fine too, but the reasoning was not.
+
+### The cost asymmetry that made this cheap
+
+Eleven probes on `devel` and `mi2101x`, both at 0.1x charge, came to roughly 0.1 node-hours
+against a 1500-hour shared allocation. The compute was free; the wall clock was not. The
+expensive resource in a debugging session is the number of round trips, and every guess
+that gets tested by rerunning the whole pipeline spends one to learn a single bit.

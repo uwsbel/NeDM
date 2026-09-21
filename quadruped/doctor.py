@@ -159,12 +159,30 @@ def check_numpy(spec):
 
 
 def check_torch_gpu(required: bool):
-    """A real GEMM. `is_available()` returning True is not evidence the GPU computes."""
+    """A real GEMM. `is_available()` returning True is not evidence the GPU computes.
+
+    NOT PROBED WHEN THE ACTION DOES NOT NEED A GPU, and that is not tidiness -- the probe
+    can break the job it is meant to protect.
+
+    On hpcfund the GEMM fails with hipErrorFileNotFound. Running doctor as its own process
+    and then collecting made Chrono's `Initialize()` die with
+    "std::bad_alloc: hipErrorNoDevice" -- no device at all, on a node where rocminfo
+    enumerates gfx90a, a plain hipMalloc succeeds, and a 6.6 M particle bed with eight FSI
+    bodies builds without complaint. The same collect with --skip-doctor completed in
+    4m34s. A failed HIP context does not stay inside the process that created it; it
+    leaves the device unusable for the ones that follow.
+
+    So a preflight that exercises a resource the run will not touch is pure downside here,
+    and the diagnostic became the defect. The registry already records what this check
+    would have discovered -- hpcfund is `can: [collect, evaluate]`, `cannot: [train,
+    finetune]` -- so nothing is lost by trusting it for actions that never open a GPU.
+    """
     import torch
+    if not required:
+        return (f"torch {torch.__version__}: GPU not probed, this action does not use one. "
+                f"A failed probe can wedge the device for later processes in the same job.")
     if not torch.cuda.is_available():
-        if required:
-            raise Failed(f"torch {torch.__version__} reports no usable device")
-        return f"torch {torch.__version__} (cpu)"
+        raise Failed(f"torch {torch.__version__} reports no usable device")
     import torch.nn as nn
     try:
         m = nn.Linear(256, 256).cuda()
@@ -174,13 +192,20 @@ def check_torch_gpu(required: bool):
         torch.cuda.synchronize()
         if not (y.isfinite() and x.grad.isfinite().all()):
             raise Failed("GEMM produced non-finite values")
-    except Failed:
-        raise
-    except Exception as e:  # noqa: BLE001
+    except (Failed, Exception) as e:  # noqa: BLE001
+        # A BROKEN GPU IS ONLY FATAL FOR AN ACTION THAT NEEDS ONE. hpcfund is the case
+        # this exists for: torch reports a device, the first nn.Linear dies on missing
+        # gfx90a kernels, and the registry already records exactly that with
+        # `can: [collect, evaluate]` and `cannot: [train, finetune]`. Collection runs the
+        # policy on CPU and never touches a GEMM, so failing it here contradicted the
+        # registry's own statement and refused a host that was doing nothing wrong.
+        #
+        # Reported either way rather than swallowed: a later reader must not be able to
+        # conclude from a passing doctor that this box can train.
         raise Failed(
             f"torch reports a device but a real GEMM failed: {type(e).__name__}: "
-            f"{str(e)[:90]}\n  This is the hpcfund failure mode -- is_available() is True "
-            f"and the first nn.Linear dies."
+            f"{str(e)[:90]}\n  This is the hpcfund failure mode -- is_available() is "
+            f"True and the first nn.Linear dies."
         )
     name = torch.cuda.get_device_name(0)
     gb = torch.cuda.get_device_properties(0).total_memory / 2**30
