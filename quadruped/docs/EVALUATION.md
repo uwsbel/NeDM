@@ -1,66 +1,95 @@
 # How the study's metrics have to be measured
 
-**Updated:** 2026-09-20. Measured on a3, `tracking_spread.py`, 8 replicates per terrain,
-3 s windows at 0.5 m/s commanded, corrected bed geometry (`89c898b8`).
+**Updated:** 2026-09-20, after a correction. Measured with `tracking_spread.py`, 3 s
+windows at 0.5 m/s commanded, corrected bed geometry (`89c898b8`).
 
 ## The tracking metric is not repeatable on CRM, and is on rigid
 
-Eight runs per terrain, identical in every respect except where on the particle lattice
-the robot starts. The spawn is offset over +/-0.25 m; the policy, soil, command, solver and
-protocol are untouched.
+Replicates are identical in every respect except where on the particle lattice the robot
+starts. The spawn is offset over a range; policy, soil, command, solver and protocol are
+untouched.
 
-| terrain | mean tracking | sd | range |
-|---|---|---|---|
-| rigid | 97.0% | **0.1%** | 96.8 - 97.1 |
-| CRM | 70.2% | **3.4%** | 65.8 - 75.2 |
-| gap (paired) | 26.8% | 3.4% | 21.6 - 31.3 |
+| machine | spawn spread | rigid | CRM | CRM sd |
+|---|---|---|---|---|
+| a3 | +/-0.25 m | 97.0% (sd 0.1) | 70.2% | 3.4 |
+| north | +/-0.25 m | 97.0% (sd 0.1) | 78.3% | 3.5 |
+| **north** | **+/-1.0 m** | 96.9% (sd 0.1) | **74.7%** | **5.7** |
 
 **The rigid control is effectively deterministic. All of the variance is the granular
 terrain.** That is the expected signature of contact-rich dynamics on a particle bed, and
 it is consistent with the active-domain work, where the same chaos made trajectory error
 order non-monotonically in box size.
 
-Note the perturbation here is about as small as one can make while still changing
-anything, so **3.4 points is a lower bound** on the metric's variance, not an estimate of
-it. Command, soil realisation and episode length would all add more.
+## The correction, and what caused it
 
-## What this invalidates
+An earlier version of this document reported sd = 3.4 points and concluded, from a
+9-point difference between a3 and north at 6 sigma, that **CRM results are
+machine-dependent**. That conclusion is WITHDRAWN.
 
-**The headline "95% rigid against 64% CRM" was a single run per terrain.** The CRM figure
-sits below the entire range observed here, and the two numbers were measured on different
-machines from the replicate set. The defensible statement is a gap of roughly 27 points
-with a standard deviation of 3.4, not a gap of 31 points.
+Widening the spawn perturbation on a SINGLE machine from +/-0.25 m to +/-1.0 m moved
+north's own mean by 3.6 points and grew its sd from 3.5 to 5.7. Redone against that, the
+cross-machine difference is +4.5 points with se 2.34, **t = 1.9, not significant**. The
+apparent machine effect was mostly an artifact of an under-dispersed replicate set: at
++/-0.25 m the eight replicates explore too narrow a neighbourhood, the sample sd
+understates the true variance, and each machine happens to settle in a different part of
+the distribution.
 
-More importantly it sets a floor on what any fine-tuning result has to clear. With
-sd = 3.4 points, a single-run improvement of 3 points is one standard deviation and means
-nothing. The standard error on a mean of n replicates is 3.4/sqrt(n), so:
+Two lessons worth more than the retracted number:
+
+- **A replicate set that is too narrow does not look noisy, it looks precise.** The
+  failure mode is an overconfident sd, and an overconfident sd manufactures significance.
+  The tell was available and ignored: rigid had sd 0.1 while CRM had 3.4, so the
+  perturbation clearly mattered enormously on CRM, which is exactly when its SIZE needs
+  justifying rather than picking.
+- **When a mechanism check and a statistic disagree, the mechanism usually wins.**
+  `machine_probe.py` showed the two machines produce bit-identical SPH state for two steps
+  and then diverge at rounding level -- the signature of the same computation amplified,
+  not a different one. That was reported alongside a claim of systematic machine bias, and
+  reconciled by inventing "a small systematic component on top". The probe was right and
+  the reconciliation was motivated reasoning.
+
+Note +/-1.0 m is still an arbitrary perturbation. **The true sd for the study is at least
+5.7 and probably larger**, because a real corpus varies command, soil realisation and
+initial state too. It should be measured against the actual episode distribution rather
+than a spawn offset.
+
+## What this means for every reported number
+
+**The headline "95% rigid against 64% CRM" was a single run per terrain**, measured on
+different machines. No single CRM run supports a headline. On the best current estimate
+the gap is roughly 22 points with sd of about 5.7, and that sd is a floor.
+
+Replicate budget, at sd = 5.7. The standard error on a mean of n replicates is 5.7/sqrt(n):
 
 | replicates | standard error | smallest credible improvement (2 se) |
 |---|---|---|
-| 1 | 3.4 | 6.8 points |
-| 4 | 1.7 | 3.4 points |
-| 8 | 1.2 | 2.4 points |
-| 16 | 0.85 | 1.7 points |
+| 1 | 5.7 | 11.4 points |
+| 4 | 2.9 | 5.7 points |
+| 8 | 2.0 | 4.0 points |
+| 16 | 1.4 | 2.9 points |
+| 32 | 1.0 | 2.0 points |
 
 **Every reported CRM metric needs replicates.** Not because the simulation is unreliable,
-but because the system is chaotic and one trajectory is one draw from a distribution.
+but because the system is chaotic and one trajectory is one draw from a wide distribution.
 
 This applies retroactively to the previous study's tracking-gain figure, which was also
 quoted from single runs. That number is not withdrawn -- it has not been re-measured --
-but it carries an unstated uncertainty of the same order, and it should not be quoted to
-a precision the method cannot support until it has been replicated.
+but it carries an unstated uncertainty of the same order.
 
 ## Rules
 
 1. **Any CRM number that goes in a document is a mean over replicates, with its sd and n.**
    A single CRM run is a diagnostic, not a result.
-2. **Replicates vary the initial condition, not the seed of a sampler.** Spawn offset,
-   command draw and soil realisation are the axes that matter; re-running an identical
-   configuration reproduces it exactly on some cases and not others (see below), so it is
-   not a replicate.
+2. **Replicates must span the variation the claim generalises over.** A perturbation
+   chosen for convenience understates the variance and manufactures significance. State
+   the perturbation and its range next to the sd.
 3. **Rigid may be quoted from fewer runs**, since its sd is 0.1 points, but state n.
 4. **Improvements are reported as paired differences per replicate**, not as a difference
-   of two means, so the chaotic component cancels where the pairing allows it.
+   of two means. The study's claim is a GAIN -- fine-tuned minus baseline -- and measuring
+   both on the same machine in the same session cancels any common offset, which is what
+   makes the claim robust even if an absolute level is not.
+5. **Pin the machine for any comparison.** Not because machine dependence is established
+   -- it is not -- but because it costs nothing and removes the question.
 
 ## Determinism is case-dependent
 
@@ -73,3 +102,10 @@ So "re-run it and see if you get the same answer" is not a valid check here -- i
 return a false confirmation. Any comparison of two configurations needs a **null arm**: a
 repeat of the reference carried through the same analysis, so an effect is judged against
 what identical inputs actually produce rather than against an assumption of zero.
+
+## A fall is not data, on CRM
+
+Only the feet and calves are FSI-coupled; the trunk has no interaction with the soil and
+there is no rigid ground on CRM. A robot that pitches onto its belly therefore descends
+through the bed and keeps going. `validity.py` gains a `sinking` check for this, because
+the existing floor at -0.5 m let a robot sitting at -0.40 m pass every check in the file.
