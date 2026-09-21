@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 """Fine-tune the policy inside the NN-ROM.
 
-Two methods, one interface. `--method analytic` is the one that works today;
-`--method ppo` is the one we want to work, because analytic leans on a property -- a
-differentiable model of the plant -- that a general method should not need.
+Two methods, one interface, one objective, one stopping rule -- so the comparison
+between them is about the METHOD and not about how each was tuned.
+
+`--method analytic` backpropagates through the frozen model to the policy weights.
+`--method ppo` does not: it treats the model as an ordinary environment, rolls it under
+no_grad, and learns from reward alone. That difference is the point. Analytic leans on
+the plant being differentiable, which a general method should not need, and the NN-ROM
+happens to be differentiable only because it is a neural network -- Chrono is not.
 
 WHAT ANALYTIC POLICY GRADIENT ACTUALLY DOES, since the name misleads
 
@@ -183,6 +188,174 @@ def branch_starts(corpus, ctx, n, rng):
     return [pool[rng.randrange(len(pool))] for _ in range(n)]
 
 
+# ------------------------------------------------------------------------ ppo
+
+def make_stochastic(torch, nn, policy, act_dim, init_log_std):
+    """A Gaussian head on the deterministic actor, plus a fresh critic.
+
+    The base policy is a deterministic TorchScript MLP: it maps an observation to an
+    action, with no notion of a distribution. PPO needs a stochastic policy to have a
+    likelihood ratio at all, so the mean comes from the existing network -- keeping
+    everything the base policy already knows -- and a learnable log_std is added beside
+    it. Starting it small means the first rollouts stay near the base behaviour rather
+    than flailing, which matters because a random-looking policy on CRM falls over and
+    then the rollouts are all about falling over.
+
+    The critic is new. There is nothing to inherit: the base policy was trained elsewhere
+    with its own value function, which was not exported and would be wrong for this
+    reward anyway.
+    """
+    class Actor(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.net = policy
+            self.log_std = nn.Parameter(torch.full((act_dim,), float(init_log_std)))
+
+        def forward(self, obs):
+            return self.net(obs)
+
+        def dist(self, obs):
+            mu = self.net(obs)
+            return torch.distributions.Normal(mu, self.log_std.exp())
+
+    class Critic(nn.Module):
+        def __init__(self, obs_dim):
+            super().__init__()
+            self.f = nn.Sequential(nn.Linear(obs_dim, 256), nn.ELU(),
+                                   nn.Linear(256, 128), nn.ELU(), nn.Linear(128, 1))
+
+        def forward(self, obs):
+            return self.f(obs).squeeze(-1)
+
+    return Actor(), Critic
+
+
+def step_reward(torch, nxt, cmd, ix, upright_weight):
+    """The SAME objective the analytic path minimises, as a reward.
+
+    Comparing two optimisers is only meaningful if they are pointed at one target. This
+    is the negative of the analytic loss term for term, so a difference in outcome is a
+    difference in method rather than in what each was asked to do.
+    """
+    v = torch.stack([nxt[:, ix["vel_body_x_mps"]], nxt[:, ix["vel_body_y_mps"]],
+                     nxt[:, ix["yaw_rate_radps"]]], dim=-1)
+    track = ((v - cmd) ** 2).sum(-1)
+    upright = (nxt[:, ix["grav_body_z"]] + 1.0) ** 2
+    return -(track + upright_weight * upright)
+
+
+class OODCost:
+    """Penalise the reward when a rollout leaves the region the corpus covers.
+
+    THIS IS THE DIFFERENCE BETWEEN PPO WORKING AND PPO CHEATING, and PPO needs it more
+    than the analytic path does.
+
+    The NN-ROM is only a model of the robot where the corpus taught it one. PPO explores
+    by sampling actions, so it will find the places the model is wrong faster than any
+    method that stays near recorded behaviour -- and a place where the model is wrong
+    usually looks like free reward. That is the optimiser's curse this project has been
+    bitten by repeatedly: in-model gain anti-correlates with transfer.
+
+    So distance from the corpus is priced into the reward, using the same whitened kNN
+    reference that Gate 4 uses to decide whether a corpus covers its own held-out data.
+    Beyond the corpus's own 99th-percentile self-distance -- its own notion of "far" --
+    every further unit costs `weight`.
+
+    Disabling this does not make the numbers better, it makes them less true.
+    """
+
+    def __init__(self, corpus, max_points=4000, seed=0):
+        sys.path.insert(0, str(REPO))
+        from quadruped.lib import coverage as C  # noqa: PLC0415
+        X = np.concatenate([np.concatenate([r["state"][:-1], r["action"][:-1]], axis=1)
+                            for r in corpus.train], axis=0)
+        rng = np.random.default_rng(seed)
+        idx = rng.choice(len(X), size=min(max_points * 4, len(X)), replace=False)
+        self.ref = C.Reference(X[idx], names=corpus.state_fields + corpus.action_fields,
+                               rng=rng)
+        self.mu = self.ref.mu
+        self.sd = self.ref.sd
+        self.thresh = self.ref.thresh
+
+    def to_torch(self, torch, dev):
+        self.t_mu = torch.tensor(self.mu, dtype=torch.float32, device=dev)
+        self.t_sd = torch.tensor(self.sd, dtype=torch.float32, device=dev)
+        self.t_ref = torch.tensor(self.ref.ref, dtype=torch.float32, device=dev)
+        self.k = self.ref.k
+        return self
+
+    def cost(self, torch, state, action):
+        """Mean distance to the k nearest corpus points, beyond the threshold."""
+        z = (torch.cat([state, action], dim=-1) - self.t_mu) / self.t_sd
+        d = torch.cdist(z, self.t_ref)
+        knn = d.topk(self.k, dim=-1, largest=False).values.mean(-1)
+        return torch.clamp(knn - self.thresh, min=0.0)
+
+
+def ppo_rollout(torch, model, obs_b, actor, critic, corpus, picks, ctx, steps, cmd, ix,
+                upright_weight, dev, ood=None, ood_weight=0.0):
+    """Collect one batch of trajectories inside the model. NO GRADIENT THROUGH DYNAMICS.
+
+    This is the whole difference from the analytic path. The model is stepped under
+    no_grad and only its OUTPUTS are used, so nothing here requires the plant to be
+    differentiable. Swap the NN-ROM for Chrono and this function still works, which is
+    the property the analytic method does not have.
+    """
+    B = len(picks)
+    S = np.stack([corpus.train[si]["state"][k:k + ctx] for si, k in picks])
+    A = np.stack([corpus.train[si]["action"][k:k + ctx] for si, k in picks])
+    hist_s = torch.tensor(S, dtype=torch.float32, device=dev)
+    hist_a = torch.tensor(A, dtype=torch.float32, device=dev)
+    last_raw = torch.zeros(B, 12, device=dev)
+
+    obs_buf, act_buf, logp_buf, rew_buf, val_buf = [], [], [], [], []
+    ood_buf = []
+    with torch.no_grad():
+        for _ in range(steps):
+            cur = hist_s[:, -1]
+            o = obs_b.observe(cur, cmd, last_raw)
+            d = actor.dist(o)
+            raw = d.sample()
+            logp = d.log_prob(raw).sum(-1)
+            val = critic(o)
+            last_raw = raw
+            act = obs_b.action_from_raw(raw)
+            hist_a = torch.cat([hist_a[:, 1:], act[:, None]], dim=1)
+            nxt = cur + model.predict_delta(hist_s, hist_a)[:, -1]
+            hist_s = torch.cat([hist_s[:, 1:], nxt[:, None]], dim=1)
+            obs_buf.append(o); act_buf.append(raw); logp_buf.append(logp)
+            val_buf.append(val)
+            r = step_reward(torch, nxt, cmd, ix, upright_weight)
+            if ood is not None and ood_weight > 0:
+                r = r - ood_weight * ood.cost(torch, nxt, act)
+                ood_buf.append(ood.cost(torch, nxt, act).mean())
+            rew_buf.append(r)
+        last_val = critic(obs_b.observe(hist_s[:, -1], cmd, last_raw))
+    ood_mean = float(torch.stack(ood_buf).mean()) if ood_buf else 0.0
+    return (torch.stack(obs_buf), torch.stack(act_buf), torch.stack(logp_buf),
+            torch.stack(rew_buf), torch.stack(val_buf), last_val, ood_mean)
+
+
+def gae(torch, rew, val, last_val, gamma, lam):
+    """Generalised advantage estimation over a fixed-length, never-terminating rollout.
+
+    There is no done flag: a branch runs `steps` and stops because the budget ran out,
+    not because anything ended. Bootstrapping off the critic at the tail is therefore the
+    correct treatment, and inserting a terminal would tell the agent the world ends when
+    it does not.
+    """
+    T = rew.shape[0]
+    adv = torch.zeros_like(rew)
+    nxt_val = last_val
+    run = torch.zeros_like(last_val)
+    for t in reversed(range(T)):
+        delta = rew[t] + gamma * nxt_val - val[t]
+        run = delta + gamma * lam * run
+        adv[t] = run
+        nxt_val = val[t]
+    return adv, adv + val
+
+
 # ------------------------------------------------------------------ the loss
 
 def branch_loss(torch, model, obs, policy, states0, actions0, cmd, steps, ix):
@@ -217,6 +390,94 @@ def branch_loss(torch, model, obs, policy, states0, actions0, cmd, steps, ix):
     return torch.stack(track).mean(), torch.stack(upright).mean()
 
 
+def run_ppo(torch, nn, a, model, obs_b, policy, params, baseline, base_norm, n_par,
+            corpus, ctx, ix, ranges, rng, dev, log):
+    """Clipped-surrogate PPO with the model as an ordinary environment.
+
+    Stops on the SAME weight-displacement budget as the analytic path. That is deliberate
+    and it is the only way the comparison means anything: matching iterations would
+    compare two optimisers that moved the policy different distances, and matching
+    in-model reward would compare how well each gamed the model.
+    """
+    obs_dim = obs_b.observe(torch.zeros(1, len(corpus.state_fields), device=dev),
+                            torch.zeros(1, 3, device=dev),
+                            torch.zeros(1, 12, device=dev)).shape[-1]
+    actor, Critic = make_stochastic(torch, nn, policy, 12, a.init_log_std)
+    actor = actor.to(dev)
+    critic = Critic(obs_dim).to(dev)
+    # The dw budget is measured on the ACTOR's inherited weights only. log_std is new and
+    # the critic is new, so counting them would let the budget be spent on parameters the
+    # base policy never had.
+    opt = torch.optim.Adam(
+        [{"params": params, "lr": a.lr},
+         {"params": [actor.log_std], "lr": a.lr},
+         {"params": critic.parameters(), "lr": a.critic_lr}])
+
+    ood = None
+    if a.ood_penalty > 0:
+        ood = OODCost(corpus, seed=a.seed).to_torch(torch, dev)
+        print(f"  OOD penalty {a.ood_penalty} beyond corpus self-distance "
+              f"{ood.thresh:.3f} (the same kNN reference Gate 4 uses)")
+    print(f"ppo: {a.branches} branches x {a.steps} steps, clip {a.clip_eps}, "
+          f"{a.ppo_epochs} epochs x {a.minibatches} minibatches per batch")
+    dw, it = 0.0, 0
+    for it in range(1, a.iters + 1):
+        picks = branch_starts(corpus, ctx, a.branches, rng)
+        cmd = torch.tensor(
+            [[rng.uniform(*ranges["vx"]), rng.uniform(*ranges["vy"]),
+              rng.uniform(*ranges["wz"])] for _ in range(a.branches)],
+            dtype=torch.float32, device=dev)
+        ob, ac, lp, rw, vl, last_val, ood_mean = ppo_rollout(
+            torch, model, obs_b, actor, critic, corpus, picks, ctx, a.steps, cmd, ix,
+            a.upright_weight, dev, ood, a.ood_penalty)
+        adv, ret = gae(torch, rw, vl, last_val, a.gamma, a.lam)
+        # Flatten time and branch: every (t, b) is one independent sample here, since the
+        # branches do not interact.
+        ob, ac, lp = ob.reshape(-1, ob.shape[-1]), ac.reshape(-1, 12), lp.reshape(-1)
+        adv, ret = adv.reshape(-1), ret.reshape(-1)
+        adv = (adv - adv.mean()) / (adv.std() + 1e-8)
+
+        n = ob.shape[0]
+        idx = torch.randperm(n, device=dev)
+        mb = max(n // a.minibatches, 1)
+        pl = vf = ent = 0.0
+        for _ in range(a.ppo_epochs):
+            for st in range(0, n, mb):
+                j = idx[st:st + mb]
+                d = actor.dist(ob[j])
+                new_lp = d.log_prob(ac[j]).sum(-1)
+                ratio = (new_lp - lp[j]).exp()
+                un = ratio * adv[j]
+                cl = torch.clamp(ratio, 1 - a.clip_eps, 1 + a.clip_eps) * adv[j]
+                p_loss = -torch.min(un, cl).mean()
+                v_loss = ((critic(ob[j]) - ret[j]) ** 2).mean()
+                e = d.entropy().sum(-1).mean()
+                loss = p_loss + a.vf_coef * v_loss - a.ent_coef * e
+                opt.zero_grad(set_to_none=True)
+                loss.backward()
+                torch.nn.utils.clip_grad_norm_(
+                    list(params) + [actor.log_std] + list(critic.parameters()), 1.0)
+                opt.step()
+                pl, vf, ent = p_loss.item(), v_loss.item(), e.item()
+
+        with torch.no_grad():
+            dw = float(weight_displacement(torch, params, baseline))
+        rec = {"iter": it, "reward": rw.mean().item(), "policy_loss": pl,
+               "value_loss": vf, "entropy": ent, "dw": dw, "dw_rel": dw / base_norm,
+               "log_std": actor.log_std.mean().item(), "ood": ood_mean}
+        log.write(json.dumps(rec) + "\n")
+        if it % 10 == 0 or it == 1:
+            print(f"  iter {it:5d}  reward {rw.mean().item():+.4f}  vloss {vf:.4f}  "
+                  f"ent {ent:+.3f}  log_std {actor.log_std.mean().item():+.2f}  "
+                  f"dw {dw:.4f} ({100 * dw / base_norm:.2f}%)  ood {ood_mean:.4f}",
+                  flush=True)
+        if dw >= a.target_dw:
+            print(f"  stopping: dw {dw:.4f} reached the {a.target_dw} budget at iter {it}")
+            break
+    return it, dw
+
+
+
 def weight_displacement(torch, params, baseline):
     return torch.sqrt(sum(((p - b) ** 2).sum() for p, b in zip(params, baseline)))
 
@@ -240,20 +501,29 @@ def main() -> int:
                          "about lr*sqrt(N): 0.043 here, and dw 4.0 is therefore roughly "
                          "100 steps. A budget of 0.05 stops after ONE.")
     ap.add_argument("--upright-weight", type=float, default=0.5)
+    # PPO only. Defaults are the standard continuous-control set; the one choice specific
+    # to this problem is init_log_std, kept small so early rollouts stay near the base
+    # policy -- a policy that flails on CRM falls over, and then every rollout is about
+    # falling over rather than about tracking.
+    ap.add_argument("--clip-eps", type=float, default=0.2)
+    ap.add_argument("--gamma", type=float, default=0.99)
+    ap.add_argument("--lam", type=float, default=0.95)
+    ap.add_argument("--ppo-epochs", type=int, default=10)
+    ap.add_argument("--minibatches", type=int, default=4)
+    ap.add_argument("--vf-coef", type=float, default=0.5)
+    ap.add_argument("--ent-coef", type=float, default=0.0)
+    ap.add_argument("--critic-lr", type=float, default=1e-3)
+    ap.add_argument("--init-log-std", type=float, default=-2.5)
+    ap.add_argument("--ood-penalty", type=float, default=1.0,
+                    help="reward penalty per unit of normalised kNN distance beyond the "
+                         "corpus threshold. 0 disables it, which is not recommended: see "
+                         "the note in ood_cost().")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--device", default="cuda")
     ap.add_argument("--smoke", action="store_true",
                     help="permit a smoke-stamped NN-ROM so this code path can be "
                          "exercised before a real corpus exists. Stamps the output.")
     a = ap.parse_args()
-
-    if a.method == "ppo":
-        raise SystemExit(
-            "PPO is not implemented here yet, and a stub that silently did something "
-            "else would be worse than this message. The analytic path is the one with "
-            "evidence behind it; PPO is the one that removes the dependence on a "
-            "differentiable plant, and it needs its own rollout buffer, advantage "
-            "estimation and clipped objective rather than a rename of this loop.")
 
     import torch
     sys.path.insert(0, str(HERE))
@@ -295,6 +565,28 @@ def main() -> int:
     log = (out / "finetune.jsonl").open("a")
 
     import math as _m
+    if a.method == "ppo":
+        it, dw = run_ppo(torch, torch.nn, a, model, obs, policy, params, baseline,
+                         base_norm, n_par, corpus, ctx, ix, ranges, rng, dev, log)
+        log.close()
+        torch.jit.save(policy, str(out / "policy_ft.pt"))
+        meta = {"smoke": bool(a.smoke) or bool(ck.get("smoke")), "method": "ppo",
+                "iters_run": it, "dw": dw, "dw_rel": dw / base_norm,
+                "target_dw": a.target_dw, "branches": a.branches, "steps": a.steps,
+                "lr": a.lr, "clip_eps": a.clip_eps, "gamma": a.gamma, "lam": a.lam,
+                "ppo_epochs": a.ppo_epochs, "init_log_std": a.init_log_std,
+                "policy_params": n_par, "theta0_norm": base_norm, "seed": a.seed,
+                "model": str(a.model), "base_policy": str(a.policy),
+                "corpus": str(a.corpus)}
+        (out / "finetune.json").write_text(json.dumps(meta, indent=2))
+        if a.smoke or ck.get("smoke"):
+            print("\nSMOKE RUN. The NN-ROM was smoke-stamped; this is a test of the code "
+                  "path, not a result.")
+        print(f"\nwrote {out}/policy_ft.pt")
+        print("IN-MODEL GAIN IS NOT A RESULT. Score it in Chrono with evaluate.py "
+              "against the base policy, on one machine, over replicates.")
+        return 0
+
     print(f"analytic fine-tune: {a.branches} branches x {a.steps} steps "
           f"({a.steps * 0.02:.2f} s), target dw {a.target_dw}")
     print(f"  policy {n_par:,} params, ||theta_0|| {base_norm:.3f}; at lr {a.lr} one Adam "
