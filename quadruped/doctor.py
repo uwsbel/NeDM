@@ -73,6 +73,19 @@ def chrono_md5() -> tuple[str, str]:
 
 
 def check_chrono(alias, reg) -> str:
+    """Refuse to run against a build that is not this host's registered one.
+
+    WAS DEAD CODE. `_no_driver` had been inserted into the middle of this function, so
+    everything below its `return` -- the trap-hash refusal and the registry md5
+    comparison -- never executed. `check_chrono` fell off the end of the try/except and
+    returned None, which the caller then printed as "chrono None".
+
+    The consequence was the exact failure this function exists to prevent: the conda trap
+    build has already produced one wrong verdict on this project, doctor.py was written to
+    make that impossible, STATE.md records that it "refuses the trap hash", and it did
+    not. Found by `namecheck.py`, which flagged `got`, `where`, `reg` and `alias` as
+    unbound reads inside `_no_driver` -- names that belong to this function.
+    """
     try:
         got, where = chrono_md5()
     except ImportError as e:
@@ -80,10 +93,6 @@ def check_chrono(alias, reg) -> str:
             f"pychrono does not import: {e}. On euler, source activate-nedm.sh first; "
             f"on a desktop, check that nedm_chrono.pth points at the build."
         )
-
-
-def _no_driver(msg: str) -> bool:
-    return "libcuda.so" in msg or "libamdhip" in msg
     if got == TRAP_MD5:
         raise Failed(
             f"pychrono resolves to the CONDA TRAP build ({got}) at {where}.\n"
@@ -99,6 +108,10 @@ def _no_driver(msg: str) -> bool:
             f"the path; a corpus collected now would not be comparable to anything."
         )
     return got
+
+
+def _no_driver(msg: str) -> bool:
+    return "libcuda.so" in msg or "libamdhip" in msg
 
 
 def check_modules():

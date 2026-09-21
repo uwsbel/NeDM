@@ -45,6 +45,7 @@ LEGS = ("rr", "rl", "fr", "fl")
 # mid-episode and stop_and_go and weave can reverse, so the robot needs room behind it.
 START_INSET_M = 1.0
 EDGE_MARGIN_M = 0.5
+_SLACK_M = 0.2   # the grown bed must clear the same check it was sized against
 
 # Ceiling on how far the bed may grow. Patch length is nearly free per step, but it
 # is not free in memory or build time, and an unbounded bed would let one mistyped
@@ -62,15 +63,36 @@ MAX_PATCH_Y = 12.0
 MAX_PARTICLES = 4_000_000
 
 
-def _start_edge(v0, peak, lo, hi):
-    """Where to spawn along one axis: the near edge if the robot moves along it.
+def plan_path(sched_fn, dur_s, warmup_s, speed_factor=0.8, dt=0.05):
+    """Dead-reckon where the commanded episode actually goes, relative to the spawn.
 
-    Moving +x starts at the low edge so the whole bed is runway. A robot that does not
-    move along this axis starts centred, where it has the most room either way.
+    Returns (xmin, xmax, ymin, ymax) of the planned path.
+
+    THE COMMAND IS IN THE BODY FRAME, so yaw decides where the robot ends up and a budget
+    built from |vx| and |vy| alone is blind to it. The first CRM corpus showed the cost:
+    a `weave` episode, whose whole purpose is to sweep yaw, left the bed after 7.33 s and
+    lost 63% of its rows to `off_bed`. Nothing was wrong with the guard -- the bed had
+    been sized for a robot that walks in a straight line, and weave does not.
+
+    Integrating the schedule handles every family with one rule instead of a special case
+    per family: straight runs give a long thin box, weaves give a wide one, a pure spin
+    gives almost none. The 0.8 factor is the measured CRM speed envelope, the same one the
+    old budget used.
     """
-    if peak <= 1e-6 or abs(v0) <= 1e-6:
-        return 0.0
-    return lo + START_INSET_M if v0 > 0 else hi - START_INSET_M
+    import math as _m
+    th = x = y = 0.0
+    xs = [0.0]
+    ys = [0.0]
+    n = max(1, int(round((dur_s + warmup_s) / dt)))
+    for i in range(n):
+        t = max(0.0, i * dt - warmup_s)     # warmup holds the stand pose at t=0's command
+        vx, vy, wz = sched_fn(t)
+        th += wz * dt
+        x += speed_factor * (vx * _m.cos(th) - vy * _m.sin(th)) * dt
+        y += speed_factor * (vx * _m.sin(th) + vy * _m.cos(th)) * dt
+        xs.append(x)
+        ys.append(y)
+    return min(xs), max(xs), min(ys), max(ys)
 
 # Columns the inherited schema does not carry. Collection is the expensive step and a
 # column costs almost nothing, so anything NOT derivable after the fact is recorded now.
@@ -109,7 +131,7 @@ def load_params():
 
 
 def build_scene(chrono, kind, urdf, spacing, step, soil, patch_x, patch_y, depth,
-                travel_m=0.0, spawn_xy=(0.0, 0.0)):
+                travel_m=0.0, spawn_xy=(0.0, 0.0), span_xy=None):
     """Returns (system, robot, terrain, soil_top, dt). See walk_check.py for the
     provenance of every constant here; each one was established by a failure."""
     from nedm.quadruped.robot import Go2Robot
@@ -147,14 +169,24 @@ def build_scene(chrono, kind, urdf, spacing, step, soil, patch_x, patch_y, depth
         # The start-side inset is 1.0 m rather than the 0.5 m front margin because
         # commands are resampled mid-episode and families like stop_and_go and weave can
         # reverse: the robot needs room to back up without walking off behind itself.
-        (plo_x, _ply, _), (phi_x, _phy, _) = crm_patch_bounds(patch_x, patch_y, depth)
-        need = travel_m + START_INSET_M + EDGE_MARGIN_M
-        if patch_x < need:
-            raise SystemExit(
-                f"patch_x {patch_x} m cannot hold {travel_m:.1f} m of travel: the bed runs "
-                f"x [{plo_x:+.1f}, {phi_x:+.1f}] and the robot starts {START_INSET_M:.1f} m "
-                f"inside the near edge, leaving {patch_x - START_INSET_M - EDGE_MARGIN_M:.1f} m "
-                f"of runway. Need >= {need:.1f} m, or a shorter episode, or a slower command.")
+        # THE CHECK MUST MATCH THE SIZING RULE. It used to assume a near-edge spawn and
+        # demand `travel + inset + margin`, which was right when the robot started at one
+        # end and walked to the other. The bed is now sized from the planned PATH and the
+        # spawn is placed so the path sits centrally, so the requirement is the path's
+        # span plus a margin at each end. Leaving the old form in place would have
+        # rejected exactly the case that motivated the change: a weave needing an 8.1 m
+        # bed for a 6.7 m span was failed against a 8.2 m demand.
+        (plo_x, plo_y, _), (phi_x, phi_y, _) = crm_patch_bounds(patch_x, patch_y, depth)
+        sxs, sys_ = (travel_m, travel_m) if span_xy is None else span_xy
+        for axis, span, size, lo, hi in (("x", sxs, patch_x, plo_x, phi_x),
+                                         ("y", sys_, patch_y, plo_y, phi_y)):
+            if size < span + 2 * EDGE_MARGIN_M:
+                raise SystemExit(
+                    f"patch_{axis} {size:.1f} m cannot hold a {span:.1f} m path span: the "
+                    f"bed runs {axis} [{lo:+.1f}, {hi:+.1f}] and the path needs "
+                    f"{EDGE_MARGIN_M:.1f} m clear at each end. Need >= "
+                    f"{span + 2 * EDGE_MARGIN_M:.1f} m, or a shorter episode, or a slower "
+                    f"command.")
         soil_top = depth
         dt = 4 * step
 
@@ -267,58 +299,56 @@ def run_episode(chrono, ep_index, seed, args, exc, pol_cfg, urdf):
     # command, so 0.8 is used rather than the command itself, which would over-reserve.
     exp_vx, exp_vy = 0.8 * pk_vx, 0.8 * pk_vy
 
-    def _budget(px, py):
-        return (px - START_INSET_M - EDGE_MARGIN_M, py - START_INSET_M - EDGE_MARGIN_M)
+    # THE BED IS SIZED TO THE PLANNED PATH, not to a straight-line travel estimate.
+    #
+    # The bed grows to the episode rather than the episode shrinking to the bed, because
+    # patch length is nearly free per step: 4x the particles costs 4.5% more, since every
+    # SPH kernel launches over the active set rather than over all markers
+    # (docs/COST.md). Clamping the episode was paying for a constraint that does not
+    # exist.
+    #
+    # And the SHAPE of the path matters, not just its length. The command is in the body
+    # frame, so yaw decides where the robot ends up, and a budget built from |vx| and |vy|
+    # is blind to it. A `weave` episode in the first CRM corpus left the bed after 7.33 s
+    # and lost 63% of its rows. `plan_path` dead-reckons the actual schedule, so one rule
+    # covers every family instead of a special case per family.
+    def _fit(dur_s):
+        """Bed and spawn that hold the planned path for this duration."""
+        xlo, xhi, ylo, yhi = plan_path(sched_fn, dur_s, args.warmup_s)
+        px = max(args.patch_x, (xhi - xlo) + 2 * (EDGE_MARGIN_M + _SLACK_M))
+        py = max(args.patch_y, (yhi - ylo) + 2 * (EDGE_MARGIN_M + _SLACK_M))
+        px, py = min(px, MAX_PATCH_X), min(py, MAX_PATCH_Y)
+        cells = (px / args.spacing) * (py / args.spacing) * (args.depth / args.spacing)
+        if cells > MAX_PARTICLES:
+            sh = (MAX_PARTICLES / cells) ** 0.5
+            px, py = max(args.patch_x, px * sh), max(args.patch_y, py * sh)
+        # Place the path centrally in the bed: the spawn is wherever that puts t=0.
+        sx = -0.5 * (xlo + xhi)
+        sy = -0.5 * (ylo + yhi)
+        ok = ((px - (xhi - xlo)) / 2 >= EDGE_MARGIN_M
+              and (py - (yhi - ylo)) / 2 >= EDGE_MARGIN_M)
+        return px, py, sx, sy, ok, max(xhi - xlo, 0.0), max(yhi - ylo, 0.0)
 
-    def _t_lim(px, py):
-        """Longest run the bed holds, INCLUDING the warmup.
-
-        The old version divided the budget by the speed and stopped there, then computed
-        travel as `exp_vx * (dur + warmup)`. The robot walks during warmup too, so that
-        overran the bed by exp_vx * warmup on every episode. It also took
-        `max(..., min_duration_s)`, which let the floor override the limit entirely and
-        produce an episode that cannot physically fit -- which is what the spawn guard
-        caught: 7.2 m of travel requested on 6.5 m of runway.
-        """
-        bx, by = _budget(px, py)
-        return min(bx / exp_vx - args.warmup_s if exp_vx > 1e-6 else 1e9,
-                   by / exp_vy - args.warmup_s if exp_vy > 1e-6 else 1e9)
-
-    # THE BED GROWS TO THE EPISODE, not the other way round. The old comment here said
-    # "the patch sets the episode", which was right when patch size was believed to cost
-    # per step. It does not: 4x the particles costs 4.5% more per step, because every SPH
-    # kernel launches over the active set rather than over all markers (docs/COST.md). So
-    # buying soil is the cheap way to keep a fast command at full duration, and clamping
-    # the episode was paying for a constraint that does not exist.
-    # SLACK, because the grown bed has to clear the same check it was sized against and
-    # sizing it to exactly `need` leaves that on a floating-point knife edge.
-    _slack = 0.2
-    _want = exp_vx * (_dur_req + args.warmup_s), exp_vy * (_dur_req + args.warmup_s)
-    patch_x = min(MAX_PATCH_X,
-                  max(args.patch_x, _want[0] + START_INSET_M + EDGE_MARGIN_M + _slack))
-    patch_y = min(MAX_PATCH_Y,
-                  max(args.patch_y, _want[1] + START_INSET_M + EDGE_MARGIN_M + _slack))
-
-    # Shrink to the particle budget before anything else is derived from the bed.
-    _cells = (patch_x / args.spacing) * (patch_y / args.spacing) * (args.depth / args.spacing)
-    if _cells > MAX_PARTICLES:
-        _shrink = (MAX_PARTICLES / _cells) ** 0.5     # both horizontal axes equally
-        patch_x = max(args.patch_x, patch_x * _shrink)
-        patch_y = max(args.patch_y, patch_y * _shrink)
-
-    _dur = min(_dur_req, _t_lim(patch_x, patch_y))
-    if _dur < ep_cfg["min_duration_s"]:
-        # The bed is at its cap and still cannot hold the shortest episode worth keeping.
-        # SLOW THE COMMAND rather than shorten further: a segment below min_duration is
-        # discarded anyway, so the choice is between a slower episode and no episode.
-        _dur = ep_cfg["min_duration_s"]
-        bx, by = _budget(patch_x, patch_y)
-        _k = 1.0
-        if exp_vx > 1e-6:
-            _k = min(_k, (bx / (_dur + args.warmup_s)) / exp_vx)
-        if exp_vy > 1e-6:
-            _k = min(_k, (by / (_dur + args.warmup_s)) / exp_vy)
-        _k = max(_k, 1e-3)
+    _dur = _dur_req
+    patch_x, patch_y, sx, sy, _ok, _spanx, _spany = _fit(_dur)
+    if not _ok:
+        # The path does not fit even at the caps. Shorten first -- a shorter episode is
+        # still a real one -- and only slow the command if the floor is reached.
+        _lo, _hi = ep_cfg["min_duration_s"], _dur_req
+        for _ in range(24):
+            _mid = 0.5 * (_lo + _hi)
+            if _fit(_mid)[4]:
+                _lo = _mid          # fits: try longer
+            else:
+                _hi = _mid          # does not fit: try shorter
+        _dur = _lo
+        patch_x, patch_y, sx, sy, _ok, _spanx, _spany = _fit(_dur)
+    if not _ok:
+        # Even the shortest episode overruns the capped bed: slow the command to fit.
+        _px, _py = patch_x, patch_y
+        _k = min(1.0, (_px - 2 * EDGE_MARGIN_M) / max(_spanx, 1e-6),
+                 (_py - 2 * EDGE_MARGIN_M) / max(_spany, 1e-6))
+        _k = max(min(_k, 1.0), 1e-3)
         _inner2, _s2 = sched_fn, float(_k)
 
         def sched_fn(t, _f=_inner2, _s=_s2):      # noqa: F811
@@ -328,23 +358,20 @@ def run_episode(chrono, ep_index, seed, args, exc, pol_cfg, urdf):
         exp_vy *= _k
         pk_vx *= _k
         pk_vy *= _k
+        patch_x, patch_y, sx, sy, _ok, _spanx, _spany = _fit(_dur)
 
-    _travel = exp_vx * (_dur + args.warmup_s)
-    _s0 = sched_fn(0.0)
-    # DERIVED FROM THE BED, NOT RECOMPUTED FROM patch_x. Recomputing it is what broke:
-    # this line used to read -sign(vx) * (patch_x/2 - margin), which is the near edge of a
-    # patch centred on the origin, while the bed was actually being built at
-    # x = patch_x/2 - 0.6. See crm_patch_bounds.
+    _travel = max(_spanx, _spany)
+    # The bed's actual extent, for the off_bed validity check further down. Derived from
+    # the bed that will be built, never recomputed independently -- that split is what
+    # produced the patch-placement bug (see crm_patch_bounds).
     (plo_x, plo_y, _), (phi_x, phi_y, _) = crm_patch_bounds(
         patch_x, patch_y, args.depth)
-    sx = _start_edge(_s0[0], pk_vx, plo_x, phi_x)
-    sy = _start_edge(_s0[1], pk_vy, plo_y, phi_y)
     if args.terrain == "rigid":
         sx = sy = 0.0        # the rigid floor is sized to the travel instead
     system, robot, terrain, soil_top, dt = build_scene(
         chrono, args.terrain, urdf, args.spacing, args.step, args.soil,
         patch_x, patch_y, args.depth, travel_m=_travel,
-        spawn_xy=(float(sx), float(sy)))
+        spawn_xy=(float(sx), float(sy)), span_xy=(_spanx, _spany))
     # The guard the placement bug got past. Checks the bed Chrono built, not the
     # arithmetic that asked for it, and fails before any simulation time is spent.
     if terrain is not None:
