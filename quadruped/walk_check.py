@@ -122,7 +122,7 @@ def run(terrain_kind, sign, seconds, command, urdf, policy_path, *, warmup_s=1.5
 
     every = max(1, int(round(0.02 / dt)))
     n = int(seconds / dt)
-    zs, ups, vxs = [], [], []
+    zs, ups, vxs, vys, wzs = [], [], [], [], []
     for i in range(n):
         if i % every == 0:
             robot.actuate(pol.act(robot))
@@ -138,13 +138,16 @@ def run(terrain_kind, sign, seconds, command, urdf, policy_path, *, warmup_s=1.5
         # quantity the study is stated in.
         R = T.quat_to_rot(r.e0, r.e1, r.e2, r.e3)
         vb = R.T @ np.array([v.x, v.y, v.z])
-        zs.append(p.z); vxs.append(float(vb[0]))
+        zs.append(p.z); vxs.append(float(vb[0])); vys.append(float(vb[1]))
+        wzs.append(float(b.GetAngVelLocal().z))
         ups.append(-T.projected_gravity(r.e0, r.e1, r.e2, r.e3)[2])
     s = int(0.5 / dt)
     return {"terrain": terrain_kind, "sign": pol.sign, "spawn_z": spawn_z,
             "soil_top": soil_top, "min_z": float(np.min(zs)),
             "mean_z": float(np.mean(zs[s:])), "mean_up": float(np.mean(ups[s:])),
             "cmd_vx": float(command[0]), "mean_vx": float(np.mean(vxs[s:])),
+            "cmd_vy": float(command[1]), "mean_vy": float(np.mean(vys[s:])),
+            "cmd_wz": float(command[2]), "mean_wz": float(np.mean(wzs[s:])),
             "diverged_at_s": None}
 
 
@@ -156,6 +159,8 @@ def main() -> int:
     ap.add_argument("--seconds", type=float, default=3.0)
     ap.add_argument("--warmup", type=float, default=1.5)
     ap.add_argument("--vx", type=float, default=0.5)
+    ap.add_argument("--vy", type=float, default=0.0)
+    ap.add_argument("--wz", type=float, default=0.0)
     ap.add_argument("--sign", type=float, default=None)
     ap.add_argument("--spacing", type=float, default=0.02)
     ap.add_argument("--patch-x", type=float, default=8.0)
@@ -166,7 +171,7 @@ def main() -> int:
     rc = 0
     for k in kinds:
         try:
-            r = run(k, a.sign, a.seconds, [a.vx, 0.0, 0.0], Path(a.urdf),
+            r = run(k, a.sign, a.seconds, [a.vx, a.vy, a.wz], Path(a.urdf),
                     Path(a.policy), warmup_s=a.warmup, spacing=a.spacing,
                     patch_x=a.patch_x, patch_y=a.patch_y)
         except Exception as e:  # noqa: BLE001
@@ -178,9 +183,12 @@ def main() -> int:
             rc = 1
             continue
         track = r["mean_vx"] / r["cmd_vx"] if r["cmd_vx"] else float("nan")
-        print(f"{k:6s}  spawn {r['spawn_z']:.3f}  soil_top {r['soil_top']:.2f}  "
-              f"mean_z {r['mean_z']:.3f}  upright {r['mean_up']:+.3f}  "
-              f"vx {r['mean_vx']:+.3f} / {r['cmd_vx']:.2f}  tracking {track:.0%}")
+        def trk(m, c):
+            return f"{m:+.3f}/{c:+.2f}" + (f" {m / c:.0%}" if abs(c) > 1e-6 else "")
+        print(f"{k:6s}  z {r['mean_z']:.3f}  up {r['mean_up']:+.3f}  "
+              f"vx {trk(r['mean_vx'], r['cmd_vx'])}  "
+              f"vy {trk(r['mean_vy'], r['cmd_vy'])}  "
+              f"wz {trk(r['mean_wz'], r['cmd_wz'])}")
     return rc
 
 

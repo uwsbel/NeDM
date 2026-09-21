@@ -123,12 +123,41 @@ initial_state:
   base_height_offset_m: [-0.04, 0.04]
 
 commands:
-  # Carried over from the old tree, which is the one part of it worth keeping wholesale:
-  # eight families with measured parameter envelopes, stratified sampling, and crc32 seeds
-  # (not hash(), because PYTHONHASHSEED salting once made a collection non-reproducible).
-  families: [constant, vel_step, arc, lateral, pivot, weave, yaw_step, stop_and_go]
-  stratified: true
-  seed_fn: crc32
+  # Eight structured families from the old tree, plus two that close the gap it left.
+  #
+  # The command is NOT a model input -- the NN-ROM never sees it -- so this is a
+  # state-space excitation mechanism and the question is only what gets visited.
+  # Structured families buy TEMPORAL STRUCTURE (vel_step, stop_and_go and weave produce
+  # accelerations and gait transitions that a constant command never reaches) and
+  # AXIS-ISOLATED REGIMES (pure pivot, pure lateral, which a uniform triple would almost
+  # never produce). What they miss is the INTERIOR: only `arc` mixes axes and nothing
+  # drives all three. `random` and `random_walk` cover that, as additions rather than
+  # replacements.
+  families: [constant, vel_step, arc, lateral, pivot, weave, yaw_step, stop_and_go,
+             random, random_walk]
+  stratified: true          # balanced assignment then shuffled, not drawn per episode
+  seed_fn: crc32            # not hash(): PYTHONHASHSEED salting broke replay once
+
+  # MEASURED ON THIS POLICY, on rigid, 6 s per point, body-frame tracking:
+  #   vx   -1.0: 83%   0.5: 98%   1.0: 103%   1.5: 102%   2.0: 95%
+  #   wz    0.5: 130%  1.0: 103%  2.0:  92%   3.0:  86%
+  #   vy    0.5: 70%   1.0:  80%
+  # It falls nowhere in that envelope. The previous tree's ranges were measured on a
+  # DIFFERENT checkpoint, and its notes record that the narrow ranges before them sampled
+  # only the band where that policy worked worst, making the plant look like it tracked at
+  # 63%. Inheriting a range is the same mistake as inheriting a sign.
+  ranges:
+    vx:       [-1.0, 2.0]
+    vy:       [-1.0, 1.0]
+    wz:       [-3.0, 3.0]
+    vx0:      [-1.0, 2.0]
+    vx1:      [-1.0, 2.0]
+    wz1:      [-3.0, 3.0]
+    wz_amp:   [0.2, 3.0]
+    t_switch: [4.0, 12.0]
+    freq:     [0.05, 0.30]
+    period:   [2.0, 6.0]
+    tau:      [1.0, 5.0]
 
 calibration:
   # The first job on the new pipeline. The usable injection ceiling is empirical: enough

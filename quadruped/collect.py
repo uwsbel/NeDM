@@ -29,6 +29,7 @@ REPO = HERE.parent
 sys.path.insert(0, str(REPO / "src"))
 sys.path.insert(0, str(REPO))
 
+from quadruped.lib import commands as CMD           # noqa: E402
 from quadruped.lib import excitation as EX          # noqa: E402
 from quadruped.lib import provenance as PROV        # noqa: E402
 from quadruped.lib import validity as VAL           # noqa: E402
@@ -152,7 +153,18 @@ def run_episode(chrono, ep_index, seed, args, exc, pol_cfg, urdf):
                                 guard_steps=seg_cfg["guard_steps"],
                                 min_segment_rows=seg_cfg["min_segment_rows"], dt=rec_dt)
 
-    cmd = np.array([args.vx, args.vy, args.wz], dtype=np.float32)
+    # Command schedule. Fixed only if the caller pinned one; otherwise the family for
+    # this episode drives a time-varying command, which is the point -- transients are the
+    # richest rows and a constant command never produces them.
+    if args.family == "fixed":
+        sched_fn = lambda t: (args.vx, args.vy, args.wz)  # noqa: E731
+        fam, fam_p = "fixed", {}
+    else:
+        fam = args.family
+        fam_p = CMD.draw_params(fam, rng, {k: tuple(v) for k, v in
+                                           exc["commands"]["ranges"].items()})
+        sched_fn = CMD.schedule(fam, fam_p, dur, rng)
+    cmd = np.array(sched_fn(0.0), dtype=np.float32)
     pol.command = cmd
 
     for _ in range(int(args.warmup_s / dt)):
@@ -174,6 +186,8 @@ def run_episode(chrono, ep_index, seed, args, exc, pol_cfg, urdf):
     for i in range(n):
         t = i * dt
         if i % every_ctrl == 0:
+            cmd = np.asarray(sched_fn(t), dtype=np.float32)
+            pol.command = cmd
             a = pol.act(robot)
             if ou is not None:
                 a = a + pol.sign * ou.step().astype(np.float32)
@@ -212,9 +226,18 @@ def run_episode(chrono, ep_index, seed, args, exc, pol_cfg, urdf):
                               dt=rec_dt)
     else:
         segs = [(0, len(kept))]
-    out = [kept[a:b] for a, b in segs if b - a >= 2]
+    # A segment shorter than the training window yields no windows at all, so writing it
+    # costs a file and buys nothing. These appear when truncation lands mid-segment and
+    # leaves a stub: measured, a 10-row tail from a 2,000-row episode that truncated at
+    # 1,336. Dropped here and counted, so the loss is visible in the manifest rather than
+    # showing up later as a corpus that fails its own window gate.
+    min_rows = seg_cfg["min_segment_rows"]
+    out = [kept[a:b] for a, b in segs if b - a >= min_rows]
+    dropped_short = sum(1 for a, b in segs if 0 < b - a < min_rows)
     return out, verdict, {"sigma_rad": float(sigma), "n_rows": len(rows),
                           "kept": len(kept), "segments": len(out),
+                          "family": fam, "family_params": fam_p,
+                          "dropped_short_segments": dropped_short,
                           "events": (sched.event_times() if sched else [])}
 
 
@@ -229,7 +252,9 @@ def main() -> int:
     ap.add_argument("--duration-s", type=float, default=None)
     ap.add_argument("--warmup-s", type=float, default=1.0)
     ap.add_argument("--pushes", type=int, default=2)
-    ap.add_argument("--family", default="constant")
+    ap.add_argument("--family", default=None,
+                    help="pin one family, or 'fixed' to use --vx/--vy/--wz verbatim. "
+                         "Default draws a balanced assignment across all families.")
     ap.add_argument("--vx", type=float, default=0.5)
     ap.add_argument("--vy", type=float, default=0.0)
     ap.add_argument("--wz", type=float, default=0.0)
@@ -268,11 +293,19 @@ def main() -> int:
     fields = csv_field_names()
 
     t0 = time.time()
-    verdicts, written, total_rows = [], 0, 0
+    verdicts, written, total_rows, short = [], 0, 0, 0
+    fam_rng = np.random.default_rng(a.seed)
+    fams = ([a.family] * a.episodes if a.family
+            else CMD.stratified_families(a.episodes, fam_rng,
+                                         exc["commands"]["families"]))
+    fam_counts = {}
     for k in range(a.episodes):
+        a.family = fams[k]
+        fam_counts[fams[k]] = fam_counts.get(fams[k], 0) + 1
         segs, verdict, meta = run_episode(chrono, k, a.seed + k, a, exc, pol_cfg,
                                           Path(a.urdf))
         verdicts.append(verdict)
+        short += meta["dropped_short_segments"]
         for j, seg in enumerate(segs):
             eid = f"{a.corpus}_{k:04d}_s{j}"
             with open(out / "episodes" / f"{eid}.csv", "w", newline="") as fh:
@@ -282,8 +315,9 @@ def main() -> int:
             written += 1
             total_rows += len(seg)
         status = "ok" if verdict.ok else f"truncated@{verdict.row}({verdict.check})"
-        print(f"  ep {k:3d}  sigma {meta['sigma_rad']:.4f}  rows {meta['n_rows']} -> "
-              f"kept {meta['kept']}  segments {meta['segments']}  {status}", flush=True)
+        print(f"  ep {k:3d}  {meta['family']:<12s} sigma {meta['sigma_rad']:.3f}  "
+              f"rows {meta['n_rows']} -> kept {meta['kept']}  "
+              f"seg {meta['segments']}  {status}", flush=True)
 
     summary = VAL.summarise(verdicts)
     man = PROV.manifest(
@@ -292,7 +326,9 @@ def main() -> int:
         metric_defs={"validity": "v1", "sampler": EX.SAMPLER_VERSION},
         extra={"corpus": a.corpus, "terrain": a.terrain, "command": [a.vx, a.vy, a.wz],
                "episodes": a.episodes, "segments": written, "rows": total_rows,
-               "failures": summary,
+               "failures": summary, "family_balance": fam_counts,
+               "dropped_short_segments": short,
+               "command_ranges": exc["commands"]["ranges"],
                "excitation": {"action_injection": exc["action_injection"],
                               "push": {"enabled": bool(a.pushes),
                                        "events_per_episode": a.pushes,

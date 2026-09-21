@@ -20,6 +20,8 @@ import glob
 import json
 from pathlib import Path
 
+import sys
+
 import numpy as np
 
 
@@ -110,6 +112,27 @@ def main() -> int:
         print()
         print(f"push-active rows inside segments: {live}  -> "
               f"{'PASS' if live == 0 else 'FAIL: the force window was not excised'}")
+    # GATE 4. Held-out coverage: do the segments cover each other? A corpus whose own
+    # halves do not cover each other cannot cover a policy that moves away from it. This
+    # is the weak form; the strong form runs in evaluate.py against the states a
+    # fine-tuned policy actually visits.
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from lib.coverage import Reference, verdict as cov_verdict  # noqa: PLC0415
+    XA = np.hstack([S, A])
+    half = len(XA) // 2
+    rng = np.random.default_rng(0)
+    perm = rng.permutation(len(XA))
+    ref = Reference(XA[perm[:half]], rng=rng, names=st_cols + act_cols)
+    sc = ref.score(XA[perm[half:]])
+    g4, msg = cov_verdict(sc)
+    print()
+    print(f"GATE 4  held-out points outside the corpus region : "
+          f"{100 * sc['ood_fraction']:.1f}%")
+    print(f"        distance ratio to corpus self-distance    : {sc['dist_ratio']:.2f}")
+    print(f"        channels extrapolated                     : "
+          f"{sc['channels_extrapolated']} of {XA.shape[1]}")
+    print(f"        -> {'PASS' if g4 else 'FAIL'}")
+
     man = corpus / "manifest.json"
     print()
     print(f"manifest: {'present' if man.exists() else 'MISSING'}")
@@ -117,7 +140,7 @@ def main() -> int:
         m = json.loads(man.read_text())
         print(f"  commit {m['git']['commit'][:8]} dirty={m['git']['dirty']} "
               f"chrono={m['chrono_build']['md5']}")
-    return 0 if (g1 and g2) else 1
+    return 0 if (g1 and g2 and g4) else 1
 
 
 if __name__ == "__main__":
