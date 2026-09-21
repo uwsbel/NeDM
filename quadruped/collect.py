@@ -187,6 +187,29 @@ def run_episode(chrono, ep_index, seed, args, exc, pol_cfg, urdf):
     _probe = [sched_fn(t) for t in np.linspace(0.0, _dur_req, 64)]
     pk_vx = max(abs(c[0]) for c in _probe)
     pk_vy = max(abs(c[1]) for c in _probe)
+
+    # LONG-RUN EPISODES ARE SLOWED, NOT LENGTHENED. Their job is to yield one
+    # full-length segment for long-horizon rollout evaluation, and duration is bounded by
+    # travel, so the only way to buy seconds on a fixed patch is to command less speed.
+    # Without this they are indistinguishable from any other episode: the budget cuts them
+    # to ~8 s, which is shorter than the 10 s rollout the evaluation wants to measure.
+    if getattr(args, "long_run", False):
+        _bx = args.patch_x - 1.0
+        _by = args.patch_y - 1.0
+        _need = 0.8 * _dur_req
+        _k = 1.0
+        if pk_vx > 1e-6:
+            _k = min(_k, _bx / (_need * pk_vx))
+        if pk_vy > 1e-6:
+            _k = min(_k, _by / (_need * pk_vy))
+        if _k < 1.0:
+            _inner, _scale = sched_fn, float(_k)
+
+            def sched_fn(t, _f=_inner, _s=_scale):
+                c = _f(t)
+                return (c[0] * _s, c[1] * _s, c[2])
+            pk_vx *= _scale
+            pk_vy *= _scale
     # THE PATCH SETS THE EPISODE, NOT THE OTHER WAY ROUND. Duration is not a free
     # parameter: the robot runs off the bed after a fixed distance, so fix the TRAVEL
     # budget and let duration follow from the command. A 20 s episode at 1.5 m/s needs
@@ -304,7 +327,7 @@ def run_episode(chrono, ep_index, seed, args, exc, pol_cfg, urdf):
                 action=robot.target, command=cmd,
                 soil_z=[float("nan")] * 4, soil_ctrl=float("nan"),
                 scenario_name=args.family, scenario_family=args.family,
-                episode_id=f"{args.corpus}_{ep_index:04d}", split="train",
+                episode_id=f"{args.corpus}_{ep_index:04d}", split=args.split,
                 sample_index=len(rows), time_s=t, perturb=push_vec,
                 policy_raw=raw_net, gravity=[0.0, 0.0, -9.81])
 
@@ -371,6 +394,7 @@ def run_episode(chrono, ep_index, seed, args, exc, pol_cfg, urdf):
                           "excised_rows": len(excised), "failed_rows": len(tail),
                           "family": fam, "family_params": fam_p,
                           "duration_s": round(dur, 2), "pushes": n_push,
+                          "long_run": bool(getattr(args, "long_run", False)),
                           "dropped_short_segments": dropped_short,
                           "events": (sched.event_times() if sched else [])}
 
@@ -399,6 +423,16 @@ def main() -> int:
     ap.add_argument("--patch-x", type=float, default=8.0)
     ap.add_argument("--patch-y", type=float, default=4.0)
     ap.add_argument("--depth", type=float, default=0.20)
+    ap.add_argument("--val-fraction", type=float, default=0.2,
+                    help="fraction of EPISODES held out for validation. Split by episode, "
+                         "never by segment: segments from one episode share a trajectory, "
+                         "so splitting them across train and val leaks.")
+    ap.add_argument("--long-fraction", type=float, default=0.2,
+                    help="fraction of episodes collected with NO pushes, so they yield one "
+                         "full-length segment. Segmented episodes top out near 8 s, which "
+                         "is too short to evaluate a 10 s rollout -- and long-horizon "
+                         "fidelity is the binding constraint for any method that rolls "
+                         "the model further than a gradient branch does.")
     ap.add_argument("--sigma", type=float, default=None,
                     help="pin the OU injection sigma instead of drawing it; the "
                          "calibration sweep uses this to index its x-axis")
@@ -427,15 +461,24 @@ def main() -> int:
     fields = csv_field_names() + list(EXTRA_FIELDS)
 
     t0 = time.time()
+    pushes_req = a.pushes
     verdicts, written, total_rows, short = [], 0, 0, 0
     n_push_rows = n_fail_rows = 0
     fam_rng = np.random.default_rng(a.seed)
+    # Assigned per EPISODE, up front, so both are balanced rather than left to chance.
+    n_val = int(round(a.val_fraction * a.episodes))
+    val_set = set(fam_rng.permutation(a.episodes)[:n_val].tolist())
+    n_long = int(round(a.long_fraction * a.episodes))
+    long_set = set(fam_rng.permutation(a.episodes)[:n_long].tolist())
     fams = ([a.family] * a.episodes if a.family
             else CMD.stratified_families(a.episodes, fam_rng,
                                          exc["commands"]["families"]))
     fam_counts = {}
     for k in range(a.episodes):
         a.family = fams[k]
+        a.split = "val" if k in val_set else "train"
+        a.pushes = 0 if k in long_set else pushes_req
+        a.long_run = k in long_set
         fam_counts[fams[k]] = fam_counts.get(fams[k], 0) + 1
         segs, excised, failtail, verdict, meta = run_episode(
             chrono, k, a.seed + k, a, exc, pol_cfg, Path(a.urdf))
@@ -462,7 +505,7 @@ def main() -> int:
         n_push_rows += len(excised)
         n_fail_rows += len(failtail)
         status = "ok" if verdict.ok else f"truncated@{verdict.row}({verdict.check})"
-        print(f"  ep {k:3d}  {meta['family']:<12s} {meta['duration_s']:5.1f}s "
+        print(f"  ep {k:3d}  {a.split:<5s} {meta['family']:<12s} {meta['duration_s']:5.1f}s "
               f"push {meta['pushes']}  sigma {meta['sigma_rad']:.3f}  "
               f"rows {meta['n_rows']} -> kept {meta['kept']}  "
               f"seg {meta['segments']}  {status}", flush=True)
@@ -476,6 +519,8 @@ def main() -> int:
                "episodes": a.episodes, "segments": written, "rows": total_rows,
                "failures": summary, "family_balance": fam_counts,
                "dropped_short_segments": short,
+               "split": {"val_episodes": sorted(val_set), "val_fraction": a.val_fraction},
+               "long_episodes": sorted(long_set),
                "sidecar_rows": {"pushes": n_push_rows, "failures": n_fail_rows},
                "command_ranges": exc["commands"]["ranges"],
                "excitation": {"action_injection": exc["action_injection"],

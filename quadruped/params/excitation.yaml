@@ -98,7 +98,14 @@ push:
     # Window count is superlinear in segment length: 1,475 rows at S=128 gives 1,348
     # windows, but seven 190-row segments give 441. So the push schedule is sized around
     # the training window rather than inherited.
-    min_segment_rows: 512         # >= 4x the sequence length, in RECORDED rows (5.12 s)
+    # 2x the training window of 128, in RECORDED rows. Was 512, chosen as "4x the
+    # window", which was stricter than anything required: at 512 a single push needs a
+    # 10.4 s episode and the travel budget cuts most episodes to about 8 s, so almost
+    # nothing could carry a push. At 256 one push needs 5.3 s and two need 8.0 s, and the
+    # window cost is identical -- both keep 79% of an 800-row episode's windows, because
+    # what costs windows is SPLITTING, not the floor. Long-horizon evaluation does not
+    # depend on this: the no-push long-run episodes supply the full-length segments.
+    min_segment_rows: 256
     # FEASIBILITY IS A CONSTRAINT, NOT A PREFERENCE, and PushSchedule raises rather than
     # quietly emitting short segments. Per event the drop budget is
     #   ceil(duration_s/dt) + 2*guard_steps + 1 = 10 + 4 + 1 = 15 rows
