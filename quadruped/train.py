@@ -134,13 +134,13 @@ def add_derived(rows):
     return rows
 
 
-def read_segment(path, state_fields, action_fields, rollout_fields):
+def read_segment(path, state_fields, action_fields, rollout_fields, extra_fields=()):
     with path.open() as fh:
         rows = add_derived(list(csv.DictReader(fh)))
     if len(rows) < 2:
         return None
-    missing = [f for f in state_fields + action_fields + rollout_fields
-               if f not in rows[0]]
+    missing = [f for f in list(state_fields) + list(action_fields) + list(rollout_fields)
+               + list(extra_fields) if f not in rows[0]]
     if missing:
         raise SystemExit(f"{path.name} is missing {len(missing)} column(s): "
                          f"{missing[:6]}{' ...' if len(missing) > 6 else ''}")
@@ -156,6 +156,9 @@ def read_segment(path, state_fields, action_fields, rollout_fields):
     s = col(state_fields)
     a = col(action_fields)
     ro = col(rollout_fields)
+    # Columns a consumer needs beside the model's inputs -- the fine-tune's control phase,
+    # recorded command and recorded policy output. Never fed to the model.
+    ex = col(list(extra_fields))
 
     # A channel that is entirely absent is a silent four-dimensional hole in the input.
     # Fail with the field name still in hand rather than training on it.
@@ -181,13 +184,13 @@ def read_segment(path, state_fields, action_fields, rollout_fields):
         if n.endswith("_rad") and d.size and d.max() > MAX_UNWRAPPED_STEP_RAD:
             raise SystemExit(f"{path.name}: {n!r} jumps {d.max():.3f} rad in one step "
                              f"and was not unwrapped; declare it circular or fix the data")
-    return s, a, ro
+    return s, a, ro, ex
 
 
 class Corpus:
     """Segments, their windows, and the statistics of the train split."""
 
-    def __init__(self, corpus_dir: Path, preset: str, seq_len: int):
+    def __init__(self, corpus_dir: Path, preset: str, seq_len: int, extra_fields=()):
         cfg = load_params()
         if preset not in cfg["presets"]:
             raise SystemExit(f"unknown preset {preset!r}; have "
@@ -204,9 +207,11 @@ class Corpus:
         self.state_fields = fields
         self.action_fields = list(cfg["actions"]["fields"])
         self.rollout_fields = list(cfg["rollout"]["fields"])
+        self.extra_fields = list(extra_fields)
         self.seq_len = seq_len
 
         manifest = json.loads((corpus_dir / "manifest.json").read_text())
+        self.manifest = manifest
         val_eps = set(manifest.get("split", {}).get("val_episodes", []))
         if not val_eps:
             raise SystemExit(
@@ -217,12 +222,12 @@ class Corpus:
         self.train, self.val = [], []
         for ep, f in segment_files(corpus_dir):
             got = read_segment(f, self.state_fields, self.action_fields,
-                               self.rollout_fields)
+                               self.rollout_fields, self.extra_fields)
             if got is None:
                 continue
-            s, a, ro = got
+            s, a, ro, ex = got
             rec = {"episode": ep, "name": f.stem, "state": s, "action": a, "rollout": ro,
-                   "target": np.diff(s, axis=0)}
+                   "extra": ex, "target": np.diff(s, axis=0)}
             # One transition fewer than rows: the last state has no successor.
             rec["n"] = rec["target"].shape[0]
             (self.val if ep in val_eps else self.train).append(rec)

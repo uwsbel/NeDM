@@ -494,7 +494,14 @@ def run_episode(chrono, ep_index, seed, args, exc, pol_cfg, urdf):
             cmd = np.asarray(sched_fn(t), dtype=np.float32)
             pol.command = cmd
             a_pol = pol.act(robot)
-            raw_net = pol.last_actions.copy()      # the network's own 12 outputs
+            # The network's own 12 outputs, written in CHRONO order. The columns are named
+            # policy_raw_rr_hip.. in MOTOR_NAMES order, and dataset.py documents them as
+            # such, but the network emits POLICY order (FR FL RR RL) and this used to be
+            # written straight through: policy_raw_rr_hip held FR_hip. Permuted here so the
+            # name is true; a consumer wanting the network's own order applies p2c, which
+            # is self-inverse. Stamped in the manifest as policy_raw_order="chrono".
+            raw_net = np.empty(12, dtype=np.float32)
+            raw_net[pol.p2c] = pol.last_actions
             inj = np.zeros(12, dtype=np.float32)
             if ou is not None:
                 inj = (pol.sign * ou.step()).astype(np.float32)
@@ -513,8 +520,16 @@ def run_episode(chrono, ep_index, seed, args, exc, pol_cfg, urdf):
             else:
                 push_vec = np.zeros(6)
 
-        (terrain or system).DoStepDynamics(dt)
-
+        # THE ROW IS CAPTURED BEFORE THE STEP, so it holds the state AT time_s -- which, on
+        # a control row, is exactly the state the policy just observed. It used to be
+        # captured after DoStepDynamics, one physics step late, and on a control row that
+        # step is the PD kick from the target just set: joint velocities in the recorded
+        # row were 0.91 of their own spread away from what the policy saw, body rates 0.27,
+        # and the policy's output from the recorded row differed from its real output by
+        # 36% of its spread on rigid ground and ~60% on CRM. Every consumer that rebuilds
+        # the observation from a row -- the fine-tune above all -- was feeding the policy
+        # a state already contaminated by the action it was about to choose.
+        # obs_truth.py is the regression test: every block must agree to rounding.
         if i % every_rec == 0:
             _r = capture_row(
                 chrono=chrono, robot=robot, terrain=terrain, soil_top_m=soil_top,
@@ -555,6 +570,8 @@ def run_episode(chrono, ep_index, seed, args, exc, pol_cfg, urdf):
             })
             rows.append(_r)
             _t_step = time.time()
+
+        (terrain or system).DoStepDynamics(dt)
 
     jp = [f for f in csv_field_names() if f.startswith("joint_") and f.endswith("_pos_rad")]
     # The bed is passed only for CRM: the rigid floor is sized to the travel, so there is
@@ -745,6 +762,13 @@ def main() -> int:
         # velocity, which is not even the command used, since episodes draw from families.
         extra={"corpus": a.corpus, "terrain": a.terrain,
                "fixed_command": [a.vx, a.vy, a.wz],
+               # How a row relates to the policy, which every consumer that rebuilds the
+               # observation from a row depends on. Corpora without these fields were
+               # captured one physics step late with policy_raw in policy order, and the
+               # fine-tune refuses them.
+               "row_capture": "pre_step",
+               "policy_raw_order": "chrono",
+               "policy": {"path": str(a.policy), "sha256": PROV.sha256(a.policy)},
                "episodes": a.episodes, "segments": written, "rows": total_rows,
                "failures": summary, "family_balance": fam_counts,
                "dropped_short_segments": short,

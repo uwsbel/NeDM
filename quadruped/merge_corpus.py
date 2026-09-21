@@ -32,7 +32,10 @@ from pathlib import Path
 # Fields that must agree across shards for the merge to mean anything. Anything that
 # changes the physics, the excitation or the binary belongs here; anything that merely
 # differs per run (host, timing, seed, counts) must not.
-MUST_MATCH = ("terrain", "chrono_build", "command_ranges", "excitation", "versions")
+MUST_MATCH = ("terrain", "chrono_build", "command_ranges", "excitation", "versions",
+              # A shard captured post-step, or by a different policy, is not the
+              # same corpus however well its other fields agree.
+              "row_capture", "policy_raw_order", "policy")
 
 # Fields inside MUST_MATCH that manifests written before the fix recorded WRONGLY, and
 # which therefore cannot be compared across those shards. Narrow and named on purpose:

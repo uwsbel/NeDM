@@ -196,19 +196,93 @@ def load_policy_torch(torch, path, dev):
     return net, params
 
 
-def branch_starts(corpus, ctx, n, rng):
-    """Windows of `ctx` real states, drawn from the corpus, to start branches from.
+# Columns the fine-tune reads beside the model's inputs. policy_raw is in CHRONO order in
+# a corpus stamped policy_raw_order="chrono"; ObsBuilder wants the network's own order.
+RAW_FIELDS = [f"policy_raw_{l}_{s}" for l in ("rr", "rl", "fr", "fl")
+              for s in ("hip", "thigh", "calf")]
+CMD_FIELDS = ["cmd_vx_mps", "cmd_vy_mps", "cmd_wz_radps"]
+EXTRA_FIELDS = ["time_s"] + CMD_FIELDS + RAW_FIELDS
+_T, _CMD, _RAW = 0, slice(1, 4), slice(4, 16)
+
+
+def build_pool(corpus, ctx, ctrl_dt):
+    """Every window of `ctx` real rows whose LAST row is a control instant.
 
     RECORDED STATES, not sampled ones. This is the property that makes the method local:
     the policy is improved on states the corpus actually contains, so coverage of the
     corpus bounds what can be learned. Drawn from the TRAIN split, since the val split is
     what any honest in-model number would have to be read on.
+
+    WHY THE LAST ROW MUST BE A CONTROL ROW. Rows are 100 Hz and the policy acts at 50 Hz.
+    The branch's first act is the policy choosing an action at the window's last row, so
+    that row has to be one where the real policy chose one too -- otherwise the branch
+    starts half a control period out of phase with every recorded action before it, and
+    the recorded last action it observes is not the one the policy would have seen.
     """
-    pool = [(si, k) for si, r in enumerate(corpus.train)
-            for k in range(max(r["n"] - ctx - 1, 0))]
+    pool = []
+    for si, r in enumerate(corpus.train):
+        ph = r["extra"][:, _T] / ctrl_dt
+        ctl = np.abs(ph - np.round(ph)) < 1e-6
+        for k in range(max(r["n"] - ctx - 1, 0)):
+            if ctl[k + ctx - 1]:
+                pool.append((si, k))
     if not pool:
-        raise SystemExit("no segment is long enough to start a branch from")
-    return [pool[rng.randrange(len(pool))] for _ in range(n)]
+        raise SystemExit("no segment is long enough to start a branch from on a control row")
+    return pool
+
+
+def start_batch(torch, corpus, pool, n, rng, ctx, p2c, dev):
+    """Draw `n` branch starts and everything the rollout needs at each.
+
+    states   (B, ctx, S)   the recorded window
+    acts     (B, ctx-1, A) the recorded actions for every row BUT the last. The last row's
+                           action is the one the branch chooses, so it is left open; the
+                           model pairs state row j with action row j, and filling the last
+                           slot with the recorded action and then appending the policy's
+                           would shift the whole history by one row.
+    last_raw (B, 12)       the network output held at the start row, i.e. the one the
+                           policy observed as its last action there (policy order)
+    raw_rec  (B, 12)       what the network actually output at the start row -- used once,
+                           to prove the observation rebuild reproduces it
+    cmd      (B, 3)        the command the robot was following at the start row
+    """
+    picks = [pool[rng.randrange(len(pool))] for _ in range(n)]
+    S = np.stack([corpus.train[si]["state"][k:k + ctx] for si, k in picks])
+    A = np.stack([corpus.train[si]["action"][k:k + ctx - 1] for si, k in picks])
+    E = np.stack([corpus.train[si]["extra"][k + ctx - 2:k + ctx] for si, k in picks])
+    f = lambda x: torch.tensor(x, dtype=torch.float32, device=dev)  # noqa: E731
+    return {"picks": picks, "states": f(S), "acts": f(A),
+            "last_raw": f(E[:, 0, _RAW][:, p2c]), "raw_rec": f(E[:, 1, _RAW][:, p2c]),
+            "cmd": f(E[:, 1, _CMD])}
+
+
+def check_start_reproduction(torch, obs, policy, b):
+    """The rebuilt observation must reproduce the policy's recorded output. Refuse if not.
+
+    This is the test the first fine-tunes never ran, and the reason they were meaningless.
+    The corpus was captured one physics step late, so the recorded state at a control row
+    already carried the PD kick from the action being chosen there; the rebuilt
+    observation then moved the policy's output by 36-60% of its spread before a single
+    weight changed, and the fine-tune optimised a policy for inputs it never receives.
+    On a corpus captured before the step, from the policy being fine-tuned, this agrees to
+    float rounding -- so anything above 1% means the rollout is not rolling this policy.
+    """
+    with torch.no_grad():
+        o = obs.observe(b["states"][:, -1], b["cmd"], b["last_raw"])
+        raw = torch.clamp(policy(o), *obs.act_clip)
+    rms = float(torch.sqrt(((raw - b["raw_rec"]) ** 2).mean()))
+    spread = float(b["raw_rec"].std())
+    print(f"start check: the base policy on the rebuilt observation reproduces its recorded "
+          f"output to RMS {rms:.2e} against a spread of {spread:.3f} "
+          f"({100 * rms / max(spread, 1e-12):.3f}%)")
+    if rms > 0.01 * spread:
+        raise SystemExit(
+            f"the observation rebuilt from corpus rows does not reproduce what the policy "
+            f"actually output ({100 * rms / spread:.1f}% of its spread). Fine-tuning would "
+            f"optimise the policy for an input it never sees in Chrono. Check that the "
+            f"corpus was collected by THIS policy with row_capture=pre_step, and that "
+            f"ObsBuilder matches lib/policy.py (obs_truth.py tests exactly that).")
+    return rms / max(spread, 1e-12)
 
 
 # ------------------------------------------------------------------------ ppo
@@ -315,44 +389,45 @@ class OODCost:
         return torch.clamp(knn - self.thresh, min=0.0)
 
 
-def ppo_rollout(torch, model, obs_b, actor, critic, corpus, picks, ctx, steps, cmd, ix,
-                upright_weight, dev, ood=None, ood_weight=0.0):
+def ppo_rollout(torch, model, obs_b, actor, critic, b, steps, hold, cmd, ix,
+                upright_weight, ood=None, ood_weight=0.0):
     """Collect one batch of trajectories inside the model. NO GRADIENT THROUGH DYNAMICS.
 
     This is the whole difference from the analytic path. The model is stepped under
     no_grad and only its OUTPUTS are used, so nothing here requires the plant to be
     differentiable. Swap the NN-ROM for Chrono and this function still works, which is
     the property the analytic method does not have.
-    """
-    B = len(picks)
-    S = np.stack([corpus.train[si]["state"][k:k + ctx] for si, k in picks])
-    A = np.stack([corpus.train[si]["action"][k:k + ctx] for si, k in picks])
-    hist_s = torch.tensor(S, dtype=torch.float32, device=dev)
-    hist_a = torch.tensor(A, dtype=torch.float32, device=dev)
-    last_raw = torch.zeros(B, 12, device=dev)
 
+    One PPO transition is one CONTROL step: the policy samples, the action is held for
+    `hold` model steps (the model steps at the record rate, the policy acts at half it),
+    and the reward is the mean over those steps.
+    """
+    hist_s, hist_a, last_raw = b["states"], b["acts"], b["last_raw"]
     obs_buf, act_buf, logp_buf, rew_buf, val_buf = [], [], [], [], []
     ood_buf = []
     with torch.no_grad():
         for _ in range(steps):
-            cur = hist_s[:, -1]
-            o = obs_b.observe(cur, cmd, last_raw)
+            o = obs_b.observe(hist_s[:, -1], cmd, last_raw)
             d = actor.dist(o)
             raw = d.sample()
             logp = d.log_prob(raw).sum(-1)
             val = critic(o)
-            last_raw = raw
-            act = obs_b.action_from_raw(raw)
-            hist_a = torch.cat([hist_a[:, 1:], act[:, None]], dim=1)
-            nxt = cur + model.predict_delta(hist_s, hist_a)[:, -1]
-            hist_s = torch.cat([hist_s[:, 1:], nxt[:, None]], dim=1)
+            last_raw = torch.clamp(raw, *obs_b.act_clip)
+            act = obs_b.action_from_raw(last_raw)
+            r = 0.0
+            for _h in range(hold):
+                a_win = torch.cat([hist_a, act[:, None]], dim=1)
+                nxt = hist_s[:, -1] + model.predict_delta(hist_s, a_win)[:, -1]
+                hist_s = torch.cat([hist_s[:, 1:], nxt[:, None]], dim=1)
+                hist_a = a_win[:, 1:]
+                rh = step_reward(torch, nxt, cmd, ix, upright_weight)
+                if ood is not None and ood_weight > 0:
+                    c = ood.cost(torch, nxt, act)
+                    rh = rh - ood_weight * c
+                    ood_buf.append(c.mean())
+                r = r + rh / hold
             obs_buf.append(o); act_buf.append(raw); logp_buf.append(logp)
-            val_buf.append(val)
-            r = step_reward(torch, nxt, cmd, ix, upright_weight)
-            if ood is not None and ood_weight > 0:
-                r = r - ood_weight * ood.cost(torch, nxt, act)
-                ood_buf.append(ood.cost(torch, nxt, act).mean())
-            rew_buf.append(r)
+            val_buf.append(val); rew_buf.append(r)
         last_val = critic(obs_b.observe(hist_s[:, -1], cmd, last_raw))
     ood_mean = float(torch.stack(ood_buf).mean()) if ood_buf else 0.0
     return (torch.stack(obs_buf), torch.stack(act_buf), torch.stack(logp_buf),
@@ -381,40 +456,63 @@ def gae(torch, rew, val, last_val, gamma, lam):
 
 # ------------------------------------------------------------------ the loss
 
-def branch_loss(torch, model, obs, policy, states0, actions0, cmd, steps, ix):
-    """Roll the policy inside the frozen model for `steps`, score against the command.
+def branch_loss(torch, model, obs, policy, b, cmd, steps, hold, ix):
+    """Roll the policy inside the frozen model for `steps` control steps, score against the
+    command.
 
     The score is command tracking in the body frame, which is what the study reports and
     what the base policy is weakest at. Height and attitude are held with a light penalty
     rather than optimised: without them the optimiser discovers that lying down tracks
     zero velocity beautifully, and a fine-tune that falls over is not an improvement
     however good its number is.
+
+    THE LOOP HAS THE ROBOT'S TIMING. The model steps at the record rate (0.01 s) and the
+    policy acts at the control rate (0.02 s), so each action is held for `hold` model
+    steps and the last-action observation changes only when the policy acts. The first
+    version called the policy on every model step: it ran at 100 Hz inside the model,
+    fed the model an action stream that changed every row where every recorded one is
+    held for two, and labelled 15 model steps "0.30 s" when they were 0.15 s.
     """
-    B, ctx, S = states0.shape
-    hist_s = states0.clone()
-    hist_a = actions0.clone()
-    last_raw = torch.zeros(B, 12, device=states0.device)
+    hist_s, hist_a, last_raw = b["states"], b["acts"], b["last_raw"]
     track, upright = [], []
     for _ in range(steps):
-        cur = hist_s[:, -1]
-        o = obs.observe(cur, cmd, last_raw)
-        raw = policy(o)
-        last_raw = raw
-        act = obs.action_from_raw(raw)
-        hist_a = torch.cat([hist_a[:, 1:], act[:, None]], dim=1)
-        delta = model.predict_delta(hist_s, hist_a)[:, -1]
-        nxt = cur + delta
-        hist_s = torch.cat([hist_s[:, 1:], nxt[:, None]], dim=1)
-        v = torch.stack([nxt[:, ix["vel_body_x_mps"]], nxt[:, ix["vel_body_y_mps"]],
-                         nxt[:, ix["yaw_rate_radps"]]], dim=-1)
-        track.append(((v - cmd) ** 2).sum(-1))
-        # grav_body_z is -1 when level; anything above that is the trunk pitching over.
-        upright.append((nxt[:, ix["grav_body_z"]] + 1.0) ** 2)
+        o = obs.observe(hist_s[:, -1], cmd, last_raw)
+        last_raw = torch.clamp(policy(o), *obs.act_clip)
+        act = obs.action_from_raw(last_raw)
+        for _h in range(hold):
+            a_win = torch.cat([hist_a, act[:, None]], dim=1)
+            nxt = hist_s[:, -1] + model.predict_delta(hist_s, a_win)[:, -1]
+            hist_s = torch.cat([hist_s[:, 1:], nxt[:, None]], dim=1)
+            hist_a = a_win[:, 1:]
+            v = torch.stack([nxt[:, ix["vel_body_x_mps"]], nxt[:, ix["vel_body_y_mps"]],
+                             nxt[:, ix["yaw_rate_radps"]]], dim=-1)
+            track.append(((v - cmd) ** 2).sum(-1))
+            # grav_body_z is -1 when level; anything above that is the trunk pitching over.
+            upright.append((nxt[:, ix["grav_body_z"]] + 1.0) ** 2)
     return torch.stack(track).mean(), torch.stack(upright).mean()
 
 
+def branch_cmd(torch, a, b, ranges, rng, dev):
+    """The command each branch tracks.
+
+    `corpus` (default): the command the robot was following at the start row, held for the
+    branch. The start state was produced under that command, so the objective is to track
+    it BETTER from where the robot actually was.
+
+    `random`: a fresh draw from the collection ranges. Over a 0.30 s branch that mostly
+    scores how fast the robot can change speed toward an unrelated command, which is a
+    transient the base policy was never asked to win and the model saw little of.
+    """
+    if a.command == "corpus":
+        return b["cmd"]
+    return torch.tensor(
+        [[rng.uniform(*ranges["vx"]), rng.uniform(*ranges["vy"]),
+          rng.uniform(*ranges["wz"])] for _ in range(a.branches)],
+        dtype=torch.float32, device=dev)
+
+
 def run_ppo(torch, nn, a, model, obs_b, policy, params, baseline, base_norm, n_par,
-            corpus, ctx, ix, ranges, rng, dev, log):
+            corpus, ctx, ix, ranges, rng, dev, log, pool, p2c, hold):
     """Clipped-surrogate PPO with the model as an ordinary environment.
 
     Stops on the SAME weight-displacement budget as the analytic path. That is deliberate
@@ -441,18 +539,15 @@ def run_ppo(torch, nn, a, model, obs_b, policy, params, baseline, base_norm, n_p
         ood = OODCost(corpus, seed=a.seed).to_torch(torch, dev)
         print(f"  OOD penalty {a.ood_penalty} beyond corpus self-distance "
               f"{ood.thresh:.3f} (the same kNN reference Gate 4 uses)")
-    print(f"ppo: {a.branches} branches x {a.steps} steps, clip {a.clip_eps}, "
-          f"{a.ppo_epochs} epochs x {a.minibatches} minibatches per batch")
+    print(f"ppo: {a.branches} branches x {a.steps} control steps ({a.steps * hold} model "
+          f"steps), clip {a.clip_eps}, {a.ppo_epochs} epochs x {a.minibatches} minibatches")
     dw, it = 0.0, 0
     for it in range(1, a.iters + 1):
-        picks = branch_starts(corpus, ctx, a.branches, rng)
-        cmd = torch.tensor(
-            [[rng.uniform(*ranges["vx"]), rng.uniform(*ranges["vy"]),
-              rng.uniform(*ranges["wz"])] for _ in range(a.branches)],
-            dtype=torch.float32, device=dev)
+        b = start_batch(torch, corpus, pool, a.branches, rng, ctx, p2c, dev)
+        cmd = branch_cmd(torch, a, b, ranges, rng, dev)
         ob, ac, lp, rw, vl, last_val, ood_mean = ppo_rollout(
-            torch, model, obs_b, actor, critic, corpus, picks, ctx, a.steps, cmd, ix,
-            a.upright_weight, dev, ood, a.ood_penalty)
+            torch, model, obs_b, actor, critic, b, a.steps, hold, cmd, ix,
+            a.upright_weight, ood, a.ood_penalty)
         adv, ret = gae(torch, rw, vl, last_val, a.gamma, a.lam)
         # Flatten time and branch: every (t, b) is one independent sample here, since the
         # branches do not interact.
@@ -514,7 +609,10 @@ def main() -> int:
     ap.add_argument("--method", choices=["analytic", "ppo"], default="analytic")
     ap.add_argument("--branches", type=int, default=64)
     ap.add_argument("--steps", type=int, default=15,
-                    help="branch length; 15 steps is 0.30 s at 50 Hz control")
+                    help="branch length in CONTROL steps; 15 is 0.30 s at 50 Hz. The model "
+                         "steps twice per control step, at the 100 Hz record rate.")
+    ap.add_argument("--command", choices=["corpus", "random"], default="corpus",
+                    help="what each branch tracks; see branch_cmd()")
     ap.add_argument("--lr", type=float, default=1e-4)
     ap.add_argument("--iters", type=int, default=2000)
     ap.add_argument("--target-dw", type=float, default=4.0,
@@ -569,7 +667,18 @@ def main() -> int:
     # 15 steps, 0.30 s, and is fine. PPO benefits from longer rollouts, and a PPO run
     # asked for 100 steps -- 2 s -- would be optimising the policy against a plant model
     # that is worse than assuming nothing happens, and would find that out only in Chrono.
-    branch_s = a.steps * 0.02
+    # THE TWO RATES. The model steps at the record rate it was trained on; the policy acts
+    # at the control rate. Taken from the checkpoint and the collection config rather than
+    # restated, because restating them is how the first version came to run the policy at
+    # 100 Hz and call 15 model steps 0.30 s.
+    exc = yaml.safe_load((HERE / "params" / "excitation.yaml").read_text())
+    ctrl_dt = 1.0 / float(exc["episode"]["control_hz"])
+    dt_s = float(ck["config"].get("dt_s") or 1.0 / float(exc["episode"]["record_hz"]))
+    hold = int(round(ctrl_dt / dt_s))
+    if hold < 1 or abs(hold * dt_s - ctrl_dt) > 1e-9:
+        raise SystemExit(f"the model steps at {dt_s} s and the policy acts every {ctrl_dt} "
+                         f"s; the control period must be a whole number of model steps")
+    branch_s = a.steps * ctrl_dt
     prof = ck.get("horizon_profile") or {}
     if prof:
         keys = sorted(prof, key=float)
@@ -606,22 +715,50 @@ def main() -> int:
     base_norm = float(torch.sqrt(sum((b ** 2).sum() for b in baseline)))
     n_par = sum(p.numel() for p in params)
 
-    corpus = T.Corpus(Path(a.corpus), ck["config"]["preset"], ctx)
+    corpus = T.Corpus(Path(a.corpus), ck["config"]["preset"], ctx,
+                      extra_fields=EXTRA_FIELDS)
+    man = corpus.manifest
+    if man.get("row_capture") != "pre_step" or man.get("policy_raw_order") != "chrono":
+        raise SystemExit(
+            f"{a.corpus} records row_capture={man.get('row_capture')!r} and "
+            f"policy_raw_order={man.get('policy_raw_order')!r}. Corpora collected before "
+            f"those fields existed captured each row one physics step AFTER the policy "
+            f"acted, so the state at a control row already carries the kick from the "
+            f"action chosen there, and the policy cannot be rolled on it faithfully. "
+            f"Recollect with the current collect.py.")
+    from quadruped.lib import provenance as PROV  # noqa: PLC0415
+    col_sha = (man.get("policy") or {}).get("sha256")
+    if col_sha != PROV.sha256(a.policy):
+        raise SystemExit(
+            f"{a.corpus} was collected by policy sha256 {str(col_sha)[:12]}, and "
+            f"{a.policy} is {PROV.sha256(a.policy)[:12]}. Branches start from states that "
+            f"policy produced and observe the actions IT took, so fine-tuning a different "
+            f"one from them is not local improvement of anything.")
     if corpus.state_fields != state_fields:
         raise SystemExit(
             "the corpus and the model disagree about the state. Fine-tuning would "
             "optimise against channels in a different order than the model was fitted "
             "on, which produces a confident and meaningless result.")
 
+    p2c = list(pol_cfg["joints"]["policy_to_chrono"])
+    pool = build_pool(corpus, ctx, ctrl_dt)
+    print(f"timing: model step {dt_s} s, policy every {ctrl_dt} s (hold {hold}); "
+          f"{len(pool):,} branch starts on control rows; commands from {a.command}")
+    b0 = start_batch(torch, corpus, pool, min(len(pool), 4096), random.Random(a.seed + 1),
+                     ctx, p2c, dev)
+    start_err = check_start_reproduction(torch, obs, policy, b0)
+    del b0
+
     rng = random.Random(a.seed)
     opt = torch.optim.Adam(params, lr=a.lr)
-    ranges = yaml.safe_load((HERE / "params" / "excitation.yaml").read_text())["commands"]["ranges"]
+    ranges = exc["commands"]["ranges"]
     log = (out / "finetune.jsonl").open("a")
 
     import math as _m
     if a.method == "ppo":
         it, dw = run_ppo(torch, torch.nn, a, model, obs, policy, params, baseline,
-                         base_norm, n_par, corpus, ctx, ix, ranges, rng, dev, log)
+                         base_norm, n_par, corpus, ctx, ix, ranges, rng, dev, log,
+                         pool, p2c, hold)
         log.close()
         torch.jit.save(policy, str(out / "policy_ft.pt"))
         meta = {"smoke": bool(a.smoke) or bool(ck.get("smoke")), "method": "ppo",
@@ -629,6 +766,8 @@ def main() -> int:
                 "target_dw": a.target_dw, "branches": a.branches, "steps": a.steps,
                 "lr": a.lr, "clip_eps": a.clip_eps, "gamma": a.gamma, "lam": a.lam,
                 "ppo_epochs": a.ppo_epochs, "init_log_std": a.init_log_std,
+                "hold": hold, "ctrl_dt": ctrl_dt, "dt_s": dt_s, "command_source": a.command,
+                "start_reproduction": start_err, "corpus_row_capture": man.get("row_capture"),
                 "policy_params": n_par, "theta0_norm": base_norm, "seed": a.seed,
                 "model": str(a.model), "base_policy": str(a.policy),
                 "corpus": str(a.corpus)}
@@ -641,26 +780,17 @@ def main() -> int:
               "against the base policy, on one machine, over replicates.")
         return 0
 
-    print(f"analytic fine-tune: {a.branches} branches x {a.steps} steps "
-          f"({a.steps * 0.02:.2f} s), target dw {a.target_dw}")
+    print(f"analytic fine-tune: {a.branches} branches x {a.steps} control steps "
+          f"({a.steps * ctrl_dt:.2f} s, {a.steps * hold} model steps), target dw {a.target_dw}")
     print(f"  policy {n_par:,} params, ||theta_0|| {base_norm:.3f}; at lr {a.lr} one Adam "
           f"step moves dw by about {a.lr * _m.sqrt(n_par):.4f}, so the budget is roughly "
           f"{a.target_dw / max(a.lr * _m.sqrt(n_par), 1e-12):.0f} steps")
     t0 = time.perf_counter()
     dw = 0.0
     for it in range(1, a.iters + 1):
-        picks = branch_starts(corpus, ctx, a.branches, rng)
-        S = np.stack([corpus.train[si]["state"][k:k + ctx] for si, k in picks])
-        A = np.stack([corpus.train[si]["action"][k:k + ctx] for si, k in picks])
-        states0 = torch.tensor(S, dtype=torch.float32, device=dev)
-        actions0 = torch.tensor(A, dtype=torch.float32, device=dev)
-        cmd = torch.tensor(
-            [[rng.uniform(*ranges["vx"]), rng.uniform(*ranges["vy"]),
-              rng.uniform(*ranges["wz"])] for _ in range(a.branches)],
-            dtype=torch.float32, device=dev)
-
-        track, upright = branch_loss(torch, model, obs, policy, states0, actions0,
-                                     cmd, a.steps, ix)
+        b = start_batch(torch, corpus, pool, a.branches, rng, ctx, p2c, dev)
+        cmd = branch_cmd(torch, a, b, ranges, rng, dev)
+        track, upright = branch_loss(torch, model, obs, policy, b, cmd, a.steps, hold, ix)
         loss = track + a.upright_weight * upright
         opt.zero_grad(set_to_none=True)
         loss.backward()
@@ -691,6 +821,8 @@ def main() -> int:
             "dw_rel": dw / base_norm, "policy_params": n_par, "theta0_norm": base_norm,
             "method": a.method, "iters_run": it, "dw": dw, "target_dw": a.target_dw,
             "branches": a.branches, "steps": a.steps, "lr": a.lr, "seed": a.seed,
+            "hold": hold, "ctrl_dt": ctrl_dt, "dt_s": dt_s, "command_source": a.command,
+            "start_reproduction": start_err, "corpus_row_capture": man.get("row_capture"),
             "model": str(a.model), "base_policy": str(a.policy),
             "corpus": str(a.corpus), "seconds": round(time.perf_counter() - t0, 1)}
     (out / "finetune.json").write_text(json.dumps(meta, indent=2))
