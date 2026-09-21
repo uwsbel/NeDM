@@ -154,6 +154,24 @@ def main() -> int:
             flag = "  <-- systematic" if abs(t) >= 2.0 else ""
             print(f"  {k:9s} {m:+.5f} +/- {se:.5f}   t = {t:+6.2f}{flag}")
 
+        # DOES THE BIAS GROW WITH SPEED? Stage 1 hinted that it does: on the slow case
+        # the velocity differences were mixed in sign, while on the fast case every box
+        # smaller than the reference ran faster. The mechanism would be that a quicker
+        # robot disturbs soil further ahead of itself, so a fixed box clips more of the
+        # region that matters. If real, the box has to be sized for the fastest command
+        # in the corpus, not the average one -- and the collection ranges go to 1.5 m/s.
+        spd = np.array([c["none"]["speed"] for c in per_case
+                        if str(ad) in c["arms"]])
+        dv = np.array([c["arms"][str(ad)]["delta"]["mean_vx"] for c in per_case
+                       if str(ad) in c["arms"]])
+        if len(spd) >= 4 and np.std(spd) > 1e-9:
+            rho = float(np.corrcoef(spd, dv)[0, 1])
+            slope = float(np.polyfit(spd, dv, 1)[0])
+            summary[str(ad)]["bias_vs_speed"] = {"pearson_r": rho, "slope": slope,
+                                                 "n": int(len(spd))}
+            print(f"  bias vs speed: r = {rho:+.3f}, slope = {slope:+.4f} "
+                  f"(m/s of bias per m/s of speed)")
+
     if a.out:
         Path(a.out).write_text(json.dumps(
             {"cases": per_case, "summary": summary}, indent=2, default=str))
