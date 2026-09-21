@@ -86,6 +86,25 @@ def behaviour(traj):
 
 KEYS = ("mean_vx", "mean_vy", "mean_wz", "mean_z", "mean_up", "speed")
 
+# A RUN IS ONLY A REPLICATE IF THE ROBOT WAS STILL WALKING. `run_case` only rejects a
+# non-finite base height, and a robot that has fallen through the bed reports a perfectly
+# finite one: case c05 came back with mean_z = -0.303, a third of a metre BELOW the soil
+# bottom, and would have been averaged into the behavioural statistics as if it were a
+# gait. A fallen-but-not-sunk robot is just as bad -- mean_z 0.34 against a 0.20 m soil
+# top is a belly on the ground, not a stance.
+#
+# Soil top is 0.20 m and a standing Go2 carries its base about 0.30 m above what it
+# stands on, so a walking robot sits near 0.50 m. The band below is deliberately wide:
+# it rejects failures, not poor locomotion, because excluding bad-but-real gaits would
+# bias the comparison toward the easy cases.
+MIN_MEAN_Z, MAX_MEAN_Z = 0.38, 0.80
+MIN_MEAN_UP = 0.90
+
+
+def walked(b):
+    """True if this run is a gait rather than a fall."""
+    return (MIN_MEAN_Z <= b["mean_z"] <= MAX_MEAN_Z) and b["mean_up"] >= MIN_MEAN_UP
+
 
 def main() -> int:
     ap = argparse.ArgumentParser()
@@ -132,6 +151,10 @@ def main() -> int:
             print(f"{name}: reference diverged, dropped", flush=True)
             continue
         bref = behaviour(ref["traj"])
+        if not walked(bref):
+            print(f"{name}: reference is not a gait (mean_z {bref['mean_z']:.3f}, "
+                  f"up {bref['mean_up']:.3f}), case dropped", flush=True)
+            continue
         rec = {"case": name, "cmd": cmd, "spawn": spawn, "none": bref, "arms": {}}
         line = (f"{name} cmd=({cmd[0]:+.2f},{cmd[1]:+.2f},{cmd[2]:+.2f}) "
                 f"none: vx {bref['mean_vx']:+.3f} z {bref['mean_z']:.4f}")
@@ -142,6 +165,9 @@ def main() -> int:
                 line += f" | {arm} DIVERGED"
                 continue
             b = behaviour(r["traj"])
+            if not walked(b):
+                line += f" | {arm} NOT-A-GAIT z={b['mean_z']:.3f}"
+                continue
             d = {k: b[k] - bref[k] for k in KEYS}
             rows[arm].append(d)
             rec["arms"][arm] = {"behaviour": b, "delta": d,

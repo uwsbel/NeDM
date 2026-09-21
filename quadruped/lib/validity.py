@@ -31,6 +31,7 @@ MIN_BASE_Z_M = -0.5                 # below the bed: it fell through the terrain
 MAX_BASE_Z_M = 3.0                  # launched
 INVERTED_GRAV_Z = 0.0               # grav_body_z >= 0 means the trunk is past horizontal
 OFF_BED_MARGIN_M = 0.25             # how close to the bed edge still counts as on it
+SINK_MARGIN_M = 0.05                # below soil_top + this, the base is inside the bed
 
 
 @dataclass
@@ -51,7 +52,8 @@ def _f(row, key):
         return None
 
 
-def first_invalid(rows, joint_pos_fields, *, dt_s: float = 0.01, bed=None) -> Verdict:
+def first_invalid(rows, joint_pos_fields, *, dt_s: float = 0.01, bed=None,
+                  soil_top=None) -> Verdict:
     """Index of the first row that fails any check, or ok.
 
     Checks are ordered cheapest-first, and the first to fire wins, so the recorded reason
@@ -62,6 +64,18 @@ def first_invalid(rows, joint_pos_fields, *, dt_s: float = 0.01, bed=None) -> Ve
     edge is base_height firing half a second later, once the robot has fallen far enough
     -- by which point the rows between the edge and the trigger are free-fall recorded as
     locomotion. Rigid ground passes None: its floor is sized to the travel instead.
+
+    `soil_top`, when given, catches the robot sinking INTO the bed. Only the feet and
+    calves are FSI-coupled (`terrain.py:115-117`); the trunk has no interaction with the
+    soil at all, and on CRM there is no rigid ground for its collision model to touch. So
+    a robot that pitches far enough to put its belly down has nothing holding it up: it
+    descends through the bed, pulls the legs after it, and keeps going. One ensemble case
+    recorded a mean base height of -0.303 m, a third of a metre below the bottom of the
+    soil, while reporting perfectly finite numbers throughout.
+
+    Without this check the only backstop is MIN_BASE_Z_M at -0.5, which fires roughly half
+    a second after the fall begins and lets every row in between into the corpus as
+    locomotion. It is not noisy data, it is a robot falling through the world.
     """
     prev_q = None
     prev_t = None
@@ -114,6 +128,12 @@ def first_invalid(rows, joint_pos_fields, *, dt_s: float = 0.01, bed=None) -> Ve
         if z is not None and not (MIN_BASE_Z_M <= z <= MAX_BASE_Z_M):
             return Verdict(False, i, "base_height", f"pos_z_m={z:.3f}")
 
+        # 4a. sinking into the bed. Fires at the surface rather than 0.5 m below it.
+        if soil_top is not None and z is not None and z < soil_top + SINK_MARGIN_M:
+            return Verdict(False, i, "sinking",
+                           f"pos_z_m={z:.3f} below soil_top {soil_top:.3f}"
+                           f"+{SINK_MARGIN_M:.2f}")
+
         # 4b. still on the soil. Fires BEFORE base_height does, so the free-fall rows
         #     between the edge and the fall are excluded rather than recorded as gait.
         if bed is not None:
@@ -126,8 +146,11 @@ def first_invalid(rows, joint_pos_fields, *, dt_s: float = 0.01, bed=None) -> Ve
                 return Verdict(False, i, "off_bed",
                                f"pos_y_m={py:.3f} outside [{bylo:+.2f}, {byhi:+.2f}]")
 
-        # 5. attitude. Not a fall detector -- a fallen robot is legitimate data -- but
-        #    past horizontal the CRM coupling is outside anything we intend to model.
+        # 5. attitude. Past horizontal the CRM coupling is outside anything we intend to
+        #    model. This comment used to add "a fallen robot is legitimate data", which is
+        #    true on rigid ground and false on CRM: there, the trunk is not coupled to the
+        #    soil at all, so a fallen robot does not lie on the bed, it goes through it.
+        #    On CRM a fall is the start of a fiction, not a hard-but-real state.
         gz = _f(row, "grav_body_z")
         if gz is not None and gz >= INVERTED_GRAV_Z:
             return Verdict(False, i, "inverted", f"grav_body_z={gz:.3f}")
@@ -135,12 +158,14 @@ def first_invalid(rows, joint_pos_fields, *, dt_s: float = 0.01, bed=None) -> Ve
     return Verdict(True)
 
 
-def truncate(rows, joint_pos_fields, *, dt_s: float = 0.01, bed=None):
+def truncate(rows, joint_pos_fields, *, dt_s: float = 0.01, bed=None,
+             soil_top=None):
     """Return (kept_rows, failing_tail, verdict).
 
     The tail is returned rather than dropped so it can be written to the failures set.
     """
-    v = first_invalid(rows, joint_pos_fields, dt_s=dt_s, bed=bed)
+    v = first_invalid(rows, joint_pos_fields, dt_s=dt_s, bed=bed,
+                      soil_top=soil_top)
     if v.ok:
         return rows, [], v
     return rows[: v.row], rows[v.row:], v

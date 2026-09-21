@@ -406,7 +406,11 @@ def run_episode(chrono, ep_index, seed, args, exc, pol_cfg, urdf):
     # The bed is passed only for CRM: the rigid floor is sized to the travel, so there is
     # no edge to leave.
     _bed = None if args.terrain == "rigid" else ((plo_x, plo_y), (phi_x, phi_y))
-    kept, tail, verdict = VAL.truncate(rows, jp, dt_s=rec_dt, bed=_bed)
+    # soil_top only on CRM: the rigid floor is a real collision surface, so a fallen robot
+    # rests on it instead of sinking through.
+    _soil_top = None if args.terrain == "rigid" else soil_top
+    kept, tail, verdict = VAL.truncate(rows, jp, dt_s=rec_dt, bed=_bed,
+                                       soil_top=_soil_top)
 
     # Segment AFTER truncation, against the length actually written.
     if sched is not None and kept:
