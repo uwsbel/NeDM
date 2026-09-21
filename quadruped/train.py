@@ -656,6 +656,36 @@ def main() -> int:
                       "this means the corpus is too small -- check val_loss against "
                       "train_loss before adding epochs.")
 
+    # ERRDIST ACROSS HORIZONS, recorded so the FLOOR can be checked where the model is
+    # USED rather than where it is SELECTED. Those are different horizons and conflating
+    # them was a real error: the 550-episode model scored 3.42 against the floor of 1.0 at
+    # the 10 s selection horizon and was stamped worse-than-nothing, while at 0.30 s --
+    # the length of an analytic fine-tuning branch -- it scored 0.451, less than half the
+    # floor. It crosses 1.0 between 1 s and 2 s. The 10 s number is still the right one to
+    # RANK checkpoints by (the previous study measured rho = +0.90 against transfer); it
+    # is the wrong one to decide whether a model is usable for a 0.30 s rollout.
+    horizon_profile = {}
+    final_model = model
+    if (out / "best.pt").exists():
+        ck_b = torch.load(out / "best.pt", map_location=dev, weights_only=False)
+        final_model.load_state_dict(ck_b["model"])
+    final_model.eval()
+    prof_eps = [r for r in sorted(corpus.val, key=lambda r: -r["n"])
+                if r["n"] >= a.block_size + int(round(a.rollout_horizon_s / a.dt_s))
+                ][:a.rollout_episodes]
+    for hh in (0.3, 0.5, 1.0, 2.0, 3.0, 5.0, a.rollout_horizon_s):
+        e_h, _n = rollout_errdist(torch, final_model, corpus, prof_eps, hh, a.dt_s,
+                                  a.block_size, dev)
+        horizon_profile[f"{hh:g}"] = e_h
+    crossing = next((float(k) for k, v in sorted(horizon_profile.items(),
+                                                 key=lambda kv: float(kv[0]))
+                     if v >= 1.0), None)
+    print("\nerrdist by horizon (selected model), against the predict-no-motion floor:")
+    for k in sorted(horizon_profile, key=float):
+        v = horizon_profile[k]
+        print(f"  {float(k):5.1f} s  {v:7.3f}  {'better' if v < 1.0 else 'WORSE'}")
+    print(f"  usable to roughly {crossing if crossing else 'the whole range'} s")
+
     # THE CHECK THAT SHOULD HAVE COME FIRST: is the model better than doing nothing?
     #
     # errdist divides trajectory error by distance travelled, so a model that predicts no
@@ -676,9 +706,11 @@ def main() -> int:
             sm = [float(np.median(h[max(0, i - a.select_window + 1):i + 1]))
                   for i in range(a.select_window - 1, h.size)]
             best_sm = min(sm) if sm else float("nan")
-            worse_than_nothing = bool(best_sm >= 1.0)
-            print(f"selection floor: best smoothed rollout {best_sm:.4f} against the "
-                  f"predict-no-motion floor of 1.0")
+            # Judged at the USE horizon, 0.30 s, not at the selection horizon.
+            use_e = horizon_profile.get("0.3", best_sm)
+            worse_than_nothing = bool(use_e >= 1.0)
+            print(f"selection floor: errdist {use_e:.4f} at the 0.30 s use horizon (the "
+                  f"selection-horizon value is {best_sm:.4f}) against the floor of 1.0")
             if worse_than_nothing:
                 print(f"  WORSE THAN NOTHING. This model is {best_sm:.1f}x further from "
                       f"the truth than a model that predicts the robot does not move. "
@@ -691,6 +723,8 @@ def main() -> int:
             ck["selection_lottery"] = lottery
             ck["selection_no_trend"] = no_trend
             ck["worse_than_no_motion"] = worse_than_nothing
+            ck["horizon_profile"] = horizon_profile
+            ck["usable_to_s"] = crossing
             ck["selection_lag1"] = lag1
             ck["selection_range"] = rng_
             ck["rollout_episodes_used"] = ro_n

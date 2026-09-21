@@ -37,7 +37,7 @@ from lib.coverage import Reference, verdict as cov_verdict   # noqa: E402
 
 
 def episode(chrono, policy_path, urdf, cfg, terrain_kind, command, seconds,
-            warmup_s, spacing, step, soil, patch_x, patch_y, depth):
+            warmup_s, spacing, step, soil, patch_x, patch_y, depth, spawn_offset=0.0):
     """Run one episode; return per-step tracking and the visited (state, action) rows."""
     from nedm.quadruped.constants import STAND_ACTION
     from quadruped.lib.policy import Go2Policy
@@ -59,11 +59,14 @@ def episode(chrono, policy_path, urdf, cfg, terrain_kind, command, seconds,
     xlo, xhi, ylo, yhi = plan_path(lambda t: tuple(command), seconds, warmup_s)
     px = min(MAX_PATCH_X, max(patch_x, (xhi - xlo) + 2 * (EDGE_MARGIN_M + 0.2)))
     py = min(MAX_PATCH_Y, max(patch_y, (yhi - ylo) + 2 * (EDGE_MARGIN_M + 0.2)))
-    spawn = (-0.5 * (xlo + xhi), -0.5 * (ylo + yhi))
+    # The replicate perturbation: where on the particle lattice the run begins. The bed is
+    # widened by the offset so the shifted path still clears its edges.
+    px = min(MAX_PATCH_X, px + 2 * abs(spawn_offset))
+    spawn = (-0.5 * (xlo + xhi) + spawn_offset, -0.5 * (ylo + yhi))
     system, robot, terrain, soil_top, dt = build_scene(
         chrono, terrain_kind, urdf, spacing, step, soil, px, py, depth,
         travel_m=max(xhi - xlo, yhi - ylo), spawn_xy=spawn,
-        span_xy=(xhi - xlo, yhi - ylo))
+        span_xy=(xhi - xlo + 2 * abs(spawn_offset), yhi - ylo))
 
     pol = Go2Policy(policy_path, cfg=cfg)
     pol.command = np.asarray(command, dtype=np.float32)
@@ -148,6 +151,10 @@ def main() -> int:
     ap.add_argument("--seconds", type=float, default=6.0)
     ap.add_argument("--warmup-s", type=float, default=1.0)
     ap.add_argument("--vx", type=float, default=0.5)
+    ap.add_argument("--spawn-spread", type=float, default=1.0,
+                    help="replicates are spread over +/- this many metres of spawn "
+                         "position. 1.0 is the validated perturbation; 0.25 understated "
+                         "the variance and manufactured significance.")
     ap.add_argument("--max-ood", type=float, default=0.05)
     ap.add_argument("--spacing", type=float, default=0.02)
     ap.add_argument("--step", type=float, default=5e-4)
@@ -162,11 +169,27 @@ def main() -> int:
     cfg = yaml.safe_load((HERE / "params" / "policy.yaml").read_text())
 
     recs, vis = [], []
+    # REPLICATES ARE THE SAME CONDITION AT DIFFERENT LATTICE POSITIONS, not different
+    # commands. The old scheme varied the command linearly with the episode index,
+    # vx * (1 + 0.15 * (k - (n-1)/2)), which was tuned for n = 4 and gave 0.39-0.61 m/s.
+    # Raising the default to 16 episodes for statistical power stretched the same formula
+    # to -0.06 .. 1.06 m/s -- a robot commanded BACKWARDS averaged into a forward-tracking
+    # score, and one commanded twice as fast as intended. The episodes were no longer
+    # replicates of anything.
+    #
+    # Now every episode runs the same command, and the replicate perturbation is the spawn
+    # offset over +/-1.0 m: the perturbation docs/EVALUATION.md validated, which spans the
+    # CRM tracking variance (sd about 5.7 points) instead of understating it the way the
+    # +/-0.25 m spread did. The case list is a deterministic function of the arguments, so
+    # a base policy and a fine-tuned one evaluated with the same flags see identical cases
+    # and the comparison is paired episode for episode.
+    offsets = np.linspace(-a.spawn_spread, a.spawn_spread, a.episodes)
     for k in range(a.episodes):
-        vx = a.vx * (1.0 + 0.15 * (k - (a.episodes - 1) / 2))
+        vx = a.vx
         r = episode(chrono, Path(a.policy), Path(a.urdf), cfg, a.terrain,
                     [vx, 0.0, 0.0], a.seconds, a.warmup_s, a.spacing, a.step,
-                    a.soil, a.patch_x, a.patch_y, a.depth)
+                    a.soil, a.patch_x, a.patch_y, a.depth,
+                    spawn_offset=float(offsets[k]))
         if r is None:
             recs.append({"episode_id": f"{a.label}_{k:03d}", "completed": 0,
                          "chrono_md5": PROV.chrono_provenance()["md5"]})
@@ -175,6 +198,7 @@ def main() -> int:
         v = r.pop("visited")
         vis.append(v)
         r.update({"episode_id": f"{a.label}_{k:03d}", "cmd_vx": vx,
+                  "spawn_offset": float(offsets[k]),
                   "chrono_md5": PROV.chrono_provenance()["md5"]})
         recs.append(r)
         print(f"  ep {k}  cmd {vx:+.2f}  mae_vx {r['mae_vx']:.4f}  "

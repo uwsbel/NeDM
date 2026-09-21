@@ -561,6 +561,37 @@ def main() -> int:
     out.mkdir(parents=True, exist_ok=True)
 
     model, ck = load_nnrom(torch, a.model, dev, allow_smoke=a.smoke)
+
+    # IS THE MODEL ACCURATE OVER THE HORIZON THIS RUN WILL ROLL IT? Checked here, against
+    # this run's own branch length, because a model is not good or bad in general -- it is
+    # good out to some horizon. The 550-episode NN-ROM beats "the robot does not move" at
+    # 0.30 s (errdist 0.451) and loses to it past about 1.5 s. Analytic fine-tuning rolls
+    # 15 steps, 0.30 s, and is fine. PPO benefits from longer rollouts, and a PPO run
+    # asked for 100 steps -- 2 s -- would be optimising the policy against a plant model
+    # that is worse than assuming nothing happens, and would find that out only in Chrono.
+    branch_s = a.steps * 0.02
+    prof = ck.get("horizon_profile") or {}
+    if prof:
+        keys = sorted(prof, key=float)
+        near = min(keys, key=lambda k: abs(float(k) - branch_s))
+        # Take the nearest profiled horizon AT OR BEYOND the branch, erring pessimistic:
+        # a branch between two profiled points is judged by the longer, worse one.
+        beyond = [k for k in keys if float(k) >= branch_s - 1e-9]
+        judge = beyond[0] if beyond else keys[-1]
+        e_b = float(prof[judge])
+        print(f"model errdist at {float(judge):g} s (this run rolls {branch_s:.2f} s): "
+              f"{e_b:.3f}  [usable to ~{ck.get('usable_to_s')} s]")
+        if e_b >= 1.0 and not a.smoke:
+            raise SystemExit(
+                f"this run rolls the model {branch_s:.2f} s ({a.steps} steps), and at that "
+                f"horizon the model's errdist is {e_b:.3f} -- at or above the 1.0 a model "
+                f"scores for predicting the robot does not move. Optimising against it "
+                f"would chase the model's errors, not the robot. Shorten --steps to within "
+                f"the usable horizon (~{ck.get('usable_to_s')} s), or train a better model.")
+    else:
+        print(f"WARNING: {a.model} records no horizon profile, so whether it is accurate "
+              f"over this run's {branch_s:.2f} s branch is unknown. Retrain with the "
+              f"current train.py, which records one.")
     state_fields = ck["state_fields"]
     ctx = ck["config"]["block_size"]
     ix = {f: i for i, f in enumerate(state_fields)}
