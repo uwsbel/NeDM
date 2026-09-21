@@ -35,10 +35,11 @@ def crm_args(spacing, step, soil, patch_x, patch_y, depth):
 
 def run(terrain_kind, sign, seconds, command, urdf, policy_path, *, warmup_s=1.5,
         spacing=0.02, step=5e-4, soil="soft", patch_x=8.0, patch_y=4.0, depth=0.20,
-        exchange_mult=4):
+        exchange_mult=4, spawn_xy=(0.0, 0.0)):
     import pychrono as chrono
     from nedm.quadruped.robot import Go2Robot
-    from nedm.quadruped.terrain import build_crm, build_rigid_ground, measure_leg_reach
+    from nedm.quadruped.terrain import (assert_spawn_on_patch, build_crm,
+                                        build_rigid_ground, measure_leg_reach)
     from nedm.quadruped.constants import STAND_ACTION
     from quadruped.lib.policy import Go2Policy
     from quadruped.params import transforms as T
@@ -87,7 +88,12 @@ def run(terrain_kind, sign, seconds, command, urdf, policy_path, *, warmup_s=1.5
         spawn_z = soil_top + 2.0 * spacing + leg_reach
         dt = exchange_mult * step
 
-    init = chrono.ChFramed(chrono.ChVector3d(0, 0, spawn_z), chrono.ChQuaterniond(1, 0, 0, 0))
+    # spawn_xy defaults to the origin, which is what every walk_check number so far was
+    # measured at. It is exposed so a caller can perturb where on the particle lattice the
+    # run begins without changing anything else -- the policy, soil, command and solver are
+    # untouched -- which is how tracking_spread.py measures the metric's own variance.
+    init = chrono.ChFramed(chrono.ChVector3d(spawn_xy[0], spawn_xy[1], spawn_z),
+                           chrono.ChQuaterniond(1, 0, 0, 0))
     os.chdir(urdf.parent)
     try:
         robot = Go2Robot(system, urdf, init, actuation="torque")
@@ -102,6 +108,7 @@ def run(terrain_kind, sign, seconds, command, urdf, policy_path, *, warmup_s=1.5
             terrain, _coupled = build_crm(chrono, fsi, veh, system, robot, a)
         finally:
             os.chdir(cwd)
+        assert_spawn_on_patch(terrain, spawn_xy, margin=0.5)
 
     cfg = yaml.safe_load((REPO / "quadruped" / "params" / "policy.yaml").read_text())
     if sign is not None:
