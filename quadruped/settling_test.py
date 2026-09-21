@@ -20,8 +20,18 @@ feet whether or not the rest of the bed settles. So total warmup is held FIXED a
 every arm and only the free-flow fraction of it varies. The robot's standing time is then
 identical and the only difference is how much of the bed was allowed to move.
 
-The direct diagnostic is the bed top. If the bed compacts, the SPH bounding box's upper z
-face drops, and that is measurable without reference to the robot at all.
+THE DIAGNOSTIC HAD TO BE REPLACED. The first version measured the bed top as the upper z
+face of `GetSPHBoundingBox()`, and it returned exactly 0.00000 m of movement for every arm
+including a 2.0 s free flow that demonstrably ran (warmup wall time went from 13 s to
+59 s, so the work happened). A bounding box that does not move by even a micron under two
+seconds of gravity is a broken instrument, not a settled bed: the box is computed at
+construction and is not a live query.
+
+The replacement reads particle positions directly via
+`GetFluidSystemSPH().GetParticlePositionsNumpy()` and reports the MEAN z over all
+particles, which is bulk compaction, plus a high percentile for the surface. Mean z is the
+right statistic because a max is pinned by a single unmoved particle, which is exactly how
+the first version failed.
 """
 from __future__ import annotations
 
@@ -43,6 +53,21 @@ sys.path.insert(0, str(REPO))
 PATCH_X, PATCH_Y, DEPTH = 8.0, 4.0, 0.20
 SPACING, STEP = 0.02, 5e-4
 ACTIVE = 1.0          # held at the inherited value; this test is about settling, not size
+
+
+def bed_stats(terrain):
+    """Live bulk state of the bed, read from the particles themselves.
+
+    Mean z is the compaction measure: it moves when the bulk moves, and unlike a max or a
+    bounding-box face it cannot be pinned by one particle that happened not to move. The
+    percentile is the surface, reported alongside so a surface effect and a bulk effect
+    can be told apart.
+    """
+    import numpy as _np
+    p = terrain.GetFluidSystemSPH().GetParticlePositionsNumpy()
+    z = _np.asarray(p)[:, 2]
+    return {"n": int(z.size), "mean_z": float(z.mean()), "p99_z": float(_np.percentile(z, 99)),
+            "p50_z": float(_np.percentile(z, 50)), "min_z": float(z.min())}
 
 
 def run(command, free_flow_s, seconds, warmup_s, urdf, policy_path, spawn_xy,
@@ -100,7 +125,7 @@ def run(command, free_flow_s, seconds, warmup_s, urdf, policy_path, spawn_xy,
             os.chdir(cwd)
         assert_spawn_on_patch(terrain, spawn_xy, margin=0.5)
 
-        bed_top_0 = float(terrain.GetSPHBoundingBox().max.z)
+        bed0 = bed_stats(terrain)
 
         cfg = yaml.safe_load((REPO / "quadruped" / "params" / "policy.yaml").read_text())
         pol = Go2Policy(policy_path, cfg=cfg)
@@ -113,7 +138,7 @@ def run(command, free_flow_s, seconds, warmup_s, urdf, policy_path, spawn_xy,
             robot.apply_pd()
             terrain.DoStepDynamics(dt)
         warm_wall = time.perf_counter() - t0
-        bed_top_1 = float(terrain.GetSPHBoundingBox().max.z)
+        bed1 = bed_stats(terrain)
 
         every = max(1, int(round(0.02 / dt)))
         rec_every = max(1, int(round(0.01 / dt)))
@@ -137,9 +162,10 @@ def run(command, free_flow_s, seconds, warmup_s, urdf, policy_path, spawn_xy,
         tr = np.asarray(traj, dtype=float)
         return {
             "free_flow_s": free_flow_s,
-            "bed_top_initial_m": bed_top_0,
-            "bed_top_after_warmup_m": bed_top_1,
-            "bed_settle_m": bed_top_1 - bed_top_0,
+            "bed_initial": bed0,
+            "bed_after_warmup": bed1,
+            "bed_settle_m": bed1["mean_z"] - bed0["mean_z"],
+            "bed_surface_settle_m": bed1["p99_z"] - bed0["p99_z"],
             "warmup_wall_s": warm_wall,
             "mean_vx": float(np.mean(tr[:, 3])),
             "mean_vy": float(np.mean(tr[:, 4])),
@@ -192,10 +218,11 @@ def main() -> int:
                       flush=True)
                 continue
             out[name][str(ff)] = r
-            print("  free_flow %4.1fs | bed settled %+.5f m | vx %+.3f  z %.4f  "
-                  "up %.4f  trav %.3f  (warmup wall %5.1fs)" %
-                  (ff, r["bed_settle_m"], r["mean_vx"], r["mean_z"], r["mean_up"],
-                   r["travelled_m"], r["warmup_wall_s"]), flush=True)
+            print("  free_flow %4.1fs | bulk %+.6f surf %+.6f m | vx %+.3f  z %.4f  "
+                  "up %.4f  trav %.3f  (wall %5.1fs)" %
+                  (ff, r["bed_settle_m"], r["bed_surface_settle_m"], r["mean_vx"],
+                   r["mean_z"], r["mean_up"], r["travelled_m"], r["warmup_wall_s"]),
+                  flush=True)
         print(flush=True)
 
     # The comparison that matters: does anything move as free flow grows? A bed that
@@ -214,7 +241,7 @@ def main() -> int:
             if k not in out[name]:
                 continue
             r = out[name][k]
-            print("%-9s %4.1fs -> d_vx %+.4f  d_z %+.5f  d_bed_settle %+.5f" %
+            print("%-9s %4.1fs -> d_vx %+.4f  d_z %+.5f  d_bulk_settle %+.6f" %
                   (name, ff, r["mean_vx"] - b["mean_vx"], r["mean_z"] - b["mean_z"],
                    r["bed_settle_m"] - b["bed_settle_m"]))
 
