@@ -45,7 +45,14 @@ while passing every gate, and the symptom at full scale reads as "the policy can
 on CRM". Fixed in `89c898b8`: `crm_patch_bounds()` is the single source of truth, the bed
 is centred, and three guards were added -- built-bounds check, spawn-on-bed assertion, and
 an `off_bed` validity check that fires at the edge rather than when `base_height` finally
-trips. **Every CRM number taken before `89c898b8` is suspect and must be re-measured.**
+trips.
+
+**Blast radius: none, checked rather than assumed.** No CRM corpus had been collected yet
+(`data/` holds only its README), so no data carries the fault. `walk_check.py` spawns at
+the origin, which is on the bed under both the old convention and the new one, so the
+rigid 95% and CRM 64% tracking figures stand. Only `collect.py`'s far-end spawn was
+affected, and it had not yet been run on soil. The bug was caught one step before it
+would have produced a corpus.
 
 ## Cost: patch length is nearly free
 
