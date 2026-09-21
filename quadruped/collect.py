@@ -738,7 +738,13 @@ def main() -> int:
         "corpus", REPO,
         outputs=[{"path": str(out), "segments": written, "rows": total_rows}],
         metric_defs={"validity": "v1", "sampler": EX.SAMPLER_VERSION},
-        extra={"corpus": a.corpus, "terrain": a.terrain, "command": [a.vx, a.vy, a.wz],
+        # "fixed_command", NOT "command". provenance.manifest() records sys.argv under
+        # "command" -- the invocation, which is what reproducing a run requires -- and a
+        # key here of the same name silently replaced it. Every corpus manifest therefore
+        # lost its invocation and stored [0.5, 0.0, 0.0] instead: the fixed-family default
+        # velocity, which is not even the command used, since episodes draw from families.
+        extra={"corpus": a.corpus, "terrain": a.terrain,
+               "fixed_command": [a.vx, a.vy, a.wz],
                "episodes": a.episodes, "segments": written, "rows": total_rows,
                "failures": summary, "family_balance": fam_counts,
                "dropped_short_segments": short,

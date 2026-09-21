@@ -38,11 +38,58 @@ def git_state(repo: Path) -> dict:
     describes a run that cannot be reproduced from any commit, and the tools that publish
     a number check this field.
     """
+    commit = _git(repo, "rev-parse", "HEAD")
+    # OUTSIDE A REPO, SAY SO -- do not report clean. This used to return
+    # `dirty: bool(git status output)`, and with no repository the output is empty, so a
+    # staged copy with no version control at all reported `dirty: False`: clean, and
+    # therefore publishable, while identifying no code whatsoever. Every corpus collected
+    # on hpcfund was recorded that way, because the tree there is an rsync'd copy rather
+    # than a checkout. `dirty: None` means unknown, and `require_clean` refuses it.
+    if not commit:
+        # A staged copy can still say where it came from: the staging step writes the
+        # source commit to .source_commit beside the tree. That is a claim about the copy,
+        # not a checked fact -- so it is recorded as source_commit, never as commit, and
+        # the code fingerprint below is what lets it be verified against that commit.
+        marker = repo / ".source_commit"
+        src = marker.read_text().strip() if marker.exists() else ""
+        return {"commit": "", "branch": "", "dirty": None, "in_repo": False,
+                "source_commit": src}
     return {
-        "commit": _git(repo, "rev-parse", "HEAD"),
+        "commit": commit,
         "branch": _git(repo, "rev-parse", "--abbrev-ref", "HEAD"),
         "dirty": bool(_git(repo, "status", "--porcelain")),
+        "in_repo": True,
     }
+
+
+# The source files whose content determines what a run DID. Hashed individually so a
+# manifest identifies its code even where there is no git -- and so two manifests can be
+# compared file by file to see exactly which part of the pipeline differed between them,
+# which a single commit hash cannot tell you.
+_CODE = ("collect.py", "train.py", "finetune.py", "evaluate.py", "doctor.py",
+         "lib/*.py", "params/*.py", "params/*.yaml")
+
+
+def code_fingerprint(root: Path) -> dict:
+    """sha256 of every source file that shapes a run, plus one combined hash.
+
+    Written because the 800-episode collection ran ACROSS a code change -- each array task
+    loads collect.py when it starts, so tasks begun before a fix and after it ran different
+    code -- and nothing in the manifests could say which was which. Timestamps could, but
+    only by inference. This records it.
+    """
+    files = {}
+    for pat in _CODE:
+        for f in sorted(root.glob(pat)):
+            if f.is_file():
+                files[str(f.relative_to(root))] = hashlib.sha256(f.read_bytes()).hexdigest()[:16]
+    pkg = root.parent / "src" / "nedm" / "quadruped"
+    if pkg.is_dir():
+        for f in sorted(pkg.glob("*.py")):
+            files["src/nedm/quadruped/" + f.name] = hashlib.sha256(f.read_bytes()).hexdigest()[:16]
+    combined = hashlib.sha256("".join(f"{k}:{v}" for k, v in sorted(files.items()))
+                              .encode()).hexdigest()[:16]
+    return {"combined": combined, "files": files}
 
 
 def sha256(path: str | Path, cap_mb: int | None = None) -> str:
@@ -113,6 +160,8 @@ def manifest(kind: str, repo: Path, *, run_id: str | None = None,
         "kind": kind,
         "created_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "git": git_state(repo),
+        "code": code_fingerprint(repo if (repo / "collect.py").exists()
+                                 else repo / "quadruped"),
         "command": sys.argv,
         "host": {"name": socket.gethostname(), "platform": platform.platform()},
         "chrono_build": chrono_provenance(),
@@ -139,8 +188,22 @@ def write(path: str | Path, m: dict) -> Path:
 
 
 def require_clean(m: dict, what: str = "this artifact") -> None:
-    """Raise if the manifest records a dirty tree. Call before publishing a number."""
-    if m.get("git", {}).get("dirty"):
+    """Raise unless the manifest pins the code that produced it. Call before publishing.
+
+    Refuses three states, not one. A DIRTY tree cannot be reproduced from any commit. A
+    tree that is NOT A REPO and names no source commit cannot be reproduced at all -- and
+    used to pass this check, because `dirty` read False for it. A staged copy that DOES name
+    its source commit passes, since its code fingerprint can be compared against that
+    commit to confirm it.
+    """
+    g = m.get("git", {})
+    if g.get("in_repo") is False and not g.get("source_commit"):
+        raise RuntimeError(
+            f"{what} was produced outside a git repository with no recorded source "
+            f"commit, so nothing identifies the code behind it beyond the per-file hashes "
+            f"in manifest['code']. Stage with .source_commit written, or match those "
+            f"hashes to a commit, before quoting it.")
+    if g.get("dirty"):
         raise RuntimeError(
             f"{what} was produced from a dirty working tree (commit "
             f"{m['git'].get('commit', '?')[:8]}), so it cannot be reproduced from any "
