@@ -267,16 +267,26 @@ STATE_FIELD_PRESETS = {
     # it fits their average -- which is invented structure, and invented structure is
     # what a policy optimiser climbs.
     #
-    # The force is already logged. PERTURB_FIELDS has carried it since the collector
-    # was written, world frame at the base COG, zero when nothing is pushing, and its
-    # own comment says logging keeps "is this a model input?" a modelling choice. This
-    # preset is that choice being made. It costs nothing at fine-tuning time, where the
-    # channels are identically zero, and it lets the pushed transitions teach how a
-    # force propagates instead of blurring the unpushed ones.
+    # THREE CHANNELS, NOT SIX, AND BODY FRAME, NOT WORLD.
+    #   - The three perturb_torque_* columns are faithful but were never driven:
+    #     --perturb-torque-peak-nm defaults to 0 and measures identically zero across
+    #     every episode sampled. Carrying them would add three constant inputs.
+    #   - PERTURB_FIELDS is logged in the WORLD frame, and this state has no yaw and
+    #     no quaternion: everything else in it is body frame, and pos/yaw are excluded
+    #     by design. A world-frame force is therefore uninterpretable here -- the same
+    #     physical shove appears as different numbers depending on heading, which
+    #     introduces a confound rather than removing one. Rotated into the body frame
+    #     it becomes heading-invariant, exactly as projected gravity is, and for the
+    #     same reason.
+    #
+    # Derived from the logged force and quat_e0..e3 by derive_perturb_body.py, which
+    # follows add_gravity_channels.py: a derivation over existing CSVs, no
+    # re-collection. Identically zero at fine-tuning time, where nothing is pushing.
     "quadruped_crm_perturb": (DEFAULT_STATE_FIELDS + QUADRUPED_JOINT_STATE_FIELDS
                               + ["grav_body_x", "grav_body_y", "grav_body_z"]
                               + ["pos_z_m", "vel_body_z_mps"]
-                              + PERTURB_FIELDS),
+                              + ["perturb_body_x_n", "perturb_body_y_n",
+                                 "perturb_body_z_n"]),
     # THE PAYLOAD-CONDITIONED ARM. On the payload corpus the carried mass varies from
     # 0 to 8 kg, and NOTHING in the 36-D state says what is being carried. Two episodes
     # with identical pose, joint state and action then evolve differently, so the
