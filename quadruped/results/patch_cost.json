@@ -1,0 +1,140 @@
+[
+  {
+    "patch": "4x4",
+    "patch_x": 4.0,
+    "patch_y": 4.0,
+    "active": 1.0,
+    "counts": {
+      "GetNumSPHParticles": 444411,
+      "GetNumBCE": "ERR TypeError",
+      "GetNumBoundaryBCEMarkers": 162819
+    },
+    "build_s": 0.26,
+    "sim_s": 3.0,
+    "wall_s": 18.76,
+    "steps": 1500,
+    "ms_per_step": 12.504,
+    "slowdown_x": 6.25,
+    "end_x": 0.117,
+    "travelled_m": 1.117,
+    "mean_z": 0.5021,
+    "up": 0.9998,
+    "vx_body": 0.471,
+    "diverged_at_s": null
+  },
+  {
+    "patch": "8x4",
+    "patch_x": 8.0,
+    "patch_y": 4.0,
+    "active": 1.0,
+    "counts": {
+      "GetNumSPHParticles": 886611,
+      "GetNumBCE": "ERR TypeError",
+      "GetNumBoundaryBCEMarkers": 303819
+    },
+    "build_s": 0.15,
+    "sim_s": 3.0,
+    "wall_s": 18.53,
+    "steps": 1500,
+    "ms_per_step": 12.352,
+    "slowdown_x": 6.18,
+    "end_x": -1.813,
+    "travelled_m": 1.187,
+    "mean_z": 0.5041,
+    "up": 0.9991,
+    "vx_body": 0.426,
+    "diverged_at_s": null
+  },
+  {
+    "patch": "16x4",
+    "patch_x": 16.0,
+    "patch_y": 4.0,
+    "active": 1.0,
+    "counts": {
+      "GetNumSPHParticles": 1771011,
+      "GetNumBCE": "ERR TypeError",
+      "GetNumBoundaryBCEMarkers": 585819
+    },
+    "build_s": 0.36,
+    "sim_s": 3.0,
+    "wall_s": 19.59,
+    "steps": 1500,
+    "ms_per_step": 13.06,
+    "slowdown_x": 6.53,
+    "end_x": -5.77,
+    "travelled_m": 1.23,
+    "mean_z": 0.5059,
+    "up": 1.0,
+    "vx_body": 0.362,
+    "diverged_at_s": null
+  },
+  {
+    "patch": "8x4",
+    "patch_x": 8.0,
+    "patch_y": 4.0,
+    "active": 0.5,
+    "counts": {
+      "GetNumSPHParticles": 886611,
+      "GetNumBCE": "ERR TypeError",
+      "GetNumBoundaryBCEMarkers": 303819
+    },
+    "build_s": 0.13,
+    "sim_s": 3.0,
+    "wall_s": 11.43,
+    "steps": 1500,
+    "ms_per_step": 7.618,
+    "slowdown_x": 3.81,
+    "end_x": -1.636,
+    "travelled_m": 1.364,
+    "mean_z": 0.5055,
+    "up": 0.9998,
+    "vx_body": 0.556,
+    "diverged_at_s": null
+  },
+  {
+    "patch": "8x4",
+    "patch_x": 8.0,
+    "patch_y": 4.0,
+    "active": 2.0,
+    "counts": {
+      "GetNumSPHParticles": 886611,
+      "GetNumBCE": "ERR TypeError",
+      "GetNumBoundaryBCEMarkers": 303819
+    },
+    "build_s": 0.13,
+    "sim_s": 3.0,
+    "wall_s": 42.32,
+    "steps": 1500,
+    "ms_per_step": 28.214,
+    "slowdown_x": 14.11,
+    "end_x": -1.645,
+    "travelled_m": 1.355,
+    "mean_z": 0.504,
+    "up": 0.9992,
+    "vx_body": 0.549,
+    "diverged_at_s": null
+  },
+  {
+    "patch": "8x4",
+    "patch_x": 8.0,
+    "patch_y": 4.0,
+    "active": null,
+    "counts": {
+      "GetNumSPHParticles": 886611,
+      "GetNumBCE": "ERR TypeError",
+      "GetNumBoundaryBCEMarkers": 303819
+    },
+    "build_s": 0.13,
+    "sim_s": 3.0,
+    "wall_s": 110.85,
+    "steps": 1500,
+    "ms_per_step": 73.898,
+    "slowdown_x": 36.95,
+    "end_x": -1.706,
+    "travelled_m": 1.294,
+    "mean_z": 0.5035,
+    "up": 0.9994,
+    "vx_body": 0.407,
+    "diverged_at_s": null
+  }
+]
