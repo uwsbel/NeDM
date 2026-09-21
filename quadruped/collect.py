@@ -750,8 +750,17 @@ def main() -> int:
                "sidecar_rows": {"pushes": n_push_rows, "failures": n_fail_rows},
                "command_ranges": exc["commands"]["ranges"],
                "excitation": {"action_injection": exc["action_injection"],
-                              "push": {"enabled": bool(a.pushes),
-                                       "events_per_episode": a.pushes,
+                              # pushes_req, NOT a.pushes. a.pushes is the loop
+                              # variable, reassigned every episode to 0 for long runs
+                              # and the requested count otherwise, so at this point it
+                              # holds whatever the LAST episode happened to be. Written
+                              # that way, a corpus whose final episode was a long run
+                              # recorded itself as having no pushes at all while three
+                              # quarters of its episodes had two -- found when the
+                              # merge refused two identically-configured shards.
+                              "push": {"enabled": bool(pushes_req),
+                                       "events_per_episode": pushes_req,
+                                       "long_episodes_are_push_free": True,
                                        "direction": exc["push"]["direction"]}},
                "wall_clock_s": round(time.time() - t0, 1)},
         notes=f"{a.episodes} episodes on {a.terrain}")

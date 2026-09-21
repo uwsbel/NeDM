@@ -34,6 +34,39 @@ from pathlib import Path
 # differs per run (host, timing, seed, counts) must not.
 MUST_MATCH = ("terrain", "chrono_build", "command_ranges", "excitation", "versions")
 
+# Fields inside MUST_MATCH that manifests written before the fix recorded WRONGLY, and
+# which therefore cannot be compared across those shards. Narrow and named on purpose:
+# excluding a field from a comparison is a claim that its disagreement is not real, and
+# that claim has to be specific enough to check.
+#
+# excitation.push.{enabled, events_per_episode} were written from collect.py's loop
+# variable rather than its configured value, so each manifest recorded whichever episode
+# came LAST -- push-free if that one was a long run, two pushes otherwise. Two shards run
+# from the identical command then disagreed, and the merge correctly refused them. The
+# configuration was the same; the record of it was not. The long-episode list, which IS
+# recorded correctly, is what says which episodes carried no pushes.
+#
+# These are NOT rewritten in the shard manifests. Editing a recorded value to make it
+# agree is the wrong-at-source repair this project has spent effort undoing; the shard
+# keeps what it wrote and the merge says what it ignored and why.
+UNRELIABLE_IN_OLD_MANIFESTS = {
+    ("excitation", "push", "enabled"),
+    ("excitation", "push", "events_per_episode"),
+}
+
+
+def _strip(value, path, drop):
+    """A copy of `value` with any path in `drop` removed, for comparison only."""
+    if not isinstance(value, dict):
+        return value
+    out = {}
+    for k, v in value.items():
+        p = path + (k,)
+        if p in drop:
+            continue
+        out[k] = _strip(v, p, drop)
+    return out
+
 
 def load(shard: Path):
     m = shard / "manifest.json"
@@ -46,7 +79,8 @@ def check_comparable(mans):
     first_name, first = mans[0]
     for name, m in mans[1:]:
         for k in MUST_MATCH:
-            a, b = first.get(k), m.get(k)
+            a = _strip(first.get(k), (k,), UNRELIABLE_IN_OLD_MANIFESTS)
+            b = _strip(m.get(k), (k,), UNRELIABLE_IN_OLD_MANIFESTS)
             if a != b:
                 raise SystemExit(
                     f"shards {first_name} and {name} disagree on {k!r}, so they are not "
@@ -120,6 +154,10 @@ def main() -> int:
         "split": {"val_episodes": sorted(val_eps),
                   "val_fraction": mans[0][1].get("split", {}).get("val_fraction")},
         "merged_from": provenance,
+        "merge_ignored_fields": sorted(".".join(p) for p in UNRELIABLE_IN_OLD_MANIFESTS),
+        "merge_ignored_reason": ("recorded from collect.py's per-episode loop variable "
+                                 "before the fix, so each shard stored its last "
+                                 "episode's push setting rather than its configuration"),
         # The per-shard hosts and run ids are kept above rather than collapsed, because a
         # merged corpus that cannot say which node produced a given episode cannot be
         # audited when one node turns out to have been wrong.
