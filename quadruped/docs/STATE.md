@@ -1,6 +1,6 @@
 # State
 
-**Updated:** 2026-09-20 · **Branch:** `kyle/quadruped-pipeline` (off `kyle/locomotion`)
+**Updated:** 2026-09-20 (cost) · **Branch:** `kyle/quadruped-pipeline` (off `kyle/locomotion`)
 
 ## Where this is
 
@@ -27,7 +27,42 @@ close.
 
 Built and self-tested so far: `doctor.py`, `lib/policy.py`, `lib/validity.py`,
 `lib/provenance.py`, `lib/excitation.py`, the full `params/` layer, `establish_sign.py`,
-`walk_check.py`. Not yet built: `collect.py`, `train.py`, `finetune.py`, `evaluate.py`.
+`walk_check.py`, `collect.py`, `corpus_check.py`, `evaluate.py`, `patch_cost.py`,
+`active_domain_study.py`. Not yet built: `train.py`, `finetune.py`, and Gate 3 in the
+training path.
+
+## The soil was not where the spawn rule thought it was
+
+Found 2026-09-20 by a cost benchmark whose five configurations returned bit-identical
+dynamics. `build_crm` centred the bed at `x = patch_x/2 - 0.6`, so an 8 m patch ran
+x [-0.600, +7.400], while the collector spawned a +x episode at -3.500 -- the near edge of
+a bed centred on the origin. The robot free-fell for the whole episode.
+
+It would not have failed loudly. The offset is +x only, so backward-commanded episodes
+spawn on the bed and collect normally while forward ones truncate below `min_segment_rows`
+and vanish. The corpus would have been silently missing most of a vx [-1.0, 1.5] range
+while passing every gate, and the symptom at full scale reads as "the policy cannot walk
+on CRM". Fixed in `89c898b8`: `crm_patch_bounds()` is the single source of truth, the bed
+is centred, and three guards were added -- built-bounds check, spawn-on-bed assertion, and
+an `off_bed` validity check that fires at the edge rather than when `base_height` finally
+trips. **Every CRM number taken before `89c898b8` is suspect and must be re-measured.**
+
+## Cost: patch length is nearly free
+
+Measured 2026-09-20, `patch_cost.py`, full detail in `docs/COST.md`. Four times the
+particles (444k -> 1.77M) costs 4.5% more per step, because every SPH kernel launches over
+the compacted active set rather than over all markers. **The active domain is the only
+cost knob**: 3.81x real time at 0.5 m, 6.18x at 1.0 m (the value inherited from Chrono's
+Viper demo), 14.11x at 2.0 m, 36.95x with none at all.
+
+That inherited 1.0 m is therefore worth a factor of 6, and is uncalibrated. It is also not
+a free approximation -- outside the box a particle's velocity is zeroed every step -- so
+`active_domain_study.py` is calibrating it against the unapproximated solve before it is
+trusted.
+
+The SCM-style moving patch exists (`ConstructMovingPatch`) and is the wrong tool: +x only
+while our commands cover vy and wz, relocated soil is reset to zero stress and zero
+velocity, and no demo combines it with an active domain. See `docs/COST.md`.
 
 ## What is decided
 
@@ -44,6 +79,14 @@ Built and self-tested so far: `doctor.py`, `lib/policy.py`, `lib/validity.py`,
 
 - Corpus size, pending the calibration sweep. Episode length is 20 s, set by the push
   segmentation arithmetic in `excitation.yaml`.
+- Active-domain size, pending `active_domain_study.py`. This sets the cost of the entire
+  corpus, so it is the last thing to settle before full-scale collection.
+- Patch size, which is now nearly free and should be sized for the longest episode wanted
+  rather than traded against cost.
+- Whether soil ahead of the robot ever settles. `free_flow_duration` is 0.1 s and the
+  active domain freezes everything outside it, so the robot may always be stepping onto
+  settling rather than settled material. Untested, and systematic across the corpus if
+  real.
 - OU sigma range and correlation time, same.
 - Whether soil parameters vary within a corpus or are fixed per corpus.
 
@@ -70,6 +113,8 @@ else from the old tree is being replaced, not wrapped.
 - d33 (AMD 9070 XT, gfx1201, ROCm 7.2.4) is being given a ROCm torch; acceptance is a real
   GEMM plus backward pass, never `is_available()`.
 
-## Nothing is running
+## Running
 
-Confirmed idle: euler queue empty, sbel/north/a3 clear.
+sbel: `active_domain_study.py`, calibrating the active domain against a 2.0 m reference
+with the noise floor measured from two identical runs per case. euler queue empty,
+north/a3/d33 clear.

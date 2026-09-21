@@ -4,12 +4,19 @@ Ordered. Top item is next. Move an item to STATE.md when done, with its result.
 
 ## Now
 
-1. **`collect.py`.** Everything it needs now exists: a verified policy, a scene recipe
-   that stands and walks on both terrains, the excitation layer, validity gating and the
-   manifest schema. It wires them together, splits episodes at pushes, and emits a corpus
-   with its provenance.
-2. **Calibration sweep.** OU sigma against truncation rate and action identifiability,
-   which sets the operating range by measurement rather than guess.
+1. **Active-domain calibration, stage 1.** `active_domain_study.py` against a 2.0 m
+   reference, paired within case, noise floor first. Running on sbel.
+2. **Active-domain calibration, stage 2.** Re-check the chosen value against `none`, the
+   unapproximated solve, on the same cases. Stage 1 cannot separate "0.5 agrees with 2.0"
+   from "0.5 and 2.0 share a bias", and at 37x real time the true reference is affordable.
+3. **Settling test.** Does `free_flow_duration = 0.1 s` leave the robot walking onto
+   never-settled soil? `--free-flow-s` exists for this. Systematic across the whole corpus
+   if real, so it is answered before collection, not after.
+4. **Re-measure the CRM walk numbers.** The 64% CRM tracking figure in STATE.md predates
+   the patch-placement fix. Re-run `walk_check.py` on the corrected geometry.
+5. **Small CRM corpus.** The one Kyle approved, at the patch size that falls out of the
+   cost result rather than the one assumed before it.
+6. **Full-scale collection on hpcfund**, once the above settle the per-episode cost.
 3. **`train.py`**, then **`finetune.py`** (`--method {analytic,ppo}`), then `evaluate.py`.
 
 ## Done
