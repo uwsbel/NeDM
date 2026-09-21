@@ -342,7 +342,7 @@ def build_model(torch, nn, state_dim, action_dim, cfg, stats):
 # ----------------------------------------------------------------- rollout metric
 
 def rollout_errdist(torch, model, corpus, episodes, horizon_s, dt_s, ctx,
-                    dev=None):
+                    dev=None, chunk=256):
     """Open-loop rollout error over distance travelled, at one horizon.
 
     ERRDIST, not raw position error: planar RMSE over the horizon, divided by the
@@ -369,36 +369,52 @@ def rollout_errdist(torch, model, corpus, episodes, horizon_s, dt_s, ctx,
         if n not in ix:
             raise SystemExit(f"rollout metric needs {n!r}, absent from this preset")
     n_steps = int(round(horizon_s / dt_s))
+    eps = [r for r in episodes if r["n"] >= ctx + n_steps]
+    if not eps:
+        return (float("nan"), 0)
+    vel = [ix[n] for n in need]
     out = []
-    for r in episodes:
-        if r["n"] < ctx + n_steps:
-            continue
+    # BATCHED ACROSS EPISODES. The first version rolled one episode at a time: 32
+    # episodes x 1000 steps was 32,000 batch-of-one forward passes per epoch, most of an
+    # epoch's wall clock on a3, and it scaled with the selection horizon. Episodes are
+    # independent, so they step together; each is trimmed to the rows the rollout reads.
+    # Pose is integrated in float64, as the scalar version did with Python floats.
+    for c0 in range(0, len(eps), chunk):
+        grp = eps[c0:c0 + chunk]
+        L = ctx + n_steps
         # ON THE MODEL'S DEVICE. Built on the CPU by default, which crashed the first
         # real training run at the end of epoch 1 -- after 2000 steps had already run,
         # because the training loop moves its own batches and the evaluator did not.
-        s = torch.tensor(r["state"][None, :ctx], dtype=torch.float32, device=dev)
-        a_all = torch.tensor(r["action"][None], dtype=torch.float32, device=dev)
-        x = y = th = 0.0
-        gx, gy = r["rollout"][ctx - 1, 0], r["rollout"][ctx - 1, 1]
-        dist = 0.0
-        err2 = 0.0
+        s = torch.tensor(np.stack([r["state"][:ctx] for r in grp]), dtype=torch.float32,
+                         device=dev)
+        a_all = torch.tensor(np.stack([r["action"][:L] for r in grp]),
+                             dtype=torch.float32, device=dev)
+        ro = torch.tensor(np.stack([r["rollout"][:L, :2] for r in grp]),
+                          dtype=torch.float64, device=dev)
+        g = ro[:, ctx - 1]
+        B = len(grp)
+        x = torch.zeros(B, dtype=torch.float64, device=dev)
+        y = torch.zeros_like(x)
+        th = torch.zeros_like(x)
+        dist = torch.zeros_like(x)
+        err2 = torch.zeros_like(x)
         with torch.no_grad():
             for k in range(n_steps):
                 t = ctx + k
-                d = model.predict_delta(s, a_all[:, t - ctx:t])[0, -1]
-                nxt = s[0, -1] + d
-                s = torch.cat([s[:, 1:], nxt[None, None]], dim=1)
-                vx, vy, wz = (float(nxt[ix[n]]) for n in need)
-                th += wz * dt_s
-                x += (vx * math.cos(th) - vy * math.sin(th)) * dt_s
-                y += (vx * math.sin(th) + vy * math.cos(th)) * dt_s
-                tx = r["rollout"][t, 0] - gx
-                ty = r["rollout"][t, 1] - gy
-                err2 += (x - tx) ** 2 + (y - ty) ** 2
-                dist = max(dist, math.hypot(tx, ty))
-        rmse = math.sqrt(err2 / n_steps)
-        if dist > 1e-6:
-            out.append(rmse / dist)
+                d = model.predict_delta(s, a_all[:, t - ctx:t])[:, -1]
+                nxt = s[:, -1] + d
+                s = torch.cat([s[:, 1:], nxt[:, None]], dim=1)
+                v = nxt[:, vel].double()
+                th = th + v[:, 2] * dt_s
+                x = x + (v[:, 0] * torch.cos(th) - v[:, 1] * torch.sin(th)) * dt_s
+                y = y + (v[:, 0] * torch.sin(th) + v[:, 1] * torch.cos(th)) * dt_s
+                tx = ro[:, t, 0] - g[:, 0]
+                ty = ro[:, t, 1] - g[:, 1]
+                err2 = err2 + (x - tx) ** 2 + (y - ty) ** 2
+                dist = torch.maximum(dist, torch.hypot(tx, ty))
+        rmse = torch.sqrt(err2 / n_steps)
+        keep = dist > 1e-6
+        out += (rmse[keep] / dist[keep]).cpu().tolist()
     return (float(np.mean(out)), len(out)) if out else (float("nan"), 0)
 
 
