@@ -20,11 +20,34 @@ terrain.** That is the expected signature of contact-rich dynamics on a particle
 it is consistent with the active-domain work, where the same chaos made trajectory error
 order non-monotonically in box size.
 
+## Settled: there is no machine effect, once sampling is wide enough
+
+Both machines, same 8 spawn offsets over +/-1.0 m, same code, same soil:
+
+| machine | CRM tracking | sd |
+|---|---|---|
+| a3 (RTX 5060 Ti) | 74.4% | 5.8 |
+| north (RTX 5070 Ti) | 74.7% | 5.7 |
+| **difference** | **+0.3 points** | se 2.88, **t = 0.10** |
+
+A dead null. The earlier "9 points at 6 sigma" was entirely the perturbation being too
+narrow: at +/-0.25 m the two machines read 70.2 and 78.3, and at +/-1.0 m they read 74.4
+and 74.7. Nothing about the machines changed between those two measurements; only how
+widely each one sampled its own distribution did.
+
+So **CRM results are reproducible across machines**, and `machine_probe.py` was right all
+along: the two produce bit-identical SPH state for two steps and then diverge at rounding
+level, which is one computation amplified rather than two different ones.
+
+Pinning the machine for a given comparison still costs nothing and is still the default,
+but it is now a convention rather than a correction for a real effect.
+
 ## The correction, and what caused it
 
 An earlier version of this document reported sd = 3.4 points and concluded, from a
 9-point difference between a3 and north at 6 sigma, that **CRM results are
-machine-dependent**. That conclusion is WITHDRAWN.
+machine-dependent**. That conclusion is WITHDRAWN, and has since been positively refuted
+by the measurement above rather than merely doubted.
 
 Widening the spawn perturbation on a SINGLE machine from +/-0.25 m to +/-1.0 m moved
 north's own mean by 3.6 points and grew its sd from 3.5 to 5.7. Redone against that, the
