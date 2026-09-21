@@ -51,13 +51,53 @@ agreement is 8.8e-07 against a spread of 1.55 (rigid) and 0.0000 against 1.57 an
 (CRM, hpcfund smoke job 429999). On v1 it cannot pass, and v1 corpora are refused
 outright (no `row_capture=pre_step` stamp).
 
+## v2 fine-tunes: the first valid results
+
+CRM, vx 0.5, 16 spawns over +/-1 m, 6 s, north, all arms paired against one base run
+(mae_vx 0.128, mae_wz 0.212, 16/16 upright). PPO at dw 4.0 (0.30 s branches, recorded
+commands, OOD penalty 1.0 unless noted):
+
+| fine-tune | mae_vx | mae_wz | mae_vy | upright | Gate 4 |
+|---|---|---|---|---|---|
+| PPO s0, north surrogate | -36% (16/16) | -46% (16/16) | +15% | 16/16 | 0.0% |
+| PPO s1, north surrogate | -20% (16/16) | -53% (16/16) | -13% | 16/16 | 0.0% |
+| PPO s0, a3 surrogate | **+57%** (0/16) | -32% (16/16) | +31% | 16/16 | 0.0% |
+| PPO s0, north, no OOD penalty | -25% (15/16) | -40% (16/16) | +24% | 16/16 | 0.0% |
+| analytic, north (dw 2.89, iteration cap) | -- | -- | -- | **0/16** | 37% FAIL |
+
+**Robust:** PPO removes about half the base policy's yaw drift, in every fine-tune. That is
+a property of the policy, not of the soil -- it improves on rigid ground too (-55%).
+
+**Not robust:** the forward-speed gain depends on which surrogate the policy was tuned in.
+The two v2 surrogates agree to 2% at the 0.30 s use horizon (0.375, 0.367), so accuracy at
+the use horizon does not predict transfer. On rigid ground the north-surrogate PPO policy
+tracks vx worse (0.026 -> 0.038), consistent with a CRM-specific adaptation when it helps.
+
+**Analytic fails outright** and not for lack of a penalty: PPO without the OOD penalty still
+transfers. The loop check separates faithful from broken loops on a real model (ratio 1.26
+faithful, 1.52 with the 100 Hz fault, 1.37 with the shifted history), so it can now gate.
+
 ## Corpora and models
 
 | corpus | episodes | segments | rows | capture | use |
 |---|---|---|---|---|---|
 | `go2_crm_v1` | 800 | 1914 | 1,425,186 | post-step | NN-ROM capacity data only |
 | `go2_crm_v1_partial` | 550 | 1318 | 980,523 | post-step | superseded |
-| `go2_crm_v2` | 1200 (planned) | | | pre-step | the corpus fine-tunes run on |
+| `go2_crm_v2` | 1150 | 2716 | 2,041,752 | pre-step | the corpus fine-tunes run on |
+
+**v2 collection** (array job 430005, 6 x `mi2104x`, 4 shards per node, ~3.9 charged
+node-hours): 23 of 24 shards clean. Shard 1 died in its 33rd episode on a Chrono GPU fault
+(illegal memory access, `SphBceManager.cu:543`) -- the only such fault in ~1,950 CRM
+episodes across v1 and v2 -- and was excluded; collect.py now writes its manifest after
+every episode so a crash costs one episode, not a shard (`c2928b3d`). v2 truncates more
+episodes on `off_bed` than v1 (19.4% against 12.6%) but keeps 94.4% of rows against 96.9%.
+The same seeds plan some episodes longer in v2 (7.98 s against 7.03 s for one weave), which
+points at v1 having run staged code that matches no commit; v1 recorded none, so this
+cannot be settled.
+
+The 800-episode v1 NN-ROM (a3): errdist 0.391 at 0.3 s, 0.469 at 0.5 s, 0.732 at 1.0 s,
+over the floor by 2.0 s. 1.45x the data of the 550-episode model bought 13% at the use
+horizon.
 
 The 550-episode NN-ROM is usable to about 0.3 s (errdist 0.451 there, against the 1.0 a
 predict-no-motion model scores) and crosses the floor at 1.5-2 s. Fine-tune branches are
@@ -144,7 +184,10 @@ against nothing (`5e3df653`).
   ~2.8 charged node-hours). v2 packs 4 shards per `mi2104x` node, one per MI210, at the
   same 10 GPU-h per charged node-hour, because `mi2101x` was fully allocated. Staged code
   is marked with `qrun/.source_commit`.
-- **a3** trains NN-ROMs (~1.7 min per 2000-step epoch on the 800-episode corpus).
+- **north** (RTX 5070 Ti) trains NN-ROMs: 42 s per 2000-step epoch on v2, against 99 s
+  on a3's RTX 5060 Ti. The selection rollout is batched across episodes (20.2 s -> 3.0 s
+  per epoch at the 10 s horizon, same numbers to 7e-5). a3 is the slowest card in the
+  fleet and should not be the default for training.
 - **north** runs the paired CRM evaluation (~36 s per 6 s episode) and the rigid tests.
 - **euler** holds the branch. It still reads dirty because of 15 untracked
   `configs/go2_crm_*.json`, which is Kyle's call (commit, ignore, or `--untracked-files=no`).
