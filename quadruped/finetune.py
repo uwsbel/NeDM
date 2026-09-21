@@ -711,6 +711,13 @@ def main() -> int:
                          "about lr*sqrt(N): 0.043 here, and dw 4.0 is therefore roughly "
                          "100 steps. A budget of 0.05 stops after ONE.")
     ap.add_argument("--upright-weight", type=float, default=0.5)
+    ap.add_argument("--accum", type=int, default=2,
+                    help="analytic only: split the branches into this many micro-batches, "
+                         "backpropagated one at a time and summed before one step. The "
+                         "gradient is the same as one batch of --branches; only memory "
+                         "changes. Needed since the policy holds each action for two model "
+                         "steps: a 0.30 s branch is 30 model steps, not 15, the graph "
+                         "doubled, and 64 branches ran a 16 GB card out of memory.")
     # PPO only. Defaults are the standard continuous-control set; the one choice specific
     # to this problem is init_log_std, kept small so early rollouts stay near the base
     # policy -- a policy that flails on CRM falls over, and then every rollout is about
@@ -880,12 +887,19 @@ def main() -> int:
     t0 = time.perf_counter()
     dw = 0.0
     for it in range(1, a.iters + 1):
-        b = start_batch(torch, corpus, pool, a.branches, rng, ctx, p2c, dev)
-        cmd = branch_cmd(torch, a, b, ranges, rng, dev)
-        track, upright = branch_loss(torch, model, obs, policy, b, cmd, a.steps, hold, ix)
-        loss = track + a.upright_weight * upright
         opt.zero_grad(set_to_none=True)
-        loss.backward()
+        n_mb = max(1, a.accum)
+        mb = a.branches // n_mb
+        track_sum = upright_sum = 0.0
+        for _m in range(n_mb):
+            b = start_batch(torch, corpus, pool, mb, rng, ctx, p2c, dev)
+            cmd = branch_cmd(torch, a, b, ranges, rng, dev)
+            tr, up = branch_loss(torch, model, obs, policy, b, cmd, a.steps, hold, ix)
+            # Each micro-batch is a mean over its branches, so dividing by their number
+            # makes the summed gradient the mean over all of them.
+            ((tr + a.upright_weight * up) / n_mb).backward()
+            track_sum += tr.item() / n_mb
+            upright_sum += up.item() / n_mb
         torch.nn.utils.clip_grad_norm_(params, 1.0)
         opt.step()
 
@@ -894,12 +908,12 @@ def main() -> int:
         # Reported relative to the baseline norm as well, because an absolute displacement
         # means nothing without knowing how big theta is: the same 4.0 is a rounding error
         # on one policy and a rewrite on another.
-        rec = {"iter": it, "track": track.item(), "upright": upright.item(),
+        rec = {"iter": it, "track": track_sum, "upright": upright_sum,
                "dw": dw, "dw_rel": dw / base_norm}
         log.write(json.dumps(rec) + "\n")
         if it % 25 == 0 or it == 1:
-            print(f"  iter {it:5d}  track {track.item():.5f}  upright "
-                  f"{upright.item():.5f}  dw {dw:.4f} ({100 * dw / base_norm:.2f}% of "
+            print(f"  iter {it:5d}  track {track_sum:.5f}  upright "
+                  f"{upright_sum:.5f}  dw {dw:.4f} ({100 * dw / base_norm:.2f}% of "
                   f"||theta_0||)", flush=True)
         if dw >= a.target_dw:
             print(f"  stopping: dw {dw:.4f} reached the {a.target_dw} budget at iter {it}")
@@ -912,8 +926,8 @@ def main() -> int:
     meta = {"smoke": bool(a.smoke) or bool(ck.get("smoke")),
             "dw_rel": dw / base_norm, "policy_params": n_par, "theta0_norm": base_norm,
             "method": a.method, "iters_run": it, "dw": dw, "target_dw": a.target_dw,
-            "branches": a.branches, "steps": a.steps, "lr": a.lr, "seed": a.seed,
-            "hold": hold, "ctrl_dt": ctrl_dt, "dt_s": dt_s, "command_source": a.command,
+            "branches": a.branches, "accum": a.accum, "steps": a.steps, "lr": a.lr,
+            "seed": a.seed, "hold": hold, "ctrl_dt": ctrl_dt, "dt_s": dt_s, "command_source": a.command,
             "start_reproduction": start_err, "loop_fidelity": loop,
                 "corpus_row_capture": man.get("row_capture"),
             "model": str(a.model), "base_policy": str(a.policy),
