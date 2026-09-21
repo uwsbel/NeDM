@@ -4,8 +4,24 @@
 
 ## Where this is
 
-Rebuild, day zero. The plan is written (`PLAN.md`) and approved. No pipeline code exists
-yet. Nothing is running.
+The policy walks, on both terrains, through the new pipeline. Measured 2026-09-21,
+`walk_check.py`, 0.5 m/s commanded:
+
+```
+  rigid   mean_z 0.342   upright +1.000   vx +0.473   tracking 95%
+  crm     mean_z 0.504   upright +0.999   vx +0.321   tracking 64%
+```
+
+Base sits 0.292 m above the rigid surface and 0.304 m above the soil surface, so it is
+standing on the bed rather than sinking into it.
+
+**That 95% against 64% is the headroom the whole study is about**, reproduced from scratch
+with a different base policy than the previous work used. Fine-tuning has something to
+close.
+
+Built and self-tested so far: `doctor.py`, `lib/policy.py`, `lib/validity.py`,
+`lib/provenance.py`, `lib/excitation.py`, the full `params/` layer, `establish_sign.py`,
+`walk_check.py`. Not yet built: `collect.py`, `train.py`, `finetune.py`, `evaluate.py`.
 
 ## What is decided
 
@@ -20,7 +36,8 @@ yet. Nothing is running.
 
 ## What is NOT decided
 
-- Corpus size and episode length, pending the calibration sweep.
+- Corpus size, pending the calibration sweep. Episode length is 20 s, set by the push
+  segmentation arithmetic in `excitation.yaml`.
 - OU sigma range and correlation time, same.
 - Whether soil parameters vary within a corpus or are fixed per corpus.
 

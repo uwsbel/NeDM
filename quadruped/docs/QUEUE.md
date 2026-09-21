@@ -4,15 +4,13 @@ Ordered. Top item is next. Move an item to STATE.md when done, with its result.
 
 ## Now
 
-1. **Policy adoption.** Fetch rl_sar `robot_lab/policy.pt`. Assert the load gates:
-   Identity normaliser, `observations_history == []`, no encoder/estimator keys in the
-   state dict, obs and action dimensions as built. Then establish the joint sign
-   convention and channel ordering by round-trip test against Chrono -- never inherited,
-   since the old policy's was carried on faith and a sign flip followed.
-2. **Remaining params.** `excitation.yaml` (OU sigma ladder, probe fraction, push schedule
-   and sphere sampling, initial-state bounds), `presets.yaml` (channel sets, moved out of
-   `dataset.py` module globals), `training.yaml`, `transforms.py` (quaternion projected
-   gravity, world-to-body rotation).
+1. **`collect.py`.** Everything it needs now exists: a verified policy, a scene recipe
+   that stands and walks on both terrains, the excitation layer, validity gating and the
+   manifest schema. It wires them together, splits episodes at pushes, and emits a corpus
+   with its provenance.
+2. **Calibration sweep.** OU sigma against truncation rate and action identifiability,
+   which sets the operating range by measurement rather than guess.
+3. **`train.py`**, then **`finetune.py`** (`--method {analytic,ppo}`), then `evaluate.py`.
 
 ## Done
 
@@ -22,6 +20,14 @@ Ordered. Top item is next. Move an item to STATE.md when done, with its result.
   torch with a real GEMM rather than `is_available()`.
 - **Fleet standardised** -- pinned source build and env name `nedm` on all four desktops;
   d33 given a working ROCm torch.
+- **Policy adopted and verified.** rl_sar `robot_lab/policy.pt`: plain MLP, 8 state_dict
+  entries, statelessness confirmed empirically. Load gates refuse an encoder, a wrong
+  entry count, a non-empty history, or a dimension mismatch.
+- **Sign convention established at -1 by physics**, not inherited, with the evidence
+  written into `params/policy.yaml`. A command-scaling bug was found in the same run.
+- **`lib/excitation.py`** -- OU injection, sphere-uniform pushes, chirp probes, push
+  scheduling that refuses infeasible schedules. 30-check self-test.
+- **The robot walks**, rigid 95% and CRM 64% tracking.
 
 ## Next
 
