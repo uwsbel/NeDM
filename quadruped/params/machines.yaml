@@ -32,7 +32,12 @@ chrono:
     # its hash is the one already stamped into every recorded CRM verdict.
     euler:         { path: /srv/home/kasha2/chrono-build-parsers, md5: 4489e0f802125279 }
     euler_primary: { path: /srv/home/kasha2/chrono-build,         md5: a1d697dc3693b7ca }
-    hpcfund:      { path: /work1/dannegrut/kyle/chrono-build,   md5: 638429f1170e0b22 }
+    # Same split as euler, and for the same reason: the primary build has no
+    # pychrono.parsers, and ChParserURDF is what loads the Go2. The alias doctor
+    # resolves points at the PARSERS build, so a run that reaches the registry gets
+    # the build that can actually open the robot.
+    hpcfund:         { path: /work1/dannegrut/kyle/chrono-build-parsers, md5: c716f05e38ac358f }
+    hpcfund_primary: { path: /work1/dannegrut/kyle/chrono-build,         md5: 638429f1170e0b22 }
     sbel-ubuntu:  { path: /home/kyle/Documents/sbel/chrono-build, md5: 3b0bd530d06f54a4 }
     north-ubuntu: { path: /home/kyle/chrono-build,              md5: d1d0bd0ac8ee990a }
     a3-ubuntu:    { path: /home/kyle/chrono-build,              md5: cfbf8af6bcd2ec7d }
