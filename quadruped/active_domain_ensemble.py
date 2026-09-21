@@ -92,6 +92,9 @@ def main() -> int:
     ap.add_argument("--policy", required=True)
     ap.add_argument("--urdf", required=True)
     ap.add_argument("--n", type=int, default=12)
+    ap.add_argument("--seed", type=int, default=20260920,
+                    help="case-generation seed; a second machine runs a "
+                         "different seed so the two sets pool into one n")
     ap.add_argument("--active", default="0.5,1.0")
     ap.add_argument("--seconds", type=float, default=3.0)
     ap.add_argument("--warmup", type=float, default=1.0)
@@ -101,7 +104,7 @@ def main() -> int:
 
     ads = [float(x) for x in a.active.split(",")]
     urdf, policy = Path(a.urdf), Path(a.policy)
-    cases = make_cases(a.n)
+    cases = make_cases(a.n, seed=a.seed)
 
     # THE NULL ARM IS A SECOND REFERENCE RUN, identical in every setting, and it is
     # carried through the whole analysis exactly like a real arm.

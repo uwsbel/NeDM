@@ -42,6 +42,9 @@ def main() -> int:
     ap.add_argument("--seconds", type=float, default=3.0)
     ap.add_argument("--warmup", type=float, default=1.5)
     ap.add_argument("--vx", type=float, default=0.5)
+    ap.add_argument("--soil", default="soft",
+                    help="soft (what we run) or hmmwv_reference (the framework "
+                         "paper's HMMWV soil: 1 MPa, 5 kPa cohesion)")
     ap.add_argument("--spread-m", type=float, default=0.25,
                     help="range of spawn offsets, in metres, used as the perturbation")
     ap.add_argument("--out", default=None)
@@ -55,6 +58,7 @@ def main() -> int:
     offsets = np.linspace(-a.spread_m, a.spread_m, a.n)
     out = {"rigid": [], "crm": [], "offsets": [float(x) for x in offsets]}
 
+    print(f"soil preset: {a.soil}\n", flush=True)
     for kind in ("rigid", "crm"):
         print(f"=== {kind} ===", flush=True)
         for off in offsets:
@@ -62,7 +66,7 @@ def main() -> int:
             # shifting where the run starts along x.
             r = walk_run(kind, None, a.seconds, [a.vx, 0.0, 0.0], urdf, policy,
                          warmup_s=a.warmup, patch_x=8.0, patch_y=4.0, spacing=0.02,
-                         spawn_xy=(float(off), 0.0))
+                         soil=a.soil, spawn_xy=(float(off), 0.0))
             if r.get("diverged_at_s") is not None:
                 print(f"  offset {off:+.3f}  DIVERGED", flush=True)
                 continue
