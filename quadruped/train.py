@@ -336,7 +336,8 @@ def build_model(torch, nn, state_dim, action_dim, cfg, stats):
 
 # ----------------------------------------------------------------- rollout metric
 
-def rollout_errdist(torch, model, corpus, episodes, horizon_s, dt_s, ctx):
+def rollout_errdist(torch, model, corpus, episodes, horizon_s, dt_s, ctx,
+                    dev=None):
     """Open-loop rollout error over distance travelled, at one horizon.
 
     ERRDIST, not raw position error: planar error divided by the ground-truth distance
@@ -358,8 +359,11 @@ def rollout_errdist(torch, model, corpus, episodes, horizon_s, dt_s, ctx):
     for r in episodes:
         if r["n"] < ctx + n_steps:
             continue
-        s = torch.tensor(r["state"][None, :ctx], dtype=torch.float32)
-        a_all = torch.tensor(r["action"][None], dtype=torch.float32)
+        # ON THE MODEL'S DEVICE. Built on the CPU by default, which crashed the first
+        # real training run at the end of epoch 1 -- after 2000 steps had already run,
+        # because the training loop moves its own batches and the evaluator did not.
+        s = torch.tensor(r["state"][None, :ctx], dtype=torch.float32, device=dev)
+        a_all = torch.tensor(r["action"][None], dtype=torch.float32, device=dev)
         x = y = th = 0.0
         gx, gy = r["rollout"][ctx - 1, 0], r["rollout"][ctx - 1, 1]
         dist = 0.0
@@ -434,10 +438,23 @@ def main() -> int:
             "--select-window below 3 is refused. Raw-argmin rollout selection handed "
             "three of seven arms an epoch-1 checkpoint in the previous study, because a "
             "model that barely moves scores errdist near 1.0 for free.")
+    # NOT A HARD COUNT ANY MORE, because the count was always a proxy for the thing that
+    # actually matters. The previous study's rule -- at least 32 rollout episodes -- came
+    # from observing that at 12 the metric moved 27-46% between adjacent epochs with no
+    # trend. But the corpus decides how many long segments exist: a 60-episode pilot with
+    # 20% long and 20% val yields two or three episodes that are BOTH, and reaching 32
+    # that way needs roughly 800 episodes. A guard that cannot be satisfied gets bypassed.
+    #
+    # So the lottery is measured directly instead, at the end of training: median
+    # adjacent-epoch movement of rollout_sel against its total range. The documented rule
+    # is "if adjacent epochs move as far as the whole training does, the selection is a
+    # lottery", and that is a property of the recorded metric, not of an episode count.
+    # A run that fails it is STAMPED rather than silently trusted, and finetune.py refuses
+    # a lottery-selected model the same way it refuses a smoke one.
     if a.rollout_episodes < 32 and not a.smoke:
-        raise SystemExit(
-            "--rollout-episodes below 32 is refused. At 12 the metric moved 27-46% "
-            "between adjacent epochs with no trend, which makes selection a lottery.")
+        print(f"  NOTE: only {a.rollout_episodes} rollout episodes requested. The lottery "
+              f"check at the end of this run is what decides whether the selection "
+              f"stands; a low count usually fails it.")
 
     import torch
     from torch import nn
@@ -550,7 +567,7 @@ def main() -> int:
 
         ro_eps = select_rollout_episodes(corpus, a.rollout_episodes)
         rsel, ro_n = rollout_errdist(torch, model, corpus, ro_eps,
-                                     a.rollout_horizon_s, a.dt_s, a.block_size)
+                                     a.rollout_horizon_s, a.dt_s, a.block_size, dev)
         history.append(rsel)
 
         # Trailing median, and nothing is eligible until the window is full.
@@ -585,6 +602,34 @@ def main() -> int:
         print("\nSMOKE RUN. The selection guards were relaxed, so this checkpoint was "
               "not selected on a usable rollout metric. It is stamped smoke=True and "
               "must not be scored or fine-tuned as if it were a real surrogate.")
+    # THE LOTTERY CHECK. Lag-1 noise against total range, on the raw per-epoch metric.
+    lottery, lag1, rng_ = None, float("nan"), float("nan")
+    if len(history) >= 4:
+        h = np.asarray(history, dtype=float)
+        h = h[np.isfinite(h)]
+        if h.size >= 4:
+            lag1 = float(np.median(np.abs(np.diff(h))))
+            rng_ = float(h.max() - h.min())
+            ratio = lag1 / rng_ if rng_ > 0 else float("inf")
+            lottery = bool(ratio > 0.5)
+            print(f"\nselection stability: median adjacent-epoch move {lag1:.4f} against "
+                  f"a total range of {rng_:.4f} ({100 * ratio:.0f}%)")
+            if lottery:
+                print("  LOTTERY. Adjacent epochs move about as far as the whole run "
+                      "does, so which epoch won is close to arbitrary. best.pt is "
+                      "stamped and downstream will refuse it; collect more long "
+                      "held-out segments or raise --select-window.")
+            else:
+                print("  the selected epoch is distinguishable from its neighbours")
+    for f in ("last.pt", "best.pt"):
+        pth = out / f
+        if pth.exists():
+            ck = torch.load(pth, map_location="cpu", weights_only=False)
+            ck["selection_lottery"] = lottery
+            ck["selection_lag1"] = lag1
+            ck["selection_range"] = rng_
+            ck["rollout_episodes_used"] = ro_n
+            torch.save(ck, pth)
     print(f"\nwrote {out}/last.pt and {out}/best.pt")
     return 0
 

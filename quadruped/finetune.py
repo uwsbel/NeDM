@@ -146,6 +146,15 @@ def load_nnrom(torch, path, dev, allow_smoke=False):
             f"{path} is stamped smoke=True. It was trained with the selection guards "
             f"relaxed on a corpus too small to select on, so it was never selected on a "
             f"usable rollout metric and must not be fine-tuned in.")
+    if ck.get("selection_lottery") and not allow_smoke:
+        raise SystemExit(
+            f"{path} is stamped selection_lottery=True: during training the rollout "
+            f"metric moved as far between adjacent epochs as it did across the whole run "
+            f"({ck.get('selection_lag1'):.4f} against {ck.get('selection_range'):.4f}), "
+            f"so which epoch became 'best' was close to arbitrary.\n"
+            f"  Fine-tuning inside it would attribute to the method whatever that "
+            f"arbitrary draw happened to be. Collect more long held-out segments, or "
+            f"raise --select-window, and retrain.")
     sys.path.insert(0, str(HERE))
     import train as T  # noqa: PLC0415
     cfg = ck["config"]
