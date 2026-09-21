@@ -35,8 +35,27 @@ from quadruped.lib import provenance as PROV        # noqa: E402
 from quadruped.lib import validity as VAL           # noqa: E402
 from quadruped.lib.policy import Go2Policy          # noqa: E402
 from quadruped.params import transforms as TR       # noqa: E402
+from nedm.quadruped.terrain import (assert_spawn_on_patch,   # noqa: E402
+                                    crm_patch_bounds)
 
 LEGS = ("rr", "rl", "fr", "fl")
+
+# How far inside the near edge the robot starts, and how much bed must remain ahead of
+# it at the end. The start inset is the larger of the two because commands resample
+# mid-episode and stop_and_go and weave can reverse, so the robot needs room behind it.
+START_INSET_M = 1.0
+EDGE_MARGIN_M = 0.5
+
+
+def _start_edge(v0, peak, lo, hi):
+    """Where to spawn along one axis: the near edge if the robot moves along it.
+
+    Moving +x starts at the low edge so the whole bed is runway. A robot that does not
+    move along this axis starts centred, where it has the most room either way.
+    """
+    if peak <= 1e-6 or abs(v0) <= 1e-6:
+        return 0.0
+    return lo + START_INSET_M if v0 > 0 else hi - START_INSET_M
 
 # Columns the inherited schema does not carry. Collection is the expensive step and a
 # column costs almost nothing, so anything NOT derivable after the fact is recorded now.
@@ -104,13 +123,23 @@ def build_scene(chrono, kind, urdf, spacing, step, soil, patch_x, patch_y, depth
         soil_top = 0.05
         dt = 1.0 / 400.0
     else:
-        # Same constraint on soil: the patch is centred, so it reaches +/- patch_x/2.
-        need = 2.0 * (travel_m + 0.5)
+        # THE BED MUST HOLD THE RUN FROM WHERE THE ROBOT ACTUALLY STARTS. The old rule
+        # here demanded 2*(travel + 0.5), which is the requirement for a robot spawned at
+        # the CENTRE. The collector spawns at the near edge, so that doubled the patch
+        # every episode needed and priced 3.5 m of travel at an 8 m bed when 4.5 m does.
+        # Particle count is linear in patch_x, so the slack was not free.
+        #
+        # The start-side inset is 1.0 m rather than the 0.5 m front margin because
+        # commands are resampled mid-episode and families like stop_and_go and weave can
+        # reverse: the robot needs room to back up without walking off behind itself.
+        (plo_x, _ply, _), (phi_x, _phy, _) = crm_patch_bounds(patch_x, patch_y, depth)
+        need = travel_m + START_INSET_M + EDGE_MARGIN_M
         if patch_x < need:
             raise SystemExit(
-                f"patch_x {patch_x} m cannot hold {travel_m:.1f} m of travel: the patch is "
-                f"centred, so it reaches +/-{patch_x / 2:.1f} m. Need >= {need:.1f} m, or a "
-                f"shorter episode, or a slower command.")
+                f"patch_x {patch_x} m cannot hold {travel_m:.1f} m of travel: the bed runs "
+                f"x [{plo_x:+.1f}, {phi_x:+.1f}] and the robot starts {START_INSET_M:.1f} m "
+                f"inside the near edge, leaving {patch_x - START_INSET_M - EDGE_MARGIN_M:.1f} m "
+                f"of runway. Need >= {need:.1f} m, or a shorter episode, or a slower command.")
         soil_top = depth
         dt = 4 * step
 
@@ -218,8 +247,9 @@ def run_episode(chrono, ep_index, seed, args, exc, pol_cfg, urdf):
     # Spawning at the FAR END rather than the centre doubles the usable patch, since a
     # centred robot can only use half of it in the direction it is going.
     ep_cfg = exc["episode"]
-    margin = 0.5
-    bud_x, bud_y = args.patch_x - 2 * margin, args.patch_y - 2 * margin
+    margin = EDGE_MARGIN_M
+    bud_x = args.patch_x - START_INSET_M - EDGE_MARGIN_M
+    bud_y = args.patch_y - START_INSET_M - EDGE_MARGIN_M
     # Expected achieved speed, from the measured CRM envelope: roughly 0.75-0.88 of
     # command, so 0.8 is used rather than the command itself, which would over-reserve.
     exp_vx, exp_vy = 0.8 * pk_vx, 0.8 * pk_vy
@@ -228,14 +258,24 @@ def run_episode(chrono, ep_index, seed, args, exc, pol_cfg, urdf):
     _dur = max(min(_dur_req, t_lim), ep_cfg["min_duration_s"])
     _travel = exp_vx * (_dur + args.warmup_s)
     _s0 = sched_fn(0.0)
-    sx = -np.sign(_s0[0]) * (args.patch_x / 2 - margin) if pk_vx > 1e-6 else 0.0
-    sy = -np.sign(_s0[1]) * (args.patch_y / 2 - margin) if pk_vy > 1e-6 else 0.0
+    # DERIVED FROM THE BED, NOT RECOMPUTED FROM patch_x. Recomputing it is what broke:
+    # this line used to read -sign(vx) * (patch_x/2 - margin), which is the near edge of a
+    # patch centred on the origin, while the bed was actually being built at
+    # x = patch_x/2 - 0.6. See crm_patch_bounds.
+    (plo_x, plo_y, _), (phi_x, phi_y, _) = crm_patch_bounds(
+        args.patch_x, args.patch_y, args.depth)
+    sx = _start_edge(_s0[0], pk_vx, plo_x, phi_x)
+    sy = _start_edge(_s0[1], pk_vy, plo_y, phi_y)
     if args.terrain == "rigid":
         sx = sy = 0.0        # the rigid floor is sized to the travel instead
     system, robot, terrain, soil_top, dt = build_scene(
         chrono, args.terrain, urdf, args.spacing, args.step, args.soil,
         args.patch_x, args.patch_y, args.depth, travel_m=_travel,
         spawn_xy=(float(sx), float(sy)))
+    # The guard the placement bug got past. Checks the bed Chrono built, not the
+    # arithmetic that asked for it, and fails before any simulation time is spent.
+    if terrain is not None:
+        assert_spawn_on_patch(terrain, (sx, sy), margin=EDGE_MARGIN_M)
 
     pol = Go2Policy(args.policy, cfg=pol_cfg)
 
@@ -363,7 +403,10 @@ def run_episode(chrono, ep_index, seed, args, exc, pol_cfg, urdf):
             _t_step = time.time()
 
     jp = [f for f in csv_field_names() if f.startswith("joint_") and f.endswith("_pos_rad")]
-    kept, tail, verdict = VAL.truncate(rows, jp, dt_s=rec_dt)
+    # The bed is passed only for CRM: the rigid floor is sized to the travel, so there is
+    # no edge to leave.
+    _bed = None if args.terrain == "rigid" else ((plo_x, plo_y), (phi_x, phi_y))
+    kept, tail, verdict = VAL.truncate(rows, jp, dt_s=rec_dt, bed=_bed)
 
     # Segment AFTER truncation, against the length actually written.
     if sched is not None and kept:

@@ -180,3 +180,67 @@ The old policy's notes record the mirror-image mistake: yaw scaled by `lin_vel_s
 instead of `ang_vel_scale`, invisible because the yaw command was identically zero. Both
 are the same failure -- a scale applied to the wrong term -- and neither shows up as an
 error, only as a number that is wrong by a clean factor.
+
+## Two places computed where the soil was, and they disagreed
+
+`build_crm` placed the SPH bed with `Construct(size, ChVector3d(patch_x/2 - 0.6, 0, 0))`.
+The collector's far-end spawn rule placed the robot at `-sign(vx) * (patch_x/2 - margin)`,
+which is the near edge **of a bed centred on the origin**. The bed was not centred on the
+origin. For `patch_x = 8` it ran x [-0.600, +7.400], and a +x episode spawned at x = -3.500:
+2.9 m off the front edge, in open air.
+
+Neither number is wrong on its own. They were written at different times for different
+reasons -- the 0.6 m offset so a robot starting at the origin has a little soil behind it,
+the far-end spawn so an episode can use the whole bed instead of half -- and each is
+correct against the convention its author had in mind. What makes this class of bug
+expensive is that the two conventions never meet in one place, so there is nothing to read
+that looks wrong.
+
+**It would not have announced itself.** `MIN_BASE_Z_M = -0.5` does catch the free-fall, so
+a +x episode truncates after roughly 50 rows, which is below `min_segment_rows = 256` and
+therefore dropped entirely. But the bed's offset is in +x only, so an episode commanded in
+**-x** spawns at +3.5, which IS on the bed, and collects normally. The corpus that comes
+out is not empty and does not error. It is silently missing every forward-commanded
+episode while keeping every backward one, on a command range of vx [-1.0, 1.5] that is
+mostly forward. Gate 4 would pass, because held-out OOD is measured against the
+distribution actually collected.
+
+A corpus that is wrong in a way its own gates cannot see is worse than one that fails
+loudly, and this one would have been found only after full-scale collection on hpcfund,
+as "the policy cannot walk on CRM."
+
+### What changed
+
+`crm_patch_bounds()` in terrain.py is now the single source of truth, and the bed is
+centred on the origin so the spawn rule and the bed share one convention. Three guards,
+because the arithmetic being right today is not the same as it staying right:
+
+- `assert_patch_where_expected()` compares the built terrain's `GetSPHBoundingBox()`
+  against what `crm_patch_bounds` promised, so a Chrono convention change is caught at
+  construction rather than inferred from bad data.
+- `assert_spawn_on_patch()` checks the spawn against the built bed before any simulation
+  time is spent.
+- `validity.first_invalid(..., bed=...)` truncates at `off_bed`, which fires as the robot
+  crosses the edge rather than half a second later when it has fallen far enough to trip
+  `base_height`. Without it the rows between the edge and the fall are free-fall recorded
+  as locomotion.
+
+The general rule: **a derived quantity that two modules both need should be computed once
+and imported, not recomputed from the same inputs.** Recomputation is how they drift, and
+drift between two individually correct conventions produces no error anywhere.
+
+### Chrono's Construct convention, since it is what made the offset easy to misread
+
+In `ChFsiProblemCartesian::Construct(box_size, pos, side_flags)` the `pos` argument is the
+**centre in x and y** but the **bottom in z**. Verified on the pinned build:
+`Construct((8, 4, 0.2), (3.4, 0, 0))` yields x [-0.600, +7.400], y [-2.000, +2.000],
+z [+0.000, +0.200].
+
+### Found by accident
+
+This surfaced from a cost benchmark, not from a correctness check. The benchmark varied
+patch size and active-domain size and reported **bit-identical** dynamics for all five
+configurations -- same `mean_z`, same `up`, same 0.029 m travelled. Identical output across
+configurations that should differ is the signal; the fall-through was the explanation. A
+sweep whose arms do not differ has told you something even when it has not told you what
+you asked.

@@ -30,6 +30,7 @@ MAX_BASE_RATE_RADPS = 60.0
 MIN_BASE_Z_M = -0.5                 # below the bed: it fell through the terrain
 MAX_BASE_Z_M = 3.0                  # launched
 INVERTED_GRAV_Z = 0.0               # grav_body_z >= 0 means the trunk is past horizontal
+OFF_BED_MARGIN_M = 0.25             # how close to the bed edge still counts as on it
 
 
 @dataclass
@@ -50,11 +51,17 @@ def _f(row, key):
         return None
 
 
-def first_invalid(rows, joint_pos_fields, *, dt_s: float = 0.01) -> Verdict:
+def first_invalid(rows, joint_pos_fields, *, dt_s: float = 0.01, bed=None) -> Verdict:
     """Index of the first row that fails any check, or ok.
 
     Checks are ordered cheapest-first, and the first to fire wins, so the recorded reason
     is the earliest detectable symptom rather than a downstream consequence.
+
+    `bed`, when given, is ((xlo, ylo), (xhi, yhi)) for the soil patch, and rows are
+    truncated once the robot leaves it. Without this the only symptom of walking off the
+    edge is base_height firing half a second later, once the robot has fallen far enough
+    -- by which point the rows between the edge and the trigger are free-fall recorded as
+    locomotion. Rigid ground passes None: its floor is sized to the travel instead.
     """
     prev_q = None
     prev_t = None
@@ -107,6 +114,18 @@ def first_invalid(rows, joint_pos_fields, *, dt_s: float = 0.01) -> Verdict:
         if z is not None and not (MIN_BASE_Z_M <= z <= MAX_BASE_Z_M):
             return Verdict(False, i, "base_height", f"pos_z_m={z:.3f}")
 
+        # 4b. still on the soil. Fires BEFORE base_height does, so the free-fall rows
+        #     between the edge and the fall are excluded rather than recorded as gait.
+        if bed is not None:
+            (bxlo, bylo), (bxhi, byhi) = bed
+            px, py = _f(row, "pos_x_m"), _f(row, "pos_y_m")
+            if px is not None and not (bxlo + OFF_BED_MARGIN_M <= px <= bxhi - OFF_BED_MARGIN_M):
+                return Verdict(False, i, "off_bed",
+                               f"pos_x_m={px:.3f} outside [{bxlo:+.2f}, {bxhi:+.2f}]")
+            if py is not None and not (bylo + OFF_BED_MARGIN_M <= py <= byhi - OFF_BED_MARGIN_M):
+                return Verdict(False, i, "off_bed",
+                               f"pos_y_m={py:.3f} outside [{bylo:+.2f}, {byhi:+.2f}]")
+
         # 5. attitude. Not a fall detector -- a fallen robot is legitimate data -- but
         #    past horizontal the CRM coupling is outside anything we intend to model.
         gz = _f(row, "grav_body_z")
@@ -116,12 +135,12 @@ def first_invalid(rows, joint_pos_fields, *, dt_s: float = 0.01) -> Verdict:
     return Verdict(True)
 
 
-def truncate(rows, joint_pos_fields, *, dt_s: float = 0.01):
+def truncate(rows, joint_pos_fields, *, dt_s: float = 0.01, bed=None):
     """Return (kept_rows, failing_tail, verdict).
 
     The tail is returned rather than dropped so it can be written to the failures set.
     """
-    v = first_invalid(rows, joint_pos_fields, dt_s=dt_s)
+    v = first_invalid(rows, joint_pos_fields, dt_s=dt_s, bed=bed)
     if v.ok:
         return rows, [], v
     return rows[: v.row], rows[v.row:], v

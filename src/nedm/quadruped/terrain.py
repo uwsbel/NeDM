@@ -128,13 +128,88 @@ def build_crm(chrono, fsi, veh, system, robot, args):
 
     terrain.SetActiveDomain(chrono.ChVector3d(1.0, 1.0, 1.0))
     crm_compat.set_free_flow_duration(terrain, 0.1)
+    lo, hi = crm_patch_bounds(args.patch_x, args.patch_y, args.depth, args.soil_bottom)
     terrain.Construct(
         chrono.ChVector3d(args.patch_x, args.patch_y, args.depth),
-        chrono.ChVector3d(args.patch_x / 2 - 0.6, 0, args.soil_bottom),
+        chrono.ChVector3d(0.5 * (lo[0] + hi[0]), 0.5 * (lo[1] + hi[1]), lo[2]),
         fsi.BoxSide_ALL & ~fsi.BoxSide_Z_POS,   # bitwise, not `and`
     )
     terrain.Initialize()
+    assert_patch_where_expected(terrain, args)
     return terrain, coupled
+
+
+def crm_patch_bounds(patch_x, patch_y, depth, soil_bottom=0.0):
+    """Where the SPH bed actually is: ((xlo, ylo, zlo), (xhi, yhi, zhi)).
+
+    THE SINGLE SOURCE OF TRUTH for patch placement. Any caller that recomputes the bed's
+    extent from patch_x is a caller that can drift out of sync with Construct, and that
+    is not hypothetical. Construct used to place the bed at x = patch_x/2 - 0.6 while the
+    collector's far-end spawn rule assumed a bed centred on the origin, so an 8 m patch
+    ran x [-0.600, +7.400] and a +x episode spawned at x = -3.500: two point nine metres
+    off the front edge, in open air.
+
+    That failure is invisible in the way that costs the most. The robot free-falls, every
+    episode truncates on divergence, and the corpus reads as "the policy cannot walk on
+    CRM" -- a physics conclusion -- when the cause is arithmetic. It would have survived
+    into full-scale collection, because nothing in the gates looks at where the soil is.
+
+    The bed is centred on the origin in x and y, so the spawn rule and the bed now share
+    one convention instead of two.
+
+    Chrono's own convention is mixed and worth stating, since it is what made the offset
+    easy to misread: in ChFsiProblemCartesian::Construct the position argument is the
+    CENTRE in x and y but the BOTTOM in z. Verified against GetSPHBoundingBox on the
+    pinned build -- Construct((8,4,0.2), (3.4,0,0)) yields x [-0.600,+7.400],
+    y [-2.000,+2.000], z [+0.000,+0.200].
+    """
+    return ((-0.5 * patch_x, -0.5 * patch_y, soil_bottom),
+            (+0.5 * patch_x, +0.5 * patch_y, soil_bottom + depth))
+
+
+def assert_patch_where_expected(terrain, args):
+    """Confirm the bed Chrono built is the bed crm_patch_bounds promised.
+
+    crm_patch_bounds encodes a Chrono convention rather than deriving one, so it is only
+    correct until Chrono changes. Asking the built terrain where its particles ended up
+    turns that assumption into a checked fact, at the cost of one call per episode.
+    """
+    exp_lo, exp_hi = crm_patch_bounds(args.patch_x, args.patch_y, args.depth,
+                                      args.soil_bottom)
+    bb = terrain.GetSPHBoundingBox()
+    got_lo = (bb.min.x, bb.min.y, bb.min.z)
+    got_hi = (bb.max.x, bb.max.y, bb.max.z)
+    # One particle spacing of slack: the bed is laid out on a lattice, so its extent
+    # lands on a multiple of the spacing rather than exactly on the requested size.
+    tol = 2.0 * args.spacing
+    bad = ([f"{a}lo {e:+.3f} != {g:+.3f}" for a, e, g in zip("xyz", exp_lo, got_lo)
+            if abs(e - g) > tol]
+           + [f"{a}hi {e:+.3f} != {g:+.3f}" for a, e, g in zip("xyz", exp_hi, got_hi)
+              if abs(e - g) > tol])
+    if bad:
+        raise SystemExit(
+            "CRM bed is not where crm_patch_bounds says it is: " + ", ".join(bad) +
+            f" (tol {tol:.3f} m). Chrono's Construct convention has changed; fix "
+            "crm_patch_bounds rather than working around it at the call site.")
+
+
+def assert_spawn_on_patch(terrain, spawn_xy, margin=0.5):
+    """Refuse to start an episode off the bed.
+
+    This is the guard that the patch-placement bug got past, so it checks the built
+    terrain rather than the arithmetic that produced it. Cheap, and it fails before any
+    simulation time is spent rather than after a corpus of free-fall.
+    """
+    bb = terrain.GetSPHBoundingBox()
+    lo, hi = bb.min, bb.max
+    x, y = float(spawn_xy[0]), float(spawn_xy[1])
+    if not (lo.x + margin <= x <= hi.x - margin
+            and lo.y + margin <= y <= hi.y - margin):
+        raise SystemExit(
+            f"spawn ({x:+.3f}, {y:+.3f}) is not on the soil: the bed runs "
+            f"x [{lo.x:+.3f}, {hi.x:+.3f}], y [{lo.y:+.3f}, {hi.y:+.3f}] and the spawn "
+            f"must clear its edge by {margin:.2f} m. The robot would free-fall for the "
+            f"whole episode and the corpus would read as a policy failure.")
 
 
 def add_soil_visual_proxy(chrono, system, args, soil_top: float):
@@ -157,7 +232,7 @@ def add_soil_visual_proxy(chrono, system, args, soil_top: float):
     if Path(texture).is_file():
         box.SetTexture(texture, 8 * args.patch_x, 8 * args.patch_y)
     body.AddVisualShape(box, chrono.ChFramed(
-        chrono.ChVector3d(args.patch_x / 2 - 0.6, 0, soil_top - 0.01), chrono.QUNIT))
+        chrono.ChVector3d(0, 0, soil_top - 0.01), chrono.QUNIT))
     system.AddBody(body)
     return body
 
