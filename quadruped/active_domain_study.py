@@ -18,12 +18,30 @@ change the answer, and show that it does not, rather than taking the largest tha
 
 THE NOISE FLOOR COMES FIRST. A paired difference is meaningless without knowing what two
 identical runs differ by, and CRM runs on the GPU where reductions need not be
-bit-reproducible. The reference configuration is therefore run twice on identical inputs,
-and any active-domain effect has to clear that floor before it is called an effect.
+bit-reproducible. The reference configuration is therefore run twice on identical inputs.
+Measured: the floor is EXACTLY ZERO -- the solve is deterministic here -- so any
+difference between box sizes is attributable to the box with no statistical argument
+needed, and the +/-20% scatter seen across patch sizes earlier was lattice alignment from
+differing spawn positions, not solver noise.
 
 The design is paired: every case (command, spawn) is run at every active-domain size, and
-differences are taken within a case. Unpaired scatter across cases is roughly +/-20% on
-mean velocity, which would swamp the effect being looked for.
+differences are taken within a case.
+
+WHAT STAGE 1 REVEALED, which changes how this has to be read. Final-position error does
+not order monotonically in box size: on fwd_slow, 0.5 m gave 0.151 m, 0.75 m gave
+0.037 m, 1.0 m gave 0.103 m, and the sign of the mean-velocity difference changed across
+them. A convergence sequence does not do that. A chaotic one does, and a legged robot on
+granular soil is contact-rich enough to be chaotic, so a small perturbation reshuffles
+gait phase and late-window position error measures divergence RATE rather than model
+error.
+
+So "smallest box that does not change the trajectory" is not an achievable criterion --
+no box will, because the trajectory is not the stable object. Two metrics are reported
+instead. The early window, before the perturbation amplifies, asks whether the SOIL MODEL
+differs. The full-window aggregate asks whether BEHAVIOUR is biased, which is the question
+a corpus actually cares about and which survives phase scrambling. Deciding the box needs
+the second one over an ENSEMBLE of cases, where per-case chaotic scatter averages down and
+a systematic shift does not.
 """
 from __future__ import annotations
 
@@ -170,7 +188,24 @@ def compare(ref, other):
     travel = float(np.hypot(a[-1, 0] - a[0, 0], a[-1, 1] - a[0, 1]))
     final = float(np.hypot(d[-1, 0], d[-1, 1]))
     mean_vx_ref = float(np.mean(a[:, 3]))
+
+    # EARLY WINDOW, because a walking robot on granular soil is contact-rich and its gait
+    # diverges chaotically. Stage 1 showed final-position error ordering non-monotonically
+    # in box size -- 0.5 m gave 0.151 m, 0.75 m gave 0.037 m, 1.0 m gave 0.103 m, and
+    # d_mean_vx changed sign across them. That is not a convergence sequence. It is what
+    # you get when a small perturbation reshuffles the phase of a chaotic gait, and it
+    # means late-window position error measures divergence rate, not model error.
+    #
+    # So two metrics, answering two different questions. The first second, before the
+    # perturbation has had time to amplify, asks whether the SOIL MODEL differs. The
+    # full-window aggregate asks whether the BEHAVIOUR is biased, which is the question
+    # that actually matters for a corpus and which survives phase scrambling.
+    early = max(1, int(1.0 / 0.01))
+    de = d[:early]
     return {
+        "early_rms_pos_m": float(np.sqrt(np.mean(np.sum(de[:, :3] ** 2, axis=1)))),
+        "early_final_pos_m": float(np.linalg.norm(de[-1, :3])),
+        "early_rms_vx_mps": float(np.sqrt(np.mean(de[:, 3] ** 2))),
         "ref_travel_m": travel,
         "final_xy_err_m": final,
         "err_over_travel": final / travel if travel > 1e-6 else float("nan"),
@@ -197,27 +232,43 @@ def main() -> int:
     ap.add_argument("--policy", required=True)
     ap.add_argument("--urdf", required=True)
     ap.add_argument("--active", default="0.5,0.75,1.0,2.0")
-    ap.add_argument("--ref", type=float, default=2.0,
-                    help="the largest box, taken as the converged reference")
+    ap.add_argument("--ref", default="2.0",
+                    help="reference active domain, or 'none' for the unapproximated solve")
+    ap.add_argument("--floor-cases", type=int, default=99,
+                    help="how many cases re-run the reference to re-check determinism")
     ap.add_argument("--seconds", type=float, default=4.0)
     ap.add_argument("--warmup", type=float, default=1.5)
     ap.add_argument("--free-flow-s", type=float, default=None)
     ap.add_argument("--out", default=None)
     a = ap.parse_args()
 
-    ads = [float(x) for x in a.active.split(",")]
+    ads = [None if x.strip().lower() == "none" else float(x) for x in a.active.split(",")]
+    ref = None if str(a.ref).strip().lower() == "none" else float(a.ref)
+    a.ref = ref
     urdf, policy = Path(a.urdf), Path(a.policy)
+    print(f"reference active domain: {'none (unapproximated)' if ref is None else ref}",
+          flush=True)
     results = {}
 
-    for name, cmd, spawn in CASES:
-        # The noise floor, from two identical runs of the reference. Everything else is
-        # judged against this, so it is measured first and per case.
+    for ci, (name, cmd, spawn) in enumerate(CASES):
         r0 = run_case(cmd, a.ref, a.seconds, a.warmup, urdf, policy, spawn, a.free_flow_s)
-        r0b = run_case(cmd, a.ref, a.seconds, a.warmup, urdf, policy, spawn, a.free_flow_s)
-        if r0["diverged_at_s"] is not None or r0b["diverged_at_s"] is not None:
+        if r0["diverged_at_s"] is not None:
             print(f"{name}: reference diverged, skipping case", flush=True)
             continue
-        floor = compare(r0["traj"], r0b["traj"])
+        # The noise floor, from a second identical run of the reference. Stage 1 measured
+        # it as exactly zero on every case, so it is re-checked on the first case only
+        # rather than paid for on all of them -- a spot check that determinism still holds
+        # on this code path, not an assumption that it does.
+        if ci < a.floor_cases:
+            r0b = run_case(cmd, a.ref, a.seconds, a.warmup, urdf, policy, spawn,
+                           a.free_flow_s)
+            if r0b["diverged_at_s"] is not None:
+                print(f"{name}: floor run diverged, skipping case", flush=True)
+                continue
+            floor = compare(r0["traj"], r0b["traj"])
+        else:
+            floor = {"final_xy_err_m": 0.0, "rms_pos_m": 0.0, "rms_vx_mps": 0.0,
+                     "d_mean_vx_mps": 0.0, "not_measured": True}
         results[name] = {"floor": floor, "ref_ms_per_step": r0["ms_per_step"], "arms": {}}
         print(f"\n=== {name}  cmd={cmd}  spawn={spawn} ===", flush=True)
         print("  noise floor (ref run twice): final_xy %.4f m  rms_pos %.4f m  "
@@ -226,7 +277,7 @@ def main() -> int:
                floor["d_mean_vx_mps"]), flush=True)
 
         for ad in ads:
-            if ad == a.ref:
+            if ad == ref:
                 continue
             r = run_case(cmd, ad, a.seconds, a.warmup, urdf, policy, spawn, a.free_flow_s)
             if r["diverged_at_s"] is not None:
@@ -239,10 +290,13 @@ def main() -> int:
             results[name]["arms"][str(ad)] = {**c, "ms_per_step": r["ms_per_step"],
                                               "slowdown_x": r["slowdown_x"],
                                               "rms_pos_over_floor": ratio}
-            print("  ad=%-5s %6.2f ms/step %5.2fx RT | final_xy %.4f  rms_pos %.4f "
-                  "(%.1fx floor)  d_mean_vx %+.4f  d_mean_z %+.5f" %
-                  (ad, r["ms_per_step"], r["slowdown_x"], c["final_xy_err_m"],
-                   c["rms_pos_m"], ratio, c["d_mean_vx_mps"], c["d_mean_z_m"]), flush=True)
+            print("  ad=%-5s %6.2f ms/step %5.2fx RT | early_rms %.5f  early_end %.5f | "
+                  "final_xy %.4f (%.1f%% of travel)  d_mean_vx %+.4f (%+.1f%%)  "
+                  "d_mean_z %+.5f" %
+                  (str(ad), r["ms_per_step"], r["slowdown_x"], c["early_rms_pos_m"],
+                   c["early_final_pos_m"], c["final_xy_err_m"],
+                   100 * c["err_over_travel"], c["d_mean_vx_mps"],
+                   100 * c["rel_d_mean_vx"], c["d_mean_z_m"]), flush=True)
 
     if a.out:
         Path(a.out).write_text(json.dumps(results, indent=2))
