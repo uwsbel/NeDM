@@ -102,11 +102,26 @@ def main() -> int:
     ads = [float(x) for x in a.active.split(",")]
     urdf, policy = Path(a.urdf), Path(a.policy)
     cases = make_cases(a.n)
-    rows = {str(ad): [] for ad in ads}
+
+    # THE NULL ARM IS A SECOND REFERENCE RUN, identical in every setting, and it is
+    # carried through the whole analysis exactly like a real arm.
+    #
+    # It exists because determinism turned out to be case-dependent rather than universal.
+    # Two cases reproduced bit-identically; a third, with a lateral command, differed
+    # between two identical runs by 0.019 m and 0.010 m/s in mean vx. That last number is
+    # a quarter of the effect being looked for, so without a control there is no way to
+    # tell "0.5 m biases velocity by 0.04" from "any two CRM runs differ by 0.04".
+    #
+    # With the null arm the test becomes a comparison rather than an assumption: an arm is
+    # only evidence of bias if its mean paired difference stands out against the null
+    # arm's, which is built from the same cases and the same estimator.
+    ARMS = ["null"] + [str(x) for x in ads]
+    rows = {k: [] for k in ARMS}
     per_case = []
 
     print(f"{a.n} cases, reference = none (unapproximated), "
-          f"arms = {ads}, {a.seconds}s window\n", flush=True)
+          f"arms = {ARMS} ('null' is a repeat reference run), "
+          f"{a.seconds}s window\n", flush=True)
 
     for name, cmd, spawn in cases:
         ref = run_case(cmd, None, a.seconds, a.warmup, urdf, policy, spawn, a.free_flow_s)
@@ -117,17 +132,18 @@ def main() -> int:
         rec = {"case": name, "cmd": cmd, "spawn": spawn, "none": bref, "arms": {}}
         line = (f"{name} cmd=({cmd[0]:+.2f},{cmd[1]:+.2f},{cmd[2]:+.2f}) "
                 f"none: vx {bref['mean_vx']:+.3f} z {bref['mean_z']:.4f}")
-        for ad in ads:
+        for arm in ARMS:
+            ad = None if arm == "null" else float(arm)
             r = run_case(cmd, ad, a.seconds, a.warmup, urdf, policy, spawn, a.free_flow_s)
             if r["diverged_at_s"] is not None:
-                line += f" | ad={ad} DIVERGED"
+                line += f" | {arm} DIVERGED"
                 continue
             b = behaviour(r["traj"])
             d = {k: b[k] - bref[k] for k in KEYS}
-            rows[str(ad)].append(d)
-            rec["arms"][str(ad)] = {"behaviour": b, "delta": d,
-                                    "ms_per_step": r["ms_per_step"]}
-            line += f" | ad={ad}: dvx {d['mean_vx']:+.3f} dz {d['mean_z']:+.5f}"
+            rows[arm].append(d)
+            rec["arms"][arm] = {"behaviour": b, "delta": d,
+                                "ms_per_step": r["ms_per_step"]}
+            line += f" | {arm}: dvx {d['mean_vx']:+.3f} dz {d['mean_z']:+.5f}"
         per_case.append(rec)
         print(line, flush=True)
 
@@ -135,13 +151,15 @@ def main() -> int:
     print("PAIRED MEAN DIFFERENCE vs no active domain (mean +/- standard error)")
     print("=" * 78)
     summary = {}
-    for ad in ads:
-        d = rows[str(ad)]
+    for ad in ARMS:
+        d = rows[ad]
         if not d:
             continue
         n = len(d)
-        summary[str(ad)] = {"n": n}
-        print(f"\nactive domain {ad} m   (n = {n})")
+        summary[ad] = {"n": n}
+        label = ("null (reference run twice -- this is the noise, not an effect)"
+                 if ad == "null" else f"active domain {ad} m")
+        print(f"\n{label}   (n = {n})")
         for k in KEYS:
             v = np.array([x[k] for x in d])
             m = float(np.mean(v))
@@ -150,7 +168,7 @@ def main() -> int:
             # chaotic difference does not, and |t| < 2 means this ensemble cannot
             # distinguish the approximation from the real thing.
             t = m / se if se > 0 else float("nan")
-            summary[str(ad)][k] = {"mean": m, "se": se, "t": t}
+            summary[ad][k] = {"mean": m, "se": se, "t": t}
             flag = "  <-- systematic" if abs(t) >= 2.0 else ""
             print(f"  {k:9s} {m:+.5f} +/- {se:.5f}   t = {t:+6.2f}{flag}")
 
@@ -161,14 +179,14 @@ def main() -> int:
         # region that matters. If real, the box has to be sized for the fastest command
         # in the corpus, not the average one -- and the collection ranges go to 1.5 m/s.
         spd = np.array([c["none"]["speed"] for c in per_case
-                        if str(ad) in c["arms"]])
-        dv = np.array([c["arms"][str(ad)]["delta"]["mean_vx"] for c in per_case
-                       if str(ad) in c["arms"]])
+                        if ad in c["arms"]])
+        dv = np.array([c["arms"][ad]["delta"]["mean_vx"] for c in per_case
+                       if ad in c["arms"]])
         if len(spd) >= 4 and np.std(spd) > 1e-9:
             rho = float(np.corrcoef(spd, dv)[0, 1])
             slope = float(np.polyfit(spd, dv, 1)[0])
-            summary[str(ad)]["bias_vs_speed"] = {"pearson_r": rho, "slope": slope,
-                                                 "n": int(len(spd))}
+            summary[ad]["bias_vs_speed"] = {"pearson_r": rho, "slope": slope,
+                                            "n": int(len(spd))}
             print(f"  bias vs speed: r = {rho:+.3f}, slope = {slope:+.4f} "
                   f"(m/s of bias per m/s of speed)")
 
