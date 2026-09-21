@@ -369,8 +369,18 @@ def run_episode(chrono, ep_index, seed, args, exc, pol_cfg, urdf):
         # Place the path centrally in the bed: the spawn is wherever that puts t=0.
         sx = -0.5 * (xlo + xhi)
         sy = -0.5 * (ylo + yhi)
-        ok = ((px - (xhi - xlo)) / 2 >= EDGE_MARGIN_M
-              and (py - (yhi - ylo)) / 2 >= EDGE_MARGIN_M)
+        # THE SAME INEQUALITY build_scene WILL TEST, with room to spare. This used to be
+        # `(py - span) / 2 >= EDGE_MARGIN_M`, which is algebraically identical to
+        # build_scene's `py < span + 2 * EDGE_MARGIN_M` and numerically is not: once the
+        # bed hits its cap the slack is gone, and the two computations round differently
+        # at the boundary. Two shards of the 800-episode run died on exactly that -- an
+        # 11.0 m span on a 12.0 m bed, approved here and refused there -- after 46 and 19
+        # episodes, and because the manifest is written at the end, both shards' data was
+        # left on disk unusable. Requiring a margin strictly larger than build_scene's
+        # means this can only ever be the stricter of the two.
+        tol = 1e-3
+        ok = (px >= (xhi - xlo) + 2 * EDGE_MARGIN_M + tol
+              and py >= (yhi - ylo) + 2 * EDGE_MARGIN_M + tol)
         return px, py, sx, sy, ok, max(xhi - xlo, 0.0), max(yhi - ylo, 0.0)
 
     _dur = _dur_req
@@ -665,14 +675,36 @@ def main() -> int:
             else CMD.stratified_families(a.episodes, fam_rng,
                                          exc["commands"]["families"]))
     fam_counts = {}
+    skipped = []
     for k in range(a.episodes):
         a.family = fams[k]
         a.split = "val" if k in val_set else "train"
         a.pushes = 0 if k in long_set else pushes_req
         a.long_run = k in long_set
         fam_counts[fams[k]] = fam_counts.get(fams[k], 0) + 1
-        segs, excised, failtail, verdict, meta = run_episode(
-            chrono, k, a.seed + k, a, exc, pol_cfg, Path(a.urdf))
+        # ONE IMPOSSIBLE EPISODE MUST COST ONLY ITSELF. A scene that cannot be built --
+        # a path the capped bed cannot hold, a spawn off the soil -- raises SystemExit, and
+        # uncaught that ended the whole shard. Two shards of the 800-episode run died that
+        # way after 46 and 19 episodes, and since the manifest is written at the end, the
+        # episodes already on disk were orphaned: present, and unusable, because a corpus
+        # without a manifest cannot be merged or traced.
+        #
+        # Skipped episodes are recorded rather than dropped silently, since skipping by
+        # command is a selection on command. And a run where many skip is not tolerated:
+        # that is a broken setup failing on every episode, not an unlucky draw, and
+        # continuing would produce a corpus of whatever happened to survive.
+        try:
+            segs, excised, failtail, verdict, meta = run_episode(
+                chrono, k, a.seed + k, a, exc, pol_cfg, Path(a.urdf))
+        except SystemExit as e:
+            skipped.append({"episode": k, "family": fams[k], "reason": str(e)[:300]})
+            print(f"  ep {k:3d}  SKIPPED ({fams[k]}): {str(e)[:120]}", flush=True)
+            if len(skipped) >= 3 and len(skipped) > 0.2 * (k + 1):
+                raise SystemExit(
+                    f"{len(skipped)} of {k + 1} episodes could not be built. That is a "
+                    f"broken setup, not bad luck; stopping rather than writing a corpus "
+                    f"of whatever survived. Last reason: {str(e)[:200]}")
+            continue
         verdicts.append(verdict)
         short += meta["dropped_short_segments"]
         for j, seg in enumerate(segs):
@@ -710,6 +742,9 @@ def main() -> int:
                "episodes": a.episodes, "segments": written, "rows": total_rows,
                "failures": summary, "family_balance": fam_counts,
                "dropped_short_segments": short,
+               # Episodes whose scene could not be built. Recorded because skipping by
+               # command is a selection on command, and an empty list is itself a claim.
+               "skipped_episodes": skipped,
                "split": {"val_episodes": sorted(val_set), "val_fraction": a.val_fraction},
                "long_episodes": sorted(long_set),
                "sidecar_rows": {"pushes": n_push_rows, "failures": n_fail_rows},
