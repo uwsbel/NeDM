@@ -15,6 +15,12 @@ The policy walks, on both terrains, through the new pipeline. Measured 2026-09-2
 Base sits 0.292 m above the rigid surface and 0.304 m above the soil surface, so it is
 standing on the bed rather than sinking into it.
 
+**Collection is verified end to end** on rigid: 3 episodes, 0% truncation, 98.6% of rows
+and 3 segments per episode kept, 0 push-active rows surviving into any segment, manifest
+written with the Chrono hash. The OU sigma range is now calibrated by measurement rather
+than guessed, and at the chosen setting the corpus carries 29.2% identifiable action
+variance over an effective rank of 8.96, against the previous corpus's 4% over rank 2.
+
 **That 95% against 64% is the headroom the whole study is about**, reproduced from scratch
 with a different base policy than the previous work used. Fine-tuning has something to
 close.

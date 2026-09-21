@@ -29,8 +29,25 @@ action_injection:
   per_joint_independent: true     # shared noise would leave the residual low-rank
   sigma_rad:
     distribution: log_uniform     # one corpus spans scales, as the dose ladder spans volume
-    low: 0.005
-    high: 0.15                    # ceiling is empirical; see calibration below
+    # CALIBRATED, not guessed. Measured on rigid, 20 s episodes, 2 episodes per point:
+    #
+    #   sigma   surviving  eff_rank   truncated
+    #   0.02      3.7%       5.98        0%
+    #   0.06     10.6%       6.71        0%
+    #   0.12     21.2%       7.86        0%
+    #   0.20     29.2%       8.96        0%
+    #   0.35     34.1%      10.02       50%     <- the robot starts falling
+    #
+    # "surviving" is the fraction of action variance left after conditioning on the state,
+    # which is the only part that can identify d s'/d a. The PREVIOUS corpus managed 4%
+    # over an effective rank of 2 in a 12-dimensional action, which is why a model fit to
+    # it could ignore the action and still fit.
+    #
+    # The range below sits where identifiability is high and the truncation rate is still
+    # zero. It stops well short of 0.35, where half the episodes fall: injection past the
+    # point where the robot stays up produces wreckage, not data.
+    low: 0.10
+    high: 0.22                    # ceiling is empirical; see calibration below
   applied: after_policy_before_actuation
   logged: applied                 # log the INJECTED target. Logging the clean one would
                                   # recreate the confound while hiding it.

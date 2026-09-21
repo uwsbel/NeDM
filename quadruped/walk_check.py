@@ -55,9 +55,12 @@ def run(terrain_kind, sign, seconds, command, urdf, policy_path, *, warmup_s=1.5
 
     rigid = terrain_kind == "rigid"
     cwd = os.getcwd()
+    # The floor must outlast the episode: a centred 10 m box runs out at +/-5 m, and at
+    # 0.5 m/s a 20 s episode travels 10 m straight off it.
+    travel_m = abs(command[0]) * (seconds + warmup_s)
 
     if rigid:
-        build_rigid_ground(chrono, system)
+        build_rigid_ground(chrono, system, size_m=max(10.0, 2.0 * (travel_m + 2.0)))
         soil_top = 0.05
         os.chdir(urdf.parent)
         try:
@@ -69,6 +72,11 @@ def run(terrain_kind, sign, seconds, command, urdf, policy_path, *, warmup_s=1.5
     else:
         import pychrono.fsi as fsi
         import pychrono.vehicle as veh
+        need = 2.0 * (travel_m + 0.5)
+        if patch_x < need:
+            raise SystemExit(
+                f"patch_x {patch_x} m cannot hold {travel_m:.1f} m of travel (centred, so "
+                f"+/-{patch_x / 2:.1f} m). Need >= {need:.1f} m or a shorter run.")
         soil_top = 0.0 + depth
         os.chdir(urdf.parent)
         try:
@@ -124,7 +132,13 @@ def run(terrain_kind, sign, seconds, command, urdf, policy_path, *, warmup_s=1.5
         p, v, r = b.GetPos(), b.GetPosDt(), b.GetRot()
         if not math.isfinite(p.z):
             return {"terrain": terrain_kind, "diverged_at_s": i * dt}
-        zs.append(p.z); vxs.append(v.x)
+        # BODY frame, not world. The policy has no yaw in its observation and no heading
+        # command here, so it drifts; world-x velocity then falls as the robot curves away
+        # from +x and reads as a slowdown that never happened. vel_body_x_mps is the
+        # quantity the study is stated in.
+        R = T.quat_to_rot(r.e0, r.e1, r.e2, r.e3)
+        vb = R.T @ np.array([v.x, v.y, v.z])
+        zs.append(p.z); vxs.append(float(vb[0]))
         ups.append(-T.projected_gravity(r.e0, r.e1, r.e2, r.e3)[2])
     s = int(0.5 / dt)
     return {"terrain": terrain_kind, "sign": pol.sign, "spawn_z": spawn_z,
