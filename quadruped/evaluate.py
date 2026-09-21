@@ -43,12 +43,27 @@ def episode(chrono, policy_path, urdf, cfg, terrain_kind, command, seconds,
     from quadruped.lib.policy import Go2Policy
     from quadruped.params import transforms as T
     sys.path.insert(0, str(HERE))
-    from collect import build_scene   # noqa: PLC0415 - same scene recipe, one definition
+    from collect import (build_scene, plan_path, EDGE_MARGIN_M,   # noqa: PLC0415
+                         MAX_PATCH_X, MAX_PATCH_Y)
 
-    travel = abs(command[0]) * (seconds + warmup_s)
+    # THE EVALUATION BED IS SIZED THE SAME WAY THE COLLECTION BED IS, from the planned
+    # path widened for yaw drift, not from `|vx| * duration`.
+    #
+    # Two reasons, and the second is the one that matters. The straight-line estimate is
+    # simply wrong -- this policy turns at up to 0.31 rad/s with the yaw command at zero,
+    # so a "straight" 6 s episode walks an arc. And an evaluation that truncates is an
+    # evaluation biased by truncation: episodes that drift most get cut shortest, so the
+    # surviving comparison is drawn from the better-behaved half of each arm's behaviour.
+    # That would flatter whichever policy drifts more, which is exactly the axis
+    # fine-tuning is expected to change.
+    xlo, xhi, ylo, yhi = plan_path(lambda t: tuple(command), seconds, warmup_s)
+    px = min(MAX_PATCH_X, max(patch_x, (xhi - xlo) + 2 * (EDGE_MARGIN_M + 0.2)))
+    py = min(MAX_PATCH_Y, max(patch_y, (yhi - ylo) + 2 * (EDGE_MARGIN_M + 0.2)))
+    spawn = (-0.5 * (xlo + xhi), -0.5 * (ylo + yhi))
     system, robot, terrain, soil_top, dt = build_scene(
-        chrono, terrain_kind, urdf, spacing, step, soil, patch_x, patch_y, depth,
-        travel_m=travel)
+        chrono, terrain_kind, urdf, spacing, step, soil, px, py, depth,
+        travel_m=max(xhi - xlo, yhi - ylo), spawn_xy=spawn,
+        span_xy=(xhi - xlo, yhi - ylo))
 
     pol = Go2Policy(policy_path, cfg=cfg)
     pol.command = np.asarray(command, dtype=np.float32)
@@ -89,7 +104,12 @@ def episode(chrono, policy_path, urdf, cfg, terrain_kind, command, seconds,
         "mae_wz": float(np.mean(err["wz"][s:])),
         "min_z_m": float(min_z),
         "completed": 1,
-        "upright": 1 if min_z > 0.15 else 0,
+        # UPRIGHT IS RELATIVE TO THE SURFACE, not to zero. The old 0.15 m floor was below
+        # the 0.20 m soil top, so a robot whose base had sunk BENEATH the surface still
+        # scored upright. On CRM the trunk is not coupled to the soil at all, so a fallen
+        # robot does not rest on the bed, it descends through it -- a base below the
+        # surface is not a low stance, it is a fall in progress.
+        "upright": 1 if min_z > soil_top + 0.10 else 0,
         "visited": np.asarray(visited),
     }
 
@@ -120,7 +140,11 @@ def main() -> int:
     ap.add_argument("--out", required=True)
     ap.add_argument("--label", default="arm")
     ap.add_argument("--terrain", choices=["rigid", "crm"], default="crm")
-    ap.add_argument("--episodes", type=int, default=4)
+    ap.add_argument("--episodes", type=int, default=16,
+                    help="CRM tracking has a standard deviation of about 5.7 points "
+                         "(docs/EVALUATION.md), so 4 episodes resolves only ~5.7 points "
+                         "at 2 se and 16 resolves ~2.9. The old default of 4 could not "
+                         "see most of the effects this study reports.")
     ap.add_argument("--seconds", type=float, default=6.0)
     ap.add_argument("--warmup-s", type=float, default=1.0)
     ap.add_argument("--vx", type=float, default=0.5)
