@@ -62,11 +62,37 @@ MAX_PATCH_Y = 12.0
 # product. Over budget, the bed is shrunk and the command slowed to match.
 MAX_PARTICLES = 4_000_000
 
+# Unplanned yaw rate, measured rather than assumed. On rigid ground with the yaw command
+# held at zero the policy turns at +0.126 rad/s; in the first CRM corpus a `constant`
+# episode drifted +0.124 rad/s and a `lateral` one +0.309. 0.25 sits above the typical
+# case and below the worst, which is the right place for a sizing allowance: covering the
+# worst case everywhere would buy soil for an outcome most episodes do not have.
+YAW_DRIFT_RADPS = 0.25
 
-def plan_path(sched_fn, dur_s, warmup_s, speed_factor=0.8, dt=0.05):
+
+def plan_path(sched_fn, dur_s, warmup_s, speed_factor=0.8, dt=0.05,
+              drift_radps=YAW_DRIFT_RADPS):
     """Dead-reckon where the commanded episode actually goes, relative to the spawn.
 
-    Returns (xmin, xmax, ymin, ymax) of the planned path.
+    Returns (xmin, xmax, ymin, ymax) of the path, widened for yaw drift.
+
+    THE COMMANDED YAW IS NOT THE ACHIEVED YAW. Measured on rigid ground, the terrain this
+    policy was trained on, with the yaw command held at zero: the robot turns at
+    +0.126 rad/s. In the first CRM corpus the same thing showed up as +0.124 rad/s on a
+    `constant` episode and +0.309 rad/s on a `lateral` one -- 69 and 213 degrees of
+    unplanned heading change. A straight command does not walk a straight line, it walks
+    an arc, and the direction is not predictable from the command.
+
+    That is a real property of the policy rather than an integration fault: yaw tracking
+    is left-right symmetric (+1.0 -> +0.941, -1.0 -> -0.935) and the offset collapses from
+    0.126 at zero command to 0.003 at unit command, which is a deadband, not an asymmetry.
+
+    So the path is integrated THREE times -- at the commanded yaw rate and at that rate
+    plus and minus the drift -- and the union of the three bounding boxes is returned. A
+    disc of radius equal to the path length would also be safe and is what the geometry
+    strictly implies, but it is not affordable: the cost measurement shows a 22 m bed runs
+    2.7x slower per step than an 8 m one, which would spend the whole active-domain saving
+    on soil the robot never touches.
 
     THE COMMAND IS IN THE BODY FRAME, so yaw decides where the robot ends up and a budget
     built from |vx| and |vy| alone is blind to it. The first CRM corpus showed the cost:
@@ -80,19 +106,27 @@ def plan_path(sched_fn, dur_s, warmup_s, speed_factor=0.8, dt=0.05):
     old budget used.
     """
     import math as _m
-    th = x = y = 0.0
-    xs = [0.0]
-    ys = [0.0]
     n = max(1, int(round((dur_s + warmup_s) / dt)))
-    for i in range(n):
-        t = max(0.0, i * dt - warmup_s)     # warmup holds the stand pose at t=0's command
-        vx, vy, wz = sched_fn(t)
-        th += wz * dt
-        x += speed_factor * (vx * _m.cos(th) - vy * _m.sin(th)) * dt
-        y += speed_factor * (vx * _m.sin(th) + vy * _m.cos(th)) * dt
-        xs.append(x)
-        ys.append(y)
-    return min(xs), max(xs), min(ys), max(ys)
+
+    def one(extra_wz):
+        th = x = y = 0.0
+        xs = [0.0]
+        ys = [0.0]
+        for i in range(n):
+            t = max(0.0, i * dt - warmup_s)   # warmup holds the stand pose at t=0's command
+            vx, vy, wz = sched_fn(t)
+            th += (wz + extra_wz) * dt
+            x += speed_factor * (vx * _m.cos(th) - vy * _m.sin(th)) * dt
+            y += speed_factor * (vx * _m.sin(th) + vy * _m.cos(th)) * dt
+            xs.append(x)
+            ys.append(y)
+        return min(xs), max(xs), min(ys), max(ys)
+
+    boxes = [one(0.0)]
+    if drift_radps:
+        boxes += [one(+drift_radps), one(-drift_radps)]
+    return (min(b[0] for b in boxes), max(b[1] for b in boxes),
+            min(b[2] for b in boxes), max(b[3] for b in boxes))
 
 # Columns the inherited schema does not carry. Collection is the expensive step and a
 # column costs almost nothing, so anything NOT derivable after the fact is recorded now.
