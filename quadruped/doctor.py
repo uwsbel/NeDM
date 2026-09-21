@@ -21,6 +21,7 @@ Or from a script: from doctor import require; require("collect")
 from __future__ import annotations
 
 import argparse
+import fnmatch
 import hashlib
 import os
 import socket
@@ -53,10 +54,24 @@ def identify(reg) -> tuple[str, dict]:
     so matching on hostname alone silently fails to find the entry.
     """
     hn = socket.gethostname()
+    short = hn.split(".")[0]
     hosts = reg.get("hosts", {})
     for alias, spec in hosts.items():
-        if alias == hn or spec.get("hostname", "").split(".")[0] == hn.split(".")[0]:
+        if alias == hn or spec.get("hostname", "").split(".")[0] == short:
             return alias, spec
+        # A CLUSTER IS NOT ITS LOGIN NODE. The registry names one hostname per entry, which
+        # is the submit host, but the work runs on compute nodes with names like
+        # `k006-004-v2.hpcfund` that share nothing with `login1.hpcfund`. Matching on the
+        # login name alone therefore refused every compute node on the cluster the entry
+        # was written for -- which is what killed the first hpcfund job, two seconds in,
+        # after the environment had already been proven good.
+        #
+        # Registering each node is the wrong shape: they come and go, and `sinfo` lists
+        # them as ranges. A glob per entry covers the cluster without loosening the check
+        # for anything else, and an entry without globs behaves exactly as before.
+        for pat in spec.get("hostname_globs", []) or []:
+            if fnmatch.fnmatch(hn, pat) or fnmatch.fnmatch(short, pat):
+                return alias, spec
     raise Failed(
         f"host {hn!r} is not in {MACHINES.name}. Add it before running here -- an "
         f"unregistered host has no recorded capability, so nothing can be checked."

@@ -82,6 +82,10 @@ hosts:
 
   hpcfund:
     hostname: login1.hpcfund
+    # The submit host is login1; the work runs on compute nodes named k006-004-v2 and
+    # similar, which share no prefix with it. Registering each node is the wrong shape --
+    # sinfo lists them as ranges and they come and go -- so the cluster is matched by glob.
+    hostname_globs: ["login*.hpcfund", "k*-*.hpcfund", "k*-*"]
     kind: slurm
     python: /work1/dannegrut/kyle/venvs/nedm/bin/python  # 3.12.12
     torch: "2.10.0+rocm7.1"
