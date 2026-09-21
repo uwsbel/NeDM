@@ -146,6 +146,20 @@ def load_nnrom(torch, path, dev, allow_smoke=False):
             f"{path} is stamped smoke=True. It was trained with the selection guards "
             f"relaxed on a corpus too small to select on, so it was never selected on a "
             f"usable rollout metric and must not be fine-tuned in.")
+    if ck.get("worse_than_no_motion") and not allow_smoke:
+        raise SystemExit(
+            f"{path} is stamped worse_than_no_motion=True. Its best smoothed rollout "
+            f"errdist was at or above 1.0, which is what a model that predicts the robot "
+            f"does not move scores. Fine-tuning a policy inside a plant model that is "
+            f"worse than assuming nothing happens cannot produce a transferable result, "
+            f"however good the in-model reward gets. The usual cause is too little data.")
+    if ck.get("selection_no_trend") and not allow_smoke:
+        raise SystemExit(
+            f"{path} is stamped selection_no_trend=True: the rollout metric never "
+            f"meaningfully improved during training, so its best epoch is the luckiest "
+            f"rather than the most trained. Fine-tuning inside it would measure that "
+            f"luck. The usual cause is an undersized corpus -- compare val_loss against "
+            f"train_loss in metrics.jsonl before adding epochs.")
     if ck.get("selection_lottery") and not allow_smoke:
         raise SystemExit(
             f"{path} is stamped selection_lottery=True: during training the rollout "

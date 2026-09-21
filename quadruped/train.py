@@ -340,11 +340,20 @@ def rollout_errdist(torch, model, corpus, episodes, horizon_s, dt_s, ctx,
                     dev=None):
     """Open-loop rollout error over distance travelled, at one horizon.
 
-    ERRDIST, not raw position error: planar error divided by the ground-truth distance
-    travelled. CRM episodes are shorter and slower than rigid ones, so a raw error favours
-    whichever domain moves less, and a model that predicts almost no motion scores near
-    1.0 for free. Dividing by distance makes the number comparable across domains and
-    across presets -- it is metres over metres either way, whatever the state dimension.
+    ERRDIST, not raw position error: planar RMSE over the horizon, divided by the
+    ground truth's MAXIMUM DISPLACEMENT from the branch start over that same horizon.
+
+    The denominator is stated exactly because a normalised number hides what it divided
+    by, and this project has already read one such number as a cross-system quantity when
+    it was a within-system one, off by 25-52x. It is max displacement, not path length:
+    a robot that drives in a circle returns near its start, so path length would flatter
+    it. Both are defensible; they are not the same number and a table mixing them is
+    comparing measurements rather than models.
+
+    Dividing at all is what makes the metric comparable across domains and presets -- CRM
+    episodes are shorter and slower than rigid ones, so a raw error favours whichever
+    domain moves less. The scale to keep in mind: a model that predicts almost no motion
+    scores about 1.0 for free, so 1.0 is the floor to beat, not the target.
 
     Pose is integrated OUTSIDE the propagated state, from the predicted body velocities
     and yaw rate, so the metric is the same physical quantity for every preset.
@@ -621,11 +630,67 @@ def main() -> int:
                       "held-out segments or raise --select-window.")
             else:
                 print("  the selected epoch is distinguishable from its neighbours")
+    # A SECOND CHECK, because the lottery test can pass on a useless run. This one did:
+    # lag-1 noise against range came to 0.40, under the 0.5 threshold, while val_loss was
+    # FLAT across 28 epochs -- 0.04443 to 0.04441 -- and the best epoch sat 1.2% below the
+    # first. A metric that never improves has a small noise-to-range ratio simply because
+    # its range IS noise, so "not a lottery" and "worth selecting on" are different
+    # questions and both have to be asked.
+    #
+    # The failure that produces this is an undersized corpus: train loss fell 90x to a
+    # 48x gap against val while val did not move, which is memorisation, not learning.
+    no_trend = None
+    if len(history) >= 10:
+        h = np.asarray(history, dtype=float)
+        h = h[np.isfinite(h)]
+        if h.size >= 10:
+            early = float(np.median(h[:max(3, h.size // 5)]))
+            best = float(np.min(h))
+            gain = (early - best) / early if early > 0 else 0.0
+            no_trend = bool(gain < 0.15)
+            print(f"selection trend: best rollout {best:.4f} against an early median of "
+                  f"{early:.4f} ({100 * gain:.0f}% better)")
+            if no_trend:
+                print("  NO TREND. The metric never meaningfully improved, so the best "
+                      "epoch is the luckiest one rather than the most trained. Usually "
+                      "this means the corpus is too small -- check val_loss against "
+                      "train_loss before adding epochs.")
+
+    # THE CHECK THAT SHOULD HAVE COME FIRST: is the model better than doing nothing?
+    #
+    # errdist divides trajectory error by distance travelled, so a model that predicts no
+    # motion at all scores about 1.0. Anything at or above that is worse than the trivial
+    # baseline, whatever its training curve looks like.
+    #
+    # This is here because the pilot run passed both of the cleverer guards and was still
+    # useless. Lag-1 noise against range came to 10%, comfortably "not a lottery". The
+    # rollout metric improved 33% from its early median, comfortably "has a trend". And
+    # the best smoothed value was 2.163 -- more than twice as bad as predicting the robot
+    # stands still. Two guards on the SHAPE of the curve, and neither asked what the
+    # number meant.
+    worse_than_nothing = None
+    if len(history) >= a.select_window:
+        h = np.asarray(history, dtype=float)
+        h = h[np.isfinite(h)]
+        if h.size >= a.select_window:
+            sm = [float(np.median(h[max(0, i - a.select_window + 1):i + 1]))
+                  for i in range(a.select_window - 1, h.size)]
+            best_sm = min(sm) if sm else float("nan")
+            worse_than_nothing = bool(best_sm >= 1.0)
+            print(f"selection floor: best smoothed rollout {best_sm:.4f} against the "
+                  f"predict-no-motion floor of 1.0")
+            if worse_than_nothing:
+                print(f"  WORSE THAN NOTHING. This model is {best_sm:.1f}x further from "
+                      f"the truth than a model that predicts the robot does not move. "
+                      f"It is not a surrogate of anything and must not be fine-tuned in.")
+
     for f in ("last.pt", "best.pt"):
         pth = out / f
         if pth.exists():
             ck = torch.load(pth, map_location="cpu", weights_only=False)
             ck["selection_lottery"] = lottery
+            ck["selection_no_trend"] = no_trend
+            ck["worse_than_no_motion"] = worse_than_nothing
             ck["selection_lag1"] = lag1
             ck["selection_range"] = rng_
             ck["rollout_episodes_used"] = ro_n
