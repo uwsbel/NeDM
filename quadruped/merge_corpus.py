@@ -68,6 +68,15 @@ def _strip(value, path, drop):
     return out
 
 
+def _host_name(h):
+    """The manifest records host as {"name", "platform"}; older ones may be a bare string.
+    Assumed to be a string the first time, which failed only after the comparability
+    check had passed -- a type guess about a field this script had never looked at."""
+    if isinstance(h, dict):
+        return str(h.get("name", ""))
+    return str(h)
+
+
 def load(shard: Path):
     m = shard / "manifest.json"
     if not m.exists():
@@ -161,7 +170,7 @@ def main() -> int:
         # The per-shard hosts and run ids are kept above rather than collapsed, because a
         # merged corpus that cannot say which node produced a given episode cannot be
         # audited when one node turns out to have been wrong.
-        "host": sorted({p["host"] for p in provenance if p.get("host")}),
+        "host": sorted({_host_name(p["host"]) for p in provenance if p.get("host")}),
         "run_id": None,
     })
     (out / "manifest.json").write_text(json.dumps(base, indent=2))
