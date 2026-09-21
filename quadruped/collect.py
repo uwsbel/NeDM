@@ -34,6 +34,37 @@ from quadruped.lib import excitation as EX          # noqa: E402
 from quadruped.lib import provenance as PROV        # noqa: E402
 from quadruped.lib import validity as VAL           # noqa: E402
 from quadruped.lib.policy import Go2Policy          # noqa: E402
+from quadruped.params import transforms as TR       # noqa: E402
+
+LEGS = ("rr", "rl", "fr", "fl")
+
+# Columns the inherited schema does not carry. Collection is the expensive step and a
+# column costs almost nothing, so anything NOT derivable after the fact is recorded now.
+EXTRA_FIELDS = (
+    # The OU noise actually added this step. Derivable in principle by subtracting the
+    # policy's own target from the applied one, but only if the scaling is reconstructed
+    # exactly; logging it removes the ambiguity.
+    [f"action_injection_{leg}_{seg}_rad" for leg in LEGS
+     for seg in ("hip", "thigh", "calf")]
+    # Push bookkeeping. NOT derivable after segmentation, because the rows that carried
+    # the force are exactly the rows that were excised -- so a segment cannot say how long
+    # ago it was pushed, which is the variable any recovery analysis needs.
+    + ["push_active", "push_event_idx", "time_since_push_s"]
+    # The push in the BODY frame. Derivable from the world force and the quaternion, and
+    # precomputed because the 39-D preset reads it and a derivation that lives in two
+    # places drifts.
+    + ["perturb_body_x_n", "perturb_body_y_n", "perturb_body_z_n"]
+    # Contact summary. Cheap, and the 4-bit code is the quantity the contact-mode work
+    # keyed on.
+    + ["n_feet_contact", "contact_mode"]
+    # Actuator saturation. The effort limit is not in the CSV, so a reader cannot tell a
+    # clipped torque from a commanded one. A saturated actuator means the target was NOT
+    # achieved, which is a dynamics discontinuity worth being able to find.
+    + ["n_joints_saturated", "torque_headroom_min"]
+    # Solver diagnostics. Not reconstructible at all afterwards, and the first thing
+    # wanted when an episode diverges.
+    + ["sim_contacts", "sim_step_wall_ms"]
+)
 
 
 def load_params():
@@ -118,7 +149,7 @@ def build_scene(chrono, kind, urdf, spacing, step, soil, patch_x, patch_y, depth
 
 def run_episode(chrono, ep_index, seed, args, exc, pol_cfg, urdf):
     """One episode. Returns (segments, verdict, meta)."""
-    from nedm.quadruped.constants import STAND_ACTION
+    from nedm.quadruped.constants import JOINT_EFFORT_NM, STAND_ACTION
     from nedm.quadruped.dataset import capture_row, csv_field_names
 
     rng = np.random.default_rng(seed)
@@ -230,6 +261,9 @@ def run_episode(chrono, ep_index, seed, args, exc, pol_cfg, urdf):
     every_ctrl = max(1, int(round(ctrl_dt / dt)))
     every_rec = max(1, int(round(rec_dt / dt)))
     rows = []
+    push_idx, last_push_t = -1, None
+    _tau_last = np.zeros(12)
+    _t_step = time.time()
     t = 0.0
     acc = None
     push_vec = np.zeros(6)
@@ -242,11 +276,14 @@ def run_episode(chrono, ep_index, seed, args, exc, pol_cfg, urdf):
         if i % every_ctrl == 0:
             cmd = np.asarray(sched_fn(t), dtype=np.float32)
             pol.command = cmd
-            a = pol.act(robot)
+            a_pol = pol.act(robot)
+            raw_net = pol.last_actions.copy()      # the network's own 12 outputs
+            inj = np.zeros(12, dtype=np.float32)
             if ou is not None:
-                a = a + pol.sign * ou.step().astype(np.float32)
+                inj = (pol.sign * ou.step()).astype(np.float32)
+            a = a_pol + inj
             robot.actuate(a)
-        robot.apply_pd()
+        _tau_last = robot.apply_pd()
 
         if sched is not None:
             base.EmptyAccumulator(acc)
@@ -262,14 +299,45 @@ def run_episode(chrono, ep_index, seed, args, exc, pol_cfg, urdf):
         (terrain or system).DoStepDynamics(dt)
 
         if i % every_rec == 0:
-            rows.append(capture_row(
+            _r = capture_row(
                 chrono=chrono, robot=robot, terrain=terrain, soil_top_m=soil_top,
                 action=robot.target, command=cmd,
                 soil_z=[float("nan")] * 4, soil_ctrl=float("nan"),
                 scenario_name=args.family, scenario_family=args.family,
                 episode_id=f"{args.corpus}_{ep_index:04d}", split="train",
                 sample_index=len(rows), time_s=t, perturb=push_vec,
-                gravity=[0.0, 0.0, -9.81]))
+                policy_raw=raw_net, gravity=[0.0, 0.0, -9.81])
+
+            active = bool(push_vec[:3].any())
+            if active and last_push_t is None:
+                push_idx += 1
+            if active:
+                last_push_t = t
+            q = robot.base().GetRot()
+            pb = TR.world_to_body(push_vec[:3], q.e0, q.e1, q.e2, q.e3)
+            tau_now = np.asarray(_tau_last, dtype=float)
+            head = np.abs(JOINT_EFFORT_NM) - np.abs(tau_now)
+            contacts = [1 if float(_r.get(f"foot_{l}_force_fz_n", 0.0) or 0.0) > 25.0
+                        else 0 for l in LEGS]
+            _r.update({
+                **{f"action_injection_{l}_{sg}_rad": float(inj[3 * k + j])
+                   for k, l in enumerate(LEGS)
+                   for j, sg in enumerate(("hip", "thigh", "calf"))},
+                "push_active": int(active),
+                "push_event_idx": push_idx,
+                "time_since_push_s": (round(t - last_push_t, 4)
+                                      if last_push_t is not None else float("nan")),
+                "perturb_body_x_n": float(pb[0]), "perturb_body_y_n": float(pb[1]),
+                "perturb_body_z_n": float(pb[2]),
+                "n_feet_contact": int(sum(contacts)),
+                "contact_mode": int(sum(c << k for k, c in enumerate(contacts))),
+                "n_joints_saturated": int((head <= 1e-6).sum()),
+                "torque_headroom_min": float(head.min()) if head.size else float("nan"),
+                "sim_contacts": int(system.GetNumContacts()),
+                "sim_step_wall_ms": round((time.time() - _t_step) * 1e3, 3),
+            })
+            rows.append(_r)
+            _t_step = time.time()
 
     jp = [f for f in csv_field_names() if f.startswith("joint_") and f.endswith("_pos_rad")]
     kept, tail, verdict = VAL.truncate(rows, jp, dt_s=rec_dt)
@@ -345,7 +413,7 @@ def main() -> int:
     (out / "episodes").mkdir(parents=True, exist_ok=True)
 
     from nedm.quadruped.dataset import csv_field_names
-    fields = csv_field_names()
+    fields = csv_field_names() + list(EXTRA_FIELDS)
 
     t0 = time.time()
     verdicts, written, total_rows, short = [], 0, 0, 0
