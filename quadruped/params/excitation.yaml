@@ -4,6 +4,16 @@
 # or through the initial condition. Anything else leaves an unexplained acceleration, and
 # adding a channel for it produces an input that is identically zero at fine-tuning time.
 
+# TWO RATES, AND THEY ARE NOT INTERCHANGEABLE.
+# Recording is 100 Hz and control is 50 Hz, so the policy acts on every second recorded
+# row. Training windows are built on RECORDED rows, so every segmentation figure below is
+# in recorded rows at dt = 0.01. Computing them at the control rate instead doubles every
+# duration and makes a feasible schedule look impossible -- which it did, once.
+episode:
+  duration_s: 20.0
+  record_hz: 100          # dt 0.01; the rate segmentation and training windows use
+  control_hz: 50          # dt 0.02; the rate the policy and injection act at
+
 action_injection:
   # NOT optional, and not decoration. Measured on the previous corpus: only ~4% of action
   # variance survives conditioning on the state, over an effectively rank-2 subspace of a
@@ -34,7 +44,11 @@ probes:
   fraction: 0.15
   kind: single_joint_chirp
   joints_per_episode: 1
+  # A per-episode sampling RANGE, drawn log-uniform for the same reason the injection
+  # sigma is: one corpus should span scales.
   amplitude_rad: [0.02, 0.12]
+  # The SWEEP endpoints of a single chirp, f0 -> f1. Not a range to draw a tone from:
+  # the point of a chirp is that it excites a band in one episode.
   chirp_hz: [0.5, 6.0]
 
 push:
@@ -66,7 +80,16 @@ push:
     # Window count is superlinear in segment length: 1,475 rows at S=128 gives 1,348
     # windows, but seven 190-row segments give 441. So the push schedule is sized around
     # the training window rather than inherited.
-    min_segment_rows: 512         # >= 4x the sequence length
+    min_segment_rows: 512         # >= 4x the sequence length, in RECORDED rows (5.12 s)
+    # FEASIBILITY IS A CONSTRAINT, NOT A PREFERENCE, and PushSchedule raises rather than
+    # quietly emitting short segments. Per event the drop budget is
+    #   ceil(duration_s/dt) + 2*guard_steps + 1 = 10 + 4 + 1 = 15 rows
+    # so N recorded pushes need (N+1)*512 + N*15 rows:
+    #   1 push  -> 1,039 rows = 10.39 s
+    #   2 pushes -> 1,566 rows = 15.66 s
+    #   3 pushes -> 2,093 rows = 20.93 s   (does NOT fit a 20 s episode)
+    # At 20 s (2,000 rows) two recorded pushes fit with slack. Three do not, and the
+    # scheduler will say so at construction rather than after the simulation.
 
 initial_state:
   # The cheapest form of the same coverage. A push delivered during unrecorded warmup
@@ -75,7 +98,11 @@ initial_state:
   warmup_push: true               # push during warmup, before recording starts
   joint_offset_rad: [-0.15, 0.15]
   base_vel_mps: [-0.4, 0.4]
-  base_tilt_rad: [-0.12, 0.12]
+  base_tilt_rad: [-0.12, 0.12]   # ROLL AND PITCH ONLY. Yaw is not tilt, and the state is
+                                 # yaw-free by construction, so a randomised yaw would be
+                                 # an excitation the model cannot see -- inadmissible under
+                                 # the rule at the top of this file. Heading variation
+                                 # belongs in the command families.
   base_height_offset_m: [-0.04, 0.04]
 
 commands:
