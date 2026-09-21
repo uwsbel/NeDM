@@ -156,15 +156,29 @@ def run_case(command, active, seconds, warmup_s, urdf, policy_path, spawn_xy,
 
 
 def compare(ref, other):
-    """Paired difference between two trajectories of the same case."""
+    """Paired difference between two trajectories of the same case.
+
+    Reported against DISTANCE TRAVELLED, not against the noise floor. The floor turned out
+    to be exactly zero -- two identical runs are bit-identical on this GPU -- so a ratio to
+    it is either zero or infinite and says nothing. Normalising by travel is the study's
+    own errdist convention and makes a 0.15 m disagreement legible as the 12% of a 1.3 m
+    walk that it is.
+    """
     n = min(len(ref), len(other))
     a, b = ref[:n], other[:n]
     d = b - a
+    travel = float(np.hypot(a[-1, 0] - a[0, 0], a[-1, 1] - a[0, 1]))
+    final = float(np.hypot(d[-1, 0], d[-1, 1]))
+    mean_vx_ref = float(np.mean(a[:, 3]))
     return {
-        "final_xy_err_m": float(np.hypot(d[-1, 0], d[-1, 1])),
+        "ref_travel_m": travel,
+        "final_xy_err_m": final,
+        "err_over_travel": final / travel if travel > 1e-6 else float("nan"),
         "rms_pos_m": float(np.sqrt(np.mean(np.sum(d[:, :3] ** 2, axis=1)))),
         "rms_vx_mps": float(np.sqrt(np.mean(d[:, 3] ** 2))),
-        "d_mean_vx_mps": float(np.mean(b[:, 3]) - np.mean(a[:, 3])),
+        "d_mean_vx_mps": float(np.mean(b[:, 3]) - mean_vx_ref),
+        "rel_d_mean_vx": (float(np.mean(b[:, 3]) - mean_vx_ref) / abs(mean_vx_ref)
+                          if abs(mean_vx_ref) > 1e-6 else float("nan")),
         "d_mean_z_m": float(np.mean(b[:, 2]) - np.mean(a[:, 2])),
         "d_mean_up": float(np.mean(b[:, 7]) - np.mean(a[:, 7])),
     }
