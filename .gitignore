@@ -490,3 +490,5 @@ artifacts/traverse/generalist_20260921/A_adapt/suite/tasks_*.json
 artifacts/traverse/generalist_20260921/A_adapt/suite/run_index_*.json
 artifacts/traverse/generalist_20260921/A_adapt/suite/merge_*.json
 artifacts/traverse/generalist_20260921/B_tracker/cache_v*/cache_manifest.json
+artifacts/traverse/generalist_20260921/A_adapt/**/crm_pass2_runs/
+artifacts/traverse/generalist_20260921/**/*_runs/

@@ -1,0 +1,13 @@
+{
+  "step": 30000,
+  "steps": 30000,
+  "stop_reason": "done",
+  "best": {
+    "metric": 0.25425835698843,
+    "step": 26000
+  },
+  "wall_s": 1698.8767862319946,
+  "load_s": 66.14459371566772,
+  "process_wall_s": 1765.0213809013367,
+  "finished": true
+}

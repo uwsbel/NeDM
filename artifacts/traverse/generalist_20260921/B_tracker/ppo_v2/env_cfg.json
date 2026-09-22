@@ -1,0 +1,78 @@
+{
+  "num_envs": 2048,
+  "device": "cuda",
+  "nrd_checkpoint": "artifacts/traverse/generalist_20260921/B_tracker/nrd_tag_v3/ckpt_best.pt",
+  "grid": "artifacts/traverse/crm_f104_v1/grids/arena_f104_50h_v1/grid.npz",
+  "cache": "artifacts/traverse/generalist_20260921/B_tracker/cache_v3",
+  "split": "train",
+  "max_bank_episodes": 0,
+  "max_frames": 1200,
+  "min_frames": 40,
+  "domain_frac": 0.5,
+  "twin_split": null,
+  "fragment_steps_min": 20,
+  "fragment_steps_max": 60,
+  "preview_points": 10,
+  "preview_spacing_m": 1.0,
+  "search_window": 40,
+  "hist_steps": 8,
+  "state_cols": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    11,
+    12,
+    13,
+    14,
+    15
+  ],
+  "settle_action": [
+    0.0,
+    0.0,
+    1.0
+  ],
+  "action_low": [
+    -1.0,
+    0.0,
+    0.0
+  ],
+  "action_high": [
+    1.0,
+    1.0,
+    1.0
+  ],
+  "action_center": [
+    0.0,
+    0.5,
+    0.5
+  ],
+  "action_scale": [
+    1.0,
+    0.5,
+    0.5
+  ],
+  "steering_rate_limit": 0.1,
+  "reward": {
+    "cross_track_sigma_m": 1.0,
+    "heading_sigma_rad": 0.35,
+    "speed_sigma_mps": 1.0,
+    "cross_track_weight": 2.0,
+    "heading_weight": 0.8,
+    "speed_weight": 1.5,
+    "action_rate_weight": 0.2,
+    "throttle_brake_weight": 0.05,
+    "progress_weight": 0.5,
+    "progress_clip_m": 2.0
+  },
+  "termination": {
+    "max_cross_track_m": 6.0,
+    "max_abs_roll_rad": 0.6,
+    "max_abs_pitch_rad": 0.4
+  },
+  "auto_reset": true,
+  "seed": 2
+}

@@ -1,0 +1,14 @@
+{
+ "val|all": 0.9925,
+ "val|clean_moving": 0.9863,
+ "val|low_progress": 1.0,
+ "test|all": 0.9886,
+ "test|clean_moving": 0.9841,
+ "test|low_progress": 0.994,
+ "logistic|val|all": 0.887,
+ "logistic|test|all": 0.8356,
+ "n_rows": 4614,
+ "n_val": 291,
+ "n_test": 272,
+ "crm_share": 0.48894667625427246
+}

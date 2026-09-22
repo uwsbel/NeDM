@@ -262,10 +262,12 @@ def build(a):
 def merge(a, branch=None):
     t0 = time.time()
     b = branch if branch is not None else dict(np.load(a.out, allow_pickle=True))
-    m = np.load(a.merge, allow_pickle=True); mk = set(m.files)
+    m = np.load(a.merge, allow_pickle=True); mk = set(m.files) - set(EXTRA_KEYS)   # the mixed file may itself be a merged file carrying the extra keys
     assert set(b) - set(EXTRA_KEYS) == mk, f'key sets differ: mixed-only {mk - set(b)}, branch-only {set(b) - set(EXTRA_KEYS) - mk}'
     nb, nm = len(b['id']), len(m['id']); out = {}
     for k in m.files:
+        if k in EXTRA_KEYS:
+            continue
         mv = m[k]; bv = b[k]
         if k in ('hist_cols', 'priv_names'):
             assert np.array_equal(mv.astype(str) if mv.dtype == object else mv, bv.astype(str) if bv.dtype == object else bv), f'{k} differs'
@@ -273,7 +275,8 @@ def merge(a, branch=None):
         assert mv.dtype == bv.dtype and mv.shape[1:] == bv.shape[1:] and len(mv) == nm and len(bv) == nb, (k, mv.dtype, bv.dtype, mv.shape, bv.shape)
         out[k] = np.concatenate([mv, bv]); del mv
     for k in EXTRA_KEYS:
-        out[k] = np.concatenate([np.array([''] * nm, object), b[k].astype(object)])
+        mixed_part = m[k].astype(object) if k in m.files else np.array([''] * nm, object)
+        out[k] = np.concatenate([mixed_part, b[k].astype(object)])
     ids = out['id'].astype(str); assert len(set(ids)) == nm + nb, 'ids not unique after the merge'
     os.makedirs(os.path.dirname(os.path.abspath(a.merged_out)), exist_ok=True)
     (np.savez if a.no_compress else np.savez_compressed)(a.merged_out, **out)

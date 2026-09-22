@@ -22,24 +22,33 @@ verifications `*/NOTES_*.md` and `*/VERIFY_*.md`.
 3. **Milestone A, closed loop, established history (A5).** Rigid: from a moving anchor three seconds into the mission,
    with all arms trained on the same rows, the history model reaches 99.6 % vs 99.5 % for the rigid specialist and
    drives at 1.01 x its time (bound passes); the pooled and masked-history arms do the same, so on rigid ground the
-   moving-anchor decision, not the history, removes the startup slowdown. CRM: PENDING (drives running).
+   moving-anchor decision, not the history, removes the startup slowdown. CRM: history model 83.9 % vs CRM specialist
+   83.0 % (rigid specialist 63.3 %), one-sided bound +0.5 (pass), time 0.99 x; masked-history and pooled arms match.
+   With established history the shared model preserves both specialists without a label.
 4. **Milestone B, tracking.** The tag-conditioned dynamics model passes all three validation gates in both worlds
    (stalled-escape 0.03 / 0.00, moving-displacement error 0.08 / 0.04, brake-response error 0.19 / 0.11, rigid / CRM).
    The PPO tracker trained inside it, evaluated in Chrono on the 423 designed test routes: on rigid ground it cuts the
    station cross-track on the 141 feasible routes from 0.200 m to 0.111 m (ratio 0.56, one-sided bound 0.66, passes the
    0.90 rule) with no safety cost, but tracks speed 21 % worse (bound 1.10 fails) and completes 5 points fewer of the
    282 hard routes. On soil it fails outright in round 1: 76.6 % vs 99.3 % completion on the feasible routes and a
-   cross-track ratio of 2.3, although it completes more of the hard routes (7.8 vs 0.4 %) and is safer there. A second
-   round (dynamics refit on 3,000 hold-mode perturbed episodes and 1,000 harvested policy failures, then PPO retrain)
-   is PENDING.
+   cross-track ratio of 2.3, although it completes more of the hard routes (7.8 vs 0.4 %) and is safer there. The
+   second round (dynamics refit on 3,000 hold-mode perturbed episodes and 1,000 harvested policy failures, PPO retrain
+   with a stronger speed term) passes every feasible-stratum rule on rigid ground (cross-track ratio 0.53, speed error
+   ratio 0.75, completion 100 %, no unsafe events) and misses only the hard-route completion bound there (-0.7 points,
+   5th percentile -4.3, with 6 points fewer unsafe events); on soil it reaches 91.5 % completion on the feasible
+   routes (PID 99.3 %) with cross-track 0.379 vs 0.451 m and completes 8.5 points more of the hard routes, which is a
+   large step from round 1 but still a fail on the soil replacement rules.
 5. **Moving-prefix branch data (A4).** Rigid: 789 anchors x 3 continuations = 2,358 labelled rows; continuations of the
    same anchor disagree on the failure label in 24 % (clean-moving) and 32 % (low-progress) of anchors, so the branch
-   choice carries information. Adding them raises the history model on the enlarged established set (0.984 / 0.988 val)
-   while the rigid specialist drops (0.977 to 0.972). CRM: 752 anchors accepted from the prefix replays (46 class
-   mismatches, 2 sampler failures); 2,256 drives PENDING.
+   choice carries information. Soil: 752 anchors x 3 = 2,256 rows; clean-moving continuations disagree in 43 % of
+   anchors, but a prefix that has started to bog is lost whatever follows (97.7 % failure, 3 % disagreement). On these
+   rows, where 480 anchors share the identical prefix in both worlds, the two-second history still identifies the
+   world with AUC 0.99, so the earlier separation was not a route-selection artefact. Retrained on re-anchored plus
+   both worlds' branch rows, the history model reaches 0.982 / 0.988 (rigid / CRM) on the enlarged established
+   validation set against 0.973 / 0.980 for the same-row specialists.
 
-Cost so far: 15 billed node-hours of the 100 cap at 01:20 (my own jobs, from the accounting records; the account-wide
-ledger also moves with other users' jobs).
+Cost: 29 billed node-hours of the 100 cap at 03:45 (my own jobs, from the accounting records with the partition
+billing weights; the account-wide ledger also moves with other users' jobs).
 
 ## 0. What was built and checked before any result
 
@@ -126,7 +135,21 @@ Rigid (`A_adapt/a5/results_rigid_A5.json`, 800 groups): S'_rigid 99.5, S'_crm 98
 1.000, oracle 0.975, S'_crm 1.053. The A3 slowdown disappears from a moving anchor even without the history, so on
 rigid ground the history has nothing to add beyond the moving state itself.
 
-CRM: PENDING (4,800 drives running).
+CRM (`A_adapt/a5/results_crm_A5.json`, 800 groups): S'_crm 83.0, S'_rigid 63.3, H 83.9, H masked 83.9, pooled 83.5,
+oracle 84.4 % goal reached. Primary H vs S'_crm: -0.9 points failure (H better), one-sided 95th percentile +0.5
+(margin 3.0: pass); fresh stratum +0.2 (pass); reused stratum alone +4.0 (n = 200, fails); terrain-clustered CI
+[-2.8, +0.5]. Time H 0.99 x S'_crm. The cross-specialist gap is 19.7 points here. All absolute rates are lower than
+in the standing-start protocol because every arm first drives the straight three-second approach (37 % of groups
+start on grades above 12 degrees) and then plans from the moving state with the same-row models; specialist and
+shared arms suffer alike, so the comparison stays paired. The masked-history and pooled arms match H (H vs masked
++0.0, H vs pooled -0.4), so closed loop the moving state at the decision carries the adaptation and the explicit
+two-second window adds nothing measurable beyond it, even though offline it lifts the within-group AUC by one to two
+points.
+
+Milestone A verdict: with established history the label-free shared model preserves each specialist's goal-reaching
+in both worlds (soil -0.9, rigid +0.1 points, times within 1-2 %); at a standing start it misses the 3-point margin on
+soil by 0.4 at the 95th percentile (2.0 points behind) and is 14 % slower on rigid ground; the oracle tag shows the
+shared network itself loses nothing.
 
 ### 1.5 Moving-prefix branch data (A4)
 
@@ -135,8 +158,22 @@ Rigid (in-job two-pass, `A_adapt/a4/rigid_runs`): 789 of 800 anchors replayed an
 continuations fail four times more often than 6 m/s ones (a within-anchor speed confound to keep in mind). Retraining
 the history model on re-anchored plus branch rows: established 0.984 / 0.988 (val), startup 0.969 / 0.977.
 
-CRM: PENDING (752 anchors, 2,256 drives). The probe on branch rows and the retrained closed-loop arms are round-two
-items if time allows.
+CRM (two-pass on MI350X: 800 prefix replays, then 752 accepted anchors x 3 continuations, `A_adapt/a4/crm_pass2_runs`):
+2,256 rows; clean-moving continuations fail 63.5 % with 43 % of anchors disagreeing across their three continuations;
+low-progress continuations fail 97.7 % with only 3 % disagreement: once the soil has started to give way, no
+continuation rescues the vehicle, as the plan review anticipated. Statuses: 1,444 soil breakthroughs, 545 goals, 266
+blockages.
+
+Probe on the branch rows of both worlds (4,614 rows; `A_adapt/probe_branch/probe_branch.json`): a small GRU on the
+two-second prefix history separates the worlds with AUC 0.993 (val) / 0.989 (test), clean-moving 0.986 / 0.984,
+low-progress 1.00 / 0.994; hand features 0.89 / 0.84. For 480 clean-moving anchors the prefix is the same episode cut
+at the same frame in both worlds, so this separation is the physics response itself, not route selection.
+
+Retraining on re-anchored plus both worlds' branch rows (`A_adapt/train/branch_v2`, validation groups, established set
+now including the branch rows; startup | established): history model 0.973 | 0.982 rigid, 0.972 | 0.988 CRM; same-row
+rigid specialist 0.977 | 0.973; same-row CRM specialist 0.987 | 0.980. With established history the shared model is
+0.8-0.9 points above each specialist on the enlarged set, and the specialists lose ground on the branch rows while the
+history model does not. These retrained ensembles were not driven closed loop (section 4).
 
 ## 2. Milestone B: learned tracker
 
@@ -169,11 +206,29 @@ CRM, feasible stratum: native PID 99.3 % goal, cross-track 0.451 m; held PID 94.
 (pass), but 30.7 s vs 16.2 s. Decision round 1: the tracker beats the PID on path following on rigid ground but not on
 speed tracking or hard-route completion, and does not transfer to soft soil.
 
-### 2.4 Round 2: PENDING
+### 2.4 Round 2
 
 Cache v3 (43,235 episodes) adds 1,500 hold-mode perturbed episodes per world (true 50 ms holds with brake taps) and
-1,000 rigid drives of the round-1 policy on training routes (114 failures). The dynamics refit is running; the PPO
-retrain will raise the speed-tracking weight. Results replace this section when the Chrono re-evaluation is back.
+1,000 rigid drives of the round-1 policy on training routes (114 failures). The dynamics model was refit on it (gates:
+rigid 0.035 / 0.092 / 0.214, CRM 0.000 / 0.045 / 0.113, all pass) and the tracker retrained with the speed-tracking
+weight raised from 0.5 to 1.5 (`B_tracker/ppo_v2`, 22 min). The PID arms are the round-1 drives.
+
+Rigid (`B_tracker/b0/results_rigid_b0v2.json`), feasible stratum: cross-track 0.106 m vs 0.200 m (ratio 0.53, bound
+0.57: pass), completion 100 % vs 100 % (pass), unsafe 0 vs 0 (pass), speed error 0.348 vs 0.464 m/s (ratio 0.75, bound
+0.80: pass). Hard stratum: completion 81.2 vs 81.9 % (-0.7 points, 5th percentile -4.3: misses the -3 bound), unsafe
+10.3 vs 16.3 % (-6.0, safer), cross-track ratio 0.84. All 423 routes: cross-track ratio 0.80 (bound 0.90), completion
+-0.5 (bound -2.8), unsafe -4.0, speed ratio 0.82. Verdict on rigid ground: the primary and every feasible-stratum rule
+pass; the only miss is the hard-route completion bound, by 1.3 points at the 5th percentile with a point estimate of
+-0.7, alongside 6 points fewer unsafe events.
+
+CRM (`B_tracker/b0/results_crm_b0v2.json`), feasible stratum: completion 91.5 % vs 99.3 % (-7.8 points, bound -11.3:
+fail), unsafe +7.8 (fail), cross-track 0.379 m vs 0.451 m (ratio 0.84, bound 0.99: not below 0.90), speed error ratio
+0.98 (pass). Hard stratum: completion 8.9 % vs 0.4 % (+8.5, pass), unsafe -7.8 (pass), cross-track ratio 0.93. All 423
+routes: completion 36.4 % vs 33.3 % (+3.1, 5th percentile +0.7), unsafe 63.6 % vs 66.2 %, cross-track ratio 0.92,
+speed 0.95. Round 2 moved the soil result from a clear failure (76.6 % completion on feasible routes) to within 8
+points of the PID with better path tracking and fewer unsafe events overall, but it does not meet the predeclared
+replacement rules on soil. Verdict for Milestone B: passes on rigid ground except the hard-route completion bound;
+fails on soil on the feasible-route completion and unsafe rules while beating the PID on the hard routes.
 
 ## 3. Honest caveats
 
@@ -188,7 +243,21 @@ retrain will raise the speed-tracking weight. Results replace this section when 
 - Milestone B on soil is a negative result in round 1 despite a dynamics model that passes its gates; the imagination
   to Chrono gap on soil is not closed by this round.
 
-## 4. Artefacts
+## 4. Remaining work (not done in this session)
+
+- Drive the branch-retrained history model closed loop (A3/A5 used the re-anchored-only deploy ensembles); the
+  offline gain from branch rows is small, so the expected closed-loop change is small too.
+- Soil tracker: a third round with policy failures harvested on soil training routes (only rigid failures were
+  harvested), a longer imagination horizon check on soil, and a soil-specific reward term for wheel spin; the
+  imagination-to-Chrono gap on soil is not closed.
+- Startup on soil: the 0.4-point margin miss could be tested with a conservative startup rule (plan step 5) or a
+  short common approach segment before the first decision, which the established-history protocol already shows to
+  work.
+- A second CRM arena and unseen soil parameters (the handoff's stated limit) remain untested.
+- Integration step from the handoff (retrain the risk model under the learned tracker) was not started because the
+  tracker does not yet replace the PID on soil.
+
+## 5. Artefacts
 
 `A_adapt/` (datasets, probe, train/{holdout_v1,holdout_test_v1,deploy_v1,branch_v1}, suite, a3, a4, a5, results),
 `B_tracker/` (cache_v1..v3 manifests, audit, nrd_tag, ppo_v1, b0, b3, suite), `C_collectors/` (collector notes,

@@ -1,68 +1,79 @@
 {
- "H:Sprigid": {
-  "diff_pts": -0.12500000000000003,
+ "H:Spcrm": {
+  "diff_pts": -0.8750000000000008,
   "ci95": [
-   -0.5148170998686462,
-   0.29632936507936525
+   -2.98136645962733,
+   0.8412566901782871
   ],
   "clusters": 9,
-  "cluster_wins": 2,
-  "cluster_losses": 1,
+  "cluster_wins": 4,
+  "cluster_losses": 4,
   "sign_p": 1.0
  },
- "Hmask:Sprigid": {
-  "diff_pts": -0.25,
+ "Hmask:Spcrm": {
+  "diff_pts": -0.8750000000000008,
   "ci95": [
-   -0.9296148738379815,
-   0.24813895781637718
+   -2.75967995837852,
+   0.5296891305912411
   ],
   "clusters": 9,
-  "cluster_wins": 2,
-  "cluster_losses": 1,
-  "sign_p": 1.0
- },
- "T:Sprigid": {
-  "diff_pts": 0.0,
-  "ci95": [
-   -0.4778972520908005,
-   0.5057050040807183
-  ],
-  "clusters": 9,
-  "cluster_wins": 2,
-  "cluster_losses": 2,
-  "sign_p": 1.0
- },
- "P:Sprigid": {
-  "diff_pts": -0.12500000000000003,
-  "ci95": [
-   -0.40323937394173576,
-   0.0
-  ],
-  "clusters": 9,
-  "cluster_wins": 1,
-  "cluster_losses": 0,
-  "sign_p": 1.0
- },
- "Spcrm:Sprigid": {
-  "diff_pts": 0.625,
-  "ci95": [
-   -0.13386880856760375,
-   1.5047879616963065
-  ],
-  "clusters": 9,
-  "cluster_wins": 1,
+  "cluster_wins": 5,
   "cluster_losses": 3,
-  "sign_p": 0.625
+  "sign_p": 0.7265625
+ },
+ "T:Spcrm": {
+  "diff_pts": -1.3750000000000013,
+  "ci95": [
+   -3.3290057700843323,
+   0.4294318840306613
+  ],
+  "clusters": 9,
+  "cluster_wins": 6,
+  "cluster_losses": 2,
+  "sign_p": 0.2890625
+ },
+ "P:Spcrm": {
+  "diff_pts": -0.5000000000000004,
+  "ci95": [
+   -2.7705354626929033,
+   1.6691844532980389
+  ],
+  "clusters": 9,
+  "cluster_wins": 4,
+  "cluster_losses": 4,
+  "sign_p": 1.0
+ },
+ "Sprigid:Spcrm": {
+  "diff_pts": 19.749999999999996,
+  "ci95": [
+   13.801116116556397,
+   25.33046989720999
+  ],
+  "clusters": 9,
+  "cluster_wins": 0,
+  "cluster_losses": 9,
+  "sign_p": 0.00390625
  },
  "H:Hmask": {
-  "diff_pts": 0.12499999999999999,
+  "diff_pts": 0.0,
   "ci95": [
-   -0.5727705643077238,
-   0.9523809523809524
+   -1.5469613259668502,
+   1.4886418428133705
   ],
   "clusters": 9,
-  "cluster_wins": 1,
-  "cluster_losses": 2,
-  "sign_p": 1.0
+  "cluster_wins": 3,
+  "cluster_losses": 6,
+  "sign_p": 0.5078125
+ },
+ "H:P": {
+  "diff_pts": -0.37500000000000033,
+  "ci95": [
+   -3.619302949061662,
+   2.3281596452328164
+  ],
+  "clusters": 9,
+  "cluster_wins": 3,
+  "cluster_losses": 6,
+  "sign_p": 0.5078125
  }
 }
