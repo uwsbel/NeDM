@@ -1,15 +1,25 @@
 # State
 
-**Updated:** 2026-09-21 (afternoon) · **Branch:** `kyle/quadruped-pipeline` (off `kyle/locomotion`) · **Head:** `07f440a4`
+**Updated:** 2026-09-22 (early morning) · **Branch:** `kyle/quadruped-pipeline` on uwsbel/NeDM (off `kyle/locomotion`) · **Head:** `073ce6f4`
 
 ## Where this is
 
-The whole pipeline exists and has run end to end at scale: an 800-episode CRM corpus
-collected on hpcfund, NN-ROMs trained on it, analytic and PPO fine-tunes, and a paired
-Chrono evaluation. **The first fine-tune results are void** -- not because either method
-failed, but because the policy rolled inside the NN-ROM was not the policy the robot runs
-(below, and `LESSONS.md`). The fault is fixed and verified (`07f440a4`); the corpus is
-being recollected as v2, because the fix is in how rows are captured.
+**PPO fine-tuning inside the NN-ROM improves CRM tracking, verified in Chrono, and the best
+recipe is a long-horizon surrogate with long branches.** Fine-tuning a trained surrogate on
+its own 50-step rollouts makes it trustworthy across 10 s instead of ~2 s; PPO with 2 s
+branches in it halves forward tracking error (-50%, -53%, 16/16 episodes, both seeds),
+cuts yaw error 56-59%, and leaves sideways tracking unchanged. The same surrogate with
+0.30 s branches is WORSE, so short rollouts are not merely defensible, they are the wrong
+choice once the surrogate supports long ones. Effects reproduce across machines (NVIDIA
+north and AMD hpcfund, different Chrono builds) to within a few points.
+
+Still open before it is a result: the 2 s recipe is one surrogate x two seeds (replication
+in 5-7 multi-step surrogates is running), every score so far is one straight-line command
+(a 40-path evaluation over all ten command families is running), and env scaling from 64
+to 2048 parallel rollouts is running. See "Running" at the bottom.
+
+The v1 fine-tunes of 2026-09-21 are void (three rollout bugs, below); everything since is on
+the v2 corpus with rows captured before the physics step.
 
 The base policy walks on both terrains. Quoted as replicate means, because a single CRM
 run does not support a number (see `docs/EVALUATION.md`):
@@ -108,6 +118,64 @@ dynamics identical, differing only by GPU rounding) diverge by errdist 0.012 at 
 0.003 at 2 s (median, 53 twins; mostly the one-physics-step timestamp offset), 0.06 at
 10 s. The surrogates score 0.37 and ~1.0 there. Part of the gap is hidden soil state the
 36-D state does not carry; the rest is headroom (`diagnostics/chaos_floor.py`).
+
+## The better surrogate (multi-step training)
+
+Chrono is predictable for seconds (twin episodes: errdist 0.003 at 2 s); one-step
+surrogates are not (~1.0 at 2 s). Teacher forcing never shows a model its own errors, so
+`train.py --init-from <best.pt> --rollout-loss-steps K` fine-tunes a trained surrogate on
+K-step rollouts of its own predictions (8 epochs x 1000 steps, lr 1e-4; ~1.2 h on one
+MI300X). Seed-7 surrogate, errdist against the no-motion floor of 1.0:
+
+| horizon | as trained | + one-step control | + 30-step | **+ 50-step** |
+|---|---|---|---|---|
+| 0.3 s | 0.366 | 0.366 | 0.359 | **0.359** |
+| 1.0 s | 0.570 | 0.519 | 0.500 | **0.432** |
+| 2.0 s | 1.33 | 1.17 | 0.725 | **0.535** |
+| 5.0 s | worse | 1.65 | 0.996 | **0.624** |
+| 10 s | worse | 1.40 | 1.01 | **0.863** |
+
+A 10-step loss from scratch helps to ~2 s but diverges by 5 s; the length of the training
+rollout is what matters. The 100-step variant was still improving at the time limit.
+
+## The recipe that works: long-horizon surrogate, long branches
+
+PPO in the seed-7 surrogate, paired against north's base arm (CRM, vx 0.5, 16 spawns):
+
+| surrogate | branch | seed | mae_vx | mae_vy | mae_wz |
+|---|---|---|---|---|---|
+| as trained (~2 s) | 0.30 s | 0 | -44% | **+40%** | -41% |
+| 50-step (10 s) | 0.30 s | 0 | **+36%** | +32% | -40% |
+| 50-step (10 s) | 0.30 s | 1 | **+19%** | +4% (ns) | -54% |
+| **50-step (10 s)** | **2.0 s** | **0** | **-50% (16/16)** | +8% (ns) | **-56%** |
+| **50-step (10 s)** | **2.0 s** | **1** | **-53% (16/16)** | +4% (ns) | **-59%** |
+
+All 16/16 upright, Gate 4 0.0%. Reading: the multi-step fine-tune trades a little one-step
+accuracy (val loss 0.010 -> 0.016) for long-horizon accuracy; short branches see only
+what it traded away, long branches use what it gained.
+
+The branch-length sweep on a one-step surrogate (seed 1, usable to ~3 s) agrees: yaw
+improves with branch length (-35/-50% at 0.3 s to -53/-61% at 2.0 s), the sideways
+penalty of short branches disappears, and 2.0 s improved all three axes for both seeds.
+
+## Reproduction across machines, and the surrogate spread
+
+The same three policies scored on north (NVIDIA, build d1d0bd0a) and hpcfund (AMD MI210,
+build c716f05e): mae_vx -36/-40%, -26/-25%, -24/-24%; mae_wz -46/-45%, -61/-61%,
+-53/-54%. vy, the smallest channel, is noisier.
+
+PPO at 0.30 s in eight one-step surrogates: forward tracking improves in seven (-14% to
+-51%), and a3's surrogate is the outlier (+57%, +80%). Yaw improves in all. The selected
+epoch does not predict it (late epochs 44, 56, 72, 80 went both ways). The consistent
+cost of 0.30 s branches is sideways tracking (+13-18%, ~0.007 m/s), which 2 s branches remove.
+
+## Evaluation on paths
+
+`evaluate.py --paths N` scores N held-out schedules per command family (all ten, seeds
+777000000+, none seen in training), 15 s each, with the command changing along the path
+as it does in collection; `paired_eval.py --by-family` breaks results down per family.
+Beds are sized at full commanded speed and a robot leaving the bed ends the episode as
+failed. First results: running (see below).
 
 ## Corpora and models
 
@@ -212,22 +280,22 @@ against nothing (`5e3df653`).
 
 ## Fleet
 
-- **hpcfund** runs CRM collection. v1 used 16 x `mi2101x` (1.75 h per 50-episode shard,
-  ~2.8 charged node-hours). v2 packs 4 shards per `mi2104x` node, one per MI210, at the
-  same 10 GPU-h per charged node-hour, because `mi2101x` was fully allocated. Staged code
-  is marked with `qrun/.source_commit`.
-- **north** (RTX 5070 Ti) trains NN-ROMs: 42 s per 2000-step epoch on v2, against 99 s
-  on a3's RTX 5060 Ti. The selection rollout is batched across episodes (20.2 s -> 3.0 s
-  per epoch at the 10 s horizon, same numbers to 7e-5). a3 is the slowest card in the
-  fleet and should not be the default for training.
-- **north** runs the paired CRM evaluation (~36 s per 6 s episode) and the rigid tests.
-- **euler** holds the branch. It still reads dirty because of 15 untracked
-  `configs/go2_crm_*.json`, which is Kyle's call (commit, ignore, or `--untracked-files=no`).
-- a3 cannot run the unapproximated reference (display watchdog); sbel can.
+- **hpcfund** collects CRM corpora and now also trains surrogates (MI300X, ~30 s/epoch, the
+  fastest here) and runs paired Chrono evaluations (4 per `mi2104x` node, one per MI210).
+  mi3001x is often congested; mi2104x is the fallback.
+- **euler** trains on the `sbel` partition (4 x A100 on euler19, not preempted). Share
+  euler19 politely: another user runs CPU jobs there; size requests so nothing is preempted.
+- **north** (RTX 5070 Ti, 60 GB RAM) runs fine-tunes and evaluations; its WiFi is the
+  slowest link, so bulk transfers and NAS writes go through a3 or sbel.
+- **a3, sbel** have 30 GB RAM. evaluate.py once needed ~30 GB (fixed, `d6b15f28`); it
+  OOM-killed evaluations on a3 and appears to have taken sbel down.
+- **NAS** (`/mnt/nas/Main/nedm/{data,models,results}`, STANDARD.md sec. 3) holds the corpora,
+  surrogates and results; the branch is on GitHub.
 
 ## Running
 
-hpcfund: v2 collection, array job 430005 (6 x `mi2104x`, 24 shards, started 13:00).
-The packed smoke (429999) ran four CRM collects at once, one per GPU, at the same
-per-episode speed as a single-GPU node. a3: an NN-ROM on the 800-episode v1 corpus, kept
-running only as a capacity data point, since no fine-tune can use a v1 model.
+hpcfund: 40-path evaluation of 8 policies (430923); multi-step fine-tunes of 8 surrogates
+(430862), after which a launcher runs 2 s PPO in each and the multi-step ensemble;
+env scaling 64-1024 envs (430927). sbel: 2048 envs seed 0. north: 2048 envs seed 1 after
+the branch-length runs in the multi-step surrogate. euler: multi-step fine-tunes of its
+four surrogates.

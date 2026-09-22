@@ -331,3 +331,44 @@ policy's recorded behaviour at its start states. `finetune.py` now refuses to ru
 it does (`check_start_reproduction`), `diagnostics/obs_truth.py` checks the observation block by block
 against a live Chrono run, and corpora are stamped `row_capture=pre_step` so the old ones
 are refused rather than silently reused.
+
+## Tonight's operational failures, and the rule each produced (2026-09-21/22)
+
+**Evaluation code took down a workstation.** `evaluate.py` built its Gate 4 reference by
+reading every corpus row into dicts of strings: ~30 GB for 36 numeric columns. On 30 GB
+machines the kernel OOM-killed two evaluations on a3, and sbel locked up and rebooted
+mid-evaluation, taking its queue with it. Streaming only the needed columns gives the
+identical matrix at 2.1 GB.
+→ Measure peak memory before running anything on a small-RAM machine, and never load a
+corpus as Python objects to use a few columns of it.
+
+**Exit codes lied three ways.** `pgrep -f pattern` matched its own shell's command line, so
+a finished training looked alive for an hour; `ssh a "cat missing" | ssh b "cat > f"`
+succeeded on the writing side and left two empty model files; and in zsh `$h:q` is a
+modifier, so `scp file $h:qrun/...` mangled three destinations. Each was caught only
+because something downstream looked wrong.
+→ Match processes with a pattern that cannot match itself (`[t]rain.py`), verify copies by
+size and checksum rather than by exit status, and brace variables before a colon.
+
+**A waiter that reads a failed ssh as an answer.** A DNS blip made `until ! ssh host
+'squeue ... | grep -q .'` succeed, and the chain ran its merge checks against nothing.
+→ Retry until ssh itself succeeds, and launch long remote jobs detached with a completion
+marker, so a dropped connection neither ends nor restarts them.
+
+**The rewrite reintroduced bugs the old pipeline had already fixed.** The appended action,
+the zero-seeded previous action and the control-row parity were all on the old recipe's
+list of prerequisites, and all three came back in the new fine-tune.
+→ When rewriting, carry the old pipeline's fixed-bug list over as tests, not as history.
+
+**A plausible mechanism was adopted before its ablation.** a3's surrogate transferred worst
+and had been selected at an overfit epoch, so the selected epoch was blamed. The ablation
+(PPO in two surrogates' epoch-80 checkpoints) went both ways: one worse, one much better.
+→ A mechanism that fits one case is a hypothesis; say so until the control is in.
+
+**A surrogate improvement changes which experiment is right.** After multi-step training
+made the surrogate trustworthy to 10 s, 0.30 s branches in it made forward tracking worse
+while 2 s branches halved the error. A fixed branch length would have hidden the gain and
+reported a regression.
+→ Re-derive the rollout horizon from the surrogate's horizon profile whenever the surrogate
+changes.
+
