@@ -38,7 +38,13 @@ from lib.coverage import Reference, verdict as cov_verdict   # noqa: E402
 
 def episode(chrono, policy_path, urdf, cfg, terrain_kind, command, seconds,
             warmup_s, spacing, step, soil, patch_x, patch_y, depth, spawn_offset=0.0):
-    """Run one episode; return per-step tracking and the visited (state, action) rows."""
+    """Run one episode; return per-step tracking and the visited (state, action) rows.
+
+    `command` is either a fixed (vx, vy, wz) or a schedule f(t) -> (vx, vy, wz), the same
+    form the collector's command families produce. Tracking error is measured against the
+    command ACTIVE at each step, which the policy is also given at each control step.
+    """
+    sched = command if callable(command) else (lambda t, _c=tuple(command): _c)
     from nedm.quadruped.constants import STAND_ACTION
     from quadruped.lib.policy import Go2Policy
     from quadruped.params import transforms as T
@@ -56,7 +62,7 @@ def episode(chrono, policy_path, urdf, cfg, terrain_kind, command, seconds,
     # surviving comparison is drawn from the better-behaved half of each arm's behaviour.
     # That would flatter whichever policy drifts more, which is exactly the axis
     # fine-tuning is expected to change.
-    xlo, xhi, ylo, yhi = plan_path(lambda t: tuple(command), seconds, warmup_s)
+    xlo, xhi, ylo, yhi = plan_path(sched, seconds, warmup_s)
     px = min(MAX_PATCH_X, max(patch_x, (xhi - xlo) + 2 * (EDGE_MARGIN_M + 0.2)))
     py = min(MAX_PATCH_Y, max(patch_y, (yhi - ylo) + 2 * (EDGE_MARGIN_M + 0.2)))
     # The replicate perturbation: where on the particle lattice the run begins. The bed is
@@ -69,7 +75,7 @@ def episode(chrono, policy_path, urdf, cfg, terrain_kind, command, seconds,
         span_xy=(xhi - xlo + 2 * abs(spawn_offset), yhi - ylo))
 
     pol = Go2Policy(policy_path, cfg=cfg)
-    pol.command = np.asarray(command, dtype=np.float32)
+    pol.command = np.asarray(sched(0.0), dtype=np.float32)
 
     for _ in range(int(warmup_s / dt)):
         robot.actuate(STAND_ACTION)
@@ -80,8 +86,11 @@ def episode(chrono, policy_path, urdf, cfg, terrain_kind, command, seconds,
     n = int(seconds / dt)
     err = {"vx": [], "vy": [], "wz": []}
     visited, min_z = [], float("inf")
+    cmd = np.asarray(sched(0.0), dtype=np.float32)
     for i in range(n):
         if i % every == 0:
+            cmd = np.asarray(sched(i * dt), dtype=np.float32)
+            pol.command = cmd
             robot.actuate(pol.act(robot))
         robot.apply_pd()
         (terrain or system).DoStepDynamics(dt)
@@ -93,9 +102,9 @@ def episode(chrono, policy_path, urdf, cfg, terrain_kind, command, seconds,
         R = T.quat_to_rot(r.e0, r.e1, r.e2, r.e3)
         vb = R.T @ np.array([v.x, v.y, v.z])
         w = b.GetAngVelLocal()
-        err["vx"].append(abs(vb[0] - command[0]))
-        err["vy"].append(abs(vb[1] - command[1]))
-        err["wz"].append(abs(w.z - command[2]))
+        err["vx"].append(abs(vb[0] - cmd[0]))
+        err["vy"].append(abs(vb[1] - cmd[1]))
+        err["wz"].append(abs(w.z - cmd[2]))
         if i % every == 0:
             visited.append(np.concatenate([robot.joint_pos(), robot.joint_vel(),
                                            [vb[0], vb[1], vb[2], w.x, w.y, w.z, p.z],
@@ -171,6 +180,17 @@ def main() -> int:
     ap.add_argument("--seconds", type=float, default=6.0)
     ap.add_argument("--warmup-s", type=float, default=1.0)
     ap.add_argument("--vx", type=float, default=0.5)
+    ap.add_argument("--paths", type=int, default=0,
+                    help="PATH MODE: this many held-out command schedules PER FAMILY, drawn "
+                         "from the collector's own generator (lib/commands.py) with "
+                         "evaluation-only seeds, instead of the fixed straight-line command. "
+                         "The fine-tune trains on all ten families; scoring only straight "
+                         "walking would test a sliver of what it was tuned for.")
+    ap.add_argument("--families", default="all",
+                    help="comma-separated command families for --paths, or 'all'")
+    ap.add_argument("--path-seed", type=int, default=777_000_000,
+                    help="seed base for path mode; far from every collection seed "
+                         "(20260921 + 1000*shard + episode), so no path was seen in training")
     ap.add_argument("--spawn-spread", type=float, default=1.0,
                     help="replicates are spread over +/- this many metres of spawn "
                          "position. 1.0 is the validated perturbation; 0.25 understated "
@@ -203,26 +223,67 @@ def main() -> int:
     # +/-0.25 m spread did. The case list is a deterministic function of the arguments, so
     # a base policy and a fine-tuned one evaluated with the same flags see identical cases
     # and the comparison is paired episode for episode.
-    offsets = np.linspace(-a.spawn_spread, a.spawn_spread, a.episodes)
-    for k in range(a.episodes):
-        vx = a.vx
+    cases = []   # (family, schedule, seconds, spawn_offset, descriptor)
+    if a.paths > 0:
+        from quadruped.lib import commands as CMD  # noqa: PLC0415
+        sys.path.insert(0, str(HERE))
+        from collect import plan_path, MAX_PATCH_X, MAX_PATCH_Y, EDGE_MARGIN_M  # noqa
+        exc = yaml.safe_load((HERE / "params" / "excitation.yaml").read_text())
+        ranges = {k: tuple(v) for k, v in exc["commands"]["ranges"].items()}
+        fams = list(CMD.FAMILIES) if a.families == "all" else a.families.split(",")
+        for fi, fam in enumerate(fams):
+            for j in range(a.paths):
+                rng = np.random.default_rng(a.path_seed + 1000 * fi + j)
+                prm = CMD.draw_params(fam, rng, ranges)
+                sec = a.seconds
+                # A path the largest bed cannot hold is SHORTENED for every arm alike, not
+                # truncated by the bed edge in whichever arm drifts furthest.
+                while True:
+                    sch = CMD.schedule(fam, prm, sec,
+                                       np.random.default_rng(a.path_seed + 1000 * fi + j + 1))
+                    xlo, xhi, ylo, yhi = plan_path(sch, sec, a.warmup_s)
+                    fits = ((xhi - xlo) + 2 * (EDGE_MARGIN_M + 0.2) + 2 * a.spawn_spread
+                            <= MAX_PATCH_X and (yhi - ylo) + 2 * (EDGE_MARGIN_M + 0.2)
+                            <= MAX_PATCH_Y)
+                    if fits or sec <= 6.0:
+                        break
+                    sec -= 1.0
+                # Spawn spread across a family's paths, so lattice position is not
+                # confounded with path.
+                off = float(np.linspace(-a.spawn_spread, a.spawn_spread, a.paths)[j]
+                            if a.paths > 1 else 0.0)
+                cases.append((fam, sch, sec, off, {k: round(v, 3) for k, v in prm.items()}))
+        print(f"path mode: {len(cases)} paths, {a.paths} per family over {len(fams)} "
+              f"families, seed {a.path_seed}")
+    else:
+        # REPLICATES ARE THE SAME CONDITION AT DIFFERENT LATTICE POSITIONS, not different
+        # commands (see git history: a command varied with the episode index once put a
+        # robot commanded backwards into a forward-tracking score). The replicate
+        # perturbation is the spawn offset over +/-1.0 m.
+        offsets = np.linspace(-a.spawn_spread, a.spawn_spread, a.episodes)
+        for k in range(a.episodes):
+            cases.append(("fixed", (a.vx, 0.0, 0.0), a.seconds, float(offsets[k]),
+                          {"vx": a.vx}))
+
+    for k, (fam, cmd, sec, off, desc) in enumerate(cases):
         r = episode(chrono, Path(a.policy), Path(a.urdf), cfg, a.terrain,
-                    [vx, 0.0, 0.0], a.seconds, a.warmup_s, a.spacing, a.step,
-                    a.soil, a.patch_x, a.patch_y, a.depth,
-                    spawn_offset=float(offsets[k]))
+                    cmd, sec, a.warmup_s, a.spacing, a.step,
+                    a.soil, a.patch_x, a.patch_y, a.depth, spawn_offset=off)
+        base_rec = {"episode_id": f"{a.label}_{k:03d}", "family": fam, "params": desc,
+                    "seconds": sec, "spawn_offset": off,
+                    "chrono_md5": PROV.chrono_provenance()["md5"]}
         if r is None:
-            recs.append({"episode_id": f"{a.label}_{k:03d}", "completed": 0,
-                         "chrono_md5": PROV.chrono_provenance()["md5"]})
-            print(f"  ep {k}  DIVERGED")
+            recs.append({**base_rec, "completed": 0})
+            print(f"  ep {k}  {fam:<11s}  DIVERGED")
             continue
         v = r.pop("visited")
         vis.append(v)
-        r.update({"episode_id": f"{a.label}_{k:03d}", "cmd_vx": vx,
-                  "spawn_offset": float(offsets[k]),
-                  "chrono_md5": PROV.chrono_provenance()["md5"]})
+        r.update(base_rec)
+        if fam == "fixed":
+            r["cmd_vx"] = a.vx
         recs.append(r)
-        print(f"  ep {k}  cmd {vx:+.2f}  mae_vx {r['mae_vx']:.4f}  "
-              f"min_z {r['min_z_m']:.3f}")
+        print(f"  ep {k}  {fam:<11s} {sec:4.1f}s  mae_vx {r['mae_vx']:.4f}  "
+              f"mae_vy {r['mae_vy']:.4f}  mae_wz {r['mae_wz']:.4f}  min_z {r['min_z_m']:.3f}")
 
     out = Path(a.out)
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -254,7 +315,8 @@ def main() -> int:
                         metric_defs={"mae": "v1", "coverage_knn": "v1"},
                         extra={"label": a.label, "terrain": a.terrain,
                                "coverage": sc, "coverage_pass": bool(ok)},
-                        notes=f"{a.episodes} episodes")
+                        notes=(f"{len(cases)} paths ({a.paths}/family, seed "
+                               f"{a.path_seed})" if a.paths else f"{a.episodes} episodes"))
     PROV.write(out.parent / f"{a.label}_manifest.json", man)
     print(f"\nwrote {out} and {out.parent / (a.label + '_manifest.json')}")
     return 0 if ok else 2

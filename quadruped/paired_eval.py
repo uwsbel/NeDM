@@ -46,6 +46,8 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--base", required=True)
     ap.add_argument("--arms", nargs="+", required=True, help="label=path")
+    ap.add_argument("--by-family", action="store_true",
+                    help="also break each arm down by command family (path-mode records)")
     a = ap.parse_args()
 
     base = load(a.base)
@@ -82,6 +84,17 @@ def main() -> int:
             sig = "  <-- clear of zero" if abs(t) >= 2 else ""
             print(f"  {m:7s} base {st.mean(b):.4f}  change {md:+.4f} ({pct:+.1f}%)  "
                   f"se {se:.4f}  t {t:+6.2f}  better in {wins}/{len(d)}{sig}")
+        if a.by_family:
+            fams = sorted({base[k].get("family", "?") for k in pairs})
+            print(f"  {'family':<12s} {'n':>3s} {'d mae_vx':>9s} {'d mae_vy':>9s} {'d mae_wz':>9s}")
+            for fam in fams:
+                ks = [k for k in pairs if base[k].get("family") == fam]
+                cells = []
+                for m in METRICS:
+                    b_ = st.mean(base[k][m] for k in ks)
+                    d_ = st.mean(arm[k][m] - base[k][m] for k in ks)
+                    cells.append(f"{100 * d_ / b_:+8.1f}%" if b_ else "      --")
+                print(f"  {fam:<12s} {len(ks):3d} " + " ".join(cells))
         # The resolution this run could have detected, so a null reads as a bound.
         d_vx = [arm[k]["mae_vx"] - base[k]["mae_vx"] for k in pairs]
         se_vx = st.stdev(d_vx) / math.sqrt(len(d_vx))
