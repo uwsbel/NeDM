@@ -37,11 +37,11 @@ from pathlib import Path
 
 import numpy as np
 
-REPO = Path(__file__).resolve().parents[1]
+REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "src"))
 sys.path.insert(0, str(REPO))
 
-from quadruped.active_domain_study import PATCH_X, PATCH_Y, run_case  # noqa: E402
+from quadruped.diagnostics.active_domain_study import PATCH_X, PATCH_Y, run_case  # noqa: E402
 
 # Bounded so a 3 s window plus warmup keeps the robot on an 8 x 4 bed with a metre of
 # margin. These are narrower than the collection ranges in excitation.yaml: the point is

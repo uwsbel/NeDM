@@ -1,6 +1,6 @@
 # How the study's metrics have to be measured
 
-**Updated:** 2026-09-20, after a correction. Measured with `tracking_spread.py`, 3 s
+**Updated:** 2026-09-20, after a correction. Measured with `diagnostics/tracking_spread.py`, 3 s
 windows at 0.5 m/s commanded, corrected bed geometry (`89c898b8`).
 
 ## The tracking metric is not repeatable on CRM, and is on rigid
@@ -35,7 +35,7 @@ narrow: at +/-0.25 m the two machines read 70.2 and 78.3, and at +/-1.0 m they r
 and 74.7. Nothing about the machines changed between those two measurements; only how
 widely each one sampled its own distribution did.
 
-So **CRM results are reproducible across machines**, and `machine_probe.py` was right all
+So **CRM results are reproducible across machines**, and `diagnostics/machine_probe.py` was right all
 along: the two produce bit-identical SPH state for two steps and then diverge at rounding
 level, which is one computation amplified rather than two different ones.
 
@@ -65,7 +65,7 @@ Two lessons worth more than the retracted number:
   perturbation clearly mattered enormously on CRM, which is exactly when its SIZE needs
   justifying rather than picking.
 - **When a mechanism check and a statistic disagree, the mechanism usually wins.**
-  `machine_probe.py` showed the two machines produce bit-identical SPH state for two steps
+  `diagnostics/machine_probe.py` showed the two machines produce bit-identical SPH state for two steps
   and then diverge at rounding level -- the signature of the same computation amplified,
   not a different one. That was reported alongside a claim of systematic machine bias, and
   reconciled by inventing "a small systematic component on top". The probe was right and

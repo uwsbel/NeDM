@@ -11,7 +11,7 @@ not.
 
 ## Patch length is nearly free
 
-`quadruped/patch_cost.py`, 3.0 s of walking at 0.6 m/s commanded, after 1.5 s of warmup,
+`quadruped/diagnostics/patch_cost.py`, 3.0 s of walking at 0.6 m/s commanded, after 1.5 s of warmup,
 active domain held at the inherited 1.0 m:
 
 | patch | SPH particles | ms/step | vs real time |
@@ -76,7 +76,7 @@ measures.
 
 So the rule is the one already applied to artificial viscosity: **take the smallest value
 that does not change the answer, and show that it does not.** That calibration is
-`quadruped/active_domain_study.py`, run in two stages:
+`quadruped/diagnostics/active_domain_study.py`, run in two stages:
 
 1. A cheap sweep against a 2.0 m reference to find the shape of the dependence and the
    smallest candidate that does not move the trajectory. Running now.
@@ -134,7 +134,7 @@ the price of all three of those. **Use a long static bed and a calibrated active
 
 ## Settled: the bed does not meaningfully settle, so 0.1 s of free flow is enough
 
-Measured on north, `settling_test.py`, three commands, total warmup held fixed at 2.5 s so
+Measured on north, `diagnostics/settling_test.py`, three commands, total warmup held fixed at 2.5 s so
 only the free-flow fraction varies.
 
 | free flow | bulk compaction | surface | warmup wall |
@@ -209,5 +209,5 @@ comparison the study actually reports, and an uncommon one does not.
 The ensembles' own ms/step figures disagree between runs by 2.3x on identical
 configurations -- the null arm reads 73.6 ms/step in run 1 and 169.2 in run 2, same bed,
 same settings. Something else was contending for the GPU. Cost numbers come from
-`patch_cost.py`, which was run on an idle machine for that purpose; the ensemble's timings
+`diagnostics/patch_cost.py`, which was run on an idle machine for that purpose; the ensemble's timings
 are incidental and unreliable.

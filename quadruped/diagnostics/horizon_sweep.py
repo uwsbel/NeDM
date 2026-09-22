@@ -21,7 +21,7 @@ from pathlib import Path
 
 import numpy as np
 
-HERE = Path(__file__).resolve().parent
+HERE = Path(__file__).resolve().parents[1]   # the quadruped/ directory; this script lives in diagnostics/
 sys.path.insert(0, str(HERE.parent / "src"))
 sys.path.insert(0, str(HERE.parent))
 sys.path.insert(0, str(HERE))

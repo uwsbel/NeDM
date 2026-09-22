@@ -38,7 +38,7 @@ sufficient on its own to break transfer:
 1. **Post-step capture.** `collect.py` recorded each row after `DoStepDynamics`, so at a
    control row the state already carried the PD kick from the action being chosen there.
    The policy's output from a recorded row missed its real output by 36% of its spread on
-   rigid ground and ~60% on CRM. Now captured before the step; `obs_truth.py` shows every
+   rigid ground and ~60% on CRM. Now captured before the step; `diagnostics/obs_truth.py` shows every
    observation block agreeing exactly against a live run.
 2. **100 Hz policy.** The fine-tune called the policy every model step (rows are 100 Hz,
    control is 50 Hz). It now holds each action for two model steps.
@@ -107,7 +107,7 @@ Eleven single-surrogate PPO runs (all paired against one base run on north unles
 dynamics identical, differing only by GPU rounding) diverge by errdist 0.012 at 0.3 s and
 0.003 at 2 s (median, 53 twins; mostly the one-physics-step timestamp offset), 0.06 at
 10 s. The surrogates score 0.37 and ~1.0 there. Part of the gap is hidden soil state the
-36-D state does not carry; the rest is headroom (`chaos_floor.py`).
+36-D state does not carry; the rest is headroom (`diagnostics/chaos_floor.py`).
 
 ## Corpora and models
 
@@ -147,7 +147,7 @@ horizon, which had stamped this model worse-than-nothing when it is not at 0.3 s
 | moving patch | not used | +x only, and our commands cover vy and wz |
 | bed sizing | from the planned path, widened for yaw drift (0.35 rad/s) | see below |
 | checkpoint selection | smoothed rollout errdist at 10 s; usability judged at 0.30 s | one-step val_loss ranks corpora with the wrong sign |
-| row capture | before the physics step | `obs_truth.py`, `07f440a4` |
+| row capture | before the physics step | `diagnostics/obs_truth.py`, `07f440a4` |
 | fine-tune commands | the recorded command at the branch start | random commands score a 0.3 s transient the policy was never asked to win |
 | evaluation | paired, same 16 spawns per arm, `paired_eval.py` | spawn is most of the CRM variance |
 
@@ -202,7 +202,7 @@ Full detail in `docs/COST.md`. The short version, with one correction:
 
 ## Tooling added today
 
-`namecheck.py` compares names read against names bound per function with a real scope
+`diagnostics/namecheck.py` compares names read against names bound per function with a real scope
 chain, because `py_compile` accepts a function that reads a name nothing assigns and one
 such bug cost three minutes of GPU. Its first real catch was worse than the bug that
 motivated it: **`doctor.py` was verifying nothing.** `_no_driver` had been inserted into

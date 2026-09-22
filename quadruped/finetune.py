@@ -284,7 +284,7 @@ def check_start_reproduction(torch, obs, policy, b):
             f"actually output ({100 * rms / spread:.1f}% of its spread). Fine-tuning would "
             f"optimise the policy for an input it never sees in Chrono. Check that the "
             f"corpus was collected by THIS policy with row_capture=pre_step, and that "
-            f"ObsBuilder matches lib/policy.py (obs_truth.py tests exactly that).")
+            f"ObsBuilder matches lib/policy.py (diagnostics/obs_truth.py tests exactly that).")
     return rms / max(spread, 1e-12)
 
 

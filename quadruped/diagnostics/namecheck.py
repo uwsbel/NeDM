@@ -23,7 +23,9 @@ import builtins
 import sys
 from pathlib import Path
 
-BUILTINS = set(dir(builtins))
+# Module-level dunders every module has but dir(builtins) does not list; __file__ was
+# reported unbound in corpus_check.py, a false positive.
+BUILTINS = set(dir(builtins)) | {"__file__", "__name__", "__doc__", "__spec__", "__package__"}
 FUNC = (ast.FunctionDef, ast.AsyncFunctionDef)
 SCOPED = FUNC + (ast.Lambda, ast.ClassDef)
 

@@ -116,7 +116,7 @@ def main() -> int:
     # halves do not cover each other cannot cover a policy that moves away from it. This
     # is the weak form; the strong form runs in evaluate.py against the states a
     # fine-tuned policy actually visits.
-    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))   # quadruped/
     from lib.coverage import Reference, verdict as cov_verdict  # noqa: PLC0415
     XA = np.hstack([S, A])
     half = len(XA) // 2

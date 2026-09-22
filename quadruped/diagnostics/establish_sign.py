@@ -25,7 +25,7 @@ from pathlib import Path
 
 import numpy as np
 
-REPO = Path(__file__).resolve().parents[1]      # <repo>/quadruped/this.py -> <repo>
+REPO = Path(__file__).resolve().parents[2]      # <repo>/quadruped/diagnostics/this.py -> <repo>
 sys.path.insert(0, str(REPO / "src"))
 sys.path.insert(0, str(REPO))                   # so `quadruped.params` imports
 

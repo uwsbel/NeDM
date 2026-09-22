@@ -98,7 +98,7 @@ def check_chrono(alias, reg) -> str:
     The consequence was the exact failure this function exists to prevent: the conda trap
     build has already produced one wrong verdict on this project, doctor.py was written to
     make that impossible, STATE.md records that it "refuses the trap hash", and it did
-    not. Found by `namecheck.py`, which flagged `got`, `where`, `reg` and `alias` as
+    not. Found by `diagnostics/namecheck.py`, which flagged `got`, `where`, `reg` and `alias` as
     unbound reads inside `_no_driver` -- names that belong to this function.
     """
     try:

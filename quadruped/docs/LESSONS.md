@@ -328,6 +328,6 @@ recorded at that row. A faithful loop agrees to float rounding (8.8e-07 against 
 1.55 on the fixed corpus). The broken one missed by 60%.
 → Before optimising a policy inside any surrogate, prove the surrogate loop reproduces the
 policy's recorded behaviour at its start states. `finetune.py` now refuses to run unless
-it does (`check_start_reproduction`), `obs_truth.py` checks the observation block by block
+it does (`check_start_reproduction`), `diagnostics/obs_truth.py` checks the observation block by block
 against a live Chrono run, and corpora are stamped `row_capture=pre_step` so the old ones
 are refused rather than silently reused.

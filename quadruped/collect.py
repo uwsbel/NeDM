@@ -176,7 +176,7 @@ def load_params():
 
 def build_scene(chrono, kind, urdf, spacing, step, soil, patch_x, patch_y, depth,
                 travel_m=0.0, spawn_xy=(0.0, 0.0), span_xy=None):
-    """Returns (system, robot, terrain, soil_top, dt). See walk_check.py for the
+    """Returns (system, robot, terrain, soil_top, dt). See diagnostics/walk_check.py for the
     provenance of every constant here; each one was established by a failure."""
     from nedm.quadruped.robot import Go2Robot
     from nedm.quadruped.terrain import build_crm, build_rigid_ground, measure_leg_reach
@@ -529,7 +529,7 @@ def run_episode(chrono, ep_index, seed, args, exc, pol_cfg, urdf):
         # 36% of its spread on rigid ground and ~60% on CRM. Every consumer that rebuilds
         # the observation from a row -- the fine-tune above all -- was feeding the policy
         # a state already contaminated by the action it was about to choose.
-        # obs_truth.py is the regression test: every block must agree to rounding.
+        # diagnostics/obs_truth.py is the regression test: every block must agree to rounding.
         if i % every_rec == 0:
             _r = capture_row(
                 chrono=chrono, robot=robot, terrain=terrain, soil_top_m=soil_top,
@@ -667,7 +667,7 @@ def main() -> int:
 
     exc, presets, pol_cfg = load_params()
     if pol_cfg.get("sign", {}).get("value") is None:
-        print("FATAL: params/policy.yaml sign is unset; run establish_sign.py --write",
+        print("FATAL: params/policy.yaml sign is unset; run diagnostics/establish_sign.py --write",
               file=sys.stderr)
         return 1
 

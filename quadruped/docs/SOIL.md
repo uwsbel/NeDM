@@ -40,7 +40,7 @@ soil PARAMETERS.
 ## The soil choice, measured rather than asserted
 
 Until now `soft` was justified by a comment. It is now justified by a measurement:
-`tracking_spread.py`, north, 8 replicates per cell, 3 s at 0.5 m/s, rigid as the control.
+`diagnostics/tracking_spread.py`, north, 8 replicates per cell, 3 s at 0.5 m/s, rigid as the control.
 
 | soil | CRM tracking | gap vs rigid |
 |---|---|---|
