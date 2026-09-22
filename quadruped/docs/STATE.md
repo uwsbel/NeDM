@@ -6,13 +6,13 @@
 
 **The recipe is frozen and replicates.** Fine-tune the surrogate on its own 1 s rollouts;
 run PPO in it with 2 s branches (100 control steps) and 1024 parallel rollouts, weight
-budget dw 4.0, 10 epochs x 4 minibatches. In eight independently trained surrogates, scored
-in Chrono on 37 held-out paths from all ten command families, it improves forward tracking
-25-32% (mean 29%), sideways 14-21% (mean 18%) and yaw 49-55% (mean 53%), every axis clear
-of zero in every surrogate; on straight walking forward error falls 46-60%. Nothing fell;
-two of the eight walked off the finite CRM bed on one extra path each, late (9.9 s, 14.3 s).
-On rigid ground the same eight keep the yaw gain (50-58%) and leave forward tracking
-neutral on average (+4%, one of eight worse at 2 se). Details in the next section.
+budget dw 4.0, 10 epochs x 4 minibatches. In nine independently trained surrogates (ten
+runs), scored in Chrono on 37 held-out paths from all ten command families, it improves
+forward tracking 25-32% (mean 29%), sideways 14-21% (mean 18%) and yaw 49-55% (mean 53%),
+every axis clear of zero in every run; on straight walking forward error falls 38-60%.
+Nothing fell; two runs walked off the finite CRM bed on one extra path each, late (9.9 s,
+14.3 s). On rigid ground the same ten keep the yaw gain (50-58%) and leave forward tracking
+neutral on average (+2%, one of ten worse at 2 se). Details in the next section.
 
 Why each piece (evidence further down):
 - **1 s rollout training.** All ten seeds beat the predict-no-motion baseline across 10 s;
@@ -22,22 +22,25 @@ Why each piece (evidence further down):
   on the straight test.
 - **1024 envs.** At the same weight budget, forward gain grows from 64 to 1024 rollouts
   (-21.5% to -30.5%) and the rigid-ground forward penalty seen at 64-256 goes away. 2048
-  (seed 0: -33.8%) is no better than 1024.
+  (three seeds, -33.8%) is a few points better, inside the spread between seeds: the
+  curve has flattened, and 1024 costs half as much.
 - **One surrogate, not an ensemble.** Ensembles land inside the single-surrogate range.
 
 Effects reproduce across machines (NVIDIA north and AMD hpcfund, different Chrono builds)
-to within a few points. Still open: 2048 envs seeds 1-2 and the seed-7 1 s surrogate at
-1024 envs (hpcfund 431212).
+to within a few points. Nothing is running; next is the write-up.
 
-## The frozen recipe in eight surrogates (2026-09-22)
+## The frozen recipe in nine surrogates (2026-09-22)
 
-1 s rollout-trained surrogates (seeds 6, 8, 9 and north s0 fine-tuned on hpcfund 431232;
+1 s rollout-trained surrogates (seed 7 at two PPO seeds on hpcfund 431212; seeds 6, 8, 9
+and north s0 fine-tuned on hpcfund 431232;
 euler seeds 2-5 on euler 66715), seed 0, 1024 envs, 2 s branches. CRM scored on hpcfund
 (431232, 431302/431303) against hpcfund's base arm; rigid scored on sbel against sbel's.
 
 | surrogate | paths vx | paths vy | paths wz | straight vx | rigid vx | rigid wz |
 |---|---|---|---|---|---|---|
 | seed 6 | -26.7% | -13.9% | -48.8% | -45.9% | -1.9% | -50.3% |
+| seed 7 (PPO seed 0) | -28.6% | -16.4% | -52.5% | -51.3% | +5.8% | -55.2% |
+| seed 7 (PPO seed 1) | -31.9% | -16.1% | -50.6% | -37.9% | -14.1% | -52.4% |
 | seed 8 | -32.1% | -15.5% | -50.2% | -45.9% | -15.9% | -53.3% |
 | seed 9 | -30.4% | -16.6% | -53.0% | -52.2% | -6.7% | -56.2% |
 | north s0 | -25.4% | -17.6% | -54.1% | -56.0% | **+19.4%** | -55.0% |
@@ -47,13 +50,14 @@ euler seeds 2-5 on euler 66715), seed 0, 1024 envs, 2 s branches. CRM scored on 
 | euler s5 | -27.5% | -20.7% | -53.8% | -57.9% | +9.1% | -55.5% |
 
 Every CRM entry is clear of zero at 2 se (paths: 36-37 usable pairs; straight: 16/16,
-also improving vy 10-19% in all eight). Rigid: wz better on 40/40 paths in all eight, vy
+also improving vy 10-22% in all ten). Rigid: wz better on 40/40 paths in all ten, vy
 -5% to -19% (four clear of zero), vx clear of zero only where bold. The two extra CRM
 failures are euler s2 (random path, left the bed at 9.95 s) and s4 (yaw step, 14.3 s).
 The spread across surrogates is now 7 points on forward tracking, against 131 points
 (-51% to +80%) for one-step surrogates with 0.30 s branches on the straight test.
 
-**Per command family** (paths, mean over the eight surrogates of each arm's paired change;
+**Per command family** (paths, mean over the eight surrogates other than seed 7 of each
+arm's paired change;
 4 paths per family, 2-3 where the bed cap skipped or a pair dropped; "vx better" counts
 arms whose family mean improved):
 
@@ -327,8 +331,10 @@ x 4 minibatches; mean of two seeds, 37 paired paths):
 | 256 | -25.9% | -16.2% | -49.0% |
 | 512 | -29.1% | -17.9% | -50.5% |
 | 1024 | -30.5% | -17.0% | -52.9% |
+| 2048 (three seeds) | -33.8% | -19.3% | -54.7% |
 
-Monotone to 512, flattening at 1024; all eight runs improve all three axes. Averaging more
+Monotone to 512, flattening from 1024 (2048 seeds: -33.8, -31.9, -35.7% forward, against
+-26.4 and -34.5% at 1024); all eleven runs improve all three axes. Averaging more
 rollouts into each update at the same displacement gives better policies. The straight
 test is saturated (-52% to -60% forward for all) and cannot see this; the paths can.
 
@@ -346,13 +352,13 @@ terrain, paired against sbel's own base arm; `rigid_sbel*.sh`; 40/40 usable in e
 | 256 | **+21.8%** / +6.4% | -9% / -10% | -54% / -48% |
 | 512 | -5.3% / +9.7% | -10% / -4% | -51% / -52% |
 | 1024 | +12.2% / +1.3% | +3% / -3% | -56% / -57% |
-| 2048 | -0.8% (seed 0) | 0% | -59% |
+| 2048 | -0.8% / +7.1% / -3.5% (seeds 0-2) | 0% / -10% / -13% | -59% / -61% / -60% |
 
 Bold: clear of zero at 2 se. The yaw fix carries over whole (better on 39-40 of 40 paths in
 every arm) and grows with the rollout count, as on CRM: it corrects a deficiency of the
 base policy, not a CRM quirk. The forward-speed adaptation to CRM costs some rigid forward
-tracking at 64-256 envs (2 of 4 runs clear of zero); at 512 and above one of thirteen is
-(these five and the eight recipe runs above). The
+tracking at 64-256 envs (2 of 4 runs clear of zero); at 512 and above one of seventeen is
+(these seven and the ten recipe runs above). The
 rigid scores are deterministic: a base run killed after writing its 40 episodes (five
 evaluations at once ran sbel out of memory) and its clean rerun agree exactly.
 
