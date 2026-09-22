@@ -285,6 +285,24 @@ and without the disagreement penalty): forward tracking across paths -2%, +22%, 
 two of the four nearly doubled forward error on the straight test. Short branches are the
 problem, and averaging over one-step models does not fix them.
 
+**On rigid ground the recipe does no harm at 512+ envs** (sbel, the same 40 paths on rigid
+terrain, paired against sbel's own base arm; `rigid_sbel*.sh`; 40/40 usable in every arm):
+
+| parallel rollouts | mae_vx (seed 0 / 1) | mae_vy | mae_wz |
+|---|---|---|---|
+| 64 | **+36.7%** / +13.8% | -1% / -6% | -42% / -39% |
+| 256 | **+21.8%** / +6.4% | -9% / -10% | -54% / -48% |
+| 512 | -5.3% / +9.7% | -10% / -4% | -51% / -52% |
+| 1024 | +12.2% / +1.3% | +3% / -3% | -56% / -57% |
+| 2048 | -0.8% (seed 0) | 0% | -59% |
+
+Bold: clear of zero at 2 se. The yaw fix carries over whole (better on 39-40 of 40 paths in
+every arm) and grows with the rollout count, as on CRM: it corrects a deficiency of the
+base policy, not a CRM quirk. The forward-speed adaptation to CRM costs some rigid forward
+tracking at 64-256 envs (2 of 4 runs clear of zero); at 512 and above none of five is. The
+rigid scores are deterministic: a base run killed after writing its 40 episodes (five
+evaluations at once ran sbel out of memory) and its clean rerun agree exactly.
+
 **Nor do ensembles of rollout-trained surrogates** (hpcfund 431093/431094: six 0.5 s
 rollout-trained members, seeds 6, 7, 8, 9 and north s0, s1; a random member per branch; 64
 envs; 37 paired paths):
