@@ -204,6 +204,25 @@ commanded forward speed is zero and the base error small.
 
 **Rule from this:** every result is scored on the paths, not only the straight command.
 
+**Branch length across paths** (seed 7, rollout-trained on 0.5 s; 37 paired paths):
+
+| branch | mae_vx (s0 / s1) | mae_vy (s0 / s1) | mae_wz (s0 / s1) |
+|---|---|---|---|
+| 0.30 s | +10% (s0) | +13% | -32% |
+| 1.0 s | -23% / -22% | -1% / -3% (ns) | -38% / -41% |
+| 2.0 s | -22% / -33% | -12% / -13% | -42% / -45% |
+| 5.0 s | -31% / -21% | -13% / -15% | -47% / -47% |
+| 2.0 s, rollout-trained on 0.3 s | -28% | -17% | -41% |
+
+Across paths 2 s and 5 s are about equal on forward tracking (mean -27.5% and -26%), 5 s a
+little better on sideways and yaw at ~2.5x the compute. The straight test had 5 s clearly
+ahead; the paths flatten it. Recipe: branches of 2 s or more in a rollout-trained surrogate.
+
+**Ensembles of one-step surrogates with 0.30 s branches do not help** (a3, 8 members, with
+and without the disagreement penalty): forward tracking across paths -2%, +22%, +1%, +18%;
+two of the four nearly doubled forward error on the straight test. Short branches are the
+problem, and averaging over one-step models does not fix them.
+
 ## Corpora and models
 
 | corpus | episodes | segments | rows | capture | use |
@@ -312,8 +331,8 @@ against nothing (`5e3df653`).
   mi3001x is often congested; mi2104x is the fallback.
 - **euler** trains on the `sbel` partition (4 x A100 on euler19, not preempted). Share
   euler19 politely: another user runs CPU jobs there; size requests so nothing is preempted.
-- **north** (RTX 5070 Ti, 60 GB RAM) runs fine-tunes and evaluations; its WiFi is the
-  slowest link, so bulk transfers and NAS writes go through a3 or sbel.
+- **north is PARKED IDLE** (2026-09-22, Kyle's instruction) until further notice: nothing
+  is to run there. d33 (RX 9070 XT, 16 GB, ROCm 7, NAS-mounted) replaces it for fine-tunes.
 - **a3, sbel** have 30 GB RAM. evaluate.py once needed ~30 GB (fixed, `d6b15f28`); it
   OOM-killed evaluations on a3 and appears to have taken sbel down.
 - **NAS** (`/mnt/nas/Main/nedm/{data,models,results}`, STANDARD.md sec. 3) holds the corpora,
