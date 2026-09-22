@@ -13,10 +13,15 @@ cuts yaw error 56-59%, and leaves sideways tracking unchanged. The same surrogat
 choice once the surrogate supports long ones. Effects reproduce across machines (NVIDIA
 north and AMD hpcfund, different Chrono builds) to within a few points.
 
+**On held-out paths from all ten command families the long-branch recipe holds and the
+short-branch one does not.** Over 37 paired paths, 2 s branches in the multi-step surrogate
+improve forward tracking 22% and 33% (two seeds), sideways 12-13% and yaw 42-45% (37/37),
+while every 0.30 s policy fails to improve forward tracking at all (+3% to +30%) -- its
+straight-line gains were an artefact of scoring one straight command.
+
 Still open before it is a result: the 2 s recipe is one surrogate x two seeds (replication
-in 5-7 multi-step surrogates is running), every score so far is one straight-line command
-(a 40-path evaluation over all ten command families is running), and env scaling from 64
-to 2048 parallel rollouts is running. See "Running" at the bottom.
+in 5-7 multi-step surrogates is running) and env scaling from 64 to 2048 parallel rollouts
+is running. See "Running" at the bottom.
 
 The v1 fine-tunes of 2026-09-21 are void (three rollout bugs, below); everything since is on
 the v2 corpus with rows captured before the physics step.
@@ -175,7 +180,29 @@ cost of 0.30 s branches is sideways tracking (+13-18%, ~0.007 m/s), which 2 s br
 777000000+, none seen in training), 15 s each, with the command changing along the path
 as it does in collection; `paired_eval.py --by-family` breaks results down per family.
 Beds are sized at full commanded speed and a robot leaving the bed ends the episode as
-failed. First results: running (see below).
+failed.
+
+**First results** (hpcfund 430923, 4 paths x 10 families, 15 s; 37 of 40 paired -- the
+same three fast paths were refused by the bed builder in every arm, and no robot left a
+bed):
+
+| policy | branch | mae_vx | mae_vy | mae_wz |
+|---|---|---|---|---|
+| multi-step surrogate, seed 0 | 2.0 s | **-22%** (29/37) | **-12%** | **-42%** (37/37) |
+| multi-step surrogate, seed 1 | 2.0 s | **-33%** (32/37) | **-13%** | **-45%** (37/37) |
+| one-step surrogate (s1) | 2.0 s | -20% (31/37) | -7% (ns) | -33% (37/37) |
+| one-step surrogate (north s0) | 1.0 s | -12% | -9% | -37% |
+| multi-step surrogate | 0.30 s | **+10%** | **+13%** | -32% |
+| one-step surrogate (north s0) | 0.30 s | +3% (ns) | +10% (ns) | -23% |
+| one-step surrogate (seed 7) | 0.30 s | **+30%** | +2% (ns) | -36% |
+
+Seed 7 at 0.30 s scored -44% forward on the straight test and is 30% WORSE across paths.
+Per family, the 2 s recipe's forward gains are largest on speed steps (-47/-53%), yaw
+steps (-40/-49%), constant (-44/-47%) and arcs (-22/-34%); yaw improves in every family
+(-32% to -64%). Forward changes on lateral and pivot paths are noisy, since their
+commanded forward speed is zero and the base error small.
+
+**Rule from this:** every result is scored on the paths, not only the straight command.
 
 ## Corpora and models
 
@@ -294,7 +321,7 @@ against nothing (`5e3df653`).
 
 ## Running
 
-hpcfund: 40-path evaluation of 8 policies (430923); multi-step fine-tunes of 8 surrogates
+hpcfund: multi-step fine-tunes of 8 surrogates
 (430862), after which a launcher runs 2 s PPO in each and the multi-step ensemble;
 env scaling 64-1024 envs (430927). sbel: 2048 envs seed 0. north: 2048 envs seed 1 after
 the branch-length runs in the multi-step surrogate. euler: multi-step fine-tunes of its
