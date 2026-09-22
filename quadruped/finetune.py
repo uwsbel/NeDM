@@ -383,6 +383,18 @@ def check_loop_fidelity(torch, model, obs, policy, corpus, ctx, steps, hold, ctr
     -- scored the same ratio (0.99) as the correct loop: over 0.30 s the model's own error
     swamped the difference. The start check is what refuses; this is a number to read
     beside it until a negative control on a real model shows it can tell the two apart.
+
+    WHY A CURVE AND NOT ONE RATIO. On 2 s branches the closed-loop error came out at
+    0.27-0.30 in every surrogate while open-loop error ran from 0.12 to 0.23, so the ratio
+    tracked the DENOMINATOR: the most accurate surrogate scored the worst ratio (2.41) and
+    the least accurate the best (1.28), and every good 2 s fine-tune tripped the old fixed
+    warning at 2.0. The loop has NOT lost the recording by then: scored against a
+    decorrelated reference (each start against another start's recording) seed 7's 0.5 s
+    rollout-trained surrogate reads 0.29 closed-loop against 0.64 at 2 s, and 0.15 against
+    0.63 at 0.30 s. What does not shrink with a better model is the part the policy's
+    feedback adds, so over long branches the ratio mostly measures how small the open-loop
+    error has become. The errors are therefore printed along the branch beside that
+    reference, and the warning reads the ratio at 0.30 s, the horizon at which it was set.
     """
     need = steps * hold
     pool = []
@@ -417,15 +429,39 @@ def check_loop_fidelity(torch, model, obs, policy, corpus, ctx, steps, hold, ctr
             pred_open.append(nxt[:, vel])
         pred_open = torch.stack(pred_open, dim=1)
 
-    e_open = float(torch.sqrt(((pred_open - S_fut[..., vel]) ** 2).mean()))
-    e_closed = float(torch.sqrt(((pred_closed - S_fut[..., vel]) ** 2).mean()))
+    truth = S_fut[..., vel]
+    e_open = float(torch.sqrt(((pred_open - truth) ** 2).mean()))
+    e_closed = float(torch.sqrt(((pred_closed - truth) ** 2).mean()))
     ratio = e_closed / max(e_open, 1e-12)
     print(f"loop check ({len(picks)} held-out starts, {need} model steps): velocity RMSE "
           f"open-loop {e_open:.4f}, closed-loop {e_closed:.4f}  (ratio {ratio:.2f})")
-    if ratio > 2.0:
-        print("  WARNING: the closed loop inside the model is far worse than the model "
-              "itself. The fine-tune will be optimising a loop that is not the robot's.")
-    return {"open": e_open, "closed": e_closed, "ratio": ratio, "n": len(picks)}
+    # Error up to each mark along the branch, and the decorrelated reference: every start
+    # scored against the NEXT start's recording, i.e. the error of a real trajectory that
+    # knows nothing about this one. Closed-loop error reaching it means the loop no longer
+    # follows the recording at that horizon. No randomness is drawn here.
+    other = torch.roll(truth, 1, dims=0)
+    step_s = ctrl_dt / hold
+    curve = []
+    for t_s in (0.1, 0.3, 0.5, 1.0, 2.0, 5.0):
+        m = int(round(t_s / step_s))
+        if m > need:
+            break
+        rm = lambda x, y: float(torch.sqrt(((x[:, :m] - y[:, :m]) ** 2).mean()))  # noqa: E731
+        curve.append({"t_s": t_s, "open": rm(pred_open, truth),
+                      "closed": rm(pred_closed, truth), "decorrelated": rm(other, truth)})
+    for c in curve:
+        print(f"  to {c['t_s']:3.1f} s: open {c['open']:.4f}  closed {c['closed']:.4f}  "
+              f"decorrelated {c['decorrelated']:.4f}  (closed/open "
+              f"{c['closed'] / max(c['open'], 1e-12):.2f}, closed/decorrelated "
+              f"{c['closed'] / max(c['decorrelated'], 1e-12):.2f})")
+    short = next((c for c in curve if c["t_s"] == 0.3), None)
+    short_ratio = short["closed"] / max(short["open"], 1e-12) if short else None
+    if short_ratio is not None and short_ratio > 2.0:
+        print("  WARNING: within 0.30 s the closed loop inside the model is far worse than "
+              "the model itself. The fine-tune will be optimising a loop that is not the "
+              "robot's.")
+    return {"open": e_open, "closed": e_closed, "ratio": ratio, "n": len(picks),
+            "ratio_at_0.3s": short_ratio, "curve": curve}
 
 
 # ------------------------------------------------------------------------ ppo

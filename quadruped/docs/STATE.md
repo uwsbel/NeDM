@@ -20,7 +20,9 @@ paths it improves forward tracking ~30%, sideways ~17% and yaw ~53%, and it REPL
 (forward -16% to -30%), where one-step surrogates with 0.30 s branches ranged from -51% to
 +80% on the straight test and failed to improve forward tracking across paths at all.
 
-Still open: the rollout-trained ensemble at 2 s and the 2048-env runs are in evaluation.
+An ensemble of rollout-trained surrogates adds nothing over one of them (below). Still
+open: 2048 envs (three seeds) and the 1 s rollout-trained surrogate at 1024 envs are running
+(hpcfund 431212, sbel).
 
 The v1 fine-tunes of 2026-09-21 are void (three rollout bugs, below); everything since is on
 the v2 corpus with rows captured before the physics step.
@@ -90,6 +92,11 @@ tracks vx worse (0.026 -> 0.038), consistent with a CRM-specific adaptation when
 **Analytic fails outright** and not for lack of a penalty: PPO without the OOD penalty still
 transfers. The loop check separates faithful from broken loops on a real model (ratio 1.26
 faithful, 1.52 with the 100 Hz fault, 1.37 with the shifted history), so it can now gate.
+That separation is at 0.30 s. Over 2 s branches the ratio reads 1.3-2.4 on loops that
+transfer well, and it rises as the surrogate improves: closed-loop error stays at 0.27-0.30
+in every surrogate while open-loop error falls from 0.23 to 0.12. The check now prints
+the errors along the branch beside a decorrelated reference (another start's recording;
+0.64 at 2 s against 0.29 closed-loop) and warns on the 0.30 s ratio only.
 
 ## What the spread and the ablations showed (2026-09-21 evening)
 
@@ -252,6 +259,23 @@ test is saturated (-52% to -60% forward for all) and cannot see this; the paths 
 and without the disagreement penalty): forward tracking across paths -2%, +22%, +1%, +18%;
 two of the four nearly doubled forward error on the straight test. Short branches are the
 problem, and averaging over one-step models does not fix them.
+
+**Nor do ensembles of rollout-trained surrogates** (hpcfund 431093/431094: six 0.5 s
+rollout-trained members, seeds 6, 7, 8, 9 and north s0, s1; a random member per branch; 64
+envs; 37 paired paths):
+
+| branch | disagreement penalty | seed | mae_vx | mae_vy | mae_wz |
+|---|---|---|---|---|---|
+| 0.30 s | 0 | 0 / 1 | +18.5% / +31.6% | +2% / -3% | -24% / -28% |
+| 0.30 s | 1 | 0 / 1 | +8.7% / +12.2% | +19% / +6% | -27% / -25% |
+| 2 s | 0 | 0 / 1 | -16.8% / -13.2% | -8% / -15% | -41% / -44% |
+| 2 s | 1 | 0 / 1 | -21.3% / -12.8% | -8% / -9% | -41% / -37% |
+
+With 0.30 s branches forward tracking still gets worse on paths even though every member is
+rollout-trained, which settles that the short branch, not the surrogate, is at fault. With
+2 s branches the ensemble lands inside the range of its single members (-16% to -30%
+forward) and the penalty changes nothing consistently. One rollout-trained surrogate is
+the recipe; parallel rollouts, not members, are where the extra compute pays.
 
 ## Corpora and models
 
