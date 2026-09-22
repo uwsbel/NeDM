@@ -150,7 +150,7 @@ A 10-step loss from scratch helps to ~2 s but diverges by 5 s; the length of the
 rollout is what matters. The 100-step variant was still improving at the time limit.
 
 **Across seeds, 1 s (100-step) rollout training is the robust one** (best.pt, from the
-`msft210_*` logs on hpcfund; 0.5 s = 50-step, 1 s = 100-step, each from that seed's
+`msft210_*` logs on hpcfund and `kyle-v2-msft-*` on euler; 0.5 s = 50-step, 1 s = 100-step, each from that seed's
 one-step surrogate):
 
 | surrogate | 0.3 s | 2 s (0.5 s / 1 s) | 10 s (0.5 s / 1 s) |
@@ -161,14 +161,18 @@ one-step surrogate):
 | seed 9 | 0.35-0.37 | 0.847 / **0.500** | 1.93 / **0.551** |
 | north s0 | 0.35 | 0.656 / **0.520** | 1.62 / **0.562** |
 | north s1 | 0.35 | 0.798 / **0.507** | 3.77 / **0.572** |
+| euler s2 | 0.34-0.36 | 0.899 / **0.501** | 1.52 / **0.597** |
+| euler s3 | 0.35 | 0.789 / **0.491** | 5.21 / **0.581** |
+| euler s4 | 0.36-0.37 | 0.815 / **0.477** | 2.51 / **0.616** |
+| euler s5 | 0.35 | 0.622 / **0.503** | 2.01 / **0.579** |
 
-1 s training beats the no-motion baseline across 10 s in 6 of 6 seeds (2 s 0.48-0.52, 10 s
-0.55-0.62); 0.5 s training does so in 2 of 6 and blows up by 10 s in the rest (seed 6:
-11.7). The 0.3 s score is the same for both, so it cannot choose between them. PPO with
+1 s training beats the no-motion baseline across 10 s in 10 of 10 seeds (2 s 0.48-0.52,
+10 s 0.55-0.62); 0.5 s training does so in 2 of 10 and blows up by 10 s in the rest (seed
+6: 11.7). The 0.3 s score is the same for both, so it cannot choose between them. PPO with
 2 s branches transferred in all of the 0.5 s surrogates anyway, because a 2 s branch
 only uses the first 2 s. The 1 s surrogates are the standard from here: the margin they
-buy is what makes longer branches possible. Euler's four (seeds 2-5) finish training on
-2026-09-22 morning.
+buy is what makes longer branches possible. The recipe at 1024 envs is being replicated
+in eight of them (hpcfund 431232: seeds 6, 8, 9, north s0; euler 66715: seeds 2-5).
 
 ## The recipe that works: long-horizon surrogate, long branches
 

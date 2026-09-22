@@ -895,14 +895,17 @@ def main() -> int:
         beyond = [k for k in keys if float(k) >= branch_s - 1e-9]
         judge = beyond[0] if beyond else keys[-1]
         e_b = float(prof[judge])
+        # train.py records None when the profile never reaches the floor.
+        usable = c.get("usable_to_s")
+        usable = f"~{usable} s" if usable is not None else f"past {float(keys[-1]):g} s"
         print(f"model errdist at {float(judge):g} s (this run rolls {branch_s:.2f} s): "
-              f"{e_b:.3f}  [usable to ~{c.get('usable_to_s')} s]  {Path(mp).parent.name}")
+              f"{e_b:.3f}  [usable {usable}]  {Path(mp).parent.name}")
         if e_b >= 1.0 and not a.smoke:
             raise SystemExit(
                 f"this run rolls {branch_s:.2f} s ({a.steps} steps), and {mp} scores errdist "
                 f"{e_b:.3f} there -- at or above the 1.0 a model scores for predicting the "
                 f"robot does not move. Optimising against it would chase its errors, not "
-                f"the robot. Shorten --steps to within ~{c.get('usable_to_s')} s, drop that "
+                f"the robot. Shorten --steps to within {usable}, drop that "
                 f"member, or train a better model.")
     model = loaded[0][0] if len(loaded) == 1 else Ensemble(torch, [m for m, _c in loaded])
     state_fields = ck["state_fields"]
