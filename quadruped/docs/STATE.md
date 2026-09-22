@@ -13,15 +13,14 @@ cuts yaw error 56-59%, and leaves sideways tracking unchanged. The same surrogat
 choice once the surrogate supports long ones. Effects reproduce across machines (NVIDIA
 north and AMD hpcfund, different Chrono builds) to within a few points.
 
-**On held-out paths from all ten command families the long-branch recipe holds and the
-short-branch one does not.** Over 37 paired paths, 2 s branches in the multi-step surrogate
-improve forward tracking 22% and 33% (two seeds), sideways 12-13% and yaw 42-45% (37/37),
-while every 0.30 s policy fails to improve forward tracking at all (+3% to +30%) -- its
-straight-line gains were an artefact of scoring one straight command.
+**The recipe, verified on held-out paths from all ten command families:** a rollout-trained
+surrogate, PPO with 2 s branches, and 512-1024 parallel rollouts. Across 37 paired Chrono
+paths it improves forward tracking ~30%, sideways ~17% and yaw ~53%, and it REPLICATES:
+2 s PPO in each of eight rollout-trained surrogates improves all three axes in every one
+(forward -16% to -30%), where one-step surrogates with 0.30 s branches ranged from -51% to
++80% on the straight test and failed to improve forward tracking across paths at all.
 
-Still open before it is a result: the 2 s recipe is one surrogate x two seeds (replication
-in 5-7 multi-step surrogates is running) and env scaling from 64 to 2048 parallel rollouts
-is running. See "Running" at the bottom.
+Still open: the rollout-trained ensemble at 2 s and the 2048-env runs are in evaluation.
 
 The v1 fine-tunes of 2026-09-21 are void (three rollout bugs, below); everything since is on
 the v2 corpus with rows captured before the physics step.
@@ -217,6 +216,37 @@ commanded forward speed is zero and the base error small.
 Across paths 2 s and 5 s are about equal on forward tracking (mean -27.5% and -26%), 5 s a
 little better on sideways and yaw at ~2.5x the compute. The straight test had 5 s clearly
 ahead; the paths flatten it. Recipe: branches of 2 s or more in a rollout-trained surrogate.
+
+**Replication across surrogates** (2 s branches, 64 envs, seed 0, 36-37 paired paths):
+
+| surrogate | rollout-trained on | mae_vx | mae_vy | mae_wz |
+|---|---|---|---|---|
+| seed 6 | 0.5 s | -16% | -8% | -42% |
+| seed 7 | 0.5 s | -21% | -12% | -43% |
+| seed 7 | 1.0 s | -18% | -14% | -42% |
+| seed 8 | 0.5 s | -21% | -10% | -44% |
+| seed 9 | 0.5 s | -30% | -13% | -43% |
+| north s0 | 0.5 s | -23% | -11% | -42% |
+| north s1 | 0.5 s | -18% | -8% | -36% |
+| north s1 | 1.0 s | -26% | -13% | -37% |
+
+All eight improve all three axes significantly. Rollout training on 1 s does not transfer
+better than 0.5 s at 2 s branches; what it buys is that every surrogate beats the no-motion
+baseline across 10 s (0.57, 0.62 at 10 s where 0.5 s training left some at 1.5-3.8).
+
+**Env scaling** (seed 7, 0.5 s rollout-trained, 2 s branches, same weight budget, 10 epochs
+x 4 minibatches; mean of two seeds, 37 paired paths):
+
+| parallel rollouts | mae_vx | mae_vy | mae_wz |
+|---|---|---|---|
+| 64 | -21.5% | -11.4% | -42.7% |
+| 256 | -25.9% | -16.2% | -49.0% |
+| 512 | -29.1% | -17.9% | -50.5% |
+| 1024 | -30.5% | -17.0% | -52.9% |
+
+Monotone to 512, flattening at 1024; all eight runs improve all three axes. Averaging more
+rollouts into each update at the same displacement gives better policies. The straight
+test is saturated (-52% to -60% forward for all) and cannot see this; the paths can.
 
 **Ensembles of one-step surrogates with 0.30 s branches do not help** (a3, 8 members, with
 and without the disagreement penalty): forward tracking across paths -2%, +22%, +1%, +18%;
