@@ -87,6 +87,42 @@ def load(shard: Path):
     return json.loads(m.read_text())
 
 
+def aggregate(parts):
+    """Per-episode tallies summed across shards. `parts` is [(manifest, episode_offset,
+    limit)], limit being the finished-episode count of a shard that died partway (None for
+    a complete one). The merged manifest used to take these from shard 0 alone, so the
+    v2 corpus of 23 shards recorded 50 episodes' family counts, 12 long episodes and one
+    shard's failures under a header that said 1150 episodes."""
+    fam, fails, checks, sidecar = {}, {"episodes": 0, "truncated": 0}, {}, {}
+    long_eps, skipped, outputs = [], [], []
+    short, wall = 0, 0.0
+    for man, off, limit in parts:
+        keep = (lambda e: True) if limit is None else (lambda e, n=limit: e < n)
+        for k, v in (man.get("family_balance") or {}).items():
+            fam[k] = fam.get(k, 0) + int(v)
+        f = man.get("failures") or {}
+        fails["episodes"] += int(f.get("episodes", 0))
+        fails["truncated"] += int(f.get("truncated", 0))
+        for k, v in (f.get("by_check") or {}).items():
+            checks[k] = checks.get(k, 0) + int(v)
+        for k, v in (man.get("sidecar_rows") or {}).items():
+            sidecar[k] = sidecar.get(k, 0) + int(v)
+        long_eps += [off + e for e in man.get("long_episodes", []) if keep(e)]
+        skipped += [off + e if isinstance(e, int) else e
+                    for e in man.get("skipped_episodes", [])
+                    if not isinstance(e, int) or keep(e)]
+        outputs += man.get("outputs", [])
+        short += int(man.get("dropped_short_segments", 0))
+        wall += float(man.get("wall_clock_s") or 0.0)
+    fails["rate"] = round(fails["truncated"] / fails["episodes"], 4) if fails["episodes"] else None
+    fails["by_check"] = checks
+    return {"family_balance": fam, "long_episodes": sorted(long_eps),
+            "failures": fails, "sidecar_rows": sidecar, "skipped_episodes": skipped,
+            "dropped_short_segments": short, "outputs": outputs,
+            # Summed node time, not elapsed time: the shards ran concurrently.
+            "wall_clock_s": round(wall, 1), "wall_clock_is": "sum over shards"}
+
+
 def check_comparable(mans):
     first_name, first = mans[0]
     for name, m in mans[1:]:
@@ -140,7 +176,7 @@ def main() -> int:
         (out / sub).mkdir(parents=True, exist_ok=True)
 
     ep_off = 0
-    val_eps, provenance, rows, segs = [], [], 0, 0
+    val_eps, provenance, rows, segs, parts = [], [], 0, 0, []
     for (sname, man), sdir in zip(mans, shards, strict=True):
         n_ep = int(man.get("episodes", 0))
         # For a shard that died partway, only episodes the manifest counts as finished. A
@@ -151,6 +187,7 @@ def main() -> int:
         if limit is not None:
             local_val = {v for v in local_val if v < limit}
         val_eps += [ep_off + v for v in sorted(local_val)]
+        parts.append((man, ep_off, limit))
         moved = 0
         for sub in ("episodes", "failures", "pushes"):
             src = sdir / sub
@@ -184,6 +221,7 @@ def main() -> int:
         ep_off += n_ep
 
     base = dict(mans[0][1])
+    base.update(aggregate(parts))
     base.update({
         "corpus": a.name,
         # The episode INDEX space, which partial shards leave gaps in; episodes_done is

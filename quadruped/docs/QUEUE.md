@@ -34,11 +34,9 @@ Ordered. Top item is next. Move an item to STATE.md when done, with its result.
 - **Analytic PPO gap.** Analytic fell in 16/16 at dw 2.89; PPO without the OOD penalty
   still transfers. The old pipeline's analytic recipe worked with the policy's own reward
   terms and dw 1.0; ours uses a squared tracking loss and dw 4.0. Not pursued.
-- **Merged manifests** copy shard 0's `family_balance` and `long_episodes` instead of
-  aggregating (data unaffected). Fix in merge_corpus.py.
 - **Staged copies on north/a3/sbel/hpcfund** still hold the old top-level diagnostics
   (rsync without --delete); harmless, clean on the next staging.
-- **Truncation bias.** v2 truncates 19.4% of episodes on `off_bed` (v1 12.6%), keeping 94.4%
-  of rows. Drift-correlated, as before.
+- **Truncation bias.** v2 truncates 18.3% of episodes, 17.6% on `off_bed` (v1 12.6%), keeping
+  94.4% of rows (first 391 episodes). Drift-correlated, as before.
 - **The Chrono GPU fault** (illegal memory access in `SphBceManager.cu`, one in ~1,950
   episodes). Report if it recurs.

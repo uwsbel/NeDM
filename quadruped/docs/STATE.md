@@ -266,7 +266,10 @@ node-hours): 23 of 24 shards clean. Shard 1 died in its 33rd episode on a Chrono
 (illegal memory access, `SphBceManager.cu:543`) -- the only such fault in ~1,950 CRM
 episodes across v1 and v2 -- and was excluded; collect.py now writes its manifest after
 every episode so a crash costs one episode, not a shard (`c2928b3d`). v2 truncates more
-episodes on `off_bed` than v1 (19.4% against 12.6%) but keeps 94.4% of rows against 96.9%.
+episodes than v1: 210 of the 1146 its shards scored (18.3%, 202 of them on `off_bed`) against
+12.6%, and kept 94.4% of rows against 96.9% on the first 391 episodes. Summed over the 23
+shard manifests: 115 episodes in each of the ten command families, 276 long episodes (48 in
+validation). The merged manifest recorded shard 0's tallies alone until the fix of this date.
 The same seeds plan some episodes longer in v2 (7.98 s against 7.03 s for one weave), which
 points at v1 having run staged code that matches no commit; v1 recorded none, so this
 cannot be settled.
