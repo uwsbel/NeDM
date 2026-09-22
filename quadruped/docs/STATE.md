@@ -1,28 +1,57 @@
 # State
 
-**Updated:** 2026-09-22 (early morning) · **Branch:** `kyle/quadruped-pipeline` on uwsbel/NeDM (off `kyle/locomotion`) · **Head:** `073ce6f4`
+**Updated:** 2026-09-22 (morning) · **Branch:** `kyle/quadruped-pipeline` on uwsbel/NeDM (off `kyle/locomotion`) · **Head:** `048272ee` + this
 
 ## Where this is
 
-**PPO fine-tuning inside the NN-ROM improves CRM tracking, verified in Chrono, and the best
-recipe is a long-horizon surrogate with long branches.** Fine-tuning a trained surrogate on
-its own 50-step rollouts makes it trustworthy across 10 s instead of ~2 s; PPO with 2 s
-branches in it halves forward tracking error (-50%, -53%, 16/16 episodes, both seeds),
-cuts yaw error 56-59%, and leaves sideways tracking unchanged. The same surrogate with
-0.30 s branches is WORSE, so short rollouts are not merely defensible, they are the wrong
-choice once the surrogate supports long ones. Effects reproduce across machines (NVIDIA
-north and AMD hpcfund, different Chrono builds) to within a few points.
+**The recipe is frozen and replicates.** Fine-tune the surrogate on its own 1 s rollouts;
+run PPO in it with 2 s branches (100 control steps) and 1024 parallel rollouts, weight
+budget dw 4.0, 10 epochs x 4 minibatches. In eight independently trained surrogates, scored
+in Chrono on 37 held-out paths from all ten command families, it improves forward tracking
+25-32% (mean 29%), sideways 14-21% (mean 18%) and yaw 49-55% (mean 53%), every axis clear
+of zero in every surrogate; on straight walking forward error falls 46-60%. Nothing fell;
+two of the eight walked off the finite CRM bed on one extra path each, late (9.9 s, 14.3 s).
+On rigid ground the same eight keep the yaw gain (50-58%) and leave forward tracking
+neutral on average (+4%, one of eight worse at 2 se). Details in the next section.
 
-**The recipe, verified on held-out paths from all ten command families:** a rollout-trained
-surrogate, PPO with 2 s branches, and 512-1024 parallel rollouts. Across 37 paired Chrono
-paths it improves forward tracking ~30%, sideways ~17% and yaw ~53%, and it REPLICATES:
-2 s PPO in each of eight rollout-trained surrogates improves all three axes in every one
-(forward -16% to -30%), where one-step surrogates with 0.30 s branches ranged from -51% to
-+80% on the straight test and failed to improve forward tracking across paths at all.
+Why each piece (evidence further down):
+- **1 s rollout training.** All ten seeds beat the predict-no-motion baseline across 10 s;
+  0.5 s training does in 2 of 10, and one-step training fails by ~2 s.
+- **2 s branches.** 0.30 s branches fail to improve forward tracking across paths in every
+  surrogate tried, one-step, rollout-trained and ensembles alike, however well they score
+  on the straight test.
+- **1024 envs.** At the same weight budget, forward gain grows from 64 to 1024 rollouts
+  (-21.5% to -30.5%) and the rigid-ground forward penalty seen at 64-256 goes away. 2048
+  (seed 0: -33.8%) is no better than 1024.
+- **One surrogate, not an ensemble.** Ensembles land inside the single-surrogate range.
 
-An ensemble of rollout-trained surrogates adds nothing over one of them (below). Still
-open: 2048 envs (three seeds) and the 1 s rollout-trained surrogate at 1024 envs are running
-(hpcfund 431212, sbel).
+Effects reproduce across machines (NVIDIA north and AMD hpcfund, different Chrono builds)
+to within a few points. Still open: 2048 envs seeds 1-2 and the seed-7 1 s surrogate at
+1024 envs (hpcfund 431212).
+
+## The frozen recipe in eight surrogates (2026-09-22)
+
+1 s rollout-trained surrogates (seeds 6, 8, 9 and north s0 fine-tuned on hpcfund 431232;
+euler seeds 2-5 on euler 66715), seed 0, 1024 envs, 2 s branches. CRM scored on hpcfund
+(431232, 431302/431303) against hpcfund's base arm; rigid scored on sbel against sbel's.
+
+| surrogate | paths vx | paths vy | paths wz | straight vx | rigid vx | rigid wz |
+|---|---|---|---|---|---|---|
+| seed 6 | -26.7% | -13.9% | -48.8% | -45.9% | -1.9% | -50.3% |
+| seed 8 | -32.1% | -15.5% | -50.2% | -45.9% | -15.9% | -53.3% |
+| seed 9 | -30.4% | -16.6% | -53.0% | -52.2% | -6.7% | -56.2% |
+| north s0 | -25.4% | -17.6% | -54.1% | -56.0% | **+19.4%** | -55.0% |
+| euler s2 | -27.8% | -17.8% | -54.4% | -58.4% | +16.4% | -56.5% |
+| euler s3 | -31.1% | -20.5% | -54.8% | -53.4% | +8.7% | -57.7% |
+| euler s4 | -30.6% | -21.1% | -53.2% | -59.5% | +0.4% | -55.5% |
+| euler s5 | -27.5% | -20.7% | -53.8% | -57.9% | +9.1% | -55.5% |
+
+Every CRM entry is clear of zero at 2 se (paths: 36-37 usable pairs; straight: 16/16,
+also improving vy 10-19% in all eight). Rigid: wz better on 40/40 paths in all eight, vy
+-5% to -19% (four clear of zero), vx clear of zero only where bold. The two extra CRM
+failures are euler s2 (random path, left the bed at 9.95 s) and s4 (yaw step, 14.3 s).
+The spread across surrogates is now 7 points on forward tracking, against 131 points
+(-51% to +80%) for one-step surrogates with 0.30 s branches on the straight test.
 
 The v1 fine-tunes of 2026-09-21 are void (three rollout bugs, below); everything since is on
 the v2 corpus with rows captured before the physics step.
@@ -299,7 +328,8 @@ terrain, paired against sbel's own base arm; `rigid_sbel*.sh`; 40/40 usable in e
 Bold: clear of zero at 2 se. The yaw fix carries over whole (better on 39-40 of 40 paths in
 every arm) and grows with the rollout count, as on CRM: it corrects a deficiency of the
 base policy, not a CRM quirk. The forward-speed adaptation to CRM costs some rigid forward
-tracking at 64-256 envs (2 of 4 runs clear of zero); at 512 and above none of five is. The
+tracking at 64-256 envs (2 of 4 runs clear of zero); at 512 and above one of thirteen is
+(these five and the eight recipe runs above). The
 rigid scores are deterministic: a base run killed after writing its 40 episodes (five
 evaluations at once ran sbel out of memory) and its clean rerun agree exactly.
 
