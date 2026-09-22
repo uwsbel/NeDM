@@ -1,0 +1,749 @@
+{
+ "written": "2026-09-21 18:06:27",
+ "wall_s": 2.5,
+ "seed": 20260921,
+ "workers": 6,
+ "lp_same_frame": "prefer",
+ "quotas": {
+  "train": {
+   "clean_moving": 420,
+   "low_progress": 280
+  },
+  "val": {
+   "clean_moving": 30,
+   "low_progress": 20
+  },
+  "test": {
+   "clean_moving": 30,
+   "low_progress": 20
+  }
+ },
+ "rules": {
+  "clean_moving": {
+   "F": [
+    40,
+    80,
+    120
+   ],
+   "vx_gt": 1.0,
+   "lateral_dev_lt": 1.0,
+   "remaining_ge": 12.0,
+   "not_parked": true,
+   "no_stall_onset_or_rollback_before_F": true
+  },
+  "low_progress": {
+   "onset": "first run of 20 frames |vx|<0.3 & throttle>0.3, searched from frame 20",
+   "F_window": [
+    -20,
+    10
+   ],
+   "F_preferred": -10,
+   "crm_screen": "mean spindle height drop over 20 frames < 0.1 m",
+   "not_parked": true,
+   "remaining_ge": 5.0
+  },
+  "per_episode_max": 1,
+  "per_group_max": 2,
+  "paired_first": true
+ },
+ "sources": {
+  "manifest": "artifacts/traverse/generalist_20260921/B_tracker/cache_v1/cache_manifest.json",
+  "crm": "artifacts/traverse/crm_f104_v1/collect_v1/runs",
+  "rigid": [
+   "artifacts/traverse/fdm_f104_50h_20260909/production_v3/runs",
+   "artifacts/traverse/fdm_f104_50h_20260909/production_v4/runs"
+  ],
+  "routes_designed": "artifacts/traverse/fdm_f104_50h_20260909/cases_night2/cases/routes",
+  "routes_onpolicy": "artifacts/traverse/fdm_f104_50h_20260909/cases_night2_onpolicy/routes"
+ },
+ "counts": {
+  "crm": {
+   "train/low_progress": {
+    "n": 280,
+    "quota": 280,
+    "paired": 280,
+    "same_frame": 56,
+    "groups": 280
+   },
+   "train/clean_moving": {
+    "n": 420,
+    "quota": 420,
+    "paired": 420,
+    "same_frame": 420,
+    "groups": 420
+   },
+   "val/low_progress": {
+    "n": 20,
+    "quota": 20,
+    "paired": 20,
+    "same_frame": 5,
+    "groups": 20
+   },
+   "val/clean_moving": {
+    "n": 30,
+    "quota": 30,
+    "paired": 30,
+    "same_frame": 30,
+    "groups": 30
+   },
+   "test/low_progress": {
+    "n": 20,
+    "quota": 20,
+    "paired": 20,
+    "same_frame": 4,
+    "groups": 20
+   },
+   "test/clean_moving": {
+    "n": 30,
+    "quota": 30,
+    "paired": 30,
+    "same_frame": 30,
+    "groups": 30
+   }
+  },
+  "rigid": {
+   "train/low_progress": {
+    "n": 280,
+    "quota": 280,
+    "paired": 280,
+    "same_frame": 56,
+    "groups": 280
+   },
+   "train/clean_moving": {
+    "n": 420,
+    "quota": 420,
+    "paired": 420,
+    "same_frame": 420,
+    "groups": 420
+   },
+   "val/low_progress": {
+    "n": 20,
+    "quota": 20,
+    "paired": 20,
+    "same_frame": 5,
+    "groups": 20
+   },
+   "val/clean_moving": {
+    "n": 30,
+    "quota": 30,
+    "paired": 30,
+    "same_frame": 30,
+    "groups": 30
+   },
+   "test/low_progress": {
+    "n": 20,
+    "quota": 20,
+    "paired": 20,
+    "same_frame": 4,
+    "groups": 20
+   },
+   "test/clean_moving": {
+    "n": 30,
+    "quota": 30,
+    "paired": 30,
+    "same_frame": 30,
+    "groups": 30
+   }
+  }
+ },
+ "totals": {
+  "crm": {
+   "n": 800,
+   "per_split": {
+    "test": 50,
+    "train": 700,
+    "val": 50
+   },
+   "per_class": {
+    "clean_moving": 480,
+    "low_progress": 320
+   },
+   "groups": 800,
+   "paired": 800,
+   "same_frame": 545,
+   "route_file_matches": 800,
+   "recorded_sha_matches": 800,
+   "recorded_sha_present": 0,
+   "status": {
+    "soil_breakthrough_terminated": 516,
+    "goal_reached": 172,
+    "prolonged_blockage_terminated": 112
+   }
+  },
+  "rigid": {
+   "n": 800,
+   "per_split": {
+    "test": 50,
+    "train": 700,
+    "val": 50
+   },
+   "per_class": {
+    "clean_moving": 480,
+    "low_progress": 320
+   },
+   "groups": 800,
+   "paired": 800,
+   "same_frame": 545,
+   "route_file_matches": 800,
+   "recorded_sha_matches": 800,
+   "recorded_sha_present": 800,
+   "status": {
+    "goal_reached": 506,
+    "prolonged_blockage_terminated": 267,
+    "timeout": 23,
+    "terrain_bounds_exit": 3,
+    "rollover": 1
+   }
+  }
+ },
+ "F_distribution": {
+  "crm": {
+   "clean_moving": {
+    "40": 160,
+    "80": 160,
+    "120": 160
+   },
+   "low_progress_F_minus_onset": {
+    "-20": 16,
+    "-19": 3,
+    "-17": 2,
+    "-16": 3,
+    "-15": 2,
+    "-14": 2,
+    "-13": 4,
+    "-12": 1,
+    "-11": 2,
+    "-10": 255,
+    "-9": 1,
+    "-8": 1,
+    "-7": 3,
+    "-6": 3,
+    "-5": 1,
+    "-4": 1,
+    "-3": 3,
+    "-1": 1,
+    "1": 4,
+    "3": 1,
+    "5": 3,
+    "6": 3,
+    "7": 2,
+    "8": 2,
+    "9": 1
+   },
+   "low_progress_t_F_s": {
+    "p10": 5.895,
+    "p50": 12.625,
+    "p90": 29.63,
+    "n": 320,
+    "mean": 15.665
+   },
+   "hist_fully_valid": 800
+  },
+  "rigid": {
+   "clean_moving": {
+    "40": 160,
+    "80": 160,
+    "120": 160
+   },
+   "low_progress_F_minus_onset": {
+    "-20": 23,
+    "-19": 1,
+    "-18": 3,
+    "-17": 3,
+    "-16": 1,
+    "-14": 1,
+    "-13": 5,
+    "-12": 2,
+    "-10": 265,
+    "-8": 1,
+    "-7": 2,
+    "-3": 1,
+    "-2": 1,
+    "-1": 2,
+    "0": 1,
+    "1": 3,
+    "2": 1,
+    "5": 1,
+    "6": 1,
+    "7": 1,
+    "10": 1
+   },
+   "low_progress_t_F_s": {
+    "p10": 9.7,
+    "p50": 20.575,
+    "p90": 42.055,
+    "n": 320,
+    "mean": 24.364
+   },
+   "hist_fully_valid": 800
+  }
+ },
+ "selected_low_progress": {
+  "crm": {
+   "onset_to_end_s": {
+    "p10": 4.95,
+    "p50": 8.775,
+    "p90": 19.355,
+    "n": 320,
+    "mean": 10.351
+   },
+   "sinkage_drop_m": {
+    "p10": -0.073,
+    "p50": 0.016,
+    "p90": 0.08,
+    "n": 320,
+    "mean": 0.003
+   },
+   "vx_F": {
+    "p10": 0.177,
+    "p50": 0.605,
+    "p90": 1.206,
+    "n": 320,
+    "mean": 0.667
+   },
+   "in_stall_run_at_F": 0,
+   "goal_reached_recorded": 0
+  },
+  "rigid": {
+   "onset_to_end_s": {
+    "p10": 11.45,
+    "p50": 25.4,
+    "p90": 62.505,
+    "n": 320,
+    "mean": 32.235
+   },
+   "sinkage_drop_m": {
+    "p10": null,
+    "p50": null,
+    "p90": null,
+    "n": 0
+   },
+   "vx_F": {
+    "p10": -0.45,
+    "p50": 0.358,
+    "p90": 0.788,
+    "n": 320,
+    "mean": 0.275
+   },
+   "in_stall_run_at_F": 0,
+   "goal_reached_recorded": 115
+  }
+ },
+ "selected_clean_moving": {
+  "crm": {
+   "vx_F": {
+    "p10": 1.632,
+    "p50": 2.498,
+    "p90": 4.033,
+    "n": 480,
+    "mean": 2.746
+   },
+   "remaining_m": {
+    "p10": 23.809,
+    "p50": 36.062,
+    "p90": 50.377,
+    "n": 480,
+    "mean": 36.79
+   },
+   "goal_reached_recorded": 172,
+   "sinkage_drop_m": {
+    "p10": -0.111,
+    "p50": -0.005,
+    "p90": 0.091,
+    "n": 480,
+    "mean": -0.014
+   }
+  },
+  "rigid": {
+   "vx_F": {
+    "p10": 1.683,
+    "p50": 3.035,
+    "p90": 5.914,
+    "n": 480,
+    "mean": 3.273
+   },
+   "remaining_m": {
+    "p10": 20.372,
+    "p50": 34.37,
+    "p90": 49.51,
+    "n": 480,
+    "mean": 34.835
+   },
+   "goal_reached_recorded": 391,
+   "sinkage_drop_m": {
+    "p10": null,
+    "p50": null,
+    "p90": null,
+    "n": 0
+   }
+  }
+ },
+ "survivors": {
+  "crm": {
+   "train": {
+    "episodes": 13821,
+    "with_stall_onset": 9339,
+    "lp_survivors_at_onset_minus_10": 7858,
+    "lp_survivors_any_F_in_window": 9131,
+    "lp_groups_with_survivor": 1073,
+    "onset_s": {
+     "p10": 5.65,
+     "p50": 10.4,
+     "p90": 25.0,
+     "n": 9339,
+     "mean": 13.491
+    },
+    "onset_to_end_s_all": {
+     "p10": 4.15,
+     "p50": 8.05,
+     "p90": 22.95,
+     "n": 9339,
+     "mean": 10.44
+    },
+    "onset_to_end_s_survivors": {
+     "p10": 4.15,
+     "p50": 8.1,
+     "p90": 23.05,
+     "n": 9131,
+     "mean": 10.466
+    },
+    "cm_episodes_any_F": 12213,
+    "cm_episodes_per_F": {
+     "40": 11690,
+     "80": 11336,
+     "120": 9236
+    },
+    "cm_groups_with_candidate": 1089,
+    "sinkage_drop_at_onset_minus_10_m": {
+     "p10": -0.066,
+     "p50": 0.031,
+     "p90": 0.128,
+     "n": 9339,
+     "mean": 0.028
+    }
+   },
+   "val": {
+    "episodes": 713,
+    "with_stall_onset": 518,
+    "lp_survivors_at_onset_minus_10": 437,
+    "lp_survivors_any_F_in_window": 505,
+    "lp_groups_with_survivor": 55,
+    "onset_s": {
+     "p10": 5.735,
+     "p50": 10.225,
+     "p90": 24.815,
+     "n": 518,
+     "mean": 13.462
+    },
+    "onset_to_end_s_all": {
+     "p10": 4.335,
+     "p50": 8.35,
+     "p90": 22.765,
+     "n": 518,
+     "mean": 10.577
+    },
+    "onset_to_end_s_survivors": {
+     "p10": 4.4,
+     "p50": 8.35,
+     "p90": 22.92,
+     "n": 505,
+     "mean": 10.648
+    },
+    "cm_episodes_any_F": 623,
+    "cm_episodes_per_F": {
+     "40": 609,
+     "80": 572,
+     "120": 438
+    },
+    "cm_groups_with_candidate": 56,
+    "sinkage_drop_at_onset_minus_10_m": {
+     "p10": -0.069,
+     "p50": 0.029,
+     "p90": 0.121,
+     "n": 518,
+     "mean": 0.024
+    }
+   },
+   "test": {
+    "episodes": 701,
+    "with_stall_onset": 518,
+    "lp_survivors_at_onset_minus_10": 426,
+    "lp_survivors_any_F_in_window": 507,
+    "lp_groups_with_survivor": 55,
+    "onset_s": {
+     "p10": 5.4,
+     "p50": 9.225,
+     "p90": 24.13,
+     "n": 518,
+     "mean": 12.319
+    },
+    "onset_to_end_s_all": {
+     "p10": 4.25,
+     "p50": 7.65,
+     "p90": 21.465,
+     "n": 518,
+     "mean": 9.891
+    },
+    "onset_to_end_s_survivors": {
+     "p10": 4.28,
+     "p50": 7.65,
+     "p90": 21.7,
+     "n": 507,
+     "mean": 9.949
+    },
+    "cm_episodes_any_F": 618,
+    "cm_episodes_per_F": {
+     "40": 593,
+     "80": 558,
+     "120": 425
+    },
+    "cm_groups_with_candidate": 55,
+    "sinkage_drop_at_onset_minus_10_m": {
+     "p10": -0.083,
+     "p50": 0.04,
+     "p90": 0.134,
+     "n": 518,
+     "mean": 0.034
+    }
+   }
+  },
+  "rigid": {
+   "train": {
+    "episodes": 21780,
+    "with_stall_onset": 6170,
+    "lp_survivors_at_onset_minus_10": 6092,
+    "lp_survivors_any_F_in_window": 6097,
+    "lp_groups_with_survivor": 1036,
+    "onset_s": {
+     "p10": 10.25,
+     "p50": 21.55,
+     "p90": 43.905,
+     "n": 6170,
+     "mean": 25.052
+    },
+    "onset_to_end_s_all": {
+     "p10": 11.6,
+     "p50": 25.15,
+     "p90": 67.8,
+     "n": 6170,
+     "mean": 32.932
+    },
+    "onset_to_end_s_survivors": {
+     "p10": 11.65,
+     "p50": 25.2,
+     "p90": 67.77,
+     "n": 6097,
+     "mean": 32.966
+    },
+    "cm_episodes_any_F": 19552,
+    "cm_episodes_per_F": {
+     "40": 19085,
+     "80": 18670,
+     "120": 15797
+    },
+    "cm_groups_with_candidate": 1089
+   },
+   "val": {
+    "episodes": 1120,
+    "with_stall_onset": 308,
+    "lp_survivors_at_onset_minus_10": 305,
+    "lp_survivors_any_F_in_window": 305,
+    "lp_groups_with_survivor": 53,
+    "onset_s": {
+     "p10": 8.905,
+     "p50": 21.05,
+     "p90": 44.62,
+     "n": 308,
+     "mean": 24.915
+    },
+    "onset_to_end_s_all": {
+     "p10": 11.95,
+     "p50": 24.3,
+     "p90": 70.745,
+     "n": 308,
+     "mean": 34.043
+    },
+    "onset_to_end_s_survivors": {
+     "p10": 11.95,
+     "p50": 24.35,
+     "p90": 71.24,
+     "n": 305,
+     "mean": 34.124
+    },
+    "cm_episodes_any_F": 1004,
+    "cm_episodes_per_F": {
+     "40": 981,
+     "80": 957,
+     "120": 809
+    },
+    "cm_groups_with_candidate": 56
+   },
+   "test": {
+    "episodes": 1100,
+    "with_stall_onset": 323,
+    "lp_survivors_at_onset_minus_10": 310,
+    "lp_survivors_any_F_in_window": 311,
+    "lp_groups_with_survivor": 53,
+    "onset_s": {
+     "p10": 9.3,
+     "p50": 19.3,
+     "p90": 43.63,
+     "n": 323,
+     "mean": 23.341
+    },
+    "onset_to_end_s_all": {
+     "p10": 11.97,
+     "p50": 26.4,
+     "p90": 65.89,
+     "n": 323,
+     "mean": 33.571
+    },
+    "onset_to_end_s_survivors": {
+     "p10": 12.5,
+     "p50": 27.1,
+     "p90": 66.25,
+     "n": 311,
+     "mean": 33.818
+    },
+    "cm_episodes_any_F": 992,
+    "cm_episodes_per_F": {
+     "40": 965,
+     "80": 948,
+     "120": 785
+    },
+    "cm_groups_with_candidate": 55
+   }
+  }
+ },
+ "paired_pools": {
+  "train": {
+   "episodes_in_both_worlds": 13821,
+   "clean_moving_common_F": 12164,
+   "low_progress_both": 3796,
+   "low_progress_both_common_F": 742,
+   "stall_onset_both": 3895,
+   "stall_onset_crm_only": 5444,
+   "stall_onset_rigid_only": 16
+  },
+  "val": {
+   "episodes_in_both_worlds": 713,
+   "clean_moving_common_F": 623,
+   "low_progress_both": 190,
+   "low_progress_both_common_F": 48,
+   "stall_onset_both": 194,
+   "stall_onset_crm_only": 324,
+   "stall_onset_rigid_only": 1
+  },
+  "test": {
+   "episodes_in_both_worlds": 701,
+   "clean_moving_common_F": 618,
+   "low_progress_both": 200,
+   "low_progress_both_common_F": 37,
+   "stall_onset_both": 208,
+   "stall_onset_crm_only": 310,
+   "stall_onset_rigid_only": 1
+  }
+ },
+ "selection": {
+  "train": {
+   "low_progress": {
+    "quota": 280,
+    "paired_candidates": 3796,
+    "paired_taken": 280,
+    "fill": {
+     "crm": {
+      "candidates": 0,
+      "taken": 0
+     },
+     "rigid": {
+      "candidates": 0,
+      "taken": 0
+     }
+    }
+   },
+   "clean_moving": {
+    "quota": 420,
+    "paired_candidates": 12164,
+    "paired_taken": 420,
+    "fill": {
+     "crm": {
+      "candidates": 0,
+      "taken": 0
+     },
+     "rigid": {
+      "candidates": 0,
+      "taken": 0
+     }
+    }
+   }
+  },
+  "val": {
+   "low_progress": {
+    "quota": 20,
+    "paired_candidates": 190,
+    "paired_taken": 20,
+    "fill": {
+     "crm": {
+      "candidates": 0,
+      "taken": 0
+     },
+     "rigid": {
+      "candidates": 0,
+      "taken": 0
+     }
+    }
+   },
+   "clean_moving": {
+    "quota": 30,
+    "paired_candidates": 623,
+    "paired_taken": 30,
+    "fill": {
+     "crm": {
+      "candidates": 0,
+      "taken": 0
+     },
+     "rigid": {
+      "candidates": 0,
+      "taken": 0
+     }
+    }
+   }
+  },
+  "test": {
+   "low_progress": {
+    "quota": 20,
+    "paired_candidates": 200,
+    "paired_taken": 20,
+    "fill": {
+     "crm": {
+      "candidates": 0,
+      "taken": 0
+     },
+     "rigid": {
+      "candidates": 0,
+      "taken": 0
+     }
+    }
+   },
+   "clean_moving": {
+    "quota": 30,
+    "paired_candidates": 618,
+    "paired_taken": 30,
+    "fill": {
+     "crm": {
+      "candidates": 0,
+      "taken": 0
+     },
+     "rigid": {
+      "candidates": 0,
+      "taken": 0
+     }
+    }
+   }
+  }
+ },
+ "scan_errors": {
+  "crm": 0,
+  "rigid": 0
+ }
+}

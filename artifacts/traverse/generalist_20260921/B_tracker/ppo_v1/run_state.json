@@ -1,0 +1,15 @@
+{
+  "iterations": 1000,
+  "max_iterations": 1000,
+  "last_export": {
+    "iteration": 999,
+    "check": {
+      "n": 2148,
+      "max_abs_action_diff": 4.976472009338151e-07,
+      "ok": true,
+      "max_abs_presquash_diff": 1.3018308320233984e-06
+    },
+    "per_checkpoint": "actor_999.npz"
+  },
+  "wall_s": 2051.971163034439
+}

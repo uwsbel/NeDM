@@ -1,0 +1,67 @@
+{
+ "a4": {
+  "rows": 800,
+  "split": {
+   "test": 50,
+   "train": 700,
+   "val": 50
+  },
+  "cls": {
+   "clean_moving": 480,
+   "low_progress": 320
+  },
+  "route_kind": {
+   "designed": 412,
+   "on_policy": 388
+  },
+  "shard": {
+   "2": 158,
+   "5": 133,
+   "4": 145,
+   "0": 142,
+   "1": 109,
+   "3": 113
+  },
+  "recorded_root": {
+   "production_v3": 412,
+   "production_v4": 388
+  },
+  "F_min_max": [
+   40,
+   2018
+  ]
+ },
+ "b3": {
+  "rows": 1500,
+  "distinct_groups": 852,
+  "distinct_train_groups_available": 1089,
+  "route_index": {
+   "9": 115,
+   "3": 117,
+   "5": 143,
+   "6": 130,
+   "11": 132,
+   "2": 137,
+   "4": 115,
+   "8": 116,
+   "1": 124,
+   "7": 137,
+   "10": 137,
+   "0": 97
+  },
+  "shard": {
+   "4": 294,
+   "0": 229,
+   "2": 285,
+   "3": 241,
+   "5": 255,
+   "1": 196
+  },
+  "rows_per_group_max": 7,
+  "sample_seed": 20260921,
+  "seeds_unique": true,
+  "held_out_groups_present": 0,
+  "suite_ids_present": 0
+ },
+ "seed_rule": "int(md5(anchor_id or row id)[:8], 16); shard = int(md5(group), 16) % 6"
+}

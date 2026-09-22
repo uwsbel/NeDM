@@ -1,0 +1,18 @@
+{
+ "f104_v2_group_0001": {
+  "run": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/generalist_20260921/A_adapt/a5/selftest/analyze/runs_full/f104_v2_group_0001_op_00",
+  "frame": 60
+ },
+ "f104_v2_group_0002": {
+  "run": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/generalist_20260921/A_adapt/a5/selftest/analyze/runs_full/f104_v2_group_0002_op_00",
+  "frame": 60
+ },
+ "f104_v2_group_0003": {
+  "run": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/generalist_20260921/A_adapt/a5/selftest/analyze/runs_full/f104_v2_group_0003_op_00",
+  "frame": 60
+ },
+ "f104_v2_group_0004": {
+  "run": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/generalist_20260921/A_adapt/a5/selftest/analyze/runs_full/f104_v2_group_0004_op_01",
+  "frame": 60
+ }
+}

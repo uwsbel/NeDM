@@ -1,0 +1,68 @@
+{
+ "H:Sprigid": {
+  "diff_pts": -0.12500000000000003,
+  "ci95": [
+   -0.5148170998686462,
+   0.29632936507936525
+  ],
+  "clusters": 9,
+  "cluster_wins": 2,
+  "cluster_losses": 1,
+  "sign_p": 1.0
+ },
+ "Hmask:Sprigid": {
+  "diff_pts": -0.25,
+  "ci95": [
+   -0.9296148738379815,
+   0.24813895781637718
+  ],
+  "clusters": 9,
+  "cluster_wins": 2,
+  "cluster_losses": 1,
+  "sign_p": 1.0
+ },
+ "T:Sprigid": {
+  "diff_pts": 0.0,
+  "ci95": [
+   -0.4778972520908005,
+   0.5057050040807183
+  ],
+  "clusters": 9,
+  "cluster_wins": 2,
+  "cluster_losses": 2,
+  "sign_p": 1.0
+ },
+ "P:Sprigid": {
+  "diff_pts": -0.12500000000000003,
+  "ci95": [
+   -0.40323937394173576,
+   0.0
+  ],
+  "clusters": 9,
+  "cluster_wins": 1,
+  "cluster_losses": 0,
+  "sign_p": 1.0
+ },
+ "Spcrm:Sprigid": {
+  "diff_pts": 0.625,
+  "ci95": [
+   -0.13386880856760375,
+   1.5047879616963065
+  ],
+  "clusters": 9,
+  "cluster_wins": 1,
+  "cluster_losses": 3,
+  "sign_p": 0.625
+ },
+ "H:Hmask": {
+  "diff_pts": 0.12499999999999999,
+  "ci95": [
+   -0.5727705643077238,
+   0.9523809523809524
+  ],
+  "clusters": 9,
+  "cluster_wins": 1,
+  "cluster_losses": 2,
+  "sign_p": 1.0
+ }
+}

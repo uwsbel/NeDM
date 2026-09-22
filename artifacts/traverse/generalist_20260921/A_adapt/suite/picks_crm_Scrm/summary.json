@@ -1,0 +1,115 @@
+{
+ "world": "crm",
+ "model": "Scrm",
+ "models": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_f104_v1/train_v1/deploy/CRM_N2_s*.pt",
+ "map_root": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_f104_v1/map_root",
+ "geometry": "optix_static_depth_map",
+ "n_groups": 800,
+ "arms": [
+  "A",
+  "B"
+ ],
+ "tags": {
+  "A": "crm_proposal",
+  "B": "n2iter_cem4x64"
+ },
+ "deployed_tag": "crm_proposal",
+ "n_distinct_routes": 1571,
+ "n2_reference": {
+  "dir": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_night2_v1/planner/iter_crm/picks",
+  "A": {
+   "checked": 200,
+   "index_match": 200,
+   "route_match": 200,
+   "mismatch": []
+  },
+  "B": {
+   "checked": 200,
+   "index_match": 200,
+   "route_match": 200,
+   "mismatch": []
+  }
+ },
+ "selftest_groups": [
+  [
+   "f104_pair_group_0000",
+   256
+  ],
+  [
+   "f104_pair_group_0001",
+   256
+  ],
+  [
+   "f104_pair_group_0002",
+   256
+  ]
+ ],
+ "corridors_batched": true,
+ "float16_scoring": true,
+ "wall_s_total": 880.138453245163,
+ "per_arm": {
+  "A": {
+   "n": 800,
+   "z_mean_mean": -5.639228711343225,
+   "z_mean_median": -6.558131647109985,
+   "P_mean": 0.0508272887592182,
+   "T_mean": 19.300910233324426,
+   "T_median": 18.283006985716778,
+   "mean_speed": 3.36605264632413,
+   "max_lateral_mean": 5.946871632607444,
+   "wall_s": 454.5987701198901,
+   "wall_s_per_group": 0.5682484626498626,
+   "pick_kind": {
+    "anchor": 156,
+    "sample": 644,
+    "mean": 0
+   }
+  },
+  "B": {
+   "n": 800,
+   "z_mean_mean": -6.328975801377324,
+   "z_mean_median": -7.033517265319825,
+   "P_mean": 0.01738192434057768,
+   "T_mean": 17.665548205808445,
+   "T_median": 16.52017630288652,
+   "mean_speed": 3.4869274254185383,
+   "max_lateral_mean": 6.3196331073569185,
+   "wall_s": 421.542218843475,
+   "wall_s_per_group": 0.5269277735543437,
+   "pick_kind": {
+    "anchor": 36,
+    "sample": 632,
+    "mean": 132
+   }
+  }
+ },
+ "by_stratum": {
+  "fresh": {
+   "A": {
+    "n": 600,
+    "z_mean_mean": -5.655188575573072,
+    "P_mean": 0.0508995928460146
+   },
+   "B": {
+    "n": 600,
+    "z_mean_mean": -6.345977609235794,
+    "P_mean": 0.016808917717616154
+   }
+  },
+  "reused": {
+   "A": {
+    "n": 200,
+    "z_mean_mean": -5.591349118653684,
+    "P_mean": 0.05061037649882896
+   },
+   "B": {
+    "n": 200,
+    "z_mean_mean": -6.277970377801918,
+    "P_mean": 0.019100944209462248
+   }
+  }
+ },
+ "agreement": {
+  "A=B": 29
+ }
+}

@@ -1,0 +1,35 @@
+{
+ "Srigid:Scrm": {
+  "diff_pts": 15.625,
+  "ci95": [
+   9.702411477175016,
+   21.64456220214809
+  ],
+  "clusters": 9,
+  "cluster_wins": 0,
+  "cluster_losses": 9,
+  "sign_p": 0.00390625
+ },
+ "ScrmA:Scrm": {
+  "diff_pts": 4.125,
+  "ci95": [
+   2.354227116855711,
+   6.515659317991614
+  ],
+  "clusters": 9,
+  "cluster_wins": 0,
+  "cluster_losses": 9,
+  "sign_p": 0.00390625
+ },
+ "SrigidA:Srigid": {
+  "diff_pts": 10.0,
+  "ci95": [
+   5.645088680633544,
+   14.683614217674677
+  ],
+  "clusters": 9,
+  "cluster_wins": 1,
+  "cluster_losses": 8,
+  "sign_p": 0.0390625
+ }
+}

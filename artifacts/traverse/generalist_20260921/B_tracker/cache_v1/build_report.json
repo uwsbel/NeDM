@@ -1,0 +1,237 @@
+{
+ "built": "2026-09-21 22:33:09",
+ "wall_s": 23.3,
+ "workers": 8,
+ "max_frames": 1200,
+ "sources": {
+  "rigid": [
+   "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_f104_50h_20260909/production_v3/runs",
+   "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_f104_50h_20260909/production_v4/runs"
+  ],
+  "crm": [
+   "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_f104_v1/collect_v1/runs"
+  ]
+ },
+ "twin_split": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_night2_v1/datasets/twin_crm.npz",
+ "twin_groups_by_split": {
+  "train": 1089,
+  "val": 56,
+  "test": 55
+ },
+ "qa_flagged_excluded": [],
+ "case_split_fallback": {
+  "enabled": true,
+  "episodes": 0,
+  "groups": [],
+  "first_episodes": []
+ },
+ "excluded_counts": {
+  "blacklisted": 0,
+  "unknown_group": 0,
+  "qa_flagged": 0,
+  "no_files": 0
+ },
+ "excluded_unknown_group": [],
+ "errors": [],
+ "total_bytes": 1932496739,
+ "total_gib": 1.8,
+ "all": {
+  "episodes": 39235,
+  "frames": 19617117,
+  "frames_recorded": 21200751,
+  "cut": 3065,
+  "cut_by_status": {
+   "goal_reached": 1056,
+   "prolonged_blockage_terminated": 1349,
+   "rollover": 9,
+   "soil_breakthrough_terminated": 83,
+   "terrain_bounds_exit": 30,
+   "timeout": 538
+  },
+  "frames_dropped_by_cut": 1583634,
+  "stalled_frames_dropped_by_cut": 476748,
+  "stalled_frames": 3728317,
+  "stalled_frames_while_parked": 94,
+  "flip_transitions": 323282,
+  "flip_rate": 0.016512613570763172,
+  "hold_ok_retention": {
+   "all": {
+    "hold_ok": 18919430,
+    "frames": 19577882,
+    "retention": 0.9663675570217453
+   },
+   "stalled": {
+    "hold_ok": 3712053,
+    "frames": 3714592,
+    "retention": 0.9993164794410799
+   },
+   "moving": {
+    "hold_ok": 15207377,
+    "frames": 15863290,
+    "retention": 0.9586521459293753
+   },
+   "brake_onset": {
+    "hold_ok": 110612,
+    "frames": 146818,
+    "retention": 0.7533953602419322
+   },
+   "pre_brake_onset": {
+    "hold_ok": 0,
+    "frames": 147690,
+    "retention": 0.0
+   }
+  },
+  "by_status": {
+   "goal_reached": 24097,
+   "prolonged_blockage_terminated": 6105,
+   "rollover": 38,
+   "soil_breakthrough_terminated": 8372,
+   "terrain_bounds_exit": 85,
+   "timeout": 538
+  },
+  "by_split": {
+   "train": 35601,
+   "val": 1833,
+   "test": 1801
+  },
+  "groups": 1200,
+  "heldout_groups_present": {
+   "val": 56,
+   "test": 55
+  }
+ },
+ "crm": {
+  "episodes": 15235,
+  "frames": 6534757,
+  "frames_recorded": 6588724,
+  "cut": 192,
+  "cut_by_status": {
+   "goal_reached": 50,
+   "prolonged_blockage_terminated": 50,
+   "soil_breakthrough_terminated": 83,
+   "timeout": 9
+  },
+  "frames_dropped_by_cut": 53967,
+  "stalled_frames_dropped_by_cut": 17741,
+  "stalled_frames": 2119933,
+  "stalled_frames_while_parked": 94,
+  "flip_transitions": 56744,
+  "flip_rate": 0.008703705578415105,
+  "hold_ok_retention": {
+   "all": {
+    "hold_ok": 6395697,
+    "frames": 6519522,
+    "retention": 0.9810070431543908
+   },
+   "stalled": {
+    "hold_ok": 2109718,
+    "frames": 2109800,
+    "retention": 0.9999611337567542
+   },
+   "moving": {
+    "hold_ok": 4285979,
+    "frames": 4409722,
+    "retention": 0.9719385938614724
+   },
+   "brake_onset": {
+    "hold_ok": 16717,
+    "frames": 21183,
+    "retention": 0.789170561299155
+   },
+   "pre_brake_onset": {
+    "hold_ok": 0,
+    "frames": 21388,
+    "retention": 0.0
+   }
+  },
+  "by_status": {
+   "goal_reached": 4867,
+   "prolonged_blockage_terminated": 1985,
+   "rollover": 2,
+   "soil_breakthrough_terminated": 8372,
+   "timeout": 9
+  },
+  "by_split": {
+   "train": 13821,
+   "val": 713,
+   "test": 701
+  },
+  "groups": 1200,
+  "heldout_groups_present": {
+   "val": 56,
+   "test": 55
+  }
+ },
+ "rigid": {
+  "episodes": 24000,
+  "frames": 13082360,
+  "frames_recorded": 14612027,
+  "cut": 2873,
+  "cut_by_status": {
+   "goal_reached": 1006,
+   "prolonged_blockage_terminated": 1299,
+   "rollover": 9,
+   "terrain_bounds_exit": 30,
+   "timeout": 529
+  },
+  "frames_dropped_by_cut": 1529667,
+  "stalled_frames_dropped_by_cut": 459007,
+  "stalled_frames": 1608384,
+  "stalled_frames_while_parked": 0,
+  "flip_transitions": 266538,
+  "flip_rate": 0.020411292076493524,
+  "hold_ok_retention": {
+   "all": {
+    "hold_ok": 12523733,
+    "frames": 13058360,
+    "retention": 0.9590586413607834
+   },
+   "stalled": {
+    "hold_ok": 1602335,
+    "frames": 1604792,
+    "retention": 0.998468960463412
+   },
+   "moving": {
+    "hold_ok": 10921398,
+    "frames": 11453568,
+    "retention": 0.9535367494216649
+   },
+   "brake_onset": {
+    "hold_ok": 93895,
+    "frames": 125635,
+    "retention": 0.7473633939586899
+   },
+   "pre_brake_onset": {
+    "hold_ok": 0,
+    "frames": 126302,
+    "retention": 0.0
+   }
+  },
+  "by_status": {
+   "goal_reached": 19230,
+   "prolonged_blockage_terminated": 4120,
+   "rollover": 36,
+   "terrain_bounds_exit": 85,
+   "timeout": 529
+  },
+  "by_split": {
+   "train": 21780,
+   "val": 1120,
+   "test": 1100
+  },
+  "groups": 1200,
+  "heldout_groups_present": {
+   "val": 56,
+   "test": 55
+  }
+ },
+ "definitions": {
+  "stalled": "frame inside a run of >= 20 consecutive frames with |vx| < 0.3 and throttle > 0.3",
+  "hold_ok": "|act[k+1]-act[k]| <= 0.1 on all 3 channels and no throttle/brake flip; True only when frame k+1 is in the cache (last kept frame False, also for cut episodes)",
+  "flip": "throttle>0 at k and brake>0 at k+1, or brake>0 at k and throttle>0 at k+1",
+  "brake_onset": "frame k with brake>0 and brake<=0 at k-1 (retention of the transition k->k+1)",
+  "pre_brake_onset": "frame k-1 before a brake onset (the transition that switches the brake on)",
+  "moving": "not stalled",
+  "retention": "hold_ok transitions / transitions with a successor frame in the regime"
+ }
+}

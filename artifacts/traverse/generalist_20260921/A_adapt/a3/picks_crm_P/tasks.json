@@ -1,0 +1,2604 @@
+[
+ {
+  "id": "f104_crm_eval_group_0000__B",
+  "group": "f104_crm_eval_group_0000",
+  "case": "suite/cases/f104_crm_eval_group_0000.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0000__B.json",
+  "run": true,
+  "tier": 0,
+  "episode_seed": 2205629530,
+  "arms": [
+   "B"
+  ],
+  "sha256": "722079aeb5cd0da7c1617f069544c88e34363dfe1f6ddbefec3bfcbf7b720b14"
+ },
+ {
+  "id": "f104_crm_eval_group_0001__B",
+  "group": "f104_crm_eval_group_0001",
+  "case": "suite/cases/f104_crm_eval_group_0001.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0001__B.json",
+  "run": true,
+  "tier": 1,
+  "episode_seed": 3413790809,
+  "arms": [
+   "B"
+  ],
+  "sha256": "f0eff34ef08be1b492b1c7b8c22446e62ac38e1cd0fff975e3749df2c2b92344"
+ },
+ {
+  "id": "f104_crm_eval_group_0002__B",
+  "group": "f104_crm_eval_group_0002",
+  "case": "suite/cases/f104_crm_eval_group_0002.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0002__B.json",
+  "run": true,
+  "tier": 2,
+  "episode_seed": 2525964261,
+  "arms": [
+   "B"
+  ],
+  "sha256": "69385cedc6b72ca3d6b17aefce9319fd478c3575b78a11edb7128c81131314cb"
+ },
+ {
+  "id": "f104_crm_eval_group_0003__B",
+  "group": "f104_crm_eval_group_0003",
+  "case": "suite/cases/f104_crm_eval_group_0003.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0003__B.json",
+  "run": true,
+  "tier": 3,
+  "episode_seed": 694018239,
+  "arms": [
+   "B"
+  ],
+  "sha256": "3d4b22a5bc7d30f5b7a3ed8ebd75aa3af08f8621cd1802a1cbd342b1febd5788"
+ },
+ {
+  "id": "f104_crm_eval_group_0004__B",
+  "group": "f104_crm_eval_group_0004",
+  "case": "suite/cases/f104_crm_eval_group_0004.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0004__B.json",
+  "run": true,
+  "tier": 4,
+  "episode_seed": 2922616138,
+  "arms": [
+   "B"
+  ],
+  "sha256": "c64864a953b8983b0798f4ed8df321c7e450cc25e2e3c1b99742505ae9f3ac0e"
+ },
+ {
+  "id": "f104_crm_eval_group_0005__B",
+  "group": "f104_crm_eval_group_0005",
+  "case": "suite/cases/f104_crm_eval_group_0005.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0005__B.json",
+  "run": true,
+  "tier": 5,
+  "episode_seed": 1940141763,
+  "arms": [
+   "B"
+  ],
+  "sha256": "d5fb7daa7eed5fe5a550ec031f66de07c35b347008545ab7904f70892aac329b"
+ },
+ {
+  "id": "f104_crm_eval_group_0006__B",
+  "group": "f104_crm_eval_group_0006",
+  "case": "suite/cases/f104_crm_eval_group_0006.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0006__B.json",
+  "run": true,
+  "tier": 6,
+  "episode_seed": 2230747368,
+  "arms": [
+   "B"
+  ],
+  "sha256": "14757ee43bb1ac13122cfcddb7c08d4c2ac737c990712081bc12604f743b6359"
+ },
+ {
+  "id": "f104_crm_eval_group_0007__B",
+  "group": "f104_crm_eval_group_0007",
+  "case": "suite/cases/f104_crm_eval_group_0007.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0007__B.json",
+  "run": true,
+  "tier": 7,
+  "episode_seed": 2852850234,
+  "arms": [
+   "B"
+  ],
+  "sha256": "80b70cc125e1e314d7be24cceabc5c5c843a50673c62b80dd1da68031cd0455d"
+ },
+ {
+  "id": "f104_crm_eval_group_0008__B",
+  "group": "f104_crm_eval_group_0008",
+  "case": "suite/cases/f104_crm_eval_group_0008.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0008__B.json",
+  "run": true,
+  "tier": 8,
+  "episode_seed": 4085731535,
+  "arms": [
+   "B"
+  ],
+  "sha256": "44ea205144c06f9e7777f70bc87d91c098eff90dfc9de71d0095c8c74a5259b7"
+ },
+ {
+  "id": "f104_crm_eval_group_0009__B",
+  "group": "f104_crm_eval_group_0009",
+  "case": "suite/cases/f104_crm_eval_group_0009.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0009__B.json",
+  "run": true,
+  "tier": 9,
+  "episode_seed": 3736164251,
+  "arms": [
+   "B"
+  ],
+  "sha256": "5300b384d5de12bb041c385c743ce95b682c51b16144ce271e07e389c7999ecd"
+ },
+ {
+  "id": "f104_crm_eval_group_0010__B",
+  "group": "f104_crm_eval_group_0010",
+  "case": "suite/cases/f104_crm_eval_group_0010.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0010__B.json",
+  "run": true,
+  "tier": 10,
+  "episode_seed": 1639367080,
+  "arms": [
+   "B"
+  ],
+  "sha256": "28e635fd88fdf6803530308c35b6036fe0bbf178b7e3ae895793910e131a0904"
+ },
+ {
+  "id": "f104_crm_eval_group_0011__B",
+  "group": "f104_crm_eval_group_0011",
+  "case": "suite/cases/f104_crm_eval_group_0011.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0011__B.json",
+  "run": true,
+  "tier": 11,
+  "episode_seed": 1554827394,
+  "arms": [
+   "B"
+  ],
+  "sha256": "cea2ad9e7b3d11fccb8e0153e553cf5420e1b2cc1a4a9f4d1ad22a1c83d3a594"
+ },
+ {
+  "id": "f104_crm_eval_group_0012__B",
+  "group": "f104_crm_eval_group_0012",
+  "case": "suite/cases/f104_crm_eval_group_0012.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0012__B.json",
+  "run": true,
+  "tier": 12,
+  "episode_seed": 80563648,
+  "arms": [
+   "B"
+  ],
+  "sha256": "5616db5cfa3cd1e1802d09aa8c4b44b60a829721365e048765dbacfaccbb4e81"
+ },
+ {
+  "id": "f104_crm_eval_group_0013__B",
+  "group": "f104_crm_eval_group_0013",
+  "case": "suite/cases/f104_crm_eval_group_0013.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0013__B.json",
+  "run": true,
+  "tier": 13,
+  "episode_seed": 3689986442,
+  "arms": [
+   "B"
+  ],
+  "sha256": "bc185895b10516c9823fb5fb11c745a956e0131e8d855aece03a5f7a9924efea"
+ },
+ {
+  "id": "f104_crm_eval_group_0014__B",
+  "group": "f104_crm_eval_group_0014",
+  "case": "suite/cases/f104_crm_eval_group_0014.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0014__B.json",
+  "run": true,
+  "tier": 14,
+  "episode_seed": 2698533096,
+  "arms": [
+   "B"
+  ],
+  "sha256": "5ec8ae94ad0abeff42379d91c98d5ea067b9815c80fb5d59ef844d5855bc2e14"
+ },
+ {
+  "id": "f104_crm_eval_group_0015__B",
+  "group": "f104_crm_eval_group_0015",
+  "case": "suite/cases/f104_crm_eval_group_0015.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0015__B.json",
+  "run": true,
+  "tier": 15,
+  "episode_seed": 3343999706,
+  "arms": [
+   "B"
+  ],
+  "sha256": "cf28259dc6dae5f0c9b576d9b6f5520f96accf7da680c3c5cdcfed720581d510"
+ },
+ {
+  "id": "f104_crm_eval_group_0016__B",
+  "group": "f104_crm_eval_group_0016",
+  "case": "suite/cases/f104_crm_eval_group_0016.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0016__B.json",
+  "run": true,
+  "tier": 16,
+  "episode_seed": 2925550800,
+  "arms": [
+   "B"
+  ],
+  "sha256": "9df158c93c16577e90c307516408f6ab8eba7dbbceb3c69abfbc364b16fff848"
+ },
+ {
+  "id": "f104_crm_eval_group_0017__B",
+  "group": "f104_crm_eval_group_0017",
+  "case": "suite/cases/f104_crm_eval_group_0017.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0017__B.json",
+  "run": true,
+  "tier": 17,
+  "episode_seed": 4029834349,
+  "arms": [
+   "B"
+  ],
+  "sha256": "b6dc3cfa0c995c3b3a57a5d53a8f68a1fa89ff3af7a6eae365b927b2db2529d6"
+ },
+ {
+  "id": "f104_crm_eval_group_0018__B",
+  "group": "f104_crm_eval_group_0018",
+  "case": "suite/cases/f104_crm_eval_group_0018.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0018__B.json",
+  "run": true,
+  "tier": 18,
+  "episode_seed": 2669961495,
+  "arms": [
+   "B"
+  ],
+  "sha256": "4ba17b1fb30f5e6c732d6bbb656c65a055b2ffacffbcda11e8f292dc0b14042b"
+ },
+ {
+  "id": "f104_crm_eval_group_0019__B",
+  "group": "f104_crm_eval_group_0019",
+  "case": "suite/cases/f104_crm_eval_group_0019.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0019__B.json",
+  "run": true,
+  "tier": 19,
+  "episode_seed": 2961059977,
+  "arms": [
+   "B"
+  ],
+  "sha256": "6e3f0dd7f72ec84258920f5398cf6e9c5c1bdb2bd841505e78bbd1ae7e5dc73b"
+ },
+ {
+  "id": "f104_crm_eval_group_0020__B",
+  "group": "f104_crm_eval_group_0020",
+  "case": "suite/cases/f104_crm_eval_group_0020.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0020__B.json",
+  "run": true,
+  "tier": 20,
+  "episode_seed": 2556988180,
+  "arms": [
+   "B"
+  ],
+  "sha256": "999db2dd007115b4ed216d7c48479ae41f1842703665322cddceea8ea008a282"
+ },
+ {
+  "id": "f104_crm_eval_group_0021__B",
+  "group": "f104_crm_eval_group_0021",
+  "case": "suite/cases/f104_crm_eval_group_0021.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0021__B.json",
+  "run": true,
+  "tier": 21,
+  "episode_seed": 1306444871,
+  "arms": [
+   "B"
+  ],
+  "sha256": "bc5c8104f6b4f70521e9623214c1531231a85d39be5684b42a7fce22d775a2ec"
+ },
+ {
+  "id": "f104_crm_eval_group_0022__B",
+  "group": "f104_crm_eval_group_0022",
+  "case": "suite/cases/f104_crm_eval_group_0022.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0022__B.json",
+  "run": true,
+  "tier": 22,
+  "episode_seed": 4270174159,
+  "arms": [
+   "B"
+  ],
+  "sha256": "207e39bc307ec404a875f366acd21097c8f03ebfe27115e45224aa5c2ee5d84f"
+ },
+ {
+  "id": "f104_crm_eval_group_0023__B",
+  "group": "f104_crm_eval_group_0023",
+  "case": "suite/cases/f104_crm_eval_group_0023.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0023__B.json",
+  "run": true,
+  "tier": 23,
+  "episode_seed": 1147805231,
+  "arms": [
+   "B"
+  ],
+  "sha256": "957841b7564245d84a2762bea601b4342325fd5e78f3d7a506cbd2e1ad4017fb"
+ },
+ {
+  "id": "f104_crm_eval_group_0024__B",
+  "group": "f104_crm_eval_group_0024",
+  "case": "suite/cases/f104_crm_eval_group_0024.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0024__B.json",
+  "run": true,
+  "tier": 24,
+  "episode_seed": 3325473940,
+  "arms": [
+   "B"
+  ],
+  "sha256": "1952fd6050a53d59c8670502dbab2c62588907fc52ba1b5a05415c98d37be9a0",
+  "ref_id": "f104_crm_eval_group_0024__Scrm_A"
+ },
+ {
+  "id": "f104_crm_eval_group_0025__B",
+  "group": "f104_crm_eval_group_0025",
+  "case": "suite/cases/f104_crm_eval_group_0025.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0025__B.json",
+  "run": true,
+  "tier": 25,
+  "episode_seed": 1128062094,
+  "arms": [
+   "B"
+  ],
+  "sha256": "30829f72eaa9cb971429e1ac1f5dd71e688a76cc802bf2ad77267ef9004b6b3a"
+ },
+ {
+  "id": "f104_crm_eval_group_0026__B",
+  "group": "f104_crm_eval_group_0026",
+  "case": "suite/cases/f104_crm_eval_group_0026.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0026__B.json",
+  "run": true,
+  "tier": 26,
+  "episode_seed": 2862803012,
+  "arms": [
+   "B"
+  ],
+  "sha256": "f77bb6e3a4fb2ecfbafaf40adca90b559af5e3e33f5a0e6d5afc6abce4a1d276"
+ },
+ {
+  "id": "f104_crm_eval_group_0027__B",
+  "group": "f104_crm_eval_group_0027",
+  "case": "suite/cases/f104_crm_eval_group_0027.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0027__B.json",
+  "run": true,
+  "tier": 27,
+  "episode_seed": 1381207079,
+  "arms": [
+   "B"
+  ],
+  "sha256": "e1895fa274cf7cabd4e055cd9bf92f006b1e122d517ef31aa953f3a5841dbad6"
+ },
+ {
+  "id": "f104_crm_eval_group_0028__B",
+  "group": "f104_crm_eval_group_0028",
+  "case": "suite/cases/f104_crm_eval_group_0028.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0028__B.json",
+  "run": true,
+  "tier": 28,
+  "episode_seed": 3913489971,
+  "arms": [
+   "B"
+  ],
+  "sha256": "1aa6984a1ef3bc1fd67960ae95a382d03cdca89d2f18d558836f4f2101ca9a9e"
+ },
+ {
+  "id": "f104_crm_eval_group_0029__B",
+  "group": "f104_crm_eval_group_0029",
+  "case": "suite/cases/f104_crm_eval_group_0029.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0029__B.json",
+  "run": true,
+  "tier": 29,
+  "episode_seed": 4200025758,
+  "arms": [
+   "B"
+  ],
+  "sha256": "eb05e10f2be0037e8016bdd1df657139fd7eb17a0243b42f02951519782a4e48"
+ },
+ {
+  "id": "f104_crm_eval_group_0030__B",
+  "group": "f104_crm_eval_group_0030",
+  "case": "suite/cases/f104_crm_eval_group_0030.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0030__B.json",
+  "run": true,
+  "tier": 30,
+  "episode_seed": 1688642149,
+  "arms": [
+   "B"
+  ],
+  "sha256": "dd6747e9174700d4bc9d15990fd449eb59784d8c5d47b3af4b6bd89e67f0e4a0"
+ },
+ {
+  "id": "f104_crm_eval_group_0031__B",
+  "group": "f104_crm_eval_group_0031",
+  "case": "suite/cases/f104_crm_eval_group_0031.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0031__B.json",
+  "run": true,
+  "tier": 31,
+  "episode_seed": 998110529,
+  "arms": [
+   "B"
+  ],
+  "sha256": "d4e9f45d15ba90701f10e263e23c4f7be89cefb1aaa3f012c493ddbfd7a6d714"
+ },
+ {
+  "id": "f104_crm_eval_group_0032__B",
+  "group": "f104_crm_eval_group_0032",
+  "case": "suite/cases/f104_crm_eval_group_0032.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0032__B.json",
+  "run": true,
+  "tier": 32,
+  "episode_seed": 4125520290,
+  "arms": [
+   "B"
+  ],
+  "sha256": "0df52d03cd748bdb9378f2785fe0e668755a568bfe292c32fefa7ac961f3baa9"
+ },
+ {
+  "id": "f104_crm_eval_group_0033__B",
+  "group": "f104_crm_eval_group_0033",
+  "case": "suite/cases/f104_crm_eval_group_0033.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0033__B.json",
+  "run": true,
+  "tier": 33,
+  "episode_seed": 3482288783,
+  "arms": [
+   "B"
+  ],
+  "sha256": "a249296f8c9e29b90a7aded0371b224a7a7ef007d423f66c035888bedd999013"
+ },
+ {
+  "id": "f104_crm_eval_group_0034__B",
+  "group": "f104_crm_eval_group_0034",
+  "case": "suite/cases/f104_crm_eval_group_0034.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0034__B.json",
+  "run": true,
+  "tier": 34,
+  "episode_seed": 396390037,
+  "arms": [
+   "B"
+  ],
+  "sha256": "ae829db9d6cd82d938d21735b6ab0a4f9d459fb5cc6a4a85e73cbf5d62188abd"
+ },
+ {
+  "id": "f104_crm_eval_group_0035__B",
+  "group": "f104_crm_eval_group_0035",
+  "case": "suite/cases/f104_crm_eval_group_0035.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0035__B.json",
+  "run": true,
+  "tier": 35,
+  "episode_seed": 1826212424,
+  "arms": [
+   "B"
+  ],
+  "sha256": "dbaedb42ea8f1d2b94150e85a52af3607f3909002885cc698be015e6d571f346"
+ },
+ {
+  "id": "f104_crm_eval_group_0036__B",
+  "group": "f104_crm_eval_group_0036",
+  "case": "suite/cases/f104_crm_eval_group_0036.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0036__B.json",
+  "run": true,
+  "tier": 36,
+  "episode_seed": 2436766642,
+  "arms": [
+   "B"
+  ],
+  "sha256": "20ae13e29eddc8d74088235b97df4ec7033b0a7f90d824c8859fbaf0f9627b99"
+ },
+ {
+  "id": "f104_crm_eval_group_0037__B",
+  "group": "f104_crm_eval_group_0037",
+  "case": "suite/cases/f104_crm_eval_group_0037.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0037__B.json",
+  "run": true,
+  "tier": 37,
+  "episode_seed": 3136870751,
+  "arms": [
+   "B"
+  ],
+  "sha256": "9423d9a748153724500018883ae97e142cd774faa1a5bea58f6601bd20a27989"
+ },
+ {
+  "id": "f104_crm_eval_group_0038__B",
+  "group": "f104_crm_eval_group_0038",
+  "case": "suite/cases/f104_crm_eval_group_0038.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0038__B.json",
+  "run": true,
+  "tier": 38,
+  "episode_seed": 3037850600,
+  "arms": [
+   "B"
+  ],
+  "sha256": "019d70cac9835ce337c4dac35058ba3588439e36ea0337bfbef884ccbc233692"
+ },
+ {
+  "id": "f104_crm_eval_group_0039__B",
+  "group": "f104_crm_eval_group_0039",
+  "case": "suite/cases/f104_crm_eval_group_0039.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0039__B.json",
+  "run": true,
+  "tier": 39,
+  "episode_seed": 3409423880,
+  "arms": [
+   "B"
+  ],
+  "sha256": "98e99147a3ef08d9ad4bc3597e2b3d80a59d7db243133884138bb9197f346c1a"
+ },
+ {
+  "id": "f104_crm_eval_group_0040__B",
+  "group": "f104_crm_eval_group_0040",
+  "case": "suite/cases/f104_crm_eval_group_0040.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0040__B.json",
+  "run": true,
+  "tier": 40,
+  "episode_seed": 752322609,
+  "arms": [
+   "B"
+  ],
+  "sha256": "ad5810135f5c4c47666600c1c7cc70bbe83e8d57aea5b896f2c4d6d5da8cf7fb"
+ },
+ {
+  "id": "f104_crm_eval_group_0041__B",
+  "group": "f104_crm_eval_group_0041",
+  "case": "suite/cases/f104_crm_eval_group_0041.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0041__B.json",
+  "run": true,
+  "tier": 41,
+  "episode_seed": 817886172,
+  "arms": [
+   "B"
+  ],
+  "sha256": "3cde3f26a788cfca59967dc2f479790a9a87da76909c914bccced6853481025a"
+ },
+ {
+  "id": "f104_crm_eval_group_0042__B",
+  "group": "f104_crm_eval_group_0042",
+  "case": "suite/cases/f104_crm_eval_group_0042.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0042__B.json",
+  "run": true,
+  "tier": 42,
+  "episode_seed": 1104313804,
+  "arms": [
+   "B"
+  ],
+  "sha256": "a2578fba67bf5c2b1ee184e85850414977fe202d3b42c584f2226620109970ce"
+ },
+ {
+  "id": "f104_crm_eval_group_0043__B",
+  "group": "f104_crm_eval_group_0043",
+  "case": "suite/cases/f104_crm_eval_group_0043.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0043__B.json",
+  "run": true,
+  "tier": 43,
+  "episode_seed": 701090937,
+  "arms": [
+   "B"
+  ],
+  "sha256": "31fadc34701020dacbc4d127205f458408dac6846b95768dd60666effc45f109"
+ },
+ {
+  "id": "f104_crm_eval_group_0044__B",
+  "group": "f104_crm_eval_group_0044",
+  "case": "suite/cases/f104_crm_eval_group_0044.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0044__B.json",
+  "run": true,
+  "tier": 44,
+  "episode_seed": 3473227194,
+  "arms": [
+   "B"
+  ],
+  "sha256": "a7f654bf8ad76b6fffbcb119395d30e287ed3593b09c1fe8728314f7a25dc807"
+ },
+ {
+  "id": "f104_crm_eval_group_0045__B",
+  "group": "f104_crm_eval_group_0045",
+  "case": "suite/cases/f104_crm_eval_group_0045.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0045__B.json",
+  "run": true,
+  "tier": 45,
+  "episode_seed": 3131733642,
+  "arms": [
+   "B"
+  ],
+  "sha256": "3c8d3e254bcc1f375fd7ab3d3fb7dfa47be9e350dc662c956e583b242980e607"
+ },
+ {
+  "id": "f104_crm_eval_group_0046__B",
+  "group": "f104_crm_eval_group_0046",
+  "case": "suite/cases/f104_crm_eval_group_0046.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0046__B.json",
+  "run": true,
+  "tier": 46,
+  "episode_seed": 2136039794,
+  "arms": [
+   "B"
+  ],
+  "sha256": "2b4871b3af89afebc095a4468bd9b95fb5cc1e1f3e284ecc92d63163dbeb2131"
+ },
+ {
+  "id": "f104_crm_eval_group_0047__B",
+  "group": "f104_crm_eval_group_0047",
+  "case": "suite/cases/f104_crm_eval_group_0047.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0047__B.json",
+  "run": true,
+  "tier": 47,
+  "episode_seed": 325235001,
+  "arms": [
+   "B"
+  ],
+  "sha256": "22ab989bf252b8a49cac524bd8b93d3a86b64f616e716f4f22dec449da29b3b1"
+ },
+ {
+  "id": "f104_crm_eval_group_0048__B",
+  "group": "f104_crm_eval_group_0048",
+  "case": "suite/cases/f104_crm_eval_group_0048.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0048__B.json",
+  "run": true,
+  "tier": 48,
+  "episode_seed": 1299739202,
+  "arms": [
+   "B"
+  ],
+  "sha256": "c48c3aa986a75572de4b491d4bda7e7b6ce3102db0b0e3c1d1f02d24f6cd4a79"
+ },
+ {
+  "id": "f104_crm_eval_group_0049__B",
+  "group": "f104_crm_eval_group_0049",
+  "case": "suite/cases/f104_crm_eval_group_0049.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0049__B.json",
+  "run": true,
+  "tier": 49,
+  "episode_seed": 3336120734,
+  "arms": [
+   "B"
+  ],
+  "sha256": "871432fd0de6b320efda5522bba280b332b746ea190aa1a428aed8df9ecb3749"
+ },
+ {
+  "id": "f104_crm_eval_group_0050__B",
+  "group": "f104_crm_eval_group_0050",
+  "case": "suite/cases/f104_crm_eval_group_0050.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0050__B.json",
+  "run": true,
+  "tier": 50,
+  "episode_seed": 2756160445,
+  "arms": [
+   "B"
+  ],
+  "sha256": "9820f646876068973d1a8d833d694928fb87a0104a5c072edead974d25249052"
+ },
+ {
+  "id": "f104_crm_eval_group_0051__B",
+  "group": "f104_crm_eval_group_0051",
+  "case": "suite/cases/f104_crm_eval_group_0051.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0051__B.json",
+  "run": true,
+  "tier": 51,
+  "episode_seed": 447273139,
+  "arms": [
+   "B"
+  ],
+  "sha256": "88af654ad1874f03f87639c366fd992fd6d51ebe146f70db05a41e849cf60b90"
+ },
+ {
+  "id": "f104_crm_eval_group_0052__B",
+  "group": "f104_crm_eval_group_0052",
+  "case": "suite/cases/f104_crm_eval_group_0052.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0052__B.json",
+  "run": true,
+  "tier": 52,
+  "episode_seed": 3425133755,
+  "arms": [
+   "B"
+  ],
+  "sha256": "569b536ac4677ff41fd8b2ef93bece07fdf7f2ac7f7e04d4c58150bc66e0fec1"
+ },
+ {
+  "id": "f104_crm_eval_group_0053__B",
+  "group": "f104_crm_eval_group_0053",
+  "case": "suite/cases/f104_crm_eval_group_0053.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0053__B.json",
+  "run": true,
+  "tier": 53,
+  "episode_seed": 713989499,
+  "arms": [
+   "B"
+  ],
+  "sha256": "c4d60bd41cc0887426a2d2b1a54d7f335054d1d8611c664be92a7f5e56ff5ce0"
+ },
+ {
+  "id": "f104_crm_eval_group_0054__B",
+  "group": "f104_crm_eval_group_0054",
+  "case": "suite/cases/f104_crm_eval_group_0054.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0054__B.json",
+  "run": true,
+  "tier": 54,
+  "episode_seed": 56830231,
+  "arms": [
+   "B"
+  ],
+  "sha256": "751928dcd8c7dcaa0177d29b31b15f0bab66819548de98aa8338525273628efc"
+ },
+ {
+  "id": "f104_crm_eval_group_0055__B",
+  "group": "f104_crm_eval_group_0055",
+  "case": "suite/cases/f104_crm_eval_group_0055.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0055__B.json",
+  "run": true,
+  "tier": 55,
+  "episode_seed": 256715204,
+  "arms": [
+   "B"
+  ],
+  "sha256": "f8eb5f61813dd707bd7ba2852e70730a5d9c10f8b300932672409564819217d4"
+ },
+ {
+  "id": "f104_crm_eval_group_0056__B",
+  "group": "f104_crm_eval_group_0056",
+  "case": "suite/cases/f104_crm_eval_group_0056.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0056__B.json",
+  "run": true,
+  "tier": 56,
+  "episode_seed": 2519954805,
+  "arms": [
+   "B"
+  ],
+  "sha256": "48deafeadb22890e1b5e2bc7b937c094a4d3099f534be10c73e0527a4b7fc202"
+ },
+ {
+  "id": "f104_crm_eval_group_0057__B",
+  "group": "f104_crm_eval_group_0057",
+  "case": "suite/cases/f104_crm_eval_group_0057.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0057__B.json",
+  "run": true,
+  "tier": 57,
+  "episode_seed": 3041784749,
+  "arms": [
+   "B"
+  ],
+  "sha256": "dc59d67f02ef693745f2c9f40750fa1a711369635188e464d4bff9e0e43ada1f"
+ },
+ {
+  "id": "f104_crm_eval_group_0058__B",
+  "group": "f104_crm_eval_group_0058",
+  "case": "suite/cases/f104_crm_eval_group_0058.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0058__B.json",
+  "run": true,
+  "tier": 58,
+  "episode_seed": 3360728848,
+  "arms": [
+   "B"
+  ],
+  "sha256": "f205e9fe6e0d34d982c36df21d3afa754e3124e5d4eebc974839ce72156527a8"
+ },
+ {
+  "id": "f104_crm_eval_group_0059__B",
+  "group": "f104_crm_eval_group_0059",
+  "case": "suite/cases/f104_crm_eval_group_0059.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0059__B.json",
+  "run": true,
+  "tier": 59,
+  "episode_seed": 2876753639,
+  "arms": [
+   "B"
+  ],
+  "sha256": "518a84aec2ce8ea721c6d31579160712f5cb189c199da869b36e88a2adf6a557"
+ },
+ {
+  "id": "f104_crm_eval_group_0060__B",
+  "group": "f104_crm_eval_group_0060",
+  "case": "suite/cases/f104_crm_eval_group_0060.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0060__B.json",
+  "run": true,
+  "tier": 60,
+  "episode_seed": 3226070128,
+  "arms": [
+   "B"
+  ],
+  "sha256": "8f2fba633efa97da84be54dafd249cde3440e183c532f51642067ac29a9cd454"
+ },
+ {
+  "id": "f104_crm_eval_group_0061__B",
+  "group": "f104_crm_eval_group_0061",
+  "case": "suite/cases/f104_crm_eval_group_0061.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0061__B.json",
+  "run": true,
+  "tier": 61,
+  "episode_seed": 3032151818,
+  "arms": [
+   "B"
+  ],
+  "sha256": "e7a45b600b340f3cdf92c5a48b9857f5a9e45f66c2bddaadc8c5c606d1fb65f3"
+ },
+ {
+  "id": "f104_crm_eval_group_0062__B",
+  "group": "f104_crm_eval_group_0062",
+  "case": "suite/cases/f104_crm_eval_group_0062.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0062__B.json",
+  "run": true,
+  "tier": 62,
+  "episode_seed": 2441657194,
+  "arms": [
+   "B"
+  ],
+  "sha256": "154dd2b3c05a16a44534eaeb79da9b2b0a669e912eb13e8d75f52e008526b98a"
+ },
+ {
+  "id": "f104_crm_eval_group_0063__B",
+  "group": "f104_crm_eval_group_0063",
+  "case": "suite/cases/f104_crm_eval_group_0063.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0063__B.json",
+  "run": true,
+  "tier": 63,
+  "episode_seed": 2639794932,
+  "arms": [
+   "B"
+  ],
+  "sha256": "b9559a04e81790deae135fe8a07a03d6375dc49e54fe37023248cdae14c3a29c"
+ },
+ {
+  "id": "f104_crm_eval_group_0064__B",
+  "group": "f104_crm_eval_group_0064",
+  "case": "suite/cases/f104_crm_eval_group_0064.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0064__B.json",
+  "run": true,
+  "tier": 64,
+  "episode_seed": 2606968779,
+  "arms": [
+   "B"
+  ],
+  "sha256": "fd905cf367d60aa68d67a31020168f5507750c9029f180c816787031897299d7"
+ },
+ {
+  "id": "f104_crm_eval_group_0065__B",
+  "group": "f104_crm_eval_group_0065",
+  "case": "suite/cases/f104_crm_eval_group_0065.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0065__B.json",
+  "run": true,
+  "tier": 65,
+  "episode_seed": 2941375837,
+  "arms": [
+   "B"
+  ],
+  "sha256": "1d10a0aef32af83da30d8b8e66784c23d4ca2fcace0d1e1fd3c8a61bf49ab248"
+ },
+ {
+  "id": "f104_crm_eval_group_0066__B",
+  "group": "f104_crm_eval_group_0066",
+  "case": "suite/cases/f104_crm_eval_group_0066.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0066__B.json",
+  "run": true,
+  "tier": 66,
+  "episode_seed": 2478900539,
+  "arms": [
+   "B"
+  ],
+  "sha256": "dfab73d75d15af757576db1ab436812250dab25b1302ec0970213b925f45ed7c"
+ },
+ {
+  "id": "f104_crm_eval_group_0067__B",
+  "group": "f104_crm_eval_group_0067",
+  "case": "suite/cases/f104_crm_eval_group_0067.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0067__B.json",
+  "run": true,
+  "tier": 67,
+  "episode_seed": 4280393169,
+  "arms": [
+   "B"
+  ],
+  "sha256": "52011c26f72ea5ca0ece7fb14308e029c61cd56cecaeefa0336212dc594d8b30"
+ },
+ {
+  "id": "f104_crm_eval_group_0068__B",
+  "group": "f104_crm_eval_group_0068",
+  "case": "suite/cases/f104_crm_eval_group_0068.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0068__B.json",
+  "run": true,
+  "tier": 68,
+  "episode_seed": 2623387930,
+  "arms": [
+   "B"
+  ],
+  "sha256": "a4aa30ed02c19fe1678c7933265de7e7048e5a839085c618edfc2cebda9b7b09"
+ },
+ {
+  "id": "f104_crm_eval_group_0069__B",
+  "group": "f104_crm_eval_group_0069",
+  "case": "suite/cases/f104_crm_eval_group_0069.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0069__B.json",
+  "run": true,
+  "tier": 69,
+  "episode_seed": 3712213934,
+  "arms": [
+   "B"
+  ],
+  "sha256": "dd3e0ae9bf81fdd2ed39d75d70eb98543d058bdc29827a7e980c7310a411081c"
+ },
+ {
+  "id": "f104_crm_eval_group_0070__B",
+  "group": "f104_crm_eval_group_0070",
+  "case": "suite/cases/f104_crm_eval_group_0070.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0070__B.json",
+  "run": true,
+  "tier": 70,
+  "episode_seed": 2294042475,
+  "arms": [
+   "B"
+  ],
+  "sha256": "1f467dfe914e78bcc3ae24887348a98563d0f17d2fab0b31d4e522b8c28485aa"
+ },
+ {
+  "id": "f104_crm_eval_group_0071__B",
+  "group": "f104_crm_eval_group_0071",
+  "case": "suite/cases/f104_crm_eval_group_0071.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0071__B.json",
+  "run": true,
+  "tier": 71,
+  "episode_seed": 4125871956,
+  "arms": [
+   "B"
+  ],
+  "sha256": "e020586b573df1aa45463f617496bf5e11099a317ee628c5c61cefcb592cf36d"
+ },
+ {
+  "id": "f104_crm_eval_group_0072__B",
+  "group": "f104_crm_eval_group_0072",
+  "case": "suite/cases/f104_crm_eval_group_0072.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0072__B.json",
+  "run": true,
+  "tier": 72,
+  "episode_seed": 993543547,
+  "arms": [
+   "B"
+  ],
+  "sha256": "9c69ff0473b88ef8cd4bfb212b2fa24137d1f05d9ce1935b78879f8aa9328909",
+  "ref_id": "f104_crm_eval_group_0072__Scrm_A"
+ },
+ {
+  "id": "f104_crm_eval_group_0073__B",
+  "group": "f104_crm_eval_group_0073",
+  "case": "suite/cases/f104_crm_eval_group_0073.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0073__B.json",
+  "run": true,
+  "tier": 73,
+  "episode_seed": 1131236487,
+  "arms": [
+   "B"
+  ],
+  "sha256": "2865ce0e909ac391263b8d13737048098508f1b70686c294f8b821937a56d1a1"
+ },
+ {
+  "id": "f104_crm_eval_group_0074__B",
+  "group": "f104_crm_eval_group_0074",
+  "case": "suite/cases/f104_crm_eval_group_0074.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0074__B.json",
+  "run": true,
+  "tier": 74,
+  "episode_seed": 1081884199,
+  "arms": [
+   "B"
+  ],
+  "sha256": "345c7f936ebcb623fe478b77c0c6e71e9b000c1a3a115ed331f46f37fcdebb96"
+ },
+ {
+  "id": "f104_crm_eval_group_0075__B",
+  "group": "f104_crm_eval_group_0075",
+  "case": "suite/cases/f104_crm_eval_group_0075.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0075__B.json",
+  "run": true,
+  "tier": 75,
+  "episode_seed": 3891256849,
+  "arms": [
+   "B"
+  ],
+  "sha256": "321a42ab5ce30d815dad0e4d7b7f3922472b36155ca1f1e92d2e26d7c8bfadef"
+ },
+ {
+  "id": "f104_crm_eval_group_0076__B",
+  "group": "f104_crm_eval_group_0076",
+  "case": "suite/cases/f104_crm_eval_group_0076.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0076__B.json",
+  "run": true,
+  "tier": 76,
+  "episode_seed": 4255553622,
+  "arms": [
+   "B"
+  ],
+  "sha256": "c6f6ddad9bfec2f729ba0db8131d91cddd51d909c07df780a4a1c351c248ce78"
+ },
+ {
+  "id": "f104_crm_eval_group_0077__B",
+  "group": "f104_crm_eval_group_0077",
+  "case": "suite/cases/f104_crm_eval_group_0077.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0077__B.json",
+  "run": true,
+  "tier": 77,
+  "episode_seed": 3479976457,
+  "arms": [
+   "B"
+  ],
+  "sha256": "68a9b9e17199b9f81f2f2a3f7fc5fda72a7e2a95e73ab57b3842218a900ce715"
+ },
+ {
+  "id": "f104_crm_eval_group_0078__B",
+  "group": "f104_crm_eval_group_0078",
+  "case": "suite/cases/f104_crm_eval_group_0078.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0078__B.json",
+  "run": true,
+  "tier": 78,
+  "episode_seed": 886131215,
+  "arms": [
+   "B"
+  ],
+  "sha256": "91bc95809457d30cff41154550c336f08365668911164d592e7f164637c8a1cb"
+ },
+ {
+  "id": "f104_crm_eval_group_0079__B",
+  "group": "f104_crm_eval_group_0079",
+  "case": "suite/cases/f104_crm_eval_group_0079.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0079__B.json",
+  "run": true,
+  "tier": 79,
+  "episode_seed": 1239423689,
+  "arms": [
+   "B"
+  ],
+  "sha256": "1550eb1028cd1bbe9060f41691599f81bf9ea0fdece816473eb4bdbb2c555edf"
+ },
+ {
+  "id": "f104_crm_eval_group_0080__B",
+  "group": "f104_crm_eval_group_0080",
+  "case": "suite/cases/f104_crm_eval_group_0080.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0080__B.json",
+  "run": true,
+  "tier": 80,
+  "episode_seed": 4107129168,
+  "arms": [
+   "B"
+  ],
+  "sha256": "b22d1b339636f9060f54cec858999fc8dee5a95dd8d003ba69a7d70f6808b060"
+ },
+ {
+  "id": "f104_crm_eval_group_0081__B",
+  "group": "f104_crm_eval_group_0081",
+  "case": "suite/cases/f104_crm_eval_group_0081.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0081__B.json",
+  "run": true,
+  "tier": 81,
+  "episode_seed": 4235771072,
+  "arms": [
+   "B"
+  ],
+  "sha256": "f5c4853d34e6338ebdb7ada3b222e99940bb98988976400c6b324610bd562c9a"
+ },
+ {
+  "id": "f104_crm_eval_group_0082__B",
+  "group": "f104_crm_eval_group_0082",
+  "case": "suite/cases/f104_crm_eval_group_0082.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0082__B.json",
+  "run": true,
+  "tier": 82,
+  "episode_seed": 316162655,
+  "arms": [
+   "B"
+  ],
+  "sha256": "031bd04bf3022cf424a6accce77f5addb63cecfaeee7c507b0456a3f691dd8e1"
+ },
+ {
+  "id": "f104_crm_eval_group_0083__B",
+  "group": "f104_crm_eval_group_0083",
+  "case": "suite/cases/f104_crm_eval_group_0083.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0083__B.json",
+  "run": true,
+  "tier": 83,
+  "episode_seed": 3437604972,
+  "arms": [
+   "B"
+  ],
+  "sha256": "976f3cf83ae9304925b1cd24a88b5424bb9b364a4a20a010ad54746d0b4022fa"
+ },
+ {
+  "id": "f104_crm_eval_group_0084__B",
+  "group": "f104_crm_eval_group_0084",
+  "case": "suite/cases/f104_crm_eval_group_0084.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0084__B.json",
+  "run": true,
+  "tier": 84,
+  "episode_seed": 51154142,
+  "arms": [
+   "B"
+  ],
+  "sha256": "5fb5ad964e7b82e0184908be3bf6cfb78661dcd875d7c003815e0b11871d1678"
+ },
+ {
+  "id": "f104_crm_eval_group_0085__B",
+  "group": "f104_crm_eval_group_0085",
+  "case": "suite/cases/f104_crm_eval_group_0085.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0085__B.json",
+  "run": true,
+  "tier": 85,
+  "episode_seed": 2514756714,
+  "arms": [
+   "B"
+  ],
+  "sha256": "881064f4a08e5875aa976fbdb5ac5b909ab64bbbe239b307d0e0329674b7fdc3"
+ },
+ {
+  "id": "f104_crm_eval_group_0086__B",
+  "group": "f104_crm_eval_group_0086",
+  "case": "suite/cases/f104_crm_eval_group_0086.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0086__B.json",
+  "run": true,
+  "tier": 86,
+  "episode_seed": 22092802,
+  "arms": [
+   "B"
+  ],
+  "sha256": "476c1b064c1c56c2dfea98ab4095f0a11c4d10df6b6a730d3e109355ec2543a6"
+ },
+ {
+  "id": "f104_crm_eval_group_0087__B",
+  "group": "f104_crm_eval_group_0087",
+  "case": "suite/cases/f104_crm_eval_group_0087.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0087__B.json",
+  "run": true,
+  "tier": 87,
+  "episode_seed": 1612673908,
+  "arms": [
+   "B"
+  ],
+  "sha256": "30f4a9609f83a1f6066c872e858deb3e803158b87fcc61b61dde75cb11e9edb4"
+ },
+ {
+  "id": "f104_crm_eval_group_0088__B",
+  "group": "f104_crm_eval_group_0088",
+  "case": "suite/cases/f104_crm_eval_group_0088.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0088__B.json",
+  "run": true,
+  "tier": 88,
+  "episode_seed": 2631908980,
+  "arms": [
+   "B"
+  ],
+  "sha256": "3651240b5771e9358a5d2c70f817b42d3e9d80477b0da65040b33f1c6a0cb71e"
+ },
+ {
+  "id": "f104_crm_eval_group_0089__B",
+  "group": "f104_crm_eval_group_0089",
+  "case": "suite/cases/f104_crm_eval_group_0089.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0089__B.json",
+  "run": true,
+  "tier": 89,
+  "episode_seed": 1682013610,
+  "arms": [
+   "B"
+  ],
+  "sha256": "db3609467b72fd40bc2d2894f88482a552f1c54ba5814abb4d583d6eeef651ec"
+ },
+ {
+  "id": "f104_crm_eval_group_0090__B",
+  "group": "f104_crm_eval_group_0090",
+  "case": "suite/cases/f104_crm_eval_group_0090.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0090__B.json",
+  "run": true,
+  "tier": 90,
+  "episode_seed": 950736409,
+  "arms": [
+   "B"
+  ],
+  "sha256": "a834ab2ab62763a99346e57235b2e1083f4bc2b67fac88469ba11d84fac48f86"
+ },
+ {
+  "id": "f104_crm_eval_group_0091__B",
+  "group": "f104_crm_eval_group_0091",
+  "case": "suite/cases/f104_crm_eval_group_0091.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0091__B.json",
+  "run": true,
+  "tier": 91,
+  "episode_seed": 3495936750,
+  "arms": [
+   "B"
+  ],
+  "sha256": "9ad2756cc5a8fa1effb5a59b94d127c62d7bef2ded725b6135dba6ef37acb2d0"
+ },
+ {
+  "id": "f104_crm_eval_group_0092__B",
+  "group": "f104_crm_eval_group_0092",
+  "case": "suite/cases/f104_crm_eval_group_0092.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0092__B.json",
+  "run": true,
+  "tier": 92,
+  "episode_seed": 3446438752,
+  "arms": [
+   "B"
+  ],
+  "sha256": "7db8eabcb32ec4c106f09ec90833af71cbc336409d2987a3727c717a7b8c4fb1"
+ },
+ {
+  "id": "f104_crm_eval_group_0093__B",
+  "group": "f104_crm_eval_group_0093",
+  "case": "suite/cases/f104_crm_eval_group_0093.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0093__B.json",
+  "run": true,
+  "tier": 93,
+  "episode_seed": 3099448811,
+  "arms": [
+   "B"
+  ],
+  "sha256": "df91e64f1598b9d8dbf7e7ab0a8dca648f3f9663bec1ce717c26efd3de31bbe8"
+ },
+ {
+  "id": "f104_crm_eval_group_0094__B",
+  "group": "f104_crm_eval_group_0094",
+  "case": "suite/cases/f104_crm_eval_group_0094.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0094__B.json",
+  "run": true,
+  "tier": 94,
+  "episode_seed": 1751433736,
+  "arms": [
+   "B"
+  ],
+  "sha256": "4c9f02903abbcfc5d97ff715fa10222cdf099c6c3c3f72cdd30f37109623917d"
+ },
+ {
+  "id": "f104_crm_eval_group_0095__B",
+  "group": "f104_crm_eval_group_0095",
+  "case": "suite/cases/f104_crm_eval_group_0095.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0095__B.json",
+  "run": true,
+  "tier": 95,
+  "episode_seed": 833156099,
+  "arms": [
+   "B"
+  ],
+  "sha256": "3d5729c56c709d1c0723cfe1a313498ca30f77a1991c57c7f0c7fe25529221c4"
+ },
+ {
+  "id": "f104_crm_eval_group_0096__B",
+  "group": "f104_crm_eval_group_0096",
+  "case": "suite/cases/f104_crm_eval_group_0096.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0096__B.json",
+  "run": true,
+  "tier": 96,
+  "episode_seed": 299555477,
+  "arms": [
+   "B"
+  ],
+  "sha256": "4ed5130c5c389614a9f7c2317f60fb211aca3fb611aecbd1d92d12f1707af856"
+ },
+ {
+  "id": "f104_crm_eval_group_0097__B",
+  "group": "f104_crm_eval_group_0097",
+  "case": "suite/cases/f104_crm_eval_group_0097.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0097__B.json",
+  "run": true,
+  "tier": 97,
+  "episode_seed": 2403779260,
+  "arms": [
+   "B"
+  ],
+  "sha256": "6c08dc8fd94dc75bf27470eb778830acfa0204bb844bb1a4a11953b97e6df002"
+ },
+ {
+  "id": "f104_crm_eval_group_0098__B",
+  "group": "f104_crm_eval_group_0098",
+  "case": "suite/cases/f104_crm_eval_group_0098.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0098__B.json",
+  "run": true,
+  "tier": 98,
+  "episode_seed": 1734961359,
+  "arms": [
+   "B"
+  ],
+  "sha256": "563c16a4b98d38070c303fe2054682cb7fb27528088aeed205eda44dc911704d"
+ },
+ {
+  "id": "f104_crm_eval_group_0099__B",
+  "group": "f104_crm_eval_group_0099",
+  "case": "suite/cases/f104_crm_eval_group_0099.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0099__B.json",
+  "run": true,
+  "tier": 99,
+  "episode_seed": 2723332060,
+  "arms": [
+   "B"
+  ],
+  "sha256": "2612ced35556b22e012fac5df152f0c22c447f4f032c3821e3310c9f4b960add"
+ },
+ {
+  "id": "f104_crm_eval_group_0100__B",
+  "group": "f104_crm_eval_group_0100",
+  "case": "suite/cases/f104_crm_eval_group_0100.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0100__B.json",
+  "run": true,
+  "tier": 100,
+  "episode_seed": 4108489486,
+  "arms": [
+   "B"
+  ],
+  "sha256": "2626d54b9aee4e61b75691bb8c99d9eb413b04d37b39adec02e3dc93bc6c16a0"
+ },
+ {
+  "id": "f104_crm_eval_group_0101__B",
+  "group": "f104_crm_eval_group_0101",
+  "case": "suite/cases/f104_crm_eval_group_0101.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0101__B.json",
+  "run": true,
+  "tier": 101,
+  "episode_seed": 3736078165,
+  "arms": [
+   "B"
+  ],
+  "sha256": "2fa1cf7d5383645c4329a82be5e0eca47d4b2292b3bc281622fb0fc90653b524"
+ },
+ {
+  "id": "f104_crm_eval_group_0102__B",
+  "group": "f104_crm_eval_group_0102",
+  "case": "suite/cases/f104_crm_eval_group_0102.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0102__B.json",
+  "run": true,
+  "tier": 102,
+  "episode_seed": 408425315,
+  "arms": [
+   "B"
+  ],
+  "sha256": "619383bb836549e6471f0db92e230550cd849a166d88a36f160b94ebe202764f"
+ },
+ {
+  "id": "f104_crm_eval_group_0103__B",
+  "group": "f104_crm_eval_group_0103",
+  "case": "suite/cases/f104_crm_eval_group_0103.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0103__B.json",
+  "run": true,
+  "tier": 103,
+  "episode_seed": 310334019,
+  "arms": [
+   "B"
+  ],
+  "sha256": "081f6b95434b7db0faf8b76bdfa839268772088f0d79e3e4962209fbcb3001ed"
+ },
+ {
+  "id": "f104_crm_eval_group_0104__B",
+  "group": "f104_crm_eval_group_0104",
+  "case": "suite/cases/f104_crm_eval_group_0104.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0104__B.json",
+  "run": true,
+  "tier": 104,
+  "episode_seed": 1392536886,
+  "arms": [
+   "B"
+  ],
+  "sha256": "6c8f8a4ed9eccc022a15c9443bc0da2cc452f0eef1d6d109722c020513e2da0c"
+ },
+ {
+  "id": "f104_crm_eval_group_0105__B",
+  "group": "f104_crm_eval_group_0105",
+  "case": "suite/cases/f104_crm_eval_group_0105.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0105__B.json",
+  "run": true,
+  "tier": 105,
+  "episode_seed": 1903964856,
+  "arms": [
+   "B"
+  ],
+  "sha256": "7d153cd750d3bc1851f1cef4f6c233e93886a5932d3ab49320bf6d8c8ea9074c"
+ },
+ {
+  "id": "f104_crm_eval_group_0106__B",
+  "group": "f104_crm_eval_group_0106",
+  "case": "suite/cases/f104_crm_eval_group_0106.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0106__B.json",
+  "run": true,
+  "tier": 106,
+  "episode_seed": 439626898,
+  "arms": [
+   "B"
+  ],
+  "sha256": "c48945f4ac8e91bb23fc9dac3091af98fcf048cef3b4d2be8fa0dfa5827f741a"
+ },
+ {
+  "id": "f104_crm_eval_group_0107__B",
+  "group": "f104_crm_eval_group_0107",
+  "case": "suite/cases/f104_crm_eval_group_0107.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0107__B.json",
+  "run": true,
+  "tier": 107,
+  "episode_seed": 4071491986,
+  "arms": [
+   "B"
+  ],
+  "sha256": "3f4f15366e8ef6f8473382cbc3b855e3fa900dae22e339163d6813052d18e297"
+ },
+ {
+  "id": "f104_crm_eval_group_0108__B",
+  "group": "f104_crm_eval_group_0108",
+  "case": "suite/cases/f104_crm_eval_group_0108.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0108__B.json",
+  "run": true,
+  "tier": 108,
+  "episode_seed": 3109844184,
+  "arms": [
+   "B"
+  ],
+  "sha256": "80eb75690f38e2544e8e68660efb3aebd029ce146a480f8666eb5d910a78cd59"
+ },
+ {
+  "id": "f104_crm_eval_group_0109__B",
+  "group": "f104_crm_eval_group_0109",
+  "case": "suite/cases/f104_crm_eval_group_0109.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0109__B.json",
+  "run": true,
+  "tier": 109,
+  "episode_seed": 2879182021,
+  "arms": [
+   "B"
+  ],
+  "sha256": "6737be967ebb5d7da0a6349492952dc6c044748ad3f242b7dd64b6b6f5d0b100"
+ },
+ {
+  "id": "f104_crm_eval_group_0110__B",
+  "group": "f104_crm_eval_group_0110",
+  "case": "suite/cases/f104_crm_eval_group_0110.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0110__B.json",
+  "run": true,
+  "tier": 110,
+  "episode_seed": 2889960579,
+  "arms": [
+   "B"
+  ],
+  "sha256": "c9a415f363e38f604b8bc7df59bfb4ba62abfa1206516300b2645693fb37f75e"
+ },
+ {
+  "id": "f104_crm_eval_group_0111__B",
+  "group": "f104_crm_eval_group_0111",
+  "case": "suite/cases/f104_crm_eval_group_0111.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0111__B.json",
+  "run": true,
+  "tier": 111,
+  "episode_seed": 2061757966,
+  "arms": [
+   "B"
+  ],
+  "sha256": "159b69e73dfb49949b096d5ac818ee20bb93fea895648b280ee06b68bd996ab1"
+ },
+ {
+  "id": "f104_crm_eval_group_0112__B",
+  "group": "f104_crm_eval_group_0112",
+  "case": "suite/cases/f104_crm_eval_group_0112.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0112__B.json",
+  "run": true,
+  "tier": 112,
+  "episode_seed": 2487020933,
+  "arms": [
+   "B"
+  ],
+  "sha256": "9626d2826ac3f2a75dd46dcf657ec877c10edf84611977473924592483b709d6"
+ },
+ {
+  "id": "f104_crm_eval_group_0113__B",
+  "group": "f104_crm_eval_group_0113",
+  "case": "suite/cases/f104_crm_eval_group_0113.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0113__B.json",
+  "run": true,
+  "tier": 113,
+  "episode_seed": 915021625,
+  "arms": [
+   "B"
+  ],
+  "sha256": "08c551bee1ca686a3fa655c97db41fdc0341a7a37af7e49f80d2bf51a5afd594"
+ },
+ {
+  "id": "f104_crm_eval_group_0114__B",
+  "group": "f104_crm_eval_group_0114",
+  "case": "suite/cases/f104_crm_eval_group_0114.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0114__B.json",
+  "run": true,
+  "tier": 114,
+  "episode_seed": 18114439,
+  "arms": [
+   "B"
+  ],
+  "sha256": "d03f4c91357538cb640fc6b0312caaa4a6fdc274d9455277200e333b63677da7"
+ },
+ {
+  "id": "f104_crm_eval_group_0115__B",
+  "group": "f104_crm_eval_group_0115",
+  "case": "suite/cases/f104_crm_eval_group_0115.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0115__B.json",
+  "run": true,
+  "tier": 115,
+  "episode_seed": 3823891249,
+  "arms": [
+   "B"
+  ],
+  "sha256": "425240ee116388121c50b22b39af3cf7b795ce08557cec958729bed0d8b75cc5"
+ },
+ {
+  "id": "f104_crm_eval_group_0116__B",
+  "group": "f104_crm_eval_group_0116",
+  "case": "suite/cases/f104_crm_eval_group_0116.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0116__B.json",
+  "run": true,
+  "tier": 116,
+  "episode_seed": 4216705457,
+  "arms": [
+   "B"
+  ],
+  "sha256": "4213ded56a21bc0eec4f23237598ec977aa84037667ca37a68a1e04787beee73"
+ },
+ {
+  "id": "f104_crm_eval_group_0117__B",
+  "group": "f104_crm_eval_group_0117",
+  "case": "suite/cases/f104_crm_eval_group_0117.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0117__B.json",
+  "run": true,
+  "tier": 117,
+  "episode_seed": 2575311164,
+  "arms": [
+   "B"
+  ],
+  "sha256": "be48f2af7dbd51f5c1b6a3436d4ac7dcb703a55da84c374b8d1a18f9a19b3eb8"
+ },
+ {
+  "id": "f104_crm_eval_group_0118__B",
+  "group": "f104_crm_eval_group_0118",
+  "case": "suite/cases/f104_crm_eval_group_0118.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0118__B.json",
+  "run": true,
+  "tier": 118,
+  "episode_seed": 3764629977,
+  "arms": [
+   "B"
+  ],
+  "sha256": "6df22c4d1e955fa593ee976ba76b8790c6ed5f2d2f429571a14b100984f9f8b9"
+ },
+ {
+  "id": "f104_crm_eval_group_0119__B",
+  "group": "f104_crm_eval_group_0119",
+  "case": "suite/cases/f104_crm_eval_group_0119.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0119__B.json",
+  "run": true,
+  "tier": 119,
+  "episode_seed": 2228271046,
+  "arms": [
+   "B"
+  ],
+  "sha256": "e944e8e02852b06b70649b7ab22caa78a3f427419609fdcd4b4b1cff41444549"
+ },
+ {
+  "id": "f104_crm_eval_group_0120__B",
+  "group": "f104_crm_eval_group_0120",
+  "case": "suite/cases/f104_crm_eval_group_0120.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0120__B.json",
+  "run": true,
+  "tier": 120,
+  "episode_seed": 1609400571,
+  "arms": [
+   "B"
+  ],
+  "sha256": "21bd2eb9b6533b4b98d82a012269790790319acf20940fae61e4a297f4ea7a27"
+ },
+ {
+  "id": "f104_crm_eval_group_0121__B",
+  "group": "f104_crm_eval_group_0121",
+  "case": "suite/cases/f104_crm_eval_group_0121.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0121__B.json",
+  "run": true,
+  "tier": 121,
+  "episode_seed": 1407812267,
+  "arms": [
+   "B"
+  ],
+  "sha256": "a6a58f1182a99657fdacec6e824a095d3d06c78161e143227ec7e020294a36bd"
+ },
+ {
+  "id": "f104_crm_eval_group_0122__B",
+  "group": "f104_crm_eval_group_0122",
+  "case": "suite/cases/f104_crm_eval_group_0122.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0122__B.json",
+  "run": true,
+  "tier": 122,
+  "episode_seed": 3905039924,
+  "arms": [
+   "B"
+  ],
+  "sha256": "0e4d6d382ebac53fbae9eee0ec3d40156d3e3b7f6b9ac550cd7b2658458c2da5"
+ },
+ {
+  "id": "f104_crm_eval_group_0123__B",
+  "group": "f104_crm_eval_group_0123",
+  "case": "suite/cases/f104_crm_eval_group_0123.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0123__B.json",
+  "run": true,
+  "tier": 123,
+  "episode_seed": 1077923931,
+  "arms": [
+   "B"
+  ],
+  "sha256": "b5f4558044f277f47e0abd67c3fe5358a9f5e23e85b6c913e353e2c9c80766b0"
+ },
+ {
+  "id": "f104_crm_eval_group_0124__B",
+  "group": "f104_crm_eval_group_0124",
+  "case": "suite/cases/f104_crm_eval_group_0124.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0124__B.json",
+  "run": true,
+  "tier": 124,
+  "episode_seed": 2750012942,
+  "arms": [
+   "B"
+  ],
+  "sha256": "b0942db91a8171c95999edc160d349a18229b18248dc8f8458a3a9a0c156e6c1"
+ },
+ {
+  "id": "f104_crm_eval_group_0125__B",
+  "group": "f104_crm_eval_group_0125",
+  "case": "suite/cases/f104_crm_eval_group_0125.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0125__B.json",
+  "run": true,
+  "tier": 125,
+  "episode_seed": 3811641873,
+  "arms": [
+   "B"
+  ],
+  "sha256": "5a5dfeff9db3691f538de3b0289e23d7b3c7f7db89022e9afc5c5176b9b361f8"
+ },
+ {
+  "id": "f104_crm_eval_group_0126__B",
+  "group": "f104_crm_eval_group_0126",
+  "case": "suite/cases/f104_crm_eval_group_0126.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0126__B.json",
+  "run": true,
+  "tier": 126,
+  "episode_seed": 58074094,
+  "arms": [
+   "B"
+  ],
+  "sha256": "243a6ad6be28918e84c9d07d33293fef085ba7665249316af498dba1509c507c"
+ },
+ {
+  "id": "f104_crm_eval_group_0127__B",
+  "group": "f104_crm_eval_group_0127",
+  "case": "suite/cases/f104_crm_eval_group_0127.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0127__B.json",
+  "run": true,
+  "tier": 127,
+  "episode_seed": 991453594,
+  "arms": [
+   "B"
+  ],
+  "sha256": "6dd79b4a9161eb45f2696b3a12255335483ce7f065497058507b8af410546ade"
+ },
+ {
+  "id": "f104_crm_eval_group_0128__B",
+  "group": "f104_crm_eval_group_0128",
+  "case": "suite/cases/f104_crm_eval_group_0128.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0128__B.json",
+  "run": true,
+  "tier": 128,
+  "episode_seed": 1146027111,
+  "arms": [
+   "B"
+  ],
+  "sha256": "83319f56f8d561556431828b9888bd183c4b058a32f831fb8d0e87764c99c0fd"
+ },
+ {
+  "id": "f104_crm_eval_group_0129__B",
+  "group": "f104_crm_eval_group_0129",
+  "case": "suite/cases/f104_crm_eval_group_0129.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0129__B.json",
+  "run": true,
+  "tier": 129,
+  "episode_seed": 1397974859,
+  "arms": [
+   "B"
+  ],
+  "sha256": "c33095853a3dc52ca41dfaf0ce4eb62379b27b81aae03d90253a2234e19e69c3"
+ },
+ {
+  "id": "f104_crm_eval_group_0130__B",
+  "group": "f104_crm_eval_group_0130",
+  "case": "suite/cases/f104_crm_eval_group_0130.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0130__B.json",
+  "run": true,
+  "tier": 130,
+  "episode_seed": 2496988551,
+  "arms": [
+   "B"
+  ],
+  "sha256": "da604d6709146914c51c24b7f0e1638a6b42c514621057ab653e5b208657bf44"
+ },
+ {
+  "id": "f104_crm_eval_group_0131__B",
+  "group": "f104_crm_eval_group_0131",
+  "case": "suite/cases/f104_crm_eval_group_0131.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0131__B.json",
+  "run": true,
+  "tier": 131,
+  "episode_seed": 1814895149,
+  "arms": [
+   "B"
+  ],
+  "sha256": "1086f45446a5dbe2e859a5fca276c4ecd7d9e2877eebcb7931db91c95ea62469"
+ },
+ {
+  "id": "f104_crm_eval_group_0132__B",
+  "group": "f104_crm_eval_group_0132",
+  "case": "suite/cases/f104_crm_eval_group_0132.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0132__B.json",
+  "run": true,
+  "tier": 132,
+  "episode_seed": 2059045437,
+  "arms": [
+   "B"
+  ],
+  "sha256": "2df11982a511ddb506aff68ce0400114bef04966f7c3fdb5925e661a1697487a"
+ },
+ {
+  "id": "f104_crm_eval_group_0133__B",
+  "group": "f104_crm_eval_group_0133",
+  "case": "suite/cases/f104_crm_eval_group_0133.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0133__B.json",
+  "run": true,
+  "tier": 133,
+  "episode_seed": 3790546356,
+  "arms": [
+   "B"
+  ],
+  "sha256": "8854092ff8f006d9a464be3003b0ee1ea74cad3d22d75f76aa4c91ec031830d1"
+ },
+ {
+  "id": "f104_crm_eval_group_0134__B",
+  "group": "f104_crm_eval_group_0134",
+  "case": "suite/cases/f104_crm_eval_group_0134.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0134__B.json",
+  "run": true,
+  "tier": 134,
+  "episode_seed": 1766311677,
+  "arms": [
+   "B"
+  ],
+  "sha256": "ff592be260892e907be34a380efb7b23ae8af2a7df4495f9dfc9db6773eadbe6"
+ },
+ {
+  "id": "f104_crm_eval_group_0135__B",
+  "group": "f104_crm_eval_group_0135",
+  "case": "suite/cases/f104_crm_eval_group_0135.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0135__B.json",
+  "run": true,
+  "tier": 135,
+  "episode_seed": 2316465414,
+  "arms": [
+   "B"
+  ],
+  "sha256": "90dbe4b8608eebed8c8cb0a07ce518e9eab5b0df059172c20e3394342f99af6f"
+ },
+ {
+  "id": "f104_crm_eval_group_0136__B",
+  "group": "f104_crm_eval_group_0136",
+  "case": "suite/cases/f104_crm_eval_group_0136.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0136__B.json",
+  "run": true,
+  "tier": 136,
+  "episode_seed": 1163659844,
+  "arms": [
+   "B"
+  ],
+  "sha256": "379823cd37b3c35e1026aa2fd548776c54ee690291092be39d7793b5aa55afb6"
+ },
+ {
+  "id": "f104_crm_eval_group_0137__B",
+  "group": "f104_crm_eval_group_0137",
+  "case": "suite/cases/f104_crm_eval_group_0137.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0137__B.json",
+  "run": true,
+  "tier": 137,
+  "episode_seed": 890751783,
+  "arms": [
+   "B"
+  ],
+  "sha256": "ab880d6f5663e3653765a31d2b4785d903f4ac0fb7db0fd8c9cf065f98af59f4"
+ },
+ {
+  "id": "f104_crm_eval_group_0138__B",
+  "group": "f104_crm_eval_group_0138",
+  "case": "suite/cases/f104_crm_eval_group_0138.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0138__B.json",
+  "run": true,
+  "tier": 138,
+  "episode_seed": 1084430012,
+  "arms": [
+   "B"
+  ],
+  "sha256": "cf926ff1cab1786cd795e75e2491c703ad58f8cf27675e777cd601f60ed8f07d"
+ },
+ {
+  "id": "f104_crm_eval_group_0139__B",
+  "group": "f104_crm_eval_group_0139",
+  "case": "suite/cases/f104_crm_eval_group_0139.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0139__B.json",
+  "run": true,
+  "tier": 139,
+  "episode_seed": 1358838752,
+  "arms": [
+   "B"
+  ],
+  "sha256": "6703bda388d6bb97a0b4241e4511876fc6efe0faeb2908348f54a0340a879024"
+ },
+ {
+  "id": "f104_crm_eval_group_0140__B",
+  "group": "f104_crm_eval_group_0140",
+  "case": "suite/cases/f104_crm_eval_group_0140.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0140__B.json",
+  "run": true,
+  "tier": 140,
+  "episode_seed": 2461366748,
+  "arms": [
+   "B"
+  ],
+  "sha256": "f2b0ebba8331eec31924ff77f53d287d3ef8da288de51d808b0b769447845c14"
+ },
+ {
+  "id": "f104_crm_eval_group_0141__B",
+  "group": "f104_crm_eval_group_0141",
+  "case": "suite/cases/f104_crm_eval_group_0141.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0141__B.json",
+  "run": true,
+  "tier": 141,
+  "episode_seed": 632486809,
+  "arms": [
+   "B"
+  ],
+  "sha256": "300f634a319eaf61de6c22eae89b241c0247c71949c5f73d3ce3ae8a258538e4"
+ },
+ {
+  "id": "f104_crm_eval_group_0142__B",
+  "group": "f104_crm_eval_group_0142",
+  "case": "suite/cases/f104_crm_eval_group_0142.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0142__B.json",
+  "run": true,
+  "tier": 142,
+  "episode_seed": 299400627,
+  "arms": [
+   "B"
+  ],
+  "sha256": "1e50e0a2451dfd8beb342af81a149cc846b91f2e866f9677838bdc65435f3167"
+ },
+ {
+  "id": "f104_crm_eval_group_0143__B",
+  "group": "f104_crm_eval_group_0143",
+  "case": "suite/cases/f104_crm_eval_group_0143.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0143__B.json",
+  "run": true,
+  "tier": 143,
+  "episode_seed": 1428542382,
+  "arms": [
+   "B"
+  ],
+  "sha256": "727081e9f700548f454052a52a65b4eb847272022e68ddf9fed9fde3596a6284"
+ },
+ {
+  "id": "f104_crm_eval_group_0144__B",
+  "group": "f104_crm_eval_group_0144",
+  "case": "suite/cases/f104_crm_eval_group_0144.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0144__B.json",
+  "run": true,
+  "tier": 144,
+  "episode_seed": 3701518501,
+  "arms": [
+   "B"
+  ],
+  "sha256": "148711a55ef985c858777636274fc4039cdc31383f3fff5127d5cd72d28eb7c8"
+ },
+ {
+  "id": "f104_crm_eval_group_0145__B",
+  "group": "f104_crm_eval_group_0145",
+  "case": "suite/cases/f104_crm_eval_group_0145.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0145__B.json",
+  "run": true,
+  "tier": 145,
+  "episode_seed": 2719884094,
+  "arms": [
+   "B"
+  ],
+  "sha256": "358c143a807fa64d15c104cf4e3d13cfc1c72f87df95bd308fb7dac75f781dc3"
+ },
+ {
+  "id": "f104_crm_eval_group_0146__B",
+  "group": "f104_crm_eval_group_0146",
+  "case": "suite/cases/f104_crm_eval_group_0146.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0146__B.json",
+  "run": true,
+  "tier": 146,
+  "episode_seed": 3586369122,
+  "arms": [
+   "B"
+  ],
+  "sha256": "c9e3d087f95c356de82f4848a02963f936205888b239ef9b48f7d4405e798ee1"
+ },
+ {
+  "id": "f104_crm_eval_group_0147__B",
+  "group": "f104_crm_eval_group_0147",
+  "case": "suite/cases/f104_crm_eval_group_0147.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0147__B.json",
+  "run": true,
+  "tier": 147,
+  "episode_seed": 2204206962,
+  "arms": [
+   "B"
+  ],
+  "sha256": "74848732478f9df50f04c437b3434e21a084c317a03bb9ac97fe9331ba74d131"
+ },
+ {
+  "id": "f104_crm_eval_group_0148__B",
+  "group": "f104_crm_eval_group_0148",
+  "case": "suite/cases/f104_crm_eval_group_0148.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0148__B.json",
+  "run": true,
+  "tier": 148,
+  "episode_seed": 2272729778,
+  "arms": [
+   "B"
+  ],
+  "sha256": "4b8356e7592d49941382c0369b07ebb8ef65cec4ea60dac769f6409aea2d5216"
+ },
+ {
+  "id": "f104_crm_eval_group_0149__B",
+  "group": "f104_crm_eval_group_0149",
+  "case": "suite/cases/f104_crm_eval_group_0149.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0149__B.json",
+  "run": true,
+  "tier": 149,
+  "episode_seed": 1738061991,
+  "arms": [
+   "B"
+  ],
+  "sha256": "92ffb54dff836c5bedf1ae1ab53145d14c4d3f0750df9dbffd344c468f7a9712"
+ },
+ {
+  "id": "f104_crm_eval_group_0150__B",
+  "group": "f104_crm_eval_group_0150",
+  "case": "suite/cases/f104_crm_eval_group_0150.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0150__B.json",
+  "run": true,
+  "tier": 150,
+  "episode_seed": 3295063454,
+  "arms": [
+   "B"
+  ],
+  "sha256": "cf32f4bd34fc30b5a1d70fb4cff32c8565db7106d3867313a6bb93ad0e50e736"
+ },
+ {
+  "id": "f104_crm_eval_group_0151__B",
+  "group": "f104_crm_eval_group_0151",
+  "case": "suite/cases/f104_crm_eval_group_0151.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0151__B.json",
+  "run": true,
+  "tier": 151,
+  "episode_seed": 368063833,
+  "arms": [
+   "B"
+  ],
+  "sha256": "11d651b7e75a8d890f576a3680d5f2ccbdad20f160975a00ce01a8ff316b14fe"
+ },
+ {
+  "id": "f104_crm_eval_group_0152__B",
+  "group": "f104_crm_eval_group_0152",
+  "case": "suite/cases/f104_crm_eval_group_0152.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0152__B.json",
+  "run": true,
+  "tier": 152,
+  "episode_seed": 3884229416,
+  "arms": [
+   "B"
+  ],
+  "sha256": "da67cf4c0f15eab319250ea57c7da4e9cb962a36d526f70f2b35c18360ed362c"
+ },
+ {
+  "id": "f104_crm_eval_group_0153__B",
+  "group": "f104_crm_eval_group_0153",
+  "case": "suite/cases/f104_crm_eval_group_0153.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0153__B.json",
+  "run": true,
+  "tier": 153,
+  "episode_seed": 103904024,
+  "arms": [
+   "B"
+  ],
+  "sha256": "d018626046eac802ba6a48cd5fe57b67fe4ab05023c08cf3fdaffa338626a43d"
+ },
+ {
+  "id": "f104_crm_eval_group_0154__B",
+  "group": "f104_crm_eval_group_0154",
+  "case": "suite/cases/f104_crm_eval_group_0154.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0154__B.json",
+  "run": true,
+  "tier": 154,
+  "episode_seed": 1926908900,
+  "arms": [
+   "B"
+  ],
+  "sha256": "485bf9265740dbe7798124fd255165b7afbf6236512c457ef09f39ebdf5ec53b"
+ },
+ {
+  "id": "f104_crm_eval_group_0155__B",
+  "group": "f104_crm_eval_group_0155",
+  "case": "suite/cases/f104_crm_eval_group_0155.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0155__B.json",
+  "run": true,
+  "tier": 155,
+  "episode_seed": 1022190902,
+  "arms": [
+   "B"
+  ],
+  "sha256": "5f284cef9afe0e9d64f1dd689d8ac9971821235fc7f1e6590c229da5192a4960"
+ },
+ {
+  "id": "f104_crm_eval_group_0156__B",
+  "group": "f104_crm_eval_group_0156",
+  "case": "suite/cases/f104_crm_eval_group_0156.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0156__B.json",
+  "run": true,
+  "tier": 156,
+  "episode_seed": 1939840559,
+  "arms": [
+   "B"
+  ],
+  "sha256": "9dd12a3a33addb819bb576b25768a3c5d51899fe7fd0a6d078778f2376777078"
+ },
+ {
+  "id": "f104_crm_eval_group_0157__B",
+  "group": "f104_crm_eval_group_0157",
+  "case": "suite/cases/f104_crm_eval_group_0157.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0157__B.json",
+  "run": true,
+  "tier": 157,
+  "episode_seed": 2417270943,
+  "arms": [
+   "B"
+  ],
+  "sha256": "82dec72c70a4de996cbbab10122c16f1e4cc35d5c2adc9c3adcdf6b9013fdc51"
+ },
+ {
+  "id": "f104_crm_eval_group_0158__B",
+  "group": "f104_crm_eval_group_0158",
+  "case": "suite/cases/f104_crm_eval_group_0158.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0158__B.json",
+  "run": true,
+  "tier": 158,
+  "episode_seed": 2772397771,
+  "arms": [
+   "B"
+  ],
+  "sha256": "adbd7b576f5f988a76cba1892d2ed0bda799a6b766c3fdb992a04d682205a763"
+ },
+ {
+  "id": "f104_crm_eval_group_0159__B",
+  "group": "f104_crm_eval_group_0159",
+  "case": "suite/cases/f104_crm_eval_group_0159.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0159__B.json",
+  "run": true,
+  "tier": 159,
+  "episode_seed": 2167670777,
+  "arms": [
+   "B"
+  ],
+  "sha256": "66cb1b09700d8a681f42a04c8b8d5d29a87dd4796893174820e9597bda27e553"
+ },
+ {
+  "id": "f104_crm_eval_group_0160__B",
+  "group": "f104_crm_eval_group_0160",
+  "case": "suite/cases/f104_crm_eval_group_0160.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0160__B.json",
+  "run": true,
+  "tier": 160,
+  "episode_seed": 1882311673,
+  "arms": [
+   "B"
+  ],
+  "sha256": "ee7551029cfae14afc545812ab96fc717e9eb430acc609e4122ac942355ac028"
+ },
+ {
+  "id": "f104_crm_eval_group_0161__B",
+  "group": "f104_crm_eval_group_0161",
+  "case": "suite/cases/f104_crm_eval_group_0161.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0161__B.json",
+  "run": true,
+  "tier": 161,
+  "episode_seed": 972400050,
+  "arms": [
+   "B"
+  ],
+  "sha256": "22e41b4b36f2b82fbbe450451fd6e92e0b06a9931e6211a5e0ffd448e96231e3"
+ },
+ {
+  "id": "f104_crm_eval_group_0162__B",
+  "group": "f104_crm_eval_group_0162",
+  "case": "suite/cases/f104_crm_eval_group_0162.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0162__B.json",
+  "run": true,
+  "tier": 162,
+  "episode_seed": 3074277854,
+  "arms": [
+   "B"
+  ],
+  "sha256": "79a169c547f7a029e3763f6d0ddab1f6a845ce48b9f441d76d6d8b34719358d6"
+ },
+ {
+  "id": "f104_crm_eval_group_0163__B",
+  "group": "f104_crm_eval_group_0163",
+  "case": "suite/cases/f104_crm_eval_group_0163.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0163__B.json",
+  "run": true,
+  "tier": 163,
+  "episode_seed": 3315515752,
+  "arms": [
+   "B"
+  ],
+  "sha256": "1e3d6d3682426bf3cdd386c3e677df52dc6d1b9c5431d09a2b08b0a99772d33d"
+ },
+ {
+  "id": "f104_crm_eval_group_0164__B",
+  "group": "f104_crm_eval_group_0164",
+  "case": "suite/cases/f104_crm_eval_group_0164.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0164__B.json",
+  "run": true,
+  "tier": 164,
+  "episode_seed": 2658607438,
+  "arms": [
+   "B"
+  ],
+  "sha256": "6b308208277b64b365c665b8bf0e3948c2d333330b3458a3c4b87bc3e59f95c9"
+ },
+ {
+  "id": "f104_crm_eval_group_0165__B",
+  "group": "f104_crm_eval_group_0165",
+  "case": "suite/cases/f104_crm_eval_group_0165.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0165__B.json",
+  "run": true,
+  "tier": 165,
+  "episode_seed": 283046993,
+  "arms": [
+   "B"
+  ],
+  "sha256": "2630b70eabe9b8f76ebecb2831fba9f08bd38733e1ebea2bfcf3b2af22f0da95"
+ },
+ {
+  "id": "f104_crm_eval_group_0166__B",
+  "group": "f104_crm_eval_group_0166",
+  "case": "suite/cases/f104_crm_eval_group_0166.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0166__B.json",
+  "run": true,
+  "tier": 166,
+  "episode_seed": 1628675876,
+  "arms": [
+   "B"
+  ],
+  "sha256": "fe7a64b16b05d1144c5834da8a2ee40b24afada7c9b4ec7888cb81a4dcb039ec"
+ },
+ {
+  "id": "f104_crm_eval_group_0167__B",
+  "group": "f104_crm_eval_group_0167",
+  "case": "suite/cases/f104_crm_eval_group_0167.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0167__B.json",
+  "run": true,
+  "tier": 167,
+  "episode_seed": 540383821,
+  "arms": [
+   "B"
+  ],
+  "sha256": "9798193dad9469f2a11f5eae386e8b7bdc47086a773abe7da810fc293fbdf1a0"
+ },
+ {
+  "id": "f104_crm_eval_group_0168__B",
+  "group": "f104_crm_eval_group_0168",
+  "case": "suite/cases/f104_crm_eval_group_0168.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0168__B.json",
+  "run": true,
+  "tier": 168,
+  "episode_seed": 945581863,
+  "arms": [
+   "B"
+  ],
+  "sha256": "73a604c21a52f819c06f2a9c0339d4e6b376fd30e59f7e19a476343c740a72d3"
+ },
+ {
+  "id": "f104_crm_eval_group_0169__B",
+  "group": "f104_crm_eval_group_0169",
+  "case": "suite/cases/f104_crm_eval_group_0169.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0169__B.json",
+  "run": true,
+  "tier": 169,
+  "episode_seed": 788785697,
+  "arms": [
+   "B"
+  ],
+  "sha256": "32c3a8b59bc1a5f8d3b13958a69df54659072cdb88d9ac94d31ac11a0a48edd2"
+ },
+ {
+  "id": "f104_crm_eval_group_0170__B",
+  "group": "f104_crm_eval_group_0170",
+  "case": "suite/cases/f104_crm_eval_group_0170.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0170__B.json",
+  "run": true,
+  "tier": 170,
+  "episode_seed": 818639566,
+  "arms": [
+   "B"
+  ],
+  "sha256": "2affc15e8af3859e98ebd625546a15fa39797387755d26307fdf4ed53cd00565"
+ },
+ {
+  "id": "f104_crm_eval_group_0171__B",
+  "group": "f104_crm_eval_group_0171",
+  "case": "suite/cases/f104_crm_eval_group_0171.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0171__B.json",
+  "run": true,
+  "tier": 171,
+  "episode_seed": 3662041246,
+  "arms": [
+   "B"
+  ],
+  "sha256": "04a8b530528116e5f7d539dc0c7a299c310488e231760a953ef28b82b71d8c04"
+ },
+ {
+  "id": "f104_crm_eval_group_0172__B",
+  "group": "f104_crm_eval_group_0172",
+  "case": "suite/cases/f104_crm_eval_group_0172.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0172__B.json",
+  "run": true,
+  "tier": 172,
+  "episode_seed": 917238586,
+  "arms": [
+   "B"
+  ],
+  "sha256": "16300173f856a43e71ae84fecb81ed300a4308fc508c192426c4bc8bcb38f56e"
+ },
+ {
+  "id": "f104_crm_eval_group_0173__B",
+  "group": "f104_crm_eval_group_0173",
+  "case": "suite/cases/f104_crm_eval_group_0173.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0173__B.json",
+  "run": true,
+  "tier": 173,
+  "episode_seed": 2328965157,
+  "arms": [
+   "B"
+  ],
+  "sha256": "157a7ed9554af3053c105025bc8cbf3f126dc93b7aa0c4cddbe6a48dc2f1afd5"
+ },
+ {
+  "id": "f104_crm_eval_group_0174__B",
+  "group": "f104_crm_eval_group_0174",
+  "case": "suite/cases/f104_crm_eval_group_0174.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0174__B.json",
+  "run": true,
+  "tier": 174,
+  "episode_seed": 3432780058,
+  "arms": [
+   "B"
+  ],
+  "sha256": "3b0fd770a39570fdf2eac5dc69faf9684a373c51af76fd049a19c83d466ef15b"
+ },
+ {
+  "id": "f104_crm_eval_group_0175__B",
+  "group": "f104_crm_eval_group_0175",
+  "case": "suite/cases/f104_crm_eval_group_0175.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0175__B.json",
+  "run": true,
+  "tier": 175,
+  "episode_seed": 3721952736,
+  "arms": [
+   "B"
+  ],
+  "sha256": "1ce0fa68484e076e4912ffad287d6a2a74524bfd5a22566496d1874796607487"
+ },
+ {
+  "id": "f104_crm_eval_group_0176__B",
+  "group": "f104_crm_eval_group_0176",
+  "case": "suite/cases/f104_crm_eval_group_0176.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0176__B.json",
+  "run": true,
+  "tier": 176,
+  "episode_seed": 3733631127,
+  "arms": [
+   "B"
+  ],
+  "sha256": "614c8b23bc6d3ab8465d776a423b5c41ceb9572594ddb0354ce1e05932b1e25f"
+ },
+ {
+  "id": "f104_crm_eval_group_0177__B",
+  "group": "f104_crm_eval_group_0177",
+  "case": "suite/cases/f104_crm_eval_group_0177.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0177__B.json",
+  "run": true,
+  "tier": 177,
+  "episode_seed": 706807169,
+  "arms": [
+   "B"
+  ],
+  "sha256": "765859e59a488abf615a79ba06301de252fcbe1ee9a7c4a9058982c93af3fa0c"
+ },
+ {
+  "id": "f104_crm_eval_group_0178__B",
+  "group": "f104_crm_eval_group_0178",
+  "case": "suite/cases/f104_crm_eval_group_0178.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0178__B.json",
+  "run": true,
+  "tier": 178,
+  "episode_seed": 2335019096,
+  "arms": [
+   "B"
+  ],
+  "sha256": "dcea58741adf4b736bfb90dbe23ceaeb0533f1d453cc74d4f65616d989e3d3bd"
+ },
+ {
+  "id": "f104_crm_eval_group_0179__B",
+  "group": "f104_crm_eval_group_0179",
+  "case": "suite/cases/f104_crm_eval_group_0179.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0179__B.json",
+  "run": true,
+  "tier": 179,
+  "episode_seed": 392699665,
+  "arms": [
+   "B"
+  ],
+  "sha256": "922f67f2505f6d70ce04f491774d8bb78bfcb4313791deac1cefc73ec2d97f5b"
+ },
+ {
+  "id": "f104_crm_eval_group_0180__B",
+  "group": "f104_crm_eval_group_0180",
+  "case": "suite/cases/f104_crm_eval_group_0180.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0180__B.json",
+  "run": true,
+  "tier": 180,
+  "episode_seed": 317951952,
+  "arms": [
+   "B"
+  ],
+  "sha256": "8e48416a5973754758e5a57ff03baa8b56e20127d6f51bf0faeff1f6d3351b8e"
+ },
+ {
+  "id": "f104_crm_eval_group_0181__B",
+  "group": "f104_crm_eval_group_0181",
+  "case": "suite/cases/f104_crm_eval_group_0181.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0181__B.json",
+  "run": true,
+  "tier": 181,
+  "episode_seed": 3276621527,
+  "arms": [
+   "B"
+  ],
+  "sha256": "fd0fedf192d540cf23091cce34ede1412f27cbb35cec9ae4c5232e2654f43b6d"
+ },
+ {
+  "id": "f104_crm_eval_group_0182__B",
+  "group": "f104_crm_eval_group_0182",
+  "case": "suite/cases/f104_crm_eval_group_0182.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0182__B.json",
+  "run": true,
+  "tier": 182,
+  "episode_seed": 2261977533,
+  "arms": [
+   "B"
+  ],
+  "sha256": "7375f9431ef8c8bbcc5d05b1a1766a614c2218bd9787b0eadbea8e25cde38d7c"
+ },
+ {
+  "id": "f104_crm_eval_group_0183__B",
+  "group": "f104_crm_eval_group_0183",
+  "case": "suite/cases/f104_crm_eval_group_0183.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0183__B.json",
+  "run": true,
+  "tier": 183,
+  "episode_seed": 1415595346,
+  "arms": [
+   "B"
+  ],
+  "sha256": "145890b45d0738040ae2a8d2717d21a9b1ce4a5e84f23daf9867bcd29e0fa059"
+ },
+ {
+  "id": "f104_crm_eval_group_0184__B",
+  "group": "f104_crm_eval_group_0184",
+  "case": "suite/cases/f104_crm_eval_group_0184.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0184__B.json",
+  "run": true,
+  "tier": 184,
+  "episode_seed": 4140867688,
+  "arms": [
+   "B"
+  ],
+  "sha256": "9b6383d27cc2917a744bcf148a485e405b362964d88a5706512b48f1b7a70956"
+ },
+ {
+  "id": "f104_crm_eval_group_0185__B",
+  "group": "f104_crm_eval_group_0185",
+  "case": "suite/cases/f104_crm_eval_group_0185.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0185__B.json",
+  "run": true,
+  "tier": 185,
+  "episode_seed": 4077050650,
+  "arms": [
+   "B"
+  ],
+  "sha256": "90a98236dcbbc8fdfd8c3d91b8c222df819444aa6b3d512573231fb9b03dc1b6"
+ },
+ {
+  "id": "f104_crm_eval_group_0186__B",
+  "group": "f104_crm_eval_group_0186",
+  "case": "suite/cases/f104_crm_eval_group_0186.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0186__B.json",
+  "run": true,
+  "tier": 186,
+  "episode_seed": 784567894,
+  "arms": [
+   "B"
+  ],
+  "sha256": "bf71f4c132b7929a4436c119e90061597fbb0ca346abbdb65369aa9d1fa68936"
+ },
+ {
+  "id": "f104_crm_eval_group_0187__B",
+  "group": "f104_crm_eval_group_0187",
+  "case": "suite/cases/f104_crm_eval_group_0187.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0187__B.json",
+  "run": true,
+  "tier": 187,
+  "episode_seed": 1245884166,
+  "arms": [
+   "B"
+  ],
+  "sha256": "2c9b43171b5c77c7a0b1e03550f11e3d213aaa833d9792c81ba6c62bb00bbed7"
+ },
+ {
+  "id": "f104_crm_eval_group_0188__B",
+  "group": "f104_crm_eval_group_0188",
+  "case": "suite/cases/f104_crm_eval_group_0188.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0188__B.json",
+  "run": true,
+  "tier": 188,
+  "episode_seed": 1903056892,
+  "arms": [
+   "B"
+  ],
+  "sha256": "c429dc362475c42e69d8bcadb04f7619adba66e7c44115978d3b575ba17b4106"
+ },
+ {
+  "id": "f104_crm_eval_group_0189__B",
+  "group": "f104_crm_eval_group_0189",
+  "case": "suite/cases/f104_crm_eval_group_0189.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0189__B.json",
+  "run": true,
+  "tier": 189,
+  "episode_seed": 1728027709,
+  "arms": [
+   "B"
+  ],
+  "sha256": "bce6f8eacc35d011f44257589bb18c28c5c10f5ecce356143929317cfabcad2e"
+ },
+ {
+  "id": "f104_crm_eval_group_0190__B",
+  "group": "f104_crm_eval_group_0190",
+  "case": "suite/cases/f104_crm_eval_group_0190.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0190__B.json",
+  "run": true,
+  "tier": 190,
+  "episode_seed": 478205800,
+  "arms": [
+   "B"
+  ],
+  "sha256": "b5b79cf849d22b04546d3da5d36315c2b488ddb7d8a710e583944392907fe65c"
+ },
+ {
+  "id": "f104_crm_eval_group_0191__B",
+  "group": "f104_crm_eval_group_0191",
+  "case": "suite/cases/f104_crm_eval_group_0191.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0191__B.json",
+  "run": true,
+  "tier": 191,
+  "episode_seed": 739703486,
+  "arms": [
+   "B"
+  ],
+  "sha256": "fc9de5744a759a1bf48092e70b29c2681ef7724f3ead94dc571b42eeaac33e64"
+ },
+ {
+  "id": "f104_crm_eval_group_0192__B",
+  "group": "f104_crm_eval_group_0192",
+  "case": "suite/cases/f104_crm_eval_group_0192.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0192__B.json",
+  "run": true,
+  "tier": 192,
+  "episode_seed": 3130153429,
+  "arms": [
+   "B"
+  ],
+  "sha256": "c1e72d819c09dbfc0df562d42b438c5ebfd70a7aa28989b96a7ddaf1ff11f69e"
+ },
+ {
+  "id": "f104_crm_eval_group_0193__B",
+  "group": "f104_crm_eval_group_0193",
+  "case": "suite/cases/f104_crm_eval_group_0193.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0193__B.json",
+  "run": true,
+  "tier": 193,
+  "episode_seed": 2758266846,
+  "arms": [
+   "B"
+  ],
+  "sha256": "f66b54fd5baf5429e6c90f404541e13b02b3d418ad5905d7858a6dbbbe13fe4d"
+ },
+ {
+  "id": "f104_crm_eval_group_0194__B",
+  "group": "f104_crm_eval_group_0194",
+  "case": "suite/cases/f104_crm_eval_group_0194.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0194__B.json",
+  "run": true,
+  "tier": 194,
+  "episode_seed": 3100571837,
+  "arms": [
+   "B"
+  ],
+  "sha256": "e16836575fba1705ab01ddd2374a3ea0d46c47edce35baf54ca432976edb6596"
+ },
+ {
+  "id": "f104_crm_eval_group_0195__B",
+  "group": "f104_crm_eval_group_0195",
+  "case": "suite/cases/f104_crm_eval_group_0195.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0195__B.json",
+  "run": true,
+  "tier": 195,
+  "episode_seed": 100673783,
+  "arms": [
+   "B"
+  ],
+  "sha256": "abb4a6a6fee311146e40995a7d27f1ae96736438d34fa488131cbfaa6e6201d7"
+ },
+ {
+  "id": "f104_crm_eval_group_0196__B",
+  "group": "f104_crm_eval_group_0196",
+  "case": "suite/cases/f104_crm_eval_group_0196.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0196__B.json",
+  "run": true,
+  "tier": 196,
+  "episode_seed": 3417815246,
+  "arms": [
+   "B"
+  ],
+  "sha256": "323dc5b39ca0c39862417f08df33530d71e335fd87033f6dba2c72d9767ea334"
+ },
+ {
+  "id": "f104_crm_eval_group_0197__B",
+  "group": "f104_crm_eval_group_0197",
+  "case": "suite/cases/f104_crm_eval_group_0197.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0197__B.json",
+  "run": true,
+  "tier": 197,
+  "episode_seed": 1300240239,
+  "arms": [
+   "B"
+  ],
+  "sha256": "8e9cb6d0a85454c218ecac1dc11cf11e0fe1b7628b8b2701153484f2fc3761b0"
+ },
+ {
+  "id": "f104_crm_eval_group_0198__B",
+  "group": "f104_crm_eval_group_0198",
+  "case": "suite/cases/f104_crm_eval_group_0198.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0198__B.json",
+  "run": true,
+  "tier": 198,
+  "episode_seed": 60871638,
+  "arms": [
+   "B"
+  ],
+  "sha256": "0d40ce5908877d157831f91e90359e247cceb140a022baa6e4a30647b40accbb"
+ },
+ {
+  "id": "f104_crm_eval_group_0199__B",
+  "group": "f104_crm_eval_group_0199",
+  "case": "suite/cases/f104_crm_eval_group_0199.json",
+  "route": "a3/picks_crm_P/routes/f104_crm_eval_group_0199__B.json",
+  "run": true,
+  "tier": 199,
+  "episode_seed": 3168256914,
+  "arms": [
+   "B"
+  ],
+  "sha256": "c24ec86544f0ee1e424e000664c3a5771882505ccbfeef7f59c5463b2c860ee3"
+ }
+]

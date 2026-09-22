@@ -1,0 +1,46 @@
+{
+ "f104_v2_group_0001": {
+  "pose": [
+   29.270610482864573,
+   7.285029610517277,
+   -1.0304364026340151
+  ],
+  "history": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/generalist_20260921/A_adapt/a5/selftest/analyze/out_cut60/hist_crm/f104_v2_group_0001.npz",
+  "frame": 60,
+  "pass1_run": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/generalist_20260921/A_adapt/a5/selftest/analyze/runs_cut60/f104_v2_group_0001_op_00",
+  "pass1_source": "terminal"
+ },
+ "f104_v2_group_0002": {
+  "pose": [
+   -11.550182705231245,
+   1.4473952881272838,
+   1.8031616797390528
+  ],
+  "history": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/generalist_20260921/A_adapt/a5/selftest/analyze/out_cut60/hist_crm/f104_v2_group_0002.npz",
+  "frame": 60,
+  "pass1_run": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/generalist_20260921/A_adapt/a5/selftest/analyze/runs_cut60/f104_v2_group_0002_op_00",
+  "pass1_source": "terminal"
+ },
+ "f104_v2_group_0003": {
+  "pose": [
+   -0.1401607515291286,
+   -15.152792454765018,
+   -0.1336441118696703
+  ],
+  "history": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/generalist_20260921/A_adapt/a5/selftest/analyze/out_cut60/hist_crm/f104_v2_group_0003.npz",
+  "frame": 60,
+  "pass1_run": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/generalist_20260921/A_adapt/a5/selftest/analyze/runs_cut60/f104_v2_group_0003_op_00",
+  "pass1_source": "terminal"
+ },
+ "f104_v2_group_0004": {
+  "pose": [
+   -5.642153583463166,
+   -1.2448494711772615,
+   0.964287948021078
+  ],
+  "history": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/generalist_20260921/A_adapt/a5/selftest/analyze/out_cut60/hist_crm/f104_v2_group_0004.npz",
+  "frame": 60,
+  "pass1_run": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/generalist_20260921/A_adapt/a5/selftest/analyze/runs_cut60/f104_v2_group_0004_op_01",
+  "pass1_source": "terminal"
+ }
+}

@@ -1,0 +1,249 @@
+{
+ "schema": 1,
+ "created": "2026-09-21 18:07:06",
+ "stage": "analyze",
+ "frame": 60,
+ "arena": "assets/traverse/arena_f104_50h_v1",
+ "criterion": {
+  "vx_gt_mps": 1.0,
+  "sinkage_increase_lt_m": 0.1,
+  "sinkage": "max over wheels of [tyre radius - (spindle_z - TerrainMap height at the spindle xy)] at frame min(60, last row) minus frame 0; applied when crm_extra.npz exists"
+ },
+ "worlds": {
+  "crm": {
+   "runs_dir": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/generalist_20260921/A_adapt/a5/selftest/analyze/runs_full",
+   "n_runs": 5,
+   "n_groups": 5,
+   "n_moving": 4,
+   "n_excluded": 1,
+   "exclusion_reasons": {
+    "vx": 1
+   },
+   "duplicate_group_runs": [],
+   "frame_source_counts": {
+    "row": 5,
+    "terminal": 0,
+    "absent": 0
+   },
+   "vx_p50": 2.000775098800659,
+   "groups": {
+    "f104_v2_group_0000": {
+     "run": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/generalist_20260921/A_adapt/a5/selftest/analyze/runs_full/f104_v2_group_0000_op_00",
+     "moving": false,
+     "reasons": [
+      "vx_0.23_le_1"
+     ],
+     "group": "f104_v2_group_0000",
+     "n_frames": 680,
+     "status": "prolonged_blockage_terminated",
+     "elapsed_s": 34.0,
+     "frame": 60,
+     "frame_source": "row",
+     "vx": 0.23190638422966003,
+     "vy": 0.023691624402999878,
+     "yaw_rate": -0.017239991575479507,
+     "roll": -0.12679944932460785,
+     "pitch": -0.012990272603929043,
+     "pose": [
+      -31.88276441115995,
+      -26.39008606874158,
+      1.4123801349043832
+     ],
+     "hist_valid_steps": 40,
+     "displacement_from_start_m": 0.4538512096489368,
+     "sink_frame": 60,
+     "sink_inc_max_m": 0.015507818916332017,
+     "sink_inc_mean_m": -0.007079851157859515,
+     "sink_inc_per_wheel_m": [
+      0.007660035826065448,
+      -0.03631797317483759,
+      0.015507818916332017,
+      -0.015169286198997933
+     ],
+     "sink_frame0_per_wheel_m": [
+      0.02374020990580783,
+      0.0626834727753478,
+      0.06524240952524624,
+      0.028046739801865284
+     ],
+     "sink_proxy_chassis_inc_m": -0.005266539752483368,
+     "sink_source": "crm_extra"
+    },
+    "f104_v2_group_0001": {
+     "run": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/generalist_20260921/A_adapt/a5/selftest/analyze/runs_full/f104_v2_group_0001_op_00",
+     "moving": true,
+     "reasons": [],
+     "group": "f104_v2_group_0001",
+     "n_frames": 245,
+     "status": "soil_breakthrough_terminated",
+     "elapsed_s": 12.25,
+     "frame": 60,
+     "frame_source": "row",
+     "vx": 2.63354754447937,
+     "vy": 0.33338597416877747,
+     "yaw_rate": 0.08199581503868103,
+     "roll": -0.10819071531295776,
+     "pitch": -0.1030585840344429,
+     "pose": [
+      29.270610482864573,
+      7.285029610517277,
+      -1.0304364026340151
+     ],
+     "hist_valid_steps": 40,
+     "displacement_from_start_m": 6.119171344632458,
+     "sink_frame": 60,
+     "sink_inc_max_m": -0.047761308185767515,
+     "sink_inc_mean_m": -0.09841520573313155,
+     "sink_inc_per_wheel_m": [
+      -0.06619162794909217,
+      -0.1493216613460988,
+      -0.1303862254515677,
+      -0.047761308185767515
+     ],
+     "sink_frame0_per_wheel_m": [
+      0.04902242623844749,
+      0.07070782676865067,
+      0.04596346377310112,
+      0.02852568655855542
+     ],
+     "sink_proxy_chassis_inc_m": -0.09406456351280212,
+     "sink_source": "crm_extra"
+    },
+    "f104_v2_group_0002": {
+     "run": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/generalist_20260921/A_adapt/a5/selftest/analyze/runs_full/f104_v2_group_0002_op_00",
+     "moving": true,
+     "reasons": [],
+     "group": "f104_v2_group_0002",
+     "n_frames": 680,
+     "status": "prolonged_blockage_terminated",
+     "elapsed_s": 34.0,
+     "frame": 60,
+     "frame_source": "row",
+     "vx": 3.2570223808288574,
+     "vy": -0.015365226194262505,
+     "yaw_rate": 0.16589564085006714,
+     "roll": 0.08804863691329956,
+     "pitch": 0.031575798988342285,
+     "pose": [
+      -11.550182705231245,
+      1.4473952881272838,
+      1.8031616797390528
+     ],
+     "hist_valid_steps": 40,
+     "displacement_from_start_m": 5.779462473953878,
+     "sink_frame": 60,
+     "sink_inc_max_m": -0.07540862230693568,
+     "sink_inc_mean_m": -0.08691138628897535,
+     "sink_inc_per_wheel_m": [
+      -0.09347992818094575,
+      -0.07540862230693568,
+      -0.08874769855893883,
+      -0.09000929610908115
+     ],
+     "sink_frame0_per_wheel_m": [
+      0.05216444121013447,
+      0.01399287477661576,
+      0.035951078478027865,
+      0.0629970952767141
+     ],
+     "sink_proxy_chassis_inc_m": -0.06540895998477936,
+     "sink_source": "crm_extra"
+    },
+    "f104_v2_group_0003": {
+     "run": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/generalist_20260921/A_adapt/a5/selftest/analyze/runs_full/f104_v2_group_0003_op_00",
+     "moving": true,
+     "reasons": [],
+     "group": "f104_v2_group_0003",
+     "n_frames": 333,
+     "status": "soil_breakthrough_terminated",
+     "elapsed_s": 16.650000000000002,
+     "frame": 60,
+     "frame_source": "row",
+     "vx": 1.8149199485778809,
+     "vy": -0.02613351307809353,
+     "yaw_rate": -0.0927068218588829,
+     "roll": -0.005440907087177038,
+     "pitch": -0.018814418464899063,
+     "pose": [
+      -0.1401607515291286,
+      -15.152792454765018,
+      -0.1336441118696703
+     ],
+     "hist_valid_steps": 40,
+     "displacement_from_start_m": 4.865624779914359,
+     "sink_frame": 60,
+     "sink_inc_max_m": -0.037877009034787745,
+     "sink_inc_mean_m": -0.08967646491529481,
+     "sink_inc_per_wheel_m": [
+      -0.1284430963829717,
+      -0.05992969722111474,
+      -0.037877009034787745,
+      -0.13245605702230506
+     ],
+     "sink_frame0_per_wheel_m": [
+      0.05721081531749056,
+      0.03946723957594295,
+      0.005046486217063995,
+      0.08439962975807502
+     ],
+     "sink_proxy_chassis_inc_m": -0.27305757999420166,
+     "sink_source": "crm_extra"
+    },
+    "f104_v2_group_0004": {
+     "run": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/generalist_20260921/A_adapt/a5/selftest/analyze/runs_full/f104_v2_group_0004_op_01",
+     "moving": true,
+     "reasons": [],
+     "group": "f104_v2_group_0004",
+     "n_frames": 336,
+     "status": "soil_breakthrough_terminated",
+     "elapsed_s": 16.8,
+     "frame": 60,
+     "frame_source": "row",
+     "vx": 2.000775098800659,
+     "vy": 0.14241676032543182,
+     "yaw_rate": 0.12698067724704742,
+     "roll": -0.013183405622839928,
+     "pitch": -0.014442653395235538,
+     "pose": [
+      -5.642153583463166,
+      -1.2448494711772615,
+      0.964287948021078
+     ],
+     "hist_valid_steps": 40,
+     "displacement_from_start_m": 4.6552058325362005,
+     "sink_frame": 60,
+     "sink_inc_max_m": -0.03230277182982699,
+     "sink_inc_mean_m": -0.054244071684519904,
+     "sink_inc_per_wheel_m": [
+      -0.03230277182982699,
+      -0.08369537635427665,
+      -0.06582900028823002,
+      -0.03514913826574595
+     ],
+     "sink_frame0_per_wheel_m": [
+      0.02310773563384999,
+      0.013887686525836274,
+      0.04077144374319669,
+      0.049286068282656414
+     ],
+     "sink_proxy_chassis_inc_m": -0.04889487102627754,
+     "sink_source": "crm_extra"
+    }
+   },
+   "poses_file": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/generalist_20260921/A_adapt/a5/selftest/analyze/out_full/poses_crm.json"
+  }
+ },
+ "analysis_set": [
+  "f104_v2_group_0001",
+  "f104_v2_group_0002",
+  "f104_v2_group_0003",
+  "f104_v2_group_0004"
+ ],
+ "excluded": {
+  "n": 1,
+  "groups": [
+   "f104_v2_group_0000"
+  ]
+ },
+ "n_analysis_set": 4
+}

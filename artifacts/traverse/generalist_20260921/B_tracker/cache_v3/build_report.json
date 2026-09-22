@@ -1,0 +1,240 @@
+{
+ "built": "2026-09-22 00:46:16",
+ "wall_s": 19.4,
+ "workers": 8,
+ "max_frames": 1200,
+ "sources": {
+  "rigid": [
+   "artifacts/traverse/fdm_f104_50h_20260909/production_v3/runs",
+   "artifacts/traverse/fdm_f104_50h_20260909/production_v4/runs",
+   "/home/harry/NeDM-traverse_mppi/artifacts/traverse/generalist_20260921/B_tracker/b3/rigid_runs",
+   "/home/harry/NeDM-traverse_mppi/artifacts/traverse/generalist_20260921/B_tracker/b0/rigid_harvest_runs"
+  ],
+  "crm": [
+   "artifacts/traverse/crm_f104_v1/collect_v1/runs",
+   "/home/harry/NeDM-traverse_mppi/artifacts/traverse/generalist_20260921/B_tracker/b3/crm_runs"
+  ]
+ },
+ "twin_split": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_night2_v1/datasets/twin_crm.npz",
+ "twin_groups_by_split": {
+  "train": 1089,
+  "val": 56,
+  "test": 55
+ },
+ "qa_flagged_excluded": [],
+ "case_split_fallback": {
+  "enabled": true,
+  "episodes": 0,
+  "groups": [],
+  "first_episodes": []
+ },
+ "excluded_counts": {
+  "blacklisted": 0,
+  "unknown_group": 0,
+  "qa_flagged": 0,
+  "no_files": 0
+ },
+ "excluded_unknown_group": [],
+ "errors": [],
+ "total_bytes": 2092767569,
+ "total_gib": 1.949,
+ "all": {
+  "episodes": 43235,
+  "frames": 21184224,
+  "frames_recorded": 22937058,
+  "cut": 3298,
+  "cut_by_status": {
+   "goal_reached": 1117,
+   "prolonged_blockage_terminated": 1433,
+   "rollover": 9,
+   "soil_breakthrough_terminated": 83,
+   "terrain_bounds_exit": 36,
+   "timeout": 620
+  },
+  "frames_dropped_by_cut": 1752834,
+  "stalled_frames_dropped_by_cut": 511071,
+  "stalled_frames": 3962172,
+  "stalled_frames_while_parked": 130,
+  "flip_transitions": 749773,
+  "flip_rate": 0.03546537013949536,
+  "hold_ok_retention": {
+   "all": {
+    "hold_ok": 19962221,
+    "frames": 21140989,
+    "retention": 0.9442425328351479
+   },
+   "stalled": {
+    "hold_ok": 3922539,
+    "frames": 3947517,
+    "retention": 0.9936724781679218
+   },
+   "moving": {
+    "hold_ok": 16039682,
+    "frames": 17193472,
+    "retention": 0.9328937168711474
+   },
+   "brake_onset": {
+    "hold_ok": 125741,
+    "frames": 168946,
+    "retention": 0.7442673990505843
+   },
+   "pre_brake_onset": {
+    "hold_ok": 8672,
+    "frames": 169918,
+    "retention": 0.05103638225497004
+   }
+  },
+  "by_status": {
+   "goal_reached": 26919,
+   "prolonged_blockage_terminated": 6298,
+   "rollover": 40,
+   "soil_breakthrough_terminated": 9259,
+   "terrain_bounds_exit": 99,
+   "timeout": 620
+  },
+  "by_split": {
+   "train": 39601,
+   "val": 1833,
+   "test": 1801
+  },
+  "groups": 1200,
+  "heldout_groups_present": {
+   "val": 56,
+   "test": 55
+  }
+ },
+ "crm": {
+  "episodes": 16735,
+  "frames": 7074754,
+  "frames_recorded": 7128747,
+  "cut": 193,
+  "cut_by_status": {
+   "goal_reached": 50,
+   "prolonged_blockage_terminated": 51,
+   "soil_breakthrough_terminated": 83,
+   "timeout": 9
+  },
+  "frames_dropped_by_cut": 53993,
+  "stalled_frames_dropped_by_cut": 17741,
+  "stalled_frames": 2280468,
+  "stalled_frames_while_parked": 94,
+  "flip_transitions": 65225,
+  "flip_rate": 0.009241261606124892,
+  "hold_ok_retention": {
+   "all": {
+    "hold_ok": 6934194,
+    "frames": 7058019,
+    "retention": 0.9824561254368966
+   },
+   "stalled": {
+    "hold_ok": 2269434,
+    "frames": 2269516,
+    "retention": 0.9999638689482692
+   },
+   "moving": {
+    "hold_ok": 4664760,
+    "frames": 4788503,
+    "retention": 0.974158312107145
+   },
+   "brake_onset": {
+    "hold_ok": 21774,
+    "frames": 26240,
+    "retention": 0.8298018292682927
+   },
+   "pre_brake_onset": {
+    "hold_ok": 5077,
+    "frames": 26465,
+    "retention": 0.19183827696958247
+   }
+  },
+  "by_status": {
+   "goal_reached": 5447,
+   "prolonged_blockage_terminated": 2018,
+   "rollover": 2,
+   "soil_breakthrough_terminated": 9259,
+   "timeout": 9
+  },
+  "by_split": {
+   "train": 15321,
+   "val": 713,
+   "test": 701
+  },
+  "groups": 1200,
+  "heldout_groups_present": {
+   "val": 56,
+   "test": 55
+  }
+ },
+ "rigid": {
+  "episodes": 26500,
+  "frames": 14109470,
+  "frames_recorded": 15808311,
+  "cut": 3105,
+  "cut_by_status": {
+   "goal_reached": 1067,
+   "prolonged_blockage_terminated": 1382,
+   "rollover": 9,
+   "terrain_bounds_exit": 36,
+   "timeout": 611
+  },
+  "frames_dropped_by_cut": 1698841,
+  "stalled_frames_dropped_by_cut": 493330,
+  "stalled_frames": 1681704,
+  "stalled_frames_while_parked": 36,
+  "flip_transitions": 684548,
+  "flip_rate": 0.04860821261424259,
+  "hold_ok_retention": {
+   "all": {
+    "hold_ok": 13028027,
+    "frames": 14082970,
+    "retention": 0.9250908721668796
+   },
+   "stalled": {
+    "hold_ok": 1653105,
+    "frames": 1678001,
+    "retention": 0.9851632984724086
+   },
+   "moving": {
+    "hold_ok": 11374922,
+    "frames": 12404969,
+    "retention": 0.9169649678286177
+   },
+   "brake_onset": {
+    "hold_ok": 103967,
+    "frames": 142706,
+    "retention": 0.7285397951032192
+   },
+   "pre_brake_onset": {
+    "hold_ok": 3595,
+    "frames": 143453,
+    "retention": 0.02506047276808432
+   }
+  },
+  "by_status": {
+   "goal_reached": 21472,
+   "prolonged_blockage_terminated": 4280,
+   "rollover": 38,
+   "terrain_bounds_exit": 99,
+   "timeout": 611
+  },
+  "by_split": {
+   "train": 24280,
+   "val": 1120,
+   "test": 1100
+  },
+  "groups": 1200,
+  "heldout_groups_present": {
+   "val": 56,
+   "test": 55
+  }
+ },
+ "definitions": {
+  "stalled": "frame inside a run of >= 20 consecutive frames with |vx| < 0.3 and throttle > 0.3",
+  "hold_ok": "|act[k+1]-act[k]| <= 0.1 on all 3 channels and no throttle/brake flip; True only when frame k+1 is in the cache (last kept frame False, also for cut episodes)",
+  "flip": "throttle>0 at k and brake>0 at k+1, or brake>0 at k and throttle>0 at k+1",
+  "brake_onset": "frame k with brake>0 and brake<=0 at k-1 (retention of the transition k->k+1)",
+  "pre_brake_onset": "frame k-1 before a brake onset (the transition that switches the brake on)",
+  "moving": "not stalled",
+  "retention": "hold_ok transitions / transitions with a successor frame in the regime"
+ }
+}

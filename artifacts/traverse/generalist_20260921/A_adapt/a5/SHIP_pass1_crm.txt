@@ -1,0 +1,10 @@
+# ship the A5 pass-1 approach routes and task rows to the CRM root (NOT run by ga_approach.py)
+C=/work1/dannegrut/harry/experiments/crm_f104_20260916
+A5=/home/harry/NeDM-traverse_mppi/artifacts/traverse/generalist_20260921/A_adapt/a5
+ssh amd "mkdir -p $C/generalist/a5/approach"
+rsync -az $A5/approach/ amd:$C/generalist/a5/approach/
+rsync -az $A5/tasks_pass1_crm.json $A5/approach_index.json amd:$C/generalist/a5/
+# the suite cases must already be at $C/generalist/suite/cases/ (NOTES_ga_suite shipping block); check:
+ssh amd "ls $C/generalist/suite/cases | wc -l; ls $C/generalist/a5/approach | wc -l"
+# launch (unmodified collector, one sbatch per GPU partition; not run here):
+# bash $C/source/scripts/crm_launch.sh $C/generalist/a5/tasks_pass1_crm.json $C/generalist/a5/pass1_out configs/crm_main.json 2

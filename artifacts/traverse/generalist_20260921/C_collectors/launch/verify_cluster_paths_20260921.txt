@@ -1,0 +1,38 @@
+a4bc4dab3c606ade119f74d06bdc4df2183a61257a1dc06374d6211adf43ee7a  tasks_a4_rigid.json
+64489178c5f9acce68f28e0a9f530e2241ddd5ff2762d516511afad6597d7114  tasks_b3_rigid.json
+4060ad0304e4ea49f83f42123b42938ba31c16b35c0882600cc1f90fab90a76e  tasks_b3_crm.json
+{
+ "a4": {
+  "rows": 800,
+  "recorded_status": {
+   "goal_reached": 506,
+   "prolonged_blockage_terminated": 267,
+   "timeout": 23,
+   "terrain_bounds_exit": 3,
+   "rollover": 1
+  },
+  "distinct_recorded_source_sets": 1,
+  "recorded_source_equals_source_v1_manifest": true,
+  "G_source_differs_from_recorded_source": [
+   "src/nedm/traverse/scene.py"
+  ]
+ },
+ "tasks_b3_rigid.json": {
+  "rows": 1500,
+  "ok": 1500
+ },
+ "tasks_b3_crm.json": {
+  "rows": 1500,
+  "ok": 1500
+ },
+ "config": {
+  "C/configs/crm_main.json": true,
+  "fingerprint": true,
+  "chrono_data_hmmwv": true,
+  "crm_collect_ext": true,
+  "crm_sbatch_C": true
+ },
+ "misses": [],
+ "n_misses": 0
+}
+verify_rc=0

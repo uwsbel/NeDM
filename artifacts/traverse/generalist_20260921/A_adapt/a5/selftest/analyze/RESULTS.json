@@ -1,0 +1,198 @@
+{
+ "created": "2026-09-21 18:07:06",
+ "standins": [
+  "f104_v2_group_0000_op_00",
+  "f104_v2_group_0001_op_00",
+  "f104_v2_group_0002_op_00",
+  "f104_v2_group_0003_op_00",
+  "f104_v2_group_0004_op_01"
+ ],
+ "checks": {
+  "five_groups_each": true,
+  "frame_sources": {
+   "full": {
+    "row": 5,
+    "terminal": 0,
+    "absent": 0
+   },
+   "cut": {
+    "row": 0,
+    "terminal": 5,
+    "absent": 0
+   }
+  },
+  "moving_agree": true,
+  "pose_max_abs_diff": 0.0,
+  "vx_max_abs_diff": 0.0,
+  "sink_inc_max_abs_diff_m": 0.007894584283439476,
+  "sink_frames": {
+   "f104_v2_group_0000": [
+    60,
+    59
+   ],
+   "f104_v2_group_0001": [
+    60,
+    59
+   ],
+   "f104_v2_group_0002": [
+    60,
+    59
+   ],
+   "f104_v2_group_0003": [
+    60,
+    59
+   ],
+   "f104_v2_group_0004": [
+    60,
+    59
+   ]
+  },
+  "poses_full_format": true,
+  "poses_cut_format": true,
+  "poses_same_groups": true,
+  "history_vs_ga_planner": [
+   {
+    "group": "f104_v2_group_0001",
+    "max_abs_diff": 0.0,
+    "mask_equal": true,
+    "valid_steps": 40,
+    "loader": "npz",
+    "pose_equal": true
+   },
+   {
+    "group": "f104_v2_group_0002",
+    "max_abs_diff": 0.0,
+    "mask_equal": true,
+    "valid_steps": 40,
+    "loader": "npz",
+    "pose_equal": true
+   },
+   {
+    "group": "f104_v2_group_0003",
+    "max_abs_diff": 0.0,
+    "mask_equal": true,
+    "valid_steps": 40,
+    "loader": "npz",
+    "pose_equal": true
+   },
+   {
+    "group": "f104_v2_group_0004",
+    "max_abs_diff": 0.0,
+    "mask_equal": true,
+    "valid_steps": 40,
+    "loader": "npz",
+    "pose_equal": true
+   }
+  ],
+  "history_ok": true
+ },
+ "records": {
+  "f104_v2_group_0000": {
+   "n_frames": 680,
+   "status": "prolonged_blockage_terminated",
+   "frame_source": "row",
+   "vx": 0.23190638422966003,
+   "sink_inc_max_m": 0.015507818916332017,
+   "sink_inc_mean_m": -0.007079851157859515,
+   "sink_proxy_chassis_inc_m": -0.005266539752483368,
+   "moving": false,
+   "reasons": [
+    "vx_0.23_le_1"
+   ]
+  },
+  "f104_v2_group_0001": {
+   "n_frames": 245,
+   "status": "soil_breakthrough_terminated",
+   "frame_source": "row",
+   "vx": 2.63354754447937,
+   "sink_inc_max_m": -0.047761308185767515,
+   "sink_inc_mean_m": -0.09841520573313155,
+   "sink_proxy_chassis_inc_m": -0.09406456351280212,
+   "moving": true,
+   "reasons": []
+  },
+  "f104_v2_group_0002": {
+   "n_frames": 680,
+   "status": "prolonged_blockage_terminated",
+   "frame_source": "row",
+   "vx": 3.2570223808288574,
+   "sink_inc_max_m": -0.07540862230693568,
+   "sink_inc_mean_m": -0.08691138628897535,
+   "sink_proxy_chassis_inc_m": -0.06540895998477936,
+   "moving": true,
+   "reasons": []
+  },
+  "f104_v2_group_0003": {
+   "n_frames": 333,
+   "status": "soil_breakthrough_terminated",
+   "frame_source": "row",
+   "vx": 1.8149199485778809,
+   "sink_inc_max_m": -0.037877009034787745,
+   "sink_inc_mean_m": -0.08967646491529481,
+   "sink_proxy_chassis_inc_m": -0.27305757999420166,
+   "moving": true,
+   "reasons": []
+  },
+  "f104_v2_group_0004": {
+   "n_frames": 336,
+   "status": "soil_breakthrough_terminated",
+   "frame_source": "row",
+   "vx": 2.000775098800659,
+   "sink_inc_max_m": -0.03230277182982699,
+   "sink_inc_mean_m": -0.054244071684519904,
+   "sink_proxy_chassis_inc_m": -0.04889487102627754,
+   "moving": true,
+   "reasons": []
+  }
+ },
+ "records_cut60": {
+  "f104_v2_group_0000": {
+   "n_frames": 60,
+   "frame_source": "terminal",
+   "vx": 0.23190638422966003,
+   "sink_frame": 59,
+   "sink_inc_max_m": 0.016451685424921703,
+   "moving": false,
+   "reasons": [
+    "vx_0.23_le_1"
+   ]
+  },
+  "f104_v2_group_0001": {
+   "n_frames": 60,
+   "frame_source": "terminal",
+   "vx": 2.63354754447937,
+   "sink_frame": 59,
+   "sink_inc_max_m": -0.0463050542805587,
+   "moving": true,
+   "reasons": []
+  },
+  "f104_v2_group_0002": {
+   "n_frames": 60,
+   "frame_source": "terminal",
+   "vx": 3.2570223808288574,
+   "sink_frame": 59,
+   "sink_inc_max_m": -0.0675140380234962,
+   "moving": true,
+   "reasons": []
+  },
+  "f104_v2_group_0003": {
+   "n_frames": 60,
+   "frame_source": "terminal",
+   "vx": 1.8149199485778809,
+   "sink_frame": 59,
+   "sink_inc_max_m": -0.04554872286382827,
+   "moving": true,
+   "reasons": []
+  },
+  "f104_v2_group_0004": {
+   "n_frames": 60,
+   "frame_source": "terminal",
+   "vx": 2.000775098800659,
+   "sink_frame": 59,
+   "sink_inc_max_m": -0.03467909603704722,
+   "moving": true,
+   "reasons": []
+  }
+ },
+ "all_ok": true
+}
