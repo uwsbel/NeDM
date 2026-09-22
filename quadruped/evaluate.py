@@ -118,20 +118,40 @@ def episode(chrono, policy_path, urdf, cfg, terrain_kind, command, seconds,
 
 
 def corpus_matrix(corpus: Path):
-    """The (state, action) the corpus occupies, in the same column order episode() emits."""
-    rows = []
-    for f in sorted(glob.glob(str(corpus / "episodes" / "*.csv"))):
-        rows.extend(list(csv.DictReader(open(f))))
-    if not rows:
+    """The (state, action) the corpus occupies, in the same column order episode() emits.
+
+    STREAMED, one file at a time, parsing only the columns the reference uses. The first
+    version read every row of every segment into dicts of strings -- 2 M rows x 195
+    columns of Python str on the v2 corpus, ~30 GB -- to keep 36 numeric columns. On a
+    30 GB workstation that was fatal: the kernel OOM-killed two evaluations on a3, and sbel
+    appears to have locked up and rebooted mid-evaluation. The matrix is identical (same
+    files in the same order, same columns, missing and empty values as NaN, same filter),
+    so Gate 4 results do not change; only the peak memory does.
+    """
+    files = sorted(glob.glob(str(corpus / "episodes" / "*.csv")))
+    if not files:
         raise SystemExit(f"no episodes under {corpus}")
-    c = rows[0].keys()
+    with open(files[0], newline="") as fh:
+        c = next(csv.reader(fh))
     jp = [x for x in c if x.startswith("joint_") and x.endswith("_pos_rad")]
     jv = [x for x in c if x.startswith("joint_") and x.endswith("_vel_radps")]
     base = ["vel_body_x_mps", "vel_body_y_mps", "vel_body_z_mps",
             "roll_rate_radps", "ang_vel_body_y_radps", "yaw_rate_radps", "pos_z_m"]
     act = [x for x in c if x.startswith("joint_") and x.endswith("_target_rad")]
     cols = jp + jv + base + act
-    M = np.array([[float(r.get(k, "nan") or "nan") for k in cols] for r in rows])
+    nan = float("nan")
+    blocks = []
+    for f in files:
+        with open(f, newline="") as fh:
+            rd = csv.reader(fh)
+            hdr = next(rd)
+            pos = {k: i for i, k in enumerate(hdr)}
+            ix = [pos.get(k, -1) for k in cols]
+            blk = [[(float(row[i]) if (i >= 0 and i < len(row) and row[i] != "") else nan)
+                    for i in ix] for row in rd]
+        if blk:
+            blocks.append(np.asarray(blk, dtype=np.float64))
+    M = np.concatenate(blocks, axis=0)
     return M[np.isfinite(M).all(1)], cols
 
 
