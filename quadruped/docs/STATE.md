@@ -53,6 +53,29 @@ failures are euler s2 (random path, left the bed at 9.95 s) and s4 (yaw step, 14
 The spread across surrogates is now 7 points on forward tracking, against 131 points
 (-51% to +80%) for one-step surrogates with 0.30 s branches on the straight test.
 
+**Per command family** (paths, mean over the eight surrogates of each arm's paired change;
+4 paths per family, 2-3 where the bed cap skipped or a pair dropped; "vx better" counts
+arms whose family mean improved):
+
+| family | vx mean [range] | vx better | vy | wz |
+|---|---|---|---|---|
+| constant | -54% [-60, -46] | 8/8 | -13% | -56% |
+| vel_step | -46% [-48, -43] | 8/8 | -9% | -55% |
+| yaw_step | -44% [-51, -37] | 8/8 | -3% | -46% |
+| arc | -28% [-35, -20] | 8/8 | -26% | -56% |
+| pivot | -27% [-42, -7] | 8/8 | -11% | -53% |
+| random | -25% [-30, -19] | 8/8 | -27% | -33% |
+| weave | -20% [-28, -7] | 8/8 | -16% | -49% |
+| random_walk | -12% [-17, -4] | 8/8 | -10% | -50% |
+| stop_and_go | -7% [-8, -4] | 8/8 | -28% | -73% |
+| **lateral** | **+19% [+8, +34]** | **0/8** | -20% | -61% |
+
+Lateral paths are the one consistent cost: forward error there rises in all eight, from a
+base of ~0.05 m/s (the command's vx is near zero) by ~0.01 m/s, concentrated on two of the
+four paths, while sideways error on the same paths falls by up to 0.1 m/s. Small in m/s
+against the 0.07-0.15 m/s forward gains on speed steps and constant commands, but it is
+systematic and belongs in the write-up.
+
 The v1 fine-tunes of 2026-09-21 are void (three rollout bugs, below); everything since is on
 the v2 corpus with rows captured before the physics step.
 
