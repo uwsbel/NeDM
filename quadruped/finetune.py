@@ -301,6 +301,46 @@ def advance(model, torch, hist_s, hist_a, act):
     return nxt, torch.cat([hist_s[:, 1:], nxt[:, None]], dim=1), a_win[:, 1:]
 
 
+class Ensemble:
+    """Several NN-ROMs behind the one-model interface advance() expects.
+
+    WHY. Across eleven single-surrogate PPO runs the yaw gain held everywhere, but the
+    forward-speed gain ran from -54% to +80% between surrogates of equal accuracy, and no
+    training statistic (selected epoch, open-loop error at any horizon) predicted which way
+    a given surrogate would go. Each surrogate carries its own large, idiosyncratic error,
+    and a policy tuned against one inherits it. Two standard defences, both here:
+
+      - Every branch is rolled in a member drawn at random each iteration (MBPO), so no
+        single model's error is available to exploit consistently.
+      - The members' spread on each predicted step is kept (`last_spread`) for a
+        disagreement penalty on the reward (MOPO): where the models disagree, the
+        prediction is not knowledge, and reward there should not be believed.
+
+    Every member is evaluated on every row, which the spread needs anyway; the cost is M x
+    one model's rollout, and PPO's rollouts are the cheap part of an iteration.
+    """
+
+    def __init__(self, torch, members):
+        self.torch = torch
+        self.members = members
+        self.assign = None          # (B,) member index per row, or None for the mean
+        self.last_spread = None     # (B,) normalised spread of the last predicted delta
+        self.tstd = members[0].target_std
+
+    def assign_random(self, n, gen):
+        self.assign = self.torch.randint(0, len(self.members), (n,), generator=gen,
+                                         device=self.tstd.device)
+
+    def predict_delta(self, hist_s, a_win):
+        t = self.torch
+        preds = t.stack([m.predict_delta(hist_s, a_win) for m in self.members])
+        last = preds[:, :, -1]                                    # (M, B, S)
+        self.last_spread = ((last.std(0) / self.tstd) ** 2).mean(-1).sqrt()
+        if self.assign is None:
+            return preds.mean(0)
+        return preds[self.assign, t.arange(preds.shape[1], device=preds.device)]
+
+
 def closed_loop(torch, model, obs, policy, b, cmd, steps, hold, inj=None):
     """Roll the deterministic policy inside the model: `steps` control steps, each action
     held for `hold` model steps. Returns the predicted states, (B, steps*hold, S).
@@ -493,7 +533,7 @@ class OODCost:
 
 
 def ppo_rollout(torch, model, obs_b, actor, critic, b, steps, hold, cmd, ix,
-                upright_weight, ood=None, ood_weight=0.0):
+                upright_weight, ood=None, ood_weight=0.0, dis_weight=0.0, gen=None):
     """Collect one batch of trajectories inside the model. NO GRADIENT THROUGH DYNAMICS.
 
     This is the whole difference from the analytic path. The model is stepped under
@@ -507,7 +547,10 @@ def ppo_rollout(torch, model, obs_b, actor, critic, b, steps, hold, cmd, ix,
     """
     hist_s, hist_a, last_raw = b["states"], b["acts"], b["last_raw"]
     obs_buf, act_buf, logp_buf, rew_buf, val_buf = [], [], [], [], []
-    ood_buf = []
+    ood_buf, dis_buf = [], []
+    is_ens = isinstance(model, Ensemble)
+    if is_ens:
+        model.assign_random(hist_s.shape[0], gen)
     with torch.no_grad():
         for _ in range(steps):
             o = obs_b.observe(hist_s[:, -1], cmd, last_raw)
@@ -525,13 +568,20 @@ def ppo_rollout(torch, model, obs_b, actor, critic, b, steps, hold, cmd, ix,
                     c = ood.cost(torch, nxt, act)
                     rh = rh - ood_weight * c
                     ood_buf.append(c.mean())
+                if is_ens:
+                    dis_buf.append(model.last_spread.mean())
+                    if dis_weight > 0:
+                        rh = rh - dis_weight * model.last_spread
                 r = r + rh / hold
             obs_buf.append(o); act_buf.append(raw); logp_buf.append(logp)
             val_buf.append(val); rew_buf.append(r)
         last_val = critic(obs_b.observe(hist_s[:, -1], cmd, last_raw))
+    if is_ens:
+        model.assign = None         # anything after this (the loop check) sees the mean
     ood_mean = float(torch.stack(ood_buf).mean()) if ood_buf else 0.0
+    dis_mean = float(torch.stack(dis_buf).mean()) if dis_buf else 0.0
     return (torch.stack(obs_buf), torch.stack(act_buf), torch.stack(logp_buf),
-            torch.stack(rew_buf), torch.stack(val_buf), last_val, ood_mean)
+            torch.stack(rew_buf), torch.stack(val_buf), last_val, ood_mean, dis_mean)
 
 
 def gae(torch, rew, val, last_val, gamma, lam):
@@ -631,12 +681,17 @@ def run_ppo(torch, nn, a, model, obs_b, policy, params, baseline, base_norm, n_p
     print(f"ppo: {a.branches} branches x {a.steps} control steps ({a.steps * hold} model "
           f"steps), clip {a.clip_eps}, {a.ppo_epochs} epochs x {a.minibatches} minibatches")
     dw, it = 0.0, 0
+    gen = torch.Generator(device=dev)
+    gen.manual_seed(a.seed + 99)
+    if isinstance(model, Ensemble):
+        print(f"  ensemble of {len(model.members)} surrogates: each branch in a random "
+              f"member; disagreement penalty {a.disagreement_penalty}")
     for it in range(1, a.iters + 1):
         b = start_batch(torch, corpus, pool, a.branches, rng, ctx, p2c, dev)
         cmd = branch_cmd(torch, a, b, ranges, rng, dev)
-        ob, ac, lp, rw, vl, last_val, ood_mean = ppo_rollout(
+        ob, ac, lp, rw, vl, last_val, ood_mean, dis_mean = ppo_rollout(
             torch, model, obs_b, actor, critic, b, a.steps, hold, cmd, ix,
-            a.upright_weight, ood, a.ood_penalty)
+            a.upright_weight, ood, a.ood_penalty, a.disagreement_penalty, gen)
         adv, ret = gae(torch, rw, vl, last_val, a.gamma, a.lam)
         # Flatten time and branch: every (t, b) is one independent sample here, since the
         # branches do not interact.
@@ -671,12 +726,14 @@ def run_ppo(torch, nn, a, model, obs_b, policy, params, baseline, base_norm, n_p
             dw = float(weight_displacement(torch, params, baseline))
         rec = {"iter": it, "reward": rw.mean().item(), "policy_loss": pl,
                "value_loss": vf, "entropy": ent, "dw": dw, "dw_rel": dw / base_norm,
-               "log_std": actor.log_std.mean().item(), "ood": ood_mean}
+               "log_std": actor.log_std.mean().item(), "ood": ood_mean,
+               "disagreement": dis_mean}
         log.write(json.dumps(rec) + "\n")
         if it % 10 == 0 or it == 1:
             print(f"  iter {it:5d}  reward {rw.mean().item():+.4f}  vloss {vf:.4f}  "
                   f"ent {ent:+.3f}  log_std {actor.log_std.mean().item():+.2f}  "
-                  f"dw {dw:.4f} ({100 * dw / base_norm:.2f}%)  ood {ood_mean:.4f}",
+                  f"dw {dw:.4f} ({100 * dw / base_norm:.2f}%)  ood {ood_mean:.4f}  "
+                  f"dis {dis_mean:.4f}",
                   flush=True)
         if dw >= a.target_dw:
             print(f"  stopping: dw {dw:.4f} reached the {a.target_dw} budget at iter {it}")
@@ -691,7 +748,13 @@ def weight_displacement(torch, params, baseline):
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--model", required=True, help="a trained NN-ROM checkpoint")
+    ap.add_argument("--model", required=True, nargs="+",
+                    help="one or more trained NN-ROM checkpoints. More than one is an "
+                         "ENSEMBLE: PPO rolls each branch in a random member (see Ensemble)")
+    ap.add_argument("--disagreement-penalty", type=float, default=0.0,
+                    help="PPO with an ensemble: reward penalty per unit of the members' "
+                         "normalised spread on each predicted step. 0 = members are only "
+                         "randomised over, not penalised on.")
     ap.add_argument("--policy", required=True)
     ap.add_argument("--corpus", required=True, help="for branch start states")
     ap.add_argument("--out", required=True)
@@ -754,15 +817,21 @@ def main() -> int:
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
 
-    model, ck = load_nnrom(torch, a.model, dev, allow_smoke=a.smoke)
+    if len(a.model) > 1 and a.method != "ppo":
+        raise SystemExit("an ensemble is supported for --method ppo only: the analytic path "
+                         "backpropagates through every member, M x the memory of one")
+    loaded = [load_nnrom(torch, m, dev, allow_smoke=a.smoke) for m in a.model]
+    ck = loaded[0][1]
+    for mp, (_m, c) in zip(a.model[1:], loaded[1:]):
+        if (c["state_fields"] != ck["state_fields"] or c["action_fields"] != ck["action_fields"]
+                or c["config"]["block_size"] != ck["config"]["block_size"]
+                or c["config"].get("dt_s") != ck["config"].get("dt_s")):
+            raise SystemExit(f"{mp} does not share fields, context or timestep with "
+                             f"{a.model[0]}; an ensemble must be one model class")
+        for k in ck["stats"]:
+            if not np.allclose(np.asarray(c["stats"][k]), np.asarray(ck["stats"][k])):
+                raise SystemExit(f"{mp} was fitted under different normalisation ({k})")
 
-    # IS THE MODEL ACCURATE OVER THE HORIZON THIS RUN WILL ROLL IT? Checked here, against
-    # this run's own branch length, because a model is not good or bad in general -- it is
-    # good out to some horizon. The 550-episode NN-ROM beats "the robot does not move" at
-    # 0.30 s (errdist 0.451) and loses to it past about 1.5 s. Analytic fine-tuning rolls
-    # 15 steps, 0.30 s, and is fine. PPO benefits from longer rollouts, and a PPO run
-    # asked for 100 steps -- 2 s -- would be optimising the policy against a plant model
-    # that is worse than assuming nothing happens, and would find that out only in Chrono.
     # THE TWO RATES. The model steps at the record rate it was trained on; the policy acts
     # at the control rate. Taken from the checkpoint and the collection config rather than
     # restated, because restating them is how the first version came to run the policy at
@@ -775,28 +844,31 @@ def main() -> int:
         raise SystemExit(f"the model steps at {dt_s} s and the policy acts every {ctrl_dt} "
                          f"s; the control period must be a whole number of model steps")
     branch_s = a.steps * ctrl_dt
-    prof = ck.get("horizon_profile") or {}
-    if prof:
+
+    # IS EACH MODEL ACCURATE OVER THE HORIZON THIS RUN WILL ROLL IT? Checked per member,
+    # against this run's own branch length, because a model is not good or bad in general
+    # -- it is good out to some horizon. A branch between two profiled points is judged by
+    # the longer, worse one.
+    for mp, (_m, c) in zip(a.model, loaded):
+        prof = c.get("horizon_profile") or {}
+        if not prof:
+            print(f"WARNING: {mp} records no horizon profile, so whether it is accurate over "
+                  f"this run's {branch_s:.2f} s branch is unknown.")
+            continue
         keys = sorted(prof, key=float)
-        near = min(keys, key=lambda k: abs(float(k) - branch_s))
-        # Take the nearest profiled horizon AT OR BEYOND the branch, erring pessimistic:
-        # a branch between two profiled points is judged by the longer, worse one.
         beyond = [k for k in keys if float(k) >= branch_s - 1e-9]
         judge = beyond[0] if beyond else keys[-1]
         e_b = float(prof[judge])
         print(f"model errdist at {float(judge):g} s (this run rolls {branch_s:.2f} s): "
-              f"{e_b:.3f}  [usable to ~{ck.get('usable_to_s')} s]")
+              f"{e_b:.3f}  [usable to ~{c.get('usable_to_s')} s]  {Path(mp).parent.name}")
         if e_b >= 1.0 and not a.smoke:
             raise SystemExit(
-                f"this run rolls the model {branch_s:.2f} s ({a.steps} steps), and at that "
-                f"horizon the model's errdist is {e_b:.3f} -- at or above the 1.0 a model "
-                f"scores for predicting the robot does not move. Optimising against it "
-                f"would chase the model's errors, not the robot. Shorten --steps to within "
-                f"the usable horizon (~{ck.get('usable_to_s')} s), or train a better model.")
-    else:
-        print(f"WARNING: {a.model} records no horizon profile, so whether it is accurate "
-              f"over this run's {branch_s:.2f} s branch is unknown. Retrain with the "
-              f"current train.py, which records one.")
+                f"this run rolls {branch_s:.2f} s ({a.steps} steps), and {mp} scores errdist "
+                f"{e_b:.3f} there -- at or above the 1.0 a model scores for predicting the "
+                f"robot does not move. Optimising against it would chase its errors, not "
+                f"the robot. Shorten --steps to within ~{c.get('usable_to_s')} s, drop that "
+                f"member, or train a better model.")
+    model = loaded[0][0] if len(loaded) == 1 else Ensemble(torch, [m for m, _c in loaded])
     state_fields = ck["state_fields"]
     ctx = ck["config"]["block_size"]
     ix = {f: i for i, f in enumerate(state_fields)}
@@ -868,7 +940,8 @@ def main() -> int:
                 "start_reproduction": start_err, "loop_fidelity": loop,
                 "corpus_row_capture": man.get("row_capture"),
                 "policy_params": n_par, "theta0_norm": base_norm, "seed": a.seed,
-                "model": str(a.model), "base_policy": str(a.policy),
+                "model": [str(m) for m in a.model], "base_policy": str(a.policy),
+                "disagreement_penalty": a.disagreement_penalty,
                 "corpus": str(a.corpus)}
         (out / "finetune.json").write_text(json.dumps(meta, indent=2))
         if a.smoke or ck.get("smoke"):
@@ -930,7 +1003,8 @@ def main() -> int:
             "seed": a.seed, "hold": hold, "ctrl_dt": ctrl_dt, "dt_s": dt_s, "command_source": a.command,
             "start_reproduction": start_err, "loop_fidelity": loop,
                 "corpus_row_capture": man.get("row_capture"),
-            "model": str(a.model), "base_policy": str(a.policy),
+            "model": [str(m) for m in a.model], "base_policy": str(a.policy),
+                "disagreement_penalty": a.disagreement_penalty,
             "corpus": str(a.corpus), "seconds": round(time.perf_counter() - t0, 1)}
     (out / "finetune.json").write_text(json.dumps(meta, indent=2))
     if a.smoke or ck.get("smoke"):
