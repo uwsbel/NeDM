@@ -719,6 +719,17 @@ def run_ppo(torch, nn, a, model, obs_b, policy, params, baseline, base_norm, n_p
     dw, it = 0.0, 0
     gen = torch.Generator(device=dev)
     gen.manual_seed(a.seed + 99)
+    # Snapshots along the run, every --snapshot-every iterations and whenever dw first
+    # passes a --snapshot-dw mark, for scoring how transfer changes with training length.
+    # Saving draws no randomness, so the run is the same one it would be without them.
+    marks = sorted(a.snapshot_dw)
+    snaps, snap_dir = [], Path(a.out) / "snapshots"
+
+    def snapshot(name, rec):
+        snap_dir.mkdir(exist_ok=True)
+        torch.jit.save(policy, str(snap_dir / name))
+        snaps.append(rec)
+        (snap_dir / "snapshots.json").write_text(json.dumps(snaps, indent=2))
     if isinstance(model, Ensemble):
         print(f"  ensemble of {len(model.members)} surrogates: each branch in a random "
               f"member; disagreement penalty {a.disagreement_penalty}")
@@ -771,6 +782,15 @@ def run_ppo(torch, nn, a, model, obs_b, policy, params, baseline, base_norm, n_p
                   f"dw {dw:.4f} ({100 * dw / base_norm:.2f}%)  ood {ood_mean:.4f}  "
                   f"dis {dis_mean:.4f}",
                   flush=True)
+        while marks and dw >= marks[0]:
+            m = marks.pop(0)
+            snapshot(f"policy_dw{m:g}.pt", {"file": f"policy_dw{m:g}.pt", "dw_mark": m,
+                                            "iter": it, "dw": dw, "reward": rw.mean().item()})
+            print(f"  snapshot: dw {dw:.4f} passed {m:g} at iter {it}", flush=True)
+        if a.snapshot_every and it % a.snapshot_every == 0:
+            snapshot(f"policy_it{it}.pt", {"file": f"policy_it{it}.pt", "iter_mark": it,
+                                           "iter": it, "dw": dw, "reward": rw.mean().item()})
+            print(f"  snapshot: iter {it}, dw {dw:.4f}", flush=True)
         if dw >= a.target_dw:
             print(f"  stopping: dw {dw:.4f} reached the {a.target_dw} budget at iter {it}")
             break
@@ -809,6 +829,13 @@ def main() -> int:
                          "Adam normalises per parameter, so one step moves the vector by "
                          "about lr*sqrt(N): 0.043 here, and dw 4.0 is therefore roughly "
                          "100 steps. A budget of 0.05 stops after ONE.")
+    ap.add_argument("--snapshot-dw", type=float, nargs="*", default=[],
+                    help="also save the policy as snapshots/policy_dw<m>.pt when dw first "
+                         "passes each mark (PPO only). With a large --target-dw, one run "
+                         "gives the policy at every budget, for testing the budget itself")
+    ap.add_argument("--snapshot-every", type=int, default=0,
+                    help="also save the policy as snapshots/policy_it<N>.pt every N "
+                         "iterations (PPO only); 0 disables")
     ap.add_argument("--upright-weight", type=float, default=0.5)
     ap.add_argument("--accum", type=int, default=2,
                     help="analytic only: split the branches into this many micro-batches, "

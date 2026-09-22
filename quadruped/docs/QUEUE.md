@@ -8,6 +8,18 @@ Replication across surrogates, multi-path evaluation, env scaling, rollout-train
 ensembles, rigid-ground check, and the frozen recipe in nine 1 s rollout-trained
 surrogates; 2048 envs (three seeds) and seed 7's 1 s surrogate at 1024 envs.
 
+## Now
+
+- **Test the stopping budget.** Every fine-tune so far stops when the actor's weights have
+  moved dw 4.0 (~430 iterations at 1024 envs), a guard against exploiting the surrogate
+  inherited from the old pipeline and never tested; in-model reward is still climbing
+  steeply there (seed 6: -0.097 -> -0.035, no plateau). hpcfund 431640 runs the recipe in
+  four 1 s surrogates (seeds 6, 8, 9, north s0) to 3000 iterations with a checkpoint every
+  500 iterations and at dw 1-10 (`--snapshot-every`, `--snapshot-dw`). Each checkpoint is
+  scored straight, on the 40 paths (hpcfund) and on rigid ground (sbel). Up to dw 4 each
+  run repeats the scored recipe run, so its dw-4 checkpoint must be bit-identical to that
+  policy. Decide from the curve: keep dw 4, raise it, or stop at a fixed iteration count.
+
 ## Next
 
 1. **Write it up** as the Study 4 results: the frozen-recipe table (nine surrogates, CRM
