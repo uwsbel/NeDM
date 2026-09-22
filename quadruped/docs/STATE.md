@@ -77,6 +77,38 @@ tracks vx worse (0.026 -> 0.038), consistent with a CRM-specific adaptation when
 transfers. The loop check separates faithful from broken loops on a real model (ratio 1.26
 faithful, 1.52 with the 100 Hz fault, 1.37 with the shifted history), so it can now gate.
 
+## What the spread and the ablations showed (2026-09-21 evening)
+
+Eleven single-surrogate PPO runs (all paired against one base run on north unless noted):
+
+| surrogate | epoch | seed | branch | mae_vx | mae_wz | mae_vy |
+|---|---|---|---|---|---|---|
+| north s0 | 11 | 0 | 0.30 s | -36% | -46% | +15% |
+| north s0 | 11 | 1 | 0.30 s | -20% | -53% | -13% |
+| a3 | 72 | 0 | 0.30 s | **+57%** | -32% | +31% |
+| a3 | 72 | 1 | 0.30 s | **+80%** | -40% | +26% |
+| north s1 | 12 | 0 | 0.30 s | +3% (ns) | -35% | +25% |
+| north s1 | 12 | 1 | 0.30 s | -21% | -50% | -2% |
+| north s0 | **80** | 0 | 0.30 s | -5% (ns) | -36% | +16% |
+| north s1 | **80** | 0 | 0.30 s | **-54%** | -42% | -8% (ns) |
+| north s0 | 11 | 0 | **1.00 s** | -24% | **-53%** | **-20%** |
+| north s0 | 11 | 0 | no budget (dw 9.3) | -25% | -40% | **+66%** |
+
+- **Yaw drift falls 32-53% in every run.** Robust to surrogate, seed, epoch and branch.
+- **Forward speed is surrogate-dependent, -54% to +80%,** and not explained by the
+  selected epoch: a late (overfit) epoch hurt one surrogate and helped another. Nothing
+  measured about a checkpoint predicts it. Hence the ensemble.
+- **1.0 s branches improve all three axes**, the first run to do so; longer branches are
+  not the risk they were in the old pipeline (sweep to 2 s running).
+- **No displacement budget** does not break PPO but degrades vy badly (dw 9.3 against 4.0;
+  in-model OOD cost rose to 0.24): unlimited search drifts into model error, mildly here.
+
+**Chrono is predictable; the surrogate is the limit.** v1/v2 twin episodes (same seed,
+dynamics identical, differing only by GPU rounding) diverge by errdist 0.012 at 0.3 s and
+0.003 at 2 s (median, 53 twins; mostly the one-physics-step timestamp offset), 0.06 at
+10 s. The surrogates score 0.37 and ~1.0 there. Part of the gap is hidden soil state the
+36-D state does not carry; the rest is headroom (`chaos_floor.py`).
+
 ## Corpora and models
 
 | corpus | episodes | segments | rows | capture | use |
