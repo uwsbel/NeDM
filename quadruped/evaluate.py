@@ -37,7 +37,8 @@ from lib.coverage import Reference, verdict as cov_verdict   # noqa: E402
 
 
 def episode(chrono, policy_path, urdf, cfg, terrain_kind, command, seconds,
-            warmup_s, spacing, step, soil, patch_x, patch_y, depth, spawn_offset=0.0):
+            warmup_s, spacing, step, soil, patch_x, patch_y, depth, spawn_offset=0.0,
+            speed_factor=0.8):
     """Run one episode; return per-step tracking and the visited (state, action) rows.
 
     `command` is either a fixed (vx, vy, wz) or a schedule f(t) -> (vx, vy, wz), the same
@@ -62,7 +63,7 @@ def episode(chrono, policy_path, urdf, cfg, terrain_kind, command, seconds,
     # surviving comparison is drawn from the better-behaved half of each arm's behaviour.
     # That would flatter whichever policy drifts more, which is exactly the axis
     # fine-tuning is expected to change.
-    xlo, xhi, ylo, yhi = plan_path(sched, seconds, warmup_s)
+    xlo, xhi, ylo, yhi = plan_path(sched, seconds, warmup_s, speed_factor=speed_factor)
     px = min(MAX_PATCH_X, max(patch_x, (xhi - xlo) + 2 * (EDGE_MARGIN_M + 0.2)))
     py = min(MAX_PATCH_Y, max(patch_y, (yhi - ylo) + 2 * (EDGE_MARGIN_M + 0.2)))
     # The replicate perturbation: where on the particle lattice the run begins. The bed is
@@ -73,6 +74,16 @@ def episode(chrono, policy_path, urdf, cfg, terrain_kind, command, seconds,
         chrono, terrain_kind, urdf, spacing, step, soil, px, py, depth,
         travel_m=max(xhi - xlo, yhi - ylo), spawn_xy=spawn,
         span_xy=(xhi - xlo + 2 * abs(spawn_offset), yhi - ylo))
+
+    # THE ROBOT MUST NOT LEAVE THE BED UNSCORED. Off the soil a CRM robot falls through the
+    # world (the first path-mode run recorded base heights of -96 and -154 m and tracking
+    # errors of 4-6 m/s), and averaging that into a tracking score is nonsense. Leaving the
+    # bed ends the episode as FAILED, so paired_eval drops the pair and counts it.
+    bed = None
+    if terrain_kind == "crm":
+        from nedm.quadruped.terrain import crm_patch_bounds  # noqa: PLC0415
+        (blx, bly, _), (bhx, bhy, _) = crm_patch_bounds(px, py, depth)
+        bed = (blx + 0.25, bly + 0.25, bhx - 0.25, bhy - 0.25)
 
     pol = Go2Policy(policy_path, cfg=cfg)
     pol.command = np.asarray(sched(0.0), dtype=np.float32)
@@ -98,6 +109,9 @@ def episode(chrono, policy_path, urdf, cfg, terrain_kind, command, seconds,
         p, v, r = b.GetPos(), b.GetPosDt(), b.GetRot()
         if not math.isfinite(p.z):
             return None
+        if bed is not None and not (bed[0] <= p.x <= bed[2] and bed[1] <= p.y <= bed[3]):
+            return {"completed": 0, "left_bed": 1, "left_bed_t": round(i * dt, 3),
+                    "visited": np.asarray(visited)}
         min_z = min(min_z, p.z)
         R = T.quat_to_rot(r.e0, r.e1, r.e2, r.e3)
         vb = R.T @ np.array([v.x, v.y, v.z])
@@ -227,7 +241,9 @@ def main() -> int:
     if a.paths > 0:
         from quadruped.lib import commands as CMD  # noqa: PLC0415
         sys.path.insert(0, str(HERE))
-        from collect import plan_path, MAX_PATCH_X, MAX_PATCH_Y, EDGE_MARGIN_M  # noqa
+        from collect import (plan_path, MAX_PATCH_X, MAX_PATCH_Y, EDGE_MARGIN_M,  # noqa
+                             MAX_PARTICLES)
+        SPEED = 1.0   # full commanded speed: the collector's 0.8 walked robots off the bed
         exc = yaml.safe_load((HERE / "params" / "excitation.yaml").read_text())
         ranges = {k: tuple(v) for k, v in exc["commands"]["ranges"].items()}
         fams = list(CMD.FAMILIES) if a.families == "all" else a.families.split(",")
@@ -241,10 +257,12 @@ def main() -> int:
                 while True:
                     sch = CMD.schedule(fam, prm, sec,
                                        np.random.default_rng(a.path_seed + 1000 * fi + j + 1))
-                    xlo, xhi, ylo, yhi = plan_path(sch, sec, a.warmup_s)
-                    fits = ((xhi - xlo) + 2 * (EDGE_MARGIN_M + 0.2) + 2 * a.spawn_spread
-                            <= MAX_PATCH_X and (yhi - ylo) + 2 * (EDGE_MARGIN_M + 0.2)
-                            <= MAX_PATCH_Y)
+                    xlo, xhi, ylo, yhi = plan_path(sch, sec, a.warmup_s, speed_factor=SPEED)
+                    bx = (xhi - xlo) + 2 * (EDGE_MARGIN_M + 0.2) + 2 * a.spawn_spread
+                    by = (yhi - ylo) + 2 * (EDGE_MARGIN_M + 0.2)
+                    cells = (max(bx, a.patch_x) / a.spacing) * (max(by, a.patch_y) / a.spacing) \
+                        * (a.depth / a.spacing)
+                    fits = bx <= MAX_PATCH_X and by <= MAX_PATCH_Y and cells <= MAX_PARTICLES
                     if fits or sec <= 6.0:
                         break
                     sec -= 1.0
@@ -265,13 +283,30 @@ def main() -> int:
             cases.append(("fixed", (a.vx, 0.0, 0.0), a.seconds, float(offsets[k]),
                           {"vx": a.vx}))
 
+    out = Path(a.out)
+    out.parent.mkdir(parents=True, exist_ok=True)
     for k, (fam, cmd, sec, off, desc) in enumerate(cases):
-        r = episode(chrono, Path(a.policy), Path(a.urdf), cfg, a.terrain,
-                    cmd, sec, a.warmup_s, a.spacing, a.step,
-                    a.soil, a.patch_x, a.patch_y, a.depth, spawn_offset=off)
         base_rec = {"episode_id": f"{a.label}_{k:03d}", "family": fam, "params": desc,
                     "seconds": sec, "spawn_offset": off,
                     "chrono_md5": PROV.chrono_provenance()["md5"]}
+        # ONE CASE MUST COST ONLY ITSELF. A scene the builder refuses raises SystemExit;
+        # uncaught, that ended the first path-mode run before any result was written.
+        try:
+            r = episode(chrono, Path(a.policy), Path(a.urdf), cfg, a.terrain,
+                        cmd, sec, a.warmup_s, a.spacing, a.step,
+                        a.soil, a.patch_x, a.patch_y, a.depth, spawn_offset=off,
+                        speed_factor=(1.0 if a.paths > 0 else 0.8))
+        except SystemExit as e:
+            recs.append({**base_rec, "completed": 0, "skipped": str(e)[:200]})
+            print(f"  ep {k}  {fam:<11s}  SKIPPED: {str(e)[:100]}")
+            out.write_text(json.dumps(recs, indent=1) + "\n")
+            continue
+        if r is not None and r.get("left_bed"):
+            vis.append(r.pop("visited"))
+            recs.append({**base_rec, **r})
+            print(f"  ep {k}  {fam:<11s}  LEFT THE BED at {r['left_bed_t']} s (failed)")
+            out.write_text(json.dumps(recs, indent=1) + "\n")
+            continue
         if r is None:
             recs.append({**base_rec, "completed": 0})
             print(f"  ep {k}  {fam:<11s}  DIVERGED")
@@ -284,9 +319,8 @@ def main() -> int:
         recs.append(r)
         print(f"  ep {k}  {fam:<11s} {sec:4.1f}s  mae_vx {r['mae_vx']:.4f}  "
               f"mae_vy {r['mae_vy']:.4f}  mae_wz {r['mae_wz']:.4f}  min_z {r['min_z_m']:.3f}")
+        out.write_text(json.dumps(recs, indent=1) + "\n")
 
-    out = Path(a.out)
-    out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(recs, indent=1) + "\n")
 
     print()
