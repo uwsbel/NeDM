@@ -264,6 +264,15 @@ class Corpus:
         return {"state_mean": sm, "state_std": ss, "action_mean": am,
                 "action_std": as_, "target_mean": tm, "target_std": ts}
 
+    def windows_long(self, split, length):
+        """Windows of `length` STATE rows: a context plus a rollout tail."""
+        segs = self.train if split == "train" else self.val
+        idx = []
+        for si, r in enumerate(segs):
+            for k in range(max(r["n"] + 1 - length + 1, 0)):
+                idx.append((si, k))
+        return segs, idx
+
     def windows(self, split):
         segs = self.train if split == "train" else self.val
         idx = []
@@ -455,6 +464,22 @@ def main() -> int:
     ap.add_argument("--rollout-episodes", type=int, default=32)
     ap.add_argument("--rollout-horizon-s", type=float, default=10.0)
     ap.add_argument("--select-window", type=int, default=5)
+    ap.add_argument("--rollout-loss-steps", type=int, default=0,
+                    help="MULTI-STEP TRAINING. Each step also rolls the model forward this "
+                         "many steps on its OWN predictions, from a true context, and "
+                         "penalises the predicted states. Teacher forcing alone never shows "
+                         "the model its own errors as inputs, which is the usual reason an "
+                         "autoregressive model drifts. 0 = off (one-step only).")
+    ap.add_argument("--rollout-loss-batch", type=int, default=16,
+                    help="windows per step for the multi-step loss; its cost is this x steps")
+    ap.add_argument("--rollout-loss-weight", type=float, default=1.0)
+    ap.add_argument("--init-from", default=None,
+                    help="start from this checkpoint's weights instead of from scratch. The "
+                         "cheap way to add the multi-step loss: backprop through K "
+                         "sequential passes costs ~K x a one-step batch, so 30- and 50-step "
+                         "losses from scratch ran 6-11 h; fine-tuning a trained one-step "
+                         "model for a few epochs is the standard alternative. Its state, "
+                         "action and normalisation must match this corpus exactly.")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--device", default="cuda")
     ap.add_argument("--smoke", action="store_true",
@@ -523,6 +548,23 @@ def main() -> int:
            "n_embd": a.n_embd, "dropout": a.dropout}
     model = build_model(torch, nn, len(corpus.state_fields), len(corpus.action_fields),
                         cfg, corpus.stats).to(dev)
+    if a.init_from:
+        ck0 = torch.load(a.init_from, map_location=dev, weights_only=False)
+        if (ck0["state_fields"] != corpus.state_fields
+                or ck0["action_fields"] != corpus.action_fields):
+            raise SystemExit(f"{a.init_from} was trained on different state/action fields")
+        for k, v in corpus.stats.items():
+            if not np.allclose(np.asarray(ck0["stats"][k]), v, rtol=1e-6, atol=1e-9):
+                raise SystemExit(
+                    f"{a.init_from} carries different normalisation ({k}) than this corpus. "
+                    f"Its weights are only meaningful under its own statistics, and the "
+                    f"loss here normalises with this corpus's, so they would disagree.")
+        c0 = ck0["config"]
+        for k in ("block_size", "n_layer", "n_head", "n_embd"):
+            if c0[k] != getattr(a, k):
+                raise SystemExit(f"{a.init_from} has {k}={c0[k]}, this run {getattr(a, k)}")
+        model.load_state_dict(ck0["model"])
+        print(f"  initialised from {a.init_from} (epoch {ck0.get('epoch')})")
     nparam = sum(p.numel() for p in model.parameters())
     print(f"  model {nparam / 1e6:.2f} M parameters, {a.n_layer}L {a.n_head}H "
           f"{a.n_embd}d, context {a.block_size} ({a.block_size * a.dt_s:.2f} s)")
@@ -560,8 +602,37 @@ def main() -> int:
         tgt = (target_raw - tmean) / tstd
         return torch.nn.functional.huber_loss(pred_norm, tgt, delta=a.huber_delta)
 
+    K = a.rollout_loss_steps
+    if K > 0:
+        _, tr_idx_r = corpus.windows_long("train", a.block_size + K)
+        sstd = torch.tensor(corpus.stats["state_std"], dtype=torch.float32, device=dev)
+        sampler_r = random.Random(a.seed + 7)
+        print(f"  multi-step loss: {K} steps ({K * a.dt_s:.2f} s) on {a.rollout_loss_batch} "
+              f"windows per step, weight {a.rollout_loss_weight}; {len(tr_idx_r):,} windows")
+
+    def rollout_loss():
+        picks = [sampler_r.randrange(len(tr_idx_r)) for _ in range(a.rollout_loss_batch)]
+        L = a.block_size + K
+        Sr = np.stack([tr_segs[tr_idx_r[w][0]]["state"][tr_idx_r[w][1]:tr_idx_r[w][1] + L]
+                       for w in picks]).astype(np.float32)
+        Ar = np.stack([tr_segs[tr_idx_r[w][0]]["action"][tr_idx_r[w][1]:tr_idx_r[w][1] + L]
+                       for w in picks]).astype(np.float32)
+        Sr, Ar = torch.from_numpy(Sr).to(dev), torch.from_numpy(Ar).to(dev)
+        hs = Sr[:, :a.block_size]
+        total = 0.0
+        for j in range(K):
+            # State row j+block from rows j..j+block-1, each paired with its own action.
+            d = model.predict_delta(hs, Ar[:, j:j + a.block_size])[:, -1]
+            nxt = hs[:, -1] + d
+            total = total + torch.nn.functional.huber_loss(
+                (nxt - Sr[:, a.block_size + j]) / sstd, torch.zeros_like(nxt),
+                delta=a.huber_delta)
+            hs = torch.cat([hs[:, 1:], nxt[:, None]], dim=1)
+        return total / K
+
     metrics_path = out / "metrics.jsonl"
     history, best = [], float("inf")
+    best_val = float("inf")
     step = 0
     sampler = random.Random(a.seed)
 
@@ -577,6 +648,8 @@ def main() -> int:
             for g in opt.param_groups:
                 g["lr"] = lr_at(step)
             loss = loss_of(model(S, A), T)
+            if K > 0:
+                loss = loss + a.rollout_loss_weight * rollout_loss()
             opt.zero_grad(set_to_none=True)
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), a.grad_clip)
@@ -624,6 +697,13 @@ def main() -> int:
             best = smoothed
             torch.save(ck, out / "best.pt")
             tag = "  <- best"
+        # ALSO the minimum-validation-loss epoch, which is how the previous pipeline
+        # selected (best_val.pt). Saved beside best.pt so the two selection rules can be
+        # compared on one run instead of by retraining.
+        if val_loss < best_val:
+            best_val = val_loss
+            torch.save(ck, out / "best_val.pt")
+            tag += "  <- best_val"
         print(f"  epoch {epoch:3d}  train {train_loss:.5f}  val {val_loss:.5f}  "
               f"rollout {rsel:.4f} (n={ro_n})  smoothed "
               f"{'--' if not eligible else f'{smoothed:.4f}'}{tag}", flush=True)
@@ -685,27 +765,38 @@ def main() -> int:
     # floor. It crosses 1.0 between 1 s and 2 s. The 10 s number is still the right one to
     # RANK checkpoints by (the previous study measured rho = +0.90 against transfer); it
     # is the wrong one to decide whether a model is usable for a 0.30 s rollout.
-    horizon_profile = {}
-    final_model = model
-    if (out / "best.pt").exists():
-        ck_b = torch.load(out / "best.pt", map_location=dev, weights_only=False)
-        final_model.load_state_dict(ck_b["model"])
-    final_model.eval()
     prof_eps = [r for r in sorted(corpus.val, key=lambda r: -r["n"])
                 if r["n"] >= a.block_size + int(round(a.rollout_horizon_s / a.dt_s))
                 ][:a.rollout_episodes]
-    for hh in (0.3, 0.5, 1.0, 2.0, 3.0, 5.0, a.rollout_horizon_s):
-        e_h, _n = rollout_errdist(torch, final_model, corpus, prof_eps, hh, a.dt_s,
-                                  a.block_size, dev)
-        horizon_profile[f"{hh:g}"] = e_h
-    crossing = next((float(k) for k, v in sorted(horizon_profile.items(),
-                                                 key=lambda kv: float(kv[0]))
-                     if v >= 1.0), None)
-    print("\nerrdist by horizon (selected model), against the predict-no-motion floor:")
+
+    def profile_of(path):
+        """errdist across horizons for ONE checkpoint. Each saved checkpoint gets its own:
+        last.pt used to be stamped with best.pt's profile, so any consumer checking a
+        last.pt against its horizon was reading another model's numbers."""
+        ck_p = torch.load(path, map_location=dev, weights_only=False)
+        model.load_state_dict(ck_p["model"])
+        model.eval()
+        prof = {}
+        for hh in (0.3, 0.5, 1.0, 2.0, 3.0, 5.0, a.rollout_horizon_s):
+            e_h, _n = rollout_errdist(torch, model, corpus, prof_eps, hh, a.dt_s,
+                                      a.block_size, dev)
+            prof[f"{hh:g}"] = e_h
+        cross = next((float(k) for k, v in sorted(prof.items(), key=lambda kv: float(kv[0]))
+                      if v >= 1.0), None)
+        return prof, cross, ck_p.get("epoch")
+
+    profiles = {}
+    for f in ("best.pt", "best_val.pt", "last.pt"):
+        if (out / f).exists():
+            profiles[f] = profile_of(out / f)
+    horizon_profile, crossing, _ep = profiles.get("best.pt", ({}, None, None))
+    print("\nerrdist by horizon, against the predict-no-motion floor of 1.0:")
+    names = [f for f in ("best.pt", "best_val.pt", "last.pt") if f in profiles]
+    print("  horizon  " + "  ".join(f"{n[:-3]:>9s}" for n in names))
+    print("  epoch    " + "  ".join(f"{str(profiles[n][2]):>9s}" for n in names))
     for k in sorted(horizon_profile, key=float):
-        v = horizon_profile[k]
-        print(f"  {float(k):5.1f} s  {v:7.3f}  {'better' if v < 1.0 else 'WORSE'}")
-    print(f"  usable to roughly {crossing if crossing else 'the whole range'} s")
+        print(f"  {float(k):5.1f} s  " + "  ".join(f"{profiles[n][0][k]:9.3f}" for n in names))
+    print(f"  usable to roughly {crossing if crossing else 'the whole range'} s (best.pt)")
 
     # THE CHECK THAT SHOULD HAVE COME FIRST: is the model better than doing nothing?
     #
@@ -737,20 +828,23 @@ def main() -> int:
                       f"the truth than a model that predicts the robot does not move. "
                       f"It is not a surrogate of anything and must not be fine-tuned in.")
 
-    for f in ("last.pt", "best.pt"):
+    for f in ("last.pt", "best.pt", "best_val.pt"):
         pth = out / f
         if pth.exists():
             ck = torch.load(pth, map_location="cpu", weights_only=False)
+            prof_f, cross_f, _ = profiles[f]
             ck["selection_lottery"] = lottery
             ck["selection_no_trend"] = no_trend
-            ck["worse_than_no_motion"] = worse_than_nothing
-            ck["horizon_profile"] = horizon_profile
-            ck["usable_to_s"] = crossing
+            # The floor verdict is per checkpoint, at the 0.30 s use horizon of ITS profile.
+            ck["worse_than_no_motion"] = (bool(prof_f.get("0.3", 0.0) >= 1.0)
+                                          if f != "best.pt" else worse_than_nothing)
+            ck["horizon_profile"] = prof_f
+            ck["usable_to_s"] = cross_f
             ck["selection_lag1"] = lag1
             ck["selection_range"] = rng_
             ck["rollout_episodes_used"] = ro_n
             torch.save(ck, pth)
-    print(f"\nwrote {out}/last.pt and {out}/best.pt")
+    print(f"\nwrote {out}/last.pt, {out}/best.pt and {out}/best_val.pt")
     return 0
 
 
