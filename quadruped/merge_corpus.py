@@ -144,6 +144,14 @@ def main() -> int:
     ap.add_argument("--shards", nargs="+", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--name", required=True)
+    ap.add_argument("--train-only", nargs="*", default=[],
+                    help="shard directory names whose episodes all become TRAINING data. "
+                         "For extending a corpus: the held-out set stays exactly what it "
+                         "was, so a model trained on the larger corpus is selected and "
+                         "scored against the same episodes as one trained on the smaller, "
+                         "and the only thing that changed is how much training data there "
+                         "is. Without this, more data also means a different validation "
+                         "set, and the two effects cannot be separated.")
     ap.add_argument("--allow-incomplete", action="store_true",
                     help="accept shards whose manifest says complete=false (a run that "
                          "died partway); only their finished episodes are merged, and the "
@@ -183,7 +191,8 @@ def main() -> int:
         # crash between writing an episode's files and updating the manifest leaves files
         # the record does not vouch for.
         limit = int(man["episodes_done"]) if man.get("complete") is False else None
-        local_val = set(man.get("split", {}).get("val_episodes", []))
+        local_val = set() if sname in set(a.train_only) else \
+            set(man.get("split", {}).get("val_episodes", []))
         if limit is not None:
             local_val = {v for v in local_val if v < limit}
         val_eps += [ep_off + v for v in sorted(local_val)]
@@ -233,6 +242,7 @@ def main() -> int:
         "split": {"val_episodes": sorted(val_eps),
                   "val_fraction": mans[0][1].get("split", {}).get("val_fraction")},
         "merged_from": provenance,
+        "train_only_shards": sorted(set(a.train_only)),
         "merge_ignored_fields": sorted(".".join(p) for p in UNRELIABLE_IN_OLD_MANIFESTS),
         "merge_ignored_reason": ("recorded from collect.py's per-episode loop variable "
                                  "before the fix, so each shard stored its last "
@@ -254,6 +264,10 @@ def main() -> int:
           f"{rows:,} rows")
     print(f"  val episodes: {len(val_eps)} of {ep_off} "
           f"({100 * len(val_eps) / max(ep_off, 1):.0f}%)")
+    if a.train_only:
+        print(f"  training-only shards: {len(set(a.train_only))} "
+              f"(their episodes contribute no validation data, so the held-out set is "
+              f"unchanged from the corpus being extended)")
     actual = len(list((out / 'episodes').glob('*.csv')))
     print(f"  segment files on disk: {actual}")
     if actual != segs:
