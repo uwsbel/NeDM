@@ -134,12 +134,22 @@ policy is 11/16):
 | **iteration 1000** | 1000 | 6.3 | **-54%** | **-69%** | **-32%** | **11-12** |
 | iteration 1500 | 1500 | 7.0 | -59% | -72% | -32 to -45% | 8-10 |
 | iteration 2000 | 2000 | 7.6 | -59% | -73% | -33 to -44% | - |
+| iteration 2500 | 2500 | 9.9 | -60% | -74% | -34 to -46% | - |
+| iteration 3000 | 3000 | 10.8 | -59% | -75% | -29 to -39% | - |
 
 **So the stop belongs at about iteration 1000.** Tracking roughly doubles the old stop's
 gain and then plateaus by 1500; rigid-ground tracking improves throughout; and robustness
 to a 300 N shove holds at the base policy's level to iteration 1000 and is clearly worse
 by 1500. Neither axis alone finds that point: tracking says "keep going", robustness says
 "not that far".
+
+Tracking is FLAT from 1500 to 3000 (-59%, -60%, -59%) while the runs travel from dw 7.0 to
+10.8, so nothing is bought after about 1500 and the robustness cost keeps accruing. The path
+evaluation carries its own quiet version of that cost: beyond the three paths the base arm
+also skips, the extra episodes an arm loses to a fall or to leaving the bed run 0, 0, 0 at
+iterations 500 and 1000 across the three healthy surrogates, then 1, 2, 6 at 1500, 2000 and
+2500-3000. Averages never show it -- a failed episode is dropped from the pairing, not
+averaged in -- so it is only visible by counting what was dropped.
 
 **Why robustness erodes is not a mystery.** robot_lab trains the base policy with a
 velocity kick of +/-0.5 m/s every 10-15 s, randomised friction, base mass -1 to +3 kg, link
