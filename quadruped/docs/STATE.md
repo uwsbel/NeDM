@@ -204,15 +204,37 @@ run and writes that checkpoint as the result (`--guard-window/-spike/-drop`, off
 `--guard-spike 1.0`). The OOD cost is now MEASURED whether or not it is priced, because a
 run with the penalty disabled is the one whose health matters most.
 
-`diagnostics/guard_replay.py` replays it over every run this study has logged. At the
-default thresholds, 3 of 48 trip: the collapse (at iteration 871, keeping a good policy),
-and two of the old 0.30 s runs -- `ppo_h7_s0` and `ppo_h9_s0`, whose Chrono path scores
-were +30% WORSE than the base policy. None of the ~44 runs that transferred well trip.
-Two honest limits: the thresholds are drawn around ONE collapse, so induced failures are
-running (hpcfund 432599, the OOD penalty removed in four surrogates) to calibrate them
-against more; and the spike statistic is a mean over branches, so 64-branch runs look
-noisier than 1024-branch ones for purely statistical reasons -- it should be the fraction
-of branch-steps outside, which does not depend on batch size.
+`diagnostics/guard_replay.py` replays it over every run this study has logged. **6 of 60
+trip, and every one is independently bad in Chrono**: the collapse (caught at iteration 871,
+keeping a good policy); the two old 0.30 s runs `ppo_h7_s0` and `ppo_h9_s0`, whose paths
+scores were +30% WORSE than the base policy; and three runs deliberately pushed over with a
+raised learning rate (hpcfund 432752), caught at iterations 57, 58 and 80.
+
+| induced failure | in-model reward | value loss | guard | Chrono, 40 paths |
+|---|---|---|---|---|
+| 10x lr, seed 8 | -52.9 | 1,170,280 | iter 58 | 0 of 40 usable |
+| 10x lr, seed 9 | -293.2 | 6,434,217 | iter 57 | 0 of 30 usable |
+| 3x lr, seed 8 | -0.267 | 36,434 | iter 80 | 17 of 40 failed, vx +44% |
+| 3x lr, seed 6 | -0.009 | 0.015 | no trip | vx -42%, wz -73%, 37/37 usable |
+
+The last row carries as much weight as the trips: that run travelled to dw 16.9, four times
+the old budget and 15% of the policy's weight norm, stayed healthy and was left alone. A
+fixed distance would have stopped it long before, and would still have missed the collapse,
+which was clean at dw 5 and broke later.
+
+**The OOD penalty is not what makes PPO work here.** The first attempt at inducing failure
+removed it (hpcfund 432599) and produced four healthy runs at 800 iterations, including in
+the surrogate that had collapsed, scoring -42.7%, -50.6%, -54.8% and -55.7% forward on the
+paths -- the band the penalised runs occupy at that length. finetune.py's own docstring
+calls the penalty "the difference between PPO working and PPO cheating"; that was written
+for one-step surrogates with 0.30 s branches and 64 rollouts and does not hold at the
+current settings. It may still matter for longer runs, weaker surrogates or short branches,
+and the OOD MEASUREMENT is what the guard reads either way, so it stays measured whether or
+not it is priced. Four runs at one training length is what that statement rests on.
+
+One limit remains: the spike statistic is a mean over branches, so 64-branch runs look
+noisier than 1024-branch ones for purely statistical reasons. It should be the fraction of
+branch-steps outside, which does not depend on batch size.
 
 ## The Chrono GPU fault, investigated (2026-09-23)
 
@@ -250,6 +272,36 @@ episodes already recorded. A fault now costs one episode instead of an arm. The 
 also made visible: job 432517 reported COMPLETED while two arms had died, and their
 truncated records were nearly compared against full ones, so the scripts now print
 `ARM_FAILED`.
+
+## Putting the disturbance back does NOT hold robustness (2026-09-23)
+
+The hypothesis was specialisation: robot_lab trains the base policy with a +/-0.5 m/s kick
+every 10-15 s plus broad randomisation, our fine-tune has no disturbance at all, so whatever
+only pays off when disturbed has no gradient protecting it. `--branch-push-prob` puts the
+kick back. hpcfund 432532 ran it at 15% and 50% of branches in seeds 8 and 9 to 1500
+iterations.
+
+| iteration | upright at 300 N, no kick | with kick | paths mae_vx, no kick | with kick |
+|---|---|---|---|---|
+| 1000 | 11, 11, 12 | 10, 11, 11, 13 | -54% | -49% |
+| 1500 | 8, 10 | 10, 8, 10, 12 | -59% | -50% |
+
+Robustness is unchanged within noise, at 240 N the kicked arms are slightly worse, and
+tracking costs 5 points at iteration 1000 and 9 at 1500. At 120 and 180 N, where nothing
+falls and recovery quality is the measurement, they are indistinguishable too: seed 8 reads
+-45.7% without the kick against -44.9% and -42.8% with it at 120 N, seed 9 -51.1% against
+-50.3% and -45.9%, differences of 1-5 points in no consistent direction against a resolution
+of about 2, and the heavier kick is slightly worse in three of four comparisons.
+
+**Two reasons it could not have worked, and they are worth keeping.** The kick is +/-0.5 m/s
+while the 240-300 N test shoves produce peak errors of 2.3-2.9 m/s, and the corpus tops out
+at 140 N pushes -- so the surrogate has never seen a recovery from anything like the test and
+cannot teach one. A SURROGATE CAN ONLY TEACH THE ROBUSTNESS ITS CORPUS CONTAINS. And the kick
+is an instantaneous velocity change applied to the model's state, while a real push is a
+force over 0.1-0.2 s with soil interaction: the model can roll the recovery, which is in its
+data, but it never represents the disturbance event itself. Teaching robustness inside a
+learned model may need the model to carry the disturbance as an input, which this one does
+not.
 
 ## Robustness to pushes (2026-09-22)
 
