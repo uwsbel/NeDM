@@ -27,7 +27,13 @@ Why each piece (evidence further down):
 - **One surrogate, not an ensemble.** Ensembles land inside the single-surrogate range.
 
 Effects reproduce across machines (NVIDIA north and AMD hpcfund, different Chrono builds)
-to within a few points. Nothing is running; next is the write-up.
+to within a few points.
+
+**The write-up is a live page**, not a snapshot: https://claude.ai/artifact/G8PHCRfk7M8Mu7b8rW2PbU
+(14 sections, every table on it measured in Chrono, plus replayable paired trajectories from
+`evaluate.py --dump-traj`). Kyle's instruction is to keep it current as results land and as
+old results are refuted or improved, so a result that changes STATE changes the page too.
+Stale there today: the nine-surrogate table is at the dw 4.0 stop. Nothing is running; next is the write-up.
 
 ## The frozen recipe in nine surrogates (2026-09-22)
 

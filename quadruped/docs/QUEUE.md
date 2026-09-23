@@ -21,6 +21,11 @@ surrogates; 2048 envs (three seeds) and seed 7's 1 s surrogate at 1024 envs.
   replace the spike statistic with the fraction of branch-steps outside, which does not
   depend on batch size.
 
+- **Keep the write-up page current** (https://claude.ai/artifact/G8PHCRfk7M8Mu7b8rW2PbU).
+  It is maintained, not published once: when a number here changes, republish the page in
+  the same move. Source lives in the session scratchpad (`site/`), and the trajectory
+  animations are regenerated with `evaluate.py --dump-traj` on sbel.
+
 ## Next
 
 1. **Write it up** as the Study 4 results: the frozen-recipe table (nine surrogates, CRM
