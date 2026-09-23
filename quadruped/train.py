@@ -190,7 +190,8 @@ def read_segment(path, state_fields, action_fields, rollout_fields, extra_fields
 class Corpus:
     """Segments, their windows, and the statistics of the train split."""
 
-    def __init__(self, corpus_dir: Path, preset: str, seq_len: int, extra_fields=()):
+    def __init__(self, corpus_dir: Path, preset: str, seq_len: int, extra_fields=(),
+                 train_fraction: float = 1.0, subset_seed: int = 0):
         cfg = load_params()
         if preset not in cfg["presets"]:
             raise SystemExit(f"unknown preset {preset!r}; have "
@@ -231,6 +232,27 @@ class Corpus:
             # One transition fewer than rows: the last state has no successor.
             rec["n"] = rec["target"].shape[0]
             (self.val if ep in val_eps else self.train).append(rec)
+
+        # A DATA-SCALING ARM DROPS WHOLE EPISODES, never segments. Half the segments of
+        # every episode is not half the data: the episodes would all still be represented,
+        # only shorter, which measures something else entirely. The validation split is
+        # untouched, so every fraction is selected and scored against the same held-out
+        # episodes, and the subset is drawn deterministically from the seed so a fraction
+        # is reproducible and nested fractions share their episodes.
+        if train_fraction < 1.0:
+            eps = sorted({r["episode"] for r in self.train})
+            keep_n = max(1, int(round(train_fraction * len(eps))))
+            rng = np.random.default_rng(subset_seed)
+            keep = set(rng.permutation(np.asarray(eps))[:keep_n].tolist())
+            self.train = [r for r in self.train if r["episode"] in keep]
+            self.train_episodes_kept = keep_n
+            self.train_episodes_total = len(eps)
+            print(f"data scaling: {keep_n} of {len(eps)} training episodes "
+                  f"({100 * keep_n / len(eps):.0f}%), subset seed {subset_seed}; "
+                  f"validation untouched")
+        else:
+            self.train_episodes_kept = self.train_episodes_total = \
+                len({r["episode"] for r in self.train})
 
         if not self.train:
             raise SystemExit("no training segments")
@@ -480,6 +502,12 @@ def main() -> int:
                          "losses from scratch ran 6-11 h; fine-tuning a trained one-step "
                          "model for a few epochs is the standard alternative. Its state, "
                          "action and normalisation must match this corpus exactly.")
+    ap.add_argument("--train-fraction", type=float, default=1.0,
+                    help="train on this fraction of the TRAINING episodes, drawn "
+                         "deterministically; the validation split is untouched, so every "
+                         "fraction is selected and scored on the same held-out episodes")
+    ap.add_argument("--subset-seed", type=int, default=0,
+                    help="which subset; fractions drawn with the same seed are nested")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--device", default="cuda")
     ap.add_argument("--smoke", action="store_true",
@@ -523,7 +551,8 @@ def main() -> int:
     dev = torch.device(a.device if (a.device != "cuda" or torch.cuda.is_available())
                        else "cpu")
 
-    corpus = Corpus(Path(a.corpus), a.preset, a.block_size)
+    corpus = Corpus(Path(a.corpus), a.preset, a.block_size,
+                    train_fraction=a.train_fraction, subset_seed=a.subset_seed)
     tr_segs, tr_idx = corpus.windows("train")
     va_segs, va_idx = corpus.windows("val")
     print(f"corpus {Path(a.corpus).name}  preset {a.preset} "
