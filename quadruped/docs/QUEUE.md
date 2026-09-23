@@ -10,15 +10,16 @@ surrogates; 2048 envs (three seeds) and seed 7's 1 s surrogate at 1024 envs.
 
 ## Now
 
-- **Finish the budget test** (STATE has the curve so far). hpcfund 431640 to iteration 3000
-  with checkpoints every 500; score 1500-3000 on paths, straight and rigid, and push-test
-  them (432188 has iterations 500 and 1500 at 240 and 300 N). Then set the stopping rule:
-  the OOD term, not a fixed dw, is the candidate signal.
-- **Is seed 6's surrogate bad, or was that run unlucky?** hpcfund 432022: PPO seeds 1 and 2
-  in it, and in seed 8's as a control. If the model is at fault, a cheap pre-check (roll the
-  base policy in it and price the states) may reject such a surrogate before a fine-tune.
-- **Re-score the recipe** once the stop changes: every number in STATE's frozen-recipe table
-  is at dw 4, and iteration 1000 is roughly twice as good on paths.
+- **Re-score the recipe at the new stop.** The curve says iteration 1000, not dw 4.0:
+  twice the tracking gain, rigid ground better, robustness still at the base policy's
+  level (STATE). Every number in the frozen-recipe table is at the old stop, so the table
+  has to be rebuilt in the nine surrogates before the write-up quotes it.
+- **Does the disturbance hold robustness?** hpcfund 432532 fine-tunes with a robot_lab
+  style kick in 15% and 50% of branches. If it does, the recipe gains one flag and the
+  stop can go later; if not, the stop stands at 1000 on the robustness limit.
+- **Calibrate the guard on induced failures** (hpcfund 432599, OOD penalty removed) and
+  replace the spike statistic with the fraction of branch-steps outside, which does not
+  depend on batch size.
 
 ## Next
 
@@ -41,5 +42,9 @@ surrogates; 2048 envs (three seeds) and seed 7's 1 s surrogate at 1024 envs.
   (rsync without --delete); harmless, clean on the next staging.
 - **Truncation bias.** v2 truncates 18.3% of episodes, 17.6% on `off_bed` (v1 12.6%), keeping
   94.4% of rows (first 391 episodes). Drift-correlated, as before.
-- **The Chrono GPU fault** (illegal memory access in `SphBceManager.cu`, one in ~1,950
-  episodes). Report if it recurs.
+- **The Chrono GPU fault** (illegal memory access in `SphBceManager.cu`): investigated,
+  contained, cause narrowed but unproven (STATE). Three occurrences in ~2,400 episodes,
+  none below 300 N pushes, not deterministic. Optional next steps, in order: backport
+  PR #829 so the `calcHashD` error flag is trustworthy, add an index guard in
+  `CalcRigidForces_D` that prints the offending marker instead of crashing, and only then
+  report upstream -- a bare "illegal access at line 543" is unactionable.

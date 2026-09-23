@@ -586,8 +586,38 @@ class OODCost:
         return torch.clamp(knn - self.thresh, min=0.0)
 
 
+def branch_kicks(torch, n_branch, steps, prob, dv, yaw_dv, ix, dim, dev, gen):
+    """Which branches get shoved, when, and by how much.
+
+    The base policy was trained in robot_lab with a push event every 10-15 s (a velocity
+    kick of +/-0.5 m/s in x and y) on top of randomised friction, masses, COM and actuator
+    gains. Our fine-tune has none of that: one surrogate, one soil, no disturbance, and a
+    reward made only of tracking error and uprightness. Anything the base policy knows that
+    only pays off when disturbed therefore has no gradient protecting it -- and the push
+    test shows it eroding, robustness at 300 N falling from the base policy's level at
+    iteration 500 to clearly below it by 1500 while tracking keeps improving.
+
+    So the disturbance goes back in, in the model: one kick per chosen branch, at a uniform
+    control step, added to the body-frame velocity the model carries forward. The surrogate
+    can roll the recovery because recoveries ARE in the corpus -- only the force windows
+    themselves were cut out of it (collect.py's PushSchedule).
+    """
+    if prob <= 0.0:
+        return None
+    hit = torch.rand(n_branch, generator=gen, device=dev) < prob
+    when = torch.randint(0, steps, (n_branch,), generator=gen, device=dev)
+    kick = torch.zeros(n_branch, dim, device=dev)
+    u = (torch.rand(n_branch, 3, generator=gen, device=dev) * 2 - 1)
+    kick[:, ix["vel_body_x_mps"]] = u[:, 0] * dv
+    kick[:, ix["vel_body_y_mps"]] = u[:, 1] * dv
+    if yaw_dv > 0:
+        kick[:, ix["yaw_rate_radps"]] = u[:, 2] * yaw_dv
+    return {"when": when, "kick": kick * hit[:, None].float()}
+
+
 def ppo_rollout(torch, model, obs_b, actor, critic, b, steps, hold, cmd, ix,
-                upright_weight, ood=None, ood_weight=0.0, dis_weight=0.0, gen=None):
+                upright_weight, ood=None, ood_weight=0.0, dis_weight=0.0, gen=None,
+                kicks=None):
     """Collect one batch of trajectories inside the model. NO GRADIENT THROUGH DYNAMICS.
 
     This is the whole difference from the analytic path. The model is stepped under
@@ -606,7 +636,7 @@ def ppo_rollout(torch, model, obs_b, actor, critic, b, steps, hold, cmd, ix,
     if is_ens:
         model.assign_random(hist_s.shape[0], gen)
     with torch.no_grad():
-        for _ in range(steps):
+        for _t in range(steps):
             o = obs_b.observe(hist_s[:, -1], cmd, last_raw)
             d = actor.dist(o)
             raw = d.sample()
@@ -617,10 +647,21 @@ def ppo_rollout(torch, model, obs_b, actor, critic, b, steps, hold, cmd, ix,
             r = 0.0
             for _h in range(hold):
                 nxt, hist_s, hist_a = advance(model, torch, hist_s, hist_a, act)
+                if kicks is not None and _h == 0:
+                    # Applied to the state the model carries forward, so the policy sees it
+                    # in the next observation exactly as it would see a real shove.
+                    add = kicks["kick"] * (kicks["when"] == _t)[:, None].float()
+                    nxt = nxt + add
+                    hist_s = torch.cat([hist_s[:, :-1], nxt[:, None]], dim=1)
                 rh = step_reward(torch, nxt, cmd, ix, upright_weight)
-                if ood is not None and ood_weight > 0:
+                if ood is not None:
+                    # MEASURED whether or not it is PRICED. The guard reads this number, and
+                    # a run with the penalty switched off is exactly the run whose health is
+                    # most worth watching; computing it only when it is charged left the
+                    # monitor blind in that case.
                     c = ood.cost(torch, nxt, act)
-                    rh = rh - ood_weight * c
+                    if ood_weight > 0:
+                        rh = rh - ood_weight * c
                     ood_buf.append(c.mean())
                 if is_ens:
                     dis_buf.append(model.last_spread.mean())
@@ -728,12 +769,17 @@ def run_ppo(torch, nn, a, model, obs_b, policy, params, baseline, base_norm, n_p
          {"params": critic.parameters(), "lr": a.critic_lr}])
 
     ood = None
-    if a.ood_penalty > 0:
+    if a.ood_penalty > 0 or a.guard_spike < 1.0 or a.monitor_ood:
         ood = OODCost(corpus, seed=a.seed).to_torch(torch, dev)
-        print(f"  OOD penalty {a.ood_penalty} beyond corpus self-distance "
-              f"{ood.thresh:.3f} (the same kNN reference Gate 4 uses)")
+        how = (f"penalty {a.ood_penalty}" if a.ood_penalty > 0 else "measured only, not priced")
+        print(f"  OOD {how}, beyond corpus self-distance {ood.thresh:.3f} "
+              f"(the same kNN reference Gate 4 uses)")
     print(f"ppo: {a.branches} branches x {a.steps} control steps ({a.steps * hold} model "
           f"steps), clip {a.clip_eps}, {a.ppo_epochs} epochs x {a.minibatches} minibatches")
+    if a.branch_push_prob > 0:
+        print(f"  disturbance: {100 * a.branch_push_prob:.0f}% of branches take one kick of "
+              f"+/-{a.branch_push_dv:g} m/s (yaw +/-{a.branch_push_yaw:g} rad/s) at a "
+              f"random control step, as robot_lab trained the base policy")
     dw, it = 0.0, 0
     gen = torch.Generator(device=dev)
     gen.manual_seed(a.seed + 99)
@@ -742,6 +788,15 @@ def run_ppo(torch, nn, a, model, obs_b, policy, params, baseline, base_norm, n_p
     # Saving draws no randomness, so the run is the same one it would be without them.
     marks = sorted(a.snapshot_dw)
     snaps, snap_dir = [], Path(a.out) / "snapshots"
+    # THE GUARD. One run in about fifty has come apart: PPO found a region its surrogate
+    # scored well and the robot's real dynamics do not support, in-model reward fell from
+    # -0.046 to -1.01, value loss reached 480,000, and the policy ended up tumbling. Every
+    # sign of it was in this log hours before any Chrono scoring, so the failure does not
+    # need to be caught by eye. A rolling window watches the same signals; the last window
+    # that looked healthy is kept, and when the window trips, the run stops and that
+    # checkpoint is the result. The thresholds are defaults, not laws: see docs/STATE.md
+    # for how they were calibrated and on how many induced failures.
+    guard, good, ema = [], None, None
 
     def snapshot(name, rec):
         snap_dir.mkdir(exist_ok=True)
@@ -754,9 +809,12 @@ def run_ppo(torch, nn, a, model, obs_b, policy, params, baseline, base_norm, n_p
     for it in range(1, a.iters + 1):
         b = start_batch(torch, corpus, pool, a.branches, rng, ctx, p2c, dev)
         cmd = branch_cmd(torch, a, b, ranges, rng, dev)
+        kicks = branch_kicks(torch, a.branches, a.steps, a.branch_push_prob,
+                             a.branch_push_dv, a.branch_push_yaw, ix,
+                             b["states"].shape[-1], dev, gen)
         ob, ac, lp, rw, vl, last_val, ood_mean, dis_mean = ppo_rollout(
             torch, model, obs_b, actor, critic, b, a.steps, hold, cmd, ix,
-            a.upright_weight, ood, a.ood_penalty, a.disagreement_penalty, gen)
+            a.upright_weight, ood, a.ood_penalty, a.disagreement_penalty, gen, kicks)
         adv, ret = gae(torch, rw, vl, last_val, a.gamma, a.lam)
         # Flatten time and branch: every (t, b) is one independent sample here, since the
         # branches do not interact.
@@ -805,6 +863,35 @@ def run_ppo(torch, nn, a, model, obs_b, policy, params, baseline, base_norm, n_p
             snapshot(f"policy_dw{m:g}.pt", {"file": f"policy_dw{m:g}.pt", "dw_mark": m,
                                             "iter": it, "dw": dw, "reward": rw.mean().item()})
             print(f"  snapshot: dw {dw:.4f} passed {m:g} at iter {it}", flush=True)
+        # Rolling health: the spike rate PPO's own sampling produces, and whether the
+        # reward is still going the right way.
+        guard.append(rec)
+        if len(guard) > a.guard_window:
+            guard.pop(0)
+        if len(guard) == a.guard_window:
+            spike = sum(1 for r in guard if r["ood"] > a.guard_ood) / a.guard_window
+            mean_r = sum(r["reward"] for r in guard) / a.guard_window
+            ema = mean_r if ema is None else max(ema, mean_r)
+            drop = (ema - mean_r) / max(abs(ema), 1e-9)
+            # BOTH have to be bad. A burst of spikes on its own is PPO sampling near the
+            # edge, which healthy runs do; reward falling on its own is a hard patch of
+            # branch starts. The failure is the pair: leaving the corpus AND getting worse.
+            healthy = not (spike > a.guard_spike and drop > a.guard_drop)
+            if healthy:
+                good = {"iter": it, "dw": dw, "reward": mean_r, "spike_rate": spike}
+                if a.guard_spike < 1.0:
+                    snap_dir.mkdir(exist_ok=True)
+                    torch.jit.save(policy, str(snap_dir / "policy_lastgood.pt"))
+            elif a.guard_spike < 1.0:
+                print(f"  GUARD: over the last {a.guard_window} iterations {100 * spike:.0f}% "
+                      f"left the corpus region (limit {100 * a.guard_spike:.0f}%) and reward "
+                      f"is {100 * drop:.0f}% off its best (limit {100 * a.guard_drop:.0f}%). "
+                      f"Stopping. Last healthy window: {good}", flush=True)
+                if good is not None:
+                    import shutil  # noqa: PLC0415
+                    shutil.copy(snap_dir / "policy_lastgood.pt", Path(a.out) / "policy_guard.pt")
+                return it, dw, {"tripped": True, "at_iter": it, "spike_rate": spike,
+                                "reward_drop": drop, "last_good": good}
         if a.snapshot_every and it % a.snapshot_every == 0:
             snapshot(f"policy_it{it}.pt", {"file": f"policy_it{it}.pt", "iter_mark": it,
                                            "iter": it, "dw": dw, "reward": rw.mean().item()})
@@ -812,7 +899,7 @@ def run_ppo(torch, nn, a, model, obs_b, policy, params, baseline, base_norm, n_p
         if dw >= a.target_dw:
             print(f"  stopping: dw {dw:.4f} reached the {a.target_dw} budget at iter {it}")
             break
-    return it, dw
+    return it, dw, {"tripped": False, "last_good": good}
 
 
 
@@ -851,6 +938,28 @@ def main() -> int:
                     help="also save the policy as snapshots/policy_dw<m>.pt when dw first "
                          "passes each mark (PPO only). With a large --target-dw, one run "
                          "gives the policy at every budget, for testing the budget itself")
+    ap.add_argument("--monitor-ood", action="store_true",
+                    help="compute the OOD cost for the log even when it is not priced into "
+                         "the reward and the guard is off")
+    ap.add_argument("--guard-window", type=int, default=50,
+                    help="iterations in the health window (see the guard in run_ppo)")
+    ap.add_argument("--guard-ood", type=float, default=0.005,
+                    help="an iteration counts as a spike when its mean OOD cost exceeds this")
+    ap.add_argument("--guard-spike", type=float, default=0.6,
+                    help="stop when more than this fraction of the window spikes AND the "
+                         "reward has fallen; 1.0 disables the guard but keeps the log")
+    ap.add_argument("--guard-drop", type=float, default=0.25,
+                    help="stop when the window's mean reward is this far below its best")
+    ap.add_argument("--branch-push-prob", type=float, default=0.0,
+                    help="fraction of branches given one velocity kick, at a uniformly "
+                         "drawn control step (PPO only). The base policy was trained with "
+                         "a push every 10-15 s; a 2 s branch is ~15% of that interval")
+    ap.add_argument("--branch-push-dv", type=float, default=0.5,
+                    help="kick size in m/s, uniform in +/-dv on body x and y; 0.5 matches "
+                         "robot_lab's randomize_push_robot")
+    ap.add_argument("--branch-push-yaw", type=float, default=0.0,
+                    help="kick size in rad/s on yaw rate; upstream pushes do not turn the "
+                         "robot, so this is off by default")
     ap.add_argument("--snapshot-every", type=int, default=0,
                     help="also save the policy as snapshots/policy_it<N>.pt every N "
                          "iterations (PPO only); 0 disables")
@@ -1010,9 +1119,9 @@ def main() -> int:
 
     import math as _m
     if a.method == "ppo":
-        it, dw = run_ppo(torch, torch.nn, a, model, obs, policy, params, baseline,
-                         base_norm, n_par, corpus, ctx, ix, ranges, rng, dev, log,
-                         pool, p2c, hold)
+        it, dw, guard = run_ppo(torch, torch.nn, a, model, obs, policy, params, baseline,
+                                base_norm, n_par, corpus, ctx, ix, ranges, rng, dev, log,
+                                pool, p2c, hold)
         log.close()
         torch.jit.save(policy, str(out / "policy_ft.pt"))
         meta = {"smoke": bool(a.smoke) or bool(ck.get("smoke")), "method": "ppo",
@@ -1021,11 +1130,15 @@ def main() -> int:
                 "lr": a.lr, "clip_eps": a.clip_eps, "gamma": a.gamma, "lam": a.lam,
                 "ppo_epochs": a.ppo_epochs, "init_log_std": a.init_log_std,
                 "hold": hold, "ctrl_dt": ctrl_dt, "dt_s": dt_s, "command_source": a.command,
-                "start_reproduction": start_err, "loop_fidelity": loop,
+                "start_reproduction": start_err, "loop_fidelity": loop, "guard": guard,
+                "guard_settings": {"window": a.guard_window, "spike": a.guard_spike,
+                                   "drop": a.guard_drop, "ood": a.guard_ood},
                 "corpus_row_capture": man.get("row_capture"),
                 "policy_params": n_par, "theta0_norm": base_norm, "seed": a.seed,
                 "model": [str(m) for m in a.model], "base_policy": str(a.policy),
                 "disagreement_penalty": a.disagreement_penalty,
+                "branch_push": {"prob": a.branch_push_prob, "dv": a.branch_push_dv,
+                                "yaw": a.branch_push_yaw},
                 "corpus": str(a.corpus)}
         (out / "finetune.json").write_text(json.dumps(meta, indent=2))
         if a.smoke or ck.get("smoke"):

@@ -117,9 +117,35 @@ Paths (37 pairs), mean over the three healthy surrogates:
 | iteration 500 | 500 | 4.3 | -35% | -55% | -14% |
 | **iteration 1000** | 1000 | 6.3 | **-54%** | **-69%** | **-32%** |
 
-So the budget stops at about half the available gain, and nothing degrades on the way:
-rigid-ground tracking improves alongside CRM, and all 40 rigid episodes stay upright.
-Later checkpoints (1500-3000) and their push robustness are running.
+The full curve, with robustness beside it (push test, upright of 16 at 300 N; the base
+policy is 11/16):
+
+| checkpoint | iterations | dw | paths mae_vx | paths mae_wz | rigid mae_vx | upright at 300 N |
+|---|---|---|---|---|---|---|
+| dw 2 | ~100 | 2.0 | -6% | -19% | +3% | - |
+| dw 4 (the old stop) | ~430 | 4.0 | -29% | -53% | ~0% | 11-13 |
+| iteration 500 | 500 | 4.3 | -35% | -55% | -14% | 12 |
+| **iteration 1000** | 1000 | 6.3 | **-54%** | **-69%** | **-32%** | **11-12** |
+| iteration 1500 | 1500 | 7.0 | -59% | -72% | -32 to -45% | 8-10 |
+| iteration 2000 | 2000 | 7.6 | -59% | -73% | -33 to -44% | - |
+
+**So the stop belongs at about iteration 1000.** Tracking roughly doubles the old stop's
+gain and then plateaus by 1500; rigid-ground tracking improves throughout; and robustness
+to a 300 N shove holds at the base policy's level to iteration 1000 and is clearly worse
+by 1500. Neither axis alone finds that point: tracking says "keep going", robustness says
+"not that far".
+
+**Why robustness erodes is not a mystery.** robot_lab trains the base policy with a
+velocity kick of +/-0.5 m/s every 10-15 s, randomised friction, base mass -1 to +3 kg, link
+masses 0.7-1.3x, COM +/-5 cm and actuator gains 0.5-2.0x. Our fine-tune has none of it: one
+surrogate, one soil, no disturbance, and a reward containing only tracking error and
+uprightness. Whatever the base policy knows that pays off only when disturbed has no
+gradient protecting it. `finetune.py --branch-push-prob` puts the disturbance back (one
+kick per chosen branch at a uniform control step, +/-0.5 m/s, matching upstream); the
+surrogate can roll the recovery because recoveries are in the corpus, only the force
+windows were cut. Whether that holds robustness while tracking still improves is hpcfund
+432532 (15% and 50% of branches, seeds 8 and 9).
+
 
 **One run of four came apart, and not at a distance the budget would have caught.** Seed
 6's run showed out-of-distribution spikes from its first hundred iterations (10/99 against
@@ -144,6 +170,63 @@ guard: it stopped three healthy runs early and is not what kept them healthy. Th
 separated the cases from the first hundred iterations and is the candidate stopping signal.
 Whether seed 6's surrogate does this under every PPO seed is hpcfund 432022 (seeds 1 and 2
 in it, and in seed 8's as a control).
+
+## The guard, and what one collapse in fifty means for the method (2026-09-23)
+
+One run in about fifty came apart (seed 6 above). That is rare, it needed training 2.5x
+past the old stop in the most exploitable of ten surrogates, and two other PPO seeds in
+that same surrogate did not collapse -- but "rare and undetermined" is not "safe", and
+until now the only proof a run was good came from Chrono.
+
+It does not have to. Every sign was in `finetune.jsonl` hours before any scoring: the
+fraction of iterations whose branches left the corpus region (0-4 per 100 in healthy runs,
+26 rising to 95 in the collapse), value loss (under 3 against 480,000), reward direction,
+and dw stalling. `run_ppo` now watches a rolling window of the first two TOGETHER -- a
+burst of spikes alone is ordinary exploration, reward falling alone is a hard batch of
+starts; the failure is both -- keeps the last healthy checkpoint, and on a trip stops the
+run and writes that checkpoint as the result (`--guard-window/-spike/-drop`, off with
+`--guard-spike 1.0`). The OOD cost is now MEASURED whether or not it is priced, because a
+run with the penalty disabled is the one whose health matters most.
+
+`diagnostics/guard_replay.py` replays it over every run this study has logged. At the
+default thresholds, 3 of 48 trip: the collapse (at iteration 871, keeping a good policy),
+and two of the old 0.30 s runs -- `ppo_h7_s0` and `ppo_h9_s0`, whose Chrono path scores
+were +30% WORSE than the base policy. None of the ~44 runs that transferred well trip.
+Two honest limits: the thresholds are drawn around ONE collapse, so induced failures are
+running (hpcfund 432599, the OOD penalty removed in four surrogates) to calibrate them
+against more; and the spike statistic is a mean over branches, so 64-branch runs look
+noisier than 1024-branch ones for purely statistical reasons -- it should be the fraction
+of branch-steps outside, which does not depend on batch size.
+
+## The Chrono GPU fault, investigated (2026-09-23)
+
+`GPU failure in chrono_fsi/sph/physics/SphBceManager.cu:543 -- an illegal memory access`,
+then `thrust::system_error: HIP free failed`. Three occurrences in ~2,400 CRM episodes:
+one in collection (job 430005 shard 1, 2026-09-21) and two on 2026-09-23 in 300 N push
+evaluations (job 432517, arms ck500_n and ck1000_n). None at 120, 180 or 240 N.
+
+Line 543 is the error CHECK; the fault is inside `CalcRigidForces_D` (SphBceManager.cu
+304-383), whose only out-of-range candidate is `sorted_index = mapOriginalToSorted[...]`
+indexing `derivVelRhoD` and `posRadD`, which are sized to the active-domain particle count
+and shrink as the domain follows the robot. `calcHashD` early-returns WITHOUT writing its
+hash when a position is non-finite or out of bounds (SphCollisionSystem.cu:74-94), which
+leaves a stale index behind; the flag meant to catch that is unreliable in our pinned
+Chrono and was hardened upstream in 42ce46b5 (PR #829), after our pin. A marker leaving
+its own box is ruled out: rigid BCE markers are attached to the body. Upstream has no fix
+for this crash, and 10.0.0 predates our pin.
+
+It is not deterministic: the rerun passed both crash points with the same code. Violence
+raises the probability, it does not determine it, and the arms that died also happened to
+hold GPUs 2 and 3, so force and device are confounded.
+
+CONTAINMENT, which matters more than the cause: the Python exception is catchable but the
+process is NOT recoverable, because thrust throws from a destructor and terminate() ends
+the run regardless. So evaluate.py writes the partial record and calls `os._exit(90)`
+before teardown, and the job scripts re-run that arm with `--resume`, which keeps the
+episodes already recorded. A fault now costs one episode instead of an arm. The failure is
+also made visible: job 432517 reported COMPLETED while two arms had died, and their
+truncated records were nearly compared against full ones, so the scripts now print
+`ARM_FAILED`.
 
 ## Robustness to pushes (2026-09-22)
 

@@ -303,6 +303,9 @@ def main() -> int:
     ap.add_argument("--corpus", required=True, help="training corpus, for Gate 4")
     ap.add_argument("--out", required=True)
     ap.add_argument("--label", default="arm")
+    ap.add_argument("--resume", action="store_true",
+                    help="keep the episodes already in --out and run only the rest; how a "
+                         "run continues after the GPU fault above")
     ap.add_argument("--terrain", choices=["rigid", "crm"], default="crm")
     ap.add_argument("--episodes", type=int, default=16,
                     help="CRM tracking has a standard deviation of about 5.7 points "
@@ -433,7 +436,18 @@ def main() -> int:
 
     out = Path(a.out)
     out.parent.mkdir(parents=True, exist_ok=True)
+    done = {}
+    if a.resume and out.exists():
+        try:
+            done = {r["episode_id"]: r for r in json.loads(out.read_text())}
+        except json.JSONDecodeError:
+            done = {}
+        if done:
+            recs = list(done.values())
+            print(f"resuming: {len(done)} episodes already recorded in {out}")
     for k, (fam, cmd, sec, off, desc, push) in enumerate(cases):
+        if f"{a.label}_{k:03d}" in done:
+            continue
         base_rec = {"episode_id": f"{a.label}_{k:03d}", "family": fam, "params": desc,
                     "seconds": sec, "spawn_offset": off,
                     "chrono_md5": PROV.chrono_provenance()["md5"]}
@@ -449,6 +463,22 @@ def main() -> int:
             print(f"  ep {k}  {fam:<11s}  SKIPPED: {str(e)[:100]}")
             out.write_text(json.dumps(recs, indent=1) + "\n")
             continue
+        except RuntimeError as e:
+            # A GPU fault inside Chrono's FSI (three times in ~2,400 CRM episodes; always
+            # the SPH BCE path, most recently under 300 N pushes). The Python exception is
+            # catchable but the process is NOT recoverable: thrust throws from a destructor
+            # during teardown and terminate() ends the run whatever we do here. So write
+            # what this arm has, then leave WITHOUT running destructors, and let the caller
+            # resume from the record. Otherwise one fault costs every remaining episode --
+            # which is how two arms of job 432517 came back truncated and were nearly
+            # compared against full ones.
+            recs.append({**base_rec, "completed": 0, "gpu_fault": 1, "error": str(e)[:300]})
+            out.write_text(json.dumps(recs, indent=1) + "\n")
+            print(f"  ep {k}  {fam:<11s}  GPU FAULT: {str(e)[:160]}")
+            print(f"EVALUATE_GPU_FAULT at episode {k}; {len(recs)} records written to {out}. "
+                  f"Re-run the same command with --resume to continue.", flush=True)
+            sys.stdout.flush()
+            os._exit(90)
         if r is not None and r.get("left_bed"):
             vis.append(r.pop("visited"))
             recs.append({**base_rec, **r})
