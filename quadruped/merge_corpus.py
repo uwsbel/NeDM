@@ -184,7 +184,7 @@ def main() -> int:
         (out / sub).mkdir(parents=True, exist_ok=True)
 
     ep_off = 0
-    val_eps, provenance, rows, segs, parts = [], [], 0, 0, []
+    val_eps, provenance, rows, segs, shard_parts = [], [], 0, 0, []
     for (sname, man), sdir in zip(mans, shards, strict=True):
         n_ep = int(man.get("episodes", 0))
         # For a shard that died partway, only episodes the manifest counts as finished. A
@@ -196,7 +196,9 @@ def main() -> int:
         if limit is not None:
             local_val = {v for v in local_val if v < limit}
         val_eps += [ep_off + v for v in sorted(local_val)]
-        parts.append((man, ep_off, limit))
+        # NOT `parts`: the filename split below binds that name, and shadowing it here
+        # silently emptied the aggregation input.
+        shard_parts.append((man, ep_off, limit))
         moved = 0
         for sub in ("episodes", "failures", "pushes"):
             src = sdir / sub
@@ -230,7 +232,7 @@ def main() -> int:
         ep_off += n_ep
 
     base = dict(mans[0][1])
-    base.update(aggregate(parts))
+    base.update(aggregate(shard_parts))
     base.update({
         "corpus": a.name,
         # The episode INDEX space, which partial shards leave gaps in; episodes_done is

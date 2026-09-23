@@ -217,9 +217,16 @@ of branch-steps outside, which does not depend on batch size.
 ## The Chrono GPU fault, investigated (2026-09-23)
 
 `GPU failure in chrono_fsi/sph/physics/SphBceManager.cu:543 -- an illegal memory access`,
-then `thrust::system_error: HIP free failed`. Three occurrences in ~2,400 CRM episodes:
-one in collection (job 430005 shard 1, 2026-09-21) and two on 2026-09-23 in 300 N push
-evaluations (job 432517, arms ck500_n and ck1000_n). None at 120, 180 or 240 N.
+then `thrust::system_error: HIP free failed`. FIVE occurrences in ~3,600 CRM episodes, about
+1 in 720: one in v2 collection (job 430005 shard 1, 2026-09-21), two on 2026-09-23 in 300 N
+push evaluations (job 432517, arms ck500_n and ck1000_n), and two more the same day in v3
+COLLECTION (job 432712, shards 7 and 13, which stopped at 34 and 40 of their 50 episodes).
+
+**The force correlation is REFUTED.** With three occurrences it looked like the fault only
+appeared at the hardest shove we apply; the two collection faults carry ordinary 8-140 N
+collection pushes, so force is not the discriminator and the earlier reading was three
+points of coincidence. What survives is that it is rare, that it always lands in the same
+place, and that it is not deterministic.
 
 Line 543 is the error CHECK; the fault is inside `CalcRigidForces_D` (SphBceManager.cu
 304-383), whose only out-of-range candidate is `sorted_index = mapOriginalToSorted[...]`
