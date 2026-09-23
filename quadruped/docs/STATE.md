@@ -103,6 +103,46 @@ On the evaluation protocol (CRM, vx 0.5, 16 spawns over +/-1 m, 6 s, north), the
 policy scores mae_vx 0.132 (sd 0.019), mae_vy 0.044, mae_wz 0.210, 16/16 upright, Gate 4
 0.0% outside the corpus. That is the baseline every fine-tune is paired against.
 
+## More data does not help; coverage does (2026-09-23)
+
+The method's obvious exposure is that it lives on what the corpus covers, so both halves
+were measured rather than argued.
+
+**Size.** go2_crm_v23 extends go2_crm_v2 with 1,174 newly collected episodes contributed as
+TRAINING data only (`merge_corpus.py --train-only`), so the held-out set is exactly v2's and
+only the training data grows: 2,094 training episodes against 920, 4,129,428 rows, ~11.5 h
+of robot time. Four surrogates trained on it with the v2 optimiser budget. Nothing moved.
+Accuracy: errdist at 2 s 0.469-0.517 against 0.477-0.520, marginally worse at 10 s. Transfer
+at the new stop: -53.3%, -53.0%, -54.1%, -47.4% forward on the paths against -52.7%, -53.9%,
+-55.3% for the original corpus. Two arms drew branch starts from the larger corpus and two
+from the original, so it is not a branch-pool effect. **The corpus is past the knee for this
+task.**
+
+**Coverage, measured on the real robot.** Gate 4 reports the fraction of states visited in
+Chrono that fall outside the corpus region:
+
+| policy | outside | distance ratio |
+|---|---|---|
+| base | 0.0% | 0.81 |
+| iteration 500 | 0.0% | 0.82 |
+| iteration 1500 | 0.0% | 0.87 |
+| iteration 3000 | 0.0-0.1% (one arm 0.5%) | 0.91 |
+| seed 6 at iteration 1000 | 0.0% | 0.88 |
+| seed 6 at iteration 1500 | 50.4% | 1.96 |
+| 120 N push | 0.0% | - |
+| 240 N push | 6.1-13.8% | - |
+| 300 N push, BASE policy | 9.7% | - |
+
+Three readings. Optimising hard against the model does not walk the policy out of the data:
+3000 iterations at dw 11 still visits 0.0-0.1% outside, with the distance ratio drifting
+0.81 -> 0.91, a measurable approach to the boundary rather than a departure. When a run does
+leave it leaves abruptly, inside at 1000 and half outside at 1500, so there is no slope to
+threshold on and the guard reads the training signal instead. And what takes the robot
+outside is DISTURBANCE, not the fine-tune: the untouched base policy is 9.7% outside under a
+300 N shove, because the corpus tops out at 140 N. The coverage requirement binds on the
+disturbances one intends to claim robustness to, not on the controller's search within the
+task -- the same wall the kick experiment hit.
+
 ## The stopping budget is too tight (2026-09-22, still running)
 
 Every fine-tune here stops when the actor's weights have moved dw 4.0, about 430 iterations
