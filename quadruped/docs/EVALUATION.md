@@ -132,3 +132,28 @@ Only the feet and calves are FSI-coupled; the trunk has no interaction with the 
 there is no rigid ground on CRM. A robot that pitches onto its belly therefore descends
 through the bed and keeps going. `validity.py` gains a `sinking` check for this, because
 the existing floor at -0.5 m let a robot sitting at -0.40 m pass every check in the file.
+
+## A push test needs a disturbance the arms share, and metrics that do not flatter
+
+`evaluate.py --push-force N` shoves the trunk once per episode (`--push-at`, `--push-dirs`,
+`--push-reps`), in the BODY frame, so "pushed from the left" means the same thing however
+the robot is facing, and every arm gets the identical force at the identical time on the
+identical episode. The bed is widened by 1 m on both axes, equally, so a sideways push is
+not scored on a narrower bed than a forward one.
+
+Two metrics were wrong on their first outing and are worth stating as rules:
+
+  DRIFT IS NOT EXCURSION. Displacement measured sideways of the push direction read ~1 m
+  even for a push straight ahead, because over the 3 s window the robot walks 1.5 m and
+  this policy yaws while walking. Excursion is now distance from where the COMMAND says
+  the robot should be, and the same measurement is taken over the 3 s before the push, so
+  the push's own cost is the difference.
+
+  A PER-ARM THRESHOLD COMPARES ARMS AGAINST DIFFERENT BARS. Recovery was "back inside this
+  episode's pre-push error band", and a policy that tracks better has a tighter band, so
+  the better tracker was held to the stricter test and looked slower. Both are now
+  recorded: the per-episode band and a fixed 0.30 m/s bar.
+
+Falls are the headline and are not averaged: a pair where either arm went down has no
+recovery time to compare, so paired_eval counts them separately. Gate 4 is reported but
+not enforced in push mode, because leaving the corpus region is what the push is for.

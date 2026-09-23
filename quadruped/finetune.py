@@ -363,6 +363,24 @@ def closed_loop(torch, model, obs, policy, b, cmd, steps, hold, inj=None):
     return torch.stack(out, dim=1)
 
 
+def closed_loop_actions(torch, model, obs, policy, b, cmd, steps, hold):
+    """The actions `closed_loop` takes, aligned with the states it returns.
+
+    Same rollout, recording the action instead of the state. Separate rather than an extra
+    return value so the loss path, which differentiates through closed_loop, is untouched.
+    """
+    hist_s, hist_a, last_raw = b["states"], b["acts"], b["last_raw"]
+    out = []
+    for _c in range(steps):
+        o = obs.observe(hist_s[:, -1], cmd, last_raw)
+        last_raw = torch.clamp(policy(o), *obs.act_clip)
+        act = obs.action_from_raw(last_raw)
+        for _h in range(hold):
+            _nxt, hist_s, hist_a = advance(model, torch, hist_s, hist_a, act)
+            out.append(act)
+    return torch.stack(out, dim=1)
+
+
 def check_loop_fidelity(torch, model, obs, policy, corpus, ctx, steps, hold, ctrl_dt, p2c,
                         ix, dev, n=256, seed=0):
     """Does the closed loop inside the model reproduce the recorded closed loop?

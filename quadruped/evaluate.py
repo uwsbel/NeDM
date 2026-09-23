@@ -38,12 +38,19 @@ from lib.coverage import Reference, verdict as cov_verdict   # noqa: E402
 
 def episode(chrono, policy_path, urdf, cfg, terrain_kind, command, seconds,
             warmup_s, spacing, step, soil, patch_x, patch_y, depth, spawn_offset=0.0,
-            speed_factor=0.8):
+            speed_factor=0.8, push=None):
     """Run one episode; return per-step tracking and the visited (state, action) rows.
 
     `command` is either a fixed (vx, vy, wz) or a schedule f(t) -> (vx, vy, wz), the same
     form the collector's command families produce. Tracking error is measured against the
     command ACTIVE at each step, which the policy is also given at each control step.
+
+    `push` = {"t0", "dur", "force_n", "dir_rad"} shoves the trunk once, with the direction
+    in the BODY frame (0 = forward, pi/2 = left) so "pushed from the side" means the same
+    thing whatever way the robot happens to be facing, and the force applied through the
+    same accumulator the collector uses. A push is a controlled disturbance, not a sampled
+    one: every arm gets the identical time, direction and force on the identical episode,
+    and what differs is only the policy's recovery.
     """
     sched = command if callable(command) else (lambda t, _c=tuple(command): _c)
     from nedm.quadruped.constants import STAND_ACTION
@@ -69,6 +76,12 @@ def episode(chrono, policy_path, urdf, cfg, terrain_kind, command, seconds,
     # The replicate perturbation: where on the particle lattice the run begins. The bed is
     # widened by the offset so the shifted path still clears its edges.
     px = min(MAX_PATCH_X, px + 2 * abs(spawn_offset))
+    # A shoved robot leaves the planned path, and leaving the bed ends the episode. The
+    # margin is the same on both axes so a sideways push is not scored on a narrower bed
+    # than a forward one.
+    if push is not None:
+        px = min(MAX_PATCH_X, px + 2 * PUSH_MARGIN_M)
+        py = min(MAX_PATCH_Y, py + 2 * PUSH_MARGIN_M)
     spawn = (-0.5 * (xlo + xhi) + spawn_offset, -0.5 * (ylo + yhi))
     system, robot, terrain, soil_top, dt = build_scene(
         chrono, terrain_kind, urdf, spacing, step, soil, px, py, depth,
@@ -96,6 +109,11 @@ def episode(chrono, policy_path, urdf, cfg, terrain_kind, command, seconds,
     every = max(1, int(round(0.02 / dt)))
     n = int(seconds / dt)
     err = {"vx": [], "vy": [], "wz": []}
+    pos_xy, fwd_xy, grav_z = [], [], []
+    acc, pdir = None, None
+    if push is not None:
+        acc = robot.base().AddAccumulator()
+        pdir = np.array([math.cos(push["dir_rad"]), math.sin(push["dir_rad"]), 0.0])
     visited, min_z = [], float("inf")
     cmd = np.asarray(sched(0.0), dtype=np.float32)
     for i in range(n):
@@ -104,6 +122,14 @@ def episode(chrono, policy_path, urdf, cfg, terrain_kind, command, seconds,
             pol.command = cmd
             robot.actuate(pol.act(robot))
         robot.apply_pd()
+        if acc is not None:
+            bb = robot.base()
+            bb.EmptyAccumulator(acc)
+            if push["t0"] <= i * dt < push["t0"] + push["dur"]:
+                rq = bb.GetRot()
+                Rp = T.quat_to_rot(rq.e0, rq.e1, rq.e2, rq.e3)
+                fw = Rp @ (push["force_n"] * pdir)
+                bb.AccumulateForce(acc, chrono.ChVector3d(*fw), bb.GetPos(), False)
         (terrain or system).DoStepDynamics(dt)
         b = robot.base()
         p, v, r = b.GetPos(), b.GetPosDt(), b.GetRot()
@@ -119,12 +145,20 @@ def episode(chrono, policy_path, urdf, cfg, terrain_kind, command, seconds,
         err["vx"].append(abs(vb[0] - cmd[0]))
         err["vy"].append(abs(vb[1] - cmd[1]))
         err["wz"].append(abs(w.z - cmd[2]))
+        if push is not None:
+            pos_xy.append((p.x, p.y))
+            fwd_xy.append((R[0, 0], R[1, 0]))   # the body x axis in the world
+            grav_z.append(R[2, 2])
         if i % every == 0:
             visited.append(np.concatenate([robot.joint_pos(), robot.joint_vel(),
                                            [vb[0], vb[1], vb[2], w.x, w.y, w.z, p.z],
                                            robot.target]))
     s = int(0.5 / dt)
+    extra = (push_metrics(err, pos_xy, fwd_xy, grav_z, dt, push,
+                          float(np.asarray(sched(push["t0"]), dtype=np.float32)[0]))
+             if push is not None else {})
     return {
+        **extra,
         "mae_vx": float(np.mean(err["vx"][s:])),
         "mae_vy": float(np.mean(err["vy"][s:])),
         "mae_wz": float(np.mean(err["wz"][s:])),
@@ -137,6 +171,90 @@ def episode(chrono, policy_path, urdf, cfg, terrain_kind, command, seconds,
         # surface is not a low stance, it is a fall in progress.
         "upright": 1 if min_z > soil_top + 0.10 else 0,
         "visited": np.asarray(visited),
+    }
+
+
+PUSH_MARGIN_M = 1.0
+PUSH_WINDOW_S = 3.0
+# Recovered = the speed error back inside the band this episode was in before the push
+# (its own mean + 1 sd over the 3 s before), and staying there for half a second. A FIXED
+# threshold does not work across terrains: at 0.15 m/s, chosen from the policy's steady
+# error on rigid ground, no CRM episode ever "recovered" because CRM tracking sits at that
+# level all the time. The floor keeps a freakishly steady pre-window from setting an
+# impossible bar.
+PUSH_BAND_FLOOR_MPS = 0.05
+PUSH_HOLD_S = 0.5
+# ... and also against ONE bar for every arm. Recovery to an arm's own band compares two
+# policies against two different thresholds: a fine-tuned policy tracks better, so its band
+# is tighter and "recovered" means more for it than for the base. That made the base look
+# faster to recover from the same shove it was tracking worse after. The fixed bar is the
+# base policy's own push-free CRM error, mae_vx ~ 0.15 m/s plus its spread.
+PUSH_FIXED_BAR_MPS = 0.30
+
+
+def push_metrics(err, pos_xy, fwd_xy, grav_z, dt, push, cmd_vx):
+    """What the shove cost and how long it lasted, measured from the end of the force.
+
+    Whole-episode mae is a weak instrument here: a 3 s disturbance inside a 10 s episode is
+    diluted by the 7 s the robot spends walking normally, and two policies that differ
+    entirely in how they recover can report the same mae. So the window after the push is
+    scored on its own.
+
+    DRIFT IS NOT EXCURSION. The first version measured displacement sideways of the push
+    and reported ~1 m for a push straight ahead: over 3 s at 0.5 m/s the robot covers 1.5 m
+    and this policy yaws at up to 0.31 rad/s, so ordinary walking filled the number. Here
+    the excursion is distance from where the COMMAND says the robot should be -- straight
+    ahead of its heading when the push landed, at the commanded speed -- and the identical
+    measurement is also taken over the 3 s BEFORE the push. The push's own cost is the
+    difference, and an arm that simply tracks better is visible in the "pre" column
+    instead of being paid twice.
+    """
+    i1 = int(round((push["t0"] + push["dur"]) / dt))
+    w = int(round(PUSH_WINDOW_S / dt))
+    j = min(i1 + w, len(err["vx"]))
+    if i1 >= j or i1 - w < 0:
+        return {}
+    P, F = np.asarray(pos_xy), np.asarray(fwd_xy)
+
+    def excursion(k0, k1):
+        """Max distance from the commanded straight line, starting at step k0."""
+        f = F[k0] / (np.linalg.norm(F[k0]) or 1.0)
+        t = np.arange(1, k1 - k0 + 1) * dt
+        ideal = P[k0] + np.outer(t, f * cmd_vx)
+        return float(np.linalg.norm(P[k0 + 1:k1 + 1] - ideal, axis=1).max())
+
+    lin = np.hypot(np.asarray(err["vx"][i1:j]), np.asarray(err["vy"][i1:j]))
+    pre = np.hypot(np.asarray(err["vx"][i1 - w:i1]), np.asarray(err["vy"][i1 - w:i1]))
+    band = max(float(pre.mean() + pre.std()), PUSH_BAND_FLOOR_MPS)
+    hold = int(round(PUSH_HOLD_S / dt))
+
+    def first_sustained(thresh):
+        under = lin < thresh
+        for k in range(len(under) - hold + 1):
+            if under[k:k + hold].all():
+                return round(k * dt, 3)
+        return float("nan")
+
+    rec = first_sustained(band)
+    rec_fixed = first_sustained(PUSH_FIXED_BAR_MPS)
+    post, pre_ex = excursion(i1, j - 1), excursion(i1 - w, i1 - 1)
+    return {
+        "push_mae_vx": float(np.mean(err["vx"][i1:j])),
+        "push_mae_vy": float(np.mean(err["vy"][i1:j])),
+        "push_mae_wz": float(np.mean(err["wz"][i1:j])),
+        "push_peak_err_mps": float(lin.max()),
+        "push_pre_err_mps": float(pre.mean()),
+        "push_band_mps": band,
+        "push_recover_s": rec,
+        "push_recovered": int(rec == rec),
+        "push_recover_fixed_s": rec_fixed,
+        "push_recovered_fixed": int(rec_fixed == rec_fixed),
+        "push_excursion_m": post,
+        "push_excursion_pre_m": pre_ex,
+        "push_excursion_extra_m": post - pre_ex,
+        "push_min_grav_z": float(np.min(grav_z[i1:j])),
+        "push_force_n": push["force_n"],
+        "push_dir_deg": round(math.degrees(push["dir_rad"])),
     }
 
 
@@ -194,6 +312,18 @@ def main() -> int:
     ap.add_argument("--seconds", type=float, default=6.0)
     ap.add_argument("--warmup-s", type=float, default=1.0)
     ap.add_argument("--vx", type=float, default=0.5)
+    ap.add_argument("--push-force", type=float, default=0.0,
+                    help="PUSH MODE: shove the trunk once per episode with this force, in "
+                         "newtons, and score the recovery. The episode is otherwise the "
+                         "straight-line one, and every arm gets identical pushes")
+    ap.add_argument("--push-at", type=float, default=4.0, help="push mode: when, in s")
+    ap.add_argument("--push-duration", type=float, default=0.2,
+                    help="push mode: how long the force is applied, in s")
+    ap.add_argument("--push-dirs", type=int, default=8,
+                    help="push mode: directions, spread evenly over the circle in the BODY "
+                         "frame starting at forward")
+    ap.add_argument("--push-reps", type=int, default=2,
+                    help="push mode: episodes per direction, at different lattice positions")
     ap.add_argument("--paths", type=int, default=0,
                     help="PATH MODE: this many held-out command schedules PER FAMILY, drawn "
                          "from the collector's own generator (lib/commands.py) with "
@@ -270,9 +400,27 @@ def main() -> int:
                 # confounded with path.
                 off = float(np.linspace(-a.spawn_spread, a.spawn_spread, a.paths)[j]
                             if a.paths > 1 else 0.0)
-                cases.append((fam, sch, sec, off, {k: round(v, 3) for k, v in prm.items()}))
+                cases.append((fam, sch, sec, off,
+                              {k: round(v, 3) for k, v in prm.items()}, None))
         print(f"path mode: {len(cases)} paths, {a.paths} per family over {len(fams)} "
               f"families, seed {a.path_seed}")
+    elif a.push_force > 0:
+        # One push per episode, so the recovery being scored is the recovery from THAT
+        # push and not from whatever the previous one left behind.
+        offsets = (np.linspace(-a.spawn_spread, a.spawn_spread, a.push_reps)
+                   if a.push_reps > 1 else np.zeros(1))
+        for r in range(a.push_reps):
+            for k in range(a.push_dirs):
+                ang = 2 * math.pi * k / a.push_dirs
+                cases.append((f"push{round(math.degrees(ang)):03d}", (a.vx, 0.0, 0.0),
+                              a.seconds, float(offsets[r]),
+                              {"vx": a.vx, "force_n": a.push_force,
+                               "dir_deg": round(math.degrees(ang)), "t0": a.push_at},
+                              {"t0": a.push_at, "dur": a.push_duration,
+                               "force_n": a.push_force, "dir_rad": ang}))
+        print(f"push mode: {len(cases)} episodes, {a.push_dirs} directions x {a.push_reps} "
+              f"replicates, {a.push_force:g} N for {a.push_duration:g} s at "
+              f"{a.push_at:g} s, scored over the {PUSH_WINDOW_S:g} s after it")
     else:
         # REPLICATES ARE THE SAME CONDITION AT DIFFERENT LATTICE POSITIONS, not different
         # commands (see git history: a command varied with the episode index once put a
@@ -281,11 +429,11 @@ def main() -> int:
         offsets = np.linspace(-a.spawn_spread, a.spawn_spread, a.episodes)
         for k in range(a.episodes):
             cases.append(("fixed", (a.vx, 0.0, 0.0), a.seconds, float(offsets[k]),
-                          {"vx": a.vx}))
+                          {"vx": a.vx}, None))
 
     out = Path(a.out)
     out.parent.mkdir(parents=True, exist_ok=True)
-    for k, (fam, cmd, sec, off, desc) in enumerate(cases):
+    for k, (fam, cmd, sec, off, desc, push) in enumerate(cases):
         base_rec = {"episode_id": f"{a.label}_{k:03d}", "family": fam, "params": desc,
                     "seconds": sec, "spawn_offset": off,
                     "chrono_md5": PROV.chrono_provenance()["md5"]}
@@ -295,7 +443,7 @@ def main() -> int:
             r = episode(chrono, Path(a.policy), Path(a.urdf), cfg, a.terrain,
                         cmd, sec, a.warmup_s, a.spacing, a.step,
                         a.soil, a.patch_x, a.patch_y, a.depth, spawn_offset=off,
-                        speed_factor=(1.0 if a.paths > 0 else 0.8))
+                        speed_factor=(1.0 if a.paths > 0 else 0.8), push=push)
         except SystemExit as e:
             recs.append({**base_rec, "completed": 0, "skipped": str(e)[:200]})
             print(f"  ep {k}  {fam:<11s}  SKIPPED: {str(e)[:100]}")
@@ -317,8 +465,16 @@ def main() -> int:
         if fam == "fixed":
             r["cmd_vx"] = a.vx
         recs.append(r)
-        print(f"  ep {k}  {fam:<11s} {sec:4.1f}s  mae_vx {r['mae_vx']:.4f}  "
-              f"mae_vy {r['mae_vy']:.4f}  mae_wz {r['mae_wz']:.4f}  min_z {r['min_z_m']:.3f}")
+        if push is not None and "push_recover_s" in r:
+            rs = r["push_recover_s"]
+            print(f"  ep {k}  {fam:<11s} {sec:4.1f}s  after the push: mae_vx "
+                  f"{r['push_mae_vx']:.4f}  peak {r['push_peak_err_mps']:.3f} m/s  "
+                  f"excursion {r['push_excursion_m']:.3f} m  recovered in "
+                  f"{rs if rs == rs else float('nan'):.2f} s  upright {r['upright']}")
+        else:
+            print(f"  ep {k}  {fam:<11s} {sec:4.1f}s  mae_vx {r['mae_vx']:.4f}  "
+                  f"mae_vy {r['mae_vy']:.4f}  mae_wz {r['mae_wz']:.4f}  "
+                  f"min_z {r['min_z_m']:.3f}")
         out.write_text(json.dumps(recs, indent=1) + "\n")
 
     out.write_text(json.dumps(recs, indent=1) + "\n")
@@ -341,6 +497,15 @@ def main() -> int:
     print(f"        -> {'PASS' if ok else 'FAIL'}")
     if not ok:
         print(f"\n  {msg}")
+    # Gate 4 asks whether the states this policy visited are ones the corpus covers, which
+    # is the right question for a tracking run and the wrong one for a push: a 240 N shove
+    # is MEANT to take the robot somewhere the corpus does not go, and the recovery from
+    # there is the measurement. So in push mode the coverage is reported and never fails
+    # the run -- it says how far outside the shove went, which is worth knowing.
+    if a.push_force > 0 and not ok:
+        print("  (push mode: reported, not enforced. The push is a disturbance, not a "
+              "policy choice, and leaving the corpus region is what it is for.)")
+        ok = True
 
     man = PROV.manifest("result", REPO,
                         inputs=[{"kind": "corpus", "path": str(a.corpus)},

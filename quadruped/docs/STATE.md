@@ -97,6 +97,81 @@ On the evaluation protocol (CRM, vx 0.5, 16 spawns over +/-1 m, 6 s, north), the
 policy scores mae_vx 0.132 (sd 0.019), mae_vy 0.044, mae_wz 0.210, 16/16 upright, Gate 4
 0.0% outside the corpus. That is the baseline every fine-tune is paired against.
 
+## The stopping budget is too tight (2026-09-22, still running)
+
+Every fine-tune here stops when the actor's weights have moved dw 4.0, about 430 iterations
+at 1024 rollouts. That budget was inherited from the old pipeline as a guard against PPO
+exploiting the surrogate, and it had never been tested; in-model reward is still climbing
+steeply where it fires. hpcfund 431640 runs the recipe to 3000 iterations in four 1 s
+surrogates (seeds 6, 8, 9, north s0), saving the policy every 500 iterations and at each dw
+mark, and every checkpoint is scored in Chrono. Each run repeats the scored recipe run up
+to dw 4, and its dw-4 checkpoint came out BIT-IDENTICAL to the policy already scored, so
+the runs reproduce exactly.
+
+Paths (37 pairs), mean over the three healthy surrogates:
+
+| checkpoint | iterations | dw | mae_vx | mae_wz | rigid mae_vx |
+|---|---|---|---|---|---|
+| dw 2 | ~100 | 2.0 | -6% | -19% | +3% |
+| **dw 4 (the current stop)** | ~430 | 4.0 | -29% | -53% | ~0% |
+| iteration 500 | 500 | 4.3 | -35% | -55% | -14% |
+| **iteration 1000** | 1000 | 6.3 | **-54%** | **-69%** | **-32%** |
+
+So the budget stops at about half the available gain, and nothing degrades on the way:
+rigid-ground tracking improves alongside CRM, and all 40 rigid episodes stay upright.
+Later checkpoints (1500-3000) and their push robustness are running.
+
+**One run of four came apart, and not at a distance the budget would have caught.** Seed
+6's run showed out-of-distribution spikes from its first hundred iterations (10/99 against
+2-4 for the others), rising to 95/100 by iteration 1000, with value loss reaching 480,000,
+reward falling from -0.046 to -1.01, and dw stalling at 5.6 while the others climbed past
+6.8 still improving. `diagnostics/probe_ood.py` rolls a policy in several surrogates from
+identical starts and prices the states against the corpus the way PPO does:
+
+| policy | in seed 6's model | seed 8's | seed 9's | north s0's | worst channel |
+|---|---|---|---|---|---|
+| seed 6, iteration 1000 | **0.371** | 0.447 | 0.477 | 0.477 | `grav_body_z`, 69-127 sd |
+| seed 8, iteration 1000 | 0.0002 | 0.0002 | 0.0002 | 0.0002 | a hip velocity, ~9 sd |
+| recipe policy | 0.0003 | 0.0003 | 0.0003 | 0.0003 | a hip velocity, ~10 sd |
+| base policy | 0.0004 | 0.0004 | 0.0004 | 0.0004 | a hip velocity, ~10 sd |
+
+Reading: the corpus covers what working policies do (0.0% of their steps fall outside it),
+and seed 6's policy learned to TUMBLE -- the body-frame gravity direction leaves its
+recorded range by 69 to 127 sd -- which every surrogate agrees about. Its own surrogate is
+the most forgiving of the four, which is what exploitation looks like from the inside. So
+this is not evidence that the corpus is too small, and a fixed weight distance is the wrong
+guard: it stopped three healthy runs early and is not what kept them healthy. The OOD term
+separated the cases from the first hundred iterations and is the candidate stopping signal.
+Whether seed 6's surrogate does this under every PPO seed is hpcfund 432022 (seeds 1 and 2
+in it, and in seed 8's as a control).
+
+## Robustness to pushes (2026-09-22)
+
+`evaluate.py --push-force` shoves the trunk once per episode on CRM, at a fixed time, in a
+fixed body-frame direction, through the same accumulator the collector uses: 8 directions x
+2 lattice positions, identical for every arm, scored over the 3 s after the force ends
+(`eval_push.sbatch`, `paired_eval.py --metrics push`). The recipe policies (1024 rollouts,
+dw 4) against the base policy:
+
+| force | base upright | seed 6 | seed 8 | seed 9 | recipe mae_vx after the push |
+|---|---|---|---|---|---|
+| 120 N | 16/16 | 16/16 | 16/16 | 16/16 | -29% to -34% |
+| 180 N | 16/16 | 15/16 | 16/16 | 16/16 | -25% to -27% |
+| 240 N | 16/16 | 11/16 | 14/16 | 16/16 | -17% to -20% |
+| 300 N | 11/16 | 10/16 | 15/16 | 13/16 | not clear of zero |
+| total falls | 5/64 | **12/64** | 3/64 | 3/64 | |
+
+Fine-tuning does not cost robustness in general: two of three surrogates fall slightly less
+than the base policy, and all three recover with markedly lower tracking error. The
+exception is seed 6 again, the surrogate whose training went unstable -- two independent
+measurements pointing at the same model.
+
+Recovery TIME is not usable as reported: it was measured against each episode's own
+pre-push error band, and a policy that tracks better has a tighter band, so the arms were
+held to different bars. `push_recover_fixed_s` (a common 0.30 m/s bar) is recorded from
+now on. Gate 4 is reported but not enforced in push mode, since a 240 N shove is meant to
+leave the corpus region.
+
 ## v1 fine-tunes: void, and why
 
 | arm | usable pairs | mae_vx change | mae_wz change | Gate 4 |
