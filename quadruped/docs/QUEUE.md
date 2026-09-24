@@ -10,10 +10,11 @@ surrogates; 2048 envs (three seeds) and seed 7's 1 s surrogate at 1024 envs.
 
 ## Now
 
-- **Capacity and data study** (euler 67372): 25% and 50% subsamples of the corpus and a
-  smaller and a larger surrogate, two seeds each, then PPO and paths scoring on hpcfund.
-  Answers whether a bigger model or less data moves transfer, after doubling the corpus
-  did not.
+- **Large surrogate** (euler 68935, 12x512, ~34 h), then paths scoring on hpcfund. Six
+  capacity/data arms are done (STATE): less data or a smaller model makes a bad run likely.
+- **Relabel the guard.** It missed both bad capacity runs. Label all 66 logged runs by
+  Chrono score and choose the stopping rule against those labels (candidates: reward drop,
+  value loss, branch-step OOD fraction).
 - **Keep the write-up page current** (https://claude.ai/artifact/G8PHCRfk7M8Mu7b8rW2PbU).
   It is maintained, not published once: when a number here changes, republish the page in
   the same move. Source lives in the session scratchpad (`site/`), and the trajectory

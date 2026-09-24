@@ -31,10 +31,10 @@ What else is settled (evidence further down):
   kick costs 5-9 points of tracking and helps at no force: the corpus tops out at 140 N,
   so the surrogate cannot teach recovery from the 240-300 N test shoves.
 - **The OOD penalty is not load-bearing** at these settings (four runs without it
-  transfer normally), but the OOD rate is the best early warning, which is what the guard
-  uses: one run in sixty collapses (seed 6's surrogate, the most accurate and most
-  exploitable), and the guard catches it from `finetune.jsonl` alone (6 trips in 60 runs,
-  every one bad in Chrono, none among good runs).
+  transfer normally), but the OOD rate is one early warning, and the guard uses it: one run in sixty collapses (seed 6's surrogate, the most accurate and most
+  exploitable), and the guard catches it from `finetune.jsonl` alone. It is an early
+  warning with misses, though: it tripped live once on a degrading run (euler s2) and
+  missed two bad runs in the capacity study (below), so Chrono scoring stays the check.
 - **Where Chrono's time goes** (COST.md): 95.5% of a CRM step is the SPH soil; the Go2
   multibody solve runs concurrently and off the critical path, and the foot-soil coupling
   is ~2%. The surrogate is 17x faster than CRM for one robot and ~600x in throughput at
@@ -49,9 +49,8 @@ points; `paired_eval.py` refuses to pair arms scored on different builds.
 (every table on it measured in Chrono, plus replayable paired trajectories from
 `evaluate.py --dump-traj`). Keep it current: a result that changes STATE changes the page too.
 
-**Running (2026-09-24):** the capacity/data study (euler 67372: 25% and 50% of the corpus,
-a smaller and a larger surrogate, two seeds each), scored on hpcfund when done; and the
-archive of north's old-pipeline `~/sbel-artifacts` to the NAS.
+**Running (2026-09-24):** the rest of the capacity/data study (the large 12x512 surrogate, euler 68935, ~34 h; the other six arms are scored, below);
+and the archive of north's old-pipeline `~/sbel-artifacts` to the NAS.
 
 ## The recipe at iteration 1000 in ten surrogates (2026-09-24)
 
@@ -86,6 +85,36 @@ before a collapse, the first trip that did not coincide with an outright bad pol
 Seed 6, the surrogate that collapsed when trained to 3000, is the weakest at 1000 but not
 collapsed. Two of ten surrogates are thus the fragile ones, and both are identifiable from
 the training log alone.
+
+## Less data and other capacities: a bad run becomes likely (2026-09-24)
+
+euler 67372 fine-tunes to iteration 1000 (seeds a/b = two independently trained
+surrogates), scored on hpcfund 434977 against hpcfund's base, 36-37 path pairs, forward:
+
+| surrogate | seed a | seed b |
+|---|---|---|
+| 25% of the corpus, 6x256 | -51.7% | **-27.5%** |
+| 50% of the corpus, 6x256 | -48.6% | -50.9% |
+| full corpus, 3x128 | -54.5% | **-6.5%** (not clear) |
+| full corpus, 6x256 (ten, above) | -43% to -57% | |
+
+Shrinking data or model does not lower the typical gain but makes a bad run likely: two of
+six outside the full-size range. Nothing fell (four late walk-offs from the bed). Both bad
+runs degraded in TRAINING: reward fell 4-6x below its best (the others: under 10%), value
+loss 21,377 (d25b, by iteration ~240) and 53,048 (capS_b, by ~520) against under 20.
+Surrogate accuracy did not predict it: rollout errdist 0.585 (d25b) and 0.605 (capS_b)
+against 0.716 for capS_a, the least accurate and the best transfer.
+
+**The guard missed both.** Their 50-iteration windows left the corpus region at most 44%
+and 58% of the time, under the 0.6 limit, so the AND never held. Replayed over all 66
+logged runs (euler + hpcfund), a looser rule (reward drop > 50%, or value loss > 1000)
+catches both early, but also fires on runs Chrono scored as good (risk2_lr3_s6, -42%
+forward, 37/37; risk_ood0_s8; the long north s0 run at iteration 1895). So the guard is an
+early warning with misses, not a certificate, and the Chrono score stays the check. Next:
+label every logged run by its Chrono score and choose the rule against that.
+
+The 12x512 surrogate runs PPO at ~2 min/iteration (6x the standard size, GPU at 99%); the
+first attempt hit its 10 h limit at iteration 240 and was resubmitted as euler 68935 (40 h).
 
 ## The frozen recipe in nine surrogates, at the old dw 4.0 stop (2026-09-22)
 
@@ -826,4 +855,4 @@ against nothing (`5e3df653`).
 
 ## Running
 
-See "Where this is": euler 67372 (capacity/data study). Everything else has finished.
+See "Where this is": euler 68935 (large surrogate). Everything else has finished.
