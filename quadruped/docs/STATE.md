@@ -1,41 +1,56 @@
 # State
 
-**Updated:** 2026-09-22 (morning) · **Branch:** `kyle/quadruped-pipeline` on uwsbel/NeDM (off `kyle/locomotion`) · **Head:** `048272ee` + this
+**Updated:** 2026-09-24 · **Branch:** `kyle/quadruped-pipeline` on uwsbel/NeDM (off `kyle/locomotion`)
 
 ## Where this is
 
-**The recipe is frozen and replicates.** Fine-tune the surrogate on its own 1 s rollouts;
-run PPO in it with 2 s branches (100 control steps) and 1024 parallel rollouts, weight
-budget dw 4.0, 10 epochs x 4 minibatches. In nine independently trained surrogates (ten
-runs), scored in Chrono on 37 held-out paths from all ten command families, it improves
-forward tracking 25-32% (mean 29%), sideways 14-21% (mean 18%) and yaw 49-55% (mean 53%),
-every axis clear of zero in every run; on straight walking forward error falls 38-60%.
-Nothing fell; two runs walked off the finite CRM bed on one extra path each, late (9.9 s,
-14.3 s). On rigid ground the same ten keep the yaw gain (50-58%) and leave forward tracking
-neutral on average (+2%, one of ten worse at 2 se). Details in the next section.
+**The recipe works, and the old stop was too early.** Fine-tune the surrogate on its own
+1 s rollouts; run PPO in it with 2 s branches (100 control steps) and 1024 parallel
+rollouts, 10 epochs x 4 minibatches, and stop at about **iteration 1000** (it was dw 4.0,
+about 430 iterations). Across the three healthy surrogates run long (seeds 8, 9, north s0),
+scored in Chrono on 37 held-out paths from all ten command families, iteration 1000 cuts
+forward error 54%, sideways 30% and yaw 69%, and on rigid ground forward error 32%. At
+the old stop the same runs gave -29% forward, which is what the nine-surrogate table
+below still reports. Tracking plateaus near -59% from 1500 to 3000 iterations, but push
+robustness (300 N) holds at the base policy's 11/16 only through iteration 1000 and
+dropped episodes rise past it (0,0,0 at it500/1000, then 1,2,6). Details in "The stopping
+budget" below.
 
-Why each piece (evidence further down):
+What else is settled (evidence further down):
 - **1 s rollout training.** All ten seeds beat the predict-no-motion baseline across 10 s;
   0.5 s training does in 2 of 10, and one-step training fails by ~2 s.
 - **2 s branches.** 0.30 s branches fail to improve forward tracking across paths in every
-  surrogate tried, one-step, rollout-trained and ensembles alike, however well they score
-  on the straight test.
-- **1024 envs.** At the same weight budget, forward gain grows from 64 to 1024 rollouts
-  (-21.5% to -30.5%) and the rigid-ground forward penalty seen at 64-256 goes away. 2048
-  (three seeds, -33.8%) is a few points better, inside the spread between seeds: the
-  curve has flattened, and 1024 costs half as much.
+  surrogate tried.
+- **1024 envs.** Forward gain grows from 64 to 1024 rollouts and flattens; 2048 is a few
+  points better, inside the seed spread, at twice the cost.
 - **One surrogate, not an ensemble.** Ensembles land inside the single-surrogate range.
+- **More data does not help; coverage does.** Doubling the corpus (2,094 vs 920 training
+  episodes) changes neither surrogate accuracy nor transfer. Fine-tuned policies leave the
+  corpus on 0.0-0.1% of their steps through iteration 3000.
+- **Disturbance training in the surrogate does not buy robustness.** A robot_lab-style
+  kick costs 5-9 points of tracking and helps at no force: the corpus tops out at 140 N,
+  so the surrogate cannot teach recovery from the 240-300 N test shoves.
+- **The OOD penalty is not load-bearing** at these settings (four runs without it
+  transfer normally), but the OOD rate is the best early warning, which is what the guard
+  uses: one run in sixty collapses (seed 6's surrogate, the most accurate and most
+  exploitable), and the guard catches it from `finetune.jsonl` alone (6 trips in 60 runs,
+  every one bad in Chrono, none among good runs).
+- **The Chrono GPU fault** (SphBceManager.cu:543) is rare (5 in ~3,600 episodes), not
+  force-related, and contained by `os._exit(90)` + `--resume`.
 
-Effects reproduce across machines (NVIDIA north and AMD hpcfund, different Chrono builds)
-to within a few points.
+Effects reproduce across machines (NVIDIA and AMD, different Chrono builds) to within a few
+points; `paired_eval.py` refuses to pair arms scored on different builds.
 
 **The write-up is a live page**, not a snapshot: https://claude.ai/artifact/G8PHCRfk7M8Mu7b8rW2PbU
-(14 sections, every table on it measured in Chrono, plus replayable paired trajectories from
-`evaluate.py --dump-traj`). Kyle's instruction is to keep it current as results land and as
-old results are refuted or improved, so a result that changes STATE changes the page too.
-Stale there today: the nine-surrogate table is at the dw 4.0 stop. Nothing is running; next is the write-up.
+(every table on it measured in Chrono, plus replayable paired trajectories from
+`evaluate.py --dump-traj`). Keep it current: a result that changes STATE changes the page too.
 
-## The frozen recipe in nine surrogates (2026-09-22)
+**Running (2026-09-24):** the recipe re-scored at iteration 1000 in ten arms (hpcfund
+433924 fine-tunes, then paired paths scoring), which replaces the nine-surrogate table;
+and a capacity/data study (euler 67372: 25% and 50% of the corpus, a smaller and a larger
+surrogate, two seeds each), scored on hpcfund when done.
+
+## The frozen recipe in nine surrogates, at the old dw 4.0 stop (2026-09-22)
 
 1 s rollout-trained surrogates (seed 7 at two PPO seeds on hpcfund 431212; seeds 6, 8, 9
 and north s0 fine-tuned on hpcfund 431232;
@@ -143,7 +158,7 @@ outside is DISTURBANCE, not the fine-tune: the untouched base policy is 9.7% out
 disturbances one intends to claim robustness to, not on the controller's search within the
 task -- the same wall the kick experiment hit.
 
-## The stopping budget is too tight (2026-09-22, still running)
+## The stopping budget was too tight: stop at iteration 1000 (2026-09-22/23)
 
 Every fine-tune here stops when the actor's weights have moved dw 4.0, about 430 iterations
 at 1024 rollouts. That budget was inherited from the old pipeline as a guard against PPO
@@ -159,7 +174,7 @@ Paths (37 pairs), mean over the three healthy surrogates:
 | checkpoint | iterations | dw | mae_vx | mae_wz | rigid mae_vx |
 |---|---|---|---|---|---|
 | dw 2 | ~100 | 2.0 | -6% | -19% | +3% |
-| **dw 4 (the current stop)** | ~430 | 4.0 | -29% | -53% | ~0% |
+| **dw 4 (the old stop)** | ~430 | 4.0 | -29% | -53% | ~0% |
 | iteration 500 | 500 | 4.3 | -35% | -55% | -14% |
 | **iteration 1000** | 1000 | 6.3 | **-54%** | **-69%** | **-32%** |
 
@@ -199,8 +214,8 @@ uprightness. Whatever the base policy knows that pays off only when disturbed ha
 gradient protecting it. `finetune.py --branch-push-prob` puts the disturbance back (one
 kick per chosen branch at a uniform control step, +/-0.5 m/s, matching upstream); the
 surrogate can roll the recovery because recoveries are in the corpus, only the force
-windows were cut. Whether that holds robustness while tracking still improves is hpcfund
-432532 (15% and 50% of branches, seeds 8 and 9).
+windows were cut. Answered by hpcfund 432532 (15% and 50% of branches, seeds 8 and 9):
+it does not; see "Putting the disturbance back" below.
 
 
 **One run of four came apart, and not at a distance the budget would have caught.** Seed
@@ -224,8 +239,9 @@ the most forgiving of the four, which is what exploitation looks like from the i
 this is not evidence that the corpus is too small, and a fixed weight distance is the wrong
 guard: it stopped three healthy runs early and is not what kept them healthy. The OOD term
 separated the cases from the first hundred iterations and is the candidate stopping signal.
-Whether seed 6's surrogate does this under every PPO seed is hpcfund 432022 (seeds 1 and 2
-in it, and in seed 8's as a control).
+Whether seed 6's surrogate does this under every PPO seed was hpcfund 432022 (seeds 1 and 2
+in it, and in seed 8's as a control): it does not, the other two PPO seeds there stayed
+healthy (next section).
 
 ## The guard, and what one collapse in fifty means for the method (2026-09-23)
 
@@ -763,8 +779,9 @@ against nothing (`5e3df653`).
   mi3001x is often congested; mi2104x is the fallback.
 - **euler** trains on the `sbel` partition (4 x A100 on euler19, not preempted). Share
   euler19 politely: another user runs CPU jobs there; size requests so nothing is preempted.
-- **north is PARKED IDLE** (2026-09-22, Kyle's instruction) until further notice: nothing
-  is to run there. d33 (RX 9070 XT, 16 GB, ROCm 7, NAS-mounted) replaces it for fine-tunes.
+- **north** is back in service (2026-09-23) for Chrono CI builds only: it sits in Kyle's
+  room on slow WiFi, so no long GPU work and no bulk transfers. d33 (RX 9070 XT, 16 GB,
+  ROCm 7, NAS-mounted) replaces it for small fine-tunes.
 - **a3, sbel** have 30 GB RAM. evaluate.py once needed ~30 GB (fixed, `d6b15f28`); it
   OOM-killed evaluations on a3 and appears to have taken sbel down.
 - **NAS** (`/mnt/nas/Main/nedm/{data,models,results}`, STANDARD.md sec. 3) holds the corpora,
@@ -772,8 +789,5 @@ against nothing (`5e3df653`).
 
 ## Running
 
-hpcfund: multi-step fine-tunes of 8 surrogates
-(430862), after which a launcher runs 2 s PPO in each and the multi-step ensemble;
-env scaling 64-1024 envs (430927). sbel: 2048 envs seed 0. north: 2048 envs seed 1 after
-the branch-length runs in the multi-step surrogate. euler: multi-step fine-tunes of its
-four surrogates.
+See "Where this is": hpcfund 433924 (iteration-1000 re-score, ten arms) and euler 67372
+(capacity/data study). Everything else has finished.

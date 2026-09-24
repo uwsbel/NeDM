@@ -541,8 +541,12 @@ def step_reward(torch, nxt, cmd, ix, upright_weight):
 class OODCost:
     """Penalise the reward when a rollout leaves the region the corpus covers.
 
-    THIS IS THE DIFFERENCE BETWEEN PPO WORKING AND PPO CHEATING, and PPO needs it more
-    than the analytic path does.
+    Written as the difference between PPO working and PPO cheating. The evidence since
+    (docs/STATE.md, 2026-09-23) is weaker: four runs with the penalty off transfer
+    normally, and fine-tuned policies leave the corpus on 0.0-0.1% of their steps, so at
+    the current settings the PRICE is not load-bearing. The MEASUREMENT is: the rate of
+    branches leaving the corpus is the early warning the guard in run_ppo reads, which is
+    why --monitor-ood computes it even when the weight is zero.
 
     The NN-ROM is only a model of the robot where the corpus taught it one. PPO explores
     by sampling actions, so it will find the places the model is wrong faster than any
