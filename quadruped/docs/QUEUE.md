@@ -25,10 +25,13 @@ surrogates; 2048 envs (three seeds) and seed 7's 1 s surrogate at 1024 envs.
 
 ## Waiting on Kyle
 
-- A harder-push corpus (above 140 N) so the surrogate can teach recovery; the only route
-  to robustness past the base policy that the evidence leaves open.
 - A Chrono cost profile (SPH vs multibody vs contact) for the cost section.
 - Terminology, and the write-up format for Dan.
+
+## Decided
+
+- **No harder-push corpus** (Kyle, 2026-09-24). The current corpus stays; the claim is
+  scoped to tracking, with push robustness held at the base policy's level, not improved.
 
 ## Done 2026-09-23 (results in STATE.md)
 
