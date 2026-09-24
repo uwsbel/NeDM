@@ -73,7 +73,28 @@ a corpus collected on one desktop is readable by the others without copying.
   /mnt/nas/Main/nedm/data/<corpus>/     bytes, referenced by the committed manifest
   /mnt/nas/Main/nedm/models/<model>/
   /mnt/nas/Main/nedm/results/<run_id>/
+  /mnt/nas/Main/nedm/archive/<name>/    retired trees, with SHA256SUMS and a README
 ```
+
+`INDEX.md` at `/mnt/nas/Main/nedm/` describes what is in each directory.
+
+**Archived: north's `~/sbel-artifacts` (2026-09-24).** The old pipeline's output
+directory (branch `kyle/locomotion`, 2026-09-03 to 2026-09-20; 95,217 files, 214.5 GB:
+old corpora, training datasets and runs, the imported `go2_cts_150k.pt`, the crmtrack and
+finetune_crm results) is now at `/mnt/nas/Main/nedm/archive/sbel-artifacts-north/data/`.
+It was verified file by file against SHA256SUMS taken on north before the copy, then
+deleted from north; the empty `north:~/sbel-artifacts/` holds an `ARCHIVED.md` pointing
+here. The 4,496 symlinks (all pointing back inside the tree) are listed in
+`SYMLINKS.tsv` rather than copied; the archive's README has the restore command. The old
+pipeline's scripts on `kyle/locomotion` hard-code `~/sbel-artifacts/...` in 167 files, so
+on north they now find nothing until the needed parts are restored. The `sbel-artifacts`
+directories on sbel, a3 and d33 are separate, different trees and were not touched.
+
+Copying from north: north is on a home network, not the campus LAN, so its route to the
+NAS is its home upload (~2-3 MB/s on the wire). Writing to the CIFS mount directly costs a
+WAN round trip per file (~1.1 MB/s for many small files); rsync over ssh to the NAS host
+`sliger-ubuntu` with `-z --compress-choice=zstd` reached ~5 MB/s effective. Verify on
+sliger, which reads the NAS over its own LAN.
 
 euler and hpcfund do not see the NAS and keep their own roots. Anything that must survive
 goes to the NAS, because euler's backup status is unknown and hpcfund's `$WORK` has none.
