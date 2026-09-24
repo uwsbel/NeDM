@@ -1,0 +1,36 @@
+=== local_a1_cont3: files 4 rows used 242803 fit 183287 {'rigid': 92104, 'crm': 91183} {'branch': 13545, 'designed': 103154, 'on_policy': 66588} dev 47559 heldout(val) 11957 nctx 5 hist frames 40 visible / 40 consumed / 40 stored split_hash 9b665b0c load 71.3s data on gpu 0.56 GB dropped keys ['branch_run', 'cls']
+  s0 rigid startup[W_unsafe=0.962 P_unsafe=0.969 pick_fail=0.000 brier_unsafe=0.113 n=702] established[W_unsafe=0.972 P_unsafe=0.976 S_unsafe=0.972 pick_fail=0.000 brier_unsafe=0.066 n=5314]
+  s0 crm   startup[W_unsafe=0.961 P_unsafe=0.971 pick_fail=0.232 brier_unsafe=0.165 n=702] established[W_unsafe=0.982 P_unsafe=0.986 S_unsafe=0.983 pick_fail=0.107 brier_unsafe=0.053 n=5239]
+  s0   k0             rigid W_unsafe=0.962 P_unsafe=0.969 pick_fail=0.000 brier_unsafe=0.113 n=702 | crm W_unsafe=0.961 P_unsafe=0.971 pick_fail=0.232 brier_unsafe=0.165 n=702
+  s0   k10_30         rigid W_unsafe=0.971 P_unsafe=0.974 pick_fail=0.000 brier_unsafe=0.072 n=2105 | crm W_unsafe=0.979 P_unsafe=0.984 pick_fail=0.232 brier_unsafe=0.060 n=2105
+  s0   k40p           rigid W_unsafe=0.973 P_unsafe=0.978 S_unsafe=0.972 pick_fail=0.000 brier_unsafe=0.063 n=3209 | crm W_unsafe=0.985 P_unsafe=0.987 S_unsafe=0.983 pick_fail=0.107 brier_unsafe=0.049 n=3134
+  s0   src:branch     rigid W_unsafe=0.970 P_unsafe=0.967 S_unsafe=0.974 pick_fail=0.000 brier_unsafe=0.075 n=483 | crm W_unsafe=0.989 P_unsafe=0.984 S_unsafe=0.985 pick_fail=0.214 brier_unsafe=0.045 n=480
+  s0   src:designed   rigid W_unsafe=0.985 P_unsafe=0.988 pick_fail=0.000 brier_unsafe=0.041 n=3247 | crm W_unsafe=0.972 P_unsafe=0.981 pick_fail=0.161 brier_unsafe=0.080 n=3225
+  s0   src:on_policy  rigid W_unsafe=0.939 P_unsafe=0.947 pick_fail=0.071 brier_unsafe=0.115 n=2286 | crm W_unsafe=0.956 P_unsafe=0.977 pick_fail=0.625 brier_unsafe=0.052 n=2236
+  s0 loss 0.3906 304.8s (0.0142 s/step, 21450 steps) 262018p gpu_peak 1.84 GB (reserved 2.04)  domain_head {'established_auc': 0.999958620758026, 'established_acc': 0.9983890836728893, 'established_n': 10553, 'startup_auc': 0.5, 'startup_acc': 0.5, 'startup_n': 1404}
+  s1 rigid startup[W_unsafe=0.949 P_unsafe=0.964 pick_fail=0.000 brier_unsafe=0.119 n=702] established[W_unsafe=0.967 P_unsafe=0.976 S_unsafe=0.962 pick_fail=0.000 brier_unsafe=0.066 n=5314]
+  s1 crm   startup[W_unsafe=0.975 P_unsafe=0.974 pick_fail=0.179 brier_unsafe=0.148 n=702] established[W_unsafe=0.983 P_unsafe=0.985 S_unsafe=0.986 pick_fail=0.143 brier_unsafe=0.048 n=5239]
+  s1   k0             rigid W_unsafe=0.949 P_unsafe=0.964 pick_fail=0.000 brier_unsafe=0.119 n=702 | crm W_unsafe=0.975 P_unsafe=0.974 pick_fail=0.179 brier_unsafe=0.148 n=702
+  s1   k10_30         rigid W_unsafe=0.967 P_unsafe=0.975 pick_fail=0.000 brier_unsafe=0.068 n=2105 | crm W_unsafe=0.981 P_unsafe=0.983 pick_fail=0.196 brier_unsafe=0.053 n=2105
+  s1   k40p           rigid W_unsafe=0.969 P_unsafe=0.977 S_unsafe=0.962 pick_fail=0.000 brier_unsafe=0.065 n=3209 | crm W_unsafe=0.983 P_unsafe=0.986 S_unsafe=0.986 pick_fail=0.143 brier_unsafe=0.045 n=3134
+  s1   src:branch     rigid W_unsafe=0.964 P_unsafe=0.965 S_unsafe=0.963 pick_fail=0.000 brier_unsafe=0.082 n=483 | crm W_unsafe=0.989 P_unsafe=0.983 S_unsafe=0.988 pick_fail=0.196 brier_unsafe=0.045 n=480
+  s1   src:designed   rigid W_unsafe=0.979 P_unsafe=0.984 pick_fail=0.000 brier_unsafe=0.050 n=3247 | crm W_unsafe=0.974 P_unsafe=0.977 pick_fail=0.161 brier_unsafe=0.070 n=3225
+  s1   src:on_policy  rigid W_unsafe=0.927 P_unsafe=0.949 pick_fail=0.071 brier_unsafe=0.102 n=2286 | crm W_unsafe=0.953 P_unsafe=0.981 pick_fail=0.625 brier_unsafe=0.048 n=2236
+  s1 loss 0.3825 306.4s (0.0143 s/step, 21450 steps) 262018p gpu_peak 1.84 GB (reserved 2.04)  domain_head {'established_auc': 0.9999932471375945, 'established_acc': 0.9991471619444707, 'established_n': 10553, 'startup_auc': 0.5, 'startup_acc': 0.5, 'startup_n': 1404}
+  s2 rigid startup[W_unsafe=0.962 P_unsafe=0.967 pick_fail=0.000 brier_unsafe=0.112 n=702] established[W_unsafe=0.977 P_unsafe=0.980 S_unsafe=0.966 pick_fail=0.000 brier_unsafe=0.059 n=5314]
+  s2 crm   startup[W_unsafe=0.967 P_unsafe=0.966 pick_fail=0.196 brier_unsafe=0.165 n=702] established[W_unsafe=0.981 P_unsafe=0.982 S_unsafe=0.986 pick_fail=0.107 brier_unsafe=0.058 n=5239]
+  s2   k0             rigid W_unsafe=0.962 P_unsafe=0.967 pick_fail=0.000 brier_unsafe=0.112 n=702 | crm W_unsafe=0.967 P_unsafe=0.966 pick_fail=0.196 brier_unsafe=0.165 n=702
+  s2   k10_30         rigid W_unsafe=0.979 P_unsafe=0.980 pick_fail=0.000 brier_unsafe=0.058 n=2105 | crm W_unsafe=0.979 P_unsafe=0.979 pick_fail=0.196 brier_unsafe=0.068 n=2105
+  s2   k40p           rigid W_unsafe=0.976 P_unsafe=0.980 S_unsafe=0.966 pick_fail=0.000 brier_unsafe=0.059 n=3209 | crm W_unsafe=0.982 P_unsafe=0.984 S_unsafe=0.986 pick_fail=0.107 brier_unsafe=0.051 n=3134
+  s2   src:branch     rigid W_unsafe=0.969 P_unsafe=0.964 S_unsafe=0.965 pick_fail=0.000 brier_unsafe=0.081 n=483 | crm W_unsafe=0.990 P_unsafe=0.983 S_unsafe=0.985 pick_fail=0.196 brier_unsafe=0.043 n=480
+  s2   src:designed   rigid W_unsafe=0.981 P_unsafe=0.987 pick_fail=0.000 brier_unsafe=0.043 n=3247 | crm W_unsafe=0.976 P_unsafe=0.973 pick_fail=0.161 brier_unsafe=0.083 n=3225
+  s2   src:on_policy  rigid W_unsafe=0.953 P_unsafe=0.957 pick_fail=0.071 brier_unsafe=0.093 n=2286 | crm W_unsafe=0.959 P_unsafe=0.972 pick_fail=0.607 brier_unsafe=0.059 n=2236
+  s2 loss 0.4304 302.9s (0.0141 s/step, 21450 steps) 262018p gpu_peak 1.84 GB (reserved 2.04)  domain_head {'established_auc': 0.9999455819864665, 'established_acc': 0.9983890836728893, 'established_n': 10553, 'startup_auc': 0.5, 'startup_acc': 0.5, 'startup_n': 1404}
+ENSEMBLE local_a1_cont3 rigid startup[W_unsafe=0.967 P_unsafe=0.975 pick_fail=0.000 brier_unsafe=0.105 n=702] established[W_unsafe=0.979 P_unsafe=0.983 S_unsafe=0.970 pick_fail=0.000 brier_unsafe=0.053 n=5314]
+ENSEMBLE local_a1_cont3 crm   startup[W_unsafe=0.971 P_unsafe=0.977 pick_fail=0.232 brier_unsafe=0.157 n=702] established[W_unsafe=0.985 P_unsafe=0.988 S_unsafe=0.988 pick_fail=0.107 brier_unsafe=0.047 n=5239]
+ENSEMBLE local_a1_cont3   k0             rigid W_unsafe=0.967 P_unsafe=0.975 pick_fail=0.000 brier_unsafe=0.105 n=702 | crm W_unsafe=0.971 P_unsafe=0.977 pick_fail=0.232 brier_unsafe=0.157 n=702
+ENSEMBLE local_a1_cont3   k10_30         rigid W_unsafe=0.981 P_unsafe=0.982 pick_fail=0.000 brier_unsafe=0.054 n=2105 | crm W_unsafe=0.983 P_unsafe=0.986 pick_fail=0.214 brier_unsafe=0.053 n=2105
+ENSEMBLE local_a1_cont3   k40p           rigid W_unsafe=0.979 P_unsafe=0.983 S_unsafe=0.970 pick_fail=0.000 brier_unsafe=0.053 n=3209 | crm W_unsafe=0.987 P_unsafe=0.989 S_unsafe=0.988 pick_fail=0.107 brier_unsafe=0.043 n=3134
+ENSEMBLE local_a1_cont3   src:branch     rigid W_unsafe=0.972 P_unsafe=0.972 S_unsafe=0.969 pick_fail=0.000 brier_unsafe=0.069 n=483 | crm W_unsafe=0.994 P_unsafe=0.986 S_unsafe=0.990 pick_fail=0.196 brier_unsafe=0.040 n=480
+ENSEMBLE local_a1_cont3   src:designed   rigid W_unsafe=0.986 P_unsafe=0.990 pick_fail=0.000 brier_unsafe=0.037 n=3247 | crm W_unsafe=0.978 P_unsafe=0.983 pick_fail=0.161 brier_unsafe=0.071 n=3225
+ENSEMBLE local_a1_cont3   src:on_policy  rigid W_unsafe=0.950 P_unsafe=0.960 pick_fail=0.071 brier_unsafe=0.089 n=2286 | crm W_unsafe=0.963 P_unsafe=0.982 pick_fail=0.625 brier_unsafe=0.048 n=2236

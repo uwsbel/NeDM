@@ -1,0 +1,92 @@
+ci_planner: family free
+world crm domain crm fixed2=False deployed tag 'crm_proposal'; reference picks /home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_f104_v1/eval_v1/picks {'A': 'crm'} (found)
+5 members from artifacts/traverse/generalist_20260921/A_adapt/train/deploy_v1/P_deploy_s*.pt on cuda: kinds ['ga_train'] conds ['none'] hist_T 40
+   {'name': 'P_deploy_s0.pt', 'kind': 'ga_train', 'cond': 'none', 'zdim': 0, 'nctx': 5, 'params': 256161}
+   {'name': 'P_deploy_s1.pt', 'kind': 'ga_train', 'cond': 'none', 'zdim': 0, 'nctx': 5, 'params': 256161}
+   {'name': 'P_deploy_s2.pt', 'kind': 'ga_train', 'cond': 'none', 'zdim': 0, 'nctx': 5, 'params': 256161}
+   {'name': 'P_deploy_s3.pt', 'kind': 'ga_train', 'cond': 'none', 'zdim': 0, 'nctx': 5, 'params': 256161}
+   {'name': 'P_deploy_s4.pt', 'kind': 'ga_train', 'cond': 'none', 'zdim': 0, 'nctx': 5, 'params': 256161}
+  10/800  5s  B=-12.70  ref 0/0  hist n_valid 20 encodes 0
+  20/800  9s  B=-11.64  ref 0/0  hist n_valid 20 encodes 0
+  30/800  14s  B=-12.32  ref 0/0  hist n_valid 20 encodes 0
+  40/800  18s  B=-11.08  ref 0/0  hist n_valid 20 encodes 0
+  50/800  22s  B=-12.22  ref 0/0  hist n_valid 20 encodes 0
+  60/800  27s  B=-11.31  ref 0/0  hist n_valid 20 encodes 0
+  70/800  31s  B=-12.73  ref 0/0  hist n_valid 20 encodes 0
+  80/800  36s  B=-12.38  ref 0/0  hist n_valid 20 encodes 0
+  90/800  40s  B=-10.75  ref 0/0  hist n_valid 20 encodes 0
+  100/800  44s  B=-12.30  ref 0/0  hist n_valid 20 encodes 0
+  110/800  49s  B=-9.89  ref 0/0  hist n_valid 20 encodes 0
+  120/800  53s  B=-10.67  ref 0/0  hist n_valid 20 encodes 0
+  130/800  57s  B=-11.96  ref 0/0  hist n_valid 20 encodes 0
+  140/800  62s  B=-12.55  ref 0/0  hist n_valid 20 encodes 0
+  150/800  66s  B=-10.21  ref 0/0  hist n_valid 20 encodes 0
+  160/800  71s  B=-11.67  ref 0/0  hist n_valid 20 encodes 0
+  170/800  75s  B=-11.92  ref 0/0  hist n_valid 20 encodes 0
+  180/800  80s  B=-12.60  ref 0/0  hist n_valid 20 encodes 0
+  190/800  84s  B=-10.45  ref 0/0  hist n_valid 20 encodes 0
+  200/800  89s  B=-8.91  ref 0/0  hist n_valid 20 encodes 0
+  210/800  93s  B=-12.55  ref 0/0  hist n_valid 20 encodes 0
+  220/800  97s  B=-11.34  ref 0/0  hist n_valid 20 encodes 0
+  230/800  102s  B=-9.16  ref 0/0  hist n_valid 20 encodes 0
+  240/800  106s  B=-10.69  ref 0/0  hist n_valid 20 encodes 0
+  250/800  111s  B=-11.85  ref 0/0  hist n_valid 20 encodes 0
+  260/800  115s  B=-12.04  ref 0/0  hist n_valid 20 encodes 0
+  270/800  119s  B=-11.70  ref 0/0  hist n_valid 20 encodes 0
+  280/800  124s  B=-11.42  ref 0/0  hist n_valid 20 encodes 0
+  290/800  128s  B=-11.10  ref 0/0  hist n_valid 20 encodes 0
+  300/800  133s  B=-11.39  ref 0/0  hist n_valid 20 encodes 0
+  310/800  137s  B=-11.77  ref 0/0  hist n_valid 20 encodes 0
+  320/800  141s  B=-11.27  ref 0/0  hist n_valid 20 encodes 0
+  330/800  146s  B=-12.03  ref 0/0  hist n_valid 20 encodes 0
+  340/800  151s  B=-10.32  ref 0/0  hist n_valid 20 encodes 0
+  350/800  156s  B=-8.54  ref 0/0  hist n_valid 20 encodes 0
+  360/800  160s  B=-11.01  ref 0/0  hist n_valid 20 encodes 0
+  370/800  165s  B=-11.95  ref 0/0  hist n_valid 20 encodes 0
+  380/800  169s  B=-4.05  ref 0/0  hist n_valid 20 encodes 0
+  390/800  174s  B=-12.00  ref 0/0  hist n_valid 20 encodes 0
+  400/800  178s  B=-11.16  ref 0/0  hist n_valid 20 encodes 0
+  410/800  183s  B=-10.32  ref 0/0  hist n_valid 20 encodes 0
+  420/800  187s  B=-12.37  ref 0/0  hist n_valid 20 encodes 0
+  430/800  192s  B=-12.45  ref 0/0  hist n_valid 20 encodes 0
+  440/800  196s  B=-12.15  ref 0/0  hist n_valid 20 encodes 0
+  450/800  201s  B=-11.15  ref 0/0  hist n_valid 20 encodes 0
+  460/800  205s  B=-11.51  ref 0/0  hist n_valid 20 encodes 0
+  470/800  210s  B=-12.22  ref 0/0  hist n_valid 20 encodes 0
+  480/800  215s  B=-5.08  ref 0/0  hist n_valid 20 encodes 0
+  490/800  219s  B=-8.53  ref 0/0  hist n_valid 20 encodes 0
+  500/800  224s  B=-9.75  ref 0/0  hist n_valid 20 encodes 0
+  510/800  228s  B=-12.21  ref 0/0  hist n_valid 20 encodes 0
+  520/800  233s  B=-10.80  ref 0/0  hist n_valid 20 encodes 0
+  530/800  238s  B=-12.37  ref 0/0  hist n_valid 20 encodes 0
+  540/800  242s  B=-9.80  ref 0/0  hist n_valid 20 encodes 0
+  550/800  247s  B=-11.44  ref 0/0  hist n_valid 20 encodes 0
+  560/800  251s  B=-11.12  ref 0/0  hist n_valid 20 encodes 0
+  570/800  256s  B=-11.90  ref 0/0  hist n_valid 20 encodes 0
+  580/800  260s  B=-11.22  ref 0/0  hist n_valid 20 encodes 0
+  590/800  265s  B=-11.97  ref 0/0  hist n_valid 20 encodes 0
+  600/800  269s  B=-12.65  ref 0/0  hist n_valid 20 encodes 0
+  610/800  274s  B=-12.35  ref 0/0  hist n_valid 20 encodes 0
+  620/800  279s  B=-12.46  ref 0/0  hist n_valid 20 encodes 0
+  630/800  283s  B=-12.29  ref 0/0  hist n_valid 20 encodes 0
+  640/800  288s  B=-10.83  ref 0/0  hist n_valid 20 encodes 0
+  650/800  292s  B=-11.82  ref 0/0  hist n_valid 20 encodes 0
+  660/800  297s  B=-1.89  ref 0/0  hist n_valid 20 encodes 0
+  670/800  301s  B=-11.88  ref 0/0  hist n_valid 20 encodes 0
+  680/800  305s  B=-12.17  ref 0/0  hist n_valid 20 encodes 0
+  690/800  310s  B=-12.48  ref 0/0  hist n_valid 20 encodes 0
+  700/800  314s  B=-1.07  ref 0/0  hist n_valid 20 encodes 0
+  710/800  319s  B=-11.60  ref 0/0  hist n_valid 20 encodes 0
+  720/800  323s  B=-7.78  ref 0/0  hist n_valid 20 encodes 0
+  730/800  328s  B=-11.95  ref 0/0  hist n_valid 20 encodes 0
+  740/800  332s  B=-12.09  ref 0/0  hist n_valid 20 encodes 0
+  750/800  337s  B=-10.90  ref 0/0  hist n_valid 20 encodes 0
+  760/800  341s  B=-12.08  ref 0/0  hist n_valid 20 encodes 0
+  770/800  346s  B=-12.14  ref 0/0  hist n_valid 20 encodes 0
+  780/800  350s  B=-8.81  ref 0/0  hist n_valid 20 encodes 0
+  790/800  355s  B=-12.49  ref 0/0  hist n_valid 20 encodes 0
+  800/800  359s  B=-11.42  ref 0/0  hist n_valid 20 encodes 0
+{"world": "crm", "domain": "crm", "fixed2": false, "n_groups": 800, "arms": ["B"], "tags": {"B": "n2iter_cem4x64"}, "deployed_tag": "crm_proposal", "models": "artifacts/traverse/generalist_20260921/A_adapt/train/deploy_v1/P_deploy_s*.pt", "model_kinds": ["ga_train"], "conds": ["none"], "map_root": "artifacts/traverse/crm_f104_v1/map_root", "rigid_arena": null, "n_distinct_routes": 800, "n_new_drives": 800, "selftest_groups": [], "corridors_batched": true, "float16_scoring": true, "pose_sources": ["poses_file"], "base_sources": ["base_route(pose, goal)"], "extra": null, "cluster_prefix": null, "wall_s_total": 359.24811029434204, "agreement": {}}
+B cem4x64          z_mean -10.471 (med -11.428) z_pess -8.996 P 0.0028 T 17.3s v 3.41 start-pose dist max 0.000 m  wall 0.45s/group
+reference check: 0/0 picks equal {'A': 'crm'} in /home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_f104_v1/eval_v1/picks; 800 distinct routes, 800 new drives; agreement {}; history encodes 0 (= 0 members x 800 decisions)
+family free arm B: n 800 speed step mean +1.590 |max| 4.898 bins {'-inf..-1.5': 1, '-1.5..-0.5': 19, '-0.5..0.5': 104, '0.5..1.5': 311, '1.5..inf': 365}; start heading mean 18.6 max 48.6 bins {'0..5': 167, '5..15': 168, '15..30': 288, '30..inf': 177}; accel [-2.000, 1.500]; acceptance 0.909; v0 sources {'history_window': 800} cross-check 0.00e+00

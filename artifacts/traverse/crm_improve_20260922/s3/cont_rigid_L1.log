@@ -1,0 +1,159 @@
+  50/1200 decisions 54s rows 300
+  100/1200 decisions 107s rows 600
+  150/1200 decisions 159s rows 900
+  200/1200 decisions 211s rows 1200
+  250/1200 decisions 264s rows 1500
+  300/1200 decisions 317s rows 1800
+  350/1200 decisions 369s rows 2100
+  400/1200 decisions 420s rows 2400
+  450/1200 decisions 473s rows 2700
+  500/1200 decisions 525s rows 3000
+  550/1200 decisions 577s rows 3300
+  600/1200 decisions 628s rows 3600
+  650/1200 decisions 679s rows 3900
+  700/1200 decisions 730s rows 4200
+  750/1200 decisions 782s rows 4500
+  800/1200 decisions 831s rows 4800
+  850/1200 decisions 878s rows 5100
+  900/1200 decisions 925s rows 5400
+  950/1200 decisions 972s rows 5700
+  1000/1200 decisions 1019s rows 6000
+  1050/1200 decisions 1066s rows 6300
+  1100/1200 decisions 1114s rows 6600
+  1150/1200 decisions 1161s rows 6900
+  1200/1200 decisions 1209s rows 7200
+{
+ "created": "2026-09-22 10:46:45",
+ "stage": "continuations",
+ "world": "rigid",
+ "case_set": "twin",
+ "length_s": 1.0,
+ "frame": 20,
+ "decision_dir": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_improve_20260922/a5data/decision_twin_L1",
+ "models": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/generalist_20260921/A_adapt/train/deploy_v1/H_deploy_s*.pt",
+ "hist_T": 40,
+ "n_decisions": 1200,
+ "n_decision_states": 1200,
+ "n_analysis_set": 1200,
+ "all_groups": false,
+ "rows": 7200,
+ "run_rows": 7200,
+ "duplicates": 0,
+ "prefix_checked": 1200,
+ "prefix_mismatch": [],
+ "n_prefix_mismatch": 0,
+ "slots_missing": 0,
+ "n_invalid": 0,
+ "n_failures": 0,
+ "unique_per_decision": {
+  "0": 0,
+  "1": 0,
+  "2": 0,
+  "3": 0,
+  "4": 0,
+  "5": 0,
+  "6": 1200
+ },
+ "split_counts": {
+  "test": 55,
+  "train": 1089,
+  "val": 56
+ },
+ "shard_counts": {
+  "0": 1194,
+  "1": 972,
+  "2": 1332,
+  "3": 1140,
+  "4": 1344,
+  "5": 1218
+ },
+ "family_stats": {
+  "free/sample": {
+   "n": 2400,
+   "speed_step_p10_50_90": [
+    -2.564,
+    -0.8,
+    1.141
+   ],
+   "speed_step_abs_max": 4.128519803899817,
+   "start_heading_p50_max_deg": [
+    18.4,
+    51.15
+   ],
+   "speed_step_bins": {
+    "<-1.5": 784,
+    "-1.5..-0.5": 604,
+    "-0.5..0.5": 546,
+    "0.5..1.5": 310,
+    ">1.5": 156
+   }
+  },
+  "free/cem": {
+   "n": 1200,
+   "speed_step_p10_50_90": [
+    -1.296,
+    -0.284,
+    1.482
+   ],
+   "speed_step_abs_max": 4.028256893157959,
+   "start_heading_p50_max_deg": [
+    19.3,
+    52.08
+   ],
+   "speed_step_bins": {
+    "<-1.5": 73,
+    "-1.5..-0.5": 431,
+    "-0.5..0.5": 410,
+    "0.5..1.5": 170,
+    ">1.5": 116
+   }
+  },
+  "cont_head/sample": {
+   "n": 2400,
+   "speed_step_p10_50_90": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "speed_step_abs_max": 0.0,
+   "start_heading_p50_max_deg": [
+    10.24,
+    19.98
+   ],
+   "speed_step_bins": {
+    "<-1.5": 0,
+    "-1.5..-0.5": 0,
+    "-0.5..0.5": 2400,
+    "0.5..1.5": 0,
+    ">1.5": 0
+   }
+  },
+  "cont_head/cem": {
+   "n": 1200,
+   "speed_step_p10_50_90": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "speed_step_abs_max": 0.0,
+   "start_heading_p50_max_deg": [
+    8.35,
+    19.99
+   ],
+   "speed_step_bins": {
+    "<-1.5": 0,
+    "-1.5..-0.5": 0,
+    "-0.5..0.5": 1200,
+    "0.5..1.5": 0,
+    ">1.5": 0
+   }
+  }
+ },
+ "cem_wall_s": 1191.1,
+ "wall_s": 1209.3,
+ "tasks": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_improve_20260922/a5data/cont_twin_L1/tasks_cont_twin_rigid_L1.json",
+ "anchors": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_improve_20260922/a5data/cont_twin_L1/anchors_rigid_L1.json",
+ "tasks_sha256": "a309cd1f526a151272f2bf97c8eaee653564171cff4a03b72d0d5fb1a61771bd",
+ "routes_dir": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_improve_20260922/a5data/cont_twin_L1/routes_rigid",
+ "selftest_suite_groups": false
+}

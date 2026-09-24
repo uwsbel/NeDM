@@ -1,0 +1,16 @@
+09:55:47 waiting for twin pass 1: 2731/3600
+09:59:50 waiting for twin pass 1: 3192/3600
+10:04:13 synced twin pass 1: crm 3600, rigid 3600
+10:04:19 analyze twin L=3 rc=0 wrote artifacts/traverse/crm_improve_20260922/a5data/decision_twin_L3/pass1_state.json, decision_<world>.json, poses_<world>[_all].json (1197 groups in the analysis set, 3 excluded)
+10:04:25 analyze twin L=1 rc=0 wrote artifacts/traverse/crm_improve_20260922/a5data/decision_twin_L1/pass1_state.json, decision_<world>.json, poses_<world>[_all].json (1200 groups in the analysis set, 0 excluded)
+10:26:16 continuations rigid L=3 rc=0
+10:26:34 continuations crm L=3 rc=0
+10:46:45 continuations rigid L=1 rc=0
+10:46:49 continuations crm L=1 rc=0
+10:46:49 S3 build done; outputs:
+artifacts/traverse/crm_improve_20260922/a5data/cont_twin_L1
+artifacts/traverse/crm_improve_20260922/a5data/cont_twin_L3
+artifacts/traverse/crm_improve_20260922/a5data/cont_twin_L1/SHIP_cont_rigid_L1.txt
+artifacts/traverse/crm_improve_20260922/a5data/cont_twin_L1/SHIP_cont_crm_L1.txt
+artifacts/traverse/crm_improve_20260922/a5data/cont_twin_L3/SHIP_cont_rigid_L3.txt
+artifacts/traverse/crm_improve_20260922/a5data/cont_twin_L3/SHIP_cont_crm_L3.txt

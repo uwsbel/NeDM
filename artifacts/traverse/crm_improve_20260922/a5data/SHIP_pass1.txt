@@ -1,0 +1,67 @@
+# Pass-1 approach drives (ci_a5data.py --stage pass1-tasks). NOT run by ci_a5data.py.
+C=/work1/dannegrut/harry/experiments/crm_f104_20260916; G2=/work1/dannegrut/harry/experiments/crm_improve_20260922; L=/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_improve_20260922/a5data
+# 1. ship the approach routes (both roots) and the task files
+ssh amd "mkdir -p $C/crm_improve/pass1_suite/approach $C/crm_improve/pass1_twin/approach $G2/pass1_suite/approach $G2/pass1_twin/approach $G2/tasks"
+rsync -az $L/approach_suite/ amd:$C/crm_improve/pass1_suite/approach/
+rsync -az $L/approach_suite/ amd:$G2/pass1_suite/approach/
+rsync -az $L/tasks/tasks_pass1_suite_crm*.json $L/approach_suite_index.json amd:$C/crm_improve/pass1_suite/
+rsync -az $L/tasks/tasks_pass1_suite_rigid*.json amd:$G2/tasks/
+rsync -az $L/approach_twin/ amd:$C/crm_improve/pass1_twin/approach/
+rsync -az $L/approach_twin/ amd:$G2/pass1_twin/approach/
+rsync -az $L/tasks/tasks_pass1_twin_crm*.json $L/approach_twin_index.json amd:$C/crm_improve/pass1_twin/
+rsync -az $L/tasks/tasks_pass1_twin_rigid*.json amd:$G2/tasks/
+# 2. verify on the cluster (paths, case sha256, route content hash); expect "verify: bad = 0"
+ssh amd "cd $C && python3 - crm_improve/pass1_suite/tasks_pass1_suite_crm.json crm_improve/pass1_twin/tasks_pass1_twin_crm.json" <<'PY'
+import hashlib, json, os, sys
+bad = 0
+for tf in sys.argv[1:]:
+    rows = json.load(open(tf)); ids = [r['id'] for r in rows]; assert len(set(ids)) == len(ids), tf
+    def rsha(f):
+        j = json.load(open(f))
+        return hashlib.sha256(json.dumps({k: [[float(v) for v in p] if isinstance(p, list) else float(p) for p in j[k]] for k in ('waypoints', 'speeds', 'stations', 'headings')}).encode()).hexdigest()
+    for r in rows:
+        if not r.get('run', True): continue
+        ex = r.get('extra', []); br = ex[ex.index('--branch-route') + 1] if '--branch-route' in ex else None
+        for key, f in (('case', r['case']), ('route', r['route']), ('branch', br)):
+            if f is not None and not os.path.isfile(f): bad += 1; print('MISSING', r['id'], key, f)
+        if os.path.isfile(r['case']) and hashlib.sha256(open(r['case'], 'rb').read()).hexdigest() != r['case_sha256']: bad += 1; print('CASE SHA', r['id'])
+        if os.path.isfile(r['route']) and rsha(r['route']) != (r['prefix_sha256'] if br else r['sha256']): bad += 1; print('ROUTE SHA', r['id'])
+        if br and os.path.isfile(br) and rsha(br) != r['sha256']: bad += 1; print('BRANCH SHA', r['id'])
+    print(tf, len(rows), 'rows checked')
+print('verify: bad =', bad)
+PY
+ssh amd "cd $G2 && python3 - $G2/tasks/tasks_pass1_suite_rigid.json $G2/tasks/tasks_pass1_twin_rigid.json" <<'PY'
+import hashlib, json, os, sys
+bad = 0
+for tf in sys.argv[1:]:
+    rows = json.load(open(tf)); ids = [r['id'] for r in rows]; assert len(set(ids)) == len(ids), tf
+    def rsha(f):
+        j = json.load(open(f))
+        return hashlib.sha256(json.dumps({k: [[float(v) for v in p] if isinstance(p, list) else float(p) for p in j[k]] for k in ('waypoints', 'speeds', 'stations', 'headings')}).encode()).hexdigest()
+    for r in rows:
+        if not r.get('run', True): continue
+        ex = r.get('extra', []); br = ex[ex.index('--branch-route') + 1] if '--branch-route' in ex else None
+        for key, f in (('case', r['case']), ('route', r['route']), ('branch', br)):
+            if f is not None and not os.path.isfile(f): bad += 1; print('MISSING', r['id'], key, f)
+        if os.path.isfile(r['case']) and hashlib.sha256(open(r['case'], 'rb').read()).hexdigest() != r['case_sha256']: bad += 1; print('CASE SHA', r['id'])
+        if os.path.isfile(r['route']) and rsha(r['route']) != (r['prefix_sha256'] if br else r['sha256']): bad += 1; print('ROUTE SHA', r['id'])
+        if br and os.path.isfile(br) and rsha(br) != r['sha256']: bad += 1; print('BRANCH SHA', r['id'])
+    print(tf, len(rows), 'rows checked')
+print('verify: bad =', bad)
+PY
+# 3. launch templates (NOT run; the budget and the queue cap are the orchestrator's call).
+#    CRM pass 1 = native mode -> the unmodified collector (crm_collect.py, CRM_COLLECTOR unset), MI350X partitions
+#    only (K1 determinism check: prefix replays are byte-identical across MI350X nodes); one out dir per set
+#    (ids carry the length tag).  Rigid pass 1 through gen_array_g.sbatch with GEN_ROOT=$G2 (G2/source must hold
+#    gen_collect_ext.py + source_manifest.json, K1 LAUNCH_rigid_a4_b3.md recipe).
+# S=$C/source/scripts/crm_collect.sbatch; X="--export=ALL,CRM_TASKS=$C/crm_improve/pass1_suite/tasks_pass1_suite_crm.json,CRM_OUT=$C/crm_improve/pass1_suite/out,CRM_CONFIG=configs/crm_main.json,CRM_BUDGET_S=13400"
+# mkdir -p $C/crm_improve/pass1_suite/out/logs; sbatch --parsable -p mi3501x -c 24 -t 04:00:00 --array=0-5 -J ci_p1_suite $X -o $C/crm_improve/pass1_suite/out/logs/%x_%A_%a.out $S
+# mkdir -p $G2/rigid_pass1_suite/logs; sbatch --parsable -p mi2104x -c 128 -t 03:00:00 --array=0-5 -J ci_rp1_suite --export=ALL,GEN_ROOT=$G2,GEN_TASKS=$G2/tasks/tasks_pass1_suite_rigid.json,GEN_OUT=$G2/rigid_pass1_suite,GEN_COLLECTOR=$G2/source/scripts/gen_collect_ext.py -o $G2/rigid_pass1_suite/logs/%x_%A_%a.out $G2/source/scripts/gen_array_g.sbatch
+# S=$C/source/scripts/crm_collect.sbatch; X="--export=ALL,CRM_TASKS=$C/crm_improve/pass1_twin/tasks_pass1_twin_crm.json,CRM_OUT=$C/crm_improve/pass1_twin/out,CRM_CONFIG=configs/crm_main.json,CRM_BUDGET_S=13400"
+# mkdir -p $C/crm_improve/pass1_twin/out/logs; sbatch --parsable -p mi3501x -c 24 -t 04:00:00 --array=0-5 -J ci_p1_twin $X -o $C/crm_improve/pass1_twin/out/logs/%x_%A_%a.out $S
+# mkdir -p $G2/rigid_pass1_twin/logs; sbatch --parsable -p mi2104x -c 128 -t 03:00:00 --array=0-5 -J ci_rp1_twin --export=ALL,GEN_ROOT=$G2,GEN_TASKS=$G2/tasks/tasks_pass1_twin_rigid.json,GEN_OUT=$G2/rigid_pass1_twin,GEN_COLLECTOR=$G2/source/scripts/gen_collect_ext.py -o $G2/rigid_pass1_twin/logs/%x_%A_%a.out $G2/source/scripts/gen_array_g.sbatch
+# 4. sync back (allowed direction)
+# rsync -az --exclude claims --exclude stale amd:$C/crm_improve/pass1_suite/out/runs/ $L/pass1_suite_crm/runs/
+# rsync -az amd:$G2/rigid_pass1_suite/runs/ $L/pass1_suite_rigid/runs/
+# rsync -az --exclude claims --exclude stale amd:$C/crm_improve/pass1_twin/out/runs/ $L/pass1_twin_crm/runs/
+# rsync -az amd:$G2/rigid_pass1_twin/runs/ $L/pass1_twin_rigid/runs/

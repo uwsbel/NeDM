@@ -1,0 +1,5 @@
+09:39:05 waiting for CRM pass 1: 465/1600 complete, 0 failed
+09:43:11 waiting for CRM pass 1: 1052/1600 complete, 0 failed
+09:47:31 synced pass 1: crm 1600, rigid 1600
+09:47:35 analyze L=0.5 rc=0 wrote artifacts/traverse/crm_improve_20260922/a5data/decision_suite_L0p5/pass1_state.json, decision_<world>.json, poses_<world>[_all].json (798 groups in the an
+09:47:38 analyze L=1 rc=0 wrote artifacts/traverse/crm_improve_20260922/a5data/decision_suite_L1/pass1_state.json, decision_<world>.json, poses_<world>[_all].json (800 groups in the anal

@@ -1,0 +1,139 @@
+L1_Hn:H3s fail: diff -8.9 pts, feature-cluster CI [-13.7, -4.5] (9 clusters), cluster wins/losses 8/1, sign p = 0.0391
+L1_H:H3s fail: diff -9.4 pts, feature-cluster CI [-14.4, -5.2] (9 clusters), cluster wins/losses 9/0, sign p = 0.0039
+L1_Hn:H3s fail: diff -8.9 pts, feature-cluster CI [-13.8, -4.4] (9 clusters), cluster wins/losses 8/1, sign p = 0.0391
+L1_P:H3s fail: diff -8.8 pts, feature-cluster CI [-14.1, -4.0] (9 clusters), cluster wins/losses 7/1, sign p = 0.0703
+L1_Spcrm:H3s fail: diff -9.8 pts, feature-cluster CI [-14.9, -5.2] (9 clusters), cluster wins/losses 8/1, sign p = 0.0391
+L1_T:H3s fail: diff -11.5 pts, feature-cluster CI [-17.1, -6.8] (9 clusters), cluster wins/losses 9/0, sign p = 0.0039
+L1_X:H3s fail: diff -10.9 pts, feature-cluster CI [-15.8, -6.1] (9 clusters), cluster wins/losses 9/0, sign p = 0.0039
+L0p5_H:H3s fail: diff -10.2 pts, feature-cluster CI [-16.7, -5.0] (9 clusters), cluster wins/losses 8/1, sign p = 0.0391
+L0p5_Hn:H3s fail: diff -11.9 pts, feature-cluster CI [-17.5, -6.9] (9 clusters), cluster wins/losses 9/0, sign p = 0.0039
+L0p5_P:H3s fail: diff -9.9 pts, feature-cluster CI [-16.0, -4.4] (9 clusters), cluster wins/losses 7/1, sign p = 0.0703
+L0p5_T:H3s fail: diff -12.2 pts, feature-cluster CI [-18.4, -7.2] (9 clusters), cluster wins/losses 9/0, sign p = 0.0039
+L0p5_X:H3s fail: diff -10.4 pts, feature-cluster CI [-15.7, -5.4] (9 clusters), cluster wins/losses 8/1, sign p = 0.0391
+800/800 groups with every arm; missing drives {'H3s': 0, 'Sp3s': 0, 'L1_H': 0, 'L1_Hn': 0, 'L1_P': 0, 'L1_Spcrm': 0, 'L1_T': 0, 'L1_X': 0, 'L0p5_H': 0, 'L0p5_Hn': 0, 'L0p5_P': 0, 'L0p5_T': 0, 'L0p5_X': 0}
+  [all] n = 800
+    PRIMARY_L1_Hn:H3s fail   7.2% vs  16.1%  diff -8.9 [-11.5, -6.3]  one-sided p95 -6.7 (margin 3.0: PASS)  worse 23 vs 94  p=0.0000  identical picks 0
+    L1_H:H3s         fail   6.8% vs  16.1%  diff -9.4 [-11.9, -7.0]  one-sided p95 -7.4 (margin 3.0: PASS)  worse 14 vs 89  p=0.0000  identical picks 0
+    L1_Hn:H3s        fail   7.2% vs  16.1%  diff -8.9 [-11.4, -6.2]  one-sided p95 -6.6 (margin 3.0: PASS)  worse 23 vs 94  p=0.0000  identical picks 0
+    L1_P:H3s         fail   7.4% vs  16.1%  diff -8.8 [-11.3, -6.3]  one-sided p95 -6.6 (margin 3.0: PASS)  worse 20 vs 90  p=0.0000  identical picks 0
+    L1_Spcrm:H3s     fail   6.4% vs  16.1%  diff -9.8 [-12.5, -7.1]  one-sided p95 -7.6 (margin 3.0: PASS)  worse 22 vs 100  p=0.0000  identical picks 0
+    L1_T:H3s         fail   4.6% vs  16.1%  diff -11.5 [-14.0, -9.0]  one-sided p95 -9.4 (margin 3.0: PASS)  worse 14 vs 106  p=0.0000  identical picks 0
+    L1_X:H3s         fail   5.2% vs  16.1%  diff -10.9 [-13.5, -8.4]  one-sided p95 -8.9 (margin 3.0: PASS)  worse 13 vs 100  p=0.0000  identical picks 0
+    L0p5_H:H3s       fail   5.9% vs  16.1%  diff -10.2 [-12.9, -7.8]  one-sided p95 -8.1 (margin 3.0: PASS)  worse 19 vs 101  p=0.0000  identical picks 0
+    L0p5_Hn:H3s      fail   4.2% vs  16.1%  diff -11.9 [-14.4, -9.5]  one-sided p95 -9.9 (margin 3.0: PASS)  worse 8 vs 103  p=0.0000  identical picks 0
+    L0p5_P:H3s       fail   6.2% vs  16.1%  diff -9.9 [-12.4, -7.4]  one-sided p95 -7.8 (margin 3.0: PASS)  worse 18 vs 97  p=0.0000  identical picks 0
+    L0p5_T:H3s       fail   3.9% vs  16.1%  diff -12.2 [-14.9, -9.8]  one-sided p95 -10.1 (margin 3.0: PASS)  worse 9 vs 107  p=0.0000  identical picks 0
+    L0p5_X:H3s       fail   5.8% vs  16.1%  diff -10.4 [-12.9, -7.9]  one-sided p95 -8.3 (margin 3.0: PASS)  worse 17 vs 100  p=0.0000  identical picks 0
+    time L1_Hn:H3s    median paired ratio 0.896 (p95 0.908, bound 1.1: PASS); ratio of medians 0.882 (p95 0.899); n 648
+    time L1_H:H3s     median paired ratio 1.000 (p95 1.010, bound 1.1: PASS); ratio of medians 1.003 (p95 1.023); n 657
+    time L1_P:H3s     median paired ratio 0.927 (p95 0.938, bound 1.1: PASS); ratio of medians 0.918 (p95 0.941); n 651
+    time L1_Spcrm:H3s median paired ratio 0.987 (p95 1.006, bound 1.1: PASS); ratio of medians 0.986 (p95 1.014); n 649
+    time L1_T:H3s     median paired ratio 0.954 (p95 0.970, bound 1.1: PASS); ratio of medians 0.960 (p95 0.980); n 657
+    time L1_X:H3s     median paired ratio 0.795 (p95 0.812, bound 1.1: PASS); ratio of medians 0.769 (p95 0.789); n 658
+    time L0p5_H:H3s   median paired ratio 0.973 (p95 0.986, bound 1.1: PASS); ratio of medians 0.983 (p95 1.003); n 652
+    time L0p5_Hn:H3s  median paired ratio 0.875 (p95 0.890, bound 1.1: PASS); ratio of medians 0.864 (p95 0.883); n 663
+    time L0p5_P:H3s   median paired ratio 0.908 (p95 0.921, bound 1.1: PASS); ratio of medians 0.901 (p95 0.921); n 653
+    time L0p5_T:H3s   median paired ratio 0.949 (p95 0.957, bound 1.1: PASS); ratio of medians 0.955 (p95 0.976); n 662
+    time L0p5_X:H3s   median paired ratio 0.775 (p95 0.790, bound 1.1: PASS); ratio of medians 0.754 (p95 0.774); n 654
+    arm: goal reached / unsafe / tilt30 / median time / median work / mean predicted P / confident failures
+     H3s           83.9%   16.4%   0.5%   17.7 s     454 kJ  P 0.040  55
+     Sp3s          83.0%   17.0%   0.8%   18.0 s     450 kJ  P 0.026  71
+     L1_H          93.2%    7.0%   0.5%   17.5 s     438 kJ  P 0.007  28
+     L1_Hn         92.8%    7.4%   1.2%   15.7 s     457 kJ  P 0.003  41
+     L1_P          92.6%    7.4%   0.6%   16.2 s     441 kJ  P 0.003  37
+     L1_Spcrm      93.6%    6.4%   1.1%   17.1 s     452 kJ  P 0.005  36
+     L1_T          95.4%    4.8%   1.0%   16.8 s     442 kJ  P 0.005  22
+     L1_X          94.8%    5.4%   1.5%   13.7 s     475 kJ  P 0.002  28
+     L0p5_H        94.1%    6.0%   1.1%   17.1 s     437 kJ  P 0.005  24
+     L0p5_Hn       95.8%    4.4%   1.1%   15.3 s     447 kJ  P 0.003  20
+     L0p5_P        93.8%    6.4%   1.1%   15.7 s     437 kJ  P 0.002  32
+     L0p5_T        96.1%    4.0%   1.2%   16.7 s     433 kJ  P 0.003  21
+     L0p5_X        94.2%    5.8%   1.4%   13.4 s     468 kJ  P 0.001  32
+  [stratum fresh] n = 600
+    PRIMARY_L1_Hn:H3s fail   7.2% vs  16.5%  diff -9.3 [-12.3, -6.5]  one-sided p95 -7.0 (margin 3.0: PASS)  worse 16 vs 72  p=0.0000  identical picks 0
+    L1_H:H3s         fail   7.0% vs  16.5%  diff -9.5 [-12.3, -6.7]  one-sided p95 -7.2 (margin 3.0: PASS)  worse 10 vs 67  p=0.0000  identical picks 0
+    L1_Hn:H3s        fail   7.2% vs  16.5%  diff -9.3 [-12.3, -6.3]  one-sided p95 -6.8 (margin 3.0: PASS)  worse 16 vs 72  p=0.0000  identical picks 0
+    L1_P:H3s         fail   7.0% vs  16.5%  diff -9.5 [-12.5, -6.7]  one-sided p95 -7.0 (margin 3.0: PASS)  worse 13 vs 70  p=0.0000  identical picks 0
+    L1_Spcrm:H3s     fail   6.7% vs  16.5%  diff -9.8 [-12.7, -6.8]  one-sided p95 -7.3 (margin 3.0: PASS)  worse 16 vs 75  p=0.0000  identical picks 0
+    L1_T:H3s         fail   4.5% vs  16.5%  diff -12.0 [-15.0, -9.0]  one-sided p95 -9.5 (margin 3.0: PASS)  worse 9 vs 81  p=0.0000  identical picks 0
+    L1_X:H3s         fail   5.2% vs  16.5%  diff -11.3 [-14.3, -8.5]  one-sided p95 -9.0 (margin 3.0: PASS)  worse 9 vs 77  p=0.0000  identical picks 0
+    L0p5_H:H3s       fail   5.8% vs  16.5%  diff -10.7 [-13.7, -7.8]  one-sided p95 -8.2 (margin 3.0: PASS)  worse 13 vs 77  p=0.0000  identical picks 0
+    L0p5_Hn:H3s      fail   4.3% vs  16.5%  diff -12.2 [-15.0, -9.5]  one-sided p95 -9.8 (margin 3.0: PASS)  worse 5 vs 78  p=0.0000  identical picks 0
+    L0p5_P:H3s       fail   6.5% vs  16.5%  diff -10.0 [-13.0, -7.2]  one-sided p95 -7.5 (margin 3.0: PASS)  worse 13 vs 73  p=0.0000  identical picks 0
+    L0p5_T:H3s       fail   4.3% vs  16.5%  diff -12.2 [-15.2, -9.3]  one-sided p95 -9.8 (margin 3.0: PASS)  worse 8 vs 81  p=0.0000  identical picks 0
+    L0p5_X:H3s       fail   5.8% vs  16.5%  diff -10.7 [-13.5, -7.8]  one-sided p95 -8.2 (margin 3.0: PASS)  worse 12 vs 76  p=0.0000  identical picks 0
+    time L1_Hn:H3s    median paired ratio 0.889 (p95 0.903, bound 1.1: PASS); ratio of medians 0.874 (p95 0.901); n 485
+    time L1_H:H3s     median paired ratio 1.000 (p95 1.014, bound 1.1: PASS); ratio of medians 1.003 (p95 1.031); n 491
+    time L1_P:H3s     median paired ratio 0.929 (p95 0.944, bound 1.1: PASS); ratio of medians 0.926 (p95 0.947); n 488
+    time L1_Spcrm:H3s median paired ratio 0.995 (p95 1.011, bound 1.1: PASS); ratio of medians 0.983 (p95 1.017); n 485
+    time L1_T:H3s     median paired ratio 0.959 (p95 0.980, bound 1.1: PASS); ratio of medians 0.970 (p95 0.994); n 492
+    time L1_X:H3s     median paired ratio 0.794 (p95 0.814, bound 1.1: PASS); ratio of medians 0.760 (p95 0.782); n 492
+    time L0p5_H:H3s   median paired ratio 0.967 (p95 0.977, bound 1.1: PASS); ratio of medians 0.973 (p95 0.994); n 488
+    time L0p5_Hn:H3s  median paired ratio 0.875 (p95 0.889, bound 1.1: PASS); ratio of medians 0.865 (p95 0.888); n 496
+    time L0p5_P:H3s   median paired ratio 0.914 (p95 0.928, bound 1.1: PASS); ratio of medians 0.905 (p95 0.929); n 488
+    time L0p5_T:H3s   median paired ratio 0.953 (p95 0.963, bound 1.1: PASS); ratio of medians 0.956 (p95 0.980); n 493
+    time L0p5_X:H3s   median paired ratio 0.767 (p95 0.785, bound 1.1: PASS); ratio of medians 0.744 (p95 0.763); n 489
+    arm: goal reached / unsafe / tilt30 / median time / median work / mean predicted P / confident failures
+     H3s           83.5%   16.8%   0.3%   18.2 s     456 kJ  P 0.039  42
+     Sp3s          82.0%   18.0%   0.7%   18.4 s     452 kJ  P 0.026  55
+     L1_H          93.0%    7.3%   0.7%   18.0 s     438 kJ  P 0.007  21
+     L1_Hn         92.8%    7.3%   1.2%   16.0 s     463 kJ  P 0.002  31
+     L1_P          93.0%    7.0%   0.3%   16.7 s     444 kJ  P 0.003  25
+     L1_Spcrm      93.3%    6.7%   1.2%   17.4 s     454 kJ  P 0.006  26
+     L1_T          95.5%    4.7%   0.8%   17.3 s     442 kJ  P 0.004  15
+     L1_X          94.8%    5.3%   1.5%   14.0 s     477 kJ  P 0.002  20
+     L0p5_H        94.2%    6.0%   1.0%   17.4 s     440 kJ  P 0.005  21
+     L0p5_Hn       95.7%    4.5%   1.0%   15.8 s     451 kJ  P 0.002  15
+     L0p5_P        93.5%    6.7%   1.0%   16.2 s     440 kJ  P 0.002  26
+     L0p5_T        95.7%    4.5%   1.2%   17.1 s     433 kJ  P 0.002  19
+     L0p5_X        94.2%    5.8%   1.5%   13.5 s     472 kJ  P 0.001  25
+  [stratum reused] n = 200
+    PRIMARY_L1_Hn:H3s fail   7.5% vs  15.0%  diff -7.5 [-12.5, -2.5]  one-sided p95 -3.0 (margin 3.0: PASS)  worse 7 vs 22  p=0.0081  identical picks 0
+    L1_H:H3s         fail   6.0% vs  15.0%  diff -9.0 [-14.0, -4.5]  one-sided p95 -5.0 (margin 3.0: PASS)  worse 4 vs 22  p=0.0005  identical picks 0
+    L1_Hn:H3s        fail   7.5% vs  15.0%  diff -7.5 [-13.0, -2.5]  one-sided p95 -3.5 (margin 3.0: PASS)  worse 7 vs 22  p=0.0081  identical picks 0
+    L1_P:H3s         fail   8.5% vs  15.0%  diff -6.5 [-12.0, -1.5]  one-sided p95 -2.5 (margin 3.0: PASS)  worse 7 vs 20  p=0.0192  identical picks 0
+    L1_Spcrm:H3s     fail   5.5% vs  15.0%  diff -9.5 [-15.0, -4.0]  one-sided p95 -5.0 (margin 3.0: PASS)  worse 6 vs 25  p=0.0009  identical picks 0
+    L1_T:H3s         fail   5.0% vs  15.0%  diff -10.0 [-15.5, -5.0]  one-sided p95 -6.0 (margin 3.0: PASS)  worse 5 vs 25  p=0.0003  identical picks 0
+    L1_X:H3s         fail   5.5% vs  15.0%  diff -9.5 [-14.5, -4.5]  one-sided p95 -5.5 (margin 3.0: PASS)  worse 4 vs 23  p=0.0003  identical picks 0
+    L0p5_H:H3s       fail   6.0% vs  15.0%  diff -9.0 [-14.0, -3.5]  one-sided p95 -4.5 (margin 3.0: PASS)  worse 6 vs 24  p=0.0014  identical picks 0
+    L0p5_Hn:H3s      fail   4.0% vs  15.0%  diff -11.0 [-16.0, -6.0]  one-sided p95 -7.0 (margin 3.0: PASS)  worse 3 vs 25  p=0.0000  identical picks 0
+    L0p5_P:H3s       fail   5.5% vs  15.0%  diff -9.5 [-14.5, -4.5]  one-sided p95 -5.0 (margin 3.0: PASS)  worse 5 vs 24  p=0.0005  identical picks 0
+    L0p5_T:H3s       fail   2.5% vs  15.0%  diff -12.5 [-17.5, -8.0]  one-sided p95 -8.5 (margin 3.0: PASS)  worse 1 vs 26  p=0.0000  identical picks 0
+    L0p5_X:H3s       fail   5.5% vs  15.0%  diff -9.5 [-14.5, -4.5]  one-sided p95 -5.0 (margin 3.0: PASS)  worse 5 vs 24  p=0.0005  identical picks 0
+    time L1_Hn:H3s    median paired ratio 0.930 (p95 0.949, bound 1.1: PASS); ratio of medians 0.908 (p95 0.958); n 163
+    time L1_H:H3s     median paired ratio 0.982 (p95 1.012, bound 1.1: PASS); ratio of medians 0.997 (p95 1.047); n 166
+    time L1_P:H3s     median paired ratio 0.917 (p95 0.936, bound 1.1: PASS); ratio of medians 0.926 (p95 0.977); n 163
+    time L1_Spcrm:H3s median paired ratio 0.967 (p95 0.991, bound 1.1: PASS); ratio of medians 0.989 (p95 1.040); n 164
+    time L1_T:H3s     median paired ratio 0.946 (p95 0.967, bound 1.1: PASS); ratio of medians 0.963 (p95 1.010); n 165
+    time L1_X:H3s     median paired ratio 0.796 (p95 0.819, bound 1.1: PASS); ratio of medians 0.818 (p95 0.863); n 166
+    time L0p5_H:H3s   median paired ratio 0.987 (p95 1.015, bound 1.1: PASS); ratio of medians 1.020 (p95 1.076); n 164
+    time L0p5_Hn:H3s  median paired ratio 0.884 (p95 0.915, bound 1.1: PASS); ratio of medians 0.892 (p95 0.939); n 167
+    time L0p5_P:H3s   median paired ratio 0.898 (p95 0.916, bound 1.1: PASS); ratio of medians 0.899 (p95 0.950); n 165
+    time L0p5_T:H3s   median paired ratio 0.939 (p95 0.970, bound 1.1: PASS); ratio of medians 0.960 (p95 1.015); n 169
+    time L0p5_X:H3s   median paired ratio 0.800 (p95 0.817, bound 1.1: PASS); ratio of medians 0.809 (p95 0.856); n 165
+    arm: goal reached / unsafe / tilt30 / median time / median work / mean predicted P / confident failures
+     H3s           85.0%   15.0%   1.0%   16.2 s     449 kJ  P 0.042  13
+     Sp3s          86.0%   14.0%   1.0%   17.0 s     446 kJ  P 0.026  16
+     L1_H          94.0%    6.0%   0.0%   16.1 s     434 kJ  P 0.007  7
+     L1_Hn         92.5%    7.5%   1.5%   14.8 s     446 kJ  P 0.004  10
+     L1_P          91.5%    8.5%   1.5%   15.1 s     437 kJ  P 0.003  12
+     L1_Spcrm      94.5%    5.5%   1.0%   16.0 s     445 kJ  P 0.003  10
+     L1_T          95.0%    5.0%   1.5%   15.6 s     444 kJ  P 0.006  7
+     L1_X          94.5%    5.5%   1.5%   13.4 s     468 kJ  P 0.001  8
+     L0p5_H        94.0%    6.0%   1.5%   16.4 s     415 kJ  P 0.004  3
+     L0p5_Hn       96.0%    4.0%   1.5%   14.5 s     429 kJ  P 0.005  5
+     L0p5_P        94.5%    5.5%   1.5%   14.6 s     435 kJ  P 0.003  6
+     L0p5_T        97.5%    2.5%   1.5%   15.6 s     431 kJ  P 0.004  2
+     L0p5_X        94.5%    5.5%   1.0%   13.1 s     463 kJ  P 0.001  7
+  pick agreement (median route distance / sha256-identical): {'H3s=Sp3s': '0.72 m / 21/800', 'H3s=L1_H': '1.21 m / 0/800', 'H3s=L1_Hn': '1.43 m / 0/800', 'H3s=L1_P': '1.37 m / 0/800', 'H3s=L1_Spcrm': '1.46 m / 0/800', 'H3s=L1_T': '1.41 m / 0/800', 'H3s=L1_X': '1.59 m / 0/800', 'H3s=L0p5_H': '1.40 m / 0/800', 'H3s=L0p5_Hn': '1.55 m / 0/800', 'H3s=L0p5_P': '1.39 m / 0/800', 'H3s=L0p5_T': '1.42 m / 0/800', 'H3s=L0p5_X': '1.66 m / 0/800', 'Sp3s=L1_H': '1.44 m / 0/800', 'Sp3s=L1_Hn': '1.55 m / 0/800', 'Sp3s=L1_P': '1.55 m / 0/800', 'Sp3s=L1_Spcrm': '1.35 m / 0/800', 'Sp3s=L1_T': '1.49 m / 0/800', 'Sp3s=L1_X': '1.57 m / 0/800', 'Sp3s=L0p5_H': '1.51 m / 0/800', 'Sp3s=L0p5_Hn': '1.65 m / 0/800', 'Sp3s=L0p5_P': '1.50 m / 0/800', 'Sp3s=L0p5_T': '1.49 m / 0/800', 'Sp3s=L0p5_X': '1.67 m / 0/800', 'L1_H=L1_Hn': '0.83 m / 17/800', 'L1_H=L1_P': '0.86 m / 19/800', 'L1_H=L1_Spcrm': '0.85 m / 17/800', 'L1_H=L1_T': '0.86 m / 20/800', 'L1_H=L1_X': '1.00 m / 20/800', 'L1_H=L0p5_H': '0.65 m / 0/800', 'L1_H=L0p5_Hn': '0.92 m / 0/800', 'L1_H=L0p5_P': '0.88 m / 0/800', 'L1_H=L0p5_T': '0.90 m / 0/800', 'L1_H=L0p5_X': '1.06 m / 0/800', 'L1_Hn=L1_P': '0.94 m / 19/800', 'L1_Hn=L1_Spcrm': '0.93 m / 16/800', 'L1_Hn=L1_T': '0.88 m / 19/800', 'L1_Hn=L1_X': '0.98 m / 20/800', 'L1_Hn=L0p5_H': '0.89 m / 0/800', 'L1_Hn=L0p5_Hn': '0.61 m / 0/800', 'L1_Hn=L0p5_P': '0.89 m / 0/800', 'L1_Hn=L0p5_T': '0.90 m / 0/800', 'L1_Hn=L0p5_X': '1.02 m / 0/800', 'L1_P=L1_Spcrm': '0.87 m / 21/800', 'L1_P=L1_T': '0.83 m / 28/800', 'L1_P=L1_X': '1.09 m / 26/800', 'L1_P=L0p5_H': '0.89 m / 0/800', 'L1_P=L0p5_Hn': '0.93 m / 0/800', 'L1_P=L0p5_P': '0.53 m / 0/800', 'L1_P=L0p5_T': '0.87 m / 0/800', 'L1_P=L0p5_X': '1.14 m / 0/800', 'L1_Spcrm=L1_T': '0.84 m / 28/800', 'L1_Spcrm=L1_X': '0.99 m / 23/800', 'L1_Spcrm=L0p5_H': '0.91 m / 0/800', 'L1_Spcrm=L0p5_Hn': '1.01 m / 0/800', 'L1_Spcrm=L0p5_P': '0.88 m / 0/800', 'L1_Spcrm=L0p5_T': '0.87 m / 0/800', 'L1_Spcrm=L0p5_X': '1.12 m / 0/800', 'L1_T=L1_X': '0.99 m / 26/800', 'L1_T=L0p5_H': '0.90 m / 0/800', 'L1_T=L0p5_Hn': '0.94 m / 0/800', 'L1_T=L0p5_P': '0.83 m / 0/800', 'L1_T=L0p5_T': '0.49 m / 0/800', 'L1_T=L0p5_X': '1.08 m / 0/800', 'L1_X=L0p5_H': '1.03 m / 0/800', 'L1_X=L0p5_Hn': '0.98 m / 0/800', 'L1_X=L0p5_P': '1.13 m / 0/800', 'L1_X=L0p5_T': '1.05 m / 0/800', 'L1_X=L0p5_X': '0.51 m / 0/800', 'L0p5_H=L0p5_Hn': '0.90 m / 16/800', 'L0p5_H=L0p5_P': '0.85 m / 26/800', 'L0p5_H=L0p5_T': '0.86 m / 19/800', 'L0p5_H=L0p5_X': '1.02 m / 21/800', 'L0p5_Hn=L0p5_P': '0.90 m / 17/800', 'L0p5_Hn=L0p5_T': '0.90 m / 19/800', 'L0p5_Hn=L0p5_X': '0.98 m / 25/800', 'L0p5_P=L0p5_T': '0.84 m / 27/800', 'L0p5_P=L0p5_X': '1.05 m / 30/800', 'L0p5_T=L0p5_X': '1.06 m / 21/800'}
+  feature-cluster CI L1_Hn:H3s: diff -8.9 [-13.8, -4.4] (9 clusters), wins/losses 8/1, sign p 0.0391
+  feature-cluster CI L1_H:H3s: diff -9.4 [-14.4, -5.2] (9 clusters), wins/losses 9/0, sign p 0.0039
+  feature-cluster CI L1_P:H3s: diff -8.8 [-14.1, -4.0] (9 clusters), wins/losses 7/1, sign p 0.0703
+  feature-cluster CI L1_Spcrm:H3s: diff -9.8 [-14.9, -5.2] (9 clusters), wins/losses 8/1, sign p 0.0391
+  feature-cluster CI L1_T:H3s: diff -11.5 [-17.1, -6.8] (9 clusters), wins/losses 9/0, sign p 0.0039
+  feature-cluster CI L1_X:H3s: diff -10.9 [-15.8, -6.1] (9 clusters), wins/losses 9/0, sign p 0.0039
+  feature-cluster CI L0p5_H:H3s: diff -10.2 [-16.7, -5.0] (9 clusters), wins/losses 8/1, sign p 0.0391
+  feature-cluster CI L0p5_Hn:H3s: diff -11.9 [-17.5, -6.9] (9 clusters), wins/losses 9/0, sign p 0.0039
+  feature-cluster CI L0p5_P:H3s: diff -9.9 [-16.0, -4.4] (9 clusters), wins/losses 7/1, sign p 0.0703
+  feature-cluster CI L0p5_T:H3s: diff -12.2 [-18.4, -7.2] (9 clusters), wins/losses 9/0, sign p 0.0039
+  feature-cluster CI L0p5_X:H3s: diff -10.4 [-15.7, -5.4] (9 clusters), wins/losses 8/1, sign p 0.0391

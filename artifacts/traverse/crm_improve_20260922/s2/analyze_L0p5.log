@@ -1,0 +1,81 @@
+{
+ "schema": 1,
+ "created": "2026-09-22 09:47:31",
+ "stage": "analyze",
+ "length_s": 0.5,
+ "frame": 10,
+ "run_suffix": "__p1_0p5",
+ "hist_T": [
+  40
+ ],
+ "arena": "assets/traverse/arena_f104_50h_v1",
+ "criterion": {
+  "vx_gt_mps": 0.3,
+  "sinkage_increase_lt_m": 0.1,
+  "sinkage": "max over wheels of [tyre radius - (spindle_z - TerrainMap height at the spindle xy)] at frame min(F, last crm_extra row) minus frame 0 (ga_approach formula); CRM only"
+ },
+ "worlds": {
+  "crm": {
+   "runs_dir": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_improve_20260922/a5data/pass1_suite_crm/runs",
+   "n_runs": 800,
+   "n_groups": 800,
+   "n_moving": 800,
+   "n_excluded": 0,
+   "exclusion_reasons": {},
+   "duplicate_group_runs": [],
+   "case_id_mismatch": [],
+   "frame_source_counts": {
+    "row": 0,
+    "terminal": 800,
+    "absent": 0
+   },
+   "statuses": {
+    "timeout": 800
+   },
+   "vx_p10_50_90": [
+    0.756,
+    0.89,
+    1.005
+   ],
+   "sink_inc_max_p50_p99_max": [
+    0.0257,
+    0.0535,
+    0.0719
+   ],
+   "decision_file": "artifacts/traverse/crm_improve_20260922/a5data/decision_suite_L0p5/decision_crm.json",
+   "poses_file": "artifacts/traverse/crm_improve_20260922/a5data/decision_suite_L0p5/poses_crm.json",
+   "poses_all_file": "artifacts/traverse/crm_improve_20260922/a5data/decision_suite_L0p5/poses_crm_all.json"
+  },
+  "rigid": {
+   "runs_dir": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_improve_20260922/a5data/pass1_suite_rigid/runs",
+   "n_runs": 800,
+   "n_groups": 800,
+   "n_moving": 798,
+   "n_excluded": 2,
+   "exclusion_reasons": {
+    "vx": 2
+   },
+   "duplicate_group_runs": [],
+   "case_id_mismatch": [],
+   "frame_source_counts": {
+    "row": 0,
+    "terminal": 800,
+    "absent": 0
+   },
+   "statuses": {
+    "timeout": 800
+   },
+   "vx_p10_50_90": [
+    0.884,
+    1.318,
+    1.623
+   ],
+   "sink_inc_max_p50_p99_max": null,
+   "decision_file": "artifacts/traverse/crm_improve_20260922/a5data/decision_suite_L0p5/decision_rigid.json",
+   "poses_file": "artifacts/traverse/crm_improve_20260922/a5data/decision_suite_L0p5/poses_rigid.json",
+   "poses_all_file": "artifacts/traverse/crm_improve_20260922/a5data/decision_suite_L0p5/poses_rigid_all.json"
+  }
+ },
+ "n_analysis_set": 798
+}
+wrote artifacts/traverse/crm_improve_20260922/a5data/decision_suite_L0p5/pass1_state.json, decision_<world>.json, poses_<world>[_all].json (798 groups in the analysis set, 2 excluded)

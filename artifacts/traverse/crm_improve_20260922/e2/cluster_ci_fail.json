@@ -1,0 +1,46 @@
+{
+ "Hcont:H": {
+  "diff_pts": 2.124999999999999,
+  "ci95": [
+   -0.4196394322976608,
+   4.459406304085593
+  ],
+  "clusters": 9,
+  "cluster_wins": 2,
+  "cluster_losses": 6,
+  "sign_p": 0.2890625
+ },
+ "Hbr:H": {
+  "diff_pts": 0.0,
+  "ci95": [
+   -1.3034726923944928,
+   1.5815566738088687
+  ],
+  "clusters": 9,
+  "cluster_wins": 5,
+  "cluster_losses": 2,
+  "sign_p": 0.453125
+ },
+ "Hcont:Spcrm": {
+  "diff_pts": 1.2499999999999982,
+  "ci95": [
+   -1.7756122800965883,
+   3.0999074395464516
+  ],
+  "clusters": 9,
+  "cluster_wins": 2,
+  "cluster_losses": 7,
+  "sign_p": 0.1796875
+ },
+ "Hbr:Spcrm": {
+  "diff_pts": -0.8750000000000008,
+  "ci95": [
+   -2.4045734405373334,
+   0.13404825737265424
+  ],
+  "clusters": 9,
+  "cluster_wins": 4,
+  "cluster_losses": 2,
+  "sign_p": 0.6875
+ }
+}

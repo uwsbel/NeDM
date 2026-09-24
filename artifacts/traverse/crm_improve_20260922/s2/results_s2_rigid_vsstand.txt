@@ -1,0 +1,150 @@
+L1_Hn:Hstand fail: diff +0.0 pts, feature-cluster CI [+0.0, +0.0] (9 clusters), cluster wins/losses 0/0, sign p = 1.0000
+L1_H:Hstand fail: diff +0.2 pts, feature-cluster CI [+0.0, +0.6] (9 clusters), cluster wins/losses 0/1, sign p = 1.0000
+L1_Hn:Hstand fail: diff +0.0 pts, feature-cluster CI [+0.0, +0.0] (9 clusters), cluster wins/losses 0/0, sign p = 1.0000
+L1_P:Hstand fail: diff +0.5 pts, feature-cluster CI [+0.2, +1.0] (9 clusters), cluster wins/losses 0/3, sign p = 0.2500
+L1_Sprigid:Hstand fail: diff +0.0 pts, feature-cluster CI [+0.0, +0.0] (9 clusters), cluster wins/losses 0/0, sign p = 1.0000
+L1_T:Hstand fail: diff +0.2 pts, feature-cluster CI [+0.0, +0.5] (9 clusters), cluster wins/losses 0/1, sign p = 1.0000
+L1_X:Hstand fail: diff +0.2 pts, feature-cluster CI [+0.0, +0.5] (9 clusters), cluster wins/losses 0/1, sign p = 1.0000
+L0p5_H:Hstand fail: diff +0.0 pts, feature-cluster CI [+0.0, +0.0] (9 clusters), cluster wins/losses 0/0, sign p = 1.0000
+L0p5_Hn:Hstand fail: diff +0.0 pts, feature-cluster CI [+0.0, +0.0] (9 clusters), cluster wins/losses 0/0, sign p = 1.0000
+L0p5_P:Hstand fail: diff +0.0 pts, feature-cluster CI [+0.0, +0.0] (9 clusters), cluster wins/losses 0/0, sign p = 1.0000
+L0p5_Sprigid:Hstand fail: diff +0.0 pts, feature-cluster CI [+0.0, +0.0] (9 clusters), cluster wins/losses 0/0, sign p = 1.0000
+L0p5_T:Hstand fail: diff +0.0 pts, feature-cluster CI [+0.0, +0.0] (9 clusters), cluster wins/losses 0/0, sign p = 1.0000
+L0p5_X:Hstand fail: diff +0.0 pts, feature-cluster CI [+0.0, +0.0] (9 clusters), cluster wins/losses 0/0, sign p = 1.0000
+556/800 groups with every arm; missing drives {'Hstand': 0, 'Srigid_stand': 0, 'L1_H': 0, 'L1_Hn': 230, 'L1_P': 0, 'L1_Sprigid': 0, 'L1_T': 0, 'L1_X': 9, 'L0p5_H': 0, 'L0p5_Hn': 244, 'L0p5_P': 0, 'L0p5_Sprigid': 0, 'L0p5_T': 0, 'L0p5_X': 244}
+  [all] n = 556
+    PRIMARY_L1_Hn:Hstand fail   0.0% vs   0.0%  diff +0.0 [+0.0, +0.0]  one-sided p95 +0.0 (margin 3.0: PASS)  worse 0 vs 0  p=1.0000  identical picks 0
+    L1_H:Hstand      fail   0.2% vs   0.0%  diff +0.2 [+0.0, +0.5]  one-sided p95 +0.5 (margin 3.0: PASS)  worse 1 vs 0  p=1.0000  identical picks 0
+    L1_Hn:Hstand     fail   0.0% vs   0.0%  diff +0.0 [+0.0, +0.0]  one-sided p95 +0.0 (margin 3.0: PASS)  worse 0 vs 0  p=1.0000  identical picks 0
+    L1_P:Hstand      fail   0.5% vs   0.0%  diff +0.5 [+0.0, +1.3]  one-sided p95 +1.1 (margin 3.0: PASS)  worse 3 vs 0  p=0.2500  identical picks 0
+    L1_Sprigid:Hstand fail   0.0% vs   0.0%  diff +0.0 [+0.0, +0.0]  one-sided p95 +0.0 (margin 3.0: PASS)  worse 0 vs 0  p=1.0000  identical picks 0
+    L1_T:Hstand      fail   0.2% vs   0.0%  diff +0.2 [+0.0, +0.5]  one-sided p95 +0.5 (margin 3.0: PASS)  worse 1 vs 0  p=1.0000  identical picks 0
+    L1_X:Hstand      fail   0.2% vs   0.0%  diff +0.2 [+0.0, +0.5]  one-sided p95 +0.5 (margin 3.0: PASS)  worse 1 vs 0  p=1.0000  identical picks 0
+    L0p5_H:Hstand    fail   0.0% vs   0.0%  diff +0.0 [+0.0, +0.0]  one-sided p95 +0.0 (margin 3.0: PASS)  worse 0 vs 0  p=1.0000  identical picks 0
+    L0p5_Hn:Hstand   fail   0.0% vs   0.0%  diff +0.0 [+0.0, +0.0]  one-sided p95 +0.0 (margin 3.0: PASS)  worse 0 vs 0  p=1.0000  identical picks 0
+    L0p5_P:Hstand    fail   0.0% vs   0.0%  diff +0.0 [+0.0, +0.0]  one-sided p95 +0.0 (margin 3.0: PASS)  worse 0 vs 0  p=1.0000  identical picks 0
+    L0p5_Sprigid:Hstand fail   0.0% vs   0.0%  diff +0.0 [+0.0, +0.0]  one-sided p95 +0.0 (margin 3.0: PASS)  worse 0 vs 0  p=1.0000  identical picks 0
+    L0p5_T:Hstand    fail   0.0% vs   0.0%  diff +0.0 [+0.0, +0.0]  one-sided p95 +0.0 (margin 3.0: PASS)  worse 0 vs 0  p=1.0000  identical picks 0
+    L0p5_X:Hstand    fail   0.0% vs   0.0%  diff +0.0 [+0.0, +0.0]  one-sided p95 +0.0 (margin 3.0: PASS)  worse 0 vs 0  p=1.0000  identical picks 0
+    time L1_Hn:Hstand median paired ratio 0.988 (p95 1.007, bound 1.1: PASS); ratio of medians 0.990 (p95 1.021); n 556
+    time L1_H:Hstand  median paired ratio 1.047 (p95 1.056, bound 1.1: PASS); ratio of medians 1.038 (p95 1.064); n 555
+    time L1_P:Hstand  median paired ratio 1.016 (p95 1.032, bound 1.1: PASS); ratio of medians 1.007 (p95 1.035); n 553
+    time L1_Sprigid:Hstand median paired ratio 0.990 (p95 1.006, bound 1.1: PASS); ratio of medians 0.948 (p95 0.993); n 556
+    time L1_T:Hstand  median paired ratio 0.988 (p95 1.005, bound 1.1: PASS); ratio of medians 0.983 (p95 1.011); n 555
+    time L1_X:Hstand  median paired ratio 0.803 (p95 0.817, bound 1.1: PASS); ratio of medians 0.792 (p95 0.813); n 555
+    time L0p5_H:Hstand median paired ratio 1.066 (p95 1.077, bound 1.1: PASS); ratio of medians 1.073 (p95 1.101); n 556
+    time L0p5_Hn:Hstand median paired ratio 0.971 (p95 0.991, bound 1.1: PASS); ratio of medians 0.960 (p95 0.989); n 556
+    time L0p5_P:Hstand median paired ratio 1.015 (p95 1.021, bound 1.1: PASS); ratio of medians 0.984 (p95 1.023); n 556
+    time L0p5_Sprigid:Hstand median paired ratio 0.972 (p95 0.995, bound 1.1: PASS); ratio of medians 0.946 (p95 0.972); n 556
+    time L0p5_T:Hstand median paired ratio 0.984 (p95 0.999, bound 1.1: PASS); ratio of medians 0.976 (p95 1.005); n 556
+    time L0p5_X:Hstand median paired ratio 0.782 (p95 0.801, bound 1.1: PASS); ratio of medians 0.765 (p95 0.791); n 556
+    arm: goal reached / unsafe / tilt30 / median time / median work / mean predicted P / confident failures
+     Hstand       100.0%    0.2%   5.4%   14.5 s     152 kJ  P 0.002  0
+     Srigid_stand 100.0%    0.0%   6.3%   12.5 s     165 kJ  P 0.000  0
+     L1_H          99.8%    0.2%   6.3%   15.0 s     159 kJ  P 0.000  1
+     L1_Hn        100.0%    0.2%   4.5%   14.3 s     156 kJ  P 0.000  0
+     L1_P          99.5%    1.1%   4.5%   14.6 s     154 kJ  P 0.004  2
+     L1_Sprigid   100.0%    0.0%   7.9%   13.7 s     171 kJ  P 0.000  0
+     L1_T          99.8%    0.2%   6.8%   14.2 s     166 kJ  P 0.000  1
+     L1_X          99.8%    0.4%   5.4%   11.5 s     178 kJ  P 0.000  1
+     L0p5_H       100.0%    0.2%   6.3%   15.5 s     150 kJ  P 0.003  0
+     L0p5_Hn      100.0%    0.0%   6.1%   13.9 s     156 kJ  P 0.000  0
+     L0p5_P       100.0%    0.2%   3.2%   14.2 s     152 kJ  P 0.002  0
+     L0p5_Sprigid 100.0%    0.0%   8.8%   13.7 s     174 kJ  P 0.000  0
+     L0p5_T       100.0%    0.2%   8.1%   14.1 s     168 kJ  P 0.000  0
+     L0p5_X       100.0%    0.0%   5.8%   11.1 s     173 kJ  P 0.000  0
+  [stratum fresh] n = 418
+    PRIMARY_L1_Hn:Hstand fail   0.0% vs   0.0%  diff +0.0 [+0.0, +0.0]  one-sided p95 +0.0 (margin 3.0: PASS)  worse 0 vs 0  p=1.0000  identical picks 0
+    L1_H:Hstand      fail   0.0% vs   0.0%  diff +0.0 [+0.0, +0.0]  one-sided p95 +0.0 (margin 3.0: PASS)  worse 0 vs 0  p=1.0000  identical picks 0
+    L1_Hn:Hstand     fail   0.0% vs   0.0%  diff +0.0 [+0.0, +0.0]  one-sided p95 +0.0 (margin 3.0: PASS)  worse 0 vs 0  p=1.0000  identical picks 0
+    L1_P:Hstand      fail   0.5% vs   0.0%  diff +0.5 [+0.0, +1.2]  one-sided p95 +1.2 (margin 3.0: PASS)  worse 2 vs 0  p=0.5000  identical picks 0
+    L1_Sprigid:Hstand fail   0.0% vs   0.0%  diff +0.0 [+0.0, +0.0]  one-sided p95 +0.0 (margin 3.0: PASS)  worse 0 vs 0  p=1.0000  identical picks 0
+    L1_T:Hstand      fail   0.2% vs   0.0%  diff +0.2 [+0.0, +0.7]  one-sided p95 +0.7 (margin 3.0: PASS)  worse 1 vs 0  p=1.0000  identical picks 0
+    L1_X:Hstand      fail   0.0% vs   0.0%  diff +0.0 [+0.0, +0.0]  one-sided p95 +0.0 (margin 3.0: PASS)  worse 0 vs 0  p=1.0000  identical picks 0
+    L0p5_H:Hstand    fail   0.0% vs   0.0%  diff +0.0 [+0.0, +0.0]  one-sided p95 +0.0 (margin 3.0: PASS)  worse 0 vs 0  p=1.0000  identical picks 0
+    L0p5_Hn:Hstand   fail   0.0% vs   0.0%  diff +0.0 [+0.0, +0.0]  one-sided p95 +0.0 (margin 3.0: PASS)  worse 0 vs 0  p=1.0000  identical picks 0
+    L0p5_P:Hstand    fail   0.0% vs   0.0%  diff +0.0 [+0.0, +0.0]  one-sided p95 +0.0 (margin 3.0: PASS)  worse 0 vs 0  p=1.0000  identical picks 0
+    L0p5_Sprigid:Hstand fail   0.0% vs   0.0%  diff +0.0 [+0.0, +0.0]  one-sided p95 +0.0 (margin 3.0: PASS)  worse 0 vs 0  p=1.0000  identical picks 0
+    L0p5_T:Hstand    fail   0.0% vs   0.0%  diff +0.0 [+0.0, +0.0]  one-sided p95 +0.0 (margin 3.0: PASS)  worse 0 vs 0  p=1.0000  identical picks 0
+    L0p5_X:Hstand    fail   0.0% vs   0.0%  diff +0.0 [+0.0, +0.0]  one-sided p95 +0.0 (margin 3.0: PASS)  worse 0 vs 0  p=1.0000  identical picks 0
+    time L1_Hn:Hstand median paired ratio 0.978 (p95 1.000, bound 1.1: PASS); ratio of medians 0.977 (p95 1.009); n 418
+    time L1_H:Hstand  median paired ratio 1.041 (p95 1.053, bound 1.1: PASS); ratio of medians 1.025 (p95 1.051); n 418
+    time L1_P:Hstand  median paired ratio 1.013 (p95 1.031, bound 1.1: PASS); ratio of medians 1.000 (p95 1.033); n 416
+    time L1_Sprigid:Hstand median paired ratio 0.979 (p95 0.996, bound 1.1: PASS); ratio of medians 0.947 (p95 0.979); n 418
+    time L1_T:Hstand  median paired ratio 0.987 (p95 1.005, bound 1.1: PASS); ratio of medians 0.977 (p95 1.007); n 417
+    time L1_X:Hstand  median paired ratio 0.795 (p95 0.813, bound 1.1: PASS); ratio of medians 0.771 (p95 0.798); n 418
+    time L0p5_H:Hstand median paired ratio 1.060 (p95 1.074, bound 1.1: PASS); ratio of medians 1.058 (p95 1.092); n 418
+    time L0p5_Hn:Hstand median paired ratio 0.957 (p95 0.976, bound 1.1: PASS); ratio of medians 0.950 (p95 0.980); n 418
+    time L0p5_P:Hstand median paired ratio 1.014 (p95 1.021, bound 1.1: PASS); ratio of medians 0.993 (p95 1.017); n 418
+    time L0p5_Sprigid:Hstand median paired ratio 0.958 (p95 0.986, bound 1.1: PASS); ratio of medians 0.915 (p95 0.954); n 418
+    time L0p5_T:Hstand median paired ratio 0.983 (p95 0.999, bound 1.1: PASS); ratio of medians 0.982 (p95 1.012); n 418
+    time L0p5_X:Hstand median paired ratio 0.776 (p95 0.795, bound 1.1: PASS); ratio of medians 0.759 (p95 0.785); n 418
+    arm: goal reached / unsafe / tilt30 / median time / median work / mean predicted P / confident failures
+     Hstand       100.0%    0.2%   5.5%   15.1 s     153 kJ  P 0.002  0
+     Srigid_stand 100.0%    0.0%   5.5%   12.9 s     167 kJ  P 0.000  0
+     L1_H         100.0%    0.0%   6.5%   15.4 s     161 kJ  P 0.000  0
+     L1_Hn        100.0%    0.0%   4.1%   14.7 s     158 kJ  P 0.000  0
+     L1_P          99.5%    0.7%   4.3%   15.1 s     155 kJ  P 0.004  1
+     L1_Sprigid   100.0%    0.0%   7.4%   14.2 s     175 kJ  P 0.000  0
+     L1_T          99.8%    0.2%   7.2%   14.7 s     167 kJ  P 0.000  1
+     L1_X         100.0%    0.0%   5.5%   11.6 s     181 kJ  P 0.000  0
+     L0p5_H       100.0%    0.0%   6.7%   15.9 s     152 kJ  P 0.002  0
+     L0p5_Hn      100.0%    0.0%   6.2%   14.3 s     160 kJ  P 0.000  0
+     L0p5_P       100.0%    0.2%   3.1%   15.0 s     153 kJ  P 0.001  0
+     L0p5_Sprigid 100.0%    0.0%   8.1%   13.8 s     178 kJ  P 0.000  0
+     L0p5_T       100.0%    0.2%   8.4%   14.8 s     173 kJ  P 0.000  0
+     L0p5_X       100.0%    0.0%   5.7%   11.4 s     175 kJ  P 0.000  0
+  [stratum reused] n = 138
+    PRIMARY_L1_Hn:Hstand fail   0.0% vs   0.0%  diff +0.0 [+0.0, +0.0]  one-sided p95 +0.0 (margin 3.0: PASS)  worse 0 vs 0  p=1.0000  identical picks 0
+    L1_H:Hstand      fail   0.7% vs   0.0%  diff +0.7 [+0.0, +2.2]  one-sided p95 +2.2 (margin 3.0: PASS)  worse 1 vs 0  p=1.0000  identical picks 0
+    L1_Hn:Hstand     fail   0.0% vs   0.0%  diff +0.0 [+0.0, +0.0]  one-sided p95 +0.0 (margin 3.0: PASS)  worse 0 vs 0  p=1.0000  identical picks 0
+    L1_P:Hstand      fail   0.7% vs   0.0%  diff +0.7 [+0.0, +2.2]  one-sided p95 +2.2 (margin 3.0: PASS)  worse 1 vs 0  p=1.0000  identical picks 0
+    L1_Sprigid:Hstand fail   0.0% vs   0.0%  diff +0.0 [+0.0, +0.0]  one-sided p95 +0.0 (margin 3.0: PASS)  worse 0 vs 0  p=1.0000  identical picks 0
+    L1_T:Hstand      fail   0.0% vs   0.0%  diff +0.0 [+0.0, +0.0]  one-sided p95 +0.0 (margin 3.0: PASS)  worse 0 vs 0  p=1.0000  identical picks 0
+    L1_X:Hstand      fail   0.7% vs   0.0%  diff +0.7 [+0.0, +2.2]  one-sided p95 +2.2 (margin 3.0: PASS)  worse 1 vs 0  p=1.0000  identical picks 0
+    L0p5_H:Hstand    fail   0.0% vs   0.0%  diff +0.0 [+0.0, +0.0]  one-sided p95 +0.0 (margin 3.0: PASS)  worse 0 vs 0  p=1.0000  identical picks 0
+    L0p5_Hn:Hstand   fail   0.0% vs   0.0%  diff +0.0 [+0.0, +0.0]  one-sided p95 +0.0 (margin 3.0: PASS)  worse 0 vs 0  p=1.0000  identical picks 0
+    L0p5_P:Hstand    fail   0.0% vs   0.0%  diff +0.0 [+0.0, +0.0]  one-sided p95 +0.0 (margin 3.0: PASS)  worse 0 vs 0  p=1.0000  identical picks 0
+    L0p5_Sprigid:Hstand fail   0.0% vs   0.0%  diff +0.0 [+0.0, +0.0]  one-sided p95 +0.0 (margin 3.0: PASS)  worse 0 vs 0  p=1.0000  identical picks 0
+    L0p5_T:Hstand    fail   0.0% vs   0.0%  diff +0.0 [+0.0, +0.0]  one-sided p95 +0.0 (margin 3.0: PASS)  worse 0 vs 0  p=1.0000  identical picks 0
+    L0p5_X:Hstand    fail   0.0% vs   0.0%  diff +0.0 [+0.0, +0.0]  one-sided p95 +0.0 (margin 3.0: PASS)  worse 0 vs 0  p=1.0000  identical picks 0
+    time L1_Hn:Hstand median paired ratio 1.020 (p95 1.061, bound 1.1: PASS); ratio of medians 1.010 (p95 1.066); n 138
+    time L1_H:Hstand  median paired ratio 1.057 (p95 1.079, bound 1.1: PASS); ratio of medians 1.092 (p95 1.139); n 137
+    time L1_P:Hstand  median paired ratio 1.032 (p95 1.047, bound 1.1: PASS); ratio of medians 1.035 (p95 1.080); n 137
+    time L1_Sprigid:Hstand median paired ratio 1.041 (p95 1.086, bound 1.1: PASS); ratio of medians 1.019 (p95 1.078); n 138
+    time L1_T:Hstand  median paired ratio 0.994 (p95 1.023, bound 1.1: PASS); ratio of medians 0.996 (p95 1.062); n 138
+    time L1_X:Hstand  median paired ratio 0.826 (p95 0.852, bound 1.1: PASS); ratio of medians 0.819 (p95 0.865); n 137
+    time L0p5_H:Hstand median paired ratio 1.076 (p95 1.117, bound 1.1: FAIL); ratio of medians 1.075 (p95 1.117); n 138
+    time L0p5_Hn:Hstand median paired ratio 1.025 (p95 1.062, bound 1.1: PASS); ratio of medians 0.998 (p95 1.064); n 138
+    time L0p5_P:Hstand median paired ratio 1.015 (p95 1.026, bound 1.1: PASS); ratio of medians 1.017 (p95 1.070); n 138
+    time L0p5_Sprigid:Hstand median paired ratio 1.004 (p95 1.045, bound 1.1: PASS); ratio of medians 0.979 (p95 1.065); n 138
+    time L0p5_T:Hstand median paired ratio 0.987 (p95 1.028, bound 1.1: PASS); ratio of medians 0.992 (p95 1.056); n 138
+    time L0p5_X:Hstand median paired ratio 0.810 (p95 0.830, bound 1.1: PASS); ratio of medians 0.792 (p95 0.835); n 138
+    arm: goal reached / unsafe / tilt30 / median time / median work / mean predicted P / confident failures
+     Hstand       100.0%    0.0%   5.1%   13.0 s     147 kJ  P 0.003  0
+     Srigid_stand 100.0%    0.0%   8.7%   11.5 s     157 kJ  P 0.000  0
+     L1_H          99.3%    0.7%   5.8%   14.2 s     154 kJ  P 0.000  1
+     L1_Hn        100.0%    0.7%   5.8%   13.1 s     154 kJ  P 0.000  0
+     L1_P          99.3%    2.2%   5.1%   13.5 s     153 kJ  P 0.004  1
+     L1_Sprigid   100.0%    0.0%   9.4%   13.2 s     159 kJ  P 0.000  0
+     L1_T         100.0%    0.0%   5.8%   12.9 s     159 kJ  P 0.000  0
+     L1_X          99.3%    1.4%   5.1%   10.7 s     168 kJ  P 0.000  1
+     L0p5_H       100.0%    0.7%   5.1%   14.0 s     141 kJ  P 0.007  0
+     L0p5_Hn      100.0%    0.0%   5.8%   13.0 s     147 kJ  P 0.000  0
+     L0p5_P       100.0%    0.0%   3.6%   13.2 s     144 kJ  P 0.004  0
+     L0p5_Sprigid 100.0%    0.0%  10.9%   12.7 s     164 kJ  P 0.000  0
+     L0p5_T       100.0%    0.0%   7.2%   12.9 s     159 kJ  P 0.000  0
+     L0p5_X       100.0%    0.0%   5.8%   10.3 s     166 kJ  P 0.000  0
+  pick agreement (median route distance / sha256-identical): {'Hstand=Srigid_stand': '1.39 m / 0/800', 'Hstand=L1_H': '0.88 m / 0/800', 'Hstand=L1_Hn': '1.18 m / 0/800', 'Hstand=L1_P': '0.89 m / 0/800', 'Hstand=L1_Sprigid': '1.85 m / 0/800', 'Hstand=L1_T': '1.75 m / 0/800', 'Hstand=L1_X': '1.33 m / 0/800', 'Hstand=L0p5_H': '0.64 m / 0/800', 'Hstand=L0p5_Hn': '1.15 m / 0/800', 'Hstand=L0p5_P': '0.81 m / 0/800', 'Hstand=L0p5_Sprigid': '1.84 m / 0/800', 'Hstand=L0p5_T': '1.62 m / 0/800', 'Hstand=L0p5_X': '1.29 m / 0/800', 'Srigid_stand=L1_H': '1.46 m / 0/800', 'Srigid_stand=L1_Hn': '1.46 m / 0/800', 'Srigid_stand=L1_P': '1.62 m / 0/800', 'Srigid_stand=L1_Sprigid': '1.79 m / 0/800', 'Srigid_stand=L1_T': '1.66 m / 0/800', 'Srigid_stand=L1_X': '1.72 m / 0/800', 'Srigid_stand=L0p5_H': '1.49 m / 0/800', 'Srigid_stand=L0p5_Hn': '1.48 m / 0/800', 'Srigid_stand=L0p5_P': '1.54 m / 0/800', 'Srigid_stand=L0p5_Sprigid': '1.76 m / 0/800', 'Srigid_stand=L0p5_T': '1.61 m / 0/800', 'Srigid_stand=L0p5_X': '1.59 m / 0/800', 'L1_H=L1_Hn': '1.09 m / 7/800', 'L1_H=L1_P': '0.94 m / 17/800', 'L1_H=L1_Sprigid': '1.60 m / 5/800', 'L1_H=L1_T': '1.50 m / 5/800', 'L1_H=L1_X': '1.31 m / 11/800', 'L1_H=L0p5_H': '0.87 m / 0/800', 'L1_H=L0p5_Hn': '1.06 m / 0/800', 'L1_H=L0p5_P': '1.03 m / 0/800', 'L1_H=L0p5_Sprigid': '1.71 m / 0/800', 'L1_H=L0p5_T': '1.45 m / 0/800', 'L1_H=L0p5_X': '1.43 m / 0/800', 'L1_Hn=L1_P': '1.13 m / 10/800', 'L1_Hn=L1_Sprigid': '1.60 m / 4/800', 'L1_Hn=L1_T': '1.42 m / 1/800', 'L1_Hn=L1_X': '1.27 m / 5/800', 'L1_Hn=L0p5_H': '1.13 m / 0/800', 'L1_Hn=L0p5_Hn': '0.77 m / 0/800', 'L1_Hn=L0p5_P': '1.20 m / 0/800', 'L1_Hn=L0p5_Sprigid': '1.73 m / 0/800', 'L1_Hn=L0p5_T': '1.43 m / 0/800', 'L1_Hn=L0p5_X': '1.34 m / 0/800', 'L1_P=L1_Sprigid': '1.80 m / 10/800', 'L1_P=L1_T': '1.61 m / 5/800', 'L1_P=L1_X': '1.24 m / 31/800', 'L1_P=L0p5_H': '0.95 m / 0/800', 'L1_P=L0p5_Hn': '1.20 m / 0/800', 'L1_P=L0p5_P': '0.60 m / 0/800', 'L1_P=L0p5_Sprigid': '1.91 m / 0/800', 'L1_P=L0p5_T': '1.60 m / 0/800', 'L1_P=L0p5_X': '1.33 m / 0/800', 'L1_Sprigid=L1_T': '1.50 m / 3/800', 'L1_Sprigid=L1_X': '1.52 m / 13/800', 'L1_Sprigid=L0p5_H': '1.88 m / 0/800', 'L1_Sprigid=L0p5_Hn': '1.73 m / 0/800', 'L1_Sprigid=L0p5_P': '1.82 m / 0/800', 'L1_Sprigid=L0p5_Sprigid': '0.72 m / 0/800', 'L1_Sprigid=L0p5_T': '1.62 m / 0/800', 'L1_Sprigid=L0p5_X': '1.73 m / 0/800', 'L1_T=L1_X': '1.59 m / 2/800', 'L1_T=L0p5_H': '1.74 m / 0/800', 'L1_T=L0p5_Hn': '1.55 m / 0/800', 'L1_T=L0p5_P': '1.69 m / 0/800', 'L1_T=L0p5_Sprigid': '1.68 m / 0/800', 'L1_T=L0p5_T': '0.74 m / 0/800', 'L1_T=L0p5_X': '1.76 m / 0/800', 'L1_X=L0p5_H': '1.29 m / 0/800', 'L1_X=L0p5_Hn': '1.28 m / 0/800', 'L1_X=L0p5_P': '1.25 m / 0/800', 'L1_X=L0p5_Sprigid': '1.79 m / 0/800', 'L1_X=L0p5_T': '1.64 m / 0/800', 'L1_X=L0p5_X': '0.63 m / 0/800', 'L0p5_H=L0p5_Hn': '1.10 m / 5/800', 'L0p5_H=L0p5_P': '0.85 m / 27/800', 'L0p5_H=L0p5_Sprigid': '1.80 m / 5/800', 'L0p5_H=L0p5_T': '1.67 m / 2/800', 'L0p5_H=L0p5_X': '1.27 m / 21/800', 'L0p5_Hn=L0p5_P': '1.12 m / 7/800', 'L0p5_Hn=L0p5_Sprigid': '1.70 m / 1/800', 'L0p5_Hn=L0p5_T': '1.41 m / 3/800', 'L0p5_Hn=L0p5_X': '1.29 m / 5/800', 'L0p5_P=L0p5_Sprigid': '1.85 m / 5/800', 'L0p5_P=L0p5_T': '1.53 m / 5/800', 'L0p5_P=L0p5_X': '1.36 m / 25/800', 'L0p5_Sprigid=L0p5_T': '1.59 m / 2/800', 'L0p5_Sprigid=L0p5_X': '1.76 m / 8/800', 'L0p5_T=L0p5_X': '1.68 m / 6/800'}
+  feature-cluster CI L1_Hn:Hstand: diff +0.0 [+0.0, +0.0] (9 clusters), wins/losses 0/0, sign p 1.0000
+  feature-cluster CI L1_H:Hstand: diff +0.2 [+0.0, +0.6] (9 clusters), wins/losses 0/1, sign p 1.0000
+  feature-cluster CI L1_P:Hstand: diff +0.5 [+0.2, +1.0] (9 clusters), wins/losses 0/3, sign p 0.2500
+  feature-cluster CI L1_Sprigid:Hstand: diff +0.0 [+0.0, +0.0] (9 clusters), wins/losses 0/0, sign p 1.0000
+  feature-cluster CI L1_T:Hstand: diff +0.2 [+0.0, +0.5] (9 clusters), wins/losses 0/1, sign p 1.0000
+  feature-cluster CI L1_X:Hstand: diff +0.2 [+0.0, +0.5] (9 clusters), wins/losses 0/1, sign p 1.0000
+  feature-cluster CI L0p5_H:Hstand: diff +0.0 [+0.0, +0.0] (9 clusters), wins/losses 0/0, sign p 1.0000
+  feature-cluster CI L0p5_Hn:Hstand: diff +0.0 [+0.0, +0.0] (9 clusters), wins/losses 0/0, sign p 1.0000
+  feature-cluster CI L0p5_P:Hstand: diff +0.0 [+0.0, +0.0] (9 clusters), wins/losses 0/0, sign p 1.0000
+  feature-cluster CI L0p5_Sprigid:Hstand: diff +0.0 [+0.0, +0.0] (9 clusters), wins/losses 0/0, sign p 1.0000
+  feature-cluster CI L0p5_T:Hstand: diff +0.0 [+0.0, +0.0] (9 clusters), wins/losses 0/0, sign p 1.0000
+  feature-cluster CI L0p5_X:Hstand: diff +0.0 [+0.0, +0.0] (9 clusters), wins/losses 0/0, sign p 1.0000

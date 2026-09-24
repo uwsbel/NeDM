@@ -1,0 +1,8 @@
+15:58:48 waiting for the rigid gradient picks
+16:01:48 waiting for the rigid gradient picks
+16:04:48 waiting for the rigid gradient picks
+ "n_run": 800,
+ "routes_dir": "artifacts/traverse/crm_improve_20260922/s4/L0p5/routes_pass2_rigid"
+}
+submitted ci_rs4 431923
+16:08:15 rigid gradient drives launched

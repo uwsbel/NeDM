@@ -1,0 +1,387 @@
+151270 rows loaded (k 10: short_anchor.npz, k 20: short_anchor.npz, k 30: short_anchor.npz, k 40: mixed_reanchor.npz, k 60: anchor_k40_60_80.npz, k 80: mixed_reanchor.npz) in 2 s; splits ['train', 'val']
+  [primary] k  10 (0.50 s) L  5 (eff  5) pairs 14331 | GRU val mean 0.9994 min 0.9992 ens 0.9996 [0.9988, 0.9999] | logistic mean/std 0.9951 last-step 0.9026 | 9.1 s
+  [primary] k  10 (0.50 s) L 10 (eff 10) pairs 14331 | GRU val mean 0.9997 min 0.9995 ens 1.0000 [0.9999, 1.0000] | logistic mean/std 0.9952 last-step 0.9026 | 7.2 s
+  [primary] k  10 (0.50 s) L 20 (eff 10) pairs 14331 | GRU val mean 0.9999 min 0.9998 ens 1.0000 [0.9999, 1.0000] | logistic mean/std 0.9952 last-step 0.9026 | 7.8 s
+  [primary] k  10 (0.50 s) L 40 (eff 10) pairs 14331 | GRU val mean 0.9999 min 0.9999 ens 1.0000 [0.9999, 1.0000] | logistic mean/std 0.9952 last-step 0.9026 | 8.0 s
+  [primary] k  20 (1.00 s) L  5 (eff  5) pairs 14331 | GRU val mean 0.9997 min 0.9995 ens 0.9998 [0.9996, 1.0000] | logistic mean/std 0.9921 last-step 0.9849 | 7.3 s
+  [primary] k  20 (1.00 s) L 10 (eff 10) pairs 14331 | GRU val mean 0.9998 min 0.9998 ens 0.9998 [0.9996, 1.0000] | logistic mean/std 0.9928 last-step 0.9849 | 7.5 s
+  [primary] k  20 (1.00 s) L 20 (eff 20) pairs 14331 | GRU val mean 0.9997 min 0.9996 ens 0.9997 [0.9992, 1.0000] | logistic mean/std 0.9943 last-step 0.9849 | 9.6 s
+  [primary] k  20 (1.00 s) L 40 (eff 20) pairs 14331 | GRU val mean 0.9996 min 0.9995 ens 0.9997 [0.9992, 1.0000] | logistic mean/std 0.9943 last-step 0.9849 | 10.2 s
+  [primary] k  30 (1.50 s) L  5 (eff  5) pairs 14234 | GRU val mean 0.9987 min 0.9984 ens 0.9987 [0.9961, 1.0000] | logistic mean/std 0.9800 last-step 0.9643 | 9.7 s
+  [primary] k  30 (1.50 s) L 10 (eff 10) pairs 14234 | GRU val mean 0.9984 min 0.9976 ens 0.9986 [0.9965, 1.0000] | logistic mean/std 0.9865 last-step 0.9643 | 9.6 s
+  [primary] k  30 (1.50 s) L 20 (eff 20) pairs 14234 | GRU val mean 0.9998 min 0.9997 ens 0.9998 [0.9993, 1.0000] | logistic mean/std 0.9922 last-step 0.9643 | 9.4 s
+  [primary] k  30 (1.50 s) L 40 (eff 30) pairs 14234 | GRU val mean 0.9998 min 0.9997 ens 0.9998 [0.9994, 1.0000] | logistic mean/std 0.9921 last-step 0.9643 | 9.2 s
+  [primary] k  40 (2.00 s) L  5 (eff  5) pairs 14044 | GRU val mean 0.9996 min 0.9994 ens 0.9997 [0.9993, 1.0000] | logistic mean/std 0.9869 last-step 0.9772 | 8.6 s
+  [primary] k  40 (2.00 s) L 10 (eff 10) pairs 14044 | GRU val mean 0.9991 min 0.9989 ens 0.9992 [0.9977, 1.0000] | logistic mean/std 0.9880 last-step 0.9772 | 8.2 s
+  [primary] k  40 (2.00 s) L 20 (eff 20) pairs 14044 | GRU val mean 0.9990 min 0.9979 ens 0.9994 [0.9979, 1.0000] | logistic mean/std 0.9931 last-step 0.9772 | 8.1 s
+  [primary] k  40 (2.00 s) L 40 (eff 40) pairs 14044 | GRU val mean 0.9995 min 0.9993 ens 0.9996 [0.9986, 1.0000] | logistic mean/std 0.9936 last-step 0.9772 | 8.4 s
+  [primary] k  60 (3.00 s) L  5 (eff  5) pairs 14039 | GRU val mean 0.9997 min 0.9996 ens 0.9998 [0.9994, 1.0000] | logistic mean/std 0.9527 last-step 0.9298 | 7.6 s
+  [primary] k  60 (3.00 s) L 10 (eff 10) pairs 14039 | GRU val mean 1.0000 min 1.0000 ens 1.0000 [1.0000, 1.0000] | logistic mean/std 0.9739 last-step 0.9298 | 7.6 s
+  [primary] k  60 (3.00 s) L 20 (eff 20) pairs 14039 | GRU val mean 1.0000 min 1.0000 ens 1.0000 [1.0000, 1.0000] | logistic mean/std 0.9881 last-step 0.9298 | 7.4 s
+  [primary] k  60 (3.00 s) L 40 (eff 40) pairs 14039 | GRU val mean 1.0000 min 1.0000 ens 1.0000 [1.0000, 1.0000] | logistic mean/std 0.9970 last-step 0.9298 | 8.0 s
+  [primary] k  80 (4.00 s) L  5 (eff  5) pairs  3010 | GRU val mean 0.9969 min 0.9963 ens 0.9975 [0.9936, 1.0000] | logistic mean/std 0.9275 last-step 0.8880 | 1.8 s
+  [primary] k  80 (4.00 s) L 10 (eff 10) pairs  3010 | GRU val mean 0.9983 min 0.9969 ens 0.9990 [0.9968, 1.0000] | logistic mean/std 0.9451 last-step 0.8880 | 1.7 s
+  [primary] k  80 (4.00 s) L 20 (eff 20) pairs  3010 | GRU val mean 0.9999 min 0.9999 ens 1.0000 [1.0000, 1.0000] | logistic mean/std 0.9777 last-step 0.8880 | 1.5 s
+  [primary] k  80 (4.00 s) L 40 (eff 40) pairs  3010 | GRU val mean 0.9983 min 0.9974 ens 0.9997 [0.9989, 1.0000] | logistic mean/std 0.9971 last-step 0.8880 | 1.8 s
+  [full-coverage] k  40 (2.00 s) L  5 (eff  5) pairs 14044 | GRU val mean 0.9993 min 0.9987 ens 0.9997 [0.9992, 1.0000] | logistic mean/std 0.9869 last-step 0.9772 | 7.8 s
+  [full-coverage] k  40 (2.00 s) L 10 (eff 10) pairs 14044 | GRU val mean 0.9992 min 0.9990 ens 0.9993 [0.9979, 1.0000] | logistic mean/std 0.9880 last-step 0.9772 | 8.2 s
+  [full-coverage] k  40 (2.00 s) L 20 (eff 20) pairs 14044 | GRU val mean 0.9988 min 0.9975 ens 0.9991 [0.9969, 1.0000] | logistic mean/std 0.9931 last-step 0.9772 | 8.0 s
+  [full-coverage] k  40 (2.00 s) L 40 (eff 40) pairs 14044 | GRU val mean 0.9994 min 0.9990 ens 0.9995 [0.9982, 1.0000] | logistic mean/std 0.9936 last-step 0.9772 | 7.9 s
+  [full-coverage] k  60 (3.00 s) L  5 (eff  5) pairs 14039 | GRU val mean 0.9997 min 0.9996 ens 0.9998 [0.9994, 1.0000] | logistic mean/std 0.9527 last-step 0.9298 | 7.3 s
+  [full-coverage] k  60 (3.00 s) L 10 (eff 10) pairs 14039 | GRU val mean 1.0000 min 1.0000 ens 1.0000 [1.0000, 1.0000] | logistic mean/std 0.9739 last-step 0.9298 | 5.0 s
+  [full-coverage] k  60 (3.00 s) L 20 (eff 20) pairs 14039 | GRU val mean 1.0000 min 1.0000 ens 1.0000 [1.0000, 1.0000] | logistic mean/std 0.9881 last-step 0.9298 | 4.9 s
+  [full-coverage] k  60 (3.00 s) L 40 (eff 40) pairs 14039 | GRU val mean 1.0000 min 1.0000 ens 1.0000 [1.0000, 1.0000] | logistic mean/std 0.9970 last-step 0.9298 | 7.0 s
+  [full-coverage] k  80 (4.00 s) L  5 (eff  5) pairs 13810 | GRU val mean 0.9992 min 0.9987 ens 0.9996 [0.9990, 0.9999] | logistic mean/std 0.9020 last-step 0.8827 | 6.6 s
+  [full-coverage] k  80 (4.00 s) L 10 (eff 10) pairs 13810 | GRU val mean 0.9999 min 0.9998 ens 0.9999 [0.9998, 1.0000] | logistic mean/std 0.9303 last-step 0.8827 | 6.5 s
+  [full-coverage] k  80 (4.00 s) L 20 (eff 20) pairs 13810 | GRU val mean 1.0000 min 1.0000 ens 1.0000 [1.0000, 1.0000] | logistic mean/std 0.9635 last-step 0.8827 | 7.0 s
+  [full-coverage] k  80 (4.00 s) L 40 (eff 40) pairs 13810 | GRU val mean 1.0000 min 1.0000 ens 1.0000 [1.0000, 1.0000] | logistic mean/std 0.9934 last-step 0.8827 | 7.6 s
+  [common] k  10 (0.50 s) L  5 (eff  5) pairs 13653 | GRU val mean 0.9994 min 0.9993 ens 0.9995 [0.9988, 0.9999] | logistic mean/std 0.9948 last-step 0.9018 | 6.3 s
+  [common] k  10 (0.50 s) L 10 (eff 10) pairs 13653 | GRU val mean 0.9999 min 0.9998 ens 1.0000 [0.9999, 1.0000] | logistic mean/std 0.9949 last-step 0.9018 | 6.6 s
+  [common] k  10 (0.50 s) L 20 (eff 10) pairs 13653 | GRU val mean 0.9999 min 0.9999 ens 1.0000 [0.9999, 1.0000] | logistic mean/std 0.9949 last-step 0.9018 | 6.7 s
+  [common] k  10 (0.50 s) L 40 (eff 10) pairs 13653 | GRU val mean 0.9999 min 0.9999 ens 1.0000 [0.9999, 1.0000] | logistic mean/std 0.9949 last-step 0.9018 | 6.9 s
+  [common] k  20 (1.00 s) L  5 (eff  5) pairs 13653 | GRU val mean 0.9995 min 0.9995 ens 0.9997 [0.9994, 0.9999] | logistic mean/std 0.9916 last-step 0.9843 | 6.4 s
+  [common] k  20 (1.00 s) L 10 (eff 10) pairs 13653 | GRU val mean 0.9997 min 0.9995 ens 0.9997 [0.9994, 0.9999] | logistic mean/std 0.9925 last-step 0.9843 | 6.7 s
+  [common] k  20 (1.00 s) L 20 (eff 20) pairs 13653 | GRU val mean 0.9996 min 0.9995 ens 0.9996 [0.9990, 1.0000] | logistic mean/std 0.9940 last-step 0.9843 | 6.5 s
+  [common] k  20 (1.00 s) L 40 (eff 20) pairs 13653 | GRU val mean 0.9996 min 0.9994 ens 0.9996 [0.9989, 1.0000] | logistic mean/std 0.9940 last-step 0.9843 | 7.1 s
+  [common] k  30 (1.50 s) L  5 (eff  5) pairs 13653 | GRU val mean 0.9984 min 0.9982 ens 0.9986 [0.9955, 1.0000] | logistic mean/std 0.9798 last-step 0.9632 | 7.0 s
+  [common] k  30 (1.50 s) L 10 (eff 10) pairs 13653 | GRU val mean 0.9985 min 0.9984 ens 0.9985 [0.9962, 1.0000] | logistic mean/std 0.9859 last-step 0.9632 | 7.4 s
+  [common] k  30 (1.50 s) L 20 (eff 20) pairs 13653 | GRU val mean 0.9997 min 0.9996 ens 0.9998 [0.9992, 1.0000] | logistic mean/std 0.9918 last-step 0.9632 | 8.0 s
+  [common] k  30 (1.50 s) L 40 (eff 30) pairs 13653 | GRU val mean 0.9997 min 0.9995 ens 0.9997 [0.9991, 1.0000] | logistic mean/std 0.9917 last-step 0.9632 | 8.5 s
+  [common] k  40 (2.00 s) L  5 (eff  5) pairs 13653 | GRU val mean 0.9993 min 0.9990 ens 0.9995 [0.9988, 1.0000] | logistic mean/std 0.9869 last-step 0.9775 | 7.7 s
+  [common] k  40 (2.00 s) L 10 (eff 10) pairs 13653 | GRU val mean 0.9991 min 0.9988 ens 0.9992 [0.9979, 1.0000] | logistic mean/std 0.9876 last-step 0.9775 | 7.0 s
+  [common] k  40 (2.00 s) L 20 (eff 20) pairs 13653 | GRU val mean 0.9989 min 0.9981 ens 0.9992 [0.9973, 1.0000] | logistic mean/std 0.9919 last-step 0.9775 | 6.7 s
+  [common] k  40 (2.00 s) L 40 (eff 40) pairs 13653 | GRU val mean 0.9981 min 0.9970 ens 0.9982 [0.9941, 1.0000] | logistic mean/std 0.9934 last-step 0.9775 | 5.0 s
+  [common] k  60 (3.00 s) L  5 (eff  5) pairs 13653 | GRU val mean 0.9997 min 0.9996 ens 0.9997 [0.9994, 1.0000] | logistic mean/std 0.9587 last-step 0.9397 | 5.4 s
+  [common] k  60 (3.00 s) L 10 (eff 10) pairs 13653 | GRU val mean 0.9999 min 0.9998 ens 1.0000 [1.0000, 1.0000] | logistic mean/std 0.9766 last-step 0.9397 | 6.8 s
+  [common] k  60 (3.00 s) L 20 (eff 20) pairs 13653 | GRU val mean 1.0000 min 1.0000 ens 1.0000 [1.0000, 1.0000] | logistic mean/std 0.9889 last-step 0.9397 | 7.5 s
+  [common] k  60 (3.00 s) L 40 (eff 40) pairs 13653 | GRU val mean 1.0000 min 0.9999 ens 1.0000 [0.9999, 1.0000] | logistic mean/std 0.9959 last-step 0.9397 | 8.4 s
+  [common] k  80 (4.00 s) L  5 (eff  5) pairs 13653 | GRU val mean 0.9991 min 0.9985 ens 0.9995 [0.9989, 0.9999] | logistic mean/std 0.9024 last-step 0.8831 | 7.8 s
+  [common] k  80 (4.00 s) L 10 (eff 10) pairs 13653 | GRU val mean 0.9998 min 0.9997 ens 0.9999 [0.9997, 1.0000] | logistic mean/std 0.9297 last-step 0.8831 | 7.8 s
+  [common] k  80 (4.00 s) L 20 (eff 20) pairs 13653 | GRU val mean 1.0000 min 1.0000 ens 1.0000 [1.0000, 1.0000] | logistic mean/std 0.9632 last-step 0.8831 | 7.7 s
+  [common] k  80 (4.00 s) L 40 (eff 40) pairs 13653 | GRU val mean 1.0000 min 1.0000 ens 1.0000 [1.0000, 1.0000] | logistic mean/std 0.9946 last-step 0.8831 | 7.7 s
+  ablation k 10 L 5 actions    val 0.7333
+  ablation k 10 L 5 body_vel   val 0.9546
+  ablation k 10 L 5 attitude   val 0.8887
+  ablation k 10 L 5 ang_rates  val 0.9712
+  ablation k 10 L 5 omegas     val 0.9899
+  ablation k 10 L 5 engine     val 0.9856
+  ablation k 10 L 5 state12    val 0.9996
+  ablation k 10 L 5 no_engine  val 0.9994
+  ablation k 10 L 5 no_omegas  val 0.9991
+  ablation k 10 L 5 vx_only    val 0.9154
+  ablation k 10 L 5 longitudinal val 0.9613
+  ablation k 10 L 5 no_rates   val 0.9995
+  ablation k 10 L 5 no_engine_brake val 0.9994
+  ablation k 10 L 5 motion_no_actions val 0.9994
+  ablation k 10 L 10 actions    val 0.8522
+  ablation k 10 L 10 body_vel   val 0.9673
+  ablation k 10 L 10 attitude   val 0.9011
+  ablation k 10 L 10 ang_rates  val 0.9901
+  ablation k 10 L 10 omegas     val 0.9975
+  ablation k 10 L 10 engine     val 0.9175
+  ablation k 10 L 10 state12    val 0.9998
+  ablation k 10 L 10 no_engine  val 0.9998
+  ablation k 10 L 10 no_omegas  val 0.9979
+  ablation k 10 L 10 vx_only    val 0.9313
+  ablation k 10 L 10 longitudinal val 0.9770
+  ablation k 10 L 10 no_rates   val 0.9991
+  ablation k 10 L 10 no_engine_brake val 0.9998
+  ablation k 10 L 10 motion_no_actions val 0.9995
+  ablation k 20 L 20 actions    val 0.9602
+  ablation k 20 L 20 body_vel   val 0.9897
+  ablation k 20 L 20 attitude   val 0.9106
+  ablation k 20 L 20 ang_rates  val 0.9985
+  ablation k 20 L 20 omegas     val 0.9936
+  ablation k 20 L 20 engine     val 0.9913
+  ablation k 20 L 20 state12    val 0.9995
+  ablation k 20 L 20 no_engine  val 0.9993
+  ablation k 20 L 20 no_omegas  val 0.9995
+  ablation k 20 L 20 vx_only    val 0.9800
+  ablation k 20 L 20 longitudinal val 0.9946
+  ablation k 20 L 20 no_rates   val 0.9997
+  ablation k 20 L 20 no_engine_brake val 0.9991
+  ablation k 20 L 20 motion_no_actions val 0.9986
+  ablation k 60 L 40 actions    val 0.9652
+  ablation k 60 L 40 body_vel   val 0.9683
+  ablation k 60 L 40 attitude   val 0.7191
+  ablation k 60 L 40 ang_rates  val 0.9975
+  ablation k 60 L 40 omegas     val 0.9445
+  ablation k 60 L 40 engine     val 0.9253
+  ablation k 60 L 40 state12    val 0.9998
+  ablation k 60 L 40 no_engine  val 1.0000
+  ablation k 60 L 40 no_omegas  val 0.9999
+  ablation k 60 L 40 vx_only    val 0.8908
+  ablation k 60 L 40 longitudinal val 0.9976
+  ablation k 60 L 40 no_rates   val 1.0000
+  ablation k 60 L 40 no_engine_brake val 1.0000
+  ablation k 60 L 40 motion_no_actions val 0.9998
+Command: `PYTHONPATH=src:scripts OMP_NUM_THREADS=6 python scripts/ci_window_probe.py --full-coverage --common --ablate 10:5 10:10 20:20 60:40 --out artifacts/traverse/crm_improve_20260922/scout/W_window`
+
+Sources per k: k 10: short_anchor.npz, k 20: short_anchor.npz, k 30: short_anchor.npz, k 40: mixed_reanchor.npz, k 60: anchor_k40_60_80.npz, k 80: mixed_reanchor.npz. * = window longer than the time since the start (only k frames valid).
+
+### GRU val AUC, mean of 3 seeds
+
+| decision frame k (time) | pairs (val) | L = 5 (0.25 s) | L = 10 (0.50 s) | L = 20 (1.00 s) | L = 40 (2.00 s) |
+|---|---|---|---|---|---|
+| 10 (0.50 s) | 14331 (702) | 0.9994 | 0.9997 | 0.9999* | 0.9999* |
+| 20 (1.00 s) | 14331 (702) | 0.9997 | 0.9998 | 0.9997 | 0.9996* |
+| 30 (1.50 s) | 14234 (700) | 0.9987 | 0.9984 | 0.9998 | 0.9998* |
+| 40 (2.00 s) | 14044 (693) | 0.9996 | 0.9991 | 0.9990 | 0.9995 |
+| 60 (3.00 s) | 14039 (688) | 0.9997 | 1.0000 | 1.0000 | 1.0000 |
+| 80 (4.00 s) | 3010 (151) | 0.9969 | 0.9983 | 0.9999 | 0.9983 |
+
+### GRU val AUC, worst seed
+
+| decision frame k (time) | pairs (val) | L = 5 (0.25 s) | L = 10 (0.50 s) | L = 20 (1.00 s) | L = 40 (2.00 s) |
+|---|---|---|---|---|---|
+| 10 (0.50 s) | 14331 (702) | 0.9992 | 0.9995 | 0.9998* | 0.9999* |
+| 20 (1.00 s) | 14331 (702) | 0.9995 | 0.9998 | 0.9996 | 0.9995* |
+| 30 (1.50 s) | 14234 (700) | 0.9984 | 0.9976 | 0.9997 | 0.9997* |
+| 40 (2.00 s) | 14044 (693) | 0.9994 | 0.9989 | 0.9979 | 0.9993 |
+| 60 (3.00 s) | 14039 (688) | 0.9996 | 1.0000 | 1.0000 | 1.0000 |
+| 80 (4.00 s) | 3010 (151) | 0.9963 | 0.9969 | 0.9999 | 0.9974 |
+
+### GRU seed-ensemble val AUC, 95 % group-bootstrap lower bound
+
+| decision frame k (time) | pairs (val) | L = 5 (0.25 s) | L = 10 (0.50 s) | L = 20 (1.00 s) | L = 40 (2.00 s) |
+|---|---|---|---|---|---|
+| 10 (0.50 s) | 14331 (702) | 0.9988 | 0.9999 | 0.9999* | 0.9999* |
+| 20 (1.00 s) | 14331 (702) | 0.9996 | 0.9996 | 0.9992 | 0.9992* |
+| 30 (1.50 s) | 14234 (700) | 0.9961 | 0.9965 | 0.9993 | 0.9994* |
+| 40 (2.00 s) | 14044 (693) | 0.9993 | 0.9977 | 0.9979 | 0.9986 |
+| 60 (3.00 s) | 14039 (688) | 0.9994 | 1.0000 | 1.0000 | 1.0000 |
+| 80 (4.00 s) | 3010 (151) | 0.9936 | 0.9968 | 1.0000 | 0.9989 |
+
+### Logistic on window means + stds (30 features), val AUC
+
+| decision frame k (time) | pairs (val) | L = 5 (0.25 s) | L = 10 (0.50 s) | L = 20 (1.00 s) | L = 40 (2.00 s) |
+|---|---|---|---|---|---|
+| 10 (0.50 s) | 14331 (702) | 0.995 | 0.995 | 0.995* | 0.995* |
+| 20 (1.00 s) | 14331 (702) | 0.992 | 0.993 | 0.994 | 0.994* |
+| 30 (1.50 s) | 14234 (700) | 0.980 | 0.987 | 0.992 | 0.992* |
+| 40 (2.00 s) | 14044 (693) | 0.987 | 0.988 | 0.993 | 0.994 |
+| 60 (3.00 s) | 14039 (688) | 0.953 | 0.974 | 0.988 | 0.997 |
+| 80 (4.00 s) | 3010 (151) | 0.928 | 0.945 | 0.978 | 0.997 |
+
+### Last-step logistic (state + action at frame k only), val AUC
+
+| k | 10 | 20 | 30 | 40 | 60 | 80 |
+|---|---|---|---|---|---|---|
+| val AUC | 0.903 | 0.985 | 0.964 | 0.977 | 0.930 | 0.888 |
+
+### Variant full_coverage: GRU val AUC mean of 3 seeds (k >= 40 from anchor_k40_60_80.npz: every admitted anchor, no speed-stratified selection)
+
+| decision frame k (time) | pairs (val) | L = 5 (0.25 s) | L = 10 (0.50 s) | L = 20 (1.00 s) | L = 40 (2.00 s) |
+|---|---|---|---|---|---|
+| 40 (2.00 s) | 14044 (693) | 0.9993 | 0.9992 | 0.9988 | 0.9994 |
+| 60 (3.00 s) | 14039 (688) | 0.9997 | 1.0000 | 1.0000 | 1.0000 |
+| 80 (4.00 s) | 13810 (672) | 0.9992 | 0.9999 | 1.0000 | 1.0000 |
+
+### Variant full_coverage: logistic on window means + stds, val AUC
+
+| decision frame k (time) | pairs (val) | L = 5 (0.25 s) | L = 10 (0.50 s) | L = 20 (1.00 s) | L = 40 (2.00 s) |
+|---|---|---|---|---|---|
+| 40 (2.00 s) | 14044 (693) | 0.987 | 0.988 | 0.993 | 0.994 |
+| 60 (3.00 s) | 14039 (688) | 0.953 | 0.974 | 0.988 | 0.997 |
+| 80 (4.00 s) | 13810 (672) | 0.902 | 0.930 | 0.964 | 0.993 |
+
+### Variant common: GRU val AUC mean of 3 seeds (episodes paired at every k in [10, 20, 30, 40, 60, 80] (13653 episodes); k >= 40 from anchor_k40_60_80.npz)
+
+| decision frame k (time) | pairs (val) | L = 5 (0.25 s) | L = 10 (0.50 s) | L = 20 (1.00 s) | L = 40 (2.00 s) |
+|---|---|---|---|---|---|
+| 10 (0.50 s) | 13653 (668) | 0.9994 | 0.9999 | 0.9999* | 0.9999* |
+| 20 (1.00 s) | 13653 (668) | 0.9995 | 0.9997 | 0.9996 | 0.9996* |
+| 30 (1.50 s) | 13653 (668) | 0.9984 | 0.9985 | 0.9997 | 0.9997* |
+| 40 (2.00 s) | 13653 (668) | 0.9993 | 0.9991 | 0.9989 | 0.9981 |
+| 60 (3.00 s) | 13653 (668) | 0.9997 | 0.9999 | 1.0000 | 1.0000 |
+| 80 (4.00 s) | 13653 (668) | 0.9991 | 0.9998 | 1.0000 | 1.0000 |
+
+### Variant common: logistic on window means + stds, val AUC
+
+| decision frame k (time) | pairs (val) | L = 5 (0.25 s) | L = 10 (0.50 s) | L = 20 (1.00 s) | L = 40 (2.00 s) |
+|---|---|---|---|---|---|
+| 10 (0.50 s) | 13653 (668) | 0.995 | 0.995 | 0.995* | 0.995* |
+| 20 (1.00 s) | 13653 (668) | 0.992 | 0.992 | 0.994 | 0.994* |
+| 30 (1.50 s) | 13653 (668) | 0.980 | 0.986 | 0.992 | 0.992* |
+| 40 (2.00 s) | 13653 (668) | 0.987 | 0.988 | 0.992 | 0.993 |
+| 60 (3.00 s) | 13653 (668) | 0.959 | 0.977 | 0.989 | 0.996 |
+| 80 (4.00 s) | 13653 (668) | 0.902 | 0.930 | 0.963 | 0.995 |
+
+### Channel-group ablation at k:L = 10:5 (GRU, 1 seed, val AUC)
+
+| channels kept | val AUC |
+|---|---|
+| actions (steer, throttle, brake) | 0.7333 |
+| body_vel (vx, vy) | 0.9546 |
+| attitude (roll, pitch) | 0.8887 |
+| ang_rates (roll_rate, pitch_rate, yaw_rate) | 0.9712 |
+| omegas (omega_fl, omega_fr, omega_rl, omega_rr) | 0.9899 |
+| engine (engine_speed) | 0.9856 |
+| state12 (vx, vy, roll, pitch, roll_rate, pitch_rate, yaw_rate, omega_fl, omega_fr, omega_rl, omega_rr, engine_speed) | 0.9996 |
+| no_engine (vx, vy, roll, pitch, roll_rate, pitch_rate, yaw_rate, omega_fl, omega_fr, omega_rl, omega_rr, steer, throttle, brake) | 0.9994 |
+| no_omegas (vx, vy, roll, pitch, roll_rate, pitch_rate, yaw_rate, engine_speed, steer, throttle, brake) | 0.9991 |
+| vx_only (vx) | 0.9154 |
+| longitudinal (vx, pitch, throttle, brake) | 0.9613 |
+| no_rates (vx, vy, roll, pitch, omega_fl, omega_fr, omega_rl, omega_rr, engine_speed, steer, throttle, brake) | 0.9995 |
+| no_engine_brake (vx, vy, roll, pitch, roll_rate, pitch_rate, yaw_rate, omega_fl, omega_fr, omega_rl, omega_rr, steer, throttle) | 0.9994 |
+| motion_no_actions (vx, vy, roll, pitch, roll_rate, pitch_rate, yaw_rate, omega_fl, omega_fr, omega_rl, omega_rr) | 0.9994 |
+
+### Channel-group ablation at k:L = 10:10 (GRU, 1 seed, val AUC)
+
+| channels kept | val AUC |
+|---|---|
+| actions (steer, throttle, brake) | 0.8522 |
+| body_vel (vx, vy) | 0.9673 |
+| attitude (roll, pitch) | 0.9011 |
+| ang_rates (roll_rate, pitch_rate, yaw_rate) | 0.9901 |
+| omegas (omega_fl, omega_fr, omega_rl, omega_rr) | 0.9975 |
+| engine (engine_speed) | 0.9175 |
+| state12 (vx, vy, roll, pitch, roll_rate, pitch_rate, yaw_rate, omega_fl, omega_fr, omega_rl, omega_rr, engine_speed) | 0.9998 |
+| no_engine (vx, vy, roll, pitch, roll_rate, pitch_rate, yaw_rate, omega_fl, omega_fr, omega_rl, omega_rr, steer, throttle, brake) | 0.9998 |
+| no_omegas (vx, vy, roll, pitch, roll_rate, pitch_rate, yaw_rate, engine_speed, steer, throttle, brake) | 0.9979 |
+| vx_only (vx) | 0.9313 |
+| longitudinal (vx, pitch, throttle, brake) | 0.9770 |
+| no_rates (vx, vy, roll, pitch, omega_fl, omega_fr, omega_rl, omega_rr, engine_speed, steer, throttle, brake) | 0.9991 |
+| no_engine_brake (vx, vy, roll, pitch, roll_rate, pitch_rate, yaw_rate, omega_fl, omega_fr, omega_rl, omega_rr, steer, throttle) | 0.9998 |
+| motion_no_actions (vx, vy, roll, pitch, roll_rate, pitch_rate, yaw_rate, omega_fl, omega_fr, omega_rl, omega_rr) | 0.9995 |
+
+### Channel-group ablation at k:L = 20:20 (GRU, 1 seed, val AUC)
+
+| channels kept | val AUC |
+|---|---|
+| actions (steer, throttle, brake) | 0.9602 |
+| body_vel (vx, vy) | 0.9897 |
+| attitude (roll, pitch) | 0.9106 |
+| ang_rates (roll_rate, pitch_rate, yaw_rate) | 0.9985 |
+| omegas (omega_fl, omega_fr, omega_rl, omega_rr) | 0.9936 |
+| engine (engine_speed) | 0.9913 |
+| state12 (vx, vy, roll, pitch, roll_rate, pitch_rate, yaw_rate, omega_fl, omega_fr, omega_rl, omega_rr, engine_speed) | 0.9995 |
+| no_engine (vx, vy, roll, pitch, roll_rate, pitch_rate, yaw_rate, omega_fl, omega_fr, omega_rl, omega_rr, steer, throttle, brake) | 0.9993 |
+| no_omegas (vx, vy, roll, pitch, roll_rate, pitch_rate, yaw_rate, engine_speed, steer, throttle, brake) | 0.9995 |
+| vx_only (vx) | 0.9800 |
+| longitudinal (vx, pitch, throttle, brake) | 0.9946 |
+| no_rates (vx, vy, roll, pitch, omega_fl, omega_fr, omega_rl, omega_rr, engine_speed, steer, throttle, brake) | 0.9997 |
+| no_engine_brake (vx, vy, roll, pitch, roll_rate, pitch_rate, yaw_rate, omega_fl, omega_fr, omega_rl, omega_rr, steer, throttle) | 0.9991 |
+| motion_no_actions (vx, vy, roll, pitch, roll_rate, pitch_rate, yaw_rate, omega_fl, omega_fr, omega_rl, omega_rr) | 0.9986 |
+
+### Channel-group ablation at k:L = 60:40 (GRU, 1 seed, val AUC)
+
+| channels kept | val AUC |
+|---|---|
+| actions (steer, throttle, brake) | 0.9652 |
+| body_vel (vx, vy) | 0.9683 |
+| attitude (roll, pitch) | 0.7191 |
+| ang_rates (roll_rate, pitch_rate, yaw_rate) | 0.9975 |
+| omegas (omega_fl, omega_fr, omega_rl, omega_rr) | 0.9445 |
+| engine (engine_speed) | 0.9253 |
+| state12 (vx, vy, roll, pitch, roll_rate, pitch_rate, yaw_rate, omega_fl, omega_fr, omega_rl, omega_rr, engine_speed) | 0.9998 |
+| no_engine (vx, vy, roll, pitch, roll_rate, pitch_rate, yaw_rate, omega_fl, omega_fr, omega_rl, omega_rr, steer, throttle, brake) | 1.0000 |
+| no_omegas (vx, vy, roll, pitch, roll_rate, pitch_rate, yaw_rate, engine_speed, steer, throttle, brake) | 0.9999 |
+| vx_only (vx) | 0.8908 |
+| longitudinal (vx, pitch, throttle, brake) | 0.9976 |
+| no_rates (vx, vy, roll, pitch, omega_fl, omega_fr, omega_rl, omega_rr, engine_speed, steer, throttle, brake) | 1.0000 |
+| no_engine_brake (vx, vy, roll, pitch, roll_rate, pitch_rate, yaw_rate, omega_fl, omega_fr, omega_rl, omega_rr, steer, throttle) | 1.0000 |
+| motion_no_actions (vx, vy, roll, pitch, roll_rate, pitch_rate, yaw_rate, omega_fl, omega_fr, omega_rl, omega_rr) | 0.9998 |
+{
+ "0.95": {
+  "gru_seed_mean": {
+   "k": 10,
+   "decision_s": 0.5,
+   "L": 5,
+   "window_s": 0.25,
+   "effective_window_s": 0.25,
+   "value": 0.9994
+  },
+  "gru_every_seed": {
+   "k": 10,
+   "decision_s": 0.5,
+   "L": 5,
+   "window_s": 0.25,
+   "effective_window_s": 0.25,
+   "value": 0.9992
+  },
+  "gru_ensemble": {
+   "k": 10,
+   "decision_s": 0.5,
+   "L": 5,
+   "window_s": 0.25,
+   "effective_window_s": 0.25,
+   "value": 0.9996
+  },
+  "gru_ensemble_ci_lower": {
+   "k": 10,
+   "decision_s": 0.5,
+   "L": 5,
+   "window_s": 0.25,
+   "effective_window_s": 0.25,
+   "value": 0.9988
+  },
+  "logistic_meanstd": {
+   "k": 10,
+   "decision_s": 0.5,
+   "L": 5,
+   "window_s": 0.25,
+   "effective_window_s": 0.25,
+   "value": 0.9951
+  },
+  "per_k_shortest_L_gru_mean": {
+   "10": 5,
+   "20": 5,
+   "30": 5,
+   "40": 5,
+   "60": 5,
+   "80": 5
+  }
+ },
+ "0.99": {
+  "gru_seed_mean": {
+   "k": 10,
+   "decision_s": 0.5,
+   "L": 5,
+   "window_s": 0.25,
+   "effective_window_s": 0.25,
+   "value": 0.9994
+  },
+  "gru_every_seed": {
+   "k": 10,
+   "decision_s": 0.5,
+   "L": 5,
+   "window_s": 0.25,
+   "effective_window_s": 0.25,
+   "value": 0.9992
+  },
+  "gru_ensemble": {
+   "k": 10,
+   "decision_s": 0.5,
+   "L": 5,
+   "window_s": 0.25,
+   "effective_window_s": 0.25,
+   "value": 0.9996
+  },
+  "gru_ensemble_ci_lower": {
+   "k": 10,
+   "decision_s": 0.5,
+   "L": 5,
+   "window_s": 0.25,
+   "effective_window_s": 0.25,
+   "value": 0.9988
+  },
+  "logistic_meanstd": {
+   "k": 10,
+   "decision_s": 0.5,
+   "L": 5,
+   "window_s": 0.25,
+   "effective_window_s": 0.25,
+   "value": 0.9951
+  },
+  "per_k_shortest_L_gru_mean": {
+   "10": 5,
+   "20": 5,
+   "30": 5,
+   "40": 5,
+   "60": 5,
+   "80": 5
+  }
+ }
+}
+wrote artifacts/traverse/crm_improve_20260922/scout/W_window.json and artifacts/traverse/crm_improve_20260922/scout/W_window_tables.md in 583.8 s

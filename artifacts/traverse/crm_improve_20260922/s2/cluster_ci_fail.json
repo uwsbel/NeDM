@@ -1,0 +1,123 @@
+{
+ "L1_Hn:Hstand": {
+  "diff_pts": 0.9999999999999996,
+  "ci95": [
+   -1.3941698352344738,
+   2.9077117572692797
+  ],
+  "clusters": 9,
+  "cluster_wins": 2,
+  "cluster_losses": 5,
+  "sign_p": 0.453125
+ },
+ "L1_H:Hstand": {
+  "diff_pts": 0.5000000000000004,
+  "ci95": [
+   -0.4665811543436871,
+   1.4101057579318448
+  ],
+  "clusters": 9,
+  "cluster_wins": 3,
+  "cluster_losses": 4,
+  "sign_p": 1.0
+ },
+ "L1_P:Hstand": {
+  "diff_pts": 1.1249999999999996,
+  "ci95": [
+   -0.10955018146033854,
+   3.0130354862009043
+  ],
+  "clusters": 9,
+  "cluster_wins": 1,
+  "cluster_losses": 3,
+  "sign_p": 0.625
+ },
+ "L1_Spcrm:Hstand": {
+  "diff_pts": 0.1250000000000001,
+  "ci95": [
+   -1.8387986914379426,
+   1.7333839479392632
+  ],
+  "clusters": 9,
+  "cluster_wins": 2,
+  "cluster_losses": 5,
+  "sign_p": 0.453125
+ },
+ "L1_T:Hstand": {
+  "diff_pts": -1.625,
+  "ci95": [
+   -3.1793922575593574,
+   -0.4848045674132632
+  ],
+  "clusters": 9,
+  "cluster_wins": 6,
+  "cluster_losses": 0,
+  "sign_p": 0.03125
+ },
+ "L1_X:Hstand": {
+  "diff_pts": -1.0000000000000002,
+  "ci95": [
+   -3.237433369366683,
+   0.6443506817426011
+  ],
+  "clusters": 9,
+  "cluster_wins": 3,
+  "cluster_losses": 2,
+  "sign_p": 1.0
+ },
+ "L0p5_H:Hstand": {
+  "diff_pts": -0.37500000000000033,
+  "ci95": [
+   -2.5850340136054415,
+   1.6796408837008734
+  ],
+  "clusters": 9,
+  "cluster_wins": 4,
+  "cluster_losses": 3,
+  "sign_p": 1.0
+ },
+ "L0p5_Hn:Hstand": {
+  "diff_pts": -1.9999999999999998,
+  "ci95": [
+   -4.01915061678599,
+   -0.5516672982190223
+  ],
+  "clusters": 9,
+  "cluster_wins": 6,
+  "cluster_losses": 1,
+  "sign_p": 0.125
+ },
+ "L0p5_P:Hstand": {
+  "diff_pts": 0.0,
+  "ci95": [
+   -1.2407508656825224,
+   1.549460127099229
+  ],
+  "clusters": 9,
+  "cluster_wins": 4,
+  "cluster_losses": 3,
+  "sign_p": 1.0
+ },
+ "L0p5_T:Hstand": {
+  "diff_pts": -2.375,
+  "ci95": [
+   -5.064038053306078,
+   -0.4813477737665467
+  ],
+  "clusters": 9,
+  "cluster_wins": 6,
+  "cluster_losses": 1,
+  "sign_p": 0.125
+ },
+ "L0p5_X:Hstand": {
+  "diff_pts": -0.4999999999999998,
+  "ci95": [
+   -2.1640490112154143,
+   1.3263923963451034
+  ],
+  "clusters": 9,
+  "cluster_wins": 5,
+  "cluster_losses": 3,
+  "sign_p": 0.7265625
+ }
+}

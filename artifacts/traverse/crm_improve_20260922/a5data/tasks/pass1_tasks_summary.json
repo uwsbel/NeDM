@@ -1,0 +1,120 @@
+{
+ "created": "2026-09-22 08:40:24",
+ "stage": "pass1-tasks",
+ "files": {
+  "tasks_pass1_suite_crm_L0p5.json": {
+   "rows": 800,
+   "sha256": "cf70ba936767b73f1e05ba8b02f0d4ddb965b3a972cdb46cfe4b4f0399e4fad0",
+   "length_s": 0.5,
+   "frame": 10
+  },
+  "tasks_pass1_suite_crm_L1.json": {
+   "rows": 800,
+   "sha256": "a84393eb72efd6633ea0ec3db2c7718f946ef7bedc6f04dbd2875a9d44eeba77",
+   "length_s": 1.0,
+   "frame": 20
+  },
+  "tasks_pass1_suite_crm.json": {
+   "rows": 1600,
+   "sha256": "6d2aaf8aefc8a5b9849f4508faa313c1971a9c530a0a6fd3ea9955297c2b9068",
+   "lengths_s": [
+    0.5,
+    1.0
+   ],
+   "merged": true
+  },
+  "tasks_pass1_suite_rigid_L0p5.json": {
+   "rows": 800,
+   "sha256": "4b2c71fe300cec5211ee9e16184fc20825f0345497efeaa52c91f7ecd6077f99",
+   "length_s": 0.5,
+   "frame": 10
+  },
+  "tasks_pass1_suite_rigid_L1.json": {
+   "rows": 800,
+   "sha256": "4565c73fce395dd70416108405fb15ee7e4dc5fb2121bf0d1fdf2fd42c23f3a4",
+   "length_s": 1.0,
+   "frame": 20
+  },
+  "tasks_pass1_suite_rigid.json": {
+   "rows": 1600,
+   "sha256": "03b10ac80aec4b43ed24ff1962159e2a220b878cd2fa9548437ed1d12451fc57",
+   "lengths_s": [
+    0.5,
+    1.0
+   ],
+   "merged": true,
+   "shard_counts": {
+    "0": 250,
+    "1": 314,
+    "2": 284,
+    "3": 264,
+    "4": 254,
+    "5": 234
+   }
+  },
+  "tasks_pass1_twin_crm_L0p5.json": {
+   "rows": 1200,
+   "sha256": "2996b424206aa37eb0907b7e6320949fb6c4d87e54b7acde3d43a71b5c854769",
+   "length_s": 0.5,
+   "frame": 10
+  },
+  "tasks_pass1_twin_crm_L1.json": {
+   "rows": 1200,
+   "sha256": "f2d48b60ad0c70d1765015fab9e1b3936a2d68596af75d8c42548cf116bd7670",
+   "length_s": 1.0,
+   "frame": 20
+  },
+  "tasks_pass1_twin_crm_L3.json": {
+   "rows": 1200,
+   "sha256": "6e62e09459e554f628a84abc2c2e9920f1ad81f7de8127c2b77680f66c7691df",
+   "length_s": 3.0,
+   "frame": 60
+  },
+  "tasks_pass1_twin_crm.json": {
+   "rows": 3600,
+   "sha256": "554ac19920bafbd76658a83c801e13157ab287fec4f9b59240542d41ef0fb340",
+   "lengths_s": [
+    0.5,
+    1.0,
+    3.0
+   ],
+   "merged": true
+  },
+  "tasks_pass1_twin_rigid_L0p5.json": {
+   "rows": 1200,
+   "sha256": "f9c173249d5914995a2c906f6b67b9ea752c5d1cf645d9e053c7e6667fd88458",
+   "length_s": 0.5,
+   "frame": 10
+  },
+  "tasks_pass1_twin_rigid_L1.json": {
+   "rows": 1200,
+   "sha256": "2572b7d26d84bd257fea276fc2a61123200f03b7f05453b10c39cc19017bafba",
+   "length_s": 1.0,
+   "frame": 20
+  },
+  "tasks_pass1_twin_rigid_L3.json": {
+   "rows": 1200,
+   "sha256": "71d4d86159fac685267ee4af96405823aa212f8bb2b32aa20fc4b00627ac856e",
+   "length_s": 3.0,
+   "frame": 60
+  },
+  "tasks_pass1_twin_rigid.json": {
+   "rows": 3600,
+   "sha256": "f9ad7ea7b5d6d3600d9519bfeb93fa6becba55abef44794e0aca9177935f066c",
+   "lengths_s": [
+    0.5,
+    1.0,
+    3.0
+   ],
+   "merged": true,
+   "shard_counts": {
+    "0": 597,
+    "1": 486,
+    "2": 666,
+    "3": 570,
+    "4": 672,
+    "5": 609
+   }
+  }
+ }
+}

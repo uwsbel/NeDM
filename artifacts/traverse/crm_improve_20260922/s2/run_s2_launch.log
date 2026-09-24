@@ -1,0 +1,11 @@
+10:33:57 waiting for 1 pick sets
+10:34:57 waiting for 1 pick sets
+10:35:57 waiting for 1 pick sets
+10:36:57 waiting for 1 pick sets
+10:37:57 waiting for 1 pick sets
+10:38:57 waiting for 1 pick sets
+10:39:57 all pick sets present
+crm 5600 rows 5464 run
+rigid 6400 rows 6324 run
+submitted ci_s2 431519 431520 431530 ci_rs2 431531
+10:41:56 S2 existing-ensemble drives launched

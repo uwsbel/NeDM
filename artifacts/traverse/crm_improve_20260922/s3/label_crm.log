@@ -1,0 +1,46 @@
+7182 continuation dirs under ['artifacts/traverse/crm_improve_20260922/a5data/cont_twin_L3/runs_crm']; 1197 anchors (crm)
+7182 rows, 0 dropped in 5 s
+schema matches artifacts/traverse/generalist_20260921/A_adapt/datasets/mixed_reanchor.npz (+ ('cls', 'branch_run'))
+{
+ "rows": 7182,
+ "anchors_with_rows": 1197,
+ "counts": {
+  "crm|a5_3|train": {
+   "rows": 6516,
+   "fail": 4136,
+   "unsafe": 4154,
+   "anchors": 1086
+  },
+  "crm|a5_3|val": {
+   "rows": 336,
+   "fail": 227,
+   "unsafe": 227,
+   "anchors": 56
+  },
+  "crm|a5_3|test": {
+   "rows": 330,
+   "fail": 224,
+   "unsafe": 225,
+   "anchors": 55
+  }
+ },
+ "label_discordance": {
+  "a5_3": {
+   "anchors_with_3": 0,
+   "fail_discordant_of_3": 0,
+   "unsafe_discordant_of_3": 0,
+   "fail_discordance_share_3": null,
+   "unsafe_discordance_share_3": null,
+   "anchors_with_2plus": 1197,
+   "fail_discordance_share_2plus": 0.8454,
+   "all_fail_of_3": 0,
+   "all_clean_fail_of_3": 0,
+   "fail_rate": 0.6387,
+   "unsafe_rate": 0.6413
+  }
+ },
+ "dropped": {},
+ "anchors_skipped_total": 0,
+ "anchors_pending_no_summary": 0
+}
+wrote artifacts/traverse/crm_improve_20260922/datasets/cont3_crm.npz (0.127 GB) and artifacts/traverse/crm_improve_20260922/datasets/cont3_crm_report.json

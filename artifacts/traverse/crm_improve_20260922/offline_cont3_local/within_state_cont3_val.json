@@ -1,0 +1,26 @@
+{
+ "without|rigid": {
+  "within_state_unsafe": 0.9688,
+  "pairs": 417,
+  "within_state_fail": 0.8797,
+  "pairs_fail": 291
+ },
+ "without|soil": {
+  "within_state_unsafe": 0.9891,
+  "pairs": 367,
+  "within_state_fail": 0.9891,
+  "pairs_fail": 367
+ },
+ "with|rigid": {
+  "within_state_unsafe": 0.9688,
+  "pairs": 417,
+  "within_state_fail": 0.89,
+  "pairs_fail": 291
+ },
+ "with|soil": {
+  "within_state_unsafe": 0.9891,
+  "pairs": 367,
+  "within_state_fail": 0.9891,
+  "pairs_fail": 367
+ }
+}
