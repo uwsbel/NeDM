@@ -35,6 +35,10 @@ What else is settled (evidence further down):
   uses: one run in sixty collapses (seed 6's surrogate, the most accurate and most
   exploitable), and the guard catches it from `finetune.jsonl` alone (6 trips in 60 runs,
   every one bad in Chrono, none among good runs).
+- **Where Chrono's time goes** (COST.md): 95.5% of a CRM step is the SPH soil; the Go2
+  multibody solve runs concurrently and off the critical path, and the foot-soil coupling
+  is ~2%. The surrogate is 17x faster than CRM for one robot and ~600x in throughput at
+  batch 1024 on the same MI210; learning only the soil would cap the speedup near 3x.
 - **The Chrono GPU fault** (SphBceManager.cu:543) is rare (5 in ~3,600 episodes), not
   force-related, and contained by `os._exit(90)` + `--resume`.
 

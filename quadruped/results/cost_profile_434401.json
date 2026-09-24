@@ -1,0 +1,388 @@
+{
+  "chrono": [
+    {
+      "kind": "crm",
+      "command": [
+        0.5,
+        0.0,
+        0.0
+      ],
+      "patch": [
+        8.0,
+        5.46
+      ],
+      "dt_exchange_s": 0.002,
+      "substeps_cfd": 4,
+      "substeps_mbd": 4,
+      "counts": {
+        "GetNumSPHParticles": 1208614,
+        "GetNumBoundaryBCEMarkers": 399084
+      },
+      "build_s": 0.86,
+      "warmup_wall_s": 11.02,
+      "sim_s": 6.0,
+      "loop_wall_s": 30.944,
+      "slowdown_x": 5.157,
+      "ms_per_sim_s": {
+        "act": 17.73,
+        "pd": 41.39,
+        "dostep": 5085.67,
+        "readback": 8.09,
+        "concurrent": 4986.78,
+        "cfd": 4936.19,
+        "mbd": 1470.02,
+        "fsi": 97.7,
+        "mbd_collision": 3.43,
+        "mbd_lssetup": 0.11,
+        "mbd_lssolve": 1321.78,
+        "mbd_update": 0.0,
+        "mbd_advance": 1460.03
+      },
+      "policy_calls": 300,
+      "end_pos": [
+        0.423,
+        0.936
+      ],
+      "diverged_at_s": null,
+      "case": "straight",
+      "rep": 0
+    },
+    {
+      "kind": "crm",
+      "command": [
+        0.5,
+        0.0,
+        0.0
+      ],
+      "patch": [
+        8.0,
+        5.46
+      ],
+      "dt_exchange_s": 0.002,
+      "substeps_cfd": 4,
+      "substeps_mbd": 4,
+      "counts": {
+        "GetNumSPHParticles": 1208614,
+        "GetNumBoundaryBCEMarkers": 399084
+      },
+      "build_s": 0.8,
+      "warmup_wall_s": 11.01,
+      "sim_s": 6.0,
+      "loop_wall_s": 30.971,
+      "slowdown_x": 5.162,
+      "ms_per_sim_s": {
+        "act": 12.39,
+        "pd": 41.37,
+        "dostep": 5095.73,
+        "readback": 7.94,
+        "concurrent": 4997.31,
+        "cfd": 4966.3,
+        "mbd": 1541.73,
+        "fsi": 97.25,
+        "mbd_collision": 3.69,
+        "mbd_lssetup": 0.1,
+        "mbd_lssolve": 1385.9,
+        "mbd_update": 0.0,
+        "mbd_advance": 1531.09
+      },
+      "policy_calls": 300,
+      "end_pos": [
+        0.423,
+        0.936
+      ],
+      "diverged_at_s": null,
+      "case": "straight",
+      "rep": 1
+    },
+    {
+      "kind": "crm",
+      "command": [
+        0.5,
+        0.0,
+        0.6
+      ],
+      "patch": [
+        8.0,
+        4.0
+      ],
+      "dt_exchange_s": 0.002,
+      "substeps_cfd": 4,
+      "substeps_mbd": 4,
+      "counts": {
+        "GetNumSPHParticles": 886611,
+        "GetNumBoundaryBCEMarkers": 303819
+      },
+      "build_s": 0.73,
+      "warmup_wall_s": 9.07,
+      "sim_s": 6.0,
+      "loop_wall_s": 30.281,
+      "slowdown_x": 5.047,
+      "ms_per_sim_s": {
+        "act": 12.3,
+        "pd": 41.24,
+        "dostep": 4980.92,
+        "readback": 7.95,
+        "concurrent": 4882.86,
+        "cfd": 4781.8,
+        "mbd": 1588.71,
+        "fsi": 96.89,
+        "mbd_collision": 4.1,
+        "mbd_lssetup": 0.1,
+        "mbd_lssolve": 1432.13,
+        "mbd_update": 0.0,
+        "mbd_advance": 1577.81
+      },
+      "policy_calls": 300,
+      "end_pos": [
+        -1.276,
+        -0.035
+      ],
+      "diverged_at_s": null,
+      "case": "turn",
+      "rep": 0
+    },
+    {
+      "kind": "crm",
+      "command": [
+        0.5,
+        0.0,
+        0.6
+      ],
+      "patch": [
+        8.0,
+        4.0
+      ],
+      "dt_exchange_s": 0.002,
+      "substeps_cfd": 4,
+      "substeps_mbd": 4,
+      "counts": {
+        "GetNumSPHParticles": 886611,
+        "GetNumBoundaryBCEMarkers": 303819
+      },
+      "build_s": 0.75,
+      "warmup_wall_s": 9.07,
+      "sim_s": 6.0,
+      "loop_wall_s": 30.026,
+      "slowdown_x": 5.004,
+      "ms_per_sim_s": {
+        "act": 12.18,
+        "pd": 41.7,
+        "dostep": 4938.03,
+        "readback": 8.0,
+        "concurrent": 4840.33,
+        "cfd": 4769.35,
+        "mbd": 1596.79,
+        "fsi": 96.54,
+        "mbd_collision": 3.87,
+        "mbd_lssetup": 0.1,
+        "mbd_lssolve": 1439.9,
+        "mbd_update": 0.0,
+        "mbd_advance": 1585.88
+      },
+      "policy_calls": 300,
+      "end_pos": [
+        -1.31,
+        0.066
+      ],
+      "diverged_at_s": null,
+      "case": "turn",
+      "rep": 1
+    },
+    {
+      "kind": "rigid",
+      "command": [
+        0.5,
+        0.0,
+        0.0
+      ],
+      "patch": [
+        8.0,
+        5.46
+      ],
+      "dt_exchange_s": 0.0025,
+      "substeps_cfd": 1,
+      "substeps_mbd": 1,
+      "counts": {},
+      "build_s": 0.57,
+      "warmup_wall_s": 0.35,
+      "sim_s": 6.0,
+      "loop_wall_s": 2.201,
+      "slowdown_x": 0.367,
+      "ms_per_sim_s": {
+        "act": 10.6,
+        "pd": 28.48,
+        "dostep": 320.13,
+        "readback": 5.33,
+        "concurrent": 0.0,
+        "cfd": 0.0,
+        "mbd": 319.46,
+        "fsi": 0.0,
+        "mbd_collision": 4.14,
+        "mbd_lssetup": 0.03,
+        "mbd_lssolve": 280.26,
+        "mbd_update": 0.0,
+        "mbd_advance": 312.75
+      },
+      "policy_calls": 300,
+      "end_pos": [
+        1.23,
+        0.946
+      ],
+      "diverged_at_s": null,
+      "case": "straight",
+      "rep": 0
+    },
+    {
+      "kind": "rigid",
+      "command": [
+        0.5,
+        0.0,
+        0.0
+      ],
+      "patch": [
+        8.0,
+        5.46
+      ],
+      "dt_exchange_s": 0.0025,
+      "substeps_cfd": 1,
+      "substeps_mbd": 1,
+      "counts": {},
+      "build_s": 0.58,
+      "warmup_wall_s": 0.35,
+      "sim_s": 6.0,
+      "loop_wall_s": 2.197,
+      "slowdown_x": 0.366,
+      "ms_per_sim_s": {
+        "act": 10.5,
+        "pd": 28.39,
+        "dostep": 319.71,
+        "readback": 5.26,
+        "concurrent": 0.0,
+        "cfd": 0.0,
+        "mbd": 319.04,
+        "fsi": 0.0,
+        "mbd_collision": 4.12,
+        "mbd_lssetup": 0.03,
+        "mbd_lssolve": 280.05,
+        "mbd_update": 0.0,
+        "mbd_advance": 312.39
+      },
+      "policy_calls": 300,
+      "end_pos": [
+        1.23,
+        0.946
+      ],
+      "diverged_at_s": null,
+      "case": "straight",
+      "rep": 1
+    },
+    {
+      "kind": "rigid",
+      "command": [
+        0.5,
+        0.0,
+        0.6
+      ],
+      "patch": [
+        8.0,
+        4.0
+      ],
+      "dt_exchange_s": 0.0025,
+      "substeps_cfd": 1,
+      "substeps_mbd": 1,
+      "counts": {},
+      "build_s": 0.59,
+      "warmup_wall_s": 0.36,
+      "sim_s": 6.0,
+      "loop_wall_s": 2.253,
+      "slowdown_x": 0.376,
+      "ms_per_sim_s": {
+        "act": 10.69,
+        "pd": 28.48,
+        "dostep": 328.76,
+        "readback": 5.37,
+        "concurrent": 0.0,
+        "cfd": 0.0,
+        "mbd": 328.08,
+        "fsi": 0.0,
+        "mbd_collision": 4.15,
+        "mbd_lssetup": 0.03,
+        "mbd_lssolve": 289.03,
+        "mbd_update": 0.0,
+        "mbd_advance": 321.4
+      },
+      "policy_calls": 300,
+      "end_pos": [
+        -1.231,
+        0.472
+      ],
+      "diverged_at_s": null,
+      "case": "turn",
+      "rep": 0
+    },
+    {
+      "kind": "rigid",
+      "command": [
+        0.5,
+        0.0,
+        0.6
+      ],
+      "patch": [
+        8.0,
+        4.0
+      ],
+      "dt_exchange_s": 0.0025,
+      "substeps_cfd": 1,
+      "substeps_mbd": 1,
+      "counts": {},
+      "build_s": 0.57,
+      "warmup_wall_s": 0.35,
+      "sim_s": 6.0,
+      "loop_wall_s": 2.21,
+      "slowdown_x": 0.368,
+      "ms_per_sim_s": {
+        "act": 10.61,
+        "pd": 28.53,
+        "dostep": 321.62,
+        "readback": 5.31,
+        "concurrent": 0.0,
+        "cfd": 0.0,
+        "mbd": 320.94,
+        "fsi": 0.0,
+        "mbd_collision": 4.15,
+        "mbd_lssetup": 0.03,
+        "mbd_lssolve": 281.86,
+        "mbd_update": 0.0,
+        "mbd_advance": 314.24
+      },
+      "policy_calls": 300,
+      "end_pos": [
+        -1.231,
+        0.472
+      ],
+      "diverged_at_s": null,
+      "case": "turn",
+      "rep": 1
+    }
+  ],
+  "surrogate": {
+    "ctx": 128,
+    "state_dim": 36,
+    "action_dim": 12,
+    "params": 4845056,
+    "model_dt_s": 0.01,
+    "device": "AMD Instinct MI210",
+    "rows": [
+      {
+        "batch": 1,
+        "ms_per_step": 3.043,
+        "robot_sim_s_per_wall_s": 3.29
+      },
+      {
+        "batch": 1024,
+        "ms_per_step": 85.085,
+        "robot_sim_s_per_wall_s": 120.35
+      }
+    ]
+  }
+}

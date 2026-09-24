@@ -25,7 +25,6 @@ surrogates; 2048 envs (three seeds) and seed 7's 1 s surrogate at 1024 envs.
 
 ## Waiting on Kyle
 
-- A Chrono cost profile (SPH vs multibody vs contact) for the cost section.
 - Terminology, and the write-up format for Dan.
 
 ## Decided
@@ -38,6 +37,7 @@ surrogates; 2048 envs (three seeds) and seed 7's 1 s surrogate at 1024 envs.
 The stopping budget (stop at ~iteration 1000), push robustness evaluation, disturbance
 training (negative), guard calibration on induced failures (6 trips in 60 runs), the
 doubled corpus (no gain), OOD coverage through iteration 3000, the GPU fault investigation.
+2026-09-24: the Chrono cost profile (COST.md).
 
 ## Next
 

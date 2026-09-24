@@ -1,6 +1,7 @@
 # What CRM collection costs, and which knob controls it
 
-**Updated:** 2026-09-20. Measured on sbel, Chrono pin `698282895`, build hash `3b0bd530`,
+**Updated:** 2026-09-24. The step profile is from hpcfund (MI210, build `c716f05e`); everything
+else was measured 2026-09-20 on sbel, Chrono pin `698282895`, build hash `3b0bd530`,
 soil `soft`, spacing 0.02 m, CFD step 5e-4 s, exchange multiplier 4.
 
 The question this answers: SCM has an active domain that keeps cost off the size of the
@@ -8,6 +9,46 @@ terrain. Does CRM have the same, and can we use it to collect more cheaply?
 
 Answer: yes, it is already on, and it is the only cost knob that matters. Patch size is
 not.
+
+## Where the step goes: SPH is the cost (2026-09-24)
+
+`diagnostics/cost_profile.py`, hpcfund job 434401, one MI210, on the scene `evaluate.py`
+scores on (0.89-1.21 M particles, 0.5 m active domain, 0.5 ms CFD step, 2 ms exchange),
+straight and turning at vx 0.5, two repeats each, 6 s after 1 s standing; the four runs
+agree within 4%. Results: `results/cost_profile_434401.json` and `_kernels.csv`.
+
+`ChFsiSystem::DoStepDynamics` advances the multibody system on a separate std::thread
+concurrently with SPH, so each part is read from Chrono's own timers (GetTimerCFD/MBD/FSI,
+per-substep, times the substep count) and nothing is obtained by subtraction.
+
+Wall time per simulated second, mean of four:
+
+| part | CRM | rigid ground | critical path |
+|---|---|---|---|
+| SPH soil step | 4.86 s | -- | yes |
+| Go2 multibody (own thread) | 1.55 s | 0.32 s | no, finishes inside SPH |
+| - iterative solver (BB, 100 it) | 1.40 s | 0.28 s | 90% of multibody |
+| - collision detection | 0.004 s | 0.004 s | |
+| force/state exchange | 0.10 s | -- | yes |
+| Python: policy + PD + readback | 0.06 s | 0.04 s | yes |
+| **total** | **5.09 s** | **0.37 s** | |
+
+So 95.5% of a CRM step is SPH. The multibody solve is 4.8x its rigid cost only because
+coupling cuts its step from 2.5 ms to 0.5 ms; per step it is the same ~0.8 ms.
+
+Inside SPH (rocprofv3 kernel stats; kernel time is ~95% of the step, so it is GPU-bound,
+not launch-bound): neighbour search + sort/reorder 37.0%, `CrmRHS` forces 32.4%,
+active-domain bookkeeping 9.0%, `CrmAdamiBC` boundary markers 8.0%, reductions/copies
+11.3%, integration 1.8%, robot-soil coupling kernels 0.5%.
+
+The surrogate on the same GPU (`finetune.advance`, ctx 128): batch 1 takes 3.04 ms per
+10 ms step, 0.30 s per simulated second, 17x faster than CRM (1.2x faster than rigid
+Chrono). Batch 1024 takes 85 ms per step, 120 robot-seconds per wall second, ~600x one
+CRM instance. A hybrid that learned only the soil and kept Chrono's multibody at 0.5 ms
+would be floored by that thread at ~1.7 s per simulated second, a ~3x ceiling.
+
+Per machine: this MI210 runs the scene at 5.1x real time; sbel's 3090 ran the 0.5 m
+configuration at 3.8x (below). Shares transfer better than absolute numbers.
 
 ## Patch length is nearly free
 
