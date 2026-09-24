@@ -7,14 +7,14 @@
 **The recipe works, and the old stop was too early.** Fine-tune the surrogate on its own
 1 s rollouts; run PPO in it with 2 s branches (100 control steps) and 1024 parallel
 rollouts, 10 epochs x 4 minibatches, and stop at about **iteration 1000** (it was dw 4.0,
-about 430 iterations). Across the three healthy surrogates run long (seeds 8, 9, north s0),
-scored in Chrono on 37 held-out paths from all ten command families, iteration 1000 cuts
-forward error 54%, sideways 30% and yaw 69%, and on rigid ground forward error 32%. At
-the old stop the same runs gave -29% forward, which is what the nine-surrogate table
-below still reports. Tracking plateaus near -59% from 1500 to 3000 iterations, but push
-robustness (300 N) holds at the base policy's 11/16 only through iteration 1000 and
-dropped episodes rise past it (0,0,0 at it500/1000, then 1,2,6). Details in "The stopping
-budget" below.
+about 430 iterations). In ten independently trained surrogates, scored in Chrono on 37
+held-out paths from all ten command families, iteration 1000 cuts forward error 43-57%
+(mean 52%), yaw 52-71% (mean 67%) and sideways 9-34% (mean 28%); straight walking forward
+error falls 39-68% (mean 62%). Every axis is clear of zero in every arm except seed 6
+sideways; nothing fell. At the old stop the mean was -29% forward. Tracking plateaus near
+-59% from 1500 to 3000 iterations, but push robustness (300 N) holds at the base policy's
+11/16 only through iteration 1000 and dropped episodes rise past it. Details in "The
+recipe at iteration 1000" and "The stopping budget" below.
 
 What else is settled (evidence further down):
 - **1 s rollout training.** All ten seeds beat the predict-no-motion baseline across 10 s;
@@ -49,10 +49,43 @@ points; `paired_eval.py` refuses to pair arms scored on different builds.
 (every table on it measured in Chrono, plus replayable paired trajectories from
 `evaluate.py --dump-traj`). Keep it current: a result that changes STATE changes the page too.
 
-**Running (2026-09-24):** the recipe re-scored at iteration 1000 in ten arms (hpcfund
-433924 fine-tunes, then paired paths scoring), which replaces the nine-surrogate table;
-and a capacity/data study (euler 67372: 25% and 50% of the corpus, a smaller and a larger
-surrogate, two seeds each), scored on hpcfund when done.
+**Running (2026-09-24):** the capacity/data study (euler 67372: 25% and 50% of the corpus,
+a smaller and a larger surrogate, two seeds each), scored on hpcfund when done; and the
+archive of north's old-pipeline `~/sbel-artifacts` to the NAS.
+
+## The recipe at iteration 1000 in ten surrogates (2026-09-24)
+
+hpcfund 433924 (six new fine-tunes to iteration 1000: seed 7, north s1, euler s2-s5) plus
+the iteration-1000 snapshots of the budget test (seeds 6, 8, 9, north s0); scored on
+hpcfund (434298 straight, 434301 paths) against hpcfund's base arm. 37 path pairs unless
+noted, 16 straight pairs. Rigid ground not re-scored at this stop (budget test: -32%).
+
+| surrogate | paths vx | paths vy | paths wz | straight vx | straight wz | note |
+|---|---|---|---|---|---|---|
+| seed 6 | -42.7% | -9.1% (not clear) | -52.0% | -38.7% | -58.4% | 36 pairs, 1 off bed at 13.1 s |
+| seed 7 | -55.2% | -33.7% | -69.8% | -65.5% | -77.7% | |
+| seed 8 | -52.2% | -32.1% | -68.9% | -63.7% | -76.9% | |
+| seed 9 | -52.8% | -26.8% | -68.9% | -67.7% | -77.3% | |
+| north s0 | -56.7% | -31.4% | -68.9% | -65.4% | -77.2% | |
+| north s1 | -52.2% | -28.9% | -67.7% | -63.4% | -76.8% | |
+| euler s2 | -45.7% | -22.8% | -65.6% | -65.2% | -74.7% | guard stopped it at iteration 961 |
+| euler s3 | -55.6% | -33.2% | -70.5% | -60.4% | -77.9% | |
+| euler s4 | -52.9% | -31.2% | -68.2% | -66.2% | -78.7% | 35 pairs, 2 off bed at 14.3/14.8 s |
+| euler s5 | -52.4% | -29.9% | -69.0% | -63.5% | -78.1% | |
+| **mean** | **-51.8%** | **-27.9%** | **-67.0%** | **-62.0%** | **-75.4%** | |
+
+Nothing fell. The three extra drops are late walk-offs from the finite bed; the three
+paths every arm drops (base included) are too wide for the largest bed.
+
+**The guard's first live trip.** euler s2 stopped at iteration 961: 35 of its last 61
+iterations left the corpus region (11 per 100 at 400-500), value loss 494, in-model reward
+-0.028 -> -0.052. The kept policy (`policy_guard.pt`, iteration 960; the scored
+`policy_ft.pt` is at 961, dw 5.926 for both) is still -46% forward in Chrono, 7 points
+behind the other healthy arms. So the trip came while the run was starting to degrade and
+before a collapse, the first trip that did not coincide with an outright bad policy.
+Seed 6, the surrogate that collapsed when trained to 3000, is the weakest at 1000 but not
+collapsed. Two of ten surrogates are thus the fragile ones, and both are identifiable from
+the training log alone.
 
 ## The frozen recipe in nine surrogates, at the old dw 4.0 stop (2026-09-22)
 
@@ -793,5 +826,4 @@ against nothing (`5e3df653`).
 
 ## Running
 
-See "Where this is": hpcfund 433924 (iteration-1000 re-score, ten arms) and euler 67372
-(capacity/data study). Everything else has finished.
+See "Where this is": euler 67372 (capacity/data study). Everything else has finished.

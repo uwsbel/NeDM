@@ -10,10 +10,6 @@ surrogates; 2048 envs (three seeds) and seed 7's 1 s surrogate at 1024 envs.
 
 ## Now
 
-- **Re-score the recipe at iteration 1000 in ten arms** (hpcfund 433924: seed 7 at two PPO
-  seeds, north s1, euler seeds 2-5, plus the iteration-1000 snapshots of seeds 6, 8, 9 and
-  north s0). A watcher submits the paired paths scoring when the fine-tunes finish. Its
-  table replaces the nine-surrogate (dw 4.0) table in STATE and on the page.
 - **Capacity and data study** (euler 67372): 25% and 50% subsamples of the corpus and a
   smaller and a larger surrogate, two seeds each, then PPO and paths scoring on hpcfund.
   Answers whether a bigger model or less data moves transfer, after doubling the corpus
@@ -37,12 +33,13 @@ surrogates; 2048 envs (three seeds) and seed 7's 1 s surrogate at 1024 envs.
 The stopping budget (stop at ~iteration 1000), push robustness evaluation, disturbance
 training (negative), guard calibration on induced failures (6 trips in 60 runs), the
 doubled corpus (no gain), OOD coverage through iteration 3000, the GPU fault investigation.
-2026-09-24: the Chrono cost profile (COST.md).
+2026-09-24: the Chrono cost profile (COST.md); the recipe re-scored at iteration 1000 in
+ten surrogates (STATE), including the guard's first live trip.
 
 ## Next
 
-1. **Write it up** as the Study 4 results: the iteration-1000 table (ten arms, CRM
-   paths, straight, rigid, pushes), the ablations that justify each piece (branch length, rollout
+1. **Write it up** as the Study 4 results: the iteration-1000 table (ten surrogates,
+   CRM paths and straight; rigid and pushes from the budget test), the ablations that justify each piece (branch length, rollout
    training, env count, ensembles, stopping point, corpus size), per-family breakdown, cross-machine agreement, cost.
 2. **Sync nodes from git.** Branch is on GitHub; have each node clone and pull instead of
    receiving `git archive` copies, so every run's code is a commit.
