@@ -31,7 +31,7 @@ def main():
                '--out', str(d), '--source-root', str(REPO), '--chrono-data', '/home/harry/chrono/data',
                '--models', MODELS, '--device', 'cuda', '--torch-threads', '1']
         for k, flag in (('latency_s', '--latency-s'), ('sense_radius_m', '--sense-radius-m'), ('pick', '--pick'),
-                        ('switch_margin', '--switch-margin')):
+                        ('switch_margin', '--switch-margin'), ('latency_replay', '--latency-replay')):
             if k in t:
                 cmd += [flag, str(t[k])]
         if t.get('keep_current'):

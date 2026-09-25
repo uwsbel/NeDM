@@ -228,8 +228,9 @@ def render_compare_chunk(args):
     from PIL import Image
     Rs = [Run(d) for d in run_dirs]
     for n, fi in items:
-        fig = plt.figure(figsize=(19.2, 12.0), dpi=80)
-        gs = fig.add_gridspec(3, 4, height_ratios=[3.2, 1.75, 1.05], hspace=.2, wspace=.04,
+        ncol = len(Rs)
+        fig = plt.figure(figsize=(4.8 * ncol, 12.0), dpi=80)
+        gs = fig.add_gridspec(3, ncol, height_ratios=[3.2, 1.75, 1.05], hspace=.2, wspace=.04,
                               left=.04, right=.99, top=.815, bottom=.05)
         for i, (R, lab) in enumerate(zip(Rs, labels)):
             done = R.ended(fi)
@@ -250,13 +251,15 @@ def render_compare_chunk(args):
         speed_strip(axs, Rs, fi, t_end, COLS, labels)
         tclamp = min(fi * DT, t_end)
         axs.axvline(tclamp, color='#888888', lw=1, ls='--')
-        axs.set_xlabel('simulated time (s)', fontsize=10); axs.legend(fontsize=9, ncol=4, loc='upper right')
+        axs.set_xlabel('simulated time (s)', fontsize=10); axs.legend(fontsize=9, ncol=len(Rs), loc='upper right')
+        hs = 13.5 * min(1.0, ncol / 4.0) ** .5
         fig.text(.5, .975, f"{Rs[0].o['mission']} - one continuous Chrono rollout per planner, rendered by Chrono::Sensor (OptiX, RTX 5090);  "
-                 f"t = {tclamp:5.1f} s", ha='center', fontsize=13.5)
+                 f"t = {tclamp:5.1f} s", ha='center', fontsize=hs)
         fig.text(.5, .953, "same mission, frozen model and controller; the planners differ in when they plan, and each draws its own random candidate routes",
-                 ha='center', fontsize=11)
+                 ha='center', fontsize=hs * 11 / 13.5)
         fig.text(.5, .931, "red: route being followed (dashed = rescue route) · white: routes used so far · blue: driven · x: sliding backwards · "
-                 "yellow box: footprint masked from the planner · stars: gold active, green reached, white not yet", ha='center', fontsize=10.5)
+                 "yellow box: footprint masked from the planner · stars: gold active, green reached, white not yet",
+                 ha='center', fontsize=hs * 10.5 / 13.5)
         fig.savefig(tmp / f'{n:05d}.png'); plt.close(fig)
     return len(items)
 
@@ -272,8 +275,8 @@ def main():
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest='cmd', required=True)
     s1 = sub.add_parser('single'); s1.add_argument('--run', required=True); s1.add_argument('--out', required=True)
-    s2 = sub.add_parser('compare'); s2.add_argument('--runs', nargs=4, required=True)
-    s2.add_argument('--labels', nargs=4, required=True); s2.add_argument('--out', required=True)
+    s2 = sub.add_parser('compare'); s2.add_argument('--runs', nargs='+', required=True)
+    s2.add_argument('--labels', nargs='+', required=True); s2.add_argument('--out', required=True)
     for s in (s1, s2):
         s.add_argument('--every', type=int, default=2, help='simulation frames per video frame (2 = 2.5x real time at 25 fps)')
         s.add_argument('--fps', type=int, default=25); s.add_argument('--procs', type=int, default=14)

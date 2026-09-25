@@ -8,10 +8,10 @@ advance and LOG.md for what was found along the way)*
 > valid, the stand-in goal could sit directly behind the vehicle, the route builder then produced a route that doubles back on itself at a sharp point, and the route checker scored that point as curvature 0.000 and accepted it. Each exit came 2-4 s after the vehicle started following such a route. **All 14 arena exits in the AMD campaign below followed one of these routes** (and 6 of the 9
 > exits/rollovers in the first local re-run). The replanning arms ask for rescue routes far more often, which is
 > why the exits landed on them. The fix rejects any route that turns more than 45 deg between consecutive points
-> (`nav_online.safe_validate_no_reversal`, which the frozen route builder's shapes now also pass through); the builder's code and the model are unchanged. The tables in
-> section 5 are the measured results of the buggy runner and are kept as a record; the completion comparison
-> between arms is **not** a valid measure of replanning until the fixed re-run (`local_luffy/`, in progress) is
-> analysed. The latency measurements (section 4), rest vs moving (section 6) and sensing range (section 8) do not depend on the rescue routes, but the example of the delay-charged arm's run-to-run variance in sections 4 and 9 (a campaign roll that left the arena) went through the bug.
+> (`nav_online.safe_validate_no_reversal`, which the frozen route builder's shapes now also pass through); the builder's code and the model are unchanged. The tables in section 5 are the measured results of the buggy runner and are kept as a record. **The re-run with
+> the fix is done** (120 rollouts on the workstation, `local_luffy/summary.json`, section 5a): arena exits fall from
+> 14 to 3 across 120 runs, and the comparison itself is unchanged — planning once per waypoint still completes more
+> missions (27/30) than replanning every 2 s (25/30), every 1 s (25/30) or every 1 s with the delay charged (22/30). The latency measurements (section 4), rest vs moving (section 6) and sensing range (section 8) do not depend on the rescue routes, but the example of the delay-charged arm's run-to-run variance in sections 4 and 9 (a campaign roll that left the arena) went through the bug.
 
 ## 1. What runs now
 
@@ -209,6 +209,36 @@ usually below 0.01, and the drives agree.
 **Scale of the campaign:** 120 continuous rollouts, 5,043 planning decisions, 2.7 h of simulated driving and
 29.9 km driven. Every decision rendered a frame, back-projected it, generated 256 candidates, extracted 256 corridors
 and ran a three-model ensemble.
+
+## 5a. The same comparison after the rescue-route fix (2026-09-17)
+
+The 120 rollouts were repeated on the workstation with doubled-back rescue routes rejected (`local_luffy/`,
+OptiX rendering, 50 min wall; `local_luffy/tables.md`). Chrono is not bit-reproducible across machines, so this is
+not a re-play of the campaign above but an independent repetition of the same 30 missions.
+
+| arm | missions completed | waypoints reached | legs with a slide | median time | travel time vs W | stalls | arena exits | other failures |
+|---|---|---|---|---|---|---|---|---|
+| W | **27/30** | **96.0%** | 4/194 | 76.6 s | - | 2 | 1 | - |
+| R2 | 25/30 | 93.5% | 12/191 | 77.1 s | +3.3 s [-6.5, +13.6] | 2 | 0 | 2 no route, 1 rollover |
+| R1 | 25/30 | 89.9% | 11/184 | 75.9 s | +1.3 s [-6.6, +9.3] | 3 | 1 | 1 timeout |
+| R1L | 22/30 | 86.9% | 10/181 | 82.0 s | **+14.5 s [+2.1, +27.8]** | 3 | 1 | 2 timeouts, 1 no route, 1 rollover |
+
+- **The fix worked.** Arena exits over 120 runs: 14 (campaign, buggy) -> 8 plus a rollover (first local re-run,
+  same bug) -> **3** (fixed). No route in the fixed re-run turns more than 6.1 deg between consecutive points.
+- **The conclusion is unchanged, and now it is not confounded.** Planning once per waypoint completes 27/30 and
+  reaches 96.0% of waypoints; replanning completes 25/30 (2 s), 25/30 (1 s) and 22/30 (1 s with the delay charged),
+  and slides backwards on 10-12 legs against 4. On paired missions R2 completes 2 that W loses and loses 4 that W
+  completes (R1: 1 and 3; R1L: 3 and 8) - differences this small are not resolvable with 30 missions, but there is
+  no sign of a gain.
+- **Replanning is not faster here, and charging the delay makes it slower.** +3.3 s and +1.3 s per mission are
+  consistent with no difference; +14.5 s is not (interval excludes zero).
+- **What replanning does buy** is visible per mission: it rescues `f104_nav_003`, where the plan-once arm leaves
+  the arena at 2/6 while all three replanning arms finish, and `g203_nav_001`, where the plan-once arm stalls at
+  4/6. It loses `g204_nav_001` and `g204_nav_003` (no valid route from a pose plan-once never visits) and
+  `g223_nav_003` (a rollover). The failures move around; the total does not improve.
+- **Unseen arenas** (16 missions): W 16/16, R2 13/16, R1 13/16, R1L 11/16. **Development arenas** (14): 11, 12, 12, 11.
+- Per decision on the workstation: render 0.01 s, back-projection 0.05 s, candidates 0.38-0.69 s, corridors
+  0.29 s, risk model 0.05 s (GPU), total 0.9-1.1 s with six runs sharing the CPU.
 
 ## 6. Planning from rest vs replanning while moving
 

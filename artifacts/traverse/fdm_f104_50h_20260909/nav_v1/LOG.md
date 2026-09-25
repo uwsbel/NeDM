@@ -209,3 +209,31 @@ Per-decision median wall clock: render 2.6 s, back-project 0.04 s, candidates 0.
   once per waypoint 1 (1 run), every 2 s 10 (6 runs), every 1 s 15 (5 runs), delay charged 60 (12 runs). Each exit
   followed the last committed route, a doubled-back one, by 2.1-3.9 s. The fixed re-run's first 90 finished runs have
   no route turning more than 6.1 deg. (Independent verification, 09-16, from `main/runs/*/routes.json`; local only.)
+
+## Fixed re-run on luffy (2026-09-17, `local_luffy/`)
+120/120 rollouts, 50 min wall, same 30 missions and frozen checkpoints, doubled-back rescue routes rejected.
+| arm | complete | waypoints | unsafe | legs with a slide | median time | decisions | stalls | exits | other |
+|---|---|---|---|---|---|---|---|---|---|
+| W (once per waypoint) | 27/30 | 96.0% | 5 | 4/194 | 76.6 s | 6 | 2 | 1 | - |
+| R2 (every 2 s) | 25/30 | 93.5% | 12 | 12/191 | 77.1 s | 40 | 2 | 0 | 2 no route, 1 rollover |
+| R1 (every 1 s) | 25/30 | 89.9% | 11 | 11/184 | 75.9 s | 76 | 3 | 1 | 1 timeout |
+| R1L (1 s, delay charged) | 22/30 | 86.9% | 11 | 10/181 | 82.0 s | 79 | 3 | 1 | 2 timeouts, 1 no route, 1 rollover |
+Travel time vs W: R2 +3.3 s [-6.5, +13.6], R1 +1.3 s [-6.6, +9.3], R1L +14.5 s [+2.1, +27.8]. Unseen arenas:
+W 16/16, R2 13/16, R1 13/16, R1L 11/16. Arena exits over 120 runs: 14 (AMD, buggy) -> 9 (first local re-run, same
+bug) -> 3. Per-decision total 0.9-1.1 s (render 0.01 s, back-projection 0.05 s, candidates 0.4-0.7 s, corridors
+0.29 s, model 0.05 s).
+- So the headline conclusion survives the fix and is no longer confounded: **replanning every 1-2 s does not beat
+  planning once per waypoint** on these missions with the whole arena visible. It moves failures around
+  (`f104_nav_003`: W leaves the arena at 2/6, all three replanning arms finish; `g203_nav_001`: W stalls at 4/6,
+  replanning finishes; against `g204_nav_001`, `g204_nav_003`, `g223_nav_003` lost by replanning arms).
+- Charging the measured planning delay costs about 14.5 s a mission and 5 completions.
+
+## Videos from Chrono's RGB cameras (2026-09-17, `videos/rgb_luffy_v1/`)
+- Seven rollouts re-run locally with `--video --chase-cam` (`video_runs_v1/`), all seven byte-identical in outcome
+  to their `local_luffy/` evaluation runs, including the delay-charged arm via the new `--latency-replay`
+  (`nav_local_batch.py` now forwards it). Recording does not change a rollout.
+- Set A `g217_nav_001` (8 waypoints): all four planners finish - W 115.0 s/8 decisions, R2 100.0 s/50,
+  R1 103.9 s/99, R1L 99.6 s/79. Four single videos plus a four-way comparison.
+- Set B `f104_nav_003` (6 waypoints): the plan-once arm leaves the arena at 2/6 after 33.8 s while every replanning
+  arm finishes (R2 53.7 s, R1 52.2 s) - the case where replanning pays. Two singles plus a three-way comparison.
+- `nav_video_rgb.py` now takes any number of runs in `compare` (header text scales with the panel count).
