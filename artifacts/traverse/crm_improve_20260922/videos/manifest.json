@@ -1,0 +1,248 @@
+{
+ "soil": {
+  "world": "crm",
+  "group": "f104_crm_eval_group_0124",
+  "case": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/generalist_20260921/A_adapt/suite/cases/f104_crm_eval_group_0124.json",
+  "arena": "/home/harry/NeDM-traverse_mppi/assets/traverse/arena_f104_50h_v1",
+  "arms": [
+   {
+    "arm": "H3s",
+    "label": "CNN-GRU (earlier training), decides after a 3 s approach (old protocol)",
+    "short_label": "CNN-GRU (earlier), 3 s approach (old)",
+    "footnote": "Earlier training: the previous study's CNN-GRU; the other CNN-GRU planners use the retrained model, trained on about twice the data.",
+    "approach_s": 3.0,
+    "branch_frame": 60,
+    "run_dir": "artifacts/traverse/generalist_20260921/A_adapt/a5/crm_pass2_runs/f104_crm_eval_group_0124__H_B",
+    "branch_route": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/generalist_20260921/A_adapt/a5/picks_crm_H_named/routes/f104_crm_eval_group_0124__H_B.json",
+    "approach_route": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/generalist_20260921/A_adapt/a5/approach/f104_crm_eval_group_0124.json",
+    "status": "soil_breakthrough_terminated",
+    "elapsed_s": 12.25,
+    "have_traj": true
+   },
+   {
+    "arm": "L1_Hn",
+    "label": "CNN-GRU, decides after 1 s",
+    "approach_s": 1.0,
+    "branch_frame": 20,
+    "run_dir": "artifacts/traverse/crm_improve_20260922/s2/runs_crm/f104_crm_eval_group_0124__L1_Hn_B",
+    "branch_route": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_improve_20260922/s2/idx/picks_crm_L1_Hn_named/routes/f104_crm_eval_group_0124__L1_Hn_B.json",
+    "approach_route": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_improve_20260922/a5data/approach_suite/f104_crm_eval_group_0124.json",
+    "status": "soil_breakthrough_terminated",
+    "elapsed_s": 12.75,
+    "have_traj": true
+   },
+   {
+    "arm": "L1_X",
+    "label": "Transformer, decides after 1 s",
+    "approach_s": 1.0,
+    "branch_frame": 20,
+    "run_dir": "artifacts/traverse/crm_improve_20260922/s2/runs_crm/f104_crm_eval_group_0124__L1_X_B",
+    "branch_route": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_improve_20260922/s2/idx/picks_crm_L1_X_named/routes/f104_crm_eval_group_0124__L1_X_B.json",
+    "approach_route": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_improve_20260922/a5data/approach_suite/f104_crm_eval_group_0124.json",
+    "status": "goal_reached",
+    "elapsed_s": 12.850000000000001,
+    "have_traj": true
+   },
+   {
+    "arm": "L0p5_Hn",
+    "label": "CNN-GRU, decides after 0.5 s",
+    "approach_s": 0.5,
+    "branch_frame": 10,
+    "run_dir": "artifacts/traverse/crm_improve_20260922/s2/runs_crm/f104_crm_eval_group_0124__L0p5_Hn_B",
+    "branch_route": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_improve_20260922/s2/idx/picks_crm_L0p5_Hn_named/routes/f104_crm_eval_group_0124__L0p5_Hn_B.json",
+    "approach_route": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_improve_20260922/a5data/approach_suite/f104_crm_eval_group_0124.json",
+    "status": "goal_reached",
+    "elapsed_s": 11.450000000000001,
+    "have_traj": true
+   },
+   {
+    "arm": "L0p5_X",
+    "label": "Transformer, decides after 0.5 s",
+    "approach_s": 0.5,
+    "branch_frame": 10,
+    "run_dir": "artifacts/traverse/crm_improve_20260922/s2/runs_crm/f104_crm_eval_group_0124__L0p5_X_B",
+    "branch_route": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_improve_20260922/s2/idx/picks_crm_L0p5_X_named/routes/f104_crm_eval_group_0124__L0p5_X_B.json",
+    "approach_route": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_improve_20260922/a5data/approach_suite/f104_crm_eval_group_0124.json",
+    "status": "goal_reached",
+    "elapsed_s": 12.700000000000001,
+    "have_traj": true
+   },
+   {
+    "arm": "HnG",
+    "label": "CNN-GRU + gradient refinement, decides after 0.5 s (final)",
+    "approach_s": 0.5,
+    "branch_frame": 10,
+    "run_dir": "artifacts/traverse/crm_improve_20260922/s4/runs/f104_crm_eval_group_0124__L0p5_HnG_B",
+    "branch_route": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_improve_20260922/s4/idx/picks_crm_L0p5_HnG_named/routes/f104_crm_eval_group_0124__L0p5_HnG_G.json",
+    "approach_route": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_improve_20260922/a5data/approach_suite/f104_crm_eval_group_0124.json",
+    "status": "goal_reached",
+    "elapsed_s": 15.350000000000001,
+    "have_traj": true
+   }
+  ]
+ },
+ "rigid": {
+  "world": "rigid",
+  "group": "f104_pair_group_0011",
+  "case": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/generalist_20260921/A_adapt/suite/cases/f104_pair_group_0011.json",
+  "arena": "/home/harry/NeDM-traverse_mppi/assets/traverse/arena_f104_50h_v1",
+  "arms": [
+   {
+    "arm": "H3s",
+    "label": "CNN-GRU (earlier training), decides after a 3 s approach (old protocol)",
+    "short_label": "CNN-GRU (earlier), 3 s approach (old)",
+    "footnote": "Earlier training: the previous study's CNN-GRU; the other CNN-GRU planners use the retrained model, trained on about twice the data.",
+    "approach_s": 3.0,
+    "branch_frame": 60,
+    "run_dir": "artifacts/traverse/generalist_20260921/A_adapt/a5/rigid_pass2_runs/f104_pair_group_0011__H_B",
+    "branch_route": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/generalist_20260921/A_adapt/a5/picks_rigid_H_named/routes/f104_pair_group_0011__H_B.json",
+    "approach_route": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/generalist_20260921/A_adapt/a5/approach/f104_pair_group_0011.json",
+    "status": "goal_reached",
+    "elapsed_s": 25.8,
+    "have_traj": true
+   },
+   {
+    "arm": "L1_Hn",
+    "label": "CNN-GRU, decides after 1 s",
+    "approach_s": 1.0,
+    "branch_frame": 20,
+    "run_dir": "artifacts/traverse/crm_improve_20260922/s2/runs_rigid/f104_pair_group_0011__L1_Hn_B",
+    "branch_route": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_improve_20260922/s2/idx/picks_rigid_L1_Hn_named/routes/f104_pair_group_0011__L1_Hn_B.json",
+    "approach_route": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_improve_20260922/a5data/approach_suite/f104_pair_group_0011.json",
+    "status": "goal_reached",
+    "elapsed_s": 16.900000000000002,
+    "have_traj": true
+   },
+   {
+    "arm": "L1_X",
+    "label": "Transformer, decides after 1 s",
+    "approach_s": 1.0,
+    "branch_frame": 20,
+    "run_dir": "artifacts/traverse/crm_improve_20260922/s2/runs_rigid/f104_pair_group_0011__L1_X_B",
+    "branch_route": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_improve_20260922/s2/idx/picks_rigid_L1_X_named/routes/f104_pair_group_0011__L1_X_B.json",
+    "approach_route": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_improve_20260922/a5data/approach_suite/f104_pair_group_0011.json",
+    "status": "goal_reached",
+    "elapsed_s": 9.55,
+    "have_traj": true
+   },
+   {
+    "arm": "L0p5_Hn",
+    "label": "CNN-GRU, decides after 0.5 s",
+    "approach_s": 0.5,
+    "branch_frame": 10,
+    "run_dir": "artifacts/traverse/crm_improve_20260922/s2/runs_rigid/f104_pair_group_0011__L0p5_Hn_B",
+    "branch_route": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_improve_20260922/s2/idx/picks_rigid_L0p5_Hn_named/routes/f104_pair_group_0011__L0p5_Hn_B.json",
+    "approach_route": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_improve_20260922/a5data/approach_suite/f104_pair_group_0011.json",
+    "status": "goal_reached",
+    "elapsed_s": 15.3,
+    "have_traj": true
+   },
+   {
+    "arm": "L0p5_X",
+    "label": "Transformer, decides after 0.5 s",
+    "approach_s": 0.5,
+    "branch_frame": 10,
+    "run_dir": "artifacts/traverse/crm_improve_20260922/s2/runs_rigid/f104_pair_group_0011__L0p5_X_B",
+    "branch_route": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_improve_20260922/s2/idx/picks_rigid_L0p5_X_named/routes/f104_pair_group_0011__L0p5_X_B.json",
+    "approach_route": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_improve_20260922/a5data/approach_suite/f104_pair_group_0011.json",
+    "status": "goal_reached",
+    "elapsed_s": 9.35,
+    "have_traj": true
+   },
+   {
+    "arm": "HnG",
+    "label": "CNN-GRU + gradient refinement, decides after 0.5 s (final)",
+    "approach_s": 0.5,
+    "branch_frame": 10,
+    "run_dir": "artifacts/traverse/crm_improve_20260922/s4/runs_rigid/f104_pair_group_0011__HnG_B",
+    "branch_route": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_improve_20260922/s4/idx/picks_rigid_L0p5_HnG_named/routes/f104_pair_group_0011__L0p5_HnG_G.json",
+    "approach_route": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_improve_20260922/a5data/approach_suite/f104_pair_group_0011.json",
+    "status": "goal_reached",
+    "elapsed_s": 13.700000000000001,
+    "have_traj": true
+   }
+  ]
+ },
+ "soil2": {
+  "world": "crm",
+  "group": "f104_pair_group_0500",
+  "case": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/generalist_20260921/A_adapt/suite/cases/f104_pair_group_0500.json",
+  "arena": "/home/harry/NeDM-traverse_mppi/assets/traverse/arena_f104_50h_v1",
+  "arms": [
+   {
+    "arm": "H3s",
+    "label": "CNN-GRU (earlier training), decides after a 3 s approach (old protocol)",
+    "short_label": "CNN-GRU (earlier), 3 s approach (old)",
+    "footnote": "Earlier training: the previous study's CNN-GRU; the other CNN-GRU planners use the retrained model, trained on about twice the data.",
+    "approach_s": 3.0,
+    "branch_frame": 60,
+    "run_dir": "artifacts/traverse/generalist_20260921/A_adapt/a5/crm_pass2_runs/f104_pair_group_0500__H_B",
+    "branch_route": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/generalist_20260921/A_adapt/a5/picks_crm_H_named/routes/f104_pair_group_0500__H_B.json",
+    "approach_route": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/generalist_20260921/A_adapt/a5/approach/f104_pair_group_0500.json",
+    "status": "prolonged_blockage_terminated",
+    "elapsed_s": 34.0,
+    "have_traj": true
+   },
+   {
+    "arm": "L1_Hn",
+    "label": "CNN-GRU, decides after 1 s",
+    "approach_s": 1.0,
+    "branch_frame": 20,
+    "run_dir": "artifacts/traverse/crm_improve_20260922/s2/runs_crm/f104_pair_group_0500__L1_Hn_B",
+    "branch_route": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_improve_20260922/s2/idx/picks_crm_L1_Hn_named/routes/f104_pair_group_0500__L1_Hn_B.json",
+    "approach_route": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_improve_20260922/a5data/approach_suite/f104_pair_group_0500.json",
+    "status": "goal_reached",
+    "elapsed_s": 9.55,
+    "have_traj": true
+   },
+   {
+    "arm": "L1_X",
+    "label": "Transformer, decides after 1 s",
+    "approach_s": 1.0,
+    "branch_frame": 20,
+    "run_dir": "artifacts/traverse/crm_improve_20260922/s2/runs_crm/f104_pair_group_0500__L1_X_B",
+    "branch_route": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_improve_20260922/s2/idx/picks_crm_L1_X_named/routes/f104_pair_group_0500__L1_X_B.json",
+    "approach_route": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_improve_20260922/a5data/approach_suite/f104_pair_group_0500.json",
+    "status": "goal_reached",
+    "elapsed_s": 8.05,
+    "have_traj": true
+   },
+   {
+    "arm": "L0p5_Hn",
+    "label": "CNN-GRU, decides after 0.5 s",
+    "approach_s": 0.5,
+    "branch_frame": 10,
+    "run_dir": "artifacts/traverse/crm_improve_20260922/s2/runs_crm/f104_pair_group_0500__L0p5_Hn_B",
+    "branch_route": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_improve_20260922/s2/idx/picks_crm_L0p5_Hn_named/routes/f104_pair_group_0500__L0p5_Hn_B.json",
+    "approach_route": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_improve_20260922/a5data/approach_suite/f104_pair_group_0500.json",
+    "status": "goal_reached",
+    "elapsed_s": 9.450000000000001,
+    "have_traj": true
+   },
+   {
+    "arm": "L0p5_X",
+    "label": "Transformer, decides after 0.5 s",
+    "approach_s": 0.5,
+    "branch_frame": 10,
+    "run_dir": "artifacts/traverse/crm_improve_20260922/s2/runs_crm/f104_pair_group_0500__L0p5_X_B",
+    "branch_route": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_improve_20260922/s2/idx/picks_crm_L0p5_X_named/routes/f104_pair_group_0500__L0p5_X_B.json",
+    "approach_route": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_improve_20260922/a5data/approach_suite/f104_pair_group_0500.json",
+    "status": "goal_reached",
+    "elapsed_s": 9.950000000000001,
+    "have_traj": true
+   },
+   {
+    "arm": "HnG",
+    "label": "CNN-GRU + gradient refinement, decides after 0.5 s (final)",
+    "approach_s": 0.5,
+    "branch_frame": 10,
+    "run_dir": "artifacts/traverse/crm_improve_20260922/s4/runs/f104_pair_group_0500__L0p5_HnG_B",
+    "branch_route": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_improve_20260922/s4/idx/picks_crm_L0p5_HnG_named/routes/f104_pair_group_0500__L0p5_HnG_G.json",
+    "approach_route": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_improve_20260922/a5data/approach_suite/f104_pair_group_0500.json",
+    "status": "goal_reached",
+    "elapsed_s": 7.45,
+    "have_traj": true
+   }
+  ]
+ }
+}

@@ -1,0 +1,1908 @@
+{
+ "schema": "ci_chase_reproduction_v1",
+ "written": "2026-09-24 13:36",
+ "what": "Local re-drives (luffy, RTX 5090; soil solver on CUDA, rigid physics on this CPU) of the recorded cluster drives (AMD); on screen they are called 3D replays re-simulated on a different computer. Per drive: status, elapsed time, position difference at equal times (per recorded 50 ms frame, plus the terminal poses when both drives end at the same time; also reflects speed differences), max_distance_to_recorded_path_m = the largest distance of the local positions from the recorded path line (the segments between the recorded 50 ms positions, terminal pose included; geometry only), terminal_distance_to_recorded_path_m and terminal_along_recorded_path_diff_m = where the local drive ended relative to the recorded path (arc length of its closest point minus the recorded path length; negative = short of the recorded end), and the start of the final stretch below 0.3 m/s for drives stopped by the no-progress rule (recorded_ / local_stuck_from_s). 'differs' = status or elapsed time differs; then the video header states the recorded outcome (header_note).",
+ "entries": [
+  {
+   "case": "soil",
+   "group": "f104_crm_eval_group_0124",
+   "arm": "H3s",
+   "label": "CNN-GRU (earlier training), decides after a 3 s approach (old protocol)",
+   "filmed": true,
+   "recorded_run_dir": "artifacts/traverse/generalist_20260921/A_adapt/a5/crm_pass2_runs/f104_crm_eval_group_0124__H_B",
+   "branch_frame": 60,
+   "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/soil_H3s/run",
+   "recorded": {
+    "status": "soil_breakthrough_terminated",
+    "elapsed_s": 12.25,
+    "frames": 245
+   },
+   "local": {
+    "status": "soil_breakthrough_terminated",
+    "elapsed_s": 12.700000000000001,
+    "frames": 254,
+    "wall_s": 57.61620879173279
+   },
+   "same_status": true,
+   "elapsed_diff_s": 0.45,
+   "max_position_diff_m": 4.182324969890016,
+   "max_position_diff_frame": 225,
+   "position_diff_at_decision_m": 0.06091435730900121,
+   "mean_position_diff_m": 1.987723186564949,
+   "first_frame_over_0p1m": 73,
+   "terminal_position_diff_m": 4.134443333811211,
+   "compared_frames": 245,
+   "max_distance_to_recorded_path_m": 0.04472043055906951,
+   "terminal_distance_to_recorded_path_m": 0.032752488094738935,
+   "terminal_along_recorded_path_diff_m": -4.307841565409733,
+   "recorded_stuck_from_s": null,
+   "local_stuck_from_s": null,
+   "identical_trajectory": false,
+   "differs": true,
+   "overlay_note": "3D replay, re-simulated on a different computer. Original recorded run: bogged down at 12.25 s: wheels dug through the soil.",
+   "local_outcome_text": "bogged down at 12.7 s: wheels dug through the soil",
+   "recorded_outcome_text": "bogged down at 12.25 s: wheels dug through the soil",
+   "header_note": "Original recorded run: bogged down at 12.25 s; this 3D replay was re-simulated on a different computer and ends the same way, 0.45 s later and 4.1 m further back along the same path",
+   "filmed_vs_camera_free_local": {
+    "same_status": true,
+    "elapsed_diff_s": 0.0,
+    "max_position_diff_m": 0.0,
+    "terminal_position_diff_m": 0.0,
+    "identical_trajectory": true,
+    "camera_free": {
+     "status": "soil_breakthrough_terminated",
+     "elapsed_s": 12.700000000000001,
+     "frames": 254
+    }
+   },
+   "drive": {
+    "wall_s": 80.22588229179382,
+    "render_s_mean": 0.12468634909532202,
+    "host": "luffy",
+    "pychrono": "/home/harry/chrono/build/bin/pychrono/__init__.py",
+    "chrono_data": "/home/harry/NeDM-traverse_mppi/chrono/data",
+    "soil_surface": {
+     "markers_total": 7990723,
+     "fluid_markers_used": 4008004,
+     "fluid_xyz_min": [
+      -40.0,
+      -40.0,
+      -2.0
+     ],
+     "fluid_xyz_max": [
+      40.0,
+      40.0,
+      3.9200000762939453
+     ],
+     "other_markers_xyz_min": [
+      -40.2400016784668,
+      -40.2400016784668,
+      -2.319999933242798
+     ],
+     "other_markers_xyz_max": [
+      40.2400016784668,
+      40.2400016784668,
+      4.079999923706055
+     ],
+     "cell_m": 0.16,
+     "grid": [
+      501,
+      501
+     ],
+     "x0": -40.04,
+     "y0": -40.04,
+     "offset_to_heightmap_m": 0.007058827105690391,
+     "empty_columns_filled_from_heightmap": 0,
+     "untouched_surface_vs_heightmap_rmse_m": 0.02564290636266571,
+     "untouched_surface_vs_heightmap_p99_abs_m": 0.05815528338881082,
+     "rule": "drawn height = heightmap + (4th-highest particle of the 2x2-particle column now - the same at set-up); columns within 5 m of the chassis refreshed every frame; the rmse/p99 lines compare the raw initial column tops (+ median offset) with the heightmap",
+     "build_s": 3.2382404804229736
+    },
+    "scene_rebuilt_at_frame": 60
+   }
+  },
+  {
+   "case": "soil",
+   "group": "f104_crm_eval_group_0124",
+   "arm": "L1_X",
+   "label": "Transformer, decides after 1 s",
+   "filmed": true,
+   "recorded_run_dir": "artifacts/traverse/crm_improve_20260922/s2/runs_crm/f104_crm_eval_group_0124__L1_X_B",
+   "branch_frame": 20,
+   "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/soil_L1_X/run",
+   "recorded": {
+    "status": "goal_reached",
+    "elapsed_s": 12.850000000000001,
+    "frames": 257
+   },
+   "local": {
+    "status": "soil_breakthrough_terminated",
+    "elapsed_s": 11.15,
+    "frames": 223,
+    "wall_s": 51.6572790145874
+   },
+   "same_status": false,
+   "elapsed_diff_s": -1.7,
+   "max_position_diff_m": 13.83036805664109,
+   "max_position_diff_frame": 222,
+   "position_diff_at_decision_m": 0.018256519545223827,
+   "mean_position_diff_m": 2.841398023311615,
+   "first_frame_over_0p1m": 69,
+   "terminal_position_diff_m": 19.03703380453781,
+   "compared_frames": 223,
+   "max_distance_to_recorded_path_m": 0.04783802112005347,
+   "terminal_distance_to_recorded_path_m": 0.03428107133918724,
+   "terminal_along_recorded_path_diff_m": -19.12509405513096,
+   "recorded_stuck_from_s": null,
+   "local_stuck_from_s": null,
+   "identical_trajectory": false,
+   "differs": true,
+   "overlay_note": "3D replay, re-simulated on a different computer. Original recorded run: goal reached in 12.85 s.",
+   "local_outcome_text": "bogged down at 11.15 s: wheels dug through the soil",
+   "recorded_outcome_text": "goal reached in 12.85 s",
+   "header_note": "Original recorded run: goal reached in 12.85 s; this 3D replay was re-simulated on a different computer and bogs down instead, at 11.15 s",
+   "filmed_vs_camera_free_local": {
+    "same_status": true,
+    "elapsed_diff_s": 0.0,
+    "max_position_diff_m": 0.0,
+    "terminal_position_diff_m": 0.0,
+    "identical_trajectory": true,
+    "camera_free": {
+     "status": "soil_breakthrough_terminated",
+     "elapsed_s": 11.15,
+     "frames": 223
+    }
+   },
+   "drive": {
+    "wall_s": 66.96168065071106,
+    "render_s_mean": 0.12483730979029908,
+    "host": "luffy",
+    "pychrono": "/home/harry/chrono/build/bin/pychrono/__init__.py",
+    "chrono_data": "/home/harry/NeDM-traverse_mppi/chrono/data",
+    "soil_surface": {
+     "markers_total": 7990723,
+     "fluid_markers_used": 4008004,
+     "fluid_xyz_min": [
+      -40.0,
+      -40.0,
+      -2.0
+     ],
+     "fluid_xyz_max": [
+      40.0,
+      40.0,
+      3.9200000762939453
+     ],
+     "other_markers_xyz_min": [
+      -40.2400016784668,
+      -40.2400016784668,
+      -2.319999933242798
+     ],
+     "other_markers_xyz_max": [
+      40.2400016784668,
+      40.2400016784668,
+      4.079999923706055
+     ],
+     "cell_m": 0.16,
+     "grid": [
+      501,
+      501
+     ],
+     "x0": -40.04,
+     "y0": -40.04,
+     "offset_to_heightmap_m": 0.007058827105690391,
+     "empty_columns_filled_from_heightmap": 0,
+     "untouched_surface_vs_heightmap_rmse_m": 0.02564290636266571,
+     "untouched_surface_vs_heightmap_p99_abs_m": 0.05815528338881082,
+     "rule": "drawn height = heightmap + (4th-highest particle of the 2x2-particle column now - the same at set-up); columns within 5 m of the chassis refreshed every frame; the rmse/p99 lines compare the raw initial column tops (+ median offset) with the heightmap",
+     "build_s": 1.9271280765533447
+    },
+    "scene_rebuilt_at_frame": 20
+   }
+  },
+  {
+   "case": "soil",
+   "group": "f104_crm_eval_group_0124",
+   "arm": "HnG",
+   "label": "CNN-GRU + gradient refinement, decides after 0.5 s (final)",
+   "filmed": true,
+   "recorded_run_dir": "artifacts/traverse/crm_improve_20260922/s4/runs/f104_crm_eval_group_0124__L0p5_HnG_B",
+   "branch_frame": 10,
+   "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/soil_HnG/run",
+   "recorded": {
+    "status": "goal_reached",
+    "elapsed_s": 15.350000000000001,
+    "frames": 307
+   },
+   "local": {
+    "status": "goal_reached",
+    "elapsed_s": 13.850000000000001,
+    "frames": 277,
+    "wall_s": 61.02380084991455
+   },
+   "same_status": true,
+   "elapsed_diff_s": -1.5,
+   "max_position_diff_m": 9.298469501459667,
+   "max_position_diff_frame": 256,
+   "position_diff_at_decision_m": 0.0025867731845822914,
+   "mean_position_diff_m": 1.9262828873359235,
+   "first_frame_over_0p1m": 130,
+   "terminal_position_diff_m": 0.639479860999451,
+   "compared_frames": 277,
+   "max_distance_to_recorded_path_m": 0.5384250546646706,
+   "terminal_distance_to_recorded_path_m": 0.5384250546646706,
+   "terminal_along_recorded_path_diff_m": -0.3563352102168409,
+   "recorded_stuck_from_s": null,
+   "local_stuck_from_s": null,
+   "identical_trajectory": false,
+   "differs": true,
+   "overlay_note": "3D replay, re-simulated on a different computer. Original recorded run: goal reached in 15.35 s.",
+   "local_outcome_text": "goal reached in 13.85 s",
+   "recorded_outcome_text": "goal reached in 15.35 s",
+   "header_note": "Original recorded run: goal reached in 15.35 s; this 3D replay was re-simulated on a different computer and ends the same way, 1.5 s earlier",
+   "filmed_vs_camera_free_local": {
+    "same_status": true,
+    "elapsed_diff_s": 0.0,
+    "max_position_diff_m": 0.0,
+    "terminal_position_diff_m": 0.0,
+    "identical_trajectory": true,
+    "camera_free": {
+     "status": "goal_reached",
+     "elapsed_s": 13.850000000000001,
+     "frames": 277
+    }
+   },
+   "drive": {
+    "wall_s": 75.23579454421997,
+    "render_s_mean": 0.12135798233941143,
+    "host": "luffy",
+    "pychrono": "/home/harry/chrono/build/bin/pychrono/__init__.py",
+    "chrono_data": "/home/harry/NeDM-traverse_mppi/chrono/data",
+    "soil_surface": {
+     "markers_total": 7990723,
+     "fluid_markers_used": 4008004,
+     "fluid_xyz_min": [
+      -40.0,
+      -40.0,
+      -2.0
+     ],
+     "fluid_xyz_max": [
+      40.0,
+      40.0,
+      3.9200000762939453
+     ],
+     "other_markers_xyz_min": [
+      -40.2400016784668,
+      -40.2400016784668,
+      -2.319999933242798
+     ],
+     "other_markers_xyz_max": [
+      40.2400016784668,
+      40.2400016784668,
+      4.079999923706055
+     ],
+     "cell_m": 0.16,
+     "grid": [
+      501,
+      501
+     ],
+     "x0": -40.04,
+     "y0": -40.04,
+     "offset_to_heightmap_m": 0.007058827105690391,
+     "empty_columns_filled_from_heightmap": 0,
+     "untouched_surface_vs_heightmap_rmse_m": 0.02564290636266571,
+     "untouched_surface_vs_heightmap_p99_abs_m": 0.05815528338881082,
+     "rule": "drawn height = heightmap + (4th-highest particle of the 2x2-particle column now - the same at set-up); columns within 5 m of the chassis refreshed every frame; the rmse/p99 lines compare the raw initial column tops (+ median offset) with the heightmap",
+     "build_s": 1.9192016124725342
+    },
+    "scene_rebuilt_at_frame": 10
+   }
+  },
+  {
+   "case": "rigid",
+   "group": "f104_pair_group_0011",
+   "arm": "H3s",
+   "label": "CNN-GRU (earlier training), decides after a 3 s approach (old protocol)",
+   "filmed": true,
+   "recorded_run_dir": "artifacts/traverse/generalist_20260921/A_adapt/a5/rigid_pass2_runs/f104_pair_group_0011__H_B",
+   "branch_frame": 60,
+   "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/rigid_H3s/run",
+   "recorded": {
+    "status": "goal_reached",
+    "elapsed_s": 25.8,
+    "frames": 516
+   },
+   "local": {
+    "status": "goal_reached",
+    "elapsed_s": 25.8,
+    "frames": 516,
+    "wall_s": 71.4951000213623
+   },
+   "same_status": true,
+   "elapsed_diff_s": 0.0,
+   "max_position_diff_m": 0.197527735228006,
+   "max_position_diff_frame": 516,
+   "position_diff_at_decision_m": 0.013915741018468646,
+   "mean_position_diff_m": 0.01652350289982189,
+   "first_frame_over_0p1m": 502,
+   "terminal_position_diff_m": 0.197527735228006,
+   "compared_frames": 516,
+   "max_distance_to_recorded_path_m": 0.19712170572327153,
+   "terminal_distance_to_recorded_path_m": 0.19712170572327153,
+   "terminal_along_recorded_path_diff_m": -0.012658566943130722,
+   "recorded_stuck_from_s": null,
+   "local_stuck_from_s": null,
+   "identical_trajectory": false,
+   "differs": false,
+   "overlay_note": "3D replay, re-simulated on a different computer. Same outcome and end time as the original recorded run: goal reached in 25.8 s. Path within 20 cm of it.",
+   "local_outcome_text": "goal reached in 25.8 s",
+   "recorded_outcome_text": "goal reached in 25.8 s",
+   "header_note": null,
+   "filmed_vs_camera_free_local": {
+    "same_status": true,
+    "elapsed_diff_s": 0.0,
+    "max_position_diff_m": 0.0,
+    "terminal_position_diff_m": 0.0,
+    "identical_trajectory": true,
+    "camera_free": {
+     "status": "goal_reached",
+     "elapsed_s": 25.8,
+     "frames": 516
+    }
+   },
+   "drive": {
+    "wall_s": 72.26512718200684,
+    "render_s_mean": 0.014525080374044966,
+    "host": "luffy",
+    "pychrono": "/home/harry/chrono/build/bin/pychrono/__init__.py",
+    "chrono_data": "/home/harry/chrono/data",
+    "soil_surface": null,
+    "scene_rebuilt_at_frame": 60
+   }
+  },
+  {
+   "case": "rigid",
+   "group": "f104_pair_group_0011",
+   "arm": "L0p5_X",
+   "label": "Transformer, decides after 0.5 s",
+   "filmed": true,
+   "recorded_run_dir": "artifacts/traverse/crm_improve_20260922/s2/runs_rigid/f104_pair_group_0011__L0p5_X_B",
+   "branch_frame": 10,
+   "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/rigid_L0p5_X/run",
+   "recorded": {
+    "status": "goal_reached",
+    "elapsed_s": 9.35,
+    "frames": 187
+   },
+   "local": {
+    "status": "goal_reached",
+    "elapsed_s": 9.35,
+    "frames": 187,
+    "wall_s": 38.89909553527832
+   },
+   "same_status": true,
+   "elapsed_diff_s": 0.0,
+   "max_position_diff_m": 0.08444811422602493,
+   "max_position_diff_frame": 40,
+   "position_diff_at_decision_m": 0.0008744029832115102,
+   "mean_position_diff_m": 0.03899344290897389,
+   "first_frame_over_0p1m": null,
+   "terminal_position_diff_m": 0.014810991832964991,
+   "compared_frames": 187,
+   "max_distance_to_recorded_path_m": 0.05514358913911675,
+   "terminal_distance_to_recorded_path_m": 0.0004137286307301703,
+   "terminal_along_recorded_path_diff_m": -0.014805212180050376,
+   "recorded_stuck_from_s": null,
+   "local_stuck_from_s": null,
+   "identical_trajectory": false,
+   "differs": false,
+   "overlay_note": "3D replay, re-simulated on a different computer. Same outcome and end time as the original recorded run: goal reached in 9.35 s. Path within 9 cm of it.",
+   "local_outcome_text": "goal reached in 9.35 s",
+   "recorded_outcome_text": "goal reached in 9.35 s",
+   "header_note": null,
+   "filmed_vs_camera_free_local": {
+    "same_status": true,
+    "elapsed_diff_s": 0.0,
+    "max_position_diff_m": 0.0,
+    "terminal_position_diff_m": 0.0,
+    "identical_trajectory": true,
+    "camera_free": {
+     "status": "goal_reached",
+     "elapsed_s": 9.35,
+     "frames": 187
+    }
+   },
+   "drive": {
+    "wall_s": 39.39516282081604,
+    "render_s_mean": 0.014859386943878337,
+    "host": "luffy",
+    "pychrono": "/home/harry/chrono/build/bin/pychrono/__init__.py",
+    "chrono_data": "/home/harry/chrono/data",
+    "soil_surface": null,
+    "scene_rebuilt_at_frame": 10
+   }
+  },
+  {
+   "case": "rigid",
+   "group": "f104_pair_group_0011",
+   "arm": "HnG",
+   "label": "CNN-GRU + gradient refinement, decides after 0.5 s (final)",
+   "filmed": true,
+   "recorded_run_dir": "artifacts/traverse/crm_improve_20260922/s4/runs_rigid/f104_pair_group_0011__HnG_B",
+   "branch_frame": 10,
+   "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/rigid_HnG/run",
+   "recorded": {
+    "status": "goal_reached",
+    "elapsed_s": 13.700000000000001,
+    "frames": 274
+   },
+   "local": {
+    "status": "goal_reached",
+    "elapsed_s": 13.700000000000001,
+    "frames": 274,
+    "wall_s": 40.20729207992554
+   },
+   "same_status": true,
+   "elapsed_diff_s": 0.0,
+   "max_position_diff_m": 0.1377327890679581,
+   "max_position_diff_frame": 48,
+   "position_diff_at_decision_m": 0.0008744029832115102,
+   "mean_position_diff_m": 0.06917779566912967,
+   "first_frame_over_0p1m": 29,
+   "terminal_position_diff_m": 0.006015879381803761,
+   "compared_frames": 274,
+   "max_distance_to_recorded_path_m": 0.045364046346032194,
+   "terminal_distance_to_recorded_path_m": 0.006015879381803761,
+   "terminal_along_recorded_path_diff_m": -1.4210854715202004e-14,
+   "recorded_stuck_from_s": null,
+   "local_stuck_from_s": null,
+   "identical_trajectory": false,
+   "differs": false,
+   "overlay_note": "3D replay, re-simulated on a different computer. Same outcome and end time as the original recorded run: goal reached in 13.7 s. Path within 14 cm of it.",
+   "local_outcome_text": "goal reached in 13.7 s",
+   "recorded_outcome_text": "goal reached in 13.7 s",
+   "header_note": null,
+   "filmed_vs_camera_free_local": {
+    "same_status": true,
+    "elapsed_diff_s": 0.0,
+    "max_position_diff_m": 0.0,
+    "terminal_position_diff_m": 0.0,
+    "identical_trajectory": true,
+    "camera_free": {
+     "status": "goal_reached",
+     "elapsed_s": 13.700000000000001,
+     "frames": 274
+    }
+   },
+   "drive": {
+    "wall_s": 40.714306592941284,
+    "render_s_mean": 0.01457255339100413,
+    "host": "luffy",
+    "pychrono": "/home/harry/chrono/build/bin/pychrono/__init__.py",
+    "chrono_data": "/home/harry/chrono/data",
+    "soil_surface": null,
+    "scene_rebuilt_at_frame": 10
+   }
+  },
+  {
+   "case": "soil2",
+   "group": "f104_pair_group_0500",
+   "arm": "H3s",
+   "label": "CNN-GRU (earlier training), decides after a 3 s approach (old protocol)",
+   "filmed": true,
+   "recorded_run_dir": "artifacts/traverse/generalist_20260921/A_adapt/a5/crm_pass2_runs/f104_pair_group_0500__H_B",
+   "branch_frame": 60,
+   "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/soil2_H3s/run",
+   "recorded": {
+    "status": "prolonged_blockage_terminated",
+    "elapsed_s": 34.0,
+    "frames": 680
+   },
+   "local": {
+    "status": "prolonged_blockage_terminated",
+    "elapsed_s": 34.0,
+    "frames": 680,
+    "wall_s": 171.98170709609985
+   },
+   "same_status": true,
+   "elapsed_diff_s": 0.0,
+   "max_position_diff_m": 0.10830847468264566,
+   "max_position_diff_frame": 111,
+   "position_diff_at_decision_m": 0.059284752873608876,
+   "mean_position_diff_m": 0.05950903574391163,
+   "first_frame_over_0p1m": 109,
+   "terminal_position_diff_m": 0.0546829428862961,
+   "compared_frames": 680,
+   "max_distance_to_recorded_path_m": 0.0877830133255259,
+   "terminal_distance_to_recorded_path_m": 0.025713463031042303,
+   "terminal_along_recorded_path_diff_m": -0.28052101496701987,
+   "recorded_stuck_from_s": 5.0,
+   "local_stuck_from_s": 5.1000000000000005,
+   "identical_trajectory": false,
+   "differs": false,
+   "overlay_note": "3D replay, re-simulated on a different computer. Same outcome and end time as the original recorded run (stuck from 5.0 s there, 5.1 s here; drive ended at 34.0 s, no progress). Path within 11 cm of it.",
+   "local_outcome_text": "stuck from 5.1 s; drive ended at 34.0 s (no progress)",
+   "recorded_outcome_text": "stuck from 5.0 s; drive ended at 34.0 s (no progress)",
+   "header_note": null,
+   "filmed_vs_camera_free_local": {
+    "same_status": true,
+    "elapsed_diff_s": 0.0,
+    "max_position_diff_m": 0.0,
+    "terminal_position_diff_m": 0.0,
+    "identical_trajectory": true,
+    "camera_free": {
+     "status": "prolonged_blockage_terminated",
+     "elapsed_s": 34.0,
+     "frames": 680
+    }
+   },
+   "drive": {
+    "wall_s": 190.67138409614563,
+    "render_s_mean": 0.13982415444710675,
+    "host": "luffy",
+    "pychrono": "/home/harry/chrono/build/bin/pychrono/__init__.py",
+    "chrono_data": "/home/harry/NeDM-traverse_mppi/chrono/data",
+    "soil_surface": {
+     "markers_total": 7990723,
+     "fluid_markers_used": 4008004,
+     "fluid_xyz_min": [
+      -40.0,
+      -40.0,
+      -2.0
+     ],
+     "fluid_xyz_max": [
+      40.0,
+      40.0,
+      3.9200000762939453
+     ],
+     "other_markers_xyz_min": [
+      -40.2400016784668,
+      -40.2400016784668,
+      -2.319999933242798
+     ],
+     "other_markers_xyz_max": [
+      40.2400016784668,
+      40.2400016784668,
+      4.079999923706055
+     ],
+     "cell_m": 0.16,
+     "grid": [
+      501,
+      501
+     ],
+     "x0": -40.04,
+     "y0": -40.04,
+     "offset_to_heightmap_m": 0.007058827105690391,
+     "empty_columns_filled_from_heightmap": 0,
+     "untouched_surface_vs_heightmap_rmse_m": 0.02564290636266571,
+     "untouched_surface_vs_heightmap_p99_abs_m": 0.05815528338881082,
+     "rule": "drawn height = heightmap + (4th-highest particle of the 2x2-particle column now - the same at set-up); columns within 5 m of the chassis refreshed every frame; the rmse/p99 lines compare the raw initial column tops (+ median offset) with the heightmap",
+     "build_s": 2.467665195465088
+    },
+    "scene_rebuilt_at_frame": 60
+   }
+  },
+  {
+   "case": "soil2",
+   "group": "f104_pair_group_0500",
+   "arm": "L1_X",
+   "label": "Transformer, decides after 1 s",
+   "filmed": true,
+   "recorded_run_dir": "artifacts/traverse/crm_improve_20260922/s2/runs_crm/f104_pair_group_0500__L1_X_B",
+   "branch_frame": 20,
+   "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/soil2_L1_X/run",
+   "recorded": {
+    "status": "goal_reached",
+    "elapsed_s": 8.05,
+    "frames": 161
+   },
+   "local": {
+    "status": "goal_reached",
+    "elapsed_s": 8.6,
+    "frames": 172,
+    "wall_s": 38.257076263427734
+   },
+   "same_status": true,
+   "elapsed_diff_s": 0.55,
+   "max_position_diff_m": 3.2158361755528757,
+   "max_position_diff_frame": 128,
+   "position_diff_at_decision_m": 0.023611153891400883,
+   "mean_position_diff_m": 1.225027981646155,
+   "first_frame_over_0p1m": 70,
+   "terminal_position_diff_m": 0.07488057423822772,
+   "compared_frames": 161,
+   "max_distance_to_recorded_path_m": 0.1770967656404911,
+   "terminal_distance_to_recorded_path_m": 0.07411448947594086,
+   "terminal_along_recorded_path_diff_m": -0.010683765626751551,
+   "recorded_stuck_from_s": null,
+   "local_stuck_from_s": null,
+   "identical_trajectory": false,
+   "differs": true,
+   "overlay_note": "3D replay, re-simulated on a different computer. Original recorded run: goal reached in 8.05 s.",
+   "local_outcome_text": "goal reached in 8.6 s",
+   "recorded_outcome_text": "goal reached in 8.05 s",
+   "header_note": "Original recorded run: goal reached in 8.05 s; this 3D replay was re-simulated on a different computer and ends the same way, 0.55 s later",
+   "filmed_vs_camera_free_local": {
+    "same_status": true,
+    "elapsed_diff_s": 0.0,
+    "max_position_diff_m": 0.0,
+    "terminal_position_diff_m": 0.0,
+    "identical_trajectory": true,
+    "camera_free": {
+     "status": "goal_reached",
+     "elapsed_s": 8.6,
+     "frames": 172
+    }
+   },
+   "drive": {
+    "wall_s": 52.52100205421448,
+    "render_s_mean": 0.1192238261533338,
+    "host": "luffy",
+    "pychrono": "/home/harry/chrono/build/bin/pychrono/__init__.py",
+    "chrono_data": "/home/harry/NeDM-traverse_mppi/chrono/data",
+    "soil_surface": {
+     "markers_total": 7990723,
+     "fluid_markers_used": 4008004,
+     "fluid_xyz_min": [
+      -40.0,
+      -40.0,
+      -2.0
+     ],
+     "fluid_xyz_max": [
+      40.0,
+      40.0,
+      3.9200000762939453
+     ],
+     "other_markers_xyz_min": [
+      -40.2400016784668,
+      -40.2400016784668,
+      -2.319999933242798
+     ],
+     "other_markers_xyz_max": [
+      40.2400016784668,
+      40.2400016784668,
+      4.079999923706055
+     ],
+     "cell_m": 0.16,
+     "grid": [
+      501,
+      501
+     ],
+     "x0": -40.04,
+     "y0": -40.04,
+     "offset_to_heightmap_m": 0.007058827105690391,
+     "empty_columns_filled_from_heightmap": 0,
+     "untouched_surface_vs_heightmap_rmse_m": 0.02564290636266571,
+     "untouched_surface_vs_heightmap_p99_abs_m": 0.05815528338881082,
+     "rule": "drawn height = heightmap + (4th-highest particle of the 2x2-particle column now - the same at set-up); columns within 5 m of the chassis refreshed every frame; the rmse/p99 lines compare the raw initial column tops (+ median offset) with the heightmap",
+     "build_s": 1.9311785697937012
+    },
+    "scene_rebuilt_at_frame": 20
+   }
+  },
+  {
+   "case": "soil2",
+   "group": "f104_pair_group_0500",
+   "arm": "HnG",
+   "label": "CNN-GRU + gradient refinement, decides after 0.5 s (final)",
+   "filmed": true,
+   "recorded_run_dir": "artifacts/traverse/crm_improve_20260922/s4/runs/f104_pair_group_0500__L0p5_HnG_B",
+   "branch_frame": 10,
+   "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/soil2_HnG/run",
+   "recorded": {
+    "status": "goal_reached",
+    "elapsed_s": 7.45,
+    "frames": 149
+   },
+   "local": {
+    "status": "goal_reached",
+    "elapsed_s": 7.550000000000001,
+    "frames": 151,
+    "wall_s": 34.36791777610779
+   },
+   "same_status": true,
+   "elapsed_diff_s": 0.1,
+   "max_position_diff_m": 0.37952376597389503,
+   "max_position_diff_frame": 88,
+   "position_diff_at_decision_m": 0.0031527979459240116,
+   "mean_position_diff_m": 0.20625482946194862,
+   "first_frame_over_0p1m": 37,
+   "terminal_position_diff_m": 0.10210075326756049,
+   "compared_frames": 149,
+   "max_distance_to_recorded_path_m": 0.10210075326756049,
+   "terminal_distance_to_recorded_path_m": 0.10210075326756049,
+   "terminal_along_recorded_path_diff_m": 7.105427357601002e-15,
+   "recorded_stuck_from_s": null,
+   "local_stuck_from_s": null,
+   "identical_trajectory": false,
+   "differs": true,
+   "overlay_note": "3D replay, re-simulated on a different computer. Original recorded run: goal reached in 7.45 s.",
+   "local_outcome_text": "goal reached in 7.55 s",
+   "recorded_outcome_text": "goal reached in 7.45 s",
+   "header_note": "Original recorded run: goal reached in 7.45 s; this 3D replay was re-simulated on a different computer and ends the same way, 0.1 s later",
+   "filmed_vs_camera_free_local": {
+    "same_status": true,
+    "elapsed_diff_s": 0.0,
+    "max_position_diff_m": 0.0,
+    "terminal_position_diff_m": 0.0,
+    "identical_trajectory": true,
+    "camera_free": {
+     "status": "goal_reached",
+     "elapsed_s": 7.550000000000001,
+     "frames": 151
+    }
+   },
+   "drive": {
+    "wall_s": 48.21298837661743,
+    "render_s_mean": 0.12292853885928527,
+    "host": "luffy",
+    "pychrono": "/home/harry/chrono/build/bin/pychrono/__init__.py",
+    "chrono_data": "/home/harry/NeDM-traverse_mppi/chrono/data",
+    "soil_surface": {
+     "markers_total": 7990723,
+     "fluid_markers_used": 4008004,
+     "fluid_xyz_min": [
+      -40.0,
+      -40.0,
+      -2.0
+     ],
+     "fluid_xyz_max": [
+      40.0,
+      40.0,
+      3.9200000762939453
+     ],
+     "other_markers_xyz_min": [
+      -40.2400016784668,
+      -40.2400016784668,
+      -2.319999933242798
+     ],
+     "other_markers_xyz_max": [
+      40.2400016784668,
+      40.2400016784668,
+      4.079999923706055
+     ],
+     "cell_m": 0.16,
+     "grid": [
+      501,
+      501
+     ],
+     "x0": -40.04,
+     "y0": -40.04,
+     "offset_to_heightmap_m": 0.007058827105690391,
+     "empty_columns_filled_from_heightmap": 0,
+     "untouched_surface_vs_heightmap_rmse_m": 0.02564290636266571,
+     "untouched_surface_vs_heightmap_p99_abs_m": 0.05815528338881082,
+     "rule": "drawn height = heightmap + (4th-highest particle of the 2x2-particle column now - the same at set-up); columns within 5 m of the chassis refreshed every frame; the rmse/p99 lines compare the raw initial column tops (+ median offset) with the heightmap",
+     "build_s": 1.8472695350646973
+    },
+    "scene_rebuilt_at_frame": 10
+   }
+  }
+ ],
+ "other_arms_camera_free": [
+  {
+   "case": "soil",
+   "group": "f104_crm_eval_group_0124",
+   "arm": "L1_Hn",
+   "label": "CNN-GRU, decides after 1 s",
+   "filmed": false,
+   "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/soil_L1_Hn/run_norender",
+   "recorded": {
+    "status": "soil_breakthrough_terminated",
+    "elapsed_s": 12.75,
+    "frames": 255
+   },
+   "local": {
+    "status": "goal_reached",
+    "elapsed_s": 12.25,
+    "frames": 245,
+    "wall_s": 24.567646503448486
+   },
+   "same_status": false,
+   "elapsed_diff_s": -0.5,
+   "max_position_diff_m": 19.774365834683838,
+   "max_position_diff_frame": 244,
+   "position_diff_at_decision_m": 0.018256519545223827,
+   "mean_position_diff_m": 4.374377930672613,
+   "first_frame_over_0p1m": 97,
+   "terminal_position_diff_m": 19.95261099487574,
+   "compared_frames": 245,
+   "max_distance_to_recorded_path_m": 19.85986133490391,
+   "terminal_distance_to_recorded_path_m": 19.85986133490391,
+   "terminal_along_recorded_path_diff_m": -0.14188789579464967,
+   "recorded_stuck_from_s": null,
+   "local_stuck_from_s": null,
+   "identical_trajectory": false,
+   "differs": true
+  },
+  {
+   "case": "soil",
+   "group": "f104_crm_eval_group_0124",
+   "arm": "L0p5_Hn",
+   "label": "CNN-GRU, decides after 0.5 s",
+   "filmed": false,
+   "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/soil_L0p5_Hn/run_norender",
+   "recorded": {
+    "status": "goal_reached",
+    "elapsed_s": 11.450000000000001,
+    "frames": 229
+   },
+   "local": {
+    "status": "goal_reached",
+    "elapsed_s": 11.4,
+    "frames": 228,
+    "wall_s": 24.4758722782135
+   },
+   "same_status": true,
+   "elapsed_diff_s": -0.05,
+   "max_position_diff_m": 0.3883103404885045,
+   "max_position_diff_frame": 214,
+   "position_diff_at_decision_m": 0.0025867731845822914,
+   "mean_position_diff_m": 0.1801480143981182,
+   "first_frame_over_0p1m": 33,
+   "terminal_position_diff_m": 0.014387041906214879,
+   "compared_frames": 228,
+   "max_distance_to_recorded_path_m": 0.1304271086260753,
+   "terminal_distance_to_recorded_path_m": 0.011701730328367138,
+   "terminal_along_recorded_path_diff_m": -0.008369975037773258,
+   "recorded_stuck_from_s": null,
+   "local_stuck_from_s": null,
+   "identical_trajectory": false,
+   "differs": true
+  },
+  {
+   "case": "soil",
+   "group": "f104_crm_eval_group_0124",
+   "arm": "L0p5_X",
+   "label": "Transformer, decides after 0.5 s",
+   "filmed": false,
+   "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/soil_L0p5_X/run_norender",
+   "recorded": {
+    "status": "goal_reached",
+    "elapsed_s": 12.700000000000001,
+    "frames": 254
+   },
+   "local": {
+    "status": "soil_breakthrough_terminated",
+    "elapsed_s": 11.8,
+    "frames": 236,
+    "wall_s": 24.191458225250244
+   },
+   "same_status": false,
+   "elapsed_diff_s": -0.9,
+   "max_position_diff_m": 15.714027242791419,
+   "max_position_diff_frame": 235,
+   "position_diff_at_decision_m": 0.0025867731845822914,
+   "mean_position_diff_m": 3.4391760807279366,
+   "first_frame_over_0p1m": 38,
+   "terminal_position_diff_m": 17.915298083429644,
+   "compared_frames": 236,
+   "max_distance_to_recorded_path_m": 0.06687058376633126,
+   "terminal_distance_to_recorded_path_m": 0.012965842915718496,
+   "terminal_along_recorded_path_diff_m": -17.9436808811121,
+   "recorded_stuck_from_s": null,
+   "local_stuck_from_s": null,
+   "identical_trajectory": false,
+   "differs": true
+  },
+  {
+   "case": "rigid",
+   "group": "f104_pair_group_0011",
+   "arm": "L1_Hn",
+   "label": "CNN-GRU, decides after 1 s",
+   "filmed": false,
+   "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/rigid_L1_Hn/run_norender",
+   "recorded": {
+    "status": "goal_reached",
+    "elapsed_s": 16.900000000000002,
+    "frames": 338
+   },
+   "local": {
+    "status": "goal_reached",
+    "elapsed_s": 16.900000000000002,
+    "frames": 338,
+    "wall_s": 29.585702419281006
+   },
+   "same_status": true,
+   "elapsed_diff_s": 0.0,
+   "max_position_diff_m": 0.12996578113705448,
+   "max_position_diff_frame": 205,
+   "position_diff_at_decision_m": 0.0005712023742316902,
+   "mean_position_diff_m": 0.021065368835280346,
+   "first_frame_over_0p1m": 199,
+   "terminal_position_diff_m": 0.014724868606788953,
+   "compared_frames": 338,
+   "max_distance_to_recorded_path_m": 0.031669588212310223,
+   "terminal_distance_to_recorded_path_m": 0.007571462400753823,
+   "terminal_along_recorded_path_diff_m": -0.012629121608441096,
+   "recorded_stuck_from_s": null,
+   "local_stuck_from_s": null,
+   "identical_trajectory": false,
+   "differs": false
+  },
+  {
+   "case": "rigid",
+   "group": "f104_pair_group_0011",
+   "arm": "L1_X",
+   "label": "Transformer, decides after 1 s",
+   "filmed": false,
+   "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/rigid_L1_X/run_norender",
+   "recorded": {
+    "status": "goal_reached",
+    "elapsed_s": 9.55,
+    "frames": 191
+   },
+   "local": {
+    "status": "goal_reached",
+    "elapsed_s": 9.600000000000001,
+    "frames": 192,
+    "wall_s": 26.744346618652344
+   },
+   "same_status": true,
+   "elapsed_diff_s": 0.05,
+   "max_position_diff_m": 0.06353479206527535,
+   "max_position_diff_frame": 86,
+   "position_diff_at_decision_m": 0.0005712023742316902,
+   "mean_position_diff_m": 0.024219606056891687,
+   "first_frame_over_0p1m": null,
+   "terminal_position_diff_m": 0.187619105010445,
+   "compared_frames": 191,
+   "max_distance_to_recorded_path_m": 0.187619105010445,
+   "terminal_distance_to_recorded_path_m": 0.187619105010445,
+   "terminal_along_recorded_path_diff_m": -2.1316282072803006e-14,
+   "recorded_stuck_from_s": null,
+   "local_stuck_from_s": null,
+   "identical_trajectory": false,
+   "differs": true
+  },
+  {
+   "case": "rigid",
+   "group": "f104_pair_group_0011",
+   "arm": "L0p5_Hn",
+   "label": "CNN-GRU, decides after 0.5 s",
+   "filmed": false,
+   "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/rigid_L0p5_Hn/run_norender",
+   "recorded": {
+    "status": "goal_reached",
+    "elapsed_s": 15.3,
+    "frames": 306
+   },
+   "local": {
+    "status": "goal_reached",
+    "elapsed_s": 15.350000000000001,
+    "frames": 307,
+    "wall_s": 29.777140378952026
+   },
+   "same_status": true,
+   "elapsed_diff_s": 0.05,
+   "max_position_diff_m": 0.17844223980265642,
+   "max_position_diff_frame": 192,
+   "position_diff_at_decision_m": 0.0008744029832115102,
+   "mean_position_diff_m": 0.06387869126389709,
+   "first_frame_over_0p1m": 169,
+   "terminal_position_diff_m": 0.07455228315360678,
+   "compared_frames": 306,
+   "max_distance_to_recorded_path_m": 0.07455228315360678,
+   "terminal_distance_to_recorded_path_m": 0.07455228315360678,
+   "terminal_along_recorded_path_diff_m": -7.105427357601002e-15,
+   "recorded_stuck_from_s": null,
+   "local_stuck_from_s": null,
+   "identical_trajectory": false,
+   "differs": true
+  },
+  {
+   "case": "soil2",
+   "group": "f104_pair_group_0500",
+   "arm": "L1_Hn",
+   "label": "CNN-GRU, decides after 1 s",
+   "filmed": false,
+   "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/soil2_L1_Hn/run_norender",
+   "recorded": {
+    "status": "goal_reached",
+    "elapsed_s": 9.55,
+    "frames": 191
+   },
+   "local": {
+    "status": "goal_reached",
+    "elapsed_s": 9.55,
+    "frames": 191,
+    "wall_s": 19.44552445411682
+   },
+   "same_status": true,
+   "elapsed_diff_s": 0.0,
+   "max_position_diff_m": 0.07854135086901215,
+   "max_position_diff_frame": 154,
+   "position_diff_at_decision_m": 0.023611153891400883,
+   "mean_position_diff_m": 0.04462539153019076,
+   "first_frame_over_0p1m": null,
+   "terminal_position_diff_m": 0.009489517223549702,
+   "compared_frames": 191,
+   "max_distance_to_recorded_path_m": 0.02354271121447579,
+   "terminal_distance_to_recorded_path_m": 0.009489517223549702,
+   "terminal_along_recorded_path_diff_m": -3.552713678800501e-15,
+   "recorded_stuck_from_s": null,
+   "local_stuck_from_s": null,
+   "identical_trajectory": false,
+   "differs": false
+  },
+  {
+   "case": "soil2",
+   "group": "f104_pair_group_0500",
+   "arm": "L0p5_Hn",
+   "label": "CNN-GRU, decides after 0.5 s",
+   "filmed": false,
+   "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/soil2_L0p5_Hn/run_norender",
+   "recorded": {
+    "status": "goal_reached",
+    "elapsed_s": 9.450000000000001,
+    "frames": 189
+   },
+   "local": {
+    "status": "goal_reached",
+    "elapsed_s": 9.5,
+    "frames": 190,
+    "wall_s": 19.28876543045044
+   },
+   "same_status": true,
+   "elapsed_diff_s": 0.05,
+   "max_position_diff_m": 0.192567010349789,
+   "max_position_diff_frame": 181,
+   "position_diff_at_decision_m": 0.0031527979459240116,
+   "mean_position_diff_m": 0.09671746359229146,
+   "first_frame_over_0p1m": 35,
+   "terminal_position_diff_m": 0.07084453945403515,
+   "compared_frames": 189,
+   "max_distance_to_recorded_path_m": 0.06381060936182434,
+   "terminal_distance_to_recorded_path_m": 0.04055882275887623,
+   "terminal_along_recorded_path_diff_m": -0.05808554610975847,
+   "recorded_stuck_from_s": null,
+   "local_stuck_from_s": null,
+   "identical_trajectory": false,
+   "differs": true
+  },
+  {
+   "case": "soil2",
+   "group": "f104_pair_group_0500",
+   "arm": "L0p5_X",
+   "label": "Transformer, decides after 0.5 s",
+   "filmed": false,
+   "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/soil2_L0p5_X/run_norender",
+   "recorded": {
+    "status": "goal_reached",
+    "elapsed_s": 9.950000000000001,
+    "frames": 199
+   },
+   "local": {
+    "status": "goal_reached",
+    "elapsed_s": 9.75,
+    "frames": 195,
+    "wall_s": 19.707154273986816
+   },
+   "same_status": true,
+   "elapsed_diff_s": -0.2,
+   "max_position_diff_m": 0.9267425138529998,
+   "max_position_diff_frame": 167,
+   "position_diff_at_decision_m": 0.0031527979459240116,
+   "mean_position_diff_m": 0.27185008794609317,
+   "first_frame_over_0p1m": 37,
+   "terminal_position_diff_m": 0.06661977145641838,
+   "compared_frames": 195,
+   "max_distance_to_recorded_path_m": 0.0780657323797961,
+   "terminal_distance_to_recorded_path_m": 0.06661977145641838,
+   "terminal_along_recorded_path_diff_m": 1.0658141036401503e-14,
+   "recorded_stuck_from_s": null,
+   "local_stuck_from_s": null,
+   "identical_trajectory": false,
+   "differs": true
+  }
+ ],
+ "soil_group_screen": {
+  "schema": "ci_soil_group_screen_v1",
+  "written": "2026-09-24 13:36",
+  "what": "Soil groups screened for the second filmed soil case: camera-free local re-drives (this workstation, soil solver on CUDA) of all six arms, one at a time under the CRM lock, against the recorded cluster drives. A group qualifies when every local outcome equals the recorded one and every elapsed time is within 1 s; screened in candidate order, stopping at the first that qualifies.",
+  "tol_s": 1.0,
+  "candidates_file": "artifacts/traverse/crm_improve_20260922/videos/chase_work/screen/candidates.json",
+  "candidate_rule": "Rank soil groups whose RECORDED drives show the study's contrast: the old 3 s approach fails while the 1 s\n    transformer and the final 0.5 s gradient-refined CNN-GRU both reach the goal.",
+  "candidate_ranking": "tier 0: the 1 s CNN-GRU also fails and both plain 0.5 s arms reach the goal; tier 1: the 1 s CNN-GRU reaches the goal, both 0.5 s arms too; tier 2: the 1 s CNN-GRU fails, a 0.5 s arm fails too; tier 3: the rest. Within a tier, groups rank by the success margin: the lowest forward speed any successful arm drove from 0.5 s after its decision to its end (a success that never slowed down is the least likely to flip on another GPU). Also reported: the failure margin, the shortest time any failed arm spent below 1 m/s after its decision (a long stall before bogging down is a clear failure), and the group already filmed (excluded with --exclude).",
+  "revised_order_rule": "Revised order (written as 'revised_order' after the first two screened groups, 0356 and 0244; the third, 0440, was already being driven, so the order was followed from the fourth screened group on): a bogged-down failure's end time is set by when the digging wheels cross the sinkage limit, which the local re-drives of the first two groups moved by -2.8 to +15.6 s (with 0440 as well: -2.8 to +23.6 s), whereas a drive stuck from early on that never bogs down ends by the blockage rule at a fixed time (34.00 s). So: tier-1 groups whose failed old-protocol drive ended by the blockage rule, success margin at least 1 m/s, ordered by that drive's recorded sinkage margin to the bogged-down limit (largest first).",
+  "screen_order": [
+   "f104_pair_group_0356",
+   "f104_pair_group_0244",
+   "f104_pair_group_0440",
+   "f104_crm_eval_group_0093",
+   "f104_pair_group_0500"
+  ],
+  "order_note": "Screened in order: the three tier-0 groups of the candidate ranking (ranks 1-3: 0356, 0244, 0440); none qualified, and in all three the recorded bogged-down failures did not reproduce (local end times -2.8 to +23.6 s off, stuck instead of bogged, or, for the 1 s CNN-GRU in 0244, the goal reached instead) while every success reproduced within 0.25 s except one flip. The screen then followed the candidates file's revised_order (tier-1 groups whose old-protocol failure ended by the blockage rule at its fixed 34.00 s, success margin >= 1 m/s, largest sinkage margin first): 0093 (old protocol bogged down locally instead of staying stuck), then 0500, which qualified; screening stopped there (5 of the allowed 12 groups).",
+  "groups": [
+   {
+    "key": "g0356",
+    "group": "f104_pair_group_0356",
+    "complete": true,
+    "all_six_match": false,
+    "filmed_three_match": false,
+    "max_abs_elapsed_diff_s": 15.6,
+    "arms": [
+     {
+      "arm": "H3s",
+      "label": "CNN-GRU (earlier training), decides after a 3 s approach (old protocol)",
+      "filmed_arm": true,
+      "recorded_run_dir": "artifacts/traverse/generalist_20260921/A_adapt/a5/crm_pass2_runs/f104_pair_group_0356__H_B",
+      "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/screen/g0356_H3s/run_norender",
+      "recorded": {
+       "status": "soil_breakthrough_terminated",
+       "elapsed_s": 9.65,
+       "frames": 193
+      },
+      "local": {
+       "status": "soil_breakthrough_terminated",
+       "elapsed_s": 22.1,
+       "frames": 442,
+       "wall_s": 46.509180545806885
+      },
+      "same_status": true,
+      "elapsed_diff_s": 12.45,
+      "max_position_diff_m": 0.9843900758226154,
+      "first_frame_over_0p1m": 81,
+      "terminal_position_diff_m": 0.8272454748383509,
+      "matches": false
+     },
+     {
+      "arm": "L1_Hn",
+      "label": "CNN-GRU, decides after 1 s",
+      "filmed_arm": false,
+      "recorded_run_dir": "artifacts/traverse/crm_improve_20260922/s2/runs_crm/f104_pair_group_0356__L1_Hn_B",
+      "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/screen/g0356_L1_Hn/run_norender",
+      "recorded": {
+       "status": "soil_breakthrough_terminated",
+       "elapsed_s": 18.400000000000002,
+       "frames": 368
+      },
+      "local": {
+       "status": "prolonged_blockage_terminated",
+       "elapsed_s": 34.0,
+       "frames": 680,
+       "wall_s": 67.00898456573486
+      },
+      "same_status": false,
+      "elapsed_diff_s": 15.6,
+      "max_position_diff_m": 0.315853551456244,
+      "first_frame_over_0p1m": 60,
+      "terminal_position_diff_m": 0.07840254949339931,
+      "matches": false
+     },
+     {
+      "arm": "L1_X",
+      "label": "Transformer, decides after 1 s",
+      "filmed_arm": true,
+      "recorded_run_dir": "artifacts/traverse/crm_improve_20260922/s2/runs_crm/f104_pair_group_0356__L1_X_B",
+      "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/screen/g0356_L1_X/run_norender",
+      "recorded": {
+       "status": "goal_reached",
+       "elapsed_s": 11.15,
+       "frames": 223
+      },
+      "local": {
+       "status": "goal_reached",
+       "elapsed_s": 11.200000000000001,
+       "frames": 224,
+       "wall_s": 22.674776792526245
+      },
+      "same_status": true,
+      "elapsed_diff_s": 0.05,
+      "max_position_diff_m": 0.8072570992527622,
+      "first_frame_over_0p1m": 61,
+      "terminal_position_diff_m": 0.05139413645077778,
+      "matches": true
+     },
+     {
+      "arm": "L0p5_Hn",
+      "label": "CNN-GRU, decides after 0.5 s",
+      "filmed_arm": false,
+      "recorded_run_dir": "artifacts/traverse/crm_improve_20260922/s2/runs_crm/f104_pair_group_0356__L0p5_Hn_B",
+      "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/screen/g0356_L0p5_Hn/run_norender",
+      "recorded": {
+       "status": "goal_reached",
+       "elapsed_s": 11.25,
+       "frames": 225
+      },
+      "local": {
+       "status": "goal_reached",
+       "elapsed_s": 11.3,
+       "frames": 226,
+       "wall_s": 23.100473880767822
+      },
+      "same_status": true,
+      "elapsed_diff_s": 0.05,
+      "max_position_diff_m": 0.13753511817518582,
+      "first_frame_over_0p1m": 136,
+      "terminal_position_diff_m": 0.04039068047035695,
+      "matches": true
+     },
+     {
+      "arm": "L0p5_X",
+      "label": "Transformer, decides after 0.5 s",
+      "filmed_arm": false,
+      "recorded_run_dir": "artifacts/traverse/crm_improve_20260922/s2/runs_crm/f104_pair_group_0356__L0p5_X_B",
+      "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/screen/g0356_L0p5_X/run_norender",
+      "recorded": {
+       "status": "goal_reached",
+       "elapsed_s": 11.200000000000001,
+       "frames": 224
+      },
+      "local": {
+       "status": "goal_reached",
+       "elapsed_s": 11.350000000000001,
+       "frames": 227,
+       "wall_s": 38.237494468688965
+      },
+      "same_status": true,
+      "elapsed_diff_s": 0.15,
+      "max_position_diff_m": 0.951539595027843,
+      "first_frame_over_0p1m": 78,
+      "terminal_position_diff_m": 0.05328733012041231,
+      "matches": true
+     },
+     {
+      "arm": "HnG",
+      "label": "CNN-GRU + gradient refinement, decides after 0.5 s (final)",
+      "filmed_arm": true,
+      "recorded_run_dir": "artifacts/traverse/crm_improve_20260922/s4/runs/f104_pair_group_0356__L0p5_HnG_B",
+      "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/screen/g0356_HnG/run_norender",
+      "recorded": {
+       "status": "goal_reached",
+       "elapsed_s": 10.100000000000001,
+       "frames": 202
+      },
+      "local": {
+       "status": "goal_reached",
+       "elapsed_s": 10.0,
+       "frames": 200,
+       "wall_s": 22.3595187664032
+      },
+      "same_status": true,
+      "elapsed_diff_s": -0.1,
+      "max_position_diff_m": 0.35236682960267446,
+      "first_frame_over_0p1m": 126,
+      "terminal_position_diff_m": 0.059735369835119435,
+      "matches": true
+     }
+    ],
+    "candidate_rank": 1,
+    "tier": 0,
+    "success_margin_mps": 1.861317753791809,
+    "failure_stall_s": 4.7
+   },
+   {
+    "key": "g0244",
+    "group": "f104_pair_group_0244",
+    "complete": true,
+    "all_six_match": false,
+    "filmed_three_match": false,
+    "max_abs_elapsed_diff_s": 2.8,
+    "arms": [
+     {
+      "arm": "H3s",
+      "label": "CNN-GRU (earlier training), decides after a 3 s approach (old protocol)",
+      "filmed_arm": true,
+      "recorded_run_dir": "artifacts/traverse/generalist_20260921/A_adapt/a5/crm_pass2_runs/f104_pair_group_0244__H_B",
+      "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/screen/g0244_H3s/run_norender",
+      "recorded": {
+       "status": "soil_breakthrough_terminated",
+       "elapsed_s": 16.45,
+       "frames": 329
+      },
+      "local": {
+       "status": "soil_breakthrough_terminated",
+       "elapsed_s": 13.65,
+       "frames": 273,
+       "wall_s": 30.177045822143555
+      },
+      "same_status": true,
+      "elapsed_diff_s": -2.8,
+      "max_position_diff_m": 0.2839287821730672,
+      "first_frame_over_0p1m": 78,
+      "terminal_position_diff_m": 0.270274793376624,
+      "matches": false
+     },
+     {
+      "arm": "L1_Hn",
+      "label": "CNN-GRU, decides after 1 s",
+      "filmed_arm": false,
+      "recorded_run_dir": "artifacts/traverse/crm_improve_20260922/s2/runs_crm/f104_pair_group_0244__L1_Hn_B",
+      "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/screen/g0244_L1_Hn/run_norender",
+      "recorded": {
+       "status": "soil_breakthrough_terminated",
+       "elapsed_s": 13.350000000000001,
+       "frames": 267
+      },
+      "local": {
+       "status": "goal_reached",
+       "elapsed_s": 12.600000000000001,
+       "frames": 252,
+       "wall_s": 25.289989471435547
+      },
+      "same_status": false,
+      "elapsed_diff_s": -0.75,
+      "max_position_diff_m": 16.4972465027194,
+      "first_frame_over_0p1m": 47,
+      "terminal_position_diff_m": 16.672890161228715,
+      "matches": false
+     },
+     {
+      "arm": "L1_X",
+      "label": "Transformer, decides after 1 s",
+      "filmed_arm": true,
+      "recorded_run_dir": "artifacts/traverse/crm_improve_20260922/s2/runs_crm/f104_pair_group_0244__L1_X_B",
+      "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/screen/g0244_L1_X/run_norender",
+      "recorded": {
+       "status": "goal_reached",
+       "elapsed_s": 9.35,
+       "frames": 187
+      },
+      "local": {
+       "status": "goal_reached",
+       "elapsed_s": 9.4,
+       "frames": 188,
+       "wall_s": 18.883852005004883
+      },
+      "same_status": true,
+      "elapsed_diff_s": 0.05,
+      "max_position_diff_m": 0.4943074310407424,
+      "first_frame_over_0p1m": 53,
+      "terminal_position_diff_m": 0.13625365932850286,
+      "matches": true
+     },
+     {
+      "arm": "L0p5_Hn",
+      "label": "CNN-GRU, decides after 0.5 s",
+      "filmed_arm": false,
+      "recorded_run_dir": "artifacts/traverse/crm_improve_20260922/s2/runs_crm/f104_pair_group_0244__L0p5_Hn_B",
+      "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/screen/g0244_L0p5_Hn/run_norender",
+      "recorded": {
+       "status": "goal_reached",
+       "elapsed_s": 12.200000000000001,
+       "frames": 244
+      },
+      "local": {
+       "status": "soil_breakthrough_terminated",
+       "elapsed_s": 12.450000000000001,
+       "frames": 249,
+       "wall_s": 24.224860906600952
+      },
+      "same_status": false,
+      "elapsed_diff_s": 0.25,
+      "max_position_diff_m": 14.156581260203055,
+      "first_frame_over_0p1m": 24,
+      "terminal_position_diff_m": 14.254254312554632,
+      "matches": false
+     },
+     {
+      "arm": "L0p5_X",
+      "label": "Transformer, decides after 0.5 s",
+      "filmed_arm": false,
+      "recorded_run_dir": "artifacts/traverse/crm_improve_20260922/s2/runs_crm/f104_pair_group_0244__L0p5_X_B",
+      "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/screen/g0244_L0p5_X/run_norender",
+      "recorded": {
+       "status": "goal_reached",
+       "elapsed_s": 8.85,
+       "frames": 177
+      },
+      "local": {
+       "status": "goal_reached",
+       "elapsed_s": 9.1,
+       "frames": 182,
+       "wall_s": 19.08181643486023
+      },
+      "same_status": true,
+      "elapsed_diff_s": 0.25,
+      "max_position_diff_m": 1.7358076287493347,
+      "first_frame_over_0p1m": 24,
+      "terminal_position_diff_m": 0.04850202009122414,
+      "matches": true
+     },
+     {
+      "arm": "HnG",
+      "label": "CNN-GRU + gradient refinement, decides after 0.5 s (final)",
+      "filmed_arm": true,
+      "recorded_run_dir": "artifacts/traverse/crm_improve_20260922/s4/runs/f104_pair_group_0244__L0p5_HnG_B",
+      "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/screen/g0244_HnG/run_norender",
+      "recorded": {
+       "status": "goal_reached",
+       "elapsed_s": 11.5,
+       "frames": 230
+      },
+      "local": {
+       "status": "goal_reached",
+       "elapsed_s": 11.600000000000001,
+       "frames": 232,
+       "wall_s": 24.064030408859253
+      },
+      "same_status": true,
+      "elapsed_diff_s": 0.1,
+      "max_position_diff_m": 0.4270223187529938,
+      "first_frame_over_0p1m": 24,
+      "terminal_position_diff_m": 0.019458254323632282,
+      "matches": true
+     }
+    ],
+    "candidate_rank": 2,
+    "tier": 0,
+    "success_margin_mps": 1.5832805633544922,
+    "failure_stall_s": 6.800000000000001
+   },
+   {
+    "key": "g0440",
+    "group": "f104_pair_group_0440",
+    "complete": true,
+    "all_six_match": false,
+    "filmed_three_match": false,
+    "max_abs_elapsed_diff_s": 23.6,
+    "arms": [
+     {
+      "arm": "H3s",
+      "label": "CNN-GRU (earlier training), decides after a 3 s approach (old protocol)",
+      "filmed_arm": true,
+      "recorded_run_dir": "artifacts/traverse/generalist_20260921/A_adapt/a5/crm_pass2_runs/f104_pair_group_0440__H_B",
+      "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/screen/g0440_H3s/run_norender",
+      "recorded": {
+       "status": "soil_breakthrough_terminated",
+       "elapsed_s": 10.4,
+       "frames": 208
+      },
+      "local": {
+       "status": "prolonged_blockage_terminated",
+       "elapsed_s": 34.0,
+       "frames": 680,
+       "wall_s": 64.40255546569824
+      },
+      "same_status": false,
+      "elapsed_diff_s": 23.6,
+      "max_position_diff_m": 0.6868639632751784,
+      "first_frame_over_0p1m": 73,
+      "terminal_position_diff_m": 0.5880863286743603,
+      "matches": false
+     },
+     {
+      "arm": "L1_Hn",
+      "label": "CNN-GRU, decides after 1 s",
+      "filmed_arm": false,
+      "recorded_run_dir": "artifacts/traverse/crm_improve_20260922/s2/runs_crm/f104_pair_group_0440__L1_Hn_B",
+      "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/screen/g0440_L1_Hn/run_norender",
+      "recorded": {
+       "status": "soil_breakthrough_terminated",
+       "elapsed_s": 15.100000000000001,
+       "frames": 302
+      },
+      "local": {
+       "status": "prolonged_blockage_terminated",
+       "elapsed_s": 34.0,
+       "frames": 680,
+       "wall_s": 87.60905528068542
+      },
+      "same_status": false,
+      "elapsed_diff_s": 18.9,
+      "max_position_diff_m": 0.5765426366460271,
+      "first_frame_over_0p1m": 91,
+      "terminal_position_diff_m": 0.09364360617584253,
+      "matches": false
+     },
+     {
+      "arm": "L1_X",
+      "label": "Transformer, decides after 1 s",
+      "filmed_arm": true,
+      "recorded_run_dir": "artifacts/traverse/crm_improve_20260922/s2/runs_crm/f104_pair_group_0440__L1_X_B",
+      "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/screen/g0440_L1_X/run_norender",
+      "recorded": {
+       "status": "goal_reached",
+       "elapsed_s": 13.600000000000001,
+       "frames": 272
+      },
+      "local": {
+       "status": "goal_reached",
+       "elapsed_s": 13.600000000000001,
+       "frames": 272,
+       "wall_s": 36.15272808074951
+      },
+      "same_status": true,
+      "elapsed_diff_s": 0.0,
+      "max_position_diff_m": 0.3944844414421001,
+      "first_frame_over_0p1m": 93,
+      "terminal_position_diff_m": 0.0227824101643148,
+      "matches": true
+     },
+     {
+      "arm": "L0p5_Hn",
+      "label": "CNN-GRU, decides after 0.5 s",
+      "filmed_arm": false,
+      "recorded_run_dir": "artifacts/traverse/crm_improve_20260922/s2/runs_crm/f104_pair_group_0440__L0p5_Hn_B",
+      "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/screen/g0440_L0p5_Hn/run_norender",
+      "recorded": {
+       "status": "goal_reached",
+       "elapsed_s": 13.600000000000001,
+       "frames": 272
+      },
+      "local": {
+       "status": "goal_reached",
+       "elapsed_s": 13.55,
+       "frames": 271,
+       "wall_s": 32.39248085021973
+      },
+      "same_status": true,
+      "elapsed_diff_s": -0.05,
+      "max_position_diff_m": 0.3102657629856521,
+      "first_frame_over_0p1m": 68,
+      "terminal_position_diff_m": 0.14421673624492276,
+      "matches": true
+     },
+     {
+      "arm": "L0p5_X",
+      "label": "Transformer, decides after 0.5 s",
+      "filmed_arm": false,
+      "recorded_run_dir": "artifacts/traverse/crm_improve_20260922/s2/runs_crm/f104_pair_group_0440__L0p5_X_B",
+      "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/screen/g0440_L0p5_X/run_norender",
+      "recorded": {
+       "status": "goal_reached",
+       "elapsed_s": 13.350000000000001,
+       "frames": 267
+      },
+      "local": {
+       "status": "goal_reached",
+       "elapsed_s": 13.25,
+       "frames": 265,
+       "wall_s": 30.46713137626648
+      },
+      "same_status": true,
+      "elapsed_diff_s": -0.1,
+      "max_position_diff_m": 0.4161427206217462,
+      "first_frame_over_0p1m": 153,
+      "terminal_position_diff_m": 0.06462389130324056,
+      "matches": true
+     },
+     {
+      "arm": "HnG",
+      "label": "CNN-GRU + gradient refinement, decides after 0.5 s (final)",
+      "filmed_arm": true,
+      "recorded_run_dir": "artifacts/traverse/crm_improve_20260922/s4/runs/f104_pair_group_0440__L0p5_HnG_B",
+      "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/screen/g0440_HnG/run_norender",
+      "recorded": {
+       "status": "goal_reached",
+       "elapsed_s": 11.450000000000001,
+       "frames": 229
+      },
+      "local": {
+       "status": "goal_reached",
+       "elapsed_s": 11.4,
+       "frames": 228,
+       "wall_s": 22.845582485198975
+      },
+      "same_status": true,
+      "elapsed_diff_s": -0.05,
+      "max_position_diff_m": 0.3586318268512833,
+      "first_frame_over_0p1m": 59,
+      "terminal_position_diff_m": 0.040850851768015006,
+      "matches": true
+     }
+    ],
+    "candidate_rank": 3,
+    "tier": 0,
+    "success_margin_mps": 0.399748295545578,
+    "failure_stall_s": 5.45
+   },
+   {
+    "key": "g0093",
+    "group": "f104_crm_eval_group_0093",
+    "complete": true,
+    "all_six_match": false,
+    "filmed_three_match": false,
+    "max_abs_elapsed_diff_s": 21.75,
+    "arms": [
+     {
+      "arm": "H3s",
+      "label": "CNN-GRU (earlier training), decides after a 3 s approach (old protocol)",
+      "filmed_arm": true,
+      "recorded_run_dir": "artifacts/traverse/generalist_20260921/A_adapt/a5/crm_pass2_runs/f104_crm_eval_group_0093__H_B",
+      "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/screen/g0093_H3s/run_norender",
+      "recorded": {
+       "status": "prolonged_blockage_terminated",
+       "elapsed_s": 34.0,
+       "frames": 680
+      },
+      "local": {
+       "status": "soil_breakthrough_terminated",
+       "elapsed_s": 12.25,
+       "frames": 245,
+       "wall_s": 24.01502776145935
+      },
+      "same_status": false,
+      "elapsed_diff_s": -21.75,
+      "max_position_diff_m": 2.4988112613757303,
+      "first_frame_over_0p1m": 63,
+      "terminal_position_diff_m": 2.4560383487642117,
+      "matches": false
+     },
+     {
+      "arm": "L1_Hn",
+      "label": "CNN-GRU, decides after 1 s",
+      "filmed_arm": false,
+      "recorded_run_dir": "artifacts/traverse/crm_improve_20260922/s2/runs_crm/f104_crm_eval_group_0093__L1_Hn_B",
+      "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/screen/g0093_L1_Hn/run_norender",
+      "recorded": {
+       "status": "goal_reached",
+       "elapsed_s": 10.350000000000001,
+       "frames": 207
+      },
+      "local": {
+       "status": "goal_reached",
+       "elapsed_s": 10.4,
+       "frames": 208,
+       "wall_s": 21.220024347305298
+      },
+      "same_status": true,
+      "elapsed_diff_s": 0.05,
+      "max_position_diff_m": 0.3983949002492122,
+      "first_frame_over_0p1m": 75,
+      "terminal_position_diff_m": 0.017036127605153568,
+      "matches": true
+     },
+     {
+      "arm": "L1_X",
+      "label": "Transformer, decides after 1 s",
+      "filmed_arm": true,
+      "recorded_run_dir": "artifacts/traverse/crm_improve_20260922/s2/runs_crm/f104_crm_eval_group_0093__L1_X_B",
+      "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/screen/g0093_L1_X/run_norender",
+      "recorded": {
+       "status": "goal_reached",
+       "elapsed_s": 11.350000000000001,
+       "frames": 227
+      },
+      "local": {
+       "status": "goal_reached",
+       "elapsed_s": 11.3,
+       "frames": 226,
+       "wall_s": 22.797715187072754
+      },
+      "same_status": true,
+      "elapsed_diff_s": -0.05,
+      "max_position_diff_m": 0.240300572398772,
+      "first_frame_over_0p1m": 131,
+      "terminal_position_diff_m": 0.07486115561552245,
+      "matches": true
+     },
+     {
+      "arm": "L0p5_Hn",
+      "label": "CNN-GRU, decides after 0.5 s",
+      "filmed_arm": false,
+      "recorded_run_dir": "artifacts/traverse/crm_improve_20260922/s2/runs_crm/f104_crm_eval_group_0093__L0p5_Hn_B",
+      "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/screen/g0093_L0p5_Hn/run_norender",
+      "recorded": {
+       "status": "goal_reached",
+       "elapsed_s": 10.25,
+       "frames": 205
+      },
+      "local": {
+       "status": "goal_reached",
+       "elapsed_s": 10.450000000000001,
+       "frames": 209,
+       "wall_s": 21.605611562728882
+      },
+      "same_status": true,
+      "elapsed_diff_s": 0.2,
+      "max_position_diff_m": 0.8594402403119183,
+      "first_frame_over_0p1m": 72,
+      "terminal_position_diff_m": 0.08959415056594111,
+      "matches": true
+     },
+     {
+      "arm": "L0p5_X",
+      "label": "Transformer, decides after 0.5 s",
+      "filmed_arm": false,
+      "recorded_run_dir": "artifacts/traverse/crm_improve_20260922/s2/runs_crm/f104_crm_eval_group_0093__L0p5_X_B",
+      "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/screen/g0093_L0p5_X/run_norender",
+      "recorded": {
+       "status": "goal_reached",
+       "elapsed_s": 9.75,
+       "frames": 195
+      },
+      "local": {
+       "status": "goal_reached",
+       "elapsed_s": 10.0,
+       "frames": 200,
+       "wall_s": 21.993534088134766
+      },
+      "same_status": true,
+      "elapsed_diff_s": 0.25,
+      "max_position_diff_m": 1.433408204764355,
+      "first_frame_over_0p1m": 47,
+      "terminal_position_diff_m": 0.009971409024392525,
+      "matches": true
+     },
+     {
+      "arm": "HnG",
+      "label": "CNN-GRU + gradient refinement, decides after 0.5 s (final)",
+      "filmed_arm": true,
+      "recorded_run_dir": "artifacts/traverse/crm_improve_20260922/s4/runs/f104_crm_eval_group_0093__L0p5_HnG_B",
+      "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/screen/g0093_HnG/run_norender",
+      "recorded": {
+       "status": "goal_reached",
+       "elapsed_s": 10.05,
+       "frames": 201
+      },
+      "local": {
+       "status": "goal_reached",
+       "elapsed_s": 10.450000000000001,
+       "frames": 209,
+       "wall_s": 21.350417137145996
+      },
+      "same_status": true,
+      "elapsed_diff_s": 0.4,
+      "max_position_diff_m": 2.8388602637457927,
+      "first_frame_over_0p1m": 46,
+      "terminal_position_diff_m": 0.04196677622832187,
+      "matches": true
+     }
+    ],
+    "candidate_rank": 13,
+    "tier": 1,
+    "success_margin_mps": 1.4690825939178467,
+    "failure_stall_s": 29.0
+   },
+   {
+    "key": "g0500",
+    "group": "f104_pair_group_0500",
+    "complete": true,
+    "all_six_match": true,
+    "filmed_three_match": true,
+    "max_abs_elapsed_diff_s": 0.55,
+    "arms": [
+     {
+      "arm": "H3s",
+      "label": "CNN-GRU (earlier training), decides after a 3 s approach (old protocol)",
+      "filmed_arm": true,
+      "recorded_run_dir": "artifacts/traverse/generalist_20260921/A_adapt/a5/crm_pass2_runs/f104_pair_group_0500__H_B",
+      "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/screen/g0500_H3s/run_norender",
+      "recorded": {
+       "status": "prolonged_blockage_terminated",
+       "elapsed_s": 34.0,
+       "frames": 680
+      },
+      "local": {
+       "status": "prolonged_blockage_terminated",
+       "elapsed_s": 34.0,
+       "frames": 680,
+       "wall_s": 66.61268639564514
+      },
+      "same_status": true,
+      "elapsed_diff_s": 0.0,
+      "max_position_diff_m": 0.10830847468264566,
+      "first_frame_over_0p1m": 109,
+      "terminal_position_diff_m": 0.0546829428862961,
+      "matches": true
+     },
+     {
+      "arm": "L1_Hn",
+      "label": "CNN-GRU, decides after 1 s",
+      "filmed_arm": false,
+      "recorded_run_dir": "artifacts/traverse/crm_improve_20260922/s2/runs_crm/f104_pair_group_0500__L1_Hn_B",
+      "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/screen/g0500_L1_Hn/run_norender",
+      "recorded": {
+       "status": "goal_reached",
+       "elapsed_s": 9.55,
+       "frames": 191
+      },
+      "local": {
+       "status": "goal_reached",
+       "elapsed_s": 9.55,
+       "frames": 191,
+       "wall_s": 19.93153691291809
+      },
+      "same_status": true,
+      "elapsed_diff_s": 0.0,
+      "max_position_diff_m": 0.07854135086901215,
+      "first_frame_over_0p1m": null,
+      "terminal_position_diff_m": 0.009489517223549702,
+      "matches": true
+     },
+     {
+      "arm": "L1_X",
+      "label": "Transformer, decides after 1 s",
+      "filmed_arm": true,
+      "recorded_run_dir": "artifacts/traverse/crm_improve_20260922/s2/runs_crm/f104_pair_group_0500__L1_X_B",
+      "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/screen/g0500_L1_X/run_norender",
+      "recorded": {
+       "status": "goal_reached",
+       "elapsed_s": 8.05,
+       "frames": 161
+      },
+      "local": {
+       "status": "goal_reached",
+       "elapsed_s": 8.6,
+       "frames": 172,
+       "wall_s": 17.952474355697632
+      },
+      "same_status": true,
+      "elapsed_diff_s": 0.55,
+      "max_position_diff_m": 3.2158361755528757,
+      "first_frame_over_0p1m": 70,
+      "terminal_position_diff_m": 0.07488057423822772,
+      "matches": true
+     },
+     {
+      "arm": "L0p5_Hn",
+      "label": "CNN-GRU, decides after 0.5 s",
+      "filmed_arm": false,
+      "recorded_run_dir": "artifacts/traverse/crm_improve_20260922/s2/runs_crm/f104_pair_group_0500__L0p5_Hn_B",
+      "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/screen/g0500_L0p5_Hn/run_norender",
+      "recorded": {
+       "status": "goal_reached",
+       "elapsed_s": 9.450000000000001,
+       "frames": 189
+      },
+      "local": {
+       "status": "goal_reached",
+       "elapsed_s": 9.5,
+       "frames": 190,
+       "wall_s": 24.47830080986023
+      },
+      "same_status": true,
+      "elapsed_diff_s": 0.05,
+      "max_position_diff_m": 0.192567010349789,
+      "first_frame_over_0p1m": 35,
+      "terminal_position_diff_m": 0.07084453945403515,
+      "matches": true
+     },
+     {
+      "arm": "L0p5_X",
+      "label": "Transformer, decides after 0.5 s",
+      "filmed_arm": false,
+      "recorded_run_dir": "artifacts/traverse/crm_improve_20260922/s2/runs_crm/f104_pair_group_0500__L0p5_X_B",
+      "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/screen/g0500_L0p5_X/run_norender",
+      "recorded": {
+       "status": "goal_reached",
+       "elapsed_s": 9.950000000000001,
+       "frames": 199
+      },
+      "local": {
+       "status": "goal_reached",
+       "elapsed_s": 9.75,
+       "frames": 195,
+       "wall_s": 24.374308109283447
+      },
+      "same_status": true,
+      "elapsed_diff_s": -0.2,
+      "max_position_diff_m": 0.9267425138529998,
+      "first_frame_over_0p1m": 37,
+      "terminal_position_diff_m": 0.06661977145641838,
+      "matches": true
+     },
+     {
+      "arm": "HnG",
+      "label": "CNN-GRU + gradient refinement, decides after 0.5 s (final)",
+      "filmed_arm": true,
+      "recorded_run_dir": "artifacts/traverse/crm_improve_20260922/s4/runs/f104_pair_group_0500__L0p5_HnG_B",
+      "local_run_dir": "artifacts/traverse/crm_improve_20260922/videos/chase_work/screen/g0500_HnG/run_norender",
+      "recorded": {
+       "status": "goal_reached",
+       "elapsed_s": 7.45,
+       "frames": 149
+      },
+      "local": {
+       "status": "goal_reached",
+       "elapsed_s": 7.550000000000001,
+       "frames": 151,
+       "wall_s": 18.267881393432617
+      },
+      "same_status": true,
+      "elapsed_diff_s": 0.1,
+      "max_position_diff_m": 0.37952376597389503,
+      "first_frame_over_0p1m": 37,
+      "terminal_position_diff_m": 0.10210075326756049,
+      "matches": true
+     }
+    ],
+    "candidate_rank": 22,
+    "tier": 1,
+    "success_margin_mps": 1.3199139833450317,
+    "failure_stall_s": 30.3
+   }
+  ]
+ }
+}

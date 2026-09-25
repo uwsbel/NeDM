@@ -518,3 +518,10 @@ artifacts/traverse/crm_improve_20260922/**/decision_*/
 artifacts/traverse/crm_improve_20260922/**/*_named/
 artifacts/traverse/crm_improve_20260922/**/cont_twin_*/
 artifacts/traverse/crm_improve_20260922/**/results_*.json
+# crm_improve_20260922/videos: README, manifests, check reports, stills and the small videos are committed; the
+# three single-arm rigid 3D videos (8-17 MB each) and the raw frame/re-drive work folder stay local
+artifacts/traverse/crm_improve_20260922/videos/chase_work/
+artifacts/traverse/crm_improve_20260922/videos/chase_rigid_H3s.mp4
+artifacts/traverse/crm_improve_20260922/videos/chase_rigid_HnG.mp4
+artifacts/traverse/crm_improve_20260922/videos/chase_rigid_L0p5_X.mp4
+artifacts/traverse/crm_improve_20260922/**/idx_tasks.json
