@@ -63,6 +63,26 @@ presets:
       answer for an impulse corpus, where the channel is zero on ~97% of rows and zero at
       fine-tuning time -- there, segmentation is the right tool.
 
+  # Channel study (2026-09-25): what should a reduced model of CRM walking carry beyond the
+  # control interface? Each adds logged foot/soil channels to the 36-D baseline; all come
+  # from the same go2_crm_v2 rows, so only the propagated state differs.
+  crm_forcez:
+    dim: 40
+    fields: [*base, *joints, *gravity, *height, [foot_fl_force_fz_n, foot_fr_force_fz_n, foot_rl_force_fz_n, foot_rr_force_fz_n]]
+    note: Baseline plus the four foot normal contact forces (FSI force on each foot).
+  crm_sinkage:
+    dim: 40
+    fields: [*base, *joints, *gravity, *height, [foot_fl_sinkage_m, foot_fr_sinkage_m, foot_rl_sinkage_m, foot_rr_sinkage_m]]
+    note: Baseline plus the four foot sinkages below the soil surface, the soil-state channel.
+  crm_soil:
+    dim: 44
+    fields: [*base, *joints, *gravity, *height, [foot_fl_force_fz_n, foot_fr_force_fz_n, foot_rl_force_fz_n, foot_rr_force_fz_n], [foot_fl_sinkage_m, foot_fr_sinkage_m, foot_rl_sinkage_m, foot_rr_sinkage_m]]
+    note: Baseline plus normal forces and sinkages together.
+  crm_force3d:
+    dim: 48
+    fields: [*base, *joints, *gravity, *height, [foot_fl_force_fz_n, foot_fl_force_fx_n, foot_fl_force_fy_n, foot_fr_force_fz_n, foot_fr_force_fx_n, foot_fr_force_fy_n, foot_rl_force_fz_n, foot_rl_force_fx_n, foot_rl_force_fy_n, foot_rr_force_fz_n, foot_rr_force_fx_n, foot_rr_force_fy_n]]
+    note: Baseline plus the full 3-D contact force on each foot (normal and traction).
+
 actions:
   # 12 joint position targets, Chrono order.
   fields:
