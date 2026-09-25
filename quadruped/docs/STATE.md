@@ -10,7 +10,8 @@ rollouts, 10 epochs x 4 minibatches, and stop at about **iteration 1000** (it wa
 about 430 iterations). In ten independently trained surrogates, scored in Chrono on 37
 held-out paths from all ten command families, iteration 1000 cuts forward error 43-57%
 (mean 52%), yaw 52-71% (mean 67%) and sideways 9-34% (mean 28%); straight walking forward
-error falls 39-68% (mean 62%). Every axis is clear of zero in every arm except seed 6
+error falls 39-68% (mean 62%); on rigid ground forward error falls 5-41% (mean 27%) and
+yaw 55-74% (mean 71%), so there is no regression on hard ground. Every CRM axis is clear of zero in every arm except seed 6
 sideways; nothing fell. At the old stop the mean was -29% forward. Tracking plateaus near
 -59% from 1500 to 3000 iterations, but push robustness (300 N) holds at the base policy's
 11/16 only through iteration 1000 and dropped episodes rise past it. Details in "The
@@ -57,21 +58,27 @@ and the archive of north's old-pipeline `~/sbel-artifacts` to the NAS.
 hpcfund 433924 (six new fine-tunes to iteration 1000: seed 7, north s1, euler s2-s5) plus
 the iteration-1000 snapshots of the budget test (seeds 6, 8, 9, north s0); scored on
 hpcfund (434298 straight, 434301 paths) against hpcfund's base arm. 37 path pairs unless
-noted, 16 straight pairs. Rigid ground not re-scored at this stop (budget test: -32%).
+noted, 16 straight pairs. Rigid ground: the same 40 paths on sbel against sbel's
+`base_rerun` (build 3b0bd530), 40 pairs, `rigid_sbel5.sh`.
 
-| surrogate | paths vx | paths vy | paths wz | straight vx | straight wz | note |
-|---|---|---|---|---|---|---|
-| seed 6 | -42.7% | -9.1% (not clear) | -52.0% | -38.7% | -58.4% | 36 pairs, 1 off bed at 13.1 s |
-| seed 7 | -55.2% | -33.7% | -69.8% | -65.5% | -77.7% | |
-| seed 8 | -52.2% | -32.1% | -68.9% | -63.7% | -76.9% | |
-| seed 9 | -52.8% | -26.8% | -68.9% | -67.7% | -77.3% | |
-| north s0 | -56.7% | -31.4% | -68.9% | -65.4% | -77.2% | |
-| north s1 | -52.2% | -28.9% | -67.7% | -63.4% | -76.8% | |
-| euler s2 | -45.7% | -22.8% | -65.6% | -65.2% | -74.7% | guard stopped it at iteration 961 |
-| euler s3 | -55.6% | -33.2% | -70.5% | -60.4% | -77.9% | |
-| euler s4 | -52.9% | -31.2% | -68.2% | -66.2% | -78.7% | 35 pairs, 2 off bed at 14.3/14.8 s |
-| euler s5 | -52.4% | -29.9% | -69.0% | -63.5% | -78.1% | |
-| **mean** | **-51.8%** | **-27.9%** | **-67.0%** | **-62.0%** | **-75.4%** | |
+| surrogate | paths vx | paths vy | paths wz | straight vx | straight wz | rigid vx | rigid wz | note |
+|---|---|---|---|---|---|---|---|---|
+| seed 6 | -42.7% | -9.1% (not clear) | -52.0% | -38.7% | -58.4% | -23.5% | -55.1% | 36 pairs, 1 off bed at 13.1 s |
+| seed 7 | -55.2% | -33.7% | -69.8% | -65.5% | -77.7% | -28.7% | -74.3% | |
+| seed 8 | -52.2% | -32.1% | -68.9% | -63.7% | -76.9% | -27.1% | -74.3% | |
+| seed 9 | -52.8% | -26.8% | -68.9% | -67.7% | -77.3% | -36.0% | -72.2% | |
+| north s0 | -56.7% | -31.4% | -68.9% | -65.4% | -77.2% | -33.4% | -72.3% | |
+| north s1 | -52.2% | -28.9% | -67.7% | -63.4% | -76.8% | -31.9% | -71.3% | |
+| euler s2 | -45.7% | -22.8% | -65.6% | -65.2% | -74.7% | -5.1% | -68.8% | guard stopped it at iteration 961 |
+| euler s3 | -55.6% | -33.2% | -70.5% | -60.4% | -77.9% | -18.8% | -73.6% | |
+| euler s4 | -52.9% | -31.2% | -68.2% | -66.2% | -78.7% | -41.3% | -72.1% | 35 pairs, 2 off bed at 14.3/14.8 s |
+| euler s5 | -52.4% | -29.9% | -69.0% | -63.5% | -78.1% | -28.5% | -72.7% | |
+| **mean** | **-51.8%** | **-27.9%** | **-67.0%** | **-62.0%** | **-75.4%** | **-27.4%** | **-70.7%** | |
+
+**No regression on rigid ground:** forward falls in all ten (-5% to -41%, mean -27%, clear
+of zero in six), yaw -55% to -74% (mean -71%, clear in all ten), 40/40 upright in every
+arm. At the old stop rigid forward was neutral on average (+2%, one surrogate +19%). The
+weakest rigid forward is euler s2 (-5%, not clear), the run the guard stopped.
 
 Nothing fell. The three extra drops are late walk-offs from the finite bed; the three
 paths every arm drops (base included) are too wide for the largest bed.
@@ -125,16 +132,16 @@ euler seeds 2-5 on euler 66715), seed 0, 1024 envs, 2 s branches. CRM scored on 
 
 | surrogate | paths vx | paths vy | paths wz | straight vx | rigid vx | rigid wz |
 |---|---|---|---|---|---|---|
-| seed 6 | -26.7% | -13.9% | -48.8% | -45.9% | -1.9% | -50.3% |
+| seed 6 | -26.7% | -13.9% | -48.8% | -45.9% | -1.9% | -23.5% | -55.1% | -50.3% |
 | seed 7 (PPO seed 0) | -28.6% | -16.4% | -52.5% | -51.3% | +5.8% | -55.2% |
 | seed 7 (PPO seed 1) | -31.9% | -16.1% | -50.6% | -37.9% | -14.1% | -52.4% |
-| seed 8 | -32.1% | -15.5% | -50.2% | -45.9% | -15.9% | -53.3% |
-| seed 9 | -30.4% | -16.6% | -53.0% | -52.2% | -6.7% | -56.2% |
-| north s0 | -25.4% | -17.6% | -54.1% | -56.0% | **+19.4%** | -55.0% |
-| euler s2 | -27.8% | -17.8% | -54.4% | -58.4% | +16.4% | -56.5% |
-| euler s3 | -31.1% | -20.5% | -54.8% | -53.4% | +8.7% | -57.7% |
-| euler s4 | -30.6% | -21.1% | -53.2% | -59.5% | +0.4% | -55.5% |
-| euler s5 | -27.5% | -20.7% | -53.8% | -57.9% | +9.1% | -55.5% |
+| seed 8 | -32.1% | -15.5% | -50.2% | -45.9% | -15.9% | -27.1% | -74.3% | -53.3% |
+| seed 9 | -30.4% | -16.6% | -53.0% | -52.2% | -6.7% | -36.0% | -72.2% | -56.2% |
+| north s0 | -25.4% | -17.6% | -54.1% | -56.0% | **+19.4%** | -33.4% | -72.3% | -55.0% |
+| euler s2 | -27.8% | -17.8% | -54.4% | -58.4% | +16.4% | -5.1% | -68.8% | -56.5% |
+| euler s3 | -31.1% | -20.5% | -54.8% | -53.4% | +8.7% | -18.8% | -73.6% | -57.7% |
+| euler s4 | -30.6% | -21.1% | -53.2% | -59.5% | +0.4% | -41.3% | -72.1% | -55.5% |
+| euler s5 | -27.5% | -20.7% | -53.8% | -57.9% | +9.1% | -28.5% | -72.7% | -55.5% |
 
 Every CRM entry is clear of zero at 2 se (paths: 36-37 usable pairs; straight: 16/16,
 also improving vy 10-22% in all ten). Rigid: wz better on 40/40 paths in all ten, vy
@@ -515,16 +522,16 @@ Eleven single-surrogate PPO runs (all paired against one base run on north unles
 
 | surrogate | epoch | seed | branch | mae_vx | mae_wz | mae_vy |
 |---|---|---|---|---|---|---|
-| north s0 | 11 | 0 | 0.30 s | -36% | -46% | +15% |
-| north s0 | 11 | 1 | 0.30 s | -20% | -53% | -13% |
+| north s0 | 11 | 0 | 0.30 s | -36% | -46% | -33.4% | -72.3% | +15% |
+| north s0 | 11 | 1 | 0.30 s | -20% | -53% | -33.4% | -72.3% | -13% |
 | a3 | 72 | 0 | 0.30 s | **+57%** | -32% | +31% |
 | a3 | 72 | 1 | 0.30 s | **+80%** | -40% | +26% |
-| north s1 | 12 | 0 | 0.30 s | +3% (ns) | -35% | +25% |
-| north s1 | 12 | 1 | 0.30 s | -21% | -50% | -2% |
-| north s0 | **80** | 0 | 0.30 s | -5% (ns) | -36% | +16% |
-| north s1 | **80** | 0 | 0.30 s | **-54%** | -42% | -8% (ns) |
-| north s0 | 11 | 0 | **1.00 s** | -24% | **-53%** | **-20%** |
-| north s0 | 11 | 0 | no budget (dw 9.3) | -25% | -40% | **+66%** |
+| north s1 | 12 | 0 | 0.30 s | +3% (ns) | -35% | -31.9% | -71.3% | +25% |
+| north s1 | 12 | 1 | 0.30 s | -21% | -50% | -31.9% | -71.3% | -2% |
+| north s0 | **80** | 0 | 0.30 s | -5% (ns) | -36% | -33.4% | -72.3% | +16% |
+| north s1 | **80** | 0 | 0.30 s | **-54%** | -42% | -31.9% | -71.3% | -8% (ns) |
+| north s0 | 11 | 0 | **1.00 s** | -24% | **-53%** | -33.4% | -72.3% | **-20%** |
+| north s0 | 11 | 0 | no budget (dw 9.3) | -25% | -40% | -33.4% | -72.3% | **+66%** |
 
 - **Yaw drift falls 32-53% in every run.** Robust to surrogate, seed, epoch and branch.
 - **Forward speed is surrogate-dependent, -54% to +80%,** and not explained by the

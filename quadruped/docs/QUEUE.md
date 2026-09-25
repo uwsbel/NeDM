@@ -35,13 +35,15 @@ The stopping budget (stop at ~iteration 1000), push robustness evaluation, distu
 training (negative), guard calibration on induced failures (6 trips in 60 runs), the
 doubled corpus (no gain), OOD coverage through iteration 3000, the GPU fault investigation.
 2026-09-24: the Chrono cost profile (COST.md); the recipe re-scored at iteration 1000 in
-ten surrogates (STATE), including the guard's first live trip.
+ten surrogates (STATE), including the guard's first live trip, and rigid ground for all
+ten (no regression: forward -27%, yaw -71%).
 
 ## Next
 
-1. **Write it up** as the Study 4 results: the iteration-1000 table (ten surrogates,
-   CRM paths and straight; rigid and pushes from the budget test), the ablations that justify each piece (branch length, rollout
-   training, env count, ensembles, stopping point, corpus size), per-family breakdown, cross-machine agreement, cost.
+1. **Write it up** as the Study 4 results: the iteration-1000 table (ten surrogates:
+   CRM paths, straight, rigid; pushes from the budget test), the ablations that justify
+   each piece (branch length, rollout training, env count, ensembles, stopping point,
+   corpus size), per-family breakdown, cross-machine agreement, cost.
 2. **Sync nodes from git.** Branch is on GitHub; have each node clone and pull instead of
    receiving `git archive` copies, so every run's code is a commit.
 3. **Paths shorter than 6 s** for the three fast paths skipped identically in every arm
