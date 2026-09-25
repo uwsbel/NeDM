@@ -525,3 +525,11 @@ artifacts/traverse/crm_improve_20260922/videos/chase_rigid_H3s.mp4
 artifacts/traverse/crm_improve_20260922/videos/chase_rigid_HnG.mp4
 artifacts/traverse/crm_improve_20260922/videos/chase_rigid_L0p5_X.mp4
 artifacts/traverse/crm_improve_20260922/**/idx_tasks.json
+
+# arena_gator_20260925 (more training arenas + Gator on f104): curated allowlist; runs, datasets, checkpoints, frames stay
+# local / on the cluster (the final report extends this block)
+!artifacts/traverse/arena_gator_20260925/
+artifacts/traverse/arena_gator_20260925/*
+!artifacts/traverse/arena_gator_20260925/*.md
+!artifacts/traverse/arena_gator_20260925/PLAN.sha256
+!artifacts/traverse/arena_gator_20260925/scout/

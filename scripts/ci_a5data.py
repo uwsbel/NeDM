@@ -91,6 +91,7 @@ CLUSTER_CASES = {'suite': dict(crm='generalist/suite/cases', rigid='/work1/danne
 LOCAL_CASES = {'suite': SUITE_CASES, 'twin': TWIN_CASES}
 BUILDS = {'suite': (0.5, 1.0), 'twin': (0.5, 1.0, 3.0)}      # PLAN S2 (suite) and S3 (twin) approach lengths
 SUITE_PATTERNS = ('f104_crm_eval_group_*', 'f104_g1_test_group_*', 'f104_pair_group_*')
+SUITE_PATTERNS += tuple(['g260_test_group_*', 'g271_test_group_*', 'g251_test_group_*', 'g247_test_group_*', 'g203_heldout_group_*', 'g228_heldout_group_*', 'g217_dev_group_*'])   # arena_gator_20260925 E1 suites (additive)
 TWIN_PATTERN = 'f104_v2_group_*'
 DT = 0.05
 SHARDS = 6

@@ -52,6 +52,7 @@ HEAVY = ('X', 'hist', 'hmask', 'E', 'T')           # never kept whole in the row
 META_KEYS = ('hist_cols', 'priv_names')
 REQUIRED = ('X', 'ctx', 'id', 'group', 'split', 'fail', 'unsafe', 'event_idx')
 SUITE_GROUPS = ['f104_crm_eval_group_*', 'f104_g1_test_group_*', 'f104_pair_group_*']   # ga_build_mixed.BLACKLIST
+SUITE_GROUPS += ['g260_test_group_*', 'g271_test_group_*', 'g251_test_group_*', 'g247_test_group_*', 'g203_heldout_group_*', 'g228_heldout_group_*', 'g217_dev_group_*']   # arena_gator_20260925 E1 suites (additive)
 ANCHOR_BUCKETS = [('k0', 0, 0), ('k10_30', 10, 30), ('k40p', 40, 10 ** 9)]
 HTX_D, HTX_LAYERS, HTX_HEADS = 64, 2, 4
 PRED_BS = 512                                      # predict() batch; the round-trip check scores whole batches of this size

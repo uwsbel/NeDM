@@ -27,6 +27,7 @@ T = 40
 HIST_STATE_COLS = [0, 1, 2, 3, 4, 5, 6, 11, 12, 13, 14, 15]   # vx, vy, roll, pitch, roll rate, pitch rate, yaw rate, 4 spindle omegas, engine speed
 PRIV_NAMES = ['fz_fl_mean_n', 'fz_fr_mean_n', 'fz_rl_mean_n', 'fz_rr_mean_n', 'torque_mean_nm', 'slip_ratio_mean', 'spindle_above_bmp_mean_m', 'is_crm']
 BLACKLIST = ['f104_crm_eval_group_*', 'f104_g1_test_group_*', 'f104_pair_group_*']
+BLACKLIST += ['g260_test_group_*', 'g271_test_group_*', 'g251_test_group_*', 'g247_test_group_*', 'g203_heldout_group_*', 'g228_heldout_group_*', 'g217_dev_group_*']   # arena_gator_20260925 E1 suites (additive)
 DOMAIN_CODE = {'rigid': 0, 'crm': 1}
 ART = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'artifacts', 'traverse')
 DEFAULTS = dict(rigid=ART + '/crm_night2_v1/datasets/reanchor_rigid.npz', crm=ART + '/crm_night2_v1/datasets/reanchor_crm.npz',
