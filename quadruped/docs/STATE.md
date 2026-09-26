@@ -50,8 +50,9 @@ points; `paired_eval.py` refuses to pair arms scored on different builds.
 (every table on it measured in Chrono, plus replayable paired trajectories from
 `evaluate.py --dump-traj`). Keep it current: a result that changes STATE changes the page too.
 
-**Running (2026-09-24):** the rest of the capacity/data study (the large 12x512 surrogate, euler 68935, ~34 h; the other six arms are scored, below);
-and the archive of north's old-pipeline `~/sbel-artifacts` to the NAS.
+**Running (2026-09-26):** the channel study (euler 69957/69959/69965: +foot normal forces,
++sinkage, both, +3-D forces; 3 seeds each; scoring on hpcfund as policies land) and a
+one-stage training test (euler 70170: rollout loss from scratch, 16k and 40k steps).
 
 ## The recipe at iteration 1000 in ten surrogates (2026-09-24)
 
@@ -92,6 +93,62 @@ before a collapse, the first trip that did not coincide with an outright bad pol
 Seed 6, the surrogate that collapsed when trained to 3000, is the weakest at 1000 but not
 collapsed. Two of ten surrogates are thus the fragile ones, and both are identifiable from
 the training log alone.
+
+## Does the gain need the soil model? The rigid-data control (2026-09-26)
+
+The whole pipeline repeated with rigid ground in place of CRM: go2_rigid_v2, the same
+24 shards x 50 episodes as go2_crm_v2 (same seeds, --pushes 2 --long-fraction 0.25), all
+collected on sbel (build 3b0bd530; shards from other desktops were refused by the merge,
+different builds). Three surrogates (seeds 60-62) with the recipe's two-stage training,
+fine-tuned with the recipe to iteration 1000 on euler H100s (69921). Every arm scored on
+sbel against one base run, one build, one code version (qrc 7cf70c43).
+
+| surrogate | CRM vx | CRM vy | CRM wz | rigid vx | rigid wz |
+|---|---|---|---|---|---|
+| CRM, seed 8 | -50.1% | -33.4% | -69.5% | -27.1% | -74.3% |
+| CRM, seed 9 | -53.0% | -28.9% | -69.2% | -36.0% | -72.2% |
+| CRM, north s0 | -53.8% | -33.5% | -70.0% | -33.4% | -72.3% |
+| rigid, s60 | -28.6% | -22.3% | -62.5% | -59.0% | -83.6% |
+| rigid, s61 | -29.7% | -17.8% | -62.7% | -57.9% | -84.3% |
+| rigid, s62 | -27.3% | -16.4% | -61.9% | -63.1% | -84.6% |
+
+**Each model teaches its own terrain.** On CRM the soil model gives -52% forward against
+-28% for the rigid one, so about half the forward gain on sand exists only because the
+sand was modelled; on rigid ground the ordering reverses (-60% against -32%). Yaw is
+mostly terrain-independent (-62% against -70%): the drift is the base policy's own flaw.
+Nothing fell (37/37 CRM, 40/40 rigid in every arm).
+
+## Why PPO and not analytic gradients (2026-09-26)
+
+Analytic fine-tuning (backprop through the frozen surrogate) in seed 8's 1 s
+rollout-trained surrogate, scored on d33 (build 53102025) against d33's base:
+
+| branch | budget (dw) | vx | wz | extra lost | note |
+|---|---|---|---|---|---|
+| 0.30 s | 0.5 | -36.0% | -36.8% | 1 | |
+| 0.30 s | 1.0 | -29.2% | -47.0% | 3 | |
+| 0.30 s | 2.0 | -22.8% | -56.9% | 11 | |
+| 0.30 s | 4.0 | +14.3% | -49.2% | 13 | Gate 4 FAIL, 16% outside |
+| 1 s | 1.0 | +50.5% | -8.6% | 5 | |
+| 2 s | 1.0 | +28.9% | +3.9% | 1 | |
+| PPO recipe (seed 8, it1000) | ~6.3 | -51.2% | -70.2% | 1 | same surrogate and machine |
+
+Analytic works only at a short horizon and a small budget, and even there tops out below
+PPO. BUDGET: each step follows the model's exact gradient, so the policy is steered into
+model error; by dw 4 it visits unrecorded states. The rebuilt pipeline's one failed
+analytic run used dw 2.89, the old pipeline's working recipe dw 1.0. HORIZON: gradients
+through 100-200 model steps of a contact-rich gait are noise; rollout training makes the
+model's predictions accurate for seconds, not its derivatives. So the ordering flips with
+horizon: at 0.30 s (the first attempt's one-step surrogates) analytic works and PPO cannot
+see consequences; at 2 s (rollout-trained) PPO works and analytic breaks. Caveat: one
+surrogate, one run per cell; gradient norms not measured; loss form not tested.
+
+## Model size, completed (2026-09-26)
+
+12x512 (~38 M parameters) on the same v2 corpus: -51.6% and -51.0% forward (hpcfund
+437335), both healthy, at ~6x the PPO cost. With the small model (3x128: -54.5%, -6.5%),
+the standard 6x256 is the right size: smaller loses reliability, larger buys nothing.
+NOT tested: the large model on the doubled corpus (v23).
 
 ## Less data and other capacities: a bad run becomes likely (2026-09-24)
 
@@ -862,4 +919,4 @@ against nothing (`5e3df653`).
 
 ## Running
 
-See "Where this is": euler 68935 (large surrogate). Everything else has finished.
+See "Where this is": the channel study and the one-stage test. Everything else has finished.
