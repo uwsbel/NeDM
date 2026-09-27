@@ -50,9 +50,8 @@ points; `paired_eval.py` refuses to pair arms scored on different builds.
 (every table on it measured in Chrono, plus replayable paired trajectories from
 `evaluate.py --dump-traj`). Keep it current: a result that changes STATE changes the page too.
 
-**Running (2026-09-26):** the channel study (euler 69957/69959/69965: +foot normal forces,
-+sinkage, both, +3-D forces; 3 seeds each; scoring on hpcfund as policies land) and a
-one-stage training test (euler 70170: rollout loss from scratch, 16k and 40k steps).
+**Running (2026-09-27):** the last two one-stage transfer runs (euler 70715, seed 80 of
+16k and 40k), then hpcfund scoring.
 
 ## The recipe at iteration 1000 in ten surrogates (2026-09-24)
 
@@ -93,6 +92,37 @@ before a collapse, the first trip that did not coincide with an outright bad pol
 Seed 6, the surrogate that collapsed when trained to 3000, is the weakest at 1000 but not
 collapsed. Two of ten surrogates are thus the fragile ones, and both are identifiable from
 the training log alone.
+
+## What the reduced model should carry: the channel study (2026-09-27)
+
+Four presets beyond the 36-D control-interface closure (params/presets.yaml), all from
+channels go2_crm_v2 already logs; 3 surrogates each (seeds 70-72), the recipe's training
+and PPO to iteration 1000 (euler 69957/69959/69965, reruns 70637/70711), scored on
+hpcfund against the same base as the ten-surrogate 36-D table. Nothing fell in any arm.
+
+| state | dim | vx per seed | mean | 10 s rollout error |
+|---|---|---|---|---|
+| control interface (recipe) | 36 | -43..-57% (ten) | -52% | 0.54-0.59 |
+| + foot normal forces | 40 | -54.7, -48.0, -36.3% | -46% | 0.56-0.58 |
+| + foot sinkage | 40 | -54.4, -46.3, -34.2% | -45% | 0.57-0.59 |
+| + forces and sinkage | 44 | -52.1, -53.0, -53.4% | -53% | 0.57-0.60 |
+| + 3-D foot forces | 48 | -55.6, -43.6, -42.5% | -47% | 0.57-0.60 |
+
+**The control interface is enough.** No soil channel improves accuracy or transfer; 3 of
+12 channel runs land at or below the bottom of the 36-D range against 0 of 10 36-D
+(suggestive only). forcez_s72, the weakest, is the one the guard stopped (iteration 546,
+spike 0.70, drop 0.26): a correct catch. The push-force channel is untested (push windows
+are cut from v2). Three A4500 reruns hit the 12 h limit at iteration 770-790 and were
+rerun on euler19 A100s (sbel partition) after research-partition preemptions.
+
+## One-stage training (2026-09-27)
+
+Rollout loss from scratch, no one-step pre-training (euler 70170; horizon_sweep on 61
+held-out segments). Two-stage (v2e_s2-s5_ms100): 0.47 at 2 s, 0.59 at 10 s, ~2 h on an
+H100. One-stage 16k steps: 0.50 / 0.61, ~2.2 h. One-stage 40k steps: 0.49 / 0.57,
+~5.2 h. Stable in every seed. Transfer (PPO to 1000, hpcfund paths): 16k s81 -34.9%,
+16k s82 -46.3%, 40k s81 -51.5%; s80 of each pending. So two stages are a cheaper
+schedule, not a requirement; at equal compute one-stage looks less reliable in transfer.
 
 ## Does the gain need the soil model? The rigid-data control (2026-09-26)
 
@@ -919,4 +949,4 @@ against nothing (`5e3df653`).
 
 ## Running
 
-See "Where this is": the channel study and the one-stage test. Everything else has finished.
+See "Where this is": the last one-stage transfer runs. Everything else has finished.

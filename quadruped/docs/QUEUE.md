@@ -10,11 +10,9 @@ surrogates; 2048 envs (three seeds) and seed 7's 1 s surrogate at 1024 envs.
 
 ## Now
 
-- **Channel study** (running): what the reduced model should carry. Presets crm_forcez,
-  crm_sinkage, crm_soil, crm_force3d (params/presets.yaml), 3 seeds each, scored on hpcfund
-  against the ten-surrogate 36-D table's base. The push-force preset needs a corpus that
-  keeps push windows (segmentation removes them from v2), so it is not in this round.
-- **One-stage training test** (running): is stage 1 necessary?
+- **One-stage transfer** (finishing): seed 80 of 16k and 40k.
+- **Checkpoint/resume in finetune.py**: research-partition preemption repeatedly restarted
+  PPO runs from zero on 2026-09-26; a resumable fine-tune would make euler usable.
 - **Large model on the doubled corpus** (not started): the scaling cell never run.
 - **Relabel the guard.** It missed both bad capacity runs. Label all 66 logged runs by
   Chrono score and choose the stopping rule against those labels (candidates: reward drop,
@@ -39,7 +37,8 @@ The stopping budget (stop at ~iteration 1000), push robustness evaluation, distu
 training (negative), guard calibration on induced failures (6 trips in 60 runs), the
 doubled corpus (no gain), OOD coverage through iteration 3000, the GPU fault investigation.
 2026-09-24: the Chrono cost profile (COST.md);
-2026-09-26: the rigid-data control, the analytic investigation, model size complete; the recipe re-scored at iteration 1000 in
+2026-09-26: the rigid-data control, the analytic investigation, model size complete;
+2026-09-27: the channel study (36-D is enough), one-stage accuracy; the recipe re-scored at iteration 1000 in
 ten surrogates (STATE), including the guard's first live trip, and rigid ground for all
 ten (no regression: forward -27%, yaw -71%).
 
