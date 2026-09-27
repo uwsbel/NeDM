@@ -50,8 +50,7 @@ points; `paired_eval.py` refuses to pair arms scored on different builds.
 (every table on it measured in Chrono, plus replayable paired trajectories from
 `evaluate.py --dump-traj`). Keep it current: a result that changes STATE changes the page too.
 
-**Running (2026-09-27):** the last two one-stage transfer runs (euler 70715, seed 80 of
-16k and 40k), then hpcfund scoring.
+**Running (2026-09-27):** nothing; every study in this round is scored.
 
 ## The recipe at iteration 1000 in ten surrogates (2026-09-24)
 
@@ -120,9 +119,9 @@ rerun on euler19 A100s (sbel partition) after research-partition preemptions.
 Rollout loss from scratch, no one-step pre-training (euler 70170; horizon_sweep on 61
 held-out segments). Two-stage (v2e_s2-s5_ms100): 0.47 at 2 s, 0.59 at 10 s, ~2 h on an
 H100. One-stage 16k steps: 0.50 / 0.61, ~2.2 h. One-stage 40k steps: 0.49 / 0.57,
-~5.2 h. Stable in every seed. Transfer (PPO to 1000, hpcfund paths): 16k s81 -34.9%,
-16k s82 -46.3%, 40k s81 -51.5%; s80 of each pending. So two stages are a cheaper
-schedule, not a requirement; at equal compute one-stage looks less reliable in transfer.
+~5.2 h. Stable in every seed. Transfer (PPO to 1000, hpcfund paths): 16k -51.6, -34.9,
+-46.3% (s80-82); 40k -52.4, -51.5% (s80-81), the recipe's mean exactly. So two stages are
+a cheaper schedule, not a requirement; at equal compute one-stage is less reliable.
 
 ## Does the gain need the soil model? The rigid-data control (2026-09-26)
 
@@ -949,4 +948,4 @@ against nothing (`5e3df653`).
 
 ## Running
 
-See "Where this is": the last one-stage transfer runs. Everything else has finished.
+Nothing is running. Everything else has finished.
