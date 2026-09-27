@@ -1,0 +1,32 @@
+artifacts/traverse/arena_gator_20260925/e4/evalonly/g241_rigid_test/ci_g241_hmmwv_rigid_evalonly.npz: 11400 rows, 250 groups
+  g241     startup     n   3000 W_unsafe 0.9395 W_fail 0.8755 G_unsafe 0.8541 pick_fail 0.012 (random 0.099, oracle 0.000) rate_unsafe 0.211
+  g241     established n   8400 W_unsafe 0.9364 W_fail 0.8680 G_unsafe 0.8609 pick_fail 0.008 (random 0.103, oracle 0.000) rate_unsafe 0.219
+  g241     all         n  11400 W_unsafe 0.9364 W_fail 0.8695 G_unsafe 0.8589 pick_fail 0.008 (random 0.102, oracle 0.000) rate_unsafe 0.217
+artifacts/traverse/arena_gator_20260925/e4/evalonly/g247_rigid_test/ci_g247_hmmwv_rigid_evalonly.npz: 11392 rows, 250 groups
+  g247     startup     n   3000 W_unsafe 0.9405 W_fail 0.8901 G_unsafe 0.8841 pick_fail 0.004 (random 0.130, oracle 0.000) rate_unsafe 0.264
+  g247     established n   8392 W_unsafe 0.9410 W_fail 0.8899 G_unsafe 0.8839 pick_fail 0.004 (random 0.136, oracle 0.000) rate_unsafe 0.273
+  g247     all         n  11392 W_unsafe 0.9400 W_fail 0.8894 G_unsafe 0.8830 pick_fail 0.008 (random 0.134, oracle 0.000) rate_unsafe 0.270
+artifacts/traverse/arena_gator_20260925/e4/evalonly/g251_rigid_test/ci_g251_hmmwv_rigid_evalonly.npz: 11450 rows, 250 groups
+  g251     startup     n   3000 W_unsafe 0.9388 W_fail 0.8640 G_unsafe 0.8555 pick_fail 0.000 (random 0.112, oracle 0.000) rate_unsafe 0.282
+  g251     established n   8450 W_unsafe 0.9443 W_fail 0.8717 G_unsafe 0.8826 pick_fail 0.000 (random 0.113, oracle 0.000) rate_unsafe 0.289
+  g251     all         n  11450 W_unsafe 0.9415 W_fail 0.8692 G_unsafe 0.8750 pick_fail 0.000 (random 0.113, oracle 0.000) rate_unsafe 0.287
+artifacts/traverse/arena_gator_20260925/e4/evalonly/g258_rigid_test/ci_g258_hmmwv_rigid_evalonly.npz: 11396 rows, 250 groups
+  g258     startup     n   3000 W_unsafe 0.9196 W_fail 0.8629 G_unsafe 0.8147 pick_fail 0.008 (random 0.074, oracle 0.000) rate_unsafe 0.203
+  g258     established n   8396 W_unsafe 0.9132 W_fail 0.8454 G_unsafe 0.8227 pick_fail 0.008 (random 0.075, oracle 0.000) rate_unsafe 0.210
+  g258     all         n  11396 W_unsafe 0.9127 W_fail 0.8480 G_unsafe 0.8186 pick_fail 0.008 (random 0.075, oracle 0.000) rate_unsafe 0.208
+artifacts/traverse/arena_gator_20260925/e4/evalonly/g260_rigid_test/ci_g260_hmmwv_rigid_evalonly.npz: 11329 rows, 250 groups
+  g260     startup     n   3000 W_unsafe 0.9033 W_fail 0.8560 G_unsafe 0.8159 pick_fail 0.008 (random 0.087, oracle 0.000) rate_unsafe 0.190
+  g260     established n   8329 W_unsafe 0.9230 W_fail 0.8763 G_unsafe 0.8629 pick_fail 0.008 (random 0.088, oracle 0.000) rate_unsafe 0.198
+  g260     all         n  11329 W_unsafe 0.9166 W_fail 0.8710 G_unsafe 0.8506 pick_fail 0.008 (random 0.088, oracle 0.000) rate_unsafe 0.196
+artifacts/traverse/arena_gator_20260925/e4/evalonly/g263_rigid_test/ci_g263_hmmwv_rigid_evalonly.npz: 11235 rows, 250 groups
+  g263     startup     n   3000 W_unsafe 0.9407 W_fail 0.8861 G_unsafe 0.8624 pick_fail 0.008 (random 0.107, oracle 0.000) rate_unsafe 0.240
+  g263     established n   8235 W_unsafe 0.9440 W_fail 0.8945 G_unsafe 0.8798 pick_fail 0.012 (random 0.113, oracle 0.000) rate_unsafe 0.252
+  g263     all         n  11235 W_unsafe 0.9429 W_fail 0.8923 G_unsafe 0.8752 pick_fail 0.008 (random 0.111, oracle 0.000) rate_unsafe 0.249
+artifacts/traverse/arena_gator_20260925/e4/evalonly/g268_rigid_test/ci_g268_hmmwv_rigid_evalonly.npz: 11534 rows, 250 groups
+  g268     startup     n   3000 W_unsafe 0.9318 W_fail 0.8733 G_unsafe 0.8502 pick_fail 0.008 (random 0.105, oracle 0.000) rate_unsafe 0.203
+  g268     established n   8534 W_unsafe 0.9337 W_fail 0.8651 G_unsafe 0.8787 pick_fail 0.008 (random 0.108, oracle 0.000) rate_unsafe 0.212
+  g268     all         n  11534 W_unsafe 0.9324 W_fail 0.8663 G_unsafe 0.8692 pick_fail 0.008 (random 0.107, oracle 0.000) rate_unsafe 0.209
+artifacts/traverse/arena_gator_20260925/e4/evalonly/g271_rigid_test/ci_g271_hmmwv_rigid_evalonly.npz: 11438 rows, 250 groups
+  g271     startup     n   3000 W_unsafe 0.9362 W_fail 0.8804 G_unsafe 0.8339 pick_fail 0.016 (random 0.110, oracle 0.000) rate_unsafe 0.214
+  g271     established n   8438 W_unsafe 0.9371 W_fail 0.8816 G_unsafe 0.8555 pick_fail 0.004 (random 0.112, oracle 0.000) rate_unsafe 0.218
+  g271     all         n  11438 W_unsafe 0.9359 W_fail 0.8806 G_unsafe 0.8499 pick_fail 0.008 (random 0.111, oracle 0.000) rate_unsafe 0.217

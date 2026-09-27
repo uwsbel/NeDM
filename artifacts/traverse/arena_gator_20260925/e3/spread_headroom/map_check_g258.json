@@ -1,0 +1,16 @@
+{
+ "map_root": "artifacts/traverse/arena_gator_20260925/map_roots/g258",
+ "map_arena": "arena_g258",
+ "map_arena_bmp_sha256": "140478df62eedc9a0b369ab3a17a87512fbaed89877aeeb92818f4333e52a3b3",
+ "map_observation_sha256": "d4659e4ece39c7c91079007ee3c1a5793e02769a2d5e01c87387935560e3d74e",
+ "n_cases": 250,
+ "arenas": {
+  "assets/traverse/arena_g258": {
+   "n": 250,
+   "bmp_sha256": "140478df62eedc9a0b369ab3a17a87512fbaed89877aeeb92818f4333e52a3b3",
+   "match": true
+  }
+ },
+ "ok": true,
+ "problems": []
+}

@@ -1,0 +1,22 @@
+{
+ "tool": "scripts/ag_rigid_spread_rows.py",
+ "tool_sha256": "99a715628b0f6ee10887c718c214a23fd13f6863c40ea4ed5ec22d3f189c5a3f",
+ "argv": [],
+ "n_rows": 12000,
+ "file_sha256": "99b50c56087a576c3dcf5de6e262aa99efceba3a2a815c0c490b5e0e038dd4b0",
+ "by_arena": {
+  "g258": 3000,
+  "g268": 3000,
+  "g263": 3000,
+  "g241": 3000
+ },
+ "by_shard": {
+  "14": 6072,
+  "15": 5928
+ },
+ "by_split": {
+  "train": 10956,
+  "test": 552,
+  "val": 492
+ }
+}

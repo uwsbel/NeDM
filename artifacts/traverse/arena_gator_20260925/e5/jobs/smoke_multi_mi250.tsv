@@ -1,0 +1,3 @@
+# lane	tag	out (rel. G3)	ci_train arguments (E5a resumed: smoke of ag_train_lanes_multi.sbatch on an 8-GPU MI250X node, 1 epoch 1 seed per lane)
+1	smoke_multi_M1_rigid	e5/train/smoke_multi	--ds /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/subsets/M1_f104_hmmwv_rigid.npz --mode deploy --arch gru --cond none --domain-filter rigid --ctx geom --split-eval val --bs 256 --epochs 1 --seeds 1 --seed0 0 --roundtrip-check
+2	smoke_multi_LOAO1_g203_rigid_holdout	e5/train/smoke_multi	--ds /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/subsets/LOAO1_g203_hmmwv_rigid.npz --mode holdout --arch gru --cond none --domain-filter rigid --ctx geom --split-eval val --bs 256 --epochs 1 --seeds 1 --seed0 0

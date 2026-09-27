@@ -1,0 +1,33 @@
+== T1_rigid_gator_no_fp_no_local: /usr/bin/python3.12 -P -u scripts/ag_gen_collect_ext.py --vehicle gator --source-root . --case artifacts/traverse/fdm_f104_50h_20260909/cases_night2/cases/f104_v2_group_0003.json --route artifacts/traverse/fdm_f104_50h_20260909/cases_night2/cases/routes/f104_v2_group_0003/route_00.json --chrono-data /home/harry/chrono/data --horizon-s 4
+ValueError: Gator rigid runs need --runtime-fingerprint (or FDM_RUNTIME_FINGERPRINT) listing data/vehicle/gator
+   rc=1 run_folder_created=no
+== T2_rigid_gator_hmmwv_only_fp_arg: /usr/bin/python3.12 -P -u scripts/ag_gen_collect_ext.py --vehicle gator --runtime-fingerprint artifacts/traverse/arena_gator_20260925/verify_e2/gates/hmmwv_only_fp.json --source-root . --case artifacts/traverse/fdm_f104_50h_20260909/cases_night2/cases/f104_v2_group_0003.json --route artifacts/traverse/fdm_f104_50h_20260909/cases_night2/cases/routes/f104_v2_group_0003/route_00.json --chrono-data /home/harry/chrono/data --horizon-s 4
+ValueError: Runtime fingerprint /home/harry/NeDM-traverse_mppi/artifacts/traverse/arena_gator_20260925/verify_e2/gates/hmmwv_only_fp.json lacks the native vehicle library or the Gator data files
+   rc=1 run_folder_created=no
+== T3_rigid_gator_hmmwv_only_fp_env: env FDM_RUNTIME_FINGERPRINT=artifacts/traverse/arena_gator_20260925/verify_e2/gates/hmmwv_only_fp.json /usr/bin/python3.12 -P -u scripts/ag_gen_collect_ext.py --vehicle gator --source-root . --case artifacts/traverse/fdm_f104_50h_20260909/cases_night2/cases/f104_v2_group_0003.json --route artifacts/traverse/fdm_f104_50h_20260909/cases_night2/cases/routes/f104_v2_group_0003/route_00.json --chrono-data /home/harry/chrono/data --horizon-s 4
+ValueError: Runtime fingerprint /home/harry/NeDM-traverse_mppi/artifacts/traverse/arena_gator_20260925/verify_e2/gates/hmmwv_only_fp.json lacks the native vehicle library or the Gator data files
+   rc=1 run_folder_created=no
+== T4_rigid_gator_hmmwv_only_fp_env_local: env FDM_RUNTIME_FINGERPRINT=artifacts/traverse/arena_gator_20260925/verify_e2/gates/hmmwv_only_fp.json /usr/bin/python3.12 -P -u scripts/ag_gen_collect_ext.py --vehicle gator --source-root . --case artifacts/traverse/fdm_f104_50h_20260909/cases_night2/cases/f104_v2_group_0003.json --route artifacts/traverse/fdm_f104_50h_20260909/cases_night2/cases/routes/f104_v2_group_0003/route_00.json --chrono-data /home/harry/chrono/data --horizon-s 4 --local
+ValueError: Runtime fingerprint /home/harry/NeDM-traverse_mppi/artifacts/traverse/arena_gator_20260925/verify_e2/gates/hmmwv_only_fp.json lacks the native vehicle library or the Gator data files
+   rc=1 run_folder_created=no
+== T5_rigid_hmmwv_with_fp_arg: /usr/bin/python3.12 -P -u scripts/ag_gen_collect_ext.py --vehicle hmmwv --runtime-fingerprint artifacts/traverse/arena_gator_20260925/e2/runtime/gator_runtime_fingerprint.json --source-root . --case artifacts/traverse/fdm_f104_50h_20260909/cases_night2/cases/f104_v2_group_0003.json --route artifacts/traverse/fdm_f104_50h_20260909/cases_night2/cases/routes/f104_v2_group_0003/route_00.json --chrono-data /home/harry/chrono/data --horizon-s 4 --local
+ValueError: --runtime-fingerprint is a Gator option; HMMWV runs use FDM_RUNTIME_FINGERPRINT as before
+   rc=1 run_folder_created=no
+== T6_soil_with_fp_arg: /usr/bin/python3.12 -P -u scripts/ag_crm_collect.py --vehicle gator --runtime-fingerprint artifacts/traverse/arena_gator_20260925/e2/runtime/gator_runtime_fingerprint.json --source-root . --case artifacts/traverse/fdm_f104_50h_20260909/cases_night2/cases/f104_v2_group_0003.json --route artifacts/traverse/fdm_f104_50h_20260909/cases_night2/cases/routes/f104_v2_group_0003/route_00.json --chrono-data /home/harry/chrono/data --crm-config artifacts/traverse/crm_f104_v1/configs/crm_main.json --horizon-s 4
+ValueError: --runtime-fingerprint is a rigid-collector option (the soil collectors have no fingerprint gate)
+   rc=1 run_folder_created=no
+== T7_soil_hmmwv_with_gator_radius: /usr/bin/python3.12 -P -u scripts/ag_crm_collect.py --gator-soil-radius-front 0.2 --source-root . --case artifacts/traverse/fdm_f104_50h_20260909/cases_night2/cases/f104_v2_group_0003.json --route artifacts/traverse/fdm_f104_50h_20260909/cases_night2/cases/routes/f104_v2_group_0003/route_00.json --chrono-data /home/harry/chrono/data --crm-config artifacts/traverse/crm_f104_v1/configs/crm_main.json --horizon-s 4
+ValueError: ['gator_soil_radius_front'] given without the Gator selected
+   rc=1 run_folder_created=no
+== T8_bad_env_vehicle: env NEDM_VEHICLE=polaris /usr/bin/python3.12 -P -u scripts/ag_crm_collect.py --source-root . --case artifacts/traverse/fdm_f104_50h_20260909/cases_night2/cases/f104_v2_group_0003.json --route artifacts/traverse/fdm_f104_50h_20260909/cases_night2/cases/routes/f104_v2_group_0003/route_00.json --chrono-data /home/harry/chrono/data --crm-config artifacts/traverse/crm_f104_v1/configs/crm_main.json --horizon-s 4
+ValueError: NEDM_VEHICLE / --vehicle must be one of ('hmmwv', 'gator'), got 'polaris'
+   rc=1 run_folder_created=no
+== T9_bad_arg_vehicle: /usr/bin/python3.12 -P -u scripts/ag_gen_collect_ext.py --vehicle polaris --source-root . --case artifacts/traverse/fdm_f104_50h_20260909/cases_night2/cases/f104_v2_group_0003.json --route artifacts/traverse/fdm_f104_50h_20260909/cases_night2/cases/routes/f104_v2_group_0003/route_00.json --chrono-data /home/harry/chrono/data --horizon-s 4 --local
+ag_gen_collect_ext.py: error: argument --vehicle: invalid choice: 'polaris' (choose from 'hmmwv', 'gator')
+   rc=2 run_folder_created=no
+== T10_soil_bad_base: /usr/bin/python3.12 -P -u scripts/ag_crm_collect.py --base gen_collect --vehicle gator --source-root . --case artifacts/traverse/fdm_f104_50h_20260909/cases_night2/cases/f104_v2_group_0003.json --route artifacts/traverse/fdm_f104_50h_20260909/cases_night2/cases/routes/f104_v2_group_0003/route_00.json --chrono-data /home/harry/chrono/data --crm-config artifacts/traverse/crm_f104_v1/configs/crm_main.json --horizon-s 4
+ValueError: --base must be one of ('crm_collect', 'crm_collect_ext')
+   rc=1 run_folder_created=no
+== T11_implausible_radius: /usr/bin/python3.12 -P -u scripts/ag_crm_collect.py --vehicle gator --gator-soil-radius-rear 0.9 --source-root . --case artifacts/traverse/fdm_f104_50h_20260909/cases_night2/cases/f104_v2_group_0003.json --route artifacts/traverse/fdm_f104_50h_20260909/cases_night2/cases/routes/f104_v2_group_0003/route_00.json --chrono-data /home/harry/chrono/data --crm-config artifacts/traverse/crm_f104_v1/configs/crm_main.json --horizon-s 4
+ValueError: implausible soil wheel rear: {'radius_m': 0.9, 'width_m': 0.3048}
+   rc=1 run_folder_created=no

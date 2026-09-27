@@ -1,0 +1,5 @@
+3 pick runs for set f104B2, 3 in parallel; jobs artifacts/traverse/arena_gator_20260925/e6/picks/jobs_f104B2.txt
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid_B2/f104/straight2
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid_B2/f104/G_fixed2
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid_B2/f104/M1a_fixed2
+set f104B2 done

@@ -1,0 +1,1322 @@
+{
+ "schema": "ag_analyze_results_v1",
+ "tool": "scripts/ag_analyze.py",
+ "tool_sha256": "42561c33694fc8f6e4d49494d4aa7144fb4857faa70e56e88e40741ec13172f4",
+ "created": "2026-09-26 19:26:35",
+ "spec": {
+  "schema": "ag_analyze_spec_v1",
+  "margin_pts": 2.0,
+  "alpha": 0.05,
+  "boot": 4000,
+  "seed": 0,
+  "cluster_key": "cluster",
+  "min_groups": 50,
+  "note": "E6b task B rigid fixed 2 m/s addendum (declared in spec_rigid_v1 note and LOG 14:1x, written before any of these drives exist): G and H at fixed 2 m/s and straight 2 m/s on the Gator, 800 f104 groups. Read-out G vs H on the Gator on unsafe (and fail); works criteria (1) G beats straight 2 m/s on the Gator, (2) G within 2 points of H (non-inferiority line), (4) headroom closed. Not part of the Holm family.",
+  "combine": [],
+  "family": [],
+  "contrasts": [
+   {
+    "name": "B2_rigid_fx2_G_vs_H_on_gator_unsafe",
+    "world": "rigid",
+    "vehicle": "gator",
+    "test": "G_fx2_gator",
+    "ref": "H_fx2_gator",
+    "label": "unsafe",
+    "set": "f104_800"
+   },
+   {
+    "name": "B2_rigid_fx2_G_vs_H_on_gator_fail",
+    "world": "rigid",
+    "vehicle": "gator",
+    "test": "G_fx2_gator",
+    "ref": "H_fx2_gator",
+    "label": "fail",
+    "set": "f104_800"
+   },
+   {
+    "name": "B2_rigid_fx2_G_vs_straight2_on_gator_unsafe",
+    "world": "rigid",
+    "vehicle": "gator",
+    "test": "G_fx2_gator",
+    "ref": "straight2_gator",
+    "label": "unsafe",
+    "set": "f104_800"
+   },
+   {
+    "name": "B2_rigid_fx2_G_vs_straight2_on_gator_fail",
+    "world": "rigid",
+    "vehicle": "gator",
+    "test": "G_fx2_gator",
+    "ref": "straight2_gator",
+    "label": "fail",
+    "set": "f104_800"
+   },
+   {
+    "name": "B2_rigid_fx2_H_vs_straight2_on_gator_unsafe",
+    "world": "rigid",
+    "vehicle": "gator",
+    "test": "H_fx2_gator",
+    "ref": "straight2_gator",
+    "label": "unsafe",
+    "set": "f104_800"
+   },
+   {
+    "name": "B2_rigid_fx2_H_vs_straight2_on_gator_fail",
+    "world": "rigid",
+    "vehicle": "gator",
+    "test": "H_fx2_gator",
+    "ref": "straight2_gator",
+    "label": "fail",
+    "set": "f104_800"
+   }
+  ],
+  "headroom": [
+   {
+    "world": "rigid",
+    "vehicle": "gator",
+    "model": "G_fx2_gator",
+    "straight": "straight2_gator",
+    "label": "unsafe",
+    "set": "f104_800"
+   },
+   {
+    "world": "rigid",
+    "vehicle": "gator",
+    "model": "H_fx2_gator",
+    "straight": "straight2_gator",
+    "label": "unsafe",
+    "set": "f104_800"
+   },
+   {
+    "world": "rigid",
+    "vehicle": "gator",
+    "model": "G_fx2_gator",
+    "straight": "straight2_gator",
+    "label": "fail",
+    "set": "f104_800"
+   },
+   {
+    "world": "rigid",
+    "vehicle": "gator",
+    "model": "H_fx2_gator",
+    "straight": "straight2_gator",
+    "label": "fail",
+    "set": "f104_800"
+   }
+  ],
+  "gaps": [],
+  "dose": [],
+  "time_ratio": [
+   {
+    "world": "rigid",
+    "vehicle": "gator",
+    "test": "G_fx2_gator",
+    "ref": "H_fx2_gator",
+    "set": "f104_800"
+   }
+  ],
+  "rates": {
+   "sets": [
+    "f104_800"
+   ]
+  }
+ },
+ "index": [
+  {
+   "path": "artifacts/traverse/arena_gator_20260925/e6/index/rigid_eval_v1.json",
+   "sha256": "7c09e4d3abfaf3da205adca2ee672813c93eb96481df24e3c1d4de405567b900",
+   "summary": {
+    "rows": 43100,
+    "driven": 43100,
+    "missing": 0,
+    "missing_by_arm": {},
+    "driven_by_arm": {
+     "rigid|hmmwv|M1a_fx2": 2650,
+     "rigid|hmmwv|M1a_free": 3250,
+     "rigid|hmmwv|M1b_fx2": 2650,
+     "rigid|hmmwv|M1b_free": 2650,
+     "rigid|hmmwv|M2_fx2": 2650,
+     "rigid|hmmwv|M2_free": 2650,
+     "rigid|hmmwv|M3a_fx2": 2650,
+     "rigid|hmmwv|M3a_free": 2650,
+     "rigid|hmmwv|M3b_fx2": 2650,
+     "rigid|hmmwv|M3b_free": 2650,
+     "rigid|hmmwv|A3_fx2": 2650,
+     "rigid|hmmwv|A3_free": 2650,
+     "rigid|hmmwv|straight6": 3250,
+     "rigid|hmmwv|straight2": 2650,
+     "rigid|gator|G_free_gator": 800,
+     "rigid|gator|H_free_gator": 800,
+     "rigid|gator|straight6_gator": 800,
+     "rigid|gator|G_fx2_gator": 800,
+     "rigid|gator|H_fx2_gator": 800,
+     "rigid|gator|straight2_gator": 800
+    },
+    "sets": {
+     "unseen": 28000,
+     "f104_suite": 4800,
+     "indist_f104": 4000,
+     "heldout": 4200,
+     "dev": 2100
+    },
+    "arenas": {
+     "g241": 3500,
+     "g247": 3500,
+     "g251": 3500,
+     "g258": 3500,
+     "g260": 3500,
+     "g263": 3500,
+     "g268": 3500,
+     "g271": 3500,
+     "f104": 8800,
+     "g203": 2100,
+     "g228": 2100,
+     "g217": 2100
+    }
+   }
+  }
+ ],
+ "worlds": {
+  "rigid|hmmwv": {
+   "groups": 3250,
+   "arms": [
+    "A3_free",
+    "A3_fx2",
+    "M1a_free",
+    "M1a_fx2",
+    "M1b_free",
+    "M1b_fx2",
+    "M2_free",
+    "M2_fx2",
+    "M3a_free",
+    "M3a_fx2",
+    "M3b_free",
+    "M3b_fx2",
+    "straight2",
+    "straight6"
+   ]
+  },
+  "rigid|any": {
+   "groups": 3250,
+   "arms": [
+    "A3_free",
+    "A3_fx2",
+    "G_free_gator",
+    "G_fx2_gator",
+    "H_free_gator",
+    "H_fx2_gator",
+    "M1a_free",
+    "M1a_fx2",
+    "M1b_free",
+    "M1b_fx2",
+    "M2_free",
+    "M2_fx2",
+    "M3a_free",
+    "M3a_fx2",
+    "M3b_free",
+    "M3b_fx2",
+    "straight2",
+    "straight2_gator",
+    "straight6",
+    "straight6_gator"
+   ]
+  },
+  "rigid|gator": {
+   "groups": 800,
+   "arms": [
+    "G_free_gator",
+    "G_fx2_gator",
+    "H_free_gator",
+    "H_fx2_gator",
+    "straight2_gator",
+    "straight6_gator"
+   ]
+  }
+ },
+ "family": [],
+ "contrasts": [
+  {
+   "name": "B2_rigid_fx2_G_vs_H_on_gator_unsafe",
+   "world": "rigid",
+   "vehicle": "gator",
+   "test": "G_fx2_gator",
+   "ref": "H_fx2_gator",
+   "label": "unsafe",
+   "set": "f104_800",
+   "result": {
+    "test": "G_fx2_gator",
+    "ref": "H_fx2_gator",
+    "label": "unsafe",
+    "n": 800,
+    "rate_test": 0.125,
+    "rate_ref": 0.125,
+    "diff_pts": 0.0,
+    "improvement_pts": -0.0,
+    "group": {
+     "ci95": [
+      -0.375,
+      0.375
+     ],
+     "ci90": [
+      -0.25,
+      0.25
+     ],
+     "p_one_sided": 0.6395901024743814
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "ci90": [
+      0.0,
+      0.0
+     ],
+     "p_one_sided": 1.0,
+     "clusters": 9,
+     "cluster_wins": 0,
+     "cluster_losses": 0,
+     "sign_p": 1.0
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "ci90": [
+      0.0,
+      0.0
+     ],
+     "p_one_sided": 1.0,
+     "clusters": 10,
+     "cluster_wins": 0,
+     "cluster_losses": 0,
+     "sign_p": 1.0
+    },
+    "discordant": {
+     "test_worse": 1,
+     "test_better": 1,
+     "binary": true,
+     "mcnemar_two_sided": 1.0,
+     "mcnemar_one_sided": 0.75
+    },
+    "identical_picks": 0,
+    "within_margin_90": true,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": 0.0,
+     "upper95_one_sided_group": 0.25,
+     "margin_pts": 2.0,
+     "pass_cluster": true,
+     "note": "G_fx2_gator is within 2.0 points of H_fx2_gator (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = unsafe(G_fx2_gator) - unsafe(H_fx2_gator) in points; negative = G_fx2_gator better",
+    "per_arena": {
+     "f104": {
+      "n": 800,
+      "rate_test": 0.125,
+      "rate_ref": 0.125,
+      "diff_pts": 0.0,
+      "ci95": [
+       -0.375,
+       0.375
+      ],
+      "test_worse": 1,
+      "test_better": 1,
+      "role": "training",
+      "dist_nearest_training": 0.8114229378713305,
+      "map_err_rmse_m": 0.04986148709451798
+     }
+    },
+    "arena_signs": {
+     "better": 0,
+     "worse": 0,
+     "equal": 1
+    },
+    "random_effects": null,
+    "vs_distance_nearest_training": null,
+    "vs_map_error": null,
+    "near_spread": {}
+   },
+   "decision": "no meaningful difference (secondary, unadjusted)"
+  },
+  {
+   "name": "B2_rigid_fx2_G_vs_H_on_gator_fail",
+   "world": "rigid",
+   "vehicle": "gator",
+   "test": "G_fx2_gator",
+   "ref": "H_fx2_gator",
+   "label": "fail",
+   "set": "f104_800",
+   "result": {
+    "test": "G_fx2_gator",
+    "ref": "H_fx2_gator",
+    "label": "fail",
+    "n": 800,
+    "rate_test": 0.0,
+    "rate_ref": 0.0,
+    "diff_pts": 0.0,
+    "improvement_pts": -0.0,
+    "group": {
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "ci90": [
+      0.0,
+      0.0
+     ],
+     "p_one_sided": 1.0
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "ci90": [
+      0.0,
+      0.0
+     ],
+     "p_one_sided": 1.0,
+     "clusters": 9,
+     "cluster_wins": 0,
+     "cluster_losses": 0,
+     "sign_p": 1.0
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      0.0,
+      0.0
+     ],
+     "ci90": [
+      0.0,
+      0.0
+     ],
+     "p_one_sided": 1.0,
+     "clusters": 10,
+     "cluster_wins": 0,
+     "cluster_losses": 0,
+     "sign_p": 1.0
+    },
+    "discordant": {
+     "test_worse": 0,
+     "test_better": 0,
+     "binary": true,
+     "mcnemar_two_sided": 1.0,
+     "mcnemar_one_sided": 1.0
+    },
+    "identical_picks": 0,
+    "within_margin_90": true,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": 0.0,
+     "upper95_one_sided_group": 0.0,
+     "margin_pts": 2.0,
+     "pass_cluster": true,
+     "note": "G_fx2_gator is within 2.0 points of H_fx2_gator (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = fail(G_fx2_gator) - fail(H_fx2_gator) in points; negative = G_fx2_gator better",
+    "per_arena": {
+     "f104": {
+      "n": 800,
+      "rate_test": 0.0,
+      "rate_ref": 0.0,
+      "diff_pts": 0.0,
+      "ci95": [
+       0.0,
+       0.0
+      ],
+      "test_worse": 0,
+      "test_better": 0,
+      "role": "training",
+      "dist_nearest_training": 0.8114229378713305,
+      "map_err_rmse_m": 0.04986148709451798
+     }
+    },
+    "arena_signs": {
+     "better": 0,
+     "worse": 0,
+     "equal": 1
+    },
+    "random_effects": null,
+    "vs_distance_nearest_training": null,
+    "vs_map_error": null,
+    "near_spread": {},
+    "time_ratio": {
+     "n": 800,
+     "median_paired_ratio": 1.0,
+     "median_paired_ratio_p95": 1.002353149621558,
+     "median_paired_ratio_ci95": [
+      0.9972522287896975,
+      1.0026741026741026
+     ],
+     "ratio_of_medians": 1.0082159624413145,
+     "ratio_of_medians_p95": 1.0164725305216427,
+     "mean_ratio": 1.0007141763342957,
+     "median_time_x": 21.475,
+     "median_time_y": 21.3,
+     "bound": 1.1,
+     "pass_time": true,
+     "note": "t(G_fx2_gator) / t(H_fx2_gator); 95th percentile of the group bootstrap of the median paired ratio must be < 1.1"
+    }
+   },
+   "decision": "no meaningful difference (secondary, unadjusted)"
+  },
+  {
+   "name": "B2_rigid_fx2_G_vs_straight2_on_gator_unsafe",
+   "world": "rigid",
+   "vehicle": "gator",
+   "test": "G_fx2_gator",
+   "ref": "straight2_gator",
+   "label": "unsafe",
+   "set": "f104_800",
+   "result": {
+    "test": "G_fx2_gator",
+    "ref": "straight2_gator",
+    "label": "unsafe",
+    "n": 800,
+    "rate_test": 0.125,
+    "rate_ref": 15.5,
+    "diff_pts": -15.375,
+    "improvement_pts": 15.375,
+    "group": {
+     "ci95": [
+      -17.878124999999997,
+      -13.0
+     ],
+     "ci90": [
+      -17.5,
+      -13.25
+     ],
+     "p_one_sided": 0.00024993751562109475
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      -26.3662710953102,
+      -7.1666260360799585
+     ],
+     "ci90": [
+      -24.49735606719941,
+      -8.081411257081722
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 9,
+     "cluster_wins": 9,
+     "cluster_losses": 0,
+     "sign_p": 0.00390625
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      -26.184095957173206,
+      -7.252388257044571
+     ],
+     "ci90": [
+      -24.223304135503216,
+      -8.287169610004476
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 10,
+     "cluster_wins": 9,
+     "cluster_losses": 0,
+     "sign_p": 0.00390625
+    },
+    "discordant": {
+     "test_worse": 0,
+     "test_better": 123,
+     "binary": true,
+     "mcnemar_two_sided": 1.88079096131566e-37,
+     "mcnemar_one_sided": 9.4039548065783e-38
+    },
+    "identical_picks": 0,
+    "within_margin_90": false,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": -8.081411257081722,
+     "upper95_one_sided_group": -13.25,
+     "margin_pts": 2.0,
+     "pass_cluster": true,
+     "note": "G_fx2_gator is within 2.0 points of straight2_gator (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = unsafe(G_fx2_gator) - unsafe(straight2_gator) in points; negative = G_fx2_gator better",
+    "per_arena": {
+     "f104": {
+      "n": 800,
+      "rate_test": 0.125,
+      "rate_ref": 15.5,
+      "diff_pts": -15.375,
+      "ci95": [
+       -17.875,
+       -13.0
+      ],
+      "test_worse": 0,
+      "test_better": 123,
+      "role": "training",
+      "dist_nearest_training": 0.8114229378713305,
+      "map_err_rmse_m": 0.04986148709451798
+     }
+    },
+    "arena_signs": {
+     "better": 1,
+     "worse": 0,
+     "equal": 0
+    },
+    "random_effects": null,
+    "vs_distance_nearest_training": null,
+    "vs_map_error": null,
+    "near_spread": {}
+   },
+   "decision": "improves (secondary, unadjusted)"
+  },
+  {
+   "name": "B2_rigid_fx2_G_vs_straight2_on_gator_fail",
+   "world": "rigid",
+   "vehicle": "gator",
+   "test": "G_fx2_gator",
+   "ref": "straight2_gator",
+   "label": "fail",
+   "set": "f104_800",
+   "result": {
+    "test": "G_fx2_gator",
+    "ref": "straight2_gator",
+    "label": "fail",
+    "n": 800,
+    "rate_test": 0.0,
+    "rate_ref": 11.0,
+    "diff_pts": -11.0,
+    "improvement_pts": 11.0,
+    "group": {
+     "ci95": [
+      -13.25,
+      -8.875
+     ],
+     "ci90": [
+      -12.875,
+      -9.25
+     ],
+     "p_one_sided": 0.00024993751562109475
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      -18.583012914361447,
+      -5.213723259708661
+     ],
+     "ci90": [
+      -17.095521684537417,
+      -5.854539998564841
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 9,
+     "cluster_wins": 7,
+     "cluster_losses": 0,
+     "sign_p": 0.015625
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      -18.64986307175692,
+      -4.981575197368839
+     ],
+     "ci90": [
+      -17.354196301564723,
+      -5.873418772454191
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 10,
+     "cluster_wins": 9,
+     "cluster_losses": 0,
+     "sign_p": 0.00390625
+    },
+    "discordant": {
+     "test_worse": 0,
+     "test_better": 88,
+     "binary": true,
+     "mcnemar_two_sided": 6.462348535570529e-27,
+     "mcnemar_one_sided": 3.2311742677852644e-27
+    },
+    "identical_picks": 0,
+    "within_margin_90": false,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": -5.854539998564841,
+     "upper95_one_sided_group": -9.25,
+     "margin_pts": 2.0,
+     "pass_cluster": true,
+     "note": "G_fx2_gator is within 2.0 points of straight2_gator (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = fail(G_fx2_gator) - fail(straight2_gator) in points; negative = G_fx2_gator better",
+    "per_arena": {
+     "f104": {
+      "n": 800,
+      "rate_test": 0.0,
+      "rate_ref": 11.0,
+      "diff_pts": -11.0,
+      "ci95": [
+       -13.25,
+       -8.875
+      ],
+      "test_worse": 0,
+      "test_better": 88,
+      "role": "training",
+      "dist_nearest_training": 0.8114229378713305,
+      "map_err_rmse_m": 0.04986148709451798
+     }
+    },
+    "arena_signs": {
+     "better": 1,
+     "worse": 0,
+     "equal": 0
+    },
+    "random_effects": null,
+    "vs_distance_nearest_training": null,
+    "vs_map_error": null,
+    "near_spread": {},
+    "time_ratio": {
+     "n": 712,
+     "median_paired_ratio": 1.029126385182305,
+     "median_paired_ratio_p95": 1.032171591018865,
+     "median_paired_ratio_ci95": [
+      1.0258643899347766,
+      1.0324118502362776
+     ],
+     "ratio_of_medians": 1.032530120481928,
+     "ratio_of_medians_p95": 1.0408653846153846,
+     "mean_ratio": 1.0197985342356566,
+     "median_time_x": 21.425000000000004,
+     "median_time_y": 20.75,
+     "bound": 1.1,
+     "pass_time": true,
+     "note": "t(G_fx2_gator) / t(straight2_gator); 95th percentile of the group bootstrap of the median paired ratio must be < 1.1"
+    }
+   },
+   "decision": "improves (secondary, unadjusted)"
+  },
+  {
+   "name": "B2_rigid_fx2_H_vs_straight2_on_gator_unsafe",
+   "world": "rigid",
+   "vehicle": "gator",
+   "test": "H_fx2_gator",
+   "ref": "straight2_gator",
+   "label": "unsafe",
+   "set": "f104_800",
+   "result": {
+    "test": "H_fx2_gator",
+    "ref": "straight2_gator",
+    "label": "unsafe",
+    "n": 800,
+    "rate_test": 0.125,
+    "rate_ref": 15.5,
+    "diff_pts": -15.375,
+    "improvement_pts": 15.375,
+    "group": {
+     "ci95": [
+      -18.0,
+      -12.75
+     ],
+     "ci90": [
+      -17.5,
+      -13.25
+     ],
+     "p_one_sided": 0.00024993751562109475
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      -26.13200291001177,
+      -6.729505950566885
+     ],
+     "ci90": [
+      -24.287652645861602,
+      -7.88485607008761
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 9,
+     "cluster_wins": 9,
+     "cluster_losses": 0,
+     "sign_p": 0.00390625
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      -26.323845004824165,
+      -7.0432764044037555
+     ],
+     "ci90": [
+      -23.959134615384613,
+      -8.104730005052728
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 10,
+     "cluster_wins": 9,
+     "cluster_losses": 0,
+     "sign_p": 0.00390625
+    },
+    "discordant": {
+     "test_worse": 1,
+     "test_better": 124,
+     "binary": true,
+     "mcnemar_two_sided": 5.924491528144329e-36,
+     "mcnemar_one_sided": 2.9622457640721645e-36
+    },
+    "identical_picks": 1,
+    "within_margin_90": false,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": -7.88485607008761,
+     "upper95_one_sided_group": -13.25,
+     "margin_pts": 2.0,
+     "pass_cluster": true,
+     "note": "H_fx2_gator is within 2.0 points of straight2_gator (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = unsafe(H_fx2_gator) - unsafe(straight2_gator) in points; negative = H_fx2_gator better",
+    "per_arena": {
+     "f104": {
+      "n": 800,
+      "rate_test": 0.125,
+      "rate_ref": 15.5,
+      "diff_pts": -15.375,
+      "ci95": [
+       -18.0,
+       -12.996874999999989
+      ],
+      "test_worse": 1,
+      "test_better": 124,
+      "role": "training",
+      "dist_nearest_training": 0.8114229378713305,
+      "map_err_rmse_m": 0.04986148709451798
+     }
+    },
+    "arena_signs": {
+     "better": 1,
+     "worse": 0,
+     "equal": 0
+    },
+    "random_effects": null,
+    "vs_distance_nearest_training": null,
+    "vs_map_error": null,
+    "near_spread": {}
+   },
+   "decision": "improves (secondary, unadjusted)"
+  },
+  {
+   "name": "B2_rigid_fx2_H_vs_straight2_on_gator_fail",
+   "world": "rigid",
+   "vehicle": "gator",
+   "test": "H_fx2_gator",
+   "ref": "straight2_gator",
+   "label": "fail",
+   "set": "f104_800",
+   "result": {
+    "test": "H_fx2_gator",
+    "ref": "straight2_gator",
+    "label": "fail",
+    "n": 800,
+    "rate_test": 0.0,
+    "rate_ref": 11.0,
+    "diff_pts": -11.0,
+    "improvement_pts": 11.0,
+    "group": {
+     "ci95": [
+      -13.125,
+      -8.875
+     ],
+     "ci90": [
+      -12.75,
+      -9.25
+     ],
+     "p_one_sided": 0.00024993751562109475
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      -18.408065437336813,
+      -4.987408362061243
+     ],
+     "ci90": [
+      -16.970132984521474,
+      -5.851631192394839
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 9,
+     "cluster_wins": 7,
+     "cluster_losses": 0,
+     "sign_p": 0.015625
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      -18.881923733575377,
+      -4.9079754601226995
+     ],
+     "ci90": [
+      -17.518404142491733,
+      -5.714285714285714
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 10,
+     "cluster_wins": 9,
+     "cluster_losses": 0,
+     "sign_p": 0.00390625
+    },
+    "discordant": {
+     "test_worse": 0,
+     "test_better": 88,
+     "binary": true,
+     "mcnemar_two_sided": 6.462348535570529e-27,
+     "mcnemar_one_sided": 3.2311742677852644e-27
+    },
+    "identical_picks": 1,
+    "within_margin_90": false,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": -5.851631192394839,
+     "upper95_one_sided_group": -9.25,
+     "margin_pts": 2.0,
+     "pass_cluster": true,
+     "note": "H_fx2_gator is within 2.0 points of straight2_gator (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = fail(H_fx2_gator) - fail(straight2_gator) in points; negative = H_fx2_gator better",
+    "per_arena": {
+     "f104": {
+      "n": 800,
+      "rate_test": 0.0,
+      "rate_ref": 11.0,
+      "diff_pts": -11.0,
+      "ci95": [
+       -13.25,
+       -8.875
+      ],
+      "test_worse": 0,
+      "test_better": 88,
+      "role": "training",
+      "dist_nearest_training": 0.8114229378713305,
+      "map_err_rmse_m": 0.04986148709451798
+     }
+    },
+    "arena_signs": {
+     "better": 1,
+     "worse": 0,
+     "equal": 0
+    },
+    "random_effects": null,
+    "vs_distance_nearest_training": null,
+    "vs_map_error": null,
+    "near_spread": {},
+    "time_ratio": {
+     "n": 712,
+     "median_paired_ratio": 1.033653846153846,
+     "median_paired_ratio_p95": 1.0366922120961062,
+     "median_paired_ratio_ci95": [
+      1.0305882352941178,
+      1.0369460369460368
+     ],
+     "ratio_of_medians": 1.0228915662650604,
+     "ratio_of_medians_p95": 1.032932874585784,
+     "mean_ratio": 1.0213224982000395,
+     "median_time_x": 21.225,
+     "median_time_y": 20.75,
+     "bound": 1.1,
+     "pass_time": true,
+     "note": "t(H_fx2_gator) / t(straight2_gator); 95th percentile of the group bootstrap of the median paired ratio must be < 1.1"
+    }
+   },
+   "decision": "improves (secondary, unadjusted)"
+  }
+ ],
+ "gaps": [],
+ "dose": [],
+ "time_ratio": [
+  {
+   "world": "rigid",
+   "vehicle": "gator",
+   "test": "G_fx2_gator",
+   "ref": "H_fx2_gator",
+   "set": "f104_800",
+   "result": {
+    "n": 800,
+    "median_paired_ratio": 1.0,
+    "median_paired_ratio_p95": 1.0023337254645666,
+    "median_paired_ratio_ci95": [
+     0.9972522287896975,
+     1.0026315789473685
+    ],
+    "ratio_of_medians": 1.0082159624413145,
+    "ratio_of_medians_p95": 1.016279069767442,
+    "mean_ratio": 1.0007141763342957,
+    "median_time_x": 21.475,
+    "median_time_y": 21.3,
+    "bound": 1.1,
+    "pass_time": true,
+    "note": "t(G_fx2_gator) / t(H_fx2_gator); 95th percentile of the group bootstrap of the median paired ratio must be < 1.1"
+   }
+  }
+ ],
+ "headroom": [
+  {
+   "world": "rigid",
+   "vehicle": "gator",
+   "model": "G_fx2_gator",
+   "straight": "straight2_gator",
+   "label": "unsafe",
+   "set": "f104_800",
+   "result": {
+    "n": 800,
+    "rate_model": 0.125,
+    "rate_straight": 15.5,
+    "headroom_closed": 0.9919354838709677,
+    "ci95": [
+     0.9736783884489987,
+     1.0
+    ],
+    "note": "(straight - model) / straight on the failure rate = the share of the straight route's failures the model removes; normalising by feasibility instead of 1 (REVIEW_R1 3d) needs the collection's any-route-reaches-the-goal share"
+   }
+  },
+  {
+   "world": "rigid",
+   "vehicle": "gator",
+   "model": "H_fx2_gator",
+   "straight": "straight2_gator",
+   "label": "unsafe",
+   "set": "f104_800",
+   "result": {
+    "n": 800,
+    "rate_model": 0.125,
+    "rate_straight": 15.5,
+    "headroom_closed": 0.9919354838709677,
+    "ci95": [
+     0.972475482442265,
+     1.0
+    ],
+    "note": "(straight - model) / straight on the failure rate = the share of the straight route's failures the model removes; normalising by feasibility instead of 1 (REVIEW_R1 3d) needs the collection's any-route-reaches-the-goal share"
+   }
+  },
+  {
+   "world": "rigid",
+   "vehicle": "gator",
+   "model": "G_fx2_gator",
+   "straight": "straight2_gator",
+   "label": "fail",
+   "set": "f104_800",
+   "result": {
+    "n": 800,
+    "rate_model": 0.0,
+    "rate_straight": 11.0,
+    "headroom_closed": 1.0,
+    "ci95": [
+     1.0,
+     1.0
+    ],
+    "note": "(straight - model) / straight on the failure rate = the share of the straight route's failures the model removes; normalising by feasibility instead of 1 (REVIEW_R1 3d) needs the collection's any-route-reaches-the-goal share"
+   }
+  },
+  {
+   "world": "rigid",
+   "vehicle": "gator",
+   "model": "H_fx2_gator",
+   "straight": "straight2_gator",
+   "label": "fail",
+   "set": "f104_800",
+   "result": {
+    "n": 800,
+    "rate_model": 0.0,
+    "rate_straight": 11.0,
+    "headroom_closed": 1.0,
+    "ci95": [
+     1.0,
+     1.0
+    ],
+    "note": "(straight - model) / straight on the failure rate = the share of the straight route's failures the model removes; normalising by feasibility instead of 1 (REVIEW_R1 3d) needs the collection's any-route-reaches-the-goal share"
+   }
+  }
+ ],
+ "rates": {
+  "rigid|hmmwv": {
+   "f104_800": {
+    "A3_free": {
+     "n": 200,
+     "goal_reached": 100.0,
+     "fail": 0.0,
+     "unsafe": 0.0,
+     "unsafe_noback": 0.0,
+     "backward_only": 0.0,
+     "tilt30": 3.0,
+     "median_time_s": 13.8,
+     "status_counts": {
+      "goal_reached": 200
+     }
+    },
+    "A3_fx2": {
+     "n": 200,
+     "goal_reached": 99.5,
+     "fail": 0.5,
+     "unsafe": 0.5,
+     "unsafe_noback": 0.5,
+     "backward_only": 0.0,
+     "tilt30": 1.5,
+     "median_time_s": 20.200000000000003,
+     "status_counts": {
+      "goal_reached": 199,
+      "prolonged_blockage_terminated": 1
+     }
+    },
+    "M1a_free": {
+     "n": 800,
+     "goal_reached": 100.0,
+     "fail": 0.0,
+     "unsafe": 0.125,
+     "unsafe_noback": 0.0,
+     "backward_only": 0.125,
+     "tilt30": 5.625,
+     "median_time_s": 13.75,
+     "status_counts": {
+      "goal_reached": 800
+     }
+    },
+    "M1a_fx2": {
+     "n": 200,
+     "goal_reached": 100.0,
+     "fail": 0.0,
+     "unsafe": 0.5,
+     "unsafe_noback": 0.0,
+     "backward_only": 0.5,
+     "tilt30": 1.0,
+     "median_time_s": 20.625,
+     "status_counts": {
+      "goal_reached": 200
+     }
+    },
+    "M1b_free": {
+     "n": 200,
+     "goal_reached": 100.0,
+     "fail": 0.0,
+     "unsafe": 0.0,
+     "unsafe_noback": 0.0,
+     "backward_only": 0.0,
+     "tilt30": 4.5,
+     "median_time_s": 13.275000000000002,
+     "status_counts": {
+      "goal_reached": 200
+     }
+    },
+    "M1b_fx2": {
+     "n": 200,
+     "goal_reached": 100.0,
+     "fail": 0.0,
+     "unsafe": 0.5,
+     "unsafe_noback": 0.0,
+     "backward_only": 0.5,
+     "tilt30": 2.0,
+     "median_time_s": 20.55,
+     "status_counts": {
+      "goal_reached": 200
+     }
+    },
+    "M2_free": {
+     "n": 200,
+     "goal_reached": 100.0,
+     "fail": 0.0,
+     "unsafe": 0.0,
+     "unsafe_noback": 0.0,
+     "backward_only": 0.0,
+     "tilt30": 4.5,
+     "median_time_s": 12.350000000000001,
+     "status_counts": {
+      "goal_reached": 200
+     }
+    },
+    "M2_fx2": {
+     "n": 200,
+     "goal_reached": 100.0,
+     "fail": 0.0,
+     "unsafe": 2.0,
+     "unsafe_noback": 0.0,
+     "backward_only": 2.0,
+     "tilt30": 2.0,
+     "median_time_s": 20.325000000000003,
+     "status_counts": {
+      "goal_reached": 200
+     }
+    },
+    "M3a_free": {
+     "n": 200,
+     "goal_reached": 100.0,
+     "fail": 0.0,
+     "unsafe": 1.0,
+     "unsafe_noback": 0.0,
+     "backward_only": 1.0,
+     "tilt30": 3.5000000000000004,
+     "median_time_s": 15.900000000000002,
+     "status_counts": {
+      "goal_reached": 200
+     }
+    },
+    "M3a_fx2": {
+     "n": 200,
+     "goal_reached": 100.0,
+     "fail": 0.0,
+     "unsafe": 1.0,
+     "unsafe_noback": 0.0,
+     "backward_only": 1.0,
+     "tilt30": 2.5,
+     "median_time_s": 20.575000000000003,
+     "status_counts": {
+      "goal_reached": 200
+     }
+    },
+    "M3b_free": {
+     "n": 200,
+     "goal_reached": 100.0,
+     "fail": 0.0,
+     "unsafe": 0.0,
+     "unsafe_noback": 0.0,
+     "backward_only": 0.0,
+     "tilt30": 3.5000000000000004,
+     "median_time_s": 15.200000000000001,
+     "status_counts": {
+      "goal_reached": 200
+     }
+    },
+    "M3b_fx2": {
+     "n": 200,
+     "goal_reached": 100.0,
+     "fail": 0.0,
+     "unsafe": 0.0,
+     "unsafe_noback": 0.0,
+     "backward_only": 0.0,
+     "tilt30": 0.5,
+     "median_time_s": 20.8,
+     "status_counts": {
+      "goal_reached": 200
+     }
+    },
+    "straight2": {
+     "n": 200,
+     "goal_reached": 72.0,
+     "fail": 28.000000000000004,
+     "unsafe": 57.99999999999999,
+     "unsafe_noback": 28.000000000000004,
+     "backward_only": 30.0,
+     "tilt30": 3.5000000000000004,
+     "median_time_s": 23.55,
+     "status_counts": {
+      "prolonged_blockage_terminated": 50,
+      "goal_reached": 144,
+      "timeout": 5,
+      "terrain_bounds_exit": 1
+     }
+    },
+    "straight6": {
+     "n": 800,
+     "goal_reached": 99.25,
+     "fail": 0.75,
+     "unsafe": 0.8750000000000001,
+     "unsafe_noback": 0.75,
+     "backward_only": 0.125,
+     "tilt30": 17.625,
+     "median_time_s": 8.05,
+     "status_counts": {
+      "goal_reached": 794,
+      "prolonged_blockage_terminated": 3,
+      "terrain_bounds_exit": 2,
+      "timeout": 1
+     }
+    }
+   }
+  },
+  "rigid|gator": {
+   "f104_800": {
+    "G_free_gator": {
+     "n": 800,
+     "goal_reached": 100.0,
+     "fail": 0.0,
+     "unsafe": 0.0,
+     "unsafe_noback": 0.0,
+     "backward_only": 0.0,
+     "tilt30": 12.125,
+     "median_time_s": 13.100000000000001,
+     "status_counts": {
+      "goal_reached": 800
+     }
+    },
+    "G_fx2_gator": {
+     "n": 800,
+     "goal_reached": 100.0,
+     "fail": 0.0,
+     "unsafe": 0.125,
+     "unsafe_noback": 0.0,
+     "backward_only": 0.125,
+     "tilt30": 8.0,
+     "median_time_s": 21.475,
+     "status_counts": {
+      "goal_reached": 800
+     }
+    },
+    "H_free_gator": {
+     "n": 800,
+     "goal_reached": 99.875,
+     "fail": 0.125,
+     "unsafe": 0.375,
+     "unsafe_noback": 0.125,
+     "backward_only": 0.25,
+     "tilt30": 8.75,
+     "median_time_s": 13.350000000000001,
+     "status_counts": {
+      "goal_reached": 799,
+      "rollover": 1
+     }
+    },
+    "H_fx2_gator": {
+     "n": 800,
+     "goal_reached": 100.0,
+     "fail": 0.0,
+     "unsafe": 0.125,
+     "unsafe_noback": 0.0,
+     "backward_only": 0.125,
+     "tilt30": 5.125,
+     "median_time_s": 21.3,
+     "status_counts": {
+      "goal_reached": 800
+     }
+    },
+    "straight2_gator": {
+     "n": 800,
+     "goal_reached": 89.0,
+     "fail": 11.0,
+     "unsafe": 15.5,
+     "unsafe_noback": 11.0,
+     "backward_only": 4.5,
+     "tilt30": 6.0,
+     "median_time_s": 20.75,
+     "status_counts": {
+      "goal_reached": 712,
+      "prolonged_blockage_terminated": 67,
+      "timeout": 18,
+      "terrain_bounds_exit": 1,
+      "rollover": 2
+     }
+    },
+    "straight6_gator": {
+     "n": 800,
+     "goal_reached": 99.625,
+     "fail": 0.375,
+     "unsafe": 0.625,
+     "unsafe_noback": 0.375,
+     "backward_only": 0.25,
+     "tilt30": 12.75,
+     "median_time_s": 7.7,
+     "status_counts": {
+      "goal_reached": 797,
+      "rollover": 2,
+      "prolonged_blockage_terminated": 1
+     }
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,231 @@
+{
+ "tool": "scripts/ag_build_ds.py",
+ "argv": [
+  "--world",
+  "crm",
+  "--crm-runs",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/soil_v1/runs",
+  "--tasks-crm",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/tasks/soil_v3.json",
+  "--tiers",
+  "0-12",
+  "--arena",
+  "f104",
+  "--vehicle",
+  "gator",
+  "--map-root",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/map_roots/f104",
+  "--out",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_bf/f104_gator",
+  "--source-root",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/source",
+  "--workers",
+  "16"
+ ],
+ "started": "2026-09-26 19:22:07",
+ "host": "login1.hpcfund",
+ "python": "/work1/dannegrut/harry/venvs/nedm/bin/python",
+ "arena": "f104",
+ "vehicle": "gator",
+ "worlds": [
+  "crm"
+ ],
+ "map_root": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/map_roots/f104",
+ "map_observation_sha256": "53e23f99bf2c0141bd613ff5bef5a57f82c28b48e39026608dfdd8e2d5553e34",
+ "map_arena_bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+ "tasks": {
+  "rigid": {},
+  "crm": {
+   "/work1/dannegrut/harry/experiments/arena_gator_20260925/tasks/soil_v3.json": "654ca61b17873489d3768283dc107f0078be0ec407eeb493a1f7223618115b8d"
+  }
+ },
+ "exclude_ids": {
+  "rigid": [],
+  "crm": []
+ },
+ "n_exclude_ids": {
+  "rigid": 0,
+  "crm": 0
+ },
+ "tiers": "0-12",
+ "tool_sha256": {
+  "f104_n2_dataset.py": "49b2ad940a5876e07fa9d94f70605a9587d0820c5ce8b491aed8de0310ac7007",
+  "n2_reanchor_dataset.py": "80ad79119462d59afd991f39f3a5def0b59ae30d9d8953543833bb25441f0017",
+  "ga_build_mixed.py": "b7abc6d8512e722f62d3872e2332f16df423a8a48afd60d52f9504c80cf2e338",
+  "ag_build_ds.py": "5e2eae03d441988066b291790da8e7cff576d0df7a0da591f5776f02f5bea17f",
+  "ag_map_check.py": "a237c2d9a72fa720f5db66c07ec0ae8d526d797b0fc654a0866b45af147f59a2",
+  "ag_tasklib.py": "1363371ee0621f835a49c094bea93adcdf2f6db2be7c2fbef9401436f5ab98da",
+  "crm_qa.py": "bde62d2d496db0c26929ecc074d8714cf1a3965bddfb2bf5e93247f107490229"
+ },
+ "selection": {
+  "crm": {
+   "run_folders": [
+    "/work1/dannegrut/harry/experiments/arena_gator_20260925/soil_v1/runs"
+   ],
+   "counts": {
+    "dirs": 43901,
+    "other_ids": 28666
+   },
+   "candidates": 15235,
+   "require_marker": true,
+   "rejected": {},
+   "rejected_ids": [],
+   "selected": 15235,
+   "groups": 1200,
+   "split_episodes": {
+    "train": 13821,
+    "test": 701,
+    "val": 713
+   },
+   "split_groups": {
+    "train": 1089,
+    "val": 56,
+    "test": 55
+   },
+   "tiers": {
+    "0": 1199,
+    "1": 1200,
+    "2": 1200,
+    "3": 1200,
+    "4": 1200,
+    "5": 1200,
+    "6": 1200,
+    "7": 1200,
+    "8": 1200,
+    "9": 1200,
+    "10": 1200,
+    "11": 1200,
+    "12": 836
+   },
+   "status": {
+    "prolonged_blockage_terminated": 13231,
+    "goal_reached": 1805,
+    "soil_breakthrough_terminated": 198,
+    "timeout": 1
+   },
+   "kinds": {
+    "on_policy": 6067,
+    "designed": 9168
+   },
+   "vehicle_blocks": {
+    "gator": 15235
+   },
+   "map_check": {
+    "map_root": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/map_roots/f104",
+    "map_arena": "arena_f104_50h_v1",
+    "map_arena_bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+    "map_observation_sha256": "53e23f99bf2c0141bd613ff5bef5a57f82c28b48e39026608dfdd8e2d5553e34",
+    "n_cases": 15235,
+    "ok": true,
+    "problems": [],
+    "arenas": {
+     "assets/traverse/arena_f104_50h_v1": {
+      "n": 15235,
+      "bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+      "match": true
+     }
+    }
+   }
+  }
+ },
+ "stages": {
+  "crm": {
+   "station": {
+    "path": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_bf/f104_gator/station_f104_gator_crm_crm.npz",
+    "rows": 15235,
+    "secs": 48.5,
+    "sha256": "7269d4764a2a6ef78ab112c40c501097adcc273d24cbaf133e7535952bf42a63"
+   },
+   "reanchor": {
+    "path": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_bf/f104_gator/reanchor_f104_gator_crm_crm.npz",
+    "rows": 55826,
+    "episodes": 15235,
+    "secs": 108.3,
+    "sha256": "2f32ef0caa9195bc0f72817e74813cddc5a3efc10573c35540061ec697cabe2f",
+    "rows_per_episode": 3.664
+   }
+  },
+  "mixed": {
+   "tool": "ag_build_ds.ci_one_world (ga_build_mixed format, one world)",
+   "rows": 55826,
+   "missing_episodes": 0,
+   "raw_found_fraction": 1.0,
+   "elapsed_s": 70.0
+  }
+ },
+ "output": {
+  "path": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_bf/f104_gator/ci_f104_gator_crm.npz",
+  "size_gb": 1.005,
+  "sha256": "0bd3ee631fcd487dc1ff4656ba7aaea847d9c8ff24a894eda7fdee96b3f7312b",
+  "rows": 55826,
+  "rows_by_world": {
+   "crm": 55826
+  },
+  "episodes_by_world": {
+   "crm": 15235
+  },
+  "groups_by_split": {
+   "train": 1089,
+   "val": 56,
+   "test": 55
+  },
+  "counts": {
+   "crm|train|startup": 13821,
+   "crm|train|established": 37001,
+   "crm|val|startup": 713,
+   "crm|val|established": 1869,
+   "crm|test|startup": 701,
+   "crm|test|established": 1721
+  },
+  "tiers": {
+   "crm": {
+    "0": 1199,
+    "1": 1200,
+    "2": 1200,
+    "3": 1200,
+    "4": 1200,
+    "5": 1200,
+    "6": 1200,
+    "7": 1200,
+    "8": 1200,
+    "9": 1200,
+    "10": 1200,
+    "11": 1200,
+    "12": 836
+   }
+  },
+  "keys": [
+   "E",
+   "T",
+   "X",
+   "anchor_frame",
+   "arena",
+   "ctx",
+   "domain",
+   "episode",
+   "event_idx",
+   "fail",
+   "group",
+   "hist",
+   "hist_cols",
+   "hmask",
+   "id",
+   "priv_names",
+   "privileged",
+   "profile",
+   "rem_m",
+   "route_len",
+   "source",
+   "split",
+   "status",
+   "tier",
+   "time_to_event_s",
+   "unsafe",
+   "vehicle",
+   "vx_anchor"
+  ]
+ },
+ "links_removed": true,
+ "elapsed_s": 285.9,
+ "finished": "2026-09-26 19:26:52"
+}

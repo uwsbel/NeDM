@@ -1,0 +1,119 @@
+{
+ "twin": {
+  "ref_rows": 115868,
+  "ref_rows_in_new": 115868,
+  "all_rows_small_arrays_equal": {
+   "id": true,
+   "episode": true,
+   "group": true,
+   "split": true,
+   "domain": true,
+   "anchor_frame": true,
+   "fail": true,
+   "unsafe": true,
+   "event_idx": true,
+   "status": true,
+   "source": true,
+   "profile": true,
+   "route_len": true,
+   "vx_anchor": true,
+   "rem_m": true,
+   "time_to_event_s": true
+  },
+  "new_rows_on_ref_episodes": 115868,
+  "heavy": {
+   "X": {
+    "sample_equal": true,
+    "all_rows_equal": true,
+    "dtype": "float16",
+    "shape": [
+     151665,
+     5,
+     96,
+     32
+    ]
+   },
+   "ctx": {
+    "sample_equal": true,
+    "all_rows_equal": true,
+    "dtype": "float32",
+    "shape": [
+     151665,
+     22
+    ]
+   },
+   "E": {
+    "sample_equal": true,
+    "all_rows_equal": true,
+    "dtype": "float32",
+    "shape": [
+     151665,
+     96
+    ]
+   },
+   "T": {
+    "sample_equal": true,
+    "all_rows_equal": true,
+    "dtype": "float32",
+    "shape": [
+     151665,
+     96
+    ]
+   },
+   "hist": {
+    "sample_equal": true,
+    "all_rows_equal": true,
+    "dtype": "float16",
+    "shape": [
+     151665,
+     40,
+     15
+    ]
+   },
+   "hmask": {
+    "sample_equal": true,
+    "all_rows_equal": true,
+    "dtype": "bool",
+    "shape": [
+     151665,
+     40
+    ]
+   },
+   "privileged": {
+    "sample_equal": true,
+    "all_rows_equal": true,
+    "dtype": "float32",
+    "shape": [
+     151665,
+     8
+    ]
+   }
+  },
+  "secs": 62.0
+ },
+ "runs_sample": {
+  "rigid": {
+   "n_twin_eps": 15024,
+   "n_new_eps": 8976,
+   "picked": 200,
+   "picked_new": 150,
+   "count_equal": 200,
+   "anchor_frames_equal": 200,
+   "rows_identical": 200,
+   "hist_priv_identical": 200,
+   "mismatches": []
+  },
+  "crm": {
+   "n_twin_eps": 15024,
+   "n_new_eps": 211,
+   "picked": 130,
+   "picked_new": 80,
+   "count_equal": 130,
+   "anchor_frames_equal": 130,
+   "rows_identical": 130,
+   "hist_priv_identical": 130,
+   "mismatches": []
+  }
+ },
+ "secs": 68.8
+}

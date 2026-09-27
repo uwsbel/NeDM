@@ -1,0 +1,103 @@
+{
+ "out": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/test_pilot_gator/ci_f104_gator_both.npz",
+ "rows": 1327,
+ "rows_rigid": 1121,
+ "rows_crm": 206,
+ "episodes_rigid": 288,
+ "episodes_crm": 54,
+ "groups": 24,
+ "counts": {
+  "rigid|train|startup": 288,
+  "rigid|train|established": 833,
+  "rigid|val|startup": 0,
+  "rigid|val|established": 0,
+  "rigid|test|startup": 0,
+  "rigid|test|established": 0,
+  "crm|train|startup": 54,
+  "crm|train|established": 152,
+  "crm|val|startup": 0,
+  "crm|val|established": 0,
+  "crm|test|startup": 0,
+  "crm|test|established": 0
+ },
+ "raw_found_rows": 1327,
+ "raw_found_fraction": 1.0,
+ "missing_episodes": [],
+ "coinciding_pairs": 75,
+ "coinciding_pairs_established": 49,
+ "priv_percentiles": {
+  "fz_fl_mean_n": [
+   290.2809,
+   1810.9092,
+   3315.1425
+  ],
+  "fz_fr_mean_n": [
+   298.9067,
+   1867.0262,
+   3412.3229
+  ],
+  "fz_rl_mean_n": [
+   666.3909,
+   2638.0488,
+   4168.958
+  ],
+  "fz_rr_mean_n": [
+   1063.9778,
+   2562.4272,
+   4427.515
+  ],
+  "torque_mean_nm": [
+   0.0,
+   35.8952,
+   70.5184
+  ],
+  "slip_ratio_mean": [
+   -0.1857,
+   0.9768,
+   5.4139
+  ],
+  "spindle_above_bmp_mean_m": [
+   0.2677,
+   0.3215,
+   0.4549
+  ],
+  "is_crm": [
+   1.0,
+   1.0,
+   1.0
+  ]
+ },
+ "hist_T": 40,
+ "hist_state_cols": [
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  11,
+  12,
+  13,
+  14,
+  15
+ ],
+ "hmask_rule": "action frame k-40+t >= 0",
+ "priv_window": "state frames max(0,k-39)..k",
+ "sources": {
+  "rigid": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/test_pilot_gator/reanchor_f104_gator_both_rigid.npz",
+  "crm": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/test_pilot_gator/reanchor_f104_gator_both_crm.npz",
+  "rigid_runs": [
+   "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/test_pilot_gator/work/links_f104_gator_both_rigid"
+  ],
+  "crm_runs": [
+   "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/test_pilot_gator/work/links_f104_gator_both_crm"
+  ]
+ },
+ "workers": 8,
+ "limit_episodes": 0,
+ "elapsed_s": 1.8,
+ "peak_rss_gb_main": 0.12,
+ "peak_rss_gb_child_max": 0.03,
+ "size_gb": 0.024
+}

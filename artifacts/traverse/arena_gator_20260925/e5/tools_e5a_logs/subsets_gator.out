@@ -1,0 +1,9 @@
+11:10:09 ids exit: 0 ( "validated": 24000,)
+11:10:09 start G: ag_subset.py --groups f104=all --ds /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/f104_gator/ci_f104_gator_rigid.npz --out /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/subsets/G_f104_gator_rigid.npz
+11:10:09 start H: ag_subset.py --preset H --ds /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/f104_hmmwv/ci_f104_hmmwv_both.npz --ids-file /work1/dannegrut/harry/experiments/arena_gator_20260925/e5/ids/gator_rigid_validated.txt --out /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/subsets/H_f104_hmmwv_rigid.npz
+11:10:09 start EV_gator: ag_subset.py --groups f104=0 --keep-dev-fold --ds /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/f104_gator/ci_f104_gator_rigid.npz --out /work1/dannegrut/harry/experiments/arena_gator_20260925/e5/eval/EV_f104_gator_rigid.npz
+11:10:54 end EV_gator exit: 0 (wrote /work1/dannegrut/harry/experiments/arena_gator_20260925/e5/eval/EV_f104_gator_rigid.npz (26062 rows, 0.473 GB) in 44.3 s)
+11:12:04 end G exit: 0 (wrote /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/subsets/G_f104_gator_rigid.npz (93551 rows, 1.697 GB) in 113.9 s)
+11:12:26 end H exit: 0 (wrote /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/subsets/H_f104_hmmwv_rigid.npz (93397 rows, 1.693 GB) in 136.0 s)
+11:12:27 H vs M1: [ {  "path": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/subsets/M1_f104_hmmwv_rigid.npz",  "rows": 93397,  "rows_by_split": {   "train": 84787,   "val": 4358,   "test": 4252  } }, {  "path": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/subsets/H_f104_hmmwv_rigid.npz",  "rows": 93397,  "rows_by_split": {   "train": 84787,   "val": 4358,   "test": 4252  },  "same_id_set": true,  "same_order": true,  "only_here": 0,  "only_in_first": 0 }]
+11:12:27 stage gator done

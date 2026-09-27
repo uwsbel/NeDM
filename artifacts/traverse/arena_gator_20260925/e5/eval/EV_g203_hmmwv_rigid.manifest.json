@@ -1,0 +1,98 @@
+{
+ "tool": "scripts/ag_subset.py",
+ "tool_sha256": "3891a0064511666a19d63ff360c9e2b0f56f59d35e14337d1ca634870c590f39",
+ "argv": [
+  "--world",
+  "rigid",
+  "--groups",
+  "g203=0",
+  "--keep-dev-fold",
+  "--ds",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/g203_hmmwv/ci_g203_hmmwv_rigid.npz",
+  "--out",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/e5/eval/EV_g203_hmmwv_rigid.npz"
+ ],
+ "preset": null,
+ "world": "rigid",
+ "vehicle": "hmmwv",
+ "rule": "md5(group id) hex ascending within each arena, first N of the available training groups",
+ "tiers": null,
+ "ids_file": null,
+ "ids_file_sha256": null,
+ "n_ids": null,
+ "ids_apply": null,
+ "eval_rows": "intact",
+ "keep_dev_fold": true,
+ "use": "holdout mode only (the dev fold is kept for scoring; deploy mode would fit it)",
+ "per_arena": {
+  "g203": {
+   "requested": 0,
+   "available": 1083,
+   "selected": 0,
+   "md5_last": null,
+   "dev_fold_groups_kept": 222,
+   "train_groups_in_file": 222,
+   "train_rows": 17029,
+   "train_rows_startup": 4440,
+   "train_episodes": 4440,
+   "val_groups": 48,
+   "val_rows": 3712,
+   "test_groups": 69,
+   "test_rows": 5284,
+   "fit_rows_holdout": 0,
+   "fit_groups_holdout": 0
+  }
+ },
+ "rows": 26025,
+ "fit_rows_deploy": 17029,
+ "fit_rows_holdout": 0,
+ "eval_rows_val": 3712,
+ "inputs": [
+  {
+   "path": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/g203_hmmwv/ci_g203_hmmwv_rigid.npz",
+   "rows": 92225,
+   "rows_kept": 26025,
+   "sha256": "0cc694fb4a16df139111ce1e8ead5ea3e67debda2ba4756924cae9eff651dfdb"
+  }
+ ],
+ "selected_groups": {
+  "g203": []
+ },
+ "dropped_keys": [],
+ "keys": [
+  "E",
+  "T",
+  "X",
+  "anchor_frame",
+  "arena",
+  "ctx",
+  "domain",
+  "episode",
+  "event_idx",
+  "fail",
+  "group",
+  "hist",
+  "hist_cols",
+  "hmask",
+  "id",
+  "priv_names",
+  "privileged",
+  "profile",
+  "rem_m",
+  "route_len",
+  "source",
+  "split",
+  "status",
+  "tier",
+  "time_to_event_s",
+  "unsafe",
+  "vehicle",
+  "vx_anchor"
+ ],
+ "output": {
+  "path": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e5/eval/EV_g203_hmmwv_rigid.npz",
+  "sha256": "270f87f45f1224c13c12a7a8a8c3f14c51f68f042834a7aa2f02c985f69c973e",
+  "size_gb": 0.472
+ },
+ "elapsed_s": 60.3
+}

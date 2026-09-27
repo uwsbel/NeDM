@@ -1,0 +1,39 @@
+{
+  "schema": "f104_family_static_rgbd_v1",
+  "arena": "arena_g241",
+  "camera": {
+    "width": 1024,
+    "height": 1024,
+    "hfov_rad": 0.8203047484373349,
+    "cam_height_m": 110.0,
+    "depth_ray_scale": 1.0,
+    "max_depth_m": 180.0,
+    "backend": "OptiX_luffy_RTX5090_fork_fovfix_9e1a0448b",
+    "depth_measurement": "Euclidean_ray_range_m",
+    "model_image_size": 512,
+    "elevation_scale_m": 10.0,
+    "observation_mode": "One static vehicle-free global terrain RGB-D map of the UNDEFORMED surface (rigid-mesh proxy)"
+  },
+  "arena_bmp_sha256": "028a3290941c30f946a1f7c8c4ecbc2d8761aa6e017507fbc78b6e1d256fc0fa",
+  "arena_meta_sha256": "2557f58b0c838b20dd28c261d35571b53c461e5ccc9bf76c5dac686d4cb09e97",
+  "observation_sha256": "cb86b83b49c02cf98121265f85aea989891993e511ac33fd61664c08450aa882",
+  "native_geometry": {
+    "length_m": 80.0,
+    "width_m": 80.0,
+    "height_min_m": -1.8,
+    "height_max_m": 4.0,
+    "sample_count": 4096,
+    "p95_abs_error_m": 0.021551105676152482,
+    "rmse_m": 0.00967978785854725
+  },
+  "vehicle_or_goal_markers_rendered": false,
+  "rgbd_input_contains_authored_height_samples": false,
+  "all_corners_visible": true,
+  "native_height_samples_are_audit_only": true,
+  "capture_script_sha256": "7ba34321e35cda9c44b327cf4a9c1fa22e23ba72e58a3316a4994bc9bdbe6adf",
+  "host": "luffy",
+  "pychrono": "/home/harry/chrono/build/bin/pychrono/__init__.py",
+  "chrono_git": "a92c6f72f422fbcafe0b37125d4070cb6a3b5803",
+  "repo_git": "4bc44386db6390e767765744ef7bc7933a91c428",
+  "terrain_colour": "flat_0.42_0.5_0.32"
+}

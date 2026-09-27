@@ -1,0 +1,247 @@
+{
+ "train_g203": {
+  "arena": "g203",
+  "groups": 1200,
+  "n_features": 11,
+  "feature_kinds": {
+   "hill": 6,
+   "crater": 5
+  },
+  "strata": {
+   "hill_entry_cross_exit": 155,
+   "crater_entry_cross_exit": 186,
+   "long_traverse": 92,
+   "roughness_transfer": 92,
+   "hill_cross_slope": 309,
+   "crater_cross_slope": 366
+  },
+  "route00_length_m_p5_p50_p95": [
+   29.4,
+   41.3,
+   60.2
+  ],
+  "min_4d_dist_to_gen_v1_cases_m": {
+   "cases_data_g203": {
+    "min": 0.195,
+    "n_within_2m": 44
+   },
+   "cases_test_g203": {
+    "min": 0.145,
+    "n_within_2m": 75
+   }
+  }
+ },
+ "train_g228": {
+  "arena": "g228",
+  "groups": 1200,
+  "n_features": 10,
+  "feature_kinds": {
+   "hill": 5,
+   "crater": 5
+  },
+  "strata": {
+   "hill_entry_cross_exit": 170,
+   "crater_entry_cross_exit": 140,
+   "long_traverse": 185,
+   "roughness_transfer": 100,
+   "hill_cross_slope": 330,
+   "crater_cross_slope": 275
+  },
+  "route00_length_m_p5_p50_p95": [
+   29.7,
+   42.3,
+   62.5
+  ],
+  "min_4d_dist_to_gen_v1_cases_m": {
+   "cases_data_g228": {
+    "min": 0.3,
+    "n_within_2m": 31
+   },
+   "cases_test_g228": {
+    "min": 0.426,
+    "n_within_2m": 37
+   }
+  }
+ },
+ "heldout_g203": {
+  "arena": "g203",
+  "groups": 150,
+  "n_features": 11,
+  "feature_kinds": {
+   "hill": 6,
+   "crater": 5
+  },
+  "strata": {
+   "hill_entry_cross_exit": 24,
+   "crater_entry_cross_exit": 28,
+   "hill_cross_slope": 46,
+   "crater_cross_slope": 52
+  },
+  "route00_length_m_p5_p50_p95": [
+   29.2,
+   39.4,
+   52.8
+  ],
+  "min_4d_dist_to_training_m": {
+   "min": 2.012,
+   "median": 3.16
+  },
+  "min_4d_dist_to_gen_v1_cases_m": {
+   "cases_data_g203": {
+    "min": 1.168,
+    "n_within_2m": 5
+   },
+   "cases_test_g203": {
+    "min": 1.36,
+    "n_within_2m": 7
+   }
+  }
+ },
+ "heldout_g228": {
+  "arena": "g228",
+  "groups": 150,
+  "n_features": 10,
+  "feature_kinds": {
+   "hill": 5,
+   "crater": 5
+  },
+  "strata": {
+   "hill_entry_cross_exit": 30,
+   "crater_entry_cross_exit": 24,
+   "hill_cross_slope": 59,
+   "crater_cross_slope": 37
+  },
+  "route00_length_m_p5_p50_p95": [
+   30.3,
+   39.8,
+   50.3
+  ],
+  "min_4d_dist_to_training_m": {
+   "min": 2.005,
+   "median": 3.215
+  },
+  "min_4d_dist_to_gen_v1_cases_m": {
+   "cases_data_g228": {
+    "min": 1.346,
+    "n_within_2m": 2
+   },
+   "cases_test_g228": {
+    "min": 0.963,
+    "n_within_2m": 4
+   }
+  }
+ },
+ "dev_g217": {
+  "arena": "g217",
+  "groups": 150,
+  "n_features": 12,
+  "feature_kinds": {
+   "hill": 6,
+   "crater": 6
+  },
+  "strata": {
+   "hill_entry_cross_exit": 28,
+   "crater_entry_cross_exit": 28,
+   "hill_cross_slope": 50,
+   "crater_cross_slope": 44
+  },
+  "route00_length_m_p5_p50_p95": [
+   29.0,
+   37.9,
+   51.3
+  ],
+  "min_4d_dist_to_gen_v1_cases_m": {
+   "cases_data_g217": {
+    "min": 0.911,
+    "n_within_2m": 14
+   },
+   "cases_test_g217": {
+    "min": 0.183,
+    "n_within_2m": 20
+   }
+  }
+ },
+ "test_g260": {
+  "arena": "g260",
+  "groups": 250,
+  "n_features": 10,
+  "feature_kinds": {
+   "hill": 5,
+   "crater": 5
+  },
+  "strata": {
+   "hill_entry_cross_exit": 42,
+   "crater_entry_cross_exit": 42,
+   "hill_cross_slope": 83,
+   "crater_cross_slope": 83
+  },
+  "route00_length_m_p5_p50_p95": [
+   29.4,
+   39.7,
+   53.0
+  ]
+ },
+ "test_g271": {
+  "arena": "g271",
+  "groups": 250,
+  "n_features": 11,
+  "feature_kinds": {
+   "hill": 6,
+   "crater": 5
+  },
+  "strata": {
+   "hill_entry_cross_exit": 50,
+   "crater_entry_cross_exit": 41,
+   "hill_cross_slope": 88,
+   "crater_cross_slope": 71
+  },
+  "route00_length_m_p5_p50_p95": [
+   29.1,
+   40.8,
+   51.8
+  ]
+ },
+ "test_g251": {
+  "arena": "g251",
+  "groups": 250,
+  "n_features": 11,
+  "feature_kinds": {
+   "hill": 5,
+   "crater": 6
+  },
+  "strata": {
+   "hill_entry_cross_exit": 65,
+   "crater_entry_cross_exit": 26,
+   "hill_cross_slope": 98,
+   "crater_cross_slope": 61
+  },
+  "route00_length_m_p5_p50_p95": [
+   29.2,
+   40.5,
+   49.0
+  ]
+ },
+ "test_g247": {
+  "arena": "g247",
+  "groups": 250,
+  "n_features": 11,
+  "feature_kinds": {
+   "hill": 5,
+   "crater": 6
+  },
+  "strata": {
+   "hill_entry_cross_exit": 46,
+   "crater_entry_cross_exit": 45,
+   "hill_cross_slope": 72,
+   "crater_cross_slope": 87
+  },
+  "route00_length_m_p5_p50_p95": [
+   29.1,
+   38.6,
+   51.0
+  ]
+ },
+ "_ids_unique": true,
+ "_older_case_ids_hit_by_new_patterns": 0,
+ "_older_case_files_scanned": 9050
+}

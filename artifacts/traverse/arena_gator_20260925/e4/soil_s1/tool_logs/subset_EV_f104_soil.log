@@ -1,0 +1,55 @@
+{
+ "tool": "scripts/ag_subset.py",
+ "tool_sha256": "3891a0064511666a19d63ff360c9e2b0f56f59d35e14337d1ca634870c590f39",
+ "argv": [
+  "--world",
+  "crm",
+  "--tiers",
+  "0-6",
+  "--eval-rows",
+  "filtered",
+  "--groups",
+  "f104=0",
+  "--keep-dev-fold",
+  "--ds",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/f104_hmmwv/ci_f104_hmmwv_both.npz",
+  "--out",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/e5/eval_soil/EV_f104_hmmwv_crm.npz"
+ ],
+ "preset": null,
+ "world": "crm",
+ "vehicle": "hmmwv",
+ "rule": "md5(group id) hex ascending within each arena, first N of the available training groups",
+ "tiers": "0-6",
+ "ids_file": null,
+ "ids_file_sha256": null,
+ "n_ids": null,
+ "ids_apply": null,
+ "eval_rows": "filtered",
+ "keep_dev_fold": true,
+ "use": "holdout mode only (the dev fold is kept for scoring; deploy mode would fit it)",
+ "per_arena": {
+  "f104": {
+   "requested": 0,
+   "available": 1089,
+   "selected": 0,
+   "md5_last": null,
+   "dev_fold_groups_kept": 224,
+   "train_groups_in_file": 224,
+   "train_rows": 6005,
+   "train_rows_startup": 1568,
+   "train_episodes": 1568,
+   "val_groups": 56,
+   "val_rows": 1492,
+   "test_groups": 55,
+   "test_rows": 1450,
+   "fit_rows_holdout": 0,
+   "fit_groups_holdout": 0
+  }
+ },
+ "rows": 8947,
+ "fit_rows_deploy": 6005,
+ "fit_rows_holdout": 0,
+ "eval_rows_val": 1492
+}
+wrote /work1/dannegrut/harry/experiments/arena_gator_20260925/e5/eval_soil/EV_f104_hmmwv_crm.npz (8947 rows, 0.162 GB) in 74.9 s

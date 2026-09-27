@@ -1,0 +1,18 @@
+{
+  "schema": "crm_f104_episode_complete_v1",
+  "actual_elapsed_s": 12.0,
+  "status": "timeout",
+  "artifacts_sha256": {
+    "anchor_state.npz": "9b1b9e9a908d8bf17ff868990352c423995a4e21cf6afd9484c75b5afe923624",
+    "case.json": "639b0186b793e04f123c43cd7179da0c6843c1b7ac58e080e88bfe96a85fbb5f",
+    "collection_request.json": "9591f7059aa1efdaf088117253e3f7a0086403a521e72fb06e6aa406292b4c8b",
+    "command_reference.npz": "2a083757fd701a99fb2b41d4fccc95b9ad490ceb3315d3ab3c6c7d3ecbb4e5f5",
+    "crm_extra.npz": "bf4e8cae6bf1a025926a376737ffb039641d9f5c2034bb274db2e2424236908f",
+    "f104_episode.json": "54e8569b36fcf25daea202c9c352f0c79bad527c41434fc37c442acf9ec4b80e",
+    "initial_state_validation.json": "5f3b4d90d76775edb8d2f056b230330c7d1fe4b85c9c14a066e0bbed12076ea8",
+    "outcome.json": "ed578652dcb5fc3c3ae48561fd31239be0e517580e89de83ac70a43345c2dba7",
+    "reference.json": "3198416289f859012b40e13f1bac4fa7b16ff23f505a255909501975bcc0a604",
+    "trajectory.npz": "f6c5611a57546d1be58feac5d3f912c131573e9f324914f7b345ee626122c0fd",
+    "vehicle_extra.npz": "f0cfc49574d7bed172e46e6c6a985f92abf2d46864dc020208c9b93ee2a8d0ae"
+  }
+}

@@ -1,0 +1,734 @@
+{
+ "dirs": 145,
+ "groups": 725,
+ "identical": 725,
+ "failed": [],
+ "differing": [],
+ "per_dir": [
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/f104/A3_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/f104/A3_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/f104/G_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/f104/M1a_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/f104/M1a_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/f104/M1b_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/f104/M1b_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/f104/M2_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/f104/M2_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/f104/M3a_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/f104/M3a_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/f104/M3b_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/f104/M3b_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g203/A3_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g203/A3_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g203/M1a_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g203/M1a_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g203/M1b_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g203/M1b_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g203/M2_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g203/M2_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g203/M3a_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g203/M3a_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g203/M3b_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g203/M3b_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g217/A3_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g217/A3_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g217/M1a_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g217/M1a_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g217/M1b_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g217/M1b_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g217/M2_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g217/M2_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g217/M3a_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g217/M3a_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g217/M3b_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g217/M3b_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g228/A3_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g228/A3_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g228/M1a_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g228/M1a_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g228/M1b_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g228/M1b_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g228/M2_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g228/M2_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g228/M3a_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g228/M3a_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g228/M3b_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g228/M3b_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g241/A3_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g241/A3_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g241/M1a_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g241/M1a_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g241/M1b_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g241/M1b_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g241/M2_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g241/M2_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g241/M3a_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g241/M3a_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g241/M3b_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g241/M3b_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g247/A3_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g247/A3_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g247/M1a_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g247/M1a_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g247/M1b_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g247/M1b_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g247/M2_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g247/M2_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g247/M3a_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g247/M3a_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g247/M3b_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g247/M3b_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g251/A3_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g251/A3_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g251/M1a_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g251/M1a_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g251/M1b_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g251/M1b_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g251/M2_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g251/M2_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g251/M3a_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g251/M3a_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g251/M3b_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g251/M3b_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g258/A3_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g258/A3_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g258/M1a_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g258/M1a_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g258/M1b_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g258/M1b_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g258/M2_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g258/M2_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g258/M3a_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g258/M3a_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g258/M3b_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g258/M3b_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g260/A3_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g260/A3_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g260/M1a_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g260/M1a_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g260/M1b_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g260/M1b_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g260/M2_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g260/M2_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g260/M3a_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g260/M3a_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g260/M3b_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g260/M3b_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g263/A3_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g263/A3_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g263/M1a_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g263/M1a_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g263/M1b_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g263/M1b_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g263/M2_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g263/M2_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g263/M3a_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g263/M3a_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g263/M3b_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g263/M3b_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g268/A3_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g268/A3_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g268/M1a_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g268/M1a_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g268/M1b_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g268/M1b_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g268/M2_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g268/M2_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g268/M3a_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g268/M3a_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g268/M3b_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g268/M3b_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g271/A3_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g271/A3_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g271/M1a_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g271/M1a_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g271/M1b_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g271/M1b_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g271/M2_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g271/M2_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g271/M3a_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g271/M3a_free",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g271/M3b_fixed2",
+   "groups": 5,
+   "identical": 5
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g271/M3b_free",
+   "groups": 5,
+   "identical": 5
+  }
+ ]
+}

@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "/work1/dannegrut/harry/experiments/arena_gator_20260925/source/scripts/ci_train.py", line 752, in <module>
+    main()
+  File "/work1/dannegrut/harry/experiments/arena_gator_20260925/source/scripts/ci_train.py", line 723, in main
+    D = CIData(a.ds, a); dom_counts = {DOMAIN_NAME[x]: int((D.dom_np[D.fit] == x).sum()) for x in (0, 1)}
+        ^^^^^^^^^^^^^^^
+  File "/work1/dannegrut/harry/experiments/arena_gator_20260925/source/scripts/ci_train.py", line 260, in __init__
+    zs = [np.load(p, allow_pickle=True) for p in paths]; ns = [len(z['id']) for z in zs]
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/share/sw/ai/pytorch/2.10.0/numpy/lib/_npyio_impl.py", line 454, in load
+    fid = stack.enter_context(open(os.fspath(file), "rb"))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/subsets/M3_hmmwv_rigid.npz'
+exit: 1

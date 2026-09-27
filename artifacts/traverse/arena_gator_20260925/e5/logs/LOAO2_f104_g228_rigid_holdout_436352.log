@@ -1,0 +1,39 @@
+/work1/dannegrut/harry/experiments/arena_gator_20260925/source/scripts/ci_train.py:335: UserWarning: expandable_segments not supported on this platform (Triggered internally at /pytorch/c10/hip/HIPAllocatorConfig.h:40.)
+  self.X = torch.empty((self.n, 6, 96, 32), dtype=xdt, device='cpu', pin_memory=torch.cuda.is_available()) if a.x_host else torch.empty((self.n, 6, 96, 32), dtype=xdt, device=DEV)
+=== LOAO2_f104_g228_rigid_holdout: files 1 rows used 51471 fit 34374 {'rigid': 34374, 'crm': 0} {'designed': 20419, 'on_policy': 13955} dev 8099 heldout(val) 8998 nctx 5 hist frames 40 visible / 40 consumed / 40 stored split_hash 4ce385a6 load 12.5s data on gpu 3.54 GB
+  s0 rigid startup[W_unsafe=0.956 P_unsafe=0.954 pick_fail=0.009 brier_unsafe=0.103 n=2320] established[W_unsafe=0.957 P_unsafe=0.957 pick_fail=0.009 brier_unsafe=0.094 n=6678]
+  s0   k0             rigid W_unsafe=0.956 P_unsafe=0.954 pick_fail=0.009 brier_unsafe=0.103 n=2320
+  s0   k40p           rigid W_unsafe=0.957 P_unsafe=0.957 pick_fail=0.009 brier_unsafe=0.094 n=6678
+  s0   src:designed   rigid W_unsafe=0.962 P_unsafe=0.959 pick_fail=0.009 brier_unsafe=0.067 n=5335
+  s0   src:on_policy  rigid W_unsafe=0.916 P_unsafe=0.931 pick_fail=0.052 brier_unsafe=0.140 n=3663
+  s0 loss 0.2218 147.5s (0.0367 s/step, 4020 steps) 256161p gpu_peak 4.78 GB (reserved 4.97)
+  s1 rigid startup[W_unsafe=0.955 P_unsafe=0.957 pick_fail=0.009 brier_unsafe=0.096 n=2320] established[W_unsafe=0.958 P_unsafe=0.960 pick_fail=0.017 brier_unsafe=0.087 n=6678]
+  s1   k0             rigid W_unsafe=0.955 P_unsafe=0.957 pick_fail=0.009 brier_unsafe=0.096 n=2320
+  s1   k40p           rigid W_unsafe=0.958 P_unsafe=0.960 pick_fail=0.017 brier_unsafe=0.087 n=6678
+  s1   src:designed   rigid W_unsafe=0.965 P_unsafe=0.961 pick_fail=0.000 brier_unsafe=0.063 n=5335
+  s1   src:on_policy  rigid W_unsafe=0.922 P_unsafe=0.936 pick_fail=0.078 brier_unsafe=0.128 n=3663
+  s1 loss 0.1333 144.7s (0.036 s/step, 4020 steps) 256161p gpu_peak 4.78 GB (reserved 4.97)
+  s2 rigid startup[W_unsafe=0.953 P_unsafe=0.955 pick_fail=0.009 brier_unsafe=0.093 n=2320] established[W_unsafe=0.957 P_unsafe=0.961 pick_fail=0.009 brier_unsafe=0.087 n=6678]
+  s2   k0             rigid W_unsafe=0.953 P_unsafe=0.955 pick_fail=0.009 brier_unsafe=0.093 n=2320
+  s2   k40p           rigid W_unsafe=0.957 P_unsafe=0.961 pick_fail=0.009 brier_unsafe=0.087 n=6678
+  s2   src:designed   rigid W_unsafe=0.968 P_unsafe=0.966 pick_fail=0.000 brier_unsafe=0.060 n=5335
+  s2   src:on_policy  rigid W_unsafe=0.920 P_unsafe=0.936 pick_fail=0.069 brier_unsafe=0.129 n=3663
+  s2 loss 0.2384 144.7s (0.036 s/step, 4020 steps) 256161p gpu_peak 4.78 GB (reserved 4.97)
+  s3 rigid startup[W_unsafe=0.952 P_unsafe=0.955 pick_fail=0.009 brier_unsafe=0.097 n=2320] established[W_unsafe=0.956 P_unsafe=0.958 pick_fail=0.000 brier_unsafe=0.091 n=6678]
+  s3   k0             rigid W_unsafe=0.952 P_unsafe=0.955 pick_fail=0.009 brier_unsafe=0.097 n=2320
+  s3   k40p           rigid W_unsafe=0.956 P_unsafe=0.958 pick_fail=0.000 brier_unsafe=0.091 n=6678
+  s3   src:designed   rigid W_unsafe=0.967 P_unsafe=0.965 pick_fail=0.000 brier_unsafe=0.066 n=5335
+  s3   src:on_policy  rigid W_unsafe=0.907 P_unsafe=0.929 pick_fail=0.069 brier_unsafe=0.131 n=3663
+  s3 loss 0.1484 145.4s (0.0362 s/step, 4020 steps) 256161p gpu_peak 4.78 GB (reserved 4.97)
+  s4 rigid startup[W_unsafe=0.954 P_unsafe=0.958 pick_fail=0.009 brier_unsafe=0.097 n=2320] established[W_unsafe=0.962 P_unsafe=0.964 pick_fail=0.000 brier_unsafe=0.087 n=6678]
+  s4   k0             rigid W_unsafe=0.954 P_unsafe=0.958 pick_fail=0.009 brier_unsafe=0.097 n=2320
+  s4   k40p           rigid W_unsafe=0.962 P_unsafe=0.964 pick_fail=0.000 brier_unsafe=0.087 n=6678
+  s4   src:designed   rigid W_unsafe=0.966 P_unsafe=0.967 pick_fail=0.000 brier_unsafe=0.064 n=5335
+  s4   src:on_policy  rigid W_unsafe=0.918 P_unsafe=0.937 pick_fail=0.052 brier_unsafe=0.127 n=3663
+  s4 loss 0.2355 144.6s (0.036 s/step, 4020 steps) 256161p gpu_peak 4.78 GB (reserved 4.97)
+ENSEMBLE LOAO2_f104_g228_rigid_holdout rigid startup[W_unsafe=0.965 P_unsafe=0.966 pick_fail=0.009 brier_unsafe=0.088 n=2320] established[W_unsafe=0.969 P_unsafe=0.970 pick_fail=0.000 brier_unsafe=0.080 n=6678]
+ENSEMBLE LOAO2_f104_g228_rigid_holdout   k0             rigid W_unsafe=0.965 P_unsafe=0.966 pick_fail=0.009 brier_unsafe=0.088 n=2320
+ENSEMBLE LOAO2_f104_g228_rigid_holdout   k40p           rigid W_unsafe=0.969 P_unsafe=0.970 pick_fail=0.000 brier_unsafe=0.080 n=6678
+ENSEMBLE LOAO2_f104_g228_rigid_holdout   src:designed   rigid W_unsafe=0.974 P_unsafe=0.974 pick_fail=0.000 brier_unsafe=0.058 n=5335
+ENSEMBLE LOAO2_f104_g228_rigid_holdout   src:on_policy  rigid W_unsafe=0.935 P_unsafe=0.948 pick_fail=0.060 brier_unsafe=0.117 n=3663
+exit: 0

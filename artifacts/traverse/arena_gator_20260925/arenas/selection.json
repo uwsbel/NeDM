@@ -1,0 +1,1196 @@
+{
+ "schema": "ag_arena_rank_v1",
+ "created": "2026-09-25 01:19:31",
+ "script": "scripts/ag_arena_rank.py",
+ "script_sha256": "7a292daf06f8fe7c1a3c032feb0fb5d54f8c11da28c186f25393912f6bfc57bc",
+ "similarity_json": "artifacts/traverse/fdm_f104_50h_20260909/gen_v1/arena_similarity.json",
+ "similarity_json_sha256": "8cbd472c5cf1e018d33138d3357e871328401dcc55668d0f02846f94456a134d",
+ "reference": "arena_f104_50h_v1",
+ "reference_bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+ "feature_names": [
+  "slope_cap_deg",
+  "roughness_m",
+  "roughness_corr_m",
+  "n_hills",
+  "n_craters",
+  "slope_p99_deg",
+  "flat5deg_fraction",
+  "height_range_m"
+ ],
+ "scale": [
+  2.0,
+  0.03,
+  0.35,
+  0.8,
+  0.8,
+  1.2,
+  0.06,
+  0.5
+ ],
+ "reference_features": [
+  30.869953686586747,
+  0.23997925932155514,
+  2.2160888282268245,
+  5.0,
+  5.0,
+  28.57941743168739,
+  0.24773025512695312,
+  5.7
+ ],
+ "reference_features_max_abs_dev_vs_stored": 0.0,
+ "distance": "sqrt(mean(((stat - stat_f104) / scale)^2)) over the 8 statistics",
+ "check_vs_stored": {
+  "n": 40,
+  "n_stored": 40,
+  "max_abs_diff": 0.0,
+  "mean_abs_diff": 0.0,
+  "tolerance": 0.003,
+  "passed": true,
+  "same_order_as_stored": true,
+  "top5_recomputed": [
+   "arena_g228",
+   "arena_g203",
+   "arena_g217",
+   "arena_g216",
+   "arena_g231"
+  ],
+  "top5_stored": [
+   "arena_g228",
+   "arena_g203",
+   "arena_g217",
+   "arena_g216",
+   "arena_g231"
+  ],
+  "rows": [
+   {
+    "arena": "arena_g201",
+    "distance": 1.1367215077937622,
+    "stored_distance": 1.1367215077937622,
+    "abs_diff": 0.0,
+    "max_abs_feature_diff_vs_stored": 0.0003413486858310222,
+    "bmp_sha256": "c1ac48cce0c09290d2ae75231f16e9667f9c67c7ce47f62d1e5d2e912799dace"
+   },
+   {
+    "arena": "arena_g202",
+    "distance": 1.6881747729836476,
+    "stored_distance": 1.6881747729836476,
+    "abs_diff": 0.0,
+    "max_abs_feature_diff_vs_stored": 0.0004607070246400724,
+    "bmp_sha256": "90b7a9da6505e9c4f34df3db112543d7f6be21e50b1a5533a62956031744c0b2"
+   },
+   {
+    "arena": "arena_g203",
+    "distance": 0.8149145257712624,
+    "stored_distance": 0.8149145257712624,
+    "abs_diff": 0.0,
+    "max_abs_feature_diff_vs_stored": 0.0004448723574261848,
+    "bmp_sha256": "46b4fb2c6d6c5dbaf49bdf320d4e5bd62cf257dff43fff4b3d3e990a92735231"
+   },
+   {
+    "arena": "arena_g204",
+    "distance": 1.0144038688490684,
+    "stored_distance": 1.0144038688490684,
+    "abs_diff": 0.0,
+    "max_abs_feature_diff_vs_stored": 0.00044323596393042175,
+    "bmp_sha256": "75c0a28a8fd762ac1b9b55728f1edb48a0aa3000a70d49b50139075d20a61442"
+   },
+   {
+    "arena": "arena_g205",
+    "distance": 1.6400271210417716,
+    "stored_distance": 1.6400271210417716,
+    "abs_diff": 0.0,
+    "max_abs_feature_diff_vs_stored": 0.0004625549316406019,
+    "bmp_sha256": "a9d232a0a291c33c5aca11fc5a2d4976f10bac619f9b4bfc97f198cddb8a82de"
+   },
+   {
+    "arena": "arena_g206",
+    "distance": 1.366150619278597,
+    "stored_distance": 1.366150619278597,
+    "abs_diff": 0.0,
+    "max_abs_feature_diff_vs_stored": 0.0004968264095576158,
+    "bmp_sha256": "fcf5a7b0d33b8dab68652a8f8410b3ea08945618e5fef7e52abbb45f1b118e9f"
+   },
+   {
+    "arena": "arena_g207",
+    "distance": 1.6600044913523873,
+    "stored_distance": 1.6600044913523873,
+    "abs_diff": 0.0,
+    "max_abs_feature_diff_vs_stored": 0.00046631347690606617,
+    "bmp_sha256": "44ebbf154cc7e9cfbd3e96f77d9bb634e2a71eddd719c1265b0191114fbea815"
+   },
+   {
+    "arena": "arena_g208",
+    "distance": 1.2997276804078277,
+    "stored_distance": 1.2997276804078277,
+    "abs_diff": 0.0,
+    "max_abs_feature_diff_vs_stored": 0.0004975550348582658,
+    "bmp_sha256": "8591e52c72c2016fbcfe8f31a33d4b3aebda7c2fef893770141d8fe35961e8db"
+   },
+   {
+    "arena": "arena_g209",
+    "distance": 1.4568760923891633,
+    "stored_distance": 1.4568760923891633,
+    "abs_diff": 0.0,
+    "max_abs_feature_diff_vs_stored": 0.00046139721888804885,
+    "bmp_sha256": "5572851c0d6be447975ae4ffa96b50b5e90bcf03c0da5858ce72859a93c8ec2f"
+   },
+   {
+    "arena": "arena_g210",
+    "distance": 1.5940999823303483,
+    "stored_distance": 1.5940999823303483,
+    "abs_diff": 0.0,
+    "max_abs_feature_diff_vs_stored": 0.0001831440141906171,
+    "bmp_sha256": "7c9ca3aa0f5a71875b2ea0692698de3aedebe37aedc03d02fd7f6037803d6508"
+   },
+   {
+    "arena": "arena_g211",
+    "distance": 1.3788014981915107,
+    "stored_distance": 1.3788014981915107,
+    "abs_diff": 0.0,
+    "max_abs_feature_diff_vs_stored": 0.0003967169521104097,
+    "bmp_sha256": "27cb0109855934f2f96f372ab5b911744e24af4d026b33ca7a4e279c90abe76c"
+   },
+   {
+    "arena": "arena_g212",
+    "distance": 1.4397446111092356,
+    "stored_distance": 1.4397446111092356,
+    "abs_diff": 0.0,
+    "max_abs_feature_diff_vs_stored": 0.00034864116356142505,
+    "bmp_sha256": "a591d96435503c1f5ddda57ab03ff4fe1eafad967b9d6a6b9b681c48dcbe4fe5"
+   },
+   {
+    "arena": "arena_g213",
+    "distance": 0.9798762675520272,
+    "stored_distance": 0.9798762675520272,
+    "abs_diff": 0.0,
+    "max_abs_feature_diff_vs_stored": 0.0004898457918627308,
+    "bmp_sha256": "6d6f38cdebe63e7a22a711af29e088ee1def2eea7ecc8ae78ce81aebc717d694"
+   },
+   {
+    "arena": "arena_g214",
+    "distance": 1.820907870939249,
+    "stored_distance": 1.820907870939249,
+    "abs_diff": 0.0,
+    "max_abs_feature_diff_vs_stored": 0.0004609830068815768,
+    "bmp_sha256": "b6b7cbdcb75959ca52eb7412a56a8d243305fe95ea2e7d0bb960a8b5bc5eedf7"
+   },
+   {
+    "arena": "arena_g215",
+    "distance": 1.9167412297848345,
+    "stored_distance": 1.9167412297848345,
+    "abs_diff": 0.0,
+    "max_abs_feature_diff_vs_stored": 0.00045024099366086645,
+    "bmp_sha256": "c0b4354b380ad0d1448f8ff3c4a872ed95bb678219890ea112ef0dd03318fb6c"
+   },
+   {
+    "arena": "arena_g216",
+    "distance": 0.8551807086494271,
+    "stored_distance": 0.8551807086494271,
+    "abs_diff": 0.0,
+    "max_abs_feature_diff_vs_stored": 0.0004736631057022933,
+    "bmp_sha256": "c9b17ba188e1a0e741c57418001895494e0f0e114055fb2506a35ae9a7892e34"
+   },
+   {
+    "arena": "arena_g217",
+    "distance": 0.8542669022561307,
+    "stored_distance": 0.8542669022561307,
+    "abs_diff": 0.0,
+    "max_abs_feature_diff_vs_stored": 0.0003091125488281221,
+    "bmp_sha256": "22bc058bb40e331d36ba50a686f33b6d6ee0d2492c3fa88807ccda1d7e894307"
+   },
+   {
+    "arena": "arena_g218",
+    "distance": 1.2215862970544558,
+    "stored_distance": 1.2215862970544558,
+    "abs_diff": 0.0,
+    "max_abs_feature_diff_vs_stored": 0.00045743715953960873,
+    "bmp_sha256": "fdda84e5d40af391e9503696403f16cae26023201c0ed2d5d1fc82c53a63a920"
+   },
+   {
+    "arena": "arena_g219",
+    "distance": 1.3844884025804651,
+    "stored_distance": 1.3844884025804651,
+    "abs_diff": 0.0,
+    "max_abs_feature_diff_vs_stored": 0.0003714640499903332,
+    "bmp_sha256": "30e135741ba8b6fc6f853dba29706fd1ae0610bd92687f5cb06cf7ba77306004"
+   },
+   {
+    "arena": "arena_g220",
+    "distance": 1.6942898533275434,
+    "stored_distance": 1.6942898533275434,
+    "abs_diff": 0.0,
+    "max_abs_feature_diff_vs_stored": 0.0004954038333337962,
+    "bmp_sha256": "cec44b5138aa1d7243f707f2b7035402b1f874f4fdf5c48d466042f8a3e69593"
+   },
+   {
+    "arena": "arena_g221",
+    "distance": 1.7530706177449478,
+    "stored_distance": 1.7530706177449478,
+    "abs_diff": 0.0,
+    "max_abs_feature_diff_vs_stored": 0.0004290270240860927,
+    "bmp_sha256": "8695bda0dc6a23ab9371c8479370ff34cf099d2f752afe1bff1eec44ea7e2c91"
+   },
+   {
+    "arena": "arena_g222",
+    "distance": 1.5363343973779253,
+    "stored_distance": 1.5363343973779253,
+    "abs_diff": 0.0,
+    "max_abs_feature_diff_vs_stored": 0.0004735265669679467,
+    "bmp_sha256": "26c4e702282f1577325446b4902400e7079402f899ef1015f5a05762ee005803"
+   },
+   {
+    "arena": "arena_g223",
+    "distance": 1.1017271066782393,
+    "stored_distance": 1.1017271066782393,
+    "abs_diff": 0.0,
+    "max_abs_feature_diff_vs_stored": 0.00038564599370882746,
+    "bmp_sha256": "835ed9afe6c001a200e3aec76f7fcfff7335dd2ce91edc0928732b654995f131"
+   },
+   {
+    "arena": "arena_g224",
+    "distance": 1.2723153293799094,
+    "stored_distance": 1.2723153293799094,
+    "abs_diff": 0.0,
+    "max_abs_feature_diff_vs_stored": 0.0002608938722641341,
+    "bmp_sha256": "5af7e142a079b8f8f128fcf4583c4a62d22bed9975dde22544271c53130e2d81"
+   },
+   {
+    "arena": "arena_g225",
+    "distance": 1.4638160150506456,
+    "stored_distance": 1.4638160150506456,
+    "abs_diff": 0.0,
+    "max_abs_feature_diff_vs_stored": 0.0004761448251762168,
+    "bmp_sha256": "6bec2d4d7ffdaeb03174d4ab9e97ee179597e466e2008ec8d6c24a069e6709fe"
+   },
+   {
+    "arena": "arena_g226",
+    "distance": 1.5516034223688457,
+    "stored_distance": 1.5516034223688457,
+    "abs_diff": 0.0,
+    "max_abs_feature_diff_vs_stored": 0.00038476562500000533,
+    "bmp_sha256": "66ef8415580212f147eae14b4a306731cdd66d5c32569076069e15c3e495e427"
+   },
+   {
+    "arena": "arena_g227",
+    "distance": 1.2089853444685899,
+    "stored_distance": 1.2089853444685899,
+    "abs_diff": 0.0,
+    "max_abs_feature_diff_vs_stored": 0.00031915283203126643,
+    "bmp_sha256": "f8e8f742cd2ceefd9c1dd367bdadc4d73aaa1fd1a26b1b29a3a4e7c4fe30a7f8"
+   },
+   {
+    "arena": "arena_g228",
+    "distance": 0.8114229378713305,
+    "stored_distance": 0.8114229378713305,
+    "abs_diff": 0.0,
+    "max_abs_feature_diff_vs_stored": 0.0003539712236190762,
+    "bmp_sha256": "c861bd7a7990e22556520c1a7e5a09d31ba4c204c46d12b1e80f9aa6fe6369f3"
+   },
+   {
+    "arena": "arena_g229",
+    "distance": 1.5110825779200048,
+    "stored_distance": 1.5110825779200048,
+    "abs_diff": 0.0,
+    "max_abs_feature_diff_vs_stored": 0.00028510723011088146,
+    "bmp_sha256": "d5d6865e1a869bf722a3923a932d18d055e89b74203f3084625f4fe2a1c82cc6"
+   },
+   {
+    "arena": "arena_g230",
+    "distance": 1.9533224716991306,
+    "stored_distance": 1.9533224716991306,
+    "abs_diff": 0.0,
+    "max_abs_feature_diff_vs_stored": 0.00018033455111066132,
+    "bmp_sha256": "43f72b1b9f822c1a8528a3a8e0fb296cfb1ec1c22ee355fc40c62db7c8f5ec0c"
+   },
+   {
+    "arena": "arena_g231",
+    "distance": 0.9391650313410105,
+    "stored_distance": 0.9391650313410105,
+    "abs_diff": 0.0,
+    "max_abs_feature_diff_vs_stored": 0.0004947064202096563,
+    "bmp_sha256": "d6695cb707acdcfd272283e0c1d624e01a4dda70f5797cf84fa0d36419d4f86f"
+   },
+   {
+    "arena": "arena_g232",
+    "distance": 1.23495567208371,
+    "stored_distance": 1.23495567208371,
+    "abs_diff": 0.0,
+    "max_abs_feature_diff_vs_stored": 0.00045631388706013354,
+    "bmp_sha256": "51e16b87ac91a0f0cce6eddc35742fbd2022d5ab109fda4093bfc146d4f003e5"
+   },
+   {
+    "arena": "arena_g233",
+    "distance": 1.7063873726631849,
+    "stored_distance": 1.7063873726631849,
+    "abs_diff": 0.0,
+    "max_abs_feature_diff_vs_stored": 0.0004514620456674834,
+    "bmp_sha256": "49f3d36f77a4391f12801aec53ac6131c8abee3cbf156033d8dfd2fe7bf295eb"
+   },
+   {
+    "arena": "arena_g234",
+    "distance": 1.0865946708245537,
+    "stored_distance": 1.0865946708245537,
+    "abs_diff": 0.0,
+    "max_abs_feature_diff_vs_stored": 0.0003913374510679246,
+    "bmp_sha256": "aff07a4185c908f4273bbcc2eb916774738f1f28f4b5385c5f8c8b8cef515dd4"
+   },
+   {
+    "arena": "arena_g235",
+    "distance": 1.5643974079447538,
+    "stored_distance": 1.5643974079447538,
+    "abs_diff": 0.0,
+    "max_abs_feature_diff_vs_stored": 0.0004571152598380479,
+    "bmp_sha256": "a82455e899320c49c757af046cab5e6655aed2164da7b5784d7bb74c88b4e718"
+   },
+   {
+    "arena": "arena_g236",
+    "distance": 1.664989356805222,
+    "stored_distance": 1.664989356805222,
+    "abs_diff": 0.0,
+    "max_abs_feature_diff_vs_stored": 0.0004678955078125102,
+    "bmp_sha256": "ece687bcdfc81adcde9eacee2f73d885c1742b5009386ed19f57f4fca52d52be"
+   },
+   {
+    "arena": "arena_g237",
+    "distance": 1.714689788597909,
+    "stored_distance": 1.714689788597909,
+    "abs_diff": 0.0,
+    "max_abs_feature_diff_vs_stored": 0.00046853712918704105,
+    "bmp_sha256": "b6e96df685cd9bc3177c2cf19df9bc5702d32bf28abbed579fc0b6a790ed81a5"
+   },
+   {
+    "arena": "arena_g238",
+    "distance": 1.3292852322197932,
+    "stored_distance": 1.3292852322197932,
+    "abs_diff": 0.0,
+    "max_abs_feature_diff_vs_stored": 0.00024408665204589397,
+    "bmp_sha256": "5cd644660719115af361e8bae5daa57ce5bd5fe16044f2c560948ce71e1c594d"
+   },
+   {
+    "arena": "arena_g239",
+    "distance": 1.9370822962488228,
+    "stored_distance": 1.9370822962488228,
+    "abs_diff": 0.0,
+    "max_abs_feature_diff_vs_stored": 0.00040221055492434266,
+    "bmp_sha256": "0b43a9a2dd21beae1ccc35d48f26044be49b8440aa316ee5b4f02efbe5bfccbc"
+   },
+   {
+    "arena": "arena_g240",
+    "distance": 1.4757661510431632,
+    "stored_distance": 1.4757661510431632,
+    "abs_diff": 0.0,
+    "max_abs_feature_diff_vs_stored": 0.00033859787774304095,
+    "bmp_sha256": "afe25320a69022764020adcdabd98ec3c9ec17888269650c5fa77477ed59e1f4"
+   }
+  ]
+ },
+ "ranking": [
+  {
+   "arena": "arena_g260",
+   "distance": 0.6529388910426304,
+   "features": [
+    31.52080542189689,
+    0.23998302692118006,
+    2.7013637810139604,
+    5.0,
+    5.0,
+    28.699744719396712,
+    0.3040885925292969,
+    6.050000000000001
+   ],
+   "bmp_sha256": "a746091bac79f8b807ac8d8ff5748cd7bddeb5b18147b93291ff373a0798acde",
+   "meta_sha256": "221cbcd8dba28474bc5d2d887045ad620b1ae2cb34945b4de9ecced70dc936a5",
+   "rank": 1
+  },
+  {
+   "arena": "arena_g271",
+   "distance": 0.7387004229671557,
+   "features": [
+    30.473856542934538,
+    0.26001330786559756,
+    2.6027010089037588,
+    6.0,
+    5.0,
+    27.43380658166858,
+    0.22912216186523438,
+    5.85
+   ],
+   "bmp_sha256": "de115241c7f4e9b4c2b8ffbd01268aebf5eec1bb59f5c71438142c4445aab449",
+   "meta_sha256": "6c678f7afade9b0044b11d34a55596854c1e6ac501d14517d34dcc831951fcfe",
+   "rank": 2
+  },
+  {
+   "arena": "arena_g251",
+   "distance": 0.7787958192327659,
+   "features": [
+    28.857249208418292,
+    0.26537710616064625,
+    2.218991451791337,
+    5.0,
+    6.0,
+    27.433806581668467,
+    0.202880859375,
+    5.85
+   ],
+   "bmp_sha256": "29375393dd33ec890f7c250e8512ef53ce33fbab2369d2f9639fa5a479c93263",
+   "meta_sha256": "2111095d1586bedceec8814c53f60fff2a2ba5368faa10ecddb17e37fd8e720a",
+   "rank": 3
+  },
+  {
+   "arena": "arena_g247",
+   "distance": 0.9061130402118841,
+   "features": [
+    30.310290978798623,
+    0.24637802072859546,
+    2.5991370342949205,
+    5.0,
+    6.0,
+    27.21489031152598,
+    0.28713226318359375,
+    6.3999999999999995
+   ],
+   "bmp_sha256": "2931c436bdee76a97650766f5dc048a0c75d6a89fd09e07121748ffb9c3d2084",
+   "meta_sha256": "d2ae21cb72d290e418414eac011f8655e0821145cacb10455bfb5a2c03a7501a",
+   "rank": 4
+  },
+  {
+   "arena": "arena_g277",
+   "distance": 1.100041283807676,
+   "features": [
+    28.593575275216256,
+    0.18150191647007446,
+    2.4379177852946157,
+    6.0,
+    5.0,
+    27.233196026436243,
+    0.316741943359375,
+    5.800000000000001
+   ],
+   "bmp_sha256": "3f35239ddee4dc3b90cc770d18036e9c7e8c0d2ef78657ec0d20ecbf7928d496",
+   "meta_sha256": "7610cb693c07e59ba3c6531b0984da5a911a4a96df763df54e94d72d72cb4f0a",
+   "rank": 5
+  },
+  {
+   "arena": "arena_g258",
+   "distance": 1.1096023921901994,
+   "features": [
+    27.458863431477646,
+    0.26410858903885687,
+    2.7557062178369995,
+    5.0,
+    5.0,
+    27.288543686112906,
+    0.27454376220703125,
+    6.5
+   ],
+   "bmp_sha256": "140478df62eedc9a0b369ab3a17a87512fbaed89877aeeb92818f4333e52a3b3",
+   "meta_sha256": "6d616d3dad18d51b78e99fdb2412d626b45f5fbee76fdc323720f70c27edbd30",
+   "rank": 6
+  },
+  {
+   "arena": "arena_g270",
+   "distance": 1.1260781208261292,
+   "features": [
+    27.72022533767067,
+    0.2590611381223419,
+    2.4837786173115655,
+    6.0,
+    5.0,
+    26.042828578377936,
+    0.21575927734375,
+    5.4
+   ],
+   "bmp_sha256": "fea8131d717a8f34204927d451dacf41e0b9f2335f6f82387c8932f209e7b883",
+   "meta_sha256": "a6b2442fa0eff6dc802a2eda12c18af89c25dea900ff6be336b7b019eae2a31f",
+   "rank": 7
+  },
+  {
+   "arena": "arena_g275",
+   "distance": 1.1613252851944609,
+   "features": [
+    31.474435413384292,
+    0.2537808163067724,
+    2.0306556182452944,
+    7.0,
+    5.0,
+    29.97537218323169,
+    0.2353668212890625,
+    6.5
+   ],
+   "bmp_sha256": "27bea99effcd891884e582799b9b9223b2070d6e4ee95d9b6877aedcb50cc720",
+   "meta_sha256": "27eec4a8a512598811f09dd160034eb986b72d0830df281f0ec841f84f562987",
+   "rank": 8
+  },
+  {
+   "arena": "arena_g249",
+   "distance": 1.2032254343341455,
+   "features": [
+    31.643816031504205,
+    0.27781370358518076,
+    2.936509133777546,
+    6.0,
+    5.0,
+    29.975372183231755,
+    0.2693023681640625,
+    6.5
+   ],
+   "bmp_sha256": "bb95f5b47abeac2987efc66f4b2f3e5f5d425ea7f77b49626aacb8d7d0a3a801",
+   "meta_sha256": "64ca053ac2db8f1f517f6c8521d60ed0bea5c4155250cbc53f763b63307c9922",
+   "rank": 9
+  },
+  {
+   "arena": "arena_g254",
+   "distance": 1.205207551218632,
+   "features": [
+    28.11130628549385,
+    0.2180372416361584,
+    2.7492244338672447,
+    5.0,
+    5.0,
+    26.38341422836572,
+    0.3387947082519531,
+    6.25
+   ],
+   "bmp_sha256": "5fd9b1b49b24c6d101440d80a270c321a53983c0e668b4a344933869140b1856",
+   "meta_sha256": "1abb875af24661d32ea7f2d1929b5c7f2cd2bc18f8c3f199c9213c962564eee5",
+   "rank": 10
+  },
+  {
+   "arena": "arena_g257",
+   "distance": 1.2060529347405402,
+   "features": [
+    30.22819097416696,
+    0.2598179656166343,
+    2.5510631554270233,
+    5.0,
+    7.0,
+    27.646536000403874,
+    0.2653160095214844,
+    6.6
+   ],
+   "bmp_sha256": "23196fff73e5b60040773665ea4c09be44207cd3fa32d8ca4a79d31022e61688",
+   "meta_sha256": "3069455e5bbb8c0b73bb3b54a4d29c0863edee8df6a87fee6d86a72521ccdf76",
+   "rank": 11
+  },
+  {
+   "arena": "arena_g256",
+   "distance": 1.2442978791187693,
+   "features": [
+    30.011876878119395,
+    0.2785989589821174,
+    2.994695958711873,
+    5.0,
+    6.0,
+    27.758357208436554,
+    0.2970428466796875,
+    6.550000000000001
+   ],
+   "bmp_sha256": "6ea16b9ad63000b0c03b9971e569578a48290ae054c5613d0061833f942b0aa9",
+   "meta_sha256": "c04b0b41c7b229daa62862eb6b71bb2c1a37a5fd35ad3252af080af29fc141e1",
+   "rank": 12
+  },
+  {
+   "arena": "arena_g250",
+   "distance": 1.2816670238392778,
+   "features": [
+    26.427702009627613,
+    0.23519847274844402,
+    2.0758600691649907,
+    6.0,
+    5.0,
+    25.64892914025941,
+    0.24315261840820312,
+    6.05
+   ],
+   "bmp_sha256": "cf0664f59b57aaa384ef160f0471ed63138252d4088934102670927372ccea24",
+   "meta_sha256": "d44dc9b870a1e6f4e050c41d1d83fccabb016949868e6ac79101b2791125e3e5",
+   "rank": 13
+  },
+  {
+   "arena": "arena_g269",
+   "distance": 1.2857881720112423,
+   "features": [
+    27.174640670533833,
+    0.20812436071269685,
+    2.2412706227542603,
+    5.0,
+    7.0,
+    26.798251246171173,
+    0.2756385803222656,
+    5.75
+   ],
+   "bmp_sha256": "9db6601429c7b4e0dec720e98e57af9e94aee218e67a162ffd69c79f9ef3955f",
+   "meta_sha256": "f4a3eb42d780fbf8a328f155d0b5f4b97f983cc0458b68e6400c0ef6f44931e4",
+   "rank": 14
+  },
+  {
+   "arena": "arena_g245",
+   "distance": 1.2894336588071809,
+   "features": [
+    27.852725523735202,
+    0.2109200568462905,
+    2.114264358772,
+    7.0,
+    5.0,
+    26.666069398694308,
+    0.24782562255859375,
+    6.25
+   ],
+   "bmp_sha256": "7ff7f3ef968745226ac26f4cf4a77f71b42e1d723a7a4500641ef28ccfb236b4",
+   "meta_sha256": "8ad4f53d42857f1ff5fc0558b69de0c5b2ec91b2e2c7eac2916f17c1c97269ec",
+   "rank": 15
+  },
+  {
+   "arena": "arena_g259",
+   "distance": 1.2933826248452693,
+   "features": [
+    29.198113839472462,
+    0.21973360939709158,
+    2.638832404955721,
+    5.0,
+    6.0,
+    28.35553185944108,
+    0.3726158142089844,
+    6.800000000000001
+   ],
+   "bmp_sha256": "8056d44a993740497e823b43358d9c32d338ae49ae45d09c0f01883e638656a1",
+   "meta_sha256": "375c14c71edd8999a49af390417f6ce0b02d13f5069ba6a1bfff498bee0f9468",
+   "rank": 16
+  },
+  {
+   "arena": "arena_g268",
+   "distance": 1.3165040245579505,
+   "features": [
+    31.738842703565787,
+    0.21808736863021613,
+    2.913195917012798,
+    6.0,
+    6.0,
+    28.6521894820345,
+    0.313690185546875,
+    6.8
+   ],
+   "bmp_sha256": "2d52cdb7877efec281309d0ba8ce54405314e4ad97c0012d10155088cd54beaf",
+   "meta_sha256": "a836ce0821c4f931ea2923e614addb46bd9de62e6cf49830e691794044bf9567",
+   "rank": 17
+  },
+  {
+   "arena": "arena_g248",
+   "distance": 1.3768323402248022,
+   "features": [
+    29.576107286539948,
+    0.24488304465743066,
+    2.0446287721951797,
+    7.0,
+    7.0,
+    27.832847030553737,
+    0.17819595336914062,
+    5.949999999999999
+   ],
+   "bmp_sha256": "7ba809de1c590372c0b68eed459f662128c47196fd13be298a3d0740f4357b61",
+   "meta_sha256": "4e0df1ef7dddf45bd0e1e31afec6dcbc0a06353083271d2ece054c4a6440065f",
+   "rank": 18
+  },
+  {
+   "arena": "arena_g264",
+   "distance": 1.386709191185723,
+   "features": [
+    27.654076332649968,
+    0.2119598373957594,
+    2.3467609334734,
+    7.0,
+    5.0,
+    26.297225359637213,
+    0.3109321594238281,
+    6.15
+   ],
+   "bmp_sha256": "75418de250ac91d7634e5842b775eed7eb6d8ef247b690f90812592c4886bfa7",
+   "meta_sha256": "3b015e168e57889f9aa104b9745d90d230c05f6a559b76630b78f0f0c147131b",
+   "rank": 19
+  },
+  {
+   "arena": "arena_g252",
+   "distance": 1.4096492251506678,
+   "features": [
+    28.938534747790158,
+    0.21801454095143058,
+    2.806220008565507,
+    5.0,
+    6.0,
+    27.646536000403874,
+    0.3968696594238281,
+    6.6000000000000005
+   ],
+   "bmp_sha256": "ac91941c12a5587b2da35066bab2a39811af866e0b71c7144c6d8dd2a51f889e",
+   "meta_sha256": "81cd7d327b1d1f9053189fe62aa195b5988ad933e7c0c42649a778a2d8acf60d",
+   "rank": 20
+  },
+  {
+   "arena": "arena_g280",
+   "distance": 1.42060355541932,
+   "features": [
+    31.98290593240394,
+    0.24465476242175616,
+    2.7692576146830525,
+    7.0,
+    7.0,
+    28.89882190431786,
+    0.22854995727539062,
+    6.1
+   ],
+   "bmp_sha256": "8671cdcfbf88b528406808b2fbcf0a9f959ab625b269ca325e7ace0156ee8aa6",
+   "meta_sha256": "a88664055762cdc9040b2cbb0ae4f862c161915e4026e17347c2de6c473c6b82",
+   "rank": 21
+  },
+  {
+   "arena": "arena_g262",
+   "distance": 1.4557792240790874,
+   "features": [
+    30.883901984715976,
+    0.2267064868217074,
+    2.887591916929921,
+    7.0,
+    7.0,
+    28.930190853660115,
+    0.24494171142578125,
+    6.05
+   ],
+   "bmp_sha256": "6d2607d4e5db58ea2fd28f383cb0b6733e6a9bf66dcaec39d6bcd4ab1b7b6539",
+   "meta_sha256": "6cf43bed40b4cbe4a5bf4418c0595874dc526c03165bbdfd4e50327c947b97d4",
+   "rank": 22
+  },
+  {
+   "arena": "arena_g263",
+   "distance": 1.4578775953372212,
+   "features": [
+    27.36093836461259,
+    0.16537872562114622,
+    2.0758474828331117,
+    6.0,
+    6.0,
+    26.423508645718165,
+    0.3131294250488281,
+    5.6
+   ],
+   "bmp_sha256": "31bce710ad19f30ab0fb0874f5b6e35c9437909c483199e1a289d6349e30a229",
+   "meta_sha256": "b29f83bc70afc5c86cc4a7cb01c5df686716779d92086ae1f4eeef8141e6e148",
+   "rank": 23
+  },
+  {
+   "arena": "arena_g255",
+   "distance": 1.4674083383991108,
+   "features": [
+    30.65992522245098,
+    0.2121159623610286,
+    2.7785272117800064,
+    7.0,
+    6.0,
+    28.706527160764427,
+    0.2736473083496094,
+    6.9
+   ],
+   "bmp_sha256": "de9f853f184bf1a7ebf6427b1b91beb9624575e800d4a66f17070c1c556ffd88",
+   "meta_sha256": "167e3a26b16b8819a6ca2605af8700e239abb1378da9a0dbe989adffb8d1c3c4",
+   "rank": 24
+  },
+  {
+   "arena": "arena_g261",
+   "distance": 1.4823335789970646,
+   "features": [
+    27.40459370505025,
+    0.22392824901344646,
+    2.885394306707895,
+    5.0,
+    5.0,
+    26.94128447162083,
+    0.37300872802734375,
+    6.75
+   ],
+   "bmp_sha256": "6b57b2e37d9ef8966c82bdb9591a718ad57195c903d7f912ae85fb14584396f4",
+   "meta_sha256": "c64d13606be70e9d1a0ff04bad2375991d911d4a8637604c364caea632472574",
+   "rank": 25
+  },
+  {
+   "arena": "arena_g267",
+   "distance": 1.4853683861625837,
+   "features": [
+    29.04710745159628,
+    0.20024440378192684,
+    2.8199574719862563,
+    5.0,
+    5.0,
+    27.824659424447585,
+    0.4183158874511719,
+    6.65
+   ],
+   "bmp_sha256": "8310bb849d4e1969ea3ac91bdcbee20cbedce994608b3d0d6d4cab5d800e8cf7",
+   "meta_sha256": "80f424c320756f34945a4935b575b17dd3c17b5b516bb6345dda3261bc297cb6",
+   "rank": 26
+  },
+  {
+   "arena": "arena_g243",
+   "distance": 1.496829734835432,
+   "features": [
+    28.293367682096036,
+    0.2641976996684786,
+    2.8250177320937535,
+    6.0,
+    7.0,
+    26.747201845958916,
+    0.2997589111328125,
+    6.35
+   ],
+   "bmp_sha256": "5a3436c384b8a198aad21afd3d57e29f66c6c4eedc10374572ec78a63bf21ed0",
+   "meta_sha256": "fffc6a44b9505df24f8c8fde0ee76948dd2f06ae20296ca211481c01cf63950b",
+   "rank": 27
+  },
+  {
+   "arena": "arena_g253",
+   "distance": 1.5545684662802255,
+   "features": [
+    26.7855259429433,
+    0.23269411505551513,
+    2.0827146905414997,
+    7.0,
+    7.0,
+    27.031859860048787,
+    0.19455337524414062,
+    5.75
+   ],
+   "bmp_sha256": "9f1643a73497c2a8c4314c06b618262ce3330423aca38318fc028f9a4ccfcafa",
+   "meta_sha256": "5d0b364490789862ab0a2bf3c8de4621b41a11393546a457f7b6f7d38d4d9a37",
+   "rank": 28
+  },
+  {
+   "arena": "arena_g274",
+   "distance": 1.5879981589923937,
+   "features": [
+    31.832698448252156,
+    0.1796966132862542,
+    2.4623154788480237,
+    5.0,
+    7.0,
+    29.531040281632283,
+    0.18090057373046875,
+    7.05
+   ],
+   "bmp_sha256": "7d0293f8a6a11acc06dd61e69cf6d31346fa137e1ad5b72c5bddc63a0f9302d3",
+   "meta_sha256": "73bea65769a0e353bba5ccc806b97f714554b2e470fc391250d79969cebdc8df",
+   "rank": 29
+  },
+  {
+   "arena": "arena_g266",
+   "distance": 1.6054002398372764,
+   "features": [
+    26.437862371047597,
+    0.20989867846676208,
+    2.912701392965338,
+    5.0,
+    5.0,
+    25.46387451580255,
+    0.36220550537109375,
+    6.0
+   ],
+   "bmp_sha256": "4932024048750390cfa0643627b8f40f14e3d33d42b5c30edb1c4adcb7213f72",
+   "meta_sha256": "99b372204ee961b78a8a212fa5c341ab49c58d80aafc1bfdd96ed46c7ad5f98a",
+   "rank": 30
+  },
+  {
+   "arena": "arena_g242",
+   "distance": 1.6065196911860988,
+   "features": [
+    25.604873366693457,
+    0.2633182450540197,
+    2.4185648116606275,
+    7.0,
+    5.0,
+    25.648929140259398,
+    0.23147964477539062,
+    6.05
+   ],
+   "bmp_sha256": "deeae07ba3a05eea82d9f687c6f156f74711e68073d09d8a1c5a129fb98dd18b",
+   "meta_sha256": "2babedc788f74ca23a6a95968e0ea1a486a791c08b1328d60b50da8962f3daa9",
+   "rank": 31
+  },
+  {
+   "arena": "arena_g272",
+   "distance": 1.607541162932557,
+   "features": [
+    28.03897108364279,
+    0.19619473520382513,
+    2.6535287709642787,
+    7.0,
+    7.0,
+    27.180790116974958,
+    0.28926849365234375,
+    6.1
+   ],
+   "bmp_sha256": "ef6124b2e2b77599ae57105265ad4d04c4d6c13e76403ae43f83bd18928b3d84",
+   "meta_sha256": "c2a7db4b80f20dd9258620c2522233a3f42b2df88e57d6e771e150c7b8b150f2",
+   "rank": 32
+  },
+  {
+   "arena": "arena_g276",
+   "distance": 1.6357781889921483,
+   "features": [
+    30.75454862543742,
+    0.15782794290752702,
+    2.3036565757313356,
+    7.0,
+    7.0,
+    29.130280126216466,
+    0.289764404296875,
+    6.1
+   ],
+   "bmp_sha256": "2872199812573be66e52bdd88ea4d6ee2b5c8fe2157a0ddfd48df06e0b0f39ed",
+   "meta_sha256": "8273b2871f46df1fd0d9f3d0e0ffd746f87c13ad77fc128bb3d1e88b3e66073a",
+   "rank": 33
+  },
+  {
+   "arena": "arena_g273",
+   "distance": 1.6490742593587686,
+   "features": [
+    26.345283026333632,
+    0.255383304592964,
+    2.6602579569702227,
+    5.0,
+    7.0,
+    25.326451462045718,
+    0.27208709716796875,
+    6.199999999999999
+   ],
+   "bmp_sha256": "3d262dcec47ce509f6740e64b6c471ffc6a3894b4f9af5f4b7b6d99e4108f48c",
+   "meta_sha256": "150737b38ef2a4148e3d9fb6e2d1e0a7646f5d1c6bafb524bbbd8b986a27c0f9",
+   "rank": 34
+  },
+  {
+   "arena": "arena_g278",
+   "distance": 1.6941413132591987,
+   "features": [
+    29.893916396814955,
+    0.16699425710282764,
+    2.280596049028543,
+    7.0,
+    6.0,
+    28.45601932261413,
+    0.184600830078125,
+    7.1
+   ],
+   "bmp_sha256": "deb42b4ea84208ae6ec4436e34a02353bdec080c1a8ca646f6a0b0a36b2cdd41",
+   "meta_sha256": "ea0965e0a8dcee6bcff010c48a97f728422ede99675ae6318dc4b94adbc1a644",
+   "rank": 35
+  },
+  {
+   "arena": "arena_g244",
+   "distance": 1.7708152693566424,
+   "features": [
+    25.64509081325422,
+    0.208020500061935,
+    2.3390468260722534,
+    6.0,
+    6.0,
+    24.349050764021676,
+    0.2538642883300781,
+    5.1
+   ],
+   "bmp_sha256": "44da490ae7af637745c3d2c45e75499572b42f5b82ea4e01a2e2c3a06ee0a2dd",
+   "meta_sha256": "ae0bf2f2c8ede9489e1a1db3c2ad921e0f6e906c7bcc93ed41ba6533994d0555",
+   "rank": 36
+  },
+  {
+   "arena": "arena_g279",
+   "distance": 1.7746430579357375,
+   "features": [
+    25.35357403127018,
+    0.26101060883511534,
+    2.1013526157292817,
+    5.0,
+    5.0,
+    24.12936004832656,
+    0.18814468383789062,
+    4.95
+   ],
+   "bmp_sha256": "97aa863975e8a4d2878ae185a1a8284f55b024a65d002114f7b0eb89fa6eb6a1",
+   "meta_sha256": "a4cc3fa461b9dc2c7f87daf9db20d5d91cf820d95eb702f9254196c48d397a25",
+   "rank": 37
+  },
+  {
+   "arena": "arena_g241",
+   "distance": 1.7907453733744056,
+   "features": [
+    26.543829432256192,
+    0.19616543491775917,
+    2.7382657122937193,
+    5.0,
+    6.0,
+    24.98773173372112,
+    0.39537811279296875,
+    5.8
+   ],
+   "bmp_sha256": "028a3290941c30f946a1f7c8c4ecbc2d8761aa6e017507fbc78b6e1d256fc0fa",
+   "meta_sha256": "2557f58b0c838b20dd28c261d35571b53c461e5ccc9bf76c5dac686d4cb09e97",
+   "rank": 38
+  },
+  {
+   "arena": "arena_g246",
+   "distance": 1.8705625107753405,
+   "features": [
+    26.76687327189847,
+    0.19141269417491855,
+    2.782882376781841,
+    6.0,
+    7.0,
+    25.092053540082677,
+    0.3351287841796875,
+    5.9
+   ],
+   "bmp_sha256": "1a88764bea8ff737597af6e2bc6484b68bf678bea6b574cdbddea6316b834256",
+   "meta_sha256": "8afbe1e065ec721cd02108482061f5c746ebc055b6803ba2b2e3cad73739f289",
+   "rank": 39
+  },
+  {
+   "arena": "arena_g265",
+   "distance": 2.1897331247152905,
+   "features": [
+    27.208877645721635,
+    0.1616137084315258,
+    2.8075506568158257,
+    5.0,
+    7.0,
+    25.37746168007254,
+    0.4423332214355469,
+    6.300000000000001
+   ],
+   "bmp_sha256": "cee6092edeb35551e75a1168b38b864b076442b9d9ea647703a1d95398634c14",
+   "meta_sha256": "a4d9520335ea1b78993594450ce23d5bc4b9ece1b12b4fbf96fc595633dcc1e3",
+   "rank": 40
+  }
+ ],
+ "selected": [
+  "arena_g260",
+  "arena_g271",
+  "arena_g251",
+  "arena_g247"
+ ],
+ "selection_rule": "the 4 arenas with the smallest distance, taken in ranking order; nothing else was looked at before the choice",
+ "replacement_rule": "declared with the choice: a selected arena that fails a mechanical preparation gate (map capture assertions, soil surface check, or the case generator cannot produce its suite) is replaced by the next unselected arena in this ranking; any replacement is recorded here",
+ "replacements": [],
+ "generation": {
+  "command": "PYTHONPATH=src:scripts python scripts/traverse_wp7_arenas.py --seeds 241..280 --root /tmp/ag_e1/gen_a --prefix arena_g --difficulty 1.0 --orientation-from assets/traverse/arena_f104_50h_v1 --family-json artifacts/traverse/arena_gator_20260925/arenas/family_g241_g280.json",
+  "seeds": [
+   241,
+   242,
+   243,
+   244,
+   245,
+   246,
+   247,
+   248,
+   249,
+   250,
+   251,
+   252,
+   253,
+   254,
+   255,
+   256,
+   257,
+   258,
+   259,
+   260,
+   261,
+   262,
+   263,
+   264,
+   265,
+   266,
+   267,
+   268,
+   269,
+   270,
+   271,
+   272,
+   273,
+   274,
+   275,
+   276,
+   277,
+   278,
+   279,
+   280
+  ],
+  "difficulty": 1.0,
+  "family_json": "artifacts/traverse/arena_gator_20260925/arenas/family_g241_g280.json",
+  "family_json_sha256": "efee20e7da1296d0ab7ffac24336468754397a66bc5b4f62cab4402026cabce1",
+  "wall_s_40_arenas": 13.5,
+  "check_set": "seeds 201-240 regenerated into /tmp/ag_e1/gen_ref (the 9 that exist in assets/traverse are byte-identical: g203 g228 g217 g216 g231 g213 g204 g234 g223)"
+ },
+ "determinism": {
+  "how": "the 4 selected seeds regenerated once more into /tmp/ag_e1/gen_b and compared with the copies in assets/traverse",
+  "all_identical": true,
+  "files": {
+   "arena_g260": {
+    "arena_000.bmp": {
+     "assets": "a746091bac79f8b807ac8d8ff5748cd7bddeb5b18147b93291ff373a0798acde",
+     "regenerated": "a746091bac79f8b807ac8d8ff5748cd7bddeb5b18147b93291ff373a0798acde",
+     "first_generation": "a746091bac79f8b807ac8d8ff5748cd7bddeb5b18147b93291ff373a0798acde",
+     "identical": true
+    },
+    "arena_meta.json": {
+     "assets": "221cbcd8dba28474bc5d2d887045ad620b1ae2cb34945b4de9ecced70dc936a5",
+     "regenerated": "221cbcd8dba28474bc5d2d887045ad620b1ae2cb34945b4de9ecced70dc936a5",
+     "first_generation": "221cbcd8dba28474bc5d2d887045ad620b1ae2cb34945b4de9ecced70dc936a5",
+     "identical": true
+    }
+   },
+   "arena_g271": {
+    "arena_000.bmp": {
+     "assets": "de115241c7f4e9b4c2b8ffbd01268aebf5eec1bb59f5c71438142c4445aab449",
+     "regenerated": "de115241c7f4e9b4c2b8ffbd01268aebf5eec1bb59f5c71438142c4445aab449",
+     "first_generation": "de115241c7f4e9b4c2b8ffbd01268aebf5eec1bb59f5c71438142c4445aab449",
+     "identical": true
+    },
+    "arena_meta.json": {
+     "assets": "6c678f7afade9b0044b11d34a55596854c1e6ac501d14517d34dcc831951fcfe",
+     "regenerated": "6c678f7afade9b0044b11d34a55596854c1e6ac501d14517d34dcc831951fcfe",
+     "first_generation": "6c678f7afade9b0044b11d34a55596854c1e6ac501d14517d34dcc831951fcfe",
+     "identical": true
+    }
+   },
+   "arena_g251": {
+    "arena_000.bmp": {
+     "assets": "29375393dd33ec890f7c250e8512ef53ce33fbab2369d2f9639fa5a479c93263",
+     "regenerated": "29375393dd33ec890f7c250e8512ef53ce33fbab2369d2f9639fa5a479c93263",
+     "first_generation": "29375393dd33ec890f7c250e8512ef53ce33fbab2369d2f9639fa5a479c93263",
+     "identical": true
+    },
+    "arena_meta.json": {
+     "assets": "2111095d1586bedceec8814c53f60fff2a2ba5368faa10ecddb17e37fd8e720a",
+     "regenerated": "2111095d1586bedceec8814c53f60fff2a2ba5368faa10ecddb17e37fd8e720a",
+     "first_generation": "2111095d1586bedceec8814c53f60fff2a2ba5368faa10ecddb17e37fd8e720a",
+     "identical": true
+    }
+   },
+   "arena_g247": {
+    "arena_000.bmp": {
+     "assets": "2931c436bdee76a97650766f5dc048a0c75d6a89fd09e07121748ffb9c3d2084",
+     "regenerated": "2931c436bdee76a97650766f5dc048a0c75d6a89fd09e07121748ffb9c3d2084",
+     "first_generation": "2931c436bdee76a97650766f5dc048a0c75d6a89fd09e07121748ffb9c3d2084",
+     "identical": true
+    },
+    "arena_meta.json": {
+     "assets": "d2ae21cb72d290e418414eac011f8655e0821145cacb10455bfb5a2c03a7501a",
+     "regenerated": "d2ae21cb72d290e418414eac011f8655e0821145cacb10455bfb5a2c03a7501a",
+     "first_generation": "d2ae21cb72d290e418414eac011f8655e0821145cacb10455bfb5a2c03a7501a",
+     "identical": true
+    }
+   }
+  }
+ },
+ "copied_to": [
+  "assets/traverse/arena_g260",
+  "assets/traverse/arena_g271",
+  "assets/traverse/arena_g251",
+  "assets/traverse/arena_g247"
+ ]
+}

@@ -1,0 +1,171 @@
+{
+ "tool": "scripts/ag_pilot_tasks.py",
+ "tool_sha256": "3572e1447b5b815443060572540a8bb171cd1d708a646d42d24506f7b47d099a",
+ "group_rule": "4 training-split groups with the lowest md5(group id) hex per evaluation_stratum (6 strata)",
+ "groups": [
+  {
+   "stratum": "crater_cross_slope",
+   "group": "f104_v2_group_0426"
+  },
+  {
+   "stratum": "crater_cross_slope",
+   "group": "f104_v2_group_0894"
+  },
+  {
+   "stratum": "crater_cross_slope",
+   "group": "f104_v2_group_0594"
+  },
+  {
+   "stratum": "crater_cross_slope",
+   "group": "f104_v2_group_0427"
+  },
+  {
+   "stratum": "crater_entry_cross_exit",
+   "group": "f104_v2_group_0188"
+  },
+  {
+   "stratum": "crater_entry_cross_exit",
+   "group": "f104_v2_group_0259"
+  },
+  {
+   "stratum": "crater_entry_cross_exit",
+   "group": "f104_v2_group_0295"
+  },
+  {
+   "stratum": "crater_entry_cross_exit",
+   "group": "f104_v2_group_0404"
+  },
+  {
+   "stratum": "hill_cross_slope",
+   "group": "f104_v2_group_1060"
+  },
+  {
+   "stratum": "hill_cross_slope",
+   "group": "f104_v2_group_1144"
+  },
+  {
+   "stratum": "hill_cross_slope",
+   "group": "f104_v2_group_0926"
+  },
+  {
+   "stratum": "hill_cross_slope",
+   "group": "f104_v2_group_0916"
+  },
+  {
+   "stratum": "hill_entry_cross_exit",
+   "group": "f104_v2_group_0829"
+  },
+  {
+   "stratum": "hill_entry_cross_exit",
+   "group": "f104_v2_group_0362"
+  },
+  {
+   "stratum": "hill_entry_cross_exit",
+   "group": "f104_v2_group_0685"
+  },
+  {
+   "stratum": "hill_entry_cross_exit",
+   "group": "f104_v2_group_0868"
+  },
+  {
+   "stratum": "long_traverse",
+   "group": "f104_v2_group_0213"
+  },
+  {
+   "stratum": "long_traverse",
+   "group": "f104_v2_group_0177"
+  },
+  {
+   "stratum": "long_traverse",
+   "group": "f104_v2_group_0286"
+  },
+  {
+   "stratum": "long_traverse",
+   "group": "f104_v2_group_0621"
+  },
+  {
+   "stratum": "roughness_transfer",
+   "group": "f104_v2_group_1103"
+  },
+  {
+   "stratum": "roughness_transfer",
+   "group": "f104_v2_group_0563"
+  },
+  {
+   "stratum": "roughness_transfer",
+   "group": "f104_v2_group_0575"
+  },
+  {
+   "stratum": "roughness_transfer",
+   "group": "f104_v2_group_1187"
+  }
+ ],
+ "f104_tasks": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/arena_gator_20260925/e3/tasks/ref/crm_f104_tasks_train.json",
+ "f104_tasks_sha256": "b4e2fdbaeb455e1d400131a49ee3e3d7da29f0254810d1b6557e753a6467d68e",
+ "soil_tiers": [
+  0,
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "r8_radius_m": {
+  "front": 0.27575,
+  "rear": 0.3075
+ },
+ "calibrated_radius_m": {
+  "front": 0.19575,
+  "rear": 0.2275
+ },
+ "files": {
+  "pilot_gator_soil.json": {
+   "sha256": "172ad6f8dd0629237876a0eeed9d26de633a3bd8700744a4aa6600650e50ef54",
+   "rows": 288,
+   "by_tier": {
+    "0": 24,
+    "1": 24,
+    "2": 24,
+    "3": 24,
+    "4": 24,
+    "5": 24,
+    "10": 24,
+    "11": 24,
+    "12": 24,
+    "13": 24,
+    "14": 24,
+    "15": 24
+   },
+   "by_kind": {
+    "designed": 172,
+    "on_policy": 116
+   },
+   "by_shard": null
+  },
+  "pilot_gator_rigid.json": {
+   "sha256": "f41236d3fd015ff6ba1be8b99370270831d4e228508593cbab7983232cf7c247",
+   "rows": 288,
+   "by_tier": {
+    "0": 24,
+    "1": 24,
+    "2": 24,
+    "3": 24,
+    "4": 24,
+    "5": 24,
+    "6": 24,
+    "7": 24,
+    "8": 24,
+    "9": 24,
+    "10": 24,
+    "11": 24
+   },
+   "by_kind": {
+    "designed": 288
+   },
+   "by_shard": {
+    "0": 156,
+    "1": 132
+   }
+  }
+ }
+}

@@ -1,0 +1,50 @@
+{
+ "tool": "scripts/ag_subset.py",
+ "tool_sha256": "3891a0064511666a19d63ff360c9e2b0f56f59d35e14337d1ca634870c590f39",
+ "argv": [
+  "--world",
+  "rigid",
+  "--preset",
+  "LOAO1_g203",
+  "--ds",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/g203_hmmwv/ci_g203_hmmwv_rigid.npz",
+  "--out",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/subsets/LOAO1_g203_hmmwv_rigid.npz"
+ ],
+ "preset": "LOAO1_g203",
+ "world": "rigid",
+ "vehicle": "hmmwv",
+ "rule": "md5(group id) hex ascending within each arena, first N of the available training groups",
+ "tiers": null,
+ "ids_file": null,
+ "ids_file_sha256": null,
+ "n_ids": null,
+ "ids_apply": null,
+ "eval_rows": "intact",
+ "keep_dev_fold": false,
+ "use": "deploy or holdout",
+ "per_arena": {
+  "g203": {
+   "requested": 545,
+   "available": 1083,
+   "selected": 545,
+   "md5_last": "7f27c00bad47e2c7d2da0af1cac94b8b",
+   "dev_fold_groups_kept": 0,
+   "train_groups_in_file": 545,
+   "train_rows": 41859,
+   "train_rows_startup": 10900,
+   "train_episodes": 10900,
+   "val_groups": 48,
+   "val_rows": 3712,
+   "test_groups": 69,
+   "test_rows": 5284,
+   "fit_rows_holdout": 33309,
+   "fit_groups_holdout": 433
+  }
+ },
+ "rows": 50855,
+ "fit_rows_deploy": 41859,
+ "fit_rows_holdout": 33309,
+ "eval_rows_val": 3712
+}
+wrote /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/subsets/LOAO1_g203_hmmwv_rigid.npz (50855 rows, 0.922 GB) in 84.3 s

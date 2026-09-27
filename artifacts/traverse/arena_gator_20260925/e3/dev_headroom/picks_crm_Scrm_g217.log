@@ -1,0 +1,25 @@
+world crm domain crm fixed2=False deployed tag 'crm_proposal'; reference picks /nonexistent_no_reference {} (MISSING)
+5 members from artifacts/traverse/crm_f104_v1/train_v1/deploy/CRM_N2_s*.pt on cuda: kinds ['legacy'] conds ['none'] hist_T 40
+   {'name': 'CRM_N2_s0.pt', 'kind': 'legacy', 'cond': 'none', 'zdim': 0, 'nctx': 5, 'params': 256161}
+   {'name': 'CRM_N2_s1.pt', 'kind': 'legacy', 'cond': 'none', 'zdim': 0, 'nctx': 5, 'params': 256161}
+   {'name': 'CRM_N2_s2.pt', 'kind': 'legacy', 'cond': 'none', 'zdim': 0, 'nctx': 5, 'params': 256161}
+   {'name': 'CRM_N2_s3.pt', 'kind': 'legacy', 'cond': 'none', 'zdim': 0, 'nctx': 5, 'params': 256161}
+   {'name': 'CRM_N2_s4.pt', 'kind': 'legacy', 'cond': 'none', 'zdim': 0, 'nctx': 5, 'params': 256161}
+  10/150  6s  B=-7.19  ref 0/0  hist n_valid 0 encodes 0
+  20/150  10s  B=-7.42  ref 0/0  hist n_valid 0 encodes 0
+  30/150  14s  B=-6.39  ref 0/0  hist n_valid 0 encodes 0
+  40/150  18s  B=-5.44  ref 0/0  hist n_valid 0 encodes 0
+  50/150  22s  B=-6.88  ref 0/0  hist n_valid 0 encodes 0
+  60/150  26s  B=-5.99  ref 0/0  hist n_valid 0 encodes 0
+  70/150  30s  B=-6.69  ref 0/0  hist n_valid 0 encodes 0
+  80/150  34s  B=-6.49  ref 0/0  hist n_valid 0 encodes 0
+  90/150  38s  B=-6.91  ref 0/0  hist n_valid 0 encodes 0
+  100/150  42s  B=-4.72  ref 0/0  hist n_valid 0 encodes 0
+  110/150  46s  B=-7.22  ref 0/0  hist n_valid 0 encodes 0
+  120/150  50s  B=-6.95  ref 0/0  hist n_valid 0 encodes 0
+  130/150  54s  B=-7.47  ref 0/0  hist n_valid 0 encodes 0
+  140/150  58s  B=-7.54  ref 0/0  hist n_valid 0 encodes 0
+  150/150  62s  B=-6.35  ref 0/0  hist n_valid 0 encodes 0
+{"world": "crm", "domain": "crm", "fixed2": false, "n_groups": 150, "arms": ["B"], "tags": {"B": "n2iter_cem4x64"}, "deployed_tag": "crm_proposal", "models": "artifacts/traverse/crm_f104_v1/train_v1/deploy/CRM_N2_s*.pt", "model_kinds": ["legacy"], "conds": ["none"], "map_root": "artifacts/traverse/arena_gator_20260925/map_roots/g217", "rigid_arena": null, "n_distinct_routes": 150, "n_new_drives": 150, "selftest_groups": [["g217_dev_group_0000", 256], ["g217_dev_group_0001", 256], ["g217_dev_group_0002", 256]], "corridors_batched": true, "float16_scoring": true, "pose_sources": ["layout"], "base_sources": ["route_00"], "extra": null, "cluster_prefix": null, "wall_s_total": 61.673057079315186, "agreement": {}}
+B cem4x64          z_mean -6.759 (med -7.021) z_pess -6.072 P 0.0036 T 16.0s v 3.36 start-pose dist max 0.000 m  wall 0.40s/group
+reference check: 0/0 picks equal {} in /nonexistent_no_reference; 150 distinct routes, 150 new drives; agreement {}; history encodes 0 (= 0 members x 150 decisions)

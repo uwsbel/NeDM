@@ -1,0 +1,65 @@
+{
+ "tool": "scripts/ag_eval_tasks.py",
+ "tool_sha256": "6fda2fcc21d7bcea4bf6ed61a2c31ff63ec26eb26e3d764de389d8ee2d517742",
+ "created": "2026-09-25 14:34:31",
+ "argv": [
+  "build",
+  "--world",
+  "crm",
+  "--out",
+  "artifacts/traverse/arena_gator_20260925/e6/tasks/soil_eval_p3.json",
+  "--tier",
+  "-7",
+  "--arm",
+  "straight6_gator=artifacts/traverse/arena_gator_20260925/e6/picks/crm/f104/straight6@gator",
+  "--arm",
+  "M1a_free=artifacts/traverse/arena_gator_20260925/e6/picks/crm/f104/M1a_free",
+  "--arm",
+  "straight6=artifacts/traverse/arena_gator_20260925/e6/picks/crm/f104/straight6",
+  "--existing",
+  "artifacts/traverse/arena_gator_20260925/e3/tasks/soil_v2.json",
+  "artifacts/traverse/arena_gator_20260925/e6/tasks/soil_eval_p1.json",
+  "artifacts/traverse/arena_gator_20260925/e6/tasks/soil_eval_p2.json"
+ ],
+ "world": "crm",
+ "n_rows": 2363,
+ "file_sha256": "9d4bc015bdb9b3b6859477836182cb5b3342dcdc95d7b138d3a59f7a21a34b63",
+ "arm_group_pairs": 2400,
+ "drives_saved_by_identical_routes": 15,
+ "reused_existing_rows": {
+  "eval": 22
+ },
+ "existing_files": {
+  "artifacts/traverse/arena_gator_20260925/e3/tasks/soil_v2.json": "acf1e98c3c995c10ee670ea7982f6668f6cdc9aa58a65948d3e9fdc965689978",
+  "artifacts/traverse/arena_gator_20260925/e6/tasks/soil_eval_p1.json": "e4cc879b423f9f201f238c406c50ef4716766027dbe2ca820f8137e59abc7ba9",
+  "artifacts/traverse/arena_gator_20260925/e6/tasks/soil_eval_p2.json": "8ab0f4687f444e0783d2409dc59d9083cba194ebb8c54cf808113bbd0173c943"
+ },
+ "by_arena": {
+  "f104": 2363
+ },
+ "by_vehicle": {
+  "gator": 778,
+  "hmmwv": 1585
+ },
+ "by_arm_first": {
+  "straight6_gator": 778,
+  "M1a_free": 800,
+  "straight6": 785
+ },
+ "arm_coverage_groups": {
+  "straight6_gator": 800,
+  "M1a_free": 800,
+  "straight6": 800
+ },
+ "groups_missing_some_arm": 0,
+ "groups_missing_some_arm_examples": {},
+ "groups_by_arena": {
+  "f104": 800
+ },
+ "shards": null,
+ "staging": {
+  "files": 2385,
+  "list": "artifacts/traverse/arena_gator_20260925/e6/tasks/soil_eval_p3.json.staging.tsv"
+ },
+ "collector_contract": "soil: crm_worker.py with CRM_COLLECTOR = /work1/dannegrut/harry/experiments/arena_gator_20260925/source/scripts/ag_crm_collect.py (frozen dispatcher), CRM_CONFIG = configs/crm_main.json, CRM_OUT = the soil output folder of the superset task file, NEDM_VEHICLE unset"
+}

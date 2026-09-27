@@ -1,0 +1,48 @@
+
+The following have been reloaded with a version change:
+  1) rocm/7.2.0 => rocm/7.1.0
+
+host=k007-005-v8.hpcfund job=436135 runs=5 omp=4 jobs=/work1/dannegrut/harry/experiments/arena_gator_20260925/e5/jobs/rigid_f104_v1.tsv sha256=1c6c93fa3ea5be89
+ci_train.py 7a4f2d67316ea47a  ga_train.py dc73d0bb2ac83521  python /work1/dannegrut/harry/venvs/nedm/bin/python3.12
+torch 2.10.0+rocm7.1 device AMD Instinct MI350X
+start M1a_rigid_deploy -> /work1/dannegrut/harry/experiments/arena_gator_20260925/e5/train/M1_rigid : --ds /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/subsets/M1_f104_hmmwv_rigid.npz --mode deploy --arch gru --cond none --domain-filter rigid --ctx geom --split-eval val --bs 256 --epochs 30 --seeds 5 --seed0 0 --roundtrip-check
+start M1b_rigid_deploy -> /work1/dannegrut/harry/experiments/arena_gator_20260925/e5/train/M1_rigid : --ds /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/subsets/M1_f104_hmmwv_rigid.npz --mode deploy --arch gru --cond none --domain-filter rigid --ctx geom --split-eval val --bs 256 --epochs 30 --seeds 5 --seed0 5 --roundtrip-check
+start M1_rigid_holdout -> /work1/dannegrut/harry/experiments/arena_gator_20260925/e5/train/offline_rigid : --ds /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/subsets/M1_f104_hmmwv_rigid.npz --mode holdout --arch gru --cond none --domain-filter rigid --ctx geom --split-eval val --bs 256 --epochs 30 --seeds 5 --seed0 0
+start LC545_rigid_holdout -> /work1/dannegrut/harry/experiments/arena_gator_20260925/e5/train/offline_rigid : --ds /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/subsets/LC545_f104_hmmwv_rigid.npz --mode holdout --arch gru --cond none --domain-filter rigid --ctx geom --split-eval val --bs 256 --epochs 30 --seeds 5 --seed0 0
+start LC272_rigid_holdout -> /work1/dannegrut/harry/experiments/arena_gator_20260925/e5/train/offline_rigid : --ds /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/subsets/LC272_f104_hmmwv_rigid.npz --mode holdout --arch gru --cond none --domain-filter rigid --ctx geom --split-eval val --bs 256 --epochs 30 --seeds 5 --seed0 0
+M1a_rigid_deploy exit: 0
+M1b_rigid_deploy exit: 0
+M1_rigid_holdout exit: 0
+LC545_rigid_holdout exit: 0
+LC272_rigid_holdout exit: 0
+all done rc=0
+
+----------------------------------------------------------------------
+Omnistat Report Card for Job Id: 436135
+----------------------------------------------------------------------
+
+Job Overview (Num Nodes = 1, Machine = HPC Fund)
+ --> Start time = 2026-09-25 02:52:41
+ --> End   time = 2026-09-25 04:18:11
+ --> Duration   = 5130 secs
+
+GPU Statistics:
+
+           | Utilization (%)  |  Memory Use (%)  | Temperature (C)  |    Power (W)     | Energy (kWh) |
+     GPU # |    Max     Mean  |    Max     Mean  |    Max     Mean  |    Max     Mean  |    Total     |
+    ---------------------------------------------------------------------------------------------------
+         0 |  100.00   99.48  |   13.32   10.57  |   63.00   59.99  |  563.00  442.67  |   6.31e-01   |
+
+Approximate Total GPU Energy Consumed = 6.31e-01 kWh
+
+Host Statistics:
+
+    # CPUs | CPU Utilization (%)  |    Memory Use (%)    |
+           |    Max       Mean    |    Max       Mean    |
+    ------------------------------------------------------
+        24 |   12.00      7.79    |    5.60      4.71    |
+
+--
+Query interval = 30.000 secs
+Query execution time = 0.2 secs
+Version = 1.13.0

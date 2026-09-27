@@ -1,0 +1,3 @@
+# lane	tag	out (rel. G3)	ci_train arguments (S1 job B: soil stage-1 task B models, Gator tiers 0-6; + g228 alone)
+1	G_soil_deploy	e5/train/soil_s1/G_soil	--ds /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/subsets/G_f104_gator_soil.npz --mode deploy --arch gru --cond none --domain-filter crm --ctx geom --split-eval val --bs 256 --epochs 30 --seeds 5 --seed0 0 --roundtrip-check
+2	G_soil_holdout	e5/train/soil_s1/offline_soil	--ds /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/subsets/G_f104_gator_soil.npz --mode holdout --arch gru --cond none --domain-filter crm --ctx geom --split-eval val --bs 256 --epochs 30 --seeds 5 --seed0 0

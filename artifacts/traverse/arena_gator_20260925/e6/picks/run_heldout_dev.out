@@ -1,0 +1,46 @@
+28 pick runs for set heldout, 3 in parallel; jobs artifacts/traverse/arena_gator_20260925/e6/picks/jobs_heldout.txt
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g203/M1b_fixed2
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g203/M2_fixed2
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g203/M1a_fixed2
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g203/M3b_fixed2
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g203/M3a_fixed2
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g203/A3_fixed2
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g203/M1b_free
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g203/M1a_free
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g203/M2_free
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g203/M3a_free
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g203/M3b_free
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g203/A3_free
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g203/straight6
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g203/straight2
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g228/M1a_fixed2
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g228/M2_fixed2
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g228/M1b_fixed2
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g228/M3a_fixed2
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g228/M3b_fixed2
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g228/A3_fixed2
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g228/M1a_free
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g228/M2_free
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g228/M1b_free
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g228/M3a_free
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g228/straight6
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g228/M3b_free
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g228/A3_free
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g228/straight2
+set heldout done
+14 pick runs for set dev, 3 in parallel; jobs artifacts/traverse/arena_gator_20260925/e6/picks/jobs_dev.txt
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g217/M1b_fixed2
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g217/M2_fixed2
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g217/M1a_fixed2
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g217/M3a_fixed2
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g217/M3b_fixed2
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g217/A3_fixed2
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g217/M1a_free
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g217/M1b_free
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g217/M2_free
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g217/M3a_free
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g217/M3b_free
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g217/A3_free
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g217/straight6
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g217/straight2
+set dev done

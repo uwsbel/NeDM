@@ -1,0 +1,34 @@
+{
+ "set": "heldout_g228",
+ "kind": "suite",
+ "cases_dir": "artifacts/traverse/arena_gator_20260925/cases/heldout_g228/cases",
+ "groups": 150,
+ "arena": "assets/traverse/arena_g228",
+ "arena_bmp_sha256": "c861bd7a7990e22556520c1a7e5a09d31ba4c204c46d12b1e80f9aa6fe6369f3",
+ "seed": 2026092502228,
+ "prefix": "g228_heldout_group",
+ "wave": "arena_gator_suite",
+ "strata_mode": "feature",
+ "strata": {
+  "hill_entry_cross_exit": 30,
+  "crater_entry_cross_exit": 24,
+  "hill_cross_slope": 59,
+  "crater_cross_slope": 37
+ },
+ "splits_written_in_cases": {
+  "train": 137,
+  "val": 8,
+  "test": 5
+ },
+ "designed_routes": 1800,
+ "files": 1951,
+ "map_root": "artifacts/traverse/arena_gator_20260925/map_roots/g228",
+ "map_observation_sha256": "28bf7593d730f97f9af5124cb67999df99199ed18ab902c7edd282121f665265",
+ "map_bmp_matches_arena": true,
+ "blacklist_hits": {
+  "ci_train.SUITE_GROUPS": 150,
+  "ga_build_mixed.BLACKLIST": 150,
+  "ci_a5data.SUITE_PATTERNS": 150
+ },
+ "lock_sha256": "b2fc3bb173eb98004892abd17c0f5631d4fa8bb473b59284bad6c18b5c1fea57"
+}

@@ -1,0 +1,1614 @@
+{
+ "schema": "ag_eval_mapping_v1",
+ "world": "rigid",
+ "tasks": "artifacts/traverse/arena_gator_20260925/verify_e6a/tasks/rigid_v.json",
+ "tasks_sha256": "c957e443e5b0d889dd2f59dfea8bd2f1acce257d3e0ab53702428c3e17f64d19",
+ "arms": [
+  {
+   "name": "FREE",
+   "vehicle": "hmmwv",
+   "dirs": [
+    "artifacts/traverse/arena_gator_20260925/verify_e6a/picks/g271/M1b_free_r1"
+   ],
+   "arenas": [
+    "g271"
+   ],
+   "modes": [
+    "free"
+   ],
+   "model_tags": [
+    "M1b"
+   ],
+   "models": [
+    "1febac7c53204fd9b545ee909a44c4106ec7c4ba7348140155de6c22139a10c9",
+    "475844c9b8ce13c744d721bc8f62792950951279b1cc70b5cad6d1da826ef2c7",
+    "e0de3c56760e14283de5636d77eb0b6d3f59da92d54144c029dad71188c5a970",
+    "ea9ce1ddb2da7fd387dbe795a63fbaf170990376159bad2a9fb2270c2cfd2364",
+    "f833950f3ed9df5a062354b56828fde333f2cf160b4d67d4daf47fa355ca58da"
+   ]
+  },
+  {
+   "name": "FREE2",
+   "vehicle": "hmmwv",
+   "dirs": [
+    "artifacts/traverse/arena_gator_20260925/verify_e6a/picks/g260/M1a_free"
+   ],
+   "arenas": [
+    "g260"
+   ],
+   "modes": [
+    "free"
+   ],
+   "model_tags": [
+    "M1a"
+   ],
+   "models": [
+    "89959d3cd0296760fc840b78db633f9dd573a4c5c79cc8fb62fb4ccd71bc40aa",
+    "cd6fbabf61c09eae1611644af2d5eefd81b086270e0d63bbe9f5d6207d4e23c5",
+    "d6f77f2fe21498a59dc74d9d45e39ac56647b245d13044e486038eeb60c2a2c4",
+    "eba6b90b8640f992f5117c5ef26f92d7a11195d7a9b7d93b3daf49c4acae9edc",
+    "f218deef57376f0e032a8e3a1bf04350a419812254a02d8834da9af2519f1392"
+   ]
+  },
+  {
+   "name": "FX2",
+   "vehicle": "hmmwv",
+   "dirs": [
+    "artifacts/traverse/arena_gator_20260925/verify_e6a/picks/g241/M1b_fixed2_r1"
+   ],
+   "arenas": [
+    "g241"
+   ],
+   "modes": [
+    "fixed2"
+   ],
+   "model_tags": [
+    "M1b"
+   ],
+   "models": [
+    "1febac7c53204fd9b545ee909a44c4106ec7c4ba7348140155de6c22139a10c9",
+    "475844c9b8ce13c744d721bc8f62792950951279b1cc70b5cad6d1da826ef2c7",
+    "e0de3c56760e14283de5636d77eb0b6d3f59da92d54144c029dad71188c5a970",
+    "ea9ce1ddb2da7fd387dbe795a63fbaf170990376159bad2a9fb2270c2cfd2364",
+    "f833950f3ed9df5a062354b56828fde333f2cf160b4d67d4daf47fa355ca58da"
+   ]
+  },
+  {
+   "name": "FX2B",
+   "vehicle": "hmmwv",
+   "dirs": [
+    "artifacts/traverse/arena_gator_20260925/verify_e6a/picks/g260/M1a_fixed2"
+   ],
+   "arenas": [
+    "g260"
+   ],
+   "modes": [
+    "fixed2"
+   ],
+   "model_tags": [
+    "M1a"
+   ],
+   "models": [
+    "89959d3cd0296760fc840b78db633f9dd573a4c5c79cc8fb62fb4ccd71bc40aa",
+    "cd6fbabf61c09eae1611644af2d5eefd81b086270e0d63bbe9f5d6207d4e23c5",
+    "d6f77f2fe21498a59dc74d9d45e39ac56647b245d13044e486038eeb60c2a2c4",
+    "eba6b90b8640f992f5117c5ef26f92d7a11195d7a9b7d93b3daf49c4acae9edc",
+    "f218deef57376f0e032a8e3a1bf04350a419812254a02d8834da9af2519f1392"
+   ]
+  },
+  {
+   "name": "S6",
+   "vehicle": "hmmwv",
+   "dirs": [
+    "artifacts/traverse/arena_gator_20260925/verify_e6a/picks/g260/straight6"
+   ],
+   "arenas": [
+    "g260"
+   ],
+   "modes": [
+    "straight6"
+   ],
+   "model_tags": [
+    "None"
+   ],
+   "models": []
+  },
+  {
+   "name": "S6DUP",
+   "vehicle": "hmmwv",
+   "dirs": [
+    "artifacts/traverse/arena_gator_20260925/verify_e6a/picks/g260/straight6"
+   ],
+   "arenas": [
+    "g260"
+   ],
+   "modes": [
+    "straight6"
+   ],
+   "model_tags": [
+    "None"
+   ],
+   "models": []
+  },
+  {
+   "name": "S6G",
+   "vehicle": "gator",
+   "dirs": [
+    "artifacts/traverse/arena_gator_20260925/verify_e6a/picks/g260/straight6"
+   ],
+   "arenas": [
+    "g260"
+   ],
+   "modes": [
+    "straight6"
+   ],
+   "model_tags": [
+    "None"
+   ],
+   "models": []
+  }
+ ],
+ "order": [
+  "FREE",
+  "FREE2",
+  "FX2",
+  "FX2B",
+  "S6",
+  "S6DUP",
+  "S6G"
+ ],
+ "groups": {
+  "g241_test_group_0019": {
+   "FX2": {
+    "run_id": "g241_test_group_0019__FX2",
+    "vehicle": "hmmwv",
+    "route_sha256": "41a5eb63db3e1b74d9eeddec90546c543cf9ed5c84a077d10a3549c2ae16d82b",
+    "reused_from": null,
+    "arena": "g241",
+    "case": "cases/test_g241/cases/g241_test_group_0019.json",
+    "mode": "fixed2",
+    "P": 4.040547810502115e-05,
+    "z": -10.116524982452393
+   }
+  },
+  "g241_test_group_0038": {
+   "FX2": {
+    "run_id": "g241_test_group_0038__FX2",
+    "vehicle": "hmmwv",
+    "route_sha256": "fe523fd90e29d9c490b533a81ceb98a9e204d4cf53e079e4720532c6f0954e99",
+    "reused_from": null,
+    "arena": "g241",
+    "case": "cases/test_g241/cases/g241_test_group_0038.json",
+    "mode": "fixed2",
+    "P": 0.0007131249587534194,
+    "z": -7.245497226715088
+   }
+  },
+  "g241_test_group_0040": {
+   "FX2": {
+    "run_id": "g241_test_group_0040__FX2",
+    "vehicle": "hmmwv",
+    "route_sha256": "06515591eaf57834e43a68c1232c3832d5faeac3d17bb8ff722b1b5db46ac1a5",
+    "reused_from": null,
+    "arena": "g241",
+    "case": "cases/test_g241/cases/g241_test_group_0040.json",
+    "mode": "fixed2",
+    "P": 5.685163264057547e-05,
+    "z": -9.77503719329834
+   }
+  },
+  "g241_test_group_0080": {
+   "FX2": {
+    "run_id": "g241_test_group_0080__FX2",
+    "vehicle": "hmmwv",
+    "route_sha256": "61a27d4c653249bee7aa1f41cf31809f4c529e7a012ebe0afba92d782fc9663f",
+    "reused_from": null,
+    "arena": "g241",
+    "case": "cases/test_g241/cases/g241_test_group_0080.json",
+    "mode": "fixed2",
+    "P": 9.138598752844729e-06,
+    "z": -11.60299892425537
+   }
+  },
+  "g241_test_group_0122": {
+   "FX2": {
+    "run_id": "g241_test_group_0122__FX2",
+    "vehicle": "hmmwv",
+    "route_sha256": "f06b94022a5bf84870649620f3300a7b25e90fd0fc3e905d8e39947c7a6a4da7",
+    "reused_from": null,
+    "arena": "g241",
+    "case": "cases/test_g241/cases/g241_test_group_0122.json",
+    "mode": "fixed2",
+    "P": 1.5992165344425047e-05,
+    "z": -11.043403625488281
+   }
+  },
+  "g241_test_group_0140": {
+   "FX2": {
+    "run_id": "g241_test_group_0140__FX2",
+    "vehicle": "hmmwv",
+    "route_sha256": "d6a26d01e91dc4efb7751d9f27f70396301886824375ab50ddfab32c21a98442",
+    "reused_from": null,
+    "arena": "g241",
+    "case": "cases/test_g241/cases/g241_test_group_0140.json",
+    "mode": "fixed2",
+    "P": 2.633252270223263e-05,
+    "z": -10.544692611694336
+   }
+  },
+  "g241_test_group_0154": {
+   "FX2": {
+    "run_id": "g241_test_group_0154__FX2",
+    "vehicle": "hmmwv",
+    "route_sha256": "226d98ba7d26d7533b9153cc890b5febc1c4f771ff96a64ce9f259cd2e369ee3",
+    "reused_from": null,
+    "arena": "g241",
+    "case": "cases/test_g241/cases/g241_test_group_0154.json",
+    "mode": "fixed2",
+    "P": 3.410141744542017e-05,
+    "z": -10.286154556274415
+   }
+  },
+  "g241_test_group_0179": {
+   "FX2": {
+    "run_id": "g241_test_group_0179__FX2",
+    "vehicle": "hmmwv",
+    "route_sha256": "2cf4e77a58de053c2acebca7e38bc90481e48c754b8976250685ba52f436042e",
+    "reused_from": null,
+    "arena": "g241",
+    "case": "cases/test_g241/cases/g241_test_group_0179.json",
+    "mode": "fixed2",
+    "P": 1.2096393950278284e-05,
+    "z": -11.322597122192382
+   }
+  },
+  "g241_test_group_0200": {
+   "FX2": {
+    "run_id": "g241_test_group_0200__FX2",
+    "vehicle": "hmmwv",
+    "route_sha256": "274d25369084e4d3c54b03cf94b7869360fc68f6f7c2deb0c04e44d67ce6021e",
+    "reused_from": null,
+    "arena": "g241",
+    "case": "cases/test_g241/cases/g241_test_group_0200.json",
+    "mode": "fixed2",
+    "P": 3.2142702807158585e-06,
+    "z": -12.647908592224121
+   }
+  },
+  "g241_test_group_0236": {
+   "FX2": {
+    "run_id": "g241_test_group_0236__FX2",
+    "vehicle": "hmmwv",
+    "route_sha256": "6a80afe0d92a5af33b9fde6e568fa2906dcd2d23354c0a60c74e2bd564733dc2",
+    "reused_from": null,
+    "arena": "g241",
+    "case": "cases/test_g241/cases/g241_test_group_0236.json",
+    "mode": "fixed2",
+    "P": 0.0018300299918917462,
+    "z": -6.302507209777832
+   }
+  },
+  "g241_test_group_0241": {
+   "FX2": {
+    "run_id": "g241_test_group_0241__FX2",
+    "vehicle": "hmmwv",
+    "route_sha256": "2f11410fdf1d6c3d7cb398396da95a00d24cdf1670a622fdf56c0a6b0a7fb38d",
+    "reused_from": null,
+    "arena": "g241",
+    "case": "cases/test_g241/cases/g241_test_group_0241.json",
+    "mode": "fixed2",
+    "P": 5.01937700558841e-06,
+    "z": -12.202202224731446
+   }
+  },
+  "g241_test_group_0243": {
+   "FX2": {
+    "run_id": "g241_test_group_0243__FX2",
+    "vehicle": "hmmwv",
+    "route_sha256": "bf25494d97657b1d8056220de427c75c6e6ab24de1ab2f85d3ff4286a5b929cc",
+    "reused_from": null,
+    "arena": "g241",
+    "case": "cases/test_g241/cases/g241_test_group_0243.json",
+    "mode": "fixed2",
+    "P": 0.0003932301577614927,
+    "z": -7.840918827056885
+   }
+  },
+  "g260_test_group_0021": {
+   "S6G": {
+    "run_id": "gator__g260_test_group_0021__S6G",
+    "vehicle": "gator",
+    "route_sha256": "b8c0ada3d654d92eddaef220bc6d08cf1ee59b81f056479886b9a5f0b3ac08c5",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0021.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   },
+   "FREE2": {
+    "run_id": "g260_test_group_0021__FREE2",
+    "vehicle": "hmmwv",
+    "route_sha256": "bc0ad4b7dffd1f0ea811582ff05011804049524a4837d0790bcf45a620a67916",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0021.json",
+    "mode": "free",
+    "P": 9.260733842997304e-06,
+    "z": -11.589722633361816
+   },
+   "FX2B": {
+    "run_id": "g260_test_group_0021__FX2B",
+    "vehicle": "hmmwv",
+    "route_sha256": "ba35d2f043048129d319a4542994a256853307692acb7b426d50dcec45dc7dc6",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0021.json",
+    "mode": "fixed2",
+    "P": 0.0020234857603813605,
+    "z": -6.201921033859253
+   },
+   "S6": {
+    "run_id": "g260_test_group_0021__S6",
+    "vehicle": "hmmwv",
+    "route_sha256": "b8c0ada3d654d92eddaef220bc6d08cf1ee59b81f056479886b9a5f0b3ac08c5",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0021.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   },
+   "S6DUP": {
+    "run_id": "g260_test_group_0021__S6",
+    "vehicle": "hmmwv",
+    "route_sha256": "b8c0ada3d654d92eddaef220bc6d08cf1ee59b81f056479886b9a5f0b3ac08c5",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0021.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   }
+  },
+  "g260_test_group_0027": {
+   "S6G": {
+    "run_id": "gator__g260_test_group_0027__S6G",
+    "vehicle": "gator",
+    "route_sha256": "57b687710bc452908af685623585e3044cdf3abcb54d82c2fee442fcc3885ff2",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0027.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   },
+   "FREE2": {
+    "run_id": "g260_test_group_0027__FREE2",
+    "vehicle": "hmmwv",
+    "route_sha256": "bf10e673ad688912fc77cbfd48d2622aa868437eb94d030b749ac293b2fe834a",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0027.json",
+    "mode": "free",
+    "P": 3.971079485687312e-06,
+    "z": -12.43647060394287
+   },
+   "FX2B": {
+    "run_id": "g260_test_group_0027__FX2B",
+    "vehicle": "hmmwv",
+    "route_sha256": "184fd499fa96b8076137712b9c8481dbfce1a251ddf0a9ff0fe6ecf520e43d29",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0027.json",
+    "mode": "fixed2",
+    "P": 2.2736605660100828e-05,
+    "z": -10.691522979736328
+   },
+   "S6": {
+    "run_id": "g260_test_group_0027__S6",
+    "vehicle": "hmmwv",
+    "route_sha256": "57b687710bc452908af685623585e3044cdf3abcb54d82c2fee442fcc3885ff2",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0027.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   },
+   "S6DUP": {
+    "run_id": "g260_test_group_0027__S6",
+    "vehicle": "hmmwv",
+    "route_sha256": "57b687710bc452908af685623585e3044cdf3abcb54d82c2fee442fcc3885ff2",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0027.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   }
+  },
+  "g260_test_group_0033": {
+   "S6G": {
+    "run_id": "gator__g260_test_group_0033__S6G",
+    "vehicle": "gator",
+    "route_sha256": "08ce219f6d141ad9d7a2d688eead53cf38fb8d5bea1fa652d8c7d87a26cda264",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0033.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   },
+   "FREE2": {
+    "run_id": "g260_test_group_0033__FREE2",
+    "vehicle": "hmmwv",
+    "route_sha256": "743570152ff09676d5702e9f685a99d4de168334de52dd6205852af8e3f6457a",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0033.json",
+    "mode": "free",
+    "P": 3.320568019216097e-06,
+    "z": -12.615373039245606
+   },
+   "FX2B": {
+    "run_id": "g260_test_group_0033__FX2B",
+    "vehicle": "hmmwv",
+    "route_sha256": "068f027c0e332b783f8b368841497dd8d688ba1822274bc3e21945c3ff3fd1f5",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0033.json",
+    "mode": "fixed2",
+    "P": 2.6708429949118262e-05,
+    "z": -10.530517959594727
+   },
+   "S6": {
+    "run_id": "g260_test_group_0033__S6",
+    "vehicle": "hmmwv",
+    "route_sha256": "08ce219f6d141ad9d7a2d688eead53cf38fb8d5bea1fa652d8c7d87a26cda264",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0033.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   },
+   "S6DUP": {
+    "run_id": "g260_test_group_0033__S6",
+    "vehicle": "hmmwv",
+    "route_sha256": "08ce219f6d141ad9d7a2d688eead53cf38fb8d5bea1fa652d8c7d87a26cda264",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0033.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   }
+  },
+  "g260_test_group_0046": {
+   "S6G": {
+    "run_id": "gator__g260_test_group_0046__S6G",
+    "vehicle": "gator",
+    "route_sha256": "3caca28f58af1c6ccd7d36c8f0ac9a51e4561712f14955d3b8ef77f507e03871",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0046.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   },
+   "FREE2": {
+    "run_id": "g260_test_group_0046__FREE2",
+    "vehicle": "hmmwv",
+    "route_sha256": "c31eb0162370abe6e4b9e615191b07496aa4d9ee2d9ba81c7102f42142a66947",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0046.json",
+    "mode": "free",
+    "P": 2.182331176769914e-06,
+    "z": -13.035115814208984
+   },
+   "FX2B": {
+    "run_id": "g260_test_group_0046__FX2B",
+    "vehicle": "hmmwv",
+    "route_sha256": "45d7d5d137939a36077ebc85c64b287ab5785c731a36cd2113d452ceb2dd7e84",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0046.json",
+    "mode": "fixed2",
+    "P": 2.8129693966372216e-06,
+    "z": -12.781268501281739
+   },
+   "S6": {
+    "run_id": "g260_test_group_0046__S6",
+    "vehicle": "hmmwv",
+    "route_sha256": "3caca28f58af1c6ccd7d36c8f0ac9a51e4561712f14955d3b8ef77f507e03871",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0046.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   },
+   "S6DUP": {
+    "run_id": "g260_test_group_0046__S6",
+    "vehicle": "hmmwv",
+    "route_sha256": "3caca28f58af1c6ccd7d36c8f0ac9a51e4561712f14955d3b8ef77f507e03871",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0046.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   }
+  },
+  "g260_test_group_0064": {
+   "S6G": {
+    "run_id": "gator__g260_test_group_0064__S6G",
+    "vehicle": "gator",
+    "route_sha256": "0f3629d08c190643aa2afd1ffad86f2e16e2980fc28d0d99445eb24331ad3a10",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0064.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   },
+   "FREE2": {
+    "run_id": "g260_test_group_0064__FREE2",
+    "vehicle": "hmmwv",
+    "route_sha256": "48a9b13d5c618b0b0aa48d9bf353199432ef3d4a2815d0f0405211683434bd19",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0064.json",
+    "mode": "free",
+    "P": 3.998976671359955e-06,
+    "z": -12.42947006225586
+   },
+   "FX2B": {
+    "run_id": "g260_test_group_0064__FX2B",
+    "vehicle": "hmmwv",
+    "route_sha256": "0f61b8ecd7a5d3b21335cb69d141abd6b32f21fab11cf547708f40dcc29191b6",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0064.json",
+    "mode": "fixed2",
+    "P": 3.3062294750862975e-05,
+    "z": -10.317100524902344
+   },
+   "S6": {
+    "run_id": "g260_test_group_0064__S6",
+    "vehicle": "hmmwv",
+    "route_sha256": "0f3629d08c190643aa2afd1ffad86f2e16e2980fc28d0d99445eb24331ad3a10",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0064.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   },
+   "S6DUP": {
+    "run_id": "g260_test_group_0064__S6",
+    "vehicle": "hmmwv",
+    "route_sha256": "0f3629d08c190643aa2afd1ffad86f2e16e2980fc28d0d99445eb24331ad3a10",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0064.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   }
+  },
+  "g260_test_group_0066": {
+   "S6G": {
+    "run_id": "gator__g260_test_group_0066__S6G",
+    "vehicle": "gator",
+    "route_sha256": "aca023ce5efe017c504fe4dc4357b5926181b043211557b7061a614ee3851fca",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0066.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   },
+   "FREE2": {
+    "run_id": "g260_test_group_0066__FREE2",
+    "vehicle": "hmmwv",
+    "route_sha256": "fa745d91655b0bd93c1cc1bcb2e815e5b2c987d1ddcac480a3e6c79913653721",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0066.json",
+    "mode": "free",
+    "P": 3.431545915866252e-06,
+    "z": -12.58249797821045
+   },
+   "FX2B": {
+    "run_id": "g260_test_group_0066__FX2B",
+    "vehicle": "hmmwv",
+    "route_sha256": "27823697c41d1329cbab199d8e4fb1b13d8f2bd8abb4c2175035132291f0ac3c",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0066.json",
+    "mode": "fixed2",
+    "P": 8.335140512127914e-06,
+    "z": -11.695026016235351
+   },
+   "S6": {
+    "run_id": "g260_test_group_0066__S6",
+    "vehicle": "hmmwv",
+    "route_sha256": "aca023ce5efe017c504fe4dc4357b5926181b043211557b7061a614ee3851fca",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0066.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   },
+   "S6DUP": {
+    "run_id": "g260_test_group_0066__S6",
+    "vehicle": "hmmwv",
+    "route_sha256": "aca023ce5efe017c504fe4dc4357b5926181b043211557b7061a614ee3851fca",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0066.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   }
+  },
+  "g260_test_group_0069": {
+   "S6G": {
+    "run_id": "gator__g260_test_group_0069__S6G",
+    "vehicle": "gator",
+    "route_sha256": "eb31ec8ee9f85da8fa5ff93034e8b43718efcd7e1547c1ae648814c73e285d46",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0069.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   },
+   "FREE2": {
+    "run_id": "g260_test_group_0069__FREE2",
+    "vehicle": "hmmwv",
+    "route_sha256": "eacdb1a442a2f1aa2d1488e2fb8759c7a0b67e246274ea626d15b0a353db54ab",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0069.json",
+    "mode": "free",
+    "P": 4.783901351834707e-06,
+    "z": -12.250251770019531
+   },
+   "FX2B": {
+    "run_id": "g260_test_group_0069__FX2B",
+    "vehicle": "hmmwv",
+    "route_sha256": "cf77969c18bd117141f776dbb907b200c880702e0454afbc0654c1807ce25399",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0069.json",
+    "mode": "fixed2",
+    "P": 4.0343822478861036e-05,
+    "z": -10.118052101135254
+   },
+   "S6": {
+    "run_id": "g260_test_group_0069__S6",
+    "vehicle": "hmmwv",
+    "route_sha256": "eb31ec8ee9f85da8fa5ff93034e8b43718efcd7e1547c1ae648814c73e285d46",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0069.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   },
+   "S6DUP": {
+    "run_id": "g260_test_group_0069__S6",
+    "vehicle": "hmmwv",
+    "route_sha256": "eb31ec8ee9f85da8fa5ff93034e8b43718efcd7e1547c1ae648814c73e285d46",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0069.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   }
+  },
+  "g260_test_group_0078": {
+   "S6G": {
+    "run_id": "gator__g260_test_group_0078__S6G",
+    "vehicle": "gator",
+    "route_sha256": "d86d4b9ddd0dda629b7627c293a39143596e2d05739fd915ca919184a36a7dbb",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0078.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   },
+   "FREE2": {
+    "run_id": "g260_test_group_0078__FREE2",
+    "vehicle": "hmmwv",
+    "route_sha256": "f1e1bf2c5ad2014b200a52a1d158b5218892c33944497a3e710617836807b814",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0078.json",
+    "mode": "free",
+    "P": 1.581947167261788e-06,
+    "z": -13.35685329437256
+   },
+   "FX2B": {
+    "run_id": "g260_test_group_0078__FX2B",
+    "vehicle": "hmmwv",
+    "route_sha256": "bec239d99311aff9011874a2c3c28c860c54c9670868ee6d39cf2922bfb95403",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0078.json",
+    "mode": "fixed2",
+    "P": 2.732869040289465e-06,
+    "z": -12.810157203674317
+   },
+   "S6": {
+    "run_id": "g260_test_group_0078__S6",
+    "vehicle": "hmmwv",
+    "route_sha256": "d86d4b9ddd0dda629b7627c293a39143596e2d05739fd915ca919184a36a7dbb",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0078.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   },
+   "S6DUP": {
+    "run_id": "g260_test_group_0078__S6",
+    "vehicle": "hmmwv",
+    "route_sha256": "d86d4b9ddd0dda629b7627c293a39143596e2d05739fd915ca919184a36a7dbb",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0078.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   }
+  },
+  "g260_test_group_0088": {
+   "S6G": {
+    "run_id": "gator__g260_test_group_0088__S6G",
+    "vehicle": "gator",
+    "route_sha256": "0a789d29742e3acd0e806a49382d7fa44c316161b2d4e8f3e325819e04393339",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0088.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   },
+   "FREE2": {
+    "run_id": "g260_test_group_0088__FREE2",
+    "vehicle": "hmmwv",
+    "route_sha256": "2cf0f2fe4943db0fb477a9ea0df3aeb4bd87a8dc7fdfce0772e1ba8b5e8875cc",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0088.json",
+    "mode": "free",
+    "P": 3.084959843024926e-06,
+    "z": -12.688970375061036
+   },
+   "FX2B": {
+    "run_id": "g260_test_group_0088__FX2B",
+    "vehicle": "hmmwv",
+    "route_sha256": "17a46dab7d70aa5efc483323cc702e6215d0d413baecd3635df8f6ac3b74103e",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0088.json",
+    "mode": "fixed2",
+    "P": 1.3437910143632159e-05,
+    "z": -11.217424011230468
+   },
+   "S6": {
+    "run_id": "g260_test_group_0088__S6",
+    "vehicle": "hmmwv",
+    "route_sha256": "0a789d29742e3acd0e806a49382d7fa44c316161b2d4e8f3e325819e04393339",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0088.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   },
+   "S6DUP": {
+    "run_id": "g260_test_group_0088__S6",
+    "vehicle": "hmmwv",
+    "route_sha256": "0a789d29742e3acd0e806a49382d7fa44c316161b2d4e8f3e325819e04393339",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0088.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   }
+  },
+  "g260_test_group_0116": {
+   "S6G": {
+    "run_id": "gator__g260_test_group_0116__S6G",
+    "vehicle": "gator",
+    "route_sha256": "8be0ee959d3d6d84ccc1b1237383f44451d0252806d203a3e54eed5e0244c9e2",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0116.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   },
+   "FREE2": {
+    "run_id": "g260_test_group_0116__FREE2",
+    "vehicle": "hmmwv",
+    "route_sha256": "b241f5348be111f5f9648dbac436a336d80d4f7db1b6b2fd3ee4681a5b3ff7db",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0116.json",
+    "mode": "free",
+    "P": 2.19063690110044e-06,
+    "z": -13.031317138671875
+   },
+   "FX2B": {
+    "run_id": "g260_test_group_0116__FX2B",
+    "vehicle": "hmmwv",
+    "route_sha256": "209508dee710a835f9b17f20ef78cb2084f8d06e448c27196072ad556358bfd5",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0116.json",
+    "mode": "fixed2",
+    "P": 2.3287893209378296e-06,
+    "z": -12.970160865783692
+   },
+   "S6": {
+    "run_id": "g260_test_group_0116__S6",
+    "vehicle": "hmmwv",
+    "route_sha256": "8be0ee959d3d6d84ccc1b1237383f44451d0252806d203a3e54eed5e0244c9e2",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0116.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   },
+   "S6DUP": {
+    "run_id": "g260_test_group_0116__S6",
+    "vehicle": "hmmwv",
+    "route_sha256": "8be0ee959d3d6d84ccc1b1237383f44451d0252806d203a3e54eed5e0244c9e2",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0116.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   }
+  },
+  "g260_test_group_0125": {
+   "S6G": {
+    "run_id": "gator__g260_test_group_0125__S6G",
+    "vehicle": "gator",
+    "route_sha256": "b41c5cd2fb62cedfb0229e85b325c73518982da6a8a88b5e5c6755880593b307",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0125.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   },
+   "FREE2": {
+    "run_id": "g260_test_group_0125__FREE2",
+    "vehicle": "hmmwv",
+    "route_sha256": "c96aed23efe00179c96a2084df9f8b85124a437c53586e25743bbc4693d71420",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0125.json",
+    "mode": "free",
+    "P": 5.007876894946861e-06,
+    "z": -12.204496002197265
+   },
+   "FX2B": {
+    "run_id": "g260_test_group_0125__FX2B",
+    "vehicle": "hmmwv",
+    "route_sha256": "6d6f618a49c802cd3f55a48e5b0a705e7c31fe17c1018f1e6241bfee4e2e00d0",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0125.json",
+    "mode": "fixed2",
+    "P": 9.294488079736318e-06,
+    "z": -11.586084365844727
+   },
+   "S6": {
+    "run_id": "g260_test_group_0125__S6",
+    "vehicle": "hmmwv",
+    "route_sha256": "b41c5cd2fb62cedfb0229e85b325c73518982da6a8a88b5e5c6755880593b307",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0125.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   },
+   "S6DUP": {
+    "run_id": "g260_test_group_0125__S6",
+    "vehicle": "hmmwv",
+    "route_sha256": "b41c5cd2fb62cedfb0229e85b325c73518982da6a8a88b5e5c6755880593b307",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0125.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   }
+  },
+  "g260_test_group_0166": {
+   "S6G": {
+    "run_id": "gator__g260_test_group_0166__S6G",
+    "vehicle": "gator",
+    "route_sha256": "4df7597ee7ca65aa187fad6e430f01846b77fc0d883d11c1c8dd8a9d72d6dd8d",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0166.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   },
+   "FREE2": {
+    "run_id": "g260_test_group_0166__FREE2",
+    "vehicle": "hmmwv",
+    "route_sha256": "b2334116142653ace5c8176ce619c49cba53854b5831ff04f7cff43fa0642c9c",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0166.json",
+    "mode": "free",
+    "P": 2.663494695021029e-06,
+    "z": -12.835870170593262
+   },
+   "FX2B": {
+    "run_id": "g260_test_group_0166__FX2B",
+    "vehicle": "hmmwv",
+    "route_sha256": "6295a9d169b772b7866164601763b4f96ee282eef567c81d2980ead6bd04c2b2",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0166.json",
+    "mode": "fixed2",
+    "P": 1.0017865672451443e-05,
+    "z": -11.511135482788086
+   },
+   "S6": {
+    "run_id": "g260_test_group_0166__S6",
+    "vehicle": "hmmwv",
+    "route_sha256": "4df7597ee7ca65aa187fad6e430f01846b77fc0d883d11c1c8dd8a9d72d6dd8d",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0166.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   },
+   "S6DUP": {
+    "run_id": "g260_test_group_0166__S6",
+    "vehicle": "hmmwv",
+    "route_sha256": "4df7597ee7ca65aa187fad6e430f01846b77fc0d883d11c1c8dd8a9d72d6dd8d",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0166.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   }
+  },
+  "g260_test_group_0169": {
+   "S6G": {
+    "run_id": "gator__g260_test_group_0169__S6G",
+    "vehicle": "gator",
+    "route_sha256": "6b3a369c7addf9a67baab81939b3686bc21f188640eef236beb598c45e67dec6",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0169.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   },
+   "FREE2": {
+    "run_id": "g260_test_group_0169__FREE2",
+    "vehicle": "hmmwv",
+    "route_sha256": "f29a4956034011d84b46c66fb7cf934e0b1de296d97fc14b6cad7c6932b58914",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0169.json",
+    "mode": "free",
+    "P": 5.0185087481224855e-06,
+    "z": -12.202375221252442
+   },
+   "FX2B": {
+    "run_id": "g260_test_group_0169__FX2B",
+    "vehicle": "hmmwv",
+    "route_sha256": "6e2fc530824911c88d7526a76e5d80b34b773210038e23fd131afb9c1500a0ce",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0169.json",
+    "mode": "fixed2",
+    "P": 2.1743195967371953e-05,
+    "z": -10.736198806762696
+   },
+   "S6": {
+    "run_id": "g260_test_group_0169__S6",
+    "vehicle": "hmmwv",
+    "route_sha256": "6b3a369c7addf9a67baab81939b3686bc21f188640eef236beb598c45e67dec6",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0169.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   },
+   "S6DUP": {
+    "run_id": "g260_test_group_0169__S6",
+    "vehicle": "hmmwv",
+    "route_sha256": "6b3a369c7addf9a67baab81939b3686bc21f188640eef236beb598c45e67dec6",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0169.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   }
+  },
+  "g260_test_group_0171": {
+   "S6G": {
+    "run_id": "gator__g260_test_group_0171__S6G",
+    "vehicle": "gator",
+    "route_sha256": "068d6ec9fd49b9d7c4fa660ed4fde1c21f5aa43d5ffe80efd22fb6eb5dd01a88",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0171.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   },
+   "FREE2": {
+    "run_id": "g260_test_group_0171__FREE2",
+    "vehicle": "hmmwv",
+    "route_sha256": "0b723937b248c99edaf119e80360b52e145420e4fb1653fd11ade4fc2467344b",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0171.json",
+    "mode": "free",
+    "P": 4.5357314968352824e-06,
+    "z": -12.303521919250489
+   },
+   "FX2B": {
+    "run_id": "g260_test_group_0171__FX2B",
+    "vehicle": "hmmwv",
+    "route_sha256": "035a714549f5db3e8ca9c2fd7b26ebb7ea41c7182a69ff5231dbd4fa6aefa1b4",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0171.json",
+    "mode": "fixed2",
+    "P": 0.00032121801319451304,
+    "z": -8.043229866027833
+   },
+   "S6": {
+    "run_id": "g260_test_group_0171__S6",
+    "vehicle": "hmmwv",
+    "route_sha256": "068d6ec9fd49b9d7c4fa660ed4fde1c21f5aa43d5ffe80efd22fb6eb5dd01a88",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0171.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   },
+   "S6DUP": {
+    "run_id": "g260_test_group_0171__S6",
+    "vehicle": "hmmwv",
+    "route_sha256": "068d6ec9fd49b9d7c4fa660ed4fde1c21f5aa43d5ffe80efd22fb6eb5dd01a88",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0171.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   }
+  },
+  "g260_test_group_0172": {
+   "S6G": {
+    "run_id": "gator__g260_test_group_0172__S6G",
+    "vehicle": "gator",
+    "route_sha256": "c39c70b63d9023ececc18308bde388dd7c67d8ccafa2f9c2b8c23cd89a97c0c3",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0172.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   },
+   "FREE2": {
+    "run_id": "g260_test_group_0172__FREE2",
+    "vehicle": "hmmwv",
+    "route_sha256": "9f177bcec5c557f61aa5695b6d09f5c92a1e660435b1c3f42415f9a3ddad753d",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0172.json",
+    "mode": "free",
+    "P": 2.297065452738778e-06,
+    "z": -12.983876991271973
+   },
+   "FX2B": {
+    "run_id": "g260_test_group_0172__FX2B",
+    "vehicle": "hmmwv",
+    "route_sha256": "de05208f22b102bc17a11a58dd084a395e93ebc44e611f474203cf6f8e32b6c5",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0172.json",
+    "mode": "fixed2",
+    "P": 1.3570589247002829e-05,
+    "z": -11.207598876953124
+   },
+   "S6": {
+    "run_id": "g260_test_group_0172__S6",
+    "vehicle": "hmmwv",
+    "route_sha256": "c39c70b63d9023ececc18308bde388dd7c67d8ccafa2f9c2b8c23cd89a97c0c3",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0172.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   },
+   "S6DUP": {
+    "run_id": "g260_test_group_0172__S6",
+    "vehicle": "hmmwv",
+    "route_sha256": "c39c70b63d9023ececc18308bde388dd7c67d8ccafa2f9c2b8c23cd89a97c0c3",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0172.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   }
+  },
+  "g260_test_group_0197": {
+   "S6G": {
+    "run_id": "gator__g260_test_group_0197__S6G",
+    "vehicle": "gator",
+    "route_sha256": "d103368db4b6e9b67a60da82f02e1f9edba1163d0ff567140305840e5593d33d",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0197.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   },
+   "FREE2": {
+    "run_id": "g260_test_group_0197__FREE2",
+    "vehicle": "hmmwv",
+    "route_sha256": "cfe81fd7d4214fbe75f57e4d795e64531870e22e49f4632ba32be1f1522ac3a4",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0197.json",
+    "mode": "free",
+    "P": 3.5840531726893943e-06,
+    "z": -12.539014434814453
+   },
+   "FX2B": {
+    "run_id": "g260_test_group_0197__FX2B",
+    "vehicle": "hmmwv",
+    "route_sha256": "6ca24191b76ef5d68e968f39f21ecc4a153f4bfd7d93d65518d7ec97162788c5",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0197.json",
+    "mode": "fixed2",
+    "P": 1.384712777452446e-05,
+    "z": -11.187425804138183
+   },
+   "S6": {
+    "run_id": "g260_test_group_0197__S6",
+    "vehicle": "hmmwv",
+    "route_sha256": "d103368db4b6e9b67a60da82f02e1f9edba1163d0ff567140305840e5593d33d",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0197.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   },
+   "S6DUP": {
+    "run_id": "g260_test_group_0197__S6",
+    "vehicle": "hmmwv",
+    "route_sha256": "d103368db4b6e9b67a60da82f02e1f9edba1163d0ff567140305840e5593d33d",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0197.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   }
+  },
+  "g260_test_group_0198": {
+   "S6G": {
+    "run_id": "gator__g260_test_group_0198__S6G",
+    "vehicle": "gator",
+    "route_sha256": "5f48ddc09ae558401c010602b8d7ea05ba708c02b2fb326ac736e1abe3a7dae4",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0198.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   },
+   "FREE2": {
+    "run_id": "g260_test_group_0198__FREE2",
+    "vehicle": "hmmwv",
+    "route_sha256": "91bb160c443e6b15fba5c6fdb666713479ac608322e93b3a8da10179028fd108",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0198.json",
+    "mode": "free",
+    "P": 3.4193961273576434e-06,
+    "z": -12.586044883728027
+   },
+   "FX2B": {
+    "run_id": "g260_test_group_0198__FX2B",
+    "vehicle": "hmmwv",
+    "route_sha256": "b5238953fc25388358a52e8204cd0d1825760775b711a4f5a52d65d9da99cc95",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0198.json",
+    "mode": "fixed2",
+    "P": 9.387163253382624e-06,
+    "z": -11.576162719726563
+   },
+   "S6": {
+    "run_id": "g260_test_group_0198__S6",
+    "vehicle": "hmmwv",
+    "route_sha256": "5f48ddc09ae558401c010602b8d7ea05ba708c02b2fb326ac736e1abe3a7dae4",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0198.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   },
+   "S6DUP": {
+    "run_id": "g260_test_group_0198__S6",
+    "vehicle": "hmmwv",
+    "route_sha256": "5f48ddc09ae558401c010602b8d7ea05ba708c02b2fb326ac736e1abe3a7dae4",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0198.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   }
+  },
+  "g260_test_group_0232": {
+   "S6G": {
+    "run_id": "gator__g260_test_group_0232__S6G",
+    "vehicle": "gator",
+    "route_sha256": "b9c630e5b215d78ff6272b145c206660afacba2f28f8e1be4fe822efb6729aef",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0232.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   },
+   "FREE2": {
+    "run_id": "g260_test_group_0232__FREE2",
+    "vehicle": "hmmwv",
+    "route_sha256": "c5da499ff5bdc3e1ceb22d5724cda18a41069fb443a2affc356fe460600e52cb",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0232.json",
+    "mode": "free",
+    "P": 3.00592685875678e-06,
+    "z": -12.714923095703124
+   },
+   "FX2B": {
+    "run_id": "g260_test_group_0232__FX2B",
+    "vehicle": "hmmwv",
+    "route_sha256": "7d316998998978f2a60507b1726b5ee42ed66516f7c89241def4732a3f23a09f",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0232.json",
+    "mode": "fixed2",
+    "P": 8.36695085970618e-06,
+    "z": -11.691216850280762
+   },
+   "S6": {
+    "run_id": "g260_test_group_0232__S6",
+    "vehicle": "hmmwv",
+    "route_sha256": "b9c630e5b215d78ff6272b145c206660afacba2f28f8e1be4fe822efb6729aef",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0232.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   },
+   "S6DUP": {
+    "run_id": "g260_test_group_0232__S6",
+    "vehicle": "hmmwv",
+    "route_sha256": "b9c630e5b215d78ff6272b145c206660afacba2f28f8e1be4fe822efb6729aef",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0232.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   }
+  },
+  "g260_test_group_0234": {
+   "S6G": {
+    "run_id": "gator__g260_test_group_0234__S6G",
+    "vehicle": "gator",
+    "route_sha256": "88a30080b0ebc816fd6997c1a4122ec5ce827d4f86c7523fb2f5a24fae3ca689",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0234.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   },
+   "FREE2": {
+    "run_id": "g260_test_group_0234__FREE2",
+    "vehicle": "hmmwv",
+    "route_sha256": "02d036f59f507d13fe57026d6d8a5bf454f5029f192d8973d54483057f9825ab",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0234.json",
+    "mode": "free",
+    "P": 3.2455589207280866e-06,
+    "z": -12.63822135925293
+   },
+   "FX2B": {
+    "run_id": "g260_test_group_0234__FX2B",
+    "vehicle": "hmmwv",
+    "route_sha256": "e0b9e12060c0ba584afb1cdadadb4e9b54f03bb8fe5a944461a744164166dded",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0234.json",
+    "mode": "fixed2",
+    "P": 2.0274975021661312e-05,
+    "z": -10.806113052368165
+   },
+   "S6": {
+    "run_id": "g260_test_group_0234__S6",
+    "vehicle": "hmmwv",
+    "route_sha256": "88a30080b0ebc816fd6997c1a4122ec5ce827d4f86c7523fb2f5a24fae3ca689",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0234.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   },
+   "S6DUP": {
+    "run_id": "g260_test_group_0234__S6",
+    "vehicle": "hmmwv",
+    "route_sha256": "88a30080b0ebc816fd6997c1a4122ec5ce827d4f86c7523fb2f5a24fae3ca689",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0234.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   }
+  },
+  "g260_test_group_0237": {
+   "S6G": {
+    "run_id": "gator__g260_test_group_0237__S6G",
+    "vehicle": "gator",
+    "route_sha256": "e16210f65befbaab84b66ccde8a72721791f72237c8cff70ee18d7caad997eee",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0237.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   },
+   "FREE2": {
+    "run_id": "g260_test_group_0237__FREE2",
+    "vehicle": "hmmwv",
+    "route_sha256": "9bab3f946a0e93482c66f8cf5119d7715ecace2c3b75d4e899a233f3b9b4e784",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0237.json",
+    "mode": "free",
+    "P": 2.384474207972609e-06,
+    "z": -12.946530723571778
+   },
+   "FX2B": {
+    "run_id": "g260_test_group_0237__FX2B",
+    "vehicle": "hmmwv",
+    "route_sha256": "57a8546729be0904e35d58b26761d468ce4cec67631750e29a044a8a70647f7f",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0237.json",
+    "mode": "fixed2",
+    "P": 4.881471820206151e-06,
+    "z": -12.230061340332032
+   },
+   "S6": {
+    "run_id": "g260_test_group_0237__S6",
+    "vehicle": "hmmwv",
+    "route_sha256": "e16210f65befbaab84b66ccde8a72721791f72237c8cff70ee18d7caad997eee",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0237.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   },
+   "S6DUP": {
+    "run_id": "g260_test_group_0237__S6",
+    "vehicle": "hmmwv",
+    "route_sha256": "e16210f65befbaab84b66ccde8a72721791f72237c8cff70ee18d7caad997eee",
+    "reused_from": null,
+    "arena": "g260",
+    "case": "cases/test_g260/cases/g260_test_group_0237.json",
+    "mode": "straight6",
+    "P": null,
+    "z": null
+   }
+  },
+  "g271_test_group_0019": {
+   "FREE": {
+    "run_id": "g271_test_group_0019__FREE",
+    "vehicle": "hmmwv",
+    "route_sha256": "7d07b2fe4669bf0812bd2b137f8c0f5f73f34688a19fb41fbf6cf18f64b92a42",
+    "reused_from": null,
+    "arena": "g271",
+    "case": "cases/test_g271/cases/g271_test_group_0019.json",
+    "mode": "free",
+    "P": 5.342727200874364e-06,
+    "z": -12.139771652221679
+   }
+  },
+  "g271_test_group_0021": {
+   "FREE": {
+    "run_id": "g271_test_group_0021__FREE",
+    "vehicle": "hmmwv",
+    "route_sha256": "a692f5130a8a799c357db9dfbcefaf92c25fe18f0fd2c58cb999ad1ad0179a44",
+    "reused_from": null,
+    "arena": "g271",
+    "case": "cases/test_g271/cases/g271_test_group_0021.json",
+    "mode": "free",
+    "P": 3.835637083282606e-06,
+    "z": -12.471173095703126
+   }
+  },
+  "g271_test_group_0125": {
+   "FREE": {
+    "run_id": "g271_test_group_0125__FREE",
+    "vehicle": "hmmwv",
+    "route_sha256": "93a0c4beebe8da2dee11707b42733e64640e77101997e760d9d3cc6f407d81e2",
+    "reused_from": null,
+    "arena": "g271",
+    "case": "cases/test_g271/cases/g271_test_group_0125.json",
+    "mode": "free",
+    "P": 3.571785773370806e-06,
+    "z": -12.542443084716798
+   }
+  },
+  "g271_test_group_0128": {
+   "FREE": {
+    "run_id": "g271_test_group_0128__FREE",
+    "vehicle": "hmmwv",
+    "route_sha256": "c8eb6dc04d39ab06677ed9a11a72d1b604f0793706cd14d69cb2c3c077a8a05d",
+    "reused_from": null,
+    "arena": "g271",
+    "case": "cases/test_g271/cases/g271_test_group_0128.json",
+    "mode": "free",
+    "P": 3.7641830008539046e-06,
+    "z": -12.489977836608887
+   }
+  },
+  "g271_test_group_0129": {
+   "FREE": {
+    "run_id": "g271_test_group_0129__FREE",
+    "vehicle": "hmmwv",
+    "route_sha256": "c0abb0e525e5a4bbea52a9c81b4ac1365280224208e5be1e87689d9e6827c5dd",
+    "reused_from": null,
+    "arena": "g271",
+    "case": "cases/test_g271/cases/g271_test_group_0129.json",
+    "mode": "free",
+    "P": 2.6733272496803906e-06,
+    "z": -12.832185363769531
+   }
+  },
+  "g271_test_group_0137": {
+   "FREE": {
+    "run_id": "g271_test_group_0137__FREE",
+    "vehicle": "hmmwv",
+    "route_sha256": "b28a1c250461422ea3103415aedf90cc482519eb99d462021e100548faeafa0f",
+    "reused_from": null,
+    "arena": "g271",
+    "case": "cases/test_g271/cases/g271_test_group_0137.json",
+    "mode": "free",
+    "P": 3.128446199984758e-06,
+    "z": -12.674972534179688
+   }
+  },
+  "g271_test_group_0159": {
+   "FREE": {
+    "run_id": "g271_test_group_0159__FREE",
+    "vehicle": "hmmwv",
+    "route_sha256": "e5c62b03134dc033acb25940a249552b7123c296ba9b25caae3abaa5e327aced",
+    "reused_from": null,
+    "arena": "g271",
+    "case": "cases/test_g271/cases/g271_test_group_0159.json",
+    "mode": "free",
+    "P": 3.2188476702943447e-06,
+    "z": -12.646485519409179
+   }
+  },
+  "g271_test_group_0195": {
+   "FREE": {
+    "run_id": "g271_test_group_0195__FREE",
+    "vehicle": "hmmwv",
+    "route_sha256": "d1d174f6ab8f05385c10c5acc741d57464f17088750e086c19693d06ba30e259",
+    "reused_from": null,
+    "arena": "g271",
+    "case": "cases/test_g271/cases/g271_test_group_0195.json",
+    "mode": "free",
+    "P": 2.8688900793882866e-06,
+    "z": -12.76158390045166
+   }
+  },
+  "g271_test_group_0196": {
+   "FREE": {
+    "run_id": "g271_test_group_0196__FREE",
+    "vehicle": "hmmwv",
+    "route_sha256": "947608a0868a12f223d4104bfd8bc4f4476894d15bdb07c68db4fca361bdee41",
+    "reused_from": null,
+    "arena": "g271",
+    "case": "cases/test_g271/cases/g271_test_group_0196.json",
+    "mode": "free",
+    "P": 2.3889235869489767e-06,
+    "z": -12.944666481018066
+   }
+  },
+  "g271_test_group_0203": {
+   "FREE": {
+    "run_id": "g271_test_group_0203__FREE",
+    "vehicle": "hmmwv",
+    "route_sha256": "3c5788f66b4af759099d7d0e600958f3b31af87e0b7c2165c76027b3b56b8cd1",
+    "reused_from": null,
+    "arena": "g271",
+    "case": "cases/test_g271/cases/g271_test_group_0203.json",
+    "mode": "free",
+    "P": 2.577281694504663e-06,
+    "z": -12.868774032592773
+   }
+  },
+  "g271_test_group_0210": {
+   "FREE": {
+    "run_id": "g271_test_group_0210__FREE",
+    "vehicle": "hmmwv",
+    "route_sha256": "4e560cedb75a20820f139a3a6942a04623c33790f140a66a5e8845d000bbb3a5",
+    "reused_from": null,
+    "arena": "g271",
+    "case": "cases/test_g271/cases/g271_test_group_0210.json",
+    "mode": "free",
+    "P": 1.8223117715931991e-06,
+    "z": -13.215403747558593
+   }
+  },
+  "g271_test_group_0216": {
+   "FREE": {
+    "run_id": "g271_test_group_0216__FREE",
+    "vehicle": "hmmwv",
+    "route_sha256": "39aa06f1185df301a303a86052771b04a3f91266e4f1b6f8499f9de9abbdbcbe",
+    "reused_from": null,
+    "arena": "g271",
+    "case": "cases/test_g271/cases/g271_test_group_0216.json",
+    "mode": "free",
+    "P": 5.417288284403909e-06,
+    "z": -12.125912475585938
+   }
+  }
+ }
+}

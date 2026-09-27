@@ -1,0 +1,87 @@
+{
+ "schema": "ag_e6b_lock_v1",
+ "all_sha256": "52f510b76d1a4be44ae0453663b924c1b64d19b4b8edaa9ae2f07fce6ce1adc8",
+ "n_dirs": 2,
+ "dirs": [
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/crm_bfull/f104/G_full_free",
+   "arena": "f104",
+   "world": "crm",
+   "mode": "free",
+   "model_tag": "G_full",
+   "n_groups": 800,
+   "n_picks": 800,
+   "groups_sha256": "12a8ee5a70526860500a11584fe0a1a287212e45b373bf97b6d25322bfd16c69",
+   "picks_locked_sha256": "04cd65c3fd378d77090421c3e667a3a328c9060a42b8b91669d8b05009b52f61",
+   "manifest_sha256": "88cbca09882780b92a18db1cbc13ccc645cbb678c5a9175d20d893a216881a73",
+   "models": [
+    {
+     "path": "artifacts/traverse/arena_gator_20260925/e5/deploy/G_full_soil/G_full_soil_deploy_s0.pt",
+     "sha256": "5de34996d0954ad56d985a8fd2138e806bf236ad112cd151b4917da2b7adcd20"
+    },
+    {
+     "path": "artifacts/traverse/arena_gator_20260925/e5/deploy/G_full_soil/G_full_soil_deploy_s1.pt",
+     "sha256": "1411c5ddbe999de60d28fe70a9abd6870241c7096ef7c0b2e678737937ceba6e"
+    },
+    {
+     "path": "artifacts/traverse/arena_gator_20260925/e5/deploy/G_full_soil/G_full_soil_deploy_s2.pt",
+     "sha256": "47c02bd0d6ee8c3d3fcadc3e16d3494c08d1a519695f3c92c4bd98775cb798d6"
+    },
+    {
+     "path": "artifacts/traverse/arena_gator_20260925/e5/deploy/G_full_soil/G_full_soil_deploy_s3.pt",
+     "sha256": "2972ae442065254181b614868b74ee9eb1e2184cab6d4bd558a1a50ac7fc226e"
+    },
+    {
+     "path": "artifacts/traverse/arena_gator_20260925/e5/deploy/G_full_soil/G_full_soil_deploy_s4.pt",
+     "sha256": "93b940b6e825eb123be62118d54b10c4046bec2901f05f3cd9f8dc4b43d13880"
+    }
+   ],
+   "numerics": {
+    "device": "NVIDIA GeForce RTX 5090",
+    "torch": "2.12.0+cu130",
+    "note": "planner process runs with torch defaults: cudnn.allow_tf32 = True (TF32 convolutions on this GPU), matmul.allow_tf32 = False; as every earlier local pick of this study; picks are deterministic on this machine (--rerun-check)"
+   },
+   "created": "2026-09-26 19:59:42"
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/crm_bfull/f104/H_full_free",
+   "arena": "f104",
+   "world": "crm",
+   "mode": "free",
+   "model_tag": "H_full",
+   "n_groups": 800,
+   "n_picks": 800,
+   "groups_sha256": "12a8ee5a70526860500a11584fe0a1a287212e45b373bf97b6d25322bfd16c69",
+   "picks_locked_sha256": "a55070c16d48a88449230222bb7ace86364ef2db23d08737da29c4f471c08d43",
+   "manifest_sha256": "7072ca2390d790868329b169505ce0e375f9dcfca603068feae5e4c539f4ed13",
+   "models": [
+    {
+     "path": "artifacts/traverse/arena_gator_20260925/e5/deploy/H_full_soil/H_full_soil_deploy_s0.pt",
+     "sha256": "bb100b4e6a9158acbcc0a7c38c9e1d86d6e75b5b78d771da4e90f715b0a7298d"
+    },
+    {
+     "path": "artifacts/traverse/arena_gator_20260925/e5/deploy/H_full_soil/H_full_soil_deploy_s1.pt",
+     "sha256": "c5d70fa4b2039ec685dccc369e9d2545e97ae0320428f7ea705443cecbbc9d7b"
+    },
+    {
+     "path": "artifacts/traverse/arena_gator_20260925/e5/deploy/H_full_soil/H_full_soil_deploy_s2.pt",
+     "sha256": "9877bed130296c2c9c36e2cfc1794b7c1c404823114f222219ed3a6452cc9ee3"
+    },
+    {
+     "path": "artifacts/traverse/arena_gator_20260925/e5/deploy/H_full_soil/H_full_soil_deploy_s3.pt",
+     "sha256": "c34827f678cc791759b090fbbde8fa854866d7607e0a642e9580ba463f6be165"
+    },
+    {
+     "path": "artifacts/traverse/arena_gator_20260925/e5/deploy/H_full_soil/H_full_soil_deploy_s4.pt",
+     "sha256": "46b66a96aa1238347af82b95c395fe22663d9d362e5d5ebecf0d5614a1021274"
+    }
+   ],
+   "numerics": {
+    "device": "NVIDIA GeForce RTX 5090",
+    "torch": "2.12.0+cu130",
+    "note": "planner process runs with torch defaults: cudnn.allow_tf32 = True (TF32 convolutions on this GPU), matmul.allow_tf32 = False; as every earlier local pick of this study; picks are deterministic on this machine (--rerun-check)"
+   },
+   "created": "2026-09-26 19:59:38"
+  }
+ ]
+}

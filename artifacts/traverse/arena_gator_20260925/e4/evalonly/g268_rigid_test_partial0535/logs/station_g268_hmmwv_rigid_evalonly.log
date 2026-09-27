@@ -1,0 +1,5 @@
+$ /home/harry/miniconda3/envs/nedm/bin/python -u /home/harry/NeDM-traverse_mppi/scripts/f104_n2_dataset.py --root artifacts/traverse/arena_gator_20260925/map_roots/g268 --runs artifacts/traverse/arena_gator_20260925/e4/evalonly/g268_rigid_test_partial0535/work/links_g268_hmmwv_rigid_evalonly/*_route_*:designed --out artifacts/traverse/arena_gator_20260925/e4/evalonly/g268_rigid_test_partial0535/station_g268_hmmwv_rigid_evalonly.npz --workers 12
+48 runs from artifacts/traverse/arena_gator_20260925/e4/evalonly/g268_rigid_test_partial0535/work/links_g268_hmmwv_rigid_evalonly/*_route_* as designed
+labelled 48/48
+wrote artifacts/traverse/arena_gator_20260925/e4/evalonly/g268_rigid_test_partial0535/station_g268_hmmwv_rigid_evalonly.npz 1 MB
+unsafe rate 0.125   fail rate 0.021

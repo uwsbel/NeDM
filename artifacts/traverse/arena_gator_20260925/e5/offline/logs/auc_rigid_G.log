@@ -1,0 +1,10 @@
+eval f104: 21777 rows (dev 17419, val 4358) arena ['f104'] vehicle ['hmmwv']
+eval g203: 20741 rows (dev 17029, val 3712) arena ['g203'] vehicle ['hmmwv']
+eval g228: 21515 rows (dev 16875, val 4640) arena ['g228'] vehicle ['hmmwv']
+eval f104_gator: 21792 rows (dev 17433, val 4359) arena ['f104'] vehicle ['gator']
+G                      f104         val W_unsafe start 0.8167 moving 0.8189 | dev+val (fitted rows dropped)
+G                      g203         val W_unsafe start 0.8550 moving 0.8616 | dev+val start 0.8440 moving 0.8508
+G                      g228         val W_unsafe start 0.7777 moving 0.8070 | dev+val start 0.8053 moving 0.8188
+G                      f104_gator   val W_unsafe start 0.9721 moving 0.9750 | dev+val (fitted rows dropped)
+  trainer check G: 3 matching row sets, max |diff W_unsafe| 1.55e-01
+wrote artifacts/traverse/arena_gator_20260925/e5/offline/auc_rigid_G.json (72.2 s)

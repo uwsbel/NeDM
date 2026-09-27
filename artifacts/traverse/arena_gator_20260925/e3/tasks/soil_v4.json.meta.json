@@ -1,0 +1,62 @@
+{
+ "tool": "scripts/ag_bf_soil_v4.py",
+ "tool_sha256": "ced057c027f0e473004d23915ce102619cff731a5f0e84063fea2e45c835c79f",
+ "created": "2026-09-26 20:00:02",
+ "v3": {
+  "file": "artifacts/traverse/arena_gator_20260925/e3/tasks/soil_v3.json",
+  "sha256": "654ca61b17873489d3768283dc107f0078be0ec407eeb493a1f7223618115b8d",
+  "rows": 43901
+ },
+ "builds": [
+  {
+   "file": "artifacts/traverse/arena_gator_20260925/e6/tasks/soil_eval_bf1.json",
+   "sha256": "49d5f82a92da87c4ad10bb4837b4fa48c02922d05ac283ae907a3636c2e7ab3d",
+   "tier": -9,
+   "rows": 1541,
+   "existing": [
+    "artifacts/traverse/arena_gator_20260925/e3/tasks/soil_v3.json"
+   ],
+   "by_vehicle": {
+    "gator": 1541
+   },
+   "by_arm_first": {
+    "Gfull_free_gator": 762,
+    "Hfull_free_gator": 779
+   },
+   "by_arena": {
+    "f104": 1541
+   }
+  },
+  {
+   "file": "artifacts/traverse/arena_gator_20260925/e6/tasks/soil_eval_bf2.json",
+   "sha256": "f00b414009eb918f76d1ac1814eb81fd2b3c51baec0c75fba92fcd3599715c79",
+   "tier": -8,
+   "rows": 777,
+   "existing": [
+    "artifacts/traverse/arena_gator_20260925/e3/tasks/soil_v3.json",
+    "artifacts/traverse/arena_gator_20260925/e6/tasks/soil_eval_bf1.json"
+   ],
+   "by_vehicle": {
+    "hmmwv": 777
+   },
+   "by_arm_first": {
+    "Hfull_free": 777
+   },
+   "by_arena": {
+    "f104": 777
+   }
+  }
+ ],
+ "rows": 46219,
+ "new_rows": 2318,
+ "new_by_tier": {
+  "-9": 1541,
+  "-8": 777
+ },
+ "new_by_vehicle": {
+  "gator": 1541,
+  "hmmwv": 777
+ },
+ "file_sha256": "d73fe77ba2b2375aa4e299488eef67073392b097d2a9dcffd07152c4b3511aca",
+ "order_note": "soil_v3 rows unchanged (prefix, all driven); new rows: tier -9 Bfull primary (Gator), tier -8 secondary (H_full on the HMMWV)"
+}

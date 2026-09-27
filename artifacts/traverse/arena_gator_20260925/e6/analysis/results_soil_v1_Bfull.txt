@@ -1,0 +1,34 @@
+FAMILY F1_PRIMARY_Bfull_G_full_vs_H_full_on_gator (crm/gator, fail, f104_800): Gfull_free_gator 32.6 % vs Hfull_free_gator 56.4 %, diff -23.8 pts, cluster 90 % [-30.4, -16.5] (9 clusters), p1 0.0002, Holm adj 0.0010 -> improves; group 95 % [-27.0, -20.4]; McNemar worse/better 16/206; n 800
+FAMILY F2_Bfull_works1_G_full_vs_straight6_on_gator (crm/gator, fail, f104_800): Gfull_free_gator 32.6 % vs straight6_gator 85.8 %, diff -53.1 pts, cluster 90 % [-58.4, -47.3] (9 clusters), p1 0.0002, Holm adj 0.0010 -> improves; group 95 % [-56.6, -49.4]; McNemar worse/better 8/433; n 800
+FAMILY F3_Bfull_H_full_vs_straight6_on_gator (crm/gator, fail, f104_800): Hfull_free_gator 56.4 % vs straight6_gator 85.8 %, diff -29.4 pts, cluster 90 % [-34.1, -24.6] (9 clusters), p1 0.0002, Holm adj 0.0010 -> improves; group 95 % [-33.0, -25.8]; McNemar worse/better 27/262; n 800
+FAMILY F4_Bfull_G_full_vs_G_stage1_on_gator (crm/gator, fail, f104_800): Gfull_free_gator 32.6 % vs G_free_gator 34.8 %, diff -2.1 pts, cluster 90 % [-3.7, -0.5] (9 clusters), p1 0.0177, Holm adj 0.0177 -> improves; group 95 % [-4.5, +0.1]; McNemar worse/better 35/52; n 800
+contrast Bfull_H_full_vs_H_stage1_on_gator (crm/gator, fail, f104_800): Hfull_free_gator 56.4 % vs H_free_gator 51.9 %, diff +4.5, cluster 90 % [+2.6, +6.3], p1 1.0000 -> inconclusive (secondary, unadjusted); n 800
+contrast Bfull_G_full_vs_H_full_on_gator_unsafe (crm/gator, unsafe, f104_800): Gfull_free_gator 33.0 % vs Hfull_free_gator 56.4 %, diff -23.4, cluster 90 % [-29.9, -16.4], p1 0.0002 -> improves (secondary, unadjusted); n 800
+contrast Bfull_G_full_vs_H_stage1_on_gator (crm/gator, fail, f104_800): Gfull_free_gator 32.6 % vs H_free_gator 51.9 %, diff -19.3, cluster 90 % [-24.1, -13.8], p1 0.0002 -> improves (secondary, unadjusted); n 800
+contrast Bfull_stage1_G_vs_H_on_gator (crm/gator, fail, f104_800): G_free_gator 34.8 % vs H_free_gator 51.9 %, diff -17.1, cluster 90 % [-21.6, -12.4], p1 0.0002 -> improves (secondary, unadjusted); n 800
+contrast Bfull_H_full_vs_H_stage1_on_hmmwv (crm/hmmwv, fail, f104_800): Hfull_free 4.4 % vs M1a_free 5.5 %, diff -1.1, cluster 90 % [-2.2, -0.2], p1 0.0185 -> improves (secondary, unadjusted); n 800
+contrast Bfull_H_full_vs_straight6_on_hmmwv (crm/hmmwv, fail, f104_800): Hfull_free 4.4 % vs straight6 32.2 %, diff -27.9, cluster 90 % [-41.5, -16.1], p1 0.0002 -> improves (secondary, unadjusted); n 800
+contrast Bfull_G_full_gator_vs_H_full_hmmwv (crm/any, fail, f104_800): Gfull_free_gator 32.6 % vs Hfull_free 4.4 %, diff +28.2, cluster 90 % [+21.9, +35.9], p1 1.0000 -> inconclusive (secondary, unadjusted); n 800
+contrast Bfull_H_full_gator_vs_H_full_hmmwv (crm/any, fail, f104_800): Hfull_free_gator 56.4 % vs Hfull_free 4.4 %, diff +52.0, cluster 90 % [+44.3, +58.7], p1 1.0000 -> inconclusive (secondary, unadjusted); n 800
+headroom crm/gator Gfull_free_gator vs straight6_gator (fail, f104_800): 32.6 % vs 85.8 %, closed 62 % [58, 66]; n 800
+headroom crm/gator Hfull_free_gator vs straight6_gator (fail, f104_800): 56.4 % vs 85.8 %, closed 34 % [30, 38]; n 800
+headroom crm/gator G_free_gator vs straight6_gator (fail, f104_800): 34.8 % vs 85.8 %, closed 59 % [56, 63]; n 800
+headroom crm/gator H_free_gator vs straight6_gator (fail, f104_800): 51.9 % vs 85.8 %, closed 40 % [36, 43]; n 800
+headroom crm/hmmwv Hfull_free vs straight6 (fail, f104_800): 4.4 % vs 32.2 %, closed 86 % [82, 91]; n 800
+headroom crm/hmmwv M1a_free vs straight6 (fail, f104_800): 5.5 % vs 32.2 %, closed 83 % [78, 88]; n 800
+rates crm|gator f104_800       G_free_gator   n  800 goal  65.3 % unsafe  34.9 % (no-back  34.8) tilt30  2.5 % median time 18.4 s
+rates crm|gator f104_800       Gfull_free_gator n  800 goal  67.4 % unsafe  33.0 % (no-back  32.6) tilt30  1.6 % median time 18.9 s
+rates crm|gator f104_800       H_free_gator   n  800 goal  48.1 % unsafe  51.9 % (no-back  51.9) tilt30  2.6 % median time 21.9 s
+rates crm|gator f104_800       Hfull_free_gator n  800 goal  43.6 % unsafe  56.4 % (no-back  56.4) tilt30  3.0 % median time 20.9 s
+rates crm|gator f104_800       straight6_gator n  800 goal  14.2 % unsafe  85.8 % (no-back  85.8) tilt30 12.1 % median time 17.0 s
+rates crm|gator indist_f104    G_free_gator   n  200 goal  64.0 % unsafe  36.0 % (no-back  36.0) tilt30  4.0 % median time 16.5 s
+rates crm|gator indist_f104    Gfull_free_gator n  200 goal  65.0 % unsafe  35.5 % (no-back  35.0) tilt30  1.5 % median time 17.3 s
+rates crm|gator indist_f104    H_free_gator   n  200 goal  40.0 % unsafe  60.0 % (no-back  60.0) tilt30  2.5 % median time 19.8 s
+rates crm|gator indist_f104    Hfull_free_gator n  200 goal  37.5 % unsafe  62.5 % (no-back  62.5) tilt30  2.5 % median time 19.2 s
+rates crm|gator indist_f104    straight6_gator n  200 goal  11.0 % unsafe  89.0 % (no-back  89.0) tilt30 13.5 % median time 16.4 s
+rates crm|hmmwv f104_800       Hfull_free     n  800 goal  95.6 % unsafe   4.4 % (no-back   4.4) tilt30  0.6 % median time 17.1 s
+rates crm|hmmwv f104_800       M1a_free       n  800 goal  94.5 % unsafe   5.5 % (no-back   5.5) tilt30  1.0 % median time 17.7 s
+rates crm|hmmwv f104_800       straight6      n  800 goal  67.8 % unsafe  32.2 % (no-back  32.2) tilt30  5.4 % median time 9.9 s
+rates crm|hmmwv indist_f104    Hfull_free     n  200 goal  97.5 % unsafe   2.5 % (no-back   2.5) tilt30  0.5 % median time 15.7 s
+rates crm|hmmwv indist_f104    M1a_free       n  200 goal  96.5 % unsafe   3.5 % (no-back   3.5) tilt30  1.0 % median time 15.9 s
+rates crm|hmmwv indist_f104    straight6      n  200 goal  65.5 % unsafe  34.5 % (no-back  34.5) tilt30  5.5 % median time 9.5 s

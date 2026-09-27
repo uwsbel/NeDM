@@ -1,0 +1,18 @@
+eval f104: 21777 rows (dev 17419, val 4358) arena ['f104'] vehicle ['hmmwv']
+eval g203: 20741 rows (dev 17029, val 3712) arena ['g203'] vehicle ['hmmwv']
+eval g228: 21515 rows (dev 16875, val 4640) arena ['g228'] vehicle ['hmmwv']
+eval f104_gator: 21792 rows (dev 17433, val 4359) arena ['f104'] vehicle ['gator']
+M3a                    f104         val W_unsafe start 0.9757 moving 0.9780 | dev+val (fitted rows dropped)
+M3a                    g203         val W_unsafe start 0.9693 moving 0.9691 | dev+val (fitted rows dropped)
+M3a                    g228         val W_unsafe start 0.9705 moving 0.9717 | dev+val (fitted rows dropped)
+M3a                    f104_gator   val W_unsafe start 0.9200 moving 0.9271 | dev+val (fitted rows dropped)
+M3b                    f104         val W_unsafe start 0.9741 moving 0.9779 | dev+val (fitted rows dropped)
+M3b                    g203         val W_unsafe start 0.9682 moving 0.9721 | dev+val (fitted rows dropped)
+M3b                    g228         val W_unsafe start 0.9688 moving 0.9705 | dev+val (fitted rows dropped)
+M3b                    f104_gator   val W_unsafe start 0.9227 moving 0.9284 | dev+val (fitted rows dropped)
+G_holdout              f104         val W_unsafe start 0.8384 moving 0.8344 | dev+val start 0.8360 moving 0.8384
+G_holdout              g203         val W_unsafe start 0.8753 moving 0.8809 | dev+val start 0.8574 moving 0.8628
+G_holdout              g228         val W_unsafe start 0.8257 moving 0.8370 | dev+val start 0.8358 moving 0.8407
+G_holdout              f104_gator   val W_unsafe start 0.9695 moving 0.9740 | dev+val start 0.9695 moving 0.9748
+  trainer check G_holdout: 6 matching row sets, max |diff W_unsafe| 1.34e-01
+wrote artifacts/traverse/arena_gator_20260925/e5/offline/auc_rigid_M3ab_Gholdout.json (237.2 s)

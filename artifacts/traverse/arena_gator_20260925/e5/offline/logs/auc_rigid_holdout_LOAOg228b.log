@@ -1,0 +1,9 @@
+eval f104: 21777 rows (dev 17419, val 4358) arena ['f104'] vehicle ['hmmwv']
+eval g203: 20741 rows (dev 17029, val 3712) arena ['g203'] vehicle ['hmmwv']
+eval g228: 21515 rows (dev 16875, val 4640) arena ['g228'] vehicle ['hmmwv']
+eval f104_gator: 21792 rows (dev 17433, val 4359) arena ['f104'] vehicle ['gator']
+LOAO2_g203_g228_holdout f104         val W_unsafe start 0.9539 moving 0.9560 | dev+val start 0.9520 moving 0.9555
+LOAO2_g203_g228_holdout g203         val W_unsafe start 0.9589 moving 0.9628 | dev+val start 0.9707 moving 0.9724
+LOAO2_g203_g228_holdout g228         val W_unsafe start 0.9578 moving 0.9609 | dev+val start 0.9617 moving 0.9672
+LOAO2_g203_g228_holdout f104_gator   val W_unsafe start 0.9127 moving 0.9224 | dev+val start 0.8920 moving 0.9128
+wrote artifacts/traverse/arena_gator_20260925/e5/offline/auc_rigid_holdout_LOAOg228b.json (108.7 s)

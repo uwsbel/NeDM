@@ -1,0 +1,229 @@
+{
+ "time": "2026-09-25 13:33:33",
+ "tasks": "/work1/dannegrut/harry/experiments/arena_gator_20260925/tasks/soil_v2.json",
+ "out": "/work1/dannegrut/harry/experiments/arena_gator_20260925/soil_v1",
+ "keys": {
+  "f104:gator": {
+   "tiers": {
+    "0": {
+     "rows": 1199,
+     "complete": 1199,
+     "in_flight": 0
+    },
+    "1": {
+     "rows": 1200,
+     "complete": 1200,
+     "in_flight": 0
+    },
+    "2": {
+     "rows": 1200,
+     "complete": 1200,
+     "in_flight": 0
+    },
+    "3": {
+     "rows": 1200,
+     "complete": 1200,
+     "in_flight": 0
+    },
+    "4": {
+     "rows": 1200,
+     "complete": 1200,
+     "in_flight": 0
+    },
+    "5": {
+     "rows": 1200,
+     "complete": 1200,
+     "in_flight": 0
+    },
+    "6": {
+     "rows": 1200,
+     "complete": 1200,
+     "in_flight": 0
+    },
+    "7": {
+     "rows": 1200,
+     "complete": 51,
+     "in_flight": 39
+    },
+    "8": {
+     "rows": 1200,
+     "complete": 0,
+     "in_flight": 0
+    },
+    "9": {
+     "rows": 1200,
+     "complete": 0,
+     "in_flight": 0
+    },
+    "10": {
+     "rows": 1200,
+     "complete": 0,
+     "in_flight": 0
+    },
+    "11": {
+     "rows": 1200,
+     "complete": 0,
+     "in_flight": 0
+    },
+    "12": {
+     "rows": 836,
+     "complete": 0,
+     "in_flight": 0
+    }
+   },
+   "complete_up_to_tier": 6,
+   "sim_h_complete": 78.11,
+   "mean_sim_s": 33.3,
+   "rows_left_in_range": 0,
+   "sim_h_left_in_range_est": 0.0
+  },
+  "g203:hmmwv": {
+   "tiers": {
+    "0": {
+     "rows": 606,
+     "complete": 606,
+     "in_flight": 0
+    },
+    "1": {
+     "rows": 606,
+     "complete": 606,
+     "in_flight": 0
+    },
+    "2": {
+     "rows": 606,
+     "complete": 606,
+     "in_flight": 0
+    },
+    "3": {
+     "rows": 606,
+     "complete": 606,
+     "in_flight": 0
+    },
+    "4": {
+     "rows": 606,
+     "complete": 606,
+     "in_flight": 0
+    },
+    "5": {
+     "rows": 606,
+     "complete": 606,
+     "in_flight": 0
+    },
+    "6": {
+     "rows": 606,
+     "complete": 606,
+     "in_flight": 0
+    },
+    "7": {
+     "rows": 606,
+     "complete": 606,
+     "in_flight": 0
+    },
+    "8": {
+     "rows": 606,
+     "complete": 280,
+     "in_flight": 8
+    },
+    "9": {
+     "rows": 606,
+     "complete": 0,
+     "in_flight": 0
+    },
+    "10": {
+     "rows": 606,
+     "complete": 0,
+     "in_flight": 0
+    },
+    "11": {
+     "rows": 606,
+     "complete": 0,
+     "in_flight": 0
+    },
+    "12": {
+     "rows": 606,
+     "complete": 0,
+     "in_flight": 0
+    }
+   },
+   "complete_up_to_tier": 7,
+   "sim_h_complete": 30.02,
+   "mean_sim_s": 21.1,
+   "rows_left_in_range": 0,
+   "sim_h_left_in_range_est": 0.0
+  },
+  "g228:hmmwv": {
+   "tiers": {
+    "0": {
+     "rows": 606,
+     "complete": 606,
+     "in_flight": 0
+    },
+    "1": {
+     "rows": 606,
+     "complete": 606,
+     "in_flight": 0
+    },
+    "2": {
+     "rows": 606,
+     "complete": 606,
+     "in_flight": 0
+    },
+    "3": {
+     "rows": 606,
+     "complete": 606,
+     "in_flight": 0
+    },
+    "4": {
+     "rows": 606,
+     "complete": 606,
+     "in_flight": 0
+    },
+    "5": {
+     "rows": 606,
+     "complete": 606,
+     "in_flight": 0
+    },
+    "6": {
+     "rows": 606,
+     "complete": 606,
+     "in_flight": 0
+    },
+    "7": {
+     "rows": 606,
+     "complete": 606,
+     "in_flight": 0
+    },
+    "8": {
+     "rows": 606,
+     "complete": 274,
+     "in_flight": 8
+    },
+    "9": {
+     "rows": 606,
+     "complete": 0,
+     "in_flight": 0
+    },
+    "10": {
+     "rows": 606,
+     "complete": 0,
+     "in_flight": 0
+    },
+    "11": {
+     "rows": 606,
+     "complete": 0,
+     "in_flight": 0
+    },
+    "12": {
+     "rows": 606,
+     "complete": 0,
+     "in_flight": 0
+    }
+   },
+   "complete_up_to_tier": 7,
+   "sim_h_complete": 29.12,
+   "mean_sim_s": 20.5,
+   "rows_left_in_range": 0,
+   "sim_h_left_in_range_est": 0.0
+  }
+ }
+}

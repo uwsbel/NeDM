@@ -1,0 +1,2225 @@
+{
+ "schema": "ag_analyze_results_v1",
+ "tool": "scripts/ag_analyze.py",
+ "tool_sha256": "42561c33694fc8f6e4d49494d4aa7144fb4857faa70e56e88e40741ec13172f4",
+ "created": "2026-09-26 21:21:00",
+ "spec": {
+  "schema": "ag_analyze_spec_v1",
+  "margin_pts": 2.0,
+  "alpha": 0.05,
+  "boot": 4000,
+  "seed": 0,
+  "cluster_key": "cluster",
+  "min_groups": 50,
+  "note": "Bfull (task B stage 2, PLAN 7.10) spec, frozen before any G_full / H_full pick or drive exists. Soil, speed free, CEM 4 x 64 from a standing start, 800-group f104 suite, fail = goal not reached. G_full = Gator-trained on all 15,235 validated Gator ids (tiers 0-12), H_full = HMMWV-trained on exactly those ids; stage-1 G / H (tiers 0-6) and straight 6 m/s are the existing stage-1 drives, reused by route content. Family (Holm at 0.05 over the one-sided cluster p): F1 PRIMARY G_full vs H_full on the Gator, F2 G_full vs straight 6 on the Gator, F3 H_full vs straight 6 on the Gator, F4 G_full vs stage-1 G on the Gator. Decision: improves if Holm rejects; else no meaningful difference if the 90 % cluster interval lies within +-2 points; else inconclusive. Group bootstrap and exact McNemar reported beside each. Works (full tiers) = (1) F2 improves, (2) G_full within 2 points of H_full or better (F1 one-sided upper 95 % cluster bound < 2), (3) offline AUC >= 0.95 (e5/offline), (4) headroom closed vs H_full on the HMMWV (reported). Disclosure: the stage-1 task B outcomes were known when this was written (G 34.7 %, H 51.9 %, straight 6 85.8 % fail on the Gator); nothing about G_full / H_full was. H_full on the HMMWV is a secondary, later tier (-8); its contrasts use the groups driven.",
+  "family": [
+   {
+    "name": "F1_PRIMARY_Bfull_G_full_vs_H_full_on_gator",
+    "world": "crm",
+    "vehicle": "gator",
+    "test": "Gfull_free_gator",
+    "ref": "Hfull_free_gator",
+    "label": "fail",
+    "set": "f104_800",
+    "declared_primary": true
+   },
+   {
+    "name": "F2_Bfull_works1_G_full_vs_straight6_on_gator",
+    "world": "crm",
+    "vehicle": "gator",
+    "test": "Gfull_free_gator",
+    "ref": "straight6_gator",
+    "label": "fail",
+    "set": "f104_800"
+   },
+   {
+    "name": "F3_Bfull_H_full_vs_straight6_on_gator",
+    "world": "crm",
+    "vehicle": "gator",
+    "test": "Hfull_free_gator",
+    "ref": "straight6_gator",
+    "label": "fail",
+    "set": "f104_800"
+   },
+   {
+    "name": "F4_Bfull_G_full_vs_G_stage1_on_gator",
+    "world": "crm",
+    "vehicle": "gator",
+    "test": "Gfull_free_gator",
+    "ref": "G_free_gator",
+    "label": "fail",
+    "set": "f104_800"
+   }
+  ],
+  "contrasts": [
+   {
+    "name": "Bfull_H_full_vs_H_stage1_on_gator",
+    "world": "crm",
+    "vehicle": "gator",
+    "test": "Hfull_free_gator",
+    "ref": "H_free_gator",
+    "label": "fail",
+    "set": "f104_800"
+   },
+   {
+    "name": "Bfull_G_full_vs_H_full_on_gator_unsafe",
+    "world": "crm",
+    "vehicle": "gator",
+    "test": "Gfull_free_gator",
+    "ref": "Hfull_free_gator",
+    "label": "unsafe",
+    "set": "f104_800"
+   },
+   {
+    "name": "Bfull_G_full_vs_H_stage1_on_gator",
+    "world": "crm",
+    "vehicle": "gator",
+    "test": "Gfull_free_gator",
+    "ref": "H_free_gator",
+    "label": "fail",
+    "set": "f104_800"
+   },
+   {
+    "name": "Bfull_stage1_G_vs_H_on_gator",
+    "world": "crm",
+    "vehicle": "gator",
+    "test": "G_free_gator",
+    "ref": "H_free_gator",
+    "label": "fail",
+    "set": "f104_800"
+   },
+   {
+    "name": "Bfull_H_full_vs_H_stage1_on_hmmwv",
+    "world": "crm",
+    "vehicle": "hmmwv",
+    "test": "Hfull_free",
+    "ref": "M1a_free",
+    "label": "fail",
+    "set": "f104_800"
+   },
+   {
+    "name": "Bfull_H_full_vs_straight6_on_hmmwv",
+    "world": "crm",
+    "vehicle": "hmmwv",
+    "test": "Hfull_free",
+    "ref": "straight6",
+    "label": "fail",
+    "set": "f104_800"
+   },
+   {
+    "name": "Bfull_G_full_gator_vs_H_full_hmmwv",
+    "world": "crm",
+    "vehicle": "any",
+    "test": "Gfull_free_gator",
+    "ref": "Hfull_free",
+    "label": "fail",
+    "set": "f104_800"
+   },
+   {
+    "name": "Bfull_H_full_gator_vs_H_full_hmmwv",
+    "world": "crm",
+    "vehicle": "any",
+    "test": "Hfull_free_gator",
+    "ref": "Hfull_free",
+    "label": "fail",
+    "set": "f104_800"
+   }
+  ],
+  "headroom": [
+   {
+    "world": "crm",
+    "vehicle": "gator",
+    "model": "Gfull_free_gator",
+    "straight": "straight6_gator",
+    "label": "fail",
+    "set": "f104_800"
+   },
+   {
+    "world": "crm",
+    "vehicle": "gator",
+    "model": "Hfull_free_gator",
+    "straight": "straight6_gator",
+    "label": "fail",
+    "set": "f104_800"
+   },
+   {
+    "world": "crm",
+    "vehicle": "gator",
+    "model": "G_free_gator",
+    "straight": "straight6_gator",
+    "label": "fail",
+    "set": "f104_800"
+   },
+   {
+    "world": "crm",
+    "vehicle": "gator",
+    "model": "H_free_gator",
+    "straight": "straight6_gator",
+    "label": "fail",
+    "set": "f104_800"
+   },
+   {
+    "world": "crm",
+    "vehicle": "hmmwv",
+    "model": "Hfull_free",
+    "straight": "straight6",
+    "label": "fail",
+    "set": "f104_800"
+   },
+   {
+    "world": "crm",
+    "vehicle": "hmmwv",
+    "model": "M1a_free",
+    "straight": "straight6",
+    "label": "fail",
+    "set": "f104_800"
+   }
+  ],
+  "time_ratio": [
+   {
+    "world": "crm",
+    "vehicle": "gator",
+    "test": "Gfull_free_gator",
+    "ref": "Hfull_free_gator",
+    "set": "f104_800"
+   },
+   {
+    "world": "crm",
+    "vehicle": "gator",
+    "test": "Gfull_free_gator",
+    "ref": "G_free_gator",
+    "set": "f104_800"
+   },
+   {
+    "world": "crm",
+    "vehicle": "hmmwv",
+    "test": "Hfull_free",
+    "ref": "M1a_free",
+    "set": "f104_800"
+   }
+  ],
+  "rates": {
+   "sets": [
+    "f104_800",
+    "indist_f104"
+   ]
+  }
+ },
+ "index": [
+  {
+   "path": "artifacts/traverse/arena_gator_20260925/e6/index/soil_eval_bfull.json",
+   "sha256": "ce1a5ee1618b9e132ff1fb457a36fc78c30e50d3a69d988cf588b193f158d000",
+   "summary": {
+    "rows": 6400,
+    "driven": 6400,
+    "missing": 0,
+    "missing_by_arm": {},
+    "driven_by_arm": {
+     "crm|gator|Gfull_free_gator": 800,
+     "crm|gator|Hfull_free_gator": 800,
+     "crm|gator|G_free_gator": 800,
+     "crm|gator|H_free_gator": 800,
+     "crm|gator|straight6_gator": 800,
+     "crm|hmmwv|Hfull_free": 800,
+     "crm|hmmwv|M1a_free": 800,
+     "crm|hmmwv|straight6": 800
+    },
+    "sets": {
+     "f104_suite": 4800,
+     "indist_f104": 1600
+    },
+    "arenas": {
+     "f104": 6400
+    }
+   }
+  }
+ ],
+ "worlds": {
+  "crm|gator": {
+   "groups": 800,
+   "arms": [
+    "G_free_gator",
+    "Gfull_free_gator",
+    "H_free_gator",
+    "Hfull_free_gator",
+    "straight6_gator"
+   ]
+  },
+  "crm|any": {
+   "groups": 800,
+   "arms": [
+    "G_free_gator",
+    "Gfull_free_gator",
+    "H_free_gator",
+    "Hfull_free",
+    "Hfull_free_gator",
+    "M1a_free",
+    "straight6",
+    "straight6_gator"
+   ]
+  },
+  "crm|hmmwv": {
+   "groups": 800,
+   "arms": [
+    "Hfull_free",
+    "M1a_free",
+    "straight6"
+   ]
+  }
+ },
+ "family": [
+  {
+   "name": "F1_PRIMARY_Bfull_G_full_vs_H_full_on_gator",
+   "world": "crm",
+   "vehicle": "gator",
+   "test": "Gfull_free_gator",
+   "ref": "Hfull_free_gator",
+   "label": "fail",
+   "set": "f104_800",
+   "declared_primary": true,
+   "result": {
+    "test": "Gfull_free_gator",
+    "ref": "Hfull_free_gator",
+    "label": "fail",
+    "n": 800,
+    "rate_test": 32.625,
+    "rate_ref": 56.375,
+    "diff_pts": -23.75,
+    "improvement_pts": 23.75,
+    "group": {
+     "ci95": [
+      -27.0,
+      -20.375
+     ],
+     "ci90": [
+      -26.5,
+      -20.999999999999996
+     ],
+     "p_one_sided": 0.00024993751562109475
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      -31.53049482163406,
+      -15.311358728642364
+     ],
+     "ci90": [
+      -30.371704064807513,
+      -16.50485436893204
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 9,
+     "cluster_wins": 9,
+     "cluster_losses": 0,
+     "sign_p": 0.00390625
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      -30.959267790035156,
+      -16.607354685646502
+     ],
+     "ci90": [
+      -29.962978553465227,
+      -17.825217876644164
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 10,
+     "cluster_wins": 10,
+     "cluster_losses": 0,
+     "sign_p": 0.001953125
+    },
+    "discordant": {
+     "test_worse": 16,
+     "test_better": 206,
+     "binary": true,
+     "mcnemar_two_sided": 3.074101465287277e-43,
+     "mcnemar_one_sided": 1.5370507326436385e-43
+    },
+    "identical_picks": 0,
+    "within_margin_90": false,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": -16.50485436893204,
+     "upper95_one_sided_group": -20.999999999999996,
+     "margin_pts": 2.0,
+     "pass_cluster": true,
+     "note": "Gfull_free_gator is within 2.0 points of Hfull_free_gator (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = fail(Gfull_free_gator) - fail(Hfull_free_gator) in points; negative = Gfull_free_gator better",
+    "per_arena": {
+     "f104": {
+      "n": 800,
+      "rate_test": 32.625,
+      "rate_ref": 56.375,
+      "diff_pts": -23.75,
+      "ci95": [
+       -27.0,
+       -20.499999999999996
+      ],
+      "test_worse": 16,
+      "test_better": 206,
+      "role": "training",
+      "dist_nearest_training": 0.8114229378713305,
+      "map_err_rmse_m": 0.04986148709451798
+     }
+    },
+    "arena_signs": {
+     "better": 1,
+     "worse": 0,
+     "equal": 0
+    },
+    "random_effects": null,
+    "vs_distance_nearest_training": null,
+    "vs_map_error": null,
+    "near_spread": {},
+    "time_ratio": {
+     "n": 333,
+     "median_paired_ratio": 0.8929577464788733,
+     "median_paired_ratio_p95": 0.9104477611940298,
+     "median_paired_ratio_ci95": [
+      0.8762629808395496,
+      0.9139465875370919
+     ],
+     "ratio_of_medians": 0.8848920863309352,
+     "ratio_of_medians_p95": 0.9077669902912621,
+     "mean_ratio": 0.9030884136373682,
+     "median_time_x": 18.45,
+     "median_time_y": 20.85,
+     "bound": 1.1,
+     "pass_time": true,
+     "note": "t(Gfull_free_gator) / t(Hfull_free_gator); 95th percentile of the group bootstrap of the median paired ratio must be < 1.1"
+    }
+   },
+   "holm": {
+    "p_one_sided_cluster": 0.00024993751562109475,
+    "p_adjusted": 0.000999750062484379,
+    "reject": true,
+    "alpha": 0.05,
+    "family_size": 4
+   },
+   "decision": "improves"
+  },
+  {
+   "name": "F2_Bfull_works1_G_full_vs_straight6_on_gator",
+   "world": "crm",
+   "vehicle": "gator",
+   "test": "Gfull_free_gator",
+   "ref": "straight6_gator",
+   "label": "fail",
+   "set": "f104_800",
+   "result": {
+    "test": "Gfull_free_gator",
+    "ref": "straight6_gator",
+    "label": "fail",
+    "n": 800,
+    "rate_test": 32.625,
+    "rate_ref": 85.75,
+    "diff_pts": -53.125,
+    "improvement_pts": 53.125,
+    "group": {
+     "ci95": [
+      -56.625,
+      -49.375
+     ],
+     "ci90": [
+      -56.125,
+      -50.125
+     ],
+     "p_one_sided": 0.00024993751562109475
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      -59.342343155269724,
+      -46.256111535523296
+     ],
+     "ci90": [
+      -58.35426740231011,
+      -47.32000993558294
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 9,
+     "cluster_wins": 9,
+     "cluster_losses": 0,
+     "sign_p": 0.00390625
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      -58.978492402332094,
+      -47.24933795023586
+     ],
+     "ci90": [
+      -58.07764123842962,
+      -48.194428768497616
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 10,
+     "cluster_wins": 10,
+     "cluster_losses": 0,
+     "sign_p": 0.001953125
+    },
+    "discordant": {
+     "test_worse": 8,
+     "test_better": 433,
+     "binary": true,
+     "mcnemar_two_sided": 1.1943152200345884e-116,
+     "mcnemar_one_sided": 5.971576100172942e-117
+    },
+    "identical_picks": 2,
+    "within_margin_90": false,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": -47.32000993558294,
+     "upper95_one_sided_group": -50.125,
+     "margin_pts": 2.0,
+     "pass_cluster": true,
+     "note": "Gfull_free_gator is within 2.0 points of straight6_gator (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = fail(Gfull_free_gator) - fail(straight6_gator) in points; negative = Gfull_free_gator better",
+    "per_arena": {
+     "f104": {
+      "n": 800,
+      "rate_test": 32.625,
+      "rate_ref": 85.75,
+      "diff_pts": -53.125,
+      "ci95": [
+       -56.62499999999999,
+       -49.49999999999999
+      ],
+      "test_worse": 8,
+      "test_better": 433,
+      "role": "training",
+      "dist_nearest_training": 0.8114229378713305,
+      "map_err_rmse_m": 0.04986148709451798
+     }
+    },
+    "arena_signs": {
+     "better": 1,
+     "worse": 0,
+     "equal": 0
+    },
+    "random_effects": null,
+    "vs_distance_nearest_training": null,
+    "vs_map_error": null,
+    "near_spread": {},
+    "time_ratio": {
+     "n": 106,
+     "median_paired_ratio": 1.0167052700609749,
+     "median_paired_ratio_p95": 1.038720538720539,
+     "median_paired_ratio_ci95": [
+      0.998324958123953,
+      1.0410353535353534
+     ],
+     "ratio_of_medians": 1.0148809523809523,
+     "ratio_of_medians_p95": 1.0587414701563445,
+     "mean_ratio": 1.0293381173993956,
+     "median_time_x": 17.05,
+     "median_time_y": 16.8,
+     "bound": 1.1,
+     "pass_time": true,
+     "note": "t(Gfull_free_gator) / t(straight6_gator); 95th percentile of the group bootstrap of the median paired ratio must be < 1.1"
+    }
+   },
+   "holm": {
+    "p_one_sided_cluster": 0.00024993751562109475,
+    "p_adjusted": 0.000999750062484379,
+    "reject": true,
+    "alpha": 0.05,
+    "family_size": 4
+   },
+   "decision": "improves"
+  },
+  {
+   "name": "F3_Bfull_H_full_vs_straight6_on_gator",
+   "world": "crm",
+   "vehicle": "gator",
+   "test": "Hfull_free_gator",
+   "ref": "straight6_gator",
+   "label": "fail",
+   "set": "f104_800",
+   "result": {
+    "test": "Hfull_free_gator",
+    "ref": "straight6_gator",
+    "label": "fail",
+    "n": 800,
+    "rate_test": 56.375,
+    "rate_ref": 85.75,
+    "diff_pts": -29.375000000000007,
+    "improvement_pts": 29.375000000000007,
+    "group": {
+     "ci95": [
+      -32.99999999999999,
+      -25.750000000000007
+     ],
+     "ci90": [
+      -32.375,
+      -26.493750000000023
+     ],
+     "p_one_sided": 0.00024993751562109475
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      -35.11287262396538,
+      -23.676236326780387
+     ],
+     "ci90": [
+      -34.13400758533502,
+      -24.574385585481846
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 9,
+     "cluster_wins": 9,
+     "cluster_losses": 0,
+     "sign_p": 0.00390625
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      -34.34220520753668,
+      -23.859196679474678
+     ],
+     "ci90": [
+      -33.570581257414,
+      -24.752348650030964
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 10,
+     "cluster_wins": 10,
+     "cluster_losses": 0,
+     "sign_p": 0.001953125
+    },
+    "discordant": {
+     "test_worse": 27,
+     "test_better": 262,
+     "binary": true,
+     "mcnemar_two_sided": 1.6333006211379579e-49,
+     "mcnemar_one_sided": 8.166503105689789e-50
+    },
+    "identical_picks": 17,
+    "within_margin_90": false,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": -24.574385585481846,
+     "upper95_one_sided_group": -26.493750000000023,
+     "margin_pts": 2.0,
+     "pass_cluster": true,
+     "note": "Hfull_free_gator is within 2.0 points of straight6_gator (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = fail(Hfull_free_gator) - fail(straight6_gator) in points; negative = Hfull_free_gator better",
+    "per_arena": {
+     "f104": {
+      "n": 800,
+      "rate_test": 56.375,
+      "rate_ref": 85.75,
+      "diff_pts": -29.375,
+      "ci95": [
+       -32.99999999999999,
+       -25.750000000000007
+      ],
+      "test_worse": 27,
+      "test_better": 262,
+      "role": "training",
+      "dist_nearest_training": 0.8114229378713305,
+      "map_err_rmse_m": 0.04986148709451798
+     }
+    },
+    "arena_signs": {
+     "better": 1,
+     "worse": 0,
+     "equal": 0
+    },
+    "random_effects": null,
+    "vs_distance_nearest_training": null,
+    "vs_map_error": null,
+    "near_spread": {},
+    "time_ratio": {
+     "n": 87,
+     "median_paired_ratio": 1.191977077363897,
+     "median_paired_ratio_p95": 1.2486631016042782,
+     "median_paired_ratio_ci95": [
+      1.1472602739726026,
+      1.268943279647146
+     ],
+     "ratio_of_medians": 1.2264705882352942,
+     "ratio_of_medians_p95": 1.2895522388059701,
+     "mean_ratio": 1.2153201148134407,
+     "median_time_x": 20.85,
+     "median_time_y": 17.0,
+     "bound": 1.1,
+     "pass_time": false,
+     "note": "t(Hfull_free_gator) / t(straight6_gator); 95th percentile of the group bootstrap of the median paired ratio must be < 1.1"
+    }
+   },
+   "holm": {
+    "p_one_sided_cluster": 0.00024993751562109475,
+    "p_adjusted": 0.000999750062484379,
+    "reject": true,
+    "alpha": 0.05,
+    "family_size": 4
+   },
+   "decision": "improves"
+  },
+  {
+   "name": "F4_Bfull_G_full_vs_G_stage1_on_gator",
+   "world": "crm",
+   "vehicle": "gator",
+   "test": "Gfull_free_gator",
+   "ref": "G_free_gator",
+   "label": "fail",
+   "set": "f104_800",
+   "result": {
+    "test": "Gfull_free_gator",
+    "ref": "G_free_gator",
+    "label": "fail",
+    "n": 800,
+    "rate_test": 32.625,
+    "rate_ref": 34.75,
+    "diff_pts": -2.124999999999999,
+    "improvement_pts": 2.124999999999999,
+    "group": {
+     "ci95": [
+      -4.499999999999998,
+      0.1250000000000029
+     ],
+     "ci90": [
+      -4.124999999999996,
+      -0.2500000000000002
+     ],
+     "p_one_sided": 0.03874031492126968
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      -4.034270944116131,
+      -0.15288774384539114
+     ],
+     "ci90": [
+      -3.7384342881114967,
+      -0.48959608323133413
+     ],
+     "p_one_sided": 0.017745563609097726,
+     "clusters": 9,
+     "cluster_wins": 5,
+     "cluster_losses": 2,
+     "sign_p": 0.453125
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      -3.314121037463977,
+      -0.9762900976290098
+     ],
+     "ci90": [
+      -3.0898876404494384,
+      -1.193633952254642
+     ],
+     "p_one_sided": 0.0004998750312421895,
+     "clusters": 10,
+     "cluster_wins": 8,
+     "cluster_losses": 1,
+     "sign_p": 0.0390625
+    },
+    "discordant": {
+     "test_worse": 35,
+     "test_better": 52,
+     "binary": true,
+     "mcnemar_two_sided": 0.08568897435916663,
+     "mcnemar_one_sided": 0.042844487179583314
+    },
+    "identical_picks": 37,
+    "within_margin_90": false,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": -0.48959608323133413,
+     "upper95_one_sided_group": -0.2500000000000002,
+     "margin_pts": 2.0,
+     "pass_cluster": true,
+     "note": "Gfull_free_gator is within 2.0 points of G_free_gator (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = fail(Gfull_free_gator) - fail(G_free_gator) in points; negative = Gfull_free_gator better",
+    "per_arena": {
+     "f104": {
+      "n": 800,
+      "rate_test": 32.625,
+      "rate_ref": 34.75,
+      "diff_pts": -2.125,
+      "ci95": [
+       -4.375000000000001,
+       0.1250000000000029
+      ],
+      "test_worse": 35,
+      "test_better": 52,
+      "role": "training",
+      "dist_nearest_training": 0.8114229378713305,
+      "map_err_rmse_m": 0.04986148709451798
+     }
+    },
+    "arena_signs": {
+     "better": 1,
+     "worse": 0,
+     "equal": 0
+    },
+    "random_effects": null,
+    "vs_distance_nearest_training": null,
+    "vs_map_error": null,
+    "near_spread": {},
+    "time_ratio": {
+     "n": 487,
+     "median_paired_ratio": 1.0206489675516226,
+     "median_paired_ratio_p95": 1.028138528138528,
+     "median_paired_ratio_ci95": [
+      1.0058997050147493,
+      1.0298210735586482
+     ],
+     "ratio_of_medians": 1.0218579234972678,
+     "ratio_of_medians_p95": 1.0566572237960339,
+     "mean_ratio": 1.031854912053255,
+     "median_time_x": 18.7,
+     "median_time_y": 18.3,
+     "bound": 1.1,
+     "pass_time": true,
+     "note": "t(Gfull_free_gator) / t(G_free_gator); 95th percentile of the group bootstrap of the median paired ratio must be < 1.1"
+    }
+   },
+   "holm": {
+    "p_one_sided_cluster": 0.017745563609097726,
+    "p_adjusted": 0.017745563609097726,
+    "reject": true,
+    "alpha": 0.05,
+    "family_size": 4
+   },
+   "decision": "improves"
+  }
+ ],
+ "contrasts": [
+  {
+   "name": "Bfull_H_full_vs_H_stage1_on_gator",
+   "world": "crm",
+   "vehicle": "gator",
+   "test": "Hfull_free_gator",
+   "ref": "H_free_gator",
+   "label": "fail",
+   "set": "f104_800",
+   "result": {
+    "test": "Hfull_free_gator",
+    "ref": "H_free_gator",
+    "label": "fail",
+    "n": 800,
+    "rate_test": 56.375,
+    "rate_ref": 51.87500000000001,
+    "diff_pts": 4.499999999999993,
+    "improvement_pts": -4.499999999999993,
+    "group": {
+     "ci95": [
+      1.750000000000007,
+      7.250000000000001
+     ],
+     "ci90": [
+      2.2499999999999964,
+      6.874999999999998
+     ],
+     "p_one_sided": 0.9992501874531368
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      2.281152782578638,
+      6.666840458811262
+     ],
+     "ci90": [
+      2.621983479917608,
+      6.330597889800703
+     ],
+     "p_one_sided": 1.0,
+     "clusters": 9,
+     "cluster_wins": 0,
+     "cluster_losses": 8,
+     "sign_p": 0.0078125
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      2.188782489740082,
+      6.473740429313646
+     ],
+     "ci90": [
+      2.597313888297495,
+      6.2103929024081115
+     ],
+     "p_one_sided": 1.0,
+     "clusters": 10,
+     "cluster_wins": 1,
+     "cluster_losses": 8,
+     "sign_p": 0.0390625
+    },
+    "discordant": {
+     "test_worse": 80,
+     "test_better": 44,
+     "binary": true,
+     "mcnemar_two_sided": 0.0015647340261696653,
+     "mcnemar_one_sided": 0.9995898697925624
+    },
+    "identical_picks": 15,
+    "within_margin_90": false,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": 6.330597889800703,
+     "upper95_one_sided_group": 6.874999999999998,
+     "margin_pts": 2.0,
+     "pass_cluster": false,
+     "note": "Hfull_free_gator is within 2.0 points of H_free_gator (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = fail(Hfull_free_gator) - fail(H_free_gator) in points; negative = Hfull_free_gator better",
+    "per_arena": {
+     "f104": {
+      "n": 800,
+      "rate_test": 56.375,
+      "rate_ref": 51.87500000000001,
+      "diff_pts": 4.5,
+      "ci95": [
+       1.8750000000000044,
+       7.249999999999996
+      ],
+      "test_worse": 80,
+      "test_better": 44,
+      "role": "training",
+      "dist_nearest_training": 0.8114229378713305,
+      "map_err_rmse_m": 0.04986148709451798
+     }
+    },
+    "arena_signs": {
+     "better": 0,
+     "worse": 1,
+     "equal": 0
+    },
+    "random_effects": null,
+    "vs_distance_nearest_training": null,
+    "vs_map_error": null,
+    "near_spread": {},
+    "time_ratio": {
+     "n": 305,
+     "median_paired_ratio": 0.957074721780604,
+     "median_paired_ratio_p95": 0.973365617433414,
+     "median_paired_ratio_ci95": [
+      0.9429065743944636,
+      0.975609756097561
+     ],
+     "ratio_of_medians": 0.9454545454545454,
+     "ratio_of_medians_p95": 0.9683257918552036,
+     "mean_ratio": 0.9531866152328067,
+     "median_time_x": 20.8,
+     "median_time_y": 22.0,
+     "bound": 1.1,
+     "pass_time": true,
+     "note": "t(Hfull_free_gator) / t(H_free_gator); 95th percentile of the group bootstrap of the median paired ratio must be < 1.1"
+    }
+   },
+   "decision": "inconclusive (secondary, unadjusted)"
+  },
+  {
+   "name": "Bfull_G_full_vs_H_full_on_gator_unsafe",
+   "world": "crm",
+   "vehicle": "gator",
+   "test": "Gfull_free_gator",
+   "ref": "Hfull_free_gator",
+   "label": "unsafe",
+   "set": "f104_800",
+   "result": {
+    "test": "Gfull_free_gator",
+    "ref": "Hfull_free_gator",
+    "label": "unsafe",
+    "n": 800,
+    "rate_test": 33.0,
+    "rate_ref": 56.375,
+    "diff_pts": -23.374999999999996,
+    "improvement_pts": 23.374999999999996,
+    "group": {
+     "ci95": [
+      -26.625,
+      -20.25
+     ],
+     "ci90": [
+      -26.0,
+      -20.75
+     ],
+     "p_one_sided": 0.00024993751562109475
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      -31.031036108435778,
+      -15.144707712958665
+     ],
+     "ci90": [
+      -29.864164340566756,
+      -16.363377731798785
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 9,
+     "cluster_wins": 9,
+     "cluster_losses": 0,
+     "sign_p": 0.00390625
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      -30.556846344485752,
+      -16.412092391304345
+     ],
+     "ci90": [
+      -29.34433344489323,
+      -17.62492489986649
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 10,
+     "cluster_wins": 10,
+     "cluster_losses": 0,
+     "sign_p": 0.001953125
+    },
+    "discordant": {
+     "test_worse": 16,
+     "test_better": 203,
+     "binary": true,
+     "mcnemar_two_sided": 1.9652608659637207e-42,
+     "mcnemar_one_sided": 9.826304329818603e-43
+    },
+    "identical_picks": 0,
+    "within_margin_90": false,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": -16.363377731798785,
+     "upper95_one_sided_group": -20.75,
+     "margin_pts": 2.0,
+     "pass_cluster": true,
+     "note": "Gfull_free_gator is within 2.0 points of Hfull_free_gator (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = unsafe(Gfull_free_gator) - unsafe(Hfull_free_gator) in points; negative = Gfull_free_gator better",
+    "per_arena": {
+     "f104": {
+      "n": 800,
+      "rate_test": 33.0,
+      "rate_ref": 56.375,
+      "diff_pts": -23.375,
+      "ci95": [
+       -26.5,
+       -20.249999999999996
+      ],
+      "test_worse": 16,
+      "test_better": 203,
+      "role": "training",
+      "dist_nearest_training": 0.8114229378713305,
+      "map_err_rmse_m": 0.04986148709451798
+     }
+    },
+    "arena_signs": {
+     "better": 1,
+     "worse": 0,
+     "equal": 0
+    },
+    "random_effects": null,
+    "vs_distance_nearest_training": null,
+    "vs_map_error": null,
+    "near_spread": {}
+   },
+   "decision": "improves (secondary, unadjusted)"
+  },
+  {
+   "name": "Bfull_G_full_vs_H_stage1_on_gator",
+   "world": "crm",
+   "vehicle": "gator",
+   "test": "Gfull_free_gator",
+   "ref": "H_free_gator",
+   "label": "fail",
+   "set": "f104_800",
+   "result": {
+    "test": "Gfull_free_gator",
+    "ref": "H_free_gator",
+    "label": "fail",
+    "n": 800,
+    "rate_test": 32.625,
+    "rate_ref": 51.87500000000001,
+    "diff_pts": -19.250000000000007,
+    "improvement_pts": 19.250000000000007,
+    "group": {
+     "ci95": [
+      -22.250000000000004,
+      -16.125
+     ],
+     "ci90": [
+      -21.874999999999993,
+      -16.625
+     ],
+     "p_one_sided": 0.00024993751562109475
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      -24.89021920936534,
+      -12.468085054249281
+     ],
+     "ci90": [
+      -24.10823732718894,
+      -13.810720410568916
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 9,
+     "cluster_wins": 9,
+     "cluster_losses": 0,
+     "sign_p": 0.00390625
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      -25.394930263188844,
+      -13.940541755039446
+     ],
+     "ci90": [
+      -24.18168611517929,
+      -14.800461397971771
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 10,
+     "cluster_wins": 10,
+     "cluster_losses": 0,
+     "sign_p": 0.001953125
+    },
+    "discordant": {
+     "test_worse": 15,
+     "test_better": 169,
+     "binary": true,
+     "mcnemar_two_sided": 3.5685932464735345e-34,
+     "mcnemar_one_sided": 1.7842966232367673e-34
+    },
+    "identical_picks": 1,
+    "within_margin_90": false,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": -13.810720410568916,
+     "upper95_one_sided_group": -16.625,
+     "margin_pts": 2.0,
+     "pass_cluster": true,
+     "note": "Gfull_free_gator is within 2.0 points of H_free_gator (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = fail(Gfull_free_gator) - fail(H_free_gator) in points; negative = Gfull_free_gator better",
+    "per_arena": {
+     "f104": {
+      "n": 800,
+      "rate_test": 32.625,
+      "rate_ref": 51.87500000000001,
+      "diff_pts": -19.25,
+      "ci95": [
+       -22.250000000000004,
+       -16.250000000000004
+      ],
+      "test_worse": 15,
+      "test_better": 169,
+      "role": "training",
+      "dist_nearest_training": 0.8114229378713305,
+      "map_err_rmse_m": 0.04986148709451798
+     }
+    },
+    "arena_signs": {
+     "better": 1,
+     "worse": 0,
+     "equal": 0
+    },
+    "random_effects": null,
+    "vs_distance_nearest_training": null,
+    "vs_map_error": null,
+    "near_spread": {},
+    "time_ratio": {
+     "n": 370,
+     "median_paired_ratio": 0.8666248554254158,
+     "median_paired_ratio_p95": 0.8832669359967082,
+     "median_paired_ratio_ci95": [
+      0.8475560897435898,
+      0.8854415274463007
+     ],
+     "ratio_of_medians": 0.8461538461538463,
+     "ratio_of_medians_p95": 0.8686664878059045,
+     "mean_ratio": 0.8637326434564947,
+     "median_time_x": 18.425,
+     "median_time_y": 21.775,
+     "bound": 1.1,
+     "pass_time": true,
+     "note": "t(Gfull_free_gator) / t(H_free_gator); 95th percentile of the group bootstrap of the median paired ratio must be < 1.1"
+    }
+   },
+   "decision": "improves (secondary, unadjusted)"
+  },
+  {
+   "name": "Bfull_stage1_G_vs_H_on_gator",
+   "world": "crm",
+   "vehicle": "gator",
+   "test": "G_free_gator",
+   "ref": "H_free_gator",
+   "label": "fail",
+   "set": "f104_800",
+   "result": {
+    "test": "G_free_gator",
+    "ref": "H_free_gator",
+    "label": "fail",
+    "n": 800,
+    "rate_test": 34.75,
+    "rate_ref": 51.87500000000001,
+    "diff_pts": -17.125000000000007,
+    "improvement_pts": 17.125000000000007,
+    "group": {
+     "ci95": [
+      -20.125,
+      -14.124999999999998
+     ],
+     "ci90": [
+      -19.624999999999996,
+      -14.624999999999993
+     ],
+     "p_one_sided": 0.00024993751562109475
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      -22.3591292997543,
+      -11.570902643799768
+     ],
+     "ci90": [
+      -21.55108220874055,
+      -12.411797371878578
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 9,
+     "cluster_wins": 9,
+     "cluster_losses": 0,
+     "sign_p": 0.00390625
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      -23.55473000201491,
+      -11.7138482380427
+     ],
+     "ci90": [
+      -22.388059701492537,
+      -12.526526991764712
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 10,
+     "cluster_wins": 10,
+     "cluster_losses": 0,
+     "sign_p": 0.001953125
+    },
+    "discordant": {
+     "test_worse": 22,
+     "test_better": 159,
+     "binary": true,
+     "mcnemar_two_sided": 8.295326068067764e-27,
+     "mcnemar_one_sided": 4.147663034033882e-27
+    },
+    "identical_picks": 1,
+    "within_margin_90": false,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": -12.411797371878578,
+     "upper95_one_sided_group": -14.624999999999993,
+     "margin_pts": 2.0,
+     "pass_cluster": true,
+     "note": "G_free_gator is within 2.0 points of H_free_gator (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = fail(G_free_gator) - fail(H_free_gator) in points; negative = G_free_gator better",
+    "per_arena": {
+     "f104": {
+      "n": 800,
+      "rate_test": 34.75,
+      "rate_ref": 51.87500000000001,
+      "diff_pts": -17.125,
+      "ci95": [
+       -20.249999999999996,
+       -14.000000000000002
+      ],
+      "test_worse": 22,
+      "test_better": 159,
+      "role": "training",
+      "dist_nearest_training": 0.8114229378713305,
+      "map_err_rmse_m": 0.04986148709451798
+     }
+    },
+    "arena_signs": {
+     "better": 1,
+     "worse": 0,
+     "equal": 0
+    },
+    "random_effects": null,
+    "vs_distance_nearest_training": null,
+    "vs_map_error": null,
+    "near_spread": {},
+    "time_ratio": {
+     "n": 363,
+     "median_paired_ratio": 0.8321678321678322,
+     "median_paired_ratio_p95": 0.8515463917525774,
+     "median_paired_ratio_ci95": [
+      0.8181818181818182,
+      0.8527724665391969
+     ],
+     "ratio_of_medians": 0.8091954022988507,
+     "ratio_of_medians_p95": 0.8340909090909091,
+     "mean_ratio": 0.8299397468977585,
+     "median_time_x": 17.6,
+     "median_time_y": 21.75,
+     "bound": 1.1,
+     "pass_time": true,
+     "note": "t(G_free_gator) / t(H_free_gator); 95th percentile of the group bootstrap of the median paired ratio must be < 1.1"
+    }
+   },
+   "decision": "improves (secondary, unadjusted)"
+  },
+  {
+   "name": "Bfull_H_full_vs_H_stage1_on_hmmwv",
+   "world": "crm",
+   "vehicle": "hmmwv",
+   "test": "Hfull_free",
+   "ref": "M1a_free",
+   "label": "fail",
+   "set": "f104_800",
+   "result": {
+    "test": "Hfull_free",
+    "ref": "M1a_free",
+    "label": "fail",
+    "n": 800,
+    "rate_test": 4.375,
+    "rate_ref": 5.5,
+    "diff_pts": -1.1250000000000002,
+    "improvement_pts": 1.1250000000000002,
+    "group": {
+     "ci95": [
+      -2.6250000000000004,
+      0.37500000000000033
+     ],
+     "ci90": [
+      -2.375,
+      0.1250000000000001
+     ],
+     "p_one_sided": 0.08347913021744564
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      -2.470983135671772,
+      -0.11722986236756343
+     ],
+     "ci90": [
+      -2.242182046215554,
+      -0.24067388688327315
+     ],
+     "p_one_sided": 0.01849537615596101,
+     "clusters": 9,
+     "cluster_wins": 6,
+     "cluster_losses": 2,
+     "sign_p": 0.2890625
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      -2.4602570473213348,
+      0.13404825737265416
+     ],
+     "ci90": [
+      -2.20162224797219,
+      0.0
+     ],
+     "p_one_sided": 0.050487378155461136,
+     "clusters": 10,
+     "cluster_wins": 6,
+     "cluster_losses": 2,
+     "sign_p": 0.2890625
+    },
+    "discordant": {
+     "test_worse": 15,
+     "test_better": 24,
+     "binary": true,
+     "mcnemar_two_sided": 0.19959086691960692,
+     "mcnemar_one_sided": 0.09979543345980346
+    },
+    "identical_picks": 15,
+    "within_margin_90": false,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": -0.24067388688327315,
+     "upper95_one_sided_group": 0.1250000000000001,
+     "margin_pts": 2.0,
+     "pass_cluster": true,
+     "note": "Hfull_free is within 2.0 points of M1a_free (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = fail(Hfull_free) - fail(M1a_free) in points; negative = Hfull_free better",
+    "per_arena": {
+     "f104": {
+      "n": 800,
+      "rate_test": 4.375,
+      "rate_ref": 5.5,
+      "diff_pts": -1.125,
+      "ci95": [
+       -2.6250000000000004,
+       0.37500000000000033
+      ],
+      "test_worse": 15,
+      "test_better": 24,
+      "role": "training",
+      "dist_nearest_training": 0.8114229378713305,
+      "map_err_rmse_m": 0.04986148709451798
+     }
+    },
+    "arena_signs": {
+     "better": 1,
+     "worse": 0,
+     "equal": 0
+    },
+    "random_effects": null,
+    "vs_distance_nearest_training": null,
+    "vs_map_error": null,
+    "near_spread": {},
+    "time_ratio": {
+     "n": 741,
+     "median_paired_ratio": 0.9793103448275863,
+     "median_paired_ratio_p95": 0.9922077922077923,
+     "median_paired_ratio_ci95": [
+      0.9640718562874253,
+      0.9945652173913043
+     ],
+     "ratio_of_medians": 0.9634831460674158,
+     "ratio_of_medians_p95": 0.988668555240793,
+     "mean_ratio": 0.9921106298455853,
+     "median_time_x": 17.150000000000002,
+     "median_time_y": 17.8,
+     "bound": 1.1,
+     "pass_time": true,
+     "note": "t(Hfull_free) / t(M1a_free); 95th percentile of the group bootstrap of the median paired ratio must be < 1.1"
+    }
+   },
+   "decision": "improves (secondary, unadjusted)"
+  },
+  {
+   "name": "Bfull_H_full_vs_straight6_on_hmmwv",
+   "world": "crm",
+   "vehicle": "hmmwv",
+   "test": "Hfull_free",
+   "ref": "straight6",
+   "label": "fail",
+   "set": "f104_800",
+   "result": {
+    "test": "Hfull_free",
+    "ref": "straight6",
+    "label": "fail",
+    "n": 800,
+    "rate_test": 4.375,
+    "rate_ref": 32.25,
+    "diff_pts": -27.875,
+    "improvement_pts": 27.875,
+    "group": {
+     "ci95": [
+      -31.125000000000004,
+      -24.625
+     ],
+     "ci90": [
+      -30.625000000000004,
+      -25.124999999999996
+     ],
+     "p_one_sided": 0.00024993751562109475
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      -44.38723243895086,
+      -14.109572087345722
+     ],
+     "ci90": [
+      -41.480093360817165,
+      -16.061221931016632
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 9,
+     "cluster_wins": 9,
+     "cluster_losses": 0,
+     "sign_p": 0.00390625
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      -42.51784559679297,
+      -15.560138227472322
+     ],
+     "ci90": [
+      -40.00139470013947,
+      -17.549856561671255
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 10,
+     "cluster_wins": 9,
+     "cluster_losses": 1,
+     "sign_p": 0.021484375
+    },
+    "discordant": {
+     "test_worse": 10,
+     "test_better": 233,
+     "binary": true,
+     "mcnemar_two_sided": 2.4234035116024475e-56,
+     "mcnemar_one_sided": 1.2117017558012237e-56
+    },
+    "identical_picks": 17,
+    "within_margin_90": false,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": -16.061221931016632,
+     "upper95_one_sided_group": -25.124999999999996,
+     "margin_pts": 2.0,
+     "pass_cluster": true,
+     "note": "Hfull_free is within 2.0 points of straight6 (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = fail(Hfull_free) - fail(straight6) in points; negative = Hfull_free better",
+    "per_arena": {
+     "f104": {
+      "n": 800,
+      "rate_test": 4.375,
+      "rate_ref": 32.25,
+      "diff_pts": -27.875,
+      "ci95": [
+       -31.25,
+       -24.624999999999996
+      ],
+      "test_worse": 10,
+      "test_better": 233,
+      "role": "training",
+      "dist_nearest_training": 0.8114229378713305,
+      "map_err_rmse_m": 0.04986148709451798
+     }
+    },
+    "arena_signs": {
+     "better": 1,
+     "worse": 0,
+     "equal": 0
+    },
+    "random_effects": null,
+    "vs_distance_nearest_training": null,
+    "vs_map_error": null,
+    "near_spread": {},
+    "time_ratio": {
+     "n": 532,
+     "median_paired_ratio": 1.8000000000000003,
+     "median_paired_ratio_p95": 1.8476106434971489,
+     "median_paired_ratio_ci95": [
+      1.753935459266168,
+      1.8554913294797688
+     ],
+     "ratio_of_medians": 1.789873417721519,
+     "ratio_of_medians_p95": 1.8461538461538463,
+     "mean_ratio": 1.8662931504468596,
+     "median_time_x": 17.675,
+     "median_time_y": 9.875,
+     "bound": 1.1,
+     "pass_time": false,
+     "note": "t(Hfull_free) / t(straight6); 95th percentile of the group bootstrap of the median paired ratio must be < 1.1"
+    }
+   },
+   "decision": "improves (secondary, unadjusted)"
+  },
+  {
+   "name": "Bfull_G_full_gator_vs_H_full_hmmwv",
+   "world": "crm",
+   "vehicle": "any",
+   "test": "Gfull_free_gator",
+   "ref": "Hfull_free",
+   "label": "fail",
+   "set": "f104_800",
+   "result": {
+    "test": "Gfull_free_gator",
+    "ref": "Hfull_free",
+    "label": "fail",
+    "n": 800,
+    "rate_test": 32.625,
+    "rate_ref": 4.375,
+    "diff_pts": 28.249999999999996,
+    "improvement_pts": -28.249999999999996,
+    "group": {
+     "ci95": [
+      24.999999999999996,
+      31.5
+     ],
+     "ci90": [
+      25.493750000000002,
+      31.0
+     ],
+     "p_one_sided": 1.0
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      20.85133059661165,
+      37.48511129308421
+     ],
+     "ci90": [
+      21.86040668458572,
+      35.93013934743072
+     ],
+     "p_one_sided": 1.0,
+     "clusters": 9,
+     "cluster_wins": 0,
+     "cluster_losses": 9,
+     "sign_p": 0.00390625
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      20.767494356659142,
+      38.17683317323087
+     ],
+     "ci90": [
+      21.8901002387639,
+      36.21689288699598
+     ],
+     "p_one_sided": 1.0,
+     "clusters": 10,
+     "cluster_wins": 0,
+     "cluster_losses": 10,
+     "sign_p": 0.001953125
+    },
+    "discordant": {
+     "test_worse": 235,
+     "test_better": 9,
+     "binary": true,
+     "mcnemar_two_sided": 5.3509571216803354e-58,
+     "mcnemar_one_sided": 1.0
+    },
+    "identical_picks": 0,
+    "within_margin_90": false,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": 35.93013934743072,
+     "upper95_one_sided_group": 31.0,
+     "margin_pts": 2.0,
+     "pass_cluster": false,
+     "note": "Gfull_free_gator is within 2.0 points of Hfull_free (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = fail(Gfull_free_gator) - fail(Hfull_free) in points; negative = Gfull_free_gator better",
+    "per_arena": {
+     "f104": {
+      "n": 800,
+      "rate_test": 32.625,
+      "rate_ref": 4.375,
+      "diff_pts": 28.25,
+      "ci95": [
+       25.0,
+       31.625000000000004
+      ],
+      "test_worse": 235,
+      "test_better": 9,
+      "role": "training",
+      "dist_nearest_training": 0.8114229378713305,
+      "map_err_rmse_m": 0.04986148709451798
+     }
+    },
+    "arena_signs": {
+     "better": 0,
+     "worse": 1,
+     "equal": 0
+    },
+    "random_effects": null,
+    "vs_distance_nearest_training": null,
+    "vs_map_error": null,
+    "near_spread": {},
+    "time_ratio": {
+     "n": 530,
+     "median_paired_ratio": 1.0252197209158893,
+     "median_paired_ratio_p95": 1.0485179838806686,
+     "median_paired_ratio_ci95": [
+      1.0042458631484794,
+      1.0579321306308755
+     ],
+     "ratio_of_medians": 1.0356164383561646,
+     "ratio_of_medians_p95": 1.0684950665772583,
+     "mean_ratio": 1.084553381940267,
+     "median_time_x": 18.900000000000002,
+     "median_time_y": 18.25,
+     "bound": 1.1,
+     "pass_time": true,
+     "note": "t(Gfull_free_gator) / t(Hfull_free); 95th percentile of the group bootstrap of the median paired ratio must be < 1.1"
+    }
+   },
+   "decision": "inconclusive (secondary, unadjusted)"
+  },
+  {
+   "name": "Bfull_H_full_gator_vs_H_full_hmmwv",
+   "world": "crm",
+   "vehicle": "any",
+   "test": "Hfull_free_gator",
+   "ref": "Hfull_free",
+   "label": "fail",
+   "set": "f104_800",
+   "result": {
+    "test": "Hfull_free_gator",
+    "ref": "Hfull_free",
+    "label": "fail",
+    "n": 800,
+    "rate_test": 56.375,
+    "rate_ref": 4.375,
+    "diff_pts": 52.0,
+    "improvement_pts": -52.0,
+    "group": {
+     "ci95": [
+      48.37500000000001,
+      55.49999999999999
+     ],
+     "ci90": [
+      49.0,
+      54.87499999999999
+     ],
+     "p_one_sided": 1.0
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      42.60143198090692,
+      59.55382414472065
+     ],
+     "ci90": [
+      44.28202829248854,
+      58.71474164133738
+     ],
+     "p_one_sided": 1.0,
+     "clusters": 9,
+     "cluster_wins": 0,
+     "cluster_losses": 9,
+     "sign_p": 0.00390625
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      43.451906325381934,
+      60.83213773314204
+     ],
+     "ci90": [
+      44.87921802502695,
+      59.60170697012802
+     ],
+     "p_one_sided": 1.0,
+     "clusters": 10,
+     "cluster_wins": 0,
+     "cluster_losses": 10,
+     "sign_p": 0.001953125
+    },
+    "discordant": {
+     "test_worse": 417,
+     "test_better": 1,
+     "binary": true,
+     "mcnemar_two_sided": 1.2379577730727115e-123,
+     "mcnemar_one_sided": 1.0
+    },
+    "identical_picks": 800,
+    "within_margin_90": false,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": 58.71474164133738,
+     "upper95_one_sided_group": 54.87499999999999,
+     "margin_pts": 2.0,
+     "pass_cluster": false,
+     "note": "Hfull_free_gator is within 2.0 points of Hfull_free (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = fail(Hfull_free_gator) - fail(Hfull_free) in points; negative = Hfull_free_gator better",
+    "per_arena": {
+     "f104": {
+      "n": 800,
+      "rate_test": 56.375,
+      "rate_ref": 4.375,
+      "diff_pts": 52.0,
+      "ci95": [
+       48.375,
+       55.375
+      ],
+      "test_worse": 417,
+      "test_better": 1,
+      "role": "training",
+      "dist_nearest_training": 0.8114229378713305,
+      "map_err_rmse_m": 0.04986148709451798
+     }
+    },
+    "arena_signs": {
+     "better": 0,
+     "worse": 1,
+     "equal": 0
+    },
+    "random_effects": null,
+    "vs_distance_nearest_training": null,
+    "vs_map_error": null,
+    "near_spread": {},
+    "time_ratio": {
+     "n": 348,
+     "median_paired_ratio": 1.0823034381953835,
+     "median_paired_ratio_p95": 1.103448275862069,
+     "median_paired_ratio_ci95": [
+      1.0648872368176574,
+      1.1072487949573602
+     ],
+     "ratio_of_medians": 1.094488188976378,
+     "ratio_of_medians_p95": 1.1195652173913044,
+     "mean_ratio": 1.1074537280974415,
+     "median_time_x": 20.85,
+     "median_time_y": 19.05,
+     "bound": 1.1,
+     "pass_time": false,
+     "note": "t(Hfull_free_gator) / t(Hfull_free); 95th percentile of the group bootstrap of the median paired ratio must be < 1.1"
+    }
+   },
+   "decision": "inconclusive (secondary, unadjusted)"
+  }
+ ],
+ "gaps": [],
+ "dose": [],
+ "time_ratio": [
+  {
+   "world": "crm",
+   "vehicle": "gator",
+   "test": "Gfull_free_gator",
+   "ref": "Hfull_free_gator",
+   "set": "f104_800",
+   "result": {
+    "n": 333,
+    "median_paired_ratio": 0.8929577464788733,
+    "median_paired_ratio_p95": 0.9091587516960647,
+    "median_paired_ratio_ci95": [
+     0.8763102725366877,
+     0.9117647058823529
+    ],
+    "ratio_of_medians": 0.8848920863309352,
+    "ratio_of_medians_p95": 0.9077669902912621,
+    "mean_ratio": 0.9030884136373682,
+    "median_time_x": 18.45,
+    "median_time_y": 20.85,
+    "bound": 1.1,
+    "pass_time": true,
+    "note": "t(Gfull_free_gator) / t(Hfull_free_gator); 95th percentile of the group bootstrap of the median paired ratio must be < 1.1"
+   }
+  },
+  {
+   "world": "crm",
+   "vehicle": "gator",
+   "test": "Gfull_free_gator",
+   "ref": "G_free_gator",
+   "set": "f104_800",
+   "result": {
+    "n": 487,
+    "median_paired_ratio": 1.0206489675516226,
+    "median_paired_ratio_p95": 1.028138528138528,
+    "median_paired_ratio_ci95": [
+     1.0058997050147493,
+     1.0298210735586482
+    ],
+    "ratio_of_medians": 1.0218579234972678,
+    "ratio_of_medians_p95": 1.056980056980057,
+    "mean_ratio": 1.031854912053255,
+    "median_time_x": 18.7,
+    "median_time_y": 18.3,
+    "bound": 1.1,
+    "pass_time": true,
+    "note": "t(Gfull_free_gator) / t(G_free_gator); 95th percentile of the group bootstrap of the median paired ratio must be < 1.1"
+   }
+  },
+  {
+   "world": "crm",
+   "vehicle": "hmmwv",
+   "test": "Hfull_free",
+   "ref": "M1a_free",
+   "set": "f104_800",
+   "result": {
+    "n": 741,
+    "median_paired_ratio": 0.9793103448275863,
+    "median_paired_ratio_p95": 0.9922077922077923,
+    "median_paired_ratio_ci95": [
+     0.9642857142857142,
+     0.9945652173913043
+    ],
+    "ratio_of_medians": 0.9634831460674158,
+    "ratio_of_medians_p95": 0.9913294797687862,
+    "mean_ratio": 0.9921106298455853,
+    "median_time_x": 17.150000000000002,
+    "median_time_y": 17.8,
+    "bound": 1.1,
+    "pass_time": true,
+    "note": "t(Hfull_free) / t(M1a_free); 95th percentile of the group bootstrap of the median paired ratio must be < 1.1"
+   }
+  }
+ ],
+ "headroom": [
+  {
+   "world": "crm",
+   "vehicle": "gator",
+   "model": "Gfull_free_gator",
+   "straight": "straight6_gator",
+   "label": "fail",
+   "set": "f104_800",
+   "result": {
+    "n": 800,
+    "rate_model": 32.625,
+    "rate_straight": 85.75,
+    "headroom_closed": 0.6195335276967929,
+    "ci95": [
+     0.5829694893285009,
+     0.6566091954022989
+    ],
+    "note": "(straight - model) / straight on the failure rate = the share of the straight route's failures the model removes; normalising by feasibility instead of 1 (REVIEW_R1 3d) needs the collection's any-route-reaches-the-goal share"
+   }
+  },
+  {
+   "world": "crm",
+   "vehicle": "gator",
+   "model": "Hfull_free_gator",
+   "straight": "straight6_gator",
+   "label": "fail",
+   "set": "f104_800",
+   "result": {
+    "n": 800,
+    "rate_model": 56.375,
+    "rate_straight": 85.75,
+    "headroom_closed": 0.34256559766763856,
+    "ci95": [
+     0.3035971223021583,
+     0.38095238095238093
+    ],
+    "note": "(straight - model) / straight on the failure rate = the share of the straight route's failures the model removes; normalising by feasibility instead of 1 (REVIEW_R1 3d) needs the collection's any-route-reaches-the-goal share"
+   }
+  },
+  {
+   "world": "crm",
+   "vehicle": "gator",
+   "model": "G_free_gator",
+   "straight": "straight6_gator",
+   "label": "fail",
+   "set": "f104_800",
+   "result": {
+    "n": 800,
+    "rate_model": 34.75,
+    "rate_straight": 85.75,
+    "headroom_closed": 0.5947521865889213,
+    "ci95": [
+     0.5578330893118595,
+     0.6319723751960717
+    ],
+    "note": "(straight - model) / straight on the failure rate = the share of the straight route's failures the model removes; normalising by feasibility instead of 1 (REVIEW_R1 3d) needs the collection's any-route-reaches-the-goal share"
+   }
+  },
+  {
+   "world": "crm",
+   "vehicle": "gator",
+   "model": "H_free_gator",
+   "straight": "straight6_gator",
+   "label": "fail",
+   "set": "f104_800",
+   "result": {
+    "n": 800,
+    "rate_model": 51.87500000000001,
+    "rate_straight": 85.75,
+    "headroom_closed": 0.3950437317784256,
+    "ci95": [
+     0.3562038900431864,
+     0.43347763526755817
+    ],
+    "note": "(straight - model) / straight on the failure rate = the share of the straight route's failures the model removes; normalising by feasibility instead of 1 (REVIEW_R1 3d) needs the collection's any-route-reaches-the-goal share"
+   }
+  },
+  {
+   "world": "crm",
+   "vehicle": "hmmwv",
+   "model": "Hfull_free",
+   "straight": "straight6",
+   "label": "fail",
+   "set": "f104_800",
+   "result": {
+    "n": 800,
+    "rate_model": 4.375,
+    "rate_straight": 32.25,
+    "headroom_closed": 0.8643410852713178,
+    "ci95": [
+     0.8185649755002041,
+     0.9058823529411764
+    ],
+    "note": "(straight - model) / straight on the failure rate = the share of the straight route's failures the model removes; normalising by feasibility instead of 1 (REVIEW_R1 3d) needs the collection's any-route-reaches-the-goal share"
+   }
+  },
+  {
+   "world": "crm",
+   "vehicle": "hmmwv",
+   "model": "M1a_free",
+   "straight": "straight6",
+   "label": "fail",
+   "set": "f104_800",
+   "result": {
+    "n": 800,
+    "rate_model": 5.5,
+    "rate_straight": 32.25,
+    "headroom_closed": 0.8294573643410853,
+    "ci95": [
+     0.7787225322636903,
+     0.8769283276450514
+    ],
+    "note": "(straight - model) / straight on the failure rate = the share of the straight route's failures the model removes; normalising by feasibility instead of 1 (REVIEW_R1 3d) needs the collection's any-route-reaches-the-goal share"
+   }
+  }
+ ],
+ "rates": {
+  "crm|gator": {
+   "f104_800": {
+    "G_free_gator": {
+     "n": 800,
+     "goal_reached": 65.25000000000001,
+     "fail": 34.75,
+     "unsafe": 34.875,
+     "unsafe_noback": 34.75,
+     "backward_only": 0.125,
+     "tilt30": 2.5,
+     "median_time_s": 18.400000000000002,
+     "status_counts": {
+      "goal_reached": 522,
+      "prolonged_blockage_terminated": 264,
+      "soil_breakthrough_terminated": 14
+     }
+    },
+    "Gfull_free_gator": {
+     "n": 800,
+     "goal_reached": 67.375,
+     "fail": 32.625,
+     "unsafe": 33.0,
+     "unsafe_noback": 32.625,
+     "backward_only": 0.375,
+     "tilt30": 1.625,
+     "median_time_s": 18.95,
+     "status_counts": {
+      "goal_reached": 539,
+      "prolonged_blockage_terminated": 254,
+      "soil_breakthrough_terminated": 7
+     }
+    },
+    "H_free_gator": {
+     "n": 800,
+     "goal_reached": 48.12499999999999,
+     "fail": 51.87500000000001,
+     "unsafe": 51.87500000000001,
+     "unsafe_noback": 51.87500000000001,
+     "backward_only": 0.0,
+     "tilt30": 2.625,
+     "median_time_s": 21.85,
+     "status_counts": {
+      "prolonged_blockage_terminated": 405,
+      "goal_reached": 385,
+      "soil_breakthrough_terminated": 10
+     }
+    },
+    "Hfull_free_gator": {
+     "n": 800,
+     "goal_reached": 43.625,
+     "fail": 56.375,
+     "unsafe": 56.375,
+     "unsafe_noback": 56.375,
+     "backward_only": 0.0,
+     "tilt30": 3.0,
+     "median_time_s": 20.85,
+     "status_counts": {
+      "goal_reached": 349,
+      "prolonged_blockage_terminated": 440,
+      "soil_breakthrough_terminated": 11
+     }
+    },
+    "straight6_gator": {
+     "n": 800,
+     "goal_reached": 14.249999999999996,
+     "fail": 85.75,
+     "unsafe": 85.75,
+     "unsafe_noback": 85.75,
+     "backward_only": 0.0,
+     "tilt30": 12.125,
+     "median_time_s": 17.025,
+     "status_counts": {
+      "prolonged_blockage_terminated": 679,
+      "goal_reached": 114,
+      "soil_breakthrough_terminated": 7
+     }
+    }
+   },
+   "indist_f104": {
+    "G_free_gator": {
+     "n": 200,
+     "goal_reached": 64.0,
+     "fail": 36.0,
+     "unsafe": 36.0,
+     "unsafe_noback": 36.0,
+     "backward_only": 0.0,
+     "tilt30": 4.0,
+     "median_time_s": 16.525,
+     "status_counts": {
+      "goal_reached": 128,
+      "prolonged_blockage_terminated": 70,
+      "soil_breakthrough_terminated": 2
+     }
+    },
+    "Gfull_free_gator": {
+     "n": 200,
+     "goal_reached": 65.0,
+     "fail": 35.0,
+     "unsafe": 35.5,
+     "unsafe_noback": 35.0,
+     "backward_only": 0.5,
+     "tilt30": 1.5,
+     "median_time_s": 17.275,
+     "status_counts": {
+      "goal_reached": 130,
+      "prolonged_blockage_terminated": 69,
+      "soil_breakthrough_terminated": 1
+     }
+    },
+    "H_free_gator": {
+     "n": 200,
+     "goal_reached": 40.0,
+     "fail": 60.0,
+     "unsafe": 60.0,
+     "unsafe_noback": 60.0,
+     "backward_only": 0.0,
+     "tilt30": 2.5,
+     "median_time_s": 19.8,
+     "status_counts": {
+      "prolonged_blockage_terminated": 119,
+      "goal_reached": 80,
+      "soil_breakthrough_terminated": 1
+     }
+    },
+    "Hfull_free_gator": {
+     "n": 200,
+     "goal_reached": 37.5,
+     "fail": 62.5,
+     "unsafe": 62.5,
+     "unsafe_noback": 62.5,
+     "backward_only": 0.0,
+     "tilt30": 2.5,
+     "median_time_s": 19.25,
+     "status_counts": {
+      "prolonged_blockage_terminated": 124,
+      "goal_reached": 75,
+      "soil_breakthrough_terminated": 1
+     }
+    },
+    "straight6_gator": {
+     "n": 200,
+     "goal_reached": 10.999999999999998,
+     "fail": 89.0,
+     "unsafe": 89.0,
+     "unsafe_noback": 89.0,
+     "backward_only": 0.0,
+     "tilt30": 13.5,
+     "median_time_s": 16.35,
+     "status_counts": {
+      "prolonged_blockage_terminated": 177,
+      "goal_reached": 22,
+      "soil_breakthrough_terminated": 1
+     }
+    }
+   }
+  },
+  "crm|hmmwv": {
+   "f104_800": {
+    "Hfull_free": {
+     "n": 800,
+     "goal_reached": 95.625,
+     "fail": 4.375,
+     "unsafe": 4.375,
+     "unsafe_noback": 4.375,
+     "backward_only": 0.0,
+     "tilt30": 0.625,
+     "median_time_s": 17.1,
+     "status_counts": {
+      "goal_reached": 765,
+      "soil_breakthrough_terminated": 27,
+      "prolonged_blockage_terminated": 7,
+      "timeout": 1
+     }
+    },
+    "M1a_free": {
+     "n": 800,
+     "goal_reached": 94.5,
+     "fail": 5.5,
+     "unsafe": 5.5,
+     "unsafe_noback": 5.5,
+     "backward_only": 0.0,
+     "tilt30": 1.0,
+     "median_time_s": 17.7,
+     "status_counts": {
+      "goal_reached": 756,
+      "soil_breakthrough_terminated": 36,
+      "prolonged_blockage_terminated": 7,
+      "timeout": 1
+     }
+    },
+    "straight6": {
+     "n": 800,
+     "goal_reached": 67.75,
+     "fail": 32.25,
+     "unsafe": 32.25,
+     "unsafe_noback": 32.25,
+     "backward_only": 0.0,
+     "tilt30": 5.375,
+     "median_time_s": 9.9,
+     "status_counts": {
+      "goal_reached": 542,
+      "soil_breakthrough_terminated": 227,
+      "prolonged_blockage_terminated": 30,
+      "rollover": 1
+     }
+    }
+   },
+   "indist_f104": {
+    "Hfull_free": {
+     "n": 200,
+     "goal_reached": 97.5,
+     "fail": 2.5,
+     "unsafe": 2.5,
+     "unsafe_noback": 2.5,
+     "backward_only": 0.0,
+     "tilt30": 0.5,
+     "median_time_s": 15.65,
+     "status_counts": {
+      "goal_reached": 195,
+      "soil_breakthrough_terminated": 3,
+      "prolonged_blockage_terminated": 1,
+      "timeout": 1
+     }
+    },
+    "M1a_free": {
+     "n": 200,
+     "goal_reached": 96.5,
+     "fail": 3.5000000000000004,
+     "unsafe": 3.5000000000000004,
+     "unsafe_noback": 3.5000000000000004,
+     "backward_only": 0.0,
+     "tilt30": 1.0,
+     "median_time_s": 15.9,
+     "status_counts": {
+      "goal_reached": 193,
+      "soil_breakthrough_terminated": 6,
+      "prolonged_blockage_terminated": 1
+     }
+    },
+    "straight6": {
+     "n": 200,
+     "goal_reached": 65.5,
+     "fail": 34.5,
+     "unsafe": 34.5,
+     "unsafe_noback": 34.5,
+     "backward_only": 0.0,
+     "tilt30": 5.5,
+     "median_time_s": 9.5,
+     "status_counts": {
+      "soil_breakthrough_terminated": 62,
+      "goal_reached": 131,
+      "prolonged_blockage_terminated": 6,
+      "rollover": 1
+     }
+    }
+   }
+  }
+ }
+}

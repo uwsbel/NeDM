@@ -1,0 +1,309 @@
+{
+ "source": "rigid_v1/runs designed routes of the unseen test groups (12 per group: route index % 4 = constant 2 / 4 / 6 m/s, smooth 2-6-2); records scripts/ag_e6b_collect_compare.py records on login1",
+ "arenas": {
+  "g260": {
+   "groups": 250,
+   "drives": 3000,
+   "any_route_goal_pct": 100.0,
+   "any_route_safe_pct": 100.0,
+   "constant_2": {
+    "n": 750,
+    "fail_pct": 18.933333333333334,
+    "unsafe_pct": 40.666666666666664,
+    "any_safe_in_group_pct": 81.6,
+    "any_goal_in_group_pct": 94.39999999999999
+   },
+   "constant_4": {
+    "n": 750,
+    "fail_pct": 8.0,
+    "unsafe_pct": 18.8,
+    "any_safe_in_group_pct": 95.19999999999999,
+    "any_goal_in_group_pct": 96.39999999999999
+   },
+   "constant_6": {
+    "n": 750,
+    "fail_pct": 1.4666666666666666,
+    "unsafe_pct": 2.533333333333333,
+    "any_safe_in_group_pct": 100.0,
+    "any_goal_in_group_pct": 100.0
+   },
+   "smooth_2_6_2": {
+    "n": 750,
+    "fail_pct": 6.4,
+    "unsafe_pct": 14.000000000000002,
+    "any_safe_in_group_pct": 96.39999999999999,
+    "any_goal_in_group_pct": 99.2
+   },
+   "all_routes": {
+    "fail_pct": 8.7,
+    "unsafe_pct": 19.0
+   }
+  },
+  "g271": {
+   "groups": 250,
+   "drives": 3000,
+   "any_route_goal_pct": 100.0,
+   "any_route_safe_pct": 100.0,
+   "constant_2": {
+    "n": 750,
+    "fail_pct": 26.53333333333333,
+    "unsafe_pct": 50.93333333333333,
+    "any_safe_in_group_pct": 75.6,
+    "any_goal_in_group_pct": 96.0
+   },
+   "constant_4": {
+    "n": 750,
+    "fail_pct": 7.6,
+    "unsafe_pct": 16.133333333333333,
+    "any_safe_in_group_pct": 98.0,
+    "any_goal_in_group_pct": 99.6
+   },
+   "constant_6": {
+    "n": 750,
+    "fail_pct": 1.7333333333333332,
+    "unsafe_pct": 2.1333333333333333,
+    "any_safe_in_group_pct": 100.0,
+    "any_goal_in_group_pct": 100.0
+   },
+   "smooth_2_6_2": {
+    "n": 750,
+    "fail_pct": 8.133333333333333,
+    "unsafe_pct": 16.266666666666666,
+    "any_safe_in_group_pct": 96.8,
+    "any_goal_in_group_pct": 99.6
+   },
+   "all_routes": {
+    "fail_pct": 11.0,
+    "unsafe_pct": 21.366666666666667
+   }
+  },
+  "g251": {
+   "groups": 250,
+   "drives": 3000,
+   "any_route_goal_pct": 100.0,
+   "any_route_safe_pct": 100.0,
+   "constant_2": {
+    "n": 750,
+    "fail_pct": 26.8,
+    "unsafe_pct": 66.93333333333334,
+    "any_safe_in_group_pct": 72.39999999999999,
+    "any_goal_in_group_pct": 96.0
+   },
+   "constant_4": {
+    "n": 750,
+    "fail_pct": 7.066666666666667,
+    "unsafe_pct": 24.53333333333333,
+    "any_safe_in_group_pct": 100.0,
+    "any_goal_in_group_pct": 100.0
+   },
+   "constant_6": {
+    "n": 750,
+    "fail_pct": 0.4,
+    "unsafe_pct": 0.8,
+    "any_safe_in_group_pct": 100.0,
+    "any_goal_in_group_pct": 100.0
+   },
+   "smooth_2_6_2": {
+    "n": 750,
+    "fail_pct": 10.4,
+    "unsafe_pct": 20.666666666666668,
+    "any_safe_in_group_pct": 96.0,
+    "any_goal_in_group_pct": 100.0
+   },
+   "all_routes": {
+    "fail_pct": 11.166666666666666,
+    "unsafe_pct": 28.233333333333334
+   }
+  },
+  "g247": {
+   "groups": 250,
+   "drives": 3000,
+   "any_route_goal_pct": 100.0,
+   "any_route_safe_pct": 100.0,
+   "constant_2": {
+    "n": 750,
+    "fail_pct": 36.0,
+    "unsafe_pct": 65.33333333333333,
+    "any_safe_in_group_pct": 70.39999999999999,
+    "any_goal_in_group_pct": 95.19999999999999
+   },
+   "constant_4": {
+    "n": 750,
+    "fail_pct": 7.466666666666668,
+    "unsafe_pct": 21.46666666666667,
+    "any_safe_in_group_pct": 98.8,
+    "any_goal_in_group_pct": 100.0
+   },
+   "constant_6": {
+    "n": 750,
+    "fail_pct": 0.4,
+    "unsafe_pct": 0.5333333333333333,
+    "any_safe_in_group_pct": 100.0,
+    "any_goal_in_group_pct": 100.0
+   },
+   "smooth_2_6_2": {
+    "n": 750,
+    "fail_pct": 8.0,
+    "unsafe_pct": 18.133333333333333,
+    "any_safe_in_group_pct": 96.39999999999999,
+    "any_goal_in_group_pct": 100.0
+   },
+   "all_routes": {
+    "fail_pct": 12.966666666666669,
+    "unsafe_pct": 26.366666666666667
+   }
+  },
+  "g258": {
+   "groups": 250,
+   "drives": 3000,
+   "any_route_goal_pct": 100.0,
+   "any_route_safe_pct": 100.0,
+   "constant_2": {
+    "n": 750,
+    "fail_pct": 17.2,
+    "unsafe_pct": 51.6,
+    "any_safe_in_group_pct": 84.39999999999999,
+    "any_goal_in_group_pct": 99.2
+   },
+   "constant_4": {
+    "n": 750,
+    "fail_pct": 6.133333333333333,
+    "unsafe_pct": 14.933333333333335,
+    "any_safe_in_group_pct": 98.4,
+    "any_goal_in_group_pct": 100.0
+   },
+   "constant_6": {
+    "n": 750,
+    "fail_pct": 0.4,
+    "unsafe_pct": 0.4,
+    "any_safe_in_group_pct": 100.0,
+    "any_goal_in_group_pct": 100.0
+   },
+   "smooth_2_6_2": {
+    "n": 750,
+    "fail_pct": 6.0,
+    "unsafe_pct": 14.266666666666666,
+    "any_safe_in_group_pct": 96.8,
+    "any_goal_in_group_pct": 99.6
+   },
+   "all_routes": {
+    "fail_pct": 7.433333333333334,
+    "unsafe_pct": 20.3
+   }
+  },
+  "g268": {
+   "groups": 250,
+   "drives": 3000,
+   "any_route_goal_pct": 100.0,
+   "any_route_safe_pct": 100.0,
+   "constant_2": {
+    "n": 750,
+    "fail_pct": 23.466666666666665,
+    "unsafe_pct": 47.599999999999994,
+    "any_safe_in_group_pct": 87.6,
+    "any_goal_in_group_pct": 96.0
+   },
+   "constant_4": {
+    "n": 750,
+    "fail_pct": 7.333333333333333,
+    "unsafe_pct": 13.866666666666665,
+    "any_safe_in_group_pct": 98.0,
+    "any_goal_in_group_pct": 98.8
+   },
+   "constant_6": {
+    "n": 750,
+    "fail_pct": 3.3333333333333335,
+    "unsafe_pct": 4.0,
+    "any_safe_in_group_pct": 99.6,
+    "any_goal_in_group_pct": 100.0
+   },
+   "smooth_2_6_2": {
+    "n": 750,
+    "fail_pct": 7.866666666666666,
+    "unsafe_pct": 15.733333333333333,
+    "any_safe_in_group_pct": 96.0,
+    "any_goal_in_group_pct": 97.6
+   },
+   "all_routes": {
+    "fail_pct": 10.5,
+    "unsafe_pct": 20.3
+   }
+  },
+  "g263": {
+   "groups": 250,
+   "drives": 3000,
+   "any_route_goal_pct": 100.0,
+   "any_route_safe_pct": 100.0,
+   "constant_2": {
+    "n": 750,
+    "fail_pct": 25.066666666666666,
+    "unsafe_pct": 57.99999999999999,
+    "any_safe_in_group_pct": 79.2,
+    "any_goal_in_group_pct": 96.8
+   },
+   "constant_4": {
+    "n": 750,
+    "fail_pct": 8.933333333333334,
+    "unsafe_pct": 17.866666666666667,
+    "any_safe_in_group_pct": 96.39999999999999,
+    "any_goal_in_group_pct": 99.6
+   },
+   "constant_6": {
+    "n": 750,
+    "fail_pct": 0.13333333333333333,
+    "unsafe_pct": 0.26666666666666666,
+    "any_safe_in_group_pct": 100.0,
+    "any_goal_in_group_pct": 100.0
+   },
+   "smooth_2_6_2": {
+    "n": 750,
+    "fail_pct": 8.799999999999999,
+    "unsafe_pct": 19.866666666666667,
+    "any_safe_in_group_pct": 95.19999999999999,
+    "any_goal_in_group_pct": 98.0
+   },
+   "all_routes": {
+    "fail_pct": 10.733333333333334,
+    "unsafe_pct": 24.0
+   }
+  },
+  "g241": {
+   "groups": 250,
+   "drives": 3000,
+   "any_route_goal_pct": 100.0,
+   "any_route_safe_pct": 100.0,
+   "constant_2": {
+    "n": 750,
+    "fail_pct": 24.266666666666666,
+    "unsafe_pct": 53.86666666666666,
+    "any_safe_in_group_pct": 86.4,
+    "any_goal_in_group_pct": 99.2
+   },
+   "constant_4": {
+    "n": 750,
+    "fail_pct": 6.800000000000001,
+    "unsafe_pct": 13.333333333333334,
+    "any_safe_in_group_pct": 99.6,
+    "any_goal_in_group_pct": 100.0
+   },
+   "constant_6": {
+    "n": 750,
+    "fail_pct": 1.6,
+    "unsafe_pct": 1.866666666666667,
+    "any_safe_in_group_pct": 100.0,
+    "any_goal_in_group_pct": 100.0
+   },
+   "smooth_2_6_2": {
+    "n": 750,
+    "fail_pct": 6.933333333333333,
+    "unsafe_pct": 15.2,
+    "any_safe_in_group_pct": 96.39999999999999,
+    "any_goal_in_group_pct": 99.6
+   },
+   "all_routes": {
+    "fail_pct": 9.9,
+    "unsafe_pct": 21.066666666666666
+   }
+  }
+ }
+}

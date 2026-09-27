@@ -1,0 +1,325 @@
+{
+ "tool": "scripts/ag_build_ds.py",
+ "argv": [
+  "--arena",
+  "f104",
+  "--vehicle",
+  "hmmwv",
+  "--world",
+  "both",
+  "--rigid-runs",
+  "/tmp/ve4/runs_rigid",
+  "--crm-runs",
+  "/tmp/ve4/runs_crm",
+  "--map-root",
+  "artifacts/traverse/crm_f104_v1/map_root",
+  "--out",
+  "/tmp/ve4/pos_both",
+  "--workers",
+  "8"
+ ],
+ "started": "2026-09-25 03:07:53",
+ "host": "luffy",
+ "python": "/home/harry/miniconda3/envs/nedm/bin/python",
+ "arena": "f104",
+ "vehicle": "hmmwv",
+ "worlds": [
+  "rigid",
+  "crm"
+ ],
+ "map_root": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_f104_v1/map_root",
+ "map_observation_sha256": "53e23f99bf2c0141bd613ff5bef5a57f82c28b48e39026608dfdd8e2d5553e34",
+ "map_arena_bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+ "tasks": {
+  "rigid": {},
+  "crm": {}
+ },
+ "exclude_ids": {
+  "rigid": [],
+  "crm": []
+ },
+ "n_exclude_ids": {
+  "rigid": 0,
+  "crm": 0
+ },
+ "tiers": null,
+ "tool_sha256": {
+  "f104_n2_dataset.py": "49b2ad940a5876e07fa9d94f70605a9587d0820c5ce8b491aed8de0310ac7007",
+  "n2_reanchor_dataset.py": "80ad79119462d59afd991f39f3a5def0b59ae30d9d8953543833bb25441f0017",
+  "ga_build_mixed.py": "b7abc6d8512e722f62d3872e2332f16df423a8a48afd60d52f9504c80cf2e338",
+  "ag_build_ds.py": "5e2eae03d441988066b291790da8e7cff576d0df7a0da591f5776f02f5bea17f",
+  "ag_map_check.py": "a237c2d9a72fa720f5db66c07ec0ae8d526d797b0fc654a0866b45af147f59a2",
+  "ag_tasklib.py": "1363371ee0621f835a49c094bea93adcdf2f6db2be7c2fbef9401436f5ab98da",
+  "crm_qa.py": "bde62d2d496db0c26929ecc074d8714cf1a3965bddfb2bf5e93247f107490229"
+ },
+ "selection": {
+  "rigid": {
+   "run_folders": [
+    "/tmp/ve4/runs_rigid"
+   ],
+   "counts": {
+    "dirs": 40
+   },
+   "candidates": 40,
+   "require_marker": false,
+   "rejected": {},
+   "rejected_ids": [],
+   "selected": 40,
+   "groups": 39,
+   "split_episodes": {
+    "train": 38,
+    "test": 2
+   },
+   "split_groups": {
+    "train": 37,
+    "val": 0,
+    "test": 2
+   },
+   "tiers": {
+    "1": 2,
+    "2": 1,
+    "4": 1,
+    "5": 1,
+    "6": 2,
+    "7": 6,
+    "8": 1,
+    "9": 5,
+    "11": 5,
+    "12": 1,
+    "13": 3,
+    "14": 2,
+    "15": 3,
+    "17": 1,
+    "18": 3,
+    "19": 3
+   },
+   "status": {
+    "goal_reached": 33,
+    "prolonged_blockage_terminated": 7
+   },
+   "kinds": {
+    "designed": 21,
+    "on_policy": 19
+   },
+   "vehicle_blocks": {
+    "None": 40
+   },
+   "map_check": {
+    "map_root": "artifacts/traverse/crm_f104_v1/map_root",
+    "map_arena": "arena_f104_50h_v1",
+    "map_arena_bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+    "map_observation_sha256": "53e23f99bf2c0141bd613ff5bef5a57f82c28b48e39026608dfdd8e2d5553e34",
+    "n_cases": 40,
+    "ok": true,
+    "problems": [],
+    "arenas": {
+     "assets/traverse/arena_f104_50h_v1": {
+      "n": 40,
+      "bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+      "match": true
+     }
+    }
+   }
+  },
+  "crm": {
+   "run_folders": [
+    "/tmp/ve4/runs_crm"
+   ],
+   "counts": {
+    "dirs": 30
+   },
+   "candidates": 30,
+   "require_marker": false,
+   "rejected": {},
+   "rejected_ids": [],
+   "selected": 30,
+   "groups": 29,
+   "split_episodes": {
+    "train": 30
+   },
+   "split_groups": {
+    "train": 29,
+    "val": 0,
+    "test": 0
+   },
+   "tiers": {
+    "0": 2,
+    "1": 2,
+    "2": 1,
+    "3": 4,
+    "4": 2,
+    "5": 2,
+    "7": 3,
+    "8": 4,
+    "9": 4,
+    "10": 2,
+    "11": 1,
+    "12": 3
+   },
+   "status": {
+    "prolonged_blockage_terminated": 7,
+    "soil_breakthrough_terminated": 18,
+    "goal_reached": 5
+   },
+   "kinds": {
+    "on_policy": 10,
+    "designed": 20
+   },
+   "vehicle_blocks": {
+    "None": 30
+   },
+   "map_check": {
+    "map_root": "artifacts/traverse/crm_f104_v1/map_root",
+    "map_arena": "arena_f104_50h_v1",
+    "map_arena_bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+    "map_observation_sha256": "53e23f99bf2c0141bd613ff5bef5a57f82c28b48e39026608dfdd8e2d5553e34",
+    "n_cases": 30,
+    "ok": true,
+    "problems": [],
+    "arenas": {
+     "assets/traverse/arena_f104_50h_v1": {
+      "n": 30,
+      "bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+      "match": true
+     }
+    }
+   }
+  }
+ },
+ "stages": {
+  "rigid": {
+   "station": {
+    "path": "/tmp/ve4/pos_both/station_f104_hmmwv_both_rigid.npz",
+    "rows": 40,
+    "secs": 0.2,
+    "sha256": "71896dd88f602dad66d6638dedc2e3901c0270433558370518d548fbff2203ff"
+   },
+   "reanchor": {
+    "path": "/tmp/ve4/pos_both/reanchor_f104_hmmwv_both_rigid.npz",
+    "rows": 157,
+    "episodes": 40,
+    "secs": 0.4,
+    "sha256": "52e7c9ecfc6e35f36b6ea8613e4df9bc5f13630907799daaea55c16b122f4172",
+    "rows_per_episode": 3.925
+   }
+  },
+  "crm": {
+   "station": {
+    "path": "/tmp/ve4/pos_both/station_f104_hmmwv_both_crm.npz",
+    "rows": 30,
+    "secs": 0.2,
+    "sha256": "41c6fe60a5ff0b915d6e8e325ff045616be96a1103ccc336fc0210ec60121691"
+   },
+   "reanchor": {
+    "path": "/tmp/ve4/pos_both/reanchor_f104_hmmwv_both_crm.npz",
+    "rows": 112,
+    "episodes": 30,
+    "secs": 0.4,
+    "sha256": "1497cc89a9fc9e9be10f522d1f4c144d99efee6f585165b60ed899ff2b1f7062",
+    "rows_per_episode": 3.733
+   }
+  },
+  "mixed": {
+   "tool": "ga_build_mixed.py",
+   "exit": 0,
+   "secs": 0.3,
+   "missing_episodes": 0,
+   "raw_found_fraction": 1.0,
+   "build_json": "/tmp/ve4/pos_both/ci_f104_hmmwv_both_build.json"
+  }
+ },
+ "output": {
+  "path": "/tmp/ve4/pos_both/ci_f104_hmmwv_both.npz",
+  "size_gb": 0.005,
+  "sha256": "95f3c7f1bd11c8e6f55f3faa0c84ad366563b924ddb6984ceedaf05f88668da9",
+  "rows": 269,
+  "rows_by_world": {
+   "rigid": 157,
+   "crm": 112
+  },
+  "episodes_by_world": {
+   "rigid": 40,
+   "crm": 30
+  },
+  "groups_by_split": {
+   "train": 64,
+   "val": 0,
+   "test": 2
+  },
+  "counts": {
+   "rigid|train|startup": 38,
+   "rigid|train|established": 111,
+   "rigid|test|startup": 2,
+   "rigid|test|established": 6,
+   "crm|train|startup": 30,
+   "crm|train|established": 82
+  },
+  "tiers": {
+   "rigid": {
+    "1": 2,
+    "2": 1,
+    "4": 1,
+    "5": 1,
+    "6": 2,
+    "7": 6,
+    "8": 1,
+    "9": 5,
+    "11": 5,
+    "12": 1,
+    "13": 3,
+    "14": 2,
+    "15": 3,
+    "17": 1,
+    "18": 3,
+    "19": 3
+   },
+   "crm": {
+    "0": 2,
+    "1": 2,
+    "2": 1,
+    "3": 4,
+    "4": 2,
+    "5": 2,
+    "7": 3,
+    "8": 4,
+    "9": 4,
+    "10": 2,
+    "11": 1,
+    "12": 3
+   }
+  },
+  "keys": [
+   "E",
+   "T",
+   "X",
+   "anchor_frame",
+   "arena",
+   "ctx",
+   "domain",
+   "episode",
+   "event_idx",
+   "fail",
+   "group",
+   "hist",
+   "hist_cols",
+   "hmask",
+   "id",
+   "priv_names",
+   "privileged",
+   "profile",
+   "rem_m",
+   "route_len",
+   "source",
+   "split",
+   "status",
+   "tier",
+   "time_to_event_s",
+   "unsafe",
+   "vehicle",
+   "vx_anchor"
+  ]
+ },
+ "links_removed": true,
+ "elapsed_s": 1.7,
+ "finished": "2026-09-25 03:07:55"
+}

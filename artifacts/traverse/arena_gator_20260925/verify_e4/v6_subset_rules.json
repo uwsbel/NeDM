@@ -1,0 +1,226 @@
+{
+ "tests": [
+  {
+   "preset": "M2",
+   "world": "crm",
+   "tiers": null,
+   "ids": false,
+   "tool_ok": true,
+   "err": null,
+   "rows_tool": 57020,
+   "rows_mine": 57020,
+   "fit_holdout_tool": 37972,
+   "fit_holdout_mine": 37972,
+   "groups_equal": {
+    "f104": true,
+    "g203": true
+   },
+   "n_selected": {
+    "f104": 545,
+    "g203": 545
+   },
+   "train_rows_equal": {
+    "f104": true,
+    "g203": true
+   }
+  },
+  {
+   "preset": "M3",
+   "world": "crm",
+   "tiers": null,
+   "ids": false,
+   "tool_ok": true,
+   "err": null,
+   "rows_tool": 63613,
+   "rows_mine": 63613,
+   "fit_holdout_tool": 39886,
+   "fit_holdout_mine": 39886,
+   "groups_equal": {
+    "f104": true,
+    "g203": true,
+    "g228": true
+   },
+   "n_selected": {
+    "f104": 363,
+    "g203": 363,
+    "g228": 363
+   },
+   "train_rows_equal": {
+    "f104": true,
+    "g203": true,
+    "g228": true
+   }
+  },
+  {
+   "preset": "M3",
+   "world": "rigid",
+   "tiers": null,
+   "ids": false,
+   "tool_ok": true,
+   "err": null,
+   "rows_tool": 109764,
+   "rows_mine": 109764,
+   "fit_holdout_tool": 68703,
+   "fit_holdout_mine": 68703,
+   "groups_equal": {
+    "f104": true,
+    "g203": true,
+    "g228": true
+   },
+   "n_selected": {
+    "f104": 363,
+    "g203": 363,
+    "g228": 363
+   },
+   "train_rows_equal": {
+    "f104": true,
+    "g203": true,
+    "g228": true
+   }
+  },
+  {
+   "preset": "A3",
+   "world": "crm",
+   "tiers": null,
+   "ids": false,
+   "tool_ok": true,
+   "err": null,
+   "rows_tool": 135229,
+   "rows_mine": 135229,
+   "fit_holdout_tool": 96323,
+   "fit_holdout_mine": 96323,
+   "groups_equal": {
+    "f104": true,
+    "g203": true,
+    "g228": true
+   },
+   "n_selected": {
+    "f104": 1089,
+    "g203": 1089,
+    "g228": 540
+   },
+   "train_rows_equal": {
+    "f104": true,
+    "g203": true,
+    "g228": true
+   }
+  },
+  {
+   "preset": "LOAO2_f104_g228",
+   "world": "rigid",
+   "tiers": null,
+   "ids": false,
+   "tool_ok": true,
+   "err": null,
+   "rows_tool": 58776,
+   "rows_mine": 58776,
+   "fit_holdout_tool": 34036,
+   "fit_holdout_mine": 34036,
+   "groups_equal": {
+    "f104": true,
+    "g228": true
+   },
+   "n_selected": {
+    "f104": 273,
+    "g228": 272
+   },
+   "train_rows_equal": {
+    "f104": true,
+    "g228": true
+   }
+  },
+  {
+   "preset": "LOAO1_g228",
+   "world": "crm",
+   "tiers": null,
+   "ids": false,
+   "expect": "refuse (short)",
+   "tool_refused": true,
+   "tool_error": "AssertionError: g228: 545 groups requested, 540 available (--allow-short to take all)"
+  },
+  {
+   "preset": "M3",
+   "world": "crm",
+   "tiers": [
+    0,
+    9
+   ],
+   "ids": false,
+   "tool_ok": true,
+   "err": null,
+   "rows_tool": 56076,
+   "rows_mine": 56076,
+   "fit_holdout_tool": 33790,
+   "fit_holdout_mine": 33790,
+   "groups_equal": {
+    "f104": true,
+    "g203": true,
+    "g228": true
+   },
+   "n_selected": {
+    "f104": 363,
+    "g203": 363,
+    "g228": 363
+   },
+   "train_rows_equal": {
+    "f104": true,
+    "g203": true,
+    "g228": true
+   }
+  },
+  {
+   "preset": "H",
+   "world": "crm",
+   "tiers": null,
+   "ids": true,
+   "tool_ok": true,
+   "err": null,
+   "rows_tool": 52427,
+   "rows_mine": 52427,
+   "fit_holdout_tool": 37858,
+   "fit_holdout_mine": 37858,
+   "groups_equal": {
+    "f104": true
+   },
+   "n_selected": {
+    "f104": 1089
+   },
+   "train_rows_equal": {
+    "f104": true
+   }
+  },
+  {
+   "preset": "LC545",
+   "world": "rigid",
+   "tiers": null,
+   "ids": false,
+   "tool_ok": true,
+   "err": null,
+   "rows_tool": 59606,
+   "rows_mine": 59606,
+   "fit_holdout_tool": 33577,
+   "fit_holdout_mine": 33577,
+   "groups_equal": {
+    "f104": true
+   },
+   "n_selected": {
+    "f104": 545
+   },
+   "train_rows_equal": {
+    "f104": true
+   }
+  }
+ ],
+ "extra": {
+  "M3_same_groups_both_worlds": {
+   "f104": true,
+   "g203": true,
+   "g228": true
+  },
+  "M3_inside_M2": {
+   "f104": true,
+   "g203": true
+  },
+  "g228_train_groups_synthetic": 540
+ }
+}

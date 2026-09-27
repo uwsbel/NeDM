@@ -1,0 +1,24 @@
+[
+ {
+  "path": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_bf/subsets/F104all_f104_hmmwv_soil.npz",
+  "rows": 58268,
+  "rows_by_split": {
+   "train": 52923,
+   "val": 2708,
+   "test": 2637
+  }
+ },
+ {
+  "path": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_bf/subsets/H_full_f104_hmmwv_soil.npz",
+  "rows": 58268,
+  "rows_by_split": {
+   "train": 52923,
+   "val": 2708,
+   "test": 2637
+  },
+  "same_id_set": true,
+  "same_order": true,
+  "only_here": 0,
+  "only_in_first": 0
+ }
+]

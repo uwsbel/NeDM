@@ -1,0 +1,39 @@
+/work1/dannegrut/harry/experiments/arena_gator_20260925/source/scripts/ci_train.py:335: UserWarning: expandable_segments not supported on this platform (Triggered internally at /pytorch/c10/hip/HIPAllocatorConfig.h:40.)
+  self.X = torch.empty((self.n, 6, 96, 32), dtype=xdt, device='cpu', pin_memory=torch.cuda.is_available()) if a.x_host else torch.empty((self.n, 6, 96, 32), dtype=xdt, device=DEV)
+=== M2_soil_holdout: files 1 rows used 31185 fit 22941 {'rigid': 0, 'crm': 22941} {'designed': 13743, 'on_policy': 9198} dev 6107 heldout(val) 2137 nctx 5 hist frames 40 visible / 40 consumed / 40 stored split_hash bdd804f1 load 7.3s data on gpu 2.14 GB
+  s0 crm   startup[W_unsafe=0.941 P_unsafe=0.958 pick_fail=0.325 brier_unsafe=0.098 n=560] established[W_unsafe=0.948 P_unsafe=0.961 pick_fail=0.300 brier_unsafe=0.090 n=1577]
+  s0   k0             crm W_unsafe=0.941 P_unsafe=0.958 pick_fail=0.325 brier_unsafe=0.098 n=560
+  s0   k40p           crm W_unsafe=0.948 P_unsafe=0.961 pick_fail=0.300 brier_unsafe=0.090 n=1577
+  s0   src:designed   crm W_unsafe=0.926 P_unsafe=0.947 pick_fail=0.300 brier_unsafe=0.115 n=1273
+  s0   src:on_policy  crm W_unsafe=0.957 P_unsafe=0.974 pick_fail=0.785 brier_unsafe=0.058 n=864
+  s0 loss 0.3624 101.3s (0.0379 s/step, 2670 steps) 256161p gpu_peak 3.38 GB (reserved 3.76)
+  s1 crm   startup[W_unsafe=0.928 P_unsafe=0.948 pick_fail=0.300 brier_unsafe=0.108 n=560] established[W_unsafe=0.937 P_unsafe=0.955 pick_fail=0.312 brier_unsafe=0.096 n=1577]
+  s1   k0             crm W_unsafe=0.928 P_unsafe=0.948 pick_fail=0.300 brier_unsafe=0.108 n=560
+  s1   k40p           crm W_unsafe=0.937 P_unsafe=0.955 pick_fail=0.312 brier_unsafe=0.096 n=1577
+  s1   src:designed   crm W_unsafe=0.924 P_unsafe=0.941 pick_fail=0.312 brier_unsafe=0.114 n=1273
+  s1   src:on_policy  crm W_unsafe=0.910 P_unsafe=0.963 pick_fail=0.797 brier_unsafe=0.078 n=864
+  s1 loss 0.3953 98.9s (0.037 s/step, 2670 steps) 256161p gpu_peak 3.38 GB (reserved 3.57)
+  s2 crm   startup[W_unsafe=0.928 P_unsafe=0.946 pick_fail=0.312 brier_unsafe=0.106 n=560] established[W_unsafe=0.946 P_unsafe=0.955 pick_fail=0.263 brier_unsafe=0.095 n=1577]
+  s2   k0             crm W_unsafe=0.928 P_unsafe=0.946 pick_fail=0.312 brier_unsafe=0.106 n=560
+  s2   k40p           crm W_unsafe=0.946 P_unsafe=0.955 pick_fail=0.263 brier_unsafe=0.095 n=1577
+  s2   src:designed   crm W_unsafe=0.932 P_unsafe=0.929 pick_fail=0.300 brier_unsafe=0.129 n=1273
+  s2   src:on_policy  crm W_unsafe=0.916 P_unsafe=0.975 pick_fail=0.785 brier_unsafe=0.053 n=864
+  s2 loss 0.3365 99.4s (0.0372 s/step, 2670 steps) 256161p gpu_peak 3.38 GB (reserved 3.57)
+  s3 crm   startup[W_unsafe=0.939 P_unsafe=0.952 pick_fail=0.325 brier_unsafe=0.094 n=560] established[W_unsafe=0.945 P_unsafe=0.956 pick_fail=0.300 brier_unsafe=0.090 n=1577]
+  s3   k0             crm W_unsafe=0.939 P_unsafe=0.952 pick_fail=0.325 brier_unsafe=0.094 n=560
+  s3   k40p           crm W_unsafe=0.945 P_unsafe=0.956 pick_fail=0.300 brier_unsafe=0.090 n=1577
+  s3   src:designed   crm W_unsafe=0.919 P_unsafe=0.936 pick_fail=0.312 brier_unsafe=0.113 n=1273
+  s3   src:on_policy  crm W_unsafe=0.926 P_unsafe=0.973 pick_fail=0.797 brier_unsafe=0.058 n=864
+  s3 loss 0.3452 101.9s (0.0382 s/step, 2670 steps) 256161p gpu_peak 3.38 GB (reserved 3.57)
+  s4 crm   startup[W_unsafe=0.920 P_unsafe=0.954 pick_fail=0.325 brier_unsafe=0.114 n=560] established[W_unsafe=0.935 P_unsafe=0.956 pick_fail=0.275 brier_unsafe=0.099 n=1577]
+  s4   k0             crm W_unsafe=0.920 P_unsafe=0.954 pick_fail=0.325 brier_unsafe=0.114 n=560
+  s4   k40p           crm W_unsafe=0.935 P_unsafe=0.956 pick_fail=0.275 brier_unsafe=0.099 n=1577
+  s4   src:designed   crm W_unsafe=0.912 P_unsafe=0.939 pick_fail=0.287 brier_unsafe=0.126 n=1273
+  s4   src:on_policy  crm W_unsafe=0.887 P_unsafe=0.970 pick_fail=0.810 brier_unsafe=0.069 n=864
+  s4 loss 0.3554 98.2s (0.0368 s/step, 2670 steps) 256161p gpu_peak 3.38 GB (reserved 3.57)
+ENSEMBLE M2_soil_holdout crm   startup[W_unsafe=0.934 P_unsafe=0.960 pick_fail=0.338 brier_unsafe=0.097 n=560] established[W_unsafe=0.948 P_unsafe=0.964 pick_fail=0.300 brier_unsafe=0.087 n=1577]
+ENSEMBLE M2_soil_holdout   k0             crm W_unsafe=0.934 P_unsafe=0.960 pick_fail=0.338 brier_unsafe=0.097 n=560
+ENSEMBLE M2_soil_holdout   k40p           crm W_unsafe=0.948 P_unsafe=0.964 pick_fail=0.300 brier_unsafe=0.087 n=1577
+ENSEMBLE M2_soil_holdout   src:designed   crm W_unsafe=0.925 P_unsafe=0.949 pick_fail=0.325 brier_unsafe=0.108 n=1273
+ENSEMBLE M2_soil_holdout   src:on_policy  crm W_unsafe=0.926 P_unsafe=0.976 pick_fail=0.785 brier_unsafe=0.063 n=864
+exit: 0

@@ -1,0 +1,18 @@
+
+The following have been reloaded with a version change:
+  1) rocm/7.2.0 => rocm/7.1.0
+
+host=k006-005-v2.hpcfund part=devel
+      1   Name:                    gfx90a                             
+<stdin>:6: UserWarning: bgemm_internal_cublaslt error: HIPBLAS_STATUS_INTERNAL_ERROR when calling hipblasLtMatmul with transpose_mat1 0 transpose_mat2 0 m 512 n 512 k 512 lda 512 ldb 512 ldc 512 abType 0 cType 0 computeType 2 scaleType 0. Will attempt to recover by calling cublas instead. (Triggered internally at /pytorch/aten/src/ATen/hip/HIPBlas.cpp:575.)
+torch 2.10.0+rocm7.1 cuda True n 1
+0 AMD Instinct MI210
+Traceback (most recent call last):
+  File "<stdin>", line 6, in <module>
+torch.AcceleratorError: HIP error: file not found
+Search for `hipErrorFileNotFound' in https://rocm.docs.amd.com/projects/HIP/en/latest/index.html for more information.
+HIP kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing AMD_SERIALIZE_KERNEL=3
+Compile with `TORCH_USE_HIP_DSA` to enable device-side assertions.
+
+exit: 1

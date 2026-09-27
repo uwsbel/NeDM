@@ -1,0 +1,250 @@
+{
+ "rows": 151665,
+ "rows_by_domain": {
+  "0": 93397,
+  "1": 58268
+ },
+ "tier": {
+  "rows_without_task_row": 0,
+  "rows_tier_mismatch": 0,
+  "soil_k0_tier_counts": {
+   "0": 1199,
+   "1": 1200,
+   "2": 1200,
+   "3": 1200,
+   "4": 1200,
+   "5": 1200,
+   "6": 1200,
+   "7": 1200,
+   "8": 1200,
+   "9": 1200,
+   "10": 1200,
+   "11": 1200,
+   "12": 836
+  },
+  "rigid_k0_tier_counts": {
+   "0": 1200,
+   "1": 1200,
+   "2": 1200,
+   "3": 1200,
+   "4": 1200,
+   "5": 1200,
+   "6": 1200,
+   "7": 1200,
+   "8": 1200,
+   "9": 1200,
+   "10": 1200,
+   "11": 1200,
+   "12": 1200,
+   "13": 1200,
+   "14": 1200,
+   "15": 1200,
+   "16": 1200,
+   "17": 1200,
+   "18": 1200,
+   "19": 1200
+  },
+  "rows_tier_not_constant_in_episode": 0,
+  "soil_groups_with_tier12": 836,
+  "soil_groups_without_tier0": [
+   "f104_v2_group_0211"
+  ]
+ },
+ "runs_on_disk_not_in_file": {
+  "rigid": [],
+  "crm": []
+ },
+ "file_episodes_not_on_disk": {
+  "rigid": 0,
+  "crm": 0
+ },
+ "arena_vehicle": {
+  "column_arena": [
+   "f104"
+  ],
+  "column_vehicle": [
+   "hmmwv"
+  ],
+  "case_arena": {
+   "rigid|assets/traverse/arena_f104_50h_v1": 24000,
+   "crm|assets/traverse/arena_f104_50h_v1": 15235
+  },
+  "outcome_vehicle_block": {
+   "rigid|None": 24000,
+   "crm|None": 15235
+  },
+  "case_group_mismatch": 0,
+  "case_split_mismatch": 0,
+  "runs": {
+   "rigid": 24000,
+   "crm": 15235
+  }
+ },
+ "blacklist": {
+  "n_patterns": 25,
+  "n_suite_group_names": 3435,
+  "ci_f104_hmmwv_both": {
+   "strings": 25200,
+   "pattern_hits": [],
+   "n_pattern_hits": 0,
+   "group_equal_to_suite": [],
+   "groups_not_training_pool": [],
+   "episodes_not_training_ids": []
+  },
+  "M1": {
+   "strings": 25200,
+   "pattern_hits": [],
+   "n_pattern_hits": 0,
+   "group_equal_to_suite": [],
+   "groups_not_training_pool": [],
+   "episodes_not_training_ids": []
+  },
+  "LC545": {
+   "strings": 16086,
+   "pattern_hits": [],
+   "n_pattern_hits": 0,
+   "group_equal_to_suite": [],
+   "groups_not_training_pool": [],
+   "episodes_not_training_ids": []
+  },
+  "LC272": {
+   "strings": 11508,
+   "pattern_hits": [],
+   "n_pattern_hits": 0,
+   "group_equal_to_suite": [],
+   "groups_not_training_pool": [],
+   "episodes_not_training_ids": []
+  }
+ },
+ "subsets": {
+  "rigid_train_groups": 1089,
+  "dev_fold_groups": 224,
+  "M1": {
+   "rows": 93397,
+   "expected_rows": 93397,
+   "id_set_equal": true,
+   "input_order": true,
+   "light_columns_equal_source": {
+    "id": true,
+    "group": true,
+    "episode": true,
+    "split": true,
+    "domain": true,
+    "anchor_frame": true,
+    "tier": true,
+    "arena": true,
+    "vehicle": true,
+    "status": true,
+    "fail": true,
+    "unsafe": true,
+    "source": true
+   },
+   "manifest_rows": 93397,
+   "manifest_fit_deploy": 84787,
+   "expected_fit_deploy": 84787,
+   "manifest_fit_holdout": 67368,
+   "expected_fit_holdout": 67368,
+   "manifest_fit_groups_holdout": 865,
+   "expected_fit_groups_holdout": 865,
+   "manifest_selected_equal": true,
+   "dev_rows": 17419,
+   "val_rows": 4358,
+   "manifest_use": "deploy or holdout",
+   "keys_equal_source": true,
+   "domains": [
+    0
+   ],
+   "vehicle": [
+    "hmmwv"
+   ],
+   "arena": [
+    "f104"
+   ]
+  },
+  "LC545": {
+   "rows": 59606,
+   "expected_rows": 59606,
+   "id_set_equal": true,
+   "input_order": true,
+   "light_columns_equal_source": {
+    "id": true,
+    "group": true,
+    "episode": true,
+    "split": true,
+    "domain": true,
+    "anchor_frame": true,
+    "tier": true,
+    "arena": true,
+    "vehicle": true,
+    "status": true,
+    "fail": true,
+    "unsafe": true,
+    "source": true
+   },
+   "manifest_rows": 59606,
+   "manifest_fit_deploy": 50996,
+   "expected_fit_deploy": 50996,
+   "manifest_fit_holdout": 33577,
+   "expected_fit_holdout": 33577,
+   "manifest_fit_groups_holdout": 431,
+   "expected_fit_groups_holdout": 431,
+   "manifest_selected_equal": true,
+   "dev_rows": 17419,
+   "val_rows": 4358,
+   "manifest_use": "holdout mode only (the dev fold is kept for scoring; deploy mode would fit it)",
+   "keys_equal_source": true,
+   "domains": [
+    0
+   ],
+   "vehicle": [
+    "hmmwv"
+   ],
+   "arena": [
+    "f104"
+   ]
+  },
+  "LC272": {
+   "rows": 42641,
+   "expected_rows": 42641,
+   "id_set_equal": true,
+   "input_order": true,
+   "light_columns_equal_source": {
+    "id": true,
+    "group": true,
+    "episode": true,
+    "split": true,
+    "domain": true,
+    "anchor_frame": true,
+    "tier": true,
+    "arena": true,
+    "vehicle": true,
+    "status": true,
+    "fail": true,
+    "unsafe": true,
+    "source": true
+   },
+   "manifest_rows": 42641,
+   "manifest_fit_deploy": 34031,
+   "expected_fit_deploy": 34031,
+   "manifest_fit_holdout": 16612,
+   "expected_fit_holdout": 16612,
+   "manifest_fit_groups_holdout": 213,
+   "expected_fit_groups_holdout": 213,
+   "manifest_selected_equal": true,
+   "dev_rows": 17419,
+   "val_rows": 4358,
+   "manifest_use": "holdout mode only (the dev fold is kept for scoring; deploy mode would fit it)",
+   "keys_equal_source": true,
+   "domains": [
+    0
+   ],
+   "vehicle": [
+    "hmmwv"
+   ],
+   "arena": [
+    "f104"
+   ]
+  },
+  "nested_272_in_545_in_1089": true
+ }
+}

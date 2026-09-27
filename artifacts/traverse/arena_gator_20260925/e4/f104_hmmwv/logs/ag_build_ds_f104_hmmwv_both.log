@@ -1,0 +1,8 @@
+[rigid] 24000 episodes selected ({'dirs': 24000}; rejected {}); map check ok (5d5bc683b6a8d9e9)
+[rigid] station 24000 rows (22.2 s), re-anchored 93397 rows (74.3 s)
+[crm] 15235 episodes selected ({'dirs': 15235}; rejected {}); map check ok (5d5bc683b6a8d9e9)
+[crm] station 15235 rows (9.9 s), re-anchored 58268 rows (42.5 s)
+compare: {"ref": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/generalist_20260921/A_adapt/datasets/mixed_reanchor.npz", "ref_rows": 115868, "new_rows": 151665, "new_rows_on_ref_episodes": 115868, "by_domain": {"rigid": {"ref": 58424, "new_on_ref_episodes": 58424, "ref_episodes": 15024}, "crm": {"ref": 57444, "new_on_ref_episodes": 57444, "ref_episodes": 15024}}, "ids_in_both": 115868, "ref_ids_missing_in_new": 0, "new_ids_on_ref_episodes_missing_in_ref": 0, "identical": true}
+arrays equal: {'E': True, 'T': True, 'X': True, 'anchor_frame': True, 'ctx': True, 'domain': True, 'episode': True, 'event_idx': True, 'fail': True, 'group': True, 'hist': True, 'hmask': True, 'id': True, 'privileged': True, 'profile': True, 'rem_m': True, 'route_len': True, 'source': True, 'split': True, 'status': True, 'time_to_event_s': True, 'unsafe': True, 'vx_anchor': True}
+wrote artifacts/traverse/arena_gator_20260925/e4/f104_hmmwv/ci_f104_hmmwv_both.npz (151665 rows: {'rigid': 93397, 'crm': 58268}; 2.748 GB) in 330.9 s
+{"rigid|train|startup": 21780, "rigid|train|established": 63007, "rigid|val|startup": 1120, "rigid|val|established": 3238, "rigid|test|startup": 1100, "rigid|test|established": 3152, "crm|train|startup": 13821, "crm|train|established": 39102, "crm|val|startup": 713, "crm|val|established": 1995, "crm|test|startup": 701, "crm|test|established": 1936}

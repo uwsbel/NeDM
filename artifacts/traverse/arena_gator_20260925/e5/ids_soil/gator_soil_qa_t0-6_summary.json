@@ -1,0 +1,147 @@
+{
+ "tasks": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e5/ids/soil_v2_gator_tiers0-6.json",
+ "runs": "/work1/dannegrut/harry/experiments/arena_gator_20260925/soil_v1/runs",
+ "ref_runs": "/work1/dannegrut/harry/experiments/crm_f104_20260916/collect_v1/runs",
+ "rows": 8399,
+ "complete": 8399,
+ "validated": 8399,
+ "validated_share_of_rows": 1.0,
+ "qa_flags": {},
+ "launch_failures": 0,
+ "vehicle_blocks": {
+  "gator": 8399
+ },
+ "belly_flag": [
+  0.0827,
+  8399
+ ],
+ "belly_flag_total_gt1s": [
+  0.096,
+  8399
+ ],
+ "belly_errors": 0,
+ "status_gator": {
+  "prolonged_blockage_terminated": 7284,
+  "goal_reached": 1014,
+  "soil_breakthrough_terminated": 101
+ },
+ "status_hmmwv_twins": {
+  "goal_reached": 2695,
+  "soil_breakthrough_terminated": 4599,
+  "prolonged_blockage_terminated": 1096,
+  "timeout": 7,
+  "rollover": 2
+ },
+ "fail_gator": [
+  0.8793,
+  8399
+ ],
+ "fail_hmmwv": [
+  0.6791,
+  8399
+ ],
+ "gator_only_fail": 1801,
+ "hmmwv_only_fail": 120,
+ "fail_gator_flag_as_fail": [
+  0.8793,
+  8399
+ ],
+ "sim_h_gator": 77.65,
+ "sim_h_hmmwv": 50.33,
+ "by_tier": {
+  "0": {
+   "n": 1199,
+   "fail_gator": 0.8757,
+   "fail_hmmwv": 0.6714,
+   "belly_flag": 0.0884
+  },
+  "1": {
+   "n": 1200,
+   "fail_gator": 0.8825,
+   "fail_hmmwv": 0.6708,
+   "belly_flag": 0.0783
+  },
+  "2": {
+   "n": 1200,
+   "fail_gator": 0.8767,
+   "fail_hmmwv": 0.6842,
+   "belly_flag": 0.0808
+  },
+  "3": {
+   "n": 1200,
+   "fail_gator": 0.8733,
+   "fail_hmmwv": 0.6742,
+   "belly_flag": 0.0758
+  },
+  "4": {
+   "n": 1200,
+   "fail_gator": 0.88,
+   "fail_hmmwv": 0.6908,
+   "belly_flag": 0.0858
+  },
+  "5": {
+   "n": 1200,
+   "fail_gator": 0.8792,
+   "fail_hmmwv": 0.6717,
+   "belly_flag": 0.0858
+  },
+  "6": {
+   "n": 1200,
+   "fail_gator": 0.8875,
+   "fail_hmmwv": 0.6908,
+   "belly_flag": 0.0842
+  }
+ },
+ "by_profile": {
+  "constant_2": {
+   "n": 1286,
+   "fail_gator": 0.9075,
+   "fail_hmmwv": 0.8515,
+   "belly_flag": 0.0933
+  },
+  "constant_4": {
+   "n": 1244,
+   "fail_gator": 0.8312,
+   "fail_hmmwv": 0.5579,
+   "belly_flag": 0.1045
+  },
+  "constant_6": {
+   "n": 1308,
+   "fail_gator": 0.8249,
+   "fail_hmmwv": 0.3341,
+   "belly_flag": 0.1124
+  },
+  "planner_proposal": {
+   "n": 3319,
+   "fail_gator": 0.9205,
+   "fail_hmmwv": 0.8379,
+   "belly_flag": 0.06
+  },
+  "smooth_2_6_2": {
+   "n": 1242,
+   "fail_gator": 0.8454,
+   "fail_hmmwv": 0.5612,
+   "belly_flag": 0.0797
+  }
+ },
+ "by_split": {
+  "test": {
+   "n": 385,
+   "fail_gator": 0.9117,
+   "fail_hmmwv": 0.7325,
+   "belly_flag": 0.0701
+  },
+  "train": {
+   "n": 7622,
+   "fail_gator": 0.8782,
+   "fail_hmmwv": 0.6749,
+   "belly_flag": 0.083
+  },
+  "val": {
+   "n": 392,
+   "fail_gator": 0.8673,
+   "fail_hmmwv": 0.7092,
+   "belly_flag": 0.0893
+  }
+ }
+}

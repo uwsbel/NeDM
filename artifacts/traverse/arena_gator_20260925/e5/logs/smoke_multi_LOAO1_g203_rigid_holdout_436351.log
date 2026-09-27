@@ -1,0 +1,15 @@
+/work1/dannegrut/harry/experiments/arena_gator_20260925/source/scripts/ci_train.py:335: UserWarning: expandable_segments not supported on this platform (Triggered internally at /pytorch/c10/hip/HIPAllocatorConfig.h:40.)
+  self.X = torch.empty((self.n, 6, 96, 32), dtype=xdt, device='cpu', pin_memory=torch.cuda.is_available()) if a.x_host else torch.empty((self.n, 6, 96, 32), dtype=xdt, device=DEV)
+=== smoke_multi_LOAO1_g203_rigid_holdout: files 1 rows used 45571 fit 33309 {'rigid': 33309, 'crm': 0} {'designed': 19733, 'on_policy': 13576} dev 8550 heldout(val) 3712 nctx 5 hist frames 40 visible / 40 consumed / 40 stored split_hash 5776fc7e load 9.7s data on gpu 3.13 GB
+  s0 rigid startup[W_unsafe=0.935 P_unsafe=0.936 pick_fail=0.000 brier_unsafe=0.100 n=960] established[W_unsafe=0.943 P_unsafe=0.946 pick_fail=0.000 brier_unsafe=0.090 n=2752]
+  s0   k0             rigid W_unsafe=0.935 P_unsafe=0.936 pick_fail=0.000 brier_unsafe=0.100 n=960
+  s0   k40p           rigid W_unsafe=0.943 P_unsafe=0.946 pick_fail=0.000 brier_unsafe=0.090 n=2752
+  s0   src:designed   rigid W_unsafe=0.946 P_unsafe=0.939 pick_fail=0.000 brier_unsafe=0.087 n=2203
+  s0   src:on_policy  rigid W_unsafe=0.911 P_unsafe=0.933 pick_fail=0.062 brier_unsafe=0.102 n=1509
+  s0 loss 1.4233 32.8s (0.2524 s/step, 130 steps) 256161p gpu_peak 4.37 GB (reserved 4.56)
+ENSEMBLE smoke_multi_LOAO1_g203_rigid_holdout rigid startup[W_unsafe=0.935 P_unsafe=0.936 pick_fail=0.000 brier_unsafe=0.100 n=960] established[W_unsafe=0.943 P_unsafe=0.946 pick_fail=0.000 brier_unsafe=0.090 n=2752]
+ENSEMBLE smoke_multi_LOAO1_g203_rigid_holdout   k0             rigid W_unsafe=0.935 P_unsafe=0.936 pick_fail=0.000 brier_unsafe=0.100 n=960
+ENSEMBLE smoke_multi_LOAO1_g203_rigid_holdout   k40p           rigid W_unsafe=0.943 P_unsafe=0.946 pick_fail=0.000 brier_unsafe=0.090 n=2752
+ENSEMBLE smoke_multi_LOAO1_g203_rigid_holdout   src:designed   rigid W_unsafe=0.946 P_unsafe=0.939 pick_fail=0.000 brier_unsafe=0.087 n=2203
+ENSEMBLE smoke_multi_LOAO1_g203_rigid_holdout   src:on_policy  rigid W_unsafe=0.911 P_unsafe=0.933 pick_fail=0.062 brier_unsafe=0.102 n=1509
+exit: 0

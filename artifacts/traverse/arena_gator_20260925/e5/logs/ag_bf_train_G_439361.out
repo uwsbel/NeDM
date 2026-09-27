@@ -1,0 +1,46 @@
+
+The following have been reloaded with a version change:
+  1) rocm/7.2.0 => rocm/7.1.0
+
+host=k007-005-v2.hpcfund job=439361 part=mi3501x gpus=1 cpus=24 runs=2 lanes=2 omp=12 jobs=/work1/dannegrut/harry/experiments/arena_gator_20260925/e5/jobs/soil_bf_G.tsv sha256=e5464ab8168bf782
+ci_train.py 7a4f2d67316ea47a  ga_train.py dc73d0bb2ac83521  python /work1/dannegrut/harry/venvs/nedm/bin/python3.12
+torch 2.10.0+rocm7.1 devices 1 AMD Instinct MI350X
+19:29:26 lane 1 G_full_soil_deploy waited 80 s for its data
+19:29:26 lane 2 G_full_soil_holdout waited 80 s for its data
+19:29:26 lane 1 gpu 0 start G_full_soil_deploy -> /work1/dannegrut/harry/experiments/arena_gator_20260925/e5/train/soil_bf/G_full_soil : --ds /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_bf/subsets/G_full_f104_gator_soil.npz --mode deploy --arch gru --cond none --domain-filter crm --ctx geom --split-eval val --bs 256 --epochs 30 --seeds 5 --seed0 0 --roundtrip-check
+19:29:26 lane 2 gpu 0 start G_full_soil_holdout -> /work1/dannegrut/harry/experiments/arena_gator_20260925/e5/train/soil_bf/offline_soil_bf : --ds /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_bf/subsets/G_full_f104_gator_soil.npz --mode holdout --arch gru --cond none --domain-filter crm --ctx geom --split-eval val --bs 256 --epochs 30 --seeds 5 --seed0 0
+19:44:49 lane 2 end G_full_soil_holdout exit: 0
+19:47:57 lane 1 end G_full_soil_deploy exit: 0
+G_full_soil_deploy exit: 0
+G_full_soil_holdout exit: 0
+all done rc=0
+
+----------------------------------------------------------------------
+Omnistat Report Card for Job Id: 439361
+----------------------------------------------------------------------
+
+Job Overview (Num Nodes = 1, Machine = HPC Fund)
+ --> Start time = 2026-09-26 19:28:28
+ --> End   time = 2026-09-26 19:50:58
+ --> Duration   = 1350 secs
+
+GPU Statistics:
+
+           | Utilization (%)  |  Memory Use (%)  | Temperature (C)  |    Power (W)     | Energy (kWh) |
+     GPU # |    Max     Mean  |    Max     Mean  |    Max     Mean  |    Max     Mean  |    Total     |
+    ---------------------------------------------------------------------------------------------------
+         0 |  100.00   93.48  |    4.49    3.56  |   61.00   59.28  |  544.00  461.87  |   1.74e-01   |
+
+Approximate Total GPU Energy Consumed = 1.74e-01 kWh
+
+Host Statistics:
+
+    # CPUs | CPU Utilization (%)  |    Memory Use (%)    |
+           |    Max       Mean    |    Max       Mean    |
+    ------------------------------------------------------
+        24 |    4.40      3.37    |    3.78      3.46    |
+
+--
+Query interval = 30.000 secs
+Query execution time = 0.1 secs
+Version = 1.13.0

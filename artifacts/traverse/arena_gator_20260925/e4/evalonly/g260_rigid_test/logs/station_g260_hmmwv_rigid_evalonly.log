@@ -1,0 +1,6 @@
+$ /work1/dannegrut/harry/venvs/nedm/bin/python -u /work1/dannegrut/harry/experiments/arena_gator_20260925/tools/e6b/tree/scripts/f104_n2_dataset.py --root /work1/dannegrut/harry/experiments/arena_gator_20260925/map_roots/g260 --runs /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/evalonly/g260_rigid_test/work/links_g260_hmmwv_rigid_evalonly/*_route_*:designed --out /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/evalonly/g260_rigid_test/station_g260_hmmwv_rigid_evalonly.npz --workers 12
+3000 runs from /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/evalonly/g260_rigid_test/work/links_g260_hmmwv_rigid_evalonly/*_route_* as designed
+  2000/3000
+labelled 3000/3000
+wrote /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/evalonly/g260_rigid_test/station_g260_hmmwv_rigid_evalonly.npz 93 MB
+unsafe rate 0.190   fail rate 0.087

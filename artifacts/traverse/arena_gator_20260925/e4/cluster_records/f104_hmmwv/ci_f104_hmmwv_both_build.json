@@ -1,0 +1,103 @@
+{
+ "out": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/arena_gator_20260925/e4/f104_hmmwv/ci_f104_hmmwv_both.npz",
+ "rows": 151665,
+ "rows_rigid": 93397,
+ "rows_crm": 58268,
+ "episodes_rigid": 24000,
+ "episodes_crm": 15235,
+ "groups": 1200,
+ "counts": {
+  "rigid|train|startup": 21780,
+  "rigid|train|established": 63007,
+  "rigid|val|startup": 1120,
+  "rigid|val|established": 3238,
+  "rigid|test|startup": 1100,
+  "rigid|test|established": 3152,
+  "crm|train|startup": 13821,
+  "crm|train|established": 39102,
+  "crm|val|startup": 713,
+  "crm|val|established": 1995,
+  "crm|test|startup": 701,
+  "crm|test|established": 1936
+ },
+ "raw_found_rows": 151665,
+ "raw_found_fraction": 1.0,
+ "missing_episodes": [],
+ "coinciding_pairs": 45602,
+ "coinciding_pairs_established": 30367,
+ "priv_percentiles": {
+  "fz_fl_mean_n": [
+   2524.7101,
+   6575.1543,
+   10269.9606
+  ],
+  "fz_fr_mean_n": [
+   2113.777,
+   6170.4656,
+   10326.084
+  ],
+  "fz_rl_mean_n": [
+   1898.377,
+   6809.752,
+   11525.223
+  ],
+  "fz_rr_mean_n": [
+   1389.273,
+   6476.0195,
+   10752.527
+  ],
+  "torque_mean_nm": [
+   -0.4617,
+   123.059,
+   283.8726
+  ],
+  "slip_ratio_mean": [
+   -0.7177,
+   0.5052,
+   6.9675
+  ],
+  "spindle_above_bmp_mean_m": [
+   0.3398,
+   0.4942,
+   0.7728
+  ],
+  "is_crm": [
+   1.0,
+   1.0,
+   1.0
+  ]
+ },
+ "hist_T": 40,
+ "hist_state_cols": [
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  11,
+  12,
+  13,
+  14,
+  15
+ ],
+ "hmask_rule": "action frame k-40+t >= 0",
+ "priv_window": "state frames max(0,k-39)..k",
+ "sources": {
+  "rigid": "artifacts/traverse/arena_gator_20260925/e4/f104_hmmwv/reanchor_f104_hmmwv_both_rigid.npz",
+  "crm": "artifacts/traverse/arena_gator_20260925/e4/f104_hmmwv/reanchor_f104_hmmwv_both_crm.npz",
+  "rigid_runs": [
+   "artifacts/traverse/arena_gator_20260925/e4/f104_hmmwv/work/links_f104_hmmwv_both_rigid"
+  ],
+  "crm_runs": [
+   "artifacts/traverse/arena_gator_20260925/e4/f104_hmmwv/work/links_f104_hmmwv_both_crm"
+  ]
+ },
+ "workers": 8,
+ "limit_episodes": 0,
+ "elapsed_s": 97.2,
+ "peak_rss_gb_main": 7.0,
+ "peak_rss_gb_child_max": 0.45,
+ "size_gb": 2.748
+}

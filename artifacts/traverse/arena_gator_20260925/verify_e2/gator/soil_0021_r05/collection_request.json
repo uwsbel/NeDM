@@ -1,0 +1,192 @@
+{
+  "schema": "crm_f104_collection_request_v1",
+  "case": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_f104_50h_20260909/cases_night2/cases/f104_v2_group_0021.json",
+  "case_sha256": "639b0186b793e04f123c43cd7179da0c6843c1b7ac58e080e88bfe96a85fbb5f",
+  "route": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_f104_50h_20260909/cases_night2/cases/routes/f104_v2_group_0021/route_05.json",
+  "route_sha256": "3198416289f859012b40e13f1bac4fa7b16ff23f505a255909501975bcc0a604",
+  "scene_id": "f104_v2_group_0021",
+  "split": "train",
+  "episode_seed": 7,
+  "crm_config": {
+    "schema": "crm_f104_config_v1",
+    "spacing_m": 0.08,
+    "depth_m": 0.24,
+    "step_s": 0.001,
+    "active_domain_m": [
+      2.0,
+      2.0,
+      1.0
+    ],
+    "active_domain_delay_s": 0.0,
+    "side_walls": true,
+    "mbs_threads": 4,
+    "soil": {
+      "density": 1700.0,
+      "young_modulus_pa": 1000000.0,
+      "poisson_ratio": 0.3,
+      "mu_I0": 0.04,
+      "friction": 0.8,
+      "average_diam_m": 0.005,
+      "cohesion_pa": 5000.0
+    },
+    "sph": {
+      "d0_multiplier": 1.2,
+      "free_surface_threshold": 0.8,
+      "artificial_viscosity": 0.5,
+      "shifting_method": "PPST",
+      "shifting_ppst_push": 3.0,
+      "shifting_ppst_pull": 1.0,
+      "num_proximity_search_steps": 4
+    },
+    "tire_mesh": "hmmwv/hmmwv_tire_coarse_closed.obj",
+    "name": "crm_main_step1ms_spacing008"
+  },
+  "horizon_s": 12.0,
+  "stop_policy": {
+    "enabled": true,
+    "minimum_elapsed_s": 24.0,
+    "evidence_window_s": 2.0,
+    "confirmation_s": 2.0,
+    "recovery_tail_s": 8.0,
+    "maximum_pairwise_xy_diameter_m": 0.25,
+    "all_interval_throttle_gt": 0.3,
+    "exclude_deliberate_parking": true,
+    "cancel_pending_on": "Any current 2 s window fails bounded, effortful, nonparking criterion",
+    "earliest_possible_stop_s": 34.0,
+    "terrain_bounds_xy_m": [
+      -40.0,
+      40.0
+    ],
+    "priority": [
+      "rollover",
+      "goal_reached",
+      "terrain_bounds_exit",
+      "prolonged_blockage_terminated",
+      "timeout"
+    ],
+    "scope": "Episode truncation only; no reverse/recovery command intervention and no fabricated tail"
+  },
+  "collector_sha256": "cb6792bebeb158bc1adf429b5b85a85c8b2cbbd4705a088cc8ff083f74eb9881",
+  "host": "luffy",
+  "gpu_env": {
+    "HIP_VISIBLE_DEVICES": null,
+    "ROCR_VISIBLE_DEVICES": null,
+    "CUDA_VISIBLE_DEVICES": null
+  },
+  "time_accounting": "Completed measured traversal intervals only; excludes the 0.8 s settle and failed processes",
+  "vehicle": {
+    "name": "gator",
+    "model": "pychrono.vehicle.Gator (Chrono stock model)",
+    "world": "soil",
+    "switch": "ag_vehicle.py (--vehicle gator / NEDM_VEHICLE=gator)",
+    "ag_vehicle_sha256": "072716ee715469950409c334482bf990853dd4f70b3c85790eec99f04b331f9d",
+    "wrapper": "/home/harry/NeDM-traverse_mppi/scripts/ag_crm_collect.py",
+    "wrapper_sha256": "b52e1fa69afe5745839bc9c32c5425b7a0328acbed61abdf0e4963644e5e2346",
+    "spawn_dz_m": 0.35,
+    "frozen_spawn_dz_m": 0.75,
+    "contact_method": "SMC",
+    "driveline": "SIMPLE (stock: rear axle driven, limited-slip split)",
+    "brake": "SIMPLE (stock: rear axle only), no locking",
+    "engine": "Gator_EngineSimple + Gator_AutomaticTransmissionSimple (stock, one gear)",
+    "tyres": "RIGID_MESH wheel bodies coupled to soil through one cylinder per axle",
+    "chassis_collision": "NONE (chassis not coupled to the soil)",
+    "follower": "frozen make_driver (gains 0.8 / 0.6, 0.05; 5 m look-ahead) unchanged",
+    "gator_data_sha256": {
+      "gator/README.md": "c3d9d231cc7ecd5a4a0759f52bf9620233f18a7923f7b616eaefe915a1c4de46",
+      "gator/Textures/Gator_Chairs_Dash_AO.jpg": "33071fc0f8da42dbf630bf912a6bb15bb5baad3e961f09f78846514788b261be",
+      "gator/Textures/Gator_Chassis_F_Bed_AO.jpg": "c97209f15702828f8683fda56d4152ba0394c6f4968d98647e4a896d26bdcf1c",
+      "gator/Textures/Gator_Chassis_R_AO.jpg": "02dcc3b935573c52f370395749e7f2f3bf64d978fede0973a8f5fef786634a75",
+      "gator/Textures/Gator_Texture_Gator_Chairs_Dash_AlbedoTransparency.jpg": "ff4c08e02cdcb2dd5b62a51301e4fffaa06d69c83fa9692c89441ad2340fb41c",
+      "gator/Textures/Gator_Texture_Gator_Chairs_Dash_MetallicSmoothness.jpg": "8acff6802e4c4e3bd8b9f16ae9425336b6dce2a6a7d8f50ddd4ab060b1eadb15",
+      "gator/Textures/Gator_Texture_Gator_Chairs_Dash_Normal.jpg": "711a8648d621acc8db33da493ad10d58642807ac46e7ae999a50d6dc67c8b8f8",
+      "gator/Textures/Gator_Texture_Gator_Chassis_F_Bed_AlbedoTransparency.jpg": "397c31ffe59a46784381d5330ff3b04392288c58ca801b9b83ddb1b8408b4be2",
+      "gator/Textures/Gator_Texture_Gator_Chassis_F_Bed_MetallicSmoothness.jpg": "29202c01421717e927c7fd5934799c46bb889ff25d58b46116125d37774ba316",
+      "gator/Textures/Gator_Texture_Gator_Chassis_F_Bed_Normal.jpg": "0f25a562dd388dc12aa4b0aabce5ab441080b2760339ceb502f897dd58dd366e",
+      "gator/Textures/Gator_Texture_Gator_Chassis_R_AlbedoTransparency.jpg": "cf63024696601ebf135a3451c2a279d13c20338652a68f850e79b8ce717f424c",
+      "gator/Textures/Gator_Texture_Gator_Chassis_R_MetallicSmoothness.jpg": "a23e17776a02a154eb554053dee6590c8bd691b9832f6d477e93c0db267023a3",
+      "gator/Textures/Gator_Texture_Gator_Chassis_R_Normal.jpg": "8a007b19f37ae6caee1610c0e607be4d85ac06dd0c7ceb3569a58f5dc7121914",
+      "gator/Textures/Gator_Texture_Gator_Wheels_AlbedoTransparency.jpg": "386dc244521e4c2aa91583528e40c2a6842174de85f810b313edd724ff8d54c7",
+      "gator/Textures/Gator_Texture_Gator_Wheels_MetallicSmoothness.jpg": "4a62ec799e07fb0fd36df766b847dc461d0cec980964192dfe4dd78043b9aa46",
+      "gator/Textures/Gator_Texture_Gator_Wheels_Normal.jpg": "c7a5cabeef92847b4344fd73ab98cf384e69e76fa0f8e9016bc175f29c19d7e1",
+      "gator/Textures/Gator_Texture_Lidar_Generator_AlbedoTransparency.jpg": "5b0a371ea6fc71d1f191d8f3b314ff0182e11e1cd6b296fca9266a8168024015",
+      "gator/Textures/Gator_Texture_Lidar_Generator_MetallicSmoothness.jpg": "f55bce15f9f785184cc65492bd3b186e6daa4cb45125b045a1e79bba234aa457",
+      "gator/Textures/Gator_Texture_Lidar_Generator_Normal.jpg": "1afc79279547b90c5b524d59e7286e64c621c973923f10e1b9adf802e6709877",
+      "gator/Textures/Gator_Texture_Server_Mount_AlbedoTransparency.jpg": "06406f53924b75c35426258aab59ff43e8d13c0f6bc502a5843cd5f48d02f094",
+      "gator/Textures/Gator_Texture_Server_Mount_MetallicSmoothness.jpg": "be59b0ba9eaf031711fb7c4fd5bf38c70d1e9338ebd669521e230755d12f422a",
+      "gator/Textures/Gator_Texture_Server_Mount_Normal.jpg": "e13480046a094dcb13ae98e180e4bb7ff71ab5fa5fb005664ef6aff368919d15",
+      "gator/Textures/Gator_Texture_Steering_Wheel_AlbedoTransparency.jpg": "b7d1033bc4033485bbf67b833e5a3c888094f0b907c3b28550befddd84db8614",
+      "gator/Textures/Gator_Texture_Steering_Wheel_MetallicSmoothness.jpg": "61ccdbcfb51c46904321c607c3ffe7d158fd3e90b169fadb570ae95f1820de63",
+      "gator/Textures/Gator_Texture_Steering_Wheel_Normal.jpg": "9cfd9f9b40b1192fd0dbcd1cd821442b48ff8216184a625c10a3ce7ea3d558fc",
+      "gator/Textures/Gator_Wheels_AO.jpg": "5e6c5b289cf20b1d984a8be67672ca27ae49db4ef663db003ed5c80a96f3a463",
+      "gator/Textures/Lidar_Generator_AO.jpg": "2d6eeaad702e3c2f2d57c9629b2bcd53cfc4e179487f2f7f2627d82223e3051c",
+      "gator/Textures/Server_Mount_AO.jpg": "ac9db29e47fabf582c2dcad4f4927d776eea705c364c577a474db7aa856ebf4e",
+      "gator/Textures/Steering_Wheel_AO.jpg": "6492f9e9fd9acb54045a62210141081b62a74789e047987418996afee38bb270",
+      "gator/Textures/Wheel_F_Gator_Wheels_AlbedoTransparency.jpg": "36717f118dac44d9d37afa9c9b5527b8907fca3a0f36919536b0cc8df12c49e3",
+      "gator/Textures/Wheel_F_Gator_Wheels_MetallicSmoothness.jpg": "4f964fa1d0e9ec93df85981d22e862a8a6234c84fbb5af6800608f964ce624f8",
+      "gator/Textures/Wheel_F_Gator_Wheels_Normal.jpg": "66b193ea294d425e284b21c769410e90a0001a834da32d9b8909e3652e1c7c79",
+      "gator/camera_mount.mtl": "fc947b5e86785b2da6ba792c62dd57999827e473e22d5c0eb2bd139d074af2e6",
+      "gator/camera_mount.obj": "f493af80f1e4116afd2fde58b1b78c7eda482352688c40665d3da1f0be5da896",
+      "gator/camera_sensor.mtl": "aa26398334895e96ad5c3925bbba7f97f58b74f63c71e5b2e9f7015347bd5fe0",
+      "gator/camera_sensor.obj": "66bc870f205f0647281ada54c88a8dfc83fc5ba7d48765dd2d27a34d0641c92c",
+      "gator/gator_chassis.mtl": "d83589ec3c0def3f13196f04d14d99c95a8162631718a7a0083750d3bc375981",
+      "gator/gator_chassis.obj": "79dc239a9afa1f9c1decba289d4f3fe29e64d68792bf383f6fdb002818503b15",
+      "gator/gator_chassis_col.obj": "647358e1fcf47232b2db5eacb6bd26fb8821d33538acb8a3f6e10705d24a63c1",
+      "gator/gator_tireF_coarse.obj": "5c458b51aa72e759303330a23b5fdc9acecde707863c87cf213a0e166392150e",
+      "gator/gator_tireF_fine.obj": "26683d17e19e14f430d42f3ab856d37d73ff29bdd02f14a8303a2677c923ad6a",
+      "gator/gator_tireR_coarse.obj": "c147a71ee34ac8a55f121daa3ca6810b5939b87fe6ca10d8d6d6dbf497dd4cd7",
+      "gator/gator_tireR_fine.obj": "88bd5bc40ca628c74f99733a040140d4bebd623ad127deaa2a4422cef5668d79",
+      "gator/gator_wheel_FL.mtl": "9b6b2e3105cdc391749af8a9b0c31ab4713d505e4861d694e719132cbee053bd",
+      "gator/gator_wheel_FL.obj": "e8362c82a86a016d1d4a138d5160090787ae1d633ec9f6574a82f9665b7cca5c",
+      "gator/gator_wheel_FR.mtl": "ffd0d60fd79b46730c8884a1736cdecfb234c93b6365620032d8d1d5d9a94a0a",
+      "gator/gator_wheel_FR.obj": "dac8c4c28b7e19ef23c9c170669c3e28aa11e1b7957096d8e322df6d434fb91d",
+      "gator/gator_wheel_RL.mtl": "6a2136f109c976b82ac0a1f12dc8c3c0bc6e872638790e89aea3f18ad4fd21b4",
+      "gator/gator_wheel_RL.obj": "5d1911b10c4d6d9055705caddbe02f384ba383454addf99590c4cca157ab29e3",
+      "gator/gator_wheel_RR.mtl": "5c88af0a103c9ae6921fa386b620d497385175ff21dbd1aa7ebb7d5163bdf99c",
+      "gator/gator_wheel_RR.obj": "f39bf779c6fd2a876436ac82f325e177870be01ef8c5974a6647f95afc8534c7",
+      "gator/json/Gator_AutomaticTransmissionSimpleMap.json": "9d1db54e3e6e3c22eb842096256f44fbf5e5bf358f0fdd0da4c81e49a64aecaa",
+      "gator/json/Gator_BrakeShafts.json": "8ebd1caf13898bbcd6aa329972e373be049d532074934a6020f67e02a3e90c10",
+      "gator/json/Gator_Chassis.json": "8c01d302e3b9c3708c44edaf934e54309f901fa4690c396ba769b3b1d94823e3",
+      "gator/json/Gator_Driveline2WD.json": "5d241f8d7d942d8c0b3273916976c1c1169b267d5d5b1ae7046c7bc01226162b",
+      "gator/json/Gator_EngineSimple.json": "bc843b11e93fd37d7d69ffd9715b87975e61b64d06b4d2ed0b227f95ca298d55",
+      "gator/json/Gator_RackPinion.json": "5771c823780a9fa9497b92846cad1981552b822a0e7c9f9e8ba68258cc1c6a32",
+      "gator/json/Gator_RigidSuspensionRear.json": "d484e526367c73d67f0b1a440262d12e9e3a46f95c2499b46cb77986b30b7176",
+      "gator/json/Gator_SingleWishboneFront.json": "321c57800969e460582181a08cffc6e47dc30cf151c8f0671d94665386912786",
+      "gator/json/Gator_TMeasyTireFront.json": "708528c879e991558dbdae2bd9aef9b75283a702a951c1b8021c1bda57ce2347",
+      "gator/json/Gator_TMeasyTireRear.json": "0068e4aa914dab04c3ee423c1475b7c31d0c7711f4f91a44fcd80a90c836b312",
+      "gator/json/Gator_Vehicle.json": "5d2153605a205272ae32217b2831bc67ad56e20a09bb2ecfed408f93a1badbcd",
+      "gator/json/Gator_Wheel.json": "f20932de1cbf1755c87dad2fd66ea95c1a820240bae2e623e4b3871ba6b7549e"
+    },
+    "runtime_fingerprint": null,
+    "soil_wheel_geometry": {
+      "front": {
+        "radius_m": 0.19575,
+        "width_m": 0.254
+      },
+      "rear": {
+        "radius_m": 0.2275,
+        "width_m": 0.3048
+      },
+      "nominal_tyre": {
+        "front": {
+          "radius_m": 0.28575,
+          "width_m": 0.254
+        },
+        "rear": {
+          "radius_m": 0.3175,
+          "width_m": 0.3048
+        }
+      },
+      "shape": "chrono.CylinderShape per axle, axis = spindle y, centred on the spindle",
+      "calibrated_default": {
+        "front": {
+          "radius_m": 0.19575,
+          "width_m": 0.254
+        },
+        "rear": {
+          "radius_m": 0.2275,
+          "width_m": 0.3048
+        }
+      }
+    }
+  }
+}

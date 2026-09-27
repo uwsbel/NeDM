@@ -1,0 +1,153 @@
+{
+ "g203": {
+  "bmp_sha_matches_assets": true,
+  "meta_sha_matches_assets": true,
+  "observation_sha_ok": true,
+  "native_p95_m": 0.02089452307110712,
+  "native_rmse_m": 0.009989961946195851,
+  "all_corners_visible": true,
+  "backend": "OptiX_luffy_RTX5090_fork_fovfix_9e1a0448b",
+  "chrono_git": "a92c6f72f422fbcafe0b37125d4070cb6a3b5803",
+  "rgbd_shape": [
+   4,
+   512,
+   512
+  ],
+  "rgbd_finite": true,
+  "vs_sensor_v1": {
+   "old_backend": "Vulkan_RT_lavapipe",
+   "old_bmp_sha_same": true,
+   "valid_mask_identical": true,
+   "max_abs_elev_diff_m": 3.6209821701049805e-05,
+   "max_abs_depth_diff_m": 5.340576171875e-05,
+   "rgbd_ch3_min": -2.0
+  },
+  "grid_vs_sensor_v2": {
+   "max_abs_z_diff_m": 0.00722619891166687,
+   "rms_z_diff_m": 2.5540846763760783e-05,
+   "cover_identical": true
+  }
+ },
+ "g228": {
+  "bmp_sha_matches_assets": true,
+  "meta_sha_matches_assets": true,
+  "observation_sha_ok": true,
+  "native_p95_m": 0.02231052699878977,
+  "native_rmse_m": 0.010303914830443094,
+  "all_corners_visible": true,
+  "backend": "OptiX_luffy_RTX5090_fork_fovfix_9e1a0448b",
+  "chrono_git": "a92c6f72f422fbcafe0b37125d4070cb6a3b5803",
+  "rgbd_shape": [
+   4,
+   512,
+   512
+  ],
+  "rgbd_finite": true,
+  "vs_sensor_v1": {
+   "old_backend": "Vulkan_RT_lavapipe",
+   "old_bmp_sha_same": true,
+   "valid_mask_identical": true,
+   "max_abs_elev_diff_m": 3.4421682357788086e-05,
+   "max_abs_depth_diff_m": 5.340576171875e-05,
+   "rgbd_ch3_min": -2.0
+  },
+  "grid_vs_sensor_v2": {
+   "max_abs_z_diff_m": 0.007890939712524414,
+   "rms_z_diff_m": 4.728026033262722e-05,
+   "cover_identical": true
+  }
+ },
+ "g217": {
+  "bmp_sha_matches_assets": true,
+  "meta_sha_matches_assets": true,
+  "observation_sha_ok": true,
+  "native_p95_m": 0.02248669568073494,
+  "native_rmse_m": 0.010735973582498516,
+  "all_corners_visible": true,
+  "backend": "OptiX_luffy_RTX5090_fork_fovfix_9e1a0448b",
+  "chrono_git": "a92c6f72f422fbcafe0b37125d4070cb6a3b5803",
+  "rgbd_shape": [
+   4,
+   512,
+   512
+  ],
+  "rgbd_finite": true,
+  "vs_sensor_v1": {
+   "old_backend": "Vulkan_RT_lavapipe",
+   "old_bmp_sha_same": true,
+   "valid_mask_identical": true,
+   "max_abs_elev_diff_m": 3.650784492492676e-05,
+   "max_abs_depth_diff_m": 5.340576171875e-05,
+   "rgbd_ch3_min": -2.0
+  },
+  "grid_vs_sensor_v2": {
+   "max_abs_z_diff_m": 0.014162778854370117,
+   "rms_z_diff_m": 4.757146962219849e-05,
+   "cover_identical": true
+  }
+ },
+ "g260": {
+  "bmp_sha_matches_assets": true,
+  "meta_sha_matches_assets": true,
+  "observation_sha_ok": true,
+  "native_p95_m": 0.020449944655994954,
+  "native_rmse_m": 0.009710925868369523,
+  "all_corners_visible": true,
+  "backend": "OptiX_luffy_RTX5090_fork_fovfix_9e1a0448b",
+  "chrono_git": "a92c6f72f422fbcafe0b37125d4070cb6a3b5803",
+  "rgbd_shape": [
+   4,
+   512,
+   512
+  ],
+  "rgbd_finite": true
+ },
+ "g271": {
+  "bmp_sha_matches_assets": true,
+  "meta_sha_matches_assets": true,
+  "observation_sha_ok": true,
+  "native_p95_m": 0.02072343934905606,
+  "native_rmse_m": 0.01001781183683765,
+  "all_corners_visible": true,
+  "backend": "OptiX_luffy_RTX5090_fork_fovfix_9e1a0448b",
+  "chrono_git": "a92c6f72f422fbcafe0b37125d4070cb6a3b5803",
+  "rgbd_shape": [
+   4,
+   512,
+   512
+  ],
+  "rgbd_finite": true
+ },
+ "g251": {
+  "bmp_sha_matches_assets": true,
+  "meta_sha_matches_assets": true,
+  "observation_sha_ok": true,
+  "native_p95_m": 0.02373430569340601,
+  "native_rmse_m": 0.011191647860745531,
+  "all_corners_visible": true,
+  "backend": "OptiX_luffy_RTX5090_fork_fovfix_9e1a0448b",
+  "chrono_git": "a92c6f72f422fbcafe0b37125d4070cb6a3b5803",
+  "rgbd_shape": [
+   4,
+   512,
+   512
+  ],
+  "rgbd_finite": true
+ },
+ "g247": {
+  "bmp_sha_matches_assets": true,
+  "meta_sha_matches_assets": true,
+  "observation_sha_ok": true,
+  "native_p95_m": 0.02206190262467643,
+  "native_rmse_m": 0.01077404459752458,
+  "all_corners_visible": true,
+  "backend": "OptiX_luffy_RTX5090_fork_fovfix_9e1a0448b",
+  "chrono_git": "a92c6f72f422fbcafe0b37125d4070cb6a3b5803",
+  "rgbd_shape": [
+   4,
+   512,
+   512
+  ],
+  "rgbd_finite": true
+ }
+}

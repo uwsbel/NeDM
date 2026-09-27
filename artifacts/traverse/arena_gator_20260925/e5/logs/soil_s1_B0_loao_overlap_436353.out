@@ -1,0 +1,11 @@
+
+The following have been reloaded with a version change:
+  1) rocm/7.2.0 => rocm/7.1.0
+
+host=k004-003.hpcfund job=436353 part=mi2508x gpus=8 cpus=16 runs=1 lanes=1 omp=16 jobs=/work1/dannegrut/harry/experiments/arena_gator_20260925/e5/jobs/soil_s1_B0_loao.tsv sha256=4f7177957cda6e1f
+ci_train.py 7a4f2d67316ea47a  ga_train.py dc73d0bb2ac83521  python /work1/dannegrut/harry/venvs/nedm/bin/python3.12
+torch 2.10.0+rocm7.1 devices 8 AMD Instinct MI250X/MI250
+12:08:33 lane 1 gpu 0 start LOAO1_g228_soil_holdout -> /work1/dannegrut/harry/experiments/arena_gator_20260925/e5/train/soil_s1/offline_soil : --ds /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/subsets/LOAO1_g228_hmmwv_soil.npz --mode holdout --arch gru --cond none --domain-filter crm --ctx geom --split-eval val --bs 256 --epochs 30 --seeds 5 --seed0 0
+12:14:36 lane 1 end LOAO1_g228_soil_holdout exit: 0
+LOAO1_g228_soil_holdout exit: 0
+all done rc=0

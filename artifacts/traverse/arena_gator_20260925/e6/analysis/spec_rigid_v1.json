@@ -1,0 +1,611 @@
+{
+ "schema": "ag_analyze_spec_v1",
+ "margin_pts": 2.0,
+ "alpha": 0.05,
+ "boot": 4000,
+ "seed": 0,
+ "cluster_key": "cluster",
+ "min_groups": 50,
+ "note": "E6b rigid evaluation spec, frozen before any evaluation outcome is synced (sha256 in LOG.md). Family = PLAN 7.3: soil M3 vs M1 and A3 vs M1 on fail (no soil data yet: p = 1, the conservative placeholder), rigid fixed 2 m/s M3 vs M1 and A3 vs M1 on unsafe, pooled over the 8 unseen arenas, Holm over the four one-sided cluster p-values. With the soil tests at p = 1 the rigid Holm-adjusted p-values are upper bounds (Holm adjusted p is non-decreasing in the other p-values): a rigid rejection here stays a rejection; a non-rejection is provisional until the soil tests exist. Arms: <model>_free = CEM 4x64 speed free, <model>_fx2 = CEM 4x64 at fixed 2 m/s, straight6 / straight2 = designed straight anchor at 6 / 2 m/s; composite M1_* / M3_* = per-group mean of the a/b ensembles (REVIEW_R1 4). Task B: G_free_gator / H_free_gator / straight6_gator on the Gator; H on the HMMWV = M1a_free (H is the M1a ensemble). Task B fixed 2 m/s rule, declared here: speed-free rigid goal reaching is \"at the ceiling\" if G on the Gator, H on the Gator and H on the HMMWV each reach the goal on >= 97 % of the 800 groups; then G and H at fixed 2 m/s and straight 2 m/s are driven on the Gator (all 800 groups) and G vs H on the Gator at fixed 2 m/s on unsafe is the rigid task B read-out (spec addendum, arms G_fx2_gator / H_fx2_gator / straight2_gator).",
+ "combine": [
+  {
+   "world": "crm",
+   "vehicle": "hmmwv",
+   "name": "M1",
+   "members": [
+    "M1a_free",
+    "M1b_free"
+   ]
+  },
+  {
+   "world": "crm",
+   "vehicle": "hmmwv",
+   "name": "M3",
+   "members": [
+    "M3a_free",
+    "M3b_free"
+   ]
+  },
+  {
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "name": "M1_fx2",
+   "members": [
+    "M1a_fx2",
+    "M1b_fx2"
+   ]
+  },
+  {
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "name": "M3_fx2",
+   "members": [
+    "M3a_fx2",
+    "M3b_fx2"
+   ]
+  },
+  {
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "name": "M1_free",
+   "members": [
+    "M1a_free",
+    "M1b_free"
+   ]
+  },
+  {
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "name": "M3_free",
+   "members": [
+    "M3a_free",
+    "M3b_free"
+   ]
+  }
+ ],
+ "family": [
+  {
+   "name": "P1_soil_M3_vs_M1",
+   "world": "crm",
+   "vehicle": "hmmwv",
+   "test": "M3",
+   "ref": "M1",
+   "label": "fail",
+   "set": "unseen"
+  },
+  {
+   "name": "P2_soil_A3_vs_M1",
+   "world": "crm",
+   "vehicle": "hmmwv",
+   "test": "A3_free",
+   "ref": "M1",
+   "label": "fail",
+   "set": "unseen"
+  },
+  {
+   "name": "P3_rigid_fx2_M3_vs_M1",
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "test": "M3_fx2",
+   "ref": "M1_fx2",
+   "label": "unsafe",
+   "set": "unseen"
+  },
+  {
+   "name": "P4_rigid_fx2_A3_vs_M1",
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "test": "A3_fx2",
+   "ref": "M1_fx2",
+   "label": "unsafe",
+   "set": "unseen"
+  }
+ ],
+ "contrasts": [
+  {
+   "name": "A_fx2_M2_vs_M1",
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "test": "M2_fx2",
+   "ref": "M1_fx2",
+   "label": "unsafe",
+   "set": "unseen"
+  },
+  {
+   "name": "A_fx2_A3_vs_M3",
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "test": "A3_fx2",
+   "ref": "M3_fx2",
+   "label": "unsafe",
+   "set": "unseen"
+  },
+  {
+   "name": "A_fx2_M3_vs_M1_fail",
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "test": "M3_fx2",
+   "ref": "M1_fx2",
+   "label": "fail",
+   "set": "unseen"
+  },
+  {
+   "name": "A_fx2_A3_vs_M1_fail",
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "test": "A3_fx2",
+   "ref": "M1_fx2",
+   "label": "fail",
+   "set": "unseen"
+  },
+  {
+   "name": "A_fx2_seed_M1a_vs_M1b",
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "test": "M1a_fx2",
+   "ref": "M1b_fx2",
+   "label": "unsafe",
+   "set": "unseen"
+  },
+  {
+   "name": "A_fx2_seed_M3a_vs_M3b",
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "test": "M3a_fx2",
+   "ref": "M3b_fx2",
+   "label": "unsafe",
+   "set": "unseen"
+  },
+  {
+   "name": "A_fx2_M1_vs_straight2",
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "test": "M1_fx2",
+   "ref": "straight2",
+   "label": "unsafe",
+   "set": "unseen"
+  },
+  {
+   "name": "A_fx2_noharm_f104_M3_vs_M1",
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "test": "M3_fx2",
+   "ref": "M1_fx2",
+   "label": "unsafe",
+   "set": "indist_f104"
+  },
+  {
+   "name": "A_fx2_noharm_f104_A3_vs_M1",
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "test": "A3_fx2",
+   "ref": "M1_fx2",
+   "label": "unsafe",
+   "set": "indist_f104"
+  },
+  {
+   "name": "A_fx2_inarena_M3_vs_M1",
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "test": "M3_fx2",
+   "ref": "M1_fx2",
+   "label": "unsafe",
+   "set": "heldout"
+  },
+  {
+   "name": "A_fx2_inarena_A3_vs_M1",
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "test": "A3_fx2",
+   "ref": "M1_fx2",
+   "label": "unsafe",
+   "set": "heldout"
+  },
+  {
+   "name": "A_fx2_dev_M3_vs_M1",
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "test": "M3_fx2",
+   "ref": "M1_fx2",
+   "label": "unsafe",
+   "set": "dev"
+  },
+  {
+   "name": "A_fx2_dev_A3_vs_M1",
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "test": "A3_fx2",
+   "ref": "M1_fx2",
+   "label": "unsafe",
+   "set": "dev"
+  },
+  {
+   "name": "A_free_M3_vs_M1_fail",
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "test": "M3_free",
+   "ref": "M1_free",
+   "label": "fail",
+   "set": "unseen"
+  },
+  {
+   "name": "A_free_A3_vs_M1_fail",
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "test": "A3_free",
+   "ref": "M1_free",
+   "label": "fail",
+   "set": "unseen"
+  },
+  {
+   "name": "A_free_M3_vs_M1_unsafe",
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "test": "M3_free",
+   "ref": "M1_free",
+   "label": "unsafe",
+   "set": "unseen"
+  },
+  {
+   "name": "A_free_A3_vs_M1_unsafe",
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "test": "A3_free",
+   "ref": "M1_free",
+   "label": "unsafe",
+   "set": "unseen"
+  },
+  {
+   "name": "A_free_M2_vs_M1_fail",
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "test": "M2_free",
+   "ref": "M1_free",
+   "label": "fail",
+   "set": "unseen"
+  },
+  {
+   "name": "A_free_M1_vs_straight6_fail",
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "test": "M1_free",
+   "ref": "straight6",
+   "label": "fail",
+   "set": "unseen"
+  },
+  {
+   "name": "A_free_noharm_f104_M3_vs_M1",
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "test": "M3_free",
+   "ref": "M1_free",
+   "label": "fail",
+   "set": "indist_f104"
+  },
+  {
+   "name": "A_free_noharm_f104_A3_vs_M1",
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "test": "A3_free",
+   "ref": "M1_free",
+   "label": "fail",
+   "set": "indist_f104"
+  },
+  {
+   "name": "A_free_inarena_A3_vs_M1",
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "test": "A3_free",
+   "ref": "M1_free",
+   "label": "fail",
+   "set": "heldout"
+  },
+  {
+   "name": "B_rigid_G_vs_H_on_gator_fail",
+   "world": "rigid",
+   "vehicle": "gator",
+   "test": "G_free_gator",
+   "ref": "H_free_gator",
+   "label": "fail",
+   "set": "f104_800"
+  },
+  {
+   "name": "B_rigid_G_vs_H_on_gator_unsafe",
+   "world": "rigid",
+   "vehicle": "gator",
+   "test": "G_free_gator",
+   "ref": "H_free_gator",
+   "label": "unsafe",
+   "set": "f104_800"
+  },
+  {
+   "name": "B_rigid_G_vs_straight6_on_gator_fail",
+   "world": "rigid",
+   "vehicle": "gator",
+   "test": "G_free_gator",
+   "ref": "straight6_gator",
+   "label": "fail",
+   "set": "f104_800"
+  },
+  {
+   "name": "B_rigid_G_vs_straight6_on_gator_unsafe",
+   "world": "rigid",
+   "vehicle": "gator",
+   "test": "G_free_gator",
+   "ref": "straight6_gator",
+   "label": "unsafe",
+   "set": "f104_800"
+  },
+  {
+   "name": "B_rigid_H_vs_straight6_on_gator_fail",
+   "world": "rigid",
+   "vehicle": "gator",
+   "test": "H_free_gator",
+   "ref": "straight6_gator",
+   "label": "fail",
+   "set": "f104_800"
+  },
+  {
+   "name": "B_rigid_H_gator_vs_H_hmmwv_fail",
+   "world": "rigid",
+   "vehicle": "any",
+   "test": "H_free_gator",
+   "ref": "M1a_free",
+   "label": "fail",
+   "set": "f104_800"
+  },
+  {
+   "name": "B_rigid_H_gator_vs_H_hmmwv_unsafe",
+   "world": "rigid",
+   "vehicle": "any",
+   "test": "H_free_gator",
+   "ref": "M1a_free",
+   "label": "unsafe",
+   "set": "f104_800"
+  },
+  {
+   "name": "B_rigid_G_gator_vs_H_hmmwv_fail",
+   "world": "rigid",
+   "vehicle": "any",
+   "test": "G_free_gator",
+   "ref": "M1a_free",
+   "label": "fail",
+   "set": "f104_800"
+  },
+  {
+   "name": "B_rigid_straight6_gator_vs_hmmwv_fail",
+   "world": "rigid",
+   "vehicle": "any",
+   "test": "straight6_gator",
+   "ref": "straight6",
+   "label": "fail",
+   "set": "f104_800"
+  },
+  {
+   "name": "B_rigid_H_vs_straight6_on_hmmwv_fail",
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "test": "M1a_free",
+   "ref": "straight6",
+   "label": "fail",
+   "set": "f104_800"
+  }
+ ],
+ "headroom": [
+  {
+   "world": "rigid",
+   "vehicle": "gator",
+   "model": "G_free_gator",
+   "straight": "straight6_gator",
+   "label": "fail",
+   "set": "f104_800"
+  },
+  {
+   "world": "rigid",
+   "vehicle": "gator",
+   "model": "H_free_gator",
+   "straight": "straight6_gator",
+   "label": "fail",
+   "set": "f104_800"
+  },
+  {
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "model": "M1a_free",
+   "straight": "straight6",
+   "label": "fail",
+   "set": "f104_800"
+  },
+  {
+   "world": "rigid",
+   "vehicle": "gator",
+   "model": "G_free_gator",
+   "straight": "straight6_gator",
+   "label": "unsafe",
+   "set": "f104_800"
+  },
+  {
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "model": "M1a_free",
+   "straight": "straight6",
+   "label": "unsafe",
+   "set": "f104_800"
+  }
+ ],
+ "gaps": [
+  {
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "model": "M1_fx2",
+   "straight": "straight2",
+   "labels": [
+    "unsafe",
+    "fail"
+   ],
+   "unseen": "unseen",
+   "indist": "indist_f104"
+  },
+  {
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "model": "M2_fx2",
+   "straight": "straight2",
+   "labels": [
+    "unsafe",
+    "fail"
+   ],
+   "unseen": "unseen",
+   "indist": "indist_f104"
+  },
+  {
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "model": "M3_fx2",
+   "straight": "straight2",
+   "labels": [
+    "unsafe",
+    "fail"
+   ],
+   "unseen": "unseen",
+   "indist": "indist_f104"
+  },
+  {
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "model": "A3_fx2",
+   "straight": "straight2",
+   "labels": [
+    "unsafe",
+    "fail"
+   ],
+   "unseen": "unseen",
+   "indist": "indist_f104"
+  },
+  {
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "model": "M1_free",
+   "straight": "straight6",
+   "labels": [
+    "fail",
+    "unsafe"
+   ],
+   "unseen": "unseen",
+   "indist": "indist_f104"
+  },
+  {
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "model": "M2_free",
+   "straight": "straight6",
+   "labels": [
+    "fail",
+    "unsafe"
+   ],
+   "unseen": "unseen",
+   "indist": "indist_f104"
+  },
+  {
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "model": "M3_free",
+   "straight": "straight6",
+   "labels": [
+    "fail",
+    "unsafe"
+   ],
+   "unseen": "unseen",
+   "indist": "indist_f104"
+  },
+  {
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "model": "A3_free",
+   "straight": "straight6",
+   "labels": [
+    "fail",
+    "unsafe"
+   ],
+   "unseen": "unseen",
+   "indist": "indist_f104"
+  }
+ ],
+ "dose": [
+  {
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "arms": [
+    "M1_fx2",
+    "M2_fx2",
+    "M3_fx2"
+   ],
+   "label": "unsafe",
+   "set": "unseen"
+  },
+  {
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "arms": [
+    "M1_fx2",
+    "M2_fx2",
+    "M3_fx2"
+   ],
+   "label": "fail",
+   "set": "unseen"
+  },
+  {
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "arms": [
+    "M1_free",
+    "M2_free",
+    "M3_free"
+   ],
+   "label": "fail",
+   "set": "unseen"
+  }
+ ],
+ "time_ratio": [
+  {
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "test": "M3a_free",
+   "ref": "M1a_free",
+   "set": "unseen"
+  },
+  {
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "test": "A3_free",
+   "ref": "M1a_free",
+   "set": "unseen"
+  },
+  {
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "test": "M1a_free",
+   "ref": "straight6",
+   "set": "unseen"
+  },
+  {
+   "world": "rigid",
+   "vehicle": "gator",
+   "test": "G_free_gator",
+   "ref": "H_free_gator",
+   "set": "f104_800"
+  }
+ ],
+ "rates": {
+  "sets": [
+   "unseen",
+   "near",
+   "spread",
+   "indist_f104",
+   "heldout",
+   "dev",
+   "f104_800",
+   "per_arena"
+  ]
+ }
+}

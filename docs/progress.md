@@ -345,8 +345,9 @@ overfits one arena first. Full records live next to the data: `artifacts/travers
 summaries, figures, final checkpoints and mission definitions are in git (committed 2026-09-16); the bulk data
 (per-run folders, tensors, rendered frames, most videos) stays local and on the cluster. The later efforts each have
 their own folder with `PLAN.md`, `LOG.md` and `REPORT.md`: `artifacts/traverse/crm_f104_v1/`,
-`artifacts/traverse/crm_night2_v1/`, `artifacts/traverse/generalist_20260921/` (branch `generalist_v1`) and
-`artifacts/traverse/crm_improve_20260922/` (branch `crm_improve_v1`, which contains all the earlier commits).
+`artifacts/traverse/crm_night2_v1/`, `artifacts/traverse/generalist_20260921/` (branch `generalist_v1`),
+`artifacts/traverse/crm_improve_20260922/` (branch `crm_improve_v1`, which contains all the earlier commits) and
+`artifacts/traverse/arena_gator_20260925/` (branch `arena_gator_v1`).
 
 **Status at a glance (this project).** Headlines are closed-loop Chrono driving on f104 unless another arena is
 named or they are marked offline; details in the subsections below. Folders are under `artifacts/traverse/`.
@@ -361,6 +362,7 @@ named or they are marked offline; details in the subsections below. Folders are 
 | 09-21/22 | One rigid/soil model with motion history; learned tracker | matches both specialists after a common 3 s approach (soil 83.9% vs 83.0%); at a standing start 93.8% vs 95.8%, 0.4 points outside the margin; tracker halves rigid cross-track error on routes the stock follower completes, but completes only 91.5% vs 99.3% of them on soil | `generalist_20260921/REPORT.md` |
 | 09-22/24 | Soil goal-reaching from a moving start | 83.9% -> 97.5% by deciding after 0.5 s and refining the route by gradient; rigid 100.0% | `crm_improve_20260922/REPORT.md` |
 | 09-24 | Rollout videos | 3 start/goal pairs x 6 planner set-ups; top-down recordings plus 3D replays (one soil pair does not reproduce in 3D) | `crm_improve_20260922/videos/README.md` |
+| 09-25/26 | More training arenas; the Gator instead of the HMMWV on f104 | on 8 never-seen arenas, three training arenas instead of f104 alone: soil goal not reached 12.05% -> 9.70%, rigid 2 m/s unsafe 8.33% -> 6.17% (all four declared tests pass); more data on the same arenas adds little, and the gain does not grow step by step; the Gator collects all 15,235 soil and 24,000 rigid f104 ids, and its own soil planner reaches 67.4% vs 43.6% for the HMMWV-trained one on the Gator (HMMWV on its own planner 95.6%) | `arena_gator_20260925/REPORT.md` |
 
 **Pipeline (inference).**
 
@@ -722,6 +724,50 @@ planner set-ups (decide after 3 s, 1 s or 0.5 s; CNN-GRU or transformer; with or
 - *In git.* Per the README, everything except the three single rigid 3D videos (8-17 MB each) and the working folder
   `chase_work/`, which stay on the workstation; as of this update the `videos/` folder and the two video scripts
   are not yet committed.
+
+**More training arenas and a second vehicle (2026-09-25/26)**
+(`artifacts/traverse/arena_gator_20260925/REPORT.md`; plan with review amendments `PLAN.md`, `LOG.md`, results
+`RESULTS_{rigid,soil,gator_full}.md`, module notes and independent checks `NOTES_*.md` / `VERIFY_*.md`, figures
+`figures/`; branch `arena_gator_v1`; 113.3 billed node-hours). One planner per ground type (the CNN-GRU risk model),
+5-seed ensembles, planning once from a standing start by iterated sampling; picks and analysis specs locked before
+any drive.
+- *Task A design.* Training arenas f104 plus g203 and g228, the two most f104-like of the earlier 40 generated
+  arenas. Eight never-seen test arenas from new generator seeds, chosen by a script before anyone looked: the 4
+  nearest to f104 and 4 spread ones. Planners: f104 only (two independent ensembles), two and three arenas at the
+  same total number of training start/goal groups, and three arenas with all their data (about 2x the soil and 3x the
+  rigid rows). Soil planners use the first 7 of 13 routes per group on every arena. Tests: soil speed free (1,000
+  start/goal pairs) and rigid at a fixed 2 m/s (2,000 pairs; rigid speed free is at the ceiling), one declared family
+  of four tests with Holm correction.
+- *Task A result: better, but not better and better.* All four declared tests pass. Soil goal not reached: f104 only
+  12.05% -> three arenas at the same total 9.70% (-2.35 points, 90% interval [-3.7, -1.1]) -> all data 9.40%
+  (-2.65). Rigid 2 m/s unsafe: 8.33% -> 6.17% (-2.15 [-3.4, -1.0]) -> 5.35% (-2.98); the rigid gain is fewer
+  roll-backs on climbs, and goal reaching at 2 m/s is unchanged. More data on the same three arenas adds little on
+  unseen arenas (soil -0.3, rigid -0.83 points, both inside +-2). One -> two -> three arenas at the same total: soil
+  12.05 -> 12.0 -> 9.7% (all at the third arena), rigid 8.33 -> 6.60 -> 6.17% (mostly at the second); the arenas were
+  added in one order and the two-arena planner is a single ensemble. Near and spread test arenas show no clear
+  difference. The gap to f104's own held-out pairs narrows but remains (rigid +7.8 -> +5.7 / +4.9 points, soil +8.0
+  -> +6.7 / +4.4), and on the held-out pairs of the training arenas the multi-arena planners gain 2-4 times as much as
+  on unseen ones: knowing an arena is worth far more than knowing more arenas. Offline (rigid, unseen arenas) the
+  within-pair ranking rises from 0.947 / 0.944 (f104 only) to 0.952 (three arenas) and 0.956 (all data); the two
+  f104-only ensembles differ by about half the same-total gain. Rigid speed free: every planner at 0.25-0.65% not
+  reached, no harm.
+- *Task B: the stock Chrono Gator on f104.* It drove all 15,235 soil and 24,000 rigid ids of the HMMWV collections,
+  and every declared validity check passes (0 launch-check failures, 0 non-finite states, belly-in-soil flag 8.5%
+  against a 10% limit; 141.1 simulated soil hours against the HMMWV's 91.5). On identical routes it fails far more
+  on soil (88.2% vs 68.1% goal not reached: rear-wheel drive only, small wheels, a 14 kW engine) and less on rigid
+  ground (6.6% vs 19.9%). Soil, 800 f104 pairs, driven by the Gator: Gator-trained planner 67.4% goal reached
+  (65.3% with about half the data), HMMWV-trained planner 43.6%, straight 6 m/s 14.3%; Gator-trained vs
+  HMMWV-trained -23.8 points of failure [-30.4, -16.5]. It meets the declared criteria of beating both, and the
+  offline one (AUC >= 0.95) only on the 56 validation groups (0.950); it removes 62% of the straight route's
+  failures against 86% for the HMMWV on its own planner (95.6% goal reached). The full data over half of it gains
+  2.1 points, marginal. Rigid: both planners saturate on the Gator (fixed 2 m/s 0.12% unsafe each).
+- *Caveats.* The training arenas are close to f104, and all arenas come from one terrain generator. The planner reads
+  heights through a flat-ground map lookup whose error grows off f104 (0.050 m on f104, up to 0.094 m). Soil
+  planners use 7 of 13 routes per group. Only two planners have a second ensemble, and the soil tests survive the
+  estimated training noise but not twice it. For the Gator: a stock vehicle; soil contact wheels are cylinders
+  calibrated to the HMMWV's sinkage, and 0.08 m larger wheels cut its failure rate by 13.2 points (declared limit
+  15); the body is not coupled to the soil. The working session was down 05:50-10:50 on 09-25 and paused from about
+  14:45 on 09-25 to 19:00 on 09-26; the cluster jobs ran on.
 
 **Gaps in the committed record (checked 2026-09-16, before the first push of this branch).** What git holds for
 this project is the written records, result summaries, figures, final checkpoints (LFS) and mission definitions.

@@ -1,0 +1,16 @@
+/work1/dannegrut/harry/experiments/arena_gator_20260925/source/scripts/ci_train.py:335: UserWarning: expandable_segments not supported on this platform (Triggered internally at /pytorch/c10/hip/HIPAllocatorConfig.h:40.)
+  self.X = torch.empty((self.n, 6, 96, 32), dtype=xdt, device='cpu', pin_memory=torch.cuda.is_available()) if a.x_host else torch.empty((self.n, 6, 96, 32), dtype=xdt, device=DEV)
+=== smoke_M1_rigid: files 1 rows used 89145 fit 84787 {'rigid': 84787, 'crm': 0} {'designed': 50372, 'on_policy': 34415} dev 17419 heldout(val) 4358 nctx 5 hist frames 40 visible / 40 consumed / 40 stored split_hash 03726b04 load 15.6s data on gpu 6.12 GB
+  s0 rigid startup[W_unsafe=0.965 P_unsafe=0.969 pick_fail=0.000 brier_unsafe=0.068 n=1120] established[W_unsafe=0.966 P_unsafe=0.968 pick_fail=0.000 brier_unsafe=0.067 n=3238]
+  s0   k0             rigid W_unsafe=0.965 P_unsafe=0.969 pick_fail=0.000 brier_unsafe=0.068 n=1120
+  s0   k40p           rigid W_unsafe=0.966 P_unsafe=0.968 pick_fail=0.000 brier_unsafe=0.067 n=3238
+  s0   src:designed   rigid W_unsafe=0.976 P_unsafe=0.973 pick_fail=0.000 brier_unsafe=0.050 n=2590
+  s0   src:on_policy  rigid W_unsafe=0.930 P_unsafe=0.944 pick_fail=0.036 brier_unsafe=0.092 n=1768
+  s0 loss 1.1451 19.9s (0.0603 s/step, 331 steps) 256161p gpu_peak 7.36 GB (reserved 7.74)
+  s0 roundtrip {'n': 2048, 'max_abs_diff': 0.0, 'unaligned_diff': 4.76837158203125e-07}
+ENSEMBLE smoke_M1_rigid rigid startup[W_unsafe=0.965 P_unsafe=0.969 pick_fail=0.000 brier_unsafe=0.068 n=1120] established[W_unsafe=0.966 P_unsafe=0.968 pick_fail=0.000 brier_unsafe=0.067 n=3238]
+ENSEMBLE smoke_M1_rigid   k0             rigid W_unsafe=0.965 P_unsafe=0.969 pick_fail=0.000 brier_unsafe=0.068 n=1120
+ENSEMBLE smoke_M1_rigid   k40p           rigid W_unsafe=0.966 P_unsafe=0.968 pick_fail=0.000 brier_unsafe=0.067 n=3238
+ENSEMBLE smoke_M1_rigid   src:designed   rigid W_unsafe=0.976 P_unsafe=0.973 pick_fail=0.000 brier_unsafe=0.050 n=2590
+ENSEMBLE smoke_M1_rigid   src:on_policy  rigid W_unsafe=0.930 P_unsafe=0.944 pick_fail=0.036 brier_unsafe=0.092 n=1768
+exit: 0

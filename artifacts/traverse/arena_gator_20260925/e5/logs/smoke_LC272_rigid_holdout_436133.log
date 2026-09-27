@@ -1,0 +1,15 @@
+/work1/dannegrut/harry/experiments/arena_gator_20260925/source/scripts/ci_train.py:335: UserWarning: expandable_segments not supported on this platform (Triggered internally at /pytorch/c10/hip/HIPAllocatorConfig.h:40.)
+  self.X = torch.empty((self.n, 6, 96, 32), dtype=xdt, device='cpu', pin_memory=torch.cuda.is_available()) if a.x_host else torch.empty((self.n, 6, 96, 32), dtype=xdt, device=DEV)
+=== smoke_LC272_rigid_holdout: files 1 rows used 38389 fit 16612 {'rigid': 16612, 'crm': 0} {'designed': 9889, 'on_policy': 6723} dev 17419 heldout(val) 4358 nctx 5 hist frames 40 visible / 40 consumed / 40 stored split_hash 88377438 load 6.3s data on gpu 2.64 GB
+  s0 rigid startup[W_unsafe=0.899 P_unsafe=0.894 pick_fail=0.000 brier_unsafe=0.130 n=1120] established[W_unsafe=0.916 P_unsafe=0.913 pick_fail=0.018 brier_unsafe=0.114 n=3238]
+  s0   k0             rigid W_unsafe=0.899 P_unsafe=0.894 pick_fail=0.000 brier_unsafe=0.130 n=1120
+  s0   k40p           rigid W_unsafe=0.916 P_unsafe=0.913 pick_fail=0.018 brier_unsafe=0.114 n=3238
+  s0   src:designed   rigid W_unsafe=0.896 P_unsafe=0.892 pick_fail=0.000 brier_unsafe=0.103 n=2590
+  s0   src:on_policy  rigid W_unsafe=0.869 P_unsafe=0.874 pick_fail=0.018 brier_unsafe=0.140 n=1768
+  s0 loss 1.6621 20.5s (0.3198 s/step, 64 steps) 256161p gpu_peak 3.88 GB (reserved 4.07)
+ENSEMBLE smoke_LC272_rigid_holdout rigid startup[W_unsafe=0.899 P_unsafe=0.894 pick_fail=0.000 brier_unsafe=0.130 n=1120] established[W_unsafe=0.916 P_unsafe=0.913 pick_fail=0.018 brier_unsafe=0.114 n=3238]
+ENSEMBLE smoke_LC272_rigid_holdout   k0             rigid W_unsafe=0.899 P_unsafe=0.894 pick_fail=0.000 brier_unsafe=0.130 n=1120
+ENSEMBLE smoke_LC272_rigid_holdout   k40p           rigid W_unsafe=0.916 P_unsafe=0.913 pick_fail=0.018 brier_unsafe=0.114 n=3238
+ENSEMBLE smoke_LC272_rigid_holdout   src:designed   rigid W_unsafe=0.896 P_unsafe=0.892 pick_fail=0.000 brier_unsafe=0.103 n=2590
+ENSEMBLE smoke_LC272_rigid_holdout   src:on_policy  rigid W_unsafe=0.869 P_unsafe=0.874 pick_fail=0.018 brier_unsafe=0.140 n=1768
+exit: 0

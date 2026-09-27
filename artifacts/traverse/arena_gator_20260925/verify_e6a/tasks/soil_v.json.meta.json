@@ -1,0 +1,69 @@
+{
+ "tool": "scripts/ag_eval_tasks.py",
+ "tool_sha256": "6fda2fcc21d7bcea4bf6ed61a2c31ff63ec26eb26e3d764de389d8ee2d517742",
+ "created": "2026-09-25 05:58:13",
+ "argv": [
+  "build",
+  "--world",
+  "crm",
+  "--arm",
+  "S6=artifacts/traverse/arena_gator_20260925/e6a/selftest/picks/crm/g258/straight6",
+  "--arm",
+  "S6N=artifacts/traverse/arena_gator_20260925/verify_e6a/picks/g271/straight6",
+  "--arm",
+  "S6G=artifacts/traverse/arena_gator_20260925/verify_e6a/picks/g271/straight6@gator",
+  "--arm",
+  "S6F=artifacts/traverse/arena_gator_20260925/verify_e6a/picks/f104/straight6",
+  "--arm",
+  "S6FG=artifacts/traverse/arena_gator_20260925/verify_e6a/picks/f104/straight6@gator",
+  "--existing",
+  "artifacts/traverse/arena_gator_20260925/e3/tasks/soil_v2.json",
+  "--out",
+  "artifacts/traverse/arena_gator_20260925/verify_e6a/tasks/soil_v.json"
+ ],
+ "world": "crm",
+ "n_rows": 20,
+ "file_sha256": "8b5da15eeb629da5696a859f12d1b2076d493d125936d6e4596b31853dc621f4",
+ "arm_group_pairs": 28,
+ "drives_saved_by_identical_routes": 0,
+ "reused_existing_rows": {
+  "spread_headroom": 8
+ },
+ "existing_files": {
+  "artifacts/traverse/arena_gator_20260925/e3/tasks/soil_v2.json": "acf1e98c3c995c10ee670ea7982f6668f6cdc9aa58a65948d3e9fdc965689978"
+ },
+ "by_arena": {
+  "f104": 10,
+  "g271": 10
+ },
+ "by_vehicle": {
+  "gator": 10,
+  "hmmwv": 10
+ },
+ "by_arm_first": {
+  "S6FG": 5,
+  "S6F": 5,
+  "S6G": 5,
+  "S6N": 5
+ },
+ "arm_coverage_groups": {
+  "S6": 8,
+  "S6N": 5,
+  "S6G": 5,
+  "S6F": 5,
+  "S6FG": 5
+ },
+ "groups_missing_some_arm": 0,
+ "groups_missing_some_arm_examples": {},
+ "groups_by_arena": {
+  "f104": 5,
+  "g258": 8,
+  "g271": 5
+ },
+ "shards": null,
+ "staging": {
+  "files": 20,
+  "list": "artifacts/traverse/arena_gator_20260925/verify_e6a/tasks/soil_v.json.staging.tsv"
+ },
+ "collector_contract": "soil: crm_worker.py with CRM_COLLECTOR = /work1/dannegrut/harry/experiments/arena_gator_20260925/source/scripts/ag_crm_collect.py (frozen dispatcher), CRM_CONFIG = configs/crm_main.json, CRM_OUT = the soil output folder of the superset task file, NEDM_VEHICLE unset"
+}

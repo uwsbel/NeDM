@@ -1,0 +1,244 @@
+{
+ "tool": "scripts/ag_build_ds.py",
+ "argv": [
+  "--world",
+  "rigid",
+  "--rigid-runs",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/rigid_v1/runs",
+  "--arena",
+  "g228",
+  "--vehicle",
+  "hmmwv",
+  "--tasks-rigid",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/tasks/rigid_hmmwv_v1.json",
+  "--map-root",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/map_roots/g228",
+  "--out",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/g228_hmmwv",
+  "--source-root",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/source",
+  "--workers",
+  "16"
+ ],
+ "started": "2026-09-25 06:04:18",
+ "host": "login1.hpcfund",
+ "python": "/work1/dannegrut/harry/venvs/nedm/bin/python",
+ "arena": "g228",
+ "vehicle": "hmmwv",
+ "worlds": [
+  "rigid"
+ ],
+ "map_root": "/work1/dannegrut/harry/experiments/arena_gator_20260925/map_roots/g228",
+ "map_observation_sha256": "28bf7593d730f97f9af5124cb67999df99199ed18ab902c7edd282121f665265",
+ "map_arena_bmp_sha256": "c861bd7a7990e22556520c1a7e5a09d31ba4c204c46d12b1e80f9aa6fe6369f3",
+ "tasks": {
+  "rigid": {
+   "/work1/dannegrut/harry/experiments/arena_gator_20260925/tasks/rigid_hmmwv_v1.json": "168044497dd338de46bb22d769199be6bd9a4e6d1e29be4607640f53b1aa8b82"
+  },
+  "crm": {}
+ },
+ "exclude_ids": {
+  "rigid": [],
+  "crm": []
+ },
+ "n_exclude_ids": {
+  "rigid": 0,
+  "crm": 0
+ },
+ "tiers": null,
+ "tool_sha256": {
+  "f104_n2_dataset.py": "49b2ad940a5876e07fa9d94f70605a9587d0820c5ce8b491aed8de0310ac7007",
+  "n2_reanchor_dataset.py": "80ad79119462d59afd991f39f3a5def0b59ae30d9d8953543833bb25441f0017",
+  "ga_build_mixed.py": "b7abc6d8512e722f62d3872e2332f16df423a8a48afd60d52f9504c80cf2e338",
+  "ag_build_ds.py": "5e2eae03d441988066b291790da8e7cff576d0df7a0da591f5776f02f5bea17f",
+  "ag_map_check.py": "a237c2d9a72fa720f5db66c07ec0ae8d526d797b0fc654a0866b45af147f59a2",
+  "ag_tasklib.py": "1363371ee0621f835a49c094bea93adcdf2f6db2be7c2fbef9401436f5ab98da",
+  "crm_qa.py": "bde62d2d496db0c26929ecc074d8714cf1a3965bddfb2bf5e93247f107490229"
+ },
+ "selection": {
+  "rigid": {
+   "run_folders": [
+    "/work1/dannegrut/harry/experiments/arena_gator_20260925/rigid_v1/runs"
+   ],
+   "counts": {
+    "dirs": 68323,
+    "other_ids": 44323
+   },
+   "candidates": 24000,
+   "require_marker": true,
+   "rejected": {},
+   "rejected_ids": [],
+   "selected": 24000,
+   "groups": 1200,
+   "split_episodes": {
+    "train": 21260,
+    "val": 1200,
+    "test": 1540
+   },
+   "split_groups": {
+    "train": 1063,
+    "val": 60,
+    "test": 77
+   },
+   "tiers": {
+    "0": 1200,
+    "1": 1200,
+    "2": 1200,
+    "3": 1200,
+    "4": 1200,
+    "5": 1200,
+    "6": 1200,
+    "7": 1200,
+    "8": 1200,
+    "9": 1200,
+    "10": 1200,
+    "11": 1200,
+    "12": 1200,
+    "13": 1200,
+    "14": 1200,
+    "15": 1200,
+    "16": 1200,
+    "17": 1200,
+    "18": 1200,
+    "19": 1200
+   },
+   "status": {
+    "goal_reached": 19164,
+    "prolonged_blockage_terminated": 3696,
+    "timeout": 922,
+    "terrain_bounds_exit": 173,
+    "rollover": 45
+   },
+   "kinds": {
+    "on_policy": 9600,
+    "designed": 14400
+   },
+   "vehicle_blocks": {
+    "None": 24000
+   },
+   "map_check": {
+    "map_root": "/work1/dannegrut/harry/experiments/arena_gator_20260925/map_roots/g228",
+    "map_arena": "arena_g228",
+    "map_arena_bmp_sha256": "c861bd7a7990e22556520c1a7e5a09d31ba4c204c46d12b1e80f9aa6fe6369f3",
+    "map_observation_sha256": "28bf7593d730f97f9af5124cb67999df99199ed18ab902c7edd282121f665265",
+    "n_cases": 24000,
+    "ok": true,
+    "problems": [],
+    "arenas": {
+     "assets/traverse/arena_g228": {
+      "n": 24000,
+      "bmp_sha256": "c861bd7a7990e22556520c1a7e5a09d31ba4c204c46d12b1e80f9aa6fe6369f3",
+      "match": true
+     }
+    }
+   }
+  }
+ },
+ "stages": {
+  "rigid": {
+   "station": {
+    "path": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/g228_hmmwv/station_g228_hmmwv_rigid_rigid.npz",
+    "rows": 24000,
+    "secs": 75.9,
+    "sha256": "aa3ca97137cea99c84933df0c8d64430e8f3052d4fee564714e7a4e886e92169"
+   },
+   "reanchor": {
+    "path": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/g228_hmmwv/reanchor_g228_hmmwv_rigid_rigid.npz",
+    "rows": 93113,
+    "episodes": 24000,
+    "secs": 169.7,
+    "sha256": "edf85d6c83f70095993d371397a0605bb6b9748663960937c29236d06e0a735d",
+    "rows_per_episode": 3.88
+   }
+  },
+  "mixed": {
+   "tool": "ag_build_ds.ci_one_world (ga_build_mixed format, one world)",
+   "rows": 93113,
+   "missing_episodes": 0,
+   "raw_found_fraction": 1.0,
+   "elapsed_s": 107.1
+  }
+ },
+ "output": {
+  "path": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/g228_hmmwv/ci_g228_hmmwv_rigid.npz",
+  "size_gb": 1.681,
+  "sha256": "1222024ea6ccbb875416c3558227fb0d319e250dfa7a924817bfb6f21476be1b",
+  "rows": 93113,
+  "rows_by_world": {
+   "rigid": 93113
+  },
+  "episodes_by_world": {
+   "rigid": 24000
+  },
+  "groups_by_split": {
+   "train": 1063,
+   "val": 60,
+   "test": 77
+  },
+  "counts": {
+   "rigid|train|startup": 21260,
+   "rigid|train|established": 61214,
+   "rigid|val|startup": 1200,
+   "rigid|val|established": 3440,
+   "rigid|test|startup": 1540,
+   "rigid|test|established": 4459
+  },
+  "tiers": {
+   "rigid": {
+    "0": 1200,
+    "1": 1200,
+    "2": 1200,
+    "3": 1200,
+    "4": 1200,
+    "5": 1200,
+    "6": 1200,
+    "7": 1200,
+    "8": 1200,
+    "9": 1200,
+    "10": 1200,
+    "11": 1200,
+    "12": 1200,
+    "13": 1200,
+    "14": 1200,
+    "15": 1200,
+    "16": 1200,
+    "17": 1200,
+    "18": 1200,
+    "19": 1200
+   }
+  },
+  "keys": [
+   "E",
+   "T",
+   "X",
+   "anchor_frame",
+   "arena",
+   "ctx",
+   "domain",
+   "episode",
+   "event_idx",
+   "fail",
+   "group",
+   "hist",
+   "hist_cols",
+   "hmask",
+   "id",
+   "priv_names",
+   "privileged",
+   "profile",
+   "rem_m",
+   "route_len",
+   "source",
+   "split",
+   "status",
+   "tier",
+   "time_to_event_s",
+   "unsafe",
+   "vehicle",
+   "vx_anchor"
+  ]
+ },
+ "links_removed": true,
+ "elapsed_s": 432.7,
+ "finished": "2026-09-25 06:11:30"
+}

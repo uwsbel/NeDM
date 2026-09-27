@@ -1,0 +1,12 @@
+
+The following have been reloaded with a version change:
+  1) rocm/7.2.0 => rocm/7.1.0
+
+host=k007-005-v8.hpcfund job=436133 runs=2 omp=12 jobs=/work1/dannegrut/harry/experiments/arena_gator_20260925/e5/jobs/smoke_rigid_f104.tsv sha256=02bfb78aa8f61054
+ci_train.py 7a4f2d67316ea47a  ga_train.py dc73d0bb2ac83521  python /work1/dannegrut/harry/venvs/nedm/bin/python3.12
+torch 2.10.0+rocm7.1 device AMD Instinct MI350X
+start smoke_M1_rigid -> /work1/dannegrut/harry/experiments/arena_gator_20260925/e5/train/smoke : --ds /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/subsets/M1_f104_hmmwv_rigid.npz --mode deploy --arch gru --cond none --domain-filter rigid --ctx geom --split-eval val --bs 256 --epochs 1 --seeds 1 --seed0 0 --roundtrip-check
+start smoke_LC272_rigid_holdout -> /work1/dannegrut/harry/experiments/arena_gator_20260925/e5/train/smoke : --ds /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/subsets/LC272_f104_hmmwv_rigid.npz --mode holdout --arch gru --cond none --domain-filter rigid --ctx geom --split-eval val --bs 256 --epochs 1 --seeds 1 --seed0 0
+smoke_M1_rigid exit: 0
+smoke_LC272_rigid_holdout exit: 0
+all done rc=0

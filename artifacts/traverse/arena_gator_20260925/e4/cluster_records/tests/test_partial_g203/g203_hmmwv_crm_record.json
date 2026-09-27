@@ -1,0 +1,232 @@
+{
+ "tool": "scripts/ag_build_ds.py",
+ "argv": [
+  "--arena",
+  "g203",
+  "--vehicle",
+  "hmmwv",
+  "--world",
+  "crm",
+  "--crm-runs",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/soil_v1/runs",
+  "--tasks",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/tasks/soil_v1.json",
+  "--map-root",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/map_roots/g203",
+  "--source-root",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/source",
+  "--out",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/test_partial_g203",
+  "--workers",
+  "8"
+ ],
+ "started": "2026-09-25 02:52:59",
+ "host": "login1.hpcfund",
+ "python": "/work1/dannegrut/harry/venvs/nedm/bin/python",
+ "arena": "g203",
+ "vehicle": "hmmwv",
+ "worlds": [
+  "crm"
+ ],
+ "map_root": "/work1/dannegrut/harry/experiments/arena_gator_20260925/map_roots/g203",
+ "map_observation_sha256": "f799f9f6e99ce9bdffb63196e00097ae04418959c288af144185385401d7bcbf",
+ "map_arena_bmp_sha256": "46b4fb2c6d6c5dbaf49bdf320d4e5bd62cf257dff43fff4b3d3e990a92735231",
+ "tasks": {
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/tasks/soil_v1.json": "db0ba97f4b763ae632fa98653c9c9bc7db45dfa5f45583ce9446f32857d6e7b9"
+ },
+ "exclude_ids": {
+  "rigid": [],
+  "crm": []
+ },
+ "n_exclude_ids": {
+  "rigid": 0,
+  "crm": 0
+ },
+ "tiers": null,
+ "tool_sha256": {
+  "f104_n2_dataset.py": "49b2ad940a5876e07fa9d94f70605a9587d0820c5ce8b491aed8de0310ac7007",
+  "n2_reanchor_dataset.py": "80ad79119462d59afd991f39f3a5def0b59ae30d9d8953543833bb25441f0017",
+  "ga_build_mixed.py": "b7abc6d8512e722f62d3872e2332f16df423a8a48afd60d52f9504c80cf2e338",
+  "ag_build_ds.py": "6a4da5a8900e797590c773a039c3681eb519a26073086c04093bdf8a6a02ad55",
+  "ag_map_check.py": "a237c2d9a72fa720f5db66c07ec0ae8d526d797b0fc654a0866b45af147f59a2",
+  "ag_tasklib.py": "1363371ee0621f835a49c094bea93adcdf2f6db2be7c2fbef9401436f5ab98da",
+  "crm_qa.py": "bde62d2d496db0c26929ecc074d8714cf1a3965bddfb2bf5e93247f107490229"
+ },
+ "selection": {
+  "crm": {
+   "run_folders": [
+    "/work1/dannegrut/harry/experiments/arena_gator_20260925/soil_v1/runs"
+   ],
+   "counts": {
+    "dirs": 911,
+    "other_ids": 606
+   },
+   "candidates": 305,
+   "require_marker": true,
+   "rejected": {
+    "missing_files:trajectory.npz,outcome.json,command_reference.npz,crm_extra.npz": 7
+   },
+   "rejected_ids": [
+    [
+     "g203_v2_group_0009_op_00",
+     "missing_files:trajectory.npz,outcome.json,command_reference.npz,crm_extra.npz"
+    ],
+    [
+     "g203_v2_group_0046_op_05",
+     "missing_files:trajectory.npz,outcome.json,command_reference.npz,crm_extra.npz"
+    ],
+    [
+     "g203_v2_group_0111_route_01",
+     "missing_files:trajectory.npz,outcome.json,command_reference.npz,crm_extra.npz"
+    ],
+    [
+     "g203_v2_group_0132_op_06",
+     "missing_files:trajectory.npz,outcome.json,command_reference.npz,crm_extra.npz"
+    ],
+    [
+     "g203_v2_group_0148_op_01",
+     "missing_files:trajectory.npz,outcome.json,command_reference.npz,crm_extra.npz"
+    ],
+    [
+     "g203_v2_group_0221_op_01",
+     "missing_files:trajectory.npz,outcome.json,command_reference.npz,crm_extra.npz"
+    ],
+    [
+     "g203_v2_group_0571_op_00",
+     "missing_files:trajectory.npz,outcome.json,command_reference.npz,crm_extra.npz"
+    ]
+   ],
+   "selected": 298,
+   "groups": 298,
+   "split_episodes": {
+    "train": 271,
+    "test": 13,
+    "val": 14
+   },
+   "split_groups": {
+    "train": 271,
+    "val": 14,
+    "test": 13
+   },
+   "tiers": {
+    "0": 298
+   },
+   "status": {
+    "soil_breakthrough_terminated": 188,
+    "goal_reached": 72,
+    "prolonged_blockage_terminated": 38
+   },
+   "kinds": {
+    "designed": 185,
+    "on_policy": 113
+   },
+   "vehicle_blocks": {
+    "None": 298
+   },
+   "map_check": {
+    "map_root": "/work1/dannegrut/harry/experiments/arena_gator_20260925/map_roots/g203",
+    "map_arena": "arena_g203",
+    "map_arena_bmp_sha256": "46b4fb2c6d6c5dbaf49bdf320d4e5bd62cf257dff43fff4b3d3e990a92735231",
+    "map_observation_sha256": "f799f9f6e99ce9bdffb63196e00097ae04418959c288af144185385401d7bcbf",
+    "n_cases": 298,
+    "ok": true,
+    "problems": [],
+    "arenas": {
+     "assets/traverse/arena_g203": {
+      "n": 298,
+      "bmp_sha256": "46b4fb2c6d6c5dbaf49bdf320d4e5bd62cf257dff43fff4b3d3e990a92735231",
+      "match": true
+     }
+    }
+   }
+  }
+ },
+ "stages": {
+  "crm": {
+   "station": {
+    "path": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/test_partial_g203/station_g203_hmmwv_crm_crm.npz",
+    "rows": 298,
+    "secs": 0.9,
+    "sha256": "70a2ffa51460ac7c98279ca9653fa9df90e6b766257b57b7d153b630475e1133"
+   },
+   "reanchor": {
+    "path": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/test_partial_g203/reanchor_g203_hmmwv_crm_crm.npz",
+    "rows": 1115,
+    "episodes": 298,
+    "secs": 2.3,
+    "sha256": "8476a4fe9b5727aa4bb612821741398e986c62b240cf780a4487402903627893",
+    "rows_per_episode": 3.742
+   }
+  },
+  "mixed": {
+   "tool": "ag_build_ds.ci_one_world (ga_build_mixed format, one world)",
+   "rows": 1115,
+   "missing_episodes": 0,
+   "raw_found_fraction": 1.0,
+   "elapsed_s": 1.3
+  }
+ },
+ "output": {
+  "path": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/test_partial_g203/ci_g203_hmmwv_crm.npz",
+  "size_gb": 0.02,
+  "sha256": "ee8d3680aeae19f1d269d9b449608a5b784536117cb947b955a9003af98de6ee",
+  "rows": 1115,
+  "rows_by_world": {
+   "crm": 1115
+  },
+  "episodes_by_world": {
+   "crm": 298
+  },
+  "groups_by_split": {
+   "train": 271,
+   "val": 14,
+   "test": 13
+  },
+  "counts": {
+   "crm|train|startup": 271,
+   "crm|train|established": 741,
+   "crm|val|startup": 14,
+   "crm|val|established": 41,
+   "crm|test|startup": 13,
+   "crm|test|established": 35
+  },
+  "tiers": {
+   "crm": {
+    "0": 298
+   }
+  },
+  "keys": [
+   "E",
+   "T",
+   "X",
+   "anchor_frame",
+   "arena",
+   "ctx",
+   "domain",
+   "episode",
+   "event_idx",
+   "fail",
+   "group",
+   "hist",
+   "hist_cols",
+   "hmask",
+   "id",
+   "priv_names",
+   "privileged",
+   "profile",
+   "rem_m",
+   "route_len",
+   "source",
+   "split",
+   "status",
+   "tier",
+   "time_to_event_s",
+   "unsafe",
+   "vehicle",
+   "vx_anchor"
+  ]
+ },
+ "links_removed": true,
+ "elapsed_s": 5.7,
+ "finished": "2026-09-25 02:53:05"
+}

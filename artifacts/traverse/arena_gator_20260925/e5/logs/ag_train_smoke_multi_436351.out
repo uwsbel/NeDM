@@ -1,0 +1,14 @@
+
+The following have been reloaded with a version change:
+  1) rocm/7.2.0 => rocm/7.1.0
+
+host=k004-002.hpcfund job=436351 runs=2 lanes=2 ngpu=8 omp=16 jobs=/work1/dannegrut/harry/experiments/arena_gator_20260925/e5/jobs/smoke_multi_mi250.tsv sha256=63abcd006e617b4f
+ci_train.py 7a4f2d67316ea47a  ga_train.py dc73d0bb2ac83521  python /work1/dannegrut/harry/venvs/nedm/bin/python3.12
+torch 2.10.0+rocm7.1 devices 8 AMD Instinct MI250X/MI250
+11:03:37 lane 2 start smoke_multi_LOAO1_g203_rigid_holdout on GPU 1 -> /work1/dannegrut/harry/experiments/arena_gator_20260925/e5/train/smoke_multi : --ds /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/subsets/LOAO1_g203_hmmwv_rigid.npz --mode holdout --arch gru --cond none --domain-filter rigid --ctx geom --split-eval val --bs 256 --epochs 1 --seeds 1 --seed0 0
+11:03:37 lane 1 start smoke_multi_M1_rigid on GPU 0 -> /work1/dannegrut/harry/experiments/arena_gator_20260925/e5/train/smoke_multi : --ds /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/subsets/M1_f104_hmmwv_rigid.npz --mode deploy --arch gru --cond none --domain-filter rigid --ctx geom --split-eval val --bs 256 --epochs 1 --seeds 1 --seed0 0 --roundtrip-check
+11:04:31 lane 2 end smoke_multi_LOAO1_g203_rigid_holdout exit: 0
+11:04:42 lane 1 end smoke_multi_M1_rigid exit: 0
+smoke_multi_M1_rigid exit: 0
+smoke_multi_LOAO1_g203_rigid_holdout exit: 0
+all done rc=0

@@ -1,0 +1,10 @@
+$ /work1/dannegrut/harry/venvs/nedm/bin/python -u /work1/dannegrut/harry/experiments/arena_gator_20260925/tools/s1/scripts/f104_n2_dataset.py --root /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/map_roots/f104 --runs /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/f104_gator/work/links_f104_gator_crm_crm/*_route_*:designed /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/f104_gator/work/links_f104_gator_crm_crm/*_op_*:on_policy --out /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/f104_gator/station_f104_gator_crm_crm.npz --workers 16
+5080 runs from /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/f104_gator/work/links_f104_gator_crm_crm/*_route_* as designed
+3319 runs from /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/f104_gator/work/links_f104_gator_crm_crm/*_op_* as on_policy
+  2000/8399
+  4000/8399
+  6000/8399
+  8000/8399
+labelled 8399/8399
+wrote /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/f104_gator/station_f104_gator_crm_crm.npz 260 MB
+unsafe rate 0.879   fail rate 0.879

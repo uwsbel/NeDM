@@ -1,0 +1,17 @@
+{
+ "g203_soil|crm": {
+  "sampled": 25,
+  "identical": 25,
+  "bad": []
+ },
+ "gator_pilot|rigid": {
+  "sampled": 25,
+  "identical": 25,
+  "bad": []
+ },
+ "gator_pilot|crm": {
+  "sampled": 25,
+  "identical": 25,
+  "bad": []
+ }
+}

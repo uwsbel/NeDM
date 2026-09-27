@@ -1,0 +1,56 @@
+{
+ "tool": "scripts/ag_subset.py",
+ "tool_sha256": "3891a0064511666a19d63ff360c9e2b0f56f59d35e14337d1ca634870c590f39",
+ "argv": [
+  "--world",
+  "crm",
+  "--tiers",
+  "0-6",
+  "--eval-rows",
+  "filtered",
+  "--groups",
+  "f104=all",
+  "--ds",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/f104_gator/ci_f104_gator_crm.npz",
+  "--ids-file",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/e5/ids/gator_soil_validated_t0-6.txt",
+  "--out",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/subsets/G_f104_gator_soil.npz"
+ ],
+ "preset": null,
+ "world": "crm",
+ "vehicle": "gator",
+ "rule": "md5(group id) hex ascending within each arena, first N of the available training groups",
+ "tiers": "0-6",
+ "ids_file": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e5/ids/gator_soil_validated_t0-6.txt",
+ "ids_file_sha256": "ed248f525175618de3c5c06734dcecd8cafded87f1ca01aba407c43d5e7ee3f8",
+ "n_ids": 8399,
+ "ids_apply": "all",
+ "eval_rows": "filtered",
+ "keep_dev_fold": false,
+ "use": "deploy or holdout",
+ "per_arena": {
+  "f104": {
+   "requested": "all",
+   "available": 1089,
+   "selected": 1089,
+   "md5_last": "ff6c1c94283ff2f53fdbe88bfb694dc2",
+   "dev_fold_groups_kept": 0,
+   "train_groups_in_file": 1089,
+   "train_rows": 28057,
+   "train_rows_startup": 7622,
+   "train_episodes": 7622,
+   "val_groups": 56,
+   "val_rows": 1430,
+   "test_groups": 55,
+   "test_rows": 1340,
+   "fit_rows_holdout": 22284,
+   "fit_groups_holdout": 865
+  }
+ },
+ "rows": 30827,
+ "fit_rows_deploy": 28057,
+ "fit_rows_holdout": 22284,
+ "eval_rows_val": 1430
+}
+wrote /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/subsets/G_f104_gator_soil.npz (30827 rows, 0.557 GB) in 42.3 s

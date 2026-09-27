@@ -1,0 +1,27 @@
+{
+ "Gfull_free_gator": {
+  "n": 800,
+  "flagged": 12,
+  "share_pct": 1.5
+ },
+ "Hfull_free_gator": {
+  "n": 800,
+  "flagged": 20,
+  "share_pct": 2.5
+ },
+ "G_free_gator": {
+  "n": 800,
+  "flagged": 17,
+  "share_pct": 2.125
+ },
+ "H_free_gator": {
+  "n": 800,
+  "flagged": 25,
+  "share_pct": 3.125
+ },
+ "straight6_gator": {
+  "n": 800,
+  "flagged": 92,
+  "share_pct": 11.5
+ }
+}

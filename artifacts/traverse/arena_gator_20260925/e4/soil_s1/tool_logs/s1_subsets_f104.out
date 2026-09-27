@@ -1,0 +1,10 @@
+11:07:27 start LC545_soil: ag_subset.py --world crm --tiers 0-6 --eval-rows filtered --preset LC545 --ds /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/f104_hmmwv/ci_f104_hmmwv_both.npz --out /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/subsets/LC545_f104_hmmwv_soil.npz
+11:07:27 start EV_f104_soil: ag_subset.py --world crm --tiers 0-6 --eval-rows filtered --groups f104=0 --keep-dev-fold --ds /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/f104_hmmwv/ci_f104_hmmwv_both.npz --out /work1/dannegrut/harry/experiments/arena_gator_20260925/e5/eval_soil/EV_f104_hmmwv_crm.npz
+11:07:27 start LC272_soil: ag_subset.py --world crm --tiers 0-6 --eval-rows filtered --preset LC272 --ds /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/f104_hmmwv/ci_f104_hmmwv_both.npz --out /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/subsets/LC272_f104_hmmwv_soil.npz
+11:07:27 start M1_soil: ag_subset.py --world crm --tiers 0-6 --eval-rows filtered --preset M1 --ds /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/f104_hmmwv/ci_f104_hmmwv_both.npz --out /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/subsets/M1_f104_hmmwv_soil.npz
+11:08:42 end EV_f104_soil exit: 0 (wrote /work1/dannegrut/harry/experiments/arena_gator_20260925/e5/eval_soil/EV_f104_hmmwv_crm.npz (8947 rows, 0.162 GB) in 74.9 s)
+11:08:47 end LC272_soil exit: 0 (wrote /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/subsets/LC272_f104_hmmwv_soil.npz (14673 rows, 0.266 GB) in 79.5 s)
+11:08:52 end LC545_soil exit: 0 (wrote /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/subsets/LC545_f104_hmmwv_soil.npz (20544 rows, 0.373 GB) in 84.2 s)
+11:09:03 end M1_soil exit: 0 (wrote /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/subsets/M1_f104_hmmwv_soil.npz (32152 rows, 0.583 GB) in 95.6 s)
+scripts/ag_s1_subsets.sh: line 64: syntax error near unexpected token `&'
+scripts/ag_s1_subsets.sh: line 64: `&'

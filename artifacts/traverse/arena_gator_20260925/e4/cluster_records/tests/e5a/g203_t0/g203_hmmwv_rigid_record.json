@@ -1,0 +1,249 @@
+{
+ "tool": "scripts/ag_build_ds.py",
+ "argv": [
+  "--arena",
+  "g203",
+  "--vehicle",
+  "hmmwv",
+  "--world",
+  "rigid",
+  "--rigid-runs",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/rigid_v1/runs",
+  "--tasks-rigid",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/tasks/rigid_hmmwv_v1.json",
+  "--tiers",
+  "0-0",
+  "--map-root",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/map_roots/g203",
+  "--source-root",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/source",
+  "--out",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/tests/e5a/g203_t0",
+  "--workers",
+  "16"
+ ],
+ "started": "2026-09-25 05:20:45",
+ "host": "login1.hpcfund",
+ "python": "/work1/dannegrut/harry/venvs/nedm/bin/python",
+ "arena": "g203",
+ "vehicle": "hmmwv",
+ "worlds": [
+  "rigid"
+ ],
+ "map_root": "/work1/dannegrut/harry/experiments/arena_gator_20260925/map_roots/g203",
+ "map_observation_sha256": "f799f9f6e99ce9bdffb63196e00097ae04418959c288af144185385401d7bcbf",
+ "map_arena_bmp_sha256": "46b4fb2c6d6c5dbaf49bdf320d4e5bd62cf257dff43fff4b3d3e990a92735231",
+ "tasks": {
+  "rigid": {
+   "/work1/dannegrut/harry/experiments/arena_gator_20260925/tasks/rigid_hmmwv_v1.json": "168044497dd338de46bb22d769199be6bd9a4e6d1e29be4607640f53b1aa8b82"
+  },
+  "crm": {}
+ },
+ "exclude_ids": {
+  "rigid": [],
+  "crm": []
+ },
+ "n_exclude_ids": {
+  "rigid": 0,
+  "crm": 0
+ },
+ "tiers": "0-0",
+ "tool_sha256": {
+  "f104_n2_dataset.py": "49b2ad940a5876e07fa9d94f70605a9587d0820c5ce8b491aed8de0310ac7007",
+  "n2_reanchor_dataset.py": "80ad79119462d59afd991f39f3a5def0b59ae30d9d8953543833bb25441f0017",
+  "ga_build_mixed.py": "b7abc6d8512e722f62d3872e2332f16df423a8a48afd60d52f9504c80cf2e338",
+  "ag_build_ds.py": "5e2eae03d441988066b291790da8e7cff576d0df7a0da591f5776f02f5bea17f",
+  "ag_map_check.py": "a237c2d9a72fa720f5db66c07ec0ae8d526d797b0fc654a0866b45af147f59a2",
+  "ag_tasklib.py": "1363371ee0621f835a49c094bea93adcdf2f6db2be7c2fbef9401436f5ab98da",
+  "crm_qa.py": "bde62d2d496db0c26929ecc074d8714cf1a3965bddfb2bf5e93247f107490229"
+ },
+ "selection": {
+  "rigid": {
+   "run_folders": [
+    "/work1/dannegrut/harry/experiments/arena_gator_20260925/rigid_v1/runs"
+   ],
+   "counts": {
+    "dirs": 43846,
+    "other_ids": 20137,
+    "outside_tiers": 22523
+   },
+   "candidates": 1186,
+   "require_marker": true,
+   "rejected": {
+    "missing_files:trajectory.npz,outcome.json,command_reference.npz": 8,
+    "missing_files:trajectory.npz,outcome.json,command_reference.npz,anchor_state.npz": 1
+   },
+   "rejected_ids": [
+    [
+     "g203_v2_group_0954_op_06",
+     "missing_files:trajectory.npz,outcome.json,command_reference.npz"
+    ],
+    [
+     "g203_v2_group_0965_op_01",
+     "missing_files:trajectory.npz,outcome.json,command_reference.npz"
+    ],
+    [
+     "g203_v2_group_0969_op_00",
+     "missing_files:trajectory.npz,outcome.json,command_reference.npz"
+    ],
+    [
+     "g203_v2_group_0983_route_00",
+     "missing_files:trajectory.npz,outcome.json,command_reference.npz"
+    ],
+    [
+     "g203_v2_group_1026_op_02",
+     "missing_files:trajectory.npz,outcome.json,command_reference.npz"
+    ],
+    [
+     "g203_v2_group_1034_route_08",
+     "missing_files:trajectory.npz,outcome.json,command_reference.npz"
+    ],
+    [
+     "g203_v2_group_1044_route_04",
+     "missing_files:trajectory.npz,outcome.json,command_reference.npz"
+    ],
+    [
+     "g203_v2_group_1049_route_09",
+     "missing_files:trajectory.npz,outcome.json,command_reference.npz"
+    ],
+    [
+     "g203_v2_group_1057_op_01",
+     "missing_files:trajectory.npz,outcome.json,command_reference.npz,anchor_state.npz"
+    ]
+   ],
+   "selected": 1177,
+   "groups": 1177,
+   "split_episodes": {
+    "train": 1061,
+    "test": 68,
+    "val": 48
+   },
+   "split_groups": {
+    "train": 1061,
+    "val": 48,
+    "test": 68
+   },
+   "tiers": {
+    "0": 1177
+   },
+   "status": {
+    "goal_reached": 895,
+    "prolonged_blockage_terminated": 229,
+    "terrain_bounds_exit": 12,
+    "timeout": 38,
+    "rollover": 3
+   },
+   "kinds": {
+    "on_policy": 499,
+    "designed": 678
+   },
+   "vehicle_blocks": {
+    "None": 1177
+   },
+   "map_check": {
+    "map_root": "/work1/dannegrut/harry/experiments/arena_gator_20260925/map_roots/g203",
+    "map_arena": "arena_g203",
+    "map_arena_bmp_sha256": "46b4fb2c6d6c5dbaf49bdf320d4e5bd62cf257dff43fff4b3d3e990a92735231",
+    "map_observation_sha256": "f799f9f6e99ce9bdffb63196e00097ae04418959c288af144185385401d7bcbf",
+    "n_cases": 1177,
+    "ok": true,
+    "problems": [],
+    "arenas": {
+     "assets/traverse/arena_g203": {
+      "n": 1177,
+      "bmp_sha256": "46b4fb2c6d6c5dbaf49bdf320d4e5bd62cf257dff43fff4b3d3e990a92735231",
+      "match": true
+     }
+    }
+   }
+  }
+ },
+ "stages": {
+  "rigid": {
+   "station": {
+    "path": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/tests/e5a/g203_t0/station_g203_hmmwv_rigid_rigid.npz",
+    "rows": 1177,
+    "secs": 4.0,
+    "sha256": "567bc732a6c2930156d910b3660a2f7521dea46d6cf66a9d46336191e9dffa9b"
+   },
+   "reanchor": {
+    "path": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/tests/e5a/g203_t0/reanchor_g203_hmmwv_rigid_rigid.npz",
+    "rows": 4528,
+    "episodes": 1177,
+    "secs": 9.0,
+    "sha256": "11fb5d28b23e08abb4dc9cf2eb8e5cb7834761709aa1319bef3bcc615993ef62",
+    "rows_per_episode": 3.847
+   }
+  },
+  "mixed": {
+   "tool": "ag_build_ds.ci_one_world (ga_build_mixed format, one world)",
+   "rows": 4528,
+   "missing_episodes": 0,
+   "raw_found_fraction": 1.0,
+   "elapsed_s": 5.3
+  }
+ },
+ "output": {
+  "path": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/tests/e5a/g203_t0/ci_g203_hmmwv_rigid.npz",
+  "size_gb": 0.083,
+  "sha256": "933fd4d8430bbb38e8b47e1f00b74a09e2bb4dc34953eb1308b0ef43eaa13d4e",
+  "rows": 4528,
+  "rows_by_world": {
+   "rigid": 4528
+  },
+  "episodes_by_world": {
+   "rigid": 1177
+  },
+  "groups_by_split": {
+   "train": 1061,
+   "val": 48,
+   "test": 68
+  },
+  "counts": {
+   "rigid|train|startup": 1061,
+   "rigid|train|established": 3015,
+   "rigid|val|startup": 48,
+   "rigid|val|established": 141,
+   "rigid|test|startup": 68,
+   "rigid|test|established": 195
+  },
+  "tiers": {
+   "rigid": {
+    "0": 1177
+   }
+  },
+  "keys": [
+   "E",
+   "T",
+   "X",
+   "anchor_frame",
+   "arena",
+   "ctx",
+   "domain",
+   "episode",
+   "event_idx",
+   "fail",
+   "group",
+   "hist",
+   "hist_cols",
+   "hmask",
+   "id",
+   "priv_names",
+   "privileged",
+   "profile",
+   "rem_m",
+   "route_len",
+   "source",
+   "split",
+   "status",
+   "tier",
+   "time_to_event_s",
+   "unsafe",
+   "vehicle",
+   "vx_anchor"
+  ]
+ },
+ "links_removed": true,
+ "elapsed_s": 22.6,
+ "finished": "2026-09-25 05:21:08"
+}

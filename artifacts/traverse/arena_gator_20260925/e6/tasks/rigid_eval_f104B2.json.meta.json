@@ -1,0 +1,78 @@
+{
+ "tool": "scripts/ag_eval_tasks.py",
+ "tool_sha256": "6fda2fcc21d7bcea4bf6ed61a2c31ff63ec26eb26e3d764de389d8ee2d517742",
+ "created": "2026-09-25 14:15:10",
+ "argv": [
+  "build",
+  "--world",
+  "rigid",
+  "--arm",
+  "G_fx2_gator=artifacts/traverse/arena_gator_20260925/e6/picks/rigid_B2/f104/G_fixed2@gator",
+  "--arm",
+  "H_fx2_gator=artifacts/traverse/arena_gator_20260925/e6/picks/rigid_B2/f104/M1a_fixed2@gator",
+  "--arm",
+  "straight2_gator=artifacts/traverse/arena_gator_20260925/e6/picks/rigid_B2/f104/straight2@gator",
+  "--existing",
+  "artifacts/traverse/arena_gator_20260925/e3/tasks/rigid_v2.json",
+  "artifacts/traverse/arena_gator_20260925/e6/tasks/rigid_eval_dev.json",
+  "artifacts/traverse/arena_gator_20260925/e6/tasks/rigid_eval_f104.json",
+  "artifacts/traverse/arena_gator_20260925/e6/tasks/rigid_eval_heldout.json",
+  "artifacts/traverse/arena_gator_20260925/e6/tasks/rigid_eval_unseen.json",
+  "--out",
+  "artifacts/traverse/arena_gator_20260925/e6/tasks/rigid_eval_f104B2.json",
+  "--shard-base",
+  "6000"
+ ],
+ "world": "rigid",
+ "n_rows": 2399,
+ "file_sha256": "b58cbf2c2a9245b163aac58b689afce8f3fe1d04f542a2c674c1b644f621b8b6",
+ "arm_group_pairs": 2400,
+ "drives_saved_by_identical_routes": 1,
+ "reused_existing_rows": {},
+ "existing_files": {
+  "artifacts/traverse/arena_gator_20260925/e3/tasks/rigid_v2.json": "ace9eb9910d919d8823cda061007253ee7f87ae8c30b878fb97e27021a91fe2d",
+  "artifacts/traverse/arena_gator_20260925/e6/tasks/rigid_eval_dev.json": "897f9cf9d795fba06318b9c0722d83cbb276c667950422379a6a284e9915d017",
+  "artifacts/traverse/arena_gator_20260925/e6/tasks/rigid_eval_f104.json": "15b88c198250f5d209e5d9bf61947aa9e2e52b5487b5d1a4e939632a407459dd",
+  "artifacts/traverse/arena_gator_20260925/e6/tasks/rigid_eval_heldout.json": "44f5b9415d53a757d48e80cb293a4d53e350d1982b066e4fbd624244fc5cdbc1",
+  "artifacts/traverse/arena_gator_20260925/e6/tasks/rigid_eval_unseen.json": "f1e95f71e3626b74f95afd712213f1933dfc653ad1c27dd8c67ba614bf1a1ca1"
+ },
+ "by_arena": {
+  "f104": 2399
+ },
+ "by_vehicle": {
+  "gator": 2399
+ },
+ "by_arm_first": {
+  "G_fx2_gator": 800,
+  "H_fx2_gator": 800,
+  "straight2_gator": 799
+ },
+ "arm_coverage_groups": {
+  "G_fx2_gator": 800,
+  "H_fx2_gator": 800,
+  "straight2_gator": 800
+ },
+ "groups_missing_some_arm": 0,
+ "groups_missing_some_arm_examples": {},
+ "groups_by_arena": {
+  "f104": 800
+ },
+ "shards": {
+  "base": 6000,
+  "groups_per_shard": 8,
+  "n": 100,
+  "range": [
+   6000,
+   6099
+  ],
+  "rows_per_shard": {
+   "24": 99,
+   "23": 1
+  }
+ },
+ "staging": {
+  "files": 3199,
+  "list": "artifacts/traverse/arena_gator_20260925/e6/tasks/rigid_eval_f104B2.json.staging.tsv"
+ },
+ "collector_contract": "rigid: gen_runner_g.py-style runner (every row of a shard in one array task / pool step), GEN_COLLECTOR = /work1/dannegrut/harry/experiments/arena_gator_20260925/r2/source/scripts/ag_gen_collect_ext.py (the r2 tree lists all 14 arenas; G3/source lists only 10), FDM_RUNTIME_FINGERPRINT = the f104 HMMWV fingerprint in the environment (Gator rows override it with their --runtime-fingerprint), NEDM_VEHICLE unset, paths absolute"
+}

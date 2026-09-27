@@ -1,0 +1,1453 @@
+{
+ "per_arena_files": {
+  "f104": {
+   "rows_soil": 58268,
+   "rows_other_world": 93397,
+   "tiers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "vehicles": [
+    "hmmwv"
+   ],
+   "arenas": [
+    "f104"
+   ],
+   "episodes": 15235,
+   "rows_tier0_6": 32152,
+   "episodes_tier0_6": 8399,
+   "groups_tier0_6": 1200,
+   "split_groups_tier0_6": {
+    "train": 1089,
+    "val": 56,
+    "test": 55
+   },
+   "episodes_per_tier_0_6": {
+    "0": 1199,
+    "1": 1200,
+    "2": 1200,
+    "3": 1200,
+    "4": 1200,
+    "5": 1200,
+    "6": 1200
+   },
+   "standing_start_rows_tier0_6": 8399
+  },
+  "g203": {
+   "rows_soil": 15987,
+   "rows_other_world": 0,
+   "tiers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "vehicles": [
+    "hmmwv"
+   ],
+   "arenas": [
+    "g203"
+   ],
+   "episodes": 4240,
+   "rows_tier0_6": 15987,
+   "episodes_tier0_6": 4240,
+   "groups_tier0_6": 606,
+   "split_groups_tier0_6": {
+    "train": 559,
+    "val": 24,
+    "test": 23
+   },
+   "episodes_per_tier_0_6": {
+    "0": 605,
+    "1": 606,
+    "2": 606,
+    "3": 606,
+    "4": 606,
+    "5": 606,
+    "6": 605
+   },
+   "standing_start_rows_tier0_6": 4240
+  },
+  "g228": {
+   "rows_soil": 16261,
+   "rows_other_world": 0,
+   "tiers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "vehicles": [
+    "hmmwv"
+   ],
+   "arenas": [
+    "g228"
+   ],
+   "episodes": 4242,
+   "rows_tier0_6": 16261,
+   "episodes_tier0_6": 4242,
+   "groups_tier0_6": 606,
+   "split_groups_tier0_6": {
+    "train": 520,
+    "val": 38,
+    "test": 48
+   },
+   "episodes_per_tier_0_6": {
+    "0": 606,
+    "1": 606,
+    "2": 606,
+    "3": 606,
+    "4": 606,
+    "5": 606,
+    "6": 606
+   },
+   "standing_start_rows_tier0_6": 4242
+  },
+  "gator": {
+   "rows_soil": 30827,
+   "rows_other_world": 0,
+   "tiers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "vehicles": [
+    "gator"
+   ],
+   "arenas": [
+    "f104"
+   ],
+   "episodes": 8399,
+   "rows_tier0_6": 30827,
+   "episodes_tier0_6": 8399,
+   "groups_tier0_6": 1200,
+   "split_groups_tier0_6": {
+    "train": 1089,
+    "val": 56,
+    "test": 55
+   },
+   "episodes_per_tier_0_6": {
+    "0": 1199,
+    "1": 1200,
+    "2": 1200,
+    "3": 1200,
+    "4": 1200,
+    "5": 1200,
+    "6": 1200
+   },
+   "standing_start_rows_tier0_6": 8399
+  }
+ },
+ "coverage": {
+  "g203": {
+   "task_rows_tier0_6": 4242,
+   "file_episodes": 4240,
+   "missing_from_file": [
+    "g203_v2_group_0241_route_03",
+    "g203_v2_group_0308_route_07"
+   ],
+   "not_in_task_rows": [],
+   "n_not_in_task_rows": 0,
+   "tier_mismatch": 0,
+   "task_groups": 606,
+   "task_rows_per_tier": {
+    "0": 606,
+    "1": 606,
+    "2": 606,
+    "3": 606,
+    "4": 606,
+    "5": 606,
+    "6": 606
+   }
+  },
+  "g228": {
+   "task_rows_tier0_6": 4242,
+   "file_episodes": 4242,
+   "missing_from_file": [],
+   "not_in_task_rows": [],
+   "n_not_in_task_rows": 0,
+   "tier_mismatch": 0,
+   "task_groups": 606,
+   "task_rows_per_tier": {
+    "0": 606,
+    "1": 606,
+    "2": 606,
+    "3": 606,
+    "4": 606,
+    "5": 606,
+    "6": 606
+   }
+  },
+  "gator": {
+   "task_rows_tier0_6": 8399,
+   "file_episodes": 8399,
+   "missing_from_file": [],
+   "not_in_task_rows": [],
+   "n_not_in_task_rows": 0,
+   "tier_mismatch": 0,
+   "task_groups": 1200,
+   "task_rows_per_tier": {
+    "0": 1199,
+    "1": 1200,
+    "2": 1200,
+    "3": 1200,
+    "4": 1200,
+    "5": 1200,
+    "6": 1200
+   }
+  },
+  "gator_vs_f104_twins": {
+   "gator_task_rows": 15235,
+   "twin_tier_mismatch": 0,
+   "gator_rows_without_f104_twin": 0,
+   "f104_episodes_tier0_6": 8399,
+   "gator_task_ids_tier0_6": 8399,
+   "same_set": true,
+   "f104_groups": 1200,
+   "f104_groups_with_fewer_than_7_in_tier0_6": [
+    "f104_v2_group_0211"
+   ]
+  }
+ },
+ "designs": {
+  "M1_f104_hmmwv_soil": {
+   "rows": 32152,
+   "rows_expected": 32152,
+   "same_id_set": true,
+   "same_order": true,
+   "ids_unique": true,
+   "domains": [
+    1
+   ],
+   "tiers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "vehicles": [
+    "hmmwv"
+   ],
+   "fit_deploy": 29210,
+   "fit_holdout": 23205,
+   "fit_holdout_groups": 865,
+   "train_drives": 7622,
+   "standing_start_train_rows": 7622,
+   "val_rows": 1492,
+   "test_rows": 1450,
+   "per_arena": {
+    "f104": {
+     "train_groups": 1089,
+     "val_groups": 56,
+     "test_groups": 55,
+     "dev_fold_groups": 224,
+     "rows": 32152
+    }
+   },
+   "selection": {
+    "f104": {
+     "available": 1089,
+     "selected": 1089,
+     "dev_kept": 0,
+     "same_ranking_before_cut": true
+    }
+   }
+  },
+  "H_f104_hmmwv_soil": {
+   "rows": 32152,
+   "rows_expected": 32152,
+   "same_id_set": true,
+   "same_order": true,
+   "ids_unique": true,
+   "domains": [
+    1
+   ],
+   "tiers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "vehicles": [
+    "hmmwv"
+   ],
+   "fit_deploy": 29210,
+   "fit_holdout": 23205,
+   "fit_holdout_groups": 865,
+   "train_drives": 7622,
+   "standing_start_train_rows": 7622,
+   "val_rows": 1492,
+   "test_rows": 1450,
+   "per_arena": {
+    "f104": {
+     "train_groups": 1089,
+     "val_groups": 56,
+     "test_groups": 55,
+     "dev_fold_groups": 224,
+     "rows": 32152
+    }
+   },
+   "selection": {
+    "f104": {
+     "available": 1089,
+     "selected": 1089,
+     "dev_kept": 0,
+     "same_ranking_before_cut": true
+    }
+   },
+   "episodes_equal_validated_ids": true,
+   "episodes": 8399
+  },
+  "M2_hmmwv_soil": {
+   "rows": 33227,
+   "rows_expected": 33227,
+   "same_id_set": true,
+   "same_order": true,
+   "ids_unique": true,
+   "domains": [
+    1
+   ],
+   "tiers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "vehicles": [
+    "hmmwv"
+   ],
+   "fit_deploy": 29048,
+   "fit_holdout": 22941,
+   "fit_holdout_groups": 861,
+   "train_drives": 7628,
+   "standing_start_train_rows": 7628,
+   "val_rows": 2137,
+   "test_rows": 2042,
+   "per_arena": {
+    "f104": {
+     "train_groups": 545,
+     "val_groups": 56,
+     "test_groups": 55,
+     "dev_fold_groups": 114,
+     "rows": 17612
+    },
+    "g203": {
+     "train_groups": 545,
+     "val_groups": 24,
+     "test_groups": 23,
+     "dev_fold_groups": 115,
+     "rows": 15615
+    }
+   },
+   "selection": {
+    "f104": {
+     "available": 1089,
+     "selected": 545,
+     "dev_kept": 0,
+     "same_ranking_before_cut": true
+    },
+    "g203": {
+     "available": 559,
+     "selected": 545,
+     "dev_kept": 0,
+     "same_ranking_before_cut": true
+    }
+   }
+  },
+  "M3_hmmwv_soil": {
+   "rows": 35573,
+   "rows_expected": 35573,
+   "same_id_set": true,
+   "same_order": true,
+   "ids_unique": true,
+   "domains": [
+    1
+   ],
+   "tiers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "vehicles": [
+    "hmmwv"
+   ],
+   "fit_deploy": 29071,
+   "fit_holdout": 23284,
+   "fit_holdout_groups": 873,
+   "train_drives": 7621,
+   "standing_start_train_rows": 7621,
+   "val_rows": 3163,
+   "test_rows": 3339,
+   "per_arena": {
+    "f104": {
+     "train_groups": 363,
+     "val_groups": 56,
+     "test_groups": 55,
+     "dev_fold_groups": 75,
+     "rows": 12722
+    },
+    "g203": {
+     "train_groups": 363,
+     "val_groups": 24,
+     "test_groups": 23,
+     "dev_fold_groups": 77,
+     "rows": 10780
+    },
+    "g228": {
+     "train_groups": 363,
+     "val_groups": 38,
+     "test_groups": 48,
+     "dev_fold_groups": 64,
+     "rows": 12071
+    }
+   },
+   "selection": {
+    "f104": {
+     "available": 1089,
+     "selected": 363,
+     "dev_kept": 0,
+     "same_ranking_before_cut": true
+    },
+    "g203": {
+     "available": 559,
+     "selected": 363,
+     "dev_kept": 0,
+     "same_ranking_before_cut": true
+    },
+    "g228": {
+     "available": 520,
+     "selected": 363,
+     "dev_kept": 0,
+     "same_ranking_before_cut": true
+    }
+   }
+  },
+  "A3_hmmwv_soil": {
+   "rows": 64400,
+   "rows_expected": 64400,
+   "same_id_set": true,
+   "same_order": true,
+   "ids_unique": true,
+   "domains": [
+    1
+   ],
+   "tiers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "vehicles": [
+    "hmmwv"
+   ],
+   "fit_deploy": 57898,
+   "fit_holdout": 46274,
+   "fit_holdout_groups": 1733,
+   "train_drives": 15173,
+   "standing_start_train_rows": 15173,
+   "val_rows": 3163,
+   "test_rows": 3339,
+   "per_arena": {
+    "f104": {
+     "train_groups": 1089,
+     "val_groups": 56,
+     "test_groups": 55,
+     "dev_fold_groups": 224,
+     "rows": 32152
+    },
+    "g203": {
+     "train_groups": 559,
+     "val_groups": 24,
+     "test_groups": 23,
+     "dev_fold_groups": 117,
+     "rows": 15987
+    },
+    "g228": {
+     "train_groups": 520,
+     "val_groups": 38,
+     "test_groups": 48,
+     "dev_fold_groups": 94,
+     "rows": 16261
+    }
+   },
+   "selection": {
+    "f104": {
+     "available": 1089,
+     "selected": 1089,
+     "dev_kept": 0,
+     "same_ranking_before_cut": true
+    },
+    "g203": {
+     "available": 559,
+     "selected": 559,
+     "dev_kept": 0,
+     "same_ranking_before_cut": true
+    },
+    "g228": {
+     "available": 520,
+     "selected": 520,
+     "dev_kept": 0,
+     "same_ranking_before_cut": true
+    }
+   }
+  },
+  "LC272_f104_hmmwv_soil": {
+   "rows": 14673,
+   "rows_expected": 14673,
+   "same_id_set": true,
+   "same_order": true,
+   "ids_unique": true,
+   "domains": [
+    1
+   ],
+   "tiers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "vehicles": [
+    "hmmwv"
+   ],
+   "fit_deploy": 11731,
+   "fit_holdout": 5726,
+   "fit_holdout_groups": 213,
+   "train_drives": 3059,
+   "standing_start_train_rows": 3059,
+   "val_rows": 1492,
+   "test_rows": 1450,
+   "per_arena": {
+    "f104": {
+     "train_groups": 437,
+     "val_groups": 56,
+     "test_groups": 55,
+     "dev_fold_groups": 224,
+     "rows": 14673
+    }
+   },
+   "selection": {
+    "f104": {
+     "available": 1089,
+     "selected": 272,
+     "dev_kept": 224,
+     "same_ranking_before_cut": true
+    }
+   }
+  },
+  "LC545_f104_hmmwv_soil": {
+   "rows": 20544,
+   "rows_expected": 20544,
+   "same_id_set": true,
+   "same_order": true,
+   "ids_unique": true,
+   "domains": [
+    1
+   ],
+   "tiers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "vehicles": [
+    "hmmwv"
+   ],
+   "fit_deploy": 17602,
+   "fit_holdout": 11597,
+   "fit_holdout_groups": 431,
+   "train_drives": 4585,
+   "standing_start_train_rows": 4585,
+   "val_rows": 1492,
+   "test_rows": 1450,
+   "per_arena": {
+    "f104": {
+     "train_groups": 655,
+     "val_groups": 56,
+     "test_groups": 55,
+     "dev_fold_groups": 224,
+     "rows": 20544
+    }
+   },
+   "selection": {
+    "f104": {
+     "available": 1089,
+     "selected": 545,
+     "dev_kept": 224,
+     "same_ranking_before_cut": true
+    }
+   }
+  },
+  "LOAO1_g203_hmmwv_soil": {
+   "rows": 15615,
+   "rows_expected": 15615,
+   "same_id_set": true,
+   "same_order": true,
+   "ids_unique": true,
+   "domains": [
+    1
+   ],
+   "tiers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "vehicles": [
+    "hmmwv"
+   ],
+   "fit_deploy": 14378,
+   "fit_holdout": 11344,
+   "fit_holdout_groups": 430,
+   "train_drives": 3813,
+   "standing_start_train_rows": 3813,
+   "val_rows": 645,
+   "test_rows": 592,
+   "per_arena": {
+    "g203": {
+     "train_groups": 545,
+     "val_groups": 24,
+     "test_groups": 23,
+     "dev_fold_groups": 115,
+     "rows": 15615
+    }
+   },
+   "selection": {
+    "g203": {
+     "available": 559,
+     "selected": 545,
+     "dev_kept": 0,
+     "same_ranking_before_cut": true
+    }
+   }
+  },
+  "LOAO1_g228_hmmwv_soil": {
+   "rows": 16261,
+   "rows_expected": 16261,
+   "same_id_set": true,
+   "same_order": true,
+   "ids_unique": true,
+   "domains": [
+    1
+   ],
+   "tiers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "vehicles": [
+    "hmmwv"
+   ],
+   "fit_deploy": 13938,
+   "fit_holdout": 11409,
+   "fit_holdout_groups": 426,
+   "train_drives": 3640,
+   "standing_start_train_rows": 3640,
+   "val_rows": 1026,
+   "test_rows": 1297,
+   "per_arena": {
+    "g228": {
+     "train_groups": 520,
+     "val_groups": 38,
+     "test_groups": 48,
+     "dev_fold_groups": 94,
+     "rows": 16261
+    }
+   },
+   "selection": {
+    "g228": {
+     "available": 520,
+     "selected": 520,
+     "dev_kept": 0,
+     "same_ranking_before_cut": true
+    }
+   }
+  },
+  "LOAO2_f104_g203_hmmwv_soil": {
+   "rows": 18676,
+   "rows_expected": 18676,
+   "same_id_set": true,
+   "same_order": true,
+   "ids_unique": true,
+   "domains": [
+    1
+   ],
+   "tiers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "vehicles": [
+    "hmmwv"
+   ],
+   "fit_deploy": 14497,
+   "fit_holdout": 11428,
+   "fit_holdout_groups": 430,
+   "train_drives": 3813,
+   "standing_start_train_rows": 3813,
+   "val_rows": 2137,
+   "test_rows": 2042,
+   "per_arena": {
+    "f104": {
+     "train_groups": 273,
+     "val_groups": 56,
+     "test_groups": 55,
+     "dev_fold_groups": 59,
+     "rows": 10286
+    },
+    "g203": {
+     "train_groups": 272,
+     "val_groups": 24,
+     "test_groups": 23,
+     "dev_fold_groups": 56,
+     "rows": 8390
+    }
+   },
+   "selection": {
+    "f104": {
+     "available": 1089,
+     "selected": 273,
+     "dev_kept": 0,
+     "same_ranking_before_cut": true
+    },
+    "g203": {
+     "available": 559,
+     "selected": 272,
+     "dev_kept": 0,
+     "same_ranking_before_cut": true
+    }
+   }
+  },
+  "LOAO2_f104_g228_hmmwv_soil": {
+   "rows": 19911,
+   "rows_expected": 19911,
+   "same_id_set": true,
+   "same_order": true,
+   "ids_unique": true,
+   "domains": [
+    1
+   ],
+   "tiers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "vehicles": [
+    "hmmwv"
+   ],
+   "fit_deploy": 14646,
+   "fit_holdout": 11839,
+   "fit_holdout_groups": 441,
+   "train_drives": 3815,
+   "standing_start_train_rows": 3815,
+   "val_rows": 2518,
+   "test_rows": 2747,
+   "per_arena": {
+    "f104": {
+     "train_groups": 273,
+     "val_groups": 56,
+     "test_groups": 55,
+     "dev_fold_groups": 59,
+     "rows": 10286
+    },
+    "g228": {
+     "train_groups": 272,
+     "val_groups": 38,
+     "test_groups": 48,
+     "dev_fold_groups": 45,
+     "rows": 9625
+    }
+   },
+   "selection": {
+    "f104": {
+     "available": 1089,
+     "selected": 273,
+     "dev_kept": 0,
+     "same_ranking_before_cut": true
+    },
+    "g228": {
+     "available": 520,
+     "selected": 272,
+     "dev_kept": 0,
+     "same_ranking_before_cut": true
+    }
+   }
+  },
+  "LOAO2_g203_g228_hmmwv_soil": {
+   "rows": 18042,
+   "rows_expected": 18042,
+   "same_id_set": true,
+   "same_order": true,
+   "ids_unique": true,
+   "domains": [
+    1
+   ],
+   "tiers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "vehicles": [
+    "hmmwv"
+   ],
+   "fit_deploy": 14482,
+   "fit_holdout": 11786,
+   "fit_holdout_groups": 444,
+   "train_drives": 3813,
+   "standing_start_train_rows": 3813,
+   "val_rows": 1671,
+   "test_rows": 1889,
+   "per_arena": {
+    "g203": {
+     "train_groups": 273,
+     "val_groups": 24,
+     "test_groups": 23,
+     "dev_fold_groups": 56,
+     "rows": 8417
+    },
+    "g228": {
+     "train_groups": 272,
+     "val_groups": 38,
+     "test_groups": 48,
+     "dev_fold_groups": 45,
+     "rows": 9625
+    }
+   },
+   "selection": {
+    "g203": {
+     "available": 559,
+     "selected": 273,
+     "dev_kept": 0,
+     "same_ranking_before_cut": true
+    },
+    "g228": {
+     "available": 520,
+     "selected": 272,
+     "dev_kept": 0,
+     "same_ranking_before_cut": true
+    }
+   }
+  },
+  "G_f104_gator_soil": {
+   "rows": 30827,
+   "rows_expected": 30827,
+   "same_id_set": true,
+   "same_order": true,
+   "ids_unique": true,
+   "domains": [
+    1
+   ],
+   "tiers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "vehicles": [
+    "gator"
+   ],
+   "fit_deploy": 28057,
+   "fit_holdout": 22284,
+   "fit_holdout_groups": 865,
+   "train_drives": 7622,
+   "standing_start_train_rows": 7622,
+   "val_rows": 1430,
+   "test_rows": 1340,
+   "per_arena": {
+    "f104": {
+     "train_groups": 1089,
+     "val_groups": 56,
+     "test_groups": 55,
+     "dev_fold_groups": 224,
+     "rows": 30827
+    }
+   },
+   "selection": {
+    "gator": {
+     "available": 1089,
+     "selected": 1089,
+     "dev_kept": 0,
+     "same_ranking_before_cut": true
+    }
+   },
+   "episodes_equal_validated_ids": true,
+   "episodes": 8399
+  },
+  "EV_f104_hmmwv_crm": {
+   "rows": 8947,
+   "rows_expected": 8947,
+   "same_id_set": true,
+   "same_order": true,
+   "ids_unique": true,
+   "domains": [
+    1
+   ],
+   "tiers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "vehicles": [
+    "hmmwv"
+   ],
+   "fit_deploy": 6005,
+   "fit_holdout": 0,
+   "fit_holdout_groups": 0,
+   "train_drives": 1568,
+   "standing_start_train_rows": 1568,
+   "val_rows": 1492,
+   "test_rows": 1450,
+   "per_arena": {
+    "f104": {
+     "train_groups": 224,
+     "val_groups": 56,
+     "test_groups": 55,
+     "dev_fold_groups": 224,
+     "rows": 8947
+    }
+   },
+   "selection": {
+    "f104": {
+     "available": 1089,
+     "selected": 0,
+     "dev_kept": 224,
+     "same_ranking_before_cut": true
+    }
+   }
+  },
+  "EV_f104_hmmwv_gatorids_crm": {
+   "rows": 8947,
+   "rows_expected": 8947,
+   "same_id_set": true,
+   "same_order": true,
+   "ids_unique": true,
+   "domains": [
+    1
+   ],
+   "tiers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "vehicles": [
+    "hmmwv"
+   ],
+   "fit_deploy": 6005,
+   "fit_holdout": 0,
+   "fit_holdout_groups": 0,
+   "train_drives": 1568,
+   "standing_start_train_rows": 1568,
+   "val_rows": 1492,
+   "test_rows": 1450,
+   "per_arena": {
+    "f104": {
+     "train_groups": 224,
+     "val_groups": 56,
+     "test_groups": 55,
+     "dev_fold_groups": 224,
+     "rows": 8947
+    }
+   },
+   "selection": {
+    "f104": {
+     "available": 1089,
+     "selected": 0,
+     "dev_kept": 224,
+     "same_ranking_before_cut": true
+    }
+   },
+   "episodes_equal_validated_ids": true,
+   "episodes": 2345
+  },
+  "EV_g203_hmmwv_crm": {
+   "rows": 4327,
+   "rows_expected": 4327,
+   "same_id_set": true,
+   "same_order": true,
+   "ids_unique": true,
+   "domains": [
+    1
+   ],
+   "tiers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "vehicles": [
+    "hmmwv"
+   ],
+   "fit_deploy": 3090,
+   "fit_holdout": 0,
+   "fit_holdout_groups": 0,
+   "train_drives": 819,
+   "standing_start_train_rows": 819,
+   "val_rows": 645,
+   "test_rows": 592,
+   "per_arena": {
+    "g203": {
+     "train_groups": 117,
+     "val_groups": 24,
+     "test_groups": 23,
+     "dev_fold_groups": 117,
+     "rows": 4327
+    }
+   },
+   "selection": {
+    "g203": {
+     "available": 559,
+     "selected": 0,
+     "dev_kept": 117,
+     "same_ranking_before_cut": true
+    }
+   }
+  },
+  "EV_g228_hmmwv_crm": {
+   "rows": 4852,
+   "rows_expected": 4852,
+   "same_id_set": true,
+   "same_order": true,
+   "ids_unique": true,
+   "domains": [
+    1
+   ],
+   "tiers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "vehicles": [
+    "hmmwv"
+   ],
+   "fit_deploy": 2529,
+   "fit_holdout": 0,
+   "fit_holdout_groups": 0,
+   "train_drives": 658,
+   "standing_start_train_rows": 658,
+   "val_rows": 1026,
+   "test_rows": 1297,
+   "per_arena": {
+    "g228": {
+     "train_groups": 94,
+     "val_groups": 38,
+     "test_groups": 48,
+     "dev_fold_groups": 94,
+     "rows": 4852
+    }
+   },
+   "selection": {
+    "g228": {
+     "available": 520,
+     "selected": 0,
+     "dev_kept": 94,
+     "same_ranking_before_cut": true
+    }
+   }
+  },
+  "EV_f104_gator_crm": {
+   "rows": 8543,
+   "rows_expected": 8543,
+   "same_id_set": true,
+   "same_order": true,
+   "ids_unique": true,
+   "domains": [
+    1
+   ],
+   "tiers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "vehicles": [
+    "gator"
+   ],
+   "fit_deploy": 5773,
+   "fit_holdout": 0,
+   "fit_holdout_groups": 0,
+   "train_drives": 1568,
+   "standing_start_train_rows": 1568,
+   "val_rows": 1430,
+   "test_rows": 1340,
+   "per_arena": {
+    "f104": {
+     "train_groups": 224,
+     "val_groups": 56,
+     "test_groups": 55,
+     "dev_fold_groups": 224,
+     "rows": 8543
+    }
+   },
+   "selection": {
+    "gator": {
+     "available": 1089,
+     "selected": 0,
+     "dev_kept": 224,
+     "same_ranking_before_cut": true
+    }
+   },
+   "episodes_equal_validated_ids": true,
+   "episodes": 2345
+  }
+ },
+ "H_vs_validated": {
+  "validated": 8399,
+  "validated_unique": 8399,
+  "all_prefixed": true,
+  "H_episodes": 8399,
+  "H_eq_validated": true,
+  "H_minus_V": [],
+  "V_minus_H": [],
+  "G_episodes": 8399,
+  "G_eq_validated": true,
+  "H_rows_eq_M1_rows": true,
+  "G_rows_eq_gator_file": true,
+  "H_split_eq_G_split": true
+ },
+ "vehicle_records": {
+  "soil_v1_runs": 20850,
+  "gator_runs": 9412,
+  "gator_prefixes": {
+   "gator": 9412
+  },
+  "gator_with_gator_block": 9362,
+  "gator_rear_radius": {
+   "0.2275": 9362,
+   "None": 50
+  },
+  "hmmwv_runs": 11438,
+  "hmmwv_with_vehicle_key": 0,
+  "hmmwv_without_outcome": 7,
+  "gator_without_outcome": 50,
+  "collect_v1_runs": 15235,
+  "collect_v1_with_vehicle_key": 0,
+  "collect_v1_without_outcome": 0,
+  "training_file_drives": {
+   "g203": {
+    "drives_tier0_6": 4240,
+    "run_found": 4240,
+    "complete": 4240,
+    "launch_passed": 4240,
+    "launch_missing": 0,
+    "vehicle_blocks": {
+     "none": 4240
+    },
+    "case_arena": {
+     "assets/traverse/arena_g203": 4240
+    },
+    "statuses": {
+     "goal_reached": 1116,
+     "soil_breakthrough_terminated": 2542,
+     "prolonged_blockage_terminated": 577,
+     "timeout": 5
+    }
+   },
+   "g228": {
+    "drives_tier0_6": 4242,
+    "run_found": 4242,
+    "complete": 4242,
+    "launch_passed": 4242,
+    "launch_missing": 0,
+    "vehicle_blocks": {
+     "none": 4242
+    },
+    "case_arena": {
+     "assets/traverse/arena_g228": 4242
+    },
+    "statuses": {
+     "soil_breakthrough_terminated": 2594,
+     "goal_reached": 1154,
+     "prolonged_blockage_terminated": 489,
+     "timeout": 5
+    }
+   },
+   "gator": {
+    "drives_tier0_6": 8399,
+    "run_found": 8399,
+    "complete": 8399,
+    "launch_passed": 8399,
+    "launch_missing": 0,
+    "vehicle_blocks": {
+     "gator": 8399
+    },
+    "case_arena": {
+     "assets/traverse/arena_f104_50h_v1": 8399
+    },
+    "statuses": {
+     "prolonged_blockage_terminated": 7284,
+     "goal_reached": 1014,
+     "soil_breakthrough_terminated": 101
+    }
+   },
+   "f104": {
+    "drives_tier0_6": 8399,
+    "run_found": 8399,
+    "complete": 8399,
+    "launch_passed": 8399,
+    "launch_missing": 0,
+    "vehicle_blocks": {
+     "none": 8399
+    },
+    "case_arena": {
+     "assets/traverse/arena_f104_50h_v1": 8399
+    },
+    "statuses": {
+     "prolonged_blockage_terminated": 1096,
+     "soil_breakthrough_terminated": 4599,
+     "goal_reached": 2695,
+     "rollover": 2,
+     "timeout": 7
+    }
+   }
+  },
+  "g203_task_ids_not_in_file": {
+   "g203_v2_group_0241_route_03": "soil_breakthrough_terminated",
+   "g203_v2_group_0308_route_07": "soil_breakthrough_terminated"
+  },
+  "gator_vs_hmmwv_tier0_6": {
+   "n": 8399,
+   "gator_fail": 0.8793,
+   "hmmwv_fail": 0.6791,
+   "gator_only": 1801,
+   "hmmwv_only": 120,
+   "gator_sim_h": 77.6,
+   "hmmwv_sim_h": 50.3,
+   "gator_status": {
+    "prolonged_blockage_terminated": 7284,
+    "goal_reached": 1014,
+    "soil_breakthrough_terminated": 101
+   },
+   "hmmwv_status": {
+    "prolonged_blockage_terminated": 1096,
+    "soil_breakthrough_terminated": 4599,
+    "goal_reached": 2695,
+    "rollover": 2,
+    "timeout": 7
+   }
+  }
+ },
+ "suite_scan": {
+  "n_suite_ids": 3250,
+  "patterns": [
+   "*_test_group_*",
+   "*_heldout_group_*",
+   "*_dev_group_*",
+   "*pair_group_*",
+   "*crm_eval_group_*",
+   "*g1_test_group*",
+   "bitid__*",
+   "drift__*",
+   "gatorR8__*",
+   "*_dev_*",
+   "*_test_*",
+   "*_heldout_*"
+  ],
+  "positive_controls": {
+   "g260_test_group_0001_route_00@0@crm": true,
+   "gator__f104_pair_group_0003_route_01@0@crm": true,
+   "f104_crm_eval_group_0010": true,
+   "g217_dev_group_0000": true,
+   "g203_heldout_group_0002_route_03": true,
+   "bitid__g203_v2_group_0479_route_03": true,
+   "g241_test_group_0100": true
+  },
+  "negative_controls": {
+   "g203_v2_group_0000_op_02@0@crm": false,
+   "gator__f104_v2_group_0000_route_02@40@crm": false
+  },
+  "files": {
+   "A3_hmmwv_soil": {
+    "strings": 83693,
+    "hits": 0,
+    "examples": []
+   },
+   "EV_f104_gator_crm": {
+    "strings": 11223,
+    "hits": 0,
+    "examples": []
+   },
+   "EV_f104_hmmwv_crm": {
+    "strings": 11627,
+    "hits": 0,
+    "examples": []
+   },
+   "EV_f104_hmmwv_gatorids_crm": {
+    "strings": 11627,
+    "hits": 0,
+    "examples": []
+   },
+   "EV_g203_hmmwv_crm": {
+    "strings": 5639,
+    "hits": 0,
+    "examples": []
+   },
+   "EV_g228_hmmwv_crm": {
+    "strings": 6292,
+    "hits": 0,
+    "examples": []
+   },
+   "G_f104_gator_soil": {
+    "strings": 40426,
+    "hits": 0,
+    "examples": []
+   },
+   "H_f104_hmmwv_soil": {
+    "strings": 41751,
+    "hits": 0,
+    "examples": []
+   },
+   "LC272_f104_hmmwv_soil": {
+    "strings": 19057,
+    "hits": 0,
+    "examples": []
+   },
+   "LC545_f104_hmmwv_soil": {
+    "strings": 26672,
+    "hits": 0,
+    "examples": []
+   },
+   "LOAO1_g203_hmmwv_soil": {
+    "strings": 20349,
+    "hits": 0,
+    "examples": []
+   },
+   "LOAO1_g228_hmmwv_soil": {
+    "strings": 21109,
+    "hits": 0,
+    "examples": []
+   },
+   "LOAO2_f104_g203_hmmwv_soil": {
+    "strings": 24298,
+    "hits": 0,
+    "examples": []
+   },
+   "LOAO2_f104_g228_hmmwv_soil": {
+    "strings": 25847,
+    "hits": 0,
+    "examples": []
+   },
+   "LOAO2_g203_g228_hmmwv_soil": {
+    "strings": 23464,
+    "hits": 0,
+    "examples": []
+   },
+   "M1_f104_hmmwv_soil": {
+    "strings": 41751,
+    "hits": 0,
+    "examples": []
+   },
+   "M2_hmmwv_soil": {
+    "strings": 43209,
+    "hits": 0,
+    "examples": []
+   },
+   "M3_hmmwv_soil": {
+    "strings": 46235,
+    "hits": 0,
+    "examples": []
+   },
+   "ci_f104_gator_crm": {
+    "strings": 40426,
+    "hits": 0,
+    "examples": []
+   },
+   "ci_f104_hmmwv_both": {
+    "strings": 74703,
+    "hits": 0,
+    "examples": []
+   },
+   "ci_g203_hmmwv_crm": {
+    "strings": 20833,
+    "hits": 0,
+    "examples": []
+   },
+   "ci_g228_hmmwv_crm": {
+    "strings": 21109,
+    "hits": 0,
+    "examples": []
+   }
+  }
+ }
+}

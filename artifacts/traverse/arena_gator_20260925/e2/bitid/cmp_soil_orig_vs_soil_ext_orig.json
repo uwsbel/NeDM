@@ -1,0 +1,61 @@
+{
+ "a": "artifacts/traverse/arena_gator_20260925/e2/bitid/soil_orig",
+ "b": "artifacts/traverse/arena_gator_20260925/e2/bitid/soil_ext_orig",
+ "npz": {
+  "anchor_state.npz": {
+   "keys": 5,
+   "extra_in_b": [],
+   "different": [],
+   "identical": true
+  },
+  "command_reference.npz": {
+   "keys": 6,
+   "extra_in_b": [],
+   "different": [],
+   "identical": true
+  },
+  "crm_extra.npz": {
+   "keys": 8,
+   "extra_in_b": [],
+   "different": [],
+   "identical": true
+  },
+  "trajectory.npz": {
+   "keys": 12,
+   "extra_in_b": [],
+   "different": [],
+   "identical": true
+  }
+ },
+ "json": {
+  "case.json": [],
+  "collection_request.json": [
+   "collector",
+   "collector_sha256",
+   "ext.base_collector_sha256",
+   "ext.gc_control_sha256",
+   "ext.mode",
+   "ext.near_stop_all_modes",
+   "ext.near_stop_s",
+   "ext.no_near_stop",
+   "mode"
+  ],
+  "episode_complete.json": [
+   "artifacts_sha256.collection_request.json",
+   "artifacts_sha256.f104_episode.json",
+   "artifacts_sha256.outcome.json"
+  ],
+  "f104_episode.json": [],
+  "initial_state_validation.json": [],
+  "outcome.json": [
+   "collector_sha256",
+   "mode",
+   "physics_dt_s"
+  ],
+  "reference.json": []
+ },
+ "files_only_in_b": [],
+ "files_only_in_a": [],
+ "trajectory_identical": true,
+ "all_npz_identical": true
+}

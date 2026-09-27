@@ -1,0 +1,24 @@
+[
+ {
+  "path": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/subsets/M1_f104_hmmwv_rigid.npz",
+  "rows": 93397,
+  "rows_by_split": {
+   "train": 84787,
+   "val": 4358,
+   "test": 4252
+  }
+ },
+ {
+  "path": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/subsets/H_f104_hmmwv_rigid.npz",
+  "rows": 93397,
+  "rows_by_split": {
+   "train": 84787,
+   "val": 4358,
+   "test": 4252
+  },
+  "same_id_set": true,
+  "same_order": true,
+  "only_here": 0,
+  "only_in_first": 0
+ }
+]

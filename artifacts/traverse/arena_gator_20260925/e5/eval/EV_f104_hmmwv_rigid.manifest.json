@@ -1,0 +1,98 @@
+{
+ "tool": "scripts/ag_subset.py",
+ "tool_sha256": "3891a0064511666a19d63ff360c9e2b0f56f59d35e14337d1ca634870c590f39",
+ "argv": [
+  "--world",
+  "rigid",
+  "--groups",
+  "f104=0",
+  "--keep-dev-fold",
+  "--ds",
+  "artifacts/traverse/arena_gator_20260925/e4/f104_hmmwv/ci_f104_hmmwv_both.npz",
+  "--out",
+  "artifacts/traverse/arena_gator_20260925/e5/eval/EV_f104_hmmwv_rigid.npz"
+ ],
+ "preset": null,
+ "world": "rigid",
+ "vehicle": "hmmwv",
+ "rule": "md5(group id) hex ascending within each arena, first N of the available training groups",
+ "tiers": null,
+ "ids_file": null,
+ "ids_file_sha256": null,
+ "n_ids": null,
+ "ids_apply": null,
+ "eval_rows": "intact",
+ "keep_dev_fold": true,
+ "use": "holdout mode only (the dev fold is kept for scoring; deploy mode would fit it)",
+ "per_arena": {
+  "f104": {
+   "requested": 0,
+   "available": 1089,
+   "selected": 0,
+   "md5_last": null,
+   "dev_fold_groups_kept": 224,
+   "train_groups_in_file": 224,
+   "train_rows": 17419,
+   "train_rows_startup": 4480,
+   "train_episodes": 4480,
+   "val_groups": 56,
+   "val_rows": 4358,
+   "test_groups": 55,
+   "test_rows": 4252,
+   "fit_rows_holdout": 0,
+   "fit_groups_holdout": 0
+  }
+ },
+ "rows": 26029,
+ "fit_rows_deploy": 17419,
+ "fit_rows_holdout": 0,
+ "eval_rows_val": 4358,
+ "inputs": [
+  {
+   "path": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/arena_gator_20260925/e4/f104_hmmwv/ci_f104_hmmwv_both.npz",
+   "rows": 151665,
+   "rows_kept": 26029,
+   "sha256": "350d58f4adcf01a64398754fa32165dcbb615ce51af2d20e59466fbe0bb189e6"
+  }
+ ],
+ "selected_groups": {
+  "f104": []
+ },
+ "dropped_keys": [],
+ "keys": [
+  "E",
+  "T",
+  "X",
+  "anchor_frame",
+  "arena",
+  "ctx",
+  "domain",
+  "episode",
+  "event_idx",
+  "fail",
+  "group",
+  "hist",
+  "hist_cols",
+  "hmask",
+  "id",
+  "priv_names",
+  "privileged",
+  "profile",
+  "rem_m",
+  "route_len",
+  "source",
+  "split",
+  "status",
+  "tier",
+  "time_to_event_s",
+  "unsafe",
+  "vehicle",
+  "vx_anchor"
+ ],
+ "output": {
+  "path": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/arena_gator_20260925/e5/eval/EV_f104_hmmwv_rigid.npz",
+  "sha256": "ed473bc6b05898b36243c0092920e6123a0857e76a219734f1178316c1485ae1",
+  "size_gb": 0.472
+ },
+ "elapsed_s": 27.3
+}

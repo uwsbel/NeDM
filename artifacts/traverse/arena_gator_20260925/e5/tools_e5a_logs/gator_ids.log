@@ -1,0 +1,39 @@
+{
+ "ci": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/f104_gator/ci_f104_gator_rigid.npz",
+ "tasks": "/work1/dannegrut/harry/experiments/arena_gator_20260925/tasks/rigid_v2.json",
+ "task_rows": 24000,
+ "validated": 24000,
+ "validated_fraction": 1.0,
+ "not_validated": 0,
+ "not_validated_reasons": {},
+ "validated_not_in_tasks": [],
+ "n_validated_not_in_tasks": 0,
+ "validated_by_split": {
+  "train": 21780,
+  "test": 1100,
+  "val": 1120
+ },
+ "validated_by_kind": {
+  "on_policy": 9600,
+  "designed": 14400
+ },
+ "validated_groups": 1200,
+ "native_height_check": {
+  "passed": 24000
+ },
+ "status": {
+  "goal_reached": 22420,
+  "prolonged_blockage_terminated": 1144,
+  "timeout": 387,
+  "rollover": 46,
+  "terrain_bounds_exit": 3
+ },
+ "rows": 93551,
+ "rows_by_split": {
+  "train": 84922,
+  "val": 4359,
+  "test": 4270
+ },
+ "startup_rows": 24000,
+ "out_ids": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e5/ids/gator_rigid_validated.txt"
+}

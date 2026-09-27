@@ -1,0 +1,46 @@
+{
+ "a": "artifacts/traverse/arena_gator_20260925/e2/bitid/soil_ext_orig",
+ "b": "artifacts/traverse/arena_gator_20260925/e2/bitid/soil_ag_ext",
+ "npz": {
+  "anchor_state.npz": {
+   "keys": 5,
+   "extra_in_b": [],
+   "different": [],
+   "identical": true
+  },
+  "command_reference.npz": {
+   "keys": 6,
+   "extra_in_b": [],
+   "different": [],
+   "identical": true
+  },
+  "crm_extra.npz": {
+   "keys": 8,
+   "extra_in_b": [],
+   "different": [],
+   "identical": true
+  },
+  "trajectory.npz": {
+   "keys": 12,
+   "extra_in_b": [],
+   "different": [],
+   "identical": true
+  }
+ },
+ "json": {
+  "case.json": [],
+  "collection_request.json": [],
+  "episode_complete.json": [
+   "artifacts_sha256.f104_episode.json",
+   "artifacts_sha256.outcome.json"
+  ],
+  "f104_episode.json": [],
+  "initial_state_validation.json": [],
+  "outcome.json": [],
+  "reference.json": []
+ },
+ "files_only_in_b": [],
+ "files_only_in_a": [],
+ "trajectory_identical": true,
+ "all_npz_identical": true
+}

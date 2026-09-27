@@ -1,0 +1,29 @@
+{
+ "pos_rigid/ci_f104_hmmwv_rigid": {
+  "rows": 157,
+  "missing_in_big": 0,
+  "big_rows_on_these_episodes_minus_rows": 0,
+  "keys_only_small": [],
+  "keys_only_big": [],
+  "all_equal": true,
+  "not_equal": []
+ },
+ "pos_crm/ci_f104_hmmwv_crm": {
+  "rows": 112,
+  "missing_in_big": 0,
+  "big_rows_on_these_episodes_minus_rows": 0,
+  "keys_only_small": [],
+  "keys_only_big": [],
+  "all_equal": true,
+  "not_equal": []
+ },
+ "pos_both/ci_f104_hmmwv_both": {
+  "rows": 269,
+  "missing_in_big": 0,
+  "big_rows_on_these_episodes_minus_rows": 0,
+  "keys_only_small": [],
+  "keys_only_big": [],
+  "all_equal": true,
+  "not_equal": []
+ }
+}

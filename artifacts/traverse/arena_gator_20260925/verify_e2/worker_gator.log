@@ -1,0 +1,2 @@
+worker gpu0: 1 episodes, 10 sim-s in 24 s
+all workers done

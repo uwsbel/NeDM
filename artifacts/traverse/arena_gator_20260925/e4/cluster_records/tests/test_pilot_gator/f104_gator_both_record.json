@@ -1,0 +1,329 @@
+{
+ "tool": "scripts/ag_build_ds.py",
+ "argv": [
+  "--arena",
+  "f104",
+  "--vehicle",
+  "gator",
+  "--world",
+  "both",
+  "--rigid-runs",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/pilot_gator/rigid/runs",
+  "--crm-runs",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/pilot_gator/soil/runs",
+  "--map-root",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/map_roots/f104",
+  "--source-root",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/source",
+  "--out",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/test_pilot_gator",
+  "--workers",
+  "8"
+ ],
+ "started": "2026-09-25 02:54:03",
+ "host": "login1.hpcfund",
+ "python": "/work1/dannegrut/harry/venvs/nedm/bin/python",
+ "arena": "f104",
+ "vehicle": "gator",
+ "worlds": [
+  "rigid",
+  "crm"
+ ],
+ "map_root": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/map_roots/f104",
+ "map_observation_sha256": "53e23f99bf2c0141bd613ff5bef5a57f82c28b48e39026608dfdd8e2d5553e34",
+ "map_arena_bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+ "tasks": {},
+ "exclude_ids": {
+  "rigid": [],
+  "crm": []
+ },
+ "n_exclude_ids": {
+  "rigid": 0,
+  "crm": 0
+ },
+ "tiers": null,
+ "tool_sha256": {
+  "f104_n2_dataset.py": "49b2ad940a5876e07fa9d94f70605a9587d0820c5ce8b491aed8de0310ac7007",
+  "n2_reanchor_dataset.py": "80ad79119462d59afd991f39f3a5def0b59ae30d9d8953543833bb25441f0017",
+  "ga_build_mixed.py": "b7abc6d8512e722f62d3872e2332f16df423a8a48afd60d52f9504c80cf2e338",
+  "ag_build_ds.py": "6a4da5a8900e797590c773a039c3681eb519a26073086c04093bdf8a6a02ad55",
+  "ag_map_check.py": "a237c2d9a72fa720f5db66c07ec0ae8d526d797b0fc654a0866b45af147f59a2",
+  "ag_tasklib.py": "1363371ee0621f835a49c094bea93adcdf2f6db2be7c2fbef9401436f5ab98da",
+  "crm_qa.py": "bde62d2d496db0c26929ecc074d8714cf1a3965bddfb2bf5e93247f107490229"
+ },
+ "selection": {
+  "rigid": {
+   "run_folders": [
+    "/work1/dannegrut/harry/experiments/arena_gator_20260925/pilot_gator/rigid/runs"
+   ],
+   "counts": {
+    "dirs": 288
+   },
+   "candidates": 288,
+   "require_marker": true,
+   "rejected": {},
+   "rejected_ids": [],
+   "selected": 288,
+   "groups": 24,
+   "split_episodes": {
+    "train": 288
+   },
+   "split_groups": {
+    "train": 24,
+    "val": 0,
+    "test": 0
+   },
+   "tiers": {
+    "0": 16,
+    "1": 8,
+    "2": 13,
+    "3": 15,
+    "4": 17,
+    "5": 17,
+    "6": 12,
+    "7": 16,
+    "8": 12,
+    "9": 17,
+    "10": 14,
+    "11": 17,
+    "12": 17,
+    "13": 9,
+    "14": 12,
+    "15": 14,
+    "16": 18,
+    "17": 12,
+    "18": 15,
+    "19": 17
+   },
+   "status": {
+    "goal_reached": 278,
+    "prolonged_blockage_terminated": 5,
+    "timeout": 5
+   },
+   "kinds": {
+    "designed": 288
+   },
+   "vehicle_blocks": {
+    "gator": 288
+   },
+   "map_check": {
+    "map_root": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/map_roots/f104",
+    "map_arena": "arena_f104_50h_v1",
+    "map_arena_bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+    "map_observation_sha256": "53e23f99bf2c0141bd613ff5bef5a57f82c28b48e39026608dfdd8e2d5553e34",
+    "n_cases": 288,
+    "ok": true,
+    "problems": [],
+    "arenas": {
+     "assets/traverse/arena_f104_50h_v1": {
+      "n": 288,
+      "bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+      "match": true
+     }
+    }
+   }
+  },
+  "crm": {
+   "run_folders": [
+    "/work1/dannegrut/harry/experiments/arena_gator_20260925/pilot_gator/soil/runs"
+   ],
+   "counts": {
+    "dirs": 58
+   },
+   "candidates": 58,
+   "require_marker": true,
+   "rejected": {
+    "missing_files:trajectory.npz,outcome.json,command_reference.npz,crm_extra.npz": 4
+   },
+   "rejected_ids": [
+    [
+     "gator__f104_v2_group_0404_op_05",
+     "missing_files:trajectory.npz,outcome.json,command_reference.npz,crm_extra.npz"
+    ],
+    [
+     "gator__f104_v2_group_0894_route_02",
+     "missing_files:trajectory.npz,outcome.json,command_reference.npz,crm_extra.npz"
+    ],
+    [
+     "gator__f104_v2_group_1060_route_01",
+     "missing_files:trajectory.npz,outcome.json,command_reference.npz,crm_extra.npz"
+    ],
+    [
+     "gator__f104_v2_group_1103_route_05",
+     "missing_files:trajectory.npz,outcome.json,command_reference.npz,crm_extra.npz"
+    ]
+   ],
+   "selected": 54,
+   "groups": 24,
+   "split_episodes": {
+    "train": 54
+   },
+   "split_groups": {
+    "train": 24,
+    "val": 0,
+    "test": 0
+   },
+   "tiers": {
+    "0": 24,
+    "1": 24,
+    "2": 6
+   },
+   "status": {
+    "goal_reached": 4,
+    "prolonged_blockage_terminated": 50
+   },
+   "kinds": {
+    "on_policy": 28,
+    "designed": 26
+   },
+   "vehicle_blocks": {
+    "gator": 54
+   },
+   "map_check": {
+    "map_root": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/map_roots/f104",
+    "map_arena": "arena_f104_50h_v1",
+    "map_arena_bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+    "map_observation_sha256": "53e23f99bf2c0141bd613ff5bef5a57f82c28b48e39026608dfdd8e2d5553e34",
+    "n_cases": 54,
+    "ok": true,
+    "problems": [],
+    "arenas": {
+     "assets/traverse/arena_f104_50h_v1": {
+      "n": 54,
+      "bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+      "match": true
+     }
+    }
+   }
+  }
+ },
+ "stages": {
+  "rigid": {
+   "station": {
+    "path": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/test_pilot_gator/station_f104_gator_both_rigid.npz",
+    "rows": 288,
+    "secs": 1.0,
+    "sha256": "84a56582490df73c56196472e263c89816d315cbc23a8bbfbb75eae37476fd5a"
+   },
+   "reanchor": {
+    "path": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/test_pilot_gator/reanchor_f104_gator_both_rigid.npz",
+    "rows": 1121,
+    "episodes": 288,
+    "secs": 2.2,
+    "sha256": "b38f8075f0fe96fb6a270864cec1da504797acf4914560d7040dc73283acd7ce",
+    "rows_per_episode": 3.892
+   }
+  },
+  "crm": {
+   "station": {
+    "path": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/test_pilot_gator/station_f104_gator_both_crm.npz",
+    "rows": 54,
+    "secs": 0.5,
+    "sha256": "0db54f7cc479f9d593effbb6637973d908f12a468b9fc86a1d63c2cc5fd4a2e0"
+   },
+   "reanchor": {
+    "path": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/test_pilot_gator/reanchor_f104_gator_both_crm.npz",
+    "rows": 206,
+    "episodes": 54,
+    "secs": 0.9,
+    "sha256": "2950ee4265460dec4c6188854301832169f20d480597827ac6cb164123240467",
+    "rows_per_episode": 3.815
+   }
+  },
+  "mixed": {
+   "tool": "ga_build_mixed.py",
+   "exit": 0,
+   "secs": 2.0,
+   "missing_episodes": 0,
+   "raw_found_fraction": 1.0,
+   "build_json": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/test_pilot_gator/ci_f104_gator_both_build.json"
+  }
+ },
+ "output": {
+  "path": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/test_pilot_gator/ci_f104_gator_both.npz",
+  "size_gb": 0.024,
+  "sha256": "c9ab186120987e55e4de33ba45327ba99aa8071d2d2e1f7f69c2055de8d62c2e",
+  "rows": 1327,
+  "rows_by_world": {
+   "rigid": 1121,
+   "crm": 206
+  },
+  "episodes_by_world": {
+   "rigid": 288,
+   "crm": 54
+  },
+  "groups_by_split": {
+   "train": 24,
+   "val": 0,
+   "test": 0
+  },
+  "counts": {
+   "rigid|train|startup": 288,
+   "rigid|train|established": 833,
+   "crm|train|startup": 54,
+   "crm|train|established": 152
+  },
+  "tiers": {
+   "rigid": {
+    "0": 16,
+    "1": 8,
+    "2": 13,
+    "3": 15,
+    "4": 17,
+    "5": 17,
+    "6": 12,
+    "7": 16,
+    "8": 12,
+    "9": 17,
+    "10": 14,
+    "11": 17,
+    "12": 17,
+    "13": 9,
+    "14": 12,
+    "15": 14,
+    "16": 18,
+    "17": 12,
+    "18": 15,
+    "19": 17
+   },
+   "crm": {
+    "0": 24,
+    "1": 24,
+    "2": 6
+   }
+  },
+  "keys": [
+   "E",
+   "T",
+   "X",
+   "anchor_frame",
+   "arena",
+   "ctx",
+   "domain",
+   "episode",
+   "event_idx",
+   "fail",
+   "group",
+   "hist",
+   "hist_cols",
+   "hmask",
+   "id",
+   "priv_names",
+   "privileged",
+   "profile",
+   "rem_m",
+   "route_len",
+   "source",
+   "split",
+   "status",
+   "tier",
+   "time_to_event_s",
+   "unsafe",
+   "vehicle",
+   "vx_anchor"
+  ]
+ },
+ "links_removed": true,
+ "elapsed_s": 8.0,
+ "finished": "2026-09-25 02:54:11"
+}

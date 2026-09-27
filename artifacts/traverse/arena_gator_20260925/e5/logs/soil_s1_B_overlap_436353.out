@@ -1,0 +1,14 @@
+
+The following have been reloaded with a version change:
+  1) rocm/7.2.0 => rocm/7.1.0
+
+host=k004-003.hpcfund job=436353 part=mi2508x gpus=8 cpus=32 runs=2 lanes=2 omp=16 jobs=/work1/dannegrut/harry/experiments/arena_gator_20260925/e5/jobs/soil_s1_B.tsv sha256=1dbe6502b35d770a
+ci_train.py 7a4f2d67316ea47a  ga_train.py dc73d0bb2ac83521  python /work1/dannegrut/harry/venvs/nedm/bin/python3.12
+torch 2.10.0+rocm7.1 devices 8 AMD Instinct MI250X/MI250
+13:38:31 lane 2 gpu 1 start G_soil_holdout -> /work1/dannegrut/harry/experiments/arena_gator_20260925/e5/train/soil_s1/offline_soil : --ds /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/subsets/G_f104_gator_soil.npz --mode holdout --arch gru --cond none --domain-filter crm --ctx geom --split-eval val --bs 256 --epochs 30 --seeds 5 --seed0 0
+13:38:31 lane 1 gpu 0 start G_soil_deploy -> /work1/dannegrut/harry/experiments/arena_gator_20260925/e5/train/soil_s1/G_soil : --ds /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/subsets/G_f104_gator_soil.npz --mode deploy --arch gru --cond none --domain-filter crm --ctx geom --split-eval val --bs 256 --epochs 30 --seeds 5 --seed0 0 --roundtrip-check
+13:49:26 lane 2 end G_soil_holdout exit: 0
+13:51:55 lane 1 end G_soil_deploy exit: 0
+G_soil_deploy exit: 0
+G_soil_holdout exit: 0
+all done rc=0

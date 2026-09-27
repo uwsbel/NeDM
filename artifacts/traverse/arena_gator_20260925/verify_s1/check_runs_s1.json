@@ -1,0 +1,562 @@
+{
+ "runs": {
+  "M1a_soil_deploy": {
+   "json": "e5/deploy/M1a_soil/M1a_soil_deploy.json",
+   "job": 436354,
+   "n_fit": 29210,
+   "recomputed_fit": 29210,
+   "file_rows": 32152,
+   "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "roundtrip": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "sec_per_step": [
+    0.0428,
+    0.0361,
+    0.0361,
+    0.0361,
+    0.0361
+   ],
+   "job_lists": [
+    "soil_s1_A.tsv"
+   ],
+   "log_last": "exit: 0",
+   "problems": []
+  },
+  "M1b_soil_deploy": {
+   "json": "e5/deploy/M1b_soil/M1b_soil_deploy.json",
+   "job": 436354,
+   "n_fit": 29210,
+   "recomputed_fit": 29210,
+   "file_rows": 32152,
+   "seeds": [
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "roundtrip": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "sec_per_step": [
+    0.0432,
+    0.0365,
+    0.0366,
+    0.0365,
+    0.0369
+   ],
+   "job_lists": [
+    "soil_s1_A.tsv"
+   ],
+   "log_last": "exit: 0",
+   "problems": []
+  },
+  "M2_soil_deploy": {
+   "json": "e5/deploy/M2_soil/M2_soil_deploy.json",
+   "job": 436354,
+   "n_fit": 29048,
+   "recomputed_fit": 29048,
+   "file_rows": 33227,
+   "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "roundtrip": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "sec_per_step": [
+    0.0378,
+    0.0364,
+    0.0367,
+    0.0367,
+    0.0364
+   ],
+   "job_lists": [
+    "soil_s1_A.tsv"
+   ],
+   "log_last": "exit: 0",
+   "problems": []
+  },
+  "M3a_soil_deploy": {
+   "json": "e5/deploy/M3a_soil/M3a_soil_deploy.json",
+   "job": 436354,
+   "n_fit": 29071,
+   "recomputed_fit": 29071,
+   "file_rows": 35573,
+   "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "roundtrip": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "sec_per_step": [
+    0.0373,
+    0.0381,
+    0.0364,
+    0.0362,
+    0.0362
+   ],
+   "job_lists": [
+    "soil_s1_A.tsv"
+   ],
+   "log_last": "exit: 0",
+   "problems": []
+  },
+  "M3b_soil_deploy": {
+   "json": "e5/deploy/M3b_soil/M3b_soil_deploy.json",
+   "job": 436354,
+   "n_fit": 29071,
+   "recomputed_fit": 29071,
+   "file_rows": 35573,
+   "seeds": [
+    5,
+    6,
+    7,
+    8,
+    9
+   ],
+   "roundtrip": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "sec_per_step": [
+    0.0372,
+    0.0362,
+    0.0362,
+    0.0362,
+    0.0362
+   ],
+   "job_lists": [
+    "soil_s1_A.tsv"
+   ],
+   "log_last": "exit: 0",
+   "problems": []
+  },
+  "A3_soil_deploy": {
+   "json": "e5/deploy/A3_soil/A3_soil_deploy.json",
+   "job": 436354,
+   "n_fit": 57898,
+   "recomputed_fit": 57898,
+   "file_rows": 64400,
+   "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "roundtrip": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "sec_per_step": [
+    0.0366,
+    0.0362,
+    0.0361,
+    0.036,
+    0.036
+   ],
+   "job_lists": [
+    "soil_s1_A.tsv"
+   ],
+   "log_last": "exit: 0",
+   "problems": []
+  },
+  "M1_soil_holdout": {
+   "json": "e5/train/soil_s1/offline_soil/M1_soil_holdout.json",
+   "job": 436354,
+   "n_fit": 23205,
+   "recomputed_fit": 23205,
+   "file_rows": 32152,
+   "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "roundtrip": null,
+   "sec_per_step": [
+    0.0455,
+    0.0367,
+    0.0365,
+    0.0366,
+    0.0365
+   ],
+   "job_lists": [
+    "soil_s1_A.tsv"
+   ],
+   "log_last": "exit: 0",
+   "problems": []
+  },
+  "M2_soil_holdout": {
+   "json": "e5/train/soil_s1/offline_soil/M2_soil_holdout.json",
+   "job": 436354,
+   "n_fit": 22941,
+   "recomputed_fit": 22941,
+   "file_rows": 33227,
+   "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "roundtrip": null,
+   "sec_per_step": [
+    0.0379,
+    0.037,
+    0.0372,
+    0.0382,
+    0.0368
+   ],
+   "job_lists": [
+    "soil_s1_A.tsv"
+   ],
+   "log_last": "exit: 0",
+   "problems": []
+  },
+  "M3_soil_holdout": {
+   "json": "e5/train/soil_s1/offline_soil/M3_soil_holdout.json",
+   "job": 436354,
+   "n_fit": 23284,
+   "recomputed_fit": 23284,
+   "file_rows": 35573,
+   "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "roundtrip": null,
+   "sec_per_step": [
+    0.0377,
+    0.0363,
+    0.0363,
+    0.0363,
+    0.0364
+   ],
+   "job_lists": [
+    "soil_s1_A.tsv"
+   ],
+   "log_last": "exit: 0",
+   "problems": []
+  },
+  "A3_soil_holdout": {
+   "json": "e5/train/soil_s1/offline_soil/A3_soil_holdout.json",
+   "job": 436354,
+   "n_fit": 46274,
+   "recomputed_fit": 46274,
+   "file_rows": 64400,
+   "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "roundtrip": null,
+   "sec_per_step": [
+    0.0371,
+    0.0379,
+    0.0365,
+    0.0364,
+    0.0364
+   ],
+   "job_lists": [
+    "soil_s1_A.tsv"
+   ],
+   "log_last": "exit: 0",
+   "problems": []
+  },
+  "LC545_soil_holdout": {
+   "json": "e5/train/soil_s1/offline_soil/LC545_soil_holdout.json",
+   "job": 436354,
+   "n_fit": 11597,
+   "recomputed_fit": 11597,
+   "file_rows": 20544,
+   "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "roundtrip": null,
+   "sec_per_step": [
+    0.0555,
+    0.0364,
+    0.0364,
+    0.0364,
+    0.0364
+   ],
+   "job_lists": [
+    "soil_s1_A.tsv"
+   ],
+   "log_last": "exit: 0",
+   "problems": []
+  },
+  "LC272_soil_holdout": {
+   "json": "e5/train/soil_s1/offline_soil/LC272_soil_holdout.json",
+   "job": 436354,
+   "n_fit": 5726,
+   "recomputed_fit": 5726,
+   "file_rows": 14673,
+   "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "roundtrip": null,
+   "sec_per_step": [
+    0.0769,
+    0.0362,
+    0.0361,
+    0.0361,
+    0.0361
+   ],
+   "job_lists": [
+    "soil_s1_A.tsv"
+   ],
+   "log_last": "exit: 0",
+   "problems": []
+  },
+  "LOAO1_g203_soil_holdout": {
+   "json": "e5/train/soil_s1/offline_soil/LOAO1_g203_soil_holdout.json",
+   "job": 436354,
+   "n_fit": 11344,
+   "recomputed_fit": 11344,
+   "file_rows": 15615,
+   "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "roundtrip": null,
+   "sec_per_step": [
+    0.0383,
+    0.0363,
+    0.0363,
+    0.0362,
+    0.0365
+   ],
+   "job_lists": [
+    "soil_s1_A.tsv"
+   ],
+   "log_last": "exit: 0",
+   "problems": []
+  },
+  "LOAO2_f104_g203_soil_holdout": {
+   "json": "e5/train/soil_s1/offline_soil/LOAO2_f104_g203_soil_holdout.json",
+   "job": 436354,
+   "n_fit": 11428,
+   "recomputed_fit": 11428,
+   "file_rows": 18676,
+   "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "roundtrip": null,
+   "sec_per_step": [
+    0.0383,
+    0.0362,
+    0.0362,
+    0.0361,
+    0.0361
+   ],
+   "job_lists": [
+    "soil_s1_A.tsv"
+   ],
+   "log_last": "exit: 0",
+   "problems": []
+  },
+  "LOAO2_f104_g228_soil_holdout": {
+   "json": "e5/train/soil_s1/offline_soil/LOAO2_f104_g228_soil_holdout.json",
+   "job": 436354,
+   "n_fit": 11839,
+   "recomputed_fit": 11839,
+   "file_rows": 19911,
+   "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "roundtrip": null,
+   "sec_per_step": [
+    0.0382,
+    0.0361,
+    0.0362,
+    0.0361,
+    0.0361
+   ],
+   "job_lists": [
+    "soil_s1_A.tsv"
+   ],
+   "log_last": "exit: 0",
+   "problems": []
+  },
+  "LOAO2_g203_g228_soil_holdout": {
+   "json": "e5/train/soil_s1/offline_soil/LOAO2_g203_g228_soil_holdout.json",
+   "job": 436354,
+   "n_fit": 11786,
+   "recomputed_fit": 11786,
+   "file_rows": 18042,
+   "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "roundtrip": null,
+   "sec_per_step": [
+    0.0401,
+    0.0369,
+    0.0365,
+    0.0365,
+    0.0366
+   ],
+   "job_lists": [
+    "soil_s1_A.tsv"
+   ],
+   "log_last": "exit: 0",
+   "problems": []
+  },
+  "LOAO1_g228_soil_holdout": {
+   "json": "e5/train/soil_s1/offline_soil/LOAO1_g228_soil_holdout.json",
+   "job": 436353,
+   "n_fit": 11409,
+   "recomputed_fit": 11409,
+   "file_rows": 16261,
+   "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "roundtrip": null,
+   "sec_per_step": [
+    0.0713,
+    0.0474,
+    0.0485,
+    0.0471,
+    0.0474
+   ],
+   "job_lists": [
+    "soil_s1_B0_loao.tsv"
+   ],
+   "log_last": "exit: 0",
+   "problems": []
+  },
+  "G_soil_deploy": {
+   "json": "e5/deploy/G_soil/G_soil_deploy.json",
+   "job": 436353,
+   "n_fit": 28057,
+   "recomputed_fit": 28057,
+   "file_rows": 30827,
+   "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "roundtrip": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "sec_per_step": [
+    0.0491,
+    0.047,
+    0.0473,
+    0.0469,
+    0.0471
+   ],
+   "job_lists": [
+    "soil_s1_B.tsv",
+    "soil_s1_B_withH.tsv"
+   ],
+   "log_last": "exit: 0",
+   "problems": []
+  },
+  "G_soil_holdout": {
+   "json": "e5/train/soil_s1/offline_soil/G_soil_holdout.json",
+   "job": 436353,
+   "n_fit": 22284,
+   "recomputed_fit": 22284,
+   "file_rows": 30827,
+   "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "roundtrip": null,
+   "sec_per_step": [
+    0.0488,
+    0.0484,
+    0.0478,
+    0.0479,
+    0.048
+   ],
+   "job_lists": [
+    "soil_s1_B.tsv",
+    "soil_s1_B_withH.tsv"
+   ],
+   "log_last": "exit: 0",
+   "problems": []
+  }
+ },
+ "bad": []
+}

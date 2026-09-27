@@ -1,0 +1,6 @@
+05:35:14 /work1/dannegrut/harry/venvs/nedm/bin/python scripts/ag_build_ds.py --world rigid --rigid-runs /work1/dannegrut/harry/experiments/arena_gator_20260925/rigid_v1/runs --arena g203 --vehicle hmmwv --tasks-rigid /work1/dannegrut/harry/experiments/arena_gator_20260925/tasks/rigid_hmmwv_v1.json --map-root /work1/dannegrut/harry/experiments/arena_gator_20260925/map_roots/g203 --out /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/g203_hmmwv --source-root /work1/dannegrut/harry/experiments/arena_gator_20260925/source --workers 16
+[rigid] 24000 episodes selected ({'dirs': 52810, 'other_ids': 28810}; rejected {}); map check ok (46b4fb2c6d6c5dba)
+[rigid] station 24000 rows (74.4 s), re-anchored 92225 rows (178.0 s)
+wrote /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/g203_hmmwv/ci_g203_hmmwv_rigid.npz (92225 rows: {'rigid': 92225}; 1.673 GB) in 448.2 s
+{"rigid|train|startup": 21660, "rigid|train|established": 61569, "rigid|val|startup": 960, "rigid|val|established": 2752, "rigid|test|startup": 1380, "rigid|test|established": 3904}
+05:42:42 build exit: 0

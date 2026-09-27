@@ -1,0 +1,6 @@
+10:58:35 /work1/dannegrut/harry/venvs/nedm/bin/python scripts/ag_build_ds.py --world rigid --rigid-runs /work1/dannegrut/harry/experiments/arena_gator_20260925/rigid_v1/runs --arena f104 --vehicle gator --tasks-rigid /work1/dannegrut/harry/experiments/arena_gator_20260925/tasks/rigid_v2.json --map-root /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/map_roots/f104 --out /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/f104_gator --source-root /work1/dannegrut/harry/experiments/arena_gator_20260925/source --workers 16
+[rigid] 24000 episodes selected ({'dirs': 96200, 'other_ids': 72200}; rejected {}); map check ok (5d5bc683b6a8d9e9)
+[rigid] station 24000 rows (108.9 s), re-anchored 93551 rows (215.5 s)
+wrote /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/f104_gator/ci_f104_gator_rigid.npz (93551 rows: {'rigid': 93551}; 1.697 GB) in 551.9 s
+{"rigid|train|startup": 21780, "rigid|train|established": 63142, "rigid|val|startup": 1120, "rigid|val|established": 3239, "rigid|test|startup": 1100, "rigid|test|established": 3170}
+11:07:48 build exit: 0

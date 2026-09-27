@@ -1,0 +1,178 @@
+{
+ "mode": "soil",
+ "n": 10,
+ "same_status": 10,
+ "same_elapsed": 9,
+ "npz_identical_runs": 9,
+ "pass": false,
+ "rule": "every npz array identical and same status (soil is bit-identical across GPU types)",
+ "mismatches": [
+  {
+   "id": "f104_v2_group_0885_op_07",
+   "status": "goal_reached",
+   "ref_status": "goal_reached",
+   "elapsed_s": 23.3,
+   "ref_elapsed_s": 23.150000000000002,
+   "same_status": true,
+   "same_elapsed": false,
+   "npz_identical": {
+    "trajectory.npz": false,
+    "command_reference.npz": false,
+    "anchor_state.npz": true,
+    "crm_extra.npz": false
+   }
+  }
+ ],
+ "rows": [
+  {
+   "id": "f104_v2_group_0042_route_10",
+   "status": "goal_reached",
+   "ref_status": "goal_reached",
+   "elapsed_s": 10.850000000000001,
+   "ref_elapsed_s": 10.850000000000001,
+   "same_status": true,
+   "same_elapsed": true,
+   "npz_identical": {
+    "trajectory.npz": true,
+    "command_reference.npz": true,
+    "anchor_state.npz": true,
+    "crm_extra.npz": true
+   }
+  },
+  {
+   "id": "f104_v2_group_0175_route_07",
+   "status": "goal_reached",
+   "ref_status": "goal_reached",
+   "elapsed_s": 11.0,
+   "ref_elapsed_s": 11.0,
+   "same_status": true,
+   "same_elapsed": true,
+   "npz_identical": {
+    "trajectory.npz": true,
+    "command_reference.npz": true,
+    "anchor_state.npz": true,
+    "crm_extra.npz": true
+   }
+  },
+  {
+   "id": "f104_v2_group_0219_route_01",
+   "status": "soil_breakthrough_terminated",
+   "ref_status": "soil_breakthrough_terminated",
+   "elapsed_s": 13.850000000000001,
+   "ref_elapsed_s": 13.850000000000001,
+   "same_status": true,
+   "same_elapsed": true,
+   "npz_identical": {
+    "trajectory.npz": true,
+    "command_reference.npz": true,
+    "anchor_state.npz": true,
+    "crm_extra.npz": true
+   }
+  },
+  {
+   "id": "f104_v2_group_0242_route_08",
+   "status": "soil_breakthrough_terminated",
+   "ref_status": "soil_breakthrough_terminated",
+   "elapsed_s": 11.0,
+   "ref_elapsed_s": 11.0,
+   "same_status": true,
+   "same_elapsed": true,
+   "npz_identical": {
+    "trajectory.npz": true,
+    "command_reference.npz": true,
+    "anchor_state.npz": true,
+    "crm_extra.npz": true
+   }
+  },
+  {
+   "id": "f104_v2_group_0331_route_10",
+   "status": "goal_reached",
+   "ref_status": "goal_reached",
+   "elapsed_s": 10.3,
+   "ref_elapsed_s": 10.3,
+   "same_status": true,
+   "same_elapsed": true,
+   "npz_identical": {
+    "trajectory.npz": true,
+    "command_reference.npz": true,
+    "anchor_state.npz": true,
+    "crm_extra.npz": true
+   }
+  },
+  {
+   "id": "f104_v2_group_0354_route_00",
+   "status": "soil_breakthrough_terminated",
+   "ref_status": "soil_breakthrough_terminated",
+   "elapsed_s": 24.200000000000003,
+   "ref_elapsed_s": 24.200000000000003,
+   "same_status": true,
+   "same_elapsed": true,
+   "npz_identical": {
+    "trajectory.npz": true,
+    "command_reference.npz": true,
+    "anchor_state.npz": true,
+    "crm_extra.npz": true
+   }
+  },
+  {
+   "id": "f104_v2_group_0514_route_05",
+   "status": "goal_reached",
+   "ref_status": "goal_reached",
+   "elapsed_s": 13.3,
+   "ref_elapsed_s": 13.3,
+   "same_status": true,
+   "same_elapsed": true,
+   "npz_identical": {
+    "trajectory.npz": true,
+    "command_reference.npz": true,
+    "anchor_state.npz": true,
+    "crm_extra.npz": true
+   }
+  },
+  {
+   "id": "f104_v2_group_0698_op_00",
+   "status": "soil_breakthrough_terminated",
+   "ref_status": "soil_breakthrough_terminated",
+   "elapsed_s": 20.1,
+   "ref_elapsed_s": 20.1,
+   "same_status": true,
+   "same_elapsed": true,
+   "npz_identical": {
+    "trajectory.npz": true,
+    "command_reference.npz": true,
+    "anchor_state.npz": true,
+    "crm_extra.npz": true
+   }
+  },
+  {
+   "id": "f104_v2_group_0754_route_02",
+   "status": "soil_breakthrough_terminated",
+   "ref_status": "soil_breakthrough_terminated",
+   "elapsed_s": 14.05,
+   "ref_elapsed_s": 14.05,
+   "same_status": true,
+   "same_elapsed": true,
+   "npz_identical": {
+    "trajectory.npz": true,
+    "command_reference.npz": true,
+    "anchor_state.npz": true,
+    "crm_extra.npz": true
+   }
+  },
+  {
+   "id": "f104_v2_group_0885_op_07",
+   "status": "goal_reached",
+   "ref_status": "goal_reached",
+   "elapsed_s": 23.3,
+   "ref_elapsed_s": 23.150000000000002,
+   "same_status": true,
+   "same_elapsed": false,
+   "npz_identical": {
+    "trajectory.npz": false,
+    "command_reference.npz": false,
+    "anchor_state.npz": true,
+    "crm_extra.npz": false
+   }
+  }
+ ]
+}

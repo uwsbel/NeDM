@@ -1,0 +1,118 @@
+{
+ "schema": "ag_analyze_spec_v1",
+ "margin_pts": 2.0,
+ "alpha": 0.05,
+ "boot": 4000,
+ "seed": 0,
+ "cluster_key": "cluster",
+ "min_groups": 50,
+ "note": "E6b task B rigid fixed 2 m/s addendum (declared in spec_rigid_v1 note and LOG 14:1x, written before any of these drives exist): G and H at fixed 2 m/s and straight 2 m/s on the Gator, 800 f104 groups. Read-out G vs H on the Gator on unsafe (and fail); works criteria (1) G beats straight 2 m/s on the Gator, (2) G within 2 points of H (non-inferiority line), (4) headroom closed. Not part of the Holm family.",
+ "combine": [],
+ "family": [],
+ "contrasts": [
+  {
+   "name": "B2_rigid_fx2_G_vs_H_on_gator_unsafe",
+   "world": "rigid",
+   "vehicle": "gator",
+   "test": "G_fx2_gator",
+   "ref": "H_fx2_gator",
+   "label": "unsafe",
+   "set": "f104_800"
+  },
+  {
+   "name": "B2_rigid_fx2_G_vs_H_on_gator_fail",
+   "world": "rigid",
+   "vehicle": "gator",
+   "test": "G_fx2_gator",
+   "ref": "H_fx2_gator",
+   "label": "fail",
+   "set": "f104_800"
+  },
+  {
+   "name": "B2_rigid_fx2_G_vs_straight2_on_gator_unsafe",
+   "world": "rigid",
+   "vehicle": "gator",
+   "test": "G_fx2_gator",
+   "ref": "straight2_gator",
+   "label": "unsafe",
+   "set": "f104_800"
+  },
+  {
+   "name": "B2_rigid_fx2_G_vs_straight2_on_gator_fail",
+   "world": "rigid",
+   "vehicle": "gator",
+   "test": "G_fx2_gator",
+   "ref": "straight2_gator",
+   "label": "fail",
+   "set": "f104_800"
+  },
+  {
+   "name": "B2_rigid_fx2_H_vs_straight2_on_gator_unsafe",
+   "world": "rigid",
+   "vehicle": "gator",
+   "test": "H_fx2_gator",
+   "ref": "straight2_gator",
+   "label": "unsafe",
+   "set": "f104_800"
+  },
+  {
+   "name": "B2_rigid_fx2_H_vs_straight2_on_gator_fail",
+   "world": "rigid",
+   "vehicle": "gator",
+   "test": "H_fx2_gator",
+   "ref": "straight2_gator",
+   "label": "fail",
+   "set": "f104_800"
+  }
+ ],
+ "headroom": [
+  {
+   "world": "rigid",
+   "vehicle": "gator",
+   "model": "G_fx2_gator",
+   "straight": "straight2_gator",
+   "label": "unsafe",
+   "set": "f104_800"
+  },
+  {
+   "world": "rigid",
+   "vehicle": "gator",
+   "model": "H_fx2_gator",
+   "straight": "straight2_gator",
+   "label": "unsafe",
+   "set": "f104_800"
+  },
+  {
+   "world": "rigid",
+   "vehicle": "gator",
+   "model": "G_fx2_gator",
+   "straight": "straight2_gator",
+   "label": "fail",
+   "set": "f104_800"
+  },
+  {
+   "world": "rigid",
+   "vehicle": "gator",
+   "model": "H_fx2_gator",
+   "straight": "straight2_gator",
+   "label": "fail",
+   "set": "f104_800"
+  }
+ ],
+ "gaps": [],
+ "dose": [],
+ "time_ratio": [
+  {
+   "world": "rigid",
+   "vehicle": "gator",
+   "test": "G_fx2_gator",
+   "ref": "H_fx2_gator",
+   "set": "f104_800"
+  }
+ ],
+ "rates": {
+  "sets": [
+   "f104_800"
+  ]
+ }
+}

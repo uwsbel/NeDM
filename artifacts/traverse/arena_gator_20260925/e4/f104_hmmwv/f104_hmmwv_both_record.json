@@ -1,0 +1,401 @@
+{
+ "tool": "scripts/ag_build_ds.py",
+ "argv": [
+  "--arena",
+  "f104",
+  "--vehicle",
+  "hmmwv",
+  "--world",
+  "both",
+  "--rigid-runs",
+  "artifacts/traverse/fdm_f104_50h_20260909/production_v3/runs",
+  "artifacts/traverse/fdm_f104_50h_20260909/production_v4/runs",
+  "--crm-runs",
+  "artifacts/traverse/crm_f104_v1/collect_v1/runs",
+  "--exclude-ids-crm",
+  "artifacts/traverse/crm_f104_v1/collect_v1/qa.json",
+  "--map-root",
+  "artifacts/traverse/crm_f104_v1/map_root",
+  "--out",
+  "artifacts/traverse/arena_gator_20260925/e4/f104_hmmwv",
+  "--workers",
+  "12",
+  "--compare-to",
+  "artifacts/traverse/generalist_20260921/A_adapt/datasets/mixed_reanchor.npz"
+ ],
+ "started": "2026-09-25 02:35:40",
+ "host": "luffy",
+ "python": "/home/harry/miniconda3/envs/nedm/bin/python",
+ "arena": "f104",
+ "vehicle": "hmmwv",
+ "worlds": [
+  "rigid",
+  "crm"
+ ],
+ "map_root": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_f104_v1/map_root",
+ "map_observation_sha256": "53e23f99bf2c0141bd613ff5bef5a57f82c28b48e39026608dfdd8e2d5553e34",
+ "map_arena_bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+ "tasks": {},
+ "exclude_ids": {
+  "rigid": [],
+  "crm": [
+   "f104_v2_group_0211_route_11"
+  ]
+ },
+ "n_exclude_ids": {
+  "rigid": 0,
+  "crm": 1
+ },
+ "tiers": null,
+ "tool_sha256": {
+  "f104_n2_dataset.py": "49b2ad940a5876e07fa9d94f70605a9587d0820c5ce8b491aed8de0310ac7007",
+  "n2_reanchor_dataset.py": "80ad79119462d59afd991f39f3a5def0b59ae30d9d8953543833bb25441f0017",
+  "ga_build_mixed.py": "b7abc6d8512e722f62d3872e2332f16df423a8a48afd60d52f9504c80cf2e338",
+  "ag_build_ds.py": "2b4b20fae8f29b2428676a2e7138bb9d1c87ba4373272bae7f0b5acdc27e4b35",
+  "ag_map_check.py": "a237c2d9a72fa720f5db66c07ec0ae8d526d797b0fc654a0866b45af147f59a2",
+  "ag_tasklib.py": "1363371ee0621f835a49c094bea93adcdf2f6db2be7c2fbef9401436f5ab98da",
+  "crm_qa.py": "bde62d2d496db0c26929ecc074d8714cf1a3965bddfb2bf5e93247f107490229"
+ },
+ "selection": {
+  "rigid": {
+   "run_folders": [
+    "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_f104_50h_20260909/production_v3/runs",
+    "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_f104_50h_20260909/production_v4/runs"
+   ],
+   "counts": {
+    "dirs": 24000
+   },
+   "candidates": 24000,
+   "require_marker": false,
+   "rejected": {},
+   "rejected_ids": [],
+   "selected": 24000,
+   "groups": 1200,
+   "split_episodes": {
+    "train": 21780,
+    "test": 1100,
+    "val": 1120
+   },
+   "split_groups": {
+    "train": 1089,
+    "val": 56,
+    "test": 55
+   },
+   "tiers": {
+    "0": 1200,
+    "1": 1200,
+    "2": 1200,
+    "3": 1200,
+    "4": 1200,
+    "5": 1200,
+    "6": 1200,
+    "7": 1200,
+    "8": 1200,
+    "9": 1200,
+    "10": 1200,
+    "11": 1200,
+    "12": 1200,
+    "13": 1200,
+    "14": 1200,
+    "15": 1200,
+    "16": 1200,
+    "17": 1200,
+    "18": 1200,
+    "19": 1200
+   },
+   "status": {
+    "prolonged_blockage_terminated": 4120,
+    "goal_reached": 19230,
+    "timeout": 529,
+    "terrain_bounds_exit": 85,
+    "rollover": 36
+   },
+   "kinds": {
+    "on_policy": 9600,
+    "designed": 14400
+   },
+   "vehicle_blocks": {
+    "None": 24000
+   },
+   "map_check": {
+    "map_root": "artifacts/traverse/crm_f104_v1/map_root",
+    "map_arena": "arena_f104_50h_v1",
+    "map_arena_bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+    "map_observation_sha256": "53e23f99bf2c0141bd613ff5bef5a57f82c28b48e39026608dfdd8e2d5553e34",
+    "n_cases": 24000,
+    "ok": true,
+    "problems": [],
+    "arenas": {
+     "assets/traverse/arena_f104_50h_v1": {
+      "n": 24000,
+      "bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+      "match": true
+     }
+    }
+   }
+  },
+  "crm": {
+   "run_folders": [
+    "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_f104_v1/collect_v1/runs"
+   ],
+   "counts": {
+    "dirs": 15235
+   },
+   "candidates": 15235,
+   "require_marker": false,
+   "rejected": {},
+   "rejected_ids": [],
+   "selected": 15235,
+   "groups": 1200,
+   "split_episodes": {
+    "train": 13821,
+    "test": 701,
+    "val": 713
+   },
+   "split_groups": {
+    "train": 1089,
+    "val": 56,
+    "test": 55
+   },
+   "tiers": {
+    "0": 1199,
+    "1": 1200,
+    "2": 1200,
+    "3": 1200,
+    "4": 1200,
+    "5": 1200,
+    "6": 1200,
+    "7": 1200,
+    "8": 1200,
+    "9": 1200,
+    "10": 1200,
+    "11": 1200,
+    "12": 836
+   },
+   "status": {
+    "prolonged_blockage_terminated": 1985,
+    "soil_breakthrough_terminated": 8372,
+    "goal_reached": 4867,
+    "rollover": 2,
+    "timeout": 9
+   },
+   "kinds": {
+    "on_policy": 6067,
+    "designed": 9168
+   },
+   "vehicle_blocks": {
+    "None": 15235
+   },
+   "map_check": {
+    "map_root": "artifacts/traverse/crm_f104_v1/map_root",
+    "map_arena": "arena_f104_50h_v1",
+    "map_arena_bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+    "map_observation_sha256": "53e23f99bf2c0141bd613ff5bef5a57f82c28b48e39026608dfdd8e2d5553e34",
+    "n_cases": 15235,
+    "ok": true,
+    "problems": [],
+    "arenas": {
+     "assets/traverse/arena_f104_50h_v1": {
+      "n": 15235,
+      "bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+      "match": true
+     }
+    }
+   }
+  }
+ },
+ "stages": {
+  "rigid": {
+   "station": {
+    "path": "artifacts/traverse/arena_gator_20260925/e4/f104_hmmwv/station_f104_hmmwv_both_rigid.npz",
+    "rows": 24000,
+    "secs": 22.2,
+    "sha256": "0013ddd434d30fe44fe02c8b70c1239d7bbb89f4b4665b687837c194b9b03baa"
+   },
+   "reanchor": {
+    "path": "artifacts/traverse/arena_gator_20260925/e4/f104_hmmwv/reanchor_f104_hmmwv_both_rigid.npz",
+    "rows": 93397,
+    "episodes": 24000,
+    "secs": 74.3,
+    "sha256": "61b73560c44bd06169e599bedadfd6c60195d51fc268271d5fa65f4a531ed87e",
+    "rows_per_episode": 3.892
+   }
+  },
+  "crm": {
+   "station": {
+    "path": "artifacts/traverse/arena_gator_20260925/e4/f104_hmmwv/station_f104_hmmwv_both_crm.npz",
+    "rows": 15235,
+    "secs": 9.9,
+    "sha256": "da3a587a7dc0c0b9a12a8e8638c1cab30d708f4c7db53975cbbb4dd202449db8"
+   },
+   "reanchor": {
+    "path": "artifacts/traverse/arena_gator_20260925/e4/f104_hmmwv/reanchor_f104_hmmwv_both_crm.npz",
+    "rows": 58268,
+    "episodes": 15235,
+    "secs": 42.5,
+    "sha256": "2c27d8ce9848a3ac31954445772d6f66c2deef23738a06d453b448339ddb15c6",
+    "rows_per_episode": 3.825
+   }
+  },
+  "mixed": {
+   "tool": "ga_build_mixed.py",
+   "exit": 0,
+   "secs": 97.6,
+   "missing_episodes": 0,
+   "raw_found_fraction": 1.0,
+   "build_json": "artifacts/traverse/arena_gator_20260925/e4/f104_hmmwv/ci_f104_hmmwv_both_build.json"
+  }
+ },
+ "output": {
+  "path": "artifacts/traverse/arena_gator_20260925/e4/f104_hmmwv/ci_f104_hmmwv_both.npz",
+  "size_gb": 2.748,
+  "sha256": "350d58f4adcf01a64398754fa32165dcbb615ce51af2d20e59466fbe0bb189e6",
+  "rows": 151665,
+  "rows_by_world": {
+   "rigid": 93397,
+   "crm": 58268
+  },
+  "episodes_by_world": {
+   "rigid": 24000,
+   "crm": 15235
+  },
+  "groups_by_split": {
+   "train": 1089,
+   "val": 56,
+   "test": 55
+  },
+  "counts": {
+   "rigid|train|startup": 21780,
+   "rigid|train|established": 63007,
+   "rigid|val|startup": 1120,
+   "rigid|val|established": 3238,
+   "rigid|test|startup": 1100,
+   "rigid|test|established": 3152,
+   "crm|train|startup": 13821,
+   "crm|train|established": 39102,
+   "crm|val|startup": 713,
+   "crm|val|established": 1995,
+   "crm|test|startup": 701,
+   "crm|test|established": 1936
+  },
+  "tiers": {
+   "rigid": {
+    "0": 1200,
+    "1": 1200,
+    "2": 1200,
+    "3": 1200,
+    "4": 1200,
+    "5": 1200,
+    "6": 1200,
+    "7": 1200,
+    "8": 1200,
+    "9": 1200,
+    "10": 1200,
+    "11": 1200,
+    "12": 1200,
+    "13": 1200,
+    "14": 1200,
+    "15": 1200,
+    "16": 1200,
+    "17": 1200,
+    "18": 1200,
+    "19": 1200
+   },
+   "crm": {
+    "0": 1199,
+    "1": 1200,
+    "2": 1200,
+    "3": 1200,
+    "4": 1200,
+    "5": 1200,
+    "6": 1200,
+    "7": 1200,
+    "8": 1200,
+    "9": 1200,
+    "10": 1200,
+    "11": 1200,
+    "12": 836
+   }
+  },
+  "keys": [
+   "E",
+   "T",
+   "X",
+   "anchor_frame",
+   "arena",
+   "ctx",
+   "domain",
+   "episode",
+   "event_idx",
+   "fail",
+   "group",
+   "hist",
+   "hist_cols",
+   "hmask",
+   "id",
+   "priv_names",
+   "privileged",
+   "profile",
+   "rem_m",
+   "route_len",
+   "source",
+   "split",
+   "status",
+   "tier",
+   "time_to_event_s",
+   "unsafe",
+   "vehicle",
+   "vx_anchor"
+  ]
+ },
+ "compare": {
+  "ref": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/generalist_20260921/A_adapt/datasets/mixed_reanchor.npz",
+  "ref_rows": 115868,
+  "new_rows": 151665,
+  "new_rows_on_ref_episodes": 115868,
+  "by_domain": {
+   "rigid": {
+    "ref": 58424,
+    "new_on_ref_episodes": 58424,
+    "ref_episodes": 15024
+   },
+   "crm": {
+    "ref": 57444,
+    "new_on_ref_episodes": 57444,
+    "ref_episodes": 15024
+   }
+  },
+  "ids_in_both": 115868,
+  "ref_ids_missing_in_new": 0,
+  "new_ids_on_ref_episodes_missing_in_ref": 0,
+  "arrays_equal": {
+   "E": true,
+   "T": true,
+   "X": true,
+   "anchor_frame": true,
+   "ctx": true,
+   "domain": true,
+   "episode": true,
+   "event_idx": true,
+   "fail": true,
+   "group": true,
+   "hist": true,
+   "hmask": true,
+   "id": true,
+   "privileged": true,
+   "profile": true,
+   "rem_m": true,
+   "route_len": true,
+   "source": true,
+   "split": true,
+   "status": true,
+   "time_to_event_s": true,
+   "unsafe": true,
+   "vx_anchor": true
+  },
+  "identical": true
+ },
+ "links_removed": true,
+ "elapsed_s": 330.9,
+ "finished": "2026-09-25 02:41:11"
+}

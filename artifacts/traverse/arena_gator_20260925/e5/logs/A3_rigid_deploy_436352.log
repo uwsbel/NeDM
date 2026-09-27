@@ -1,0 +1,44 @@
+/work1/dannegrut/harry/experiments/arena_gator_20260925/source/scripts/ci_train.py:335: UserWarning: expandable_segments not supported on this platform (Triggered internally at /pytorch/c10/hip/HIPAllocatorConfig.h:40.)
+  self.X = torch.empty((self.n, 6, 96, 32), dtype=xdt, device='cpu', pin_memory=torch.cuda.is_available()) if a.x_host else torch.empty((self.n, 6, 96, 32), dtype=xdt, device=DEV)
+=== A3_rigid_deploy: files 1 rows used 263200 fit 250490 {'rigid': 250490, 'crm': 0} {'designed': 148532, 'on_policy': 101958} dev 51323 heldout(val) 12710 nctx 5 hist frames 40 visible / 40 consumed / 40 stored split_hash 1fcb9b56 load 61.5s data on gpu 18.08 GB
+  s0 rigid startup[W_unsafe=0.980 P_unsafe=0.981 pick_fail=0.012 brier_unsafe=0.057 n=3280] established[W_unsafe=0.980 P_unsafe=0.982 pick_fail=0.000 brier_unsafe=0.053 n=9430]
+  s0   k0             rigid W_unsafe=0.980 P_unsafe=0.981 pick_fail=0.012 brier_unsafe=0.057 n=3280
+  s0   k40p           rigid W_unsafe=0.980 P_unsafe=0.982 pick_fail=0.000 brier_unsafe=0.053 n=9430
+  s0   src:designed   rigid W_unsafe=0.984 P_unsafe=0.985 pick_fail=0.006 brier_unsafe=0.037 n=7538
+  s0   src:on_policy  rigid W_unsafe=0.960 P_unsafe=0.971 pick_fail=0.055 brier_unsafe=0.078 n=5172
+  s0 loss 0.4963 1073.5s (0.0366 s/step, 29340 steps) 256161p gpu_peak 19.32 GB (reserved 19.72)
+  s0 roundtrip {'n': 2048, 'max_abs_diff': 0.0, 'unaligned_diff': 7.62939453125e-06}
+  s1 rigid startup[W_unsafe=0.978 P_unsafe=0.980 pick_fail=0.012 brier_unsafe=0.058 n=3280] established[W_unsafe=0.979 P_unsafe=0.982 pick_fail=0.000 brier_unsafe=0.054 n=9430]
+  s1   k0             rigid W_unsafe=0.978 P_unsafe=0.980 pick_fail=0.012 brier_unsafe=0.058 n=3280
+  s1   k40p           rigid W_unsafe=0.979 P_unsafe=0.982 pick_fail=0.000 brier_unsafe=0.054 n=9430
+  s1   src:designed   rigid W_unsafe=0.982 P_unsafe=0.984 pick_fail=0.000 brier_unsafe=0.039 n=7538
+  s1   src:on_policy  rigid W_unsafe=0.957 P_unsafe=0.970 pick_fail=0.037 brier_unsafe=0.078 n=5172
+  s1 loss 0.3618 1069.3s (0.0364 s/step, 29340 steps) 256161p gpu_peak 19.33 GB (reserved 19.54)
+  s1 roundtrip {'n': 2048, 'max_abs_diff': 0.0, 'unaligned_diff': 6.67572021484375e-06}
+  s2 rigid startup[W_unsafe=0.977 P_unsafe=0.980 pick_fail=0.000 brier_unsafe=0.060 n=3280] established[W_unsafe=0.978 P_unsafe=0.981 pick_fail=0.000 brier_unsafe=0.055 n=9430]
+  s2   k0             rigid W_unsafe=0.977 P_unsafe=0.980 pick_fail=0.000 brier_unsafe=0.060 n=3280
+  s2   k40p           rigid W_unsafe=0.978 P_unsafe=0.981 pick_fail=0.000 brier_unsafe=0.055 n=9430
+  s2   src:designed   rigid W_unsafe=0.982 P_unsafe=0.983 pick_fail=0.000 brier_unsafe=0.040 n=7538
+  s2   src:on_policy  rigid W_unsafe=0.955 P_unsafe=0.969 pick_fail=0.043 brier_unsafe=0.080 n=5172
+  s2 loss 0.3887 1064.6s (0.0363 s/step, 29340 steps) 256161p gpu_peak 19.33 GB (reserved 19.54)
+  s2 roundtrip {'n': 2048, 'max_abs_diff': 0.0, 'unaligned_diff': 1.2159347534179688e-05}
+  s3 rigid startup[W_unsafe=0.982 P_unsafe=0.982 pick_fail=0.006 brier_unsafe=0.056 n=3280] established[W_unsafe=0.981 P_unsafe=0.982 pick_fail=0.000 brier_unsafe=0.054 n=9430]
+  s3   k0             rigid W_unsafe=0.982 P_unsafe=0.982 pick_fail=0.006 brier_unsafe=0.056 n=3280
+  s3   k40p           rigid W_unsafe=0.981 P_unsafe=0.982 pick_fail=0.000 brier_unsafe=0.054 n=9430
+  s3   src:designed   rigid W_unsafe=0.985 P_unsafe=0.985 pick_fail=0.000 brier_unsafe=0.039 n=7538
+  s3   src:on_policy  rigid W_unsafe=0.964 P_unsafe=0.971 pick_fail=0.055 brier_unsafe=0.077 n=5172
+  s3 loss 0.3314 1064.3s (0.0363 s/step, 29340 steps) 256161p gpu_peak 19.33 GB (reserved 19.54)
+  s3 roundtrip {'n': 2048, 'max_abs_diff': 0.0, 'unaligned_diff': 5.245208740234375e-06}
+  s4 rigid startup[W_unsafe=0.979 P_unsafe=0.980 pick_fail=0.018 brier_unsafe=0.057 n=3280] established[W_unsafe=0.980 P_unsafe=0.982 pick_fail=0.000 brier_unsafe=0.054 n=9430]
+  s4   k0             rigid W_unsafe=0.979 P_unsafe=0.980 pick_fail=0.018 brier_unsafe=0.057 n=3280
+  s4   k40p           rigid W_unsafe=0.980 P_unsafe=0.982 pick_fail=0.000 brier_unsafe=0.054 n=9430
+  s4   src:designed   rigid W_unsafe=0.981 P_unsafe=0.983 pick_fail=0.000 brier_unsafe=0.039 n=7538
+  s4   src:on_policy  rigid W_unsafe=0.962 P_unsafe=0.970 pick_fail=0.043 brier_unsafe=0.078 n=5172
+  s4 loss 0.3877 1065.2s (0.0363 s/step, 29340 steps) 256161p gpu_peak 19.33 GB (reserved 19.54)
+  s4 roundtrip {'n': 2048, 'max_abs_diff': 0.0, 'unaligned_diff': 4.76837158203125e-06}
+ENSEMBLE A3_rigid_deploy rigid startup[W_unsafe=0.984 P_unsafe=0.986 pick_fail=0.006 brier_unsafe=0.049 n=3280] established[W_unsafe=0.985 P_unsafe=0.987 pick_fail=0.000 brier_unsafe=0.046 n=9430]
+ENSEMBLE A3_rigid_deploy   k0             rigid W_unsafe=0.984 P_unsafe=0.986 pick_fail=0.006 brier_unsafe=0.049 n=3280
+ENSEMBLE A3_rigid_deploy   k40p           rigid W_unsafe=0.985 P_unsafe=0.987 pick_fail=0.000 brier_unsafe=0.046 n=9430
+ENSEMBLE A3_rigid_deploy   src:designed   rigid W_unsafe=0.987 P_unsafe=0.988 pick_fail=0.000 brier_unsafe=0.033 n=7538
+ENSEMBLE A3_rigid_deploy   src:on_policy  rigid W_unsafe=0.969 P_unsafe=0.978 pick_fail=0.037 brier_unsafe=0.067 n=5172
+exit: 0

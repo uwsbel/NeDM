@@ -1,0 +1,135 @@
+contrast X_free_seed_M1a_vs_M1b_fail (rigid/hmmwv, fail, unseen): M1a_free 0.6 % vs M1b_free 0.7 %, diff -0.0, cluster 90 % [-0.4, +0.3], p1 0.4409 -> no meaningful difference (secondary, unadjusted); n 2000
+contrast X_free_seed_M3a_vs_M3b_fail (rigid/hmmwv, fail, unseen): M3a_free 0.4 % vs M3b_free 0.2 %, diff +0.1, cluster 90 % [-0.1, +0.4], p1 0.8788 -> no meaningful difference (secondary, unadjusted); n 2000
+contrast X_free_seed_M1a_vs_M1b_unsafe (rigid/hmmwv, unsafe, unseen): M1a_free 1.1 % vs M1b_free 1.5 %, diff -0.4, cluster 90 % [-0.9, +0.1], p1 0.1222 -> no meaningful difference (secondary, unadjusted); n 2000
+contrast X_free_seed_M3a_vs_M3b_unsafe (rigid/hmmwv, unsafe, unseen): M3a_free 0.7 % vs M3b_free 0.7 %, diff +0.0, cluster 90 % [-0.3, +0.3], p1 0.5539 -> no meaningful difference (secondary, unadjusted); n 2000
+contrast X_fx2_seed_M1a_vs_M1b_fail (rigid/hmmwv, fail, unseen): M1a_fx2 3.0 % vs M1b_fx2 3.1 %, diff -0.2, cluster 90 % [-0.8, +0.5], p1 0.3839 -> no meaningful difference (secondary, unadjusted); n 2000
+contrast X_fx2_seed_M3a_vs_M3b_fail (rigid/hmmwv, fail, unseen): M3a_fx2 2.8 % vs M3b_fx2 3.3 %, diff -0.6, cluster 90 % [-1.4, +0.3], p1 0.1530 -> no meaningful difference (secondary, unadjusted); n 2000
+contrast X_fx2_M2_vs_M1_fail (rigid/hmmwv, fail, unseen): M2_fx2 3.5 % vs M1_fx2 3.1 %, diff +0.4, cluster 90 % [-0.7, +1.5], p1 0.7416 -> no meaningful difference (secondary, unadjusted); n 2000
+contrast X_fx2_A3_vs_M3_fail (rigid/hmmwv, fail, unseen): A3_fx2 2.9 % vs M3_fx2 3.0 %, diff -0.1, cluster 90 % [-0.7, +0.6], p1 0.4269 -> no meaningful difference (secondary, unadjusted); n 2000
+contrast X_fx2_M3_fx2_vs_M1_backward_only (rigid/hmmwv, backward_only, unseen): M3_fx2 3.1 % vs M1_fx2 5.2 %, diff -2.1, cluster 90 % [-3.0, -1.2], p1 0.0002 -> improves (secondary, unadjusted); n 2000
+contrast X_fx2_M3_fx2_vs_straight2_unsafe (rigid/hmmwv, unsafe, unseen): M3_fx2 6.2 % vs straight2 54.5 %, diff -48.3, cluster 90 % [-52.6, -44.1], p1 0.0002 -> improves (secondary, unadjusted); n 2000
+contrast X_fx2_inarena_g203_M3_fx2_vs_M1_unsafe (rigid/hmmwv, unsafe, heldout_g203): M3_fx2 2.0 % vs M1_fx2 6.7 %, diff -4.7, cluster 90 % [-8.4, -1.5], p1 0.0017 -> improves (secondary, unadjusted); n 150
+contrast X_fx2_inarena_g228_M3_fx2_vs_M1_unsafe (rigid/hmmwv, unsafe, heldout_g228): M3_fx2 5.0 % vs M1_fx2 16.0 %, diff -11.0, cluster 90 % [-17.1, -5.4], p1 0.0002 -> improves (secondary, unadjusted); n 150
+contrast X_fx2_dev_M3_fx2_vs_M1_fail (rigid/hmmwv, fail, dev): M3_fx2 0.7 % vs M1_fx2 1.3 %, diff -0.7, cluster 90 % [-2.2, +0.9], p1 0.3124 -> inconclusive (secondary, unadjusted); n 150
+contrast X_fx2_A3_fx2_vs_M1_backward_only (rigid/hmmwv, backward_only, unseen): A3_fx2 2.4 % vs M1_fx2 5.2 %, diff -2.8, cluster 90 % [-4.0, -1.9], p1 0.0002 -> improves (secondary, unadjusted); n 2000
+contrast X_fx2_A3_fx2_vs_straight2_unsafe (rigid/hmmwv, unsafe, unseen): A3_fx2 5.3 % vs straight2 54.5 %, diff -49.2, cluster 90 % [-53.3, -44.8], p1 0.0002 -> improves (secondary, unadjusted); n 2000
+contrast X_fx2_inarena_g203_A3_fx2_vs_M1_unsafe (rigid/hmmwv, unsafe, heldout_g203): A3_fx2 1.3 % vs M1_fx2 6.7 %, diff -5.3, cluster 90 % [-8.5, -2.7], p1 0.0005 -> improves (secondary, unadjusted); n 150
+contrast X_fx2_inarena_g228_A3_fx2_vs_M1_unsafe (rigid/hmmwv, unsafe, heldout_g228): A3_fx2 2.0 % vs M1_fx2 16.0 %, diff -14.0, cluster 90 % [-21.0, -7.4], p1 0.0002 -> improves (secondary, unadjusted); n 150
+contrast X_fx2_dev_A3_fx2_vs_M1_fail (rigid/hmmwv, fail, dev): A3_fx2 1.3 % vs M1_fx2 1.3 %, diff +0.0, cluster 90 % [-1.9, +1.7], p1 0.5639 -> no meaningful difference (secondary, unadjusted); n 150
+contrast X_fx2_inarena_M2_vs_M1_unsafe (rigid/hmmwv, unsafe, heldout): M2_fx2 8.0 % vs M1_fx2 11.3 %, diff -3.3, cluster 90 % [-5.9, -1.1], p1 0.0047 -> improves (secondary, unadjusted); n 300
+contrast X_fx2_inarena_M3_vs_M1_fail (rigid/hmmwv, fail, heldout): M3_fx2 1.3 % vs M1_fx2 3.0 %, diff -1.7, cluster 90 % [-3.3, +0.0], p1 0.0515 -> inconclusive (secondary, unadjusted); n 300
+contrast X_fx2_inarena_A3_vs_M1_fail (rigid/hmmwv, fail, heldout): A3_fx2 1.0 % vs M1_fx2 3.0 %, diff -2.0, cluster 90 % [-4.0, -0.2], p1 0.0450 -> improves (secondary, unadjusted); n 300
+contrast X_free_inarena_M3_vs_M1_fail (rigid/hmmwv, fail, heldout): M3_free 0.5 % vs M1_free 0.8 %, diff -0.3, cluster 90 % [-1.2, +0.4], p1 0.3032 -> no meaningful difference (secondary, unadjusted); n 300
+contrast X_free_inarena_A3_vs_M1_unsafe (rigid/hmmwv, unsafe, heldout): A3_free 0.3 % vs M1_free 1.5 %, diff -1.2, cluster 90 % [-2.3, +0.0], p1 0.0540 -> inconclusive (secondary, unadjusted); n 300
+contrast X_free_M1_vs_straight6_unsafe (rigid/hmmwv, unsafe, unseen): M1_free 1.2 % vs straight6 2.1 %, diff -0.9, cluster 90 % [-2.0, +0.2], p1 0.0952 -> no meaningful difference (secondary, unadjusted); n 2000
+contrast X_free_M3_vs_straight6_fail (rigid/hmmwv, fail, unseen): M3_free 0.3 % vs straight6 1.6 %, diff -1.3, cluster 90 % [-2.1, -0.6], p1 0.0002 -> improves (secondary, unadjusted); n 2000
+contrast X_free_A3_vs_straight6_fail (rigid/hmmwv, fail, unseen): A3_free 0.3 % vs straight6 1.6 %, diff -1.3, cluster 90 % [-2.1, -0.6], p1 0.0005 -> improves (secondary, unadjusted); n 2000
+contrast X_free_M2_vs_M1_unsafe (rigid/hmmwv, unsafe, unseen): M2_free 0.6 % vs M1_free 1.2 %, diff -0.7, cluster 90 % [-1.1, -0.2], p1 0.0072 -> improves (secondary, unadjusted); n 2000
+contrast X_free_A3_vs_M3_fail (rigid/hmmwv, fail, unseen): A3_free 0.3 % vs M3_free 0.3 %, diff -0.0, cluster 90 % [-0.2, +0.2], p1 0.4454 -> no meaningful difference (secondary, unadjusted); n 2000
+contrast X_free_dev_M3_vs_M1_fail (rigid/hmmwv, fail, dev): M3_free 0.7 % vs M1_free 0.0 %, diff +0.7, cluster 90 % [+0.0, +1.3], p1 1.0000 -> no meaningful difference (secondary, unadjusted); n 150
+contrast X_free_dev_A3_vs_M1_fail (rigid/hmmwv, fail, dev): A3_free 0.0 % vs M1_free 0.0 %, diff +0.0, cluster 90 % [+0.0, +0.0], p1 1.0000 -> no meaningful difference (secondary, unadjusted); n 150
+gap rigid M1_fx2 unsafe: unseen 8.3 % - indist 11.3 % = -3.0 [-6.2, +0.1]; vs straight2: DiD +0.5 [-6.2, +6.9]
+gap rigid M1_fx2 fail: unseen 3.1 % - indist 3.0 % = +0.1 [-1.7, +1.7]; vs straight2: DiD +8.4 [+2.6, +14.1]
+gap rigid M1_fx2 unsafe: unseen 8.3 % - indist 6.7 % = +1.7 [-2.0, +4.9]; vs straight2: DiD +6.5 [-2.3, +15.1]
+gap rigid M1_fx2 fail: unseen 3.1 % - indist 2.0 % = +1.1 [-1.1, +2.8]; vs straight2: DiD +13.0 [+5.2, +20.7]
+gap rigid M1_fx2 unsafe: unseen 8.3 % - indist 16.0 % = -7.7 [-12.9, -2.7]; vs straight2: DiD -5.5 [-14.6, +3.1]
+gap rigid M1_fx2 fail: unseen 3.1 % - indist 4.0 % = -0.9 [-3.7, +1.4]; vs straight2: DiD +3.7 [-4.3, +11.8]
+gap rigid M2_fx2 unsafe: unseen 6.6 % - indist 8.0 % = -1.4 [-4.8, +1.8]; vs straight2: DiD +2.1 [-4.7, +8.4]
+gap rigid M2_fx2 fail: unseen 3.5 % - indist 2.7 % = +0.8 [-1.3, +2.7]; vs straight2: DiD +9.1 [+3.3, +14.9]
+gap rigid M2_fx2 unsafe: unseen 6.6 % - indist 2.0 % = +4.6 [+1.9, +6.8]; vs straight2: DiD +9.4 [+1.2, +18.0]
+gap rigid M2_fx2 fail: unseen 3.5 % - indist 1.3 % = +2.2 [-0.0, +3.9]; vs straight2: DiD +14.1 [+6.2, +21.9]
+gap rigid M2_fx2 unsafe: unseen 6.6 % - indist 14.0 % = -7.4 [-13.4, -2.1]; vs straight2: DiD -5.2 [-14.3, +3.9]
+gap rigid M2_fx2 fail: unseen 3.5 % - indist 4.0 % = -0.5 [-4.1, +2.5]; vs straight2: DiD +4.1 [-3.8, +12.0]
+gap rigid M3_fx2 unsafe: unseen 6.2 % - indist 3.5 % = +2.7 [+0.7, +4.6]; vs straight2: DiD +6.2 [+0.1, +12.2]
+gap rigid M3_fx2 fail: unseen 3.0 % - indist 1.3 % = +1.7 [+0.6, +2.7]; vs straight2: DiD +10.0 [+4.3, +15.9]
+gap rigid M3_fx2 unsafe: unseen 6.2 % - indist 2.0 % = +4.2 [+2.0, +6.1]; vs straight2: DiD +9.0 [+0.6, +17.0]
+gap rigid M3_fx2 fail: unseen 3.0 % - indist 0.7 % = +2.4 [+1.2, +3.3]; vs straight2: DiD +14.3 [+6.5, +22.4]
+gap rigid M3_fx2 unsafe: unseen 6.2 % - indist 5.0 % = +1.2 [-1.8, +3.9]; vs straight2: DiD +3.3 [-4.8, +11.5]
+gap rigid M3_fx2 fail: unseen 3.0 % - indist 2.0 % = +1.0 [-0.7, +2.6]; vs straight2: DiD +5.6 [-1.9, +13.3]
+gap rigid A3_fx2 unsafe: unseen 5.3 % - indist 1.7 % = +3.7 [+1.9, +5.3]; vs straight2: DiD +7.2 [+1.2, +13.2]
+gap rigid A3_fx2 fail: unseen 2.9 % - indist 1.0 % = +1.9 [+0.5, +3.2]; vs straight2: DiD +10.2 [+4.6, +16.1]
+gap rigid A3_fx2 unsafe: unseen 5.3 % - indist 1.3 % = +4.0 [+1.6, +5.9]; vs straight2: DiD +8.9 [+0.6, +17.1]
+gap rigid A3_fx2 fail: unseen 2.9 % - indist 0.0 % = +2.9 [+2.2, +3.7]; vs straight2: DiD +14.9 [+7.1, +23.1]
+gap rigid A3_fx2 unsafe: unseen 5.3 % - indist 2.0 % = +3.3 [+0.8, +5.5]; vs straight2: DiD +5.5 [-3.0, +13.9]
+gap rigid A3_fx2 fail: unseen 2.9 % - indist 2.0 % = +0.9 [-1.7, +3.0]; vs straight2: DiD +5.6 [-2.1, +13.3]
+gap rigid M1_free fail: unseen 0.6 % - indist 0.8 % = -0.2 [-1.3, +0.7]; vs straight6: DiD +2.9 [+0.3, +5.5]
+gap rigid M1_free unsafe: unseen 1.2 % - indist 1.5 % = -0.2 [-1.6, +0.9]; vs straight6: DiD +4.3 [+1.5, +7.4]
+gap rigid M1_free fail: unseen 0.6 % - indist 0.7 % = -0.0 [-1.5, +0.8]; vs straight6: DiD +3.7 [+0.1, +7.9]
+gap rigid M1_free unsafe: unseen 1.2 % - indist 1.3 % = -0.1 [-1.9, +1.3]; vs straight6: DiD +5.2 [+1.1, +9.6]
+gap rigid M1_free fail: unseen 0.6 % - indist 1.0 % = -0.4 [-2.1, +0.8]; vs straight6: DiD +2.0 [-1.3, +5.7]
+gap rigid M1_free unsafe: unseen 1.2 % - indist 1.7 % = -0.4 [-2.4, +1.1]; vs straight6: DiD +3.5 [-0.4, +7.7]
+gap rigid M2_free fail: unseen 0.2 % - indist 1.0 % = -0.8 [-2.1, +0.2]; vs straight6: DiD +2.3 [-0.1, +5.0]
+gap rigid M2_free unsafe: unseen 0.6 % - indist 2.0 % = -1.4 [-3.1, +0.1]; vs straight6: DiD +3.2 [+0.1, +6.3]
+gap rigid M2_free fail: unseen 0.2 % - indist 0.7 % = -0.4 [-1.9, +0.4]; vs straight6: DiD +3.3 [-0.3, +7.4]
+gap rigid M2_free unsafe: unseen 0.6 % - indist 2.0 % = -1.4 [-4.0, +0.6]; vs straight6: DiD +3.8 [-0.5, +8.4]
+gap rigid M2_free fail: unseen 0.2 % - indist 1.3 % = -1.1 [-3.1, +0.4]; vs straight6: DiD +1.3 [-1.8, +4.7]
+gap rigid M2_free unsafe: unseen 0.6 % - indist 2.0 % = -1.4 [-4.0, +0.5]; vs straight6: DiD +2.5 [-1.5, +6.8]
+gap rigid M3_free fail: unseen 0.3 % - indist 0.5 % = -0.2 [-0.8, +0.4]; vs straight6: DiD +2.9 [+0.5, +5.6]
+gap rigid M3_free unsafe: unseen 0.7 % - indist 0.8 % = -0.2 [-1.0, +0.5]; vs straight6: DiD +4.4 [+1.6, +7.4]
+gap rigid M3_free fail: unseen 0.3 % - indist 0.3 % = -0.0 [-0.8, +0.5]; vs straight6: DiD +3.7 [+0.4, +7.7]
+gap rigid M3_free unsafe: unseen 0.7 % - indist 0.7 % = -0.0 [-1.1, +0.8]; vs straight6: DiD +5.2 [+1.4, +9.5]
+gap rigid M3_free fail: unseen 0.3 % - indist 0.7 % = -0.3 [-1.4, +0.4]; vs straight6: DiD +2.1 [-1.1, +5.5]
+gap rigid M3_free unsafe: unseen 0.7 % - indist 1.0 % = -0.3 [-1.6, +0.7]; vs straight6: DiD +3.5 [-0.0, +7.6]
+gap rigid A3_free fail: unseen 0.3 % - indist 0.3 % = -0.0 [-0.8, +0.5]; vs straight6: DiD +3.0 [+0.9, +5.6]
+gap rigid A3_free unsafe: unseen 0.7 % - indist 0.3 % = +0.4 [-0.5, +1.0]; vs straight6: DiD +4.9 [+2.3, +7.9]
+gap rigid A3_free fail: unseen 0.3 % - indist 0.7 % = -0.4 [-1.9, +0.5]; vs straight6: DiD +3.4 [+0.3, +7.0]
+gap rigid A3_free unsafe: unseen 0.7 % - indist 0.7 % = +0.0 [-1.5, +1.0]; vs straight6: DiD +5.3 [+1.5, +9.6]
+gap rigid A3_free fail: unseen 0.3 % - indist 0.0 % = +0.3 [+0.1, +0.5]; vs straight6: DiD +2.7 [-0.2, +6.2]
+gap rigid A3_free unsafe: unseen 0.7 % - indist 0.0 % = +0.7 [+0.4, +1.1]; vs straight6: DiD +4.6 [+1.1, +8.6]
+dose rigid M1_free -> M2_free -> M3_free (unsafe): rates 1.2, 0.6, 0.7; slope -0.30 pts/arena [-0.5, -0.1]; n 2000
+dose rigid M1_fx2 -> M2_fx2 -> M3_fx2 (unsafe): rates 7.0, 6.9, 6.2; slope -0.45 pts/arena [-1.1, +0.2]; n 1000
+dose rigid M1_fx2 -> M2_fx2 -> M3_fx2 (unsafe): rates 9.6, 6.3, 6.2; slope -1.70 pts/arena [-2.5, -0.9]; n 1000
+rates rigid|hmmwv heldout_g203   A3_free        n  150 goal  99.3 % unsafe   0.7 % (no-back   0.7) tilt30  4.0 % median time 14.1 s
+rates rigid|hmmwv heldout_g203   A3_fx2         n  150 goal 100.0 % unsafe   1.3 % (no-back   0.0) tilt30  1.3 % median time 20.9 s
+rates rigid|hmmwv heldout_g203   M1_free        n  150 goal  99.3 % unsafe   1.3 % (no-back   0.7) tilt30  5.3 % median time nan s
+rates rigid|hmmwv heldout_g203   M1_fx2         n  150 goal  98.0 % unsafe   6.7 % (no-back   2.0) tilt30  3.0 % median time nan s
+rates rigid|hmmwv heldout_g203   M1a_free       n  150 goal  99.3 % unsafe   0.7 % (no-back   0.7) tilt30  7.3 % median time 12.2 s
+rates rigid|hmmwv heldout_g203   M1a_fx2        n  150 goal  98.7 % unsafe   7.3 % (no-back   1.3) tilt30  3.3 % median time 21.0 s
+rates rigid|hmmwv heldout_g203   M1b_free       n  150 goal  99.3 % unsafe   2.0 % (no-back   0.7) tilt30  3.3 % median time 12.7 s
+rates rigid|hmmwv heldout_g203   M1b_fx2        n  150 goal  97.3 % unsafe   6.0 % (no-back   2.7) tilt30  2.7 % median time 20.8 s
+rates rigid|hmmwv heldout_g203   M2_free        n  150 goal  99.3 % unsafe   2.0 % (no-back   0.7) tilt30  4.0 % median time 12.5 s
+rates rigid|hmmwv heldout_g203   M2_fx2         n  150 goal  98.7 % unsafe   2.0 % (no-back   1.3) tilt30  1.3 % median time 21.0 s
+rates rigid|hmmwv heldout_g203   M3_free        n  150 goal  99.7 % unsafe   0.7 % (no-back   0.3) tilt30  5.3 % median time nan s
+rates rigid|hmmwv heldout_g203   M3_fx2         n  150 goal  99.3 % unsafe   2.0 % (no-back   0.7) tilt30  3.0 % median time nan s
+rates rigid|hmmwv heldout_g203   M3a_free       n  150 goal  99.3 % unsafe   0.7 % (no-back   0.7) tilt30  4.7 % median time 16.1 s
+rates rigid|hmmwv heldout_g203   M3a_fx2        n  150 goal  99.3 % unsafe   2.0 % (no-back   0.7) tilt30  3.3 % median time 20.8 s
+rates rigid|hmmwv heldout_g203   M3b_free       n  150 goal 100.0 % unsafe   0.7 % (no-back   0.0) tilt30  6.0 % median time 16.6 s
+rates rigid|hmmwv heldout_g203   M3b_fx2        n  150 goal  99.3 % unsafe   2.0 % (no-back   0.7) tilt30  2.7 % median time 21.1 s
+rates rigid|hmmwv heldout_g203   straight2      n  150 goal  62.0 % unsafe  59.3 % (no-back  38.0) tilt30 12.0 % median time 22.1 s
+rates rigid|hmmwv heldout_g203   straight6      n  150 goal  94.7 % unsafe   7.3 % (no-back   5.3) tilt30 18.7 % median time 7.6 s
+rates rigid|hmmwv heldout_g228   A3_free        n  150 goal 100.0 % unsafe   0.0 % (no-back   0.0) tilt30  2.7 % median time 13.5 s
+rates rigid|hmmwv heldout_g228   A3_fx2         n  150 goal  98.0 % unsafe   2.0 % (no-back   2.0) tilt30  1.3 % median time 20.7 s
+rates rigid|hmmwv heldout_g228   M1_free        n  150 goal  99.0 % unsafe   1.7 % (no-back   1.0) tilt30  4.3 % median time nan s
+rates rigid|hmmwv heldout_g228   M1_fx2         n  150 goal  96.0 % unsafe  16.0 % (no-back   4.0) tilt30  3.3 % median time nan s
+rates rigid|hmmwv heldout_g228   M1a_free       n  150 goal  99.3 % unsafe   0.7 % (no-back   0.7) tilt30  4.7 % median time 12.7 s
+rates rigid|hmmwv heldout_g228   M1a_fx2        n  150 goal  96.0 % unsafe  14.7 % (no-back   4.0) tilt30  3.3 % median time 21.3 s
+rates rigid|hmmwv heldout_g228   M1b_free       n  150 goal  98.7 % unsafe   2.7 % (no-back   1.3) tilt30  4.0 % median time 13.2 s
+rates rigid|hmmwv heldout_g228   M1b_fx2        n  150 goal  96.0 % unsafe  17.3 % (no-back   4.0) tilt30  3.3 % median time 21.8 s
+rates rigid|hmmwv heldout_g228   M2_free        n  150 goal  98.7 % unsafe   2.0 % (no-back   1.3) tilt30  1.3 % median time 13.0 s
+rates rigid|hmmwv heldout_g228   M2_fx2         n  150 goal  96.0 % unsafe  14.0 % (no-back   4.0) tilt30  4.0 % median time 21.1 s
+rates rigid|hmmwv heldout_g228   M3_free        n  150 goal  99.3 % unsafe   1.0 % (no-back   0.7) tilt30  4.0 % median time nan s
+rates rigid|hmmwv heldout_g228   M3_fx2         n  150 goal  98.0 % unsafe   5.0 % (no-back   2.0) tilt30  4.0 % median time nan s
+rates rigid|hmmwv heldout_g228   M3a_free       n  150 goal  99.3 % unsafe   0.7 % (no-back   0.7) tilt30  4.7 % median time 15.5 s
+rates rigid|hmmwv heldout_g228   M3a_fx2        n  150 goal  97.3 % unsafe   7.3 % (no-back   2.7) tilt30  3.3 % median time 21.1 s
+rates rigid|hmmwv heldout_g228   M3b_free       n  150 goal  99.3 % unsafe   1.3 % (no-back   0.7) tilt30  3.3 % median time 15.5 s
+rates rigid|hmmwv heldout_g228   M3b_fx2        n  150 goal  98.7 % unsafe   2.7 % (no-back   1.3) tilt30  4.7 % median time 20.7 s
+rates rigid|hmmwv heldout_g228   straight2      n  150 goal  69.3 % unsafe  56.7 % (no-back  30.7) tilt30  2.7 % median time 22.6 s
+rates rigid|hmmwv heldout_g228   straight6      n  150 goal  96.0 % unsafe   6.0 % (no-back   4.0) tilt30 13.3 % median time 7.8 s
+rates rigid|hmmwv dev            A3_free        n  150 goal 100.0 % unsafe   0.0 % (no-back   0.0) tilt30  0.0 % median time 13.2 s
+rates rigid|hmmwv dev            A3_fx2         n  150 goal  98.7 % unsafe   1.3 % (no-back   1.3) tilt30  0.7 % median time 19.6 s
+rates rigid|hmmwv dev            M1_free        n  150 goal 100.0 % unsafe   1.0 % (no-back   0.0) tilt30  2.7 % median time nan s
+rates rigid|hmmwv dev            M1_fx2         n  150 goal  98.7 % unsafe   3.0 % (no-back   1.3) tilt30  1.7 % median time nan s
+rates rigid|hmmwv dev            M1a_free       n  150 goal 100.0 % unsafe   0.0 % (no-back   0.0) tilt30  1.3 % median time 12.0 s
+rates rigid|hmmwv dev            M1a_fx2        n  150 goal  99.3 % unsafe   2.0 % (no-back   0.7) tilt30  1.3 % median time 19.9 s
+rates rigid|hmmwv dev            M1b_free       n  150 goal 100.0 % unsafe   2.0 % (no-back   0.0) tilt30  4.0 % median time 12.8 s
+rates rigid|hmmwv dev            M1b_fx2        n  150 goal  98.0 % unsafe   4.0 % (no-back   2.0) tilt30  2.0 % median time 20.1 s
+rates rigid|hmmwv dev            M2_free        n  150 goal 100.0 % unsafe   0.0 % (no-back   0.0) tilt30  1.3 % median time 12.2 s
+rates rigid|hmmwv dev            M2_fx2         n  150 goal 100.0 % unsafe   0.7 % (no-back   0.0) tilt30  1.3 % median time 19.6 s
+rates rigid|hmmwv dev            M3_free        n  150 goal  99.3 % unsafe   0.7 % (no-back   0.7) tilt30  2.3 % median time nan s
+rates rigid|hmmwv dev            M3_fx2         n  150 goal  99.3 % unsafe   3.3 % (no-back   0.7) tilt30  0.7 % median time nan s
+rates rigid|hmmwv dev            M3a_free       n  150 goal 100.0 % unsafe   0.0 % (no-back   0.0) tilt30  1.3 % median time 15.2 s
+rates rigid|hmmwv dev            M3a_fx2        n  150 goal  99.3 % unsafe   4.0 % (no-back   0.7) tilt30  0.0 % median time 19.8 s
+rates rigid|hmmwv dev            M3b_free       n  150 goal  98.7 % unsafe   1.3 % (no-back   1.3) tilt30  3.3 % median time 15.4 s
+rates rigid|hmmwv dev            M3b_fx2        n  150 goal  99.3 % unsafe   2.7 % (no-back   0.7) tilt30  1.3 % median time 19.6 s
+rates rigid|hmmwv dev            straight2      n  150 goal  81.3 % unsafe  41.3 % (no-back  18.7) tilt30 10.0 % median time 21.3 s
+rates rigid|hmmwv dev            straight6      n  150 goal 100.0 % unsafe   2.0 % (no-back   0.0) tilt30  9.3 % median time 7.2 s

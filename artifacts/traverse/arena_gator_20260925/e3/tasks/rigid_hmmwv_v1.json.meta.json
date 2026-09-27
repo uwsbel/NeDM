@@ -1,0 +1,47 @@
+{
+ "tool": "scripts/ag_rigid_tasks.py",
+ "tool_sha256": "74ec7461d60b06785f5c8088687de9be7e67d71352f2f1f34c0938fa47d6a91f",
+ "argv": [
+  "--out",
+  "artifacts/traverse/arena_gator_20260925/e3/tasks/rigid_hmmwv_v1.json"
+ ],
+ "n_rows": 60200,
+ "file_sha256": "168044497dd338de46bb22d769199be6bd9a4e6d1e29be4607640f53b1aa8b82",
+ "by_kind": {
+  "on_policy": 19200,
+  "designed": 28800,
+  "test_designed": 12000,
+  "drift": 200
+ },
+ "by_arena": {
+  "g203": 24000,
+  "g228": 24000,
+  "g260": 3000,
+  "g271": 3000,
+  "g251": 3000,
+  "g247": 3000,
+  "f104": 200
+ },
+ "by_shard": {
+  "0": 4040,
+  "1": 3980,
+  "2": 3820,
+  "3": 3980,
+  "4": 4640,
+  "5": 3380,
+  "6": 4260,
+  "7": 3980,
+  "8": 3740,
+  "9": 4080,
+  "10": 4160,
+  "11": 4140,
+  "12": 6240,
+  "13": 5760
+ },
+ "n_shards": 14,
+ "by_split": {
+  "train": 53878,
+  "test": 3697,
+  "val": 2625
+ }
+}

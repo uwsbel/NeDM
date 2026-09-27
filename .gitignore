@@ -533,3 +533,55 @@ artifacts/traverse/arena_gator_20260925/*
 !artifacts/traverse/arena_gator_20260925/*.md
 !artifacts/traverse/arena_gator_20260925/PLAN.sha256
 !artifacts/traverse/arena_gator_20260925/scout/
+# Final report (2026-09-26), curated as crm_improve_20260922: the written records, the results digest and analysis
+# results, frozen specs, pick locks, task-file meta/check files, offline tables, collection read-outs, model checksums
+# and manifests, dataset build records, job lists and logs, verifier outputs, figures and the small arena / suite / case
+# definitions are committed. Runs, datasets (*.npz), checkpoints (*.pt), logits, pick/route folders, task files,
+# per-drive indexes, per-id tables and case files stay local and on the cluster (the cases regenerate byte-identically
+# from the seeds in cases/README.md; their per-file hash lists are summarised by suites/*.manifest.json).
+!artifacts/traverse/arena_gator_20260925/RESULTS_rigid.json
+!artifacts/traverse/arena_gator_20260925/figures/
+!artifacts/traverse/arena_gator_20260925/arenas/
+!artifacts/traverse/arena_gator_20260925/suites/
+artifacts/traverse/arena_gator_20260925/suites/*.CASES_LOCKED.sha256
+artifacts/traverse/arena_gator_20260925/suites/*.SUITE_LOCKED.sha256
+!artifacts/traverse/arena_gator_20260925/cases/
+artifacts/traverse/arena_gator_20260925/cases/*/
+!artifacts/traverse/arena_gator_20260925/maps/
+artifacts/traverse/arena_gator_20260925/maps/*/*.png
+!artifacts/traverse/arena_gator_20260925/e2/
+artifacts/traverse/arena_gator_20260925/e2/*/*/
+!artifacts/traverse/arena_gator_20260925/e3/
+artifacts/traverse/arena_gator_20260925/e3/pilot_gator/
+artifacts/traverse/arena_gator_20260925/e3/*_headroom/*/
+artifacts/traverse/arena_gator_20260925/e3/*_headroom/tasks_*.json
+artifacts/traverse/arena_gator_20260925/e3/tasks/*
+!artifacts/traverse/arena_gator_20260925/e3/tasks/*.meta.json
+!artifacts/traverse/arena_gator_20260925/e3/tasks/*_check.json
+!artifacts/traverse/arena_gator_20260925/e4/
+artifacts/traverse/arena_gator_20260925/e4/map_roots/
+!artifacts/traverse/arena_gator_20260925/e5/
+artifacts/traverse/arena_gator_20260925/e5/train/
+artifacts/traverse/arena_gator_20260925/e5/ids*/*.txt
+artifacts/traverse/arena_gator_20260925/e5/ids_bf/gator_soil_qa_all_summary.json
+!artifacts/traverse/arena_gator_20260925/e6/
+artifacts/traverse/arena_gator_20260925/e6/runs_*/
+artifacts/traverse/arena_gator_20260925/e6/index/
+artifacts/traverse/arena_gator_20260925/e6/pool/
+artifacts/traverse/arena_gator_20260925/e6/picks/*/
+artifacts/traverse/arena_gator_20260925/e6/tasks/*
+!artifacts/traverse/arena_gator_20260925/e6/tasks/*.meta.json
+artifacts/traverse/arena_gator_20260925/e6/analysis/s2b/gator_soil_qa_t0-12.json
+artifacts/traverse/arena_gator_20260925/e6/collection/test_designed_records.json
+!artifacts/traverse/arena_gator_20260925/e6a/
+artifacts/traverse/arena_gator_20260925/e6a/selftest/
+!artifacts/traverse/arena_gator_20260925/verify_*/
+artifacts/traverse/arena_gator_20260925/verify_*/cluster*/
+artifacts/traverse/arena_gator_20260925/verify_*/cluster_runs.json
+artifacts/traverse/arena_gator_20260925/verify_e2/bitid_*/
+artifacts/traverse/arena_gator_20260925/verify_e6a/r2/
+artifacts/traverse/arena_gator_20260925/verify_e6a/synthetic/
+artifacts/traverse/arena_gator_20260925/verify_e6a/picks/
+artifacts/traverse/arena_gator_20260925/**/*.npz
+artifacts/traverse/arena_gator_20260925/**/*.pt
+artifacts/traverse/arena_gator_20260925/**/*logits*

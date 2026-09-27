@@ -1,0 +1,2246 @@
+{
+  "schema": "fdm_rich_telemetry_v2",
+  "sample_rows_including_terminal": 188,
+  "interval_rows": 187,
+  "record_dt_nominal_s": 0.05,
+  "start_chrono_time_s": 0.8000000000000006,
+  "observer_sha256": "86fa14ba5913a05db66cad30df99876a1c43fae57ba420433945f9400295252c",
+  "case_sha256": "9a7b059611217803827a32e427a7226fe6f8150440776c4d867a14fe5403dcae",
+  "scene_configuration_labels_only": {
+    "dataset_name": "hmmwv_traverse",
+    "chrono_data_root": "/home/harry/chrono/data",
+    "vehicle_data_root": "/home/harry/chrono/data/vehicle",
+    "simulation": {
+      "step_size_s": 0.002,
+      "tire_step_size_s": 0.001,
+      "record_step_s": 0.05,
+      "driver_sample_step_s": 0.05,
+      "validation_ratio": 0.2
+    },
+    "vehicle": {
+      "model": "Gator",
+      "contact_method": "SMC",
+      "chassis_fixed": false,
+      "init": {
+        "x_m": -30.85059959273353,
+        "y_m": 16.939822525343985,
+        "z_m": 0.5860206834331424,
+        "yaw_rad": -1.2002040770229012
+      },
+      "tire_model": "TMEASY",
+      "chassis_collision": "HULLS",
+      "driveline": "SIMPLE",
+      "brake": "SIMPLE",
+      "brake_locking": false,
+      "engine_model": "Gator_EngineSimple (stock, fixed by veh.Gator)",
+      "transmission_model": "Gator_AutomaticTransmissionSimple (stock, one gear, fixed by veh.Gator)",
+      "steering_type": "Gator_RackPinion (stock)",
+      "spawn_dz_m": 0.35
+    },
+    "terrain": {
+      "type": "rigid_heightmap",
+      "length_m": 80.0,
+      "width_m": 80.0,
+      "height_min_m": -1.8,
+      "height_max_m": 3.9,
+      "friction": 0.9,
+      "restitution": 0.01,
+      "young_modulus_pa": 20000000.0
+    },
+    "arena": {
+      "size_m": 80.0,
+      "pixels": 512,
+      "resolution_m_per_px": 0.15625,
+      "height_min_m": -1.8,
+      "height_max_m": 3.9,
+      "quantization_step_m": 0.02235294117647059,
+      "seed": 104,
+      "bmp": "arena_000.bmp",
+      "orientation": {
+        "rot90": 0,
+        "flipud": true,
+        "calibrated": true,
+        "rmse_m": 0.008120992072417996,
+        "median_abs_m": 0.005373480689913723,
+        "runner_up_rmse_m": 0.817868874775216,
+        "samples": 400,
+        "note": "Chrono's BMP convention, copied from arena_v1 (calibrated there)"
+      },
+      "features": [
+        {
+          "kind": "hill",
+          "x_m": -27.757909754352987,
+          "y_m": 2.4510231669677722,
+          "sigma_m": 6.515694437108607,
+          "amplitude_m": 3.0042197091960503
+        },
+        {
+          "kind": "hill",
+          "x_m": 16.37584718708743,
+          "y_m": 20.820805905171994,
+          "sigma_m": 6.076444445882041,
+          "amplitude_m": 3.2976335737412037
+        },
+        {
+          "kind": "hill",
+          "x_m": -8.568459716704545,
+          "y_m": -15.017657244923463,
+          "sigma_m": 4.648266484680474,
+          "amplitude_m": 3.092453525016909
+        },
+        {
+          "kind": "hill",
+          "x_m": 19.09313138916044,
+          "y_m": 3.850067817960486,
+          "sigma_m": 4.376235693822825,
+          "amplitude_m": 4.09741316891273
+        },
+        {
+          "kind": "hill",
+          "x_m": 3.9794508373601474,
+          "y_m": -14.982635602656224,
+          "sigma_m": 5.1252078674664014,
+          "amplitude_m": 3.4117836545435303
+        },
+        {
+          "kind": "crater",
+          "x_m": 12.66912289659625,
+          "y_m": -28.13062156259378,
+          "sigma_m": 3.507777036251178,
+          "amplitude_m": 1.657991098064693
+        },
+        {
+          "kind": "crater",
+          "x_m": 30.184298424159707,
+          "y_m": 0.03967975143876856,
+          "sigma_m": 3.4703759231168894,
+          "amplitude_m": 1.688653200712389
+        },
+        {
+          "kind": "crater",
+          "x_m": 12.659259589506412,
+          "y_m": -2.605443803350532,
+          "sigma_m": 2.8257789650810343,
+          "amplitude_m": 1.9930525226125573
+        },
+        {
+          "kind": "crater",
+          "x_m": 2.4423069261397146,
+          "y_m": 23.246705726196154,
+          "sigma_m": 3.289862738909955,
+          "amplitude_m": 1.8167311405172766
+        },
+        {
+          "kind": "crater",
+          "x_m": -24.87359122051533,
+          "y_m": -29.023182188975618,
+          "sigma_m": 3.648410599310883,
+          "amplitude_m": 1.357562279495342
+        }
+      ],
+      "slope_stats": {
+        "max": 0.674807120975342,
+        "p999": 0.6069471853573007,
+        "p99": 0.5447517703959129,
+        "median": 0.14305882352941168,
+        "flat5deg_fraction": 0.24773025512695312
+      },
+      "slope_cap": 0.5977756338479634,
+      "family": {
+        "seed": 104,
+        "slope_cap_deg": 30.869953686586747,
+        "roughness_m": 0.23997925932155514,
+        "roughness_corr_m": 2.2160888282268245,
+        "n_hills": 5,
+        "n_craters": 5
+      },
+      "source_provenance": {
+        "source_bmp": "/home/harry/NeDM-mppi-claude/assets/traverse/arena_f104/arena_000.bmp",
+        "source_bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+        "source_meta_sha256": "fde8a7a35f19460d8c85c1ea3ca44dde321d70e5dbcec529b5e4dea545b61bf9",
+        "bmp_byte_exact": true,
+        "terrain_only_no_added_assets": true,
+        "orientation_scope": "Inherited calibrated transform; F104 native audit required before collection"
+      }
+    }
+  },
+  "passive_getters_only": true,
+  "fields": {
+    "engine_motor_speed_radps": {
+      "unit": "rad/s",
+      "source": "engine.GetMotorSpeed",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "engine_motorshaft_torque_nm": {
+      "unit": "N m",
+      "source": "engine.GetOutputMotorshaftTorque",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "transmission_motorshaft_speed_radps": {
+      "unit": "rad/s",
+      "source": "transmission.GetOutputMotorshaftSpeed",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "transmission_driveshaft_torque_nm": {
+      "unit": "N m",
+      "source": "transmission.GetOutputDriveshaftTorque",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "driveline_driveshaft_speed_radps": {
+      "unit": "rad/s",
+      "source": "driveline.GetOutputDriveshaftSpeed",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "engine_interface_power_kw": {
+      "unit": "kW",
+      "source": "engine_motorshaft_torque_nm * transmission_motorshaft_speed_radps / 1000",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "engine_rotor_power_kw": {
+      "unit": "kW",
+      "source": "engine_motorshaft_torque_nm * engine_motor_speed_radps / 1000",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "driveshaft_power_kw": {
+      "unit": "kW",
+      "source": "transmission_driveshaft_torque_nm * driveline_driveshaft_speed_radps / 1000",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "roll_rad": {
+      "unit": "rad",
+      "source": "vehicle.GetRoll",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "pitch_rad": {
+      "unit": "rad",
+      "source": "vehicle.GetPitch",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "chassis_contact_resultant_n": {
+      "unit": "N",
+      "source": "norm(chassis.GetContactForce world vector)",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "asset_contact_max_resultant_n": {
+      "unit": "N",
+      "source": "max norm(GetContactForce) over declared asset bodies; no contact-pair identity",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "frame": {
+      "unit": "index",
+      "source": "integer telemetry anchor",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "is_terminal": {
+      "unit": "bool",
+      "source": "actual endpoint after last interval",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "chrono_time_s": {
+      "unit": "s",
+      "source": "system.GetChTime",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "time_s": {
+      "unit": "s",
+      "source": "chrono_time_s minus first recorded chrono_time_s",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "driver_steering": {
+      "unit": "1",
+      "source": "applied driver input at pre-interval sample; terminal repeats last applied input",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "driver_throttle": {
+      "unit": "1",
+      "source": "applied driver input at pre-interval sample; terminal repeats last applied input",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "driver_braking": {
+      "unit": "1",
+      "source": "applied driver input at pre-interval sample; terminal repeats last applied input",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "command_desired_speed_mps": {
+      "unit": "m/s",
+      "source": "collector supplied command context, not a measured response",
+      "finite_count": 187,
+      "missing_count": 1
+    },
+    "command_parked": {
+      "unit": "1",
+      "source": "collector supplied command context, not a measured response",
+      "finite_count": 187,
+      "missing_count": 1
+    },
+    "pos_world_x_m": {
+      "unit": "m",
+      "source": "chassis REF position",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "pos_world_y_m": {
+      "unit": "m",
+      "source": "chassis REF position",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "pos_world_z_m": {
+      "unit": "m",
+      "source": "chassis REF position",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "vel_world_x_mps": {
+      "unit": "m/s",
+      "source": "chassis REF.GetPosDt",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "vel_world_y_mps": {
+      "unit": "m/s",
+      "source": "chassis REF.GetPosDt",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "vel_world_z_mps": {
+      "unit": "m/s",
+      "source": "chassis REF.GetPosDt",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "vel_body_x_mps": {
+      "unit": "m/s",
+      "source": "chassis REF velocity transformed to REF frame",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "vel_body_y_mps": {
+      "unit": "m/s",
+      "source": "chassis REF velocity transformed to REF frame",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "vel_body_z_mps": {
+      "unit": "m/s",
+      "source": "chassis REF velocity transformed to REF frame",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "acc_com_world_x_mps2": {
+      "unit": "m/s^2",
+      "source": "chassis body COM.GetPosDt2",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "acc_com_world_y_mps2": {
+      "unit": "m/s^2",
+      "source": "chassis body COM.GetPosDt2",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "acc_com_world_z_mps2": {
+      "unit": "m/s^2",
+      "source": "chassis body COM.GetPosDt2",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "ang_vel_world_x_radps": {
+      "unit": "rad/s",
+      "source": "chassis REF.GetAngVelParent",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "ang_vel_world_y_radps": {
+      "unit": "rad/s",
+      "source": "chassis REF.GetAngVelParent",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "ang_vel_world_z_radps": {
+      "unit": "rad/s",
+      "source": "chassis REF.GetAngVelParent",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "ang_vel_body_x_radps": {
+      "unit": "rad/s",
+      "source": "chassis REF.GetAngVelLocal",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "ang_vel_body_y_radps": {
+      "unit": "rad/s",
+      "source": "chassis REF.GetAngVelLocal",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "ang_vel_body_z_radps": {
+      "unit": "rad/s",
+      "source": "chassis REF.GetAngVelLocal",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "ang_acc_world_x_radps2": {
+      "unit": "rad/s^2",
+      "source": "chassis body.GetAngAccParent",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "ang_acc_world_y_radps2": {
+      "unit": "rad/s^2",
+      "source": "chassis body.GetAngAccParent",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "ang_acc_world_z_radps2": {
+      "unit": "rad/s^2",
+      "source": "chassis body.GetAngAccParent",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "quat_e0": {
+      "unit": "1",
+      "source": "chassis REF rotation e0",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "quat_e1": {
+      "unit": "1",
+      "source": "chassis REF rotation e1",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "quat_e2": {
+      "unit": "1",
+      "source": "chassis REF rotation e2",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "quat_e3": {
+      "unit": "1",
+      "source": "chassis REF rotation e3",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "roll_rate_radps": {
+      "unit": "rad/s",
+      "source": "vehicle.GetRollRate",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "pitch_rate_radps": {
+      "unit": "rad/s",
+      "source": "vehicle.GetPitchRate",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "yaw_rate_radps": {
+      "unit": "rad/s",
+      "source": "vehicle.GetYawRate",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "yaw_rad": {
+      "unit": "rad",
+      "source": "chassis REF.GetRot.GetCardanAnglesZYX.z",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "body_slip_rad": {
+      "unit": "rad",
+      "source": "vehicle.GetSlipAngle",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "transmission_current_gear": {
+      "unit": "index",
+      "source": "transmission.GetCurrentGear (-1 reverse, 0 neutral)",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "chassis_contact_force_world_x_n": {
+      "unit": "N",
+      "source": "chassis.GetContactForce",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "chassis_contact_force_world_y_n": {
+      "unit": "N",
+      "source": "chassis.GetContactForce",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "chassis_contact_force_world_z_n": {
+      "unit": "N",
+      "source": "chassis.GetContactForce",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "chassis_contact_torque_world_x_nm": {
+      "unit": "N m",
+      "source": "chassis.GetContactTorque",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "chassis_contact_torque_world_y_nm": {
+      "unit": "N m",
+      "source": "chassis.GetContactTorque",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "chassis_contact_torque_world_z_nm": {
+      "unit": "N m",
+      "source": "chassis.GetContactTorque",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fl_longitudinal_slip": {
+      "unit": "1",
+      "source": "tire_fl.GetLongitudinalSlip native tire-model convention",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fl_slip_angle_rad": {
+      "unit": "rad",
+      "source": "tire_fl.GetSlipAngle native tire-model convention",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fl_camber_angle_rad": {
+      "unit": "rad",
+      "source": "tire_fl.GetCamberAngle native tire-model convention",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fl_deflection_m": {
+      "unit": "m",
+      "source": "tire_fl.GetDeflection native tire-model convention",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fl_radius_m": {
+      "unit": "m",
+      "source": "tire_fl.GetRadius native tire-model convention",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fl_force_world_x_n": {
+      "unit": "N",
+      "source": "tire_fl.ReportTireForce.force",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fl_force_world_y_n": {
+      "unit": "N",
+      "source": "tire_fl.ReportTireForce.force",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fl_force_world_z_n": {
+      "unit": "N",
+      "source": "tire_fl.ReportTireForce.force",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fl_moment_world_x_nm": {
+      "unit": "N m",
+      "source": "tire_fl.ReportTireForce.moment",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fl_moment_world_y_nm": {
+      "unit": "N m",
+      "source": "tire_fl.ReportTireForce.moment",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fl_moment_world_z_nm": {
+      "unit": "N m",
+      "source": "tire_fl.ReportTireForce.moment",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fl_hub_world_x_m": {
+      "unit": "m",
+      "source": "tire_fl.GetSpindlePos",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fl_hub_world_y_m": {
+      "unit": "m",
+      "source": "tire_fl.GetSpindlePos",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fl_hub_world_z_m": {
+      "unit": "m",
+      "source": "tire_fl.GetSpindlePos",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fl_hub_velocity_world_x_mps": {
+      "unit": "m/s",
+      "source": "tire_fl.GetSpindleLinVel",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fl_hub_velocity_world_y_mps": {
+      "unit": "m/s",
+      "source": "tire_fl.GetSpindleLinVel",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fl_hub_velocity_world_z_mps": {
+      "unit": "m/s",
+      "source": "tire_fl.GetSpindleLinVel",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fl_angular_velocity_world_x_radps": {
+      "unit": "rad/s",
+      "source": "tire_fl.GetSpindleAngVel",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fl_angular_velocity_world_y_radps": {
+      "unit": "rad/s",
+      "source": "tire_fl.GetSpindleAngVel",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fl_angular_velocity_world_z_radps": {
+      "unit": "rad/s",
+      "source": "tire_fl.GetSpindleAngVel",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fl_spindle_omega_radps": {
+      "unit": "rad/s",
+      "source": "tire_fl: world spindle angular velocity dot spin axis; positive forward rolling",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fl_wheel_vx_horizontal_mps": {
+      "unit": "m/s",
+      "source": "tire_fl: hub world velocity dot horizontal wheel heading",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fl_circumferential_speed_mps": {
+      "unit": "m/s",
+      "source": "tire_fl: spin rate * undeformed radius",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fl_horizontal_slip_speed_mps": {
+      "unit": "m/s",
+      "source": "tire_fl: circumferential speed minus horizontal hub speed; approximate, not native slip",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fl_horizontal_slip_ratio": {
+      "unit": "1",
+      "source": "tire_fl: horizontal_slip_speed / max(abs(horizontal hub speed),0.1 m/s)",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fl_force_horizontal_heading_n": {
+      "unit": "N",
+      "source": "tire_fl: world tire force dot horizontal wheel heading",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fl_force_world_vertical_n": {
+      "unit": "N",
+      "source": "tire_fl: world tire force Z component, NOT terrain-normal load",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fl_axle_speed_radps": {
+      "unit": "rad/s",
+      "source": "tire_fl.suspension.GetAxleSpeed native sign",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fl_driveline_spindle_torque_nm": {
+      "unit": "N m",
+      "source": "tire_fl.driveline.GetSpindleTorque native sign; save factors without assuming wheel power sign",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fl_suspension_spring_force_n": {
+      "unit": "N",
+      "source": "tire_fl.CastToChDoubleWishbone.GetSpringForce native convention",
+      "finite_count": 0,
+      "missing_count": 188
+    },
+    "tire_fl_suspension_spring_length_m": {
+      "unit": "m",
+      "source": "tire_fl.CastToChDoubleWishbone.GetSpringLength native convention",
+      "finite_count": 0,
+      "missing_count": 188
+    },
+    "tire_fl_suspension_spring_deformation_m": {
+      "unit": "m",
+      "source": "tire_fl.CastToChDoubleWishbone.GetSpringDeformation native convention",
+      "finite_count": 0,
+      "missing_count": 188
+    },
+    "tire_fl_suspension_shock_force_n": {
+      "unit": "N",
+      "source": "tire_fl.CastToChDoubleWishbone.GetShockForce native convention",
+      "finite_count": 0,
+      "missing_count": 188
+    },
+    "tire_fl_suspension_shock_length_m": {
+      "unit": "m",
+      "source": "tire_fl.CastToChDoubleWishbone.GetShockLength native convention",
+      "finite_count": 0,
+      "missing_count": 188
+    },
+    "tire_fl_suspension_shock_velocity_mps": {
+      "unit": "m/s",
+      "source": "tire_fl.CastToChDoubleWishbone.GetShockVelocity native convention",
+      "finite_count": 0,
+      "missing_count": 188
+    },
+    "tire_fr_longitudinal_slip": {
+      "unit": "1",
+      "source": "tire_fr.GetLongitudinalSlip native tire-model convention",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fr_slip_angle_rad": {
+      "unit": "rad",
+      "source": "tire_fr.GetSlipAngle native tire-model convention",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fr_camber_angle_rad": {
+      "unit": "rad",
+      "source": "tire_fr.GetCamberAngle native tire-model convention",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fr_deflection_m": {
+      "unit": "m",
+      "source": "tire_fr.GetDeflection native tire-model convention",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fr_radius_m": {
+      "unit": "m",
+      "source": "tire_fr.GetRadius native tire-model convention",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fr_force_world_x_n": {
+      "unit": "N",
+      "source": "tire_fr.ReportTireForce.force",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fr_force_world_y_n": {
+      "unit": "N",
+      "source": "tire_fr.ReportTireForce.force",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fr_force_world_z_n": {
+      "unit": "N",
+      "source": "tire_fr.ReportTireForce.force",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fr_moment_world_x_nm": {
+      "unit": "N m",
+      "source": "tire_fr.ReportTireForce.moment",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fr_moment_world_y_nm": {
+      "unit": "N m",
+      "source": "tire_fr.ReportTireForce.moment",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fr_moment_world_z_nm": {
+      "unit": "N m",
+      "source": "tire_fr.ReportTireForce.moment",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fr_hub_world_x_m": {
+      "unit": "m",
+      "source": "tire_fr.GetSpindlePos",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fr_hub_world_y_m": {
+      "unit": "m",
+      "source": "tire_fr.GetSpindlePos",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fr_hub_world_z_m": {
+      "unit": "m",
+      "source": "tire_fr.GetSpindlePos",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fr_hub_velocity_world_x_mps": {
+      "unit": "m/s",
+      "source": "tire_fr.GetSpindleLinVel",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fr_hub_velocity_world_y_mps": {
+      "unit": "m/s",
+      "source": "tire_fr.GetSpindleLinVel",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fr_hub_velocity_world_z_mps": {
+      "unit": "m/s",
+      "source": "tire_fr.GetSpindleLinVel",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fr_angular_velocity_world_x_radps": {
+      "unit": "rad/s",
+      "source": "tire_fr.GetSpindleAngVel",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fr_angular_velocity_world_y_radps": {
+      "unit": "rad/s",
+      "source": "tire_fr.GetSpindleAngVel",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fr_angular_velocity_world_z_radps": {
+      "unit": "rad/s",
+      "source": "tire_fr.GetSpindleAngVel",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fr_spindle_omega_radps": {
+      "unit": "rad/s",
+      "source": "tire_fr: world spindle angular velocity dot spin axis; positive forward rolling",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fr_wheel_vx_horizontal_mps": {
+      "unit": "m/s",
+      "source": "tire_fr: hub world velocity dot horizontal wheel heading",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fr_circumferential_speed_mps": {
+      "unit": "m/s",
+      "source": "tire_fr: spin rate * undeformed radius",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fr_horizontal_slip_speed_mps": {
+      "unit": "m/s",
+      "source": "tire_fr: circumferential speed minus horizontal hub speed; approximate, not native slip",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fr_horizontal_slip_ratio": {
+      "unit": "1",
+      "source": "tire_fr: horizontal_slip_speed / max(abs(horizontal hub speed),0.1 m/s)",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fr_force_horizontal_heading_n": {
+      "unit": "N",
+      "source": "tire_fr: world tire force dot horizontal wheel heading",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fr_force_world_vertical_n": {
+      "unit": "N",
+      "source": "tire_fr: world tire force Z component, NOT terrain-normal load",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fr_axle_speed_radps": {
+      "unit": "rad/s",
+      "source": "tire_fr.suspension.GetAxleSpeed native sign",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fr_driveline_spindle_torque_nm": {
+      "unit": "N m",
+      "source": "tire_fr.driveline.GetSpindleTorque native sign; save factors without assuming wheel power sign",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fr_suspension_spring_force_n": {
+      "unit": "N",
+      "source": "tire_fr.CastToChDoubleWishbone.GetSpringForce native convention",
+      "finite_count": 0,
+      "missing_count": 188
+    },
+    "tire_fr_suspension_spring_length_m": {
+      "unit": "m",
+      "source": "tire_fr.CastToChDoubleWishbone.GetSpringLength native convention",
+      "finite_count": 0,
+      "missing_count": 188
+    },
+    "tire_fr_suspension_spring_deformation_m": {
+      "unit": "m",
+      "source": "tire_fr.CastToChDoubleWishbone.GetSpringDeformation native convention",
+      "finite_count": 0,
+      "missing_count": 188
+    },
+    "tire_fr_suspension_shock_force_n": {
+      "unit": "N",
+      "source": "tire_fr.CastToChDoubleWishbone.GetShockForce native convention",
+      "finite_count": 0,
+      "missing_count": 188
+    },
+    "tire_fr_suspension_shock_length_m": {
+      "unit": "m",
+      "source": "tire_fr.CastToChDoubleWishbone.GetShockLength native convention",
+      "finite_count": 0,
+      "missing_count": 188
+    },
+    "tire_fr_suspension_shock_velocity_mps": {
+      "unit": "m/s",
+      "source": "tire_fr.CastToChDoubleWishbone.GetShockVelocity native convention",
+      "finite_count": 0,
+      "missing_count": 188
+    },
+    "tire_rl_longitudinal_slip": {
+      "unit": "1",
+      "source": "tire_rl.GetLongitudinalSlip native tire-model convention",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rl_slip_angle_rad": {
+      "unit": "rad",
+      "source": "tire_rl.GetSlipAngle native tire-model convention",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rl_camber_angle_rad": {
+      "unit": "rad",
+      "source": "tire_rl.GetCamberAngle native tire-model convention",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rl_deflection_m": {
+      "unit": "m",
+      "source": "tire_rl.GetDeflection native tire-model convention",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rl_radius_m": {
+      "unit": "m",
+      "source": "tire_rl.GetRadius native tire-model convention",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rl_force_world_x_n": {
+      "unit": "N",
+      "source": "tire_rl.ReportTireForce.force",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rl_force_world_y_n": {
+      "unit": "N",
+      "source": "tire_rl.ReportTireForce.force",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rl_force_world_z_n": {
+      "unit": "N",
+      "source": "tire_rl.ReportTireForce.force",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rl_moment_world_x_nm": {
+      "unit": "N m",
+      "source": "tire_rl.ReportTireForce.moment",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rl_moment_world_y_nm": {
+      "unit": "N m",
+      "source": "tire_rl.ReportTireForce.moment",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rl_moment_world_z_nm": {
+      "unit": "N m",
+      "source": "tire_rl.ReportTireForce.moment",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rl_hub_world_x_m": {
+      "unit": "m",
+      "source": "tire_rl.GetSpindlePos",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rl_hub_world_y_m": {
+      "unit": "m",
+      "source": "tire_rl.GetSpindlePos",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rl_hub_world_z_m": {
+      "unit": "m",
+      "source": "tire_rl.GetSpindlePos",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rl_hub_velocity_world_x_mps": {
+      "unit": "m/s",
+      "source": "tire_rl.GetSpindleLinVel",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rl_hub_velocity_world_y_mps": {
+      "unit": "m/s",
+      "source": "tire_rl.GetSpindleLinVel",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rl_hub_velocity_world_z_mps": {
+      "unit": "m/s",
+      "source": "tire_rl.GetSpindleLinVel",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rl_angular_velocity_world_x_radps": {
+      "unit": "rad/s",
+      "source": "tire_rl.GetSpindleAngVel",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rl_angular_velocity_world_y_radps": {
+      "unit": "rad/s",
+      "source": "tire_rl.GetSpindleAngVel",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rl_angular_velocity_world_z_radps": {
+      "unit": "rad/s",
+      "source": "tire_rl.GetSpindleAngVel",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rl_spindle_omega_radps": {
+      "unit": "rad/s",
+      "source": "tire_rl: world spindle angular velocity dot spin axis; positive forward rolling",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rl_wheel_vx_horizontal_mps": {
+      "unit": "m/s",
+      "source": "tire_rl: hub world velocity dot horizontal wheel heading",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rl_circumferential_speed_mps": {
+      "unit": "m/s",
+      "source": "tire_rl: spin rate * undeformed radius",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rl_horizontal_slip_speed_mps": {
+      "unit": "m/s",
+      "source": "tire_rl: circumferential speed minus horizontal hub speed; approximate, not native slip",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rl_horizontal_slip_ratio": {
+      "unit": "1",
+      "source": "tire_rl: horizontal_slip_speed / max(abs(horizontal hub speed),0.1 m/s)",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rl_force_horizontal_heading_n": {
+      "unit": "N",
+      "source": "tire_rl: world tire force dot horizontal wheel heading",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rl_force_world_vertical_n": {
+      "unit": "N",
+      "source": "tire_rl: world tire force Z component, NOT terrain-normal load",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rl_axle_speed_radps": {
+      "unit": "rad/s",
+      "source": "tire_rl.suspension.GetAxleSpeed native sign",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rl_driveline_spindle_torque_nm": {
+      "unit": "N m",
+      "source": "tire_rl.driveline.GetSpindleTorque native sign; save factors without assuming wheel power sign",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rl_suspension_spring_force_n": {
+      "unit": "N",
+      "source": "tire_rl.CastToChDoubleWishbone.GetSpringForce native convention",
+      "finite_count": 0,
+      "missing_count": 188
+    },
+    "tire_rl_suspension_spring_length_m": {
+      "unit": "m",
+      "source": "tire_rl.CastToChDoubleWishbone.GetSpringLength native convention",
+      "finite_count": 0,
+      "missing_count": 188
+    },
+    "tire_rl_suspension_spring_deformation_m": {
+      "unit": "m",
+      "source": "tire_rl.CastToChDoubleWishbone.GetSpringDeformation native convention",
+      "finite_count": 0,
+      "missing_count": 188
+    },
+    "tire_rl_suspension_shock_force_n": {
+      "unit": "N",
+      "source": "tire_rl.CastToChDoubleWishbone.GetShockForce native convention",
+      "finite_count": 0,
+      "missing_count": 188
+    },
+    "tire_rl_suspension_shock_length_m": {
+      "unit": "m",
+      "source": "tire_rl.CastToChDoubleWishbone.GetShockLength native convention",
+      "finite_count": 0,
+      "missing_count": 188
+    },
+    "tire_rl_suspension_shock_velocity_mps": {
+      "unit": "m/s",
+      "source": "tire_rl.CastToChDoubleWishbone.GetShockVelocity native convention",
+      "finite_count": 0,
+      "missing_count": 188
+    },
+    "tire_rr_longitudinal_slip": {
+      "unit": "1",
+      "source": "tire_rr.GetLongitudinalSlip native tire-model convention",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rr_slip_angle_rad": {
+      "unit": "rad",
+      "source": "tire_rr.GetSlipAngle native tire-model convention",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rr_camber_angle_rad": {
+      "unit": "rad",
+      "source": "tire_rr.GetCamberAngle native tire-model convention",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rr_deflection_m": {
+      "unit": "m",
+      "source": "tire_rr.GetDeflection native tire-model convention",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rr_radius_m": {
+      "unit": "m",
+      "source": "tire_rr.GetRadius native tire-model convention",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rr_force_world_x_n": {
+      "unit": "N",
+      "source": "tire_rr.ReportTireForce.force",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rr_force_world_y_n": {
+      "unit": "N",
+      "source": "tire_rr.ReportTireForce.force",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rr_force_world_z_n": {
+      "unit": "N",
+      "source": "tire_rr.ReportTireForce.force",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rr_moment_world_x_nm": {
+      "unit": "N m",
+      "source": "tire_rr.ReportTireForce.moment",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rr_moment_world_y_nm": {
+      "unit": "N m",
+      "source": "tire_rr.ReportTireForce.moment",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rr_moment_world_z_nm": {
+      "unit": "N m",
+      "source": "tire_rr.ReportTireForce.moment",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rr_hub_world_x_m": {
+      "unit": "m",
+      "source": "tire_rr.GetSpindlePos",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rr_hub_world_y_m": {
+      "unit": "m",
+      "source": "tire_rr.GetSpindlePos",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rr_hub_world_z_m": {
+      "unit": "m",
+      "source": "tire_rr.GetSpindlePos",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rr_hub_velocity_world_x_mps": {
+      "unit": "m/s",
+      "source": "tire_rr.GetSpindleLinVel",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rr_hub_velocity_world_y_mps": {
+      "unit": "m/s",
+      "source": "tire_rr.GetSpindleLinVel",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rr_hub_velocity_world_z_mps": {
+      "unit": "m/s",
+      "source": "tire_rr.GetSpindleLinVel",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rr_angular_velocity_world_x_radps": {
+      "unit": "rad/s",
+      "source": "tire_rr.GetSpindleAngVel",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rr_angular_velocity_world_y_radps": {
+      "unit": "rad/s",
+      "source": "tire_rr.GetSpindleAngVel",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rr_angular_velocity_world_z_radps": {
+      "unit": "rad/s",
+      "source": "tire_rr.GetSpindleAngVel",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rr_spindle_omega_radps": {
+      "unit": "rad/s",
+      "source": "tire_rr: world spindle angular velocity dot spin axis; positive forward rolling",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rr_wheel_vx_horizontal_mps": {
+      "unit": "m/s",
+      "source": "tire_rr: hub world velocity dot horizontal wheel heading",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rr_circumferential_speed_mps": {
+      "unit": "m/s",
+      "source": "tire_rr: spin rate * undeformed radius",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rr_horizontal_slip_speed_mps": {
+      "unit": "m/s",
+      "source": "tire_rr: circumferential speed minus horizontal hub speed; approximate, not native slip",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rr_horizontal_slip_ratio": {
+      "unit": "1",
+      "source": "tire_rr: horizontal_slip_speed / max(abs(horizontal hub speed),0.1 m/s)",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rr_force_horizontal_heading_n": {
+      "unit": "N",
+      "source": "tire_rr: world tire force dot horizontal wheel heading",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rr_force_world_vertical_n": {
+      "unit": "N",
+      "source": "tire_rr: world tire force Z component, NOT terrain-normal load",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rr_axle_speed_radps": {
+      "unit": "rad/s",
+      "source": "tire_rr.suspension.GetAxleSpeed native sign",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rr_driveline_spindle_torque_nm": {
+      "unit": "N m",
+      "source": "tire_rr.driveline.GetSpindleTorque native sign; save factors without assuming wheel power sign",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rr_suspension_spring_force_n": {
+      "unit": "N",
+      "source": "tire_rr.CastToChDoubleWishbone.GetSpringForce native convention",
+      "finite_count": 0,
+      "missing_count": 188
+    },
+    "tire_rr_suspension_spring_length_m": {
+      "unit": "m",
+      "source": "tire_rr.CastToChDoubleWishbone.GetSpringLength native convention",
+      "finite_count": 0,
+      "missing_count": 188
+    },
+    "tire_rr_suspension_spring_deformation_m": {
+      "unit": "m",
+      "source": "tire_rr.CastToChDoubleWishbone.GetSpringDeformation native convention",
+      "finite_count": 0,
+      "missing_count": 188
+    },
+    "tire_rr_suspension_shock_force_n": {
+      "unit": "N",
+      "source": "tire_rr.CastToChDoubleWishbone.GetShockForce native convention",
+      "finite_count": 0,
+      "missing_count": 188
+    },
+    "tire_rr_suspension_shock_length_m": {
+      "unit": "m",
+      "source": "tire_rr.CastToChDoubleWishbone.GetShockLength native convention",
+      "finite_count": 0,
+      "missing_count": 188
+    },
+    "tire_rr_suspension_shock_velocity_mps": {
+      "unit": "m/s",
+      "source": "tire_rr.CastToChDoubleWishbone.GetShockVelocity native convention",
+      "finite_count": 0,
+      "missing_count": 188
+    },
+    "tire_fl_terrain_normal_under_hub_world_x_unit": {
+      "unit": "1",
+      "source": "tire_fl: terrain.GetNormal at measured spindle XY; geometric terrain normal, not tire contact-patch normal",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fl_terrain_normal_under_hub_world_y_unit": {
+      "unit": "1",
+      "source": "tire_fl: terrain.GetNormal at measured spindle XY; geometric terrain normal, not tire contact-patch normal",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fl_terrain_normal_under_hub_world_z_unit": {
+      "unit": "1",
+      "source": "tire_fl: terrain.GetNormal at measured spindle XY; geometric terrain normal, not tire contact-patch normal",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fl_force_projected_terrain_normal_n": {
+      "unit": "N",
+      "source": "Reported world tire-force resultant dotted with geometric terrain normal under hub; not an internal tire normal-load getter",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fr_terrain_normal_under_hub_world_x_unit": {
+      "unit": "1",
+      "source": "tire_fr: terrain.GetNormal at measured spindle XY; geometric terrain normal, not tire contact-patch normal",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fr_terrain_normal_under_hub_world_y_unit": {
+      "unit": "1",
+      "source": "tire_fr: terrain.GetNormal at measured spindle XY; geometric terrain normal, not tire contact-patch normal",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fr_terrain_normal_under_hub_world_z_unit": {
+      "unit": "1",
+      "source": "tire_fr: terrain.GetNormal at measured spindle XY; geometric terrain normal, not tire contact-patch normal",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_fr_force_projected_terrain_normal_n": {
+      "unit": "N",
+      "source": "Reported world tire-force resultant dotted with geometric terrain normal under hub; not an internal tire normal-load getter",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rl_terrain_normal_under_hub_world_x_unit": {
+      "unit": "1",
+      "source": "tire_rl: terrain.GetNormal at measured spindle XY; geometric terrain normal, not tire contact-patch normal",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rl_terrain_normal_under_hub_world_y_unit": {
+      "unit": "1",
+      "source": "tire_rl: terrain.GetNormal at measured spindle XY; geometric terrain normal, not tire contact-patch normal",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rl_terrain_normal_under_hub_world_z_unit": {
+      "unit": "1",
+      "source": "tire_rl: terrain.GetNormal at measured spindle XY; geometric terrain normal, not tire contact-patch normal",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rl_force_projected_terrain_normal_n": {
+      "unit": "N",
+      "source": "Reported world tire-force resultant dotted with geometric terrain normal under hub; not an internal tire normal-load getter",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rr_terrain_normal_under_hub_world_x_unit": {
+      "unit": "1",
+      "source": "tire_rr: terrain.GetNormal at measured spindle XY; geometric terrain normal, not tire contact-patch normal",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rr_terrain_normal_under_hub_world_y_unit": {
+      "unit": "1",
+      "source": "tire_rr: terrain.GetNormal at measured spindle XY; geometric terrain normal, not tire contact-patch normal",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rr_terrain_normal_under_hub_world_z_unit": {
+      "unit": "1",
+      "source": "tire_rr: terrain.GetNormal at measured spindle XY; geometric terrain normal, not tire contact-patch normal",
+      "finite_count": 188,
+      "missing_count": 0
+    },
+    "tire_rr_force_projected_terrain_normal_n": {
+      "unit": "N",
+      "source": "Reported world tire-force resultant dotted with geometric terrain normal under hub; not an internal tire normal-load getter",
+      "finite_count": 188,
+      "missing_count": 0
+    }
+  },
+  "getter_capabilities": {
+    "engine.GetMotorSpeed": {
+      "attempts": 4863,
+      "successes": 4863,
+      "failures": 0,
+      "getter_invocations": 4863
+    },
+    "engine.GetOutputMotorshaftTorque": {
+      "attempts": 4863,
+      "successes": 4863,
+      "failures": 0,
+      "getter_invocations": 4863
+    },
+    "transmission.GetOutputMotorshaftSpeed": {
+      "attempts": 4863,
+      "successes": 4863,
+      "failures": 0,
+      "getter_invocations": 4863
+    },
+    "transmission.GetOutputDriveshaftTorque": {
+      "attempts": 4863,
+      "successes": 4863,
+      "failures": 0,
+      "getter_invocations": 4863
+    },
+    "driveline.GetOutputDriveshaftSpeed": {
+      "attempts": 4863,
+      "successes": 4863,
+      "failures": 0,
+      "getter_invocations": 4863
+    },
+    "vehicle.GetRoll": {
+      "attempts": 9538,
+      "successes": 9538,
+      "failures": 0,
+      "getter_invocations": 9538
+    },
+    "vehicle.GetPitch": {
+      "attempts": 9538,
+      "successes": 9538,
+      "failures": 0,
+      "getter_invocations": 9538
+    },
+    "chassis.GetContactForce": {
+      "attempts": 9726,
+      "successes": 9726,
+      "failures": 0,
+      "getter_invocations": 9726
+    },
+    "chassis REF position": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "chassis REF.GetPosDt": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "chassis REF velocity transformed to REF frame": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "chassis body COM.GetPosDt2": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "chassis REF.GetAngVelParent": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "chassis REF.GetAngVelLocal": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "chassis body.GetAngAccParent": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "chassis REF rotation e0": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "chassis REF rotation e1": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "chassis REF rotation e2": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "chassis REF rotation e3": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "vehicle.GetRollRate": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "vehicle.GetPitchRate": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "vehicle.GetYawRate": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "chassis REF.GetRot.GetCardanAnglesZYX.z": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "vehicle.GetSlipAngle": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "transmission.GetCurrentGear (-1 reverse, 0 neutral)": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "chassis.GetContactTorque": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_fl.GetTire": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_fl.GetSuspension": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_fl.GetLongitudinalSlip native tire-model convention": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_fl.GetSlipAngle native tire-model convention": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_fl.GetCamberAngle native tire-model convention": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_fl.GetDeflection native tire-model convention": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_fl.GetRadius native tire-model convention": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_fl.ReportTireForce": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_fl.ReportTireForce.force": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_fl.ReportTireForce.moment": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_fl.GetSpindlePos": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_fl.GetSpindleLinVel": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_fl.GetSpindleAngVel": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_fl.GetSpindleRot.GetAxisY": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_fl.suspension.GetAxleSpeed native sign": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_fl.driveline.GetSpindleTorque native sign; save factors without assuming wheel power sign": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "suspension[0].CastToChDoubleWishbone": {
+      "attempts": 1,
+      "successes": 1,
+      "failures": 0,
+      "getter_invocations": 1
+    },
+    "tire_fl.CastToChDoubleWishbone.GetSpringForce native convention": {
+      "attempts": 188,
+      "successes": 0,
+      "failures": 188,
+      "getter_invocations": 1,
+      "first_error": "AttributeError: 'NoneType' object has no attribute 'GetSpringForce'",
+      "skipped_after_unsupported": 187
+    },
+    "tire_fl.CastToChDoubleWishbone.GetSpringLength native convention": {
+      "attempts": 188,
+      "successes": 0,
+      "failures": 188,
+      "getter_invocations": 1,
+      "first_error": "AttributeError: 'NoneType' object has no attribute 'GetSpringLength'",
+      "skipped_after_unsupported": 187
+    },
+    "tire_fl.CastToChDoubleWishbone.GetSpringDeformation native convention": {
+      "attempts": 188,
+      "successes": 0,
+      "failures": 188,
+      "getter_invocations": 1,
+      "first_error": "AttributeError: 'NoneType' object has no attribute 'GetSpringDeformation'",
+      "skipped_after_unsupported": 187
+    },
+    "tire_fl.CastToChDoubleWishbone.GetShockForce native convention": {
+      "attempts": 188,
+      "successes": 0,
+      "failures": 188,
+      "getter_invocations": 1,
+      "first_error": "AttributeError: 'NoneType' object has no attribute 'GetShockForce'",
+      "skipped_after_unsupported": 187
+    },
+    "tire_fl.CastToChDoubleWishbone.GetShockLength native convention": {
+      "attempts": 188,
+      "successes": 0,
+      "failures": 188,
+      "getter_invocations": 1,
+      "first_error": "AttributeError: 'NoneType' object has no attribute 'GetShockLength'",
+      "skipped_after_unsupported": 187
+    },
+    "tire_fl.CastToChDoubleWishbone.GetShockVelocity native convention": {
+      "attempts": 188,
+      "successes": 0,
+      "failures": 188,
+      "getter_invocations": 1,
+      "first_error": "AttributeError: 'NoneType' object has no attribute 'GetShockVelocity'",
+      "skipped_after_unsupported": 187
+    },
+    "tire_fr.GetTire": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_fr.GetSuspension": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_fr.GetLongitudinalSlip native tire-model convention": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_fr.GetSlipAngle native tire-model convention": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_fr.GetCamberAngle native tire-model convention": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_fr.GetDeflection native tire-model convention": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_fr.GetRadius native tire-model convention": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_fr.ReportTireForce": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_fr.ReportTireForce.force": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_fr.ReportTireForce.moment": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_fr.GetSpindlePos": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_fr.GetSpindleLinVel": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_fr.GetSpindleAngVel": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_fr.GetSpindleRot.GetAxisY": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_fr.suspension.GetAxleSpeed native sign": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_fr.driveline.GetSpindleTorque native sign; save factors without assuming wheel power sign": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_fr.CastToChDoubleWishbone.GetSpringForce native convention": {
+      "attempts": 188,
+      "successes": 0,
+      "failures": 188,
+      "getter_invocations": 1,
+      "first_error": "AttributeError: 'NoneType' object has no attribute 'GetSpringForce'",
+      "skipped_after_unsupported": 187
+    },
+    "tire_fr.CastToChDoubleWishbone.GetSpringLength native convention": {
+      "attempts": 188,
+      "successes": 0,
+      "failures": 188,
+      "getter_invocations": 1,
+      "first_error": "AttributeError: 'NoneType' object has no attribute 'GetSpringLength'",
+      "skipped_after_unsupported": 187
+    },
+    "tire_fr.CastToChDoubleWishbone.GetSpringDeformation native convention": {
+      "attempts": 188,
+      "successes": 0,
+      "failures": 188,
+      "getter_invocations": 1,
+      "first_error": "AttributeError: 'NoneType' object has no attribute 'GetSpringDeformation'",
+      "skipped_after_unsupported": 187
+    },
+    "tire_fr.CastToChDoubleWishbone.GetShockForce native convention": {
+      "attempts": 188,
+      "successes": 0,
+      "failures": 188,
+      "getter_invocations": 1,
+      "first_error": "AttributeError: 'NoneType' object has no attribute 'GetShockForce'",
+      "skipped_after_unsupported": 187
+    },
+    "tire_fr.CastToChDoubleWishbone.GetShockLength native convention": {
+      "attempts": 188,
+      "successes": 0,
+      "failures": 188,
+      "getter_invocations": 1,
+      "first_error": "AttributeError: 'NoneType' object has no attribute 'GetShockLength'",
+      "skipped_after_unsupported": 187
+    },
+    "tire_fr.CastToChDoubleWishbone.GetShockVelocity native convention": {
+      "attempts": 188,
+      "successes": 0,
+      "failures": 188,
+      "getter_invocations": 1,
+      "first_error": "AttributeError: 'NoneType' object has no attribute 'GetShockVelocity'",
+      "skipped_after_unsupported": 187
+    },
+    "tire_rl.GetTire": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_rl.GetSuspension": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_rl.GetLongitudinalSlip native tire-model convention": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_rl.GetSlipAngle native tire-model convention": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_rl.GetCamberAngle native tire-model convention": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_rl.GetDeflection native tire-model convention": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_rl.GetRadius native tire-model convention": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_rl.ReportTireForce": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_rl.ReportTireForce.force": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_rl.ReportTireForce.moment": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_rl.GetSpindlePos": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_rl.GetSpindleLinVel": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_rl.GetSpindleAngVel": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_rl.GetSpindleRot.GetAxisY": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_rl.suspension.GetAxleSpeed native sign": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_rl.driveline.GetSpindleTorque native sign; save factors without assuming wheel power sign": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "suspension[1].CastToChDoubleWishbone": {
+      "attempts": 1,
+      "successes": 1,
+      "failures": 0,
+      "getter_invocations": 1
+    },
+    "tire_rl.CastToChDoubleWishbone.GetSpringForce native convention": {
+      "attempts": 188,
+      "successes": 0,
+      "failures": 188,
+      "getter_invocations": 1,
+      "first_error": "AttributeError: 'NoneType' object has no attribute 'GetSpringForce'",
+      "skipped_after_unsupported": 187
+    },
+    "tire_rl.CastToChDoubleWishbone.GetSpringLength native convention": {
+      "attempts": 188,
+      "successes": 0,
+      "failures": 188,
+      "getter_invocations": 1,
+      "first_error": "AttributeError: 'NoneType' object has no attribute 'GetSpringLength'",
+      "skipped_after_unsupported": 187
+    },
+    "tire_rl.CastToChDoubleWishbone.GetSpringDeformation native convention": {
+      "attempts": 188,
+      "successes": 0,
+      "failures": 188,
+      "getter_invocations": 1,
+      "first_error": "AttributeError: 'NoneType' object has no attribute 'GetSpringDeformation'",
+      "skipped_after_unsupported": 187
+    },
+    "tire_rl.CastToChDoubleWishbone.GetShockForce native convention": {
+      "attempts": 188,
+      "successes": 0,
+      "failures": 188,
+      "getter_invocations": 1,
+      "first_error": "AttributeError: 'NoneType' object has no attribute 'GetShockForce'",
+      "skipped_after_unsupported": 187
+    },
+    "tire_rl.CastToChDoubleWishbone.GetShockLength native convention": {
+      "attempts": 188,
+      "successes": 0,
+      "failures": 188,
+      "getter_invocations": 1,
+      "first_error": "AttributeError: 'NoneType' object has no attribute 'GetShockLength'",
+      "skipped_after_unsupported": 187
+    },
+    "tire_rl.CastToChDoubleWishbone.GetShockVelocity native convention": {
+      "attempts": 188,
+      "successes": 0,
+      "failures": 188,
+      "getter_invocations": 1,
+      "first_error": "AttributeError: 'NoneType' object has no attribute 'GetShockVelocity'",
+      "skipped_after_unsupported": 187
+    },
+    "tire_rr.GetTire": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_rr.GetSuspension": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_rr.GetLongitudinalSlip native tire-model convention": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_rr.GetSlipAngle native tire-model convention": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_rr.GetCamberAngle native tire-model convention": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_rr.GetDeflection native tire-model convention": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_rr.GetRadius native tire-model convention": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_rr.ReportTireForce": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_rr.ReportTireForce.force": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_rr.ReportTireForce.moment": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_rr.GetSpindlePos": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_rr.GetSpindleLinVel": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_rr.GetSpindleAngVel": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_rr.GetSpindleRot.GetAxisY": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_rr.suspension.GetAxleSpeed native sign": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_rr.driveline.GetSpindleTorque native sign; save factors without assuming wheel power sign": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_rr.CastToChDoubleWishbone.GetSpringForce native convention": {
+      "attempts": 188,
+      "successes": 0,
+      "failures": 188,
+      "getter_invocations": 1,
+      "first_error": "AttributeError: 'NoneType' object has no attribute 'GetSpringForce'",
+      "skipped_after_unsupported": 187
+    },
+    "tire_rr.CastToChDoubleWishbone.GetSpringLength native convention": {
+      "attempts": 188,
+      "successes": 0,
+      "failures": 188,
+      "getter_invocations": 1,
+      "first_error": "AttributeError: 'NoneType' object has no attribute 'GetSpringLength'",
+      "skipped_after_unsupported": 187
+    },
+    "tire_rr.CastToChDoubleWishbone.GetSpringDeformation native convention": {
+      "attempts": 188,
+      "successes": 0,
+      "failures": 188,
+      "getter_invocations": 1,
+      "first_error": "AttributeError: 'NoneType' object has no attribute 'GetSpringDeformation'",
+      "skipped_after_unsupported": 187
+    },
+    "tire_rr.CastToChDoubleWishbone.GetShockForce native convention": {
+      "attempts": 188,
+      "successes": 0,
+      "failures": 188,
+      "getter_invocations": 1,
+      "first_error": "AttributeError: 'NoneType' object has no attribute 'GetShockForce'",
+      "skipped_after_unsupported": 187
+    },
+    "tire_rr.CastToChDoubleWishbone.GetShockLength native convention": {
+      "attempts": 188,
+      "successes": 0,
+      "failures": 188,
+      "getter_invocations": 1,
+      "first_error": "AttributeError: 'NoneType' object has no attribute 'GetShockLength'",
+      "skipped_after_unsupported": 187
+    },
+    "tire_rr.CastToChDoubleWishbone.GetShockVelocity native convention": {
+      "attempts": 188,
+      "successes": 0,
+      "failures": 188,
+      "getter_invocations": 1,
+      "first_error": "AttributeError: 'NoneType' object has no attribute 'GetShockVelocity'",
+      "skipped_after_unsupported": 187
+    },
+    "tire_fl: terrain.GetNormal at measured spindle XY; geometric terrain normal, not tire contact-patch normal": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_fr: terrain.GetNormal at measured spindle XY; geometric terrain normal, not tire contact-patch normal": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_rl: terrain.GetNormal at measured spindle XY; geometric terrain normal, not tire contact-patch normal": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    },
+    "tire_rr: terrain.GetNormal at measured spindle XY; geometric terrain normal, not tire contact-patch normal": {
+      "attempts": 188,
+      "successes": 188,
+      "failures": 0,
+      "getter_invocations": 188
+    }
+  },
+  "solver_step_work_interval_count": 187,
+  "post_step_risk_interval_count": 187,
+  "alignment": "Sample i is pre-interval state and applied command. Interval i covers sample i to i+1. N is an actual terminal state, never a duplicated training row. Settling is excluded.",
+  "quadrature": "sum(power at synchronized pre-step state * actual physics dt), signed and positive/negative split. Without on_substep: explicit pre-frame left-endpoint estimate. No claim of continuous-time exactness.",
+  "power_semantics": {
+    "engine_interface": "Engine output motorshaft torque times transmission-reported motorshaft speed (feedback to engine). Matches existing runner power definition. Mechanical interface power, not fuel consumption.",
+    "engine_rotor": "Engine output motorshaft torque times engine.GetMotorSpeed. Dynamic engine rotor speed can differ from interface feedback speed; raw factors retained.",
+    "driveshaft": "Transmission output driveshaft torque times driveline output driveshaft speed. Matched transmission/driveline interface; gearbox-side mechanical power."
+  },
+  "unavailable_by_design": {
+    "fuel_mass_flow_kgps": "No fuel-flow model/getter established; do not infer from mechanical work",
+    "contact_pair_identity": "Body force resultants only",
+    "soil_sinkage_m": "Rigid heightfield does not model soil deformation"
+  },
+  "limitations": [
+    "Native tire slip convention depends on tire model. Derived horizontal slip speed/ratio is an approximation on slopes and is separately named.",
+    "World-Z tire force is not terrain-normal load. No unvalidated terrain-normal query is used for supervision.",
+    "Suspension scalars use typed double-wishbone getters. Other suspension types remain NaN with capability metadata; opaque SWIG vector getters are never called.",
+    "Contact resultant can miss cancelling or between-sample impulses. Full post-step contact/attitude coverage requires on_post_substep.",
+    "Slip/load interval summaries use measured endpoints at the recording rate, not physics-rate maxima.",
+    "Rigid terrain plus TMeasy provides tire/vehicle dynamics, not deformable-soil terramechanics. Terrain and friction configs are labels/provenance, never automatically NN inputs."
+  ]
+}

@@ -1,0 +1,19 @@
+eval f104: 21777 rows (dev 17419, val 4358) arena ['f104'] vehicle ['hmmwv']
+eval g203: 20741 rows (dev 17029, val 3712) arena ['g203'] vehicle ['hmmwv']
+eval g228: 21515 rows (dev 16875, val 4640) arena ['g228'] vehicle ['hmmwv']
+eval f104_gator: 21792 rows (dev 17433, val 4359) arena ['f104'] vehicle ['gator']
+M1_holdout             f104         val W_unsafe start 0.9814 moving 0.9845 | dev+val start 0.9832 moving 0.9838
+M1_holdout             g203         val W_unsafe start 0.9458 moving 0.9520 | dev+val start 0.9508 moving 0.9558
+M1_holdout             g228         val W_unsafe start 0.9360 moving 0.9468 | dev+val start 0.9394 moving 0.9503
+M1_holdout             f104_gator   val W_unsafe start 0.9227 moving 0.9276 | dev+val start 0.9134 moving 0.9226
+  trainer check M1_holdout: 6 matching row sets, max |diff W_unsafe| 7.26e-02
+M2_holdout             f104         val W_unsafe start 0.9754 moving 0.9800 | dev+val start 0.9761 moving 0.9792
+M2_holdout             g203         val W_unsafe start 0.9706 moving 0.9718 | dev+val start 0.9788 moving 0.9800
+M2_holdout             g228         val W_unsafe start 0.9349 moving 0.9492 | dev+val start 0.9417 moving 0.9546
+M2_holdout             f104_gator   val W_unsafe start 0.9221 moving 0.9247 | dev+val start 0.9064 moving 0.9191
+LC272_holdout          f104         val W_unsafe start 0.9669 moving 0.9707 | dev+val start 0.9625 moving 0.9667
+LC272_holdout          g203         val W_unsafe start 0.9308 moving 0.9352 | dev+val start 0.9420 moving 0.9456
+LC272_holdout          g228         val W_unsafe start 0.9293 moving 0.9408 | dev+val start 0.9244 moving 0.9373
+LC272_holdout          f104_gator   val W_unsafe start 0.9111 moving 0.9174 | dev+val start 0.8879 moving 0.9060
+  trainer check LC272_holdout: 6 matching row sets, max |diff W_unsafe| 7.92e-02
+wrote artifacts/traverse/arena_gator_20260925/e5/offline/auc_rigid_holdout_M1_M2_LC272.json (309.2 s)

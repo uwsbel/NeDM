@@ -1,0 +1,102 @@
+{
+ "schema": "ag_e6b_lock_v1",
+ "all_sha256": "fe3ee6008deafbdfc2973ca71696daa738217e3b3d04f871571532f66c9d5527",
+ "n_dirs": 3,
+ "dirs": [
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid_B2/f104/G_fixed2",
+   "arena": "f104",
+   "world": "rigid",
+   "mode": "fixed2",
+   "model_tag": "G",
+   "n_groups": 800,
+   "n_picks": 800,
+   "groups_sha256": "12a8ee5a70526860500a11584fe0a1a287212e45b373bf97b6d25322bfd16c69",
+   "picks_locked_sha256": "7b2787c79b23d333ee1bbc6a1a8cae08e551f510c85cf4b1e64ac4e0b2bf8cfd",
+   "manifest_sha256": "ee3a3c3d4327e93a21090edbbdb4f85041a9bb881d5b482fe253be781e5d8938",
+   "models": [
+    {
+     "path": "artifacts/traverse/arena_gator_20260925/e5/deploy/G/G_rigid_deploy_s0.pt",
+     "sha256": "1c14b68a77022d45c8fa09b05a92171cb8391dfa3d108dd01d7cb835a701ef1d"
+    },
+    {
+     "path": "artifacts/traverse/arena_gator_20260925/e5/deploy/G/G_rigid_deploy_s1.pt",
+     "sha256": "4c3ff452f0a4c7fd5b3c2fc101f28cc96870abfb92fb28e87a1b7aa9488e538b"
+    },
+    {
+     "path": "artifacts/traverse/arena_gator_20260925/e5/deploy/G/G_rigid_deploy_s2.pt",
+     "sha256": "099a0dfd0c84a9adcd05b1bce82189fcce7c24c34c6e7fd48491e9833379a726"
+    },
+    {
+     "path": "artifacts/traverse/arena_gator_20260925/e5/deploy/G/G_rigid_deploy_s3.pt",
+     "sha256": "7032e8369e726add8ef56455e04bfb2845be303a18ce7ca7b79b66e3b98e09a3"
+    },
+    {
+     "path": "artifacts/traverse/arena_gator_20260925/e5/deploy/G/G_rigid_deploy_s4.pt",
+     "sha256": "dcfa2e873796fc20cf3b818d5de505252b237400c73cb740f7ae21329b191156"
+    }
+   ],
+   "numerics": {
+    "device": "NVIDIA GeForce RTX 5090",
+    "torch": "2.12.0+cu130",
+    "note": "planner process runs with torch defaults: cudnn.allow_tf32 = True (TF32 convolutions on this GPU), matmul.allow_tf32 = False; as every earlier local pick of this study; picks are deterministic on this machine (--rerun-check)"
+   },
+   "created": "2026-09-25 14:15:07"
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid_B2/f104/M1a_fixed2",
+   "arena": "f104",
+   "world": "rigid",
+   "mode": "fixed2",
+   "model_tag": "M1a",
+   "n_groups": 800,
+   "n_picks": 800,
+   "groups_sha256": "12a8ee5a70526860500a11584fe0a1a287212e45b373bf97b6d25322bfd16c69",
+   "picks_locked_sha256": "d38a8a70ff9acca5a194a608cb108c43baf101fb6923b878a64074de887f9bb7",
+   "manifest_sha256": "9c2b03379a22752640c217c18e9783a2643246f9fb1c2f098ef4c4c5b03c2df5",
+   "models": [
+    {
+     "path": "artifacts/traverse/arena_gator_20260925/e5/deploy/M1a/M1a_rigid_deploy_s0.pt",
+     "sha256": "89959d3cd0296760fc840b78db633f9dd573a4c5c79cc8fb62fb4ccd71bc40aa"
+    },
+    {
+     "path": "artifacts/traverse/arena_gator_20260925/e5/deploy/M1a/M1a_rigid_deploy_s1.pt",
+     "sha256": "f218deef57376f0e032a8e3a1bf04350a419812254a02d8834da9af2519f1392"
+    },
+    {
+     "path": "artifacts/traverse/arena_gator_20260925/e5/deploy/M1a/M1a_rigid_deploy_s2.pt",
+     "sha256": "eba6b90b8640f992f5117c5ef26f92d7a11195d7a9b7d93b3daf49c4acae9edc"
+    },
+    {
+     "path": "artifacts/traverse/arena_gator_20260925/e5/deploy/M1a/M1a_rigid_deploy_s3.pt",
+     "sha256": "d6f77f2fe21498a59dc74d9d45e39ac56647b245d13044e486038eeb60c2a2c4"
+    },
+    {
+     "path": "artifacts/traverse/arena_gator_20260925/e5/deploy/M1a/M1a_rigid_deploy_s4.pt",
+     "sha256": "cd6fbabf61c09eae1611644af2d5eefd81b086270e0d63bbe9f5d6207d4e23c5"
+    }
+   ],
+   "numerics": {
+    "device": "NVIDIA GeForce RTX 5090",
+    "torch": "2.12.0+cu130",
+    "note": "planner process runs with torch defaults: cudnn.allow_tf32 = True (TF32 convolutions on this GPU), matmul.allow_tf32 = False; as every earlier local pick of this study; picks are deterministic on this machine (--rerun-check)"
+   },
+   "created": "2026-09-25 14:15:07"
+  },
+  {
+   "dir": "artifacts/traverse/arena_gator_20260925/e6/picks/rigid_B2/f104/straight2",
+   "arena": "f104",
+   "world": "rigid",
+   "mode": "straight2",
+   "model_tag": null,
+   "n_groups": 800,
+   "n_picks": 800,
+   "groups_sha256": "12a8ee5a70526860500a11584fe0a1a287212e45b373bf97b6d25322bfd16c69",
+   "picks_locked_sha256": "08bf589cb7ac31e7ad490c312eb848a3fdfe05b01923de90d7a7221102e0c553",
+   "manifest_sha256": "9725bf3a36e35ee25d8356979e709b390eb2b9e4350ad020ecff152bfed84354",
+   "models": [],
+   "numerics": null,
+   "created": "2026-09-25 14:12:02"
+  }
+ ]
+}

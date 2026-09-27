@@ -1,0 +1,219 @@
+{
+ "tool": "scripts/ag_build_ds.py",
+ "argv": [
+  "--world",
+  "crm",
+  "--crm-runs",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/soil_v1/runs",
+  "--tasks-crm",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/tasks/soil_v2.json",
+  "--tiers",
+  "0-6",
+  "--arena",
+  "f104",
+  "--vehicle",
+  "gator",
+  "--map-root",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/map_roots/f104",
+  "--out",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/f104_gator",
+  "--source-root",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/source",
+  "--workers",
+  "16"
+ ],
+ "started": "2026-09-25 13:33:46",
+ "host": "login1.hpcfund",
+ "python": "/work1/dannegrut/harry/venvs/nedm/bin/python",
+ "arena": "f104",
+ "vehicle": "gator",
+ "worlds": [
+  "crm"
+ ],
+ "map_root": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/map_roots/f104",
+ "map_observation_sha256": "53e23f99bf2c0141bd613ff5bef5a57f82c28b48e39026608dfdd8e2d5553e34",
+ "map_arena_bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+ "tasks": {
+  "rigid": {},
+  "crm": {
+   "/work1/dannegrut/harry/experiments/arena_gator_20260925/tasks/soil_v2.json": "acf1e98c3c995c10ee670ea7982f6668f6cdc9aa58a65948d3e9fdc965689978"
+  }
+ },
+ "exclude_ids": {
+  "rigid": [],
+  "crm": []
+ },
+ "n_exclude_ids": {
+  "rigid": 0,
+  "crm": 0
+ },
+ "tiers": "0-6",
+ "tool_sha256": {
+  "f104_n2_dataset.py": "49b2ad940a5876e07fa9d94f70605a9587d0820c5ce8b491aed8de0310ac7007",
+  "n2_reanchor_dataset.py": "80ad79119462d59afd991f39f3a5def0b59ae30d9d8953543833bb25441f0017",
+  "ga_build_mixed.py": "b7abc6d8512e722f62d3872e2332f16df423a8a48afd60d52f9504c80cf2e338",
+  "ag_build_ds.py": "5e2eae03d441988066b291790da8e7cff576d0df7a0da591f5776f02f5bea17f",
+  "ag_map_check.py": "a237c2d9a72fa720f5db66c07ec0ae8d526d797b0fc654a0866b45af147f59a2",
+  "ag_tasklib.py": "1363371ee0621f835a49c094bea93adcdf2f6db2be7c2fbef9401436f5ab98da",
+  "crm_qa.py": "bde62d2d496db0c26929ecc074d8714cf1a3965bddfb2bf5e93247f107490229"
+ },
+ "selection": {
+  "crm": {
+   "run_folders": [
+    "/work1/dannegrut/harry/experiments/arena_gator_20260925/soil_v1/runs"
+   ],
+   "counts": {
+    "dirs": 19679,
+    "other_ids": 11182,
+    "outside_tiers": 98
+   },
+   "candidates": 8399,
+   "require_marker": true,
+   "rejected": {},
+   "rejected_ids": [],
+   "selected": 8399,
+   "groups": 1200,
+   "split_episodes": {
+    "train": 7622,
+    "test": 385,
+    "val": 392
+   },
+   "split_groups": {
+    "train": 1089,
+    "val": 56,
+    "test": 55
+   },
+   "tiers": {
+    "0": 1199,
+    "1": 1200,
+    "2": 1200,
+    "3": 1200,
+    "4": 1200,
+    "5": 1200,
+    "6": 1200
+   },
+   "status": {
+    "prolonged_blockage_terminated": 7284,
+    "goal_reached": 1014,
+    "soil_breakthrough_terminated": 101
+   },
+   "kinds": {
+    "on_policy": 3319,
+    "designed": 5080
+   },
+   "vehicle_blocks": {
+    "gator": 8399
+   },
+   "map_check": {
+    "map_root": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/map_roots/f104",
+    "map_arena": "arena_f104_50h_v1",
+    "map_arena_bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+    "map_observation_sha256": "53e23f99bf2c0141bd613ff5bef5a57f82c28b48e39026608dfdd8e2d5553e34",
+    "n_cases": 8399,
+    "ok": true,
+    "problems": [],
+    "arenas": {
+     "assets/traverse/arena_f104_50h_v1": {
+      "n": 8399,
+      "bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+      "match": true
+     }
+    }
+   }
+  }
+ },
+ "stages": {
+  "crm": {
+   "station": {
+    "path": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/f104_gator/station_f104_gator_crm_crm.npz",
+    "rows": 8399,
+    "secs": 30.0,
+    "sha256": "6ae02538f51c17070a47594183c549f601d95d6ee4c6073092547d4acc929052"
+   },
+   "reanchor": {
+    "path": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/f104_gator/reanchor_f104_gator_crm_crm.npz",
+    "rows": 30827,
+    "episodes": 8399,
+    "secs": 63.3,
+    "sha256": "d9dd1710231b9fdcd82cb43b8ad56d533e60cebf0c1376d9837b2efc9cc12c5c",
+    "rows_per_episode": 3.67
+   }
+  },
+  "mixed": {
+   "tool": "ag_build_ds.ci_one_world (ga_build_mixed format, one world)",
+   "rows": 30827,
+   "missing_episodes": 0,
+   "raw_found_fraction": 1.0,
+   "elapsed_s": 38.0
+  }
+ },
+ "output": {
+  "path": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/f104_gator/ci_f104_gator_crm.npz",
+  "size_gb": 0.557,
+  "sha256": "dfd1975c2e39b9a4a84f01261a54fda9ac0a80f7b939e94ea466781df038e3e3",
+  "rows": 30827,
+  "rows_by_world": {
+   "crm": 30827
+  },
+  "episodes_by_world": {
+   "crm": 8399
+  },
+  "groups_by_split": {
+   "train": 1089,
+   "val": 56,
+   "test": 55
+  },
+  "counts": {
+   "crm|train|startup": 7622,
+   "crm|train|established": 20435,
+   "crm|val|startup": 392,
+   "crm|val|established": 1038,
+   "crm|test|startup": 385,
+   "crm|test|established": 955
+  },
+  "tiers": {
+   "crm": {
+    "0": 1199,
+    "1": 1200,
+    "2": 1200,
+    "3": 1200,
+    "4": 1200,
+    "5": 1200,
+    "6": 1200
+   }
+  },
+  "keys": [
+   "E",
+   "T",
+   "X",
+   "anchor_frame",
+   "arena",
+   "ctx",
+   "domain",
+   "episode",
+   "event_idx",
+   "fail",
+   "group",
+   "hist",
+   "hist_cols",
+   "hmask",
+   "id",
+   "priv_names",
+   "privileged",
+   "profile",
+   "rem_m",
+   "route_len",
+   "source",
+   "split",
+   "status",
+   "tier",
+   "time_to_event_s",
+   "unsafe",
+   "vehicle",
+   "vx_anchor"
+  ]
+ },
+ "links_removed": true,
+ "elapsed_s": 160.7,
+ "finished": "2026-09-25 13:36:27"
+}

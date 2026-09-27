@@ -1,0 +1,362 @@
+{
+ "arena_g241": {
+  "seed": 241,
+  "difficulty": 1.0,
+  "slope_cap_deg": 26.543829432256192,
+  "roughness_m": 0.19616543491775917,
+  "roughness_corr_m": 2.7382657122937193,
+  "n_hills": 5,
+  "n_craters": 6
+ },
+ "arena_g242": {
+  "seed": 242,
+  "difficulty": 1.0,
+  "slope_cap_deg": 25.604873366693457,
+  "roughness_m": 0.2633182450540197,
+  "roughness_corr_m": 2.4185648116606275,
+  "n_hills": 7,
+  "n_craters": 5
+ },
+ "arena_g243": {
+  "seed": 243,
+  "difficulty": 1.0,
+  "slope_cap_deg": 28.293367682096036,
+  "roughness_m": 0.2641976996684786,
+  "roughness_corr_m": 2.8250177320937535,
+  "n_hills": 6,
+  "n_craters": 7
+ },
+ "arena_g244": {
+  "seed": 244,
+  "difficulty": 1.0,
+  "slope_cap_deg": 25.64509081325422,
+  "roughness_m": 0.208020500061935,
+  "roughness_corr_m": 2.3390468260722534,
+  "n_hills": 6,
+  "n_craters": 6
+ },
+ "arena_g245": {
+  "seed": 245,
+  "difficulty": 1.0,
+  "slope_cap_deg": 27.852725523735202,
+  "roughness_m": 0.2109200568462905,
+  "roughness_corr_m": 2.114264358772,
+  "n_hills": 7,
+  "n_craters": 5
+ },
+ "arena_g246": {
+  "seed": 246,
+  "difficulty": 1.0,
+  "slope_cap_deg": 26.76687327189847,
+  "roughness_m": 0.19141269417491855,
+  "roughness_corr_m": 2.782882376781841,
+  "n_hills": 6,
+  "n_craters": 7
+ },
+ "arena_g247": {
+  "seed": 247,
+  "difficulty": 1.0,
+  "slope_cap_deg": 30.310290978798623,
+  "roughness_m": 0.24637802072859546,
+  "roughness_corr_m": 2.5991370342949205,
+  "n_hills": 5,
+  "n_craters": 6
+ },
+ "arena_g248": {
+  "seed": 248,
+  "difficulty": 1.0,
+  "slope_cap_deg": 29.576107286539948,
+  "roughness_m": 0.24488304465743066,
+  "roughness_corr_m": 2.0446287721951797,
+  "n_hills": 7,
+  "n_craters": 7
+ },
+ "arena_g249": {
+  "seed": 249,
+  "difficulty": 1.0,
+  "slope_cap_deg": 31.643816031504205,
+  "roughness_m": 0.27781370358518076,
+  "roughness_corr_m": 2.936509133777546,
+  "n_hills": 6,
+  "n_craters": 5
+ },
+ "arena_g250": {
+  "seed": 250,
+  "difficulty": 1.0,
+  "slope_cap_deg": 26.427702009627613,
+  "roughness_m": 0.23519847274844402,
+  "roughness_corr_m": 2.0758600691649907,
+  "n_hills": 6,
+  "n_craters": 5
+ },
+ "arena_g251": {
+  "seed": 251,
+  "difficulty": 1.0,
+  "slope_cap_deg": 28.857249208418292,
+  "roughness_m": 0.26537710616064625,
+  "roughness_corr_m": 2.218991451791337,
+  "n_hills": 5,
+  "n_craters": 6
+ },
+ "arena_g252": {
+  "seed": 252,
+  "difficulty": 1.0,
+  "slope_cap_deg": 28.938534747790158,
+  "roughness_m": 0.21801454095143058,
+  "roughness_corr_m": 2.806220008565507,
+  "n_hills": 5,
+  "n_craters": 6
+ },
+ "arena_g253": {
+  "seed": 253,
+  "difficulty": 1.0,
+  "slope_cap_deg": 26.7855259429433,
+  "roughness_m": 0.23269411505551513,
+  "roughness_corr_m": 2.0827146905414997,
+  "n_hills": 7,
+  "n_craters": 7
+ },
+ "arena_g254": {
+  "seed": 254,
+  "difficulty": 1.0,
+  "slope_cap_deg": 28.11130628549385,
+  "roughness_m": 0.2180372416361584,
+  "roughness_corr_m": 2.7492244338672447,
+  "n_hills": 5,
+  "n_craters": 5
+ },
+ "arena_g255": {
+  "seed": 255,
+  "difficulty": 1.0,
+  "slope_cap_deg": 30.65992522245098,
+  "roughness_m": 0.2121159623610286,
+  "roughness_corr_m": 2.7785272117800064,
+  "n_hills": 7,
+  "n_craters": 6
+ },
+ "arena_g256": {
+  "seed": 256,
+  "difficulty": 1.0,
+  "slope_cap_deg": 30.011876878119395,
+  "roughness_m": 0.2785989589821174,
+  "roughness_corr_m": 2.994695958711873,
+  "n_hills": 5,
+  "n_craters": 6
+ },
+ "arena_g257": {
+  "seed": 257,
+  "difficulty": 1.0,
+  "slope_cap_deg": 30.22819097416696,
+  "roughness_m": 0.2598179656166343,
+  "roughness_corr_m": 2.5510631554270233,
+  "n_hills": 5,
+  "n_craters": 7
+ },
+ "arena_g258": {
+  "seed": 258,
+  "difficulty": 1.0,
+  "slope_cap_deg": 27.458863431477646,
+  "roughness_m": 0.26410858903885687,
+  "roughness_corr_m": 2.7557062178369995,
+  "n_hills": 5,
+  "n_craters": 5
+ },
+ "arena_g259": {
+  "seed": 259,
+  "difficulty": 1.0,
+  "slope_cap_deg": 29.198113839472462,
+  "roughness_m": 0.21973360939709158,
+  "roughness_corr_m": 2.638832404955721,
+  "n_hills": 5,
+  "n_craters": 6
+ },
+ "arena_g260": {
+  "seed": 260,
+  "difficulty": 1.0,
+  "slope_cap_deg": 31.52080542189689,
+  "roughness_m": 0.23998302692118006,
+  "roughness_corr_m": 2.7013637810139604,
+  "n_hills": 5,
+  "n_craters": 5
+ },
+ "arena_g261": {
+  "seed": 261,
+  "difficulty": 1.0,
+  "slope_cap_deg": 27.40459370505025,
+  "roughness_m": 0.22392824901344646,
+  "roughness_corr_m": 2.885394306707895,
+  "n_hills": 5,
+  "n_craters": 5
+ },
+ "arena_g262": {
+  "seed": 262,
+  "difficulty": 1.0,
+  "slope_cap_deg": 30.883901984715976,
+  "roughness_m": 0.2267064868217074,
+  "roughness_corr_m": 2.887591916929921,
+  "n_hills": 7,
+  "n_craters": 7
+ },
+ "arena_g263": {
+  "seed": 263,
+  "difficulty": 1.0,
+  "slope_cap_deg": 27.36093836461259,
+  "roughness_m": 0.16537872562114622,
+  "roughness_corr_m": 2.0758474828331117,
+  "n_hills": 6,
+  "n_craters": 6
+ },
+ "arena_g264": {
+  "seed": 264,
+  "difficulty": 1.0,
+  "slope_cap_deg": 27.654076332649968,
+  "roughness_m": 0.2119598373957594,
+  "roughness_corr_m": 2.3467609334734,
+  "n_hills": 7,
+  "n_craters": 5
+ },
+ "arena_g265": {
+  "seed": 265,
+  "difficulty": 1.0,
+  "slope_cap_deg": 27.208877645721635,
+  "roughness_m": 0.1616137084315258,
+  "roughness_corr_m": 2.8075506568158257,
+  "n_hills": 5,
+  "n_craters": 7
+ },
+ "arena_g266": {
+  "seed": 266,
+  "difficulty": 1.0,
+  "slope_cap_deg": 26.437862371047597,
+  "roughness_m": 0.20989867846676208,
+  "roughness_corr_m": 2.912701392965338,
+  "n_hills": 5,
+  "n_craters": 5
+ },
+ "arena_g267": {
+  "seed": 267,
+  "difficulty": 1.0,
+  "slope_cap_deg": 29.04710745159628,
+  "roughness_m": 0.20024440378192684,
+  "roughness_corr_m": 2.8199574719862563,
+  "n_hills": 5,
+  "n_craters": 5
+ },
+ "arena_g268": {
+  "seed": 268,
+  "difficulty": 1.0,
+  "slope_cap_deg": 31.738842703565787,
+  "roughness_m": 0.21808736863021613,
+  "roughness_corr_m": 2.913195917012798,
+  "n_hills": 6,
+  "n_craters": 6
+ },
+ "arena_g269": {
+  "seed": 269,
+  "difficulty": 1.0,
+  "slope_cap_deg": 27.174640670533833,
+  "roughness_m": 0.20812436071269685,
+  "roughness_corr_m": 2.2412706227542603,
+  "n_hills": 5,
+  "n_craters": 7
+ },
+ "arena_g270": {
+  "seed": 270,
+  "difficulty": 1.0,
+  "slope_cap_deg": 27.72022533767067,
+  "roughness_m": 0.2590611381223419,
+  "roughness_corr_m": 2.4837786173115655,
+  "n_hills": 6,
+  "n_craters": 5
+ },
+ "arena_g271": {
+  "seed": 271,
+  "difficulty": 1.0,
+  "slope_cap_deg": 30.473856542934538,
+  "roughness_m": 0.26001330786559756,
+  "roughness_corr_m": 2.6027010089037588,
+  "n_hills": 6,
+  "n_craters": 5
+ },
+ "arena_g272": {
+  "seed": 272,
+  "difficulty": 1.0,
+  "slope_cap_deg": 28.03897108364279,
+  "roughness_m": 0.19619473520382513,
+  "roughness_corr_m": 2.6535287709642787,
+  "n_hills": 7,
+  "n_craters": 7
+ },
+ "arena_g273": {
+  "seed": 273,
+  "difficulty": 1.0,
+  "slope_cap_deg": 26.345283026333632,
+  "roughness_m": 0.255383304592964,
+  "roughness_corr_m": 2.6602579569702227,
+  "n_hills": 5,
+  "n_craters": 7
+ },
+ "arena_g274": {
+  "seed": 274,
+  "difficulty": 1.0,
+  "slope_cap_deg": 31.832698448252156,
+  "roughness_m": 0.1796966132862542,
+  "roughness_corr_m": 2.4623154788480237,
+  "n_hills": 5,
+  "n_craters": 7
+ },
+ "arena_g275": {
+  "seed": 275,
+  "difficulty": 1.0,
+  "slope_cap_deg": 31.474435413384292,
+  "roughness_m": 0.2537808163067724,
+  "roughness_corr_m": 2.0306556182452944,
+  "n_hills": 7,
+  "n_craters": 5
+ },
+ "arena_g276": {
+  "seed": 276,
+  "difficulty": 1.0,
+  "slope_cap_deg": 30.75454862543742,
+  "roughness_m": 0.15782794290752702,
+  "roughness_corr_m": 2.3036565757313356,
+  "n_hills": 7,
+  "n_craters": 7
+ },
+ "arena_g277": {
+  "seed": 277,
+  "difficulty": 1.0,
+  "slope_cap_deg": 28.593575275216256,
+  "roughness_m": 0.18150191647007446,
+  "roughness_corr_m": 2.4379177852946157,
+  "n_hills": 6,
+  "n_craters": 5
+ },
+ "arena_g278": {
+  "seed": 278,
+  "difficulty": 1.0,
+  "slope_cap_deg": 29.893916396814955,
+  "roughness_m": 0.16699425710282764,
+  "roughness_corr_m": 2.280596049028543,
+  "n_hills": 7,
+  "n_craters": 6
+ },
+ "arena_g279": {
+  "seed": 279,
+  "difficulty": 1.0,
+  "slope_cap_deg": 25.35357403127018,
+  "roughness_m": 0.26101060883511534,
+  "roughness_corr_m": 2.1013526157292817,
+  "n_hills": 5,
+  "n_craters": 5
+ },
+ "arena_g280": {
+  "seed": 280,
+  "difficulty": 1.0,
+  "slope_cap_deg": 31.98290593240394,
+  "roughness_m": 0.24465476242175616,
+  "roughness_corr_m": 2.7692576146830525,
+  "n_hills": 7,
+  "n_craters": 7
+ }
+}

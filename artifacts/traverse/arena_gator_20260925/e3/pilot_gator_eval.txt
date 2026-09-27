@@ -1,0 +1,58 @@
+== soil_calibrated: rows 144 complete 144 validated 144 (100.0 %); worker-failed ids 0, collection_failure 0, qa flags {}, nonfinite 0, launch failures 0 (0.0 %), crash/NaN 0.0 %
+   fail Gator 93.8 % (n 144) vs HMMWV 69.4 % (n 144); paired {'n': 144, 'both_fail': 99, 'gator_only_fail': 36, 'hmmwv_only_fail': 1, 'both_goal': 8, 'mcnemar_p': 5.529727786779404e-10}
+   status Gator {'prolonged_blockage_terminated': 134, 'goal_reached': 9, 'soil_breakthrough_terminated': 1}  HMMWV {'goal_reached': 44, 'soil_breakthrough_terminated': 86, 'prolonged_blockage_terminated': 14}
+   constant_2        Gator 100.0 % (n 18)     HMMWV 100.0 % (n 18)     disc G-only 0 H-only 0 p 1
+   constant_4        Gator 93.8 % (n 16)      HMMWV 62.5 % (n 16)      disc G-only 5 H-only 0 p 0.0625
+   constant_6        Gator 89.3 % (n 28)      HMMWV 28.6 % (n 28)      disc G-only 17 H-only 0 p 1.53e-05
+   smooth_2_6_2      Gator 95.8 % (n 24)      HMMWV 58.3 % (n 24)      disc G-only 9 H-only 0 p 0.00391
+   planner_proposal  Gator 93.1 % (n 58)      HMMWV 86.2 % (n 58)      disc G-only 5 H-only 1 p 0.219
+   crater_cross_slope       Gator 83.3 % (n 24)      HMMWV 37.5 % (n 24)
+   crater_entry_cross_exit  Gator 100.0 % (n 24)     HMMWV 95.8 % (n 24)
+   hill_cross_slope         Gator 95.8 % (n 24)      HMMWV 83.3 % (n 24)
+   hill_entry_cross_exit    Gator 100.0 % (n 24)     HMMWV 62.5 % (n 24)
+   long_traverse            Gator 87.5 % (n 24)      HMMWV 54.2 % (n 24)
+   roughness_transfer       Gator 95.8 % (n 24)      HMMWV 83.3 % (n 24)
+   belly flag (run > 1 s) 4.2 % (n 144), cumulative 5.6 % (n 144); among fails 4.4 % (n 135), among goals 0.0 % (n 9); fail counting flagged as fail 93.8 % (n 144); median belly min -0.015281137079000473, anchor 0.16674236208200455
+   sim h Gator 1.41 vs HMMWV 0.92; mean ep 35.278125 vs 23.002083333333335; max sinkage median (G, H) (0.15565220645204458, 0.32103466127302804); slip p95 median (34.08546257019043, 96.2769889831543)
+   any designed goal per group {'gator': (0.125, 24), 'hmmwv': (0.6666666666666666, 24)}; informative {'overall_in_10_90': False, 'designed_profiles_in_band': ['constant_6']}; by GPU {'MI210': {'episodes': 50, 'loop_wall_per_sim_s': 3.0922950901244692}, 'MI350X': {'episodes': 94, 'loop_wall_per_sim_s': 1.9159406753072306}}; wheel [0.19575] step [0.001] ag_vehicle ['072716ee7154']
+== soil_r8: rows 144 complete 144 validated 144 (100.0 %); worker-failed ids 0, collection_failure 0, qa flags {}, nonfinite 0, launch failures 0 (0.0 %), crash/NaN 0.0 %
+   fail Gator 80.6 % (n 144) vs HMMWV 69.4 % (n 144); paired {'n': 144, 'both_fail': 91, 'gator_only_fail': 25, 'hmmwv_only_fail': 9, 'both_goal': 19, 'mcnemar_p': 0.00904118549078703}
+   status Gator {'prolonged_blockage_terminated': 116, 'goal_reached': 28}  HMMWV {'goal_reached': 44, 'soil_breakthrough_terminated': 86, 'prolonged_blockage_terminated': 14}
+   constant_2        Gator 83.3 % (n 18)      HMMWV 100.0 % (n 18)     disc G-only 0 H-only 3 p 0.25
+   constant_4        Gator 56.2 % (n 16)      HMMWV 62.5 % (n 16)      disc G-only 1 H-only 2 p 1
+   constant_6        Gator 78.6 % (n 28)      HMMWV 28.6 % (n 28)      disc G-only 14 H-only 0 p 0.000122
+   smooth_2_6_2      Gator 83.3 % (n 24)      HMMWV 58.3 % (n 24)      disc G-only 7 H-only 1 p 0.0703
+   planner_proposal  Gator 86.2 % (n 58)      HMMWV 86.2 % (n 58)      disc G-only 3 H-only 3 p 1
+   crater_cross_slope       Gator 58.3 % (n 24)      HMMWV 37.5 % (n 24)
+   crater_entry_cross_exit  Gator 100.0 % (n 24)     HMMWV 95.8 % (n 24)
+   hill_cross_slope         Gator 100.0 % (n 24)     HMMWV 83.3 % (n 24)
+   hill_entry_cross_exit    Gator 83.3 % (n 24)      HMMWV 62.5 % (n 24)
+   long_traverse            Gator 70.8 % (n 24)      HMMWV 54.2 % (n 24)
+   roughness_transfer       Gator 70.8 % (n 24)      HMMWV 83.3 % (n 24)
+   belly flag (run > 1 s) 0.0 % (n 144), cumulative 0.0 % (n 144); among fails 0.0 % (n 116), among goals 0.0 % (n 28); fail counting flagged as fail 80.6 % (n 144); median belly min 0.08458416536450386, anchor 0.20440799742937088
+   sim h Gator 1.35 vs HMMWV 0.92; mean ep 33.71076388888889 vs 23.002083333333335; max sinkage median (G, H) (0.0753038658221659, 0.32103466127302804); slip p95 median (25.96724033355713, 96.2769889831543)
+   any designed goal per group {'gator': (0.3333333333333333, 24), 'hmmwv': (0.6666666666666666, 24)}; informative {'overall_in_10_90': True, 'designed_profiles_in_band': ['constant_2', 'constant_4', 'constant_6', 'smooth_2_6_2']}; by GPU {'MI210': {'episodes': 46, 'loop_wall_per_sim_s': 3.151872349881578}, 'MI350X': {'episodes': 98, 'loop_wall_per_sim_s': 1.9117314849015548}}; wheel [0.27575] step [0.001] ag_vehicle ['072716ee7154']
+== sensitivity {"n": 144, "fail_calibrated": 0.9375, "fail_r8": 0.8055555555555556, "change_points": -13.194444444444443, "same_status": 0.8472222222222222, "r8_only_fail": 1, "calibrated_only_fail": 20, "mcnemar_p": 2.09808349609375e-05, "belly_flag_r8": 0.0, "max_sinkage_median": [0.15565220645204458, 0.0753038658221659], "anchor_belly_median": [0.16674236208200455, 0.20440799742937088], "by_profile": {"constant_2": [1.0, 0.8333333333333334, 18], "constant_4": [0.9375, 0.5625, 16], "constant_6": [0.8928571428571429, 0.7857142857142857, 28], "smooth_2_6_2": [0.9583333333333334, 0.8333333333333334, 24], "planner_proposal": [0.9310344827586207, 0.8620689655172413, 58]}, "decision": "within 15 points"}
+== rigid: rows 288 complete 288 validated 288 (100.0 %); runner failures 0, nonfinite 0, launch failures 0, native-height failures 0
+   fail Gator 3.5 % (n 288) vs HMMWV production_v3 13.9 % (n 288); paired {'n': 288, 'both_fail': 2, 'gator_only_fail': 8, 'hmmwv_only_fail': 38, 'both_goal': 240, 'mcnemar_p': 9.24769992138863e-06}
+   unsafe Gator 4.5 % (n 288) vs HMMWV 26.4 % (n 288) (without backward clause 3.5 % (n 288) vs 13.9 % (n 288)); backward-only {'gator': 3, 'hmmwv': 36}
+   constant_2     fail G 12.5 % (n 72)      H 34.7 % (n 72)      unsafe G 15.3 % (n 72)      H 63.9 % (n 72)
+   constant_4     fail G 0.0 % (n 72)       H 12.5 % (n 72)      unsafe G 1.4 % (n 72)       H 25.0 % (n 72)
+   constant_6     fail G 1.4 % (n 72)       H 2.8 % (n 72)       unsafe G 1.4 % (n 72)       H 2.8 % (n 72)
+   smooth_2_6_2   fail G 0.0 % (n 72)       H 5.6 % (n 72)       unsafe G 0.0 % (n 72)       H 13.9 % (n 72)
+   status G {'goal_reached': 278, 'prolonged_blockage_terminated': 5, 'timeout': 5} H {'goal_reached': 248, 'prolonged_blockage_terminated': 32, 'terrain_bounds_exit': 3, 'timeout': 4, 'rollover': 1}
+   chassis contact {'runs_with_contact': 32, 'runs_with_record': 288, 'max_n': 227992.31344517544}; belly {'min_m': -0.05558525806367742, 'runs_below_surface': 31, 'median_min_m': 0.06832216048593892}; anchor vx {'gator_median': -0.043791770935058594, 'gator_min': -0.40144750475883484, 'hmmwv_median': -0.014612496364861727, 'hmmwv_min': -0.08389421552419662}; tilt {'gator_max_roll': 40.290462493896484, 'hmmwv_max_roll': 57.32603454589844, 'gator_max_pitch': 32.94301986694336, 'hmmwv_max_pitch': 49.41809844970703}
+   sim h G 1.42 H 1.92; wall fit [a, b] {'gator_mi3501x_cpu': [11.771755058121963, 0.8823320204013435], 'hmmwv_production_v3': [28.493951821841318, 3.0034449477100753]}; wall/sim median {'gator': 1.7573487761116295, 'hmmwv': 4.549261138685498}
+== rigid same node {"n": 288, "gator_fail": [0.034722222222222224, 288], "hmmwv_fail": [0.1388888888888889, 288], "paired_fail": {"n": 288, "both_fail": 2, "gator_only_fail": 8, "hmmwv_only_fail": 38, "both_goal": 240, "mcnemar_p": 9.24769992138863e-06}, "gator_unsafe": [0.04513888888888889, 288], "hmmwv_unsafe": [0.2638888888888889, 288], "paired_unsafe": {"n": 288, "both_fail": 12, "gator_only_fail": 1, "hmmwv_only_fail": 64, "both_goal": 211, "mcnemar_p": 3.577867169202165e-18}, "hmmwv_status": {"goal_reached": 248, "prolonged_blockage_terminated": 32, "terrain_bounds_exit": 3, "timeout": 4, "rollover": 1}, "by_profile": {"constant_2": {"gator_fail": [0.125, 72], "hmmwv_fail": [0.3472222222222222, 72], "gator_unsafe": [0.1527777777777778, 72], "hmmwv_unsafe": [0.6388888888888888, 72]}, "constant_4": {"gator_fail": [0.0, 72], "hmmwv_fail": [0.125, 72], "gator_unsafe": [0.013888888888888888, 72], "hmmwv_unsafe": [0.25, 72]}, "constant_6": {"gator_fail": [0.013888888888888888, 72], "hmmwv_fail": [0.027777777777777776, 72], "gator_unsafe": [0.013888888888888888, 72], "hmmwv_unsafe": [0.027777777777777776, 72]}, "smooth_2_6_2": {"gator_fail": [0.0, 72], "hmmwv_fail": [0.05555555555555555, 72], "gator_unsafe": [0.0, 72], "hmmwv_unsafe": [0.1388888888888889, 72]}}, "hmmwv_chassis_contact": {"runs_with_contact": 9, "max_n": 359139.46571106795, "on_gator_contact_routes": 3, "gator_contact_routes": 32}, "hmmwv_vs_production_v3": {"same_status": 288, "identical_state": 288, "production_fail": [0.1388888888888889, 288], "rerun_fail": [0.1388888888888889, 288]}, "hmmwv_rerun_has_vehicle_block": 0, "wall_per_sim_s_median": {"gator": 1.7573487761116295, "hmmwv_same_node": 2.1116106002033552}, "wall_fit_s": {"gator": [11.771755058121963, 0.8823320204013435], "hmmwv_same_node": [10.682668778654316, 1.4342911503567923]}}
+== soil under rigid CPU load {"k007-005-v6.hpcfund": {"busy_n": 13, "busy_loop_wall_per_sim_s": 1.9955985847560842, "idle_n": 78, "idle_loop_wall_per_sim_s": 1.93550910735316, "windows": [["02:30:03", "02:36:54"], ["02:36:48", "02:47:04"]]}, "k007-005-v7.hpcfund": {"busy_n": 11, "busy_loop_wall_per_sim_s": 1.917328230322224, "idle_n": 90, "idle_loop_wall_per_sim_s": 1.904231031820494, "windows": [["02:30:03", "02:35:17"], ["02:38:35", "02:46:06"]]}}
+   worker 436188 k006-004-v2.hpcfund MI210: 12 ep, 374 sim s in 1283 wall s -> 3.426348850109148
+   worker 436122 k007-005-v7.hpcfund MI350X: 101 ep, 3401 sim s in 7040 wall s -> 2.070067872498575
+   worker 436127 k006-006-v2.hpcfund MI210: 11 ep, 374 sim s in 1209 wall s -> 3.2311919837417333
+   worker 436130 k006-004-v2.hpcfund MI210: 11 ep, 376 sim s in 1271 wall s -> 3.374777971827493
+   worker 436166 k006-004-v2.hpcfund MI210: 11 ep, 353 sim s in 1206 wall s -> 3.415125333242018
+   worker 436123 k006-004-v2.hpcfund MI210: 10 ep, 357 sim s in 1201 wall s -> 3.365195115407308
+   worker 436165 k006-005-v2.hpcfund MI210: 11 ep, 364 sim s in 1310 wall s -> 3.602548946987463
+   worker 436124 k007-005-v6.hpcfund MI350X: 91 ep, 3282 sim s in 7001 wall s -> 2.1327369636453484
+   worker 436131 k006-005-v2.hpcfund MI210: 8 ep, 345 sim s in 1207 wall s -> 3.501064891170456
+   worker 436146 k006-004-v2.hpcfund MI210: 12 ep, 374 sim s in 1279 wall s -> 3.4156632413850128
+   worker 436187 k006-005-v2.hpcfund MI210: 10 ep, 333 sim s in 1202 wall s -> 3.609830225168925

@@ -1,0 +1,11 @@
+05:42:55 start M2: ag_subset.py --preset M2 --ds /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/f104_hmmwv/ci_f104_hmmwv_both.npz /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/g203_hmmwv/ci_g203_hmmwv_rigid.npz --out /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/subsets/M2_hmmwv_rigid.npz
+05:42:55 start LOAO1_g203: ag_subset.py --preset LOAO1_g203 --ds /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/g203_hmmwv/ci_g203_hmmwv_rigid.npz --out /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/subsets/LOAO1_g203_hmmwv_rigid.npz
+05:42:55 start LOAO1_f104_list: ag_subset.py --preset LOAO1_f104 --ds /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/f104_hmmwv/ci_f104_hmmwv_both.npz --list-only --out /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/subsets/LOAO1_f104_hmmwv_rigid.npz
+05:42:55 start EV_g203: ag_subset.py --groups g203=0 --keep-dev-fold --ds /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/g203_hmmwv/ci_g203_hmmwv_rigid.npz --out /work1/dannegrut/harry/experiments/arena_gator_20260925/e5/eval/EV_g203_hmmwv_rigid.npz
+05:42:55 start LOAO2_f104_g203: ag_subset.py --preset LOAO2_f104_g203 --ds /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/f104_hmmwv/ci_f104_hmmwv_both.npz /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/g203_hmmwv/ci_g203_hmmwv_rigid.npz --out /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/subsets/LOAO2_f104_g203_hmmwv_rigid.npz
+05:42:58 end LOAO1_f104_list exit: 0 ()
+05:43:56 end EV_g203 exit: 0 (wrote /work1/dannegrut/harry/experiments/arena_gator_20260925/e5/eval/EV_g203_hmmwv_rigid.npz (26025 rows, 0.472 GB) in 60.3 s)
+05:44:21 end LOAO1_g203 exit: 0 (wrote /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/subsets/LOAO1_g203_hmmwv_rigid.npz (50855 rows, 0.922 GB) in 84.3 s)
+05:45:55 end LOAO2_f104_g203 exit: 0 (wrote /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/subsets/LOAO2_f104_g203_hmmwv_rigid.npz (59819 rows, 1.085 GB) in 179.1 s)
+05:46:14 end M2 exit: 0 (wrote /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/subsets/M2_hmmwv_rigid.npz (101916 rows, 1.848 GB) in 198.1 s)
+05:46:14 stage g203 done

@@ -1,0 +1,73 @@
+{
+ "tool": "scripts/ag_eval_tasks.py",
+ "tool_sha256": "6fda2fcc21d7bcea4bf6ed61a2c31ff63ec26eb26e3d764de389d8ee2d517742",
+ "created": "2026-09-25 14:34:29",
+ "argv": [
+  "build",
+  "--world",
+  "crm",
+  "--out",
+  "artifacts/traverse/arena_gator_20260925/e6/tasks/soil_eval_p2.json",
+  "--tier",
+  "-8",
+  "--arm",
+  "M3b_free=artifacts/traverse/arena_gator_20260925/e6/picks/crm/g2[4-7]*/M3b_free",
+  "--arm",
+  "M2_free=artifacts/traverse/arena_gator_20260925/e6/picks/crm/g2[4-7]*/M2_free",
+  "--existing",
+  "artifacts/traverse/arena_gator_20260925/e3/tasks/soil_v2.json",
+  "artifacts/traverse/arena_gator_20260925/e6/tasks/soil_eval_p1.json"
+ ],
+ "world": "crm",
+ "n_rows": 1902,
+ "file_sha256": "8ab0f4687f444e0783d2409dc59d9083cba194ebb8c54cf808113bbd0173c943",
+ "arm_group_pairs": 2000,
+ "drives_saved_by_identical_routes": 2,
+ "reused_existing_rows": {
+  "spread_headroom": 14,
+  "eval": 67
+ },
+ "existing_files": {
+  "artifacts/traverse/arena_gator_20260925/e3/tasks/soil_v2.json": "acf1e98c3c995c10ee670ea7982f6668f6cdc9aa58a65948d3e9fdc965689978",
+  "artifacts/traverse/arena_gator_20260925/e6/tasks/soil_eval_p1.json": "e4cc879b423f9f201f238c406c50ef4716766027dbe2ca820f8137e59abc7ba9"
+ },
+ "by_arena": {
+  "g241": 233,
+  "g247": 227,
+  "g251": 239,
+  "g258": 238,
+  "g260": 237,
+  "g263": 239,
+  "g268": 242,
+  "g271": 247
+ },
+ "by_vehicle": {
+  "hmmwv": 1902
+ },
+ "by_arm_first": {
+  "M3b_free": 957,
+  "M2_free": 945
+ },
+ "arm_coverage_groups": {
+  "M3b_free": 1000,
+  "M2_free": 1000
+ },
+ "groups_missing_some_arm": 0,
+ "groups_missing_some_arm_examples": {},
+ "groups_by_arena": {
+  "g241": 125,
+  "g247": 125,
+  "g251": 125,
+  "g258": 125,
+  "g260": 125,
+  "g263": 125,
+  "g268": 125,
+  "g271": 125
+ },
+ "shards": null,
+ "staging": {
+  "files": 2884,
+  "list": "artifacts/traverse/arena_gator_20260925/e6/tasks/soil_eval_p2.json.staging.tsv"
+ },
+ "collector_contract": "soil: crm_worker.py with CRM_COLLECTOR = /work1/dannegrut/harry/experiments/arena_gator_20260925/source/scripts/ag_crm_collect.py (frozen dispatcher), CRM_CONFIG = configs/crm_main.json, CRM_OUT = the soil output folder of the superset task file, NEDM_VEHICLE unset"
+}

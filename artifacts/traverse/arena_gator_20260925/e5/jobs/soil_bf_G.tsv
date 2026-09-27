@@ -1,0 +1,3 @@
+# lane	tag	out (rel. G3)	ci_train arguments (Bfull job G: Gator-trained soil planner on all tiers 0-12; recipe = S1 soil_s1_B.tsv)
+1	G_full_soil_deploy	e5/train/soil_bf/G_full_soil	--ds /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_bf/subsets/G_full_f104_gator_soil.npz --mode deploy --arch gru --cond none --domain-filter crm --ctx geom --split-eval val --bs 256 --epochs 30 --seeds 5 --seed0 0 --roundtrip-check
+2	G_full_soil_holdout	e5/train/soil_bf/offline_soil_bf	--ds /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_bf/subsets/G_full_f104_gator_soil.npz --mode holdout --arch gru --cond none --domain-filter crm --ctx geom --split-eval val --bs 256 --epochs 30 --seeds 5 --seed0 0

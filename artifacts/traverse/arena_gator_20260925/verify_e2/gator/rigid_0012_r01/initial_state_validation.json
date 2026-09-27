@@ -1,0 +1,23 @@
+{
+  "passed": true,
+  "finite": true,
+  "body_horizontal_speed_mps": 0.18197694420814514,
+  "roll_rad": -0.016371173784136772,
+  "pitch_rad": -0.0240471251308918,
+  "yaw_error_rad": 0.011763045677860129,
+  "start_xy_error_m": 0.12151932507039953,
+  "pose": [
+    -30.80824323774973,
+    16.825923949593225,
+    -1.188441031345041
+  ],
+  "limits": {
+    "body_horizontal_speed_mps": 1.0,
+    "absolute_roll_pitch_deg": 20.0,
+    "yaw_error_deg": 10.0,
+    "start_xy_error_m": 1.0
+  },
+  "settle_s": 0.8,
+  "chassis_contact_is_not_a_launch_rejection": true,
+  "history": "Measured t=0 state repeated with synthetic previous brake, exactly the frozen collector convention"
+}

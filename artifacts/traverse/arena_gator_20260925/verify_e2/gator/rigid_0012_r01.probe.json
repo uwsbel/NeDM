@@ -1,0 +1,94 @@
+{
+ "world": "rigid",
+ "argv": [
+  "--source-root",
+  ".",
+  "--case",
+  "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_f104_50h_20260909/cases_night2/cases/f104_v2_group_0012.json",
+  "--route",
+  "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_f104_50h_20260909/cases_night2/cases/routes/f104_v2_group_0012/route_01.json",
+  "--chrono-data",
+  "/home/harry/chrono/data",
+  "--horizon-s",
+  "15",
+  "--local",
+  "--out",
+  "/home/harry/NeDM-traverse_mppi/artifacts/traverse/arena_gator_20260925/verify_e2/gator/rigid_0012_r01"
+ ],
+ "create_gator_called": true,
+ "wrapper_class": "Gator",
+ "isinstance_veh_Gator": true,
+ "isinstance_veh_HMMWV_Full": false,
+ "vehicle_mass_kg": 906.1999999999998,
+ "chassis_mass_kg": 800.0,
+ "config_vehicle_block": {
+  "model": "Gator",
+  "contact_method": "SMC",
+  "chassis_fixed": false,
+  "init": {
+   "x_m": -30.85059959273353,
+   "y_m": 16.939822525343985,
+   "z_m": 0.5860206834331424,
+   "yaw_rad": -1.2002040770229012
+  },
+  "tire_model": "TMEASY",
+  "chassis_collision": "HULLS",
+  "driveline": "SIMPLE",
+  "brake": "SIMPLE",
+  "brake_locking": false,
+  "engine_model": "Gator_EngineSimple (stock, fixed by veh.Gator)",
+  "transmission_model": "Gator_AutomaticTransmissionSimple (stock, one gear, fixed by veh.Gator)",
+  "steering_type": "Gator_RackPinion (stock)",
+  "spawn_dz_m": 0.35
+ },
+ "init_z_m": 0.5860206834331424,
+ "surface_at_start_m": 0.23602068343314242,
+ "init_z_minus_surface_m": 0.35,
+ "driveline_template": "GatorCustomDriveline",
+ "driveline_name": "Driveline",
+ "driven_axle_indexes": [
+  1
+ ],
+ "brakes": {
+  "axle0L": null,
+  "axle0R": null,
+  "axle1L": "BrakeSimple:Brake_RL",
+  "axle1R": "BrakeSimple:Brake_RR"
+ },
+ "tyres": {
+  "axle0L": {
+   "template": "TMeasyTire",
+   "radius_m": 0.28575,
+   "width_m": 0.254,
+   "spindle_z_m": 0.5660206834331424,
+   "spindle_x_m": -29.977313791086203
+  },
+  "axle0R": {
+   "template": "TMeasyTire",
+   "radius_m": 0.28575,
+   "width_m": 0.254,
+   "spindle_z_m": 0.5660206834331424,
+   "spindle_x_m": -31.02128036839015
+  },
+  "axle1L": {
+   "template": "TMeasyTire",
+   "radius_m": 0.3175,
+   "width_m": 0.3048,
+   "spindle_z_m": 0.5860206834331424,
+   "spindle_x_m": -30.62399203614991
+  },
+  "axle1R": {
+   "template": "TMeasyTire",
+   "radius_m": 0.3175,
+   "width_m": 0.3048,
+   "spindle_z_m": 0.5860206834331424,
+   "spindle_x_m": -31.779812175307857
+  }
+ },
+ "engine": "EngineSimple:Engine",
+ "transmission": "AutomaticTransmissionSimpleMap:Transmission",
+ "chassis_ref_z_after_init_m": 0.5860206834331424,
+ "chassis_collision_shapes": 1,
+ "chassis_collision_enabled": true,
+ "collector_returned": true
+}

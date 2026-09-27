@@ -1,0 +1,122 @@
+{
+ "tool": "scripts/ag_eval_tasks.py",
+ "tool_sha256": "6fda2fcc21d7bcea4bf6ed61a2c31ff63ec26eb26e3d764de389d8ee2d517742",
+ "created": "2026-09-25 14:02:25",
+ "argv": [
+  "build",
+  "--world",
+  "rigid",
+  "--arm",
+  "M1a_fx2=artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g2[02][38]/M1a_fixed2",
+  "--arm",
+  "M1a_free=artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g2[02][38]/M1a_free",
+  "--arm",
+  "M1b_fx2=artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g2[02][38]/M1b_fixed2",
+  "--arm",
+  "M1b_free=artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g2[02][38]/M1b_free",
+  "--arm",
+  "M2_fx2=artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g2[02][38]/M2_fixed2",
+  "--arm",
+  "M2_free=artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g2[02][38]/M2_free",
+  "--arm",
+  "M3a_fx2=artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g2[02][38]/M3a_fixed2",
+  "--arm",
+  "M3a_free=artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g2[02][38]/M3a_free",
+  "--arm",
+  "M3b_fx2=artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g2[02][38]/M3b_fixed2",
+  "--arm",
+  "M3b_free=artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g2[02][38]/M3b_free",
+  "--arm",
+  "A3_fx2=artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g2[02][38]/A3_fixed2",
+  "--arm",
+  "A3_free=artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g2[02][38]/A3_free",
+  "--arm",
+  "straight6=artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g2[02][38]/straight6",
+  "--arm",
+  "straight2=artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g2[02][38]/straight2",
+  "--existing",
+  "artifacts/traverse/arena_gator_20260925/e3/tasks/rigid_v2.json",
+  "artifacts/traverse/arena_gator_20260925/e6/tasks/rigid_eval_f104.json",
+  "--out",
+  "artifacts/traverse/arena_gator_20260925/e6/tasks/rigid_eval_heldout.json",
+  "--shard-base",
+  "5000"
+ ],
+ "world": "rigid",
+ "n_rows": 4143,
+ "file_sha256": "44f5b9415d53a757d48e80cb293a4d53e350d1982b066e4fbd624244fc5cdbc1",
+ "arm_group_pairs": 4200,
+ "drives_saved_by_identical_routes": 57,
+ "reused_existing_rows": {},
+ "existing_files": {
+  "artifacts/traverse/arena_gator_20260925/e3/tasks/rigid_v2.json": "ace9eb9910d919d8823cda061007253ee7f87ae8c30b878fb97e27021a91fe2d",
+  "artifacts/traverse/arena_gator_20260925/e6/tasks/rigid_eval_f104.json": "15b88c198250f5d209e5d9bf61947aa9e2e52b5487b5d1a4e939632a407459dd"
+ },
+ "by_arena": {
+  "g203": 2075,
+  "g228": 2068
+ },
+ "by_vehicle": {
+  "hmmwv": 4143
+ },
+ "by_arm_first": {
+  "M1a_fx2": 300,
+  "M1a_free": 300,
+  "M1b_fx2": 294,
+  "M1b_free": 298,
+  "M2_fx2": 296,
+  "M2_free": 296,
+  "M3a_fx2": 297,
+  "M3a_free": 296,
+  "M3b_fx2": 288,
+  "M3b_free": 296,
+  "A3_fx2": 294,
+  "A3_free": 297,
+  "straight6": 294,
+  "straight2": 297
+ },
+ "arm_coverage_groups": {
+  "M1a_fx2": 300,
+  "M1a_free": 300,
+  "M1b_fx2": 300,
+  "M1b_free": 300,
+  "M2_fx2": 300,
+  "M2_free": 300,
+  "M3a_fx2": 300,
+  "M3a_free": 300,
+  "M3b_fx2": 300,
+  "M3b_free": 300,
+  "A3_fx2": 300,
+  "A3_free": 300,
+  "straight6": 300,
+  "straight2": 300
+ },
+ "groups_missing_some_arm": 0,
+ "groups_missing_some_arm_examples": {},
+ "groups_by_arena": {
+  "g203": 150,
+  "g228": 150
+ },
+ "shards": {
+  "base": 5000,
+  "groups_per_shard": 8,
+  "n": 38,
+  "range": [
+   5000,
+   5037
+  ],
+  "rows_per_shard": {
+   "112": 9,
+   "110": 11,
+   "109": 6,
+   "111": 9,
+   "108": 2,
+   "56": 1
+  }
+ },
+ "staging": {
+  "files": 4443,
+  "list": "artifacts/traverse/arena_gator_20260925/e6/tasks/rigid_eval_heldout.json.staging.tsv"
+ },
+ "collector_contract": "rigid: gen_runner_g.py-style runner (every row of a shard in one array task / pool step), GEN_COLLECTOR = /work1/dannegrut/harry/experiments/arena_gator_20260925/r2/source/scripts/ag_gen_collect_ext.py (the r2 tree lists all 14 arenas; G3/source lists only 10), FDM_RUNTIME_FINGERPRINT = the f104 HMMWV fingerprint in the environment (Gator rows override it with their --runtime-fingerprint), NEDM_VEHICLE unset, paths absolute"
+}

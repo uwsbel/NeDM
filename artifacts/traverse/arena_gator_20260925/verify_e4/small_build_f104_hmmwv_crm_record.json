@@ -1,0 +1,217 @@
+{
+ "tool": "scripts/ag_build_ds.py",
+ "argv": [
+  "--arena",
+  "f104",
+  "--vehicle",
+  "hmmwv",
+  "--world",
+  "crm",
+  "--crm-runs",
+  "/tmp/ve4/runs_crm",
+  "--exclude-ids-crm",
+  "artifacts/traverse/crm_f104_v1/collect_v1/qa.json",
+  "--map-root",
+  "artifacts/traverse/crm_f104_v1/map_root",
+  "--out",
+  "/tmp/ve4/pos_crm",
+  "--workers",
+  "8"
+ ],
+ "started": "2026-09-25 03:07:52",
+ "host": "luffy",
+ "python": "/home/harry/miniconda3/envs/nedm/bin/python",
+ "arena": "f104",
+ "vehicle": "hmmwv",
+ "worlds": [
+  "crm"
+ ],
+ "map_root": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_f104_v1/map_root",
+ "map_observation_sha256": "53e23f99bf2c0141bd613ff5bef5a57f82c28b48e39026608dfdd8e2d5553e34",
+ "map_arena_bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+ "tasks": {
+  "rigid": {},
+  "crm": {}
+ },
+ "exclude_ids": {
+  "rigid": [],
+  "crm": [
+   "f104_v2_group_0211_route_11"
+  ]
+ },
+ "n_exclude_ids": {
+  "rigid": 0,
+  "crm": 1
+ },
+ "tiers": null,
+ "tool_sha256": {
+  "f104_n2_dataset.py": "49b2ad940a5876e07fa9d94f70605a9587d0820c5ce8b491aed8de0310ac7007",
+  "n2_reanchor_dataset.py": "80ad79119462d59afd991f39f3a5def0b59ae30d9d8953543833bb25441f0017",
+  "ga_build_mixed.py": "b7abc6d8512e722f62d3872e2332f16df423a8a48afd60d52f9504c80cf2e338",
+  "ag_build_ds.py": "5e2eae03d441988066b291790da8e7cff576d0df7a0da591f5776f02f5bea17f",
+  "ag_map_check.py": "a237c2d9a72fa720f5db66c07ec0ae8d526d797b0fc654a0866b45af147f59a2",
+  "ag_tasklib.py": "1363371ee0621f835a49c094bea93adcdf2f6db2be7c2fbef9401436f5ab98da",
+  "crm_qa.py": "bde62d2d496db0c26929ecc074d8714cf1a3965bddfb2bf5e93247f107490229"
+ },
+ "selection": {
+  "crm": {
+   "run_folders": [
+    "/tmp/ve4/runs_crm"
+   ],
+   "counts": {
+    "dirs": 30
+   },
+   "candidates": 30,
+   "require_marker": false,
+   "rejected": {},
+   "rejected_ids": [],
+   "selected": 30,
+   "groups": 29,
+   "split_episodes": {
+    "train": 30
+   },
+   "split_groups": {
+    "train": 29,
+    "val": 0,
+    "test": 0
+   },
+   "tiers": {
+    "0": 2,
+    "1": 2,
+    "2": 1,
+    "3": 4,
+    "4": 2,
+    "5": 2,
+    "7": 3,
+    "8": 4,
+    "9": 4,
+    "10": 2,
+    "11": 1,
+    "12": 3
+   },
+   "status": {
+    "prolonged_blockage_terminated": 7,
+    "soil_breakthrough_terminated": 18,
+    "goal_reached": 5
+   },
+   "kinds": {
+    "on_policy": 10,
+    "designed": 20
+   },
+   "vehicle_blocks": {
+    "None": 30
+   },
+   "map_check": {
+    "map_root": "artifacts/traverse/crm_f104_v1/map_root",
+    "map_arena": "arena_f104_50h_v1",
+    "map_arena_bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+    "map_observation_sha256": "53e23f99bf2c0141bd613ff5bef5a57f82c28b48e39026608dfdd8e2d5553e34",
+    "n_cases": 30,
+    "ok": true,
+    "problems": [],
+    "arenas": {
+     "assets/traverse/arena_f104_50h_v1": {
+      "n": 30,
+      "bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+      "match": true
+     }
+    }
+   }
+  }
+ },
+ "stages": {
+  "crm": {
+   "station": {
+    "path": "/tmp/ve4/pos_crm/station_f104_hmmwv_crm_crm.npz",
+    "rows": 30,
+    "secs": 0.2,
+    "sha256": "41c6fe60a5ff0b915d6e8e325ff045616be96a1103ccc336fc0210ec60121691"
+   },
+   "reanchor": {
+    "path": "/tmp/ve4/pos_crm/reanchor_f104_hmmwv_crm_crm.npz",
+    "rows": 112,
+    "episodes": 30,
+    "secs": 0.4,
+    "sha256": "1497cc89a9fc9e9be10f522d1f4c144d99efee6f585165b60ed899ff2b1f7062",
+    "rows_per_episode": 3.733
+   }
+  },
+  "mixed": {
+   "tool": "ag_build_ds.ci_one_world (ga_build_mixed format, one world)",
+   "rows": 112,
+   "missing_episodes": 0,
+   "raw_found_fraction": 1.0,
+   "elapsed_s": 0.2
+  }
+ },
+ "output": {
+  "path": "/tmp/ve4/pos_crm/ci_f104_hmmwv_crm.npz",
+  "size_gb": 0.002,
+  "sha256": "bd9c38617894a294241b44d00b20cd0a22f71d9fc87844ec3ffafeff8e0f7422",
+  "rows": 112,
+  "rows_by_world": {
+   "crm": 112
+  },
+  "episodes_by_world": {
+   "crm": 30
+  },
+  "groups_by_split": {
+   "train": 29,
+   "val": 0,
+   "test": 0
+  },
+  "counts": {
+   "crm|train|startup": 30,
+   "crm|train|established": 82
+  },
+  "tiers": {
+   "crm": {
+    "0": 2,
+    "1": 2,
+    "2": 1,
+    "3": 4,
+    "4": 2,
+    "5": 2,
+    "7": 3,
+    "8": 4,
+    "9": 4,
+    "10": 2,
+    "11": 1,
+    "12": 3
+   }
+  },
+  "keys": [
+   "E",
+   "T",
+   "X",
+   "anchor_frame",
+   "arena",
+   "ctx",
+   "domain",
+   "episode",
+   "event_idx",
+   "fail",
+   "group",
+   "hist",
+   "hist_cols",
+   "hmask",
+   "id",
+   "priv_names",
+   "privileged",
+   "profile",
+   "rem_m",
+   "route_len",
+   "source",
+   "split",
+   "status",
+   "tier",
+   "time_to_event_s",
+   "unsafe",
+   "vehicle",
+   "vx_anchor"
+  ]
+ },
+ "links_removed": true,
+ "elapsed_s": 0.8,
+ "finished": "2026-09-25 03:07:53"
+}

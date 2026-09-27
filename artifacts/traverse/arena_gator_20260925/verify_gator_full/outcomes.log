@@ -1,0 +1,189 @@
+{
+ "locks": {
+  "LOCK_crm_bfull": {
+   "all_mine": "52f510b76d1a4be44ae0453663b924c1b64d19b4b8edaa9ae2f07fce6ce1adc8",
+   "all_stored": "52f510b76d1a4be44ae0453663b924c1b64d19b4b8edaa9ae2f07fce6ce1adc8",
+   "all_equal": true,
+   "dirs_checked": [
+    {
+     "dir": "e6/picks/crm_bfull/f104/G_full_free",
+     "lock_equal": true,
+     "manifest_equal": true
+    },
+    {
+     "dir": "e6/picks/crm_bfull/f104/H_full_free",
+     "lock_equal": true,
+     "manifest_equal": true
+    }
+   ],
+   "mtime": "2026-09-26 19:59:55"
+  },
+  "LOCK_crm": {
+   "all_mine": "2c766a5264c7b772bac3dc1c01c02abcc7030ab0e6866cd62fdcc3db7564d18b",
+   "all_stored": "2c766a5264c7b772bac3dc1c01c02abcc7030ab0e6866cd62fdcc3db7564d18b",
+   "all_equal": true,
+   "dirs_checked": [
+    {
+     "dir": "e6/picks/crm/f104/G_free",
+     "lock_equal": true,
+     "manifest_equal": true
+    },
+    {
+     "dir": "e6/picks/crm/f104/M1a_free",
+     "lock_equal": true,
+     "manifest_equal": true
+    },
+    {
+     "dir": "e6/picks/crm/f104/straight6",
+     "lock_equal": true,
+     "manifest_equal": true
+    }
+   ],
+   "mtime": "2026-09-25 14:34:23"
+  }
+ },
+ "spec": {
+  "sha256": "a1d751802d2692580c3ffd5759258902495cb22fa82e6cb9f872d5f74d8f3def",
+  "stored": "a1d751802d2692580c3ffd5759258902495cb22fa82e6cb9f872d5f74d8f3def",
+  "mtime": "2026-09-26 19:29:22",
+  "equal": true
+ },
+ "groups": {
+  "n": 800,
+  "equal_groups_txt": true
+ },
+ "tasks": {
+  "soil_v3_sha256": "654ca61b17873489d3768283dc107f0078be0ec407eeb493a1f7223618115b8d",
+  "soil_v4_sha256": "d73fe77ba2b2375aa4e299488eef67073392b097d2a9dcffd07152c4b3511aca",
+  "v3_rows": 43901,
+  "v4_rows": 46219,
+  "v4_prefix_equal": true,
+  "new_rows": 2318,
+  "new_by_tier": {
+   "-9": 1541,
+   "-8": 777
+  },
+  "new_by_vehicle": {
+   "gator": 1541,
+   "hmmwv": 777
+  }
+ },
+ "matching": {
+  "arm_groups": 6400,
+  "matched": 6400,
+  "missing": 0,
+  "missing_sample": [],
+  "reference_bytes_equal_pick_file": {
+   "Gfull_free_gator": 799,
+   "Hfull_free_gator": 794,
+   "G_free_gator": 800,
+   "H_free_gator": 800,
+   "straight6_gator": 778,
+   "Hfull_free": 794,
+   "M1a_free": 800,
+   "straight6": 785
+  },
+  "several_runs_same_route": 0,
+  "several_status_disagree": 0,
+  "several_sample": [],
+  "index_run_differs": 0,
+  "index_run_differs_sample": [],
+  "distinct_runs": 6282,
+  "new_ids_used": 2318,
+  "new_ids_total": 2318,
+  "new_ids_not_used": []
+ },
+ "provenance": {
+  "counts": {
+   "complete": 6282,
+   "launch check passed + finite": 6282,
+   "collector cb6792be": 6282,
+   "config crm_main_step1ms_spacing008": 6282,
+   "vehicle gator wrapper b52e1fa6 ag_vehicle 072716ee": 3918,
+   "case sha equal": 6282,
+   "request route sha = reference.json": 6282,
+   "vehicle hmmwv wrapper None ag_vehicle None": 2364
+  },
+  "local_outcome_equal_cluster": 6282,
+  "local_outcome_missing": 0
+ },
+ "timing": {
+  "spec_mtime": "2026-09-26 19:29:22",
+  "lock_bfull_mtime": "2026-09-26 19:59:55",
+  "new_runs_found": 2318,
+  "new_runs_complete": 2318,
+  "first_new_request": "2026-09-26 20:01:17",
+  "last_new_outcome": "2026-09-26 21:19:29",
+  "first_request_any_Gfull_Hfull_route": "2026-09-25 14:56:45",
+  "note": "reused drives (a G_full / H_full pick equal to an earlier route) started before the lock by construction; see reuse"
+ },
+ "reuse": {
+  "Gfull_free_gator": {
+   "new": 762,
+   "reused": 38,
+   "reused_from": {
+    "G_free_gator": 37,
+    "straight6_gator": 1
+   }
+  },
+  "Hfull_free_gator": {
+   "new": 779,
+   "reused": 21,
+   "reused_from": {
+    "straight6_gator": 6,
+    "H_free_gator": 15
+   }
+  },
+  "Hfull_free": {
+   "new": 777,
+   "reused": 23,
+   "reused_from": {
+    "straight6": 6,
+    "M1a_free": 15,
+    "A3_free": 1,
+    "M3a_free": 1
+   }
+  }
+ },
+ "clusters": {
+  "n": 9,
+  "sizes": {
+   "0": 112,
+   "1": 57,
+   "2": 87,
+   "3": 71,
+   "5": 57,
+   "6": 80,
+   "7": 128,
+   "8": 109,
+   "4": 99
+  },
+  "equal_to_index": true
+ },
+ "labels": {
+  "status_vs_flag": 0,
+  "fail_vs_index": 0
+ }
+}
+family F1: 32.625 vs 56.375 diff -23.750 cl90 [-30.03,-16.64] cl95 [-31.15,-15.42] g95 [-27.00,-20.50] g90 [-26.50,-21.00] p1 cl 0.0002 g 0.0002 won/lost 206/16 McN 3.07e-43 clusters b/w/eq 9/0/0 ident 0 holm 0.000999750062484379
+family F2: 32.625 vs 85.750 diff -53.125 cl90 [-58.17,-47.31] cl95 [-59.00,-46.17] g95 [-56.75,-49.50] g90 [-56.25,-50.25] p1 cl 0.0002 g 0.0002 won/lost 433/8 McN 1.19e-116 clusters b/w/eq 9/0/0 ident 2 holm 0.000999750062484379
+family F3: 56.375 vs 85.750 diff -29.375 cl90 [-34.19,-24.53] cl95 [-35.22,-23.54] g95 [-32.88,-25.87] g90 [-32.38,-26.38] p1 cl 0.0002 g 0.0002 won/lost 262/27 McN 1.63e-49 clusters b/w/eq 9/0/0 ident 17 holm 0.000999750062484379
+family F4: 32.625 vs 34.750 diff -2.125 cl90 [-3.67,-0.48] cl95 [-3.92,-0.14] g95 [-4.38,+0.12] g90 [-4.01,-0.25] p1 cl 0.0217 g 0.0372 won/lost 52/35 McN 0.0857 clusters b/w/eq 5/2/2 ident 37 holm 0.02174456385903524
+secondary H_full vs H, Gator: 56.375 vs 51.875 diff +4.500 cl90 [+2.68,+6.27] cl95 [+2.40,+6.60] g95 [+1.88,+7.12] g90 [+2.25,+6.75] p1 cl 1.0000 g 0.9995 won/lost 44/80 McN 0.00156 clusters b/w/eq 0/8/1 ident 15 holm None
+secondary H_full vs H, HMMWV: 4.375 vs 5.500 diff -1.125 cl90 [-2.20,-0.23] cl95 [-2.44,-0.11] g95 [-2.62,+0.38] g90 [-2.38,+0.12] p1 cl 0.0227 g 0.0842 won/lost 24/15 McN 0.2 clusters b/w/eq 6/2/1 ident 15 holm None
+secondary H_full vs straight6, HMMWV: 4.375 vs 32.250 diff -27.875 cl90 [-41.13,-15.99] cl95 [-43.88,-13.97] g95 [-31.13,-24.75] g90 [-30.63,-25.12] p1 cl 0.0002 g 0.0002 won/lost 233/10 McN 2.42e-56 clusters b/w/eq 9/0/0 ident 17 holm None
+secondary G_full vs H stage1, Gator: 32.625 vs 51.875 diff -19.250 cl90 [-23.94,-13.83] cl95 [-24.58,-12.82] g95 [-22.25,-16.25] g90 [-21.75,-16.75] p1 cl 0.0002 g 0.0002 won/lost 169/15 McN 3.57e-34 clusters b/w/eq 9/0/0 ident 1 holm None
+secondary G vs H stage1, Gator: 34.750 vs 51.875 diff -17.125 cl90 [-21.39,-12.41] cl95 [-22.18,-11.71] g95 [-20.12,-14.12] g90 [-19.62,-14.62] p1 cl 0.0002 g 0.0002 won/lost 159/22 McN 8.3e-27 clusters b/w/eq 9/0/0 ident 1 holm None
+secondary G_full Gator vs H_full HMMWV: 32.625 vs 4.375 diff +28.250 cl90 [+21.91,+35.77] cl95 [+20.88,+37.50] g95 [+24.88,+31.50] g90 [+25.50,+30.88] p1 cl 1.0000 g 1.0000 won/lost 9/235 McN 5.35e-58 clusters b/w/eq 0/9/0 ident 0 holm None
+secondary H_full Gator vs H_full HMMWV: 56.375 vs 4.375 diff +52.000 cl90 [+43.79,+58.66] cl95 [+42.33,+59.54] g95 [+48.50,+55.38] g90 [+49.12,+54.75] p1 cl 1.0000 g 1.0000 won/lost 1/417 McN 1.24e-123 clusters b/w/eq 0/9/0 ident 800 holm None
+rate Gfull_free_gator 32.625 {'goal_reached': 539, 'prolonged_blockage_terminated': 254, 'soil_breakthrough_terminated': 7} {'hill': np.float64(41.1), 'crater': np.float64(27.9), 'other': np.float64(20.7)} indist 35.0 med 18.95 P 0.18066408717397997
+rate Hfull_free_gator 56.375 {'goal_reached': 349, 'prolonged_blockage_terminated': 440, 'soil_breakthrough_terminated': 11} {'hill': np.float64(55.9), 'crater': np.float64(62.5), 'other': np.float64(46.0)} indist 62.5 med 20.85 P 0.004496655541567192
+rate G_free_gator 34.75 {'goal_reached': 522, 'prolonged_blockage_terminated': 264, 'soil_breakthrough_terminated': 14} {'hill': np.float64(44.3), 'crater': np.float64(28.6), 'other': np.float64(22.7)} indist 36.0 med 18.4 P 0.18401412083350582
+rate H_free_gator 51.875 {'prolonged_blockage_terminated': 405, 'goal_reached': 385, 'soil_breakthrough_terminated': 10} {'hill': np.float64(53.8), 'crater': np.float64(56.8), 'other': np.float64(38.0)} indist 60.0 med 21.85 P 0.0021228580217492353
+rate straight6_gator 85.75 {'prolonged_blockage_terminated': 679, 'goal_reached': 114, 'soil_breakthrough_terminated': 7} {'hill': np.float64(89.2), 'crater': np.float64(86.8), 'other': np.float64(75.3)} indist 89.0 med 17.02 P None
+rate Hfull_free 4.375 {'goal_reached': 765, 'soil_breakthrough_terminated': 27, 'prolonged_blockage_terminated': 7, 'timeout': 1} {'hill': np.float64(6.5), 'crater': np.float64(2.5), 'other': np.float64(2.7)} indist 2.5 med 17.1 P 0.004496655541567192
+rate M1a_free 5.5 {'goal_reached': 756, 'soil_breakthrough_terminated': 36, 'prolonged_blockage_terminated': 7, 'timeout': 1} {'hill': np.float64(8.6), 'crater': np.float64(2.1), 'other': np.float64(4.0)} indist 3.5000000000000004 med 17.7 P 0.0021228580217492353
+rate straight6 32.25 {'goal_reached': 542, 'soil_breakthrough_terminated': 227, 'prolonged_blockage_terminated': 30, 'rollover': 1} {'hill': np.float64(37.6), 'crater': np.float64(30.7), 'other': np.float64(22.0)} indist 34.5 med 9.9 P None
+headroom {'Gfull_free_gator': (np.float64(0.62), [0.584, 0.658]), 'G_free_gator': (np.float64(0.595), [0.556, 0.631]), 'Hfull_free_gator': (np.float64(0.343), [0.305, 0.38]), 'H_free_gator': (np.float64(0.395), [0.358, 0.433]), 'Hfull_free': (np.float64(0.864), [0.818, 0.905]), 'M1a_free': (np.float64(0.829), [0.781, 0.874])}
+time {'Gfull_free_gator/Hfull_free_gator': {'pairs': 333, 'median': 0.8929577464788733}, 'Gfull_free_gator/G_free_gator': {'pairs': 487, 'median': 1.0206489675516226}, 'Hfull_free/M1a_free': {'pairs': 741, 'median': 0.9793103448275863}}
+ident {'Gfull_free_gator=G_free_gator': 37, 'Hfull_free_gator=H_free_gator': 15, 'Gfull_free_gator=Hfull_free_gator': 0, 'Gfull_free_gator=straight6_gator': 2, 'Hfull_free_gator=straight6_gator': 17, 'G_free_gator=straight6_gator': 7}

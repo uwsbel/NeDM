@@ -1,0 +1,658 @@
+{
+ "created": "2026-09-25 02:41:47",
+ "script": "scripts/ag_e1b_checks.py",
+ "script_sha256": "1b1c9f469de84749e198a0d6f2ddb9ec67a64064494ebaf0c8145b223f1a2132",
+ "arenas": {
+  "g258": {
+   "rank": 6,
+   "distance_f104": 1.1096023921901994,
+   "files": {
+    "arena_000.bmp": {
+     "assets": "140478df62eedc9a0b369ab3a17a87512fbaed89877aeeb92818f4333e52a3b3",
+     "first_generation": "140478df62eedc9a0b369ab3a17a87512fbaed89877aeeb92818f4333e52a3b3",
+     "regenerated": "140478df62eedc9a0b369ab3a17a87512fbaed89877aeeb92818f4333e52a3b3",
+     "selection_json": "140478df62eedc9a0b369ab3a17a87512fbaed89877aeeb92818f4333e52a3b3",
+     "identical": true
+    },
+    "arena_meta.json": {
+     "assets": "6d616d3dad18d51b78e99fdb2412d626b45f5fbee76fdc323720f70c27edbd30",
+     "first_generation": "6d616d3dad18d51b78e99fdb2412d626b45f5fbee76fdc323720f70c27edbd30",
+     "regenerated": "6d616d3dad18d51b78e99fdb2412d626b45f5fbee76fdc323720f70c27edbd30",
+     "selection_json": "6d616d3dad18d51b78e99fdb2412d626b45f5fbee76fdc323720f70c27edbd30",
+     "identical": true
+    }
+   },
+   "listed_in_gen_arenas_json": true,
+   "in_assets": [
+    "arena_000.bmp",
+    "arena_meta.json"
+   ],
+   "seed": 258,
+   "difficulty": 1.0,
+   "size_m": 80.0,
+   "slope_cap_deg": 27.458863431477646,
+   "roughness_m": 0.26410858903885687,
+   "roughness_corr_m": 2.7557062178369995,
+   "n_hills": 5,
+   "n_craters": 5,
+   "height_range": [
+    -1.9,
+    4.6
+   ],
+   "slope_max_deg": 31.84888752303985,
+   "slope_p99_deg": 27.288543686112906,
+   "flat5deg_fraction": 0.27454376220703125
+  },
+  "g268": {
+   "rank": 17,
+   "distance_f104": 1.3165040245579505,
+   "files": {
+    "arena_000.bmp": {
+     "assets": "2d52cdb7877efec281309d0ba8ce54405314e4ad97c0012d10155088cd54beaf",
+     "first_generation": "2d52cdb7877efec281309d0ba8ce54405314e4ad97c0012d10155088cd54beaf",
+     "regenerated": "2d52cdb7877efec281309d0ba8ce54405314e4ad97c0012d10155088cd54beaf",
+     "selection_json": "2d52cdb7877efec281309d0ba8ce54405314e4ad97c0012d10155088cd54beaf",
+     "identical": true
+    },
+    "arena_meta.json": {
+     "assets": "a836ce0821c4f931ea2923e614addb46bd9de62e6cf49830e691794044bf9567",
+     "first_generation": "a836ce0821c4f931ea2923e614addb46bd9de62e6cf49830e691794044bf9567",
+     "regenerated": "a836ce0821c4f931ea2923e614addb46bd9de62e6cf49830e691794044bf9567",
+     "selection_json": "a836ce0821c4f931ea2923e614addb46bd9de62e6cf49830e691794044bf9567",
+     "identical": true
+    }
+   },
+   "listed_in_gen_arenas_json": true,
+   "in_assets": [
+    "arena_000.bmp",
+    "arena_meta.json"
+   ],
+   "seed": 268,
+   "difficulty": 1.0,
+   "size_m": 80.0,
+   "slope_cap_deg": 31.738842703565787,
+   "roughness_m": 0.21808736863021613,
+   "roughness_corr_m": 2.913195917012798,
+   "n_hills": 6,
+   "n_craters": 6,
+   "height_range": [
+    -2.0,
+    4.8
+   ],
+   "slope_max_deg": 36.095353125249865,
+   "slope_p99_deg": 28.6521894820345,
+   "flat5deg_fraction": 0.313690185546875
+  },
+  "g263": {
+   "rank": 23,
+   "distance_f104": 1.4578775953372212,
+   "files": {
+    "arena_000.bmp": {
+     "assets": "31bce710ad19f30ab0fb0874f5b6e35c9437909c483199e1a289d6349e30a229",
+     "first_generation": "31bce710ad19f30ab0fb0874f5b6e35c9437909c483199e1a289d6349e30a229",
+     "regenerated": "31bce710ad19f30ab0fb0874f5b6e35c9437909c483199e1a289d6349e30a229",
+     "selection_json": "31bce710ad19f30ab0fb0874f5b6e35c9437909c483199e1a289d6349e30a229",
+     "identical": true
+    },
+    "arena_meta.json": {
+     "assets": "b29f83bc70afc5c86cc4a7cb01c5df686716779d92086ae1f4eeef8141e6e148",
+     "first_generation": "b29f83bc70afc5c86cc4a7cb01c5df686716779d92086ae1f4eeef8141e6e148",
+     "regenerated": "b29f83bc70afc5c86cc4a7cb01c5df686716779d92086ae1f4eeef8141e6e148",
+     "selection_json": "b29f83bc70afc5c86cc4a7cb01c5df686716779d92086ae1f4eeef8141e6e148",
+     "identical": true
+    }
+   },
+   "listed_in_gen_arenas_json": true,
+   "in_assets": [
+    "arena_000.bmp",
+    "arena_meta.json"
+   ],
+   "seed": 263,
+   "difficulty": 1.0,
+   "size_m": 80.0,
+   "slope_cap_deg": 27.36093836461259,
+   "roughness_m": 0.16537872562114622,
+   "roughness_corr_m": 2.0758474828331117,
+   "n_hills": 6,
+   "n_craters": 6,
+   "height_range": [
+    -1.8,
+    3.8
+   ],
+   "slope_max_deg": 32.93916042205003,
+   "slope_p99_deg": 26.423508645718165,
+   "flat5deg_fraction": 0.3131294250488281
+  },
+  "g241": {
+   "rank": 38,
+   "distance_f104": 1.7907453733744056,
+   "files": {
+    "arena_000.bmp": {
+     "assets": "028a3290941c30f946a1f7c8c4ecbc2d8761aa6e017507fbc78b6e1d256fc0fa",
+     "first_generation": "028a3290941c30f946a1f7c8c4ecbc2d8761aa6e017507fbc78b6e1d256fc0fa",
+     "regenerated": "028a3290941c30f946a1f7c8c4ecbc2d8761aa6e017507fbc78b6e1d256fc0fa",
+     "selection_json": "028a3290941c30f946a1f7c8c4ecbc2d8761aa6e017507fbc78b6e1d256fc0fa",
+     "identical": true
+    },
+    "arena_meta.json": {
+     "assets": "2557f58b0c838b20dd28c261d35571b53c461e5ccc9bf76c5dac686d4cb09e97",
+     "first_generation": "2557f58b0c838b20dd28c261d35571b53c461e5ccc9bf76c5dac686d4cb09e97",
+     "regenerated": "2557f58b0c838b20dd28c261d35571b53c461e5ccc9bf76c5dac686d4cb09e97",
+     "selection_json": "2557f58b0c838b20dd28c261d35571b53c461e5ccc9bf76c5dac686d4cb09e97",
+     "identical": true
+    }
+   },
+   "listed_in_gen_arenas_json": true,
+   "in_assets": [
+    "arena_000.bmp",
+    "arena_meta.json"
+   ],
+   "seed": 241,
+   "difficulty": 1.0,
+   "size_m": 80.0,
+   "slope_cap_deg": 26.543829432256192,
+   "roughness_m": 0.19616543491775917,
+   "roughness_corr_m": 2.7382657122937193,
+   "n_hills": 5,
+   "n_craters": 6,
+   "height_range": [
+    -1.8,
+    4.0
+   ],
+   "slope_max_deg": 32.05127269126401,
+   "slope_p99_deg": 24.98773173372112,
+   "flat5deg_fraction": 0.39537811279296875
+  }
+ },
+ "maps": {
+  "g258": {
+   "bmp_sha_matches_assets": true,
+   "meta_sha_matches_assets": true,
+   "observation_sha_ok": true,
+   "native_p95_m": 0.02312089569625797,
+   "native_rmse_m": 0.010911344384223013,
+   "all_corners_visible": true,
+   "backend": "OptiX_luffy_RTX5090_fork_fovfix_9e1a0448b",
+   "camera_equal_to_f104_soil_map": true,
+   "capture_script_sha256_equal_to_f104": true,
+   "chrono_git": "a92c6f72f422fbcafe0b37125d4070cb6a3b5803",
+   "rgbd_shape": [
+    4,
+    512,
+    512
+   ],
+   "rgbd_finite": true,
+   "valid_fraction": 0.6995010375976562,
+   "map_root_link": "../../maps/arena_g258",
+   "map_root_resolves_to_own_capture": true,
+   "init_map_mpp": 0.18683344236602617,
+   "init_map_npx": 512
+  },
+  "g268": {
+   "bmp_sha_matches_assets": true,
+   "meta_sha_matches_assets": true,
+   "observation_sha_ok": true,
+   "native_p95_m": 0.023437763774814102,
+   "native_rmse_m": 0.011208374446881981,
+   "all_corners_visible": true,
+   "backend": "OptiX_luffy_RTX5090_fork_fovfix_9e1a0448b",
+   "camera_equal_to_f104_soil_map": true,
+   "capture_script_sha256_equal_to_f104": true,
+   "chrono_git": "a92c6f72f422fbcafe0b37125d4070cb6a3b5803",
+   "rgbd_shape": [
+    4,
+    512,
+    512
+   ],
+   "rgbd_finite": true,
+   "valid_fraction": 0.6996994018554688,
+   "map_root_link": "../../maps/arena_g268",
+   "map_root_resolves_to_own_capture": true,
+   "init_map_mpp": 0.18683344236602617,
+   "init_map_npx": 512
+  },
+  "g263": {
+   "bmp_sha_matches_assets": true,
+   "meta_sha_matches_assets": true,
+   "observation_sha_ok": true,
+   "native_p95_m": 0.02221076922921239,
+   "native_rmse_m": 0.010318893756611639,
+   "all_corners_visible": true,
+   "backend": "OptiX_luffy_RTX5090_fork_fovfix_9e1a0448b",
+   "camera_equal_to_f104_soil_map": true,
+   "capture_script_sha256_equal_to_f104": true,
+   "chrono_git": "a92c6f72f422fbcafe0b37125d4070cb6a3b5803",
+   "rgbd_shape": [
+    4,
+    512,
+    512
+   ],
+   "rgbd_finite": true,
+   "valid_fraction": 0.6976547241210938,
+   "map_root_link": "../../maps/arena_g263",
+   "map_root_resolves_to_own_capture": true,
+   "init_map_mpp": 0.18683344236602617,
+   "init_map_npx": 512
+  },
+  "g241": {
+   "bmp_sha_matches_assets": true,
+   "meta_sha_matches_assets": true,
+   "observation_sha_ok": true,
+   "native_p95_m": 0.021551105676152482,
+   "native_rmse_m": 0.00967978785854725,
+   "all_corners_visible": true,
+   "backend": "OptiX_luffy_RTX5090_fork_fovfix_9e1a0448b",
+   "camera_equal_to_f104_soil_map": true,
+   "capture_script_sha256_equal_to_f104": true,
+   "chrono_git": "a92c6f72f422fbcafe0b37125d4070cb6a3b5803",
+   "rgbd_shape": [
+    4,
+    512,
+    512
+   ],
+   "rgbd_finite": true,
+   "valid_fraction": 0.6978416442871094,
+   "map_root_link": "../../maps/arena_g241",
+   "map_root_resolves_to_own_capture": true,
+   "init_map_mpp": 0.18683344236602617,
+   "init_map_npx": 512
+  }
+ },
+ "grids": {
+  "g258": {
+   "coverage": 1.0,
+   "rmse_vs_bmp_chrono511_m": 0.004159498425895628,
+   "rmse_vs_bmp_m": 0.01162069119831369,
+   "rmse_vs_bmp_y_flipped_m": 1.2794601059063397,
+   "camera_equal_to_capture": true
+  },
+  "g268": {
+   "coverage": 1.0,
+   "rmse_vs_bmp_chrono511_m": 0.004252054635490211,
+   "rmse_vs_bmp_m": 0.011449743319731026,
+   "rmse_vs_bmp_y_flipped_m": 1.4155093983017233,
+   "camera_equal_to_capture": true
+  },
+  "g263": {
+   "coverage": 1.0,
+   "rmse_vs_bmp_chrono511_m": 0.0037370391595471105,
+   "rmse_vs_bmp_m": 0.010327785697996066,
+   "rmse_vs_bmp_y_flipped_m": 1.0582137369895972,
+   "camera_equal_to_capture": true
+  },
+  "g241": {
+   "coverage": 1.0,
+   "rmse_vs_bmp_chrono511_m": 0.0036452518152023097,
+   "rmse_vs_bmp_m": 0.009668524986314951,
+   "rmse_vs_bmp_y_flipped_m": 1.1194627628715772,
+   "camera_equal_to_capture": true
+  }
+ },
+ "smoke": {
+  "g258": {
+   "coarse": {
+    "spacing": 0.16,
+    "surface_lines": [
+     "SURFACE sph_grid.txt as_is: rmse 0.0473 m, bias +0.0012 m, n=201601",
+     "SURFACE sph_grid.txt y_mirrored: rmse 1.3622 m, bias +0.0012 m, n=201601"
+    ],
+    "n_sph": 753003,
+    "rtf": 0.42848200742250175
+   },
+   "production": {
+    "spacing": 0.08,
+    "depth": 0.24,
+    "step": 0.001,
+    "n_sph": 4008004,
+    "n_bce_boundary": 3006003,
+    "rtf": 0.5690871575536742,
+    "chassis_above_bmp_m": [
+     0.458,
+     0.474,
+     0.505,
+     0.559,
+     0.674,
+     0.824
+    ],
+    "speed_mps": [
+     0.36,
+     0.04,
+     1.43,
+     2.14,
+     2.55,
+     3.25
+    ],
+    "distance_3s_m": 3.9478771729768476
+   }
+  },
+  "g268": {
+   "coarse": {
+    "spacing": 0.16,
+    "surface_lines": [
+     "SURFACE sph_grid.txt as_is: rmse 0.0476 m, bias +0.0046 m, n=201601",
+     "SURFACE sph_grid.txt y_mirrored: rmse 1.5400 m, bias +0.0046 m, n=201601"
+    ],
+    "n_sph": 753003,
+    "rtf": 0.4179903500956619
+   },
+   "production": {
+    "spacing": 0.08,
+    "depth": 0.24,
+    "step": 0.001,
+    "n_sph": 4008004,
+    "n_bce_boundary": 3006003,
+    "rtf": 0.5657663082390448,
+    "chassis_above_bmp_m": [
+     0.506,
+     0.482,
+     0.533,
+     0.548,
+     0.585,
+     0.635
+    ],
+    "speed_mps": [
+     -0.34,
+     0.06,
+     0.81,
+     1.24,
+     1.88,
+     2.7
+    ],
+    "distance_3s_m": 2.563345121720898
+   }
+  },
+  "g263": {
+   "coarse": {
+    "spacing": 0.16,
+    "surface_lines": [
+     "SURFACE sph_grid.txt as_is: rmse 0.0472 m, bias +0.0019 m, n=201601",
+     "SURFACE sph_grid.txt y_mirrored: rmse 1.1724 m, bias +0.0019 m, n=201601"
+    ],
+    "n_sph": 753003,
+    "rtf": 0.3715917686074693
+   },
+   "production": {
+    "spacing": 0.08,
+    "depth": 0.24,
+    "step": 0.001,
+    "n_sph": 4008004,
+    "n_bce_boundary": 3006003,
+    "rtf": 0.5626661700132598,
+    "chassis_above_bmp_m": [
+     0.642,
+     0.592,
+     0.646,
+     0.666,
+     0.626,
+     0.593
+    ],
+    "speed_mps": [
+     -0.01,
+     0.07,
+     1.04,
+     2.12,
+     3.16,
+     3.17
+    ],
+    "distance_3s_m": 4.017949318937522
+   }
+  },
+  "g241": {
+   "coarse": {
+    "spacing": 0.16,
+    "surface_lines": [
+     "SURFACE sph_grid.txt as_is: rmse 0.0471 m, bias +0.0028 m, n=201601",
+     "SURFACE sph_grid.txt y_mirrored: rmse 1.2365 m, bias +0.0028 m, n=201601"
+    ],
+    "n_sph": 753003,
+    "rtf": 0.3948919708859859
+   },
+   "production": {
+    "spacing": 0.08,
+    "depth": 0.24,
+    "step": 0.001,
+    "n_sph": 4008004,
+    "n_bce_boundary": 3006003,
+    "rtf": 0.556611939632953,
+    "chassis_above_bmp_m": [
+     0.57,
+     0.557,
+     0.613,
+     0.653,
+     0.621,
+     0.613
+    ],
+    "speed_mps": [
+     -0.04,
+     0.0,
+     1.0,
+     1.67,
+     2.52,
+     2.95
+    ],
+    "distance_3s_m": 3.358708579403131
+   }
+  }
+ },
+ "suites": {
+  "g258": {
+   "groups": 250,
+   "seed": 2026092504258,
+   "prefix": "g258_test_group",
+   "strata_mode": "feature",
+   "strata": {
+    "hill_entry_cross_exit": 40,
+    "crater_entry_cross_exit": 44,
+    "hill_cross_slope": 83,
+    "crater_cross_slope": 83
+   },
+   "splits_written": {
+    "train": 233,
+    "test": 9,
+    "val": 8
+   },
+   "arena_field": [
+    "assets/traverse/arena_g258"
+   ],
+   "n_features": 10,
+   "feature_kinds": {
+    "hill": 5,
+    "crater": 5
+   },
+   "groups_per_feature": {
+    "0:hill": 25,
+    "1:hill": 0,
+    "2:hill": 50,
+    "3:hill": 25,
+    "4:hill": 23,
+    "5:crater": 27,
+    "6:crater": 25,
+    "7:crater": 1,
+    "8:crater": 49,
+    "9:crater": 25
+   },
+   "features_without_groups": [
+    "1:hill"
+   ],
+   "route00_length_m_p5_p50_p95": [
+    29.1,
+    39.6,
+    50.5
+   ],
+   "blacklist_hits_existing_builders": {
+    "ci_train.SUITE_GROUPS": 0,
+    "ga_build_mixed.BLACKLIST": 0,
+    "ci_a5data.SUITE_PATTERNS": 0
+   },
+   "blacklist_hits_ag_blacklist_ALL": 250,
+   "regenerated_byte_identical": true,
+   "lock": "a3c3e97464b47b1e70bdc9fbb0a666d2ad9895aaa474498bf3cd699794db7c0e"
+  },
+  "g268": {
+   "groups": 250,
+   "seed": 2026092504268,
+   "prefix": "g268_test_group",
+   "strata_mode": "feature",
+   "strata": {
+    "hill_entry_cross_exit": 42,
+    "crater_entry_cross_exit": 42,
+    "hill_cross_slope": 81,
+    "crater_cross_slope": 85
+   },
+   "splits_written": {
+    "train": 226,
+    "val": 13,
+    "test": 11
+   },
+   "arena_field": [
+    "assets/traverse/arena_g268"
+   ],
+   "n_features": 12,
+   "feature_kinds": {
+    "hill": 6,
+    "crater": 6
+   },
+   "groups_per_feature": {
+    "0:hill": 0,
+    "1:hill": 42,
+    "2:hill": 21,
+    "3:hill": 21,
+    "4:hill": 21,
+    "5:hill": 18,
+    "6:crater": 24,
+    "7:crater": 13,
+    "8:crater": 29,
+    "9:crater": 21,
+    "10:crater": 20,
+    "11:crater": 20
+   },
+   "features_without_groups": [
+    "0:hill"
+   ],
+   "route00_length_m_p5_p50_p95": [
+    30.4,
+    41.1,
+    54.1
+   ],
+   "blacklist_hits_existing_builders": {
+    "ci_train.SUITE_GROUPS": 0,
+    "ga_build_mixed.BLACKLIST": 0,
+    "ci_a5data.SUITE_PATTERNS": 0
+   },
+   "blacklist_hits_ag_blacklist_ALL": 250,
+   "regenerated_byte_identical": true,
+   "lock": "4e321b706c824567a97d33f7e522f1edd9336a2edb81d5e64383f59fd42b4f7e"
+  },
+  "g263": {
+   "groups": 250,
+   "seed": 2026092504263,
+   "prefix": "g263_test_group",
+   "strata_mode": "feature",
+   "strata": {
+    "hill_entry_cross_exit": 42,
+    "crater_entry_cross_exit": 42,
+    "hill_cross_slope": 84,
+    "crater_cross_slope": 82
+   },
+   "splits_written": {
+    "train": 226,
+    "val": 13,
+    "test": 11
+   },
+   "arena_field": [
+    "assets/traverse/arena_g263"
+   ],
+   "n_features": 12,
+   "feature_kinds": {
+    "hill": 6,
+    "crater": 6
+   },
+   "groups_per_feature": {
+    "0:hill": 21,
+    "1:hill": 21,
+    "2:hill": 21,
+    "3:hill": 21,
+    "4:hill": 21,
+    "5:hill": 21,
+    "6:crater": 20,
+    "7:crater": 22,
+    "8:crater": 21,
+    "9:crater": 0,
+    "10:crater": 41,
+    "11:crater": 20
+   },
+   "features_without_groups": [
+    "9:crater"
+   ],
+   "route00_length_m_p5_p50_p95": [
+    29.3,
+    37.3,
+    50.5
+   ],
+   "blacklist_hits_existing_builders": {
+    "ci_train.SUITE_GROUPS": 0,
+    "ga_build_mixed.BLACKLIST": 0,
+    "ci_a5data.SUITE_PATTERNS": 0
+   },
+   "blacklist_hits_ag_blacklist_ALL": 250,
+   "regenerated_byte_identical": true,
+   "lock": "752923119303b2a6adc93924320fa4ebc0eb62f57ac2e3337a5343e508134497"
+  },
+  "g241": {
+   "groups": 250,
+   "seed": 2026092504241,
+   "prefix": "g241_test_group",
+   "strata_mode": "feature",
+   "strata": {
+    "hill_entry_cross_exit": 43,
+    "crater_entry_cross_exit": 48,
+    "hill_cross_slope": 72,
+    "crater_cross_slope": 87
+   },
+   "splits_written": {
+    "train": 228,
+    "test": 15,
+    "val": 7
+   },
+   "arena_field": [
+    "assets/traverse/arena_g241"
+   ],
+   "n_features": 11,
+   "feature_kinds": {
+    "hill": 5,
+    "crater": 6
+   },
+   "groups_per_feature": {
+    "0:hill": 23,
+    "1:hill": 23,
+    "2:hill": 23,
+    "3:hill": 23,
+    "4:hill": 23,
+    "5:crater": 23,
+    "6:crater": 23,
+    "7:crater": 7,
+    "8:crater": 38,
+    "9:crater": 22,
+    "10:crater": 22
+   },
+   "features_without_groups": [],
+   "route00_length_m_p5_p50_p95": [
+    29.7,
+    40.0,
+    50.6
+   ],
+   "blacklist_hits_existing_builders": {
+    "ci_train.SUITE_GROUPS": 0,
+    "ga_build_mixed.BLACKLIST": 0,
+    "ci_a5data.SUITE_PATTERNS": 0
+   },
+   "blacklist_hits_ag_blacklist_ALL": 250,
+   "regenerated_byte_identical": true,
+   "lock": "4fffe2441b24d60e633238e414b386267252baf0f4508dd647a7f9355237b530"
+  }
+ },
+ "ids_unique_across_K3_case_sets": {
+  "n": 4850,
+  "unique": true
+ }
+}

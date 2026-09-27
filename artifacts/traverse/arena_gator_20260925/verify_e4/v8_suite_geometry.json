@@ -1,0 +1,20 @@
+{
+ "generalist_20260921/A_adapt/suite/cases": {
+  "n": 800,
+  "min_of_max_start_goal_dist_m": 1.522,
+  "n_within_1m": 0,
+  "n_within_2m": 90
+ },
+ "generalist_20260921/cases/pair_v1/cases": {
+  "n": 600,
+  "min_of_max_start_goal_dist_m": 1.522,
+  "n_within_1m": 0,
+  "n_within_2m": 69
+ },
+ "crm_f104_v1/cases_eval/cases": {
+  "n": 200,
+  "min_of_max_start_goal_dist_m": 1.658,
+  "n_within_1m": 0,
+  "n_within_2m": 21
+ }
+}

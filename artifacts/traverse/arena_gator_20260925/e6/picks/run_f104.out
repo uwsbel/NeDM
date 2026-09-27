@@ -1,0 +1,17 @@
+15 pick runs for set f104, 4 in parallel; jobs artifacts/traverse/arena_gator_20260925/e6/picks/jobs_f104.txt
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/f104/M1a_fixed2
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/f104/straight6
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/f104/M1b_fixed2
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/f104/M2_fixed2
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/f104/M3a_fixed2
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/f104/M3b_fixed2
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/f104/G_free
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/f104/M1a_free
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/f104/A3_fixed2
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/f104/M1b_free
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/f104/M2_free
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/f104/M3a_free
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/f104/M3b_free
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/f104/straight2
+OK artifacts/traverse/arena_gator_20260925/e6/picks/rigid/f104/A3_free
+set f104 done

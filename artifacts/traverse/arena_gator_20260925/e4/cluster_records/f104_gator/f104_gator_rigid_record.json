@@ -1,0 +1,244 @@
+{
+ "tool": "scripts/ag_build_ds.py",
+ "argv": [
+  "--world",
+  "rigid",
+  "--rigid-runs",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/rigid_v1/runs",
+  "--arena",
+  "f104",
+  "--vehicle",
+  "gator",
+  "--tasks-rigid",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/tasks/rigid_v2.json",
+  "--map-root",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/map_roots/f104",
+  "--out",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/f104_gator",
+  "--source-root",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/source",
+  "--workers",
+  "16"
+ ],
+ "started": "2026-09-25 10:58:37",
+ "host": "login1.hpcfund",
+ "python": "/work1/dannegrut/harry/venvs/nedm/bin/python",
+ "arena": "f104",
+ "vehicle": "gator",
+ "worlds": [
+  "rigid"
+ ],
+ "map_root": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/map_roots/f104",
+ "map_observation_sha256": "53e23f99bf2c0141bd613ff5bef5a57f82c28b48e39026608dfdd8e2d5553e34",
+ "map_arena_bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+ "tasks": {
+  "rigid": {
+   "/work1/dannegrut/harry/experiments/arena_gator_20260925/tasks/rigid_v2.json": "ace9eb9910d919d8823cda061007253ee7f87ae8c30b878fb97e27021a91fe2d"
+  },
+  "crm": {}
+ },
+ "exclude_ids": {
+  "rigid": [],
+  "crm": []
+ },
+ "n_exclude_ids": {
+  "rigid": 0,
+  "crm": 0
+ },
+ "tiers": null,
+ "tool_sha256": {
+  "f104_n2_dataset.py": "49b2ad940a5876e07fa9d94f70605a9587d0820c5ce8b491aed8de0310ac7007",
+  "n2_reanchor_dataset.py": "80ad79119462d59afd991f39f3a5def0b59ae30d9d8953543833bb25441f0017",
+  "ga_build_mixed.py": "b7abc6d8512e722f62d3872e2332f16df423a8a48afd60d52f9504c80cf2e338",
+  "ag_build_ds.py": "5e2eae03d441988066b291790da8e7cff576d0df7a0da591f5776f02f5bea17f",
+  "ag_map_check.py": "a237c2d9a72fa720f5db66c07ec0ae8d526d797b0fc654a0866b45af147f59a2",
+  "ag_tasklib.py": "1363371ee0621f835a49c094bea93adcdf2f6db2be7c2fbef9401436f5ab98da",
+  "crm_qa.py": "bde62d2d496db0c26929ecc074d8714cf1a3965bddfb2bf5e93247f107490229"
+ },
+ "selection": {
+  "rigid": {
+   "run_folders": [
+    "/work1/dannegrut/harry/experiments/arena_gator_20260925/rigid_v1/runs"
+   ],
+   "counts": {
+    "dirs": 96200,
+    "other_ids": 72200
+   },
+   "candidates": 24000,
+   "require_marker": true,
+   "rejected": {},
+   "rejected_ids": [],
+   "selected": 24000,
+   "groups": 1200,
+   "split_episodes": {
+    "train": 21780,
+    "test": 1100,
+    "val": 1120
+   },
+   "split_groups": {
+    "train": 1089,
+    "val": 56,
+    "test": 55
+   },
+   "tiers": {
+    "0": 1200,
+    "1": 1200,
+    "2": 1200,
+    "3": 1200,
+    "4": 1200,
+    "5": 1200,
+    "6": 1200,
+    "7": 1200,
+    "8": 1200,
+    "9": 1200,
+    "10": 1200,
+    "11": 1200,
+    "12": 1200,
+    "13": 1200,
+    "14": 1200,
+    "15": 1200,
+    "16": 1200,
+    "17": 1200,
+    "18": 1200,
+    "19": 1200
+   },
+   "status": {
+    "goal_reached": 22420,
+    "prolonged_blockage_terminated": 1144,
+    "timeout": 387,
+    "rollover": 46,
+    "terrain_bounds_exit": 3
+   },
+   "kinds": {
+    "on_policy": 9600,
+    "designed": 14400
+   },
+   "vehicle_blocks": {
+    "gator": 24000
+   },
+   "map_check": {
+    "map_root": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/map_roots/f104",
+    "map_arena": "arena_f104_50h_v1",
+    "map_arena_bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+    "map_observation_sha256": "53e23f99bf2c0141bd613ff5bef5a57f82c28b48e39026608dfdd8e2d5553e34",
+    "n_cases": 24000,
+    "ok": true,
+    "problems": [],
+    "arenas": {
+     "assets/traverse/arena_f104_50h_v1": {
+      "n": 24000,
+      "bmp_sha256": "5d5bc683b6a8d9e99fd323c4112752e0cad214b986319ea1b2396631104ee8ed",
+      "match": true
+     }
+    }
+   }
+  }
+ },
+ "stages": {
+  "rigid": {
+   "station": {
+    "path": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/f104_gator/station_f104_gator_rigid_rigid.npz",
+    "rows": 24000,
+    "secs": 108.9,
+    "sha256": "0fa3859e3e4d3222d69437740e001659496d8092f33e8d4e2200250b04b7da50"
+   },
+   "reanchor": {
+    "path": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/f104_gator/reanchor_f104_gator_rigid_rigid.npz",
+    "rows": 93551,
+    "episodes": 24000,
+    "secs": 215.5,
+    "sha256": "61fdd94ceb3736eeed49c54fe6c960a7b952539e31f128812e91afb6bd6b9920",
+    "rows_per_episode": 3.898
+   }
+  },
+  "mixed": {
+   "tool": "ag_build_ds.ci_one_world (ga_build_mixed format, one world)",
+   "rows": 93551,
+   "missing_episodes": 0,
+   "raw_found_fraction": 1.0,
+   "elapsed_s": 114.8
+  }
+ },
+ "output": {
+  "path": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/f104_gator/ci_f104_gator_rigid.npz",
+  "size_gb": 1.697,
+  "sha256": "25325ca9913961afd294931cafd8b0ea31ad88058425e593a41f09976a952d34",
+  "rows": 93551,
+  "rows_by_world": {
+   "rigid": 93551
+  },
+  "episodes_by_world": {
+   "rigid": 24000
+  },
+  "groups_by_split": {
+   "train": 1089,
+   "val": 56,
+   "test": 55
+  },
+  "counts": {
+   "rigid|train|startup": 21780,
+   "rigid|train|established": 63142,
+   "rigid|val|startup": 1120,
+   "rigid|val|established": 3239,
+   "rigid|test|startup": 1100,
+   "rigid|test|established": 3170
+  },
+  "tiers": {
+   "rigid": {
+    "0": 1200,
+    "1": 1200,
+    "2": 1200,
+    "3": 1200,
+    "4": 1200,
+    "5": 1200,
+    "6": 1200,
+    "7": 1200,
+    "8": 1200,
+    "9": 1200,
+    "10": 1200,
+    "11": 1200,
+    "12": 1200,
+    "13": 1200,
+    "14": 1200,
+    "15": 1200,
+    "16": 1200,
+    "17": 1200,
+    "18": 1200,
+    "19": 1200
+   }
+  },
+  "keys": [
+   "E",
+   "T",
+   "X",
+   "anchor_frame",
+   "arena",
+   "ctx",
+   "domain",
+   "episode",
+   "event_idx",
+   "fail",
+   "group",
+   "hist",
+   "hist_cols",
+   "hmask",
+   "id",
+   "priv_names",
+   "privileged",
+   "profile",
+   "rem_m",
+   "route_len",
+   "source",
+   "split",
+   "status",
+   "tier",
+   "time_to_event_s",
+   "unsafe",
+   "vehicle",
+   "vx_anchor"
+  ]
+ },
+ "links_removed": true,
+ "elapsed_s": 551.9,
+ "finished": "2026-09-25 11:07:48"
+}

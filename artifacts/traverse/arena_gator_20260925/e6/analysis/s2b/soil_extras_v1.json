@@ -1,0 +1,492 @@
+{
+ "index": "/work1/dannegrut/harry/experiments/arena_gator_20260925/tools/s2b/out/soil_eval_v1_cluster.json",
+ "totals": {
+  "runs": 12310,
+  "qa_flagged": 12,
+  "qa_flags": {
+   "unstalled_break": 12
+  },
+  "launch_failures": 0,
+  "nonfinite": 0,
+  "sim_h": {
+   "hmmwv": 47.47958333333345,
+   "gator": 18.66947222222222
+  },
+  "gator_belly_flag_share": 0.054690786705931846
+ },
+ "by_arm_set": {
+  "gator|G_free_gator|f104_suite": {
+   "vehicle": "gator",
+   "arm": "G_free_gator",
+   "set": "f104_suite",
+   "planned": 600,
+   "driven": 600,
+   "driven_share": 1.0,
+   "qa_flags": {},
+   "launch_failures": 0,
+   "statuses": {
+    "goal_reached": 394,
+    "prolonged_blockage_terminated": 194,
+    "soil_breakthrough_terminated": 12
+   },
+   "sim_h": 4.121722222222224,
+   "fail_all": 0.3433333333333333,
+   "fail_qa_ok_only": 0.3433333333333333,
+   "belly_flag_share": 0.02,
+   "belly_flag_n": 600,
+   "belly_errors": 0,
+   "belly_flag_on_goal": 0
+  },
+  "gator|G_free_gator|indist_f104": {
+   "vehicle": "gator",
+   "arm": "G_free_gator",
+   "set": "indist_f104",
+   "planned": 200,
+   "driven": 200,
+   "driven_share": 1.0,
+   "qa_flags": {},
+   "launch_failures": 0,
+   "statuses": {
+    "goal_reached": 128,
+    "prolonged_blockage_terminated": 70,
+    "soil_breakthrough_terminated": 2
+   },
+   "sim_h": 1.3197361111111112,
+   "fail_all": 0.36,
+   "fail_qa_ok_only": 0.36,
+   "belly_flag_share": 0.025,
+   "belly_flag_n": 200,
+   "belly_errors": 0,
+   "belly_flag_on_goal": 0
+  },
+  "gator|H_free_gator|f104_suite": {
+   "vehicle": "gator",
+   "arm": "H_free_gator",
+   "set": "f104_suite",
+   "planned": 600,
+   "driven": 600,
+   "driven_share": 1.0,
+   "qa_flags": {},
+   "launch_failures": 0,
+   "statuses": {
+    "prolonged_blockage_terminated": 286,
+    "goal_reached": 305,
+    "soil_breakthrough_terminated": 9
+   },
+   "sim_h": 4.783597222222226,
+   "fail_all": 0.49166666666666664,
+   "fail_qa_ok_only": 0.49166666666666664,
+   "belly_flag_share": 0.03666666666666667,
+   "belly_flag_n": 600,
+   "belly_errors": 0,
+   "belly_flag_on_goal": 0
+  },
+  "gator|H_free_gator|indist_f104": {
+   "vehicle": "gator",
+   "arm": "H_free_gator",
+   "set": "indist_f104",
+   "planned": 200,
+   "driven": 200,
+   "driven_share": 1.0,
+   "qa_flags": {},
+   "launch_failures": 0,
+   "statuses": {
+    "prolonged_blockage_terminated": 119,
+    "goal_reached": 80,
+    "soil_breakthrough_terminated": 1
+   },
+   "sim_h": 1.5930833333333327,
+   "fail_all": 0.6,
+   "fail_qa_ok_only": 0.6,
+   "belly_flag_share": 0.015,
+   "belly_flag_n": 200,
+   "belly_errors": 0,
+   "belly_flag_on_goal": 0
+  },
+  "gator|straight6_gator|f104_suite": {
+   "vehicle": "gator",
+   "arm": "straight6_gator",
+   "set": "f104_suite",
+   "planned": 600,
+   "driven": 600,
+   "driven_share": 1.0,
+   "qa_flags": {},
+   "launch_failures": 0,
+   "statuses": {
+    "prolonged_blockage_terminated": 502,
+    "goal_reached": 92,
+    "soil_breakthrough_terminated": 6
+   },
+   "sim_h": 5.254763888888889,
+   "fail_all": 0.8466666666666667,
+   "fail_qa_ok_only": 0.8466666666666667,
+   "belly_flag_share": 0.11333333333333333,
+   "belly_flag_n": 600,
+   "belly_errors": 0,
+   "belly_flag_on_goal": 0
+  },
+  "gator|straight6_gator|indist_f104": {
+   "vehicle": "gator",
+   "arm": "straight6_gator",
+   "set": "indist_f104",
+   "planned": 200,
+   "driven": 200,
+   "driven_share": 1.0,
+   "qa_flags": {},
+   "launch_failures": 0,
+   "statuses": {
+    "prolonged_blockage_terminated": 177,
+    "goal_reached": 22,
+    "soil_breakthrough_terminated": 1
+   },
+   "sim_h": 1.782680555555556,
+   "fail_all": 0.89,
+   "fail_qa_ok_only": 0.89,
+   "belly_flag_share": 0.105,
+   "belly_flag_n": 200,
+   "belly_errors": 0,
+   "belly_flag_on_goal": 0
+  },
+  "hmmwv|A3_free|heldout": {
+   "vehicle": "hmmwv",
+   "arm": "A3_free",
+   "set": "heldout",
+   "planned": 300,
+   "driven": 300,
+   "driven_share": 1.0,
+   "qa_flags": {},
+   "launch_failures": 0,
+   "statuses": {
+    "goal_reached": 267,
+    "soil_breakthrough_terminated": 28,
+    "prolonged_blockage_terminated": 5
+   },
+   "sim_h": 1.6058333333333343,
+   "fail_all": 0.11,
+   "fail_qa_ok_only": 0.11
+  },
+  "hmmwv|A3_free|indist_f104": {
+   "vehicle": "hmmwv",
+   "arm": "A3_free",
+   "set": "indist_f104",
+   "planned": 200,
+   "driven": 200,
+   "driven_share": 1.0,
+   "qa_flags": {},
+   "launch_failures": 0,
+   "statuses": {
+    "goal_reached": 190,
+    "soil_breakthrough_terminated": 6,
+    "prolonged_blockage_terminated": 4
+   },
+   "sim_h": 0.9705277777777777,
+   "fail_all": 0.05,
+   "fail_qa_ok_only": 0.05
+  },
+  "hmmwv|A3_free|unseen": {
+   "vehicle": "hmmwv",
+   "arm": "A3_free",
+   "set": "unseen",
+   "planned": 1000,
+   "driven": 1000,
+   "driven_share": 1.0,
+   "qa_flags": {
+    "unstalled_break": 3
+   },
+   "launch_failures": 0,
+   "statuses": {
+    "goal_reached": 906,
+    "soil_breakthrough_terminated": 75,
+    "timeout": 6,
+    "prolonged_blockage_terminated": 13
+   },
+   "sim_h": 5.516013888888895,
+   "fail_all": 0.094,
+   "fail_qa_ok_only": 0.09127382146439318
+  },
+  "hmmwv|M1a_free|f104_suite": {
+   "vehicle": "hmmwv",
+   "arm": "M1a_free",
+   "set": "f104_suite",
+   "planned": 600,
+   "driven": 600,
+   "driven_share": 1.0,
+   "qa_flags": {},
+   "launch_failures": 0,
+   "statuses": {
+    "goal_reached": 563,
+    "soil_breakthrough_terminated": 30,
+    "prolonged_blockage_terminated": 6,
+    "timeout": 1
+   },
+   "sim_h": 3.3454861111111147,
+   "fail_all": 0.06166666666666667,
+   "fail_qa_ok_only": 0.06166666666666667
+  },
+  "hmmwv|M1a_free|heldout": {
+   "vehicle": "hmmwv",
+   "arm": "M1a_free",
+   "set": "heldout",
+   "planned": 300,
+   "driven": 300,
+   "driven_share": 1.0,
+   "qa_flags": {},
+   "launch_failures": 0,
+   "statuses": {
+    "goal_reached": 240,
+    "soil_breakthrough_terminated": 48,
+    "prolonged_blockage_terminated": 10,
+    "timeout": 2
+   },
+   "sim_h": 1.6407083333333339,
+   "fail_all": 0.2,
+   "fail_qa_ok_only": 0.2
+  },
+  "hmmwv|M1a_free|indist_f104": {
+   "vehicle": "hmmwv",
+   "arm": "M1a_free",
+   "set": "indist_f104",
+   "planned": 200,
+   "driven": 200,
+   "driven_share": 1.0,
+   "qa_flags": {},
+   "launch_failures": 0,
+   "statuses": {
+    "goal_reached": 193,
+    "soil_breakthrough_terminated": 6,
+    "prolonged_blockage_terminated": 1
+   },
+   "sim_h": 0.9514583333333334,
+   "fail_all": 0.035,
+   "fail_qa_ok_only": 0.035
+  },
+  "hmmwv|M1a_free|unseen": {
+   "vehicle": "hmmwv",
+   "arm": "M1a_free",
+   "set": "unseen",
+   "planned": 1000,
+   "driven": 1000,
+   "driven_share": 1.0,
+   "qa_flags": {
+    "unstalled_break": 2
+   },
+   "launch_failures": 0,
+   "statuses": {
+    "goal_reached": 885,
+    "soil_breakthrough_terminated": 85,
+    "prolonged_blockage_terminated": 29,
+    "timeout": 1
+   },
+   "sim_h": 5.3418055555555535,
+   "fail_all": 0.115,
+   "fail_qa_ok_only": 0.11322645290581163
+  },
+  "hmmwv|M1b_free|unseen": {
+   "vehicle": "hmmwv",
+   "arm": "M1b_free",
+   "set": "unseen",
+   "planned": 1000,
+   "driven": 1000,
+   "driven_share": 1.0,
+   "qa_flags": {},
+   "launch_failures": 0,
+   "statuses": {
+    "goal_reached": 874,
+    "soil_breakthrough_terminated": 91,
+    "prolonged_blockage_terminated": 35
+   },
+   "sim_h": 5.6423611111111125,
+   "fail_all": 0.126,
+   "fail_qa_ok_only": 0.126
+  },
+  "hmmwv|M2_free|unseen": {
+   "vehicle": "hmmwv",
+   "arm": "M2_free",
+   "set": "unseen",
+   "planned": 1000,
+   "driven": 1000,
+   "driven_share": 1.0,
+   "qa_flags": {
+    "unstalled_break": 2
+   },
+   "launch_failures": 0,
+   "statuses": {
+    "goal_reached": 880,
+    "soil_breakthrough_terminated": 89,
+    "prolonged_blockage_terminated": 30,
+    "timeout": 1
+   },
+   "sim_h": 4.675055555555555,
+   "fail_all": 0.12,
+   "fail_qa_ok_only": 0.11823647294589178
+  },
+  "hmmwv|M3a_free|heldout": {
+   "vehicle": "hmmwv",
+   "arm": "M3a_free",
+   "set": "heldout",
+   "planned": 300,
+   "driven": 300,
+   "driven_share": 1.0,
+   "qa_flags": {},
+   "launch_failures": 0,
+   "statuses": {
+    "goal_reached": 255,
+    "prolonged_blockage_terminated": 7,
+    "soil_breakthrough_terminated": 35,
+    "timeout": 3
+   },
+   "sim_h": 1.4553750000000005,
+   "fail_all": 0.15,
+   "fail_qa_ok_only": 0.15
+  },
+  "hmmwv|M3a_free|indist_f104": {
+   "vehicle": "hmmwv",
+   "arm": "M3a_free",
+   "set": "indist_f104",
+   "planned": 200,
+   "driven": 200,
+   "driven_share": 1.0,
+   "qa_flags": {},
+   "launch_failures": 0,
+   "statuses": {
+    "goal_reached": 194,
+    "soil_breakthrough_terminated": 2,
+    "prolonged_blockage_terminated": 4
+   },
+   "sim_h": 0.8781527777777779,
+   "fail_all": 0.03,
+   "fail_qa_ok_only": 0.03
+  },
+  "hmmwv|M3a_free|unseen": {
+   "vehicle": "hmmwv",
+   "arm": "M3a_free",
+   "set": "unseen",
+   "planned": 1000,
+   "driven": 1000,
+   "driven_share": 1.0,
+   "qa_flags": {
+    "unstalled_break": 2
+   },
+   "launch_failures": 0,
+   "statuses": {
+    "goal_reached": 903,
+    "soil_breakthrough_terminated": 79,
+    "prolonged_blockage_terminated": 17,
+    "timeout": 1
+   },
+   "sim_h": 4.49047222222222,
+   "fail_all": 0.097,
+   "fail_qa_ok_only": 0.09519038076152304
+  },
+  "hmmwv|M3b_free|unseen": {
+   "vehicle": "hmmwv",
+   "arm": "M3b_free",
+   "set": "unseen",
+   "planned": 1000,
+   "driven": 1000,
+   "driven_share": 1.0,
+   "qa_flags": {},
+   "launch_failures": 0,
+   "statuses": {
+    "goal_reached": 903,
+    "soil_breakthrough_terminated": 75,
+    "prolonged_blockage_terminated": 21,
+    "timeout": 1
+   },
+   "sim_h": 4.527472222222222,
+   "fail_all": 0.097,
+   "fail_qa_ok_only": 0.097
+  },
+  "hmmwv|straight6|f104_suite": {
+   "vehicle": "hmmwv",
+   "arm": "straight6",
+   "set": "f104_suite",
+   "planned": 600,
+   "driven": 600,
+   "driven_share": 1.0,
+   "qa_flags": {},
+   "launch_failures": 0,
+   "statuses": {
+    "goal_reached": 411,
+    "soil_breakthrough_terminated": 165,
+    "prolonged_blockage_terminated": 24
+   },
+   "sim_h": 2.0523333333333356,
+   "fail_all": 0.315,
+   "fail_qa_ok_only": 0.315
+  },
+  "hmmwv|straight6|heldout": {
+   "vehicle": "hmmwv",
+   "arm": "straight6",
+   "set": "heldout",
+   "planned": 300,
+   "driven": 300,
+   "driven_share": 1.0,
+   "qa_flags": {},
+   "launch_failures": 0,
+   "statuses": {
+    "goal_reached": 161,
+    "soil_breakthrough_terminated": 122,
+    "prolonged_blockage_terminated": 14,
+    "timeout": 3
+   },
+   "sim_h": 1.1637222222222214,
+   "fail_all": 0.4633333333333333,
+   "fail_qa_ok_only": 0.4633333333333333
+  },
+  "hmmwv|straight6|indist_f104": {
+   "vehicle": "hmmwv",
+   "arm": "straight6",
+   "set": "indist_f104",
+   "planned": 200,
+   "driven": 200,
+   "driven_share": 1.0,
+   "qa_flags": {},
+   "launch_failures": 0,
+   "statuses": {
+    "soil_breakthrough_terminated": 62,
+    "goal_reached": 131,
+    "prolonged_blockage_terminated": 6,
+    "rollover": 1
+   },
+   "sim_h": 0.6634166666666668,
+   "fail_all": 0.345,
+   "fail_qa_ok_only": 0.345
+  },
+  "hmmwv|straight6|unseen": {
+   "vehicle": "hmmwv",
+   "arm": "straight6",
+   "set": "unseen",
+   "planned": 1000,
+   "driven": 1000,
+   "driven_share": 1.0,
+   "qa_flags": {
+    "unstalled_break": 3
+   },
+   "launch_failures": 0,
+   "statuses": {
+    "goal_reached": 600,
+    "soil_breakthrough_terminated": 363,
+    "timeout": 10,
+    "prolonged_blockage_terminated": 27
+   },
+   "sim_h": 3.6875833333333343,
+   "fail_all": 0.4,
+   "fail_qa_ok_only": 0.3981945837512538
+  }
+ },
+ "qa_flagged_runs": [
+  "g258_test_group_0001__A3_free",
+  "g258_test_group_0081__A3_free",
+  "g258_test_group_0181__A3_free",
+  "g258_test_group_0181__M1a_free",
+  "g260_test_group_0059__straight6",
+  "g263_test_group_0198__straight6",
+  "g268_test_group_0130__straight6",
+  "g271_test_group_0082__M2_free",
+  "g271_test_group_0082__M3a_free",
+  "g271_test_group_0159__M1a_free",
+  "g271_test_group_0196__M2_free",
+  "g271_test_group_0203__M3a_free"
+ ]
+}

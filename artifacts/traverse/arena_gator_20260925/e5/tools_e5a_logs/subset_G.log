@@ -1,0 +1,50 @@
+{
+ "tool": "scripts/ag_subset.py",
+ "tool_sha256": "3891a0064511666a19d63ff360c9e2b0f56f59d35e14337d1ca634870c590f39",
+ "argv": [
+  "--world",
+  "rigid",
+  "--groups",
+  "f104=all",
+  "--ds",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/f104_gator/ci_f104_gator_rigid.npz",
+  "--out",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/subsets/G_f104_gator_rigid.npz"
+ ],
+ "preset": null,
+ "world": "rigid",
+ "vehicle": "gator",
+ "rule": "md5(group id) hex ascending within each arena, first N of the available training groups",
+ "tiers": null,
+ "ids_file": null,
+ "ids_file_sha256": null,
+ "n_ids": null,
+ "ids_apply": null,
+ "eval_rows": "intact",
+ "keep_dev_fold": false,
+ "use": "deploy or holdout",
+ "per_arena": {
+  "f104": {
+   "requested": "all",
+   "available": 1089,
+   "selected": 1089,
+   "md5_last": "ff6c1c94283ff2f53fdbe88bfb694dc2",
+   "dev_fold_groups_kept": 0,
+   "train_groups_in_file": 1089,
+   "train_rows": 84922,
+   "train_rows_startup": 21780,
+   "train_episodes": 21780,
+   "val_groups": 56,
+   "val_rows": 4359,
+   "test_groups": 55,
+   "test_rows": 4270,
+   "fit_rows_holdout": 67489,
+   "fit_groups_holdout": 865
+  }
+ },
+ "rows": 93551,
+ "fit_rows_deploy": 84922,
+ "fit_rows_holdout": 67489,
+ "eval_rows_val": 4359
+}
+wrote /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/subsets/G_f104_gator_rigid.npz (93551 rows, 1.697 GB) in 113.9 s

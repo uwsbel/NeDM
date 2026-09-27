@@ -1,0 +1,426 @@
+{
+ "schema": "ag_spread_select_v1",
+ "created": "2026-09-25 02:25:08",
+ "script": "scripts/ag_spread_select.py",
+ "script_sha256": "ddf50de6e7e61ca82c05cf759f37f236cd0b4ccdaf9247fb6fb1235a8793856b",
+ "selection_json": "artifacts/traverse/arena_gator_20260925/arenas/selection.json",
+ "selection_json_sha256": "cfdf9186b08b995d63847252c4f398299919d2cd718314b1e711e00f20d7e3c4",
+ "rule": "PLAN 7.1: ranks 5-40 of the E1 ranking split into four quarters (5-13, 14-22, 23-31, 32-40); in each quarter the arena with the smallest BMP sha256 (hex string compare) is taken; nothing else is used",
+ "replacement_rule": "declared with the choice: a chosen arena that fails a mechanical preparation gate (regeneration not byte-identical, map capture assertions, soil surface check, or the case generator cannot produce 250 feature groups) is replaced by the arena with the next-smallest BMP sha256 in the same quarter; any replacement is recorded here",
+ "replacements": [],
+ "quarters": [
+  {
+   "ranks": [
+    5,
+    13
+   ],
+   "candidates": [
+    {
+     "rank": 5,
+     "arena": "arena_g277",
+     "distance_f104": 1.100041283807676,
+     "bmp_sha256": "3f35239ddee4dc3b90cc770d18036e9c7e8c0d2ef78657ec0d20ecbf7928d496"
+    },
+    {
+     "rank": 6,
+     "arena": "arena_g258",
+     "distance_f104": 1.1096023921901994,
+     "bmp_sha256": "140478df62eedc9a0b369ab3a17a87512fbaed89877aeeb92818f4333e52a3b3"
+    },
+    {
+     "rank": 7,
+     "arena": "arena_g270",
+     "distance_f104": 1.1260781208261292,
+     "bmp_sha256": "fea8131d717a8f34204927d451dacf41e0b9f2335f6f82387c8932f209e7b883"
+    },
+    {
+     "rank": 8,
+     "arena": "arena_g275",
+     "distance_f104": 1.1613252851944609,
+     "bmp_sha256": "27bea99effcd891884e582799b9b9223b2070d6e4ee95d9b6877aedcb50cc720"
+    },
+    {
+     "rank": 9,
+     "arena": "arena_g249",
+     "distance_f104": 1.2032254343341455,
+     "bmp_sha256": "bb95f5b47abeac2987efc66f4b2f3e5f5d425ea7f77b49626aacb8d7d0a3a801"
+    },
+    {
+     "rank": 10,
+     "arena": "arena_g254",
+     "distance_f104": 1.205207551218632,
+     "bmp_sha256": "5fd9b1b49b24c6d101440d80a270c321a53983c0e668b4a344933869140b1856"
+    },
+    {
+     "rank": 11,
+     "arena": "arena_g257",
+     "distance_f104": 1.2060529347405402,
+     "bmp_sha256": "23196fff73e5b60040773665ea4c09be44207cd3fa32d8ca4a79d31022e61688"
+    },
+    {
+     "rank": 12,
+     "arena": "arena_g256",
+     "distance_f104": 1.2442978791187693,
+     "bmp_sha256": "6ea16b9ad63000b0c03b9971e569578a48290ae054c5613d0061833f942b0aa9"
+    },
+    {
+     "rank": 13,
+     "arena": "arena_g250",
+     "distance_f104": 1.2816670238392778,
+     "bmp_sha256": "cf0664f59b57aaa384ef160f0471ed63138252d4088934102670927372ccea24"
+    }
+   ],
+   "hash_order": [
+    "arena_g258",
+    "arena_g257",
+    "arena_g275",
+    "arena_g277",
+    "arena_g254",
+    "arena_g256",
+    "arena_g249",
+    "arena_g250",
+    "arena_g270"
+   ],
+   "chosen": "arena_g258"
+  },
+  {
+   "ranks": [
+    14,
+    22
+   ],
+   "candidates": [
+    {
+     "rank": 14,
+     "arena": "arena_g269",
+     "distance_f104": 1.2857881720112423,
+     "bmp_sha256": "9db6601429c7b4e0dec720e98e57af9e94aee218e67a162ffd69c79f9ef3955f"
+    },
+    {
+     "rank": 15,
+     "arena": "arena_g245",
+     "distance_f104": 1.2894336588071809,
+     "bmp_sha256": "7ff7f3ef968745226ac26f4cf4a77f71b42e1d723a7a4500641ef28ccfb236b4"
+    },
+    {
+     "rank": 16,
+     "arena": "arena_g259",
+     "distance_f104": 1.2933826248452693,
+     "bmp_sha256": "8056d44a993740497e823b43358d9c32d338ae49ae45d09c0f01883e638656a1"
+    },
+    {
+     "rank": 17,
+     "arena": "arena_g268",
+     "distance_f104": 1.3165040245579505,
+     "bmp_sha256": "2d52cdb7877efec281309d0ba8ce54405314e4ad97c0012d10155088cd54beaf"
+    },
+    {
+     "rank": 18,
+     "arena": "arena_g248",
+     "distance_f104": 1.3768323402248022,
+     "bmp_sha256": "7ba809de1c590372c0b68eed459f662128c47196fd13be298a3d0740f4357b61"
+    },
+    {
+     "rank": 19,
+     "arena": "arena_g264",
+     "distance_f104": 1.386709191185723,
+     "bmp_sha256": "75418de250ac91d7634e5842b775eed7eb6d8ef247b690f90812592c4886bfa7"
+    },
+    {
+     "rank": 20,
+     "arena": "arena_g252",
+     "distance_f104": 1.4096492251506678,
+     "bmp_sha256": "ac91941c12a5587b2da35066bab2a39811af866e0b71c7144c6d8dd2a51f889e"
+    },
+    {
+     "rank": 21,
+     "arena": "arena_g280",
+     "distance_f104": 1.42060355541932,
+     "bmp_sha256": "8671cdcfbf88b528406808b2fbcf0a9f959ab625b269ca325e7ace0156ee8aa6"
+    },
+    {
+     "rank": 22,
+     "arena": "arena_g262",
+     "distance_f104": 1.4557792240790874,
+     "bmp_sha256": "6d2607d4e5db58ea2fd28f383cb0b6733e6a9bf66dcaec39d6bcd4ab1b7b6539"
+    }
+   ],
+   "hash_order": [
+    "arena_g268",
+    "arena_g262",
+    "arena_g264",
+    "arena_g248",
+    "arena_g245",
+    "arena_g259",
+    "arena_g280",
+    "arena_g269",
+    "arena_g252"
+   ],
+   "chosen": "arena_g268"
+  },
+  {
+   "ranks": [
+    23,
+    31
+   ],
+   "candidates": [
+    {
+     "rank": 23,
+     "arena": "arena_g263",
+     "distance_f104": 1.4578775953372212,
+     "bmp_sha256": "31bce710ad19f30ab0fb0874f5b6e35c9437909c483199e1a289d6349e30a229"
+    },
+    {
+     "rank": 24,
+     "arena": "arena_g255",
+     "distance_f104": 1.4674083383991108,
+     "bmp_sha256": "de9f853f184bf1a7ebf6427b1b91beb9624575e800d4a66f17070c1c556ffd88"
+    },
+    {
+     "rank": 25,
+     "arena": "arena_g261",
+     "distance_f104": 1.4823335789970646,
+     "bmp_sha256": "6b57b2e37d9ef8966c82bdb9591a718ad57195c903d7f912ae85fb14584396f4"
+    },
+    {
+     "rank": 26,
+     "arena": "arena_g267",
+     "distance_f104": 1.4853683861625837,
+     "bmp_sha256": "8310bb849d4e1969ea3ac91bdcbee20cbedce994608b3d0d6d4cab5d800e8cf7"
+    },
+    {
+     "rank": 27,
+     "arena": "arena_g243",
+     "distance_f104": 1.496829734835432,
+     "bmp_sha256": "5a3436c384b8a198aad21afd3d57e29f66c6c4eedc10374572ec78a63bf21ed0"
+    },
+    {
+     "rank": 28,
+     "arena": "arena_g253",
+     "distance_f104": 1.5545684662802255,
+     "bmp_sha256": "9f1643a73497c2a8c4314c06b618262ce3330423aca38318fc028f9a4ccfcafa"
+    },
+    {
+     "rank": 29,
+     "arena": "arena_g274",
+     "distance_f104": 1.5879981589923937,
+     "bmp_sha256": "7d0293f8a6a11acc06dd61e69cf6d31346fa137e1ad5b72c5bddc63a0f9302d3"
+    },
+    {
+     "rank": 30,
+     "arena": "arena_g266",
+     "distance_f104": 1.6054002398372764,
+     "bmp_sha256": "4932024048750390cfa0643627b8f40f14e3d33d42b5c30edb1c4adcb7213f72"
+    },
+    {
+     "rank": 31,
+     "arena": "arena_g242",
+     "distance_f104": 1.6065196911860988,
+     "bmp_sha256": "deeae07ba3a05eea82d9f687c6f156f74711e68073d09d8a1c5a129fb98dd18b"
+    }
+   ],
+   "hash_order": [
+    "arena_g263",
+    "arena_g266",
+    "arena_g243",
+    "arena_g261",
+    "arena_g274",
+    "arena_g267",
+    "arena_g253",
+    "arena_g255",
+    "arena_g242"
+   ],
+   "chosen": "arena_g263"
+  },
+  {
+   "ranks": [
+    32,
+    40
+   ],
+   "candidates": [
+    {
+     "rank": 32,
+     "arena": "arena_g272",
+     "distance_f104": 1.607541162932557,
+     "bmp_sha256": "ef6124b2e2b77599ae57105265ad4d04c4d6c13e76403ae43f83bd18928b3d84"
+    },
+    {
+     "rank": 33,
+     "arena": "arena_g276",
+     "distance_f104": 1.6357781889921483,
+     "bmp_sha256": "2872199812573be66e52bdd88ea4d6ee2b5c8fe2157a0ddfd48df06e0b0f39ed"
+    },
+    {
+     "rank": 34,
+     "arena": "arena_g273",
+     "distance_f104": 1.6490742593587686,
+     "bmp_sha256": "3d262dcec47ce509f6740e64b6c471ffc6a3894b4f9af5f4b7b6d99e4108f48c"
+    },
+    {
+     "rank": 35,
+     "arena": "arena_g278",
+     "distance_f104": 1.6941413132591987,
+     "bmp_sha256": "deb42b4ea84208ae6ec4436e34a02353bdec080c1a8ca646f6a0b0a36b2cdd41"
+    },
+    {
+     "rank": 36,
+     "arena": "arena_g244",
+     "distance_f104": 1.7708152693566424,
+     "bmp_sha256": "44da490ae7af637745c3d2c45e75499572b42f5b82ea4e01a2e2c3a06ee0a2dd"
+    },
+    {
+     "rank": 37,
+     "arena": "arena_g279",
+     "distance_f104": 1.7746430579357375,
+     "bmp_sha256": "97aa863975e8a4d2878ae185a1a8284f55b024a65d002114f7b0eb89fa6eb6a1"
+    },
+    {
+     "rank": 38,
+     "arena": "arena_g241",
+     "distance_f104": 1.7907453733744056,
+     "bmp_sha256": "028a3290941c30f946a1f7c8c4ecbc2d8761aa6e017507fbc78b6e1d256fc0fa"
+    },
+    {
+     "rank": 39,
+     "arena": "arena_g246",
+     "distance_f104": 1.8705625107753405,
+     "bmp_sha256": "1a88764bea8ff737597af6e2bc6484b68bf678bea6b574cdbddea6316b834256"
+    },
+    {
+     "rank": 40,
+     "arena": "arena_g265",
+     "distance_f104": 2.1897331247152905,
+     "bmp_sha256": "cee6092edeb35551e75a1168b38b864b076442b9d9ea647703a1d95398634c14"
+    }
+   ],
+   "hash_order": [
+    "arena_g241",
+    "arena_g246",
+    "arena_g276",
+    "arena_g273",
+    "arena_g244",
+    "arena_g279",
+    "arena_g265",
+    "arena_g278",
+    "arena_g272"
+   ],
+   "chosen": "arena_g241"
+  }
+ ],
+ "selected": [
+  "arena_g258",
+  "arena_g268",
+  "arena_g263",
+  "arena_g241"
+ ],
+ "chosen": [
+  {
+   "arena": "arena_g258",
+   "rank": 6,
+   "quarter": [
+    5,
+    13
+   ],
+   "bmp_sha256": "140478df62eedc9a0b369ab3a17a87512fbaed89877aeeb92818f4333e52a3b3",
+   "meta_sha256": "6d616d3dad18d51b78e99fdb2412d626b45f5fbee76fdc323720f70c27edbd30",
+   "features": [
+    27.458863431477646,
+    0.26410858903885687,
+    2.7557062178369995,
+    5.0,
+    5.0,
+    27.288543686112906,
+    0.27454376220703125,
+    6.5
+   ],
+   "distance_to": {
+    "f104": 1.1096023921901994,
+    "g203": 1.3958012301329181,
+    "g228": 0.879183361413518
+   },
+   "nearest_training_arena": "g228",
+   "distance_nearest_training": 0.879183361413518
+  },
+  {
+   "arena": "arena_g268",
+   "rank": 17,
+   "quarter": [
+    14,
+    22
+   ],
+   "bmp_sha256": "2d52cdb7877efec281309d0ba8ce54405314e4ad97c0012d10155088cd54beaf",
+   "meta_sha256": "a836ce0821c4f931ea2923e614addb46bd9de62e6cf49830e691794044bf9567",
+   "features": [
+    31.738842703565787,
+    0.21808736863021613,
+    2.913195917012798,
+    6.0,
+    6.0,
+    28.6521894820345,
+    0.313690185546875,
+    6.8
+   ],
+   "distance_to": {
+    "f104": 1.3165040245579505,
+    "g203": 1.1326679600244887,
+    "g228": 0.9170126588684951
+   },
+   "nearest_training_arena": "g228",
+   "distance_nearest_training": 0.9170126588684951
+  },
+  {
+   "arena": "arena_g263",
+   "rank": 23,
+   "quarter": [
+    23,
+    31
+   ],
+   "bmp_sha256": "31bce710ad19f30ab0fb0874f5b6e35c9437909c483199e1a289d6349e30a229",
+   "meta_sha256": "b29f83bc70afc5c86cc4a7cb01c5df686716779d92086ae1f4eeef8141e6e148",
+   "features": [
+    27.36093836461259,
+    0.16537872562114622,
+    2.0758474828331117,
+    6.0,
+    6.0,
+    26.423508645718165,
+    0.3131294250488281,
+    5.6
+   ],
+   "distance_to": {
+    "f104": 1.4578775953372212,
+    "g203": 1.1935257603265028,
+    "g228": 1.2366136756498303
+   },
+   "nearest_training_arena": "g203",
+   "distance_nearest_training": 1.1935257603265028
+  },
+  {
+   "arena": "arena_g241",
+   "rank": 38,
+   "quarter": [
+    32,
+    40
+   ],
+   "bmp_sha256": "028a3290941c30f946a1f7c8c4ecbc2d8761aa6e017507fbc78b6e1d256fc0fa",
+   "meta_sha256": "2557f58b0c838b20dd28c261d35571b53c461e5ccc9bf76c5dac686d4cb09e97",
+   "features": [
+    26.543829432256192,
+    0.19616543491775917,
+    2.7382657122937193,
+    5.0,
+    6.0,
+    24.98773173372112,
+    0.39537811279296875,
+    5.8
+   ],
+   "distance_to": {
+    "f104": 1.7907453733744056,
+    "g203": 1.8127031750535483,
+    "g228": 1.3405314591233513
+   },
+   "nearest_training_arena": "g228",
+   "distance_nearest_training": 1.3405314591233513
+  }
+ ],
+ "gen_root_hash_check": "/tmp/ag_e1/gen_a"
+}

@@ -1,0 +1,3 @@
+$ /home/harry/miniconda3/envs/nedm/bin/python -u /home/harry/NeDM-traverse_mppi/scripts/n2_reanchor_dataset.py --root artifacts/traverse/crm_f104_v1/map_root --ids artifacts/traverse/arena_gator_20260925/e4/f104_hmmwv/station_f104_hmmwv_both_crm.npz --runs artifacts/traverse/arena_gator_20260925/e4/f104_hmmwv/work/links_f104_hmmwv_both_crm --out artifacts/traverse/arena_gator_20260925/e4/f104_hmmwv/reanchor_f104_hmmwv_both_crm.npz --workers 12
+15235 episodes selected of 15235 ids
+58268 rows from 15235 episodes (15235 start-anchored); unsafe 0.672; vx at moving anchors p10/50/90 [0.48, 1.97, 4.12]; wrote artifacts/traverse/arena_gator_20260925/e4/f104_hmmwv/reanchor_f104_hmmwv_both_crm.npz 1.01 GB

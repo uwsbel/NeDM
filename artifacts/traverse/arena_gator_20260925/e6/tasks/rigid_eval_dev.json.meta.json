@@ -1,0 +1,123 @@
+{
+ "tool": "scripts/ag_eval_tasks.py",
+ "tool_sha256": "6fda2fcc21d7bcea4bf6ed61a2c31ff63ec26eb26e3d764de389d8ee2d517742",
+ "created": "2026-09-25 14:03:01",
+ "argv": [
+  "build",
+  "--world",
+  "rigid",
+  "--arm",
+  "M1a_fx2=artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g217/M1a_fixed2",
+  "--arm",
+  "M1a_free=artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g217/M1a_free",
+  "--arm",
+  "M1b_fx2=artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g217/M1b_fixed2",
+  "--arm",
+  "M1b_free=artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g217/M1b_free",
+  "--arm",
+  "M2_fx2=artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g217/M2_fixed2",
+  "--arm",
+  "M2_free=artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g217/M2_free",
+  "--arm",
+  "M3a_fx2=artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g217/M3a_fixed2",
+  "--arm",
+  "M3a_free=artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g217/M3a_free",
+  "--arm",
+  "M3b_fx2=artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g217/M3b_fixed2",
+  "--arm",
+  "M3b_free=artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g217/M3b_free",
+  "--arm",
+  "A3_fx2=artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g217/A3_fixed2",
+  "--arm",
+  "A3_free=artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g217/A3_free",
+  "--arm",
+  "straight6=artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g217/straight6",
+  "--arm",
+  "straight2=artifacts/traverse/arena_gator_20260925/e6/picks/rigid/g217/straight2",
+  "--existing",
+  "artifacts/traverse/arena_gator_20260925/e3/tasks/rigid_v2.json",
+  "artifacts/traverse/arena_gator_20260925/e6/tasks/rigid_eval_f104.json",
+  "artifacts/traverse/arena_gator_20260925/e6/tasks/rigid_eval_heldout.json",
+  "--out",
+  "artifacts/traverse/arena_gator_20260925/e6/tasks/rigid_eval_dev.json",
+  "--shard-base",
+  "5500"
+ ],
+ "world": "rigid",
+ "n_rows": 2071,
+ "file_sha256": "897f9cf9d795fba06318b9c0722d83cbb276c667950422379a6a284e9915d017",
+ "arm_group_pairs": 2100,
+ "drives_saved_by_identical_routes": 29,
+ "reused_existing_rows": {},
+ "existing_files": {
+  "artifacts/traverse/arena_gator_20260925/e3/tasks/rigid_v2.json": "ace9eb9910d919d8823cda061007253ee7f87ae8c30b878fb97e27021a91fe2d",
+  "artifacts/traverse/arena_gator_20260925/e6/tasks/rigid_eval_f104.json": "15b88c198250f5d209e5d9bf61947aa9e2e52b5487b5d1a4e939632a407459dd",
+  "artifacts/traverse/arena_gator_20260925/e6/tasks/rigid_eval_heldout.json": "44f5b9415d53a757d48e80cb293a4d53e350d1982b066e4fbd624244fc5cdbc1"
+ },
+ "by_arena": {
+  "g217": 2071
+ },
+ "by_vehicle": {
+  "hmmwv": 2071
+ },
+ "by_arm_first": {
+  "M1a_fx2": 150,
+  "M1a_free": 150,
+  "M1b_fx2": 147,
+  "M1b_free": 149,
+  "M2_fx2": 148,
+  "M2_free": 150,
+  "M3a_fx2": 145,
+  "M3a_free": 149,
+  "M3b_fx2": 142,
+  "M3b_free": 150,
+  "A3_fx2": 145,
+  "A3_free": 149,
+  "straight6": 149,
+  "straight2": 148
+ },
+ "arm_coverage_groups": {
+  "M1a_fx2": 150,
+  "M1a_free": 150,
+  "M1b_fx2": 150,
+  "M1b_free": 150,
+  "M2_fx2": 150,
+  "M2_free": 150,
+  "M3a_fx2": 150,
+  "M3a_free": 150,
+  "M3b_fx2": 150,
+  "M3b_free": 150,
+  "A3_fx2": 150,
+  "A3_free": 150,
+  "straight6": 150,
+  "straight2": 150
+ },
+ "groups_missing_some_arm": 0,
+ "groups_missing_some_arm_examples": {},
+ "groups_by_arena": {
+  "g217": 150
+ },
+ "shards": {
+  "base": 5500,
+  "groups_per_shard": 8,
+  "n": 19,
+  "range": [
+   5500,
+   5518
+  ],
+  "rows_per_shard": {
+   "112": 8,
+   "109": 5,
+   "108": 1,
+   "107": 1,
+   "111": 2,
+   "110": 1,
+   "83": 1
+  }
+ },
+ "staging": {
+  "files": 2221,
+  "list": "artifacts/traverse/arena_gator_20260925/e6/tasks/rigid_eval_dev.json.staging.tsv"
+ },
+ "collector_contract": "rigid: gen_runner_g.py-style runner (every row of a shard in one array task / pool step), GEN_COLLECTOR = /work1/dannegrut/harry/experiments/arena_gator_20260925/r2/source/scripts/ag_gen_collect_ext.py (the r2 tree lists all 14 arenas; G3/source lists only 10), FDM_RUNTIME_FINGERPRINT = the f104 HMMWV fingerprint in the environment (Gator rows override it with their --runtime-fingerprint), NEDM_VEHICLE unset, paths absolute"
+}

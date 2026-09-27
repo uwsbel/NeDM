@@ -1,0 +1,38 @@
+{
+ "script": "scripts/ag_report_figures.py",
+ "figures": [
+  "artifacts/traverse/arena_gator_20260925/figures/fig_taskA_unseen.png",
+  "artifacts/traverse/arena_gator_20260925/figures/fig_taskB_soil.png",
+  "artifacts/traverse/arena_gator_20260925/figures/fig_arenas.png"
+ ],
+ "task_a_rates_pct": {
+  "Soil, speed free: goal not reached": {
+   "pooled": {
+    "M1": "12.05",
+    "M2": "12.0",
+    "M3": "9.7",
+    "A3": "9.4"
+   },
+   "indist_ref": "3.5"
+  },
+  "Rigid, fixed 2 m/s: unsafe": {
+   "pooled": {
+    "M1": "8.325",
+    "M2": "6.6",
+    "M3": "6.175",
+    "A3": "5.35"
+   },
+   "indist_ref": "0.5"
+  }
+ },
+ "task_b_goal_reached_pct": {
+  "Gator: straight route, 6 m/s": "14.25",
+  "Gator: HMMWV-trained, all data": "43.625",
+  "Gator: HMMWV-trained, tiers 0-6": "48.125",
+  "Gator: Gator-trained, tiers 0-6": "65.25",
+  "Gator: Gator-trained, all data": "67.375",
+  "HMMWV: straight route, 6 m/s": "67.75",
+  "HMMWV: HMMWV-trained, tiers 0-6": "94.5",
+  "HMMWV: HMMWV-trained, all data": "95.625"
+ }
+}

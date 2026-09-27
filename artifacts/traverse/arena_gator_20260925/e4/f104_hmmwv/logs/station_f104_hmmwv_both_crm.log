@@ -1,0 +1,13 @@
+$ /home/harry/miniconda3/envs/nedm/bin/python -u /home/harry/NeDM-traverse_mppi/scripts/f104_n2_dataset.py --root artifacts/traverse/crm_f104_v1/map_root --runs artifacts/traverse/arena_gator_20260925/e4/f104_hmmwv/work/links_f104_hmmwv_both_crm/*_route_*:designed artifacts/traverse/arena_gator_20260925/e4/f104_hmmwv/work/links_f104_hmmwv_both_crm/*_op_*:on_policy --out artifacts/traverse/arena_gator_20260925/e4/f104_hmmwv/station_f104_hmmwv_both_crm.npz --workers 12
+9168 runs from artifacts/traverse/arena_gator_20260925/e4/f104_hmmwv/work/links_f104_hmmwv_both_crm/*_route_* as designed
+6067 runs from artifacts/traverse/arena_gator_20260925/e4/f104_hmmwv/work/links_f104_hmmwv_both_crm/*_op_* as on_policy
+  2000/15235
+  4000/15235
+  6000/15235
+  8000/15235
+  10000/15235
+  12000/15235
+  14000/15235
+labelled 15235/15235
+wrote artifacts/traverse/arena_gator_20260925/e4/f104_hmmwv/station_f104_hmmwv_both_crm.npz 471 MB
+unsafe rate 0.681   fail rate 0.681

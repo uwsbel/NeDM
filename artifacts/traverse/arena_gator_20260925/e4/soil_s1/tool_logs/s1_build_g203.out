@@ -1,0 +1,6 @@
+11:29:46 /work1/dannegrut/harry/venvs/nedm/bin/python scripts/ag_build_ds.py --world crm --crm-runs /work1/dannegrut/harry/experiments/arena_gator_20260925/soil_v1/runs --tasks-crm /work1/dannegrut/harry/experiments/arena_gator_20260925/tasks/soil_v2.json --tiers 0-6 --arena g203 --vehicle hmmwv --map-root /work1/dannegrut/harry/experiments/arena_gator_20260925/map_roots/g203 --out /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/g203_hmmwv --source-root /work1/dannegrut/harry/experiments/arena_gator_20260925/source --workers 16
+[crm] 4240 episodes selected ({'dirs': 15355, 'other_ids': 11098, 'outside_tiers': 15}; rejected {'crm_qa:unstalled_break': 2}); map check ok (46b4fb2c6d6c5dba)
+[crm] station 4240 rows (18.2 s), re-anchored 15987 rows (37.0 s)
+wrote /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/g203_hmmwv/ci_g203_hmmwv_crm.npz (15987 rows: {'crm': 15987}; 0.29 GB) in 90.3 s
+{"crm|train|startup": 3911, "crm|train|established": 10839, "crm|val|startup": 168, "crm|val|established": 477, "crm|test|startup": 161, "crm|test|established": 431}
+11:31:17 build exit: 0

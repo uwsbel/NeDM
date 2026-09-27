@@ -1,0 +1,27 @@
+{
+  "passed": true,
+  "finite": true,
+  "body_horizontal_speed_mps": 0.005149273667484522,
+  "roll_rad": -0.0009945592610165477,
+  "pitch_rad": 0.0015198858454823494,
+  "yaw_error_rad": 0.0018649114445605,
+  "start_xy_error_m": 0.014041261833990923,
+  "chassis_reference_height_above_bmp_m": 0.3301853686068557,
+  "pose": [
+    -15.669611078162083,
+    27.27865544221331,
+    0.03196012004871575
+  ],
+  "limits": {
+    "body_horizontal_speed_mps": 1.0,
+    "absolute_roll_pitch_deg": 25.0,
+    "yaw_error_deg": 10.0,
+    "start_xy_error_m": 1.0,
+    "chassis_reference_height_above_bmp_m": [
+      0.0,
+      1.2
+    ]
+  },
+  "settle_s": 0.8,
+  "replaces": "rigid native-height raycast audit (no rigid patch exists under CRM)"
+}

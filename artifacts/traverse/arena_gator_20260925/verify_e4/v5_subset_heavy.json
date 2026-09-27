@@ -1,0 +1,17 @@
+{
+ "M1": {
+  "all_equal": true,
+  "not_equal": [],
+  "n_keys": 28
+ },
+ "LC545": {
+  "all_equal": true,
+  "not_equal": [],
+  "n_keys": 28
+ },
+ "LC272": {
+  "all_equal": true,
+  "not_equal": [],
+  "n_keys": 28
+ }
+}

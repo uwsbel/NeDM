@@ -1,0 +1,202 @@
+{
+ "schema": "ag_analyze_spec_v1",
+ "margin_pts": 2.0,
+ "alpha": 0.05,
+ "boot": 4000,
+ "seed": 0,
+ "cluster_key": "cluster",
+ "min_groups": 50,
+ "note": "Bfull (task B stage 2, PLAN 7.10) spec, frozen before any G_full / H_full pick or drive exists. Soil, speed free, CEM 4 x 64 from a standing start, 800-group f104 suite, fail = goal not reached. G_full = Gator-trained on all 15,235 validated Gator ids (tiers 0-12), H_full = HMMWV-trained on exactly those ids; stage-1 G / H (tiers 0-6) and straight 6 m/s are the existing stage-1 drives, reused by route content. Family (Holm at 0.05 over the one-sided cluster p): F1 PRIMARY G_full vs H_full on the Gator, F2 G_full vs straight 6 on the Gator, F3 H_full vs straight 6 on the Gator, F4 G_full vs stage-1 G on the Gator. Decision: improves if Holm rejects; else no meaningful difference if the 90 % cluster interval lies within +-2 points; else inconclusive. Group bootstrap and exact McNemar reported beside each. Works (full tiers) = (1) F2 improves, (2) G_full within 2 points of H_full or better (F1 one-sided upper 95 % cluster bound < 2), (3) offline AUC >= 0.95 (e5/offline), (4) headroom closed vs H_full on the HMMWV (reported). Disclosure: the stage-1 task B outcomes were known when this was written (G 34.7 %, H 51.9 %, straight 6 85.8 % fail on the Gator); nothing about G_full / H_full was. H_full on the HMMWV is a secondary, later tier (-8); its contrasts use the groups driven.",
+ "family": [
+  {
+   "name": "F1_PRIMARY_Bfull_G_full_vs_H_full_on_gator",
+   "world": "crm",
+   "vehicle": "gator",
+   "test": "Gfull_free_gator",
+   "ref": "Hfull_free_gator",
+   "label": "fail",
+   "set": "f104_800",
+   "declared_primary": true
+  },
+  {
+   "name": "F2_Bfull_works1_G_full_vs_straight6_on_gator",
+   "world": "crm",
+   "vehicle": "gator",
+   "test": "Gfull_free_gator",
+   "ref": "straight6_gator",
+   "label": "fail",
+   "set": "f104_800"
+  },
+  {
+   "name": "F3_Bfull_H_full_vs_straight6_on_gator",
+   "world": "crm",
+   "vehicle": "gator",
+   "test": "Hfull_free_gator",
+   "ref": "straight6_gator",
+   "label": "fail",
+   "set": "f104_800"
+  },
+  {
+   "name": "F4_Bfull_G_full_vs_G_stage1_on_gator",
+   "world": "crm",
+   "vehicle": "gator",
+   "test": "Gfull_free_gator",
+   "ref": "G_free_gator",
+   "label": "fail",
+   "set": "f104_800"
+  }
+ ],
+ "contrasts": [
+  {
+   "name": "Bfull_H_full_vs_H_stage1_on_gator",
+   "world": "crm",
+   "vehicle": "gator",
+   "test": "Hfull_free_gator",
+   "ref": "H_free_gator",
+   "label": "fail",
+   "set": "f104_800"
+  },
+  {
+   "name": "Bfull_G_full_vs_H_full_on_gator_unsafe",
+   "world": "crm",
+   "vehicle": "gator",
+   "test": "Gfull_free_gator",
+   "ref": "Hfull_free_gator",
+   "label": "unsafe",
+   "set": "f104_800"
+  },
+  {
+   "name": "Bfull_G_full_vs_H_stage1_on_gator",
+   "world": "crm",
+   "vehicle": "gator",
+   "test": "Gfull_free_gator",
+   "ref": "H_free_gator",
+   "label": "fail",
+   "set": "f104_800"
+  },
+  {
+   "name": "Bfull_stage1_G_vs_H_on_gator",
+   "world": "crm",
+   "vehicle": "gator",
+   "test": "G_free_gator",
+   "ref": "H_free_gator",
+   "label": "fail",
+   "set": "f104_800"
+  },
+  {
+   "name": "Bfull_H_full_vs_H_stage1_on_hmmwv",
+   "world": "crm",
+   "vehicle": "hmmwv",
+   "test": "Hfull_free",
+   "ref": "M1a_free",
+   "label": "fail",
+   "set": "f104_800"
+  },
+  {
+   "name": "Bfull_H_full_vs_straight6_on_hmmwv",
+   "world": "crm",
+   "vehicle": "hmmwv",
+   "test": "Hfull_free",
+   "ref": "straight6",
+   "label": "fail",
+   "set": "f104_800"
+  },
+  {
+   "name": "Bfull_G_full_gator_vs_H_full_hmmwv",
+   "world": "crm",
+   "vehicle": "any",
+   "test": "Gfull_free_gator",
+   "ref": "Hfull_free",
+   "label": "fail",
+   "set": "f104_800"
+  },
+  {
+   "name": "Bfull_H_full_gator_vs_H_full_hmmwv",
+   "world": "crm",
+   "vehicle": "any",
+   "test": "Hfull_free_gator",
+   "ref": "Hfull_free",
+   "label": "fail",
+   "set": "f104_800"
+  }
+ ],
+ "headroom": [
+  {
+   "world": "crm",
+   "vehicle": "gator",
+   "model": "Gfull_free_gator",
+   "straight": "straight6_gator",
+   "label": "fail",
+   "set": "f104_800"
+  },
+  {
+   "world": "crm",
+   "vehicle": "gator",
+   "model": "Hfull_free_gator",
+   "straight": "straight6_gator",
+   "label": "fail",
+   "set": "f104_800"
+  },
+  {
+   "world": "crm",
+   "vehicle": "gator",
+   "model": "G_free_gator",
+   "straight": "straight6_gator",
+   "label": "fail",
+   "set": "f104_800"
+  },
+  {
+   "world": "crm",
+   "vehicle": "gator",
+   "model": "H_free_gator",
+   "straight": "straight6_gator",
+   "label": "fail",
+   "set": "f104_800"
+  },
+  {
+   "world": "crm",
+   "vehicle": "hmmwv",
+   "model": "Hfull_free",
+   "straight": "straight6",
+   "label": "fail",
+   "set": "f104_800"
+  },
+  {
+   "world": "crm",
+   "vehicle": "hmmwv",
+   "model": "M1a_free",
+   "straight": "straight6",
+   "label": "fail",
+   "set": "f104_800"
+  }
+ ],
+ "time_ratio": [
+  {
+   "world": "crm",
+   "vehicle": "gator",
+   "test": "Gfull_free_gator",
+   "ref": "Hfull_free_gator",
+   "set": "f104_800"
+  },
+  {
+   "world": "crm",
+   "vehicle": "gator",
+   "test": "Gfull_free_gator",
+   "ref": "G_free_gator",
+   "set": "f104_800"
+  },
+  {
+   "world": "crm",
+   "vehicle": "hmmwv",
+   "test": "Hfull_free",
+   "ref": "M1a_free",
+   "set": "f104_800"
+  }
+ ],
+ "rates": {
+  "sets": [
+   "f104_800",
+   "indist_f104"
+  ]
+ }
+}

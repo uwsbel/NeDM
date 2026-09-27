@@ -1,0 +1,68 @@
+{
+ "tool": "scripts/ag_subset.py",
+ "tool_sha256": "3891a0064511666a19d63ff360c9e2b0f56f59d35e14337d1ca634870c590f39",
+ "argv": [
+  "--world",
+  "rigid",
+  "--preset",
+  "LOAO2_f104_g228",
+  "--ds",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/f104_hmmwv/ci_f104_hmmwv_both.npz",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/g228_hmmwv/ci_g228_hmmwv_rigid.npz",
+  "--out",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/subsets/LOAO2_f104_g228_hmmwv_rigid.npz"
+ ],
+ "preset": "LOAO2_f104_g228",
+ "world": "rigid",
+ "vehicle": "hmmwv",
+ "rule": "md5(group id) hex ascending within each arena, first N of the available training groups",
+ "tiers": null,
+ "ids_file": null,
+ "ids_file_sha256": null,
+ "n_ids": null,
+ "ids_apply": null,
+ "eval_rows": "intact",
+ "keep_dev_fold": false,
+ "use": "deploy or holdout",
+ "per_arena": {
+  "f104": {
+   "requested": 273,
+   "available": 1089,
+   "selected": 273,
+   "md5_last": "416ce6e2b0b82d3fa4b925603dd6484b",
+   "dev_fold_groups_kept": 0,
+   "train_groups_in_file": 273,
+   "train_rows": 21299,
+   "train_rows_startup": 5460,
+   "train_episodes": 5460,
+   "val_groups": 56,
+   "val_rows": 4358,
+   "test_groups": 55,
+   "test_rows": 4252,
+   "fit_rows_holdout": 16690,
+   "fit_groups_holdout": 214
+  },
+  "g228": {
+   "requested": 272,
+   "available": 1063,
+   "selected": 272,
+   "md5_last": "3f3461f4a57095bed334793bf7a361a8",
+   "dev_fold_groups_kept": 0,
+   "train_groups_in_file": 272,
+   "train_rows": 21174,
+   "train_rows_startup": 5440,
+   "train_episodes": 5440,
+   "val_groups": 60,
+   "val_rows": 4640,
+   "test_groups": 77,
+   "test_rows": 5999,
+   "fit_rows_holdout": 17684,
+   "fit_groups_holdout": 227
+  }
+ },
+ "rows": 61722,
+ "fit_rows_deploy": 42473,
+ "fit_rows_holdout": 34374,
+ "eval_rows_val": 8998
+}
+wrote /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/subsets/LOAO2_f104_g228_hmmwv_rigid.npz (61722 rows, 1.117 GB) in 387.5 s

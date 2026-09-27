@@ -1,0 +1,42 @@
+{
+ "set": "train_g203",
+ "kind": "train",
+ "cases_dir": "artifacts/traverse/arena_gator_20260925/cases/train_g203/cases",
+ "groups": 1200,
+ "arena": "assets/traverse/arena_g203",
+ "arena_bmp_sha256": "46b4fb2c6d6c5dbaf49bdf320d4e5bd62cf257dff43fff4b3d3e990a92735231",
+ "seed": 2026092501203,
+ "prefix": "g203_v2_group",
+ "wave": "arena_gator_train",
+ "strata_mode": "all",
+ "strata": {
+  "hill_entry_cross_exit": 155,
+  "crater_entry_cross_exit": 186,
+  "long_traverse": 92,
+  "roughness_transfer": 92,
+  "hill_cross_slope": 309,
+  "crater_cross_slope": 366
+ },
+ "splits_written_in_cases": {
+  "train": 1083,
+  "test": 69,
+  "val": 48
+ },
+ "designed_routes": 14400,
+ "files": 25202,
+ "onpolicy_dir": "artifacts/traverse/arena_gator_20260925/cases/train_g203_onpolicy",
+ "onpolicy_routes": 9600,
+ "onpolicy_per_group": {
+  "8": 1200
+ },
+ "groups_without_onpolicy": 0,
+ "map_root": "artifacts/traverse/arena_gator_20260925/map_roots/g203",
+ "map_observation_sha256": "f799f9f6e99ce9bdffb63196e00097ae04418959c288af144185385401d7bcbf",
+ "map_bmp_matches_arena": true,
+ "blacklist_hits": {
+  "ci_train.SUITE_GROUPS": 0,
+  "ga_build_mixed.BLACKLIST": 0,
+  "ci_a5data.SUITE_PATTERNS": 0
+ },
+ "lock_sha256": "3ee462f7d1fbe9e1ded590ff8713e3aff25592e862ae418053520dfaf02356dd"
+}

@@ -1,0 +1,1164 @@
+{
+ "ev": {
+  "gator": {
+   "sha256": "01bbbee3b9e2a29e1c5b8288d63d6dab4a42a85116c68bdd680444292a4d5166",
+   "rows_dev_val": 13037,
+   "groups": 280,
+   "vehicles": [
+    "gator"
+   ],
+   "splits": {
+    "train": 10455,
+    "val": 2582
+   },
+   "tiers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "other_splits_in_file": {
+    "test": 2422,
+    "train": 10455,
+    "val": 2582
+   }
+  },
+  "hmmwv": {
+   "sha256": "375a3887d94b74c879d3af623cf227cd5f96f2f4714b8494f9f93e984bc9f851",
+   "rows_dev_val": 13604,
+   "groups": 280,
+   "vehicles": [
+    "hmmwv"
+   ],
+   "splits": {
+    "train": 10896,
+    "val": 2708
+   },
+   "tiers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "other_splits_in_file": {
+    "test": 2637,
+    "train": 10896,
+    "val": 2708
+   }
+  }
+ },
+ "checkpoints": {
+  "G_full_deploy": {
+   "files": [
+    "e5/deploy/G_full_soil/G_full_soil_deploy_s0.pt",
+    "e5/deploy/G_full_soil/G_full_soil_deploy_s1.pt",
+    "e5/deploy/G_full_soil/G_full_soil_deploy_s2.pt",
+    "e5/deploy/G_full_soil/G_full_soil_deploy_s3.pt",
+    "e5/deploy/G_full_soil/G_full_soil_deploy_s4.pt"
+   ],
+   "sha": {
+    "G_full_soil_deploy_s0.pt": {
+     "sha256": "5de34996d0954ad56d985a8fd2138e806bf236ad112cd151b4917da2b7adcd20",
+     "SHA256SUMS": true,
+     "lock": true,
+     "manifest": true,
+     "cluster": true
+    },
+    "G_full_soil_deploy_s1.pt": {
+     "sha256": "1411c5ddbe999de60d28fe70a9abd6870241c7096ef7c0b2e678737937ceba6e",
+     "SHA256SUMS": true,
+     "lock": true,
+     "manifest": true,
+     "cluster": true
+    },
+    "G_full_soil_deploy_s2.pt": {
+     "sha256": "47c02bd0d6ee8c3d3fcadc3e16d3494c08d1a519695f3c92c4bd98775cb798d6",
+     "SHA256SUMS": true,
+     "lock": true,
+     "manifest": true,
+     "cluster": true
+    },
+    "G_full_soil_deploy_s3.pt": {
+     "sha256": "2972ae442065254181b614868b74ee9eb1e2184cab6d4bd558a1a50ac7fc226e",
+     "SHA256SUMS": true,
+     "lock": true,
+     "manifest": true,
+     "cluster": true
+    },
+    "G_full_soil_deploy_s4.pt": {
+     "sha256": "93b940b6e825eb123be62118d54b10c4046bec2901f05f3cd9f8dc4b43d13880",
+     "SHA256SUMS": true,
+     "lock": true,
+     "manifest": true,
+     "cluster": true
+    }
+   },
+   "recipe": [
+    {
+     "seed": 0,
+     "mode": "deploy",
+     "arch": "gru",
+     "cond": "none",
+     "ctx": "geom",
+     "domain_filter": "crm",
+     "epochs": 30,
+     "split_eval": "val",
+     "train_rows": 50822,
+     "ds": [
+      "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_bf/subsets/G_full_f104_gator_soil.npz"
+     ],
+     "split_hash": "292c682ceba99fda11caeb1248f851a0",
+     "lr": 0.002,
+     "wd": 0.0001
+    },
+    {
+     "seed": 1,
+     "mode": "deploy",
+     "arch": "gru",
+     "cond": "none",
+     "ctx": "geom",
+     "domain_filter": "crm",
+     "epochs": 30,
+     "split_eval": "val",
+     "train_rows": 50822,
+     "ds": [
+      "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_bf/subsets/G_full_f104_gator_soil.npz"
+     ],
+     "split_hash": "292c682ceba99fda11caeb1248f851a0",
+     "lr": 0.002,
+     "wd": 0.0001
+    },
+    {
+     "seed": 2,
+     "mode": "deploy",
+     "arch": "gru",
+     "cond": "none",
+     "ctx": "geom",
+     "domain_filter": "crm",
+     "epochs": 30,
+     "split_eval": "val",
+     "train_rows": 50822,
+     "ds": [
+      "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_bf/subsets/G_full_f104_gator_soil.npz"
+     ],
+     "split_hash": "292c682ceba99fda11caeb1248f851a0",
+     "lr": 0.002,
+     "wd": 0.0001
+    },
+    {
+     "seed": 3,
+     "mode": "deploy",
+     "arch": "gru",
+     "cond": "none",
+     "ctx": "geom",
+     "domain_filter": "crm",
+     "epochs": 30,
+     "split_eval": "val",
+     "train_rows": 50822,
+     "ds": [
+      "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_bf/subsets/G_full_f104_gator_soil.npz"
+     ],
+     "split_hash": "292c682ceba99fda11caeb1248f851a0",
+     "lr": 0.002,
+     "wd": 0.0001
+    },
+    {
+     "seed": 4,
+     "mode": "deploy",
+     "arch": "gru",
+     "cond": "none",
+     "ctx": "geom",
+     "domain_filter": "crm",
+     "epochs": 30,
+     "split_eval": "val",
+     "train_rows": 50822,
+     "ds": [
+      "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_bf/subsets/G_full_f104_gator_soil.npz"
+     ],
+     "split_hash": "292c682ceba99fda11caeb1248f851a0",
+     "lr": 0.002,
+     "wd": 0.0001
+    }
+   ],
+   "logits_vs_trainer": {
+    "val_rows": 2582,
+    "matched": 2582,
+    "max_abs_member": 4.00543212890625e-05,
+    "max_abs_ensemble": 1.1682510375976562e-05,
+    "labels_equal": true
+   }
+  },
+  "H_full_deploy": {
+   "files": [
+    "e5/deploy/H_full_soil/H_full_soil_deploy_s0.pt",
+    "e5/deploy/H_full_soil/H_full_soil_deploy_s1.pt",
+    "e5/deploy/H_full_soil/H_full_soil_deploy_s2.pt",
+    "e5/deploy/H_full_soil/H_full_soil_deploy_s3.pt",
+    "e5/deploy/H_full_soil/H_full_soil_deploy_s4.pt"
+   ],
+   "sha": {
+    "H_full_soil_deploy_s0.pt": {
+     "sha256": "bb100b4e6a9158acbcc0a7c38c9e1d86d6e75b5b78d771da4e90f715b0a7298d",
+     "SHA256SUMS": true,
+     "lock": true,
+     "manifest": true,
+     "cluster": true
+    },
+    "H_full_soil_deploy_s1.pt": {
+     "sha256": "c5d70fa4b2039ec685dccc369e9d2545e97ae0320428f7ea705443cecbbc9d7b",
+     "SHA256SUMS": true,
+     "lock": true,
+     "manifest": true,
+     "cluster": true
+    },
+    "H_full_soil_deploy_s2.pt": {
+     "sha256": "9877bed130296c2c9c36e2cfc1794b7c1c404823114f222219ed3a6452cc9ee3",
+     "SHA256SUMS": true,
+     "lock": true,
+     "manifest": true,
+     "cluster": true
+    },
+    "H_full_soil_deploy_s3.pt": {
+     "sha256": "c34827f678cc791759b090fbbde8fa854866d7607e0a642e9580ba463f6be165",
+     "SHA256SUMS": true,
+     "lock": true,
+     "manifest": true,
+     "cluster": true
+    },
+    "H_full_soil_deploy_s4.pt": {
+     "sha256": "46b66a96aa1238347af82b95c395fe22663d9d362e5d5ebecf0d5614a1021274",
+     "SHA256SUMS": true,
+     "lock": true,
+     "manifest": true,
+     "cluster": true
+    }
+   },
+   "recipe": [
+    {
+     "seed": 0,
+     "mode": "deploy",
+     "arch": "gru",
+     "cond": "none",
+     "ctx": "geom",
+     "domain_filter": "crm",
+     "epochs": 30,
+     "split_eval": "val",
+     "train_rows": 52923,
+     "ds": [
+      "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_bf/subsets/H_full_f104_hmmwv_soil.npz"
+     ],
+     "split_hash": "b187bfa94b56c971a21d7204deaa3538",
+     "lr": 0.002,
+     "wd": 0.0001
+    },
+    {
+     "seed": 1,
+     "mode": "deploy",
+     "arch": "gru",
+     "cond": "none",
+     "ctx": "geom",
+     "domain_filter": "crm",
+     "epochs": 30,
+     "split_eval": "val",
+     "train_rows": 52923,
+     "ds": [
+      "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_bf/subsets/H_full_f104_hmmwv_soil.npz"
+     ],
+     "split_hash": "b187bfa94b56c971a21d7204deaa3538",
+     "lr": 0.002,
+     "wd": 0.0001
+    },
+    {
+     "seed": 2,
+     "mode": "deploy",
+     "arch": "gru",
+     "cond": "none",
+     "ctx": "geom",
+     "domain_filter": "crm",
+     "epochs": 30,
+     "split_eval": "val",
+     "train_rows": 52923,
+     "ds": [
+      "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_bf/subsets/H_full_f104_hmmwv_soil.npz"
+     ],
+     "split_hash": "b187bfa94b56c971a21d7204deaa3538",
+     "lr": 0.002,
+     "wd": 0.0001
+    },
+    {
+     "seed": 3,
+     "mode": "deploy",
+     "arch": "gru",
+     "cond": "none",
+     "ctx": "geom",
+     "domain_filter": "crm",
+     "epochs": 30,
+     "split_eval": "val",
+     "train_rows": 52923,
+     "ds": [
+      "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_bf/subsets/H_full_f104_hmmwv_soil.npz"
+     ],
+     "split_hash": "b187bfa94b56c971a21d7204deaa3538",
+     "lr": 0.002,
+     "wd": 0.0001
+    },
+    {
+     "seed": 4,
+     "mode": "deploy",
+     "arch": "gru",
+     "cond": "none",
+     "ctx": "geom",
+     "domain_filter": "crm",
+     "epochs": 30,
+     "split_eval": "val",
+     "train_rows": 52923,
+     "ds": [
+      "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_bf/subsets/H_full_f104_hmmwv_soil.npz"
+     ],
+     "split_hash": "b187bfa94b56c971a21d7204deaa3538",
+     "lr": 0.002,
+     "wd": 0.0001
+    }
+   ],
+   "logits_vs_trainer": {
+    "val_rows": 2708,
+    "matched": 2708,
+    "max_abs_member": 4.1484832763671875e-05,
+    "max_abs_ensemble": 1.4066696166992188e-05,
+    "labels_equal": true
+   }
+  },
+  "G_full_holdout": {
+   "files": [
+    "e5/train/soil_bf/offline_soil_bf/G_full_soil_holdout_s0.pt",
+    "e5/train/soil_bf/offline_soil_bf/G_full_soil_holdout_s1.pt",
+    "e5/train/soil_bf/offline_soil_bf/G_full_soil_holdout_s2.pt",
+    "e5/train/soil_bf/offline_soil_bf/G_full_soil_holdout_s3.pt",
+    "e5/train/soil_bf/offline_soil_bf/G_full_soil_holdout_s4.pt"
+   ],
+   "sha": {
+    "G_full_soil_holdout_s0.pt": {
+     "sha256": "4751f8ad22175aa5f643ddba28179f94c1790a0be35b360dc82bf2abfb1a850a",
+     "SHA256SUMS": null,
+     "lock": null,
+     "manifest": null,
+     "cluster": true
+    },
+    "G_full_soil_holdout_s1.pt": {
+     "sha256": "e1b9105eb50c6c4b877aebd0245887376f534f2ef4a3cd132ef8e1ef60b7340a",
+     "SHA256SUMS": null,
+     "lock": null,
+     "manifest": null,
+     "cluster": true
+    },
+    "G_full_soil_holdout_s2.pt": {
+     "sha256": "2cad7a1c2e31f2e17cd089f0d9f46b36fb5df815066e7386207cd49903aee47f",
+     "SHA256SUMS": null,
+     "lock": null,
+     "manifest": null,
+     "cluster": true
+    },
+    "G_full_soil_holdout_s3.pt": {
+     "sha256": "cae519a9195c3190a18931e0cebbabb7647376faedf26c431c7074f3957083fd",
+     "SHA256SUMS": null,
+     "lock": null,
+     "manifest": null,
+     "cluster": true
+    },
+    "G_full_soil_holdout_s4.pt": {
+     "sha256": "4356baa2a5d8276d265e0a9d56aeb72ca1b845fc475df13fe7e47cc6cdc34fc8",
+     "SHA256SUMS": null,
+     "lock": null,
+     "manifest": null,
+     "cluster": true
+    }
+   },
+   "recipe": [
+    {
+     "seed": 0,
+     "mode": "holdout",
+     "arch": "gru",
+     "cond": "none",
+     "ctx": "geom",
+     "domain_filter": "crm",
+     "epochs": 30,
+     "split_eval": "val",
+     "train_rows": 40367,
+     "ds": [
+      "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_bf/subsets/G_full_f104_gator_soil.npz"
+     ],
+     "split_hash": "6e6ec13b766cfd3f2be6df886fc0615c",
+     "lr": 0.002,
+     "wd": 0.0001
+    },
+    {
+     "seed": 1,
+     "mode": "holdout",
+     "arch": "gru",
+     "cond": "none",
+     "ctx": "geom",
+     "domain_filter": "crm",
+     "epochs": 30,
+     "split_eval": "val",
+     "train_rows": 40367,
+     "ds": [
+      "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_bf/subsets/G_full_f104_gator_soil.npz"
+     ],
+     "split_hash": "6e6ec13b766cfd3f2be6df886fc0615c",
+     "lr": 0.002,
+     "wd": 0.0001
+    },
+    {
+     "seed": 2,
+     "mode": "holdout",
+     "arch": "gru",
+     "cond": "none",
+     "ctx": "geom",
+     "domain_filter": "crm",
+     "epochs": 30,
+     "split_eval": "val",
+     "train_rows": 40367,
+     "ds": [
+      "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_bf/subsets/G_full_f104_gator_soil.npz"
+     ],
+     "split_hash": "6e6ec13b766cfd3f2be6df886fc0615c",
+     "lr": 0.002,
+     "wd": 0.0001
+    },
+    {
+     "seed": 3,
+     "mode": "holdout",
+     "arch": "gru",
+     "cond": "none",
+     "ctx": "geom",
+     "domain_filter": "crm",
+     "epochs": 30,
+     "split_eval": "val",
+     "train_rows": 40367,
+     "ds": [
+      "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_bf/subsets/G_full_f104_gator_soil.npz"
+     ],
+     "split_hash": "6e6ec13b766cfd3f2be6df886fc0615c",
+     "lr": 0.002,
+     "wd": 0.0001
+    },
+    {
+     "seed": 4,
+     "mode": "holdout",
+     "arch": "gru",
+     "cond": "none",
+     "ctx": "geom",
+     "domain_filter": "crm",
+     "epochs": 30,
+     "split_eval": "val",
+     "train_rows": 40367,
+     "ds": [
+      "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_bf/subsets/G_full_f104_gator_soil.npz"
+     ],
+     "split_hash": "6e6ec13b766cfd3f2be6df886fc0615c",
+     "lr": 0.002,
+     "wd": 0.0001
+    }
+   ],
+   "logits_vs_trainer": {
+    "val_rows": 2582,
+    "matched": 2582,
+    "max_abs_member": 4.76837158203125e-05,
+    "max_abs_ensemble": 1.239776611328125e-05,
+    "labels_equal": true
+   }
+  },
+  "H_full_holdout": {
+   "files": [
+    "e5/train/soil_bf/offline_soil_bf/H_full_soil_holdout_s0.pt",
+    "e5/train/soil_bf/offline_soil_bf/H_full_soil_holdout_s1.pt",
+    "e5/train/soil_bf/offline_soil_bf/H_full_soil_holdout_s2.pt",
+    "e5/train/soil_bf/offline_soil_bf/H_full_soil_holdout_s3.pt",
+    "e5/train/soil_bf/offline_soil_bf/H_full_soil_holdout_s4.pt"
+   ],
+   "sha": {
+    "H_full_soil_holdout_s0.pt": {
+     "sha256": "5570e4054d5f930199f63dedee07358578576cd8953550f440aed44a4f6bb593",
+     "SHA256SUMS": null,
+     "lock": null,
+     "manifest": null,
+     "cluster": true
+    },
+    "H_full_soil_holdout_s1.pt": {
+     "sha256": "e61305393cecc901350d4c23f9ed51ab567f966049544825f563f0a21030f02e",
+     "SHA256SUMS": null,
+     "lock": null,
+     "manifest": null,
+     "cluster": true
+    },
+    "H_full_soil_holdout_s2.pt": {
+     "sha256": "5bfcb0fdc8af7f31be0e4c1cc3b68d014cb06021dc077b0118569c9da29c4e81",
+     "SHA256SUMS": null,
+     "lock": null,
+     "manifest": null,
+     "cluster": true
+    },
+    "H_full_soil_holdout_s3.pt": {
+     "sha256": "899283f917aa9bf7b84a87a60917a98cd9effda49c124c94bdabcb31835bd1b1",
+     "SHA256SUMS": null,
+     "lock": null,
+     "manifest": null,
+     "cluster": true
+    },
+    "H_full_soil_holdout_s4.pt": {
+     "sha256": "e1829be42125b3362109e6bfea4cd1e33d2e711b2c6b124d53505b452f29799c",
+     "SHA256SUMS": null,
+     "lock": null,
+     "manifest": null,
+     "cluster": true
+    }
+   },
+   "recipe": [
+    {
+     "seed": 0,
+     "mode": "holdout",
+     "arch": "gru",
+     "cond": "none",
+     "ctx": "geom",
+     "domain_filter": "crm",
+     "epochs": 30,
+     "split_eval": "val",
+     "train_rows": 42027,
+     "ds": [
+      "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_bf/subsets/H_full_f104_hmmwv_soil.npz"
+     ],
+     "split_hash": "be12e64cbb109265d795fd7b0f62d29d",
+     "lr": 0.002,
+     "wd": 0.0001
+    },
+    {
+     "seed": 1,
+     "mode": "holdout",
+     "arch": "gru",
+     "cond": "none",
+     "ctx": "geom",
+     "domain_filter": "crm",
+     "epochs": 30,
+     "split_eval": "val",
+     "train_rows": 42027,
+     "ds": [
+      "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_bf/subsets/H_full_f104_hmmwv_soil.npz"
+     ],
+     "split_hash": "be12e64cbb109265d795fd7b0f62d29d",
+     "lr": 0.002,
+     "wd": 0.0001
+    },
+    {
+     "seed": 2,
+     "mode": "holdout",
+     "arch": "gru",
+     "cond": "none",
+     "ctx": "geom",
+     "domain_filter": "crm",
+     "epochs": 30,
+     "split_eval": "val",
+     "train_rows": 42027,
+     "ds": [
+      "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_bf/subsets/H_full_f104_hmmwv_soil.npz"
+     ],
+     "split_hash": "be12e64cbb109265d795fd7b0f62d29d",
+     "lr": 0.002,
+     "wd": 0.0001
+    },
+    {
+     "seed": 3,
+     "mode": "holdout",
+     "arch": "gru",
+     "cond": "none",
+     "ctx": "geom",
+     "domain_filter": "crm",
+     "epochs": 30,
+     "split_eval": "val",
+     "train_rows": 42027,
+     "ds": [
+      "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_bf/subsets/H_full_f104_hmmwv_soil.npz"
+     ],
+     "split_hash": "be12e64cbb109265d795fd7b0f62d29d",
+     "lr": 0.002,
+     "wd": 0.0001
+    },
+    {
+     "seed": 4,
+     "mode": "holdout",
+     "arch": "gru",
+     "cond": "none",
+     "ctx": "geom",
+     "domain_filter": "crm",
+     "epochs": 30,
+     "split_eval": "val",
+     "train_rows": 42027,
+     "ds": [
+      "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_bf/subsets/H_full_f104_hmmwv_soil.npz"
+     ],
+     "split_hash": "be12e64cbb109265d795fd7b0f62d29d",
+     "lr": 0.002,
+     "wd": 0.0001
+    }
+   ],
+   "logits_vs_trainer": {
+    "val_rows": 2708,
+    "matched": 2708,
+    "max_abs_member": 3.6597251892089844e-05,
+    "max_abs_ensemble": 1.430511474609375e-05,
+    "labels_equal": true
+   }
+  },
+  "G_holdout": {
+   "files": [
+    "e5/train/soil_s1/offline_soil/G_soil_holdout_s0.pt",
+    "e5/train/soil_s1/offline_soil/G_soil_holdout_s1.pt",
+    "e5/train/soil_s1/offline_soil/G_soil_holdout_s2.pt",
+    "e5/train/soil_s1/offline_soil/G_soil_holdout_s3.pt",
+    "e5/train/soil_s1/offline_soil/G_soil_holdout_s4.pt"
+   ],
+   "sha": {
+    "G_soil_holdout_s0.pt": {
+     "sha256": "1d3c24e4215a9665def68445a7bac25c302d3c1240cd890568f302f4e375bdec",
+     "SHA256SUMS": null,
+     "lock": null,
+     "manifest": null,
+     "cluster": null
+    },
+    "G_soil_holdout_s1.pt": {
+     "sha256": "0dedd9b40d164cbed0d3c79e173782fe84b49d2e2c1918541ca832b0586a595c",
+     "SHA256SUMS": null,
+     "lock": null,
+     "manifest": null,
+     "cluster": null
+    },
+    "G_soil_holdout_s2.pt": {
+     "sha256": "cf6accd5ef0df4fe5ebea7371dfe708dcc1d4cdb255c84210f856acb7733a4bb",
+     "SHA256SUMS": null,
+     "lock": null,
+     "manifest": null,
+     "cluster": null
+    },
+    "G_soil_holdout_s3.pt": {
+     "sha256": "115c12aa5a1ca618bf9a611ff62e8e481e179e623e9708f3fd7a7d407c55c000",
+     "SHA256SUMS": null,
+     "lock": null,
+     "manifest": null,
+     "cluster": null
+    },
+    "G_soil_holdout_s4.pt": {
+     "sha256": "867217b088b7e6e9021d5a9ad49293444c7ea77c7d4ed2bd27137d29730395a6",
+     "SHA256SUMS": null,
+     "lock": null,
+     "manifest": null,
+     "cluster": null
+    }
+   },
+   "recipe": [
+    {
+     "seed": 0,
+     "mode": "holdout",
+     "arch": "gru",
+     "cond": "none",
+     "ctx": "geom",
+     "domain_filter": "crm",
+     "epochs": 30,
+     "split_eval": "val",
+     "train_rows": 22284,
+     "ds": [
+      "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/subsets/G_f104_gator_soil.npz"
+     ],
+     "split_hash": "288c5069d2a590862a8af958a7965d3c",
+     "lr": 0.002,
+     "wd": 0.0001
+    },
+    {
+     "seed": 1,
+     "mode": "holdout",
+     "arch": "gru",
+     "cond": "none",
+     "ctx": "geom",
+     "domain_filter": "crm",
+     "epochs": 30,
+     "split_eval": "val",
+     "train_rows": 22284,
+     "ds": [
+      "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/subsets/G_f104_gator_soil.npz"
+     ],
+     "split_hash": "288c5069d2a590862a8af958a7965d3c",
+     "lr": 0.002,
+     "wd": 0.0001
+    },
+    {
+     "seed": 2,
+     "mode": "holdout",
+     "arch": "gru",
+     "cond": "none",
+     "ctx": "geom",
+     "domain_filter": "crm",
+     "epochs": 30,
+     "split_eval": "val",
+     "train_rows": 22284,
+     "ds": [
+      "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/subsets/G_f104_gator_soil.npz"
+     ],
+     "split_hash": "288c5069d2a590862a8af958a7965d3c",
+     "lr": 0.002,
+     "wd": 0.0001
+    },
+    {
+     "seed": 3,
+     "mode": "holdout",
+     "arch": "gru",
+     "cond": "none",
+     "ctx": "geom",
+     "domain_filter": "crm",
+     "epochs": 30,
+     "split_eval": "val",
+     "train_rows": 22284,
+     "ds": [
+      "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/subsets/G_f104_gator_soil.npz"
+     ],
+     "split_hash": "288c5069d2a590862a8af958a7965d3c",
+     "lr": 0.002,
+     "wd": 0.0001
+    },
+    {
+     "seed": 4,
+     "mode": "holdout",
+     "arch": "gru",
+     "cond": "none",
+     "ctx": "geom",
+     "domain_filter": "crm",
+     "epochs": 30,
+     "split_eval": "val",
+     "train_rows": 22284,
+     "ds": [
+      "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/subsets/G_f104_gator_soil.npz"
+     ],
+     "split_hash": "288c5069d2a590862a8af958a7965d3c",
+     "lr": 0.002,
+     "wd": 0.0001
+    }
+   ],
+   "logits_vs_trainer": {
+    "val_rows": 2582,
+    "matched": 1430,
+    "max_abs_member": 3.1948089599609375e-05,
+    "max_abs_ensemble": 1.6689300537109375e-05,
+    "labels_equal": true
+   }
+  },
+  "H_holdout": {
+   "files": [
+    "e5/train/soil_s1/offline_soil/M1_soil_holdout_s0.pt",
+    "e5/train/soil_s1/offline_soil/M1_soil_holdout_s1.pt",
+    "e5/train/soil_s1/offline_soil/M1_soil_holdout_s2.pt",
+    "e5/train/soil_s1/offline_soil/M1_soil_holdout_s3.pt",
+    "e5/train/soil_s1/offline_soil/M1_soil_holdout_s4.pt"
+   ],
+   "sha": {
+    "M1_soil_holdout_s0.pt": {
+     "sha256": "78d85f05173bd3bf34c7d09acb7580ec7dfdb06e52ccb89f08b8052b20c93c36",
+     "SHA256SUMS": null,
+     "lock": null,
+     "manifest": null,
+     "cluster": null
+    },
+    "M1_soil_holdout_s1.pt": {
+     "sha256": "93fbcdebb9db629c544c364f09b670be8fe446994fa4a6b5686431f31ac54990",
+     "SHA256SUMS": null,
+     "lock": null,
+     "manifest": null,
+     "cluster": null
+    },
+    "M1_soil_holdout_s2.pt": {
+     "sha256": "d323b2d9f9e4c80bf173e91c416ea9adaa2c54cbe921346ffb293538390d6d98",
+     "SHA256SUMS": null,
+     "lock": null,
+     "manifest": null,
+     "cluster": null
+    },
+    "M1_soil_holdout_s3.pt": {
+     "sha256": "7d5ba60f6e1eb4d45184fde8bf8a46139b9d846757d390db89352105a884cd57",
+     "SHA256SUMS": null,
+     "lock": null,
+     "manifest": null,
+     "cluster": null
+    },
+    "M1_soil_holdout_s4.pt": {
+     "sha256": "1593ae8452d0fc6fc987874554e1c4625199683db139b0e0917e60caa67d3426",
+     "SHA256SUMS": null,
+     "lock": null,
+     "manifest": null,
+     "cluster": null
+    }
+   },
+   "recipe": [
+    {
+     "seed": 0,
+     "mode": "holdout",
+     "arch": "gru",
+     "cond": "none",
+     "ctx": "geom",
+     "domain_filter": "crm",
+     "epochs": 30,
+     "split_eval": "val",
+     "train_rows": 23205,
+     "ds": [
+      "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/subsets/M1_f104_hmmwv_soil.npz"
+     ],
+     "split_hash": "c1aeccbc8db29288ac7b89ae3b01eb03",
+     "lr": 0.002,
+     "wd": 0.0001
+    },
+    {
+     "seed": 1,
+     "mode": "holdout",
+     "arch": "gru",
+     "cond": "none",
+     "ctx": "geom",
+     "domain_filter": "crm",
+     "epochs": 30,
+     "split_eval": "val",
+     "train_rows": 23205,
+     "ds": [
+      "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/subsets/M1_f104_hmmwv_soil.npz"
+     ],
+     "split_hash": "c1aeccbc8db29288ac7b89ae3b01eb03",
+     "lr": 0.002,
+     "wd": 0.0001
+    },
+    {
+     "seed": 2,
+     "mode": "holdout",
+     "arch": "gru",
+     "cond": "none",
+     "ctx": "geom",
+     "domain_filter": "crm",
+     "epochs": 30,
+     "split_eval": "val",
+     "train_rows": 23205,
+     "ds": [
+      "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/subsets/M1_f104_hmmwv_soil.npz"
+     ],
+     "split_hash": "c1aeccbc8db29288ac7b89ae3b01eb03",
+     "lr": 0.002,
+     "wd": 0.0001
+    },
+    {
+     "seed": 3,
+     "mode": "holdout",
+     "arch": "gru",
+     "cond": "none",
+     "ctx": "geom",
+     "domain_filter": "crm",
+     "epochs": 30,
+     "split_eval": "val",
+     "train_rows": 23205,
+     "ds": [
+      "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/subsets/M1_f104_hmmwv_soil.npz"
+     ],
+     "split_hash": "c1aeccbc8db29288ac7b89ae3b01eb03",
+     "lr": 0.002,
+     "wd": 0.0001
+    },
+    {
+     "seed": 4,
+     "mode": "holdout",
+     "arch": "gru",
+     "cond": "none",
+     "ctx": "geom",
+     "domain_filter": "crm",
+     "epochs": 30,
+     "split_eval": "val",
+     "train_rows": 23205,
+     "ds": [
+      "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/subsets/M1_f104_hmmwv_soil.npz"
+     ],
+     "split_hash": "c1aeccbc8db29288ac7b89ae3b01eb03",
+     "lr": 0.002,
+     "wd": 0.0001
+    }
+   ],
+   "logits_vs_trainer": {
+    "val_rows": 2708,
+    "matched": 1492,
+    "max_abs_member": 4.029273986816406e-05,
+    "max_abs_ensemble": 1.5974044799804688e-05,
+    "labels_equal": true
+   }
+  }
+ },
+ "auc": {
+  "G_full_deploy@gator": {
+   "rows": 713,
+   "groups": 56,
+   "groups_with_pairs": 22,
+   "pairs": 603,
+   "auc": 0.9502487562189055,
+   "auc_val": 0.9502487562189055,
+   "pairs_val": 603,
+   "groups_val_with_pairs": 22,
+   "pick_unsafe": 0.6428571428571429,
+   "random_pick": 0.8815247252747254,
+   "best_pick": 0.6071428571428571,
+   "groups_all_unsafe": 34,
+   "rows_dropped_fitted": 2847,
+   "theirs_auc": 0.9502487562189055,
+   "theirs_pairs": 603,
+   "theirs_pick": 0.6428571428571429,
+   "theirs_random": 0.8815247252747254,
+   "theirs_best": 0.6071428571428571,
+   "theirs_auc_val": 0.9502487562189055
+  },
+  "G_full_deploy@hmmwv": {
+   "rows": 713,
+   "groups": 56,
+   "groups_with_pairs": 49,
+   "pairs": 1374,
+   "auc": 0.8216885007278021,
+   "auc_val": 0.8216885007278021,
+   "pairs_val": 1374,
+   "groups_val_with_pairs": 49,
+   "pick_unsafe": 0.35714285714285715,
+   "random_pick": 0.7259615384615384,
+   "best_pick": 0.10714285714285714,
+   "groups_all_unsafe": 6,
+   "rows_dropped_fitted": 2847,
+   "theirs_auc": 0.8216885007278021,
+   "theirs_pairs": 1374,
+   "theirs_pick": 0.35714285714285715,
+   "theirs_random": 0.7259615384615384,
+   "theirs_best": 0.10714285714285714,
+   "theirs_auc_val": 0.8216885007278021
+  },
+  "H_full_deploy@gator": {
+   "rows": 713,
+   "groups": 56,
+   "groups_with_pairs": 22,
+   "pairs": 603,
+   "auc": 0.8474295190713101,
+   "auc_val": 0.8474295190713101,
+   "pairs_val": 603,
+   "groups_val_with_pairs": 22,
+   "pick_unsafe": 0.7142857142857143,
+   "random_pick": 0.8815247252747254,
+   "best_pick": 0.6071428571428571,
+   "groups_all_unsafe": 34,
+   "rows_dropped_fitted": 2847,
+   "theirs_auc": 0.8474295190713101,
+   "theirs_pairs": 603,
+   "theirs_pick": 0.7142857142857143,
+   "theirs_random": 0.8815247252747254,
+   "theirs_best": 0.6071428571428571,
+   "theirs_auc_val": 0.8474295190713101
+  },
+  "H_full_deploy@hmmwv": {
+   "rows": 713,
+   "groups": 56,
+   "groups_with_pairs": 49,
+   "pairs": 1374,
+   "auc": 0.9912663755458515,
+   "auc_val": 0.9912663755458515,
+   "pairs_val": 1374,
+   "groups_val_with_pairs": 49,
+   "pick_unsafe": 0.17857142857142858,
+   "random_pick": 0.7259615384615384,
+   "best_pick": 0.10714285714285714,
+   "groups_all_unsafe": 6,
+   "rows_dropped_fitted": 2847,
+   "theirs_auc": 0.9912663755458515,
+   "theirs_pairs": 1374,
+   "theirs_pick": 0.17857142857142858,
+   "theirs_random": 0.7259615384615384,
+   "theirs_best": 0.10714285714285714,
+   "theirs_auc_val": 0.9912663755458515
+  },
+  "G_full_holdout@gator": {
+   "rows": 3560,
+   "groups": 280,
+   "groups_with_pairs": 116,
+   "pairs": 2976,
+   "auc": 0.946236559139785,
+   "auc_val": 0.9502487562189055,
+   "pairs_val": 603,
+   "groups_val_with_pairs": 22,
+   "pick_unsafe": 0.6321428571428571,
+   "random_pick": 0.8781593406593405,
+   "best_pick": 0.5821428571428572,
+   "groups_all_unsafe": 163,
+   "rows_dropped_fitted": 0,
+   "theirs_auc": 0.946236559139785,
+   "theirs_pairs": 2976,
+   "theirs_pick": 0.6321428571428571,
+   "theirs_random": 0.8781593406593405,
+   "theirs_best": 0.5821428571428572,
+   "theirs_auc_val": 0.9502487562189055
+  },
+  "G_full_holdout@hmmwv": {
+   "rows": 3560,
+   "groups": 280,
+   "groups_with_pairs": 236,
+   "pairs": 6922,
+   "auc": 0.8136376769719734,
+   "auc_val": 0.8245997088791849,
+   "pairs_val": 1374,
+   "groups_val_with_pairs": 49,
+   "pick_unsafe": 0.35,
+   "random_pick": 0.6878663003663004,
+   "best_pick": 0.1357142857142857,
+   "groups_all_unsafe": 38,
+   "rows_dropped_fitted": 0,
+   "theirs_auc": 0.8136376769719734,
+   "theirs_pairs": 6922,
+   "theirs_pick": 0.35,
+   "theirs_random": 0.6878663003663004,
+   "theirs_best": 0.1357142857142857,
+   "theirs_auc_val": 0.8245997088791849
+  },
+  "H_full_holdout@gator": {
+   "rows": 3560,
+   "groups": 280,
+   "groups_with_pairs": 116,
+   "pairs": 2976,
+   "auc": 0.8266129032258065,
+   "auc_val": 0.8474295190713101,
+   "pairs_val": 603,
+   "groups_val_with_pairs": 22,
+   "pick_unsafe": 0.7428571428571429,
+   "random_pick": 0.8781593406593405,
+   "best_pick": 0.5821428571428572,
+   "groups_all_unsafe": 163,
+   "rows_dropped_fitted": 0,
+   "theirs_auc": 0.8266129032258065,
+   "theirs_pairs": 2976,
+   "theirs_pick": 0.7428571428571429,
+   "theirs_random": 0.8781593406593405,
+   "theirs_best": 0.5821428571428572,
+   "theirs_auc_val": 0.8474295190713101
+  },
+  "H_full_holdout@hmmwv": {
+   "rows": 3560,
+   "groups": 280,
+   "groups_with_pairs": 236,
+   "pairs": 6922,
+   "auc": 0.9793412308581335,
+   "auc_val": 0.982532751091703,
+   "pairs_val": 1374,
+   "groups_val_with_pairs": 49,
+   "pick_unsafe": 0.20357142857142857,
+   "random_pick": 0.6878663003663004,
+   "best_pick": 0.1357142857142857,
+   "groups_all_unsafe": 38,
+   "rows_dropped_fitted": 0,
+   "theirs_auc": 0.9793412308581335,
+   "theirs_pairs": 6922,
+   "theirs_pick": 0.20357142857142857,
+   "theirs_random": 0.6878663003663004,
+   "theirs_best": 0.1357142857142857,
+   "theirs_auc_val": 0.982532751091703
+  },
+  "G_holdout@gator": {
+   "rows": 3560,
+   "groups": 280,
+   "groups_with_pairs": 116,
+   "pairs": 2976,
+   "auc": 0.936491935483871,
+   "auc_val": 0.9485903814262023,
+   "pairs_val": 603,
+   "groups_val_with_pairs": 22,
+   "pick_unsafe": 0.6428571428571429,
+   "random_pick": 0.8781593406593405,
+   "best_pick": 0.5821428571428572,
+   "groups_all_unsafe": 163,
+   "rows_dropped_fitted": 0,
+   "theirs_auc": 0.936491935483871,
+   "theirs_pairs": 2976,
+   "theirs_pick": 0.6428571428571429,
+   "theirs_random": 0.8781593406593405,
+   "theirs_best": 0.5821428571428572,
+   "theirs_auc_val": 0.9485903814262023
+  },
+  "G_holdout@hmmwv": {
+   "rows": 3560,
+   "groups": 280,
+   "groups_with_pairs": 236,
+   "pairs": 6922,
+   "auc": 0.8108928055475296,
+   "auc_val": 0.8289665211062591,
+   "pairs_val": 1374,
+   "groups_val_with_pairs": 49,
+   "pick_unsafe": 0.3357142857142857,
+   "random_pick": 0.6878663003663004,
+   "best_pick": 0.1357142857142857,
+   "groups_all_unsafe": 38,
+   "rows_dropped_fitted": 0,
+   "theirs_auc": 0.8108928055475296,
+   "theirs_pairs": 6922,
+   "theirs_pick": 0.3357142857142857,
+   "theirs_random": 0.6878663003663004,
+   "theirs_best": 0.1357142857142857,
+   "theirs_auc_val": 0.8289665211062591
+  },
+  "H_holdout@gator": {
+   "rows": 3560,
+   "groups": 280,
+   "groups_with_pairs": 116,
+   "pairs": 2976,
+   "auc": 0.823252688172043,
+   "auc_val": 0.857379767827529,
+   "pairs_val": 603,
+   "groups_val_with_pairs": 22,
+   "pick_unsafe": 0.7214285714285714,
+   "random_pick": 0.8781593406593405,
+   "best_pick": 0.5821428571428572,
+   "groups_all_unsafe": 163,
+   "rows_dropped_fitted": 0,
+   "theirs_auc": 0.823252688172043,
+   "theirs_pairs": 2976,
+   "theirs_pick": 0.7214285714285714,
+   "theirs_random": 0.8781593406593405,
+   "theirs_best": 0.5821428571428572,
+   "theirs_auc_val": 0.857379767827529
+  },
+  "H_holdout@hmmwv": {
+   "rows": 3560,
+   "groups": 280,
+   "groups_with_pairs": 236,
+   "pairs": 6922,
+   "auc": 0.9735625541750939,
+   "auc_val": 0.9694323144104804,
+   "pairs_val": 1374,
+   "groups_val_with_pairs": 49,
+   "pick_unsafe": 0.2,
+   "random_pick": 0.6878663003663004,
+   "best_pick": 0.1357142857142857,
+   "groups_all_unsafe": 38,
+   "rows_dropped_fitted": 0,
+   "theirs_auc": 0.9735625541750939,
+   "theirs_pairs": 6922,
+   "theirs_pick": 0.2,
+   "theirs_random": 0.6878663003663004,
+   "theirs_best": 0.1357142857142857,
+   "theirs_auc_val": 0.9694323144104804
+  }
+ }
+}

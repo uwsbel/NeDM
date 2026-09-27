@@ -1,0 +1,21 @@
+$ /home/harry/miniconda3/envs/nedm/bin/python -u /home/harry/NeDM-traverse_mppi/scripts/ga_build_mixed.py --rigid artifacts/traverse/arena_gator_20260925/e4/f104_hmmwv/reanchor_f104_hmmwv_both_rigid.npz --crm artifacts/traverse/arena_gator_20260925/e4/f104_hmmwv/reanchor_f104_hmmwv_both_crm.npz --rigid-runs artifacts/traverse/arena_gator_20260925/e4/f104_hmmwv/work/links_f104_hmmwv_both_rigid --crm-runs artifacts/traverse/arena_gator_20260925/e4/f104_hmmwv/work/links_f104_hmmwv_both_crm --out artifacts/traverse/arena_gator_20260925/e4/f104_hmmwv/ci_f104_hmmwv_both.npz --workers 8
+rigid: 93397 rows, 24000 episodes from artifacts/traverse/arena_gator_20260925/e4/f104_hmmwv/reanchor_f104_hmmwv_both_rigid.npz
+crm: 58268 rows, 15235 episodes from artifacts/traverse/arena_gator_20260925/e4/f104_hmmwv/reanchor_f104_hmmwv_both_crm.npz
+151665 rows; uniqueness and blacklist assertions passed
+episodes cut in 6 s; rows with raw episode found: 151665/151665 (100.00 %)
+counts (domain|split|kind):
+  rigid|train|startup            21780
+  rigid|train|established        63007
+  rigid|val|startup               1120
+  rigid|val|established           3238
+  rigid|test|startup              1100
+  rigid|test|established          3152
+  crm|train|startup              13821
+  crm|train|established          39102
+  crm|val|startup                  713
+  crm|val|established             1995
+  crm|test|startup                 701
+  crm|test|established            1936
+coinciding (episode, anchor_frame) pairs: 45602 (30367 established)
+X assembled (151665, 5, 96, 32) in 24 s
+wrote artifacts/traverse/arena_gator_20260925/e4/f104_hmmwv/ci_f104_hmmwv_both.npz (2.748 GB) in 97.2 s; peak RSS main 7.0 GB, child max 0.5 GB

@@ -1,0 +1,84 @@
+{
+ "points_vs_hull": {
+  "obj_sha256_matches_spec": true,
+  "obj_objects": 1,
+  "obj_vertices": 323,
+  "hull_vertices": 78,
+  "n_points": 549,
+  "n_grid": 471,
+  "all_points_on_hull_surface": true,
+  "max_abs_facet_distance": 4.928589558694796e-07,
+  "grid_points_on_lower_envelope (1 mm below is outside)": 471,
+  "grid_points_with_hull_above (1 mm above is inside)": 471,
+  "hull_vertex_set_equal": true,
+  "lowest_sample_z": -0.133187,
+  "lowest_hull_vertex_z": -0.133187,
+  "probe_grid_0.05m_points_in_footprint": 1824,
+  "probe_lowest_envelope_z": -0.13275456553449458,
+  "hull_x_range": [
+   -2.20711,
+   1.240396
+  ],
+  "hull_y_range": [
+   -0.747953,
+   0.747953
+  ]
+ },
+ "artifacts/traverse/arena_gator_20260925/verify_e2/gator/rigid_0012_r01": {
+  "frames": 187,
+  "max_abs_diff_recomputed_m": 7.331769635854357e-09,
+  "max_abs_diff_without_511_512_scale_m": 0.012707818909352908,
+  "recorded_anchor_m": 0.14580513536930084,
+  "recorded_min_m": 0.11364997923374176,
+  "outcome_belly_min_equals_npz_min": true,
+  "chassis_vz_equals_rich_telemetry_vel_world_z": true,
+  "hub_height_minus_loaded_radius": {
+   "node_on_edge_511_512": {
+    "median_abs_m": 0.02091039827084687,
+    "p95_abs_m": 0.052257339084866
+   },
+   "plain": {
+    "median_abs_m": 0.02562744757541921,
+    "p95_abs_m": 0.05706100581465972
+   }
+  }
+ },
+ "artifacts/traverse/arena_gator_20260925/e2/rigid_f104/gator/f104_v2_group_0000_route_00": {
+  "frames": 380,
+  "max_abs_diff_recomputed_m": 7.444346472595953e-09,
+  "max_abs_diff_without_511_512_scale_m": 0.014703141585118651,
+  "recorded_anchor_m": 0.14590343832969666,
+  "recorded_min_m": 0.09127306938171387,
+  "outcome_belly_min_equals_npz_min": true,
+  "chassis_vz_equals_rich_telemetry_vel_world_z": true,
+  "hub_height_minus_loaded_radius": {
+   "node_on_edge_511_512": {
+    "median_abs_m": 0.02198394340553725,
+    "p95_abs_m": 0.05043645885508385
+   },
+   "plain": {
+    "median_abs_m": 0.021353835754348044,
+    "p95_abs_m": 0.04986361988275892
+   }
+  }
+ },
+ "artifacts/traverse/arena_gator_20260925/e2/rigid_f104/gator/f104_v2_group_0017_route_01": {
+  "frames": 296,
+  "max_abs_diff_recomputed_m": 7.426801645893377e-09,
+  "max_abs_diff_without_511_512_scale_m": 0.027983360210380503,
+  "recorded_anchor_m": 0.1505555659532547,
+  "recorded_min_m": 0.0446760356426239,
+  "outcome_belly_min_equals_npz_min": true,
+  "chassis_vz_equals_rich_telemetry_vel_world_z": true,
+  "hub_height_minus_loaded_radius": {
+   "node_on_edge_511_512": {
+    "median_abs_m": 0.0267626268257114,
+    "p95_abs_m": 0.06947893741619474
+   },
+   "plain": {
+    "median_abs_m": 0.0171554980979306,
+    "p95_abs_m": 0.06032039304292925
+   }
+  }
+ }
+}

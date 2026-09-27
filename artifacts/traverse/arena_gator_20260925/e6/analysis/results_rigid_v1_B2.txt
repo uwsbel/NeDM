@@ -1,0 +1,30 @@
+contrast B2_rigid_fx2_G_vs_H_on_gator_unsafe (rigid/gator, unsafe, f104_800): G_fx2_gator 0.1 % vs H_fx2_gator 0.1 %, diff +0.0, cluster 90 % [+0.0, +0.0], p1 1.0000 -> no meaningful difference (secondary, unadjusted); n 800
+contrast B2_rigid_fx2_G_vs_H_on_gator_fail (rigid/gator, fail, f104_800): G_fx2_gator 0.0 % vs H_fx2_gator 0.0 %, diff +0.0, cluster 90 % [+0.0, +0.0], p1 1.0000 -> no meaningful difference (secondary, unadjusted); n 800
+contrast B2_rigid_fx2_G_vs_straight2_on_gator_unsafe (rigid/gator, unsafe, f104_800): G_fx2_gator 0.1 % vs straight2_gator 15.5 %, diff -15.4, cluster 90 % [-24.5, -8.1], p1 0.0002 -> improves (secondary, unadjusted); n 800
+contrast B2_rigid_fx2_G_vs_straight2_on_gator_fail (rigid/gator, fail, f104_800): G_fx2_gator 0.0 % vs straight2_gator 11.0 %, diff -11.0, cluster 90 % [-17.1, -5.9], p1 0.0002 -> improves (secondary, unadjusted); n 800
+contrast B2_rigid_fx2_H_vs_straight2_on_gator_unsafe (rigid/gator, unsafe, f104_800): H_fx2_gator 0.1 % vs straight2_gator 15.5 %, diff -15.4, cluster 90 % [-24.3, -7.9], p1 0.0002 -> improves (secondary, unadjusted); n 800
+contrast B2_rigid_fx2_H_vs_straight2_on_gator_fail (rigid/gator, fail, f104_800): H_fx2_gator 0.0 % vs straight2_gator 11.0 %, diff -11.0, cluster 90 % [-17.0, -5.9], p1 0.0002 -> improves (secondary, unadjusted); n 800
+headroom rigid/gator G_fx2_gator vs straight2_gator (unsafe, f104_800): 0.1 % vs 15.5 %, closed 99 % [97, 100]; n 800
+headroom rigid/gator H_fx2_gator vs straight2_gator (unsafe, f104_800): 0.1 % vs 15.5 %, closed 99 % [97, 100]; n 800
+headroom rigid/gator G_fx2_gator vs straight2_gator (fail, f104_800): 0.0 % vs 11.0 %, closed 100 % [100, 100]; n 800
+headroom rigid/gator H_fx2_gator vs straight2_gator (fail, f104_800): 0.0 % vs 11.0 %, closed 100 % [100, 100]; n 800
+rates rigid|hmmwv f104_800       A3_free        n  200 goal 100.0 % unsafe   0.0 % (no-back   0.0) tilt30  3.0 % median time 13.8 s
+rates rigid|hmmwv f104_800       A3_fx2         n  200 goal  99.5 % unsafe   0.5 % (no-back   0.5) tilt30  1.5 % median time 20.2 s
+rates rigid|hmmwv f104_800       M1a_free       n  800 goal 100.0 % unsafe   0.1 % (no-back   0.0) tilt30  5.6 % median time 13.8 s
+rates rigid|hmmwv f104_800       M1a_fx2        n  200 goal 100.0 % unsafe   0.5 % (no-back   0.0) tilt30  1.0 % median time 20.6 s
+rates rigid|hmmwv f104_800       M1b_free       n  200 goal 100.0 % unsafe   0.0 % (no-back   0.0) tilt30  4.5 % median time 13.3 s
+rates rigid|hmmwv f104_800       M1b_fx2        n  200 goal 100.0 % unsafe   0.5 % (no-back   0.0) tilt30  2.0 % median time 20.6 s
+rates rigid|hmmwv f104_800       M2_free        n  200 goal 100.0 % unsafe   0.0 % (no-back   0.0) tilt30  4.5 % median time 12.4 s
+rates rigid|hmmwv f104_800       M2_fx2         n  200 goal 100.0 % unsafe   2.0 % (no-back   0.0) tilt30  2.0 % median time 20.3 s
+rates rigid|hmmwv f104_800       M3a_free       n  200 goal 100.0 % unsafe   1.0 % (no-back   0.0) tilt30  3.5 % median time 15.9 s
+rates rigid|hmmwv f104_800       M3a_fx2        n  200 goal 100.0 % unsafe   1.0 % (no-back   0.0) tilt30  2.5 % median time 20.6 s
+rates rigid|hmmwv f104_800       M3b_free       n  200 goal 100.0 % unsafe   0.0 % (no-back   0.0) tilt30  3.5 % median time 15.2 s
+rates rigid|hmmwv f104_800       M3b_fx2        n  200 goal 100.0 % unsafe   0.0 % (no-back   0.0) tilt30  0.5 % median time 20.8 s
+rates rigid|hmmwv f104_800       straight2      n  200 goal  72.0 % unsafe  58.0 % (no-back  28.0) tilt30  3.5 % median time 23.6 s
+rates rigid|hmmwv f104_800       straight6      n  800 goal  99.2 % unsafe   0.9 % (no-back   0.8) tilt30 17.6 % median time 8.1 s
+rates rigid|gator f104_800       G_free_gator   n  800 goal 100.0 % unsafe   0.0 % (no-back   0.0) tilt30 12.1 % median time 13.1 s
+rates rigid|gator f104_800       G_fx2_gator    n  800 goal 100.0 % unsafe   0.1 % (no-back   0.0) tilt30  8.0 % median time 21.5 s
+rates rigid|gator f104_800       H_free_gator   n  800 goal  99.9 % unsafe   0.4 % (no-back   0.1) tilt30  8.8 % median time 13.4 s
+rates rigid|gator f104_800       H_fx2_gator    n  800 goal 100.0 % unsafe   0.1 % (no-back   0.0) tilt30  5.1 % median time 21.3 s
+rates rigid|gator f104_800       straight2_gator n  800 goal  89.0 % unsafe  15.5 % (no-back  11.0) tilt30  6.0 % median time 20.8 s
+rates rigid|gator f104_800       straight6_gator n  800 goal  99.6 % unsafe   0.6 % (no-back   0.4) tilt30 12.8 % median time 7.7 s

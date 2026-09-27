@@ -1,0 +1,73 @@
+{
+ "lock": {
+  "dirs": 69,
+  "dirs_not_matching_now": [],
+  "all_line": "2c766a5264c7b772bac3dc1c01c02abcc7030ab0e6866cd62fdcc3db7564d18b",
+  "all_recomputed": "2c766a5264c7b772bac3dc1c01c02abcc7030ab0e6866cd62fdcc3db7564d18b",
+  "all_equal": true,
+  "lock_file_mtime": 1790364863.1710024,
+  "manifests_created_first_last": [
+   "2026-09-25 14:23:16",
+   "2026-09-25 14:34:13"
+  ]
+ },
+ "entries": 12600,
+ "mapping_vs_pick_route_hash_mismatch": [],
+ "pick_route_file_changed": [],
+ "task_row_route_content_differs_from_pick": [],
+ "task_row_group_mismatch": [],
+ "task_row_case_mismatch": [],
+ "reuse_soil_v2": {
+  "arm_results": 348,
+  "distinct_drives": 310,
+  "by_arm": {
+   "straight6": 300,
+   "M1b_free": 9,
+   "M1a_free": 4,
+   "A3_free": 8,
+   "M3a_free": 10,
+   "M2_free": 12,
+   "M3b_free": 5
+  },
+  "by_drive_kind": {
+   "straight6": 324,
+   "Scrm_B": 24
+  },
+  "by_drive_kind_distinct": {
+   "straight6": 297,
+   "Scrm_B": 13
+  },
+  "row_kinds": {
+   "spread_headroom": 348
+  },
+  "gator_rows": 0,
+  "rows_with_extra": 0,
+  "file_bytes_equal": 318,
+  "model_arms_on_straight6_drive": 27,
+  "model_arms_on_frozen_model_drive": 24,
+  "arenas": {
+   "g241": 98,
+   "g258": 92,
+   "g263": 77,
+   "g268": 81
+  }
+ },
+ "soil_v3": {
+  "rows": 43901,
+  "sha256": "654ca61b17873489d3768283dc107f0078be0ec407eeb493a1f7223618115b8d",
+  "v2_prefix_equal": true,
+  "tail_equals_eval_rows": true,
+  "eval_rows": 12000,
+  "eval_tiers": {
+   "-9": 6171,
+   "-8": 1902,
+   "-7": 2363,
+   "-6": 1273,
+   "-5": 291
+  },
+  "eval_vehicles": {
+   "gator": 2377,
+   "hmmwv": 9623
+  }
+ }
+}

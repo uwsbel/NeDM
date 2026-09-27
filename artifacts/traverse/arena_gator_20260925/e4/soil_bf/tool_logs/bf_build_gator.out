@@ -1,0 +1,6 @@
+19:22:06 /work1/dannegrut/harry/venvs/nedm/bin/python scripts/ag_build_ds.py --world crm --crm-runs /work1/dannegrut/harry/experiments/arena_gator_20260925/soil_v1/runs --tasks-crm /work1/dannegrut/harry/experiments/arena_gator_20260925/tasks/soil_v3.json --tiers 0-12 --arena f104 --vehicle gator --map-root /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/map_roots/f104 --out /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_bf/f104_gator --source-root /work1/dannegrut/harry/experiments/arena_gator_20260925/source --workers 16
+[crm] 15235 episodes selected ({'dirs': 43901, 'other_ids': 28666}; rejected {}); map check ok (5d5bc683b6a8d9e9)
+[crm] station 15235 rows (48.5 s), re-anchored 55826 rows (108.3 s)
+wrote /work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_bf/f104_gator/ci_f104_gator_crm.npz (55826 rows: {'crm': 55826}; 1.005 GB) in 285.9 s
+{"crm|train|startup": 13821, "crm|train|established": 37001, "crm|val|startup": 713, "crm|val|established": 1869, "crm|test|startup": 701, "crm|test|established": 1721}
+19:26:52 build exit: 0

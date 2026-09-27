@@ -1,0 +1,18 @@
+# Frozen (chmod a-w) Gator collector files in /work1/dannegrut/harry/experiments/arena_gator_20260925/source, sha256 read on the cluster login node at 02:30 2026-09-25 (E3b1).
+# ag_vehicle.py re-synced from the worktree at 02:30 (was the stale 01:30 copy 3e828142..., VERIFY_E2 item 7); the other three E2 files were already identical.
+072716ee715469950409c334482bf990853dd4f70b3c85790eec99f04b331f9d  source/scripts/ag_vehicle.py
+b52e1fa69afe5745839bc9c32c5425b7a0328acbed61abdf0e4963644e5e2346  source/scripts/ag_crm_collect.py
+11c2891680c88c2fc2ca10cbb1f13712ae89814090e2be3ecf0085ebe5ae80e5  source/scripts/ag_gen_collect_ext.py
+0c25a57cc77011b71eb7bd31dd6a1b926581f52efacccba3bfd4d20f54d0ded0  source/scripts/ag_gator_belly.json
+cb6792bebeb158bc1adf429b5b85a85c8b2cbbd4705a088cc8ff083f74eb9881  source/scripts/crm_collect.py
+cbf57f7f3c865772395611694ec24dd4ac604f193c767ffef93e09474919ed65  source/scripts/crm_collect_ext.py
+b9f36a02457082a21d28716e00f0c336c2cc50abd5bcde3d61f77f345bb750e6  source/scripts/gen_collect_ext.py
+b6ba062260aa3633f1eb9093c575e9c3b0dee2b9e37035bb7c675a3c519d6389  source/scripts/gen_collect.py
+f856b99848449466663b785a9d57c3cd56d283e3823735963786a156a6311fe8  source/scripts/crm_worker.py
+8b35e312a1b25ae19d6ec3d20c339fb799eee51935eaf2cbec9f2fbc04cf2fd5  source/scripts/ag_rigid_runner.py
+1d23a3616b60ad2f1fc4f527de8794c0109497b7783515bd8fcad6d57e7ac275  source/scripts/ag_pilot.sbatch
+35cf244ea8b52cfd80d5333928683bfc2304a14ea9413802b9b2c5ed10700528  source/scripts/ag_soil.sbatch
+599c514e84a28800e567d3b6260402ebce5d7ed6efeb1561168e2d81cc12ed77  runtime/gator_runtime_fingerprint.json
+90cd049ee6b3479a74237e7cdf2ff3567c26d580c117e2bab5ab8eff2218b248  configs/crm_main.json
+3e6fd41c6f9c4db13c34f5c0d2b7d9dea891bbafcc886ec9f4dfa5285b26dcc2  source/src/nedm/hmmwv_data.py
+cb164313d2c5cbbb8e9a572dccdf67f1be972f6efe1a245efb2b394670403b65  source/src/nedm/traverse/scene.py

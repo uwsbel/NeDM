@@ -1,0 +1,102 @@
+{
+ "tool": "scripts/ag_subset.py",
+ "tool_sha256": "3891a0064511666a19d63ff360c9e2b0f56f59d35e14337d1ca634870c590f39",
+ "argv": [
+  "--world",
+  "crm",
+  "--tiers",
+  "0-6",
+  "--eval-rows",
+  "filtered",
+  "--groups",
+  "g228=0",
+  "--keep-dev-fold",
+  "--ds",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/g228_hmmwv/ci_g228_hmmwv_crm.npz",
+  "--out",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/e5/eval_soil/EV_g228_hmmwv_crm.npz"
+ ],
+ "preset": null,
+ "world": "crm",
+ "vehicle": "hmmwv",
+ "rule": "md5(group id) hex ascending within each arena, first N of the available training groups",
+ "tiers": "0-6",
+ "ids_file": null,
+ "ids_file_sha256": null,
+ "n_ids": null,
+ "ids_apply": null,
+ "eval_rows": "filtered",
+ "keep_dev_fold": true,
+ "use": "holdout mode only (the dev fold is kept for scoring; deploy mode would fit it)",
+ "per_arena": {
+  "g228": {
+   "requested": 0,
+   "available": 520,
+   "selected": 0,
+   "md5_last": null,
+   "dev_fold_groups_kept": 94,
+   "train_groups_in_file": 94,
+   "train_rows": 2529,
+   "train_rows_startup": 658,
+   "train_episodes": 658,
+   "val_groups": 38,
+   "val_rows": 1026,
+   "test_groups": 48,
+   "test_rows": 1297,
+   "fit_rows_holdout": 0,
+   "fit_groups_holdout": 0
+  }
+ },
+ "rows": 4852,
+ "fit_rows_deploy": 2529,
+ "fit_rows_holdout": 0,
+ "eval_rows_val": 1026,
+ "inputs": [
+  {
+   "path": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/g228_hmmwv/ci_g228_hmmwv_crm.npz",
+   "rows": 16261,
+   "rows_kept": 4852,
+   "sha256": "83f8ab839a0de6912e4bfef8acba2f3d66c472b694a1b7989118a4ecea047c79"
+  }
+ ],
+ "selected_groups": {
+  "g228": []
+ },
+ "dropped_keys": [],
+ "keys": [
+  "E",
+  "T",
+  "X",
+  "anchor_frame",
+  "arena",
+  "ctx",
+  "domain",
+  "episode",
+  "event_idx",
+  "fail",
+  "group",
+  "hist",
+  "hist_cols",
+  "hmask",
+  "id",
+  "priv_names",
+  "privileged",
+  "profile",
+  "rem_m",
+  "route_len",
+  "source",
+  "split",
+  "status",
+  "tier",
+  "time_to_event_s",
+  "unsafe",
+  "vehicle",
+  "vx_anchor"
+ ],
+ "output": {
+  "path": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e5/eval_soil/EV_g228_hmmwv_crm.npz",
+  "sha256": "182bfa422f2bba27b9d06656fab41fccaf213535768bc5c7fb838cc70fd31280",
+  "size_gb": 0.088
+ },
+ "elapsed_s": 17.8
+}

@@ -1,0 +1,581 @@
+{
+ "schema": "ag_map_lookup_error_v1",
+ "created": "2026-09-25 02:40:39",
+ "script": "scripts/ag_map_lookup_error.py",
+ "script_sha256": "9ea0fe247e6f0e00de868dea601ec93b42d0c2dbc7622ca3a61872d6f0fb0852",
+ "measure": "map (flat-ground lookup of the OptiX capture, f104_n2_dataset.sample_map channel 3 x elevation_scale) minus Chrono native height, on the capture's 4,096 audit points; valid map points only",
+ "feature_region": "points within 2.0 sigma of any hill or crater centre (TerrainMap.features, Chrono frame)",
+ "distance": "gen_v1 8-statistic distance (ag_arena_rank.distance, gen_v1 scales)",
+ "arenas": {
+  "f104": {
+   "arena": "arena_f104_50h_v1",
+   "role": "training",
+   "map_root": "artifacts/traverse/crm_f104_v1/map_root",
+   "map_observation_sha256": "53e23f99bf2c0141bd613ff5bef5a57f82c28b48e39026608dfdd8e2d5553e34",
+   "backend": "OptiX_luffy_RTX5090_fork_fovfix_9e1a0448b",
+   "n_audit": 4096,
+   "n_valid": 4096,
+   "all": {
+    "n": 4096,
+    "rmse": 0.04986148709451798,
+    "bias": 0.006584073001201136,
+    "p95": 0.12429196451569469,
+    "max": 0.254831633343243
+   },
+   "feature_region": {
+    "n": 1608,
+    "rmse": 0.07883968915110441,
+    "bias": 0.019217990305156106,
+    "p95": 0.17259637836784475,
+    "max": 0.254831633343243
+   },
+   "outside_features": {
+    "n": 2488,
+    "rmse": 0.008704315503526952,
+    "bias": -0.001581256188814775,
+    "p95": 0.01752944760181288,
+    "max": 0.06522147057670102
+   },
+   "native_vs_bmp_bilinear": {
+    "n": 4096,
+    "rmse": 0.009816197775569049,
+    "bias": -0.003459525490190309,
+    "p95": 0.02048517470223246,
+    "max": 0.03296266300411177
+   },
+   "height_range_m": 5.7,
+   "slope_p99_deg": 28.57941743168739,
+   "distance_to": {
+    "f104": 0.0,
+    "g203": 0.8149145257712624,
+    "g228": 0.8114229378713305
+   },
+   "distance_f104": 0.0,
+   "nearest_training_arena": "g228",
+   "distance_nearest_training": 0.8114229378713305
+  },
+  "g203": {
+   "arena": "arena_g203",
+   "role": "training",
+   "map_root": "artifacts/traverse/arena_gator_20260925/map_roots/g203",
+   "map_observation_sha256": "f799f9f6e99ce9bdffb63196e00097ae04418959c288af144185385401d7bcbf",
+   "backend": "OptiX_luffy_RTX5090_fork_fovfix_9e1a0448b",
+   "n_audit": 4096,
+   "n_valid": 4096,
+   "all": {
+    "n": 4096,
+    "rmse": 0.061606762044335475,
+    "bias": 0.006152253196402011,
+    "p95": 0.1590370028762783,
+    "max": 0.3598122905276764
+   },
+   "feature_region": {
+    "n": 1662,
+    "rmse": 0.09628313492770382,
+    "bias": 0.01671654290837108,
+    "p95": 0.21141946226383085,
+    "max": 0.3598122905276764
+   },
+   "outside_features": {
+    "n": 2434,
+    "rmse": 0.007542144965216533,
+    "bias": -0.0010613250703574778,
+    "p95": 0.015089042975592446,
+    "max": 0.049741951166017984
+   },
+   "native_vs_bmp_bilinear": {
+    "n": 4096,
+    "rmse": 0.009989961946195851,
+    "bias": -0.0030203422269556683,
+    "p95": 0.02089452307110712,
+    "max": 0.0485518119286078
+   },
+   "height_range_m": 6.15,
+   "slope_p99_deg": 29.097138365128284,
+   "distance_to": {
+    "f104": 0.8149145257712624,
+    "g203": 0.0,
+    "g228": 0.7503173327580521
+   },
+   "distance_f104": 0.8149145257712624,
+   "nearest_training_arena": "g228",
+   "distance_nearest_training": 0.7503173327580521
+  },
+  "g228": {
+   "arena": "arena_g228",
+   "role": "training",
+   "map_root": "artifacts/traverse/arena_gator_20260925/map_roots/g228",
+   "map_observation_sha256": "28bf7593d730f97f9af5124cb67999df99199ed18ab902c7edd282121f665265",
+   "backend": "OptiX_luffy_RTX5090_fork_fovfix_9e1a0448b",
+   "n_audit": 4096,
+   "n_valid": 4096,
+   "all": {
+    "n": 4096,
+    "rmse": 0.07226307202829867,
+    "bias": 0.009468459674645931,
+    "p95": 0.1810940534661869,
+    "max": 0.38182503567558124
+   },
+   "feature_region": {
+    "n": 1705,
+    "rmse": 0.1114420842022203,
+    "bias": 0.02347170752546456,
+    "p95": 0.258505298012883,
+    "max": 0.38182503567558124
+   },
+   "outside_features": {
+    "n": 2391,
+    "rmse": 0.009463707195304719,
+    "bias": -0.0005171269358290828,
+    "p95": 0.016621147847452347,
+    "max": 0.11537828563861341
+   },
+   "native_vs_bmp_bilinear": {
+    "n": 4096,
+    "rmse": 0.010303914830443094,
+    "bias": -0.0034541341898374936,
+    "p95": 0.02231052699878977,
+    "max": 0.04467528700702372
+   },
+   "height_range_m": 6.3500000000000005,
+   "slope_p99_deg": 28.126811224325394,
+   "distance_to": {
+    "f104": 0.8114229378713305,
+    "g203": 0.7503173327580521,
+    "g228": 0.0
+   },
+   "distance_f104": 0.8114229378713305,
+   "nearest_training_arena": "g203",
+   "distance_nearest_training": 0.7503173327580521
+  },
+  "g217": {
+   "arena": "arena_g217",
+   "role": "dev",
+   "map_root": "artifacts/traverse/arena_gator_20260925/map_roots/g217",
+   "map_observation_sha256": "10e9b7b9cd0f92b75a93a99ae1f9f47159aae1249aee1c98f54cb53e0b96c858",
+   "backend": "OptiX_luffy_RTX5090_fork_fovfix_9e1a0448b",
+   "n_audit": 4096,
+   "n_valid": 4096,
+   "all": {
+    "n": 4096,
+    "rmse": 0.0663098663948343,
+    "bias": 0.008609726371752656,
+    "p95": 0.15424338422648598,
+    "max": 0.4266170443338346
+   },
+   "feature_region": {
+    "n": 2311,
+    "rmse": 0.08793157291388452,
+    "bias": 0.0158918756884239,
+    "p95": 0.18819412343370034,
+    "max": 0.4266170443338346
+   },
+   "outside_features": {
+    "n": 1785,
+    "rmse": 0.008904797070249413,
+    "bias": -0.0008183112029404828,
+    "p95": 0.02007438312125943,
+    "max": 0.049696979588149226
+   },
+   "native_vs_bmp_bilinear": {
+    "n": 4096,
+    "rmse": 0.010735973582498516,
+    "bias": -0.003071977162559429,
+    "p95": 0.02248669568073494,
+    "max": 0.04693265525291965
+   },
+   "height_range_m": 5.8,
+   "slope_p99_deg": 27.918123421287977,
+   "distance_to": {
+    "f104": 0.8542669022561307,
+    "g203": 1.1263982653525146,
+    "g228": 1.0680491107249874
+   },
+   "distance_f104": 0.8542669022561307,
+   "nearest_training_arena": "f104",
+   "distance_nearest_training": 0.8542669022561307
+  },
+  "g260": {
+   "arena": "arena_g260",
+   "role": "test_near",
+   "map_root": "artifacts/traverse/arena_gator_20260925/map_roots/g260",
+   "map_observation_sha256": "360d0bf32185d3b202d9d36597ad6cba765b16632f57ba110b21c1c6c438b7e0",
+   "backend": "OptiX_luffy_RTX5090_fork_fovfix_9e1a0448b",
+   "n_audit": 4096,
+   "n_valid": 4096,
+   "all": {
+    "n": 4096,
+    "rmse": 0.05959245289401632,
+    "bias": 0.01313295462430941,
+    "p95": 0.12979019045173046,
+    "max": 0.480965406678183
+   },
+   "feature_region": {
+    "n": 1583,
+    "rmse": 0.09526321802808808,
+    "bias": 0.035162832121605744,
+    "p95": 0.20741108414243833,
+    "max": 0.480965406678183
+   },
+   "outside_features": {
+    "n": 2513,
+    "rmse": 0.008465891107609126,
+    "bias": -0.0007442025894669889,
+    "p95": 0.016911840393552736,
+    "max": 0.09742953606365312
+   },
+   "native_vs_bmp_bilinear": {
+    "n": 4096,
+    "rmse": 0.009710925868369523,
+    "bias": -0.0038717329754803646,
+    "p95": 0.020449944655994954,
+    "max": 0.04007659582380363
+   },
+   "height_range_m": 6.050000000000001,
+   "slope_p99_deg": 28.699744719396712,
+   "distance_to": {
+    "f104": 0.6529388910426304,
+    "g203": 0.9674676245934458,
+    "g228": 0.6063388127891898
+   },
+   "distance_f104": 0.6529388910426304,
+   "nearest_training_arena": "g228",
+   "distance_nearest_training": 0.6063388127891898
+  },
+  "g271": {
+   "arena": "arena_g271",
+   "role": "test_near",
+   "map_root": "artifacts/traverse/arena_gator_20260925/map_roots/g271",
+   "map_observation_sha256": "3d12787f3c09898e60486f86f33b678a4906bced11ae9886fdf1e92d0e4f9329",
+   "backend": "OptiX_luffy_RTX5090_fork_fovfix_9e1a0448b",
+   "n_audit": 4096,
+   "n_valid": 4096,
+   "all": {
+    "n": 4096,
+    "rmse": 0.06536388849053407,
+    "bias": 0.009343598570941056,
+    "p95": 0.14599154275251103,
+    "max": 0.48319037362281847
+   },
+   "feature_region": {
+    "n": 1694,
+    "rmse": 0.10087380200272432,
+    "bias": 0.023897618238850327,
+    "p95": 0.2187091108294696,
+    "max": 0.48319037362281847
+   },
+   "outside_features": {
+    "n": 2402,
+    "rmse": 0.010455252900855493,
+    "bias": -0.0009205601790332577,
+    "p95": 0.021722806318345073,
+    "max": 0.06960866733084192
+   },
+   "native_vs_bmp_bilinear": {
+    "n": 4096,
+    "rmse": 0.01001781183683765,
+    "bias": -0.0036974364181472817,
+    "p95": 0.02072343934905606,
+    "max": 0.03964959125615364
+   },
+   "height_range_m": 5.85,
+   "slope_p99_deg": 27.43380658166858,
+   "distance_to": {
+    "f104": 0.7387004229671557,
+    "g203": 1.1138584537345995,
+    "g228": 1.0118744148942804
+   },
+   "distance_f104": 0.7387004229671557,
+   "nearest_training_arena": "f104",
+   "distance_nearest_training": 0.7387004229671557
+  },
+  "g251": {
+   "arena": "arena_g251",
+   "role": "test_near",
+   "map_root": "artifacts/traverse/arena_gator_20260925/map_roots/g251",
+   "map_observation_sha256": "70ebc9c74276d99cd41edbd5e8eaed3c4d0643d9d459b2bb47de01239b1b28ea",
+   "backend": "OptiX_luffy_RTX5090_fork_fovfix_9e1a0448b",
+   "n_audit": 4096,
+   "n_valid": 4096,
+   "all": {
+    "n": 4096,
+    "rmse": 0.06769482480819407,
+    "bias": 0.005890963925051442,
+    "p95": 0.16883010026041922,
+    "max": 0.3947323145333863
+   },
+   "feature_region": {
+    "n": 1673,
+    "rmse": 0.10510432372232559,
+    "bias": 0.015021326597537858,
+    "p95": 0.23454957193973322,
+    "max": 0.3947323145333863
+   },
+   "outside_features": {
+    "n": 2423,
+    "rmse": 0.01091728808904524,
+    "bias": -0.0004132443915270853,
+    "p95": 0.020399685857139426,
+    "max": 0.08990093463745286
+   },
+   "native_vs_bmp_bilinear": {
+    "n": 4096,
+    "rmse": 0.011191647860745531,
+    "bias": -0.0027594572631524637,
+    "p95": 0.02373430569340601,
+    "max": 0.04833835740307224
+   },
+   "height_range_m": 5.85,
+   "slope_p99_deg": 27.433806581668467,
+   "distance_to": {
+    "f104": 0.7787958192327659,
+    "g203": 1.295586852767795,
+    "g228": 1.1634721114762847
+   },
+   "distance_f104": 0.7787958192327659,
+   "nearest_training_arena": "f104",
+   "distance_nearest_training": 0.7787958192327659
+  },
+  "g247": {
+   "arena": "arena_g247",
+   "role": "test_near",
+   "map_root": "artifacts/traverse/arena_gator_20260925/map_roots/g247",
+   "map_observation_sha256": "7704d2d66a14f006a9858b7712616b1865e8799a15ffd59f0f3326b369750311",
+   "backend": "OptiX_luffy_RTX5090_fork_fovfix_9e1a0448b",
+   "n_audit": 4096,
+   "n_valid": 4096,
+   "all": {
+    "n": 4096,
+    "rmse": 0.07077313337932117,
+    "bias": 0.011410418804909124,
+    "p95": 0.16458392467423089,
+    "max": 0.4516875569590231
+   },
+   "feature_region": {
+    "n": 1886,
+    "rmse": 0.10347658011327777,
+    "bias": 0.024860228557407646,
+    "p95": 0.24476491883543616,
+    "max": 0.4516875569590231
+   },
+   "outside_features": {
+    "n": 2210,
+    "rmse": 0.012071292085393986,
+    "bias": -6.756363545839146e-05,
+    "p95": 0.02463683385441462,
+    "max": 0.07905741380598652
+   },
+   "native_vs_bmp_bilinear": {
+    "n": 4096,
+    "rmse": 0.01077404459752458,
+    "bias": -0.004434112066871559,
+    "p95": 0.02206190262467643,
+    "max": 0.04186367266542956
+   },
+   "height_range_m": 6.3999999999999995,
+   "slope_p99_deg": 27.21489031152598,
+   "distance_to": {
+    "f104": 0.9061130402118841,
+    "g203": 1.1699320035282443,
+    "g228": 0.7210503998286971
+   },
+   "distance_f104": 0.9061130402118841,
+   "nearest_training_arena": "g228",
+   "distance_nearest_training": 0.7210503998286971
+  },
+  "g258": {
+   "arena": "arena_g258",
+   "role": "test_spread",
+   "map_root": "artifacts/traverse/arena_gator_20260925/map_roots/g258",
+   "map_observation_sha256": "d4659e4ece39c7c91079007ee3c1a5793e02769a2d5e01c87387935560e3d74e",
+   "backend": "OptiX_luffy_RTX5090_fork_fovfix_9e1a0448b",
+   "n_audit": 4096,
+   "n_valid": 4096,
+   "all": {
+    "n": 4096,
+    "rmse": 0.08494569574182195,
+    "bias": 0.00682592039822276,
+    "p95": 0.20975130474425452,
+    "max": 0.5141656453542272
+   },
+   "feature_region": {
+    "n": 1726,
+    "rmse": 0.13036984650044078,
+    "bias": 0.01778773480464276,
+    "p95": 0.3223078652720829,
+    "max": 0.5141656453542272
+   },
+   "outside_features": {
+    "n": 2370,
+    "rmse": 0.009638848280466496,
+    "bias": -0.0011572406420645492,
+    "p95": 0.019938534797305413,
+    "max": 0.06935457436641457
+   },
+   "native_vs_bmp_bilinear": {
+    "n": 4096,
+    "rmse": 0.010911344384223013,
+    "bias": -0.002414927707860907,
+    "p95": 0.02312089569625797,
+    "max": 0.045923828823418056
+   },
+   "height_range_m": 6.5,
+   "slope_p99_deg": 27.288543686112906,
+   "distance_to": {
+    "f104": 1.1096023921901994,
+    "g203": 1.3958012301329181,
+    "g228": 0.879183361413518
+   },
+   "distance_f104": 1.1096023921901994,
+   "nearest_training_arena": "g228",
+   "distance_nearest_training": 0.879183361413518
+  },
+  "g268": {
+   "arena": "arena_g268",
+   "role": "test_spread",
+   "map_root": "artifacts/traverse/arena_gator_20260925/map_roots/g268",
+   "map_observation_sha256": "1ec5c8cf1d428cfe9cda48a754b929fd6af9a5f8db6a96c63eb41a591d2d0926",
+   "backend": "OptiX_luffy_RTX5090_fork_fovfix_9e1a0448b",
+   "n_audit": 4096,
+   "n_valid": 4096,
+   "all": {
+    "n": 4096,
+    "rmse": 0.09360551292812604,
+    "bias": 0.017556854442724833,
+    "p95": 0.20372512299825846,
+    "max": 0.6187949103314159
+   },
+   "feature_region": {
+    "n": 2215,
+    "rmse": 0.12699702999331744,
+    "bias": 0.03244929376773588,
+    "p95": 0.2721885739309452,
+    "max": 0.6187949103314159
+   },
+   "outside_features": {
+    "n": 1881,
+    "rmse": 0.009367429601171116,
+    "bias": 2.0037268402949583e-05,
+    "p95": 0.01756217265004928,
+    "max": 0.10330445625084828
+   },
+   "native_vs_bmp_bilinear": {
+    "n": 4096,
+    "rmse": 0.011208374446881981,
+    "bias": -0.003812939671183491,
+    "p95": 0.023437763774814102,
+    "max": 0.04938114717322506
+   },
+   "height_range_m": 6.8,
+   "slope_p99_deg": 28.6521894820345,
+   "distance_to": {
+    "f104": 1.3165040245579505,
+    "g203": 1.1326679600244887,
+    "g228": 0.9170126588684951
+   },
+   "distance_f104": 1.3165040245579505,
+   "nearest_training_arena": "g228",
+   "distance_nearest_training": 0.9170126588684951
+  },
+  "g263": {
+   "arena": "arena_g263",
+   "role": "test_spread",
+   "map_root": "artifacts/traverse/arena_gator_20260925/map_roots/g263",
+   "map_observation_sha256": "68b28c7c366eac64acefdc3a62dd26e919ac69e004c4079987cb44c1b53a7e4d",
+   "backend": "OptiX_luffy_RTX5090_fork_fovfix_9e1a0448b",
+   "n_audit": 4096,
+   "n_valid": 4096,
+   "all": {
+    "n": 4096,
+    "rmse": 0.059344657901350725,
+    "bias": 0.006553161272514556,
+    "p95": 0.1486860224798653,
+    "max": 0.33586273411774314
+   },
+   "feature_region": {
+    "n": 1611,
+    "rmse": 0.094013855237138,
+    "bias": 0.016954569566091243,
+    "p95": 0.2102025372718741,
+    "max": 0.33586273411774314
+   },
+   "outside_features": {
+    "n": 2485,
+    "rmse": 0.008657413448914082,
+    "bias": -0.00018996498943797503,
+    "p95": 0.017369385632904372,
+    "max": 0.08860869488147838
+   },
+   "native_vs_bmp_bilinear": {
+    "n": 4096,
+    "rmse": 0.010318893756611639,
+    "bias": -0.003663599131605346,
+    "p95": 0.02221076922921239,
+    "max": 0.043048648439763415
+   },
+   "height_range_m": 5.6,
+   "slope_p99_deg": 26.423508645718165,
+   "distance_to": {
+    "f104": 1.4578775953372212,
+    "g203": 1.1935257603265028,
+    "g228": 1.2366136756498303
+   },
+   "distance_f104": 1.4578775953372212,
+   "nearest_training_arena": "g203",
+   "distance_nearest_training": 1.1935257603265028
+  },
+  "g241": {
+   "arena": "arena_g241",
+   "role": "test_spread",
+   "map_root": "artifacts/traverse/arena_gator_20260925/map_roots/g241",
+   "map_observation_sha256": "cb86b83b49c02cf98121265f85aea989891993e511ac33fd61664c08450aa882",
+   "backend": "OptiX_luffy_RTX5090_fork_fovfix_9e1a0448b",
+   "n_audit": 4096,
+   "n_valid": 4096,
+   "all": {
+    "n": 4096,
+    "rmse": 0.06167557431867671,
+    "bias": 0.008579792860404537,
+    "p95": 0.14864740720060532,
+    "max": 0.40108335640439563
+   },
+   "feature_region": {
+    "n": 1357,
+    "rmse": 0.10642499863222143,
+    "bias": 0.02619784880898078,
+    "p95": 0.23944322082080682,
+    "max": 0.40108335640439563
+   },
+   "outside_features": {
+    "n": 2739,
+    "rmse": 0.008775226463239342,
+    "bias": -0.00014883142664108657,
+    "p95": 0.015102149429461257,
+    "max": 0.10944480234222431
+   },
+   "native_vs_bmp_bilinear": {
+    "n": 4096,
+    "rmse": 0.00967978785854725,
+    "bias": -0.003218064327961131,
+    "p95": 0.021551105676152482,
+    "max": 0.043333758904522846
+   },
+   "height_range_m": 5.8,
+   "slope_p99_deg": 24.98773173372112,
+   "distance_to": {
+    "f104": 1.7907453733744056,
+    "g203": 1.8127031750535483,
+    "g228": 1.3405314591233513
+   },
+   "distance_f104": 1.7907453733744056,
+   "nearest_training_arena": "g228",
+   "distance_nearest_training": 1.3405314591233513
+  }
+ },
+ "check_vs_E1_flat_lookup_error": {
+  "file": "artifacts/traverse/arena_gator_20260925/maps/flat_lookup_error.json",
+  "n": 8,
+  "max_abs_rmse_diff": 0.0,
+  "n_equal_points": true
+ }
+}

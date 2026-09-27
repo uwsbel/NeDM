@@ -1,0 +1,106 @@
+{
+ "tool": "scripts/ag_build_evalonly.py",
+ "tool_sha256": "a61d742626dcf08d6c5840e62d4fe9eb14f2c6f976dd3d0c04224c4f2e46f50d",
+ "argv": [
+  "--arena",
+  "g268",
+  "--world",
+  "rigid",
+  "--runs",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/rigid_v1/runs",
+  "--tasks",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/tasks/rigid_v2.json",
+  "--map-root",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/map_roots/g268",
+  "--source-root",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/r2/source",
+  "--out",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/evalonly/g268_rigid_test",
+  "--allow-suite-ids",
+  "--workers",
+  "12"
+ ],
+ "started": "2026-09-25 13:28:38",
+ "host": "login1.hpcfund",
+ "arena": "g268",
+ "world": "rigid",
+ "vehicle": "hmmwv",
+ "map_root": "/work1/dannegrut/harry/experiments/arena_gator_20260925/map_roots/g268",
+ "map_check": {
+  "map_root": "/work1/dannegrut/harry/experiments/arena_gator_20260925/map_roots/g268",
+  "map_arena": "arena_g268",
+  "map_arena_bmp_sha256": "2d52cdb7877efec281309d0ba8ce54405314e4ad97c0012d10155088cd54beaf",
+  "map_observation_sha256": "1ec5c8cf1d428cfe9cda48a754b929fd6af9a5f8db6a96c63eb41a591d2d0926",
+  "n_cases": 3000,
+  "arenas": {
+   "assets/traverse/arena_g268": {
+    "n": 3000,
+    "bmp_sha256": "2d52cdb7877efec281309d0ba8ce54405314e4ad97c0012d10155088cd54beaf",
+    "match": true
+   }
+  },
+  "ok": true,
+  "problems": []
+ },
+ "runs": [
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/rigid_v1/runs"
+ ],
+ "tasks": {
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/tasks/rigid_v2.json": "ace9eb9910d919d8823cda061007253ee7f87ae8c30b878fb97e27021a91fe2d"
+ },
+ "kinds": [
+  "test_designed"
+ ],
+ "selection": {
+  "counts": {
+   "dirs": 96200,
+   "other_ids": 93200
+  },
+  "candidates": 3000,
+  "rejected": {},
+  "rejected_ids": [],
+  "selected": 3000,
+  "groups": 250,
+  "status": {
+   "goal_reached": 2685,
+   "prolonged_blockage_terminated": 257,
+   "timeout": 49,
+   "rollover": 2,
+   "terrain_bounds_exit": 7
+  }
+ },
+ "stages": {
+  "station": {
+   "rows": 3000,
+   "secs": 7.6
+  },
+  "reanchor": {
+   "secs": 20.6
+  },
+  "ci": {
+   "rows": 11534,
+   "missing_episodes": [],
+   "raw_found_fraction": 1.0,
+   "elapsed_s": 12.9
+  }
+ },
+ "output": {
+  "path": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/evalonly/g268_rigid_test/ci_g268_hmmwv_rigid_evalonly.npz",
+  "sha256": "3b607c2eb413e4774c9f911866251e78b3115415297e2a0b301841e3f89b63d2",
+  "rows": 11534,
+  "startup_rows": 3000,
+  "groups": 250,
+  "case_split": {
+   "train": 10417,
+   "val": 609,
+   "test": 508
+  }
+ },
+ "tool_sha256_used": {
+  "ag_build_ds.py": "5e2eae03d441988066b291790da8e7cff576d0df7a0da591f5776f02f5bea17f",
+  "f104_n2_dataset.py": "49b2ad940a5876e07fa9d94f70605a9587d0820c5ce8b491aed8de0310ac7007",
+  "n2_reanchor_dataset.py": "80ad79119462d59afd991f39f3a5def0b59ae30d9d8953543833bb25441f0017",
+  "ga_build_mixed.py": "b7abc6d8512e722f62d3872e2332f16df423a8a48afd60d52f9504c80cf2e338"
+ },
+ "elapsed_s": 47.2
+}

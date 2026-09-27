@@ -1,0 +1,302 @@
+{
+ "schema": "ag_analyze_spec_v1",
+ "margin_pts": 2.0,
+ "alpha": 0.05,
+ "boot": 4000,
+ "seed": 0,
+ "note": "PLAN 7.3 family: soil M3 vs M1 and A3 vs M1 on \"fail\", rigid fixed 2 m/s M3 vs M1 and A3 vs M1 on \"unsafe\", pooled over the 8 unseen test arenas; Holm over the four one-sided cluster p-values. Replace the arm names by the index arm names (ag_eval_tasks --arm NAME); with second ensembles use \"combine\" (REVIEW_R1 4).",
+ "combine": [
+  {
+   "world": "crm",
+   "vehicle": "hmmwv",
+   "name": "M1",
+   "members": [
+    "M1a_free",
+    "M1b_free"
+   ]
+  },
+  {
+   "world": "crm",
+   "vehicle": "hmmwv",
+   "name": "M3",
+   "members": [
+    "M3a_free",
+    "M3b_free"
+   ]
+  },
+  {
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "name": "M1_fx2",
+   "members": [
+    "M1a_fx2",
+    "M1b_fx2"
+   ]
+  },
+  {
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "name": "M3_fx2",
+   "members": [
+    "M3a_fx2",
+    "M3b_fx2"
+   ]
+  }
+ ],
+ "family": [
+  {
+   "name": "P1_soil_M3_vs_M1",
+   "world": "crm",
+   "vehicle": "hmmwv",
+   "test": "M3",
+   "ref": "M1",
+   "label": "fail",
+   "set": "unseen"
+  },
+  {
+   "name": "P2_soil_A3_vs_M1",
+   "world": "crm",
+   "vehicle": "hmmwv",
+   "test": "A3_free",
+   "ref": "M1",
+   "label": "fail",
+   "set": "unseen"
+  },
+  {
+   "name": "P3_rigid_fx2_M3_vs_M1",
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "test": "M3_fx2",
+   "ref": "M1_fx2",
+   "label": "unsafe",
+   "set": "unseen"
+  },
+  {
+   "name": "P4_rigid_fx2_A3_vs_M1",
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "test": "A3_fx2",
+   "ref": "M1_fx2",
+   "label": "unsafe",
+   "set": "unseen"
+  }
+ ],
+ "contrasts": [
+  {
+   "name": "soil_M2_vs_M1",
+   "world": "crm",
+   "vehicle": "hmmwv",
+   "test": "M2_free",
+   "ref": "M1",
+   "label": "fail",
+   "set": "unseen"
+  },
+  {
+   "name": "seed_floor_soil_M1a_vs_M1b",
+   "world": "crm",
+   "vehicle": "hmmwv",
+   "test": "M1a_free",
+   "ref": "M1b_free",
+   "label": "fail",
+   "set": "unseen"
+  },
+  {
+   "name": "rigid_free_noharm_M3_vs_M1",
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "test": "M3a_free",
+   "ref": "M1a_free",
+   "label": "unsafe",
+   "set": "unseen"
+  },
+  {
+   "name": "noharm_f104_soil_M3_vs_M1",
+   "world": "crm",
+   "vehicle": "hmmwv",
+   "test": "M3",
+   "ref": "M1",
+   "label": "fail",
+   "set": "indist_f104"
+  },
+  {
+   "name": "inarena_soil_M3_vs_M1",
+   "world": "crm",
+   "vehicle": "hmmwv",
+   "test": "M3",
+   "ref": "M1",
+   "label": "fail",
+   "set": "heldout"
+  },
+  {
+   "name": "PRIMARY_B_soil_G_vs_H_on_gator",
+   "world": "crm",
+   "vehicle": "gator",
+   "test": "G_free",
+   "ref": "H_free_gator",
+   "label": "fail",
+   "set": "f104_800",
+   "declared_primary": true
+  },
+  {
+   "name": "B_works1_soil_G_vs_straight6_on_gator",
+   "world": "crm",
+   "vehicle": "gator",
+   "test": "G_free",
+   "ref": "straight6_gator",
+   "label": "fail",
+   "set": "f104_800"
+  },
+  {
+   "name": "B_anchor_soil_H_gator_vs_H_hmmwv",
+   "world": "crm",
+   "vehicle": "any",
+   "test": "H_free_gator",
+   "ref": "H_free_hmmwv",
+   "label": "fail",
+   "set": "f104_800"
+  },
+  {
+   "name": "B_rigid_G_vs_H_on_gator",
+   "world": "rigid",
+   "vehicle": "gator",
+   "test": "G_free_r",
+   "ref": "H_free_gator_r",
+   "label": "unsafe",
+   "set": "f104_800"
+  }
+ ],
+ "headroom": [
+  {
+   "world": "crm",
+   "vehicle": "gator",
+   "model": "G_free",
+   "straight": "straight6_gator",
+   "label": "fail",
+   "set": "f104_800"
+  },
+  {
+   "world": "crm",
+   "vehicle": "hmmwv",
+   "model": "H_free_hmmwv",
+   "straight": "straight6_hmmwv",
+   "label": "fail",
+   "set": "f104_800"
+  }
+ ],
+ "gaps": [
+  {
+   "world": "crm",
+   "vehicle": "hmmwv",
+   "model": "M1",
+   "straight": "straight6",
+   "labels": [
+    "fail"
+   ],
+   "unseen": "unseen",
+   "indist": "indist_f104"
+  },
+  {
+   "world": "crm",
+   "vehicle": "hmmwv",
+   "model": "M3",
+   "straight": "straight6",
+   "labels": [
+    "fail"
+   ],
+   "unseen": "unseen",
+   "indist": "indist_f104"
+  },
+  {
+   "world": "crm",
+   "vehicle": "hmmwv",
+   "model": "A3_free",
+   "straight": "straight6",
+   "labels": [
+    "fail"
+   ],
+   "unseen": "unseen",
+   "indist": "indist_f104"
+  },
+  {
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "model": "M1_fx2",
+   "straight": "straight2",
+   "labels": [
+    "unsafe",
+    "fail"
+   ],
+   "unseen": "unseen",
+   "indist": "indist_f104"
+  },
+  {
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "model": "M3_fx2",
+   "straight": "straight2",
+   "labels": [
+    "unsafe",
+    "fail"
+   ],
+   "unseen": "unseen",
+   "indist": "indist_f104"
+  },
+  {
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "model": "A3_fx2",
+   "straight": "straight2",
+   "labels": [
+    "unsafe",
+    "fail"
+   ],
+   "unseen": "unseen",
+   "indist": "indist_f104"
+  }
+ ],
+ "dose": [
+  {
+   "world": "crm",
+   "vehicle": "hmmwv",
+   "arms": [
+    "M1",
+    "M2_free",
+    "M3"
+   ],
+   "label": "fail",
+   "set": "unseen"
+  },
+  {
+   "world": "rigid",
+   "vehicle": "hmmwv",
+   "arms": [
+    "M1_fx2",
+    "M2_fx2",
+    "M3_fx2"
+   ],
+   "label": "unsafe",
+   "set": "unseen"
+  }
+ ],
+ "time_ratio": [
+  {
+   "world": "crm",
+   "vehicle": "hmmwv",
+   "test": "M3a_free",
+   "ref": "M1a_free",
+   "set": "unseen"
+  }
+ ],
+ "rates": {
+  "sets": [
+   "unseen",
+   "near",
+   "spread",
+   "indist_f104",
+   "heldout",
+   "dev",
+   "f104_800",
+   "per_arena"
+  ]
+ }
+}

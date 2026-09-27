@@ -1,0 +1,5 @@
+artifacts/traverse/arena_gator_20260925/e4/subsets/M1_f104_hmmwv_rigid.npz: 4358 rows, 56 groups
+  f104     startup     n   1120 W_unsafe 0.9829 W_fail 0.9079 G_unsafe 0.9936 pick_fail 0.000 (random 0.187, oracle 0.000) rate_unsafe 0.359
+  f104     established n   3238 W_unsafe 0.9877 W_fail 0.9108 G_unsafe 0.9917 pick_fail 0.000 (random 0.188, oracle 0.000) rate_unsafe 0.360
+  f104     all         n   4358 W_unsafe 0.9866 W_fail 0.9102 G_unsafe 0.9921 pick_fail 0.000 (random 0.188, oracle 0.000) rate_unsafe 0.360
+  check vs trainer logits: {'file': 'artifacts/traverse/arena_gator_20260925/e5/train/M1_rigid/M1b_rigid_deploy_logits.npz', 'common_rows': 4358, 'max_abs_diff_ensemble': 1.5974044799804688e-05, 'max_abs_diff_members': 4.887580871582031e-05}

@@ -1,0 +1,18 @@
+world crm domain crm fixed2=False deployed tag 'crm_proposal'; reference picks /nonexistent_no_reference {} (MISSING)
+5 members from artifacts/traverse/crm_f104_v1/train_v1/deploy/CRM_N2_s*.pt on cuda: kinds ['legacy'] conds ['none'] hist_T 40
+   {'name': 'CRM_N2_s0.pt', 'kind': 'legacy', 'cond': 'none', 'zdim': 0, 'nctx': 5, 'params': 256161}
+   {'name': 'CRM_N2_s1.pt', 'kind': 'legacy', 'cond': 'none', 'zdim': 0, 'nctx': 5, 'params': 256161}
+   {'name': 'CRM_N2_s2.pt', 'kind': 'legacy', 'cond': 'none', 'zdim': 0, 'nctx': 5, 'params': 256161}
+   {'name': 'CRM_N2_s3.pt', 'kind': 'legacy', 'cond': 'none', 'zdim': 0, 'nctx': 5, 'params': 256161}
+   {'name': 'CRM_N2_s4.pt', 'kind': 'legacy', 'cond': 'none', 'zdim': 0, 'nctx': 5, 'params': 256161}
+  10/75  10s  B=-2.02  ref 0/0  hist n_valid 0 encodes 0
+  20/75  21s  B=-6.45  ref 0/0  hist n_valid 0 encodes 0
+  30/75  26s  B=-6.01  ref 0/0  hist n_valid 0 encodes 0
+  40/75  35s  B=-6.25  ref 0/0  hist n_valid 0 encodes 0
+  50/75  44s  B=-6.26  ref 0/0  hist n_valid 0 encodes 0
+  60/75  54s  B=-1.02  ref 0/0  hist n_valid 0 encodes 0
+  70/75  60s  B=-6.94  ref 0/0  hist n_valid 0 encodes 0
+  75/75  62s  B=-5.46  ref 0/0  hist n_valid 0 encodes 0
+{"world": "crm", "domain": "crm", "fixed2": false, "n_groups": 75, "arms": ["B"], "tags": {"B": "n2iter_cem4x64"}, "deployed_tag": "crm_proposal", "models": "artifacts/traverse/crm_f104_v1/train_v1/deploy/CRM_N2_s*.pt", "model_kinds": ["legacy"], "conds": ["none"], "map_root": "artifacts/traverse/arena_gator_20260925/map_roots/g268", "rigid_arena": null, "n_distinct_routes": 75, "n_new_drives": 75, "selftest_groups": [["g268_test_group_0001", 256], ["g268_test_group_0002", 256], ["g268_test_group_0006", 256]], "corridors_batched": true, "float16_scoring": true, "pose_sources": ["layout"], "base_sources": ["route_00"], "extra": null, "cluster_prefix": null, "wall_s_total": 61.73596525192261, "agreement": {}}
+B cem4x64          z_mean -5.786 (med -6.207) z_pess -4.941 P 0.0196 T 17.5s v 3.54 start-pose dist max 0.000 m  wall 0.80s/group
+reference check: 0/0 picks equal {} in /nonexistent_no_reference; 75 distinct routes, 75 new drives; agreement {}; history encodes 0 (= 0 members x 75 decisions)

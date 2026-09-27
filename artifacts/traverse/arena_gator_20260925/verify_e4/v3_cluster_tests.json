@@ -1,0 +1,89 @@
+{
+ "test_partial_g203": {
+  "rows": 1115,
+  "rows_by_domain": {
+   "1": 1115
+  },
+  "arena_col": [
+   "g203"
+  ],
+  "vehicle_col": [
+   "hmmwv"
+  ],
+  "crm": {
+   "episodes": 298,
+   "rows": 1115,
+   "k0_rows": 298,
+   "reanchor_rows": 1115,
+   "with_task_row": 298,
+   "without_task_row": 0,
+   "tier_mismatch_vs_task": 0,
+   "tier_mismatch_vs_f104_order": null,
+   "tier_not_constant": 0,
+   "case_arenas": {
+    "assets/traverse/arena_g203": 298
+   },
+   "outcome_vehicle": {
+    "None": 298
+   },
+   "complete_runs_now": 398,
+   "complete_runs_not_in_file": 100,
+   "file_eps_not_complete_now": 0
+  },
+  "suite_hits": []
+ },
+ "test_pilot_gator": {
+  "rows": 1327,
+  "rows_by_domain": {
+   "0": 1121,
+   "1": 206
+  },
+  "arena_col": [
+   "f104"
+  ],
+  "vehicle_col": [
+   "gator"
+  ],
+  "rigid": {
+   "episodes": 288,
+   "rows": 1121,
+   "k0_rows": 288,
+   "reanchor_rows": 1121,
+   "with_task_row": 288,
+   "without_task_row": 0,
+   "tier_mismatch_vs_task": 272,
+   "tier_mismatch_vs_f104_order": 0,
+   "tier_not_constant": 0,
+   "case_arenas": {
+    "assets/traverse/arena_f104_50h_v1": 288
+   },
+   "outcome_vehicle": {
+    "gator": 288
+   },
+   "complete_runs_now": 288,
+   "complete_runs_not_in_file": 0,
+   "file_eps_not_complete_now": 0
+  },
+  "crm": {
+   "episodes": 54,
+   "rows": 206,
+   "k0_rows": 54,
+   "reanchor_rows": 206,
+   "with_task_row": 54,
+   "without_task_row": 0,
+   "tier_mismatch_vs_task": 0,
+   "tier_mismatch_vs_f104_order": 0,
+   "tier_not_constant": 0,
+   "case_arenas": {
+    "assets/traverse/arena_f104_50h_v1": 54
+   },
+   "outcome_vehicle": {
+    "gator": 54
+   },
+   "complete_runs_now": 88,
+   "complete_runs_not_in_file": 34,
+   "file_eps_not_complete_now": 0
+  },
+  "suite_hits": []
+ }
+}

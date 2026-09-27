@@ -79,8 +79,11 @@ and the test-group rigid runs that existed at 05:33 were copied to `/tmp/ag_e6a/
 - **Episode seed.** md5(id)[:8]. A seed that collides with an `--existing` row, or with an earlier new row, is salted
   (md5(id#k)) and the row gets `episode_seed_salt`. With about 40k soil rows, a chance collision of 32-bit seeds is
   likely enough to plan for. Seeds are provenance only.
-- **Vehicle, always on the row.** HMMWV: `['--vehicle', 'hmmwv']`. Gator: `['--vehicle', 'gator',
-  '--runtime-fingerprint', G3/runtime/gator_runtime_fingerprint.json]`. So the collector must be a dispatching wrapper,
+- **Vehicle, always on the row.** HMMWV: `['--vehicle', 'hmmwv']`. Gator, rigid rows: `['--vehicle', 'gator',
+  '--runtime-fingerprint', G3/runtime/gator_runtime_fingerprint.json]`; Gator, soil rows: `['--vehicle', 'gator']` (the
+  soil_v2 form; verifier correction: the frozen soil dispatcher `ag_crm_collect.py` stops with a ValueError on
+  `--runtime-fingerprint`, so the first version's soil Gator rows would have failed; fixed in `ag_eval_tasks.py`, see
+  VERIFY_E6a.md). So the collector must be a dispatching wrapper,
   and a job that ran plain `crm_collect.py` / `gen_collect_ext.py` on these rows would stop at the unknown argument
   instead of driving the wrong vehicle.
 - **Rigid rows.**
@@ -362,7 +365,7 @@ hashes recorded in each output.
 | script | sha256 (first 16) |
 |---|---|
 | `scripts/ag_picks.py` | `35aad37ce38d04bb` |
-| `scripts/ag_eval_tasks.py` | `394eb8bf08434ac9` |
+| `scripts/ag_eval_tasks.py` | `394eb8bf08434ac9` (hand-off; current `6fda2fcc21d7bcea` after the verifier's soil Gator row fix, which changes only soil Gator rows: the three self-test task files rebuild byte-identically) |
 | `scripts/ag_eval_index.py` | `e2e00cbd3727e03b` |
 | `scripts/ag_analyze.py` | `42561c33694fc8f6` |
 | `scripts/ag_build_evalonly.py` | `a61d742626dcf08d` |

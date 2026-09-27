@@ -1,0 +1,153 @@
+{
+ "world": "soil",
+ "argv": [
+  "--vehicle",
+  "gator",
+  "--source-root",
+  ".",
+  "--case",
+  "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_f104_50h_20260909/cases_night2/cases/f104_v2_group_0021.json",
+  "--route",
+  "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_f104_50h_20260909/cases_night2/cases/routes/f104_v2_group_0021/route_05.json",
+  "--chrono-data",
+  "/home/harry/chrono/data",
+  "--crm-config",
+  "/home/harry/NeDM-traverse_mppi/artifacts/traverse/crm_f104_v1/configs/crm_main.json",
+  "--horizon-s",
+  "12",
+  "--episode-seed",
+  "7",
+  "--out",
+  "/home/harry/NeDM-traverse_mppi/artifacts/traverse/arena_gator_20260925/verify_e2/gator/soil_0021_r05"
+ ],
+ "create_gator_called": true,
+ "wrapper_class": "Gator",
+ "isinstance_veh_Gator": true,
+ "isinstance_veh_HMMWV_Full": false,
+ "vehicle_mass_kg": 906.1999999999998,
+ "chassis_mass_kg": 800.0,
+ "config_vehicle_block": {
+  "model": "Gator",
+  "contact_method": "SMC",
+  "chassis_fixed": false,
+  "init": {
+   "x_m": -24.908002498247424,
+   "y_m": -22.149068049438643,
+   "z_m": 0.3158823529411766,
+   "yaw_rad": 0.8453037326045328
+  },
+  "tire_model": "RIGID_MESH",
+  "chassis_collision": "NONE",
+  "driveline": "SIMPLE",
+  "brake": "SIMPLE",
+  "brake_locking": false,
+  "engine_model": "Gator_EngineSimple (stock, fixed by veh.Gator)",
+  "transmission_model": "Gator_AutomaticTransmissionSimple (stock, one gear, fixed by veh.Gator)",
+  "steering_type": "Gator_RackPinion (stock)",
+  "spawn_dz_m": 0.35
+ },
+ "init_z_m": 0.3158823529411766,
+ "surface_at_start_m": -0.034117647058823364,
+ "init_z_minus_surface_m": 0.35,
+ "driveline_template": "GatorCustomDriveline",
+ "driveline_name": "Driveline",
+ "driven_axle_indexes": [
+  1
+ ],
+ "brakes": {
+  "axle0L": null,
+  "axle0R": null,
+  "axle1L": "BrakeSimple:Brake_RL",
+  "axle1R": "BrakeSimple:Brake_RR"
+ },
+ "tyres": {
+  "axle0L": {
+   "template": "RigidTire",
+   "radius_m": 0.28575,
+   "width_m": 0.254,
+   "spindle_z_m": 0.2958823529411766,
+   "spindle_x_m": -24.683380249367513
+  },
+  "axle0R": {
+   "template": "RigidTire",
+   "radius_m": 0.28575,
+   "width_m": 0.254,
+   "spindle_z_m": 0.2958823529411766,
+   "spindle_x_m": -23.845426853925762
+  },
+  "axle1L": {
+   "template": "RigidTire",
+   "radius_m": 0.3175,
+   "width_m": 0.3048,
+   "spindle_z_m": 0.3158823529411766,
+   "spindle_x_m": -26.01546850303918
+  },
+  "axle1R": {
+   "template": "RigidTire",
+   "radius_m": 0.3175,
+   "width_m": 0.3048,
+   "spindle_z_m": 0.3158823529411766,
+   "spindle_x_m": -25.08773438665724
+  }
+ },
+ "engine": "EngineSimple:Engine",
+ "transmission": "AutomaticTransmissionSimpleMap:Transmission",
+ "chassis_ref_z_after_init_m": 0.3158823529411766,
+ "chassis_collision_shapes": "n/a (AttributeError: 'NoneType' object has no attribute 'GetNumShapes')",
+ "chassis_collision_enabled": false,
+ "soil_geometry_handed_to_AddRigidBody": {
+  "axle0": {
+   "cylinders": [
+    {
+     "radius_m": 0.19575,
+     "length_m": 0.254,
+     "axis_world_of_rot_z": [
+      2.220446049250313e-16,
+      1.0,
+      -2.220446049250313e-16
+     ],
+     "pos": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "meshes": 0
+  },
+  "axle1": {
+   "cylinders": [
+    {
+     "radius_m": 0.2275,
+     "length_m": 0.3048,
+     "axis_world_of_rot_z": [
+      2.220446049250313e-16,
+      1.0,
+      -2.220446049250313e-16
+     ],
+     "pos": [
+      0.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "meshes": 0
+  }
+ },
+ "swapped_axles": [
+  0,
+  0,
+  1,
+  1
+ ],
+ "bce_markers_per_wheel": {
+  "axle0L": 88,
+  "axle0R": 88,
+  "axle1L": 170,
+  "axle1R": 170
+ },
+ "cfg_tire_mesh_key_unused": "hmmwv/hmmwv_tire_coarse_closed.obj",
+ "spacing_m": 0.08,
+ "collector_returned": true
+}

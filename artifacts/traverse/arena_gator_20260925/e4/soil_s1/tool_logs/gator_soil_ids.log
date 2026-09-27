@@ -1,0 +1,37 @@
+{
+ "ci": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/f104_gator/ci_f104_gator_crm.npz",
+ "tasks": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e5/ids/soil_v2_gator_tiers0-6.json",
+ "task_rows": 8399,
+ "validated": 8399,
+ "validated_fraction": 1.0,
+ "not_validated": 0,
+ "not_validated_reasons": {},
+ "validated_not_in_tasks": [],
+ "n_validated_not_in_tasks": 0,
+ "validated_by_split": {
+  "train": 7622,
+  "test": 385,
+  "val": 392
+ },
+ "validated_by_kind": {
+  "on_policy": 3319,
+  "designed": 5080
+ },
+ "validated_groups": 1200,
+ "native_height_check": {
+  "absent": 8399
+ },
+ "status": {
+  "prolonged_blockage_terminated": 7284,
+  "goal_reached": 1014,
+  "soil_breakthrough_terminated": 101
+ },
+ "rows": 30827,
+ "rows_by_split": {
+  "train": 28057,
+  "val": 1430,
+  "test": 1340
+ },
+ "startup_rows": 8399,
+ "out_ids": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e5/ids/gator_soil_validated_t0-6.txt"
+}

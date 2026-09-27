@@ -1,0 +1,50 @@
+{
+ "tool": "scripts/ag_subset.py",
+ "tool_sha256": "3891a0064511666a19d63ff360c9e2b0f56f59d35e14337d1ca634870c590f39",
+ "argv": [
+  "--preset",
+  "LC545",
+  "--world",
+  "rigid",
+  "--ds",
+  "artifacts/traverse/arena_gator_20260925/e4/f104_hmmwv/ci_f104_hmmwv_both.npz",
+  "--out",
+  "artifacts/traverse/arena_gator_20260925/e4/subsets/LC545_f104_hmmwv_rigid.npz"
+ ],
+ "preset": "LC545",
+ "world": "rigid",
+ "vehicle": "hmmwv",
+ "rule": "md5(group id) hex ascending within each arena, first N of the available training groups",
+ "tiers": null,
+ "ids_file": null,
+ "ids_file_sha256": null,
+ "n_ids": null,
+ "ids_apply": null,
+ "eval_rows": "intact",
+ "keep_dev_fold": true,
+ "use": "holdout mode only (the dev fold is kept for scoring; deploy mode would fit it)",
+ "per_arena": {
+  "f104": {
+   "requested": 545,
+   "available": 1089,
+   "selected": 545,
+   "md5_last": "816874992ef365ac0286223f43842c2d",
+   "dev_fold_groups_kept": 224,
+   "train_groups_in_file": 655,
+   "train_rows": 50996,
+   "train_rows_startup": 13100,
+   "train_episodes": 13100,
+   "val_groups": 56,
+   "val_rows": 4358,
+   "test_groups": 55,
+   "test_rows": 4252,
+   "fit_rows_holdout": 33577,
+   "fit_groups_holdout": 431
+  }
+ },
+ "rows": 59606,
+ "fit_rows_deploy": 50996,
+ "fit_rows_holdout": 33577,
+ "eval_rows_val": 4358
+}
+wrote artifacts/traverse/arena_gator_20260925/e4/subsets/LC545_f104_hmmwv_rigid.npz (59606 rows, 1.081 GB) in 50.5 s

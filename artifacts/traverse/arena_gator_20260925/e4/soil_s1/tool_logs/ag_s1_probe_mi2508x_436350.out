@@ -1,0 +1,20 @@
+
+The following have been reloaded with a version change:
+  1) rocm/7.2.0 => rocm/7.1.0
+
+host=k004-002.hpcfund part=mi2508x
+      8   Name:                    gfx90a                             
+torch 2.10.0+rocm7.1 cuda True n 8
+0 AMD Instinct MI250X/MI250
+1 AMD Instinct MI250X/MI250
+2 AMD Instinct MI250X/MI250
+3 AMD Instinct MI250X/MI250
+4 AMD Instinct MI250X/MI250
+5 AMD Instinct MI250X/MI250
+6 AMD Instinct MI250X/MI250
+7 AMD Instinct MI250X/MI250
+matmul ok 17.88561248779297
+conv ok
+gru ok
+50 conv steps 2.72 s
+exit: 0

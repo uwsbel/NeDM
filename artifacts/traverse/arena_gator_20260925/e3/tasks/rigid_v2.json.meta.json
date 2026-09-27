@@ -1,0 +1,73 @@
+{
+ "tool": "scripts/ag_rigid_tasks_v2.py",
+ "tool_sha256": "8f34b0d720990a4a7fa18e9d4d9549b3ea76deb341da24ae7a4587de49b553bd",
+ "n_rows": 96200,
+ "file_sha256": "ace9eb9910d919d8823cda061007253ee7f87ae8c30b878fb97e27021a91fe2d",
+ "superset_of": {
+  "rigid_hmmwv_v1": "168044497dd338de46bb22d769199be6bd9a4e6d1e29be4607640f53b1aa8b82"
+ },
+ "inputs": {
+  "prod_v3": "9ef134f8b78531246db16ea97c28581e5d0ff58a1d9a66b48becd23ff63729d2",
+  "prod_v4": "2f8a7a1ed957f682510bc7be47af788bb336ade5c4040bc92d656bc45987fb9b",
+  "spread": "99b50c56087a576c3dcf5de6e262aa99efceba3a2a815c0c490b5e0e038dd4b0",
+  "f104_tasks": "b4e2fdbaeb455e1d400131a49ee3e3d7da29f0254810d1b6557e753a6467d68e"
+ },
+ "blocks": {
+  "v1": {
+   "rows": 60200,
+   "shards": "0-13"
+  },
+  "gator": {
+   "rows": 24000,
+   "shards": "1000-1299",
+   "groups_per_shard": 4,
+   "by_kind": {
+    "on_policy": 9600,
+    "designed": 14400
+   },
+   "by_split": {
+    "train": 21780,
+    "test": 1100,
+    "val": 1120
+   },
+   "by_tier": {
+    "0": 1200,
+    "1": 1200,
+    "2": 1200,
+    "3": 1200,
+    "4": 1200,
+    "5": 1200,
+    "6": 1200,
+    "7": 1200,
+    "8": 1200,
+    "9": 1200,
+    "10": 1200,
+    "11": 1200,
+    "12": 1200,
+    "13": 1200,
+    "14": 1200,
+    "15": 1200,
+    "16": 1200,
+    "17": 1200,
+    "18": 1200,
+    "19": 1200
+   }
+  },
+  "spread": {
+   "rows": 12000,
+   "shards": "2000-2124",
+   "groups_per_shard": 8,
+   "by_arena": {
+    "g258": 3000,
+    "g268": 3000,
+    "g263": 3000,
+    "g241": 3000
+   }
+  }
+ },
+ "rows_per_new_shard": {
+  "min": 80,
+  "max": 96
+ },
+ "pilot_rows_same_routes": 288
+}

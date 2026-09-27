@@ -1,0 +1,231 @@
+{
+ "tool": "scripts/ag_build_ds.py",
+ "argv": [
+  "--world",
+  "crm",
+  "--crm-runs",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/soil_v1/runs",
+  "--tasks-crm",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/tasks/soil_v2.json",
+  "--tiers",
+  "0-6",
+  "--arena",
+  "g203",
+  "--vehicle",
+  "hmmwv",
+  "--map-root",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/map_roots/g203",
+  "--out",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/g203_hmmwv",
+  "--source-root",
+  "/work1/dannegrut/harry/experiments/arena_gator_20260925/source",
+  "--workers",
+  "16"
+ ],
+ "started": "2026-09-25 11:29:47",
+ "host": "login1.hpcfund",
+ "python": "/work1/dannegrut/harry/venvs/nedm/bin/python",
+ "arena": "g203",
+ "vehicle": "hmmwv",
+ "worlds": [
+  "crm"
+ ],
+ "map_root": "/work1/dannegrut/harry/experiments/arena_gator_20260925/map_roots/g203",
+ "map_observation_sha256": "f799f9f6e99ce9bdffb63196e00097ae04418959c288af144185385401d7bcbf",
+ "map_arena_bmp_sha256": "46b4fb2c6d6c5dbaf49bdf320d4e5bd62cf257dff43fff4b3d3e990a92735231",
+ "tasks": {
+  "rigid": {},
+  "crm": {
+   "/work1/dannegrut/harry/experiments/arena_gator_20260925/tasks/soil_v2.json": "acf1e98c3c995c10ee670ea7982f6668f6cdc9aa58a65948d3e9fdc965689978"
+  }
+ },
+ "exclude_ids": {
+  "rigid": [],
+  "crm": []
+ },
+ "n_exclude_ids": {
+  "rigid": 0,
+  "crm": 0
+ },
+ "tiers": "0-6",
+ "tool_sha256": {
+  "f104_n2_dataset.py": "49b2ad940a5876e07fa9d94f70605a9587d0820c5ce8b491aed8de0310ac7007",
+  "n2_reanchor_dataset.py": "80ad79119462d59afd991f39f3a5def0b59ae30d9d8953543833bb25441f0017",
+  "ga_build_mixed.py": "b7abc6d8512e722f62d3872e2332f16df423a8a48afd60d52f9504c80cf2e338",
+  "ag_build_ds.py": "5e2eae03d441988066b291790da8e7cff576d0df7a0da591f5776f02f5bea17f",
+  "ag_map_check.py": "a237c2d9a72fa720f5db66c07ec0ae8d526d797b0fc654a0866b45af147f59a2",
+  "ag_tasklib.py": "1363371ee0621f835a49c094bea93adcdf2f6db2be7c2fbef9401436f5ab98da",
+  "crm_qa.py": "bde62d2d496db0c26929ecc074d8714cf1a3965bddfb2bf5e93247f107490229"
+ },
+ "selection": {
+  "crm": {
+   "run_folders": [
+    "/work1/dannegrut/harry/experiments/arena_gator_20260925/soil_v1/runs"
+   ],
+   "counts": {
+    "dirs": 15355,
+    "other_ids": 11098,
+    "outside_tiers": 15
+   },
+   "candidates": 4242,
+   "require_marker": true,
+   "rejected": {
+    "crm_qa:unstalled_break": 2
+   },
+   "rejected_ids": [
+    [
+     "g203_v2_group_0241_route_03",
+     "crm_qa:unstalled_break"
+    ],
+    [
+     "g203_v2_group_0308_route_07",
+     "crm_qa:unstalled_break"
+    ]
+   ],
+   "selected": 4240,
+   "groups": 606,
+   "split_episodes": {
+    "train": 3911,
+    "test": 161,
+    "val": 168
+   },
+   "split_groups": {
+    "train": 559,
+    "val": 24,
+    "test": 23
+   },
+   "tiers": {
+    "0": 605,
+    "1": 606,
+    "2": 606,
+    "3": 606,
+    "4": 606,
+    "5": 606,
+    "6": 605
+   },
+   "status": {
+    "goal_reached": 1116,
+    "soil_breakthrough_terminated": 2542,
+    "prolonged_blockage_terminated": 577,
+    "timeout": 5
+   },
+   "kinds": {
+    "on_policy": 1687,
+    "designed": 2553
+   },
+   "vehicle_blocks": {
+    "None": 4240
+   },
+   "map_check": {
+    "map_root": "/work1/dannegrut/harry/experiments/arena_gator_20260925/map_roots/g203",
+    "map_arena": "arena_g203",
+    "map_arena_bmp_sha256": "46b4fb2c6d6c5dbaf49bdf320d4e5bd62cf257dff43fff4b3d3e990a92735231",
+    "map_observation_sha256": "f799f9f6e99ce9bdffb63196e00097ae04418959c288af144185385401d7bcbf",
+    "n_cases": 4240,
+    "ok": true,
+    "problems": [],
+    "arenas": {
+     "assets/traverse/arena_g203": {
+      "n": 4240,
+      "bmp_sha256": "46b4fb2c6d6c5dbaf49bdf320d4e5bd62cf257dff43fff4b3d3e990a92735231",
+      "match": true
+     }
+    }
+   }
+  }
+ },
+ "stages": {
+  "crm": {
+   "station": {
+    "path": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/g203_hmmwv/station_g203_hmmwv_crm_crm.npz",
+    "rows": 4240,
+    "secs": 18.2,
+    "sha256": "32ad4a0c67728774f9c329b930d67c85023ad555f48300d4c1035d70a5aeb435"
+   },
+   "reanchor": {
+    "path": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/g203_hmmwv/reanchor_g203_hmmwv_crm_crm.npz",
+    "rows": 15987,
+    "episodes": 4240,
+    "secs": 37.0,
+    "sha256": "fa9497a31a0726896e021f78b491544753c78f59e35a70a20f73e40d316fbbf4",
+    "rows_per_episode": 3.771
+   }
+  },
+  "mixed": {
+   "tool": "ag_build_ds.ci_one_world (ga_build_mixed format, one world)",
+   "rows": 15987,
+   "missing_episodes": 0,
+   "raw_found_fraction": 1.0,
+   "elapsed_s": 17.9
+  }
+ },
+ "output": {
+  "path": "/work1/dannegrut/harry/experiments/arena_gator_20260925/e4/soil_s1/g203_hmmwv/ci_g203_hmmwv_crm.npz",
+  "size_gb": 0.29,
+  "sha256": "5bb738f25f789bfb607f9c7d4954d0eef2f7c86761c6e1b59b8da8e38eebee7c",
+  "rows": 15987,
+  "rows_by_world": {
+   "crm": 15987
+  },
+  "episodes_by_world": {
+   "crm": 4240
+  },
+  "groups_by_split": {
+   "train": 559,
+   "val": 24,
+   "test": 23
+  },
+  "counts": {
+   "crm|train|startup": 3911,
+   "crm|train|established": 10839,
+   "crm|val|startup": 168,
+   "crm|val|established": 477,
+   "crm|test|startup": 161,
+   "crm|test|established": 431
+  },
+  "tiers": {
+   "crm": {
+    "0": 605,
+    "1": 606,
+    "2": 606,
+    "3": 606,
+    "4": 606,
+    "5": 606,
+    "6": 605
+   }
+  },
+  "keys": [
+   "E",
+   "T",
+   "X",
+   "anchor_frame",
+   "arena",
+   "ctx",
+   "domain",
+   "episode",
+   "event_idx",
+   "fail",
+   "group",
+   "hist",
+   "hist_cols",
+   "hmask",
+   "id",
+   "priv_names",
+   "privileged",
+   "profile",
+   "rem_m",
+   "route_len",
+   "source",
+   "split",
+   "status",
+   "tier",
+   "time_to_event_s",
+   "unsafe",
+   "vehicle",
+   "vx_anchor"
+  ]
+ },
+ "links_removed": true,
+ "elapsed_s": 90.3,
+ "finished": "2026-09-25 11:31:17"
+}
