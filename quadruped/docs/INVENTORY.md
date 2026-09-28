@@ -1,5 +1,7 @@
 # Inventory of the old tree
 
+**Historical (2026-09-20).** A survey of the old `kyle/locomotion` tree before the rebuild. Current state: ../README.md.
+
 Surveyed 2026-09-20 against `kyle/locomotion`. 154 `.py` + 35 `.sh` under `scripts/`, 39
 of them Go2-named. This is what survives the rebuild and what does not.
 

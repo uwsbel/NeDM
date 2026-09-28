@@ -1,5 +1,7 @@
 # Quadruped pipeline: rebuild plan
 
+**Historical (2026-09-20).** The plan the rebuild followed; the rebuild is done. Current state: ../README.md.
+
 **Status:** proposed, not started. One decision still open (see the end).
 
 ## What this is designed against

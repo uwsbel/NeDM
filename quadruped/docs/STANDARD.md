@@ -78,6 +78,10 @@ a corpus collected on one desktop is readable by the others without copying.
 
 `INDEX.md` at `/mnt/nas/Main/nedm/` describes what is in each directory.
 
+**The Study 4 archive** is `/mnt/nas/Main/nedm/study4_go2_crm/` (docs/ARTIFACTS.md): the
+corpora, surrogates, policies and scoring records behind every reported result, named by
+meaning, with a checksum manifest.
+
 **Archived: north's `~/sbel-artifacts` (2026-09-24).** The old pipeline's output
 directory (branch `kyle/locomotion`, 2026-09-03 to 2026-09-20; 95,217 files, 214.5 GB:
 old corpora, training datasets and runs, the imported `go2_cts_150k.pt`, the crmtrack and

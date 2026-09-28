@@ -1,56 +1,20 @@
 # State
 
-**Updated:** 2026-09-24 · **Branch:** `kyle/quadruped-pipeline` on uwsbel/NeDM (off `kyle/locomotion`)
+**Updated:** 2026-09-28 · **Branch:** `kyle/quadruped-pipeline` on uwsbel/NeDM (off `kyle/locomotion`)
 
-## Where this is
+**This is the lab notebook**: every result as it landed, with job ids, newest sections
+first. For the study as a whole (results, recipe, where the data is, how to reproduce),
+start at [`../README.md`](../README.md); the write-up with every figure is
+<https://claude.ai/artifact/G8PHCRfk7M8Mu7b8rW2PbU> (source: `site/go2-crm-pipeline.html`).
 
-**The recipe works, and the old stop was too early.** Fine-tune the surrogate on its own
-1 s rollouts; run PPO in it with 2 s branches (100 control steps) and 1024 parallel
-rollouts, 10 epochs x 4 minibatches, and stop at about **iteration 1000** (it was dw 4.0,
-about 430 iterations). In ten independently trained surrogates, scored in Chrono on 37
-held-out paths from all ten command families, iteration 1000 cuts forward error 43-57%
-(mean 52%), yaw 52-71% (mean 67%) and sideways 9-34% (mean 28%); straight walking forward
-error falls 39-68% (mean 62%); on rigid ground forward error falls 5-41% (mean 27%) and
-yaw 55-74% (mean 71%), so there is no regression on hard ground. Every CRM axis is clear of zero in every arm except seed 6
-sideways; nothing fell. At the old stop the mean was -29% forward. Tracking plateaus near
--59% from 1500 to 3000 iterations, but push robustness (300 N) holds at the base policy's
-11/16 only through iteration 1000 and dropped episodes rise past it. Details in "The
-recipe at iteration 1000" and "The stopping budget" below.
+## Where this is (2026-09-28): complete
 
-What else is settled (evidence further down):
-- **1 s rollout training.** All ten seeds beat the predict-no-motion baseline across 10 s;
-  0.5 s training does in 2 of 10, and one-step training fails by ~2 s.
-- **2 s branches.** 0.30 s branches fail to improve forward tracking across paths in every
-  surrogate tried.
-- **1024 envs.** Forward gain grows from 64 to 1024 rollouts and flattens; 2048 is a few
-  points better, inside the seed spread, at twice the cost.
-- **One surrogate, not an ensemble.** Ensembles land inside the single-surrogate range.
-- **More data does not help; coverage does.** Doubling the corpus (2,094 vs 920 training
-  episodes) changes neither surrogate accuracy nor transfer. Fine-tuned policies leave the
-  corpus on 0.0-0.1% of their steps through iteration 3000.
-- **Disturbance training in the surrogate does not buy robustness.** A robot_lab-style
-  kick costs 5-9 points of tracking and helps at no force: the corpus tops out at 140 N,
-  so the surrogate cannot teach recovery from the 240-300 N test shoves.
-- **The OOD penalty is not load-bearing** at these settings (four runs without it
-  transfer normally), but the OOD rate is one early warning, and the guard uses it: one run in sixty collapses (seed 6's surrogate, the most accurate and most
-  exploitable), and the guard catches it from `finetune.jsonl` alone. It is an early
-  warning with misses, though: it tripped live once on a degrading run (euler s2) and
-  missed two bad runs in the capacity study (below), so Chrono scoring stays the check.
-- **Where Chrono's time goes** (COST.md): 95.5% of a CRM step is the SPH soil; the Go2
-  multibody solve runs concurrently and off the critical path, and the foot-soil coupling
-  is ~2%. The surrogate is 17x faster than CRM for one robot and ~600x in throughput at
-  batch 1024 on the same MI210; learning only the soil would cap the speedup near 3x.
-- **The Chrono GPU fault** (SphBceManager.cu:543) is rare (5 in ~3,600 episodes), not
-  force-related, and contained by `os._exit(90)` + `--resume`.
-
-Effects reproduce across machines (NVIDIA and AMD, different Chrono builds) to within a few
-points; `paired_eval.py` refuses to pair arms scored on different builds.
-
-**The write-up is a live page**, not a snapshot: https://claude.ai/artifact/G8PHCRfk7M8Mu7b8rW2PbU
-(every table on it measured in Chrono, plus replayable paired trajectories from
-`evaluate.py --dump-traj`). Keep it current: a result that changes STATE changes the page too.
-
-**Running (2026-09-27):** nothing; every study in this round is scored.
+The recipe (1 s rollout-trained surrogate, PPO with 1024 x 2 s branches, stop at about
+iteration 1000) improves CRM tracking in ten of ten surrogates (forward -52%, yaw -67%,
+sideways -28%; no falls; no regression on rigid ground). Every study planned for this case
+is done and scored; nothing is running. Data and checkpoints are archived, named by
+meaning, at `/mnt/nas/Main/nedm/study4_go2_crm/` (docs/ARTIFACTS.md). Future work is in
+docs/QUEUE.md.
 
 ## The recipe at iteration 1000 in ten surrogates (2026-09-24)
 

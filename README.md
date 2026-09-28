@@ -30,6 +30,10 @@ Two study cases instantiate the pipeline across three control tasks:
   end-effector reaching (97/100 at 0.05 m, zero contacts or joint-limit
   violations), with the end-effector recovered by forward kinematics rather than
   learned.
+- **Study 4 (quadruped, branch `kyle/quadruped-pipeline`):** a Unitree Go2 on CRM
+  granular terrain: PPO fine-tuning inside a learned surrogate improves command tracking
+  in full Chrono (forward -52%, yaw -67%, ten of ten surrogates). Start at
+  [`quadruped/README.md`](quadruped/README.md).
 
 **[docs/progress.md](docs/progress.md) is the reproduction record** — every stage
 output with the artifact that produced it and the command that regenerates it.

@@ -1,5 +1,26 @@
 # Artifacts: data, models, results
 
+## The Study 4 archive (2026-09-28)
+
+Every corpus, surrogate, fine-tuned policy and scoring record behind a reported result is
+on the NAS at **`/mnt/nas/Main/nedm/study4_go2_crm/`**, named by meaning:
+
+```
+corpora/{normal_corpus,extended_corpus,rigid_corpus}/
+base_policy/
+surrogates/{standard,standard_one_step_only,half_second_rollout,small,large,
+            standard_extended_corpus,large_extended_corpus,quarter_corpus,half_corpus,
+            channel_foot_forces,channel_sinkage,channel_forces_and_sinkage,
+            channel_3d_forces,rigid_ground,one_stage_16k,one_stage_40k}/<seed>/
+policies/<study>/<run>/
+results/<machine>_<chrono build>/
+```
+
+`README.md` there describes each folder; `MANIFEST.tsv` lists every file with its
+original run name, source machine and sha256, so any file can be traced to the job that
+made it (`quadruped/jobs/`). The per-run manifests described below travel inside it.
+
+
 **Bytes never enter git. Manifests always do.**
 
 `.git` is already 502 MB with artifacts tracked, one NeDM checkpoint is 911 MB, and a
