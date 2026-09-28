@@ -1,0 +1,3991 @@
+{
+ "schema": "ag_analyze_results_v1",
+ "tool": "scripts/ag_analyze.py",
+ "tool_sha256": "42561c33694fc8f6e4d49494d4aa7144fb4857faa70e56e88e40741ec13172f4",
+ "created": "2026-09-28 15:10:22",
+ "spec": {
+  "schema": "ov_analyze_spec_v1",
+  "margin_pts": 2.0,
+  "alpha": 0.05,
+  "boot": 4000,
+  "seed": 0,
+  "cluster_key": "cluster",
+  "min_groups": 50,
+  "options": {
+   "bar_label": "unsafe_belly",
+   "rule": "r1",
+   "clearly_above_bound": "cluster95",
+   "extra_bars": [
+    [
+     "polaris_pc",
+     "polaris_grad_pc"
+    ]
+   ]
+  },
+  "note": "offroad_vehicles_20260927 PLAN 4.3-4.4, written before any outcome of these arms exists. Soil, f104 800-pair suite, standing start, fail = goal not reached. Family (Holm at 0.05 over the one-sided cluster-bootstrap p; group bootstrap and exact McNemar beside each): per vehicle <v>_grad vs straight6_<v>, <v>_grad vs the Gator with its best planner, <v>_grad vs <v>_cem; and the Gator gradient vs its stored CEM arm. Decision: improves if Holm rejects; no meaningful difference if the 90 % cluster interval lies within +-2 points; else inconclusive. The 90 % bar on <v>_grad (goal reached, 800 and 600 fresh; clearly above if the lower end of the 95 % group-bootstrap interval >= 90 on both), validity (0 crashed, < 5 % launch failures, belly flag <= 10 %, the bar with belly-flagged drives counted as failures). HMMWV arms: validity without a belly record.",
+  "family": [
+   {
+    "name": "F_polaris_grad_vs_straight6",
+    "world": "crm",
+    "vehicle": "polaris",
+    "test": "polaris_grad",
+    "ref": "straight6_polaris",
+    "label": "fail",
+    "set": "f104_800"
+   },
+   {
+    "name": "F_polaris_grad_vs_gator_grad",
+    "world": "crm",
+    "vehicle": "any",
+    "test": "polaris_grad",
+    "ref": "Gfull_grad_gator",
+    "label": "fail",
+    "set": "f104_800"
+   },
+   {
+    "name": "F_polaris_grad_vs_cem",
+    "world": "crm",
+    "vehicle": "polaris",
+    "test": "polaris_grad",
+    "ref": "polaris_cem",
+    "label": "fail",
+    "set": "f104_800"
+   },
+   {
+    "name": "F_gator_grad_vs_gator_cem",
+    "world": "crm",
+    "vehicle": "gator",
+    "test": "Gfull_grad_gator",
+    "ref": "Gfull_free_gator",
+    "label": "fail",
+    "set": "f104_800"
+   }
+  ],
+  "contrasts": [
+   {
+    "name": "S_polaris_cem_vs_gator_cem",
+    "world": "crm",
+    "vehicle": "any",
+    "test": "polaris_cem",
+    "ref": "Gfull_free_gator",
+    "label": "fail",
+    "set": "f104_800"
+   },
+   {
+    "name": "S_polaris_grad_vs_hmmwv_grad",
+    "world": "crm",
+    "vehicle": "any",
+    "test": "polaris_grad",
+    "ref": "Hfull_grad_hmmwv",
+    "label": "fail",
+    "set": "f104_800"
+   },
+   {
+    "name": "S_polaris_grad_vs_straight6_unsafe",
+    "world": "crm",
+    "vehicle": "polaris",
+    "test": "polaris_grad",
+    "ref": "straight6_polaris",
+    "label": "unsafe",
+    "set": "f104_800"
+   },
+   {
+    "name": "S_polaris_grad_vs_gator_grad_unsafe",
+    "world": "crm",
+    "vehicle": "any",
+    "test": "polaris_grad",
+    "ref": "Gfull_grad_gator",
+    "label": "unsafe",
+    "set": "f104_800"
+   },
+   {
+    "name": "S_polaris_grad_vs_straight6_fresh600",
+    "world": "crm",
+    "vehicle": "polaris",
+    "test": "polaris_grad",
+    "ref": "straight6_polaris",
+    "label": "fail",
+    "set": "f104_600"
+   },
+   {
+    "name": "S_polaris_grad_vs_gator_grad_fresh600",
+    "world": "crm",
+    "vehicle": "any",
+    "test": "polaris_grad",
+    "ref": "Gfull_grad_gator",
+    "label": "fail",
+    "set": "f104_600"
+   },
+   {
+    "name": "S_polaris_grad_vs_cem_fresh600",
+    "world": "crm",
+    "vehicle": "polaris",
+    "test": "polaris_grad",
+    "ref": "polaris_cem",
+    "label": "fail",
+    "set": "f104_600"
+   },
+   {
+    "name": "S_polaris_grad_vs_gator_grad_belly",
+    "world": "crm",
+    "vehicle": "any",
+    "test": "polaris_grad",
+    "ref": "Gfull_grad_gator",
+    "label": "fail_belly",
+    "set": "f104_800"
+   },
+   {
+    "name": "S_gator_grad_vs_straight6",
+    "world": "crm",
+    "vehicle": "gator",
+    "test": "Gfull_grad_gator",
+    "ref": "straight6_gator",
+    "label": "fail",
+    "set": "f104_800"
+   },
+   {
+    "name": "S_hmmwv_grad_vs_cem_bridge",
+    "world": "crm",
+    "vehicle": "hmmwv",
+    "test": "Hfull_grad_hmmwv",
+    "ref": "Hfull_free",
+    "label": "fail",
+    "set": "f104_800"
+   },
+   {
+    "name": "S_hmmwv_grad_vs_straight6",
+    "world": "crm",
+    "vehicle": "hmmwv",
+    "test": "Hfull_grad_hmmwv",
+    "ref": "straight6",
+    "label": "fail",
+    "set": "f104_800"
+   },
+   {
+    "name": "S_gator_grad_vs_gator_cem_fresh600",
+    "world": "crm",
+    "vehicle": "gator",
+    "test": "Gfull_grad_gator",
+    "ref": "Gfull_free_gator",
+    "label": "fail",
+    "set": "f104_600"
+   }
+  ],
+  "headroom": [
+   {
+    "world": "crm",
+    "vehicle": "polaris",
+    "model": "polaris_grad",
+    "straight": "straight6_polaris",
+    "label": "fail",
+    "set": "f104_800"
+   },
+   {
+    "world": "crm",
+    "vehicle": "polaris",
+    "model": "polaris_cem",
+    "straight": "straight6_polaris",
+    "label": "fail",
+    "set": "f104_800"
+   },
+   {
+    "world": "crm",
+    "vehicle": "gator",
+    "model": "Gfull_grad_gator",
+    "straight": "straight6_gator",
+    "label": "fail",
+    "set": "f104_800"
+   },
+   {
+    "world": "crm",
+    "vehicle": "hmmwv",
+    "model": "Hfull_grad_hmmwv",
+    "straight": "straight6",
+    "label": "fail",
+    "set": "f104_800"
+   }
+  ],
+  "time_ratio": [
+   {
+    "world": "crm",
+    "vehicle": "polaris",
+    "test": "polaris_grad",
+    "ref": "polaris_cem",
+    "set": "f104_800"
+   },
+   {
+    "world": "crm",
+    "vehicle": "gator",
+    "test": "Gfull_grad_gator",
+    "ref": "Gfull_free_gator",
+    "set": "f104_800"
+   },
+   {
+    "world": "crm",
+    "vehicle": "hmmwv",
+    "test": "Hfull_grad_hmmwv",
+    "ref": "Hfull_free",
+    "set": "f104_800"
+   }
+  ],
+  "bar": [
+   {
+    "vehicle": "polaris",
+    "arm": "polaris_grad",
+    "label": "fail",
+    "sets": [
+     "f104_800",
+     "f104_600"
+    ],
+    "bar": 90.0,
+    "declared": false,
+    "clearly_above_bound": "cluster95"
+   },
+   {
+    "vehicle": "polaris",
+    "arm": "polaris_grad",
+    "label": "fail",
+    "sets": [
+     "f104_800_notB"
+    ],
+    "bar": 90.0,
+    "declared": false,
+    "clearly_above_bound": "cluster95",
+    "note": "REVIEW_R1 N3: the 704 pairs outside sample B",
+    "key_suffix": "notB"
+   },
+   {
+    "vehicle": "polaris",
+    "arm": "polaris_grad",
+    "label": "unsafe",
+    "sets": [
+     "f104_800",
+     "f104_600"
+    ],
+    "bar": 90.0,
+    "declared": false,
+    "clearly_above_bound": "cluster95"
+   },
+   {
+    "vehicle": "polaris",
+    "arm": "polaris_grad",
+    "label": "unsafe",
+    "sets": [
+     "f104_800_notB"
+    ],
+    "bar": 90.0,
+    "declared": false,
+    "clearly_above_bound": "cluster95",
+    "note": "REVIEW_R1 N3: the 704 pairs outside sample B",
+    "key_suffix": "notB"
+   },
+   {
+    "vehicle": "polaris",
+    "arm": "polaris_grad",
+    "label": "fail_belly",
+    "sets": [
+     "f104_800",
+     "f104_600"
+    ],
+    "bar": 90.0,
+    "declared": false,
+    "clearly_above_bound": "cluster95"
+   },
+   {
+    "vehicle": "polaris",
+    "arm": "polaris_grad",
+    "label": "fail_belly",
+    "sets": [
+     "f104_800_notB"
+    ],
+    "bar": 90.0,
+    "declared": false,
+    "clearly_above_bound": "cluster95",
+    "note": "REVIEW_R1 N3: the 704 pairs outside sample B",
+    "key_suffix": "notB"
+   },
+   {
+    "vehicle": "polaris",
+    "arm": "polaris_grad",
+    "label": "unsafe_belly",
+    "sets": [
+     "f104_800",
+     "f104_600"
+    ],
+    "bar": 90.0,
+    "declared": true,
+    "clearly_above_bound": "cluster95"
+   },
+   {
+    "vehicle": "polaris",
+    "arm": "polaris_grad",
+    "label": "unsafe_belly",
+    "sets": [
+     "f104_800_notB"
+    ],
+    "bar": 90.0,
+    "declared": false,
+    "clearly_above_bound": "cluster95",
+    "note": "REVIEW_R1 N3: the 704 pairs outside sample B",
+    "key_suffix": "notB"
+   },
+   {
+    "vehicle": "polaris",
+    "arm": "polaris_cem",
+    "label": "unsafe_belly",
+    "sets": [
+     "f104_800",
+     "f104_600"
+    ],
+    "bar": 90.0,
+    "declared": false,
+    "clearly_above_bound": "cluster95"
+   },
+   {
+    "vehicle": "polaris",
+    "arm": "straight6_polaris",
+    "label": "unsafe_belly",
+    "sets": [
+     "f104_800",
+     "f104_600"
+    ],
+    "bar": 90.0,
+    "declared": false,
+    "clearly_above_bound": "cluster95"
+   },
+   {
+    "vehicle": "gator",
+    "arm": "Gfull_grad_gator",
+    "label": "unsafe_belly",
+    "sets": [
+     "f104_800",
+     "f104_600"
+    ],
+    "bar": 90.0,
+    "declared": false,
+    "clearly_above_bound": "cluster95"
+   },
+   {
+    "vehicle": "gator",
+    "arm": "Gfull_free_gator",
+    "label": "unsafe_belly",
+    "sets": [
+     "f104_800",
+     "f104_600"
+    ],
+    "bar": 90.0,
+    "declared": false,
+    "clearly_above_bound": "cluster95"
+   },
+   {
+    "vehicle": "hmmwv",
+    "arm": "Hfull_grad_hmmwv",
+    "label": "unsafe_belly",
+    "sets": [
+     "f104_800",
+     "f104_600"
+    ],
+    "bar": 90.0,
+    "declared": false,
+    "clearly_above_bound": "cluster95"
+   },
+   {
+    "vehicle": "hmmwv",
+    "arm": "Hfull_free",
+    "label": "unsafe_belly",
+    "sets": [
+     "f104_800",
+     "f104_600"
+    ],
+    "bar": 90.0,
+    "declared": false,
+    "clearly_above_bound": "cluster95"
+   },
+   {
+    "vehicle": "polaris_pc",
+    "arm": "polaris_grad_pc",
+    "label": "unsafe_belly",
+    "sets": [
+     "f104_800",
+     "f104_600"
+    ],
+    "bar": 90.0,
+    "declared": false,
+    "clearly_above_bound": "cluster95"
+   }
+  ],
+  "validity": [
+   {
+    "vehicle": "polaris",
+    "arm": "polaris_grad",
+    "set": "f104_800"
+   },
+   {
+    "vehicle": "polaris",
+    "arm": "polaris_cem",
+    "set": "f104_800"
+   },
+   {
+    "vehicle": "polaris",
+    "arm": "straight6_polaris",
+    "set": "f104_800"
+   },
+   {
+    "vehicle": "polaris_pc",
+    "arm": "polaris_grad_pc",
+    "set": "f104_800"
+   },
+   {
+    "vehicle": "gator",
+    "arm": "Gfull_grad_gator",
+    "set": "f104_800"
+   },
+   {
+    "vehicle": "hmmwv",
+    "arm": "Hfull_grad_hmmwv",
+    "set": "f104_800",
+    "belly_optional": true
+   }
+  ],
+  "criteria": [
+   {
+    "vehicle": "polaris",
+    "arm": "polaris_grad",
+    "beats_straight_test": "F_polaris_grad_vs_straight6",
+    "bar_label": "unsafe_belly",
+    "belly_label": "unsafe_belly",
+    "cem_arm": "polaris_cem",
+    "straight_arm": "straight6_polaris",
+    "rule": "r1"
+   }
+  ],
+  "rates": {
+   "sets": [
+    "f104_800",
+    "f104_600",
+    "f104_200"
+   ]
+  }
+ },
+ "index": [
+  {
+   "path": "artifacts/traverse/offroad_vehicles_20260927/e6/index/soil_eval_ov_final.json",
+   "sha256": "bb5e35ecb29fd20e139238a7b373778aa22ae55c2c45e8a4f5bedb931a6fc3f5",
+   "summary": {
+    "rows": 4800,
+    "driven": 4800,
+    "missing": 0,
+    "missing_by_arm": {},
+    "driven_by_arm": {
+     "crm|polaris|polaris_cem": 800,
+     "crm|polaris|straight6_polaris": 800,
+     "crm|polaris|polaris_grad": 800,
+     "crm|polaris_pc|polaris_grad_pc": 800,
+     "crm|gator|Gfull_grad_gator": 800,
+     "crm|hmmwv|Hfull_grad_hmmwv": 800
+    },
+    "studies": {
+     "g4": 4800
+    },
+    "sets": {
+     "f104_suite": 3600,
+     "indist_f104": 1200
+    },
+    "suite_parts": {
+     "tuned200": 1200,
+     "fresh600": 3600
+    },
+    "arenas": {
+     "f104": 4800
+    },
+    "qa_flags": {},
+    "belly_flagged": {
+     "crm|polaris_pc|polaris_grad_pc": 1,
+     "crm|gator|Gfull_grad_gator": 10
+    }
+   }
+  },
+  {
+   "path": "artifacts/traverse/arena_gator_20260925/e6/index/soil_eval_bfull.json",
+   "sha256": "ce1a5ee1618b9e132ff1fb457a36fc78c30e50d3a69d988cf588b193f158d000",
+   "reused_arms": [
+    "Gfull_free_gator",
+    "Hfull_free",
+    "straight6_gator"
+   ],
+   "rows": 2400
+  }
+ ],
+ "worlds": {
+  "crm|polaris": {
+   "groups": 800,
+   "arms": [
+    "polaris_cem",
+    "polaris_grad",
+    "straight6_polaris"
+   ]
+  },
+  "crm|any": {
+   "groups": 800,
+   "arms": [
+    "Gfull_free_gator",
+    "Gfull_grad_gator",
+    "Hfull_free",
+    "Hfull_grad_hmmwv",
+    "polaris_cem",
+    "polaris_grad",
+    "polaris_grad_pc",
+    "straight6_gator",
+    "straight6_polaris"
+   ]
+  },
+  "crm|polaris_pc": {
+   "groups": 800,
+   "arms": [
+    "polaris_grad_pc"
+   ]
+  },
+  "crm|gator": {
+   "groups": 800,
+   "arms": [
+    "Gfull_free_gator",
+    "Gfull_grad_gator",
+    "straight6_gator"
+   ]
+  },
+  "crm|hmmwv": {
+   "groups": 800,
+   "arms": [
+    "Hfull_free",
+    "Hfull_grad_hmmwv"
+   ]
+  }
+ },
+ "family": [
+  {
+   "name": "F_polaris_grad_vs_straight6",
+   "world": "crm",
+   "vehicle": "polaris",
+   "test": "polaris_grad",
+   "ref": "straight6_polaris",
+   "label": "fail",
+   "set": "f104_800",
+   "result": {
+    "test": "polaris_grad",
+    "ref": "straight6_polaris",
+    "label": "fail",
+    "n": 800,
+    "rate_test": 0.25,
+    "rate_ref": 0.5,
+    "diff_pts": -0.25,
+    "improvement_pts": 0.25,
+    "group": {
+     "ci95": [
+      -0.8750000000000001,
+      0.25000000000000006
+     ],
+     "ci90": [
+      -0.7500000000000001,
+      0.24999999999999997
+     ],
+     "p_one_sided": 0.26643339165208696
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      -0.576036866359447,
+      0.0
+     ],
+     "ci90": [
+      -0.5208333333333334,
+      0.0
+     ],
+     "p_one_sided": 0.0947263184203949,
+     "clusters": 9,
+     "cluster_wins": 2,
+     "cluster_losses": 0,
+     "sign_p": 0.5
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      -1.1379800853485065,
+      0.34886773764619694
+     ],
+     "ci90": [
+      -1.0101010101010102,
+      0.27359781121751026
+     ],
+     "p_one_sided": 0.3611597100724819,
+     "clusters": 10,
+     "cluster_wins": 1,
+     "cluster_losses": 1,
+     "sign_p": 1.0
+    },
+    "discordant": {
+     "test_worse": 2,
+     "test_better": 4,
+     "binary": true,
+     "mcnemar_two_sided": 0.6875,
+     "mcnemar_one_sided": 0.34375
+    },
+    "identical_picks": 3,
+    "within_margin_90": true,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": 0.0,
+     "upper95_one_sided_group": 0.24999999999999997,
+     "margin_pts": 2.0,
+     "pass_cluster": true,
+     "note": "polaris_grad is within 2.0 points of straight6_polaris (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = fail(polaris_grad) - fail(straight6_polaris) in points; negative = polaris_grad better",
+    "per_arena": {
+     "f104": {
+      "n": 800,
+      "rate_test": 0.25,
+      "rate_ref": 0.5,
+      "diff_pts": -0.25,
+      "ci95": [
+       -0.8750000000000001,
+       0.375
+      ],
+      "test_worse": 2,
+      "test_better": 4,
+      "role": "training",
+      "dist_nearest_training": 0.8114229378713305,
+      "map_err_rmse_m": 0.04986148709451798
+     }
+    },
+    "arena_signs": {
+     "better": 1,
+     "worse": 0,
+     "equal": 0
+    },
+    "random_effects": null,
+    "vs_distance_nearest_training": null,
+    "vs_map_error": null,
+    "near_spread": {},
+    "time_ratio": {
+     "n": 794,
+     "median_paired_ratio": 2.1053887289181406,
+     "median_paired_ratio_p95": 2.171868223391861,
+     "median_paired_ratio_ci95": [
+      2.031481885578444,
+      2.18195203075674
+     ],
+     "ratio_of_medians": 2.1487341772151898,
+     "ratio_of_medians_p95": 2.231012658227848,
+     "mean_ratio": 2.3480849382847166,
+     "median_time_x": 16.975,
+     "median_time_y": 7.9,
+     "bound": 1.1,
+     "pass_time": false,
+     "note": "t(polaris_grad) / t(straight6_polaris); 95th percentile of the group bootstrap of the median paired ratio must be < 1.1"
+    }
+   },
+   "holm": {
+    "p_one_sided_cluster": 0.0947263184203949,
+    "p_adjusted": 0.2841789552611847,
+    "reject": false,
+    "alpha": 0.05,
+    "family_size": 4
+   },
+   "decision": "no meaningful difference"
+  },
+  {
+   "name": "F_polaris_grad_vs_gator_grad",
+   "world": "crm",
+   "vehicle": "any",
+   "test": "polaris_grad",
+   "ref": "Gfull_grad_gator",
+   "label": "fail",
+   "set": "f104_800",
+   "result": {
+    "test": "polaris_grad",
+    "ref": "Gfull_grad_gator",
+    "label": "fail",
+    "n": 800,
+    "rate_test": 0.25,
+    "rate_ref": 32.0,
+    "diff_pts": -31.75,
+    "improvement_pts": 31.75,
+    "group": {
+     "ci95": [
+      -35.125,
+      -28.500000000000004
+     ],
+     "ci90": [
+      -34.5,
+      -29.125
+     ],
+     "p_one_sided": 0.00024993751562109475
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      -42.390414526171256,
+      -22.432957484979973
+     ],
+     "ci90": [
+      -40.65546755237609,
+      -23.865474945969634
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 9,
+     "cluster_wins": 9,
+     "cluster_losses": 0,
+     "sign_p": 0.00390625
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      -43.13983885330684,
+      -22.556563453510012
+     ],
+     "ci90": [
+      -41.49898233720156,
+      -23.881503866180633
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 10,
+     "cluster_wins": 10,
+     "cluster_losses": 0,
+     "sign_p": 0.001953125
+    },
+    "discordant": {
+     "test_worse": 0,
+     "test_better": 254,
+     "binary": true,
+     "mcnemar_two_sided": 6.908934844075556e-77,
+     "mcnemar_one_sided": 3.454467422037778e-77
+    },
+    "identical_picks": 0,
+    "within_margin_90": false,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": -23.865474945969634,
+     "upper95_one_sided_group": -29.125,
+     "margin_pts": 2.0,
+     "pass_cluster": true,
+     "note": "polaris_grad is within 2.0 points of Gfull_grad_gator (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = fail(polaris_grad) - fail(Gfull_grad_gator) in points; negative = polaris_grad better",
+    "per_arena": {
+     "f104": {
+      "n": 800,
+      "rate_test": 0.25,
+      "rate_ref": 32.0,
+      "diff_pts": -31.75,
+      "ci95": [
+       -35.0,
+       -28.500000000000004
+      ],
+      "test_worse": 0,
+      "test_better": 254,
+      "role": "training",
+      "dist_nearest_training": 0.8114229378713305,
+      "map_err_rmse_m": 0.04986148709451798
+     }
+    },
+    "arena_signs": {
+     "better": 1,
+     "worse": 0,
+     "equal": 0
+    },
+    "random_effects": null,
+    "vs_distance_nearest_training": null,
+    "vs_map_error": null,
+    "near_spread": {},
+    "time_ratio": {
+     "n": 544,
+     "median_paired_ratio": 1.0028545766947827,
+     "median_paired_ratio_p95": 1.0371179039301308,
+     "median_paired_ratio_ci95": [
+      0.957335927206851,
+      1.0460405156537753
+     ],
+     "ratio_of_medians": 1.0,
+     "ratio_of_medians_p95": 1.0523415977961432,
+     "mean_ratio": 1.0993884778865106,
+     "median_time_x": 18.0,
+     "median_time_y": 18.0,
+     "bound": 1.1,
+     "pass_time": true,
+     "note": "t(polaris_grad) / t(Gfull_grad_gator); 95th percentile of the group bootstrap of the median paired ratio must be < 1.1"
+    }
+   },
+   "holm": {
+    "p_one_sided_cluster": 0.00024993751562109475,
+    "p_adjusted": 0.000999750062484379,
+    "reject": true,
+    "alpha": 0.05,
+    "family_size": 4
+   },
+   "decision": "improves"
+  },
+  {
+   "name": "F_polaris_grad_vs_cem",
+   "world": "crm",
+   "vehicle": "polaris",
+   "test": "polaris_grad",
+   "ref": "polaris_cem",
+   "label": "fail",
+   "set": "f104_800",
+   "result": {
+    "test": "polaris_grad",
+    "ref": "polaris_cem",
+    "label": "fail",
+    "n": 800,
+    "rate_test": 0.25,
+    "rate_ref": 0.0,
+    "diff_pts": 0.25,
+    "improvement_pts": -0.25,
+    "group": {
+     "ci95": [
+      0.0,
+      0.625
+     ],
+     "ci90": [
+      0.0,
+      0.625
+     ],
+     "p_one_sided": 1.0
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      0.0,
+      0.8379888268156425
+     ],
+     "ci90": [
+      0.0,
+      0.7623888182973316
+     ],
+     "p_one_sided": 1.0,
+     "clusters": 9,
+     "cluster_wins": 0,
+     "cluster_losses": 1,
+     "sign_p": 1.0
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      0.0,
+      0.8368200836820083
+     ],
+     "ci90": [
+      0.0,
+      0.754764507390333
+     ],
+     "p_one_sided": 1.0,
+     "clusters": 10,
+     "cluster_wins": 0,
+     "cluster_losses": 1,
+     "sign_p": 1.0
+    },
+    "discordant": {
+     "test_worse": 2,
+     "test_better": 0,
+     "binary": true,
+     "mcnemar_two_sided": 0.5,
+     "mcnemar_one_sided": 1.0
+    },
+    "identical_picks": 275,
+    "within_margin_90": true,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": 0.7623888182973316,
+     "upper95_one_sided_group": 0.625,
+     "margin_pts": 2.0,
+     "pass_cluster": true,
+     "note": "polaris_grad is within 2.0 points of polaris_cem (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = fail(polaris_grad) - fail(polaris_cem) in points; negative = polaris_grad better",
+    "per_arena": {
+     "f104": {
+      "n": 800,
+      "rate_test": 0.25,
+      "rate_ref": 0.0,
+      "diff_pts": 0.25,
+      "ci95": [
+       0.0,
+       0.625
+      ],
+      "test_worse": 2,
+      "test_better": 0,
+      "role": "training",
+      "dist_nearest_training": 0.8114229378713305,
+      "map_err_rmse_m": 0.04986148709451798
+     }
+    },
+    "arena_signs": {
+     "better": 0,
+     "worse": 1,
+     "equal": 0
+    },
+    "random_effects": null,
+    "vs_distance_nearest_training": null,
+    "vs_map_error": null,
+    "near_spread": {},
+    "time_ratio": {
+     "n": 798,
+     "median_paired_ratio": 1.0,
+     "median_paired_ratio_p95": 1.0,
+     "median_paired_ratio_ci95": [
+      1.0,
+      1.0
+     ],
+     "ratio_of_medians": 1.0763116057233704,
+     "ratio_of_medians_p95": 1.1112853910521252,
+     "mean_ratio": 1.1388381417387408,
+     "median_time_x": 16.925,
+     "median_time_y": 15.725000000000001,
+     "bound": 1.1,
+     "pass_time": true,
+     "note": "t(polaris_grad) / t(polaris_cem); 95th percentile of the group bootstrap of the median paired ratio must be < 1.1"
+    }
+   },
+   "holm": {
+    "p_one_sided_cluster": 1.0,
+    "p_adjusted": 1.0,
+    "reject": false,
+    "alpha": 0.05,
+    "family_size": 4
+   },
+   "decision": "no meaningful difference"
+  },
+  {
+   "name": "F_gator_grad_vs_gator_cem",
+   "world": "crm",
+   "vehicle": "gator",
+   "test": "Gfull_grad_gator",
+   "ref": "Gfull_free_gator",
+   "label": "fail",
+   "set": "f104_800",
+   "result": {
+    "test": "Gfull_grad_gator",
+    "ref": "Gfull_free_gator",
+    "label": "fail",
+    "n": 800,
+    "rate_test": 32.0,
+    "rate_ref": 32.625,
+    "diff_pts": -0.6249999999999978,
+    "improvement_pts": 0.6249999999999978,
+    "group": {
+     "ci95": [
+      -2.7500000000000027,
+      1.5000000000000013
+     ],
+     "ci90": [
+      -2.375000000000005,
+      1.2499999999999956
+     ],
+     "p_one_sided": 0.2944263934016496
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      -1.8265321850374736,
+      0.7599654284322146
+     ],
+     "ci90": [
+      -1.6455696202531647,
+      0.5326586773191299
+     ],
+     "p_one_sided": 0.20094976255936017,
+     "clusters": 9,
+     "cluster_wins": 4,
+     "cluster_losses": 2,
+     "sign_p": 0.6875
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      -1.7070065809725323,
+      0.48484848484848486
+     ],
+     "ci90": [
+      -1.5328617742410846,
+      0.27478211443728656
+     ],
+     "p_one_sided": 0.1562109472631842,
+     "clusters": 10,
+     "cluster_wins": 5,
+     "cluster_losses": 2,
+     "sign_p": 0.453125
+    },
+    "discordant": {
+     "test_worse": 37,
+     "test_better": 42,
+     "binary": true,
+     "mcnemar_two_sided": 0.6529643755164596,
+     "mcnemar_one_sided": 0.3264821877582298
+    },
+    "identical_picks": 66,
+    "within_margin_90": true,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": 0.5326586773191299,
+     "upper95_one_sided_group": 1.2499999999999956,
+     "margin_pts": 2.0,
+     "pass_cluster": true,
+     "note": "Gfull_grad_gator is within 2.0 points of Gfull_free_gator (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = fail(Gfull_grad_gator) - fail(Gfull_free_gator) in points; negative = Gfull_grad_gator better",
+    "per_arena": {
+     "f104": {
+      "n": 800,
+      "rate_test": 32.0,
+      "rate_ref": 32.625,
+      "diff_pts": -0.625,
+      "ci95": [
+       -2.7500000000000027,
+       1.5000000000000013
+      ],
+      "test_worse": 37,
+      "test_better": 42,
+      "role": "training",
+      "dist_nearest_training": 0.8114229378713305,
+      "map_err_rmse_m": 0.04986148709451798
+     }
+    },
+    "arena_signs": {
+     "better": 1,
+     "worse": 0,
+     "equal": 0
+    },
+    "random_effects": null,
+    "vs_distance_nearest_training": null,
+    "vs_map_error": null,
+    "near_spread": {},
+    "time_ratio": {
+     "n": 502,
+     "median_paired_ratio": 0.9520380934854619,
+     "median_paired_ratio_p95": 0.9605464298618638,
+     "median_paired_ratio_ci95": [
+      0.9387755102040817,
+      0.9631449631449631
+     ],
+     "ratio_of_medians": 0.9445910290237468,
+     "ratio_of_medians_p95": 0.9579945799457995,
+     "mean_ratio": 0.9443571735386682,
+     "median_time_x": 17.900000000000002,
+     "median_time_y": 18.95,
+     "bound": 1.1,
+     "pass_time": true,
+     "note": "t(Gfull_grad_gator) / t(Gfull_free_gator); 95th percentile of the group bootstrap of the median paired ratio must be < 1.1"
+    }
+   },
+   "holm": {
+    "p_one_sided_cluster": 0.20094976255936017,
+    "p_adjusted": 0.40189952511872035,
+    "reject": false,
+    "alpha": 0.05,
+    "family_size": 4
+   },
+   "decision": "no meaningful difference"
+  }
+ ],
+ "contrasts": [
+  {
+   "name": "S_polaris_cem_vs_gator_cem",
+   "world": "crm",
+   "vehicle": "any",
+   "test": "polaris_cem",
+   "ref": "Gfull_free_gator",
+   "label": "fail",
+   "set": "f104_800",
+   "result": {
+    "test": "polaris_cem",
+    "ref": "Gfull_free_gator",
+    "label": "fail",
+    "n": 800,
+    "rate_test": 0.0,
+    "rate_ref": 32.625,
+    "diff_pts": -32.625,
+    "improvement_pts": 32.625,
+    "group": {
+     "ci95": [
+      -35.875,
+      -29.375
+     ],
+     "ci90": [
+      -35.375,
+      -29.875
+     ],
+     "p_one_sided": 0.00024993751562109475
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      -43.95369405523644,
+      -23.333228247162673
+     ],
+     "ci90": [
+      -42.27141270118161,
+      -24.759816717384634
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 9,
+     "cluster_wins": 9,
+     "cluster_losses": 0,
+     "sign_p": 0.00390625
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      -44.525664872380204,
+      -22.916666666666668
+     ],
+     "ci90": [
+      -42.43721907367598,
+      -24.28006166762346
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 10,
+     "cluster_wins": 10,
+     "cluster_losses": 0,
+     "sign_p": 0.001953125
+    },
+    "discordant": {
+     "test_worse": 0,
+     "test_better": 261,
+     "binary": true,
+     "mcnemar_two_sided": 5.397605346934028e-79,
+     "mcnemar_one_sided": 2.698802673467014e-79
+    },
+    "identical_picks": 0,
+    "within_margin_90": false,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": -24.759816717384634,
+     "upper95_one_sided_group": -29.875,
+     "margin_pts": 2.0,
+     "pass_cluster": true,
+     "note": "polaris_cem is within 2.0 points of Gfull_free_gator (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = fail(polaris_cem) - fail(Gfull_free_gator) in points; negative = polaris_cem better",
+    "per_arena": {
+     "f104": {
+      "n": 800,
+      "rate_test": 0.0,
+      "rate_ref": 32.625,
+      "diff_pts": -32.625,
+      "ci95": [
+       -35.875,
+       -29.375
+      ],
+      "test_worse": 0,
+      "test_better": 261,
+      "role": "training",
+      "dist_nearest_training": 0.8114229378713305,
+      "map_err_rmse_m": 0.04986148709451798
+     }
+    },
+    "arena_signs": {
+     "better": 1,
+     "worse": 0,
+     "equal": 0
+    },
+    "random_effects": null,
+    "vs_distance_nearest_training": null,
+    "vs_map_error": null,
+    "near_spread": {},
+    "time_ratio": {
+     "n": 539,
+     "median_paired_ratio": 0.8710462287104623,
+     "median_paired_ratio_p95": 0.8918032786885247,
+     "median_paired_ratio_ci95": [
+      0.8411405295315683,
+      0.896551724137931
+     ],
+     "ratio_of_medians": 0.8944591029023746,
+     "ratio_of_medians_p95": 0.9228723404255319,
+     "mean_ratio": 0.9199107281552853,
+     "median_time_x": 16.95,
+     "median_time_y": 18.95,
+     "bound": 1.1,
+     "pass_time": true,
+     "note": "t(polaris_cem) / t(Gfull_free_gator); 95th percentile of the group bootstrap of the median paired ratio must be < 1.1"
+    }
+   },
+   "decision": "improves (secondary, unadjusted)"
+  },
+  {
+   "name": "S_polaris_grad_vs_hmmwv_grad",
+   "world": "crm",
+   "vehicle": "any",
+   "test": "polaris_grad",
+   "ref": "Hfull_grad_hmmwv",
+   "label": "fail",
+   "set": "f104_800",
+   "result": {
+    "test": "polaris_grad",
+    "ref": "Hfull_grad_hmmwv",
+    "label": "fail",
+    "n": 800,
+    "rate_test": 0.25,
+    "rate_ref": 3.75,
+    "diff_pts": -3.4999999999999996,
+    "improvement_pts": 3.4999999999999996,
+    "group": {
+     "ci95": [
+      -4.875,
+      -2.25
+     ],
+     "ci90": [
+      -4.625,
+      -2.375
+     ],
+     "p_one_sided": 0.00024993751562109475
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      -5.675675675675675,
+      -1.7239529376942422
+     ],
+     "ci90": [
+      -5.2631578947368425,
+      -1.963069890532901
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 9,
+     "cluster_wins": 7,
+     "cluster_losses": 0,
+     "sign_p": 0.015625
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      -5.821677814582983,
+      -1.9583803381792266
+     ],
+     "ci90": [
+      -5.382635290683403,
+      -2.1351196881544228
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 10,
+     "cluster_wins": 9,
+     "cluster_losses": 0,
+     "sign_p": 0.00390625
+    },
+    "discordant": {
+     "test_worse": 2,
+     "test_better": 30,
+     "binary": true,
+     "mcnemar_two_sided": 2.4633482098579407e-07,
+     "mcnemar_one_sided": 1.2316741049289703e-07
+    },
+    "identical_picks": 0,
+    "within_margin_90": false,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": -1.963069890532901,
+     "upper95_one_sided_group": -2.375,
+     "margin_pts": 2.0,
+     "pass_cluster": true,
+     "note": "polaris_grad is within 2.0 points of Hfull_grad_hmmwv (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = fail(polaris_grad) - fail(Hfull_grad_hmmwv) in points; negative = polaris_grad better",
+    "per_arena": {
+     "f104": {
+      "n": 800,
+      "rate_test": 0.25,
+      "rate_ref": 3.75,
+      "diff_pts": -3.5,
+      "ci95": [
+       -4.875,
+       -2.125
+      ],
+      "test_worse": 2,
+      "test_better": 30,
+      "role": "training",
+      "dist_nearest_training": 0.8114229378713305,
+      "map_err_rmse_m": 0.04986148709451798
+     }
+    },
+    "arena_signs": {
+     "better": 1,
+     "worse": 0,
+     "equal": 0
+    },
+    "random_effects": null,
+    "vs_distance_nearest_training": null,
+    "vs_map_error": null,
+    "near_spread": {},
+    "time_ratio": {
+     "n": 768,
+     "median_paired_ratio": 1.0623581003327838,
+     "median_paired_ratio_p95": 1.0891089108910892,
+     "median_paired_ratio_ci95": [
+      1.0227272727272727,
+      1.0940698339011212
+     ],
+     "ratio_of_medians": 1.0758293838862558,
+     "ratio_of_medians_p95": 1.1235781492646386,
+     "mean_ratio": 1.174571151011409,
+     "median_time_x": 17.025,
+     "median_time_y": 15.825000000000001,
+     "bound": 1.1,
+     "pass_time": true,
+     "note": "t(polaris_grad) / t(Hfull_grad_hmmwv); 95th percentile of the group bootstrap of the median paired ratio must be < 1.1"
+    }
+   },
+   "decision": "improves (secondary, unadjusted)"
+  },
+  {
+   "name": "S_polaris_grad_vs_straight6_unsafe",
+   "world": "crm",
+   "vehicle": "polaris",
+   "test": "polaris_grad",
+   "ref": "straight6_polaris",
+   "label": "unsafe",
+   "set": "f104_800",
+   "result": {
+    "test": "polaris_grad",
+    "ref": "straight6_polaris",
+    "label": "unsafe",
+    "n": 800,
+    "rate_test": 0.25,
+    "rate_ref": 0.5,
+    "diff_pts": -0.25,
+    "improvement_pts": 0.25,
+    "group": {
+     "ci95": [
+      -0.8750000000000001,
+      0.375
+     ],
+     "ci90": [
+      -0.7500000000000001,
+      0.25
+     ],
+     "p_one_sided": 0.2804298925268683
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      -0.5708252914685622,
+      0.0
+     ],
+     "ci90": [
+      -0.5148336849367777,
+      0.0
+     ],
+     "p_one_sided": 0.09647588102974257,
+     "clusters": 9,
+     "cluster_wins": 2,
+     "cluster_losses": 0,
+     "sign_p": 0.5
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      -1.125,
+      0.37786957809360355
+     ],
+     "ci90": [
+      -0.9873060648801129,
+      0.2801120448179272
+     ],
+     "p_one_sided": 0.38140464883779057,
+     "clusters": 10,
+     "cluster_wins": 1,
+     "cluster_losses": 1,
+     "sign_p": 1.0
+    },
+    "discordant": {
+     "test_worse": 2,
+     "test_better": 4,
+     "binary": true,
+     "mcnemar_two_sided": 0.6875,
+     "mcnemar_one_sided": 0.34375
+    },
+    "identical_picks": 3,
+    "within_margin_90": true,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": 0.0,
+     "upper95_one_sided_group": 0.25,
+     "margin_pts": 2.0,
+     "pass_cluster": true,
+     "note": "polaris_grad is within 2.0 points of straight6_polaris (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = unsafe(polaris_grad) - unsafe(straight6_polaris) in points; negative = polaris_grad better",
+    "per_arena": {
+     "f104": {
+      "n": 800,
+      "rate_test": 0.25,
+      "rate_ref": 0.5,
+      "diff_pts": -0.25,
+      "ci95": [
+       -0.8750000000000001,
+       0.375
+      ],
+      "test_worse": 2,
+      "test_better": 4,
+      "role": "training",
+      "dist_nearest_training": 0.8114229378713305,
+      "map_err_rmse_m": 0.04986148709451798
+     }
+    },
+    "arena_signs": {
+     "better": 1,
+     "worse": 0,
+     "equal": 0
+    },
+    "random_effects": null,
+    "vs_distance_nearest_training": null,
+    "vs_map_error": null,
+    "near_spread": {}
+   },
+   "decision": "no meaningful difference (secondary, unadjusted)"
+  },
+  {
+   "name": "S_polaris_grad_vs_gator_grad_unsafe",
+   "world": "crm",
+   "vehicle": "any",
+   "test": "polaris_grad",
+   "ref": "Gfull_grad_gator",
+   "label": "unsafe",
+   "set": "f104_800",
+   "result": {
+    "test": "polaris_grad",
+    "ref": "Gfull_grad_gator",
+    "label": "unsafe",
+    "n": 800,
+    "rate_test": 0.25,
+    "rate_ref": 32.125,
+    "diff_pts": -31.874999999999996,
+    "improvement_pts": 31.874999999999996,
+    "group": {
+     "ci95": [
+      -35.125,
+      -28.749999999999996
+     ],
+     "ci90": [
+      -34.625,
+      -29.25
+     ],
+     "p_one_sided": 0.00024993751562109475
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      -41.918867607879335,
+      -22.297861593910696
+     ],
+     "ci90": [
+      -40.49207117331745,
+      -23.74095948705227
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 9,
+     "cluster_wins": 9,
+     "cluster_losses": 0,
+     "sign_p": 0.00390625
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      -43.307418527936925,
+      -22.733073939220866
+     ],
+     "ci90": [
+      -41.31112994749358,
+      -23.90522352662161
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 10,
+     "cluster_wins": 10,
+     "cluster_losses": 0,
+     "sign_p": 0.001953125
+    },
+    "discordant": {
+     "test_worse": 0,
+     "test_better": 255,
+     "binary": true,
+     "mcnemar_two_sided": 3.454467422037778e-77,
+     "mcnemar_one_sided": 1.727233711018889e-77
+    },
+    "identical_picks": 0,
+    "within_margin_90": false,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": -23.74095948705227,
+     "upper95_one_sided_group": -29.25,
+     "margin_pts": 2.0,
+     "pass_cluster": true,
+     "note": "polaris_grad is within 2.0 points of Gfull_grad_gator (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = unsafe(polaris_grad) - unsafe(Gfull_grad_gator) in points; negative = polaris_grad better",
+    "per_arena": {
+     "f104": {
+      "n": 800,
+      "rate_test": 0.25,
+      "rate_ref": 32.125,
+      "diff_pts": -31.875,
+      "ci95": [
+       -35.125,
+       -28.625
+      ],
+      "test_worse": 0,
+      "test_better": 255,
+      "role": "training",
+      "dist_nearest_training": 0.8114229378713305,
+      "map_err_rmse_m": 0.04986148709451798
+     }
+    },
+    "arena_signs": {
+     "better": 1,
+     "worse": 0,
+     "equal": 0
+    },
+    "random_effects": null,
+    "vs_distance_nearest_training": null,
+    "vs_map_error": null,
+    "near_spread": {}
+   },
+   "decision": "improves (secondary, unadjusted)"
+  },
+  {
+   "name": "S_polaris_grad_vs_straight6_fresh600",
+   "world": "crm",
+   "vehicle": "polaris",
+   "test": "polaris_grad",
+   "ref": "straight6_polaris",
+   "label": "fail",
+   "set": "f104_600",
+   "result": {
+    "test": "polaris_grad",
+    "ref": "straight6_polaris",
+    "label": "fail",
+    "n": 600,
+    "rate_test": 0.16666666666666669,
+    "rate_ref": 0.33333333333333337,
+    "diff_pts": -0.16666666666666669,
+    "improvement_pts": 0.16666666666666669,
+    "group": {
+     "ci95": [
+      -0.8333333333333334,
+      0.33333333333333337
+     ],
+     "ci90": [
+      -0.6666666666666667,
+      0.3333333333333333
+     ],
+     "p_one_sided": 0.4008997750562359
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      -0.5629047815901888,
+      0.0
+     ],
+     "ci90": [
+      -0.5084745762711864,
+      0.0
+     ],
+     "p_one_sided": 0.35616095976005996,
+     "clusters": 9,
+     "cluster_wins": 1,
+     "cluster_losses": 0,
+     "sign_p": 1.0
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      -0.5952380952380952,
+      0.0
+     ],
+     "ci90": [
+      -0.49019607843137253,
+      0.0
+     ],
+     "p_one_sided": 0.3501624593851537,
+     "clusters": 10,
+     "cluster_wins": 1,
+     "cluster_losses": 0,
+     "sign_p": 1.0
+    },
+    "discordant": {
+     "test_worse": 1,
+     "test_better": 2,
+     "binary": true,
+     "mcnemar_two_sided": 1.0,
+     "mcnemar_one_sided": 0.5
+    },
+    "identical_picks": 3,
+    "within_margin_90": true,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": 0.0,
+     "upper95_one_sided_group": 0.3333333333333333,
+     "margin_pts": 2.0,
+     "pass_cluster": true,
+     "note": "polaris_grad is within 2.0 points of straight6_polaris (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = fail(polaris_grad) - fail(straight6_polaris) in points; negative = polaris_grad better",
+    "per_arena": {
+     "f104": {
+      "n": 600,
+      "rate_test": 0.16666666666666669,
+      "rate_ref": 0.33333333333333337,
+      "diff_pts": -0.16666666666666666,
+      "ci95": [
+       -0.8333333333333334,
+       0.33333333333333337
+      ],
+      "test_worse": 1,
+      "test_better": 2,
+      "role": "training",
+      "dist_nearest_training": 0.8114229378713305,
+      "map_err_rmse_m": 0.04986148709451798
+     }
+    },
+    "arena_signs": {
+     "better": 1,
+     "worse": 0,
+     "equal": 0
+    },
+    "random_effects": null,
+    "vs_distance_nearest_training": null,
+    "vs_map_error": null,
+    "near_spread": {},
+    "time_ratio": {
+     "n": 597,
+     "median_paired_ratio": 2.1232876712328763,
+     "median_paired_ratio_p95": 2.1939393939393943,
+     "median_paired_ratio_ci95": [
+      2.038251366120219,
+      2.205357142857143
+     ],
+     "ratio_of_medians": 2.186335403726708,
+     "ratio_of_medians_p95": 2.2767295597484276,
+     "mean_ratio": 2.360544089561921,
+     "median_time_x": 17.6,
+     "median_time_y": 8.05,
+     "bound": 1.1,
+     "pass_time": false,
+     "note": "t(polaris_grad) / t(straight6_polaris); 95th percentile of the group bootstrap of the median paired ratio must be < 1.1"
+    }
+   },
+   "decision": "no meaningful difference (secondary, unadjusted)"
+  },
+  {
+   "name": "S_polaris_grad_vs_gator_grad_fresh600",
+   "world": "crm",
+   "vehicle": "any",
+   "test": "polaris_grad",
+   "ref": "Gfull_grad_gator",
+   "label": "fail",
+   "set": "f104_600",
+   "result": {
+    "test": "polaris_grad",
+    "ref": "Gfull_grad_gator",
+    "label": "fail",
+    "n": 600,
+    "rate_test": 0.16666666666666669,
+    "rate_ref": 31.833333333333336,
+    "diff_pts": -31.66666666666667,
+    "improvement_pts": 31.66666666666667,
+    "group": {
+     "ci95": [
+      -35.5,
+      -28.000000000000004
+     ],
+     "ci90": [
+      -34.833333333333336,
+      -28.666666666666668
+     ],
+     "p_one_sided": 0.00024993751562109475
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      -41.571433793960665,
+      -22.70976656038737
+     ],
+     "ci90": [
+      -40.041540634535686,
+      -24.165266797269453
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 9,
+     "cluster_wins": 9,
+     "cluster_losses": 0,
+     "sign_p": 0.00390625
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      -43.65079365079365,
+      -22.635867273800486
+     ],
+     "ci90": [
+      -41.46825396825397,
+      -23.863636363636363
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 10,
+     "cluster_wins": 10,
+     "cluster_losses": 0,
+     "sign_p": 0.001953125
+    },
+    "discordant": {
+     "test_worse": 0,
+     "test_better": 190,
+     "binary": true,
+     "mcnemar_two_sided": 1.2744735289059618e-57,
+     "mcnemar_one_sided": 6.372367644529809e-58
+    },
+    "identical_picks": 0,
+    "within_margin_90": false,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": -24.165266797269453,
+     "upper95_one_sided_group": -28.666666666666668,
+     "margin_pts": 2.0,
+     "pass_cluster": true,
+     "note": "polaris_grad is within 2.0 points of Gfull_grad_gator (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = fail(polaris_grad) - fail(Gfull_grad_gator) in points; negative = polaris_grad better",
+    "per_arena": {
+     "f104": {
+      "n": 600,
+      "rate_test": 0.16666666666666669,
+      "rate_ref": 31.833333333333336,
+      "diff_pts": -31.666666666666668,
+      "ci95": [
+       -35.333333333333336,
+       -28.000000000000004
+      ],
+      "test_worse": 0,
+      "test_better": 190,
+      "role": "training",
+      "dist_nearest_training": 0.8114229378713305,
+      "map_err_rmse_m": 0.04986148709451798
+     }
+    },
+    "arena_signs": {
+     "better": 1,
+     "worse": 0,
+     "equal": 0
+    },
+    "random_effects": null,
+    "vs_distance_nearest_training": null,
+    "vs_map_error": null,
+    "near_spread": {},
+    "time_ratio": {
+     "n": 409,
+     "median_paired_ratio": 1.0157728706624605,
+     "median_paired_ratio_p95": 1.0486322188449848,
+     "median_paired_ratio_ci95": [
+      0.9601449275362318,
+      1.0548780487804876
+     ],
+     "ratio_of_medians": 1.0246575342465754,
+     "ratio_of_medians_p95": 1.0635447115899663,
+     "mean_ratio": 1.1024410175089803,
+     "median_time_x": 18.7,
+     "median_time_y": 18.25,
+     "bound": 1.1,
+     "pass_time": true,
+     "note": "t(polaris_grad) / t(Gfull_grad_gator); 95th percentile of the group bootstrap of the median paired ratio must be < 1.1"
+    }
+   },
+   "decision": "improves (secondary, unadjusted)"
+  },
+  {
+   "name": "S_polaris_grad_vs_cem_fresh600",
+   "world": "crm",
+   "vehicle": "polaris",
+   "test": "polaris_grad",
+   "ref": "polaris_cem",
+   "label": "fail",
+   "set": "f104_600",
+   "result": {
+    "test": "polaris_grad",
+    "ref": "polaris_cem",
+    "label": "fail",
+    "n": 600,
+    "rate_test": 0.16666666666666669,
+    "rate_ref": 0.0,
+    "diff_pts": 0.16666666666666669,
+    "improvement_pts": -0.16666666666666669,
+    "group": {
+     "ci95": [
+      0.0,
+      0.5
+     ],
+     "ci90": [
+      0.0,
+      0.5
+     ],
+     "p_one_sided": 1.0
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      0.0,
+      0.5791505791505791
+     ],
+     "ci90": [
+      0.0,
+      0.5181795363680367
+     ],
+     "p_one_sided": 1.0,
+     "clusters": 9,
+     "cluster_wins": 0,
+     "cluster_losses": 1,
+     "sign_p": 1.0
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      0.0,
+      0.6
+     ],
+     "ci90": [
+      0.0,
+      0.5
+     ],
+     "p_one_sided": 1.0,
+     "clusters": 10,
+     "cluster_wins": 0,
+     "cluster_losses": 1,
+     "sign_p": 1.0
+    },
+    "discordant": {
+     "test_worse": 1,
+     "test_better": 0,
+     "binary": true,
+     "mcnemar_two_sided": 1.0,
+     "mcnemar_one_sided": 1.0
+    },
+    "identical_picks": 211,
+    "within_margin_90": true,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": 0.5181795363680367,
+     "upper95_one_sided_group": 0.5,
+     "margin_pts": 2.0,
+     "pass_cluster": true,
+     "note": "polaris_grad is within 2.0 points of polaris_cem (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = fail(polaris_grad) - fail(polaris_cem) in points; negative = polaris_grad better",
+    "per_arena": {
+     "f104": {
+      "n": 600,
+      "rate_test": 0.16666666666666669,
+      "rate_ref": 0.0,
+      "diff_pts": 0.16666666666666666,
+      "ci95": [
+       0.0,
+       0.5
+      ],
+      "test_worse": 1,
+      "test_better": 0,
+      "role": "training",
+      "dist_nearest_training": 0.8114229378713305,
+      "map_err_rmse_m": 0.04986148709451798
+     }
+    },
+    "arena_signs": {
+     "better": 0,
+     "worse": 1,
+     "equal": 0
+    },
+    "random_effects": null,
+    "vs_distance_nearest_training": null,
+    "vs_map_error": null,
+    "near_spread": {},
+    "time_ratio": {
+     "n": 599,
+     "median_paired_ratio": 1.0,
+     "median_paired_ratio_p95": 1.0,
+     "median_paired_ratio_ci95": [
+      1.0,
+      1.0
+     ],
+     "ratio_of_medians": 1.0797546012269938,
+     "ratio_of_medians_p95": 1.1139240506329113,
+     "mean_ratio": 1.1395671079907035,
+     "median_time_x": 17.6,
+     "median_time_y": 16.3,
+     "bound": 1.1,
+     "pass_time": true,
+     "note": "t(polaris_grad) / t(polaris_cem); 95th percentile of the group bootstrap of the median paired ratio must be < 1.1"
+    }
+   },
+   "decision": "no meaningful difference (secondary, unadjusted)"
+  },
+  {
+   "name": "S_polaris_grad_vs_gator_grad_belly",
+   "world": "crm",
+   "vehicle": "any",
+   "test": "polaris_grad",
+   "ref": "Gfull_grad_gator",
+   "label": "fail_belly",
+   "set": "f104_800",
+   "result": {
+    "test": "polaris_grad",
+    "ref": "Gfull_grad_gator",
+    "label": "fail_belly",
+    "n": 800,
+    "rate_test": 0.25,
+    "rate_ref": 32.0,
+    "diff_pts": -31.75,
+    "improvement_pts": 31.75,
+    "group": {
+     "ci95": [
+      -35.0,
+      -28.499999999999996
+     ],
+     "ci90": [
+      -34.5,
+      -28.999999999999996
+     ],
+     "p_one_sided": 0.00024993751562109475
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      -42.25579573934837,
+      -22.73750848774795
+     ],
+     "ci90": [
+      -40.4048174048174,
+      -24.004583835946928
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 9,
+     "cluster_wins": 9,
+     "cluster_losses": 0,
+     "sign_p": 0.00390625
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      -43.75108960948396,
+      -22.515174187255457
+     ],
+     "ci90": [
+      -41.53318420928308,
+      -23.675885307393987
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 10,
+     "cluster_wins": 10,
+     "cluster_losses": 0,
+     "sign_p": 0.001953125
+    },
+    "discordant": {
+     "test_worse": 0,
+     "test_better": 254,
+     "binary": true,
+     "mcnemar_two_sided": 6.908934844075556e-77,
+     "mcnemar_one_sided": 3.454467422037778e-77
+    },
+    "identical_picks": 0,
+    "within_margin_90": false,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": -24.004583835946928,
+     "upper95_one_sided_group": -28.999999999999996,
+     "margin_pts": 2.0,
+     "pass_cluster": true,
+     "note": "polaris_grad is within 2.0 points of Gfull_grad_gator (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = fail_belly(polaris_grad) - fail_belly(Gfull_grad_gator) in points; negative = polaris_grad better",
+    "per_arena": {
+     "f104": {
+      "n": 800,
+      "rate_test": 0.25,
+      "rate_ref": 32.0,
+      "diff_pts": -31.75,
+      "ci95": [
+       -34.875,
+       -28.500000000000004
+      ],
+      "test_worse": 0,
+      "test_better": 254,
+      "role": "training",
+      "dist_nearest_training": 0.8114229378713305,
+      "map_err_rmse_m": 0.04986148709451798
+     }
+    },
+    "arena_signs": {
+     "better": 1,
+     "worse": 0,
+     "equal": 0
+    },
+    "random_effects": null,
+    "vs_distance_nearest_training": null,
+    "vs_map_error": null,
+    "near_spread": {}
+   },
+   "decision": "improves (secondary, unadjusted)"
+  },
+  {
+   "name": "S_gator_grad_vs_straight6",
+   "world": "crm",
+   "vehicle": "gator",
+   "test": "Gfull_grad_gator",
+   "ref": "straight6_gator",
+   "label": "fail",
+   "set": "f104_800",
+   "result": {
+    "test": "Gfull_grad_gator",
+    "ref": "straight6_gator",
+    "label": "fail",
+    "n": 800,
+    "rate_test": 32.0,
+    "rate_ref": 85.75,
+    "diff_pts": -53.75000000000001,
+    "improvement_pts": 53.75000000000001,
+    "group": {
+     "ci95": [
+      -57.25,
+      -50.0
+     ],
+     "ci90": [
+      -56.749999999999986,
+      -50.62500000000001
+     ],
+     "p_one_sided": 0.00024993751562109475
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      -60.325225225225225,
+      -46.38779522641311
+     ],
+     "ci90": [
+      -59.381898454746135,
+      -47.6187561928076
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 9,
+     "cluster_wins": 9,
+     "cluster_losses": 0,
+     "sign_p": 0.00390625
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      -60.36754583921016,
+      -47.35479527305858
+     ],
+     "ci90": [
+      -59.20412103787014,
+      -48.468025778362936
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 10,
+     "cluster_wins": 10,
+     "cluster_losses": 0,
+     "sign_p": 0.001953125
+    },
+    "discordant": {
+     "test_worse": 11,
+     "test_better": 441,
+     "binary": true,
+     "mcnemar_two_sided": 6.287793544957906e-115,
+     "mcnemar_one_sided": 3.143896772478953e-115
+    },
+    "identical_picks": 0,
+    "within_margin_90": false,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": -47.6187561928076,
+     "upper95_one_sided_group": -50.62500000000001,
+     "margin_pts": 2.0,
+     "pass_cluster": true,
+     "note": "Gfull_grad_gator is within 2.0 points of straight6_gator (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = fail(Gfull_grad_gator) - fail(straight6_gator) in points; negative = Gfull_grad_gator better",
+    "per_arena": {
+     "f104": {
+      "n": 800,
+      "rate_test": 32.0,
+      "rate_ref": 85.75,
+      "diff_pts": -53.75,
+      "ci95": [
+       -57.25,
+       -50.125
+      ],
+      "test_worse": 11,
+      "test_better": 441,
+      "role": "training",
+      "dist_nearest_training": 0.8114229378713305,
+      "map_err_rmse_m": 0.04986148709451798
+     }
+    },
+    "arena_signs": {
+     "better": 1,
+     "worse": 0,
+     "equal": 0
+    },
+    "random_effects": null,
+    "vs_distance_nearest_training": null,
+    "vs_map_error": null,
+    "near_spread": {},
+    "time_ratio": {
+     "n": 103,
+     "median_paired_ratio": 0.9872204472843451,
+     "median_paired_ratio_p95": 1.0087209302325582,
+     "median_paired_ratio_ci95": [
+      0.968944099378882,
+      1.0108303249097472
+     ],
+     "ratio_of_medians": 0.9676470588235294,
+     "ratio_of_medians_p95": 1.0150671073351154,
+     "mean_ratio": 0.9875369767751194,
+     "median_time_x": 16.45,
+     "median_time_y": 17.0,
+     "bound": 1.1,
+     "pass_time": true,
+     "note": "t(Gfull_grad_gator) / t(straight6_gator); 95th percentile of the group bootstrap of the median paired ratio must be < 1.1"
+    }
+   },
+   "decision": "improves (secondary, unadjusted)"
+  },
+  {
+   "name": "S_hmmwv_grad_vs_cem_bridge",
+   "world": "crm",
+   "vehicle": "hmmwv",
+   "test": "Hfull_grad_hmmwv",
+   "ref": "Hfull_free",
+   "label": "fail",
+   "set": "f104_800",
+   "result": {
+    "test": "Hfull_grad_hmmwv",
+    "ref": "Hfull_free",
+    "label": "fail",
+    "n": 800,
+    "rate_test": 3.75,
+    "rate_ref": 4.375,
+    "diff_pts": -0.6249999999999999,
+    "improvement_pts": 0.6249999999999999,
+    "group": {
+     "ci95": [
+      -2.125,
+      0.8750000000000001
+     ],
+     "ci90": [
+      -1.875,
+      0.6249999999999999
+     ],
+     "p_one_sided": 0.2274431392151962
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      -2.6869158878504673,
+      1.0309658486147857
+     ],
+     "ci90": [
+      -2.3378143313123805,
+      0.7894736842105263
+     ],
+     "p_one_sided": 0.2984253936515871,
+     "clusters": 9,
+     "cluster_wins": 4,
+     "cluster_losses": 3,
+     "sign_p": 1.0
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      -2.0317032263252517,
+      0.5675593054536568
+     ],
+     "ci90": [
+      -1.7546432062561093,
+      0.3968780261883707
+     ],
+     "p_one_sided": 0.2034491377155711,
+     "clusters": 10,
+     "cluster_wins": 5,
+     "cluster_losses": 3,
+     "sign_p": 0.7265625
+    },
+    "discordant": {
+     "test_worse": 16,
+     "test_better": 21,
+     "binary": true,
+     "mcnemar_two_sided": 0.5113757815852296,
+     "mcnemar_one_sided": 0.2556878907926148
+    },
+    "identical_picks": 157,
+    "within_margin_90": false,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": 0.7894736842105263,
+     "upper95_one_sided_group": 0.6249999999999999,
+     "margin_pts": 2.0,
+     "pass_cluster": true,
+     "note": "Hfull_grad_hmmwv is within 2.0 points of Hfull_free (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = fail(Hfull_grad_hmmwv) - fail(Hfull_free) in points; negative = Hfull_grad_hmmwv better",
+    "per_arena": {
+     "f104": {
+      "n": 800,
+      "rate_test": 3.75,
+      "rate_ref": 4.375,
+      "diff_pts": -0.625,
+      "ci95": [
+       -2.125,
+       0.8750000000000001
+      ],
+      "test_worse": 16,
+      "test_better": 21,
+      "role": "training",
+      "dist_nearest_training": 0.8114229378713305,
+      "map_err_rmse_m": 0.04986148709451798
+     }
+    },
+    "arena_signs": {
+     "better": 1,
+     "worse": 0,
+     "equal": 0
+    },
+    "random_effects": null,
+    "vs_distance_nearest_training": null,
+    "vs_map_error": null,
+    "near_spread": {},
+    "time_ratio": {
+     "n": 749,
+     "median_paired_ratio": 0.9755434782608694,
+     "median_paired_ratio_p95": 0.9964028776978417,
+     "median_paired_ratio_ci95": [
+      0.960591133004926,
+      1.0
+     ],
+     "ratio_of_medians": 0.9300291545189504,
+     "ratio_of_medians_p95": 0.9556213017751479,
+     "mean_ratio": 0.9651899476756023,
+     "median_time_x": 15.950000000000001,
+     "median_time_y": 17.150000000000002,
+     "bound": 1.1,
+     "pass_time": true,
+     "note": "t(Hfull_grad_hmmwv) / t(Hfull_free); 95th percentile of the group bootstrap of the median paired ratio must be < 1.1"
+    }
+   },
+   "decision": "inconclusive (secondary, unadjusted)"
+  },
+  {
+   "name": "S_hmmwv_grad_vs_straight6",
+   "world": "crm",
+   "vehicle": "hmmwv",
+   "test": "Hfull_grad_hmmwv",
+   "ref": "straight6",
+   "label": "fail",
+   "set": "f104_800",
+   "result": {
+    "test": "Hfull_grad_hmmwv",
+    "ref": "straight6",
+    "label": "fail",
+    "n": 0
+   },
+   "decision": "no data (secondary, unadjusted)"
+  },
+  {
+   "name": "S_gator_grad_vs_gator_cem_fresh600",
+   "world": "crm",
+   "vehicle": "gator",
+   "test": "Gfull_grad_gator",
+   "ref": "Gfull_free_gator",
+   "label": "fail",
+   "set": "f104_600",
+   "result": {
+    "test": "Gfull_grad_gator",
+    "ref": "Gfull_free_gator",
+    "label": "fail",
+    "n": 600,
+    "rate_test": 31.833333333333336,
+    "rate_ref": 33.33333333333333,
+    "diff_pts": -1.4999999999999958,
+    "improvement_pts": 1.4999999999999958,
+    "group": {
+     "ci95": [
+      -4.166666666666669,
+      1.1666666666666659
+     ],
+     "ci90": [
+      -3.666666666666668,
+      0.6666666666666654
+     ],
+     "p_one_sided": 0.14946263434141466
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      -2.7372887711228877,
+      0.0
+     ],
+     "ci90": [
+      -2.5594442413162706,
+      -0.19078537595782002
+     ],
+     "p_one_sided": 0.03624093976505874,
+     "clusters": 9,
+     "cluster_wins": 7,
+     "cluster_losses": 2,
+     "sign_p": 0.1796875
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      -2.9069767441860463,
+      -0.4065040650406504
+     ],
+     "ci90": [
+      -2.6315789473684212,
+      -0.5813953488372093
+     ],
+     "p_one_sided": 0.004498875281179705,
+     "clusters": 10,
+     "cluster_wins": 6,
+     "cluster_losses": 1,
+     "sign_p": 0.125
+    },
+    "discordant": {
+     "test_worse": 28,
+     "test_better": 37,
+     "binary": true,
+     "mcnemar_two_sided": 0.3210841356849956,
+     "mcnemar_one_sided": 0.1605420678424978
+    },
+    "identical_picks": 49,
+    "within_margin_90": false,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": -0.19078537595782002,
+     "upper95_one_sided_group": 0.6666666666666654,
+     "margin_pts": 2.0,
+     "pass_cluster": true,
+     "note": "Gfull_grad_gator is within 2.0 points of Gfull_free_gator (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = fail(Gfull_grad_gator) - fail(Gfull_free_gator) in points; negative = Gfull_grad_gator better",
+    "per_arena": {
+     "f104": {
+      "n": 600,
+      "rate_test": 31.833333333333336,
+      "rate_ref": 33.33333333333333,
+      "diff_pts": -1.5,
+      "ci95": [
+       -4.0000000000000036,
+       1.1666666666666659
+      ],
+      "test_worse": 28,
+      "test_better": 37,
+      "role": "training",
+      "dist_nearest_training": 0.8114229378713305,
+      "map_err_rmse_m": 0.04986148709451798
+     }
+    },
+    "arena_signs": {
+     "better": 1,
+     "worse": 0,
+     "equal": 0
+    },
+    "random_effects": null,
+    "vs_distance_nearest_training": null,
+    "vs_map_error": null,
+    "near_spread": {},
+    "time_ratio": {
+     "n": 372,
+     "median_paired_ratio": 0.9524206410454288,
+     "median_paired_ratio_p95": 0.9600049398398081,
+     "median_paired_ratio_ci95": [
+      0.936986301369863,
+      0.961218836565097
+     ],
+     "ratio_of_medians": 0.9319640564826701,
+     "ratio_of_medians_p95": 0.9553805774278215,
+     "mean_ratio": 0.9424287455542169,
+     "median_time_x": 18.150000000000002,
+     "median_time_y": 19.475,
+     "bound": 1.1,
+     "pass_time": true,
+     "note": "t(Gfull_grad_gator) / t(Gfull_free_gator); 95th percentile of the group bootstrap of the median paired ratio must be < 1.1"
+    }
+   },
+   "decision": "improves (secondary, unadjusted)"
+  }
+ ],
+ "gaps": [],
+ "dose": [],
+ "time_ratio": [
+  {
+   "world": "crm",
+   "vehicle": "polaris",
+   "test": "polaris_grad",
+   "ref": "polaris_cem",
+   "set": "f104_800",
+   "result": {
+    "n": 798,
+    "median_paired_ratio": 1.0,
+    "median_paired_ratio_p95": 1.0,
+    "median_paired_ratio_ci95": [
+     1.0,
+     1.0
+    ],
+    "ratio_of_medians": 1.0763116057233704,
+    "ratio_of_medians_p95": 1.111481781857024,
+    "mean_ratio": 1.1388381417387408,
+    "median_time_x": 16.925,
+    "median_time_y": 15.725000000000001,
+    "bound": 1.1,
+    "pass_time": true,
+    "note": "t(polaris_grad) / t(polaris_cem); 95th percentile of the group bootstrap of the median paired ratio must be < 1.1"
+   }
+  },
+  {
+   "world": "crm",
+   "vehicle": "gator",
+   "test": "Gfull_grad_gator",
+   "ref": "Gfull_free_gator",
+   "set": "f104_800",
+   "result": {
+    "n": 502,
+    "median_paired_ratio": 0.9520380934854619,
+    "median_paired_ratio_p95": 0.9600049398398081,
+    "median_paired_ratio_ci95": [
+     0.9387755102040817,
+     0.9620234712194894
+    ],
+    "ratio_of_medians": 0.9445910290237468,
+    "ratio_of_medians_p95": 0.9585006693440429,
+    "mean_ratio": 0.9443571735386682,
+    "median_time_x": 17.900000000000002,
+    "median_time_y": 18.95,
+    "bound": 1.1,
+    "pass_time": true,
+    "note": "t(Gfull_grad_gator) / t(Gfull_free_gator); 95th percentile of the group bootstrap of the median paired ratio must be < 1.1"
+   }
+  },
+  {
+   "world": "crm",
+   "vehicle": "hmmwv",
+   "test": "Hfull_grad_hmmwv",
+   "ref": "Hfull_free",
+   "set": "f104_800",
+   "result": {
+    "n": 749,
+    "median_paired_ratio": 0.9755434782608694,
+    "median_paired_ratio_p95": 0.9971590909090908,
+    "median_paired_ratio_ci95": [
+     0.960591133004926,
+     1.0
+    ],
+    "ratio_of_medians": 0.9300291545189504,
+    "ratio_of_medians_p95": 0.9557522123893806,
+    "mean_ratio": 0.9651899476756023,
+    "median_time_x": 15.950000000000001,
+    "median_time_y": 17.150000000000002,
+    "bound": 1.1,
+    "pass_time": true,
+    "note": "t(Hfull_grad_hmmwv) / t(Hfull_free); 95th percentile of the group bootstrap of the median paired ratio must be < 1.1"
+   }
+  }
+ ],
+ "headroom": [
+  {
+   "world": "crm",
+   "vehicle": "polaris",
+   "model": "polaris_grad",
+   "straight": "straight6_polaris",
+   "label": "fail",
+   "set": "f104_800",
+   "result": {
+    "n": 800,
+    "rate_model": 0.25,
+    "rate_straight": 0.5,
+    "headroom_closed": 0.5,
+    "ci95": [
+     -1.5,
+     1.0
+    ],
+    "note": "(straight - model) / straight on the failure rate = the share of the straight route's failures the model removes; normalising by feasibility instead of 1 (REVIEW_R1 3d) needs the collection's any-route-reaches-the-goal share"
+   }
+  },
+  {
+   "world": "crm",
+   "vehicle": "polaris",
+   "model": "polaris_cem",
+   "straight": "straight6_polaris",
+   "label": "fail",
+   "set": "f104_800",
+   "result": {
+    "n": 800,
+    "rate_model": 0.0,
+    "rate_straight": 0.5,
+    "headroom_closed": 1.0,
+    "ci95": [
+     1.0,
+     1.0
+    ],
+    "note": "(straight - model) / straight on the failure rate = the share of the straight route's failures the model removes; normalising by feasibility instead of 1 (REVIEW_R1 3d) needs the collection's any-route-reaches-the-goal share"
+   }
+  },
+  {
+   "world": "crm",
+   "vehicle": "gator",
+   "model": "Gfull_grad_gator",
+   "straight": "straight6_gator",
+   "label": "fail",
+   "set": "f104_800",
+   "result": {
+    "n": 800,
+    "rate_model": 32.0,
+    "rate_straight": 85.75,
+    "headroom_closed": 0.6268221574344024,
+    "ci95": [
+     0.5896287732819525,
+     0.6643155109657788
+    ],
+    "note": "(straight - model) / straight on the failure rate = the share of the straight route's failures the model removes; normalising by feasibility instead of 1 (REVIEW_R1 3d) needs the collection's any-route-reaches-the-goal share"
+   }
+  },
+  {
+   "world": "crm",
+   "vehicle": "hmmwv",
+   "model": "Hfull_grad_hmmwv",
+   "straight": "straight6",
+   "label": "fail",
+   "set": "f104_800",
+   "result": {
+    "n": 0
+   }
+  }
+ ],
+ "rates": {
+  "crm|polaris": {
+   "f104_800": {
+    "polaris_cem": {
+     "n": 800,
+     "goal_reached": 100.0,
+     "fail": 0.0,
+     "unsafe": 0.0,
+     "unsafe_noback": 0.0,
+     "backward_only": 0.0,
+     "tilt30": 11.375,
+     "fail_belly": 0.0,
+     "unsafe_belly": 0.0,
+     "median_time_s": 15.725000000000001,
+     "status_counts": {
+      "goal_reached": 800
+     }
+    },
+    "polaris_grad": {
+     "n": 800,
+     "goal_reached": 99.75,
+     "fail": 0.25,
+     "unsafe": 0.25,
+     "unsafe_noback": 0.25,
+     "backward_only": 0.0,
+     "tilt30": 14.374999999999998,
+     "fail_belly": 0.25,
+     "unsafe_belly": 0.25,
+     "median_time_s": 16.925,
+     "status_counts": {
+      "goal_reached": 798,
+      "terrain_bounds_exit": 1,
+      "rollover": 1
+     }
+    },
+    "straight6_polaris": {
+     "n": 800,
+     "goal_reached": 99.5,
+     "fail": 0.5,
+     "unsafe": 0.5,
+     "unsafe_noback": 0.5,
+     "backward_only": 0.0,
+     "tilt30": 11.5,
+     "fail_belly": 0.5,
+     "unsafe_belly": 0.5,
+     "median_time_s": 7.9,
+     "status_counts": {
+      "goal_reached": 796,
+      "timeout": 1,
+      "rollover": 1,
+      "terrain_bounds_exit": 1,
+      "prolonged_blockage_terminated": 1
+     }
+    }
+   },
+   "f104_600": {
+    "polaris_cem": {
+     "n": 600,
+     "goal_reached": 100.0,
+     "fail": 0.0,
+     "unsafe": 0.0,
+     "unsafe_noback": 0.0,
+     "backward_only": 0.0,
+     "tilt30": 12.166666666666668,
+     "fail_belly": 0.0,
+     "unsafe_belly": 0.0,
+     "median_time_s": 16.3,
+     "status_counts": {
+      "goal_reached": 600
+     }
+    },
+    "polaris_grad": {
+     "n": 600,
+     "goal_reached": 99.83333333333333,
+     "fail": 0.16666666666666669,
+     "unsafe": 0.16666666666666669,
+     "unsafe_noback": 0.16666666666666669,
+     "backward_only": 0.0,
+     "tilt30": 14.166666666666666,
+     "fail_belly": 0.16666666666666669,
+     "unsafe_belly": 0.16666666666666669,
+     "median_time_s": 17.6,
+     "status_counts": {
+      "goal_reached": 599,
+      "rollover": 1
+     }
+    },
+    "straight6_polaris": {
+     "n": 600,
+     "goal_reached": 99.66666666666667,
+     "fail": 0.33333333333333337,
+     "unsafe": 0.33333333333333337,
+     "unsafe_noback": 0.33333333333333337,
+     "backward_only": 0.0,
+     "tilt30": 11.5,
+     "fail_belly": 0.33333333333333337,
+     "unsafe_belly": 0.33333333333333337,
+     "median_time_s": 8.05,
+     "status_counts": {
+      "goal_reached": 598,
+      "terrain_bounds_exit": 1,
+      "prolonged_blockage_terminated": 1
+     }
+    }
+   },
+   "f104_200": {
+    "polaris_cem": {
+     "n": 200,
+     "goal_reached": 100.0,
+     "fail": 0.0,
+     "unsafe": 0.0,
+     "unsafe_noback": 0.0,
+     "backward_only": 0.0,
+     "tilt30": 9.0,
+     "fail_belly": 0.0,
+     "unsafe_belly": 0.0,
+     "median_time_s": 14.125,
+     "status_counts": {
+      "goal_reached": 200
+     }
+    },
+    "polaris_grad": {
+     "n": 200,
+     "goal_reached": 99.5,
+     "fail": 0.5,
+     "unsafe": 0.5,
+     "unsafe_noback": 0.5,
+     "backward_only": 0.0,
+     "tilt30": 15.0,
+     "fail_belly": 0.5,
+     "unsafe_belly": 0.5,
+     "median_time_s": 15.350000000000001,
+     "status_counts": {
+      "goal_reached": 199,
+      "terrain_bounds_exit": 1
+     }
+    },
+    "straight6_polaris": {
+     "n": 200,
+     "goal_reached": 99.0,
+     "fail": 1.0,
+     "unsafe": 1.0,
+     "unsafe_noback": 1.0,
+     "backward_only": 0.0,
+     "tilt30": 11.5,
+     "fail_belly": 1.0,
+     "unsafe_belly": 1.0,
+     "median_time_s": 7.525,
+     "status_counts": {
+      "goal_reached": 198,
+      "timeout": 1,
+      "rollover": 1
+     }
+    }
+   }
+  },
+  "crm|polaris_pc": {
+   "f104_800": {
+    "polaris_grad_pc": {
+     "n": 800,
+     "goal_reached": 99.125,
+     "fail": 0.8750000000000001,
+     "unsafe": 0.8750000000000001,
+     "unsafe_noback": 0.8750000000000001,
+     "backward_only": 0.0,
+     "tilt30": 12.625,
+     "fail_belly": 0.8750000000000001,
+     "unsafe_belly": 0.8750000000000001,
+     "median_time_s": 16.650000000000002,
+     "status_counts": {
+      "goal_reached": 793,
+      "prolonged_blockage_terminated": 5,
+      "soil_breakthrough_terminated": 2
+     }
+    }
+   },
+   "f104_600": {
+    "polaris_grad_pc": {
+     "n": 600,
+     "goal_reached": 99.16666666666667,
+     "fail": 0.8333333333333334,
+     "unsafe": 0.8333333333333334,
+     "unsafe_noback": 0.8333333333333334,
+     "backward_only": 0.0,
+     "tilt30": 12.333333333333334,
+     "fail_belly": 0.8333333333333334,
+     "unsafe_belly": 0.8333333333333334,
+     "median_time_s": 17.55,
+     "status_counts": {
+      "goal_reached": 595,
+      "soil_breakthrough_terminated": 2,
+      "prolonged_blockage_terminated": 3
+     }
+    }
+   },
+   "f104_200": {
+    "polaris_grad_pc": {
+     "n": 200,
+     "goal_reached": 99.0,
+     "fail": 1.0,
+     "unsafe": 1.0,
+     "unsafe_noback": 1.0,
+     "backward_only": 0.0,
+     "tilt30": 13.5,
+     "fail_belly": 1.0,
+     "unsafe_belly": 1.0,
+     "median_time_s": 15.225000000000001,
+     "status_counts": {
+      "goal_reached": 198,
+      "prolonged_blockage_terminated": 2
+     }
+    }
+   }
+  },
+  "crm|gator": {
+   "f104_800": {
+    "Gfull_free_gator": {
+     "n": 800,
+     "goal_reached": 67.375,
+     "fail": 32.625,
+     "unsafe": 33.0,
+     "unsafe_noback": 32.625,
+     "backward_only": 0.375,
+     "tilt30": 1.625,
+     "fail_belly": 32.625,
+     "unsafe_belly": 33.0,
+     "median_time_s": 18.95,
+     "status_counts": {
+      "goal_reached": 539,
+      "prolonged_blockage_terminated": 254,
+      "soil_breakthrough_terminated": 7
+     }
+    },
+    "Gfull_grad_gator": {
+     "n": 800,
+     "goal_reached": 68.0,
+     "fail": 32.0,
+     "unsafe": 32.125,
+     "unsafe_noback": 32.0,
+     "backward_only": 0.125,
+     "tilt30": 1.625,
+     "fail_belly": 32.0,
+     "unsafe_belly": 32.125,
+     "median_time_s": 18.0,
+     "status_counts": {
+      "goal_reached": 544,
+      "prolonged_blockage_terminated": 241,
+      "soil_breakthrough_terminated": 15
+     }
+    },
+    "straight6_gator": {
+     "n": 800,
+     "goal_reached": 14.249999999999996,
+     "fail": 85.75,
+     "unsafe": 85.75,
+     "unsafe_noback": 85.75,
+     "backward_only": 0.0,
+     "tilt30": 12.125,
+     "fail_belly": 85.75,
+     "unsafe_belly": 85.75,
+     "median_time_s": 17.025,
+     "status_counts": {
+      "prolonged_blockage_terminated": 679,
+      "goal_reached": 114,
+      "soil_breakthrough_terminated": 7
+     }
+    }
+   },
+   "f104_600": {
+    "Gfull_free_gator": {
+     "n": 600,
+     "goal_reached": 66.66666666666667,
+     "fail": 33.33333333333333,
+     "unsafe": 33.666666666666664,
+     "unsafe_noback": 33.33333333333333,
+     "backward_only": 0.33333333333333337,
+     "tilt30": 1.5,
+     "fail_belly": 33.33333333333333,
+     "unsafe_belly": 33.666666666666664,
+     "median_time_s": 19.425000000000004,
+     "status_counts": {
+      "goal_reached": 400,
+      "prolonged_blockage_terminated": 193,
+      "soil_breakthrough_terminated": 7
+     }
+    },
+    "Gfull_grad_gator": {
+     "n": 600,
+     "goal_reached": 68.16666666666666,
+     "fail": 31.833333333333336,
+     "unsafe": 32.0,
+     "unsafe_noback": 31.833333333333336,
+     "backward_only": 0.16666666666666669,
+     "tilt30": 1.1666666666666667,
+     "fail_belly": 31.833333333333336,
+     "unsafe_belly": 32.0,
+     "median_time_s": 18.25,
+     "status_counts": {
+      "prolonged_blockage_terminated": 178,
+      "goal_reached": 409,
+      "soil_breakthrough_terminated": 13
+     }
+    },
+    "straight6_gator": {
+     "n": 600,
+     "goal_reached": 14.333333333333332,
+     "fail": 85.66666666666667,
+     "unsafe": 85.66666666666667,
+     "unsafe_noback": 85.66666666666667,
+     "backward_only": 0.0,
+     "tilt30": 11.666666666666666,
+     "fail_belly": 85.66666666666667,
+     "unsafe_belly": 85.66666666666667,
+     "median_time_s": 17.075000000000003,
+     "status_counts": {
+      "prolonged_blockage_terminated": 509,
+      "goal_reached": 86,
+      "soil_breakthrough_terminated": 5
+     }
+    }
+   },
+   "f104_200": {
+    "Gfull_free_gator": {
+     "n": 200,
+     "goal_reached": 69.5,
+     "fail": 30.5,
+     "unsafe": 31.0,
+     "unsafe_noback": 30.5,
+     "backward_only": 0.5,
+     "tilt30": 2.0,
+     "fail_belly": 30.5,
+     "unsafe_belly": 31.0,
+     "median_time_s": 18.1,
+     "status_counts": {
+      "goal_reached": 139,
+      "prolonged_blockage_terminated": 61
+     }
+    },
+    "Gfull_grad_gator": {
+     "n": 200,
+     "goal_reached": 67.5,
+     "fail": 32.5,
+     "unsafe": 32.5,
+     "unsafe_noback": 32.5,
+     "backward_only": 0.0,
+     "tilt30": 3.0,
+     "fail_belly": 32.5,
+     "unsafe_belly": 32.5,
+     "median_time_s": 17.150000000000002,
+     "status_counts": {
+      "goal_reached": 135,
+      "prolonged_blockage_terminated": 63,
+      "soil_breakthrough_terminated": 2
+     }
+    },
+    "straight6_gator": {
+     "n": 200,
+     "goal_reached": 14.000000000000002,
+     "fail": 86.0,
+     "unsafe": 86.0,
+     "unsafe_noback": 86.0,
+     "backward_only": 0.0,
+     "tilt30": 13.5,
+     "fail_belly": 86.0,
+     "unsafe_belly": 86.0,
+     "median_time_s": 16.925,
+     "status_counts": {
+      "prolonged_blockage_terminated": 170,
+      "goal_reached": 28,
+      "soil_breakthrough_terminated": 2
+     }
+    }
+   }
+  },
+  "crm|hmmwv": {
+   "f104_800": {
+    "Hfull_free": {
+     "n": 800,
+     "goal_reached": 95.625,
+     "fail": 4.375,
+     "unsafe": 4.375,
+     "unsafe_noback": 4.375,
+     "backward_only": 0.0,
+     "tilt30": 0.625,
+     "fail_belly": 4.375,
+     "unsafe_belly": 4.375,
+     "median_time_s": 17.1,
+     "status_counts": {
+      "goal_reached": 765,
+      "soil_breakthrough_terminated": 27,
+      "prolonged_blockage_terminated": 7,
+      "timeout": 1
+     }
+    },
+    "Hfull_grad_hmmwv": {
+     "n": 800,
+     "goal_reached": 96.25,
+     "fail": 3.75,
+     "unsafe": 3.75,
+     "unsafe_noback": 3.75,
+     "backward_only": 0.0,
+     "tilt30": 2.75,
+     "fail_belly": 3.75,
+     "unsafe_belly": 3.75,
+     "median_time_s": 15.825000000000001,
+     "status_counts": {
+      "goal_reached": 770,
+      "prolonged_blockage_terminated": 9,
+      "soil_breakthrough_terminated": 18,
+      "timeout": 3
+     }
+    }
+   },
+   "f104_600": {
+    "Hfull_free": {
+     "n": 600,
+     "goal_reached": 95.5,
+     "fail": 4.5,
+     "unsafe": 4.5,
+     "unsafe_noback": 4.5,
+     "backward_only": 0.0,
+     "tilt30": 0.8333333333333334,
+     "fail_belly": 4.5,
+     "unsafe_belly": 4.5,
+     "median_time_s": 17.5,
+     "status_counts": {
+      "goal_reached": 573,
+      "prolonged_blockage_terminated": 7,
+      "soil_breakthrough_terminated": 19,
+      "timeout": 1
+     }
+    },
+    "Hfull_grad_hmmwv": {
+     "n": 600,
+     "goal_reached": 95.66666666666667,
+     "fail": 4.333333333333334,
+     "unsafe": 4.333333333333334,
+     "unsafe_noback": 4.333333333333334,
+     "backward_only": 0.0,
+     "tilt30": 2.833333333333333,
+     "fail_belly": 4.333333333333334,
+     "unsafe_belly": 4.333333333333334,
+     "median_time_s": 16.4,
+     "status_counts": {
+      "goal_reached": 574,
+      "soil_breakthrough_terminated": 15,
+      "prolonged_blockage_terminated": 8,
+      "timeout": 3
+     }
+    }
+   },
+   "f104_200": {
+    "Hfull_free": {
+     "n": 200,
+     "goal_reached": 96.0,
+     "fail": 4.0,
+     "unsafe": 4.0,
+     "unsafe_noback": 4.0,
+     "backward_only": 0.0,
+     "tilt30": 0.0,
+     "fail_belly": 4.0,
+     "unsafe_belly": 4.0,
+     "median_time_s": 15.4,
+     "status_counts": {
+      "goal_reached": 192,
+      "soil_breakthrough_terminated": 8
+     }
+    },
+    "Hfull_grad_hmmwv": {
+     "n": 200,
+     "goal_reached": 98.0,
+     "fail": 2.0,
+     "unsafe": 2.0,
+     "unsafe_noback": 2.0,
+     "backward_only": 0.0,
+     "tilt30": 2.5,
+     "fail_belly": 2.0,
+     "unsafe_belly": 2.0,
+     "median_time_s": 14.3,
+     "status_counts": {
+      "goal_reached": 196,
+      "prolonged_blockage_terminated": 1,
+      "soil_breakthrough_terminated": 3
+     }
+    }
+   }
+  }
+ },
+ "bar": [
+  {
+   "vehicle": "polaris",
+   "arm": "polaris_grad",
+   "label": "fail",
+   "sets": [
+    "f104_800",
+    "f104_600"
+   ],
+   "bar": 90.0,
+   "declared": false,
+   "clearly_above_bound": "cluster95",
+   "per_set": {
+    "f104_800": {
+     "n": 800,
+     "goal_rate": 99.75,
+     "group_ci95": [
+      99.375,
+      100.0
+     ],
+     "group_lower95_one_sided": 99.375,
+     "cluster_ci95": [
+      99.15370777652937,
+      100.0
+     ],
+     "cluster_lower95_one_sided": 99.24337957124843,
+     "clusters": 9
+    },
+    "f104_600": {
+     "n": 600,
+     "goal_rate": 99.83333333333333,
+     "group_ci95": [
+      99.5,
+      100.0
+     ],
+     "group_lower95_one_sided": 99.5,
+     "cluster_ci95": [
+      99.43181818181817,
+      100.0
+     ],
+     "cluster_lower95_one_sided": 99.48801085149208,
+     "clusters": 9
+    }
+   },
+   "meets_bar": true,
+   "clearly_above_group95": true,
+   "clearly_above_cluster95_one_sided": true,
+   "clearly_above_rule": "cluster95",
+   "clearly_above": true,
+   "gap_to_bar_pts": {
+    "f104_800": 9.75,
+    "f104_600": 9.833333333333329
+   }
+  },
+  {
+   "vehicle": "polaris",
+   "arm": "polaris_grad",
+   "label": "fail",
+   "sets": [
+    "f104_800_notB"
+   ],
+   "bar": 90.0,
+   "declared": false,
+   "clearly_above_bound": "cluster95",
+   "note": "REVIEW_R1 N3: the 704 pairs outside sample B",
+   "key_suffix": "notB",
+   "per_set": {
+    "f104_800_notB": {
+     "n": 704,
+     "goal_rate": 99.7159090909091,
+     "group_ci95": [
+      99.28977272727273,
+      100.0
+     ],
+     "group_lower95_one_sided": 99.43181818181817,
+     "cluster_ci95": [
+      99.03065545743996,
+      100.0
+     ],
+     "cluster_lower95_one_sided": 99.12010522684147,
+     "clusters": 9
+    }
+   },
+   "meets_bar": true,
+   "clearly_above_group95": true,
+   "clearly_above_cluster95_one_sided": true,
+   "clearly_above_rule": "cluster95",
+   "clearly_above": true,
+   "gap_to_bar_pts": {
+    "f104_800_notB": 9.715909090909093
+   }
+  },
+  {
+   "vehicle": "polaris",
+   "arm": "polaris_grad",
+   "label": "unsafe",
+   "sets": [
+    "f104_800",
+    "f104_600"
+   ],
+   "bar": 90.0,
+   "declared": false,
+   "clearly_above_bound": "cluster95",
+   "per_set": {
+    "f104_800": {
+     "n": 800,
+     "goal_rate": 99.75,
+     "group_ci95": [
+      99.375,
+      100.0
+     ],
+     "group_lower95_one_sided": 99.375,
+     "cluster_ci95": [
+      99.17920656634746,
+      100.0
+     ],
+     "cluster_lower95_one_sided": 99.24528301886792,
+     "clusters": 9
+    },
+    "f104_600": {
+     "n": 600,
+     "goal_rate": 99.83333333333333,
+     "group_ci95": [
+      99.5,
+      100.0
+     ],
+     "group_lower95_one_sided": 99.5,
+     "cluster_ci95": [
+      99.43179122822148,
+      100.0
+     ],
+     "cluster_lower95_one_sided": 99.49315735226752,
+     "clusters": 9
+    }
+   },
+   "meets_bar": true,
+   "clearly_above_group95": true,
+   "clearly_above_cluster95_one_sided": true,
+   "clearly_above_rule": "cluster95",
+   "clearly_above": true,
+   "gap_to_bar_pts": {
+    "f104_800": 9.75,
+    "f104_600": 9.833333333333329
+   }
+  },
+  {
+   "vehicle": "polaris",
+   "arm": "polaris_grad",
+   "label": "unsafe",
+   "sets": [
+    "f104_800_notB"
+   ],
+   "bar": 90.0,
+   "declared": false,
+   "clearly_above_bound": "cluster95",
+   "note": "REVIEW_R1 N3: the 704 pairs outside sample B",
+   "key_suffix": "notB",
+   "per_set": {
+    "f104_800_notB": {
+     "n": 704,
+     "goal_rate": 99.7159090909091,
+     "group_ci95": [
+      99.28977272727273,
+      100.0
+     ],
+     "group_lower95_one_sided": 99.43181818181817,
+     "cluster_ci95": [
+      99.03680163620359,
+      100.0
+     ],
+     "cluster_lower95_one_sided": 99.11634756995582,
+     "clusters": 9
+    }
+   },
+   "meets_bar": true,
+   "clearly_above_group95": true,
+   "clearly_above_cluster95_one_sided": true,
+   "clearly_above_rule": "cluster95",
+   "clearly_above": true,
+   "gap_to_bar_pts": {
+    "f104_800_notB": 9.715909090909093
+   }
+  },
+  {
+   "vehicle": "polaris",
+   "arm": "polaris_grad",
+   "label": "fail_belly",
+   "sets": [
+    "f104_800",
+    "f104_600"
+   ],
+   "bar": 90.0,
+   "declared": false,
+   "clearly_above_bound": "cluster95",
+   "per_set": {
+    "f104_800": {
+     "n": 800,
+     "goal_rate": 99.75,
+     "group_ci95": [
+      99.375,
+      100.0
+     ],
+     "group_lower95_one_sided": 99.375,
+     "cluster_ci95": [
+      99.17920656634746,
+      100.0
+     ],
+     "cluster_lower95_one_sided": 99.25373134328358,
+     "clusters": 9
+    },
+    "f104_600": {
+     "n": 600,
+     "goal_rate": 99.83333333333333,
+     "group_ci95": [
+      99.5,
+      100.0
+     ],
+     "group_lower95_one_sided": 99.5,
+     "cluster_ci95": [
+      99.42965779467681,
+      100.0
+     ],
+     "cluster_lower95_one_sided": 99.48360436821176,
+     "clusters": 9
+    }
+   },
+   "meets_bar": true,
+   "clearly_above_group95": true,
+   "clearly_above_cluster95_one_sided": true,
+   "clearly_above_rule": "cluster95",
+   "clearly_above": true,
+   "gap_to_bar_pts": {
+    "f104_800": 9.75,
+    "f104_600": 9.833333333333329
+   }
+  },
+  {
+   "vehicle": "polaris",
+   "arm": "polaris_grad",
+   "label": "fail_belly",
+   "sets": [
+    "f104_800_notB"
+   ],
+   "bar": 90.0,
+   "declared": false,
+   "clearly_above_bound": "cluster95",
+   "note": "REVIEW_R1 N3: the 704 pairs outside sample B",
+   "key_suffix": "notB",
+   "per_set": {
+    "f104_800_notB": {
+     "n": 704,
+     "goal_rate": 99.7159090909091,
+     "group_ci95": [
+      99.28977272727273,
+      100.0
+     ],
+     "group_lower95_one_sided": 99.43181818181817,
+     "cluster_ci95": [
+      99.01800327332242,
+      100.0
+     ],
+     "cluster_lower95_one_sided": 99.10846953937593,
+     "clusters": 9
+    }
+   },
+   "meets_bar": true,
+   "clearly_above_group95": true,
+   "clearly_above_cluster95_one_sided": true,
+   "clearly_above_rule": "cluster95",
+   "clearly_above": true,
+   "gap_to_bar_pts": {
+    "f104_800_notB": 9.715909090909093
+   }
+  },
+  {
+   "vehicle": "polaris",
+   "arm": "polaris_grad",
+   "label": "unsafe_belly",
+   "sets": [
+    "f104_800",
+    "f104_600"
+   ],
+   "bar": 90.0,
+   "declared": true,
+   "clearly_above_bound": "cluster95",
+   "per_set": {
+    "f104_800": {
+     "n": 800,
+     "goal_rate": 99.75,
+     "group_ci95": [
+      99.375,
+      100.0
+     ],
+     "group_lower95_one_sided": 99.5,
+     "cluster_ci95": [
+      99.15966386554622,
+      100.0
+     ],
+     "cluster_lower95_one_sided": 99.23566878980891,
+     "clusters": 9
+    },
+    "f104_600": {
+     "n": 600,
+     "goal_rate": 99.83333333333333,
+     "group_ci95": [
+      99.5,
+      100.0
+     ],
+     "group_lower95_one_sided": 99.5,
+     "cluster_ci95": [
+      99.42957600564164,
+      100.0
+     ],
+     "cluster_lower95_one_sided": 99.49828574309676,
+     "clusters": 9
+    }
+   },
+   "meets_bar": true,
+   "clearly_above_group95": true,
+   "clearly_above_cluster95_one_sided": true,
+   "clearly_above_rule": "cluster95",
+   "clearly_above": true,
+   "gap_to_bar_pts": {
+    "f104_800": 9.75,
+    "f104_600": 9.833333333333329
+   }
+  },
+  {
+   "vehicle": "polaris",
+   "arm": "polaris_grad",
+   "label": "unsafe_belly",
+   "sets": [
+    "f104_800_notB"
+   ],
+   "bar": 90.0,
+   "declared": false,
+   "clearly_above_bound": "cluster95",
+   "note": "REVIEW_R1 N3: the 704 pairs outside sample B",
+   "key_suffix": "notB",
+   "per_set": {
+    "f104_800_notB": {
+     "n": 704,
+     "goal_rate": 99.7159090909091,
+     "group_ci95": [
+      99.28977272727273,
+      100.0
+     ],
+     "group_lower95_one_sided": 99.28977272727273,
+     "cluster_ci95": [
+      99.06687402799378,
+      100.0
+     ],
+     "cluster_lower95_one_sided": 99.13544668587896,
+     "clusters": 9
+    }
+   },
+   "meets_bar": true,
+   "clearly_above_group95": true,
+   "clearly_above_cluster95_one_sided": true,
+   "clearly_above_rule": "cluster95",
+   "clearly_above": true,
+   "gap_to_bar_pts": {
+    "f104_800_notB": 9.715909090909093
+   }
+  },
+  {
+   "vehicle": "polaris",
+   "arm": "polaris_cem",
+   "label": "unsafe_belly",
+   "sets": [
+    "f104_800",
+    "f104_600"
+   ],
+   "bar": 90.0,
+   "declared": false,
+   "clearly_above_bound": "cluster95",
+   "per_set": {
+    "f104_800": {
+     "n": 800,
+     "goal_rate": 100.0,
+     "group_ci95": [
+      100.0,
+      100.0
+     ],
+     "group_lower95_one_sided": 100.0,
+     "cluster_ci95": [
+      100.0,
+      100.0
+     ],
+     "cluster_lower95_one_sided": 100.0,
+     "clusters": 9
+    },
+    "f104_600": {
+     "n": 600,
+     "goal_rate": 100.0,
+     "group_ci95": [
+      100.0,
+      100.0
+     ],
+     "group_lower95_one_sided": 100.0,
+     "cluster_ci95": [
+      100.0,
+      100.0
+     ],
+     "cluster_lower95_one_sided": 100.0,
+     "clusters": 9
+    }
+   },
+   "meets_bar": true,
+   "clearly_above_group95": true,
+   "clearly_above_cluster95_one_sided": true,
+   "clearly_above_rule": "cluster95",
+   "clearly_above": true,
+   "gap_to_bar_pts": {
+    "f104_800": 10.0,
+    "f104_600": 10.0
+   }
+  },
+  {
+   "vehicle": "polaris",
+   "arm": "straight6_polaris",
+   "label": "unsafe_belly",
+   "sets": [
+    "f104_800",
+    "f104_600"
+   ],
+   "bar": 90.0,
+   "declared": false,
+   "clearly_above_bound": "cluster95",
+   "per_set": {
+    "f104_800": {
+     "n": 800,
+     "goal_rate": 99.5,
+     "group_ci95": [
+      99.0,
+      99.875
+     ],
+     "group_lower95_one_sided": 99.125,
+     "cluster_ci95": [
+      98.67369602051564,
+      100.0
+     ],
+     "cluster_lower95_one_sided": 98.78706199460916,
+     "clusters": 9
+    },
+    "f104_600": {
+     "n": 600,
+     "goal_rate": 99.66666666666667,
+     "group_ci95": [
+      99.16666666666667,
+      100.0
+     ],
+     "group_lower95_one_sided": 99.33333333333333,
+     "cluster_ci95": [
+      98.84615384615385,
+      100.0
+     ],
+     "cluster_lower95_one_sided": 98.95287958115183,
+     "clusters": 9
+    }
+   },
+   "meets_bar": true,
+   "clearly_above_group95": true,
+   "clearly_above_cluster95_one_sided": true,
+   "clearly_above_rule": "cluster95",
+   "clearly_above": true,
+   "gap_to_bar_pts": {
+    "f104_800": 9.5,
+    "f104_600": 9.666666666666671
+   }
+  },
+  {
+   "vehicle": "gator",
+   "arm": "Gfull_grad_gator",
+   "label": "unsafe_belly",
+   "sets": [
+    "f104_800",
+    "f104_600"
+   ],
+   "bar": 90.0,
+   "declared": false,
+   "clearly_above_bound": "cluster95",
+   "per_set": {
+    "f104_800": {
+     "n": 800,
+     "goal_rate": 67.875,
+     "group_ci95": [
+      64.625,
+      71.25
+     ],
+     "group_lower95_one_sided": 65.125,
+     "cluster_ci95": [
+      56.68523676880223,
+      77.45136507517806
+     ],
+     "cluster_lower95_one_sided": 58.58341256992093,
+     "clusters": 9
+    },
+    "f104_600": {
+     "n": 600,
+     "goal_rate": 68.0,
+     "group_ci95": [
+      64.0,
+      71.66666666666667
+     ],
+     "group_lower95_one_sided": 64.66666666666667,
+     "cluster_ci95": [
+      58.06352050975706,
+      76.85956961925842
+     ],
+     "cluster_lower95_one_sided": 59.65854862596675,
+     "clusters": 9
+    }
+   },
+   "meets_bar": false,
+   "clearly_above_group95": false,
+   "clearly_above_cluster95_one_sided": false,
+   "clearly_above_rule": "cluster95",
+   "clearly_above": false,
+   "gap_to_bar_pts": {
+    "f104_800": -22.125,
+    "f104_600": -22.0
+   }
+  },
+  {
+   "vehicle": "gator",
+   "arm": "Gfull_free_gator",
+   "label": "unsafe_belly",
+   "sets": [
+    "f104_800",
+    "f104_600"
+   ],
+   "bar": 90.0,
+   "declared": false,
+   "clearly_above_bound": "cluster95",
+   "per_set": {
+    "f104_800": {
+     "n": 800,
+     "goal_rate": 67.0,
+     "group_ci95": [
+      63.625,
+      70.375
+     ],
+     "group_lower95_one_sided": 64.25,
+     "cluster_ci95": [
+      56.08906882591093,
+      76.95779947122229
+     ],
+     "cluster_lower95_one_sided": 57.90030392053873,
+     "clusters": 9
+    },
+    "f104_600": {
+     "n": 600,
+     "goal_rate": 66.33333333333333,
+     "group_ci95": [
+      62.5,
+      70.0
+     ],
+     "group_lower95_one_sided": 63.0,
+     "cluster_ci95": [
+      55.9659917707863,
+      76.03705440900563
+     ],
+     "cluster_lower95_one_sided": 57.491515340654196,
+     "clusters": 9
+    }
+   },
+   "meets_bar": false,
+   "clearly_above_group95": false,
+   "clearly_above_cluster95_one_sided": false,
+   "clearly_above_rule": "cluster95",
+   "clearly_above": false,
+   "gap_to_bar_pts": {
+    "f104_800": -23.0,
+    "f104_600": -23.66666666666667
+   }
+  },
+  {
+   "vehicle": "hmmwv",
+   "arm": "Hfull_grad_hmmwv",
+   "label": "unsafe_belly",
+   "sets": [
+    "f104_800",
+    "f104_600"
+   ],
+   "bar": 90.0,
+   "declared": false,
+   "clearly_above_bound": "cluster95",
+   "per_set": {
+    "f104_800": {
+     "n": 800,
+     "goal_rate": 96.25,
+     "group_ci95": [
+      94.875,
+      97.5
+     ],
+     "group_lower95_one_sided": 95.125,
+     "cluster_ci95": [
+      93.96777063880927,
+      98.17452992977546
+     ],
+     "cluster_lower95_one_sided": 94.36823375565416,
+     "clusters": 9
+    },
+    "f104_600": {
+     "n": 600,
+     "goal_rate": 95.66666666666667,
+     "group_ci95": [
+      94.0,
+      97.33333333333334
+     ],
+     "group_lower95_one_sided": 94.16666666666667,
+     "cluster_ci95": [
+      92.60933503836317,
+      98.27598557454796
+     ],
+     "cluster_lower95_one_sided": 93.09815950920245,
+     "clusters": 9
+    }
+   },
+   "meets_bar": true,
+   "clearly_above_group95": true,
+   "clearly_above_cluster95_one_sided": true,
+   "clearly_above_rule": "cluster95",
+   "clearly_above": true,
+   "gap_to_bar_pts": {
+    "f104_800": 6.25,
+    "f104_600": 5.666666666666671
+   }
+  },
+  {
+   "vehicle": "hmmwv",
+   "arm": "Hfull_free",
+   "label": "unsafe_belly",
+   "sets": [
+    "f104_800",
+    "f104_600"
+   ],
+   "bar": 90.0,
+   "declared": false,
+   "clearly_above_bound": "cluster95",
+   "per_set": {
+    "f104_800": {
+     "n": 800,
+     "goal_rate": 95.625,
+     "group_ci95": [
+      94.125,
+      97.0
+     ],
+     "group_lower95_one_sided": 94.375,
+     "cluster_ci95": [
+      91.40592981557377,
+      98.69668246445498
+     ],
+     "cluster_lower95_one_sided": 92.29779169413317,
+     "clusters": 9
+    },
+    "f104_600": {
+     "n": 600,
+     "goal_rate": 95.5,
+     "group_ci95": [
+      93.66666666666667,
+      97.0
+     ],
+     "group_lower95_one_sided": 94.0,
+     "cluster_ci95": [
+      90.80459770114942,
+      98.77867250046546
+     ],
+     "cluster_lower95_one_sided": 91.63907439470141,
+     "clusters": 9
+    }
+   },
+   "meets_bar": true,
+   "clearly_above_group95": true,
+   "clearly_above_cluster95_one_sided": true,
+   "clearly_above_rule": "cluster95",
+   "clearly_above": true,
+   "gap_to_bar_pts": {
+    "f104_800": 5.625,
+    "f104_600": 5.5
+   }
+  },
+  {
+   "vehicle": "polaris_pc",
+   "arm": "polaris_grad_pc",
+   "label": "unsafe_belly",
+   "sets": [
+    "f104_800",
+    "f104_600"
+   ],
+   "bar": 90.0,
+   "declared": false,
+   "clearly_above_bound": "cluster95",
+   "per_set": {
+    "f104_800": {
+     "n": 800,
+     "goal_rate": 99.125,
+     "group_ci95": [
+      98.375,
+      99.75
+     ],
+     "group_lower95_one_sided": 98.5,
+     "cluster_ci95": [
+      98.3795784169125,
+      99.85591813243234
+     ],
+     "cluster_lower95_one_sided": 98.49433493068888,
+     "clusters": 9
+    },
+    "f104_600": {
+     "n": 600,
+     "goal_rate": 99.16666666666667,
+     "group_ci95": [
+      98.33333333333333,
+      99.83333333333333
+     ],
+     "group_lower95_one_sided": 98.5,
+     "cluster_ci95": [
+      98.33050441543705,
+      100.0
+     ],
+     "cluster_lower95_one_sided": 98.48012750227848,
+     "clusters": 9
+    }
+   },
+   "meets_bar": true,
+   "clearly_above_group95": true,
+   "clearly_above_cluster95_one_sided": true,
+   "clearly_above_rule": "cluster95",
+   "clearly_above": true,
+   "gap_to_bar_pts": {
+    "f104_800": 9.125,
+    "f104_600": 9.166666666666671
+   }
+  }
+ ],
+ "validity": [
+  {
+   "vehicle": "polaris",
+   "arm": "polaris_grad",
+   "set": "f104_800",
+   "planned": 800,
+   "driven": 800,
+   "missing": 0,
+   "qa_checked": 800,
+   "crashed_or_nonfinite": 0,
+   "crashed_ids": [],
+   "launch_checked": 800,
+   "launch_failures": 0,
+   "launch_share": 0.0,
+   "belly_checked": 800,
+   "belly_flagged": 0,
+   "belly_share": 0.0,
+   "qa_flags": {},
+   "checks": {
+    "all_driven": true,
+    "qa_checked_all": true,
+    "no_crash": true,
+    "launch_ok": true,
+    "belly_ok": true
+   },
+   "valid": true
+  },
+  {
+   "vehicle": "polaris",
+   "arm": "polaris_cem",
+   "set": "f104_800",
+   "planned": 800,
+   "driven": 800,
+   "missing": 0,
+   "qa_checked": 800,
+   "crashed_or_nonfinite": 0,
+   "crashed_ids": [],
+   "launch_checked": 800,
+   "launch_failures": 0,
+   "launch_share": 0.0,
+   "belly_checked": 800,
+   "belly_flagged": 0,
+   "belly_share": 0.0,
+   "qa_flags": {},
+   "checks": {
+    "all_driven": true,
+    "qa_checked_all": true,
+    "no_crash": true,
+    "launch_ok": true,
+    "belly_ok": true
+   },
+   "valid": true
+  },
+  {
+   "vehicle": "polaris",
+   "arm": "straight6_polaris",
+   "set": "f104_800",
+   "planned": 800,
+   "driven": 800,
+   "missing": 0,
+   "qa_checked": 800,
+   "crashed_or_nonfinite": 0,
+   "crashed_ids": [],
+   "launch_checked": 800,
+   "launch_failures": 0,
+   "launch_share": 0.0,
+   "belly_checked": 800,
+   "belly_flagged": 0,
+   "belly_share": 0.0,
+   "qa_flags": {},
+   "checks": {
+    "all_driven": true,
+    "qa_checked_all": true,
+    "no_crash": true,
+    "launch_ok": true,
+    "belly_ok": true
+   },
+   "valid": true
+  },
+  {
+   "vehicle": "polaris_pc",
+   "arm": "polaris_grad_pc",
+   "set": "f104_800",
+   "planned": 800,
+   "driven": 800,
+   "missing": 0,
+   "qa_checked": 800,
+   "crashed_or_nonfinite": 0,
+   "crashed_ids": [],
+   "launch_checked": 800,
+   "launch_failures": 0,
+   "launch_share": 0.0,
+   "belly_checked": 800,
+   "belly_flagged": 1,
+   "belly_share": 0.00125,
+   "qa_flags": {},
+   "checks": {
+    "all_driven": true,
+    "qa_checked_all": true,
+    "no_crash": true,
+    "launch_ok": true,
+    "belly_ok": true
+   },
+   "valid": true
+  },
+  {
+   "vehicle": "gator",
+   "arm": "Gfull_grad_gator",
+   "set": "f104_800",
+   "planned": 800,
+   "driven": 800,
+   "missing": 0,
+   "qa_checked": 800,
+   "crashed_or_nonfinite": 0,
+   "crashed_ids": [],
+   "launch_checked": 800,
+   "launch_failures": 0,
+   "launch_share": 0.0,
+   "belly_checked": 800,
+   "belly_flagged": 10,
+   "belly_share": 0.0125,
+   "qa_flags": {},
+   "checks": {
+    "all_driven": true,
+    "qa_checked_all": true,
+    "no_crash": true,
+    "launch_ok": true,
+    "belly_ok": true
+   },
+   "valid": true
+  },
+  {
+   "vehicle": "hmmwv",
+   "arm": "Hfull_grad_hmmwv",
+   "set": "f104_800",
+   "belly_optional": true,
+   "planned": 800,
+   "driven": 800,
+   "missing": 0,
+   "qa_checked": 800,
+   "crashed_or_nonfinite": 0,
+   "crashed_ids": [],
+   "launch_checked": 800,
+   "launch_failures": 0,
+   "launch_share": 0.0,
+   "belly_checked": 0,
+   "belly_flagged": 0,
+   "belly_share": null,
+   "qa_flags": {},
+   "checks": {
+    "all_driven": true,
+    "qa_checked_all": true,
+    "no_crash": true,
+    "launch_ok": true,
+    "belly_ok": true
+   },
+   "valid": true
+  }
+ ],
+ "criteria": [
+  {
+   "vehicle": "polaris",
+   "arm": "polaris_grad",
+   "beats_straight_test": "F_polaris_grad_vs_straight6",
+   "bar_label": "unsafe_belly",
+   "belly_label": "unsafe_belly",
+   "cem_arm": "polaris_cem",
+   "straight_arm": "straight6_polaris",
+   "rule": "r1",
+   "a_beats_straight": false,
+   "a_decision": "no meaningful difference",
+   "a_readout": "inconclusive",
+   "b_meets_bar": true,
+   "b_goal_rates": {
+    "f104_800": 99.75,
+    "f104_600": 99.83333333333333
+   },
+   "b_clearly_above": true,
+   "c_valid": true,
+   "c_validity": {
+    "all_driven": true,
+    "qa_checked_all": true,
+    "no_crash": true,
+    "launch_ok": true,
+    "belly_ok": true
+   },
+   "c_bar_with_belly_as_failure": true,
+   "verdict_plan": "does not beat the straight route",
+   "verdict_r1_s3": "meets the bar",
+   "verdict": "meets the bar",
+   "cem_meets_bar_but_grad_not": false,
+   "straight_goal_rate_800": 99.5,
+   "ceiling_note": "the straight route already reaches 99.5 % of the 800 pairs: the bar is met by the straight route if the planner arm is not better; report the planner gain with its interval"
+  }
+ ],
+ "tool_ov": {
+  "tool": "scripts/ov_analyze.py",
+  "sha256": "bada809b42f16c7b9e83ee7460eb4fc8400e211f051e64b7bbb30673bddbc1ef"
+ }
+}

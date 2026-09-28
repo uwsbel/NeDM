@@ -1,0 +1,18 @@
+{
+ "schema": "ov_probe_spec_v1",
+ "written": "2026-09-28 04:58 CDT, before any drive of the Gwide_gator / Gbig_gator rows",
+ "note": "Driving the offline wider-search probe (artifacts/traverse/search_probe_20260927) with the Gator on f104 soil. Secondary read-out, outside the PLAN 4.4 Holm family (PLAN 4.2 optional arm). Picks: Gwide_gator = probe arm A4 (5 lateral bend terms, 20 m sideways limit, CEM 16 x 512, G_full ensemble); Gbig_gator = probe arm A2 (the original route family, CEM 16 x 512). Rows: e6/tasks/soil_eval_probe_v1.json (361 groups each).",
+ "sets": {
+  "FAIL_P50": "the 134 groups where the recorded G_full CEM 4x64 pick failed and was rated P > 0.5 (search_probe groups/)",
+  "FAIL_OTHER": "the other 127 groups where the recorded G_full CEM pick failed",
+  "CONTROL": "the 100 recorded-success groups of the probe (lowest md5)"
+ },
+ "labels": ["goal reached safely (not unsafe_belly)", "goal reached (not fail)"],
+ "readouts": [
+  "per arm and set: goal-reached-safely rate with a 95 % Wilson interval; counts rescued (FAIL sets: reference = the recorded pick, which failed; the simulation is deterministic on a node, so a re-drive of the recorded route would fail again) and broken (CONTROL)",
+  "Gwide vs Gbig paired on FAIL_P50 and on FAIL_P50+FAIL_OTHER: exact two-sided McNemar",
+  "Gwide on FAIL_P50 split by whether the route swings more than 10 m sideways (outside the Gator training routes' range)",
+  "estimated 800-pair goal rate if Gwide replaced the recorded CEM planner = (539 x CONTROL success share + rescued in FAIL_P50 + rescued in FAIL_OTHER) / 800, stated as an estimate (only 100 of the 539 successes were driven)"
+ ],
+ "decision": "none (descriptive); the report states whether wider route shapes move the Gator toward the 90 % bar"
+}

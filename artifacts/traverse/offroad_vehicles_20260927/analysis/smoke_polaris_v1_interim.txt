@@ -1,0 +1,28 @@
+smoke read-out 2026-09-28 01:25:49  tasks /work1/dannegrut/harry/experiments/offroad_vehicles_20260927/tasks/smoke_v2_polaris.json
+Gator re-drive vs stored runs: same end state 144/144, identical arrays 144/144; failure re-drive 93.8 % vs stored 93.8 % (sample_A.json)
+  bitid_hmmwv__f104_v2_group_0695_route_03: {'status': 'goal_reached', 'ref_status': 'goal_reached', 'same_end_state': True, 'identical_arrays': False, 'first_difference': 'trajectory.npz:state shape (457, 17) vs (458, 17)'}
+  bitid_hmmwv__f104_v2_group_0724_route_09: {'status': 'soil_breakthrough_terminated', 'ref_status': 'soil_breakthrough_terminated', 'same_end_state': True, 'identical_arrays': True, 'first_difference': None}
+  bitid_hmmwv__f104_v2_group_1090_op_01: {'status': 'soil_breakthrough_terminated', 'ref_status': 'soil_breakthrough_terminated', 'same_end_state': True, 'identical_arrays': False, 'first_difference': 'trajectory.npz:state shape (361, 17) vs (319, 17)'}
+  bitid_gator__f104_v2_group_0695_route_03: {'status': 'goal_reached', 'ref_status': 'goal_reached', 'same_end_state': True, 'identical_arrays': True, 'first_difference': None}
+  bitid_gator__f104_v2_group_0724_route_09: {'status': 'prolonged_blockage_terminated', 'ref_status': 'prolonged_blockage_terminated', 'same_end_state': True, 'identical_arrays': True, 'first_difference': None}
+  bitid_gator__f104_v2_group_1090_op_01: {'status': 'prolonged_blockage_terminated', 'ref_status': 'prolonged_blockage_terminated', 'same_end_state': True, 'identical_arrays': True, 'first_difference': None}
+reference holds (pooled same end state >= 95 %): True (100.0 % of 150)
+
+arm              valid launch crash   belly gates    fail   Gator    diff only G only V     p(1s)    95% CI (groups) goal grp  sim s wall/sim x Gator
+bitid_gator     3/3         0     0   0.0 %  pass  66.7 %     n/a     n/a                                              1/3     32.35    1.926   0.703
+bitid_hmmwv     3/3         0     0     n/a  pass  66.7 %     n/a     n/a                                              1/3     18.68     2.02   0.738
+gatorctl      144/144       0     0   4.2 %  pass  93.8 %     n/a     n/a                                              6/24    35.28    2.738     1.0
+polaris       144/144       0     0   0.0 %  pass  16.7 %  93.8 %   -77.1    111      0  3.85e-34     [-83.3, -70.8]  24/24    22.93    2.711    0.99
+polaris_4wd    25/144       0     0   0.0 %  FAIL  20.0 %  96.0 %   -76.0     19      0  1.91e-06     [-91.3, -60.0]  17/18    24.12    2.732   0.998
+polaris_pc     37/144       0     0   0.0 %  FAIL   5.4 %  97.3 %   -91.9     34      0  5.82e-11    [-100.0, -81.6]  19/20    20.45      2.8   1.023
+polaris_w08    32/144       0     0   0.0 %  FAIL   9.4 %  96.9 %   -87.5     28      0  3.73e-09     [-97.1, -75.0]  18/18    24.27    2.599   0.949
+(every arm paired with gatorctl on the routes both drove validly; 'only G' = only the Gator fails, 'only V' = only the arm fails; wall/sim = loop wall seconds per simulated second, x Gator = its ratio to gatorctl)
+  sensitivity polaris_4wd vs polaris: 20.0 % vs 8.0 % on 25 routes, diff +12.0 points, only polaris fails 0, only polaris_4wd fails 3, two-sided p 2.50e-01, 95 % CI [+0.0, +22.6]
+  sensitivity polaris_pc vs polaris: 5.4 % vs 8.1 % on 37 routes, diff -2.7 points, only polaris fails 1, only polaris_pc fails 0, two-sided p 1.00e+00, 95 % CI [-9.4, +0.0]
+  sensitivity polaris_w08 vs polaris: 9.4 % vs 12.5 % on 32 routes, diff -3.1 points, only polaris fails 1, only polaris_w08 fails 0, two-sided p 1.00e+00, 95 % CI [-9.4, +0.0]
+sample B polaris: straight6 fail 1.0 % (96/96); Hfull_free fail 0.0 % (96/96)
+
+VEHICLE polaris (arm polaris of ['polaris']): BETTER
+  criteria {'c1_gates': True, 'c2_gain_10pts': True, 'c3_mcnemar': True, 'c4_bootstrap_below_0': True, 'c5_below_wheel_ref': True}; Holm level 0.0500 over ['polaris']; p 3.85e-34
+  sample B straight 6 m/s failure 1.0 % vs stored Gator 83.3 %: consistent True; goal on the H_full picks 100.0 %; CEILING: the straight route already nearly meets the bar
+  driveline-dependent: True; polaris_pc 5.4 % vs polaris 8.1 %; polaris_4wd 20.0 % vs polaris 8.0 %; polaris_w08 9.4 % vs polaris 12.5 %

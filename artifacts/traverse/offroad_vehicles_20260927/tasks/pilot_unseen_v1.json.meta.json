@@ -1,0 +1,44 @@
+{
+ "tool": "scripts/ov_unseen_pilot.py",
+ "tool_sha256": "e08128304c64c9743e12f49e88060737fce1f0de8cf79e41995e2e661e1fcd26",
+ "created": "2026-09-28 14:59:43",
+ "argv": [
+  "build",
+  "--eval-rows",
+  "artifacts/traverse/offroad_vehicles_20260927/e6/tasks/soil_eval_polaris_unseen_v1.json",
+  "--existing",
+  "artifacts/traverse/offroad_vehicles_20260927/tasks/soil_v6_polaris.json",
+  "--out",
+  "artifacts/traverse/offroad_vehicles_20260927/tasks/pilot_unseen_v1.json"
+ ],
+ "file_sha256": "e22dd85d4c155ae1e81a53bf2b69dc26fd6a15372eca5e6e75e6bcd5b27ca616",
+ "ref_rows_sha256": "ca015d00f448d2f6fb74e04c65e11733dce343920de4fa1a57d8490d5792def2",
+ "rows": 16,
+ "groups": {
+  "g260": "g260_test_group_0171",
+  "g271": "g271_test_group_0125",
+  "g251": "g251_test_group_0000",
+  "g247": "g247_test_group_0191",
+  "g258": "g258_test_group_0068",
+  "g268": "g268_test_group_0098",
+  "g263": "g263_test_group_0070",
+  "g241": "g241_test_group_0179"
+ },
+ "rule": "per arena the lowest-md5 group of the declared subset (declared order)",
+ "eval_rows": {
+  "file": "artifacts/traverse/offroad_vehicles_20260927/e6/tasks/soil_eval_polaris_unseen_v1.json",
+  "sha256": "44edd114d4c32629843a978fa72a979c5c902c44f043484bcd65f7547ef21462"
+ },
+ "existing": {
+  "artifacts/traverse/offroad_vehicles_20260927/tasks/soil_v6_polaris.json": "592d73982f0f57bfb874fdeb0e885403b036ef673cb98c1583cc8555d1bcca65"
+ },
+ "by_vehicle": {
+  "hmmwv": 8,
+  "polaris": 8
+ },
+ "staging": {
+  "files": 24,
+  "list": "artifacts/traverse/offroad_vehicles_20260927/tasks/pilot_unseen_v1.json.staging.tsv"
+ },
+ "collector_contract": "crm_worker.py with CRM_ROOT = /work1/dannegrut/harry/experiments/offroad_vehicles_20260927, CRM_COLLECTOR = /work1/dannegrut/harry/experiments/offroad_vehicles_20260927/source/scripts/ov_crm_collect.py, CRM_CONFIG = configs/crm_main.json, NEDM_VEHICLE unset"
+}

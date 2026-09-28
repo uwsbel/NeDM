@@ -207,3 +207,23 @@ Adopted from REVIEW_R1 and the module notes (NOTES_M1-M4, VERIFY_M1-M4):
     driveline's low torque.
 11. **Not adopted:** R1 S7's goal-from-centre-of-mass recount (it would count every M113 goal as a failure as worded);
     the M113 brake-cap fix (F1: never reached in the drives).
+
+### 9.2 (2026-09-28 13:55, user redirection; before any drive of the new arms)
+The user: "Let's stop gator, M113 for now, just focus on achieving milestones for polaris and report back to me."
+1. **Gator and M113 stopped.** No further Gator or M113 drives. The Gator drives already made (gradient planner, wider-
+   search probe) stay in the record; the M113 is reported at the smoke-test level only (Q1).
+2. **Milestone "pipeline works for a new vehicle" (Polaris, f104):** answered by the frozen spec `e6/analysis/spec_ov_v1.json`
+   on the stage-2 (all tiers) arms, as declared (9.1 item 7). Its family also contains the two Gator tests, computed
+   from drives that already exist.
+3. **Milestone "the planner generalises to arenas it never trained on" (Polaris):** new evaluation, declared here before
+   any drive. The f104-trained Polaris planner (all tiers, `polaris_full`) plans from a standing start on the 8 unseen
+   test arenas of the Gator study (g260 g271 g251 g247 near, g258 g268 g263 g241 spread), on the declared 125-pair soil
+   subset per arena (`K3/suites/soil_unseen_subset.json`, 1,000 pairs), with each arena's own overhead map (as K3).
+   Arms driven by the Polaris: `polaris_u_grad` (own model + CEM 4 x 64 + gradient refinement, the default),
+   `polaris_u_cem` (CEM only), `straight6_polaris_u` (the straight 6 m/s route, K3's per-arena straight6 picks).
+   Read-out (spec frozen before the first drive, `e6/analysis/spec_unseen_v1.json`): goal reached safely (not unsafe, no
+   belly flag) pooled over the 1,000 pairs and per arena, with 95 % intervals (pair-level and over the 8 arenas); the
+   bar = 90 % pooled ("meets"), "clearly above" if the lower 95 % bound over arenas is >= 90 %; per-arena rates
+   reported against 90 %; paired comparisons vs the straight route (exact McNemar, cluster bootstrap over (arena,
+   nearest feature) as K3); context (not tests): the HMMWV planners of K3 on the same pairs (f104 only 87.95 %, three
+   arenas 90.3 %). No new collection; the Polaris planner is trained on f104 only.

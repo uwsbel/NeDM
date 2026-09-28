@@ -1,0 +1,21 @@
+smoke read-out 2026-09-28 05:52:44  tasks /work1/dannegrut/harry/experiments/offroad_vehicles_20260927/tasks/analysis_m113_combined.json
+Gator re-drive vs stored runs: same end state 144/144, identical arrays 144/144; failure re-drive 93.8 % vs stored 93.8 % (sample_A.json)
+  bitid_hmmwv__f104_v2_group_0695_route_03: {'status': 'goal_reached', 'ref_status': 'goal_reached', 'same_end_state': True, 'identical_arrays': False, 'first_difference': 'trajectory.npz:state shape (457, 17) vs (458, 17)'}
+  bitid_hmmwv__f104_v2_group_0724_route_09: {'status': 'soil_breakthrough_terminated', 'ref_status': 'soil_breakthrough_terminated', 'same_end_state': True, 'identical_arrays': True, 'first_difference': None}
+  bitid_hmmwv__f104_v2_group_1090_op_01: {'status': 'soil_breakthrough_terminated', 'ref_status': 'soil_breakthrough_terminated', 'same_end_state': True, 'identical_arrays': False, 'first_difference': 'trajectory.npz:state shape (361, 17) vs (319, 17)'}
+  bitid_gator__f104_v2_group_0695_route_03: {'status': 'goal_reached', 'ref_status': 'goal_reached', 'same_end_state': True, 'identical_arrays': True, 'first_difference': None}
+  bitid_gator__f104_v2_group_0724_route_09: {'status': 'prolonged_blockage_terminated', 'ref_status': 'prolonged_blockage_terminated', 'same_end_state': True, 'identical_arrays': True, 'first_difference': None}
+  bitid_gator__f104_v2_group_1090_op_01: {'status': 'prolonged_blockage_terminated', 'ref_status': 'prolonged_blockage_terminated', 'same_end_state': True, 'identical_arrays': True, 'first_difference': None}
+reference holds (pooled same end state >= 95 %): True (100.0 % of 150)
+
+arm              valid launch crash   belly gates    fail   Gator    diff only G only V     p(1s)    95% CI (groups) goal grp  sim s wall/sim x Gator
+bitid_gator     3/3         0     0   0.0 %  pass  66.7 %     n/a     n/a                                              1/3     32.35    1.926   0.703
+bitid_hmmwv     3/3         0     0     n/a  pass  66.7 %     n/a     n/a                                              1/3     18.68     2.02   0.738
+gatorctl      144/144       0     0   4.2 %  pass  93.8 %     n/a     n/a                                              6/24    35.28    2.738     1.0
+gatorh        144/144       0     0   3.5 %  pass  93.8 %  93.8 %    +0.0      3      3  6.56e-01       [-2.8, +2.8]   6/24    35.06     5.41   1.976
+m113          144/144       0     0   0.0 %  pass  89.6 %  93.8 %    -4.2     10      4  8.98e-02      [-11.1, +2.8]   7/24    37.81   16.876   6.164
+m113_g4       142/144       0     1   0.0 %  pass  47.9 %  93.7 %   -45.8     65      0  2.71e-20     [-58.5, -33.3]  19/24    36.51   16.893    6.17
+(every arm paired with gatorctl on the routes both drove validly; 'only G' = only the Gator fails, 'only V' = only the arm fails; wall/sim = loop wall seconds per simulated second, x Gator = its ratio to gatorctl)
+
+VEHICLE m113 (arm m113_g4 of ['m113', 'm113_g4']): INCOMPLETE: DRIVES NOT FINISHED {'M113': 0, 'M113_G4': 1, 'GATORCTL': 0} (PROVISIONAL READING: BETTER)
+  criteria {'c1_gates': True, 'c2_gain_10pts': True, 'c3_mcnemar': True, 'c4_bootstrap_below_0': True, 'c5_below_wheel_ref': True}; Holm level 0.0250 over ['m113', 'm113_g4']; p 2.71e-20

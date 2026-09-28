@@ -602,3 +602,8 @@ artifacts/traverse/search_probe_20260927/*
 !artifacts/traverse/search_probe_20260927/*.md
 !artifacts/traverse/search_probe_20260927/results.json
 artifacts/traverse/offroad_vehicles_20260927/tasks/soil_v*_polaris.json
+!artifacts/traverse/offroad_vehicles_20260927/analysis/
+artifacts/traverse/offroad_vehicles_20260927/analysis/k4_extract.jsonl
+!artifacts/traverse/offroad_vehicles_20260927/e6/
+artifacts/traverse/offroad_vehicles_20260927/e6/*
+!artifacts/traverse/offroad_vehicles_20260927/e6/analysis/

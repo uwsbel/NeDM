@@ -1,0 +1,7298 @@
+{
+ "schema": "ov_unseen_results_v1",
+ "tool": "scripts/ov_unseen_analyze.py",
+ "tool_sha256": "ce15dc28859802ea62f65e235ed204562021d54456ffe1f7dda21a9908e2471f",
+ "created": "2026-09-28 16:05:02",
+ "spec_sha256": "bdc2a7385b5dc7fa403aa0e50af4a4eb80f52841252aa85617c3ca41627bdcb4",
+ "index": [
+  {
+   "path": "artifacts/traverse/offroad_vehicles_20260927/e6/index/unseen_polaris_v1.json",
+   "sha256": "49c5b4741423f13bf8555a0e9d5358e24baea51f6961bcebd8e184d100afb4f5",
+   "summary": {
+    "rows": 3000,
+    "driven": 3000,
+    "missing": 0,
+    "missing_by_arm": {},
+    "driven_by_arm": {
+     "crm|polaris|polaris_u_grad": 1000,
+     "crm|polaris|polaris_u_cem": 1000,
+     "crm|polaris|straight6_polaris_u": 1000
+    },
+    "studies": {
+     "g4": 3000
+    },
+    "sets": {
+     "unseen": 3000
+    },
+    "suite_parts": {
+     "None": 3000
+    },
+    "arenas": {
+     "g241": 375,
+     "g247": 375,
+     "g251": 375,
+     "g258": 375,
+     "g260": 375,
+     "g263": 375,
+     "g268": 375,
+     "g271": 375
+    },
+    "qa_flags": {
+     "crm|polaris|straight6_polaris_u|unstalled_break": 2
+    },
+    "belly_flagged": {
+     "crm|polaris|straight6_polaris_u": 1
+    }
+   }
+  }
+ ],
+ "context_index": {
+  "path": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/arena_gator_20260925/e6/index/soil_eval_v1.json",
+  "sha256": "d9c86320694f352d24826c4d828fabe1a2f0cd7b7b359891eba76bdde4cd4029",
+  "rows": 6000
+ },
+ "collector_failures_counted_as_failures": {},
+ "arms": {
+  "polaris_u_grad": {
+   "unsafe_belly": {
+    "n": 1000,
+    "reached_safely": 997,
+    "rate": 99.7,
+    "binary": true,
+    "wilson95": [
+     99.12169859464969,
+     99.89792161188615
+    ],
+    "pair_boot95": [
+     99.3,
+     100.0
+    ],
+    "cluster_boot95": [
+     99.34706808046734,
+     100.0
+    ],
+    "clusters": 80,
+    "arena_boot95": [
+     99.4,
+     99.9
+    ],
+    "arenas": 8,
+    "arena_t95": {
+     "mean_of_arena_rates": 99.69999999999999,
+     "ci95": [
+      99.35385445314147,
+      100.04614554685851
+     ],
+     "df": 7,
+     "t975": 2.3646242510102993
+    },
+    "arena_rate_min": 99.2,
+    "arena_rate_max": 100.0,
+    "arenas_point_ge_bar": 8,
+    "per_arena": {
+     "g241": {
+      "n": 125,
+      "reached_safely": 124,
+      "rate": 99.2,
+      "wilson95": [
+       95.60752476950049,
+       99.85864048960022
+      ],
+      "pair_boot95": [
+       97.6,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g247": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     },
+     "g251": {
+      "n": 125,
+      "reached_safely": 124,
+      "rate": 99.2,
+      "wilson95": [
+       95.60752476950049,
+       99.85864048960022
+      ],
+      "pair_boot95": [
+       97.6,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     },
+     "g258": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g260": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     },
+     "g263": {
+      "n": 125,
+      "reached_safely": 124,
+      "rate": 99.2,
+      "wilson95": [
+       95.60752476950049,
+       99.85864048960022
+      ],
+      "pair_boot95": [
+       97.6,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g268": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g271": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     }
+    },
+    "declared_pairs": 1000,
+    "pairs_with_drive": 1000,
+    "near_spread": {
+     "near": {
+      "n": 500,
+      "rate": 99.8,
+      "wilson95": [
+       98.87592932948533,
+       99.96468636054408
+      ],
+      "pair_boot95": [
+       99.4,
+       100.0
+      ],
+      "cluster_boot95": [
+       99.38524590163935,
+       100.0
+      ],
+      "arena_boot95": [
+       99.4,
+       100.0
+      ]
+     },
+     "spread": {
+      "n": 500,
+      "rate": 99.6,
+      "wilson95": [
+       98.5534284784823,
+       99.89023694773172
+      ],
+      "pair_boot95": [
+       99.0,
+       100.0
+      ],
+      "cluster_boot95": [
+       99.0039675186298,
+       100.0
+      ],
+      "arena_boot95": [
+       99.2,
+       100.0
+      ]
+     }
+    }
+   },
+   "fail": {
+    "n": 1000,
+    "reached_safely": 997,
+    "rate": 99.7,
+    "binary": true,
+    "wilson95": [
+     99.12169859464969,
+     99.89792161188615
+    ],
+    "pair_boot95": [
+     99.3,
+     100.0
+    ],
+    "cluster_boot95": [
+     99.34640522875817,
+     100.0
+    ],
+    "clusters": 80,
+    "arena_boot95": [
+     99.4,
+     100.0
+    ],
+    "arenas": 8,
+    "arena_t95": {
+     "mean_of_arena_rates": 99.69999999999999,
+     "ci95": [
+      99.35385445314147,
+      100.04614554685851
+     ],
+     "df": 7,
+     "t975": 2.3646242510102993
+    },
+    "arena_rate_min": 99.2,
+    "arena_rate_max": 100.0,
+    "arenas_point_ge_bar": 8,
+    "per_arena": {
+     "g241": {
+      "n": 125,
+      "reached_safely": 124,
+      "rate": 99.2,
+      "wilson95": [
+       95.60752476950049,
+       99.85864048960022
+      ],
+      "pair_boot95": [
+       97.6,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g247": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     },
+     "g251": {
+      "n": 125,
+      "reached_safely": 124,
+      "rate": 99.2,
+      "wilson95": [
+       95.60752476950049,
+       99.85864048960022
+      ],
+      "pair_boot95": [
+       97.6,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     },
+     "g258": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g260": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     },
+     "g263": {
+      "n": 125,
+      "reached_safely": 124,
+      "rate": 99.2,
+      "wilson95": [
+       95.60752476950049,
+       99.85864048960022
+      ],
+      "pair_boot95": [
+       97.6,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g268": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g271": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     }
+    },
+    "declared_pairs": 1000,
+    "pairs_with_drive": 1000,
+    "near_spread": {
+     "near": {
+      "n": 500,
+      "rate": 99.8,
+      "wilson95": [
+       98.87592932948533,
+       99.96468636054408
+      ],
+      "pair_boot95": [
+       99.4,
+       100.0
+      ],
+      "cluster_boot95": [
+       99.36305732484077,
+       100.0
+      ],
+      "arena_boot95": [
+       99.4,
+       100.0
+      ]
+     },
+     "spread": {
+      "n": 500,
+      "rate": 99.6,
+      "wilson95": [
+       98.5534284784823,
+       99.89023694773172
+      ],
+      "pair_boot95": [
+       99.0,
+       100.0
+      ],
+      "cluster_boot95": [
+       99.01375798114928,
+       100.0
+      ],
+      "arena_boot95": [
+       99.2,
+       100.0
+      ]
+     }
+    }
+   },
+   "unsafe": {
+    "n": 1000,
+    "reached_safely": 997,
+    "rate": 99.7,
+    "binary": true,
+    "wilson95": [
+     99.12169859464969,
+     99.89792161188615
+    ],
+    "pair_boot95": [
+     99.3,
+     100.0
+    ],
+    "cluster_boot95": [
+     99.32876469300398,
+     100.0
+    ],
+    "clusters": 80,
+    "arena_boot95": [
+     99.4,
+     99.9
+    ],
+    "arenas": 8,
+    "arena_t95": {
+     "mean_of_arena_rates": 99.69999999999999,
+     "ci95": [
+      99.35385445314147,
+      100.04614554685851
+     ],
+     "df": 7,
+     "t975": 2.3646242510102993
+    },
+    "arena_rate_min": 99.2,
+    "arena_rate_max": 100.0,
+    "arenas_point_ge_bar": 8,
+    "per_arena": {
+     "g241": {
+      "n": 125,
+      "reached_safely": 124,
+      "rate": 99.2,
+      "wilson95": [
+       95.60752476950049,
+       99.85864048960022
+      ],
+      "pair_boot95": [
+       97.6,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g247": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     },
+     "g251": {
+      "n": 125,
+      "reached_safely": 124,
+      "rate": 99.2,
+      "wilson95": [
+       95.60752476950049,
+       99.85864048960022
+      ],
+      "pair_boot95": [
+       97.6,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     },
+     "g258": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g260": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     },
+     "g263": {
+      "n": 125,
+      "reached_safely": 124,
+      "rate": 99.2,
+      "wilson95": [
+       95.60752476950049,
+       99.85864048960022
+      ],
+      "pair_boot95": [
+       97.6,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g268": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g271": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     }
+    },
+    "declared_pairs": 1000,
+    "pairs_with_drive": 1000,
+    "near_spread": {
+     "near": {
+      "n": 500,
+      "rate": 99.8,
+      "wilson95": [
+       98.87592932948533,
+       99.96468636054408
+      ],
+      "pair_boot95": [
+       99.4,
+       100.0
+      ],
+      "cluster_boot95": [
+       99.38013320671423,
+       100.0
+      ],
+      "arena_boot95": [
+       99.4,
+       100.0
+      ]
+     },
+     "spread": {
+      "n": 500,
+      "rate": 99.6,
+      "wilson95": [
+       98.5534284784823,
+       99.89023694773172
+      ],
+      "pair_boot95": [
+       99.0,
+       100.0
+      ],
+      "cluster_boot95": [
+       99.00990099009901,
+       100.0
+      ],
+      "arena_boot95": [
+       99.2,
+       100.0
+      ]
+     }
+    }
+   },
+   "fail_belly": {
+    "n": 1000,
+    "reached_safely": 997,
+    "rate": 99.7,
+    "binary": true,
+    "wilson95": [
+     99.12169859464969,
+     99.89792161188615
+    ],
+    "pair_boot95": [
+     99.3,
+     100.0
+    ],
+    "cluster_boot95": [
+     99.33585549748781,
+     100.0
+    ],
+    "clusters": 80,
+    "arena_boot95": [
+     99.4,
+     99.9
+    ],
+    "arenas": 8,
+    "arena_t95": {
+     "mean_of_arena_rates": 99.69999999999999,
+     "ci95": [
+      99.35385445314147,
+      100.04614554685851
+     ],
+     "df": 7,
+     "t975": 2.3646242510102993
+    },
+    "arena_rate_min": 99.2,
+    "arena_rate_max": 100.0,
+    "arenas_point_ge_bar": 8,
+    "per_arena": {
+     "g241": {
+      "n": 125,
+      "reached_safely": 124,
+      "rate": 99.2,
+      "wilson95": [
+       95.60752476950049,
+       99.85864048960022
+      ],
+      "pair_boot95": [
+       97.6,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g247": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     },
+     "g251": {
+      "n": 125,
+      "reached_safely": 124,
+      "rate": 99.2,
+      "wilson95": [
+       95.60752476950049,
+       99.85864048960022
+      ],
+      "pair_boot95": [
+       97.6,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     },
+     "g258": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g260": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     },
+     "g263": {
+      "n": 125,
+      "reached_safely": 124,
+      "rate": 99.2,
+      "wilson95": [
+       95.60752476950049,
+       99.85864048960022
+      ],
+      "pair_boot95": [
+       97.6,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g268": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g271": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     }
+    },
+    "declared_pairs": 1000,
+    "pairs_with_drive": 1000,
+    "near_spread": {
+     "near": {
+      "n": 500,
+      "rate": 99.8,
+      "wilson95": [
+       98.87592932948533,
+       99.96468636054408
+      ],
+      "pair_boot95": [
+       99.4,
+       100.0
+      ],
+      "cluster_boot95": [
+       99.36440677966101,
+       100.0
+      ],
+      "arena_boot95": [
+       99.4,
+       100.0
+      ]
+     },
+     "spread": {
+      "n": 500,
+      "rate": 99.6,
+      "wilson95": [
+       98.5534284784823,
+       99.89023694773172
+      ],
+      "pair_boot95": [
+       99.0,
+       100.0
+      ],
+      "cluster_boot95": [
+       99.0156507733964,
+       100.0
+      ],
+      "arena_boot95": [
+       99.2,
+       100.0
+      ]
+     }
+    }
+   }
+  },
+  "polaris_u_cem": {
+   "unsafe_belly": {
+    "n": 1000,
+    "reached_safely": 1000,
+    "rate": 100.0,
+    "binary": true,
+    "wilson95": [
+     99.61732415144449,
+     100.0
+    ],
+    "pair_boot95": [
+     100.0,
+     100.0
+    ],
+    "cluster_boot95": [
+     100.0,
+     100.0
+    ],
+    "clusters": 80,
+    "arena_boot95": [
+     100.0,
+     100.0
+    ],
+    "arenas": 8,
+    "arena_t95": {
+     "mean_of_arena_rates": 100.0,
+     "ci95": [
+      100.0,
+      100.0
+     ],
+     "df": 7,
+     "t975": 2.3646242510102993
+    },
+    "arena_rate_min": 100.0,
+    "arena_rate_max": 100.0,
+    "arenas_point_ge_bar": 8,
+    "per_arena": {
+     "g241": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g247": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     },
+     "g251": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     },
+     "g258": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g260": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     },
+     "g263": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g268": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g271": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     }
+    },
+    "declared_pairs": 1000,
+    "pairs_with_drive": 1000,
+    "near_spread": {
+     "near": {
+      "n": 500,
+      "rate": 100.0,
+      "wilson95": [
+       99.23756595384478,
+       100.0
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "cluster_boot95": [
+       100.0,
+       100.0
+      ],
+      "arena_boot95": [
+       100.0,
+       100.0
+      ]
+     },
+     "spread": {
+      "n": 500,
+      "rate": 100.0,
+      "wilson95": [
+       99.23756595384478,
+       100.0
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "cluster_boot95": [
+       100.0,
+       100.0
+      ],
+      "arena_boot95": [
+       100.0,
+       100.0
+      ]
+     }
+    }
+   },
+   "fail": {
+    "n": 1000,
+    "reached_safely": 1000,
+    "rate": 100.0,
+    "binary": true,
+    "wilson95": [
+     99.61732415144449,
+     100.0
+    ],
+    "pair_boot95": [
+     100.0,
+     100.0
+    ],
+    "cluster_boot95": [
+     100.0,
+     100.0
+    ],
+    "clusters": 80,
+    "arena_boot95": [
+     100.0,
+     100.0
+    ],
+    "arenas": 8,
+    "arena_t95": {
+     "mean_of_arena_rates": 100.0,
+     "ci95": [
+      100.0,
+      100.0
+     ],
+     "df": 7,
+     "t975": 2.3646242510102993
+    },
+    "arena_rate_min": 100.0,
+    "arena_rate_max": 100.0,
+    "arenas_point_ge_bar": 8,
+    "per_arena": {
+     "g241": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g247": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     },
+     "g251": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     },
+     "g258": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g260": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     },
+     "g263": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g268": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g271": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     }
+    },
+    "declared_pairs": 1000,
+    "pairs_with_drive": 1000,
+    "near_spread": {
+     "near": {
+      "n": 500,
+      "rate": 100.0,
+      "wilson95": [
+       99.23756595384478,
+       100.0
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "cluster_boot95": [
+       100.0,
+       100.0
+      ],
+      "arena_boot95": [
+       100.0,
+       100.0
+      ]
+     },
+     "spread": {
+      "n": 500,
+      "rate": 100.0,
+      "wilson95": [
+       99.23756595384478,
+       100.0
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "cluster_boot95": [
+       100.0,
+       100.0
+      ],
+      "arena_boot95": [
+       100.0,
+       100.0
+      ]
+     }
+    }
+   },
+   "unsafe": {
+    "n": 1000,
+    "reached_safely": 1000,
+    "rate": 100.0,
+    "binary": true,
+    "wilson95": [
+     99.61732415144449,
+     100.0
+    ],
+    "pair_boot95": [
+     100.0,
+     100.0
+    ],
+    "cluster_boot95": [
+     100.0,
+     100.0
+    ],
+    "clusters": 80,
+    "arena_boot95": [
+     100.0,
+     100.0
+    ],
+    "arenas": 8,
+    "arena_t95": {
+     "mean_of_arena_rates": 100.0,
+     "ci95": [
+      100.0,
+      100.0
+     ],
+     "df": 7,
+     "t975": 2.3646242510102993
+    },
+    "arena_rate_min": 100.0,
+    "arena_rate_max": 100.0,
+    "arenas_point_ge_bar": 8,
+    "per_arena": {
+     "g241": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g247": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     },
+     "g251": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     },
+     "g258": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g260": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     },
+     "g263": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g268": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g271": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     }
+    },
+    "declared_pairs": 1000,
+    "pairs_with_drive": 1000,
+    "near_spread": {
+     "near": {
+      "n": 500,
+      "rate": 100.0,
+      "wilson95": [
+       99.23756595384478,
+       100.0
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "cluster_boot95": [
+       100.0,
+       100.0
+      ],
+      "arena_boot95": [
+       100.0,
+       100.0
+      ]
+     },
+     "spread": {
+      "n": 500,
+      "rate": 100.0,
+      "wilson95": [
+       99.23756595384478,
+       100.0
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "cluster_boot95": [
+       100.0,
+       100.0
+      ],
+      "arena_boot95": [
+       100.0,
+       100.0
+      ]
+     }
+    }
+   },
+   "fail_belly": {
+    "n": 1000,
+    "reached_safely": 1000,
+    "rate": 100.0,
+    "binary": true,
+    "wilson95": [
+     99.61732415144449,
+     100.0
+    ],
+    "pair_boot95": [
+     100.0,
+     100.0
+    ],
+    "cluster_boot95": [
+     100.0,
+     100.0
+    ],
+    "clusters": 80,
+    "arena_boot95": [
+     100.0,
+     100.0
+    ],
+    "arenas": 8,
+    "arena_t95": {
+     "mean_of_arena_rates": 100.0,
+     "ci95": [
+      100.0,
+      100.0
+     ],
+     "df": 7,
+     "t975": 2.3646242510102993
+    },
+    "arena_rate_min": 100.0,
+    "arena_rate_max": 100.0,
+    "arenas_point_ge_bar": 8,
+    "per_arena": {
+     "g241": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g247": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     },
+     "g251": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     },
+     "g258": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g260": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     },
+     "g263": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g268": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g271": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     }
+    },
+    "declared_pairs": 1000,
+    "pairs_with_drive": 1000,
+    "near_spread": {
+     "near": {
+      "n": 500,
+      "rate": 100.0,
+      "wilson95": [
+       99.23756595384478,
+       100.0
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "cluster_boot95": [
+       100.0,
+       100.0
+      ],
+      "arena_boot95": [
+       100.0,
+       100.0
+      ]
+     },
+     "spread": {
+      "n": 500,
+      "rate": 100.0,
+      "wilson95": [
+       99.23756595384478,
+       100.0
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "cluster_boot95": [
+       100.0,
+       100.0
+      ],
+      "arena_boot95": [
+       100.0,
+       100.0
+      ]
+     }
+    }
+   }
+  },
+  "straight6_polaris_u": {
+   "unsafe_belly": {
+    "n": 1000,
+    "reached_safely": 970,
+    "rate": 97.0,
+    "binary": true,
+    "wilson95": [
+     95.74965858524128,
+     97.89062611711653
+    ],
+    "pair_boot95": [
+     95.89999999999999,
+     98.0
+    ],
+    "cluster_boot95": [
+     95.02531180375314,
+     98.5211541183687
+    ],
+    "clusters": 80,
+    "arena_boot95": [
+     95.4,
+     98.5
+    ],
+    "arenas": 8,
+    "arena_t95": {
+     "mean_of_arena_rates": 97.0,
+     "ci95": [
+      95.01757999929188,
+      98.98242000070812
+     ],
+     "df": 7,
+     "t975": 2.3646242510102993
+    },
+    "arena_rate_min": 93.6,
+    "arena_rate_max": 100.0,
+    "arenas_point_ge_bar": 8,
+    "per_arena": {
+     "g241": {
+      "n": 125,
+      "reached_safely": 122,
+      "rate": 97.6,
+      "wilson95": [
+       93.18110017162228,
+       99.18047434734504
+      ],
+      "pair_boot95": [
+       94.39999999999999,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g247": {
+      "n": 125,
+      "reached_safely": 120,
+      "rate": 96.0,
+      "wilson95": [
+       90.97744468602555,
+       98.27953909280842
+      ],
+      "pair_boot95": [
+       92.0,
+       99.2
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     },
+     "g251": {
+      "n": 125,
+      "reached_safely": 120,
+      "rate": 96.0,
+      "wilson95": [
+       90.97744468602555,
+       98.27953909280842
+      ],
+      "pair_boot95": [
+       92.0,
+       99.2
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     },
+     "g258": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g260": {
+      "n": 125,
+      "reached_safely": 117,
+      "rate": 93.6,
+      "wilson95": [
+       87.87845562822072,
+       96.72164204041323
+      ],
+      "pair_boot95": [
+       88.8,
+       97.6
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "not distinguishable from 90",
+      "role": "near"
+     },
+     "g263": {
+      "n": 125,
+      "reached_safely": 124,
+      "rate": 99.2,
+      "wilson95": [
+       95.60752476950049,
+       99.85864048960022
+      ],
+      "pair_boot95": [
+       97.6,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g268": {
+      "n": 125,
+      "reached_safely": 118,
+      "rate": 94.4,
+      "wilson95": [
+       88.89121558924442,
+       97.2611774494562
+      ],
+      "pair_boot95": [
+       89.60000000000001,
+       98.4
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "not distinguishable from 90",
+      "role": "spread"
+     },
+     "g271": {
+      "n": 125,
+      "reached_safely": 124,
+      "rate": 99.2,
+      "wilson95": [
+       95.60752476950049,
+       99.85864048960022
+      ],
+      "pair_boot95": [
+       97.6,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     }
+    },
+    "declared_pairs": 1000,
+    "pairs_with_drive": 1000,
+    "near_spread": {
+     "near": {
+      "n": 500,
+      "rate": 96.2,
+      "wilson95": [
+       94.1415227469356,
+       97.55398819441696
+      ],
+      "pair_boot95": [
+       94.39999999999999,
+       97.8
+      ],
+      "cluster_boot95": [
+       92.85714285714286,
+       98.66078885618836
+      ],
+      "arena_boot95": [
+       94.2,
+       98.4
+      ]
+     },
+     "spread": {
+      "n": 500,
+      "rate": 97.8,
+      "wilson95": [
+       96.10391387886837,
+       98.76719917300724
+      ],
+      "pair_boot95": [
+       96.39999999999999,
+       99.0
+      ],
+      "cluster_boot95": [
+       96.06436550082402,
+       99.22031082895306
+      ],
+      "arena_boot95": [
+       95.6,
+       99.6
+      ]
+     }
+    }
+   },
+   "fail": {
+    "n": 1000,
+    "reached_safely": 970,
+    "rate": 97.0,
+    "binary": true,
+    "wilson95": [
+     95.74965858524128,
+     97.89062611711653
+    ],
+    "pair_boot95": [
+     95.89999999999999,
+     98.0
+    ],
+    "cluster_boot95": [
+     95.13121333744982,
+     98.50302599928348
+    ],
+    "clusters": 80,
+    "arena_boot95": [
+     95.4,
+     98.5
+    ],
+    "arenas": 8,
+    "arena_t95": {
+     "mean_of_arena_rates": 97.0,
+     "ci95": [
+      95.01757999929188,
+      98.98242000070812
+     ],
+     "df": 7,
+     "t975": 2.3646242510102993
+    },
+    "arena_rate_min": 93.6,
+    "arena_rate_max": 100.0,
+    "arenas_point_ge_bar": 8,
+    "per_arena": {
+     "g241": {
+      "n": 125,
+      "reached_safely": 122,
+      "rate": 97.6,
+      "wilson95": [
+       93.18110017162228,
+       99.18047434734504
+      ],
+      "pair_boot95": [
+       94.39999999999999,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g247": {
+      "n": 125,
+      "reached_safely": 120,
+      "rate": 96.0,
+      "wilson95": [
+       90.97744468602555,
+       98.27953909280842
+      ],
+      "pair_boot95": [
+       92.0,
+       99.2
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     },
+     "g251": {
+      "n": 125,
+      "reached_safely": 120,
+      "rate": 96.0,
+      "wilson95": [
+       90.97744468602555,
+       98.27953909280842
+      ],
+      "pair_boot95": [
+       92.0,
+       99.2
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     },
+     "g258": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g260": {
+      "n": 125,
+      "reached_safely": 117,
+      "rate": 93.6,
+      "wilson95": [
+       87.87845562822072,
+       96.72164204041323
+      ],
+      "pair_boot95": [
+       88.8,
+       97.6
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "not distinguishable from 90",
+      "role": "near"
+     },
+     "g263": {
+      "n": 125,
+      "reached_safely": 124,
+      "rate": 99.2,
+      "wilson95": [
+       95.60752476950049,
+       99.85864048960022
+      ],
+      "pair_boot95": [
+       97.6,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g268": {
+      "n": 125,
+      "reached_safely": 118,
+      "rate": 94.4,
+      "wilson95": [
+       88.89121558924442,
+       97.2611774494562
+      ],
+      "pair_boot95": [
+       89.60000000000001,
+       98.4
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "not distinguishable from 90",
+      "role": "spread"
+     },
+     "g271": {
+      "n": 125,
+      "reached_safely": 124,
+      "rate": 99.2,
+      "wilson95": [
+       95.60752476950049,
+       99.85864048960022
+      ],
+      "pair_boot95": [
+       97.6,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     }
+    },
+    "declared_pairs": 1000,
+    "pairs_with_drive": 1000,
+    "near_spread": {
+     "near": {
+      "n": 500,
+      "rate": 96.2,
+      "wilson95": [
+       94.1415227469356,
+       97.55398819441696
+      ],
+      "pair_boot95": [
+       94.39999999999999,
+       97.8
+      ],
+      "cluster_boot95": [
+       92.80427619091006,
+       98.7012987012987
+      ],
+      "arena_boot95": [
+       94.2,
+       98.4
+      ]
+     },
+     "spread": {
+      "n": 500,
+      "rate": 97.8,
+      "wilson95": [
+       96.10391387886837,
+       98.76719917300724
+      ],
+      "pair_boot95": [
+       96.39999999999999,
+       99.0
+      ],
+      "cluster_boot95": [
+       96.02507340891889,
+       99.28074642423829
+      ],
+      "arena_boot95": [
+       95.6,
+       99.6
+      ]
+     }
+    }
+   },
+   "unsafe": {
+    "n": 1000,
+    "reached_safely": 970,
+    "rate": 97.0,
+    "binary": true,
+    "wilson95": [
+     95.74965858524128,
+     97.89062611711653
+    ],
+    "pair_boot95": [
+     95.89999999999999,
+     98.0
+    ],
+    "cluster_boot95": [
+     95.0,
+     98.48312471270464
+    ],
+    "clusters": 80,
+    "arena_boot95": [
+     95.4,
+     98.5
+    ],
+    "arenas": 8,
+    "arena_t95": {
+     "mean_of_arena_rates": 97.0,
+     "ci95": [
+      95.01757999929188,
+      98.98242000070812
+     ],
+     "df": 7,
+     "t975": 2.3646242510102993
+    },
+    "arena_rate_min": 93.6,
+    "arena_rate_max": 100.0,
+    "arenas_point_ge_bar": 8,
+    "per_arena": {
+     "g241": {
+      "n": 125,
+      "reached_safely": 122,
+      "rate": 97.6,
+      "wilson95": [
+       93.18110017162228,
+       99.18047434734504
+      ],
+      "pair_boot95": [
+       94.39999999999999,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g247": {
+      "n": 125,
+      "reached_safely": 120,
+      "rate": 96.0,
+      "wilson95": [
+       90.97744468602555,
+       98.27953909280842
+      ],
+      "pair_boot95": [
+       92.0,
+       99.2
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     },
+     "g251": {
+      "n": 125,
+      "reached_safely": 120,
+      "rate": 96.0,
+      "wilson95": [
+       90.97744468602555,
+       98.27953909280842
+      ],
+      "pair_boot95": [
+       92.0,
+       99.2
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     },
+     "g258": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g260": {
+      "n": 125,
+      "reached_safely": 117,
+      "rate": 93.6,
+      "wilson95": [
+       87.87845562822072,
+       96.72164204041323
+      ],
+      "pair_boot95": [
+       88.8,
+       97.6
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "not distinguishable from 90",
+      "role": "near"
+     },
+     "g263": {
+      "n": 125,
+      "reached_safely": 124,
+      "rate": 99.2,
+      "wilson95": [
+       95.60752476950049,
+       99.85864048960022
+      ],
+      "pair_boot95": [
+       97.6,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g268": {
+      "n": 125,
+      "reached_safely": 118,
+      "rate": 94.4,
+      "wilson95": [
+       88.89121558924442,
+       97.2611774494562
+      ],
+      "pair_boot95": [
+       90.4,
+       98.4
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "not distinguishable from 90",
+      "role": "spread"
+     },
+     "g271": {
+      "n": 125,
+      "reached_safely": 124,
+      "rate": 99.2,
+      "wilson95": [
+       95.60752476950049,
+       99.85864048960022
+      ],
+      "pair_boot95": [
+       97.6,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     }
+    },
+    "declared_pairs": 1000,
+    "pairs_with_drive": 1000,
+    "near_spread": {
+     "near": {
+      "n": 500,
+      "rate": 96.2,
+      "wilson95": [
+       94.1415227469356,
+       97.55398819441696
+      ],
+      "pair_boot95": [
+       94.39999999999999,
+       97.8
+      ],
+      "cluster_boot95": [
+       92.69641778422134,
+       98.61124835309619
+      ],
+      "arena_boot95": [
+       94.2,
+       98.4
+      ]
+     },
+     "spread": {
+      "n": 500,
+      "rate": 97.8,
+      "wilson95": [
+       96.10391387886837,
+       98.76719917300724
+      ],
+      "pair_boot95": [
+       96.39999999999999,
+       99.0
+      ],
+      "cluster_boot95": [
+       96.09836193711394,
+       99.27934397593285
+      ],
+      "arena_boot95": [
+       95.6,
+       99.6
+      ]
+     }
+    }
+   },
+   "fail_belly": {
+    "n": 1000,
+    "reached_safely": 970,
+    "rate": 97.0,
+    "binary": true,
+    "wilson95": [
+     95.74965858524128,
+     97.89062611711653
+    ],
+    "pair_boot95": [
+     95.89999999999999,
+     98.0
+    ],
+    "cluster_boot95": [
+     95.10331051481218,
+     98.50919716572297
+    ],
+    "clusters": 80,
+    "arena_boot95": [
+     95.5,
+     98.4
+    ],
+    "arenas": 8,
+    "arena_t95": {
+     "mean_of_arena_rates": 97.0,
+     "ci95": [
+      95.01757999929188,
+      98.98242000070812
+     ],
+     "df": 7,
+     "t975": 2.3646242510102993
+    },
+    "arena_rate_min": 93.6,
+    "arena_rate_max": 100.0,
+    "arenas_point_ge_bar": 8,
+    "per_arena": {
+     "g241": {
+      "n": 125,
+      "reached_safely": 122,
+      "rate": 97.6,
+      "wilson95": [
+       93.18110017162228,
+       99.18047434734504
+      ],
+      "pair_boot95": [
+       94.39999999999999,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g247": {
+      "n": 125,
+      "reached_safely": 120,
+      "rate": 96.0,
+      "wilson95": [
+       90.97744468602555,
+       98.27953909280842
+      ],
+      "pair_boot95": [
+       92.0,
+       99.2
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     },
+     "g251": {
+      "n": 125,
+      "reached_safely": 120,
+      "rate": 96.0,
+      "wilson95": [
+       90.97744468602555,
+       98.27953909280842
+      ],
+      "pair_boot95": [
+       92.0,
+       99.2
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     },
+     "g258": {
+      "n": 125,
+      "reached_safely": 125,
+      "rate": 100.0,
+      "wilson95": [
+       97.01846062916736,
+       100.00000000000003
+      ],
+      "pair_boot95": [
+       100.0,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g260": {
+      "n": 125,
+      "reached_safely": 117,
+      "rate": 93.6,
+      "wilson95": [
+       87.87845562822072,
+       96.72164204041323
+      ],
+      "pair_boot95": [
+       88.8,
+       97.6
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "not distinguishable from 90",
+      "role": "near"
+     },
+     "g263": {
+      "n": 125,
+      "reached_safely": 124,
+      "rate": 99.2,
+      "wilson95": [
+       95.60752476950049,
+       99.85864048960022
+      ],
+      "pair_boot95": [
+       97.6,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "spread"
+     },
+     "g268": {
+      "n": 125,
+      "reached_safely": 118,
+      "rate": 94.4,
+      "wilson95": [
+       88.89121558924442,
+       97.2611774494562
+      ],
+      "pair_boot95": [
+       89.60000000000001,
+       98.4
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "not distinguishable from 90",
+      "role": "spread"
+     },
+     "g271": {
+      "n": 125,
+      "reached_safely": 124,
+      "rate": 99.2,
+      "wilson95": [
+       95.60752476950049,
+       99.85864048960022
+      ],
+      "pair_boot95": [
+       97.6,
+       100.0
+      ],
+      "point_ge_bar": true,
+      "vs_bar": "above",
+      "role": "near"
+     }
+    },
+    "declared_pairs": 1000,
+    "pairs_with_drive": 1000,
+    "near_spread": {
+     "near": {
+      "n": 500,
+      "rate": 96.2,
+      "wilson95": [
+       94.1415227469356,
+       97.55398819441696
+      ],
+      "pair_boot95": [
+       94.39999999999999,
+       97.8
+      ],
+      "cluster_boot95": [
+       92.67722224414108,
+       98.62496699500115
+      ],
+      "arena_boot95": [
+       94.2,
+       98.4
+      ]
+     },
+     "spread": {
+      "n": 500,
+      "rate": 97.8,
+      "wilson95": [
+       96.10391387886837,
+       98.76719917300724
+      ],
+      "pair_boot95": [
+       96.39999999999999,
+       99.0
+      ],
+      "cluster_boot95": [
+       96.09042424681694,
+       99.34640522875817
+      ],
+      "arena_boot95": [
+       95.6,
+       99.6
+      ]
+     }
+    }
+   }
+  }
+ },
+ "validity": {
+  "polaris_u_grad": {
+   "vehicle": "polaris",
+   "arm": "polaris_u_grad",
+   "set": "unseen",
+   "limits": {
+    "crashed": 0,
+    "launch_share": 0.05,
+    "belly_share": 0.1
+   },
+   "planned": 1000,
+   "driven": 1000,
+   "missing": 0,
+   "qa_checked": 1000,
+   "crashed_or_nonfinite": 0,
+   "crashed_ids": [],
+   "launch_checked": 1000,
+   "launch_failures": 0,
+   "launch_share": 0.0,
+   "belly_checked": 1000,
+   "belly_flagged": 0,
+   "belly_share": 0.0,
+   "qa_flags": {},
+   "checks": {
+    "all_driven": true,
+    "qa_checked_all": true,
+    "no_crash": true,
+    "launch_ok": true,
+    "belly_ok": true
+   },
+   "valid": true,
+   "collector_failures": 0,
+   "collector_failure_ids": []
+  },
+  "polaris_u_cem": {
+   "vehicle": "polaris",
+   "arm": "polaris_u_cem",
+   "set": "unseen",
+   "limits": {
+    "crashed": 0,
+    "launch_share": 0.05,
+    "belly_share": 0.1
+   },
+   "planned": 1000,
+   "driven": 1000,
+   "missing": 0,
+   "qa_checked": 1000,
+   "crashed_or_nonfinite": 0,
+   "crashed_ids": [],
+   "launch_checked": 1000,
+   "launch_failures": 0,
+   "launch_share": 0.0,
+   "belly_checked": 1000,
+   "belly_flagged": 0,
+   "belly_share": 0.0,
+   "qa_flags": {},
+   "checks": {
+    "all_driven": true,
+    "qa_checked_all": true,
+    "no_crash": true,
+    "launch_ok": true,
+    "belly_ok": true
+   },
+   "valid": true,
+   "collector_failures": 0,
+   "collector_failure_ids": []
+  },
+  "straight6_polaris_u": {
+   "vehicle": "polaris",
+   "arm": "straight6_polaris_u",
+   "set": "unseen",
+   "limits": {
+    "crashed": 0,
+    "launch_share": 0.05,
+    "belly_share": 0.1
+   },
+   "planned": 1000,
+   "driven": 1000,
+   "missing": 0,
+   "qa_checked": 1000,
+   "crashed_or_nonfinite": 0,
+   "crashed_ids": [],
+   "launch_checked": 1000,
+   "launch_failures": 0,
+   "launch_share": 0.0,
+   "belly_checked": 1000,
+   "belly_flagged": 1,
+   "belly_share": 0.001,
+   "qa_flags": {
+    "unstalled_break": 2
+   },
+   "checks": {
+    "all_driven": true,
+    "qa_checked_all": true,
+    "no_crash": true,
+    "launch_ok": true,
+    "belly_ok": true
+   },
+   "valid": true,
+   "collector_failures": 0,
+   "collector_failure_ids": []
+  }
+ },
+ "verdict": {
+  "arm": "polaris_u_grad",
+  "label": "unsafe_belly",
+  "bar": 90.0,
+  "complete": true,
+  "pairs_with_drive": 1000,
+  "declared_pairs": 1000,
+  "valid": true,
+  "rate": 99.7,
+  "arena_boot95": [
+   99.4,
+   99.9
+  ],
+  "wilson95": [
+   99.12169859464969,
+   99.89792161188615
+  ],
+  "meets": true,
+  "clearly_above": true,
+  "verdict": "clearly above the bar",
+  "interim_verdict_on_driven_pairs": null,
+  "goal_only": {
+   "rate": 99.7,
+   "arena_boot95": [
+    99.4,
+    100.0
+   ],
+   "verdict": "clearly above the bar"
+  },
+  "arenas_point_ge_bar": 8,
+  "per_arena": {
+   "g241": {
+    "rate": 99.2,
+    "wilson95": [
+     95.60752476950049,
+     99.85864048960022
+    ],
+    "vs_bar": "above"
+   },
+   "g247": {
+    "rate": 100.0,
+    "wilson95": [
+     97.01846062916736,
+     100.00000000000003
+    ],
+    "vs_bar": "above"
+   },
+   "g251": {
+    "rate": 99.2,
+    "wilson95": [
+     95.60752476950049,
+     99.85864048960022
+    ],
+    "vs_bar": "above"
+   },
+   "g258": {
+    "rate": 100.0,
+    "wilson95": [
+     97.01846062916736,
+     100.00000000000003
+    ],
+    "vs_bar": "above"
+   },
+   "g260": {
+    "rate": 100.0,
+    "wilson95": [
+     97.01846062916736,
+     100.00000000000003
+    ],
+    "vs_bar": "above"
+   },
+   "g263": {
+    "rate": 99.2,
+    "wilson95": [
+     95.60752476950049,
+     99.85864048960022
+    ],
+    "vs_bar": "above"
+   },
+   "g268": {
+    "rate": 100.0,
+    "wilson95": [
+     97.01846062916736,
+     100.00000000000003
+    ],
+    "vs_bar": "above"
+   },
+   "g271": {
+    "rate": 100.0,
+    "wilson95": [
+     97.01846062916736,
+     100.00000000000003
+    ],
+    "vs_bar": "above"
+   }
+  }
+ },
+ "family": [
+  {
+   "name": "U1_grad_vs_straight6",
+   "world": "crm",
+   "vehicle": "polaris",
+   "test": "polaris_u_grad",
+   "ref": "straight6_polaris_u",
+   "label": "unsafe_belly",
+   "set": "unseen",
+   "result": {
+    "test": "polaris_u_grad",
+    "ref": "straight6_polaris_u",
+    "label": "unsafe_belly",
+    "n": 1000,
+    "rate_test": 0.3,
+    "rate_ref": 3.0,
+    "diff_pts": -2.7,
+    "improvement_pts": 2.7,
+    "group": {
+     "ci95": [
+      -3.8024999999999998,
+      -1.6
+     ],
+     "ci90": [
+      -3.6999999999999997,
+      -1.7999999999999998
+     ],
+     "p_one_sided": 0.00024993751562109475
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      -4.60170787017352,
+      -1.2397633850348564
+     ],
+     "ci90": [
+      -4.234618471270504,
+      -1.4069645415834195
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 80,
+     "cluster_wins": 17,
+     "cluster_losses": 1,
+     "sign_p": 0.00014495849609375
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      -4.555420825088187,
+      -1.2633573730243977
+     ],
+     "ci90": [
+      -4.179441543670577,
+      -1.438729679240034
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 81,
+     "cluster_wins": 17,
+     "cluster_losses": 1,
+     "sign_p": 0.00014495849609375
+    },
+    "discordant": {
+     "test_worse": 3,
+     "test_better": 30,
+     "binary": true,
+     "mcnemar_two_sided": 1.4011748135089874e-06,
+     "mcnemar_one_sided": 7.005874067544937e-07
+    },
+    "identical_picks": 2,
+    "within_margin_90": false,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": -1.4069645415834195,
+     "upper95_one_sided_group": -1.7999999999999998,
+     "margin_pts": 2.0,
+     "pass_cluster": true,
+     "note": "polaris_u_grad is within 2.0 points of straight6_polaris_u (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = unsafe_belly(polaris_u_grad) - unsafe_belly(straight6_polaris_u) in points; negative = polaris_u_grad better",
+    "per_arena": {
+     "g241": {
+      "n": 125,
+      "rate_test": 0.8,
+      "rate_ref": 2.4,
+      "diff_pts": -1.6,
+      "ci95": [
+       -4.8,
+       1.6
+      ],
+      "test_worse": 1,
+      "test_better": 3,
+      "role": "spread",
+      "dist_nearest_training": 1.3405314591233513,
+      "map_err_rmse_m": 0.06167557431867671
+     },
+     "g247": {
+      "n": 125,
+      "rate_test": 0.0,
+      "rate_ref": 4.0,
+      "diff_pts": -4.0,
+      "ci95": [
+       -8.0,
+       -0.8
+      ],
+      "test_worse": 0,
+      "test_better": 5,
+      "role": "near",
+      "dist_nearest_training": 0.7210503998286971,
+      "map_err_rmse_m": 0.07077313337932117
+     },
+     "g251": {
+      "n": 125,
+      "rate_test": 0.8,
+      "rate_ref": 4.0,
+      "diff_pts": -3.2,
+      "ci95": [
+       -7.199999999999999,
+       0.8
+      ],
+      "test_worse": 1,
+      "test_better": 5,
+      "role": "near",
+      "dist_nearest_training": 0.7787958192327659,
+      "map_err_rmse_m": 0.06769482480819407
+     },
+     "g258": {
+      "n": 125,
+      "rate_test": 0.0,
+      "rate_ref": 0.0,
+      "diff_pts": 0.0,
+      "ci95": [
+       0.0,
+       0.0
+      ],
+      "test_worse": 0,
+      "test_better": 0,
+      "role": "spread",
+      "dist_nearest_training": 0.879183361413518,
+      "map_err_rmse_m": 0.08494569574182195
+     },
+     "g260": {
+      "n": 125,
+      "rate_test": 0.0,
+      "rate_ref": 6.4,
+      "diff_pts": -6.4,
+      "ci95": [
+       -11.200000000000001,
+       -2.4
+      ],
+      "test_worse": 0,
+      "test_better": 8,
+      "role": "near",
+      "dist_nearest_training": 0.6063388127891898,
+      "map_err_rmse_m": 0.05959245289401632
+     },
+     "g263": {
+      "n": 125,
+      "rate_test": 0.8,
+      "rate_ref": 0.8,
+      "diff_pts": 0.0,
+      "ci95": [
+       -2.4,
+       2.4
+      ],
+      "test_worse": 1,
+      "test_better": 1,
+      "role": "spread",
+      "dist_nearest_training": 1.1935257603265028,
+      "map_err_rmse_m": 0.059344657901350725
+     },
+     "g268": {
+      "n": 125,
+      "rate_test": 0.0,
+      "rate_ref": 5.6000000000000005,
+      "diff_pts": -5.6,
+      "ci95": [
+       -10.4,
+       -1.6
+      ],
+      "test_worse": 0,
+      "test_better": 7,
+      "role": "spread",
+      "dist_nearest_training": 0.9170126588684951,
+      "map_err_rmse_m": 0.09360551292812604
+     },
+     "g271": {
+      "n": 125,
+      "rate_test": 0.0,
+      "rate_ref": 0.8,
+      "diff_pts": -0.8,
+      "ci95": [
+       -2.4,
+       0.0
+      ],
+      "test_worse": 0,
+      "test_better": 1,
+      "role": "near",
+      "dist_nearest_training": 0.7387004229671557,
+      "map_err_rmse_m": 0.06536388849053407
+     }
+    },
+    "arena_signs": {
+     "better": 6,
+     "worse": 0,
+     "equal": 2
+    },
+    "random_effects": {
+     "k": 8,
+     "pooled_pts": -2.0275845814312645,
+     "ci95": [
+      -3.5164121855976456,
+      -0.5387569772648837
+     ],
+     "se": 0.7596059204930514,
+     "tau_pts": 1.5713463318850456,
+     "Q": 17.391025254046127,
+     "I2": 0.5974935406196706,
+     "fixed_effect_pts": -1.2501623633442753,
+     "spread_sd_pts": 2.491127111512836
+    },
+    "vs_distance_nearest_training": {
+     "n": 8,
+     "ols_slope": 5.10386259587656,
+     "pearson": 0.5135713463794982,
+     "spearman": 0.523809523809524
+    },
+    "vs_map_error": {
+     "n": 8,
+     "ols_slope": -32.95190551550611,
+     "pearson": -0.16566931973808335,
+     "spearman": -0.2380952380952381
+    },
+    "near_minus_spread": {
+     "diff_pts": -1.7999999999999998,
+     "ci95": [
+      -5.502461049534299,
+      1.1632890899492976
+     ]
+    },
+    "near_spread": {
+     "near": {
+      "n": 500,
+      "diff_pts": -3.5999999999999996,
+      "cluster_ci95": [
+       -6.931170916319431,
+       -1.3014480096909595
+      ]
+     },
+     "spread": {
+      "n": 500,
+      "diff_pts": -1.7999999999999998,
+      "cluster_ci95": [
+       -3.5714285714285716,
+       -0.3898635477582846
+      ]
+     }
+    }
+   },
+   "holm": {
+    "p_one_sided_cluster": 0.00024993751562109475,
+    "p_adjusted": 0.0004998750312421895,
+    "reject": true,
+    "alpha": 0.05,
+    "family_size": 2
+   },
+   "decision": "improves"
+  },
+  {
+   "name": "U2_grad_vs_cem",
+   "world": "crm",
+   "vehicle": "polaris",
+   "test": "polaris_u_grad",
+   "ref": "polaris_u_cem",
+   "label": "unsafe_belly",
+   "set": "unseen",
+   "result": {
+    "test": "polaris_u_grad",
+    "ref": "polaris_u_cem",
+    "label": "unsafe_belly",
+    "n": 1000,
+    "rate_test": 0.3,
+    "rate_ref": 0.0,
+    "diff_pts": 0.3,
+    "improvement_pts": -0.3,
+    "group": {
+     "ci95": [
+      0.0,
+      0.7000000000000001
+     ],
+     "ci90": [
+      0.1,
+      0.6
+     ],
+     "p_one_sided": 1.0
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      0.0,
+      0.655476868702854
+     ],
+     "ci90": [
+      0.0919075446983201,
+      0.5952380952380952
+     ],
+     "p_one_sided": 1.0,
+     "clusters": 80,
+     "cluster_wins": 0,
+     "cluster_losses": 3,
+     "sign_p": 0.25
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      0.0,
+      0.6750730701006662
+     ],
+     "ci90": [
+      0.08616536592751653,
+      0.5994305694305693
+     ],
+     "p_one_sided": 1.0,
+     "clusters": 81,
+     "cluster_wins": 0,
+     "cluster_losses": 3,
+     "sign_p": 0.25
+    },
+    "discordant": {
+     "test_worse": 3,
+     "test_better": 0,
+     "binary": true,
+     "mcnemar_two_sided": 0.25,
+     "mcnemar_one_sided": 1.0
+    },
+    "identical_picks": 380,
+    "within_margin_90": true,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": 0.5952380952380952,
+     "upper95_one_sided_group": 0.6,
+     "margin_pts": 2.0,
+     "pass_cluster": true,
+     "note": "polaris_u_grad is within 2.0 points of polaris_u_cem (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = unsafe_belly(polaris_u_grad) - unsafe_belly(polaris_u_cem) in points; negative = polaris_u_grad better",
+    "per_arena": {
+     "g241": {
+      "n": 125,
+      "rate_test": 0.8,
+      "rate_ref": 0.0,
+      "diff_pts": 0.8,
+      "ci95": [
+       0.0,
+       2.4
+      ],
+      "test_worse": 1,
+      "test_better": 0,
+      "role": "spread",
+      "dist_nearest_training": 1.3405314591233513,
+      "map_err_rmse_m": 0.06167557431867671
+     },
+     "g247": {
+      "n": 125,
+      "rate_test": 0.0,
+      "rate_ref": 0.0,
+      "diff_pts": 0.0,
+      "ci95": [
+       0.0,
+       0.0
+      ],
+      "test_worse": 0,
+      "test_better": 0,
+      "role": "near",
+      "dist_nearest_training": 0.7210503998286971,
+      "map_err_rmse_m": 0.07077313337932117
+     },
+     "g251": {
+      "n": 125,
+      "rate_test": 0.8,
+      "rate_ref": 0.0,
+      "diff_pts": 0.8,
+      "ci95": [
+       0.0,
+       2.4
+      ],
+      "test_worse": 1,
+      "test_better": 0,
+      "role": "near",
+      "dist_nearest_training": 0.7787958192327659,
+      "map_err_rmse_m": 0.06769482480819407
+     },
+     "g258": {
+      "n": 125,
+      "rate_test": 0.0,
+      "rate_ref": 0.0,
+      "diff_pts": 0.0,
+      "ci95": [
+       0.0,
+       0.0
+      ],
+      "test_worse": 0,
+      "test_better": 0,
+      "role": "spread",
+      "dist_nearest_training": 0.879183361413518,
+      "map_err_rmse_m": 0.08494569574182195
+     },
+     "g260": {
+      "n": 125,
+      "rate_test": 0.0,
+      "rate_ref": 0.0,
+      "diff_pts": 0.0,
+      "ci95": [
+       0.0,
+       0.0
+      ],
+      "test_worse": 0,
+      "test_better": 0,
+      "role": "near",
+      "dist_nearest_training": 0.6063388127891898,
+      "map_err_rmse_m": 0.05959245289401632
+     },
+     "g263": {
+      "n": 125,
+      "rate_test": 0.8,
+      "rate_ref": 0.0,
+      "diff_pts": 0.8,
+      "ci95": [
+       0.0,
+       2.4
+      ],
+      "test_worse": 1,
+      "test_better": 0,
+      "role": "spread",
+      "dist_nearest_training": 1.1935257603265028,
+      "map_err_rmse_m": 0.059344657901350725
+     },
+     "g268": {
+      "n": 125,
+      "rate_test": 0.0,
+      "rate_ref": 0.0,
+      "diff_pts": 0.0,
+      "ci95": [
+       0.0,
+       0.0
+      ],
+      "test_worse": 0,
+      "test_better": 0,
+      "role": "spread",
+      "dist_nearest_training": 0.9170126588684951,
+      "map_err_rmse_m": 0.09360551292812604
+     },
+     "g271": {
+      "n": 125,
+      "rate_test": 0.0,
+      "rate_ref": 0.0,
+      "diff_pts": 0.0,
+      "ci95": [
+       0.0,
+       0.0
+      ],
+      "test_worse": 0,
+      "test_better": 0,
+      "role": "near",
+      "dist_nearest_training": 0.7387004229671557,
+      "map_err_rmse_m": 0.06536388849053407
+     }
+    },
+    "arena_signs": {
+     "better": 0,
+     "worse": 3,
+     "equal": 5
+    },
+    "random_effects": {
+     "k": 8,
+     "pooled_pts": 0.3,
+     "ci95": [
+      -0.2543717164502533,
+      0.8543717164502533
+     ],
+     "se": 0.282842712474619,
+     "tau_pts": 0.0,
+     "Q": 1.875,
+     "I2": 0.0,
+     "fixed_effect_pts": 0.3,
+     "spread_sd_pts": 0.41403933560541256
+    },
+    "vs_distance_nearest_training": {
+     "n": 8,
+     "ols_slope": 1.1316439922317514,
+     "pearson": 0.6851188531698335,
+     "spearman": 0.5714285714285715
+    },
+    "vs_map_error": {
+     "n": 8,
+     "ols_slope": -16.326265493587965,
+     "pearson": -0.49385868442505665,
+     "spearman": -0.5476190476190477
+    },
+    "near_minus_spread": {
+     "diff_pts": -0.2,
+     "ci95": [
+      -0.8813452611303908,
+      0.41619563947873967
+     ]
+    },
+    "near_spread": {
+     "near": {
+      "n": 500,
+      "diff_pts": 0.2,
+      "cluster_ci95": [
+       0.0,
+       0.6379670161865011
+      ]
+     },
+     "spread": {
+      "n": 500,
+      "diff_pts": 0.4,
+      "cluster_ci95": [
+       0.0,
+       0.9917437360619179
+      ]
+     }
+    }
+   },
+   "holm": {
+    "p_one_sided_cluster": 1.0,
+    "p_adjusted": 1.0,
+    "reject": false,
+    "alpha": 0.05,
+    "family_size": 2
+   },
+   "decision": "no meaningful difference"
+  }
+ ],
+ "contrasts": [
+  {
+   "name": "S1_grad_vs_straight6_goal_only",
+   "world": "crm",
+   "vehicle": "polaris",
+   "test": "polaris_u_grad",
+   "ref": "straight6_polaris_u",
+   "label": "fail",
+   "set": "unseen",
+   "result": {
+    "test": "polaris_u_grad",
+    "ref": "straight6_polaris_u",
+    "label": "fail",
+    "n": 1000,
+    "rate_test": 0.3,
+    "rate_ref": 3.0,
+    "diff_pts": -2.7,
+    "improvement_pts": 2.7,
+    "group": {
+     "ci95": [
+      -3.8,
+      -1.6
+     ],
+     "ci90": [
+      -3.6000000000000005,
+      -1.7999999999999998
+     ],
+     "p_one_sided": 0.00024993751562109475
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      -4.567263700224711,
+      -1.2834198204095422
+     ],
+     "ci90": [
+      -4.232395675703403,
+      -1.4673517363578161
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 80,
+     "cluster_wins": 17,
+     "cluster_losses": 1,
+     "sign_p": 0.00014495849609375
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      -4.563116427800893,
+      -1.2794155085122552
+     ],
+     "ci90": [
+      -4.222521769107714,
+      -1.4642822826495234
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 81,
+     "cluster_wins": 17,
+     "cluster_losses": 1,
+     "sign_p": 0.00014495849609375
+    },
+    "discordant": {
+     "test_worse": 3,
+     "test_better": 30,
+     "binary": true,
+     "mcnemar_two_sided": 1.4011748135089874e-06,
+     "mcnemar_one_sided": 7.005874067544937e-07
+    },
+    "identical_picks": 2,
+    "within_margin_90": false,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": -1.4673517363578161,
+     "upper95_one_sided_group": -1.7999999999999998,
+     "margin_pts": 2.0,
+     "pass_cluster": true,
+     "note": "polaris_u_grad is within 2.0 points of straight6_polaris_u (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = fail(polaris_u_grad) - fail(straight6_polaris_u) in points; negative = polaris_u_grad better",
+    "per_arena": {
+     "g241": {
+      "n": 125,
+      "rate_test": 0.8,
+      "rate_ref": 2.4,
+      "diff_pts": -1.6,
+      "ci95": [
+       -4.8,
+       1.6
+      ],
+      "test_worse": 1,
+      "test_better": 3,
+      "role": "spread",
+      "dist_nearest_training": 1.3405314591233513,
+      "map_err_rmse_m": 0.06167557431867671
+     },
+     "g247": {
+      "n": 125,
+      "rate_test": 0.0,
+      "rate_ref": 4.0,
+      "diff_pts": -4.0,
+      "ci95": [
+       -8.0,
+       -0.8
+      ],
+      "test_worse": 0,
+      "test_better": 5,
+      "role": "near",
+      "dist_nearest_training": 0.7210503998286971,
+      "map_err_rmse_m": 0.07077313337932117
+     },
+     "g251": {
+      "n": 125,
+      "rate_test": 0.8,
+      "rate_ref": 4.0,
+      "diff_pts": -3.2,
+      "ci95": [
+       -7.199999999999999,
+       0.0
+      ],
+      "test_worse": 1,
+      "test_better": 5,
+      "role": "near",
+      "dist_nearest_training": 0.7787958192327659,
+      "map_err_rmse_m": 0.06769482480819407
+     },
+     "g258": {
+      "n": 125,
+      "rate_test": 0.0,
+      "rate_ref": 0.0,
+      "diff_pts": 0.0,
+      "ci95": [
+       0.0,
+       0.0
+      ],
+      "test_worse": 0,
+      "test_better": 0,
+      "role": "spread",
+      "dist_nearest_training": 0.879183361413518,
+      "map_err_rmse_m": 0.08494569574182195
+     },
+     "g260": {
+      "n": 125,
+      "rate_test": 0.0,
+      "rate_ref": 6.4,
+      "diff_pts": -6.4,
+      "ci95": [
+       -11.200000000000001,
+       -2.4
+      ],
+      "test_worse": 0,
+      "test_better": 8,
+      "role": "near",
+      "dist_nearest_training": 0.6063388127891898,
+      "map_err_rmse_m": 0.05959245289401632
+     },
+     "g263": {
+      "n": 125,
+      "rate_test": 0.8,
+      "rate_ref": 0.8,
+      "diff_pts": 0.0,
+      "ci95": [
+       -2.4,
+       2.4
+      ],
+      "test_worse": 1,
+      "test_better": 1,
+      "role": "spread",
+      "dist_nearest_training": 1.1935257603265028,
+      "map_err_rmse_m": 0.059344657901350725
+     },
+     "g268": {
+      "n": 125,
+      "rate_test": 0.0,
+      "rate_ref": 5.6000000000000005,
+      "diff_pts": -5.6,
+      "ci95": [
+       -9.6,
+       -1.6
+      ],
+      "test_worse": 0,
+      "test_better": 7,
+      "role": "spread",
+      "dist_nearest_training": 0.9170126588684951,
+      "map_err_rmse_m": 0.09360551292812604
+     },
+     "g271": {
+      "n": 125,
+      "rate_test": 0.0,
+      "rate_ref": 0.8,
+      "diff_pts": -0.8,
+      "ci95": [
+       -2.4,
+       0.0
+      ],
+      "test_worse": 0,
+      "test_better": 1,
+      "role": "near",
+      "dist_nearest_training": 0.7387004229671557,
+      "map_err_rmse_m": 0.06536388849053407
+     }
+    },
+    "arena_signs": {
+     "better": 6,
+     "worse": 0,
+     "equal": 2
+    },
+    "random_effects": {
+     "k": 8,
+     "pooled_pts": -2.0275845814312645,
+     "ci95": [
+      -3.5164121855976456,
+      -0.5387569772648837
+     ],
+     "se": 0.7596059204930514,
+     "tau_pts": 1.5713463318850456,
+     "Q": 17.391025254046127,
+     "I2": 0.5974935406196706,
+     "fixed_effect_pts": -1.2501623633442753,
+     "spread_sd_pts": 2.491127111512836
+    },
+    "vs_distance_nearest_training": {
+     "n": 8,
+     "ols_slope": 5.10386259587656,
+     "pearson": 0.5135713463794982,
+     "spearman": 0.523809523809524
+    },
+    "vs_map_error": {
+     "n": 8,
+     "ols_slope": -32.95190551550611,
+     "pearson": -0.16566931973808335,
+     "spearman": -0.2380952380952381
+    },
+    "near_minus_spread": {
+     "diff_pts": -1.7999999999999998,
+     "ci95": [
+      -5.6039566402845145,
+      1.172222578206924
+     ]
+    },
+    "near_spread": {
+     "near": {
+      "n": 500,
+      "diff_pts": -3.5999999999999996,
+      "cluster_ci95": [
+       -7.112132854027531,
+       -1.2526096033402923
+      ]
+     },
+     "spread": {
+      "n": 500,
+      "diff_pts": -1.7999999999999998,
+      "cluster_ci95": [
+       -3.54625675522467,
+       -0.40816326530612246
+      ]
+     }
+    },
+    "time_ratio": {
+     "n": 967,
+     "median_paired_ratio": 1.9555555555555557,
+     "median_paired_ratio_p95": 2.0058479532163744,
+     "median_paired_ratio_ci95": [
+      1.894736842105263,
+      2.0155038759689923
+     ],
+     "ratio_of_medians": 1.9542483660130718,
+     "ratio_of_medians_p95": 2.0,
+     "mean_ratio": 2.1482296120935565,
+     "median_time_x": 14.950000000000001,
+     "median_time_y": 7.65,
+     "bound": 1.1,
+     "pass_time": false,
+     "note": "t(polaris_u_grad) / t(straight6_polaris_u); 95th percentile of the group bootstrap of the median paired ratio must be < 1.1"
+    }
+   },
+   "decision": "improves (secondary, unadjusted)"
+  },
+  {
+   "name": "S2_grad_vs_cem_goal_only",
+   "world": "crm",
+   "vehicle": "polaris",
+   "test": "polaris_u_grad",
+   "ref": "polaris_u_cem",
+   "label": "fail",
+   "set": "unseen",
+   "result": {
+    "test": "polaris_u_grad",
+    "ref": "polaris_u_cem",
+    "label": "fail",
+    "n": 1000,
+    "rate_test": 0.3,
+    "rate_ref": 0.0,
+    "diff_pts": 0.3,
+    "improvement_pts": -0.3,
+    "group": {
+     "ci95": [
+      0.0,
+      0.7000000000000001
+     ],
+     "ci90": [
+      0.1,
+      0.6
+     ],
+     "p_one_sided": 1.0
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      0.0,
+      0.6536125900741977
+     ],
+     "ci90": [
+      0.09016726374706538,
+      0.5958291956305859
+     ],
+     "p_one_sided": 1.0,
+     "clusters": 80,
+     "cluster_wins": 0,
+     "cluster_losses": 3,
+     "sign_p": 0.25
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      0.0,
+      0.6647989569017163
+     ],
+     "ci90": [
+      0.08814106266799135,
+      0.5911621534963709
+     ],
+     "p_one_sided": 1.0,
+     "clusters": 81,
+     "cluster_wins": 0,
+     "cluster_losses": 3,
+     "sign_p": 0.25
+    },
+    "discordant": {
+     "test_worse": 3,
+     "test_better": 0,
+     "binary": true,
+     "mcnemar_two_sided": 0.25,
+     "mcnemar_one_sided": 1.0
+    },
+    "identical_picks": 380,
+    "within_margin_90": true,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": 0.5958291956305859,
+     "upper95_one_sided_group": 0.6,
+     "margin_pts": 2.0,
+     "pass_cluster": true,
+     "note": "polaris_u_grad is within 2.0 points of polaris_u_cem (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = fail(polaris_u_grad) - fail(polaris_u_cem) in points; negative = polaris_u_grad better",
+    "per_arena": {
+     "g241": {
+      "n": 125,
+      "rate_test": 0.8,
+      "rate_ref": 0.0,
+      "diff_pts": 0.8,
+      "ci95": [
+       0.0,
+       2.4
+      ],
+      "test_worse": 1,
+      "test_better": 0,
+      "role": "spread",
+      "dist_nearest_training": 1.3405314591233513,
+      "map_err_rmse_m": 0.06167557431867671
+     },
+     "g247": {
+      "n": 125,
+      "rate_test": 0.0,
+      "rate_ref": 0.0,
+      "diff_pts": 0.0,
+      "ci95": [
+       0.0,
+       0.0
+      ],
+      "test_worse": 0,
+      "test_better": 0,
+      "role": "near",
+      "dist_nearest_training": 0.7210503998286971,
+      "map_err_rmse_m": 0.07077313337932117
+     },
+     "g251": {
+      "n": 125,
+      "rate_test": 0.8,
+      "rate_ref": 0.0,
+      "diff_pts": 0.8,
+      "ci95": [
+       0.0,
+       2.4
+      ],
+      "test_worse": 1,
+      "test_better": 0,
+      "role": "near",
+      "dist_nearest_training": 0.7787958192327659,
+      "map_err_rmse_m": 0.06769482480819407
+     },
+     "g258": {
+      "n": 125,
+      "rate_test": 0.0,
+      "rate_ref": 0.0,
+      "diff_pts": 0.0,
+      "ci95": [
+       0.0,
+       0.0
+      ],
+      "test_worse": 0,
+      "test_better": 0,
+      "role": "spread",
+      "dist_nearest_training": 0.879183361413518,
+      "map_err_rmse_m": 0.08494569574182195
+     },
+     "g260": {
+      "n": 125,
+      "rate_test": 0.0,
+      "rate_ref": 0.0,
+      "diff_pts": 0.0,
+      "ci95": [
+       0.0,
+       0.0
+      ],
+      "test_worse": 0,
+      "test_better": 0,
+      "role": "near",
+      "dist_nearest_training": 0.6063388127891898,
+      "map_err_rmse_m": 0.05959245289401632
+     },
+     "g263": {
+      "n": 125,
+      "rate_test": 0.8,
+      "rate_ref": 0.0,
+      "diff_pts": 0.8,
+      "ci95": [
+       0.0,
+       2.4
+      ],
+      "test_worse": 1,
+      "test_better": 0,
+      "role": "spread",
+      "dist_nearest_training": 1.1935257603265028,
+      "map_err_rmse_m": 0.059344657901350725
+     },
+     "g268": {
+      "n": 125,
+      "rate_test": 0.0,
+      "rate_ref": 0.0,
+      "diff_pts": 0.0,
+      "ci95": [
+       0.0,
+       0.0
+      ],
+      "test_worse": 0,
+      "test_better": 0,
+      "role": "spread",
+      "dist_nearest_training": 0.9170126588684951,
+      "map_err_rmse_m": 0.09360551292812604
+     },
+     "g271": {
+      "n": 125,
+      "rate_test": 0.0,
+      "rate_ref": 0.0,
+      "diff_pts": 0.0,
+      "ci95": [
+       0.0,
+       0.0
+      ],
+      "test_worse": 0,
+      "test_better": 0,
+      "role": "near",
+      "dist_nearest_training": 0.7387004229671557,
+      "map_err_rmse_m": 0.06536388849053407
+     }
+    },
+    "arena_signs": {
+     "better": 0,
+     "worse": 3,
+     "equal": 5
+    },
+    "random_effects": {
+     "k": 8,
+     "pooled_pts": 0.3,
+     "ci95": [
+      -0.2543717164502533,
+      0.8543717164502533
+     ],
+     "se": 0.282842712474619,
+     "tau_pts": 0.0,
+     "Q": 1.875,
+     "I2": 0.0,
+     "fixed_effect_pts": 0.3,
+     "spread_sd_pts": 0.41403933560541256
+    },
+    "vs_distance_nearest_training": {
+     "n": 8,
+     "ols_slope": 1.1316439922317514,
+     "pearson": 0.6851188531698335,
+     "spearman": 0.5714285714285715
+    },
+    "vs_map_error": {
+     "n": 8,
+     "ols_slope": -16.326265493587965,
+     "pearson": -0.49385868442505665,
+     "spearman": -0.5476190476190477
+    },
+    "near_minus_spread": {
+     "diff_pts": -0.2,
+     "ci95": [
+      -0.8772702001482579,
+      0.423751304472993
+     ]
+    },
+    "near_spread": {
+     "near": {
+      "n": 500,
+      "diff_pts": 0.2,
+      "cluster_ci95": [
+       0.0,
+       0.6342830651807791
+      ]
+     },
+     "spread": {
+      "n": 500,
+      "diff_pts": 0.4,
+      "cluster_ci95": [
+       0.0,
+       0.9921127993941117
+      ]
+     }
+    },
+    "time_ratio": {
+     "n": 997,
+     "median_paired_ratio": 1.0,
+     "median_paired_ratio_p95": 1.0,
+     "median_paired_ratio_ci95": [
+      1.0,
+      1.0
+     ],
+     "ratio_of_medians": 1.0528169014084507,
+     "ratio_of_medians_p95": 1.0685920577617327,
+     "mean_ratio": 1.103359849470735,
+     "median_time_x": 14.950000000000001,
+     "median_time_y": 14.200000000000001,
+     "bound": 1.1,
+     "pass_time": true,
+     "note": "t(polaris_u_grad) / t(polaris_u_cem); 95th percentile of the group bootstrap of the median paired ratio must be < 1.1"
+    }
+   },
+   "decision": "no meaningful difference (secondary, unadjusted)"
+  },
+  {
+   "name": "S3_cem_vs_straight6",
+   "world": "crm",
+   "vehicle": "polaris",
+   "test": "polaris_u_cem",
+   "ref": "straight6_polaris_u",
+   "label": "unsafe_belly",
+   "set": "unseen",
+   "result": {
+    "test": "polaris_u_cem",
+    "ref": "straight6_polaris_u",
+    "label": "unsafe_belly",
+    "n": 1000,
+    "rate_test": 0.0,
+    "rate_ref": 3.0,
+    "diff_pts": -3.0,
+    "improvement_pts": 3.0,
+    "group": {
+     "ci95": [
+      -4.1000000000000005,
+      -2.0
+     ],
+     "ci90": [
+      -3.9,
+      -2.1
+     ],
+     "p_one_sided": 0.00024993751562109475
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      -4.8574659376082145,
+      -1.5400385973719004
+     ],
+     "ci90": [
+      -4.555497270767002,
+      -1.7204301075268817
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 80,
+     "cluster_wins": 17,
+     "cluster_losses": 0,
+     "sign_p": 1.52587890625e-05
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      -4.909120954588377,
+      -1.5783428839538458
+     ],
+     "ci90": [
+      -4.590219007581737,
+      -1.7153524868982135
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 81,
+     "cluster_wins": 18,
+     "cluster_losses": 0,
+     "sign_p": 7.62939453125e-06
+    },
+    "discordant": {
+     "test_worse": 0,
+     "test_better": 30,
+     "binary": true,
+     "mcnemar_two_sided": 1.862645149230957e-09,
+     "mcnemar_one_sided": 9.313225746154785e-10
+    },
+    "identical_picks": 2,
+    "within_margin_90": false,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": -1.7204301075268817,
+     "upper95_one_sided_group": -2.1,
+     "margin_pts": 2.0,
+     "pass_cluster": true,
+     "note": "polaris_u_cem is within 2.0 points of straight6_polaris_u (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = unsafe_belly(polaris_u_cem) - unsafe_belly(straight6_polaris_u) in points; negative = polaris_u_cem better",
+    "per_arena": {
+     "g241": {
+      "n": 125,
+      "rate_test": 0.0,
+      "rate_ref": 2.4,
+      "diff_pts": -2.4,
+      "ci95": [
+       -5.6000000000000005,
+       0.0
+      ],
+      "test_worse": 0,
+      "test_better": 3,
+      "role": "spread",
+      "dist_nearest_training": 1.3405314591233513,
+      "map_err_rmse_m": 0.06167557431867671
+     },
+     "g247": {
+      "n": 125,
+      "rate_test": 0.0,
+      "rate_ref": 4.0,
+      "diff_pts": -4.0,
+      "ci95": [
+       -8.0,
+       -0.8
+      ],
+      "test_worse": 0,
+      "test_better": 5,
+      "role": "near",
+      "dist_nearest_training": 0.7210503998286971,
+      "map_err_rmse_m": 0.07077313337932117
+     },
+     "g251": {
+      "n": 125,
+      "rate_test": 0.0,
+      "rate_ref": 4.0,
+      "diff_pts": -4.0,
+      "ci95": [
+       -8.0,
+       -0.8
+      ],
+      "test_worse": 0,
+      "test_better": 5,
+      "role": "near",
+      "dist_nearest_training": 0.7787958192327659,
+      "map_err_rmse_m": 0.06769482480819407
+     },
+     "g258": {
+      "n": 125,
+      "rate_test": 0.0,
+      "rate_ref": 0.0,
+      "diff_pts": 0.0,
+      "ci95": [
+       0.0,
+       0.0
+      ],
+      "test_worse": 0,
+      "test_better": 0,
+      "role": "spread",
+      "dist_nearest_training": 0.879183361413518,
+      "map_err_rmse_m": 0.08494569574182195
+     },
+     "g260": {
+      "n": 125,
+      "rate_test": 0.0,
+      "rate_ref": 6.4,
+      "diff_pts": -6.4,
+      "ci95": [
+       -11.200000000000001,
+       -2.4
+      ],
+      "test_worse": 0,
+      "test_better": 8,
+      "role": "near",
+      "dist_nearest_training": 0.6063388127891898,
+      "map_err_rmse_m": 0.05959245289401632
+     },
+     "g263": {
+      "n": 125,
+      "rate_test": 0.0,
+      "rate_ref": 0.8,
+      "diff_pts": -0.8,
+      "ci95": [
+       -2.4,
+       0.0
+      ],
+      "test_worse": 0,
+      "test_better": 1,
+      "role": "spread",
+      "dist_nearest_training": 1.1935257603265028,
+      "map_err_rmse_m": 0.059344657901350725
+     },
+     "g268": {
+      "n": 125,
+      "rate_test": 0.0,
+      "rate_ref": 5.6000000000000005,
+      "diff_pts": -5.6,
+      "ci95": [
+       -9.6,
+       -1.6
+      ],
+      "test_worse": 0,
+      "test_better": 7,
+      "role": "spread",
+      "dist_nearest_training": 0.9170126588684951,
+      "map_err_rmse_m": 0.09360551292812604
+     },
+     "g271": {
+      "n": 125,
+      "rate_test": 0.0,
+      "rate_ref": 0.8,
+      "diff_pts": -0.8,
+      "ci95": [
+       -2.4,
+       0.0
+      ],
+      "test_worse": 0,
+      "test_better": 1,
+      "role": "near",
+      "dist_nearest_training": 0.7387004229671557,
+      "map_err_rmse_m": 0.06536388849053407
+     }
+    },
+    "arena_signs": {
+     "better": 7,
+     "worse": 0,
+     "equal": 1
+    },
+    "random_effects": {
+     "k": 8,
+     "pooled_pts": -2.2557332730449717,
+     "ci95": [
+      -3.6609938900558463,
+      -0.8504726560340974
+     ],
+     "se": 0.7169697025565686,
+     "tau_pts": 1.50196464397361,
+     "Q": 18.390981972000823,
+     "I2": 0.619378670989016,
+     "fixed_effect_pts": -1.426362630351205,
+     "spread_sd_pts": 2.371256448142449
+    },
+    "vs_distance_nearest_training": {
+     "n": 8,
+     "ols_slope": 3.972218603644809,
+     "pearson": 0.4199062276308978,
+     "spearman": 0.38095238095238104
+    },
+    "vs_map_error": {
+     "n": 8,
+     "ols_slope": -16.625640021918148,
+     "pearson": -0.08781269209672835,
+     "spearman": -0.023809523809523815
+    },
+    "near_minus_spread": {
+     "diff_pts": -1.6,
+     "ci95": [
+      -5.539969379866469,
+      1.5049713320989921
+     ]
+    },
+    "near_spread": {
+     "near": {
+      "n": 500,
+      "diff_pts": -3.8,
+      "cluster_ci95": [
+       -7.385423705118945,
+       -1.3281789964436959
+      ]
+     },
+     "spread": {
+      "n": 500,
+      "diff_pts": -2.1999999999999997,
+      "cluster_ci95": [
+       -3.954890536723164,
+       -0.7420123366354253
+      ]
+     }
+    }
+   },
+   "decision": "improves (secondary, unadjusted)"
+  }
+ ],
+ "context": {
+  "arms": {
+   "M1a_free": {
+    "unsafe_belly": {
+     "n": 1000,
+     "reached_safely": 884,
+     "rate": 88.4,
+     "binary": true,
+     "wilson95": [
+      86.26667265227275,
+      90.23943229603661
+     ],
+     "pair_boot95": [
+      86.5,
+      90.4
+     ],
+     "cluster_boot95": [
+      85.25322649562833,
+      91.4149087885507
+     ],
+     "clusters": 80,
+     "arena_boot95": [
+      85.2,
+      91.6
+     ],
+     "arenas": 8,
+     "arena_t95": {
+      "mean_of_arena_rates": 88.4,
+      "ci95": [
+       84.2155980656324,
+       92.5844019343676
+      ],
+      "df": 7,
+      "t975": 2.3646242510102993
+     },
+     "arena_rate_min": 80.8,
+     "arena_rate_max": 96.8,
+     "arenas_point_ge_bar": 2,
+     "per_arena": {
+      "g241": {
+       "n": 125,
+       "reached_safely": 101,
+       "rate": 80.8,
+       "wilson95": [
+        73.01890873783063,
+        86.74446300973646
+       ],
+       "pair_boot95": [
+        73.6,
+        87.2
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "below",
+       "role": "spread"
+      },
+      "g247": {
+       "n": 125,
+       "reached_safely": 112,
+       "rate": 89.6,
+       "wilson95": [
+        83.01771764561211,
+        93.82090317268845
+       ],
+       "pair_boot95": [
+        84.0,
+        94.39999999999999
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "not distinguishable from 90",
+       "role": "near"
+      },
+      "g251": {
+       "n": 125,
+       "reached_safely": 108,
+       "rate": 86.4,
+       "wilson95": [
+        79.29706949475033,
+        91.3323698432835
+       ],
+       "pair_boot95": [
+        80.0,
+        92.0
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "not distinguishable from 90",
+       "role": "near"
+      },
+      "g258": {
+       "n": 125,
+       "reached_safely": 109,
+       "rate": 87.2,
+       "wilson95": [
+        80.21643758872008,
+        91.96529711938044
+       ],
+       "pair_boot95": [
+        80.80000000000001,
+        92.80000000000001
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "not distinguishable from 90",
+       "role": "spread"
+      },
+      "g260": {
+       "n": 125,
+       "reached_safely": 121,
+       "rate": 96.8,
+       "wilson95": [
+        92.06059306277,
+        98.74868608613066
+       ],
+       "pair_boot95": [
+        93.60000000000001,
+        99.2
+       ],
+       "point_ge_bar": true,
+       "vs_bar": "above",
+       "role": "near"
+      },
+      "g263": {
+       "n": 125,
+       "reached_safely": 117,
+       "rate": 93.6,
+       "wilson95": [
+        87.87845562822072,
+        96.72164204041323
+       ],
+       "pair_boot95": [
+        88.8,
+        97.6
+       ],
+       "point_ge_bar": true,
+       "vs_bar": "not distinguishable from 90",
+       "role": "spread"
+      },
+      "g268": {
+       "n": 125,
+       "reached_safely": 106,
+       "rate": 84.8,
+       "wilson95": [
+        77.47693201833344,
+        90.04791657956704
+       ],
+       "pair_boot95": [
+        78.4,
+        90.4
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "not distinguishable from 90",
+       "role": "spread"
+      },
+      "g271": {
+       "n": 125,
+       "reached_safely": 110,
+       "rate": 88.0,
+       "wilson95": [
+        81.14261894188212,
+        92.59141113628507
+       ],
+       "pair_boot95": [
+        81.6,
+        93.60000000000001
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "not distinguishable from 90",
+       "role": "near"
+      }
+     },
+     "declared_pairs": 1000,
+     "pairs_with_drive": 1000,
+     "near_spread": {
+      "near": {
+       "n": 500,
+       "rate": 90.2,
+       "wilson95": [
+        87.27939491335182,
+        92.50760811353939
+       ],
+       "pair_boot95": [
+        87.595,
+        92.80000000000001
+       ],
+       "cluster_boot95": [
+        86.15315315315316,
+        94.0299816705944
+       ],
+       "arena_boot95": [
+        87.2,
+        94.6
+       ]
+      },
+      "spread": {
+       "n": 500,
+       "rate": 86.6,
+       "wilson95": [
+        83.33339846536646,
+        89.30849981284793
+       ],
+       "pair_boot95": [
+        83.6,
+        89.4
+       ],
+       "cluster_boot95": [
+        82.04197843309859,
+        90.82800214555778
+       ],
+       "arena_boot95": [
+        82.4,
+        91.4
+       ]
+      }
+     }
+    },
+    "fail": {
+     "n": 1000,
+     "reached_safely": 885,
+     "rate": 88.5,
+     "binary": true,
+     "wilson95": [
+      86.37368277535603,
+      90.33165682125622
+     ],
+     "pair_boot95": [
+      86.5,
+      90.5
+     ],
+     "cluster_boot95": [
+      85.37466145304353,
+      91.5725222020186
+     ],
+     "clusters": 80,
+     "arena_boot95": [
+      85.3,
+      91.8
+     ],
+     "arenas": 8,
+     "arena_t95": {
+      "mean_of_arena_rates": 88.5,
+      "ci95": [
+       84.21096008162046,
+       92.78903991837954
+      ],
+      "df": 7,
+      "t975": 2.3646242510102993
+     },
+     "arena_rate_min": 80.8,
+     "arena_rate_max": 96.8,
+     "arenas_point_ge_bar": 2,
+     "per_arena": {
+      "g241": {
+       "n": 125,
+       "reached_safely": 101,
+       "rate": 80.8,
+       "wilson95": [
+        73.01890873783063,
+        86.74446300973646
+       ],
+       "pair_boot95": [
+        73.6,
+        87.2
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "below",
+       "role": "spread"
+      },
+      "g247": {
+       "n": 125,
+       "reached_safely": 112,
+       "rate": 89.6,
+       "wilson95": [
+        83.01771764561211,
+        93.82090317268845
+       ],
+       "pair_boot95": [
+        84.0,
+        94.39999999999999
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "not distinguishable from 90",
+       "role": "near"
+      },
+      "g251": {
+       "n": 125,
+       "reached_safely": 108,
+       "rate": 86.4,
+       "wilson95": [
+        79.29706949475033,
+        91.3323698432835
+       ],
+       "pair_boot95": [
+        80.0,
+        92.0
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "not distinguishable from 90",
+       "role": "near"
+      },
+      "g258": {
+       "n": 125,
+       "reached_safely": 109,
+       "rate": 87.2,
+       "wilson95": [
+        80.21643758872008,
+        91.96529711938044
+       ],
+       "pair_boot95": [
+        81.58,
+        92.80000000000001
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "not distinguishable from 90",
+       "role": "spread"
+      },
+      "g260": {
+       "n": 125,
+       "reached_safely": 121,
+       "rate": 96.8,
+       "wilson95": [
+        92.06059306277,
+        98.74868608613066
+       ],
+       "pair_boot95": [
+        93.60000000000001,
+        99.2
+       ],
+       "point_ge_bar": true,
+       "vs_bar": "above",
+       "role": "near"
+      },
+      "g263": {
+       "n": 125,
+       "reached_safely": 118,
+       "rate": 94.4,
+       "wilson95": [
+        88.89121558924442,
+        97.2611774494562
+       ],
+       "pair_boot95": [
+        89.60000000000001,
+        98.4
+       ],
+       "point_ge_bar": true,
+       "vs_bar": "not distinguishable from 90",
+       "role": "spread"
+      },
+      "g268": {
+       "n": 125,
+       "reached_safely": 106,
+       "rate": 84.8,
+       "wilson95": [
+        77.47693201833344,
+        90.04791657956704
+       ],
+       "pair_boot95": [
+        78.4,
+        90.4
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "not distinguishable from 90",
+       "role": "spread"
+      },
+      "g271": {
+       "n": 125,
+       "reached_safely": 110,
+       "rate": 88.0,
+       "wilson95": [
+        81.14261894188212,
+        92.59141113628507
+       ],
+       "pair_boot95": [
+        81.6,
+        93.60000000000001
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "not distinguishable from 90",
+       "role": "near"
+      }
+     },
+     "declared_pairs": 1000,
+     "pairs_with_drive": 1000,
+     "near_spread": {
+      "near": {
+       "n": 500,
+       "rate": 90.2,
+       "wilson95": [
+        87.27939491335182,
+        92.50760811353939
+       ],
+       "pair_boot95": [
+        87.4,
+        92.80000000000001
+       ],
+       "cluster_boot95": [
+        85.97744136188662,
+        94.13123154590815
+       ],
+       "arena_boot95": [
+        87.2,
+        94.6
+       ]
+      },
+      "spread": {
+       "n": 500,
+       "rate": 86.8,
+       "wilson95": [
+        83.55052092686175,
+        89.488327615168
+       ],
+       "pair_boot95": [
+        83.6,
+        89.60500000000003
+       ],
+       "cluster_boot95": [
+        82.19170733141277,
+        91.22145193955444
+       ],
+       "arena_boot95": [
+        82.4,
+        92.0
+       ]
+      }
+     }
+    }
+   },
+   "M1b_free": {
+    "unsafe_belly": {
+     "n": 1000,
+     "reached_safely": 874,
+     "rate": 87.4,
+     "binary": true,
+     "wilson95": [
+      85.19904953398138,
+      89.3147089312991
+     ],
+     "pair_boot95": [
+      85.39999999999999,
+      89.5
+     ],
+     "cluster_boot95": [
+      83.6539472265992,
+      90.6875570627364
+     ],
+     "clusters": 80,
+     "arena_boot95": [
+      84.5,
+      90.0
+     ],
+     "arenas": 8,
+     "arena_t95": {
+      "mean_of_arena_rates": 87.4,
+      "ci95": [
+       83.8654714529373,
+       90.93452854706271
+      ],
+      "df": 7,
+      "t975": 2.3646242510102993
+     },
+     "arena_rate_min": 80.0,
+     "arena_rate_max": 92.0,
+     "arenas_point_ge_bar": 2,
+     "per_arena": {
+      "g241": {
+       "n": 125,
+       "reached_safely": 104,
+       "rate": 83.2,
+       "wilson95": [
+        75.67907928528234,
+        88.74117857248478
+       ],
+       "pair_boot95": [
+        76.0,
+        89.60000000000001
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "below",
+       "role": "spread"
+      },
+      "g247": {
+       "n": 125,
+       "reached_safely": 107,
+       "rate": 85.6,
+       "wilson95": [
+        78.38403899326721,
+        90.69310497469995
+       ],
+       "pair_boot95": [
+        79.2,
+        92.0
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "not distinguishable from 90",
+       "role": "near"
+      },
+      "g251": {
+       "n": 125,
+       "reached_safely": 100,
+       "rate": 80.0,
+       "wilson95": [
+        72.14100720202134,
+        86.07006917547908
+       ],
+       "pair_boot95": [
+        72.8,
+        87.2
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "below",
+       "role": "near"
+      },
+      "g258": {
+       "n": 125,
+       "reached_safely": 110,
+       "rate": 88.0,
+       "wilson95": [
+        81.14261894188212,
+        92.59141113628507
+       ],
+       "pair_boot95": [
+        82.38,
+        93.60000000000001
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "not distinguishable from 90",
+       "role": "spread"
+      },
+      "g260": {
+       "n": 125,
+       "reached_safely": 115,
+       "rate": 92.0,
+       "wilson95": [
+        85.89881016125887,
+        95.59669676724172
+       ],
+       "pair_boot95": [
+        87.2,
+        96.0
+       ],
+       "point_ge_bar": true,
+       "vs_bar": "not distinguishable from 90",
+       "role": "near"
+      },
+      "g263": {
+       "n": 125,
+       "reached_safely": 115,
+       "rate": 92.0,
+       "wilson95": [
+        85.89881016125887,
+        95.59669676724172
+       ],
+       "pair_boot95": [
+        87.2,
+        96.0
+       ],
+       "point_ge_bar": true,
+       "vs_bar": "not distinguishable from 90",
+       "role": "spread"
+      },
+      "g268": {
+       "n": 125,
+       "reached_safely": 111,
+       "rate": 88.8,
+       "wilson95": [
+        82.07616439023667,
+        93.21016105799721
+       ],
+       "pair_boot95": [
+        83.2,
+        93.60000000000001
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "not distinguishable from 90",
+       "role": "spread"
+      },
+      "g271": {
+       "n": 125,
+       "reached_safely": 112,
+       "rate": 89.6,
+       "wilson95": [
+        83.01771764561211,
+        93.82090317268845
+       ],
+       "pair_boot95": [
+        84.0,
+        94.39999999999999
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "not distinguishable from 90",
+       "role": "near"
+      }
+     },
+     "declared_pairs": 1000,
+     "pairs_with_drive": 1000,
+     "near_spread": {
+      "near": {
+       "n": 500,
+       "rate": 86.8,
+       "wilson95": [
+        83.55052092686175,
+        89.488327615168
+       ],
+       "pair_boot95": [
+        83.8,
+        89.60000000000001
+       ],
+       "cluster_boot95": [
+        80.38766672088484,
+        91.8921463836718
+       ],
+       "arena_boot95": [
+        82.4,
+        90.8
+       ]
+      },
+      "spread": {
+       "n": 500,
+       "rate": 88.0,
+       "wilson95": [
+        84.85804013755894,
+        90.5625099873631
+       ],
+       "pair_boot95": [
+        85.2,
+        90.8
+       ],
+       "cluster_boot95": [
+        84.0274931693989,
+        91.64887306031068
+       ],
+       "arena_boot95": [
+        84.6,
+        91.0
+       ]
+      }
+     }
+    },
+    "fail": {
+     "n": 1000,
+     "reached_safely": 874,
+     "rate": 87.4,
+     "binary": true,
+     "wilson95": [
+      85.19904953398138,
+      89.3147089312991
+     ],
+     "pair_boot95": [
+      85.39999999999999,
+      89.4
+     ],
+     "cluster_boot95": [
+      83.4672552836485,
+      90.62195385724586
+     ],
+     "clusters": 80,
+     "arena_boot95": [
+      84.5,
+      90.0
+     ],
+     "arenas": 8,
+     "arena_t95": {
+      "mean_of_arena_rates": 87.4,
+      "ci95": [
+       83.8654714529373,
+       90.93452854706271
+      ],
+      "df": 7,
+      "t975": 2.3646242510102993
+     },
+     "arena_rate_min": 80.0,
+     "arena_rate_max": 92.0,
+     "arenas_point_ge_bar": 2,
+     "per_arena": {
+      "g241": {
+       "n": 125,
+       "reached_safely": 104,
+       "rate": 83.2,
+       "wilson95": [
+        75.67907928528234,
+        88.74117857248478
+       ],
+       "pair_boot95": [
+        76.8,
+        89.60000000000001
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "below",
+       "role": "spread"
+      },
+      "g247": {
+       "n": 125,
+       "reached_safely": 107,
+       "rate": 85.6,
+       "wilson95": [
+        78.38403899326721,
+        90.69310497469995
+       ],
+       "pair_boot95": [
+        79.2,
+        91.2
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "not distinguishable from 90",
+       "role": "near"
+      },
+      "g251": {
+       "n": 125,
+       "reached_safely": 100,
+       "rate": 80.0,
+       "wilson95": [
+        72.14100720202134,
+        86.07006917547908
+       ],
+       "pair_boot95": [
+        72.8,
+        87.2
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "below",
+       "role": "near"
+      },
+      "g258": {
+       "n": 125,
+       "reached_safely": 110,
+       "rate": 88.0,
+       "wilson95": [
+        81.14261894188212,
+        92.59141113628507
+       ],
+       "pair_boot95": [
+        82.39999999999999,
+        93.60000000000001
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "not distinguishable from 90",
+       "role": "spread"
+      },
+      "g260": {
+       "n": 125,
+       "reached_safely": 115,
+       "rate": 92.0,
+       "wilson95": [
+        85.89881016125887,
+        95.59669676724172
+       ],
+       "pair_boot95": [
+        87.2,
+        96.0
+       ],
+       "point_ge_bar": true,
+       "vs_bar": "not distinguishable from 90",
+       "role": "near"
+      },
+      "g263": {
+       "n": 125,
+       "reached_safely": 115,
+       "rate": 92.0,
+       "wilson95": [
+        85.89881016125887,
+        95.59669676724172
+       ],
+       "pair_boot95": [
+        87.2,
+        96.0
+       ],
+       "point_ge_bar": true,
+       "vs_bar": "not distinguishable from 90",
+       "role": "spread"
+      },
+      "g268": {
+       "n": 125,
+       "reached_safely": 111,
+       "rate": 88.8,
+       "wilson95": [
+        82.07616439023667,
+        93.21016105799721
+       ],
+       "pair_boot95": [
+        83.2,
+        94.39999999999999
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "not distinguishable from 90",
+       "role": "spread"
+      },
+      "g271": {
+       "n": 125,
+       "reached_safely": 112,
+       "rate": 89.6,
+       "wilson95": [
+        83.01771764561211,
+        93.82090317268845
+       ],
+       "pair_boot95": [
+        84.0,
+        94.39999999999999
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "not distinguishable from 90",
+       "role": "near"
+      }
+     },
+     "declared_pairs": 1000,
+     "pairs_with_drive": 1000,
+     "near_spread": {
+      "near": {
+       "n": 500,
+       "rate": 86.8,
+       "wilson95": [
+        83.55052092686175,
+        89.488327615168
+       ],
+       "pair_boot95": [
+        83.8,
+        89.8
+       ],
+       "cluster_boot95": [
+        80.82700029644002,
+        92.00903682306642
+       ],
+       "arena_boot95": [
+        82.4,
+        90.8
+       ]
+      },
+      "spread": {
+       "n": 500,
+       "rate": 88.0,
+       "wilson95": [
+        84.85804013755894,
+        90.5625099873631
+       ],
+       "pair_boot95": [
+        85.0,
+        90.8
+       ],
+       "cluster_boot95": [
+        83.93567074051602,
+        91.6016353777985
+       ],
+       "arena_boot95": [
+        84.6,
+        91.0
+       ]
+      }
+     }
+    }
+   },
+   "M3a_free": {
+    "unsafe_belly": {
+     "n": 1000,
+     "reached_safely": 903,
+     "rate": 90.3,
+     "binary": true,
+     "wilson95": [
+      88.30847944509657,
+      91.98308382096769
+     ],
+     "pair_boot95": [
+      88.3,
+      92.10000000000001
+     ],
+     "cluster_boot95": [
+      86.99186991869918,
+      93.45779502419857
+     ],
+     "clusters": 80,
+     "arena_boot95": [
+      88.3,
+      92.8
+     ],
+     "arenas": 8,
+     "arena_t95": {
+      "mean_of_arena_rates": 90.29999999999998,
+      "ci95": [
+       87.29962818370284,
+       93.30037181629713
+      ],
+      "df": 7,
+      "t975": 2.3646242510102993
+     },
+     "arena_rate_min": 86.4,
+     "arena_rate_max": 97.6,
+     "arenas_point_ge_bar": 2,
+     "per_arena": {
+      "g241": {
+       "n": 125,
+       "reached_safely": 110,
+       "rate": 88.0,
+       "wilson95": [
+        81.14261894188212,
+        92.59141113628507
+       ],
+       "pair_boot95": [
+        82.39999999999999,
+        92.82000000000008
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "not distinguishable from 90",
+       "role": "spread"
+      },
+      "g247": {
+       "n": 125,
+       "reached_safely": 112,
+       "rate": 89.6,
+       "wilson95": [
+        83.01771764561211,
+        93.82090317268845
+       ],
+       "pair_boot95": [
+        84.0,
+        94.39999999999999
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "not distinguishable from 90",
+       "role": "near"
+      },
+      "g251": {
+       "n": 125,
+       "reached_safely": 111,
+       "rate": 88.8,
+       "wilson95": [
+        82.07616439023667,
+        93.21016105799721
+       ],
+       "pair_boot95": [
+        83.2,
+        93.60000000000001
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "not distinguishable from 90",
+       "role": "near"
+      },
+      "g258": {
+       "n": 125,
+       "reached_safely": 108,
+       "rate": 86.4,
+       "wilson95": [
+        79.29706949475033,
+        91.3323698432835
+       ],
+       "pair_boot95": [
+        80.0,
+        92.0
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "not distinguishable from 90",
+       "role": "spread"
+      },
+      "g260": {
+       "n": 125,
+       "reached_safely": 122,
+       "rate": 97.6,
+       "wilson95": [
+        93.18110017162228,
+        99.18047434734504
+       ],
+       "pair_boot95": [
+        94.39999999999999,
+        100.0
+       ],
+       "point_ge_bar": true,
+       "vs_bar": "above",
+       "role": "near"
+      },
+      "g263": {
+       "n": 125,
+       "reached_safely": 117,
+       "rate": 93.6,
+       "wilson95": [
+        87.87845562822072,
+        96.72164204041323
+       ],
+       "pair_boot95": [
+        88.8,
+        97.6
+       ],
+       "point_ge_bar": true,
+       "vs_bar": "not distinguishable from 90",
+       "role": "spread"
+      },
+      "g268": {
+       "n": 125,
+       "reached_safely": 112,
+       "rate": 89.6,
+       "wilson95": [
+        83.01771764561211,
+        93.82090317268845
+       ],
+       "pair_boot95": [
+        84.0,
+        94.39999999999999
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "not distinguishable from 90",
+       "role": "spread"
+      },
+      "g271": {
+       "n": 125,
+       "reached_safely": 111,
+       "rate": 88.8,
+       "wilson95": [
+        82.07616439023667,
+        93.21016105799721
+       ],
+       "pair_boot95": [
+        83.2,
+        93.62000000000008
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "not distinguishable from 90",
+       "role": "near"
+      }
+     },
+     "declared_pairs": 1000,
+     "pairs_with_drive": 1000,
+     "near_spread": {
+      "near": {
+       "n": 500,
+       "rate": 91.2,
+       "wilson95": [
+        88.39235279346099,
+        93.37940155250712
+       ],
+       "pair_boot95": [
+        88.6,
+        93.60000000000001
+       ],
+       "cluster_boot95": [
+        86.78892347755811,
+        95.12685659576671
+       ],
+       "arena_boot95": [
+        88.8,
+        95.4
+       ]
+      },
+      "spread": {
+       "n": 500,
+       "rate": 89.4,
+       "wilson95": [
+        86.39490699892671,
+        91.80429497270298
+       ],
+       "pair_boot95": [
+        86.6,
+        92.0
+       ],
+       "cluster_boot95": [
+        84.42759948652119,
+        94.11764705882354
+       ],
+       "arena_boot95": [
+        87.2,
+        92.2
+       ]
+      }
+     }
+    },
+    "fail": {
+     "n": 1000,
+     "reached_safely": 903,
+     "rate": 90.3,
+     "binary": true,
+     "wilson95": [
+      88.30847944509657,
+      91.98308382096769
+     ],
+     "pair_boot95": [
+      88.4975,
+      92.10000000000001
+     ],
+     "cluster_boot95": [
+      86.96487328903828,
+      93.44309583858764
+     ],
+     "clusters": 80,
+     "arena_boot95": [
+      88.2,
+      92.9
+     ],
+     "arenas": 8,
+     "arena_t95": {
+      "mean_of_arena_rates": 90.29999999999998,
+      "ci95": [
+       87.29962818370284,
+       93.30037181629713
+      ],
+      "df": 7,
+      "t975": 2.3646242510102993
+     },
+     "arena_rate_min": 86.4,
+     "arena_rate_max": 97.6,
+     "arenas_point_ge_bar": 2,
+     "per_arena": {
+      "g241": {
+       "n": 125,
+       "reached_safely": 110,
+       "rate": 88.0,
+       "wilson95": [
+        81.14261894188212,
+        92.59141113628507
+       ],
+       "pair_boot95": [
+        82.38,
+        93.60000000000001
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "not distinguishable from 90",
+       "role": "spread"
+      },
+      "g247": {
+       "n": 125,
+       "reached_safely": 112,
+       "rate": 89.6,
+       "wilson95": [
+        83.01771764561211,
+        93.82090317268845
+       ],
+       "pair_boot95": [
+        84.0,
+        94.39999999999999
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "not distinguishable from 90",
+       "role": "near"
+      },
+      "g251": {
+       "n": 125,
+       "reached_safely": 111,
+       "rate": 88.8,
+       "wilson95": [
+        82.07616439023667,
+        93.21016105799721
+       ],
+       "pair_boot95": [
+        83.2,
+        93.60000000000001
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "not distinguishable from 90",
+       "role": "near"
+      },
+      "g258": {
+       "n": 125,
+       "reached_safely": 108,
+       "rate": 86.4,
+       "wilson95": [
+        79.29706949475033,
+        91.3323698432835
+       ],
+       "pair_boot95": [
+        80.80000000000001,
+        92.0
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "not distinguishable from 90",
+       "role": "spread"
+      },
+      "g260": {
+       "n": 125,
+       "reached_safely": 122,
+       "rate": 97.6,
+       "wilson95": [
+        93.18110017162228,
+        99.18047434734504
+       ],
+       "pair_boot95": [
+        94.39999999999999,
+        100.0
+       ],
+       "point_ge_bar": true,
+       "vs_bar": "above",
+       "role": "near"
+      },
+      "g263": {
+       "n": 125,
+       "reached_safely": 117,
+       "rate": 93.6,
+       "wilson95": [
+        87.87845562822072,
+        96.72164204041323
+       ],
+       "pair_boot95": [
+        88.8,
+        97.6
+       ],
+       "point_ge_bar": true,
+       "vs_bar": "not distinguishable from 90",
+       "role": "spread"
+      },
+      "g268": {
+       "n": 125,
+       "reached_safely": 112,
+       "rate": 89.6,
+       "wilson95": [
+        83.01771764561211,
+        93.82090317268845
+       ],
+       "pair_boot95": [
+        84.0,
+        94.39999999999999
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "not distinguishable from 90",
+       "role": "spread"
+      },
+      "g271": {
+       "n": 125,
+       "reached_safely": 111,
+       "rate": 88.8,
+       "wilson95": [
+        82.07616439023667,
+        93.21016105799721
+       ],
+       "pair_boot95": [
+        83.2,
+        94.39999999999999
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "not distinguishable from 90",
+       "role": "near"
+      }
+     },
+     "declared_pairs": 1000,
+     "pairs_with_drive": 1000,
+     "near_spread": {
+      "near": {
+       "n": 500,
+       "rate": 91.2,
+       "wilson95": [
+        88.39235279346099,
+        93.37940155250712
+       ],
+       "pair_boot95": [
+        88.6,
+        93.60000000000001
+       ],
+       "cluster_boot95": [
+        86.57230631295818,
+        95.2275432900433
+       ],
+       "arena_boot95": [
+        88.8,
+        95.4
+       ]
+      },
+      "spread": {
+       "n": 500,
+       "rate": 89.4,
+       "wilson95": [
+        86.39490699892671,
+        91.80429497270298
+       ],
+       "pair_boot95": [
+        86.6,
+        92.0
+       ],
+       "cluster_boot95": [
+        84.18173520191776,
+        93.93321288195766
+       ],
+       "arena_boot95": [
+        87.2,
+        92.2
+       ]
+      }
+     }
+    }
+   },
+   "A3_free": {
+    "unsafe_belly": {
+     "n": 1000,
+     "reached_safely": 906,
+     "rate": 90.6,
+     "binary": true,
+     "wilson95": [
+      88.6326845683493,
+      92.25658264262363
+     ],
+     "pair_boot95": [
+      88.8,
+      92.4
+     ],
+     "cluster_boot95": [
+      87.430141196101,
+      93.48318488858325
+     ],
+     "clusters": 80,
+     "arena_boot95": [
+      88.3,
+      93.0
+     ],
+     "arenas": 8,
+     "arena_t95": {
+      "mean_of_arena_rates": 90.6,
+      "ci95": [
+       87.59297988878797,
+       93.60702011121202
+      ],
+      "df": 7,
+      "t975": 2.3646242510102993
+     },
+     "arena_rate_min": 86.4,
+     "arena_rate_max": 95.2,
+     "arenas_point_ge_bar": 4,
+     "per_arena": {
+      "g241": {
+       "n": 125,
+       "reached_safely": 109,
+       "rate": 87.2,
+       "wilson95": [
+        80.21643758872008,
+        91.96529711938044
+       ],
+       "pair_boot95": [
+        80.80000000000001,
+        92.80000000000001
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "not distinguishable from 90",
+       "role": "spread"
+      },
+      "g247": {
+       "n": 125,
+       "reached_safely": 115,
+       "rate": 92.0,
+       "wilson95": [
+        85.89881016125887,
+        95.59669676724172
+       ],
+       "pair_boot95": [
+        87.2,
+        96.8
+       ],
+       "point_ge_bar": true,
+       "vs_bar": "not distinguishable from 90",
+       "role": "near"
+      },
+      "g251": {
+       "n": 125,
+       "reached_safely": 109,
+       "rate": 87.2,
+       "wilson95": [
+        80.21643758872008,
+        91.96529711938044
+       ],
+       "pair_boot95": [
+        81.6,
+        92.80000000000001
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "not distinguishable from 90",
+       "role": "near"
+      },
+      "g258": {
+       "n": 125,
+       "reached_safely": 111,
+       "rate": 88.8,
+       "wilson95": [
+        82.07616439023667,
+        93.21016105799721
+       ],
+       "pair_boot95": [
+        83.2,
+        93.60000000000001
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "not distinguishable from 90",
+       "role": "spread"
+      },
+      "g260": {
+       "n": 125,
+       "reached_safely": 117,
+       "rate": 93.6,
+       "wilson95": [
+        87.87845562822072,
+        96.72164204041323
+       ],
+       "pair_boot95": [
+        88.8,
+        97.6
+       ],
+       "point_ge_bar": true,
+       "vs_bar": "not distinguishable from 90",
+       "role": "near"
+      },
+      "g263": {
+       "n": 125,
+       "reached_safely": 119,
+       "rate": 95.2,
+       "wilson95": [
+        89.92288896829618,
+        97.7817994404711
+       ],
+       "pair_boot95": [
+        91.2,
+        98.4
+       ],
+       "point_ge_bar": true,
+       "vs_bar": "not distinguishable from 90",
+       "role": "spread"
+      },
+      "g268": {
+       "n": 125,
+       "reached_safely": 108,
+       "rate": 86.4,
+       "wilson95": [
+        79.29706949475033,
+        91.3323698432835
+       ],
+       "pair_boot95": [
+        80.0,
+        92.0
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "not distinguishable from 90",
+       "role": "spread"
+      },
+      "g271": {
+       "n": 125,
+       "reached_safely": 118,
+       "rate": 94.4,
+       "wilson95": [
+        88.89121558924442,
+        97.2611774494562
+       ],
+       "pair_boot95": [
+        90.4,
+        98.4
+       ],
+       "point_ge_bar": true,
+       "vs_bar": "not distinguishable from 90",
+       "role": "near"
+      }
+     },
+     "declared_pairs": 1000,
+     "pairs_with_drive": 1000,
+     "near_spread": {
+      "near": {
+       "n": 500,
+       "rate": 91.8,
+       "wilson95": [
+        89.06451408426113,
+        93.89809105315311
+       ],
+       "pair_boot95": [
+        89.2,
+        94.0
+       ],
+       "cluster_boot95": [
+        86.95632193094629,
+        95.65217391304348
+       ],
+       "arena_boot95": [
+        88.8,
+        94.0
+       ]
+      },
+      "spread": {
+       "n": 500,
+       "rate": 89.4,
+       "wilson95": [
+        86.39490699892671,
+        91.80429497270298
+       ],
+       "pair_boot95": [
+        86.6,
+        92.0
+       ],
+       "cluster_boot95": [
+        85.07946851383032,
+        93.37241340530814
+       ],
+       "arena_boot95": [
+        86.8,
+        93.2
+       ]
+      }
+     }
+    },
+    "fail": {
+     "n": 1000,
+     "reached_safely": 906,
+     "rate": 90.6,
+     "binary": true,
+     "wilson95": [
+      88.6326845683493,
+      92.25658264262363
+     ],
+     "pair_boot95": [
+      88.7,
+      92.4
+     ],
+     "cluster_boot95": [
+      87.45927853106096,
+      93.52538213103368
+     ],
+     "clusters": 80,
+     "arena_boot95": [
+      88.3,
+      92.9
+     ],
+     "arenas": 8,
+     "arena_t95": {
+      "mean_of_arena_rates": 90.6,
+      "ci95": [
+       87.59297988878797,
+       93.60702011121202
+      ],
+      "df": 7,
+      "t975": 2.3646242510102993
+     },
+     "arena_rate_min": 86.4,
+     "arena_rate_max": 95.2,
+     "arenas_point_ge_bar": 4,
+     "per_arena": {
+      "g241": {
+       "n": 125,
+       "reached_safely": 109,
+       "rate": 87.2,
+       "wilson95": [
+        80.21643758872008,
+        91.96529711938044
+       ],
+       "pair_boot95": [
+        80.80000000000001,
+        92.80000000000001
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "not distinguishable from 90",
+       "role": "spread"
+      },
+      "g247": {
+       "n": 125,
+       "reached_safely": 115,
+       "rate": 92.0,
+       "wilson95": [
+        85.89881016125887,
+        95.59669676724172
+       ],
+       "pair_boot95": [
+        87.2,
+        96.8
+       ],
+       "point_ge_bar": true,
+       "vs_bar": "not distinguishable from 90",
+       "role": "near"
+      },
+      "g251": {
+       "n": 125,
+       "reached_safely": 109,
+       "rate": 87.2,
+       "wilson95": [
+        80.21643758872008,
+        91.96529711938044
+       ],
+       "pair_boot95": [
+        80.80000000000001,
+        92.80000000000001
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "not distinguishable from 90",
+       "role": "near"
+      },
+      "g258": {
+       "n": 125,
+       "reached_safely": 111,
+       "rate": 88.8,
+       "wilson95": [
+        82.07616439023667,
+        93.21016105799721
+       ],
+       "pair_boot95": [
+        83.18,
+        93.60000000000001
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "not distinguishable from 90",
+       "role": "spread"
+      },
+      "g260": {
+       "n": 125,
+       "reached_safely": 117,
+       "rate": 93.6,
+       "wilson95": [
+        87.87845562822072,
+        96.72164204041323
+       ],
+       "pair_boot95": [
+        88.8,
+        97.6
+       ],
+       "point_ge_bar": true,
+       "vs_bar": "not distinguishable from 90",
+       "role": "near"
+      },
+      "g263": {
+       "n": 125,
+       "reached_safely": 119,
+       "rate": 95.2,
+       "wilson95": [
+        89.92288896829618,
+        97.7817994404711
+       ],
+       "pair_boot95": [
+        91.2,
+        98.4
+       ],
+       "point_ge_bar": true,
+       "vs_bar": "not distinguishable from 90",
+       "role": "spread"
+      },
+      "g268": {
+       "n": 125,
+       "reached_safely": 108,
+       "rate": 86.4,
+       "wilson95": [
+        79.29706949475033,
+        91.3323698432835
+       ],
+       "pair_boot95": [
+        80.0,
+        92.0
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "not distinguishable from 90",
+       "role": "spread"
+      },
+      "g271": {
+       "n": 125,
+       "reached_safely": 118,
+       "rate": 94.4,
+       "wilson95": [
+        88.89121558924442,
+        97.2611774494562
+       ],
+       "pair_boot95": [
+        90.4,
+        98.4
+       ],
+       "point_ge_bar": true,
+       "vs_bar": "not distinguishable from 90",
+       "role": "near"
+      }
+     },
+     "declared_pairs": 1000,
+     "pairs_with_drive": 1000,
+     "near_spread": {
+      "near": {
+       "n": 500,
+       "rate": 91.8,
+       "wilson95": [
+        89.06451408426113,
+        93.89809105315311
+       ],
+       "pair_boot95": [
+        89.4,
+        94.0
+       ],
+       "cluster_boot95": [
+        87.1286255609688,
+        95.61412245753827
+       ],
+       "arena_boot95": [
+        88.8,
+        94.0
+       ]
+      },
+      "spread": {
+       "n": 500,
+       "rate": 89.4,
+       "wilson95": [
+        86.39490699892671,
+        91.80429497270298
+       ],
+       "pair_boot95": [
+        86.6,
+        92.0
+       ],
+       "cluster_boot95": [
+        85.15408276817772,
+        93.42769161787203
+       ],
+       "arena_boot95": [
+        86.8,
+        93.2
+       ]
+      }
+     }
+    }
+   },
+   "M1": {
+    "unsafe_belly": {
+     "n": 1000,
+     "reached_safely": 879.0,
+     "rate": 87.9,
+     "binary": false,
+     "wilson95": null,
+     "pair_boot95": [
+      86.15,
+      89.60000000000001
+     ],
+     "cluster_boot95": [
+      84.71424746139935,
+      90.82579876731253
+     ],
+     "clusters": 80,
+     "arena_boot95": [
+      85.29875,
+      90.7
+     ],
+     "arenas": 8,
+     "arena_t95": {
+      "mean_of_arena_rates": 87.89999999999999,
+      "ci95": [
+       84.3620831838604,
+       91.43791681613958
+      ],
+      "df": 7,
+      "t975": 2.3646242510102993
+     },
+     "arena_rate_min": 82.0,
+     "arena_rate_max": 94.4,
+     "arenas_point_ge_bar": 2,
+     "per_arena": {
+      "g241": {
+       "n": 125,
+       "reached_safely": 102.5,
+       "rate": 82.0,
+       "wilson95": null,
+       "pair_boot95": [
+        76.0,
+        87.6
+       ],
+       "point_ge_bar": false,
+       "vs_bar": null,
+       "role": "spread"
+      },
+      "g247": {
+       "n": 125,
+       "reached_safely": 109.5,
+       "rate": 87.6,
+       "wilson95": null,
+       "pair_boot95": [
+        82.39999999999999,
+        92.0
+       ],
+       "point_ge_bar": false,
+       "vs_bar": null,
+       "role": "near"
+      },
+      "g251": {
+       "n": 125,
+       "reached_safely": 104.0,
+       "rate": 83.2,
+       "wilson95": null,
+       "pair_boot95": [
+        77.2,
+        89.2
+       ],
+       "point_ge_bar": false,
+       "vs_bar": null,
+       "role": "near"
+      },
+      "g258": {
+       "n": 125,
+       "reached_safely": 109.5,
+       "rate": 87.6,
+       "wilson95": null,
+       "pair_boot95": [
+        82.8,
+        92.4
+       ],
+       "point_ge_bar": false,
+       "vs_bar": null,
+       "role": "spread"
+      },
+      "g260": {
+       "n": 125,
+       "reached_safely": 118.0,
+       "rate": 94.4,
+       "wilson95": null,
+       "pair_boot95": [
+        90.8,
+        97.6
+       ],
+       "point_ge_bar": true,
+       "vs_bar": null,
+       "role": "near"
+      },
+      "g263": {
+       "n": 125,
+       "reached_safely": 116.0,
+       "rate": 92.8,
+       "wilson95": null,
+       "pair_boot95": [
+        88.8,
+        96.39999999999999
+       ],
+       "point_ge_bar": true,
+       "vs_bar": null,
+       "role": "spread"
+      },
+      "g268": {
+       "n": 125,
+       "reached_safely": 108.5,
+       "rate": 86.8,
+       "wilson95": null,
+       "pair_boot95": [
+        81.6,
+        91.60000000000001
+       ],
+       "point_ge_bar": false,
+       "vs_bar": null,
+       "role": "spread"
+      },
+      "g271": {
+       "n": 125,
+       "reached_safely": 111.0,
+       "rate": 88.8,
+       "wilson95": null,
+       "pair_boot95": [
+        84.39999999999999,
+        92.80000000000001
+       ],
+       "point_ge_bar": false,
+       "vs_bar": null,
+       "role": "near"
+      }
+     },
+     "declared_pairs": 1000,
+     "pairs_with_drive": 1000,
+     "near_spread": {
+      "near": {
+       "n": 500,
+       "rate": 88.5,
+       "wilson95": null,
+       "pair_boot95": [
+        86.1,
+        90.8
+       ],
+       "cluster_boot95": [
+        83.51543346625314,
+        92.7401731184277
+       ],
+       "arena_boot95": [
+        84.6,
+        92.7
+       ]
+      },
+      "spread": {
+       "n": 500,
+       "rate": 87.3,
+       "wilson95": null,
+       "pair_boot95": [
+        84.7,
+        89.9
+       ],
+       "cluster_boot95": [
+        83.44262218045114,
+        91.14485177468988
+       ],
+       "arena_boot95": [
+        83.4,
+        91.3
+       ]
+      }
+     }
+    },
+    "fail": {
+     "n": 1000,
+     "reached_safely": 879.5,
+     "rate": 87.95,
+     "binary": false,
+     "wilson95": null,
+     "pair_boot95": [
+      86.2,
+      89.60000000000001
+     ],
+     "cluster_boot95": [
+      84.63740458015268,
+      90.80409410450422
+     ],
+     "clusters": 80,
+     "arena_boot95": [
+      85.19875,
+      90.85
+     ],
+     "arenas": 8,
+     "arena_t95": {
+      "mean_of_arena_rates": 87.95,
+      "ci95": [
+       84.35524891446751,
+       91.5447510855325
+      ],
+      "df": 7,
+      "t975": 2.3646242510102993
+     },
+     "arena_rate_min": 82.0,
+     "arena_rate_max": 94.4,
+     "arenas_point_ge_bar": 2,
+     "per_arena": {
+      "g241": {
+       "n": 125,
+       "reached_safely": 102.5,
+       "rate": 82.0,
+       "wilson95": null,
+       "pair_boot95": [
+        76.0,
+        87.6
+       ],
+       "point_ge_bar": false,
+       "vs_bar": null,
+       "role": "spread"
+      },
+      "g247": {
+       "n": 125,
+       "reached_safely": 109.5,
+       "rate": 87.6,
+       "wilson95": null,
+       "pair_boot95": [
+        82.39999999999999,
+        92.4
+       ],
+       "point_ge_bar": false,
+       "vs_bar": null,
+       "role": "near"
+      },
+      "g251": {
+       "n": 125,
+       "reached_safely": 104.0,
+       "rate": 83.2,
+       "wilson95": null,
+       "pair_boot95": [
+        77.2,
+        89.2
+       ],
+       "point_ge_bar": false,
+       "vs_bar": null,
+       "role": "near"
+      },
+      "g258": {
+       "n": 125,
+       "reached_safely": 109.5,
+       "rate": 87.6,
+       "wilson95": null,
+       "pair_boot95": [
+        82.39999999999999,
+        92.4
+       ],
+       "point_ge_bar": false,
+       "vs_bar": null,
+       "role": "spread"
+      },
+      "g260": {
+       "n": 125,
+       "reached_safely": 118.0,
+       "rate": 94.4,
+       "wilson95": null,
+       "pair_boot95": [
+        90.8,
+        97.6
+       ],
+       "point_ge_bar": true,
+       "vs_bar": null,
+       "role": "near"
+      },
+      "g263": {
+       "n": 125,
+       "reached_safely": 116.5,
+       "rate": 93.2,
+       "wilson95": null,
+       "pair_boot95": [
+        89.2,
+        96.8
+       ],
+       "point_ge_bar": true,
+       "vs_bar": null,
+       "role": "spread"
+      },
+      "g268": {
+       "n": 125,
+       "reached_safely": 108.5,
+       "rate": 86.8,
+       "wilson95": null,
+       "pair_boot95": [
+        81.2,
+        91.60000000000001
+       ],
+       "point_ge_bar": false,
+       "vs_bar": null,
+       "role": "spread"
+      },
+      "g271": {
+       "n": 125,
+       "reached_safely": 111.0,
+       "rate": 88.8,
+       "wilson95": null,
+       "pair_boot95": [
+        84.39999999999999,
+        92.80000000000001
+       ],
+       "point_ge_bar": false,
+       "vs_bar": null,
+       "role": "near"
+      }
+     },
+     "declared_pairs": 1000,
+     "pairs_with_drive": 1000,
+     "near_spread": {
+      "near": {
+       "n": 500,
+       "rate": 88.5,
+       "wilson95": null,
+       "pair_boot95": [
+        86.0,
+        90.9
+       ],
+       "cluster_boot95": [
+        83.72486395439232,
+        92.7344183679763
+       ],
+       "arena_boot95": [
+        84.6,
+        92.7
+       ]
+      },
+      "spread": {
+       "n": 500,
+       "rate": 87.4,
+       "wilson95": null,
+       "pair_boot95": [
+        84.89999999999999,
+        89.9
+       ],
+       "cluster_boot95": [
+        83.51047479944194,
+        91.2555542252022
+       ],
+       "arena_boot95": [
+        83.4,
+        91.6
+       ]
+      }
+     }
+    }
+   },
+   "M3": {
+    "unsafe_belly": {
+     "n": 1000,
+     "reached_safely": 903.0,
+     "rate": 90.3,
+     "binary": false,
+     "wilson95": null,
+     "pair_boot95": [
+      88.64999999999999,
+      91.85
+     ],
+     "cluster_boot95": [
+      86.90473511636877,
+      93.28445696460402
+     ],
+     "clusters": 80,
+     "arena_boot95": [
+      88.15,
+      92.65
+     ],
+     "arenas": 8,
+     "arena_t95": {
+      "mean_of_arena_rates": 90.3,
+      "ci95": [
+       87.34793786295641,
+       93.25206213704358
+      ],
+      "df": 7,
+      "t975": 2.3646242510102993
+     },
+     "arena_rate_min": 86.8,
+     "arena_rate_max": 96.4,
+     "arenas_point_ge_bar": 3,
+     "per_arena": {
+      "g241": {
+       "n": 125,
+       "reached_safely": 108.5,
+       "rate": 86.8,
+       "wilson95": null,
+       "pair_boot95": [
+        81.2,
+        92.0
+       ],
+       "point_ge_bar": false,
+       "vs_bar": null,
+       "role": "spread"
+      },
+      "g247": {
+       "n": 125,
+       "reached_safely": 112.0,
+       "rate": 89.6,
+       "wilson95": null,
+       "pair_boot95": [
+        84.8,
+        94.0
+       ],
+       "point_ge_bar": false,
+       "vs_bar": null,
+       "role": "near"
+      },
+      "g251": {
+       "n": 125,
+       "reached_safely": 109.0,
+       "rate": 87.2,
+       "wilson95": null,
+       "pair_boot95": [
+        81.2,
+        92.80000000000001
+       ],
+       "point_ge_bar": false,
+       "vs_bar": null,
+       "role": "near"
+      },
+      "g258": {
+       "n": 125,
+       "reached_safely": 109.0,
+       "rate": 87.2,
+       "wilson95": null,
+       "pair_boot95": [
+        82.0,
+        91.60000000000001
+       ],
+       "point_ge_bar": false,
+       "vs_bar": null,
+       "role": "spread"
+      },
+      "g260": {
+       "n": 125,
+       "reached_safely": 120.5,
+       "rate": 96.4,
+       "wilson95": null,
+       "pair_boot95": [
+        93.2,
+        98.8
+       ],
+       "point_ge_bar": true,
+       "vs_bar": null,
+       "role": "near"
+      },
+      "g263": {
+       "n": 125,
+       "reached_safely": 118.0,
+       "rate": 94.4,
+       "wilson95": null,
+       "pair_boot95": [
+        90.0,
+        98.0
+       ],
+       "point_ge_bar": true,
+       "vs_bar": null,
+       "role": "spread"
+      },
+      "g268": {
+       "n": 125,
+       "reached_safely": 114.0,
+       "rate": 91.2,
+       "wilson95": null,
+       "pair_boot95": [
+        86.4,
+        95.19999999999999
+       ],
+       "point_ge_bar": true,
+       "vs_bar": null,
+       "role": "spread"
+      },
+      "g271": {
+       "n": 125,
+       "reached_safely": 112.0,
+       "rate": 89.6,
+       "wilson95": null,
+       "pair_boot95": [
+        84.39999999999999,
+        94.0
+       ],
+       "point_ge_bar": false,
+       "vs_bar": null,
+       "role": "near"
+      }
+     },
+     "declared_pairs": 1000,
+     "pairs_with_drive": 1000,
+     "near_spread": {
+      "near": {
+       "n": 500,
+       "rate": 90.7,
+       "wilson95": null,
+       "pair_boot95": [
+        88.3,
+        93.0
+       ],
+       "cluster_boot95": [
+        85.26308183754182,
+        94.96439386951978
+       ],
+       "arena_boot95": [
+        87.8,
+        94.7
+       ]
+      },
+      "spread": {
+       "n": 500,
+       "rate": 89.9,
+       "wilson95": null,
+       "pair_boot95": [
+        87.5,
+        92.2
+       ],
+       "cluster_boot95": [
+        85.64020203394863,
+        93.77687347955934
+       ],
+       "arena_boot95": [
+        87.0,
+        92.8
+       ]
+      }
+     }
+    },
+    "fail": {
+     "n": 1000,
+     "reached_safely": 903.0,
+     "rate": 90.3,
+     "binary": false,
+     "wilson95": null,
+     "pair_boot95": [
+      88.6,
+      91.9
+     ],
+     "cluster_boot95": [
+      87.03690699126092,
+      93.32999120880429
+     ],
+     "clusters": 80,
+     "arena_boot95": [
+      88.15,
+      92.65
+     ],
+     "arenas": 8,
+     "arena_t95": {
+      "mean_of_arena_rates": 90.3,
+      "ci95": [
+       87.34793786295641,
+       93.25206213704358
+      ],
+      "df": 7,
+      "t975": 2.3646242510102993
+     },
+     "arena_rate_min": 86.8,
+     "arena_rate_max": 96.4,
+     "arenas_point_ge_bar": 3,
+     "per_arena": {
+      "g241": {
+       "n": 125,
+       "reached_safely": 108.5,
+       "rate": 86.8,
+       "wilson95": null,
+       "pair_boot95": [
+        80.80000000000001,
+        92.0
+       ],
+       "point_ge_bar": false,
+       "vs_bar": null,
+       "role": "spread"
+      },
+      "g247": {
+       "n": 125,
+       "reached_safely": 112.0,
+       "rate": 89.6,
+       "wilson95": null,
+       "pair_boot95": [
+        84.8,
+        94.0
+       ],
+       "point_ge_bar": false,
+       "vs_bar": null,
+       "role": "near"
+      },
+      "g251": {
+       "n": 125,
+       "reached_safely": 109.0,
+       "rate": 87.2,
+       "wilson95": null,
+       "pair_boot95": [
+        81.2,
+        92.80000000000001
+       ],
+       "point_ge_bar": false,
+       "vs_bar": null,
+       "role": "near"
+      },
+      "g258": {
+       "n": 125,
+       "reached_safely": 109.0,
+       "rate": 87.2,
+       "wilson95": null,
+       "pair_boot95": [
+        82.39999999999999,
+        92.0
+       ],
+       "point_ge_bar": false,
+       "vs_bar": null,
+       "role": "spread"
+      },
+      "g260": {
+       "n": 125,
+       "reached_safely": 120.5,
+       "rate": 96.4,
+       "wilson95": null,
+       "pair_boot95": [
+        93.2,
+        98.8
+       ],
+       "point_ge_bar": true,
+       "vs_bar": null,
+       "role": "near"
+      },
+      "g263": {
+       "n": 125,
+       "reached_safely": 118.0,
+       "rate": 94.4,
+       "wilson95": null,
+       "pair_boot95": [
+        90.4,
+        98.0
+       ],
+       "point_ge_bar": true,
+       "vs_bar": null,
+       "role": "spread"
+      },
+      "g268": {
+       "n": 125,
+       "reached_safely": 114.0,
+       "rate": 91.2,
+       "wilson95": null,
+       "pair_boot95": [
+        86.8,
+        95.19999999999999
+       ],
+       "point_ge_bar": true,
+       "vs_bar": null,
+       "role": "spread"
+      },
+      "g271": {
+       "n": 125,
+       "reached_safely": 112.0,
+       "rate": 89.6,
+       "wilson95": null,
+       "pair_boot95": [
+        84.8,
+        94.0
+       ],
+       "point_ge_bar": false,
+       "vs_bar": null,
+       "role": "near"
+      }
+     },
+     "declared_pairs": 1000,
+     "pairs_with_drive": 1000,
+     "near_spread": {
+      "near": {
+       "n": 500,
+       "rate": 90.7,
+       "wilson95": null,
+       "pair_boot95": [
+        88.2975,
+        93.0
+       ],
+       "cluster_boot95": [
+        85.20949301673815,
+        95.04421416811284
+       ],
+       "arena_boot95": [
+        87.8,
+        94.7
+       ]
+      },
+      "spread": {
+       "n": 500,
+       "rate": 89.9,
+       "wilson95": null,
+       "pair_boot95": [
+        87.4,
+        92.10000000000001
+       ],
+       "cluster_boot95": [
+        85.60477001703578,
+        93.97871580236831
+       ],
+       "arena_boot95": [
+        87.0,
+        92.8
+       ]
+      }
+     }
+    }
+   },
+   "straight6": {
+    "unsafe_belly": {
+     "n": 1000,
+     "reached_safely": 600,
+     "rate": 60.0,
+     "binary": true,
+     "wilson95": [
+      56.93094295142662,
+      62.99252187886226
+     ],
+     "pair_boot95": [
+      56.89999999999999,
+      63.0
+     ],
+     "cluster_boot95": [
+      52.99031416980537,
+      66.73137228003601
+     ],
+     "clusters": 80,
+     "arena_boot95": [
+      53.9,
+      66.0
+     ],
+     "arenas": 8,
+     "arena_t95": {
+      "mean_of_arena_rates": 60.0,
+      "ci95": [
+       52.030128761480896,
+       67.9698712385191
+      ],
+      "df": 7,
+      "t975": 2.3646242510102993
+     },
+     "arena_rate_min": 44.0,
+     "arena_rate_max": 75.2,
+     "arenas_point_ge_bar": 0,
+     "per_arena": {
+      "g241": {
+       "n": 125,
+       "reached_safely": 76,
+       "rate": 60.8,
+       "wilson95": [
+        52.042088060056436,
+        68.91389943584372
+       ],
+       "pair_boot95": [
+        52.0,
+        69.6
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "below",
+       "role": "spread"
+      },
+      "g247": {
+       "n": 125,
+       "reached_safely": 55,
+       "rate": 44.0,
+       "wilson95": [
+        35.60584549578599,
+        52.75193922871394
+       ],
+       "pair_boot95": [
+        35.199999999999996,
+        52.800000000000004
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "below",
+       "role": "near"
+      },
+      "g251": {
+       "n": 125,
+       "reached_safely": 70,
+       "rate": 56.0,
+       "wilson95": [
+        47.24806077128607,
+        64.39415450421401
+       ],
+       "pair_boot95": [
+        47.199999999999996,
+        64.8
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "below",
+       "role": "near"
+      },
+      "g258": {
+       "n": 125,
+       "reached_safely": 94,
+       "rate": 75.2,
+       "wilson95": [
+        66.95405133205622,
+        81.94325282504411
+       ],
+       "pair_boot95": [
+        68.0,
+        82.39999999999999
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "below",
+       "role": "spread"
+      },
+      "g260": {
+       "n": 125,
+       "reached_safely": 85,
+       "rate": 68.0,
+       "wilson95": [
+        59.39075708789072,
+        75.53588873860954
+       ],
+       "pair_boot95": [
+        59.199999999999996,
+        76.0
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "below",
+       "role": "near"
+      },
+      "g263": {
+       "n": 125,
+       "reached_safely": 80,
+       "rate": 64.0,
+       "wilson95": [
+        55.28385550024603,
+        71.88131347592083
+       ],
+       "pair_boot95": [
+        56.00000000000001,
+        72.0
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "below",
+       "role": "spread"
+      },
+      "g268": {
+       "n": 125,
+       "reached_safely": 66,
+       "rate": 52.8,
+       "wilson95": [
+        44.09609341541313,
+        61.336940379820234
+       ],
+       "pair_boot95": [
+        44.0,
+        61.6
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "below",
+       "role": "spread"
+      },
+      "g271": {
+       "n": 125,
+       "reached_safely": 74,
+       "rate": 59.2,
+       "wilson95": [
+        50.4351064828952,
+        67.41629027287159
+       ],
+       "pair_boot95": [
+        50.4,
+        67.2
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "below",
+       "role": "near"
+      }
+     },
+     "declared_pairs": 1000,
+     "pairs_with_drive": 1000,
+     "near_spread": {
+      "near": {
+       "n": 500,
+       "rate": 56.8,
+       "wilson95": [
+        52.42253434338132,
+        61.073774626341546
+       ],
+       "pair_boot95": [
+        52.400000000000006,
+        61.199999999999996
+       ],
+       "cluster_boot95": [
+        47.11700852767626,
+        66.4612601106854
+       ],
+       "arena_boot95": [
+        47.8,
+        65.0
+       ]
+      },
+      "spread": {
+       "n": 500,
+       "rate": 63.2,
+       "wilson95": [
+        58.8871722496907,
+        67.31154516212433
+       ],
+       "pair_boot95": [
+        58.8,
+        67.4
+       ],
+       "cluster_boot95": [
+        53.462655765287344,
+        72.23233228773732
+       ],
+       "arena_boot95": [
+        55.6,
+        71.6
+       ]
+      }
+     }
+    },
+    "fail": {
+     "n": 1000,
+     "reached_safely": 600,
+     "rate": 60.0,
+     "binary": true,
+     "wilson95": [
+      56.93094295142662,
+      62.99252187886226
+     ],
+     "pair_boot95": [
+      56.89999999999999,
+      63.1
+     ],
+     "cluster_boot95": [
+      52.91173242061692,
+      66.80358063896277
+     ],
+     "clusters": 80,
+     "arena_boot95": [
+      53.7,
+      66.1
+     ],
+     "arenas": 8,
+     "arena_t95": {
+      "mean_of_arena_rates": 60.0,
+      "ci95": [
+       52.030128761480896,
+       67.9698712385191
+      ],
+      "df": 7,
+      "t975": 2.3646242510102993
+     },
+     "arena_rate_min": 44.0,
+     "arena_rate_max": 75.2,
+     "arenas_point_ge_bar": 0,
+     "per_arena": {
+      "g241": {
+       "n": 125,
+       "reached_safely": 76,
+       "rate": 60.8,
+       "wilson95": [
+        52.042088060056436,
+        68.91389943584372
+       ],
+       "pair_boot95": [
+        52.0,
+        69.6
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "below",
+       "role": "spread"
+      },
+      "g247": {
+       "n": 125,
+       "reached_safely": 55,
+       "rate": 44.0,
+       "wilson95": [
+        35.60584549578599,
+        52.75193922871394
+       ],
+       "pair_boot95": [
+        35.199999999999996,
+        52.800000000000004
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "below",
+       "role": "near"
+      },
+      "g251": {
+       "n": 125,
+       "reached_safely": 70,
+       "rate": 56.0,
+       "wilson95": [
+        47.24806077128607,
+        64.39415450421401
+       ],
+       "pair_boot95": [
+        47.199999999999996,
+        64.8
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "below",
+       "role": "near"
+      },
+      "g258": {
+       "n": 125,
+       "reached_safely": 94,
+       "rate": 75.2,
+       "wilson95": [
+        66.95405133205622,
+        81.94325282504411
+       ],
+       "pair_boot95": [
+        67.2,
+        82.39999999999999
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "below",
+       "role": "spread"
+      },
+      "g260": {
+       "n": 125,
+       "reached_safely": 85,
+       "rate": 68.0,
+       "wilson95": [
+        59.39075708789072,
+        75.53588873860954
+       ],
+       "pair_boot95": [
+        59.199999999999996,
+        75.2
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "below",
+       "role": "near"
+      },
+      "g263": {
+       "n": 125,
+       "reached_safely": 80,
+       "rate": 64.0,
+       "wilson95": [
+        55.28385550024603,
+        71.88131347592083
+       ],
+       "pair_boot95": [
+        55.2,
+        72.8
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "below",
+       "role": "spread"
+      },
+      "g268": {
+       "n": 125,
+       "reached_safely": 66,
+       "rate": 52.8,
+       "wilson95": [
+        44.09609341541313,
+        61.336940379820234
+       ],
+       "pair_boot95": [
+        44.0,
+        61.6
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "below",
+       "role": "spread"
+      },
+      "g271": {
+       "n": 125,
+       "reached_safely": 74,
+       "rate": 59.2,
+       "wilson95": [
+        50.4351064828952,
+        67.41629027287159
+       ],
+       "pair_boot95": [
+        50.4,
+        68.0
+       ],
+       "point_ge_bar": false,
+       "vs_bar": "below",
+       "role": "near"
+      }
+     },
+     "declared_pairs": 1000,
+     "pairs_with_drive": 1000,
+     "near_spread": {
+      "near": {
+       "n": 500,
+       "rate": 56.8,
+       "wilson95": [
+        52.42253434338132,
+        61.073774626341546
+       ],
+       "pair_boot95": [
+        52.6,
+        61.0
+       ],
+       "cluster_boot95": [
+        46.99225783838023,
+        66.66666666666667
+       ],
+       "arena_boot95": [
+        47.8,
+        65.0
+       ]
+      },
+      "spread": {
+       "n": 500,
+       "rate": 63.2,
+       "wilson95": [
+        58.8871722496907,
+        67.31154516212433
+       ],
+       "pair_boot95": [
+        59.0,
+        67.4
+       ],
+       "cluster_boot95": [
+        53.65383611691023,
+        72.03314614247988
+       ],
+       "arena_boot95": [
+        55.6,
+        71.6
+       ]
+      }
+     }
+    }
+   }
+  },
+  "reproduces_k3_goal_rates": {
+   "M1": {
+    "expected": 87.95,
+    "got": 87.95,
+    "equal": true
+   },
+   "M3": {
+    "expected": 90.3,
+    "got": 90.3,
+    "equal": true
+   },
+   "M1a_free": {
+    "expected": 88.5,
+    "got": 88.5,
+    "equal": true
+   },
+   "M3a_free": {
+    "expected": 90.3,
+    "got": 90.3,
+    "equal": true
+   },
+   "A3_free": {
+    "expected": 90.6,
+    "got": 90.6,
+    "equal": true
+   },
+   "straight6": {
+    "expected": 60.0,
+    "got": 60.0,
+    "equal": true
+   }
+  }
+ },
+ "cross_vehicle_context": [
+  {
+   "test": "polaris_u_grad",
+   "ref": "M1a_free",
+   "label": "unsafe_belly",
+   "note": "context, not a test (different vehicles)",
+   "result": {
+    "test": "polaris_u_grad",
+    "ref": "M1a_free",
+    "label": "unsafe_belly",
+    "n": 1000,
+    "rate_test": 0.3,
+    "rate_ref": 11.600000000000001,
+    "diff_pts": -11.3,
+    "improvement_pts": 11.3,
+    "group": {
+     "ci95": [
+      -13.3025,
+      -9.3
+     ],
+     "ci90": [
+      -13.0,
+      -9.6
+     ],
+     "p_one_sided": 0.00024993751562109475
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      -14.22894828184658,
+      -8.374275731863458
+     ],
+     "ci90": [
+      -13.759698414963074,
+      -8.823529411764707
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 80,
+     "cluster_wins": 42,
+     "cluster_losses": 0,
+     "sign_p": 4.547473508864641e-13
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      -14.776369359707658,
+      -8.118686684263789
+     ],
+     "ci90": [
+      -14.133642676297566,
+      -8.574043490228462
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 81,
+     "cluster_wins": 40,
+     "cluster_losses": 0,
+     "sign_p": 1.8189894035458565e-12
+    },
+    "discordant": {
+     "test_worse": 2,
+     "test_better": 115,
+     "binary": true,
+     "mcnemar_two_sided": 8.310387710030923e-32,
+     "mcnemar_one_sided": 4.1551938550154614e-32
+    },
+    "identical_picks": 0,
+    "within_margin_90": false,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": -8.823529411764707,
+     "upper95_one_sided_group": -9.6,
+     "margin_pts": 2.0,
+     "pass_cluster": true,
+     "note": "polaris_u_grad is within 2.0 points of M1a_free (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = unsafe_belly(polaris_u_grad) - unsafe_belly(M1a_free) in points; negative = polaris_u_grad better"
+   }
+  },
+  {
+   "test": "polaris_u_grad",
+   "ref": "M3a_free",
+   "label": "unsafe_belly",
+   "note": "context, not a test (different vehicles)",
+   "result": {
+    "test": "polaris_u_grad",
+    "ref": "M3a_free",
+    "label": "unsafe_belly",
+    "n": 1000,
+    "rate_test": 0.3,
+    "rate_ref": 9.700000000000001,
+    "diff_pts": -9.4,
+    "improvement_pts": 9.4,
+    "group": {
+     "ci95": [
+      -11.3,
+      -7.7
+     ],
+     "ci90": [
+      -11.0,
+      -7.9
+     ],
+     "p_one_sided": 0.00024993751562109475
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      -12.857351712614872,
+      -6.21698364144168
+     ],
+     "ci90": [
+      -12.240448495567195,
+      -6.7333763619319855
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 80,
+     "cluster_wins": 39,
+     "cluster_losses": 1,
+     "sign_p": 7.457856554538012e-11
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      -12.828349688329322,
+      -6.286362880425743
+     ],
+     "ci90": [
+      -12.231900693031069,
+      -6.706506506506508
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 81,
+     "cluster_wins": 38,
+     "cluster_losses": 1,
+     "sign_p": 1.4551915228366852e-10
+    },
+    "discordant": {
+     "test_worse": 2,
+     "test_better": 96,
+     "binary": true,
+     "mcnemar_two_sided": 3.0620424897058794e-26,
+     "mcnemar_one_sided": 1.5310212448529397e-26
+    },
+    "identical_picks": 0,
+    "within_margin_90": false,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": -6.7333763619319855,
+     "upper95_one_sided_group": -7.9,
+     "margin_pts": 2.0,
+     "pass_cluster": true,
+     "note": "polaris_u_grad is within 2.0 points of M3a_free (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = unsafe_belly(polaris_u_grad) - unsafe_belly(M3a_free) in points; negative = polaris_u_grad better"
+   }
+  },
+  {
+   "test": "polaris_u_grad",
+   "ref": "A3_free",
+   "label": "unsafe_belly",
+   "note": "context, not a test (different vehicles)",
+   "result": {
+    "test": "polaris_u_grad",
+    "ref": "A3_free",
+    "label": "unsafe_belly",
+    "n": 1000,
+    "rate_test": 0.3,
+    "rate_ref": 9.4,
+    "diff_pts": -9.1,
+    "improvement_pts": 9.1,
+    "group": {
+     "ci95": [
+      -11.0,
+      -7.3
+     ],
+     "ci90": [
+      -10.7,
+      -7.6
+     ],
+     "p_one_sided": 0.00024993751562109475
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      -12.282481348438795,
+      -6.232772478340372
+     ],
+     "ci90": [
+      -11.71813361432374,
+      -6.617647058823529
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 80,
+     "cluster_wins": 38,
+     "cluster_losses": 0,
+     "sign_p": 7.275957614183426e-12
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      -12.272325226526947,
+      -6.17867969816639
+     ],
+     "ci90": [
+      -11.813471502590673,
+      -6.552331652194011
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 81,
+     "cluster_wins": 37,
+     "cluster_losses": 0,
+     "sign_p": 1.4551915228366852e-11
+    },
+    "discordant": {
+     "test_worse": 3,
+     "test_better": 94,
+     "binary": true,
+     "mcnemar_two_sided": 1.9209583457473067e-24,
+     "mcnemar_one_sided": 9.604791728736534e-25
+    },
+    "identical_picks": 0,
+    "within_margin_90": false,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": -6.617647058823529,
+     "upper95_one_sided_group": -7.6,
+     "margin_pts": 2.0,
+     "pass_cluster": true,
+     "note": "polaris_u_grad is within 2.0 points of A3_free (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = unsafe_belly(polaris_u_grad) - unsafe_belly(A3_free) in points; negative = polaris_u_grad better"
+   }
+  },
+  {
+   "test": "polaris_u_grad",
+   "ref": "straight6",
+   "label": "unsafe_belly",
+   "note": "context, not a test (different vehicles)",
+   "result": {
+    "test": "polaris_u_grad",
+    "ref": "straight6",
+    "label": "unsafe_belly",
+    "n": 1000,
+    "rate_test": 0.3,
+    "rate_ref": 40.0,
+    "diff_pts": -39.7,
+    "improvement_pts": 39.7,
+    "group": {
+     "ci95": [
+      -42.9,
+      -36.6
+     ],
+     "ci90": [
+      -42.3,
+      -37.1
+     ],
+     "p_one_sided": 0.00024993751562109475
+    },
+    "cluster": {
+     "key": "cluster",
+     "ci95": [
+      -46.69380501584793,
+      -33.06897758382907
+     ],
+     "ci90": [
+      -45.57832525275304,
+      -33.99197198386205
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 80,
+     "cluster_wins": 69,
+     "cluster_losses": 0,
+     "sign_p": 3.3881317890172014e-21
+    },
+    "cluster_alt": {
+     "key": "cluster_design",
+     "ci95": [
+      -46.61310211139098,
+      -32.80372016388953
+     ],
+     "ci90": [
+      -45.49636926547823,
+      -33.90298633908716
+     ],
+     "p_one_sided": 0.00024993751562109475,
+     "clusters": 81,
+     "cluster_wins": 69,
+     "cluster_losses": 0,
+     "sign_p": 3.3881317890172014e-21
+    },
+    "discordant": {
+     "test_worse": 1,
+     "test_better": 398,
+     "binary": true,
+     "mcnemar_two_sided": 6.196147063758909e-118,
+     "mcnemar_one_sided": 3.0980735318794546e-118
+    },
+    "identical_picks": 2,
+    "within_margin_90": false,
+    "margin_pts": 2.0,
+    "noninferiority": {
+     "upper95_one_sided_cluster": -33.99197198386205,
+     "upper95_one_sided_group": -37.1,
+     "margin_pts": 2.0,
+     "pass_cluster": true,
+     "note": "polaris_u_grad is within 2.0 points of straight6 (not worse by more) if the one-sided upper 95 % bound of the diff < margin"
+    },
+    "note": "diff = unsafe_belly(polaris_u_grad) - unsafe_belly(straight6) in points; negative = polaris_u_grad better"
+   }
+  }
+ ]
+}

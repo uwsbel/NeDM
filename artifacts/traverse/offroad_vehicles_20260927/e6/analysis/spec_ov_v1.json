@@ -1,0 +1,464 @@
+{
+ "schema": "ov_analyze_spec_v1",
+ "margin_pts": 2.0,
+ "alpha": 0.05,
+ "boot": 4000,
+ "seed": 0,
+ "cluster_key": "cluster",
+ "min_groups": 50,
+ "options": {
+  "bar_label": "unsafe_belly",
+  "rule": "r1",
+  "clearly_above_bound": "cluster95",
+  "extra_bars": [
+   [
+    "polaris_pc",
+    "polaris_grad_pc"
+   ]
+  ]
+ },
+ "note": "offroad_vehicles_20260927 PLAN 4.3-4.4, written before any outcome of these arms exists. Soil, f104 800-pair suite, standing start, fail = goal not reached. Family (Holm at 0.05 over the one-sided cluster-bootstrap p; group bootstrap and exact McNemar beside each): per vehicle <v>_grad vs straight6_<v>, <v>_grad vs the Gator with its best planner, <v>_grad vs <v>_cem; and the Gator gradient vs its stored CEM arm. Decision: improves if Holm rejects; no meaningful difference if the 90 % cluster interval lies within +-2 points; else inconclusive. The 90 % bar on <v>_grad (goal reached, 800 and 600 fresh; clearly above if the lower end of the 95 % group-bootstrap interval >= 90 on both), validity (0 crashed, < 5 % launch failures, belly flag <= 10 %, the bar with belly-flagged drives counted as failures). HMMWV arms: validity without a belly record.",
+ "family": [
+  {
+   "name": "F_polaris_grad_vs_straight6",
+   "world": "crm",
+   "vehicle": "polaris",
+   "test": "polaris_grad",
+   "ref": "straight6_polaris",
+   "label": "fail",
+   "set": "f104_800"
+  },
+  {
+   "name": "F_polaris_grad_vs_gator_grad",
+   "world": "crm",
+   "vehicle": "any",
+   "test": "polaris_grad",
+   "ref": "Gfull_grad_gator",
+   "label": "fail",
+   "set": "f104_800"
+  },
+  {
+   "name": "F_polaris_grad_vs_cem",
+   "world": "crm",
+   "vehicle": "polaris",
+   "test": "polaris_grad",
+   "ref": "polaris_cem",
+   "label": "fail",
+   "set": "f104_800"
+  },
+  {
+   "name": "F_gator_grad_vs_gator_cem",
+   "world": "crm",
+   "vehicle": "gator",
+   "test": "Gfull_grad_gator",
+   "ref": "Gfull_free_gator",
+   "label": "fail",
+   "set": "f104_800"
+  }
+ ],
+ "contrasts": [
+  {
+   "name": "S_polaris_cem_vs_gator_cem",
+   "world": "crm",
+   "vehicle": "any",
+   "test": "polaris_cem",
+   "ref": "Gfull_free_gator",
+   "label": "fail",
+   "set": "f104_800"
+  },
+  {
+   "name": "S_polaris_grad_vs_hmmwv_grad",
+   "world": "crm",
+   "vehicle": "any",
+   "test": "polaris_grad",
+   "ref": "Hfull_grad_hmmwv",
+   "label": "fail",
+   "set": "f104_800"
+  },
+  {
+   "name": "S_polaris_grad_vs_straight6_unsafe",
+   "world": "crm",
+   "vehicle": "polaris",
+   "test": "polaris_grad",
+   "ref": "straight6_polaris",
+   "label": "unsafe",
+   "set": "f104_800"
+  },
+  {
+   "name": "S_polaris_grad_vs_gator_grad_unsafe",
+   "world": "crm",
+   "vehicle": "any",
+   "test": "polaris_grad",
+   "ref": "Gfull_grad_gator",
+   "label": "unsafe",
+   "set": "f104_800"
+  },
+  {
+   "name": "S_polaris_grad_vs_straight6_fresh600",
+   "world": "crm",
+   "vehicle": "polaris",
+   "test": "polaris_grad",
+   "ref": "straight6_polaris",
+   "label": "fail",
+   "set": "f104_600"
+  },
+  {
+   "name": "S_polaris_grad_vs_gator_grad_fresh600",
+   "world": "crm",
+   "vehicle": "any",
+   "test": "polaris_grad",
+   "ref": "Gfull_grad_gator",
+   "label": "fail",
+   "set": "f104_600"
+  },
+  {
+   "name": "S_polaris_grad_vs_cem_fresh600",
+   "world": "crm",
+   "vehicle": "polaris",
+   "test": "polaris_grad",
+   "ref": "polaris_cem",
+   "label": "fail",
+   "set": "f104_600"
+  },
+  {
+   "name": "S_polaris_grad_vs_gator_grad_belly",
+   "world": "crm",
+   "vehicle": "any",
+   "test": "polaris_grad",
+   "ref": "Gfull_grad_gator",
+   "label": "fail_belly",
+   "set": "f104_800"
+  },
+  {
+   "name": "S_gator_grad_vs_straight6",
+   "world": "crm",
+   "vehicle": "gator",
+   "test": "Gfull_grad_gator",
+   "ref": "straight6_gator",
+   "label": "fail",
+   "set": "f104_800"
+  },
+  {
+   "name": "S_hmmwv_grad_vs_cem_bridge",
+   "world": "crm",
+   "vehicle": "hmmwv",
+   "test": "Hfull_grad_hmmwv",
+   "ref": "Hfull_free",
+   "label": "fail",
+   "set": "f104_800"
+  },
+  {
+   "name": "S_hmmwv_grad_vs_straight6",
+   "world": "crm",
+   "vehicle": "hmmwv",
+   "test": "Hfull_grad_hmmwv",
+   "ref": "straight6",
+   "label": "fail",
+   "set": "f104_800"
+  },
+  {
+   "name": "S_gator_grad_vs_gator_cem_fresh600",
+   "world": "crm",
+   "vehicle": "gator",
+   "test": "Gfull_grad_gator",
+   "ref": "Gfull_free_gator",
+   "label": "fail",
+   "set": "f104_600"
+  }
+ ],
+ "headroom": [
+  {
+   "world": "crm",
+   "vehicle": "polaris",
+   "model": "polaris_grad",
+   "straight": "straight6_polaris",
+   "label": "fail",
+   "set": "f104_800"
+  },
+  {
+   "world": "crm",
+   "vehicle": "polaris",
+   "model": "polaris_cem",
+   "straight": "straight6_polaris",
+   "label": "fail",
+   "set": "f104_800"
+  },
+  {
+   "world": "crm",
+   "vehicle": "gator",
+   "model": "Gfull_grad_gator",
+   "straight": "straight6_gator",
+   "label": "fail",
+   "set": "f104_800"
+  },
+  {
+   "world": "crm",
+   "vehicle": "hmmwv",
+   "model": "Hfull_grad_hmmwv",
+   "straight": "straight6",
+   "label": "fail",
+   "set": "f104_800"
+  }
+ ],
+ "time_ratio": [
+  {
+   "world": "crm",
+   "vehicle": "polaris",
+   "test": "polaris_grad",
+   "ref": "polaris_cem",
+   "set": "f104_800"
+  },
+  {
+   "world": "crm",
+   "vehicle": "gator",
+   "test": "Gfull_grad_gator",
+   "ref": "Gfull_free_gator",
+   "set": "f104_800"
+  },
+  {
+   "world": "crm",
+   "vehicle": "hmmwv",
+   "test": "Hfull_grad_hmmwv",
+   "ref": "Hfull_free",
+   "set": "f104_800"
+  }
+ ],
+ "bar": [
+  {
+   "vehicle": "polaris",
+   "arm": "polaris_grad",
+   "label": "fail",
+   "sets": [
+    "f104_800",
+    "f104_600"
+   ],
+   "bar": 90.0,
+   "declared": false,
+   "clearly_above_bound": "cluster95"
+  },
+  {
+   "vehicle": "polaris",
+   "arm": "polaris_grad",
+   "label": "fail",
+   "sets": [
+    "f104_800_notB"
+   ],
+   "bar": 90.0,
+   "declared": false,
+   "clearly_above_bound": "cluster95",
+   "note": "REVIEW_R1 N3: the 704 pairs outside sample B",
+   "key_suffix": "notB"
+  },
+  {
+   "vehicle": "polaris",
+   "arm": "polaris_grad",
+   "label": "unsafe",
+   "sets": [
+    "f104_800",
+    "f104_600"
+   ],
+   "bar": 90.0,
+   "declared": false,
+   "clearly_above_bound": "cluster95"
+  },
+  {
+   "vehicle": "polaris",
+   "arm": "polaris_grad",
+   "label": "unsafe",
+   "sets": [
+    "f104_800_notB"
+   ],
+   "bar": 90.0,
+   "declared": false,
+   "clearly_above_bound": "cluster95",
+   "note": "REVIEW_R1 N3: the 704 pairs outside sample B",
+   "key_suffix": "notB"
+  },
+  {
+   "vehicle": "polaris",
+   "arm": "polaris_grad",
+   "label": "fail_belly",
+   "sets": [
+    "f104_800",
+    "f104_600"
+   ],
+   "bar": 90.0,
+   "declared": false,
+   "clearly_above_bound": "cluster95"
+  },
+  {
+   "vehicle": "polaris",
+   "arm": "polaris_grad",
+   "label": "fail_belly",
+   "sets": [
+    "f104_800_notB"
+   ],
+   "bar": 90.0,
+   "declared": false,
+   "clearly_above_bound": "cluster95",
+   "note": "REVIEW_R1 N3: the 704 pairs outside sample B",
+   "key_suffix": "notB"
+  },
+  {
+   "vehicle": "polaris",
+   "arm": "polaris_grad",
+   "label": "unsafe_belly",
+   "sets": [
+    "f104_800",
+    "f104_600"
+   ],
+   "bar": 90.0,
+   "declared": true,
+   "clearly_above_bound": "cluster95"
+  },
+  {
+   "vehicle": "polaris",
+   "arm": "polaris_grad",
+   "label": "unsafe_belly",
+   "sets": [
+    "f104_800_notB"
+   ],
+   "bar": 90.0,
+   "declared": false,
+   "clearly_above_bound": "cluster95",
+   "note": "REVIEW_R1 N3: the 704 pairs outside sample B",
+   "key_suffix": "notB"
+  },
+  {
+   "vehicle": "polaris",
+   "arm": "polaris_cem",
+   "label": "unsafe_belly",
+   "sets": [
+    "f104_800",
+    "f104_600"
+   ],
+   "bar": 90.0,
+   "declared": false,
+   "clearly_above_bound": "cluster95"
+  },
+  {
+   "vehicle": "polaris",
+   "arm": "straight6_polaris",
+   "label": "unsafe_belly",
+   "sets": [
+    "f104_800",
+    "f104_600"
+   ],
+   "bar": 90.0,
+   "declared": false,
+   "clearly_above_bound": "cluster95"
+  },
+  {
+   "vehicle": "gator",
+   "arm": "Gfull_grad_gator",
+   "label": "unsafe_belly",
+   "sets": [
+    "f104_800",
+    "f104_600"
+   ],
+   "bar": 90.0,
+   "declared": false,
+   "clearly_above_bound": "cluster95"
+  },
+  {
+   "vehicle": "gator",
+   "arm": "Gfull_free_gator",
+   "label": "unsafe_belly",
+   "sets": [
+    "f104_800",
+    "f104_600"
+   ],
+   "bar": 90.0,
+   "declared": false,
+   "clearly_above_bound": "cluster95"
+  },
+  {
+   "vehicle": "hmmwv",
+   "arm": "Hfull_grad_hmmwv",
+   "label": "unsafe_belly",
+   "sets": [
+    "f104_800",
+    "f104_600"
+   ],
+   "bar": 90.0,
+   "declared": false,
+   "clearly_above_bound": "cluster95"
+  },
+  {
+   "vehicle": "hmmwv",
+   "arm": "Hfull_free",
+   "label": "unsafe_belly",
+   "sets": [
+    "f104_800",
+    "f104_600"
+   ],
+   "bar": 90.0,
+   "declared": false,
+   "clearly_above_bound": "cluster95"
+  },
+  {
+   "vehicle": "polaris_pc",
+   "arm": "polaris_grad_pc",
+   "label": "unsafe_belly",
+   "sets": [
+    "f104_800",
+    "f104_600"
+   ],
+   "bar": 90.0,
+   "declared": false,
+   "clearly_above_bound": "cluster95"
+  }
+ ],
+ "validity": [
+  {
+   "vehicle": "polaris",
+   "arm": "polaris_grad",
+   "set": "f104_800"
+  },
+  {
+   "vehicle": "polaris",
+   "arm": "polaris_cem",
+   "set": "f104_800"
+  },
+  {
+   "vehicle": "polaris",
+   "arm": "straight6_polaris",
+   "set": "f104_800"
+  },
+  {
+   "vehicle": "polaris_pc",
+   "arm": "polaris_grad_pc",
+   "set": "f104_800"
+  },
+  {
+   "vehicle": "gator",
+   "arm": "Gfull_grad_gator",
+   "set": "f104_800"
+  },
+  {
+   "vehicle": "hmmwv",
+   "arm": "Hfull_grad_hmmwv",
+   "set": "f104_800",
+   "belly_optional": true
+  }
+ ],
+ "criteria": [
+  {
+   "vehicle": "polaris",
+   "arm": "polaris_grad",
+   "beats_straight_test": "F_polaris_grad_vs_straight6",
+   "bar_label": "unsafe_belly",
+   "belly_label": "unsafe_belly",
+   "cem_arm": "polaris_cem",
+   "straight_arm": "straight6_polaris",
+   "rule": "r1"
+  }
+ ],
+ "rates": {
+  "sets": [
+   "f104_800",
+   "f104_600",
+   "f104_200"
+  ]
+ }
+}

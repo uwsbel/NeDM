@@ -1,0 +1,647 @@
+{
+ "schema": "ov_smoke_analyze_v1",
+ "tool": "scripts/ov_smoke_analyze.py",
+ "time": "2026-09-28 04:30:41",
+ "test_label": null,
+ "relaxed_gates": [],
+ "tasks": "/work1/dannegrut/harry/experiments/offroad_vehicles_20260927/tasks/smoke_v2_polaris.json",
+ "runs": "soil_v1/runs",
+ "stored_gator": "/work1/dannegrut/harry/experiments/arena_gator_20260925/soil_v1/runs:gator__",
+ "arm_sources": {},
+ "b_from_stored": {},
+ "reference": {
+  "gatorctl": {
+   "n": 144,
+   "same_end_state": 144,
+   "identical_arrays": 144,
+   "discordant": [],
+   "fail_redrive": 0.9375,
+   "fail_stored_sample_a": 0.9375
+  },
+  "bitid": {
+   "bitid_hmmwv__f104_v2_group_0695_route_03": {
+    "status": "goal_reached",
+    "ref_status": "goal_reached",
+    "same_end_state": true,
+    "identical_arrays": false,
+    "first_difference": "trajectory.npz:state shape (457, 17) vs (458, 17)"
+   },
+   "bitid_hmmwv__f104_v2_group_0724_route_09": {
+    "status": "soil_breakthrough_terminated",
+    "ref_status": "soil_breakthrough_terminated",
+    "same_end_state": true,
+    "identical_arrays": true,
+    "first_difference": null
+   },
+   "bitid_hmmwv__f104_v2_group_1090_op_01": {
+    "status": "soil_breakthrough_terminated",
+    "ref_status": "soil_breakthrough_terminated",
+    "same_end_state": true,
+    "identical_arrays": false,
+    "first_difference": "trajectory.npz:state shape (361, 17) vs (319, 17)"
+   },
+   "bitid_gator__f104_v2_group_0695_route_03": {
+    "status": "goal_reached",
+    "ref_status": "goal_reached",
+    "same_end_state": true,
+    "identical_arrays": true,
+    "first_difference": null
+   },
+   "bitid_gator__f104_v2_group_0724_route_09": {
+    "status": "prolonged_blockage_terminated",
+    "ref_status": "prolonged_blockage_terminated",
+    "same_end_state": true,
+    "identical_arrays": true,
+    "first_difference": null
+   },
+   "bitid_gator__f104_v2_group_1090_op_01": {
+    "status": "prolonged_blockage_terminated",
+    "ref_status": "prolonged_blockage_terminated",
+    "same_end_state": true,
+    "identical_arrays": true,
+    "first_difference": null
+   }
+  },
+  "pooled_same_end_state": 1.0,
+  "pooled_n": 150,
+  "ok": true
+ },
+ "arms": {
+  "bitid_gator": {
+   "gates": {
+    "rows": 3,
+    "complete": 3,
+    "validated": 3,
+    "not_run_or_in_flight": 0,
+    "qa_flags": {},
+    "crashed": 0,
+    "bad_physics": 0,
+    "launch_failures": 0,
+    "belly_flag": 0.0,
+    "belly_data": 3,
+    "vehicle_names": {
+     "gator": 3
+    },
+    "G1_validated": true,
+    "G2_crash": true,
+    "G3_launch": true,
+    "G4_belly": true,
+    "G5_vehicle": true,
+    "pass": true
+   },
+   "cost": {
+    "n": 3,
+    "sim_h": 0.027,
+    "mean_sim_s": 32.35,
+    "loop_wall_per_sim": 1.926,
+    "loop_wall_per_sim_mi350x": 1.926,
+    "n_mi350x": 3,
+    "wall_per_sim_with_setup": 1.975,
+    "hosts": {
+     "k007-005": 3
+    },
+    "ratio_to_gatorctl": 0.703,
+    "ratio_to_gatorctl_mi350x": 0.991
+   },
+   "describe": {
+    "status": {
+     "goal_reached": 1,
+     "prolonged_blockage_terminated": 2
+    },
+    "groups_with_goal": 1,
+    "groups": 3,
+    "fail": 0.6666666666666666
+   }
+  },
+  "bitid_hmmwv": {
+   "gates": {
+    "rows": 3,
+    "complete": 3,
+    "validated": 3,
+    "not_run_or_in_flight": 0,
+    "qa_flags": {},
+    "crashed": 0,
+    "bad_physics": 0,
+    "launch_failures": 0,
+    "belly_flag": null,
+    "belly_data": 0,
+    "vehicle_names": {
+     "hmmwv": 3
+    },
+    "G1_validated": true,
+    "G2_crash": true,
+    "G3_launch": true,
+    "G4_belly": null,
+    "G5_vehicle": true,
+    "pass": true
+   },
+   "cost": {
+    "n": 3,
+    "sim_h": 0.016,
+    "mean_sim_s": 18.68,
+    "loop_wall_per_sim": 2.02,
+    "loop_wall_per_sim_mi350x": 2.02,
+    "n_mi350x": 3,
+    "wall_per_sim_with_setup": 2.107,
+    "hosts": {
+     "k007-005": 3
+    },
+    "ratio_to_gatorctl": 0.738,
+    "ratio_to_gatorctl_mi350x": 1.04
+   },
+   "describe": {
+    "status": {
+     "goal_reached": 1,
+     "soil_breakthrough_terminated": 2
+    },
+    "groups_with_goal": 1,
+    "groups": 3,
+    "fail": 0.6666666666666666
+   }
+  },
+  "gatorctl": {
+   "gates": {
+    "rows": 144,
+    "complete": 144,
+    "validated": 144,
+    "not_run_or_in_flight": 0,
+    "qa_flags": {},
+    "crashed": 0,
+    "bad_physics": 0,
+    "launch_failures": 0,
+    "belly_flag": 0.041666666666666664,
+    "belly_data": 144,
+    "vehicle_names": {
+     "gator": 144
+    },
+    "G1_validated": true,
+    "G2_crash": true,
+    "G3_launch": true,
+    "G4_belly": true,
+    "G5_vehicle": true,
+    "pass": true
+   },
+   "cost": {
+    "n": 144,
+    "sim_h": 1.411,
+    "mean_sim_s": 35.28,
+    "loop_wall_per_sim": 2.738,
+    "loop_wall_per_sim_mi350x": 1.943,
+    "n_mi350x": 34,
+    "wall_per_sim_with_setup": 2.808,
+    "hosts": {
+     "k006-006": 17,
+     "k005-003.hpcfund": 21,
+     "k002-005.hpcfund": 21,
+     "k007-005": 34,
+     "k005-002.hpcfund": 22,
+     "k005-007.hpcfund": 21,
+     "k006-004": 8
+    },
+    "ratio_to_gatorctl": 1.0,
+    "ratio_to_gatorctl_mi350x": 1.0
+   },
+   "describe": {
+    "status": {
+     "goal_reached": 9,
+     "prolonged_blockage_terminated": 134,
+     "soil_breakthrough_terminated": 1
+    },
+    "groups_with_goal": 6,
+    "groups": 24,
+    "fail": 0.9375
+   }
+  },
+  "polaris": {
+   "gates": {
+    "rows": 144,
+    "complete": 144,
+    "validated": 144,
+    "not_run_or_in_flight": 0,
+    "qa_flags": {},
+    "crashed": 0,
+    "bad_physics": 0,
+    "launch_failures": 0,
+    "belly_flag": 0.0,
+    "belly_data": 144,
+    "vehicle_names": {
+     "polaris": 144
+    },
+    "G1_validated": true,
+    "G2_crash": true,
+    "G3_launch": true,
+    "G4_belly": true,
+    "G5_vehicle": true,
+    "pass": true
+   },
+   "cost": {
+    "n": 144,
+    "sim_h": 0.917,
+    "mean_sim_s": 22.93,
+    "loop_wall_per_sim": 2.711,
+    "loop_wall_per_sim_mi350x": 1.964,
+    "n_mi350x": 44,
+    "wall_per_sim_with_setup": 2.811,
+    "hosts": {
+     "k002-005.hpcfund": 19,
+     "k005-003.hpcfund": 19,
+     "k006-004": 18,
+     "k007-005": 44,
+     "k005-002.hpcfund": 17,
+     "k005-007.hpcfund": 18,
+     "k006-006": 9
+    },
+    "ratio_to_gatorctl": 0.99,
+    "ratio_to_gatorctl_mi350x": 1.011
+   },
+   "describe": {
+    "status": {
+     "goal_reached": 120,
+     "soil_breakthrough_terminated": 12,
+     "prolonged_blockage_terminated": 12
+    },
+    "groups_with_goal": 24,
+    "groups": 24,
+    "fail": 0.16666666666666666
+   },
+   "vs_gatorctl": {
+    "n_pairs": 144,
+    "n_groups": 24,
+    "fail": 0.16666666666666666,
+    "fail_ref": 0.9375,
+    "diff": -0.7708333333333334,
+    "only_ref_fails": 111,
+    "only_vehicle_fails": 0,
+    "p_one_sided": 3.851859888774472e-34,
+    "p_two_sided": 7.703719777548943e-34,
+    "ci95": [
+     -0.8333333333333334,
+     -0.7083333333333334
+    ],
+    "fail_belly_as_fail": 0.16666666666666666
+   },
+   "decision": {
+    "criteria": {
+     "c1_gates": true,
+     "c2_gain_10pts": true,
+     "c3_mcnemar": true,
+     "c4_bootstrap_below_0": true,
+     "c5_below_wheel_ref": true
+    },
+    "holm_level": 0.05,
+    "holm_family": [
+     "polaris"
+    ],
+    "p_one_sided": 3.851859888774472e-34,
+    "passes_at_family_of_3_bonferroni_first_step": true,
+    "better_on_A": true
+   }
+  },
+  "polaris_4wd": {
+   "gates": {
+    "rows": 144,
+    "complete": 144,
+    "validated": 144,
+    "not_run_or_in_flight": 0,
+    "qa_flags": {},
+    "crashed": 0,
+    "bad_physics": 0,
+    "launch_failures": 0,
+    "belly_flag": 0.0,
+    "belly_data": 144,
+    "vehicle_names": {
+     "polaris_4wd": 144
+    },
+    "G1_validated": true,
+    "G2_crash": true,
+    "G3_launch": true,
+    "G4_belly": true,
+    "G5_vehicle": true,
+    "pass": true
+   },
+   "cost": {
+    "n": 144,
+    "sim_h": 0.967,
+    "mean_sim_s": 24.17,
+    "loop_wall_per_sim": 2.807,
+    "loop_wall_per_sim_mi350x": 1.96,
+    "n_mi350x": 31,
+    "wall_per_sim_with_setup": 2.909,
+    "hosts": {
+     "k005-003.hpcfund": 20,
+     "k005-007.hpcfund": 22,
+     "k007-005": 31,
+     "k005-002.hpcfund": 18,
+     "k006-006": 17,
+     "k002-005.hpcfund": 21,
+     "k006-004": 15
+    },
+    "ratio_to_gatorctl": 1.025,
+    "ratio_to_gatorctl_mi350x": 1.009
+   },
+   "describe": {
+    "status": {
+     "goal_reached": 107,
+     "prolonged_blockage_terminated": 20,
+     "soil_breakthrough_terminated": 17
+    },
+    "groups_with_goal": 24,
+    "groups": 24,
+    "fail": 0.2569444444444444
+   },
+   "vs_gatorctl": {
+    "n_pairs": 144,
+    "n_groups": 24,
+    "fail": 0.2569444444444444,
+    "fail_ref": 0.9375,
+    "diff": -0.6805555555555556,
+    "only_ref_fails": 98,
+    "only_vehicle_fails": 0,
+    "p_one_sided": 3.1554436208840472e-30,
+    "p_two_sided": 6.310887241768095e-30,
+    "ci95": [
+     -0.7430555555555556,
+     -0.6111111111111112
+    ],
+    "fail_belly_as_fail": 0.2569444444444444
+   },
+   "vs_polaris": {
+    "n_pairs": 144,
+    "n_groups": 24,
+    "fail": 0.2569444444444444,
+    "fail_ref": 0.16666666666666666,
+    "diff": 0.09027777777777776,
+    "only_ref_fails": 2,
+    "only_vehicle_fails": 15,
+    "p_one_sided": 0.9998626708984375,
+    "p_two_sided": 0.002349853515625,
+    "ci95": [
+     0.041666666666666664,
+     0.1388888888888889
+    ],
+    "fail_belly_as_fail": 0.2569444444444444
+   }
+  },
+  "polaris_pc": {
+   "gates": {
+    "rows": 144,
+    "complete": 144,
+    "validated": 144,
+    "not_run_or_in_flight": 0,
+    "qa_flags": {},
+    "crashed": 0,
+    "bad_physics": 0,
+    "launch_failures": 0,
+    "belly_flag": 0.0,
+    "belly_data": 144,
+    "vehicle_names": {
+     "polaris_pc": 144
+    },
+    "G1_validated": true,
+    "G2_crash": true,
+    "G3_launch": true,
+    "G4_belly": true,
+    "G5_vehicle": true,
+    "pass": true
+   },
+   "cost": {
+    "n": 144,
+    "sim_h": 0.936,
+    "mean_sim_s": 23.41,
+    "loop_wall_per_sim": 2.773,
+    "loop_wall_per_sim_mi350x": 1.977,
+    "n_mi350x": 34,
+    "wall_per_sim_with_setup": 2.794,
+    "hosts": {
+     "k007-005": 34,
+     "k005-007.hpcfund": 22,
+     "k006-006": 14,
+     "k006-004": 10,
+     "k002-005.hpcfund": 17,
+     "k005-002.hpcfund": 23,
+     "k005-003.hpcfund": 24
+    },
+    "ratio_to_gatorctl": 1.013,
+    "ratio_to_gatorctl_mi350x": 1.017
+   },
+   "describe": {
+    "status": {
+     "goal_reached": 124,
+     "prolonged_blockage_terminated": 11,
+     "soil_breakthrough_terminated": 9
+    },
+    "groups_with_goal": 24,
+    "groups": 24,
+    "fail": 0.1388888888888889
+   },
+   "vs_gatorctl": {
+    "n_pairs": 144,
+    "n_groups": 24,
+    "fail": 0.1388888888888889,
+    "fail_ref": 0.9375,
+    "diff": -0.7986111111111112,
+    "only_ref_fails": 115,
+    "only_vehicle_fails": 0,
+    "p_one_sided": 2.407412430484045e-35,
+    "p_two_sided": 4.81482486096809e-35,
+    "ci95": [
+     -0.8541666666666666,
+     -0.7430555555555556
+    ],
+    "fail_belly_as_fail": 0.1388888888888889
+   },
+   "vs_polaris": {
+    "n_pairs": 144,
+    "n_groups": 24,
+    "fail": 0.1388888888888889,
+    "fail_ref": 0.16666666666666666,
+    "diff": -0.027777777777777762,
+    "only_ref_fails": 4,
+    "only_vehicle_fails": 0,
+    "p_one_sided": 0.0625,
+    "p_two_sided": 0.125,
+    "ci95": [
+     -0.0625,
+     0.0
+    ],
+    "fail_belly_as_fail": 0.1388888888888889
+   }
+  },
+  "polaris_w08": {
+   "gates": {
+    "rows": 144,
+    "complete": 144,
+    "validated": 144,
+    "not_run_or_in_flight": 0,
+    "qa_flags": {},
+    "crashed": 0,
+    "bad_physics": 0,
+    "launch_failures": 0,
+    "belly_flag": 0.0,
+    "belly_data": 144,
+    "vehicle_names": {
+     "polaris_w08": 144
+    },
+    "G1_validated": true,
+    "G2_crash": true,
+    "G3_launch": true,
+    "G4_belly": true,
+    "G5_vehicle": true,
+    "pass": true
+   },
+   "cost": {
+    "n": 144,
+    "sim_h": 1.007,
+    "mean_sim_s": 25.18,
+    "loop_wall_per_sim": 2.769,
+    "loop_wall_per_sim_mi350x": 1.962,
+    "n_mi350x": 37,
+    "wall_per_sim_with_setup": 2.868,
+    "hosts": {
+     "k002-005.hpcfund": 18,
+     "k005-003.hpcfund": 19,
+     "k007-005": 37,
+     "k006-006": 19,
+     "k006-004": 17,
+     "k005-007.hpcfund": 12,
+     "k005-002.hpcfund": 22
+    },
+    "ratio_to_gatorctl": 1.011,
+    "ratio_to_gatorctl_mi350x": 1.01
+   },
+   "describe": {
+    "status": {
+     "goal_reached": 117,
+     "prolonged_blockage_terminated": 25,
+     "rollover": 2
+    },
+    "groups_with_goal": 24,
+    "groups": 24,
+    "fail": 0.1875
+   },
+   "vs_gatorctl": {
+    "n_pairs": 144,
+    "n_groups": 24,
+    "fail": 0.1875,
+    "fail_ref": 0.9375,
+    "diff": -0.75,
+    "only_ref_fails": 108,
+    "only_vehicle_fails": 0,
+    "p_one_sided": 3.0814879110195774e-33,
+    "p_two_sided": 6.162975822039155e-33,
+    "ci95": [
+     -0.8194444444444444,
+     -0.6805555555555556
+    ],
+    "fail_belly_as_fail": 0.1875
+   },
+   "vs_polaris": {
+    "n_pairs": 144,
+    "n_groups": 24,
+    "fail": 0.1875,
+    "fail_ref": 0.16666666666666666,
+    "diff": 0.020833333333333343,
+    "only_ref_fails": 4,
+    "only_vehicle_fails": 7,
+    "p_one_sided": 0.88671875,
+    "p_two_sided": 0.548828125,
+    "ci95": [
+     -0.034722222222222224,
+     0.0763888888888889
+    ],
+    "fail_belly_as_fail": 0.1875
+   }
+  }
+ },
+ "vehicles": {
+  "polaris": {
+   "arm": "polaris",
+   "candidates": [
+    "polaris"
+   ],
+   "verdict": "better",
+   "consistency_B": {
+    "fail_straight6": 0.010416666666666666,
+    "n": 96,
+    "gator_stored": 0.8333,
+    "consistent": true,
+    "goal_rate_Hfull_pick": 1.0,
+    "ceiling_note": true,
+    "complete": true
+   },
+   "sensitivity": {
+    "polaris_pc": {
+     "n_pairs": 144,
+     "n_groups": 24,
+     "fail": 0.1388888888888889,
+     "fail_ref": 0.16666666666666666,
+     "diff": -0.027777777777777762,
+     "only_ref_fails": 4,
+     "only_vehicle_fails": 0,
+     "p_one_sided": 0.0625,
+     "p_two_sided": 0.125,
+     "ci95": [
+      -0.0625,
+      0.0
+     ],
+     "fail_belly_as_fail": 0.1388888888888889
+    },
+    "polaris_4wd": {
+     "n_pairs": 144,
+     "n_groups": 24,
+     "fail": 0.2569444444444444,
+     "fail_ref": 0.16666666666666666,
+     "diff": 0.09027777777777776,
+     "only_ref_fails": 2,
+     "only_vehicle_fails": 15,
+     "p_one_sided": 0.9998626708984375,
+     "p_two_sided": 0.002349853515625,
+     "ci95": [
+      0.041666666666666664,
+      0.1388888888888889
+     ],
+     "fail_belly_as_fail": 0.2569444444444444
+    },
+    "polaris_w08": {
+     "n_pairs": 144,
+     "n_groups": 24,
+     "fail": 0.1875,
+     "fail_ref": 0.16666666666666666,
+     "diff": 0.020833333333333343,
+     "only_ref_fails": 4,
+     "only_vehicle_fails": 7,
+     "p_one_sided": 0.88671875,
+     "p_two_sided": 0.548828125,
+     "ci95": [
+      -0.034722222222222224,
+      0.0763888888888889
+     ],
+     "fail_belly_as_fail": 0.1875
+    },
+    "driveline_dependent": false
+   },
+   "test_label": null
+  }
+ },
+ "sample_B": {
+  "polaris": {
+   "straight6": {
+    "fail": 0.010416666666666666,
+    "n_validated": 96,
+    "n": 96,
+    "status": {
+     "goal_reached": 95,
+     "prolonged_blockage_terminated": 1
+    }
+   },
+   "Hfull_free": {
+    "fail": 0.0,
+    "n_validated": 96,
+    "n": 96,
+    "status": {
+     "goal_reached": 96
+    }
+   }
+  }
+ }
+}

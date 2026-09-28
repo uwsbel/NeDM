@@ -1,0 +1,22 @@
+{
+ "k4": {
+  "files": 8,
+  "rc": 0,
+  "changes": 32,
+  "dry_run": false,
+  "stderr": ""
+ },
+ "ext": {
+  "files": 16,
+  "rc": 0,
+  "changes": 57,
+  "dry_run": false,
+  "stderr": ""
+ },
+ "remote": {
+  "listed": 24,
+  "equal": 24,
+  "missing": 0,
+  "different": []
+ }
+}

@@ -1,0 +1,69 @@
+FAMILY F_polaris_grad_vs_straight6 (crm/polaris, fail, f104_800): polaris_grad 0.2 % vs straight6_polaris 0.5 %, diff -0.2 pts, cluster 90 % [-0.5, +0.0] (9 clusters), p1 0.0947, Holm adj 0.2842 -> no meaningful difference; group 95 % [-0.9, +0.3]; McNemar worse/better 2/4; n 800
+FAMILY F_polaris_grad_vs_gator_grad (crm/any, fail, f104_800): polaris_grad 0.2 % vs Gfull_grad_gator 32.0 %, diff -31.8 pts, cluster 90 % [-40.7, -23.9] (9 clusters), p1 0.0002, Holm adj 0.0010 -> improves; group 95 % [-35.1, -28.5]; McNemar worse/better 0/254; n 800
+FAMILY F_polaris_grad_vs_cem (crm/polaris, fail, f104_800): polaris_grad 0.2 % vs polaris_cem 0.0 %, diff +0.2 pts, cluster 90 % [+0.0, +0.8] (9 clusters), p1 1.0000, Holm adj 1.0000 -> no meaningful difference; group 95 % [+0.0, +0.6]; McNemar worse/better 2/0; n 800
+FAMILY F_gator_grad_vs_gator_cem (crm/gator, fail, f104_800): Gfull_grad_gator 32.0 % vs Gfull_free_gator 32.6 %, diff -0.6 pts, cluster 90 % [-1.6, +0.5] (9 clusters), p1 0.2009, Holm adj 0.4019 -> no meaningful difference; group 95 % [-2.8, +1.5]; McNemar worse/better 37/42; n 800
+contrast S_polaris_cem_vs_gator_cem (crm/any, fail, f104_800): polaris_cem 0.0 % vs Gfull_free_gator 32.6 %, diff -32.6, cluster 90 % [-42.3, -24.8], p1 0.0002 -> improves (secondary, unadjusted); n 800
+contrast S_polaris_grad_vs_hmmwv_grad (crm/any, fail, f104_800): polaris_grad 0.2 % vs Hfull_grad_hmmwv 3.8 %, diff -3.5, cluster 90 % [-5.3, -2.0], p1 0.0002 -> improves (secondary, unadjusted); n 800
+contrast S_polaris_grad_vs_straight6_unsafe (crm/polaris, unsafe, f104_800): polaris_grad 0.2 % vs straight6_polaris 0.5 %, diff -0.2, cluster 90 % [-0.5, +0.0], p1 0.0965 -> no meaningful difference (secondary, unadjusted); n 800
+contrast S_polaris_grad_vs_gator_grad_unsafe (crm/any, unsafe, f104_800): polaris_grad 0.2 % vs Gfull_grad_gator 32.1 %, diff -31.9, cluster 90 % [-40.5, -23.7], p1 0.0002 -> improves (secondary, unadjusted); n 800
+contrast S_polaris_grad_vs_straight6_fresh600 (crm/polaris, fail, f104_600): polaris_grad 0.2 % vs straight6_polaris 0.3 %, diff -0.2, cluster 90 % [-0.5, +0.0], p1 0.3562 -> no meaningful difference (secondary, unadjusted); n 600
+contrast S_polaris_grad_vs_gator_grad_fresh600 (crm/any, fail, f104_600): polaris_grad 0.2 % vs Gfull_grad_gator 31.8 %, diff -31.7, cluster 90 % [-40.0, -24.2], p1 0.0002 -> improves (secondary, unadjusted); n 600
+contrast S_polaris_grad_vs_cem_fresh600 (crm/polaris, fail, f104_600): polaris_grad 0.2 % vs polaris_cem 0.0 %, diff +0.2, cluster 90 % [+0.0, +0.5], p1 1.0000 -> no meaningful difference (secondary, unadjusted); n 600
+contrast S_polaris_grad_vs_gator_grad_belly (crm/any, fail_belly, f104_800): polaris_grad 0.2 % vs Gfull_grad_gator 32.0 %, diff -31.8, cluster 90 % [-40.4, -24.0], p1 0.0002 -> improves (secondary, unadjusted); n 800
+contrast S_gator_grad_vs_straight6 (crm/gator, fail, f104_800): Gfull_grad_gator 32.0 % vs straight6_gator 85.8 %, diff -53.8, cluster 90 % [-59.4, -47.6], p1 0.0002 -> improves (secondary, unadjusted); n 800
+contrast S_hmmwv_grad_vs_cem_bridge (crm/hmmwv, fail, f104_800): Hfull_grad_hmmwv 3.8 % vs Hfull_free 4.4 %, diff -0.6, cluster 90 % [-2.3, +0.8], p1 0.2984 -> inconclusive (secondary, unadjusted); n 800
+contrast S_hmmwv_grad_vs_straight6: no data
+contrast S_gator_grad_vs_gator_cem_fresh600 (crm/gator, fail, f104_600): Gfull_grad_gator 31.8 % vs Gfull_free_gator 33.3 %, diff -1.5, cluster 90 % [-2.6, -0.2], p1 0.0362 -> improves (secondary, unadjusted); n 600
+headroom crm/polaris polaris_grad vs straight6_polaris (fail, f104_800): 0.2 % vs 0.5 %, closed 50 % [-150, 100]; n 800
+headroom crm/polaris polaris_cem vs straight6_polaris (fail, f104_800): 0.0 % vs 0.5 %, closed 100 % [100, 100]; n 800
+headroom crm/gator Gfull_grad_gator vs straight6_gator (fail, f104_800): 32.0 % vs 85.8 %, closed 63 % [59, 66]; n 800
+headroom crm/hmmwv Hfull_grad_hmmwv vs straight6: n 0 (not computed)
+rates crm|polaris f104_800       polaris_cem    n  800 goal 100.0 % unsafe   0.0 % (no-back   0.0) tilt30 11.4 % median time 15.7 s
+rates crm|polaris f104_800       polaris_grad   n  800 goal  99.8 % unsafe   0.2 % (no-back   0.2) tilt30 14.4 % median time 16.9 s
+rates crm|polaris f104_800       straight6_polaris n  800 goal  99.5 % unsafe   0.5 % (no-back   0.5) tilt30 11.5 % median time 7.9 s
+rates crm|polaris f104_600       polaris_cem    n  600 goal 100.0 % unsafe   0.0 % (no-back   0.0) tilt30 12.2 % median time 16.3 s
+rates crm|polaris f104_600       polaris_grad   n  600 goal  99.8 % unsafe   0.2 % (no-back   0.2) tilt30 14.2 % median time 17.6 s
+rates crm|polaris f104_600       straight6_polaris n  600 goal  99.7 % unsafe   0.3 % (no-back   0.3) tilt30 11.5 % median time 8.1 s
+rates crm|polaris f104_200       polaris_cem    n  200 goal 100.0 % unsafe   0.0 % (no-back   0.0) tilt30  9.0 % median time 14.1 s
+rates crm|polaris f104_200       polaris_grad   n  200 goal  99.5 % unsafe   0.5 % (no-back   0.5) tilt30 15.0 % median time 15.4 s
+rates crm|polaris f104_200       straight6_polaris n  200 goal  99.0 % unsafe   1.0 % (no-back   1.0) tilt30 11.5 % median time 7.5 s
+rates crm|polaris_pc f104_800       polaris_grad_pc n  800 goal  99.1 % unsafe   0.9 % (no-back   0.9) tilt30 12.6 % median time 16.7 s
+rates crm|polaris_pc f104_600       polaris_grad_pc n  600 goal  99.2 % unsafe   0.8 % (no-back   0.8) tilt30 12.3 % median time 17.6 s
+rates crm|polaris_pc f104_200       polaris_grad_pc n  200 goal  99.0 % unsafe   1.0 % (no-back   1.0) tilt30 13.5 % median time 15.2 s
+rates crm|gator f104_800       Gfull_free_gator n  800 goal  67.4 % unsafe  33.0 % (no-back  32.6) tilt30  1.6 % median time 18.9 s
+rates crm|gator f104_800       Gfull_grad_gator n  800 goal  68.0 % unsafe  32.1 % (no-back  32.0) tilt30  1.6 % median time 18.0 s
+rates crm|gator f104_800       straight6_gator n  800 goal  14.2 % unsafe  85.8 % (no-back  85.8) tilt30 12.1 % median time 17.0 s
+rates crm|gator f104_600       Gfull_free_gator n  600 goal  66.7 % unsafe  33.7 % (no-back  33.3) tilt30  1.5 % median time 19.4 s
+rates crm|gator f104_600       Gfull_grad_gator n  600 goal  68.2 % unsafe  32.0 % (no-back  31.8) tilt30  1.2 % median time 18.2 s
+rates crm|gator f104_600       straight6_gator n  600 goal  14.3 % unsafe  85.7 % (no-back  85.7) tilt30 11.7 % median time 17.1 s
+rates crm|gator f104_200       Gfull_free_gator n  200 goal  69.5 % unsafe  31.0 % (no-back  30.5) tilt30  2.0 % median time 18.1 s
+rates crm|gator f104_200       Gfull_grad_gator n  200 goal  67.5 % unsafe  32.5 % (no-back  32.5) tilt30  3.0 % median time 17.2 s
+rates crm|gator f104_200       straight6_gator n  200 goal  14.0 % unsafe  86.0 % (no-back  86.0) tilt30 13.5 % median time 16.9 s
+rates crm|hmmwv f104_800       Hfull_free     n  800 goal  95.6 % unsafe   4.4 % (no-back   4.4) tilt30  0.6 % median time 17.1 s
+rates crm|hmmwv f104_800       Hfull_grad_hmmwv n  800 goal  96.2 % unsafe   3.8 % (no-back   3.8) tilt30  2.8 % median time 15.8 s
+rates crm|hmmwv f104_600       Hfull_free     n  600 goal  95.5 % unsafe   4.5 % (no-back   4.5) tilt30  0.8 % median time 17.5 s
+rates crm|hmmwv f104_600       Hfull_grad_hmmwv n  600 goal  95.7 % unsafe   4.3 % (no-back   4.3) tilt30  2.8 % median time 16.4 s
+rates crm|hmmwv f104_200       Hfull_free     n  200 goal  96.0 % unsafe   4.0 % (no-back   4.0) tilt30  0.0 % median time 15.4 s
+rates crm|hmmwv f104_200       Hfull_grad_hmmwv n  200 goal  98.0 % unsafe   2.0 % (no-back   2.0) tilt30  2.5 % median time 14.3 s
+bar polaris/polaris_grad (fail): f104_800 99.8 % [99.4, 100.0] n 800; f104_600 99.8 % [99.5, 100.0] n 600 -> meets True, clearly above True
+bar polaris/polaris_grad (fail): f104_800_notB 99.7 % [99.3, 100.0] n 704 -> meets True, clearly above True
+bar polaris/polaris_grad (unsafe): f104_800 99.8 % [99.4, 100.0] n 800; f104_600 99.8 % [99.5, 100.0] n 600 -> meets True, clearly above True
+bar polaris/polaris_grad (unsafe): f104_800_notB 99.7 % [99.3, 100.0] n 704 -> meets True, clearly above True
+bar polaris/polaris_grad (fail_belly): f104_800 99.8 % [99.4, 100.0] n 800; f104_600 99.8 % [99.5, 100.0] n 600 -> meets True, clearly above True
+bar polaris/polaris_grad (fail_belly): f104_800_notB 99.7 % [99.3, 100.0] n 704 -> meets True, clearly above True
+bar polaris/polaris_grad (unsafe_belly): f104_800 99.8 % [99.4, 100.0] n 800; f104_600 99.8 % [99.5, 100.0] n 600 -> meets True, clearly above True
+bar polaris/polaris_grad (unsafe_belly): f104_800_notB 99.7 % [99.3, 100.0] n 704 -> meets True, clearly above True
+bar polaris/polaris_cem (unsafe_belly): f104_800 100.0 % [100.0, 100.0] n 800; f104_600 100.0 % [100.0, 100.0] n 600 -> meets True, clearly above True
+bar polaris/straight6_polaris (unsafe_belly): f104_800 99.5 % [99.0, 99.9] n 800; f104_600 99.7 % [99.2, 100.0] n 600 -> meets True, clearly above True
+bar gator/Gfull_grad_gator (unsafe_belly): f104_800 67.9 % [64.6, 71.2] n 800; f104_600 68.0 % [64.0, 71.7] n 600 -> meets False, clearly above False
+bar gator/Gfull_free_gator (unsafe_belly): f104_800 67.0 % [63.6, 70.4] n 800; f104_600 66.3 % [62.5, 70.0] n 600 -> meets False, clearly above False
+bar hmmwv/Hfull_grad_hmmwv (unsafe_belly): f104_800 96.2 % [94.9, 97.5] n 800; f104_600 95.7 % [94.0, 97.3] n 600 -> meets True, clearly above True
+bar hmmwv/Hfull_free (unsafe_belly): f104_800 95.6 % [94.1, 97.0] n 800; f104_600 95.5 % [93.7, 97.0] n 600 -> meets True, clearly above True
+bar polaris_pc/polaris_grad_pc (unsafe_belly): f104_800 99.1 % [98.4, 99.8] n 800; f104_600 99.2 % [98.3, 99.8] n 600 -> meets True, clearly above True
+validity polaris/polaris_grad: driven 800/800, crashed 0, launch fails 0/800, belly 0/800 -> valid True {'all_driven': True, 'qa_checked_all': True, 'no_crash': True, 'launch_ok': True, 'belly_ok': True}
+validity polaris/polaris_cem: driven 800/800, crashed 0, launch fails 0/800, belly 0/800 -> valid True {'all_driven': True, 'qa_checked_all': True, 'no_crash': True, 'launch_ok': True, 'belly_ok': True}
+validity polaris/straight6_polaris: driven 800/800, crashed 0, launch fails 0/800, belly 0/800 -> valid True {'all_driven': True, 'qa_checked_all': True, 'no_crash': True, 'launch_ok': True, 'belly_ok': True}
+validity polaris_pc/polaris_grad_pc: driven 800/800, crashed 0, launch fails 0/800, belly 1/800 -> valid True {'all_driven': True, 'qa_checked_all': True, 'no_crash': True, 'launch_ok': True, 'belly_ok': True}
+validity gator/Gfull_grad_gator: driven 800/800, crashed 0, launch fails 0/800, belly 10/800 -> valid True {'all_driven': True, 'qa_checked_all': True, 'no_crash': True, 'launch_ok': True, 'belly_ok': True}
+validity hmmwv/Hfull_grad_hmmwv: driven 800/800, crashed 0, launch fails 0/800, belly 0/0 -> valid True {'all_driven': True, 'qa_checked_all': True, 'no_crash': True, 'launch_ok': True, 'belly_ok': True}
+CRITERIA polaris/polaris_grad (unsafe_belly): (a) beats straight False (no meaningful difference), (b) bar True {'f104_800': 99.8, 'f104_600': 99.8} clearly above True, (c) valid True -> meets the bar (rule r1; PLAN: does not beat the straight route; R1-S3: meets the bar); the straight route already reaches 99.5 % of the 800 pairs: the bar is met by the straight route if the planner arm is not better; report the planner gain with its interval

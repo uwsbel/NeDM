@@ -363,6 +363,7 @@ named or they are marked offline; details in the subsections below. Folders are 
 | 09-22/24 | Soil goal-reaching from a moving start | 83.9% -> 97.5% by deciding after 0.5 s and refining the route by gradient; rigid 100.0% | `crm_improve_20260922/REPORT.md` |
 | 09-24 | Rollout videos | 3 start/goal pairs x 6 planner set-ups; top-down recordings plus 3D replays (one soil pair does not reproduce in 3D) | `crm_improve_20260922/videos/README.md` |
 | 09-25/26 | More training arenas; the Gator instead of the HMMWV on f104 | on 8 never-seen arenas, three training arenas instead of f104 alone: soil goal not reached 12.05% -> 9.70%, rigid 2 m/s unsafe 8.33% -> 6.17% (all four declared tests pass); more data on the same arenas adds little, and the gain does not grow step by step; the Gator collects all 15,235 soil and 24,000 rigid f104 ids, and its own soil planner reaches 67.4% vs 43.6% for the HMMWV-trained one on the Gator (HMMWV on its own planner 95.6%) | `arena_gator_20260925/REPORT.md` |
+| 09-27/28 | Off-road vehicles on soil: Chrono's Polaris and M113 | smoke test on 144 soil routes, goal not reached: Polaris 16.7%, Gator 93.8%, stock M113 89.6%, re-geared M113 48.3%; the Polaris collects all 15,235 f104 soil ids (no rigid data), and its own soil planner reaches the goal safely on 99.8% of the 800 f104 pairs and 99.7% of 1,000 pairs on 8 unseen arenas (straight route 99.5% / 97.0%) | `offroad_vehicles_20260927/REPORT.md` |
 
 **Pipeline (inference).**
 
@@ -768,6 +769,37 @@ any drive.
   calibrated to the HMMWV's sinkage, and 0.08 m larger wheels cut its failure rate by 13.2 points (declared limit
   15); the body is not coupled to the soil. The working session was down 05:50-10:50 on 09-25 and paused from about
   14:45 on 09-25 to 19:00 on 09-26; the cluster jobs ran on.
+
+**Off-road vehicles on soil: the Polaris and the M113 (2026-09-27/28)**
+(`artifacts/traverse/offroad_vehicles_20260927/REPORT.md`; plan with amendments `PLAN.md`, `LOG.md`, results
+`RESULTS_{smoke,collection,planner}.md`, module notes and independent checks `NOTES_*.md` / `VERIFY_*.md`, figures
+`figures/`; branch `offroad_vehicles_v1`; about 54 billed node-hours). All on deformable soil (CRM) on f104 and the
+8 unseen test arenas of the Gator study; no rigid-ground data for the new vehicles. Decision rules, analysis specs and
+route picks were fixed before the drives they judge.
+- *Smoke test against the Gator* (144 f104 soil routes, the Gator re-driven in the same launch). Goal not reached:
+  Chrono's Polaris 16.7%, Gator 93.8%, stock M113 89.6%, M113 with 4x lower gearing 48.3%. The Polaris result holds
+  with a power-corrected driveline (13.9%), open differentials (25.7%) and larger soil wheels (18.8%). The M113 needed
+  a brake that can lock, flat pads per track shoe and a 0.5 ms step, and costs about 4x the Gator per simulated
+  second; it was taken no further.
+- *Polaris data.* All 15,235 f104 soil task ids of the HMMWV and Gator collections (100% of the HMMWV's soil ids;
+  93.0 simulated hours against 91.5; 99.96% valid; 0 launch failures; belly flag 0.03%). On identical routes it
+  misses the goal on 15.0%, against 68.0% for the HMMWV and 88.1% for the Gator. Rigid ground: none (0 of the
+  HMMWV's 24,000 routes).
+- *Milestone "the pipeline works for a new vehicle": met.* The planner trained on the Polaris's own f104 drives
+  (CNN-GRU risk model, sampling plus gradient refinement, standing start) reaches the goal safely on 99.8% of the 800
+  f104 test pairs (95% interval [99.4, 100.0]); driving straight at 6 m/s already reaches 99.5%, a sign of the
+  Polaris's mobility on this soil.
+- *Milestone "the planner generalises to unseen arenas": met.* The same f104-trained planner reaches the goal safely
+  on 99.7% of 1,000 pairs on the 8 unseen arenas (every arena 99.2-100%; straight route 97.0%). The HMMWV planners on
+  the same pairs: 87.9% (f104 only), 90.3% (three arenas).
+- *Gator planner checks, before the Gator was stopped.* Gradient refinement from a standing start changes little
+  (Gator 67.4 -> 68.0%, HMMWV 95.6 -> 96.2%). The offline wider-search probe, now driven, rescues 53 of the 134
+  pairs whose recorded route was rated risky (the bigger search in the old route shapes: 21). The estimated
+  800-pair rate is about 74%.
+- *Caveats.* The stock Polaris driveline has a Chrono defect (the engine sees 1/16 of its speed), checked with the
+  power-corrected variant. Soil-contact wheels are calibrated cylinders. The body is not coupled to the soil. The
+  soil is a 0.24 m layer over a rigid floor, which may favour light vehicles. All test arenas come from one terrain
+  generator. The user stopped the Gator and M113 work on 09-28 to focus on the Polaris.
 
 **Gaps in the committed record (checked 2026-09-16, before the first push of this branch).** What git holds for
 this project is the written records, result summaries, figures, final checkpoints (LFS) and mission definitions.

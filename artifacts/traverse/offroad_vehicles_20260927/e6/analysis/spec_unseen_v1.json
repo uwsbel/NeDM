@@ -1,0 +1,217 @@
+{
+ "schema": "ov_unseen_spec_v1",
+ "created": "2026-09-28 14:03:04",
+ "plan": {
+  "file": "artifacts/traverse/offroad_vehicles_20260927/PLAN.md",
+  "sha256": "dc27814669c0d2c4625896755f02897f6e07d0e9fe80eba6e35fb94666194ff6",
+  "amendment": "9.2 (2026-09-28 13:55)"
+ },
+ "written_before": "any drive of polaris_u_grad, polaris_u_cem or straight6_polaris_u (none existed; the 16-row pilot comes after this spec)",
+ "question": "Does the f104-trained Polaris planner (all tiers, polaris_full_soil) reach the goal safely on >= 90 % of the 1,000 declared soil pairs of the 8 unseen test arenas, planning from a standing start with each arena's own overhead map?",
+ "vehicle": "polaris",
+ "arenas": {
+  "near": [
+   "g260",
+   "g271",
+   "g251",
+   "g247"
+  ],
+  "spread": [
+   "g258",
+   "g268",
+   "g263",
+   "g241"
+  ]
+ },
+ "subset": {
+  "file": "artifacts/traverse/arena_gator_20260925/suites/soil_unseen_subset.json",
+  "sha256": "c991e542a27c8188cc6ec3fa7541a8534ca4e15e1d6f2501be1e76e3b3ea7a9c",
+  "n_per_arena": 125,
+  "n_total": 1000,
+  "groups_sha256": "9ef445dec13004e6ad90855c122ed868ed617e24d19ed480cd6de037445596b6"
+ },
+ "model": {
+  "glob": "artifacts/traverse/offroad_vehicles_20260927/e5/deploy/polaris_full_soil/polaris_full_soil_deploy_s*.pt",
+  "sha256sums": {
+   "polaris_full_soil_deploy_s0.pt": "69b33482221629456555050e7500d693384a3a6d3cad15afd76cdbb831a38488",
+   "polaris_full_soil_deploy_s1.pt": "2949a1628c20633542bd685e2799d6b054e52cc0b3c38b5fc780299906e58d43",
+   "polaris_full_soil_deploy_s2.pt": "0fd15fc4ee7277e07cde921bd8de0e3a23994c85f71f8da903e422464d193daa",
+   "polaris_full_soil_deploy_s3.pt": "fc8d86060a1368dc151245102335babf1940e9a612750fb52d955b249ef06ccb",
+   "polaris_full_soil_deploy_s4.pt": "dd15bf198e20e1198147f096f86e7ddc996f2be71f021795df6068e49d8d5e45"
+  },
+  "trained_on": "f104 soil only, Polaris tiers 0-12"
+ },
+ "arms": {
+  "primary": "polaris_u_grad",
+  "cem": "polaris_u_cem",
+  "straight": "straight6_polaris_u",
+  "descriptions": {
+   "polaris_u_grad": "own model + CEM 4 x 64 + gradient refinement (ov_grad_picks.py = ci_grad defaults), standing start",
+   "polaris_u_cem": "own model + CEM 4 x 64 (ag_picks.py --mode free), standing start",
+   "straight6_polaris_u": "the straight 6 m/s route (K3 e6/picks/crm/<arena>/straight6), driven by the Polaris"
+  },
+  "pick_dirs": {
+   "polaris_u_grad": "e6/picks/<arena>/polaris_u_grad",
+   "polaris_u_cem": "e6/picks/<arena>/polaris_u_free",
+   "straight6_polaris_u": "K3 e6/picks/crm/<arena>/straight6"
+  }
+ },
+ "label": "unsafe_belly",
+ "labels_reported": [
+  "unsafe_belly",
+  "fail",
+  "unsafe",
+  "fail_belly"
+ ],
+ "label_meaning": {
+  "unsafe_belly": "not reached safely: goal not reached, OR unsafe (roll-back under throttle >= 0.05 s or min forward speed <= -0.30 m/s after the 1 s settle), OR belly flag",
+  "fail": "goal not reached (goal-only rate, reported beside)"
+ },
+ "bar": 90.0,
+ "boot": 4000,
+ "seed": 0,
+ "alpha": 0.05,
+ "margin_pts": 2.0,
+ "min_groups": 50,
+ "cluster_key": "cluster",
+ "readout": {
+  "pooled": "rate = 100 x share of the 1,000 pairs reached safely; 95 % intervals: Wilson (pairs), pair bootstrap, cluster bootstrap over (arena, nearest feature), arena bootstrap (8 arenas resampled with replacement, pooled rate of the resampled pairs); t interval over the 8 arena rates reported beside",
+  "meets": "pooled point estimate >= 90.0",
+  "clearly_above": "meets AND lower end of the two-sided 95 % arena-bootstrap interval >= 90.0",
+  "verdicts": [
+   "clearly above the bar",
+   "meets the bar",
+   "below the bar",
+   "not physically trustworthy",
+   "incomplete"
+  ],
+  "per_arena": "rate, Wilson 95 %, pair bootstrap 95 %; vs 90: above if Wilson lower >= 90, below if Wilson upper < 90, else not distinguishable from 90",
+  "failed_drives": "a declared pair whose drive failed twice on the cluster (no completed run) counts as NOT reached safely and as a crash (validity)",
+  "missing_drives": "any other declared pair without a drive of the primary arm -> verdict incomplete (interim numbers on the driven pairs)"
+ },
+ "validity": {
+  "arms": [
+   "polaris_u_grad",
+   "polaris_u_cem",
+   "straight6_polaris_u"
+  ],
+  "crashed_max": 0,
+  "launch_share_lt": 0.05,
+  "belly_share_le": 0.1,
+  "note": "PLAN 4.3(c) / 9.1 item 6; only the primary arm gates the verdict"
+ },
+ "family": [
+  {
+   "name": "U1_grad_vs_straight6",
+   "world": "crm",
+   "vehicle": "polaris",
+   "test": "polaris_u_grad",
+   "ref": "straight6_polaris_u",
+   "label": "unsafe_belly",
+   "set": "unseen"
+  },
+  {
+   "name": "U2_grad_vs_cem",
+   "world": "crm",
+   "vehicle": "polaris",
+   "test": "polaris_u_grad",
+   "ref": "polaris_u_cem",
+   "label": "unsafe_belly",
+   "set": "unseen"
+  }
+ ],
+ "contrasts": [
+  {
+   "name": "S1_grad_vs_straight6_goal_only",
+   "world": "crm",
+   "vehicle": "polaris",
+   "test": "polaris_u_grad",
+   "ref": "straight6_polaris_u",
+   "label": "fail",
+   "set": "unseen"
+  },
+  {
+   "name": "S2_grad_vs_cem_goal_only",
+   "world": "crm",
+   "vehicle": "polaris",
+   "test": "polaris_u_grad",
+   "ref": "polaris_u_cem",
+   "label": "fail",
+   "set": "unseen"
+  },
+  {
+   "name": "S3_cem_vs_straight6",
+   "world": "crm",
+   "vehicle": "polaris",
+   "test": "polaris_u_cem",
+   "ref": "straight6_polaris_u",
+   "label": "unsafe_belly",
+   "set": "unseen"
+  }
+ ],
+ "context": {
+  "index": "artifacts/traverse/arena_gator_20260925/e6/index/soil_eval_v1.json",
+  "index_sha256": "d9c86320694f352d24826c4d828fabe1a2f0cd7b7b359891eba76bdde4cd4029",
+  "vehicle": "hmmwv",
+  "arms": [
+   "M1a_free",
+   "M1b_free",
+   "M3a_free",
+   "A3_free",
+   "M1",
+   "M3",
+   "straight6"
+  ],
+  "combine": [
+   {
+    "world": "crm",
+    "vehicle": "hmmwv",
+    "name": "M1",
+    "members": [
+     "M1a_free",
+     "M1b_free"
+    ]
+   },
+   {
+    "world": "crm",
+    "vehicle": "hmmwv",
+    "name": "M3",
+    "members": [
+     "M3a_free",
+     "M3b_free"
+    ]
+   }
+  ],
+  "expected_goal_rates": {
+   "M1": 87.95,
+   "M3": 90.3,
+   "M1a_free": 88.5,
+   "M3a_free": 90.3,
+   "A3_free": 90.6,
+   "straight6": 60.0
+  },
+  "note": "context only, not tests: the HMMWV planners of the Gator study (f104 only = M1, three arenas = M3, A3) on the same 1,000 pairs; the HMMWV has no belly record, so safe = not unsafe"
+ },
+ "cross_vehicle_context": [
+  {
+   "test": "polaris_u_grad",
+   "ref": "M1a_free",
+   "label": "unsafe_belly"
+  },
+  {
+   "test": "polaris_u_grad",
+   "ref": "M3a_free",
+   "label": "unsafe_belly"
+  },
+  {
+   "test": "polaris_u_grad",
+   "ref": "A3_free",
+   "label": "unsafe_belly"
+  },
+  {
+   "test": "polaris_u_grad",
+   "ref": "straight6",
+   "label": "unsafe_belly"
+  }
+ ]
+}
