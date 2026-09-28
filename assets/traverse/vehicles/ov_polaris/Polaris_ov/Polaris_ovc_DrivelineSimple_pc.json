@@ -1,0 +1,10 @@
+{
+  "Name": "Polaris simple driveline, power-corrected (ov_polaris): conical ratios 1.0, the 0.25 reduction moved into the gearbox",
+  "Type": "Driveline",
+  "Template": "SimpleDriveline",
+  "Front Torque Fraction": 0.5,
+  "Front Differential Max Bias": 2.0,
+  "Rear Differential Max Bias": 2.0,
+  "Front Conical Gear Ratio": 1.0,
+  "Rear Conical Gear Ratio": 1.0
+}

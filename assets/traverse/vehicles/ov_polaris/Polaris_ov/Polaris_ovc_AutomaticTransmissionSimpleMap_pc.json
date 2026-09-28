@@ -1,0 +1,42 @@
+{
+  "Name": "Polaris simple-map transmission, power-corrected (ov_polaris): every gear ratio x 0.25",
+  "Type": "Transmission",
+  "Template": "AutomaticTransmissionSimpleMap",
+  "Gear Box": {
+    "Reverse Gear Ratio": -0.04275,
+    "Forward Gear Ratios": [
+      0.06675,
+      0.125,
+      0.186,
+      0.25,
+      0.3235,
+      0.39425
+    ],
+    "Shift Points Map RPM": [
+      [
+        0,
+        2375
+      ],
+      [
+        1000,
+        2375
+      ],
+      [
+        1000,
+        2375
+      ],
+      [
+        1000,
+        2375
+      ],
+      [
+        1000,
+        2375
+      ],
+      [
+        1000,
+        2375
+      ]
+    ]
+  }
+}

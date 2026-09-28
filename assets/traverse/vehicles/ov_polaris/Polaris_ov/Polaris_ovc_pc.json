@@ -1,0 +1,64 @@
+{
+  "Name": "Polaris, chassis reference at mid-wheelbase (ov_polaris), power-corrected SimpleDriveline (conical ratios 1.0)",
+  "Type": "Vehicle",
+  "Template": "WheeledVehicle",
+  "Chassis": {
+    "Input File": "Polaris_ov/Polaris_ovc_Chassis.json"
+  },
+  "Axles": [
+    {
+      "Suspension Input File": "Polaris/Polaris_Front_DoubleWishbone.json",
+      "Suspension Location": [
+        1.35763,
+        0.0,
+        -0.023
+      ],
+      "Steering Index": 0,
+      "Left Wheel Input File": "Polaris/Polaris_Wheel.json",
+      "Right Wheel Input File": "Polaris/Polaris_Wheel.json",
+      "Left Brake Input File": "Polaris/Polaris_BrakeShafts.json",
+      "Right Brake Input File": "Polaris/Polaris_BrakeShafts.json"
+    },
+    {
+      "Suspension Input File": "Polaris/Polaris_Rear_TrailingArm.json",
+      "Suspension Location": [
+        1.35763,
+        0.0,
+        -0.35
+      ],
+      "Left Wheel Input File": "Polaris/Polaris_Wheel.json",
+      "Right Wheel Input File": "Polaris/Polaris_Wheel.json",
+      "Left Brake Input File": "Polaris/Polaris_BrakeShafts.json",
+      "Right Brake Input File": "Polaris/Polaris_BrakeShafts.json",
+      "Antirollbar Input File": "Polaris/Polaris_Antirollbar.json",
+      "Antirollbar Location": [
+        -0.641858,
+        0.0,
+        0.0118
+      ]
+    }
+  ],
+  "Steering Subsystems": [
+    {
+      "Input File": "Polaris/Polaris_PitmanArm.json",
+      "Location": [
+        1.22063,
+        0.0,
+        0.035
+      ],
+      "Orientation": [
+        1,
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "Driveline": {
+    "Input File": "Polaris_ov/Polaris_ovc_DrivelineSimple_pc.json",
+    "Suspension Indexes": [
+      0,
+      1
+    ]
+  }
+}

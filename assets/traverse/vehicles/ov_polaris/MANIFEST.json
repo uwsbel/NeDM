@@ -1,0 +1,29 @@
+{
+  "schema": "ov_polaris_manifest_v1",
+  "created": "2026-09-27 23:56:22 CDT",
+  "generator": "scripts/ov_polaris_check.py make-data",
+  "generator_sha256": "81b5fc3370f7103f1fc8325d0c47a79476a8a73c6e4dbb76c249c89ae1a4e936",
+  "stock_source_folder": "/home/harry/chrono/data/vehicle/Polaris",
+  "stock_source_sha256": {
+    "Polaris/Polaris.json": "86dce435e82d6167665405bfed3700d0a13fa095fb361fd8098478800bea3dc0",
+    "Polaris/Polaris_Chassis.json": "693d88963dc60ba4989f3aaff6f0523b8dac6b7adbb0296278456aa03559b8ed",
+    "Polaris/Polaris_DrivelineSimple.json": "031b5bf3da27fe1217be42aab48cf6ff1fcd8de7e6193e5353d70e150dfe538c",
+    "Polaris/Polaris_AutomaticTransmissionSimpleMap.json": "24e50e5af8047fcf8ac40ba9f16ec604dae84d3b0a43e7ad6c26329fca0b828b",
+    "Polaris/meshes/Polaris_chassis.obj": "909fccd336be8dacdc6caac177a0703a65c120092d30750ff77e2ce7ef048a44"
+  },
+  "frame_shift_m": {
+    "x": 1.35763,
+    "y": 0.0,
+    "z": -0.42
+  },
+  "files_sha256": {
+    "Polaris_ov/Polaris_ovc_4wd.json": "a738137a84bf2c2e80bd38299e389fe303fface8356f1fbfdd7a530d6399cda1",
+    "Polaris_ov/Polaris_ovc_AutomaticTransmissionSimpleMap_pc.json": "2a00a34c8db4cd22d42e393701a3358a3a9d2856e6adb0e2e82cef4eb2044f84",
+    "Polaris_ov/Polaris_ovc_Chassis.json": "654ee4dec1943a3869fb3e6ffb487e2037d6b9d44db32f08bd33ff0c943c0853",
+    "Polaris_ov/Polaris_ovc_DrivelineSimple_pc.json": "b26f588cad7efbe1121f970be3e57c3b0f92560e491ce5346794e5012e989807",
+    "Polaris_ov/Polaris_ovc_pc.json": "32e3148f8765dc4d1da169e4fb612b60e39536829bb9dbdc5d0692fb82c67344",
+    "Polaris_ov/Polaris_ovc_stock.json": "ee4224ca30950d63e3fd11dd5dafe1479f5d099752a9a627e782c93ac9c63895",
+    "README.md": "25166b934d9eee98d07337347aad8a539a926e2ab77512cae32c6ffba04a7727",
+    "ov_polaris_belly.json": "254eacd703899eb340f89c80d5d89be0ac54fbf319f0e588590ccb2d2ffbb1f0"
+  }
+}

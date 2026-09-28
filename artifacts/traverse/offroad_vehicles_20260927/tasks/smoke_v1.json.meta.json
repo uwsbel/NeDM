@@ -1,0 +1,94 @@
+{
+ "tool": "scripts/ov_smoke_tasks.py",
+ "tool_sha256": "68faec454efc85a2ccbca8da8de3802c79bf8321952369af43752a28228a0315",
+ "created": "2026-09-28 00:09:39",
+ "argv": [
+  "--out",
+  "artifacts/traverse/offroad_vehicles_20260927/tasks/smoke_v1.json",
+  "--check-cluster"
+ ],
+ "file_sha256": "93bc69a5bb29e09b5bbfe926541fbecf0ad3aa060061385256d8e2b7297b75dd",
+ "rows": 916,
+ "inputs": {
+  "artifacts/traverse/arena_gator_20260925/e3/tasks/soil_v2.json": "acf1e98c3c995c10ee670ea7982f6668f6cdc9aa58a65948d3e9fdc965689978",
+  "artifacts/traverse/arena_gator_20260925/e3/tasks/soil_v4.json": "d73fe77ba2b2375aa4e299488eef67073392b097d2a9dcffd07152c4b3511aca",
+  "artifacts/traverse/arena_gator_20260925/e6/index/soil_eval_bfull.json": "ce1a5ee1618b9e132ff1fb457a36fc78c30e50d3a69d988cf588b193f158d000",
+  "artifacts/traverse/offroad_vehicles_20260927/scratch/S3/sample_A.json": "afb0607f659b7bbbc989c8b9428d32728bece9943839d43b3e21ab18c7dffdec",
+  "artifacts/traverse/offroad_vehicles_20260927/scratch/S3/sample_B.json": "3e73eaca46f06ad2b41647f0346b084d51260d49fa6a083338a94084b25a0fee"
+ },
+ "collector_contract": "CRM_COLLECTOR = G4/source/scripts/ov_crm_collect.py (frozen); CRM_CONFIG = configs/crm_main.json (sha256 90cd049ee6b3479a74237e7cdf2ff3567c26d580c117e2bab5ab8eff2218b248); 0.5 ms rows carry config configs/crm_m113.json",
+ "max_timeout_s": 2400,
+ "m113_config_sha256_local": null,
+ "by_tier": {
+  "-4": 6,
+  "-3": 96,
+  "-2": 192,
+  "-1": 622
+ },
+ "by_arm": {
+  "bitid_hmmwv": 3,
+  "bitid_gator": 3,
+  "polaris": 334,
+  "gatorctl": 144,
+  "polaris_pc": 144,
+  "polaris_4wd": 144,
+  "polaris_w08": 144
+ },
+ "counts": {
+  "-4:bitid_gator:bitid": 3,
+  "-4:bitid_hmmwv:bitid": 3,
+  "-3:gatorctl:A": 48,
+  "-3:polaris:A": 48,
+  "-2:gatorctl:A": 96,
+  "-2:polaris:A": 96,
+  "-1:polaris:B": 190,
+  "-1:polaris_4wd:A": 144,
+  "-1:polaris_pc:A": 144,
+  "-1:polaris_w08:A": 144
+ },
+ "sample_A_groups": [
+  "f104_v2_group_0177",
+  "f104_v2_group_0188",
+  "f104_v2_group_0213",
+  "f104_v2_group_0259",
+  "f104_v2_group_0286",
+  "f104_v2_group_0295",
+  "f104_v2_group_0362",
+  "f104_v2_group_0404",
+  "f104_v2_group_0426",
+  "f104_v2_group_0427",
+  "f104_v2_group_0563",
+  "f104_v2_group_0575",
+  "f104_v2_group_0594",
+  "f104_v2_group_0621",
+  "f104_v2_group_0685",
+  "f104_v2_group_0829",
+  "f104_v2_group_0868",
+  "f104_v2_group_0894",
+  "f104_v2_group_0916",
+  "f104_v2_group_0926",
+  "f104_v2_group_1060",
+  "f104_v2_group_1103",
+  "f104_v2_group_1144",
+  "f104_v2_group_1187"
+ ],
+ "bitid_ids": [
+  "bitid_hmmwv__f104_v2_group_0695_route_03",
+  "bitid_gator__f104_v2_group_0695_route_03",
+  "bitid_hmmwv__f104_v2_group_0724_route_09",
+  "bitid_gator__f104_v2_group_0724_route_09",
+  "bitid_hmmwv__f104_v2_group_1090_op_01",
+  "bitid_gator__f104_v2_group_1090_op_01"
+ ],
+ "b_notes": {
+  "polaris": {
+   "shared_route_rows": 2
+  }
+ },
+ "superset": null,
+ "cluster_paths": {
+  "n": 1134,
+  "missing": [],
+  "n_missing": 0
+ }
+}

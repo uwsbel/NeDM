@@ -585,3 +585,19 @@ artifacts/traverse/arena_gator_20260925/verify_e6a/picks/
 artifacts/traverse/arena_gator_20260925/**/*.npz
 artifacts/traverse/arena_gator_20260925/**/*.pt
 artifacts/traverse/arena_gator_20260925/**/*logits*
+
+# offroad_vehicles_20260927 (Polaris + M113 on f104 soil) and search_probe_20260927 (offline wider-search probe):
+# curated allowlists; runs, picks, routes, checkpoints and scratch outputs stay local / on the cluster
+!artifacts/traverse/offroad_vehicles_20260927/
+artifacts/traverse/offroad_vehicles_20260927/*
+!artifacts/traverse/offroad_vehicles_20260927/*.md
+!artifacts/traverse/offroad_vehicles_20260927/*.sha256
+!artifacts/traverse/offroad_vehicles_20260927/*.json
+!artifacts/traverse/offroad_vehicles_20260927/scout/
+!artifacts/traverse/offroad_vehicles_20260927/stage_records/
+!artifacts/traverse/offroad_vehicles_20260927/figures/
+!artifacts/traverse/offroad_vehicles_20260927/tasks/
+!artifacts/traverse/search_probe_20260927/
+artifacts/traverse/search_probe_20260927/*
+!artifacts/traverse/search_probe_20260927/*.md
+!artifacts/traverse/search_probe_20260927/results.json
