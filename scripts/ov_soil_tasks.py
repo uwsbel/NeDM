@@ -159,7 +159,8 @@ def main(argv=None):
                 assert r['id'] in cmap and n['retiered_from'] == r['tier']
     cl = None
     if a.check_cluster:
-        cl = S.check_cluster(sorted({p for r in rows if r.get('run', True) for p in (r['case'], r['route'])}))
+        # the worker resolves relative case / route paths against CRM_ROOT = G4 (crm_worker.py:93)
+        cl = S.check_cluster(sorted({(p if p.startswith('/') else f'{S.G4}/{p}') for r in rows if r.get('run', True) for p in (r['case'], r['route'])}))
         assert cl['n_missing'] == 0, cl
     out = Path(a.out)
     if out.exists():
