@@ -177,7 +177,13 @@ surrogate, one run per cell; gradient norms not measured; loss form not tested.
 12x512 (~38 M parameters) on the same v2 corpus: -51.6% and -51.0% forward (hpcfund
 437335), both healthy, at ~6x the PPO cost. With the small model (3x128: -54.5%, -6.5%),
 the standard 6x256 is the right size: smaller loses reliability, larger buys nothing.
-NOT tested: the large model on the doubled corpus (v23).
+Large model on the doubled corpus (2026-09-28, euler 70934/70936, sweep 70937, v2's
+held-out episodes): 12x512 on v23 is 0.487/0.450 at 2 s and 0.648/0.584 at 10 s, against
+0.46-0.49 / 0.59-0.60 for standard-on-v2, 0.45-0.49 / 0.57-0.67 standard-on-v23 and
+0.47-0.50 / 0.58 large-on-v2. No gain, so not fine-tuned. Every surrogate plateaus near
+0.47 at 2 s whatever is scaled or added (size, data, both, soil channels) while Chrono's
+twin episodes agree to 0.003: the limit is the model's formulation (context, architecture,
+objective), not size, data or soil state.
 
 ## Less data and other capacities: a bad run becomes likely (2026-09-24)
 

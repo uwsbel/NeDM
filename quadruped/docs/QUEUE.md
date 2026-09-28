@@ -12,7 +12,8 @@ surrogates; 2048 envs (three seeds) and seed 7's 1 s surrogate at 1024 envs.
 
 - **Checkpoint/resume in finetune.py**: research-partition preemption repeatedly restarted
   PPO runs from zero on 2026-09-26; a resumable fine-tune would make euler usable.
-- **Large model on the doubled corpus** (not started): the scaling cell never run.
+- **The accuracy plateau** (~0.47 at 2 s in every surrogate): size, data and soil channels
+  do not move it; try a longer context or a different objective if the model is revisited.
 - **Relabel the guard.** It missed both bad capacity runs. Label all 66 logged runs by
   Chrono score and choose the stopping rule against those labels (candidates: reward drop,
   value loss, branch-step OOD fraction).
