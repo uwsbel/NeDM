@@ -8,9 +8,9 @@ predicted risk, and Chrono's stock PID path follower drives it. Separately, a lo
 PPO inside a learned neural reduced dynamics model (NRD) and compared with that PID follower.
 
 This folder records the progress through 2026-09-28: what each milestone achieved, how it was measured, and what it
-does not show. **The code, data and trained models are not on main yet.** They live on the experiment branch
-`offroad_vehicles_v1` at commit [`901d6c9`][commit] and will follow in separate pull requests (see
-[What comes next](#what-comes-next)).
+does not show. The data and trained models behind every headline are on Hugging Face (see [Download](#download)).
+**The code is not on main yet.** It lives on the experiment branch `offroad_vehicles_v1` at commit
+[`901d6c9`][commit] and will follow in separate pull requests (see [What comes next](#what-comes-next)).
 
 ## Milestones as of 2026-09-28
 
@@ -112,10 +112,11 @@ Controller training (milestone 3)
 | Milestone evidence, scope and limits | [docs/milestones.md](docs/milestones.md) |
 | Architecture | [docs/architecture.md](docs/architecture.md) |
 | History of the research line, including the earlier vision/NRD work | [docs/history.md](docs/history.md) |
-| Claim → record map; code and commands behind each result; release status of data and models | [docs/evidence.md](docs/evidence.md) |
+| Claim → record map; code and commands behind each result; which release item holds each record | [docs/evidence.md](docs/evidence.md) |
 | Per-task outcomes behind every headline | [results/](results/README.md), about 1 MB of CSV |
 | Code, reports, logs and plans at the time of each result | experiment commit [`901d6c9`][commit] |
-| Datasets and trained models | not yet published; [docs/evidence.md](docs/evidence.md#release-status) lists what exists and where |
+| Datasets, trained models and per-drive records | Hugging Face dataset [harryzhang1018/NeDM][hub-tree], folder `traversing/`, revision `6620faead5225ac9aa5ae8ab19bc2ef2db38a863`; see [Download](#download) |
+| How the release was built, how to verify it, restore layout | [docs/release.md](docs/release.md) |
 
 Recount the headline numbers from the per-task tables (every headline except the Gator's rigid-ground row, which
 comes from that study's read-out). This needs Python 3.8 or newer and nothing else:
@@ -125,15 +126,50 @@ python traversing/scripts/recount_milestones.py               # per-arm counts a
 python traversing/scripts/recount_milestones.py --check-only  # verdict only
 ```
 
+### Download
+
+The data and models are in the `traversing/` folder of the paper's Hugging Face dataset
+[harryzhang1018/NeDM](https://huggingface.co/datasets/harryzhang1018/NeDM); the paper's own files there are
+unchanged. The download helper reads the release manifest pinned in
+[`manifests/hf_release_manifest.json`](manifests/hf_release_manifest.json) and downloads from that exact revision
+(`6620faead5225ac9aa5ae8ab19bc2ef2db38a863`). It checks every file against its SHA256 and restores it into the repository root, at the path it
+had in the experiment checkout. It needs `huggingface_hub`.
+
+```bash
+python traversing/scripts/release/download_traversing_data.py --list --all        # every item, with its size
+python traversing/scripts/release/download_traversing_data.py --milestone m2      # everything behind one milestone
+python traversing/scripts/release/download_traversing_data.py --bundle models     # one bundle
+python traversing/scripts/release/download_traversing_data.py --all               # everything
+```
+
+Filters combine: `--milestone m2 --bundle models` fetches only the milestone-2 models, and `--milestone m4` covers 4a
+and 4b. `--items NAME ...` fetches single items. Items that another selected item needs are added. Downloads are
+kept in `artifacts/hf_release/download/`, so a restore needs room for both columns below; `--dest DIR` restores
+somewhere other than this checkout, and the downloads then go to `DIR/artifacts/hf_release/download/` (`--cache-dir`
+sets them separately), which is the folder to pass to `verify_release.py --local`.
+
+| Bundle | Holds | Items | Download | Restored |
+|---|---|---|---|---|
+| `models` | every network behind a column of the compact tables, and the Gator rigid planner, with their training records | 30 | 206 MB | 206 MB |
+| `evaluation` | per-drive records and result files behind every table cell, and the suites, maps, route picks and task lists to drive them again | 33 | 5.8 GB | 8.4 GB |
+| `processed` | the exact training files of those networks | 28 | 33.9 GB | 34.0 GB |
+| `raw` | the collection drives those training files were built from, limited to the files the dataset builders read | 25 | 16.8 GB | 20.3 GB |
+| `assets` | arena heightmaps, the soil setting, vehicle variants and the f104 terrain grid | 3 | 8.1 MB | 8.1 MB |
+| all | | 119 | 56.6 GB | 62.9 GB |
+
+[docs/evidence.md](docs/evidence.md) names the item behind each record, and [docs/release.md](docs/release.md) how
+to verify a download.
+
 ## What comes next
 
-Each step will be its own pull request, starting from main:
+Each step is its own pull request, starting from main. The first two are done:
 
-1. **This PR: documentation.** The milestones, architecture, history and evidence, plus the compact outcome tables
+1. **Documentation** (done). The milestones, architecture, history and evidence, plus the compact outcome tables
    and the recount script.
-2. **Data and models.** Datasets and trained model files go to new Hugging Face repositories with pinned revisions.
-   Their manifests, checksums and a download helper go in this folder. The paper's dataset
-   ([harryzhang1018/NeDM](https://huggingface.co/datasets/harryzhang1018/NeDM)) stays as it is.
+2. **Data and models** (done). Datasets, trained models and per-drive records are in the `traversing/` folder of
+   the paper's Hugging Face dataset ([harryzhang1018/NeDM](https://huggingface.co/datasets/harryzhang1018/NeDM)),
+   pinned to revision `6620faead5225ac9aa5ae8ab19bc2ef2db38a863`. The manifest, the release spec and the download and verification helpers
+   are in this folder. The paper's files on the Hub are unchanged (tag `paper-v1`).
 3. **The planning pipeline.** The minimal collection, training, planning and evaluation code behind milestones 1, 2
    and 4, checked against saved outputs.
 4. **The NRD/PPO tracker benchmark** (milestone 3), with its positive rigid-ground result and its failed soil result.
@@ -152,3 +188,4 @@ None of these changes the published HMMWV, M113 base or arm code, configs, check
   low-level-control work.
 
 [commit]: https://github.com/uwsbel/NeDM/tree/901d6c9423a16c0fafc3d60056065415d5a725f2
+[hub-tree]: https://huggingface.co/datasets/harryzhang1018/NeDM/tree/6620faead5225ac9aa5ae8ab19bc2ef2db38a863/traversing

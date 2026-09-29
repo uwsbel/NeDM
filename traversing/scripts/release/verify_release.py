@@ -8,7 +8,8 @@ The reference manifest is ``--manifest``, else the pinned GitHub copy ``traversi
 (its ``hf_revision`` must be a 40-hex commit). ``--hub``: every file of the manifest exists under ``traversing/`` at
 the revision with the same size and LFS/xet SHA256 (small non-LFS files are downloaded and hashed), the Hub's own
 ``release_manifest.json`` lists the same files and items, nothing else is under ``traversing/``, every path outside
-``traversing/`` except ``README.md`` is unchanged against ``--paper-revision`` (default: commit 8091c3b4..., which the
+``traversing/`` except ``README.md`` (and ``traversing/`` LFS rules the Hub appends to ``.gitattributes``) is unchanged
+against ``--paper-revision`` (default: commit 8091c3b4..., which the
 tag ``paper-v1`` pins; same blob id or LFS SHA256, none missing, none added), and every ``load_dataset`` config in the
 YAML front matter of ``README.md`` at that commit is unchanged (added configs must read only ``traversing/`` files and
 must not be the default).
@@ -96,6 +97,21 @@ def data_paths(value) -> list[str]:
     return [p for v in value or [] for p in data_paths(v)]
 
 
+def gitattributes_only_added(repo_id: str, paper_rev: str, revision: str) -> bool:
+    """The Hub appends LFS rules for large uploaded text files to .gitattributes. Accept that change only when every
+    line of the paper's .gitattributes is kept, in order at the top, and every added line is a traversing/ rule."""
+    from huggingface_hub import hf_hub_download  # noqa: PLC0415
+
+    with tempfile.TemporaryDirectory() as tmp:
+        old, new = (Path(hf_hub_download(repo_id, ".gitattributes", repo_type="dataset", revision=rev,
+                                         local_dir=f"{tmp}/{i}")).read_text().splitlines()
+                    for i, rev in enumerate((paper_rev, revision)))
+    ok = new[:len(old)] == old and all(line.startswith("traversing/") for line in new[len(old):] if line.strip())
+    if ok:
+        print(f".gitattributes: paper lines kept, {len(new) - len(old)} traversing/ LFS rules added by the Hub")
+    return ok
+
+
 def check_paper(api, repo_id: str, remote: dict, paper_rev: str, revision: str) -> int:
     """Every path outside traversing/ except README.md is unchanged against the paper commit, and so is every
     load_dataset config in README.md's front matter (new configs may only read traversing/ and are never default)."""
@@ -105,6 +121,8 @@ def check_paper(api, repo_id: str, remote: dict, paper_rev: str, revision: str) 
     for path, entry in sorted(paper.items()):
         now = remote.get(path)
         if now is None or not (blob(now)[0] == blob(entry)[0] or blob(now)[1] and blob(now)[1] == blob(entry)[1]):
+            if now is not None and path == ".gitattributes" and gitattributes_only_added(repo_id, paper_rev, revision):
+                continue
             print(f"PAPER {'MISSING' if now is None else 'CHANGED'}  {path}")
             bad += 1
     for path in sorted(p for p in remote if not p.startswith("traversing/") and p != "README.md" and p not in paper):
@@ -289,14 +307,22 @@ def citations(docs_root: Path) -> tuple[list[tuple[str, str, str | None]], list[
     return found, [(where, s) for where, s in loose if s not in known]
 
 
-def check_citations(targets: dict[str, list], no_index: list[str], docs_root: Path) -> int:
+def check_citations(targets: dict[str, list], no_index: list[str], docs_root: Path, roots: dict[str, str],
+                    complete: bool) -> int:
+    """Every cited local-only record is in the release at its path. On a partial download, a record that would sit
+    under an item whose index is not present is reported as unchecked instead (unless --complete)."""
+    unindexed = [roots[name].rstrip("/") + "/" for name in no_index]
     by_sha = defaultdict(set)
     for rows in targets.values():
         for rel, sha, _ in rows:
             by_sha[sha].add(str(rel))
     cited, unclassified = citations(docs_root)
-    bad = 0
+    bad = unchecked = 0
     for where, sha, path in cited:
+        if sha not in by_sha and not complete and no_index and (not path or any(
+                path.startswith(root) or root == "./" for root in unindexed)):
+            unchecked += 1
+            continue
         if sha not in by_sha:
             print(f"NOT RELEASED  {where}: {sha} {path or ''}")
             bad += 1
@@ -306,6 +332,8 @@ def check_citations(targets: dict[str, list], no_index: list[str], docs_root: Pa
     for where, sha in unclassified:
         print(f"UNCLASSIFIED  {where}: {sha} is neither a local-only citation, a tracked record nor a repeat")
     note = f" (indexes not present locally for {len(no_index)} items: {no_index[:5]})" if no_index else ""
+    if unchecked:
+        note += f"; {unchecked} records under those items not checked (download them, or use --complete)"
     print(f"citations: {len(cited)} local-only SHA256 records, {bad} not found in the release, "
           f"{len(unclassified)} unclassified hashes{note}")
     return bad + len(unclassified)
@@ -453,7 +481,8 @@ def main(argv: list[str] | None = None) -> int:
         bad += problems
         targets, no_index = local_targets(manifest, args.local)
         bad += check_shared(manifest, targets)
-        bad += check_citations(targets, no_index, args.docs_root)
+        roots = {name: item["restore_root"] for name, item in manifest["items"].items()}
+        bad += check_citations(targets, no_index, args.docs_root, roots, args.complete)
         if not args.no_models:
             bad += check_models(manifest, args.local, args.unsafe_load, matched)
     print("verdict:", "PASS" if not bad else f"FAIL ({bad} problems)")
