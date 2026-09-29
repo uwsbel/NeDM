@@ -168,4 +168,3 @@ by horizon, `cost_profile.py`, `probe_ood.py`, `guard_rules.py`, and others).
 | `docs/LESSONS.md` | What cost time, and the rule each produced. |
 | `docs/RETRACTIONS.md` | Claims withdrawn, and what replaced them. |
 | `docs/QUEUE.md` | Future work. |
-| `docs/PLAN.md`, `docs/INVENTORY.md` | Historical: the rebuild plan and the survey of the old tree. |

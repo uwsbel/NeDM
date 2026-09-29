@@ -3,7 +3,6 @@ from __future__ import annotations
 # The collector owns these names; importing keeps one source of truth for the
 # column ordering. quadruped.dataset is pure stdlib and pulls in no simulator.
 from nedm.quadruped.dataset import (
-    PERTURB_FIELDS,
     COMMAND_ACTION_FIELDS as _COMMAND_ACTION_FIELDS,
     JOINT_ACTION_FIELDS as _JOINT_ACTION_FIELDS,
     JOINT_STATE_FIELDS as _JOINT_STATE_FIELDS,
@@ -259,34 +258,6 @@ STATE_FIELD_PRESETS = {
     "quadruped_crm_baseline": (DEFAULT_STATE_FIELDS + QUADRUPED_JOINT_STATE_FIELDS
                                + ["grav_body_x", "grav_body_y", "grav_body_z"]
                                + ["pos_z_m", "vel_body_z_mps"]),
-    # THE DISTURBANCE-CONDITIONED ARM, and the same argument as the payload preset
-    # below, applied to the channel it was never applied to. On the coverage corpus
-    # three quarters of episodes carry external body pushes, and NOTHING in the 36-D
-    # state says a push is happening. Two transitions with identical pose, joint state
-    # and action then evolve differently according to a force the model cannot see, so
-    # it fits their average -- which is invented structure, and invented structure is
-    # what a policy optimiser climbs.
-    #
-    # THREE CHANNELS, NOT SIX, AND BODY FRAME, NOT WORLD.
-    #   - The three perturb_torque_* columns are faithful but were never driven:
-    #     --perturb-torque-peak-nm defaults to 0 and measures identically zero across
-    #     every episode sampled. Carrying them would add three constant inputs.
-    #   - PERTURB_FIELDS is logged in the WORLD frame, and this state has no yaw and
-    #     no quaternion: everything else in it is body frame, and pos/yaw are excluded
-    #     by design. A world-frame force is therefore uninterpretable here -- the same
-    #     physical shove appears as different numbers depending on heading, which
-    #     introduces a confound rather than removing one. Rotated into the body frame
-    #     it becomes heading-invariant, exactly as projected gravity is, and for the
-    #     same reason.
-    #
-    # Derived from the logged force and quat_e0..e3 by derive_perturb_body.py, which
-    # follows add_gravity_channels.py: a derivation over existing CSVs, no
-    # re-collection. Identically zero at fine-tuning time, where nothing is pushing.
-    "quadruped_crm_perturb": (DEFAULT_STATE_FIELDS + QUADRUPED_JOINT_STATE_FIELDS
-                              + ["grav_body_x", "grav_body_y", "grav_body_z"]
-                              + ["pos_z_m", "vel_body_z_mps"]
-                              + ["perturb_body_x_n", "perturb_body_y_n",
-                                 "perturb_body_z_n"]),
     # THE PAYLOAD-CONDITIONED ARM. On the payload corpus the carried mass varies from
     # 0 to 8 kg, and NOTHING in the 36-D state says what is being carried. Two episodes
     # with identical pose, joint state and action then evolve differently, so the
