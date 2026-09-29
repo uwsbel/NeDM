@@ -1,33 +1,21 @@
 # Artifacts: data, models, results
 
-## The Study 4 archive (2026-09-28)
+## The Study 4 dataset (2026-09-29)
 
-Every corpus, surrogate, fine-tuned policy and scoring record behind a reported result is
-on the NAS at **`/mnt/nas/Main/nedm/study4_go2_crm/`**, named by meaning:
+Every corpus, surrogate, fine-tuned policy and scoring record behind a reported result,
+plus the base policy and the robot model, is published as the Hugging Face dataset
+[`ksha23/nedm-study4-go2-crm`](https://huggingface.co/datasets/ksha23/nedm-study4-go2-crm), named by meaning:
 
 ```
 corpora/{normal_corpus,extended_corpus,rigid_corpus}/
-base_policy/
-surrogates/{standard,standard_one_step_only,half_second_rollout,small,large,
-            standard_extended_corpus,large_extended_corpus,quarter_corpus,half_corpus,
-            channel_foot_forces,channel_sinkage,channel_forces_and_sinkage,
-            channel_3d_forces,rigid_ground,one_stage_16k,one_stage_40k}/<seed>/
-policies/<study>/<run>/
-results/<machine>_<chrono build>/
+base_policy/   assets/robot/go2_irrvis/
+surrogates/<variant>/<seed>/       policies/<study>/<run>/       results/<machine>_<build>/
 ```
 
-`README.md` there describes each folder; `MANIFEST.tsv` lists every file with its
-original run name, source machine and sha256, so any file can be traced to the job that
-made it (`quadruped/jobs/`). The per-run manifests described below travel inside it.
-
-
-**Bytes never enter git. Manifests always do.**
-
-`.git` is already 502 MB with artifacts tracked, one NeDM checkpoint is 911 MB, and a
-corpus runs to tens of GB. Committing those makes the repository unusable and LFS only
-relocates the problem. What we actually need from version control is TRACEABILITY, and a
-manifest provides that completely: given one, the bytes can be located, verified, and the
-command that produced them re-run.
+Its dataset card describes each folder; `MANIFEST.tsv` lists every file with its original
+run name, source machine and sha256, so any file can be traced to the job that made it
+(`quadruped/jobs/`). The per-run manifests described below travel inside it. (The lab keeps
+a mirror at `/mnt/nas/Main/nedm/study4_go2_crm/`; nothing depends on it.)
 
 ## Layout
 

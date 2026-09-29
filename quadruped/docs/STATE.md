@@ -13,7 +13,8 @@ The recipe (1 s rollout-trained surrogate, PPO with 1024 x 2 s branches, stop at
 iteration 1000) improves CRM tracking in ten of ten surrogates (forward -52%, yaw -67%,
 sideways -28%; no falls; no regression on rigid ground). Every study planned for this case
 is done and scored; nothing is running. Data and checkpoints are archived, named by
-meaning, at `/mnt/nas/Main/nedm/study4_go2_crm/` (docs/ARTIFACTS.md). Future work is in
+meaning, in the Hugging Face dataset `ksha23/nedm-study4-go2-crm` (docs/ARTIFACTS.md).
+Future work is in
 docs/QUEUE.md.
 
 ## The recipe at iteration 1000 in ten surrogates (2026-09-24)

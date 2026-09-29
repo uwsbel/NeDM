@@ -8,7 +8,10 @@ Chrono, paired episode by episode against the unmodified policy.
 
 - **Live write-up, with every table and figure:**
   <https://claude.ai/artifact/G8PHCRfk7M8Mu7b8rW2PbU>
-- **All data and checkpoints:** `/mnt/nas/Main/nedm/study4_go2_crm/` (layout below)
+- **All data and checkpoints:** the Hugging Face dataset
+  [`ksha23/nedm-study4-go2-crm`](https://huggingface.co/datasets/ksha23/nedm-study4-go2-crm) (layout below). Nothing
+  here depends on any machine of ours: the code is in this repository, everything else is
+  in that dataset.
 - **Branch:** `kyle/quadruped-pipeline` on uwsbel/NeDM. Author of this study: Kyle Sha.
 
 ## Result
@@ -74,21 +77,28 @@ site and in `docs/STATE.md`.
 
 ## Where everything is
 
-**NAS: `/mnt/nas/Main/nedm/study4_go2_crm/`**, named by meaning rather than by run id.
-`MANIFEST.tsv` there lists every file with its original run name, source machine and
-sha256; `README.md` there describes each folder.
+**Hugging Face: [`ksha23/nedm-study4-go2-crm`](https://huggingface.co/datasets/ksha23/nedm-study4-go2-crm)**, named by meaning rather than
+by run id. Its `MANIFEST.tsv` lists every file with its original run name, source machine
+and sha256; its dataset card describes each folder.
+
+```bash
+pip install -U huggingface_hub
+hf download ksha23/nedm-study4-go2-crm --repo-type dataset --local-dir study4
+cd study4/corpora/normal_corpus && tar -xzf go2_crm_v2.tgz          # the recipe's corpus
+```
 
 ```
 corpora/normal_corpus/           go2_crm_v2    the recipe's corpus
 corpora/extended_corpus/         go2_crm_v23   v2 + 1,174 training-only episodes
 corpora/rigid_corpus/            go2_rigid_v2  the same 1,200 episodes on rigid ground
-base_policy/                     the base policy (rl_sar robot_lab, unmodified)
+base_policy/                     the base policy (rl_sar robot_lab, Apache-2.0)
+assets/robot/go2_irrvis/         the Go2 robot model (unitree_ros, BSD-3-Clause)
 surrogates/standard/             the ten recipe surrogates
 surrogates/<variant>/            one-step-only, half-second rollout, small, large,
                                  extended corpus, quarter/half corpus, four channel
                                  sets, rigid ground, one-stage 16k/40k
 policies/<study>/                every fine-tuned policy behind a result on the site
-results/<machine>/               the raw paired-scoring records
+results/<machine>_<build>/       the raw paired-scoring records
 ```
 
 In this repository: code under `quadruped/`, the exact job scripts that produced the
@@ -101,8 +111,12 @@ Environment and Chrono build: `docs/STANDARD.md` (env `nedm`, the pinned NeDM Ch
 source with its two patches; CRM needs FSI-SPH with GPU support). Then, from `quadruped/`:
 
 ```bash
+# To skip steps 1-3, use the dataset's corpus (DATA=study4/corpora/normal_corpus after
+# unpacking), a surrogate from study4/surrogates/standard/, or a policy from
+# study4/policies/recipe_iteration1000/.
 # 1. corpus: 24 shards x 50 episodes, then merge (all shards on ONE Chrono build)
-python collect.py --corpus go2_crm_v2_s0 --out DATA --policy base_policy.pt --urdf go2.urdf \
+U=study4/assets/robot/go2_irrvis/urdf/go2_description.urdf; B=study4/base_policy/policy.pt
+python collect.py --corpus go2_crm_v2_s0 --out DATA --policy $B --urdf $U \
   --episodes 50 --terrain crm --pushes 2 --long-fraction 0.25 --seed 20260921
 python merge_corpus.py --shards DATA/go2_crm_v2_s* --out DATA --name go2_crm_v2
 
@@ -113,12 +127,12 @@ python train.py --corpus DATA/go2_crm_v2 --out M/s8_ms100 --seed 8 --init-from M
   --lr 1e-4 --min-lr 1e-5 --warmup-steps 200 --select-window 3
 
 # 3. fine-tune: the recipe
-python finetune.py --model M/s8_ms100/best.pt --policy base_policy.pt --corpus DATA/go2_crm_v2 \
+python finetune.py --model M/s8_ms100/best.pt --policy $B --corpus DATA/go2_crm_v2 \
   --out FT/s8 --method ppo --seed 0 --steps 100 --branches 1024 --iters 1000 \
   --target-dw 1e9 --snapshot-every 500
 
 # 4. verify in Chrono, base and arm on the same machine and build, then pair
-python evaluate.py --policy base_policy.pt --urdf go2.urdf --corpus DATA/go2_crm_v2 \
+python evaluate.py --policy $B --urdf $U --corpus DATA/go2_crm_v2 \
   --out EV/base --label base --terrain crm --paths 4 --seconds 15 --spawn-spread 1.0
 python evaluate.py --policy FT/s8/policy_ft.pt ...same flags... --out EV/s8 --label s8
 python paired_eval.py --base EV/base --arms s8=EV/s8
@@ -149,8 +163,8 @@ by horizon, `cost_profile.py`, `probe_ood.py`, `guard_rules.py`, and others).
 | `docs/EVALUATION.md` | How the metrics must be measured, and why (pairing, noise floor). |
 | `docs/COST.md` | What Chrono CRM costs and where the time goes. |
 | `docs/SOIL.md` | This study's soil against the HMMWV study's. |
-| `docs/STANDARD.md` | Environment, Chrono pin, machines, the NAS. |
-| `docs/ARTIFACTS.md` | Manifest schema and the NAS archive. |
+| `docs/STANDARD.md` | Environment and the pinned Chrono build; also the lab's machines. |
+| `docs/ARTIFACTS.md` | Manifest schema and the published dataset. |
 | `docs/LESSONS.md` | What cost time, and the rule each produced. |
 | `docs/RETRACTIONS.md` | Claims withdrawn, and what replaced them. |
 | `docs/QUEUE.md` | Future work. |
