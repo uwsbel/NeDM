@@ -1,0 +1,48 @@
+# M4b: other vehicles on soil. Suite f104_800 (+ unseen_soil1000 for the Polaris). Arm names are columns of
+# traversing/results/m4_vehicles_f104_soil.csv; the *_unseen arm is column polaris_own_model_sampling_grad of
+# m4_polaris_unseen_soil.csv (its picks live in per-arena folders with another name than the f104 one).
+
+[defaults]
+ground = "soil"
+soil_config = "crm_main"
+controller = "pid"
+
+[[arm]]
+name = "polaris_own_model_sampling_grad"        # 798/800 f104
+vehicle = "polaris"                             # re-framed Polaris_ovc_stock.json; soil cylinders r 0.25 w 0.2121
+planner = "cem_grad"
+models = "data:artifacts/traverse/offroad_vehicles_20260927/e5/deploy/polaris_full_soil/polaris_full_soil_deploy_s*.pt"
+label = "rollback_belly"                        # reached safely = goal and not rolling back and no belly flag
+picks = "data:artifacts/traverse/offroad_vehicles_20260927/e6/picks/f104/polaris_full_grad"
+
+[[arm]]
+name = "polaris_own_model_sampling_grad_unseen" # 997/1,000 (suite unseen_soil1000)
+vehicle = "polaris"
+planner = "cem_grad"
+models = "data:artifacts/traverse/offroad_vehicles_20260927/e5/deploy/polaris_full_soil/polaris_full_soil_deploy_s*.pt"
+label = "rollback_belly"
+picks = "data:artifacts/traverse/offroad_vehicles_20260927/e6/picks/{arena}/polaris_u_grad"
+
+[[arm]]
+name = "polaris_straight_6mps"                  # 796/800 f104; 970/1,000 unseen
+vehicle = "polaris"
+planner = "straight"
+speed = 6.0
+label = "rollback_belly"
+picks = "data:artifacts/traverse/arena_gator_20260925/e6/picks/crm/{arena}/straight6"
+
+[[arm]]
+name = "gator_own_model_sampling"               # 536/800 reached safely (539 reached)
+vehicle = "gator"                               # per-axle cylinders; spawn +0.35
+planner = "cem"
+models = "data:artifacts/traverse/arena_gator_20260925/e5/deploy/G_full_soil/G_full_soil_deploy_s*.pt"
+label = "rollback"                              # the Gator column is the rolling-back label only
+picks = "data:artifacts/traverse/arena_gator_20260925/e6/picks/crm_bfull/f104/G_full_free"
+
+[[arm]]
+name = "gator_straight_6mps"                    # 114/800
+vehicle = "gator"
+planner = "straight"
+speed = 6.0
+label = "rollback"
+picks = "data:artifacts/traverse/arena_gator_20260925/e6/picks/crm/{arena}/straight6"
