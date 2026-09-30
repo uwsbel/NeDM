@@ -8,8 +8,9 @@ mission or a reference route) and records how every evaluated planner or control
 All numbers come from the experiment branch `offroad_vehicles_v1` at commit
 [`901d6c9`](https://github.com/uwsbel/NeDM/tree/901d6c9423a16c0fafc3d60056065415d5a725f2). Every cell was derived
 from the study's per-drive records and cross-checked against the study's own analysis files, with no mismatches.
-Most raw drive records are not yet published; they are listed below as **local-only** with their SHA256, so they
-can be matched once the archive is released.
+Records marked **local-only** below were not in git at that commit. They are now in the data release (see
+[Download](../README.md#download)), at the same repository path and with the SHA256 given, in the release
+item named in the last column.
 
 ## Recount the headline numbers
 
@@ -51,7 +52,7 @@ counts as unsafe**, so `F` does not occur there. Two event definitions recur:
 Body tilt beyond 30 degrees is **not** part of any label here.
 
 Source links: files tracked at the commit link to GitHub. Local-only files are named by their repository path and
-SHA256. All paths are relative to the repository root at that commit.
+SHA256, and by the release item that holds them. All paths are relative to the repository root at that commit.
 
 ---
 
@@ -93,13 +94,13 @@ from `status` and `backward_slide`. It would turn 5 of the 21 `U` rows into `F`.
 These are the corrected re-run (routes that double back were rejected). The risk model is the frozen direct-depth
 model, not the later history model.
 
-| source | status | SHA256 |
-|---|---|---|
-| `artifacts/traverse/fdm_f104_50h_20260909/nav_v1/local_luffy/runs/*/mission_outcome.json` (120 files) | local-only | per file in the table |
-| `artifacts/traverse/fdm_f104_50h_20260909/nav_v1/local_luffy/summary.json` (the study's read-out) | local-only | `f8d03b267b7bcc096d7c64f5d683cf0fc8dece143fdda73fa1f1753a1c6aa85b` |
-| [`.../nav_v1/local_luffy/tasks_main.json`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/artifacts/traverse/fdm_f104_50h_20260909/nav_v1/local_luffy/tasks_main.json) | tracked | `ea670e3ec84f4ef5664113807b50f34acaedfa92a79244068fecb4798ccd9f2b` |
-| [`.../nav_v1/REPORT.md`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/artifacts/traverse/fdm_f104_50h_20260909/nav_v1/REPORT.md) | tracked | `4e24c31417bfc5309f8ff90a2e84966419f5bc7ab35df8401fbab4c64796b948` |
-| [`scripts/nav_analyze.py`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/scripts/nav_analyze.py), [`scripts/nav_runner.py`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/scripts/nav_runner.py) | tracked | |
+| source | status | SHA256 | release item |
+|---|---|---|---|
+| `artifacts/traverse/fdm_f104_50h_20260909/nav_v1/local_luffy/runs/*/mission_outcome.json` (120 files) | local-only | per file in the table | `nav_corrected_mission_outcomes` |
+| `artifacts/traverse/fdm_f104_50h_20260909/nav_v1/local_luffy/summary.json` (the study's read-out) | local-only | `f8d03b267b7bcc096d7c64f5d683cf0fc8dece143fdda73fa1f1753a1c6aa85b` | `nav_corrected_mission_outcomes` |
+| [`.../nav_v1/local_luffy/tasks_main.json`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/artifacts/traverse/fdm_f104_50h_20260909/nav_v1/local_luffy/tasks_main.json) | tracked | `ea670e3ec84f4ef5664113807b50f34acaedfa92a79244068fecb4798ccd9f2b` | |
+| [`.../nav_v1/REPORT.md`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/artifacts/traverse/fdm_f104_50h_20260909/nav_v1/REPORT.md) | tracked | `4e24c31417bfc5309f8ff90a2e84966419f5bc7ab35df8401fbab4c64796b948` | |
+| [`scripts/nav_analyze.py`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/scripts/nav_analyze.py), [`scripts/nav_runner.py`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/scripts/nav_runner.py) | tracked | | |
 
 ---
 
@@ -151,17 +152,17 @@ pairs.
 Checks: every cell equals the study's per-pair record in the result files below (18,400 soil and 9,600 rigid cells).
 It was also recomputed from the raw `outcome.json` and `trajectory.npz` of the run folder that record names.
 
-| source (prefix `artifacts/traverse/`) | status | SHA256 |
-|---|---|---|
-| [`generalist_20260921/A_adapt/suite/suite.json`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/artifacts/traverse/generalist_20260921/A_adapt/suite/suite.json) (the 800 pairs) | tracked | `64921952321fa4e20597bea8b0b4c1a61dad0ac2a763c6eb9351edfa30844c1a` |
-| [`generalist_20260921/A_adapt/a3/results_crm_A0A3.json`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/artifacts/traverse/generalist_20260921/A_adapt/a3/results_crm_A0A3.json) | tracked | `cd6434bf353f375e8556f082e6a90bf29cc28c940a0e44fe945f55feaf387882` |
-| [`generalist_20260921/A_adapt/a3/results_rigid_A0A3.json`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/artifacts/traverse/generalist_20260921/A_adapt/a3/results_rigid_A0A3.json) | tracked | `400fc640e0a86e0ebf332747fee24fe9abe72caff9215706db6966b75edb7c13` |
-| [`generalist_20260921/A_adapt/a5/results_crm_A5.json`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/artifacts/traverse/generalist_20260921/A_adapt/a5/results_crm_A5.json) | tracked | `d8a1585fab38c75cb3a47dd1c7e33d9bce5eb838bd9827c995601474e66c2968` |
-| [`generalist_20260921/A_adapt/a5/results_rigid_A5.json`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/artifacts/traverse/generalist_20260921/A_adapt/a5/results_rigid_A5.json) | tracked | `70ed12392f39cf60ad181586a4203669bafb12d43bafd3691197fe6357b248de` |
-| `crm_improve_20260922/s2/results_s2_crm_vs3s.json` | local-only | `da58edcada7d71199d5fa2ab4d8f9fcdf1ce6cc22768c499ebb10c70b7ecebc4` |
-| `crm_improve_20260922/s4/results_s4.json` | local-only | `d4b2007f3885bdc45b542addda6f8ce6f6323320f0dde58fe0d9c5477658695a` |
-| `crm_improve_20260922/s4/results_s4_rigid.json` | local-only | `438ce5c84a5b4e9b910c2ca5e2a385da93474f3bf3e88fd5ae912b1a6ef75575` |
-| raw run folders (`outcome.json`, `trajectory.npz`); a per-file SHA256 list ships with the data release | local-only | |
+| source (prefix `artifacts/traverse/`) | status | SHA256 | release item |
+|---|---|---|---|
+| [`generalist_20260921/A_adapt/suite/suite.json`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/artifacts/traverse/generalist_20260921/A_adapt/suite/suite.json) (the 800 pairs) | tracked | `64921952321fa4e20597bea8b0b4c1a61dad0ac2a763c6eb9351edfa30844c1a` | |
+| [`generalist_20260921/A_adapt/a3/results_crm_A0A3.json`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/artifacts/traverse/generalist_20260921/A_adapt/a3/results_crm_A0A3.json) | tracked | `cd6434bf353f375e8556f082e6a90bf29cc28c940a0e44fe945f55feaf387882` | |
+| [`generalist_20260921/A_adapt/a3/results_rigid_A0A3.json`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/artifacts/traverse/generalist_20260921/A_adapt/a3/results_rigid_A0A3.json) | tracked | `400fc640e0a86e0ebf332747fee24fe9abe72caff9215706db6966b75edb7c13` | |
+| [`generalist_20260921/A_adapt/a5/results_crm_A5.json`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/artifacts/traverse/generalist_20260921/A_adapt/a5/results_crm_A5.json) | tracked | `d8a1585fab38c75cb3a47dd1c7e33d9bce5eb838bd9827c995601474e66c2968` | |
+| [`generalist_20260921/A_adapt/a5/results_rigid_A5.json`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/artifacts/traverse/generalist_20260921/A_adapt/a5/results_rigid_A5.json) | tracked | `70ed12392f39cf60ad181586a4203669bafb12d43bafd3691197fe6357b248de` | |
+| `crm_improve_20260922/s2/results_s2_crm_vs3s.json` | local-only | `da58edcada7d71199d5fa2ab4d8f9fcdf1ce6cc22768c499ebb10c70b7ecebc4` | `shared_model_results_early_and_final` |
+| `crm_improve_20260922/s4/results_s4.json` | local-only | `d4b2007f3885bdc45b542addda6f8ce6f6323320f0dde58fe0d9c5477658695a` | `shared_model_results_early_and_final` |
+| `crm_improve_20260922/s4/results_s4_rigid.json` | local-only | `438ce5c84a5b4e9b910c2ca5e2a385da93474f3bf3e88fd5ae912b1a6ef75575` | `shared_model_results_early_and_final` |
+| raw run folders (`outcome.json`, `trajectory.npz`); every file with its SHA256 in the items' `index.csv.gz` | local-only | | `shared_model_drive_folders_soil`, `shared_model_drive_folders_rigid` |
 
 ---
 
@@ -205,13 +206,13 @@ arm drove every route. Observed: 1,536 `S`, 965 `U` (722 breakthrough, 235 block
 Checks: every row equals the tracked per-route records. The near-stop flags equal the raw `outcome.json` files, and
 all values were also recomputed from the raw run files.
 
-| source (prefix `artifacts/traverse/generalist_20260921/B_tracker/`) | status | SHA256 |
-|---|---|---|
-| [`b0/results_rigid_b0v2.json`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/artifacts/traverse/generalist_20260921/B_tracker/b0/results_rigid_b0v2.json) (`per_route`) | tracked | `20c95e79d044ffb46a9fd02ca81f9e426ffd6df0d18e0464336e185d3a88adf5` |
-| [`b0/results_crm_b0v2.json`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/artifacts/traverse/generalist_20260921/B_tracker/b0/results_crm_b0v2.json) (`per_route`) | tracked | `ebcf6fffdb0a45f6f964bf48306d645eb9e76f9b65db08541719720e7d994d18` |
-| [`suite/tracking_suite.json`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/artifacts/traverse/generalist_20260921/B_tracker/suite/tracking_suite.json) (routes and strata) | tracked | `a53b0eb69381e7b437c6afbe3e339c1671c28c727c10f2c5912472368b9ca2e5` |
-| [`scripts/gb_track_analyze.py`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/scripts/gb_track_analyze.py) | tracked | `c0203ab6da1a9eceb2342765eeb3a179d12ce22ce414bd9813c01af4d5d544ab` |
-| raw run folders `b0/{rigid,crm}_by_arm/<arm>/<route>/` (7,614 files; a per-file SHA256 list ships with the data release) | local-only | |
+| source (prefix `artifacts/traverse/generalist_20260921/B_tracker/`) | status | SHA256 | release item |
+|---|---|---|---|
+| [`b0/results_rigid_b0v2.json`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/artifacts/traverse/generalist_20260921/B_tracker/b0/results_rigid_b0v2.json) (`per_route`) | tracked | `20c95e79d044ffb46a9fd02ca81f9e426ffd6df0d18e0464336e185d3a88adf5` | |
+| [`b0/results_crm_b0v2.json`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/artifacts/traverse/generalist_20260921/B_tracker/b0/results_crm_b0v2.json) (`per_route`) | tracked | `ebcf6fffdb0a45f6f964bf48306d645eb9e76f9b65db08541719720e7d994d18` | |
+| [`suite/tracking_suite.json`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/artifacts/traverse/generalist_20260921/B_tracker/suite/tracking_suite.json) (routes and strata) | tracked | `a53b0eb69381e7b437c6afbe3e339c1671c28c727c10f2c5912472368b9ca2e5` | |
+| [`scripts/gb_track_analyze.py`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/scripts/gb_track_analyze.py) | tracked | `c0203ab6da1a9eceb2342765eeb3a179d12ce22ce414bd9813c01af4d5d544ab` | |
+| raw run folders `b0/{rigid,crm}_by_arm/<arm>/<route>/` (7,614 files; the views are links to the released run folders, see [release.md](../docs/release.md#links-to-recreate)) | local-only | | `tracker_drive_folders` |
 
 ---
 
@@ -253,15 +254,15 @@ second ensembles and the two-arena model were driven only on the unseen test pai
 Checks: every cell (9,000 soil, 37,100 rigid) equals the local evaluation index. All 100 recount expectations for
 these two tables equal the rates in the tracked analysis files.
 
-| source (prefix `artifacts/traverse/arena_gator_20260925/e6/`) | status | SHA256 |
-|---|---|---|
-| `index/soil_eval_v1.json` (per-drive index) | local-only | `d9c86320694f352d24826c4d828fabe1a2f0cd7b7b359891eba76bdde4cd4029` |
-| `index/rigid_eval_v1.json` (per-drive index) | local-only | `7c09e4d3abfaf3da205adca2ee672813c93eb96481df24e3c1d4de405567b900` |
-| [`analysis/results_soil_v1.json`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/artifacts/traverse/arena_gator_20260925/e6/analysis/results_soil_v1.json) (records the soil index hash) | tracked | `96facb251356d9cd9eabde5d0d4a73b11511b1b797963321e203571a4451755a` |
-| [`analysis/results_rigid_v1.json`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/artifacts/traverse/arena_gator_20260925/e6/analysis/results_rigid_v1.json) (records the rigid index hash) | tracked | `712e3fb674e83ccac9baf056f25d6a872547f3047bfd96e204da563934ba326d` |
-| `tasks/soil_eval_p1.json.mapping.json` ... `p5` | local-only | `959fc9f62507a65926c155c3d44e29a1605329b73a4a3ba88331d8c6b2311ad2`, `95652f1807b688ef4b953a5d98a698d91715746e0a5989a81ffa1007e1b27e92`, `9955b8c303705e209fb53d2a1e3a173b136ada71094089fa145387a5706c2306`, `b30428f0c70213936250fca197224f5bc1a30b428866c8c322480dc201b39727`, `23fcd8b334f2ad42b7e7c76d36202fa34a45528643fdb8d9706bb1e453ed4510` |
-| `tasks/rigid_eval_{unseen,f104,heldout,dev}.json.mapping.json` | local-only | `4ab8211599a1314c2f1c6f307ac183ea0923dd42bd0766ef10c72f8b14b09c65`, `16476b6fcc3cbed81cd34454fd79539c924144693f8f8688e4c98bf7f224d26b`, `efc929c314abf157990310ff285f05660ac86c4aa7754c6cd6d7681202ec5c1f`, `8d74779b3ac45a7814b2dbfc3cc9307c21974e6f7af9a29b5b066aa44e317b21` |
-| raw drive folders `runs_soil/<run_id>/`, `runs_rigid/<run_id>/` (`outcome.json`, `trajectory.npz`) | local-only | |
+| source (prefix `artifacts/traverse/arena_gator_20260925/e6/`) | status | SHA256 | release item |
+|---|---|---|---|
+| `index/soil_eval_v1.json` (per-drive index) | local-only | `d9c86320694f352d24826c4d828fabe1a2f0cd7b7b359891eba76bdde4cd4029` | `unseen_arena_eval_indexes` |
+| `index/rigid_eval_v1.json` (per-drive index) | local-only | `7c09e4d3abfaf3da205adca2ee672813c93eb96481df24e3c1d4de405567b900` | `unseen_arena_eval_indexes` |
+| [`analysis/results_soil_v1.json`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/artifacts/traverse/arena_gator_20260925/e6/analysis/results_soil_v1.json) (records the soil index hash) | tracked | `96facb251356d9cd9eabde5d0d4a73b11511b1b797963321e203571a4451755a` | |
+| [`analysis/results_rigid_v1.json`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/artifacts/traverse/arena_gator_20260925/e6/analysis/results_rigid_v1.json) (records the rigid index hash) | tracked | `712e3fb674e83ccac9baf056f25d6a872547f3047bfd96e204da563934ba326d` | |
+| `tasks/soil_eval_p1.json.mapping.json` ... `p5` | local-only | `959fc9f62507a65926c155c3d44e29a1605329b73a4a3ba88331d8c6b2311ad2`, `95652f1807b688ef4b953a5d98a698d91715746e0a5989a81ffa1007e1b27e92`, `9955b8c303705e209fb53d2a1e3a173b136ada71094089fa145387a5706c2306`, `b30428f0c70213936250fca197224f5bc1a30b428866c8c322480dc201b39727`, `23fcd8b334f2ad42b7e7c76d36202fa34a45528643fdb8d9706bb1e453ed4510` | `unseen_arena_eval_indexes` |
+| `tasks/rigid_eval_{unseen,f104,heldout,dev}.json.mapping.json` | local-only | `4ab8211599a1314c2f1c6f307ac183ea0923dd42bd0766ef10c72f8b14b09c65`, `16476b6fcc3cbed81cd34454fd79539c924144693f8f8688e4c98bf7f224d26b`, `efc929c314abf157990310ff285f05660ac86c4aa7754c6cd6d7681202ec5c1f`, `8d74779b3ac45a7814b2dbfc3cc9307c21974e6f7af9a29b5b066aa44e317b21` | `unseen_arena_eval_indexes` |
+| raw drive folders `runs_soil/<run_id>/`, `runs_rigid/<run_id>/` (`outcome.json`, `trajectory.npz`) | local-only | | `unseen_arena_drive_folders_soil`, `unseen_arena_drive_folders_rigid` |
 
 ---
 
@@ -306,15 +307,15 @@ Checks: all 9,600 cells equal the two local indexes. All 15 recount expectations
 read-outs `offroad_vehicles_20260927/e6/analysis/results_ov_v1.json` and
 `arena_gator_20260925/e6/analysis/results_soil_v1_Bfull.json`.
 
-| source (prefix `artifacts/traverse/`) | status | SHA256 |
-|---|---|---|
-| `arena_gator_20260925/e6/index/soil_eval_bfull.json` (Gator sampling arms, HMMWV sampling and straight arms) | local-only | `ce1a5ee1618b9e132ff1fb457a36fc78c30e50d3a69d988cf588b193f158d000` |
-| `offroad_vehicles_20260927/e6/index/soil_eval_ov_final.json` (refined arms, Polaris arms) | local-only | `bb5e35ecb29fd20e139238a7b373778aa22ae55c2c45e8a4f5bedb931a6fc3f5` |
-| [`offroad_vehicles_20260927/e6/analysis/results_ov_v1.json`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/artifacts/traverse/offroad_vehicles_20260927/e6/analysis/results_ov_v1.json) (records both index hashes) | tracked | `dccf2fc708b14d1422926d4f4205376b69024e90b136d2752b5a6c3016534c90` |
-| [`arena_gator_20260925/e6/analysis/results_soil_v1_Bfull.json`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/artifacts/traverse/arena_gator_20260925/e6/analysis/results_soil_v1_Bfull.json) | tracked | `9f67f31f7b55bdab3efb50c97cf4e25f8d44a593439d31fea1f483c962285566` |
-| `arena_gator_20260925/e6/tasks/soil_eval_bf1.json.mapping.json`, `soil_eval_bf2.json.mapping.json` | local-only | `6907d61598af98e3cef62758fd120829338b36e0bb295f4927d56012566a09c4`, `cc5321f2df9f82f9f34fcfdb39d8173811a7ab55cf7ceb10967415d8e3af4a49` |
-| `offroad_vehicles_20260927/e6/tasks/soil_eval_polaris_s2a.json.mapping.json`, `soil_eval_polaris_s2b.json.mapping.json`, `soil_eval_gradref_v1_noreuse.json.mapping.json` | local-only | `8f6d4167c82a3c741bae327994d31b8a37f1788f9ad74526f9351b6b5711c9b1`, `a7dee6d0652562d6673eb8599a3fbc11077f411c88be46805545b7ff15c2d4df`, `62c1bed5d7e7f13be0e4bcd61617519df0511794ec2868ab43f772761fede81e` |
-| raw drive folders named in the indexes (`outcome.json`, `trajectory.npz`, `vehicle_extra.npz`) | local-only | |
+| source (prefix `artifacts/traverse/`) | status | SHA256 | release item |
+|---|---|---|---|
+| `arena_gator_20260925/e6/index/soil_eval_bfull.json` (Gator sampling arms, HMMWV sampling and straight arms) | local-only | `ce1a5ee1618b9e132ff1fb457a36fc78c30e50d3a69d988cf588b193f158d000` | `vehicle_eval_indexes_and_smoke_extract` |
+| `offroad_vehicles_20260927/e6/index/soil_eval_ov_final.json` (refined arms, Polaris arms) | local-only | `bb5e35ecb29fd20e139238a7b373778aa22ae55c2c45e8a4f5bedb931a6fc3f5` | `vehicle_eval_indexes_and_smoke_extract` |
+| [`offroad_vehicles_20260927/e6/analysis/results_ov_v1.json`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/artifacts/traverse/offroad_vehicles_20260927/e6/analysis/results_ov_v1.json) (records both index hashes) | tracked | `dccf2fc708b14d1422926d4f4205376b69024e90b136d2752b5a6c3016534c90` | |
+| [`arena_gator_20260925/e6/analysis/results_soil_v1_Bfull.json`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/artifacts/traverse/arena_gator_20260925/e6/analysis/results_soil_v1_Bfull.json) | tracked | `9f67f31f7b55bdab3efb50c97cf4e25f8d44a593439d31fea1f483c962285566` | |
+| `arena_gator_20260925/e6/tasks/soil_eval_bf1.json.mapping.json`, `soil_eval_bf2.json.mapping.json` | local-only | `6907d61598af98e3cef62758fd120829338b36e0bb295f4927d56012566a09c4`, `cc5321f2df9f82f9f34fcfdb39d8173811a7ab55cf7ceb10967415d8e3af4a49` | `vehicle_eval_indexes_and_smoke_extract` |
+| `offroad_vehicles_20260927/e6/tasks/soil_eval_polaris_s2a.json.mapping.json`, `soil_eval_polaris_s2b.json.mapping.json`, `soil_eval_gradref_v1_noreuse.json.mapping.json` | local-only | `8f6d4167c82a3c741bae327994d31b8a37f1788f9ad74526f9351b6b5711c9b1`, `a7dee6d0652562d6673eb8599a3fbc11077f411c88be46805545b7ff15c2d4df`, `62c1bed5d7e7f13be0e4bcd61617519df0511794ec2868ab43f772761fede81e` | `vehicle_eval_indexes_and_smoke_extract` |
+| raw drive folders named in the indexes (`outcome.json`, `trajectory.npz`, `vehicle_extra.npz`) | local-only | | `vehicle_f104_drive_folders`, which requires `unseen_arena_drive_folders_soil` (the 204 HMMWV f104 drives this table shares with the unseen-arena soil table are released there) |
 
 ---
 
@@ -346,12 +347,12 @@ study. `F` and `-` do not occur. The HMMWV arms on the same pairs are in `m4_uns
 Checks: all 3,000 cells equal the local index. All 21 recount expectations equal the tracked read-out
 `offroad_vehicles_20260927/e6/analysis/results_unseen_v1.json`, including per arena and per near/spread group.
 
-| source (prefix `artifacts/traverse/offroad_vehicles_20260927/`) | status | SHA256 |
-|---|---|---|
-| `e6/index/unseen_polaris_v1.json` | local-only | `49c5b4741423f13bf8555a0e9d5358e24baea51f6961bcebd8e184d100afb4f5` |
-| [`e6/analysis/results_unseen_v1.json`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/artifacts/traverse/offroad_vehicles_20260927/e6/analysis/results_unseen_v1.json) (records the index hash) | tracked | `7954083ab976a9c451f0297bafa979f56b99a3bf33d1c604d271f00a8f7e5169` |
-| `e6/tasks/soil_eval_polaris_unseen_v1.json.mapping.json` | local-only | `e13845895a15834f451a28312ac3523ac6d3d87a4269880b6e8b465e1cc37e4a` |
-| raw drive folders `e6/sync/runs_unseen/` | local-only | |
+| source (prefix `artifacts/traverse/offroad_vehicles_20260927/`) | status | SHA256 | release item |
+|---|---|---|---|
+| `e6/index/unseen_polaris_v1.json` | local-only | `49c5b4741423f13bf8555a0e9d5358e24baea51f6961bcebd8e184d100afb4f5` | `vehicle_eval_indexes_and_smoke_extract` |
+| [`e6/analysis/results_unseen_v1.json`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/artifacts/traverse/offroad_vehicles_20260927/e6/analysis/results_unseen_v1.json) (records the index hash) | tracked | `7954083ab976a9c451f0297bafa979f56b99a3bf33d1c604d271f00a8f7e5169` | |
+| `e6/tasks/soil_eval_polaris_unseen_v1.json.mapping.json` | local-only | `e13845895a15834f451a28312ac3523ac6d3d87a4269880b6e8b465e1cc37e4a` | `vehicle_eval_indexes_and_smoke_extract` |
+| raw drive folders `e6/sync/runs_unseen/` | local-only | | `polaris_unseen_drive_folders` |
 
 ---
 
@@ -390,10 +391,10 @@ error in the new M113 module. The study excluded it from both sides of the compa
 Checks: all cells equal the per-route extract below. The totals equal the tracked smoke read-outs and
 `RESULTS_smoke.md` (including the designed / planner-proposal split).
 
-| source (prefix `artifacts/traverse/offroad_vehicles_20260927/`) | status | SHA256 |
-|---|---|---|
-| `analysis/k4_extract.jsonl` (per-route records extracted read-only from the cluster run folders) | local-only | `511cfaae7af7dea8a5a2919e96e229e1477a0447e317fc7ed73f4c616d3da496` |
-| [`analysis/scripts/k4_extract.py`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/artifacts/traverse/offroad_vehicles_20260927/analysis/scripts/k4_extract.py) | tracked | `a72c6e7c4591947e7aa876989ade4c44aea0d63f3c529a69530da8008122f6b6` |
-| [`analysis/smoke_polaris_v1_final.json`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/artifacts/traverse/offroad_vehicles_20260927/analysis/smoke_polaris_v1_final.json) | tracked | `cfb4ad6f8f11d304170378d260a7e41be82523fecd5f6c03d3c06e3bce2556df` |
-| [`analysis/smoke_m113_v1_final.json`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/artifacts/traverse/offroad_vehicles_20260927/analysis/smoke_m113_v1_final.json) | tracked | `c5c98948fb5f9143f8d57074ed5605eb61c827f43328995c8824e28c466000db` |
-| `scratch/S3/sample_A.json` (the 144 routes and the stored HMMWV/Gator outcomes) | local-only | `afb0607f659b7bbbc989c8b9428d32728bece9943839d43b3e21ab18c7dffdec` |
+| source (prefix `artifacts/traverse/offroad_vehicles_20260927/`) | status | SHA256 | release item |
+|---|---|---|---|
+| `analysis/k4_extract.jsonl` (per-route records extracted read-only from the cluster run folders) | local-only | `511cfaae7af7dea8a5a2919e96e229e1477a0447e317fc7ed73f4c616d3da496` | `vehicle_eval_indexes_and_smoke_extract` |
+| [`analysis/scripts/k4_extract.py`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/artifacts/traverse/offroad_vehicles_20260927/analysis/scripts/k4_extract.py) | tracked | `a72c6e7c4591947e7aa876989ade4c44aea0d63f3c529a69530da8008122f6b6` | |
+| [`analysis/smoke_polaris_v1_final.json`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/artifacts/traverse/offroad_vehicles_20260927/analysis/smoke_polaris_v1_final.json) | tracked | `cfb4ad6f8f11d304170378d260a7e41be82523fecd5f6c03d3c06e3bce2556df` | |
+| [`analysis/smoke_m113_v1_final.json`](https://github.com/uwsbel/NeDM/blob/901d6c9423a16c0fafc3d60056065415d5a725f2/artifacts/traverse/offroad_vehicles_20260927/analysis/smoke_m113_v1_final.json) | tracked | `c5c98948fb5f9143f8d57074ed5605eb61c827f43328995c8824e28c466000db` | |
+| `scratch/S3/sample_A.json` (the 144 routes and the stored HMMWV/Gator outcomes) | local-only | `afb0607f659b7bbbc989c8b9428d32728bece9943839d43b3e21ab18c7dffdec` | `vehicle_eval_indexes_and_smoke_extract` |

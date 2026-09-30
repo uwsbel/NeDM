@@ -4,7 +4,7 @@ State as of 2026-09-28. Every number is a closed-loop drive in Chrono unless mar
 the per-task tables in [`../results/`](../results/README.md), which were rebuilt from the per-drive records and checked
 against each study's own analysis files with no mismatches. Run `python traversing/scripts/recount_milestones.py` to
 repeat the recount. Records named below are at the experiment commit [`901d6c9`][commit].
-[evidence.md](evidence.md) lists every record, the code that produced it, and what is not yet public.
+[evidence.md](evidence.md) lists every record, the code that produced it, and the release item that holds it.
 
 Conventions:
 
@@ -221,7 +221,7 @@ original shared model after the 3 s approach reaches 797/800.
 - standing-start results: [soil][a3-crm], [rigid][a3-rigid];
 - results after the 3 s approach: [soil][a5-crm], [rigid][a5-rigid];
 - early-decision summary: [text summary][s2-txt];
-- the final per-pair results are local-only, listed in [evidence.md](evidence.md#milestone-2-shared-rigidsoil-model-and-early-decision).
+- the final per-pair results were local-only and are now in the data release, listed in [evidence.md](evidence.md#milestone-2-shared-rigidsoil-model-and-early-decision).
 
 Tables: [`m2_shared_risk_soil.csv`](../results/m2_shared_risk_soil.csv) and
 [`m2_shared_risk_rigid.csv`](../results/m2_shared_risk_rigid.csv).
