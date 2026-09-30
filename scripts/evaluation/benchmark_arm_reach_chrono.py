@@ -40,7 +40,7 @@ SRC_ROOT = REPO_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-EVAL_SCRIPT = REPO_ROOT / "scripts" / "eval_arm_rl_chrono_reaching.py"
+EVAL_SCRIPT = Path(__file__).resolve().parent / "eval_arm_rl_chrono_reaching.py"
 
 
 def parse_args(argv=None):

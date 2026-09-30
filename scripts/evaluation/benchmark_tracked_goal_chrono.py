@@ -29,7 +29,7 @@ from pathlib import Path
 import numpy as np
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-EVAL_SCRIPT = REPO_ROOT / "scripts" / "eval_tracked_rl_goal_chrono.py"
+EVAL_SCRIPT = Path(__file__).resolve().parent / "eval_tracked_rl_goal_chrono.py"
 
 
 def parse_args(argv=None):

@@ -70,7 +70,7 @@ if [[ -f "$REF_GOALS" ]]; then
   # Reuse the benchmark's own sampler so the guard exercises the identical code path.
   "$PYTHON_BIN" -c "
 import json, sys, numpy as np
-sys.path.insert(0, 'src'); sys.path.insert(0, 'scripts')
+sys.path.insert(0, 'src'); sys.path.insert(0, 'scripts/evaluation')
 from benchmark_arm_reach_chrono import sample_goals
 from pathlib import Path
 goals, _ = sample_goals(Path('$RUN_DIR'), $NUM_GOALS, $SEED, 'cuda')
