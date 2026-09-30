@@ -35,7 +35,8 @@ trained with PPO inside a learned reduced dynamics model is compared with PID:
 it tracks routes more closely on rigid ground but completes fewer routes on
 soil. The folder records milestones, evidence and limits through 2026-09-28.
 The study's data and models are in the `traversing/` folder of the Hugging Face
-dataset; its code follows in later pull requests.
+dataset; its training code is in `src/nedm/traversing/`, and its evaluation code
+follows in a later pull request.
 
 **[docs/progress.md](docs/progress.md) is the reproduction record** — every stage
 output with the artifact that produced it and the command that regenerates it.

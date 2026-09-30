@@ -74,7 +74,8 @@ uses atomic additions, so it is not deterministic. On the CPU, training is deter
 script bit for bit.
 
 **For the tracker.** The modules form the package `nedm.traversing.training`: with `src/` on `sys.path`, other code
-imports them as `from nedm.traversing.training import dynamics_model`; the entry points need nothing extra.
+imports them as `from nedm.traversing.training import dynamics_model`. The entry points need the same: run them from
+the repository root with `PYTHONPATH=src`, as in the commands above.
 `dynamics_model.load_nrd(path, device)` returns the frozen model, its normaliser and the checkpoint.
 `model.token(pose)` gives the crop token and `integrate_pose` does the dead reckoning. `dynamics_data` provides the
 manifest, split and held-out-group helpers. `state` provides `OBSERVABLE_COLS` and `SETTLE_ACTION`.
