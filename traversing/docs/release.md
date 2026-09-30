@@ -56,11 +56,13 @@ with HfFileSystem().open(path, "rb") as f:
 
 ## How it was built
 
-**Tools.** [`scripts/release/build_release.py`](../scripts/release/build_release.py) packs the items described by
-[`manifests/release_spec.json`](../manifests/release_spec.json). The spec lists, for each item, its source folder,
-which files to take (glob patterns, a file list, or a list of drive folders with the files to take inside each; the
-lists are in [`manifests/id_lists/`](../manifests/id_lists)), where it restores to, and the checksums and parameter
-counts known before the build. The build uses the Python standard library only.
+**Tools.** `build_release.py` packed the items described by `release_spec.json`. The spec lists, for each item, its
+source folder, which files to take (glob patterns, a file list, or a list of drive folders with the files to take
+inside each; the lists are in `id_lists/`), where it restores to, and the checksums and parameter counts known before
+the build. The build uses the Python standard library only. These build inputs are needed only to rebuild the release
+from the original study folders, so they are not on main: they are kept under the tag
+[`traversing-release-build-v1`](https://github.com/uwsbel/NeDM/tree/traversing-release-build-v1/traversing) (commit `e37bac0`), in `scripts/release/build_release.py` and
+`manifests/`. Each item's drive-folder list is also on the Hub as `ids.txt.gz` in the item's folder (same lines).
 
 **Scope.** The items come from an inventory made on 2026-09-29 of what reproduces the milestone results:
 
@@ -247,8 +249,8 @@ The tracker views need `tracker_drive_folders` restored first; the map-root link
 ## Rebuild from the spec
 
 A rebuild needs the original sources: the experiment checkout at [`901d6c9`][commit] with its untracked study
-folders, and the study folders on the cluster. The release was built with these commands (staging folders are
-examples):
+folders, and the study folders on the cluster. Check out the tag `traversing-release-build-v1`, which holds the
+builder, the spec and the lists. The release was built with these commands (staging folders are examples):
 
 ```bash
 # workstation items
