@@ -15,18 +15,18 @@
 # Submit with:
 #
 #   mkdir -p logs
-#   sbatch scripts/cluster/train_hmmwv_rl_tracking.sh
+#   sbatch scripts/hmmwv/cluster/train_hmmwv_rl_tracking.sh
 #
 # Common overrides:
 #
-#   NUM_ENVS=2048 MAX_ITERATIONS=2000 sbatch scripts/cluster/train_hmmwv_rl_tracking.sh
-#   RUN_NAME=hmmwv_rl_15d_a100 sbatch scripts/cluster/train_hmmwv_rl_tracking.sh
-#   STEERING_RATE_LIMIT=0.08 sbatch scripts/cluster/train_hmmwv_rl_tracking.sh
-#   LOGGER=none sbatch scripts/cluster/train_hmmwv_rl_tracking.sh   # if tensorboard is unavailable
+#   NUM_ENVS=2048 MAX_ITERATIONS=2000 sbatch scripts/hmmwv/cluster/train_hmmwv_rl_tracking.sh
+#   RUN_NAME=hmmwv_rl_15d_a100 sbatch scripts/hmmwv/cluster/train_hmmwv_rl_tracking.sh
+#   STEERING_RATE_LIMIT=0.08 sbatch scripts/hmmwv/cluster/train_hmmwv_rl_tracking.sh
+#   LOGGER=none sbatch scripts/hmmwv/cluster/train_hmmwv_rl_tracking.sh   # if tensorboard is unavailable
 #
 # Extra train_hmmwv_rl_tracking.py args can be appended after --, for example:
 #
-#   sbatch scripts/cluster/train_hmmwv_rl_tracking.sh -- --save-interval 50
+#   sbatch scripts/hmmwv/cluster/train_hmmwv_rl_tracking.sh -- --save-interval 50
 
 set -euo pipefail
 
@@ -103,4 +103,4 @@ echo "job_id=${SLURM_JOB_ID:-local}"
 echo "num_envs=$NUM_ENVS max_iterations=$MAX_ITERATIONS num_steps_per_env=$NUM_STEPS_PER_ENV"
 echo "logger=$LOGGER matmul_precision=$MATMUL_PRECISION steering_rate_limit=${STEERING_RATE_LIMIT:-none}"
 echo "extra_args=$*"
-python scripts/training/train_hmmwv_rl_tracking.py "${train_args[@]}"
+python scripts/hmmwv/training/train_hmmwv_rl_tracking.py "${train_args[@]}"

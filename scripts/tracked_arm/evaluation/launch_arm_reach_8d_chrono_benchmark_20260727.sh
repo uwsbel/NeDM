@@ -3,7 +3,7 @@
 #
 # The 8-D analog of the 12-D battery at
 #   artifacts/rl_runs/arm_reach_..._noee12d_rom_20260724/chrono_reach_benchmark_N100_seed12345
-# and deliberately byte-comparable to it: same harness (scripts/evaluation/benchmark_arm_reach_chrono.py),
+# and deliberately byte-comparable to it: same harness (scripts/tracked_arm/evaluation/benchmark_arm_reach_chrono.py),
 # same N=100, same seed=12345, same 5 cm tolerance. The two runs' env_cfg goal blocks are
 # identical (q_lo/q_hi/max_sample_attempts), so the seeded sampler yields the SAME 100 EE
 # goals -- the script asserts this against the 12-D goals.json before spending ~45 min of
@@ -21,7 +21,7 @@
 #     dies with `CXXABI_1.3.15 not found`. Set explicitly so this works from any shell.
 set -euo pipefail
 
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 cd "$REPO_ROOT"
 
 PYTHON_BIN="${PYTHON_BIN:-/home/harry/anaconda3/envs/nedm/bin/python}"
@@ -57,7 +57,7 @@ echo "output  : $OUT_DIR"
 echo "goals   : N=$NUM_GOALS seed=$SEED (must match the 12-D battery)"
 
 bench_cmd=(
-  "$PYTHON_BIN" scripts/evaluation/benchmark_arm_reach_chrono.py
+  "$PYTHON_BIN" scripts/tracked_arm/evaluation/benchmark_arm_reach_chrono.py
   --run-dir "$RUN_DIR"
   --num-goals "$NUM_GOALS"
   --seed "$SEED"
@@ -70,7 +70,7 @@ if [[ -f "$REF_GOALS" ]]; then
   # Reuse the benchmark's own sampler so the guard exercises the identical code path.
   "$PYTHON_BIN" -c "
 import json, sys, numpy as np
-sys.path.insert(0, 'src'); sys.path.insert(0, 'scripts/evaluation')
+sys.path.insert(0, 'src'); sys.path.insert(0, 'scripts/tracked_arm/evaluation')
 from benchmark_arm_reach_chrono import sample_goals
 from pathlib import Path
 goals, _ = sample_goals(Path('$RUN_DIR'), $NUM_GOALS, $SEED, 'cuda')

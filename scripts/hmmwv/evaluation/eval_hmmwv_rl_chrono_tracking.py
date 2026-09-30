@@ -21,14 +21,14 @@ import torch
 from rsl_rl.runners import OnPolicyRunner
 
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 SRC_ROOT = REPO_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-from nedm.rl.hmmwv_chrono_crm_tracking_env import HMMWVChronoCRMTrackingEnv
-from nedm.rl.hmmwv_chrono_tracking_env import HMMWVChronoTrackingEnv
-from nedm.rl.references import load_reference_set
+from nedm.hmmwv.rl.hmmwv_chrono_crm_tracking_env import HMMWVChronoCRMTrackingEnv
+from nedm.hmmwv.rl.hmmwv_chrono_tracking_env import HMMWVChronoTrackingEnv
+from nedm.hmmwv.rl.references import load_reference_set
 
 
 def resolve_terrain_type(chrono_config: Path) -> str:
@@ -51,7 +51,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--chrono-config",
         type=Path,
-        default=Path("configs/hmmwv_overfit_v1.json"),
+        default=Path("configs/hmmwv/hmmwv_overfit_v1.json"),
         help="Collector config that defines HMMWV and terrain setup.",
     )
     parser.add_argument(
@@ -191,7 +191,7 @@ def rollout_one_reference(
         print(f"rendering frames -> {frames_dir}")
     blender_exporter = None
     if blender_output_dir is not None:
-        from nedm.blender_export import BlenderFrameExporter
+        from nedm.core.blender_export import BlenderFrameExporter
 
         sim = env.sims[0]
         if sim is None:

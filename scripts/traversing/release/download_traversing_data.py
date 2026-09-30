@@ -1,9 +1,9 @@
 """Fetch items of the traversing release from Hugging Face and restore them into this repo's layout.
 
-    python traversing/scripts/release/download_traversing_data.py --list --all
-    python traversing/scripts/release/download_traversing_data.py --milestone m2 --bundle models
-    python traversing/scripts/release/download_traversing_data.py --items hmmwv_rigid_f104_pool_designed --verify-members
-    python traversing/scripts/release/download_traversing_data.py --all --from-dir /data/trv_staging --dest /tmp/restore
+    python scripts/traversing/release/download_traversing_data.py --list --all
+    python scripts/traversing/release/download_traversing_data.py --milestone m2 --bundle models
+    python scripts/traversing/release/download_traversing_data.py --items hmmwv_rigid_f104_pool_designed --verify-members
+    python scripts/traversing/release/download_traversing_data.py --all --from-dir /data/trv_staging --dest /tmp/restore
 
 Files land in ``--cache-dir`` (default ``<dest>/artifacts/hf_release/download``, a mirror of the Hub tree) and are
 checked against the SHA256 in ``traversing/release_manifest.json`` (a cached file with another hash is downloaded

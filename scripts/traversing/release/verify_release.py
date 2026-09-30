@@ -1,8 +1,8 @@
 """Check the traversing release on the Hub, in a local tree, and its models.
 
-    python traversing/scripts/release/verify_release.py --hub                      # the pinned revision
-    python traversing/scripts/release/verify_release.py --local /data/trv_staging  # staged or downloaded tree
-    python traversing/scripts/release/verify_release.py --count-params net_s0.pt   # the known_params rule
+    python scripts/traversing/release/verify_release.py --hub                      # the pinned revision
+    python scripts/traversing/release/verify_release.py --local /data/trv_staging  # staged or downloaded tree
+    python scripts/traversing/release/verify_release.py --count-params net_s0.pt   # the known_params rule
 
 The reference manifest is ``--manifest``, else the pinned GitHub copy ``traversing/manifests/hf_release_manifest.json``
 (its ``hf_revision`` must be a 40-hex commit). ``--hub``: every file of the manifest exists under ``traversing/`` at

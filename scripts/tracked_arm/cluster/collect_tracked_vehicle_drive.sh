@@ -13,14 +13,14 @@
 # single-pin track model -- and runs strictly sequentially (one Chrono scene
 # per episode, no --jobs), so shards are the only parallelism knob.
 #
-# Default target is the v2 dataset (configs/tracked_vehicle_drive_v2.json,
+# Default target is the v2 dataset (configs/tracked_arm/tracked_vehicle_drive_v2.json,
 # 2160 scenarios) sharded into 60 tasks of 36 episodes each -- the same
 # per-task load that fit comfortably for v1, so no task risks the walltime.
 # The 15-cap is a *concurrency* limit (max 15 tasks running at once), so run
 # the 60 tasks throttled to 15 in flight (four waves):
 #
 #   mkdir -p logs
-#   sbatch --array=0-59%15 scripts/cluster/collect_tracked_vehicle_drive.sh
+#   sbatch --array=0-59%15 scripts/tracked_arm/cluster/collect_tracked_vehicle_drive.sh
 #
 # Running without --array loops over all shards sequentially, useful for
 # local smoke tests and for mopping up incomplete shards. Completed shards
@@ -33,8 +33,8 @@
 # so this stays correct if the config's family counts change -- see
 # TRACKED_NUM_SHARDS below to repartition. To collect a different config,
 # override all three variables together, e.g.:
-#   sbatch --export=ALL,TRACKED_CONFIG=configs/my_drive_cfg.json,TRACKED_NUM_SHARDS=15,TRACKED_OUTPUT_ROOT=artifacts/datasets/my_drive_shards \
-#     --array=0-14%15 scripts/cluster/collect_tracked_vehicle_drive.sh
+#   sbatch --export=ALL,TRACKED_CONFIG=configs/tracked_arm/my_drive_cfg.json,TRACKED_NUM_SHARDS=15,TRACKED_OUTPUT_ROOT=artifacts/datasets/my_drive_shards \
+#     --array=0-14%15 scripts/tracked_arm/cluster/collect_tracked_vehicle_drive.sh
 
 set -euo pipefail
 
@@ -45,7 +45,7 @@ if [[ -z "${REPO_ROOT:-}" ]]; then
     REPO_ROOT="/srv/home/hzhang699/NeDM"
   else
     SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+    REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
   fi
 fi
 cd "$REPO_ROOT"
@@ -61,7 +61,7 @@ PYTHON_BIN="${PYTHON_BIN:-python}"
 echo "repo root: $REPO_ROOT"
 echo "python: $PYTHON_BIN"
 
-CONFIG="${TRACKED_CONFIG:-configs/tracked_vehicle_drive_v2.json}"
+CONFIG="${TRACKED_CONFIG:-configs/tracked_arm/tracked_vehicle_drive_v2.json}"
 NUM_SHARDS="${TRACKED_NUM_SHARDS:-60}"
 OUTPUT_ROOT="${TRACKED_OUTPUT_ROOT:-artifacts/datasets/tracked_vehicle_drive_v2_shards}"
 
@@ -69,7 +69,7 @@ TOTAL_SCENARIOS=$("$PYTHON_BIN" - "$CONFIG" <<'PY'
 import sys
 from pathlib import Path
 sys.path.insert(0, "src")
-from nedm.tracked_vehicle_data import load_config
+from nedm.tracked_arm.tracked_vehicle_data import load_config
 config = load_config(Path(sys.argv[1]))
 print(len(config["scenarios"]))
 PY
@@ -108,7 +108,7 @@ for shard in "${shards[@]}"; do
   echo "collecting tracked-vehicle shard $shard -> $output_dir"
   echo "  start_index=$start_index max_scenarios=$SHARD_SIZE"
 
-  "$PYTHON_BIN" scripts/collection/collect_tracked_vehicle_dataset.py \
+  "$PYTHON_BIN" scripts/tracked_arm/collection/collect_tracked_vehicle_dataset.py \
     --config "$CONFIG" \
     --output-dir "$output_dir" \
     --start-index "$start_index" \

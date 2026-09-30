@@ -8,7 +8,7 @@
 # Everything else (one-hot conditioning over [flat,crm], flat normalization,
 # equal-domain-combined-std Huber, rollout_sel selection, 80x2000 schedule,
 # seed 2026061801) is identical to L8_H8_E256_ctx128, so the data mix is the
-# only variable. These are intentionally NOT in configs/ablation_ofat/manifest.json
+# only variable. These are intentionally NOT in configs/hmmwv/ablation_ofat/manifest.json
 # because a specialist's rollout_sel (single-domain) is not comparable to the
 # generalist Stage-A ranking (dual-domain).
 #
@@ -19,10 +19,10 @@
 #
 #   ssh into newton is not needed (this IS newton). Launch detached:
 #   tmux new-session -d -s l8_datamix_ablation \
-#     'cd ~/NeDM && bash scripts/ablations/run_l8_datamix_ablation.sh; exec bash'
+#     'cd ~/NeDM && bash scripts/hmmwv/ablations/run_l8_datamix_ablation.sh; exec bash'
 set -uo pipefail
 
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 cd "$REPO_ROOT"
 
 PYTHON="${PYTHON:-/home/harry/anaconda3/envs/nedm/bin/python}"
@@ -61,8 +61,8 @@ PY
 
 # name|config|run_dir
 ENTRIES=(
-  "L8_H8_E256_ctx128_mix00|configs/ablation_ofat/L8_H8_E256_ctx128_mix00.json|artifacts/training_runs/ablation_ofat/L8_H8_E256_ctx128_mix00"
-  "L8_H8_E256_ctx128_mix100|configs/ablation_ofat/L8_H8_E256_ctx128_mix100.json|artifacts/training_runs/ablation_ofat/L8_H8_E256_ctx128_mix100"
+  "L8_H8_E256_ctx128_mix00|configs/hmmwv/ablation_ofat/L8_H8_E256_ctx128_mix00.json|artifacts/training_runs/ablation_ofat/L8_H8_E256_ctx128_mix00"
+  "L8_H8_E256_ctx128_mix100|configs/hmmwv/ablation_ofat/L8_H8_E256_ctx128_mix100.json|artifacts/training_runs/ablation_ofat/L8_H8_E256_ctx128_mix100"
 )
 
 log "=== L8 data-mix ablation start: ${#ENTRIES[@]} runs, ${NUM_EPOCHS} epochs each, device=$DEVICE ==="
@@ -80,7 +80,7 @@ for entry in "${ENTRIES[@]}"; do
   ok=0
   for attempt in $(seq 1 "$MAX_ATTEMPTS"); do
     log "RUN   $name attempt $attempt/$MAX_ATTEMPTS  (free RAM: $(free -g | awk '/Mem:/{print $7"G avail"}'))"
-    args=(scripts/training/train_hmmwv_dynamics.py --config "$config" --device "$DEVICE" --output-dir "$run_dir")
+    args=(scripts/core/training/train_hmmwv_dynamics.py --config "$config" --device "$DEVICE" --output-dir "$run_dir")
     if [[ -f "$run_dir/checkpoints/last.pt" ]]; then
       log "      resuming from $run_dir/checkpoints/last.pt"
       args+=(--resume-from-checkpoint "$run_dir/checkpoints/last.pt")

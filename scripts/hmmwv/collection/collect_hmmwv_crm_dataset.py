@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 SRC_ROOT = REPO_ROOT / "src"
 SCRIPTS_ROOT = REPO_ROOT / "scripts"
 for path in (SRC_ROOT, SCRIPTS_ROOT):
@@ -19,8 +19,8 @@ for path in (SRC_ROOT, SCRIPTS_ROOT):
 
 import pychrono.vehicle as veh
 
-from nedm.generated_scenarios import expand_scenarios, validate_generator_config
-from nedm.hmmwv_data import (
+from nedm.core.generated_scenarios import expand_scenarios, validate_generator_config
+from nedm.hmmwv.hmmwv_data import (
     WHEEL_SPECS,
     assign_split,
     build_driver_entries,

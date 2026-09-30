@@ -1,7 +1,7 @@
 """Seeded Chrono transfer benchmark for the tracked-base goal-reaching policy.
 
 Runs a *battery* of N seeded goals through the single-goal transfer test
-(``scripts/evaluation/eval_tracked_rl_goal_chrono.py``) -- one fresh process per goal, as
+(``scripts/tracked_arm/evaluation/eval_tracked_rl_goal_chrono.py``) -- one fresh process per goal, as
 that script requires -- then aggregates a summary.json + trajectory plot. This
 turns the previous 4-goal spot check into a reproducible benchmark mirroring the
 arm reaching battery (success rate, final/closest error, time-to-success, path
@@ -11,7 +11,7 @@ Goals are sampled from the same region the policy trained on, read from the
 run's ``env_cfg.json`` (radius_m, angle_rad), in the vehicle start frame.
 
 Example:
-    python scripts/evaluation/benchmark_tracked_goal_chrono.py \
+    python scripts/tracked_arm/evaluation/benchmark_tracked_goal_chrono.py \
         --checkpoint artifacts/rl_runs/tracked_goal_v2_far/model_1500.pt \
         --num-goals 30 --seed 12345 --max-steps 600
 """
@@ -28,7 +28,7 @@ from pathlib import Path
 
 import numpy as np
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 EVAL_SCRIPT = Path(__file__).resolve().parent / "eval_tracked_rl_goal_chrono.py"
 
 

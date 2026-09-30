@@ -6,8 +6,8 @@ from typing import Any
 
 import torch
 
-from nedm.training.dataset import load_metadata
-from nedm.training.model import HMMWVDynamicsModel
+from nedm.core.training.dataset import load_metadata
+from nedm.core.training.model import HMMWVDynamicsModel
 
 
 @dataclass(frozen=True)

@@ -2,8 +2,8 @@
 
 The arm dynamics model is trained on free-space motion only, so RL rollouts need
 a fast shield that keeps commanded joint targets inside the free-space envelope.
-This module uses the geometry extracted by ``scripts/preprocess/extract_arm_geometry.py`` and
-implemented by :class:`nedm.rl.arm_kinematics.ArmKinematics`.
+This module uses the geometry extracted by ``scripts/tracked_arm/preprocess/extract_arm_geometry.py`` and
+implemented by :class:`nedm.tracked_arm.rl.arm_kinematics.ArmKinematics`.
 """
 
 from __future__ import annotations
@@ -13,7 +13,7 @@ from typing import Any, Iterable
 
 import torch
 
-from nedm.rl.arm_kinematics import ArmKinematics
+from nedm.tracked_arm.rl.arm_kinematics import ArmKinematics
 
 
 DEFAULT_ADJACENT_LINK_PAIRS = {

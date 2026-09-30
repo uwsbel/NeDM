@@ -17,13 +17,13 @@ import torch
 from rsl_rl.runners import OnPolicyRunner
 
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 SRC_ROOT = REPO_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-from nedm.rl.arm_reaching_chrono_env import ArmReachingChronoEnv
-from nedm.rl.defaults import (
+from nedm.tracked_arm.rl.arm_reaching_chrono_env import ArmReachingChronoEnv
+from nedm.core.rl.defaults import (
     DEFAULT_ARM_DYNAMICS_CHECKPOINT,
     DEFAULT_ARM_GEOMETRY_PATH,
     DEFAULT_ARM_PROCESSED_DATASET_DIR,
@@ -241,7 +241,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default=None,
         metavar=("X", "Y", "Z"),
         help="Explicit goal in the arm base frame (m). Runs a SINGLE goal and overrides --num-goals; "
-        "used by scripts/evaluation/benchmark_arm_reach_chrono.py to drive a one-process-per-goal battery.",
+        "used by scripts/tracked_arm/evaluation/benchmark_arm_reach_chrono.py to drive a one-process-per-goal battery.",
     )
     parser.add_argument("--max-steps", type=int, default=None)
     parser.add_argument(
@@ -296,7 +296,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     if int(args.num_envs) != 1:
         raise ValueError(
-            "scripts/evaluation/eval_arm_rl_chrono_reaching.py rolls out one Chrono env at a time; "
+            "scripts/tracked_arm/evaluation/eval_arm_rl_chrono_reaching.py rolls out one Chrono env at a time; "
             "use --num-envs 1 or instantiate ArmReachingChronoEnv directly for serial vector batches."
         )
     run_dir = args.run_dir.resolve()

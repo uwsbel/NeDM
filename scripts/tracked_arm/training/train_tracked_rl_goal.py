@@ -13,17 +13,17 @@ import torch
 from rsl_rl.runners import OnPolicyRunner
 
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 SRC_ROOT = REPO_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-from nedm.rl.defaults import (
+from nedm.core.rl.defaults import (
     DEFAULT_TRACKED_DYNAMICS_CHECKPOINT,
     DEFAULT_TRACKED_PROCESSED_DATASET_DIR,
 )
-from nedm.rl.dynamics import resolve_dynamics_checkpoint_path
-from nedm.rl.tracked_goal_env import TrackedGoalReachingEnv, default_env_cfg, merge_env_cfg
+from nedm.core.rl.dynamics import resolve_dynamics_checkpoint_path
+from nedm.tracked_arm.rl.tracked_goal_env import TrackedGoalReachingEnv, default_env_cfg, merge_env_cfg
 
 
 class NoOpSummaryWriter:

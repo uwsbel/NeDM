@@ -10,7 +10,7 @@ Collect HMMWV dynamics episodes on Chrono `CRMTerrain` deformable soil while kee
 - one episode JSON sidecar per episode
 - a shard-level `dataset_index.json`
 - a resolved collector config
-- the same 100 Hz logged state/action schema used by `scripts/preprocess/build_hmmwv_training_dataset.py`
+- the same 100 Hz logged state/action schema used by `scripts/core/preprocess/build_hmmwv_training_dataset.py`
 - a processed cache built with `--state-field-preset tire_force_omega`
 
 The first production target should be a fixed-soil CRM dataset, not a broad soil benchmark. Terrain and soil variation can come after a fixed configuration passes rollout and validation checks.
@@ -26,7 +26,7 @@ For a 2000-episode CRM dataset on a workstation:
 ```bash
 cd /home/harry/NeDM
 git pull origin main
-bash scripts/collection/launch_hmmwv_crm2000_collection.sh
+bash scripts/hmmwv/collection/launch_hmmwv_crm2000_collection.sh
 ```
 
 Monitor progress:
@@ -51,7 +51,7 @@ Useful overrides:
 
 ```bash
 PYTHON_BIN=/path/to/nedm/bin/python CHRONO_THREADS=12 BUILD_PROCESSED=1 \
-  bash scripts/collection/launch_hmmwv_crm2000_collection.sh
+  bash scripts/hmmwv/collection/launch_hmmwv_crm2000_collection.sh
 ```
 
 Set `BUILD_PROCESSED=0` to collect raw episodes only. Re-running the launcher
@@ -60,7 +60,7 @@ completion markers and resumes completed episodes.
 
 ## Existing Constraints
 
-The current collector in `src/nedm/hmmwv_data.py` only accepts `terrain.type` values `rigid` and `rigid_heightmap`, and every episode currently calls `create_rigid_terrain`. A CRM dataset therefore requires a new terrain backend, not just a new config file.
+The current collector in `src/nedm/hmmwv/hmmwv_data.py` only accepts `terrain.type` values `rigid` and `rigid_heightmap`, and every episode currently calls `create_rigid_terrain`. A CRM dataset therefore requires a new terrain backend, not just a new config file.
 
 Chrono CRM has different semantics from the current TMEASY-on-rigid setup:
 
@@ -76,8 +76,8 @@ Useful Chrono references in this repo:
 - `chrono/src/demos/python/vehicle/demo_VEH_CRMTerrain_WheeledVehicle.py`
 - `chrono/src/chrono_vehicle/terrain/CRMTerrain.h`
 - `chrono/src/chrono_vehicle/terrain/CRMTerrain.cpp`
-- `test/test_log_crm_tire_force.py`
-- `test/test_log_rigid_tire_force.py`
+- `scripts/hmmwv/validation/test_log_crm_tire_force.py`
+- `scripts/hmmwv/validation/test_log_rigid_tire_force.py`
 
 ## Vehicle And Tire Choice
 
@@ -247,7 +247,7 @@ Only raise `num_proximity_search_steps` above `1` after comparing force, sinkage
 
 Design target files:
 
-- `test/test_log_crm_tire_force.py`
+- `scripts/hmmwv/validation/test_log_crm_tire_force.py`
   - single HMMWV CRM smoke test
   - validates FSI force logging and vehicle motion
 
@@ -318,12 +318,12 @@ Gate 2: collector smoke shard
 - every episode CSV has all base and tire columns.
 - all logged values are finite.
 - episode JSON records terrain type, soil parameters, SPH spacing, particle count, BCE count, and force source.
-- generated rows can be read by `scripts/preprocess/build_hmmwv_training_dataset.py`.
+- generated rows can be read by `scripts/core/preprocess/build_hmmwv_training_dataset.py`.
 
 Gate 3: processed cache smoke
 
 ```bash
-python scripts/preprocess/build_hmmwv_training_dataset.py \
+python scripts/core/preprocess/build_hmmwv_training_dataset.py \
   --dataset-root artifacts/datasets/hmmwv_crm_fixedsoil_10g_shards/smoke \
   --output-dir artifacts/training_datasets/hmmwv_crm_fixedsoil_smoke_force_omega_seq_v1 \
   --state-field-preset tire_force_omega \
@@ -345,7 +345,7 @@ Gate 4: model-training smoke
 
 ## Scale-Up Path
 
-1. Implement and pass `test/test_log_crm_tire_force.py`.
+1. Implement and pass `scripts/hmmwv/validation/test_log_crm_tire_force.py`.
 2. Add `terrain.type = "crm"` to the collector with `force_source = "crm_fsi"`.
 3. Collect a 4 to 12 episode smoke shard.
 4. Build a smoke processed cache with `tire_force_omega`.
@@ -363,7 +363,7 @@ Gate 4: model-training smoke
 The existing preprocessing path can be reused as long as the raw CRM shard has the expected CSV/index layout:
 
 ```bash
-python scripts/preprocess/build_hmmwv_training_dataset.py \
+python scripts/core/preprocess/build_hmmwv_training_dataset.py \
   --dataset-root artifacts/datasets/hmmwv_crm_fixedsoil_10g_shards/shard_* \
   --output-dir artifacts/training_datasets/hmmwv_crm_fixedsoil_10g_force_omega_seq_v1 \
   --state-field-preset tire_force_omega \

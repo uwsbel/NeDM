@@ -20,7 +20,7 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 RUN_DIR = REPO_ROOT / "artifacts/training_runs/ablation_ofat/L8_H8_E256_ctx128"
 
 

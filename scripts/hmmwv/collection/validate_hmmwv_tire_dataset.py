@@ -11,7 +11,7 @@ Checks, over a sample of episode CSVs:
    so their slip ratio is unbounded and only reported, not checked)
 
 Usage:
-    python scripts/collection/validate_hmmwv_tire_dataset.py --dataset-dir <shard_dir>
+    python scripts/hmmwv/collection/validate_hmmwv_tire_dataset.py --dataset-dir <shard_dir>
 """
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ import random
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
 WHEEL_NAMES = ("tire_fl", "tire_fr", "tire_rl", "tire_rr")
@@ -44,7 +44,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def expected_tire_fields() -> list[str]:
-    from nedm.hmmwv_data import tire_field_names
+    from nedm.hmmwv.hmmwv_data import tire_field_names
 
     return tire_field_names()
 

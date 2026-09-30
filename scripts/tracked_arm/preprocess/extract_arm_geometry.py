@@ -1,13 +1,13 @@
 """Extract the arm's kinematic + collision geometry from the live Chrono scene.
 
 Builds the settled M113+arm scene (via ``arm_data.build_and_prepare``) and dumps a JSON spec
-that ``nedm.rl.arm_kinematics.ArmKinematics`` reproduces as a batched torch FK: per-joint world
+that ``nedm.tracked_arm.rl.arm_kinematics.ArmKinematics`` reproduces as a batched torch FK: per-joint world
 axis/pivot at home, per-link home REF->world pose + collision box, the grasp point in the
 endeffector frame, the base->world transform, a conservative vehicle (chassis+track) obstacle
 box, and the ground plane. Then it self-validates by driving random qcmd and comparing the
 torch FK link/EE positions against Chrono's actual frames (max error must be ~mm).
 
-    PYTHONPATH=src conda run -n nedm python scripts/preprocess/extract_arm_geometry.py \
+    PYTHONPATH=src conda run -n nedm python scripts/tracked_arm/preprocess/extract_arm_geometry.py \
         --output artifacts/arm_geometry/arm_geometry_v1.json --validate-steps 200
 """
 
@@ -21,7 +21,7 @@ from pathlib import Path
 
 import numpy as np
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 SRC_ROOT = REPO_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
@@ -30,7 +30,7 @@ import pychrono as chrono
 import pychrono.vehicle as veh
 import torch
 
-from nedm.arm_data import (
+from nedm.tracked_arm.arm_data import (
     CONTROL_DT,
     DQ_MAX,
     GROUND_PLANE_Z,
@@ -43,7 +43,7 @@ from nedm.arm_data import (
     gripper_center,
     _substep,
 )
-from nedm.rl.arm_kinematics import ArmKinematics
+from nedm.tracked_arm.rl.arm_kinematics import ArmKinematics
 
 # Last-upstream joint index for every collision link (serial chain
 # base→shoulder(j0)→biceps(j1)→elbow(j2)→endeffector(j3); wrist locked to endeffector,

@@ -2,7 +2,7 @@
 
 The final shared rigid/soil model with the history encoder (released as ``deploy_a1_haux_gru``), from the repo root:
 
-    python traversing/training/train_risk_model.py --out runs/risk --tag deploy_a1_haux_gru \\
+    PYTHONPATH=src python -m nedm.traversing.training.train_risk_model --out runs/risk --tag deploy_a1_haux_gru \\
         --mode deploy --cond hist_aux --domain-filter both --seeds 5 --seed0 0
 
 Without ``--ds`` it reads the three released training files at the downloader's restore paths (DEFAULT_DS). The
@@ -34,12 +34,12 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from risk_data import PRED_BS, Batches, RiskData
-from risk_metrics import all_metrics, domain_head_metrics
-from risk_model import (CONDS, DOMAIN_NAME, DOMAIN_VOCAB, GEOM_COLS, WIDTH, RiskModel, encode_history,
+from nedm.traversing.training.risk_data import PRED_BS, Batches, RiskData
+from nedm.traversing.training.risk_metrics import all_metrics, domain_head_metrics
+from nedm.traversing.training.risk_model import (CONDS, DOMAIN_NAME, DOMAIN_VOCAB, GEOM_COLS, WIDTH, RiskModel, encode_history,
                         load_risk_model, route_logit, score, survival_nll)
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[4]
 DEFAULT_DS = ['artifacts/traverse/generalist_20260921/A_adapt/datasets/mixed_reanchor_plus_branch_both.npz',
               'artifacts/traverse/crm_improve_20260922/datasets/short_anchor.npz',
               'artifacts/traverse/crm_improve_20260922/datasets/anchor_k60.npz']

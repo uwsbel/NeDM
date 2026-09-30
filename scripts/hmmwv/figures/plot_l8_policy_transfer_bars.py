@@ -17,7 +17,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 STATS_JSON = (
     REPO_ROOT
     / "artifacts/rl_runs/chrono_eval_comparisons/"

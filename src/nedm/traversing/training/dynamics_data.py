@@ -20,9 +20,9 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from state import Z1_DIM
+from nedm.traversing.training.state import Z1_DIM
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[4]
 DOMAIN_VOCAB = ("rigid", "crm")  # cache ``domain`` 0 / 1
 CACHE_SCHEMA = 3
 ROUTE_FIELDS = ("waypoints", "speeds", "headings", "stations")

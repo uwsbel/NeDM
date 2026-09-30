@@ -13,8 +13,8 @@ import torch
 from torch.nn.utils import clip_grad_norm_
 from torch.utils.data import DataLoader, RandomSampler
 
-from nedm.training.dataset import WindowedHMMWVDataset, load_metadata, load_rollout_split
-from nedm.training.model import HMMWVDynamicsModel
+from nedm.core.training.dataset import WindowedHMMWVDataset, load_metadata, load_rollout_split
+from nedm.core.training.model import HMMWVDynamicsModel
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -27,7 +27,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--config",
         type=Path,
         default=Path(
-            "configs/hmmwv_transformer_v07_tire_normal_force_omega_300g"
+            "configs/hmmwv/hmmwv_transformer_v07_tire_normal_force_omega_300g"
             "_crm2000_mix25_rebal_rollout_onehot.json"
         ),
         help="Training config JSON file.",
@@ -667,7 +667,7 @@ class HMMWVTrainer:
             # The end-effector is *not* a state channel (12-D [q, qd, qcmd] model), so
             # derive it from the predicted joints via forward kinematics and compare
             # against the Chrono-recorded ee_base carried in the rollout array.
-            from nedm.rl.arm_kinematics import ArmKinematics
+            from nedm.tracked_arm.rl.arm_kinematics import ArmKinematics
 
             geometry_path = rollout_cfg.get("geometry")
             if geometry_path is None:

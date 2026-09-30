@@ -8,7 +8,7 @@ from typing import Any, Iterable
 
 import numpy as np
 
-from nedm.training.dataset import load_metadata, load_split_metadata
+from nedm.core.training.dataset import load_metadata, load_split_metadata
 
 
 DEFAULT_REFERENCE_FAMILIES = [

@@ -14,10 +14,10 @@ from pathlib import Path
 import numpy as np
 import torch
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT / "src"))
-from nedm.training.dataset import load_metadata, load_rollout_split  # noqa: E402
-from nedm.training.model import HMMWVDynamicsModel  # noqa: E402
+from nedm.core.training.dataset import load_metadata, load_rollout_split  # noqa: E402
+from nedm.core.training.model import HMMWVDynamicsModel  # noqa: E402
 
 DEFAULT_CKPT = (
     "artifacts/training_runs/ablation_ofat/L8_H8_E256_ctx128/"

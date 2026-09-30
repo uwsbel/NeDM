@@ -122,8 +122,8 @@ Recount the headline numbers from the per-task tables (every headline except the
 comes from that study's read-out). This needs Python 3.8 or newer and nothing else:
 
 ```bash
-python traversing/scripts/recount_milestones.py               # per-arm counts and checks
-python traversing/scripts/recount_milestones.py --check-only  # verdict only
+python scripts/traversing/analysis/recount_milestones.py               # per-arm counts and checks
+python scripts/traversing/analysis/recount_milestones.py --check-only  # verdict only
 ```
 
 ### Download
@@ -136,10 +136,10 @@ unchanged. The download helper reads the release manifest pinned in
 had in the experiment checkout. It needs `huggingface_hub`.
 
 ```bash
-python traversing/scripts/release/download_traversing_data.py --list --all        # every item, with its size
-python traversing/scripts/release/download_traversing_data.py --milestone m2      # everything behind one milestone
-python traversing/scripts/release/download_traversing_data.py --bundle models     # one bundle
-python traversing/scripts/release/download_traversing_data.py --all               # everything
+python scripts/traversing/release/download_traversing_data.py --list --all        # every item, with its size
+python scripts/traversing/release/download_traversing_data.py --milestone m2      # everything behind one milestone
+python scripts/traversing/release/download_traversing_data.py --bundle models     # one bundle
+python scripts/traversing/release/download_traversing_data.py --all               # everything
 ```
 
 Filters combine: `--milestone m2 --bundle models` fetches only the milestone-2 models, and `--milestone m4` covers 4a
@@ -168,8 +168,8 @@ Each step is its own pull request, starting from main. The first two are done:
    and the recount script.
 2. **Data and models** (done). Datasets, trained models and per-drive records are in the `traversing/` folder of
    the paper's Hugging Face dataset ([harryzhang1018/NeDM](https://huggingface.co/datasets/harryzhang1018/NeDM)),
-   pinned to revision `6620faead5225ac9aa5ae8ab19bc2ef2db38a863`. The manifest, the release spec and the download and verification helpers
-   are in this folder. The paper's files on the Hub are unchanged (tag `paper-v1`).
+   pinned to revision `6620faead5225ac9aa5ae8ab19bc2ef2db38a863`. The manifest is in `manifests/`; the download and verification helpers
+   are in `scripts/traversing/release/`. The paper's files on the Hub are unchanged (tag `paper-v1`).
 3. **The planning pipeline.** The minimal collection, training, planning and evaluation code behind milestones 1, 2
    and 4, checked against saved outputs.
 4. **The NRD/PPO tracker benchmark** (milestone 3), with its positive rigid-ground result and its failed soil result.

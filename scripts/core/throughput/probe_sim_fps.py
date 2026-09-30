@@ -4,11 +4,11 @@ from __future__ import annotations
 Measures how fast each Chrono scene can be *stepped* on this machine, so we know
 the real cost of data collection / Chrono-side RL evaluation for:
 
-    1. hmmwv_rigid  -- HMMWV on flat rigid terrain      (configs/hmmwv_overfit_v1.json)
-    2. hmmwv_bumpy  -- HMMWV on a rigid heightmap patch (configs/hmmwv_bumpy_eval.json)
-    3. hmmwv_crm    -- HMMWV on deformable CRM/SPH soil  (configs/hmmwv_crm_eval.json)
+    1. hmmwv_rigid  -- HMMWV on flat rigid terrain      (configs/hmmwv/hmmwv_overfit_v1.json)
+    2. hmmwv_bumpy  -- HMMWV on a rigid heightmap patch (configs/hmmwv/hmmwv_bumpy_eval.json)
+    3. hmmwv_crm    -- HMMWV on deformable CRM/SPH soil  (configs/hmmwv/hmmwv_crm_eval.json)
     4. tracked_arm  -- M113 tracked vehicle + welded LRV arm on flat rigid terrain
-                       (nedm.arm_data.build_and_prepare)
+                       (nedm.tracked_arm.arm_data.build_and_prepare)
 
 Each case is built from the SAME scene code the collectors/evals use, so the
 numbers reflect real physics settings (step size, tire model, solver, threads).
@@ -33,8 +33,8 @@ Run (nedm conda env), one case per process -- Chrono does not like rebuilding
 several sims in one process, so `--case all` re-execs one subprocess per case:
 
     ENV=/home/harry/anaconda3/envs/nedm/bin/python
-    $ENV scripts/throughput/probe_sim_fps.py --case all
-    $ENV scripts/throughput/probe_sim_fps.py --case hmmwv_crm --sim-seconds 3
+    $ENV scripts/core/throughput/probe_sim_fps.py --case all
+    $ENV scripts/core/throughput/probe_sim_fps.py --case hmmwv_crm --sim-seconds 3
 
 NOTE: hmmwv_crm and tracked_arm are heavy (5e-4 s step). Keep --sim-seconds
 modest and watch the machine (CRM SPH + 12 threads has frozen this box under
@@ -49,7 +49,7 @@ import time
 from dataclasses import dataclass, asdict
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 SRC_ROOT = REPO_ROOT / "src"
 SCRIPTS_ROOT = Path(__file__).resolve().parent
 for _p in (str(SRC_ROOT), str(SCRIPTS_ROOT)):
@@ -68,9 +68,9 @@ CASE_DEFAULTS = {
 }
 
 CASE_CONFIG = {
-    "hmmwv_rigid": "configs/hmmwv_overfit_v1.json",
-    "hmmwv_bumpy": "configs/hmmwv_bumpy_eval.json",
-    "hmmwv_crm": "configs/hmmwv_crm_eval.json",
+    "hmmwv_rigid": "configs/hmmwv/hmmwv_overfit_v1.json",
+    "hmmwv_bumpy": "configs/hmmwv/hmmwv_bumpy_eval.json",
+    "hmmwv_crm": "configs/hmmwv/hmmwv_crm_eval.json",
 }
 
 
@@ -115,7 +115,7 @@ def _finish(case, label, step_size_s, phys_steps, wall_s, sim_s,
 def probe_hmmwv(case: str, args: argparse.Namespace) -> ProbeResult:
     import pychrono as chrono  # noqa: F401
     import pychrono.vehicle as veh
-    from nedm.hmmwv_data import (
+    from nedm.hmmwv.hmmwv_data import (
         create_hmmwv,
         create_rigid_terrain,
         configure_chrono_data_paths,
@@ -139,7 +139,7 @@ def probe_hmmwv(case: str, args: argparse.Namespace) -> ProbeResult:
     }
 
     if is_crm:
-        from nedm.hmmwv_crm import configure_crm_terrain
+        from nedm.hmmwv.hmmwv_crm import configure_crm_terrain
 
         extra["chrono_threads"] = int(config["simulation"].get("chrono_threads", 1))
         print(f"[{case}] building CRM terrain (threads={extra['chrono_threads']}) ...",
@@ -171,7 +171,7 @@ def probe_hmmwv(case: str, args: argparse.Namespace) -> ProbeResult:
         terrain.Synchronize(t)
         hmmwv.Synchronize(t, driver_inputs, terrain)
         # CRM: the terrain owns the coupled FSI+MBD advance -- do NOT also
-        # advance the vehicle (see nedm.hmmwv_crm docstring).
+        # advance the vehicle (see nedm.hmmwv.hmmwv_crm docstring).
         terrain.Advance(step)
         if not is_crm:
             hmmwv.Advance(step)
@@ -205,7 +205,7 @@ def probe_hmmwv(case: str, args: argparse.Namespace) -> ProbeResult:
 def probe_tracked_arm(args: argparse.Namespace) -> ProbeResult:
     import random
     import pychrono.vehicle as veh
-    from nedm.arm_data import (
+    from nedm.tracked_arm.arm_data import (
         CONTROL_DT,
         STEP_SIZE,
         SmoothCommandSampler,

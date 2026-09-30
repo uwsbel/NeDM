@@ -1,12 +1,12 @@
 """Stage the NeDM datasets for the Hugging Face release.
 
 Converts the raw per-episode CSV trees into the Parquet layout described in
-``nedm.hf_release`` (float32 transitions per shard and split, an episodes table,
+``nedm.core.hf_release`` (float32 transitions per shard and split, an episodes table,
 and a byte-exact metadata bundle), optionally copies the processed training
 caches, and records every produced file in ``release_manifest.json``.
 
-    PYTHONPATH=src python scripts/release/export_hf_dataset.py --dataset tracked arm
-    PYTHONPATH=src python scripts/release/export_hf_dataset.py --dataset all --processed --workers 8
+    PYTHONPATH=src python scripts/core/release/export_hf_dataset.py --dataset tracked arm
+    PYTHONPATH=src python scripts/core/release/export_hf_dataset.py --dataset all --processed --workers 8
 
 Re-running skips shards whose Parquet files already exist (``--force`` redoes them).
 """
@@ -22,14 +22,14 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 SRC_ROOT = REPO_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
 import pyarrow as pa  # noqa: E402
 
-from nedm import hf_release as hr  # noqa: E402
+from nedm.core import hf_release as hr  # noqa: E402
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:

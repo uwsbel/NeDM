@@ -12,7 +12,7 @@ so a learned arm dynamics model ``f_arm`` can be trained on free-space motion.
 
 The scene -- M113 tracked vehicle + front-welded ``LRV_Arm`` + flat rigid terrain
 -- is built here (ported from lunar-manip's ``TrackedVeh_Builder``). The gripper
-arm model and its SolidWorks export/meshes are bundled under ``src/arm_model``.
+arm model and its SolidWorks export/meshes are bundled under ``src/nedm/tracked_arm/arm_model``.
 
 Four pieces beyond a plain assemble-and-drive scene:
 
@@ -51,7 +51,7 @@ Four pieces beyond a plain assemble-and-drive scene:
 
 Run in the NeDM conda env:
 
-    conda run -n nedm python -m nedm.arm_data --episodes 4 --max-steps 500
+    conda run -n nedm python -m nedm.tracked_arm.arm_data --episodes 4 --max-steps 500
 
 Add ``--render`` to watch one run in the Irrlicht viewer.
 
@@ -76,12 +76,12 @@ from pathlib import Path
 
 import pychrono as chrono
 import pychrono.vehicle as veh
-from arm_model import LRV_Arm
+from nedm.tracked_arm.arm_model import LRV_Arm
 
 
 def repo_root_from_module() -> Path:
-    """NeDM repo root (src/nedm/arm_data.py -> parents[2])."""
-    return Path(__file__).resolve().parents[2]
+    """NeDM repo root (src/nedm/tracked_arm/arm_data.py -> parents[3])."""
+    return Path(__file__).resolve().parents[3]
 
 
 # ---------------------------------------------------------------------------

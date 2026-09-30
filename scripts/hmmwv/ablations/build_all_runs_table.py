@@ -21,7 +21,7 @@ Comparability caveats are printed as flags, not buried:
   [spec] single-domain specialist -> its off-domain column is a collapse, by design.
 
 Usage:
-    python scripts/ablations/build_all_runs_table.py [--csv out.csv] [--markdown]
+    python scripts/hmmwv/ablations/build_all_runs_table.py [--csv out.csv] [--markdown]
 """
 from __future__ import annotations
 
@@ -31,7 +31,7 @@ import json
 import math
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 RUN_ROOT = REPO_ROOT / "artifacts/training_runs"
 OFAT_ROOT = RUN_ROOT / "ablation_ofat"
 
@@ -100,11 +100,11 @@ def main() -> int:
     args = ap.parse_args()
 
     entries: list[tuple[str, Path, Path]] = [
-        ("L6_H8_E256_ctx128 (anchor)", RUN_ROOT / ANCHOR_SLUG, REPO_ROOT / f"configs/{ANCHOR_SLUG}.json"),
+        ("L6_H8_E256_ctx128 (anchor)", RUN_ROOT / ANCHOR_SLUG, REPO_ROOT / f"configs/hmmwv/{ANCHOR_SLUG}.json"),
     ]
     for run_dir in sorted(OFAT_ROOT.iterdir()):
         if run_dir.is_dir() and (run_dir / "metrics.jsonl").exists():
-            entries.append((run_dir.name, run_dir, REPO_ROOT / f"configs/ablation_ofat/{run_dir.name}.json"))
+            entries.append((run_dir.name, run_dir, REPO_ROOT / f"configs/hmmwv/ablation_ofat/{run_dir.name}.json"))
 
     rows = []
     for name, run_dir, config_path in entries:

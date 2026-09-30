@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 cd "$REPO_ROOT"
 
 OUTPUT_DIR="${OUTPUT_DIR:-artifacts/training_runs/hmmwv_transformer_v07_tire_normal_force_omega_300g_crm2000_mix25_rebal_rollout_onehot}"
@@ -21,7 +21,7 @@ if command -v tmux >/dev/null 2>&1; then
     exit 0
   fi
 
-  tmux new-session -d -s "$SESSION_NAME" "cd '$REPO_ROOT' && bash scripts/training/run_hmmwv_v07_tire_normal_force_omega_300g_crm2000_mix25_rebal_rollout_onehot_training.sh >> '$RUN_LOG_ABS' 2>&1"
+  tmux new-session -d -s "$SESSION_NAME" "cd '$REPO_ROOT' && bash scripts/hmmwv/training/run_hmmwv_v07_tire_normal_force_omega_300g_crm2000_mix25_rebal_rollout_onehot_training.sh >> '$RUN_LOG_ABS' 2>&1"
   echo "$SESSION_NAME" > "$SESSION_FILE"
   echo "started HMMWV v07 rebalanced-loss + rollout-selection training in tmux session $SESSION_NAME"
   echo "log: $RUN_LOG"

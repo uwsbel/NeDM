@@ -33,9 +33,9 @@ import numpy as np
 import torch
 from rsl_rl.env import VecEnv
 
-import dynamics_data as D
-from dynamics_model import integrate_pose, load_nrd
-from state import DT_S, OBSERVABLE_COLS, PITCH, ROLL, SETTLE_ACTION, VX, YAW_RATE
+from nedm.traversing.training import dynamics_data as D
+from nedm.traversing.training.dynamics_model import integrate_pose, load_nrd
+from nedm.traversing.training.state import DT_S, OBSERVABLE_COLS, PITCH, ROLL, SETTLE_ACTION, VX, YAW_RATE
 
 DEFAULT_NRD = "artifacts/traverse/generalist_20260921/B_tracker/nrd_tag_v3/ckpt_best.pt"
 

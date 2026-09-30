@@ -14,11 +14,11 @@ is published at https://huggingface.co/datasets/harryzhang1018/NeDM and back:
 * ``export_processed_cache`` – the ``.npy`` training caches the deployed models
   read, with symlinks materialised and machine-local paths made repo-relative.
 * ``rehydrate_dataset`` – Parquet + metadata bundle -> the original per-episode
-  CSV tree under ``artifacts/datasets/``, so ``nedm.training.preprocess`` and the
+  CSV tree under ``artifacts/datasets/``, so ``nedm.core.training.preprocess`` and the
   RL reference builders run unchanged. Values are the float32 the trainer uses;
   the caches rebuilt from a rehydrated tree are bit-identical to the published ones.
 
-Everything is driven by ``DATASETS`` below. Scripts: ``scripts/release/``.
+Everything is driven by ``DATASETS`` below. Scripts: ``scripts/core/release/``.
 """
 
 from __future__ import annotations
@@ -36,7 +36,7 @@ import pyarrow as pa
 import pyarrow.csv as pacsv
 import pyarrow.parquet as pq
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 HF_REPO_ID = "harryzhang1018/NeDM"
 DEFAULT_STAGING_DIR = Path("artifacts/hf_release/NeDM")
 

@@ -1,7 +1,7 @@
 """The 17-number HMMWV state and the controls used by the traversing dynamics model and route tracker.
 
 Local copy of the ``tire_normal_force_omega_pt`` preset that the experiment branch added to
-``src/nedm/training/constants.py``: main's ``tire_normal_force_omega`` preset (15 columns) plus engine speed and
+``src/nedm/core/training/constants.py``: main's ``tire_normal_force_omega`` preset (15 columns) plus engine speed and
 motorshaft torque. Every cache ``z1`` row is this state at one 50 ms frame, in physical units; every ``act`` row is
 [steering, throttle, braking] held over the following 50 ms.
 """

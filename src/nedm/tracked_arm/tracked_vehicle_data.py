@@ -10,7 +10,7 @@ arm does not -- the counterpart to the reach-mode arm-only collector in
 The scene -- M113 tracked vehicle + front-welded ``LRV_Arm`` + flat rigid
 terrain, tuned for the single-pin track's stability requirements (small
 physics step, high-iteration BB solver) -- is exactly
-``nedm.arm_data.build_scene()``: the real mounted-arm configuration the
+``nedm.tracked_arm.arm_data.build_scene()``: the real mounted-arm configuration the
 vehicle actually carries, so the base ROM's mass/inertia/CG match deployment
 instead of a bare M113, just called with a much larger ``terrain_size_m``
 (the terrain patch is a genuine finite box, and the 100 m default that's
@@ -24,18 +24,18 @@ nor the arm collision setup that ``arm_data.py`` builds for reach-mode data.
 The maneuver library (straight launches, coast-down, steering arcs, S-turns,
 pivot-like turns, brake-while-steering, broad random commands, stop-and-go --
 plan S4.3) reuses the scenario_generator/driver-profile machinery already
-built for the HMMWV collector (``nedm.generated_scenarios``,
-``nedm.hmmwv_data.sample_channel``): the tracked-vehicle-specific variants
+built for the HMMWV collector (``nedm.core.generated_scenarios``,
+``nedm.hmmwv.hmmwv_data.sample_channel``): the tracked-vehicle-specific variants
 (sharp/pivot-like arcs, straight stop-and-go) are expressed as config-level
 overrides of the existing ``step_steer``/``multi_steer`` templates -- see
-``configs/tracked_vehicle_drive_v2.json`` -- not new generator code. Driver
+``configs/tracked_arm/tracked_vehicle_drive_v2.json`` -- not new generator code. Driver
 commands are evaluated directly from the scenario's continuous profile at
 each recorded step (no ``ChDataDriver`` table/interpolation layer), which is
 simpler and needs no ``driver_sample_step_s`` knob.
 
 Run in the NeDM conda env:
 
-    conda run -n nedm python -m nedm.tracked_vehicle_data --config configs/tracked_vehicle_drive_v2.json
+    conda run -n nedm python -m nedm.tracked_arm.tracked_vehicle_data --config configs/tracked_arm/tracked_vehicle_drive_v2.json
 
 Add ``--render`` to watch one run in the Irrlicht viewer, ``--dry-run`` to
 resolve the config without running Chrono, ``--list-scenarios`` to print the
@@ -56,9 +56,9 @@ from typing import Any
 
 import pychrono.vehicle as veh
 
-from nedm.arm_data import SETTLE_TIME, STEP_SIZE, build_scene, make_vis
-from nedm.generated_scenarios import expand_scenarios, validate_generator_config
-from nedm.hmmwv_data import (
+from nedm.tracked_arm.arm_data import SETTLE_TIME, STEP_SIZE, build_scene, make_vis
+from nedm.core.generated_scenarios import expand_scenarios, validate_generator_config
+from nedm.hmmwv.hmmwv_data import (
     assign_split,
     resolve_project_path,
     sample_channel,
@@ -142,8 +142,8 @@ class EpisodeResult:
 
 
 def repo_root_from_module() -> Path:
-    """NeDM repo root (src/nedm/tracked_vehicle_data.py -> parents[2])."""
-    return Path(__file__).resolve().parents[2]
+    """NeDM repo root (src/nedm/tracked_arm/tracked_vehicle_data.py -> parents[3])."""
+    return Path(__file__).resolve().parents[3]
 
 
 def validate_config(config: dict[str, Any]) -> None:
@@ -493,7 +493,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Collect tracked-vehicle (M113 + arm-at-home) drive-mode dynamics data."
     )
-    parser.add_argument("--config", default="configs/tracked_vehicle_drive_v2.json",
+    parser.add_argument("--config", default="configs/tracked_arm/tracked_vehicle_drive_v2.json",
                         help="Path to the collector config JSON.")
     parser.add_argument("--output-dir", default=None, help="Optional override for the output root.")
     parser.add_argument("--scenario-filter", default=None,

@@ -20,7 +20,7 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 TRACKED = REPO_ROOT / "artifacts/training_runs/tracked_transformer_v1/metrics.jsonl"
 ARM = REPO_ROOT / "artifacts/training_runs/arm_transformer_8d_v1/metrics.jsonl"
 DEFAULT_OUT = Path(

@@ -15,8 +15,8 @@ item named in the last column.
 ## Recount the headline numbers
 
 ```bash
-python traversing/scripts/recount_milestones.py               # per-arm counts, metric checks, verdict
-python traversing/scripts/recount_milestones.py --check-only  # only mismatches and the verdict
+python scripts/traversing/analysis/recount_milestones.py               # per-arm counts, metric checks, verdict
+python scripts/traversing/analysis/recount_milestones.py --check-only  # only mismatches and the verdict
 ```
 
 Python 3.8 or newer, standard library only. The script prints n / goal / unsafe / safe_goal for every arm of every

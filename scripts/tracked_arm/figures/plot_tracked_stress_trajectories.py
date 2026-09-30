@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.lines import Line2D
 
-REPO = Path(__file__).resolve().parents[2]
+REPO = Path(__file__).resolve().parents[3]
 RUN = REPO / "artifacts/rl_runs/tracked_goal_v2_far_rollsel_rom_20260721"
 BENCH = RUN / "chrono_benchmark_N100_seed12345"
 BOWTIE = RUN / "chrono_waypoints_fig8_bowtie" / "traj.npz"

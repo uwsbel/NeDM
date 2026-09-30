@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 cd "$REPO_ROOT"
 
-CONFIG="${CONFIG:-configs/hmmwv_transformer_v07_tire_normal_force_omega_300g_crm2000_mix25_rebal_rollout_onehot.json}"
+CONFIG="${CONFIG:-configs/hmmwv/hmmwv_transformer_v07_tire_normal_force_omega_300g_crm2000_mix25_rebal_rollout_onehot.json}"
 OUTPUT_DIR="${OUTPUT_DIR:-artifacts/training_runs/hmmwv_transformer_v07_tire_normal_force_omega_300g_crm2000_mix25_rebal_rollout_onehot}"
 FLAT_PROCESSED_DIR="${FLAT_PROCESSED_DIR:-artifacts/training_datasets/hmmwv_tire_rigid_300g_normal_force_omega_seq_v1}"
 CRM_RAW_DIR="${CRM_RAW_DIR:-artifacts/datasets/hmmwv_crm_2000}"
@@ -49,7 +49,7 @@ from pathlib import Path
 repo_root = Path.cwd()
 sys.path.insert(0, str(repo_root / "src"))
 
-from nedm.training.constants import DEFAULT_ACTION_FIELDS, DEFAULT_ROLLOUT_FIELDS, STATE_FIELD_PRESETS
+from nedm.core.training.constants import DEFAULT_ACTION_FIELDS, DEFAULT_ROLLOUT_FIELDS, STATE_FIELD_PRESETS
 
 processed_dir = Path(sys.argv[1])
 preset = sys.argv[2]
@@ -97,7 +97,7 @@ if [[ ! -f "$CRM_PROCESSED_DIR/metadata.json" ]]; then
   current_stage="preprocess_crm"
   write_status "running" "$current_stage" "building CRM normal-force/omega processed cache"
   log "building $CRM_PROCESSED_DIR from $CRM_RAW_DIR"
-  python scripts/preprocess/build_hmmwv_training_dataset.py \
+  python scripts/core/preprocess/build_hmmwv_training_dataset.py \
     --dataset-root "$CRM_RAW_DIR" \
     --output-dir "$CRM_PROCESSED_DIR" \
     --state-field-preset "$STATE_FIELD_PRESET" \
@@ -114,7 +114,7 @@ verify_processed_fields "$CRM_PROCESSED_DIR"
 current_stage="training"
 write_status "running" "$current_stage" "rebalanced-loss + rollout-selection training (75% flat / 25% CRM)"
 log "training rebalanced-loss + rollout-selection model with $CONFIG"
-train_args=(scripts/training/train_hmmwv_dynamics.py --config "$CONFIG" --device cuda --output-dir "$OUTPUT_DIR")
+train_args=(scripts/core/training/train_hmmwv_dynamics.py --config "$CONFIG" --device cuda --output-dir "$OUTPUT_DIR")
 if [[ "$RESUME" == "1" && -f "$OUTPUT_DIR/checkpoints/last.pt" ]]; then
   log "resuming same run from $OUTPUT_DIR/checkpoints/last.pt"
   train_args+=(--resume-from-checkpoint "$OUTPUT_DIR/checkpoints/last.pt")

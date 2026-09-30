@@ -14,7 +14,7 @@
 # reward/termination/safety code is untouched.
 set -euo pipefail
 
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 cd "$REPO_ROOT"
 
 PYTHON_BIN="${PYTHON_BIN:-/home/harry/anaconda3/envs/nedm/bin/python}"
@@ -26,7 +26,7 @@ LAUNCH_LOG="$OUTPUT_ROOT/$RUN_NAME.launch.log"
 mkdir -p "$OUTPUT_ROOT"
 
 train_cmd=(
-  "$PYTHON_BIN" scripts/training/train_arm_rl_reaching.py
+  "$PYTHON_BIN" scripts/tracked_arm/training/train_arm_rl_reaching.py
   --output-root "$OUTPUT_ROOT"
   --run-name "$RUN_NAME"
   --exp-name arm-nn-reaching

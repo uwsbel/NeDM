@@ -4,10 +4,10 @@
 # assets/bumpy_terrain) and validates the output.
 #
 # Usage:
-#   PYTHON_BIN=/home/harry/anaconda3/envs/nedm/bin/python bash scripts/collection/smoke_test_hmmwv_bumpy10g.sh
+#   PYTHON_BIN=/home/harry/anaconda3/envs/nedm/bin/python bash scripts/hmmwv/collection/smoke_test_hmmwv_bumpy10g.sh
 set -euo pipefail
 
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 cd "$REPO_ROOT"
 
 PYTHON_BIN="${PYTHON_BIN:-python}"
@@ -26,7 +26,7 @@ if [[ -n "$CHRONO_DATA_ROOT" ]]; then
 fi
 
 echo "[1/3] writing shard + smoke configs"
-"$PYTHON_BIN" scripts/collection/prepare_hmmwv_bumpy10g_generation.py "${prepare_args[@]}"
+"$PYTHON_BIN" scripts/hmmwv/collection/prepare_hmmwv_bumpy10g_generation.py "${prepare_args[@]}"
 
 smoke_config="$PLAN_DIR/configs/smoke.json"
 smoke_output=$("$PYTHON_BIN" - "$smoke_config" <<'PY'
@@ -37,10 +37,10 @@ PY
 
 echo "[2/3] collecting smoke shard ($smoke_config, jobs=$JOBS)"
 rm -rf "$smoke_output"
-"$PYTHON_BIN" scripts/collection/collect_hmmwv_dataset.py --config "$smoke_config" --jobs "$JOBS"
+"$PYTHON_BIN" scripts/hmmwv/collection/collect_hmmwv_dataset.py --config "$smoke_config" --jobs "$JOBS"
 
 echo "[3/3] validating output"
-"$PYTHON_BIN" scripts/collection/validate_hmmwv_tire_dataset.py --dataset-dir "$smoke_output"
+"$PYTHON_BIN" scripts/hmmwv/collection/validate_hmmwv_tire_dataset.py --dataset-dir "$smoke_output"
 
 echo
 echo "height maps used per episode:"

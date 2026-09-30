@@ -2,13 +2,13 @@
 """3D plot of the arm link bounding boxes placed by forward kinematics.
 
 Illustrates Appendix F: for a configuration q, the batched product-of-exponentials
-forward kinematics (nedm.rl.arm_kinematics.ArmKinematics) places each link's
+forward kinematics (nedm.tracked_arm.rl.arm_kinematics.ArmKinematics) places each link's
 axis-aligned box into the world. In world coordinates these become *oriented*
 boxes; the geometric safety shield tests them (and their 8 corner + 1 center
 sample points {x_p(q)}) for collision. This draws the four arm-chain link boxes
 (shoulder, biceps, elbow, wrist) and the end-effector, in the arm-base frame.
 
-Run:  PYTHONPATH=src python scripts/figures/plot_arm_fk_boxes.py --q 0.7 0.5 -0.5 0.3
+Run:  PYTHONPATH=src python scripts/tracked_arm/figures/plot_arm_fk_boxes.py --q 0.7 0.5 -0.5 0.3
 """
 from __future__ import annotations
 
@@ -20,9 +20,9 @@ import numpy as np
 import torch
 from mpl_toolkits.mplot3d.art3d import Line3DCollection, Poly3DCollection
 
-from nedm.rl.arm_kinematics import ArmKinematics
+from nedm.tracked_arm.rl.arm_kinematics import ArmKinematics
 
-REPO = Path(__file__).resolve().parents[2]
+REPO = Path(__file__).resolve().parents[3]
 GEOM = REPO / "artifacts/arm_geometry/arm_geometry_v1.json"
 DEFAULT_OUT = Path(
     "/home/harry/Manuscripts/ImageArchive/journals/2026/neural-dynamics-model/arm_fk_boxes.png"

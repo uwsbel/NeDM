@@ -3,7 +3,7 @@
 # the tire_force_omega processed cache.
 set -euo pipefail
 
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 cd "$REPO_ROOT"
 
 resolve_python_bin() {
@@ -94,11 +94,11 @@ if [[ "$OVERWRITE" == "1" ]]; then
   fi
 fi
 
-"$PYTHON_BIN" scripts/collection/prepare_hmmwv_crm100_generation.py "${prepare_args[@]}"
-"$PYTHON_BIN" scripts/collection/collect_hmmwv_crm_dataset.py "${collect_args[@]}"
+"$PYTHON_BIN" scripts/hmmwv/collection/prepare_hmmwv_crm100_generation.py "${prepare_args[@]}"
+"$PYTHON_BIN" scripts/hmmwv/collection/collect_hmmwv_crm_dataset.py "${collect_args[@]}"
 
 if [[ "$BUILD_PROCESSED" == "1" ]]; then
-  "$PYTHON_BIN" scripts/preprocess/build_hmmwv_training_dataset.py \
+  "$PYTHON_BIN" scripts/core/preprocess/build_hmmwv_training_dataset.py \
     --dataset-root "$OUTPUT_DIR" \
     --output-dir "$PROCESSED_DIR" \
     --state-field-preset tire_force_omega \

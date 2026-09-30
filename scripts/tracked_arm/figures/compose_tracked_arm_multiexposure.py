@@ -16,7 +16,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-REPO = Path(__file__).resolve().parents[2]
+REPO = Path(__file__).resolve().parents[3]
 ANIM = REPO / "artifacts/combined_tracked_arm_demo/blender/renders/anim"
 OUT = REPO / "artifacts/combined_tracked_arm_demo/blender/renders/tracked_arm_multiexposure.png"
 

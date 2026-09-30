@@ -19,12 +19,12 @@ from typing import Any
 import numpy as np
 import torch
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 SRC_ROOT = REPO_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-from nedm.rl.references import ReferenceSet, save_reference_set
+from nedm.hmmwv.rl.references import ReferenceSet, save_reference_set
 
 POSE_FIELDS = ["pos_x_m", "pos_y_m", "yaw_rad"]
 

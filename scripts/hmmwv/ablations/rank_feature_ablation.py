@@ -18,7 +18,7 @@ the manifest (these runs are intentionally excluded from it); it scans the three
 fixed run dirs and adds delta-S vs the full-feature L8 baseline.
 
 Usage:
-    python scripts/ablations/rank_feature_ablation.py [--csv out.csv]
+    python scripts/hmmwv/ablations/rank_feature_ablation.py [--csv out.csv]
 """
 from __future__ import annotations
 
@@ -28,7 +28,7 @@ import json
 import math
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 RUN_ROOT = REPO_ROOT / "artifacts/training_runs/ablation_ofat"
 
 # (run dir name, input dim, short label). Row 0 is the full-feature baseline.

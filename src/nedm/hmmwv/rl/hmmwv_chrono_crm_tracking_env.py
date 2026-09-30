@@ -7,9 +7,9 @@ import numpy as np
 
 import pychrono.vehicle as veh
 
-from nedm.hmmwv_data import capture_row
-from nedm.hmmwv_crm import capture_crm_row, configure_crm_terrain, load_crm_config
-from nedm.rl.hmmwv_chrono_tracking_env import ChronoHMMWVSim, HMMWVChronoTrackingEnv
+from nedm.hmmwv.hmmwv_data import capture_row
+from nedm.hmmwv.hmmwv_crm import capture_crm_row, configure_crm_terrain, load_crm_config
+from nedm.hmmwv.rl.hmmwv_chrono_tracking_env import ChronoHMMWVSim, HMMWVChronoTrackingEnv
 
 
 class HMMWVChronoCRMTrackingEnv(HMMWVChronoTrackingEnv):
@@ -97,7 +97,7 @@ class HMMWVChronoCRMTrackingEnv(HMMWVChronoTrackingEnv):
         # that to the offscreen eval path is future work.
         raise NotImplementedError(
             "CRM tracking eval does not support rendering yet. Run without --render "
-            "(see scripts/collection/collect_hmmwv_crm_smoke.py --render for CRM VSG visualization)."
+            "(see scripts/hmmwv/collection/collect_hmmwv_crm_smoke.py --render for CRM VSG visualization)."
         )
 
     def _add_reference_line(self, sim: ChronoHMMWVSim, reference_id: int) -> None:  # pragma: no cover

@@ -2,14 +2,14 @@
 
 Training code for the models released with the traversing study, trimmed to what training uses. Run everything from
 the repository root with the `nedm` environment. Relative input paths are the paths the release downloader
-(`traversing/scripts/release/download_traversing_data.py`) restores, so the defaults work after a download. Each
+(`scripts/traversing/release/download_traversing_data.py`) restores, so the defaults work after a download. Each
 entry point writes its outputs to `--out`.
 
 | File | Contents |
 |---|---|
 | `state.py` | the 17-number vehicle state, the observable columns and the settle action |
 | `dynamics_data.py` | dynamics cache loader, group split and twin check, normalisation, window batching |
-| `dynamics_model.py` | NRD model (main's `nedm.training.model_transformer` + terrain-crop token), checkpoint save/load |
+| `dynamics_model.py` | NRD model (main's `nedm.core.training.model_transformer` + terrain-crop token), checkpoint save/load |
 | `train_dynamics_model.py` | NRD training with the validation gates |
 | `risk_model.py` | route-risk CNN-GRU with the history encoder, survival loss, route logit, checkpoint load and scoring |
 | `risk_data.py` | risk dataset files -> rows, splits, suite-group exclusion, standardised tensors, balanced batches |
@@ -38,7 +38,7 @@ dead-reckoned pose and the ground type (rigid or soil). It predicts the next sta
 whole cache is held in host memory (the state array alone takes about 3 GB).
 
 ```bash
-python traversing/training/train_dynamics_model.py --out runs/nrd_tag_v3 --cond tag --crop-k 8 --crop-half-m 6 \
+PYTHONPATH=src python -m nedm.traversing.training.train_dynamics_model --out runs/nrd_tag_v3 --cond tag --crop-k 8 --crop-half-m 6 \
     --steps 30000 --batch 256 --rollout-steps 8 --delta-scale --eval-every 2000 --val-max-per-domain 256 \
     --ckpt-every-min 15 --max-minutes 225
 # after an interruption: the same command plus --resume runs/nrd_tag_v3/ckpt_last.pt
@@ -73,8 +73,8 @@ reaches similar numbers but not identical bits: on a GPU, the backward pass of t
 uses atomic additions, so it is not deterministic. On the CPU, training is deterministic and matches the original
 script bit for bit.
 
-**For the tracker.** The modules import each other by flat name, so other code first puts `traversing/training` on
-`sys.path` (`sys.path.insert(0, str(repo_root / 'traversing/training'))`); the entry points need nothing extra.
+**For the tracker.** The modules form the package `nedm.traversing.training`: with `src/` on `sys.path`, other code
+imports them as `from nedm.traversing.training import dynamics_model`; the entry points need nothing extra.
 `dynamics_model.load_nrd(path, device)` returns the frozen model, its normaliser and the checkpoint.
 `model.token(pose)` gives the crop token and `integrate_pose` does the dead reckoning. `dynamics_data` provides the
 manifest, split and held-out-group helpers. `state` provides `OBSERVABLE_COLS` and `SETTLE_ACTION`.
@@ -102,7 +102,7 @@ loading. All rows used for fitting or evaluation are held on the GPU as float32:
 training.
 
 ```bash
-python traversing/training/train_risk_model.py --out runs/risk_final --tag deploy_a1_haux_gru \
+PYTHONPATH=src python -m nedm.traversing.training.train_risk_model --out runs/risk_final --tag deploy_a1_haux_gru \
     --arch gru --hist-enc gru --hist-window mask --ctx geom --cond hist_aux --domain-filter both \
     --crm-batch-frac 0.5 --hist-drop 0.2 --aux-weight 0.5 --split-eval val --mode deploy \
     --seeds 5 --seed0 0 --epochs 30 --bs 256
@@ -167,7 +167,7 @@ the arena study, the Polaris deploy record) maps 1:1; the `--mode holdout` lines
 read-out models and are not supported:
 
 ```bash
-python traversing/training/train_risk_model.py --ds <file> --out runs/<tag> --tag <tag> --mode deploy --arch gru \
+PYTHONPATH=src python -m nedm.traversing.training.train_risk_model --ds <file> --out runs/<tag> --tag <tag> --mode deploy --arch gru \
     --cond none --domain-filter <rigid|crm> --ctx geom --split-eval val --bs 256 --epochs 30 --seeds 5 \
     --seed0 <0|5> --roundtrip-check
 ```
@@ -230,7 +230,7 @@ on 131,072 samples (imitation warm start).
 the GPU (2.1 GiB).
 
 ```bash
-python traversing/training/train_tracking_policy.py --out runs/ppo_v2 --num-envs 2048 --max-iterations 1000 \
+PYTHONPATH=src python -m nedm.traversing.training.train_tracking_policy --out runs/ppo_v2 --num-envs 2048 --max-iterations 1000 \
     --save-interval 100 --imitation-samples 131072 --seed 2 --speed-weight 1.5
 # after an interruption: the same command plus --resume runs/ppo_v2/model_<it>.pt
 ```
@@ -262,7 +262,7 @@ visible CUDA device even with `--device cpu`: it stores CUDA tensors and rsl_rl 
 in the original script):
 
 ```bash
-python traversing/training/train_tracking_policy.py --out runs/ppo_v2_check --seed 2 --speed-weight 1.5 \
+PYTHONPATH=src python -m nedm.traversing.training.train_tracking_policy --out runs/ppo_v2_check --seed 2 --speed-weight 1.5 \
     --check-actor artifacts/traverse/generalist_20260921/B_tracker/ppo_v2/model_999.pt \
     --check-npz artifacts/traverse/generalist_20260921/B_tracker/ppo_v2/actor.npz
 ```

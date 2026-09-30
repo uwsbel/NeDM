@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from risk_model import DOMAIN_NAME
+from nedm.traversing.training.risk_model import DOMAIN_NAME
 
 ANCHOR_BUCKETS = [('k0', 0, 0), ('k10_30', 10, 30), ('k40p', 40, 10 ** 9)]
 

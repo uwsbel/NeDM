@@ -6,13 +6,13 @@ import sys
 from pathlib import Path
 
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 SRC_ROOT = REPO_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-from nedm.rl.defaults import DEFAULT_RL_PROCESSED_DATASET_DIR, DEFAULT_RL_REFERENCE_PATH
-from nedm.rl.references import build_reference_set, save_reference_set, summarize_reference_set
+from nedm.core.rl.defaults import DEFAULT_RL_PROCESSED_DATASET_DIR, DEFAULT_RL_REFERENCE_PATH
+from nedm.hmmwv.rl.references import build_reference_set, save_reference_set, summarize_reference_set
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:

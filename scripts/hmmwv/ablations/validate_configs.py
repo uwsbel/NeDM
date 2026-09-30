@@ -11,12 +11,12 @@ import json
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
 import torch  # noqa: E402
-from nedm.training.constants import STATE_FIELD_PRESETS, DEFAULT_ACTION_FIELDS  # noqa: E402
-from nedm.training.model import HMMWVDynamicsModel  # noqa: E402
+from nedm.core.training.constants import STATE_FIELD_PRESETS, DEFAULT_ACTION_FIELDS  # noqa: E402
+from nedm.core.training.model import HMMWVDynamicsModel  # noqa: E402
 
 STATE_DIM = len(STATE_FIELD_PRESETS["tire_normal_force_omega"])  # 15
 ACTION_DIM = len(DEFAULT_ACTION_FIELDS)  # 3
@@ -27,7 +27,7 @@ def count_params(model: torch.nn.Module) -> int:
 
 
 def main() -> int:
-    manifest = json.loads((REPO_ROOT / "configs/ablation_ofat/manifest.json").read_text())
+    manifest = json.loads((REPO_ROOT / "configs/hmmwv/ablation_ofat/manifest.json").read_text())
     base = json.loads((REPO_ROOT / manifest["base_config"]).read_text())
     num_terrains = len(base["terrain_conditioning"]["terrains"])
 

@@ -2,8 +2,8 @@
 
 This is the single source of truth for the Chrono CRMTerrain setup and the
 FSI-based tire-channel capture. Both the data collector
-(``scripts/collection/collect_hmmwv_crm_smoke.py`` / ``collect_hmmwv_crm_dataset.py``) and
-the RL CRM evaluation env (``nedm.rl.hmmwv_chrono_crm_tracking_env``) import from
+(``scripts/hmmwv/collection/collect_hmmwv_crm_smoke.py`` / ``collect_hmmwv_crm_dataset.py``) and
+the RL CRM evaluation env (``nedm.hmmwv.rl.hmmwv_chrono_crm_tracking_env``) import from
 here, so the eval terrain physics stays identical to the physics the dynamics
 model was trained on.
 
@@ -29,7 +29,7 @@ import pychrono as chrono
 import pychrono.fsi as fsi
 import pychrono.vehicle as veh
 
-from nedm.hmmwv_data import WHEEL_SPECS, capture_row
+from nedm.hmmwv.hmmwv_data import WHEEL_SPECS, capture_row
 
 
 WORLD_UP = chrono.ChVector3d(0, 0, 1)
@@ -82,7 +82,7 @@ def collect_wheel_runtime(vehicle: Any) -> list[WheelRuntime]:
 def configure_crm_terrain(hmmwv: Any, config: dict[str, Any]) -> tuple[Any, list[WheelRuntime]]:
     """Build a CRMTerrain for ``hmmwv`` from ``config["terrain"]`` and register its wheels.
 
-    Mirrors ``scripts/collection/collect_hmmwv_crm_smoke.configure_crm_terrain``. Reconfigures
+    Mirrors ``scripts/hmmwv/collection/collect_hmmwv_crm_smoke.configure_crm_terrain``. Reconfigures
     the multibody system solver/timestepper/threads (CRM requires it), so call this
     immediately after ``create_hmmwv`` and before stepping.
     """
@@ -163,7 +163,7 @@ def configure_crm_terrain(hmmwv: Any, config: dict[str, Any]) -> tuple[Any, list
 def capture_crm_tire_fields(terrain: Any, wheels: list[WheelRuntime]) -> dict[str, float]:
     """Per-wheel tire channels read from the FSI solver (CRM force source).
 
-    Produces the same keys as ``nedm.hmmwv_data.tire_field_names()`` but sources
+    Produces the same keys as ``nedm.hmmwv.hmmwv_data.tire_field_names()`` but sources
     the contact force/torque from ``GetFsiBodyForce``/``GetFsiBodyTorque`` on each
     spindle body. Channels with no SPH analogue (camber, deflection) are zero.
     """
@@ -243,7 +243,7 @@ def validate_crm_config(config: dict[str, Any]) -> None:
 def load_crm_config(config_path: str | Path) -> dict[str, Any]:
     """Load a CRM collector-style config for evaluation use.
 
-    Unlike ``nedm.hmmwv_data.load_config`` this accepts ``terrain.type == 'crm'``
+    Unlike ``nedm.hmmwv.hmmwv_data.load_config`` this accepts ``terrain.type == 'crm'``
     and does not materialize scenarios -- the RL eval env drives the vehicle from
     a reference set, not from generated driver profiles.
     """

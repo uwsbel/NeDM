@@ -4,8 +4,8 @@
 # (Xet-backed uploads skip chunks the Hub already has).
 #
 #   hf auth login                      # once, with a write token (or export HF_TOKEN)
-#   bash scripts/release/upload_hf_dataset.sh                 # everything
-#   bash scripts/release/upload_hf_dataset.sh raw/tracked raw/arm README.md   # a subset (pilot)
+#   bash scripts/core/release/upload_hf_dataset.sh                 # everything
+#   bash scripts/core/release/upload_hf_dataset.sh raw/tracked raw/arm README.md   # a subset (pilot)
 #
 # Env: HF_REPO_ID (default harryzhang1018/NeDM), STAGING (default artifacts/hf_release/NeDM).
 set -euo pipefail
@@ -16,7 +16,7 @@ HF_BIN="${HF_BIN:-hf}"
 export HF_XET_HIGH_PERFORMANCE="${HF_XET_HIGH_PERFORMANCE:-1}"
 
 if [[ ! -f "$STAGING/release_manifest.json" ]]; then
-  echo "no release_manifest.json under $STAGING -- run scripts/release/export_hf_dataset.py first" >&2
+  echo "no release_manifest.json under $STAGING -- run scripts/core/release/export_hf_dataset.py first" >&2
   exit 1
 fi
 

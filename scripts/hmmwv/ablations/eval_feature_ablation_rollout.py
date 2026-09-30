@@ -22,7 +22,7 @@ Reports, per model per domain:
   per-episode errdist median + IQR, and a paired win-rate vs the baseline model.
 
 Usage:
-    python scripts/ablations/eval_feature_ablation_rollout.py \
+    python scripts/hmmwv/ablations/eval_feature_ablation_rollout.py \
         --ckpts baseline=artifacts/.../L8_H8_E256_ctx128/checkpoints/best_val.pt \
                 ab1=artifacts/.../L8_H8_E256_ctx128_no_onehot/checkpoints/best_val.pt \
         --episodes 100 --horizon 10.0
@@ -39,11 +39,11 @@ from typing import Any
 
 import torch
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
-from nedm.training.dataset import load_rollout_split  # noqa: E402
-from nedm.training.model import HMMWVDynamicsModel  # noqa: E402
+from nedm.core.training.dataset import load_rollout_split  # noqa: E402
+from nedm.core.training.model import HMMWVDynamicsModel  # noqa: E402
 
 
 def load_checkpoint(path: Path, device: str) -> dict[str, Any]:

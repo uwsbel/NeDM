@@ -13,10 +13,10 @@
    on a fixed pool of ``--check-n`` real observations plus the live observation buffer; max |action difference|
    must be below 1e-5 (``policy_meta.json`` ``numpy_actor_check``).
 
-    python traversing/training/train_tracking_policy.py --out runs/ppo_v2 --num-envs 2048 --max-iterations 1000 \\
+    PYTHONPATH=src python -m nedm.traversing.training.train_tracking_policy --out runs/ppo_v2 --num-envs 2048 --max-iterations 1000 \\
         --save-interval 100 --imitation-samples 131072 --seed 2 --speed-weight 1.5
     # repeat the parity check of a saved checkpoint (e.g. the released model_999.pt against its actor.npz):
-    python traversing/training/train_tracking_policy.py --out runs/ppo_v2_check --seed 2 --speed-weight 1.5 \\
+    PYTHONPATH=src python -m nedm.traversing.training.train_tracking_policy --out runs/ppo_v2_check --seed 2 --speed-weight 1.5 \\
         --check-actor artifacts/traverse/generalist_20260921/B_tracker/ppo_v2/model_999.pt \\
         --check-npz artifacts/traverse/generalist_20260921/B_tracker/ppo_v2/actor.npz
     # continue an interrupted run: the same arguments plus --resume runs/ppo_v2/model_<it>.pt
@@ -39,9 +39,9 @@ from typing import Any
 import numpy as np
 import torch
 
-import dynamics_data as D
-from numpy_actor import NumpyActor, export_torch_actor, jsonable
-from tracking_env import DEFAULT_NRD, TrackingEnv, merge_env_cfg
+from nedm.traversing.training import dynamics_data as D
+from nedm.traversing.training.numpy_actor import NumpyActor, export_torch_actor, jsonable
+from nedm.traversing.training.tracking_env import DEFAULT_NRD, TrackingEnv, merge_env_cfg
 
 
 class NoOpSummaryWriter:

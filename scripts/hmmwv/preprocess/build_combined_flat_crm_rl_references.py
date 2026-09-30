@@ -7,7 +7,7 @@ both terrains in one reference file.
 
 CRM selection rules (mirrors the flat builder's even family round-robin):
   * even distribution across maneuver families (same round-robin order as
-    ``nedm.rl.references.DEFAULT_REFERENCE_FAMILIES``);
+    ``nedm.hmmwv.rl.references.DEFAULT_REFERENCE_FAMILIES``);
   * each chosen episode starts at the origin (|x0|,|y0| within --origin-tol) and
     travels more than --min-displacement metres by the end of the segment;
   * episodes that terminated at the terrain boundary are skipped by default;
@@ -30,12 +30,12 @@ from typing import Any
 
 import numpy as np
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 SRC_ROOT = REPO_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-from nedm.rl.references import (  # noqa: E402
+from nedm.hmmwv.rl.references import (  # noqa: E402
     DEFAULT_REFERENCE_FAMILIES,
     ReferenceSet,
     load_reference_set,

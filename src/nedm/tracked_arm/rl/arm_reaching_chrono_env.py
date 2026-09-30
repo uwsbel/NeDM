@@ -1,8 +1,8 @@
 """Chrono-backed arm reaching VecEnv for policy evaluation.
 
-This environment mirrors :class:`nedm.rl.arm_reaching_env.ArmReachingEnv` at the
+This environment mirrors :class:`nedm.tracked_arm.rl.arm_reaching_env.ArmReachingEnv` at the
 policy boundary, but replaces the learned transition model with the full M113 +
-LRV arm Chrono scene used by ``nedm.arm_data``. Chrono itself is not vectorized;
+LRV arm Chrono scene used by ``nedm.tracked_arm.arm_data``. Chrono itself is not vectorized;
 ``num_envs`` creates independent serial simulations and is intended to stay
 small for evaluation.
 """
@@ -20,7 +20,7 @@ import numpy as np
 import torch
 from rsl_rl.env import VecEnv
 
-from nedm.arm_data import (
+from nedm.tracked_arm.arm_data import (
     CONTROL_DT,
     STEP_SIZE,
     arm_contact,
@@ -30,11 +30,11 @@ from nedm.arm_data import (
     RenderFrameRecorder,
     _substep,
 )
-from nedm.rl.arm_kinematics import ArmKinematics
-from nedm.rl.arm_reaching_env import default_env_cfg, merge_env_cfg
-from nedm.rl.arm_safety import ArmSafetyFilter
-from nedm.rl.dynamics import resolve_dynamics_checkpoint_path
-from nedm.training.dataset import load_metadata
+from nedm.tracked_arm.rl.arm_kinematics import ArmKinematics
+from nedm.tracked_arm.rl.arm_reaching_env import default_env_cfg, merge_env_cfg
+from nedm.tracked_arm.rl.arm_safety import ArmSafetyFilter
+from nedm.core.rl.dynamics import resolve_dynamics_checkpoint_path
+from nedm.core.training.dataset import load_metadata
 
 
 @dataclass

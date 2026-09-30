@@ -1,7 +1,7 @@
 """Validation test: extended tire-force channels on rigid terrain (TMEASY).
 
 Runs one HMMWV episode (launch, then steady cruise, then a steering step) and
-logs rows through the production ``capture_row`` from ``nedm.hmmwv_data`` with
+logs rows through the production ``capture_row`` from ``nedm.hmmwv.hmmwv_data`` with
 ``include_tires=True``. Checks:
 
 1. every logged channel is finite
@@ -22,13 +22,13 @@ import math
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
 import pychrono as chrono
 import pychrono.vehicle as veh
 
-from nedm.hmmwv_data import (
+from nedm.hmmwv.hmmwv_data import (
     WHEEL_SPECS,
     capture_row,
     configure_chrono_data_paths,

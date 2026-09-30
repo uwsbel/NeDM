@@ -4,13 +4,13 @@
 # episode CSV, sidecar JSON, collector_config.resolved.json, and dataset_index.json.
 #
 # Usage:
-#   bash scripts/collection/smoke_test_hmmwv_crm.sh
-#   RENDER=0 bash scripts/collection/smoke_test_hmmwv_crm.sh
-#   CAMERA_STATE=track CAMERA_X_M=0 CAMERA_Y_M=-14 CAMERA_Z_M=7 bash scripts/collection/smoke_test_hmmwv_crm.sh
-#   CAMERA_X_M=0 CAMERA_Y_M=-14 CAMERA_Z_M=7 bash scripts/collection/smoke_test_hmmwv_crm.sh
+#   bash scripts/hmmwv/collection/smoke_test_hmmwv_crm.sh
+#   RENDER=0 bash scripts/hmmwv/collection/smoke_test_hmmwv_crm.sh
+#   CAMERA_STATE=track CAMERA_X_M=0 CAMERA_Y_M=-14 CAMERA_Z_M=7 bash scripts/hmmwv/collection/smoke_test_hmmwv_crm.sh
+#   CAMERA_X_M=0 CAMERA_Y_M=-14 CAMERA_Z_M=7 bash scripts/hmmwv/collection/smoke_test_hmmwv_crm.sh
 set -euo pipefail
 
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 cd "$REPO_ROOT"
 
 PYTHON_BIN="${PYTHON_BIN:-/home/harry/anaconda3/envs/nedm/bin/python}"
@@ -106,7 +106,7 @@ if [[ -n "$CHRONO_DATA_ROOT" ]]; then
   args+=(--chrono-data-root "$CHRONO_DATA_ROOT")
 fi
 
-"$PYTHON_BIN" scripts/collection/collect_hmmwv_crm_smoke.py "${args[@]}"
+"$PYTHON_BIN" scripts/hmmwv/collection/collect_hmmwv_crm_smoke.py "${args[@]}"
 
 echo
 echo "CRM smoke dataset: $OUTPUT_DIR"

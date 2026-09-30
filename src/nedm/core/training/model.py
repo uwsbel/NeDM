@@ -5,7 +5,7 @@ from typing import Any
 import torch
 import torch.nn as nn
 
-from nedm.training.model_transformer import ContinuousTransformer, TransformerConfig
+from nedm.core.training.model_transformer import ContinuousTransformer, TransformerConfig
 
 
 class HMMWVDynamicsModel(nn.Module):

@@ -34,16 +34,16 @@ description: Create or modify SLURM sbatch scripts for the user's Euler cluster 
 
 Three stages, all repo-relative:
 
-1. `python scripts/collection/prepare_hmmwv_<name>_generation.py --chrono-data-root ...`
+1. `python scripts/hmmwv/collection/prepare_hmmwv_<name>_generation.py --chrono-data-root ...`
    — idempotent; writes per-shard configs + `manifest.json` under
    `artifacts/datasets/<name>_plan/`. New prepare scripts import
    `base_config/family_config/family_counts/speed_band` from
    `prepare_hmmwv_300g_generation.py` (speed band rotates `shard_index % 4`:
    low/medium/fast/mixed).
-2. `python scripts/collection/collect_hmmwv_dataset.py --config <shard.json> --jobs N`
+2. `python scripts/hmmwv/collection/collect_hmmwv_dataset.py --config <shard.json> --jobs N`
    — one process per episode; jobs should equal `SLURM_CPUS_PER_TASK`.
    Writes `dataset_index.json` on completion (the resumability marker).
-3. `python scripts/collection/validate_hmmwv_tire_dataset.py --dataset-dir <shard_dir>`
+3. `python scripts/hmmwv/collection/validate_hmmwv_tire_dataset.py --dataset-dir <shard_dir>`
    — slip sanity applies only to wheels in contact (Fz > 50 N); airborne slip
    is reported but never a failure.
 
@@ -71,7 +71,7 @@ from git and checks for it before running).
 
 ## Script skeleton
 
-Copy an existing `scripts/cluster/collect_*.sh`; the load-bearing parts:
+Copy an existing `scripts/{hmmwv,tracked_arm}/cluster/collect_*.sh`; the load-bearing parts:
 
 ```bash
 #SBATCH --output=logs/out_%A_%a.txt
@@ -84,7 +84,7 @@ Copy an existing `scripts/cluster/collect_*.sh`; the load-bearing parts:
 set -euo pipefail
 # ... conda bootstrap (see above), cd /srv/home/hzhang699/NeDM ...
 JOBS="${SLURM_CPUS_PER_TASK:-16}"
-python scripts/collection/prepare_..._generation.py --chrono-data-root "$CONDA_PREFIX/share/chrono/data"
+python scripts/hmmwv/collection/prepare_..._generation.py --chrono-data-root "$CONDA_PREFIX/share/chrono/data"
 
 if [[ -n "${SLURM_ARRAY_TASK_ID:-}" ]]; then shards=("$SLURM_ARRAY_TASK_ID");
 else shards=($(seq 0 $((NUM_SHARDS - 1)))); fi
@@ -92,8 +92,8 @@ else shards=($(seq 0 $((NUM_SHARDS - 1)))); fi
 for shard in "${shards[@]}"; do
   # read output_subdir out of the shard config json
   [[ -f "$output_dir/dataset_index.json" ]] && { echo "shard $shard done; skipping"; continue; }
-  python scripts/collection/collect_hmmwv_dataset.py --config "$config" --jobs "$JOBS"
-  python scripts/collection/validate_hmmwv_tire_dataset.py --dataset-dir "$output_dir"
+  python scripts/hmmwv/collection/collect_hmmwv_dataset.py --config "$config" --jobs "$JOBS"
+  python scripts/hmmwv/collection/validate_hmmwv_tire_dataset.py --dataset-dir "$output_dir"
 done
 ```
 
@@ -105,7 +105,7 @@ safe: rerun the identical sbatch line and only missing shards re-collect.
 1. Write the prepare script (fresh seed base + scenario prefix; mirror an
    existing one). If terrain needs assets, commit them under `assets/` so
    `git pull` delivers them; have the script fail fast if they're missing.
-2. Smoke-test locally first (`scripts/collection/smoke_test_*.sh`, 12 episodes) —
+2. Smoke-test locally first (`scripts/hmmwv/collection/smoke_test_*.sh`, 12 episodes) —
    the user wants local verification before anything touches the cluster.
 3. Copy the cluster script template, set job-name/PLAN_DIR/NUM_SHARDS/prepare
    call. Big runs: estimate total CPU-hours and check the partition with

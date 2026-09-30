@@ -12,7 +12,7 @@ manifest). Also reports the per-domain 10 s err/dist at the best epoch and the
 last epoch reached, so incomplete runs are visible.
 
 Usage:
-    python scripts/ablations/rank_stage_a.py [--manifest configs/ablation_ofat/manifest.json] [--top 4]
+    python scripts/hmmwv/ablations/rank_stage_a.py [--manifest configs/hmmwv/ablation_ofat/manifest.json] [--top 4]
 """
 from __future__ import annotations
 
@@ -21,7 +21,7 @@ import json
 import math
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 def load_metrics(run_dir: Path) -> list[dict]:
@@ -54,7 +54,7 @@ def errdist(m: dict, key: str) -> float:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--manifest", default="configs/ablation_ofat/manifest.json")
+    ap.add_argument("--manifest", default="configs/hmmwv/ablation_ofat/manifest.json")
     ap.add_argument("--top", type=int, default=4, help="Mark this many best runs for Stage B.")
     args = ap.parse_args()
 

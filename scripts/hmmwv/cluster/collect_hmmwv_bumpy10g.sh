@@ -11,8 +11,8 @@
 # episodes on rigid heightmap patches from assets/bumpy_terrain, ~10 GB after
 # patch-border truncation). Two ways to run:
 #
-#   sbatch scripts/cluster/collect_hmmwv_bumpy10g.sh                # one job, all 4 shards in sequence
-#   sbatch --array=0-3 scripts/cluster/collect_hmmwv_bumpy10g.sh   # one shard per array task
+#   sbatch scripts/hmmwv/cluster/collect_hmmwv_bumpy10g.sh                # one job, all 4 shards in sequence
+#   sbatch --array=0-3 scripts/hmmwv/cluster/collect_hmmwv_bumpy10g.sh   # one shard per array task
 #
 # Before first submit:  mkdir -p logs   (slurm won't create the output dir)
 # Shards already completed (dataset_index.json present) are skipped, so the
@@ -38,7 +38,7 @@ PLAN_DIR="artifacts/datasets/hmmwv_bumpy_10g_plan"
 JOBS="${SLURM_CPUS_PER_TASK:-16}"
 
 # idempotent; writes shard configs pointing at this machine's chrono data
-python scripts/collection/prepare_hmmwv_bumpy10g_generation.py --chrono-data-root "$CHRONO_DATA_ROOT"
+python scripts/hmmwv/collection/prepare_hmmwv_bumpy10g_generation.py --chrono-data-root "$CHRONO_DATA_ROOT"
 
 if [[ -n "${SLURM_ARRAY_TASK_ID:-}" ]]; then
   shards=("$SLURM_ARRAY_TASK_ID")
@@ -60,10 +60,10 @@ PY
   fi
 
   echo "collecting shard $shard -> $output_dir (jobs=$JOBS)"
-  python scripts/collection/collect_hmmwv_dataset.py --config "$config" --jobs "$JOBS"
+  python scripts/hmmwv/collection/collect_hmmwv_dataset.py --config "$config" --jobs "$JOBS"
 
   echo "validating shard $shard"
-  python scripts/collection/validate_hmmwv_tire_dataset.py --dataset-dir "$output_dir"
+  python scripts/hmmwv/collection/validate_hmmwv_tire_dataset.py --dataset-dir "$output_dir"
 done
 
 echo "done: ${shards[*]}"

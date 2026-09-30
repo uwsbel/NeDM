@@ -2,12 +2,12 @@
 # Launch the serial OFAT ablation sweep in a detached tmux session so it survives
 # the shell. Idempotent: if the session is already running, it just reports.
 #
-#   bash scripts/ablations/launch_sweep.sh          # start the sweep
+#   bash scripts/hmmwv/ablations/launch_sweep.sh          # start the sweep
 #   tmux attach -t ofat_ablation_sweep                  # watch it
 #   tail -f artifacts/training_runs/ablation_ofat/sweep.log
 set -euo pipefail
 
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 cd "$REPO_ROOT"
 
 SESSION_NAME="${SESSION_NAME:-ofat_ablation_sweep}"
@@ -35,7 +35,7 @@ for v in RUN_ONLY CONDA_SH CONDA_ENV PYTHON MANIFEST NUM_EPOCHS MAX_ATTEMPTS DEV
 done
 
 tmux new-session -d -s "$SESSION_NAME" \
-  "cd '$REPO_ROOT' && ${ENV_PREFIX}bash scripts/ablations/run_sweep.sh; echo '--- sweep runner exited, leaving shell open ---'; exec bash"
+  "cd '$REPO_ROOT' && ${ENV_PREFIX}bash scripts/hmmwv/ablations/run_sweep.sh; echo '--- sweep runner exited, leaving shell open ---'; exec bash"
 echo "started OFAT ablation sweep in tmux session '$SESSION_NAME'"
 echo "attach:  tmux attach -t $SESSION_NAME"
 echo "log:     $SWEEP_LOG"

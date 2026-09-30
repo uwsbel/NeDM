@@ -15,7 +15,7 @@ derived cache is bit-identical to what preprocess.py would emit for the same
 field list (verified by --verify).
 
 Example:
-    python scripts/ablations/derive_state_subset_dataset.py \
+    python scripts/hmmwv/ablations/derive_state_subset_dataset.py \
         --source-dir artifacts/training_datasets/hmmwv_crm_2000_normal_force_omega_seq_v1 \
         --output-dir artifacts/training_datasets/hmmwv_crm_2000_body7_seq_v1 \
         --state-field-preset default
@@ -32,10 +32,10 @@ from typing import Any
 
 import numpy as np
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
-from nedm.training.constants import STATE_FIELD_PRESETS  # noqa: E402
+from nedm.core.training.constants import STATE_FIELD_PRESETS  # noqa: E402
 
 # Arrays that do not depend on the state-field list: symlink, never copy.
 SHARED_ARRAYS = ("actions", "rollout", "episode_starts", "episode_lengths")
@@ -129,7 +129,7 @@ def build_metadata(source_meta: dict[str, Any], keep_fields: list[str], keep_ind
         "source_dataset_dir": str(source_dir),
         "source_state_field_preset": source_meta.get("state_field_preset"),
         "dropped_state_fields": [f for f in source_meta["state_fields"] if f not in set(keep_fields)],
-        "tool": "scripts/ablations/derive_state_subset_dataset.py",
+        "tool": "scripts/hmmwv/ablations/derive_state_subset_dataset.py",
         "note": (
             "Column subset of the source processed cache; states/targets sliced, "
             "actions/rollout/episode arrays symlinked to the source's real files."

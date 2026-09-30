@@ -23,7 +23,7 @@ import time
 import numpy as np
 import torch
 
-from risk_model import DOMAIN_NAME, GEOM_COLS, HIST_ACTION_COLS, HIST_COLS, prep_hist, prep_x
+from nedm.traversing.training.risk_model import DOMAIN_NAME, GEOM_COLS, HIST_ACTION_COLS, HIST_COLS, prep_hist, prep_x
 
 REQUIRED = ('X', 'ctx', 'id', 'group', 'split', 'fail', 'unsafe', 'event_idx')
 HEAVY = ('X', 'hist', 'hmask', 'E', 'T')           # never kept whole in the row dict

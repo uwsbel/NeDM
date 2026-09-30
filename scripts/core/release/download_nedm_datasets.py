@@ -1,8 +1,8 @@
 """Fetch the NeDM datasets from Hugging Face into this repo's artifact layout.
 
-    PYTHONPATH=src python scripts/release/download_nedm_datasets.py --dataset tracked --processed
-    PYTHONPATH=src python scripts/release/download_nedm_datasets.py --dataset arm --rehydrate
-    PYTHONPATH=src python scripts/release/download_nedm_datasets.py --dataset all --processed
+    PYTHONPATH=src python scripts/core/release/download_nedm_datasets.py --dataset tracked --processed
+    PYTHONPATH=src python scripts/core/release/download_nedm_datasets.py --dataset arm --rehydrate
+    PYTHONPATH=src python scripts/core/release/download_nedm_datasets.py --dataset all --processed
 
 What lands where (all under the repo root unless ``--dest`` is given):
 
@@ -10,7 +10,7 @@ What lands where (all under the repo root unless ``--dest`` is given):
 * ``--processed``  the training caches the deployed models read
                    -> ``artifacts/training_datasets/<cache>/`` (every config in ``configs/`` works verbatim)
 * ``--rehydrate``  the original per-episode CSV tree rebuilt from the Parquet files
-                   -> ``artifacts/datasets/<original name>/`` so ``scripts/preprocess/*`` and the
+                   -> ``artifacts/datasets/<original name>/`` so ``scripts/core/preprocess/*`` and the
                    collectors' validators run unchanged (values are the float32 the trainer uses;
                    caches rebuilt from a rehydrated tree are bit-identical to the published ones)
 
@@ -26,12 +26,12 @@ import shutil
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 SRC_ROOT = REPO_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-from nedm import hf_release as hr  # noqa: E402
+from nedm.core import hf_release as hr  # noqa: E402
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:

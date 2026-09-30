@@ -1,7 +1,7 @@
 # pychrono 10 HMMWV/RL environment (`nedm`).
 #
 # Used for NN-dynamics RL training, Chrono-backed RL policy evaluation
-# (scripts/evaluation/eval_hmmwv_rl_chrono_tracking.py and related debug/overlay tools),
+# (scripts/hmmwv/evaluation/eval_hmmwv_rl_chrono_tracking.py and related debug/overlay tools),
 # and pychrono 10.0.0 from the official projectchrono channel.
 #
 #   conda env create -f environment.nedm.yml
@@ -20,6 +20,6 @@ dependencies:
       - rsl-rl-lib==2.2.4
       - matplotlib==3.10.9
       - tensorboard
-      # Dataset release/download tooling (scripts/release/): Parquet export + Hugging Face Hub.
+      # Dataset release/download tooling (scripts/core/release/): Parquet export + Hugging Face Hub.
       - huggingface_hub[cli]>=1.28
       - pyarrow>=25

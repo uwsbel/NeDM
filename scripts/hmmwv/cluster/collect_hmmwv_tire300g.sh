@@ -11,8 +11,8 @@
 # 256 episodes (~2.4 GB per shard, ~307 GB total -> check your disk quota
 # before launching). Intended usage is one shard per array task:
 #
-#   sbatch --array=0-127%16 scripts/cluster/collect_hmmwv_tire300g.sh    # 16 shards (512 cpus) at a time, ~4 h total
-#   sbatch --array=0-127%32 scripts/cluster/collect_hmmwv_tire300g.sh    # 32 shards (1024 cpus) at a time, ~2 h total
+#   sbatch --array=0-127%16 scripts/hmmwv/cluster/collect_hmmwv_tire300g.sh    # 16 shards (512 cpus) at a time, ~4 h total
+#   sbatch --array=0-127%32 scripts/hmmwv/cluster/collect_hmmwv_tire300g.sh    # 32 shards (1024 cpus) at a time, ~2 h total
 #
 # A shard takes roughly 30 min on 32 cpus, so the 02:00:00 walltime has wide
 # margin per array task. Running without --array loops over all 128 shards
@@ -39,7 +39,7 @@ NUM_SHARDS=128
 JOBS="${SLURM_CPUS_PER_TASK:-16}"
 
 # idempotent; writes shard configs pointing at this machine's chrono data
-python scripts/collection/prepare_hmmwv_tire300g_generation.py --chrono-data-root "$CHRONO_DATA_ROOT"
+python scripts/hmmwv/collection/prepare_hmmwv_tire300g_generation.py --chrono-data-root "$CHRONO_DATA_ROOT"
 
 if [[ -n "${SLURM_ARRAY_TASK_ID:-}" ]]; then
   shards=("$SLURM_ARRAY_TASK_ID")
@@ -61,10 +61,10 @@ PY
   fi
 
   echo "collecting shard $shard -> $output_dir (jobs=$JOBS)"
-  python scripts/collection/collect_hmmwv_dataset.py --config "$config" --jobs "$JOBS"
+  python scripts/hmmwv/collection/collect_hmmwv_dataset.py --config "$config" --jobs "$JOBS"
 
   echo "validating shard $shard"
-  python scripts/collection/validate_hmmwv_tire_dataset.py --dataset-dir "$output_dir"
+  python scripts/hmmwv/collection/validate_hmmwv_tire_dataset.py --dataset-dir "$output_dir"
 done
 
 echo "done: ${shards[*]}"

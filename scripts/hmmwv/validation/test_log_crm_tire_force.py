@@ -27,7 +27,7 @@ import pychrono.core as chrono
 import pychrono.fsi as fsi
 import pychrono.vehicle as veh
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 OUT_DIR = REPO_ROOT / "artifacts" / "tests"
 OUT_CSV = OUT_DIR / "crm_tire_force_log.csv"
 

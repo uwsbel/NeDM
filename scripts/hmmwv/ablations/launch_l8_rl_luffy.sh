@@ -9,10 +9,10 @@
 # action_repeat 5, steering_rate_limit 0.10, pos_w 2.0, yaw_w 1.6, ar_w 0.2,
 # state fields vx,vy,yawrate). Runs ON luffy (RTX 5090, ~/miniconda3) — the same
 # box the legacy run used.
-#   ssh luffy 'cd ~/NeDM && bash scripts/ablations/launch_l8_rl_luffy.sh'
+#   ssh luffy 'cd ~/NeDM && bash scripts/hmmwv/ablations/launch_l8_rl_luffy.sh'
 set -euo pipefail
 
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 cd "$REPO_ROOT"
 
 PYTHON="${PYTHON:-/home/harry/miniconda3/envs/nedm/bin/python}"
@@ -32,7 +32,7 @@ if tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
 fi
 
 read -r -d '' CMD <<EOF || true
-cd '$REPO_ROOT' && '$PYTHON' scripts/training/train_hmmwv_rl_tracking.py \
+cd '$REPO_ROOT' && '$PYTHON' scripts/hmmwv/training/train_hmmwv_rl_tracking.py \
   --exp-name hmmwv-nn-tracking \
   --device cuda \
   --matmul-precision high \

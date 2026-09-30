@@ -3,10 +3,10 @@
 This fuses the two existing single-policy Chrono evals into a single continuous
 simulation on ONE M113+arm rig:
 
-    scripts/evaluation/eval_tracked_rl_goal_chrono.py   (drive the base to a 2-D goal)
-    scripts/evaluation/eval_arm_rl_chrono_reaching.py   (reach the gripper to 3-D goals)
+    scripts/tracked_arm/evaluation/eval_tracked_rl_goal_chrono.py   (drive the base to a 2-D goal)
+    scripts/tracked_arm/evaluation/eval_arm_rl_chrono_reaching.py   (reach the gripper to 3-D goals)
 
-Both already build the very same scene via ``nedm.arm_data.build_scene`` (a
+Both already build the very same scene via ``nedm.tracked_arm.arm_data.build_scene`` (a
 tracked M113 base with the LRV arm welded to its front deck), so instead of
 running them in two processes with two windows, this script builds the rig once
 and sequences three phases in it:
@@ -42,7 +42,7 @@ sim-recreation that has stack-smashed past full-loop evals.
 
 Run in the NeDM conda env, e.g.:
 
-    conda run -n nedm python scripts/evaluation/eval_tracked_then_arm_chrono.py --render \
+    conda run -n nedm python scripts/tracked_arm/evaluation/eval_tracked_then_arm_chrono.py --render \
         --tracked-goal-x 6 --tracked-goal-y 2
 """
 
@@ -62,14 +62,14 @@ import numpy as np
 import torch
 from rsl_rl.runners import OnPolicyRunner
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 SRC_ROOT = REPO_ROOT / "src"
 SCRIPTS_ROOT = Path(__file__).resolve().parent
 for _p in (str(SRC_ROOT), str(SCRIPTS_ROOT)):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
-from nedm.arm_data import (
+from nedm.tracked_arm.arm_data import (
     ArmPdActuator,
     CONTROL_DT,
     SETTLE_TIME,
@@ -82,10 +82,10 @@ from nedm.arm_data import (
     RenderFrameRecorder,
     _substep,
 )
-from nedm.rl.arm_reaching_chrono_env import ArmReachingChronoEnv, ChronoArmSim
-from nedm.rl.dynamics import resolve_dynamics_checkpoint_path
-from nedm.rl.tracked_goal_env import TrackedGoalReachingEnv, merge_env_cfg
-from nedm.tracked_vehicle_data import TERRAIN_SIZE_M, capture_row
+from nedm.tracked_arm.rl.arm_reaching_chrono_env import ArmReachingChronoEnv, ChronoArmSim
+from nedm.core.rl.dynamics import resolve_dynamics_checkpoint_path
+from nedm.tracked_arm.rl.tracked_goal_env import TrackedGoalReachingEnv, merge_env_cfg
+from nedm.tracked_arm.tracked_vehicle_data import TERRAIN_SIZE_M, capture_row
 
 # Reuse the standalone evals' helpers rather than re-deriving them.
 import eval_arm_rl_chrono_reaching as arm_eval
@@ -178,7 +178,7 @@ def enable_tracked_arm_blender_visuals(m113) -> None:
 def load_tracked_policy(checkpoint: Path, device: str):
     """Build the frozen-ROM tracked goal env (num_envs=1) + load its policy.
 
-    Returns (rom_env, policy). Mirrors scripts/evaluation/eval_tracked_rl_goal_chrono.py.
+    Returns (rom_env, policy). Mirrors scripts/tracked_arm/evaluation/eval_tracked_rl_goal_chrono.py.
     """
     checkpoint = resolve_dynamics_checkpoint_path(checkpoint)
     run_dir = checkpoint.parent
@@ -232,7 +232,7 @@ def drive_to_goal(rom, policy, m113, vehicle, terrain, actuator, vis, goal_x, go
                   frame_recorder=None):
     """Drive the M113 base to (goal_x, goal_y) with the tracked policy.
 
-    Reuses the exact obs/action contract of scripts/evaluation/eval_tracked_rl_goal_chrono.py.
+    Reuses the exact obs/action contract of scripts/tracked_arm/evaluation/eval_tracked_rl_goal_chrono.py.
     Steps with ``arm_data._substep`` so the arm is held COMPLIANT under PD
     (qcmd=home) for the whole drive -- the regime the arm dynamics model/policy
     were trained on. This matters for the Phase-3 reach: holding the arm rigid
@@ -438,7 +438,7 @@ def main(argv=None) -> int:
     blender_exporter = None
     blender_output_dir = None
     if args.blender_output_dir is not None:
-        from nedm.blender_export import BlenderFrameExporter
+        from nedm.core.blender_export import BlenderFrameExporter
 
         system = m113.GetSystem()
         blender_output_dir = args.blender_output_dir.expanduser().resolve()

@@ -10,7 +10,7 @@
 > `q_cmd` treated as the action rather than a state channel), and
 > `configs/arm_reach_rl_v1.json` was never used — `train_arm_rl_reaching.py`
 > takes its settings on the command line, as in
-> `scripts/training/launch_arm_reach_8d_rom_20260727.sh`. See [progress.md](progress.md)
+> `scripts/tracked_arm/training/launch_arm_reach_8d_rom_20260727.sh`. See [progress.md](progress.md)
 > for the delivered pipeline. The design reasoning below still applies.
 
 ## Context
@@ -45,13 +45,13 @@ FK-sampled goal ──────────────→│ obs → π_reac
 deploy: same π_reach + same SafetyFilter shield, stepped in Chrono → verify 0 collisions
 ```
 
-Reuse: `load_frozen_dynamics` (`src/nedm/rl/dynamics.py`); the `state_hist`/`action_hist`
+Reuse: `load_frozen_dynamics` (`src/nedm/core/rl/dynamics.py`); the `state_hist`/`action_hist`
 roll + `predict_next_delta` substep, `reset_idx`, obs-assembly, `default_env_cfg`/
-`merge_env_cfg`, and rsl_rl `VecEnv` contract from `src/nedm/rl/hmmwv_tracking_env.py`; the
+`merge_env_cfg`, and rsl_rl `VecEnv` contract from `src/nedm/hmmwv/rl/hmmwv_tracking_env.py`; the
 PPO/`OnPolicyRunner` setup (`get_train_cfg`/`get_env_cfg`) from
-`scripts/training/train_hmmwv_rl_tracking.py`; the Chrono scene + PD actuator + ground-truth collision
+`scripts/hmmwv/training/train_hmmwv_rl_tracking.py`; the Chrono scene + PD actuator + ground-truth collision
 (`build_and_prepare`, `setup_arm_collision`, `ArmPdActuator`, `arm_contact`,
-`gripper_center`, `ADJACENT_LINK_PAIRS`) from `src/nedm/arm_data.py`.
+`gripper_center`, `ADJACENT_LINK_PAIRS`) from `src/nedm/tracked_arm/arm_data.py`.
 
 ## Phase 4.1 — Arm forward-kinematics geometry (critical path)
 
@@ -59,7 +59,7 @@ The dynamics model outputs only EE; collision needs every link's pose, so we nee
 The chain is a SolidWorks import (non-DH joint frames), so **extract the geometry from Chrono
 once**, then reimplement FK in torch and validate.
 
-- **`scripts/preprocess/extract_arm_geometry.py`** (nedm env, uses Chrono): call
+- **`scripts/tracked_arm/preprocess/extract_arm_geometry.py`** (nedm env, uses Chrono): call
   `arm_data.build_and_prepare()` to get the settled M113+arm at home, then dump
   `artifacts/arm_geometry/arm_geometry_v1.json`:
   - the measured home config `q_home` (the settle sag) — FK uses `Δq = q − q_home` so the
@@ -75,14 +75,14 @@ once**, then reimplement FK in torch and validate.
   - **self-validate**: drive random qcmd, and at each step compare torch `fk(measured q)`
     link/EE world positions to Chrono's actual `GetFrameRefToAbs()`/`gripper_center`
     (and to the model's `ee_base` channel). Require max error ≲1 cm.
-- **`src/nedm/rl/arm_kinematics.py`**: `ArmKinematics` (torch) loads the JSON; `fk(q:(B,4))`
+- **`src/nedm/tracked_arm/rl/arm_kinematics.py`**: `ArmKinematics` (torch) loads the JSON; `fk(q:(B,4))`
   is product-of-exponentials — nested Rodrigues rotations about each home joint axis/pivot
   (using `Δq = q − q_home`) left-multiplying the home link poses; `ee(q)` = grasp-center;
   `link_points(q)` = box corners+center per link (B,L,P,3). All batched on GPU.
 
 ## Phase 4.2 — Safety filter
 
-- **`src/nedm/rl/arm_safety.py`**: `ArmSafetyFilter(kin, margins)`:
+- **`src/nedm/tracked_arm/rl/arm_safety.py`**: `ArmSafetyFilter(kin, margins)`:
   - `clearance(q:(B,4)) -> (B,)`: min over {ground (point z − ground_z), vehicle (point→OBB
     distance), self (non-adjacent link point-pairs, reuse `ADJACENT_LINK_PAIRS`)}.
   - `filter(q, qcmd, raw_dq) -> (safe_dq, unsafe:(B,), clearance)`: check the interpolated
@@ -95,7 +95,7 @@ once**, then reimplement FK in torch and validate.
 
 ## Phase 4.3 — Reaching env
 
-- **`src/nedm/rl/arm_reaching_env.py`**: `ArmReachingEnv(VecEnv)` + `default_env_cfg`/
+- **`src/nedm/tracked_arm/rl/arm_reaching_env.py`**: `ArmReachingEnv(VecEnv)` + `default_env_cfg`/
   `merge_env_cfg`. `num_actions=4`, `action_repeat=1` (50 Hz Δqcmd).
   - `reset_idx`: seed `state_hist`/`action_hist` from a recorded episode prefix (first
     `context` steps; build a seed cache from the processed dataset, à la references but
@@ -115,7 +115,7 @@ once**, then reimplement FK in torch and validate.
 
 ## Phase 4.4 — PPO training
 
-- **`scripts/training/train_arm_rl_reaching.py`** + **`configs/arm_reach_rl_v1.json`**: mirror
+- **`scripts/tracked_arm/training/train_arm_rl_reaching.py`** + **`configs/arm_reach_rl_v1.json`**: mirror
   `train_hmmwv_rl_tracking.py` (`OnPolicyRunner`, `get_train_cfg` PPO, `get_env_cfg`), but
   drop the reference machinery (goals are sampled in-env). Smaller actor/critic
   (`[256,128,64]`), `--dynamics-checkpoint artifacts/training_runs/arm_transformer_full_v1`.
@@ -124,7 +124,7 @@ once**, then reimplement FK in torch and validate.
 
 ## Phase 4.5 — Chrono validation (the guarantee)
 
-- **`src/nedm/rl/arm_reaching_chrono_env.py`** + **`scripts/evaluation/eval_arm_rl_chrono_reaching.py`**:
+- **`src/nedm/tracked_arm/rl/arm_reaching_chrono_env.py`** + **`scripts/tracked_arm/evaluation/eval_arm_rl_chrono_reaching.py`**:
   reuse the `arm_data` Chrono scene + PD actuator; step the trained `π_reach` with the
   **same `ArmSafetyFilter` shield**; obs from Chrono state (`actuator.read_state`,
   `gripper_center`, FK clearance); ground-truth collision via `arm_contact`. Report per-goal
@@ -132,10 +132,10 @@ once**, then reimplement FK in torch and validate.
   memory `chrono-eval-multiref-stack-smash`: re-create the sim sparingly / few goals per process).
 
 ## Files
-- **Add:** `scripts/preprocess/extract_arm_geometry.py`, `src/nedm/rl/arm_kinematics.py`,
-  `src/nedm/rl/arm_safety.py`, `src/nedm/rl/arm_reaching_env.py`,
-  `scripts/training/train_arm_rl_reaching.py`, `configs/arm_reach_rl_v1.json`,
-  `src/nedm/rl/arm_reaching_chrono_env.py`, `scripts/evaluation/eval_arm_rl_chrono_reaching.py`.
+- **Add:** `scripts/tracked_arm/preprocess/extract_arm_geometry.py`, `src/nedm/tracked_arm/rl/arm_kinematics.py`,
+  `src/nedm/tracked_arm/rl/arm_safety.py`, `src/nedm/tracked_arm/rl/arm_reaching_env.py`,
+  `scripts/tracked_arm/training/train_arm_rl_reaching.py`, `configs/arm_reach_rl_v1.json`,
+  `src/nedm/tracked_arm/rl/arm_reaching_chrono_env.py`, `scripts/tracked_arm/evaluation/eval_arm_rl_chrono_reaching.py`.
 - **Reuse unchanged:** `rl/dynamics.py`, `rl/hmmwv_tracking_env.py` (pattern),
   `arm_data.py`, the trained `f_arm` checkpoint.
 - **Out of scope (later):** drive policy + base dynamics model, the rule-based mode selector

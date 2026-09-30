@@ -7,7 +7,7 @@ combo, plus peak GPU memory. Collection is ~97% of RL iteration time, so its
 steps/s is the right proxy for the training-FPS sweet spot.
 
 Run:
-    /home/harry/anaconda3/envs/nedm/bin/python scripts/throughput/sweep_env_context.py
+    /home/harry/anaconda3/envs/nedm/bin/python scripts/hmmwv/throughput/sweep_env_context.py
 """
 import argparse
 import sys
@@ -17,9 +17,9 @@ from pathlib import Path
 import torch
 import torch.nn as nn
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT / "src"))
-from nedm.rl.hmmwv_tracking_env import HMMWVNeuralTrackingEnv, default_env_cfg  # noqa: E402
+from nedm.hmmwv.rl.hmmwv_tracking_env import HMMWVNeuralTrackingEnv, default_env_cfg  # noqa: E402
 
 
 def build_actor(num_obs: int, num_actions: int, device) -> nn.Module:

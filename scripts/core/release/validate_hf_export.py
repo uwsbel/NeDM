@@ -11,7 +11,7 @@ For every dataset recorded in ``release_manifest.json``:
   * processed caches: array shapes/dtypes match ``metadata.json``, no symlinks,
     no machine-local paths.
 
-    PYTHONPATH=src python scripts/release/validate_hf_export.py --staging artifacts/hf_release/NeDM --sample 20
+    PYTHONPATH=src python scripts/core/release/validate_hf_export.py --staging artifacts/hf_release/NeDM --sample 20
 """
 
 from __future__ import annotations
@@ -28,12 +28,12 @@ import numpy as np
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 SRC_ROOT = REPO_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-from nedm import hf_release as hr  # noqa: E402
+from nedm.core import hf_release as hr  # noqa: E402
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:

@@ -7,9 +7,9 @@ from typing import Any
 import torch
 from rsl_rl.env import VecEnv
 
-from nedm.rl.defaults import DEFAULT_RL_DYNAMICS_CHECKPOINT, DEFAULT_RL_REFERENCE_PATH
-from nedm.rl.dynamics import FrozenDynamics, load_frozen_dynamics
-from nedm.rl.references import ReferenceSet, load_reference_set
+from nedm.core.rl.defaults import DEFAULT_RL_DYNAMICS_CHECKPOINT, DEFAULT_RL_REFERENCE_PATH
+from nedm.core.rl.dynamics import FrozenDynamics, load_frozen_dynamics
+from nedm.hmmwv.rl.references import ReferenceSet, load_reference_set
 
 
 def wrap_angle(angle: torch.Tensor) -> torch.Tensor:

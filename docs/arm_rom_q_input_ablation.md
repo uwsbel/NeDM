@@ -34,7 +34,7 @@ two experiments below isolate.
 
 ## 1. One-step evidence: how much of the acceleration is in `q`?
 
-`scripts/ablations/probe_arm_q_input_information.py` fits matched-capacity MLPs
+`scripts/tracked_arm/ablations/probe_arm_q_input_information.py` fits matched-capacity MLPs
 (3 x 256, 60 epochs, 3 seeds) to the normalised per-step `delta qd` (joint
 acceleration) on the processed 8-D cache `arm_dyn_v3_8d_seq16_v1` from different
 input feature sets. Held-out (val split, 110 697 windows) MSE in normalised units,
@@ -74,21 +74,21 @@ Reading:
 ## 2. Closed-loop evidence: transformer ablation on open-loop rollouts
 
 Same architecture / data / recipe / seed as the deployed 8-D ROM
-(`configs/arm_transformer_8d_v1.json`: 5L/8H/256, ctx 16, 80 × 2000 steps,
+(`configs/tracked_arm/arm_transformer_8d_v1.json`: 5L/8H/256, ctx 16, 80 × 2000 steps,
 selection on 0.5 s FK end-effector drift `rollout_sel`). Two new config knobs
 (`model.blind_state_fields`, `model.integrated_state_fields`; see
-`src/nedm/training/model.py`) implement the reviewer's proposal faithfully:
+`src/nedm/core/training/model.py`) implement the reviewer's proposal faithfully:
 
-* **qd-only** (`configs/ablations/arm_transformer_8d_qdonly_v1.json`): the
+* **qd-only** (`configs/tracked_arm/ablations/arm_transformer_8d_qdonly_v1.json`): the
   network never sees `q_0..q_3`; `q` is propagated outside the network by the
   trapezoid integral of the predicted `qd`, starting from the true `q` at the end
   of the context window; loss on the `Δq` head is zeroed.
-* **control** (`configs/ablations/arm_transformer_8d_integq_v1.json`): the
+* **control** (`configs/tracked_arm/ablations/arm_transformer_8d_integq_v1.json`): the
   network sees `[q, qd]` but `q` is propagated by the same trapezoid rule — this
   isolates the *input* effect from the *propagation* scheme.
 
 Open-loop FK end-effector error against the Chrono-recorded `ee_base`
-(`scripts/evaluation/eval_arm_rollout.py`, val split, same 400-episode seed-0
+(`scripts/tracked_arm/evaluation/eval_arm_rollout.py`, val split, same 400-episode seed-0
 subset for all three, checkpoint = `best_val.pt` selected on `rollout_sel`):
 
 | model (network input → propagation of `q`)                 | one-step EE RMSE | 0.5 s (n=216)        | 1.0 s (n=180)        | 2.0 s (n=66)          | trainer `rollout_sel` (best ep) |
@@ -134,14 +134,14 @@ harmless: it is bounded by the joint limits and densely covered by the data.
 ## Reproduce
 
 ```bash
-PYTHONPATH=src python scripts/ablations/probe_arm_q_input_information.py \
+PYTHONPATH=src python scripts/tracked_arm/ablations/probe_arm_q_input_information.py \
     --output artifacts/ablations/arm_q_input/probe_one_step.json
-PYTHONPATH=src python scripts/training/train_hmmwv_dynamics.py --device cuda \
-    --config configs/ablations/arm_transformer_8d_qdonly_v1.json
-PYTHONPATH=src python scripts/training/train_hmmwv_dynamics.py --device cuda \
-    --config configs/ablations/arm_transformer_8d_integq_v1.json
+PYTHONPATH=src python scripts/core/training/train_hmmwv_dynamics.py --device cuda \
+    --config configs/tracked_arm/ablations/arm_transformer_8d_qdonly_v1.json
+PYTHONPATH=src python scripts/core/training/train_hmmwv_dynamics.py --device cuda \
+    --config configs/tracked_arm/ablations/arm_transformer_8d_integq_v1.json
 for run in arm_transformer_8d_v1 arm_transformer_8d_integq_v1 arm_transformer_8d_qdonly_v1; do
-  PYTHONPATH=src python scripts/evaluation/eval_arm_rollout.py --device cuda \
+  PYTHONPATH=src python scripts/tracked_arm/evaluation/eval_arm_rollout.py --device cuda \
       --checkpoint artifacts/training_runs/$run --horizons-s 0.5 1.0 2.0 \
       --output artifacts/ablations/arm_q_input/rollout_eval_$run.json
 done

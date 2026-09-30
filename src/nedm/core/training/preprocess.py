@@ -11,7 +11,7 @@ from typing import Any
 
 import numpy as np
 
-from nedm.training.constants import (
+from nedm.core.training.constants import (
     DEFAULT_ACTION_FIELDS,
     DEFAULT_ROLLOUT_FIELDS,
     DEFAULT_STATE_FIELDS,

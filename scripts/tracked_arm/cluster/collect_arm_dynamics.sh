@@ -11,7 +11,7 @@
 # shard per Slurm array task:
 #
 #   mkdir -p logs
-#   sbatch --array=0-14%15 scripts/cluster/collect_arm_dynamics.sh
+#   sbatch --array=0-14%15 scripts/tracked_arm/cluster/collect_arm_dynamics.sh
 #
 # Running without --array loops over all shards sequentially. That is useful for
 # local smoke tests and for mopping up incomplete shards. Completed shards
@@ -26,7 +26,7 @@ if [[ -z "${REPO_ROOT:-}" ]]; then
     REPO_ROOT="/srv/home/hzhang699/NeDM"
   else
     SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+    REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
   fi
 fi
 cd "$REPO_ROOT"
@@ -78,7 +78,7 @@ for shard in "${shards[@]}"; do
   echo "  episodes=$EPISODES_PER_SHARD max_steps=$MAX_STEPS seed=$seed"
   echo "  row recording: complete trajectories from home reset to termination"
 
-  "$PYTHON_BIN" -m nedm.arm_data \
+  "$PYTHON_BIN" -m nedm.tracked_arm.arm_data \
     --episodes "$EPISODES_PER_SHARD" \
     --max-steps "$MAX_STEPS" \
     --seed "$seed" \

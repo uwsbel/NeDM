@@ -29,7 +29,7 @@ from pathlib import Path
 import numpy as np
 import torch
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 SRC_ROOT = REPO_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
@@ -38,10 +38,10 @@ import pychrono as chrono  # noqa: E402
 import pychrono.vehicle as veh  # noqa: E402
 from rsl_rl.runners import OnPolicyRunner  # noqa: E402
 
-from nedm.arm_data import build_scene, make_vis, SETTLE_TIME, STEP_SIZE  # noqa: E402
-from nedm.rl.dynamics import resolve_dynamics_checkpoint_path  # noqa: E402
-from nedm.rl.tracked_goal_env import TrackedGoalReachingEnv, merge_env_cfg  # noqa: E402
-from nedm.tracked_vehicle_data import TERRAIN_SIZE_M, _advance, _sync, capture_row  # noqa: E402
+from nedm.tracked_arm.arm_data import build_scene, make_vis, SETTLE_TIME, STEP_SIZE  # noqa: E402
+from nedm.core.rl.dynamics import resolve_dynamics_checkpoint_path  # noqa: E402
+from nedm.tracked_arm.rl.tracked_goal_env import TrackedGoalReachingEnv, merge_env_cfg  # noqa: E402
+from nedm.tracked_arm.tracked_vehicle_data import TERRAIN_SIZE_M, _advance, _sync, capture_row  # noqa: E402
 
 # The single-goal Chrono eval already owns the goal-marker helpers; reuse them verbatim.
 from eval_tracked_rl_goal_chrono import add_goal_marker, remove_goal_marker  # noqa: E402

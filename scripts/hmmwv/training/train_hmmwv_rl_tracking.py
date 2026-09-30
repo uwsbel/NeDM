@@ -11,19 +11,19 @@ import torch
 from rsl_rl.runners import OnPolicyRunner
 
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 SRC_ROOT = REPO_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-from nedm.rl.hmmwv_tracking_env import HMMWVNeuralTrackingEnv, default_env_cfg, merge_env_cfg
-from nedm.rl.dynamics import resolve_dynamics_checkpoint_path
-from nedm.rl.defaults import (
+from nedm.hmmwv.rl.hmmwv_tracking_env import HMMWVNeuralTrackingEnv, default_env_cfg, merge_env_cfg
+from nedm.core.rl.dynamics import resolve_dynamics_checkpoint_path
+from nedm.core.rl.defaults import (
     DEFAULT_RL_DYNAMICS_CHECKPOINT,
     DEFAULT_RL_PROCESSED_DATASET_DIR,
     DEFAULT_RL_REFERENCE_PATH,
 )
-from nedm.rl.references import build_reference_set, save_reference_set
+from nedm.hmmwv.rl.references import build_reference_set, save_reference_set
 
 
 class NoOpSummaryWriter:
@@ -290,7 +290,7 @@ def ensure_reference_file(args: argparse.Namespace) -> None:
     if not args.build_references_if_missing:
         raise FileNotFoundError(
             f"Reference set not found: {args.reference_path}. "
-            "Run scripts/preprocess/build_hmmwv_rl_references.py first or pass --build-references-if-missing."
+            "Run scripts/hmmwv/preprocess/build_hmmwv_rl_references.py first or pass --build-references-if-missing."
         )
     reference_set = build_reference_set(
         processed_root=args.reference_source_dir,

@@ -13,7 +13,7 @@ from rsl_rl.env import VecEnv
 import pychrono as chrono
 import pychrono.vehicle as veh
 
-from nedm.hmmwv_data import (
+from nedm.hmmwv.hmmwv_data import (
     capture_row,
     configure_chrono_data_paths,
     create_hmmwv,
@@ -23,10 +23,10 @@ from nedm.hmmwv_data import (
     resolve_height_map,
     resolve_project_path,
 )
-from nedm.rl.dynamics import resolve_dynamics_checkpoint_path
-from nedm.rl.hmmwv_tracking_env import default_env_cfg, merge_env_cfg, wrap_angle
-from nedm.rl.references import ReferenceSet, load_reference_set
-from nedm.training.dataset import load_metadata
+from nedm.core.rl.dynamics import resolve_dynamics_checkpoint_path
+from nedm.hmmwv.rl.hmmwv_tracking_env import default_env_cfg, merge_env_cfg, wrap_angle
+from nedm.hmmwv.rl.references import ReferenceSet, load_reference_set
+from nedm.core.training.dataset import load_metadata
 
 
 @dataclass
@@ -45,7 +45,7 @@ def default_chrono_env_cfg() -> dict[str, Any]:
             "num_envs": 1,
             "device": "cuda",
             "auto_reset": False,
-            "chrono_config": "configs/hmmwv_overfit_v1.json",
+            "chrono_config": "configs/hmmwv/hmmwv_overfit_v1.json",
             "chrono_step_size_s": None,
             "warm_start_context": True,
             # Run Chrono against reference actions before policy hand-off so the

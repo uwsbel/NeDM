@@ -14,7 +14,7 @@ brake-onset windows, teacher-forced and fed back. ``ckpt_best.pt`` = lowest mean
 random-window normalised z1 error at 60 frames. Gates (fed back, per ground type): stalled windows escape (> 1 m)
 less than 20 %, moving-window displacement error below 25 %, brake-onset speed-response error below 25 %.
 
-    python traversing/training/train_dynamics_model.py --out runs/nrd_tag_v3 --cond tag --crop-k 8 --crop-half-m 6 \\
+    PYTHONPATH=src python -m nedm.traversing.training.train_dynamics_model --out runs/nrd_tag_v3 --cond tag --crop-k 8 --crop-half-m 6 \\
         --steps 30000 --batch 256 --rollout-steps 8 --delta-scale --eval-every 2000 --val-max-per-domain 256 \\
         --ckpt-every-min 15 --max-minutes 225
     # continue an interrupted run with the same arguments plus --resume runs/nrd_tag_v3/ckpt_last.pt
@@ -35,9 +35,9 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 
-import dynamics_data as D
-from dynamics_model import integrate_pose, load_grid, model_config, NRDModel, save_nrd
-from state import VX, YAW_RATE
+from nedm.traversing.training import dynamics_data as D
+from nedm.traversing.training.dynamics_model import integrate_pose, load_grid, model_config, NRDModel, save_nrd
+from nedm.traversing.training.state import VX, YAW_RATE
 
 GATE = {"stalled_escape_frac": 0.20, "moving_disp_rel_err": 0.25, "brake_vx_resp_rel_err": 0.25}
 # arguments that change the data, the model, the loss or the optimiser: --resume refuses any difference (the schedule

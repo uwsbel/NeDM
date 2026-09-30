@@ -4,8 +4,8 @@ Reads every CSV in ``traversing/results/`` and the expectations in ``traversing/
 prints n / goal / unsafe / safe_goal for every evaluated arm of every table, then checks each expectation
 (counts exactly, means and medians within the stated tolerance) and exits non-zero listing any mismatch.
 
-    python traversing/scripts/recount_milestones.py               # per-arm tables, numeric checks, verdict
-    python traversing/scripts/recount_milestones.py --check-only  # mismatches and the verdict only
+    python scripts/traversing/analysis/recount_milestones.py               # per-arm tables, numeric checks, verdict
+    python scripts/traversing/analysis/recount_milestones.py --check-only  # mismatches and the verdict only
 
 Each arm cell holds one outcome code: S = reached the goal, no unsafe event; s = reached the goal with an unsafe
 event; U = goal not reached, unsafe; F = goal not reached, not unsafe; - = arm not run on this task.
@@ -25,7 +25,7 @@ import statistics
 import sys
 from pathlib import Path
 
-RESULTS = Path(__file__).resolve().parents[1] / "results"
+RESULTS = Path(__file__).resolve().parents[3] / "traversing" / "results"
 CODES = {"S", "s", "U", "F", "-"}
 
 

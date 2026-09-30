@@ -23,11 +23,11 @@ import numpy as np
 import torch
 from rsl_rl.env import VecEnv
 
-from nedm.rl.defaults import (
+from nedm.core.rl.defaults import (
     DEFAULT_TRACKED_DYNAMICS_CHECKPOINT,
     DEFAULT_TRACKED_PROCESSED_DATASET_DIR,
 )
-from nedm.rl.dynamics import load_frozen_dynamics
+from nedm.core.rl.dynamics import load_frozen_dynamics
 
 
 def wrap_angle(angle: torch.Tensor) -> torch.Tensor:

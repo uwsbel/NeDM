@@ -19,7 +19,7 @@
 # of 6, since the token is now 12-wide (8 state + 4 action) rather than 16-wide.
 set -euo pipefail
 
-cd "$(dirname "$0")/../.."
+cd "$(dirname "$0")/../../.."
 PY=/home/harry/anaconda3/envs/nedm/bin/python
 RAW_ROOT=artifacts/datasets/arm_dynamics_v3_home_reset_fulltraj_shards
 DATA_DIR=artifacts/training_datasets/arm_dyn_v3_8d_seq16_v1
@@ -45,7 +45,7 @@ mkdir -p "$RUN_DIR/logs"
 # ---------------------------------------------------------------------------
 if [[ ! -f "$DATA_DIR/metadata.json" ]]; then
   echo "[1/2] building processed cache -> $DATA_DIR"
-  PYTHONPATH=src "$PY" -m nedm.training.preprocess \
+  PYTHONPATH=src "$PY" -m nedm.core.training.preprocess \
     --dataset-root "$RAW_ROOT"/shard_{000,001,002,003,004,005,006,007,008,009,010,011,012,013,014} \
     --output-dir "$DATA_DIR" \
     --state-fields q_0 q_1 q_2 q_3 qd_0 qd_1 qd_2 qd_3 \
@@ -62,11 +62,11 @@ fi
 #    ee_base -- identical metric to the 12-D run, so best_val.pt is comparable.
 # ---------------------------------------------------------------------------
 echo "[2/2] training -> $RUN_DIR"
-PYTHONPATH=src "$PY" scripts/training/train_hmmwv_dynamics.py \
-  --config configs/arm_transformer_8d_v1.json \
+PYTHONPATH=src "$PY" scripts/core/training/train_hmmwv_dynamics.py \
+  --config configs/tracked_arm/arm_transformer_8d_v1.json \
   --device cuda \
   2>&1 | tee "$RUN_DIR/logs/run.log"
 
 # Post-hoc open-loop EE eval (FK mode is auto-detected: no ee_base state channel):
-#   PYTHONPATH=src $PY scripts/evaluation/eval_arm_rollout.py \
+#   PYTHONPATH=src $PY scripts/tracked_arm/evaluation/eval_arm_rollout.py \
 #     --checkpoint artifacts/training_runs/arm_transformer_8d_v1 --device cuda

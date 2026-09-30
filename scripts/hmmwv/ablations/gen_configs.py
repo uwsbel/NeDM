@@ -19,8 +19,8 @@ than a resident RAM copy) + pin_memory=FALSE. The resident-RAM load was the
 suspected freeze trigger; false is also the trainer's own default.
 
 Usage:
-    python scripts/ablations/gen_configs.py                 # Stage A (1 seed)
-    python scripts/ablations/gen_configs.py --seed 2026061802 --suffix _s2   # a Stage B seed
+    python scripts/hmmwv/ablations/gen_configs.py                 # Stage A (1 seed)
+    python scripts/hmmwv/ablations/gen_configs.py --seed 2026061802 --suffix _s2   # a Stage B seed
 """
 from __future__ import annotations
 
@@ -29,17 +29,18 @@ import copy
 import json
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 BASE_CONFIG = (
     REPO_ROOT
     / "configs"
+    / "hmmwv"
     / "hmmwv_transformer_v07_tire_normal_force_omega_300g_crm2000_mix25_rebal_rollout_onehot.json"
 )
 EXISTING_ANCHOR_RUN = (
     "artifacts/training_runs/"
     "hmmwv_transformer_v07_tire_normal_force_omega_300g_crm2000_mix25_rebal_rollout_onehot"
 )
-CONFIG_OUT_DIR = REPO_ROOT / "configs" / "ablation_ofat"
+CONFIG_OUT_DIR = REPO_ROOT / "configs" / "hmmwv" / "ablation_ofat"
 RUN_ROOT = "artifacts/training_runs/ablation_ofat"
 
 # Anchor shared across every arm: n_layer=6, n_head=8, n_embd=256, block_size=128.

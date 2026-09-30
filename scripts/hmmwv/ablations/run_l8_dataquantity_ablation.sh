@@ -19,8 +19,8 @@
 # Subsets are nested (20% subset of episodes ⊂ 40% ⊂ 60% ⊂ 80% ⊂ 100%). Val and
 # rollout-eval sets are byte-identical across all runs.
 #
-# These are intentionally NOT in configs/ablation_ofat/manifest.json (rank via
-# scripts/ablations/rank_data_quantity.py instead), so rank_stage_a.py does
+# These are intentionally NOT in configs/hmmwv/ablation_ofat/manifest.json (rank via
+# scripts/hmmwv/ablations/rank_data_quantity.py instead), so rank_stage_a.py does
 # not fold them into the architecture OFAT ranking.
 #
 # Runs on NEWTON (idle 4090, anaconda nedm). Serial (mmap-stream, load into
@@ -30,10 +30,10 @@
 #
 #   ssh into newton is not needed (this IS newton). Launch detached:
 #   tmux new-session -d -s l8_dataquantity_ablation \
-#     'cd ~/NeDM && bash scripts/ablations/run_l8_dataquantity_ablation.sh; exec bash'
+#     'cd ~/NeDM && bash scripts/hmmwv/ablations/run_l8_dataquantity_ablation.sh; exec bash'
 set -uo pipefail
 
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 cd "$REPO_ROOT"
 
 PYTHON="${PYTHON:-/home/harry/anaconda3/envs/nedm/bin/python}"
@@ -72,10 +72,10 @@ PY
 
 # name|config|run_dir
 ENTRIES=(
-  "L8_H8_E256_ctx128_data80|configs/ablation_ofat/L8_H8_E256_ctx128_data80.json|artifacts/training_runs/ablation_ofat/L8_H8_E256_ctx128_data80"
-  "L8_H8_E256_ctx128_data60|configs/ablation_ofat/L8_H8_E256_ctx128_data60.json|artifacts/training_runs/ablation_ofat/L8_H8_E256_ctx128_data60"
-  "L8_H8_E256_ctx128_data40|configs/ablation_ofat/L8_H8_E256_ctx128_data40.json|artifacts/training_runs/ablation_ofat/L8_H8_E256_ctx128_data40"
-  "L8_H8_E256_ctx128_data20|configs/ablation_ofat/L8_H8_E256_ctx128_data20.json|artifacts/training_runs/ablation_ofat/L8_H8_E256_ctx128_data20"
+  "L8_H8_E256_ctx128_data80|configs/hmmwv/ablation_ofat/L8_H8_E256_ctx128_data80.json|artifacts/training_runs/ablation_ofat/L8_H8_E256_ctx128_data80"
+  "L8_H8_E256_ctx128_data60|configs/hmmwv/ablation_ofat/L8_H8_E256_ctx128_data60.json|artifacts/training_runs/ablation_ofat/L8_H8_E256_ctx128_data60"
+  "L8_H8_E256_ctx128_data40|configs/hmmwv/ablation_ofat/L8_H8_E256_ctx128_data40.json|artifacts/training_runs/ablation_ofat/L8_H8_E256_ctx128_data40"
+  "L8_H8_E256_ctx128_data20|configs/hmmwv/ablation_ofat/L8_H8_E256_ctx128_data20.json|artifacts/training_runs/ablation_ofat/L8_H8_E256_ctx128_data20"
 )
 
 log "=== L8 data-quantity ablation start: ${#ENTRIES[@]} runs, ${NUM_EPOCHS} epochs each, device=$DEVICE ==="
@@ -93,7 +93,7 @@ for entry in "${ENTRIES[@]}"; do
   ok=0
   for attempt in $(seq 1 "$MAX_ATTEMPTS"); do
     log "RUN   $name attempt $attempt/$MAX_ATTEMPTS  (free RAM: $(free -g | awk '/Mem:/{print $7"G avail"}'))"
-    args=(scripts/training/train_hmmwv_dynamics.py --config "$config" --device "$DEVICE" --output-dir "$run_dir")
+    args=(scripts/core/training/train_hmmwv_dynamics.py --config "$config" --device "$DEVICE" --output-dir "$run_dir")
     if [[ -f "$run_dir/checkpoints/last.pt" ]]; then
       log "      resuming from $run_dir/checkpoints/last.pt"
       args+=(--resume-from-checkpoint "$run_dir/checkpoints/last.pt")

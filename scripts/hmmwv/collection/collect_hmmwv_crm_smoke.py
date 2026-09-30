@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 SRC_ROOT = REPO_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
@@ -20,7 +20,7 @@ import pychrono as chrono
 import pychrono.fsi as fsi
 import pychrono.vehicle as veh
 
-from nedm.hmmwv_data import (
+from nedm.hmmwv.hmmwv_data import (
     BASE_FIELDS,
     WHEEL_SPECS,
     assign_split,
@@ -30,7 +30,7 @@ from nedm.hmmwv_data import (
     create_hmmwv,
     csv_field_names,
 )
-from nedm.hmmwv_crm import (
+from nedm.hmmwv.hmmwv_crm import (
     GRAVITY,
     WheelRuntime,
     capture_crm_row,

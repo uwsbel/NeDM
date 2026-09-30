@@ -1,6 +1,6 @@
 """Open-loop multi-step rollout EE-accuracy eval for the arm dynamics model.
 
-The arm dynamics model (``configs/arm_transformer_8d_v1.json``) predicts per-step state
+The arm dynamics model (``configs/tracked_arm/arm_transformer_8d_v1.json``) predicts per-step state
 deltas. The RL-readiness question is: if a policy
 rolls this model forward for k steps, how far does the *predicted* end-effector position
 drift from the Chrono ground truth? This script answers that directly — it seeds each
@@ -23,7 +23,7 @@ Either way there is no world-pose integration.
 Run in the nedm env (FK mode is auto-selected; geometry defaults to
 ``artifacts/arm_geometry/arm_geometry_v1.json``):
 
-    PYTHONPATH=src python scripts/evaluation/eval_arm_rollout.py \
+    PYTHONPATH=src python scripts/tracked_arm/evaluation/eval_arm_rollout.py \
         --checkpoint artifacts/training_runs/arm_transformer_8d_v1 --device cuda
 """
 
@@ -38,13 +38,13 @@ import numpy as np
 import torch
 
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 SRC_ROOT = REPO_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-from nedm.rl.dynamics import load_frozen_dynamics
-from nedm.training.dataset import load_rollout_split
+from nedm.core.rl.dynamics import load_frozen_dynamics
+from nedm.core.training.dataset import load_rollout_split
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -165,7 +165,7 @@ def main(argv: list[str] | None = None) -> int:
         ee_idx = torch.tensor(_ee_indices(state_fields), dtype=torch.long, device=args.device)
     else:
         ee_mode = "fk"
-        from nedm.rl.arm_kinematics import ArmKinematics
+        from nedm.tracked_arm.rl.arm_kinematics import ArmKinematics
 
         if not args.geometry.exists():
             raise FileNotFoundError(

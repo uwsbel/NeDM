@@ -16,10 +16,10 @@
 # Re-run this script any time to pick up whatever is still incomplete.
 set -uo pipefail
 
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 cd "$REPO_ROOT"
 
-MANIFEST="${MANIFEST:-configs/ablation_ofat/manifest.json}"
+MANIFEST="${MANIFEST:-configs/hmmwv/ablation_ofat/manifest.json}"
 # Portable across boxes: newton uses ~/anaconda3, luffy uses ~/miniconda3. Override
 # PYTHON + CONDA_SH per host. RUN_ONLY restricts this box to a subset of the sweep
 # (space/comma-separated spec names) so two machines can split the queue disjointly.
@@ -91,7 +91,7 @@ for entry in "${ENTRIES[@]}"; do
   ok=0
   for attempt in $(seq 1 "$MAX_ATTEMPTS"); do
     log "RUN   $name attempt $attempt/$MAX_ATTEMPTS  (free RAM: $(free -g | awk '/Mem:/{print $7"G avail"}'))"
-    args=(scripts/training/train_hmmwv_dynamics.py --config "$config" --device "$DEVICE" --output-dir "$run_dir")
+    args=(scripts/core/training/train_hmmwv_dynamics.py --config "$config" --device "$DEVICE" --output-dir "$run_dir")
     if [[ -f "$run_dir/checkpoints/last.pt" ]]; then
       log "      resuming from $run_dir/checkpoints/last.pt"
       args+=(--resume-from-checkpoint "$run_dir/checkpoints/last.pt")

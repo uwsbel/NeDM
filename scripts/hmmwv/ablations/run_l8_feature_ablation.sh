@@ -18,11 +18,11 @@
 # 15, so its val_loss is on a different scale, while rollout_sel is integrated
 # from vx/vy/yaw_rate and stays comparable across all three.
 #
-# Intentionally NOT in configs/ablation_ofat/manifest.json (Stage-A ranks
+# Intentionally NOT in configs/hmmwv/ablation_ofat/manifest.json (Stage-A ranks
 # architectures at a fixed feature set).
 #
 # Prereq: the body7 caches must exist ->
-#   python scripts/ablations/derive_state_subset_dataset.py \
+#   python scripts/hmmwv/ablations/derive_state_subset_dataset.py \
 #     --source-dir artifacts/training_datasets/hmmwv_{tire_rigid_300g,crm_2000}_normal_force_omega_seq_v1 \
 #     --output-dir artifacts/training_datasets/hmmwv_{tire_rigid_300g,crm_2000}_body7_seq_v1 \
 #     --state-field-preset default --verify
@@ -34,10 +34,10 @@
 #
 #   Launch detached:
 #   tmux new-session -d -s l8_feature_ablation \
-#     'cd ~/NeDM && bash scripts/ablations/run_l8_feature_ablation.sh; exec bash'
+#     'cd ~/NeDM && bash scripts/hmmwv/ablations/run_l8_feature_ablation.sh; exec bash'
 set -uo pipefail
 
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 cd "$REPO_ROOT"
 
 PYTHON="${PYTHON:-/home/harry/anaconda3/envs/nedm/bin/python}"
@@ -76,8 +76,8 @@ PY
 
 # name|config|run_dir
 ENTRIES=(
-  "L8_H8_E256_ctx128_no_onehot|configs/ablation_ofat/L8_H8_E256_ctx128_no_onehot.json|artifacts/training_runs/ablation_ofat/L8_H8_E256_ctx128_no_onehot"
-  "L8_H8_E256_ctx128_no_tireforce_omega|configs/ablation_ofat/L8_H8_E256_ctx128_no_tireforce_omega.json|artifacts/training_runs/ablation_ofat/L8_H8_E256_ctx128_no_tireforce_omega"
+  "L8_H8_E256_ctx128_no_onehot|configs/hmmwv/ablation_ofat/L8_H8_E256_ctx128_no_onehot.json|artifacts/training_runs/ablation_ofat/L8_H8_E256_ctx128_no_onehot"
+  "L8_H8_E256_ctx128_no_tireforce_omega|configs/hmmwv/ablation_ofat/L8_H8_E256_ctx128_no_tireforce_omega.json|artifacts/training_runs/ablation_ofat/L8_H8_E256_ctx128_no_tireforce_omega"
 )
 
 log "=== L8 feature ablation start: ${#ENTRIES[@]} runs, ${NUM_EPOCHS} epochs each, device=$DEVICE ==="
@@ -95,7 +95,7 @@ for entry in "${ENTRIES[@]}"; do
   ok=0
   for attempt in $(seq 1 "$MAX_ATTEMPTS"); do
     log "RUN   $name attempt $attempt/$MAX_ATTEMPTS  (free RAM: $(free -g | awk '/Mem:/{print $7"G avail"}'))"
-    args=(scripts/training/train_hmmwv_dynamics.py --config "$config" --device "$DEVICE" --output-dir "$run_dir")
+    args=(scripts/core/training/train_hmmwv_dynamics.py --config "$config" --device "$DEVICE" --output-dir "$run_dir")
     if [[ -f "$run_dir/checkpoints/last.pt" ]]; then
       log "      resuming from $run_dir/checkpoints/last.pt"
       args+=(--resume-from-checkpoint "$run_dir/checkpoints/last.pt")

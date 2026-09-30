@@ -2,7 +2,7 @@
 # Launch the 2000-episode HMMWV CRM collection in tmux.
 set -euo pipefail
 
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 cd "$REPO_ROOT"
 
 SESSION="${SESSION:-hmmwv_crm2000_collection}"
@@ -78,7 +78,7 @@ for kv in \
   "BUILD_PROCESSED=$BUILD_PROCESSED"; do
   cmd+=" $(printf '%q' "$kv")"
 done
-cmd+=" bash scripts/collection/run_hmmwv_crm2000_collection.sh"
+cmd+=" bash scripts/hmmwv/collection/run_hmmwv_crm2000_collection.sh"
 
 tmux new-session -d -s "$SESSION" "$cmd"
 echo "started tmux session: $SESSION"

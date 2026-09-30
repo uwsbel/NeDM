@@ -14,7 +14,7 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 import pychrono as chrono
 import pychrono.vehicle as veh
 
-from nedm.generated_scenarios import expand_scenarios, validate_generator_config
+from nedm.core.generated_scenarios import expand_scenarios, validate_generator_config
 
 
 CONTACT_METHODS = {
@@ -116,7 +116,7 @@ class EpisodeResult:
 
 
 def repo_root_from_module() -> Path:
-    return Path(__file__).resolve().parents[2]
+    return Path(__file__).resolve().parents[3]
 
 
 def load_config(config_path: Path) -> dict[str, Any]:
@@ -790,7 +790,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Collect a simple HMMWV dynamics dataset from PyChrono.")
     parser.add_argument(
         "--config",
-        default="configs/hmmwv_overfit_v1.json",
+        default="configs/hmmwv/hmmwv_overfit_v1.json",
         help="Path to the collector config JSON.",
     )
     parser.add_argument(

@@ -7,10 +7,10 @@
 #
 # Legacy baseline (anchor last.pt, model_500): rigid mean 0.168 / median 0.125 m.
 #
-#   bash scripts/ablations/run_l8_chrono_eval_newton.sh
+#   bash scripts/hmmwv/ablations/run_l8_chrono_eval_newton.sh
 set -uo pipefail
 
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 cd "$REPO_ROOT"
 
 PYTHON=/home/harry/anaconda3/envs/nedm/bin/python
@@ -63,7 +63,7 @@ run_group () {  # $1=eval-cfg subdir  $2=chrono-config  $3=output subdir
   echo "[eval] group $3  chrono=$chrono  ($NREF refs)"
   for i in $(seq 0 $((NREF-1))); do
     echo "[eval] $3 ref $i/$((NREF-1))"
-    "$PYTHON" scripts/evaluation/eval_hmmwv_rl_chrono_tracking.py \
+    "$PYTHON" scripts/hmmwv/evaluation/eval_hmmwv_rl_chrono_tracking.py \
       --run-dir "$cfgdir" \
       --policy-checkpoint "$CKPT" \
       --chrono-config "$chrono" \
@@ -94,9 +94,9 @@ print(f"[agg] {out}: n={len(rows)} mean={agg['mean_xy_rmse_m']} median={agg['med
 PY
 }
 
-run_group eval_cfg_rigid20_val_rest_start_flatkey configs/hmmwv_overfit_v1.json \
+run_group eval_cfg_rigid20_val_rest_start_flatkey configs/hmmwv/hmmwv_overfit_v1.json \
           chrono_eval_tracking_model_500_rigid_val_rest_start_steerlim010
-run_group eval_cfg_bumpy20_val_rest_start_flatkey configs/hmmwv_bumpy_eval.json \
+run_group eval_cfg_bumpy20_val_rest_start_flatkey configs/hmmwv/hmmwv_bumpy_eval.json \
           chrono_bumpy_eval_model_500_val20_rest_start_steerlim010
 
 echo "[done] L8 model_500 rigid + bumpy chrono eval complete. CRM held."

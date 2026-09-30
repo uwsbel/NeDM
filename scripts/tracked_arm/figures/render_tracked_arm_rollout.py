@@ -1,7 +1,7 @@
 """Render a Chrono M113+arm Blender postprocess export as a single still image.
 
 Adapted from ``render_hmmwv_rollout.py`` for the combined tracked-drive -> arm-reach
-demo (``scripts/evaluation/eval_tracked_then_arm_chrono.py --blender-output-dir ...``). The
+demo (``scripts/tracked_arm/evaluation/eval_tracked_then_arm_chrono.py --blender-output-dir ...``). The
 material classification is keyed on the M113 track/wheel/suspension body names and
 the LRV arm link names (see the exported ``output/stateNNNNN.py`` object names),
 so the hull and arm render light and the tracks/road-wheels render dark -- matching
@@ -10,7 +10,7 @@ the earlier ``tracked_arm_two_policy_consecutive`` render.
 Run headless, e.g.:
 
     /home/harry/blender-4.0.0-linux-x64/blender --background --python \
-        blender-render/render_tracked_arm_rollout.py -- --frame 0
+        scripts/tracked_arm/figures/render_tracked_arm_rollout.py -- --frame 0
 """
 
 from __future__ import annotations

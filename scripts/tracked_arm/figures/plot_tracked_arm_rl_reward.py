@@ -24,7 +24,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from tensorboard.backend.event_processing.event_accumulator import EventAccumulator
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 TRACKED_EV = REPO_ROOT / ("artifacts/rl_runs/tracked_goal_v2_far_rollsel_rom_20260721/"
     "events.out.tfevents.1784672662.newton.2341918.0")
 ARM_EV = REPO_ROOT / ("artifacts/rl_runs/"

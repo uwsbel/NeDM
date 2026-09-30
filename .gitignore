@@ -20,7 +20,7 @@ chrono/
 # Raw episode CSVs (artifacts/datasets, ~337 GB) and processed cache arrays
 # (artifacts/training_datasets, ~73 GB) are never in git; the paper's five
 # datasets and four caches are published on Hugging Face (see README) and
-# scripts/release/download_nedm_datasets.py puts them back here. The staged
+# scripts/core/release/download_nedm_datasets.py puts them back here. The staged
 # release mirror (artifacts/hf_release) is local-only too.
 # ---------------------------------------------------------------------------
 artifacts/*

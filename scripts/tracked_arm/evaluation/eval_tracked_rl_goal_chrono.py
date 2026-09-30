@@ -20,7 +20,7 @@ from pathlib import Path
 import numpy as np
 import torch
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 SRC_ROOT = REPO_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
@@ -29,10 +29,10 @@ import pychrono as chrono
 import pychrono.vehicle as veh
 from rsl_rl.runners import OnPolicyRunner
 
-from nedm.arm_data import build_scene, make_vis, SETTLE_TIME, STEP_SIZE
-from nedm.rl.dynamics import resolve_dynamics_checkpoint_path
-from nedm.rl.tracked_goal_env import TrackedGoalReachingEnv, merge_env_cfg
-from nedm.tracked_vehicle_data import TERRAIN_SIZE_M, _advance, _sync, capture_row
+from nedm.tracked_arm.arm_data import build_scene, make_vis, SETTLE_TIME, STEP_SIZE
+from nedm.core.rl.dynamics import resolve_dynamics_checkpoint_path
+from nedm.tracked_arm.rl.tracked_goal_env import TrackedGoalReachingEnv, merge_env_cfg
+from nedm.tracked_arm.tracked_vehicle_data import TERRAIN_SIZE_M, _advance, _sync, capture_row
 
 
 def parse_args(argv=None):

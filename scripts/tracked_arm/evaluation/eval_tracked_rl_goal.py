@@ -22,14 +22,14 @@ import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
 from matplotlib.colors import LinearSegmentedColormap
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 SRC_ROOT = REPO_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
 from rsl_rl.runners import OnPolicyRunner
 
-from nedm.rl.tracked_goal_env import TrackedGoalReachingEnv, merge_env_cfg
+from nedm.tracked_arm.rl.tracked_goal_env import TrackedGoalReachingEnv, merge_env_cfg
 
 # palette (from the dataviz reference instance)
 INK = "#0b0b0b"

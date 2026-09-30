@@ -1,8 +1,8 @@
 """Seeded Chrono transfer benchmark for the arm-reaching goal policy.
 
-The arm analog of ``scripts/evaluation/benchmark_tracked_goal_chrono.py``. Runs a *battery*
+The arm analog of ``scripts/tracked_arm/evaluation/benchmark_tracked_goal_chrono.py``. Runs a *battery*
 of N seeded reaching goals through the single-goal Chrono eval
-(``scripts/evaluation/eval_arm_rl_chrono_reaching.py --goal X Y Z``) -- **one fresh process
+(``scripts/tracked_arm/evaluation/eval_arm_rl_chrono_reaching.py --goal X Y Z``) -- **one fresh process
 per goal** -- then aggregates a summary.json + trajectory plot.
 
 Why one process per goal: the arm Chrono env's ``reset_idx`` destroys and
@@ -19,7 +19,7 @@ read from the run's ``env_cfg.json`` -- via ``ArmReachingChronoEnv``'s own
 arm base frame, written to ``goals.json``.
 
 Example:
-    PYTHONPATH=src python scripts/evaluation/benchmark_arm_reach_chrono.py \
+    PYTHONPATH=src python scripts/tracked_arm/evaluation/benchmark_arm_reach_chrono.py \
         --run-dir artifacts/rl_runs/<run> \
         --num-goals 100 --seed 12345
 """
@@ -35,7 +35,7 @@ from pathlib import Path
 
 import numpy as np
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 SRC_ROOT = REPO_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
@@ -62,7 +62,7 @@ def sample_goals(run_dir: Path, n: int, seed: int, device: str) -> tuple[np.ndar
     """Sample n safe EE goals from the run's trained joint-space region (base frame)."""
     import torch
 
-    from nedm.rl.arm_reaching_chrono_env import ArmReachingChronoEnv
+    from nedm.tracked_arm.rl.arm_reaching_chrono_env import ArmReachingChronoEnv
 
     env_cfg = json.loads((run_dir / "env_cfg.json").read_text())
     env_cfg.update({"num_envs": 1, "device": device, "defer_reset": True, "render": False})

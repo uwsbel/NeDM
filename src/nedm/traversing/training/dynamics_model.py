@@ -4,7 +4,7 @@ Per 50 ms frame the input token is ``[z1 (17, z-scored), crop token (64), action
 the heads predict the change of the normalised z1 and the normalised power. The crop token is an MLP on an 8 x 8
 ego-aligned elevation crop of the f104 terrain grid (+-6 m, heights relative to the vehicle centre / 2 m, plus a
 validity flag), re-taken at the dead-reckoned pose every step. The pose is integrated outside the network
-(``integrate_pose``). Backbone: ``nedm.training.model_transformer.ContinuousTransformer`` (main, unchanged).
+(``integrate_pose``). Backbone: ``nedm.core.training.model_transformer.ContinuousTransformer`` (main, unchanged).
 
     model, norm, payload = load_nrd("artifacts/traverse/generalist_20260921/B_tracker/nrd_tag_v3/ckpt_best.pt", "cuda")
     delta, power = model(z1_norm, model.token(pose), act_norm, domain)   # (B, L, 17), (B, L, 1)
@@ -22,12 +22,12 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from dynamics_data import DEFAULT_GRID, DOMAIN_VOCAB, ROOT, Normalizer, file_sha256, resolve_path
-from state import ACT_DIM, DT_S, VX, VY, YAW_RATE, Z1_DIM
+from nedm.traversing.training.dynamics_data import DEFAULT_GRID, DOMAIN_VOCAB, ROOT, Normalizer, file_sha256, resolve_path
+from nedm.traversing.training.state import ACT_DIM, DT_S, VX, VY, YAW_RATE, Z1_DIM
 
 if str(ROOT / "src") not in sys.path:
     sys.path.insert(0, str(ROOT / "src"))
-from nedm.training.model_transformer import ContinuousTransformer, TransformerConfig  # noqa: E402
+from nedm.core.training.model_transformer import ContinuousTransformer, TransformerConfig  # noqa: E402
 
 MODEL_KIND = "gb_nrd"  # checkpoint tag of the released model
 SCALE_M = 2.0  # crop heights are divided by this

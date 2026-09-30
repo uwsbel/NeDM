@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Generate the two INPUT-FEATURE ablation configs around the L8 Stage-A winner.
 
-Both are deep copies of configs/ablation_ofat/L8_H8_E256_ctx128.json (same arch,
+Both are deep copies of configs/hmmwv/ablation_ofat/L8_H8_E256_ctx128.json (same arch,
 optimizer, loss mode, 75/25 mix, rollout_sel selection, 80x2000 schedule, seed
 2026061801, load_dataset_into_memory=false), changing ONLY what each ablation
 names:
@@ -33,8 +33,8 @@ import json
 from pathlib import Path
 from typing import Any
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-CONFIG_DIR = REPO_ROOT / "configs" / "ablation_ofat"
+REPO_ROOT = Path(__file__).resolve().parents[3]
+CONFIG_DIR = REPO_ROOT / "configs" / "hmmwv" / "ablation_ofat"
 BASE_CONFIG = CONFIG_DIR / "L8_H8_E256_ctx128.json"
 RUN_ROOT = "artifacts/training_runs/ablation_ofat"
 

@@ -6,7 +6,7 @@ q by integrating qd?"  This probe answers the *one-step* half of that question o
 the processed 8-D arm cache: matched-capacity MLPs regress the normalized
 per-step delta_qd (i.e. the joint acceleration) from different input feature sets
 and we compare held-out MSE / R^2.  The closed-loop half is the transformer
-ablation (configs/ablations/arm_transformer_8d_{qdonly,integq}_v1.json).
+ablation (configs/tracked_arm/ablations/arm_transformer_8d_{qdonly,integq}_v1.json).
 
 Feature sets (all normalized with the cache statistics):
   full            [q, qd, qcmd]              -- the deployed input token
@@ -23,7 +23,7 @@ is non-identifiable at one step; with history it can partially infer (qcmd - q)
 from the PD response (a fragile in-context system-ID shortcut).
 
 Usage:
-    PYTHONPATH=src python scripts/ablations/probe_arm_q_input_information.py \
+    PYTHONPATH=src python scripts/tracked_arm/ablations/probe_arm_q_input_information.py \
         [--dataset-dir artifacts/training_datasets/arm_dyn_v3_8d_seq16_v1] [--seeds 3] [--epochs 60]
 """
 
