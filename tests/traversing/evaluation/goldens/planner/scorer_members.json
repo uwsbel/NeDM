@@ -1,0 +1,140 @@
+{
+ "cases": {
+  "ci_train_hist_aux_moving": {
+   "cand_sha256": "b375573816b2d0fffe95359227427fe06a95d658f2aec86a87f5630d983d0f3d",
+   "group": "f104_pair_group_0000",
+   "kinds": [
+    "ci_train"
+   ],
+   "map_root": "artifacts/traverse/crm_f104_v1/map_root",
+   "members": 5,
+   "models": "artifacts/traverse/crm_improve_20260922/deploy_v1/deploy_a1_haux_gru_s*.pt",
+   "n": 300,
+   "n_encode": 5,
+   "pose": [
+    -31.18655642180807,
+    13.783719497734554,
+    -1.364258999648984
+   ],
+   "poses": "artifacts/traverse/crm_improve_20260922/a5data/decision_suite_L0p5/poses_crm_all.json",
+   "world": "crm"
+  },
+  "ci_train_none_standing_g260": {
+   "cand_sha256": "2caf396ff1994b7dc003a1c0a10a233e76e629492d61700868a4eeec774c9fa2",
+   "group": "g260_test_group_0000",
+   "kinds": [
+    "ci_train"
+   ],
+   "map_root": "artifacts/traverse/arena_gator_20260925/map_roots/g260",
+   "members": 5,
+   "models": "artifacts/traverse/arena_gator_20260925/e5/deploy/A3_soil/A3_soil_deploy_s*.pt",
+   "n": 300,
+   "n_encode": 0,
+   "pose": [
+    -21.170356865746964,
+    -1.1414754744195679,
+    -0.3913469918230691
+   ],
+   "poses": null,
+   "world": "crm"
+  },
+  "ga_train_hist_aux_moving": {
+   "cand_sha256": "6482e8f624126d88d7352692aac828cf428468cb5d7d11cf86ced5057b779534",
+   "group": "f104_pair_group_0000",
+   "kinds": [
+    "ga_train"
+   ],
+   "map_root": "artifacts/traverse/crm_f104_v1/map_root",
+   "members": 5,
+   "models": "artifacts/traverse/generalist_20260921/A_adapt/train/deploy_v1/H_deploy_s*.pt",
+   "n": 300,
+   "n_encode": 5,
+   "pose": [
+    -29.707891202522276,
+    6.89219876805541,
+    -1.3577484120246408
+   ],
+   "poses": "artifacts/traverse/generalist_20260921/A_adapt/a5/poses_rigid.json",
+   "world": "rigid"
+  },
+  "ga_train_hist_aux_standing": {
+   "cand_sha256": "8e9d65d807b54ac880bc365ddc0643638c71db503f2b7076b484b3b618639998",
+   "group": "f104_crm_eval_group_0000",
+   "kinds": [
+    "ga_train"
+   ],
+   "map_root": "artifacts/traverse/crm_f104_v1/map_root",
+   "members": 5,
+   "models": "artifacts/traverse/generalist_20260921/A_adapt/train/deploy_v1/H_deploy_s*.pt",
+   "n": 300,
+   "n_encode": 5,
+   "pose": [
+    -29.05567162697731,
+    17.181807809582015,
+    -1.504790733566408
+   ],
+   "poses": null,
+   "world": "crm"
+  },
+  "ga_train_none_standing": {
+   "cand_sha256": "0e88cee6deae0eae6396e529cdb0a0515adb4d168cbadf0c7334ae7e4d84a8e5",
+   "group": "f104_pair_group_0000",
+   "kinds": [
+    "ga_train"
+   ],
+   "map_root": "artifacts/traverse/crm_f104_v1/map_root",
+   "members": 5,
+   "models": "artifacts/traverse/generalist_20260921/A_adapt/train/deploy_v1/P_deploy_s*.pt",
+   "n": 300,
+   "n_encode": 0,
+   "pose": [
+    -31.24339978655324,
+    13.842023882276157,
+    -1.3600479004892914
+   ],
+   "poses": null,
+   "world": "crm"
+  },
+  "legacy_crm_n2_standing": {
+   "cand_sha256": "0e88cee6deae0eae6396e529cdb0a0515adb4d168cbadf0c7334ae7e4d84a8e5",
+   "group": "f104_pair_group_0000",
+   "kinds": [
+    "legacy"
+   ],
+   "map_root": "artifacts/traverse/crm_f104_v1/map_root",
+   "members": 5,
+   "models": "artifacts/traverse/crm_f104_v1/train_v1/deploy/CRM_N2_s*.pt",
+   "n": 300,
+   "n_encode": 0,
+   "pose": [
+    -31.24339978655324,
+    13.842023882276157,
+    -1.3600479004892914
+   ],
+   "poses": null,
+   "world": "crm"
+  },
+  "legacy_rigid_n2_standing": {
+   "cand_sha256": "f2d66c1caaa4ae46805452fe8442372669fc85210a7d7026fce70b7843f5bf80",
+   "group": "f104_pair_group_0002",
+   "kinds": [
+    "legacy"
+   ],
+   "map_root": "artifacts/traverse/crm_f104_v1/map_root",
+   "members": 5,
+   "models": "artifacts/traverse/fdm_f104_50h_20260909/night2_v1/final/N2_s*.pt",
+   "n": 300,
+   "n_encode": 0,
+   "pose": [
+    4.223840717437324,
+    -6.753405157016994,
+    2.1020354511717243
+   ],
+   "poses": null,
+   "world": "rigid"
+  }
+ },
+ "gpu": "NVIDIA GeForce RTX 5090",
+ "n_score": 300,
+ "torch": "2.12.0+cu130"
+}
