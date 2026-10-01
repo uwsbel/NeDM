@@ -6,7 +6,7 @@ Build the compact 20-trajectory reference set:
 
 ```bash
 conda activate nedm
-python scripts/preprocess/build_hmmwv_rl_references.py
+python scripts/hmmwv/preprocess/build_hmmwv_rl_references.py
 ```
 
 The default output is:
@@ -23,7 +23,7 @@ Train PPO with the default terrain-conditioned 15-D dynamics checkpoint
 
 ```bash
 conda activate nedm
-python scripts/training/train_hmmwv_rl_tracking.py \
+python scripts/hmmwv/training/train_hmmwv_rl_tracking.py \
   --device cuda \
   --num-envs 1024 \
   --max-iterations 2000
@@ -32,7 +32,7 @@ python scripts/training/train_hmmwv_rl_tracking.py \
 Swap the frozen NN dynamics checkpoint with:
 
 ```bash
-python scripts/training/train_hmmwv_rl_tracking.py \
+python scripts/hmmwv/training/train_hmmwv_rl_tracking.py \
   --dynamics-checkpoint artifacts/training_runs/<run-name>/checkpoints/best_val.pt \
   --reference-path artifacts/rl_reference_sets/<matching-reference-set>.npz
 ```
@@ -40,7 +40,7 @@ python scripts/training/train_hmmwv_rl_tracking.py \
 Evaluate the trained policy against the real Chrono HMMWV model:
 
 ```bash
-python scripts/evaluation/eval_hmmwv_rl_chrono_tracking.py \
+python scripts/hmmwv/evaluation/eval_hmmwv_rl_chrono_tracking.py \
   --run-dir artifacts/rl_runs/<run-name> \
   --policy-checkpoint artifacts/rl_runs/<run-name>/model_50.pt \
   --device cpu
@@ -48,4 +48,4 @@ python scripts/evaluation/eval_hmmwv_rl_chrono_tracking.py \
 
 The Chrono evaluator is intentionally for policy evaluation only. It creates a Chrono HMMWV using the same vehicle and terrain setup as the data-collection pipeline, initializes the rollout near each reference pose and forward speed, applies the policy's steering/throttle/brake commands through `DriverInputs`, advances Chrono at the collector simulation step size, and then reads back the state fields required by the selected dynamics checkpoint. For the default 15-D model, that includes tire normal forces and spindle angular velocities.
 
-The vectorized environment is implemented in `src/nedm/rl/hmmwv_tracking_env.py`. It keeps batched state/action history buffers on the selected device, runs the frozen NN model in batched inference, updates state with `next_state = current_state + predicted_delta`, and integrates pose from body velocity and yaw rate using the same convention as the dynamics rollout evaluator.
+The vectorized environment is implemented in `src/nedm/hmmwv/rl/hmmwv_tracking_env.py`. It keeps batched state/action history buffers on the selected device, runs the frozen NN model in batched inference, updates state with `next_state = current_state + predicted_delta`, and integrates pose from body velocity and yaw rate using the same convention as the dynamics rollout evaluator.

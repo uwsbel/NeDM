@@ -29,7 +29,7 @@ When training RL, terminate the episode if the steering command jumps too far in
 
 Current setup only discourages this softly (`action_rate_weight: 0.02` in the reward), which still allows large single-step steering offsets. A hard termination makes the constraint binding, so the trained policy never relies on steering slews that Chrono cannot tolerate.
 
-Implementation note: the env already tracks both tensors — `self.actions` and `self.last_actions` in `src/nedm/rl/hmmwv_tracking_env.py` (line ~155). Add `(torch.abs(self.actions[:, 0] - self.last_actions[:, 0]) > 0.5)` to the existing position/roll/pitch termination expression (line ~353), and make the threshold an entry in the `termination` config dict so it lands in `env_cfg.json` for reproducibility.
+Implementation note: the env already tracks both tensors — `self.actions` and `self.last_actions` in `src/nedm/hmmwv/rl/hmmwv_tracking_env.py` (line ~155). Add `(torch.abs(self.actions[:, 0] - self.last_actions[:, 0]) > 0.5)` to the existing position/roll/pitch termination expression (line ~353), and make the threshold an entry in the `termination` config dict so it lands in `env_cfg.json` for reproducibility.
 
 **Empirically validated (2026-06-09).** A steering rate-limit *filter* in the Chrono eval env (`steering_rate_limit` cfg option / `--steering-rate-limit` flag: clamp steering to ±threshold of the previous policy step's command) at 0.3 fixed every model_1999 divergence under pychrono 10 with no cost to the good references:
 

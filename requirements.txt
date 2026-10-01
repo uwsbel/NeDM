@@ -9,6 +9,6 @@ torchvision==0.23.0
 tensorboard==2.20.0
 onnx==1.19.0
 rsl-rl-lib==2.2.4
-# Dataset release/download tooling (scripts/release/)
+# Dataset release/download tooling (scripts/core/release/)
 huggingface_hub[cli]>=1.28
 pyarrow>=25

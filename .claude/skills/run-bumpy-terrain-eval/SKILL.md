@@ -15,25 +15,25 @@ The bumpy dataset (`artifacts/datasets/hmmwv_bumpy_10g_shards`) was collected wi
 assign_height_map_index(episode_id, 100)  # = int(md5(f"terrain::{episode_id}"), 16) % 100
 ```
 
-(in `src/nedm/hmmwv_data.py`). A faithful eval must drive each reference over the same map it was recorded on. `HMMWVChronoTrackingEnv._create_sim` does this automatically: it calls `resolve_height_map(config, episode_id)` and passes the BMP to `create_rigid_terrain`. For flat `rigid` configs `resolve_height_map` returns `None`, so the default flat eval is unchanged.
+(in `src/nedm/hmmwv/hmmwv_data.py`). A faithful eval must drive each reference over the same map it was recorded on. `HMMWVChronoTrackingEnv._create_sim` does this automatically: it calls `resolve_height_map(config, episode_id)` and passes the BMP to `create_rigid_terrain`. For flat `rigid` configs `resolve_height_map` returns `None`, so the default flat eval is unchanged.
 
 ## One-time setup (already built 2026-06-11; rebuild if missing)
 
 1. **Processed cache** from the raw bumpy shards (needed to build references):
    ```bash
-   python scripts/preprocess/build_hmmwv_training_dataset.py \
+   python scripts/core/preprocess/build_hmmwv_training_dataset.py \
      --dataset-root artifacts/datasets/hmmwv_bumpy_10g_shards/shard_00{0,1,2,3} \
      --output-dir artifacts/training_datasets/hmmwv_bumpy_10g_seq_v1
    ```
 2. **Rest-start reference set** (zero-speed start so Chrono can warm-start — see the chrono-rl-reference-rest-start memory):
    ```bash
-   python scripts/preprocess/build_hmmwv_rl_references.py \
+   python scripts/hmmwv/preprocess/build_hmmwv_rl_references.py \
      --processed-dataset-dir artifacts/training_datasets/hmmwv_bumpy_10g_seq_v1 \
      --split train --num-references 20 --segment-nn-steps 1100 --no-random-segment-start \
      --output artifacts/rl_reference_sets/hmmwv_bumpy_refs_20_1100_rest_start.npz
    ```
    Bumpy data has only 6 families (sustained_turn, sine/doublet/multi/chirp_steer, steer_brake) — no launch_brake/step_steer/aggressive_*.
-3. **Eval Chrono config** `configs/hmmwv_bumpy_eval.json` = `configs/hmmwv_overfit_v1.json` with **only** the `terrain` block swapped to the bumpy heightmap block (vehicle+simulation blocks are byte-identical to the collector config). Keep the 500×500 patch — that sets the bump wavelength.
+3. **Eval Chrono config** `configs/hmmwv/hmmwv_bumpy_eval.json` = `configs/hmmwv/hmmwv_overfit_v1.json` with **only** the `terrain` block swapped to the bumpy heightmap block (vehicle+simulation blocks are byte-identical to the collector config). Keep the 500×500 patch — that sets the bump wavelength.
 4. **Side run-dir** `<RUN>/_bumpycfg/` = copy of the run's `env_cfg.json`+`train_cfg.json`, with `reference_path` → the bumpy npz and `termination.max_position_error_m` → 20.0 (relax the eval bound; training bound was 1 m). This is the override mechanism — there is no `--reference-path` flag.
 
 ## Run it
@@ -46,10 +46,10 @@ OUT=$RUN/chrono_eval_model1999_bumpy_pychrono10_steerlimit03
 export LD_LIBRARY_PATH=/home/harry/anaconda3/envs/nedm/lib:$LD_LIBRARY_PATH
 
 for i in $(seq 0 19); do
-  /home/harry/anaconda3/envs/nedm/bin/python scripts/evaluation/eval_hmmwv_rl_chrono_tracking.py \
+  /home/harry/anaconda3/envs/nedm/bin/python scripts/hmmwv/evaluation/eval_hmmwv_rl_chrono_tracking.py \
     --run-dir "$RUN/_bumpycfg" \
     --policy-checkpoint "$RUN/model_1999.pt" \
-    --chrono-config configs/hmmwv_bumpy_eval.json \
+    --chrono-config configs/hmmwv/hmmwv_bumpy_eval.json \
     --steering-rate-limit 0.3 \
     --reference-index "$i" \
     --output-dir "$OUT"

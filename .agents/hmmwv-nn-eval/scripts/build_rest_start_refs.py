@@ -17,8 +17,8 @@ SRC_ROOT = REPO_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-from nedm.rl.references import ReferenceSet, build_reference_set, summarize_reference_set
-from nedm.training.dataset import load_metadata, load_split_metadata
+from nedm.hmmwv.rl.references import ReferenceSet, build_reference_set, summarize_reference_set
+from nedm.core.training.dataset import load_metadata, load_split_metadata
 
 
 DEFAULT_PROCESSED_ROOT = Path(

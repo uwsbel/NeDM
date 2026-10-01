@@ -1164,7 +1164,7 @@ This gives a clean base-motion model that is much simpler than a full HMMWV-styl
 
 Sections 3–7 above describe an MLP baseline. For consistency with the rest of the
 project we instead reuse the **existing GPT-style causal continuous-token transformer**
-that already trains the HMMWV and arm dynamics models (`src/nedm/training/*`), only
+that already trains the HMMWV and arm dynamics models (`src/nedm/core/training/*`), only
 shrinking it for this 6→3 problem. This section is the source of truth for the ROM
 training implementation.
 
@@ -1223,23 +1223,23 @@ the per-episode `split` field = 1808 train / 352 val):
 
 ```bash
 conda activate nedm   # numpy only; rl env also works
-python scripts/preprocess/build_hmmwv_training_dataset.py \
+python scripts/core/preprocess/build_hmmwv_training_dataset.py \
   --dataset-root artifacts/datasets/tracked_vehicle_drive_v2_shards/shard_* \
   --output-dir  artifacts/training_datasets/tracked_drive_v2_seq16_v1 \
   --state-fields vel_body_x_mps vel_body_y_mps yaw_rate_radps
 ```
 
-Train (`configs/tracked_transformer_v1.json`, mirrors the arm transformer config shrunk,
+Train (`configs/tracked_arm/tracked_transformer_v1.json`, mirrors the arm transformer config shrunk,
 with open-loop rollout eval enabled):
 
 ```bash
-python -m nedm.training.trainer --config configs/tracked_transformer_v1.json
+python -m nedm.core.training.trainer --config configs/tracked_arm/tracked_transformer_v1.json
 ```
 
 Smoke test first (1 epoch, capped windows) to validate wiring before the full run:
 
 ```bash
-python -m nedm.training.trainer --config configs/tracked_transformer_v1.json \
+python -m nedm.core.training.trainer --config configs/tracked_arm/tracked_transformer_v1.json \
   --num-epochs 1 --steps-per-epoch 50 --max-train-windows 20000 --max-val-windows 4000
 ```
 

@@ -2,7 +2,7 @@
 
 State as of 2026-09-28. Every number is a closed-loop drive in Chrono unless marked offline. Counts are recounted from
 the per-task tables in [`../results/`](../results/README.md), which were rebuilt from the per-drive records and checked
-against each study's own analysis files with no mismatches. Run `python traversing/scripts/recount_milestones.py` to
+against each study's own analysis files with no mismatches. Run `python scripts/traversing/analysis/recount_milestones.py` to
 repeat the recount. Records named below are at the experiment commit [`901d6c9`][commit].
 [evidence.md](evidence.md) lists every record, the code that produced it, and the release item that holds it.
 

@@ -35,7 +35,8 @@ trained with PPO inside a learned reduced dynamics model is compared with PID:
 it tracks routes more closely on rigid ground but completes fewer routes on
 soil. The folder records milestones, evidence and limits through 2026-09-28.
 The study's data and models are in the `traversing/` folder of the Hugging Face
-dataset; its code follows in later pull requests.
+dataset; its training code is in `src/nedm/traversing/`, and its evaluation code
+follows in a later pull request.
 
 **[docs/progress.md](docs/progress.md) is the reproduction record** — every stage
 output with the artifact that produced it and the command that regenerates it.
@@ -60,33 +61,47 @@ expect a checkout at `chrono/` and read `chrono/data` for vehicle assets.
 
 ## Layout
 
+Code, scripts and configs are grouped by study. `core` holds what both paper studies share.
+
 | Path | Contents |
 |---|---|
-| `src/nedm/` | Chrono scene builders and data collectors (`hmmwv_data`, `hmmwv_crm`, `arm_data`, `tracked_vehicle_data`) |
-| `src/nedm/training/` | Preprocessing, the causal-transformer dynamics model, and the trainer with rollout-based checkpoint selection |
-| `src/nedm/rl/` | Vectorized NN-ROM environments and their Chrono-backed twins, plus arm forward kinematics and the clearance shield |
-| `src/arm_model/` | The 4-DOF gripper arm imported from SolidWorks |
-| `configs/` | Collection and training configs |
+| `src/nedm/core/` | Shared by both paper studies: preprocessing, the causal-transformer dynamics model and the trainer with rollout-based checkpoint selection (`training/`); the frozen NN-ROM loader and default paths (`rl/`); the scenario generator, the Hugging Face release helpers and the Blender export |
+| `src/nedm/hmmwv/` | Study Case I: HMMWV scene builders and data collectors (`hmmwv_data`, `hmmwv_crm`); the vectorized NN-ROM tracking environment, its Chrono-backed twins and the reference sets (`rl/`) |
+| `src/nedm/tracked_arm/` | Study Case II: M113 and arm data collectors (`tracked_vehicle_data`, `arm_data`); the 4-DOF gripper arm imported from SolidWorks (`arm_model/`); the goal and arm environments, arm forward kinematics and the clearance shield (`rl/`) |
+| `src/nedm/traversing/` | Traversing study code (`training/`) |
+| `configs/hmmwv/`, `configs/tracked_arm/` | Collection and training configs |
+| `traversing/` | Traversing study documents, results and release manifest |
 | `artifacts/` | Checkpoints, run metadata and Chrono evaluation output (datasets are on Hugging Face, see below) |
-| `test/` | Chrono validation harnesses for the tire-force channels (not a unit-test suite) |
 
-`scripts/` is organised by pipeline stage, in the order you would run them:
+`scripts/` is organised by study (`core/`, `hmmwv/`, `tracked_arm/`, `traversing/`), then by pipeline stage, in the
+order you would run them:
 
 | Path | Contents |
 |---|---|
-| `scripts/collection/` | Shard planners and Chrono collectors for the five datasets, plus their validators and small-scale smoke tests |
-| `scripts/preprocess/` | Raw episodes → processed caches; RL reference-set builders; arm FK geometry extraction |
-| `scripts/training/` | The dynamics trainer, the three PPO trainers, and the launchers holding each run's exact hyperparameters |
-| `scripts/ablations/` | Config generation, sweep runners and ranking for Appendices C–E and the specialist comparison |
-| `scripts/evaluation/` | Open-loop rollout eval, Chrono closed-loop transfer, and the seeded 100-goal benchmarks |
-| `scripts/figures/` | The eleven generators behind the manuscript's plotted figures |
-| `scripts/throughput/` | Chrono and NN-ROM throughput probes (Appendix A) and the context-truncation sweep |
-| `scripts/cluster/` | SLURM array jobs for the collections that only run at cluster scale |
-| `scripts/release/` | The Hugging Face dataset release: raw CSV → Parquet export, validation, upload, and the download/rehydrate helper |
+| `scripts/hmmwv/collection/` | Shard planners and Chrono collectors for the flat, bumpy and CRM datasets, plus their validators and small-scale smoke tests |
+| `scripts/tracked_arm/collection/` | The M113 drive collector (the arm collector is `python -m nedm.tracked_arm.arm_data`) |
+| `scripts/core/preprocess/` | Raw episodes → processed caches (all three dynamics models) |
+| `scripts/hmmwv/preprocess/`, `scripts/tracked_arm/preprocess/` | RL reference-set builders; arm FK geometry extraction |
+| `scripts/core/training/` | The dynamics trainer (all three dynamics models) |
+| `scripts/hmmwv/training/`, `scripts/tracked_arm/training/` | The three PPO trainers, and the launchers holding each run's exact hyperparameters |
+| `scripts/hmmwv/ablations/`, `scripts/tracked_arm/ablations/` | Config generation, sweep runners and ranking for Appendices C–E and the specialist comparison; the arm q-input probe |
+| `scripts/core/evaluation/` | Open-loop rollout eval of a dynamics checkpoint |
+| `scripts/hmmwv/evaluation/`, `scripts/tracked_arm/evaluation/` | Chrono closed-loop transfer, open-loop arm eval, and the seeded 100-goal benchmarks |
+| `scripts/hmmwv/figures/`, `scripts/tracked_arm/figures/` | The eleven generators behind the manuscript's plotted figures, plus the Blender renderers |
+| `scripts/core/throughput/`, `scripts/hmmwv/throughput/` | Chrono and NN-ROM throughput probes (Appendix A) and the context-truncation sweep |
+| `scripts/hmmwv/cluster/`, `scripts/tracked_arm/cluster/` | SLURM array jobs for the collections that only run at cluster scale |
+| `scripts/hmmwv/validation/` | Chrono validation harnesses for the tire-force channels (not a unit-test suite) |
+| `scripts/core/release/` | The Hugging Face dataset release: raw CSV → Parquet export, validation, upload, and the download/rehydrate helper |
+| `scripts/traversing/` | The traversing study's result recount (`analysis/`) and release download/verification (`release/`) |
 
-Every script under `scripts/` reproduces something the paper reports; nothing else is
-kept. The ablation *artifacts* and *configs* keep their original `ablation_ofat` name
+Every script under `scripts/core/`, `scripts/hmmwv/` and `scripts/tracked_arm/` reproduces something the paper
+reports; nothing else is kept. The ablation *artifacts* and *configs* keep their original `ablation_ofat` name
 because it is recorded inside the run metadata.
+
+The paper was produced with the earlier stage-first layout (`scripts/<stage>/`, `src/nedm/{training,rl}/`,
+`src/arm_model/`, `test/`, `blender-render/`). That layout is kept at the GitHub tag
+[`paper-v1`](https://github.com/uwsbel/NeDM/tree/paper-v1); the Hugging Face dataset card
+(`docs/hf_dataset_card.md`, mirrored on the Hub) still names its paths.
 
 ## Datasets
 
@@ -98,12 +113,12 @@ splits and provenance). Nothing needs to be re-collected:
 ```bash
 conda activate nedm
 # the exact .npy caches the deployed models trained on -> artifacts/training_datasets/
-PYTHONPATH=src python scripts/release/download_nedm_datasets.py --dataset all --no-raw --processed
+PYTHONPATH=src python scripts/core/release/download_nedm_datasets.py --dataset all --no-raw --processed
 # a raw dataset as the collectors' per-episode CSV tree -> artifacts/datasets/ (preprocess etc. run unchanged)
-PYTHONPATH=src python scripts/release/download_nedm_datasets.py --dataset tracked --rehydrate
+PYTHONPATH=src python scripts/core/release/download_nedm_datasets.py --dataset tracked --rehydrate
 ```
 
-`docs/hf_dataset_card.md` is the source of the Hub README; `scripts/release/export_hf_dataset.py`
+`docs/hf_dataset_card.md` is the source of the Hub README; `scripts/core/release/export_hf_dataset.py`
 + `validate_hf_export.py` + `upload_hf_dataset.sh` regenerate and publish the release.
 
 ## Quick start
@@ -112,22 +127,22 @@ Collect a small dataset, build its cache, and train:
 
 ```bash
 conda activate nedm
-python scripts/collection/collect_hmmwv_dataset.py --config configs/hmmwv_overfit_v1.json
-python scripts/preprocess/build_hmmwv_training_dataset.py --help
-PYTHONPATH=src python scripts/training/train_hmmwv_dynamics.py \
-  --config configs/hmmwv_transformer_v07_tire_normal_force_omega_300g_crm2000_mix25_rebal_rollout_onehot.json
+python scripts/hmmwv/collection/collect_hmmwv_dataset.py --config configs/hmmwv/hmmwv_overfit_v1.json
+python scripts/core/preprocess/build_hmmwv_training_dataset.py --help
+PYTHONPATH=src python scripts/core/training/train_hmmwv_dynamics.py \
+  --config configs/hmmwv/hmmwv_transformer_v07_tire_normal_force_omega_300g_crm2000_mix25_rebal_rollout_onehot.json
 ```
 
 The full flat collection is cluster-scale (~305 GB of CSV; download it from Hugging Face
-instead, see above); `scripts/cluster/collect_hmmwv_tire300g.sh` is the job that produced it and
-`scripts/collection/smoke_test_hmmwv_bumpy10g.sh` rehearses the same path at small scale.
+instead, see above); `scripts/hmmwv/cluster/collect_hmmwv_tire300g.sh` is the job that produced it and
+`scripts/hmmwv/collection/smoke_test_hmmwv_bumpy10g.sh` rehearses the same path at small scale.
 
 Evaluate a trained policy back in Chrono:
 
 ```bash
-PYTHONPATH=src python scripts/evaluation/eval_hmmwv_rl_chrono_tracking.py --help    # Study Case I
-PYTHONPATH=src python scripts/evaluation/benchmark_tracked_goal_chrono.py --help    # Study Case II, base
-PYTHONPATH=src python scripts/evaluation/benchmark_arm_reach_chrono.py --help       # Study Case II, arm
+PYTHONPATH=src python scripts/hmmwv/evaluation/eval_hmmwv_rl_chrono_tracking.py --help    # Study Case I
+PYTHONPATH=src python scripts/tracked_arm/evaluation/benchmark_tracked_goal_chrono.py --help    # Study Case II, base
+PYTHONPATH=src python scripts/tracked_arm/evaluation/benchmark_arm_reach_chrono.py --help       # Study Case II, arm
 ```
 
 ## Further reading

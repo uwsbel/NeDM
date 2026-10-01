@@ -43,7 +43,7 @@ from pathlib import Path
 
 import torch
 
-from nedm.training.model import HMMWVDynamicsModel
+from nedm.core.training.model import HMMWVDynamicsModel
 
 checkpoint_path = Path(
     "artifacts/training_runs/ablation_ofat/L8_H8_E256_ctx128/checkpoints/best_val.pt"
@@ -65,7 +65,7 @@ model.eval()
 
 The checkpoint carries its own model config and normalization metadata, so
 inference needs nothing else. To load one as a frozen environment for RL, use
-`nedm.rl.dynamics.load_frozen_dynamics`, which wraps the same file.
+`nedm.core.rl.dynamics.load_frozen_dynamics`, which wraps the same file.
 
 `.pt` and `.pth` both route through LFS. Local-only data roots:
 

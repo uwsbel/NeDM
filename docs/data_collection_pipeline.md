@@ -23,7 +23,7 @@ That means the collector should preserve episode boundaries, action histories, a
 
 ## Pipeline Stages
 
-1. Define a scenario manifest in [configs/hmmwv_overfit_v1.json](/home/harry/NeDM/configs/hmmwv_overfit_v1.json).
+1. Define a scenario manifest in [configs/hmmwv/hmmwv_overfit_v1.json](/home/harry/NeDM/configs/hmmwv/hmmwv_overfit_v1.json).
 2. Sample driver commands into a `ChDataDriver` input table.
 3. Run a headless PyChrono HMMWV simulation.
 4. Discard the initial settling transient with a warmup window.

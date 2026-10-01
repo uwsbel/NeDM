@@ -123,9 +123,9 @@ its own commit, `f44f87c`. Revoke or rotate the write token on the cluster once 
 ## How to verify it
 
 ```bash
-python traversing/scripts/release/verify_release.py --hub                                     # the Hub copy
-python traversing/scripts/release/verify_release.py --local artifacts/hf_release/download     # downloaded files
-python traversing/scripts/release/download_traversing_data.py --bundle models --verify-members # download anything missing, then re-hash the restored files
+python scripts/traversing/release/verify_release.py --hub                                     # the Hub copy
+python scripts/traversing/release/verify_release.py --local artifacts/hf_release/download     # downloaded files
+python scripts/traversing/release/download_traversing_data.py --bundle models --verify-members # download anything missing, then re-hash the restored files
 ```
 
 - **`--hub`** (needs `huggingface_hub`) checks, at the pinned revision:

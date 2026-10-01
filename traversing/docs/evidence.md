@@ -283,8 +283,8 @@ Collection totals:
   the route validator and terrain utilities. The frozen rigid collector is loaded by path.
 - **Two shared files that the published studies also use.** The branch modified both. Every headline depends on the
   first, and every headline with rigid-ground drives on the second:
-  - `src/nedm/training/constants.py` gains the 17-number state preset that every collector selects;
-  - `src/nedm/hmmwv_data.py` gains a configurable chassis collision, which rigid-ground traversal scenes set to hull
+  - `src/nedm/core/training/constants.py` gains the 17-number state preset that every collector selects;
+  - `src/nedm/hmmwv/hmmwv_data.py` gains a configurable chassis collision, which rigid-ground traversal scenes set to hull
     collision. Main's version silently ignores the setting, which would change rigid physics.
 
   To leave the published code untouched, the plan is to keep traversal-specific copies of these two pieces inside the

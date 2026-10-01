@@ -79,7 +79,7 @@ cp $IMG/hmmwv_policy_trajectories_grid.png web/assets/figures/policy-trajectorie
 
 The trajectory grid still prints "zero-shot" in panel (c); the page says
 out-of-distribution everywhere it writes its own prose. Regenerating the figure
-with `scripts/figures/` would settle the mismatch, at the cost of diverging from
+with `scripts/hmmwv/figures/` would settle the mismatch, at the cost of diverging from
 the manuscript's own artifact.
 
 Videos are the fixed-camera Blender renders from

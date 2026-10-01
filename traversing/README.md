@@ -9,8 +9,10 @@ PPO inside a learned neural reduced dynamics model (NRD) and compared with that 
 
 This folder records the progress through 2026-09-28: what each milestone achieved, how it was measured, and what it
 does not show. The data and trained models behind every headline are on Hugging Face (see [Download](#download)).
-**The code is not on main yet.** It lives on the experiment branch `offroad_vehicles_v1` at commit
-[`901d6c9`][commit] and will follow in separate pull requests (see [What comes next](#what-comes-next)).
+The training code of the released models is on main in
+[`src/nedm/traversing/training/`](../src/nedm/traversing/training/README.md). The planning, driving and evaluation
+code is still on the experiment branch `offroad_vehicles_v1` at commit [`901d6c9`][commit] and follows in a later
+pull request (see [What comes next](#what-comes-next)).
 
 ## Milestones as of 2026-09-28
 
@@ -122,8 +124,8 @@ Recount the headline numbers from the per-task tables (every headline except the
 comes from that study's read-out). This needs Python 3.8 or newer and nothing else:
 
 ```bash
-python traversing/scripts/recount_milestones.py               # per-arm counts and checks
-python traversing/scripts/recount_milestones.py --check-only  # verdict only
+python scripts/traversing/analysis/recount_milestones.py               # per-arm counts and checks
+python scripts/traversing/analysis/recount_milestones.py --check-only  # verdict only
 ```
 
 ### Download
@@ -136,10 +138,10 @@ unchanged. The download helper reads the release manifest pinned in
 had in the experiment checkout. It needs `huggingface_hub`.
 
 ```bash
-python traversing/scripts/release/download_traversing_data.py --list --all        # every item, with its size
-python traversing/scripts/release/download_traversing_data.py --milestone m2      # everything behind one milestone
-python traversing/scripts/release/download_traversing_data.py --bundle models     # one bundle
-python traversing/scripts/release/download_traversing_data.py --all               # everything
+python scripts/traversing/release/download_traversing_data.py --list --all        # every item, with its size
+python scripts/traversing/release/download_traversing_data.py --milestone m2      # everything behind one milestone
+python scripts/traversing/release/download_traversing_data.py --bundle models     # one bundle
+python scripts/traversing/release/download_traversing_data.py --all               # everything
 ```
 
 Filters combine: `--milestone m2 --bundle models` fetches only the milestone-2 models, and `--milestone m4` covers 4a
@@ -162,19 +164,21 @@ to verify a download.
 
 ## What comes next
 
-Each step is its own pull request, starting from main. The first two are done:
+Each step is its own pull request, starting from main. The first three are done:
 
 1. **Documentation** (done). The milestones, architecture, history and evidence, plus the compact outcome tables
    and the recount script.
 2. **Data and models** (done). Datasets, trained models and per-drive records are in the `traversing/` folder of
    the paper's Hugging Face dataset ([harryzhang1018/NeDM](https://huggingface.co/datasets/harryzhang1018/NeDM)),
-   pinned to revision `6620faead5225ac9aa5ae8ab19bc2ef2db38a863`. The manifest, the release spec and the download and verification helpers
-   are in this folder. The paper's files on the Hub are unchanged (tag `paper-v1`).
-3. **The planning pipeline.** The minimal collection, training, planning and evaluation code behind milestones 1, 2
-   and 4, checked against saved outputs.
-4. **The NRD/PPO tracker benchmark** (milestone 3), with its positive rigid-ground result and its failed soil result.
+   pinned to revision `6620faead5225ac9aa5ae8ab19bc2ef2db38a863`. The manifest is in `manifests/`; the download and verification helpers
+   are in `scripts/traversing/release/`. The paper's files on the Hub are unchanged (Hub tag `paper-v1`).
+3. **Training code** (done). The trainers of the final shared risk model, of every single-ground planner of
+   milestones 4a and 4b, of the NRD and of the PPO tracker, in `src/nedm/traversing/training/`.
+4. **Evaluation.** Planning and driving in Chrono behind milestones 1 to 4, with the vehicle, arena, planner and
+   controller (PID or the learned tracker) switchable, checked against the recorded drives.
 
-None of these changes the published HMMWV, M113 base or arm code, configs, checkpoints or dataset instructions.
+None of these changes the behaviour of the published HMMWV, M113 base or arm code, configs, checkpoints or dataset
+instructions. The per-study layout moved their files; the paper's layout is kept at the GitHub tag `paper-v1`.
 
 ## Relation to the rest of the repository
 
