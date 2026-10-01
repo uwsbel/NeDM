@@ -9,10 +9,10 @@ PPO inside a learned neural reduced dynamics model (NRD) and compared with that 
 
 This folder records the progress through 2026-09-28: what each milestone achieved, how it was measured, and what it
 does not show. The data and trained models behind every headline are on Hugging Face (see [Download](#download)).
-The training code of the released models is on main in
-[`src/nedm/traversing/training/`](../src/nedm/traversing/training/README.md). The planning, driving and evaluation
-code is still on the experiment branch `offroad_vehicles_v1` at commit [`901d6c9`][commit] and follows in a later
-pull request (see [What comes next](#what-comes-next)).
+The code is on main: model training in [`src/nedm/traversing/training/`](../src/nedm/traversing/training/README.md),
+and planning, driving and evaluation in Chrono in one evaluation class,
+[`src/nedm/traversing/evaluation/`](../src/nedm/traversing/evaluation/README.md). The data collectors and dataset
+builders remain on the experiment branch `offroad_vehicles_v1` at commit [`901d6c9`][commit]; their outputs are released.
 
 ## Milestones as of 2026-09-28
 
@@ -162,9 +162,9 @@ sets them separately), which is the folder to pass to `verify_release.py --local
 [docs/evidence.md](docs/evidence.md) names the item behind each record, and [docs/release.md](docs/release.md) how
 to verify a download.
 
-## What comes next
+## How the study reached main
 
-Each step is its own pull request, starting from main. The first three are done:
+Each step was its own pull request:
 
 1. **Documentation** (done). The milestones, architecture, history and evidence, plus the compact outcome tables
    and the recount script.
@@ -174,8 +174,9 @@ Each step is its own pull request, starting from main. The first three are done:
    are in `scripts/traversing/release/`. The paper's files on the Hub are unchanged (Hub tag `paper-v1`).
 3. **Training code** (done). The trainers of the final shared risk model, of every single-ground planner of
    milestones 4a and 4b, of the NRD and of the PPO tracker, in `src/nedm/traversing/training/`.
-4. **Evaluation.** Planning and driving in Chrono behind milestones 1 to 4, with the vehicle, arena, planner and
-   controller (PID or the learned tracker) switchable, checked against the recorded drives.
+4. **Evaluation** (done). Planning and driving in Chrono behind milestones 1 to 4, with the vehicle, arena, planner
+   and controller (PID or the learned tracker) switchable, checked against the recorded drives, in
+   `src/nedm/traversing/evaluation/`.
 
 None of these changes the behaviour of the published HMMWV, M113 base or arm code, configs, checkpoints or dataset
 instructions. The per-study layout moved their files; the paper's layout is kept at the GitHub tag `paper-v1`.

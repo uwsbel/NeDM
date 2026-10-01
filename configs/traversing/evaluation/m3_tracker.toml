@@ -1,0 +1,50 @@
+# M3: learned tracker vs PID on fixed reference routes. Suite tracker423 (tracking_suite.json a53b0eb6...), HMMWV,
+# standing start. The 40 s near-stop rule applies to the held PID and the tracker only (EvalConfig.near_stop_rule).
+# Arm names are the arm column of traversing/results/m3_tracker_routes.csv (world = ground); they repeat across
+# grounds, so load one ground at a time (load_arms(path, ground=...)).
+
+[defaults]
+vehicle = "hmmwv"
+planner = "given"
+label = "tracker"
+
+[[arm]]
+name = "pid_native"                             # near-stop off
+ground = "rigid"
+build_lock = "configs/traversing/evaluation/locks/chrono-build.json"
+controller = "pid"
+
+[[arm]]
+name = "pid_held_50ms"                          # near-stop on
+ground = "rigid"
+build_lock = "configs/traversing/evaluation/locks/chrono-build.json"
+controller = "pid_held"
+
+[[arm]]
+name = "nrd_policy_v2"
+ground = "rigid"
+build_lock = "configs/traversing/evaluation/locks/chrono-build.json"
+controller = "tracker"
+actor = "data:artifacts/traverse/generalist_20260921/B_tracker/ppo_v2/actor.npz"                     # sha ea938820...
+
+[[arm]]
+name = "pid_native"
+ground = "soil"
+build_lock = "configs/traversing/evaluation/locks/chrono-build-fsi.json"
+soil_config = "crm_main"
+controller = "pid"
+
+[[arm]]
+name = "pid_held_50ms"
+ground = "soil"
+build_lock = "configs/traversing/evaluation/locks/chrono-build-fsi.json"
+soil_config = "crm_main"
+controller = "pid_held"
+
+[[arm]]
+name = "nrd_policy_v2"
+ground = "soil"
+build_lock = "configs/traversing/evaluation/locks/chrono-build-fsi.json"
+soil_config = "crm_main"
+controller = "tracker"
+actor = "data:artifacts/traverse/generalist_20260921/B_tracker/ppo_v2/actor.npz"

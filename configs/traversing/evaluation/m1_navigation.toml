@@ -1,0 +1,33 @@
+# M1: live depth camera in the planning loop. Suite missions30 (tasks_main.json ea670e3e...); luffy only.
+# Seeds: one rng stream per mission, md5(mission + mode + str(period)) (nav_runner.py:145).
+# Arm names are the arm column of traversing/results/m1_navigation_missions.csv.
+# luffy recipe (nav_local.py): the fork build is compiled against the system Python 3.12 + numpy 1.26 and torch lives
+# in the conda env, so the system site comes before the conda site on the path (no stdlib name is shadowed):
+#   PYTHONPATH=/home/harry/chrono/build/bin:src:/usr/lib/python3/dist-packages:$CONDA/lib/python3.12/site-packages \
+#   NEDM_DATA=... NEDM_RELEASE_CACHE=... NEDM_CHRONO_DATA=/home/harry/chrono/data /usr/bin/python3.12 \
+#   scripts/traversing/evaluation/run.py --arms configs/traversing/evaluation/m1_navigation.toml --suite missions30 \
+#   --out OUT --workers 6
+
+[defaults]
+planner = "live"        # one-shot 256 on the live grid + footprint mask; bound 37 -> 45 m; 45 deg reversal; rescue ladder
+models = "data:artifacts/traverse/fdm_f104_50h_20260909/sensor_v2/matched/matched_Dabs_s*.pt"  # legacy Net, bs 256, no float16
+controller = "nav_pid"
+label = "mission"
+build_lock = "configs/traversing/evaluation/locks/luffy_optix_fork_a92c6f72f.json"   # depth-FOV fix 9e1a0448b
+
+[[arm]]
+name = "plan_once_per_waypoint"                 # W: 27/30 missions, 191/199 waypoints
+replan = "waypoint"
+
+[[arm]]
+name = "replan_every_2s"                        # R2: 25/30
+replan = 2.0
+
+[[arm]]
+name = "replan_every_1s"                        # R1: 25/30
+replan = 1.0
+
+[[arm]]
+name = "replan_every_1s_delay_charged"          # R1L: 22/30; replay only (a fresh run is not reproducible)
+replan = 1.0
+latency_replay = "data:artifacts/traverse/fdm_f104_50h_20260909/nav_v1/local_luffy/runs/{task}__R1L/decisions.json"
