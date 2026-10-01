@@ -1,0 +1,74 @@
+# M2: shared rigid/soil risk model and decision timing. Suite f104_800 (SUITE_LOCKED 4327c110...; 600 fresh + 200
+# reused), HMMWV, stock PID, rolling-back label. Arm names are columns of traversing/results/m2_shared_risk_{soil,rigid}.csv.
+# The locked picks are driven as recorded; delete `picks` to re-plan from the released decision states (`decisions`).
+# Arm names repeat across grounds: load one ground at a time (load_arms(path, ground=...)).
+
+[defaults]
+vehicle = "hmmwv"
+controller = "pid"
+label = "rollback"
+
+[[arm]]
+name = "shared_hist_early_rows_0p5s_grad"       # soil 780/800
+ground = "soil"
+build_lock = "configs/traversing/evaluation/locks/chrono-build-fsi.json"
+soil_config = "crm_main"                        # 1 ms, 50 substeps
+approach_s = 0.5                                # F = 10
+planner = "cem_grad"                            # tag n2iter_cem4x64, then gradient refinement (refine.GRAD)
+models = "data:artifacts/traverse/crm_improve_20260922/deploy_v1/deploy_a1_haux_gru_s*.pt"         # ci_train, hist_aux
+decisions = "data:artifacts/traverse/crm_improve_20260922/a5data/decision_suite_L0p5/poses_crm_all.json"
+picks = "data:artifacts/traverse/crm_improve_20260922/s4/L0p5/picks_crm_HnG"
+
+[[arm]]
+name = "shared_hist_early_rows_0p5s_grad"       # rigid 800/800
+ground = "rigid"
+build_lock = "configs/traversing/evaluation/locks/chrono-build.json"
+approach_s = 0.5
+planner = "cem_grad"
+models = "data:artifacts/traverse/crm_improve_20260922/deploy_v1/deploy_a1_haux_gru_s*.pt"
+decisions = "data:artifacts/traverse/crm_improve_20260922/a5data/decision_suite_L0p5/poses_rigid_all.json"
+picks = "data:artifacts/traverse/crm_improve_20260922/s4/L0p5/picks_rigid_HnG"
+
+[[arm]]
+name = "shared_hist_3s"                         # soil 671/800
+ground = "soil"
+build_lock = "configs/traversing/evaluation/locks/chrono-build-fsi.json"
+soil_config = "crm_main"
+approach_s = 3.0                                # F = 60
+planner = "cem"
+models = "data:artifacts/traverse/generalist_20260921/A_adapt/train/deploy_v1/H_deploy_s*.pt"      # ga_train adapter
+decisions = "data:artifacts/traverse/generalist_20260921/A_adapt/a5/poses_crm.json"
+picks = "data:artifacts/traverse/generalist_20260921/A_adapt/a5/picks_crm_H"
+
+[[arm]]
+name = "shared_hist_3s"                         # rigid 797/800
+ground = "rigid"
+build_lock = "configs/traversing/evaluation/locks/chrono-build.json"
+approach_s = 3.0
+planner = "cem"
+models = "data:artifacts/traverse/generalist_20260921/A_adapt/train/deploy_v1/H_deploy_s*.pt"
+decisions = "data:artifacts/traverse/generalist_20260921/A_adapt/a5/poses_rigid.json"
+picks = "data:artifacts/traverse/generalist_20260921/A_adapt/a5/picks_rigid_H"
+
+# decomposition 671 -> 753 -> 766 -> 780 (soil)
+[[arm]]
+name = "shared_hist_0p5s"                       # soil 753/800
+ground = "soil"
+build_lock = "configs/traversing/evaluation/locks/chrono-build-fsi.json"
+soil_config = "crm_main"
+approach_s = 0.5
+planner = "cem"
+models = "data:artifacts/traverse/generalist_20260921/A_adapt/train/deploy_v1/H_deploy_s*.pt"
+decisions = "data:artifacts/traverse/crm_improve_20260922/a5data/decision_suite_L0p5/poses_crm_all.json"
+picks = "data:artifacts/traverse/crm_improve_20260922/s2/L0p5/picks_crm_H"
+
+[[arm]]
+name = "shared_hist_early_rows_0p5s"            # soil 766/800
+ground = "soil"
+build_lock = "configs/traversing/evaluation/locks/chrono-build-fsi.json"
+soil_config = "crm_main"
+approach_s = 0.5
+planner = "cem"
+models = "data:artifacts/traverse/crm_improve_20260922/deploy_v1/deploy_a1_haux_gru_s*.pt"
+decisions = "data:artifacts/traverse/crm_improve_20260922/a5data/decision_suite_L0p5/poses_crm_all.json"
+picks = "data:artifacts/traverse/crm_improve_20260922/s2/L0p5/picks_crm_Hn"

@@ -1,0 +1,35 @@
+{
+ "pr3_risk_groups": {
+  "ids": [
+   "f104_pair_group_0133",
+   "f104_pair_group_0259",
+   "f104_pair_group_0302",
+   "f104_pair_group_0337",
+   "f104_pair_group_0519",
+   "f104_pair_group_0056",
+   "f104_pair_group_0014",
+   "f104_pair_group_0225",
+   "f104_pair_group_0036",
+   "f104_pair_group_0129"
+  ],
+  "subset": "stratum=fresh,lowest_md5=10",
+  "suite": "f104_800"
+ },
+ "pr3_tracker_routes": {
+  "ids": [
+   "f104_v2_group_0048_route_03",
+   "f104_v2_group_0249_route_04",
+   "f104_v2_group_0366_route_01",
+   "f104_v2_group_0503_route_02",
+   "f104_v2_group_0185_route_06",
+   "f104_v2_group_0502_route_02",
+   "f104_v2_group_1026_route_01",
+   "f104_v2_group_0532_route_05",
+   "f104_v2_group_0616_route_02",
+   "f104_v2_group_0888_route_06"
+  ],
+  "subset": "stratum=feasible,lowest_md5=10",
+  "suite": "tracker423"
+ },
+ "source": "pr3_staging/chrono_eval/risk/groups.txt (select_groups.py), tracker/selection.json (build_tasks.py); md5(id) hex order, lowest first"
+}

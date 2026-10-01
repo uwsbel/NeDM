@@ -1,0 +1,33 @@
+# M4b vehicle smoke test: every vehicle drives the same fixed route (no planning). Suite smoke144 (sample A).
+# Arm names are columns of traversing/results/m4_vehicle_smoke.csv (goal_reached -> S unless a belly flag).
+# The M113 columns are recounts of released drives only (the tracked stand-in is refused).
+
+[defaults]
+ground = "soil"
+build_lock = "configs/traversing/evaluation/locks/chrono-build-fsi.json"   # the parity-checked soil build
+soil_config = "crm_main"
+planner = "given"
+controller = "pid"
+label = "goal_belly"
+
+[[arm]]
+name = "gator_redrive_1ms"                      # 135/144 not reached (study arm gatorctl)
+vehicle = "gator"
+
+[[arm]]
+name = "polaris_stock"                          # 24/144 not reached
+vehicle = "polaris"
+
+[[arm]]
+name = "polaris_power_corrected"                # 20/144 not reached
+vehicle = "polaris_pc"
+
+[[arm]]
+name = "polaris_open_diff"                      # 37/144 not reached; smoke-only variant
+vehicle = "polaris_4wd"
+allow_unvalidated = true
+
+[[arm]]
+name = "polaris_soil_wheels_0p33m"              # 27/144 not reached; smoke-only variant
+vehicle = "polaris_w08"
+allow_unvalidated = true

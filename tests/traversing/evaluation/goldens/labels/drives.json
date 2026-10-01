@@ -1,0 +1,1174 @@
+{
+ "drives": [
+  {
+   "column": "shared_hist_early_rows_0p5s_grad",
+   "expected": {
+    "back_s": 0.15000000000000002,
+    "fail": 0,
+    "max_tilt": 16.988250732421875,
+    "min_vx": -0.13824014365673065,
+    "status": "goal_reached",
+    "unsafe": 1
+   },
+   "key": "p00",
+   "kind": "point",
+   "label": "rollback",
+   "row": {
+    "group_id": "f104_pair_group_0104"
+   },
+   "run_dir": "artifacts/traverse/crm_improve_20260922/s4/runs/f104_pair_group_0104__L0p5_HnG_B",
+   "table": "m2_shared_risk_soil"
+  },
+  {
+   "column": "shared_hist_early_rows_0p5s_grad",
+   "expected": {
+    "back_s": 1.8,
+    "fail": 1,
+    "max_tilt": 26.64432144165039,
+    "min_vx": -0.5433597564697266,
+    "status": "soil_breakthrough_terminated",
+    "unsafe": 1
+   },
+   "key": "p01",
+   "kind": "point",
+   "label": "rollback",
+   "row": {
+    "group_id": "f104_crm_eval_group_0035"
+   },
+   "run_dir": "artifacts/traverse/crm_improve_20260922/s4/runs/f104_crm_eval_group_0035__L0p5_HnG_B",
+   "table": "m2_shared_risk_soil"
+  },
+  {
+   "column": "shared_hist_early_rows_0p5s_grad",
+   "expected": {
+    "back_s": 0.0,
+    "fail": 1,
+    "max_tilt": 22.709186553955078,
+    "min_vx": -0.07969758659601212,
+    "status": "prolonged_blockage_terminated",
+    "unsafe": 1
+   },
+   "key": "p02",
+   "kind": "point",
+   "label": "rollback",
+   "row": {
+    "group_id": "f104_pair_group_0004"
+   },
+   "run_dir": "artifacts/traverse/crm_improve_20260922/s4/runs/f104_pair_group_0004__L0p5_HnG_B",
+   "table": "m2_shared_risk_soil"
+  },
+  {
+   "column": "shared_hist_early_rows_0p5s_grad",
+   "expected": {
+    "back_s": 0.0,
+    "fail": 1,
+    "max_tilt": 28.31167221069336,
+    "min_vx": -0.07216033339500427,
+    "status": "timeout",
+    "unsafe": 1
+   },
+   "key": "p03",
+   "kind": "point",
+   "label": "rollback",
+   "row": {
+    "group_id": "f104_pair_group_0446"
+   },
+   "run_dir": "artifacts/traverse/crm_improve_20260922/s4/runs/f104_pair_group_0446__L0p5_HnG_B",
+   "table": "m2_shared_risk_soil"
+  },
+  {
+   "column": "shared_hist_early_rows_0p5s_grad",
+   "expected": {
+    "back_s": 0.0,
+    "fail": 0,
+    "max_tilt": 15.322905540466309,
+    "min_vx": 1.7594598531723022,
+    "status": "goal_reached",
+    "unsafe": 0
+   },
+   "key": "p04",
+   "kind": "point",
+   "label": "rollback",
+   "row": {
+    "group_id": "f104_crm_eval_group_0000"
+   },
+   "run_dir": "artifacts/traverse/crm_improve_20260922/s4/runs/f104_crm_eval_group_0000__L0p5_HnG_B",
+   "table": "m2_shared_risk_soil"
+  },
+  {
+   "column": "shared_hist_early_rows_0p5s_grad",
+   "expected": {
+    "back_s": 20.700000000000003,
+    "fail": 0,
+    "max_tilt": 21.44696617126465,
+    "min_vx": -2.431445598602295,
+    "status": "goal_reached",
+    "unsafe": 1
+   },
+   "key": "p05",
+   "kind": "point",
+   "label": "rollback",
+   "row": {
+    "group_id": "f104_pair_group_0499"
+   },
+   "run_dir": "artifacts/traverse/crm_improve_20260922/s4/runs_rigid/f104_pair_group_0499__HnG_B",
+   "table": "m2_shared_risk_rigid"
+  },
+  {
+   "column": "shared_hist_early_rows_0p5s_grad",
+   "expected": {
+    "back_s": 0.0,
+    "fail": 0,
+    "max_tilt": 16.936052322387695,
+    "min_vx": 2.0712525844573975,
+    "status": "goal_reached",
+    "unsafe": 0
+   },
+   "key": "p06",
+   "kind": "point",
+   "label": "rollback",
+   "row": {
+    "group_id": "f104_crm_eval_group_0000"
+   },
+   "run_dir": "artifacts/traverse/crm_improve_20260922/s4/runs_rigid/f104_crm_eval_group_0000__HnG_B",
+   "table": "m2_shared_risk_rigid"
+  },
+  {
+   "column": "specialist_rigid_3s",
+   "expected": {
+    "back_s": 2.2,
+    "fail": 0,
+    "max_tilt": 26.33721923828125,
+    "min_vx": -1.1172044277191162,
+    "status": "goal_reached",
+    "unsafe": 1
+   },
+   "key": "p07",
+   "kind": "point",
+   "label": "rollback",
+   "row": {
+    "group_id": "f104_crm_eval_group_0018"
+   },
+   "run_dir": "artifacts/traverse/generalist_20260921/A_adapt/a5/rigid_pass2_runs/f104_crm_eval_group_0018__Sprigid_B",
+   "table": "m2_shared_risk_rigid"
+  },
+  {
+   "column": "oracle_tag_3s",
+   "expected": {
+    "back_s": 0.0,
+    "fail": 1,
+    "max_tilt": 56.9975471496582,
+    "min_vx": 2.8798739910125732,
+    "status": "rollover",
+    "unsafe": 1
+   },
+   "key": "p08",
+   "kind": "point",
+   "label": "rollback",
+   "row": {
+    "group_id": "f104_pair_group_0411"
+   },
+   "run_dir": "artifacts/traverse/generalist_20260921/A_adapt/a5/rigid_pass2_runs/f104_pair_group_0411__T_B",
+   "table": "m2_shared_risk_rigid"
+  },
+  {
+   "column": "shared_hist_standing",
+   "expected": {
+    "back_s": 1.1,
+    "fail": 0,
+    "max_tilt": 45.417240142822266,
+    "min_vx": -0.8839218020439148,
+    "status": "goal_reached",
+    "unsafe": 1
+   },
+   "key": "p09",
+   "kind": "point",
+   "label": "rollback",
+   "row": {
+    "group_id": "f104_pair_group_0531"
+   },
+   "run_dir": "artifacts/traverse/generalist_20260921/A_adapt/suite_out_rigid/runs/f104_pair_group_0531__H_B",
+   "table": "m2_shared_risk_rigid"
+  },
+  {
+   "column": "shared_hist_3s",
+   "expected": {
+    "back_s": 0.15000000000000002,
+    "fail": 0,
+    "max_tilt": 21.251928329467773,
+    "min_vx": -0.11623651534318924,
+    "status": "goal_reached",
+    "unsafe": 1
+   },
+   "key": "p10",
+   "kind": "point",
+   "label": "rollback",
+   "row": {
+    "group_id": "f104_pair_group_0038"
+   },
+   "run_dir": "artifacts/traverse/generalist_20260921/A_adapt/a5/crm_pass2_runs/f104_pair_group_0038__H_B",
+   "table": "m2_shared_risk_soil"
+  },
+  {
+   "column": "specialist_soil_standing",
+   "expected": {
+    "back_s": 0.0,
+    "fail": 1,
+    "max_tilt": 28.767932891845703,
+    "min_vx": -0.0897919312119484,
+    "status": "prolonged_blockage_terminated",
+    "unsafe": 1
+   },
+   "key": "p11",
+   "kind": "point",
+   "label": "rollback",
+   "row": {
+    "group_id": "f104_crm_eval_group_0083"
+   },
+   "run_dir": "artifacts/traverse/crm_night2_v1/planner/eval_iter_crm/runs/f104_crm_eval_group_0083__B",
+   "table": "m2_shared_risk_soil"
+  },
+  {
+   "column": "three_arenas_same_total_ens1",
+   "expected": {
+    "back_s": 0.15000000000000002,
+    "fail": 0,
+    "max_tilt": 29.27080535888672,
+    "min_vx": -0.1373578906059265,
+    "status": "goal_reached",
+    "unsafe": 1
+   },
+   "key": "p12",
+   "kind": "point",
+   "label": "rollback",
+   "row": {
+    "pair_id": "g228_heldout_group_0120"
+   },
+   "run_dir": "artifacts/traverse/arena_gator_20260925/e6/runs_soil/g228_heldout_group_0120__M3a_free",
+   "table": "m4_unseen_arenas_hmmwv_soil"
+  },
+  {
+   "column": "three_arenas_all_data",
+   "expected": {
+    "back_s": 0.0,
+    "fail": 0,
+    "max_tilt": 20.041183471679688,
+    "min_vx": 0.69777911901474,
+    "status": "goal_reached",
+    "unsafe": 0
+   },
+   "key": "p13",
+   "kind": "point",
+   "label": "rollback",
+   "row": {
+    "pair_id": "f104_pair_group_0001"
+   },
+   "run_dir": "artifacts/traverse/arena_gator_20260925/e6/runs_soil/f104_pair_group_0001__A3_free",
+   "table": "m4_unseen_arenas_hmmwv_soil"
+  },
+  {
+   "column": "straight_route_6mps",
+   "expected": {
+    "back_s": 1.1,
+    "fail": 1,
+    "max_tilt": 29.308032989501953,
+    "min_vx": -0.37378907203674316,
+    "status": "soil_breakthrough_terminated",
+    "unsafe": 1
+   },
+   "key": "p14",
+   "kind": "point",
+   "label": "rollback",
+   "row": {
+    "pair_id": "f104_pair_group_0001"
+   },
+   "run_dir": "artifacts/traverse/arena_gator_20260925/e6/runs_soil/f104_pair_group_0001__straight6",
+   "table": "m4_unseen_arenas_hmmwv_soil"
+  },
+  {
+   "column": "straight_route_6mps",
+   "expected": {
+    "back_s": 0.0,
+    "fail": 1,
+    "max_tilt": 20.61395263671875,
+    "min_vx": -0.17833320796489716,
+    "status": "timeout",
+    "unsafe": 1
+   },
+   "key": "p15",
+   "kind": "point",
+   "label": "rollback",
+   "row": {
+    "pair_id": "g203_heldout_group_0054"
+   },
+   "run_dir": "artifacts/traverse/arena_gator_20260925/e6/runs_soil/g203_heldout_group_0054__straight6",
+   "table": "m4_unseen_arenas_hmmwv_soil"
+  },
+  {
+   "column": "straight_route_6mps",
+   "expected": {
+    "back_s": 0.2,
+    "fail": 1,
+    "max_tilt": 59.642459869384766,
+    "min_vx": -0.36656445264816284,
+    "status": "rollover",
+    "unsafe": 1
+   },
+   "key": "p16",
+   "kind": "point",
+   "label": "rollback",
+   "row": {
+    "pair_id": "f104_pair_group_0103"
+   },
+   "run_dir": "artifacts/traverse/arena_gator_20260925/e6/runs_soil/f104_pair_group_0103__straight6",
+   "table": "m4_unseen_arenas_hmmwv_soil"
+  },
+  {
+   "column": "straight_route_2mps",
+   "expected": {
+    "back_s": 0.05,
+    "fail": 0,
+    "max_tilt": 23.909223556518555,
+    "min_vx": -0.11558280140161514,
+    "status": "goal_reached",
+    "unsafe": 1
+   },
+   "key": "p17",
+   "kind": "point",
+   "label": "rollback",
+   "row": {
+    "pair_id": "g258_test_group_0173"
+   },
+   "run_dir": "artifacts/traverse/arena_gator_20260925/e6/runs_rigid/g258_test_group_0173__straight2",
+   "table": "m4_unseen_arenas_hmmwv_rigid"
+  },
+  {
+   "column": "two_arenas_same_total_fixed2mps",
+   "expected": {
+    "back_s": 0.30000000000000004,
+    "fail": 0,
+    "max_tilt": 16.701501846313477,
+    "min_vx": -0.305305153131485,
+    "status": "goal_reached",
+    "unsafe": 1
+   },
+   "key": "p18",
+   "kind": "point",
+   "label": "rollback",
+   "row": {
+    "pair_id": "g217_dev_group_0087"
+   },
+   "run_dir": "artifacts/traverse/arena_gator_20260925/e6/runs_rigid/g217_dev_group_0087__M2_fx2",
+   "table": "m4_unseen_arenas_hmmwv_rigid"
+  },
+  {
+   "column": "straight_route_2mps",
+   "expected": {
+    "back_s": 31.05,
+    "fail": 1,
+    "max_tilt": 26.72718048095703,
+    "min_vx": -2.7768750190734863,
+    "status": "terrain_bounds_exit",
+    "unsafe": 1
+   },
+   "key": "p19",
+   "kind": "point",
+   "label": "rollback",
+   "row": {
+    "pair_id": "f104_pair_group_0412"
+   },
+   "run_dir": "artifacts/traverse/arena_gator_20260925/e6/runs_rigid/f104_pair_group_0412__straight2",
+   "table": "m4_unseen_arenas_hmmwv_rigid"
+  },
+  {
+   "column": "straight_route_2mps",
+   "expected": {
+    "back_s": 33.6,
+    "fail": 1,
+    "max_tilt": 59.21555709838867,
+    "min_vx": -4.270823955535889,
+    "status": "rollover",
+    "unsafe": 1
+   },
+   "key": "p20",
+   "kind": "point",
+   "label": "rollback",
+   "row": {
+    "pair_id": "g241_test_group_0092"
+   },
+   "run_dir": "artifacts/traverse/arena_gator_20260925/e6/runs_rigid/g241_test_group_0092__straight2",
+   "table": "m4_unseen_arenas_hmmwv_rigid"
+  },
+  {
+   "column": "straight_route_2mps",
+   "expected": {
+    "back_s": 8.6,
+    "fail": 1,
+    "max_tilt": 27.468891143798828,
+    "min_vx": -1.6635024547576904,
+    "status": "timeout",
+    "unsafe": 1
+   },
+   "key": "p21",
+   "kind": "point",
+   "label": "rollback",
+   "row": {
+    "pair_id": "f104_pair_group_0056"
+   },
+   "run_dir": "artifacts/traverse/arena_gator_20260925/e6/runs_rigid/f104_pair_group_0056__straight2",
+   "table": "m4_unseen_arenas_hmmwv_rigid"
+  },
+  {
+   "column": "straight_route_2mps",
+   "expected": {
+    "back_s": 8.5,
+    "fail": 1,
+    "max_tilt": 27.73029327392578,
+    "min_vx": -1.4352309703826904,
+    "status": "prolonged_blockage_terminated",
+    "unsafe": 1
+   },
+   "key": "p22",
+   "kind": "point",
+   "label": "rollback",
+   "row": {
+    "pair_id": "f104_pair_group_0001"
+   },
+   "run_dir": "artifacts/traverse/arena_gator_20260925/e6/runs_rigid/f104_pair_group_0001__straight2",
+   "table": "m4_unseen_arenas_hmmwv_rigid"
+  },
+  {
+   "column": "three_arenas_same_total_ens1_fixed2mps",
+   "expected": {
+    "back_s": 0.0,
+    "fail": 0,
+    "max_tilt": 20.186153411865234,
+    "min_vx": 1.7177554368972778,
+    "status": "goal_reached",
+    "unsafe": 0
+   },
+   "key": "p23",
+   "kind": "point",
+   "label": "rollback",
+   "row": {
+    "pair_id": "f104_pair_group_0001"
+   },
+   "run_dir": "artifacts/traverse/arena_gator_20260925/e6/runs_rigid/f104_pair_group_0001__M3a_fx2",
+   "table": "m4_unseen_arenas_hmmwv_rigid"
+  },
+  {
+   "column": "polaris_corrected_driveline_grad_routes",
+   "expected": {
+    "back_s": 0.0,
+    "belly_flag": 1,
+    "belly_run_s": 18.900000000000002,
+    "fail": 1,
+    "max_tilt": 46.67755889892578,
+    "min_vx": -0.07697534561157227,
+    "status": "prolonged_blockage_terminated",
+    "unsafe": 1,
+    "unsafe_belly": 1
+   },
+   "key": "p24",
+   "kind": "point",
+   "label": "rollback_belly",
+   "row": {
+    "task_id": "f104_pair_group_0499"
+   },
+   "run_dir": "artifacts/traverse/offroad_vehicles_20260927/e6/sync/runs/polaris_pc__f104_pair_group_0499__polaris_grad_pc",
+   "table": "m4_vehicles_f104_soil"
+  },
+  {
+   "column": "gator_own_model_sampling_grad",
+   "expected": {
+    "back_s": 0.0,
+    "belly_flag": 1,
+    "belly_run_s": 1.1,
+    "fail": 1,
+    "max_tilt": 17.14388656616211,
+    "min_vx": -0.06594782322645187,
+    "status": "prolonged_blockage_terminated",
+    "unsafe": 1,
+    "unsafe_belly": 1
+   },
+   "key": "p25",
+   "kind": "point",
+   "label": "rollback_belly",
+   "row": {
+    "task_id": "f104_crm_eval_group_0151"
+   },
+   "run_dir": "artifacts/traverse/offroad_vehicles_20260927/e6/sync/runs/gator__f104_crm_eval_group_0151__Gfull_grad_gator",
+   "table": "m4_vehicles_f104_soil"
+  },
+  {
+   "column": "gator_own_model_sampling_grad",
+   "expected": {
+    "back_s": 0.15000000000000002,
+    "belly_flag": 0,
+    "belly_run_s": 0.9,
+    "fail": 1,
+    "max_tilt": 14.561836242675781,
+    "min_vx": -0.1494152992963791,
+    "status": "prolonged_blockage_terminated",
+    "unsafe": 1,
+    "unsafe_belly": 1
+   },
+   "key": "p26",
+   "kind": "point",
+   "label": "rollback_belly",
+   "row": {
+    "task_id": "f104_crm_eval_group_0114"
+   },
+   "run_dir": "artifacts/traverse/offroad_vehicles_20260927/e6/sync/runs/gator__f104_crm_eval_group_0114__Gfull_grad_gator",
+   "table": "m4_vehicles_f104_soil"
+  },
+  {
+   "column": "polaris_straight_6mps",
+   "expected": {
+    "back_s": 0.1,
+    "belly_flag": 0,
+    "belly_run_s": 0.9500000000000001,
+    "fail": 1,
+    "max_tilt": 57.926597595214844,
+    "min_vx": -0.23477552831172943,
+    "status": "rollover",
+    "unsafe": 1,
+    "unsafe_belly": 1
+   },
+   "key": "p27",
+   "kind": "point",
+   "label": "rollback_belly",
+   "row": {
+    "task_id": "f104_crm_eval_group_0147"
+   },
+   "run_dir": "artifacts/traverse/offroad_vehicles_20260927/e6/sync/runs/polaris__f104_crm_eval_group_0147__straight6_polaris",
+   "table": "m4_vehicles_f104_soil"
+  },
+  {
+   "column": "gator_own_model_sampling_grad",
+   "expected": {
+    "back_s": 0.1,
+    "belly_flag": 0,
+    "belly_run_s": 0.0,
+    "fail": 0,
+    "max_tilt": 26.61491584777832,
+    "min_vx": -0.12038765102624893,
+    "status": "goal_reached",
+    "unsafe": 1,
+    "unsafe_belly": 1
+   },
+   "key": "p28",
+   "kind": "point",
+   "label": "rollback_belly",
+   "row": {
+    "task_id": "f104_pair_group_0161"
+   },
+   "run_dir": "artifacts/traverse/offroad_vehicles_20260927/e6/sync/runs/gator__f104_pair_group_0161__Gfull_grad_gator",
+   "table": "m4_vehicles_f104_soil"
+  },
+  {
+   "column": "polaris_straight_6mps",
+   "expected": {
+    "back_s": 0.0,
+    "belly_flag": 0,
+    "belly_run_s": 0.0,
+    "fail": 0,
+    "max_tilt": 21.417713165283203,
+    "min_vx": 3.7611279487609863,
+    "status": "goal_reached",
+    "unsafe": 0,
+    "unsafe_belly": 0
+   },
+   "key": "p29",
+   "kind": "point",
+   "label": "rollback_belly",
+   "row": {
+    "task_id": "f104_crm_eval_group_0000"
+   },
+   "run_dir": "artifacts/traverse/offroad_vehicles_20260927/e6/sync/runs/polaris__f104_crm_eval_group_0000__straight6_polaris",
+   "table": "m4_vehicles_f104_soil"
+  },
+  {
+   "column": "hmmwv_own_model_sampling_grad",
+   "expected": {
+    "back_s": 0.2,
+    "fail": 1,
+    "max_tilt": 18.718652725219727,
+    "min_vx": -0.12201463431119919,
+    "status": "prolonged_blockage_terminated",
+    "unsafe": 1
+   },
+   "key": "p30",
+   "kind": "point",
+   "label": "rollback",
+   "row": {
+    "task_id": "f104_crm_eval_group_0011"
+   },
+   "run_dir": "artifacts/traverse/offroad_vehicles_20260927/e6/sync/runs/f104_crm_eval_group_0011__Hfull_grad_hmmwv",
+   "table": "m4_vehicles_f104_soil"
+  },
+  {
+   "column": "gator_own_model_sampling",
+   "expected": {
+    "back_s": 0.0,
+    "fail": 1,
+    "max_tilt": 7.307992935180664,
+    "min_vx": -0.04635853320360184,
+    "status": "prolonged_blockage_terminated",
+    "unsafe": 1
+   },
+   "key": "p31",
+   "kind": "point",
+   "label": "rollback",
+   "row": {
+    "task_id": "f104_crm_eval_group_0008"
+   },
+   "run_dir": "artifacts/traverse/arena_gator_20260925/e6/runs_soil/gator__f104_crm_eval_group_0008__Gfull_free_gator",
+   "table": "m4_vehicles_f104_soil"
+  },
+  {
+   "column": "hmmwv_straight_6mps",
+   "expected": {
+    "back_s": 0.0,
+    "fail": 0,
+    "max_tilt": 19.284101486206055,
+    "min_vx": 1.7040083408355713,
+    "status": "goal_reached",
+    "unsafe": 0
+   },
+   "key": "p32",
+   "kind": "point",
+   "label": "rollback",
+   "row": {
+    "task_id": "f104_crm_eval_group_0000"
+   },
+   "run_dir": "artifacts/traverse/arena_gator_20260925/e6/runs_soil/f104_crm_eval_group_0000__straight6",
+   "table": "m4_vehicles_f104_soil"
+  },
+  {
+   "column": "polaris_straight_6mps",
+   "expected": {
+    "back_s": 0.4,
+    "belly_flag": 1,
+    "belly_run_s": 2.1,
+    "fail": 1,
+    "max_tilt": 56.24679183959961,
+    "min_vx": -0.4964207112789154,
+    "status": "rollover",
+    "unsafe": 1,
+    "unsafe_belly": 1
+   },
+   "key": "p33",
+   "kind": "point",
+   "label": "rollback_belly",
+   "row": {
+    "task_id": "g268_test_group_0128"
+   },
+   "run_dir": "artifacts/traverse/offroad_vehicles_20260927/e6/sync/runs_unseen/polaris__g268_test_group_0128__straight6_polaris_u",
+   "table": "m4_polaris_unseen_soil"
+  },
+  {
+   "column": "polaris_own_model_sampling_grad",
+   "expected": {
+    "back_s": 0.0,
+    "belly_flag": 0,
+    "belly_run_s": 0.0,
+    "fail": 0,
+    "max_tilt": 25.75399398803711,
+    "min_vx": 0.5202335715293884,
+    "status": "goal_reached",
+    "unsafe": 0,
+    "unsafe_belly": 0
+   },
+   "key": "p34",
+   "kind": "point",
+   "label": "rollback_belly",
+   "row": {
+    "task_id": "g241_test_group_0000"
+   },
+   "run_dir": "artifacts/traverse/offroad_vehicles_20260927/e6/sync/runs_unseen/polaris__g241_test_group_0000__polaris_u_grad",
+   "table": "m4_polaris_unseen_soil"
+  },
+  {
+   "column": "polaris_own_model_sampling_grad",
+   "expected": {
+    "back_s": 0.0,
+    "belly_flag": 0,
+    "belly_run_s": 0.0,
+    "fail": 1,
+    "max_tilt": 24.846237182617188,
+    "min_vx": -0.011104810982942581,
+    "status": "prolonged_blockage_terminated",
+    "unsafe": 1,
+    "unsafe_belly": 1
+   },
+   "key": "p35",
+   "kind": "point",
+   "label": "rollback_belly",
+   "row": {
+    "task_id": "g241_test_group_0069"
+   },
+   "run_dir": "artifacts/traverse/offroad_vehicles_20260927/e6/sync/runs_unseen/polaris__g241_test_group_0069__polaris_u_grad",
+   "table": "m4_polaris_unseen_soil"
+  },
+  {
+   "arm": "pid_native",
+   "expected": {
+    "completed": 0,
+    "l1": 0.0034694708595894405,
+    "near_stop_fired": null,
+    "positive_work_kj": 2637.338339909396,
+    "speed_err": 3.8222063055970845,
+    "status": "prolonged_blockage_terminated",
+    "unsafe": 1,
+    "xtrack": 3.617948452862133
+   },
+   "key": "t00",
+   "kind": "tracker",
+   "label": "tracker",
+   "row": {
+    "route_id": "f104_v2_group_0001_route_01",
+    "world": "rigid"
+   },
+   "run_dir": "artifacts/traverse/generalist_20260921/B_tracker/b0/rigid_by_arm/native_pid/f104_v2_group_0001_route_01",
+   "table": "m3_tracker_routes"
+  },
+  {
+   "arm": "pid_held_50ms",
+   "expected": {
+    "completed": 0,
+    "l1": 0.0030248974486023084,
+    "near_stop_fired": true,
+    "positive_work_kj": 1500.3172176799446,
+    "speed_err": 1.0383501792983358,
+    "status": "prolonged_blockage_terminated",
+    "unsafe": 1,
+    "xtrack": 0.75547207349903
+   },
+   "key": "t01",
+   "kind": "tracker",
+   "label": "tracker",
+   "row": {
+    "route_id": "f104_v2_group_0187_route_02",
+    "world": "rigid"
+   },
+   "run_dir": "artifacts/traverse/generalist_20260921/B_tracker/b0/rigid_by_arm/held_pid/f104_v2_group_0187_route_02",
+   "table": "m3_tracker_routes"
+  },
+  {
+   "arm": "nrd_policy_v2",
+   "expected": {
+    "completed": 1,
+    "l1": 0.055930416294349694,
+    "near_stop_fired": false,
+    "positive_work_kj": 357.82379883936824,
+    "speed_err": 0.6023548913267069,
+    "status": "goal_reached",
+    "unsafe": 0,
+    "xtrack": 0.07593703117176058
+   },
+   "key": "t02",
+   "kind": "tracker",
+   "label": "tracker",
+   "row": {
+    "route_id": "f104_v2_group_0001_route_06",
+    "world": "rigid"
+   },
+   "run_dir": "artifacts/traverse/generalist_20260921/B_tracker/b0/rigid_by_arm/policy_v2/f104_v2_group_0001_route_06",
+   "table": "m3_tracker_routes"
+  },
+  {
+   "arm": "pid_native",
+   "expected": {
+    "completed": 0,
+    "l1": 0.00194337498788083,
+    "near_stop_fired": null,
+    "positive_work_kj": 670.6202542175299,
+    "speed_err": 0.1704044958028973,
+    "status": "timeout",
+    "unsafe": 0,
+    "xtrack": 0.8763228174177453
+   },
+   "key": "t03",
+   "kind": "tracker",
+   "label": "tracker",
+   "row": {
+    "route_id": "f104_v2_group_0248_route_02",
+    "world": "crm"
+   },
+   "run_dir": "artifacts/traverse/generalist_20260921/B_tracker/b0/crm_by_arm/native_pid/f104_v2_group_0248_route_02",
+   "table": "m3_tracker_routes"
+  },
+  {
+   "arm": "pid_held_50ms",
+   "expected": {
+    "completed": 1,
+    "l1": 0.009902681977482697,
+    "near_stop_fired": false,
+    "positive_work_kj": 508.7818022651332,
+    "speed_err": 0.21350415404063153,
+    "status": "goal_reached",
+    "unsafe": 0,
+    "xtrack": 0.4199018830240065
+   },
+   "key": "t04",
+   "kind": "tracker",
+   "label": "tracker",
+   "row": {
+    "route_id": "f104_v2_group_0048_route_00",
+    "world": "crm"
+   },
+   "run_dir": "artifacts/traverse/generalist_20260921/B_tracker/b0/crm_by_arm/held_pid/f104_v2_group_0048_route_00",
+   "table": "m3_tracker_routes"
+  },
+  {
+   "arm": "nrd_policy_v2",
+   "expected": {
+    "completed": 0,
+    "l1": 0.00588809957669369,
+    "near_stop_fired": true,
+    "positive_work_kj": 1096.158842999666,
+    "speed_err": 3.7572881015055737,
+    "status": "prolonged_blockage_terminated",
+    "unsafe": 1,
+    "xtrack": 3.6112056279855973
+   },
+   "key": "t05",
+   "kind": "tracker",
+   "label": "tracker",
+   "row": {
+    "route_id": "f104_v2_group_0063_route_05",
+    "world": "crm"
+   },
+   "run_dir": "artifacts/traverse/generalist_20260921/B_tracker/b0/crm_by_arm/policy_v2/f104_v2_group_0063_route_05",
+   "table": "m3_tracker_routes"
+  },
+  {
+   "arm": "plan_once_per_waypoint",
+   "expected": {
+    "any_slide": true,
+    "back_s": 3.7,
+    "goals_reached": 6,
+    "n_goals": 6,
+    "sha256": "fc684fe10ad06290ef72366bf0f71ecab8aff7489cde034f468aec98947ef3ff",
+    "status": "mission_complete",
+    "total_time_s": 70.60000000000001
+   },
+   "key": "m00",
+   "kind": "mission",
+   "label": "mission",
+   "row": {
+    "mission_id": "g203_nav_000"
+   },
+   "run_dir": "artifacts/traverse/fdm_f104_50h_20260909/nav_v1/local_luffy/runs/g203_nav_000__W",
+   "table": "m1_navigation_missions"
+  },
+  {
+   "arm": "replan_every_2s",
+   "expected": {
+    "any_slide": false,
+    "back_s": 0.0,
+    "goals_reached": 3,
+    "n_goals": 6,
+    "sha256": "7418842f196b66d26fbcfddd8134a3f0fadc7f9f26cdd26d6d8205fb06cd2466",
+    "status": "no_route",
+    "total_time_s": 43.7
+   },
+   "key": "m01",
+   "kind": "mission",
+   "label": "mission",
+   "row": {
+    "mission_id": "g204_nav_001"
+   },
+   "run_dir": "artifacts/traverse/fdm_f104_50h_20260909/nav_v1/local_luffy/runs/g204_nav_001__R2",
+   "table": "m1_navigation_missions"
+  },
+  {
+   "arm": "plan_once_per_waypoint",
+   "expected": {
+    "any_slide": false,
+    "back_s": 0.0,
+    "goals_reached": 2,
+    "n_goals": 6,
+    "sha256": "21b7f6c8de7e048629117104027c566201e93fc49c1bd311f5549a156186a1b7",
+    "status": "terrain_bounds_exit",
+    "total_time_s": 33.75
+   },
+   "key": "m02",
+   "kind": "mission",
+   "label": "mission",
+   "row": {
+    "mission_id": "f104_nav_003"
+   },
+   "run_dir": "artifacts/traverse/fdm_f104_50h_20260909/nav_v1/local_luffy/runs/f104_nav_003__W",
+   "table": "m1_navigation_missions"
+  }
+ ],
+ "edges": [
+  {
+   "expected": {
+    "back_s": 0.0,
+    "fail": 0,
+    "max_tilt": 22.345352172851562,
+    "min_vx": -0.10000000149011612,
+    "status": "goal_reached",
+    "unsafe": 0
+   },
+   "key": "e00",
+   "kind": "point",
+   "name": "vx_eq_m0p1",
+   "status": "goal_reached"
+  },
+  {
+   "expected": {
+    "back_s": 0.05,
+    "fail": 0,
+    "max_tilt": 22.345352172851562,
+    "min_vx": -0.10000000894069672,
+    "status": "goal_reached",
+    "unsafe": 1
+   },
+   "key": "e01",
+   "kind": "point",
+   "name": "vx_below_m0p1",
+   "status": "goal_reached"
+  },
+  {
+   "expected": {
+    "back_s": 0.0,
+    "fail": 0,
+    "max_tilt": 22.345352172851562,
+    "min_vx": -0.20000000298023224,
+    "status": "goal_reached",
+    "unsafe": 0
+   },
+   "key": "e02",
+   "kind": "point",
+   "name": "thr_eq_0p3",
+   "status": "goal_reached"
+  },
+  {
+   "expected": {
+    "back_s": 0.05,
+    "fail": 0,
+    "max_tilt": 22.345352172851562,
+    "min_vx": -0.20000000298023224,
+    "status": "goal_reached",
+    "unsafe": 1
+   },
+   "key": "e03",
+   "kind": "point",
+   "name": "thr_above_0p3",
+   "status": "goal_reached"
+  },
+  {
+   "expected": {
+    "back_s": 0.0,
+    "fail": 0,
+    "max_tilt": 0.0,
+    "min_vx": 0.0,
+    "status": "goal_reached",
+    "unsafe": 1
+   },
+   "key": "e04",
+   "kind": "point",
+   "name": "frames21_goal",
+   "status": "goal_reached"
+  },
+  {
+   "expected": {
+    "back_s": 0.0,
+    "fail": 1,
+    "max_tilt": 0.0,
+    "min_vx": 0.0,
+    "status": "timeout",
+    "unsafe": 1
+   },
+   "key": "e05",
+   "kind": "point",
+   "name": "frames21_timeout",
+   "status": "timeout"
+  },
+  {
+   "expected": {
+    "back_s": 0.05,
+    "fail": 0,
+    "max_tilt": 12.032113075256348,
+    "min_vx": -0.5,
+    "status": "goal_reached",
+    "unsafe": 1
+   },
+   "key": "e06",
+   "kind": "point",
+   "name": "frames22_goal",
+   "status": "goal_reached"
+  },
+  {
+   "expected": {
+    "back_s": 0.0,
+    "fail": 0,
+    "max_tilt": 22.345352172851562,
+    "min_vx": -0.30000001192092896,
+    "status": "goal_reached",
+    "unsafe": 1
+   },
+   "key": "e07",
+   "kind": "point",
+   "name": "minvx_eq_m0p3",
+   "status": "goal_reached"
+  },
+  {
+   "expected": {
+    "back_s": 0.0,
+    "fail": 0,
+    "max_tilt": 22.345352172851562,
+    "min_vx": -0.29999998211860657,
+    "status": "goal_reached",
+    "unsafe": 0
+   },
+   "key": "e08",
+   "kind": "point",
+   "name": "minvx_above_m0p3",
+   "status": "goal_reached"
+  },
+  {
+   "expected": {
+    "back_s": 0.0,
+    "fail": 0,
+    "max_tilt": 22.345352172851562,
+    "min_vx": 1.0,
+    "status": "goal_reached",
+    "unsafe": 0
+   },
+   "key": "e09",
+   "kind": "point",
+   "name": "frame19_ignored",
+   "status": "goal_reached"
+  },
+  {
+   "expected": {
+    "back_s": 0.1,
+    "fail": 1,
+    "max_tilt": 33.804508209228516,
+    "min_vx": -0.20000000298023224,
+    "status": "rollover",
+    "unsafe": 1
+   },
+   "key": "e10",
+   "kind": "point",
+   "name": "back_under_throttle",
+   "status": "rollover"
+  },
+  {
+   "expected": {
+    "belly_flag": 0,
+    "belly_run_s": 1.0
+   },
+   "key": "e11",
+   "kind": "belly",
+   "name": "belly20",
+   "status": "goal_reached"
+  },
+  {
+   "expected": {
+    "belly_flag": 1,
+    "belly_run_s": 1.05
+   },
+   "key": "e12",
+   "kind": "belly",
+   "name": "belly21",
+   "status": "goal_reached"
+  },
+  {
+   "expected": {
+    "belly_flag": 0,
+    "belly_run_s": 1.0
+   },
+   "key": "e13",
+   "kind": "belly",
+   "name": "belly20x2",
+   "status": "goal_reached"
+  },
+  {
+   "expected": {
+    "belly_flag": 1,
+    "belly_run_s": 2.0500000000000003
+   },
+   "key": "e14",
+   "kind": "belly",
+   "name": "belly_f32_edge",
+   "status": "goal_reached"
+  },
+  {
+   "expected": {
+    "belly_flag": 0,
+    "belly_run_s": 1.0
+   },
+   "key": "e15",
+   "kind": "belly",
+   "name": "belly_nan_gap",
+   "status": "goal_reached"
+  },
+  {
+   "expected": {
+    "completed": 0,
+    "l1": NaN,
+    "speed_err": 0.8739640712738037,
+    "status": "soil_breakthrough_terminated",
+    "unsafe": 1,
+    "xtrack": 3.490980902047792
+   },
+   "key": "e16",
+   "kind": "tracker",
+   "name": "track_1",
+   "status": "soil_breakthrough_terminated"
+  },
+  {
+   "expected": {
+    "completed": 0,
+    "l1": 0.3670488932014753,
+    "speed_err": 1.0379892587661743,
+    "status": "timeout",
+    "unsafe": 0,
+    "xtrack": 3.57495234757018
+   },
+   "key": "e17",
+   "kind": "tracker",
+   "name": "track_3",
+   "status": "timeout"
+  },
+  {
+   "expected": {
+    "completed": 1,
+    "l1": 0.3366668252167345,
+    "speed_err": 1.6067905515432357,
+    "status": "goal_reached",
+    "unsafe": 0,
+    "xtrack": 2.5113258310110167
+   },
+   "key": "e18",
+   "kind": "tracker",
+   "name": "track_30",
+   "status": "goal_reached"
+  },
+  {
+   "expected": {
+    "completed": 0,
+    "l1": 0.27456976284925966,
+    "speed_err": 1.592415463924408,
+    "status": "prolonged_blockage_terminated",
+    "unsafe": 1,
+    "xtrack": 2.4805380931314924
+   },
+   "key": "e19",
+   "kind": "tracker",
+   "name": "track_30_blockage",
+   "status": "prolonged_blockage_terminated"
+  }
+ ],
+ "generator": "/home/harry/NeDM-traverse_mppi/artifacts/reviews/main_progress_merge_20260928/eval_class_staging/goldens/labels_goldens.py",
+ "generator_sha256": "f948cda8015d3fe54a4ae235f14d24defdcc734f8b375ee2ff5d7dafbd363f32",
+ "numpy": "2.4.6",
+ "source_commit": "901d6c9",
+ "state_columns": "state[:, :4] = vx, vy, roll, pitch (the labels read 0, 2, 3)"
+}

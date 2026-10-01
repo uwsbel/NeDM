@@ -35,8 +35,7 @@ trained with PPO inside a learned reduced dynamics model is compared with PID:
 it tracks routes more closely on rigid ground but completes fewer routes on
 soil. The folder records milestones, evidence and limits through 2026-09-28.
 The study's data and models are in the `traversing/` folder of the Hugging Face
-dataset; its training code is in `src/nedm/traversing/`, and its evaluation code
-follows in a later pull request.
+dataset; its training and evaluation code is in `src/nedm/traversing/`.
 
 **[docs/progress.md](docs/progress.md) is the reproduction record** — every stage
 output with the artifact that produced it and the command that regenerates it.
@@ -68,7 +67,7 @@ Code, scripts and configs are grouped by study. `core` holds what both paper stu
 | `src/nedm/core/` | Shared by both paper studies: preprocessing, the causal-transformer dynamics model and the trainer with rollout-based checkpoint selection (`training/`); the frozen NN-ROM loader and default paths (`rl/`); the scenario generator, the Hugging Face release helpers and the Blender export |
 | `src/nedm/hmmwv/` | Study Case I: HMMWV scene builders and data collectors (`hmmwv_data`, `hmmwv_crm`); the vectorized NN-ROM tracking environment, its Chrono-backed twins and the reference sets (`rl/`) |
 | `src/nedm/tracked_arm/` | Study Case II: M113 and arm data collectors (`tracked_vehicle_data`, `arm_data`); the 4-DOF gripper arm imported from SolidWorks (`arm_model/`); the goal and arm environments, arm forward kinematics and the clearance shield (`rl/`) |
-| `src/nedm/traversing/` | Traversing study code (`training/`) |
+| `src/nedm/traversing/` | Traversing study code: model training (`training/`) and the Chrono evaluation class (`evaluation/`) |
 | `configs/hmmwv/`, `configs/tracked_arm/` | Collection and training configs |
 | `traversing/` | Traversing study documents, results and release manifest |
 | `artifacts/` | Checkpoints, run metadata and Chrono evaluation output (datasets are on Hugging Face, see below) |
