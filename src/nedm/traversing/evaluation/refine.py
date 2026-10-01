@@ -27,12 +27,13 @@ import torch.nn.functional as F
 
 from nedm.traversing.training.risk_model import route_logit
 
-from .config import GRAD, bad_grad
 from .planner import Pick, Result
 from .routes import (A_ACC, A_DEC, KAPPA_MAX, KNOTS, LAT_CLIP, MODES, N_LATERAL, N_STATION, SP_CLIP, V_MAX, V_MIN,
-                     CORRIDOR_HALF_M, _base_arrays, _shape, _speed_knots, caps, from_params, route_sha256, validate)
+                     CORRIDOR_HALF_M, _base_arrays, _shape, _speed_knots, caps, ends_within, from_params, route_sha256,
+                     validate)
 
-START_TOL_M = 0.25
+GRAD = dict(starts=17, steps=60, lr_a=0.02, lr_dv=0.10, betas=(0.9, 0.99), clip=10.0, patience=15, keep='pessimistic',
+            abstain=0.3, arena_soft=37.0)               # ci_grad.py:400-514; recorded in every gradient pick
 
 
 def _det():
@@ -273,17 +274,14 @@ def contract(route, dec):
     """Validator at the decision pose + the collector contract: start / end within 0.25 m, finite, speeds in [0, 6]."""
     wp, v = np.asarray(route['waypoints'], float), np.asarray(route['speeds'], float)
     finite = bool(np.isfinite(wp).all() and np.isfinite(v).all() and np.isfinite(np.asarray(route['stations'])).all())
-    d0, d1 = float(np.linalg.norm(wp[0] - dec.pose[:2])), float(np.linalg.norm(wp[-1] - dec.goal))
-    return bool(validate(route, dec.pose) and finite and d0 <= START_TOL_M and d1 <= START_TOL_M
+    return bool(validate(route, dec.pose) and finite and ends_within(route, dec.pose[:2], dec.goal)
                 and v.min() >= -1e-9 and v.max() <= V_MAX + 1e-6)
 
 
-def refine_pick(res: Result, score, grad, record) -> Pick:
-    """B (the search result of planner.Scorer `score`) -> the gradient pick G (ci_grad.plan_group); grad overrides
-    config.GRAD."""
-    g, dec, ens = {**GRAD, **grad}, score.dec, score.ens
-    if bad_grad(grad) or g['keep'] != 'pessimistic' or g['starts'] < 1 or g['steps'] < 0:
-        raise ValueError(f'gradient settings {grad}: keys and types of {GRAD}, keep pessimistic, starts >= 1')
+def refine_pick(res: Result, score, record, g=GRAD) -> Pick:
+    """B (the search result of planner.Scorer `score`) -> the gradient pick G (ci_grad.plan_group) with settings `g`
+    (GRAD in every arm; the tests shorten it)."""
+    dec, ens = score.dec, score.ens
     B = Pick.of_result(res)
     n0 = int(res.log[0]['n'])
     pool = [int(i) for i in np.argsort(res.z_mean[:n0], kind='stable') if int(i) != res.index][:int(g['starts']) - 1]

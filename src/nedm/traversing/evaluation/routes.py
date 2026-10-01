@@ -35,6 +35,7 @@ ARENA_HALF_M, SPEED_MAX, HALF_LENGTH_M, HALF_WIDTH_M, MARGIN_M, PATH_STEP_M = 40
 N_STATION, N_LATERAL, CORRIDOR_HALF_M, HIST_T = 96, 32, 6.0, 40
 HIST_DIM = len(OBSERVABLE_COLS) + ACT_DIM               # 15 = 12 observable state columns + the 3 actions
 KEYS = ('waypoints', 'speeds', 'stations', 'headings')
+ENDS_TOL_M = 0.25                                       # route start / end vs case start / goal
 
 
 # ------------------------------------------------------------------------------------------------------- validator
@@ -297,10 +298,8 @@ class StaticMap:
 
     @classmethod
     def load(cls, path):
-        """path: the folder holding observation.json/npz, or a map root holding static_map_v1/."""
+        """path: the folder holding observation.json/npz (Task.map)."""
         p = Path(path)
-        if not (p / 'observation.json').is_file() and (p / 'static_map_v1').is_dir():
-            p = p / 'static_map_v1'
         if not (p / 'observation.json').is_file() or not (p / 'observation.npz').is_file():
             raise FileNotFoundError(f'{path}: no static_map_v1 observation.json/npz here')
         meta = json.loads((p / 'observation.json').read_text())
@@ -395,9 +394,22 @@ def history_window(state, action, k, T=HIST_T, terminal_state=None):
     return hist, mask
 
 
+def route_json(r) -> dict:
+    """A route as written to JSON: the KEYS as float lists."""
+    return {k: np.asarray(r[k], float).tolist() for k in KEYS}
+
+
 def route_sha256(r):
     """Content hash of a route as written (f104_n2_iter.route_sha256)."""
-    return hashlib.sha256(json.dumps({k: np.asarray(r[k], float).tolist() for k in KEYS}).encode()).hexdigest()
+    return hashlib.sha256(json.dumps(route_json(r)).encode()).hexdigest()
+
+
+def ends_within(route, start, goal, tol=ENDS_TOL_M) -> bool:
+    """The route starts within `tol` of `start` (None: not checked) and ends within `tol` of `goal`
+    (the collectors' contract, crm_collect.py:199-200)."""
+    xy = np.asarray(route['waypoints'], float)
+    return bool((start is None or np.linalg.norm(xy[0] - np.asarray(start, float)) <= tol)
+                and np.linalg.norm(xy[-1] - np.asarray(goal, float)) <= tol)
 
 
 def route_time(r):

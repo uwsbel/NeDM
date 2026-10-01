@@ -1,0 +1,88 @@
+{
+ "actor": "artifacts/traverse/generalist_20260921/B_tracker/ppo_v2/actor.npz",
+ "actor_sha256": "ea9388204a952d0a096a59aecfb7d27a54e4fe1f1cb406f1c6772d212baae3d6",
+ "frames": 120,
+ "gc_control_sha256": "3dc89a43a166b5ea0d998d1ae9dfa5e69728f3a75c3c5d26345c180f73631f3d",
+ "keys": [
+  "act64",
+  "act64_batch",
+  "hold_cmds",
+  "hold_held",
+  "obs64",
+  "pose",
+  "pre",
+  "rec",
+  "rigid_pid_held_held",
+  "rigid_policy_held",
+  "rigid_policy_obs",
+  "route_headings",
+  "route_speeds",
+  "route_stations",
+  "route_waypoints",
+  "shadow",
+  "soil_pid_held_held",
+  "soil_policy_held",
+  "soil_policy_obs"
+ ],
+ "layout": {
+  "errors": [
+   0,
+   3
+  ],
+  "hist_steps": 8,
+  "last_action": [
+   35,
+   38
+  ],
+  "num_obs": 158,
+  "order": "oldest first; past_states newest row = current state; past_actions newest row = last action",
+  "past_actions": [
+   38,
+   62
+  ],
+  "past_states": [
+   62,
+   158
+  ],
+  "preview": [
+   3,
+   33
+  ],
+  "preview_points": 10,
+  "preview_spacing_m": 1.0,
+  "search_window": 40,
+  "settle_action": [
+   0.0,
+   0.0,
+   1.0
+  ],
+  "state_cols": [
+   0,
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   11,
+   12,
+   13,
+   14,
+   15
+  ],
+  "state_mean": null,
+  "state_std": null,
+  "vx_yawrate": [
+   33,
+   35
+  ]
+ },
+ "machine": {
+  "blas": "blas 3.9.0",
+  "cpu": "AMD Ryzen 7 5800X 8-Core Processor",
+  "numpy": "2.4.6",
+  "python": "3.12.13"
+ },
+ "route": "artifacts/traverse/fdm_f104_50h_20260909/cases_night2/cases/routes/f104_v2_group_0048/route_03.json",
+ "source": "gc_control.py at 901d6c9"
+}

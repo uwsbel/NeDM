@@ -30,8 +30,8 @@ from pathlib import Path, PurePosixPath
 
 import numpy as np
 
-from .config import ConfigError, Env, ReleaseError, sha256_file
-from .routes import KEYS, load_route, route_sha256
+from .config import ConfigError, Env, ReleaseError, sha256_file, write_atomic
+from .routes import ENDS_TOL_M, KEYS, ends_within, load_route, route_sha256
 
 T = 'artifacts/traverse/'
 F104_SUITE, APPROACH = T + 'generalist_20260921/A_adapt/suite/', T + 'crm_improve_20260922/a5data/approach_suite'
@@ -178,9 +178,9 @@ def make_case(out_dir, id, arena, start_xy, start_yaw, goal_xy, *, route=None, s
     if route is not None:
         _endpoints(route, case, f'route of {id}')
         (out / 'routes' / id).mkdir(parents=True, exist_ok=True)
-        (out / 'routes' / id / 'route.json').write_text(json.dumps(route, indent=1))
+        write_atomic(out / 'routes' / id / 'route.json', json.dumps(route, indent=1))
     out.mkdir(parents=True, exist_ok=True)
-    (out / f'{id}.json').write_text(json.dumps(case, indent=1))
+    write_atomic(out / f'{id}.json', json.dumps(case, indent=1))         # the case last: it makes the task
     return out / f'{id}.json'
 
 
@@ -240,11 +240,10 @@ def _arena_name(rel: str) -> str:
     return 'f104' if n == 'arena_f104_50h_v1' else n[6:] if n.startswith('arena_') else f'?{rel}'
 
 
-def _endpoints(route, case, what, tol=0.25):
-    xy = np.asarray(route['waypoints'], float) if set(KEYS) <= set(route) else np.zeros((0, 2))
-    if len(xy) < 2 or np.linalg.norm(xy[0] - np.asarray(case['layout']['start_xy'])) > tol \
-            or np.linalg.norm(xy[-1] - np.asarray(case['goal_xy'], float)) > tol:
-        raise ReleaseError(f'{what}: needs {KEYS} and must start and end within {tol} m of the case start and goal')
+def _endpoints(route, case, what):
+    if not (set(KEYS) <= set(route) and len(route['waypoints']) >= 2
+            and ends_within(route, case['layout']['start_xy'], case['goal_xy'])):
+        raise ReleaseError(f'{what}: needs {KEYS} and must start and end within {ENDS_TOL_M} m of the case start, goal')
 
 
 def _route(path, case, sha=None, content=None) -> str:

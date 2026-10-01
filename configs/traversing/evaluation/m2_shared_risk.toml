@@ -11,6 +11,7 @@ label = "rollback"
 [[arm]]
 name = "shared_hist_early_rows_0p5s_grad"       # soil 780/800
 ground = "soil"
+build_lock = "configs/traversing/evaluation/locks/chrono-build-fsi.json"
 soil_config = "crm_main"                        # 1 ms, 50 substeps
 approach_s = 0.5                                # F = 10
 planner = "cem_grad"                            # tag n2iter_cem4x64, then gradient refinement (refine.GRAD)
@@ -21,6 +22,7 @@ picks = "data:artifacts/traverse/crm_improve_20260922/s4/L0p5/picks_crm_HnG"
 [[arm]]
 name = "shared_hist_early_rows_0p5s_grad"       # rigid 800/800
 ground = "rigid"
+build_lock = "configs/traversing/evaluation/locks/chrono-build.json"
 approach_s = 0.5
 planner = "cem_grad"
 models = "data:artifacts/traverse/crm_improve_20260922/deploy_v1/deploy_a1_haux_gru_s*.pt"
@@ -30,6 +32,7 @@ picks = "data:artifacts/traverse/crm_improve_20260922/s4/L0p5/picks_rigid_HnG"
 [[arm]]
 name = "shared_hist_3s"                         # soil 671/800
 ground = "soil"
+build_lock = "configs/traversing/evaluation/locks/chrono-build-fsi.json"
 soil_config = "crm_main"
 approach_s = 3.0                                # F = 60
 planner = "cem"
@@ -40,6 +43,7 @@ picks = "data:artifacts/traverse/generalist_20260921/A_adapt/a5/picks_crm_H"
 [[arm]]
 name = "shared_hist_3s"                         # rigid 797/800
 ground = "rigid"
+build_lock = "configs/traversing/evaluation/locks/chrono-build.json"
 approach_s = 3.0
 planner = "cem"
 models = "data:artifacts/traverse/generalist_20260921/A_adapt/train/deploy_v1/H_deploy_s*.pt"
@@ -50,6 +54,7 @@ picks = "data:artifacts/traverse/generalist_20260921/A_adapt/a5/picks_rigid_H"
 [[arm]]
 name = "shared_hist_0p5s"                       # soil 753/800
 ground = "soil"
+build_lock = "configs/traversing/evaluation/locks/chrono-build-fsi.json"
 soil_config = "crm_main"
 approach_s = 0.5
 planner = "cem"
@@ -60,6 +65,7 @@ picks = "data:artifacts/traverse/crm_improve_20260922/s2/L0p5/picks_crm_H"
 [[arm]]
 name = "shared_hist_early_rows_0p5s"            # soil 766/800
 ground = "soil"
+build_lock = "configs/traversing/evaluation/locks/chrono-build-fsi.json"
 soil_config = "crm_main"
 approach_s = 0.5
 planner = "cem"

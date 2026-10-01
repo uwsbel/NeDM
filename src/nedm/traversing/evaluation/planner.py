@@ -36,8 +36,8 @@ from nedm.traversing.training.risk_model import score as ci_score
 
 from .config import MODEL_KINDS, PICK_ARMS
 from .routes import (HIST_DIM, HIST_T, KEYS, MODES, KNOTS, PRIOR_SD, StaticMap, _base_arrays, base_route, draw,
-                     family_anchors, from_params, geom5, history_window, load_route, project, route_sha256, route_time,
-                     straight, validate)
+                     family_anchors, from_params, geom5, history_window, load_route, project, route_json, route_sha256,
+                     route_time, straight, validate)
 from .suites import lock_digest
 
 GA_BS = 256
@@ -447,16 +447,14 @@ class Pick:
 
     @classmethod
     def from_dict(cls, d):
-        r = None if d['route'] is None else {**{k: np.asarray(d['route'][k], float) for k in KEYS}, 'meta': {}}
-        p = cls.of(r, d['arm'], d['z_mean'], d['z_pess'], **d['record'])
+        p = cls.of(d['route'] and load_route(d['route']), d['arm'], d['z_mean'], d['z_pess'], **d['record'])
         if p.route_sha256 != d['route_sha256']:
             raise ValueError(f'pick route sha256 {p.route_sha256} != recorded {d["route_sha256"]}')
         return p
 
     def to_dict(self) -> dict:
-        r = None if self.route is None else {k: np.asarray(self.route[k], float).tolist() for k in KEYS}
-        return dict(route=r, route_sha256=self.route_sha256, arm=self.arm, z_mean=self.z_mean, z_pess=self.z_pess,
-                    record=self.record)
+        return dict(route=self.route and route_json(self.route), route_sha256=self.route_sha256, arm=self.arm,
+                    z_mean=self.z_mean, z_pess=self.z_pess, record=self.record)
 
 
 @lru_cache(maxsize=64)
@@ -509,7 +507,7 @@ def plan(cfg, task, dec: Decision | None, env) -> Pick:
         return Pick.of(None, PICK_ARMS[cfg.planner][-1], reason='no valid candidate', **rec)
     if cfg.planner == 'cem_grad':
         from .refine import refine_pick
-        return refine_pick(res, score, cfg.grad or {}, rec)
+        return refine_pick(res, score, rec)
     return Pick.of_result(res, **rec, score_calls=score.calls)
 
 

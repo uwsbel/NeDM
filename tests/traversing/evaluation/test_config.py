@@ -3,7 +3,7 @@
 CI: every refusal and off-matrix rule, collect-all, non-finite and mistyped values, tags and seeds against the goldens
 written by the ORIGINAL 901d6c9 code (eval_class_staging/goldens/config_suites_goldens.py: planner_arms.arm_specs with
 the deployed-tag line of ci_planner.py:634, checked there against 333 released pick summaries; nav_runner.py:145 seed
-key), derived F / external, TOML round trip and sha, arm-file refusals, Env and the release resolver on a synthetic
+key), derived F / near_stop_rule, TOML round trip and sha, arm-file refusals, Env and the release resolver on a synthetic
 manifest (import boundaries: test_imports.py).
 Release (NEDM_DATA = the release restore base): every headline arm file validates against its suite with every input
 checked against the pinned manifest and the checkpoints' kind and training ground (planner.model_info); input refusals
@@ -38,7 +38,8 @@ ARMS = C.REPO_ROOT / 'configs/traversing/evaluation'
 SUITE_OF = {'m1_navigation': ['missions30'], 'm2_shared_risk': ['f104_800'], 'm3_tracker': ['tracker423'],
             'm4a_unseen': ['unseen_soil1000', 'unseen_rigid2000'], 'm4b_vehicles': ['f104_800', 'unseen_soil1000'],
             'smoke': ['smoke144']}
-BASE = dict(name='arm', ground='soil', soil_config='crm_main', planner='cem', models='data:m/x_s*.pt')
+BASE = dict(name='arm', ground='soil', soil_config='crm_main', planner='cem', models='data:m/x_s*.pt',
+            build_lock='configs/traversing/evaluation/locks/chrono-build-fsi.json')
 
 
 def cfg(**kw):
@@ -114,11 +115,6 @@ class TestMatrix(unittest.TestCase):
             (dict(rounds=1, samples=256), 'one-shot pools, arms A and D, are dropped'),
             (dict(samples=0), 'rounds must be >= 2 and samples >= 1'),
             (dict(planner='straight', models=None, rounds=8), 'are not used by planner straight'),
-            (dict(grad={'steps': 10}), 'grad overrides need planner cem_grad'),
-            (dict(planner='cem_grad', grad={'stepz': 10}), "grad ['stepz']: not keys of GRAD"),
-            (dict(planner='cem_grad', grad={'steps': '60'}), "grad ['steps']: not keys of GRAD or not of their types"),
-            (dict(planner='cem_grad', grad={'betas': [0.9], 'lr_a': float('inf'), 'keep': 1}),
-             "grad ['betas', 'lr_a', 'keep']"),
             (dict(planner='given', models=None, picks='data:p', label='goal_belly', vehicle='gator'), 'locked picks'),
             (dict(approach_s=0.5, picks='data:p'), 'locked picks after an approach need decisions'),
             (dict(live, vehicle='gator'), 'M1 ran the HMMWV on rigid ground only'),
@@ -161,8 +157,8 @@ class TestMatrix(unittest.TestCase):
                  (dict(vehicle='gator', approach_s=0.5), 'an approach on the gator'),
                  (dict(rounds=8), '8 x 64 sampling'), (dict(rounds=2, samples=128), '2 x 128 sampling'),
                  (dict(update='mppi'), 'update mppi (every headline'),
-                 (dict(seed_tag='mine'), 'seed_tag or grad overrides'),
-                 (dict(planner='cem_grad', grad={'steps': 5}), 'seed_tag or grad overrides'),
+                 (dict(build_lock=None), 'no build_lock: no parity-checked soil build pinned'),
+                 (dict(ground='rigid', soil_config=None, build_lock=None), 'no parity-checked rigid build'),
                  (dict(speed=2.0), 'fixed-speed family at 2.0 m/s on soil'),
                  (dict(planner='straight', models=None, speed=2.0), 'straight at 2.0 m/s on soil'),
                  (dict(planner='straight', models=None, speed=4.0), 'straight at 4.0 m/s on soil'),
@@ -201,12 +197,10 @@ class TestMatrix(unittest.TestCase):
         self.assertEqual(str(e.exception).count('\n  - '), len(problems))
 
     def test_types_first(self):
-        problems = EvalConfig(name='a', rounds=4.0, speed='2', grad=[1]).validate()
-        self.assertEqual(sorted(p.split()[0] for p in problems), ['grad', 'rounds', 'speed'])
+        problems = EvalConfig(name='a', rounds=4.0, speed='2', build_lock=1).validate()
+        self.assertEqual(sorted(p.split()[0] for p in problems), ['build_lock', 'rounds', 'speed'])
         problems = EvalConfig(name='a', speed=float('-inf'), approach_s=float('nan')).validate()
         self.assertEqual(problems, ['approach_s = nan is not finite', 'speed = -inf is not finite'])
-        with self.assertRaisesRegex(ConfigError, 'grad'):                  # not JSON: no sha, reported at once
-            EvalConfig(name='a', planner='cem_grad', grad={'steps': object()})
 
 
 class TestDerived(unittest.TestCase):
@@ -232,20 +226,18 @@ class TestDerived(unittest.TestCase):
         self.assertEqual(replace(cfg(ground='rigid', soil_config=None, planner='live', controller='nav_pid',
                                      label='mission', build_lock='x'), replan=2).tag, 'periodic2.0')   # int -> 2.0
         self.assertEqual(cfg(ground='rigid', soil_config=None, speed=2).tag, 'n2iter_cem4x64_fixed2')  # int -> 2.0
-        self.assertEqual(cfg(seed_tag='mine').tag, 'mine')
         self.assertIsNone(cfg(planner='straight', models=None).tag)
         self.assertIsNone(cfg(planner='given', models=None).tag)
         with self.assertRaisesRegex(ValueError, 'uses no rng'):
             cfg(planner='given', models=None).seed('g')
 
-    def test_frame_and_external(self):
+    def test_frame_and_near_stop_rule(self):
         for a, f in ((0.0, 0), (0.5, 10), (1.0, 20), (3.0, 60), (3, 60)):
             self.assertEqual(cfg(approach_s=a).F, f)
-        self.assertEqual([cfg(controller=k).external for k in C.CONTROLLERS], [False, True, True, False])
+        self.assertEqual([cfg(controller=k).near_stop_rule for k in C.CONTROLLERS], [False, True, True, False])
 
     def test_sha_and_roundtrip(self):
         self.assertEqual(cfg(approach_s=3).sha, cfg(approach_s=3.0).sha)
-        self.assertEqual(cfg(grad={'betas': (0.9, 0.99)}).sha, cfg(grad={'betas': [0.9, 0.99]}).sha)
         self.assertNotEqual(cfg().sha, cfg(samples=65).sha)
         for f in sorted(ARMS.glob('*.toml')):
             arms = every_arm(f)
@@ -290,8 +282,7 @@ class TestArmFiles(unittest.TestCase):
                           ('[defaults]\nground = "rigid"\n', 'no [[arm]] tables'),
                           ('defaults = 3\n[[arm]]\nname = "a"\n', '[defaults] must be a table'),
                           ('arm = [1]\n', '[defaults] must be a table and the arms [[arm]] tables'),
-                          ('[[arm]]\nname = "a"\nplanner = "cem_grad"\ngrad = {steps = 1979-05-27}\n',
-                           "arm 0: grad {'steps'"),
+                          ('[[arm]]\nname = "a"\nplanner = "cem_grad"\ngrad = {steps = 5}\n', "unknown key 'grad'"),
                           ('[[arm]]\nname = "a"\n[[arm]]\nname = "a"\nground = "soil"\n',
                            "arms ['a'] exist on both grounds: pass ground")):
             with self.subTest(msg=msg), self.assertRaises(ConfigError) as e:
@@ -408,12 +399,12 @@ class TestReleaseInputs(unittest.TestCase):
             bad.flush()
             for c, msg in ((replace(soil, decisions=rigid.decisions), 'not a poses_crm[_all].json file'),
                            (replace(soil, approach_s=1.0), 'needs F = 20'),
-                           (replace(soil, picks=rigid.picks), 'were made for (world, models, mode, moving start, arms)'),
-                           (replace(m2['shared_hist_3s', 'soil'], approach_s=0.0, decisions=None),
-                            "'artifacts/traverse/generalist_20260921/A_adapt/train/deploy_v1/H_deploy_s*.pt', None, True"),
+                           (replace(soil, picks=rigid.picks), 'were made for (world, models, mode, arms)'),
                            (replace(soil, picks=m2['shared_hist_3s', 'soil'].picks), 'were made for'),
-                           (replace(soil, planner='cem'), "True, ('B', 'G')), not this arm"),      # G folder, B arm
-                           (replace(hn, planner='cem_grad'), "True, ('B',)), not this arm"),       # B folder, G arm
+                           (replace(soil, planner='cem'), "None, ('B', 'G')), not this arm"),      # G folder, B arm
+                           (replace(hn, planner='cem_grad'), "None, ('B',)), not this arm"),       # B folder, G arm
+                           (replace(soil, planner='given', models=None, picks=None, decisions=None, approach_s=0.0,
+                                    allow_unvalidated=True), '800 tasks have no route, which this arm reads'),
                            (replace(soil, models=soil.models.replace('s*.pt', 't*.pt')), 'matches no release file'),
                            (replace(soil, picks='data:artifacts/traverse/{arena}/x'), 'PICKS_LOCKED.sha256'),
                            (replace(soil, soil_config=bad.name, allow_unvalidated=True), 'must be given and divide')):
@@ -423,10 +414,15 @@ class TestReleaseInputs(unittest.TestCase):
         self.assertIn('no state for 1 tasks', ' '.join(soil.validate(
             self.env, tasks=[replace(f104[0], id='f104_pair_group_9999')], model_info=self.info)))
         self.assertIn('is templated: validate with the suite tasks',
-                      ' '.join(replace(soil, picks='data:x/{arena}/p').validate(self.env, model_info=False)))
+                      ' '.join(replace(soil, picks='data:x/{arena}/p').validate(self.env, model_info=self.info)))
         self.assertEqual(soil.validate(self.env, tasks=f104, model_info=lambda p: ('ci_train', 'both')), [])
-        self.assertEqual(soil.validate(self.env, tasks=f104, model_info=False), [])       # a drive worker, explicit
         self.assertIn('kind and training ground not checked', ' '.join(soil.validate(self.env, tasks=f104)))
+        unseen = self.tasks['unseen_soil1000']                  # no approach routes: refused before any pair runs
+        self.assertIn('1000 tasks have no approach, which this arm reads', ' '.join(replace(
+            soil, decisions=None, picks=None).validate(self.env, tasks=unseen, model_info=self.info)))
+        from nedm.traversing.evaluation.planner import Pick     # a standing arm on moving-start picks: per task
+        with self.assertRaisesRegex(ValueError, 'not at the decision pose'):
+            Pick.locked(replace(m2['shared_hist_3s', 'soil'], approach_s=0.0, decisions=None), f104[0], self.env)
         self.assertIn('cem_grad needs a ci_train ensemble', ' '.join(soil.validate(
             self.env, tasks=f104, model_info=lambda p: ('ga_train', 'both'))))
         self.assertIn('need one of', ' '.join(soil.validate(self.env, tasks=f104, model_info=lambda p: (p.name[-4], None))))
@@ -435,7 +431,7 @@ class TestReleaseInputs(unittest.TestCase):
         """A model trained on soil does not plan on rigid ground (ag_picks.py:191-192), not even unvalidated; the shared
         models ('both') and legacy models (no domain_filter) plan on either."""
         soil_models = 'data:artifacts/traverse/arena_gator_20260925/e5/deploy/A3_soil/A3_soil_deploy_s*.pt'
-        c = EvalConfig(name='x', planner='cem', models=soil_models)
+        c = EvalConfig(name='x', planner='cem', models=soil_models, build_lock=BASE['build_lock'])
         want = [f"models {soil_models} were trained on ['crm'] (domain_filter), not for rigid"]
         self.assertEqual(c.validate(self.env, model_info=self.info), want)
         self.assertEqual(replace(c, allow_unvalidated=True).validate(self.env, model_info=self.info), want)
