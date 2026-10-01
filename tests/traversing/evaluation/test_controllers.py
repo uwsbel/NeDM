@@ -1,8 +1,8 @@
-"""Held PID and tracker (controllers.HeldPID, Tracker; FINAL_DESIGN 2.3, 8.2 A9/A10).
+"""Held PID and tracker (controllers.HeldPID, Tracker).
 
 goldens/controllers was written by the ORIGINAL code at 901d6c9 (gc_control.py, and the per-frame controller logic of
 gen_collect_ext.GenExt.command and crm_collect_ext.run replayed verbatim; generator
-goldens/controllers/make_controllers_goldens.py, which rewrites them byte for byte): a 2,000-command hold_clip chain, the 64 check_actors observations
+the goldens generator (goldens/README.md), which rewrites them byte for byte): a 2,000-command hold_clip chain, the 64 check_actors observations
 through gc_control.NumpyActor, and a synthetic 120-frame drive along a released route (poses, the state captured
 before Synchronize, the recorded state, the shadow follower's commands) with the held triples and observations of
 pid_held and policy on both grounds.
@@ -184,8 +184,7 @@ class TestUnits(unittest.TestCase):
         from nedm.traversing.evaluation.config import EvalConfig
         env = SimpleNamespace(file=lambda ref: ref)
         self.assertIs(type(C.make_controller(EvalConfig(name='a', controller='pid_held'), env)), C.HeldPID)
-        with self.assertRaises(NotImplementedError):
-            C.make_controller(EvalConfig(name='a', controller='nav_pid'), env)
+        self.assertIs(type(C.make_controller(EvalConfig(name='a', controller='nav_pid'), env)), C.NavPID)
 
 
 @unittest.skipUnless(DATA, 'A9 needs NEDM_DATA (the released actor)')

@@ -1,6 +1,6 @@
 # M4b: other vehicles on soil. Suite f104_800 (+ unseen_soil1000 for the Polaris). Arm names are columns of
 # traversing/results/m4_vehicles_f104_soil.csv; the *_unseen arm is column polaris_own_model_sampling_grad of
-# m4_polaris_unseen_soil.csv (its picks live in per-arena folders with another name than the f104 one).
+# m4_polaris_unseen_soil.csv (compare.py --column; its picks live in per-arena folders named unlike the f104 one).
 
 [defaults]
 ground = "soil"

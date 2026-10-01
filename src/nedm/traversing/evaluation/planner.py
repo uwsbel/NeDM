@@ -1,22 +1,7 @@
 """Route planning of the traversing evaluation: the decision state, the risk ensemble and its corridor scorer, the
-sampling route optimizer and the pick (a planned, straight, given or locked route).
-
-A port of the experiment branch at 901d6c9, bitwise equal to it on the record environment (test_planner.py):
-  Decision   standing start (route_00 with its meta cleared; without one, base_route asserted valid), after a recorded
-             approach (row F, or the terminal state when pass 1 has exactly F rows; base_route(pose, goal) asserted
-             valid) or a released decision state (ga_planner.decision_for, ga_planner.py:288-316; ci_a5data.py:442-460).
-  Ensemble   a sorted checkpoint glob of ONE kind in main's RiskModel: ci_train through main's loader and score
-             (bs 1024, float32 -> float64); ga_train (cond none | hist_aux) and legacy gen_riskmodel.Net (cnn.* ->
-             front.cnn.*) with ga_planner's numpy float32 standardisation, bs 256 and route_logit(haz).double()
-             (ga_planner.py:322-387).
-  Scorer     corridors on the static map rounded to float16, geom5 at the decision, the history encoded once per member;
-             one ensemble call per candidate list (batch composition moves the logits by ~1e-2 on the GPU).
-  optimize   f104_n2_iter.plan_iter (objective 'mean'): CEM with a cumulative elite set (every headline), or 'mppi' =
-             ESS-tempered exponential weights (the branch's unused weighting='mppi'; off the validated matrix).
-             rounds=1 is M1's one-shot pool (nav.py: anchors + 8n tries; its fixed-speed rescue pool has no anchors
-             and 6n tries); an arm plans with rounds >= 2.
-Planner numerics are asserted (torch defaults, ag_picks.py:199-204), never set; the gradient step (refine.py) scopes
-its own deterministic cuDNN flags.
+sampling route optimizer and the pick (a planned, straight, given or locked route). Ported from the experiment branch
+at 901d6c9 and bitwise equal to it on the record environment (test_planner.py). Planner numerics are asserted (torch
+defaults, ag_picks.py:199-204), never set; the gradient step (refine.py) scopes its own deterministic cuDNN flags.
 """
 
 from __future__ import annotations
@@ -34,11 +19,10 @@ import torch
 from nedm.traversing.training.risk_model import ZDIM, RiskModel, encode_history, load_risk_model, route_logit
 from nedm.traversing.training.risk_model import score as ci_score
 
-from .config import MODEL_KINDS, PICK_ARMS
+from .config import MODEL_KINDS, PICK_ARMS, sha256_file
 from .routes import (HIST_DIM, HIST_T, KEYS, MODES, KNOTS, PRIOR_SD, StaticMap, _base_arrays, base_route, draw,
                      family_anchors, from_params, geom5, history_window, load_route, project, route_json, route_sha256,
                      route_time, straight, validate)
-from .suites import lock_digest
 
 GA_BS = 256
 RECORD_ENV = ('NVIDIA GeForce RTX 5090', '2.12.0+cu130')       # where the released picks were planned (luffy)
@@ -47,14 +31,16 @@ TORCH_DEFAULTS = dict(cudnn_allow_tf32=True, matmul_allow_tf32=False, cudnn_benc
 
 
 # ------------------------------------------------------------------------------------------------------- decision
-def _layout(case):
+def layout_pose(case):
+    """(x, y, yaw) of a case's layout start."""
     return np.array([*case['layout']['start_xy'], case['layout']['start_yaw']], float)
 
 
 @dataclass(frozen=True, eq=False)
 class Decision:
-    """Where the planner starts: pose (x, y, yaw), goal (x, y), base route, the 40 x 15 history window (None = all
-    masked, a standing start), the decision frame and where the state came from."""
+    """Where the planner starts: pose (x, y, yaw) and goal (x, y) float64, base route, the 40 x 15 float32 history window
+    and mask (None = all masked, a standing start), the decision frame and where the state came from. Build it with
+    the class methods."""
     pose: np.ndarray
     goal: np.ndarray
     base: dict
@@ -63,31 +49,19 @@ class Decision:
     frame: int = 0
     source: str = 'layout'
 
-    def __post_init__(self):
-        pose, goal = np.asarray(self.pose, np.float64), np.asarray(self.goal, np.float64)
-        if pose.shape != (3,) or goal.shape != (2,) or not (np.isfinite(pose).all() and np.isfinite(goal).all()):
-            raise ValueError(f'decision pose {pose} / goal {goal}: need finite (x, y, yaw) and (x, y)')
-        if (self.hist is None) != (self.hmask is None):
-            raise ValueError('decision history needs both hist and hmask, or neither')
-        if self.hist is not None:
-            h, m = np.asarray(self.hist), np.asarray(self.hmask)
-            if h.shape != (HIST_T, HIST_DIM) or h.dtype != np.float32 or m.shape != (HIST_T,) or m.dtype != bool:
-                raise ValueError(f'history {h.shape} {h.dtype} / mask {m.shape} {m.dtype}: need (40, 15) f32 / bool')
-        object.__setattr__(self, 'pose', pose)
-        object.__setattr__(self, 'goal', goal)
-
     @classmethod
     def standing(cls, task):
         """The case layout pose at rest; base = route_00 (meta cleared, planner_arms.load_case) or a valid base_route."""
         c = task.read_case()
-        pose, goal = _layout(c), np.asarray(c['goal_xy'], float)
+        pose, goal = layout_pose(c), np.asarray(c['goal_xy'], float)
         if task.route00 is None:            # a custom task without route_00: asserted valid, as at a moving decision
             return cls._moving(task, pose, goal, None, None, 0, 'layout')
         return cls(pose, goal, task.read_route('route00'))
 
     @classmethod
     def after_approach(cls, task, pass1, F):
-        """Frame F of a pass-1 Record (its arrays: state, action, pose [, terminal_pose, terminal_state])."""
+        """Frame F of a pass-1 Record (its arrays: state, action, pose [, terminal_pose, terminal_state]): row F, or the
+        terminal state when pass 1 has exactly F rows (ci_a5data.py:442-460); base_route(pose, goal) asserted valid."""
         a = pass1.arrays
         st, ac, po, F = np.asarray(a['state'], np.float32), np.asarray(a['action'], np.float32), \
             np.asarray(a['pose'], np.float64), int(F)
@@ -104,8 +78,9 @@ class Decision:
 
     @classmethod
     def from_release(cls, task, poses, env):
-        """A released decision state: poses_<world>[_all].json entry -> pose, history npz (its absolute workstation
-        path rebased on 'artifacts/' against Env.data and release-checked), goal = the case goal."""
+        """A released decision state (ga_planner.decision_for, ga_planner.py:288-316): poses_<world>[_all].json entry
+        -> pose, history npz (its absolute workstation path rebased on 'artifacts/' against Env.data and release-checked),
+        goal = the case goal."""
         e = _poses(str(env.file(poses))).get(task.id)
         if e is None or 'history' not in e or 'run' in e:
             raise KeyError(f'{poses}: no pose + history decision state for {task.id}')
@@ -178,13 +153,13 @@ def _ensemble(paths, device):
 
 
 class Ensemble:
-    """Members of one kind in sorted path order, in eval mode on `device`."""
+    """Members of ONE kind in sorted path order, in eval mode on `device`: ci_train through main's loader and score
+    (bs 1024, float32 -> float64); ga_train (cond none | hist_aux) and legacy gen_riskmodel.Net with ga_planner's numpy
+    float32 standardisation, bs 256 and route_logit(haz).double() (ga_planner.py:322-387)."""
 
     def __init__(self, paths, device):
         self.paths, self.device = tuple(Path(p) for p in paths), device
-        if not self.paths:
-            raise ValueError('an ensemble needs at least one checkpoint')
-        self.sha256 = [hashlib.sha256(p.read_bytes()).hexdigest() for p in self.paths]
+        self.sha256 = [sha256_file(p) for p in self.paths]
         self.members = [_load(p, device) for p in self.paths]
         kinds = sorted({k for _, _, k in self.members})
         if len(kinds) != 1:
@@ -241,7 +216,8 @@ class Ensemble:
 
 class Scorer:
     """Candidate routes -> Z (members, n) float64 for one decision on a static planner map (corridors rounded to
-    float16 as the deployed pools were, f104_n2_iter.py:170-182); the history is encoded here, once per member."""
+    float16 as the deployed pools were, f104_n2_iter.py:170-182); the history is encoded here, once per member. One
+    ensemble call per candidate list, as recorded (the batch composition moves GPU logits by ~1e-2)."""
 
     def __init__(self, ens: Ensemble, smap: StaticMap, dec: Decision):
         if any(int(ck['cin']) != 6 for _, ck, _ in ens.members):
@@ -262,10 +238,10 @@ def record_numerics(device='cuda') -> dict:
     flags = dict(cudnn_allow_tf32=b.cudnn.allow_tf32, matmul_allow_tf32=b.cuda.matmul.allow_tf32,
                  cudnn_benchmark=b.cudnn.benchmark, cudnn_deterministic=b.cudnn.deterministic,
                  deterministic_algorithms=torch.are_deterministic_algorithms_enabled())
-    if flags != TORCH_DEFAULTS:
-        raise RuntimeError(f'planner numerics {flags} differ from the torch defaults of record {TORCH_DEFAULTS}')
+    if flags != TORCH_DEFAULTS:         # ValueError: a deterministic refusal of the drive (runner.drive), not a crash
+        raise ValueError(f'planner numerics {flags} differ from the torch defaults of record {TORCH_DEFAULTS}')
     if str(device).startswith('cuda') and not torch.cuda.is_available():
-        raise RuntimeError(f'device {device}: no CUDA GPU here (NEDM_DEVICE=cpu plans comparably, never bitwise)')
+        raise ValueError(f'device {device}: no CUDA GPU here (NEDM_DEVICE=cpu plans comparably, never bitwise)')
     gpu = torch.cuda.get_device_name(torch.device(device)) if str(device).startswith('cuda') else 'cpu'
     return dict(gpu=gpu, torch=torch.__version__, cuda=torch.version.cuda, cudnn=b.cudnn.version(), **flags,
                 env='bitwise_env' if (gpu, torch.__version__) == RECORD_ENV else 'comparable')
@@ -321,10 +297,9 @@ def optimize(base, pose, score, rng, *, rounds=4, n=64, update='cem', fixed_spee
     R^3 on a fixed-speed family. Round 0: the valid anchors, then prior draws up to n valid (rejected draws consume the
     rng). Later rounds: the refit mean first, then N(mu, sd) draws. After every round of a multi-round search the
     Gaussian is refit on ALL non-anchor thetas scored so far (CEM: the best max(4, ceil(0.15 n)) by stable argsort, sd
-    floored at 0.15 prior sd; mppi: ESS-tempered weights), mu projected onto the caps; the final mean is scored alone.
-    score(list of routes) -> Z (members, len) float64, one call per list. Returns None when nothing valid was found."""
-    if rounds < 1 or n < 1 or tries_factor < 1 or update not in ('cem', 'mppi'):
-        raise ValueError(f'optimize: rounds {rounds}, n {n}, tries_factor {tries_factor}, update {update!r}')
+    floored at 0.15 prior sd; 'mppi': ESS-tempered exponential weights, the branch's unused weighting='mppi'), mu
+    projected onto the caps; the final mean is scored alone. rounds=1 is the one-shot pool (anchors + tries_factor x n
+    tries). score(list of routes) -> Z (members, len) float64, one call per list. None when nothing valid was found."""
     dim = MODES if fixed_speed is not None else MODES + KNOTS
     prior = PRIOR_SD[:dim]
     mu, sd = np.zeros(dim), prior.copy()
@@ -335,8 +310,6 @@ def optimize(base, pose, score, rng, *, rounds=4, n=64, update='cem', fixed_spee
 
     def evaluate(cs, ths, ks, k):
         Z = np.asarray(score(cs))
-        if Z.ndim != 2 or Z.shape[1] != len(cs) or Z.dtype != np.float64:
-            raise ValueError(f'score returned {Z.shape} {Z.dtype}, need (members, {len(cs)}) float64')
         C.extend(cs); TH.extend(ths); KIND.extend(ks); RND.extend([k] * len(cs))
         ZM.append(Z.mean(0)); ZP.append(Z.max(0))
 
@@ -421,15 +394,16 @@ class Pick:
 
     @classmethod
     def locked(cls, cfg, task, env):
-        """The recorded pick of `task` in the arm's locked pick folder: its tasks.json row -> routes/<row id>.json, whose
-        content hash must equal the row sha256 (the release-checked PICKS_LOCKED.sha256 recomputes over the routes).
-        The pick must be of the arm's planner (S | B | G) and made at the arm's decision pose (its released state,
-        else the case layout)."""
-        rows, root = _locked(env, env.expand(cfg.picks.rstrip('/'), task))
+        """The recorded pick of `task` in the arm's locked pick folder: its tasks.json row -> routes/<row id>.json (release
+        files; PICKS_LOCKED.sha256 recomputes over the routes: test_planner), whose content hash must equal the row
+        sha256. The pick must be of the arm's planner (S | B | G) and made at the arm's decision pose (its released
+        state, else the case layout)."""
+        root = env.expand(cfg.picks.rstrip('/'), task)
+        rows = _rows(str(env.file(root + '/tasks.json')))
         pk = json.loads(env.file(f'{root}/picks/{task.id}.json').read_text())       # the folder covers this task
         letter = PICK_ARMS[cfg.planner][-1]
         arm = 'straight' if letter == 'S' else letter
-        pose = _poses(str(env.file(cfg.decisions)))[task.id]['pose'] if cfg.decisions else _layout(task.read_case())
+        pose = _poses(str(env.file(cfg.decisions)))[task.id]['pose'] if cfg.decisions else layout_pose(task.read_case())
         if not np.array_equal(np.asarray(pk['pose'], float), np.asarray(pose, float)):
             raise ValueError(f'{root}: {task.id} was planned at {pk["pose"]}, not at the decision pose {list(pose)}')
         if task.id not in rows:
@@ -439,7 +413,7 @@ class Pick:
         row = rows[task.id]
         if letter not in row['arms'] or not pk['arms'].get(letter):
             raise ValueError(f'{root}: {task.id} has no {letter} pick (row arms {row["arms"]}): planner {cfg.planner}')
-        route = load_route(env.path(f'{root}/routes/{row["id"]}.json'))
+        route = load_route(env.file(f'{root}/routes/{row["id"]}.json'))
         if route_sha256(route) != row['sha256']:
             raise ValueError(f'{root}/routes/{row["id"]}.json: content sha256 differs from its tasks.json row')
         e = pk['arms'][letter]
@@ -458,21 +432,8 @@ class Pick:
 
 
 @lru_cache(maxsize=64)
-def _locked_rows(root, lock_path, tasks_path, routes_dir):
-    want = Path(lock_path).read_text().split()[0]
-    routes = Path(routes_dir).glob('*.json')                   # ga_planner.py:602-605
-    if lock_digest((p.name, hashlib.sha256(p.read_bytes()).hexdigest()) for p in routes) != want:
-        raise ValueError(f'{root}: route files do not recompute PICKS_LOCKED.sha256 {want[:12]}')
-    rows = json.loads(Path(tasks_path).read_text())
-    by = {r['group']: r for r in rows}
-    if len(by) != len(rows):
-        raise ValueError(f'{root}: several tasks.json rows for one group')
-    return by
-
-
-def _locked(env, root):
-    return _locked_rows(root, str(env.file(root + '/PICKS_LOCKED.sha256')), str(env.file(root + '/tasks.json')),
-                        str(env.path(root + '/routes'))), root
+def _rows(path):                        # a locked pick folder's tasks.json rows by group
+    return {r['group']: r for r in json.loads(Path(path).read_text())}
 
 
 # ----------------------------------------------------------------------------------------------------------- plan
@@ -484,13 +445,11 @@ def plan(cfg, task, dec: Decision | None, env) -> Pick:
         if task.route is None:
             raise ValueError(f'{task.id}: planner given needs a task route')
         return Pick.of(task.read_route('route'), 'given')
-    if dec is None:
-        raise ValueError(f'{task.id}: planner {cfg.planner} needs a decision state')
+    if dec is None or cfg.planner == 'live':
+        raise ValueError(f'{task.id}: planner {cfg.planner} needs a decision state (live plans inside its drive, nav.py)')
     if cfg.planner == 'straight':          # ag_picks.straight_route: rng-free, None if the anchor is invalid
         r, i = straight(dec.base, dec.pose, cfg.speed or 6.0)
         return Pick.of(r, 'straight', index=i, decision=dec.source)
-    if cfg.planner not in ('cem', 'cem_grad'):
-        raise ValueError(f'planner {cfg.planner!r} does not plan here (live plans inside the drive, nav.py)')
     if task.map is None:
         raise ValueError(f'{task.id}: arena {task.arena} has no static planner map')
     numerics, seed = record_numerics(env.device), cfg.seed(task.id)

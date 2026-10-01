@@ -1,4 +1,4 @@
-"""Soil drives without Chrono (FINAL_DESIGN 2.2, 4.3-4.4, 5 #2/#3/#10/#13): the soil config, the Python clock and the
+"""Soil drives without Chrono: the soil config, the Python clock and the
 terrain-only advance, fell-through and the stock-radius sinkage, breakthrough in the stop order, the soil branch goal,
 the crm_extra layout, the process environment and the runner's retries. With the release data, released soil drives
 are replayed through Stops (the soil A3): every non-breakthrough drive gets its recorded status and frame count, and a
@@ -186,7 +186,7 @@ class TestSoilBranch(unittest.TestCase):
 
 class TestProcess(unittest.TestCase):
     def test_env(self):
-        """Soil: OMP 4 (CRM_OMP), BLAS 1 and one GPU per process; rigid single-threaded (FINAL_DESIGN 4.3)."""
+        """Soil: OMP 4 (CRM_OMP), BLAS 1 and one GPU per process; rigid single-threaded."""
         e = R.process_env('soil', 3)
         self.assertEqual(e, dict(OMP_NUM_THREADS='4', OPENBLAS_NUM_THREADS='1', MKL_NUM_THREADS='1',
                                  ROCR_VISIBLE_DEVICES='3', HIP_VISIBLE_DEVICES='0'))

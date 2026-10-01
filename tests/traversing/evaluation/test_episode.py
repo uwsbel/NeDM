@@ -1,5 +1,5 @@
 """A10 (CI, no Chrono): the episode loop's call sequence against a mock Sim and follower, compared with hand-written
-expected sequences for a native rigid drive and a branch switch (FINAL_DESIGN 2.2, 8.2), plus hold_clip
+expected sequences for a native rigid drive and a branch switch, plus hold_clip
 (gc_control.py:897-913 self-test cases).
 
     PYTHONPATH=src python -m unittest discover -s tests/traversing/evaluation -p test_episode.py -v
@@ -50,7 +50,7 @@ class FakeSim:
     def __init__(self, steers):
         self.log, self.t, self.x, self.k, self.steers, self.fols = [], 0., 0., None, list(steers), []
 
-    def follower(self, r, *, initialize):
+    def follower(self, r, *, initialize, z=None):
         self.fols.append(Follower(f'fol{len(self.fols)}', self.log, self.steers.pop(0)))
         self.log.append(f'follower(start={r["waypoints"][0][0]:g}, init={initialize})')
         return self.fols[-1]

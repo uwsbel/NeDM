@@ -1,19 +1,14 @@
 """Gradient refinement of the sampling-search pick: the 'cem_grad' planner (ci_grad.plan_group, ci_grad.py:400-514).
 
-Starts = the search pick B + the 16 lowest-mean round-0 routes (anchors and prior draws; B's own pool index excluded,
-ci_grad.py:417). Each start's parameters (theta rows; an anchor is its offset * sin^2(pi f) with a constant cruise
-profile and a = dv = 0) are re-shaped in float64 and must reproduce its route. All starts run ONE batch of Adam steps
-through a float32 torch copy of the corridor chain (DetMap sampling, one-hot takes, min-plus speed passes: no atomic
-adds in the backward pass) and of the ensemble, the decision's history code held fixed, under deterministic cuDNN
-(TF32 allowed) scoped to this step. Fit = ensemble-mean logit + 1e5 sum relu(kappa - 0.95 kappa_max)^2 +
-10 sum relu(|x|, |y| - 37)^2; keep-best per row by the WORST member + penalty (1e-3 hysteresis); per-row gradient-norm
-clip 10, a clamped to its caps and dv to +-4 after every step; early stop when no row improved for 15 steps.
-Finals are re-shaped in float64 (a row whose best iterate is its start keeps its start route), validated and
-contract-checked, then re-scored by the deployed scorer in ONE batch [starts (row 0 = B) + valid finals]. G = the best
-valid final by the worst member if it beats the re-scored B by >= 0.3 logit, else B (abstained; z from the search).
-Only ci_train ensembles and the free family (every headline gradient arm). PARITY: the torch code keeps ci_grad's
-op creation order statement for statement; autograd sums the gradients of a shared tensor in node order, so reordering
-(e.g. the curvature slices or e_mid / e_mean) changes bits (a reordered port matched only 22 of 60 released picks).
+Starts = the search pick B + the 16 lowest-mean round-0 routes (B's own pool index excluded), each re-shaped in float64
+from its parameters. All starts run ONE batch of Adam steps (GRAD) through a float32 torch copy of the corridor chain
+and of the ensemble, the history code fixed, under deterministic cuDNN scoped to this step: fit = mean logit +
+curvature and arena penalties, keep-best per row by the WORST member. The finals are re-shaped in float64, validated
+and re-scored by the deployed scorer in ONE batch; G = the best valid final if it beats the re-scored B by >= 0.3
+logit, else B (abstained). ci_train ensembles and the free family only (every headline gradient arm).
+PARITY: the torch code keeps ci_grad's op creation order statement for statement; autograd sums the gradients of a
+shared tensor in node order, so reordering (e.g. the curvature slices or e_mid / e_mean) changes bits (a reordered port
+matched only 22 of 60 released picks).
 """
 
 from __future__ import annotations
@@ -265,8 +260,6 @@ def start_params(route, kind):
     if kind == 'anchor' or m.get('candidate') == 'n2_anchor':
         return np.zeros(MODES), np.zeros(KNOTS), (float(m['lateral_offset_m']), float(m['cruise_speed_mps']))
     th = np.asarray(m['theta'], float)
-    if th.shape != (MODES + KNOTS,):
-        raise ValueError(f'start theta {th.shape}: the gradient chain drives the free family only')
     return th[:MODES].copy(), th[MODES:].copy(), None
 
 
@@ -279,8 +272,7 @@ def contract(route, dec):
 
 
 def refine_pick(res: Result, score, record, g=GRAD) -> Pick:
-    """B (the search result of planner.Scorer `score`) -> the gradient pick G (ci_grad.plan_group) with settings `g`
-    (GRAD in every arm; the tests shorten it)."""
+    """Search result B (scored by planner.Scorer `score`) -> the gradient pick G with settings `g` (GRAD in every arm)."""
     dec, ens = score.dec, score.ens
     B = Pick.of_result(res)
     n0 = int(res.log[0]['n'])

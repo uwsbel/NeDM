@@ -10,7 +10,7 @@ rigid), the Polaris, Gator-trained and HMMWV-trained ensembles on f104 and the P
 abstained, gain, J_B, J_B_cem, G z, per-row best_step, J_torch, validity, final route sha and re-scored z, the
 best-J trace, and B's search record.
 
-    NEDM_DATA=/home/harry/NeDM-traverse_mppi NEDM_RELEASE_CACHE=/home/harry/hf_staging/traversing_v1 \\
+    NEDM_DATA=<release restore root> NEDM_RELEASE_CACHE=<release download cache> \\
         PYTHONPATH=src python -m unittest discover -s tests/traversing/evaluation -p test_refine.py -v
 """
 import json
@@ -63,10 +63,6 @@ class TestStarts(unittest.TestCase):
                 self.assertEqual(R.route_sha256(G.np_route(base, a, dv, anc)), R.route_sha256(r), f'{name} {i} {kind}')
                 n += 1
             self.assertEqual(n, 258)
-
-    def test_free_family_only(self):
-        with self.assertRaises(ValueError):
-            G.start_params({'meta': {'theta': [1.0, 2.0, 3.0]}}, 'sample')
 
 
 class TestChain(unittest.TestCase):

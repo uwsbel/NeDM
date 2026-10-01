@@ -1,5 +1,5 @@
-"""Traversing evaluation: one arm (``EvalConfig``) on released or custom tasks (FINAL_DESIGN.md). Exports resolve lazily:
-importing a torch-free module never loads the planner's torch (FINAL_DESIGN 1.5)."""
+"""Traversing evaluation: one arm (``EvalConfig``) on released or custom tasks (README.md). Exports resolve lazily:
+importing a torch-free module never loads the planner's torch."""
 import importlib
 
 _EXPORTS = {**dict.fromkeys(('ConfigError', 'Env', 'EvalConfig', 'ReleaseError', 'load_arms'), 'config'),

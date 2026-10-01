@@ -1,15 +1,8 @@
-"""Vehicles of the traversing evaluation (FINAL_DESIGN 1.1, 4.2; parity quirks 5 #1, #4, #11, #14, #15): the HMMWV, the
-Gator (ag_vehicle.py at 901d6c9) and the re-framed JSON Polaris with its driveline and soil-wheel variants (ov_vehicle.py);
-config refuses the M113. ``load`` checks a vehicle's files (ValueError or OSError: runner.drive refuses). As recorded:
-  build  HMMWV_Full / Gator in create_hmmwv's setter order (Gator: SIMPLE driveline and brakes, no locking); rigid
-         TMEASY + HULLS chassis, soil RIGID_MESH + no chassis collision (crm_collect.py:176-180). Polaris (soil only):
-         WheeledVehicle(JSON) + a rigid tyre JSON per wheel (ov_vehicle.py:231-336) in a temporary vehicle-data root
-         of Polaris_ov/ (released) + the build's Polaris/; its JSON puts the chassis reference at mid-wheelbase.
-  spawn  HMMWV h + 0.75; the others ((h + 0.75) - 0.75) + dz (ag_vehicle.py:165). Soil contact: the HMMWV the config's
-         tyre mesh, the others a cylinder per axle, the mesh still built (ag_vehicle.py:206-230); breakthrough keeps
-         the STOCK tyre radius. Belly: Gator 549 hull points, Polaris 431 visual-mesh points -> vehicle_extra.npz.
-``capture_row``, ``WHEEL_SPECS`` and ``configure_chrono_data_paths`` come from the published HMMWV module behind a source
-pin (``hmmwv_data()``); main's create_hmmwv would silently drop the HULLS chassis of every rigid drive (SPEC 0.8, 5.1).
+"""Vehicles of the traversing evaluation: the HMMWV, the Gator (ag_vehicle.py at 901d6c9) and the re-framed JSON
+Polaris with its driveline and soil-wheel variants (ov_vehicle.py; soil only; its JSON puts the chassis reference at
+mid-wheelbase); config refuses the M113. ``load`` checks a vehicle's files (ValueError or OSError: runner.drive
+refuses). ``capture_row``, ``WHEEL_SPECS`` and ``configure_chrono_data_paths`` come from the published HMMWV module
+behind a source pin (``hmmwv_data()``); main's create_hmmwv would silently drop the HULLS chassis of every rigid drive.
 """
 
 from __future__ import annotations
@@ -43,8 +36,7 @@ PINS = dict(capture_row='7b6a9b096652f55200111f3057f045d467de50211f48a5ba8299763
 
 @cache
 def hmmwv_data():
-    """The published HMMWV module, after checking the source of every name reused from it against PINS (a mismatch
-    refuses every drive: FINAL_DESIGN 4.2 #3)."""
+    """The published HMMWV module, the source of every reused name checked against PINS (a mismatch: no drive)."""
     from nedm.hmmwv import hmmwv_data as m
     got = {n: hashlib.sha256((inspect.getsource(v) if callable(v := getattr(m, n)) else repr(v)).encode()).hexdigest()
            for n in PINS}
@@ -52,13 +44,6 @@ def hmmwv_data():
         raise ConfigError([f'nedm.hmmwv.hmmwv_data: {bad} changed since the drives were recorded (sha256 {got}); '
                            'a changed capture_row or data-path rule changes the recorded state'])
     return m
-
-
-def chrono_data_paths(chrono_data):
-    """Chrono and vehicle data roots of the build (configure_chrono_data_paths with absolute paths)."""
-    root = chrono_data.resolve()
-    hmmwv_data().configure_chrono_data_paths(root, dict(chrono_data_root=str(root),
-                                                        vehicle_data_root=str(root / 'vehicle')))
 
 
 @dataclass(frozen=True)
@@ -71,12 +56,15 @@ class Vehicle:
     files: dict = field(default_factory=dict, compare=False)     # set by load()
 
     def spawn(self, h):
+        """Spawn height over the BMP height h: HMMWV h + 0.75, the others ((h + 0.75) - 0.75) + dz (ag_vehicle.py:165)."""
         z = h + SPAWN_DZ_M
         return z if self.name == 'hmmwv' else z - SPAWN_DZ_M + self.dz
 
     def create(self, xyz, yaw, *, tire_step, soil=False):
         """The wrapper the collectors called `hmmwv` (GetVehicle, GetSystem, GetChassis, Synchronize, Advance) at xyz
-        heading yaw, Initialize()d, visuals NONE, Bullet collision."""
+        heading yaw, Initialize()d, visuals NONE, Bullet collision: HMMWV_Full / Gator in create_hmmwv's setter order
+        (rigid TMEASY + HULLS chassis, soil RIGID_MESH + no chassis collision, crm_collect.py:176-180); the Polaris from
+        its JSON files (ov_vehicle.py:231-336) in a temporary vehicle-data root of Polaris_ov/ + the build's Polaris/."""
         import pychrono as chrono
         import pychrono.vehicle as veh
         if self.json_files:
@@ -203,8 +191,8 @@ def show(chrono, model):
 
 
 def load(name, env) -> Vehicle:
-    """VEHICLES[name] with its files checked and hashed (FINAL_DESIGN 4.2); the Polaris JSONs are walked from the
-    vehicle file through their 'Input File' keys, then engine, gearbox and tyre."""
+    """VEHICLES[name] with its files checked and hashed; the Polaris JSONs are walked from the vehicle file through
+    their 'Input File' keys, then engine, gearbox and tyre."""
     v, files, vdata = VEHICLES[name], {}, Path(env.chrono_data) / 'vehicle'
     if v.belly:
         p = env.file(v.belly[0])

@@ -1,13 +1,13 @@
 """Tests of nedm.traversing.evaluation.labels (stdlib unittest only).
 
 CI (no data needed): float32 edge cases (spec 0.11), 45 real drives and 20 synthetic edge drives with the ORIGINAL
-901d6c9 label outputs (goldens/labels, made by eval_class_staging/goldens/labels_goldens.py), the real drives' cells of
+901d6c9 label outputs (goldens/labels, made by the goldens generator (goldens/README.md)), the real drives' cells of
 the released traversing/results CSVs, table schemas and the per-table missing-drive policies.
 Release (NEDM_DATA = the release restore base): A2 tracker metrics vs results_{rigid,crm}_b0v2.json per route; A1 every
 present drive folder relabelled vs the study's indexes and per-group records, the 9 CSVs rebuilt from the relabelled
 drives and compared byte for byte, then recount_milestones.py --check-only on the rebuilt folder.
 
-    NEDM_DATA=/home/harry/NeDM-traverse_mppi PYTHONPATH=src python -m unittest discover -s tests/traversing/evaluation \\
+    NEDM_DATA=<release restore root> PYTHONPATH=src python -m unittest discover -s tests/traversing/evaluation \\
         -p test_labels.py -v
 """
 import concurrent.futures as cf
@@ -142,8 +142,8 @@ class Float32Edges(unittest.TestCase):
         one = L.tracker_metrics(pose[:1], s[:1], a[:1], [[3.0, 4.0]], [2.0], 'soil_breakthrough_terminated')
         self.assertEqual((one['code'], one['xtrack_station_winsor_mean_m'], one['speed_abs_err_mean_mps']), ('U', 5.0, 1.0))
         self.assertTrue(np.isnan(one['mean_abs_action_change']))
-        with self.assertRaises(ValueError):
-            L.tracker_metrics(pose, s, a, np.zeros((0, 2)), [1.0] * 3, 'timeout')     # no reference: refused, not nan
+        with self.assertRaises(IndexError):
+            L.tracker_metrics(pose, s, a, np.zeros((0, 2)), [1.0] * 3, 'timeout')     # no reference: raises, not nan
 
     def test_missions(self):
         s, a = drive(0)
@@ -237,8 +237,9 @@ class GoldenDrives(unittest.TestCase):
 
 
 class FolderLayouts(unittest.TestCase):
-    """load_drive on synthetic folders: a class run (record.json + route.json) and a released drive (outcome.json +
-    command_reference.npz) holding the same arrays give the same labels; a Record object gives them too."""
+    """load_drive on a synthetic class run (record.json + route.json) and tables.released on a released drive
+    (outcome.json + command_reference.npz) holding the same arrays give the same labels; a Record object gives them
+    too (a mission Record in memory included)."""
 
     def test_class_and_released_folders_agree(self):
         rng = np.random.default_rng(0)
@@ -259,14 +260,16 @@ class FolderLayouts(unittest.TestCase):
             np.savez(rel / 'command_reference.npz', desired_speed_mps=des, reference_waypoints=wp)
             (rel / 'outcome.json').write_text(json.dumps(dict(status='goal_reached', positive_work_kj=12.5)))
             for lab in ('rollback', 'rollback_belly', 'goal_belly', 'tracker'):
-                self.assertEqual(L.drive_labels(ours, lab), L.drive_labels(str(rel), lab), lab)
+                self.assertEqual(L.drive_labels(ours, lab), L.drive_labels(TB.released(str(rel), lab), lab), lab)
             self.assertEqual(TB.code(ours, 'rollback_belly'), 's')           # belly flag on a clean drive
-            self.assertEqual(L.drive_labels(rel, 'tracker')['near_stop_40s_fired'], 'na')
+            self.assertEqual(L.drive_labels(TB.released(rel, 'tracker'), 'tracker')['near_stop_40s_fired'], 'na')
             from nedm.traversing.evaluation.runner import Record          # in memory: the belly in its extras
             rec = Record('t', 'a', 'goal_reached', True, positive_work_kj=12.5, arrays=dict(state=s, action=a, pose=pose),
                          extras=dict(vehicle_extra=dict(belly_clearance_min_m=belly)))
             for lab in ('rollback_belly', 'goal_belly'):
-                self.assertEqual(L.drive_labels(rec, lab), L.drive_labels(rel, lab), lab)
+                self.assertEqual(L.drive_labels(rec, lab), L.drive_labels(TB.released(rel, lab), lab), lab)
+            mission = Record('m', 'a', 'mission_complete', True, goals_reached=3, n_goals=3, arrays=dict(state=s, action=a))
+            self.assertEqual(L.drive_labels(mission, 'mission')['mission_outcome_sha256'], None)    # in memory: no file
             (ours / 'vehicle_extra.npz').unlink()
             with self.assertRaises(FileNotFoundError):                       # a belly label without the record
                 L.drive_labels(ours, 'rollback_belly')
@@ -364,7 +367,7 @@ SMOKE = dict(zip(TB.TABLES['m4_vehicle_smoke'].arms, ('gatorctl', 'gatorh', 'hmm
 
 def _relabel(job):
     try:
-        return job, L.drive_labels(DATA / job[0], job[1])
+        return job, L.drive_labels(TB.released(DATA / job[0], job[1]), job[1])
     except Exception as e:  # noqa: BLE001  (reported per drive by the test)
         return job, f'{type(e).__name__}: {e}'
 

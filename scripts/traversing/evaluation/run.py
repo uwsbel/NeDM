@@ -11,9 +11,10 @@ Prints the statuses per arm; compare.py checks a run folder against the released
 """
 import argparse
 import json
+import sys
 from collections import Counter
 
-from nedm.traversing.evaluation.config import load_arms
+from nedm.traversing.evaluation.config import ConfigError, ReleaseError, load_arms
 from nedm.traversing.evaluation.runner import TraversalEval, run_arms, run_block
 from nedm.traversing.evaluation.suites import load_suite
 
@@ -35,17 +36,21 @@ def main():
     p.add_argument('--accept-code-change', action='store_true', help='resume a block pinned with other code')
     a = p.parse_args()
     gpus = [int(g) for g in a.gpus.split(',') if g]
-    if a.arms:
-        arms = [c for c in load_arms(a.arms, a.ground) if not a.arm or c.name in a.arm]
-        if not a.suite or set(a.arm or ()) - {c.name for c in arms}:
-            p.error(f'--suite is required; --arm must name arms of {a.arms} (ground {a.ground})')
-        recs = run_arms([TraversalEval(c, a.out) for c in arms], load_suite(a.suite, a.subset), stage=a.stage,
-                        block=a.block, block_size=a.block_size, workers=a.workers, gpus=gpus)
-    elif a.block is None:
+    if a.arms is None and a.block is None or a.arms and not a.suite:
         p.error('give --arms and --suite (a new run) or --block (of a prepared run folder)')
-    else:
-        recs = run_block(a.out, a.block, stage=a.stage, workers=a.workers, gpus=gpus, deadline=a.deadline,
-                         accept_code_change=a.accept_code_change)
+    try:
+        if a.arms:
+            every = load_arms(a.arms, a.ground)
+            if set(a.arm or ()) - {c.name for c in every}:
+                p.error(f'--arm {a.arm}: the arms of {a.arms} (ground {a.ground}) are {[c.name for c in every]}')
+            arms = [c for c in every if not a.arm or c.name in a.arm]
+            recs = run_arms([TraversalEval(c, a.out) for c in arms], load_suite(a.suite, a.subset), stage=a.stage,
+                            block=a.block, block_size=a.block_size, workers=a.workers, gpus=gpus)
+        else:
+            recs = run_block(a.out, a.block, stage=a.stage, workers=a.workers, gpus=gpus, deadline=a.deadline,
+                             accept_code_change=a.accept_code_change)
+    except (ConfigError, ReleaseError) as e:          # an input or build problem: the message, no traceback
+        sys.exit(f'refused: {e}')
     for arm in sorted({r.arm for r in recs}):
         print(json.dumps(dict(arm=arm, statuses=Counter(r.status for r in recs if r.arm == arm))), flush=True)
 

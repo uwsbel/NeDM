@@ -1,15 +1,11 @@
 """Offline outcome labels of the traversing evaluation, and the cell of an unlabelled drive per results table.
 
-Pure functions of a drive's stored 50 ms arrays (numpy only). Every rule compares in the dtype the study compared in
-(spec 0.11): rolling back and the mission slide on the recorded float32 vx and throttle (vx == f32(-0.1) is not
-backwards, throttle == f32(0.3) is not effortful), the belly run after astype(float64), the tracker metrics in float64.
-  point_labels     f104_n2_analyze.py:16-24 through ga_analyze.py:36-41 (fewer than 22 frames -> unsafe)
-  belly_flag       ov_eval_index.py:77-88 (clearance < -0.05 m for more than 1.0 s in a row, i.e. 21 frames)
-  tracker_metrics  gb_track_analyze.py:53-104 (unsafe = status substring; a timeout is F)
-  mission_labels   nav_runner.py:482-511 slide rule; nav_analyze.py:49 (unsafe = a slide or not complete)
+Pure functions of a drive's stored 50 ms arrays (numpy only). Every rule compares in the dtype the study compared in:
+rolling back and the mission slide on the recorded float32 vx and throttle (vx == f32(-0.1) is not backwards, throttle
+== f32(0.3) is not effortful), the belly run after astype(float64), the tracker metrics in float64.
 Codes (traversing/results/README.md): S goal, safe; s goal with an event; U not reached, unsafe; F not reached, safe
-(tracker timeouts only); '-' not run. Label kinds: rollback | rollback_belly | goal_belly | tracker | mission.
-The schemas of the traversing/results CSVs and their row builders live with the tests (tests/.../evaluation/tables.py).
+(tracker timeouts only); '-' not run. The schemas of the traversing/results CSVs, their row builders and the reader of
+released drive folders live with the tests (tests/traversing/evaluation/tables.py).
 """
 
 from __future__ import annotations
@@ -51,14 +47,13 @@ def _recorded(state, action):
     s, a = np.asarray(state), np.asarray(action)
     if s.dtype != np.float32 or a.dtype != np.float32:     # upcasting would move the float32 thresholds
         raise TypeError(f'state/action must be the recorded float32 arrays, got {s.dtype}/{a.dtype}')
-    if s.ndim != 2 or s.shape[1] != 17 or a.shape != (len(s), 3):
-        raise ValueError(f'state {s.shape} / action {a.shape}: expected (n, 17) / (n, 3)')
     return s, s[:, 0], a[:, 1]
 
 
 def point_labels(state, action, status):
-    """fail / unsafe / back_s / min_vx / max_tilt of a single-goal drive. From frame 20: back_s = 0.05 x frames with
-    vx < -0.10 under throttle > 0.3; unsafe unless the goal was reached with back_s < 0.05 and min vx > -0.30."""
+    """fail / unsafe / back_s / min_vx / max_tilt of a single-goal drive (f104_n2_analyze.py:16-24 through
+    ga_analyze.py:36-41). From frame 20: back_s = 0.05 x frames with vx < -0.10 under throttle > 0.3; unsafe unless the
+    goal was reached with back_s < 0.05 and min vx > -0.30 (fewer than 22 frames: unsafe)."""
     s, vx, thr = _recorded(state, action)
     _status(status, DRIVEN)
     fail = status != 'goal_reached'
@@ -72,7 +67,8 @@ def point_labels(state, action, status):
 
 
 def belly_flag(clearance):
-    """1 if the lowest hull point stayed more than 0.05 m under the undisturbed surface for more than 1 s in a row."""
+    """1 if the lowest hull point stayed more than 0.05 m under the undisturbed surface for more than 1 s in a row,
+    i.e. 21 frames (ov_eval_index.py:77-88)."""
     deep = np.asarray(clearance).astype(float) < -0.05     # float64 compare, as recorded; NaN is not deep
     if deep.ndim != 1:
         raise ValueError(f'belly clearance must be 1-D, got shape {deep.shape}')
@@ -82,15 +78,12 @@ def belly_flag(clearance):
 
 
 def tracker_metrics(pose, state, action, reference_waypoints, desired_speed, status):
-    """Cross-track of every reference waypoint to the polyline of the recorded frame-start poses (no terminal pose),
-    capped at 6 m, 5 % Winsorised mean (np.percentile bounds); |vx - desired| from frame min(20, n-1); mean |diff|
-    of the action over frames and channels. All in float64."""
+    """gb_track_analyze.py:53-104: cross-track of every reference waypoint to the polyline of the recorded frame-start
+    poses (no terminal pose), capped at 6 m, 5 % Winsorised mean (np.percentile bounds); |vx - desired| from frame
+    min(20, n-1); mean |diff| of the action over frames and channels; unsafe = a status substring. All in float64."""
     _status(status, DRIVEN)
     pose, vx, act = np.asarray(pose, float), np.asarray(state, float)[:, 0], np.asarray(action, float)
     st, n = np.asarray(reference_waypoints, float), len(pose)
-    if not (n and pose.shape == (n, 3) and vx.shape == (n,) and act.shape == (n, 3) and st.ndim == 2 and len(st)
-            and st.shape[1] == 2):                          # an empty reference would give nan, not a metric
-        raise ValueError(f'tracker arrays: pose {pose.shape}, vx {vx.shape}, action {act.shape}, reference {st.shape}')
     xy = pose[:, :2]
     if n < 2:
         d = np.linalg.norm(st - xy[0], axis=-1)
@@ -115,8 +108,9 @@ def tracker_metrics(pose, state, action, reference_waypoints, desired_speed, sta
 
 
 def mission_labels(state, action, status, goals_reached, n_goals):
-    """slide = frame >= 20 and ((vx < -0.10 and throttle > 0.3) or vx < -0.30), all strict (at exactly f32(-0.30) the
-    point label's min rule disagrees); elapsed_s = frames x 0.05, a Python float product (settle excluded)."""
+    """nav_runner.py:482-511 and nav_analyze.py:49: slide = frame >= 20 and ((vx < -0.10 and throttle > 0.3) or
+    vx < -0.30), all strict (at exactly f32(-0.30) the point label's min rule disagrees); unsafe = a slide or not
+    complete; elapsed_s = frames x 0.05, a Python float product (settle excluded)."""
     s, vx, thr = _recorded(state, action)
     _status(status, MISSION)
     if not 0 <= goals_reached <= n_goals or n_goals < 1 or (goals_reached == n_goals) != (status == 'mission_complete'):
@@ -129,34 +123,23 @@ def mission_labels(state, action, status, goals_reached, n_goals):
 
 
 def load_drive(folder, label):
-    """What `label` reads from a run folder. A class run: record.json (a mission record also carries goals_reached and
-    n_goals) + trajectory.npz (+ route.json for the tracker). A released drive: outcome.json or mission_outcome.json +
-    trajectory.npz (+ command_reference.npz for the tracker). Belly labels: vehicle_extra.npz. Missing files raise.
-    mission_outcome_sha256 is the sha256 of the outcome file read (record.json for a class run)."""
+    """What `label` reads from a run folder of this package: record.json (a mission record also carries goals_reached
+    and n_goals; mission_outcome_sha256 = its sha256) + trajectory.npz (+ route.json for the tracker, vehicle_extra.npz
+    for a belly label). Missing files raise."""
     p = Path(folder)
-    ours = (p / 'record.json').exists()
-    name = 'record.json' if ours else 'mission_outcome.json' if label == 'mission' else 'outcome.json'
-    raw = (p / name).read_bytes()
+    raw = (p / 'record.json').read_bytes()
     o = json.loads(raw)
-    d = dict(status=o['status'], positive_work_kj=o.get('positive_work_kj'))
+    d = dict(status=o['status'], positive_work_kj=o.get('positive_work_kj'), near_stop_fired=o['near_stop_fired'])
     if label == 'mission':
         d.update(goals_reached=o['goals_reached'], n_goals=o['n_goals'],
                  mission_outcome_sha256=hashlib.sha256(raw).hexdigest())
-    elif ours:
-        d['near_stop_fired'] = o['near_stop_fired']
-    else:                                                   # released: rule off -> no near_stop_rule block
-        rule = o.get('near_stop_rule') or (o.get('ext') or {}).get('near_stop_rule')
-        d['near_stop_fired'] = None if rule is None else bool(rule['fired'])
     if d['status'] in UNLABELLED or (d['status'] == 'no_route' and label != 'mission'):
         return d                                            # never driven: no arrays
     with np.load(p / 'trajectory.npz') as z:
         d.update(state=z['state'], action=z['action'], pose=z['pose'])
-        if label == 'tracker' and ours:
+        if label == 'tracker':
             d.update(desired_speed_mps=z['desired_speed_mps'],
                      reference_waypoints=json.loads((p / 'route.json').read_text())['waypoints'])
-    if label == 'tracker' and not ours:
-        with np.load(p / 'command_reference.npz') as c:
-            d.update(desired_speed_mps=c['desired_speed_mps'], reference_waypoints=c['reference_waypoints'])
     if label.endswith('_belly'):
         with np.load(p / 'vehicle_extra.npz') as v:
             d['belly_clearance_min_m'] = v['belly_clearance_min_m']
@@ -177,7 +160,7 @@ def drive_labels(src, label):
         return dict(label=label, status=s, fail=1, unsafe=1, code='U')
     if label == 'mission':                                  # a missing input is a KeyError naming it
         out = mission_labels(d['state'], d['action'], s, d['goals_reached'], d['n_goals'])
-        out['mission_outcome_sha256'] = d['mission_outcome_sha256']
+        out['mission_outcome_sha256'] = d.get('mission_outcome_sha256')    # None: an in-memory Record
     elif label == 'tracker':
         out = tracker_metrics(d['pose'], d['state'], d['action'], d['reference_waypoints'], d['desired_speed_mps'], s)
         ns = d['near_stop_fired']

@@ -1,16 +1,48 @@
 """The schemas of ``traversing/results/*.csv`` and their row builders (not a test module): the released tables rebuilt
-from relabelled drives (test_labels A1) and the per-table policy for drives without a label (labels.ON_MISSING).
-Moved out of the library: no pipeline step writes these tables (Task.meta holds none of their id columns).
+from relabelled drives (test_labels A1) and the per-table policy for drives without a label (labels.ON_MISSING); the
+reader of released drive folders. Moved out of the library: no pipeline step writes these tables (Task.meta holds none
+of their id columns) or reads the study's folder layout.
 """
 
 from __future__ import annotations
 
 import csv
+import hashlib
 import io
+import json
 from collections import Counter
 from dataclasses import dataclass
+from pathlib import Path
+
+import numpy as np
 
 from nedm.traversing.evaluation.labels import UNLABELLED, _status, drive_labels
+
+
+def released(folder, label):
+    """What `label` reads from a RELEASED drive folder, as labels.load_drive reads a run folder of the package:
+    outcome.json or mission_outcome.json (mission_outcome_sha256 = its sha256) + trajectory.npz (+ command_reference.npz
+    for the tracker, vehicle_extra.npz for a belly label); near_stop_fired from its near_stop_rule block (none: off)."""
+    p = Path(folder)
+    raw = (p / ('mission_outcome.json' if label == 'mission' else 'outcome.json')).read_bytes()
+    o = json.loads(raw)
+    rule = o.get('near_stop_rule') or (o.get('ext') or {}).get('near_stop_rule')
+    d = dict(status=o['status'], positive_work_kj=o.get('positive_work_kj'),
+             near_stop_fired=None if rule is None else bool(rule['fired']))
+    if label == 'mission':
+        d.update(goals_reached=o['goals_reached'], n_goals=o['n_goals'],
+                 mission_outcome_sha256=hashlib.sha256(raw).hexdigest())
+    if d['status'] in UNLABELLED or (d['status'] == 'no_route' and label != 'mission'):
+        return d                                            # never driven: no arrays
+    with np.load(p / 'trajectory.npz') as z:
+        d.update(state=z['state'], action=z['action'], pose=z['pose'])
+    if label == 'tracker':
+        with np.load(p / 'command_reference.npz') as c:
+            d.update(desired_speed_mps=c['desired_speed_mps'], reference_waypoints=c['reference_waypoints'])
+    if label.endswith('_belly'):
+        with np.load(p / 'vehicle_extra.npz') as v:
+            d['belly_clearance_min_m'] = v['belly_clearance_min_m']
+    return d
 
 
 def code(src, label):

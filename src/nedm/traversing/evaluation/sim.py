@@ -1,19 +1,9 @@
-"""The Chrono world of one drive: terrain, vehicle, path follower, clock and measurements (FINAL_DESIGN 2.2, 5).
+"""The Chrono world of one drive: terrain, vehicle, path follower, clock and measurements.
 
-Ports of the frozen collectors at 901d6c9 (rigid: traverse_fdm_rgbd_diverse_chrono.run_chrono as gen_collect(_ext)
-ran it; soil: crm_collect(_ext).py), statement order kept, which is what makes recorded drives replay bit for bit:
-  build    layout pose at the vehicle's spawn height, data paths, the vehicle (vehicles.load(...).create), then rigid:
-           MESH visuals, roof marker, a RigidTerrain BMP patch, textured if the repo has chrono/'s grass texture, else
-           coloured (scene.py:345-403; visual only); soil: build_crm (fresh soil, the vehicle's soil wheels; the CRM
-           counts of a pinned arena must match). A vehicle with belly points records its clearance at every frame.
-  clock    rigid: GetChTime(), 25 x 2 ms (tyres 1 ms), terrain then vehicle Advance; soil: a Python sum of the config
-           step (crm_main 1 ms: 50 substeps; tyre = MBS = CFD step), terrain.Advance only (crm_collect.py:225-271).
-  measure  substep 0 after vehicle.Synchronize: state f32 (soil: tyre loads, wheel speeds from the FSI solver), action
-           f32, pose f64, power kW (a non-finite state raises); soil: + the crm_extra row. After the physics, soil
-           raises FellThrough (> 1 m below the BMP) and measures the deepest wheel with the STOCK tyre radius.
-  launch   single-goal frame 0: speed <= 1 m/s, yaw <= 10 deg, start <= 1 m; rigid tilt <= 20 deg + native-height
-           audit (gen_collect.py:83-117); soil tilt <= 25 deg + chassis 0-1.2 m above the BMP (crm_collect.py:412-422).
-  terminal single-goal: Synchronize(now, last inputs) without an Advance, then the state.
+Ports of the frozen collectors at 901d6c9 (rigid: traverse_fdm_rgbd_diverse_chrono.run_chrono as gen_collect(_ext) ran
+it; soil: crm_collect(_ext).py), statement order kept, which is what makes recorded drives replay bit for bit.
+Clock: rigid GetChTime(), 25 x 2 ms (tyres 1 ms), terrain then vehicle Advance; soil a Python sum of the config step
+(crm_main 1 ms: 50 substeps; tyre = MBS = CFD step), terrain.Advance only (crm_collect.py:225-271).
 TerrainMap: pixel-centre bilinear BMP heights (terrain.py:260-329), 511/512 off Chrono's node-on-edge grid, used as is.
 """
 
@@ -30,7 +20,7 @@ from PIL import Image
 from nedm.traversing.training.state import STATE_FIELDS
 
 from .config import DT, REPO_ROOT, ConfigError, sha256_file
-from .vehicles import Belly, chrono_data_paths, hmmwv_data, show
+from .vehicles import Belly, hmmwv_data, show
 
 RIGID_STEP_S, RIGID_TIRE_STEP_S = 0.002, 0.001
 TEXTURE = REPO_ROOT / 'chrono/data/sensor/textures/grass_texture.jpg'      # scene.py:399-403 (none on the cluster)
@@ -146,15 +136,20 @@ class Sim:
 
     @classmethod
     def build(cls, case, arena_dir, vehicle, chrono_data, soil=None):
+        """The vehicle at the layout pose at its spawn height, then rigid: MESH visuals, the roof marker and a
+        RigidTerrain BMP patch (textured if the repo has chrono/'s grass texture; visual only, scene.py:345-403); soil:
+        build_crm with the vehicle's soil wheels, the CRM counts of a pinned arena checked."""
         import pychrono as chrono
         if soil is not None:
             import pychrono.fsi as fsi
         import pychrono.vehicle as veh
-        import pychrono.sensor  # noqa: F401  (scene.py imported it at module level, SPEC 2.1)
+        import pychrono.sensor  # noqa: F401  (scene.py imported it at module level)
         hmmwv_data()                                    # the source pins first: a ConfigError before any Chrono object
         tmap, (x, y), v = TerrainMap(arena_dir), case['layout']['start_xy'], vehicle
         z, bmp, m = v.spawn(float(tmap.height(x, y))), Path(arena_dir) / tmap.meta['bmp'], tmap.meta
-        chrono_data_paths(Path(chrono_data))
+        root = Path(chrono_data).resolve()              # configure_chrono_data_paths with absolute paths
+        hmmwv_data().configure_chrono_data_paths(root, dict(chrono_data_root=str(root),
+                                                            vehicle_data_root=str(root / 'vehicle')))
         dt = RIGID_STEP_S if soil is None else float(soil['step_s'])
         model = v.create((x, y, z), case['layout']['start_yaw'], tire_step=RIGID_TIRE_STEP_S if soil is None else dt,
                          soil=soil is not None)
@@ -194,15 +189,18 @@ class Sim:
         self.wheels = hmmwv_data().WHEEL_SPECS
         self.tire_radii = {n: float(self.vehicle.GetTire(axle, side).GetRadius()) for n, axle, side in self.wheels}
 
-    def follower(self, route, *, initialize):
+    def follower(self, route, *, initialize, z=None):
+        """The path follower on `route`: points >= 2 m apart (the last kept) at the TerrainMap height (M1: the sensed
+        heights `z`, one per waypoint) + 0.5 m."""
         import pychrono as chrono
         import pychrono.vehicle as veh
         pts, last, st = chrono.vector_ChVector3d(), -10.0, route['stations']
-        for (x, y), s in zip(route['waypoints'], st):
+        for i, ((x, y), s) in enumerate(zip(route['waypoints'], st)):
             if s - last < 2.0 and s != st[-1]:
                 continue
             last = s
-            pts.append(chrono.ChVector3d(float(x), float(y), float(self.tmap.height(x, y)) + 0.5))
+            h = float(self.tmap.height(x, y)) if z is None else float(z[i])
+            pts.append(chrono.ChVector3d(float(x), float(y), h + 0.5))
         fol = veh.ChPathFollowerDriver(self.vehicle, chrono.ChBezierCurve(pts), 'route', float(route['speeds'][0]))
         fol.GetSteeringController().SetLookAheadDistance(5.0)
         fol.GetSteeringController().SetGains(0.8, 0.0, 0.0)
@@ -276,14 +274,19 @@ class Sim:
                     slip_ratio=x[:, 10:14], fsi_force_wheel_fx_n=x[:, 14:18],
                     wheel_order=np.asarray(list(self.tire_radii)), tire_radius_m=np.asarray(list(self.tire_radii.values())))
 
-    def after_frame(self):
+    def chassis_pose(self):
+        """(pose (x, y, CardanZYX.z), z) of the chassis reference frame now."""
         ref = self.chassis.GetFrameRefToAbs()
-        pose = np.array([ref.GetPos().x, ref.GetPos().y, ref.GetRot().GetCardanAnglesZYX().z])
+        p = ref.GetPos()
+        return np.array([p.x, p.y, ref.GetRot().GetCardanAnglesZYX().z]), float(p.z)
+
+    def after_frame(self):
+        pose, z = self.chassis_pose()
         if not np.isfinite(pose).all():
             raise FloatingPointError(f'non-finite chassis pose {pose}')
         sink = None
         if self.soil is not None:
-            if ref.GetPos().z < float(self.tmap.height(pose[0], pose[1])) - 1.0:
+            if z < float(self.tmap.height(pose[0], pose[1])) - 1.0:
                 raise FellThrough(f'the vehicle fell through the soil at {pose}')
             sink = max(self.tire_radii[n] - (float((p := self.vehicle.GetSpindlePos(a, s)).z)
                                              - float(self.tmap.height(p.x, p.y))) for n, a, s in self.wheels)
