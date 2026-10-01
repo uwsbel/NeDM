@@ -1,4 +1,4 @@
-"""One drive: the episode loop, the stop rules and the approach-protocol branch (FINAL_DESIGN 2.2-2.3).
+"""One drive: the episode loop, the stop rules and the approach-protocol branch.
 
 Frame k (k < 0: the 0.8 s settle, 16 frames):
   top  [k == 0: hook.start] -> waypoint search (window 60, monotone) -> parking -> desired speed (0 while settling or
@@ -9,7 +9,8 @@ Frame k (k < 0: the 0.8 s settle, 16 frames):
 A Branch hook swaps the route at the end of frame F-1, which is the frozen collectors' top of frame F: nothing runs in
 between (gen_collect_ext.py:222-240).
 
-PARITY (recorded behaviour, FINAL_DESIGN 5; each follows from ground, vehicle, controller and task kind, never a switch):
+PARITY (recorded behaviour, numbered as cited elsewhere in the package; each follows from ground, vehicle, controller
+and task kind, never a switch):
   #5   the first follower is Initialize()d once before the settle; a branch builds a fresh one without Initialize()
        (zero PID memory) and the old ones stay alive; steering continuity comes from ep.prev_steer via the clamp.
   #6   settle: 16 frames at desired speed 0 with steering forced to 0, the follower's PID still integrating.
@@ -18,9 +19,9 @@ PARITY (recorded behaviour, FINAL_DESIGN 5; each follows from ground, vehicle, c
   #8   held feedback float32 (soil) vs float64 (rigid); the tracker observes before Synchronize with column 15 from
        the transmission and pushes the recorded float32 rows (soil) or its capture + float64 command (rigid).
   #9   the 40 s near-stop rule only for the held PID and the tracker (EvalConfig.near_stop_rule), after the native rules.
-  #10  stop order: [soil breakthrough ->] rollover -> goal -> bounds -> blockage -> [near-stop] -> timeout. Breakthrough:
-       the deepest wheel (stock tyre radius) below the BMP by more than soil depth + margin on 5 frames in a row
-       (crm_collect.py:285-293); a soil fall-through (sim.FellThrough) or a non-finite pose raises, never a label.
+  #10  stop order: [soil breakthrough ->] rollover -> goal -> bounds -> blockage -> [near-stop] -> timeout [-> mission
+       timeout]. Breakthrough: the deepest wheel (stock tyre radius) below the BMP by more than soil depth + margin on
+       5 frames in a row (crm_collect.py:285-293); a soil fall-through (sim.FellThrough) or a non-finite pose raises.
   #11  goal and rollover on the chassis reference after the frame's physics.
   #12  blockage: bounds first; < 40 recorded frames -> none; the last 40 poses + the post-frame pose within a 0.25 m
        diameter, all 40 throttles > 0.3 (float32 compare), no frame parked; nothing before 24 s; confirm 2 s, then an
@@ -28,6 +29,9 @@ PARITY (recorded behaviour, FINAL_DESIGN 5; each follows from ground, vehicle, c
   #13  branch: rigid keeps the case goal (route end within 0.25 m of it); soil re-targets to the route end (within
        0.5 m of the case goal, crm_collect_ext.py:157-158, 212); start within 1.0 m at F.
   #16  launch check and terminal Synchronize for single-goal tasks only.
+  #26  M1 (nav.NavHook): every route change builds a follower WITH Initialize() on sensed path heights; NavPID's
+       SpeedPI integral is carried; no SetDesiredSpeed after the settle; the leg clock, blockage window and leg
+       timeout restart at each waypoint (gen_mission_runner.LegStop), then the 700 s mission timeout.
 Positive work is summed per substep into the frame, then frame by frame (Python float, sequential).
 """
 
@@ -38,7 +42,7 @@ import math
 import numpy as np
 
 from .config import DT
-from .routes import ENDS_TOL_M, route_sha256
+from .routes import ARENA_HALF_M, ENDS_TOL_M, route_sha256
 
 SETTLE_FRAMES, WP_WINDOW = 16, 60
 RAD60 = math.radians(60.)
@@ -55,14 +59,14 @@ class Episode:
         self.total_work, self.status, self.terminal_state = 0., None, None
         self._follow(route, initialize=True)
 
-    def _follow(self, route, initialize):
-        self.fol = self.sim.follower(route, initialize=initialize)
+    def _follow(self, route, initialize, z=None):
+        self.fol = self.sim.follower(route, initialize=initialize, z=z)
         self.route, self.wp = route, 0
         self.xy, self.speeds = np.asarray(route['waypoints'], float), np.asarray(route['speeds'], float)
 
-    def switch(self, route, *, initialize):
+    def switch(self, route, *, initialize, z=None):
         self.old_followers.append(self.fol)
-        self._follow(route, initialize)
+        self._follow(route, initialize, z)
         self.ctrl.switch(self, route)
 
     def record(self, m):                            # (state, action, pose, power[, soil crm_extra row])
@@ -75,9 +79,6 @@ class Episode:
         self.parked.append(self.at_end)
         self.desired_log.append(self.desired)
         self.after = after
-
-    def finish(self, status, terminal_state):
-        self.status, self.terminal_state = status, terminal_state
 
     def arrays(self) -> dict:
         """trajectory.npz in the collectors' key names (row k = substep 0 of frame k; terminal = after the last)."""
@@ -130,7 +131,7 @@ def drive_episode(sim, route, ctrl, stops, hook=None, *, launch_check=True) -> E
             ctrl.frame_end(ep)
             status = hook.end_frame(ep) if hook is not None else stops.check(ep)
         k += 1
-    ep.finish(status, sim.terminal(u) if launch_check else None)      # u: set by the settle
+    ep.status, ep.terminal_state = status, sim.terminal(u) if launch_check else None      # u: set by the settle
     return ep
 
 
@@ -141,7 +142,7 @@ class Blockage:
         self.first = None                                # when the current qualifying run of windows began
 
     def check(self, elapsed, pose, action, parked, post_pose):
-        if np.max(np.abs(np.asarray(post_pose)[:2])) > 40.:
+        if np.max(np.abs(np.asarray(post_pose)[:2])) > ARENA_HALF_M:
             return 'terrain_bounds_exit'
         if len(action) < 40:
             return None
@@ -163,10 +164,16 @@ class Stops:
     """The stop rules of a drive, first match wins (module docstring #10). Pure in the episode's recorded rows and its
     post-frame state `ep.after`, so stored drives can be replayed through it (test A3)."""
 
-    def __init__(self, goal, radius, *, near_stop=False, horizon_s=120., breakthrough_m=None):
+    def __init__(self, goal, radius, *, near_stop=False, horizon_s=120., breakthrough_m=None, mission_s=None):
         self.goal, self.radius, self.near_stop = np.asarray(goal, float), float(radius), near_stop
         self.frames, self.breakthrough_m = round(horizon_s / DT), breakthrough_m       # breakthrough_m: soil only
-        self.blk, self.near, self.near_stop_fired, self.deep, self.max_sinkage = Blockage(), 0, False, 0, 0.
+        self.near, self.near_stop_fired, self.deep, self.max_sinkage, self.mission_s = 0, False, 0, 0., mission_s
+        self.new_leg(0, goal)
+
+    def new_leg(self, k0, goal):
+        """From recorded frame k0 on, `goal` is the target; the blockage clock and window and the timeout (horizon_s)
+        count from k0 (M1: gen_mission_runner.LegStop per waypoint, nav_runner.py:410)."""
+        self.leg0, self.goal, self.blk = k0, np.asarray(goal, float), Blockage()
 
     def check(self, ep):
         a, k = ep.after, ep.k
@@ -179,20 +186,22 @@ class Stops:
             return 'rollover'
         if np.linalg.norm(a.pose[:2] - self.goal) <= self.radius:
             return 'goal_reached'
-        if s := self.blk.check((k + 1) * DT, ep.pose, ep.action, ep.parked, a.pose):
+        n = self.leg0
+        if s := self.blk.check((k + 1 - n) * DT, ep.pose[n:], ep.action[n:], ep.parked[n:], a.pose):
             return s
         if self.near_stop:                               # 800 frames |vx| < 0.3, not parked, any throttle
             self.near = self.near + 1 if not ep.parked[-1] and abs(float(ep.state[-1][0])) < .3 else 0
             if self.near >= 800:
                 self.near_stop_fired = True
                 return 'prolonged_blockage_terminated'
-        return 'timeout' if k + 1 >= self.frames else None
+        if k + 1 - n >= self.frames:
+            return 'timeout'
+        return 'mission_timeout' if self.mission_s is not None and (k + 1) * DT >= self.mission_s else None
 
 
 class Branch:
-    """Pass 2 of the approach protocol (SPEC 1.2): drive the approach, then at the top of frame F a fresh follower
-    (no Initialize) on the picked route from wherever the vehicle is; rigid keeps the case goal, soil takes the route
-    end (module docstring #13)."""
+    """Pass 2 of the approach protocol: drive the approach, then at the top of frame F a fresh follower (no
+    Initialize) on the picked route from wherever the vehicle is (module docstring #13)."""
 
     def __init__(self, F, route, goal, soil=False):
         end, tol = float(np.linalg.norm(np.asarray(route['waypoints'][-1], float) - goal)), .5 if soil else ENDS_TOL_M

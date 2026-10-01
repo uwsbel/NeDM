@@ -1,4 +1,4 @@
-"""Import boundaries of nedm.traversing.evaluation (FINAL_DESIGN 1.5), one fresh interpreter per module (stdlib
+"""Import boundaries of nedm.traversing.evaluation, one fresh interpreter per module (stdlib
 unittest only). The package (its lazy exports included), config, suites, labels, routes and the Chrono half (sim,
 vehicles, controllers, episode, runner: pychrono inside functions only) load no torch; no module loads pychrono, scipy,
 yaml, the experiment branch (nedm.traverse) or another study's code (nedm.core) at import.
@@ -14,7 +14,7 @@ from pathlib import Path
 SRC = Path(__file__).resolve().parents[3] / 'src'
 BANNED = ('pychrono', 'scipy', 'yaml', 'nedm.traverse', 'nedm.core')
 TORCH_FREE = ('', '.config', '.suites', '.labels', '.routes', '.sim', '.vehicles', '.controllers', '.episode', '.runner')
-RULES = {**{m: BANNED + ('torch',) for m in TORCH_FREE}, '.planner': BANNED, '.refine': BANNED}
+RULES = {**{m: BANNED + ('torch',) for m in TORCH_FREE}, '.planner': BANNED, '.refine': BANNED, '.nav': BANNED}
 CODE = '''import importlib, sys
 m = importlib.import_module({mod!r})
 [getattr(m, a) for a in {attrs!r}]

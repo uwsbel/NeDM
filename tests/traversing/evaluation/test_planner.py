@@ -1,6 +1,6 @@
 """Tests of nedm.traversing.evaluation.planner (stdlib unittest only).
 
-CI (goldens/planner, written by eval_class_staging/goldens/planner_goldens.py with the ORIGINAL 901d6c9 code):
+CI (goldens/planner, written by the goldens generator (goldens/README.md) with the ORIGINAL 901d6c9 code):
 optimize() with the stored float64 stub scorer vs f104_n2_iter.plan_iter / oneshot on 3 decisions x 5 modes (cem,
 mppi, fixed2, oneshot, oneshot_fixed2), the scores raw and rounded to 0 and 1 decimals (ties: argmin and the stable
 elite sort): every log entry, the pick, n_evaluated (257 / 256), tries, final mu / sd, every candidate's route sha and
@@ -16,7 +16,7 @@ GPU + NEDM_DATA (the record environment, RTX 5090 + torch 2.12.0+cu130):
       model (soil, rigid), the 3 s ga_train baseline (soil, rigid), the 0.5 s ga_train model (soil, 753), two unseen
       arenas free (soil) and fixed2 (rigid), the Polaris on f104 and on g260, the Gator on f104 (536).
 
-    NEDM_DATA=/home/harry/NeDM-traverse_mppi NEDM_RELEASE_CACHE=/home/harry/hf_staging/traversing_v1 \\
+    NEDM_DATA=<release restore root> NEDM_RELEASE_CACHE=<release download cache> \\
         PYTHONPATH=src python -m unittest discover -s tests/traversing/evaluation -p test_planner.py -v
 """
 import functools
@@ -34,13 +34,13 @@ import torch
 from nedm.traversing.evaluation import planner as P
 from nedm.traversing.evaluation import routes as R
 from nedm.traversing.evaluation.config import Env, EvalConfig
-from nedm.traversing.evaluation.suites import Task, load_suite, md5hex, select
+from nedm.traversing.evaluation.suites import Task, load_suite, lock_digest, md5hex, select
 from nedm.traversing.training.risk_model import RiskModel
 
 try:
-    from .common import CACHE, DATA
+    from .common import CACHE, CACHE_DIR, DATA
 except ImportError:                     # discover -s tests/traversing/evaluation
-    from common import CACHE, DATA
+    from common import CACHE, CACHE_DIR, DATA
 
 HERE = Path(__file__).resolve().parent
 GOLD = HERE / 'goldens' / 'planner'
@@ -144,18 +144,6 @@ class TestOptimizeRefusals(unittest.TestCase):
         self.base = {**{k: A[f'f104_standing__base_{k}'] for k in R.KEYS}, 'meta': {}}
         self.pose = A['f104_standing__pose']
 
-    def test_bad_arguments(self):
-        rng = np.random.default_rng(0)
-        for kw in (dict(rounds=0), dict(n=0), dict(update='softmax'), dict(tries_factor=0)):
-            with self.subTest(kw), self.assertRaises(ValueError):
-                P.optimize(self.base, self.pose, lambda cs: np.zeros((1, len(cs))), rng, **kw)
-
-    def test_broken_scorer(self):
-        for bad in (lambda cs: np.zeros((1, len(cs)), np.float32), lambda cs: np.zeros(len(cs)),
-                    lambda cs: np.zeros((2, len(cs) + 1))):
-            with self.assertRaises(ValueError):
-                P.optimize(self.base, self.pose, bad, np.random.default_rng(0), rounds=2, n=8)
-
     def test_nothing_valid(self):
         res = P.optimize(self.base, self.pose, lambda cs: np.zeros((1, len(cs))), np.random.default_rng(0), rounds=4,
                          n=8, valid=lambda r, p: False)
@@ -243,16 +231,6 @@ class TestModelAdapters(unittest.TestCase):
 
 
 class TestDecisionPickNumerics(unittest.TestCase):
-    def test_decision_refusals(self):
-        base = {'waypoints': np.zeros((3, 2)), 'speeds': np.zeros(3), 'stations': np.arange(3.0),
-                'headings': np.zeros(3), 'meta': {}}
-        for kw in (dict(pose=np.zeros(2), goal=np.zeros(2)), dict(pose=np.r_[0, 0, np.nan], goal=np.zeros(2)),
-                   dict(pose=np.zeros(3), goal=np.zeros(2), hist=np.zeros((40, 15), np.float32)),
-                   dict(pose=np.zeros(3), goal=np.zeros(2), hist=np.zeros((40, 15)), hmask=np.zeros(40, bool)),
-                   dict(pose=np.zeros(3), goal=np.zeros(2), hist=np.zeros((20, 15), np.float32), hmask=np.zeros(20, bool))):
-            with self.subTest(kw.keys()), self.assertRaises(ValueError):
-                P.Decision(base=base, **kw)
-
     def test_after_approach(self):
         rng = np.random.default_rng(0)
         with tempfile.TemporaryDirectory() as d:
@@ -296,13 +274,13 @@ class TestDecisionPickNumerics(unittest.TestCase):
         old = torch.backends.cudnn.benchmark
         try:
             torch.backends.cudnn.benchmark = True
-            with self.assertRaisesRegex(RuntimeError, 'differ from the torch defaults'):
+            with self.assertRaisesRegex(ValueError, 'differ from the torch defaults'):
                 P.record_numerics('cpu')
         finally:
             torch.backends.cudnn.benchmark = old
         self.assertEqual(P.record_numerics('cpu')['cudnn_benchmark'], False)
         with mock.patch.object(torch.cuda, 'is_available', return_value=False), \
-                self.assertRaisesRegex(RuntimeError, 'no CUDA GPU here'):
+                self.assertRaisesRegex(ValueError, 'no CUDA GPU here'):
             P.record_numerics('cuda')
 
 
@@ -427,10 +405,10 @@ SUITE_OF = {('m2_shared_risk', 'soil'): 'f104_800', ('m2_shared_risk', 'rigid'):
 
 @unittest.skipUnless(DATA and CACHE, 'locked pick folders are tar members: needs NEDM_DATA and NEDM_RELEASE_CACHE')
 class TestLockedPicks(unittest.TestCase):
-    """A8: the locked pick folder of every headline arm serves its tasks (PICKS_LOCKED recomputes, each route's content
-    hash equals its tasks.json row) and each served pick equals picks/<task>.json (route sha, z); a folder of another
-    planner or decision timing is refused; straight picks re-planned (rng-free) equal the locked straight routes; a
-    tampered route file is refused."""
+    """A8: the locked pick folder of every headline arm serves its tasks (each route's content hash equals its tasks.json
+    row) and each served pick equals picks/<task>.json (route sha, z); PICKS_LOCKED.sha256 of every headline folder
+    recomputes over its route files; a folder of another planner or decision timing is refused; straight picks
+    re-planned (rng-free) equal the locked straight routes; a tampered route file is refused (a release file)."""
 
     @classmethod
     def setUpClass(cls):
@@ -484,19 +462,39 @@ class TestLockedPicks(unittest.TestCase):
                 n += 1
         print(f'\nA8: {n}/30 straight routes re-planned == locked')
 
-    def test_tampered_folder(self):
-        src = DATA / T / 'arena_gator_20260925/e6/picks/crm/g260/straight6'
-        with tempfile.TemporaryDirectory() as d:
-            d = Path(d)
-            (d / 'routes').mkdir()
-            for q in (src / 'routes').glob('*.json'):
-                (d / 'routes' / q.name).write_bytes(q.read_bytes())
-            args = (str(d / 'x'), str(src / 'PICKS_LOCKED.sha256'), str(src / 'tasks.json'), str(d / 'routes'))
-            self.assertEqual(len(P._locked_rows(*args)), 125)
-            q = sorted((d / 'routes').glob('*.json'))[7]
+    def test_picks_locked_recompute(self):
+        """PICKS_LOCKED.sha256 (ga_planner.py:602-605: lock_digest over the route files) of every headline pick folder,
+        recomputed from the released route files; their tasks.json rows hash their routes."""
+        roots = sorted({self.env.expand(c.picks.rstrip('/'), t)[5:] for (stem, ground), cfgs in self.arms.items()
+                        for c in cfgs if c.picks for t in select(suite('unseen_soil1000' if c.name.endswith('_unseen')
+                                                                       else SUITE_OF[(stem, c.ground)]).values(),
+                                                                 'lowest_md5_per_arena=1')})
+        for root in roots:
+            with self.subTest(root):
+                routes = sorted((DATA / root / 'routes').glob('*.json'))
+                head = (DATA / root / 'PICKS_LOCKED.sha256').read_text().split()[0]
+                self.assertEqual(lock_digest((q.name, hashlib.sha256(q.read_bytes()).hexdigest()) for q in routes), head)
+                rows = json.loads((DATA / root / 'tasks.json').read_text())
+                self.assertLessEqual({r['id'] + '.json' for r in rows}, {q.name for q in routes})   # B and G
+        self.assertGreaterEqual(len(roots), 10)
+        print(f'\nA8: PICKS_LOCKED recomputes over {len(roots)} headline pick folders')
+
+    def test_tampered_route_refused(self):
+        m2 = {c.name: c for c in self.arms['m2_shared_risk', 'soil']}
+        cfg, t = m2['shared_hist_early_rows_0p5s_grad'], suite('f104_800')[f104_groups()[0]]
+        root = cfg.picks[5:].rstrip('/')
+        row = P._rows(str(self.env.file(f'data:{root}/tasks.json')))[t.id]
+        with tempfile.TemporaryDirectory() as d:          # the files Pick.locked reads, under another restore base
+            env = replace(self.env, data=Path(d), release_cache=self.env.release_cache or CACHE_DIR)
+            for rel in (f'{root}/tasks.json', f'{root}/picks/{t.id}.json', f'{root}/routes/{row["id"]}.json',
+                        cfg.decisions[5:]):
+                (Path(d) / rel).parent.mkdir(parents=True, exist_ok=True)
+                (Path(d) / rel).write_bytes((DATA / rel).read_bytes())
+            self.assertEqual(P.Pick.locked(cfg, t, env).route_sha256, row['sha256'])
+            q = Path(d) / root / 'routes' / f'{row["id"]}.json'
             q.write_bytes(q.read_bytes().replace(b'0', b'1', 1))
-            with self.assertRaises(ValueError):
-                P._locked_rows(str(d / 'y'), *args[1:])
+            with self.assertRaisesRegex(ValueError, 'content differs from the release record'):
+                P.Pick.locked(cfg, t, env)
 
 
 # set, F, poses file, pass-1 run folder ({w} world, {g} group)

@@ -1,6 +1,12 @@
 # M1: live depth camera in the planning loop. Suite missions30 (tasks_main.json ea670e3e...); luffy only.
 # Seeds: one rng stream per mission, md5(mission + mode + str(period)) (nav_runner.py:145).
 # Arm names are the arm column of traversing/results/m1_navigation_missions.csv.
+# luffy recipe (nav_local.py): the fork build is compiled against the system Python 3.12 + numpy 1.26 and torch lives
+# in the conda env, so the system site comes before the conda site on the path (no stdlib name is shadowed):
+#   PYTHONPATH=/home/harry/chrono/build/bin:src:/usr/lib/python3/dist-packages:$CONDA/lib/python3.12/site-packages \
+#   NEDM_DATA=... NEDM_RELEASE_CACHE=... NEDM_CHRONO_DATA=/home/harry/chrono/data /usr/bin/python3.12 \
+#   scripts/traversing/evaluation/run.py --arms configs/traversing/evaluation/m1_navigation.toml --suite missions30 \
+#   --out OUT --workers 6
 
 [defaults]
 planner = "live"        # one-shot 256 on the live grid + footprint mask; bound 37 -> 45 m; 45 deg reversal; rescue ladder

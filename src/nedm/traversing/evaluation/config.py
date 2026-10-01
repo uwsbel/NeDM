@@ -1,21 +1,12 @@
 """One evaluation arm (``EvalConfig``) with its validated matrix, the TOML arm files, the machine paths (``Env``) and the
 ``data:`` resolver that checks every released input against the pinned release manifest.
 
-An arm is WHAT is evaluated (vehicle, ground, decision timing, planner, controller, label; FINAL_DESIGN 2.1) and is
-portable. ``Env`` holds the machine paths: ``$NEDM_DATA`` is the release restore base (artifacts/traverse/...,
-assets/traverse/...), ``$NEDM_CHRONO_DATA`` the data folder of the Chrono build, ``$NEDM_RELEASE_CACHE`` the Hub mirror
-holding the tar items' index.csv.gz (default ``$NEDM_DATA/artifacts/hf_release/download``, where
-download_traversing_data.py leaves it).
-
-References: ``data:<restore path>`` resolves under ``Env.data`` and is checked on first use against the sha256 of
-traversing/manifests/hf_release_manifest.json (plain files directly, tar members through their item's index, whose own
-sha256 the manifest pins). ``{arena}`` / ``{task}`` expand per task. Other paths are absolute or repo-relative.
-
-``validate()`` returns every problem at once (FINAL_DESIGN 4.1): refusals, combinations outside the validated matrix (run
-only with ``allow_unvalidated``; ``validated`` is stamped in every record; an arm without a ``build_lock`` is outside it)
-and, given an ``Env``, the input files.
-Arm files are TOML: a ``[defaults]`` table merged (shallow) under each ``[[arm]]``. Single-goal one-shot pools (arms
-A, D) are not offered (SPEC 3: Drop); ``rounds`` >= 2 (M1 plans its one-shot pool inside nav.py).
+``$NEDM_DATA`` is the release restore base, ``$NEDM_CHRONO_DATA`` the data folder of the Chrono build and
+``$NEDM_RELEASE_CACHE`` the Hub mirror holding the tar items' index.csv.gz (default
+``$NEDM_DATA/artifacts/hf_release/download``). A ``data:<restore path>`` reference is checked on first use against
+traversing/manifests/hf_release_manifest.json; ``{arena}`` / ``{task}`` expand per task; other paths are absolute or
+repo-relative. ``validate()`` returns every problem at once: refusals, combinations outside the validated matrix (run
+only with ``allow_unvalidated``, stamped in every record) and, given an ``Env``, the input files.
 """
 
 from __future__ import annotations
@@ -85,8 +76,7 @@ def write_atomic(path, data):
 
 
 def soil_config(ref, env) -> tuple[Path, dict]:
-    """The CRM soil config `ref` ('crm_main' or a JSON reference) and its content: every SOIL_KEYS key given, step_s
-    dividing 0.05 s (crm_collect.py:201-203)."""
+    """(path, content) of soil config `ref` ('crm_main' or JSON): all SOIL_KEYS, step_s divides 0.05 (crm_collect.py:201)."""
     p = env.file(SOIL_CONFIGS.get(ref, ref))
     c = json.loads(p.read_text())
     miss = [k for k in SOIL_KEYS if k.rpartition('.')[2] not in (c.get(k.partition('.')[0], {}) if '.' in k else c)]
@@ -97,7 +87,7 @@ def soil_config(ref, env) -> tuple[Path, dict]:
 
 @dataclass(frozen=True)
 class EvalConfig:
-    """One arm = one results column (field meanings: FINAL_DESIGN 2.1)."""
+    """One arm = one results column (the switches: README.md)."""
     name: str
     vehicle: str = 'hmmwv'
     ground: str = 'rigid'
@@ -190,7 +180,7 @@ def _types(c: EvalConfig) -> list[str]:
 
 
 def _matrix(c: EvalConfig) -> tuple[list[str], list[str]]:
-    """(refused, off-matrix) from the fields alone (FINAL_DESIGN 4.1); the types are already checked."""
+    """(refused, off-matrix) from the fields alone; the types are already checked."""
     R, U = [], []
 
     def rule(ok, msg, to=R):
@@ -205,7 +195,8 @@ def _matrix(c: EvalConfig) -> tuple[list[str], list[str]]:
         if v.startswith('m113') else ''))
     for k, allowed in (('ground', GROUNDS), ('planner', PLANNERS), ('update', UPDATES), ('controller', CONTROLLERS),
                        ('label', LABELS)):
-        rule(getattr(c, k) in allowed, f'{k} {getattr(c, k)!r} is not one of {allowed}')
+        rule(getattr(c, k) in allowed, f'{k} {getattr(c, k)!r} is not one of {allowed}' + (
+            ' (MPPI: planner "cem" with update = "mppi"; gradient refinement: "cem_grad")' if k == 'planner' else ''))
     rule(re.fullmatch(r'[A-Za-z0-9]+(_[A-Za-z0-9]+)*', c.name), f'name {c.name!r}: letters, digits, single underscores')
     # vehicle x ground
     rule(not (v.startswith('polaris') and g == 'rigid'), f'{v} on rigid ground: no rigid Polaris path (ov_vehicle.py)')
@@ -231,8 +222,8 @@ def _matrix(c: EvalConfig) -> tuple[list[str], list[str]]:
     rule(c.speed is None or 0.5 <= c.speed <= 6.0, f'speed {c.speed}: route speeds are clipped to [0.5, 6] m/s')
     rule(p != 'straight' or c.speed in (None, *ANCHOR_SPEEDS), f'straight at {c.speed} m/s: the straight route is the '
          f'offset-0 anchor at one of {ANCHOR_SPEEDS} m/s (routes.straight)')
-    rule(c.rounds >= 2 and c.samples >= 1, 'rounds must be >= 2 and samples >= 1 (single-goal one-shot pools, arms A '
-         'and D, are dropped: SPEC 3)')
+    rule(c.rounds >= 2 and c.samples >= 1, 'rounds must be >= 2 and samples >= 1 (the single-goal one-shot pools of '
+         'arms A and D are dropped)')
     rule(not no_search or (c.rounds, c.samples, c.update) == (4, 64, 'cem'),
          f'rounds / samples / update are not used by planner {p}')
     rule(c.picks is None or p in PICK_ARMS, f'locked picks with planner {p}')
@@ -295,6 +286,8 @@ def _inputs(c: EvalConfig, env: Env, tasks, model_info) -> list[str]:
         return list((attempt(lambda: {env.expand(ref, t): t for t in tasks}) or {}).values()) if '{' in ref else [None]
 
     world = {'soil': 'crm', 'rigid': 'rigid'}.get(c.ground)
+    if bad := [t.id for t in tasks if (t.kind == 'mission') != (c.planner == 'live')]:
+        P.append(f'{len(bad)} tasks: planner live drives missions, the other planners single-goal tasks (e.g. {bad[:3]})')
     if c.models:
         ckpts = attempt(env.glob, c.models) or []
         info = [i for i in (attempt(model_info, q) for q in ckpts) if i] if model_info is not None else []
@@ -318,8 +311,7 @@ def _inputs(c: EvalConfig, env: Env, tasks, model_info) -> list[str]:
                 P.append(f'decisions {c.decisions}: frames {dict(frames)}, approach_s {c.approach_s} needs F = {c.F}')
             if missing := [t.id for t in tasks if t.id not in poses]:
                 P.append(f'decisions {c.decisions}: no state for {len(missing)} tasks (e.g. {missing[:3]})')
-    for t in per_task(c.picks) if c.picks else ():      # the pick folder was made for this arm (its summary.json;
-        attempt(env.file, c.picks.rstrip('/') + '/PICKS_LOCKED.sha256', t)      # Pick.locked checks each decision pose)
+    for t in per_task(c.picks) if c.picks else ():      # the pick folder was made for this arm (Pick.locked: each pose)
         s = attempt(lambda: json.loads(env.file(c.picks.rstrip('/') + '/summary.json', t).read_text())) or {}
         made = (s.get('world'), _tail(s.get('models')), s.get('mode') if c.planner == 'straight' else None,
                 tuple(s.get('arms', ())))
@@ -363,7 +355,7 @@ def load_arms(path, ground: str | None = None) -> list[EvalConfig]:
         P += [] if ground in GROUNDS else [f'ground {ground!r} is not one of {GROUNDS}']
         arms = [c for c in arms if c.ground == ground]
     elif both := sorted({c.name for c in arms if c.ground == 'soil'} & {c.name for c in arms if c.ground == 'rigid'}):
-        P.append(f'arms {both} exist on both grounds: pass ground (rigid | soil)')
+        P.append(f'arms {both} exist on both grounds: choose one (ground=, --ground rigid | soil)')
     if P or not arms:
         raise ConfigError([f'{path}: {m}' for m in P or [f'no [[arm]] tables (ground {ground})']])
     return arms
@@ -411,9 +403,6 @@ class Release:
 
     def file(self, rel: str) -> Path:
         """``data / rel`` after checking its size and sha256 against the release (once per file state)."""
-        q = PurePosixPath(rel)
-        if q.is_absolute() or '..' in q.parts or q.as_posix() != rel:
-            raise ReleaseError(f'{rel!r} is not a normalised restore path')
         sha, nbytes = self.record(rel)
         p = self.data / rel
         if not p.is_file():
@@ -454,9 +443,8 @@ class Env:
     @classmethod
     def from_environ(cls, environ=None) -> Env:
         e = os.environ if environ is None else environ
-        P = ['NEDM_VEHICLE is set: every arm names its vehicle (ov_vehicle.py:136-138)'] if e.get('NEDM_VEHICLE') else []
         dirs = {k: Path(e[k]) for k in ('NEDM_DATA', 'NEDM_CHRONO_DATA', 'NEDM_RELEASE_CACHE') if e.get(k)}
-        P += [f'{k}={p} is not a directory' for k, p in dirs.items() if not p.is_dir()]
+        P = [f'{k}={p} is not a directory' for k, p in dirs.items() if not p.is_dir()]
         P += [] if 'NEDM_DATA' in dirs else ['NEDM_DATA (the release restore base) is not set']
         if P:
             raise ConfigError(P)

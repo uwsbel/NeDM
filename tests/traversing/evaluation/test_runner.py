@@ -1,4 +1,4 @@
-"""The run folder without Chrono (FINAL_DESIGN 4.4-4.5, 8.1 test 6): every drive is a fake drive process (the real
+"""The run folder without Chrono: every drive is a fake drive process (the real
 spawn with a patched subprocess.run that writes the record a drive would) and the node is patched. No partial run is
 counted and DONE is written last and re-checked; a resume on the pinned node re-drives only unfinished arms, a resume
 on another node re-drives every pair with an unfinished arm whole (pair-atomic) keeping the picks no pass 1 made; the
@@ -15,6 +15,7 @@ import os
 import tempfile
 import time
 import unittest
+from dataclasses import replace
 from pathlib import Path
 from types import SimpleNamespace
 from unittest import mock
@@ -72,7 +73,7 @@ def sha(p):
 
 
 def node(host='nodeA', build='b1', code=None):
-    return lambda env: dict(host=host, job_id=None, build_sha=build, fingerprint={}, code_sha=code or R.code_sha())
+    return lambda env, **_: dict(host=host, job_id=None, build_sha=build, fingerprint={}, code_sha=code or R.code_sha())
 
 
 class Base(unittest.TestCase):
@@ -213,6 +214,26 @@ class TestRunFolder(Base):
         (self.out / f'runs/{self.tasks[3].id}/pid_native/route.json').write_text('{}')
         with self.assertRaisesRegex(RuntimeError, 'changed after DONE'):
             R.cells(self.out, self.env)
+
+    def test_plan_stage_needs_no_gpu_and_refuses_pass1_arms(self):
+        """Stage plan drives nothing: a soil run plans without --gpus and without the build fingerprint; an arm whose
+        decision needs its own approach drive (pass 1) is refused up front."""
+        soil = R.TraversalEval(EvalConfig(name='soil_pid', ground='soil', soil_config='crm_main', **GIVEN), self.out,
+                               self.env)
+        ids = [t.id for t in self.tasks]
+        with mock.patch.object(R, 'load_run', return_value=([soil], {t.id: t for t in self.tasks}, [ids])), \
+                mock.patch.object(R, 'fingerprint', side_effect=ConfigError(['no pychrono here'])):
+            self.assertEqual(R.run_block(self.out, 0, stage='plan', env=self.env), [])      # the real node_info
+        self.assertEqual(len(list((self.out / 'runs').glob('*/soil_pid/pick.json'))), 5)
+        early = R.TraversalEval(TestTwoPass.ARM, self.out, self.env)
+        with mock.patch.object(R, 'load_run', return_value=([early], {}, [[]])), \
+                self.assertRaisesRegex(ConfigError, 'decides after its own approach drive'):
+            self.block(FakeDrive(), stage='plan')
+        for kw in (dict(decisions='data:x/poses_rigid_all.json'), dict(decisions='data:x/poses_rigid_all.json',
+                                                                       picks='data:p')):
+            ok = R.TraversalEval(replace(TestTwoPass.ARM, **kw), self.out, self.env)
+            with mock.patch.object(R, 'load_run', return_value=([ok], {}, [[]])):
+                self.assertEqual(self.block(FakeDrive(), stage='plan'), [])
 
     def test_drive_refuses_bad_inputs_before_chrono(self):
         """Route ends, a soil config without a key and an unreadable input refuse (ConfigError; the child exits 3, never

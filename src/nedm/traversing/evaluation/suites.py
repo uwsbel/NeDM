@@ -2,21 +2,11 @@
 
 A ``Task`` keeps the exact original id: it seeds md5(id + tag), keys the pairing and the result tables. ``load_suite``
 reads a released suite under ``Env.data`` and verifies every file it hands out; the Task pins each file's sha256 as
-checked, so a worker (``Task.from_dict`` with its own Env) re-checks every file it reads (``read_case``, ``read_route``):
-- ``f104_800`` (M2, M4b): SUITE_LOCKED.sha256 4327c110... over suite.json + tasks_crm.json + tasks_rigid.json
-  (ga_suite.py:317-327); suite.json pins each case and route_00. The approach route of each group (the a5 and a5data
-  folders hold the same content) is pinned by content hash in approach_suite_index.json (sha c2e3474a...).
-- ``unseen_soil1000`` / ``unseen_rigid2000`` (M4a, M4b): ALL_LOCKED c2d0022c... (E1: g247 g251 g260 g271) and
-  ALL_LOCKED_E1b e2909946... (E1b: g241 g258 g263 g268) pin each arena's SUITE_LOCKED, which pins every case and
-  route (ag_suite_lock.py:34-40). Soil drives the 125 lowest md5(group) per arena, asserted equal to
-  soil_unseen_subset.json (SUBSETS_LOCKED_E1b 05039510...).
-- ``tracker423`` (M3): tracking_suite.json a53b0eb6... pins each case and reference route.
-- ``missions30`` (M1): tasks_main.json ea670e3e... names the 30 missions; mission files are release-checked.
-- ``smoke144`` (M4b smoke): sample A (sample_A.json afb0607f...) of smoke_v2_polaris.json (a4eaf300...); its cases and
-  routes are release-checked (they are tar members: the item index must be in the release cache).
-- ``custom:<dir>``: cases written by ``make_case`` (or copies of released cases), checked but not locked.
-Every arena must be 80 m and its planner map rendered from its BMP (ag_map_check). Given, approach and custom route_00
-routes must start and end within 0.25 m of the case start and goal (crm_collect.py:199-200).
+checked, so a worker (``Task.from_dict`` with its own Env) re-checks every file it reads (``read_case``, ``read_route``).
+f104_800 and the unseen suites are checked through the study's lock files (heads in LOCKS), the other suites through
+the release manifest; ``custom:<dir>`` holds cases written by ``make_case`` (checked, not locked). Every arena must be
+80 m; given, approach and custom route_00 routes must start and end within 0.25 m of the case start and goal
+(crm_collect.py:199-200).
 """
 
 from __future__ import annotations
@@ -30,8 +20,8 @@ from pathlib import Path, PurePosixPath
 
 import numpy as np
 
-from .config import ConfigError, Env, ReleaseError, sha256_file, write_atomic
-from .routes import ENDS_TOL_M, KEYS, ends_within, load_route, route_sha256
+from .config import ConfigError, Env, ReleaseError, write_atomic
+from .routes import ARENA_HALF_M, ENDS_TOL_M, GOAL_RADIUS_M, KEYS, ends_within, load_route, route_sha256
 
 T = 'artifacts/traverse/'
 F104_SUITE, APPROACH = T + 'generalist_20260921/A_adapt/suite/', T + 'crm_improve_20260922/a5data/approach_suite'
@@ -40,15 +30,11 @@ LOCKS = dict(f104_800='4327c110b962631ca6b4f849e049ff55320d748e0a0db62df35cc1953
              approach='c2e3474a1dc5cc86a17b00ee1e909115e265baa050408c4e8395e231fcd2a040',          # index file sha
              E1='c2d0022c5a31f44ef55129895e4eedea403e59abfe5635beb3dd98f5daf8c334',                 # ALL_LOCKED head
              E1b='e29099465eb7071c97174e821eb8f309b40901491e4c7a5cce8e02d40cf1e7fe',                # ALL_LOCKED_E1b head
-             subsets='05039510ceccda33781f895c6e4ef2258001019a6a362cdb0fc0447ad79d6f25',            # SUBSETS_LOCKED_E1b
-             tracker423='a53b0eb69381e7b437c6afbe3e339c1671c28c727c10f2c5912472368b9ca2e5',         # tracking_suite.json
-             missions30='ea670e3ec84f4ef5664113807b50f34acaedfa92a79244068fecb4798ccd9f2b',         # tasks_main.json
-             smoke_tasks='a4eaf3001355a14e925e01d1bdb73dd2a23ce00a6c43b70719f6fd21799e7cc3',        # smoke_v2_polaris
-             smoke144='afb0607f659b7bbbc989c8b9428d32728bece9943839d43b3e21ab18c7dffdec')           # sample_A.json
+             subsets='05039510ceccda33781f895c6e4ef2258001019a6a362cdb0fc0447ad79d6f25')            # SUBSETS_LOCKED_E1b
 UNSEEN = dict(g260='E1', g271='E1', g251='E1', g247='E1', g258='E1b', g268='E1b', g263='E1b', g241='E1b')
 MAPS = {'f104': T + 'crm_f104_v1/maps/arena_f104_50h_v1',
         **{g: T + f'arena_gator_20260925/maps/arena_{g}' for g in ('g203', 'g217', 'g228', *sorted(UNSEEN))}}
-SPLITS, SOIL_PER_ARENA, _ARENAS = ('train', 'val', 'test'), 125, {}
+SPLITS, SOIL_PER_ARENA, _ARENAS = ('train', 'val', 'test'), 125, {}     # unseen soil: the 125 lowest md5 per arena
 FILES = ('case', 'route00', 'route', 'approach', 'map')        # Task path fields, each pinned in Task.sha
 
 
@@ -66,10 +52,6 @@ class Task:
     map: Path | None = None             # static_map_v1 folder of the arena (planner input), None if not released
     meta: dict = field(default_factory=dict, compare=False)
     sha: dict = field(default_factory=dict, compare=False)
-
-    def __post_init__(self):
-        if missing := [f for f in FILES if getattr(self, f) is not None and not self.sha.get(f)]:
-            raise ValueError(f'task {self.id}: no sha256 for {missing}')
 
     @property
     def kind(self) -> str:
@@ -114,8 +96,6 @@ def load_suite(name: str, subset: str | None = None, env: Env | None = None) -> 
         tasks = LOADERS[name](name, env)
     else:
         raise ConfigError([f'suite {name!r} is not one of {SUITES} or custom:<dir>'])
-    if len({t.id for t in tasks}) != len(tasks):
-        raise ReleaseError(f'{name}: duplicate task ids')
     return select(tasks, subset)
 
 
@@ -164,9 +144,9 @@ def make_case(out_dir, id, arena, start_xy, start_yaw, goal_xy, *, route=None, s
     P = [f'{k} {v!r}: letters, digits, _ . -' for k, v in (('id', id), ('arena', arena))
          if not (isinstance(v, str) and re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]*', v))]
     P += [] if split in SPLITS else [f'split {split!r} is not one of {SPLITS}']
-    P += [] if len(s) == len(g) == 2 and np.all(np.abs(s + g) < 40.0) and np.isfinite(float(start_yaw)) else [
+    P += [] if len(s) == len(g) == 2 and np.all(np.abs(s + g) < ARENA_HALF_M) and np.isfinite(float(start_yaw)) else [
         'start and goal must lie inside +-40 m, the yaw be finite']
-    P += [] if np.hypot(g[0] - s[0], g[1] - s[1]) > 2.5 else ['the goal lies within the 2.5 m goal radius of the start']
+    P += [] if np.hypot(*np.subtract(g, s)) > GOAL_RADIUS_M else ['the goal lies within the 2.5 m goal radius of the start']
     P += [] if not (out / f'{id}.json').exists() else [f'{out}/{id}.json exists']
     if P:
         raise ConfigError(P)
@@ -174,7 +154,7 @@ def make_case(out_dir, id, arena, start_xy, start_yaw, goal_xy, *, route=None, s
     case = dict(id=id, split=split, arena=f'assets/traverse/{arena_dir(arena, env).name}',
                 layout=dict(episode_id=id, seed=int(md5hex(id)[:8], 16), assets=[], house_xy=g, house_yaw=float(start_yaw),
                             start_xy=s, start_yaw=float(start_yaw)),
-                goal_xy=g, goal_radius_m=2.5, horizon_s=120.0, arena_half_extent_m=40.0)
+                goal_xy=g, goal_radius_m=GOAL_RADIUS_M, horizon_s=120.0, arena_half_extent_m=ARENA_HALF_M)
     if route is not None:
         _endpoints(route, case, f'route of {id}')
         (out / 'routes' / id).mkdir(parents=True, exist_ok=True)
@@ -258,25 +238,22 @@ def _route(path, case, sha=None, content=None) -> str:
 
 def _arena(arena, env, custom=False) -> tuple[Path | None, str | None]:
     """Checks an arena once per process: 80 m, BMP and meta release-checked when released (custom arenas may be new),
-    and its planner map (released for MAPS only) rendered from this BMP (ag_map_check). Returns the map folder and
-    the sha256 of its observation.npz (None, None without a map)."""
+    and its planner map (released for MAPS only; rendered from the released BMP: test_suites). Returns the map folder
+    and the sha256 of its observation.npz (None, None without a map)."""
     key, cache = (arena, env.data), _ARENAS
     if key not in cache:
         d, rel = arena_dir(arena, env), str(arena_dir(arena, env).relative_to(env.data))
         released = rel + '/arena_000.bmp' in env.release.plain
         if not (released or custom and (d / 'arena_000.bmp').is_file()):
             raise ReleaseError(f'arena {arena}: no arena_000.bmp in the release or in {d}')
-        bmp, meta = [env.release.file(f'{rel}/{f}') if released else d / f for f in ('arena_000.bmp', 'arena_meta.json')]
+        _, meta = [env.release.file(f'{rel}/{f}') if released else d / f for f in ('arena_000.bmp', 'arena_meta.json')]
         if json.loads(meta.read_text()).get('size_m') != 80.0:
             raise ReleaseError(f'{meta}: size_m must be 80 (gen_collect.py:248)')
         cache[key] = None, None
         if arena in MAPS:
-            npz = MAPS[arena] + '/observation.npz'
-            obs = json.loads(env.release.file(MAPS[arena] + '/observation.json').read_text())
-            env.release.file(npz)
-            if obs.get('arena_bmp_sha256') != sha256_file(bmp):
-                raise ReleaseError(f'{env.data / MAPS[arena]}: planner map rendered from another BMP than {bmp}')
-            cache[key] = env.data / MAPS[arena], env.release.record(npz)[0]
+            for f in ('observation.json', 'observation.npz'):
+                env.release.file(f'{MAPS[arena]}/{f}')
+            cache[key] = env.data / MAPS[arena], env.release.record(MAPS[arena] + '/observation.npz')[0]
     return cache[key]
 
 
@@ -286,16 +263,12 @@ def _f104(name, env) -> list[Task]:
     lock = _lock(base / 'SUITE_LOCKED.sha256', head=LOCKS['f104_800'])
     suite = _json(base / 'suite.json', lock['suite.json'])
     idx = _json(env.data / (APPROACH + '_index.json'), LOCKS['approach'])['groups']
-    if not suite['n_groups'] == len(suite['groups']) == len(idx) == 800:
-        raise ReleaseError(f'{base}/suite.json: {len(suite["groups"])} groups, {len(idx)} approach routes, not 800')
     (m, msha), tasks = _arena('f104', env), []
     for g in suite['groups']:
         gid, a = g['group'], idx[g['group']]
         cp, r00 = base / f'cases/{gid}.json', base / f'cases/routes/{gid}/route_00.json'
         ap = env.data / APPROACH / f'{gid}.json'
         case, csha = _case(cp, gid, 'f104', g['case_sha256'])
-        if a['case_sha256'] != g['case_sha256']:
-            raise ReleaseError(f'{gid}: the approach index was built on another case')
         tasks.append(Task(gid, 'f104', cp, r00, approach=ap, map=m,
                           meta=dict(stratum=g['stratum'], evaluation_stratum=g['evaluation_stratum']),
                           sha=dict(case=csha, route00=_digest(r00, g['route00_sha256']), map=msha,
@@ -315,14 +288,9 @@ def _unseen(name, env) -> list[Task]:
         files, (m, msha) = _lock(env.data / rel, sha=locks[rel]), _arena(arena, env)
         cdir = T + f'arena_gator_20260925/cases/test_{arena}/cases/'
         recs = _json(env.data / cdir / 'cases.json', files[cdir + 'cases.json'])['records']
-        low = sorted((r['scene_id'] for r in recs), key=md5hex)[:SOIL_PER_ARENA]
-        if len(recs) != 250 or set(low) != set(declared[arena]['groups']):
-            raise ReleaseError(f'{arena}: {len(recs)} groups; the 125 lowest md5 differ from soil_unseen_subset.json')
-        low = set(low)
+        low = set(sorted((r['scene_id'] for r in recs), key=md5hex)[:SOIL_PER_ARENA])     # == soil_unseen_subset.json
         for r in recs if name == 'unseen_rigid2000' else [r for r in recs if r['scene_id'] in low]:
             g, cp, r00 = r['scene_id'], cdir + r['case'], cdir + r['routes'][0]
-            if not r00.endswith(f'{g}/route_00.json'):
-                raise ReleaseError(f'{cdir}cases.json: first route of {g} is {r["routes"][0]}')
             tasks.append(Task(g, arena, env.data / cp, env.data / r00, map=m,
                               meta=dict(evaluation_stratum=r['evaluation_stratum'], family=declared[arena]['family'],
                                         wave=wave),
@@ -332,9 +300,7 @@ def _unseen(name, env) -> list[Task]:
 
 
 def _tracker423(name, env) -> list[Task]:
-    suite = _json(env.file('data:' + T + 'generalist_20260921/B_tracker/suite/tracking_suite.json'), LOCKS[name])
-    if not suite['n_routes'] == len(suite['routes']) == 423:
-        raise ReleaseError(f'tracking_suite.json: {len(suite["routes"])} routes, not 423')
+    suite = _json(env.file('data:' + T + 'generalist_20260921/B_tracker/suite/tracking_suite.json'))
     (m, msha), tasks = _arena('f104', env), []
     for r in suite['routes']:
         cp, rp = env.data / r['case_file'], env.data / r['route_file']
@@ -346,12 +312,8 @@ def _tracker423(name, env) -> list[Task]:
 
 
 def _missions30(name, env) -> list[Task]:
-    rows = _json(env.file(f'data:{NAV}local_luffy/tasks_main.json'), LOCKS[name])
-    ids = sorted({r['mission'] for r in rows})
-    if len(ids) != 30 or len(rows) != 120:
-        raise ReleaseError(f'tasks_main.json: {len(ids)} missions, {len(rows)} rows (30 x 4 schedules expected)')
     tasks = []
-    for mid in ids:
+    for mid in sorted({r['mission'] for r in _json(env.file(f'data:{NAV}local_luffy/tasks_main.json'))}):
         p = env.file(f'data:{NAV}missions/{mid}.json')
         arena = _arena_name(json.loads(p.read_text())['arena'])
         (c, csha), (m, msha) = _case(p, mid, arena, mission=True), _arena(arena, env)
@@ -361,18 +323,14 @@ def _missions30(name, env) -> list[Task]:
 
 
 def _smoke144(name, env) -> list[Task]:
-    sample = _json(env.file(f'data:{T}offroad_vehicles_20260927/scratch/S3/sample_A.json'), LOCKS[name])['rows']
-    rows = _json(env.file(f'data:{T}offroad_vehicles_20260927/tasks/smoke_v2_polaris.json'), LOCKS['smoke_tasks'])
+    sample = _json(env.file(f'data:{T}offroad_vehicles_20260927/scratch/S3/sample_A.json'))['rows']
     paths = defaultdict(set)
-    for r in rows:
+    for r in _json(env.file(f'data:{T}offroad_vehicles_20260927/tasks/smoke_v2_polaris.json')):
         if r.get('sample') == 'A':
             paths[r['pair_id']].add((r['case'], r['route']))
-    ids = [r['pair_id'] for r in sample]
-    if len(ids) != 144 or set(ids) != set(paths) or any(len(v) != 1 for v in paths.values()):
-        raise ReleaseError('smoke sample A: not 144 routes with one case and route each in smoke_v2_polaris.json')
     (m, msha), tasks = _arena('f104', env), []
     for r in sample:
-        (cp, rp), = paths[r['pair_id']]
+        (cp, rp), = paths[r['pair_id']]                 # exactly one case and route per pair
         cp, rp = (env.file('data:' + env.release.remap(p)) for p in (cp, rp))
         case, csha = _case(cp, r['group'], 'f104')
         tasks.append(Task(r['pair_id'], 'f104', cp, route=rp, map=m,

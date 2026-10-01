@@ -1,4 +1,4 @@
-"""Vehicles without Chrono (FINAL_DESIGN 4.2, 5 #4/#14/#15, 8.2 A4). With a mock pychrono: the construction calls of
+"""Vehicles without Chrono. With a mock pychrono: the construction calls of
 the HMMWV, the Gator and the JSON Polaris against hand-written sequences (hmmwv_data.create_hmmwv,
 ag_vehicle.create_gator, ov_vehicle.PolarisModel at 901d6c9), the Polaris data root restored; the spawn arithmetic; one
 soil geometry per axle in build_crm with the tyre mesh still built; the pre-flight refusals and JSON walk; the belly

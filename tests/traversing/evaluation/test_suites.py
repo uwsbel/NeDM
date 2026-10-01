@@ -10,7 +10,7 @@ f104_indist_200.json, the PR3 risk and tracker checks); approach routes have equ
 (A12); md5 blocks of 8 equal the recorded rigid shards of rigid_eval_unseen.json. smoke144 also needs the release
 index cache (its cases and routes are tar members).
 
-    NEDM_DATA=/home/harry/NeDM-traverse_mppi PYTHONPATH=src python -m unittest discover -s tests/traversing/evaluation \\
+    NEDM_DATA=<release restore root> PYTHONPATH=src python -m unittest discover -s tests/traversing/evaluation \\
         -p test_suites.py -v
 """
 import hashlib
@@ -33,6 +33,11 @@ except ImportError:                     # discover -s tests/traversing/evaluatio
 HERE = Path(__file__).resolve().parent
 GOLD = HERE / 'goldens' / 'suites'
 T = 'artifacts/traverse/'
+# suite files read through the release manifest; the study's sha256 of each (the release equals the study's files)
+PINS = dict(tracker423='a53b0eb69381e7b437c6afbe3e339c1671c28c727c10f2c5912472368b9ca2e5',         # tracking_suite.json
+            missions30='ea670e3ec84f4ef5664113807b50f34acaedfa92a79244068fecb4798ccd9f2b',         # tasks_main.json
+            smoke_tasks='a4eaf3001355a14e925e01d1bdb73dd2a23ce00a6c43b70719f6fd21799e7cc3',        # smoke_v2_polaris
+            smoke144='afb0607f659b7bbbc989c8b9428d32728bece9943839d43b3e21ab18c7dffdec')           # sample_A.json
 
 
 def fake(n=12, arenas=('a', 'b')):
@@ -97,8 +102,6 @@ class TestSelectBlocks(unittest.TestCase):
                          (Path('/scratch/b/x/c.json'), Path('/elsewhere/m'), t.goals, t.sha, t.meta))
         self.assertEqual((moved.kind, fake(1)[0].kind), ('mission', 'single_goal'))
         self.assertEqual(len({t, Task.from_dict(d, here)} | set(fake())), 13)               # hashable (meta, sha aside)
-        with self.assertRaisesRegex(ValueError, r"no sha256 for \['case', 'route'\]"):
-            Task('x', 'f104', Path('/c.json'), route=Path('/r.json'))
 
 
 class TestLocks(unittest.TestCase):
@@ -235,10 +238,25 @@ class TestReleasedSuites(unittest.TestCase):
             lines = (root / f'test_{arena}.SUITE_LOCKED.sha256').read_text().splitlines()
             self.assertEqual(recompute(DATA, lines), lines[0].split()[0], arena)
             self.assertEqual(len(lines) - 1, 3251)
-        for rel, key in ((T + 'generalist_20260921/B_tracker/suite/tracking_suite.json', 'tracker423'),
-                         (T + 'fdm_f104_50h_20260909/nav_v1/local_luffy/tasks_main.json', 'missions30'),
-                         (T + 'crm_improve_20260922/a5data/approach_suite_index.json', 'approach')):
-            self.assertEqual(hashlib.sha256((DATA / rel).read_bytes()).hexdigest(), S.LOCKS[key], rel)
+        for rel, sha in ((T + 'generalist_20260921/B_tracker/suite/tracking_suite.json', PINS['tracker423']),
+                         (T + 'fdm_f104_50h_20260909/nav_v1/local_luffy/tasks_main.json', PINS['missions30']),
+                         (T + 'crm_improve_20260922/a5data/approach_suite_index.json', S.LOCKS['approach'])):
+            self.assertEqual(hashlib.sha256((DATA / rel).read_bytes()).hexdigest(), sha, rel)
+        rows = json.loads((DATA / T / 'fdm_f104_50h_20260909/nav_v1/local_luffy/tasks_main.json').read_text())
+        self.assertEqual((len(rows), len({r['mission'] for r in rows})), (120, 30))        # 30 missions x 4 schedules
+
+    def test_maps_rendered_from_the_released_bmps(self):
+        """Every planner map was rendered from its arena's released BMP (ag_map_check); the approach index was built on
+        the suite's cases."""
+        for arena, rel in S.MAPS.items():
+            obs = json.loads((DATA / rel / 'observation.json').read_text())
+            bmp = S.arena_dir(arena, self.env) / 'arena_000.bmp'
+            self.assertEqual(obs['arena_bmp_sha256'], hashlib.sha256(bmp.read_bytes()).hexdigest(), arena)
+        self.assertEqual(len(S.MAPS), 12)
+        idx = json.loads((DATA / (S.APPROACH + '_index.json')).read_text())['groups']
+        suite = json.loads((DATA / S.F104_SUITE / 'suite.json').read_text())
+        self.assertEqual({g['group']: g['case_sha256'] for g in suite['groups']},
+                         {g: a['case_sha256'] for g, a in idx.items()})
 
     def test_md5_selections_equal_the_recorded_lists(self):
         g = json.loads((GOLD / 'selections.json').read_text())
@@ -291,6 +309,10 @@ class TestReleasedSuites(unittest.TestCase):
         ts = load_suite('smoke144', env=self.env)
         sample = json.loads(self.env.file(f'data:{T}offroad_vehicles_20260927/scratch/S3/sample_A.json').read_text())
         self.assertEqual([t.id for t in ts], [r['pair_id'] for r in sample['rows']])
+        self.assertEqual(len(ts), 144)
+        for rel, key in (('scratch/S3/sample_A.json', 'smoke144'), ('tasks/smoke_v2_polaris.json', 'smoke_tasks')):
+            p = self.env.file(f'data:{T}offroad_vehicles_20260927/{rel}')
+            self.assertEqual(hashlib.sha256(p.read_bytes()).hexdigest(), PINS[key], rel)
         self.assertEqual(Counter(t.meta['kind'] for t in ts), {'designed': 86, 'on_policy': 58})
         self.assertEqual(Counter(t.meta['stratum'] for t in ts).most_common(1)[0][1], 24)
         self.assertTrue(all(t.route.is_file() and t.arena == 'f104' for t in ts))

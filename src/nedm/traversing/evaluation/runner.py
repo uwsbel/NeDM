@@ -1,13 +1,13 @@
-"""Run an arm on tasks: plan, drive, resume (FINAL_DESIGN 2.1, 4.3-4.7).
+"""Run an arm on tasks: plan, drive, resume.
 
 ``TraversalEval.episode``: [pass 1, the approach driven to horizon L -> decision at F] -> pick (pick.json; planning is
-never charged) -> drive (after an approach: pass 2, branching to the pick at F). ``spawn``: each drive in a fresh
-process (process_env; soil binds one GPU through ROCr), ATTEMPTS attempts counted across job kills, then 'crash'; a
-refusal (exit 3: a deterministic input or build problem) raises ConfigError, never a record. A run folder (``prepare``)
-holds ONE evaluation of one ground: config/, tasks.jsonl, blocks.json, blocks/<i>.pin.json, runs/<task>/<arm>/,
-superseded/; writes are atomic, DONE (the sha256 of every file, re-checked by ``cells``) comes last and only DONE counts.
-Off its pinned node and build a block moves each unfinished pair aside and drives it again whole, keeping picks no pass
-1 made (rigid physics repeats on one node only, SPEC 0.5). ``python -m`` this module = spawn's child (one drive).
+never charged) -> drive (after an approach: pass 2, branching to the pick at F); a mission (planner live, M1) is one
+drive that plans inside (nav.NavHook). ``spawn``: each drive in a fresh process (process_env), ATTEMPTS attempts counted
+across job kills, then 'crash'; a refusal (exit 3: a deterministic input or build problem) raises ConfigError, never a
+record. A run folder (``prepare``) holds ONE evaluation of one ground (layout: README.md); writes are atomic, DONE (the
+sha256 of every file, re-checked by ``cells``) comes last and only DONE counts. Off its pinned node and build a block
+moves each unfinished pair aside and drives it again whole, keeping picks no pass 1 made (rigid physics repeats on one
+node only). ``python -m`` this module = spawn's child (one drive).
 """
 
 from __future__ import annotations
@@ -34,7 +34,7 @@ from .config import DT, ConfigError, Env, EvalConfig, sha256_file, soil_config, 
 from .controllers import make_controller
 from .episode import Branch, Stops, drive_episode
 from .labels import UNLABELLED, drive_labels
-from .routes import ENDS_TOL_M, ends_within, load_route, route_json, route_sha256
+from .routes import ENDS_TOL_M, GOAL_RADIUS_M, ends_within, load_route, route_json, route_sha256
 from .sim import LaunchError, Sim
 from .suites import Task, arena_dir, blocks
 from .vehicles import load as load_vehicle
@@ -42,13 +42,16 @@ from .vehicles import load as load_vehicle
 # threads of a drive process: rigid single-threaded (gen_array_g.sbatch); soil as crm_collect.sbatch + crm_worker.py
 PROCESS_ENV = dict(rigid=dict(OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1', MKL_NUM_THREADS='1', LP_NUM_THREADS='1'),
                    soil=dict(OMP_NUM_THREADS='4', OPENBLAS_NUM_THREADS='1', MKL_NUM_THREADS='1'))
-WALL_S, ATTEMPTS, REFUSED = dict(rigid=3600., soil=2400.), 2, 3      # per-attempt wall limit; exit code of a refusal
-GUARD_S = dict(rigid=400., soil=500.)       # longest drive (120 s at ~2 wall-s per sim-s + build; 4.6) + 100 s
+WALL_S, ATTEMPTS, REFUSED = dict(rigid=3600., soil=2400., mission=4 * 3600.), 2, 3   # wall limit per attempt; refused
+GUARD_S = dict(rigid=400., soil=500.)       # longest drive (120 s at ~2 wall-s per sim-s + build) + 100 s
 KEEP = ('attempts.jsonl', 'drive.log', 'pick.json', 'input.json')    # survive a failed attempt; the rest is redone
 CODE = ('nedm/traversing/evaluation/*.py', 'nedm/hmmwv/hmmwv_data.py',
         *(f'nedm/traversing/training/{m}.py' for m in ('state', 'risk_model', 'numpy_actor')))
 BUILD_DATA = ('vehicle/hmmwv/hmmwv_chassis_col.obj', 'vehicle/hmmwv/hmmwv_tire_coarse*.obj',
               'vehicle/gator/gator_chassis_col.obj', 'vehicle/Polaris/*.json')    # Chrono data the physics reads
+# a render lock (M1) also pins the OptiX programs compiled at run time (the depth-FOV fix #819 is in
+# depth_cam_raygen.cu) and the HMMWV meshes the depth camera sees
+RENDER = dict(build=('sensor_shaders/*.cu',), data=('vehicle/hmmwv/hmmwv_*.obj',))
 _PLAN = threading.Lock()                    # one plan at a time per process
 
 
@@ -80,8 +83,9 @@ def _files(d) -> dict:                      # sha256 of every file of a run fold
 
 @dataclass
 class Record:
-    """record.json (these fields) + trajectory.npz in the collectors' key names [+ crm_extra.npz, vehicle_extra.npz].
-    status: a collector status | launch_failed | no_route | crash."""
+    """record.json (these fields) + trajectory.npz in the collectors' key names [+ crm_extra.npz, vehicle_extra.npz;
+    missions: + leg in trajectory.npz, decisions.json, routes.json]. status: a collector or mission status (nav.py) |
+    launch_failed | no_route | crash."""
     task: str
     arm: str
     status: str
@@ -94,9 +98,13 @@ class Record:
     branch: dict | None = None              # frame, pose, start_error_m, route_sha256 of a branched drive
     route_sha256: str | None = None
     pick: dict | None = None                # set by episode(): the pick driven, or why there was no decision
+    goals_reached: int | None = None        # missions: waypoints reached of n_goals; legs as nav_runner's
+    n_goals: int | None = None
+    legs: list | None = None
     provenance: dict = field(default_factory=dict)
     arrays: dict = field(default_factory=dict, repr=False)
     extras: dict = field(default_factory=dict, repr=False)     # {'crm_extra': arrays} -> crm_extra.npz
+    docs: dict = field(default_factory=dict, repr=False)       # {'decisions.json': list} -> JSON files (missions)
 
     def save(self, out, routes=()):
         """The (name, route) files, the npz files, then record.json, each atomically; never over a finished drive."""
@@ -108,11 +116,13 @@ class Record:
             write_atomic(out / name, json.dumps(route_json(r)))
         for name, a in ([('trajectory', self.arrays)] if self.arrays else []) + list(self.extras.items()):
             write_atomic(out / f'{name}.npz', lambda f, a=a: np.savez_compressed(f, **a))
+        for name, doc in self.docs.items():
+            write_atomic(out / name, _json(doc, indent=1))
         self.write_meta(out)
 
     def write_meta(self, out):
         write_atomic(Path(out) / 'record.json', _json({f.name: getattr(self, f.name) for f in fields(self)
-                                                       if f.name not in ('arrays', 'extras')}, indent=1))
+                                                       if f.name not in ('arrays', 'extras', 'docs')}, indent=1))
 
     @classmethod
     def load(cls, out):
@@ -124,46 +134,58 @@ class Record:
         return rec
 
 
-def drive(cfg: EvalConfig, task: Task, route: dict, *, branch=None, horizon_s=120., env: Env | None = None) -> Record:
+def drive(cfg: EvalConfig, task: Task, route: dict | None, *, branch=None, horizon_s=120., env: Env | None = None
+          ) -> Record:
     """One Chrono episode of `cfg` on `task` in this process, following `route` from the case's layout pose; branch =
-    (F, route) swaps to the picked route at frame F. Every deterministic problem (config, build lock, release files,
-    route ends, soil config, actor, vehicle files; then the source pins and CRM counts in Sim.build) raises ConfigError
-    before any physics. A failed launch check is a Record with status 'launch_failed' (no arrays); a Chrono abort, a
-    soil fall-through or a non-finite state raises (spawn retries it)."""
-    t0, env = time.time(), env or Env.from_environ()
+    (F, route) swaps to the picked route at frame F; a mission (route None) is driven by nav.NavHook. Every
+    deterministic problem (config, build lock, release files, route ends, soil config, actor, vehicle files, models;
+    then the source pins and CRM counts in Sim.build) raises ConfigError before any physics. A failed launch check is a
+    Record with status 'launch_failed' (no arrays); a Chrono abort, a soil fall-through or a non-finite state raises
+    (spawn retries it)."""
+    t0, env, mission = time.time(), env or Env.from_environ(), task.kind == 'mission'
     try:
-        P = cfg.validate() + ([] if task.kind == 'single_goal' else [f'task {task.id}: missions (M1) are not ported']) + (
-            [] if env.chrono_data else ['NEDM_CHRONO_DATA (the data folder of the Chrono build) is not set']) + [
-            f'a {cfg.ground} drive runs in process_env({cfg.ground!r}, gpu): {b}' for b in env_problems(cfg.ground,
-                                                                                                        os.environ)]
+        P = cfg.validate() + [f'a {cfg.ground} drive runs in process_env({cfg.ground!r}, gpu): {b}'
+                              for b in env_problems(cfg.ground, os.environ)]
+        if mission != (cfg.planner == 'live'):
+            P.append(f'task {task.id} is a {task.kind}: planner live drives missions, the other planners single-goal tasks')
+        if not env.chrono_data:
+            P.append('NEDM_CHRONO_DATA (the data folder of the Chrono build) is not set')
         if P := P or lock_problems([cfg], env):
             raise ConfigError(P)
         case = task.read_case()
-        goal = np.asarray(case['goal_xy'], float)
-        if not ends_within(route, case['layout']['start_xy'], goal):
-            raise ConfigError([f'{task.id}: the route must start and end within {ENDS_TOL_M} m of the case start, goal'])
         sp, soil = soil_config(cfg.soil_config, env) if cfg.soil_config else (None, None)
-        hook = None if branch is None else Branch(branch[0], branch[1], goal, soil=bool(soil))
+        if mission:                             # torch before pychrono, as nav_runner.py:103-105 imported them
+            from .nav import MISSION_S, NavHook
+            hook = NavHook(cfg, task, case, env)
+            route, goal = hook.route0, hook.goals[0]
+        else:
+            goal = np.asarray(case['goal_xy'], float)
+            if not ends_within(route, case['layout']['start_xy'], goal):
+                raise ConfigError([f'{task.id}: the route must start and end within {ENDS_TOL_M} m of the case start, '
+                                   'goal'])
+            hook = None if branch is None else Branch(branch[0], branch[1], goal, soil=bool(soil))
         ctrl, vehicle = make_controller(cfg, env), load_vehicle(cfg.vehicle, env)
     except ConfigError:
         raise
     except (ValueError, KeyError, OSError, ImportError) as e:     # a release, file or route problem: also a refusal
         raise ConfigError([f'{task.id} / {cfg.name}: {type(e).__name__}: {e}']) from e
     sim = Sim.build(case, arena_dir(task.arena, env), vehicle, env.chrono_data, soil)
-    stops = Stops(goal, case.get('goal_radius_m', 2.5), near_stop=cfg.near_stop_rule, horizon_s=horizon_s,
-                  breakthrough_m=sim.breakthrough_m)
+    if mission:
+        hook.attach(sim)                        # the camera before the first follower (scene.build_scene)
+    stops = Stops(goal, case.get('goal_radius_m', GOAL_RADIUS_M), near_stop=cfg.near_stop_rule, horizon_s=horizon_s,
+                  breakthrough_m=sim.breakthrough_m, mission_s=MISSION_S if mission else None)
     try:
-        ep = drive_episode(sim, route, ctrl, stops, hook)
+        ep = drive_episode(sim, route, ctrl, stops, hook, launch_check=not mission)
         status, n, error = ep.status, len(ep.state), None
     except LaunchError as e:
         ep, status, n, error = None, 'launch_failed', 0, str(e)
-    import pychrono
-    prov = dict(host=platform.node(), slurm={k: os.environ.get(k) for k in ('SLURM_JOB_ID', 'SLURM_JOB_PARTITION')},
-                python=sys.version.split()[0], numpy=np.__version__, pychrono=pychrono.__file__,
-                chrono_data=str(env.chrono_data), process_env={k: os.environ.get(k) for k in (
-                    *PROCESS_ENV[cfg.ground], 'ROCR_VISIBLE_DEVICES', 'HIP_VISIBLE_DEVICES', 'CUDA_VISIBLE_DEVICES')},
-                config_sha=cfg.sha, config=cfg.to_dict(), task_sha=task.sha, horizon_s=horizon_s, launch=sim.launch,
-                scene=sim.info, vehicle=sim.vehicle_info, controller=ctrl.info, error=error, wall_s=time.time() - t0)
+    # host, node, GPU, build and config live in attempts.jsonl, the block pin, the build lock, config/ and input.json
+    prov = dict(python=sys.version.split()[0], numpy=np.__version__, config_sha=cfg.sha, launch=sim.launch, scene=sim.info,
+                vehicle=sim.vehicle_info, controller=ctrl.info, error=error, wall_s=time.time() - t0)
+    arrays, more = ep.arrays() if ep else {}, {}
+    if mission:
+        prov['nav'], more = hook.info, hook.outcome()
+        arrays['leg'] = np.asarray(hook.frame_leg, np.int16)
     if soil:
         prov['soil'] = dict(config=str(sp), config_sha256=sha256_file(sp), physics_dt_s=sim.dt,
                             max_sinkage_m=stops.max_sinkage)
@@ -173,18 +195,19 @@ def drive(cfg: EvalConfig, task: Task, route: dict, *, branch=None, horizon_s=12
     return Record(task.id, cfg.name, status, cfg.validated, frames=n, elapsed_s=n * DT,
                   goal_time_s=n * DT if status == 'goal_reached' else None, positive_work_kj=ep.total_work if ep else 0.,
                   near_stop_fired=stops.near_stop_fired if cfg.near_stop_rule else None, branch=ep and ep.branch,
-                  route_sha256=route_sha256(route), provenance=prov, arrays=ep.arrays() if ep else {}, extras=extras)
+                  route_sha256=None if mission else route_sha256(route), provenance=prov, arrays=arrays, extras=extras,
+                  **more)
 
 
 def spawn(cfg: EvalConfig, task: Task, route: dict, out, *, branch=None, horizon_s=120., env: Env | None = None,
           gpu=0) -> Record:
-    """`drive` in a fresh process with process_env(cfg.ground, gpu); a finished drive in `out` is loaded, not re-run.
-    The attempts are counted in drive.log (refusals not), so a drive killed with its job twice becomes a 'crash'."""
+    """`drive` in a fresh process with process_env(cfg.ground, gpu) (route None: a mission); a finished drive in `out`
+    is loaded, not re-run. Attempts count in drive.log (refusals not): a drive killed with its job twice is a 'crash'."""
     out, env = Path(out), env or Env.from_environ()
     if (out / 'record.json').exists():
         return Record.load(out)
     out.mkdir(parents=True, exist_ok=True)
-    inp = dict(task=task.to_dict(env), arm=cfg.to_dict(), route=route_json(route), horizon_s=horizon_s,
+    inp = dict(task=task.to_dict(env), arm=cfg.to_dict(), route=route and route_json(route), horizon_s=horizon_s,
                branch=branch and [branch[0], route_json(branch[1])])
     write_atomic(out / 'input.json', _json(inp))
     cmd = [sys.executable, '-P', '-u', '-m', __spec__.name, '--input', str(out / 'input.json'), '--out', str(out)]
@@ -201,8 +224,8 @@ def spawn(cfg: EvalConfig, task: Task, route: dict, out, *, branch=None, horizon
             f.write(f'# attempt {attempt}: {" ".join(cmd)}\n')
             f.flush()
             try:
-                rc = subprocess.run([*cmd, '--attempt', str(attempt)], stdout=f, stderr=subprocess.STDOUT,
-                                    timeout=WALL_S[cfg.ground], env=penv).returncode
+                rc = subprocess.run([*cmd, '--attempt', str(attempt)], stdout=f, stderr=subprocess.STDOUT, env=penv,
+                                    timeout=WALL_S['mission' if route is None else cfg.ground]).returncode
             except subprocess.TimeoutExpired:
                 rc = 'wall_timeout'
         with open(out / 'attempts.jsonl', 'a') as f:
@@ -214,15 +237,15 @@ def spawn(cfg: EvalConfig, task: Task, route: dict, out, *, branch=None, horizon
             raise ConfigError([f'{task.id} / {cfg.name}: the drive refused its inputs (see {log})'])
     wipe()
     last = [ln for ln in log.read_text().splitlines() if ln.strip()][-1:]
-    rec = Record(task.id, cfg.name, 'crash', cfg.validated, route_sha256=route_sha256(route), provenance=dict(
+    rec = Record(task.id, cfg.name, 'crash', cfg.validated, route_sha256=route and route_sha256(route), provenance=dict(
         attempts=ATTEMPTS, log=str(log), last_log_line=last and last[0], host=platform.node()))
     rec.save(out)
     return rec
 
 
 class TraversalEval:
-    """One arm (FINAL_DESIGN 2.1): plan() is Chrono-free, drive() runs ONE Chrono episode in this process, episode()
-    and run() orchestrate pass 1 -> decision -> plan -> drive, one process per drive, resumable."""
+    """One arm: plan() is Chrono-free, drive() runs ONE Chrono episode in this process, episode() and run()
+    orchestrate pass 1 -> decision -> plan -> drive, one process per drive, resumable."""
     node: dict = {}                         # set by run_block: the node provenance of every run it finishes
 
     def __init__(self, cfg: EvalConfig, out, env: Env | None = None):
@@ -246,8 +269,8 @@ class TraversalEval:
         c, d = self.cfg, self.out / 'runs' / task.id / self.cfg.name
         if (d / 'DONE').exists():
             return Record.load(d)
-        if c.planner == 'live':
-            raise NotImplementedError(f'{c.name}: planner live (M1) plans inside the drive; nav.py is not ported yet')
+        if c.planner == 'live':                     # M1: plans inside its one drive, nothing to plan before
+            return None if stage == 'plan' else self._finish(task, d, spawn(c, task, None, d, env=self.env), None, gpu)
         from .planner import Decision, Pick
         go = lambda sub, route, **kw: spawn(c, task, route, d / sub, env=self.env, gpu=gpu, **kw)  # noqa: E731
         dec = None
@@ -298,35 +321,43 @@ def code_sha() -> str:
     return h.hexdigest()
 
 
-def fingerprint(env: Env) -> dict:
-    """The build (FINAL_DESIGN 4.2): sha256 of pychrono's native modules and the Chrono libraries of its build (found
-    without importing pychrono) and of BUILD_DATA under NEDM_CHRONO_DATA."""
+def fingerprint(env: Env, render=False) -> dict:
+    """The build: sha256 of pychrono's native modules and the Chrono libraries of its build (found without importing
+    pychrono) and of BUILD_DATA under NEDM_CHRONO_DATA; render: + the RENDER files."""
     spec, cd = importlib.util.find_spec('pychrono'), env.chrono_data
     if spec is None or cd is None:
         raise ConfigError(['the build fingerprint needs pychrono on the path and NEDM_CHRONO_DATA'])
     b = Path(spec.submodule_search_locations[0]).parents[1]              # the build (bin/pychrono, lib/)
+    more = RENDER if render else dict(build=(), data=())
     return {f'{k}:{p.relative_to(r).as_posix()}': sha256_file(p) for k, r, ps in (
-        ('build', b, [*b.glob('*/pychrono/*.so'), *b.glob('lib/libChrono*.so*')]),
-        ('data', cd, [q for g in BUILD_DATA for q in cd.glob(g)])) for p in sorted(ps)}
+        ('build', b, [*b.glob('*/pychrono/*.so'), *b.glob('lib/libChrono*.so*'), *(q for g in more['build']
+                                                                                    for q in b.glob(g))]),
+        ('data', cd, [q for g in BUILD_DATA + more['data'] for q in cd.glob(g)])) for p in sorted(set(ps))}
 
 
 def lock_problems(cfgs, env: Env, fp=None) -> list[str]:
-    """The arms whose build_lock (written by fingerprint.py on a parity-checked build) is not this build."""
-    locked = [c for c in cfgs if c.build_lock]
-    fp = fingerprint(env) if locked and fp is None else fp
-    return [f'{c.name}: this build differs from the lock {c.build_lock}' for c in locked
-            if json.loads(env.path(c.build_lock).read_text())['fingerprint'] != fp]
+    """The arms whose build_lock (written by fingerprint.py on a parity-checked build) is not this build; a lock
+    written with render = true is compared with the render fingerprint."""
+    fps, P = {False: fp}, []
+    for c in cfgs:
+        if c.build_lock:
+            lock = json.loads(env.path(c.build_lock).read_text())
+            render = bool(lock.get('render'))
+            fps[render] = fps.get(render) or fingerprint(env, render)
+            if lock['fingerprint'] != fps[render]:
+                P.append(f'{c.name}: this build differs from the lock {c.build_lock}')
+    return P
 
 
-def node_info(env: Env) -> dict:
+def node_info(env: Env, build=True) -> dict:
     """Where a block runs: host, SLURM ids, CPU, the GPUs (name; UUIDs in ROCr order, which a soil drive's
-    ROCR_VISIBLE_DEVICES indexes), the code sha and the build fingerprint."""
+    ROCR_VISIBLE_DEVICES indexes), the code sha and the build fingerprint (build False: none, a planning machine)."""
     import torch
-    fp, n = fingerprint(env), torch.cuda.device_count() if torch.cuda.is_available() else 0
+    fp, n = fingerprint(env) if build else {}, torch.cuda.device_count() if torch.cuda.is_available() else 0
     cpu = [ln.split(':', 1)[1].strip() for ln in open('/proc/cpuinfo') if ln.startswith('model name')][:1] or [None]
     slurm = {k[6:].lower(): os.environ.get(k) for k in ('SLURM_JOB_ID', 'SLURM_JOB_PARTITION', 'SLURM_ARRAY_TASK_ID')}
-    return dict(host=platform.node(), **slurm, cpu=cpu[0], code_sha=code_sha(), build_sha=_sha(fp), fingerprint=fp,
-                gpu=torch.cuda.get_device_name(0) if n else None,
+    return dict(host=platform.node(), **slurm, cpu=cpu[0], code_sha=code_sha(), build_sha=build and _sha(fp),
+                fingerprint=fp, gpu=torch.cuda.get_device_name(0) if n else None,
                 gpu_uuids=[str(torch.cuda.get_device_properties(k).uuid) for k in range(n)])
 
 
@@ -370,16 +401,23 @@ def load_run(out, env: Env | None = None):
 def run_block(out, i, *, stage='all', workers=1, gpus=(), deadline=None, accept_code_change=False, env=None):
     """Block i of a prepared run folder on this node: pin, pair-atomic resume, then the pairs in `workers` threads (on
     soil each owns one GPU of `gpus`); no pair starts within len(arms) x GUARD_S of `deadline` (epoch s). Stage 'plan'
-    neither pins nor moves (picks are planned where the planner is bitwise and driven on the cluster). Returns this
-    call's records; raises at the end if a pair failed or the guard left pairs for a resubmission."""
+    drives nothing, so it neither pins, moves nor needs Chrono or GPUs (picks are planned where the planner is bitwise
+    and driven on the cluster), and refuses an arm whose decision needs its own approach drive. Returns this call's
+    records; raises at the end if a pair failed or the guard left pairs for a resubmission."""
     out = Path(out)
     arms, tasks, bl = load_run(out, env)
-    ground, node, pp, job = arms[0].cfg.ground, node_info(arms[0].env), out / f'blocks/{i}.pin.json', out / 'job'
+    ground, pp, job = arms[0].cfg.ground, out / f'blocks/{i}.pin.json', out / 'job'
+    node = node_info(arms[0].env, build=stage != 'plan')
     pin = json.loads(pp.read_text()) if pp.exists() else {}
     want = json.loads((job / 'code_sha.json').read_text())['code_sha'] if (job / 'code_sha.json').exists() else None
-    P = [] if stage == 'plan' else lock_problems([a.cfg for a in arms], arms[0].env, node['fingerprint'])
-    if ground == 'soil' and workers > len(gpus):
-        P.append(f'soil: {workers} workers for GPUs {list(gpus)} (one drive process per GPU)')
+    if stage == 'plan':                          # drives nothing: no build lock or GPU, so no pass-1 decision either
+        P = [f'{a.cfg.name}: stage plan drives nothing, but this arm decides after its own approach drive (approach_s '
+             'without decisions or picks): run the drive stage' for a in arms
+             if a.cfg.approach_s and not (a.cfg.decisions or a.cfg.picks)]
+    else:
+        P = lock_problems([a.cfg for a in arms], arms[0].env, node['fingerprint'])
+        if ground == 'soil' and workers > len(gpus):
+            P.append(f'soil: {workers} workers for GPUs {list(gpus)} (one drive process per GPU)')
     if want not in (None, node['code_sha']):
         P.append(f'code sha {node["code_sha"]} is not the job\'s {want} (job/code_sha.json)')
     if pin and pin['code_sha'] != node['code_sha'] and not accept_code_change:
@@ -409,7 +447,8 @@ def run_block(out, i, *, stage='all', workers=1, gpus=(), deadline=None, accept_
                 late.append(t)
                 continue
             try:
-                recs.extend(a.episode(tasks[t], stage, gpu=gpus[w] if ground == 'soil' else 0) for a in arms)
+                recs.extend(a.episode(tasks[t], stage, gpu=gpus[w] if ground == 'soil' and stage != 'plan' else 0)
+                            for a in arms)
             except Exception as e:  # noqa: BLE001  every failed pair is reported below, the others still run
                 errors[t] = e
     with ThreadPoolExecutor(workers) as ex:
@@ -452,14 +491,15 @@ def main(argv=None):
     a = p.parse_args(argv)
     try:
         env, j = Env.from_environ(), json.loads(Path(a.input).read_text())
-        task, cfg, route = Task.from_dict(j['task'], env), EvalConfig.from_dict(j['arm']), load_route(j['route'])
+        task, cfg = Task.from_dict(j['task'], env), EvalConfig.from_dict(j['arm'])
+        route = j['route'] and load_route(j['route'])                  # None: a mission
         branch = j['branch'] and (j['branch'][0], load_route(j['branch'][1]))
         rec = drive(cfg, task, route, branch=branch or None, horizon_s=j['horizon_s'], env=env)
     except (ConfigError, NotImplementedError) as e:
         print(f'# refused: {e}', flush=True)
         sys.exit(REFUSED)
     rec.provenance['attempt'] = a.attempt
-    rec.save(a.out, [('route.json', route)] + ([('branch_route.json', branch[1])] if branch else []))
+    rec.save(a.out, ([('route.json', route)] if route else []) + ([('branch_route.json', branch[1])] if branch else []))
     print(json.dumps(dict(task=rec.task, arm=rec.arm, status=rec.status, frames=rec.frames,
                           wall_s=round(rec.provenance['wall_s'], 1))))
 

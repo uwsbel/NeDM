@@ -1,4 +1,4 @@
-"""Write a SLURM job for traversing evaluation arms on a suite, and submit it with --submit (FINAL_DESIGN 4.6): the run
+"""Write a SLURM job for traversing evaluation arms on a suite, and submit it with --submit: the run
 folder (runner.prepare: config, tasks, md5-sorted blocks of whole pairs), <out>/job/run.sbatch (one array task per
 block = one node, running run.py --block) and <out>/job/code_sha.json. Run on the AMD HPC Fund login node:
 
@@ -11,18 +11,20 @@ The environment recipe of each ground is the one its recorded drives ran with (n
 NEDM_DATA and NEDM_RELEASE_CACHE come from this shell. Refused: an MI210 partition (torch 2.10 crashes there and CRM is
 slower) unless --allow-slow-partition; a non-empty --out without --resume; a dirty or unknown git tree unless
 --allow-dirty (stamped in code_sha.json; a copy without .git reads GIT_COMMIT = {"commit", "dirty"}, written when the
-tree was copied); at run time, an array task whose code sha differs from code_sha.json.
+tree was copied); a --time that cannot fit one pair of every arm (runner.GUARD_S); at run time, an array task whose
+code sha differs from code_sha.json.
 """
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
 import time
 from pathlib import Path
 
-from nedm.traversing.evaluation.config import REPO_ROOT, Env, load_arms, write_atomic
-from nedm.traversing.evaluation.runner import TraversalEval, code_sha, prepare
+from nedm.traversing.evaluation.config import REPO_ROOT, ConfigError, Env, ReleaseError, load_arms, write_atomic
+from nedm.traversing.evaluation.runner import GUARD_S, TraversalEval, code_sha, prepare
 from nedm.traversing.evaluation.suites import load_suite
 
 NRD = '/work1/dannegrut/harry/nrd'
@@ -58,6 +60,13 @@ def main():
     for k in ('--submit', '--resume', '--accept-code-change', '--allow-dirty', '--allow-slow-partition'):
         p.add_argument(k, action='store_true')
     a = p.parse_args()
+    try:
+        submit(a)
+    except (ConfigError, ReleaseError) as e:
+        sys.exit(f'refused: {e}')
+
+
+def submit(a):
     out, env = Path(a.out).resolve(), Env.from_environ()
     git = [subprocess.run(['git', '-C', str(REPO_ROOT), *c], capture_output=True, text=True).stdout.strip()
            for c in (('rev-parse', 'HEAD'), ('status', '--porcelain'))] if (REPO_ROOT / '.git').exists() else \
@@ -71,16 +80,21 @@ def main():
         refusals.append(f'git tree dirty or unknown ({REPO_ROOT}): --allow-dirty')
     if refusals:
         sys.exit('refused: ' + '; '.join(refusals))
-    arms = [c for c in load_arms(a.arms, a.ground) if not a.arm or c.name in a.arm]
-    if set(a.arm or ()) - {c.name for c in arms}:
-        sys.exit(f'--arm {a.arm}: not arms of {a.arms} on {a.ground}')
+    every = load_arms(a.arms, a.ground)
+    if set(a.arm or ()) - {c.name for c in every}:
+        sys.exit(f'refused: --arm {a.arm}: the arms of {a.arms} on {a.ground} are {[c.name for c in every]}')
+    arms = [c for c in every if not a.arm or c.name in a.arm]
+    hms = re.fullmatch(r'(\d+):(\d\d):(\d\d)', a.time)
+    wall = hms and 3600 * int(hms[1]) + 60 * int(hms[2]) + int(hms[3])
+    if not wall or wall < len(arms) * GUARD_S[a.ground] + 120:     # run_block starts no pair within that of the end
+        sys.exit(f'refused: --time {a.time}: HH:MM:SS of at least {len(arms)} arms x {GUARD_S[a.ground]:.0f} s (the '
+                 'walltime guard of one pair, runner.GUARD_S) + 2 min start-up; size --block-size for the rest')
     n = len(prepare(out, [TraversalEval(c, out, env) for c in arms], load_suite(a.suite, a.subset, env), a.block_size))
-    h, m, s = map(int, a.time.split(':'))
     (job := out / 'job' / 'logs').mkdir(parents=True, exist_ok=True)
     data = ' '.join(f'{k}={v}' for k, v in (('NEDM_DATA', env.data), ('NEDM_RELEASE_CACHE', env.release_cache)) if v)
     write_atomic(out / 'job/run.sbatch', SBATCH.format(
         argv=' '.join(sys.argv), nrd=NRD, recipe=RECIPE[a.ground], src=REPO_ROOT / 'src', data=data, out=out,
-        run=Path(__file__).resolve().with_name('run.py'), wall=3600 * h + 60 * m + s,
+        run=Path(__file__).resolve().with_name('run.py'), wall=wall,
         accept=' --accept-code-change' if a.accept_code_change else ''))
     write_atomic(out / 'job/code_sha.json', json.dumps(dict(
         code_sha=code_sha(), git_commit=git and git[0], git_dirty=git and bool(git[1]), allow_dirty=a.allow_dirty,

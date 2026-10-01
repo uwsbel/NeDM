@@ -1,7 +1,7 @@
 """Tests of nedm.traversing.evaluation.config (stdlib unittest only).
 
 CI: every refusal and off-matrix rule, collect-all, non-finite and mistyped values, tags and seeds against the goldens
-written by the ORIGINAL 901d6c9 code (eval_class_staging/goldens/config_suites_goldens.py: planner_arms.arm_specs with
+written by the ORIGINAL 901d6c9 code (the goldens generator (goldens/README.md): planner_arms.arm_specs with
 the deployed-tag line of ci_planner.py:634, checked there against 333 released pick summaries; nav_runner.py:145 seed
 key), derived F / near_stop_rule, TOML round trip and sha, arm-file refusals, Env and the release resolver on a synthetic
 manifest (import boundaries: test_imports.py).
@@ -9,7 +9,7 @@ Release (NEDM_DATA = the release restore base): every headline arm file validate
 checked against the pinned manifest and the checkpoints' kind and training ground (planner.model_info); input refusals
 (world, decision frame, picks made for another arm or planner, soil step, models of another ground).
 
-    NEDM_DATA=/home/harry/NeDM-traverse_mppi PYTHONPATH=src python -m unittest discover -s tests/traversing/evaluation \\
+    NEDM_DATA=<release restore root> PYTHONPATH=src python -m unittest discover -s tests/traversing/evaluation \\
         -p test_config.py -v
 """
 import csv
@@ -93,6 +93,7 @@ class TestMatrix(unittest.TestCase):
             (dict(vehicle='tank'), "vehicle 'tank' is not one of"),
             (dict(ground='mud'), "ground 'mud' is not one of"),
             (dict(planner='mppi'), "planner 'mppi' is not one of"),
+            (dict(planner='mppi'), 'MPPI: planner "cem" with update = "mppi"'),
             (dict(update='adam'), "update 'adam' is not one of"),
             (dict(controller='lqr'), "controller 'lqr' is not one of"),
             (dict(label='fail'), "label 'fail' is not one of"),
@@ -112,7 +113,7 @@ class TestMatrix(unittest.TestCase):
             (dict(speed=7.0), 'route speeds are clipped to [0.5, 6]'),
             (dict(planner='straight', models=None, speed=3.0), 'offset-0 anchor at one of (2.0, 4.0, 6.0)'),
             (dict(rounds=0), 'rounds must be >= 2 and samples >= 1'),
-            (dict(rounds=1, samples=256), 'one-shot pools, arms A and D, are dropped'),
+            (dict(rounds=1, samples=256), 'one-shot pools of arms A and D are dropped'),
             (dict(samples=0), 'rounds must be >= 2 and samples >= 1'),
             (dict(planner='straight', models=None, rounds=8), 'are not used by planner straight'),
             (dict(planner='given', models=None, picks='data:p', label='goal_belly', vehicle='gator'), 'locked picks'),
@@ -284,7 +285,7 @@ class TestArmFiles(unittest.TestCase):
                           ('arm = [1]\n', '[defaults] must be a table and the arms [[arm]] tables'),
                           ('[[arm]]\nname = "a"\nplanner = "cem_grad"\ngrad = {steps = 5}\n', "unknown key 'grad'"),
                           ('[[arm]]\nname = "a"\n[[arm]]\nname = "a"\nground = "soil"\n',
-                           "arms ['a'] exist on both grounds: pass ground")):
+                           "arms ['a'] exist on both grounds: choose one")):
             with self.subTest(msg=msg), self.assertRaises(ConfigError) as e:
                 self.load(text)
             self.assertTrue(any(msg in p for p in e.exception.problems), e.exception.problems)
@@ -300,7 +301,6 @@ class TestEnvRelease(unittest.TestCase):
             e = Env.from_environ({'NEDM_DATA': d, 'NEDM_DEVICE': 'cpu'})
             self.assertEqual((e.data, e.device, e.chrono_data), (Path(d), 'cpu', None))
             for env, msg in (({}, 'NEDM_DATA (the release restore base) is not set'),
-                             ({'NEDM_DATA': d, 'NEDM_VEHICLE': 'gator'}, 'NEDM_VEHICLE is set'),
                              ({'NEDM_DATA': d + '/nope'}, 'is not a directory'),
                              ({'NEDM_DATA': d, 'NEDM_CHRONO_DATA': d + '/nope'}, 'NEDM_CHRONO_DATA')):
                 with self.subTest(env=env), self.assertRaises(ConfigError) as ex:
@@ -350,7 +350,7 @@ class TestEnvRelease(unittest.TestCase):
             for call, msg in ((lambda: rel.glob('art/m/x_s*.pt'), 'x_s1.pt: release file missing'),
                               (lambda: rel.file('art/t/a.json'), 'content differs'),
                               (lambda: rel.file('art/m/x_s1.pt'), 'release file missing'),
-                              (lambda: rel.file('art/../art/p.json'), 'not a normalised restore path'),
+                              (lambda: rel.file('art/../art/p.json'), 'not a file of the pinned release'),
                               (lambda: rel.file('art/q.json'), 'not a file of the pinned release'),
                               (lambda: rel.glob('art/*/x.pt'), 'wildcards only in the last path component'),
                               (lambda: Release(data, d / 'nocache', d / 'm.json').file('art/t/b.json'),
@@ -384,9 +384,8 @@ class TestReleaseInputs(unittest.TestCase):
                                 a.name.endswith('_unseen') or a.name == 'polaris_straight_6mps')):
                         continue
                     with self.subTest(arm=(stem, a.name, a.ground, s)):
-                        want = ['build lock'] if stem == 'm1_navigation' else []   # written by fingerprint.py later
                         got = a.validate(self.env, tasks=self.tasks[s], model_info=self.info)
-                        self.assertEqual([p.split()[0] + ' ' + p.split()[1] for p in got], want, got)
+                        self.assertEqual(got, [])
                         n += 1
         self.assertEqual(n, 30)
 
@@ -406,11 +405,13 @@ class TestReleaseInputs(unittest.TestCase):
                            (replace(soil, planner='given', models=None, picks=None, decisions=None, approach_s=0.0,
                                     allow_unvalidated=True), '800 tasks have no route, which this arm reads'),
                            (replace(soil, models=soil.models.replace('s*.pt', 't*.pt')), 'matches no release file'),
-                           (replace(soil, picks='data:artifacts/traverse/{arena}/x'), 'PICKS_LOCKED.sha256'),
+                           (replace(soil, picks='data:artifacts/traverse/{arena}/x'), 'x/summary.json'),
                            (replace(soil, soil_config=bad.name, allow_unvalidated=True), 'must be given and divide')):
                 with self.subTest(msg=msg):
                     problems = c.validate(self.env, tasks=f104, model_info=self.info)
                     self.assertTrue(any(msg in p for p in problems), problems)
+        self.assertIn('800 tasks: planner live drives missions', ' '.join(replace(
+            soil, planner='live', allow_unvalidated=True).validate(self.env, tasks=f104, model_info=self.info)))
         self.assertIn('no state for 1 tasks', ' '.join(soil.validate(
             self.env, tasks=[replace(f104[0], id='f104_pair_group_9999')], model_info=self.info)))
         self.assertIn('is templated: validate with the suite tasks',

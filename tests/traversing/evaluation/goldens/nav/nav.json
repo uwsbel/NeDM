@@ -1,0 +1,527 @@
+{
+ "decisions": {
+  "g216_v2_group_0000": {
+   "X": "9091ec12c5a2888f089f47adf136eb41d22f75aaafcecfba0c69f3033df357da",
+   "footprint": "56c9c7c7d93a83dde8f013cf15882e6dd8a1eb804bfc8eae2e4960b81e034f2c",
+   "goal": [
+    -7.741091221745316,
+    -25.405451077549678
+   ],
+   "half": 37.0,
+   "index": 2,
+   "n": 256,
+   "pose": [
+    1.0860575215112223,
+    5.196151715856628,
+    -1.8377165951276548
+   ],
+   "routes": "4cf44e77d9ebab47471350e4058be15fb4a01afa5b1e79cfdca227b2f10449e8",
+   "seed_key": "g216_v2_group_0000",
+   "tries": 384
+  },
+  "g216_v2_group_0046": {
+   "X": "2e4847a736cd0bee7b40dc8b7c8e6f527f5a5a2c2cd1fbf1442f794396170318",
+   "footprint": "710794ddb5d06fce4634d60f62063ce64d6bc195668d9cb2082604a095c9787f",
+   "goal": [
+    -8.286214916837945,
+    20.935476203058766
+   ],
+   "half": 37.0,
+   "index": 146,
+   "n": 256,
+   "pose": [
+    25.768931558117018,
+    26.889653140068077,
+    -2.97669930867987
+   ],
+   "routes": "25441993273da3360a1c204cbcafb5c20cb321be8925351cdeaeedae197bbf8d",
+   "seed_key": "g216_v2_group_0046",
+   "tries": 349
+  },
+  "g216_v2_group_0087": {
+   "X": "c0436dad9d97ebbd77a33e59c8c22835f8fc0927cd188fa82a584522ef0d173b",
+   "footprint": "fa9341c37a0c1a74c05d7189b79a5450f4f8779125da8a2b5e865cd025cfaefd",
+   "goal": [
+    -16.96169590794644,
+    -25.94046834825221
+   ],
+   "half": 37.0,
+   "index": 254,
+   "n": 256,
+   "pose": [
+    -33.67195806359566,
+    17.024700753473216,
+    -1.2034618292716635
+   ],
+   "routes": "adcb344ddf166b3508e6577304e872f0bab8e3a030f4ed2f3531ea87e67d892e",
+   "seed_key": "g216_v2_group_0087",
+   "tries": 318
+  },
+  "g231_v2_group_0000": {
+   "X": "0b92bbabb1cf6ff7b0ea9d9e65f511d3d6b3135154e72851df8406aaa4af6bbc",
+   "footprint": "165c0475eed1c5015890a6147a0f4f46b159e9e16cc4fd6df322ae4c380849e3",
+   "goal": [
+    27.619284201134313,
+    30.40222237026461
+   ],
+   "half": 37.0,
+   "index": 11,
+   "n": 256,
+   "pose": [
+    14.204552992641396,
+    -0.84866417716936,
+    1.1677144973848357
+   ],
+   "routes": "7b49d57abdd2d6cf6118b131ac09ceb568ee5910abbc5932471d4eaea281dde5",
+   "seed_key": "g231_v2_group_0000",
+   "tries": 352
+  },
+  "g231_v2_group_0043": {
+   "X": "6c09e2fe02ac0f9c4e3e711dcd42d95909ebfe1b356fd09e231a8b28c10896f2",
+   "footprint": "283733b430fa5796dad908651e4a4c081bcf84ad8ad0e43af4d25d70597c0fc8",
+   "goal": [
+    -27.059533137304655,
+    25.952081301761265
+   ],
+   "half": 37.0,
+   "index": 1,
+   "n": 256,
+   "pose": [
+    2.7100853861234984,
+    33.82456428624167,
+    -2.869708581464549
+   ],
+   "routes": "e73e575888862a498df7ee05e2995d4b2590adfe9283772efcf62b4484a9f08b",
+   "seed_key": "g231_v2_group_0043",
+   "tries": 454
+  },
+  "g231_v2_group_0072": {
+   "X": "40417891690bbde739ab4df357726a7e701b4eab978132f7456a036a64988c27",
+   "footprint": "d1cbdab0bc8953df3c23917a7f7ba33e7aad84557175bb25277bdaadc4988c36",
+   "goal": [
+    27.119502385681795,
+    7.5393635450529715
+   ],
+   "half": 37.0,
+   "index": 9,
+   "n": 256,
+   "pose": [
+    33.263042099842316,
+    -25.186905622575242,
+    1.7642247312705261
+   ],
+   "routes": "b347aa4c06f5b95cc04a36f1c3996a719b8beba64ae93c116e042d699306ad33",
+   "seed_key": "g231_v2_group_0072",
+   "tries": 457
+  }
+ },
+ "grids": {
+  "g216_v2_group_0000": {
+   "camera": {
+    "backend": "Vulkan_RT_lavapipe",
+    "cam_height_m": 110.0,
+    "depth_measurement": "Euclidean_ray_range_m",
+    "depth_ray_scale": 1.0,
+    "elevation_scale_m": 10.0,
+    "height": 1024,
+    "hfov_rad": 0.8203047484373349,
+    "max_depth_m": 180.0,
+    "model_image_size": 512,
+    "observation_mode": "One overhead RGB-D frame per planning decision, vehicle present, after the 0.8 s settle",
+    "width": 1024
+   },
+   "cover": "59f3749edaf79e5381cbdfa7087216cc8a33d612a514124615d9bc963538d6d2",
+   "range_m": "69c68a8f986830df9e88ff7ff7e56166876c8d7395cc9a40b04e5fe8fa745c38",
+   "rgb": "aca64fe06cbae7ace56d3d62a7d236647d47db5b729b1d54eace1b16ad632297",
+   "sec": "5a9419cc64a28d91dd4af72b6cacaeeb895cd75187931506e4bd9bb15195f236",
+   "z": "2c40116f1ddca720fec4293ef59d1b64b1038dc77bb66bb8b8b08c76a0f53a66"
+  },
+  "g216_v2_group_0015": {
+   "camera": {
+    "backend": "Vulkan_RT_lavapipe",
+    "cam_height_m": 110.0,
+    "depth_measurement": "Euclidean_ray_range_m",
+    "depth_ray_scale": 1.0,
+    "elevation_scale_m": 10.0,
+    "height": 1024,
+    "hfov_rad": 0.8203047484373349,
+    "max_depth_m": 180.0,
+    "model_image_size": 512,
+    "observation_mode": "One overhead RGB-D frame per planning decision, vehicle present, after the 0.8 s settle",
+    "width": 1024
+   },
+   "cover": "c6f74a21b8b8f13cad8a1f9c0b9af51735c208af234cb2ab6b3e9999953cf2ce",
+   "range_m": "ea58870c697ed6e1d23539fe2725283d3f4d52fad3ad68466230fed9ca114ed7",
+   "rgb": "bbd05cf6097ac9b1f89ea29d2542c1b7b67ee46848393895f5a9e43fa1f621e5",
+   "sec": "88e5a06e8d2e64c29cc83a972769a16c75e11cbe61cad5d75271baeb4693e081",
+   "z": "d87ca9a218372a7e8b010649819221ec2b6afc46114c134ecfa92af256a37d67"
+  },
+  "g216_v2_group_0019": {
+   "camera": {
+    "backend": "Vulkan_RT_lavapipe",
+    "cam_height_m": 110.0,
+    "depth_measurement": "Euclidean_ray_range_m",
+    "depth_ray_scale": 1.0,
+    "elevation_scale_m": 10.0,
+    "height": 1024,
+    "hfov_rad": 0.8203047484373349,
+    "max_depth_m": 180.0,
+    "model_image_size": 512,
+    "observation_mode": "One overhead RGB-D frame per planning decision, vehicle present, after the 0.8 s settle",
+    "width": 1024
+   },
+   "cover": "9a785f15e7cc1c573540a51a6fa2c8efeaa2cad15527bb293599851d2f6c13fe",
+   "range_m": "c7f2c000cd64004daec768fa452345bb829d7c8208797351d7e7b4bb6ae10d3b",
+   "rgb": "7714309a9f4dcca3a980e819bbe0fe1f3b17a60d6e3fe603e76cf6f73f67ac02",
+   "sec": "8eacba613cffb5e0dfee67f546e5ea86f56a14c8ea70457b666df41d1af5d496",
+   "z": "3527daaa5108397af98a64d9491757ebadef46be51a0a9c2c8453f6cafc4a54a"
+  },
+  "g216_v2_group_0038": {
+   "camera": {
+    "backend": "Vulkan_RT_lavapipe",
+    "cam_height_m": 110.0,
+    "depth_measurement": "Euclidean_ray_range_m",
+    "depth_ray_scale": 1.0,
+    "elevation_scale_m": 10.0,
+    "height": 1024,
+    "hfov_rad": 0.8203047484373349,
+    "max_depth_m": 180.0,
+    "model_image_size": 512,
+    "observation_mode": "One overhead RGB-D frame per planning decision, vehicle present, after the 0.8 s settle",
+    "width": 1024
+   },
+   "cover": "5d753198a365a72482c78b63580d877eb107e8421e6e1bfcdc20c8796fab51e0",
+   "range_m": "c45259490dd82212bf9928f7498945d3ffc6c20597b667cdbc63f70a8288d4dd",
+   "rgb": "46f119f7b5f6e3e282a1a920b6c5a046a8bcd79f6cadcf64549ae8cbd5cd93cf",
+   "sec": "497b010d6715916a5d6f5817f451fb00a41c461fa067c84e0bde315a743ec17d",
+   "z": "820bf2e560804808377ab79e6194804db959ebc779cc3676b0906dc8cfd82fac"
+  },
+  "g216_v2_group_0043": {
+   "camera": {
+    "backend": "Vulkan_RT_lavapipe",
+    "cam_height_m": 110.0,
+    "depth_measurement": "Euclidean_ray_range_m",
+    "depth_ray_scale": 1.0,
+    "elevation_scale_m": 10.0,
+    "height": 1024,
+    "hfov_rad": 0.8203047484373349,
+    "max_depth_m": 180.0,
+    "model_image_size": 512,
+    "observation_mode": "One overhead RGB-D frame per planning decision, vehicle present, after the 0.8 s settle",
+    "width": 1024
+   },
+   "cover": "fd5f39185aa0fc505e89d26412f7d05bfc8b42f7b79b1ee606b67a95a31de4ff",
+   "range_m": "f3ff92bd843716e87cda375c7cadfd223a34f467413fa69898fea5a5a965d540",
+   "rgb": "ccbe2b0423b29b776e76b99b362ef2cbdacbf5322fb24b6222978e4876205361",
+   "sec": "4ecbd9437cf8859605b33a39c759345d2e4d4cd27272a31776969c4194899a7d",
+   "z": "aff749280e8ffc6e174aac914e09f85edc108bc5377cb9d1939a430e70dcbaf1"
+  },
+  "g216_v2_group_0046": {
+   "camera": {
+    "backend": "Vulkan_RT_lavapipe",
+    "cam_height_m": 110.0,
+    "depth_measurement": "Euclidean_ray_range_m",
+    "depth_ray_scale": 1.0,
+    "elevation_scale_m": 10.0,
+    "height": 1024,
+    "hfov_rad": 0.8203047484373349,
+    "max_depth_m": 180.0,
+    "model_image_size": 512,
+    "observation_mode": "One overhead RGB-D frame per planning decision, vehicle present, after the 0.8 s settle",
+    "width": 1024
+   },
+   "cover": "ec20b3bfd74b42214c6998bdd54d4971780a9c0abeeca39e394cc4138ef5d00a",
+   "range_m": "77810c550fa471f389aedff856229528fc831fe029278688c326b7af04e3a224",
+   "rgb": "a8ec1390d162218fb7799c40ce64820c443df3a3840351cc5b7fbf9f4876c532",
+   "sec": "caaf96db6936a7bb9f634a3b95223a518797525b5d059a3be672e463631b0013",
+   "z": "5a88c956329cbbcdec4f89228321de5f1a637e6255602ec8b0351632a68482be"
+  },
+  "g216_v2_group_0070": {
+   "camera": {
+    "backend": "Vulkan_RT_lavapipe",
+    "cam_height_m": 110.0,
+    "depth_measurement": "Euclidean_ray_range_m",
+    "depth_ray_scale": 1.0,
+    "elevation_scale_m": 10.0,
+    "height": 1024,
+    "hfov_rad": 0.8203047484373349,
+    "max_depth_m": 180.0,
+    "model_image_size": 512,
+    "observation_mode": "One overhead RGB-D frame per planning decision, vehicle present, after the 0.8 s settle",
+    "width": 1024
+   },
+   "cover": "0392743b2c760fee81bd1ca3a43308d7f1f9e792849b59c5907458b69eb816ae",
+   "range_m": "ca3adb24443bbed47a6f170c9822ed10a55c2b9687e45fad0d04193a72b0ace2",
+   "rgb": "f94f5e748ad4391c1dab852cf6d503380d6a447063afb2d6a0de51930593a437",
+   "sec": "c979bca67f24ff5a735cad3592602a5c6e4794d4ff927f4f5728dfc065a3798b",
+   "z": "94e91f1571176258e6963a15e02191242fac670fa77f5441b9e5f3e0d384a8b5"
+  },
+  "g216_v2_group_0072": {
+   "camera": {
+    "backend": "Vulkan_RT_lavapipe",
+    "cam_height_m": 110.0,
+    "depth_measurement": "Euclidean_ray_range_m",
+    "depth_ray_scale": 1.0,
+    "elevation_scale_m": 10.0,
+    "height": 1024,
+    "hfov_rad": 0.8203047484373349,
+    "max_depth_m": 180.0,
+    "model_image_size": 512,
+    "observation_mode": "One overhead RGB-D frame per planning decision, vehicle present, after the 0.8 s settle",
+    "width": 1024
+   },
+   "cover": "a1b04df59ac56cd8bb13543c25818f40bdc2911879f0aab3f6abada24dd3f654",
+   "range_m": "8db85917f3dbbb9dd449248f8c52c59af4d891eb4541e71344a7d65d5f804f77",
+   "rgb": "5ef662c9cccf096ce76a81c9b8aec180c2c1161a2ef63b0cde3f5a5760dcade7",
+   "sec": "29666cfc3d1e8340bee29b5a577071f7e761371edc0583bfecdd8941a785e599",
+   "z": "e573eafb2a64642e88d06b82ae4aab3353fb9772de70bc275ef4418654a9342d"
+  },
+  "g216_v2_group_0074": {
+   "camera": {
+    "backend": "Vulkan_RT_lavapipe",
+    "cam_height_m": 110.0,
+    "depth_measurement": "Euclidean_ray_range_m",
+    "depth_ray_scale": 1.0,
+    "elevation_scale_m": 10.0,
+    "height": 1024,
+    "hfov_rad": 0.8203047484373349,
+    "max_depth_m": 180.0,
+    "model_image_size": 512,
+    "observation_mode": "One overhead RGB-D frame per planning decision, vehicle present, after the 0.8 s settle",
+    "width": 1024
+   },
+   "cover": "f86851c9403d6b996a01dabcbd2e9dd0d60dfc8c3401b1d6dde9609ca6072855",
+   "range_m": "8aec0a878ffa551d01f8a0b88f0c2e947bb9feb9a78ed83c6ac25df7dbc269b2",
+   "rgb": "ad6b63c4c13a8cd22a342f463173995abbfef4e11ac9c1aae1f00a4e9c0f5a14",
+   "sec": "427aca7018e9d9fc7ed98ed6120ab1d9c3df0719ac78f87d802cc301a93a9610",
+   "z": "3d75dc963883f14437136b0621e1c6b31d08148f5c322737e264e4f9f7f4c0ac"
+  },
+  "g216_v2_group_0078": {
+   "camera": {
+    "backend": "Vulkan_RT_lavapipe",
+    "cam_height_m": 110.0,
+    "depth_measurement": "Euclidean_ray_range_m",
+    "depth_ray_scale": 1.0,
+    "elevation_scale_m": 10.0,
+    "height": 1024,
+    "hfov_rad": 0.8203047484373349,
+    "max_depth_m": 180.0,
+    "model_image_size": 512,
+    "observation_mode": "One overhead RGB-D frame per planning decision, vehicle present, after the 0.8 s settle",
+    "width": 1024
+   },
+   "cover": "612d6c77c6816cc020a93504ba959e2ed918c9d42baa208227ef7d95a6f9363c",
+   "range_m": "616af06b6c79ee9cd15fb9aa69d1162ad463d01f1fa07e2b675b272b16ea2533",
+   "rgb": "195f242abe613ffd1b33df885995335baa815feea1238c35c9b2e3ed14f0797e",
+   "sec": "2c13f485c4f58cdf808d31b156a83a30620e7749368bac2a8c23a9ae63cbe340",
+   "z": "74c7595099a4e9765555ca923ce375aaaf255790860a3b4645638de49ff4b7c7"
+  },
+  "g216_v2_group_0079": {
+   "camera": {
+    "backend": "Vulkan_RT_lavapipe",
+    "cam_height_m": 110.0,
+    "depth_measurement": "Euclidean_ray_range_m",
+    "depth_ray_scale": 1.0,
+    "elevation_scale_m": 10.0,
+    "height": 1024,
+    "hfov_rad": 0.8203047484373349,
+    "max_depth_m": 180.0,
+    "model_image_size": 512,
+    "observation_mode": "One overhead RGB-D frame per planning decision, vehicle present, after the 0.8 s settle",
+    "width": 1024
+   },
+   "cover": "d167c8c6d3f0f895fc31533bb412da6740443a3ed09dbea9c5587f38b9d831a4",
+   "range_m": "4881eac5cc4f44c238b5a4b1ffe3e731c965a00ccc8e6a25fcf688d0ad1b82d6",
+   "rgb": "5b8b2c18e216027040eeec681e1bfa7e2af4077bc9aa432af16d557e4c8b6262",
+   "sec": "4104a114c4fa4faf0ecd628b0a75ec18fa31d334dcb0b6cb602f90e3a25fbe80",
+   "z": "f0f8ab4be87aba2ceca8b7d066b0a909047185b41e42d7a86502094bf9f8ab64"
+  },
+  "g216_v2_group_0086": {
+   "camera": {
+    "backend": "Vulkan_RT_lavapipe",
+    "cam_height_m": 110.0,
+    "depth_measurement": "Euclidean_ray_range_m",
+    "depth_ray_scale": 1.0,
+    "elevation_scale_m": 10.0,
+    "height": 1024,
+    "hfov_rad": 0.8203047484373349,
+    "max_depth_m": 180.0,
+    "model_image_size": 512,
+    "observation_mode": "One overhead RGB-D frame per planning decision, vehicle present, after the 0.8 s settle",
+    "width": 1024
+   },
+   "cover": "556808c84be8323b4fdfa0fe6367c7d02f9425b0c275c49b9880cc81aaaa6c3b",
+   "range_m": "c9fa7383880b3f2cc37a608844fc4e57986f4c8f81097f5a14a6fba36cf3366c",
+   "rgb": "9df709072ac921d206cd6e55c962e51c2d98f18743f839fa8ed4ee327470e1b9",
+   "sec": "27000b15498b305fd3b4e0ea0c13c3e445ed6c0ea214652dca0073a4f2a0a6ee",
+   "z": "90fea0c184f9bff89852efa8caa2f5ded63fce1d233a57c5c0e73f5da9429499"
+  },
+  "g216_v2_group_0087": {
+   "camera": {
+    "backend": "Vulkan_RT_lavapipe",
+    "cam_height_m": 110.0,
+    "depth_measurement": "Euclidean_ray_range_m",
+    "depth_ray_scale": 1.0,
+    "elevation_scale_m": 10.0,
+    "height": 1024,
+    "hfov_rad": 0.8203047484373349,
+    "max_depth_m": 180.0,
+    "model_image_size": 512,
+    "observation_mode": "One overhead RGB-D frame per planning decision, vehicle present, after the 0.8 s settle",
+    "width": 1024
+   },
+   "cover": "8b6c92931d8d6cfcd02fe8003c393b5f41dd835a09340db5aefe8ba6b6fc7c5e",
+   "range_m": "9a2dcbae8a3a2f1b59b5b372755dc6c42b20fa85b8406e47cdb3e027fbe06342",
+   "rgb": "6e67d2e4b127afcdd128baedf62e93615f2c21a660d5fe2d85d50a517579a493",
+   "sec": "8a8b2188a759cbfb8c5978e2122cb43fbea9cae7963787e1ede16f784947b427",
+   "z": "a54994b4aff56e6989128d2aa81f1c5a37523c34a44354cb71be84215fef9366"
+  },
+  "g216_v2_group_0092": {
+   "camera": {
+    "backend": "Vulkan_RT_lavapipe",
+    "cam_height_m": 110.0,
+    "depth_measurement": "Euclidean_ray_range_m",
+    "depth_ray_scale": 1.0,
+    "elevation_scale_m": 10.0,
+    "height": 1024,
+    "hfov_rad": 0.8203047484373349,
+    "max_depth_m": 180.0,
+    "model_image_size": 512,
+    "observation_mode": "One overhead RGB-D frame per planning decision, vehicle present, after the 0.8 s settle",
+    "width": 1024
+   },
+   "cover": "ef5c0d8deb842a5aa1b82dae77234d59083e4daebc1e508000c14182054148df",
+   "range_m": "4987e2772e71be6631310073a245c43d6805c9813cb072b67087875c0340b2e7",
+   "rgb": "2591d09528f40100168f3d762f396700a2c2f5b083f0ca675f80f4afd184f406",
+   "sec": "79a4fbae35a8a500ef9a98cf20833d91793d610eb7a003497057439a450f72d5",
+   "z": "47c0e78240a28a189d383b1cef91cbaa022fa0ed2d4b7da3dcc2a6a2ff30815e"
+  },
+  "g231_v2_group_0000": {
+   "camera": {
+    "backend": "Vulkan_RT_lavapipe",
+    "cam_height_m": 110.0,
+    "depth_measurement": "Euclidean_ray_range_m",
+    "depth_ray_scale": 1.0,
+    "elevation_scale_m": 10.0,
+    "height": 1024,
+    "hfov_rad": 0.8203047484373349,
+    "max_depth_m": 180.0,
+    "model_image_size": 512,
+    "observation_mode": "One overhead RGB-D frame per planning decision, vehicle present, after the 0.8 s settle",
+    "width": 1024
+   },
+   "cover": "04e63a0b363134be11fa3b4d7ff326fc75e6e5157907483a9e8d77fdafd8a16e",
+   "range_m": "23117780127d665783aec686d97b9f4df3a8f6b4412a0ea619d3aef32abec0f0",
+   "rgb": "d01be24c11f9b0362f11d62c29b472e909cd9e5a1256e6c6c065d380979d7ecf",
+   "sec": "99fa91319d920ba6f5407688b68ac2b52904ce28275a0ec72ae533bd72131e7b",
+   "z": "3001e8db2f065d7e82077ff696860cdc8285d6652ac7251e468ed746b7120451"
+  },
+  "g231_v2_group_0025": {
+   "camera": {
+    "backend": "Vulkan_RT_lavapipe",
+    "cam_height_m": 110.0,
+    "depth_measurement": "Euclidean_ray_range_m",
+    "depth_ray_scale": 1.0,
+    "elevation_scale_m": 10.0,
+    "height": 1024,
+    "hfov_rad": 0.8203047484373349,
+    "max_depth_m": 180.0,
+    "model_image_size": 512,
+    "observation_mode": "One overhead RGB-D frame per planning decision, vehicle present, after the 0.8 s settle",
+    "width": 1024
+   },
+   "cover": "dc695d70fdd0e3a8208705455539de33cca6f34e5fe3c4e9a24e5416c1c560b9",
+   "range_m": "2caf47b87c10afadee8eb48ad053a30940f2a1bffcb77a66ebc7216f26883433",
+   "rgb": "6215997fbbb33bd66095de6f9cab24004932f12ccd98cf76f7bac1fa9cde91f9",
+   "sec": "aafa803ef12f8e2f4a0f9caefd963c407f2645308cb27e7d783931eaff10142a",
+   "z": "3a4e3d263249e100151aafc5ff1abaf096b363618d7043219f1f0a8d2336335f"
+  },
+  "g231_v2_group_0034": {
+   "camera": {
+    "backend": "Vulkan_RT_lavapipe",
+    "cam_height_m": 110.0,
+    "depth_measurement": "Euclidean_ray_range_m",
+    "depth_ray_scale": 1.0,
+    "elevation_scale_m": 10.0,
+    "height": 1024,
+    "hfov_rad": 0.8203047484373349,
+    "max_depth_m": 180.0,
+    "model_image_size": 512,
+    "observation_mode": "One overhead RGB-D frame per planning decision, vehicle present, after the 0.8 s settle",
+    "width": 1024
+   },
+   "cover": "2493c225315a75484c3bdbc69423d14bf6a2c99e8cd95dd13b50d645daf04392",
+   "range_m": "b8397b8071d7ec42ec5d6ff619c0bd64cd3e4ce092b776861d65b65c40ed241f",
+   "rgb": "70f6e568ed1aca1f06efce33bc04251e5429ce543c087535c8f9a710bc8342a1",
+   "sec": "7ec14de3bef471708a26794290d50d48f2affced98beeade8c525dd07aeee7ed",
+   "z": "0d6fec813255ea05cded6406e64435af8ee1e4249d2c62c0070f920c7e1733c5"
+  },
+  "g231_v2_group_0043": {
+   "camera": {
+    "backend": "Vulkan_RT_lavapipe",
+    "cam_height_m": 110.0,
+    "depth_measurement": "Euclidean_ray_range_m",
+    "depth_ray_scale": 1.0,
+    "elevation_scale_m": 10.0,
+    "height": 1024,
+    "hfov_rad": 0.8203047484373349,
+    "max_depth_m": 180.0,
+    "model_image_size": 512,
+    "observation_mode": "One overhead RGB-D frame per planning decision, vehicle present, after the 0.8 s settle",
+    "width": 1024
+   },
+   "cover": "5c4995bdb83662cf70105d8e87576accbebae81c72bad42c1de70fbd88167e77",
+   "range_m": "46fb4c09bd23d7bab03d9db41b95a1aaa6a7c477bba423994ca8fc21e7eb2255",
+   "rgb": "75efdaf68719ea1d2fc361985436d573df4124cc43467d66ede214ecd1c7c0b3",
+   "sec": "5e43fe9b6fd9b6bcdc52b4b5b25562cf932b64ef4373590c54dfd39acb81329b",
+   "z": "c13a83d5eed371d7825813f8b3941dd0fcd53c72ec8796539e06b2c4ad20345c"
+  },
+  "g231_v2_group_0066": {
+   "camera": {
+    "backend": "Vulkan_RT_lavapipe",
+    "cam_height_m": 110.0,
+    "depth_measurement": "Euclidean_ray_range_m",
+    "depth_ray_scale": 1.0,
+    "elevation_scale_m": 10.0,
+    "height": 1024,
+    "hfov_rad": 0.8203047484373349,
+    "max_depth_m": 180.0,
+    "model_image_size": 512,
+    "observation_mode": "One overhead RGB-D frame per planning decision, vehicle present, after the 0.8 s settle",
+    "width": 1024
+   },
+   "cover": "b9c82e04168cfa240a67ca8ea22eaafd54bcad268ac64fd426e9df0470af2979",
+   "range_m": "34f425273251293c511da1c9199aab7393297b404192e4e2fe2efdad12322df5",
+   "rgb": "5112ad94eed79e2ef8d4e52dafc23d1284412a0f848fcd7a92c5af5fddbb80da",
+   "sec": "eeab9854c91b369719b6b904c541750c764a76ddc3eb04d196ad63563f8e6919",
+   "z": "d747e84fdd6da87e3405b310e63139640bce70a7652e34c4fdbc09dd114a4d35"
+  },
+  "g231_v2_group_0072": {
+   "camera": {
+    "backend": "Vulkan_RT_lavapipe",
+    "cam_height_m": 110.0,
+    "depth_measurement": "Euclidean_ray_range_m",
+    "depth_ray_scale": 1.0,
+    "elevation_scale_m": 10.0,
+    "height": 1024,
+    "hfov_rad": 0.8203047484373349,
+    "max_depth_m": 180.0,
+    "model_image_size": 512,
+    "observation_mode": "One overhead RGB-D frame per planning decision, vehicle present, after the 0.8 s settle",
+    "width": 1024
+   },
+   "cover": "1eb471f4f7fa5a8b1e1d9e251fbbd9be61d50e43ea39bb7c3286afecd76d15fd",
+   "range_m": "083e58717302da8179c53a3af5ae79ea9a1ce5a1a6ff3bf988f782fbca3d5dca",
+   "rgb": "9af0142582ebdeacb90661db29e8fb96bdd21cfb8a472ebb8675a87d129512aa",
+   "sec": "ffbc7cf347aafaabaa800dee4d4cd04528b7ba5f62fcdd6a93199f797d4f8a3c",
+   "z": "24f2cb7f3a8a06b6467b626aa0e4763e8988d50c2191589c178a1109d4684b8c"
+  }
+ },
+ "models": "/home/harry/NeDM-traverse_mppi/artifacts/traverse/fdm_f104_50h_20260909/sensor_v2/matched/matched_Dabs_s*.pt",
+ "speed_pi": {
+  "braking_steps": 6287,
+  "coast_steps": 11580,
+  "out": "198fc0d5f7ea7c62f02cb5f5eb4c66f5fd8e05032b80fb533f56fcea194c8fea",
+  "saturated_steps": 2641
+ }
+}

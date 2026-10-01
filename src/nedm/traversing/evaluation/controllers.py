@@ -1,30 +1,23 @@
-"""Controllers of a drive (FINAL_DESIGN 2.3; PARITY #7, #8 in episode.py): the stock PID, the held PID and the tracker.
-
-A controller turns the path follower's output into the triple handed to vehicle.Synchronize. The episode loop owns
-the follower, the settle, the desired speed and the stop rules (the 40 s near-stop rule: EvalConfig.near_stop_rule);
-it calls, per frame k:
+"""Controllers of a drive (PARITY #7, #8, #26 in episode.py): the stock PID, the held PID, the tracker and M1's NavPID
+(the follower's steering, SpeedPI's throttle and brake). A controller turns the path follower's output into the
+triple handed to vehicle.Synchronize; the episode loop calls, per frame k:
   frame_top(ep)       once, after SetDesiredSpeed (k >= 0), before the frame's first Synchronize
   inputs(ep, u)       every substep, u = follower.GetInputs() = the output of the PREVIOUS Advance; returns the inputs
   after_sync(ep)      every substep after the vehicle Synchronize (k >= 0)
   frame_end(ep)       after the frame's physics and record (k >= 0)
   switch(ep, route)   when a hook swaps the route
-Held controllers (crm_collect_ext.py:217-296, gen_collect_ext.py:243-282) decide one command at the top of each frame,
-hold_clip it against the previous held steering and write that triple at every substep: hold_clip REPLACES the
-per-substep clamp. The follower keeps running as a shadow, so settle, parking and desired speed stay native. The
-previous command is fed back as the recorded float32 action on soil and as the float64 command on rigid ground
-(SPEC 0.10).
 """
 
 from __future__ import annotations
 
-import hashlib
 import math
-from pathlib import Path
 
 import numpy as np
 
 from nedm.traversing.training.numpy_actor import NumpyActor
 from nedm.traversing.training.state import OBSERVABLE_COLS, SETTLE_ACTION
+
+from .config import sha256_file
 
 COLS = list(OBSERVABLE_COLS)
 # the observation the Tracker builds = the released actor's meta obs_layout (gc_control.PolicyObs.layout)
@@ -70,7 +63,9 @@ class StockPID:
 
 
 class HeldPID(StockPID):
-    """M3 pid_held_50ms: the shadow follower's output at the frame top (its last Advance of frame k-1), held."""
+    """M3 pid_held_50ms: the shadow follower's output at the frame top (its last Advance of frame k-1), hold_clip-ed
+    and held over every substep, REPLACING the per-substep clamp (crm_collect_ext.py:217-296, gen_collect_ext.py:243-282).
+    The follower keeps running as a shadow, so settle, parking and desired speed stay native."""
 
     def reset(self, ep):
         self.f32, self.last = ep.sim.ground == 'soil', np.asarray(SETTLE_ACTION, np.float64)    # action[k-1]
@@ -110,8 +105,7 @@ class Tracker(HeldPID):
         lay = self.actor.meta.get('obs_layout', {})
         if self.actor.num_obs != 158 or {k: lay.get(k) for k in OBS_LAYOUT} != OBS_LAYOUT:
             raise ValueError(f'{actor_npz}: observation layout {lay} is not the ported one {OBS_LAYOUT}')
-        self.info = dict(actor=str(actor_npz), actor_sha256=hashlib.sha256(Path(actor_npz).read_bytes()).hexdigest(),
-                         pre_capture_max_abs_diff=0.)
+        self.info = dict(actor=str(actor_npz), actor_sha256=sha256_file(actor_npz), pre_capture_max_abs_diff=0.)
 
     def reset(self, ep):
         super().reset(ep)
@@ -159,10 +153,55 @@ class Tracker(HeldPID):
         self.A = np.vstack([self.A[1:], self.last])
 
 
+class SpeedPI:
+    """nav_online.SpeedPI (nav_online.py:125-164): Chrono's speed PID (trapezoidal integral, backward-difference
+    derivative) with the path follower's throttle/brake mapping, plus conditional integration and an integral clamp at
+    +-1/ki; its state is carried across route changes."""
+
+    def __init__(self, kp=.6, ki=.05, kd=0., throttle_threshold=.2):
+        self.kp, self.ki, self.kd, self.tt = kp, ki, kd, throttle_threshold
+        self.err = self.erri = self.throttle = self.braking = 0.
+
+    def advance(self, speed, target, step):
+        err = float(target) - float(speed)
+        errd, erri = (err - self.err) / step, self.erri + (err + self.err) * step / 2
+        raw = self.kp * err + self.ki * erri + self.kd * errd
+        if (raw > 1. and err > 0.) or (raw < -1. and err < 0.):     # no integration towards the saturated side
+            erri = self.erri
+            raw = self.kp * err + self.ki * erri + self.kd * errd
+        if self.ki:
+            erri = float(np.clip(erri, -1. / self.ki, 1. / self.ki))
+        self.erri, self.err, out = erri, err, float(np.clip(raw, -1., 1.))
+        if out > 0:
+            self.braking, self.throttle = 0., out
+        elif self.throttle > self.tt:
+            self.braking, self.throttle = 0., 1. + out
+        else:
+            self.braking, self.throttle = -out, 0.
+        return self.throttle, self.braking
+
+
+class NavPID(StockPID):
+    """M1 (nav_runner.py:357-383): the follower's clamped steering, throttle and brake from one SpeedPI per drive that
+    tracks the frame's desired speed after every vehicle Synchronize; the follower's own speed command is never set
+    after the settle (owns_speed) and its throttle and brake are discarded."""
+    owns_speed = True
+
+    def reset(self, ep):
+        self.pi = SpeedPI()
+
+    def inputs(self, ep, u):
+        u = super().inputs(ep, u)
+        if ep.k >= 0:
+            u.m_throttle, u.m_braking = self.pi.throttle, self.pi.braking
+        return u
+
+    def after_sync(self, ep):
+        self.pi.advance(float(ep.sim.vehicle.GetSpeed()), ep.desired, ep.sim.dt)
+
+
 def make_controller(cfg, env=None):
     """The controller of an arm; the tracker's actor is a checked release file (env.file)."""
     if cfg.controller == 'tracker':
         return Tracker(env.file(cfg.actor))
-    if cfg.controller == 'nav_pid':
-        raise NotImplementedError('controller nav_pid: the M1 mission controller is not ported yet')
-    return {'pid': StockPID, 'pid_held': HeldPID}[cfg.controller]()
+    return {'pid': StockPID, 'pid_held': HeldPID, 'nav_pid': NavPID}[cfg.controller]()
