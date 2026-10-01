@@ -12,7 +12,8 @@ traversing/manifests/hf_release_manifest.json (plain files directly, tar members
 sha256 the manifest pins). ``{arena}`` / ``{task}`` expand per task. Other paths are absolute or repo-relative.
 
 ``validate()`` returns every problem at once (FINAL_DESIGN 4.1): refusals, combinations outside the validated matrix (run
-only with ``allow_unvalidated``; ``validated`` is stamped in every record) and, given an ``Env``, the input files.
+only with ``allow_unvalidated``; ``validated`` is stamped in every record; an arm without a ``build_lock`` is outside it)
+and, given an ``Env``, the input files.
 Arm files are TOML: a ``[defaults]`` table merged (shallow) under each ``[[arm]]``. Single-goal one-shot pools (arms
 A, D) are not offered (SPEC 3: Drop); ``rounds`` >= 2 (M1 plans its one-shot pool inside nav.py).
 """
@@ -38,22 +39,23 @@ from .routes import ANCHOR_SPEEDS
 REPO_ROOT = Path(__file__).resolve().parents[4]
 MANIFEST = REPO_ROOT / 'traversing/manifests/hf_release_manifest.json'
 DT = 0.05                                               # recording frame (s)
-VEHICLES = ('hmmwv', 'gator', 'polaris', 'polaris_pc', 'polaris_4wd', 'polaris_w08')
-BELLY = VEHICLES[1:]                                    # vehicles with belly points (ag_gator_belly, ov_polaris_belly)
 GROUNDS, UPDATES = ('rigid', 'soil'), ('cem', 'mppi')
 PLANNERS = ('given', 'straight', 'cem', 'cem_grad', 'live')
 CONTROLLERS = ('pid', 'pid_held', 'tracker', 'nav_pid')
 LABELS = ('rollback', 'rollback_belly', 'tracker', 'mission', 'goal_belly')
 MODEL_KINDS = ('ci_train', 'ga_train', 'legacy')        # what the planner adapters load; txjoint is refused
 PICK_ARMS = {'straight': ('S',), 'cem': ('B',), 'cem_grad': ('B', 'G')}     # a locked pick folder's arms per planner
-GRAD = dict(starts=17, steps=60, lr_a=0.02, lr_dv=0.10, betas=(0.9, 0.99), clip=10.0, patience=15, keep='pessimistic',
-            abstain=0.3, arena_soft=37.0)               # refine_pick settings (ci_grad.py:400-514); `grad` overrides
 SOIL_CONFIGS = {'crm_main': 'data:artifacts/traverse/crm_f104_v1/configs/crm_main.json'}      # sha 90cd049e..., 1 ms
+# Every key build_crm reads: recorded configs spell all out, so crm_collect.CRM_DEFAULT (0.5 ms!) is never merged in.
+SOIL_KEYS = ('spacing_m depth_m step_s active_domain_m active_domain_delay_s side_walls mbs_threads tire_mesh '
+             'soil.density soil.young_modulus_pa soil.poisson_ratio soil.mu_I0 soil.friction soil.average_diam_m '
+             'soil.cohesion_pa sph.d0_multiplier sph.free_surface_threshold sph.artificial_viscosity '
+             'sph.shifting_method sph.shifting_ppst_push sph.shifting_ppst_pull sph.num_proximity_search_steps').split()
 ACTOR_V2 = 'data:artifacts/traverse/generalist_20260921/B_tracker/ppo_v2/actor.npz'           # sha ea938820...
 NUM = (int, float)
 TYPES = dict(name=str, vehicle=str, ground=str, soil_config=str, approach_s=NUM, decisions=str, planner=str, models=str,
-             speed=NUM, rounds=int, samples=int, update=str, seed_tag=str, grad=dict, picks=str, replan=(str, *NUM),
-             latency_replay=str, controller=str, actor=str, label=str, build_lock=str, allow_unvalidated=bool)
+             speed=NUM, rounds=int, samples=int, update=str, picks=str, replan=(str, *NUM), latency_replay=str,
+             controller=str, actor=str, label=str, build_lock=str, allow_unvalidated=bool)
 
 
 class ConfigError(ValueError):
@@ -72,6 +74,27 @@ def sha256_file(p) -> str:
     return hashlib.sha256(Path(p).read_bytes()).hexdigest()
 
 
+def write_atomic(path, data):
+    """`data` (str, bytes, or a function writing to the open file) to `path`: a fsynced .tmp, then os.replace."""
+    tmp = Path(path).with_name(Path(path).name + '.tmp')
+    with open(tmp, 'wb') as f:
+        data(f) if callable(data) else f.write(data.encode() if isinstance(data, str) else data)
+        f.flush()
+        os.fsync(f.fileno())
+    os.replace(tmp, path)
+
+
+def soil_config(ref, env) -> tuple[Path, dict]:
+    """The CRM soil config `ref` ('crm_main' or a JSON reference) and its content: every SOIL_KEYS key given, step_s
+    dividing 0.05 s (crm_collect.py:201-203)."""
+    p = env.file(SOIL_CONFIGS.get(ref, ref))
+    c = json.loads(p.read_text())
+    miss = [k for k in SOIL_KEYS if k.rpartition('.')[2] not in (c.get(k.partition('.')[0], {}) if '.' in k else c)]
+    if not isinstance(step := c.get('step_s'), float) or step <= 0 or abs(round(DT / step) * step - DT) > 1e-12 or miss:
+        raise ValueError(f'soil config {p}: missing {miss}; step_s {step!r} must be given and divide 0.05 s')
+    return p, c
+
+
 @dataclass(frozen=True)
 class EvalConfig:
     """One arm = one results column (field meanings: FINAL_DESIGN 2.1)."""
@@ -87,8 +110,6 @@ class EvalConfig:
     rounds: int = 4
     samples: int = 64
     update: str = 'cem'
-    seed_tag: str | None = None
-    grad: dict | None = None
     picks: str | None = None
     replan: str | float | None = None
     latency_replay: str | None = None
@@ -98,15 +119,10 @@ class EvalConfig:
     build_lock: str | None = None
     allow_unvalidated: bool = False
 
-    def __post_init__(self):            # 3 and 3.0 are one config (one sha); grad in its JSON form (tuples -> lists)
+    def __post_init__(self):            # 3 and 3.0 are one config (one sha)
         for k in ('approach_s', 'speed', 'replan'):
             if type(getattr(self, k)) is int:
                 object.__setattr__(self, k, float(getattr(self, k)))
-        if isinstance(self.grad, dict):
-            try:
-                object.__setattr__(self, 'grad', json.loads(json.dumps(self.grad)))
-            except (TypeError, ValueError) as e:
-                raise ConfigError([f'grad {self.grad!r}: {e}']) from None
 
     @property
     def tag(self) -> str | None:
@@ -114,8 +130,6 @@ class EvalConfig:
         the waypoint arm ran with period 2.0 (nav_runner.py:145, nav_tasks.py:6); None for the rng-free planners."""
         if self.planner in ('given', 'straight'):
             return None
-        if self.seed_tag:
-            return self.seed_tag
         if self.planner == 'live':
             return 'waypoint2.0' if self.replan == 'waypoint' else f'periodic{self.replan}'
         return f'n2iter_cem{self.rounds}x{self.samples}' + ('' if self.speed is None else f'_fixed{self.speed:g}')
@@ -131,7 +145,7 @@ class EvalConfig:
         return round(self.approach_s / DT)
 
     @property
-    def external(self) -> bool:         # the 40 s near-stop rule applies (crm_collect_ext.py:330-339)
+    def near_stop_rule(self) -> bool:   # the 40 s near-stop rule applies (crm_collect_ext.py:330-339)
         return self.controller in ('pid_held', 'tracker')
 
     @property
@@ -154,9 +168,8 @@ class EvalConfig:
 
     def validate(self, env: Env | None = None, *, tasks=(), model_info=None) -> list[str]:
         """Every problem at once. With ``env`` also the inputs: released files exist and match (a templated reference once
-        per distinct expansion over ``tasks``), soil config, decision states and locked picks agree with the arm, and
-        the models' kind and training ground: ``model_info`` = planner.model_info (the planner owns torch); a torch-free
-        drive worker passes model_info=False to skip that check explicitly."""
+        per distinct expansion over ``tasks``), soil config, decision states, locked picks and the task files the arm
+        reads, and the models' kind and training ground: ``model_info`` = planner.model_info (the planner owns torch)."""
         problems = _types(self)
         if problems:
             return problems
@@ -176,15 +189,6 @@ def _types(c: EvalConfig) -> list[str]:
             and (wrong(v, t) or isinstance(v, float) and not math.isfinite(v))]
 
 
-def bad_grad(grad) -> list[str]:
-    """Keys of a grad override that are not GRAD keys or lack the type of their default (numbers finite)."""
-    def like(v, d):
-        if isinstance(d, tuple):
-            return isinstance(v, (list, tuple)) and len(v) == len(d) and all(map(like, v, d))
-        return type(v) in (int, float) and math.isfinite(v) if type(d) is float else type(v) is type(d)
-    return [k for k, v in (grad or {}).items() if k not in GRAD or not like(v, GRAD[k])]
-
-
 def _matrix(c: EvalConfig) -> tuple[list[str], list[str]]:
     """(refused, off-matrix) from the fields alone (FINAL_DESIGN 4.1); the types are already checked."""
     R, U = [], []
@@ -193,9 +197,10 @@ def _matrix(c: EvalConfig) -> tuple[list[str], list[str]]:
         if not ok:
             to.append(msg)
 
+    from .vehicles import VEHICLES                      # imported here: vehicles imports this module
     v, g, p, ctl, lab, a, sc = c.vehicle, c.ground, c.planner, c.controller, c.label, c.approach_s, c.soil_config
     no_search = p in ('given', 'straight', 'live')     # planners without the sampling search
-    rule(v in VEHICLES, f'vehicle {v!r} is not one of {VEHICLES}' + (
+    rule(v in VEHICLES, f'vehicle {v!r} is not one of {tuple(VEHICLES)}' + (
         ': the M113 is a smoke-only tracked stand-in; recount its released drives (vehicle_smoke_test_drives)'
         if v.startswith('m113') else ''))
     for k, allowed in (('ground', GROUNDS), ('planner', PLANNERS), ('update', UPDATES), ('controller', CONTROLLERS),
@@ -228,17 +233,14 @@ def _matrix(c: EvalConfig) -> tuple[list[str], list[str]]:
          f'offset-0 anchor at one of {ANCHOR_SPEEDS} m/s (routes.straight)')
     rule(c.rounds >= 2 and c.samples >= 1, 'rounds must be >= 2 and samples >= 1 (single-goal one-shot pools, arms A '
          'and D, are dropped: SPEC 3)')
-    rule(not no_search or (c.rounds, c.samples, c.update, c.seed_tag) == (4, 64, 'cem', None),
-         f'rounds / samples / update / seed_tag are not used by planner {p}')
-    rule(c.grad is None or p == 'cem_grad', 'grad overrides need planner cem_grad')
-    rule(not bad_grad(c.grad), f'grad {bad_grad(c.grad)}: not keys of GRAD or not of their types {GRAD}')
+    rule(not no_search or (c.rounds, c.samples, c.update) == (4, 64, 'cem'),
+         f'rounds / samples / update are not used by planner {p}')
     rule(c.picks is None or p in PICK_ARMS, f'locked picks with planner {p}')
     rule(c.picks is None or a == 0.0 or c.decisions, 'locked picks after an approach need decisions: the released '
          'states they were planned at (Pick.locked checks each pose)')
     if p in ('cem', 'cem_grad'):
         rule((c.rounds, c.samples) == (4, 64), f'{c.rounds} x {c.samples} sampling (recorded: 4 x 64)', U)
         rule(c.update == 'cem', 'update mppi (every headline used cumulative-elite CEM)', U)
-        rule(c.seed_tag is None and c.grad is None, 'seed_tag or grad overrides', U)
         rule(c.speed is None or (c.speed == 2.0 and g == 'rigid'),
              f'fixed-speed family at {c.speed} m/s on {g} (recorded: 2 m/s on rigid)', U)
     rule(p != 'straight' or c.speed in (None, 6.0) or (c.speed == 2.0 and g == 'rigid'),
@@ -266,12 +268,14 @@ def _matrix(c: EvalConfig) -> tuple[list[str], list[str]]:
          f'{ctl} on planned routes, after an approach or off the HMMWV', U)
     rule(c.actor in (None, ACTOR_V2), 'an actor other than the released round-2 actor', U)
     # label
-    rule(lab not in ('rollback_belly', 'goal_belly') or v in BELLY, f'{lab} on the {v}: it has no belly points')
+    rule(lab not in ('rollback_belly', 'goal_belly') or v in VEHICLES and VEHICLES[v].belly,
+         f'{lab} on the {v}: it has no belly points')
     rule((lab == 'mission') == (p == 'live'), 'label mission <=> planner live')
     planned = p in ('straight', 'cem', 'cem_grad')
     ok = {'rollback': planned and v in ('hmmwv', 'gator'), 'rollback_belly': planned and v in ('polaris', 'polaris_pc'),
           'tracker': p == 'given' and v == 'hmmwv', 'goal_belly': p == 'given'}
     rule(ok.get(lab, True), f'label {lab} with planner {p} on the {v}', U)
+    rule(c.build_lock, f'no build_lock: no parity-checked {g} build pinned (configs/traversing/evaluation/locks)', U)
     return R, U
 
 
@@ -293,11 +297,10 @@ def _inputs(c: EvalConfig, env: Env, tasks, model_info) -> list[str]:
     world = {'soil': 'crm', 'rigid': 'rigid'}.get(c.ground)
     if c.models:
         ckpts = attempt(env.glob, c.models) or []
-        info = [i for i in (attempt(model_info, q) for q in ckpts) if i] if model_info else []
+        info = [i for i in (attempt(model_info, q) for q in ckpts) if i] if model_info is not None else []
         kinds, trained = Counter(k for k, _ in info), {d for _, d in info} - {None}    # legacy Net: no domain_filter
         if model_info is None:
-            P.append(f'models {c.models}: kind and training ground not checked (pass model_info=planner.model_info; '
-                     'False skips it on a drive worker)')
+            P.append(f'models {c.models}: kind and training ground not checked (pass model_info=planner.model_info)')
         elif len(kinds) > 1 or not set(kinds) <= set(MODEL_KINDS):
             P.append(f'models {c.models}: kinds {dict(kinds)}, need one of {MODEL_KINDS} (txjoint: context only)')
         elif kinds and c.planner == 'cem_grad' and 'ci_train' not in kinds:
@@ -315,25 +318,23 @@ def _inputs(c: EvalConfig, env: Env, tasks, model_info) -> list[str]:
                 P.append(f'decisions {c.decisions}: frames {dict(frames)}, approach_s {c.approach_s} needs F = {c.F}')
             if missing := [t.id for t in tasks if t.id not in poses]:
                 P.append(f'decisions {c.decisions}: no state for {len(missing)} tasks (e.g. {missing[:3]})')
-    for t in per_task(c.picks) if c.picks else ():      # the pick folder was made for this arm (its summary.json)
-        attempt(env.file, c.picks.rstrip('/') + '/PICKS_LOCKED.sha256', t)
+    for t in per_task(c.picks) if c.picks else ():      # the pick folder was made for this arm (its summary.json;
+        attempt(env.file, c.picks.rstrip('/') + '/PICKS_LOCKED.sha256', t)      # Pick.locked checks each decision pose)
         s = attempt(lambda: json.loads(env.file(c.picks.rstrip('/') + '/summary.json', t).read_text())) or {}
-        moving = (s['poses'] is not None) if 'poses' in s else (       # ci_grad: 'poses'; ag/ga pickers: 'pose_sources'
-            s['pose_sources'] != ['layout']) if 'pose_sources' in s else c.approach_s > 0
-        made = (s.get('world'), _tail(s.get('models')), s.get('mode') if c.planner == 'straight' else None, moving,
+        made = (s.get('world'), _tail(s.get('models')), s.get('mode') if c.planner == 'straight' else None,
                 tuple(s.get('arms', ())))
         if s and made != (world, _tail(c.models), f'straight{c.speed or 6.0:g}' if c.planner == 'straight' else None,
-                          c.approach_s > 0, PICK_ARMS.get(c.planner)):
-            P.append(f'picks {env.expand(c.picks, t)} were made for (world, models, mode, moving start, arms) {made}, '
-                     'not this arm')
+                          PICK_ARMS.get(c.planner)):
+            P.append(f'picks {env.expand(c.picks, t)} were made for (world, models, mode, arms) {made}, not this arm')
     for ref in filter(None, (c.actor, c.latency_replay)):
         for t in per_task(ref):
             attempt(env.file, ref, t)
     if c.soil_config:
-        cfg = attempt(lambda: json.loads(env.file(SOIL_CONFIGS.get(c.soil_config, c.soil_config)).read_text()))
-        step = cfg.get('step_s') if isinstance(cfg, dict) else None
-        if cfg is not None and (not isinstance(step, float) or step <= 0.0 or abs(DT / step - round(DT / step)) > 1e-6):
-            P.append(f'soil config {c.soil_config}: step_s {step!r} must be given and divide 0.05 s')
+        attempt(soil_config, c.soil_config, env)
+    for f, on in (('route', c.planner == 'given'), ('approach', c.approach_s > 0),
+                  ('map', c.planner in ('cem', 'cem_grad') and not c.picks)):
+        if on and (miss := [t.id for t in tasks if getattr(t, f) is None]):
+            P.append(f'{len(miss)} tasks have no {f}, which this arm reads (e.g. {miss[:3]})')
     if c.build_lock and not attempt(lambda: env.path(c.build_lock).is_file()):
         P.append(f'build lock {c.build_lock} not found (written by scripts/traversing/evaluation/fingerprint.py)')
     return P

@@ -10,6 +10,7 @@ label = "rollback"
 [[arm]]
 name = "three_arenas_all_data"                  # soil: 9.40 % not reached
 ground = "soil"
+build_lock = "configs/traversing/evaluation/locks/chrono-build-fsi.json"
 soil_config = "crm_main"
 planner = "cem"
 models = "data:artifacts/traverse/arena_gator_20260925/e5/deploy/A3_soil/A3_soil_deploy_s*.pt"
@@ -18,6 +19,7 @@ picks = "data:artifacts/traverse/arena_gator_20260925/e6/picks/crm/{arena}/A3_fr
 [[arm]]
 name = "straight_route_6mps"                    # soil: 40.0 %
 ground = "soil"
+build_lock = "configs/traversing/evaluation/locks/chrono-build-fsi.json"
 soil_config = "crm_main"
 planner = "straight"
 speed = 6.0
@@ -26,6 +28,7 @@ picks = "data:artifacts/traverse/arena_gator_20260925/e6/picks/crm/{arena}/strai
 [[arm]]
 name = "three_arenas_same_total_ens1_fixed2mps" # rigid 2 m/s: 6.175 % (M3 mean over ens1/ens2); ens1 as released
 ground = "rigid"
+build_lock = "configs/traversing/evaluation/locks/chrono-build.json"
 planner = "cem"
 speed = 2.0                                     # tag n2iter_cem4x64_fixed2: theta in R^3, 3 anchors at 2 m/s
 models = "data:artifacts/traverse/arena_gator_20260925/e5/deploy/M3a/M3a_rigid_deploy_s*.pt"
@@ -34,6 +37,7 @@ picks = "data:artifacts/traverse/arena_gator_20260925/e6/picks/rigid/{arena}/M3a
 [[arm]]
 name = "straight_route_2mps"                    # rigid: 54.5 %
 ground = "rigid"
+build_lock = "configs/traversing/evaluation/locks/chrono-build.json"
 planner = "straight"
 speed = 2.0
 picks = "data:artifacts/traverse/arena_gator_20260925/e6/picks/rigid/{arena}/straight2"

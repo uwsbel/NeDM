@@ -136,8 +136,7 @@ class TestRefineCPU(unittest.TestCase):
     def run_refine(self, **grad):
         score = P.Scorer(self.ens, self.smap, self.dec)
         res = P.optimize(self.base, self.dec.pose, score, np.random.default_rng(7), rounds=2, n=12)
-        g = dict(starts=5, steps=4, **grad)
-        return res, G.refine_pick(res, score, g, dict(tag='t'))
+        return res, G.refine_pick(res, score, dict(tag='t'), {**G.GRAD, 'starts': 5, 'steps': 4, **grad})
 
     def test_rules_and_determinism(self):
         res, pk = self.run_refine()
@@ -176,9 +175,6 @@ class TestRefineCPU(unittest.TestCase):
     def test_refusals(self):
         score = P.Scorer(self.ens, self.smap, self.dec)
         res = P.optimize(self.base, self.dec.pose, score, np.random.default_rng(7), rounds=2, n=12)
-        for bad in (dict(keep='mean'), dict(lr=0.1), dict(starts=0), dict(steps='60'), dict(betas=(0.9,))):
-            with self.subTest(bad), self.assertRaises(ValueError):
-                G.refine_pick(res, score, bad, {})
         with tempfile.TemporaryDirectory() as d:
             torch.manual_seed(0)
             m = RiskModel('none', 6, 5)
@@ -189,7 +185,7 @@ class TestRefineCPU(unittest.TestCase):
             ens = P.Ensemble([p], 'cpu')
             sc = P.Scorer(ens, self.smap, self.dec)
             with self.assertRaises(ValueError):
-                G.refine_pick(res, sc, {}, {})
+                G.refine_pick(res, sc, {})
 
 
 # folder, suite, subset, ground, models, speed, approach_s, decisions

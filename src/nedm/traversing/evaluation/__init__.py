@@ -1,14 +1,11 @@
-"""Traversing evaluation: one arm (``EvalConfig``) evaluated on released or custom tasks (FINAL_DESIGN.md).
-
-Exports resolve lazily, so importing a torch-free submodule (config, suites, routes, labels, the drive workers) never
-loads the planner's torch (FINAL_DESIGN 1.5). runner.py (TraversalEval, Record) plugs in here once built.
-"""
-
+"""Traversing evaluation: one arm (``EvalConfig``) on released or custom tasks (FINAL_DESIGN.md). Exports resolve lazily:
+importing a torch-free module never loads the planner's torch (FINAL_DESIGN 1.5)."""
 import importlib
 
 _EXPORTS = {**dict.fromkeys(('ConfigError', 'Env', 'EvalConfig', 'ReleaseError', 'load_arms'), 'config'),
             **dict.fromkeys(('SUITES', 'Task', 'blocks', 'load_suite', 'make_case', 'select'), 'suites'),
-            **dict.fromkeys(('Decision', 'Pick'), 'planner')}
+            **dict.fromkeys(('Decision', 'Pick'), 'planner'),
+            **dict.fromkeys(('Record', 'TraversalEval', 'run_arms'), 'runner')}
 __all__ = sorted(_EXPORTS)
 
 

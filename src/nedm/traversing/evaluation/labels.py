@@ -1,4 +1,4 @@
-"""Offline outcome labels of the traversing evaluation and the rows of ``traversing/results/*.csv``.
+"""Offline outcome labels of the traversing evaluation, and the cell of an unlabelled drive per results table.
 
 Pure functions of a drive's stored 50 ms arrays (numpy only). Every rule compares in the dtype the study compared in
 (spec 0.11): rolling back and the mission slide on the recorded float32 vx and throttle (vx == f32(-0.1) is not
@@ -9,17 +9,14 @@ backwards, throttle == f32(0.3) is not effortful), the belly run after astype(fl
   mission_labels   nav_runner.py:482-511 slide rule; nav_analyze.py:49 (unsafe = a slide or not complete)
 Codes (traversing/results/README.md): S goal, safe; s goal with an event; U not reached, unsafe; F not reached, safe
 (tracker timeouts only); '-' not run. Label kinds: rollback | rollback_belly | goal_belly | tracker | mission.
+The schemas of the traversing/results CSVs and their row builders live with the tests (tests/.../evaluation/tables.py).
 """
 
 from __future__ import annotations
 
-import csv
 import hashlib
-import io
 import json
-from collections import Counter
 from collections.abc import Mapping
-from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
@@ -33,7 +30,12 @@ DRIVEN = ('goal_reached', 'timeout', 'rollover', 'terrain_bounds_exit', 'prolong
 MISSION = ('mission_complete', 'rollover', 'terrain_bounds_exit', 'prolonged_blockage_terminated', 'timeout',
            'mission_timeout', 'no_route', 'no_route_leg0', 'no_route_reroute')     # nav_runner.py:345-434
 UNSAFE_SUBSTR = ('rollover', 'breakthrough', 'blockage', 'off_route', 'bounds_exit')    # gb_track_analyze.py:34
-UNLABELLED = ('crash', 'launch_failed')     # no drive to label: TABLES[t].on_missing decides the cell
+UNLABELLED = ('crash', 'launch_failed')     # no drive to label: ON_MISSING decides the cell
+# The cell of an unlabelled drive per traversing/results table, '-' (left out) unless listed. ga_analyze.py:209 keeps only
+# groups with every arm OF ONE ANALYSIS; the M2 columns come from overlapping analyses (A0A3, A5, s2, s4), so no
+# per-column rule equals each of them: 'drop_pair' blanks the whole row, stricter than the study (no released drive
+# crashed). ov_unseen_analyze.py:194-199 counts a twice-failed drive as not reached safely.
+ON_MISSING = {'m2_shared_risk_soil': 'drop_pair', 'm2_shared_risk_rigid': 'drop_pair', 'm4_polaris_unseen_soil': 'U'}
 
 
 def _code(fail, unsafe):
@@ -163,14 +165,14 @@ def load_drive(folder, label):
 
 def drive_labels(src, label):
     """Every number of one drive under `label` plus 'label' and 'code'. `src`: a run folder, a mapping with
-    load_drive's keys, or a Record (its fields and arrays)."""
+    load_drive's keys, or a Record (its fields, arrays and extras' arrays)."""
     if label not in LABELS:
         raise ValueError(f'label {label!r} is not one of {LABELS}')
     d = load_drive(src, label) if isinstance(src, (str, Path)) else src if isinstance(src, Mapping) else \
-        {**vars(src), **src.arrays}
+        {**vars(src), **src.arrays, **{k: v for x in src.extras.values() for k, v in x.items()}}
     s = d['status']
     if s in UNLABELLED or (s == 'no_route' and label == 'tracker'):
-        raise ValueError(f'status {s!r} carries no {label} label (TABLES[t].on_missing decides the cell)')
+        raise ValueError(f'status {s!r} carries no {label} label (ON_MISSING decides the cell)')
     if s == 'no_route' and label != 'mission':             # the planner found no valid route: never driven
         return dict(label=label, status=s, fail=1, unsafe=1, code='U')
     if label == 'mission':                                  # a missing input is a KeyError naming it
@@ -190,126 +192,3 @@ def drive_labels(src, label):
             out['belly_flag'] = belly_flag(d['belly_clearance_min_m'])
         out['code'] = _code(out['fail'], out['unsafe'] or out.get('belly_flag', 0))
     return dict(out, label=label)
-
-
-def code(src, label):
-    """'S' | 's' | 'U' | 'F' of one drive (run folder, mapping or Record) under `label`."""
-    return drive_labels(src, label)['code']
-
-
-@dataclass(frozen=True)
-class Table:
-    """One traversing/results CSV. Wide: a row per task, a code column per arm. Long (header given): a row per
-    (task, arm) with the label's own columns, task by task (M3) or arm by arm (M1, arm_major)."""
-    ids: tuple                     # task columns (Task.meta keys), CSV order
-    arms: dict                     # arm column (wide) or 'arm' value (long) -> label kind
-    on_missing: str                # crash / launch_failed cell: 'drop_pair' (every arm of the task '-'), 'U' or '-'
-    header: tuple = ()
-    arm_major: bool = False
-
-    @property
-    def columns(self):
-        return self.header or self.ids + tuple(self.arms)
-
-
-def _arms(names, label):
-    return {a: label for a in names.split()}
-
-
-_M2_IDS = ('group_id', 'arena', 'world', 'suite_stratum', 'terrain_stratum')
-_M2_3S = 'oracle_tag_3s pooled_3s shared_masked_3s shared_hist_3s'
-_M4A_IDS = ('pair_id', 'arena', 'arena_role', 'eval_set', 'terrain_cluster')
-_M4A = ('f104_only_ens1{0} f104_only_ens2{0} two_arenas_same_total{0} three_arenas_same_total_ens1{0} '
-        'three_arenas_same_total_ens2{0} three_arenas_all_data{0}')
-_M4B_IDS = ('task_id', 'arena', 'world', 'suite_part', 'terrain_cluster', 'task_type')
-# on_missing: ga_analyze.py:209 keeps only groups with every arm OF ONE ANALYSIS; the M2 columns come from overlapping
-# analyses (A0A3, A5, s2, s4: A5, s2 and s4 all hold shared_hist_3s), so no per-column rule equals each of them:
-# 'drop_pair' blanks the whole row, stricter than the study (no released drive crashed). ov_unseen_analyze.py:194-199
-# counts a twice-failed drive as not reached safely; the other read-outs leave a failed drive out ('-')
-TABLES = {
-    'm1_navigation_missions': Table(
-        ('mission_id', 'arena', 'arena_seen_in_training', 'arena_group'),
-        _arms('plan_once_per_waypoint replan_every_2s replan_every_1s replan_every_1s_delay_charged', 'mission'), '-',
-        ('arm', 'mission_id', 'arena', 'arena_seen_in_training', 'arena_group', 'waypoints_total', 'waypoints_reached',
-         'status', 'outcome_code', 'backward_slide', 'elapsed_s', 'mission_outcome_sha256'), arm_major=True),
-    'm2_shared_risk_soil': Table(_M2_IDS, _arms(
-        'specialist_soil_standing specialist_rigid_standing oracle_tag_standing shared_hist_standing '
-        f'specialist_soil_3s specialist_rigid_3s {_M2_3S} specialist_soil_1s oracle_tag_1s pooled_1s shared_hist_1s '
-        'shared_hist_early_rows_1s transformer_1s oracle_tag_0p5s pooled_0p5s shared_hist_0p5s '
-        'shared_hist_early_rows_0p5s transformer_0p5s shared_hist_early_rows_0p5s_grad transformer_0p5s_grad',
-        'rollback'), 'drop_pair'),
-    'm2_shared_risk_rigid': Table(_M2_IDS, _arms(
-        'specialist_rigid_standing specialist_soil_standing oracle_tag_standing shared_hist_standing '
-        f'specialist_rigid_3s specialist_soil_3s {_M2_3S} shared_hist_early_rows_0p5s shared_hist_early_rows_0p5s_grad',
-        'rollback'), 'drop_pair'),
-    'm3_tracker_routes': Table(
-        ('world', 'route_id', 'stratum'), _arms('pid_native pid_held_50ms nrd_policy_v2', 'tracker'), '-',
-        ('world', 'route_id', 'stratum', 'arm', 'status', 'completed', 'unsafe', 'outcome_code', 'near_stop_40s_fired',
-         'xtrack_station_winsor_mean_m', 'speed_abs_err_mean_mps', 'mean_abs_action_change', 'positive_work_kj')),
-    'm4_unseen_arenas_hmmwv_soil': Table(_M4A_IDS, _arms(_M4A.format('') + ' straight_route_6mps', 'rollback'), '-'),
-    'm4_unseen_arenas_hmmwv_rigid': Table(_M4A_IDS, _arms(
-        _M4A.format('_fixed2mps') + ' straight_route_2mps ' + _M4A.format('_speedfree') + ' straight_route_6mps',
-        'rollback'), '-'),
-    'm4_vehicles_f104_soil': Table(_M4B_IDS, {  # the Gator-study index has no belly field; the HMMWV no belly record
-        **_arms('gator_own_model_sampling', 'rollback'), **_arms('gator_own_model_sampling_grad', 'rollback_belly'),
-        **_arms('gator_own_model_tiers0to6_sampling gator_hmmwv_model_sampling gator_straight_6mps '
-                'hmmwv_own_model_sampling hmmwv_own_model_sampling_grad hmmwv_straight_6mps', 'rollback'),
-        **_arms('polaris_own_model_sampling_grad polaris_own_model_sampling polaris_corrected_driveline_grad_routes '
-                'polaris_straight_6mps', 'rollback_belly')}, '-'),
-    'm4_polaris_unseen_soil': Table(
-        ('task_id', 'arena', 'arena_kind', 'world', 'terrain_cluster', 'task_type'),
-        _arms('polaris_own_model_sampling_grad polaris_own_model_sampling polaris_straight_6mps', 'rollback_belly'),
-        'U'),
-    'm4_vehicle_smoke': Table(  # hmmwv_stored (no belly record) and m113_* (refused vehicle): released cells only
-        ('route_id', 'group_id', 'route_kind', 'speed_profile', 'task_type'), _arms(
-            'gator_redrive_1ms gator_redrive_0p5ms hmmwv_stored polaris_stock polaris_power_corrected '
-            'polaris_open_diff polaris_soil_wheels_0p33m m113_stock_gearing m113_regeared_4x', 'goal_belly'), '-'),
-}
-_FMT = dict(xtrack_station_winsor_mean_m='{:.4f}', speed_abs_err_mean_mps='{:.4f}', mean_abs_action_change='{:.6f}',
-            positive_work_kj='{:.2f}', elapsed_s='{:.2f}')
-
-
-def _cell(t, arm, lab, drop):
-    if lab is None or drop:
-        return '-'
-    if isinstance(lab, str):
-        _status(lab, UNLABELLED)
-        return t.on_missing
-    if lab['label'] != t.arms[arm]:
-        raise ValueError(f'{arm}: labelled {lab["label"]!r}, the table reads {t.arms[arm]!r}')
-    return lab['code']
-
-
-def table_rows(name, entries):
-    """Rows (header first) of TABLES[name]. entries: (meta, cells) per task in table order; cells maps an arm to its
-    drive_labels dict, 'crash' or 'launch_failed'; an arm missing from cells was not run ('-'; no long-table row)."""
-    t, rows, entries = TABLES[name], [], list(entries)
-    keys = [tuple(str(meta.get(c)) for c in t.ids) for meta, _ in entries]
-    n = Counter(keys)
-    for (meta, cells), k in zip(entries, keys):
-        if set(cells) - set(t.arms) or set(t.ids) - set(meta) or n[k] > 1:
-            raise KeyError(f'{name} task {k}: unknown arms {sorted(set(cells) - set(t.arms))}, missing task columns '
-                           f'{sorted(set(t.ids) - set(meta))} or a duplicate task')
-    if not t.header:
-        for meta, cells in entries:
-            drop = t.on_missing == 'drop_pair' and any(isinstance(v, str) for v in cells.values())
-            rows.append([str(meta[c]) for c in t.ids] + [_cell(t, a, cells.get(a), drop) for a in t.arms])
-        return [list(t.columns)] + rows
-    order = [(a, e) for a in t.arms for e in entries] if t.arm_major else [(a, e) for e in entries for a in t.arms]
-    for arm, (meta, cells) in order:
-        if cells.get(arm) is not None:
-            lab = cells[arm]
-            v = {**{c: meta[c] for c in t.ids}, 'arm': arm, 'outcome_code': _cell(t, arm, lab, False)}
-            if isinstance(lab, str):                        # no drive: its status, the drive columns empty
-                rows.append([str({**v, 'status': lab}.get(c, '')) for c in t.header])
-            else:
-                v = {**lab, **v}
-                rows.append([_FMT[c].format(v[c]) if c in _FMT else str(v[c]) for c in t.header])
-    return [list(t.header)] + rows
-
-
-def table_csv(name, entries):
-    """CSV text of TABLES[name] as released ('\\n' line ends)."""
-    buf = io.StringIO()
-    csv.writer(buf, lineterminator='\n').writerows(table_rows(name, entries))
-    return buf.getvalue()

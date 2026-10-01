@@ -25,6 +25,8 @@ import numpy as np
 
 from nedm.traversing.evaluation import labels as L
 
+from . import tables as TB
+
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[2]
 RESULTS = REPO / 'traversing' / 'results'
@@ -66,7 +68,7 @@ class Float32Edges(unittest.TestCase):
         self.assertEqual(L.point_labels(s, a, 'goal_reached'), dict(fail=0, unsafe=0, back_s=0.0, min_vx=float(F32(-0.1)), max_tilt=0.0))
         s[30, 0] = np.nextafter(F32(-0.1), F32(-1))
         self.assertEqual(L.point_labels(s, a, 'goal_reached')['back_s'], 0.05)
-        self.assertEqual(L.code(dict(status='goal_reached', state=s, action=a), 'rollback'), 's')
+        self.assertEqual(TB.code(dict(status='goal_reached', state=s, action=a), 'rollback'), 's')
 
     def test_throttle_0p3_is_not_effortful(self):
         s, a = drive(40)
@@ -79,9 +81,9 @@ class Float32Edges(unittest.TestCase):
     def test_short_drive_guard(self):
         s, a = drive(21)
         self.assertEqual(L.point_labels(s, a, 'goal_reached'), dict(fail=0, unsafe=1, back_s=0.0, min_vx=0.0, max_tilt=0.0))
-        self.assertEqual(L.code(dict(status='timeout', state=s, action=a), 'rollback'), 'U')
+        self.assertEqual(TB.code(dict(status='timeout', state=s, action=a), 'rollback'), 'U')
         s, a = drive(22)
-        self.assertEqual(L.code(dict(status='goal_reached', state=s, action=a), 'rollback'), 'S')
+        self.assertEqual(TB.code(dict(status='goal_reached', state=s, action=a), 'rollback'), 'S')
 
     def test_min_vx_minus_0p3(self):
         s, a = drive(40, thr=0.0)
@@ -207,7 +209,7 @@ class GoldenDrives(unittest.TestCase):
                     self.assertEqual(int(got['code'] != 'S'), e['unsafe_belly'])
                     gb = L.drive_labels(self.mapping(x), 'goal_belly')
                     self.assertEqual((gb['fail'], gb['belly_flag']), (e['fail'], e['belly_flag']))
-                self.assertEqual(L.TABLES[x['table']].arms[x['column']], x['label'])
+                self.assertEqual(TB.TABLES[x['table']].arms[x['column']], x['label'])
                 self.assertEqual(got['code'], find(x['table'], **x['row'])[x['column']])
                 n += 1
         self.assertEqual(n, 36)
@@ -220,8 +222,8 @@ class GoldenDrives(unittest.TestCase):
                                                    'speed_abs_err_mean_mps', 'mean_abs_action_change', 'positive_work_kj')],
                                  [e[k] for k in ('status', 'completed', 'unsafe', 'xtrack', 'speed_err', 'l1', 'positive_work_kj')])
                 row = find('m3_tracker_routes', arm=x['arm'], **x['row'])
-                meta = {k: row[k] for k in L.TABLES['m3_tracker_routes'].ids}
-                self.assertEqual(L.table_rows('m3_tracker_routes', [(meta, {x['arm']: got})])[1], list(row.values()))
+                meta = {k: row[k] for k in TB.TABLES['m3_tracker_routes'].ids}
+                self.assertEqual(TB.table_rows('m3_tracker_routes', [(meta, {x['arm']: got})])[1], list(row.values()))
 
     def test_missions_match_runner_and_rows(self):
         for x in (x for x in self.drives if x['kind'] == 'mission'):
@@ -230,8 +232,8 @@ class GoldenDrives(unittest.TestCase):
                 self.assertEqual([got['backward_slide'], got['back_s'], got['elapsed_s'], got['waypoints_reached']],
                                  [int(e['any_slide']), e['back_s'], e['total_time_s'], e['goals_reached']])
                 row = find('m1_navigation_missions', arm=x['arm'], **x['row'])
-                meta = {k: row[k] for k in L.TABLES['m1_navigation_missions'].ids}
-                self.assertEqual(L.table_rows('m1_navigation_missions', [(meta, {x['arm']: got})])[1], list(row.values()))
+                meta = {k: row[k] for k in TB.TABLES['m1_navigation_missions'].ids}
+                self.assertEqual(TB.table_rows('m1_navigation_missions', [(meta, {x['arm']: got})])[1], list(row.values()))
 
 
 class FolderLayouts(unittest.TestCase):
@@ -258,56 +260,60 @@ class FolderLayouts(unittest.TestCase):
             (rel / 'outcome.json').write_text(json.dumps(dict(status='goal_reached', positive_work_kj=12.5)))
             for lab in ('rollback', 'rollback_belly', 'goal_belly', 'tracker'):
                 self.assertEqual(L.drive_labels(ours, lab), L.drive_labels(str(rel), lab), lab)
-            self.assertEqual(L.code(ours, 'rollback_belly'), 's')           # belly flag on a clean drive
+            self.assertEqual(TB.code(ours, 'rollback_belly'), 's')           # belly flag on a clean drive
             self.assertEqual(L.drive_labels(rel, 'tracker')['near_stop_40s_fired'], 'na')
-            rec = type('Record', (), {})()                                   # runner.Record duck: fields + arrays
-            rec.status, rec.positive_work_kj, rec.near_stop_fired = 'goal_reached', 12.5, None
-            rec.arrays = dict(state=s, action=a, pose=pose, belly_clearance_min_m=belly)
-            self.assertEqual(L.drive_labels(rec, 'rollback_belly'), L.drive_labels(rel, 'rollback_belly'))
+            from nedm.traversing.evaluation.runner import Record          # in memory: the belly in its extras
+            rec = Record('t', 'a', 'goal_reached', True, positive_work_kj=12.5, arrays=dict(state=s, action=a, pose=pose),
+                         extras=dict(vehicle_extra=dict(belly_clearance_min_m=belly)))
+            for lab in ('rollback_belly', 'goal_belly'):
+                self.assertEqual(L.drive_labels(rec, lab), L.drive_labels(rel, lab), lab)
             (ours / 'vehicle_extra.npz').unlink()
             with self.assertRaises(FileNotFoundError):                       # a belly label without the record
                 L.drive_labels(ours, 'rollback_belly')
             (ours / 'record.json').write_text(json.dumps(dict(status='crash', near_stop_fired=None)))
             with self.assertRaises(ValueError):
-                L.code(ours, 'rollback')
+                TB.code(ours, 'rollback')
 
 
 class Tables(unittest.TestCase):
+    def test_tables_on_missing_is_the_library_policy(self):
+        self.assertEqual({n: t.on_missing for n, t in TB.TABLES.items() if t.on_missing != '-'}, L.ON_MISSING)
+
     def test_schemas_equal_released_headers(self):
-        self.assertEqual(sorted(L.TABLES), sorted(p.stem for p in RESULTS.glob('*.csv')))
-        for name, t in L.TABLES.items():
+        self.assertEqual(sorted(TB.TABLES), sorted(p.stem for p in RESULTS.glob('*.csv')))
+        for name, t in TB.TABLES.items():
             self.assertEqual(list(t.columns), released(name)[0], name)
 
     def test_missing_drive_policies(self):
         ok = dict(label='rollback', code='S')
         meta = lambda g: dict(group_id=g, arena='f104', world='rigid', suite_stratum='fresh', terrain_stratum='x')
-        arms = list(L.TABLES['m2_shared_risk_rigid'].arms)
-        rows = L.table_rows('m2_shared_risk_rigid', [(meta('a'), {arms[0]: ok, arms[1]: 'crash'}), (meta('b'), {arms[0]: ok}),
+        arms = list(TB.TABLES['m2_shared_risk_rigid'].arms)
+        rows = TB.table_rows('m2_shared_risk_rigid', [(meta('a'), {arms[0]: ok, arms[1]: 'crash'}), (meta('b'), {arms[0]: ok}),
                                                      (meta('c'), {arms[0]: ok, arms[2]: 'launch_failed'})])
         self.assertEqual(rows[1][5:], ['-'] * len(arms))                # drop_pair: the whole pair leaves
         self.assertEqual(rows[2][5:], ['S'] + ['-'] * (len(arms) - 1))  # not run is not a crash
         self.assertEqual(rows[3][5:], ['-'] * len(arms))                # a launch failure is a failed drive too
         meta = dict(task_id='t', arena='g241', arena_kind='near', world='crm_soil', terrain_cluster='c', task_type='x')
-        rows = L.table_rows('m4_polaris_unseen_soil', [(meta, {'polaris_own_model_sampling_grad': 'crash'})])
+        rows = TB.table_rows('m4_polaris_unseen_soil', [(meta, {'polaris_own_model_sampling_grad': 'crash'})])
         self.assertEqual(rows[1][6:], ['U', '-', '-'])                  # ov_unseen: failed twice = not reached safely
         meta = dict(route_id='r', group_id='g', route_kind='designed', speed_profile='constant_2', task_type='x')
-        self.assertEqual(L.table_rows('m4_vehicle_smoke', [(meta, {'m113_regeared_4x': 'crash'})])[1][-1], '-')
+        self.assertEqual(TB.table_rows('m4_vehicle_smoke', [(meta, {'m113_regeared_4x': 'crash'})])[1][-1], '-')
         meta = dict(world='crm', route_id='r', stratum='feasible')
-        rows = L.table_rows('m3_tracker_routes', [(meta, {'pid_native': 'crash'})])
+        rows = TB.table_rows('m3_tracker_routes', [(meta, {'pid_native': 'crash'})])
         self.assertEqual(rows[1:], [['crm', 'r', 'feasible', 'pid_native', 'crash', '', '', '-'] + [''] * 5])
 
     def test_refusals(self):
         meta = dict(task_id='t', arena='g241', arena_kind='near', world='crm_soil', terrain_cluster='c', task_type='x')
         with self.assertRaises(ValueError):                             # a Polaris column reads the belly label
-            L.table_rows('m4_polaris_unseen_soil', [(meta, {'polaris_straight_6mps': dict(label='rollback', code='S')})])
+            TB.table_rows('m4_polaris_unseen_soil', [(meta, {'polaris_straight_6mps': dict(label='rollback', code='S')})])
         with self.assertRaises(KeyError):
-            L.table_rows('m4_polaris_unseen_soil', [(meta, {'hmmwv': 'crash'})])
+            TB.table_rows('m4_polaris_unseen_soil', [(meta, {'hmmwv': 'crash'})])
         with self.assertRaises(KeyError):
-            L.table_rows('m4_polaris_unseen_soil', [({'task_id': 't'}, {})])
+            TB.table_rows('m4_polaris_unseen_soil', [({'task_id': 't'}, {})])
         with self.assertRaises(KeyError):                               # a task twice
-            L.table_rows('m4_polaris_unseen_soil', [(meta, {}), (meta, {})])
+            TB.table_rows('m4_polaris_unseen_soil', [(meta, {}), (meta, {})])
         with self.assertRaises(ValueError):                             # a status string that is not a failed drive
-            L.table_rows('m4_polaris_unseen_soil', [(meta, {'polaris_straight_6mps': 'timeout'})])
+            TB.table_rows('m4_polaris_unseen_soil', [(meta, {'polaris_straight_6mps': 'timeout'})])
 
 
 # ---------------------------------------------------------------------------------------------------- release (A1, A2)
@@ -318,11 +324,11 @@ M2_FILES = {'a3_crm': f'{K1}/a3/results_crm_A0A3.json', 'a3_rigid': f'{K1}/a3/re
             's2_crm': f'{K2}/s2/results_s2_crm_vs3s.json', 's4_crm': f'{K2}/s4/results_s4.json',
             's4_rigid': f'{K2}/s4/results_s4_rigid.json'}
 # CSV column -> (per-group file, study arm): pr1_staging/m2_build_tables.py (the builder of the released tables)
-M2_COLS = {'m2_shared_risk_soil': dict(zip(L.TABLES['m2_shared_risk_soil'].arms, [
+M2_COLS = {'m2_shared_risk_soil': dict(zip(TB.TABLES['m2_shared_risk_soil'].arms, [
     ('a3_crm', a) for a in ('Scrm', 'Srigid', 'T', 'H')] + [('a5_crm', a) for a in ('Spcrm', 'Sprigid', 'T', 'P', 'Hmask', 'H')] + [
     ('s2_crm', a) for a in ('L1_Spcrm', 'L1_T', 'L1_P', 'L1_H', 'L1_Hn', 'L1_X', 'L0p5_T', 'L0p5_P', 'L0p5_H', 'L0p5_Hn', 'L0p5_X')] + [
     ('s4_crm', 'HnG05'), ('s4_crm', 'XG05')])),
-    'm2_shared_risk_rigid': dict(zip(L.TABLES['m2_shared_risk_rigid'].arms, [
+    'm2_shared_risk_rigid': dict(zip(TB.TABLES['m2_shared_risk_rigid'].arms, [
         ('a3_rigid', a) for a in ('Srigid', 'Scrm', 'T', 'H')] + [('a5_rigid', a) for a in ('Sprigid', 'Spcrm', 'T', 'P', 'Hmask', 'H')] + [
         ('s4_rigid', 'Hn05'), ('s4_rigid', 'HnG05')]))}
 INDEXES = {'soil_v1': f'{T}/arena_gator_20260925/e6/index/soil_eval_v1.json',
@@ -333,15 +339,15 @@ INDEXES = {'soil_v1': f'{T}/arena_gator_20260925/e6/index/soil_eval_v1.json',
 # CSV column -> (index, study arm): pr1_staging/m4a/build_m4a.py, pr1_staging/m4b/build_m4b_tables.py
 _M4A = ('M1a', 'M1b', 'M2', 'M3a', 'M3b', 'A3')
 M4_COLS = {
-    'm4_unseen_arenas_hmmwv_soil': dict(zip(L.TABLES['m4_unseen_arenas_hmmwv_soil'].arms,
+    'm4_unseen_arenas_hmmwv_soil': dict(zip(TB.TABLES['m4_unseen_arenas_hmmwv_soil'].arms,
                                             [('soil_v1', f'{m}_free') for m in _M4A] + [('soil_v1', 'straight6')])),
-    'm4_unseen_arenas_hmmwv_rigid': dict(zip(L.TABLES['m4_unseen_arenas_hmmwv_rigid'].arms, [('rigid_v1', f'{m}_fx2') for m in _M4A] + [
+    'm4_unseen_arenas_hmmwv_rigid': dict(zip(TB.TABLES['m4_unseen_arenas_hmmwv_rigid'].arms, [('rigid_v1', f'{m}_fx2') for m in _M4A] + [
         ('rigid_v1', 'straight2')] + [('rigid_v1', f'{m}_free') for m in _M4A] + [('rigid_v1', 'straight6')])),
-    'm4_vehicles_f104_soil': dict(zip(L.TABLES['m4_vehicles_f104_soil'].arms, [
+    'm4_vehicles_f104_soil': dict(zip(TB.TABLES['m4_vehicles_f104_soil'].arms, [
         ('bfull', 'Gfull_free_gator'), ('ovf', 'Gfull_grad_gator'), ('bfull', 'G_free_gator'), ('bfull', 'Hfull_free_gator'),
         ('bfull', 'straight6_gator'), ('bfull', 'Hfull_free'), ('ovf', 'Hfull_grad_hmmwv'), ('bfull', 'straight6'),
         ('ovf', 'polaris_grad'), ('ovf', 'polaris_cem'), ('ovf', 'polaris_grad_pc'), ('ovf', 'straight6_polaris')])),
-    'm4_polaris_unseen_soil': dict(zip(L.TABLES['m4_polaris_unseen_soil'].arms,
+    'm4_polaris_unseen_soil': dict(zip(TB.TABLES['m4_polaris_unseen_soil'].arms,
                                        [('unseen', 'polaris_u_grad'), ('unseen', 'polaris_u_cem'), ('unseen', 'straight6_polaris_u')]))}
 M4A_SETS = ('unseen', 'indist_f104', 'heldout', 'dev')
 G = f'{T}/generalist_20260921'
@@ -349,10 +355,10 @@ G = f'{T}/generalist_20260921'
 M3_RUN = {('rigid', 'native_pid'): f'{G}/B_tracker/b0/rigid_runs/{{}}__native_pid', ('rigid', 'held_pid'): f'{G}/B_tracker/b0/rigid_runs/{{}}__held_pid',
           ('rigid', 'policy_v2'): f'{G}/B_tracker/b0/rigid_v2_runs/{{}}__policy_v2', ('crm', 'native_pid'): f'{G}/A_adapt/mixed_out_crm/runs/{{}}__native_pid',
           ('crm', 'held_pid'): f'{G}/A_adapt/mixed_out_crm/runs/{{}}__held_pid', ('crm', 'policy_v2'): f'{G}/B_tracker/b0/crm_v2_runs/{{}}__policy_v2'}
-M3_ARM = dict(zip(L.TABLES['m3_tracker_routes'].arms, ('native_pid', 'held_pid', 'policy_v2')))
-M1_ARM = dict(zip(L.TABLES['m1_navigation_missions'].arms, ('W', 'R2', 'R1', 'R1L')))
+M3_ARM = dict(zip(TB.TABLES['m3_tracker_routes'].arms, ('native_pid', 'held_pid', 'policy_v2')))
+M1_ARM = dict(zip(TB.TABLES['m1_navigation_missions'].arms, ('W', 'R2', 'R1', 'R1L')))
 NAV = f'{T}/fdm_f104_50h_20260909/nav_v1/local_luffy/runs'
-SMOKE = dict(zip(L.TABLES['m4_vehicle_smoke'].arms, ('gatorctl', 'gatorh', 'hmmwv_stored', 'polaris', 'polaris_pc', 'polaris_4wd',
+SMOKE = dict(zip(TB.TABLES['m4_vehicle_smoke'].arms, ('gatorctl', 'gatorh', 'hmmwv_stored', 'polaris', 'polaris_pc', 'polaris_4wd',
                                                      'polaris_w08', 'm113', 'm113_g4')))
 
 
@@ -380,7 +386,7 @@ class Release(unittest.TestCase):
         for k, rows in cls.idx.items():
             jobs |= {(r['run_dir'], 'rollback_belly' if r.get('belly_available') else 'rollback') for r in rows}
         for name, cols in M4_COLS.items():          # the table's own label per column
-            jobs |= {(r['run_dir'], L.TABLES[name].arms[c]) for c, (k, arm) in cols.items() for r in cls.idx.get(k, ())
+            jobs |= {(r['run_dir'], TB.TABLES[name].arms[c]) for c, (k, arm) in cols.items() for r in cls.idx.get(k, ())
                      if r['arm'] == arm}
         jobs |= {(M3_RUN[w, a].format(rid), 'tracker') for w in cls.b0 for a in M3_ARM.values() for rid in cls.b0[w][a]}
         jobs |= {(f'{NAV}/{m}__{a}', 'mission') for m in {r[1] for r in released('m1_navigation_missions')[1:]} for a in M1_ARM.values()}
@@ -446,7 +452,7 @@ class Release(unittest.TestCase):
 
     def entries(self, name):
         """(meta, cells) per released row: task columns copied, every arm cell re-derived from the drive folders."""
-        t, (head, *rows) = L.TABLES[name], released(name)
+        t, (head, *rows) = TB.TABLES[name], released(name)
         rows = [dict(zip(head, r)) for r in rows]
         if name.startswith('m2_'):
             src = M2_COLS[name]
@@ -492,7 +498,7 @@ class Release(unittest.TestCase):
                 runs.setdefault(r['pair_id'], {})[r['arm']] = r['run']
                 if r['arm'] == 'polaris':
                     runs[r['pair_id']]['hmmwv_stored'] = r['hmmwv']
-        out, t = [], L.TABLES['m4_vehicle_smoke']
+        out, t = [], TB.TABLES['m4_vehicle_smoke']
         for r in (dict(zip(released('m4_vehicle_smoke')[0], x)) for x in released('m4_vehicle_smoke')[1:]):
             cells = {}
             for c, arm in SMOKE.items():                     # no folders released: the extract's status and belly flag
@@ -507,17 +513,17 @@ class Release(unittest.TestCase):
         tmp = Path(tempfile.mkdtemp(prefix='labels_tables_'))
         try:
             rebuilt = []
-            for name in L.TABLES:
+            for name in TB.TABLES:
                 e = self.smoke_entries() if name == 'm4_vehicle_smoke' else self.entries(name)
                 if e is None:
                     print(f'[labels release] {name}: drive folders or records absent, not rebuilt', file=sys.stderr)
                     continue
-                text = L.table_csv(name, e)
+                text = TB.table_csv(name, e)
                 self.assertEqual(text, (RESULTS / f'{name}.csv').read_text(), name)
                 (tmp / f'{name}.csv').write_text(text)
                 rebuilt.append(name)
             print(f'[labels release] rebuilt byte-identical: {len(rebuilt)}/9 tables ({", ".join(rebuilt)})', file=sys.stderr)
-            if len(rebuilt) == len(L.TABLES):
+            if len(rebuilt) == len(TB.TABLES):
                 shutil.copy(RESULTS / 'expected_counts.json', tmp)
                 spec = importlib.util.spec_from_file_location('recount', REPO / 'scripts/traversing/analysis/recount_milestones.py')
                 rc = importlib.util.module_from_spec(spec)

@@ -4,6 +4,7 @@
 
 [defaults]
 ground = "soil"
+build_lock = "configs/traversing/evaluation/locks/chrono-build-fsi.json"   # the parity-checked soil build
 soil_config = "crm_main"
 planner = "given"
 controller = "pid"
