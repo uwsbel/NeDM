@@ -197,8 +197,8 @@ ul.tight li{margin:6px 0}
 <main>
 <header class="top col">
   <p class="eyebrow">Neural reduced dynamics &middot; study 4</p>
-  <h1>Teaching a quadruped to walk on sand, inside a model of the sand</h1>
-  <p class="lede sub">A Unitree Go2 walks on CRM granular terrain in Chrono. Full SPH simulation is far too slow to train against, so we learn a reduced model of the scene from 5.7&nbsp;hours of recorded walking, fine-tune the robot&rsquo;s policy inside that model with a thousand rollouts at a time, and then verify every claim back in the full simulator.</p>
+  <h1>Fine-tuning a quadruped&rsquo;s walking on sand, inside a learned model of the sand</h1>
+  <p class="lede sub">A Unitree Go2 walks on CRM granular terrain in Chrono. Fine-tuning its policy with PPO directly in full SPH, at the sample count used here, would take about 121 MI210-days per run, so we learn a reduced model of this robot&rsquo;s walking from 5.7&nbsp;hours of its own recorded data, fine-tune the existing policy inside that model with a thousand rollouts at a time, and verify every claim back in the full simulator. The result is a local improvement of that policy; the simulator still produces the data and judges every result.</p>
   <div class="chips">
     <span class="chip v">forward tracking <b>&minus;52%</b></span>
     <span class="chip v">yaw <b>&minus;67%</b></span>
@@ -210,7 +210,7 @@ ul.tight li{margin:6px 0}
     <span>uwsbel/NeDM &middot; kyle/quadruped-pipeline</span>
     <span>corpus go2_crm_v2 &middot; 2,041,752 rows</span>
     <span>headline: mean of ten surrogates at iteration 1000</span>
-    <span>updated 2026-09-26</span>
+    <span>updated 2026-10-02</span>
   </div>
 </header>
 
@@ -234,13 +234,19 @@ ul.tight li{margin:6px 0}
     <p class="h">The rule this study runs on</p>
     <p>In-model gain is not a result. Every number on this page that describes a policy was measured in full Chrono SPH, paired episode by episode against the base policy, on one machine, with the arm and the base scored by the same binary. The fine-tune&rsquo;s own reward curve is diagnostic only: it has pointed the wrong way more than once.</p>
   </div>
+
+  <div class="note">
+    <p class="h">What this is, and what it is not</p>
+    <p>It is a <b>local improvement of one existing policy</b>: one round of offline model-based RL. PPO runs inside a surrogate fitted to the base policy&rsquo;s own walking, every branch starts from a state that policy actually visited, and nothing is re-collected with the fine-tuned policy. The evidence that it stays local: the weights move by 6.3, about 5.5% of their norm; in Chrono the fine-tuned policies spend 0.0&ndash;0.1% of their time outside the corpus, even at iteration 3000; the failures whose coverage was measured coincide with leaving it (seed 6 at iteration 1500 had half its states outside, analytic fine-tuning at weight budget 4 had 16%); and push robustness is bounded by what the corpus contains.</p>
+    <p>It is <b>not</b> a replacement for the simulator, which produced the training data and scores every result, and the surrogate is accurate only near the corpus. Nor is it a claim that fine-tuning in Chrono itself would give the same improvement: that was never run, because at this sample count it is out of reach (see <a href="#cost">Cost and provenance</a>).</p>
+  </div>
 </section>
 
 <section id="loop">
   <span class="secnum">02</span>
   <h2>The loop</h2>
   <div class="col">
-  <p>Chrono&rsquo;s CRM terrain is a coupled SPH fluid-solid problem: the feet and calves are boundary-coupled to a bed of particles, the physics steps at 0.5&nbsp;ms, and one 15&nbsp;second episode costs about 1.4&nbsp;minutes on an MI210. Reinforcement learning needs millions of steps. The surrogate exists to close that gap, and the verification step exists because the surrogate will lie if you let it.</p>
+  <p>Chrono&rsquo;s CRM terrain is a coupled SPH fluid-solid problem: the feet and calves are boundary-coupled to a bed of particles, the physics steps at 0.5&nbsp;ms, and one 15&nbsp;second episode costs about 1.4&nbsp;minutes on an MI210. PPO at the scale used here needs about two million simulated robot-seconds per fine-tune, which is out of reach in CRM. The surrogate makes that sample count affordable, and the verification step exists because the surrogate will lie if you let it.</p>
   </div>
   <figure>
     <div class="panel"><svg viewBox="0 0 900 200" width="100%" height="auto" role="img" aria-label="Pipeline diagram: collect, train, rollout-train, fine-tune, verify">
@@ -342,7 +348,7 @@ ul.tight li{margin:6px 0}
   <span class="secnum">04</span>
   <h2>The surrogate, and the horizon it can be trusted over</h2>
   <div class="col">
-  <p>Accuracy is reported as <b>errdist</b>: planar RMSE over a rollout divided by the true distance travelled. A model that predicts the robot never moves scores 1.0, so that is the line to beat, and the horizon where a model crosses it is the horizon it is usable to.</p>
+  <p>Accuracy is reported as <b>errdist</b>: planar RMSE over a rollout divided by the recorded trajectory&rsquo;s maximum displacement from its start over the same horizon (not path length, which a robot walking in a circle would flatter). A model that predicts the robot never moves scores 1.0, so that is the line to beat, and the horizon where a model crosses it is the horizon it is usable to.</p>
   <p>One-step training gives a model that is good for about 2&nbsp;seconds. Teacher forcing never shows it its own mistakes, so errors compound. Fine-tuning that model on <i>its own</i> multi-step rollouts fixes exactly that.</p>
   </div>
   <figure>
@@ -513,7 +519,7 @@ ul.tight li{margin:6px 0}
   <span class="secnum">10</span>
   <h2>Verified in Chrono, across surrogates</h2>
   <div class="col">
-  <p>Scoring is paired: the same 40 held-out command schedules, the same spawn positions, the same binary, base and arm. Three of the 40 are skipped identically in every arm because their commanded path does not fit the particle budget. A robot that falls or walks off the bed is a failed episode, and that pair is dropped rather than averaged.</p>
+  <p>Scoring is paired: the same 40 held-out command schedules, the same spawn positions, the same binary, base and arm. Three of the 40 are skipped identically in every arm because their commanded path does not fit the particle budget. A robot that falls or walks off the bed is a failed episode, and that pair is dropped rather than averaged. Each episode&rsquo;s error is the mean absolute difference between measured and commanded velocity after its first 0.5&nbsp;s; the change reported per axis is 100&nbsp;&times;&nbsp;mean(arm&nbsp;&minus;&nbsp;base)&nbsp;/&nbsp;mean(base) over the usable pairs, and &ldquo;clear of zero&rdquo; means at least two standard errors of the paired difference.</p>
   <p><b>Across ten independently trained surrogates, stopped at iteration 1000:</b> forward error falls 43&ndash;57% on the held-out paths (mean 52%), yaw 52&ndash;71% (mean 67%) and sideways 9&ndash;34% (mean 28%); on straight walking forward error falls 39&ndash;68% (mean 62%). Every arm improves every axis clear of zero except seed 6 sideways. Nothing fell: three episodes in two arms walked off the finite bed after 13&nbsp;s. At the old dw 4.0 stop the same recipe gave a mean of &minus;29% forward, so stopping later nearly doubles the gain in every surrogate.</p>
   <p>The two weakest arms are the cases in <a href="#fail">When it fails</a>: seed 6, the surrogate that collapses if training runs on, and euler seed 2, which the guard stopped at iteration 961.</p>
   <p><b>No regression on rigid ground.</b> On the same 40 paths over hard ground, forward error falls in all ten policies (5&ndash;41%, mean 27%) and yaw error 55&ndash;74% (mean 71%), with every episode upright. At the old stop rigid forward tracking was neutral on average; at iteration 1000, fine-tuning in a soft-soil model improves hard-ground walking too.</p>
@@ -829,7 +835,7 @@ ul.tight li{margin:6px 0}
         <tr><td>PPO</td><td class="num">clip 0.2</td><td>10 epochs &times; 4 minibatches, &gamma; 0.99, &lambda; 0.95, value coefficient 0.5, entropy 0</td></tr>
         <tr><td>Reward</td><td class="num">tracking + upright</td><td>&minus;&Sigma;(v &minus; command)&sup2; over vx, vy, yaw rate, minus 0.5 &times; (uprightness error)&sup2;</td></tr>
         <tr><td>Out-of-distribution penalty</td><td class="num">weight 1.0</td><td>whitened kNN distance past the corpus&rsquo;s own 99th-percentile self-distance, the same reference Gate 4 uses; measured even when not priced. Four runs with it off transferred normally, so at these settings it is not load-bearing</td></tr>
-        <tr><td>Branch starts</td><td class="num">held-out control rows</td><td>676,116 of them; the command comes from the corpus row</td></tr>
+        <tr><td>Branch starts</td><td class="num">training-split control rows</td><td>676,116 of them; the command comes from the corpus row</td></tr>
         <tr><td>Guard</td><td class="num">50-iteration window</td><td>trips when over 60% of the window leaves the corpus region <i>and</i> reward is 25% below its best</td></tr>
         <tr><td>Disturbance (tested, not used)</td><td class="num">&plusmn;0.5 m/s</td><td>one kick per chosen branch at a uniform control step, matching robot_lab&rsquo;s push event. Did not hold robustness at any force and cost 5&ndash;9 points of tracking, so it is off in the recipe</td></tr>
       </tbody>
@@ -872,7 +878,9 @@ ul.tight li{margin:6px 0}
     </table>
   </div>
   <div class="col">
-  <p>One PPO iteration rolls 1024 branches of 2&nbsp;s each: about 34&nbsp;minutes of simulated walking, in 40 gradient steps. A thousand iterations is roughly <b>24 days of robot time</b>, which is the whole argument for the surrogate: at the 5.1&times; slowdown measured below, the same experience in Chrono CRM would take about <b>four months of one MI210</b> (121 GPU-days) against 4.5 hours.</p>
+  <p><b>What a policy costs end to end.</b> The first verified policy costs roughly 40&ndash;110 GPU-hours: the corpus took ~4&nbsp;h on 24 MI210s (at most ~96 GPU-hours occupied, of which ~29 are the 5.7&nbsp;h of simulated walking at 5.09&nbsp;s per simulated second), the surrogate 3.5&ndash;4.5, the fine-tune 4.5, and Chrono scoring 1.1 per arm plus the base. The corpus is reused: about sixty fine-tunes ran on this one, so each further fine-tune costs ~4.5 GPU-hours plus its scoring.</p>
+  <p><b>Why not fine-tune in Chrono directly.</b> One PPO iteration rolls 1024 branches of 2&nbsp;s each: about 34&nbsp;minutes of simulated walking, in 40 gradient steps. A thousand iterations is roughly 24 days of robot time. At 5.09&nbsp;s per simulated second that is about 2,900 GPU-hours (121 MI210-days) of CRM for one run, and since one CRM instance keeps a GPU about 95% busy, running 1024 branches in parallel would take about 1024 GPUs at once. Chrono also cannot start a branch from a recorded mid-episode state, because the soil state cannot be restored. So the surrogate does not make this experiment faster; it makes a sample count affordable that is out of reach in CRM.</p>
+  <p><b>What this comparison is not.</b> It matches simulated experience, not results. How many samples PPO would need directly in CRM to reach the same improvement was never measured, and could be fewer (no model error) or more. Nor is the surrogate&rsquo;s experience equivalent to Chrono&rsquo;s: it predicts a 36-D robot state, simulates no soil, and is accurate only near the corpus. No time saving for an equal result is claimed.</p>
   <p>Machines: an AMD MI210/MI300X cluster, an A100 node, and three desktops (RTX 3090, RTX 5060 Ti, RX 9070 XT). Every result is paired within one machine and one Chrono build, and the paired analysis refuses records from different binaries: the same policy has read &minus;9.5% on one build and &minus;39.6% on another.</p>
   </div>
 
@@ -919,7 +927,7 @@ ul.tight li{margin:6px 0}
   </div>
   <div class="col">
   <p><b>The soil is the cost; the robot and its contact with the soil are not.</b> The foot&ndash;soil coupling is 0.5% of GPU time plus a 2% exchange. The multibody solve costs 4.8&times; more on CRM than on rigid ground only because coupling forces its step down from 2.5&nbsp;ms to 0.5&nbsp;ms; per step it costs the same (~0.8&nbsp;ms), and it runs in the shadow of the soil step.</p>
-  <p><b>The surrogate on the same GPU:</b> one robot advances 10&nbsp;ms in 3.04&nbsp;ms, 0.30&nbsp;s per simulated second, <b>17&times; faster than CRM</b> (and only 1.2&times; faster than rigid Chrono, so the surrogate&rsquo;s advantage is the soil). At the PPO batch of 1024 one step takes 85&nbsp;ms: <b>120 robot-seconds per wall second, ~600&times; the throughput</b> of one Chrono CRM instance.</p>
+  <p><b>The surrogate on the same GPU:</b> one robot advances 10&nbsp;ms in 3.04&nbsp;ms, 0.30&nbsp;s per simulated second, <b>17&times; faster than CRM</b> (and only 1.2&times; faster than rigid Chrono, so the surrogate&rsquo;s advantage is the soil). At the PPO batch of 1024 one step takes 85&nbsp;ms: <b>120 robot-seconds per wall second, ~600&times; the throughput</b> of one Chrono CRM instance. These are the costs of a reduced model, not of a faster simulator: it predicts the robot&rsquo;s 36-D state only, simulates no soil, and is trustworthy only near the corpus it was fitted to.</p>
   
   <p><b>What this says about a hybrid, and about NeRD.</b> NeRD (Xu et al., CoRL 2025) learns the solver inside the simulator and keeps collision detection classical; this model is reduced and runs with no simulator in the loop, which is what makes 1024 parallel rollouts possible. If a learned model replaced only the soil and Chrono kept the robot, the multibody thread would become the critical path at ~1.7&nbsp;s per simulated second: a ~3&times; ceiling, against 17&times; for the full reduced model.</p>
   <p>Caveat: measured on AMD MI210 with Chrono&rsquo;s HIP build; the same scene ran at 3.8&times; real time on an RTX 3090 (COST.md), so the absolute numbers are per machine, the shares much less so.</p>

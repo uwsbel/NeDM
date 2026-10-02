@@ -1,6 +1,6 @@
 # State
 
-**Updated:** 2026-09-28 · **Branch:** `kyle/quadruped-pipeline` on uwsbel/NeDM (off `kyle/locomotion`)
+**Updated:** 2026-10-02 · **Branch:** `kyle/quadruped-pipeline` on uwsbel/NeDM (off `kyle/locomotion`)
 
 **This is the lab notebook**: every result as it landed, with job ids, newest sections
 first. For the study as a whole (results, recipe, where the data is, how to reproduce),
@@ -16,6 +16,24 @@ is done and scored; nothing is running. Data and checkpoints are archived, named
 meaning, in the Hugging Face dataset `ksha23/nedm-study4-go2-crm` (docs/ARTIFACTS.md).
 Future work is in
 docs/QUEUE.md.
+
+## Framing and definition corrections (2026-10-02)
+
+No result changed. Wording in README, COST.md and the site (v31) corrected:
+
+- **Scope.** The study is a local improvement of the base policy (one round of offline
+  model-based RL); the surrogate does not replace Chrono, and fine-tuning directly in
+  Chrono was never run, so no equal-result time saving is claimed. "4.5 h against about
+  four months" was a matched-experience comparison that also left out the method's own
+  fixed costs (first verified policy ~40-110 GPU-h end to end). See COST.md.
+- **errdist** divides planar RMSE by the recorded trajectory's MAXIMUM DISPLACEMENT from
+  its start over the horizon (train.py rollout_errdist), not by distance travelled as the
+  site said.
+- **PPO branch starts** are control rows of the TRAIN split (finetune.build_pool), 676,116
+  of them; the site's parameter table said held-out rows.
+- **Paired change** per axis is 100 x mean(arm - base) / mean(base) over usable pairs, on
+  per-episode mean absolute velocity error after the first 0.5 s (paired_eval.py,
+  evaluate.py); "clear of zero" is |mean difference| >= 2 standard errors.
 
 ## The recipe at iteration 1000 in ten surrogates (2026-09-24)
 

@@ -50,6 +50,27 @@ would be floored by that thread at ~1.7 s per simulated second, a ~3x ceiling.
 Per machine: this MI210 runs the scene at 5.1x real time; sbel's 3090 ran the 0.5 m
 configuration at 3.8x (below). Shares transfer better than absolute numbers.
 
+## What the surrogate's cost comparison does and does not mean (2026-10-02)
+
+Measured: CRM 5.09 s per simulated second (one MI210, ~95% busy); the surrogate 0.30 s per
+simulated second for one robot and 85 ms per step for 1024; the PPO fine-tune 4.5 GPU-h;
+collection ~4 h on 24 MI210s (at most ~96 GPU-h occupied, ~29 GPU-h of simulated walking);
+surrogate training 3.5-4.5 GPU-h; scoring ~1.1 GPU-h per arm. The first verified policy is
+therefore roughly 40-110 GPU-h end to end; the corpus was reused across about sixty
+fine-tunes, so each further one costs ~4.5 GPU-h plus scoring.
+
+Counterfactual only: the recipe's 1000 x 1024 x 2 s = 2.05 M robot-seconds would be about
+2,900 GPU-h (121 MI210-days) of CRM, or about 1024 GPUs at once at the recipe's
+parallelism, and CRM cannot start a branch from a recorded mid-episode state because the
+soil state cannot be restored. So the recipe is infeasible in CRM; the surrogate makes its
+sample count affordable rather than making the same experiment faster.
+
+Not measured, and not claimed: the CRM cost of reaching the same improvement by fine-tuning
+directly in CRM (it could need fewer samples, having no model error, or more), and
+therefore any time saving for an equal result. The surrogate's per-step speed is that of a
+reduced model that predicts the 36-D robot state, simulates no soil and is accurate only
+near the corpus; it is not a speed-up of the simulator.
+
 ## Patch length is nearly free
 
 `quadruped/diagnostics/patch_cost.py`, 3.0 s of walking at 0.6 m/s commanded, after 1.5 s of warmup,

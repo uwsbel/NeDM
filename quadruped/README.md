@@ -1,10 +1,23 @@
 # Study 4: a Go2 quadruped on CRM granular terrain
 
-A Unitree Go2 walks on Chrono's CRM terrain (SPH granular soil). Full SPH simulation is
-far too slow to train a controller against, so this study learns a neural reduced model
-(NN-ROM) of the robot on that soil from recorded walking, fine-tunes the robot's existing
-locomotion policy inside that model with PPO, and verifies every result back in full
-Chrono, paired episode by episode against the unmodified policy.
+A Unitree Go2 walks on Chrono's CRM terrain (SPH granular soil). PPO at the sample count
+used here (1000 iterations of 1024 x 2 s rollouts) would need about 121 MI210-days of CRM
+per fine-tune, so this study learns a neural reduced model (NN-ROM) of the robot on that
+soil from the base policy's own recorded walking, fine-tunes that existing locomotion
+policy inside the model with PPO, and verifies every result back in full Chrono, paired
+episode by episode against the unmodified policy.
+
+**Scope.** This is a local improvement of one existing policy: one round of offline
+model-based RL, with PPO run in a surrogate fitted to the base policy's own data, branches
+starting from states that policy visited, and nothing re-collected with the fine-tuned
+policy. The surrogate does not replace Chrono, which produces the data and scores every
+result, and it is accurate only near the corpus. Fine-tuning directly in Chrono was never
+run, so no claim is made that it would give the same improvement, or about how long it
+would take to reach it. Evidence that the improvement stays local: the weights move about
+5.5% of their norm by iteration 1000; the fine-tuned policies visit 0.0-0.1% of states
+outside the corpus in Chrono, through iteration 3000; the failures whose coverage was
+measured coincide with leaving the corpus; push robustness is bounded by what the corpus
+contains.
 
 - **Live write-up, with every table and figure:**
   <https://claude.ai/artifact/G8PHCRfk7M8Mu7b8rW2PbU>
@@ -73,7 +86,7 @@ site and in `docs/STATE.md`.
 | When to stop? | About iteration 1000. Tracking roughly doubles the old weight-budget stop's gain by then and plateaus by 1500; robustness to 300 N pushes holds at the base policy's level only through 1000. |
 | Does it make the robot more robust to pushes? | No, and it cannot here: the corpus tops out at 140 N pushes, so the surrogate never saw a recovery from the 240-300 N test. Training with disturbances in the surrogate does not help. The claim is scoped to tracking. |
 | How often does it fail? | One collapse in about sixty runs at the recipe's size (a policy that tumbles, in one exploitable surrogate). The guard catches collapses that leave the data but misses some weak runs: it is an early warning, not a certificate, so every policy is scored in Chrono. |
-| Why is Chrono the bottleneck? | 95.5% of a CRM step is the SPH soil. One robot runs 5.1x slower than real time on an MI210; the surrogate runs 17x faster for one robot and about 600x in throughput at 1024 rollouts. A 1000-iteration fine-tune is 4.5 GPU-hours against about four months of Chrono. |
+| What does it cost, and why not fine-tune in Chrono? | 95.5% of a CRM step is the SPH soil; one robot runs 5.1x slower than real time on an MI210 and keeps the GPU ~95% busy. The recipe's 2.05 M robot-seconds would be ~2,900 GPU-hours (121 MI210-days) of CRM, or ~1024 GPUs at once at its parallelism, and CRM cannot branch from recorded mid-episode states. The first verified policy costs roughly 40-110 GPU-hours end to end (collection, surrogate, fine-tune, scoring); each further fine-tune on the same corpus ~4.5 plus scoring. This matches simulated experience, not results: the CRM cost of reaching the same improvement directly was never measured. The surrogate's speed (17x for one robot, ~600x throughput at 1024) is that of a reduced 36-D model with no soil, valid near the corpus, not a faster simulator. See docs/COST.md. |
 
 ## Where everything is
 
