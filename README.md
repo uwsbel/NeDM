@@ -37,6 +37,11 @@ soil. The folder records milestones, evidence and limits through 2026-09-28.
 The study's data and models are in the `traversing/` folder of the Hugging Face
 dataset; its training and evaluation code is in `src/nedm/traversing/`.
 
+**Also not part of the paper:** [`docs/batch_rendering.md`](docs/batch_rendering.md) describes
+a batch renderer for NRD rollouts (`src/nedm/render/`). It draws one RGB and one depth image
+per world at every step, on the GPU the NRD model runs on, and it has been run on an NVIDIA
+RTX 3090 and on an AMD Instinct MI210. Nothing has been trained with it yet.
+
 **[docs/progress.md](docs/progress.md) is the reproduction record** — every stage
 output with the artifact that produced it and the command that regenerates it.
 Start there.
@@ -68,6 +73,7 @@ Code, scripts and configs are grouped by study. `core` holds what both paper stu
 | `src/nedm/hmmwv/` | Study Case I: HMMWV scene builders and data collectors (`hmmwv_data`, `hmmwv_crm`); the vectorized NN-ROM tracking environment, its Chrono-backed twins and the reference sets (`rl/`) |
 | `src/nedm/tracked_arm/` | Study Case II: M113 and arm data collectors (`tracked_vehicle_data`, `arm_data`); the 4-DOF gripper arm imported from SolidWorks (`arm_model/`); the goal and arm environments, arm forward kinematics and the clearance shield (`rl/`) |
 | `src/nedm/traversing/` | Traversing study code: model training (`training/`) and the Chrono evaluation class (`evaluation/`) |
+| `src/nedm/render/` | Batch renderer for NRD rollouts, not part of the paper: scenes, state-to-pose helpers, cameras and collage videos (needs `requirements-render.txt`) |
 | `configs/hmmwv/`, `configs/tracked_arm/` | Collection and training configs |
 | `traversing/` | Traversing study documents, results and release manifest |
 | `artifacts/` | Checkpoints, run metadata and Chrono evaluation output (datasets are on Hugging Face, see below) |
@@ -92,6 +98,7 @@ order you would run them:
 | `scripts/hmmwv/validation/` | Chrono validation harnesses for the tire-force channels (not a unit-test suite) |
 | `scripts/core/release/` | The Hugging Face dataset release: raw CSV → Parquet export, validation, upload, and the download/rehydrate helper |
 | `scripts/traversing/` | The traversing study's result recount (`analysis/`) and release download/verification (`release/`) |
+| `scripts/render/` | Rendering examples (a Go2 rollout in its NRD model, the arm from its own kinematics, a saved trajectory) and the AMD cluster build and run scripts (`hpcfund/`) |
 
 Every script under `scripts/core/`, `scripts/hmmwv/` and `scripts/tracked_arm/` reproduces something the paper
 reports; nothing else is kept. The ablation *artifacts* and *configs* keep their original `ablation_ofat` name

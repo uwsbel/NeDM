@@ -1,0 +1,15 @@
+# Batch rendering of NRD rollouts (src/nedm/render). Optional: nothing else in nedm needs it.
+#   pip install -r requirements-render.txt
+#
+# Newton and Warp are pinned as a pair. AMD's ROCm port of Warp is 1.13.0, and Newton 1.2.0
+# is the release built against Warp 1.13, so the same renderer code runs on NVIDIA and AMD.
+# On an AMD Instinct machine do NOT install warp-lang from PyPI (that wheel is CUDA only):
+# build AMD's port with scripts/render/hpcfund/build_warp_rocm.sbatch and install
+# newton with --no-deps. See docs/batch_rendering.md.
+newton==1.2.0
+warp-lang>=1.13,<1.14
+trimesh            # mesh files of URDF robots and MeshBody(path=...)
+scipy              # trimesh uses it for vertex normals
+imageio            # collage videos
+imageio-ffmpeg
+pillow
