@@ -1,0 +1,15 @@
+{
+ "name": "tiny",
+ "seed": 202610021,
+ "grid": [
+  2,
+  2
+ ],
+ "episodes_per_cell": {
+  "train": 1
+ },
+ "shards": 2,
+ "model_step_s": 0.01,
+ "target_time_s": 2.0,
+ "collection_config": "configs/pool_ball/chrono_v1.json"
+}

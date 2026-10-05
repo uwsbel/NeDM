@@ -1,0 +1,14 @@
+{
+  "name": "ball_latent_contact_fresh_test_20261001",
+  "seed": 202610013,
+  "grid": [
+    30,
+    15
+  ],
+  "episodes_per_cell": {
+    "test": 2
+  },
+  "shards": 32,
+  "model_step_s": 0.01,
+  "collection_config": "configs/bouncing_ball/chrono_v1.json"
+}

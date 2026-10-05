@@ -1,0 +1,33 @@
+{
+  "seed": 23,
+  "batch": 512,
+  "freeze_core": true,
+  "core_warmup": 0,
+  "core_lbfgs": 0,
+  "gate_linear_lbfgs": 100,
+  "gate_warmup": 1000,
+  "bounce_warmup": 15000,
+  "bounce_lbfgs": 500,
+  "rollout_updates": 500,
+  "rollout_horizon_s": 0.5,
+  "rollout_batch": 32,
+  "rollout_lr": 3e-06,
+  "evaluate_every": 4000,
+  "rollout_evaluate_every": 50,
+  "model": {
+    "dtype": "float64",
+    "embedding": 128,
+    "layers": 4,
+    "context": 8,
+    "affine_preserving": true,
+    "gate_input_dim": 5,
+    "bounce_input_dim": 5,
+    "contact_modes": 2,
+    "gate": "hard",
+    "hidden": 256,
+    "identity_init": false,
+    "bounce_layers": 3
+  },
+  "core_lr": 1e-05,
+  "core_checkpoint": "/work1/dannegrut/harry/experiments/ball_transformer_v2_20261001T214000Z/runs/learned_ap_k8_w128_l4/free_core.pt"
+}

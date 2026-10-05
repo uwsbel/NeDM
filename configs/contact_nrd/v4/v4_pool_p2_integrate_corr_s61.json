@@ -1,0 +1,97 @@
+{
+ "response_scale": [
+  2e-05,
+  2e-05,
+  2e-05,
+  0.0002,
+  0.0002,
+  0.0002,
+  0.015,
+  0.015,
+  0.05
+ ],
+ "rollout_scale": [
+  0.0001,
+  0.0001,
+  0.0001,
+  0.001,
+  0.001,
+  0.001,
+  0.08,
+  0.08,
+  0.2
+ ],
+ "refine_phases": [
+  {
+   "updates": 300,
+   "horizon_s": 0.5,
+   "lr": 1e-06,
+   "batch": 256,
+   "retention": 1.0,
+   "check_every": 100
+  },
+  {
+   "updates": 2000,
+   "horizon_s": 1.0,
+   "lr": 3e-06,
+   "batch": 256,
+   "retention": 1.0,
+   "check_every": 100
+  }
+ ],
+ "seed": 61,
+ "near_negative_records": 50,
+ "far_records": 50,
+ "far_cache": 200000,
+ "contact_batch": 4096,
+ "evaluate_every": 10000,
+ "skip_ridge": 0.001,
+ "gate_batch": 2048,
+ "gate_lbfgs": 100,
+ "gate_lbfgs_batch": 120000,
+ "gate_updates": 30000,
+ "gate_lr": 0.001,
+ "core_checkpoint": "/work1/dannegrut/harry/experiments/contact_nrd_20261002/runs_v2/v2_pool_core_b/free_core.pt",
+ "contact_mix": {
+  "pos": 1.0
+ },
+ "contact_updates": 160000,
+ "contact_lr": 0.001,
+ "contact_lr_floor": 0.01,
+ "refine_deadline_s": 13500,
+ "model": {
+  "dtype": "float64",
+  "context": 1,
+  "layers": 4,
+  "embedding": 128,
+  "heads": 4,
+  "block_init_std": 0.001,
+  "gate_hidden": 256,
+  "gate_latent": 32,
+  "gate_activation": "relu",
+  "hidden": 1024,
+  "contact_layers": 3,
+  "contact_activation": "tanh",
+  "gate": "hard",
+  "anchor_rest": true,
+  "routing": "joint",
+  "history": 1,
+  "collision": {
+   "trunk": "mlp",
+   "width": 256,
+   "latent": 32,
+   "activation": "relu"
+  },
+  "contact": {
+   "trunk": "mlp",
+   "width": 1024,
+   "layers": 3,
+   "activation": "tanh"
+  },
+  "input_clip": 0,
+  "integrate_positions": true,
+  "position_correction": true
+ },
+ "variant": "v4_pool_p2_integrate_corr_s61",
+ "whiten": false
+}

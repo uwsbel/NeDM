@@ -1,0 +1,12 @@
+{
+  "seed": 311,
+  "hidden": 64,
+  "activation": "relu",
+  "timing": "continuous",
+  "stride": 5,
+  "updates": 10000,
+  "batch": 2048,
+  "learning_rate": 0.0001,
+  "evaluate_every": 1000,
+  "delay_steps": 0.5
+}

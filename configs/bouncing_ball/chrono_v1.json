@@ -1,0 +1,62 @@
+{
+  "dataset_name": "bouncing_ball_chrono_v1",
+  "simulation": {
+    "step_s": 0.000125,
+    "record_step_s": 0.0005,
+    "max_duration_s": 2.5,
+    "gravity_mps2": 9.81
+  },
+  "scene": {
+    "radius_m": 0.1,
+    "mass_kg": 1.0,
+    "constrain_to_xz_plane": true,
+    "launch_x_m": 0.0,
+    "launch_z_m": 1.0,
+    "ground_z_m": 0.0,
+    "ground_length_m": 40.0,
+    "width_m": 10.0,
+    "ground_thickness_m": 1.0,
+    "wall_front_x_m": 5.0,
+    "wall_height_m": 8.0,
+    "wall_thickness_m": 0.2
+  },
+  "contact": {
+    "method": "NSC",
+    "solver": "ADMM",
+    "contact_activation": "touching_only",
+    "friction": 0.03,
+    "rolling_friction_m": 0.001,
+    "spinning_friction_m": 0.0001,
+    "restitution": 0.9,
+    "solver_iterations": 1000,
+    "solver_tolerance": 0.0001,
+    "min_bounce_speed_mps": 0.05,
+    "collision_envelope_m": 0.0,
+    "collision_safe_margin_m": 0.001,
+    "force_threshold_n": 0.01
+  },
+  "launch": {
+    "vx_range_mps": [4.0, 7.0],
+    "vz_range_mps": [-10.5, -9.0],
+    "omega_y_radps": 0.0
+  },
+  "acceptance": {
+    "target_duration_s": 2.0,
+    "duration_window_s": [1.8, 2.3],
+    "min_rebound_speed_mps": 0.5,
+    "min_ground_bounce_speed_mps": 0.5,
+    "min_post_wall_duration_s": 0.15,
+    "min_return_distance_m": 0.25,
+    "max_penetration_m": 0.002,
+    "max_out_of_plane_position_m": 1e-4,
+    "max_out_of_plane_velocity_mps": 1e-4,
+    "max_out_of_plane_angular_velocity_radps": 1e-3
+  },
+  "collection": {
+    "episodes": 5,
+    "seed": 20260930,
+    "max_attempts_per_episode": 5,
+    "validation_fraction": 0.1,
+    "test_fraction": 0.1
+  }
+}

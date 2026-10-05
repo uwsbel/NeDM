@@ -1,0 +1,25 @@
+{
+  "seed": 11,
+  "model": {"architecture": "contact_impulse_v2", "embedding": 64, "layers": 2, "gate_width_m": 0.0001},
+  "training": {
+    "one_step_updates": 30000,
+    "stop_when_passed": true,
+    "rollout_updates": 1000,
+    "batch_size": 2048,
+    "rollout_batch_size": 64,
+    "learning_rate": 0.0001,
+    "rollout_learning_rate": 0.00001,
+    "weight_decay": 0.00001,
+    "evaluate_every": 3000,
+    "rollout_evaluate_every": 100
+  },
+  "evaluation": {
+    "position_rmse_p95_m": 0.05,
+    "endpoint_error_p95_m": 0.1,
+    "velocity_mae_p95_mps": 0.15,
+    "spin_mae_p95_radps": 0.5,
+    "contact_time_error_p95_s": 0.02,
+    "contact_order_fraction": 0.99,
+    "max_penetration_p95_m": 0.005
+  }
+}

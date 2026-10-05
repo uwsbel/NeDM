@@ -1,0 +1,22 @@
+{
+  "seed": 421,
+  "hidden": 128,
+  "activation": "tanh",
+  "timing": "continuous",
+  "stride": 5,
+  "updates": 100000,
+  "batch": 2048,
+  "learning_rate": 0.001,
+  "final_lr": 1e-06,
+  "cosine_decay": true,
+  "evaluate_every": 10000,
+  "affine_normal": false,
+  "freeze_affine": true,
+  "lbfgs_updates": 500,
+  "lbfgs_evaluate_every": 100,
+  "output_scale": [
+    0.02,
+    0.02,
+    0.2
+  ]
+}

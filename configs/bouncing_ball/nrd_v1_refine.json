@@ -1,0 +1,27 @@
+{
+  "seed": 11,
+  "model": {
+    "embedding": 64,
+    "layers": 2,
+    "gate_width_m": 0.001
+  },
+  "training": {
+    "one_step_updates": 30000,
+    "rollout_updates": 0,
+    "batch_size": 2048,
+    "rollout_batch_size": 64,
+    "learning_rate": 0.0001,
+    "rollout_learning_rate": 3e-05,
+    "weight_decay": 1e-05,
+    "evaluate_every": 3000,
+    "rollout_evaluate_every": 50
+  },
+  "evaluation": {
+    "position_rmse_p95_m": 0.05,
+    "endpoint_error_p95_m": 0.1,
+    "velocity_mae_p95_mps": 0.15,
+    "spin_mae_p95_radps": 0.5,
+    "contact_time_error_p95_s": 0.02,
+    "contact_order_fraction": 0.99
+  }
+}

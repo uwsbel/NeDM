@@ -1,0 +1,108 @@
+{
+  "core_phases": [
+    {
+      "updates": 5,
+      "lr": 0.0003,
+      "batch": 256
+    },
+    {
+      "lbfgs": 2,
+      "batch": 2048
+    },
+    {
+      "updates": 5,
+      "lr": 0.0001,
+      "batch": 512
+    }
+  ],
+  "core_bins": 8,
+  "free_phase_step": 5,
+  "gate_updates": 30000,
+  "gate_lr": 0.001,
+  "gate_batch": 2048,
+  "gate_lbfgs": 100,
+  "gate_lbfgs_batch": 120000,
+  "near_negative_records": 50,
+  "collision_widen_records": 10,
+  "response_near_records": 30,
+  "far_records": 50,
+  "far_cache": 200000,
+  "contact_mix": {
+    "pos": 0.45,
+    "band": 0.45,
+    "far": 0.1
+  },
+  "contact_updates": 80000,
+  "contact_batch": 4096,
+  "contact_lr": 0.001,
+  "contact_lr_floor": 0.001,
+  "skip_ridge": 0.001,
+  "evaluate_every": 10000,
+  "lbfgs_check_every": 25,
+  "rotation_augment": false,
+  "free_scale": [
+    0.0001,
+    0.0001,
+    0.0001,
+    0.0002,
+    0.0002,
+    0.0002,
+    0.002,
+    0.002,
+    0.002
+  ],
+  "response_scale": [
+    0.001,
+    0.001,
+    0.001,
+    0.01,
+    0.01,
+    0.01,
+    0.05,
+    0.05,
+    0.05
+  ],
+  "rollout_scale": [
+    0.003,
+    0.003,
+    0.003,
+    0.02,
+    0.02,
+    0.02,
+    0.1,
+    0.1,
+    0.1
+  ],
+  "contact_lbfgs": 3000,
+  "contact_lbfgs_batch": 200000,
+  "refine_phases": [
+    {
+      "updates": 500,
+      "horizon_s": 0.5,
+      "lr": 1e-06,
+      "batch": 256,
+      "retention": 1.0,
+      "check_every": 100
+    }
+  ],
+  "band_gap_records": 2,
+  "seed": 61,
+  "model": {
+    "dtype": "float64",
+    "context": 1,
+    "layers": 4,
+    "embedding": 128,
+    "heads": 4,
+    "block_init_std": 0.001,
+    "gate_hidden": 256,
+    "gate_latent": 32,
+    "gate_activation": "relu",
+    "hidden": 1024,
+    "contact_layers": 3,
+    "contact_activation": "tanh",
+    "gate": "hard",
+    "anchor_rest": false
+  },
+  "variant": "v2_ball_smoke",
+  "max_episodes": 200
+}

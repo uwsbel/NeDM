@@ -1,0 +1,43 @@
+{
+  "seed": 17,
+  "threads": 1,
+  "stride": 1,
+  "batch": 512,
+  "core_warmup": 30000,
+  "gate_warmup": 3000,
+  "bounce_warmup": 3000,
+  "joint_updates": 12000,
+  "rollout_updates": 400,
+  "rollout_horizon_s": 0.5,
+  "rollout_batch": 32,
+  "evaluate_every": 2000,
+  "rollout_evaluate_every": 100,
+  "contact_loss_weight": 0.5,
+  "free_core_weight": 0.1,
+  "rollout_contact_weight": 0.1,
+  "model": {
+    "embedding": 64,
+    "layers": 2,
+    "dtype": "float64",
+    "contact_enabled": true,
+    "gate_input_dim": 2,
+    "contact_modes": 1,
+    "gate": "hard",
+    "gate_threshold": 0.2
+  },
+  "core_cosine": true,
+  "core_lbfgs": 80,
+  "core_lbfgs_batch": 4096,
+  "free_scale": [
+    0.001,
+    0.001,
+    0.002,
+    0.002,
+    0.005
+  ],
+  "predicted_bounce_updates": 6000,
+  "predicted_bounce_lr": 0.0001,
+  "joint_lr": 3e-05,
+  "rollout_lr": 3e-06,
+  "matched_free_core_loss": true
+}

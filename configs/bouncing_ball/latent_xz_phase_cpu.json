@@ -1,0 +1,22 @@
+{
+  "seed": 613,
+  "stage": "response",
+  "contact_input_dim": 2,
+  "latent_dim": 16,
+  "hidden": 128,
+  "gate": "hard",
+  "learned_phase": true,
+  "stride": 5,
+  "updates": 16000,
+  "batch": 512,
+  "learning_rate": 0.001,
+  "final_lr": 1e-06,
+  "cosine_decay": true,
+  "evaluate_every": 2000,
+  "timing_loss_scale_s": 0.001,
+  "phase_loss_weight": 1.0,
+  "lbfgs_updates": 40,
+  "lbfgs_evaluate_every": 10,
+  "threads": 1,
+  "classification_warmup_updates": 2000
+}

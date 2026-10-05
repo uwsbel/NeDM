@@ -1,0 +1,17 @@
+{
+  "name": "pool_span_v1_20261002",
+  "seed": 202610021,
+  "grid": [
+    30,
+    40
+  ],
+  "episodes_per_cell": {
+    "train": 16,
+    "val": 2,
+    "test": 2
+  },
+  "shards": 120,
+  "model_step_s": 0.01,
+  "target_time_s": 2.0,
+  "collection_config": "configs/pool_ball/chrono_v1.json"
+}

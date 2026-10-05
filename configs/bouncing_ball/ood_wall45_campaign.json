@@ -1,0 +1,14 @@
+{
+  "name": "ball_ood_wall45",
+  "seed": 20261005,
+  "grid": [
+    10,
+    10
+  ],
+  "episodes_per_cell": {
+    "test": 2
+  },
+  "shards": 24,
+  "model_step_s": 0.01,
+  "collection_config": "configs/bouncing_ball/chrono_wall45.json"
+}

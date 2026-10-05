@@ -1,0 +1,9 @@
+{
+  "name": "ball_certification_v1_20260930",
+  "seed": 202609302,
+  "grid": [30, 15],
+  "episodes_per_cell": {"test": 2},
+  "shards": 32,
+  "model_step_s": 0.01,
+  "collection_config": "configs/bouncing_ball/chrono_v1.json"
+}

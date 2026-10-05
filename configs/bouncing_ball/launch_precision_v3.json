@@ -1,0 +1,54 @@
+{
+  "terminal_time_s": 1.7,
+  "initial_velocity_mps": [
+    5.5,
+    -9.75
+  ],
+  "restart_velocities_mps": [
+    [
+      4.5,
+      -9.25
+    ],
+    [
+      4.5,
+      -10.25
+    ],
+    [
+      6.5,
+      -9.25
+    ],
+    [
+      6.5,
+      -10.25
+    ]
+  ],
+  "iterations": 400,
+  "learning_rate": 0.08,
+  "backtracks": 16,
+  "max_step_mps": 0.25,
+  "nrd_tolerance_m": 5e-05,
+  "chrono_tolerance_m": 0.003,
+  "benchmark_split": "val",
+  "benchmark_launch_neighborhoods_mps": [
+    [
+      4.4,
+      -10.2
+    ],
+    [
+      4.8,
+      -9.3
+    ],
+    [
+      5.5,
+      -10.2
+    ],
+    [
+      6.2,
+      -9.3
+    ],
+    [
+      6.6,
+      -10.2
+    ]
+  ]
+}

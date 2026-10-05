@@ -1,0 +1,7 @@
+[
+  {"name": "slow_low", "vx_mps": 4.0, "vz_mps": -9.0},
+  {"name": "slow_high", "vx_mps": 4.0, "vz_mps": -10.5},
+  {"name": "middle", "vx_mps": 5.5, "vz_mps": -9.75},
+  {"name": "fast_low", "vx_mps": 7.0, "vz_mps": -9.0},
+  {"name": "fast_high", "vx_mps": 7.0, "vz_mps": -10.5}
+]

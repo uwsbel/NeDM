@@ -1,0 +1,55 @@
+{
+  "seed": 41,
+  "batch": 1024,
+  "core_phases": [
+    {
+      "updates": 50000,
+      "lr": 0.0003,
+      "batch": 1024
+    },
+    {
+      "updates": 100000,
+      "lr": 0.0001,
+      "batch": 4096
+    }
+  ],
+  "core_bins": 4,
+  "free_phase_step": 5,
+  "gate_updates": 30000,
+  "gate_lr": 0.001,
+  "gate_lbfgs": 100,
+  "near_negative_records": 50,
+  "response_near_records": 30,
+  "response_near_fraction": 0.5,
+  "contact_updates": 80000,
+  "contact_batch": 4096,
+  "contact_lr": 0.001,
+  "contact_lr_floor": 0.001,
+  "skip_ridge": 0.001,
+  "evaluate_every": 10000,
+  "rollout_updates": 2000,
+  "rollout_horizon_s": 1.0,
+  "rollout_lr": 3e-06,
+  "rollout_batch": 64,
+  "rollout_evaluate_every": 100,
+  "model": {
+    "dtype": "float64",
+    "context": 1,
+    "layers": 4,
+    "embedding": 128,
+    "heads": 4,
+    "block_init_std": 0.001,
+    "gate_hidden": 256,
+    "gate_latent": 32,
+    "gate_activation": "relu",
+    "hidden": 512,
+    "contact_layers": 3,
+    "contact_activation": "tanh",
+    "gate": "hard",
+    "frame": "world",
+    "anchor_rest": true
+  },
+  "rotation_augment": true,
+  "variant": "pool_world_smoke",
+  "max_episodes": 200
+}

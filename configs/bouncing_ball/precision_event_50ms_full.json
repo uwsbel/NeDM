@@ -1,0 +1,15 @@
+{
+  "seed": 312,
+  "hidden": 64,
+  "activation": "relu",
+  "timing": "quantized",
+  "stride": 5,
+  "updates": 8000,
+  "batch": 2048,
+  "learning_rate": 0.0001,
+  "evaluate_every": 1000,
+  "rollout_updates": 400,
+  "rollout_horizon_s": 1.7,
+  "rollout_batch": 64,
+  "rollout_lr": 1e-06
+}

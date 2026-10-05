@@ -1,0 +1,68 @@
+{
+  "dataset_name": "pool_ball_chrono_v1",
+  "simulation": {
+    "step_s": 1.25e-05,
+    "record_step_s": 0.001,
+    "duration_s": 2.5,
+    "gravity_mps2": 9.81
+  },
+  "scene": {
+    "radius_m": 0.028575,
+    "mass_kg": 0.17,
+    "half_length_m": 1.27,
+    "half_width_m": 0.635,
+    "cushion_height_m": 0.1,
+    "cushion_thickness_m": 0.1,
+    "floor_thickness_m": 0.1,
+    "ball_a_xy_m": [
+      -0.635,
+      0.0
+    ],
+    "ball_b_xy_m": [
+      0.0,
+      0.0
+    ],
+    "cushion_nose_height_m": 0.03629
+  },
+  "contact": {
+    "method": "SMC",
+    "force_model": "Hertz",
+    "young_modulus_pa": 500000000.0,
+    "poisson_ratio": 0.3,
+    "slip_velocity_threshold_mps": 0.0001,
+    "collision_envelope_m": 0.001,
+    "collision_safe_margin_m": 0.0005,
+    "initial_sink_m": 0.0,
+    "on_cloth_gap_m": 0.0002,
+    "resistance_smoothing_radps": 0.1,
+    "cloth": {
+      "friction": 0.2,
+      "restitution": 0.05,
+      "rolling_resistance_m": 0.0003,
+      "spinning_resistance_m": 0.0003
+    },
+    "ball_ball": {
+      "friction": 0.06,
+      "restitution": 0.95
+    },
+    "ball_cushion": {
+      "friction": 0.2,
+      "restitution": 0.8
+    },
+    "tangential_model": "None"
+  },
+  "launch": {
+    "speed_range_mps": [
+      1.5,
+      3.0
+    ],
+    "max_cut_angle_deg": 65.0
+  },
+  "acceptance": {
+    "max_penetration_m": 0.002,
+    "max_height_deviation_m": 0.0015,
+    "max_vertical_speed_mps": 0.3,
+    "max_energy_increase_j": 0.0005,
+    "max_b_speed_before_ab_mps": 0.0001
+  }
+}

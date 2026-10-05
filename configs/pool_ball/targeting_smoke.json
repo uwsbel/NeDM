@@ -1,0 +1,32 @@
+{
+ "targets": 4,
+ "target_seed": 20261002,
+ "video_targets": 2,
+ "optimiser_box": {
+  "speed_mps": [
+   1.55,
+   2.95
+  ],
+  "max_cut_deg": 60.0
+ },
+ "start_speeds_mps": [
+  2.0,
+  2.6
+ ],
+ "start_cuts_deg": [
+  -20,
+  20
+ ],
+ "methods": [
+  "gd",
+  "lm"
+ ],
+ "iterations": {
+  "gd": 6,
+  "lm": 4
+ },
+ "learning_rate": 0.3,
+ "nrd_tolerance_m": 0.0002,
+ "snapshot_every": 5,
+ "success_miss_m": 0.01
+}

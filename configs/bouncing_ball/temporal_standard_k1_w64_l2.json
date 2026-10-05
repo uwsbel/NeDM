@@ -1,0 +1,29 @@
+{
+  "seed": 23,
+  "batch": 512,
+  "freeze_core": true,
+  "core_warmup": 30000,
+  "core_lbfgs": 100,
+  "gate_linear_lbfgs": 100,
+  "gate_warmup": 1000,
+  "bounce_warmup": 8000,
+  "bounce_lbfgs": 100,
+  "rollout_updates": 200,
+  "rollout_horizon_s": 0.5,
+  "rollout_batch": 32,
+  "rollout_lr": 3e-06,
+  "evaluate_every": 4000,
+  "rollout_evaluate_every": 50,
+  "model": {
+    "dtype": "float64",
+    "embedding": 64,
+    "layers": 2,
+    "context": 1,
+    "affine_preserving": false,
+    "gate_input_dim": 5,
+    "bounce_input_dim": 5,
+    "contact_modes": 2,
+    "gate": "hard",
+    "hidden": 128
+  }
+}
