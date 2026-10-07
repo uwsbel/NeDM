@@ -1,14 +1,17 @@
-"""Tests of nedm.render.BatchRenderer. Skipped when newton and warp are not installed.
+"""Tests of nedm.render.BatchRenderer, run against every backend that is installed.
 
 Every expected value is geometry worked out by hand (a box at a known height under a camera
 at a known height), so a pass means the poses reached the right world and the camera
-convention is the one documented, not merely that an image came out.
+convention is the one documented, not merely that an image came out. The same checks run on
+each backend, which is what makes the backends interchangeable.
 
     PYTHONPATH=src python -m unittest discover -s tests/render -p "test_renderer.py" -v
 
-The first run compiles the ray-tracing kernels, about a minute on CPU.
+Newton: needs newton and warp. The first run compiles the kernels, about a minute on CPU.
+Madrona: needs an NVIDIA GPU and NEDM_MADRONA_BUILD (scripts/render/madrona/build.sh).
 """
 import importlib.util
+import os
 import tempfile
 import textwrap
 import unittest
@@ -18,6 +21,7 @@ import numpy as np
 import torch
 
 HAVE_NEWTON = importlib.util.find_spec("newton") is not None and importlib.util.find_spec("warp") is not None
+HAVE_MADRONA = bool(os.environ.get("NEDM_MADRONA_BUILD")) and torch.cuda.is_available()
 
 BOX_V = np.array([[x, y, z] for x in (-0.25, 0.25) for y in (-0.25, 0.25) for z in (-0.25, 0.25)], dtype=np.float32)
 BOX_F = np.array([[0, 1, 3], [0, 3, 2], [4, 6, 7], [4, 7, 5], [0, 4, 5], [0, 5, 1],
@@ -25,6 +29,7 @@ BOX_F = np.array([[0, 1, 3], [0, 3, 2], [4, 6, 7], [4, 7, 5], [0, 4, 5], [0, 5, 
 RES = 16
 CAMERA_Z = 4.0
 FOV_DEG = 45.0
+SKY = (200, 215, 230)
 # Depth is distance ALONG THE RAY. With an even resolution no pixel sits on the optical axis:
 # pixel (RES/2, RES/2) is half a pixel off it in both directions, so its ray is this much longer
 # than the perpendicular distance.
@@ -52,19 +57,24 @@ def identity_bodies(positions: np.ndarray) -> np.ndarray:
     return q
 
 
-@unittest.skipUnless(HAVE_NEWTON, "newton and warp are not installed (see requirements-render.txt)")
-class BatchRendererTest(unittest.TestCase):
+class MeshSceneChecks:
+    """One box per world, no ground, a camera straight above."""
+
+    backend = ""
+
     @classmethod
     def setUpClass(cls):
-        import warp as wp
         from nedm.render import BatchRenderer, MeshBody, Scene, cameras
-        wp.config.quiet = True
-        cls.cameras = cameras
         scene = Scene.from_meshes([MeshBody("box", vertices=BOX_V, faces=BOX_F, color=(0.9, 0.1, 0.1))])
-        cls.renderer = BatchRenderer(scene, num_worlds=3, width=RES, height=RES, fov_deg=FOV_DEG, shadows=False)
+        cls.renderer = BatchRenderer(scene, num_worlds=3, width=RES, height=RES, fov_deg=FOV_DEG, shadows=False,
+                                     sky=SKY, backend=cls.backend)
         # straight down, so the up hint must not be the world Z the view direction lies along
         cls.down = cameras.look_at(torch.tensor([[0.0, 0.0, CAMERA_Z]]).repeat(3, 1), torch.zeros(3, 3),
                                    up=(1.0, 0.0, 0.0))
+
+    @classmethod
+    def tearDownClass(cls):
+        del cls.renderer
 
     def center_depth(self, frames) -> np.ndarray:
         return frames.depth[:, 0, RES // 2, RES // 2]
@@ -92,13 +102,13 @@ class BatchRendererTest(unittest.TestCase):
         np.testing.assert_array_equal(frames.depth_torch().cpu().numpy(), frames.depth)
         center, corner = frames.rgb[0, 0, RES // 2, RES // 2], frames.rgb[0, 0, 0, 0]
         self.assertGreater(int(center[0]), int(center[2]))   # the box is red
-        self.assertEqual(corner.tolist(), [200, 215, 230])   # the corner ray misses: sky
+        self.assertEqual(corner.tolist(), list(SKY))         # the corner ray misses: sky
 
     def test_torch_and_numpy_inputs_agree(self):
         positions = np.array([[0.1, 0.0, 0.7], [0.0, 0.1, 0.9], [-0.1, 0.0, 1.1]], dtype=np.float32)
         q = identity_bodies(positions)
         from_numpy = self.renderer.render(self.down.numpy(), body_q=q).depth.copy()
-        device = str(self.renderer.device)
+        device = "cuda:0" if "cuda" in str(self.renderer.device) else "cpu"
         from_torch = self.renderer.render(self.down.to(device), body_q=torch.tensor(q, device=device)).depth
         np.testing.assert_array_equal(from_numpy, from_torch)
         self.assertEqual(self.renderer.interop, "zero-copy")
@@ -113,22 +123,25 @@ class BatchRendererTest(unittest.TestCase):
             self.renderer.set_joint_q(np.zeros((3, 1), dtype=np.float32))
 
 
-@unittest.skipUnless(HAVE_NEWTON, "newton and warp are not installed (see requirements-render.txt)")
-class UrdfSceneTest(unittest.TestCase):
+class UrdfSceneChecks:
+    """A two-link arm from a URDF, a ground, two cameras per world."""
+
+    backend = ""
+
     @classmethod
     def setUpClass(cls):
-        import warp as wp
         from nedm.render import BatchRenderer, Scene, cameras
-        wp.config.quiet = True
         cls.cameras = cameras
         cls.tmp = tempfile.TemporaryDirectory()
         path = Path(cls.tmp.name) / "pendulum.urdf"
         path.write_text(URDF)
         scene = Scene.from_urdf(path, floating=False).add_ground(tile_size=None)
-        cls.renderer = BatchRenderer(scene, num_worlds=2, width=RES, height=RES, cameras=2, fov_deg=FOV_DEG, shadows=False)
+        cls.renderer = BatchRenderer(scene, num_worlds=2, width=RES, height=RES, cameras=2, fov_deg=FOV_DEG,
+                                     shadows=False, backend=cls.backend)
 
     @classmethod
     def tearDownClass(cls):
+        del cls.renderer
         cls.tmp.cleanup()
 
     def test_names_and_coordinates(self):
@@ -155,6 +168,32 @@ class UrdfSceneTest(unittest.TestCase):
         # both cameras look straight down at empty ground 5 m from the robot
         np.testing.assert_allclose(frames.depth[:, :, RES // 2, RES // 2], OFF_AXIS * np.array([[3.0, 6.0]] * 2),
                                    atol=1e-4)
+
+
+NEWTON = unittest.skipUnless(HAVE_NEWTON, "newton and warp are not installed (see requirements-render.txt)")
+# Madrona allows one renderer per process, so its two scenes cannot share a test run. The mesh
+# scene runs by default and NEDM_MADRONA_TEST=urdf selects the other.
+MADRONA_SCENE = os.environ.get("NEDM_MADRONA_TEST", "mesh")
+
+
+@NEWTON
+class NewtonMeshSceneTest(MeshSceneChecks, unittest.TestCase):
+    backend = "newton"
+
+
+@NEWTON
+class NewtonUrdfSceneTest(UrdfSceneChecks, unittest.TestCase):
+    backend = "newton"
+
+
+@unittest.skipUnless(HAVE_MADRONA and MADRONA_SCENE == "mesh", "needs NEDM_MADRONA_BUILD and an NVIDIA GPU")
+class MadronaMeshSceneTest(MeshSceneChecks, unittest.TestCase):
+    backend = "madrona"
+
+
+@unittest.skipUnless(HAVE_MADRONA and MADRONA_SCENE == "urdf", "needs NEDM_MADRONA_BUILD, a GPU and NEDM_MADRONA_TEST=urdf")
+class MadronaUrdfSceneTest(UrdfSceneChecks, unittest.TestCase):
+    backend = "madrona"
 
 
 if __name__ == "__main__":

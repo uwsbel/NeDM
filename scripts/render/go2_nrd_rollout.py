@@ -66,9 +66,10 @@ def cmd_starts(a) -> None:
 
 def cmd_run(a) -> None:
     import torch
-    import warp as wp
     import yaml
-    wp.config.quiet = True
+    if a.backend == "newton":
+        import warp as wp
+        wp.config.quiet = True
 
     from nedm.render import (BatchRenderer, CollageRecorder, PlanarPose, Scene, base_transform, cameras,
                                   depth_to_gray, save_sheet, tilt_from_gravity)
@@ -101,7 +102,7 @@ def cmd_run(a) -> None:
     t0 = time.perf_counter()
     scene = Scene.from_urdf(a.urdf, floating=True, colors=link_color).add_ground()
     renderer = BatchRenderer(scene, n, width=a.res, height=a.res, shadows=not a.no_shadows,
-                             device="cuda:0" if device.type == "cuda" else "cpu")
+                             device="cuda:0" if device.type == "cuda" else "cpu", backend=a.backend)
     build_s = time.perf_counter() - t0
     # URDF joint angle = sign * Chrono joint angle (quadruped/params/policy.yaml), matched by name.
     sign = float(policy_cfg["sign"]["value"])
@@ -175,7 +176,7 @@ def cmd_run(a) -> None:
     info = {
         "envs": n, "res": a.res, "seconds": a.seconds, "control_steps": steps, "torch": torch.__version__,
         "torch_device": torch.cuda.get_device_name(0) if device.type == "cuda" else "cpu",
-        "warp": wp.__version__, "render_device": str(renderer.device), "interop": renderer.interop,
+        "backend": a.backend, "render_device": str(renderer.device), "interop": renderer.interop,
         "scene_build_s": round(build_s, 2), "first_frame_s": round(first_s, 2),
         "model_ms_per_control_step": round(1e3 * model_s / steps, 2),
         "render_ms_per_frame": round(1e3 * render_s / steps, 2),
@@ -210,6 +211,7 @@ def main() -> None:
             p.add_argument("--sample", type=int, default=50, help="worlds in the collage")
             p.add_argument("--device", default="cuda")
             p.add_argument("--no-shadows", action="store_true")
+            p.add_argument("--backend", choices=["newton", "madrona"], default="newton")
     a = parser.parse_args()
     a.fn(a)
 

@@ -44,12 +44,14 @@ def main() -> None:
     parser.add_argument("--res", type=int, default=128)
     parser.add_argument("--device", default=None, help="warp device, default: the GPU if there is one")
     parser.add_argument("--seed", type=int, default=0)
+    parser.add_argument("--backend", choices=["newton", "madrona"], default="newton")
     parser.add_argument("--arm-scale", type=float, default=2.0,
                         help="ARM_SCALE in nedm.tracked_arm.arm_data, restated because that module needs pychrono")
     a = parser.parse_args()
 
-    import warp as wp
-    wp.config.quiet = True
+    if a.backend == "newton":
+        import warp as wp
+        wp.config.quiet = True
     from nedm.render import (BatchRenderer, CollageRecorder, MeshBody, Scene, cameras, save_sheet,
                                   transform_from_matrix)
     from nedm.tracked_arm.rl.arm_kinematics import ArmKinematics
@@ -67,7 +69,7 @@ def main() -> None:
         v, f = box_mesh(kin.vehicle_box_center[0].tolist(), kin.vehicle_box_half[0].tolist())
         scene.add_static_mesh(MeshBody("vehicle", vertices=v, faces=f, color=(0.35, 0.40, 0.30)))
     scene.add_ground(height=kin.ground_z, tile_size=1.0, extent=(-8.0, 8.0, -8.0, 8.0))
-    renderer = BatchRenderer(scene, a.envs, width=a.res, height=a.res, device=a.device)
+    renderer = BatchRenderer(scene, a.envs, width=a.res, height=a.res, device=a.device, backend=a.backend)
 
     # A different smooth joint motion in every world: base yaw, biceps, elbow, wrist. The biceps
     # stays raised (positive is up) so the arm clears the vehicle deck, which nothing here enforces.

@@ -33,12 +33,14 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--device", default=None, help="warp device, default: the GPU if there is one")
     parser.add_argument("--no-shadows", action="store_true")
+    parser.add_argument("--backend", choices=["newton", "madrona"], default="newton")
     parser.add_argument("--palette", choices=["none", "go2"], default="none",
                         help="link colors: none draws every link gray, go2 uses the Go2 example's palette")
     a = parser.parse_args()
 
-    import warp as wp
-    wp.config.quiet = True
+    if a.backend == "newton":
+        import warp as wp
+        wp.config.quiet = True
     from nedm.render import BatchRenderer, CollageRecorder, Scene, cameras, depth_to_gray, save_sheet
 
     out = Path(a.out)
@@ -53,7 +55,8 @@ def main() -> None:
         colors = link_color
     t0 = time.perf_counter()
     scene = Scene.from_urdf(a.urdf, floating=True, colors=colors).add_ground()
-    renderer = BatchRenderer(scene, n, width=a.res, height=a.res, shadows=not a.no_shadows, device=a.device)
+    renderer = BatchRenderer(scene, n, width=a.res, height=a.res, shadows=not a.no_shadows, device=a.device,
+                             backend=a.backend)
     build_s = time.perf_counter() - t0
 
     fps = int(round(1.0 / float(data["cam_dt"])))
@@ -81,9 +84,8 @@ def main() -> None:
     depth_video.close()
     np.savez_compressed(out / "sample_frames.npz", pick=rgb_video.pick, rgb=np.stack([k[0] for k in kept]),
                         depth=np.stack([k[1] for k in kept]))
-    device = wp.get_device(str(renderer.device))
-    info = {"envs": n, "res": a.res, "frames": frames_n, "warp": wp.__version__, "render_device": str(device),
-            "device_name": getattr(device, "name", "?"), "scene_build_s": round(build_s, 2),
+    info = {"envs": n, "res": a.res, "frames": frames_n, "backend": a.backend, "render_device": str(renderer.device),
+            "scene_build_s": round(build_s, 2),
             "first_frame_s": round(first_s, 2), "render_ms_per_frame": round(1e3 * render_s / (frames_n - 1), 2),
             "views_per_s": round(n * (frames_n - 1) / render_s), "trajectory": str(a.traj)}
     (out / "run.json").write_text(json.dumps(info, indent=2))
