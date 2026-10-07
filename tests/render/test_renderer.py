@@ -137,7 +137,7 @@ class UrdfSceneChecks:
         path.write_text(URDF)
         scene = Scene.from_urdf(path, floating=False).add_ground(tile_size=None)
         cls.renderer = BatchRenderer(scene, num_worlds=2, width=RES, height=RES, cameras=2, fov_deg=FOV_DEG,
-                                     shadows=False, backend=cls.backend)
+                                     shadows=False, sky=SKY, backend=cls.backend, max_distance=5.0)
 
     @classmethod
     def tearDownClass(cls):
@@ -165,9 +165,11 @@ class UrdfSceneChecks:
                                     up=(1.0, 0.0, 0.0)).reshape(2, 2, 7)
         frames = r.render(cams, joint_q=np.zeros((2, 1), dtype=np.float32))
         self.assertEqual(frames.depth.shape, (2, 2, RES, RES))
-        # both cameras look straight down at empty ground 5 m from the robot
-        np.testing.assert_allclose(frames.depth[:, :, RES // 2, RES // 2], OFF_AXIS * np.array([[3.0, 6.0]] * 2),
+        # Both cameras look straight down at empty ground 5 m from the robot, from 3 m and from
+        # 6 m. The renderer was built with max_distance=5, so the higher one must see nothing.
+        np.testing.assert_allclose(frames.depth[:, :, RES // 2, RES // 2], OFF_AXIS * np.array([[3.0, 0.0]] * 2),
                                    atol=1e-4)
+        self.assertEqual(frames.rgb[0, 1, RES // 2, RES // 2].tolist(), list(SKY))
 
 
 NEWTON = unittest.skipUnless(HAVE_NEWTON, "newton and warp are not installed (see requirements-render.txt)")

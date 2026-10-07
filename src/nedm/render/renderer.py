@@ -35,7 +35,10 @@ class BatchRenderer:
         shadows: bool = True,
         sky: tuple[int, int, int] = (200, 215, 230),
         backend: str = "newton",
+        max_distance: float = 1000.0,
     ) -> None:
+        """``max_distance``: rays that reach nothing within this many metres count as misses
+        (depth 0, sky color). Both backends apply it, so far ground looks the same in each."""
         self.scene, self.num_worlds = scene, int(num_worlds)
         self.width, self.height, self.cameras = int(width), int(height), int(cameras)
         self.body_names = scene.body_names
@@ -43,7 +46,7 @@ class BatchRenderer:
         self.joint_index, self.coord_count = scene.joint_index, scene.coord_count
         self.backend_name = backend
         self.backend = backends.make(backend)(scene, self.num_worlds, self.width, self.height, self.cameras,
-                                              fov_deg, device, shadows, sky)
+                                              fov_deg, device, shadows, sky, float(max_distance))
         self.device = self.backend.device
         self._torch_device = torch.device("cuda:0" if "cuda" in str(self.device) else "cpu")
         self._body_q: torch.Tensor | None = None

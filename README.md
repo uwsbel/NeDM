@@ -99,7 +99,7 @@ order you would run them:
 | `scripts/hmmwv/validation/` | Chrono validation harnesses for the tire-force channels (not a unit-test suite) |
 | `scripts/core/release/` | The Hugging Face dataset release: raw CSV → Parquet export, validation, upload, and the download/rehydrate helper |
 | `scripts/traversing/` | The traversing study's result recount (`analysis/`) and release download/verification (`release/`) |
-| `scripts/render/` | Rendering examples (a Go2 rollout in its NRD model, the arm from its own kinematics, a saved trajectory), the Madrona build script (`madrona/`) and the AMD cluster build and run scripts (`hpcfund/`) |
+| `scripts/render/` | Rendering examples (the HMMWV tracking policy and a Go2 policy rolled out in their NRD models, the arm from its own kinematics, a saved trajectory), the Madrona build script (`madrona/`) and the AMD cluster build and run scripts (`hpcfund/`) |
 
 Every script under `scripts/core/`, `scripts/hmmwv/` and `scripts/tracked_arm/` reproduces something the paper
 reports; nothing else is kept. The ablation *artifacts* and *configs* keep their original `ablation_ofat` name

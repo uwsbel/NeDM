@@ -34,10 +34,12 @@ class CollageRecorder:
     """Video of a random sample of worlds, the same sample in every frame."""
 
     def __init__(self, path: str | Path, num_worlds: int, sample: int = 50, cols: int = 10,
-                 fps: float = 50.0, seed: int = 0) -> None:
+                 fps: float = 50.0, seed: int = 0, pick=None) -> None:
+        """``pick`` names the worlds to show. Without it, ``sample`` of them are drawn at random."""
         import imageio.v2 as imageio
         rng = np.random.default_rng(seed)
-        self.pick = np.sort(rng.choice(num_worlds, size=min(sample, num_worlds), replace=False))
+        self.pick = (np.asarray(pick) if pick is not None
+                     else np.sort(rng.choice(num_worlds, size=min(sample, num_worlds), replace=False)))
         self.cols = cols
         self._writer = imageio.get_writer(str(path), fps=fps, codec="libx264", quality=8,
                                           macro_block_size=None)

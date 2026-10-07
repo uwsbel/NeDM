@@ -46,7 +46,7 @@ class Frames:
 
 class NewtonBackend:
     def __init__(self, scene, num_worlds: int, width: int, height: int, cameras: int, fov_deg: float,
-                 device: Any, shadows: bool, sky: tuple[int, int, int]) -> None:
+                 device: Any, shadows: bool, sky: tuple[int, int, int], max_distance: float) -> None:
         import newton
         import warp as wp
         from newton.sensors import SensorTiledCamera
@@ -79,6 +79,7 @@ class NewtonBackend:
         self.device = self.model.device
 
         self._camera = SensorTiledCamera(model=self.model)
+        self._camera.render_config.max_distance = max_distance
         self._camera.utils.create_default_light(enable_shadows=shadows)
         self._rays = self._camera.utils.compute_pinhole_camera_rays(width, height, [math.radians(fov_deg)] * self.cameras)
         self._color = self._camera.utils.create_color_image_output(width, height, self.cameras)

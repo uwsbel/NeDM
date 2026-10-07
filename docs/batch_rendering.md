@@ -58,6 +58,9 @@ frames.rgb_torch()      # (1024, 1, 128, 128, 3) uint8
 Torch tensors on the render device are read in place and the outputs are views, so a policy
 can consume them without a copy. `frames.rgb` and `frames.depth` are the numpy versions.
 
+A ray that reaches nothing within `max_distance` (1000 m unless set) counts as a miss: depth 0
+and the sky color, in both backends.
+
 ### Plugging a model in
 
 A model needs two things: geometry and a way to turn its reduced state into poses.
@@ -66,12 +69,17 @@ A model needs two things: geometry and a way to turn its reduced state into pose
 |---|---|---|---|
 | Joint angles of a robot with a URDF | `Scene.from_urdf(path)` | `renderer.joint_map(state_fields, {...})`, then `render(joint_q=...)`. The forward kinematics is batched torch (`nedm/render/urdf.py`). | `scripts/render/go2_nrd_rollout.py` |
 | Link poses from its own kinematics | `Scene.from_meshes([MeshBody(...)])` | `transform_from_matrix(kin.link_transforms(q))`, then `render(body_q=...)` | `scripts/render/arm_fk_demo.py` |
-| A planar pose and a few angles (a vehicle) | `Scene.from_meshes(...)` | `base_transform(xy_yaw, z, roll, pitch)` for the chassis, `compose` for parts fixed to it | none yet |
+| A planar pose and a few angles (a vehicle) | `Scene.from_meshes(...)` | `base_transform(xy_yaw, z, roll, pitch)` for the chassis, `compose` for parts fixed to it | `scripts/render/hmmwv_nrd_rollout.py` |
 
 The reduced states here carry no x, y or yaw. `PlanarPose` integrates them from the predicted
 body velocities and yaw rate, with the same update the environments use. An environment that
 already keeps a pose (for example `HMMWVNeuralTrackingEnv.current_pose()`) can pass it to
 `base_transform` directly.
+
+What the state does not carry has to come from somewhere else, and each example says where.
+The HMMWV state has no height, no wheel angles and no steering angle, so its example takes the
+ride height, wheel mounts and steering range from a measurement in Chrono, integrates wheel
+angle from the predicted wheel speed, and reads steering from the action.
 
 Joints are matched by name, with a sign and an offset where conventions differ:
 
@@ -110,6 +118,10 @@ For scale, the NRD model itself takes 231 ms per control step at 1024 worlds on 
 With Madrona, rendering every control step adds about 16% to a rollout. With Newton it more
 than doubles it.
 
+The HMMWV (Study Case I NRD model and tracking policy, about 270,000 triangles), 1024 worlds
+at 128x128 with shadows: Madrona 29 ms per frame (35,400 views per second), Newton 67 ms
+(15,400). Its NRD model takes 19 ms per 10 ms model step.
+
 On the AMD Instinct MI210 the Newton backend takes 341 ms per frame at 128x128 with shadows
 (3,000 views per second), and the NRD model 175 ms per control step. Measured 2026-10-03.
 
@@ -136,6 +148,9 @@ both are right. On the same Go2 trajectory and cameras, over 7.7 million pixels:
   renderer's ray clips the robot and the other's passes it.
 - farther out, where rays graze the ground, depth agrees to 1.3 mm at the 99th percentile
 
+On the HMMWV rollout, over 3.3 million pixels, there is no pixel that one renderer hits and
+the other misses, and depth within 25 m agrees to 0.04 mm at the 99th percentile.
+
 RGB differs because their shading does.
 
 To check a new machine, render one saved trajectory on it and on a machine you trust, then
@@ -155,6 +170,8 @@ trajectory, and on depth to 0.3 mm at the 99.9th percentile.
 - One renderer per process. A second one fails when Madrona sets its GPU heap size again.
 - A world with exactly one object crashes the engine. The backend adds an invisible second
   object in that case.
+- Its ground plane is a finite square, here 10 km to a side. The HMMWV example is what showed
+  the first size, 200 m, to be too small.
 - The upstream project, `madrona_mjx`, is no longer maintained. The build is pinned to the
   commit that was tested, and needs a CUDA 12.5 toolkit, which `build.sh` installs into its own
   conda environment.
@@ -182,6 +199,9 @@ Only MI210 (gfx90a) was run. The build also targets MI300X (gfx942), untested.
 ## Limits
 
 - Flat colors only. The ground checker is geometry and meshes are not textured.
+- The HMMWV example draws the wheels at fixed mounts on the chassis: no suspension travel, both
+  front wheels at the mean steering angle, flat ground only. Bumpy terrain needs per-world
+  terrain, and soil ruts are not in the state.
 - The scene is the same in every world, apart from the poses. Per-world terrain is not written.
 - Anything the reduced state does not carry cannot be drawn. For the Go2 on soil that means no
   ruts or footprints: the ground is a plane at the soil surface.

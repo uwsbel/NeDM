@@ -20,7 +20,9 @@ import numpy as np
 import torch
 
 PLANE, MESH = 0, 7                      # MuJoCo geom types, which the engine reuses
-PLANE_HALF_SIZE = 200.0
+# The engine's plane is a finite square. 200 m was not enough: a camera 5 m up sees ground past
+# that, where Newton's infinite plane still answers and this one returned sky.
+PLANE_HALF_SIZE = 10_000.0
 LIGHT_DIRECTION = (-0.57735026, 0.57735026, -0.57735026)    # the Newton backend's default light
 
 
@@ -65,7 +67,8 @@ def _wxyz(q: torch.Tensor) -> torch.Tensor:
 
 class MadronaBackend:
     def __init__(self, scene, num_worlds: int, width: int, height: int, cameras: int, fov_deg: float,
-                 device: Any, shadows: bool, sky: tuple[int, int, int], ray_trace: bool = True) -> None:
+                 device: Any, shadows: bool, sky: tuple[int, int, int], max_distance: float,
+                 ray_trace: bool = True) -> None:
         if not torch.cuda.is_available():
             raise RuntimeError("the Madrona backend needs an NVIDIA GPU")
         self.device = torch.device("cuda:0")
@@ -164,6 +167,7 @@ class MadronaBackend:
         # Our cameras look along -Z with +Y up, as MuJoCo's do. Madrona's look along +Y with +Z up.
         self._to_y_forward = torch.tensor([-0.70710678, 0.0, 0.0, 0.70710678], device=dev)    # xyzw, -90 deg about X
         self._sky = torch.tensor(sky, dtype=torch.uint8, device=dev)
+        self._max_distance = float(max_distance)
         self._started = False
 
     def render(self, body_q: torch.Tensor, camera: torch.Tensor) -> Frames:
@@ -183,7 +187,10 @@ class MadronaBackend:
             self._rgba = self._renderer.rgb_tensor().to_torch()
             self._depth = self._renderer.depth_tensor().to_torch()
             self._started = True
-        # The ray tracer leaves rays that hit nothing black, with depth 0. Paint them the sky color.
-        self._rgba[..., :3][self._depth[..., 0] == 0] = self._sky
+        # The ray tracer leaves rays that hit nothing black, with depth 0. Paint them the sky color,
+        # and treat anything past the maximum distance the same way.
+        depth = self._depth[..., 0]
+        depth[depth > self._max_distance] = 0.0
+        self._rgba[..., :3][depth == 0] = self._sky
         torch.cuda.synchronize()
         return Frames(self._rgba, self._depth)
