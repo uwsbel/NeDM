@@ -1,0 +1,47 @@
+{
+ "seed": 61,
+ "model_step_s": 0.02,
+ "history": 4,
+ "network": {
+  "width": 128,
+  "heads": 4,
+  "ffn": 512,
+  "layers": 4
+ },
+ "integrate_kinds": [
+  "sphere",
+  "rigid",
+  "articulated"
+ ],
+ "check_episodes": 1500,
+ "evaluate_every": 10000,
+ "free_phase_step": 5,
+ "core_bins": 8,
+ "ridge": 1e-06,
+ "near_negative_s": 0.05,
+ "collision": {
+  "lr": 0.001,
+  "updates": 30000,
+  "batch": 2048,
+  "warmup": 1000
+ },
+ "skip_ridge": 0.001,
+ "push_prob": 0.5,
+ "push_start": 0.25,
+ "push_max_steps": 3,
+ "push_max_dev": 0.5,
+ "rollout_scale_factor": 4.0,
+ "cotrain": {
+  "updates": 120000,
+  "lr": 0.001,
+  "warmup": 2000,
+  "core_batch": 4096,
+  "contact_batch": 4096,
+  "traj_every": 8,
+  "traj_batch": 128,
+  "horizon_start_s": 0.1,
+  "horizon_max_s": 1.0,
+  "horizon_ramp": 0.5,
+  "traj_ramp": 0.25
+ }
+}
