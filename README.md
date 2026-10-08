@@ -37,6 +37,14 @@ soil. The folder records milestones, evidence and limits through 2026-09-28.
 The study's data and models are in the `traversing/` folder of the Hugging Face
 dataset; its training and evaluation code is in `src/nedm/traversing/`.
 
+**Follow-on work, not part of the paper:** [`contact_nrd/`](contact_nrd/README.md)
+extends neural reduced dynamics (NRD) to contacts that start and stop: a bouncing ball, two pool balls
+and an SO101 arm that pushes a T. A core network, a collision network and a
+contact network, with one design and one training config for all three cases,
+predict each 20 ms step. The data, test sets and trained models are in the
+`contact_nrd/` folder of the Hugging Face dataset; the code is in
+`src/nedm/contact_nrd/`.
+
 **[docs/progress.md](docs/progress.md) is the reproduction record** — every stage
 output with the artifact that produced it and the command that regenerates it.
 Start there.
@@ -68,8 +76,11 @@ Code, scripts and configs are grouped by study. `core` holds what both paper stu
 | `src/nedm/hmmwv/` | Study Case I: HMMWV scene builders and data collectors (`hmmwv_data`, `hmmwv_crm`); the vectorized NN-ROM tracking environment, its Chrono-backed twins and the reference sets (`rl/`) |
 | `src/nedm/tracked_arm/` | Study Case II: M113 and arm data collectors (`tracked_vehicle_data`, `arm_data`); the 4-DOF gripper arm imported from SolidWorks (`arm_model/`); the goal and arm environments, arm forward kinematics and the clearance shield (`rl/`) |
 | `src/nedm/traversing/` | Traversing study code: model training (`training/`) and the Chrono evaluation class (`evaluation/`) |
+| `src/nedm/contact_nrd/` | Contact NRD: the three networks, training, test scores and the data download |
 | `configs/hmmwv/`, `configs/tracked_arm/` | Collection and training configs |
+| `configs/contact_nrd/` | The one training config of the contact NRD |
 | `traversing/` | Traversing study documents, results and release manifest |
+| `contact_nrd/` | Contact NRD design, results, the three study cases and release manifest |
 | `artifacts/` | Checkpoints, run metadata and Chrono evaluation output (datasets are on Hugging Face, see below) |
 
 `scripts/` is organised by study (`core/`, `hmmwv/`, `tracked_arm/`, `traversing/`), then by pipeline stage, in the

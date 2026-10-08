@@ -1,0 +1,81 @@
+{
+ "schema": "nedm-contact-nrd-release/1",
+ "repo_id": "harryzhang1018/NeDM",
+ "prefix": "contact_nrd/",
+ "hf_revision": "d68fa3c4d91539bc6a079f4b2f3ff5c27d825101",
+ "note": "Pinned copy of contact_nrd/release_manifest.json on the Hub (that file also holds the provenance).",
+ "files": {
+  "contact_nrd/bouncing_ball/models/seed61.pt": {
+   "bytes": 9829315,
+   "sha256": "b9faad51bdf192143d357b84db5abb2610bf74424f80f127e7064a87009cd71f"
+  },
+  "contact_nrd/bouncing_ball/models/seed62.pt": {
+   "bytes": 9829315,
+   "sha256": "ef5bd0b387059410e27bf1973c8573f581d8e9a58fbbc584bb1b24fef926fcd8"
+  },
+  "contact_nrd/bouncing_ball/test/system.json": {
+   "bytes": 2239,
+   "sha256": "d55562d0e1933478d74f57e608c4452dd9a56c9846da2fe6bcb9a514366e7135"
+  },
+  "contact_nrd/bouncing_ball/test/unified_data.npz": {
+   "bytes": 149440852,
+   "sha256": "2b8824af07221eb851aef932a6782d13f7f62ed1e2a0d34fe050158eb3a34bc3"
+  },
+  "contact_nrd/bouncing_ball/train/system.json": {
+   "bytes": 2239,
+   "sha256": "d55562d0e1933478d74f57e608c4452dd9a56c9846da2fe6bcb9a514366e7135"
+  },
+  "contact_nrd/bouncing_ball/train/unified_data.npz": {
+   "bytes": 598033252,
+   "sha256": "c78d95a412e9feeecf26ee36a1e6780cab59c5e0d498da47712f4be3e8c0195d"
+  },
+  "contact_nrd/pool/models/seed61.pt": {
+   "bytes": 10035651,
+   "sha256": "96bd2f3b56ebcb4be01d6e59175f535b32b9c65117c953e74cd86e3ec3ba2912"
+  },
+  "contact_nrd/pool/models/seed62.pt": {
+   "bytes": 10035651,
+   "sha256": "64498fe1b090cebe82fc11c2dd4951c61d66bd07034e264e2a7b640b22a633fb"
+  },
+  "contact_nrd/pool/test/system.json": {
+   "bytes": 2682,
+   "sha256": "a3cabd555ae57edf52584d764e4e61b4dcfafcd65896d91eda9444ff7bb2cc35"
+  },
+  "contact_nrd/pool/test/unified_data.npz": {
+   "bytes": 972500452,
+   "sha256": "23e176c897790b97e7bb44483c6585c1f5f065d56d9631912372a264a7aa4780"
+  },
+  "contact_nrd/pool/train/system.json": {
+   "bytes": 2682,
+   "sha256": "a3cabd555ae57edf52584d764e4e61b4dcfafcd65896d91eda9444ff7bb2cc35"
+  },
+  "contact_nrd/pool/train/unified_data.npz": {
+   "bytes": 4862497396,
+   "sha256": "70fe37ff09c1d83e137217784896def0edb705fb9b2d83aa7d2420fdca0d36b3"
+  },
+  "contact_nrd/so101_push_t/models/seed61.pt": {
+   "bytes": 10075743,
+   "sha256": "161acaa4642086e7004ae2361888f23d416428f9d28e7152e6ae9f0fd5a69eac"
+  },
+  "contact_nrd/so101_push_t/models/seed62.pt": {
+   "bytes": 10075743,
+   "sha256": "da5764c1fea9b8be57769d83ddd3f565fae7a651eb21dbc34015a49a6f14b4c9"
+  },
+  "contact_nrd/so101_push_t/test/system.json": {
+   "bytes": 55732,
+   "sha256": "735beddb52777e4213f07bead56cc29616c387b68371a0f08bea0a8c52eeb874"
+  },
+  "contact_nrd/so101_push_t/test/unified_data.npz": {
+   "bytes": 48675238,
+   "sha256": "e076166007083294d14cc4ead6093cd7100c6d5c7935347c2371b7c4fd246f8d"
+  },
+  "contact_nrd/so101_push_t/train/system.json": {
+   "bytes": 55731,
+   "sha256": "bf95620c00309cb1343cfb6563859c4aaa1062c58e0658f374fee42ffd9620a0"
+  },
+  "contact_nrd/so101_push_t/train/unified_data.npz": {
+   "bytes": 3115025725,
+   "sha256": "9de314af7d35f76fbbf81f2a05459021c53f826fc12245a5558786b0c554a71a"
+  }
+ }
+}

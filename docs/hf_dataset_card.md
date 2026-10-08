@@ -59,17 +59,19 @@ configs:
     data_files: raw/tracked/episodes.parquet
 ---
 
-# NeDM datasets: the paper and the traversing study
+# NeDM datasets: the paper, the traversing study and the contact NRD
 
-This repository holds two separate releases. **Part A** is the set of datasets behind the NeDM paper, unchanged since
+This repository holds three separate releases. **Part A** is the set of datasets behind the NeDM paper, unchanged since
 its release (Hub tag `paper-v1`). **Part B**, everything under `traversing/`, holds the drives, training files, models
-and evaluation records of the traversing study, follow-on work that is not part of the paper.
+and evaluation records of the traversing study, follow-on work that is not part of the paper. **Part C**, everything
+under `contact_nrd/`, holds the training data, test sets and models of the contact NRD, also follow-on work.
 
 Contents:
 
 - [Part A: datasets of the paper](#part-a-datasets-of-the-paper): `raw/`, `processed/`, `assets/` and
   `release_manifest.json`
 - [Part B: traversing study](#part-b-traversing-study): `traversing/`
+- [Part C: contact NRD](#part-c-contact-nrd): `contact_nrd/`
 
 ## Part A: datasets of the paper
 
@@ -644,3 +646,63 @@ and extract tar shards with `tar -xzf part-00000.tar.gz` at the root of a checko
 
 BSD-3-Clause, the same as Part A and the code. The traversing study has no publication yet: please cite the NeDM paper
 (Part A) and name the dataset revision you used (`6620faead5225ac9aa5ae8ab19bc2ef2db38a863`).
+
+## Part C: contact NRD
+
+### What it is
+
+Follow-on work to the paper, not part of it. A neural reduced dynamics model (NRD) for systems whose contacts start
+and stop: a bouncing ball, two pool balls, and an SO101 arm that pushes a T-shaped block. A core network, a collision
+network and a contact network predict each 20 ms step, with one design and one training config for all three cases.
+The design, the results and the commands are in
+[`contact_nrd/` of the code repository](https://github.com/uwsbel/NeDM/tree/main/contact_nrd). The training files,
+the SO101 test files and the models are byte-exact copies of the study's files. The ball and pool test files are new
+conversions of the study's raw test recordings, made with the same converter as the training files. All data come from
+[Project Chrono](https://projectchrono.org) simulations.
+
+### Layout
+
+| Path | Contents |
+|---|---|
+| `contact_nrd/<case>/train/` | `system.json` and `unified_data.npz`: training (split 0) and validation (split 1) episodes, plus the source campaign's own test episodes (split 2, not used) |
+| `contact_nrd/<case>/test/` | The same two files for test episodes (split 2) from a separate collection with a new seed. No test episode was used for training or checkpoint selection |
+| `contact_nrd/<case>/models/seed61.pt`, `seed62.pt` | The trained models (PyTorch checkpoints) |
+| `contact_nrd/release_manifest.json` | Size and SHA-256 of every file; source folders, campaigns, seeds and episode counts |
+
+`<case>` is `bouncing_ball` (5,400 / 900 training / validation episodes, 1,800 test), `pool` (19,200 / 2,400,
+4,800 test) or `so101_push_t` (51,200 / 6,400, 1,000 test). Total 9.8 GB.
+
+### What the files contain
+
+- `system.json`: the bodies (kind, size, fixed planes or table), the contact pairs, the record step, the target
+  body and time; for the arm and the T, the channel names and types.
+- `unified_data.npz` (uncompressed NumPy): `contacts` [N, T-1, P] (pair p touches during record interval k),
+  `lengths` [N], `splits` [N], and the states. Ball and pool: `states` [N, T, D, 9] = position, velocity, angular
+  velocity of each ball. SO101 push-T: `arm` [N, T, 10] (joint angles, joint speeds), `tshape` [N, T, 13]
+  (position, quaternion wxyz, velocity, angular velocity) and `action` [N, T, 5] (joint position command). Other
+  arrays (`launches`; for the SO101 `contacts_link`, `t_table`, `scenario`) give more detail on each shot or push;
+  the models do not use them. Units are SI. Ball and pool records are 1 ms apart, the SO101 records 10 ms. In the
+  ball and pool `system.json`, `model_step_s` is 0.01 s; the released models use 0.02 s (from the training config).
+
+### Download and use
+
+```bash
+PYTHONPATH=src python -m nedm.contact_nrd.download --case pool      # in the code repository; checks every SHA-256
+```
+
+The code repository's `contact_nrd/release_manifest.json` pins the Hub revision. The files cannot be loaded with
+`datasets.load_dataset`; read them with NumPy or with `nedm.contact_nrd.data.load_data`.
+
+### Known limitations
+
+- **Simulation only.** There is no real-robot or real-table data.
+- **One scene per case.** One ball, wall and floor; one pool table with fixed ball start positions; one arm, T and
+  table. The test episodes are new shots and pushes from the same ranges as the training data.
+- **Open-loop scores.** The published errors are model rollouts against recorded episodes, with the recorded arm
+  commands.
+- **Test sets seen during design.** The study also scored earlier design versions on these test episodes.
+
+### License and citation
+
+BSD-3-Clause, the same as Part A and the code. The contact NRD has no publication yet: please cite the NeDM paper
+(Part A) and name the dataset revision you used (`d68fa3c4d91539bc6a079f4b2f3ff5c27d825101`).
