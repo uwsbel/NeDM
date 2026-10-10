@@ -1,0 +1,1020 @@
+{
+ "schema": "nedm/so101_robot@1",
+ "note": "Compact copy of the twinfactory SO-101 description (USD-derived). Joint angle convention: T_parent @ frame_in_parent @ Rz(q) == T_child @ frame_in_child; quaternions wxyz; SI units.",
+ "sources": {
+  "robot_json": {
+   "path": "/home/harry/so101_project/twinfactory/configs/robots/so101/robot.json",
+   "sha256": "9592d75b49fe12242a25da4a33aa8dd5a6aaa1ad86a330692ffe38752554ba5c"
+  },
+  "so101_yaml": {
+   "path": "/home/harry/so101_project/twinfactory/configs/robots/so101.yaml",
+   "sha256": "34ec36e72b4b4c8da0532d7aaf61d123599c99d66027d4a5614c071f65eb902c"
+  },
+  "setup_yaml_table_top": {
+   "path": "/home/harry/so101_project/twinfactory/configs/setups/screwdriver_white_box_v2/setup.yaml",
+   "sha256": "ad99a9006633d24196feb920c7057d1540393666846502d022c57589b77dc157"
+  },
+  "collision_hulls": {
+   "path": "/home/harry/twinfactory_data/assets/legacy-20260923/robot/collision_hulls",
+   "files_sha256": {
+    "base_0.obj": "8b39079fbc523388592c2b17466f9fa22ddebe8dd094d3027851b314f1f48fbf",
+    "base_1.obj": "22aa507c1d7a1732496d294cfc9cc17e17be4352491db5281c25deb9a3817e80",
+    "base_2.obj": "f7a14bc3e797ecf3ce8e4c897961dd95ec6af037aeeba9e8b0f901872440e190",
+    "base_3.obj": "5acc1c3daf35285a4a19207cf2d7ebd1b8e64fe9c0a64d686befc1e52aec45e7",
+    "base_4.obj": "9f1522aef93a1c5b74aac02ecfa2f49da05acd8ae6c16fa6fa7e5c60c8f033e5",
+    "base_5.obj": "4aa497d2ebc67bbf6f4ab91d18854cf461ecf11c07515c6a3905373e13234840",
+    "base_6.obj": "98620654aad8af83a1e8d1cda7b97c2a76f5e91f4d0c9fcc3426ed5da01fd0c5",
+    "base_7.obj": "9aa1208f4133373ea47b97f53639674279ac1cbfcb259134296e80f624f72478",
+    "base_8.obj": "2d2d7a725289a1e932ca04eccda095b04c026c65a23823dc5541fd139f30d64c",
+    "base_9.obj": "17a2ab5669b1ef4566acf284c6e1d3caa3df1c16546b8206dd58759a3b33b6e8",
+    "base_10.obj": "66ff4f3f3dfada1e2636184e277317b8d6b8c1ee16f69a761ee6cde2fc0e5816",
+    "base_11.obj": "8d6a60ac96ca369e1845429f347c93ab61b045235431723a08b34f0a2f75e75c",
+    "base_12.obj": "744e5b066ffebdacd55b6fe1b68e836c9954e3d57643c7a1569eabafde5f54e1",
+    "base_13.obj": "9a61ccfb986a721ced9b50d0a75cf0408fdf36f0d0b8172d8e1602ab78dc2caf",
+    "base_14.obj": "7440d8babfadd63813c6014c826bc5769049213a07ae16bd75198f13fb33de85",
+    "base_15.obj": "aff5df4fa591f127ea8535b79e99a02e8a104b21bcbf89d19f4f562fb3e9902e",
+    "base_16.obj": "a1ae261b8b3b79cae010ea88d53991ba8413ab641c7df1f51204b7e0601fbd77",
+    "base_17.obj": "e7f7366cdaa3646eb6ef28cee6cadfce2db6921f6ab94b38b61fefe6d3247602",
+    "base_18.obj": "31ef77e3fef7f621160e696551899971a8d2ffa09e2e5015e36cfb5dde40628f",
+    "base_19.obj": "adb0a2f668aad1934082261621683122cda6042cb850861cdb3fa266df6e210a",
+    "base_20.obj": "d407204a1a576f3b5b61662e89dc472c5e3103f43c758ef2a7f0fd3ce88084c3",
+    "base_21.obj": "541399b828cd53c69db0c87e0652e219ce2286c2d9c45ab6e3d0ed6bed6e1350",
+    "base_22.obj": "046157b31f7dac6617aa7053c5265b128ae9dad0d8cce67094c9533eada646c0",
+    "base_23.obj": "6fb93b947035d6071647d4985b22a5963f7c7ff653cbf1dd6bfa50dcf18f1955",
+    "base_24.obj": "46c7798134d1d37f15b17bc25c3ac3cc10fa3b320a690d77f800bd044bbf04c0",
+    "base_25.obj": "954d6b2a140f7865544fa4f270623a3295a04239787e79eb9e793afa4f9130a3",
+    "base_26.obj": "3cd366c045206a748a5d32669d10d35188bc5a5d01d82283810c7b6d9c99ac7e",
+    "base_27.obj": "95c9cd3ed95a7484d7257ed7ee401f94e29a50f6f4adb174c5f5ecbfd616aee5",
+    "base_28.obj": "d2f7862f366de112510f76c386dfa9e6dda9a7350c50f8de7bed782fee203f8e",
+    "base_29.obj": "e48a3ec5283f2b0cd9ab980ccc6ac34b28f1ae82b9dfec5fcf4f085fc61e8ebe",
+    "base_30.obj": "e0d16b14306b473117b2ec4aae030edd0b46d813603b5eea4ce916e81fcd0820",
+    "base_31.obj": "ff5b0bd5037f8e59315ed9a44f9c812354790bfd22eb702aa8ecc9058422b17c",
+    "base_32.obj": "9f55347c74dc45d07eb3fbfe4d2b4103333b8089cd5fc580eeb779273f38cafe",
+    "base_33.obj": "bfc09dad775756c65114886f7523acb21fb798eed9d2d924adb48739f7eb36ce",
+    "base_34.obj": "c008569dc9ac473ed7e8386b0887f26ebd94382f2c4d872d4c5ca874b0f434a6",
+    "base_35.obj": "234e642180ddc070e6d933d4b470ee60d476b18fa9d3b1152b395476888c2b77",
+    "base_36.obj": "ee18a881b91c48202dbd5b79f8bc3c7cb677d2686df9f07fb451f9fc1643c953",
+    "base_37.obj": "525c4fdb40b2993d87f75e5f1eb09cc5453804f188fbac9bad7f450c63a1bb27",
+    "base_38.obj": "b4c71f0c3559d1faab9600b85f12a8e94d15c340d9026ee34ea0605eb3ceed2b",
+    "base_39.obj": "b9ae8cbf307c6d96d6775ffad0288eb931cf503d5a29753175eecc9ac448d458",
+    "shoulder_0.obj": "4bc8dc3fb5e65edbafacd33c7d1b0c7cc8d255cc418f288e69c2034bfde75e1d",
+    "shoulder_1.obj": "a76116f84f458b8c52a7b39941af3ee41adebed35ad389cc6dfbce426ce1b8f9",
+    "shoulder_2.obj": "5a772fe8c86834b689d64428cca14f4685724afb647698d7bd1b24f74e15f960",
+    "shoulder_3.obj": "a55790d387658a95e34d972dfdf959e8a041cf0b4bcff9c83ca7c229b62d3f91",
+    "shoulder_4.obj": "5c445aaed9a645ade6d666989dc72ba49b268c8a6c845495d3cd201702054a96",
+    "shoulder_5.obj": "16eca3c9363bccead99019634c9ec431dd8bbc8907b1d415a217d4dd9903ce06",
+    "shoulder_6.obj": "0f3cf294505ab0e76724d4dc62c88d0ff212f4b0d70c0e7dd7bb9243bb82c7c5",
+    "shoulder_7.obj": "89a11d838d6ed6e3a26daa3f288e483753d513efdb35aab7803a90f8fe6d5e42",
+    "shoulder_8.obj": "6f09460196fbe494a164bb2f278c53090434984653ca58994f5af3269f39f419",
+    "shoulder_9.obj": "014b6d359d86a91224e61e37c0a9c292ff295b1e58726382ea1586441f4ab10a",
+    "shoulder_10.obj": "331bda848c8109e240d5e64f7f416b932e7c030fa6a1112a0e5d7cecf672dd07",
+    "shoulder_11.obj": "546694eb351bea6242603973aa8d39fdc41e85ee59da47fd05c55d89781e2be6",
+    "shoulder_12.obj": "d4fccc621e2307a939d19b0cc320ddc7267b55880c516afb97722e35a2125e17",
+    "shoulder_13.obj": "c125a62328d41f4c018a839a16801573e4463df27c714fd3c830cf57407277f3",
+    "shoulder_14.obj": "231ed06316f48fbb48d6f2daf9ea4a06fef1be29c39607fdc3b266d21d2748a9",
+    "shoulder_15.obj": "6bdae0077f5985abf15490279954cc48e75359ed70cb5eb01e3ea3d219f23f56",
+    "shoulder_16.obj": "5261fe2c86ea8d7c37134c945f665cbd308ad2f6189df0aa8f9138da45be7fd6",
+    "shoulder_17.obj": "8368c4f87cc2d81561b10e6b7827f637083f80db84a45ad34c91ef43345872d5",
+    "shoulder_18.obj": "3ab11d991d9ce22e284e6fa14200e1832e625f7ca33633cd63ec2a3d454e940d",
+    "shoulder_19.obj": "a60a88225f7915ccce5a169e1cc44580bdfa0733f29a1233af66c6efd970fa75",
+    "shoulder_20.obj": "a099acf4b7099e794f63542b15baa2fd4d2f79731d6f1f030013667b63ff0bcd",
+    "shoulder_21.obj": "5b4cf59db841e4e84f50b401b1df73824125ca84e14508250fae0658c9b5bebe",
+    "shoulder_22.obj": "76f47ce8965165230a82b12c9e8dc014065ef353de5826cf1e5a244d59f9d187",
+    "shoulder_23.obj": "feaa8bfc0d96003e509e8667ac16e7f1df597fb73406d57b46b537aa825ee355",
+    "shoulder_24.obj": "4dedfc36d0b3c1749a3a18633babe1af105bee02853c8c1be893ae7885e26d03",
+    "shoulder_25.obj": "247d6cd86f231408cc8210810131e4de7c6777158c6bdff0e7a0eb76e2293f1e",
+    "shoulder_26.obj": "01844e32e4a8b798a33281601235af6c1ece4a57c0632750faceda42ca064c8b",
+    "shoulder_27.obj": "540fbcf7943a6f5a59719edf13a5586266a2f4146fabe325a9a7618d1dfca480",
+    "shoulder_28.obj": "8e45dfe1d0d711b9c847c5f027e67ee046d8289f23316a408c1586adbd66fd75",
+    "shoulder_29.obj": "810a8ec768657db2b969c48aa2c4a17f07828a93f4c4b88c28fb4c118cc78357",
+    "upper_arm_0.obj": "34729901102d2093575c2b9e6c060e2a34efb8fbf6b5a6958955f13b4e526832",
+    "upper_arm_1.obj": "2f0e268bf298f8ccb851b7631ec7c2d08729524dc3c3e6696368e54eaaf4db84",
+    "upper_arm_2.obj": "8a5a4c3fe3f0a44dbc6dcd6ad6f7aea1defa483d34679331fb982c37f097dec7",
+    "upper_arm_3.obj": "f0c95685aa208bd798b3c867be2a686c5796d8eeee51e4443195cda26d936a65",
+    "upper_arm_4.obj": "25700e9fc24a01404f382f847bc2f3b7a4b587ac41072d18fec8160959aaa3d1",
+    "upper_arm_5.obj": "cc8eea163fa7dcabf99a69024ec4b96395f2663c1173817dca6697e2dd524254",
+    "upper_arm_6.obj": "9daa6fd2dc8e1e1447397e6ffbee2ba84e1a40d79ce8c6ff6b7acd97cea15947",
+    "upper_arm_7.obj": "3218a3d730c8cddaf0c5f03c649bed62a6a544086b8a581a38c59d0d80b991c2",
+    "upper_arm_8.obj": "05b60c1dcabd85399106e424f91ec5d49b1172724aae66ad586f28bc788e1fdf",
+    "upper_arm_9.obj": "58c756670cbc6ac2aad0adecee12261aef5ea30d70fa1966a86311d5c8cedccd",
+    "upper_arm_10.obj": "da49839863a4c898ba6cdc20b22a4f881534c115b3d3e5369db4923efe27e302",
+    "upper_arm_11.obj": "0e95cce0c2b1a8d0dc1341d0bc9f44a9ab0fd45cd3b53b063aedb043e4a04a13",
+    "upper_arm_12.obj": "05bc27dbf3f7f0d8aa18efc6e38b749e42fe5839c5765a7877415b9e623cad26",
+    "upper_arm_13.obj": "a0246f8221cb017782f853dcbb24c19b55dab159c8a444aff14887257d6493a6",
+    "upper_arm_14.obj": "20829248a8f5688470ed0ab327280a90ab0fbedd57325f5c1ddd4e27f3e9e98a",
+    "upper_arm_15.obj": "952fd6ff7daa4f80de8e0847a194a13b26f7691d84bd30ed70465bd0137fb775",
+    "upper_arm_16.obj": "0f01390fe188ad788e316448d0140105a29e9ae4790b824692fefd768143dffc",
+    "upper_arm_17.obj": "3cf23ec4de1e84d4e567facc9b7a34570175057cde18311f4e0951c27fef8308",
+    "upper_arm_18.obj": "3309fcd1902214787e3b20e1797d9a67c458649a36be78f176242ed91ea22d8f",
+    "upper_arm_19.obj": "7764475bcb496adc5d81cdd93bd635a051c22f3b588733b1b2fe2484bf22a41f",
+    "lower_arm_0.obj": "18c33a37dbad4d0f682ca3909434b5c064c7f197fbf50f663b64bd8a7b1a6ead",
+    "lower_arm_1.obj": "87540c7f2a319dccd64c2e9ab3822e93d8c73f5ffb784d5adca543c4cb441f55",
+    "lower_arm_2.obj": "c83878aed47d3cb62037b52d0f5d85efe25f768232060dc24cced6f6e70344ff",
+    "lower_arm_3.obj": "005e79c2d2101ac8ce63a2e3739d6c37a482e9b07521a68ba96c02d5a555e524",
+    "lower_arm_4.obj": "17729ce3459e4a42aa3814bd4ecfc532ad774fdf017787d6c79f3f99f1fa456e",
+    "lower_arm_5.obj": "64165e412d353707c563a40aa3459a3fad326f6ba5e95e5cb97277c6b7e60c3d",
+    "lower_arm_6.obj": "5a7806baaf7c0f2bbefb14955afdfb0de2b88833db61d7366f6b39ecd2d1f307",
+    "lower_arm_7.obj": "47641d5c6a9c199b77109999b86d28bff0978886342f53d3aa3ad0f69c34f53d",
+    "lower_arm_8.obj": "94f3c1cbb3afca2ab6417cb62aca26619ba30b445b0fb1ac8e971c2886aa2e02",
+    "lower_arm_9.obj": "c1e86f62e131ea7ac0ab627f36312a0b8654f0ec0a50188104fac252e2fea6ed",
+    "lower_arm_10.obj": "6536c42dc26c28b259cf4cb6b6e3363d65ccf333470a9cb1337dce8ac8ab545a",
+    "lower_arm_11.obj": "b989b2fdaf476be03687a6fc534ccae01c49d8c7c36bd4462c08a3416a1cef2c",
+    "lower_arm_12.obj": "d2074ccc4c2a96025bf7f1d550c2abc0c802820afb38df094469587668822d32",
+    "lower_arm_13.obj": "847983dbe0b157c091d99a2c4bb345e263da2c857467ac8772d06eedd448c5eb",
+    "lower_arm_14.obj": "5c120af86567c4ed92e63f53416880fc5f8632faf99b2679a392d73c08c50ff3",
+    "lower_arm_15.obj": "e1ec60d9d7629c3152b6406df0849d276c2f5743b3eb6be71245e1a3470d423b",
+    "lower_arm_16.obj": "7812cdb334285ea755102937bba378c9d4b9584dd930f5b135cda5018d0b73ef",
+    "lower_arm_17.obj": "8b2f51ff5ad317e767765ee36d8d38cb172f8878cf1ef58a9103cafe2d5d7649",
+    "lower_arm_18.obj": "b139cf7354cdbc7f73ea3a3b83f3c439d00fdbe7704d425d573c00f76a96bd4a",
+    "lower_arm_19.obj": "9740cdee8240167778bbfbcec6beafe694bd7152674634b8275389f171011631",
+    "lower_arm_20.obj": "4d00c68686b62a734eb1f21b1e17587a34fd63d6e9caaa6b6580ae4acca167d7",
+    "lower_arm_21.obj": "22895fe920f7db4f1e87e844e6a86b7630f572d0ad5ccc0130940785610ade5b",
+    "lower_arm_22.obj": "d7e6c65e1a6097ef639c0c1e62b1bf6bb6fe8da6321094d295ab5ced897107f9",
+    "lower_arm_23.obj": "4a74b5fd1efd97c2068b5fee0e1740543355694ca46012b1406acf3a54d51395",
+    "lower_arm_24.obj": "168d46770e3913e4ae80e1539fb5ef21b86a74d153afa4384c0e179ab3781350",
+    "lower_arm_25.obj": "7cd42f1ec71adcdc1b4970ee75ad851722ba317a6040ca9addbbeb60eb10175a",
+    "lower_arm_26.obj": "523a4d7be53fa4323c61a97e072feaccdfbd8d1768d2af4eaeb48566e2d5ffe9",
+    "lower_arm_27.obj": "e6c6ef4e60b87a95d48596a0f22d32ddb59d1fc3dd16ddb5bda4566431d99be2",
+    "lower_arm_28.obj": "3b7f85e82ce647e2d26e40416282a66e43ede9a1b3473f9447e85b5f59b85159",
+    "lower_arm_29.obj": "71a33af1693937e6f2fa117b38911e28412e74aeddfca092192f4f891f1c626e",
+    "wrist_0.obj": "0485061296df6295d4cb7e8521cd5c226270ed4686046c66da95f333404a8a92",
+    "wrist_1.obj": "3359a8358cefb1fb15b8473429268dcc4cef0f9663475700ba83fc63ff4a9c18",
+    "wrist_2.obj": "ee234c89f5dcbe92a54620504f025bff344174a001547430895119ba8b899f8e",
+    "wrist_3.obj": "b531cb0de191dc140a553067a0500ae6a585a191748bd358cb0b6ed4c6919517",
+    "wrist_4.obj": "ae9627ea3d92dad37b7cde1089416efbf85d79bda9c35444c7acb9dadeb1b673",
+    "wrist_5.obj": "a96e679fe62884928a42ea2d2170f891013fb8e5d6dfd98b77507777a0596770",
+    "wrist_6.obj": "55e16594b8d8942012c03a63cfa3032df465cae4a6b84c06f63afaf6f9c11a0e",
+    "wrist_7.obj": "c012e6e15002918a56059ab7a10b5e257378d43369a2abc1c90f473d47b83966",
+    "wrist_8.obj": "c1a097a9eac0d4740f82b721c9f070b5b9fb80f1e5d405ab67d87b766b10d1e6",
+    "wrist_9.obj": "5f6de9a0ee725a02a2be820b0a2ae2bb5df9c3ae121d652b482edaa3123cd4df",
+    "wrist_10.obj": "6c85947e243479e81d4255fe84f9902f1d55dd586a4c654adca9fc8c0d6bb632",
+    "wrist_11.obj": "94956e0544724d030ccef4ebc58a8accdbbc74aba1623cb8c813121550d586b8",
+    "wrist_12.obj": "97cdd2fea158a2af9f9a76d1ea0ab0fcc5041d8320cb6ed57d50507bb5c2b128",
+    "wrist_13.obj": "c4a205f44d3456990f2ded8dcde135d5b7c845f1822deddbcdd9b75d55b81b83",
+    "wrist_14.obj": "2433895b88425791351131d7289f647e82fa7f9f489a4022d64010acc39c9bee",
+    "wrist_15.obj": "5ef29748a8a6cc00297a6053a566c70b594e876589086a5c0f6a0144785b3728",
+    "wrist_16.obj": "271377dea2568181ed387b95e53062e03f6e22343d234f3eec4dbba9838f5648",
+    "wrist_17.obj": "b4453bacdb236b758d914645bd7f3c562104371364e008476359583f13173db5",
+    "wrist_18.obj": "db2cd5652c7ce54419cf1332967e41ce035cf9dba2ece2603b81bc1158f77a9c",
+    "wrist_19.obj": "f8d10792ee52d90f04acad13ef992ef728b440b38743623115942eae8b7e12f5",
+    "gripper_0.obj": "955acbc32dce9d8298b591b19ca3dfdf682479a6e3ab70c6285533a0190fd235",
+    "gripper_1.obj": "b9a4ae5577fe72d608a54f667055f7cd899df702f235640f90e7797f803aaae2",
+    "gripper_2.obj": "551816305235404d85deb749832f2a2bb340e41199051295e1da11a2b2b7f568",
+    "gripper_3.obj": "53dd45e3e4527bfb1dbd96bb30d7d277117a49ad58cdb9177791c9b99cf23f76",
+    "gripper_4.obj": "1c6e0fd637fe722ea36ecea98527922cc009f159a2a82d9bd9d1e9c1f7c65f30",
+    "gripper_5.obj": "5b1459d0cbb3ac47bdbca8e9aab3df03974cabdd0d62a0723825bd3c37fa0cd2",
+    "gripper_6.obj": "29a8060de4587120bb535a4cf63cc21bfec3e420671a70be8f005d2ee438b586",
+    "gripper_7.obj": "1f3ba3aa8fbebdebf1808d344d3d5612f9cc9a28de796bbde1abf77d1f2a99ab",
+    "gripper_8.obj": "8c58728287b4d2ca4f46704f8725455193bb40b903af62cd9dbb3787afcbade2",
+    "gripper_9.obj": "39b080f75a4caf997932efc780121eb5af7f56da774e149dcc3ddf11a061d087",
+    "gripper_10.obj": "80fadcfd14dbd9ed96c26445522916bddd75a139a22b5cf236bbbdb1b7632367",
+    "gripper_11.obj": "61a4d3a0b33a94199d0cff756da47c991c32c8eb8ae3fe6230b7d1e828b97d54",
+    "gripper_12.obj": "a9ad3e44fddce0ff524f1f08782f07e0d653de2a653e35600acb016527f1264e",
+    "gripper_13.obj": "982166e31f3e0b0b99fa227ffa52b803e7cd1d06453055aeb96f77b03b53278e",
+    "gripper_14.obj": "1010d228a4e9345dd0f9ff5ea924c7d1d9ff00234ffae07a0171639f400bfc8a",
+    "gripper_15.obj": "42704d92caf5e0d82e212a10cb1f3832492d8d65de9a111f9f409a6ff0bb6764",
+    "gripper_16.obj": "5f9974a9727f0d71ee5db8fcc55621a65dca36f56c778e96bebc443b2d2c6bfa",
+    "gripper_17.obj": "d0d420ab5fd89ac9942ea9037a5114b28dff0797a544a5ab46eb5c4de1eb3480",
+    "gripper_18.obj": "aa7590907f9b01e52a8aa6eb5dc10f852cc08c71ac57a19b7cc71d43b50a0635",
+    "gripper_19.obj": "26b2cfb7cb8ec516a338e1ddef427cfcb8a24f1c80bbb54a96a0b60cdebd3a2d",
+    "gripper_20.obj": "fe7e94dbd786c7acf754834c345166836e484e48ed21f77b0e7f6661eba6ffeb",
+    "gripper_21.obj": "be84d7a6e57fed6073ab4c04667b10a6e899fff530d7f7376c9611adc18cfad2",
+    "gripper_22.obj": "2681cc6a4c7f7f2c36982bde3b364c8bc44d16497c44b77215a16a7557a1b1b6",
+    "gripper_23.obj": "926792a6dc5cc84405364aca93cd97fa03f30c10549329f6cd560fae9f25d228",
+    "gripper_24.obj": "d4fa2e72cfe28f3107da5068cf9e61f69485c314e4301eda17947639edd90576",
+    "gripper_25.obj": "def2f84f11df90ec0ac9071c7941e22a36af639e910e5e99a26eb68e3407b1a6",
+    "gripper_26.obj": "49a3f020bdfa8337695f86dc84f22c2fc87babb93f40ae1388c238425a6d2071",
+    "gripper_27.obj": "324af5f3e91ebcc183df1fe72a74995941e3c50f4af4d3b24f4d31df31bd8775",
+    "gripper_28.obj": "0500ce8759da1db6da0221b59e5b673a374dfefadf5341aff11b5ff4b25ac7c6",
+    "gripper_29.obj": "ea5a3d1c0d819ca59786b28b14078c0981e732d8ed6eb6ecc017aa7506a05da3",
+    "gripper_30.obj": "852c82a86772804b8ff9a1221b84c73772cdd7f1aca683f3f2da475c61ca3688",
+    "gripper_31.obj": "052e306ce83c28ca770874db11c2364a746a411cedc4e83a688949c9fbcb3004",
+    "gripper_32.obj": "f1ca1fef643a418fab9a6cc2ceb49c12389c135576c9190bcb314cc147c245ea",
+    "gripper_33.obj": "65b12edb601b099ae00c5bb9f287ab1a7ea3a6a41ae7475ef35d2d5bd74f3e05",
+    "gripper_34.obj": "0a68bbc151b7395d630768b5672d3f141a6db97e4d762644b5d027fb7f8c873f",
+    "gripper_35.obj": "59f3be6847ece673be3b63870a4cdbefcba33b3879ed527b33d52236a731201c",
+    "gripper_36.obj": "4f725cbb4b877bf27118a7920b2a70bd76432b4a8094f0f86145be5b439f6b0c",
+    "gripper_37.obj": "3f2e91a047ab4b6061ffc3e964aec10afa1702213615f3d96bbf0ff080d03f93",
+    "gripper_38.obj": "8cc201f9da9c4f0911457fa1e6552a0cb20037b9a1d64f2558b532ff5b4219a2",
+    "gripper_39.obj": "5c939ef8f128820a30cab1607e342454ae1ef1c92e65affb58c33cb5a3088626",
+    "gripper_40.obj": "921f78a94edb752cc40c33841acf00f8003dbcb9e97e3369f155d38d6ff451a3",
+    "gripper_41.obj": "223102675cb152cac13be45a9d343122a30e1585cfe4dbcd5341e835ba37d92b",
+    "gripper_42.obj": "f953f3927e3ca7321a7ab4111d56cceca2dcb54ca9d1eed1c529a6de3bf56425",
+    "gripper_43.obj": "9275f82ad5fbfce48ea853d34db36cd4906bf9066983e94661ce4b9de6bd4dff",
+    "gripper_44.obj": "c5d9e176018887bc6d5d2dc21566728ec30c3072e366b091040017c3c7c04b84",
+    "gripper_45.obj": "9d3cee5e7133cf7f2ff5e83b677b3d07a5d9c17be635b3ff63f9311c61412133",
+    "gripper_46.obj": "2e724743dfbd918f495212695f3409234437cb9d660495d2a8b8a2fd0421b7a7",
+    "gripper_47.obj": "9c9ccced381f982674ca5db359a35c365f1a96be5427e5e6635ed4bca0f7fe6d",
+    "gripper_48.obj": "bd9c1db25c61e9f0e5e0982c1766be9454381d66673037c8dea35aa57ddee78d",
+    "gripper_49.obj": "06faa9e11bf3a31ac3d8389e3c5ca8d8f5a5147140b6f220cef1972ee77ea4f1",
+    "gripper_50.obj": "0512da1b831744c19a9a467e3267e28528d2818d242c83f2a7d6f8081eaee4cc",
+    "gripper_51.obj": "5e25fbb53aad3b400300dd599dd99acf5b42a2460cb6fffbd451e50b18986cac",
+    "gripper_52.obj": "6320ab73d6057c64ff923aee7f3e99d1b14c40a87d9918134ed0eeaf63dd6f90",
+    "gripper_53.obj": "2bef76fc7a7d1ea03c0572457ddcae80af9ca642c4cf79d390d31d73f3da0048",
+    "gripper_54.obj": "6e69c59a6dfb7dc4a5923b7fdbc45c96bbd4ec0c0ed7ce6398ecbc1c08716131",
+    "gripper_55.obj": "7336bb8e128100ffb0fb0ff78961c456d69eab6bdee263fb42e0147192da17b0",
+    "gripper_56.obj": "d5cf4c35b74e245edf0e014a8975871fdc5f8dee916af290164ab5afca89eb34",
+    "gripper_57.obj": "06a849a45b52af5a39d39e44f84778831dbdd85c1bf914903012631e009b8f30",
+    "gripper_58.obj": "138e942667ceef40d4f2c939e9f600d96158e7070c7f0e678b4508dcae4e1e94",
+    "gripper_59.obj": "c9f529293b8fa2ac411b51c2899216098ca22a99737994c9da2a17b68988cb0c",
+    "gripper_60.obj": "6253b95dfc37fb1eccaa71d988c2bd3910bf580a6b13f108152d6cb80d5d05e0",
+    "gripper_61.obj": "3ced42f2587d771569399dd7f2da24bb909959697b0874a05264cb124f3c723d",
+    "gripper_62.obj": "d5b0e08cbb26f66882a64099e6462e5af2a2fcd0a4edbeaa4fbe374632829d2f",
+    "gripper_63.obj": "8896241b08d0b38d774f27ee12661dfc4df144a7d3b60778f133115b95443001",
+    "gripper_64.obj": "1e4d38db0108c209ab526da1d50210ba1f73683255b6f4ae6a414b2b399731d0",
+    "gripper_65.obj": "929e69da27592eb3b394c7d197aed8ccc66404c03385217abea2558f5fb54c76",
+    "gripper_66.obj": "343ebff5fc246afed7dc0fb7cb5c12b98c5e9e8d6de0e7515703a1610b57fa2f",
+    "gripper_67.obj": "3e83b618a29a722a994ed7e7223e55fa12cc043ada312e3315a1bbac11e261bd",
+    "gripper_68.obj": "ac9c6d718b46510703fe34a3abc0fca019ab9e891f29bbad8f4cc9d89c73fb40",
+    "gripper_69.obj": "e43ba2d811e4175ea6bca6c553165dfd6b2964edb6bbd1773efbd10706f7f793",
+    "jaw_0.obj": "ce658cdffdb39d363fb52ff1f6b5c0b5ef1fb361a252e5aa8797a32e7857a441",
+    "jaw_1.obj": "8b2bbae94e5ad8f881eaecbb66c21c797120b5e7bc00c21e6bc9dc8cd9dc9ac1",
+    "jaw_2.obj": "852e7f83293a5e02b555eb64144318fa5397ea7476138ac44a8ce5cedd74d549",
+    "jaw_3.obj": "ef62a43ce3b7c31efd389ec10d4777d527f883e4e48a2a0b39d2e1cf66f45546",
+    "jaw_4.obj": "92233e8d8d8e410d1719b13cb0347b7c5a70c3c342ffa0b1083ed66128c873cf",
+    "jaw_5.obj": "296a0a34f93506622acb0e8bf781aad3620f1ecfeb6a72e0714238bd2add8b0e",
+    "jaw_6.obj": "7f29ee86007cd7d2796c8b99b410d2b752fb59b04ed9cfbb84f73d7a89ef6f30",
+    "jaw_7.obj": "218746d3fb5ad22c383dae9c2d9a1fbc3f16129e9fcd179cae4990fd12eae0a1",
+    "jaw_8.obj": "6b0917620214c15eed7ac80cb8de886db27c0534346d9ce15d401e0519726a27",
+    "jaw_9.obj": "e4274672e4235554d5c4afdaaa002907b95484920cb393912d23e90879ea756f",
+    "jaw_10.obj": "bd153554b4dd7b5e5ffb709bfd68b03ee40d01156bf391543da393ca87bba55c",
+    "jaw_11.obj": "bf272f41ebe164aa3d9a8940f0cd85220bd9ecf4b37c42eecc660333984135a5",
+    "jaw_12.obj": "e229499ad564d138187274f7b6bc491b0ccce592f60ba799dc8517bc4bd1149b",
+    "jaw_13.obj": "634ca96547620b8bc65135199534a12ed2f14a385e291d217321fda1670cd5d4",
+    "jaw_14.obj": "88545e8587a3615da2e48bbc2b1fc37ea5b9a46695db060480681a7287ee5d76",
+    "jaw_15.obj": "56da72c7f339d3bf91b675cd2f4f0db68165a52c5f3071970624c450543ddc4a",
+    "jaw_16.obj": "26b26bfb4e5d7cdc38977d0a6a3d3a9fbaa18e961ccebaaa5d50c022e1832130",
+    "jaw_17.obj": "f4d65691b6e16f3c95d325b97e6675d5b2255791f5ca10b37d40102da5bbc52f",
+    "jaw_18.obj": "e0a4972e3c472436d8b515fe5d1b340b384f4e67d78d6864a9be98587fed507e",
+    "jaw_19.obj": "e0700102d3a149b05fc04effb6077905070b9a41abfca022afafc71728dec2a5",
+    "jaw_20.obj": "d691fbbf38a57e81270c121d90596e4ec559ee666de7d80b04f8674110176840",
+    "jaw_21.obj": "ebdf7839b7e2f17180e5a412b2be4ea75af1ea274e131e2a9a1783b897552de3",
+    "jaw_22.obj": "2c74f8fc003972619be305fb87318a3cee92dbebe72c4a92f96edac46d301271",
+    "jaw_23.obj": "ca483a9d3e591057046393862f75bb84a448497feb0892a1f1622a1a7e14e1c5"
+   }
+  },
+  "finger_sections": {
+   "path": "/home/harry/twinfactory_data/assets/legacy-20260923/robot/finger_collision",
+   "files_sha256": {
+    "gripper_tip_0.obj": "ad1b3e4a0119538342442dbf393c3256e3f61e4423c6f820bd730ca5b0cbd4bd",
+    "gripper_tip_1.obj": "41edb01f4cd735e576de8b363cd72e04b111b9ac4996428f4ad2f1d162315bf9",
+    "gripper_tip_2.obj": "58d6fd4e156616555d144bade3877aeeaf6b6edd2057347e0ab68d576646f045",
+    "gripper_tip_3.obj": "0bdbef67bd8bb6a9554c276faaa9748560d12160d6c25154812de917c59787ec",
+    "gripper_tip_4.obj": "a081e26f031896a642066c8e8bb0b6294d523c7d8a0915722ca42a0f5148af23",
+    "gripper_tip_5.obj": "ba4e8ac22e25c50715cea814c3e69b64efac37008a152caef1f1bd04dba1d8c8",
+    "gripper_tip_6.obj": "35aab47c30458f410aa43a72f6607e41b0f191870ec9a40c4eb78fa86475602d",
+    "gripper_tip_7.obj": "3500b6a8e15b95b3fb3e3bada4f9b6dcacc3efcce16aac131006beb17ce7716a",
+    "gripper_upper.obj": "47ad722b683b5f27eb346acb55a54b133fff95b71835ace0724f856d55bd2926",
+    "jaw_tip_0.obj": "bd81d84363f9d7315db0ea9273f5d184507178a018e034a4be974a4aef0b3669",
+    "jaw_tip_1.obj": "a1501450dd558d908bc50a7fdaaf897d967555059ba80b890d3852db98e9c8f8",
+    "jaw_tip_2.obj": "85e80ee3d7cb185073144f7cfef4984eb113ea819bf5ab20589778b2f7ab2f2d",
+    "jaw_tip_3.obj": "496b8a9deb345ce6373fc5e21bb8a0caa9e9ebb1901dc9508b728f8d81c4fe96",
+    "jaw_upper.obj": "cc27b8679bd44993fa8ea6a151058e3123be11f949de5a7e0d198cd170c10133"
+   },
+   "fit_report": {
+    "gripper": {
+     "cut_axis": 2,
+     "cut_m": -0.065,
+     "original_triangles": 4262,
+     "sections": 4,
+     "tip_hull_vertices": [
+      58,
+      63,
+      56,
+      60,
+      49,
+      48,
+      46,
+      52
+     ],
+     "surface_fit_max_m": 0.0015780874846853584,
+     "surface_fit_p95_m": 0.0008916081269445781,
+     "note": "distance from sampled exposed hull surface to CAD tip, excluding internal cut cap"
+    },
+    "jaw": {
+     "cut_axis": 1,
+     "cut_m": -0.04,
+     "original_triangles": 4365,
+     "sections": 4,
+     "tip_hull_vertices": [
+      292,
+      174,
+      161,
+      101
+     ],
+     "surface_fit_max_m": 0.0006650274535602713,
+     "surface_fit_p95_m": 0.00010991777047168021,
+     "note": "distance from sampled exposed hull surface to CAD tip, excluding internal cut cap"
+    }
+   }
+  }
+ },
+ "root_link": "base",
+ "link_order": [
+  "base",
+  "shoulder",
+  "upper_arm",
+  "lower_arm",
+  "wrist",
+  "gripper",
+  "jaw"
+ ],
+ "joint_order": [
+  "Rotation",
+  "Pitch",
+  "Elbow",
+  "Wrist_Pitch",
+  "Wrist_Roll",
+  "Jaw"
+ ],
+ "joint_names": [
+  "shoulder_pan",
+  "shoulder_lift",
+  "elbow_flex",
+  "wrist_flex",
+  "wrist_roll",
+  "gripper"
+ ],
+ "links": {
+  "base": {
+   "mass": 0.1469999998807907,
+   "com_link_frame": [
+    0.020739,
+    0.00204287,
+    0.065966003
+   ],
+   "inertia_principal_diag": [
+    0.000136126881,
+    0.000113232854,
+    0.000131807275
+   ],
+   "inertia_principal_axes_quat_wxyz": [
+    0.989982843,
+    0.140759736,
+    0.002516437,
+    0.010700981
+   ],
+   "inertia_about_com_link_frame": [
+    [
+     0.000136117003,
+     4.59787e-07,
+     9.7527e-08
+    ],
+    [
+     4.59787e-07,
+     0.000114686011,
+     -4.971507e-06
+    ],
+    [
+     9.7527e-08,
+     -4.971507e-06,
+     0.000130363997
+    ]
+   ],
+   "pose_in_root": {
+    "pos": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "quat_wxyz": [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  "shoulder": {
+   "mass": 0.10000599920749664,
+   "com_link_frame": [
+    -0.0307604,
+    -1.6673e-05,
+    -0.0252713
+   ],
+   "inertia_principal_diag": [
+    8.3783547e-05,
+    8.1038808e-05,
+    2.3955239e-05
+   ],
+   "inertia_principal_axes_quat_wxyz": [
+    0.999864578,
+    0.001495678,
+    0.009708396,
+    0.013204301
+   ],
+   "inertia_about_com_link_frame": [
+    [
+     8.3758996e-05,
+     7.5552e-08,
+     -1.16342e-06
+    ],
+    [
+     7.5552e-08,
+     8.1040299e-05,
+     1.54663e-07
+    ],
+    [
+     -1.16342e-06,
+     1.54663e-07,
+     2.3978299e-05
+    ]
+   ],
+   "pose_in_root": {
+    "pos": [
+     0.02079089917242527,
+     -0.023074500262737274,
+     0.09488169848918915
+    ],
+    "quat_wxyz": [
+     8.963205005486033e-07,
+     -0.7071054996849878,
+     -0.7071080626846488,
+     8.963237181228807e-07
+    ]
+   }
+  },
+  "upper_arm": {
+   "mass": 0.10300000011920929,
+   "com_link_frame": [
+    -0.089847103,
+    -0.00838224,
+    0.0184089
+   ],
+   "inertia_principal_diag": [
+    3.7245056e-05,
+    0.000150873166,
+    0.000142486999
+   ],
+   "inertia_principal_axes_quat_wxyz": [
+    0.996049702,
+    0.000963897,
+    -9.5703e-05,
+    0.08879216
+   ],
+   "inertia_about_com_link_frame": [
+    [
+     4.0800206e-05,
+     -1.9781918e-05,
+     -4.0302e-08
+    ],
+    [
+     -1.9781918e-05,
+     0.000147317999,
+     8.973e-09
+    ],
+    [
+     -4.0302e-08,
+     8.973e-09,
+     0.000142487015
+    ]
+   ],
+   "pose_in_root": {
+    "pos": [
+     0.0025133490562438965,
+     -0.05347376689314842,
+     0.149081751704216
+    ],
+    "quat_wxyz": [
+     0.7071058750152588,
+     -3.845625935185467e-06,
+     0.7071076873450565,
+     1.2814996904671313e-06
+    ]
+   }
+  },
+  "lower_arm": {
+   "mass": 0.10400000214576721,
+   "com_link_frame": [
+    -0.0980701,
+    0.00324376,
+    0.018283101
+   ],
+   "inertia_principal_diag": [
+    2.8312459e-05,
+    0.000160261712,
+    0.000145303638
+   ],
+   "inertia_principal_axes_quat_wxyz": [
+    0.999589026,
+    0.000893283,
+    0.005383117,
+    -0.028146055
+   ],
+   "inertia_about_com_link_frame": [
+    [
+     2.8743802e-05,
+     7.411522e-06,
+     1.26409e-06
+    ],
+    [
+     7.411522e-06,
+     0.000159844012,
+     -4.9019e-08
+    ],
+    [
+     1.26409e-06,
+     -4.9019e-08,
+     0.000145289995
+    ]
+   ],
+   "pose_in_root": {
+    "pos": [
+     0.00251384056173265,
+     -0.08147336542606354,
+     0.261651873588562
+    ],
+    "quat_wxyz": [
+     0.4999975860118869,
+     0.49999881783665084,
+     0.500002483521722,
+     0.5000011126151098
+    ]
+   }
+  },
+  "wrist": {
+   "mass": 0.07900000363588333,
+   "com_link_frame": [
+    -0.000103312,
+    -0.038614299,
+    0.0281156
+   ],
+   "inertia_principal_diag": [
+    3.6826477e-05,
+    2.7447379e-05,
+    1.8943445e-05
+   ],
+   "inertia_principal_axes_quat_wxyz": [
+    0.967143476,
+    0.254226208,
+    0.001622262,
+    -0.000146307
+   ],
+   "inertia_about_com_link_frame": [
+    [
+     3.6826298e-05,
+     1.7893e-08,
+     -5.2813e-08
+    ],
+    [
+     1.7893e-08,
+     2.5391003e-05,
+     3.641199e-06
+    ],
+    [
+     -5.2813e-08,
+     3.641199e-06,
+     2.1e-05
+    ]
+   ],
+   "pose_in_root": {
+    "pos": [
+     0.002514801686629653,
+     -0.21637339890003204,
+     0.26685187220573425
+    ],
+    "quat_wxyz": [
+     0.7071059346199036,
+     -3.874300736627156e-06,
+     0.7071076277404564,
+     1.2516971610641583e-06
+    ]
+   }
+  },
+  "gripper": {
+   "mass": 0.08699999749660492,
+   "com_link_frame": [
+    0.000213627,
+    0.000245138,
+    -0.025187001
+   ],
+   "inertia_principal_diag": [
+    2.4283923e-05,
+    4.3373493e-05,
+    3.7722883e-05
+   ],
+   "inertia_principal_axes_quat_wxyz": [
+    0.967425048,
+    0.008077622,
+    -0.252801955,
+    0.010714625
+   ],
+   "inertia_about_com_link_frame": [
+    [
+     2.75087e-05,
+     -3.35244e-07,
+     -5.735198e-06
+    ],
+    [
+     -3.35244e-07,
+     4.33657e-05,
+     -5.1787e-08
+    ],
+    [
+     -5.735198e-06,
+     -5.1787e-08,
+     3.4505899e-05
+    ]
+   ],
+   "pose_in_root": {
+    "pos": [
+     0.02061525173485279,
+     -0.2774733006954193,
+     0.2668520510196686
+    ],
+    "quat_wxyz": [
+     0.5000019669532776,
+     -0.4999995231489553,
+     -0.5000035166592031,
+     -0.4999949931970328
+    ]
+   }
+  },
+  "jaw": {
+   "mass": 0.012000000104308128,
+   "com_link_frame": [
+    -0.00157495,
+    -0.0300244,
+    0.0192755
+   ],
+   "inertia_principal_diag": [
+    6.635825e-06,
+    1.865226e-06,
+    5.29092e-06
+   ],
+   "inertia_principal_axes_quat_wxyz": [
+    0.999304652,
+    0.016051318,
+    -0.0010975,
+    -0.033638127
+   ],
+   "inertia_about_com_link_frame": [
+    [
+     6.614271e-06,
+     -3.19807e-07,
+     -5.907e-09
+    ],
+    [
+     -3.19807e-07,
+     1.89032e-06,
+     -1.09945e-07
+    ],
+    [
+     -5.907e-09,
+     -1.09945e-07,
+     5.28738e-06
+    ]
+   ],
+   "pose_in_root": {
+    "pos": [
+     0.03941557556390762,
+     -0.3008729815483093,
+     0.2870521545410156
+    ],
+    "quat_wxyz": [
+     0.7071079611778259,
+     2.920626462799713e-06,
+     -0.7071056011495704,
+     7.30156615710863e-06
+    ]
+   }
+  }
+ },
+ "joints": {
+  "Rotation": {
+   "name": "shoulder_pan",
+   "parent": "base",
+   "child": "shoulder",
+   "frame_in_parent": {
+    "pos": [
+     0.020790899,
+     -0.0230745,
+     0.094881698
+    ],
+    "quat_wxyz": [
+     -8.96e-07,
+     0.707105517,
+     0.70710808,
+     -8.96e-07
+    ]
+   },
+   "frame_in_child": {
+    "pos": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "quat_wxyz": [
+     1.0,
+     -0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "limits_rad": [
+    -1.919859913506836,
+    1.919859913506836
+   ],
+   "limits_deg_authored": [
+    -109.99987030029297,
+    109.99987030029297
+   ]
+  },
+  "Pitch": {
+   "name": "shoulder_lift",
+   "parent": "shoulder",
+   "child": "upper_arm",
+   "frame_in_parent": {
+    "pos": [
+     -0.0303992,
+     -0.018277798,
+     -0.054200009
+    ],
+    "quat_wxyz": [
+     -0.499998182,
+     0.49999997,
+     0.5,
+     0.500001788
+    ]
+   },
+   "frame_in_child": {
+    "pos": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "quat_wxyz": [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "limits_rad": [
+    -1.745329917784602,
+    1.745329917784602
+   ],
+   "limits_deg_authored": [
+    -100.00003814697266,
+    100.00003814697266
+   ]
+  },
+  "Elbow": {
+   "name": "elbow_flex",
+   "parent": "upper_arm",
+   "child": "lower_arm",
+   "frame_in_parent": {
+    "pos": [
+     -0.112570018,
+     -0.028000006,
+     -0.0
+    ],
+    "quat_wxyz": [
+     0.707105577,
+     3.8e-08,
+     -3e-09,
+     0.707108021
+    ]
+   },
+   "frame_in_child": {
+    "pos": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "quat_wxyz": [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "limits_rad": [
+    -1.745329917784602,
+    1.5707999220623683
+   ],
+   "limits_deg_authored": [
+    -100.00003814697266,
+    90.00020599365234
+   ]
+  },
+  "Wrist_Pitch": {
+   "name": "wrist_flex",
+   "parent": "lower_arm",
+   "child": "wrist",
+   "frame_in_parent": {
+    "pos": [
+     -0.134900033,
+     0.00519998,
+     -2.3e-08
+    ],
+    "quat_wxyz": [
+     -0.707105517,
+     1.05e-07,
+     4.9e-08,
+     0.707108021
+    ]
+   },
+   "frame_in_child": {
+    "pos": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "quat_wxyz": [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "limits_rad": [
+    -1.658059859917414,
+    1.658059859917414
+   ],
+   "limits_deg_authored": [
+    -94.99983215332031,
+    94.99983215332031
+   ]
+  },
+  "Wrist_Roll": {
+   "name": "wrist_roll",
+   "parent": "wrist",
+   "child": "gripper",
+   "frame_in_parent": {
+    "pos": [
+     4e-09,
+     -0.061100032,
+     0.018100007
+    ],
+    "quat_wxyz": [
+     6.15e-07,
+     1.029e-06,
+     0.70710808,
+     0.707105458
+    ]
+   },
+   "frame_in_child": {
+    "pos": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "quat_wxyz": [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "limits_rad": [
+    -2.7925299989842354,
+    2.7925299989842354
+   ],
+   "limits_deg_authored": [
+    -160.00018310546875,
+    160.00018310546875
+   ]
+  },
+  "Jaw": {
+   "name": "gripper",
+   "parent": "gripper",
+   "child": "jaw",
+   "frame_in_parent": {
+    "pos": [
+     0.020200018,
+     0.018800007,
+     -0.023400011
+    ],
+    "quat_wxyz": [
+     0.707105517,
+     0.707108021,
+     6.3e-08,
+     1.69e-07
+    ]
+   },
+   "frame_in_child": {
+    "pos": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "quat_wxyz": [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "limits_rad": [
+    -0.1745329917784602,
+    1.745329917784602
+   ],
+   "limits_deg_authored": [
+    -10.000003814697266,
+    100.00003814697266
+   ]
+  }
+ },
+ "root_in_isaac_env0": {
+  "pos": [
+   -0.05,
+   0.0,
+   0.0
+  ],
+  "quat_wxyz": [
+   0.707106781,
+   0.0,
+   0.0,
+   0.707106781
+  ]
+ },
+ "table_top_z_root_m": 0.03008145,
+ "tcp": {
+  "link": "gripper",
+  "pos_m": [
+   0.0097,
+   0.0,
+   -0.0951
+  ]
+ },
+ "actuator": {
+  "kp": [
+   55.0,
+   30.0,
+   25.0,
+   12.0,
+   7.0,
+   4.0
+  ],
+  "kd": [
+   0.7,
+   0.8,
+   0.7,
+   0.5,
+   0.5,
+   0.3
+  ],
+  "effort_nm": 30.0
+ },
+ "variant_joint_limits_deg": [
+  [
+   -110,
+   110
+  ],
+  [
+   -115,
+   100
+  ],
+  [
+   -100,
+   98
+  ],
+  [
+   -95,
+   96.5
+  ],
+  [
+   -160,
+   160
+  ],
+  [
+   -10,
+   100
+  ]
+ ],
+ "isaac_default_q": [
+  -0.2736,
+  -0.6109,
+  -0.0745,
+  1.5148,
+  -1.6034,
+  -0.1465
+ ],
+ "physics_materials_isaac": "none authored -> Isaac Lab default physics material (static/dynamic friction 0.5, restitution 0)",
+ "hull_counts": {
+  "base": 40,
+  "shoulder": 30,
+  "upper_arm": 20,
+  "lower_arm": 30,
+  "wrist": 20,
+  "gripper": 70,
+  "jaw": 24
+ },
+ "finger_section_names": [
+  "gripper_tip_0",
+  "gripper_tip_1",
+  "gripper_tip_2",
+  "gripper_tip_3",
+  "gripper_tip_4",
+  "gripper_tip_5",
+  "gripper_tip_6",
+  "gripper_tip_7",
+  "gripper_upper",
+  "jaw_tip_0",
+  "jaw_tip_1",
+  "jaw_tip_2",
+  "jaw_tip_3",
+  "jaw_upper"
+ ]
+}
