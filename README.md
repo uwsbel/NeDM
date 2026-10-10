@@ -45,6 +45,14 @@ predict each 20 ms step. The data, test sets and trained models are in the
 `contact_nrd/` folder of the Hugging Face dataset; the code is in
 `src/nedm/contact_nrd/`.
 
+**Follow-on work, not part of the paper:** [`so101_push_rl/`](so101_push_rl/README.md)
+trains one PPO policy inside the contact NRD of the SO101 arm and the T, then
+checks it in Chrono: it pushes the T to small and large translation and rotation
+goals (82–96 % of the sealed test goals of each trained goal type). The NRD, its
+training data, the RL inputs and the policies are in the `so101_push_rl/` folder
+of the Hugging Face dataset; the code is in `src/nedm/so101_push_rl/`,
+`src/nedm/so101_push/` and `scripts/so101_push_rl/`.
+
 **[docs/progress.md](docs/progress.md) is the reproduction record** — every stage
 output with the artifact that produced it and the command that regenerates it.
 Start there.
