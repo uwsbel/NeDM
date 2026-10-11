@@ -1,7 +1,10 @@
 """Contact NRD: a core network, a collision network and a contact network, all the same Transformer design.
 
 Every moving body has its own state size (the ball and a pool ball [position, velocity, angular velocity] = 9,
-the arm [joint angles, joint rates] = 10, the T [position, quaternion, velocity, angular velocity] = 13). States
+the arm [joint angles, joint rates] = 10, the T [position, quaternion, velocity, angular velocity] = 13, a
+floating articulated robot [base position, base quaternion, joint angles, base velocity, base angular velocity,
+joint rates] = 13 + 2 x joints). Two pairs of the same two bodies (two contact regions) have their own pair codes
+and their contact changes add. States
 are padded to the largest size, with a per-body channel mask. A body can have an action (the arm's joint position
 command), which enters as one extra token of that body. Each body kind has its own input maps, and a learned
 body-kind code is added to its tokens; the core has one output head per body kind. Fixed bodies (floor, wall, cushions) are not inputs; a fixed
@@ -28,14 +31,107 @@ from torch.nn import functional as F
 ROLES = 3   # self, partner, other
 
 
-def model_config(dt_s, history, network, integrate_kinds):
-    """The model_config stored in a checkpoint. Only the step, the history length, the network size and the
-    integrated body kinds can change; the other entries are the design this code implements, written in the
-    format of the released checkpoints ("contact_graph_nrd_v6" is that format's stored name: keep it)."""
-    return {"architecture": "contact_graph_nrd_v6", "dt_s": dt_s, "history": history,
-            "network": {"mixer": "spacetime", **network}, "trunk_dtype": "float32", "gate_mode": "learned",
-            "integrate": {"kinds": list(integrate_kinds), "rule": "new", "position_correction": False, "noise": "velocity"},
-            "core_no_pose": None}
+def model_config(dt_s, history, network, integrate_kinds, derived=None, contact_mask=None, pair_preview=False, relative=None):
+    """The model_config stored in a checkpoint. Only the step, the history length, the network size, the
+    integrated body kinds and the derived channels (see KinematicChain) can change; the other entries are the design
+    this code implements, written in the format of the released checkpoints ("contact_graph_nrd_v6" is that format's
+    stored name: keep it). Without derived channels the dict is that of the released checkpoints."""
+    out = {"architecture": "contact_graph_nrd_v6", "dt_s": dt_s, "history": history,
+           "network": {"mixer": "spacetime", **network}, "trunk_dtype": "float32", "gate_mode": "learned",
+           "integrate": {"kinds": list(integrate_kinds), "rule": "new", "position_correction": False, "noise": "velocity"},
+           "core_no_pose": None}
+    if derived is not None:
+        out["derived"] = derived
+    if contact_mask is not None:
+        out["contact_mask"] = contact_mask
+    if pair_preview:
+        out["pair_preview"] = True
+    if relative is not None:
+        out["relative"] = relative
+    return out
+
+
+# Derived channels of an articulated body (model_config "derived"): the pose and the step-average twist of one point
+# of a link, from the body's own joint angles and step-average joint rates by forward kinematics. They are state
+# channels that every network sees, but no network predicts them: the step recomputes them from the new joint state.
+DERIVED_NAMES = ["fk_x", "fk_y", "fk_z", "fk_r00", "fk_r10", "fk_r20", "fk_r01", "fk_r11", "fk_r21",
+                 "fk_vx", "fk_vy", "fk_vz", "fk_wx", "fk_wy", "fk_wz"]
+DERIVED_TYPES = ["derived_position"] * 3 + ["derived_rotation"] * 6 + ["derived_velocity"] * 3 + ["derived_angular_velocity"] * 3
+
+
+# Relative channels of a rigid body (model_config "relative": {"body": name, "frame": the articulated body with derived
+# channels}): its pose and velocity in the frame of that body's derived point (position, first two rotation columns,
+# velocity relative to the point's motion, all in the point's frame). Inputs of the pair networks and the rollout loss
+# only: no network predicts them, the core does not see them, and the step recomputes them.
+RELATIVE_NAMES = ["rel_x", "rel_y", "rel_z", "rel_r00", "rel_r10", "rel_r20", "rel_r01", "rel_r11", "rel_r21",
+                  "rel_vx", "rel_vy", "rel_vz"]
+RELATIVE_TYPES = ["relative_position"] * 3 + ["relative_rotation"] * 6 + ["relative_velocity"] * 3
+
+
+def relative_channels(derived, pos, quat, vel):
+    """derived [..., 15] (DERIVED_NAMES of the frame body), the body's position, quaternion and velocity -> [..., 12]."""
+    gp, c0, c1, gv, gw = derived[..., 0:3], derived[..., 3:6], derived[..., 6:9], derived[..., 9:12], derived[..., 12:15]
+    r = torch.stack((c0, c1, torch.cross(c0, c1, dim=-1)), -1)                     # columns: frame axes in the world
+    rt = r.transpose(-1, -2)
+    d = pos - gp
+    rel_r = rt @ _qmat(quat)
+    v_rel = vel - gv - torch.cross(gw, d, dim=-1)
+    return torch.cat(((rt @ d[..., None])[..., 0], rel_r[..., :, 0], rel_r[..., :, 1], (rt @ v_rel[..., None])[..., 0]), -1)
+
+
+def _qmat(q):
+    w, x, y, z = q.unbind(-1)
+    return torch.stack((1 - 2 * (y * y + z * z), 2 * (x * y - w * z), 2 * (x * z + w * y),
+                        2 * (x * y + w * z), 1 - 2 * (x * x + z * z), 2 * (y * z - w * x),
+                        2 * (x * z - w * y), 2 * (y * z + w * x), 1 - 2 * (x * x + y * y)), -1).reshape(*q.shape[:-1], 3, 3)
+
+
+def _rotvec(r):
+    """Rotation matrices [..., 3, 3] -> rotation vectors [..., 3] (angle below pi). Gradient-safe at zero rotation:
+    |v| = 2 sin(angle) and cos(angle) = (tr - 1) / 2 give the angle by atan2 (acos has an infinite slope at 0)."""
+    tr = r[..., 0, 0] + r[..., 1, 1] + r[..., 2, 2]
+    v = torch.stack((r[..., 2, 1] - r[..., 1, 2], r[..., 0, 2] - r[..., 2, 0], r[..., 1, 0] - r[..., 0, 1]), -1)
+    n2 = (v * v).sum(-1)
+    small = n2 < 1e-12
+    n = torch.sqrt(torch.where(small, torch.ones_like(n2), n2))
+    ang = torch.atan2(0.5 * n, 0.5 * (tr - 1))
+    return v * torch.where(small, 0.5 + n2 / 48, ang / n)[..., None]
+
+
+class KinematicChain(nn.Module):
+    """Forward kinematics of a serial chain of hinges about each link's local z axis (MuJoCo bodies with jnt_pos 0):
+    R_k = R_parent R(quat_k) Rz(q_k), p_k = p_parent + R_parent pos_k; the base frame is the world frame.
+
+    spec = {"body": name of the articulated body, "links": [{"pos": [3], "quat": [w, x, y, z]}, ...] (link k turns
+    with the body's k-th joint angle channel), "point_m": [3] (a point fixed in the last link)}. forward(q, qd, dt)
+    gives the 15 DERIVED_NAMES channels: the point's world position, the last link's rotation (first two columns) and
+    the step-average velocity and angular velocity (world frame) between the poses at q - dt qd and q."""
+
+    def __init__(self, spec):
+        super().__init__()
+        links = spec["links"]
+        self.n = len(links)
+        self.register_buffer("pos", torch.tensor([l["pos"] for l in links], dtype=torch.float64), persistent=False)
+        self.register_buffer("rot", _qmat(torch.tensor([l["quat"] for l in links], dtype=torch.float64)), persistent=False)
+        self.register_buffer("point", torch.tensor(spec["point_m"], dtype=torch.float64), persistent=False)
+
+    def pose(self, q):
+        r = torch.eye(3, dtype=q.dtype, device=q.device).expand(*q.shape[:-1], 3, 3)
+        p = torch.zeros(*q.shape[:-1], 3, dtype=q.dtype, device=q.device)
+        for k in range(self.n):
+            p = p + (r @ self.pos[k])
+            c, s = torch.cos(q[..., k]), torch.sin(q[..., k])
+            o, z = torch.ones_like(c), torch.zeros_like(c)
+            rz = torch.stack((c, -s, z, s, c, z, z, z, o), -1).reshape(*c.shape, 3, 3)
+            r = r @ self.rot[k] @ rz
+        return p + r @ self.point, r
+
+    def forward(self, q, qd, dt):
+        """q, qd [..., n] (joint angles and step-average rates) -> [..., 15]."""
+        p1, r1 = self.pose(q)
+        p0, r0 = self.pose(q - dt * qd)
+        w = _rotvec(r1 @ r0.transpose(-1, -2)) / dt
+        return torch.cat((p1, r1[..., :, 0], r1[..., :, 1], (p1 - p0) / dt, w), -1)
 
 
 class Encoder(nn.Module):
@@ -162,7 +258,8 @@ class ContactNRD(nn.Module):
     def __init__(self, config, system, masks):
         super().__init__()
         network = {k: v for k, v in config["network"].items() if k != "mixer"}
-        if config != model_config(config["dt_s"], config["history"], network, config["integrate"]["kinds"]):
+        if config != model_config(config["dt_s"], config["history"], network, config["integrate"]["kinds"], config.get("derived"),
+                                  config.get("contact_mask"), config.get("pair_preview", False), config.get("relative")):
             raise ValueError(f"unsupported model_config {config}")
         self.config, self.system = dict(config), system
         self.dt = float(config["dt_s"])
@@ -173,6 +270,29 @@ class ContactNRD(nn.Module):
         slot = {k: n for n, k in enumerate(self.moving)}
         fidx = {k: n for n, k in enumerate(fixed_bodies)}
         mov = [bodies[k] for k in self.moving]
+        self.kin = None
+        if config.get("derived") is not None:   # derived channels (KinematicChain) of one articulated body
+            spec = config["derived"]
+            self.kin = KinematicChain(spec)
+            self.kin_body = next(n for n, b in enumerate(mov) if b["name"] == spec["body"])
+            ct = mov[self.kin_body]["channel_types"]
+            angle, rate = [c for c, t in enumerate(ct) if t == "angle"], [c for c, t in enumerate(ct) if t == "angular_rate"]
+            dcols = [c for c, t in enumerate(ct) if t.startswith("derived_")]
+            if [ct[c] for c in dcols] != DERIVED_TYPES or len(angle) < self.kin.n or len(rate) < self.kin.n:
+                raise ValueError(f"body {spec['body']}: derived channels need data.add_derived and {self.kin.n} joints")
+            self.kin_q, self.kin_qd, self.kin_cols = angle[: self.kin.n], rate[: self.kin.n], dcols
+        self.rel = config.get("relative")
+        if self.rel is not None:   # relative channels (relative_channels) of a rigid body in the derived point's frame
+            if self.kin is None or self.rel["frame"] != config["derived"]["body"]:
+                raise ValueError("relative channels need the derived channels of their frame body")
+            self.rel_body = next(n for n, b in enumerate(mov) if b["name"] == self.rel["body"])
+            ct = mov[self.rel_body]["channel_types"]
+            self.rel_cols = [c for c, t in enumerate(ct) if t.startswith("relative_")]
+            if [ct[c] for c in self.rel_cols] != RELATIVE_TYPES:
+                raise ValueError(f"body {self.rel['body']}: relative channels need data.add_relative")
+            self.rel_p = [c for c, t in enumerate(ct) if t == "position"]
+            self.rel_q = [c for c, t in enumerate(ct) if t == "quaternion"]
+            self.rel_v = [c for c, t in enumerate(ct) if t == "velocity"]
         self.n_bodies, self.n_fixed = len(mov), len(fixed_bodies)
         self.state_dims = [int(b.get("state_dim", 9)) for b in mov]
         self.action_dims = [int(b.get("action_dim", 0)) for b in mov]
@@ -187,6 +307,12 @@ class ContactNRD(nn.Module):
         self.register_buffer("has_action", torch.tensor([a > 0 for a in self.action_dims]))
         smask = torch.tensor(masks, dtype=torch.float64)                                          # [D, smax]
         self.register_buffer("smask", smask)
+        core_smask = smask.clone()   # the core does not see relative channels (they carry the other body's state)
+        for n, b in enumerate(mov):
+            for c, t in enumerate(b.get("channel_types", [])):
+                if t.startswith("relative_"):
+                    core_smask[n, c] = 0.0
+        self.register_buffer("core_smask", core_smask, persistent=False)
         amask = torch.zeros(self.n_bodies, self.amax, dtype=torch.float64)
         for n, a in enumerate(self.action_dims):
             amask[n, :a] = 1.0
@@ -231,12 +357,34 @@ class ContactNRD(nn.Module):
         self.register_buffer("pair_pos", pos)
         self.register_buffer("pair_fixed", pfix)
         self.register_buffer("pair_mm", pos[:, 1] >= 0)
+        # Optional contact output mask (model_config "contact_mask": [{"pair": pair name, "body": body name,
+        # "channels": [channel names]}, ...]): those channels of that body get no change from that pair. For a
+        # physical rule the data cannot teach, e.g. the fixed jaw (part of the gripper link) does not drive the
+        # moving jaw's joint, while both jaw pairs are on together in almost every grasp step.
+        cmask = torch.ones(self.n_pairs, 2, self.smax, dtype=torch.float64)
+        names = [m.get("name") for m in system.get("pair_metadata", [{}] * self.n_pairs)]
+        for rule in config.get("contact_mask") or []:
+            p = names.index(rule["pair"])
+            n = next(k for k, b in enumerate(mov) if b["name"] == rule["body"])
+            role = 0 if int(pos[p, 0]) == n else 1 if int(pos[p, 1]) == n else None
+            if role is None:
+                raise ValueError(f"contact_mask: body {rule['body']} is not in pair {rule['pair']}")
+            for ch in rule["channels"]:
+                cmask[p, role, mov[n]["channels"].index(ch)] = 0.0
+        self.register_buffer("contact_out_mask", cmask, persistent=False)
+        self.has_contact_mask = bool(config.get("contact_mask"))
         spec, nk = config["network"], len(kind_names)
         # Core: one query per body kind; one output head per kind (the body's own kind is used).
         self.core = TokenNet(spec, 1, self.k, nk, self.n_fixed, nk, self.smax, self.amax, [self.smax] * nk, True)
-        self.collision = TokenNet(spec, positions, self.k, self.n_pairs, self.n_fixed, nk, self.smax, self.amax, [1], False)
+        # Optional preview (model_config "pair_preview"): the pair networks get one more history token per body, the
+        # change that the core alone would make in this step (core change, integration, derived channels; no
+        # gradient). So the contact network sees where the core moves the arm (its gripper) in the step it predicts,
+        # instead of guessing the arm's next motion in parallel with the core.
+        self.preview = bool(config.get("pair_preview", False))
+        kp = self.k + int(self.preview)
+        self.collision = TokenNet(spec, positions, kp, self.n_pairs, self.n_fixed, nk, self.smax, self.amax, [1], False)
         # Contact: changes of the pair's first body and of its moving partner (two padded state vectors).
-        self.contact = TokenNet(spec, positions, self.k, self.n_pairs, self.n_fixed, nk, self.smax, self.amax,
+        self.contact = TokenNet(spec, positions, kp, self.n_pairs, self.n_fixed, nk, self.smax, self.amax,
                                 [self.smax, self.smax], True)
 
     # ---- history -----------------------------------------------------------------
@@ -262,7 +410,7 @@ class ContactNRD(nn.Module):
         lo = lag_ok.repeat_interleave(d, 0)
         fixed = torch.full((b * d,), -1, dtype=torch.long, device=cur.device)
         query = self.body_kind.repeat(b)
-        smask = self.smask.repeat(b, 1)[:, None]
+        smask = self.core_smask.repeat(b, 1)[:, None]
         amask = self.amask.repeat(b, 1)[:, None]
         out = self.core(c, df, a, present, has, kind, lo, fixed, query, smask, amask)            # [B*D, nk*S]
         out = out.reshape(b * d, len(self.kind_names), self.smax)[torch.arange(b * d, device=cur.device), query]
@@ -270,13 +418,19 @@ class ContactNRD(nn.Module):
 
     def pair_inputs(self, cur, diff, act, lag_ok, rows, pairs):
         """Inputs of the pair networks for (sample, pair) entries `rows`, `pairs` (both [M])."""
+        if self.preview:   # the core-only step as one more difference entry (see __init__)
+            with torch.no_grad():
+                d_core = self.run_core(cur, diff, act, lag_ok)
+                ahead = self.assemble(cur, d_core, torch.zeros_like(cur)) - cur
+            diff = torch.cat((diff, ahead[:, None]), 1)
+            lag_ok = torch.cat((lag_ok, torch.ones_like(lag_ok[:, :1])), 1)
         pos = self.pair_pos[pairs]                                                     # [M, P]
         idx = torch.where(pos < 0, cur.shape[1], pos)
         padc = torch.cat((cur, torch.zeros_like(cur[:, :1])), 1)
         padd = torch.cat((diff, torch.zeros_like(diff[:, :, :1])), 2)
         pada = torch.cat((act, torch.zeros_like(act[:, :1])), 1)
         c = padc[rows[:, None], idx]
-        df = padd[rows[:, None, None], torch.arange(self.k - 1, device=cur.device)[None, :, None], idx[:, None, :]]
+        df = padd[rows[:, None, None], torch.arange(diff.shape[1], device=cur.device)[None, :, None], idx[:, None, :]]
         a = pada[rows[:, None], idx]
         present = pos >= 0
         kind = torch.cat((self.body_kind, self.body_kind[:1]))[idx]
@@ -302,6 +456,8 @@ class ContactNRD(nn.Module):
         if len(idx):
             rows, pairs = idx[:, 0], idx[:, 1]
             out = self.contact(*self.pair_inputs(cur, diff, act, lag_ok, rows, pairs)).reshape(-1, 2, self.smax)
+            if self.has_contact_mask:
+                out = out * self.contact_out_mask[pairs]
             g = gates[rows, pairs][:, None]
             total = total.index_put((rows, self.pair_pos[pairs, 0]), g * out[:, 0], accumulate=True)
             mm = self.pair_mm[pairs]
@@ -334,8 +490,8 @@ class ContactNRD(nn.Module):
         return self.finish(out)
 
     def finish(self, nxt):
-        """Re-normalise quaternion channels (unit length; sign kept)."""
-        if not self.quat.any():
+        """Re-normalise quaternion channels (unit length; sign kept); recompute derived channels from the new joint state."""
+        if not self.quat.any() and self.kin is None:   # (relative channels need derived ones)
             return nxt
         out = nxt.clone()
         for n in range(self.n_bodies):
@@ -343,6 +499,13 @@ class ContactNRD(nn.Module):
             if len(cols):
                 q = nxt[:, n, cols]
                 out[:, n, cols] = q / q.norm(dim=-1, keepdim=True).clamp_min(1e-12)
+        if self.kin is not None:
+            b = self.kin_body
+            out[:, b, self.kin_cols] = self.kin(nxt[:, b, self.kin_q], nxt[:, b, self.kin_qd], self.dt)
+            if self.rel is not None:
+                r = self.rel_body
+                out[:, r, self.rel_cols] = relative_channels(out[:, b, self.kin_cols], out[:, r, self.rel_p], out[:, r, self.rel_q],
+                                                             out[:, r, self.rel_v])
         return out
 
     def details(self, hist, ok, act):
@@ -382,6 +545,21 @@ class ContactNRD(nn.Module):
         if isinstance(actions, int):
             actions = torch.zeros(state.shape[0], actions, self.n_bodies, self.amax, dtype=state.dtype, device=state.device)
         hist, ok = self.start(state)
+        trajectory, gate_trace = [state], []
+        for t in range(actions.shape[1]):
+            state, info = self.details(hist, ok, actions[:, t].to(torch.float64))
+            hist, ok = self.advance(hist, ok, state)
+            trajectory.append(state)
+            gate_trace.append(info["gates"])
+        out = torch.stack(trajectory, 1)
+        return (out, torch.stack(gate_trace, 1)) if return_gates else out
+
+    def rollout_from(self, hist, ok, actions, return_gates=False):
+        """Rollout from a given history: hist [B, K, D, S] (newest last; recorded states inside an episode), ok [B, K]
+        (False = no entry); actions [B, steps, D, A] -> [B, steps+1, D, S], index 0 the newest history state (and the
+        switches [B, steps, P] with return_gates). rollout(x, a) is rollout_from(*start(x), a)."""
+        hist = hist.to(torch.float64)
+        state = hist[:, -1]
         trajectory, gate_trace = [state], []
         for t in range(actions.shape[1]):
             state, info = self.details(hist, ok, actions[:, t].to(torch.float64))

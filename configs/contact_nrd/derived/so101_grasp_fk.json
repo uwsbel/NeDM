@@ -1,0 +1,76 @@
+{
+ "body": "arm",
+ "links": [
+  {
+   "pos": [
+    0.0388353,
+    0.0,
+    0.0624
+   ],
+   "quat": [
+    0.0,
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "pos": [
+    -0.0303992,
+    -0.0182778,
+    -0.0542
+   ],
+   "quat": [
+    0.5,
+    -0.5,
+    -0.5,
+    -0.5
+   ]
+  },
+  {
+   "pos": [
+    -0.11257,
+    -0.028,
+    0.0
+   ],
+   "quat": [
+    0.7071067811865475,
+    0.0,
+    0.0,
+    0.7071067811865475
+   ]
+  },
+  {
+   "pos": [
+    -0.1349,
+    0.0052,
+    0.0
+   ],
+   "quat": [
+    0.7071067811865475,
+    0.0,
+    0.0,
+    -0.7071067811865475
+   ]
+  },
+  {
+   "pos": [
+    5.55112e-17,
+    -0.0611,
+    0.0181
+   ],
+   "quat": [
+    0.017209108230571014,
+    -0.017209108230571014,
+    0.7068973380865913,
+    0.7068973380865913
+   ]
+  }
+ ],
+ "point_m": [
+  0.0105,
+  0.0,
+  -0.092
+ ],
+ "note": "SO101 grasp point (system.json grasp_point_m, in link 'gripper') through the Menagerie so101.xml chain shoulder, upper_arm, lower_arm, wrist, gripper (MuJoCo 3.15 compiled body_pos/body_quat; every joint a hinge about local z at the body origin). Checked against MuJoCo FK to 1e-15 m."
+}

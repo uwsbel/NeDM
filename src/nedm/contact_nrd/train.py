@@ -18,6 +18,23 @@ One configuration (configs/contact_nrd/train.json) serves every system; only the
    kept as best.pt (the test split is never used).
 4. best.pt on every validation episode -> validation.json and complete.json.
 
+Data of the collection contract (contact_nrd/collection_contract.md) can add three things; without them the run is
+the same as before. A moving body's ``channel_mask`` in system.json replaces the automatic rule (a channel is
+predicted if its spread is at least 1 % of the largest channel of its type in the same body); it must give a pose
+channel and its rate channel the same value. Contract data always carry it: data with families and a moving body
+without it get a ``mask_warning`` log row (the automatic rule decides for that body). With ``family`` and
+system.json ``families``, the checks use only validation episodes of the families with select: true, and the final
+report adds the metrics of each family. With an ``evaluation`` block in system.json, the checks and the final report
+use data.task_metrics and its selection score instead of data.free_metrics (the checks skip the rollout modes that
+the score does not use). A family with ``"use": "core_only"`` (counterfactual branches, e.g. G1 walking states with
+the floor switched off) trains the core only: load_data keeps its episodes apart, in a store cut after their
+longest episode (no padding to the full record count), and only the core reads it: its windows enter the core's
+linear fit, the core loss and the core validation report (core_validation.json by_use), and nothing else (not the
+history noise, the channel-mask statistics, the collision network, the pair input statistics, the contact fit and
+step_rms, the contact batches, the rollout starts, the checks or the final report). run_config.json counts its
+episodes apart (core_only_episodes; training_episodes and validation_episodes are the other families). Families
+without "use" serve every part, as before.
+
 States are velocity-level: the rate channels are step-average rates (data.step_average_rates) and the pose of
 each integrated body follows pose + step x rate (model.ContactNRD.assemble). The one-step losses train only the
 rate channels; the rollout loss compares the whole state.
@@ -45,8 +62,8 @@ from pathlib import Path
 import torch
 from torch.nn import functional as F
 
-from nedm.contact_nrd.data import (atomic_json, dilate, file_sha256, free_metrics, load_data, step_average_rates,
-                                   window_labels)
+from nedm.contact_nrd.data import (add_derived, add_relative, atomic_json, dilate, evaluate, file_rows, file_sha256, load_data,
+                                   selected_episodes, step_average_rates, window_labels)
 from nedm.contact_nrd.model import ContactNRD, load_model, model_config
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -54,6 +71,10 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 TYPE_RULES = {
     "position": (0.01, 1e-4, 1e-2), "angle": (0.01, 1e-4, 1e-2), "quaternion": (0.01, 1e-4, 1e-2),
     "velocity": (0.01, 1e-3, 5e-4), "angular_rate": (0.1, 1e-2, 5e-4), "angular_velocity": (0.1, 1e-2, 3e-3),
+    # derived channels (config "derived_state"; model.KinematicChain): inputs only, never predicted
+    "derived_position": (0.01, 1e-4, 1e-2), "derived_rotation": (0.01, 1e-4, 1e-2),
+    "derived_velocity": (0.01, 1e-3, 5e-4), "derived_angular_velocity": (0.1, 1e-2, 3e-3),
+    "relative_position": (0.01, 1e-4, 1e-2), "relative_rotation": (0.01, 1e-4, 1e-2), "relative_velocity": (0.01, 1e-3, 5e-4),
 }
 
 
@@ -75,6 +96,8 @@ def main():
     parser.add_argument("--device", default="cuda")
     parser.add_argument("--smoke", action="store_true", help="a few updates of every stage (pipeline check)")
     parser.add_argument("--deterministic", action="store_true", help="repeatable GPU runs on one machine (slower)")
+    parser.add_argument("--trace-draws", type=Path, help="tests: write {component: episodes it drew windows from} "
+                                                         "to this JSON file (the eligibility rules of core-only families)")
     args = parser.parse_args()
     if args.deterministic:
         os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
@@ -88,8 +111,21 @@ def main():
     torch.set_num_threads(1)
     torch.manual_seed(cfg["seed"])
     dev, smoke = args.device, args.smoke
-    data = load_data(args.data, dev, model_step_s=cfg["model_step_s"])
+    # Core-only families ("use": "core_only") are not in states, actions, ... at all: load_data puts them in a short
+    # store that only the core reads (see core_rows); every other part sees only the arrays below.
+    data = load_data(args.data, dev, model_step_s=cfg["model_step_s"], core_only="separate")
     data = step_average_rates(data, set(cfg["integrate_kinds"]))
+    # Optional derived channels (config "derived_state": a KinematicChain spec, or the path of one relative to the repo
+    # root; absent in train.json = none): forward kinematics of an articulated body (e.g. the SO101 grasp point) as
+    # extra state channels that every network sees and that the step recomputes from the new joint state.
+    derived = cfg.get("derived_state")
+    if isinstance(derived, str):
+        derived = json.loads((REPO_ROOT / derived).read_text())
+    data = add_derived(data, derived)
+    # Optional relative channels (config "relative_state": {"body": rigid body, "frame": the derived body}; absent = none):
+    # the rigid body's pose and velocity in the derived point's frame (model.relative_channels), inputs only.
+    relative = cfg.get("relative_state")
+    data = add_relative(data, relative)
     system = data["system"]
     states, actions, splits, lengths, stride, contacts = (data["states"], data["actions"], data["splits"], data["lengths"],
                                                           data["stride"], data["contacts"])
@@ -100,33 +136,61 @@ def main():
     moving = [k for k, b in enumerate(system["bodies"]) if b["moving"]]
     slot = {k: n for n, k in enumerate(moving)}
     types = [b["channel_types"] for b in moving_b]
-    labels = window_labels(contacts, stride)                                           # [N, W, P]
-    # a step-average rate spans the previous model step: a contact in (r - s, r] still changes window r
-    spread = torch.zeros_like(labels)
-    spread[:, stride:] = labels[:, :-stride]
-    labels = labels | spread
-    n_win = labels.shape[1]
-    previous = torch.cat((torch.zeros_like(labels[:, :1]), window_labels(contacts, 1)[:, : n_win - 1]), 1)
-    after = previous & ~labels
     # In systems with actions, windows start on a command boundary (the command changes every model step);
     # systems without actions use every record.
     acting = any(int(b.get("action_dim", 0)) for b in moving_b)
-    grid = ((torch.arange(n_win, device=dev) % stride == 0) if acting else torch.ones(n_win, dtype=torch.bool, device=dev))[None, :]
-    valid = (torch.arange(n_win, device=dev)[None, :] < (lengths - stride)[:, None]) & grid
-    train = valid & (splits == 0)[:, None]
-    vwin = valid & (splits == 1)[:, None]
-    touched = labels | after
-    involved = torch.zeros(n_ep, n_win, n_mov, dtype=torch.bool, device=dev)
-    for p, (i, j) in enumerate(pairs):
-        involved[..., slot[i]] |= touched[..., p]
-        if j in slot:
-            involved[..., slot[j]] |= touched[..., p]
+
+    def windows_of(contacts_, lengths_, splits_):
+        """Labels [N, W, P] (contact in the step or the step before), steps just after a contact [N, W, P], bodies
+        touched in a window [N, W, D], training and validation windows [N, W] of one set of episodes."""
+        labels_ = window_labels(contacts_, stride)
+        # a step-average rate spans the previous model step: a contact in (r - s, r] still changes window r
+        spread = torch.zeros_like(labels_)
+        spread[:, stride:] = labels_[:, :-stride]
+        labels_ = labels_ | spread
+        nw = labels_.shape[1]
+        previous = torch.cat((torch.zeros_like(labels_[:, :1]), window_labels(contacts_, 1)[:, : nw - 1]), 1)
+        after_ = previous & ~labels_
+        grid = ((torch.arange(nw, device=dev) % stride == 0) if acting else torch.ones(nw, dtype=torch.bool, device=dev))[None, :]
+        valid = (torch.arange(nw, device=dev)[None, :] < (lengths_ - stride)[:, None]) & grid
+        touched = labels_ | after_
+        involved_ = torch.zeros(len(labels_), nw, n_mov, dtype=torch.bool, device=dev)
+        for p, (i, j) in enumerate(pairs):
+            involved_[..., slot[i]] |= touched[..., p]
+            if j in slot:
+                involved_[..., slot[j]] |= touched[..., p]
+        return labels_, after_, involved_, valid & (splits_ == 0)[:, None], valid & (splits_ == 1)[:, None]
+
+    labels, after, involved, train, vwin = windows_of(contacts, lengths, splits)          # labels [N, W, P]
+    n_win = labels.shape[1]
+    store = data.get("core_store")   # core-only episodes; a core window of row e of the store has episode n_ep + e
+    c_states = c_actions = None
+    if store is not None:
+        c_states, c_actions = store["states"], store["actions"]
+        _, _, c_involved, c_train, c_vwin = windows_of(store["contacts"], store["lengths"], store["splits"])
+        shift = torch.tensor([n_ep, 0], device=dev)
+    drawn = {} if args.trace_draws else None
+
+    def trace(component, episodes):
+        """--trace-draws: remember the episodes (rows of unified_data.npz) of the windows that a component draws (tests)."""
+        if drawn is not None and len(episodes):
+            e = torch.unique(episodes)
+            if "file_index" in data:
+                main = e < n_ep
+                e = torch.cat((data["file_index"][e[main]], store["file_index"][e[~main] - n_ep] if store is not None else e[:0]))
+            drawn.setdefault(component, set()).update(e.tolist())
     val = torch.nonzero(splits == 1).flatten()
-    if smoke:
-        val = val[:24]
-    # Checks during training use an evenly spaced subset of the validation episodes; the final report uses all.
-    n_check = min(len(val), int(cfg["check_episodes"]))
-    val_check = val[torch.linspace(0, len(val) - 1, n_check, device=dev).round().long()]
+    family = data["family"]
+    if smoke:   # 24 episodes; with families up to 8 of each
+        val = val[:24] if family is None else torch.cat([val[family[val] == k][:8] for k in range(len(system["families"]))])
+        val = torch.sort(val).values
+    # Checks during training use an evenly spaced subset of the validation episodes (of the families with
+    # select: true); the final report uses all.
+    pick = selected_episodes(data, val)
+    if not len(pick):
+        raise ValueError("no validation episodes in the families that checkpoint selection uses")
+    n_check = min(len(pick), int(cfg["check_episodes"]))
+    val_check = pick[torch.linspace(0, len(pick) - 1, n_check, device=dev).round().long()]
     rng = torch.Generator(device=dev).manual_seed(cfg["seed"] + 1000)
     K = int(cfg["history"])
 
@@ -142,10 +206,11 @@ def main():
     def sample(pool, n):
         return pool[torch.randint(len(pool), (n,), device=dev, generator=rng)]
 
-    def hist_of(windows):
+    def hist_of(windows, src=None):
+        src = states if src is None else src
         raw = windows[:, 1, None] + torch.arange(1 - K, 1, device=dev) * stride
         ok = raw >= 0
-        h = states[windows[:, 0, None], raw.clamp_min(0)] * ok[..., None, None]
+        h = src[windows[:, 0, None], raw.clamp_min(0)] * ok[..., None, None]
         return h, ok
 
     def act_of(windows):
@@ -157,7 +222,8 @@ def main():
         return ok & (torch.arange(K, device=dev)[None, :] >= K - keep[:, None])
 
     # ---- channel masks (constant channels by type, per body; padding off) --------------
-    sw = sample(torch.nonzero(valid & (splits == 0)[:, None]), 100000)
+    sw = sample(torch.nonzero(train), 100000)
+    trace("channel_masks", sw[:, 0])
     s0 = states[sw[:, 0], sw[:, 1]]                                                    # [n, D, S]
     span = s0.quantile(0.999, dim=0) - s0.quantile(0.001, dim=0)                       # [D, S]
     masks = torch.zeros(n_mov, smax, dtype=torch.float64, device=dev)
@@ -165,15 +231,41 @@ def main():
         for c, t in enumerate(ts):
             same = [cc for cc, tt in enumerate(ts) if tt == t]
             masks[d, c] = float(span[d, c] >= 0.01 * span[d, same].max())
+    automatic = masks.clone()
+    explicit = [d for d, b in enumerate(moving_b) if "channel_mask" in b]
+    for d in explicit:   # the data's own mask (e.g. a robot's base height, small next to its travel)
+        cm = [float(x) for x in moving_b[d]["channel_mask"]]
+        if len(cm) != len(types[d]) or set(cm) - {0.0, 1.0}:
+            raise ValueError(f"{moving_b[d]['name']}: channel_mask needs one 0/1 per channel")
+        masks[d] = 0.0
+        masks[d, : len(cm)] = torch.tensor(cm, dtype=torch.float64, device=dev)
 
-    mc = model_config(data["dt"], K, cfg["network"], cfg["integrate_kinds"])
+    mc = model_config(data["dt"], K, cfg["network"], cfg["integrate_kinds"], derived, cfg.get("contact_mask"),
+                      bool(cfg.get("pair_preview", False)), relative)
     model = ContactNRD(mc, system, masks.tolist()).to(dev)
+    # The integrator pairs pose and rate channels by order, so their masks must agree; a quaternion's mask is
+    # [any angular axis, x, y, z] of its angular velocity mask (all on, all off, or a planar body's [1, 0, 0, 1]).
+    unpaired = []
+    for n in torch.nonzero(model.integ_body).flatten().tolist():
+        pc, qc, vc, wc = (model.chan[n, k][model.chan[n, k] >= 0] for k in range(4))
+        m = masks[n]
+        agree = torch.equal(m[pc], m[vc])
+        if len(qc) == 4 and len(wc) == 3:
+            agree = agree and torch.equal(m[qc], torch.cat((m[wc].amax()[None], m[wc])))
+        if not agree:
+            unpaired.append(moving_b[n]["name"])
+            if n in explicit:
+                raise ValueError(f"{moving_b[n]['name']}: channel_mask must give a pose channel and its rate channel "
+                                 "the same value (quaternion: [any angular axis, x, y, z])")
     # Channels that are trained (core and contact losses): integrated pose channels are computed, not predicted.
     core_masks = masks.clone()
     for b in torch.nonzero(model.integ_body).flatten().tolist():
         for k in (0, 1):
             cols = model.chan[b, k][model.chan[b, k] >= 0]
             core_masks[b, cols] = 0.0
+    derived_cols = torch.tensor([[t.startswith(("derived_", "relative_")) for t in ts] + [False] * (smax - len(ts))
+                                 for ts in types], device=dev)   # input-only channels (derived and relative)
+    core_masks[derived_cols] = 0.0   # derived channels are computed from the joint state, not predicted
 
     def pose_noise(sig):
         """History noise of integrated pose channels from the noise of their rates: a rate error s changes the next
@@ -186,6 +278,13 @@ def main():
             w_act = sig[n, wc][masks[n, wc] > 0]                  # active angular-velocity channels only
             if len(qc) and len(w_act):
                 sig[n, qc] = 0.5 * model.dt * w_act.mean() * masks[n, qc]
+        for n, ts in enumerate(types):   # derived pose channels from the noise of the derived velocities
+            for pose_t, rate_t in (("derived_position", "derived_velocity"), ("derived_rotation", "derived_angular_velocity"),
+                                   ("relative_position", "relative_velocity"), ("relative_rotation", "angular_velocity")):
+                pc = [c for c, t in enumerate(ts) if t == pose_t]
+                vc = [c for c, t in enumerate(ts) if t == rate_t]
+                if pc and vc:
+                    sig[n, pc] = model.dt * sig[n, vc].mean() * masks[n, pc]
         return sig
 
     output = args.output.resolve()
@@ -205,11 +304,25 @@ def main():
                    parameters={n: sum(p.numel() for p in getattr(model, n).parameters()) for n in ("core", "collision", "contact")},
                    data_sha256=file_sha256(args.data / "unified_data.npz"),
                    source_sha256={f.name: file_sha256(f) for f in Path(__file__).parent.glob("*.py")})
+    if family is not None:
+        runtime.update(selection_families=[f["name"] for f in system["families"] if f["select"]],
+                       check_episodes_used=len(val_check))
+    if store is not None:   # training_episodes and validation_episodes above count only the other families
+        runtime.update(core_only_families=[f["name"] for f in system["families"] if f.get("use") == "core_only"],
+                       core_only_episodes={"train": int((store["splits"] == 0).sum()),
+                                           "validation": int((store["splits"] == 1).sum())})
     if not (output / "run_config.json").exists():
         atomic_json(output / "run_config.json", runtime)
     else:
         event("resume", **job)
-    event("masks", masks=masks.tolist())
+    event("masks", masks=masks.tolist(), **({"explicit": [moving_b[d]["name"] for d in explicit],
+                                             "automatic": automatic.tolist()} if explicit else {}))
+    if unpaired:   # automatic masks only (explicit ones raise above)
+        event("mask_warning", bodies=unpaired, note="a pose channel and its rate channel have different masks")
+    unmasked = [b["name"] for d, b in enumerate(moving_b) if d not in explicit]
+    if family is not None and unmasked:   # contract data (with families) always carry channel_mask
+        event("mask_warning", bodies=unmasked, note="data with families but no channel_mask for these bodies: the "
+              "automatic rule decides (collection_contract.md requires channel_mask)")
 
     def save(path, stage, update, validation=None):
         torch.save(dict(model_config=mc, system=system, masks=masks.tolist(), model_state_dict=model.state_dict(), runtime=runtime,
@@ -228,8 +341,9 @@ def main():
     def check(stage, update, loss, extra=None):
         was = model.training
         model.eval()
+        trace("checks", val_check)
         with torch.no_grad():
-            report = free_metrics(model, data, val_check)
+            report = evaluate(model, data, val_check, score_only=True)
         checks["count"] += 1
         if not math.isfinite(report["selection_score"]):
             report["selection_score"] = 1e9
@@ -237,13 +351,18 @@ def main():
             best["score"] = report["selection_score"]
             save(output / "best.pt", stage, update, report)
         save(output / "last.pt", stage, update, report)
-        event(stage, update=update, loss=float(loss), score=report["selection_score"],
-              target_pos_median_mm=1000 * report["target_pos_m"]["median"], target_pos_p95_mm=1000 * report["target_pos_m"]["p95"],
-              target_angle_median_deg=math.degrees(report["target_angle_rad"]["median"]),
-              target_angle_p95_deg=math.degrees(report["target_angle_rad"]["p95"]),
-              path_p95_mm=1000 * report["path_rmse_m"]["p95"], ee_p95_mm=1000 * report["ee_rmse_m"]["p95"],
-              moved_pos_median_mm=1000 * report["moved_target_pos_m"]["median"], events_ok=report["event_ok_fraction"],
-              finite=report["finite_fraction"], **(extra or {}))
+        if "evaluation" in system:
+            event(stage, update=update, loss=float(loss), score=report["selection_score"],
+                  terms={t["stat"]: t["value"] for t in report["score_terms"]}, finite=report["finite_fraction"],
+                  **(extra or {}))
+        else:
+            event(stage, update=update, loss=float(loss), score=report["selection_score"],
+                  target_pos_median_mm=1000 * report["target_pos_m"]["median"], target_pos_p95_mm=1000 * report["target_pos_m"]["p95"],
+                  target_angle_median_deg=math.degrees(report["target_angle_rad"]["median"]),
+                  target_angle_p95_deg=math.degrees(report["target_angle_rad"]["p95"]),
+                  path_p95_mm=1000 * report["path_rmse_m"]["p95"], ee_p95_mm=1000 * report["ee_rmse_m"]["p95"],
+                  moved_pos_median_mm=1000 * report["moved_target_pos_m"]["median"], events_ok=report["event_ok_fraction"],
+                  finite=report["finite_fraction"], **(extra or {}))
         if was:
             model.train()
 
@@ -252,17 +371,50 @@ def main():
     nk = len(model.kind_names)
     co = cfg["cotrain"]
     # Free-step windows of the core (every free_phase_step records), grouped per body kind into core_bins bins of
-    # log |rate change|; a batch draws from each bin in proportion to the square root of its size.
-    phase_keep = (torch.arange(n_win, device=dev) % cfg["free_phase_step"] == 0)[None, :]
+    # log |rate change|; a batch draws from each bin in proportion to the square root of its size. A core window is
+    # (episode, record, body); episodes n_ep and up are rows of the core-only store (training windows of both).
+
+    def phase_keep(width):
+        return (torch.arange(width, device=dev) % cfg["free_phase_step"] == 0)[None, :]
+
+    def at(src, src_core, ep, rec, body):
+        """src[ep, rec, body]; rows with ep >= n_ep read src_core[ep - n_ep, rec, body] (the core-only store)."""
+        if store is None:
+            return src[ep, rec, body]
+        main = ep < n_ep
+        out = src.new_empty((len(ep), *src.shape[3:]))
+        out[main] = src[ep[main], rec[main], body[main]]
+        out[~main] = src_core[ep[~main] - n_ep, rec[~main], body[~main]]
+        return out
+
+    def core_rows(tr):
+        """History [n, K, 1, S] of each row's own body, its flags, action [n, 1, A] and target (next state - current,
+        masked) of core windows tr = (episode, record, body), from the arrays or the core-only store."""
+        if store is None:
+            h, ok = hist_of(tr[:, :2])
+        else:
+            main = tr[:, 0] < n_ep
+            h = states.new_empty((len(tr), K, n_mov, smax))
+            ok = torch.empty((len(tr), K), dtype=torch.bool, device=dev)
+            h[main], ok[main] = hist_of(tr[main, :2])
+            h[~main], ok[~main] = hist_of(tr[~main, :2] - shift, c_states)
+        h = h[torch.arange(len(tr), device=dev), :, tr[:, 2]][:, :, None]                 # [n, K, 1, S]
+        a = at(actions, c_actions, tr[:, 0], tr[:, 1], tr[:, 2])[:, None]                 # [n, 1, A]
+        target = (at(states, c_states, tr[:, 0], tr[:, 1] + stride, tr[:, 2]) - h[:, -1, 0]) * masks[tr[:, 2]]
+        return h, ok, a, target
+
     groups, weights = [], []
     triples_by_kind = {}
     for b in range(n_mov):
-        w = torch.nonzero(train & phase_keep & ~involved[..., b])
+        w = torch.nonzero(train & phase_keep(n_win) & ~involved[..., b])
+        if store is not None:
+            w = torch.cat((w, torch.nonzero(c_train & phase_keep(c_train.shape[1]) & ~c_involved[..., b]) + shift))
         triples_by_kind.setdefault(int(model.body_kind[b]), []).append(torch.cat((w, torch.full_like(w[:, :1], b)), -1))
     for kk, parts in triples_by_kind.items():
         triples = torch.cat(parts)
         b0 = triples[:, 2]
-        dch = torch.cat([(states[c[:, 0], c[:, 1] + stride, c[:, 2]] - states[c[:, 0], c[:, 1], c[:, 2]]) for c in triples.split(1 << 20)])
+        dch = torch.cat([(at(states, c_states, c[:, 0], c[:, 1] + stride, c[:, 2])
+                          - at(states, c_states, c[:, 0], c[:, 1], c[:, 2])) for c in triples.split(1 << 20)])
         vel_cols = torch.tensor([[t in ("velocity", "angular_rate") for t in types[b]] + [False] * (smax - len(types[b]))
                                  for b in range(n_mov)], device=dev)[b0]
         dvel = (dch * vel_cols).norm(dim=-1)
@@ -279,10 +431,8 @@ def main():
 
     def core_batch(n):
         tr = torch.cat([sample(g, max(1, int(round(n * w)))) for g, w in zip(groups, weights)])
-        h, ok = hist_of(tr[:, :2])
-        h = h[torch.arange(len(tr), device=dev), :, tr[:, 2]][:, :, None]                 # [n, K, 1, S]
-        a = actions[tr[:, 0], tr[:, 1], tr[:, 2]][:, None]                               # [n, 1, A]
-        target = (states[tr[:, 0], tr[:, 1] + stride, tr[:, 2]] - h[:, -1, 0]) * masks[tr[:, 2]]
+        trace("core", tr[:, 0])
+        h, ok, a, target = core_rows(tr)
         return h, ok, a, tr[:, 2], target
 
     def core_pred(h, ok, a, body, nz=None):
@@ -294,7 +444,7 @@ def main():
         present = torch.ones(len(h), 1, dtype=torch.bool, device=dev)
         has = model.has_action[body][:, None]
         fixed = torch.full((len(h),), -1, dtype=torch.long, device=dev)
-        out = core(cur, diff, a, present, has, kind[:, None], lag_ok, fixed, kind, model.smask[body][:, None], model.amask[body][:, None])
+        out = core(cur, diff, a, present, has, kind[:, None], lag_ok, fixed, kind, model.core_smask[body][:, None], model.amask[body][:, None])
         out = out.reshape(len(h), nk, smax)[torch.arange(len(h), device=dev), kind]
         return out * masks[body]
 
@@ -320,7 +470,7 @@ def main():
                 core.diff_std[kk, 0] = torch.maximum(diff[ok[sel][:, :-1]].std(0), floor_diff[bsel[0]])
                 core.act_mean[kk, 0] = act.mean(0)
                 core.act_std[kk, 0] = torch.maximum(act.std(0), torch.full_like(act[0], 1e-3))
-                m_s, m_a = model.smask[bsel[0]], model.amask[bsel[0]]
+                m_s, m_a = model.core_smask[bsel[0]], model.amask[bsel[0]]   # the input mask that run_core uses
                 zc = (cur - core.in_mean[kk, 0]) / core.in_std[kk, 0] * m_s
                 za = (act - core.act_mean[kk, 0]) / core.act_std[kk, 0] * m_a
                 design = torch.cat((zc, za, torch.ones_like(zc[:, :1])), -1)
@@ -334,27 +484,90 @@ def main():
                 core.out_std[kk, o] = torch.maximum(torch.maximum(resid.std(0), 1e-3 * rms), 1e-4 * core.in_std[kk, 0])
                 core.lin.data[kk][:, o] = beta / core.out_std[kk, o]
                 event("core_linear_fit", kind=model.kind_names[kk], residual_over_rms=(resid.std(0) / rms.clamp_min(1e-30)).tolist())
-    # Contact-free validation steps of the core (its one-step error sets the history noise).
+    # Contact-free validation steps of the core (its one-step error sets the history noise; with core-only episodes
+    # their windows are in the core report, but the noise comes from the other windows: see noise_rows).
     with torch.no_grad():
         pv = []
         for b in range(n_mov):
             w = torch.nonzero(vwin & ~involved[..., b])
+            if store is not None:
+                w = torch.cat((w, torch.nonzero(c_vwin & ~c_involved[..., b]) + shift))
             w = w[torch.randperm(len(w), device=dev, generator=rng)[:100000]]
             pv.append(torch.cat((w, torch.full_like(w[:, :1], b)), -1))
         pv = torch.cat(pv)
-        pv_h, pv_ok = hist_of(pv[:, :2])
-        pv_h = pv_h[torch.arange(len(pv), device=dev), :, pv[:, 2]][:, :, None]
-        pv_a = actions[pv[:, 0], pv[:, 1], pv[:, 2]][:, None]
-        pv_t = (states[pv[:, 0], pv[:, 1] + stride, pv[:, 2]] - pv_h[:, -1, 0]) * masks[pv[:, 2]]
+        trace("core_validation", pv[:, 0])
+        pv_h, pv_ok, pv_a, pv_t = core_rows(pv)
         pv_b = pv[:, 2]
+        # The history noise is an input noise of the collision and contact training, so core-only windows do not set
+        # it (a body without other validation windows uses all of its own).
+        noise_rows = [pv_b == b for b in range(n_mov)]
+        if store is not None:
+            from_core = pv[:, 0] >= n_ep
+            noise_rows = [r & ~from_core if bool((r & ~from_core).any()) else r for r in noise_rows]
+            event("history_noise_windows", bodies={moving_b[b]["name"]: {"used": int(noise_rows[b].sum()),
+                                                                          "core_only_left_out": int((noise_rows[b] != (pv_b == b)).sum())}
+                                                   for b in range(n_mov)})
 
     def core_val():
         with torch.no_grad():
             return torch.cat([core_pred(h, o, a, b) for h, o, a, b in
                               zip(pv_h.split(16384), pv_ok.split(16384), pv_a.split(16384), pv_b.split(16384))]) - pv_t
 
+    # Optional history-noise rule (config "history_noise", absent in train.json = the released rule): the noise is
+    # multiplied by "scale" and capped per channel at "cap_step_rms" x the RMS of the one-step change on training
+    # steps with one active pair (for systems whose contact-free steps are much harder than their contact steps).
+    # With "floor_step_rms" the noise of each rate channel is at least that fraction of the same RMS (for bodies whose
+    # free motion is far easier than their contact motion, e.g. a cube that only flies when it is free: the pair
+    # networks must still see history errors of the size that their own contact steps make).
+    noise_rule = cfg.get("history_noise") or {}
+    noise_scale, noise_cap = float(noise_rule.get("scale", 1.0)), noise_rule.get("cap_step_rms")
+    noise_floor = noise_rule.get("floor_step_rms")
+    if set(noise_rule) - {"scale", "cap_step_rms", "floor_step_rms", "skip_first_step", "pose_shift", "pose_shift_for", "rate_kick"}:
+        raise ValueError(f"history_noise takes scale, cap_step_rms, floor_step_rms, skip_first_step, pose_shift and rate_kick, not {noise_rule}")
+    pose_shift = noise_rule.get("pose_shift")   # see shift_poses
+    shift_for = set(noise_rule.get("pose_shift_for", ["collision", "contact"]))   # the networks whose examples it moves
+    if shift_for - {"collision", "contact"}:
+        raise ValueError(f"history_noise pose_shift_for takes collision and/or contact, not {shift_for}")
+    rate_kick = noise_rule.get("rate_kick")     # see kick_rates
+    if noise_rule.get("skip_first_step"):   # first-step windows (one history entry, recorded rates) follow another rule
+        full_hist = pv_ok.sum(-1) >= 2
+        noise_rows = [r & full_hist if bool((r & full_hist).any()) else r for r in noise_rows]
+    if noise_cap is not None or noise_floor is not None:
+        with torch.no_grad():
+            one = torch.nonzero(train & (labels.sum(-1) == 1))
+            one = one[torch.linspace(0, len(one) - 1, min(len(one), 400000), device=dev).round().long()]
+            trace("noise_cap", one[:, 0])
+            on = labels[one[:, 0], one[:, 1]]
+            change = (states[one[:, 0], one[:, 1] + stride] - states[one[:, 0], one[:, 1]]) * masks
+            one_rms = torch.full((n_mov, smax), float("inf"), dtype=torch.float64, device=dev)
+            for b in range(n_mov):
+                hit = torch.zeros(len(one), dtype=torch.bool, device=dev)
+                for p, (i, j) in enumerate(pairs):
+                    if slot[i] == b or slot.get(j, -1) == b:
+                        hit |= on[:, p]
+                if hit.any():
+                    one_rms[b] = change[hit, b].square().mean(0).sqrt()
+            cap_rms = float(noise_cap) * one_rms if noise_cap is not None else None
+            floor_rms = None
+            if noise_floor is not None:   # rate channels only; the pose noise follows from the rates (pose_noise)
+                rate_cols = torch.zeros(n_mov, smax, dtype=torch.bool, device=dev)
+                for d, ts in enumerate(types):
+                    for c, t in enumerate(ts):
+                        rate_cols[d, c] = t in ("velocity", "angular_rate", "angular_velocity", "derived_velocity",
+                                                "derived_angular_velocity", "relative_velocity")
+                floor_rms = torch.where(rate_cols & torch.isfinite(one_rms), float(noise_floor) * one_rms, 0.0)
+        event("history_noise_rule", scale=noise_scale, cap_step_rms=noise_cap, floor_step_rms=noise_floor,
+              cap=None if cap_rms is None else torch.where(torch.isfinite(cap_rms), cap_rms, -1.0).tolist(),
+              floor=None if floor_rms is None else floor_rms.tolist())
+
     def core_sigma(err):
-        return pose_noise(torch.stack([err[pv_b == b].square().mean(0).sqrt() for b in range(n_mov)]) * masks)
+        rms = torch.stack([err[noise_rows[b]].square().mean(0).sqrt() for b in range(n_mov)])
+        rms = torch.where(derived_cols, 0.0, rms)   # derived channels: no core error (only the floor rule gives them noise)
+        if noise_cap is not None:
+            rms = torch.minimum(rms, cap_rms)
+        if noise_floor is not None:
+            rms = torch.maximum(rms, floor_rms)
+        return pose_noise(rms * masks) * noise_scale if noise_rule else pose_noise(rms * masks)
 
     if not (output / "core.pt").exists():
         err = core_val()   # co-training starts from the linear core; the noise follows that core's error
@@ -365,7 +578,17 @@ def main():
             for b in range(n_mov):
                 e = err[pv_b == b].abs()
                 report[moving_b[b]["name"]] = {"median": e.median(0).values.tolist(), "p95": torch.quantile(e.float(), 0.95, dim=0).tolist()}
-        atomic_json(output / "core_validation.json", report)
+            by_use = {}
+            if store is not None:   # the same windows split into those of the other and of core-only families
+                for use, part in (("task", ~from_core), ("core_only", from_core)):
+                    by_use[use] = {}
+                    for b in range(n_mov):
+                        e = err[(pv_b == b) & part].abs()
+                        if len(e):
+                            by_use[use][moving_b[b]["name"]] = {"windows": len(e), "median": e.median(0).values.tolist(),
+                                                                "p95": torch.quantile(e.float(), 0.95, dim=0).tolist(),
+                                                                "rms": e.square().mean(0).sqrt().tolist()}
+        atomic_json(output / "core_validation.json", {**report, **({"by_use": by_use} if by_use else {})})
         event("core_validation", **{k: v["median"] for k, v in report.items()})
         save(output / "core.pt", "core", 0)
     for p in core.parameters():
@@ -384,11 +607,12 @@ def main():
         rows = torch.arange(len(windows), device=dev)
         return model.pair_inputs(cur, diff, act_of(windows), lag_ok, rows, pairs_)
 
-    def fit_inputs(net, pools):
+    def fit_inputs(net, pools, component):
         """Input standardisation of a pair network, per pair and role position."""
         with torch.no_grad():
             for p, wins in enumerate(pools):
                 wins = wins[torch.randperm(len(wins), device=dev, generator=rng)[:50000]]
+                trace(component, wins[:, 0])
                 c, df, a, present, has, kind, lag_ok, _, _, _, _ = pair_raw(wins, torch.full((len(wins),), p, device=dev))
                 for q in range(c.shape[1]):
                     if not present[:, q].any():
@@ -413,24 +637,101 @@ def main():
     strata = [(torch.nonzero(labels[..., p] & train), torch.nonzero(near[..., p] & train),
                torch.nonzero(labels[..., p] & vwin), torch.nonzero(near[..., p] & vwin)) for p in range(n_pairs)]
     any_val = torch.nonzero(vwin)
+    # Optional collision sampling (config "collision_sampling": "sqrt_families", absent = the released rule): the
+    # training contact and near-contact steps of each pair are drawn by family, each family in proportion to the square
+    # root of its count, so that rare contact geometries (a fingertip landing on the cube's top in a near miss, a single
+    # jaw against the cube on the table) are not drowned by the holds of normal grasps. Needs a family array.
+    coll_sampling = cfg.get("collision_sampling")
+    if coll_sampling not in (None, "sqrt_families") or (coll_sampling and family is None):
+        raise ValueError(f"collision_sampling takes sqrt_families (data with families), not {coll_sampling}")
+
+    def by_family(pool):
+        """[(windows of one family, weight)] of a pool of training windows (sqrt of the family counts)."""
+        f = family[pool[:, 0]]
+        groups = [pool[f == k] for k in torch.unique(f).tolist()]
+        w = torch.tensor([math.sqrt(len(g)) for g in groups], dtype=torch.float64)
+        return list(zip(groups, (w / w.sum()).tolist()))
+    fam_strata = [(by_family(pos), by_family(neg)) if coll_sampling else None for pos, neg, _, _ in strata]
+
+    def draw(pool, groups, n):
+        if groups is None:
+            return sample(pool, n)
+        return torch.cat([sample(g, max(1, int(round(n * w)))) for g, w in groups])
 
     def collision_batch(n, split="train"):
         """Per pair: 1/3 contact steps, 1/3 near-contact steps, the rest any step."""
         out = []
         for p, (pos, neg, vpos, vneg) in enumerate(strata):
+            fg = fam_strata[p] if split == "train" else None
             pos, neg, anyw = (pos, neg, any_train) if split == "train" else (vpos, vneg, any_val)
             m = max(3, n // n_pairs)
-            parts = [sample(pos, m // 3)] if len(pos) else []
-            parts += [sample(neg, m // 3)] if len(neg) else []
-            parts.append(sample(anyw, m - sum(len(q) for q in parts)))
+            parts = [draw(pos, fg and fg[0], m // 3)] if len(pos) else []
+            parts += [draw(neg, fg and fg[1], m // 3)] if len(neg) else []
+            parts.append(sample(anyw, max(0, m - sum(len(q) for q in parts))))
             wnd = torch.cat(parts)
             out.append(torch.cat((wnd, torch.full_like(wnd[:, :1], p)), -1))
-        return torch.cat(out)
+        out = torch.cat(out)
+        trace("collision" if split == "train" else "collision_validation", out[:, 0])
+        return out
+
+    pose_types = {"position", "angle"}
+    shift_cols = torch.tensor([[t in pose_types for t in ts] + [False] * (smax - len(ts)) for ts in types], device=dev)
+    quat_cols = [torch.tensor([c for c, t in enumerate(ts) if t == "quaternion"], dtype=torch.long, device=dev) for ts in types]
+
+    def shift_poses(h, net):
+        """history_noise "pose_shift" k (pair-network training only): move the whole history of every body by one
+        random pose offset of k x its pose noise (positions and joint angles shifted, quaternions turned by one small
+        world-frame rotation; derived channels recomputed), so that the switch and contact networks see the absolute
+        drift of a rollout (a resting cube that is 1 mm high or tilted by a degree), not only noisy differences."""
+        if not pose_shift or net not in shift_for:
+            return h
+        b, k = h.shape[:2]
+        off = torch.randn(b, 1, n_mov, smax, dtype=h.dtype, device=dev, generator=None) * sigma * float(pose_shift)
+        h = h + torch.where(shift_cols, off, 0.0)
+        for n, qc in enumerate(quat_cols):
+            if len(qc) == 4:
+                half = 0.5 * torch.randn(b, 1, 3, dtype=h.dtype, device=dev) * (2 * sigma[n, qc[1:]] * float(pose_shift))
+                ang = half.norm(dim=-1, keepdim=True)
+                dq = torch.cat((torch.cos(ang), torch.where(ang > 1e-12, torch.sin(ang) / ang.clamp_min(1e-12), torch.ones_like(ang)) * half), -1)
+                h = h.clone()
+                h[:, :, n, qc] = model._qmul(dq.expand(b, k, 4), h[:, :, n, qc])
+        return model.finish(h.reshape(b * k, n_mov, smax)).reshape(b, k, n_mov, smax)
+
+    def kick_rates(h, ok):
+        """history_noise "rate_kick" {"size": k, "mix": [lo, hi]} (contact examples only): the newest history state
+        of every integrated body gets a rate error e ~ N(0, (m k sigma)^2) with a per-example log-uniform factor m
+        (heavy tail, as rollout drift); its pose moves by dt e (quaternion: turned by dt e_w) and the derived channels
+        follow. The target stays the recorded next state, so the contact network learns to remove a spurious slip of
+        its own state within one step (a held cube whose velocity left the gripper's)."""
+        if not rate_kick:
+            return h
+        b = h.shape[0]
+        lo, hi = rate_kick.get("mix", [1.0, 1.0])
+        m = torch.exp(torch.empty(b, 1, 1, dtype=h.dtype, device=dev).uniform_(math.log(lo), math.log(hi)))
+        e = torch.randn(b, n_mov, smax, dtype=h.dtype, device=dev) * sigma * float(rate_kick["size"]) * m
+        cur = h[:, -1].clone()
+        for n in torch.nonzero(model.integ_body).flatten().tolist():
+            pc, qc, vc, wc = (model.chan[n, k][model.chan[n, k] >= 0] for k in range(4))
+            if len(vc):
+                cur[:, n, vc] += e[:, n, vc]
+                if len(pc):
+                    cur[:, n, pc] += model.dt * e[:, n, vc]
+            if len(wc) == 3:
+                cur[:, n, wc] += e[:, n, wc]
+                if len(qc) == 4:
+                    half = 0.5 * model.dt * e[:, n, wc]
+                    ang = half.norm(dim=-1, keepdim=True)
+                    dq = torch.cat((torch.cos(ang), torch.where(ang > 1e-12, torch.sin(ang) / ang.clamp_min(1e-12), torch.ones_like(ang)) * half), -1)
+                    cur[:, n, qc] = model._qmul(dq, cur[:, n, qc])
+        h = h.clone()
+        h[:, -1] = torch.where(ok[:, -1, None, None], model.finish(cur), h[:, -1])
+        return h
 
     def collision_logits(picks, train_mode):
         h, ok = hist_of(picks[:, :2])
         if train_mode:
             ok = drop_history(ok)
+            h = shift_poses(h, "collision")
         cur, diff, lag_ok = model.code(h, ok, sigma if train_mode else None)
         return model.logits(cur, diff, act_of(picks[:, :2]), lag_ok, torch.arange(len(picks), device=dev), picks[:, 2])
 
@@ -445,7 +746,7 @@ def main():
         load_stage(output / "collision.pt")
         event("collision_loaded")
     else:
-        fit_inputs(coll, pools)
+        fit_inputs(coll, pools, "collision_inputs")
         spec = cfg["collision"]
         params = [p for p in coll.parameters() if p.requires_grad]
         opt = torch.optim.AdamW(params, lr=spec["lr"], weight_decay=0.0)
@@ -476,6 +777,29 @@ def main():
     # ---- 3. contact network, co-trained with the core -----------------------------
     cont = model.contact
     hit_windows = torch.nonzero(train & labels.any(-1))   # contact batches; rollout starts lie 1..horizon steps before
+    # Optional contact sampling (config "contact_sampling": "sqrt_groups", absent = the released rule: uniform over
+    # contact windows): group the contact windows by the set of pairs that are on and draw each group in proportion to
+    # the square root of its size (as the core's bins), for the contact batches and the contact-near rollout starts.
+    # Rare combinations (one jaw and the table) then get several times their natural share.
+    # "sqrt_family_groups" groups by family and pair set (data with families): a rare family's holds (weak closure) are
+    # then not drowned by the holds of normal grasps.
+    sampling = cfg.get("contact_sampling")
+    if sampling not in (None, "sqrt_groups", "sqrt_family_groups") or (sampling == "sqrt_family_groups" and family is None):
+        raise ValueError(f"contact_sampling takes sqrt_groups or sqrt_family_groups (data with families), not {sampling}")
+    if sampling:
+        code_ = (labels[hit_windows[:, 0], hit_windows[:, 1]].long() * (2 ** torch.arange(n_pairs, device=dev))).sum(-1)
+        if sampling == "sqrt_family_groups":
+            code_ = code_ + (2 ** n_pairs) * family[hit_windows[:, 0]]
+        hit_groups = [hit_windows[code_ == c] for c in torch.unique(code_).tolist()]
+        hit_weights = torch.tensor([math.sqrt(len(g)) for g in hit_groups], dtype=torch.float64)
+        hit_weights = (hit_weights / hit_weights.sum()).tolist()
+        event("contact_sampling", rule=sampling, groups={str(int(torch.unique(code_)[k])): [len(g), round(w, 4)]
+                                                          for k, (g, w) in enumerate(zip(hit_groups, hit_weights))})
+
+    def sample_hits(n):
+        if not sampling:
+            return sample(hit_windows, n)
+        return torch.cat([sample(g, max(1, int(round(n * w)))) for g, w in zip(hit_groups, hit_weights)])
 
     def own_history(windows, m):
         """Histories whose last m entries are the model's own steps (recorded switches and commands)."""
@@ -499,17 +823,57 @@ def main():
         return h, ok
 
     push_stats = {"tried": 0, "kept": 0}
+    # Optional own-history guard rule (config "push_guard", absent in train.json = the released rule): "unit":
+    # "all_hit" measures a deviation in RMS one-step changes over all contact windows of every body (the released
+    # unit uses only single-contact steps that touch the body, which can be ~0 for a joint that does not move while
+    # it touches, so that almost every own history fails); "bodies": "affected" judges only the bodies that a pair
+    # of the window touches (an untouched body's own history is the core's, which the contact label does not judge).
+    guard = cfg.get("push_guard") or {}
+    if set(guard) - {"unit", "bodies"} or guard.get("unit", "single") not in ("single", "all_hit") \
+            or guard.get("bodies", "all") not in ("all", "affected"):
+        raise ValueError(f"push_guard takes unit: single | all_hit and bodies: all | affected, not {guard}")
+    # Optional loss-scale rule (config "loss_scale", absent in train.json = the released rule: kappa(type) x the RMS of
+    # each channel's contact residual on single-contact steps). "step_type": kappa(type) x the RMS of the one-step
+    # change over all contact windows, pooled over the channels of one type in one body (all joint rates of an arm
+    # share one scale; vx, vy, vz of a body share one). It sets the contact loss and, x rollout_scale_factor, the
+    # rollout loss. The released rule gives a channel whose contact effect is ~0 (a joint that does not move while
+    # it touches) a ~0 scale, so that channel dominates both losses.
+    loss_rule = (cfg.get("loss_scale") or {}).get("rule")
+    # "kappa": {channel type: value} replaces TYPE_RULES' kappa of those types in the "step_type" rule (e.g. the angular
+    # velocity kappa equal to the velocity kappa, so that a cube's spin error counts like its speed error).
+    kappa_over = (cfg.get("loss_scale") or {}).get("kappa") or {}
+    contact_huber = cfg.get("contact_huber")   # absent = the released squared contact loss
+    contact_huber = None if contact_huber is None else float(contact_huber)
+    if cfg.get("loss_scale") and (set(cfg["loss_scale"]) - {"rule", "kappa"} or loss_rule != "step_type"
+                                  or set(kappa_over) - set(TYPE_RULES)):
+        raise ValueError(f"loss_scale takes rule: step_type and kappa {{type: value}}, not {cfg['loss_scale']}")
+
+    def affected_of(g):
+        """[n, D] 1 for each body that a pair with switch g [n, P] on touches."""
+        affected = torch.zeros(len(g), n_mov, dtype=torch.float64, device=dev)
+        for p in range(n_pairs):
+            on = g[:, p] > 0.5
+            affected[on, model.pair_pos[p, 0]] = 1.0
+            if model.pair_mm[p]:
+                affected[on, model.pair_pos[p, 1]] = 1.0
+        return affected
 
     def contact_example(windows, train_mode, push=0.0, core_grad=False):
         """One step with the recorded switches; with probability `push` the history is the model's own (kept only
         if its last state lies within push_max_dev one-step RMS changes of the record)."""
         h, ok = hist_of(windows)
+        g = labels[windows[:, 0], windows[:, 1]].to(torch.float64)
+        affected = affected_of(g)
         if push > 0:
             sel = torch.nonzero(torch.rand(len(windows), device=dev, generator=rng) < push).flatten()
             if len(sel):
                 m = torch.randint(1, cfg["push_max_steps"] + 1, (len(sel),), device=dev, generator=rng)
                 hs, oks = own_history(windows[sel], m)
-                dev_ = ((hs[:, -1] - h[sel, -1]) * masks / step_rms).abs().amax((-1, -2))
+                if guard:
+                    dev_b = ((hs[:, -1] - h[sel, -1]) * masks / guard_unit).abs().amax(-1)          # [n, D]
+                    dev_ = (dev_b * affected[sel] if guard.get("bodies") == "affected" else dev_b).amax(-1)
+                else:
+                    dev_ = ((hs[:, -1] - h[sel, -1]) * masks / step_rms).abs().amax((-1, -2))
                 keep = dev_ <= cfg["push_max_dev"]
                 push_stats["tried"] += len(sel)
                 push_stats["kept"] += int(keep.sum())
@@ -518,15 +882,9 @@ def main():
                 h[sel], ok[sel] = hs, oks
         if train_mode:
             ok = drop_history(ok)
-        g = labels[windows[:, 0], windows[:, 1]].to(torch.float64)
+            h = kick_rates(shift_poses(h, "contact"), ok)
         pred = model.step_with_gates(h, ok, act_of(windows), g, sigma if train_mode else None, core_grad=core_grad)
         y = states[windows[:, 0], windows[:, 1] + stride]
-        affected = torch.zeros(len(windows), n_mov, dtype=torch.float64, device=dev)
-        for p in range(n_pairs):
-            on = g[:, p] > 0.5
-            affected[on, model.pair_pos[p, 0]] = 1.0
-            if model.pair_mm[p]:
-                affected[on, model.pair_pos[p, 1]] = 1.0
         return pred, y, affected, h[:, -1]
 
     resume_path = output / "contact_state.pt"
@@ -541,11 +899,12 @@ def main():
             for p in range(n_pairs):
                 w = torch.nonzero(labels[..., p] & train)
                 cpools.append(w if len(w) > 200 else pools[p])
-            fit_inputs(cont, cpools)
+            fit_inputs(cont, cpools, "contact_inputs")
             # Output scale and linear path per pair from steps with exactly one contact (attributed to that pair).
             gt = labels[hit_windows[:, 0], hit_windows[:, 1]]
             single = hit_windows[gt.sum(-1) == 1]
             single = single[torch.randperm(len(single), device=dev, generator=rng)[:400000]]
+            trace("contact_fit", single[:, 0])
             sp = labels[single[:, 0], single[:, 1]].float().argmax(-1)
             h, ok = hist_of(single)
             act = act_of(single)
@@ -553,6 +912,7 @@ def main():
             core_d = torch.cat([model.run_core(*t) for t in zip(cur.split(65536), diff.split(65536), act.split(65536), lag_ok.split(65536))])
             resid = (states[single[:, 0], single[:, 1] + stride] - cur - core_d) * masks           # [n, D, S]
             fit_resid = resid.clone()   # integrated pose: the contact network's pose output is not used
+            fit_resid[:, derived_cols] = 0.0   # nor its derived outputs
             for n in torch.nonzero(model.integ_body).flatten().tolist():
                 pc_ = model.chan[n, 0][model.chan[n, 0] >= 0]
                 if len(pc_):
@@ -604,17 +964,40 @@ def main():
                 if touched_b.any():
                     r = step[touched_b, b].square().mean(0).sqrt()
                     srms[b] = torch.where(masks[b] > 0, r.clamp_min(1e-12), torch.ones_like(r))
-        event("contact_linear_fit", loss_scale=sc.tolist(), step_rms=srms.tolist(), **fit_report)
-        (output / "contact_scale.json").write_text(json.dumps({"scale": sc.tolist(), "step_rms": srms.tolist()}))
+            extra_scale = {}
+            if guard.get("unit") == "all_hit" or loss_rule:   # every body over a sample of all contact windows
+                aw = hit_windows[torch.randperm(len(hit_windows), device=dev, generator=rng)[:400000]]
+                trace("push_guard_unit", aw[:, 0])
+                step_a = (states[aw[:, 0], aw[:, 1] + stride] - states[aw[:, 0], aw[:, 1]]) * masks
+                r = step_a.square().mean(0).sqrt()
+                extra_scale["step_rms_all"] = torch.where(masks > 0, r.clamp_min(1e-12), torch.ones_like(r)).tolist()
+                if loss_rule:   # loss_scale "step_type": kappa(type) x RMS step change pooled over the body's channels of that type
+                    pooled = torch.ones(n_mov, smax, dtype=torch.float64, device=dev)
+                    for b, ts in enumerate(types):
+                        for t in set(ts):
+                            cols = torch.tensor([c for c, tt in enumerate(ts) if tt == t and masks[b, c] > 0], dtype=torch.long, device=dev)
+                            if len(cols):
+                                pooled[b, cols] = r[b, cols].square().mean().sqrt().clamp_min(1e-12)
+                    extra_scale["scale_released_rule"] = sc.tolist()
+                    kap = kappa.clone()
+                    for d_, ts in enumerate(types):
+                        for c_, t in enumerate(ts):
+                            if t in kappa_over:
+                                kap[d_, c_] = float(kappa_over[t])
+                    sc = torch.where(masks > 0, kap * pooled, torch.ones_like(pooled))
+        event("contact_linear_fit", loss_scale=sc.tolist(), step_rms=srms.tolist(), **extra_scale, **fit_report)
+        (output / "contact_scale.json").write_text(json.dumps({"scale": sc.tolist(), "step_rms": srms.tolist(), **extra_scale}))
 
     _sc = json.loads((output / "contact_scale.json").read_text())
     scale = torch.tensor(_sc["scale"], dtype=torch.float64, device=dev)
     step_rms = torch.tensor(_sc["step_rms"], dtype=torch.float64, device=dev)
+    guard_unit = torch.tensor(_sc["step_rms_all"], dtype=torch.float64, device=dev) if guard.get("unit") == "all_hit" else step_rms
     vpos = torch.nonzero(vwin & labels.any(-1))
     vpos = vpos[torch.randperm(len(vpos), device=dev, generator=rng)[: (200 if smoke else 20000)]]
 
     def onestep():
         """One-step contact error on validation contact steps (recorded and own histories), in loss scales."""
+        trace("onestep", vpos[:, 0])
         with torch.no_grad():
             out = {}
             for name, push in (("true", 0.0), ("own", 1.0)):
@@ -629,8 +1012,13 @@ def main():
             return out
 
     def contact_loss(windows, push, train_mode=True, core_grad=False):
+        trace("contact", windows[:, 0])
         pred, y, aff, _ = contact_example(windows, train_mode, push, core_grad)
-        err = ((pred - y) * core_masks / scale).square().sum(-1) / core_masks.sum(-1).clamp_min(1)
+        if contact_huber is None:
+            err = ((pred - y) * core_masks / scale).square().sum(-1) / core_masks.sum(-1).clamp_min(1)
+        else:   # config "contact_huber": Huber of the scaled error (delta in scale units), as the rollout loss
+            z = (pred - y) * core_masks / scale
+            err = F.huber_loss(z, torch.zeros_like(z), reduction="none", delta=contact_huber).sum(-1) / core_masks.sum(-1).clamp_min(1)
         return (err * aff).sum() / aff.sum().clamp_min(1)
 
     rscale = scale * cfg["rollout_scale_factor"]
@@ -638,9 +1026,10 @@ def main():
     def rollout_loss(horizon, batch):
         """Huber loss of free rollouts (the model's own states, recorded commands) against the recorded trajectory;
         half of the starts lie 1..horizon steps before a contact step."""
-        starts = sample(hit_windows, batch // 2).clone()
+        starts = sample_hits(batch // 2).clone()
         starts[:, 1] = (starts[:, 1] - torch.randint(1, max(2, horizon), (len(starts),), device=dev, generator=rng) * stride).clamp_min(0)
-        w = torch.cat((starts, sample(any_train, batch - len(starts))))
+        w = torch.cat((starts, sample(any_train, max(0, batch - len(starts)))))
+        trace("rollout", w[:, 0])
         h, ok = hist_of(w)
         current = h[:, -1]
         total, den = current.sum() * 0.0, 0
@@ -657,13 +1046,56 @@ def main():
             h, ok = model.advance(h, ok, current)
         return total / max(1, den)
 
+    # Optional co-training of the collision network in this stage (config "collision_cotrain", absent in train.json =
+    # the released rule: frozen after stage 2): its binary cross-entropy on the stage-2 batches (contact, near-contact
+    # and any steps) joins the joint loss, with weight "weight" (default 1, divided by its running mean like the other
+    # terms), batch "batch" (default the stage-2 batch) and learning-rate factor "lr_scale" (default 1). With "push"
+    # (default true) a fraction push_prob of its histories are the model's own 1-3 steps after push_start, kept if
+    # every body lies within push_max_dev guard units of the record (the switch then sees the states it meets in a
+    # rollout, with the recorded label).
+    coll_on = cfg.get("collision_cotrain") is not None   # {} = on, with the defaults
+    coll_co = cfg.get("collision_cotrain") or {}
+    if set(coll_co) - {"weight", "batch", "lr_scale", "push"}:
+        raise ValueError(f"collision_cotrain takes weight, batch, lr_scale and push, not {coll_co}")
+    coll_push = {"tried": 0, "kept": 0}
+
+    def collision_co_loss(n, push):
+        picks = collision_batch(n)
+        w = picks[:, :2]
+        h, ok = hist_of(w)
+        if push > 0:
+            sel = torch.nonzero(torch.rand(len(w), device=dev, generator=rng) < push).flatten()
+            if len(sel):
+                m = torch.randint(1, cfg["push_max_steps"] + 1, (len(sel),), device=dev, generator=rng)
+                hs, oks = own_history(w[sel], m)
+                keep = ((hs[:, -1] - h[sel, -1]) * masks / guard_unit).abs().amax((-1, -2)) <= cfg["push_max_dev"]
+                coll_push["tried"] += len(sel)
+                coll_push["kept"] += int(keep.sum())
+                sel, hs, oks = sel[keep], hs[keep], oks[keep]
+                h, ok = h.clone(), ok.clone()
+                h[sel], ok[sel] = hs, oks
+        ok = drop_history(ok)
+        h = shift_poses(h, "collision")
+        cur, diff, lag_ok = model.code(h, ok, sigma)
+        logits = model.logits(cur, diff, act_of(w), lag_ok, torch.arange(len(picks), device=dev), picks[:, 2])
+        return F.binary_cross_entropy_with_logits(logits, labels[picks[:, 0], picks[:, 1], picks[:, 2]].to(torch.float64))
+
     if not (output / "contact_done.json").exists():
         # L_core + L_contact + L_trajectory, each divided by its running mean
         for p in core.parameters():
             p.requires_grad_(True)
         joint = [p for p in list(core.parameters()) + list(cont.parameters()) if p.requires_grad]
         count = 5 if smoke else co["updates"]
-        opt = torch.optim.AdamW(joint, lr=co["lr"], weight_decay=0.0)
+        joint_coll = []
+        if coll_on:
+            for name_, p in coll.named_parameters():
+                p.requires_grad_(name_ != "lin")   # the collision network has no linear path
+            joint_coll = [p for p in coll.parameters() if p.requires_grad]
+            opt = torch.optim.AdamW([{"params": joint, "lr_scale": 1.0},
+                                     {"params": joint_coll, "lr_scale": float(coll_co.get("lr_scale", 1.0))}],
+                                    lr=co["lr"], weight_decay=0.0)
+        else:
+            opt = torch.optim.AdamW(joint, lr=co["lr"], weight_decay=0.0)
         first, ema = 1, {}
         if resume_path.exists():
             state = torch.load(resume_path, map_location=dev, weights_only=False)
@@ -680,26 +1112,32 @@ def main():
         for update in range(first, count + 1):
             frac = update / count
             for g in opt.param_groups:
-                g["lr"] = co["lr"] * cosine(update, count, co["warmup"], 0.01)
+                g["lr"] = co["lr"] * cosine(update, count, co["warmup"], 0.01) * g.get("lr_scale", 1.0)
             hb, okb, ab, bb, tb = core_batch(64 if smoke else co["core_batch"])
             okb = drop_history(okb)
             kind = model.body_kind[bb]
             kscale = torch.stack([core.out_std[k, k * smax:(k + 1) * smax] for k in range(nk)])[kind]
             terms = {"core": (((core_pred(hb, okb, ab, bb, sigma) - tb) / kscale).square() * core_masks[bb]).sum() / core_masks[bb].sum()}
             push = cfg["push_prob"] if update > push_from else 0.0
-            terms["contact"] = contact_loss(sample(hit_windows, 64 if smoke else co["contact_batch"]), push, core_grad=True)
+            terms["contact"] = contact_loss(sample_hits(64 if smoke else co["contact_batch"]), push, core_grad=True)
             if update % traj_every == 0:
                 horizon = 4 if smoke else round(h0 + (h1 - h0) * min(1.0, frac / co["horizon_ramp"]))
                 terms["traj"] = rollout_loss(horizon, 4 if smoke else co["traj_batch"])
+            if coll_on:
+                terms["collision"] = collision_co_loss(64 if smoke else int(coll_co.get("batch", cfg["collision"]["batch"])),
+                                                       push if coll_co.get("push", True) else 0.0)
             total = 0.0
             for name, value in terms.items():
                 v = float(value.detach())
                 ema[name] = v if name not in ema else 0.99 * ema[name] + 0.01 * v
-                weight = traj_every * min(1.0, frac / co["traj_ramp"]) if name == "traj" else 1.0
+                weight = traj_every * min(1.0, frac / co["traj_ramp"]) if name == "traj" else \
+                    float(coll_co.get("weight", 1.0)) if name == "collision" else 1.0
                 total = total + weight * value / max(ema[name], 1e-30)
             opt.zero_grad(set_to_none=True)
             total.backward()
             gnorm = torch.nn.utils.clip_grad_norm_(joint, 1.0)
+            if joint_coll:   # the collision network is clipped on its own
+                gnorm = gnorm + torch.nn.utils.clip_grad_norm_(joint_coll, 1.0)
             if not torch.isfinite(gnorm):
                 event("cotrain_nonfinite_gradient", update=update)
                 opt.zero_grad(set_to_none=True)
@@ -707,9 +1145,13 @@ def main():
             opt.step()
             if update % (5 if smoke else cfg["evaluate_every"]) == 0 or update == count:
                 sigma = core_sigma(core_val())   # the noise follows the current core's one-step error
+                # push_kept_fraction (as released): the training pushes since the last check and those of onestep()
+                extra = {"collision_push_kept_fraction": coll_push["kept"] / max(1, coll_push["tried"])} if coll_on else {}
                 check("cotrain", update, total.detach(), {**onestep(), **{f"ema_{k}": v for k, v in ema.items()},
-                                                          "push_kept_fraction": push_stats["kept"] / max(1, push_stats["tried"])})
+                                                          "push_kept_fraction": push_stats["kept"] / max(1, push_stats["tried"]),
+                                                          **extra})
                 push_stats.update(tried=0, kept=0)
+                coll_push.update(tried=0, kept=0)
                 tmp = output / "contact_state.pt.tmp"
                 torch.save(dict(model_state_dict=model.state_dict(), optimizer=opt.state_dict(), rng=rng.get_state(),
                                 best=best["score"], update=update, ema=ema, sigma=sigma.tolist()), tmp)
@@ -719,21 +1161,29 @@ def main():
     # ---- 4. final validation of best.pt -------------------------------------------
     if not (output / "complete.json").exists():
         model_best, metadata = load_model(output / "best.pt", dev)
+        trace("final_validation", val)
         with torch.no_grad():
-            report = free_metrics(model_best, data, val)
+            report = file_rows(evaluate(model_best, data, val, by_family=True), data)
         atomic_json(output / "validation.json", report)
+        chosen = report.get("selected", report)   # the families that checkpoint selection used
         done = dict(complete=True, smoke=smoke, test_used_for_selection=False, total_elapsed_s=time.perf_counter() - start,
                     checkpoint_sha256=file_sha256(output / "best.pt"), best_stage=metadata["stage"],
-                    best_update=metadata["update"], validation_score=report["selection_score"], checkpoints_compared=checks["count"],
-                    target_pos_median_mm=1000 * report["target_pos_m"]["median"], target_pos_p95_mm=1000 * report["target_pos_m"]["p95"],
-                    target_angle_median_deg=math.degrees(report["target_angle_rad"]["median"]),
-                    target_angle_p95_deg=math.degrees(report["target_angle_rad"]["p95"]),
-                    moved_pos_median_mm=1000 * report["moved_target_pos_m"]["median"],
-                    moved_angle_median_deg=math.degrees(report["moved_target_angle_rad"]["median"]),
-                    path_p95_mm=1000 * report["path_rmse_m"]["p95"], ee_p95_mm=1000 * report["ee_rmse_m"]["p95"],
-                    events_ok=report["event_ok_fraction"], finite=report["finite_fraction"])
+                    best_update=metadata["update"], validation_score=chosen["selection_score"], checkpoints_compared=checks["count"])
+        if "evaluation" in system:
+            done.update(score_terms={t["stat"]: t["value"] for t in chosen["score_terms"]}, finite=report["finite_fraction"],
+                        family_scores={k: v["selection_score"] for k, v in report.get("families", {}).items()})
+        else:
+            done.update(target_pos_median_mm=1000 * report["target_pos_m"]["median"], target_pos_p95_mm=1000 * report["target_pos_m"]["p95"],
+                        target_angle_median_deg=math.degrees(report["target_angle_rad"]["median"]),
+                        target_angle_p95_deg=math.degrees(report["target_angle_rad"]["p95"]),
+                        moved_pos_median_mm=1000 * report["moved_target_pos_m"]["median"],
+                        moved_angle_median_deg=math.degrees(report["moved_target_angle_rad"]["median"]),
+                        path_p95_mm=1000 * report["path_rmse_m"]["p95"], ee_p95_mm=1000 * report["ee_rmse_m"]["p95"],
+                        events_ok=report["event_ok_fraction"], finite=report["finite_fraction"])
         atomic_json(output / "complete.json", done)
         event("complete", **done)
+    if drawn is not None:
+        atomic_json(args.trace_draws, {k: sorted(v) for k, v in drawn.items()})
 
 
 if __name__ == "__main__":

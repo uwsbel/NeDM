@@ -1,0 +1,25 @@
+{
+ "note": "Task metrics of contact NRD training (checkpoint selection) and test for SO101 cube grasping. Every term, scale and reason: README.md in this folder. Provisional: freeze after the pilot, before main training and the sealed test.",
+ "free": {},
+ "windows": {"horizons_s": [0.02, 0.2, 0.5, 1.0], "first_start_s": 0.1, "start_every_s": 0.5},
+ "event_windows": {"horizons_s": [0.2, 0.5, 1.0], "lead_s": 0.1, "events": ["onset", "offset"]},
+ "flags": {
+  "lifted": {"all": [{"body": "cube", "channel": "z", "above": 0.025}, {"pair": "fixed_jaw_cube"}, {"pair": "moving_jaw_cube"}, {"pair": "cube_table", "on": false}]},
+  "dropped": {"all": [{"body": "cube", "channel": "z", "above": 0.025}, {"pair": "fixed_jaw_cube", "on": false}, {"pair": "moving_jaw_cube", "on": false}]}
+ },
+ "timing_exclude": {"array": "phase", "names": "phases", "values": ["close", "grip"], "pairs": ["cube_table"]},
+ "contact_tolerance_steps": 2,
+ "batch": 2048,
+ "score": [
+  {"stat": "free/target/cube/pos_m/p95", "scale": 0.005, "weight": 1.0},
+  {"stat": "windows/1.0/cube/pos_m/p95", "scale": 0.005, "weight": 1.0},
+  {"stat": "free/target/cube/angle_rad/p95", "scale": 0.08726646259971647, "weight": 1.0},
+  {"stat": "windows/1.0/cube/angle_rad/p95", "scale": 0.08726646259971647, "weight": 1.0},
+  {"stat": "windows/1.0/arm/joint_rms_rad/p95", "scale": 0.02, "weight": 1.0},
+  {"stat": "free/contacts/all/event_error_rate", "scale": 0.1, "weight": 1.0},
+  {"stat": "free/contacts/all/timing_s/p95", "scale": 0.02, "weight": 1.0},
+  {"stat": "free/flags/lifted/disagreement", "scale": 0.02, "weight": 1.0},
+  {"stat": "free/flags/dropped/disagreement", "scale": 0.02, "weight": 1.0},
+  {"stat": "nonfinite_fraction", "scale": 0.01, "weight": 1.0}
+ ]
+}
