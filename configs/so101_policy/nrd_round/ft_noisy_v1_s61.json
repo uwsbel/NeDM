@@ -1,0 +1,83 @@
+{
+ "note": "NRD data round 1 of the SO101 policy study (2026-10-11): fine-tune of the final grasp NRD (short_rel_rk_cc_fix_s61_plus, the test-scored model) on production_plus + noisy_v1 merged (scripts/contact_nrd/merge_data.py; noisy_v1 = campaign noisy_v1 of the collector, policy-like commands, 9,000 train + 1,000 validation episodes, about 21 % of the training episodes, no family mix). The run's own config (code_v14 options: derived and relative channels, step_type loss scale, all_hit/affected push guard, history-noise floor and rate kick, contact Huber, sqrt_groups contact sampling, collision co-training) with these changes: init_from (weights, data-fitted maps, masks, sigma and loss scales of that run; no refit), no collision-only stage, co-training 10,000 updates at lr 1e-4 with warmup 500 (G1 / push-T round recipe: 20,000 at 1e-4), the rollout horizon at the run's final 1.0 s from the first update with the rollout weight ramped over the warmup (traj_ramp 0.025), own-history pushes from the start (push_start 0), a check every 2,500 updates plus one before the first update (check_first). Cluster paths; a local copy changes init_from.run.",
+ "seed": 61,
+ "model_step_s": 0.02,
+ "history": 4,
+ "network": {
+  "width": 128,
+  "heads": 4,
+  "ffn": 512,
+  "layers": 4
+ },
+ "integrate_kinds": [
+  "sphere",
+  "rigid",
+  "articulated"
+ ],
+ "check_episodes": 1500,
+ "evaluate_every": 2500,
+ "free_phase_step": 5,
+ "core_bins": 8,
+ "ridge": 1e-06,
+ "near_negative_s": 0.05,
+ "collision": {
+  "lr": 0.001,
+  "updates": 3000,
+  "batch": 2048,
+  "warmup": 100
+ },
+ "skip_ridge": 0.001,
+ "push_prob": 0.5,
+ "push_start": 0.0,
+ "push_max_steps": 3,
+ "push_max_dev": 0.5,
+ "rollout_scale_factor": 4.0,
+ "cotrain": {
+  "updates": 10000,
+  "lr": 0.0001,
+  "warmup": 500,
+  "core_batch": 4096,
+  "contact_batch": 4096,
+  "traj_every": 8,
+  "traj_batch": 128,
+  "horizon_start_s": 1.0,
+  "horizon_max_s": 1.0,
+  "horizon_ramp": 0.5,
+  "traj_ramp": 0.025
+ },
+ "derived_state": "configs/contact_nrd/derived/so101_grasp_fk.json",
+ "loss_scale": {
+  "rule": "step_type"
+ },
+ "push_guard": {
+  "unit": "all_hit",
+  "bodies": "affected"
+ },
+ "history_noise": {
+  "floor_step_rms": 0.05,
+  "rate_kick": {
+   "size": 1.0,
+   "mix": [
+    0.1,
+    4.0
+   ]
+  }
+ },
+ "contact_huber": 1.0,
+ "contact_sampling": "sqrt_groups",
+ "relative_state": {
+  "body": "cube",
+  "frame": "arm"
+ },
+ "collision_cotrain": {
+  "weight": 1.0
+ },
+ "init_from": {
+  "run": "/work1/dannegrut/harry/experiments/so101_nrd_fix_20261009/runs/short_rel_rk_cc_fix_s61_plus",
+  "checkpoint": "best.pt",
+  "collision_updates": 0,
+  "collision_lr": 0.0001,
+  "collision_warmup": 0,
+  "check_first": true
+ }
+}

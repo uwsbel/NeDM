@@ -1001,6 +1001,87 @@ def fam_push(s, rng, n):
     return finish(plan, rng, n, q0, cube, cyaw, direction_rad=float(phi))
 
 
+# ---- policy-like commands (campaign noisy_v1; 2026-10-11, SO101 policy study) ------------------------------------
+def fam_policy_grasp(s, rng, n, offset_m=(0.0, 0.0), move_prob=0.5):
+    """The nominal script with a policy's imprecision at the grasp: the grasp-point target off the cube centre by
+    U(offset_m) metres in a uniformly random horizontal direction (any direction relative to the jaws) and 0-2 mm
+    higher (as nominal); the move while holding is drawn with move_prob (carry-and-place: 1)."""
+    cube, cyaw, q0, plan = task_start(s, rng, spread_deg=40)
+    plan.hold(rng.uniform(0, 0.2), "idle")
+    rot = topdown(s.grasp_yaw(cube, cyaw, rng))
+    theta_open = rng.uniform(0.55, 0.9)
+    r, a = rng.uniform(*offset_m), rng.uniform(-math.pi, math.pi)
+    grasp = cube + [r * math.cos(a), r * math.sin(a), rng.uniform(0, 0.002)]
+    grasp_approach(plan, s, rng, grasp, rot, theta_open, speed=rng.uniform(1.2, 2.4))
+    plan.hold(rng.uniform(0, 0.15), "descend")
+    plan.jaw(rng.uniform(s.tlo[5], 0.05), "close", rng.uniform(0.2, 0.4))
+    plan.hold(rng.uniform(0.1, 0.25), "grip")
+    carry_and_place(plan, s, rng, grasp, rot, rng.uniform(0.03, 0.12), theta_open, n, move_prob=move_prob,
+                    lift_s=(0.35, 0.8))
+    return finish(plan, rng, n, q0, cube, cyaw, offset_m=(grasp - cube).tolist())
+
+
+def ou_noise(rng, n, dims, std, tau, dt):
+    """[n, dims] independent Ornstein-Uhlenbeck sequences that start at 0: stationary std ``std``, time constant
+    ``tau`` (s), step ``dt`` (s)."""
+    a = math.exp(-dt / tau)
+    kick = rng.normal(size=(n, dims)) * std * math.sqrt(1.0 - a * a)
+    x = np.zeros((n, dims))
+    for k in range(1, n):
+        x[k] = a * x[k - 1] + kick[k]
+    return x
+
+
+def play(rows, phases):
+    """A fixed command sequence as the script generator of run_episode (observations are ignored)."""
+    for q, ph in zip(rows, phases):
+        yield q, ph
+
+
+def noisy_commands(s, rng, ep, std=(0.005, 0.02), tau=(0.1, 0.4), jaw_offset=(-0.03, 0.03), floor_m=0.003,
+                   near_m=0.05):
+    """Policy-like commands from a planned open-loop episode, after planning: OU noise (ou_noise) on the 5 arm targets
+    with one stationary std (rad) and one time constant (s) per episode, drawn uniformly from ``std`` and ``tau``,
+    independent per joint; a constant jaw-target offset (rad) drawn from ``jaw_offset``. The noisy targets are clipped
+    to the target range and rate-limited like the scripted data (at most speed_rad_s.arm_max x control step on an arm
+    joint and speed_rad_s.jaw x control step on the jaw per control step, from the warm-up command q0). Table guard
+    (a policy's command decoder keeps the commanded gripper above the table): where the plan's grasp point is below
+    ``near_m``, the arm noise of a step is halved (1, 1/2, 1/4, then none) until the lowest collision point of the
+    commanded pose (Scene.lowest) is at least min(the plan's own lowest point, ``floor_m``). The phases are the
+    plan's. -> the episode with these targets; meta gets the noise, the guarded steps and kind = "s<std mrad>t<tau
+    cs>j<jaw offset mrad>" (the data's variant)."""
+    rows, phases = zip(*ep["script"])
+    rows = np.array(rows)
+    sd, tc, dj = rng.uniform(*std), rng.uniform(*tau), rng.uniform(*jaw_offset)
+    dt, sp = s.cfg["control_step_s"], s.cfg["speed_rad_s"]
+    noise = np.zeros_like(rows)
+    noise[:, :5] = ou_noise(rng, len(rows), 5, sd, tc, dt)
+    noise[:, 5] = dj
+    lim = np.r_[[sp["arm_max"] * dt] * 5, sp["jaw"] * dt]
+    out, prev = np.empty_like(rows), np.clip(np.asarray(ep["q0"], float), s.tlo, s.thi)
+    guarded = 0
+    for k, row in enumerate(rows):
+        near = s.grasp_pose(row)[0][2] < near_m
+        floor = min(s.lowest(s.fk(row)), floor_m) if near else None
+        for lam in (1.0, 0.5, 0.25, 0.0):
+            w = np.clip(row + noise[k] * np.r_[[lam] * 5, 1.0], s.tlo, s.thi)
+            q = prev + np.clip(w - prev, -lim, lim)
+            if not near or lam == 0.0 or s.lowest(s.fk(q)) >= floor:
+                break
+        guarded += lam < 1.0
+        prev = out[k] = q
+    meta = {**ep["meta"], "ou_std_rad": float(sd), "ou_tau_s": float(tc), "jaw_offset_rad": float(dj),
+            "guarded_steps": int(guarded), "kind": f"s{sd * 1e3:.0f}t{tc * 1e2:.0f}j{dj * 1e3:+.0f}"}
+    return dict(ep, script=play(out, phases), meta=meta)
+
+
+def fam_noisy(base, **kw):
+    """A family: the base family's plan with policy-like commands (noisy_commands)."""
+    def family(s, rng, n):
+        return noisy_commands(s, rng, base(s, rng, n, **kw))
+    return family
+
+
 # ---- probes -------------------------------------------------------------------------------------------------
 def free_motion(s, rng, q0, n, speed=(0.8, 3.0)):
     """Random joint-space moves between collision-free configurations (jaw included), with short holds."""
@@ -1175,7 +1256,10 @@ def drop_hits(s, q, centre, body):
 FAMILIES = {"nominal": fam_nominal, "off_centre": fam_off_centre, "one_sided": fam_one_sided,
             "near_miss": fam_near_miss, "weak_closure": fam_weak_closure, "drop": fam_drop, "push": fam_push,
             "free_arm": fam_free_arm, "cube_flight": fam_cube_flight, "cube_table": fam_cube_table,
-            "jaw_fixed": fam_jaw("fixed"), "jaw_moving": fam_jaw("moving"), "step_arm": fam_step_arm}
+            "jaw_fixed": fam_jaw("fixed"), "jaw_moving": fam_jaw("moving"), "step_arm": fam_step_arm,
+            "noisy_nominal": fam_noisy(fam_nominal), "noisy_off_centre": fam_noisy(fam_off_centre),
+            "noisy_carry": fam_noisy(fam_policy_grasp, move_prob=1.0),
+            "noisy_offset": fam_noisy(fam_policy_grasp, offset_m=(0.001, 0.008))}
 
 
 # ---- one episode ----------------------------------------------------------------------------------------------
@@ -1307,8 +1391,10 @@ def episode_seed(master, family, index):
 
 def campaign_counts(cfg, campaign, scale=None, probe_scale=None, families=None):
     """Episodes per family of a campaign -> [(family index, count)]: the pilot counts of the config times the
-    campaign's task_scale and probe_scale. ``scale`` replaces both factors, ``probe_scale`` the probe factor."""
+    campaign's task_scale and probe_scale. ``scale`` replaces both factors, ``probe_scale`` the probe factor. A campaign
+    with a "families" list runs only those (``families`` overrides it)."""
     c = cfg["campaigns"][campaign]
+    families = families or c.get("families")
     tasks = c["task_scale"] if scale is None else scale
     probes = probe_scale if probe_scale is not None else (c["probe_scale"] if scale is None else scale)
     return [(f, max(1, int(round(fam["episodes"] * (probes if fam["group"] == "probe" else tasks)))))
@@ -1989,7 +2075,7 @@ def main():
     c = sub.add_parser("collect", help="simulate the families and write a data directory")
     c.add_argument("--out", type=Path, required=True)
     c.add_argument("--workers", type=int)
-    c.add_argument("--campaign", choices=("pilot", "production", "test", "extra"), default="pilot",
+    c.add_argument("--campaign", choices=("pilot", "production", "test", "extra", "noisy_v1"), default="pilot",
                    help="master seed and episode counts from the config's campaigns block; pilot and production: "
                         "splits 0/1 by family; test: all split 2")
     c.add_argument("--chunk", type=int, default=16, help="episodes per pool task and shard file")

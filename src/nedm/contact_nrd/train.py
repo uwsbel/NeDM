@@ -39,6 +39,22 @@ States are velocity-level: the rate channels are step-average rates (data.step_a
 each integrated body follows pose + step x rate (model.ContactNRD.assemble). The one-step losses train only the
 rate channels; the rollout loss compares the whole state.
 
+Fine-tuning (config "init_from", absent in train.json; NRD data rounds, configs/so101_policy/nrd_round/; ported from
+the G1 policy study's train.py): the run starts from a trained run's checkpoint: its weights AND its data-fitted maps
+(input and output standardisation of the three networks, the ridge-fitted linear paths of the core and the contact
+network), its channel masks, its history noise sigma and its loss scales (contact_scale.json of that run). Nothing is
+refitted on the new data: the core's linear fit, the collision network's input statistics and the contact network's
+input statistics and linear fit are skipped (the core and contact linear paths go on training by gradient in
+co-training, as in a full run). The config's model config (model step, history, network, integrated kinds, derived
+and relative channels, contact mask, pair preview) must equal the checkpoint's, and the data must have the
+checkpoint's bodies and pairs. The collision-only stage runs collision_updates updates (default 0: skipped; lr
+collision_lr, warmup collision_warmup). Co-training runs cotrain.updates updates at cotrain.lr with cotrain.warmup, as
+in a full run, with every option of the config (e.g. collision_cotrain trains the collision network in it).
+check_first (default true) checks the starting model before the first update (stage "init", update 0), so best.pt
+is the starting model unless a later check beats it.
+    "init_from": "<run dir>"   or   {"run": "<run dir>", "checkpoint": "best.pt", "collision_updates": 0,
+                                     "collision_lr": 1e-4, "collision_warmup": 0, "check_first": true}
+
 Output directory: run_config.json, train_log.jsonl, core.pt, core_validation.json, collision.pt,
 contact_scale.json, contact_state.pt (resume state), best.pt, last.pt, contact_done.json, validation.json,
 complete.json. Run the same command again to resume an interrupted run: finished stages are loaded and
@@ -87,6 +103,37 @@ def ridge(design, target, lam):
     return torch.linalg.solve(gram, design.T @ target)
 
 
+INIT_DEFAULTS = dict(checkpoint="best.pt", collision_updates=0, collision_lr=1e-4, collision_warmup=0, check_first=True)
+
+
+def init_spec(cfg):
+    """The config's "init_from" block with its defaults (module docstring), or None (a run from scratch). A string
+    is the run directory. Unknown keys raise (nothing is refitted on the new data: there is no refit option)."""
+    spec = cfg.get("init_from")
+    if not spec:
+        return None
+    spec = {"run": spec} if isinstance(spec, str) else dict(spec)
+    unknown = set(spec) - set(INIT_DEFAULTS) - {"run"}
+    if "run" not in spec or unknown:
+        raise ValueError(f"init_from needs a run directory ('run') and takes only {sorted(INIT_DEFAULTS)}; got {sorted(spec)}")
+    out = {**INIT_DEFAULTS, **spec}
+    out["run"] = str(Path(out["run"]).expanduser().resolve())
+    return out
+
+
+def same_structure(a, b):
+    """Differences between two system.json in what the model's shape depends on (moving bodies, channels, actions,
+    pairs, steps) -> list of keys (empty: the same)."""
+    keys = ("name", "kind", "moving", "state_dim", "channels", "channel_types", "action_dim")
+    diffs = [k for k in ("record_step_s", "pairs") if a.get(k) != b.get(k)]
+    ba, bb = a["bodies"], b["bodies"]
+    if len(ba) != len(bb):
+        return diffs + ["bodies"]
+    for n, (x, y) in enumerate(zip(ba, bb)):
+        diffs += [f"bodies[{n}].{k}" for k in keys if x.get(k) != y.get(k)]
+    return diffs
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--data", type=Path, required=True, help="data directory (system.json, unified_data.npz)")
@@ -107,6 +154,7 @@ def main():
         cfg["seed"] = args.seed
     if int(cfg["history"]) < 2:
         raise ValueError("history must be >= 2")
+    init = init_spec(cfg)   # fine-tuning from a trained run (module docstring), or None
     job = {"job_id": os.environ["SLURM_JOB_ID"]} if os.environ.get("SLURM_JOB_ID") else {}
     torch.set_num_threads(1)
     torch.manual_seed(cfg["seed"])
@@ -242,7 +290,25 @@ def main():
 
     mc = model_config(data["dt"], K, cfg["network"], cfg["integrate_kinds"], derived, cfg.get("contact_mask"),
                       bool(cfg.get("pair_preview", False)), relative)
+    packet, init_notes = None, {}
+    if init is not None:   # the checkpoint's design, masks and weights; the data must have its bodies and pairs
+        packet = torch.load(Path(init["run"]) / init["checkpoint"], map_location=dev, weights_only=False)
+        if not (Path(init["run"]) / "contact_scale.json").exists():
+            raise ValueError(f"init_from: {init['run']} has no contact_scale.json (the loss scales of that run)")
+        if packet["model_config"] != mc:
+            raise ValueError(f"init_from: the config gives the model config {mc}, the checkpoint has {packet['model_config']}")
+        diffs = same_structure(packet["system"], system)
+        if diffs:
+            raise ValueError(f"init_from: the data's system differs from the checkpoint's in {diffs}")
+        ck = torch.tensor(packet["masks"], dtype=torch.float64, device=dev)
+        if not torch.equal(ck, masks):
+            init_notes["data_masks"] = masks.tolist()
+        masks = ck
+        if packet.get("sigma") is None:
+            raise ValueError("init_from: the checkpoint has no history-noise sigma")
     model = ContactNRD(mc, system, masks.tolist()).to(dev)
+    if packet is not None:
+        model.load_state_dict(packet["model_state_dict"])
     # The integrator pairs pose and rate channels by order, so their masks must agree; a quaternion's mask is
     # [any angular axis, x, y, z] of its angular velocity mask (all on, all off, or a planar body's [1, 0, 0, 1]).
     unpaired = []
@@ -291,6 +357,8 @@ def main():
     output.mkdir(parents=True, exist_ok=True)
     start = time.perf_counter()
     sigma = None   # history-noise scale [D, S]: the core's one-step error (updated at every check)
+    if packet is not None:   # fine-tuning starts from the checkpoint's noise
+        sigma = torch.tensor(packet["sigma"], dtype=torch.float64, device=dev)
 
     def event(stage, **extra):
         row = dict(stage=stage, elapsed_s=round(time.perf_counter() - start, 1), **extra)
@@ -311,10 +379,18 @@ def main():
         runtime.update(core_only_families=[f["name"] for f in system["families"] if f.get("use") == "core_only"],
                        core_only_episodes={"train": int((store["splits"] == 0).sum()),
                                            "validation": int((store["splits"] == 1).sum())})
+    if packet is not None:
+        ck_path = Path(init["run"]) / init["checkpoint"]
+        runtime.update(init_from=dict(init, checkpoint_sha256=file_sha256(ck_path), source_stage=packet.get("stage"),
+                                      source_update=packet.get("update"),
+                                      contact_scale_sha256=file_sha256(Path(init["run"]) / "contact_scale.json"),
+                                      source_data_sha256=(packet.get("runtime") or {}).get("data_sha256")))
     if not (output / "run_config.json").exists():
         atomic_json(output / "run_config.json", runtime)
     else:
         event("resume", **job)
+    if init_notes:
+        event("init_from_masks", note="the checkpoint's channel masks are used; the data's differ", **init_notes)
     event("masks", masks=masks.tolist(), **({"explicit": [moving_b[d]["name"] for d in explicit],
                                              "automatic": automatic.tolist()} if explicit else {}))
     if unpaired:   # automatic masks only (explicit ones raise above)
@@ -451,6 +527,9 @@ def main():
     if (output / "core.pt").exists():
         load_stage(output / "core.pt")
         event("core_loaded")
+    elif packet is not None:   # the checkpoint's core, input and output standardisation and linear path (no refit)
+        event("init_from", run=init["run"], checkpoint=init["checkpoint"], source_stage=packet.get("stage"),
+              source_update=packet.get("update"), sigma="the checkpoint's", note="no linear fit, no refit")
     else:
         with torch.no_grad():
             h, ok, a, body, target = core_batch(128 if smoke else 200000)
@@ -571,8 +650,11 @@ def main():
 
     if not (output / "core.pt").exists():
         err = core_val()   # co-training starts from the linear core; the noise follows that core's error
-        sigma = core_sigma(err)
-        event("core_sigma", sigma=sigma.tolist(), source="linear core (co-training)")
+        if packet is None:
+            sigma = core_sigma(err)
+            event("core_sigma", sigma=sigma.tolist(), source="linear core (co-training)")
+        else:   # fine-tuning keeps the checkpoint's noise until the first check (as after a check of a full run)
+            event("core_sigma", sigma=sigma.tolist(), source="init_from checkpoint", this_data=core_sigma(err).tolist())
         with torch.no_grad():
             report = {}
             for b in range(n_mov):
@@ -590,7 +672,7 @@ def main():
                                                                 "rms": e.square().mean(0).sqrt().tolist()}
         atomic_json(output / "core_validation.json", {**report, **({"by_use": by_use} if by_use else {})})
         event("core_validation", **{k: v["median"] for k, v in report.items()})
-        save(output / "core.pt", "core", 0)
+        save(output / "core.pt", "core" if packet is None else "init_from", 0)
     for p in core.parameters():
         p.requires_grad_(False)
     if sigma is None:
@@ -746,14 +828,18 @@ def main():
         load_stage(output / "collision.pt")
         event("collision_loaded")
     else:
-        fit_inputs(coll, pools, "collision_inputs")
         spec = cfg["collision"]
+        if packet is None:
+            fit_inputs(coll, pools, "collision_inputs")
+            c_lr, c_warm, count = spec["lr"], spec["warmup"], 5 if smoke else spec["updates"]
+        else:   # fine-tuning: the checkpoint's input statistics; collision_updates (default 0) at collision_lr
+            n_up = int(init["collision_updates"])
+            c_lr, c_warm, count = float(init["collision_lr"]), int(init["collision_warmup"]), min(5, n_up) if smoke else n_up
         params = [p for p in coll.parameters() if p.requires_grad]
-        opt = torch.optim.AdamW(params, lr=spec["lr"], weight_decay=0.0)
-        count = 5 if smoke else spec["updates"]
+        opt = torch.optim.AdamW(params, lr=c_lr, weight_decay=0.0)
         for update in range(1, count + 1):
             for g in opt.param_groups:
-                g["lr"] = spec["lr"] * cosine(update, count, spec["warmup"], 0.01)
+                g["lr"] = c_lr * cosine(update, count, c_warm, 0.01)
             loss = collision_loss(collision_batch(spec["batch"]), True)
             opt.zero_grad(set_to_none=True)
             loss.backward()
@@ -769,7 +855,7 @@ def main():
                 on = collision_logits(sel, False) >= 0
                 truth = labels[sel[:, 0], sel[:, 1], p]
                 report[f"pair{p}"] = dict(fp=int((on & ~truth).sum()), fn=int((~on & truth).sum()), positives=int(truth.sum()))
-        event("collision_fit", **report)
+        event("collision_fit", **report, **({"updates": count, "init_from": True} if packet is not None else {}))
         save(output / "collision.pt", "collision", 0)
     for p in coll.parameters():
         p.requires_grad_(False)
@@ -893,6 +979,10 @@ def main():
         event("contact_loaded", best=best["score"])
     elif resume_path.exists():
         event("contact_resume_found")
+    elif packet is not None:   # fine-tuning: the checkpoint's contact network maps and its run's loss scales
+        (output / "contact_scale.json").write_text((Path(init["run"]) / "contact_scale.json").read_text())
+        event("init_contact_scale", source=str(Path(init["run"]) / "contact_scale.json"),
+              note="no input statistics, no linear fit, loss scales and step_rms of the source run")
     else:
         with torch.no_grad():
             cpools = []
@@ -1105,6 +1195,9 @@ def main():
             best["score"], first, ema = state["best"], state["update"] + 1, state["ema"]
             sigma = torch.tensor(state["sigma"], dtype=torch.float64, device=dev)
             event("cotrain_resumed", update=state["update"], best=best["score"])
+        elif packet is not None and init["check_first"]:   # the starting model is the first candidate for best.pt
+            check("init", 0, 0.0, {**onestep(), "note": "init_from checkpoint before the first update"})
+            push_stats.update(tried=0, kept=0)
         h0 = max(1, round(co["horizon_start_s"] / model.dt))
         h1 = max(h0, round(co["horizon_max_s"] / model.dt))
         push_from = int(cfg["push_start"] * count)
@@ -1169,6 +1262,8 @@ def main():
         done = dict(complete=True, smoke=smoke, test_used_for_selection=False, total_elapsed_s=time.perf_counter() - start,
                     checkpoint_sha256=file_sha256(output / "best.pt"), best_stage=metadata["stage"],
                     best_update=metadata["update"], validation_score=chosen["selection_score"], checkpoints_compared=checks["count"])
+        if packet is not None:
+            done.update(init_from=init["run"], init_checkpoint=init["checkpoint"])
         if "evaluation" in system:
             done.update(score_terms={t["stat"]: t["value"] for t in chosen["score_terms"]}, finite=report["finite_fraction"],
                         family_scores={k: v["selection_score"] for k, v in report.get("families", {}).items()})

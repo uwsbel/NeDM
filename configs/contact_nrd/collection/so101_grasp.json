@@ -174,6 +174,18 @@
    "task_scale": 70.3125,
    "probe_scale": 1.0,
    "note": "supplementary training data (2026-10-10): twice the production count of each task family (collect with --families for the hard ones); all split 0, so the production validation episodes stay the validation set"
+  },
+  "noisy_v1": {
+   "master_seed": 20261147,
+   "task_scale": 1.0,
+   "probe_scale": 1.0,
+   "families": [
+    "noisy_nominal",
+    "noisy_off_centre",
+    "noisy_carry",
+    "noisy_offset"
+   ],
+   "note": "NRD data round of the SO101 policy study (2026-10-11): scripted plans with policy-like commands (OU noise on the 5 arm targets, stationary std 5-20 mrad, time constant 0.1-0.4 s, a constant jaw-target offset of +-30 mrad, rate-limited like the data) and grasp-point targets 1-8 mm off the cube centre; 10,000 task episodes, splits 0/1 90/10 inside each family. Master seed new (not pilot, production, test 20261034, convergence, extra, critic noise 20261011)"
   }
  },
  "families": [
@@ -283,6 +295,50 @@
    "campaigns": [
     "extra"
    ]
+  },
+  {
+   "name": "noisy_nominal",
+   "group": "noisy",
+   "select": true,
+   "episodes": 2500,
+   "records": 601,
+   "campaigns": [
+    "noisy_v1"
+   ],
+   "note": "the nominal script (grasp at the cube centre, lift, hold, move while holding (half), lower, release, retreat); then policy-like commands: OU noise on the 5 arm targets (stationary std U(5, 20) mrad, time constant U(0.1, 0.4) s, per episode, independent per joint, from 0), a constant jaw-target offset U(-30, 30) mrad, clipped to the target range and rate-limited to 0.06 rad (arm) and 0.09 rad (jaw) per 20 ms (noisy_commands). Campaign noisy_v1 only"
+  },
+  {
+   "name": "noisy_off_centre",
+   "group": "noisy",
+   "select": true,
+   "episodes": 1500,
+   "records": 601,
+   "campaigns": [
+    "noisy_v1"
+   ],
+   "note": "the off_centre script (grasp offset 4-12 mm along the jaw width, +-3 mm along the closing axis, 0-12 mm higher); then policy-like commands: OU noise on the 5 arm targets (stationary std U(5, 20) mrad, time constant U(0.1, 0.4) s, per episode, independent per joint, from 0), a constant jaw-target offset U(-30, 30) mrad, clipped to the target range and rate-limited to 0.06 rad (arm) and 0.09 rad (jaw) per 20 ms (noisy_commands). Campaign noisy_v1 only"
+  },
+  {
+   "name": "noisy_carry",
+   "group": "noisy",
+   "select": true,
+   "episodes": 3000,
+   "records": 601,
+   "campaigns": [
+    "noisy_v1"
+   ],
+   "note": "carry and place: the nominal script with the move while holding always drawn (realised when it fits in 6 s and is reachable); then policy-like commands: OU noise on the 5 arm targets (stationary std U(5, 20) mrad, time constant U(0.1, 0.4) s, per episode, independent per joint, from 0), a constant jaw-target offset U(-30, 30) mrad, clipped to the target range and rate-limited to 0.06 rad (arm) and 0.09 rad (jaw) per 20 ms (noisy_commands). Campaign noisy_v1 only"
+  },
+  {
+   "name": "noisy_offset",
+   "group": "noisy",
+   "select": true,
+   "episodes": 3000,
+   "records": 601,
+   "campaigns": [
+    "noisy_v1"
+   ],
+   "note": "the nominal script with the grasp-point target 1-8 mm off the cube centre in a random horizontal direction (policy-like imprecision); then policy-like commands: OU noise on the 5 arm targets (stationary std U(5, 20) mrad, time constant U(0.1, 0.4) s, per episode, independent per joint, from 0), a constant jaw-target offset U(-30, 30) mrad, clipped to the target range and rate-limited to 0.06 rad (arm) and 0.09 rad (jaw) per 20 ms (noisy_commands). Campaign noisy_v1 only"
   }
  ]
 }
