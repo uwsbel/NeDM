@@ -1,0 +1,14 @@
+{
+  "note": "ACT student for the PPO teacher's 7-dim pre-tanh action (build5_vision.md, student (b)): LeRobot ACT (ResNet18, dim 512, 4 encoder + 1 decoder layers, CVAE latent 32, KL 10), chunk 10 (1 s; spec_v2 B7 10-20: the teacher is reactive, so the shorter chunk), inputs 57 robot-side observation entries + goal vector + top / wrist cameras at 288 px; masked L1 (decoder read mask, targets after the next mode change masked); mode-aware temporal ensembling (coefficient 0.01)",
+  "kind": "act",
+  "chunk": 10,
+  "res": 288,
+  "cameras": ["top", "wrist"],
+  "batch": 64,
+  "render_batch": 256,
+  "lr": 5e-05,
+  "lr_backbone": 1e-05,
+  "warmup": 500,
+  "ensemble_coeff": 0.01,
+  "target_clip": 3.0
+}

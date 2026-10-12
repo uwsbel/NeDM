@@ -1,0 +1,18 @@
+{
+  "note": "per-step camera student v1 (build5_vision.md): ResNet18 (ImageNet, frozen BN) to layer3 per camera -> 32 spatial-softmax keypoints + 64-d pooled features; MLP 512-512 over [cameras, 57 robot-side observation entries] -> 7-dim pre-tanh action of the PPO teacher (gated decoder); masked MSE, targets clipped to +-3",
+  "kind": "perstep",
+  "encoder": "resnet18",
+  "stages": 3,
+  "keypoints": 32,
+  "pool_dim": 64,
+  "hidden": [512, 512],
+  "res": 288,
+  "cameras": ["top", "wrist"],
+  "batch": 128,
+  "render_batch": 256,
+  "lr": 3e-4,
+  "lr_backbone": 1e-4,
+  "warmup": 300,
+  "cosine": true,
+  "target_clip": 3.0
+}
