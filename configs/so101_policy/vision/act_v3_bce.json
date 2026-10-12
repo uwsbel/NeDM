@@ -1,0 +1,19 @@
+{
+  "note": "ACT student v3 (build4_vision.md sec. 5.9): act_v2 with the trigger a[4] as a classifier (logit head, binary cross entropy on a[4] > 0, weight 1; reported as 2 sigmoid - 1): the L1-regressed +-1 trigger made the students too conservative to grasp",
+  "chunk": 20,
+  "res": 288,
+  "cameras": [
+    "top",
+    "wrist"
+  ],
+  "batch": 64,
+  "render_batch": 512,
+  "lr": 5e-05,
+  "lr_backbone": 1e-05,
+  "warmup": 500,
+  "shift_px": 0,
+  "sustain_place": true,
+  "ensemble_coeff": 0.01,
+  "trigger_bce": true,
+  "trigger_bce_weight": 1.0
+}

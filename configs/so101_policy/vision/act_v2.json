@@ -1,0 +1,14 @@
+{
+  "note": "ACT student v2 (build4_vision.md sec. 5): v1 with the PLACE trigger label held through the final CARRY line (dataset.sustain_place_labels) and no DrQ shift (the shift moved the top view by +-8 mm on the table and the wrist view relative to the jaws; renderer identical in training and test); 12,000 steps (v1 validation L1 flat from about 9,000)",
+  "chunk": 20,
+  "res": 288,
+  "cameras": ["top", "wrist"],
+  "batch": 64,
+  "render_batch": 512,
+  "lr": 5e-5,
+  "lr_backbone": 1e-5,
+  "warmup": 500,
+  "shift_px": 0,
+  "sustain_place": true,
+  "ensemble_coeff": 0.01
+}

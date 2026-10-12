@@ -1,0 +1,87 @@
+{
+ "note": "train_v3 (2026-10-12 00:20, build4_ppo2.md): train_v2 + desired KL 0.02 (sweep: kC / kF learned fastest) + a second action-std vector in decoder mode hold (ppo.py 'hold_std'): init [0.1, 1.0, 0.5, 0.5], floor [0.03, 0.3, 0.2, 0.2], cap [0.3, 2.0, 1.0, 1.0]. With the CARRY macro one hold decision sets a whole carry line (a[0:2] x 0.32 m), so the free-motion std (0.15-0.3 pre-tanh, 5-10 cm of carry error) swamps the 15 mm place tolerance; the free-motion std (approach, grasp) stays as in train_v2.",
+ "algorithm": {
+  "clip_param": 0.2,
+  "desired_kl": 0.02,
+  "entropy_coef": 0.002,
+  "gamma": 0.99,
+  "lam": 0.95,
+  "learning_rate": 0.0003,
+  "max_grad_norm": 1.0,
+  "num_learning_epochs": 5,
+  "num_mini_batches": 8,
+  "schedule": "adaptive",
+  "use_clipped_value_loss": true,
+  "value_loss_coef": 1.0
+ },
+ "policy": {
+  "actor_hidden_dims": [
+   512,
+   256,
+   128
+  ],
+  "critic_hidden_dims": [
+   512,
+   256,
+   128
+  ],
+  "activation": "elu",
+  "actor_out_gain": 0.01,
+  "action_bias": [
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   -1.0,
+   0.0,
+   -3.0
+  ],
+  "norm_clip": 10.0
+ },
+ "num_steps_per_env": 32,
+ "critic_lr": 0.0003,
+ "init_std": [
+  0.3,
+  1.0,
+  0.5,
+  0.5
+ ],
+ "std_floor": [
+  0.15,
+  0.3,
+  0.2,
+  0.2
+ ],
+ "std_cap": [
+  0.3,
+  2.0,
+  1.0,
+  1.0
+ ],
+ "std_reset": [
+  0.3,
+  1.0,
+  0.5,
+  0.5
+ ],
+ "hold_std": {
+  "init": [
+   0.1,
+   1.0,
+   0.5,
+   0.5
+  ],
+  "floor": [
+   0.03,
+   0.3,
+   0.2,
+   0.2
+  ],
+  "cap": [
+   0.3,
+   2.0,
+   1.0,
+   1.0
+  ]
+ }
+}

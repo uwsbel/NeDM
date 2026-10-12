@@ -1,0 +1,8 @@
+{
+ "note": "Tolerance ladder v2 (build4_ppo2.md; review P1-13): 30 mm / 30 deg -> 15 / 15 -> 10 / 10, promotion on the deterministic validation in the TRAINING world (never MuJoCo, spec_v2 B4) at the stage's own tolerance: 0.6 after at least 20 iterations at 30 mm, 0.75 after at least 20 at 15 mm; the 10 mm stage runs to the budget. No assist stage (the decoder's grasp gate replaces it).",
+ "stages": [
+  {"name": "tol30", "task": {"tol_xy": 0.030, "tol_yaw": 0.5235987755982988}, "promote": 0.6, "min_iters": 20},
+  {"name": "tol15", "task": {"tol_xy": 0.015, "tol_yaw": 0.2617993877991494}, "promote": 0.75, "min_iters": 20},
+  {"name": "tol10", "task": {"tol_xy": 0.010, "tol_yaw": 0.17453292519943295}}
+ ]
+}

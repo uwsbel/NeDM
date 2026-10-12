@@ -1,0 +1,11 @@
+{
+ "note": "env_v2_b2 (2026-10-11 23:10, build4_ppo2.md): env_v2 with the CARRY macro (decoder option b2, carry_macro: in mode hold a decision at rest sets one minimum-jerk CARRY line, xy + a[0:2] x 0.32 m, yaw + a[3] x 0.6 rad; the abort is a[6], review R3).",
+ "starts": "~/so101_nrd_fix/data/production_plus",
+ "start_split": 0,
+ "pool_size": 65536,
+ "nrd_cuda_graph": true,
+ "task": {"self_rule": true, "ghost_rule": true},
+ "decoder": {"grasp_gate": true, "grasp_latch": true, "abort_action": true, "carry_macro": true},
+ "grasp_shaping": {},
+ "obs_rate_noise": [0.0, 0.0]
+}

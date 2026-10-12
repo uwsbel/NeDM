@@ -12,6 +12,9 @@ and changed here):
 | time-out bootstrap | reward += gamma V(final observation) at time-outs (current critic, normaliser not updated) | patch_bootstrap |
 | action mask | ``vec_env`` marks the action dims a decision used; the others leave the log-likelihood, the entropy and the KL (review P1-10) | none |
 | learning curve | ``CurveWriter``: one CSV row per iteration (losses, KL, rates, std per group, episode outcomes, end codes, world steps, wall clock, GPU memory) | patch_curve |
+| abort action group | with the decoder's ``abort_action`` the env has a 7th action (a[6], group "abort"); train configs with 3 group values get ``ABORT_GROUP`` appended (init std 0.5, floor 0.2, cap 1.0, bias -3: P(abort) about 1e-9 per read decision at the start) | none |
+| hold-mode std (optional, train config ``hold_std``: {init, floor, cap} per group) | a second std vector used where the RAW observation's decoder mode is hold (``Policy.ctx_index`` = the hold entry of the mode one-hot, ``PickPlaceVecEnv.hold_obs_index``): with the CARRY macro one hold decision sets a whole carry line (a[0:2] x 0.32 m), so the free-motion noise (0.15-0.3 pre-tanh = 5-10 cm there) swamps the 15 mm place tolerance; per-sample std in the likelihood, entropy and KL (the rollout stores it) | none |
+| provenance | every checkpoint holds ``env`` = ``PickPlaceVecEnv.resolved()`` (env config, resolved TaskConfig and DecoderV2Config; review R1) and the env's per-slot episode counters (resume, review R10) | none |
 
 Policy (``Policy``): actor and critic MLPs (default 512-256-128 ELU, separate), Gaussian on the pre-tanh action (the env
 squashes with tanh; the trigger is a[4] > 0); the actor's last layer x ``actor_out_gain`` and its bias = ``action_bias``
@@ -35,6 +38,8 @@ import torch.nn as nn
 from nedm.so101_policy.task import ENDS
 
 LOG2PI = math.log(2 * math.pi)
+# values of the "abort" action group (decoder abort_action) when a train config lists 3 groups only
+ABORT_GROUP = dict(init_std=0.5, std_floor=0.2, std_cap=1.0, std_reset=0.5, bias=-3.0)
 ACT = {"elu": nn.ELU, "relu": nn.ReLU, "tanh": nn.Tanh, "silu": nn.SiLU}
 
 
@@ -76,6 +81,25 @@ def sha256(path):
 
 def write_json(path, obj):
     Path(path).write_text(json.dumps(obj, indent=1, default=lambda o: o.tolist() if hasattr(o, "tolist") else str(o)))
+
+
+def group_values(values, groups, key):
+    """Per-group values of a train config entry ``key`` for the env's groups: a 3-group list gets the abort group's
+    value (``ABORT_GROUP``) appended when the env has 4 groups."""
+    if isinstance(values, (int, float)) or len(values) == len(groups):
+        return values
+    if len(values) == len(groups) - 1 and len(groups) == 4:
+        return list(values) + [ABORT_GROUP[key]]
+    raise ValueError(f"{key} {values}: need one value per action group {groups}")
+
+
+def action_bias_for(bias, act_dim):
+    """The actor's output bias for act_dim actions (a 6-entry bias + the abort bias for a 7th action)."""
+    if bias is None or len(bias) == act_dim:
+        return bias
+    if len(bias) == 6 and act_dim == 7:
+        return list(bias) + [ABORT_GROUP["bias"]]
+    raise ValueError(f"action_bias {bias} for {act_dim} actions")
 
 
 def per_action(values, groups, device="cpu"):
@@ -129,14 +153,16 @@ class Policy(nn.Module):
 
     def __init__(self, obs_dim, act_dim=6, groups=(4, 1, 1), actor_hidden_dims=(512, 256, 128),
                  critic_hidden_dims=(512, 256, 128), activation="elu", init_std=(0.3, 1.0, 0.5), actor_out_gain=0.01,
-                 action_bias=None, norm_clip=10.0):
+                 action_bias=None, norm_clip=10.0, ctx_index=None, ctx_init_std=None):
         super().__init__()
         self.kwargs = dict(obs_dim=int(obs_dim), act_dim=int(act_dim), groups=[int(g) for g in groups],
                            actor_hidden_dims=list(actor_hidden_dims), critic_hidden_dims=list(critic_hidden_dims),
                            activation=activation, init_std=list(init_std) if not isinstance(init_std, (int, float)) else init_std,
                            actor_out_gain=float(actor_out_gain),
                            action_bias=None if action_bias is None else [float(x) for x in action_bias],
-                           norm_clip=float(norm_clip))
+                           norm_clip=float(norm_clip), ctx_index=None if ctx_index is None else int(ctx_index),
+                           ctx_init_std=None if ctx_init_std is None else (list(ctx_init_std) if not isinstance(
+                               ctx_init_std, (int, float)) else ctx_init_std))
         if sum(groups) != act_dim:
             raise ValueError(f"groups {groups} do not sum to {act_dim}")
         self.groups = list(groups)
@@ -144,6 +170,9 @@ class Policy(nn.Module):
         self.actor = mlp(obs_dim, actor_hidden_dims, act_dim, activation)
         self.critic = mlp(obs_dim, critic_hidden_dims, 1, activation)
         self.std = nn.Parameter(per_action(init_std, self.groups))
+        self.ctx_index = None if ctx_index is None else int(ctx_index)
+        if self.ctx_index is not None:          # second std vector where obs[:, ctx_index] > 0.5 (decoder mode hold)
+            self.std_ctx = nn.Parameter(per_action(init_std if ctx_init_std is None else ctx_init_std, self.groups))
         last = self.actor[-1]
         with torch.no_grad():
             last.weight.mul_(float(actor_out_gain))
@@ -159,10 +188,21 @@ class Policy(nn.Module):
         """Raw observation [B, D] -> deterministic pre-tanh action [B, A] (the normaliser is not updated)."""
         return self.actor(self.norm(obs))
 
-    def std_groups(self):
+    def ctx(self, obs_raw):
+        """[B] bool: rows that use the context std (None without it)."""
+        return None if self.ctx_index is None else obs_raw[:, self.ctx_index] > 0.5
+
+    def std_of(self, ctx):
+        """Per-sample std [B, A] for context flags ctx [B] (or the shared [A] vector without a context std)."""
+        if ctx is None:
+            return self.std
+        return torch.where(ctx[:, None], self.std_ctx, self.std)
+
+    def std_groups(self, ctx=False):
         out, k = [], 0
+        v = self.std_ctx if ctx else self.std
         for n in self.groups:
-            out.append(float(self.std[k:k + n].detach().mean()))
+            out.append(float(v[k:k + n].detach().mean()))
             k += n
         return out
 
@@ -200,7 +240,7 @@ def gae(rewards, values, dones, last_values, gamma, lam):
 
 def split_optimizer(policy: Policy, lr, critic_lr):
     """Adam: group 0 = actor + std (PPO's adaptive rate), group 1 = critic (fixed critic_lr)."""
-    actor = list(policy.actor.parameters()) + [policy.std]
+    actor = list(policy.actor.parameters()) + [policy.std] + ([policy.std_ctx] if policy.ctx_index is not None else [])
     return torch.optim.Adam([{"params": actor, "lr": lr}, {"params": list(policy.critic.parameters()), "lr": critic_lr}])
 
 
@@ -214,6 +254,8 @@ class Rollout:
         self.mask = torch.zeros(T, B, act_dim, dtype=torch.bool, **f)
         self.logp = torch.zeros(T, B, **f)
         self.mu = torch.zeros(T, B, act_dim, **f)
+        self.std = torch.zeros(T, B, act_dim, **f)                    # per-sample std of the sampling policy
+        self.ctx = torch.zeros(T, B, dtype=torch.bool, **f)           # context std rows (decoder mode hold)
         self.values = torch.zeros(T, B, **f)
         self.rewards = torch.zeros(T, B, **f)
         self.dones = torch.zeros(T, B, dtype=torch.bool, **f)
@@ -232,8 +274,14 @@ class PPO:
         self.critic_lr = float(cfg["critic_lr"])
         self.opt = split_optimizer(policy, self.lr, self.critic_lr)
         self.groups = policy.groups
-        self.floor = per_action(cfg["std_floor"], self.groups, self.dev)
-        self.cap = per_action(cfg["std_cap"], self.groups, self.dev)
+        self.floor = per_action(group_values(cfg["std_floor"], self.groups, "std_floor"), self.groups, self.dev)
+        self.cap = per_action(group_values(cfg["std_cap"], self.groups, "std_cap"), self.groups, self.dev)
+        hs = cfg.get("hold_std") or {}
+        if policy.ctx_index is not None:
+            self.floor_ctx = per_action(group_values(hs.get("floor", cfg["std_floor"]), self.groups, "std_floor"),
+                                        self.groups, self.dev)
+            self.cap_ctx = per_action(group_values(hs.get("cap", cfg["std_cap"]), self.groups, "std_cap"),
+                                      self.groups, self.dev)
         self.clamp_std()
         self.T = int(cfg["num_steps_per_env"])
         self.roll = Rollout(self.T, env.num_envs, env.num_obs, env.num_actions, self.dev)
@@ -248,10 +296,13 @@ class PPO:
     @torch.no_grad()
     def clamp_std(self):
         self.policy.std.copy_(torch.minimum(torch.maximum(self.policy.std, self.floor), self.cap))
+        if self.policy.ctx_index is not None:
+            self.policy.std_ctx.copy_(torch.minimum(torch.maximum(self.policy.std_ctx, self.floor_ctx), self.cap_ctx))
 
     @torch.no_grad()
     def set_std(self, values, at_least=False):
-        v = per_action(values, self.groups, self.dev)
+        """The shared std (the context std, if any, is not reset)."""
+        v = per_action(group_values(values, self.groups, "std_reset"), self.groups, self.dev)
         self.policy.std.copy_(torch.maximum(self.policy.std, v) if at_least else v)
         self.clamp_std()
 
@@ -274,7 +325,8 @@ class PPO:
             on = pol.norm(obs)
             mu = pol.actor(on)
             v = pol.value(on)
-            std = pol.std.detach()
+            ctx = pol.ctx(obs)
+            std = pol.std_of(ctx).detach().expand_as(mu)
             a = mu + std * torch.randn(mu.shape, generator=self.gen, device=dev)
             obs2, r, done, ex = env.step(a)
             mask = ex["action_mask"]
@@ -282,7 +334,9 @@ class PPO:
             to = ex["time_outs"]
             vf = pol.value(pol.norm(ex["final_obs"]))
             r = r + torch.where(to, self.gamma * vf, torch.zeros_like(vf))
-            R.obs[t], R.act[t], R.mask[t], R.mu[t], R.values[t] = on, a, mask, mu, v
+            R.obs[t], R.act[t], R.mask[t], R.mu[t], R.values[t], R.std[t] = on, a, mask, mu, v, std
+            if ctx is not None:
+                R.ctx[t] = ctx
             R.logp[t] = log_prob(mu, std, a, mask)
             R.rewards[t], R.dones[t] = r, done
             ep = ex["episode"]
@@ -322,7 +376,8 @@ class PPO:
         flat = lambda x: x.reshape(N, *x.shape[2:])                                  # noqa: E731
         obs, act, mask, old_lp, old_mu = flat(R.obs), flat(R.act), flat(R.mask).float(), flat(R.logp), flat(R.mu)
         old_v, ret, adv = flat(R.values), flat(returns), flat(adv)
-        old_std = pol.std.detach().clone()
+        old_std_all, ctx_all = flat(R.std), flat(R.ctx)
+        use_ctx = pol.ctx_index is not None
         clip = float(al["clip_param"])
         n_mb = int(al["num_mini_batches"])
         mb = N // n_mb
@@ -335,10 +390,10 @@ class PPO:
                 m = mask[i]
                 mu = pol.actor(obs[i])
                 v = pol.value(obs[i])
-                std = pol.std
+                std = pol.std_of(ctx_all[i] if use_ctx else None)
                 lp = log_prob(mu, std, act[i], m)
                 with torch.no_grad():
-                    kl = kl_div(old_mu[i], old_std, mu, std, m)
+                    kl = kl_div(old_mu[i], old_std_all[i], mu, std, m)
                     act_rows = (m.sum(-1) > 0).float()
                     kl_mean = float((kl * act_rows).sum() / act_rows.sum().clamp_min(1.0))
                 if al.get("desired_kl") is not None and al.get("schedule") == "adaptive":
@@ -405,7 +460,10 @@ class PPO:
             if k.startswith("count_"):
                 row[k[6:] + "_per_episode"] = float(s[k]) / n if n else math.nan
         for j, g in enumerate(self.policy.std_groups()):
-            row[f"std_{('move', 'trigger', 'lift')[j] if j < 3 else j}"] = g
+            row[f"std_{('move', 'trigger', 'lift', 'abort')[j] if j < 4 else j}"] = g
+        if self.policy.ctx_index is not None:
+            for j, g in enumerate(self.policy.std_groups(ctx=True)):
+                row[f"std_hold_{('move', 'trigger', 'lift', 'abort')[j] if j < 4 else j}"] = g
         for k, name in enumerate(ENDS[1:], start=1):
             row[f"end_{name}"] = float(s["ends"][k]) / n if n else math.nan
         if self.dev.type == "cuda":
@@ -416,10 +474,13 @@ class PPO:
 
     # -- checkpoints --
     def state(self, extra=None) -> dict:
+        env = self.env
         return dict(policy=self.policy.state_dict(), policy_kwargs=self.policy.kwargs, optimizer=self.opt.state_dict(),
                     lr=self.lr, iteration=self.iteration, decisions=self.decisions, world_steps=self.world_steps,
                     episodes=self.episodes, wall=self.wall, gen=self.gen.get_state(),
-                    env_gen=self.env.gen.get_state(), extra=extra or {})
+                    env_gen=env.gen.get_state(), extra=extra or {},
+                    env=env.resolved() if hasattr(env, "resolved") else None,
+                    env_ep_count=env.ep_count.clone().cpu() if hasattr(env, "ep_count") else None)
 
     def save(self, path, extra=None):
         tmp = Path(str(path) + ".tmp")
@@ -437,15 +498,18 @@ class PPO:
             self.gen.set_state(d["gen"].cpu())
             if "env_gen" in d:
                 self.env.gen.set_state(d["env_gen"].cpu())
+            if d.get("env_ep_count") is not None and hasattr(self.env, "ep_count"):     # macro-seed streams go on
+                self.env.ep_count.copy_(d["env_ep_count"].to(self.env.ep_count.device))
         return d
 
 
-def load_policy(path, device="cpu") -> Policy:
-    """A saved checkpoint (``PPO.save``) -> Policy in eval mode on device."""
+def load_policy(path, device="cpu", with_env=False):
+    """A saved checkpoint (``PPO.save``) -> Policy in eval mode on device (with_env: (policy, the checkpoint's
+    ``env`` provenance dict or None for checkpoints written before 2026-10-11 23:00))."""
     d = torch.load(path, map_location=device, weights_only=False)
     pol = Policy(**d["policy_kwargs"]).to(device)
     pol.load_state_dict(d["policy"])
-    return pol.eval()
+    return (pol.eval(), d.get("env")) if with_env else pol.eval()
 
 
 class CurveWriter:

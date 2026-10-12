@@ -18,6 +18,7 @@ Action a [B, 6] in [-1, 1], read by ``decide`` once per decision (``decision_ste
             the descent). A macro start disarms the trigger; a decision with a[4] <= 0 arms it again, so a trigger
             held through a GRASP cannot start a PLACE right after the lift (``armed``, in the observation)
     a[5]    GRASP lift height, read at the trigger: h = 3 + 9 (a[5] + 1) / 2 cm
+    a[6]    only with ``abort_action`` (PPO options below): the explicit abort of a GRASP / CARRY line (> 0)
 
 Modes (``MODES``): ``free`` (jaw open, free motion) -GRASP-> g_brake, g_descend, g_settle, g_close, g_grip, g_lift ->
 ``hold`` (jaw closed, free motion with the held-cube rules) -PLACE-> p_brake, p_settle, p_lower, p_open, p_retreat ->
@@ -116,6 +117,28 @@ decision may carry again (re-targeting only from rest). PLACE starts from rest a
 Macro-duration seeds (review F5): ``reset`` without ``seed`` gives each world a fresh stream per episode (the first
 episode of a world keeps the earlier default base_seed * 1,000,003 + world index); a trainer may pass its own episode
 seeds, a paired evaluation passes the task seed.
+
+Trigger arming (review_code_v2 R5, 2026-10-11): a decision re-arms the trigger (a[4] <= trigger_thr) only where it
+reads a[4]: mode free (also right after an abort), mode hold, and the GRASP descent before the close (the abort,
+without ``grasp_latch``); inside the other macro phases a[4] is not read at all. The FSM expert's episodes are
+bit-identical to the earlier rule (it holds a[4] = +1 through a GRASP and never triggers at the first decision after a
+PLACE; checked on the 1,024 gate tasks, build4_ppo2.md).
+
+PPO options (all off by default; build4_ppo2.md; the same in every world):
+
+- ``grasp_gate``: GRASP precondition. A GRASP trigger is ignored (no macro, no cost; counted as ``trigger_ignored``
+  and ``gate_blocked``, the trigger stays armed) unless the descent end it would set (``brake_stop`` = ``macro_goal``
+  x, y, yaw of a GRASP started now, every blend) has the cube centre within ``gate_box`` in that pose's yaw frame
+  (|x| along the closing axis, |y| along the jaw width, |cube yaw - gripper yaw| mod 90) and the descent end height
+  within ``gate_z`` of the cube centre for the whole range of its random 0-2 mm (``grasp_dz``). Default box 4.5 mm /
+  10 mm / 2.5 deg: inside the task's training grasp box (5.5 / 12.5 mm / 3 deg) with the margin of the gate
+  harness's noisy triggers (gate_expert.md sec. 5).
+- ``grasp_latch``: a started GRASP runs to the lift; a[4] is not read in g_brake / g_descend / g_settle. With
+  ``abort_action`` the explicit abort a[6] > ``abort_act_thr`` there aborts it (as a[4] <= 0 did); else no abort.
+- ``abort_action``: the action has 7 columns; a[6] is a separate abort output (review_code_v2 R3: the CARRY abort
+  shared the lift-height output a[5] and its exploration noise). It aborts a running CARRY line (option b2; a[5] is
+  then not read there) and, with ``grasp_latch``, a pre-close GRASP. A 6-column action (e.g. the FSM expert) keeps
+  a[5] as the CARRY abort and has no GRASP abort under ``grasp_latch``.
 """
 from __future__ import annotations
 
@@ -140,7 +163,7 @@ MACRO_OF_MODE = ("free", "grasp_descend", "grasp_descend", "grasp_descend", "gra
                  "free", "place_lower", "place_lower", "place_lower", "place_open", "place_retreat")
 ACTION_DIM = 6
 FLAGS = ("guard_scaled", "limited", "lead_clipped", "floor_raised", "floor_override", "range_clipped", "ws_clipped",
-         "yaw_blocked", "yaw_capped", "trigger_ignored", "aborted", "carries", "carry_aborts")
+         "yaw_blocked", "yaw_capped", "trigger_ignored", "aborted", "carries", "carry_aborts", "gate_blocked")
 
 
 def minjerk(s):
@@ -285,6 +308,13 @@ class DecoderV2Config:
     # 0.057 / 0.018 / 0.059 rad, max 0.060; d2 p99.9 below; ~/so101_policy/docs/build3_fixes.md)
     dq_carry: tuple = (0.06, 0.06, 0.06, 0.06, 0.06)
     ddq_carry: tuple = (0.0061, 0.0109, 0.0148, 0.0095, 0.0301)
+    # PPO options (module docstring, "PPO options"; build4_ppo2.md); all off = the gate's decoder
+    grasp_gate: bool = False              # GRASP precondition: a trigger whose descent end puts the cube outside
+    gate_box: tuple = (0.0045, 0.010, math.radians(2.5))   # (|x| closing axis m, |y| m, |yaw mod 90| rad) is ignored
+    gate_z: tuple = (-0.0125, 0.0015)     # m, cube centre z minus the descent end z (the task's box_z)
+    grasp_latch: bool = False             # a started GRASP is not aborted by a[4] (a[4] unread in g_brake..g_settle)
+    abort_action: bool = False            # action a[6] (7 columns): > abort_act_thr aborts a pre-close GRASP (with
+    abort_act_thr: float = 0.0            #   grasp_latch) and a running CARRY line (instead of a[5] > carry_abort_thr)
 
 
 class DecoderV2:
@@ -696,6 +726,62 @@ class DecoderV2:
         clipped = apply & (((p2 - pos).abs().amax(-1) > 1e-12) | ((y2 - yaw).abs() > 1e-12))
         return torch.where(apply[:, None], p2, pos), torch.where(apply, y2, yaw), clipped
 
+    # ---- brake rest point and the GRASP gate (PPO options) -----------------------------------------------------------
+    @property
+    def action_dim(self):
+        """Columns of the action: 7 with ``abort_action`` (a[6] = abort), else 6."""
+        return 7 if self.cfg.abort_action else ACTION_DIM
+
+    @torch.no_grad()
+    def brake_stop(self, rmap=None):
+        """Where a GRASP / PLACE trigger at this decision brings the target to rest, without changing any state:
+        (TCP position [B, 3] m, yaw [B] rad) = ``macro_goal`` x, y, yaw of a GRASP started now (``decide``'s brake rule
+        for the blends "cosine", "filter" and "hann"; review_code_v2 R4). rmap: ``_rate_map()`` if already computed."""
+        c = self.cfg
+        v0, w0 = self.setpoint() if self.hann else (self.vel, self.yrate)
+        if self.filt:                                     # where the filter comes to rest with the set point 0
+            return self.pos + 2 * self.fv / c.wn + self.fa / (c.wn * c.wn), self.yaw + 2 * self.fw / c.wn + self.fwa / (c.wn * c.wn)
+        rmap = self._rate_map() if rmap is None else rmap
+        sp, wr = v0.norm(dim=-1), w0.abs()
+        qd0 = (rmap @ torch.cat((v0, w0[:, None]), -1)[..., None])[..., 0].abs()
+        rest = (sp < 1e-9) & (wr < 1e-9)
+        if self.hann:   # decide's shift: blend B becomes A, the brake (increment -v0 over T_bk) the new B at clock 0
+            tjh = (2 * qd0 * CONTROL_DT * CONTROL_DT / self.ddq_max).amax(-1)
+            tbh = torch.maximum(torch.maximum(torch.full_like(sp, 2 * self.T_d), 2 * sp / c.a_max),
+                                torch.maximum(2 * wr / c.alpha_max, tjh))
+            tbh = torch.ceil(tbh / CONTROL_DT - 1e-9) * CONTROL_DT
+            tbh = torch.where(rest & self._hann_done(), torch.full_like(tbh, 1e-9), tbh)
+            rA = self.hB_T * hann_R(self.hB_tau / self.hB_T)
+            rB = tbh * hann_R(torch.zeros_like(tbh))
+            mp = self.hB_d * rA[:, None] + (torch.zeros_like(v0) - v0) * rB[:, None]
+            mw = self.hB_w * rA + (torch.zeros_like(w0) - w0) * rB
+            return self.pos - mp, self.yaw - mw
+        tj = (math.pi * qd0 * CONTROL_DT * CONTROL_DT / (2 * self.ddq_max)).amax(-1)
+        tbk = torch.maximum(torch.maximum(torch.full_like(sp, self.T_d), math.pi * sp / (2 * c.a_max)),
+                            torch.maximum(math.pi * wr / (2 * c.alpha_max), tj))
+        tbk = torch.ceil(tbk / CONTROL_DT - 1e-9) * CONTROL_DT
+        tb = torch.where(rest, torch.zeros_like(tbk), tbk)
+        return self.pos + v0 * (tb / 2)[:, None], self.yaw + w0 * tb / 2
+
+    @torch.no_grad()
+    def gate_ok(self, state, stop=None):
+        """GRASP precondition (``grasp_gate``, module docstring) [B] bool for the cube of ``state`` (WorldState: cube_pos,
+        cube_quat) and the brake rest point ``stop`` = (position [B, 3], yaw [B]) (default ``brake_stop()``)."""
+        from nedm.so101_policy.task import cube_yaw_tilt, wrap90
+        c = self.cfg
+        sp, syaw = self.brake_stop() if stop is None else stop
+        cube = state.cube_pos.to(**self.f)
+        cyaw, _ = cube_yaw_tilt(state.cube_quat.to(**self.f))
+        d = cube[:, :2] - sp[:, :2]
+        cs, sn = torch.cos(syaw), torch.sin(syaw)
+        x, y = cs * d[:, 0] + sn * d[:, 1], -sn * d[:, 0] + cs * d[:, 1]
+        q_w = torch.cat((self.q_des, torch.full_like(self.yaw[:, None], self.theta_worst)), -1)
+        floor = c.low_min + self.kin.fk(q_w)[0][:, 2] - self.kin.lowest_point(q_w, exact=False)
+        z_hi = torch.maximum(cube[:, 2] + c.grasp_dz[1], floor)          # the descent end over the drawn 0-2 mm
+        z_lo = torch.maximum(cube[:, 2] + c.grasp_dz[0], floor)
+        return ((x.abs() <= c.gate_box[0]) & (y.abs() <= c.gate_box[1]) & (wrap90(syaw - cyaw).abs() <= c.gate_box[2])
+                & (cube[:, 2] - z_hi >= c.gate_z[0]) & (cube[:, 2] - z_lo <= c.gate_z[1]))
+
     # ---- reset --------------------------------------------------------------------------------------------------
     def reset(self, idx, q, hold=None, seed=None, z_ceil=None):
         """Worlds idx (index tensor or bool mask) start at rest at the measured joint angles q [n, 6]. hold [n] bool:
@@ -748,14 +834,19 @@ class DecoderV2:
     # ---- one decision -------------------------------------------------------------------------------------------
     @torch.no_grad()
     def decide(self, action, state=None):
-        """action [B, 6] in [-1, 1] (module docstring); state: the WorldState of the decision (q, cube_pos, cube_quat
-        used; None: no yaw lock, GRASP height from the resting cube height). -> info dict of [B] bools."""
+        """action [B, 6] (or [B, 7] with ``abort_action``) in [-1, 1] (module docstring); state: the WorldState of the
+        decision (q, cube_pos, cube_quat used; None: no yaw lock, GRASP height from the resting cube height; required
+        with ``grasp_gate``). -> info dict of [B] bools."""
         c = self.cfg
         a = action.to(**self.f).clamp(-1.0, 1.0)
+        a7 = c.abort_action and a.shape[1] > ACTION_DIM          # the separate abort output a[6] (PPO options)
         mode = self.mode
         free, hold = mode == M["free"], mode == M["hold"]
         pre = (mode == M["g_brake"]) | (mode == M["g_descend"]) | (mode == M["g_settle"])
-        abort = pre & (a[:, 4] <= c.abort_thr)
+        if c.grasp_latch:                                 # a started GRASP: abort only by the abort output
+            abort = pre & (a[:, 6] > c.abort_act_thr) if a7 else torch.zeros_like(pre)
+        else:
+            abort = pre & (a[:, 4] <= c.abort_thr)
         free = free | abort
         self.mode = torch.where(abort, M["free"], mode)
         if self.filt:
@@ -795,11 +886,19 @@ class DecoderV2:
         wn = torch.where(blocked, torch.zeros_like(wn), wn)
         wn, yaw_capped = self._yaw_walls(wn, w0, rmap)
         trig = (a[:, 4] > c.trigger_thr) & self.armed
-        self.armed = self.armed | (a[:, 4] <= c.trigger_thr)
+        reads4 = free | hold | (torch.zeros_like(pre) if c.grasp_latch else pre)   # where a[4] is read (R5)
+        self.armed = self.armed | (reads4 & (a[:, 4] <= c.trigger_thr))
         g_trig = free & ~abort & trig
         jaw_ready = (self.jaw_k >= self.jaw_n) & ((self.jaw_to - c.jaw_open).abs() < 1e-9)
         ignored = g_trig & ~jaw_ready
         g_trig = g_trig & jaw_ready
+        gated = torch.zeros_like(g_trig)
+        if c.grasp_gate:                                  # GRASP precondition (PPO options): before any state change
+            if state is None:
+                raise ValueError("grasp_gate needs the WorldState in decide")
+            gated = g_trig & ~self.gate_ok(state, self.brake_stop(rmap))
+            g_trig = g_trig & ~gated
+            ignored = ignored | gated
         p_trig = hold & ~moving & trig
         self.armed = self.armed & ~(g_trig | p_trig)
         go = take & ~g_trig & ~p_trig
@@ -852,12 +951,13 @@ class DecoderV2:
         carry_started = torch.zeros_like(p_trig)
         carry_aborted = torch.zeros_like(p_trig)
         if c.carry_macro:   # option b2: a hold decision at rest gives the CARRY target; a[5] aborts a running line
-            carry_aborted = self._carry_abort(hold & self.carry_on & (a[:, 5] > c.carry_abort_thr))
+            stop_line = a[:, 6] > c.abort_act_thr if a7 else a[:, 5] > c.carry_abort_thr    # R3: own output with a[6]
+            carry_aborted = self._carry_abort(hold & self.carry_on & stop_line)
             carry_started = self._carry_start(a, hold & ~moving & ~p_trig)
         info = dict(grasp_started=g_trig, place_started=p_trig, aborted=abort, trigger_ignored=ignored,
                     yaw_blocked=blocked & take, yaw_capped=yaw_capped & take, ws_capped=ws_capped & go,
-                    carry_started=carry_started, carry_aborted=carry_aborted)
-        for k in ("aborted", "trigger_ignored", "yaw_blocked", "yaw_capped"):
+                    carry_started=carry_started, carry_aborted=carry_aborted, gate_blocked=gated)
+        for k in ("aborted", "trigger_ignored", "yaw_blocked", "yaw_capped", "gate_blocked"):
             self.counts[k] += info[k].long()
         return info
 

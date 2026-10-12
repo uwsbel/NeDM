@@ -1,6 +1,7 @@
 """PPO pieces (src/nedm/so101_policy/ppo.py): GAE and the losses against RSL-RL 2.2.4, masked likelihood / entropy /
 KL, the running normaliser, std groups (floor, cap), the split optimizer, the time-out bootstrap, masked dims that
-get no gradient, checkpoint round trip, and a short learning run on a toy env.
+get no gradient, checkpoint round trip, and a short learning run on a toy env; the abort group (7 actions: 3-group
+configs extended), the env record and the episode counters in the checkpoint (review R1, R10).
 
 CPU, a few seconds.
 
@@ -213,6 +214,60 @@ class PolicyAndOptim(unittest.TestCase):
             self.assertEqual(ppo3.iteration, ppo.iteration)
             self.assertEqual(ppo3.world_steps, ppo.world_steps)
             self.assertAlmostEqual(ppo3.lr, ppo.lr)
+
+    def test_abort_group_values_and_checkpoint_env_record(self):
+        self.assertEqual(P.group_values([0.3, 1.0, 0.5], [4, 1, 1, 1], "init_std"), [0.3, 1.0, 0.5, 0.5])
+        self.assertEqual(P.group_values([0.15, 0.3, 0.2, 0.25], [4, 1, 1, 1], "std_floor"), [0.15, 0.3, 0.2, 0.25])
+        with self.assertRaises(ValueError):
+            P.group_values([0.3, 1.0], [4, 1, 1, 1], "init_std")
+        self.assertEqual(P.action_bias_for([0, 0, 0, 0, -1, 0], 7), [0, 0, 0, 0, -1, 0, -3.0])
+        self.assertEqual(P.action_bias_for([0] * 6, 6), [0] * 6)
+        env = ToyEnv(B=16)
+        env.ep_count = torch.arange(16)
+        env.resolved = lambda: dict(decoder=dict(carry_macro=True), task=dict(obs_rates=True))
+        pol = P.Policy(env.num_obs, 6, (4, 1, 1), (8,), (8,))
+        ppo = P.PPO(env, pol, cfg())
+        ppo.iterate()
+        with tempfile.TemporaryDirectory() as d:
+            path = Path(d) / "m.pt"
+            ppo.save(path)
+            pol2, rec = P.load_policy(path, with_env=True)
+            self.assertEqual(rec["decoder"], dict(carry_macro=True))
+            env2 = ToyEnv(B=16)
+            env2.ep_count = torch.zeros(16, dtype=torch.long)
+            ppo2 = P.PPO(env2, P.Policy(env.num_obs, 6, (4, 1, 1), (8,), (8,)), cfg())
+            ppo2.load(path)
+            self.assertEqual(env2.ep_count.tolist(), list(range(16)))      # macro-seed streams continue (R10)
+
+    def test_context_std(self):
+        """hold_std: rows with obs[ctx_index] > 0.5 sample and score with the second std vector; its own floor / cap;
+        a promotion's set_std leaves it; the checkpoint round trip keeps it."""
+        env = ToyEnv(B=64)
+        pol = P.Policy(env.num_obs, 6, (4, 1, 1), (16,), (16,), init_std=(0.3, 1.0, 0.5), ctx_index=1,
+                       ctx_init_std=(0.05, 1.0, 0.5))
+        c = cfg(hold_std=dict(init=[0.05, 1.0, 0.5], floor=[0.02, 0.3, 0.2], cap=[0.1, 2.0, 1.0]))
+        ppo = P.PPO(env, pol, c)
+        o = torch.tensor([[0.0, 1.0, 0, 0], [0.0, 0.0, 0, 0]])
+        st = pol.std_of(pol.ctx(o))
+        self.assertAlmostEqual(float(st[0, 0]), 0.05, places=6)
+        self.assertAlmostEqual(float(st[1, 0]), 0.3, places=6)
+        ppo.collect()
+        R = ppo.roll
+        ctx = R.ctx
+        self.assertTrue(bool(ctx.any()) and bool((~ctx).any()))
+        self.assertTrue(torch.allclose(R.std[ctx][:, 0], torch.full((int(ctx.sum()),), 0.05)))
+        n = torch.distributions.Normal(R.mu, R.std)
+        ref = (n.log_prob(R.act) * R.mask).sum(-1)
+        self.assertLess(float((R.logp - ref).abs().max()), 1e-4)
+        ppo.update()
+        self.assertTrue(bool((pol.std_ctx[:4] >= 0.02 - 1e-7).all()) and bool((pol.std_ctx[:4] <= 0.1 + 1e-7).all()))
+        before = pol.std_ctx.detach().clone()
+        ppo.set_std([0.3, 1.0, 0.5], at_least=True)
+        self.assertTrue(torch.equal(pol.std_ctx.detach(), before))
+        with tempfile.TemporaryDirectory() as d:
+            ppo.save(Path(d) / "m.pt")
+            pol2 = P.load_policy(Path(d) / "m.pt")
+            self.assertTrue(torch.equal(pol2.std_ctx.detach(), pol.std_ctx.detach()))
 
     def test_curve_writer_resume(self):
         with tempfile.TemporaryDirectory() as d:

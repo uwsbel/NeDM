@@ -1,0 +1,15 @@
+{
+  "note": "ABLATION (not a camera policy): act_v2 plus the TRUE cube state (x, y, z, sin 4 yaw, cos 4 yaw) in the goal token; separates the perception error from the imitation / action-design error",
+  "chunk": 20,
+  "res": 288,
+  "cameras": ["top", "wrist"],
+  "batch": 64,
+  "render_batch": 512,
+  "lr": 5e-5,
+  "lr_backbone": 1e-5,
+  "warmup": 500,
+  "shift_px": 0,
+  "sustain_place": true,
+  "privileged_cube": true,
+  "ensemble_coeff": 0.01
+}

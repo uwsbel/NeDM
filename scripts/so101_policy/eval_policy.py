@@ -20,6 +20,13 @@ Episode (``vec_env.PickPlaceVecEnv`` with auto_reset off, ``vec_env.run_episodes
 rules); the task's link / jaw overlap rules run in every world except CPU MuJoCo (real contacts and the collector's
 visual-overlap end there). Decoder macro seeds = the task seeds (identical durations in every world).
 
+Decoder and observation (review_code_v2 R1): a checkpoint written by ``train_ppo.py`` holds the training env's resolved
+DecoderV2Config and TaskConfig (``PickPlaceVecEnv.resolved()``); the evaluation env uses that decoder config (every
+field) and the training run's ``obs_rates``, with the evaluation rules and the default success tolerance (15 mm /
+15 deg; 10 / 10 reported) in every world. ``--decoder-cfg JSON`` (DecoderV2Config overrides) sets the decoder of
+``--policy expert``; for a checkpoint it must agree with the checkpoint's decoder (else the run stops). A checkpoint
+without that record (before 2026-10-11 23:00) runs with the default decoder and a NOTE.
+
 Output (.npz, the gate_expert ``run`` format, so its report functions apply): per episode end (``task.ENDS`` code),
 success (15 mm / 15 deg), success10, lifted, end_xy / end_yaw, t_end (20 ms steps), ret / length (decision reward sum,
 decisions), mj_reason (CPU MuJoCo collector end), first_fire / lift_step / close_x; per step q, cube (pos + quat), xg
@@ -93,18 +100,52 @@ def tasks_subset(path, n=0, first=0):
     return t
 
 
+def checkpoint_env(policy, decoder_cfg=None, log=print):
+    """(DecoderV2Config overrides, TaskConfig overrides, provenance dict or None) of the evaluation env for a policy
+    checkpoint (module docstring, R1), or for the expert (decoder_cfg as given)."""
+    if policy == "expert":
+        return dict(decoder_cfg or {}), {}, None
+    d = torch.load(policy, map_location="cpu", weights_only=False)
+    prov = d.get("env")
+    if prov is None:
+        if decoder_cfg:
+            raise ValueError(f"{policy}: no decoder record in the checkpoint; cannot check --decoder-cfg")
+        if log:
+            log(f"NOTE {policy}: checkpoint without the env record (before R1): default decoder and observation")
+        return {}, {}, None
+    dec = {k: (tuple(v) if isinstance(v, list) else v) for k, v in prov["decoder"].items()}
+    if decoder_cfg:
+        from dataclasses import asdict, replace
+
+        from nedm.so101_policy.decoder import DecoderV2Config
+        want = asdict(replace(DecoderV2Config(**dec), **decoder_cfg))
+        if want != asdict(DecoderV2Config(**dec)):
+            raise ValueError(f"--decoder-cfg {decoder_cfg} differs from the checkpoint's decoder")
+    return dec, dict(obs_rates=bool(prov["task"]["obs_rates"])), prov
+
+
 @torch.no_grad()
 def run_policy(tasks, world, policy="expert", ckpt=None, device="cpu", workers=0, mj_python=None, train_rules=False,
-               horizon=None, record=True, members="split", assist=False, stochastic=False, noise_seed=0, log=print):
-    """Episodes of one policy on all tasks in one world -> dict of numpy arrays (module docstring)."""
+               horizon=None, record=True, members="split", assist=False, stochastic=False, noise_seed=0, log=print,
+               decoder_cfg=None):
+    """Episodes of one policy on all tasks in one world -> dict of numpy arrays (module docstring). decoder_cfg:
+    DecoderV2Config overrides (expert; a checkpoint's own decoder must agree)."""
     from nedm.so101_policy.ppo import load_policy, sha256
     from nedm.so101_policy.vec_env import EnvConfig, PickPlaceVecEnv, policy_act_fn, run_episodes
     B = len(tasks["seeds"])
     t0 = time.time()
-    task_over = {} if horizon is None else dict(horizon=int(horizon))
+    dec_over, task_over, prov = checkpoint_env(policy, decoder_cfg, log)
+    if horizon is not None:
+        task_over["horizon"] = int(horizon)
+    files = {}                                # the checkpoint's geometry / kin points files where they exist here
+    for k in ("geom_path", "kin_points"):
+        p = (prov or {}).get("env", {}).get(k)
+        if p and Path(p).expanduser().exists():
+            files[k] = p
     cfg = EnvConfig(world=world, num_envs=B, device=device, ckpts=[str(Path(c).expanduser()) for c in (ckpt or [])],
                     members=members, auto_reset=False, eval_rules=not train_rules, task=task_over, mj_workers=workers,
-                    mj_python=mj_python, starts="", nrd_cuda_graph=True, grasp_assist=bool(assist))
+                    mj_python=mj_python, starts="", nrd_cuda_graph=True, grasp_assist=bool(assist), decoder=dec_over,
+                    **files)
     env = PickPlaceVecEnv(cfg, record=record)
     dev = env.dev
     starts = G.start_state(tasks, dev)
@@ -116,6 +157,9 @@ def run_policy(tasks, world, policy="expert", ckpt=None, device="cpu", workers=0
         hook = act.reset
     else:
         pol = load_policy(policy, device=dev)
+        if pol.kwargs["obs_dim"] != env.num_obs or pol.kwargs["act_dim"] != env.num_actions:
+            raise RuntimeError(f"policy {pol.kwargs['obs_dim']} obs / {pol.kwargs['act_dim']} actions vs env "
+                               f"{env.num_obs} / {env.num_actions}")
         act = StochasticAct(pol, seeds, noise_seed) if stochastic else policy_act_fn(pol)
         hook, pinfo = None, dict(policy=str(policy), policy_sha256=sha256(policy))
     r = run_episodes(env, act, starts, g("goal_xy"), g("goal_yaw"), seeds, mj_start=mj_start if world == "mujoco" else None,
@@ -130,7 +174,8 @@ def run_policy(tasks, world, policy="expert", ckpt=None, device="cpu", workers=0
                world_steps=np.int64(env.world_steps), phase=np.zeros_like(rec["mode"]) if record else np.zeros(0),
                label=np.zeros_like(rec["mode"]) if record else np.zeros(0), phase_names=np.array(["policy"]),
                train_rules=np.bool_(train_rules), assist=np.bool_(assist), stochastic=np.bool_(stochastic),
-               noise_seed=np.int64(noise_seed),
+               noise_seed=np.int64(noise_seed), env_resolved=np.array(json.dumps(env.resolved(), default=str)),
+               ckpt_env=np.array(json.dumps(prov, default=str) if prov is not None else ""),
                **{k: np.array(v) for k, v in pinfo.items()})
     return out
 
@@ -160,7 +205,7 @@ def cmd_run(a):
     torch.set_num_threads(a.threads)
     r = run_policy(tasks, a.world, a.policy, a.ckpt, a.device, a.workers, a.mj_python, a.train_rules, a.horizon,
                    not a.no_record, a.members[0] if a.members and len(a.members) == 1 else (a.members or "split"),
-                   a.assist, a.stochastic, a.noise_seed)
+                   a.assist, a.stochastic, a.noise_seed, decoder_cfg=json.loads(a.decoder_cfg) if a.decoder_cfg else None)
     np.savez_compressed(a.out, **r)
     sm = summary(r)
     print(f"{a.world}{' (ASSISTED)' if a.assist else ''}{' (STOCHASTIC)' if a.stochastic else ''} {sm['policy']}: success 15/15 {sm['success15'] * 100:.1f} % ({sm['success15_ci'][0] * 100:.1f}-"
@@ -240,6 +285,8 @@ def main():
     p.add_argument("--stochastic", action="store_true", help="DIAGNOSTIC: sample the policy (its std, counter-based noise "
                    "per task seed and decision: the same noise in every world)")
     p.add_argument("--noise-seed", type=int, default=0)
+    p.add_argument("--decoder-cfg", help="DecoderV2Config overrides (JSON): the expert's decoder; for a checkpoint it "
+                   "must equal the checkpoint's own decoder")
     p = sub.add_parser("report")
     p.add_argument("--runs", nargs="+", required=True), p.add_argument("--ref")
     p.add_argument("--out", required=True), p.add_argument("--md"), p.add_argument("--examples", type=int, default=12)

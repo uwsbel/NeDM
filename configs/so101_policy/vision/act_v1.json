@@ -1,0 +1,13 @@
+{
+  "note": "ACT student v1 (build4_vision.md): LeRobot ACT defaults (ResNet18 ImageNet, dim 512, 4 encoder / 1 decoder layers, CVAE latent 32, KL 10, dropout 0.1), chunk 20 decisions (2 s) of decoder-v2 actions, temporal ensembling 0.01 (trigger from the newest chunk at execution), cameras top + wrist at 288 px, batch 64, lr 5e-5 / backbone 1e-5, warm-up 500, bf16, DrQ shift 4 px",
+  "chunk": 20,
+  "res": 288,
+  "cameras": ["top", "wrist"],
+  "batch": 64,
+  "render_batch": 512,
+  "lr": 5e-5,
+  "lr_backbone": 1e-5,
+  "warmup": 500,
+  "shift_px": 4,
+  "ensemble_coeff": 0.01
+}

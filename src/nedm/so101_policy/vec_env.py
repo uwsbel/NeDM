@@ -71,6 +71,23 @@ A later stage turns the assist off (review P0-8 keeps the rule as a termination 
 must then hold the trigger itself). ``extras["counts"]`` holds per-decision event flags (assist_blocked, assist_held,
 grasp_started, place_started, aborted) for the learning curve.
 
+Decoder PPO options (``decoder`` overrides, ``decoder.DecoderV2Config``; build4_ppo2.md): ``grasp_gate`` (a GRASP
+trigger outside the gate box is ignored at no cost: the permanent rule that replaces the grasp assist),
+``grasp_latch`` (a started GRASP is not aborted by a[4]) and ``abort_action`` (a 7th action column a[6], the explicit
+abort of a pre-close GRASP and of a CARRY line; action group "abort"). ``action_groups(cfg)`` gives the groups of an
+env config; the action mask covers a[6] where it is read.
+
+Grasp-pose shaping (``grasp_shaping``, off by default; build4_ppo2.md): a potential-based term on top of the task
+reward, at the decision level: F = gamma Phi(s') - Phi(s) with Phi = -(w_x min(|x|, x_max) + w_y min(|y|, y_max) +
+w_yaw min(|yaw|, yaw_max)), (x, y, yaw) = the cube centre and yaw in the frame of the brake rest point
+(``DecoderV2.brake_stop``: where a GRASP started now would descend), while the decoder is in mode free and before the
+first firm lift; frozen during a GRASP macro (as the task freezes its reach term), 0 after the first lift and at a
+terminal state (a time-out keeps Phi of its last state: truncation).
+
+Provenance (review_code_v2 R1 / R6): ``resolved()`` = the env config, the resolved TaskConfig and DecoderV2Config (all
+fields); the trainer writes it into every checkpoint and run directory, and the evaluation rebuilds the decoder and
+the observation from it.
+
 Host syncs per decision: one ``nonzero`` for the reset indices (plus the decoder's and the worlds' own ``.any()``
 checks). Everything else stays on the env's device.
 """
@@ -90,11 +107,21 @@ from nedm.so101_policy.world import WorldState
 
 WORLDS = ("nrd", "kin", "mjwarp", "mujoco")
 ACTION_DIM = 6
-ACTION_GROUPS = (("move", 4), ("trigger", 1), ("lift", 1))
-GEOM_NPZ = Path.home() / "so101_policy" / "ckpt" / "task_geom_v1.npz"
+ACTION_GROUPS = (("move", 4), ("trigger", 1), ("lift", 1))          # + ("abort", 1) with decoder abort_action
+GEOM_NPZ = Path.home() / "so101_policy" / "ckpt" / "task_geom_v2.npz"     # with the self-contact arrays (no MuJoCo)
 PP_DATA = Path.home() / "so101_nrd_fix" / "data" / "production_plus"
+KIN_POINTS = Path.home() / "so101_policy" / "ckpt" / "kin_points_v1.npz"   # kin.save_points (no MuJoCo at run time)
 _M32 = 0xFFFFFFFF
 EP_KEYS = ("end", "success", "success10", "lifted", "end_xy", "end_yaw", "ret", "length", "steps")
+# seeds that must never be training starts (validation / gate 1000-2023, gate2 400000-499999, test 900000+; review R9)
+RESERVED_SEEDS = ((1000, 2023), (400000, 499999), (900000, 2 ** 62))
+
+
+def reserved_seed_hits(seeds) -> int:
+    """Number of seeds in the reserved (validation / test) ranges."""
+    import numpy as np
+    s = np.asarray(seeds).astype(np.int64).ravel()
+    return int(sum(((s >= lo) & (s <= hi)).sum() for lo, hi in RESERVED_SEEDS))
 
 
 @dataclass
@@ -119,7 +146,10 @@ class EnvConfig:
     stagger: bool = True                 # reset(): episode clocks start at random decisions (spread the time-outs)
     grasp_assist: bool = False           # exploration aid (curriculum, module docstring): out-of-box GRASP triggers ignored
     grasp_assist_cost: float = 0.05      # reward charged for an ignored trigger
+    grasp_shaping: dict = field(default_factory=dict)   # grasp-pose shaping (module docstring): w_x, w_y, w_yaw (per m,
+                                         # per rad), x_max, y_max, yaw_max (m, rad); {} = off
     geom_path: str = str(GEOM_NPZ)       # TaskGeometry .npz (machines without the vendor model); missing -> MuJoCo
+    kin_points: str = str(KIN_POINTS)    # SO101Kin collision points .npz (kin.save_points); missing -> MuJoCo
     mj_workers: int = 0                  # CPU MuJoCo worker processes
     mj_python: object = None             # interpreter of the CPU MuJoCo workers (luffy: conda nrdsim has scipy)
     mjwarp: dict = field(default_factory=dict)    # MjwarpWorlds kwargs (nconmax, njmax, graph, opt)
@@ -137,12 +167,22 @@ class EnvConfig:
         return copy.deepcopy(asdict(self))
 
 
+def decoder_config(cfg: EnvConfig) -> DecoderV2Config:
+    return replace(DecoderV2Config(), **cfg.decoder)
+
+
+def action_groups(cfg: EnvConfig | dict) -> tuple:
+    """Action groups (name, size) of an env config: ACTION_GROUPS, + ("abort", 1) with the decoder's abort_action."""
+    d = (cfg.decoder if isinstance(cfg, EnvConfig) else (cfg or {}).get("decoder", {})) or {}
+    return ACTION_GROUPS + ((("abort", 1),) if d.get("abort_action", False) else ())
+
+
 def task_config(cfg: EnvConfig) -> T.TaskConfig:
     """The env's TaskConfig: training rules (or evaluation rules), the overrides, and the per-step charge discount."""
     over = dict(cfg.task)
     if "log_only" in over:
         over["log_only"] = tuple(over["log_only"])
-    dec_steps = DecoderV2Config(**cfg.decoder).decision_steps if cfg.decoder else DecoderV2Config().decision_steps
+    dec_steps = decoder_config(cfg).decision_steps
     over.setdefault("gamma", float(cfg.gamma) ** (1.0 / dec_steps))
     return T.TaskConfig.evaluation(**over) if cfg.eval_rules else T.TaskConfig(**over)
 
@@ -162,24 +202,41 @@ def obs_layout(tcfg: T.TaskConfig, dec_dim: int = DecoderV2.OBS_DIM) -> dict:
     return out
 
 
+def kinematics(points_path, device) -> SO101Kin:
+    """SO101Kin with the collision points of ``points_path`` (identical arrays to ``kin.collision_points``) or, if that
+    file is missing, from MuJoCo."""
+    from nedm.so101_policy.kin import load_points
+    p = Path(points_path).expanduser() if points_path else None
+    return SO101Kin(device, points=load_points(p) if p is not None and p.exists() else None)
+
+
 def task_geometry(path, device):
-    path = Path(path) if path else None
+    path = Path(path).expanduser() if path else None
     return T.TaskGeometry.load(path, device) if path is not None and path.exists() else T.TaskGeometry.from_mujoco(device)
 
 
-def load_starts(spec, split=0, device="cpu") -> dict:
+def load_starts(spec, split=0, device="cpu", allow_eval=False) -> dict:
     """Start bank -> dict of float64 tensors q, qd, cube_pos, cube_quat, cube_v, cube_w [N, ...] on device. spec: a
     grasp data directory (``task.load_start_bank``, task families of ``split``), an .npz with these keys (``train_ppo.py
-    bank`` / ``starts``), or a gate tasks file (``state_*`` keys). Refuses the sealed test."""
+    bank`` / ``starts``), or a gate tasks file (``state_*`` keys). Refuses the sealed test always and, unless
+    ``allow_eval`` (evaluation only), any validation / test start (review R9): a file whose ``seeds`` / ``seed`` array
+    holds a reserved seed (``RESERVED_SEEDS``), a gate tasks file, a data directory named gate* / val* or a split other
+    than 0."""
     import numpy as np
     p = Path(str(spec)).expanduser()
     if "test_sealed" in str(p):
         raise ValueError("the sealed test data must not be used for starts")
     keys = ("q", "qd", "cube_pos", "cube_quat", "cube_v", "cube_w")
     if p.is_dir():
+        if not allow_eval and (split != 0 or p.name.startswith(("gate", "val"))):
+            raise ValueError(f"{p} (split {split}): validation data are not training starts")
         b = T.load_start_bank(p, split=split, device=device)
         return {k: b[k] for k in keys}
     f = np.load(p)
+    if not allow_eval:
+        hits = sum(reserved_seed_hits(f[k]) for k in ("seeds", "seed") if k in f.files)
+        if hits or "goal_xy" in f.files:
+            raise ValueError(f"{p}: {hits} reserved (validation / test) seeds or a task file: not training starts")
     pre = "state_" if f"state_q" in f.files else ""
     return {k: torch.as_tensor(f[pre + k], dtype=torch.float64, device=device) for k in keys}
 
@@ -200,7 +257,7 @@ def make_world(cfg: EnvConfig, B: int, device, kin=None, geom=None, share=None):
         from nedm.so101_policy.nrd_sim import GraspNrdSim
         if share is not None and share.cfg.world == "nrd":
             ck = dict(zip(share.world.member_names, share.world.models))
-            members = "split"
+            members = share.cfg.members                   # the training env's model mix (review R10)
         else:
             if not cfg.ckpts:
                 raise ValueError("world nrd needs ckpts")
@@ -221,21 +278,10 @@ def make_world(cfg: EnvConfig, B: int, device, kin=None, geom=None, share=None):
 
 
 def brake_stop(dec: DecoderV2):
-    """Where a GRASP / PLACE trigger at the next decision stops the decoder target (``DecoderV2.decide``'s brake rule;
-    cosine blend): -> (xy [B, 2] m, yaw [B] rad) = ``macro_goal`` x, y, yaw of a GRASP started now (copy of
-    ``scripts/so101_policy/gate_expert.brake_stop``; tested against the decoder)."""
-    from nedm.so101_policy.decoder import CONTROL_DT as DT
-    c = dec.cfg
-    v0, w0 = dec.vel, dec.yrate
-    rmap = dec._rate_map()
-    sp, wr = v0.norm(dim=-1), w0.abs()
-    qd0 = (rmap @ torch.cat((v0, w0[:, None]), -1)[..., None])[..., 0].abs()
-    tj = (math.pi * qd0 * DT * DT / (2 * dec.ddq_max)).amax(-1)
-    tb = torch.maximum(torch.maximum(torch.full_like(sp, dec.T_d), math.pi * sp / (2 * c.a_max)),
-                       torch.maximum(math.pi * wr / (2 * c.alpha_max), tj))
-    tb = torch.ceil(tb / DT - 1e-9) * DT
-    tb = torch.where((sp < 1e-9) & (wr < 1e-9), torch.zeros_like(tb), tb)
-    return dec.pos[:, :2] + v0[:, :2] * (tb / 2)[:, None], dec.yaw + w0 * tb / 2
+    """Where a GRASP / PLACE trigger at the next decision stops the decoder target: -> (xy [B, 2] m, yaw [B] rad) =
+    ``macro_goal`` x, y, yaw of a GRASP started now, for every blend (``DecoderV2.brake_stop``, review R4)."""
+    p, yaw = dec.brake_stop()
+    return p[:, :2], yaw
 
 
 class PickPlaceVecEnv:
@@ -249,19 +295,26 @@ class PickPlaceVecEnv:
             raise ValueError(f"world {cfg.world!r}: one of {WORLDS}")
         self.dev = dev = torch.device("cpu" if cfg.world == "mujoco" else cfg.device)
         self.B = B = int(cfg.num_envs)
-        self.num_envs, self.num_actions = B, ACTION_DIM
-        self.action_groups = [n for _, n in ACTION_GROUPS]
-        self.kin = share.kin if share is not None else SO101Kin(dev)
+        groups = action_groups(cfg)
+        self.num_envs, self.num_actions = B, sum(n for _, n in groups)
+        self.action_groups = [n for _, n in groups]            # sizes (ppo.Policy groups)
+        self.action_group_names = [g for g, _ in groups]
+        self.kin = share.kin if share is not None else kinematics(cfg.kin_points, dev)
         self.geom = share.geom if share is not None else task_geometry(cfg.geom_path, dev)
         self.tcfg = task_config(cfg)
         ov = cfg.overlap_rules if cfg.overlap_rules is not None else cfg.world != "mujoco"
         self.world = make_world(cfg, B, dev, self.kin, self.geom, share)
-        self.dec = DecoderV2(B, dev, kin=self.kin, cfg=replace(DecoderV2Config(), **cfg.decoder), seed=cfg.seed)
+        self.dec = DecoderV2(B, dev, kin=self.kin, cfg=decoder_config(cfg), seed=cfg.seed)
+        if self.dec.action_dim != self.num_actions:
+            raise RuntimeError(f"action groups {groups} vs decoder action dim {self.dec.action_dim}")
         self.task = T.PickPlaceTask(B, dev, kin=self.kin, geom=self.geom, cfg=self.tcfg, overlap_rules=bool(ov))
         self.steps_per_decision = self.dec.cfg.decision_steps
         self.max_episode_length = math.ceil(self.tcfg.horizon / self.steps_per_decision)   # decisions
         self.layout = obs_layout(self.tcfg, DecoderV2.OBS_DIM)
         self.num_obs = T.obs_dim(self.tcfg, DecoderV2.OBS_DIM)
+        # observation entry of the decoder's mode-hold flag (DecoderV2.observation: 11 entries, then the mode one-hot):
+        # the context of ppo.Policy's hold-mode std
+        self.hold_obs_index = self.layout["decoder"].start + 11 + M["hold"]
         self.gen = torch.Generator(dev).manual_seed(int(cfg.seed))
         if share is not None:
             self.bank = share.bank
@@ -279,6 +332,18 @@ class PickPlaceVecEnv:
         self.rec = None
         self.world_steps = 0             # world (20 ms) steps of all worlds since construction
         self.decisions = 0
+        gs = dict(cfg.grasp_shaping or {})
+        bad = sorted(set(gs) - {"w_x", "w_y", "w_yaw", "x_max", "y_max", "yaw_max"})
+        if bad:
+            raise ValueError(f"grasp_shaping keys {bad}")
+        self.shape_w = gs
+        self.phi = torch.zeros(B, dtype=torch.float64, device=dev)       # grasp-pose potential of the current state
+
+    def resolved(self) -> dict:
+        """The env config and the resolved TaskConfig / DecoderV2Config (every field; review R1 / R6)."""
+        return dict(env=self.cfg.to_dict(), task=asdict(self.tcfg), decoder=asdict(self.dec.cfg),
+                    num_obs=self.num_obs, num_actions=self.num_actions, action_groups=list(zip(self.action_group_names,
+                                                                                               self.action_groups)))
 
     # ---- tasks -------------------------------------------------------------------------------------------------
     def refresh_pool(self, n=None):
@@ -319,6 +384,29 @@ class PickPlaceVecEnv:
         ok = (x.abs() <= 0.98 * tc.box_x) & (y.abs() <= 0.98 * tc.box_y) & (T.wrap90(syaw - cyaw).abs() <= 0.98 * tc.close_yaw)
         return trig & ~ok
 
+    def _grasp_phi(self, frozen=None):
+        """Grasp-pose potential [B] of the current state (module docstring; 0 without ``grasp_shaping``). frozen: [B]
+        bool, worlds whose potential stays (GRASP macro)."""
+        w = self.shape_w
+        if not w:
+            return self.phi
+        dec = self.dec
+        sp, syaw = dec.brake_stop()
+        cube = self.ws.cube_pos.to(torch.float64)
+        cyaw, _ = T.cube_yaw_tilt(self.ws.cube_quat.to(torch.float64))
+        d = cube[:, :2] - sp[:, :2]
+        c, s_ = torch.cos(syaw), torch.sin(syaw)
+        x, y = c * d[:, 0] + s_ * d[:, 1], -s_ * d[:, 0] + c * d[:, 1]
+        yaw = T.wrap90(syaw - cyaw).abs()
+        phi = -(w.get("w_x", 0.0) * x.abs().clamp_max(w.get("x_max", 0.05))
+                + w.get("w_y", 0.0) * y.abs().clamp_max(w.get("y_max", 0.05))
+                + w.get("w_yaw", 0.0) * yaw.clamp_max(w.get("yaw_max", math.radians(45))))
+        on = (dec.mode == M["free"]) & ~self.task.tr.lifted
+        phi = torch.where(on, phi, torch.zeros_like(phi))
+        if frozen is not None:
+            phi = torch.where(frozen & ~self.task.tr.lifted, self.phi, phi)
+        return phi
+
     def _episode_seeds(self, idx):
         s = (int(self.cfg.seed) * 0x9E3779B1 + self.ep_count[idx] * self.B + idx) & _M32
         self.ep_count[idx] += 1
@@ -358,6 +446,7 @@ class PickPlaceVecEnv:
         if self.cfg.stagger and self.cfg.auto_reset:
             k = torch.randint(self.max_episode_length, (self.B,), generator=self.gen, device=self.dev)
             self.task.tr.t.copy_(k * self.steps_per_decision)
+        self.phi = self._grasp_phi()
         self.obs = self._observe()
         self._rec_init()
         return self.obs
@@ -378,6 +467,7 @@ class PickPlaceVecEnv:
             dc = float((got.cube_pos - st.cube_pos).abs().max())
             if dq > check_tol or dc > check_tol:
                 raise RuntimeError(f"MuJoCo warm-up start differs from the stored settled state ({dq:.2e}, {dc:.2e})")
+        self.phi = self._grasp_phi()
         self.obs = self._observe()
         self._rec_init()
         return self.obs
@@ -404,35 +494,46 @@ class PickPlaceVecEnv:
     # ---- one decision --------------------------------------------------------------------------------------------
     @torch.no_grad()
     def step(self, actions, squashed=False):
-        """actions [B, 6] (pre-tanh; squashed=True: already in [-1, 1]) -> (obs [B, D] float32, reward [B] float32,
-        done [B] bool, extras): time_outs [B] bool, final_obs [B, D], action_mask [B, 6] bool, episode (dict of [B]
-        tensors, valid where done: end code, success, success10, lifted, end_xy, end_yaw (m, rad), ret (decision
-        reward sum), length (decisions), steps (20 ms steps)), world_steps (int)."""
+        """actions [B, A] (A = num_actions: 6, or 7 with the decoder's abort_action; pre-tanh; squashed=True: already
+        in [-1, 1]) -> (obs [B, D] float32, reward [B] float32, done [B] bool, extras): time_outs [B] bool, final_obs
+        [B, D], action_mask [B, A] bool, episode (dict of [B] tensors, valid where done: end code, success, success10,
+        lifted, end_xy, end_yaw (m, rad), ret (decision reward sum), length (decisions), steps (20 ms steps)), counts
+        (per-decision event flags), world_steps (int)."""
         dec, task, B = self.dec, self.task, self.B
+        dc = dec.cfg
         live0 = task.tr.end == 0                      # running at the decision start
         a = actions.to(device=self.dev, dtype=torch.float64)
         a = a.clamp(-1.0, 1.0) if squashed else torch.tanh(a)
+        A = a.shape[1]
         blocked = torch.zeros(B, dtype=torch.bool, device=self.dev)
         held = torch.zeros(B, dtype=torch.bool, device=self.dev)
+        mode0 = dec.mode
+        pre0 = (mode0 == M["g_brake"]) | (mode0 == M["g_descend"]) | (mode0 == M["g_settle"])
         if self.cfg.grasp_assist:
             blocked = self._assist(a) & live0
-            held = (dec.mode == M["g_brake"]) | (dec.mode == M["g_descend"]) | (dec.mode == M["g_settle"])
+            held = pre0
             a = a.clone()
             a[:, 4] = torch.where(blocked, -1.0, torch.where(held, 1.0, a[:, 4]))   # no GRASP abort while assisted
-        mode0 = dec.mode
+            if A > 6:
+                a[:, 6] = torch.where(held, -1.0, a[:, 6])
         free0, hold0 = mode0 == M["free"], mode0 == M["hold"]
-        pre0 = (mode0 == M["g_brake"]) | (mode0 == M["g_descend"]) | (mode0 == M["g_settle"])
-        carry = bool(getattr(dec.cfg, "carry_macro", False))       # decoder option b2 (CARRY macro in mode hold)
+        carry = bool(dc.carry_macro)                  # decoder option b2 (CARRY macro in mode hold)
         carry_on0 = dec.carry_on.clone() if carry else torch.zeros_like(hold0)
         moving0 = hold0 & (carry_on0 | dec.carry_brk) if carry else torch.zeros_like(hold0)
+        latch, a7 = bool(dc.grasp_latch), bool(dc.abort_action) and A > 6
+        pre_ph = self.phi
         dinfo = dec.decide(a, self.ws)
         started = dinfo["grasp_started"] | dinfo["place_started"]
         take_free = (free0 | dinfo["aborted"]) & ~started
         take_hold = hold0 & ~moving0 & ~started
         move = take_free | take_hold                   # x, y, yaw (CARRY: the line's end and turn)
         move_z = take_free | (take_hold if not carry else torch.zeros_like(take_hold))
-        mask = torch.stack((move, move, move_z, move, free0 | hold0 | (pre0 & ~held),
-                            dinfo["grasp_started"] | (hold0 & carry_on0)), -1)    # a[5]: lift height / CARRY abort
+        read4 = free0 | hold0 | ((pre0 & ~held) if not latch else torch.zeros_like(pre0))
+        line_abort = hold0 & carry_on0                 # a running CARRY line reads its abort
+        cols = [move, move, move_z, move, read4, dinfo["grasp_started"] | (line_abort & ~torch.full_like(hold0, a7))]
+        if A > 6:                                      # a[6]: the explicit abort (decoder abort_action)
+            cols.append(((pre0 & ~held) & torch.full_like(pre0, latch) | line_abort) & torch.full_like(pre0, a7))
+        mask = torch.stack(cols, -1)
         rew = torch.zeros(B, dtype=torch.float64, device=self.dev)
         info = None
         for _ in range(self.steps_per_decision):
@@ -450,6 +551,12 @@ class PickPlaceVecEnv:
         end = info["end"]
         done = live0 & (end != 0)                     # ended in this decision
         time_out = done & (end == T.EC["timeout"])
+        if self.shape_w:                               # grasp-pose shaping: gamma Phi(s') - Phi(s), Phi(terminal) = 0
+            in_grasp = (dec.mode >= M["g_brake"]) & (dec.mode <= M["g_lift"])
+            ph1 = self._grasp_phi(frozen=in_grasp)
+            ph1 = torch.where(done & ~time_out, torch.zeros_like(ph1), ph1)
+            rew = rew + torch.where(live0, self.cfg.gamma * ph1 - pre_ph, torch.zeros_like(ph1))
+            self.phi = ph1
         self.ep_ret += rew
         self.ep_len += live0.long()
         ep = dict(end=end.clone(), success=end == T.EC["success"], success10=info["success10"].clone(),
@@ -463,9 +570,12 @@ class PickPlaceVecEnv:
                 obs = obs.clone()
                 self._pool_reset(idx)
                 obs[idx] = self._observe(idx=idx)
+                if self.shape_w:
+                    self.phi[idx] = self._grasp_phi()[idx]
         self.obs = obs
         counts = dict(assist_blocked=blocked, assist_held=held & live0, grasp_started=dinfo["grasp_started"] & live0,
-                      place_started=dinfo["place_started"] & live0, aborted=dinfo["aborted"] & live0)
+                      place_started=dinfo["place_started"] & live0, aborted=dinfo["aborted"] & live0,
+                      gate_blocked=dinfo.get("gate_blocked", torch.zeros_like(live0)) & live0)
         extras = dict(time_outs=time_out, final_obs=final_obs, action_mask=mask, episode=ep, counts=counts,
                       world_steps=B * self.steps_per_decision)
         return obs, rew.float(), done, extras

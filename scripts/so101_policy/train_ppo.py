@@ -31,8 +31,10 @@ validations; val_history.json marks them "assisted": a training-world-selected c
 unassisted validation), "promote": validation success to move on (absent = last stage), "min_iters", "max_iters",
 "std_reset": bool (raise the std to at least train_cfg std_reset at the promotion, default true)}, ...]}.
 
-Outputs in --out: env_cfg.json, train_cfg.json, curriculum.json, manifest.json (argv, git HEAD, sha256 of the NRD
-checkpoints and the start bank, torch, GPU), learning_curve.csv (one row per iteration; world_steps = 20 ms steps of
+Outputs in --out: env_cfg.json, train_cfg.json, curriculum.json, env_resolved.json (the env config with the resolved
+TaskConfig and DecoderV2Config, every field; review R1 / R6), manifest.json (argv, git HEAD, the dirty files with their
+sha256, sha256 of every so101_policy source / script / config file, of the NRD checkpoints and the start bank, the
+resolved configs, torch, GPU), learning_curve.csv (one row per iteration; world_steps = 20 ms steps of
 all training envs, gt_transitions = MuJoCo Warp steps incl. validation (0 in the NRD and kinematic worlds), wall_s =
 training wall clock summed over jobs), val_history.json, ckpt/model_<it>.pt, last.pt, state.json, done.json /
 paused.json, train.log (stdout copy when run with tee).
@@ -52,8 +54,9 @@ import numpy as np
 import torch
 
 from nedm.so101_policy import task as T
-from nedm.so101_policy.ppo import (PPO, CurveWriter, Policy, merge, sha256, train_cfg_default, write_json)
-from nedm.so101_policy.vec_env import (ACTION_GROUPS, EnvConfig, PickPlaceVecEnv, policy_act_fn, run_episodes,
+from nedm.so101_policy.ppo import (PPO, CurveWriter, Policy, action_bias_for, group_values, merge, sha256,
+                                   train_cfg_default, write_json)
+from nedm.so101_policy.vec_env import (EnvConfig, PickPlaceVecEnv, policy_act_fn, reserved_seed_hits, run_episodes,
                                        start_rows)
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -73,11 +76,21 @@ def apply_set(tc, ec, items):
         node[ks[-1]] = json.loads(v)
 
 
+CODE_GLOBS = ("src/nedm/so101_policy/*.py", "scripts/so101_policy/*.py", "configs/so101_policy/ppo/*.json")
+
+
+def code_hashes() -> dict:
+    """sha256 (first 16 hex) of every so101_policy source, script and PPO config file (review R6)."""
+    return {str(f.relative_to(ROOT)): sha256(f)[:16] for g in CODE_GLOBS for f in sorted(ROOT.glob(g))}
+
+
 def git_state():
     try:
         head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
         dirty = subprocess.run(["git", "status", "--porcelain"], cwd=ROOT, capture_output=True, text=True).stdout
-        return dict(head=head, dirty_files=[ln[3:] for ln in dirty.splitlines()][:200])
+        files = [ln[3:] for ln in dirty.splitlines()][:200]
+        return dict(head=head, dirty_files=files,
+                    dirty_sha256={f: sha256(ROOT / f) for f in files if (ROOT / f).is_file()})
     except OSError:
         return {}
 
@@ -142,25 +155,39 @@ def cmd_train(a):
         write_json(out / "env_cfg.json", ec)
         write_json(out / "train_cfg.json", tc)
         write_json(out / "curriculum.json", cur)
-        sp = Path(ec["starts"]).expanduser()
-        man = dict(argv=sys.argv, git=git_state(), host=socket.gethostname(), torch=torch.__version__,
-                   gpu=torch.cuda.get_device_name(0) if torch.cuda.is_available() else None,
-                   ckpts={p: sha256(p) for p in ec["ckpts"]} if ec["world"] == "nrd" else {},
-                   starts=dict(path=str(sp), sha256=sha256(sp) if sp.is_file() else
-                               (sha256(sp / "manifest.json") if (sp / "manifest.json").exists() else None),
-                               split=ec["start_split"]),
-                   method="PPO (ppo.py) on vec_env.PickPlaceVecEnv: decoder v2 actions, task.PickPlaceTask rules / reward",
-                   init_from=dict(path=a.init_from, sha256=sha256(a.init_from)) if a.init_from else None)
-        write_json(out / "manifest.json", man)
     torch.manual_seed(int(tc["seed"]))
     np.random.seed(int(tc["seed"]))
     t_job = time.time()
     env = PickPlaceVecEnv(EnvConfig.from_dict(ec))
     val_env = PickPlaceVecEnv(EnvConfig.from_dict(dict(ec, num_envs=a.val_n, auto_reset=False, obs_rate_noise=(0.0, 0.0))),
                               share=env)
+    code = code_hashes()
+    if not resume:
+        sp = Path(ec["starts"]).expanduser()
+        write_json(out / "env_resolved.json", env.resolved())
+        man = dict(argv=sys.argv, git=git_state(), code_sha256=code, host=socket.gethostname(), torch=torch.__version__,
+                   gpu=torch.cuda.get_device_name(0) if torch.cuda.is_available() else None,
+                   ckpts={p: sha256(p) for p in ec["ckpts"]} if ec["world"] == "nrd" else {},
+                   starts=dict(path=str(sp), sha256=sha256(sp) if sp.is_file() else
+                               (sha256(sp / "manifest.json") if (sp / "manifest.json").exists() else None),
+                               split=ec["start_split"]),
+                   resolved=env.resolved(),
+                   method="PPO (ppo.py) on vec_env.PickPlaceVecEnv: decoder v2 actions, task.PickPlaceTask rules / reward",
+                   init_from=dict(path=a.init_from, sha256=sha256(a.init_from)) if a.init_from else None)
+        write_json(out / "manifest.json", man)
+    elif (out / "env_resolved.json").exists():          # a resumed run must rebuild the same env
+        old = json.loads((out / "env_resolved.json").read_text())
+        new = json.loads(json.dumps(env.resolved(), default=lambda o: o.tolist() if hasattr(o, "tolist") else str(o)))
+        if {k: old[k] for k in ("task", "decoder")} != {k: new[k] for k in ("task", "decoder")}:
+            raise RuntimeError("resume: the resolved task / decoder config differs from env_resolved.json (code changed)")
     vt = val_tasks(env, a.val_n, a.val_seed)
     pk = dict(tc["policy"])
-    pol = Policy(env.num_obs, env.num_actions, [n for _, n in ACTION_GROUPS], init_std=tc["init_std"], **pk).to(env.dev)
+    groups = env.action_groups
+    pk["action_bias"] = action_bias_for(pk.get("action_bias"), env.num_actions)
+    if tc.get("hold_std"):                       # second std vector in decoder mode hold (ppo module docstring)
+        pk.update(ctx_index=env.hold_obs_index, ctx_init_std=group_values(tc["hold_std"]["init"], groups, "init_std"))
+    pol = Policy(env.num_obs, env.num_actions, groups, init_std=group_values(tc["init_std"], groups, "init_std"),
+                 **pk).to(env.dev)
     ppo = PPO(env, pol, tc)
     gt_world = ec["world"] in ("mjwarp", "mujoco")
     if resume:
@@ -215,7 +242,7 @@ def cmd_train(a):
         return sm
 
     def save_state():
-        ppo.save(out / "last.pt", extra=dict(stage=state["stage"]))
+        ppo.save(out / "last.pt", extra=dict(stage=state["stage"], code_sha256=code))
         write_json(out / "state.json", state)
 
     def budget_left():
@@ -239,13 +266,15 @@ def cmd_train(a):
             print(f"[train] it {ppo.iteration} {ppo.world_steps / 1e6:.1f} M steps, {row['world_steps_per_s']:.0f} "
                   f"steps/s (collect), {row['world_steps_per_s_total']:.0f} with update | reward/dec "
                   f"{row['reward_per_decision']:.4f} return {row['ep_return']:.2f} success {row['success']:.3f} lifted "
-                  f"{row['lifted']:.3f} len {row['ep_length']:.1f} | kl {row['kl']:.4f} lr {row['lr']:.1e} std "
-                  f"{row['std_move']:.2f}/{row['std_trigger']:.2f}/{row['std_lift']:.2f} | mem "
+                  f"{row['lifted']:.3f} len {row['ep_length']:.1f} grasps/ep {row['grasp_starts_per_episode']:.2f} | kl "
+                  f"{row['kl']:.4f} lr {row['lr']:.1e} std {row['std_move']:.2f}/{row['std_trigger']:.2f}/"
+                  f"{row['std_lift']:.2f}{' hold ' + format(row['std_hold_move'], '.2f') if 'std_hold_move' in row else ''} | mem "
                   f"{row.get('gpu_mem_gb', 0):.1f} GB", flush=True)
         if a.pool_refresh and ppo.iteration % a.pool_refresh == 0:
             env.refresh_pool()
         if ppo.iteration % a.save_every == 0:
-            ppo.save(out / "ckpt" / f"model_{ppo.iteration:05d}.pt", extra=dict(stage=k, world_steps=ppo.world_steps))
+            ppo.save(out / "ckpt" / f"model_{ppo.iteration:05d}.pt", extra=dict(stage=k, world_steps=ppo.world_steps,
+                                                                              code_sha256=code))
         if ppo.iteration % a.val_every == 0:
             sm = validate()
             s = stages[k]
@@ -253,7 +282,7 @@ def cmd_train(a):
             ok = "promote" in s and sm["success"] >= s["promote"]
             if k + 1 < len(stages) and ((ok and in_stage >= s.get("min_iters", 0)) or in_stage >= s.get("max_iters", 10 ** 9)):
                 reason = "promoted" if ok else "max_iters"
-                ppo.save(out / "ckpt" / f"stage{k}_end_{ppo.iteration:05d}.pt", extra=dict(stage=k))
+                ppo.save(out / "ckpt" / f"stage{k}_end_{ppo.iteration:05d}.pt", extra=dict(stage=k, code_sha256=code))
                 state.setdefault("stage_ends", []).append(dict(stage=k, iteration=ppo.iteration, reason=reason,
                                                                success=sm["success"], world_steps=ppo.world_steps))
                 state["stage"], state["stage_start"] = k + 1, ppo.iteration
@@ -265,7 +294,7 @@ def cmd_train(a):
             save_state()
     final = out / "ckpt" / f"model_{ppo.iteration:05d}.pt"
     if not final.exists():
-        ppo.save(final, extra=dict(stage=state["stage"], world_steps=ppo.world_steps))
+        ppo.save(final, extra=dict(stage=state["stage"], world_steps=ppo.world_steps, code_sha256=code))
     save_state()
     budget_done = bool(a.max_world_steps) and ppo.world_steps >= a.max_world_steps
     summary = dict(iteration=ppo.iteration, world_steps=ppo.world_steps, decisions=ppo.decisions,
@@ -288,8 +317,8 @@ def cmd_bank(a):
 def cmd_starts(a):
     from nedm.so101_policy.mujoco_env import sample_starts
     seeds = np.arange(a.seed0, a.seed0 + a.n)
-    if ((seeds >= 1000) & (seeds <= 2023)).any() or (seeds >= 900000).any():
-        raise ValueError("seeds 1000-2023 (validation / gate) and 900000+ (test) are not training starts")
+    if reserved_seed_hits(seeds):
+        raise ValueError("seeds 1000-2023 (gate), 400000-499999 (gate2) and 900000+ (test) are not training starts")
     t0 = time.time()
     st = sample_starts(seeds)
     s = st["state"]
@@ -309,7 +338,7 @@ def main():
     p.add_argument("--env-cfg"), p.add_argument("--train-cfg"), p.add_argument("--curriculum")
     p.add_argument("--out", required=True), p.add_argument("--seed", type=int, default=1)
     p.add_argument("--num-envs", type=int, default=4096), p.add_argument("--device", default="cuda")
-    p.add_argument("--set", nargs="*"), p.add_argument("--resume", action="store_true")
+    p.add_argument("--set", nargs="*", action="extend"), p.add_argument("--resume", action="store_true")
     p.add_argument("--init-from", help="new run only: policy weights (and normaliser) of this checkpoint")
     p.add_argument("--max-world-steps", type=float, default=0, help="budget in 20 ms world steps (0: none)")
     p.add_argument("--max-iterations", type=int, default=0), p.add_argument("--max-hours", type=float, default=3.6)
