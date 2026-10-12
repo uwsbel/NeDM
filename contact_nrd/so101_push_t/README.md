@@ -40,4 +40,4 @@ state has no end-effector channels; the npz also holds three arrays that trainin
 - An episode has all contact events right when the model starts the arm–T contact as many times as the record.
 
 The PPO study in [`../../so101_push_rl/`](../../so101_push_rl/README.md) uses an NRD of this design, not `seed61.pt`: it
-was trained on more data (walks and turns of the T, Chrono episodes of PPO policies) and fine-tuned; that README gives the differences.
+was trained on more data (walks and turns of the T, Chrono episodes of PPO policies); that README gives the data.

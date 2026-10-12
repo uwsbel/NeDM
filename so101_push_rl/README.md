@@ -70,28 +70,29 @@ uses, with new goals. "New starts" = validation start states, which are not in t
 
 ## The NRD
 
-PPO trains inside one NRD checkpoint, `nrd/rot_sc8_s61/best.pt`. This NRD has the design of
-[`../contact_nrd/`](../contact_nrd/README.md), case SO101 push-T: the same three networks, the same state and channel
-masks, the same step rule and the same file format. `nedm.contact_nrd.model.load_model` loads it. It is not the
-released `contact_nrd/so101_push_t/models/seed61.pt`. The data and the training schedule are different.
+PPO trains inside one NRD checkpoint, `nrd/rot_sc8_s61/best.pt`. It has the design of
+[`../contact_nrd/`](../contact_nrd/README.md), case SO101 push-T: the same three networks, state, channel masks, step
+rule and file format. `nedm.contact_nrd.model.load_model` loads it. It is not the released
+`contact_nrd/so101_push_t/models/seed61.pt`: it was trained on more data, which is released in `nrd_data/train/`.
 
-| | Released SO101 push-T NRD (`seed61.pt`) | NRD of this study (`rot_sc8_s61`) |
+| Data (`nrd_data/train/`) | Train / validation episodes |
+|---|---|
+| Scripted pushes, the same as `contact_nrd/so101_push_t/train/` | 51,200 / 1,000 |
+| Scripted walks and turns of the T (4 s) | 39,320 / 2,500 |
+| Chrono episodes of PPO policies (up to 8.6 s) | 53,592 / 4,328 |
+| Total | 144,112 / 7,828 |
+
+| Test, T at 4 s (median / p95) | `seed61.pt` | `rot_sc8_s61` |
 |---|---|---|
-| Training data (train / validation episodes) | 51,200 / 6,400 scripted pushes (4 s) | 144,112 / 7,828: the same 51,200 scripted pushes (with 1,000 of their validation episodes), 39,320 / 2,500 scripted walks and turns of the T (4 s), and 53,592 / 4,328 Chrono episodes of earlier PPO policies (up to 8.6 s) |
-| Training | `configs/contact_nrd/train.json` | 1. The same recipe on the pushes, walks and turns, with checks on 2,500 validation episodes, not 1,500; best at 80,000 updates. 2. Seven more rounds of 20,000 core and contact updates (learning rate 1e-4, the model's own steps in the history from the first update, rollout loss over 0.5 to 1 s). Before each round, Chrono episodes of the newest PPO policies went into the data. The collision network, the input and output scales and the channel masks stay as in step 1 |
-| Test: 1,000 scripted pushes (`contact_nrd/so101_push_t/test/`), T position / angle at 4 s, median / p95 | 0.43 / 2.70 mm, 0.23 / 1.61° | 0.44 / 2.35 mm, 0.25 / 1.45° |
-| 2,048 new walks and turns of the T (not released), same errors | 14.3 / 431 mm, 5.2 / 60° | 1.25 / 18.3 mm, 0.70 / 9.4° |
+| 1,000 scripted pushes (`contact_nrd/so101_push_t/test/`), position / angle | 0.43 / 2.70 mm, 0.23 / 1.61° | 0.44 / 2.35 mm, 0.25 / 1.45° |
+| 2,048 new walks and turns of the T (not released), position / angle | 14.3 / 431 mm, 5.2 / 60° | 1.25 / 18.3 mm, 0.70 / 9.4° |
 
-- The released NRD did not see walks and turns of the T. On them, its errors are 6 to 24 times larger. The policy
-  must make large turns of the T (±50° in the test), so this study trained its own NRD.
-- `python -m nedm.contact_nrd.train` does step 1 with `"check_episodes": 2500`. It cannot start from a checkpoint, so
-  it cannot do step 2. The experiment code did both steps. It is not in this repository.
-- `nrd_data/train/` holds the data of the last round. The data of step 1 are its episodes `full_v1_*` and `rot_v1_*`
-  (`index.json`; select them by name, there is no script for it). The release pads every episode to 857 records; step 1
-  ran on the 401-record copies. For each round, `provenance.nrd.fine_tune_chain` in the Hub copy of `release_manifest.json` gives
-  the training config, the data and checkpoint SHA-256 and the episode counts.
-- Both test sets were scored after each round. They were not used for training or for checkpoint selection inside
-  a round, but they may have influenced which model PPO used. Treat them as monitoring sets, not sealed tests.
+- The policy turns the T by up to ±50°. `seed61.pt` never saw walks and turns of the T and is 6 to 24 times less
+  accurate on them, so this study trained its NRD on the larger data set.
+- Both test sets were used to monitor the NRD while it was developed. They are not sealed tests.
+- Training code and recipe: `python -m nedm.contact_nrd.train` with `configs/contact_nrd/train.json`
+  ([`../contact_nrd/README.md`](../contact_nrd/README.md)). A model retrained this way from scratch on
+  `nrd_data/train/` has not been compared with the released checkpoint.
 
 ## Reproduce
 

@@ -13,27 +13,15 @@
 #   Design   the contact NRD design of contact_nrd/ (case so101_push_t): core, collision and contact Transformer
 #            networks, 2,420,190 parameters, history 4, 20 ms step, seed 61; the same state, channel masks, step rule
 #            and file format. nedm.contact_nrd.model.load_model loads it with no change. Only best.pt is read;
-#            run_config.json and contact_scale.json next to it are provenance.
-#   Differs  It is NOT the released contact_nrd/so101_push_t/models/seed61.pt:
-#            data      144,112 train / 7,828 validation episodes (seed61: 51,200 / 6,400 scripted pushes); see Data.
-#            training  step 1 = configs/contact_nrd/train.json with "check_episodes": 2500 (not 1500) on the full_v1
-#                      and rot_v1 episodes (rot_scratch_s61, best at 80,000 of 120,000 updates). Step 2 = 7 fine-tune
-#                      rounds rot_sc2_s61 ... rot_sc8_s61, each from the round before: 20,000 core and contact
-#                      updates, lr 1e-4, 500 warmup, own-history examples from the first update, rollout horizon
-#                      0.5 -> 1 s; the collision network, the input and output scales and the channel masks stay at
-#                      their step-1 values. Before each round, Chrono episodes of the newest PPO policies went into
-#                      the data. nedm.contact_nrd.train can run step 1, not step 2 (it cannot start from a checkpoint);
-#                      the experiment code that ran both steps is not in this repository.
-#            values    the trained weights, input scales, loss scales and history noise were fitted on this data, so
-#                      they differ from seed61. Config, data sha256 and checkpoint sha256 of every round:
-#                      provenance.nrd.fine_tune_chain in the Hub copy of so101_push_rl/release_manifest.json.
-#   Data     so101_push_rl/nrd_data/train/ = the data of the last round (15.8 GB; unified_data.npz sha256
+#            run_config.json and contact_scale.json next to it are its training record.
+#            It is NOT contact_nrd/so101_push_t/models/seed61.pt: it was trained on more data (below).
+#   Data     so101_push_rl/nrd_data/train/ = all the data this NRD was trained on (15.8 GB; unified_data.npz sha256
 #            8aeb70cd9af52200b1585689dc14b557ff857e42ff2d9e6b028ee9b9501e2dc2), train / validation episodes:
-#              full_v1  51,200 / 1,000   scripted pushes, the same as contact_nrd/so101_push_t/train (validation capped)
-#              rot_v1   39,320 / 2,500   scripted walks and turns of the T (4 s)
-#              r1-r8    53,592 / 4,328   Chrono episodes of 10 checkpoints of 9 earlier PPO runs (up to 8.56 s)
-#            Step 1 used the full_v1_* and rot_v1_* episodes (index.json). This script does not need the data
-#            (--with-nrd-data downloads it).
+#              51,200 / 1,000   scripted pushes, the same as contact_nrd/so101_push_t/train
+#              39,320 / 2,500   scripted walks and turns of the T (4 s)
+#              53,592 / 4,328   Chrono episodes of PPO policies (up to 8.56 s)
+#            Training code: python -m nedm.contact_nrd.train with configs/contact_nrd/train.json (contact_nrd/README.md).
+#            This script does not need the data (--with-nrd-data downloads it).
 #
 # PPO (rsl_rl 2.2.4 PPO, 16,384 NRD environments, one decision = 0.1 s, seed 1)
 #   B1   new policy; curriculum configs/so101_push_rl/curriculum_fresh.json (13 stages); 400 updates
