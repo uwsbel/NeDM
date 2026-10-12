@@ -1,0 +1,198 @@
+{
+  "name": "so101_push_t",
+  "version": "collector_v2",
+  "robot": {
+    "description": "assets/so101/so101_robot.json",
+    "hulls": "assets/so101/so101_hulls.npz",
+    "finger_sections": "assets/so101/so101_finger_sections.npz",
+    "finger_boxes": "assets/so101/so101_finger_boxes.json",
+    "finger_collision": "tip_boxes",
+    "finger_upper": "convex_hull",
+    "jaw_lock_rad": -0.17453292519943295,
+    "ik_limit_margin_rad": 0.015,
+    "footprint_slice_m": 0.035
+  },
+  "controller": {
+    "law": "explicit_pd",
+    "kp": [55.0, 30.0, 25.0, 12.0, 7.0],
+    "kd": [0.7, 0.8, 0.7, 0.5, 0.5],
+    "effort_nm": 30.0,
+    "command_hold": "zoh",
+    "clip_q_cmd_to_joint_limits": true
+  },
+  "simulation": {
+    "step_s": 8.333333333333333e-05,
+    "record_step_s": 0.01,
+    "control_step_s": 0.02,
+    "duration_s": 4.0,
+    "settle_s": 0.3,
+    "gravity_mps2": 9.81,
+    "solver": "PSOR",
+    "solver_iterations": 100,
+    "solver_tolerance": 0.0,
+    "warm_start": true,
+    "max_penetration_recovery_mps": 0.02,
+    "collision_envelope_m": 0.0002,
+    "collision_margin_m": 0.0001,
+    "threads": 1,
+    "contact_touch_distance_m": 1e-05
+  },
+  "table": {
+    "size_m": [0.8, 0.8, 0.04],
+    "center_xy_m": [0.15, 0.0]
+  },
+  "tshape": {
+    "bar_size_m": [0.1, 0.025],
+    "stem_size_m": [0.025, 0.075],
+    "height_m": 0.03,
+    "density_kgpm3": 600.0,
+    "start_pose": [0.135, -0.015, 0.0]
+  },
+  "materials": {
+    "table_friction": 0.3,
+    "tshape_friction": 0.5,
+    "arm_friction": 0.5,
+    "restitution": 0.0,
+    "composition": "Chrono NSC default: friction = min of the two materials (T-table 0.3, arm-T 0.5, arm-table 0.3)"
+  },
+  "qa": {
+    "max_t_speed_mps": 1.5,
+    "t_z_tolerance_m": [0.002, 0.01],
+    "max_t_tilt_deg": 15.0,
+    "max_arm_qd_radps": 15.0,
+    "max_lock_err_m": 0.0001,
+    "max_tip_penetration_m": 0.0005,
+    "push_speed_ratio_max": 1.3,
+    "push_speed_excess_mps": 0.03,
+    "min_link_gap_m": 0.002,
+    "reject_link_contact": true,
+    "max_t_speed_unexplained_mps": 0.001,
+    "unexplained_window_s": 0.15,
+    "reject_arm_table": true
+  },
+  "generator": {
+    "scenario_mix": {
+      "push_linear": 0.28,
+      "push_rotational": 0.3,
+      "push_double": 0.24,
+      "near_miss": 0.1,
+      "free_motion": 0.08
+    },
+    "air_tip_clearance_m": 0.012,
+    "max_joint_speed_radps": 4.5,
+    "ik_tolerance": {
+      "pos_m": 0.0005,
+      "tilt_deg": 0.5,
+      "yaw_deg": 0.5
+    },
+    "ik_seeds": [
+      [0.0, 0.3, -0.3, 1.2, 0.0],
+      [0.0, 0.8, -1.0, 1.4, 0.0],
+      [0.0, -0.3, 0.6, 1.2, 0.0]
+    ],
+    "start": {
+      "radius_m": [0.12, 0.25],
+      "azimuth_deg": [-50.0, 50.0],
+      "tcp_z_m": [0.06, 0.14]
+    },
+    "air": {
+      "mean_speed_mps": [0.2, 0.45],
+      "min_move_s": 0.3,
+      "max_yaw_rate_radps": 3.0,
+      "dwell_s": [0.0, 0.25],
+      "descend_s": [0.25, 0.45],
+      "lift_s": [0.2, 0.4]
+    },
+    "push": {
+      "linear_faces": [0, 4, 1, 7],
+      "linear_max_angle_deg": {
+        "bar_back": 20.0,
+        "stem_end": 6.0,
+        "bar_end_pos": 24.0,
+        "bar_end_neg": 24.0
+      },
+      "rot_max_angle_deg": 30.0,
+      "rot_min_lever_m": 0.008,
+      "face_margin_m": 0.003,
+      "speed_mps": [0.03, 0.3],
+      "ramp_s": [0.05, 0.2],
+      "standoff_m": [0.005, 0.03],
+      "distance_m": [0.01, 0.08],
+      "tip_clearance_m": [0.003, 0.01],
+      "dwell_after_s": [0.0, 0.2],
+      "support_band_m": 0.001,
+      "min_start_gap_m": 0.003,
+      "touch_face_tol_m": 0.001,
+      "attempts": 30
+    },
+    "double": {
+      "rest_speed_mps": 0.002,
+      "rest_rate_radps": 0.02,
+      "max_wait_s": 0.3,
+      "first_push_end_s": 2.1,
+      "overrides": {
+        "push": {
+          "speed_mps": [0.08, 0.3],
+          "distance_m": [0.01, 0.05],
+          "standoff_m": [0.005, 0.02]
+        },
+        "air": {
+          "mean_speed_mps": [0.3, 0.5],
+          "dwell_s": [0.0, 0.1],
+          "descend_s": [0.3, 0.4],
+          "lift_s": [0.15, 0.25],
+          "max_yaw_rate_radps": 3.5
+        }
+      }
+    },
+    "near_miss": {
+      "kinds": {
+        "graze": 0.4,
+        "stop_short": 0.35,
+        "hover": 0.25
+      },
+      "gap_m": [0.0005, 0.01],
+      "speed_mps": [0.03, 0.3],
+      "graze_angle_deg": 10.0,
+      "graze_overrun_m": [0.01, 0.04],
+      "attempts": 30,
+      "gap_log_uniform": true
+    },
+    "free": {
+      "waypoints": [2, 4],
+      "radius_m": [0.1, 0.26],
+      "azimuth_deg": [-60.0, 60.0],
+      "tcp_z_m": [0.02, 0.15],
+      "min_tip_clearance_m": 0.008,
+      "clearance_m": 0.03,
+      "vertical_margin_m": 0.008,
+      "mean_speed_mps": [0.1, 0.4],
+      "min_move_s": 0.3,
+      "dwell_s": [0.0, 0.3],
+      "attempts": 40
+    },
+    "tail_hold_prob": 0.3,
+    "clearance": {
+      "plan_min_m": 0.01,
+      "keepout_margin_m": 0.015,
+      "keepout_z_margin_m": 0.005,
+      "keepout_yaw_deg": {
+        "linear": 20.0,
+        "rotational": 40.0
+      },
+      "slide_decel_mps2": 2.9
+    }
+  },
+  "changes_from_v1": [
+    "simulation: collision envelope 1 mm -> 0.2 mm, safe margin 0.5 mm -> 0.1 mm (Bullet box-box contacts sit envelope x (L1 norm of the normal in box axes - 1) apart, up to 0.73 x envelope)",
+    "simulation: max penetration recovery 0.1 -> 0.02 m/s (slow pushes got single-step kicks of up to 2.8x the push speed)",
+    "simulation: arm-T pair also labelled touching when Chrono's contact distance <= 10 um with zero normal force",
+    "generator.clearance: links base .. wrist keep >= 10 mm from the T at every planned waypoint; pushes may not drive the T into the base / shoulder keep-out",
+    "generator.push: linear pushes inside the arm-T friction angle (bar_back 20 deg, bar ends 24 deg)",
+    "generator.near_miss: gap set with the 3D fingertip boxes, log-uniform 0.5-10 mm",
+    "qa: t_kick, link_near_t, link_contact, t_moved_unexplained rules; fingertip penetration limit 1 -> 0.5 mm",
+    "action: stored q_cmd is clipped to the joint limits (= the applied command)",
+    "generator: cruise speed ramps shortened to the cruise time when they would overlap (v1 profile jumped, up to 2x the planned travel)",
+    "generator.double: descent 0.2-0.3 s -> 0.3-0.4 s (the fast descent undershot ~3 mm and touched the table at 3 mm tip clearance); qa: reject episodes with arm-table contact"
+  ]
+}

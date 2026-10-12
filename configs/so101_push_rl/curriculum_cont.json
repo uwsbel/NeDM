@@ -1,0 +1,236 @@
+{
+ "note": "rt_cont_v1 (10-09 15:25): continuation of a finished rt_fresh_v1 policy (B1 / B2 stage12_end). C1 = the F5 consolidation stage with min 150 updates (F5 promoted after its first 25 in both runs) and higher bars; C2 = every train start via level 35 (one row per family per start: ST, LT1, LT2, SR, +-30-70 deg <= 20 mm) with trained-start rehearsal; promotion on the held-out val starts (40-43, 45 = +-50 on 64 other val starts). Everything else as F5 (10 mm / 3 deg every level, drift regress + charged at an invalid end, ws_r_min 0.1).",
+ "val_n_per_level": 32,
+ "chrono_n_per_level": 6,
+ "stages": [
+  {
+   "name": "C1 consolidate longer: every family at 10 mm / 3 deg, 8 trained starts (150-300 updates)",
+   "levels": {
+    "11": 0.2,
+    "10": 0.05,
+    "14": 0.05,
+    "30": 0.15,
+    "33": 0.15,
+    "31": 0.2,
+    "32": 0.2
+   },
+   "env": {
+    "decoder": {
+     "ws_r_min": 0.1
+    },
+    "reward": {
+     "drift_cost": 0.01,
+     "drift_free_m": 0.005,
+     "drift_mode": "regress",
+     "drift_on_invalid": true
+    },
+    "success": {
+     "pos_tol": 0.01,
+     "yaw_tol_deg": 3.0,
+     "per_level": {
+      "30": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "40": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "33": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "43": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "31": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "41": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "32": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "42": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      }
+     }
+    }
+   },
+   "val_levels": [
+    11,
+    21,
+    30,
+    31,
+    32,
+    33,
+    40,
+    41,
+    42,
+    43
+   ],
+   "promote_levels": [
+    11,
+    30,
+    31,
+    32,
+    33
+   ],
+   "promote_each": {
+    "32": 0.8,
+    "31": 0.8,
+    "30": 0.8,
+    "33": 0.8,
+    "11": 0.7
+   },
+   "chrono_levels": [
+    11,
+    21,
+    30,
+    31,
+    32,
+    33,
+    40,
+    41,
+    42,
+    43
+   ],
+   "min_iters": 150,
+   "max_iters": 300
+  },
+  {
+   "name": "C2 every train start (level 35: ST/LT1/LT2/SR/+-30-70 deg rows) + trained-start rehearsal, 10 mm / 3 deg",
+   "levels": {
+    "35": 0.35,
+    "11": 0.15,
+    "10": 0.05,
+    "14": 0.05,
+    "30": 0.1,
+    "31": 0.1,
+    "32": 0.1,
+    "33": 0.1
+   },
+   "env": {
+    "decoder": {
+     "ws_r_min": 0.1
+    },
+    "reward": {
+     "drift_cost": 0.01,
+     "drift_free_m": 0.005,
+     "drift_mode": "regress",
+     "drift_on_invalid": true
+    },
+    "success": {
+     "pos_tol": 0.01,
+     "yaw_tol_deg": 3.0,
+     "per_level": {
+      "30": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "40": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "33": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "43": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "31": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "41": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "32": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "42": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "45": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "46": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "47": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "35": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      }
+     }
+    }
+   },
+   "val_levels": [
+    11,
+    21,
+    30,
+    31,
+    32,
+    33,
+    40,
+    41,
+    42,
+    43,
+    45,
+    46,
+    47
+   ],
+   "promote_levels": [
+    11,
+    31,
+    32,
+    40,
+    41,
+    42,
+    43,
+    45
+   ],
+   "promote_each": {
+    "40": 0.8,
+    "41": 0.75,
+    "42": 0.7,
+    "43": 0.8,
+    "45": 0.6,
+    "11": 0.7,
+    "31": 0.8,
+    "32": 0.8
+   },
+   "chrono_levels": [
+    11,
+    21,
+    30,
+    31,
+    32,
+    33,
+    40,
+    41,
+    42,
+    43,
+    45
+   ],
+   "min_iters": 100,
+   "max_iters": 500
+  }
+ ]
+}

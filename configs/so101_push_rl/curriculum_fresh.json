@@ -1,0 +1,1142 @@
+{
+ "note": "rt_fresh_v1 (10-09, SPEC section 8 arm B): fresh control run; the v13 rotation ladder (fixed/mirror +-30 -> +-50 -> one start per face +-50) with the new families from stage 1 (lesson of the rotation study: a skill missing from the first stages is not found later). ST 30 at 10 mm / 3 deg always; SR 33 follows the rotation position ladder; LT1 31 enters with +-50 deg, LT2 32 after the multi-start stage; both with the position + yaw ladder 25/10 -> 15/5 -> 10/3. drift regress + charged at an invalid end in every stage. No 5 mm stage.",
+ "val_n_per_level": 32,
+ "chrono_n_per_level": 6,
+ "stages": [
+  {
+   "name": "F1a +-30 deg fixed/mirror at 25 mm + small rotation 25 mm/3 deg + small translation 10 mm/3 deg",
+   "levels": {
+    "9": 0.2,
+    "13": 0.2,
+    "30": 0.3,
+    "33": 0.3
+   },
+   "env": {
+    "decoder": {
+     "ws_r_min": 0.1
+    },
+    "reward": {
+     "drift_cost": 0.01,
+     "drift_free_m": 0.005,
+     "drift_mode": "regress",
+     "drift_on_invalid": true
+    },
+    "success": {
+     "pos_tol": 0.025,
+     "yaw_tol_deg": 3.0,
+     "per_level": {
+      "30": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "40": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "33": {
+       "pos_tol": 0.025,
+       "yaw_tol_deg": 3.0
+      },
+      "43": {
+       "pos_tol": 0.025,
+       "yaw_tol_deg": 3.0
+      }
+     }
+    }
+   },
+   "val_levels": [
+    9,
+    13,
+    10,
+    14,
+    30,
+    33,
+    40,
+    43
+   ],
+   "promote_levels": [
+    9,
+    13,
+    30,
+    33
+   ],
+   "promote_each": {
+    "9": 0.8,
+    "13": 0.8,
+    "30": 0.4,
+    "33": 0.6
+   },
+   "chrono_levels": [
+    9,
+    13,
+    30,
+    33,
+    40,
+    43
+   ],
+   "min_iters": 25,
+   "max_iters": 300
+  },
+  {
+   "name": "F1b +-30 deg fixed/mirror at 15 mm + small rotation 15 mm/3 deg + small translation 10 mm/3 deg",
+   "levels": {
+    "9": 0.2,
+    "13": 0.2,
+    "30": 0.3,
+    "33": 0.3
+   },
+   "env": {
+    "decoder": {
+     "ws_r_min": 0.1
+    },
+    "reward": {
+     "drift_cost": 0.01,
+     "drift_free_m": 0.005,
+     "drift_mode": "regress",
+     "drift_on_invalid": true
+    },
+    "success": {
+     "pos_tol": 0.015,
+     "yaw_tol_deg": 3.0,
+     "per_level": {
+      "30": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "40": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "33": {
+       "pos_tol": 0.015,
+       "yaw_tol_deg": 3.0
+      },
+      "43": {
+       "pos_tol": 0.015,
+       "yaw_tol_deg": 3.0
+      }
+     }
+    },
+    "horizon_min_steps": 300
+   },
+   "val_levels": [
+    9,
+    13,
+    10,
+    14,
+    30,
+    33,
+    40,
+    43
+   ],
+   "promote_levels": [
+    9,
+    13,
+    30,
+    33
+   ],
+   "promote_each": {
+    "9": 0.8,
+    "13": 0.8,
+    "30": 0.5,
+    "33": 0.6
+   },
+   "chrono_levels": [
+    9,
+    13,
+    30,
+    33,
+    40,
+    43
+   ],
+   "min_iters": 25,
+   "max_iters": 300
+  },
+  {
+   "name": "F1c +-30 deg fixed/mirror at 10 mm + small rotation 10 mm/3 deg + small translation 10 mm/3 deg",
+   "levels": {
+    "9": 0.2,
+    "13": 0.2,
+    "30": 0.3,
+    "33": 0.3
+   },
+   "env": {
+    "decoder": {
+     "ws_r_min": 0.1
+    },
+    "reward": {
+     "drift_cost": 0.01,
+     "drift_free_m": 0.005,
+     "drift_mode": "regress",
+     "drift_on_invalid": true
+    },
+    "success": {
+     "pos_tol": 0.01,
+     "yaw_tol_deg": 3.0,
+     "per_level": {
+      "30": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "40": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "33": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "43": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      }
+     }
+    },
+    "horizon_min_steps": 300
+   },
+   "val_levels": [
+    9,
+    13,
+    10,
+    14,
+    30,
+    33,
+    40,
+    43
+   ],
+   "promote_levels": [
+    9,
+    13,
+    30,
+    33
+   ],
+   "promote_each": {
+    "9": 0.8,
+    "13": 0.8,
+    "30": 0.6,
+    "33": 0.6
+   },
+   "chrono_levels": [
+    9,
+    13,
+    30,
+    33,
+    40,
+    43
+   ],
+   "min_iters": 25,
+   "max_iters": 400
+  },
+  {
+   "name": "F2a +-50 deg fixed/mirror at 25 mm + large translation 40-60 mm at 25 mm/10 deg + ST/SR 10 mm/3 deg",
+   "levels": {
+    "10": 0.2,
+    "14": 0.2,
+    "9": 0.05,
+    "13": 0.05,
+    "30": 0.1,
+    "33": 0.1,
+    "31": 0.3
+   },
+   "env": {
+    "decoder": {
+     "ws_r_min": 0.1
+    },
+    "reward": {
+     "drift_cost": 0.01,
+     "drift_free_m": 0.005,
+     "drift_mode": "regress",
+     "drift_on_invalid": true
+    },
+    "success": {
+     "pos_tol": 0.025,
+     "yaw_tol_deg": 3.0,
+     "per_level": {
+      "30": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "40": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "33": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "43": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "31": {
+       "pos_tol": 0.025,
+       "yaw_tol_deg": 10.0
+      },
+      "41": {
+       "pos_tol": 0.025,
+       "yaw_tol_deg": 10.0
+      }
+     }
+    },
+    "horizon_min_steps": 300
+   },
+   "val_levels": [
+    9,
+    13,
+    10,
+    14,
+    30,
+    31,
+    33,
+    41
+   ],
+   "promote_levels": [
+    10,
+    14,
+    30,
+    31,
+    33
+   ],
+   "promote_each": {
+    "10": 0.8,
+    "14": 0.8,
+    "31": 0.6,
+    "30": 0.6,
+    "33": 0.6
+   },
+   "chrono_levels": [
+    9,
+    13,
+    10,
+    14,
+    30,
+    31,
+    33,
+    41
+   ],
+   "min_iters": 25,
+   "max_iters": 400
+  },
+  {
+   "name": "F2b +-50 deg fixed/mirror at 15 mm + large translation 40-60 mm at 15 mm/5 deg + ST/SR 10 mm/3 deg",
+   "levels": {
+    "10": 0.2,
+    "14": 0.2,
+    "9": 0.05,
+    "13": 0.05,
+    "30": 0.1,
+    "33": 0.1,
+    "31": 0.3
+   },
+   "env": {
+    "decoder": {
+     "ws_r_min": 0.1
+    },
+    "reward": {
+     "drift_cost": 0.01,
+     "drift_free_m": 0.005,
+     "drift_mode": "regress",
+     "drift_on_invalid": true
+    },
+    "success": {
+     "pos_tol": 0.015,
+     "yaw_tol_deg": 3.0,
+     "per_level": {
+      "30": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "40": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "33": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "43": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "31": {
+       "pos_tol": 0.015,
+       "yaw_tol_deg": 5.0
+      },
+      "41": {
+       "pos_tol": 0.015,
+       "yaw_tol_deg": 5.0
+      }
+     }
+    },
+    "horizon_min_steps": 300
+   },
+   "val_levels": [
+    9,
+    13,
+    10,
+    14,
+    30,
+    31,
+    33,
+    41
+   ],
+   "promote_levels": [
+    10,
+    14,
+    30,
+    31,
+    33
+   ],
+   "promote_each": {
+    "10": 0.8,
+    "14": 0.8,
+    "31": 0.6,
+    "30": 0.6,
+    "33": 0.6
+   },
+   "chrono_levels": [
+    9,
+    13,
+    10,
+    14,
+    30,
+    31,
+    33,
+    41
+   ],
+   "min_iters": 25,
+   "max_iters": 400
+  },
+  {
+   "name": "F2c +-50 deg fixed/mirror at 10 mm + large translation 40-60 mm at 10 mm/3 deg + ST/SR 10 mm/3 deg",
+   "levels": {
+    "10": 0.2,
+    "14": 0.2,
+    "9": 0.05,
+    "13": 0.05,
+    "30": 0.1,
+    "33": 0.1,
+    "31": 0.3
+   },
+   "env": {
+    "decoder": {
+     "ws_r_min": 0.1
+    },
+    "reward": {
+     "drift_cost": 0.01,
+     "drift_free_m": 0.005,
+     "drift_mode": "regress",
+     "drift_on_invalid": true
+    },
+    "success": {
+     "pos_tol": 0.01,
+     "yaw_tol_deg": 3.0,
+     "per_level": {
+      "30": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "40": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "33": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "43": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "31": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "41": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      }
+     }
+    },
+    "horizon_min_steps": 300
+   },
+   "val_levels": [
+    9,
+    13,
+    10,
+    14,
+    30,
+    31,
+    33,
+    41
+   ],
+   "promote_levels": [
+    10,
+    14,
+    30,
+    31,
+    33
+   ],
+   "promote_each": {
+    "10": 0.8,
+    "14": 0.8,
+    "31": 0.6,
+    "30": 0.6,
+    "33": 0.6
+   },
+   "chrono_levels": [
+    9,
+    13,
+    10,
+    14,
+    30,
+    31,
+    33,
+    41
+   ],
+   "min_iters": 25,
+   "max_iters": 500
+  },
+  {
+   "name": "F3a one start per face +-50 deg at 25 mm + ST/SR/LT1 10 mm/3 deg",
+   "levels": {
+    "11": 0.4,
+    "10": 0.1,
+    "14": 0.1,
+    "30": 0.1,
+    "33": 0.1,
+    "31": 0.2
+   },
+   "env": {
+    "decoder": {
+     "ws_r_min": 0.1
+    },
+    "reward": {
+     "drift_cost": 0.01,
+     "drift_free_m": 0.005,
+     "drift_mode": "regress",
+     "drift_on_invalid": true
+    },
+    "success": {
+     "pos_tol": 0.025,
+     "yaw_tol_deg": 3.0,
+     "per_level": {
+      "30": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "40": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "33": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "43": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "31": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "41": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      }
+     }
+    }
+   },
+   "val_levels": [
+    11,
+    21,
+    30,
+    31,
+    33,
+    40,
+    41,
+    43
+   ],
+   "promote_levels": [
+    11,
+    30,
+    31,
+    33
+   ],
+   "promote_each": {
+    "11": 0.7,
+    "31": 0.6,
+    "30": 0.65,
+    "33": 0.65
+   },
+   "chrono_levels": [
+    11,
+    21,
+    30,
+    31,
+    33,
+    41
+   ],
+   "min_iters": 25,
+   "max_iters": 300
+  },
+  {
+   "name": "F3b one start per face +-50 deg at 15 mm + ST/SR/LT1 10 mm/3 deg",
+   "levels": {
+    "11": 0.4,
+    "10": 0.1,
+    "14": 0.1,
+    "30": 0.1,
+    "33": 0.1,
+    "31": 0.2
+   },
+   "env": {
+    "decoder": {
+     "ws_r_min": 0.1
+    },
+    "reward": {
+     "drift_cost": 0.01,
+     "drift_free_m": 0.005,
+     "drift_mode": "regress",
+     "drift_on_invalid": true
+    },
+    "success": {
+     "pos_tol": 0.015,
+     "yaw_tol_deg": 3.0,
+     "per_level": {
+      "30": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "40": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "33": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "43": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "31": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "41": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      }
+     }
+    }
+   },
+   "val_levels": [
+    11,
+    21,
+    30,
+    31,
+    33,
+    40,
+    41,
+    43
+   ],
+   "promote_levels": [
+    11,
+    30,
+    31,
+    33
+   ],
+   "promote_each": {
+    "11": 0.7,
+    "31": 0.6,
+    "30": 0.65,
+    "33": 0.65
+   },
+   "chrono_levels": [
+    11,
+    21,
+    30,
+    31,
+    33,
+    41
+   ],
+   "min_iters": 25,
+   "max_iters": 300
+  },
+  {
+   "name": "F3c one start per face +-50 deg at 10 mm + ST/SR/LT1 10 mm/3 deg",
+   "levels": {
+    "11": 0.4,
+    "10": 0.1,
+    "14": 0.1,
+    "30": 0.1,
+    "33": 0.1,
+    "31": 0.2
+   },
+   "env": {
+    "decoder": {
+     "ws_r_min": 0.1
+    },
+    "reward": {
+     "drift_cost": 0.01,
+     "drift_free_m": 0.005,
+     "drift_mode": "regress",
+     "drift_on_invalid": true
+    },
+    "success": {
+     "pos_tol": 0.01,
+     "yaw_tol_deg": 3.0,
+     "per_level": {
+      "30": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "40": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "33": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "43": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "31": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "41": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      }
+     }
+    }
+   },
+   "val_levels": [
+    11,
+    21,
+    30,
+    31,
+    33,
+    40,
+    41,
+    43
+   ],
+   "promote_levels": [
+    11,
+    30,
+    31,
+    33
+   ],
+   "promote_each": {
+    "11": 0.7,
+    "31": 0.6,
+    "30": 0.65,
+    "33": 0.65
+   },
+   "chrono_levels": [
+    11,
+    21,
+    30,
+    31,
+    33,
+    41
+   ],
+   "min_iters": 25,
+   "max_iters": 400
+  },
+  {
+   "name": "F4a + large translation 60-100 mm at 25 mm/10 deg (8 s)",
+   "levels": {
+    "11": 0.15,
+    "10": 0.05,
+    "14": 0.05,
+    "30": 0.1,
+    "33": 0.1,
+    "31": 0.2,
+    "32": 0.35
+   },
+   "env": {
+    "decoder": {
+     "ws_r_min": 0.1
+    },
+    "reward": {
+     "drift_cost": 0.01,
+     "drift_free_m": 0.005,
+     "drift_mode": "regress",
+     "drift_on_invalid": true
+    },
+    "success": {
+     "pos_tol": 0.01,
+     "yaw_tol_deg": 3.0,
+     "per_level": {
+      "30": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "40": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "33": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "43": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "31": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "41": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "32": {
+       "pos_tol": 0.025,
+       "yaw_tol_deg": 10.0
+      },
+      "42": {
+       "pos_tol": 0.025,
+       "yaw_tol_deg": 10.0
+      }
+     }
+    }
+   },
+   "val_levels": [
+    11,
+    21,
+    30,
+    31,
+    32,
+    33,
+    41,
+    42
+   ],
+   "promote_levels": [
+    11,
+    30,
+    31,
+    32,
+    33
+   ],
+   "promote_each": {
+    "32": 0.6,
+    "31": 0.6,
+    "30": 0.65,
+    "33": 0.65,
+    "11": 0.6
+   },
+   "chrono_levels": [
+    11,
+    21,
+    30,
+    31,
+    32,
+    33,
+    42
+   ],
+   "min_iters": 25,
+   "max_iters": 300
+  },
+  {
+   "name": "F4b + large translation 60-100 mm at 15 mm/5 deg (8 s)",
+   "levels": {
+    "11": 0.15,
+    "10": 0.05,
+    "14": 0.05,
+    "30": 0.1,
+    "33": 0.1,
+    "31": 0.2,
+    "32": 0.35
+   },
+   "env": {
+    "decoder": {
+     "ws_r_min": 0.1
+    },
+    "reward": {
+     "drift_cost": 0.01,
+     "drift_free_m": 0.005,
+     "drift_mode": "regress",
+     "drift_on_invalid": true
+    },
+    "success": {
+     "pos_tol": 0.01,
+     "yaw_tol_deg": 3.0,
+     "per_level": {
+      "30": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "40": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "33": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "43": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "31": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "41": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "32": {
+       "pos_tol": 0.015,
+       "yaw_tol_deg": 5.0
+      },
+      "42": {
+       "pos_tol": 0.015,
+       "yaw_tol_deg": 5.0
+      }
+     }
+    }
+   },
+   "val_levels": [
+    11,
+    21,
+    30,
+    31,
+    32,
+    33,
+    41,
+    42
+   ],
+   "promote_levels": [
+    11,
+    30,
+    31,
+    32,
+    33
+   ],
+   "promote_each": {
+    "32": 0.6,
+    "31": 0.6,
+    "30": 0.65,
+    "33": 0.65,
+    "11": 0.6
+   },
+   "chrono_levels": [
+    11,
+    21,
+    30,
+    31,
+    32,
+    33,
+    42
+   ],
+   "min_iters": 25,
+   "max_iters": 300
+  },
+  {
+   "name": "F4c + large translation 60-100 mm at 10 mm/3 deg (8 s)",
+   "levels": {
+    "11": 0.15,
+    "10": 0.05,
+    "14": 0.05,
+    "30": 0.1,
+    "33": 0.1,
+    "31": 0.2,
+    "32": 0.35
+   },
+   "env": {
+    "decoder": {
+     "ws_r_min": 0.1
+    },
+    "reward": {
+     "drift_cost": 0.01,
+     "drift_free_m": 0.005,
+     "drift_mode": "regress",
+     "drift_on_invalid": true
+    },
+    "success": {
+     "pos_tol": 0.01,
+     "yaw_tol_deg": 3.0,
+     "per_level": {
+      "30": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "40": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "33": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "43": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "31": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "41": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "32": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "42": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      }
+     }
+    }
+   },
+   "val_levels": [
+    11,
+    21,
+    30,
+    31,
+    32,
+    33,
+    41,
+    42
+   ],
+   "promote_levels": [
+    11,
+    30,
+    31,
+    32,
+    33
+   ],
+   "promote_each": {
+    "32": 0.6,
+    "31": 0.6,
+    "30": 0.65,
+    "33": 0.65,
+    "11": 0.6
+   },
+   "chrono_levels": [
+    11,
+    21,
+    30,
+    31,
+    32,
+    33,
+    42
+   ],
+   "min_iters": 25,
+   "max_iters": 400
+  },
+  {
+   "name": "F5 consolidate: every family at 10 mm / 3 deg",
+   "levels": {
+    "11": 0.2,
+    "10": 0.05,
+    "14": 0.05,
+    "30": 0.15,
+    "33": 0.15,
+    "31": 0.2,
+    "32": 0.2
+   },
+   "env": {
+    "decoder": {
+     "ws_r_min": 0.1
+    },
+    "reward": {
+     "drift_cost": 0.01,
+     "drift_free_m": 0.005,
+     "drift_mode": "regress",
+     "drift_on_invalid": true
+    },
+    "success": {
+     "pos_tol": 0.01,
+     "yaw_tol_deg": 3.0,
+     "per_level": {
+      "30": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "40": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "33": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "43": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "31": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "41": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "32": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      },
+      "42": {
+       "pos_tol": 0.01,
+       "yaw_tol_deg": 3.0
+      }
+     }
+    }
+   },
+   "val_levels": [
+    11,
+    21,
+    30,
+    31,
+    32,
+    33,
+    40,
+    41,
+    42,
+    43
+   ],
+   "promote_levels": [
+    11,
+    30,
+    31,
+    32,
+    33
+   ],
+   "promote_each": {
+    "32": 0.7,
+    "31": 0.7,
+    "30": 0.7,
+    "33": 0.7,
+    "11": 0.6
+   },
+   "chrono_levels": [
+    11,
+    21,
+    30,
+    31,
+    32,
+    33,
+    40,
+    41,
+    42,
+    43
+   ],
+   "min_iters": 25,
+   "max_iters": 600
+  }
+ ]
+}

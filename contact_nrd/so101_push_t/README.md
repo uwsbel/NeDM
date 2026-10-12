@@ -38,3 +38,6 @@ state has no end-effector channels; the npz also holds three arrays that trainin
   4 s is 0.56 / 2.96 mm (seed 61) and 0.51 / 3.26 mm (seed 62).
 - The largest error (44 to 55 mm) is in a near miss: the model starts a contact that does not occur.
 - An episode has all contact events right when the model starts the arm–T contact as many times as the record.
+
+The PPO study in [`../../so101_push_rl/`](../../so101_push_rl/README.md) uses an NRD of this design, not `seed61.pt`: it
+was trained on more data (walks and turns of the T, Chrono episodes of PPO policies); that README gives the data.
