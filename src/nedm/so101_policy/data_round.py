@@ -55,6 +55,7 @@ import hashlib
 import importlib.util
 import json
 import math
+import os
 import sys
 import time
 from pathlib import Path
@@ -111,6 +112,54 @@ SPEED_SHARE = (0.25, 0.5, 0.25)
 TASK_KEYS = ("seeds", "start_q", "start_cube_pos", "start_cube_quat", "tries", "goal_xy", "goal_yaw", "goal2_xy",
              "goal2_yaw", "goal3_xy", "goal3_yaw", "family", "index", "spread_deg", "speed", "lift_h", "pause_s",
              "hold_s", "rt1", "rt2", "noise", "sigma", "dist_r", "dist_cand", "tail", "horizon")
+
+# ---- round 3 (campaign policy_v3): MuJoCo rollouts of PPO policies (section "round 3" at the end of this module) ----
+P_CAMPAIGN = "policy_v3"
+P_MASTER_SEED = 20261312        # new (see MASTER_SEED's list + expert_v2 20261211, vision DAgger tasks 20261302)
+P_START0 = 600_000              # start seed of campaign parent i: 600,000-612,999
+PGATE_START0 = 410_000          # start seed of pgate task j: 410,000-410,511 (inside vec_env.RESERVED_SEEDS'
+                                # evaluation band 400,000-499,999: load_starts refuses them as training starts)
+P_SET_IDS = {"campaign": 0, "pgate": 1}
+POLICY_DIR = Path(os.environ.get("NEDM_SO101_POLICY_DIR", Path.home() / "so101_policy" / "runs" / "round3" / "policies"))
+POLICY_FAMILIES = (
+    dict(name="policy_mjwarp", code="W",
+         note="MuJoCo-Warp-trained PPO policies (recipe R_dc: decoder v2 default carry + grasp_gate, grasp_latch, "
+              "abort_action; build4_ppo2.md) acting through their own decoder config in CPU MuJoCo (collector scene and "
+              "labels), evaluation rules; deterministic (1/3) or sampled from their own Gaussian at 0.5 x / 1.0 x std "
+              "(counter-based noise); collector start sampler + 0.3 s warm-up, goals task.sample_goals; the episode "
+              "ends at the first collector end or 10-30 steps after the task's end (success, failure rule, 8 s "
+              "time-out); data_round.py round 3"),
+    dict(name="policy_kin", code="K", note="as policy_mjwarp; kinematic-world-trained PPO policies (R_dc)"),
+    dict(name="policy_nrd", code="Q",
+         note="as policy_mjwarp; PPO policies trained in the round-2 grasp NRD s62 (R_dc, still in the 30 mm stage: "
+              "they show where PPO exploits the NRD)"),
+)
+POLICY_TAIL = dict(name="policy_tail", code="T",
+                   note="later chunks of policy segments longer than 6 s (records_per_episode 601), as expert_tail; the "
+                        "parent family's code (W K Q) starts the variant; select false (starts mid-episode)")
+P_FAMILY_NAMES = tuple(f["name"] for f in POLICY_FAMILIES)
+# the policies (id, family index, checkpoint file in POLICY_DIR, parent share of the campaign, source)
+POLICIES = (
+    dict(id="w5a", family=0, file="w5a_w5_dc_00121.pt", share=0.14,
+         source="~/so101_policy/runs/ppo2/mjwarp/w5_dc/ckpt/model_00121.pt (CPU MuJoCo 96.5 %, 256 gate2)"),
+    dict(id="w5b", family=0, file="w5b_w5_dc_s2_00123.pt", share=0.14,
+         source="~/so101_policy/runs/ppo2/mjwarp/w5_dc_s2/ckpt/model_00123.pt (last)"),
+    dict(id="kCa", family=1, file="kCa_kC_00060.pt", share=0.14,
+         source="$B/ppo2/runs/kin/kC_shape_kl02/ckpt/model_00060.pt (CPU MuJoCo 93.0 %, 256 gate2)"),
+    dict(id="kCb", family=1, file="kCb_kC_s2_00059.pt", share=0.14, source="$B/ppo2/runs/kin/kC_s2/ckpt/model_00059.pt (last)"),
+    dict(id="kCc", family=1, file="kCc_kC_s3_00060.pt", share=0.14, source="$B/ppo2/runs/kin/kC_s3/ckpt/model_00060.pt (last)"),
+    dict(id="nRc", family=2, file="nRc_nR2_s62_c_00155.pt", share=0.15,
+         source="$B/ppo2/runs/nrd/nR2_s62_c/ckpt/model_00155.pt (last)"),
+    dict(id="nRa", family=2, file="nRa_nR2_s62_a_00160.pt", share=0.15,
+         source="$B/ppo2/runs/nrd/nR2_s62_a/ckpt/model_00160.pt (last; CPU MuJoCo 10.9 %, 256 gate2)"),
+)
+POLICY_IDS = tuple(p["id"] for p in POLICIES)
+NOISE_LEVELS = (0.0, 0.5, 1.0)  # x the policy's own std (campaign: 1/3 each); pgate: PGATE_NOISE
+NOISE_CODES = ("d", "h", "f")
+PGATE_NOISE = (0.0, 1.0)
+P_TASK_KEYS = ("seeds", "start_q", "start_cube_pos", "start_cube_quat", "tries", "goal_xy", "goal_yaw", "family",
+               "policy", "noise_scale", "noise_level", "index", "task", "spread_deg", "tail")
+P_META_EXTRA = ("policy", "noise_scale", "task", "task_steps", "ret")
 
 
 # ---- the gate harness (functions reused as they are) ----------------------------------------------------------------
@@ -190,7 +239,6 @@ def make_tasks(n, set_name="campaign", master=MASTER_SEED, start0=None, counts=N
     import torch
 
     from nedm.so101_policy import task as T
-    from nedm.so101_policy.mujoco_env import sample_starts
     start0 = (START0 if set_name == "campaign" else GATE2_START0) if start0 is None else int(start0)
     counts = family_counts(n) if counts is None else np.asarray(counts)
     idx = np.arange(n) if idx is None else np.asarray(idx, np.int64)
@@ -203,15 +251,7 @@ def make_tasks(n, set_name="campaign", master=MASTER_SEED, start0=None, counts=N
     opts = [draw_options(task_rng(master, sid, i), int(f)) for i, f in zip(idx, fam)]
     out = {k: np.array([o[k] for o in opts]) for k in opts[0]}
     t0 = time.time()
-    q, cpos, cquat, tries = np.zeros((m, 6)), np.zeros((m, 3)), np.zeros((m, 4)), np.zeros(m, np.int64)
-    state = {k: np.zeros((m, d)) for k, d in (("q", 6), ("qd", 6), ("cube_pos", 3), ("cube_quat", 4), ("cube_v", 3),
-                                              ("cube_w", 3))}
-    for spread in np.unique(out["spread_deg"]):
-        sel = np.flatnonzero(out["spread_deg"] == spread)
-        st = sample_starts(seeds[sel], spread_deg=float(spread))
-        q[sel], cpos[sel], cquat[sel], tries[sel] = st["q"], st["cube_pos"], st["cube_quat"], st["tries"]
-        for k in state:
-            state[k][sel] = getattr(st["state"], k).numpy()
+    q, cpos, cquat, tries, state = _starts(seeds, out["spread_deg"])
     log(f"{m} starts in {time.time() - t0:.0f} s")
     for k, v in state.items():
         out[f"state_{k}"] = v
@@ -239,6 +279,25 @@ def make_tasks(n, set_name="campaign", master=MASTER_SEED, start0=None, counts=N
                family=fam.astype(np.int64), index=idx.astype(np.int64), master_seed=np.int64(master),
                set_id=np.int64(sid), goal_seed=np.int64(master), n_set=np.int64(n))
     return out
+
+
+def _starts(seeds, spread_deg):
+    """Collector task starts (``mujoco_env.sample_starts``, 0.3 s warm-up) of start seeds [m] with a spread [m] (deg)
+    -> (q [m, 6], cube_pos [m, 3], cube_quat [m, 4] before the warm-up, tries [m], settled state {q, qd, cube_pos,
+    cube_quat, cube_v, cube_w: [m, d]})."""
+    from nedm.so101_policy.mujoco_env import sample_starts
+    seeds, spread_deg = np.asarray(seeds), np.asarray(spread_deg)
+    m = len(seeds)
+    q, cpos, cquat, tries = np.zeros((m, 6)), np.zeros((m, 3)), np.zeros((m, 4)), np.zeros(m, np.int64)
+    state = {k: np.zeros((m, d)) for k, d in (("q", 6), ("qd", 6), ("cube_pos", 3), ("cube_quat", 4), ("cube_v", 3),
+                                              ("cube_w", 3))}
+    for spread in np.unique(spread_deg):
+        sel = np.flatnonzero(spread_deg == spread)
+        st = sample_starts(seeds[sel], spread_deg=float(spread))
+        q[sel], cpos[sel], cquat[sel], tries[sel] = st["q"], st["cube_pos"], st["cube_quat"], st["tries"]
+        for k in state:
+            state[k][sel] = getattr(st["state"], k).numpy()
+    return q, cpos, cquat, tries, state
 
 
 def concat_tasks(parts):
@@ -740,10 +799,15 @@ def variant_of(family, ro, k, segment, chunk):
     return v + (f"/c{chunk}" if chunk else "")
 
 
-def rows_of(ro, k, segments, family_offset, parent_id, chunked=True, records=RECORDS, step=CHUNK_STEP):
+def rows_of(ro, k, segments, family_offset, parent_id, chunked=True, records=RECORDS, step=CHUNK_STEP,
+            n_families=None, variant=None, extra_meta=()):
     """Rows (pack_episodes episode dicts + per-row metadata) of episode k of a rollout dict. chunked: cut segments into
-    ``records``-record chunks every ``step`` records (training folder; later chunks -> family expert_tail); else one
-    row per segment."""
+    ``records``-record chunks every ``step`` records (training folder; later chunks -> the campaign's tail family,
+    index ``n_families`` after its first: expert_tail by default); else one row per segment. variant: the variant
+    function (default ``variant_of``, the expert families); extra_meta: more per-episode keys of ro copied into the
+    row's meta (round 3: policy, noise scale)."""
+    n_families = len(FAMILIES) if n_families is None else int(n_families)
+    variant = variant_of if variant is None else variant
     rows = []
     fam = int(ro["family"][k])
     for r in segments:
@@ -758,7 +822,7 @@ def rows_of(ro, k, segments, family_offset, parent_id, chunked=True, records=REC
             ep = slice_segment(r, a, n)
             last = a + n == L
             o = r["outcome"]
-            f_idx = family_offset + (fam if c == 0 else len(FAMILIES))
+            f_idx = family_offset + (fam if c == 0 else n_families)
             ep["scalars"] = dict(
                 family=np.int16(f_idx), episode_id=np.int64(-1), group_id=np.int64(parent_id),
                 seed=np.int64(ro["seeds"][k]), terminal_reason=np.int8(r["terminal"] if last else 0),
@@ -766,7 +830,7 @@ def rows_of(ro, k, segments, family_offset, parent_id, chunked=True, records=REC
                 hold_slip_mm=np.float32(o["hold_slip_mm"]), carry_slip_mm=np.float32(o["carry_slip_mm"]),
                 family_index=np.int64(ro["index"][k]), plan_tries=np.int16(ro["tries"][k]),
                 unsupported_max_n=np.float32(np.asarray(r["other_force"]).max()),
-                variant=variant_of(fam, ro, k, int(r["segment"]), c))
+                variant=variant(fam, ro, k, int(r["segment"]), c))
             ep["meta"] = dict(parent=int(parent_id), segment=int(r["segment"]), chunk=c, chunk_start=int(a),
                               segment_start_step=int(r["start_step"]), segment_records=int(L),
                               family=fam, task_end=int(ro["task_end"][k]), success=bool(ro["success"][k]),
@@ -777,25 +841,35 @@ def rows_of(ro, k, segments, family_offset, parent_id, chunked=True, records=REC
                               rt2=int(ro["rt2"][k]), rt_step1=int(ro["rt_step1"][k]), rt_step2=int(ro["rt_step2"][k]),
                               dist_step=int(ro["dist_step"][k]), speed=int(ro["speed"][k]),
                               recoveries=int(ro["recoveries"][k]), noisy_n=int(ro["noisy_n"][k]))
+            for key in extra_meta:
+                ep["meta"][key] = np.asarray(ro[key][k]).item()
             rows.append(ep)
     return rows
 
 
 # ---- system.json, splits and the data directory -----------------------------------------------------------------------
-def round_system(s=None):
-    """system.json: the collector's (all collector families, incl. noisy_v1's) + FAMILIES + the tail family."""
+def round_system(s=None, campaign=CAMPAIGN):
+    """system.json: the collector's (all collector families, incl. noisy_v1's) + FAMILIES + the tail family; campaign
+    policy_v3 (round 3) appends POLICY_FAMILIES + POLICY_TAIL after these, so merge_data.py's order rule holds for
+    production_plus + noisy_v1 + expert_v2 + policy_v3."""
     from nedm.contact_nrd.collect import so101_grasp as g
     s = s or scene()
     system = g.system_json(s, s.cfg)
     for f in FAMILIES:
         system["families"].append(dict(name=f["name"], group="expert", select=True, note=f["note"]))
     system["families"].append(dict(name=TAIL["name"], group="expert", select=False, note=TAIL["note"]))
+    if campaign == P_CAMPAIGN:
+        for f in POLICY_FAMILIES:
+            system["families"].append(dict(name=f["name"], group="policy", select=True, note=f["note"]))
+        system["families"].append(dict(name=POLICY_TAIL["name"], group="policy", select=False, note=POLICY_TAIL["note"]))
+    elif campaign != CAMPAIGN:
+        raise ValueError(f"campaign {campaign!r}: {CAMPAIGN} or {P_CAMPAIGN}")
     return system
 
 
-def family_offset(system):
+def family_offset(system, campaign=CAMPAIGN):
     names = [f["name"] for f in system["families"]]
-    return names.index(FAMILY_NAMES[0])
+    return names.index((P_FAMILY_NAMES if campaign == P_CAMPAIGN else FAMILY_NAMES)[0])
 
 
 def parent_splits(family, parent, n_val, seed=MASTER_SEED):
@@ -812,9 +886,9 @@ META_KEYS = ("parent", "segment", "chunk", "chunk_start", "segment_start_step", 
              "rt_step1", "rt_step2", "dist_step", "speed", "recoveries", "noisy_n")
 
 
-def write_round(out_dir, rows, splits, system, records, manifest):
+def write_round(out_dir, rows, splits, system, records, manifest, meta_keys=META_KEYS):
     """Pack rows (rows_of) with their splits [n rows] into a data directory (export.write_dataset: unified_data.npz,
-    system.json, manifest.json) plus episodes.npz (per-row metadata, META_KEYS). records = records_per_episode."""
+    system.json, manifest.json) plus episodes.npz (per-row metadata, ``meta_keys``). records = records_per_episode."""
     from nedm.contact_nrd.collect import export
     from nedm.contact_nrd.collect import so101_grasp as g
     system = dict(system, records_per_episode=int(records))
@@ -826,7 +900,7 @@ def write_round(out_dir, rows, splits, system, records, manifest):
     man = dict(manifest)
     man["summary"] = g.summarize(system, arrays)
     info = export.write_dataset(out_dir, system, arrays, man)
-    meta = {k: np.array([r["meta"][k] for r in rows]) for k in META_KEYS}
+    meta = {k: np.array([r["meta"][k] for r in rows]) for k in meta_keys}
     np.savez(Path(out_dir) / "episodes.npz", **meta)
     return info
 
@@ -849,3 +923,312 @@ def compare_stored(stored, packed, i, j):
         a, b = np.asarray(stored[k][i]), np.asarray(packed[k][j])
         out[k] = bool(np.array_equal(a, b, equal_nan=a.dtype.kind == "f"))
     return out
+
+
+# ---- round 3: MuJoCo rollouts of PPO policies (campaign policy_v3) ------------------------------------------------------
+# Design (report ~/so101_policy/docs/build6_round3.md, phase 0; written before the collection):
+# - Actor: a PPO checkpoint (ppo.load_policy) acting through ITS OWN decoder config and observation, in the env that
+#   eval_policy.py run builds for world mujoco (policy_env_config: eval_policy.checkpoint_env, evaluation rules,
+#   default 15 mm / 15 deg, decoder macro seeds = task seeds). Pre-tanh action = mean + k std eps, k = the task's
+#   noise_scale (0 = deterministic, bit for bit eval_policy's policy_act_fn), std = the checkpoint's own per-column std
+#   (all columns, as PPO samples), eps = gate_expert.hash_normal(task seed * 7919 + NOISE_SALT, decision index).
+# - Logged per world (pass 1, like run_rollouts): the applied float32 commands (one per 20 ms step + the next one), the
+#   collector phase of each command (collector_phase: decoder mode during the step; free motion = approach until a
+#   PLACE macro ran, then idle until the next GRASP), the env's 10 ms records and interval labels.
+# - Episode end: the first collector end (MujocoWorlds.end_step), else the task's end step (success, a failure rule,
+#   the time-out) + the task's tail (10-30 steps), whichever is first. The policy keeps acting in the tail.
+# - Pass 2 and the writer are round 2's (label_rollouts, rows_of with POLICY_FAMILIES / policy_variant_of).
+NOISE_SALT = 271_828
+
+
+def policy_cells(n):
+    """Parents per (policy, noise level) cell of a campaign of n parents, cells in the order (policy 0: levels 0, 1, 2;
+    policy 1: ...) -> int array: parents per policy by largest remainder on ``share``, then per level equally (largest
+    remainder)."""
+    per = family_counts(n, [p["share"] for p in POLICIES])
+    return np.concatenate([family_counts(int(m), np.ones(len(NOISE_LEVELS))) for m in per])
+
+
+def policy_path(pid, policy_dir=None):
+    """Checkpoint path of a policy (id string or index into POLICIES)."""
+    i = POLICY_IDS.index(pid) if isinstance(pid, str) else int(pid)
+    return Path(policy_dir or POLICY_DIR).expanduser() / POLICIES[i]["file"]
+
+
+def check_policy_seeds(seeds, set_name):
+    """Start seeds of a policy set: never the test (900000+), the gate (1000-2023) or the sealed-test master; campaign
+    seeds outside the evaluation band 400,000-499,999, pgate seeds inside it."""
+    s = np.asarray(seeds, np.int64)
+    if (s >= 900000).any() or ((s >= 1000) & (s <= 2023)).any() or (s == 20261034).any():
+        raise ValueError("start seeds overlap the test (900000+), the gate (1000-2023) or the sealed test master")
+    band = (s >= 400000) & (s <= 499999)
+    if set_name == "campaign" and band.any():
+        raise ValueError("campaign start seeds inside the evaluation band 400,000-499,999")
+    if set_name == "pgate" and not band.all():
+        raise ValueError("pgate start seeds must lie inside the evaluation band 400,000-499,999")
+
+
+def make_policy_tasks(n, set_name="campaign", master=P_MASTER_SEED, start0=None, idx=None, log=print):
+    """Task table of the rows idx (default all n) of a policy set of n rows (``P_SET_IDS``) -> dict of numpy arrays
+    (``P_TASK_KEYS`` + the settled start ``state_*``: also a gate_expert.py / eval_policy.py task file). Row i: start
+    seed start0 + i (collector sampler + 0.3 s warm-up), spread 40 deg (60 deg with p 0.3), tail 10-30 steps and the
+    goal (task.sample_goals) from task_rng(master, set, i) only, so any sharding of idx gives the same rows. Campaign
+    rows get (policy, noise level) by index range (``policy_cells``); pgate rows get policy -1 (``expand_pgate``)."""
+    import torch
+
+    from nedm.so101_policy import task as T
+    sid = P_SET_IDS[set_name]
+    start0 = (P_START0 if set_name == "campaign" else PGATE_START0) if start0 is None else int(start0)
+    idx = np.arange(n) if idx is None else np.asarray(idx, np.int64)
+    seeds = start0 + idx
+    check_policy_seeds(seeds, set_name)
+    m = len(idx)
+    spread, tail, gseed = np.zeros(m), np.zeros(m, np.int64), np.zeros(m, np.int64)
+    for r, i in enumerate(idx):
+        rng = task_rng(master, sid, i)
+        spread[r] = 60.0 if rng.random() < 0.3 else 40.0
+        tail[r] = int(rng.integers(10, 31))
+        gseed[r] = int(rng.integers(2 ** 62)) + 1
+    t0 = time.time()
+    q, cpos, cquat, tries, state = _starts(seeds, spread)
+    log(f"{m} starts in {time.time() - t0:.0f} s")
+    out = {f"state_{k}": v for k, v in state.items()}
+    cyaw, _ = T.cube_yaw_tilt(torch.as_tensor(out["state_cube_quat"]))
+    cxy = torch.as_tensor(out["state_cube_pos"][:, :2])
+    gxy, gyaw = np.zeros((m, 2)), np.zeros(m)
+    for r in range(m):
+        g_xy, g_yaw = T.sample_goals(cxy[r:r + 1], cyaw[r:r + 1], torch.Generator().manual_seed(int(gseed[r])))
+        gxy[r], gyaw[r] = g_xy[0].numpy(), float(g_yaw[0])
+    if set_name == "campaign":
+        cell = np.repeat(np.arange(len(POLICIES) * len(NOISE_LEVELS)), policy_cells(n))[idx]
+        pol, lev = cell // len(NOISE_LEVELS), cell % len(NOISE_LEVELS)
+    else:
+        pol, lev = np.full(m, -1, np.int64), np.zeros(m, np.int64)
+    out.update(seeds=seeds.astype(np.int64), start_q=q, start_cube_pos=cpos, start_cube_quat=cquat, tries=tries,
+               goal_xy=gxy, goal_yaw=gyaw, family=np.array([POLICIES[p]["family"] if p >= 0 else -1 for p in pol], np.int64),
+               policy=pol.astype(np.int64), noise_level=lev.astype(np.int64),
+               noise_scale=np.asarray(NOISE_LEVELS, np.float64)[lev] if set_name == "campaign" else np.zeros(m),
+               index=idx.astype(np.int64), task=idx.astype(np.int64), spread_deg=spread, tail=tail, goal_seed=gseed,
+               master_seed=np.int64(master), set_id=np.int64(sid), n_set=np.int64(n), campaign=np.array(P_CAMPAIGN))
+    return out
+
+
+def expand_pgate(tasks, noise=PGATE_NOISE):
+    """pgate task table [n] -> episode table [len(POLICIES) * len(noise) * n]: every policy on every task at every noise
+    scale; row index (parent id) = (policy * len(noise) + level) * n + task, ``task`` = the task row."""
+    n = len(tasks["seeds"])
+    parts = []
+    for p, pol in enumerate(POLICIES):
+        for j, s in enumerate(noise):
+            t = {k: (np.array(v, copy=True) if np.ndim(v) and len(v) == n else v) for k, v in tasks.items()}
+            t.update(policy=np.full(n, p, np.int64), family=np.full(n, pol["family"], np.int64),
+                     noise_scale=np.full(n, float(s)), noise_level=np.full(n, NOISE_LEVELS.index(float(s)), np.int64),
+                     index=(p * len(noise) + j) * n + np.asarray(tasks["task"], np.int64))
+            parts.append(t)
+    return concat_tasks(parts)
+
+
+def _module(name, rel):
+    if name not in sys.modules:
+        spec = importlib.util.spec_from_file_location(name, str(REPO_ROOT / rel))
+        mod = importlib.util.module_from_spec(spec)
+        sys.modules[name] = mod
+        spec.loader.exec_module(mod)
+    return sys.modules[name]
+
+
+def eval_policy_module():
+    """scripts/so101_policy/eval_policy.py as a module (checkpoint_env, run_policy)."""
+    return _module("so101_eval_policy", "scripts/so101_policy/eval_policy.py")
+
+
+def policy_env_config(policy, B, workers=0, python=None, files=None, horizon=None, log=print):
+    """(vec_env.EnvConfig, checkpoint env record, geometry files used) of a policy checkpoint for B worlds of CPU
+    MuJoCo: the config eval_policy.run_policy builds for world mujoco (the checkpoint's decoder and obs_rates,
+    evaluation rules, no assist). files {geom_path, kin_points}: used where the checkpoint's own path does not exist
+    on this machine (eval_policy then falls back to EnvConfig's defaults; the round-3 files are the same)."""
+    from nedm.so101_policy.vec_env import EnvConfig
+    E = eval_policy_module()
+    dec_over, task_over, prov = E.checkpoint_env(str(policy), None, log)
+    if horizon is not None:
+        task_over["horizon"] = int(horizon)
+    use = {}
+    for k in ("geom_path", "kin_points"):
+        p = (prov or {}).get("env", {}).get(k)
+        if p and Path(p).expanduser().exists():
+            use[k] = p
+        elif files and files.get(k):
+            use[k] = str(Path(files[k]).expanduser())
+    cfg = EnvConfig(world="mujoco", num_envs=B, device="cpu", ckpts=[], members="split", auto_reset=False,
+                    eval_rules=True, task=task_over, mj_workers=workers, mj_python=python, starts="",
+                    nrd_cuda_graph=True, grasp_assist=False, decoder=dec_over, **use)
+    return cfg, prov, use
+
+
+def run_policy_rollouts(tasks, policy, workers=0, python=None, files=None, horizon=None, log=print):
+    """Pass 1 of round 3 (section docstring) for every task of ``tasks`` (one policy; per-task ``noise_scale``) with the
+    checkpoint ``policy`` -> dict of numpy arrays with run_rollouts' keys (label_rollouts / rows_of read them; the
+    expert's option keys at neutral values) plus the policy keys: policy, noise_scale, noise_level, task, tail,
+    task_steps (20 ms steps to the task's end), ret / length (decision reward sum, decisions), act_mean / act_exec
+    [B, K, A] float32 (the policy's pre-tanh mean and the executed action per decision), decoder event counts while the
+    task ran (grasp_started, place_started, aborted, gate_blocked), policy path / sha256, env_resolved."""
+    import torch
+
+    from nedm.so101_policy.decoder import MODES
+    from nedm.so101_policy.ppo import load_policy, sha256
+    from nedm.so101_policy.vec_env import PickPlaceVecEnv
+    G = gate()
+    B = len(tasks["seeds"])
+    pols = np.unique(np.asarray(tasks["policy"]))
+    if len(pols) != 1:
+        raise ValueError(f"run_policy_rollouts takes the tasks of one policy (got {pols.tolist()})")
+    t0 = time.time()
+    cfg, prov, used = policy_env_config(policy, B, workers, python, files, horizon, log)
+    env = PickPlaceVecEnv(cfg, record=False)
+    try:
+        dev = env.dev
+        pol = load_policy(str(policy), device=dev)
+        if pol.kwargs["obs_dim"] != env.num_obs or pol.kwargs["act_dim"] != env.num_actions:
+            raise RuntimeError(f"policy {pol.kwargs['obs_dim']} obs / {pol.kwargs['act_dim']} actions vs env "
+                               f"{env.num_obs} / {env.num_actions}")
+        world, dec, task = env.world, env.dec, env.task
+        D, A = int(dec.cfg.decision_steps), int(env.num_actions)
+        H = int(env.tcfg.horizon)
+        tail = np.asarray(tasks["tail"], np.int64)
+        KMAX = (H + int(tail.max()) + 1) // D + 2
+        TA = KMAX * D
+        cmd = np.zeros((B, TA + 1, 6), np.float32)
+        phs = np.zeros((B, TA + 1), np.int8)
+        rec = np.zeros((B, 2 * TA + 1, 25), np.float32)
+        rcon = np.zeros((B, 2 * TA, 3), bool)
+        tlo, thi = world.tlo, world.thi
+        mode_ids = torch.arange(len(MODES))
+        g_modes = mode_ids[[m.startswith("g_") for m in MODES]]
+        p_modes = mode_ids[[m.startswith("p_") for m in MODES]]
+        st = dict(t=0, placed=torch.zeros(B, dtype=torch.bool))
+        dec_step0, world_step0 = dec.step, world.step
+
+        def dec_step(q):            # the decoder's command of step t and its collector phase
+            t = st["t"]
+            mode = dec.mode.clone()
+            u, extra = dec_step0(q)
+            moving = (dec.vel.norm(dim=-1) > 1e-6) | (dec.yrate.abs() > 1e-6)
+            mc = mode.cpu().long()
+            st["placed"] = torch.where(torch.isin(mc, p_modes), True,
+                                       torch.where(torch.isin(mc, g_modes), False, st["placed"]))
+            ph = collector_phase(mode, st["placed"].to(mode.device), moving)
+            cmd[:, t] = np.clip(u.detach().cpu().double().numpy(), tlo, thi).astype(np.float32)
+            phs[:, t] = ph.cpu().numpy()
+            return u, extra
+
+        def world_step(u):           # the env's 10 ms records of step t
+            t = st["t"]
+            ws = world_step0(u)
+            if not np.array_equal(world.applied.numpy(), cmd[:, t]):
+                raise RuntimeError("applied command differs from the logged one")
+            r = world.records.numpy().astype(np.float32)
+            rec[:, 2 * t + 1], rec[:, 2 * t + 2] = r[:, 0], r[:, 1]
+            rcon[:, 2 * t: 2 * t + 2] = world.record_contact.numpy()
+            st["t"] = t + 1
+            return ws
+
+        dec.step, world.step = dec_step, world_step
+        starts = G.start_state(tasks, dev)
+        g64 = lambda k: torch.as_tensor(np.asarray(tasks[k]), dtype=torch.float64, device=dev)      # noqa: E731
+        seeds = torch.as_tensor(np.asarray(tasks["seeds"]), dtype=torch.long, device=dev)
+        mj_start = dict(q=tasks["start_q"], cube_pos=tasks["start_cube_pos"], cube_quat=tasks["start_cube_quat"])
+        obs = env.reset_tasks(torch.arange(B, device=dev), starts, g64("goal_xy"), g64("goal_yaw"), seeds, mj_start)
+        rec[:, 0] = world.raw_state().numpy().astype(np.float32)
+        scale = torch.as_tensor(np.asarray(tasks["noise_scale"], np.float64), dtype=torch.float32, device=dev)
+        noisy = scale > 0
+        nseed = seeds * 7919 + NOISE_SALT
+        act_mean = np.zeros((B, KMAX, A), np.float32)
+        act_exec = np.zeros((B, KMAX, A), np.float32)
+        z = lambda: torch.zeros(B, dtype=torch.long, device=dev)                                   # noqa: E731
+        counts = dict(grasp_started=z(), place_started=z(), aborted=z(), gate_blocked=z())
+        noisy_n = z()
+        keep = None
+        INF = np.iinfo(np.int64).max // 4
+        ns = None
+        with torch.no_grad():
+            for k in range(KMAX):
+                live = task.tr.end == 0
+                mu = pol.act_inference(obs.to(dev))
+                std = pol.std_of(pol.ctx(obs)).detach().to(mu)
+                eps = G.hash_normal(nseed, k, A).to(mu)
+                a = torch.where(noisy[:, None], mu + scale[:, None].to(mu) * std * eps, mu)
+                act_mean[:, k], act_exec[:, k] = mu.cpu().numpy(), a.cpu().numpy()
+                noisy_n += (noisy & live).long()
+                obs, _, done, ex = env.step(a)
+                ep = ex["episode"]
+                if keep is None:
+                    keep = {n_: v.clone() for n_, v in ep.items()}
+                else:
+                    for n_, v in ep.items():
+                        keep[n_] = torch.where(done, v, keep[n_])
+                for c in counts:
+                    counts[c] += ex["counts"][c].long()
+                ended = (task.tr.end != 0).cpu().numpy()
+                te = keep["steps"].cpu().numpy().astype(np.int64)
+                es = world.end_step.numpy().astype(np.int64)
+                ns = np.minimum(np.where(ended, te + tail, INF), np.where(es >= 1, es, INF))
+                if ended.all() and st["t"] >= int(ns.max()) + 1:
+                    break
+                if k % 20 == 19:
+                    log(f"  decision {k + 1}: task ended {int(ended.sum())}/{B}, {time.time() - t0:.0f} s", flush=True)
+            else:
+                raise RuntimeError(f"worlds did not stop within {KMAX} decisions")
+        K = k + 1
+        T_ = int(ns.max())
+        es, er = world.end_step.numpy().astype(np.int64), world.end_reason.numpy()
+        env_end = np.where((es >= 1) & (es <= ns), er, 0).astype(np.int8)
+        env_end_step = np.where(env_end != 0, es, -1)
+        resolved = json.dumps(env.resolved(), default=str)
+        dec_json = json.dumps((prov or {}).get("decoder", {}), default=str, sort_keys=True)
+    finally:
+        env.close()
+    if (ns < 1).any():
+        raise RuntimeError("a world never stopped")
+    from nedm.so101_policy import task as T
+    kp = {n_: v.cpu().numpy() for n_, v in keep.items()}
+    neg = lambda dt=np.int64: np.full(B, -1, dt)                                                   # noqa: E731
+    out = dict(seeds=np.asarray(tasks["seeds"]), start_q=np.asarray(tasks["start_q"]),
+               start_cube_pos=np.asarray(tasks["start_cube_pos"]), start_cube_quat=np.asarray(tasks["start_cube_quat"]),
+               family=np.asarray(tasks["family"]), index=np.asarray(tasks["index"]), commands=cmd[:, : T_ + 1],
+               phases=phs[:, : T_ + 1], n_steps=ns.astype(np.int64), records=rec[:, : 2 * T_ + 1],
+               record_contact=rcon[:, : 2 * T_], dist_step=neg(), dist_pose=np.zeros((B, 13)),
+               jump_raw=np.zeros((B, 25), np.float32), env_end=env_end, env_end_step=env_end_step, rt_step1=neg(),
+               rt_step2=neg(), noisy_n=noisy_n.cpu().numpy(), harness_grasp=np.zeros(B, np.int64),
+               harness_place=np.zeros(B, np.int64), speed=neg(), wall_s=np.float64(time.time() - t0),
+               decoder_overrides=np.array(dec_json), expert_overrides=np.array("{}"),
+               task_end=kp["end"], success=kp["end"] == T.EC["success"], success10=kp["success10"], lifted=kp["lifted"],
+               end_xy=kp["end_xy"], end_yaw=kp["end_yaw"], recoveries=np.zeros(B, np.int64), noise=np.zeros(B, np.int64),
+               sigma=np.zeros(B), rt1=neg(), rt2=neg(), pause_s=np.zeros(B), hold_s=np.zeros(B), lift_h=np.full(B, np.nan),
+               dist_r=np.full(B, -1.0), spread_deg=np.asarray(tasks["spread_deg"]), tries=np.asarray(tasks["tries"]),
+               horizon=np.full(B, H, np.int64), policy=np.asarray(tasks["policy"], np.int64),
+               noise_scale=np.asarray(tasks["noise_scale"], np.float64),
+               noise_level=np.asarray(tasks["noise_level"], np.int64), task=np.asarray(tasks["task"], np.int64),
+               tail=tail, task_steps=kp["steps"].astype(np.int64), ret=kp["ret"], length=kp["length"].astype(np.int64),
+               act_mean=act_mean[:, :K], act_exec=act_exec[:, :K], decisions=np.int64(K),
+               policy_path=np.array(str(policy)), policy_sha256=np.array(sha256(policy)),
+               env_resolved=np.array(resolved), geometry_files=np.array(json.dumps(used)), noise_salt=np.int64(NOISE_SALT),
+               campaign=np.array(P_CAMPAIGN), task_end_names=np.array(json.dumps(list(T.ENDS))))
+    out.update({k_: v.cpu().numpy() for k_, v in counts.items()})
+    return out
+
+
+def policy_variant_of(family, ro, k, segment, chunk):
+    """Variant string of a policy row: family code, policy id, noise level (d 0, h 0.5, f 1.0 x std), chunk."""
+    code = POLICY_FAMILIES[family]["code"]
+    lev = NOISE_CODES[NOISE_LEVELS.index(float(ro["noise_scale"][k]))]
+    v = f"{code}:{POLICY_IDS[int(ro['policy'][k])]}.{lev}"
+    return v + (f"/c{chunk}" if chunk else "")
+
+
+P_META_KEYS = META_KEYS + P_META_EXTRA
+
+
+def policy_rows_of(ro, k, segments, family_offset, parent_id, chunked=True, records=RECORDS, step=CHUNK_STEP):
+    """rows_of for a policy rollout file (POLICY_FAMILIES, policy_tail, policy_variant_of, P_META_EXTRA)."""
+    return rows_of(ro, k, segments, family_offset, parent_id, chunked=chunked, records=records, step=step,
+                   n_families=len(POLICY_FAMILIES), variant=policy_variant_of, extra_meta=P_META_EXTRA)

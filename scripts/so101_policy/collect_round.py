@@ -13,7 +13,18 @@ the collector's labels, the data directories, checks, and the NRD evaluation on 
     PYTHONPATH=src python -P scripts/so101_policy/collect_round.py verify --data DIR --master 20261021 --rows ... \\
         --out JSON [--python WORKER_PY]                 # stored collector episodes through this writer path, bit-exact
     PYTHONPATH=src python -P scripts/so101_policy/collect_round.py eval --data DATA/val_full \\
-        --model s61=CKPT s62=CKPT --out JSON            # NRD accuracy per family (lift, 1 s, whole episode)
+        --model s61=CKPT s62=CKPT --out JSON [--carry]  # NRD accuracy per family (lift, drop, 1 s, whole episode,
+                                                          # --carry: cube error while MuJoCo holds the cube)
+
+Round 3 (campaign policy_v3: MuJoCo rollouts of PPO policies; data_round.py section "round 3", report
+~/so101_policy/docs/build6_round3.md):
+
+    ... collect_round.py ptasks --set campaign --n 13000 --out tasks.npz [--workers W]   # also --set pgate --n 512
+    ... collect_round.py prun --tasks tasks.npz [--expand-pgate] [--policies w5a kCa ...] --workers 10 \\
+        --python WORKER_PY --out DIR [--batch 1000] [--policy-dir D] [--geom G --kin-points K]  # pass 1 -> DIR/ro_*.npz
+    ... collect_round.py label --rollouts 'DIR/ro_*.npz' --workers 32                  # pass 2 (unchanged)
+    ... collect_round.py write --campaign policy_v3 --labelled 'DIR/lab_*.pkl' --out DATA \\
+        --gate2 'DIR2/lab_*.pkl' --gate-name pgate [--n-val 1000]                       # DATA, DATA/val_full, DATA/pgate
 
 ``tasks`` needs torch and mujoco (+ the overlap cache or scipy); ``run`` torch in the main process and numpy + mujoco
 in the workers; ``label`` and ``write`` only numpy + mujoco (use an interpreter with scipy, e.g. conda env nrdsim or
@@ -27,6 +38,7 @@ import json
 import math
 import os
 import pickle
+import re
 import time
 from pathlib import Path
 
@@ -105,11 +117,82 @@ def cmd_run(a):
                   flush=True)
 
 
+# ---- round 3: policy task tables and pass 1 ----------------------------------------------------------------------------
+def _ptask_shard(args):
+    n, set_name, idx = args
+    return R.make_policy_tasks(n, set_name, idx=idx, log=lambda *a, **k: None)
+
+
+def cmd_ptasks(a):
+    n, idx = a.n, np.arange(a.n)
+    t0 = time.time()
+    if a.workers > 1:
+        from concurrent.futures import ProcessPoolExecutor
+        import multiprocessing as mp
+        parts = np.array_split(idx, a.workers * 4)
+        with ProcessPoolExecutor(a.workers, mp_context=mp.get_context("spawn")) as pool:
+            out = R.concat_tasks(list(pool.map(_ptask_shard, [(n, a.set, p) for p in parts if len(p)])))
+    else:
+        out = R.make_policy_tasks(n, a.set, idx=idx)
+    np.savez(a.out, **out)
+    d = np.linalg.norm(out["goal_xy"] - out["state_cube_pos"][:, :2], axis=1)
+    cells = {f"{R.POLICY_IDS[p]}/{R.NOISE_LEVELS[l]:g}": int(((out["policy"] == p) & (out["noise_level"] == l)).sum())
+             for p in np.unique(out["policy"]) if p >= 0 for l in range(len(R.NOISE_LEVELS))}
+    print(f"{n} tasks of set {a.set} (start seeds {out['seeds'].min()}-{out['seeds'].max()}) -> {a.out} in "
+          f"{time.time() - t0:.0f} s; redraws {int((out['tries'] > 1).sum())}; spread 60 deg "
+          f"{int((out['spread_deg'] == 60).sum())}; goal distance p50 {np.median(d) * 1e3:.0f} mm ({d.min() * 1e3:.0f}-"
+          f"{d.max() * 1e3:.0f}); cells {cells}", flush=True)
+
+
+def cmd_prun(a):
+    import torch
+    torch.set_num_threads(a.threads)
+    t = dict(np.load(a.tasks))
+    if a.expand_pgate:
+        t = R.expand_pgate(t)
+    lo, hi = (int(x) for x in a.rows.split(":")) if a.rows else (0, len(t["seeds"]))
+    rows = np.arange(lo, min(hi, len(t["seeds"])))
+    out = Path(a.out)
+    out.mkdir(parents=True, exist_ok=True)
+    files = dict(geom_path=a.geom, kin_points=a.kin_points)
+    pol_rows = np.asarray(t["policy"])[rows]
+    if (pol_rows < 0).any():
+        raise SystemExit("rows without a policy (a pgate task table needs --expand-pgate)")
+    want = [R.POLICY_IDS.index(p) for p in a.policies] if a.policies else np.unique(pol_rows).tolist()
+    for p in want:
+        sel = rows[pol_rows == p]
+        path = R.policy_path(p, a.policy_dir)
+        for b0 in range(0, len(sel), a.batch):
+            part = sel[b0: b0 + a.batch]
+            f = out / f"ro_{a.tag}{R.POLICY_IDS[p]}_{lo:06d}_{b0 // a.batch:02d}.npz"
+            if f.exists():
+                print(f"{f} exists: skipped", flush=True)
+                continue
+            tk = R.subset(t, part)
+            print(f"prun {R.POLICY_IDS[p]} ({path.name}) rows {part[0]}..{part[-1]} ({len(part)} tasks) -> {f}", flush=True)
+            ro = R.run_policy_rollouts(tk, path, workers=a.workers, python=a.python, files=files, horizon=a.horizon,
+                                       log=print)
+            ro["task_rows"] = part
+            tmp = f.with_suffix(".tmp.npz")
+            np.savez(tmp, **ro)
+            tmp.replace(f)
+            sc = ro["noise_scale"]
+            print(f"  {len(part)} episodes, {ro['n_steps'].sum()} steps, {int(ro['decisions'])} decisions in "
+                  f"{float(ro['wall_s']):.0f} s; success per noise scale "
+                  f"{ {float(s): round(float(ro['success'][sc == s].mean()) * 100, 1) for s in np.unique(sc)} } %, lifted "
+                  f"{ro['lifted'].mean() * 100:.1f} %, env ends {np.bincount(ro['env_end'], minlength=8).tolist()}, task "
+                  f"ends {np.bincount(ro['task_end'].astype(int), minlength=18).tolist()}", flush=True)
+
+
 # ---- pass 2 ---------------------------------------------------------------------------------------------------------
 META_RO = ("family", "index", "seeds", "tries", "task_end", "success", "success10", "lifted", "end_xy", "end_yaw",
            "n_steps", "env_end", "env_end_step", "noise", "sigma", "rt1", "rt2", "rt_step1", "rt_step2", "dist_step",
            "dist_r", "speed", "recoveries", "noisy_n", "pause_s", "hold_s", "lift_h", "spread_deg", "horizon",
-           "harness_grasp", "harness_place", "task_rows", "decoder_overrides", "expert_overrides")
+           "harness_grasp", "harness_place", "task_rows", "decoder_overrides", "expert_overrides",
+           # round 3 (policy rollouts)
+           "policy", "noise_scale", "noise_level", "task", "tail", "task_steps", "ret", "length", "grasp_started",
+           "place_started", "aborted", "gate_blocked", "policy_path", "policy_sha256", "geometry_files", "campaign",
+           "decisions", "noise_salt", "task_end_names")
 
 
 def cmd_label(a):
@@ -171,37 +254,63 @@ def _parents(recs):
     return out, dropped
 
 
-def _build(recs, parents, offset, chunked, records):
+def _build(recs, parents, offset, chunked, records, campaign=R.CAMPAIGN):
+    rows_of = R.policy_rows_of if campaign == R.P_CAMPAIGN else R.rows_of
     rows = []
     for i, k, pid, _ in parents:
-        rows += R.rows_of(recs[i]["meta"], k, recs[i]["segments"][k], offset, pid, chunked=chunked, records=records)
+        rows += rows_of(recs[i]["meta"], k, recs[i]["segments"][k], offset, pid, chunked=chunked, records=records)
     return rows
 
 
-def _manifest(set_name, files, recs, parents, dropped, extra=None):
+def _manifest(set_name, files, recs, parents, dropped, extra=None, campaign=R.CAMPAIGN):
     meta = {k: np.concatenate([r["meta"][k] for r in recs]) for k in ("family", "success", "lifted", "env_end",
                                                                        "task_end", "n_steps", "dist_step", "dist_r")}
     fams = meta["family"]
     chk = [s["check"] for r in recs for ep in r["segments"] for s in ep if "check" in s]
-    return dict(
-        collector="nedm.so101_policy.data_round (scripts/so101_policy/collect_round.py)", campaign=R.CAMPAIGN,
-        set=set_name, master_seed=R.MASTER_SEED,
-        start_seeds=dict(campaign=[R.START0, R.START0 + 99_999], gate2=[R.GATE2_START0, R.GATE2_START0 + 99_999],
-                         rule="start seed of parent i = start0 + i (mujoco_env.sample_starts)"),
-        families=[dict(name=f["name"], code=f["code"], share=f["share"], horizon_steps=f["horizon"]) for f in R.FAMILIES],
+    pol = campaign == R.P_CAMPAIGN
+    names = R.P_FAMILY_NAMES if pol else R.FAMILY_NAMES
+    out = dict(
+        collector="nedm.so101_policy.data_round (scripts/so101_policy/collect_round.py)", campaign=campaign,
+        set=set_name, master_seed=R.P_MASTER_SEED if pol else R.MASTER_SEED,
+        start_seeds=dict(campaign=[R.P_START0, R.P_START0 + 99_999], pgate=[R.PGATE_START0, R.PGATE_START0 + 9_999],
+                         rule="start seed of task i = start0 + i (mujoco_env.sample_starts)") if pol else
+        dict(campaign=[R.START0, R.START0 + 99_999], gate2=[R.GATE2_START0, R.GATE2_START0 + 99_999],
+             rule="start seed of parent i = start0 + i (mujoco_env.sample_starts)"),
+        families=[dict(name=f["name"], code=f["code"]) for f in R.POLICY_FAMILIES] if pol else
+        [dict(name=f["name"], code=f["code"], share=f["share"], horizon_steps=f["horizon"]) for f in R.FAMILIES],
         parents=len(parents) + len(dropped), parents_kept=len(parents),
-        dropped=[dict(file=Path(files[i]).name, episode=k, parent=pid, family=R.FAMILY_NAMES[f]) for i, k, pid, f in dropped],
-        expert_mujoco=dict(success15={R.FAMILY_NAMES[f]: float(meta["success"][fams == f].mean()) for f in np.unique(fams)},
-                           lifted={R.FAMILY_NAMES[f]: float(meta["lifted"][fams == f].mean()) for f in np.unique(fams)},
-                           env_ends=np.bincount(meta["env_end"].astype(int), minlength=8).tolist(),
-                           cube_moved=int((meta["dist_step"] >= 0).sum()), cube_move_planned=int((meta["dist_r"] > 0).sum()),
-                           steps=int(meta["n_steps"].sum())),
+        dropped=[dict(file=Path(files[i]).name, episode=k, parent=pid, family=names[f]) for i, k, pid, f in dropped],
+        **{"policy_mujoco" if pol else "expert_mujoco": dict(
+            success15={names[f]: float(meta["success"][fams == f].mean()) for f in np.unique(fams)},
+            lifted={names[f]: float(meta["lifted"][fams == f].mean()) for f in np.unique(fams)},
+            env_ends=np.bincount(meta["env_end"].astype(int), minlength=8).tolist(),
+            cube_moved=int((meta["dist_step"] >= 0).sum()), cube_move_planned=int((meta["dist_r"] > 0).sum()),
+            steps=int(meta["n_steps"].sum()))},
         pass1_vs_pass2=dict(segments=len(chk), states_equal=sum(c["states"] for c in chk),
                             contacts_equal=sum(c["contacts"] for c in chk), end_equal=sum(c["end"] for c in chk)),
         wall_s=dict(pass1=float(sum(r["wall_pass1_s"] for r in recs)), pass2=float(sum(r["wall_pass2_s"] for r in recs))),
         sources=dict(labelled=[Path(f).name for f in files], code_sha256=R.source_hashes()),
         decoder_overrides=sorted({str(r["meta"].get("decoder_overrides", "{}")) for r in recs}),
         **(extra or {}))
+    if pol:   # per policy and noise level: episodes, task success, lifted, task ends (MuJoCo, evaluation rules)
+        ENDS = json.loads(str(recs[0]["meta"]["task_end_names"]))          # task.ENDS (no torch import here)
+        pm = {k: np.concatenate([r["meta"][k] for r in recs]) for k in ("policy", "noise_scale", "task_end", "success",
+                                                                          "lifted", "n_steps")}
+        out["policies"] = [dict(id=p["id"], file=p["file"], source=p["source"], family=R.P_FAMILY_NAMES[p["family"]])
+                           for p in R.POLICIES]
+        out["policy_sha256"] = sorted({str(r["meta"].get("policy_sha256", "")) for r in recs})
+        cells = {}
+        for p in np.unique(pm["policy"]):
+            for s_ in np.unique(pm["noise_scale"]):
+                sel = (pm["policy"] == p) & (pm["noise_scale"] == s_)
+                if sel.any():
+                    ends = pm["task_end"][sel].astype(int)
+                    cells[f"{R.POLICY_IDS[int(p)]}/{s_:g}"] = dict(
+                        episodes=int(sel.sum()), success15=float(pm["success"][sel].mean()),
+                        lifted=float(pm["lifted"][sel].mean()), steps=int(pm["n_steps"][sel].sum()),
+                        task_ends={ENDS[e]: int((ends == e).sum()) for e in np.unique(ends)})
+        out["policy_cells"] = cells
+    return out
 
 
 def _validate(d):
@@ -215,46 +324,54 @@ def _validate(d):
 
 
 def cmd_write(a):
-    system = R.round_system()
-    off = R.family_offset(system)
+    camp = a.campaign
+    pol = camp == R.P_CAMPAIGN
+    system = R.round_system(campaign=camp)
+    off = R.family_offset(system, camp)
+    meta_keys = R.P_META_KEYS if pol else R.META_KEYS
+    tail_name = R.POLICY_TAIL["name"] if pol else R.TAIL["name"]
     files, recs = _load_labelled(a.labelled)
     parents, dropped = _parents(recs)
     fam = np.array([p[3] for p in parents])
     pid = np.array([p[2] for p in parents])
-    psplit = R.parent_splits(fam, pid, a.n_val)
+    psplit = R.parent_splits(fam, pid, a.n_val, seed=R.P_MASTER_SEED if pol else R.MASTER_SEED)
     split_of = dict(zip(pid.tolist(), psplit.tolist()))
     out = Path(a.out)
     # training folder: chunks of <= 601 records, splits of the parents
-    rows = _build(recs, parents, off, True, R.RECORDS)
+    rows = _build(recs, parents, off, True, R.RECORDS, camp)
     sp = np.array([split_of[r["meta"]["parent"]] for r in rows], np.int8)
     man = _manifest("campaign", files, recs, parents, dropped, dict(
         layout="training: segments cut into chunks of <= 601 records at records 0, 492, 984 (data_round.chunk_starts); "
-               "later chunks in family expert_tail; episodes.npz = per-row parent, segment, chunk, task outcome",
-        validation_parents=int((psplit == 1).sum()), training_parents=int((psplit == 0).sum())))
-    info = R.write_round(out, rows, sp, system, R.RECORDS, man)
+               f"later chunks in family {tail_name}; episodes.npz = per-row parent, segment, chunk, task outcome",
+        validation_parents=int((psplit == 1).sum()), training_parents=int((psplit == 0).sum())), campaign=camp)
+    info = R.write_round(out, rows, sp, system, R.RECORDS, man, meta_keys)
     print(f"{out}: {info['episodes']} rows, splits {info['split_counts']}", flush=True)
     _validate(out)
     # whole validation segments (no chunks) for whole-episode evaluation
     val = [p for p in parents if split_of[p[2]] == 1]
-    rows = _build(recs, val, off, False, None)
+    rows = _build(recs, val, off, False, None, camp)
     rec_n = max(len(r["action"]) for r in rows)
     man = _manifest("campaign_val_full", files, recs, val, [], dict(
         layout="the validation parents of the training folder (split 1), one row per segment at full length "
-               f"(records_per_episode {rec_n}); NOT for training (merge only the parent folder)"))
-    info = R.write_round(out / "val_full", rows, np.ones(len(rows), np.int8), system, rec_n, man)
+               f"(records_per_episode {rec_n}); NOT for training (merge only the parent folder)"), campaign=camp)
+    info = R.write_round(out / "val_full", rows, np.ones(len(rows), np.int8), system, rec_n, man, meta_keys)
     print(f"{out / 'val_full'}: {info['episodes']} rows (records {rec_n})", flush=True)
     _validate(out / "val_full")
     if a.gate2:
+        name = a.gate_name or ("pgate" if pol else "gate2")
         files2, recs2 = _load_labelled(a.gate2)
         par2, drop2 = _parents(recs2)
-        rows = _build(recs2, par2, off, False, None)
+        rows = _build(recs2, par2, off, False, None, camp)
         rec_n = max(len(r["action"]) for r in rows)
-        man = _manifest("gate2", files2, recs2, par2, drop2, dict(
-            layout=f"gate2: a held-out set (start seeds {R.GATE2_START0}+), all split 1, one row per segment at full "
-                   f"length (records_per_episode {rec_n}); tasks file tasks_gate2.npz (gate_expert.py format)"))
-        info = R.write_round(out / "gate2", rows, np.ones(len(rows), np.int8), system, rec_n, man)
-        print(f"{out / 'gate2'}: {info['episodes']} rows (records {rec_n})", flush=True)
-        _validate(out / "gate2")
+        start0 = R.PGATE_START0 if pol else R.GATE2_START0
+        man = _manifest(name, files2, recs2, par2, drop2, dict(
+            layout=f"{name}: a held-out set (start seeds {start0}+), all split 1, one row per segment at full "
+                   f"length (records_per_episode {rec_n}); tasks file tasks_{name}.npz (gate_expert.py format)"
+                   + ("; every policy on every task, deterministic and at 1.0 x its std (data_round.expand_pgate: "
+                      "parent = (policy * 2 + level) * n_tasks + task)" if pol else "")), campaign=camp)
+        info = R.write_round(out / name, rows, np.ones(len(rows), np.int8), system, rec_n, man, meta_keys)
+        print(f"{out / name}: {info['episodes']} rows (records {rec_n})", flush=True)
+        _validate(out / name)
 
 
 # ---- verify: stored collector episodes through this writer path -----------------------------------------------------
@@ -436,7 +553,7 @@ def cmd_eval(a):
     add_derived(data, first.config.get("derived"))
     add_relative(data, first.config.get("relative"))
     names = [f["name"] for f in data["system"]["families"]]
-    chosen = a.families or [n for n in names if n in R.FAMILY_NAMES]       # not expert_tail (mid-episode starts)
+    chosen = a.families or [n for n in names if n in R.FAMILY_NAMES + R.P_FAMILY_NAMES]   # no tail chunks
     keep = torch.tensor([n in chosen for n in names], device=a.device)
     idx = torch.nonzero((data["splits"] == a.split) & keep[data["family"]]).flatten()
     rows = data["file_index"][idx].cpu().numpy() if "file_index" in data else idx.cpu().numpy()
@@ -457,6 +574,18 @@ def cmd_eval(a):
         sel = np.array([str(v).startswith(f"R:{tag}") for v in variant])
         if sel.any():
             groups[f"retarget_{tag}"] = sel
+    pv = [re.match(r"^[WKQ]:(\w+)\.([dhf])", str(v)) for v in variant]      # policy_v3 rows: policy id, noise level
+    if any(m is not None for m in pv):
+        pid = np.array([m.group(1) if m else "" for m in pv])
+        lev = np.array([m.group(2) if m else "" for m in pv])
+        for x in [p for p in R.POLICY_IDS if (pid == p).any()]:
+            groups[f"pol_{x}"] = pid == x
+            for c in "dhf":
+                if ((pid == x) & (lev == c)).any():
+                    groups[f"pol_{x}_{c}"] = (pid == x) & (lev == c)
+        for c in "dhf":
+            if (lev == c).any():
+                groups[f"noise_{c}"] = lev == c
     print(f"{root}: split {a.split}, {len(idx)} episodes, groups {[(k, int(v.sum())) for k, v in groups.items()]}",
           flush=True)
     out = dict(data=str(root), data_sha256=file_sha256(root / "unified_data.npz"), split=a.split, families=chosen,
@@ -488,6 +617,12 @@ def cmd_eval(a):
                 end_cube_over_20mm=float(np.mean(e[np.isfinite(e)] > 20)) if np.isfinite(e).any() else None,
                 end_cube_mm_p50=float(np.nanmedian(e)) if np.isfinite(e).any() else None,
                 end_cube_mm_p95=float(np.nanpercentile(e, 95)) if np.isfinite(e).any() else None)
+        if a.carry:   # cube error while MuJoCo holds the cube (carry_metrics), per group
+            cm = carry_metrics(model, data, idx)
+            for g, sel in groups.items():
+                summary.setdefault(g, {})["carry"] = carry_summary(cm, sel)
+            carry_rows = {k: [None if not np.isfinite(x) else round(float(x), 3) for x in v] if v.dtype.kind == "f"
+                          else v.tolist() for k, v in cm.items()}
         out["models"][name] = dict(checkpoint=str(path), checkpoint_sha256=file_sha256(path), summary=summary,
                                    seconds=round(time.perf_counter() - t, 1),
                                    per_episode=[dict(row=int(e["index"]), family=e.get("family"),
@@ -496,9 +631,16 @@ def cmd_eval(a):
                                                      dropped_recorded=bool(r_), dropped_predicted=p_,
                                                      end_cube_mm=None if not np.isfinite(m) else round(float(m), 3))
                                                 for e, m, r_, p_ in zip(per, end_mm, drec, dpred)])
+        if a.carry:
+            out["models"][name]["carry_per_episode"] = carry_rows
         print(f"{name}: {time.perf_counter() - t:.0f} s", flush=True)
         for g, s in summary.items():
             gr = s.get("group", {})
+            if "carry" in s:
+                c = s["carry"]
+                print(f"  {name} {g:22s} carry: rows {c['rows_with_carry']}, max err p50/p95 {c['max_mm_p50']}/"
+                      f"{c['max_mm_p95']} mm, end err p50/p95 {c['end_mm_p50']}/{c['end_mm_p95']} mm, > 20 mm "
+                      f"{c['max_over_20mm']}, NRD holds {c['nrd_held_frac_mean']} of the carry steps", flush=True)
             print(f"  {name} {g:22s} n {gr.get('episodes')}  lift agree {gr.get('lift_agreement')}  drop agree "
                   f"{gr.get('drop_agreement')} (rec {gr.get('drop_recorded')}, pred {gr.get('drop_predicted')})  1 s cube p50/p95 "
                   f"{s.get('win1s_cube_mm')} mm  4 s {s.get('free_4s_cube_mm')} mm  end p50/p95 "
@@ -506,6 +648,79 @@ def cmd_eval(a):
     out["ensemble"] = E.ensemble(flags, groups)
     Path(a.out).parent.mkdir(parents=True, exist_ok=True)
     Path(a.out).write_text(json.dumps(out, indent=1, default=float))
+
+
+def carry_metrics(model, data, indices, batch=512, half=0.015, up=0.010):
+    """Cube error while MuJoCo holds the cube (round 3 'before' numbers), per episode. The free rollout of
+    data.evaluate (from the first record, recorded commands; 20 ms model grid); a MuJoCo carry step j (state j -> j+1)
+    = both jaw-cube contacts on and the cube-table contact off in the recorded interval labels of the step
+    (data.physical_labels) and the recorded cube bottom more than ``up`` above the table at state j+1. Per episode: the
+    number of carry steps, the cube position error |NRD - MuJoCo| (mm) at state j+1 over the carry steps (max, mean,
+    at the last carry step), the share of carry steps in which the NRD also holds it (both jaw switches on in the
+    model's convention and its cube bottom above ``up``), finite (the rollout is finite up to the last carry step)."""
+    import torch
+
+    from nedm.contact_nrd.data import channel_index, physical_labels
+    system = data["system"]
+    stride = data["stride"]
+    tslot = model.moving.index(system["target_body"])
+    tpos = channel_index(system, system["bodies"][system["target_body"]]["name"], "position")
+    pn = [m.get("name") for m in system["pair_metadata"]]
+    fj, mj, ct = pn.index("fixed_jaw_cube"), pn.index("moving_jaw_cube"), pn.index("cube_table")
+    n_all = ((data["lengths"][indices] - 1) // stride + 1)
+    e = len(indices)
+    out = dict(steps=np.zeros(e, np.int64), max_mm=np.full(e, np.nan), mean_mm=np.full(e, np.nan),
+               end_mm=np.full(e, np.nan), nrd_held_frac=np.full(e, np.nan), finite=np.ones(e, bool))
+    with torch.no_grad():
+        for b0 in range(0, e, batch):
+            chosen = indices[b0: b0 + batch]
+            sl = slice(b0, b0 + len(chosen))
+            truth = data["states"][chosen][:, ::stride]
+            acts = data["actions"][chosen][:, ::stride]
+            steps = truth.shape[1] - 1
+            pred, gates = model.rollout(truth[:, 0], acts[:, :steps], return_gates=True)
+            lab = physical_labels(data["contacts"][chosen], stride)[:, :steps].bool()
+            tp, pp = truth[:, 1:, tslot][..., tpos], pred[:, 1:, tslot][..., tpos]
+            n = n_all[b0: b0 + len(chosen)].to(truth.device)
+            valid = torch.arange(steps, device=truth.device)[None] < (n - 1)[:, None]
+            held = lab[..., fj] & lab[..., mj] & ~lab[..., ct] & (tp[..., 2] - half > up) & valid
+            err = (pp - tp).norm(dim=-1) * 1e3
+            g = gates[:, :steps] > 0.5
+            nrd_held = g[..., fj] & g[..., mj] & (pp[..., 2] - half > up)
+            fin = torch.isfinite(pred[:, 1:].flatten(2)).all(-1)
+            for r in range(len(chosen)):
+                h = torch.nonzero(held[r]).flatten()
+                k = int(b0 + r)
+                out["steps"][k] = len(h)
+                if not len(h):
+                    continue
+                last = int(h[-1])
+                out["finite"][k] = bool(fin[r, : last + 1].all())
+                if not out["finite"][k]:
+                    continue
+                er = err[r, h]
+                out["max_mm"][k], out["mean_mm"][k] = float(er.max()), float(er.mean())
+                out["end_mm"][k] = float(err[r, last])
+                out["nrd_held_frac"][k] = float(nrd_held[r, h].float().mean())
+    return out
+
+
+def carry_summary(cm, sel):
+    """Group summary of carry_metrics over the rows sel (bool [rows]); non-finite rollouts count as errors > 20 mm."""
+    s = sel & (cm["steps"] > 0)
+    fin = s & cm["finite"]
+
+    def q(x, p):
+        x = x[fin]
+        return None if not len(x) else round(float(np.percentile(x, p)), 2)
+    over = (cm["max_mm"][fin] > 20).sum() + (s & ~cm["finite"]).sum()
+    return dict(rows=int(sel.sum()), rows_with_carry=int(s.sum()), nonfinite=int((s & ~cm["finite"]).sum()),
+                carry_steps_p50=float(np.median(cm["steps"][s])) if s.any() else None,
+                max_mm_p50=q(cm["max_mm"], 50), max_mm_p95=q(cm["max_mm"], 95), mean_mm_p50=q(cm["mean_mm"], 50),
+                end_mm_p50=q(cm["end_mm"], 50), end_mm_p95=q(cm["end_mm"], 95),
+                max_over_20mm=None if not s.any() else round(float(over / s.sum()), 4),
+                nrd_held_frac_mean=None if not fin.any() else round(float(np.mean(cm["nrd_held_frac"][fin])), 4),
+                nrd_held_90pct=None if not fin.any() else round(float(np.mean(cm["nrd_held_frac"][fin] >= 0.9)), 4))
 
 
 # ---- merge with repeated rows, and the sampling share of each family ------------------------------------------------
@@ -537,7 +752,7 @@ def repeat_rows(splits, family, factor, seed=R.MASTER_SEED):
     return np.concatenate([rows] + extra)
 
 
-def sampling_shares(folders, repeat=None, model_step_s=0.02, free_phase_step=5):
+def sampling_shares(folders, repeat=None, model_step_s=0.02, free_phase_step=5, tallies=None):
     """Expected share of each family in the training draws of train.py (split 0), for folders merged in order (the
     first gives system.json) with split-0 rows repeated per ``repeat`` {folder: factor}:
     - contact batches (contact_sampling sqrt_groups: groups = the set of pairs on in the window, each group drawn in
@@ -547,34 +762,20 @@ def sampling_shares(folders, repeat=None, model_step_s=0.02, free_phase_step=5):
     - any training window (the other half of the rollout starts, the collision 'any' third);
     - core windows per body (contact-free windows every free_phase_step records; train.py also bins them by the size
       of the rate change, sqrt weights per bin: not modelled here, so these shares are approximate).
-    Counts use data.window labels as validate.training_windows does. -> dict."""
-    from nedm.contact_nrd.collect import validate
-    repeat = repeat or {}
-    system = json.loads((Path(folders[0]) / "system.json").read_text())
-    system = dict(system, model_step_s=model_step_s)
-    names = [f["name"] for f in system["families"]]
-    moving = [b["name"] for b in system["bodies"] if b["moving"]]
+    Counts use data.window labels as validate.training_windows does. tallies: family_tallies(folders) computed once
+    (pick_repeat). -> dict."""
+    repeat = {str(Path(k).expanduser()): v for k, v in (repeat or {}).items()}
+    names, moving, per = tallies or family_tallies(folders, model_step_s, free_phase_step)
     tally = {}
-    for root in folders:
-        other = json.loads((Path(root) / "system.json").read_text())
-        theirs = [f["name"] for f in other["families"]]
-        for n in theirs[len(names):]:
-            names.append(n)
-        a = _folder_arrays(root, ("contacts", "lengths", "splits", "family"))
-        lab, involved, valid, stride = validate.training_windows(dict(system, families=[]), a["contacts"], a["lengths"],
-                                                                  a["splits"])
-        train = valid & (a["splits"] == 0)[:, None]
+    for root, fams in per.items():
         k = repeat.get(str(Path(root).expanduser()), 1.0)
-        code = (lab.astype(np.int64) * (2 ** np.arange(lab.shape[-1]))).sum(-1)
-        grid = (np.arange(train.shape[1]) % free_phase_step == 0)[None, :]
-        for f in np.unique(a["family"]):
-            sel = (a["family"] == f)[:, None] & train
-            t = tally.setdefault(theirs[int(f)], dict(windows=0.0, hits={}, core={b: 0.0 for b in moving}))
-            t["windows"] += k * float(sel.sum())
-            for c in np.unique(code[sel & lab.any(-1)]):
-                t["hits"][int(c)] = t["hits"].get(int(c), 0.0) + k * float((sel & (code == c)).sum())
-            for j, b in enumerate(moving):
-                t["core"][b] += k * float((sel & grid & ~involved[..., j]).sum())
+        for f, src in fams.items():
+            t = tally.setdefault(f, dict(windows=0.0, hits={}, core={b: 0.0 for b in moving}))
+            t["windows"] += k * src["windows"]
+            for c, v in src["hits"].items():
+                t["hits"][c] = t["hits"].get(c, 0.0) + k * v
+            for b in moving:
+                t["core"][b] += k * src["core"][b]
     fams = [n for n in names if n in tally]
     codes = sorted({c for t in tally.values() for c in t["hits"]})
     gsize = {c: sum(tally[f]["hits"].get(c, 0.0) for f in fams) for c in codes}
@@ -592,6 +793,74 @@ def sampling_shares(folders, repeat=None, model_step_s=0.02, free_phase_step=5):
                                     for b in moving},
                                  train_windows=tally[f]["windows"]) for f in fams},
                repeat={str(k): v for k, v in repeat.items()})
+    return out
+
+
+def family_tallies(folders, model_step_s=0.02, free_phase_step=5):
+    """Per folder and family: training windows, windows per contact code, core windows per body (sampling_shares)
+    -> (family names in merge order, moving bodies, {folder: {family: tally}})."""
+    from nedm.contact_nrd.collect import validate
+    system = json.loads((Path(folders[0]) / "system.json").read_text())
+    system = dict(system, model_step_s=model_step_s)
+    names = [f["name"] for f in system["families"]]
+    moving = [b["name"] for b in system["bodies"] if b["moving"]]
+    per = {}
+    for root in folders:
+        other = json.loads((Path(root) / "system.json").read_text())
+        theirs = [f["name"] for f in other["families"]]
+        for n in theirs[len(names):]:
+            names.append(n)
+        a = _folder_arrays(root, ("contacts", "lengths", "splits", "family"))
+        lab, involved, valid, stride = validate.training_windows(dict(system, families=[]), a["contacts"], a["lengths"],
+                                                                  a["splits"])
+        train = valid & (a["splits"] == 0)[:, None]
+        code = (lab.astype(np.int64) * (2 ** np.arange(lab.shape[-1]))).sum(-1)
+        grid = (np.arange(train.shape[1]) % free_phase_step == 0)[None, :]
+        mine = per.setdefault(str(Path(root).expanduser()), {})
+        for f in np.unique(a["family"]):
+            sel = (a["family"] == f)[:, None] & train
+            t = mine.setdefault(theirs[int(f)], dict(windows=0.0, hits={}, core={b: 0.0 for b in moving}))
+            t["windows"] += float(sel.sum())
+            for c in np.unique(code[sel & lab.any(-1)]):
+                t["hits"][int(c)] = t["hits"].get(int(c), 0.0) + float((sel & (code == c)).sum())
+            for j, b in enumerate(moving):
+                t["core"][b] += float((sel & grid & ~involved[..., j]).sum())
+    return names, moving, per
+
+
+def cmd_pick_repeat(a):
+    """The smallest repeat factor of one folder (--vary) whose families get at least --held-min of the held-cube draws
+    (sampling_shares, the merge order of --folders); writes every candidate's shares (--out) and prints the choice."""
+    folders = [str(Path(p).expanduser()) for p in a.folders]
+    vary = str(Path(a.vary).expanduser())
+    tal = family_tallies(folders)
+    mine = set(tal[2][vary])
+    groups = _share_groups(folders)
+    res, choice = {}, None
+    for k in a.factors:
+        sh = sampling_shares(folders, {vary: k}, tallies=tal)
+        agg = {g: {key: sum(v[key] for f, v in sh["families"].items() if f in members) for key in
+                   ("contact", "held", "any", "rollout", "core_arm", "core_cube")} for g, members in groups.items()}
+        held = sum(v["held"] for f, v in sh["families"].items() if f in mine)
+        res[str(k)] = dict(shares=sh, groups=agg, vary_held=held)
+        print(f"repeat {k}: {Path(vary).name} held {100 * held:.1f} %; " + "; ".join(
+            f"{g} contact {100 * v['contact']:.1f} / held {100 * v['held']:.1f} / any {100 * v['any']:.1f} %"
+            for g, v in agg.items()), flush=True)
+        if choice is None and held >= a.held_min:
+            choice = k
+    choice = a.factors[-1] if choice is None else choice
+    Path(a.out).write_text(json.dumps(dict(folders=folders, vary=vary, held_min=a.held_min, choice=choice,
+                                           candidates=res), indent=1))
+    print(f"CHOICE {choice}", flush=True)
+
+
+def _share_groups(folders):
+    """Family groups of the share tables: production (the first folder's families), then each later folder's own."""
+    out, seen = {}, []
+    for k, root in enumerate(folders):
+        fam = [f["name"] for f in json.loads((Path(root) / "system.json").read_text())["families"]]
+        out["production" if k == 0 else Path(root).name] = [f for f in fam if f not in seen]
+        seen += [f for f in fam if f not in seen]
     return out
 
 
@@ -616,7 +885,8 @@ def cmd_shares(a):
     groups = {"production (12+step)": [f["name"] for f in json.loads((Path(a.folders[0]).expanduser() / "system.json")
                                                                     .read_text())["families"]],
               "noisy_v1": ["noisy_nominal", "noisy_off_centre", "noisy_carry", "noisy_offset"],
-              "expert_v2": list(R.FAMILY_NAMES) + [R.TAIL["name"]]}
+              "expert_v2": list(R.FAMILY_NAMES) + [R.TAIL["name"]],
+              "policy_v3": list(R.P_FAMILY_NAMES) + [R.POLICY_TAIL["name"]]}
     print(_share_table(sh))
     print()
     print(_share_table(sh, groups))
@@ -701,6 +971,22 @@ def main():
     p = sub.add_parser("write")
     p.add_argument("--labelled", nargs="+", required=True), p.add_argument("--out", required=True)
     p.add_argument("--gate2", nargs="+"), p.add_argument("--n-val", type=int, default=1000)
+    p.add_argument("--campaign", choices=(R.CAMPAIGN, R.P_CAMPAIGN), default=R.CAMPAIGN)
+    p.add_argument("--gate-name", help="held-out folder name (default gate2; policy_v3: pgate)")
+    p = sub.add_parser("ptasks")
+    p.add_argument("--set", choices=tuple(R.P_SET_IDS), default="campaign"), p.add_argument("--n", type=int, required=True)
+    p.add_argument("--out", required=True), p.add_argument("--workers", type=int, default=1)
+    p = sub.add_parser("prun")
+    p.add_argument("--tasks", required=True), p.add_argument("--out", required=True), p.add_argument("--rows")
+    p.add_argument("--expand-pgate", action="store_true", help="the tasks file is a pgate task table: run every policy "
+                   "on every task, deterministic and at 1.0 x std (data_round.expand_pgate)")
+    p.add_argument("--policies", nargs="+", help="policy ids (default all of data_round.POLICIES in the rows)")
+    p.add_argument("--policy-dir", help="checkpoint folder (default data_round.POLICY_DIR)")
+    p.add_argument("--geom", help="task_geom_v2.npz where the checkpoint's own path does not exist")
+    p.add_argument("--kin-points", help="kin_points_v1.npz where the checkpoint's own path does not exist")
+    p.add_argument("--workers", type=int, default=0), p.add_argument("--python"), p.add_argument("--batch", type=int, default=1000)
+    p.add_argument("--threads", type=int, default=2), p.add_argument("--tag", default="")
+    p.add_argument("--horizon", type=int, help="task horizon override (tests only)")
     p = sub.add_parser("verify")
     p.add_argument("--data", required=True), p.add_argument("--master", type=int, required=True)
     p.add_argument("--families", nargs="+", default=["nominal", "off_centre", "one_sided", "near_miss", "weak_closure",
@@ -711,6 +997,10 @@ def main():
     p = sub.add_parser("shares")
     p.add_argument("--folders", nargs="+", required=True), p.add_argument("--repeat", nargs="*")
     p.add_argument("--out")
+    p = sub.add_parser("pick_repeat")
+    p.add_argument("--folders", nargs="+", required=True), p.add_argument("--vary", required=True)
+    p.add_argument("--factors", nargs="+", type=float, default=[1.0, 1.5, 2.0, 2.5, 3.0])
+    p.add_argument("--held-min", type=float, default=0.40), p.add_argument("--out", required=True)
     p = sub.add_parser("merge")
     p.add_argument("--out", required=True), p.add_argument("--base", required=True)
     p.add_argument("--extra", nargs="+", required=True), p.add_argument("--repeat", nargs="*")
@@ -719,6 +1009,7 @@ def main():
     p.add_argument("--out", required=True), p.add_argument("--split", type=int, default=1)
     p.add_argument("--families", nargs="+"), p.add_argument("--batch", type=int)
     p.add_argument("--device", default="cuda")
+    p.add_argument("--carry", action="store_true", help="also the cube error while MuJoCo holds the cube (carry_metrics)")
     a = ap.parse_args()
     globals()[f"cmd_{a.cmd}"](a)
 

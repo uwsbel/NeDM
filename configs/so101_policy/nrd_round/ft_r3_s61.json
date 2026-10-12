@@ -1,0 +1,83 @@
+{
+ "note": "NRD data round 3 of the SO101 policy study (2026-10-12): fine-tune of the ROUND-2 grasp NRD s61 (runs/nrd_ft_r2_s61/best.pt = ~/so101_policy/ckpt/nrd_r2_s61.pt) on production_plus + noisy_v1 + expert_v2 + policy_v3 merged (scripts/so101_policy/collect_round.py merge: merge_data.py's rules, the split-0 rows of policy_v3 repeated by the factor chosen before training (collect_round.py pick_repeat: the smallest of 1 / 1.5 / 2 / 2.5 / 3 that gives policy_v3 >= 40 % of the held-cube draws); policy_v3 = CPU MuJoCo episodes of 7 PPO policies (MuJoCo-Warp, kinematic-world and round-2-NRD-trained, R_dc decoder) acting through their own decoder, deterministic and at 0.5 / 1.0 x their own std, the collector's labels (src/nedm/so101_policy/data_round.py round 3; report ~/so101_policy/docs/build6_round3.md). The round-2 recipe unchanged (the source run's options; init_from without refit, no collision-only stage, rollout horizon 1.0 s, own-history pushes, a check before the first update) with 20,000 co-training updates at lr 1e-4, warmup 500, traj_ramp 0.025, a check every 2,500 updates (1,500 episodes). Selection (best.pt) on the merged validation set (select-true families: production task families, noisy_v1, expert_v2 except expert_tail, policy_v3 except policy_tail); last.pt = fixed budget. Cluster paths.",
+ "seed": 61,
+ "model_step_s": 0.02,
+ "history": 4,
+ "network": {
+  "width": 128,
+  "heads": 4,
+  "ffn": 512,
+  "layers": 4
+ },
+ "integrate_kinds": [
+  "sphere",
+  "rigid",
+  "articulated"
+ ],
+ "check_episodes": 1500,
+ "evaluate_every": 2500,
+ "free_phase_step": 5,
+ "core_bins": 8,
+ "ridge": 1e-06,
+ "near_negative_s": 0.05,
+ "collision": {
+  "lr": 0.001,
+  "updates": 3000,
+  "batch": 2048,
+  "warmup": 100
+ },
+ "skip_ridge": 0.001,
+ "push_prob": 0.5,
+ "push_start": 0.0,
+ "push_max_steps": 3,
+ "push_max_dev": 0.5,
+ "rollout_scale_factor": 4.0,
+ "cotrain": {
+  "updates": 20000,
+  "lr": 0.0001,
+  "warmup": 500,
+  "core_batch": 4096,
+  "contact_batch": 4096,
+  "traj_every": 8,
+  "traj_batch": 128,
+  "horizon_start_s": 1.0,
+  "horizon_max_s": 1.0,
+  "horizon_ramp": 0.5,
+  "traj_ramp": 0.025
+ },
+ "derived_state": "configs/contact_nrd/derived/so101_grasp_fk.json",
+ "loss_scale": {
+  "rule": "step_type"
+ },
+ "push_guard": {
+  "unit": "all_hit",
+  "bodies": "affected"
+ },
+ "history_noise": {
+  "floor_step_rms": 0.05,
+  "rate_kick": {
+   "size": 1.0,
+   "mix": [
+    0.1,
+    4.0
+   ]
+  }
+ },
+ "contact_huber": 1.0,
+ "contact_sampling": "sqrt_groups",
+ "relative_state": {
+  "body": "cube",
+  "frame": "arm"
+ },
+ "collision_cotrain": {
+  "weight": 1.0
+ },
+ "init_from": {
+  "run": "/work1/dannegrut/harry/experiments/so101_policy_20261011/runs/nrd_ft_r2_s61",
+  "checkpoint": "best.pt",
+  "collision_updates": 0,
+  "collision_lr": 0.0001,
+  "collision_warmup": 0,
+  "check_first": true
+ }
+}

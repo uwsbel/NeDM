@@ -248,5 +248,133 @@ class Contract(unittest.TestCase):
             self.assertEqual(names[: len(theirs)], theirs)
 
 
+# ---- round 3 (campaign policy_v3): PPO policy rollouts ----------------------------------------------------------------
+EXPERT_SYSTEM = Path.home() / "so101_policy" / "data" / "expert_v2" / "system.json"
+
+
+class PolicyOptions(unittest.TestCase):
+    def test_policy_cells(self):
+        c = R.policy_cells(13000).reshape(len(R.POLICIES), len(R.NOISE_LEVELS))
+        self.assertEqual(int(c.sum()), 13000)
+        self.assertEqual(c.sum(1).tolist(), [1820] * 5 + [1950] * 2)          # 70 % competent, 30 % NRD-trained
+        self.assertTrue((c.max(1) - c.min(1) <= 1).all())                      # deterministic : noisy = 1 : 2
+        comp = sum(p["share"] for p in R.POLICIES if p["family"] < 2)
+        self.assertAlmostEqual(comp, 0.70)
+
+    def test_policy_seeds(self):
+        from nedm.so101_policy.mujoco_env import reserved_seeds
+        from nedm.so101_policy.vec_env import reserved_seed_hits
+        camp = np.arange(R.P_START0, R.P_START0 + 13000)
+        pg = np.arange(R.PGATE_START0, R.PGATE_START0 + 512)
+        R.check_policy_seeds(camp, "campaign")
+        R.check_policy_seeds(pg, "pgate")
+        self.assertEqual(reserved_seed_hits(camp), 0)              # trainable starts
+        self.assertEqual(reserved_seed_hits(pg), len(pg))          # pgate: refused by load_starts (review R9)
+        res = reserved_seeds()
+        self.assertFalse(set(camp.tolist()) & res)
+        self.assertFalse(set(pg.tolist()) & res)
+        # disjoint from the earlier ranges: expert_v2 campaign / gate2, vision DAgger tasks 510,000-518,191
+        for lo, n in ((R.START0, 13000), (R.GATE2_START0, 1024), (510000, 8192)):
+            self.assertFalse(set(range(lo, lo + n)) & (set(camp.tolist()) | set(pg.tolist())))
+        for bad, name in (((1000,), "campaign"), ((900001,), "pgate"), ((400005,), "campaign"), ((600000,), "pgate")):
+            with self.assertRaises(ValueError):
+                R.check_policy_seeds(np.array(bad), name)
+
+    def test_expand_pgate_and_variant(self):
+        n = 5
+        t = dict(seeds=R.PGATE_START0 + np.arange(n), task=np.arange(n), policy=np.full(n, -1), noise_scale=np.zeros(n),
+                 noise_level=np.zeros(n, int), family=np.full(n, -1), index=np.arange(n), master_seed=np.int64(1))
+        e = R.expand_pgate(t)
+        m = len(R.POLICIES) * len(R.PGATE_NOISE)
+        self.assertEqual(len(e["seeds"]), m * n)
+        self.assertEqual(sorted(e["index"].tolist()), list(range(m * n)))
+        self.assertTrue(np.array_equal(e["seeds"], np.tile(t["seeds"], m)))
+        for k in range(m * n):
+            p, j = divmod(int(e["index"][k]) // n, len(R.PGATE_NOISE))
+            self.assertEqual((int(e["policy"][k]), float(e["noise_scale"][k])), (p, R.PGATE_NOISE[j]))
+            self.assertEqual(int(e["family"][k]), R.POLICIES[p]["family"])
+        ro = dict(policy=np.array([0, 6]), noise_scale=np.array([0.5, 1.0]))
+        self.assertEqual(R.policy_variant_of(0, ro, 0, 0, 0), "W:w5a.h")
+        self.assertEqual(R.policy_variant_of(2, ro, 1, 0, 2), "Q:nRa.f/c2")
+        self.assertTrue(all(len(R.policy_variant_of(f, ro, k, 0, 9)) <= 16 for f in range(3) for k in range(2)))
+
+
+class PolicyRollouts(unittest.TestCase):
+    """Pass 1 of a PPO policy in CPU MuJoCo (short horizon): deterministic rows = eval_policy.run_policy bit for bit;
+    pass 2 = pass 1 bit for bit; the written folder passes validate and extends expert_v2's family list."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.ckpt = R.policy_path("w5a")
+        if not cls.ckpt.exists():
+            raise unittest.SkipTest(f"no checkpoint {cls.ckpt}")
+        try:
+            R.scene()
+        except (RuntimeError, FileNotFoundError) as e:
+            raise unittest.SkipTest(f"no collector scene with overlap grids: {e}")
+        tasks = R.make_policy_tasks(512, "pgate", idx=np.array([3, 7]), log=lambda *a, **k: None)
+        cls.tasks = tasks
+        e = R.expand_pgate(tasks)
+        cls.sel = np.flatnonzero(e["policy"] == 0)
+        cls.ep = R.subset(e, cls.sel)                         # w5a: 2 tasks x (deterministic, 1.0 x std)
+        cls.ro = R.run_policy_rollouts(cls.ep, cls.ckpt, workers=0, horizon=60, log=lambda *a, **k: None)
+
+    def test_deterministic_rows_equal_eval_policy(self):
+        """Same batch layout (the deterministic rows alone): bit for bit eval_policy.run_policy. (Mixed with noisy rows
+        the CPU float rounding of the policy MLP / decoder may differ at the 1e-7 level: batch-size dependent kernels.)"""
+        E = R.eval_policy_module()
+        ev = E.run_policy(self.tasks, "mujoco", str(self.ckpt), horizon=60, log=None)
+        det_rows = np.flatnonzero(self.ep["noise_scale"] == 0)
+        ro = R.run_policy_rollouts(R.subset(self.ep, det_rows), self.ckpt, workers=0, horizon=60, log=lambda *a, **k: None)
+        det = ro["noise_scale"] == 0
+        self.assertEqual(int(det.sum()), 2)
+        for k_ev, k_ro in (("end", "task_end"), ("t_end", "task_steps"), ("success", "success"), ("lifted", "lifted")):
+            self.assertTrue(np.array_equal(ev[k_ev], ro[k_ro][det]), k_ev)
+        T = ev["q"].shape[1]
+        rec = ro["records"][det]
+        self.assertTrue(np.array_equal(ev["q"], rec[:, 2: 2 * T + 1: 2, :6]))
+        self.assertTrue(np.array_equal(ev["cube"], rec[:, 2: 2 * T + 1: 2, 12:19]))
+        self.assertTrue(np.array_equal(ev["u"].astype(np.float32), ro["commands"][det][:, :T]))
+        self.assertTrue(np.array_equal(ro["act_exec"][det], ro["act_mean"][det]))
+        mix, nz = self.ro, self.ro["noise_scale"] > 0
+        self.assertTrue((np.abs(mix["act_exec"][nz] - mix["act_mean"][nz]).max(axis=(1, 2)) > 0).all())
+        self.assertTrue(np.array_equal(mix["act_exec"][~nz], mix["act_mean"][~nz]))
+        self.assertTrue((mix["n_steps"] == np.minimum(mix["task_steps"] + mix["tail"],
+                                                      np.where(mix["env_end_step"] >= 1, mix["env_end_step"], 10 ** 9))).all())
+
+    def test_pass2_and_write(self):
+        from nedm.contact_nrd.collect import validate
+        s = R.scene()
+        ro = self.ro
+        segs = []
+        for k in range(len(ro["n_steps"])):
+            ep, chk = R.episodes_of(ro, k)
+            sg = R.label_episode(s, ep, chk)
+            self.assertEqual(len(sg), 1)
+            self.assertEqual(sg[0]["check"], dict(states=True, contacts=True, end=True))
+            self.assertEqual(len(sg[0]["action"]), 2 * int(ro["n_steps"][k]) + 1)
+            segs.append(sg)
+        system = R.round_system(s, campaign=R.P_CAMPAIGN)
+        off = R.family_offset(system, R.P_CAMPAIGN)
+        names = [f["name"] for f in system["families"]]
+        self.assertEqual(names[-4:], list(R.P_FAMILY_NAMES) + [R.POLICY_TAIL["name"]])
+        self.assertEqual([f["select"] for f in system["families"][-4:]], [True, True, True, False])
+        if EXPERT_SYSTEM.exists():       # merge order: production_plus + noisy_v1 + expert_v2 + policy_v3
+            theirs = [f["name"] for f in json.loads(EXPERT_SYSTEM.read_text())["families"]]
+            self.assertEqual(names[: len(theirs)], theirs)
+        rows = []
+        for k in range(len(segs)):
+            rows += R.policy_rows_of(ro, k, segs[k], off, int(ro["index"][k]), chunked=True, records=31, step=20)
+        tail = names.index(R.POLICY_TAIL["name"])
+        self.assertTrue(all(int(r["scalars"]["family"]) in (off, tail) for r in rows))
+        self.assertTrue(all(str(r["scalars"]["variant"]).startswith("W:w5a.") for r in rows))
+        with tempfile.TemporaryDirectory() as d:
+            R.write_round(d, rows, np.zeros(len(rows), np.int8), system, 31, dict(test=True), R.P_META_KEYS)
+            rep = validate.validate(d)
+            self.assertTrue(rep["ok"], rep["fails"])
+            meta = np.load(Path(d) / "episodes.npz")
+            self.assertEqual(sorted(set(meta["noise_scale"].tolist())), [0.0, 1.0])
+
+
 if __name__ == "__main__":
     unittest.main()
