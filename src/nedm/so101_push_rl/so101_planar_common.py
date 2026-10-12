@@ -1,6 +1,7 @@
 """Planar pusher PPO for the SO-101 push-T (large T rotations; spec SPEC_lead_v1.md A1, A3, A5, A6): action map,
 observation, support (validity) rules and goal coverage. Shared by the NRD environment (so101_planar_env.py), the
-Chrono controller (so101_planar_chrono.py) and the support calibration (experiment path scripts/evaluation/so101_support_calibration.py).
+experiment's Chrono controller (experiment path src/nedm/rl/so101_planar_chrono.py) and the support calibration
+(experiment path scripts/evaluation/so101_support_calibration.py).
 The decoder that turns a decision into joint commands is so101_planar_decoder.PlanarDecoder.
 
 State order (23 values, so101_push_common): arm q 0-4, averaged q_dot 5-9, T x y z 10-12, quaternion 13-16,

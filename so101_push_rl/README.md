@@ -1,9 +1,13 @@
 # SO101 push-T: one PPO policy for translation and rotation goals
 
 A 5-joint SO101 arm pushes a T block (bar 100 × 25 mm, stem 25 × 75 mm) on a table to a goal pose (x, y, yaw). PPO
-trains the policy inside the contact NRD, a learned simulator of the arm and the T
-(see [`../contact_nrd/`](../contact_nrd/README.md)). Project Chrono then checks the policy. One policy reaches small
-and large translation goals and small and large rotation goals.
+trains the policy inside a contact NRD, a learned simulator of the arm and the T (design:
+[`../contact_nrd/`](../contact_nrd/README.md)). Project Chrono then checks the policy. One policy reaches small and
+large translation goals and small and large rotation goals.
+
+As for `contact_nrd/`, this repository holds only the NRD side: the PPO environment in the NRD, the trainer and its
+configs. The Chrono evaluations are released as data (`results/` on the Hub). The Chrono scene and the evaluation code
+are not in this repository.
 
 ## Results
 
@@ -33,76 +37,94 @@ uses, with new goals. "New starts" = validation start states, which are not in t
 | Large rotation | 15/16 (94 %) | 123/144 (85 %) | 16/16 (100 %) | 133/144 (92 %) |
 | Combined (stretch goal, never trained) | 28/64 (44 %) | 15/64 (23 %) | 27/64 (42 %) | 17/64 (27 %) |
 
+- The experiment's Chrono evaluation measured both tables on the AMD cluster, one run each (seed 0, the decoder
+  settings of training). Every episode and score is in `results/` on the Hub: test = `results/test_M6_C1f_D2f/`,
+  validation = `results/val_C1f_D1_D2/` (`score.md`; one row per goal and policy in `score.json` and
+  `episodes.jsonl`).
 - C1f was selected by a rule written before the test: the most successes on the trained-start validation rows of the
   five target goal types (C1f 256/272 = 94.1 %, D2f 247/272 = 90.8 %). The test was run once, after the selection.
 - D2f is C1f plus 150 more updates with more rotation goals on every train start. It is better on +50° turns and
   worse on small translations.
 - M6 is the best policy of the earlier rotation-only study (not released here).
 - Median final error of C1f on the test: 3.0–5.4 mm and 0.6–1.2° on the five target goal types.
+- Chrono results can differ between machines. Last-bit float64 differences in the command decoder grow through the
+  contacts, so a borderline goal can flip: in a 28-episode check on two machines, 1 goal flipped and the final T
+  poses differed by up to 0.7 mm and 1°. Compare success rates, not single goals.
 
 ## How the policy was trained
 
 | Step | Start | Curriculum | Updates | Output |
 |---|---|---|---|---|
-| B1 | new policy | `configs/curriculum_fresh.json`: 13 stages; small translation, small rotation and ±30° turns from the first stage (F1a), ±50° turns and large translation 1 from the 4th (F2a), large translation 2 from the 10th (F4a); the position tolerance goes from 25 mm to 10 mm | 400 | `policy/b1f_fresh_stage12/` |
-| C1 | B1 (network weights only) | `configs/curriculum_cont.json`: the last B1 stage for 150 more updates, then one goal each of small translation, large translation 1 and 2, small rotation and a ±30–70° turn on all 2,048 train starts | 250 | `policy/c1f_selected/` = C1f |
+| B1 | new policy | `configs/so101_push_rl/curriculum_fresh.json`: 13 stages; small translation, small rotation and ±30° turns from the first stage, ±50° turns and large translation 1 from the 4th, large translation 2 from the 10th; the position tolerance goes from 25 mm to 10 mm | 400 | `policy/b1f_fresh_stage12/` |
+| C1 | B1 (network weights only) | `configs/so101_push_rl/curriculum_cont.json`: the last B1 stage for 150 more updates, then one goal each of small translation, large translation 1 and 2, small rotation and a ±30–70° turn on all 2,048 train starts | 250 | `policy/c1f_selected/` = C1f |
 
 - No stage of B1, C1 or D2 trains the combined goal type. Its rows in the result tables test generalisation only.
 - PPO from rsl_rl 2.2.4 with 16,384 environments in the NRD, 48 decisions of 0.1 s per update, seed 1. The settings
-  are in `configs/env.json` and in `reproduce.sh`.
+  are in `configs/so101_push_rl/env.json` and in `scripts/so101_push_rl/reproduce.sh`.
 - The policy gives a planar finger displacement and a gripper yaw change every 0.1 s. A decoder turns this into joint
   commands every 20 ms (inverse kinematics).
-- The NRD is `rot_sc8_s61`. It has the contact NRD design (core, collision and contact Transformer networks, 2.4 M
-  parameters). It is the last model of a chain: a model trained from the start on scripted Chrono pushes and turns,
-  then 7 fine-tune rounds of 20,000 updates. Before each round, Chrono rollouts of earlier PPO policies were added to
-  the data (10 checkpoints of 9 PPO runs in total). The data of the last round is released (`nrd_data/train/`). The
-  fine-tune trainer is not in this repository. For each round, `provenance.nrd.fine_tune_chain` of the Hub copy of
-  `release_manifest.json` gives the training config, the data and checkpoint SHA-256 and the episode counts.
+- Every 25 updates the trainer scores the policy in the NRD on goals of the validation task table. These scores
+  decide when a curriculum stage ends. The original runs also started Chrono checks in the background. Their results
+  never went back into training. The trainer here has no such check; on one machine, PPO with and without the checks
+  gives bitwise the same weights.
+
+## The NRD
+
+PPO trains inside one NRD checkpoint, `nrd/rot_sc8_s61/best.pt`. This NRD has the design of
+[`../contact_nrd/`](../contact_nrd/README.md), case SO101 push-T: the same three networks, the same state and channel
+masks, the same step rule and the same file format. `nedm.contact_nrd.model.load_model` loads it. It is not the
+released `contact_nrd/so101_push_t/models/seed61.pt`. The data and the training schedule are different.
+
+| | Released SO101 push-T NRD (`seed61.pt`) | NRD of this study (`rot_sc8_s61`) |
+|---|---|---|
+| Training data (train / validation episodes) | 51,200 / 6,400 scripted pushes (4 s) | 144,112 / 7,828: the same 51,200 scripted pushes (with 1,000 of their validation episodes), 39,320 / 2,500 scripted walks and turns of the T (4 s), and 53,592 / 4,328 Chrono episodes of earlier PPO policies (up to 8.6 s) |
+| Training | `configs/contact_nrd/train.json` | 1. The same recipe on the pushes, walks and turns, with checks on 2,500 validation episodes, not 1,500; best at 80,000 updates. 2. Seven more rounds of 20,000 core and contact updates (learning rate 1e-4, the model's own steps in the history from the first update, rollout loss over 0.5 to 1 s). Before each round, Chrono episodes of the newest PPO policies went into the data. The collision network, the input and output scales and the channel masks stay as in step 1 |
+| Test: 1,000 scripted pushes (`contact_nrd/so101_push_t/test/`), T position / angle at 4 s, median / p95 | 0.43 / 2.70 mm, 0.23 / 1.61° | 0.44 / 2.35 mm, 0.25 / 1.45° |
+| 2,048 new walks and turns of the T (not released), same errors | 14.3 / 431 mm, 5.2 / 60° | 1.25 / 18.3 mm, 0.70 / 9.4° |
+
+- The released NRD did not see walks and turns of the T. On them, its errors are 6 to 24 times larger. The policy
+  must make large turns of the T (±50° in the test), so this study trained its own NRD.
+- `python -m nedm.contact_nrd.train` does step 1 with `"check_episodes": 2500`. It cannot start from a checkpoint, so
+  it cannot do step 2. The experiment code did both steps. It is not in this repository.
+- `nrd_data/train/` holds the data of the last round. The data of step 1 are its episodes `full_v1_*` and `rot_v1_*`
+  (`index.json`; select them by name, there is no script for it). The release pads every episode to 857 records; step 1
+  ran on the 401-record copies. For each round, `provenance.nrd.fine_tune_chain` in the Hub copy of `release_manifest.json` gives
+  the training config, the data and checkpoint SHA-256 and the episode counts.
+- Both test sets were scored after each round. They were not used for training or for checkpoint selection inside
+  a round, but they may have influenced which model PPO used. Treat them as monitoring sets, not sealed tests.
 
 ## Reproduce
 
 ```bash
 pip install rsl-rl-lib==2.2.4 tensorboard huggingface_hub   # next to a torch build for your GPU
-export NRD_PYTHON=/path/to/python-with-pychrono               # pychrono 10.0.0
 
-so101_push_rl/reproduce.sh smoke              # setup check: 2 PPO updates per run, 4 Chrono tasks
-so101_push_rl/reproduce.sh eval               # released C1f on the 912 test goals in Chrono
-so101_push_rl/reproduce.sh eval --split val --policy c1f_selected,d2f_runner_up
-so101_push_rl/reproduce.sh full               # download, B1, C1, test eval of the new C1 and the released C1f
+scripts/so101_push_rl/reproduce.sh smoke     # setup check: 2 PPO updates per run, NRD validation summary
+scripts/so101_push_rl/reproduce.sh full      # download, B1, C1, NRD validation at each stage end vs the released runs
+scripts/so101_push_rl/reproduce.sh full --steps download --with-results   # also download the Chrono evaluations
 ```
 
-`reproduce.sh --help` lists the options (`--steps`, `--out`, `--data`, `--device`, `--workers`, `--rows`,
-`--no-train-chrono`).
-The header of the script names the NRD and every file the runs use. The code is in `scripts/so101_push_rl/` (trainer,
-Chrono eval, score), `src/nedm/so101_push_rl/` (PPO environment in the NRD, Chrono controller) and
-`src/nedm/so101_push/` (Chrono scene and step server); the NRD loader is `src/nedm/contact_nrd/model.py`.
+`reproduce.sh --help` lists the options. The header of the script names the NRD and every file the runs use.
 
 | Step | Time | Machine |
 |---|---|---|
 | B1, 400 updates | 2 h 32 min | one AMD MI350X |
 | C1, 250 updates | 1 h 34 min | one AMD MI350X |
-| Chrono eval, 912 goals × 3 policies | 14 min | 120 CPU workers |
-| B1 / C1 on an RTX 5090 | not measured | |
+| Smoke (files already downloaded) | 1.5–3 min | one RTX 5090, shared with other jobs |
 
 - Requirements: Python 3.10 or newer; `torch` (tested 2.10.0+rocm7.1 on an AMD MI350X and 2.12.0+cu130 on an RTX
-  5090); `rsl-rl-lib` 2.2.4; `tensorboard`; `huggingface_hub` for the download. For the Chrono check: `pychrono` 10.0.0
-  (conda channel `projectchrono`, Bullet collision; local build `py312h98ab86c_1187`) in the Python that `NRD_PYTHON`
-  names; it can be the same Python. The released evaluations ran on a Chrono 10 build on the AMD cluster. This study
-  does not use the repository's `requirements.txt`.
-- Each Chrono episode runs in its own server process (`python -m nedm.so101_push.chrono_server`). The script writes the
-  file that the server sources before it starts (`SO101_CHRONO_ENV`). Set `SO101_CHRONO_ENV` to your own file if your
-  Chrono needs more setup. If you run `scripts/so101_push_rl/train_so101_planar_ppo.py` or
-  `scripts/so101_push_rl/eval_so101_planar_chrono.py` without the script, set `SO101_CHRONO_ENV` yourself (for
-  example to the `chrono_env.sh` that the script wrote in its output folder): the default path in the code is not in
-  this repository.
-- As in the original runs, the trainer runs Chrono checks in the background every 50 updates and at each stage end
-  (48 validation tasks). Their results do not go back into training. They need `NRD_PYTHON`, also for short runs;
-  `--no-train-chrono` turns them off and needs no Chrono.
-- Chrono results can differ between machines. Last-bit float64 differences in the command decoder grow through the
-  contacts, so the outcome of a borderline goal can flip: in a 28-episode check on two machines, 1 borderline goal
-  flipped and the final T poses differed by up to 0.7 mm and 1°. Compare success rates, not single goals. On one
-  machine the Chrono check is bitwise repeatable. A new PPO run also does not give the same digits as the released runs
-  (GPU type, library versions).
+  5090); `rsl-rl-lib` 2.2.4; `tensorboard`; `huggingface_hub` for the download. No Chrono. This study does not use
+  the repository's `requirements.txt`.
+- A new PPO run does not give the same digits as the released runs (GPU type, library versions). Compare the NRD
+  validation that the summary step prints with the released runs.
+
+| Code | Contents |
+|---|---|
+| `scripts/so101_push_rl/train_so101_planar_ppo.py` | PPO trainer: curriculum, NRD validation, checkpoints, resume |
+| `scripts/so101_push_rl/reproduce.sh` | Download, B1, C1 and the summary |
+| `src/nedm/so101_push_rl/` | The PPO environment in the NRD: tasks, action decoder, reward, validity rules, arm and T model |
+| `configs/so101_push_rl/` | Environment, the two curricula, arm and T settings (`collector_v2.json`), fingertip surface points |
+| `assets/so101/` | SO101 links, joints and collision shapes |
+| `src/nedm/contact_nrd/model.py` | The NRD and its loader (from `contact_nrd/`) |
 
 ## Data
 
@@ -118,7 +140,17 @@ Hugging Face dataset [harryzhang1018/NeDM](https://huggingface.co/datasets/harry
 | `rl_inputs/stats/stats.pt` | Observation scales |
 | `rl_inputs/provenance/` | How the task tables, starts, banks and scales were made |
 | `policy/c1f_selected/`, `d2f_runner_up/`, `b1f_fresh_stage12/` | `policy.pt` and the run files (`env_cfg.json`, `train_cfg.json`, `curriculum.json`, `manifest.json`, learning curve) |
-| `results/` | The original Chrono evaluations and their scores |
+| `results/` | The Chrono evaluations behind the result tables: one folder per evaluation (`test_M6_C1f_D2f`, `val_C1f_D1_D2`, `val_M6_B1_B2`) with `episodes.jsonl`, `eval_plan.json`, `score.json`, `score.md` and `summary.json`; `TEST_DECLARATION.md` (the test rule, fixed before the test run) |
+
+The Hub copy of `release_manifest.json` also holds the provenance. It was written for an earlier layout of this
+release:
+
+- It names `scripts/so101_push_rl/eval_so101_planar_chrono.py` and `scripts/so101_push_rl/score_eval.py`, the Chrono
+  evaluation and its scorer. They are not in this repository.
+- It names `configs/so101_push/collector_v2.json` and `configs/so101_push/collision_points_dense_2mm.npz`. They are now
+  `configs/so101_push_rl/collector_v2.json` and `assets/so101/collision_points_dense_2mm.npz`, with the same SHA-256 (`884d3836…`, `47475303…`).
+- The recorded command of each policy has `--chrono-every`, `--chrono-n` and `--chrono-workers`. The trainer here does
+  not have these options.
 
 The data come from [Project Chrono](https://projectchrono.org) simulations.
 

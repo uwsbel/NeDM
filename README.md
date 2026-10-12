@@ -46,12 +46,12 @@ predict each 20 ms step. The data, test sets and trained models are in the
 `src/nedm/contact_nrd/`.
 
 **Follow-on work, not part of the paper:** [`so101_push_rl/`](so101_push_rl/README.md)
-trains one PPO policy inside the contact NRD of the SO101 arm and the T, then
+trains one PPO policy inside a contact NRD of the SO101 arm and the T, then
 checks it in Chrono: it pushes the T to small and large translation and rotation
 goals (82–96 % of the sealed test goals of each trained goal type). The NRD, its
-training data, the RL inputs and the policies are in the `so101_push_rl/` folder
-of the Hugging Face dataset; the code is in `src/nedm/so101_push_rl/`,
-`src/nedm/so101_push/` and `scripts/so101_push_rl/`.
+training data, the RL inputs, the policies and the Chrono evaluations are in the
+`so101_push_rl/` folder of the Hugging Face dataset; the code is in
+`src/nedm/so101_push_rl/`, `scripts/so101_push_rl/` and `configs/so101_push_rl/`.
 
 **[docs/progress.md](docs/progress.md) is the reproduction record** — every stage
 output with the artifact that produced it and the command that regenerates it.
@@ -85,14 +85,17 @@ Code, scripts and configs are grouped by study. `core` holds what both paper stu
 | `src/nedm/tracked_arm/` | Study Case II: M113 and arm data collectors (`tracked_vehicle_data`, `arm_data`); the 4-DOF gripper arm imported from SolidWorks (`arm_model/`); the goal and arm environments, arm forward kinematics and the clearance shield (`rl/`) |
 | `src/nedm/traversing/` | Traversing study code: model training (`training/`) and the Chrono evaluation class (`evaluation/`) |
 | `src/nedm/contact_nrd/` | Contact NRD: the three networks, training, test scores and the data download |
+| `src/nedm/so101_push_rl/` | SO101 push-T PPO inside the contact NRD: the NRD environment, action decoder, arm kinematics, reward and rules |
 | `configs/hmmwv/`, `configs/tracked_arm/` | Collection and training configs |
 | `configs/contact_nrd/` | The one training config of the contact NRD |
+| `configs/so101_push_rl/` | Environment config, the two PPO curricula and the arm and T settings |
 | `traversing/` | Traversing study documents, results and release manifest |
 | `contact_nrd/` | Contact NRD design, results, the three study cases and release manifest |
+| `so101_push_rl/` | SO101 push-T PPO study: results, the NRD it used and release manifest |
 | `artifacts/` | Checkpoints, run metadata and Chrono evaluation output (datasets are on Hugging Face, see below) |
 
-`scripts/` is organised by study (`core/`, `hmmwv/`, `tracked_arm/`, `traversing/`), then by pipeline stage, in the
-order you would run them:
+`scripts/` is organised by study (`core/`, `hmmwv/`, `tracked_arm/`, `traversing/`, `so101_push_rl/`), then by
+pipeline stage, in the order you would run them:
 
 | Path | Contents |
 |---|---|
@@ -108,6 +111,7 @@ order you would run them:
 | `scripts/hmmwv/figures/`, `scripts/tracked_arm/figures/` | The eleven generators behind the manuscript's plotted figures, plus the Blender renderers |
 | `scripts/core/throughput/`, `scripts/hmmwv/throughput/` | Chrono and NN-ROM throughput probes (Appendix A) and the context-truncation sweep |
 | `scripts/hmmwv/cluster/`, `scripts/tracked_arm/cluster/` | SLURM array jobs for the collections that only run at cluster scale |
+| `scripts/so101_push_rl/` | The SO101 push-T PPO trainer and `reproduce.sh` (download, training, NRD validation) |
 | `scripts/hmmwv/validation/` | Chrono validation harnesses for the tire-force channels (not a unit-test suite) |
 | `scripts/core/release/` | The Hugging Face dataset release: raw CSV → Parquet export, validation, upload, and the download/rehydrate helper |
 | `scripts/traversing/` | The traversing study's result recount (`analysis/`) and release download/verification (`release/`) |

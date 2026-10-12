@@ -8,18 +8,20 @@ python scripts/so101_push_rl/train_so101_planar_ppo.py train --env-cfg env_v1.js
     [--init-from other_run/stage10_end.pt]
 
 Curriculum JSON: {"stages": [{"name", "levels": {level: weight}, "env": {overrides}, "val_levels": [..],
-"promote_levels": [..] (default val_levels), "chrono_levels": [..] (default val_levels), "promote": success threshold,
+"promote_levels": [..] (default val_levels), "promote": success threshold,
 "min_iters", "max_iters"}, ...]}. A stage's "env" may set or change "reset_bank" (reverse curriculum, see
 nedm.so101_push_rl.so101_planar_env; the env reloads the bank at the stage change; validation never uses it).
 Validation (deterministic actor mean, NRD, every model, up to --val-n tasks of the
 stage's val_levels) every --val-every iterations; the stage advances when the validation success over promote_levels
-reaches "promote" (after min_iters) or at max_iters. Chrono validation (scripts/so101_push_rl/eval_so101_planar_chrono.py)
-of the current checkpoint on --chrono-n tasks of the stage's chrono_levels runs in the background every --chrono-every
-iterations and at each promotion (--chrono-n 0: off). At a promotion the action noise std is raised to >= --std-reset.
-Optional keys (absent: the rules above): "val_n_per_level" / "chrono_n_per_level" (curriculum top level or stage; the
-stage wins): validation / Chrono checks draw this many tasks of EACH level (seed 0) instead of --val-n / --chrono-n
-from their union. "promote_each" (stage): a number for every promote level or {level: number}; promotion then also
-needs each listed level's validation success >= its number (a stage without "promote" uses only this rule).
+reaches "promote" (after min_iters) or at max_iters. At a promotion the action noise std is raised to >= --std-reset.
+The experiment's trainer also started a Chrono check of the current checkpoint in the background (every 50 iterations
+and at each promotion); it never fed back into training and is not in this repository. The curriculum keys of that
+check ("chrono_levels", "chrono_n_per_level") are kept in the released curricula: check_curriculum still checks them,
+nothing else reads them.
+Optional keys (absent: the rules above): "val_n_per_level" (curriculum top level or stage; the stage wins): validation
+draws this many tasks of EACH level (seed 0) instead of --val-n from their union. "promote_each" (stage): a number for
+every promote level or {level: number}; promotion then also needs each listed level's validation success >= its number
+(a stage without "promote" uses only this rule).
 Resume: the run directory keeps last.pt + curriculum_state.json; --resume continues (4 h job limit).
 Warm start: --init-from <ckpt> makes a NEW run from that checkpoint's actor / critic / std weights only (no optimizer,
 iteration, curriculum state or stage); the curriculum starts at --start-stage; --set std_floor=.. raises the std.
@@ -32,8 +34,6 @@ import copy
 import csv
 import hashlib
 import json
-import os
-import subprocess
 import sys
 import time
 from pathlib import Path
@@ -45,7 +45,6 @@ from nedm.so101_push_rl.so101_planar_common import OBS_DIM
 from nedm.so101_push_rl.so101_planar_env import SO101PlanarEnv, check_levels, merge
 
 ENV_CLASS, MERGE, NUM_ACTIONS = SO101PlanarEnv, merge, 3
-EVAL_SCRIPT = Path(__file__).resolve().parent / "eval_so101_planar_chrono.py"
 
 
 # run-directory helpers, moved unchanged from the SO-101 tracking trainer (experiment path scripts/training/train_so101_rl_tracking.py)
@@ -137,8 +136,8 @@ def stage_opt(cur, s, key):
 
 def select_val_tasks(task_levels, levels, n_max=512, seed=0, n_per_level=0):
     """Task rows of the given levels: up to n_max rows of their union (seed `seed`), or with n_per_level > 0
-    min(n_per_level, rows) rows of EACH level (one generator over the sorted levels, the same draw as the Chrono eval's
-    --n-per-level). In the per-level mode a level without rows is an error."""
+    min(n_per_level, rows) rows of EACH level (one generator over the sorted levels, the same draw as the experiment's
+    Chrono eval's --n-per-level). In the per-level mode a level without rows is an error."""
     idx = np.flatnonzero(np.isin(task_levels, levels))
     if n_per_level:
         rng, parts = np.random.default_rng(seed), []
@@ -313,18 +312,6 @@ def init_weights(ac, ckpt, device):
     return d.get("iter")
 
 
-def chrono_cmd(a, cur, s, out, ck, tag):
-    """Background Chrono check of checkpoint ck on the stage's chrono_levels: --chrono-n tasks of their union, or with
-    "chrono_n_per_level" that many tasks of each level (the eval's --n-per-level; --n is then ignored)."""
-    cmd = [sys.executable, str(EVAL_SCRIPT), "--run", str(out), "--ckpt", str(ck), "--tasks", a.val_tasks, "--starts", a.val_starts,
-           "--banks", a.val_banks, "--levels", *[str(x) for x in s.get("chrono_levels", s["val_levels"])], "--n", str(a.chrono_n),
-           "--stage-env", json.dumps(s.get("env", {})), "--workers", str(a.chrono_workers), "--out", str(out / f"chrono_val_{tag}")]
-    npl = stage_opt(cur, s, "chrono_n_per_level")
-    if npl:
-        cmd += ["--n-per-level", str(int(npl))]
-    return cmd
-
-
 def cmd_train(a):
     from rsl_rl.runners import OnPolicyRunner
     out = Path(a.out)
@@ -436,7 +423,6 @@ def cmd_train(a):
             ac.std.clamp_(min=std_floor)
         print(f"[std] floor {std_floor}", flush=True)
     t_start = time.time()
-    chrono_jobs = []
     per_step = env.num_envs * tc["num_steps_per_env"]
     it_start = state["iteration"]
 
@@ -469,15 +455,6 @@ def cmd_train(a):
                               for lv, e in sm["promote_each"].items())), flush=True)
         return sm
 
-    def chrono_val(tag):
-        if a.chrono_n <= 0:
-            return
-        ck = out / f"chrono_ckpt_{tag}.pt"
-        runner.save(str(ck))
-        cmd = chrono_cmd(a, cur, stages[state["stage"]], out, ck, tag)
-        log = open(out / f"chrono_val_{tag}.log", "w")
-        chrono_jobs.append(subprocess.Popen(cmd, stdout=log, stderr=subprocess.STDOUT, env=dict(os.environ, OMP_NUM_THREADS="1")))
-
     if not resume:
         validate(state["stage"])
     while state["stage"] < len(stages) and time.time() - t_start < a.max_hours * 3600:
@@ -493,13 +470,10 @@ def cmd_train(a):
         print(f"[train] it {state['iteration']} stage {state['stage']} ({n} in {time.time() - t0:.1f} s)", flush=True)
         sm = validate(state["stage"])
         in_stage = state["iteration"] - state["stage_start"]
-        if a.chrono_every and state["iteration"] % a.chrono_every == 0:
-            chrono_val(f"it{state['iteration']}")
         ok = promote_ok(sm, s)
         if (in_stage >= s.get("min_iters", 0) and ok) or in_stage >= s.get("max_iters", 10 ** 9):
             reason = "promoted" if ok else "max_iters"
             print(f"[curriculum] stage {state['stage']} ({s['name']}) ends at it {state['iteration']}: {reason}", flush=True)
-            chrono_val(f"stage{state['stage']}_end")
             runner.save(str(out / f"stage{state['stage']}_end.pt"))
             state.setdefault("stage_ends", []).append(dict(stage=state["stage"], iteration=state["iteration"], reason=reason, val=sm))
             state["stage"] += 1
@@ -517,8 +491,6 @@ def cmd_train(a):
                 validate(state["stage"])
         save_state()
     save_state()
-    for p in chrono_jobs:
-        p.wait()
     write_json(out / "done.json" if state["stage"] >= len(stages) else out / "paused.json", state)
 
 
@@ -531,8 +503,7 @@ def main():
     p.add_argument("--out", required=True); p.add_argument("--seed", type=int, default=1); p.add_argument("--num-envs", type=int, default=16384)
     p.add_argument("--device", default="cuda"); p.add_argument("--set", nargs="*"); p.add_argument("--resume", action="store_true")
     p.add_argument("--val-every", type=int, default=25); p.add_argument("--val-n", type=int, default=512)
-    p.add_argument("--chrono-every", type=int, default=50); p.add_argument("--chrono-n", type=int, default=48)
-    p.add_argument("--chrono-workers", type=int, default=16); p.add_argument("--max-hours", type=float, default=3.6)
+    p.add_argument("--max-hours", type=float, default=3.6)
     p.add_argument("--max-iterations", type=int, default=0, help="stop after this many iterations in this job (0: no limit)")
     p.add_argument("--start-stage", type=int, default=0, help="first curriculum stage of a new run (pilots)")
     p.add_argument("--init-from", default=None, help="new run only: start from this checkpoint's network weights (actor, critic, std); "

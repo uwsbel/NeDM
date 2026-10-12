@@ -1,6 +1,6 @@
 """Batched torch (float64) port of the SO-101 arm model of the push-T collector (spec M1, goal_ppo_spec.md).
 
-Exact port of nedm.so101_push.robot.ArmModel: link_poses, tcp, tcp_jacobian, gripper_yaw, gravity_hold_torque and the
+Exact port of nedm.so101_push_rl.so101_robot.ArmModel: link_poses, tcp, tcp_jacobian, gripper_yaw, gravity_hold_torque and the
 damped least squares IK, plus the collector command law (ScriptedPolicy.command / PushFamily.commands):
 
     q_cmd = clip(q_des + (g(q_des) + kd * qdot_des) / kp, raw joint limits),  qdot_des = (q_des(k+1) - q_des(k-1)) / 0.04
@@ -29,7 +29,7 @@ import math
 import numpy as np
 import torch
 
-from nedm.so101_push.robot import ARM_JOINTS, ArmModel
+from nedm.so101_push_rl.so101_robot import ARM_JOINTS, ArmModel
 
 _ATAN2_PAD = 64          # >= 2 x the widest CPU vector (AVX-512: 8 doubles)
 _ATAN2_CHUNK = 16384     # below at::internal::GRAIN_SIZE: every chunk runs as one serial vectorized loop

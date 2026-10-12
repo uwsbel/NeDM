@@ -1,6 +1,6 @@
 """Batched forward kinematics and contact-validity checks of the SO-101 + T scene in torch (for RL environments).
 
-Port of nedm.so101_push.robot.ArmModel.link_poses (serial chain: pose[child] = pose[parent] @ F0[j] @ Rz(q_j) @ F1^-1[j],
+Port of nedm.so101_push_rl.so101_robot.ArmModel.link_poses (serial chain: pose[child] = pose[parent] @ F0[j] @ Rz(q_j) @ F1^-1[j],
 the jaw locked at robot_cfg['jaw_lock_rad']) and of the collision-shape vertices of every arm link. Checks:
   * lowest point of the fingertips (gripper + jaw) and of every other link above the table top (z = 0),
   * signed distance of base .. wrist collision vertices to the two T boxes (intended gripper-T contact stays valid),
@@ -12,7 +12,7 @@ from __future__ import annotations
 import numpy as np
 import torch
 
-from nedm.so101_push.robot import ArmModel, link_collision_shapes, shape_points
+from nedm.so101_push_rl.so101_robot import ArmModel, link_collision_shapes, shape_points
 
 OTHER = ("base", "shoulder", "upper_arm", "lower_arm", "wrist")
 FINGER = ("gripper", "jaw")

@@ -208,7 +208,7 @@ def merge(cfg):
 
 
 def load_stats(path, device):
-    """Observation / action normalisation of the obs stats file (from so101_push_tracking_env, unchanged)."""
+    """Observation / action normalisation of the obs stats file (from the experiment module so101_push_tracking_env, unchanged)."""
     d = torch.load(path, map_location="cpu", weights_only=False)
     return C.ObsNorm.from_state_dict(d["obs_norm"]), C.ActionMap.from_state_dict(d["action_map"]).to(device), d
 
@@ -238,8 +238,8 @@ class SO101PlanarEnv(VecEnv):
             self.models.append(m)
         self.smax, self.amax = self.models[0].smax, self.models[0].amax
         from nedm.so101_push_rl.so101_kin_torch import So101Kin
-        from nedm.so101_push.robot import load_config
-        from nedm.so101_push.geometry import TShape
+        from nedm.so101_push_rl.so101_robot import load_config
+        from nedm.so101_push_rl.so101_geometry import TShape
         ccfg = load_config(cfg["collector_config"])
         self.kin = So101Kin(ccfg, device=str(dev))
         self.fk = ArmFK(ccfg, TShape(ccfg["tshape"]), device=str(dev), dtype=torch.float64)

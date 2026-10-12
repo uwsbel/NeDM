@@ -6,7 +6,7 @@ Ported from the twinfactory digital twin (no runtime dependency on it):
   * quaternion helpers: kinematics.py quat_to_matrix / matrix_to_quat;
   * TCP in the gripper link: configs/robots/so101.yaml tcp (scripted_policy.TCP_IN_GRIPPER rev 4);
   * the robot description comes from assets/so101/so101_robot.json (made by
-    scripts/so101_push/make_assets.py from twinfactory configs/robots/so101/robot.json).
+    experiment path scripts/so101_push/make_assets.py from twinfactory configs/robots/so101/robot.json).
 
 The jaw is locked at `jaw_lock_rad` (it is part of the gripper subtree), so the arm has the five
 joints shoulder_pan, shoulder_lift, elbow_flex, wrist_flex, wrist_roll.
@@ -104,7 +104,7 @@ def load_hulls(path: str | None = None) -> dict:
 
 
 def load_config(path) -> dict:
-    """Collector config with the robot asset paths made absolute (repo root); moved unchanged from nedm.so101_push.episode."""
+    """Collector config with the robot asset paths made absolute (repo root); moved unchanged from nedm.so101_push.episode (experiment code)."""
     cfg = json.loads(Path(path).read_text())
     rob = cfg["robot"]
     for key in ("description", "hulls", "finger_sections", "finger_boxes"):
@@ -324,7 +324,7 @@ def gripper_footprint(model: ArmModel, slice_height_m: float, robot_cfg: dict, s
     """Footprint of the downward-pointing gripper (gripper z = world up): the 2D convex hull of the gripper and
     jaw hull vertices within `slice_height_m` of the lowest point, in gripper (x, y) relative to the TCP.
     Returns (footprint (n, 2), tip_depth_m = TCP height above the lowest point)."""
-    from nedm.so101_push.geometry import convex_hull_2d, simplify_convex
+    from nedm.so101_push_rl.so101_geometry import convex_hull_2d, simplify_convex
 
     pts = gripper_points_local(model, robot_cfg)
     zmin = pts[:, 2].min()
