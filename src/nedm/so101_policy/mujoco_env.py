@@ -17,11 +17,14 @@ WorldState definitions = the grasp NRD data (``collect.so101_grasp.run_episode``
 - ``cube_v`` (p(t) - p(t - 20 ms)) / 0.02 and ``cube_w`` = rotation vector of q(t) q(t - 20 ms)^-1 / 0.02, both in
   the world frame (computed by ``data._step_average`` itself). After ``reset`` / ``set_cube`` the rates are the
   instantaneous ones (MuJoCo qvel, spin rotated to the world frame), as the first record of a data episode.
-- ``contact`` [fixed jaw-cube, moving jaw-cube, cube-table]: the pair's summed normal force (first efc row of each
-  elliptic contact = mj_contactForce normal) above ``contact_threshold_n`` (0.01 N) in any of the 40 physics steps of
-  the command = OR of the data's two 10 ms interval labels = ``data.physical_labels`` of the step. The NRD switch
-  view (this step or the one before, ``data.model_labels``) is ``switch_contact``. After a reset / set_cube: the
-  forces of one ``mj_forward`` at that state.
+- ``contact`` [fixed jaw-cube, moving jaw-cube, cube-table]: physical label of a step = the pair's summed normal
+  force (first efc row of each elliptic contact = mj_contactForce normal) above ``contact_threshold_n`` (0.01 N) in
+  any of the 40 physics steps of the command = OR of the data's two 10 ms interval labels = ``data.physical_labels``.
+  ``contact_rule="gate"`` (default) reports the NRD switch meaning instead: the physical label of this step OR of the
+  step before (``data.model_labels`` of the previous grid state; the first step after a reset has no step before),
+  the meaning of ``GraspNrdSim``'s default contact (review_spec_feasibility sec. 9). Both views are attributes.
+  After a reset / set_cube: the forces of one ``mj_forward`` at that state. Nothing in reward, success or
+  observation should read it (spec v2 B2).
 - ``arm_table``: the same force rule for any arm geom (gripper, moving jaw, other links, base hulls) against the table.
 - ``invalid``: any other collector end condition (``so101_grasp.TERMINAL``), checked as the collector does:
   cube_other_link (cube against shoulder / upper arm / lower arm / wrist / camera mount geoms), arm_self (arm-arm
@@ -34,7 +37,12 @@ WorldState definitions = the grasp NRD data (``collect.so101_grasp.run_episode``
 Flags are per step (this command); physics always runs the whole command and never stops a world. ``end_reason``
 [B] keeps the FIRST end since the reset (TERMINAL index, ``NUMERICAL`` = 7; collector precedence inside a record:
 numerical, contact kinds in TERMINAL order, off table, overlap) and ``end_step`` the step that raised it; a collector
-episode ends exactly there (the data's last grid state is the one before).
+episode ends exactly there (the data's last grid state is the one before). ``step_code`` is the code of the last
+command alone.
+
+Starts: ``sample_starts(seeds)`` draws fresh task starts with the collector's sampler (``task_start``) and warm-up;
+``reset(idx, starts, warmup=True)`` reproduces them bit for bit, ``starts["state"]`` is the same settled state for the
+NRD world. ``nrd_state`` / ``world_from_nrd`` convert WorldState <-> the NRD's [B, D, S] layout (``model.finish``).
 
 The visual-overlap grids need scipy once (``VisualOverlap``); they are cached as .npz (``overlap_cache_dir``) and
 then load in any interpreter. Interpolation uses scipy's ``map_coordinates`` when present, else ``_map_linear``
@@ -68,6 +76,8 @@ except ImportError:
 
 RAW = 25                      # raw record: q 6, qvel 6, cube pos 3, quat 4 (unit, sign continuous), v 3, w 3 (world)
 NUMERICAL = 7                 # end code after so101_grasp.TERMINAL ("end", arm_table, ..., cube_visual_overlap)
+REST_Z = 0.014993169          # cube centre z (m) of a flat cube resting on the table after the 0.3 s warm-up (luffy,
+                              # 40 starts, spread < 1e-15 m): the height for set_cube disturbances
 ARM_TABLE = 1
 CUBE_NAMES = ("x", "y", "z", "qw", "qx", "qy", "qz", "vx", "vy", "vz", "wx", "wy", "wz")
 JOINT_NAMES = ("shoulder_pan", "shoulder_lift", "elbow_flex", "wrist_flex", "wrist_roll", "gripper")
@@ -330,14 +340,16 @@ class _Block:
         return self._pack(out)
 
     def step(self, targets):
-        """One 20 ms command for every world of the block: targets [n, 6] -> raw records, flags, end codes."""
+        """One 20 ms command for every world of the block: targets [n, 6] -> raw records, flags, end codes, and the
+        10 ms records of the step (``mid`` = the record after the first 10 ms; ``rec_contact`` [n, 2, 3] the
+        collector's interval labels of the two 10 ms intervals)."""
         mj, s, m = self.mj, self.s, self.m
         u_all = np.clip(targets, s.tlo, s.thi).astype(np.float32)   # stored and applied (run_episode)
-        out = []
+        out, mids, rlab = [], [], []
         for i, d in enumerate(self.data):
             u = u_all[i]
-            lab, at, inv, code = np.zeros(3, bool), False, False, 0
-            force = np.zeros(7)
+            at, inv, code = False, False, 0
+            force, rl = np.zeros(7), np.zeros((s.per_ctrl, 3), bool)
             for r in range(s.per_ctrl):
                 d.ctrl[s.act] = u
                 if self.exact:
@@ -351,14 +363,17 @@ class _Block:
                     mx = self._forces_list(d)
                 mx = np.array(mx)
                 fmax, bad = mx[:3], mx[3:7]
-                lab |= fmax > self.thr
-                force = np.maximum(force, np.concatenate((fmax, bad)))
+                rl[r] = fmax > self.thr
+                force = np.maximum(force, mx)
                 c, a, v = self._record_end(d, i, bad, fresh=False)
                 code, at, inv = code or c, at or a, inv or v
                 if r + 1 < s.per_ctrl:
-                    self._record(d, i)   # the mid-step record: quaternion sign continuity only
-            out.append((self._record(d, i), lab, at, inv, code, force))
-        return self._pack(out)
+                    mids.append(self._record(d, i))   # the mid-step record (also keeps the quaternion sign continuous)
+            rlab.append(rl)
+            out.append((self._record(d, i), rl.any(0), at, inv, code, force))
+        res = self._pack(out)
+        res["mid"], res["rec_contact"] = np.array(mids).reshape(len(self.data), -1, RAW), np.array(rlab, bool)
+        return res
 
 
 def _enc(x):
@@ -503,25 +518,37 @@ class MujocoWorlds:
     """``num_envs`` worlds of the collector scene in CPU MuJoCo, split over ``workers`` processes (0 = here).
 
     ``reset(idx, start, warmup=False)`` places worlds at a WorldState-like start (``warmup=True``: the collector's
-    0.3 s warm-up first, arm held at ``start.q``, cube resting at its pose; ``spawn=True``: cube parked during the
-    warm-up, then placed with ``cube_v``, ``cube_w``, as the collector's probes); ``step(targets [B, 6])`` runs one
-    20 ms command; ``set_cube(idx, pos, quat, v, w)`` moves the cube (disturbance). All return the WorldState of all
-    worlds (float64, on ``device``; module docstring for the definitions). Attributes: ``end_reason`` / ``end_step``
-    [B] (first end since the reset, ``end_names()``), ``switch_contact`` [B, 3] (NRD switch view), ``contact_force``
-    [B, 7] (largest summed normal force per collector kind in the last command, N), ``applied`` [B, 6] float32
-    targets of the last command, ``steps`` [B] commands since the reset.
+    0.3 s warm-up first, arm held at ``start.q``, cube resting at its pose = ``Scene.reset``, bit-identical to the
+    collector; ``spawn=True``: cube parked during the warm-up, then placed with ``cube_v``, ``cube_w``, as the
+    collector's probes); ``step(targets [B, 6])`` runs one 20 ms command; ``set_cube(idx, pos, quat, v, w)`` moves
+    the cube (disturbance). All return the WorldState of all worlds (float64, on ``device``; module docstring for the
+    definitions). Attributes: ``end_reason`` / ``end_step`` [B] (first end since the reset, ``end_names()``),
+    ``step_code`` [B] (end code raised by the last command, 0 none), ``physical_contact`` / ``switch_contact``
+    [B, 3] (the two contact views, ``contact_rule`` picks the one in the WorldState), ``contact_force`` [B, 7]
+    (largest summed normal force per collector kind in the last command, N), ``applied`` [B, 6] float32 targets of
+    the last command, ``steps`` [B] commands since the reset, ``records`` [B, 2, 25] the two 10 ms raw records the
+    last command ended (mid, end; float32-rounded when float32_records; ``raw_state`` layout) and
+    ``record_contact`` [B, 2, 3] the collector's interval labels of its two 10 ms intervals (the data's
+    ``contacts``): with ``applied`` they give the collection arrays of a rollout (NRD data rounds).
 
     ``python``: interpreter of the workers (default $NEDM_MJ_PYTHON or this one; needs numpy and mujoco, scipy only to
-    build the overlap cache). ``overlap``: the visual-overlap end check. ``cpus``: CPU affinity of the workers (e.g.
-    to keep off a faulty core; newton 2026-10-11: logical CPUs 10-11 crash, use [0..9, 12..31]). ``labels``:
-    "exact" (contact forces after every 0.5 ms physics step, the data rule) or "record" (once per 10 ms record:
-    the same physics and states, but contacts and force-based ends shorter than a record can be missed)."""
+    build the overlap cache; with scipy the overlap check is cheaper: luffy 1 worker 406 vs 211 steps/s with conda
+    ``nrdsim`` vs ``nedm`` workers, same bit-exact replay of 177 validation episodes). ``overlap``: the visual-overlap end
+    check. ``cpus``: CPU affinity of the workers (e.g. to keep off a faulty core; newton 2026-10-11: logical CPUs
+    10-11 crash, use [0..9, 12..31]). ``labels``: "exact" (contact forces after every 0.5 ms physics step, the data
+    rule) or "record" (once per 10 ms record: the same physics and states, but contacts and force-based ends shorter
+    than a record can be missed). ``contact_rule``: "gate" (default; this step or the one before = the NRD switch,
+    ``data.model_labels``, the meaning of ``GraspNrdSim``'s default) or "physical" (this step only,
+    ``data.physical_labels``)."""
 
     def __init__(self, num_envs: int, workers: int = 0, device="cpu", overlap: bool = True,
                  float32_records: bool = True, python: str | None = None, overlap_cache_dir=None, cpus=None,
-                 labels: str = "exact"):
+                 labels: str = "exact", contact_rule: str = "gate"):
         if torch is None:
             raise ImportError("MujocoWorlds needs torch in the main process")
+        if contact_rule not in ("gate", "physical"):
+            raise ValueError(f"contact_rule {contact_rule!r}: 'gate' or 'physical'")
+        self.contact_rule = contact_rule
         self.B, self.device, self.float32_records = int(num_envs), torch.device(device), bool(float32_records)
         nw = max(0, min(int(workers), self.B))
         cuts = np.linspace(0, self.B, (nw or 1) + 1).round().astype(int)
@@ -550,11 +577,14 @@ class MujocoWorlds:
         self.ready = torch.zeros(B, dtype=torch.bool)
         self.end_reason = torch.zeros(B, dtype=torch.int8)
         self.end_step = torch.full((B,), -1, dtype=torch.long)
+        self.step_code = torch.zeros(B, dtype=torch.int8)
         self.steps = torch.zeros(B, dtype=torch.long)
+        self.physical_contact = torch.zeros(B, 3, dtype=torch.bool)
         self.switch_contact = torch.zeros(B, 3, dtype=torch.bool)
-        self._last_phys = torch.zeros(B, 3, dtype=torch.bool)
         self.contact_force = torch.zeros(B, 7, dtype=f64)
         self.applied = torch.zeros(B, 6, dtype=torch.float32)
+        self.records = torch.zeros(B, 2, RAW, dtype=f64)
+        self.record_contact = torch.zeros(B, 2, 3, dtype=torch.bool)
 
     # -- plumbing --
     def _idx(self, idx) -> np.ndarray:
@@ -585,20 +615,30 @@ class MujocoWorlds:
         return torch.from_numpy(x.astype(np.float64))
 
     def _place(self, idx, res, first: bool):
-        """State rows idx after a reset / cube move: instantaneous rates of the raw record."""
+        """State rows idx after a reset (first) or a cube move: the raw record of the new state, rates instantaneous.
+        A cube move keeps the arm fields (the arm did not move; its rate stays the last step average) and restarts
+        the step-average buffer of the cube at the new pose (review_spec_feasibility sec. 5)."""
         t = torch.from_numpy(idx)
         raw = self._round(res["raw"])
-        self._raw[t] = raw
         ws = self._ws
-        ws.q[t], ws.qd[t], ws.cube_pos[t], ws.cube_quat[t] = raw[:, 0:6], raw[:, 6:12], raw[:, 12:15], raw[:, 15:19]
+        if first:
+            self._raw[t] = raw
+            ws.q[t], ws.qd[t] = raw[:, 0:6], raw[:, 6:12]
+        else:
+            self._raw[t, 12:] = raw[:, 12:]
+        ws.cube_pos[t], ws.cube_quat[t] = raw[:, 12:15], raw[:, 15:19]
         ws.cube_v[t], ws.cube_w[t] = raw[:, 19:22], raw[:, 22:25]
-        ws.contact[t] = torch.from_numpy(res["contact"])
+        lab = torch.from_numpy(res["contact"])
+        ws.contact[t] = lab
         ws.arm_table[t], ws.invalid[t] = torch.from_numpy(res["arm_table"]), torch.from_numpy(res["invalid"])
         self.contact_force[t] = torch.from_numpy(res["force"])
         code = torch.from_numpy(res["code"])
+        self.step_code[t] = code
         if first:
             self.end_reason[t], self.end_step[t] = code, torch.where(code > 0, 0, -1)
-            self.steps[t], self._last_phys[t], self.switch_contact[t] = 0, False, False
+            self.steps[t], self.physical_contact[t], self.switch_contact[t] = 0, False, False
+            self.records[t] = raw[:, None]
+            self.record_contact[t] = False
             self.ready[t] = True
         else:
             new = (self.end_reason[t] == 0) & (code > 0)
@@ -607,10 +647,12 @@ class MujocoWorlds:
 
     # -- API --
     def reset(self, idx=None, start=None, warmup: bool = False, spawn: bool = False, targets=None) -> WorldState:
-        """Reset worlds idx (None = all; indices or bool mask [B]) to ``start`` (one row per selected world).
-        warmup=False: the exact state (rates as instantaneous MuJoCo velocities; held targets ``targets`` [n, 6],
-        default start.q). warmup=True: Scene.reset (start rates ignored unless spawn). Returns the state of all
-        worlds."""
+        """Reset worlds idx (None = all; indices or bool mask [B]) to ``start`` (one row per selected world; a
+        ``sample_starts`` dict works as it is). warmup=False: the exact state (rates as instantaneous MuJoCo
+        velocities; held targets ``targets`` [n, 6], default start.q; NOT the collector's solver warm start, so a
+        stored episode diverges slowly, bench replay B). warmup=True: Scene.reset (start rates ignored unless spawn).
+        The returned contact of a reset world = the forces of one mj_forward at its start (both views), flags and
+        end codes of that state. Returns the state of all worlds."""
         if start is None:
             raise ValueError("reset needs a start state")
         idx = self._idx(idx)
@@ -624,9 +666,13 @@ class MujocoWorlds:
 
     def set_cube(self, idx, pos, quat, v=None, w=None) -> WorldState:
         """Move the cube of worlds idx to pos [n, 3] (m), quat [n, 4] (w x y z, true orientation) with world velocity
-        v and world spin w (default 0): a disturbance. The returned rows hold these (instantaneous) rates; the next
-        step's step-average rates start from this pose (the jump itself is no rate). Flags and contacts are those of
-        the new state (one mj_forward); a cube placed into the gripper meshes is ``invalid`` at once."""
+        v and world spin w (default 0): a disturbance (qpos / qvel of the free joint, mj_forward; arm untouched).
+        The returned rows hold the new pose with these (instantaneous) rates and the arm fields of the last step;
+        the next step's step-average cube rates start from the new pose (the jump itself is no rate). Flags and
+        contacts are those of the new state (one mj_forward); a cube placed into the gripper meshes is ``invalid``
+        at once. In-distribution moves (review_spec_feasibility sec. 5; the NRD side must use the same values):
+        flat, at rest, centre z = ``REST_Z``, on the start annulus, >= 2 cm from every gripper collision point,
+        before the GRASP close starts."""
         idx = self._idx(idx)
         n = len(idx)
         z = np.zeros((n, 3))
@@ -652,14 +698,18 @@ class MujocoWorlds:
         ws = self._ws
         ws.q, ws.qd, ws.cube_pos, ws.cube_quat = cur[:, 0:6].clone(), qd, cur[:, 12:15].clone(), cur[:, 15:19].clone()
         ws.cube_v, ws.cube_w = v, w
-        ws.contact = torch.from_numpy(res["contact"])
+        phys = torch.from_numpy(res["contact"])
+        self.switch_contact = phys | self.physical_contact
+        self.physical_contact = phys
+        ws.contact = (self.switch_contact if self.contact_rule == "gate" else phys).clone()
         ws.arm_table, ws.invalid = torch.from_numpy(res["arm_table"]), torch.from_numpy(res["invalid"])
-        self.switch_contact = ws.contact | self._last_phys
-        self._last_phys = ws.contact.clone()
         self.contact_force = torch.from_numpy(res["force"])
         self.applied = torch.from_numpy(np.clip(u, self.tlo, self.thi).astype(np.float32))
+        self.records = torch.cat((self._round(res["mid"]), cur[:, None]), 1)
+        self.record_contact = torch.from_numpy(res["rec_contact"])
         self.steps += 1
         code = torch.from_numpy(res["code"])
+        self.step_code = code
         new = (self.end_reason == 0) & (code > 0)
         self.end_reason = torch.where(new, code, self.end_reason)
         self.end_step = torch.where(new, self.steps, self.end_step)
@@ -692,32 +742,96 @@ class MujocoWorlds:
             pass
 
 
-_SCENE = None
+# ---- start sampling -----------------------------------------------------------------------------------------------
+_SAMPLER = {}
 
 
-def _scene():
-    """One collector Scene of this process (kinematics, planning, limits; no overlap grids)."""
-    global _SCENE
-    if _SCENE is None:
+def reserved_seeds() -> frozenset:
+    """Seeds a start sampler must not use: the master seeds of every collector campaign (pilot, production, the
+    SEALED TEST 20261034, extra, noisy_v1) and of the convergence check, and every episode seed of these campaigns at
+    their configured counts (``so101_grasp.episode_seed``; a task episode draws its start first, so its seed would
+    repeat its start). 83,274 seeds for the current config, 3.7 s to compute: cached as .npy next to the overlap cache
+    (key = sha256 of the config)."""
+    if "reserved" not in _SAMPLER:
         from nedm.contact_nrd.collect import so101_grasp as g
-        _SCENE = g.Scene(g.load_config())
-    return _SCENE
+        cfg = g.load_config()
+        key = hashlib.sha256(json.dumps(cfg, sort_keys=True).encode()).hexdigest()[:24]
+        path = DEFAULT_CACHE / f"reserved_seeds_{key}.npy"
+        if path.exists():
+            out = set(np.load(path).tolist())
+        else:
+            names = [f["name"] for f in cfg["families"]]
+            out = {int(c["master_seed"]) for c in cfg["campaigns"].values()} | {int(cfg["convergence"]["master_seed"])}
+            for name, c in cfg["campaigns"].items():
+                out |= {g.episode_seed(c["master_seed"], f, i) for f, n in g.campaign_counts(cfg, name)
+                        for i in range(n)}
+            conv = cfg["convergence"]
+            out |= {g.episode_seed(conv["master_seed"], names.index(k), i) for k, n in conv["episodes"].items()
+                    for i in range(n)}
+            try:
+                path.parent.mkdir(parents=True, exist_ok=True)
+                tmp = path.with_suffix(f".{os.getpid()}.tmp.npy")
+                np.save(tmp, np.array(sorted(out), np.int64))
+                tmp.replace(path)
+            except OSError:
+                pass
+        _SAMPLER["reserved"] = frozenset(int(x) for x in out)
+    return _SAMPLER["reserved"]
 
 
-def task_starts(seed: int, n: int, spread_deg: float = 40.0) -> dict:
-    """n collector task starts (so101_grasp.task_start: cube flat at rest on the annulus r 0.15-0.27 m, +-75 deg;
-    collision-free top-down start pose 8-20 cm up within spread_deg of the cube direction); world k draws from
-    numpy default_rng([seed, k]), so a start depends only on (seed, k). -> dict q [n, 6], cube_pos [n, 3],
-    cube_quat [n, 4] (numpy float64) for reset(..., warmup=True)."""
+def sample_starts(seeds, spread_deg: float = 40.0, overlap: bool = True, float32_records: bool = True,
+                  max_tries: int = 200) -> dict:
+    """One fresh task start per seed with the collector's start sampler and warm-up (spec v2 B4 test starts).
+
+    Seed k: ``rng = numpy.random.default_rng(seed)``; ``so101_grasp.task_start(scene, rng, spread_deg)`` (cube flat on
+    the table at rest, centre uniform on the annulus r 0.15-0.27 m, angle +-75 deg about the pan axis (0.0388, 0),
+    yaw U(0, 90 deg); arm at a collision-free top-down pose: grasp point 8-20 cm up, r 0.12-0.27 m, within
+    ``spread_deg`` of the cube direction (nominal family 40 deg), jaw U(0, 1.2) rad, lowest arm point > 2 cm, no
+    self-contact); then ``Scene.reset`` (0.3 s warm-up, arm held at q0, cube resting). A PlanError draws again from
+    the same rng (as ``make_episode``); so does a settled start that already ends (any collector end code) or has a
+    jaw on the cube (stricter than the collector, which would keep a touching start). Seeds in ``reserved_seeds()``
+    raise (never the sealed test or a data episode's start).
+
+    -> dict (numpy unless noted): ``q`` [n, 6] start pose = held targets, ``cube_pos`` [n, 3], ``cube_quat`` [n, 4]
+    (w x y z, before the warm-up): pass the dict to ``MujocoWorlds.reset(idx, starts, warmup=True)`` (bit-identical
+    to the collector and to ``state``); ``state``: the settled WorldState (torch float64, float32-rounded like a data
+    record; rates instantaneous; contact = one mj_forward) for the NRD world's reset; ``raw`` [n, 25]; ``seed`` [n];
+    ``tries`` [n] draws per start."""
+    seeds = [int(x) for x in np.asarray(_tonp(seeds)).reshape(-1)]
+    bad = sorted(set(seeds) & reserved_seeds())
+    if bad:
+        raise ValueError(f"seeds {bad[:5]} are collector campaign seeds (sealed test / data starts)")
     from nedm.contact_nrd.collect import so101_grasp as g
-    s = _scene()
-    q, pos, quat = np.zeros((n, 6)), np.zeros((n, 3)), np.zeros((n, 4))
-    for k in range(n):
-        rng = np.random.default_rng([int(seed), k])
-        cube, cyaw, q0, _ = g.task_start(s, rng, spread_deg)
-        c = g.resting_cube(cube, cyaw)
-        q[k], pos[k], quat[k] = q0, c["pos"], c["quat"]
-    return dict(q=q, cube_pos=pos, cube_quat=quat)
+    key = ("block", bool(overlap))
+    if key not in _SAMPLER:
+        _SAMPLER[key] = _Block(1, overlap=overlap)
+    blk = _SAMPLER[key]
+    s = blk.s
+    n = len(seeds)
+    q, pos, quat, raw = np.zeros((n, 6)), np.zeros((n, 3)), np.zeros((n, 4)), np.zeros((n, RAW))
+    lab, tries = np.zeros((n, 3), bool), np.zeros(n, np.int64)
+    for k, seed in enumerate(seeds):
+        rng = np.random.default_rng(seed)
+        while True:
+            tries[k] += 1
+            if tries[k] > max_tries:
+                raise RuntimeError(f"seed {seed}: no start after {max_tries} draws")
+            try:
+                cube, cyaw, q0, _ = g.task_start(s, rng, spread_deg)
+            except g.PlanError:
+                continue
+            c = g.resting_cube(cube, cyaw)
+            row = np.concatenate((q0, np.zeros(6), c["pos"], c["quat"], np.zeros(6)))[None]
+            res = blk.reset([0], row, warmup=True)
+            if res["code"][0] == 0 and not res["arm_table"][0] and not res["contact"][0, :2].any():
+                break
+        q[k], pos[k], quat[k], raw[k], lab[k] = q0, c["pos"], c["quat"], res["raw"][0], res["contact"][0]
+    r = raw.astype(np.float32).astype(np.float64) if float32_records else raw
+    t = torch.from_numpy(r)
+    f = torch.zeros(n, dtype=torch.bool)
+    state = WorldState(q=t[:, 0:6], qd=t[:, 6:12], cube_pos=t[:, 12:15], cube_quat=t[:, 15:19], cube_v=t[:, 19:22],
+                       cube_w=t[:, 22:25], contact=torch.from_numpy(lab), arm_table=f, invalid=f.clone())
+    return dict(q=q, cube_pos=pos, cube_quat=quat, state=state, raw=r, seed=np.array(seeds, np.int64), tries=tries)
 
 
 # ---- NRD layout ---------------------------------------------------------------------------------------------------

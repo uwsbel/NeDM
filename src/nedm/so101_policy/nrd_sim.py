@@ -17,13 +17,17 @@ One step (20 ms) of ``GraspNrdSim.step(joint_targets [B, 6])``:
    and calls the model's own functions (eager only, no CUDA graph).
 2. History shift (``ContactNRD.advance``).
 3. Cube canonicalisation (``canonical=True``, default): the newest cube quaternion picks one of the 24 cube rotations
-   r (``cube_symmetry.canonical_index``); all K history quaternions of the world are relabelled q -> q r and their sign
-   set so that the newest has w >= 0 (one relabel per world: the step differences stay consistent); ``finish``
-   recomputes the relative channels. Positions, world velocity and world spin do not change. The cumulative
-   relabelling C of each world (an index into the group, ``q_internal = q_true G[C]`` up to sign) is kept with the
-   exact group table, and ``WorldState.cube_quat`` is the TRUE orientation ``q_internal conj(G[C])``, its sign kept
-   continuous with the previous output. ``canonical=False`` leaves the quaternions alone (C = 0); then the sim is
-   ``ContactNRD.rollout`` with the dense contact step.
+   r (``cube_symmetry.canonical_index``); the quaternions of all K history slots of the world are relabelled
+   q -> q r and their sign set so that the newest has w >= 0 (one relabel per world: the step differences stay
+   consistent), then each relabelled slot is finished again. Positions, world velocity and world spin do not change.
+   The refinish is ``model.finish`` restricted to the cube (quaternion re-normalised, relative channels from the slot's
+   own arm derived channels): the arm channels do not change, so the arm's derived channels are kept. At
+   construction the sim checks that this equals ``model.finish`` bit for bit on relabelled probe states (else it uses
+   ``model.finish``). The cumulative relabelling C of each world (an index into the group,
+   ``q_internal = q_true G[C]`` up to sign) is kept with the exact group table, and ``WorldState.cube_quat`` is the
+   TRUE orientation ``q_internal conj(G[C])``, its sign kept continuous with the previous output.
+   ``canonical=False`` leaves the quaternions alone (C = 0); then the sim is ``ContactNRD.rollout`` with the dense
+   contact step.
 
 Members: ``members="split"`` loads all checkpoints and gives member j the contiguous worlds
 [j B / M, (j + 1) B / M); a name (or list of names) loads only those (one name = every world on that member). Names are
@@ -37,24 +41,33 @@ WorldState fields (``nedm.so101_policy.world``):
 | cube_pos, cube_v, cube_w | cube channels of the newest state (world frame) |
 | cube_quat | the TRUE orientation (see 3.), w x y z |
 | contact | per CONTACT_PAIRS, from the switches of the model (pair order read from ``system.pair_metadata``). ``contact_rule="gate"`` (default): g[k] of the step just taken, which stands for "the pair touched in step k or in step k-1" (the model's own label convention, ``data.model_labels``); no delay, dilated by one step. ``"physical"``: g[k-1] & g[k], the data's physical contact of step k-1 (``data.physical_switches``): one step late |
-| arm_table | ``arm_table_fn(q [B, 6] float64) -> bool [B]`` if given (for example the lowest point of the gripper and moving-jaw hulls below 0.5 mm, critic map 3.7, from ``kin.lowest_point``); default: all False (the NRD has no arm-table pair; NOTHING checks it) |
+| arm_table | ``arm_table_fn(q [B, 6] float64) -> bool [B]`` if given, evaluated at every ``observe`` (the critic's rule, map 3.7: ``lowest_point_guard(kin.SO101Kin(device))`` = lowest gripper / moving-jaw collision point below 0.5 mm); default: all False (the NRD has no arm-table pair; NOTHING checks it) |
 | invalid | any channel of the newest state non-finite; cube centre x, y outside the table minus its edge margin (the collector's ``cube_off_table`` rule: x in [-0.30, 0.80], y in [-0.55, 0.55] m for the checkpoint's table); cube centre z < ``cube_z_min`` (0.010 m: sunk > 5 mm into the table; data minimum 11.0 mm in the probe landings, 12.9 mm in the task families); z > ``cube_z_max`` (0.45 m; data maximum 405 mm); cube speed > ``cube_speed_max`` (4 m/s; data maximum 2.77) or spin > ``cube_spin_max`` (100 rad/s; data maximum 66). Data extremes: production_plus, all 37,500 episodes, all records |
 
 The sim does not end or reset worlds: the caller resets invalid worlds. A non-finite world stays non-finite but does
 not touch the other worlds (every operation is per world).
 
-Resets (``reset``, ``reset_state``, ``reset_history``) write in place, so a captured CUDA graph stays valid. A reset
-from a single state uses ``ContactNRD.start``: one valid history entry, the others masked (``ok`` False), as the
-evaluation's whole-episode rollouts. ``set_cube`` (a disturbance) replaces the cube in all valid history entries by a
-constant-rate backward extrapolation of the new cube state: p_j = p - a_j dt v, q_j = exp(-a_j dt w / 2) q (world-frame
-spin, the model's own integration rule), v_j = v, w_j = w, with a_j = K-1-j the age of entry j. So the step differences
-of the cube obey the NRD's integration rule (a resting cube: all entries equal). The arm entries, the masks and the
-switches are kept; derived and relative channels are recomputed. The caller must not place the cube inside the gripper.
+Resets (``reset``, ``reset_state``, ``reset_history``) and ``set_cube`` write in place, so a captured CUDA graph stays
+valid; each returns the WorldState of ALL worlds (as the MuJoCo worlds do). A reset from a single state uses
+``ContactNRD.start``: one valid history entry, the others masked (``ok`` False), as the evaluation's whole-episode
+rollouts.
+
+``set_cube`` (disturbance, review_spec_feasibility sec. 5): the 13 base cube channels (position, quaternion,
+velocity, spin) are written into ALL K history slots, the arm channels and the masks ``ok`` are kept, and
+``model.finish`` runs on each slot (the relative channels of slot j depend on the arm pose of slot j). With the default
+v = w = 0 all K cube entries are equal: the history of a cube that has rested there, the only disturbance that is in
+the data (approach phase: resting cube, arm moving above it). A nonzero v, w gives the constant-rate history
+p_j = p - a_j dt v, q_j = exp(-a_j dt w / 2) q (world spin, the model's integration rule), a_j = K-1-j the age of
+slot j; a sliding cube is NOT in the data. The caller keeps the new pose in distribution (``cube_rest_envelope``:
+flat, at rest, data resting height, on the start annulus) and >= 2 cm from every gripper collision point, before the
+GRASP close starts (the 2 cm check needs the arm's collision points: ``kin.SO101Kin``; not done here). The switches
+and the contact flags stay those of the last step until the next step.
 
 No gradient path: all methods run under ``torch.no_grad``. For gradients call the model methods directly.
 """
 from __future__ import annotations
 
+import math
 import warnings
 from pathlib import Path
 from typing import Callable
@@ -67,6 +80,11 @@ from nedm.so101_policy.world import CONTACT_PAIRS, JOINTS, WorldState
 
 STUDY_CKPTS = {f"s{s}": Path.home() / "so101_policy" / "ckpt" / f"nrd_final_s{s}.pt" for s in (61, 62)}
 LIMITS = dict(cube_z_min=0.010, cube_z_max=0.45, cube_speed_max=4.0, cube_spin_max=100.0)
+# Start states of the task families (val_only, 1,803 first records, measured): cube centre z = 0.014993 m in all, flat,
+# at rest, on the annulus r 0.150-0.270 m around the pan axis, angle -75.0..74.9 deg (collector sample_cube).
+CUBE_REST_Z = 0.014993
+ANNULUS = dict(center_xy=(0.0388, 0.0), r_min=0.15, r_max=0.27, angle_max_deg=75.0)
+ARM_TABLE_GUARD_M = 0.0005   # critic map 3.7: lowest gripper / moving-jaw collision point below 0.5 mm
 
 
 def _cols(x) -> list[int]:
@@ -86,11 +104,39 @@ def _get(start, name):
     return start.get(name) if isinstance(start, dict) else getattr(start, name, None)
 
 
+def lowest_point_guard(kin, threshold_m: float = ARM_TABLE_GUARD_M) -> Callable[[torch.Tensor], torch.Tensor]:
+    """arm_table_fn of the critic's rule (map 3.7): ``kin.lowest_point(q) < threshold_m``, with kin a
+    ``kin.SO101Kin`` (lowest world z of the gripper and moving-jaw collision geoms, m). q [B, 6] -> bool [B]."""
+    return lambda q: kin.lowest_point(q) < threshold_m
+
+
+def cube_rest_envelope(pos, quat, v=None, w=None, z_tol_m: float = 5e-4, tilt_max_deg: float = 1.0,
+                       rate_max: float = 1e-6) -> torch.Tensor:
+    """Is a new cube pose (``set_cube``) inside the start envelope of the data? pos [n, 3] (m), quat [n, 4] (w x y z),
+    v, w [n, 3] (world, default 0) -> bool [n]: centre height within z_tol_m of CUBE_REST_Z, tilt (body z against
+    world z) <= tilt_max_deg, |v| and |w| <= rate_max, centre on ANNULUS. The 2 cm gripper clearance is NOT checked."""
+    pos = torch.as_tensor(pos, dtype=torch.float64)
+    quat = torch.as_tensor(quat, dtype=torch.float64, device=pos.device)
+    quat = quat / quat.norm(dim=-1, keepdim=True)
+    ok = (pos[:, 2] - CUBE_REST_Z).abs() <= z_tol_m
+    up = 1 - 2 * (quat[:, 1] ** 2 + quat[:, 2] ** 2)                         # world z of the body z axis
+    ok &= up >= math.cos(math.radians(tilt_max_deg))
+    for r in (v, w):
+        if r is not None:
+            ok &= torch.as_tensor(r, dtype=torch.float64, device=pos.device).reshape(-1, 3).norm(dim=-1) <= rate_max
+    dx, dy = pos[:, 0] - ANNULUS["center_xy"][0], pos[:, 1] - ANNULUS["center_xy"][1]
+    r = torch.hypot(dx, dy)
+    ok &= (r >= ANNULUS["r_min"]) & (r <= ANNULUS["r_max"])
+    ok &= torch.rad2deg(torch.atan2(dy, dx)).abs() <= ANNULUS["angle_max_deg"]
+    return ok
+
+
 class GraspNrdSim:
     """ckpts: path, list of paths or {name: path} (default STUDY_CKPTS = the final s61 and s62 checkpoints; a loaded
     ContactNRD may stand in for a path, it is moved to the device and its parameters frozen); num_envs
     B; members "split" | name | [names] | int; canonical: per-step cube canonicalisation; canon_margin: hysteresis of
-    the relabelling (0 = the critic's rule); contact_rule "gate" | "physical"; arm_table_fn(q) -> bool [B];
+    the relabelling (0 = the critic's rule); contact_rule "gate" | "physical"; arm_table_fn(q) -> bool [B] (e.g.
+    lowest_point_guard);
     cuda_graph: capture the step in one CUDA graph at the first step (CUDA only); limits: overrides of LIMITS."""
 
     def __init__(self, ckpts=None, num_envs: int = 1, device="cuda", members="split", canonical: bool = True,
@@ -223,6 +269,18 @@ class GraspNrdSim:
                 out[:, r, rc] = relative_channels(out[:, b, kc], out[:, r, rp], out[:, r, rq], out[:, r, rv])
         return out
 
+    def _finish_cube(self, m, x):
+        """model.finish of states x [n, D, S] whose only change is the cube quaternion (a relabelling): the cube
+        quaternion re-normalised and the relative channels recomputed from the stored arm derived channels."""
+        out = x.clone()
+        q = x[:, self.ic, self.c_cq]
+        out[:, self.ic, self.c_cq] = q / q.norm(dim=-1, keepdim=True).clamp_min(1e-12)
+        if self._rel is not None:
+            r, rc, rp, rq, rv = self._rel
+            b, kc = self._kin[0], self._kin[1]
+            out[:, r, rc] = relative_channels(x[:, b, kc], out[:, r, rp], out[:, r, rq], out[:, r, rv])
+        return out
+
     def _assemble(self, m, cur, d_core, change):
         """ContactNRD.assemble with precomputed column slices."""
         nxt = cur + d_core + change
@@ -259,6 +317,16 @@ class GraspNrdSim:
             self._finish = lambda m_, x: m_.finish(x)
             self._assemble = lambda m_, cur_, d_core, change: m_.assemble(cur_, d_core, change)
             self.use_graph = False
+        # the cube-only refinish of a relabelled state must equal model.finish (finished probes, every group element)
+        x = m.finish(cur.repeat(2, 1, 1))
+        k = torch.arange(len(x), device=self.device) % cs.ORDER
+        x[:, self.ic, self.c_cq] = cs.relabel(x[:, self.ic, self.c_cq], k, self._g, newest_sign=False)
+        try:
+            self.fast_relabel = self.fast_layout and bool(torch.equal(self._finish_cube(m, x), m.finish(x)))
+        except (RuntimeError, IndexError, TypeError):
+            self.fast_relabel = False
+        if not self.fast_relabel:
+            self._finish_cube = lambda m_, x_: self._finish(m_, x_)
 
     # ---- the step ----------------------------------------------------------------------------------------------
     def _member_step(self, m, hist, ok, act, rows, pairs):
@@ -282,15 +350,13 @@ class GraspNrdSim:
         change = torch.stack(parts, 1) * m.smask
         return self._assemble(m, cur, d_core, change), g, logits
 
-    def _relabel_hist(self, hist, ok, k, changed):
-        """Relabel the cube quaternions of all K entries by G[k] (newest-entry sign), recompute finish where changed
-        and the entry is valid. hist [n, K, D, S] -> new hist."""
-        q = hist[:, :, self.ic, self.c_cq]
-        q2 = torch.where(changed[:, None, None], cs.relabel(q, k, self._g), q)
+    def _relabel_hist(self, hist, k, changed):
+        """Relabel the cube quaternions of all K slots by G[k] (sign of the newest slot: w >= 0) and refinish every
+        slot of the worlds where changed (masked slots too; the model never reads them). hist [n, K, D, S] -> new."""
         h = hist.clone()
-        h[:, :, self.ic, self.c_cq] = q2
-        fin = self._finish(self.models[0], h.flatten(0, 1)).view_as(h)
-        return torch.where((changed[:, None] & ok)[..., None, None], fin, h)
+        h[:, :, self.ic, self.c_cq] = cs.relabel(hist[:, :, self.ic, self.c_cq], k, self._g)
+        fin = self._finish_cube(self.models[0], h.flatten(0, 1)).view_as(h)
+        return torch.where(changed[:, None, None, None], fin, hist)
 
     def _invalid(self, st):
         lim = self.limits
@@ -312,7 +378,7 @@ class GraspNrdSim:
             qn = nxt[:, self.ic, self.c_cq]
             k = cs.canonical_index(qn, self._scores, self.canon_margin)
             changed = (k != 0) | (qn[:, 0] < 0)
-            hist = self._relabel_hist(hist, ok, k, changed)
+            hist = self._relabel_hist(hist, k, changed)
             self.canon.copy_(self._mul[self.canon, k])
             self.relabelled.copy_(changed)
             qt = ContactNRD._qmul(hist[:, -1, self.ic, self.c_cq], self._gconj[self.canon])
@@ -346,6 +412,9 @@ class GraspNrdSim:
         torch.cuda.current_stream(self.device).wait_stream(s)
         for t, c in zip(self._buffers(), snap):
             t.copy_(c)
+        del snap
+        torch.cuda.synchronize(self.device)
+        torch.cuda.empty_cache()     # the warm-up's cached blocks; the graph gets its own pool (shared GPUs: one, not two)
         self._graph = torch.cuda.CUDAGraph()
         with torch.cuda.graph(self._graph):
             self._step_inplace()
@@ -387,11 +456,12 @@ class GraspNrdSim:
         return torch.nonzero(idx).flatten() if idx.dtype == torch.bool else idx.long().reshape(-1)
 
     @torch.no_grad()
-    def reset(self, idx, start) -> None:
+    def reset(self, idx, start) -> WorldState:
         """Reset worlds idx (long [n], bool [B] or None = all) to a resting-history start: start is a WorldState-like
         object or dict with q [n, 6], cube_pos [n, 3], cube_quat [n, 4] (true orientation, w x y z) and optionally
         qd, cube_v, cube_w (default 0). The quaternion is normalised (w >= 0); model.finish fills derived and
-        relative channels; one valid history entry (ContactNRD.start); the held command = the start angles."""
+        relative channels; one valid history entry (ContactNRD.start); the held command = the start angles.
+        -> WorldState of all worlds."""
         idx = self._idx(idx)
         f64 = dict(dtype=torch.float64, device=self.device)
         n = len(idx)
@@ -407,21 +477,23 @@ class GraspNrdSim:
         for name, c in (("cube_v", self.c_cv), ("cube_w", self.c_cw)):
             v = _get(start, name)
             raw[:, self.ic, c] = z3 if v is None else torch.as_tensor(v, **f64).reshape(n, 3)
-        self.reset_state(idx, raw, finish=True)
+        return self.reset_state(idx, raw, finish=True)
 
     @torch.no_grad()
-    def reset_state(self, idx, state: torch.Tensor, finish: bool = True) -> None:
+    def reset_state(self, idx, state: torch.Tensor, finish: bool = True) -> WorldState:
         """Reset worlds idx from model-layout states [n, D, S] (one valid history entry). finish=False keeps the
         given derived/relative channels and the quaternion as they are (exact replay of ContactNRD.rollout from a
-        recorded state); a canonical relabelling still recomputes them for the relabelled worlds."""
+        recorded state); a canonical relabelling still recomputes the cube's relative channels of the relabelled
+        worlds. -> WorldState of all worlds."""
         state = state.to(device=self.device, dtype=torch.float64)
         h, ok = self.models[0].start(state)
-        self.reset_history(idx, h, ok, finish=finish)
+        return self.reset_history(idx, h, ok, finish=finish)
 
     @torch.no_grad()
-    def reset_history(self, idx, hist: torch.Tensor, ok: torch.Tensor, finish: bool = False) -> None:
+    def reset_history(self, idx, hist: torch.Tensor, ok: torch.Tensor, finish: bool = False) -> WorldState:
         """Reset worlds idx from model-layout histories [n, K, D, S] (newest last) with masks ok [n, K] (a recorded
-        window, as rollouts.rollouts' "window" mode). The true orientation = the given newest cube quaternion."""
+        window, as rollouts.rollouts' "window" mode). The true orientation = the given newest cube quaternion.
+        -> WorldState of all worlds."""
         idx = self._idx(idx)
         h = hist.to(device=self.device, dtype=torch.float64).clone()
         ok = ok.to(device=self.device, dtype=torch.bool)
@@ -431,8 +503,7 @@ class GraspNrdSim:
         true_q = h[:, -1, self.ic, self.c_cq].clone()
         if self.canonical:
             k = cs.canonical_index(true_q, self._scores, self.canon_margin)
-            changed = (k != 0) | (true_q[:, 0] < 0)
-            h = self._relabel_hist(h, ok, k, changed)
+            h = self._relabel_hist(h, k, (k != 0) | (true_q[:, 0] < 0))
             self.canon[idx] = k
         else:
             self.canon[idx] = 0
@@ -443,11 +514,14 @@ class GraspNrdSim:
             t[idx] = 0.0
         self.relabelled[idx], self.contact[idx], self.t[idx] = False, False, 0
         self.bad[idx] = self._invalid(h[:, -1])
+        return self.observe()
 
     @torch.no_grad()
-    def set_cube(self, idx, pos, quat, v=None, w=None) -> None:
-        """Move the cube of worlds idx (disturbance): pos [n, 3] (m), quat [n, 4] (TRUE orientation, w x y z), v, w
-        [n, 3] (world, step-average; default 0). Rebuilds the cube's history (module docstring)."""
+    def set_cube(self, idx, pos, quat, v=None, w=None) -> WorldState:
+        """Move the cube of worlds idx (disturbance, module docstring): pos [n, 3] (m, world), quat [n, 4] (TRUE
+        orientation, w x y z), v, w [n, 3] (world, step average; default 0 = a resting cube, the only case in the
+        data). The base cube channels go into all K history slots, the arm channels and ok are kept, model.finish
+        runs on each slot; the cube is then canonicalised. -> WorldState of all worlds."""
         idx = self._idx(idx)
         n, K = len(idx), self.K
         f64 = dict(dtype=torch.float64, device=self.device)
@@ -456,14 +530,12 @@ class GraspNrdSim:
         quat = quat / quat.norm(dim=-1, keepdim=True)
         v = torch.zeros(n, 3, **f64) if v is None else torch.as_tensor(v, **f64).reshape(n, 3)
         w = torch.zeros(n, 3, **f64) if w is None else torch.as_tensor(w, **f64).reshape(n, 3)
-        old_true = self.true_q[idx]
-        quat = quat * torch.where((quat * old_true).sum(-1, keepdim=True) < 0, -1.0, 1.0).to(quat.dtype)
-        age = torch.arange(K - 1, -1, -1, **f64)[None, :, None] * self.dt          # [1, K, 1]
+        quat = quat * torch.where((quat * self.true_q[idx]).sum(-1, keepdim=True) < 0, -1.0, 1.0).to(quat.dtype)
+        age = torch.arange(K - 1, -1, -1, **f64)[None, :, None] * self.dt          # [1, K, 1] age of each slot (s)
         half = -0.5 * age * w[:, None]                                              # rotation back in time
         ang = half.norm(dim=-1, keepdim=True)
         dq = torch.cat((torch.cos(ang), torch.where(ang > 1e-12, torch.sin(ang) / ang.clamp_min(1e-12), torch.ones_like(ang)) * half), -1)
         h = self.hist[idx].clone()
-        ok = self.ok[idx]
         h[:, :, self.ic, self.c_cp] = pos[:, None] - age * v[:, None]
         h[:, :, self.ic, self.c_cq] = ContactNRD._qmul(dq, quat[:, None].expand(-1, K, -1))
         h[:, :, self.ic, self.c_cv] = v[:, None].expand(-1, K, -1)
@@ -474,7 +546,7 @@ class GraspNrdSim:
             self.canon[idx] = k
         else:
             self.canon[idx] = 0
-        fin = self.models[0].finish(h.flatten(0, 1)).view_as(h)
-        h = torch.where(ok[..., None, None], fin, self.hist[idx])                  # masked entries stay as they were
+        h = self.models[0].finish(h.flatten(0, 1)).view_as(h)                      # every slot, masked ones too
         self.hist[idx], self.true_q[idx] = h, quat
         self.bad[idx] = self._invalid(h[:, -1])
+        return self.observe()

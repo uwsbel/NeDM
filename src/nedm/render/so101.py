@@ -1,10 +1,19 @@
 """SO101 + cube + goal scene for the batch renderer: the arm of the grasp NRD study, drawn from the visual meshes of the
-pinned Menagerie MJCF, the collector's table and 30 mm cube, a goal marker, a fixed front camera and the MJCF wrist
-camera.
+pinned Menagerie MJCF, the collector's table and 30 mm cube, a goal marker, and up to three cameras: ``front`` (fixed,
+across the table, facing the arm), ``top`` (fixed, straight down over the workspace) and ``wrist`` (the MJCF
+``wrist_cam``).
 
-    r = SO101Renderer(num_worlds=1024, backend="madrona")     # newton: env kyle_madrona, source madrona/env.sh
-    rgb = r.render(q, cube_pos, cube_quat_wxyz, goal)          # [B, 2, 128, 128, 3] uint8, cameras in CAMERAS order
+    r = SO101Renderer(num_worlds=1024, backend="newton")      # Warp: any CUDA GPU (luffy 5090), AMD, CPU
+    rgb = r.render(q, cube_pos, cube_quat_wxyz, goal)          # [B, 2, 128, 128, 3] uint8, cameras in r.cameras order
     rgb, depth = r.render(..., depth=True)                     # depth [B, 2, H, W] float32: z-depth (m), 0 = no hit
+    r = SO101Renderer(1024, 224, 224, cameras=("front", "wrist"))   # ACT input (spec v2 B7); or ("top", "wrist")
+    rgb = r.render_state(world_state, goal)                    # a WorldState of the NRD or of MuJoCo, same function
+
+One renderer has one resolution and one field of view for all its cameras (the wrist camera's fovy 61 deg, as
+``BatchRenderer`` takes one ``fov_deg``); the fixed cameras are placed so that 61 deg frames the workspace. Madrona:
+one renderer per process, NVIDIA only (luffy: ``source ~/so101_policy/runs/render/madrona_luffy/env_luffy.sh``),
+7-20x faster than Newton on recorded states (luffy 5090, 2026-10-11); its engine start aborts the whole process (C++
+FATAL, CUDA out of memory / out of resources at the first launch) when other jobs fill the GPU: retry the process.
 
 Frames and units: world z up, table top at z = 0, arm base frame = world frame (as in the collector's scene,
 ``nedm.contact_nrd.collect.so101_grasp.build_spec``). Joint angles in rad, in ``so101.xml`` order (jaw = joint 5),
@@ -35,7 +44,8 @@ from nedm.render.scene import MeshBody, Scene
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 CONFIG = REPO_ROOT / "configs/contact_nrd/collection/so101_grasp.json"
-CAMERAS = ("front", "wrist")
+VIEWS = ("front", "top", "wrist")           # the cameras a scene can hold
+CAMERAS = ("front", "wrist")                # the default set
 JOINTS = ("shoulder_pan", "shoulder_lift", "elbow_flex", "wrist_flex", "wrist_roll", "gripper")
 # colours of the collector's MuJoCo scene (build_spec); the arm keeps its MJCF material colours
 TABLE_COLOR = (0.55, 0.5, 0.45)
@@ -50,6 +60,13 @@ SKY = (200, 215, 230)
 # cube's half diagonal as margin (worst point at 0.9 of the half width), and the arm base.
 FRONT_EYE = (0.616, 0.0, 0.456)
 FRONT_TARGET = (0.22, 0.0, 0.06)
+# Top camera: straight down over the middle of the annulus (x 0.057-0.330 m, |y| <= 0.282 m with the cube's half
+# diagonal), image up = world +x (arm base in the lower half, the robot's left = image left). At fovy 61 deg and
+# 0.66 m it frames that box from the table up to z = 0.15 m (worst point at 0.95 of the half width); 6.1 mm per pixel
+# on the table at 128 px, 3.5 mm at 224 px.
+TOP_EYE = (0.19, 0.0, 0.66)
+TOP_TARGET = (0.19, 0.0, 0.0)
+TOP_UP = (1.0, 0.0, 0.0)
 GOAL_HALF = 0.023          # goal plate half side (m): a 30 mm cube on the goal leaves 8 mm of plate on every side
 GOAL_THICKNESS = 0.001     # m; the plate lies on the table top, so a cube resting on it sinks 1 mm into it (hidden)
 GOAL_FRAME_WIDTH = 0.006   # m, the "frame" style: an outline of this width, outer half side GOAL_HALF
@@ -289,11 +306,16 @@ class SO101Scene:
     Bodies, in order: the moving arm meshes (one per body and colour), the cube (1 mesh, or 6 with ``cube_colors``
     of 6 colours), the goal marker (none with ``goal=None``). Static: the arm base meshes and the table.
     ``goal``: ``"plate"`` (a 1 mm square plate on the table, side 2 * GOAL_HALF) or ``"frame"`` (its outline).
+    ``cameras``: names from VIEWS, in the order of the output's camera axis.
     """
 
     def __init__(self, assets: SO101Assets | None = None, cube_colors=None, goal: str | None = "plate",
-                 front_eye=FRONT_EYE, front_target=FRONT_TARGET, device=None, cfg: dict | None = None):
-        from nedm.render import cameras
+                 front_eye=FRONT_EYE, front_target=FRONT_TARGET, device=None, cfg: dict | None = None,
+                 cameras: Sequence[str] = CAMERAS, top_eye=TOP_EYE, top_target=TOP_TARGET):
+        from nedm.render import cameras as cams
+        self.cameras = tuple(cameras)
+        if not self.cameras or len(set(self.cameras)) != len(self.cameras) or not set(self.cameras) <= set(VIEWS):
+            raise ValueError(f"cameras {cameras!r}: distinct names from {VIEWS}")
         self.assets = assets = assets if assets is not None else load_assets()
         cfg = cfg or load_config()
         self.device = torch.device(device or "cpu")
@@ -342,9 +364,10 @@ class SO101Scene:
         tv, tf = box_mesh([0.5 * t["size_xy_m"][0], 0.5 * t["size_xy_m"][1], 0.5 * t["thickness_m"]])
         self.scene.add_static_mesh(MeshBody("table", vertices=tv, faces=tf, color=TABLE_COLOR),
                                    (*t["center_xy_m"], -0.5 * t["thickness_m"], 0.0, 0.0, 0.0, 1.0))
-        # cameras: front fixed; wrist = the MJCF camera on its body
-        self.front = cameras.look_at(torch.tensor([front_eye], dtype=torch.float64),
-                                     torch.tensor([front_target], dtype=torch.float64))[0].to(self.device)
+        # cameras: front and top fixed (x y z, qx qy qz qw; look along -z, +y up); wrist = the MJCF camera on its body
+        f64 = lambda v: torch.tensor([v], dtype=torch.float64)                                     # noqa: E731
+        self.front = cams.look_at(f64(front_eye), f64(front_target))[0].to(self.device)
+        self.top = cams.look_at(f64(top_eye), f64(top_target), up=TOP_UP)[0].to(self.device)
         cam = assets.wrist_cam
         self.cam_body = self.kin.bodies.index(cam["body"])
         self.cam_pos = torch.tensor(cam["pos"], dtype=torch.float64, device=self.device)
@@ -364,7 +387,7 @@ class SO101Scene:
         return self.scene.body_names
 
     def transforms(self, q, cube_pos, cube_quat, goal_pose=None) -> tuple[torch.Tensor, torch.Tensor]:
-        """Body transforms [B, bodies, 7] and camera transforms [B, 2, 7] (x y z, qx qy qz qw; float32).
+        """Body transforms [B, bodies, 7] and camera transforms [B, cameras, 7] (x y z, qx qy qz qw; float32).
 
         q [B, 6] rad; cube_pos [B, 3] m; cube_quat [B, 4] w x y z (normalised here); goal_pose None (hidden),
         [B, 3] = goal cube centre x, y (m) and yaw (rad), or [B, 7] = goal cube pose (position, quaternion w x y z),
@@ -381,53 +404,57 @@ class SO101Scene:
         if self.goal_style is not None:
             parts.append(self.goal_transform(goal_pose, n)[:, None])
         body_q = torch.cat(parts, 1)
-        # wrist camera: body pose composed with the MJCF camera pose
-        bp, bq = pos[:, self.cam_body], quat[:, self.cam_body]
-        wrist = torch.cat([bp + qrot(bq, self.cam_pos.expand(n, 3)), xyzw(qmul(bq, self.cam_quat.expand(n, 4)))], -1)
-        cam_q = torch.stack([self.front.to(torch.float64).expand(n, 7), wrist], 1)
-        return body_q.float(), cam_q.float()
+        views = []
+        for name in self.cameras:
+            if name == "wrist":         # body pose composed with the MJCF camera pose
+                bp, bq = pos[:, self.cam_body], quat[:, self.cam_body]
+                views.append(torch.cat([bp + qrot(bq, self.cam_pos.expand(n, 3)),
+                                        xyzw(qmul(bq, self.cam_quat.expand(n, 4)))], -1))
+            else:
+                views.append(getattr(self, name).to(torch.float64).expand(n, 7))
+        return body_q.float(), torch.stack(views, 1).float()
 
     def goal_transform(self, goal_pose, n: int) -> torch.Tensor:
         """Goal marker transform [n, 7] (float64, x y z w) on the table top; see :meth:`transforms`."""
-        out = torch.zeros(n, 7, dtype=torch.float64, device=self.device)
-        out[:, 2], out[:, 6] = HIDDEN_Z, 1.0
+        hidden = torch.zeros(n, 7, dtype=torch.float64, device=self.device)
+        hidden[:, 2], hidden[:, 6] = HIDDEN_Z, 1.0
         if goal_pose is None:
-            return out
+            return hidden
         g = torch.as_tensor(goal_pose).to(device=self.device, dtype=torch.float64)
-        if g.shape[-1] == 3:
-            yaw = g[:, 2]
-        elif g.shape[-1] == 7:
-            yaw = flat_yaw(g[:, 3:7] / g[:, 3:7].norm(dim=-1, keepdim=True))
-        else:
+        if g.shape[-1] not in (3, 7):
             raise ValueError(f"goal_pose must be [B, 3] (x, y, yaw) or [B, 7] (pos, quat wxyz), got {tuple(g.shape)}")
-        ok = torch.isfinite(g).all(-1)
-        out[ok, :2] = g[ok, :2]
-        out[ok, 2] = 0.0
-        out[ok, 3:] = xyzw(yaw_quat(yaw[ok]))
-        return out
+        ok = torch.isfinite(g).all(-1, keepdim=True)
+        g = torch.where(ok, g, 1.0)             # no host sync (mask indexing would cost one per call)
+        yaw = g[:, 2] if g.shape[-1] == 3 else flat_yaw(g[:, 3:7] / g[:, 3:7].norm(dim=-1, keepdim=True))
+        shown = torch.cat([g[:, :2], torch.zeros_like(g[:, :1]), xyzw(yaw_quat(yaw))], -1)
+        return torch.where(ok, shown, hidden)
 
 
 # ---- renderer -----------------------------------------------------------------------------------------------------
 class SO101Renderer:
-    """Front + wrist images of ``num_worlds`` SO101 worlds per call, with Kyle's batch renderer.
+    """Images of ``num_worlds`` SO101 worlds per call from the ``cameras`` (names from VIEWS, default front + wrist),
+    with Kyle's batch renderer.
 
     ``backend``: ``"madrona"`` (NVIDIA, always ``cuda:0``; one renderer per process) or ``"newton"`` (Warp: NVIDIA,
-    AMD, CPU; ``device`` = a Warp device, default the GPU if there is one). Both cameras share one resolution and the
-    wrist camera's field of view (fovy 61 deg, ``so101.xml``). Calls with fewer than ``num_worlds`` rows are padded
-    (the extra worlds repeat row 0) and the outputs cut back.
+    AMD, CPU; ``device`` = a Warp device, default the GPU if there is one). All cameras share one resolution
+    (``width`` x ``height``, e.g. 224 x 224 for ACT) and the wrist camera's field of view (fovy 61 deg, ``so101.xml``).
+    Calls with fewer than ``num_worlds`` rows are padded (the extra worlds repeat row 0) and the outputs cut back.
     """
 
-    def __init__(self, num_worlds: int, width: int = 128, height: int = 128, backend: str = "madrona",
+    def __init__(self, num_worlds: int, width: int = 128, height: int = 128, backend: str = "newton",
                  shadows: bool = True, assets: SO101Assets | None = None, cube_colors=None, goal: str | None = "plate",
-                 front_eye=FRONT_EYE, front_target=FRONT_TARGET, sky=SKY, device=None):
+                 front_eye=FRONT_EYE, front_target=FRONT_TARGET, sky=SKY, device=None,
+                 cameras: Sequence[str] = CAMERAS, top_eye=TOP_EYE, top_target=TOP_TARGET):
         from nedm.render.renderer import BatchRenderer
         if backend == "madrona":
             torch_device = "cuda:0"
         else:
             torch_device = "cuda:0" if ("cuda" in str(device) or (device is None and torch.cuda.is_available())) \
                 else "cpu"
-        self.scene = SO101Scene(assets, cube_colors, goal, front_eye, front_target, device=torch_device)
-        self.renderer = BatchRenderer(self.scene.scene, num_worlds, width, height, cameras=len(CAMERAS),
+        self.scene = SO101Scene(assets, cube_colors, goal, front_eye, front_target, device=torch_device,
+                                cameras=cameras, top_eye=top_eye, top_target=top_target)
+        self.cameras = self.scene.cameras
+        self.renderer = BatchRenderer(self.scene.scene, num_worlds, width, height, cameras=len(self.cameras),
                                       fov_deg=self.scene.fovy_deg, device=device, shadows=shadows, sky=sky,
                                       backend=backend)
         self.device = torch.device(torch_device)
@@ -445,9 +472,10 @@ class SO101Renderer:
         return self.scene.body_names + [mesh.name for mesh, _ in self.scene.scene.statics]
 
     def render(self, q, cube_pos, cube_quat, goal_pose=None, depth: bool = False, copy: bool = True):
-        """rgb [B, 2, H, W, 3] uint8 (cameras in CAMERAS order), and with ``depth`` also z-depth [B, 2, H, W] float32
-        (m along the camera axis, 0 = nothing hit). Inputs as :meth:`SO101Scene.transforms`, any device and float
-        dtype, B <= num_worlds. ``copy=False`` returns a view of the renderer's buffer (overwritten by the next call)."""
+        """rgb [B, C, H, W, 3] uint8 (cameras in :attr:`cameras` order), and with ``depth`` also z-depth [B, C, H, W]
+        float32 (m along the camera axis, 0 = nothing hit). Inputs as :meth:`SO101Scene.transforms`, any device and
+        float dtype, B <= num_worlds. ``copy=False`` returns a view of the renderer's buffer (overwritten by the next
+        call)."""
         body_q, cam_q = self.scene.transforms(q, cube_pos, cube_quat, goal_pose)
         n = body_q.shape[0]
         if n > self.num_worlds:
@@ -465,7 +493,8 @@ class SO101Renderer:
         return rgb, frames.depth_torch()[:n] * self.z_per_ray.to(rgb.device)
 
     def render_state(self, state, goal_pose=None, **kw):
-        """Render a :class:`nedm.so101_policy.world.WorldState` (true cube orientation)."""
+        """Render a :class:`nedm.so101_policy.world.WorldState` (``q``, ``cube_pos``, true ``cube_quat`` w x y z), the
+        same call for the NRD world and the MuJoCo worlds; ``goal_pose`` and ``kw`` as :meth:`render`."""
         return self.render(state.q, state.cube_pos, state.cube_quat, goal_pose, **kw)
 
     # ---- EXPERIMENTAL: per-world appearance (domain randomisation) ----------------------------------------------
@@ -508,7 +537,8 @@ class SO101Renderer:
             d = torch.as_tensor(light_dir, dtype=torch.float32, device=b.device)
             b._light_dir.copy_(torch.nn.functional.normalize(d, dim=-1).expand_as(b._light_dir))
         if shadows is not None:
-            b._light_shadow.copy_(torch.as_tensor(shadows, dtype=torch.bool, device=b.device).expand_as(b._light_shadow))
+            sh = torch.as_tensor(shadows, dtype=torch.bool, device=b.device)
+            b._light_shadow.copy_(sh.expand_as(b._light_shadow))
         b._started = False      # the next render calls init with these values
 
     def _newton_colors(self, colors: torch.Tensor) -> None:

@@ -30,9 +30,28 @@ WorldState definitions = the grasp NRD data (records stored float32, then ``data
 Flags are per step; physics always runs the whole command and never stops a world. ``end_reason`` [B] keeps the
 FIRST end since the reset (``so101_grasp.TERMINAL`` index, 7 = numerical) and ``end_step`` the step that raised it
 (inside a command: the earlier 10 ms record first; inside a record: contact kinds in TERMINAL order, then off table;
-a non-finite state wins). Not bit-repeatable: MuJoCo Warp collects contacts with atomics, so identical worlds can
-drift apart (measured in docs/build_mjwarp_env.md). ``overflow`` [B] is MuJoCo Warp's OverflowType bitmask since
-the world's reset (e.g. 1024 = line-search iteration limit reached in some physics step).
+a numerical end wins). Numerical = non-finite qpos / qvel, or a LOST contact or constraint since the world's reset
+(``overflow & LOST_OVERFLOW``: nefc > njmax, J nonzeros, broadphase / narrowphase contact pool, CCD pool; the pools
+are shared by all worlds, so a pool overflow marks every world). Not bit-repeatable: MuJoCo Warp collects contacts
+with atomics, so identical worlds can drift apart (measured in ~/so101_policy/docs/build2_mjwarp_env.md).
+``overflow`` [B] is MuJoCo Warp's OverflowType bitmask since the world's reset; the solver-limit bits (512 = Newton
+iteration limit, 1024 = line-search iteration limit in some physics step) are reported, not ends (CPU MuJoCo has the
+same 100 / 50 iteration limits and does not flag them either).
+
+Use from an RL trainer (PPO with ``backend="mjwarp"``): ``step(targets [B, 6] cuda)`` -> WorldState (q, qd, cube
+pose and rates, flags; float64 on the env's device), ``steps`` [B] commands since each world's reset, ``observe()``
+(= ``state()``, the GraspNrdSim name). Exact resets (``warmup=False``, e.g. the recorded first states of the data,
+which already are post-warm-up states) cost one ``forward`` of all worlds; ``warmup=True`` runs 15 commands of ALL
+worlds (others restored after) and is for evaluation starts only. Starts, targets and indices may be CUDA tensors
+(no host round trip; a few host syncs per reset for the index checks; about 1 ms per reset at 4k worlds). ``arm_table_fn(q [B, 6]) -> bool [B]`` (the NRD
+arm's kinematic guard, e.g. ``kin.lowest_point(q) < 5e-4``) replaces ``WorldState.arm_table`` as in ``GraspNrdSim``;
+the real MuJoCo arm-table contact is then still in ``arm_table_contact``. Torch interop: every call is ordered on the
+CURRENT torch stream (Warp's stream waits for it, then it waits for Warp), returned tensors are copies.
+
+Environment (luffy, RTX 5090, driver CUDA 13): conda env ``so101_mjwarp`` = clone of ``nedm`` (python 3.12, torch
+2.12.0+cu130, mujoco 3.15.0, numpy 2.4.6) + ``pip install mujoco-warp==3.15.0 warp-lang==1.18.0 pytest==9.1.1``
+(recipe: ``scripts/so101_policy/env_so101_mjwarp.sh``; ``check_versions()`` warns on other versions). The first
+use compiles MuJoCo Warp's kernels (about 2 min, then cached in ~/.cache/warp).
 """
 
 from __future__ import annotations
@@ -50,7 +69,8 @@ NREC = 2         # 10 ms records per command
 RAW = 25         # packed row: q 6, qd 6, cube pos 3, quat 4, v 3, w 3
 NFLAG = 5        # contact 3, arm_table, invalid
 NUMERICAL = 7    # end code after so101_grasp.TERMINAL ("end", arm_table, ..., cube_visual_overlap)
-MJW_PINS = {"mujoco": "3.15.0", "mujoco_warp": "3.15.0", "warp": "1.18.0"}
+LOST_OVERFLOW = 31   # OverflowType NEFC | NJMAX_NNZ | BROADPHASE | NARROWPHASE | CCD: contacts / constraints dropped
+MJW_PINS = {"mujoco": "3.15.0", "mujoco_warp": "3.15.0", "warp": "1.18.0", "torch": "2.12.0"}
 
 
 # ---- kernels: float32 physics state in, float64 WorldState rows out --------------------------------------------
@@ -98,9 +118,11 @@ def _sum_contacts(nacon: wp.array(dtype=int), naconmax: int, geom: wp.array(dtyp
 @wp.kernel
 def _fold_forces(fsum: wp.array2d(dtype=float), fmax: wp.array2d(dtype=float), qpos: wp.array2d(dtype=float),
                  cq: int, rec: int, record_end: int, table_lo: wp.vec2, table_hi: wp.vec2,
-                 offtab: wp.array2d(dtype=wp.int32)):
-    """fmax[record] = max(fmax[record], fsum), fsum = 0; at the end of a 10 ms record the collector's off-table test."""
+                 offtab: wp.array2d(dtype=wp.int32), nefc: wp.array(dtype=int), peak: wp.array(dtype=wp.int32)):
+    """fmax[record] = max(fmax[record], fsum), fsum = 0; at the end of a 10 ms record the collector's off-table test;
+    peak = largest constraint row count of any physics step since the reset."""
     w = wp.tid()
+    peak[w] = wp.max(peak[w], nefc[w])
     for k in range(7):
         fmax[w, rec * 7 + k] = wp.max(fmax[w, rec * 7 + k], fsum[w, k])
         fsum[w, k] = 0.0
@@ -160,10 +182,14 @@ def _any_invalid(fmax: wp.array2d(dtype=float), offtab: wp.array2d(dtype=wp.int3
 def _finish(qpos: wp.array2d(dtype=float), qvel: wp.array2d(dtype=float), cq: int, cv: int,
             fmax: wp.array2d(dtype=float), offtab: wp.array2d(dtype=wp.int32), thr: float, inv_dt: wp.float64,
             instant: int, prev: wp.array2d(dtype=wp.float64), out: wp.array2d(dtype=wp.float64),
-            flags: wp.array2d(dtype=wp.int32), code: wp.array(dtype=wp.int32)):
-    """WorldState row after a command (module docstring); prev <- this command's pose (arm 6, cube pos 3, quat 4)."""
+            flags: wp.array2d(dtype=wp.int32), code: wp.array(dtype=wp.int32), overflow: wp.array(dtype=int),
+            lost: int):
+    """WorldState row after a command (module docstring); prev <- this command's pose (arm 6, cube pos 3, quat 4).
+    A lost contact / constraint (overflow & lost) counts as a numerical end, as a non-finite state."""
     w = wp.tid()
     finite = int(1)
+    if (overflow[w] & lost) != 0:
+        finite = 0
     for j in range(6):
         q = wp.float64(qpos[w, j])
         out[w, j] = q
@@ -235,7 +261,7 @@ def _finish(qpos: wp.array2d(dtype=float), qvel: wp.array2d(dtype=float), cq: in
 def _place(mask: wp.array(dtype=wp.int32), start: wp.array2d(dtype=wp.float64), hold: wp.array2d(dtype=wp.float64),
            tlo: wp.array(dtype=wp.float64), thi: wp.array(dtype=wp.float64), cq: int, cv: int, arm: int,
            qpos: wp.array2d(dtype=float), qvel: wp.array2d(dtype=float), ctrl: wp.array2d(dtype=float),
-           prev: wp.array2d(dtype=wp.float64), out: wp.array2d(dtype=wp.float64)):
+           prev: wp.array2d(dtype=wp.float64), out: wp.array2d(dtype=wp.float64), peak: wp.array(dtype=wp.int32)):
     """Write a packed start row into the masked worlds (arm != 0: arm, held targets and cube; else the cube only).
     The cube spin is given in the world frame (MuJoCo's free joint takes it in the body frame). The state row and the
     step-average reference get the float32 values the simulation holds (as the data's float32 records)."""
@@ -243,6 +269,7 @@ def _place(mask: wp.array(dtype=wp.int32), start: wp.array2d(dtype=wp.float64), 
     if mask[w] == 0:
         return
     if arm != 0:
+        peak[w] = 0
         for j in range(6):
             qpos[w, j] = float(start[w, j])
             qvel[w, j] = float(start[w, 6 + j])
@@ -273,7 +300,7 @@ def _place(mask: wp.array(dtype=wp.int32), start: wp.array2d(dtype=wp.float64), 
 def _flags_now(mask: wp.array(dtype=wp.int32), fsum: wp.array2d(dtype=float), qpos: wp.array2d(dtype=float),
                qvel: wp.array2d(dtype=float), cq: int, thr: float, table_lo: wp.vec2, table_hi: wp.vec2,
                fmax: wp.array2d(dtype=float), offtab: wp.array2d(dtype=wp.int32), flags: wp.array2d(dtype=wp.int32),
-               code: wp.array(dtype=wp.int32)):
+               code: wp.array(dtype=wp.int32), overflow: wp.array(dtype=int), lost: int):
     """Flags and end code of the masked worlds from the forces of one forward call at the current state."""
     w = wp.tid()
     if mask[w] == 0:
@@ -289,6 +316,8 @@ def _flags_now(mask: wp.array(dtype=wp.int32), fsum: wp.array2d(dtype=float), qp
     if x < table_lo[0] or x > table_hi[0] or y < table_lo[1] or y > table_hi[1] or qpos[w, cq + 2] < -0.01:
         offtab[w, 0] = 1
     finite = int(1)
+    if (overflow[w] & lost) != 0:
+        finite = 0
     for i in range(qpos.shape[1]):
         if not wp.isfinite(qpos[w, i]):
             finite = 0
@@ -333,17 +362,45 @@ def _get(start, name):
     return start.get(name) if isinstance(start, dict) else getattr(start, name, None)
 
 
-def pack_start(start, n: int | None = None) -> torch.Tensor:
+def _f64(x, n: int, dim: int, device) -> torch.Tensor:
+    """x (None = zeros, numpy, list or tensor on any device) -> [n, dim] float64 on ``device``."""
+    if x is None:
+        return torch.zeros(n, dim, dtype=torch.float64, device=device)
+    return torch.as_tensor(x).detach().to(device=device, dtype=torch.float64).reshape(n, dim)
+
+
+def unit_quat(q: torch.Tensor) -> torch.Tensor:
+    """w x y z quaternions [n, 4] scaled to unit length (as the CPU env; MuJoCo would normalise them later anyway)."""
+    return q / q.norm(dim=1, keepdim=True)
+
+
+def pack_start(start, n: int | None = None, device="cpu") -> torch.Tensor:
     """WorldState-like (attributes or dict keys q, qd, cube_pos, cube_quat, cube_v, cube_w; qd, cube_v, cube_w may be
-    missing = 0) -> packed rows [n, 25] float64 (CPU)."""
-    q = torch.as_tensor(_get(start, "q"), dtype=torch.float64)
+    missing = 0) -> packed rows [n, 25] float64 on ``device`` (cube quaternion made unit)."""
+    q = torch.as_tensor(_get(start, "q"))
     n = q.reshape(-1, JOINTS).shape[0] if n is None else n
-    parts = []
-    for k, dim in (("q", 6), ("qd", 6), ("cube_pos", 3), ("cube_quat", 4), ("cube_v", 3), ("cube_w", 3)):
-        x = _get(start, k)
-        parts.append(torch.zeros(n, dim, dtype=torch.float64) if x is None
-                     else torch.as_tensor(x, dtype=torch.float64).detach().cpu().reshape(n, dim))
+    parts = [_f64(_get(start, k), n, dim, device)
+             for k, dim in (("q", 6), ("qd", 6), ("cube_pos", 3), ("cube_quat", 4), ("cube_v", 3), ("cube_w", 3))]
+    parts[3] = unit_quat(parts[3])
     return torch.cat(parts, 1)
+
+
+def check_versions(warn: bool = True) -> dict:
+    """Installed versions of the packages pinned in MJW_PINS -> {name: (installed, pinned)} of the mismatches
+    (a warning each when ``warn``)."""
+    import importlib
+    import warnings
+    bad = {}
+    for name, pin in MJW_PINS.items():
+        try:
+            v = importlib.import_module(name).__version__
+        except Exception:   # noqa: BLE001
+            v = None
+        if v is None or v.split("+")[0] != pin:
+            bad[name] = (v, pin)
+    if bad and warn:
+        warnings.warn(f"mjwarp_env was validated with {MJW_PINS}; installed differs: {bad}", stacklevel=2)
+    return bad
 
 
 def quat_rotate(q: torch.Tensor, v: torch.Tensor) -> torch.Tensor:
@@ -375,17 +432,26 @@ class MjwarpWorlds:
     [B, 6] float32 targets of the last command, ``steps`` [B], ``overflow`` [B] (MuJoCo Warp OverflowType bits since
     the world's reset).
 
-    ``nconmax`` contacts per world on average (one pool of nconmax * B), ``njmax`` constraint rows per world;
-    ``graph=False`` runs the same kernels eagerly (debugging)."""
+    ``nconmax`` contacts per world on average (one pool of nconmax * B), ``njmax`` constraint rows per world
+    (2,853 validation replays: at most 9.9 contacts per world on average, at most 168 rows in a physics step; one
+    rerun with njmax 192 needed 198, see ``nefc_peak``);
+    ``graph=False`` runs the same kernels eagerly (debugging). ``arm_table_fn``: module docstring. ``opt``: MuJoCo
+    Warp solver overrides applied after ``put_model`` (``iterations``, ``ls_iterations``, ``tolerance``,
+    ``ls_tolerance``); default None = the collector's solver (100 / 50 iterations, tolerance raised to 1e-6 by
+    MuJoCo Warp). The batch solver iterates while ANY world is unconverged (``wp.capture_while``), so the step cost
+    follows the slowest world; ``ls_iterations`` 10 or 20 gave no speed gain beyond the 15-20 % run-to-run noise
+    of the shared 5090 (build2_mjwarp_env.md), so keep the default."""
 
-    def __init__(self, num_envs: int, device="cuda:0", nconmax: int = 48, njmax: int = 192,
+    def __init__(self, num_envs: int, device="cuda:0", nconmax: int = 48, njmax: int = 256,
                  cube_rates: str = "step_average", cfg: dict | None = None, physics: dict | None = None,
-                 graph: bool = True):
+                 graph: bool = True, arm_table_fn=None, opt: dict | None = None):
         import mujoco_warp as mjw
         from nedm.contact_nrd.collect import so101_grasp as g
 
         if cube_rates not in ("step_average", "instant"):
             raise ValueError("cube_rates is 'step_average' or 'instant'")
+        check_versions()
+        self.arm_table_fn = arm_table_fn
         wp.config.quiet = True
         if hasattr(wp, "LOG_WARNING"):
             wp.config.log_level = wp.LOG_WARNING   # no "Module ... load" line per kernel
@@ -414,6 +480,14 @@ class MjwarpWorlds:
             self.stream = wp.get_stream(self.wdev)
             self.m = mjw.put_model(m)
             self.m.opt.warn_overflow = 0          # overflow bits are still set in d.overflow; no printf per world
+            for k, v in (opt or {}).items():
+                if k in ("tolerance", "ls_tolerance"):
+                    getattr(self.m.opt, k).fill_(float(v))
+                elif k in ("iterations", "ls_iterations"):
+                    setattr(self.m.opt, k, int(v))
+                else:
+                    raise ValueError(f"opt override {k!r} not supported")
+            self.opt = dict(opt or {})
             self.d = mjw.make_data(m, nworld=B, nconmax=nconmax, njmax=njmax)
             self.gcls, self.kind = wp.array(cls, dtype=wp.int32), wp.array(kind, dtype=wp.int32)
             self.tlo, self.thi = wp.array(self.tlo_np, dtype=wp.float64), wp.array(self.thi_np, dtype=wp.float64)
@@ -429,6 +503,7 @@ class MjwarpWorlds:
             self.start = wp.zeros((B, RAW), dtype=wp.float64)
             self.mask = wp.zeros(B, dtype=wp.int32)
             self.mask_b = wp.zeros(B, dtype=bool)
+            self.peak = wp.zeros(B, dtype=wp.int32)
         t = wp.to_torch
         self._targets_t, self._hold_t, self._out_t, self._flags_t = t(self.targets), t(self.hold), t(self.out), t(self.flags)
         self._start_t, self._mask_t, self._mask_bt, self._code_t = t(self.start), t(self.mask), t(self.mask_b), t(self.code)
@@ -437,6 +512,7 @@ class MjwarpWorlds:
         self._g_step = self._g_reset = self._g_bare = self._g_cube = self._g_place = None
         dev, B = self.device, self.B
         self.ready = torch.zeros(B, dtype=torch.bool, device=dev)
+        self._all_ready = False                     # host copy of ready.all() (no sync per step)
         self.end_reason = torch.zeros(B, dtype=torch.int8, device=dev)
         self.end_step = torch.full((B,), -1, dtype=torch.long, device=dev)
         self.steps = torch.zeros(B, dtype=torch.long, device=dev)
@@ -461,14 +537,16 @@ class MjwarpWorlds:
             self.mjw.step(m, d)
             self._sum()
             self._launch(_fold_forces, B, [self.fsum, self.fmax, d.qpos, self.cq, k // self.spr,
-                                           int((k + 1) % self.spr == 0), self.table_lo, self.table_hi, self.offtab])
+                                           int((k + 1) % self.spr == 0), self.table_lo, self.table_hi, self.offtab,
+                                           d.nefc, self.peak])
         self._launch(_finish, B, [d.qpos, d.qvel, self.cq, self.cv, self.fmax, self.offtab, self.thr,
-                                  wp.float64(1.0 / CONTROL_DT), self.instant, self.prev, self.out, self.flags, self.code])
+                                  wp.float64(1.0 / CONTROL_DT), self.instant, self.prev, self.out, self.flags, self.code,
+                                  d.overflow, LOST_OVERFLOW])
 
     def _body_place(self, arm: int):
         d = self.d
         self._launch(_place, self.B, [self.mask, self.start, self.hold, self.tlo, self.thi, self.cq, self.cv, arm,
-                                      d.qpos, d.qvel, d.ctrl, self.prev, self.out])
+                                      d.qpos, d.qvel, d.ctrl, self.prev, self.out, self.peak])
         self._body_flags()
 
     def _body_reset(self):
@@ -481,7 +559,8 @@ class MjwarpWorlds:
         self._launch(_zero_forces, (self.B, NREC * NCLASS), [self.fsum, self.fmax, self.offtab])
         self._sum()
         self._launch(_flags_now, self.B, [self.mask, self.fsum, d.qpos, d.qvel, self.cq, self.thr, self.table_lo,
-                                          self.table_hi, self.fmax, self.offtab, self.flags, self.code])
+                                          self.table_hi, self.fmax, self.offtab, self.flags, self.code, d.overflow,
+                                          LOST_OVERFLOW])
 
     def _body_bare(self):
         for _ in range(self.spc):
@@ -525,6 +604,7 @@ class MjwarpWorlds:
             self.end_reason[sel], self.end_step[sel] = code, torch.where(code > 0, 0, -1)
             self.steps[sel], self._last_phys[sel], self.switch_contact[sel] = 0, False, False
             self.ready[sel] = True
+            self._all_ready = self._all_ready or bool(self.ready.all())
         else:
             new = (self.end_reason[sel] == 0) & (code > 0)
             self.end_reason[sel] = torch.where(new, code, self.end_reason[sel])
@@ -542,8 +622,10 @@ class MjwarpWorlds:
         if spawn and not warmup:
             raise ValueError("spawn needs warmup=True (the collector's probe start)")
         sel = self._select(idx)
-        rows = pack_start(start, len(sel)).to(self.device)
-        hold = rows[:, :6] if targets is None else torch.as_tensor(targets, dtype=torch.float64).to(self.device).reshape(-1, 6)
+        if len(sel) == 0:
+            return self.state()
+        rows = pack_start(start, len(sel), self.device)
+        hold = rows[:, :6] if targets is None else _f64(targets, len(sel), JOINTS, self.device)
         cube = rows[:, 12:25].clone()
         if warmup:
             rows[:, 6:12] = 0.0
@@ -587,11 +669,12 @@ class MjwarpWorlds:
         step's step-average rates start from this pose (the jump itself is no rate). Flags are those of the new
         state (one forward)."""
         sel = self._select(idx)
-        n = len(sel)
-        f = lambda x, dim: (torch.zeros(n, dim, dtype=torch.float64) if x is None
-                            else torch.as_tensor(x, dtype=torch.float64).reshape(n, dim)).to(self.device)
+        if len(sel) == 0:
+            return self.state()
+        n, dev = len(sel), self.device
         row = self._out_t[sel].clone()
-        row[:, 12:15], row[:, 15:19], row[:, 19:22], row[:, 22:25] = f(pos, 3), f(quat, 4), f(v, 3), f(w, 3)
+        row[:, 12:15], row[:, 15:19] = _f64(pos, n, 3, dev), unit_quat(_f64(quat, n, 4, dev))
+        row[:, 19:22], row[:, 22:25] = _f64(v, n, 3, dev), _f64(w, n, 3, dev)
         self._start_t[sel] = row
         self._run("_g_cube", lambda: self._body_place(0))
         self._after_place(sel, first=False)
@@ -600,12 +683,12 @@ class MjwarpWorlds:
     def step(self, targets) -> WorldState:
         """One 20 ms command: targets [B, 6] absolute joint targets (rad, jaw last), clipped to the collector's
         applied range (joint limits minus 50 mrad) and cast to float32. Returns the new state of all worlds."""
-        if not bool(self.ready.all()):
+        if not self._all_ready:
             raise RuntimeError("reset every world before stepping")
         targets = torch.as_tensor(targets)
-        if targets.shape != (self.B, JOINTS):
+        if tuple(targets.shape) != (self.B, JOINTS):
             raise ValueError(f"targets must be [{self.B}, {JOINTS}]")
-        self._targets_t.copy_(targets.to(device=self.device, dtype=torch.float64))
+        self._targets_t.copy_(targets.detach().to(device=self.device, dtype=torch.float64))
         self._run("_g_step", self._body_step)
         contact = self._flags_t[:, :3].bool()
         self.switch_contact = contact | self._last_phys
@@ -621,9 +704,20 @@ class MjwarpWorlds:
     def state(self) -> WorldState:
         """Current WorldState of all worlds (copies, on ``device``)."""
         o, f = self._out_t, self._flags_t.bool()
-        return WorldState(q=o[:, 0:6].clone(), qd=o[:, 6:12].clone(), cube_pos=o[:, 12:15].clone(),
+        q = o[:, 0:6].clone()
+        at = f[:, 3].clone()
+        if self.arm_table_fn is not None:
+            at = self.arm_table_fn(q).to(device=self.device, dtype=torch.bool).reshape(self.B)
+        return WorldState(q=q, qd=o[:, 6:12].clone(), cube_pos=o[:, 12:15].clone(),
                           cube_quat=o[:, 15:19].clone(), cube_v=o[:, 19:22].clone(), cube_w=o[:, 22:25].clone(),
-                          contact=f[:, 0:3].clone(), arm_table=f[:, 3].clone(), invalid=f[:, 4].clone())
+                          contact=f[:, 0:3].clone(), arm_table=at, invalid=f[:, 4].clone())
+
+    observe = state
+
+    @property
+    def arm_table_contact(self) -> torch.Tensor:
+        """[B] bool: real MuJoCo arm-table contact in the last command (the force rule), whatever ``arm_table_fn``."""
+        return self._flags_t[:, 3].bool()
 
     def raw_state(self) -> torch.Tensor:
         """[B, 25] the collector's raw record of the current state: q, MuJoCo joint rates, cube pos, quat (as the
@@ -640,6 +734,11 @@ class MjwarpWorlds:
         set_cube: at that state): fixed jaw-cube, moving jaw-cube, cube-table, arm-table, cube-other link, arm
         self, cube-base."""
         return self._fmax_t.reshape(self.B, NREC, NCLASS).amax(1).double()
+
+    @property
+    def nefc_peak(self) -> torch.Tensor:
+        """[B] int32 largest number of constraint rows in any physics step since each world's reset (vs ``njmax``)."""
+        return wp.to_torch(self.peak).clone()
 
     @property
     def overflow(self) -> torch.Tensor:

@@ -14,6 +14,10 @@ test_kin.py`` checks them, the FK, the lowest point and the IK against MuJoCo.
 - ``lowest_point(q)``: lowest world z of the collision geoms of the gripper and the moving jaw (``Scene.lowest`` with
   ``which`` = those bodies: every vertex of boxes and meshes, capsule ends and sphere centres minus their radius). The
   points come from MuJoCo once (``collision_points``) or from a saved ``.npz`` (``save_points`` / ``points=``).
+  ``exact=False`` uses only the points that are lowest for one of 20,000 directions (1,645 of 4,763 points; error
+  <= 0.033 mm against all points over 200,000 random directions, measured 2026-10-11): the command decoder's floor.
+- ``box_distance(q, centre, quat, half)``: smallest distance (m) from the gripper and moving-jaw points (the reduced
+  set) to a box (the cube); 0 inside. Vertices only, so a face of a hull can be closer than this (decoder yaw rule).
 - ``ik`` / ``pose_ik`` / ``ik_topdown``: batched damped least squares with the collector's rules (``Scene.ik``,
   ``Scene.pose_ik``, ``Scene.solve``): the same iterations, stopping rules, tolerances, seeds and seed order, so a
   world gets the same solution branch as the collector would.
@@ -168,6 +172,17 @@ def save_points(path, bodies=GUARD_BODIES):
              **{f"{b}_radius": r for b, (_, r) in pts.items()})
 
 
+def reduce_points(points, radius, n_dirs=20000):
+    """Indices of the points that are lowest (point . u - radius smallest) for at least one of n_dirs directions u
+    (Fibonacci sphere): the decoder's fast floor set (module docstring for its error)."""
+    import numpy as np
+    i = np.arange(n_dirs) + 0.5
+    phi, th = np.arccos(1 - 2 * i / n_dirs), math.pi * (1 + 5 ** 0.5) * i
+    u = np.stack((np.cos(th) * np.sin(phi), np.sin(th) * np.sin(phi), np.cos(phi)), -1)
+    s = u @ np.asarray(points).T - np.asarray(radius)
+    return np.flatnonzero((s <= s.min(1, keepdims=True)).any(0))
+
+
 def load_points(path):
     import numpy as np
     f = np.load(path)
@@ -244,29 +259,62 @@ class SO101Kin:
         return torch.cross(axes, lever, dim=-2), axes, p, rs[-1]
 
     # -- arm-table guard --
-    def _guard_points(self):
+    def _guard_points(self, exact=True):
+        """[(body index, points [N, 3] with radius 0, points [M, 3] with a radius, radii [M])] per guard body; exact
+        False: the extreme-point subset (``reduce_points``)."""
         if self._guard is None:
             src = self._points_src
             pts = load_points(src) if isinstance(src, (str, Path)) else (src or collision_points())
             f = dict(device=self.device, dtype=self.dtype)
-            self._guard = [(BODIES.index(b), torch.as_tensor(p, **f), torch.as_tensor(r, **f))
-                           for b, (p, r) in pts.items()]
-        return self._guard
+            self._guard = {}
+            for key in (True, False):
+                rows = []
+                for b, (p, r) in pts.items():
+                    keep = reduce_points(p, r) if not key else slice(None)
+                    p, r = p[keep], r[keep]
+                    z = r == 0
+                    rows.append((BODIES.index(b), torch.as_tensor(p[z], **f), torch.as_tensor(p[~z], **f),
+                                 torch.as_tensor(r[~z], **f)))
+                self._guard[key] = rows
+        return self._guard[exact]
 
-    def lowest_point(self, q, chunk=4096, per_body=False):
+    def lowest_point(self, q, chunk=4096, per_body=False, exact=True):
         """Lowest world z (m) of the gripper and moving-jaw collision geoms at joint angles q [B, 6] -> [B]
-        (per_body: [B, 2] in GUARD_BODIES order). Arm-table guard of the NRD: lowest_point < 0.5 mm (critic 3.7)."""
+        (per_body: [B, 2] in GUARD_BODIES order). Arm-table guard of the NRD: lowest_point < 0.5 mm (critic 3.7).
+        exact False: the reduced point set (error <= 0.033 mm, module docstring)."""
         q = q.to(self.dtype)
         out = []
         for s in range(0, max(1, q.shape[0]), chunk):
             pos, rot = self.body_poses(q[s: s + chunk])
             cols = []
-            for b, pts, rad in self._guard_points():
+            for b, p0, p1, rad in self._guard_points(exact):
                 u = rot[:, b, 2, :]                                                   # world z row of the body rotation
-                cols.append(pos[:, b, 2] + ((u @ pts.T) - rad).amin(-1))
+                low = (u @ p0.T).amin(-1)
+                if len(rad):
+                    low = torch.minimum(low, ((u @ p1.T) - rad).amin(-1))
+                cols.append(pos[:, b, 2] + low)
             out.append(torch.stack(cols, -1))
         low = torch.cat(out)
         return low if per_body else low.amin(-1)
+
+    def box_distance(self, q, centre, quat, half):
+        """Smallest distance (m) from the reduced gripper and moving-jaw collision points (minus their radius) to the box
+        of half size ``half`` (m) at ``centre`` [B, 3] with orientation ``quat`` [B, 4] (w x y z); <= 0 inside."""
+        q = q.to(self.dtype)
+        pos, rot = self.body_poses(q)
+        rc = quat_mat(quat.to(self.dtype))
+        best = None
+        for b, p0, p1, rad in self._guard_points(False):
+            for pts, r in ((p0, None), (p1, rad)):
+                if not len(pts):
+                    continue
+                w = pos[:, b, None, :] + pts @ rot[:, b].transpose(-1, -2)            # [B, N, 3] world
+                loc = (w - centre.to(w)[:, None, :]) @ rc                               # cube frame
+                d = (loc.abs() - half).clamp_min(0.0).norm(dim=-1)
+                d = d - r if r is not None else d
+                d = d.amin(-1)
+                best = d if best is None else torch.minimum(best, d)
+        return best
 
     # -- inverse kinematics --
     def ik(self, q0, pos, rot=None, w_rot=0.1, iters=150, damping=1e-4):
@@ -355,27 +403,33 @@ class SO101Kin:
                 done[idx[ok]] = True
         return out_q, done, out_ep, out_ea
 
-    def ik_track(self, q0, pos, rot, iters=3, damping=1e-4, step_max=0.1):
-        """Warm-started IK for a target that moves a little every step (the command decoder), with the collector's two
-        weights (Scene.pose_ik): ``iters`` damped-least-squares iterations at w_rot 0.1 m/rad (top-down where it is in
-        reach), then ``iters`` at w_rot 0.001 from that result (the position exact, the least orientation change: where
-        top-down is out of reach, e.g. the wrist-flex limit above a grasp-point height of about 6-7 cm, the gripper
-        tilts). Unlike Scene.ik, a joint at its limit (TLO..THI) that a step would push further leaves that step's
-        Jacobian (no error build-up from clipping), and an iteration changes a joint by at most step_max (rad); fixed
-        shapes, no early stop; orientation errors by rotvec_fast. -> (q [B, 5], position error [B] m, angle error [B])."""
+    def ik_track(self, q0, pos, rot, iters=3, w_rot=0.01, damping=1e-6, step_max=0.1):
+        """Warm-started IK for a target that moves a little every step (the command decoder): ``iters`` damped
+        least-squares iterations on the grasp-point position and the gripper rotation ``rot`` (rotation-vector error)
+        weighted w_rot (m/rad). Where ``rot`` is reachable (top-down below a grasp-point height of about 6-7 cm) the
+        solution is exact, the collector's (Scene.pose_ik within tolerance); above it (the wrist-flex limit) it
+        minimises |position error|^2 + w_rot^2 |rotation error|^2: position errors of a few 0.1 mm for the least
+        rotation error, between the collector's two stages (weights 0.1 and 0.001). One weight with small damping
+        converges in a few iterations per step and gives a consistent solution from step to step (a two-stage tracker,
+        3 + 3 iterations at 0.1 and 0.001, alternated between two solutions at large tilts; a task-priority tracker
+        stalled 1.3 mm off where the reach needs the wrist flex off its limit; both 2026-10-11). A joint at its limit
+        (TLO..THI) that a step would push further leaves that step's Jacobian, and an iteration changes a joint by at
+        most step_max (rad); fixed shapes, no early stop; orientation errors by rotvec_fast.
+        -> (q [B, 5], position error [B] m, angle error [B] rad)."""
         q = q0[..., :5].to(self.dtype)
         lo, hi = self.tlo[:5], self.thi[:5]
         eye = torch.eye(6, dtype=self.dtype, device=q.device)
-        for w in (0.1,) * iters + (0.001,) * iters:
+        for _ in range(iters):
             jp, jr, p, r = self.jacobian(q)
-            jac0 = torch.cat((jp, w * jr), -2)                                              # [B, 6, 5]
-            rhs = torch.cat((pos - p, w * rotvec_fast(rot @ r.transpose(-1, -2))), -1)[..., None]
+            jac0 = torch.cat((jp, w_rot * jr), -2)                                          # [B, 6, 5]
+            rhs = torch.cat((pos - p, w_rot * rotvec_fast(rot @ r.transpose(-1, -2))), -1)[..., None]
             free = torch.ones_like(q)
             for _ in range(2):   # a joint at its limit that the step would push further leaves the Jacobian
                 jac = jac0 * free[:, None, :]
                 jt = jac.transpose(-1, -2)
                 dq = (jt @ torch.linalg.solve(jac @ jt + damping * eye, rhs))[..., 0]
-                stuck = ((q >= hi - 1e-9) & (dq > 0)) | ((q <= lo + 1e-9) & (dq < 0))
+                # (a dead band: a rounding-level step must not flip the active set between devices / batch layouts)
+                stuck = ((q >= hi - 1e-9) & (dq > 1e-12)) | ((q <= lo + 1e-9) & (dq < -1e-12))
                 free = free * (~stuck).to(free)
             big = dq.abs().amax(-1, keepdim=True)
             dq = dq * torch.where(big > step_max, step_max / big.clamp_min(1e-12), torch.ones_like(big))

@@ -1,13 +1,16 @@
 """Tests of the SO101 scene for the batch renderer (nedm.render.so101).
 
 CPU tests (torch + mujoco, a few seconds): forward kinematics and the wrist camera against MuJoCo, NRD-layout and
-MuJoCo-qpos states give the same transforms (and the same as MuJoCo's own body poses), goal marker conventions, asset
-cache round trip. GPU tests (one renderer, Madrona if NEDM_MADRONA_BUILD is set, else Newton/Warp on CUDA; override with
-NEDM_SO101_RENDER_BACKEND=madrona|newton|none): the same state from both layouts renders identically; depth against
-MuJoCo's own renderer (EGL) for 8 states and against the analytic table plane.
+MuJoCo-qpos states give the same transforms (and the same as MuJoCo's own body poses), goal marker conventions, front
+and top camera framing, camera selection, asset cache round trip. GPU tests (one renderer with the three cameras,
+Madrona if NEDM_MADRONA_BUILD is set, else Newton/Warp on CUDA; override with NEDM_SO101_RENDER_BACKEND=
+madrona|newton|none): the same state from both layouts and from a WorldState renders identically; depth against MuJoCo's
+own renderer (EGL) for 8 states and against the analytic table plane; Newton only: 224 px with a camera subset.
 
-    PYTHONPATH=src python -m unittest tests/render/test_so101.py -v
-    # newton (GPU): source ~/kyle_render_build/madrona/env.sh first
+    PYTHONPATH=src python -m unittest tests/render/test_so101.py -v              # CPU part: env nedm
+    # GPU, Newton (luffy): ~/miniconda3/envs/so101_render/bin/python (warp 1.13 + newton 1.2, torch 2.12 cu130)
+    # GPU, Madrona (luffy): source ~/so101_policy/runs/render/madrona_luffy/env_luffy.sh, same python; if the run
+    # aborts in Madrona's engine start (CUDA_ERROR_OUT_OF_MEMORY / LAUNCH_OUT_OF_RESOURCES), the GPU is full: rerun
 """
 import importlib.util
 import math
@@ -78,6 +81,39 @@ def recorded_states(k: int, seed: int = 0) -> np.ndarray:
     x[:, 1, 2] = 0.015
     x[:, 1, 3], x[:, 1, 6] = np.cos(yaw / 2), np.sin(yaw / 2)
     return x
+
+
+def project(cam: torch.Tensor, p: torch.Tensor, fovy_deg: float) -> tuple[torch.Tensor, torch.Tensor]:
+    """Image coordinates (u right, v up; +-1 = the image edges) of world points p [N, 3] in camera cam (7,) x y z,
+    qx qy qz qw (looks along -z, +y up), square image."""
+    from nedm.render.poses import quat_rotate
+    cam = cam.double().cpu()
+    local = quat_rotate(torch.cat([-cam[3:6], cam[6:]]).expand(len(p), 4), p.double() - cam[:3])
+    tan = math.tan(math.radians(fovy_deg) / 2)
+    return local[:, 0] / -local[:, 2] / tan, local[:, 1] / -local[:, 2] / tan
+
+
+def workspace_points(z_top: float) -> torch.Tensor:
+    """The annulus (r 0.15-0.27 m around the pan axis (0.0388, 0), +-75 deg) widened by the cube's half diagonal
+    (21 mm), at z = 0 and z = z_top (m)."""
+    r, a = np.meshgrid(np.linspace(0.15, 0.27, 7), np.radians(np.linspace(-75, 75, 31)))
+    pts = [np.stack([0.0388 + r.ravel() * np.cos(a.ravel()) + dx, r.ravel() * np.sin(a.ravel()) + dy,
+                     np.full(r.size, z)], 1) for z in (0.0, z_top) for dx in (-0.021, 0.021) for dy in (-0.021, 0.021)]
+    return torch.tensor(np.concatenate(pts), dtype=torch.float64)
+
+
+def table_plane_depth(cam: torch.Tensor, h: int, fovy_deg: float) -> np.ndarray:
+    """Analytic z-depth [h, h] of the table plane z = 0 at pixel centres for camera cam (7,) (inf: misses it)."""
+    import mujoco
+    c = cam.double().cpu().numpy()
+    f = (h / 2) / math.tan(math.radians(fovy_deg) / 2)
+    uu = (np.arange(h) + 0.5 - h / 2) / f
+    X, Y = np.meshgrid(uu, -uu)
+    rot = np.zeros(9)
+    mujoco.mju_quat2Mat(rot, np.r_[c[6], c[3:6]])
+    dirs = np.stack([X, Y, -np.ones_like(X)], -1) @ rot.reshape(3, 3).T
+    t = -c[2] / dirs[..., 2]              # camera -z component of dirs is 1, so t is the z-depth
+    return np.where(t > 0, t, np.inf)
 
 
 def quat_angle(a: np.ndarray, b: np.ndarray) -> np.ndarray:
@@ -167,14 +203,15 @@ class SceneConventions(unittest.TestCase):
         cls.scene = SO101Scene(assets())
 
     def test_goal_xy_yaw_equals_goal_cube_pose(self):
-        """A [B, 7] goal (flat cube pose, any face up) and the [B, 3] goal (x, y, yaw) give the same marker mod 90 deg."""
+        """A [B, 7] goal (flat cube pose, any face up) and the [B, 3] goal (x, y, yaw) give the same marker (yaw mod
+        90 deg)."""
         from nedm.render.so101 import qmul, yaw_quat
         n = 24
         g = torch.rand(n, 3, dtype=torch.float64)
         g[:, 2] = (g[:, 2] - 0.5) * 2 * math.pi
         # face-up variants: turn the cube by 90 deg about x or y first (the cube symmetry), then by the yaw
-        tips = torch.tensor([[1, 0, 0, 0], [0.5 ** 0.5, 0.5 ** 0.5, 0, 0], [0.5 ** 0.5, 0, 0.5 ** 0.5, 0], [0, 1, 0, 0]],
-                            dtype=torch.float64)
+        h = 0.5 ** 0.5
+        tips = torch.tensor([[1, 0, 0, 0], [h, h, 0, 0], [h, 0, h, 0], [0, 1, 0, 0]], dtype=torch.float64)
         quat = qmul(yaw_quat(g[:, 2]), tips[torch.arange(n) % 4])
         pose7 = torch.cat([g[:, :2], torch.full((n, 1), 0.015, dtype=torch.float64), quat], -1)
         a, b = self.scene.goal_transform(g, n), self.scene.goal_transform(pose7, n)
@@ -191,19 +228,38 @@ class SceneConventions(unittest.TestCase):
         self.assertTrue((self.scene.goal_transform(None, 3)[:, 2] < -10).all())
 
     def test_front_camera_frames_the_workspace(self):
-        """Every point of the annulus (r 0.15-0.27 m around the pan axis, +-75 deg), widened by the cube's half
-        diagonal, from the table to 0.18 m up, projects inside the front image."""
-        from nedm.render.poses import quat_rotate
-        r, a = np.meshgrid(np.linspace(0.15, 0.27, 7), np.radians(np.linspace(-75, 75, 31)))
-        pts = [np.stack([0.0388 + r.ravel() * np.cos(a.ravel()) + dx, r.ravel() * np.sin(a.ravel()) + dy,
-                         np.full(r.size, z)], 1) for z in (0.0, 0.18) for dx in (-0.021, 0.021) for dy in (-0.021, 0.021)]
-        p = torch.tensor(np.concatenate(pts), dtype=torch.float32)
-        cam = self.scene.front
-        inv = torch.cat([-cam[3:6], cam[6:]])
-        local = quat_rotate(inv.expand(len(p), 4), p - cam[:3])        # camera frame: looks along -z, +y up
-        tan = math.tan(math.radians(self.scene.fovy_deg) / 2)
-        u, v = local[:, 0] / -local[:, 2] / tan, local[:, 1] / -local[:, 2] / tan
+        """Every point of the annulus widened by the cube's half diagonal, from the table to 0.18 m up, projects
+        inside the front image (0.95 of the half width)."""
+        u, v = project(self.scene.front, workspace_points(0.18), self.scene.fovy_deg)
         self.assertLess(max(u.abs().max().item(), v.abs().max().item()), 0.95)
+
+    def test_top_camera_looks_down_and_frames_the_workspace(self):
+        """The top camera looks straight down, image up = world +x, image right = world -y; the widened annulus from
+        the table to 0.15 m up projects inside 0.96 of the half width; the arm base (x = y = 0) is in the image."""
+        from nedm.render.poses import quat_rotate
+        cam = self.scene.top.double()
+        axes = quat_rotate(cam[3:].expand(3, 4), torch.eye(3, dtype=torch.float64))       # camera x, y, z in world
+        want = torch.tensor([[0, -1, 0], [1, 0, 0], [0, 0, 1]], dtype=torch.float64)
+        self.assertLess((axes - want).abs().max().item(), 1e-6)                          # float32 transform
+        u, v = project(cam, workspace_points(0.15), self.scene.fovy_deg)
+        self.assertLess(max(u.abs().max().item(), v.abs().max().item()), 0.96)
+        u, v = project(cam, torch.zeros(1, 3, dtype=torch.float64), self.scene.fovy_deg)
+        self.assertLess(max(abs(u.item()), abs(v.item())), 0.9)
+
+    def test_camera_selection(self):
+        """Any distinct subset of VIEWS, in the given order; the wrist transform does not depend on the set."""
+        from nedm.render.so101 import SO101Scene
+        x = torch.tensor(recorded_states(4, seed=2))
+        args = (x[:, 0, :6], x[:, 1, :3], x[:, 1, 3:7])
+        _, ref = self.scene.transforms(*args)                                         # default: front, wrist
+        three = SO101Scene(assets(), cameras=("top", "wrist", "front"))
+        _, cam = three.transforms(*args)
+        self.assertEqual(tuple(cam.shape), (4, 3, 7))
+        self.assertTrue(torch.equal(cam[:, 1], ref[:, 1]) and torch.equal(cam[:, 2], ref[:, 0]))
+        self.assertTrue(torch.equal(cam[:, 0], three.top.float().expand(4, 7)))
+        for bad in ((), ("front", "front"), ("side",)):
+            with self.assertRaises(ValueError):
+                SO101Scene(assets(), cameras=bad)
 
     def test_face_colours_make_six_meshes(self):
         from nedm.render.so101 import FACE_COLORS, SO101Scene
@@ -227,42 +283,53 @@ class SceneConventions(unittest.TestCase):
 
 @unittest.skipUnless(GPU_BACKEND and HAVE_MUJOCO, "needs a GPU render backend and mujoco")
 class RenderOnGpu(unittest.TestCase):
-    """One renderer for the class (Madrona allows one per process)."""
+    """One renderer for the class (Madrona allows one per process), with all three cameras."""
 
     K, RES = 8, 128
+    CAMS = ("front", "wrist", "top")
 
     @classmethod
     def setUpClass(cls):
         from nedm.render.so101 import SO101Renderer
-        cls.r = SO101Renderer(2 * cls.K, cls.RES, cls.RES, backend=GPU_BACKEND, assets=assets())
+        cls.r = SO101Renderer(2 * cls.K, cls.RES, cls.RES, backend=GPU_BACKEND, assets=assets(), cameras=cls.CAMS)
 
-    def test_same_state_from_nrd_and_qpos_renders_identically(self):
+    def test_same_state_from_nrd_qpos_and_worldstate_renders_identically(self):
+        """The data layout, the collector's MuJoCo qpos and a WorldState (what the NRD and MuJoCo worlds return) of
+        the same states give bit-identical pictures."""
         from nedm.render.so101 import poses_from_nrd, poses_from_qpos
+        from nedm.so101_policy.world import WorldState
         s = collector_scene()
         x = recorded_states(self.K, seed=3)
         qpos = np.tile(s.m.qpos0, (self.K, 1))
         qpos[:, s.qadr] = x[:, 0, :6]
         qpos[:, s.cq: s.cq + 7] = x[:, 1, :7]
         goal = torch.tensor([[0.2, 0.05, 0.3]]).expand(self.K, 3)
-        a, da = self.r.render(*poses_from_nrd(torch.tensor(x)), goal, depth=True)
+        a, da = (t.clone() for t in self.r.render(*poses_from_nrd(torch.tensor(x)), goal, depth=True))
         b, db = self.r.render(*poses_from_qpos(torch.tensor(qpos), s.qadr, s.cq), goal, depth=True)
-        self.assertEqual(tuple(a.shape), (self.K, 2, self.RES, self.RES, 3))
+        self.assertEqual(tuple(a.shape), (self.K, len(self.CAMS), self.RES, self.RES, 3))
         self.assertEqual(a.dtype, torch.uint8)
         self.assertTrue(torch.equal(a, b) and torch.equal(da, db))
-        self.assertGreater(a.float().std().item(), 10.0)       # a picture, not a blank
+        xt = torch.tensor(x, dtype=torch.float64)
+        k = self.K
+        ws = WorldState(q=xt[:, 0, :6], qd=xt[:, 0, 6:12], cube_pos=xt[:, 1, :3], cube_quat=xt[:, 1, 3:7],
+                        cube_v=xt[:, 1, 7:10], cube_w=xt[:, 1, 10:13], contact=torch.zeros(k, 3, dtype=torch.bool),
+                        arm_table=torch.zeros(k, dtype=torch.bool), invalid=torch.zeros(k, dtype=torch.bool))
+        self.assertTrue(torch.equal(self.r.render_state(ws.to("cuda:0"), goal), a))
+        for c in range(len(self.CAMS)):
+            self.assertGreater(a[:, c].float().std().item(), 10.0)       # a picture, not a blank
 
     def test_depth_matches_mujoco(self):
         """z-depth of 8 states against MuJoCo's own renderer (same cameras, near/far tightened), and of the table
-        plane against the analytic depth at pixel centres."""
+        plane against the analytic depth at pixel centres (front and top)."""
         import mujoco
         from nedm.contact_nrd.collect import so101_grasp
         from nedm.render.so101 import GOAL_COLOR, GOAL_HALF, GOAL_THICKNESS, poses_from_nrd
         K, H = self.K, self.RES
         cfg = so101_grasp.load_config()
         spec = so101_grasp.build_spec(cfg)
-        front = self.r.scene.front.double().cpu().numpy()            # x y z qx qy qz qw
-        spec.worldbody.add_camera(name="front", pos=front[:3].tolist(), quat=[front[6], *front[3:6]],
-                                  fovy=self.r.scene.fovy_deg)
+        for name in ("front", "top"):
+            c = getattr(self.r.scene, name).double().cpu().numpy()            # x y z qx qy qz qw
+            spec.worldbody.add_camera(name=name, pos=c[:3].tolist(), quat=[c[6], *c[3:6]], fovy=self.r.scene.fovy_deg)
         marker = spec.worldbody.add_body(name="goal_marker", mocap=True)     # world geoms do not move after compile
         marker.add_geom(type=mujoco.mjtGeom.mjGEOM_BOX, contype=0, conaffinity=0,
                         size=[GOAL_HALF, GOAL_HALF, GOAL_THICKNESS / 2], rgba=[*GOAL_COLOR, 1])
@@ -277,8 +344,9 @@ class RenderOnGpu(unittest.TestCase):
         rng = np.random.default_rng(5)
         goal = np.stack([rng.uniform(0.12, 0.3, K), rng.uniform(-0.2, 0.2, K), rng.uniform(-1, 1, K)], 1)
         mid = m.body("goal_marker").mocapid[0]
-        ref = np.zeros((K, 2, H, H), np.float32)
-        ref_rgb = np.zeros((K, 2, H, H, 3), np.uint8)
+        C = len(self.CAMS)
+        ref = np.zeros((K, C, H, H), np.float32)
+        ref_rgb = np.zeros((K, C, H, H, 3), np.uint8)
         rend = mujoco.Renderer(m, H, H)
         for k in range(K):
             d.qpos[:] = m.qpos0
@@ -287,7 +355,7 @@ class RenderOnGpu(unittest.TestCase):
             d.mocap_pos[mid] = [goal[k, 0], goal[k, 1], GOAL_THICKNESS / 2]
             d.mocap_quat[mid] = [math.cos(goal[k, 2] / 2), 0, 0, math.sin(goal[k, 2] / 2)]
             mujoco.mj_forward(m, d)
-            for c, cam in enumerate(("front", "wrist_cam")):
+            for c, cam in enumerate("wrist_cam" if n == "wrist" else n for n in self.CAMS):
                 rend.update_scene(d, camera=cam, scene_option=opt)
                 ref_rgb[k, c] = rend.render()
                 rend.enable_depth_rendering()
@@ -300,28 +368,26 @@ class RenderOnGpu(unittest.TestCase):
         # the goal marker covers the same pixels (green-dominant in both shadings)
         green = lambda im: (im[..., 1] > im[..., 0] + 30) & (im[..., 1] > im[..., 2] + 30)          # noqa: E731
         ours, theirs = green(rgb), green(ref_rgb.astype(int))
-        for c in range(2):
+        for c in range(C):
             if theirs[:, c].sum() >= 20:
                 iou = (ours[:, c] & theirs[:, c]).sum() / (ours[:, c] | theirs[:, c]).sum()
-                self.assertGreater(iou, 0.6, f"goal marker, camera {c}")
-        for c, (p50, p99) in enumerate(((3.0, 12.0), (0.5, 4.0))):     # front: MuJoCo's depth buffer is the coarse one
+                self.assertGreater(iou, 0.6, f"goal marker, camera {self.CAMS[c]}")
+        # depth tolerance (p50, p99 mm): far cameras get MuJoCo's coarse 24-bit depth buffer (table plane: ours 1e-4 mm)
+        tol = {"front": (3.0, 12.0), "top": (3.0, 12.0), "wrist": (0.5, 4.0)}
+        for c, name in enumerate(self.CAMS):
             hit = (depth[:, c] > 0) & (ref[:, c] < 3.9)
             err = np.abs(depth[:, c] - ref[:, c])[hit] * 1e3
             self.assertGreater(hit.mean(), 0.5)
-            self.assertLess(np.percentile(err, 50), p50, f"camera {c}")
-            self.assertLess(np.percentile(err, 99), p99, f"camera {c}")
-            self.assertLess(((depth[:, c] > 0) != (ref[:, c] < 3.9)).mean(), 1e-3)
-        # analytic: the table plane z = 0 seen by the front camera, at pixel centres
-        f = (H / 2) / math.tan(math.radians(self.r.scene.fovy_deg) / 2)
-        uu = (np.arange(H) + 0.5 - H / 2) / f
-        X, Y = np.meshgrid(uu, -uu)
-        rot = np.zeros(9)
-        mujoco.mju_quat2Mat(rot, np.r_[front[6], front[3:6]])
-        dirs = np.stack([X, Y, -np.ones_like(X)], -1) @ rot.reshape(3, 3).T
-        t = -front[2] / dirs[..., 2]                      # z-depth of the plane (camera -z component is 1)
-        table = (depth[:, 0] > 0) & (np.abs(depth[:, 0] - t[None]) < 0.002) & (t[None] > 0)
-        self.assertGreater(table.mean(), 0.2)
-        self.assertLess(np.percentile(np.abs(depth[:, 0] - t[None])[table], 50) * 1e3, 0.01)
+            self.assertLess(np.percentile(err, 50), tol[name][0], name)
+            self.assertLess(np.percentile(err, 99), tol[name][1], name)
+            self.assertLess(((depth[:, c] > 0) != (ref[:, c] < 3.9)).mean(), 1e-3, name)
+        # analytic: the table plane z = 0 at pixel centres, front and top
+        for name in ("front", "top"):
+            c = self.CAMS.index(name)
+            t = table_plane_depth(getattr(self.r.scene, name), H, self.r.scene.fovy_deg)[None]
+            table = (depth[:, c] > 0) & (np.abs(depth[:, c] - t) < 0.002)
+            self.assertGreater(table.mean(), 0.2, name)
+            self.assertLess(np.percentile(np.abs(depth[:, c] - t)[table], 50) * 1e3, 0.01, name)
 
     def test_set_appearance_changes_colours_and_resets(self):
         """EXPERIMENTAL per-world colours: every world changes, depth does not, and reset restores the pictures."""
@@ -336,6 +402,27 @@ class RenderOnGpu(unittest.TestCase):
         self.assertTrue(bool((a != b).flatten(1).any(1).all()))
         self.r.set_appearance(reset=True)
         self.assertTrue(torch.equal(self.r.render(*poses_from_nrd(x), goal), a))
+
+    @unittest.skipUnless(GPU_BACKEND == "newton", "a second renderer in one process: Newton only")
+    def test_224_with_top_and_wrist(self):
+        """ACT-size images (224 x 224) from a top + wrist renderer: shape, the table plane of the top camera, and the
+        wrist view agrees with the 128 px renderer (z-depth medians within 1 mm)."""
+        from nedm.render.so101 import SO101Renderer, poses_from_nrd
+        r = SO101Renderer(self.K, 224, 224, backend="newton", assets=assets(), cameras=("top", "wrist"))
+        x = torch.tensor(recorded_states(self.K, seed=11))
+        goal = torch.tensor([[0.22, -0.08, 0.2]]).expand(self.K, 3)
+        rgb, depth = r.render(*poses_from_nrd(x), goal, depth=True)
+        self.assertEqual(tuple(rgb.shape), (self.K, 2, 224, 224, 3))
+        depth = depth.cpu().numpy()
+        t = table_plane_depth(r.scene.top, 224, r.scene.fovy_deg)[None]
+        table = (depth[:, 0] > 0) & (np.abs(depth[:, 0] - t) < 0.002)
+        self.assertGreater(table.mean(), 0.5)
+        self.assertLess(np.percentile(np.abs(depth[:, 0] - t)[table], 50) * 1e3, 0.01)
+        _, d128 = self.r.render(*poses_from_nrd(x), goal, depth=True)
+        w128 = d128[:, self.CAMS.index("wrist")].cpu().numpy()
+        for k in range(self.K):
+            a, b = depth[k, 1][depth[k, 1] > 0], w128[k][w128[k] > 0]
+            self.assertLess(abs(np.median(a) - np.median(b)) * 1e3, 1.0)
 
 
 if __name__ == "__main__":

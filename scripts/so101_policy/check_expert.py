@@ -1,35 +1,36 @@
-"""Closed-loop check of the pick-and-place expert (``nedm.so101_policy.expert``) in CPU MuJoCo (the collector's physics)
-and in the grasp NRD, on the same tasks; IK parity against the collector; command statistics of the decoder.
+"""Closed-loop check of the pick-and-place expert (``nedm.so101_policy.expert``, acting through ``DecoderV2``) in CPU
+MuJoCo (the collector's physics) and in the grasp NRD (``nrd_sim.GraspNrdSim``), on the same tasks; IK parity against
+the collector; command statistics of the decoder against the data.
 
     PYTHONPATH=src python -P scripts/so101_policy/check_expert.py tasks --data DIR --out tasks.npz [--n 256] [--seed0 1000]
-    PYTHONPATH=src python -P scripts/so101_policy/check_expert.py mujoco --tasks tasks.npz --out mj.npz [--procs 8]
+    PYTHONPATH=src python -P scripts/so101_policy/check_expert.py mujoco --tasks tasks.npz --out mj.npz [--procs 4] \
+        [--noise 0.3] [--expert-cfg '{"v_cruise": 0.15}'] [--decoder-cfg '{"a_max": 1.0}']
     PYTHONPATH=src python -P scripts/so101_policy/check_expert.py nrd --tasks tasks.npz --ckpt CKPT --out nrd.npz [--device cuda]
-    PYTHONPATH=src python -P scripts/so101_policy/check_expert.py overlap --mj mj.npz --out ov.npz [--procs 8]   # env with scipy
-    PYTHONPATH=src python -P scripts/so101_policy/check_expert.py ikparity --out ik.json [--n 1000] [--procs 8]
-    PYTHONPATH=src python -P scripts/so101_policy/check_expert.py smooth --data DIR --mj mj.npz --tasks tasks.npz --out sm.json
+    PYTHONPATH=src python -P scripts/so101_policy/check_expert.py ikparity --out ik.json [--n 1000] [--procs 4]
+    PYTHONPATH=src python -P scripts/so101_policy/check_expert.py smooth --data DIR --runs mj.npz [more.npz] --out sm.json
     PYTHONPATH=src python -P scripts/so101_policy/check_expert.py report --tasks tasks.npz --mj mj.npz --nrd A.npz B.npz \
-        [--overlap ov.npz] --out report.json
+        --out report.json
 
 Tasks (spec 2.6, written down here): task i uses numpy seed ``seed0 + i`` (validation range 1000-1999). Start = the first
 recorded state of a random production_plus split-0 task-family episode (families 0-6; never the sealed test). Goal =
 cube centre (x, y) on the workspace annulus (r 0.15-0.27 m about the pan axis, angle +-75 deg), 6-30 cm from the start
 (rejection sampling), goal yaw = start yaw + U(-30, 30) deg (mod 90 deg). Horizon 400 steps (8 s).
 
-Episode (both worlds, same harness): the expert acts every 20 ms on the true state; the episode ends at the first of
-(a) the world's end condition (MuJoCo: the collector's contact ends arm-table / cube-other-link / arm-self / cube-base,
-cube off the table, numerical failure; NRD: lowest collision point of gripper or moving jaw < 0.5 mm = arm-table,
-non-finite state, cube off the table), (b) a drop: cube bottom > 30 mm above the table and no jaw contact in 2
-consecutive steps, (c) the expert done for 5 steps (0.1 s), (d) 400 steps. Success at the end: no failure end, cube
-resting (|v| < 5 mm/s), flat (tilt < 5 deg), xy error <= 15 mm and yaw error (mod 90) <= 15 deg (also 10 / 10), no jaw
-contact, grasp point >= 30 mm above the cube top. Contacts: MuJoCo = pair force above 0.01 N in either 10 ms record of
-the step (the collector's label); NRD = the collision switch of the step (logit >= 0; it covers this step and the one
-before). The MuJoCo loop has no visual-overlap end (the collector's mesh check needs scipy); ``overlap`` replays the
-recorded 10 ms states in an env with scipy and reports where the collector would have ended.
+Episode (both worlds, same harness): every 5 steps (0.1 s) the expert reads the true state and gives a decoder action
+(``--noise s``: Gaussian noise of std s added to the free-motion part a[0:4] of every action, the planned PPO
+exploration; triggers and macros untouched); every 20 ms the decoder gives the joint targets (lead band against the
+measured joint angles). The episode ends at the first of (a) the world's end condition (MuJoCo: the collector's
+contact ends arm-table / cube-other-link / arm-self / cube-base, cube off the table, numerical failure; no visual-overlap
+end; NRD: ``GraspNrdSim`` invalid flags and the arm-table guard = lowest gripper / moving-jaw collision point < 0.5 mm),
+(b) a drop: lowest cube corner > 30 mm while the cube is outside the held box (geometric, no contact switch) for 2
+steps, (c) the expert done for 5 steps, (d) 400 steps.
 
-NRD stepping: ``ContactNRD.details`` (sparse) from a single-state history; after every step the cube orientation of
-the whole history is relabelled by one of the 24 cube rotations (the one nearest a flat cube at yaw 45 deg, chosen on
-the newest state; ~/so101_policy/scripts/critic/symmetry_canon.py rule) and ``finish`` recomputes the derived and
-relative channels; the true orientation is tracked as canonical * conj(accumulated relabelling).
+Success at the end (spec_v2 B2, geometric, no contact switch): no failure end, cube flat (tilt <= 5 deg), xy error <=
+15 mm and yaw error (mod 90) <= 15 deg (also 10 / 10), speed < 5 mm/s, jaw >= 0.4 rad, TCP >= 3 cm above the cube top,
+a firm lift happened (lowest cube corner >= 2 cm inside the held box for >= 0.2 s), and none of the post-hoc failures:
+release_high (jaw opening starts with the lowest cube corner > 5 mm), hold_cap (held in the air > 3.5 s), lowest
+gripper / jaw point < 0, cube tilted > 15 deg at the end. (The official rules are ``task.py``; these are the sanity
+check's own, close to them.)
 """
 from __future__ import annotations
 
@@ -46,10 +47,13 @@ import torch
 PAN = np.array([0.0388, 0.0])
 TASK_FAMILIES = range(7)
 HORIZON = 400
+DECISION = 5
 DONE_HOLD = 5
 DROP_Z = 0.03
-GUARD_M = 0.0005
 CUBE_HALF = 0.015
+HELD_BOX = (0.015, 0.015, 0.02)
+FAIL_ENDS = ("arm_table", "cube_other_link", "arm_self", "cube_base", "cube_off_table", "numerical", "invalid",
+             "dropped")
 
 
 # ---- tasks ------------------------------------------------------------------------------------------------------
@@ -102,38 +106,68 @@ def load_tasks(path):
 
 
 # ---- shared episode harness ---------------------------------------------------------------------------------------
-class Harness:
-    """Expert + decoder over B worlds; end rules and per-step records (numpy)."""
+def held_rel(kin, q, cube_pos):
+    """Cube centre in the grasp frame [B, 3] (numpy in, numpy out)."""
+    p, r = kin.fk(torch.as_tensor(q))
+    rel = (r.transpose(-1, -2) @ (torch.as_tensor(cube_pos) - p)[..., None])[..., 0]
+    return rel.numpy()
 
-    def __init__(self, tasks, idx, device="cpu"):
-        from nedm.so101_policy.decoder import CommandDecoder
-        from nedm.so101_policy.expert import PickPlaceExpert
+
+def bottom_np(cube):
+    """Lowest cube corner height (m) from [..., 7] (pos, quat w x y z)."""
+    from nedm.so101_policy.expert import cube_bottom
+    c = torch.as_tensor(np.asarray(cube, np.float64)).reshape(-1, 7)
+    return cube_bottom(c[:, :3], c[:, 3:7]).numpy().reshape(np.shape(cube)[:-1])
+
+
+class Harness:
+    """Expert + DecoderV2 over B worlds; end rules and per-step records (numpy)."""
+
+    def __init__(self, tasks, idx, device="cpu", noise=0.0, noise_seed=0, expert_cfg=None, decoder_cfg=None):
+        from dataclasses import replace
+        from nedm.so101_policy.decoder import DecoderV2, DecoderV2Config
+        from nedm.so101_policy.expert import ExpertConfig, PickPlaceExpert
         from nedm.so101_policy.kin import SO101Kin
         self.idx = np.asarray(idx)
         self.B = len(self.idx)
         self.kin = SO101Kin(device)
-        self.dec = CommandDecoder(self.B, device, kin=self.kin)
-        self.ex = PickPlaceExpert(self.dec)
+        self.kin_cpu = SO101Kin("cpu")
+        self.dec = DecoderV2(self.B, device, kin=self.kin, cfg=replace(DecoderV2Config(), **(decoder_cfg or {})))
+        self.ex = PickPlaceExpert(self.dec, replace(ExpertConfig(), **(expert_cfg or {})))
+        self.dev = torch.device(device)
         self.goal_xy = torch.as_tensor(tasks["goal_xy"][self.idx], device=device)
         self.goal_yaw = torch.as_tensor(tasks["goal_yaw"][self.idx], device=device)
+        self.seeds = torch.as_tensor(tasks["seeds"][self.idx], dtype=torch.long, device=device)
+        self.noise = float(noise)
+        self.gen = torch.Generator(device="cpu").manual_seed(int(noise_seed))
         self.ended = np.zeros(self.B, bool)
         self.length = np.full(self.B, HORIZON, np.int64)
         self.reason = np.array(["timeout"] * self.B, dtype=object)
         self.done_run = np.zeros(self.B, np.int64)
         self.drop_run = np.zeros(self.B, np.int64)
-        self.rec = {k: [] for k in ("q", "cube", "target", "phase", "contact", "action")}
+        self.rec = {k: [] for k in ("q", "cube", "target", "mode", "phase", "contact", "flags")}
+        self.actions = []
 
     def reset(self, state):
-        all_ = torch.arange(self.B, device=self.dec.dev)
-        self.dec.reset(all_, state.q)
+        all_ = torch.arange(self.B, device=self.dev)
+        self.dec.reset(all_, state.q, seed=self.seeds)
         self.ex.reset(all_, state, self.goal_xy, self.goal_yaw)
-        self.last = state
+
+    def decide(self, state):
+        from nedm.so101_policy.decoder import M
+        a = self.ex.act(state)
+        if self.noise > 0:
+            eps = torch.randn(self.B, 4, generator=self.gen, dtype=torch.float64).to(a.device) * self.noise
+            free = (self.dec.mode == M["free"]) | (self.dec.mode == M["hold"])
+            a[:, :4] = torch.where(free[:, None], (a[:, :4] + eps).clamp(-1, 1), a[:, :4])
+        self.dec.decide(a, state)
+        self.actions.append(a.cpu().numpy())
 
     def act(self, state):
-        a = self.ex.act(state)
-        tgt = self.dec.step(a)
-        self.rec["action"].append(a.cpu().numpy())
+        from nedm.so101_policy.decoder import FLAGS
+        tgt, info = self.dec.step(state.q)
         self.rec["target"].append(tgt.cpu().numpy())
+        self.rec["flags"].append(np.stack([info[k].cpu().numpy() for k in FLAGS if k in info], -1))
         return tgt
 
     def observe(self, t, state, world_end, world_reason):
@@ -141,13 +175,15 @@ class Harness:
         from nedm.so101_policy.expert import PH
         s = state.to("cpu")
         q, cube = s.q.numpy(), torch.cat((s.cube_pos, s.cube_quat), -1).numpy()
-        contact = s.contact.numpy()
-        self.rec["q"].append(q), self.rec["cube"].append(cube), self.rec["contact"].append(contact)
+        self.rec["q"].append(q), self.rec["cube"].append(cube), self.rec["contact"].append(s.contact.numpy())
         self.rec["phase"].append(self.ex.phase.cpu().numpy())
+        self.rec["mode"].append(self.dec.mode.cpu().numpy())
         live = ~self.ended
         fail = live & world_end
         self.reason[fail] = world_reason[fail]
-        up = (cube[:, 2] - CUBE_HALF > DROP_Z) & ~contact[:, 0] & ~contact[:, 1]
+        rel = held_rel(self.kin_cpu, q, cube[:, :3])
+        inbox = (np.abs(rel) < HELD_BOX).all(-1)
+        up = (bottom_np(cube) > DROP_Z) & ~inbox
         self.drop_run = np.where(up, self.drop_run + 1, 0)
         drop = live & ~fail & (self.drop_run >= 2)
         self.reason[drop] = "dropped"
@@ -158,23 +194,58 @@ class Harness:
         new = fail | drop | fin
         self.length[new] = t + 1
         self.ended |= new
-        self.last = s
         return self.ended.all()
 
     def result(self):
         out = {k: np.stack(v, 1) for k, v in self.rec.items()}   # [B, T, ...]
+        out["actions"] = np.stack(self.actions, 1)
         T = out["q"].shape[1]
         L = np.minimum(self.length, T)
         b = np.arange(self.B)
-        fq, fc, fcon = out["q"][b, L - 1], out["cube"][b, L - 1], out["contact"][b, L - 1]
-        prev = out["cube"][b, np.maximum(L - 2, 0)]
         out.update(length=L, reason=self.reason.astype(str), recoveries=self.ex.recoveries.cpu().numpy(),
-                   final_q=fq, final_cube=fc, final_contact=fcon, final_cube_prev=prev, task=self.idx)
+                   final_q=out["q"][b, L - 1], final_cube=out["cube"][b, L - 1],
+                   final_cube_prev=out["cube"][b, np.maximum(L - 2, 0)], task=self.idx,
+                   counts=np.stack([v.cpu().numpy() for v in self.dec.counts.values()], -1),
+                   count_names=np.array(list(self.dec.counts)))
         return out
 
 
+def episode_checks(res):
+    """Post-hoc per-episode checks over the recorded steps (numpy): firm lift, release height, held-in-air time,
+    lowest point."""
+    from nedm.so101_policy.decoder import M
+    from nedm.so101_policy.kin import SO101Kin
+    kin = SO101Kin()
+    q, cube, mode, L = res["q"], res["cube"], res["mode"], res["length"]
+    B, T = q.shape[:2]
+    rel = held_rel(kin, q.reshape(-1, 6), cube.reshape(-1, 7)[:, :3]).reshape(B, T, 3)
+    inbox = (np.abs(rel) < HELD_BOX).all(-1) & (q[..., 5] > 0.08) & (q[..., 5] < 0.35)
+    bot = bottom_np(cube)
+    valid = np.arange(T)[None] < L[:, None]
+    lifted = inbox & (bot >= 0.02) & valid
+    air = inbox & (bot > 0.005) & valid
+    low = kin.lowest_point(torch.as_tensor(q.reshape(-1, 6))).numpy().reshape(B, T)
+    out = dict(firm_lift=np.zeros(B, bool), held_air_s=np.zeros(B), release_bottom_mm=np.full(B, np.nan),
+               lowest_mm=np.where(valid, low, np.inf).min(1) * 1e3)
+    for i in range(B):
+        run = best = 0
+        for v in lifted[i]:
+            run = run + 1 if v else 0
+            best = max(best, run)
+        out["firm_lift"][i] = best >= 10
+        run = best = 0
+        for v in air[i]:
+            run = run + 1 if v else 0
+            best = max(best, run)
+        out["held_air_s"][i] = best * 0.02
+        opens = np.flatnonzero((mode[i, 1:] == M["p_open"]) & (mode[i, :-1] != M["p_open"]) & valid[i, 1:]) + 1
+        if len(opens):
+            out["release_bottom_mm"][i] = bot[i, opens].max() * 1e3
+    return out
+
+
 def success_metrics(res, tasks):
-    """Per-task success and errors from a harness result."""
+    """Per-task success, errors and failure causes from a harness result (module docstring)."""
     from nedm.so101_policy.expert import cube_yaw_tilt, wrap90
     from nedm.so101_policy.kin import SO101Kin
     idx = res["task"]
@@ -182,27 +253,35 @@ def success_metrics(res, tasks):
     yaw, tilt = cube_yaw_tilt(fc[:, 3:7])
     gy = torch.as_tensor(tasks["goal_yaw"][idx])
     yaw_err = wrap90(yaw - gy).abs().numpy()
+    tilt = tilt.numpy()
     xy_err = np.linalg.norm(res["final_cube"][:, :2] - tasks["goal_xy"][idx], axis=1)
     v = np.linalg.norm(res["final_cube"][:, :3] - res["final_cube_prev"][:, :3], axis=1) / 0.02
     gp, _ = SO101Kin().fk(torch.as_tensor(res["final_q"]))
     high = gp[:, 2].numpy() >= res["final_cube"][:, 2] + CUBE_HALF + 0.03
-    jaw_free = ~res["final_contact"][:, 0] & ~res["final_contact"][:, 1]
-    ok_end = ~np.isin(res["reason"], ["arm_table", "cube_other_link", "arm_self", "cube_base", "cube_off_table",
-                                       "numerical", "invalid", "dropped"])
-    rest = (v < 0.005) & (tilt.numpy() < math.radians(5))
-    common = ok_end & rest & jaw_free & high
+    jaw_open = res["final_q"][:, 5] >= 0.4
+    chk = episode_checks(res)
+    ok_end = ~np.isin(res["reason"], FAIL_ENDS)
+    post = np.full(len(idx), "", dtype=object)
+    post[chk["lowest_mm"] < 0] = "lowest_point"
+    post[chk["held_air_s"] > 3.5] = "hold_cap"
+    post[chk["release_bottom_mm"] > 5.0] = "release_high"
+    post[(tilt > math.radians(15)) & ok_end] = "cube_tilted"
+    rest = (v < 0.005) & (tilt < math.radians(5))
+    common = ok_end & (post == "") & rest & jaw_open & high & chk["firm_lift"]
     s15 = common & (xy_err <= 0.015) & (yaw_err <= math.radians(15))
     s10 = common & (xy_err <= 0.010) & (yaw_err <= math.radians(10))
-    # cause: the failure end, else the first unmet success rule (prefixed by "timeout:" when the expert never finished)
     cause = np.array(res["reason"], dtype=object)
-    for j in np.flatnonzero(ok_end):
+    for j in range(len(idx)):
+        if not ok_end[j]:
+            continue
         if s15[j]:
             cause[j] = "success"
             continue
-        why = ("place_error" if (xy_err[j] > 0.015 or yaw_err[j] > math.radians(15)) else "not_resting" if not rest[j]
-               else "jaw_contact" if not jaw_free[j] else "gripper_low")
+        why = (post[j] if post[j] else "no_lift" if not chk["firm_lift"][j]
+               else "place_error" if (xy_err[j] > 0.015 or yaw_err[j] > math.radians(15))
+               else "not_resting" if not rest[j] else "jaw_closed" if not jaw_open[j] else "gripper_low")
         cause[j] = ("timeout:" if res["reason"][j] == "timeout" else "") + why
-    return dict(s15=s15, s10=s10, xy_err=xy_err, yaw_err=yaw_err, tilt=tilt.numpy(), v=v, cause=cause.astype(str))
+    return dict(s15=s15, s10=s10, xy_err=xy_err, yaw_err=yaw_err, tilt=tilt, v=v, cause=cause.astype(str), **chk)
 
 
 # ---- MuJoCo world -------------------------------------------------------------------------------------------------
@@ -259,16 +338,14 @@ class MjWorlds:
                           arm_table=torch.zeros(n, dtype=torch.bool), invalid=torch.as_tensor(end))
 
     def step(self, targets, active):
-        """targets [B, 6] (rad) -> (WorldState, end [B] bool, reason [B] str, qpos of the 2 records [B, 2, 13])."""
+        """targets [B, 6] (rad) -> (WorldState, end [B] bool, reason [B] str)."""
         s, mj, g = self.s, self.mj, self.g
         n = len(self.ds)
         contact = np.zeros((n, 3), bool)
         end = np.zeros(n, bool)
         reason = np.array([""] * n, dtype=object)
-        recs = np.zeros((n, 2, 13))
         for i, d in enumerate(self.ds):
             if not active[i]:
-                recs[i] = d.qpos[:13]
                 continue
             u = np.clip(targets[i], s.tlo, s.thi).astype(np.float32)
             for r in range(s.per_ctrl):
@@ -279,7 +356,6 @@ class MjWorlds:
                     f, _ = s.contact_forces(d)
                     fmax, bad = np.maximum(fmax, f[:3]), np.maximum(bad, f[3:7])
                 contact[i] |= fmax > s.thr
-                recs[i, r] = d.qpos[:13]
                 if d.warning[mj.mjtWarning.mjWARN_BADQACC].number or not np.isfinite(d.qpos).all():
                     end[i], reason[i] = True, "numerical"
                     break
@@ -294,27 +370,26 @@ class MjWorlds:
         st = self.world_state(pose, self.prev, contact, end)
         st.arm_table = torch.as_tensor(reason == "arm_table")
         self.prev = pose
-        return st, end, reason, recs
+        return st, end, reason
 
 
 def _mj_chunk(args):
-    tasks_path, idx = args
+    tasks_path, idx, noise, noise_seed, ecfg, dcfg = args
     torch.set_num_threads(1)
     tasks = load_tasks(tasks_path)
-    h = Harness(tasks, idx)
+    h = Harness(tasks, idx, noise=noise, noise_seed=noise_seed, expert_cfg=ecfg, decoder_cfg=dcfg)
     w = MjWorlds(len(idx))
     st = w.reset(tasks["arm0"][idx], tasks["cube0"][idx], tasks["act0"][idx])
     h.reset(st)
-    recs = []
     t0 = time.process_time()
     for t in range(HORIZON):
+        if t % DECISION == 0:
+            h.decide(st)
         tgt = h.act(st).numpy()
-        st, end, reason, rq = w.step(tgt, ~h.ended)
-        recs.append(rq)
+        st, end, reason = w.step(tgt, ~h.ended)
         if h.observe(t, st, end, reason):
             break
     out = h.result()
-    out["records_qpos"] = np.concatenate(recs, 1)        # [B, 2T, 13] qpos of every 10 ms record
     out["cpu_s"] = np.full(len(idx), (time.process_time() - t0) / len(idx))
     return out
 
@@ -324,13 +399,24 @@ def merge(parts):
     out = {}
     for k in keys:
         arrs = [p[k] for p in parts]
-        if arrs[0].ndim >= 2 and k not in ("final_q", "final_cube", "final_contact", "final_cube_prev"):
+        if k in ("count_names",):
+            out[k] = arrs[0]
+            continue
+        if arrs[0].ndim >= 2 and k not in ("final_q", "final_cube", "final_cube_prev", "counts"):
             T = max(a.shape[1] for a in arrs)
             arrs = [np.concatenate((a, np.repeat(a[:, -1:], T - a.shape[1], 1)), 1) if a.shape[1] < T else a
                     for a in arrs]
         out[k] = np.concatenate(arrs)
     order = np.argsort(out["task"])
-    return {k: v[order] for k, v in out.items()}
+    return {k: (v[order] if k != "count_names" else v) for k, v in out.items()}
+
+
+def summary(res, tasks, name):
+    m = success_metrics(res, tasks)
+    cnt = dict(zip(res["count_names"].tolist(), res["counts"].sum(0).tolist()))
+    return (f"{name}: {len(res['task'])} tasks; success 15/15 {m['s15'].mean() * 100:.1f} %, 10/10 "
+            f"{m['s10'].mean() * 100:.1f} %; causes {dict(zip(*np.unique(m['cause'], return_counts=True)))}; "
+            f"decoder flags (world-steps) {cnt}")
 
 
 def cmd_mujoco(a):
@@ -339,184 +425,50 @@ def cmd_mujoco(a):
     chunks = np.array_split(np.arange(n), max(1, math.ceil(n / a.chunk)))
     t0 = time.time()
     with ProcessPoolExecutor(a.procs) as ex:
-        parts = list(ex.map(_mj_chunk, [(a.tasks, c) for c in chunks]))
+        parts = list(ex.map(_mj_chunk, [(a.tasks, c, a.noise, a.noise_seed + k, json.loads(a.expert_cfg),
+                                         json.loads(a.decoder_cfg)) for k, c in enumerate(chunks)]))
     res = merge(parts)
     res["wall_s"] = np.array(time.time() - t0)
+    res["noise"] = np.array(a.noise)
     np.savez_compressed(a.out, **res)
-    m = success_metrics(res, tasks)
-    print(f"MuJoCo: {n} tasks in {time.time() - t0:.0f} s; success 15/15 {m['s15'].mean() * 100:.1f} %, 10/10 "
-          f"{m['s10'].mean() * 100:.1f} %; causes {dict(zip(*np.unique(m['cause'], return_counts=True)))}")
+    print(summary(res, tasks, f"MuJoCo (noise {a.noise})") + f"; wall {time.time() - t0:.0f} s")
 
 
 # ---- NRD world ----------------------------------------------------------------------------------------------------
-def qmul(p, q):
-    w1, x1, y1, z1 = p.unbind(-1)
-    w2, x2, y2, z2 = q.unbind(-1)
-    return torch.stack((w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2, w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2,
-                        w1 * y2 - x1 * z2 + y1 * w2 + z1 * x2, w1 * z2 + x1 * y2 - y1 * x2 + z1 * w2), -1)
-
-
-def cube_group(dev):
-    """The 24 cube rotations (w x y z), closed from 90 deg turns about x, y, z (symmetry_canon.cube_group)."""
-    def ax(i):
-        v = [0.0, 0.0, 0.0]
-        v[i] = math.sin(math.pi / 4)
-        return torch.tensor([math.cos(math.pi / 4)] + v, dtype=torch.float64, device=dev)
-    gens = [ax(0), ax(1), ax(2)]
-    G = [torch.tensor([1.0, 0, 0, 0], dtype=torch.float64, device=dev)]
-    while True:
-        new = []
-        for g in G:
-            for h in gens:
-                q = qmul(g, h)
-                if all(abs(float((q * x).sum())) < 1 - 1e-9 for x in G + new):
-                    new.append(q)
-        if not new:
-            break
-        G += new
-    assert len(G) == 24
-    return torch.stack(G)
-
-
-class NrdWorlds:
-    """B worlds of the grasp NRD (one checkpoint) with per-step cube canonicalisation."""
-
-    def __init__(self, ckpt, device):
-        from nedm.contact_nrd.model import load_model
-        from nedm.so101_policy.kin import SO101Kin
-        self.m, _ = load_model(ckpt, device)
-        for p in self.m.parameters():
-            p.requires_grad_(False)
-        self.dev = torch.device(device)
-        self.kin = SO101Kin(device)
-        mov = [b for b in self.m.system["bodies"] if b["moving"]]
-        types = lambda b, t: [c for c, x in enumerate(b["channel_types"]) if x == t]
-        self.q_c, self.qd_c = types(mov[0], "angle")[:6], types(mov[0], "angular_rate")[:6]
-        self.p_c, self.quat_c = types(mov[1], "position"), types(mov[1], "quaternion")
-        self.v_c, self.w_c = types(mov[1], "velocity"), types(mov[1], "angular_velocity")
-        self.G = cube_group(self.dev)
-        self.qref = torch.tensor([math.cos(math.pi / 8), 0, 0, math.sin(math.pi / 8)], dtype=torch.float64,
-                                 device=self.dev)
-
-    def _canon(self):
-        """Relabel the cube orientation of the whole history (one cube rotation per world, chosen on the newest)."""
-        qh = self.hist[:, :, 1, self.quat_c]                                     # [B, K, 4]
-        qn = qh[:, -1]
-        cand = qmul(qn[:, None, :].expand(-1, 24, -1), self.G[None].expand(len(qn), -1, -1))
-        k = (cand * self.qref).sum(-1).abs().argmax(1)
-        r = self.G[k]
-        q2 = qmul(qh, r[:, None, :].expand_as(qh))
-        q2 = q2 * torch.where(q2[:, -1:, :1] < 0, -1.0, 1.0)
-        h = self.hist.clone()
-        h[:, :, 1, self.quat_c] = q2
-        B, K = h.shape[:2]
-        h = self.m.finish(h.reshape(B * K, *h.shape[2:])).reshape(h.shape) * self.ok[:, :, None, None]
-        self.hist = h
-        self.racc = qmul(self.racc, r)
-        self.relabels += (k != 0).long()
-
-    def true_quat(self):
-        r = self.racc
-        q = qmul(self.hist[:, -1, 1, self.quat_c], torch.stack((r[:, 0], -r[:, 1], -r[:, 2], -r[:, 3]), -1))
-        return q * torch.where(q[:, :1] < 0, -1.0, 1.0)
-
-    def reset(self, arm0, cube0):
-        from nedm.so101_policy.world import WorldState
-        B = len(arm0)
-        raw = torch.zeros(B, self.m.n_bodies, self.m.smax, dtype=torch.float64, device=self.dev)
-        raw[:, 0, :12] = torch.as_tensor(arm0, device=self.dev)
-        raw[:, 1, :13] = torch.as_tensor(cube0, device=self.dev)
-        self.hist, self.ok = self.m.start(self.m.finish(raw))
-        self.racc = torch.zeros(B, 4, dtype=torch.float64, device=self.dev)
-        self.racc[:, 0] = 1
-        self.relabels = torch.zeros(B, dtype=torch.long, device=self.dev)
-        self._canon()
-        z = torch.zeros(B, dtype=torch.bool, device=self.dev)
-        return self._state(torch.zeros(B, 3, dtype=torch.bool, device=self.dev), z, z)
-
-    def _state(self, contact, arm_table, invalid):
-        from nedm.so101_policy.world import WorldState
-        s = self.hist[:, -1]
-        return WorldState(q=s[:, 0, self.q_c], qd=s[:, 0, self.qd_c], cube_pos=s[:, 1, self.p_c],
-                          cube_quat=self.true_quat(), cube_v=s[:, 1, self.v_c], cube_w=s[:, 1, self.w_c],
-                          contact=contact, arm_table=arm_table, invalid=invalid)
-
-    @torch.no_grad()
-    def step(self, targets):
-        B = len(targets)
-        act = torch.zeros(B, self.m.n_bodies, self.m.amax, dtype=torch.float64, device=self.dev)
-        lo, hi = self.kin.tlo, self.kin.thi
-        act[:, 0, :6] = torch.minimum(torch.maximum(targets.to(act), lo), hi).float().double()   # as MuJoCo applies
-        nxt, info = self.m.details(self.hist, self.ok, act)
-        self.hist, self.ok = self.m.advance(self.hist, self.ok, nxt)
-        finite = torch.isfinite(nxt).all(-1).all(-1)
-        self.hist = torch.where(finite[:, None, None, None], self.hist, torch.nan_to_num(self.hist))
-        self._canon()
-        s = self.hist[:, -1]
-        p = s[:, 1, self.p_c]
-        off = (p[:, 0] < -0.30) | (p[:, 0] > 0.80) | (p[:, 1].abs() > 0.55) | (p[:, 2] < -0.01)
-        arm_table = self.kin.lowest_point(s[:, 0, self.q_c]) < GUARD_M
-        st = self._state(info["gates"] > 0.5, arm_table, ~finite | off)
-        reason = np.where(arm_table.cpu().numpy(), "arm_table",
-                          np.where((~finite).cpu().numpy(), "invalid", np.where(off.cpu().numpy(), "cube_off_table", "")))
-        return st, (arm_table | ~finite | off).cpu().numpy(), reason.astype(object)
-
-
 def cmd_nrd(a):
+    from nedm.so101_policy.kin import SO101Kin
+    from nedm.so101_policy.nrd_sim import GraspNrdSim, lowest_point_guard
     tasks = load_tasks(a.tasks)
     n = len(tasks["rows"]) if a.n is None else a.n
     idx = np.arange(n)
     dev = a.device
     t0 = time.time()
-    w = NrdWorlds(a.ckpt, dev)
-    h = Harness(tasks, idx, dev)
-    st = w.reset(tasks["arm0"][idx], tasks["cube0"][idx])
+    sim = GraspNrdSim(a.ckpt, num_envs=n, device=dev, members="split",
+                      arm_table_fn=lowest_point_guard(SO101Kin(dev)))
+    h = Harness(tasks, idx, dev, noise=a.noise, noise_seed=a.noise_seed, expert_cfg=json.loads(a.expert_cfg),
+                decoder_cfg=json.loads(a.decoder_cfg))
+    t = lambda x: torch.as_tensor(x, dtype=torch.float64, device=dev)
+    c0 = tasks["cube0"][idx]
+    st = sim.reset(None, dict(q=t(tasks["arm0"][idx, :6]), qd=t(tasks["arm0"][idx, 6:]), cube_pos=t(c0[:, :3]),
+                              cube_quat=t(c0[:, 3:7]), cube_v=t(c0[:, 7:10]), cube_w=t(c0[:, 10:13])))
     h.reset(st)
-    for t in range(HORIZON):
+    for k in range(HORIZON):
+        if k % DECISION == 0:
+            h.decide(st)
         tgt = h.act(st)
-        st, end, reason = w.step(tgt)
-        if h.observe(t, st, end, reason):
+        st = sim.step(tgt)
+        end = (st.invalid | st.arm_table).cpu().numpy()
+        reason = np.where(st.arm_table.cpu().numpy(), "arm_table", np.where(st.invalid.cpu().numpy(), "invalid", ""))
+        if h.observe(k, st, end, reason.astype(object)):
             break
     if dev.startswith("cuda"):
         torch.cuda.synchronize()
     res = h.result()
-    res["relabels"] = w.relabels.cpu().numpy()
     res["wall_s"] = np.array(time.time() - t0)
     res["ckpt"] = np.array(str(a.ckpt))
+    res["noise"] = np.array(a.noise)
     np.savez_compressed(a.out, **res)
-    m = success_metrics(res, tasks)
-    print(f"NRD {Path(a.ckpt).name}: {n} tasks in {time.time() - t0:.0f} s; success 15/15 {m['s15'].mean() * 100:.1f} %,"
-          f" 10/10 {m['s10'].mean() * 100:.1f} %; causes {dict(zip(*np.unique(m['cause'], return_counts=True)))}")
-
-
-# ---- post-hoc visual overlap (needs scipy) ------------------------------------------------------------------------
-def _ov_chunk(args):
-    path, idx = args
-    from nedm.contact_nrd.collect import so101_grasp as g
-    s = g.Scene(g.load_config())
-    f = np.load(path)
-    rq, L = f["records_qpos"][idx], f["length"][idx]
-    out = np.full(len(idx), -1, np.int64)
-    depth = np.zeros(len(idx))
-    for j in range(len(idx)):
-        for r in range(2 * int(L[j])):
-            ov = s.overlap_at(rq[j, r])
-            depth[j] = max(depth[j], ov)
-            if ov > s.overlap_thr and out[j] < 0:
-                out[j] = r
-    return out, depth
-
-
-def cmd_overlap(a):
-    n = len(np.load(a.mj)["length"])
-    chunks = np.array_split(np.arange(n), a.procs * 4)
-    with ProcessPoolExecutor(a.procs) as ex:
-        parts = list(ex.map(_ov_chunk, [(a.mj, c) for c in chunks]))
-    first = np.concatenate([p[0] for p in parts])
-    depth = np.concatenate([p[1] for p in parts])
-    np.savez(a.out, first_record=first, max_depth_m=depth)
-    print(f"visual overlap > 1 mm in {(first >= 0).sum()} of {n} MuJoCo episodes; max depth p99 "
-          f"{np.percentile(depth, 99) * 1e3:.2f} mm, max {depth.max() * 1e3:.2f} mm")
+    print(summary(res, tasks, f"NRD {Path(a.ckpt).name} (noise {a.noise})") + f"; wall {time.time() - t0:.0f} s")
 
 
 # ---- IK parity against the collector -------------------------------------------------------------------------------
@@ -549,7 +501,7 @@ def _ik_chunk(args):
 
 
 def cmd_ikparity(a):
-    from nedm.so101_policy.kin import SO101Kin, rotz, rotvec
+    from nedm.so101_policy.kin import SO101Kin, rotvec, rotz
     per = math.ceil(a.n / a.procs)
     with ProcessPoolExecutor(a.procs) as ex:
         parts = list(ex.map(_ik_chunk, [(a.seed + k, per) for k in range(a.procs)]))
@@ -593,60 +545,75 @@ def cmd_ikparity(a):
 
 
 # ---- command statistics ---------------------------------------------------------------------------------------------
-def stats(x):
-    x = np.abs(np.asarray(x, np.float64).ravel())
-    return dict(n=int(x.size), p50=float(np.median(x)), p95=float(np.percentile(x, 95)),
-                p99=float(np.percentile(x, 99)), max=float(x.max()))
+JNAMES = ("pan", "lift", "elbow", "wflex", "wroll", "jaw")
 
 
-def command_stats(cmds, lengths):
-    """cmds [N, T, 6] joint targets per 20 ms step, lengths [N] valid steps -> per-step change and jerk statistics
-    (arm joints pooled, jaw separate); jerk = third difference / dt^3 (rad/s^3)."""
-    d1, j3 = {"arm": [], "jaw": []}, {"arm": [], "jaw": []}
-    for c, L in zip(cmds, lengths):
-        c = c[:L]
-        if L < 4:
+def command_stats(cmds, q, lengths, grip=None):
+    """cmds [N, T, 6] joint targets per 20 ms step, q [N, T, 6] measured joint angles at the same steps (or None),
+    lengths [N], grip [N, T] bool (steps inside the grasp / release jaw phases: data close, grip, release; decoder
+    g_close, g_grip, p_open) -> per joint |dcmd|, |d2cmd| p50 / p99 / max (rad per step), |cmd - q| p99.9 (lead), and
+    the fraction of jaw-moving steps with the arm command still (|dcmd| < 1e-9 on all 5 arm joints), all and inside the
+    grip phases."""
+    d1, d2, lead = [], [], []
+    still, jaw_moving, g_still, g_moving = 0, 0, 0, 0
+    for i, L in enumerate(lengths):
+        c = cmds[i, :L]
+        if L < 3:
             continue
-        d = np.diff(c, axis=0)
-        j = np.diff(c, n=3, axis=0) / 0.02 ** 3
-        d1["arm"].append(d[:, :5]), d1["jaw"].append(d[:, 5])
-        j3["arm"].append(j[:, :5]), j3["jaw"].append(j[:, 5])
-    return {f"{k}_step_rad": stats(np.concatenate([x.ravel() for x in v])) for k, v in d1.items()} | \
-           {f"{k}_jerk_rad_s3": stats(np.concatenate([x.ravel() for x in v])) for k, v in j3.items()}
+        a1, a2 = np.diff(c, axis=0), np.diff(c, n=2, axis=0)
+        d1.append(np.abs(a1)), d2.append(np.abs(a2))
+        jm = np.abs(a1[:, 5]) > 1e-6
+        jaw_moving += int(jm.sum())
+        still += int((np.abs(a1[jm, :5]).max(-1) < 1e-9).sum())
+        if grip is not None:
+            gm = jm & grip[i, 1:L]
+            g_moving += int(gm.sum())
+            g_still += int((np.abs(a1[gm, :5]).max(-1) < 1e-9).sum())
+        if q is not None:
+            lead.append(np.abs(c[1:] - q[i, :L - 1]))   # command of step k against the state it was sent from
+    d1, d2 = np.concatenate(d1), np.concatenate(d2)
+    out = {}
+    for j, n in enumerate(JNAMES):
+        out[n] = dict(d1_p50=float(np.median(d1[:, j])), d1_p99=float(np.percentile(d1[:, j], 99)),
+                      d1_max=float(d1[:, j].max()), d2_p50=float(np.median(d2[:, j])),
+                      d2_p99=float(np.percentile(d2[:, j], 99)), d2_max=float(d2[:, j].max()))
+        if lead:
+            out[n]["lead_p999"] = float(np.percentile(np.concatenate(lead)[:, j], 99.9))
+    out["steps"] = int(len(d1))
+    out["jaw_moving_steps"] = jaw_moving
+    out["arm_still_while_jaw_moves"] = still / max(1, jaw_moving)
+    out["grip_jaw_moving_steps"] = g_moving
+    out["arm_still_while_jaw_moves_in_grip_phases"] = g_still / max(1, g_moving)
+    return out
 
 
 def cmd_smooth(a):
     from nedm.contact_nrd.rollouts import npz_members
-    from nedm.so101_policy.decoder import CommandDecoder
     f = npz_members(Path(a.data) / "unified_data.npz")
-    fam, split, L = np.asarray(f["family"]), np.asarray(f["splits"]), np.asarray(f["lengths"])
-    rng = np.random.default_rng(a.seed)
-    out = {}
-    for name, fams in (("data_nominal", [0]), ("data_task_families", list(TASK_FAMILIES))):
-        rows = np.sort(rng.choice(np.flatnonzero((split == 0) & np.isin(fam, fams)), a.data_eps, replace=False))
-        cmds = np.stack([np.asarray(f["action"][r, ::2], np.float64) for r in rows])
-        out[name] = command_stats(cmds, (L[rows] - 1) // 2 + 1)
-    mj = np.load(a.mj)
-    out["expert_mujoco"] = command_stats(mj["target"], mj["length"])
-    # random actions through the decoder: OU noise (time constant 0.2 s, std 0.6) and i.i.d. uniform actions
-    tasks = load_tasks(a.tasks)
-    q0 = torch.as_tensor(tasks["arm0"][:, :6])
-    for kind in ("ou", "uniform"):
-        dec = CommandDecoder(len(q0))
-        dec.reset(torch.arange(len(q0)), q0)
-        g = torch.Generator().manual_seed(a.seed)
-        x = torch.zeros(len(q0), 5, dtype=torch.float64)
-        cmds = []
-        for t in range(300):
-            if kind == "ou":
-                x = x + (-x * 0.02 / 0.2) + 0.6 * math.sqrt(2 * 0.02 / 0.2) * torch.randn(x.shape, generator=g, dtype=x.dtype)
-            else:
-                x = torch.rand(x.shape, generator=g, dtype=x.dtype) * 2 - 1
-            cmds.append(dec.step(x).numpy())
-        out[f"decoder_random_{kind}"] = command_stats(np.stack(cmds, 1), np.full(len(q0), 300))
+    fam, L = np.asarray(f["family"]), np.asarray(f["lengths"])
+    rows = np.flatnonzero(np.isin(fam, list(TASK_FAMILIES)))
+    if a.data_eps and a.data_eps < len(rows):
+        rows = np.sort(np.random.default_rng(a.seed).choice(rows, a.data_eps, replace=False))
+    from nedm.contact_nrd.collect.so101_grasp import P
+    from nedm.so101_policy.decoder import M
+    cmds = np.stack([np.asarray(f["action"][r, ::2], np.float64) for r in rows])
+    arm = np.stack([np.asarray(f["arm"][r, ::2, :6], np.float64) for r in rows])
+    ph = np.stack([np.asarray(f["phase"][r, ::2]) for r in rows])
+    out = {"data_task_families": command_stats(cmds, arm, (L[rows] - 1) // 2 + 1,
+                                               np.isin(ph, [P["close"], P["grip"], P["release"]]))}
+    out["data_task_families"]["episodes"] = int(len(rows))
+    for path in a.runs:
+        r = np.load(path)
+        # mode[k] = the decoder mode after step k; command k belongs to the mode before it
+        mode = np.concatenate((r["mode"][:, :1], r["mode"][:, :-1]), 1)
+        grip = np.isin(mode, [M["g_close"], M["g_grip"], M["p_open"]])
+        out[Path(path).stem] = command_stats(r["target"], r["q"], r["length"], grip)
+        out[Path(path).stem]["episodes"] = int(len(r["length"]))
     Path(a.out).write_text(json.dumps(out, indent=1))
     for k, v in out.items():
-        print(k, {m: (round(s["p95"], 4), round(s["p99"], 4), round(s["max"], 4)) for m, s in v.items()})
+        print(k, {n: (round(v[n]["d1_p99"], 4), round(v[n]["d2_p99"], 4)) for n in JNAMES},
+              "arm still while jaw moves: all", round(v["arm_still_while_jaw_moves"], 4), "grip phases",
+              round(v["arm_still_while_jaw_moves_in_grip_phases"], 4))
 
 
 # ---- report -----------------------------------------------------------------------------------------------------------
@@ -654,15 +621,10 @@ def cmd_report(a):
     tasks = load_tasks(a.tasks)
     mj = dict(np.load(a.mj, allow_pickle=False))
     worlds = {"mujoco": mj} | {Path(p).stem: dict(np.load(p, allow_pickle=False)) for p in a.nrd}
-    rep = {}
-    if a.overlap:
-        ov = np.load(a.overlap)
-        rep["mujoco_visual_overlap_episodes"] = int((ov["first_record"] >= 0).sum())
-        rep["mujoco_visual_overlap_tasks"] = np.flatnonzero(ov["first_record"] >= 0).tolist()
-    M = {}
+    rep, M_ = {}, {}
     for name, r in worlds.items():
         m = success_metrics(r, tasks)
-        M[name] = m
+        M_[name] = m
         s = m["s15"]
         rep[name] = dict(
             tasks=int(len(s)), success_15mm_15deg=float(s.mean()), success_10mm_10deg=float(m["s10"].mean()),
@@ -674,16 +636,21 @@ def cmd_report(a):
                              p90=float(np.degrees(np.percentile(m["yaw_err"], 90))),
                              max=float(np.degrees(m["yaw_err"].max()))),
             episode_s=dict(p50=float(np.median(r["length"]) * 0.02), max=float(r["length"].max() * 0.02)),
+            held_air_s=dict(p50=float(np.median(m["held_air_s"])), max=float(m["held_air_s"].max())),
+            release_bottom_mm=dict(p50=float(np.nanmedian(m["release_bottom_mm"])),
+                                   max=float(np.nanmax(m["release_bottom_mm"]))),
+            lowest_mm_min=float(m["lowest_mm"].min()),
             recoveries=dict(tasks_with=int((r["recoveries"] > 0).sum()), total=int(r["recoveries"].sum())),
+            decoder_flags_world_steps=dict(zip(r["count_names"].tolist(), r["counts"].sum(0).tolist())),
             success_by_family={int(f): float(s[tasks["family"][r["task"]] == f].mean())
                                for f in np.unique(tasks["family"][r["task"]])})
         if "wall_s" in r:
             rep[name]["wall_s"] = float(r["wall_s"])
-    ref = M["mujoco"]
+    ref = M_["mujoco"]
     for name in worlds:
         if name == "mujoco":
             continue
-        m, r = M[name], worlds[name]
+        m, r = M_[name], worlds[name]
         a_, b_ = ref["s15"], m["s15"]
         dfin = np.linalg.norm(mj["final_cube"][:, :3] - r["final_cube"][:, :3], axis=1)
         both_ok = a_ & b_
@@ -694,8 +661,6 @@ def cmd_report(a):
             cause_pairs={f"{x}|{y}": int(c) for (x, y), c in _pairs(ref["cause"], m["cause"]).items()},
             final_cube_diff_mm_both_success=dict(p50=float(np.median(dfin[both_ok]) * 1e3) if both_ok.any() else None,
                                                  p95=float(np.percentile(dfin[both_ok], 95) * 1e3) if both_ok.any() else None),
-            length_diff_steps_both_success=dict(p50=float(np.median(np.abs(mj["length"] - r["length"])[both_ok]))
-                                                if both_ok.any() else None),
             disagree_tasks=np.flatnonzero(a_ != b_).tolist())
     Path(a.out).write_text(json.dumps(rep, indent=1))
     print(json.dumps(rep, indent=1))
@@ -726,23 +691,25 @@ def main():
     p.add_argument("--n", type=int, default=256), p.add_argument("--seed0", type=int, default=1000)
     p = sub.add_parser("mujoco")
     p.add_argument("--tasks", required=True), p.add_argument("--out", required=True)
-    p.add_argument("--procs", type=int, default=8), p.add_argument("--chunk", type=int, default=16)
-    p.add_argument("--n", type=int)
+    p.add_argument("--procs", type=int, default=4), p.add_argument("--chunk", type=int, default=16)
+    p.add_argument("--n", type=int), p.add_argument("--noise", type=float, default=0.0)
+    p.add_argument("--noise-seed", type=int, default=0)
+    p.add_argument("--expert-cfg", default="{}"), p.add_argument("--decoder-cfg", default="{}")
     p = sub.add_parser("nrd")
     p.add_argument("--tasks", required=True), p.add_argument("--out", required=True), p.add_argument("--ckpt", required=True)
     p.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu"), p.add_argument("--n", type=int)
-    p = sub.add_parser("overlap")
-    p.add_argument("--mj", required=True), p.add_argument("--out", required=True), p.add_argument("--procs", type=int, default=8)
+    p.add_argument("--noise", type=float, default=0.0), p.add_argument("--noise-seed", type=int, default=0)
+    p.add_argument("--expert-cfg", default="{}"), p.add_argument("--decoder-cfg", default="{}")
     p = sub.add_parser("ikparity")
     p.add_argument("--out", required=True), p.add_argument("--n", type=int, default=1000)
-    p.add_argument("--procs", type=int, default=8), p.add_argument("--seed", type=int, default=20261011)
+    p.add_argument("--procs", type=int, default=4), p.add_argument("--seed", type=int, default=20261011)
     p = sub.add_parser("smooth")
-    p.add_argument("--data", required=True), p.add_argument("--mj", required=True), p.add_argument("--tasks", required=True)
-    p.add_argument("--out", required=True), p.add_argument("--data-eps", type=int, default=2000)
+    p.add_argument("--data", required=True), p.add_argument("--runs", nargs="*", default=[])
+    p.add_argument("--out", required=True), p.add_argument("--data-eps", type=int, default=0)
     p.add_argument("--seed", type=int, default=7)
     p = sub.add_parser("report")
     p.add_argument("--tasks", required=True), p.add_argument("--mj", required=True), p.add_argument("--nrd", nargs="*", default=[])
-    p.add_argument("--overlap"), p.add_argument("--out", required=True)
+    p.add_argument("--out", required=True)
     a = ap.parse_args()
     globals()[f"cmd_{a.cmd}"](a)
 

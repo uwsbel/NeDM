@@ -1,5 +1,5 @@
 {
- "note": "NRD data round 1 of the SO101 policy study (2026-10-11): fine-tune of the final grasp NRD (short_rel_rk_cc_fix_s61_plus, the test-scored model) on production_plus + noisy_v1 merged (scripts/contact_nrd/merge_data.py; noisy_v1 = campaign noisy_v1 of the collector, policy-like commands, 9,000 train + 1,000 validation episodes, about 21 % of the training episodes, no family mix). The run's own config (code_v14 options: derived and relative channels, step_type loss scale, all_hit/affected push guard, history-noise floor and rate kick, contact Huber, sqrt_groups contact sampling, collision co-training) with these changes: init_from (weights, data-fitted maps, masks, sigma and loss scales of that run; no refit), no collision-only stage, co-training 10,000 updates at lr 1e-4 with warmup 500 (G1 / push-T round recipe: 20,000 at 1e-4), the rollout horizon at the run's final 1.0 s from the first update with the rollout weight ramped over the warmup (traj_ramp 0.025), own-history pushes from the start (push_start 0), a check every 2,500 updates plus one before the first update (check_first). Cluster paths; a local copy changes init_from.run.",
+ "note": "NRD data round 1 of the SO101 policy study (2026-10-11): fine-tune of the final grasp NRD (short_rel_rk_cc_fix_s61_plus, the test-scored model) on production_plus + noisy_v1 merged (scripts/contact_nrd/merge_data.py; noisy_v1 = campaign noisy_v1 of the collector, policy-like commands, 9,000 train + 1,000 validation episodes, about 21 % of the training episodes, no family mix). The run's own config (code_v14 options: derived and relative channels, step_type loss scale, all_hit/affected push guard, history-noise floor and rate kick, contact Huber, sqrt_groups contact sampling, collision co-training) with these changes: init_from (weights, data-fitted maps, masks, sigma and loss scales of that run; no refit), no collision-only stage, co-training 10,000 updates at lr 1e-4 with warmup 500 (G1 / push-T round recipe: 20,000 at 1e-4), the rollout horizon at the run's final 1.0 s from the first update with the rollout weight ramped over the warmup (traj_ramp 0.05 = 500 of 10,000 updates), own-history pushes from the start (push_start 0), a check every 2,500 updates plus one before the first update (check_first). Cluster paths; a local copy changes init_from.run.",
  "seed": 61,
  "model_step_s": 0.02,
  "history": 4,
@@ -43,7 +43,7 @@
   "horizon_start_s": 1.0,
   "horizon_max_s": 1.0,
   "horizon_ramp": 0.5,
-  "traj_ramp": 0.025
+  "traj_ramp": 0.05
  },
  "derived_state": "configs/contact_nrd/derived/so101_grasp_fk.json",
  "loss_scale": {

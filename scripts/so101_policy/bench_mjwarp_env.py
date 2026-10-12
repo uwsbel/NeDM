@@ -3,20 +3,22 @@
     # 1. episodes (validation split only; never the sealed test): first state, 20 ms commands, records, labels
     python -I scripts/so101_policy/bench_mjwarp_env.py prep --data ~/so101_nrd_fix/data/val_only --out EPS.npz
     # 2. CPU MuJoCo replay (collector Scene; nrdsim env: mujoco + numpy only), from the recorded first state
-    PYTHONPATH=src python -P scripts/so101_policy/bench_mjwarp_env.py cpu --eps EPS.npz --out CPU.npz --workers 8
+    PYTHONPATH=src python -P scripts/so101_policy/bench_mjwarp_env.py cpu --eps EPS.npz --out CPU.npz --workers 4
     # 3. GPU replay (luffy, conda env so101_mjwarp: torch 2.12 cu130 + mujoco 3.15 + mujoco_warp 3.15 + warp 1.18)
     PYTHONPATH=src python -P scripts/so101_policy/bench_mjwarp_env.py gpu --eps EPS.npz --out GPU.npz
     # 4. accuracy, contact-flag agreement, overflow -> JSON
     PYTHONPATH=src python -P scripts/so101_policy/bench_mjwarp_env.py compare --eps EPS.npz --cpu CPU.npz --gpu GPU.npz --out R.json
-    # 5. speed: world i replays episode i % N; 300 env.step calls (graph launch + WorldState copy), capture excluded
-    PYTHONPATH=src python -P scripts/so101_policy/bench_mjwarp_env.py speed --eps EPS.npz --nworld 4096 8192 16384 --bare --out S.json
+    # 5. speed: world i replays episode i % N; env / bare / PPO-like loops of 300 commands (see speed()), capture excluded
+    PYTHONPATH=src python -P scripts/so101_policy/bench_mjwarp_env.py speed --eps EPS.npz --nworld 4096 8192 16384 --out S.json
 
 Both replays start from the same state (recorded first state, qacc warm start 0, targets = clip(q)) and get the
 same commands; after an episode's recorded end the last command is held (those steps are not scored).
+Results of 2026-10-11 (2,853 validation episodes, luffy RTX 5090): ~/so101_policy/docs/build2_mjwarp_env.md.
 """
 from __future__ import annotations
 
 import argparse
+import gc
 import json
 import os
 import time
@@ -129,7 +131,7 @@ def gpu(a):
         rows = np.tile(np.arange(N), a.repeat)
     B = len(rows)
     t = time.time()
-    env = MjwarpWorlds(B, nconmax=a.nconmax, njmax=a.njmax, cube_rates=a.cube_rates)
+    env = MjwarpWorlds(B, nconmax=a.nconmax, njmax=a.njmax, cube_rates=a.cube_rates, opt=json.loads(a.opt))
     st = env.reset(None, _start(E, rows))
     torch.cuda.synchronize()
     t_init = time.time() - t
@@ -158,9 +160,12 @@ def gpu(a):
     out["raw_qpos"], out["fmax"] = np.stack(raw_q, 1), np.stack(fmax, 1)
     out["overflow"], out["rows"] = env.overflow.cpu().numpy(), rows
     out["nefc_sample"] = nefc.astype(np.int16)
+    out["nefc_peak"] = env.nefc_peak.cpu().numpy()                # every physics step, since the reset
     meta = dict(nworld=B, init_s=t_init, replay_wall_s=wall, nconmax=a.nconmax, njmax=a.njmax, cube_rates=a.cube_rates,
+                opt=json.loads(a.opt),
                 nacon_total_max=max(nacon), nacon_per_world_mean_max=max(nacon) / B, nefc_world_max=int(nefc.max()),
-                nefc_world_p999=float(np.percentile(nefc, 99.9)),
+                nefc_world_p999=float(np.percentile(nefc, 99.9)), nefc_peak_max=int(out["nefc_peak"].max()),
+                nefc_peak_p99=float(np.percentile(out["nefc_peak"], 99)),
                 gpu=torch.cuda.get_device_name(0), note="replay wall includes per-step device->host copies")
     np.savez(a.out, **out, meta=json.dumps(meta))
     print(json.dumps(meta))
@@ -310,10 +315,30 @@ def compare(a):
 
 
 # ---- 5. speed ---------------------------------------------------------------------------------------------------
+def _gpu_users():
+    """Other processes holding the NVIDIA UVM device (nvidia-smi is broken on luffy): [(pid, command)]."""
+    out = []
+    for p in os.listdir("/proc"):
+        if not p.isdigit() or int(p) == os.getpid():
+            continue
+        try:
+            if any("nvidia-uvm" in os.readlink(f"/proc/{p}/fd/{f}") for f in os.listdir(f"/proc/{p}/fd")):
+                out.append((int(p), open(f"/proc/{p}/cmdline").read().replace("\0", " ")[:120]))
+        except OSError:
+            pass
+    return out
+
+
 def speed(a):
+    """Three timed loops per world count, interleaved per repetition (the GPU is shared: same conditions):
+    env = 300 ``env.step`` calls (graph + contact bookkeeping + WorldState copies); bare = the 40 physics steps per
+    command alone (ctrl copy + one graph of 40 ``mjw.step``); ppo = ``env.step`` with each world's episode clock and
+    an exact reset of B / 300 worlds every step (each world restarts every 6 s, from a GPU start tensor).
+    mem_GB = this process's Warp mempool + torch allocations for the env (the GPU is shared: free memory is not a
+    measure); CUDA graph executables are not counted."""
     import torch
     import warp as wp
-    from nedm.so101_policy.mjwarp_env import MjwarpWorlds
+    from nedm.so101_policy.mjwarp_env import MjwarpWorlds, _set_ctrl
     E = np.load(a.eps)
     full = (E["family"] <= 6) & (E["lengths"] == 601)
     if a.pool == "task":
@@ -323,22 +348,26 @@ def speed(a):
     else:
         sel = np.arange(len(E["lengths"]))
     res = dict(rows=[], gpu=torch.cuda.get_device_name(0), pool=a.pool, episodes_pool=int(len(sel)),
-               load_avg=os.getloadavg())
+               nconmax=a.nconmax, njmax=a.njmax, opt=json.loads(a.opt), load_avg_start=os.getloadavg(),
+               gpu_free_GB_start=torch.cuda.mem_get_info()[0] / 1e9, other_gpu_processes=_gpu_users())
     for B in a.nworld:
         rows = sel[np.arange(B) % len(sel)]
-        free0 = torch.cuda.mem_get_info()[0]
+        wdev = wp.get_device("cuda:0")
+        mem0 = (wp.get_mempool_used_mem_current(wdev) if wp.is_mempool_enabled(wdev) else 0) + torch.cuda.memory_allocated()
         t = time.time()
-        env = MjwarpWorlds(B, nconmax=a.nconmax, njmax=a.njmax)
-        env.reset(None, _start(E, rows))
+        env = MjwarpWorlds(B, nconmax=a.nconmax, njmax=a.njmax, opt=json.loads(a.opt))
+        start = {k: torch.as_tensor(v, device=env.device) for k, v in _start(E, rows).items()}
+        env.reset(None, start)
         act = torch.tensor(E["action"][rows], dtype=torch.float64, device=env.device)
         env.step(act[:, 0])            # capture + first launch
-        if a.bare:
-            env._run("_g_bare", env._body_bare)
+        env._run("_g_bare", env._body_bare)
+        env.reset(torch.arange(0, B, 300, device=env.device), {k: v[::300] for k, v in start.items()})
         torch.cuda.synchronize()
         t_setup = time.time() - t
-        walls, bares = [], []
-        for rep in range(a.reps):      # env and bare runs interleaved (the GPU is shared: same conditions)
-            env.reset(None, _start(E, rows))
+        walls, bares, ppos = [], [], []
+        ar = torch.arange(B, device=env.device)
+        for rep in range(a.reps):
+            env.reset(None, start)
             torch.cuda.synchronize()
             t = time.perf_counter()
             for k in range(NCMD):
@@ -347,35 +376,46 @@ def speed(a):
             walls.append(time.perf_counter() - t)
             ov = env.overflow.cpu().numpy()
             nan = int((~torch.isfinite(st.cube_pos).all(1)).sum())
-            if a.bare:                 # the 40 physics steps alone (no contact bookkeeping, no WorldState)
-                env.reset(None, _start(E, rows))
-                torch.cuda.synchronize()
-                t = time.perf_counter()
-                for k in range(NCMD):
-                    env._targets_t.copy_(act[:, k])
-                    with wp.ScopedDevice(env.wdev), wp.ScopedStream(env.stream):
-                        wp.launch(_ctrl_only(), dim=(B, 6), inputs=[env.targets, env.tlo, env.thi, env.d.ctrl])
-                    env._run("_g_bare", env._body_bare)
-                torch.cuda.synchronize()
-                bares.append(time.perf_counter() - t)
+            env.reset(None, start)
+            torch.cuda.synchronize()
+            t = time.perf_counter()
+            for k in range(NCMD):
+                env._targets_t.copy_(act[:, k])
+                with wp.ScopedDevice(env.wdev), wp.ScopedStream(env.stream):
+                    wp.launch(_set_ctrl, dim=(B, 6), inputs=[env.targets, env.tlo, env.thi, env.d.ctrl])
+                env._run("_g_bare", env._body_bare)
+            torch.cuda.synchronize()
+            bares.append(time.perf_counter() - t)
+            env.reset(None, start)
+            clk = (ar % NCMD).clone()          # staggered episode clocks, as a running PPO batch
+            torch.cuda.synchronize()
+            t = time.perf_counter()
+            for k in range(NCMD):
+                st = env.step(act[ar, clk])
+                clk += 1
+                done = torch.nonzero(clk >= NCMD).flatten()
+                env.reset(done, {n: v[done] for n, v in start.items()})
+                clk[done] = 0
+            torch.cuda.synchronize()
+            ppos.append(time.perf_counter() - t)
         row = dict(nworld=B, setup_s=t_setup, wall_s=walls, ctrl_steps_per_s=B * NCMD / min(walls),
                    ctrl_steps_per_s_median=B * NCMD / float(np.median(walls)),
                    physics_steps_per_s=B * NCMD * env.spc / min(walls), bare_wall_s=bares,
-                   bare_ctrl_steps_per_s=B * NCMD / min(bares) if bares else None,
-                   gpu_mem_GB=(free0 - torch.cuda.mem_get_info()[0]) / 1e9,
+                   bare_ctrl_steps_per_s=B * NCMD / min(bares), ppo_wall_s=ppos,
+                   ppo_ctrl_steps_per_s=B * NCMD / min(ppos),
+                   mem_GB=((wp.get_mempool_used_mem_current(wdev) if wp.is_mempool_enabled(wdev) else 0)
+                           + torch.cuda.memory_allocated() - mem0) / 1e9,
                    overflow_worlds_pct=float((ov != 0).mean() * 100),
-                   overflow_bits={int(k): int(v) for k, v in zip(*np.unique(ov, return_counts=True))}, nan_worlds=nan)
+                   overflow_bits={int(k): int(v) for k, v in zip(*np.unique(ov, return_counts=True))}, nan_worlds=nan,
+                   load_avg=os.getloadavg())
         print(json.dumps(row), flush=True)
         res["rows"].append(row)
-        del env, act, st
+        del env, act, st, start
+        gc.collect()
         torch.cuda.empty_cache()
+    res["other_gpu_processes_end"] = _gpu_users()
     if a.out:
         json.dump(res, open(a.out, "w"), indent=1)
-
-
-def _ctrl_only():
-    from nedm.so101_policy.mjwarp_env import _set_ctrl
-    return _set_ctrl
 
 
 def main():
@@ -397,8 +437,9 @@ def main():
     p.add_argument("--limit", type=int)
     p.add_argument("--repeat", type=int, default=1)
     p.add_argument("--nconmax", type=int, default=48)
-    p.add_argument("--njmax", type=int, default=192)
+    p.add_argument("--njmax", type=int, default=256)
     p.add_argument("--cube-rates", default="step_average")
+    p.add_argument("--opt", default="{}", help='solver overrides, JSON, e.g. {"ls_iterations": 10}')
     p = sub.add_parser("compare")
     p.add_argument("--eps", required=True)
     p.add_argument("--cpu", required=True)
@@ -410,10 +451,10 @@ def main():
     p.add_argument("--eps", required=True)
     p.add_argument("--nworld", type=int, nargs="+", default=[4096, 8192, 16384])
     p.add_argument("--nconmax", type=int, default=48)
-    p.add_argument("--njmax", type=int, default=192)
-    p.add_argument("--reps", type=int, default=2)
-    p.add_argument("--bare", action="store_true")
+    p.add_argument("--njmax", type=int, default=256)
+    p.add_argument("--reps", type=int, default=3)
     p.add_argument("--pool", default="task", choices=["task", "nominal20", "all"])
+    p.add_argument("--opt", default="{}", help='solver overrides, JSON, e.g. {"ls_iterations": 10}')
     p.add_argument("--out")
     a = ap.parse_args()
     globals()[a.cmd](a)

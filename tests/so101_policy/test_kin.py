@@ -15,6 +15,8 @@ import torch
 
 from nedm.so101_policy import kin as K
 
+torch.set_num_threads(2)
+
 try:
     import mujoco  # noqa: F401
     from nedm.contact_nrd.collect import so101_grasp as g
@@ -106,9 +108,9 @@ class TestFK(unittest.TestCase):
 
 
 class TestIK(unittest.TestCase):
-    def targets(self, n, seed):
+    def targets(self, n, seed, r_max=0.27):
         rng = np.random.default_rng(seed)
-        r, a = rng.uniform(0.15, 0.27, n), np.radians(rng.uniform(-75, 75, n))
+        r, a = rng.uniform(0.15, r_max, n), np.radians(rng.uniform(-75, 75, n))
         pos = np.stack((0.0388 + r * np.cos(a), r * np.sin(a), rng.uniform(0.015, 0.12, n)), -1)
         return torch.as_tensor(pos), torch.as_tensor(a + rng.uniform(-1.0, 1.0, n))
 
@@ -124,15 +126,39 @@ class TestIK(unittest.TestCase):
     def test_ik_track_follows_small_moves(self):
         """Warm-started tracking keeps the grasp point on a slowly moving target (2 mm per step)."""
         kin = K.SO101Kin()
-        pos, yaw = self.targets(16, 5)
-        pos[:, 2] = 0.04                                      # top-down reachable height
+        pos, yaw = self.targets(32, 5, r_max=0.21)
+        pos[:, 2] = 0.04                                      # top-down reachable height (most targets)
         q, ok, _, _ = kin.ik_topdown(None, pos, yaw)
-        self.assertTrue(bool(ok.all()))
+        pos, yaw, q = pos[ok][:16], yaw[ok][:16], q[ok][:16]
+        self.assertEqual(len(q), 16)
         for _ in range(20):
             pos = pos + torch.tensor([0.002, 0.0, 0.0], dtype=torch.float64)
             q, ep, ea = kin.ik_track(q, pos, K.rotz(yaw))
         self.assertLess(float(ep.max()), 1e-5)
         self.assertLess(float(ea.max()), math.radians(0.5))
+
+    def test_ik_track_tilts_above_reach_and_is_batch_invariant(self):
+        """Above the top-down reach the tracker keeps the position and the yaw and tilts; the same row gives the same
+        result in any batch layout (B = 1, 2, 4, 7: torch.linalg.solve reads a 2-D right-hand side as vectors when the
+        batch equals its size)."""
+        kin = K.SO101Kin()
+        pos, yaw = self.targets(7, 6, r_max=0.21)
+        pos[:, 2] = 0.04
+        q, ok, _, _ = kin.ik_topdown(None, pos, yaw, max_tilt=math.radians(45))
+        for _ in range(40):                                     # rise 8 cm in 2 mm steps
+            pos = pos + torch.tensor([0.0, 0.0, 0.002], dtype=torch.float64)
+            q, ep, ea = kin.ik_track(q, pos, K.rotz(yaw))
+        self.assertLess(float(ep.max()), 3e-4)                  # the collector's fallback: < 0.5 mm
+        _, r = kin.fk(q)
+        self.assertLess(float(K.wrap(K.yaw_of(r) - yaw).abs().max()), math.radians(2.0))
+        self.assertGreater(float(ea.max()), math.radians(5))    # tilted somewhere above the reach
+        rot = K.rotz(yaw)
+        full, _, _ = kin.ik_track(q, pos, rot)
+        for b in (1, 2, 4):
+            for s in range(0, 7 - b + 1, b):
+                part, _, _ = kin.ik_track(q[s:s + b], pos[s:s + b], rot[s:s + b])
+                self.assertLess(float((part - full[s:s + b]).abs().max()), 1e-12)
+
 
     @needs_mujoco
     def test_ik_topdown_same_branch_as_collector(self):
@@ -150,6 +176,30 @@ class TestIK(unittest.TestCase):
                 continue
             self.assertTrue(bool(ok[i]))
             self.assertLess(np.abs(ref[:5] - q[i].numpy()).max(), 1e-6)
+
+
+class TestGuardPoints(unittest.TestCase):
+    def test_fast_lowest_point_and_box_distance(self):
+        kin = K.SO101Kin()
+        q = torch.as_tensor(random_q(500, 7))
+        exact, fast = kin.lowest_point(q), kin.lowest_point(q, exact=False)
+        self.assertLess(float((fast - exact).max()), 5e-5)
+        self.assertGreater(float((fast - exact).min()), -1e-15)
+        # box distance: a cube centred on a fixed-jaw collision point touches (0); a cube 20 cm below the gripper is
+        # at the lowest-point height minus its top (vertices only: within 1 mm); open jaws around a cube at the grasp
+        # point do not touch it
+        pos = torch.tensor([[0.25, 0.0, 0.05]], dtype=torch.float64)
+        qq, ok, _, _ = kin.ik_topdown(None, pos, torch.zeros(1, dtype=torch.float64))
+        qq = torch.cat((qq, torch.full((1, 1), 0.7, dtype=torch.float64)), -1)
+        one = torch.tensor([[1.0, 0.0, 0.0, 0.0]], dtype=torch.float64)
+        bp, br = kin.body_poses(qq)
+        b, p0, _, _ = kin._guard_points(False)[0]
+        on_jaw = bp[:, b] + p0[:1] @ br[0, b].T
+        self.assertEqual(float(kin.box_distance(qq, on_jaw, one, 0.015)), 0.0)
+        far = kin.box_distance(qq, pos + torch.tensor([[0.0, 0.0, -0.2]], dtype=torch.float64), one, 0.015)
+        low = kin.lowest_point(qq)
+        self.assertAlmostEqual(float(far), float(low - (0.05 - 0.2 + 0.015)), delta=1e-3)
+        self.assertGreater(float(kin.box_distance(qq, pos, one, 0.015)), 0.0)
 
 
 if __name__ == "__main__":

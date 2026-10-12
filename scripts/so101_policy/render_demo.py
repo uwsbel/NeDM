@@ -2,23 +2,38 @@
 """SO101 batch-renderer demos and measurements (nedm.render.so101). One renderer per process (Madrona's limit), so
 each subcommand builds one.
 
-    source ~/kyle_render_build/madrona/env.sh          # newton, env kyle_madrona
-    PYTHONPATH=src python scripts/so101_policy/render_demo.py sheet --data DATA --out OUT
-    PYTHONPATH=src python scripts/so101_policy/render_demo.py video --data DATA --row 185 [--nrd CKPT] --out OUT
-    PYTHONPATH=src python scripts/so101_policy/render_demo.py bench --data DATA --worlds 1024 [--backend newton] --out OUT
-    PYTHONPATH=src python scripts/so101_policy/render_demo.py parity --data DATA --out OUT
-    PYTHONPATH=src python scripts/so101_policy/render_demo.py appearance --data DATA --out OUT
+    PY=~/miniconda3/envs/so101_render/bin/python      # luffy: torch 2.12 cu130, warp 1.13, newton 1.2, mujoco 3.15
+    source ~/so101_policy/runs/render/madrona_luffy/env_luffy.sh      # only for --backend madrona (luffy build)
+    PYTHONPATH=src $PY scripts/so101_policy/render_demo.py sheet --out OUT [--cameras front,top,wrist] [--res 224]
+    PYTHONPATH=src $PY scripts/so101_policy/render_demo.py video --row 185 [--nrd CKPT] --out OUT
+    PYTHONPATH=src $PY scripts/so101_policy/render_demo.py bench --worlds 1024 [--backend madrona] --out OUT
+    PYTHONPATH=src $PY scripts/so101_policy/render_demo.py pairbench --worlds 1024 --out OUT  # Madrona env
+    PYTHONPATH=src $PY scripts/so101_policy/render_demo.py parity --out OUT
+    PYTHONPATH=src $PY scripts/so101_policy/render_demo.py appearance --out OUT
 
-DATA = a data directory of the grasp NRD (system.json, unified_data.npz); use validation data only (split 1,
-``~/so101_nrd_fix/data/val_only``), never the sealed test.
+--data (default ``~/so101_nrd_fix/data/val_only``) = a data directory of the grasp NRD (system.json,
+unified_data.npz); validation data only (split 1), never the sealed test. --cameras: a comma list from front, top,
+wrist (default front,wrist); one resolution --res for all.
 
 | Command | Output in OUT |
 |---|---|
-| sheet | ``grid_4x4.png``: 16 recorded validation states (random episodes and times), each tile front + wrist at the render resolution; ``grid_4x4_depth.png`` (z-depth, 0-1.2 m, near = bright); ``grid_4x4_x3.png`` (3x nearest upscale) |
-| video | ``episode_<row>.mp4`` (+ ``.png`` stills): the recorded episode (MuJoCo) on the 20 ms model grid, front + wrist; with ``--nrd`` a second row with the NRD's open-loop rollout of the same commands from the same first state. The whole episode is one render call (one world per frame and source). Goal marker = the recorded final cube pose |
-| bench | one JSON line appended to ``bench.jsonl``: ms per call of ``render`` (FK + transforms + render + copy), of ``render(copy=False)`` and of the backend alone, views/s, GPU memory |
-| parity | ``parity_<backend>.json``, ``.png`` (rows: MuJoCo front, ours front, MuJoCo wrist, ours wrist), ``_arrays.npz``: z-depth against MuJoCo's own renderer (EGL) for 8 validation states, the analytic table plane, and (when the other backend's arrays exist) the other backend |
-| appearance | ``appearance_<backend>.json``, ``.png`` (rows: own colours, random colours + light, cube recoloured): EXPERIMENTAL ``set_appearance`` checks |
+| sheet | ``grid_4x4_<tag>.png``: 16 recorded validation states (random episodes and times), each tile = the cameras
+  side by side; ``_depth.png`` (z-depth, 0-1.2 m, near = bright); ``_x3.png`` (3x nearest upscale);
+  ``framing_<tag>.png``: the cube at the 6 corners of the workspace annulus, fixed cameras only |
+| video | ``episode_<row>_<tag>.mp4`` (+ ``_stills.png``): the recorded episode (MuJoCo) on the 20 ms model grid; with
+  ``--nrd`` a second row with the NRD's open-loop rollout of the same commands from the same first state. One render
+  call for the whole episode (one world per frame and source). Goal marker = the recorded final cube pose |
+| bench | one JSON line appended to ``bench.jsonl``: ms per call of ``render`` (FK + transforms + render + copy), of
+  ``render(copy=False)``, with depth, of the backend alone, views/s, GPU memory |
+| pairbench | one JSON line appended to ``bench_pair.jsonl``: Newton and Madrona in ONE process, timed round robin
+  (both see the same load on a shared GPU), median ms per ``render`` call and views/s; needs the Madrona env |
+| parity | ``parity_<tag>.json``, ``.png`` (rows per camera: MuJoCo, ours), ``_arrays.npz``: z-depth against MuJoCo's
+  own renderer (EGL) for 8 validation states, the analytic table plane, and (when the other backend's arrays exist) the
+  other backend |
+| appearance | ``appearance_<backend>.json``, ``.png`` (rows: own colours, random colours + light, cube recoloured):
+  EXPERIMENTAL ``set_appearance`` checks |
+
+<tag> = <backend>_<cameras joined by ->_<res>, e.g. newton_front-wrist_128.
 """
 
 from __future__ import annotations
@@ -93,16 +108,21 @@ def process_mb() -> float | None:
                              capture_output=True, text=True, timeout=20).stdout
     except (OSError, subprocess.TimeoutExpired):
         return None
-    for line in out.strip().splitlines():
-        pid, mb = (x.strip() for x in line.split(","))
-        if int(pid) == os.getpid():
-            return float(mb)
+    for line in out.strip().splitlines():          # e.g. "Failed to initialize NVML" on luffy: no usable line
+        parts = [x.strip() for x in line.split(",")]
+        if len(parts) == 2 and parts[0].isdigit() and int(parts[0]) == os.getpid():
+            return float(parts[1])
     return None
 
 
 def make_renderer(a, worlds: int) -> SO101Renderer:
     return SO101Renderer(worlds, a.res, a.res, backend=a.backend, shadows=not a.no_shadows,
-                         cube_colors=FACE_COLORS if a.face_colors else None, goal=None if a.goal == "none" else a.goal)
+                         cube_colors=FACE_COLORS if a.face_colors else None, goal=None if a.goal == "none" else a.goal,
+                         cameras=a.cameras)
+
+
+def tag(a) -> str:
+    return f"{a.backend}_{'-'.join(a.cameras)}_{a.res}"
 
 
 # ---- commands -------------------------------------------------------------------------------------------------------
@@ -115,24 +135,27 @@ def cmd_sheet(a):
     r = make_renderer(a, 16)
     rgb, depth = r.render(*poses_from_nrd(torch.tensor(states(v, ep, t))), torch.tensor(final_goal(v, ep)), depth=True)
     from nedm.render import grid
+    name = f"grid_4x4_{tag(a)}"
     sheet = grid(tiles(rgb.cpu().numpy()), 4)
-    save_png(sheet, a.out / "grid_4x4.png")
-    save_png(sheet, a.out / "grid_4x4_x3.png", 3)
-    save_png(grid(tiles(depth_gray(depth.cpu().numpy())), 4), a.out / "grid_4x4_depth.png")
+    save_png(sheet, a.out / f"{name}.png")
+    save_png(sheet, a.out / f"{name}_x3.png", 3)
+    save_png(grid(tiles(depth_gray(depth.cpu().numpy())), 4), a.out / f"{name}_depth.png")
     # framing: the cube at the 6 corners of the workspace annulus (r 0.15 / 0.27 m, -75 / 0 / +75 deg around the pan
-    # axis), the goal at the opposite corner, arm of the first sheet state; front camera only
+    # axis), the goal at the opposite corner, arm of the first sheet state; fixed cameras only, one row each
     rr, ang = np.meshgrid([0.15, 0.27], np.radians([-75.0, 0.0, 75.0]))
     cx, cy = 0.0388 + rr.ravel() * np.cos(ang.ravel()), rr.ravel() * np.sin(ang.ravel())
     cube = np.zeros((6, 7))
     cube[:, 0], cube[:, 1], cube[:, 2], cube[:, 3] = cx, cy, 0.015, 1.0
     goal = np.stack([cx[::-1], cy[::-1], np.zeros(6)], 1)
     q = torch.tensor(states(v, ep[:1], t[:1])[0, 0, :6]).expand(6, 6)
-    front = r.render(q, torch.tensor(cube[:, :3]), torch.tensor(cube[:, 3:]), torch.tensor(goal))[:, 0].cpu().numpy()
-    save_png(grid(front, 6), a.out / "framing_front.png", 2)
+    img = r.render(q, torch.tensor(cube[:, :3]), torch.tensor(cube[:, 3:]), torch.tensor(goal)).cpu().numpy()
+    fixed = [c for c, cam in enumerate(r.cameras) if cam != "wrist"]
+    if fixed:
+        save_png(grid(np.concatenate([img[:, c] for c in fixed]), 6), a.out / f"framing_{tag(a)}.png", 2)
     json.dump({"rows": ep.tolist(), "records": t.tolist(), "res": a.res, "backend": a.backend,
-               "tile": "front | wrist", "goal": "recorded final cube pose of the episode"},
-              open(a.out / "grid_4x4.json", "w"), indent=1)
-    print("wrote", a.out / "grid_4x4.png")
+               "tile": " | ".join(r.cameras), "goal": "recorded final cube pose of the episode"},
+              open(a.out / f"{name}.json", "w"), indent=1)
+    print("wrote", a.out / f"{name}.png")
 
 
 def cmd_video(a):
@@ -158,32 +181,35 @@ def cmd_video(a):
     t0 = time.perf_counter()
     rgb = r.render(q, cp, cq, goal).cpu().numpy()
     ms = 1e3 * (time.perf_counter() - t0)
-    rgb = rgb.reshape(k, n, 2, a.res, a.res, 3)
+    C = len(r.cameras)
+    rgb = rgb.reshape(k, n, C, a.res, a.res, 3)
     scale, head = a.scale, 18
-    writer = imageio.get_writer(str(a.out / f"episode_{row}.mp4"), fps=50 / a.slow, codec="libx264", quality=8,
+    name = f"episode_{row}_{tag(a)}"
+    writer = imageio.get_writer(str(a.out / f"{name}.mp4"), fps=50 / a.slow, codec="libx264", quality=8,
                                 macro_block_size=None)
     stills = []
     for i in range(n):
-        rows = [np.concatenate([rgb[s, i, 0], rgb[s, i, 1]], 1) for s in range(k)]
-        frame = Image.fromarray(np.concatenate(rows, 0)).resize((2 * a.res * scale, k * a.res * scale), Image.NEAREST)
+        rows = [np.concatenate(list(rgb[s, i]), 1) for s in range(k)]
+        frame = Image.fromarray(np.concatenate(rows, 0)).resize((C * a.res * scale, k * a.res * scale), Image.NEAREST)
         canvas = Image.new("RGB", (frame.width, frame.height + k * head), (252, 252, 251))
         draw = ImageDraw.Draw(canvas)
         for s, (label, _) in enumerate(sources):
             y = s * (a.res * scale + head)
-            draw.text((4, y + 3), f"{label}   t = {i * 0.02:.2f} s   front | wrist", fill=(11, 11, 11))
+            draw.text((4, y + 3), f"{label}   t = {i * 0.02:.2f} s   {' | '.join(r.cameras)}", fill=(11, 11, 11))
             canvas.paste(frame.crop((0, s * a.res * scale, frame.width, (s + 1) * a.res * scale)), (0, y + head))
         writer.append_data(np.asarray(canvas))
         if i in (0, n // 3, n // 2, 2 * n // 3, n - 1):
             stills.append(np.asarray(canvas))
     writer.close()
-    save_png(np.concatenate(stills, 0), a.out / f"episode_{row}_stills.png")
+    save_png(np.concatenate(stills, 0), a.out / f"{name}_stills.png")
     info = {"row": row, "frames": n, "sources": [s for s, _ in sources], "render_call_ms": round(ms, 1),
-            "worlds": k * n, "res": a.res, "fps": 50 / a.slow, "family": system["families"][int(v["family"][row])]["name"]}
+            "worlds": k * n, "cameras": list(r.cameras), "res": a.res, "backend": a.backend, "fps": 50 / a.slow,
+            "family": system["families"][int(v["family"][row])]["name"]}
     if a.nrd:
         err = np.linalg.norm(pred[:, 1, :3] - x[:, 1, :3], axis=-1)
         info["nrd_cube_pos_err_mm"] = {"p50": float(np.median(err) * 1e3), "max": float(err.max() * 1e3),
                                        "final": float(err[-1] * 1e3)}
-    json.dump(info, open(a.out / f"episode_{row}.json", "w"), indent=1)
+    json.dump(info, open(a.out / f"{name}.json", "w"), indent=1)
     print(json.dumps(info))
 
 
@@ -231,9 +257,10 @@ def cmd_bench(a):
         appearance = timed(recolor)
         r.set_appearance(reset=True)
         r.render(*batches[0])
-    views = 2 * a.worlds
-    res = {"backend": a.backend, "gpu": torch.cuda.get_device_name(0), "worlds": a.worlds, "cameras": 2,
-           "res": a.res, "shadows": not a.no_shadows, "triangles": sum(len(m.faces) for m in r.scene.scene.bodies) + sum(len(m.faces) for m, _ in r.scene.scene.statics),
+    views = len(r.cameras) * a.worlds
+    triangles = sum(len(m.faces) for m in r.scene.scene.bodies) + sum(len(m.faces) for m, _ in r.scene.scene.statics)
+    res = {"backend": a.backend, "gpu": torch.cuda.get_device_name(0), "worlds": a.worlds, "cameras": list(r.cameras),
+           "res": a.res, "shadows": not a.no_shadows, "triangles_per_world": triangles,
            "build_s": round(build_s, 2), "first_render_s": round(first_s, 2),
            "ms_render": round(full, 2), "ms_render_view": round(view, 2), "ms_render_depth": round(with_depth, 2),
            "ms_backend_only": round(backend, 2), "ms_fk_transforms": round(fk, 2),
@@ -244,6 +271,45 @@ def cmd_bench(a):
            "torch_max_allocated_mb": round(torch.cuda.max_memory_allocated() / 2 ** 20), "frames": a.frames}
     print(json.dumps(res))
     with open(a.out / "bench.jsonl", "a") as fh:
+        fh.write(json.dumps(res) + "\n")
+
+
+def cmd_pairbench(a):
+    """Both backends in one process, timed interleaved: a fair comparison when other jobs share the GPU."""
+    v, _ = load_val(a.data)
+    rng = np.random.default_rng(a.seed)
+    task = np.flatnonzero((v["family"] <= 6) & (v["splits"] == 1))
+    batches = []
+    for _ in range(4):
+        ep = rng.choice(task, a.worlds)
+        t = (rng.random(a.worlds) * v["lengths"][ep]).astype(int)
+        q, cp, cq = (u.cuda() for u in poses_from_nrd(torch.tensor(states(v, ep, t))))
+        batches.append((q, cp, cq, torch.tensor(final_goal(v, ep)).cuda()))
+    rs = {}
+    for b in ("madrona", "newton"):      # Madrona first: its engine start needs the most free GPU memory
+        a.backend = b
+        rs[b] = make_renderer(a, a.worlds)
+        for x in batches:
+            rs[b].render(*x)
+    torch.cuda.synchronize()
+    ms = {b: [] for b in rs}
+    for _ in range(a.rounds):
+        for b, r in rs.items():
+            torch.cuda.synchronize()
+            t0 = time.perf_counter()
+            for x in batches:
+                r.render(*x)
+            torch.cuda.synchronize()
+            ms[b].append(1e3 * (time.perf_counter() - t0) / len(batches))
+    views = len(a.cameras) * a.worlds
+    res = {"gpu": torch.cuda.get_device_name(0), "worlds": a.worlds, "cameras": list(a.cameras), "res": a.res,
+           "shadows": not a.no_shadows, "rounds": a.rounds, "calls_per_round": len(batches)}
+    for b, m in ms.items():
+        med = float(np.median(m))
+        res[b] = {"ms_median": round(med, 1), "ms_min": round(min(m), 1), "ms_max": round(max(m), 1),
+                  "views_per_s_median": round(views / med * 1e3)}
+    print(json.dumps(res))
+    with open(a.out / "bench_pair.jsonl", "a") as fh:
         fh.write(json.dumps(res) + "\n")
 
 
@@ -263,8 +329,9 @@ def cmd_parity(a):
     rgb, depth = r.render(*poses_from_nrd(torch.tensor(x)), torch.tensor(goal), depth=True)
     rgb, depth = rgb.cpu().numpy(), depth.cpu().numpy()
     spec = so101_grasp.build_spec(so101_grasp.load_config())
-    front = r.scene.front.double().cpu().numpy()
-    spec.worldbody.add_camera(name="front", pos=front[:3].tolist(), quat=[front[6], *front[3:6]], fovy=r.scene.fovy_deg)
+    for fixed in ("front", "top"):
+        c = getattr(r.scene, fixed).double().cpu().numpy()
+        spec.worldbody.add_camera(name=fixed, pos=c[:3].tolist(), quat=[c[6], *c[3:6]], fovy=r.scene.fovy_deg)
     marker = spec.worldbody.add_body(name="goal_marker", mocap=True)     # world geoms do not move after compile
     marker.add_geom(type=mujoco.mjtGeom.mjGEOM_BOX, contype=0, conaffinity=0,
                     size=[GOAL_HALF, GOAL_HALF, GOAL_THICKNESS / 2], rgba=[*GOAL_COLOR, 1])
@@ -276,8 +343,10 @@ def cmd_parity(a):
     opt.geomgroup[:] = 0
     opt.geomgroup[0] = opt.geomgroup[2] = 1
     mid = m.body("goal_marker").mocapid[0]
-    ref = np.zeros((K, 2, H, H), np.float32)
-    mrgb = np.zeros((K, 2, H, H, 3), np.uint8)
+    cams = list(r.cameras)
+    C = len(cams)
+    ref = np.zeros((K, C, H, H), np.float32)
+    mrgb = np.zeros((K, C, H, H, 3), np.uint8)
     rend = mujoco.Renderer(m, H, H)
     for k in range(K):
         d.qpos[:] = m.qpos0
@@ -285,7 +354,7 @@ def cmd_parity(a):
         d.mocap_pos[mid] = [goal[k, 0], goal[k, 1], GOAL_THICKNESS / 2]
         d.mocap_quat[mid] = [math.cos(goal[k, 2] / 2), 0, 0, math.sin(goal[k, 2] / 2)]
         mujoco.mj_forward(m, d)
-        for c, cam in enumerate(("front", "wrist_cam")):
+        for c, cam in enumerate("wrist_cam" if n == "wrist" else n for n in cams):
             rend.update_scene(d, camera=cam, scene_option=opt)
             mrgb[k, c] = rend.render()
             rend.enable_depth_rendering()
@@ -293,33 +362,31 @@ def cmd_parity(a):
             ref[k, c] = rend.render()
             rend.disable_depth_rendering()
     rend.close()
-    res = {"states": K, "res": H, "backend": a.backend, "rows": ep.tolist()}
+    res = {"states": K, "res": H, "backend": a.backend, "cameras": cams, "rows": ep.tolist()}
     green = lambda im: (im[..., 1] > im[..., 0] + 30) & (im[..., 1] > im[..., 2] + 30)          # noqa: E731
     ours, theirs = green(rgb.astype(int)), green(mrgb.astype(int))
     res["goal_marker_iou"] = {name: float((ours[:, c] & theirs[:, c]).sum() / max(1, (ours[:, c] | theirs[:, c]).sum()))
-                              for c, name in enumerate(("front", "wrist"))}
+                              for c, name in enumerate(cams)}
     res["goal_marker_pixels_ours_mujoco"] = {name: [int(ours[:, c].sum()), int(theirs[:, c].sum())]
-                                             for c, name in enumerate(("front", "wrist"))}
-    for c, name in enumerate(("front", "wrist")):
+                                             for c, name in enumerate(cams)}
+    for c, name in enumerate(cams):
         hit = (depth[:, c] > 0) & (ref[:, c] < 3.9)
         e = np.abs(depth[:, c] - ref[:, c])[hit] * 1e3
         res[name] = {"pixels_both_hit": int(hit.sum()), "of": int(hit.size),
                      "abs_diff_mm_p50": float(np.percentile(e, 50)), "p90": float(np.percentile(e, 90)),
                      "p99": float(np.percentile(e, 99)), "frac_over_5mm": float((e > 5).mean()),
                      "hit_miss_mismatch_px": int(((depth[:, c] > 0) != (ref[:, c] < 3.9)).sum())}
-    f = (H / 2) / math.tan(math.radians(r.scene.fovy_deg) / 2)
-    uu = (np.arange(H) + 0.5 - H / 2) / f
-    X, Y = np.meshgrid(uu, -uu)
-    rot = np.zeros(9)
-    mujoco.mju_quat2Mat(rot, np.r_[front[6], front[3:6]])
-    dirs = np.stack([X, Y, -np.ones_like(X)], -1) @ rot.reshape(3, 3).T
-    plane = -front[2] / dirs[..., 2]
-    table = (depth[:, 0] > 0) & (np.abs(ref[:, 0] - plane[None]) < 0.02) & (np.abs(depth[:, 0] - plane[None]) < 0.02)
-    for who, dd in (("ours", depth[:, 0]), ("mujoco", ref[:, 0])):
-        e = np.abs(dd - plane[None])[table] * 1e3
-        res[f"table_plane_{who}_mm"] = {"p50": float(np.percentile(e, 50)), "p99": float(np.percentile(e, 99)),
-                                        "pixels": int(table.sum())}
-    other = a.out / f"parity_{'newton' if a.backend == 'madrona' else 'madrona'}_arrays.npz"
+    for c, name in enumerate(cams):
+        if name == "wrist":
+            continue
+        plane = table_depth(r, name)[None]
+        table = (depth[:, c] > 0) & (np.abs(ref[:, c] - plane) < 0.02) & (np.abs(depth[:, c] - plane) < 0.02)
+        for who, dd in (("ours", depth[:, c]), ("mujoco", ref[:, c])):
+            e = np.abs(dd - plane)[table] * 1e3
+            res[f"table_plane_{name}_{who}_mm"] = {"p50": float(np.percentile(e, 50)),
+                                                   "p99": float(np.percentile(e, 99)), "pixels": int(table.sum())}
+    other_backend = "newton" if a.backend == "madrona" else "madrona"
+    other = a.out / f"parity_{tag(a).replace(a.backend, other_backend, 1)}_arrays.npz"
     if other.exists():                      # the other backend's run of the same states: depth agreement
         o = np.load(other)
         both = (depth > 0) & (o["depth"] > 0)
@@ -328,17 +395,23 @@ def cmd_parity(a):
                                             "frac_over_5mm": float((e > 5).mean()),
                                             "hit_miss_mismatch_px": int(((depth > 0) != (o["depth"] > 0)).sum()),
                                             "rgb_equal_frac": float((rgb == o["rgb"]).all(-1).mean())}
-    json.dump(res, open(a.out / f"parity_{a.backend}.json", "w"), indent=1)
-    np.savez_compressed(a.out / f"parity_{a.backend}_arrays.npz", depth=depth, rgb=rgb, mujoco_depth=ref, mujoco_rgb=mrgb)
+    json.dump(res, open(a.out / f"parity_{tag(a)}.json", "w"), indent=1)
+    np.savez_compressed(a.out / f"parity_{tag(a)}_arrays.npz", depth=depth, rgb=rgb, mujoco_depth=ref, mujoco_rgb=mrgb)
     from nedm.render import grid
-    save_png(grid(np.concatenate([mrgb[:, 0], rgb[:, 0], mrgb[:, 1], rgb[:, 1]]), K), a.out / f"parity_{a.backend}.png")
+    save_png(grid(np.concatenate([im for c in range(C) for im in (mrgb[:, c], rgb[:, c])]), K),
+             a.out / f"parity_{tag(a)}.png")
     print(json.dumps(res, indent=1))
 
 
-def front_table_depth(r: SO101Renderer) -> torch.Tensor:
-    """z-depth [H, W] of the table plane z = 0 in the front camera at pixel centres (inf where the ray misses it)."""
+def table_depth(r: SO101Renderer, camera: str = "front") -> np.ndarray:
+    """z-depth [H, W] of the table plane z = 0 in a fixed camera at pixel centres (inf where the ray misses it)."""
+    return front_table_depth(r, camera).numpy()
+
+
+def front_table_depth(r: SO101Renderer, camera: str = "front") -> torch.Tensor:
+    """z-depth [H, W] of the table plane z = 0 in the front (or top) camera at pixel centres (inf: misses it)."""
     from nedm.render.so101 import qrot, wxyz
-    cam = r.scene.front.double().cpu()
+    cam = getattr(r.scene, camera).double().cpu()
     H, W = r.height, r.width
     f = (H / 2) / math.tan(math.radians(r.scene.fovy_deg) / 2)
     u = (torch.arange(W, dtype=torch.float64) + 0.5 - W / 2) / f
@@ -409,9 +482,10 @@ def cmd_appearance(a):
         down[N // 2:] = torch.tensor([1.0, 0.0, 0.0])
         r.set_appearance(grey, down, shadows=torch.zeros(N, dtype=torch.bool))
         rgb3, depth3 = r.render(*inputs, depth=True)
+        front = r.cameras.index("front")
         plane = front_table_depth(r).to(depth3.device)
-        table = (depth3[:, 0] - plane).abs() < 3e-4
-        level = [float(rgb3[k, 0][table[k]].float().mean()) for k in range(N)]
+        table = (depth3[:, front] - plane).abs() < 3e-4
+        level = [float(rgb3[k, front][table[k]].float().mean()) for k in range(N)]
         res["table_level_light_down"] = round(float(np.mean(level[: N // 2])), 1)
         res["table_level_light_horizontal"] = round(float(np.mean(level[N // 2:])), 1)
         res["table_level_expected"] = [round(0.5 * 255, 1), round(0.2 * round(0.5 * 255), 1)]
@@ -432,10 +506,11 @@ def cmd_appearance(a):
 
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("command", choices=["sheet", "video", "bench", "parity", "appearance"])
+    p.add_argument("command", choices=["sheet", "video", "bench", "pairbench", "parity", "appearance"])
     p.add_argument("--data", type=Path, default=Path.home() / "so101_nrd_fix/data/val_only")
     p.add_argument("--out", type=Path, required=True)
-    p.add_argument("--backend", default="madrona", choices=["madrona", "newton"])
+    p.add_argument("--backend", default="newton", choices=["madrona", "newton"])
+    p.add_argument("--cameras", default="front,wrist", help="comma list from front, top, wrist")
     p.add_argument("--res", type=int, default=128)
     p.add_argument("--no-shadows", action="store_true")
     p.add_argument("--face-colors", action="store_true")
@@ -447,9 +522,11 @@ def main():
     p.add_argument("--slow", type=float, default=1.0, help="video: play at 50 / SLOW frames per second")
     p.add_argument("--worlds", type=int, default=1024)
     p.add_argument("--frames", type=int, default=30)
+    p.add_argument("--rounds", type=int, default=6, help="pairbench: rounds of 4 calls per backend")
     a = p.parse_args()
+    a.cameras = tuple(c.strip() for c in a.cameras.split(",") if c.strip())
     a.out.mkdir(parents=True, exist_ok=True)
-    {"sheet": cmd_sheet, "video": cmd_video, "bench": cmd_bench, "parity": cmd_parity,
+    {"sheet": cmd_sheet, "video": cmd_video, "bench": cmd_bench, "pairbench": cmd_pairbench, "parity": cmd_parity,
      "appearance": cmd_appearance}[a.command](a)
 
 

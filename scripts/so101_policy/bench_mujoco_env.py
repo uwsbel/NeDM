@@ -2,9 +2,11 @@
 
     PYTHONPATH=src python scripts/so101_policy/bench_mujoco_env.py extract --data ~/so101_nrd_fix/data/val_only \
         --out DIR [--per-family 8]
-    PYTHONPATH=src python scripts/so101_policy/bench_mujoco_env.py replay --data DIR [--workers 8] [--out JSON]
+    PYTHONPATH=src python scripts/so101_policy/bench_mujoco_env.py replay --data DIR [--workers 8] [--out JSON] \
+        [--labels exact|record] [--modes AB] [--python WORKER_PYTHON]
     PYTHONPATH=src python scripts/so101_policy/bench_mujoco_env.py throughput --data DIR --workers 1 8 24 \
-        [--per-worker 16] [--steps 300] [--out JSON]
+        [--per-worker 16] [--steps 300] [--labels exact|record] [--no-overlap] [--python WORKER_PYTHON] [--out JSON]
+    PYTHONPATH=src python scripts/so101_policy/bench_mujoco_env.py starts [--first 5000000] [--n 256] [--out JSON]
 
 extract: a small data directory (system.json + unified_data.npz, the arrays the replay needs) of validation episodes
 (split 1, never the sealed test): every episode with a terminal reason plus ``per-family`` evenly spread episodes of
@@ -14,12 +16,16 @@ replay: (A) collector-exact. Each episode's start is regenerated from its stored
 (production master seed 20261021; the plan whose warm-up state equals the stored first record), the env resets with
 the collector warm-up and steps the stored commands (every second record). The WorldState sequence is compared with
 the stored records as the NRD pipeline reads them (rollouts.load_rows, data.step_average_rates,
-data.physical_labels), together with the end step and reason. (B) state start: the env resets exactly to the stored
+data.physical_labels and data.model_labels against the two contact views), the env's 10 ms records and interval labels
+against the stored ones, together with the end step and reason. ``--labels record`` measures how often the cheaper
+once-per-record force check changes labels or ends. (B) state start: the env resets exactly to the stored
 first record (float32, no warm-up) and steps the same commands; the divergence from the record is reported.
 
 throughput: worlds = workers x per-worker, each replays a nominal episode (collector warm-up from its first record's
 pose, stored commands); control steps per wall second of the step calls (resets excluded), plus one core of bare
 ``mj_step(nstep=40)`` on the same episodes as the reference.
+
+starts: wall time of ``sample_starts`` per start (collector sampler + 0.3 s warm-up + flags), one process.
 """
 from __future__ import annotations
 
@@ -36,9 +42,9 @@ import torch
 
 from nedm.contact_nrd.collect import export
 from nedm.contact_nrd.collect import so101_grasp as g
-from nedm.contact_nrd.data import physical_labels, step_average_rates
+from nedm.contact_nrd.data import model_labels, physical_labels, step_average_rates
 from nedm.contact_nrd.rollouts import load_rows, npz_members
-from nedm.so101_policy.mujoco_env import MujocoWorlds, end_names, install_overlap
+from nedm.so101_policy.mujoco_env import MujocoWorlds, end_names, install_overlap, sample_starts
 
 MASTER = 20261021   # production campaign (its validation split = val_only)
 FIELDS = ("q", "qd", "cube_pos", "cube_quat", "cube_v", "cube_w")
@@ -120,31 +126,52 @@ def _truth(root, rows):
     truth = dict(q=st[:, :, 0, 0:6], qd=st[:, :, 0, 6:12], cube_pos=st[:, :, 1, 0:3], cube_quat=st[:, :, 1, 3:7],
                  cube_v=st[:, :, 1, 7:10], cube_w=st[:, :, 1, 10:13])
     phys = physical_labels(data["contacts"], 2)                       # [E, 300, 3]: pair touched in step n
+    truth["gate"] = model_labels(data["contacts"], 2)                 # step n or n-1 (the NRD switch meaning)
+    a = npz_members(Path(root) / "unified_data.npz")                  # the stored 10 ms records (float32) and labels
+    truth["records"] = torch.from_numpy(np.concatenate((np.asarray(a["arm"])[rows], np.asarray(a["cube"])[rows]), -1)
+                                        .astype(np.float64))
+    truth["record_contact"] = torch.from_numpy(np.asarray(a["contacts"])[rows].astype(bool))
     return truth, phys, data["actions"][:, ::2, 0, :6], lengths
 
 
 def _run(env, actions, steps, reset):
-    """reset() then ``steps`` commands -> {field: [E, steps+1, ...]}, flags, end reason and step."""
+    """reset() then ``steps`` commands -> {field: [E, steps+1, ...]} (also ``gate`` = switch_contact, ``physical``,
+    ``records`` [E, 2 steps, 25] and ``record_contact`` [E, 2 steps, 3] = records 1, 2, ... and intervals 0, 1, ...),
+    end reason and step, wall time of the step calls."""
     ws = reset()
     seq = {f: [getattr(ws, f)] for f in FIELDS + ("contact", "arm_table", "invalid")}
+    seq["gate"], seq["physical"], rec, rc = [env.switch_contact], [env.physical_contact], [], []
     t0 = time.perf_counter()
     for n in range(steps):
         ws = env.step(actions[:, n])
-        for f in seq:
+        for f in FIELDS + ("contact", "arm_table", "invalid"):
             seq[f].append(getattr(ws, f))
+        seq["gate"].append(env.switch_contact)
+        seq["physical"].append(env.physical_contact)
+        rec.append(env.records)
+        rc.append(env.record_contact)
     wall = time.perf_counter() - t0
-    return {f: torch.stack(v, 1) for f, v in seq.items()}, env.end_reason.clone(), env.end_step.clone(), wall
+    out = {f: torch.stack(v, 1) for f, v in seq.items()}
+    out["records"], out["record_contact"] = torch.cat(rec, 1), torch.cat(rc, 1)
+    return out, env.end_reason.clone(), env.end_step.clone(), wall
 
 
 def compare(seq, end_reason, end_step, truth, phys, lengths, terminal, exact=True):
-    """Per-episode comparison over the stored part (module docstring)."""
+    """Per-episode comparison over the stored part (module docstring): grid states (max |diff| per field), the 10 ms
+    records 1 .. L-1 (``records_max_abs``), physical and gate contact labels per step, interval labels per 10 ms,
+    flags before the end, end step and reason."""
     out = []
     for e in range(len(lengths)):
-        nv = (int(lengths[e]) - 1) // 2 + 1                           # stored grid states 0 .. nv-1
+        L = int(lengths[e])
+        nv = (L - 1) // 2 + 1                                         # stored grid states 0 .. nv-1
         r = dict(valid_states=nv, terminal=int(terminal[e]))
         r["max_abs"] = {f: float((seq[f][e, :nv] - truth[f][e, :nv]).abs().max()) for f in FIELDS}
-        r["contact_equal"] = bool(torch.equal(seq["contact"][e, 1:nv], phys[e, :nv - 1]))
-        r["contact_mismatch_steps"] = int((seq["contact"][e, 1:nv] != phys[e, :nv - 1]).any(-1).sum())
+        r["contact_equal"] = bool(torch.equal(seq["physical"][e, 1:nv], phys[e, :nv - 1]))
+        r["contact_mismatch_steps"] = int((seq["physical"][e, 1:nv] != phys[e, :nv - 1]).any(-1).sum())
+        r["gate_equal"] = bool(torch.equal(seq["gate"][e, 1:nv], truth["gate"][e, :nv - 1]))
+        r["records_max_abs"] = float((seq["records"][e, :L - 1] - truth["records"][e, 1:L]).abs().max()) if L > 1 else 0.
+        r["record_contact_equal"] = bool(torch.equal(seq["record_contact"][e, :L - 1],
+                                                     truth["record_contact"][e, :L - 1]))
         r["flags_before_end"] = int((seq["arm_table"][e, :nv] | seq["invalid"][e, :nv]).sum())
         er, es = int(end_reason[e]), int(end_step[e])
         if terminal[e]:
@@ -156,14 +183,15 @@ def compare(seq, end_reason, end_step, truth, phys, lengths, terminal, exact=Tru
             err = (seq["cube_pos"][e, :nv] - truth["cube_pos"][e, :nv]).norm(dim=-1)
             r["cube_err_mm"] = {f"{t}s": float(err[min(nv - 1, int(t / 0.02))]) * 1e3 for t in (0.5, 1, 2, 4, 6)}
             r["arm_err_mrad_max"] = float((seq["q"][e, :nv] - truth["q"][e, :nv]).abs().max()) * 1e3
-        same = r["contact_equal"] and r["end_ok"] and r["flags_before_end"] == 0
-        r["bit_exact"] = same and all(v == 0.0 for v in r["max_abs"].values())
-        r["exact_1e12"] = same and all(v <= 1e-12 for v in r["max_abs"].values())
+        same = (r["contact_equal"] and r["gate_equal"] and r["record_contact_equal"] and r["end_ok"]
+                and r["flags_before_end"] == 0)
+        r["bit_exact"] = same and all(v == 0.0 for v in r["max_abs"].values()) and r["records_max_abs"] == 0.0
+        r["exact_1e12"] = same and all(v <= 1e-12 for v in r["max_abs"].values()) and r["records_max_abs"] == 0.0
         out.append(r)
     return out
 
 
-def replay(root, workers, python, out_path, plan_workers):
+def replay(root, workers, python, out_path, plan_workers, labels="exact", modes=("A", "B")):
     root = Path(root)
     a = npz_members(root / "unified_data.npz")
     system = json.loads((root / "system.json").read_text())
@@ -183,7 +211,7 @@ def replay(root, workers, python, out_path, plan_workers):
     t_plan = time.perf_counter() - t0
     truth, phys, actions, lengths = _truth(root, rows)
     steps = int(((lengths - 1) // 2).max())
-    env = MujocoWorlds(E, workers=workers, python=python)
+    env = MujocoWorlds(E, workers=workers, python=python, labels=labels)
     spawn = np.array([p["spawn"] for p in plans])
 
     def reset_collector():
@@ -201,7 +229,8 @@ def replay(root, workers, python, out_path, plan_workers):
         return env.reset(None, first, warmup=False)
 
     res = {}
-    for name, fn, exact in (("A_collector_exact", reset_collector, True), ("B_state_start", reset_state, False)):
+    runs = (("A_collector_exact", reset_collector, True), ("B_state_start", reset_state, False))
+    for name, fn, exact in [r for r in runs if r[0][0] in modes]:
         seq, er, es, wall = _run(env, actions, steps, fn)
         per = compare(seq, er, es, truth, phys, lengths, term, exact)
         groups = {}
@@ -210,8 +239,11 @@ def replay(root, workers, python, out_path, plan_workers):
         summ = {}
         for gname, rs in [("all", per)] + sorted(groups.items()):
             s = dict(episodes=len(rs), bit_exact=sum(r["bit_exact"] for r in rs), exact_1e12=sum(r["exact_1e12"] for r in rs),
-                     contact_equal=sum(r["contact_equal"] for r in rs), end_ok=sum(r["end_ok"] for r in rs),
-                     max_abs={f: max(r["max_abs"][f] for r in rs) for f in FIELDS},
+                     contact_equal=sum(r["contact_equal"] for r in rs), gate_equal=sum(r["gate_equal"] for r in rs),
+                     record_contact_equal=sum(r["record_contact_equal"] for r in rs),
+                     end_ok=sum(r["end_ok"] for r in rs), max_abs={f: max(r["max_abs"][f] for r in rs) for f in FIELDS},
+                     records_max_abs=max(r["records_max_abs"] for r in rs),
+                     end_wrong=[[r["terminal"], r["end"]] for r in rs if not r["end_ok"]][:20],
                      terminal_episodes=sum(r["terminal"] != 0 for r in rs))
             if not exact:
                 for t in ("0.5s", "1s", "2s", "4s", "6s"):
@@ -226,7 +258,7 @@ def replay(root, workers, python, out_path, plan_workers):
     info = dict(data=str(root), episodes=E, families={n: int((fam == k).sum()) for k, n in enumerate(names)},
                 terminal_counts={n: int((term == k).sum()) for k, n in enumerate(end_names())},
                 plan_tries_match=int(sum(int(p["tries"]) == int(t) for p, t in zip(plans, plan_tries))),
-                plan_s=t_plan, workers=workers, host=os.uname().nodename, env=env.info[0])
+                plan_s=t_plan, workers=workers, labels=labels, host=os.uname().nodename, env=env.info[0])
     out = dict(info=info, **res)
     if out_path:
         Path(out_path).parent.mkdir(parents=True, exist_ok=True)
@@ -294,6 +326,20 @@ def throughput(root, workers_list, per_worker, steps, overlap, python, out_path,
     return res
 
 
+def starts(first, n, out_path):
+    """Time sample_starts on seeds first .. first+n-1 (in this process) -> ms per start, draws per start."""
+    t0 = time.perf_counter()
+    st = sample_starts(range(first, first + n))
+    wall = time.perf_counter() - t0
+    r = dict(host=os.uname().nodename, seeds=[first, first + n - 1], ms_per_start=1e3 * wall / n,
+             tries=np.bincount(st["tries"]).tolist(), load=os.getloadavg(),
+             cube_r_m=np.quantile(np.hypot(st["cube_pos"][:, 0] - 0.0388, st["cube_pos"][:, 1]), [0, 0.5, 1]).tolist())
+    print(json.dumps(r), flush=True)
+    if out_path:
+        Path(out_path).write_text(json.dumps(r, indent=1))
+    return r
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -307,6 +353,8 @@ def main():
     r.add_argument("--plan-workers", type=int, default=4)
     r.add_argument("--python", default=None)
     r.add_argument("--out", default=None)
+    r.add_argument("--labels", default="exact", choices=("exact", "record"))
+    r.add_argument("--modes", default="AB", help="A = collector warm-up starts, B = exact state starts")
     t = sub.add_parser("throughput")
     t.add_argument("--data", required=True)
     t.add_argument("--workers", type=int, nargs="+", default=[1, 8])
@@ -317,13 +365,21 @@ def main():
     t.add_argument("--python", default=None)
     t.add_argument("--labels", default="exact", choices=("exact", "record"))
     t.add_argument("--out", default=None)
+    t.add_argument("--cpus", type=int, nargs="*", default=None, help="worker CPU affinity")
+    s = sub.add_parser("starts")
+    s.add_argument("--first", type=int, default=5_000_000)
+    s.add_argument("--n", type=int, default=256)
+    s.add_argument("--out", default=None)
     a = p.parse_args()
     if a.cmd == "extract":
         extract(a.data, a.out, a.per_family)
     elif a.cmd == "replay":
-        replay(a.data, a.workers, a.python, a.out, a.plan_workers)
+        replay(a.data, a.workers, a.python, a.out, a.plan_workers, a.labels, tuple(a.modes))
+    elif a.cmd == "starts":
+        starts(a.first, a.n, a.out)
     else:
-        throughput(a.data, a.workers, a.per_worker, a.steps, not a.no_overlap, a.python, a.out, a.bare_seconds, a.labels)
+        throughput(a.data, a.workers, a.per_worker, a.steps, not a.no_overlap, a.python, a.out, a.bare_seconds, a.labels,
+                   a.cpus)
 
 
 if __name__ == "__main__":

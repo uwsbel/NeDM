@@ -223,5 +223,52 @@ class InitFrom(unittest.TestCase):
             self.assertEqual(cfg_run["init_from"]["source_stage"], src["stage"])
 
 
+@unittest.skipUnless(HAS_TORCH, "needs torch")
+class EvalCompare(unittest.TestCase):
+    """scripts/so101_policy/eval_nrd_noisy.py --compare: before / after rows, paired lift flags, forgetting gate."""
+
+    @classmethod
+    def setUpClass(cls):
+        sys.path.insert(0, str(REPO / "src"))
+        spec = importlib.util.spec_from_file_location("eval_nrd_noisy", REPO / "scripts/so101_policy/eval_nrd_noisy.py")
+        cls.ev = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cls.ev)
+
+    @staticmethod
+    def fake(wrong_rows, p95_1s, p95_4s):
+        """An output JSON of 6 episodes (rows 10..15, all recorded lifts) where wrong_rows have no predicted lift."""
+        rows = list(range(10, 16))
+        per = [dict(row=r, family="noisy_nominal", lifted_recorded=True, lifted_predicted=r not in wrong_rows,
+                    free_4s_cube_mm=float(r)) for r in rows]
+        summ = dict(episodes=6, win1s_cube_mm=[1.0, p95_1s], free_4s_cube_mm=[2.0, p95_4s])
+        wrong = len(wrong_rows)
+        ens = {g: {"episodes": 6, "recorded_lifts": 6,
+                   "s61": dict(wrong=wrong, false_lift=0, missed_lift=wrong, wrong_pct=round(100 * wrong / 6, 2))}
+               for g in ("all", "noisy_nominal", "std_05_10mrad")}
+        return dict(data_sha256="x", split=1, families=["noisy_nominal"], groups={"all": 6, "noisy_nominal": 6, "std_05_10mrad": 6},
+                    group_rows={"noisy_nominal": rows, "std_05_10mrad": rows}, ensemble=ens,
+                    models={"s61": dict(summary={"all": summ, "noisy_nominal": summ}, per_episode=per)})
+
+    def test_compare(self):
+        self.assertEqual(self.ev.sign_test(0, 0), 1.0)
+        self.assertAlmostEqual(self.ev.sign_test(6, 0), 2 / 64)
+        with tempfile.TemporaryDirectory() as tmp:
+            b, a = Path(tmp) / "b.json", Path(tmp) / "a.json"
+            b.write_text(json.dumps(self.fake({10, 11, 12}, 4.0, 10.0)))
+            a.write_text(json.dumps(self.fake({12, 13}, 4.3, 12.0)))
+            rows, pairs = self.ev.compare([f"before={b}", f"after={a}"], Path(tmp) / "c.json")
+            self.assertTrue((Path(tmp) / "c.json").exists())
+        self.assertEqual(len(rows), 6)   # 3 groups x 2 files, one model
+        binr = next(r for r in rows if r["group"] == "std_05_10mrad" and r["label"] == "after")
+        self.assertIsNone(binr["win1s_cube_p95_mm"])
+        self.assertAlmostEqual(binr["free_4s_cube_p95_mm"], float(np.percentile(range(10, 16), 95)), places=3)
+        p = next(x for x in pairs if x["group"] == "all")
+        self.assertEqual((p["lift_fixed"], p["lift_broken"]), (2, 1))   # 10, 11 fixed; 13 broken
+        self.assertTrue(p["gate_checks"]["win1s_cube_p95_mm"])          # 4.3 <= 1.1 x 4.0
+        self.assertFalse(p["gate_checks"]["free_4s_cube_p95_mm"])       # 12 > 1.1 x 10
+        self.assertTrue(p["gate_checks"]["lift_wrong"])
+        self.assertFalse(p["gate_pass"])
+
+
 if __name__ == "__main__":
     unittest.main()

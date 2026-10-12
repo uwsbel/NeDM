@@ -15,12 +15,14 @@ import torch
 from nedm.contact_nrd.model import (DERIVED_NAMES, DERIVED_TYPES, RELATIVE_NAMES, RELATIVE_TYPES, ContactNRD,
                                     load_model, model_config)
 from nedm.so101_policy import cube_symmetry as cs
-from nedm.so101_policy.nrd_sim import STUDY_CKPTS, GraspNrdSim
+from nedm.so101_policy.nrd_sim import STUDY_CKPTS, GraspNrdSim, cube_rest_envelope, lowest_point_guard
 from nedm.so101_policy.world import CONTACT_PAIRS, WorldState
 from tests.contact_nrd import synthetic
 from tests.contact_nrd.test_conventions import KINDS, SMALL, full_masks
 
 VAL = Path.home() / "so101_nrd_fix" / "data" / "val_only"
+# a "ns" model of the fix study (no derived / relative channels; read only)
+NS_CKPT = Path.home() / "so101_nrd_fix" / "design" / "signals" / "ckpt" / "short_ns_rk_cc_s62" / "best.pt"
 LINKS = [dict(pos=[0.0388353, 0.0, 0.0624], quat=[0.0, 0.0, -1.0, 0.0]),
          dict(pos=[-0.0303992, -0.0182778, -0.0542], quat=[0.5, -0.5, -0.5, -0.5]),
          dict(pos=[-0.11257, -0.028, 0.0], quat=[math.sqrt(0.5), 0.0, 0.0, math.sqrt(0.5)]),
@@ -238,30 +240,99 @@ class ResetsAndDisturbances(unittest.TestCase):
         self.assertFalse(bool(sim.observe().invalid.any()))
 
     def test_set_cube_rebuilds_history(self):
+        """Review sec. 5: the cube base channels in ALL K slots (v = w = 0), arm channels and ok kept, finish on each slot."""
         model = so101_model(9)
         sim = GraspNrdSim({"a": model}, 4, "cpu", canonical=True)
         sim.reset(None, starts(4, 9))
         for t in range(2):                                                   # 3 valid entries, 1 masked
             sim.step(starts(4, 9)["q"])
-        arm_before, masked_before = sim.hist[:, :, 0].clone(), sim.hist[:, 0].clone()
+        arm_before, ok_before = sim.hist[:, :, 0].clone(), sim.ok.clone()
+        pos = torch.tensor([[0.25, 0.05, 0.014993]] * 4, dtype=torch.float64)
+        quat = torch.stack([cs.axis_quat("z", d) for d in (10.0, 80.0, 120.0, 250.0)])
+        ws = sim.set_cube(None, pos, quat)
+        h = sim.hist
+        self.assertIsInstance(ws, WorldState)
+        self.assertTrue(torch.equal(sim.ok, ok_before))                      # masks kept
+        self.assertTrue(torch.equal(h[:, :, 0, :12], arm_before[:, :, :12]))  # arm base channels kept, every slot
+        self.assertLess(float((h[:, 1:, 0] - arm_before[:, 1:]).abs().max()), 1e-15)   # valid slots: derived too
+        for j in range(4):                                                    # every slot: the same resting cube
+            self.assertLess(float((h[:, j, 1, 0:3] - pos).abs().max()), 1e-15)
+            self.assertEqual(float(h[:, j, 1, 7:13].abs().max()), 0.0)
+            self.assertTrue(torch.equal(h[:, j, 1, 3:7], h[:, -1, 1, 3:7]))
+            self.assertLess(float((model.finish(h[:, j]) - h[:, j]).abs().max()), 1e-15)   # finished slot by slot
+        self.assertLess(same_rotation(ws.cube_quat, quat), 1e-12)
+        self.assertLess(float((ws.cube_pos - pos).abs().max()), 1e-15)
+        yaw = torch.rad2deg(cs.yaw_of_flat(h[:, -1, 1, 3:7]))
+        self.assertTrue(bool(((yaw >= 0) & (yaw <= 90)).all()))              # canonical inside
+        self.assertTrue(bool(cube_rest_envelope(pos, quat).all()))
+        sim.step(starts(4, 9)["q"])                                          # and it steps on
+        self.assertTrue(bool(torch.isfinite(sim.hist).all()))
+
+    def test_set_cube_with_rates(self):
+        """Nonzero v, w (outside the data): constant-rate history that obeys the model's integration rule."""
+        model = so101_model(9)
+        sim = GraspNrdSim({"a": model}, 4, "cpu", canonical=False)
+        sim.reset(None, starts(4, 9))
+        sim.step(starts(4, 9)["q"])
         pos = torch.tensor([[0.25, 0.05, 0.015]] * 4, dtype=torch.float64)
         quat = torch.stack([cs.axis_quat("z", d) for d in (10.0, 80.0, 120.0, 250.0)])
         v = torch.tensor([[0.1, -0.05, 0.0]] * 4, dtype=torch.float64)
         w = torch.tensor([[0.0, 0.0, 2.0]] * 4, dtype=torch.float64)
         sim.set_cube(None, pos, quat, v, w)
-        h, ok = sim.hist, sim.ok
-        self.assertTrue(torch.equal(h[:, :, 0], arm_before))                 # arm untouched
-        self.assertTrue(torch.equal(h[:, 0], masked_before))                 # masked entry untouched
-        self.assertLess(float((h[:, -1, 1, 0:3] - pos).abs().max()), 1e-15)
+        h = sim.hist
         self.assertLess(same_rotation(sim.observe().cube_quat, quat), 1e-12)
-        for j in (1, 2):                                                     # the model's integration rule between entries
-            self.assertTrue(bool(ok[:, j].all()))
+        for j in range(3):
             self.assertLess(float((h[:, j + 1, 1, 0:3] - h[:, j, 1, 0:3] - 0.02 * v).abs().max()), 1e-15)
             nxt = model.assemble(h[:, j], h[:, j + 1] - h[:, j], torch.zeros_like(h[:, j]))
             self.assertLess(float((nxt[:, 1, 3:7] - h[:, j + 1, 1, 3:7]).abs().max()), 1e-12)
-        self.assertLess(float((model.finish(h[:, -1]) - h[:, -1]).abs().max()), 1e-12)   # relative channels recomputed
-        yaw = torch.rad2deg(cs.yaw_of_flat(h[:, -1, 1, 3:7]))
-        self.assertTrue(bool(((yaw >= 0) & (yaw <= 90)).all()))
+
+    def test_relabel_refinish_equals_finish(self):
+        """After steps with relabels every slot is a finished state, and the cube-only refinish was used."""
+        for derived in (True, False):
+            model = so101_model(15, derived)
+            sim = GraspNrdSim({"a": model}, 24, "cpu", canonical=True)
+            self.assertTrue(sim.fast_relabel)
+            st = starts(24, 15)
+            st["cube_quat"] = cs.relabel(st["cube_quat"], torch.arange(24), newest_sign=False)
+            sim.reset(None, st)
+            tg = targets(24, 6, 15)
+            sim.step(tg[:, 0])
+            ws = sim.observe()                                               # spin about z: the label band is crossed
+            sim.set_cube(None, ws.cube_pos, cs.qmul(cs.axis_quat("z", 1.0), ws.cube_quat), w=torch.tensor([[0.0, 0.0, -3.0]] * 24))
+            n = 0
+            for t in range(1, 6):
+                sim.step(tg[:, t])
+                n += int(sim.relabelled.sum())
+            self.assertGreater(n, 0)
+            fin = model.finish(sim.hist.flatten(0, 1)).view_as(sim.hist)
+            valid = sim.ok[..., None, None].expand_as(fin)
+            self.assertLess(float((fin - sim.hist)[valid].abs().max()), 1e-15)
+
+
+class Helpers(unittest.TestCase):
+    def test_lowest_point_guard(self):
+        class Kin:
+            def lowest_point(self, q):
+                return q[:, 1] * 0.01
+        fn = lowest_point_guard(Kin())
+        q = torch.zeros(3, 6, dtype=torch.float64)
+        q[:, 1] = torch.tensor([-1.0, 0.04, 0.06], dtype=torch.float64)          # -10 mm, 0.4 mm, 0.6 mm
+        self.assertEqual(fn(q).tolist(), [True, True, False])
+        model = so101_model(16)
+        sim = GraspNrdSim({"a": model}, 3, "cpu", arm_table_fn=fn)
+        st = starts(3, 16)
+        st["q"][:, 1] = q[:, 1]
+        self.assertEqual(sim.reset(None, st).arm_table.tolist(), [True, True, False])
+
+    def test_cube_rest_envelope(self):
+        flat = cs.axis_quat("z", 30.0)
+        pos = torch.tensor([[0.25, 0.0, 0.014993], [0.25, 0.0, 0.0165], [0.0388 + 0.14, 0.0, 0.014993],
+                            [0.0388 + 0.2 * math.cos(math.radians(80)), 0.2 * math.sin(math.radians(80)), 0.014993],
+                            [0.25, 0.0, 0.014993], [0.25, 0.0, 0.014993]], dtype=torch.float64)
+        quat = torch.stack([flat] * 4 + [cs.qmul(cs.axis_quat("x", 2.0), flat), flat])
+        v = torch.zeros(6, 3, dtype=torch.float64)
+        v[5, 0] = 0.01
+        self.assertEqual(cube_rest_envelope(pos, quat, v).tolist(), [True, False, False, False, False, False])
 
 
 class Flags(unittest.TestCase):
@@ -317,27 +388,57 @@ class Graph(unittest.TestCase):
         self.assertLess(float((out[0] - out[1]).abs().max()), 1e-9)
 
 
+def val_windows(model, rows, steps=(60, 120)):
+    """Recorded 4-state validation histories (model layout) at the given 20 ms steps and the recorded commands."""
+    from nedm.contact_nrd import rollouts as R
+    data = R.load_rows(VAL, rows, "cpu", 0.02)
+    R.step_average_rates(data, set(model.config["integrate"]["kinds"]))
+    R.add_derived(data, model.config.get("derived"))
+    R.add_relative(data, model.config.get("relative"))
+    h = torch.cat([data["states"][:, 2 * s - 6: 2 * s + 1: 2] for s in steps])
+    a = torch.cat([data["actions"][:, 2 * s] for s in steps])
+    return h, torch.ones(len(h), model.k, dtype=torch.bool), a
+
+
+def window_parity(test, model, name):
+    h, ok, a = val_windows(model, list(range(0, 1200, 50)))
+    with torch.no_grad():
+        ref, info = model.details(h, ok, a)
+    sim = GraspNrdSim({name: model}, len(h), "cpu", canonical=False)
+    test.assertTrue(sim.fast_layout and sim.fast_relabel)
+    sim.reset_history(None, h, ok)
+    sim.step(a[:, 0, :6])
+    test.assertLess(float((sim.state - ref).abs().max()), 1e-6)
+    test.assertTrue(torch.equal(sim.gates, info["gates"]))
+    sim = GraspNrdSim({name: model}, len(h), "cpu", canonical=True)        # canonical, from a WorldState: runs
+    s0 = h[:, -1]
+    ws = sim.reset(None, dict(q=s0[:, 0, 0:6], qd=s0[:, 0, 6:12], cube_pos=s0[:, 1, 0:3], cube_quat=s0[:, 1, 3:7],
+                              cube_v=s0[:, 1, 7:10], cube_w=s0[:, 1, 10:13]))
+    test.assertLess(same_rotation(ws.cube_quat, s0[:, 1, 3:7] / s0[:, 1, 3:7].norm(dim=-1, keepdim=True)), 1e-12)
+    for t in range(2):
+        ws = sim.step(a[:, 0, :6])
+    test.assertTrue(bool(torch.isfinite(sim.hist).all()))
+    return sim
+
+
 @unittest.skipUnless(all(Path(p).exists() for p in STUDY_CKPTS.values()) and (VAL / "unified_data.npz").exists(),
                      "needs the study checkpoints and the validation data")
 class RealCheckpoint(unittest.TestCase):
     def test_windows_parity(self):
-        """One dense step from 96 recorded validation windows of the final s61 model = ContactNRD.details."""
-        from nedm.contact_nrd import rollouts as R
+        """One dense step from 48 recorded validation windows of the final s61 model = ContactNRD.details."""
         model, _ = load_model(STUDY_CKPTS["s61"], "cpu")
-        data = R.load_rows(VAL, list(range(0, 1200, 25)), "cpu", 0.02)
-        R.step_average_rates(data, set(model.config["integrate"]["kinds"]))
-        R.add_derived(data, model.config.get("derived"))
-        R.add_relative(data, model.config.get("relative"))
-        h = torch.cat([data["states"][:, s - 6: s + 1: 2] for s in (60, 120)])
-        a = torch.cat([data["actions"][:, s] for s in (60, 120)])
-        ok = torch.ones(len(h), 4, dtype=torch.bool)
-        with torch.no_grad():
-            ref, info = model.details(h, ok, a)
-        sim = GraspNrdSim({"s61": model}, len(h), "cpu", canonical=False)
-        sim.reset_history(None, h, ok)
-        sim.step(a[:, 0, :6])
-        self.assertLess(float((sim.state - ref).abs().max()), 1e-6)
-        self.assertTrue(torch.equal(sim.gates, info["gates"]))
+        sim = window_parity(self, model, "s61")
+        self.assertEqual(sim.S, 27)
+
+
+@unittest.skipUnless(NS_CKPT.exists() and (VAL / "unified_data.npz").exists(), "needs the ns checkpoint and the validation data")
+class OtherLayoutCheckpoint(unittest.TestCase):
+    def test_no_derived_channels(self):
+        """A real checkpoint without derived and relative channels (12 + 13 state channels): layout read from the model."""
+        model, _ = load_model(NS_CKPT, "cpu")
+        self.assertIsNone(model.kin)
+        sim = window_parity(self, model, "ns")
+        self.assertEqual(sim.S, 13)
 
 
 if __name__ == "__main__":

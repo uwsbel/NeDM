@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import importlib.util
 import math
+import os
 from pathlib import Path
 
 import unittest
@@ -18,8 +19,9 @@ from nedm.so101_policy.world import WorldState
 
 HAS_MJ = importlib.util.find_spec("mujoco") is not None
 HAS_SCIPY = importlib.util.find_spec("scipy") is not None
-VAL = Path.home() / "so101_policy/runs/mujoco_env/val_replay"          # extract of the validation split (bench script)
-CKPT = Path.home() / "so101_policy/ckpt/nrd_final_s61.pt"
+# extract of the validation split (bench script extract) and an NRD checkpoint; env vars for other machines
+VAL = Path(os.environ.get("NEDM_MJENV_VAL", Path.home() / "so101_policy/runs/mujoco_env/val_replay"))
+CKPT = Path(os.environ.get("NEDM_MJENV_CKPT", Path.home() / "so101_policy/ckpt/nrd_final_s61.pt"))
 mj = unittest.skipUnless(HAS_MJ, "needs mujoco")
 
 
@@ -130,7 +132,7 @@ class MujocoEnvTest(unittest.TestCase):
     @mj
     def test_workers_deterministic_and_equal(self):
         """Same starts and commands: bit-identical states in-process and over 2 worker processes; run twice."""
-        st = me.task_starts(11, 3)
+        st = me.sample_starts([1011, 1012, 1013])
         rng = np.random.default_rng(0)
         cmds = st["q"][None] + np.cumsum(rng.normal(scale=0.01, size=(15, 3, 6)), 0)
         out = []
@@ -145,7 +147,7 @@ class MujocoEnvTest(unittest.TestCase):
     @mj
     def test_record_labels_same_states(self):
         """labels="record" steps the same physics: bit-identical states; its contacts are a subset of the exact ones."""
-        st = me.task_starts(4, 2)
+        st = me.sample_starts([1004, 1005])
         cmds = st["q"][None] + np.linspace(0, 1, 30)[:, None, None] * np.array([0, 0.5, 0.4, 0, 0, 0])
         seqs = []
         for labels in ("exact", "record"):
@@ -159,30 +161,73 @@ class MujocoEnvTest(unittest.TestCase):
 
     @mj
     def test_reset_exact_and_set_cube(self):
-        """Exact reset reproduces the given state (float32-rounded); set_cube moves the cube and the next step's rate
-        starts from the new pose; the cube resting on the table touches it."""
-        st = me.task_starts(5, 2)
+        """Exact reset reproduces the given state (float32-rounded); set_cube moves the cube, keeps the arm fields
+        (rates included), and the next step's cube rate starts from the new pose; the resting cube touches the table."""
+        st = me.sample_starts([1006, 1007])
         with me.MujocoWorlds(2, workers=0, overlap=False) as env:
             ws = env.reset(None, st, warmup=True)
             assert ws.contact[:, 2].all() and not ws.contact[:, :2].any()
             assert not (ws.arm_table | ws.invalid).any()
-            assert torch.allclose(ws.cube_pos[:, 2], torch.full((2,), 0.015, dtype=torch.float64), atol=2e-5)
+            assert torch.allclose(ws.cube_pos[:, 2], torch.full((2,), me.REST_Z, dtype=torch.float64), atol=1e-9)
             ws2 = env.reset(None, ws, warmup=False)
             for f in ("q", "qd", "cube_pos", "cube_quat", "cube_v", "cube_w"):
                 assert torch.equal(getattr(ws2, f), getattr(ws, f)), f
+            u = torch.as_tensor(st["q"]) + torch.tensor([0.02, -0.03, 0.0, 0.0, 0.0, 0.0], dtype=torch.float64)
+            ws = env.step(u)                                                   # the arm moves: qd != 0
             new = ws.cube_pos.clone()
             new[:, 0] += 0.02
             ws3 = env.set_cube([0, 1], new, ws.cube_quat)
             assert torch.allclose(ws3.cube_pos, new.float().double(), atol=0) and (ws3.cube_v == 0).all()
-            ws4 = env.step(torch.as_tensor(st["q"]))
+            assert torch.equal(ws3.q, ws.q) and torch.equal(ws3.qd, ws.qd) and ws.qd.abs().max() > 0.1
+            ws4 = env.step(u)
             assert (ws4.cube_pos - ws3.cube_pos).abs().max() < 1e-3        # resting where it was put, no jump in the rate
             assert ws4.cube_v.abs().max() < 0.05
 
+    @mj
+    def test_sample_starts(self):
+        """Fresh starts: per-seed deterministic and order-free, on the collector annulus, flat at REST_Z; the env's
+        warm-up reset reproduces ``state`` bit for bit (in-process and in a worker); reserved seeds raise."""
+        seeds = [1000, 1001, 1002, 1003]
+        a, b = me.sample_starts(seeds), me.sample_starts(seeds[::-1])
+        for k in ("q", "cube_pos", "cube_quat", "raw"):
+            assert np.array_equal(a[k], b[k][::-1]), k
+        r = np.hypot(a["cube_pos"][:, 0] - 0.0388, a["cube_pos"][:, 1])
+        assert ((r >= 0.15) & (r <= 0.27)).all() and (a["cube_quat"][:, 1:3] == 0).all()
+        assert torch.allclose(a["state"].cube_pos[:, 2], torch.full((4,), me.REST_Z, dtype=torch.float64), atol=1e-7)
+        for workers in (0, 2):
+            with me.MujocoWorlds(4, workers=workers) as env:
+                ws = env.reset(None, a, warmup=True)
+            for f in ("q", "qd", "cube_pos", "cube_quat", "cube_v", "cube_w", "contact", "arm_table", "invalid"):
+                assert torch.equal(getattr(ws, f), getattr(a["state"], f)), f
+        with self.assertRaises(ValueError):
+            me.sample_starts([1000, 20261034])                               # the sealed test's master seed
+
+    @mj
+    def test_contact_rules(self):
+        """gate = physical label of this step OR the step before (reset: none before); records hold the two 10 ms
+        states of the step (the end one = the state) and record_contact ORs to the physical label."""
+        st = me.sample_starts([1008, 1009])
+        cmds = st["q"][None] + np.linspace(0, 1, 40)[:, None, None] * np.array([0, 0.4, 0.35, 0, 0, 0])
+        envs = [me.MujocoWorlds(2, workers=0, overlap=False, contact_rule=r) for r in ("gate", "physical")]
+        try:
+            for env in envs:
+                env.reset(None, st, warmup=True)
+            prev = torch.zeros(2, 3, dtype=torch.bool)
+            for c in cmds:
+                g, p = (env.step(torch.as_tensor(c)) for env in envs)
+                assert torch.equal(p.contact, envs[1].physical_contact) and torch.equal(g.contact, p.contact | prev)
+                assert torch.equal(envs[0].switch_contact, g.contact)
+                assert torch.equal(envs[0].record_contact.any(1), p.contact)
+                assert torch.equal(envs[0].records[:, 1], envs[0].raw_state()) and torch.equal(envs[0].records[:, 1, :6], g.q)
+                prev = p.contact
+        finally:
+            for env in envs:
+                env.close()
 
     @mj
     def test_end_conditions(self):
         """Gripper driven into the table -> arm_table; cube off the table -> invalid (cube_off_table), end_step set."""
-        st = me.task_starts(2, 2)
+        st = me.sample_starts([1002, 1003])
         with me.MujocoWorlds(2, workers=0, overlap=False) as env:
             ws = env.reset(None, st, warmup=True)
             pos = ws.cube_pos.clone()

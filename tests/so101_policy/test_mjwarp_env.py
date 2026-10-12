@@ -40,10 +40,12 @@ def _data_rates(prev, cur, dt=0.02):
     return out[:, 1, 0, 6:12].numpy(), out[:, 1, 1, 7:10].numpy(), out[:, 1, 1, 10:13].numpy()
 
 
-def _run_finish(prev13, qpos, qvel, fmax, offtab, instant=0, codes=False):
-    """E._finish on Warp's CPU device. fmax [B, 7] (both records) or [B, 14]; offtab [B] (record 0) or [B, 2]."""
+def _run_finish(prev13, qpos, qvel, fmax, offtab, instant=0, codes=False, overflow=None):
+    """E._finish on Warp's CPU device. fmax [B, 7] (both records) or [B, 14]; offtab [B] (record 0) or [B, 2];
+    overflow [B] OverflowType bits (default 0)."""
     dev = "cpu"
     B = len(qpos)
+    overflow = np.zeros(B, np.int32) if overflow is None else np.asarray(overflow, np.int32)
     fmax = np.asarray(fmax, np.float32)
     fmax = np.concatenate([fmax, fmax], 1) if fmax.shape[1] == 7 else fmax
     offtab = np.asarray(offtab, np.int32)
@@ -55,7 +57,8 @@ def _run_finish(prev13, qpos, qvel, fmax, offtab, instant=0, codes=False):
     wp.launch(E._finish, dim=B, device=dev,
               inputs=[wp.array(qpos, dtype=float, device=dev), wp.array(qvel, dtype=float, device=dev), 6, 6,
                       wp.array(fmax, dtype=float, device=dev), wp.array(offtab, dtype=wp.int32, device=dev), 0.01,
-                      wp.float64(50.0), instant, prev, out, flags, code])
+                      wp.float64(50.0), instant, prev, out, flags, code, wp.array(overflow, dtype=int, device=dev),
+                      E.LOST_OVERFLOW])
     if codes:
         return out.numpy(), flags.numpy(), prev.numpy(), code.numpy()
     return out.numpy(), flags.numpy(), prev.numpy()
@@ -137,6 +140,30 @@ def test_end_code_precedence():
     assert E.end_names()[1] == "arm_table" and E.end_names()[E.NUMERICAL] == "numerical"
 
 
+def test_lost_overflow_is_numerical():
+    """A dropped contact / constraint (OverflowType bits 1-16) ends the world as numerical (7) and marks it invalid;
+    the solver iteration-limit bits (512, 1024) do not."""
+    n = 6
+    quat = np.tile([1.0, 0, 0, 0], (n, 1))
+    qpos = np.concatenate([np.zeros((n, 9)), quat], 1).astype(np.float32)
+    prev = np.concatenate([np.zeros((n, 9)), quat], 1)
+    ovf = [0, 1, 8, 16, 512, 1024]
+    _, flags, _, code = _run_finish(prev, qpos, np.zeros((n, 12), np.float32), np.zeros((n, 7), np.float32),
+                                    np.zeros(n, np.int32), codes=True, overflow=ovf)
+    assert code.tolist() == [0, 7, 7, 7, 0, 0] and flags[:, 4].tolist() == [0, 1, 1, 1, 0, 0]
+
+
+def test_pack_start_fills_and_normalises():
+    """Missing rates are zeros, the quaternion is made unit, the rows land on the requested device."""
+    q = torch.arange(12, dtype=torch.float32).reshape(2, 6)
+    rows = E.pack_start(dict(q=q, cube_pos=np.ones((2, 3)), cube_quat=[[2.0, 0, 0, 0], [0, 0, 0, -3.0]]), device="cpu")
+    assert rows.shape == (2, E.RAW) and rows.dtype == torch.float64
+    assert torch.equal(rows[:, :6], q.double()) and not rows[:, 6:12].any() and not rows[:, 19:25].any()
+    assert torch.equal(rows[:, 15:19], torch.tensor([[1.0, 0, 0, 0], [0, 0, 0, -1.0]], dtype=torch.float64))
+    rows = E.pack_start(dict(q=q[:1], qd=q[:1], cube_pos=[[0.2, 0, 0.015]], cube_quat=[[1.0, 0, 0, 0]]))
+    assert torch.equal(rows[0, 6:12], q[0].double())
+
+
 def test_place_world_spin_to_body_frame():
     """reset / set_cube take the cube spin in the world frame; MuJoCo's free joint wants it in the body frame."""
     import mujoco
@@ -154,12 +181,14 @@ def test_place_world_spin_to_body_frame():
     prev, out = wp.zeros((n, 13), dtype=wp.float64, device=dev), wp.zeros((n, E.RAW), dtype=wp.float64, device=dev)
     lo, hi = np.full(6, -0.5), np.full(6, 0.5)
     hold = start[:, :6] + 0.1
+    peak = wp.array(np.full(n, 7, np.int32), dtype=wp.int32, device=dev)
     wp.launch(E._place, dim=n, device=dev,
               inputs=[wp.array(mask, dtype=wp.int32, device=dev), wp.array(start, dtype=wp.float64, device=dev),
                       wp.array(hold, dtype=wp.float64, device=dev),
                       wp.array(lo, dtype=wp.float64, device=dev), wp.array(hi, dtype=wp.float64, device=dev), 6, 6, 1,
-                      qpos, qvel, ctrl, prev, out])
+                      qpos, qvel, ctrl, prev, out, peak])
     qp, qv, c, o, p = qpos.numpy(), qvel.numpy(), ctrl.numpy(), out.numpy(), prev.numpy()
+    assert peak.numpy().tolist() == [0, 0, 0, 7, 0, 0]       # a full reset clears the constraint-row peak
     for i in range(n):
         if not mask[i]:
             assert not qp[i].any() and not o[i].any()
@@ -291,3 +320,116 @@ def test_gpu_matches_cpu_replay_1s():
     assert err.max() < 2e-4
     agree = (np.stack(flags, 1) == np.stack(cpu_flag)).mean()
     assert agree > 0.98
+
+
+@gpu
+def test_gpu_torch_stream_order_and_inputs():
+    """Targets made by a long torch chain on a side stream are what the physics applies (no stale read); numpy,
+    CPU float32 and bool-mask inputs work; returned tensors are copies on the env's device."""
+    n = 16
+    env = E.MjwarpEnv(n)
+    st = env.reset(None, {k: v.numpy() for k, v in _rest_start(n).items()})     # numpy start
+    assert st.q.device.type == "cuda" and st.q.dtype == torch.float64
+    q0 = st.q.clone()
+    big = torch.randn(2048, 2048, device=env.device)
+    side = torch.cuda.Stream(device=env.device)
+    side.wait_stream(torch.cuda.current_stream(env.device))
+    want, got = [], []
+    with torch.cuda.stream(side):
+        for k in range(20):
+            x = big
+            for _ in range(8):                        # a few ms of work that the targets depend on
+                x = torch.tanh(x @ big * 1e-3)
+            t = q0.clone()
+            t[:, 0] += 0.004 * (k + 1) + 0.0 * x[0, 0].double()
+            t[:, 5] -= 0.003 * (k + 1)
+            st = env.step(t)
+            want.append(t.float())
+            got.append(env.applied.clone())
+            q_seen = st.q                             # read on the side stream right after the step
+    torch.cuda.synchronize()
+    clip_lo = torch.tensor(env.tlo_np, device=env.device, dtype=torch.float32)
+    clip_hi = torch.tensor(env.thi_np, device=env.device, dtype=torch.float32)
+    for a, b in zip(want, got):
+        assert torch.equal(torch.minimum(torch.maximum(a, clip_lo), clip_hi), b)
+    assert torch.equal(q_seen, env.state().q)
+    assert (q_seen[:, 0] - q0[:, 0]).min() > 0.04  # the arm followed the ramp
+    st.q.zero_()                                       # copies: the env's state is untouched
+    assert env.state().q.abs().max() > 0
+    st = env.step(np.asarray(env.state().q.cpu(), np.float32))                  # numpy float32 targets
+    mask = torch.zeros(n, dtype=torch.bool, device=env.device)
+    mask[3] = True
+    st = env.reset(mask, {k: v[3:4].cuda() for k, v in _rest_start(n).items()})
+    assert env.steps[3] == 0 and env.steps[4] == 21
+
+
+@gpu
+def test_gpu_overflow_marks_invalid():
+    """njmax too small for a resting cube: NEFC overflow -> invalid, end_reason numerical, overflow bit 1 set."""
+    env = E.MjwarpEnv(2, njmax=4)
+    st = env.reset(None, _rest_start(2))
+    st = env.step(st.q)
+    assert (env.overflow & 1).all() and st.invalid.all() and (env.end_reason == E.NUMERICAL).all()
+    assert (env.nefc_peak > 4).all()
+    assert (env.end_step == 1).all()
+
+
+@gpu
+def test_gpu_warmup_subset_leaves_others():
+    """A warm-up reset of one world (collector Scene.reset, 0.3 s) restores every other world's physics state."""
+    env = E.MjwarpEnv(3)
+    st = env.reset(None, _rest_start(3))
+    for _ in range(5):
+        st = env.step(st.q + 0.01)
+    keep = [x.clone() for x in (env._qpos_t, env._qvel_t, env._ctrl_t, E.wp.to_torch(env.d.qacc_warmstart))]
+    keep_state = env.state()
+    st = env.reset([1], {k: v[1:2] for k, v in _rest_start(3).items()}, warmup=True)
+    now = (env._qpos_t, env._qvel_t, env._ctrl_t, E.wp.to_torch(env.d.qacc_warmstart))
+    for a, b in zip(keep, now):
+        assert torch.equal(a[[0, 2]], b[[0, 2]])
+    assert torch.equal(st.cube_pos[[0, 2]], keep_state.cube_pos[[0, 2]]) and env.steps[0] == 5 and env.steps[1] == 0
+    assert st.contact[1, 2] and st.qd[1].abs().max() < 0.05          # world 1 rests after its warm-up
+
+
+@gpu
+def test_gpu_arm_table_fn():
+    """arm_table_fn replaces WorldState.arm_table (the NRD arm's guard); the real contact stays in arm_table_contact."""
+    env = E.MjwarpEnv(4, arm_table_fn=lambda q: q[:, 1] > -0.65)
+    s0 = _rest_start(4)
+    s0["q"][2:, 1] = -0.7
+    st = env.reset(None, s0)
+    assert st.arm_table.tolist() == [True, True, False, False] and not env.arm_table_contact.any()
+    assert torch.equal(env.observe().arm_table, st.arm_table)
+
+
+@gpu
+def test_gpu_api_matches_cpu_env():
+    """Same starts and commands in MujocoWorlds (CPU, collector physics) and MjwarpWorlds: the same WorldState
+    fields up to float32 physics (1 s: cube 0.2 mm, joints 1 mrad), the same contact flags, the same set_cube."""
+    M = pytest.importorskip("nedm.so101_policy.mujoco_env")
+    n = 4
+    try:
+        cpu = M.MujocoWorlds(n, workers=0, overlap=False)
+    except Exception as e:   # noqa: BLE001  (another builder's module; skip rather than fail on its state)
+        pytest.skip(f"MujocoWorlds unavailable: {e}")
+    gpu_env = E.MjwarpEnv(n)
+    s0 = _rest_start(n)
+    a, b = cpu.reset(None, s0), gpu_env.reset(None, s0)
+    assert torch.equal(a.contact, b.contact.cpu()) and torch.allclose(a.q, b.q.cpu(), atol=1e-7)
+    tgt = a.q.clone()
+    flags_eq = []
+    for k in range(50):
+        tgt[:, 0] += 0.003
+        tgt[:, 5] = 0.6 - 0.01 * k
+        a, b = cpu.step(tgt), gpu_env.step(tgt.cuda())
+        flags_eq.append((a.contact == b.contact.cpu()).float().mean().item())
+    assert (a.q - b.q.cpu()).abs().max() < 1e-3 and (a.cube_pos - b.cube_pos.cpu()).norm(dim=1).max() < 2e-4
+    assert (a.qd - b.qd.cpu()).abs().max() < 0.05 and np.mean(flags_eq) > 0.98
+    assert torch.equal(cpu.steps, gpu_env.steps.cpu()) and torch.equal(cpu.end_reason, gpu_env.end_reason.cpu())
+    pos = torch.tensor([[0.22, 0.03, 0.03]], dtype=torch.float64)
+    quat = torch.tensor([[math.cos(0.2), 0.0, 0.0, math.sin(0.2)]], dtype=torch.float64)
+    a, b = cpu.set_cube([1], pos, quat), gpu_env.set_cube([1], pos, quat)
+    assert torch.allclose(a.cube_pos[1], b.cube_pos[1].cpu(), atol=1e-7) and torch.equal(a.contact, b.contact.cpu())
+    a, b = cpu.step(tgt), gpu_env.step(tgt.cuda())
+    assert (a.cube_v[1] - b.cube_v[1].cpu()).norm() < 1e-3
+    cpu.close()

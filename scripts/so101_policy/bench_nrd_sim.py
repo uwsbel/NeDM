@@ -8,7 +8,8 @@
 | ``windows`` | One step from recorded 4-state histories (starts 0.1 s + 0.5 k s, as the evaluation's windows) and the recorded command: the sim's dense step against ``ContactNRD.details``. Max abs difference of the next state, switches equal |
 | ``parity`` | Whole episodes from the first recorded state with the recorded commands, canonicalisation off: the sim against ``nedm.contact_nrd.rollouts.rollouts`` (``ContactNRD.rollout``, sparse contact step). Max abs difference over the valid steps, per horizon, episodes above 1e-6, switch mismatches. The same for the reference run on the episodes in two halves (its own sensitivity to the batch), one sim step from the reference's own history at every step (teacher forced), and the start from a WorldState (``reset``: quaternion normalised, model.finish) |
 | ``canon`` | Whole episodes of rollouts.rollouts (reference) and of the sim with canonicalisation off, on, and on/off from starts whose cube labelling is turned by a random cube rotation: cube position (mm) and angle (deg, the TRUE quaternion of WorldState against the record) errors at 1 s and 4 s, p50 / p95, paired bootstrap 95 % CI of the p95 difference, relabel counts |
-| ``bench`` | steps/s of ``GraspNrdSim.step`` (incl. the WorldState copy) at the given world counts, members split over the checkpoints, canonicalisation on (eager, CUDA graph) and off (graph); plus ``ContactNRD.details`` + ``advance`` of one member (sparse reference) |
+| ``disturb`` | ``set_cube`` on approach-phase windows (nominal + off-centre): a no-op set_cube against the recorded window, and a cube moved far from the arm (truth: it rests) - NRD drift at 0.5 / 1 s, jaw switches (``mode_disturb``) |
+| ``bench`` | steps/s of ``GraspNrdSim.step`` (incl. the WorldState copy) at the given world counts, members split over the checkpoints, canonicalisation on (eager, CUDA graph) and off (graph), and on + the arm-table guard (``lowest_point_guard``, graph); plus ``ContactNRD.details`` + ``advance`` of one member (sparse reference). The GPU may be shared: ``free_gb_before`` per row |
 
 Episodes: the task families of the data (``select: true``: nominal, off_centre, one_sided, near_miss, weak_closure,
 drop, push), ``--per-family`` evenly spread validation episodes each (rollouts.pick_rows), or all with 0.
@@ -69,6 +70,13 @@ def reference(model, data_dir, rows, dev):
     return {k: torch.as_tensor(out[k], device=dev) for k in keys} | dict(family=data["family"], rows=rows)
 
 
+def channel_groups(model):
+    """{"body/channel_type": (body index, [channels])} of the model's moving bodies."""
+    mov = [b for b in model.system["bodies"] if b["moving"]]
+    return {f"{b['name']}/{t}": (n, [c for c, tt in enumerate(b["channel_types"]) if tt == t])
+            for n, b in enumerate(mov) for t in dict.fromkeys(b["channel_types"])}
+
+
 def run_sim(sim, start, actions, collect=True):
     """Step sim through actions [E, H, D, A] (arm row 0) after start(sim) -> states [E, H+1, D, S], true quats
     [E, H+1, 4], gates [E, H, P], relabel counts [E]."""
@@ -109,9 +117,7 @@ def mode_windows(args, dev):
             acts.append(act[use, start * s])
         h, ok, a = torch.cat(hs), torch.cat(oks), torch.cat(acts)
         n = len(h)
-        groups = {f"{b['name']}/{t}": [c for c, tt in enumerate(b["channel_types"]) if tt == t]
-                  for b in [x for x in model.system["bodies"] if x["moving"]] for t in dict.fromkeys(b["channel_types"])}
-        mov = [b["name"] for b in model.system["bodies"] if b["moving"]]
+        groups = channel_groups(model)
         worst = {g: 0.0 for g in groups}
         worst_rel, above, gate_diff, gate_near = 0.0, 0, 0, 0
         for b in range(0, n, args.batch):
@@ -122,8 +128,8 @@ def mode_windows(args, dev):
             sim.reset_history(None, h[sl], ok[sl], finish=False)
             sim.step(a[sl][:, sim.ia, :6])
             d = (sim.state - ref).abs()
-            for g, cols in groups.items():
-                worst[g] = max(worst[g], float(d[:, mov.index(g.split("/")[0])][:, cols].max()))
+            for g, (body, cols) in groups.items():
+                worst[g] = max(worst[g], float(d[:, body][:, cols].max()))
             worst_rel = max(worst_rel, float((d / (1.0 + ref.abs())).max()))
             above += int((d.amax(dim=(1, 2)) > 1e-6).sum())
             gate_diff += int((sim.gates != info["gates"]).sum())
@@ -163,11 +169,14 @@ def mode_parity(args, dev):
         res = dict(steps_total=int(steps.sum()), reference_s=t_ref)
         # the reference against itself on another batch composition: the episodes in two halves (its sparse contact
         # step then runs the contact network on another number of rows, which changes the float32 GEMM rounding)
-        half = len(rows) // 2
-        split = torch.cat([reference(model, args.data, r, dev)["predicted"] for r in (rows[:half], rows[half:])])
-        res["reference_two_halves"] = divergence(split, pred, valid, H)
-        print(name, "reference vs reference (two halves)", json.dumps(res["reference_two_halves"]), flush=True)
-        for graph in ([False, True] if dev.type == "cuda" else [False]):
+        parts = set(args.parts)
+        if "halves" in parts:
+            half = len(rows) // 2
+            split = torch.cat([reference(model, args.data, r, dev)["predicted"] for r in (rows[:half], rows[half:])])
+            res["reference_two_halves"] = divergence(split, pred, valid, H)
+            print(name, "reference vs reference (two halves)", json.dumps(res["reference_two_halves"]), flush=True)
+        for graph in ([g for g in (False, True) if ("graph" if g else "eager") in parts] if dev.type == "cuda"
+                      else [False] if "eager" in parts else []):
             sim = GraspNrdSim({name: model}, num_envs=E, device=dev, canonical=False, cuda_graph=graph)
             t0 = time.perf_counter()
             st, _, g, _ = run_sim(sim, lambda s: s.reset_state(None, rec[:, 0], finish=False), actions)
@@ -178,22 +187,49 @@ def mode_parity(args, dev):
             res["graph" if graph else "eager"] = r
             print(name, "graph" if graph else "eager", json.dumps(r), flush=True)
         # teacher-forced along the reference: one sim step from the reference's own 4-state history at every step
+        if "teacher" not in parts:
+            out["members"][name] = res
+            continue
         sim = GraspNrdSim({name: model}, num_envs=E, device=dev, canonical=False)
-        worst, worst_t, gmis = torch.zeros(E, dtype=torch.float64, device=dev), torch.zeros(E, dtype=torch.long, device=dev), 0
+        groups = channel_groups(model)
+        z = torch.zeros(E, dtype=torch.float64, device=dev)
+        worst, worst_rel, gmis = z.clone(), z.clone(), 0
+        by_type = {g: 0.0 for g in groups}
+        n_above = torch.zeros(E, dtype=torch.long, device=dev)
+        self_worst, self_rel, half = 0.0, 0.0, E // 2
         for t in range(H):
             lag = torch.arange(t - model.k + 1, t + 1, device=dev)
             ok = (lag >= 0)[None].expand(E, -1)
-            sim.reset_history(None, pred[:, lag.clamp_min(0)] * ok[..., None, None], ok, finish=False)
+            hist_t = pred[:, lag.clamp_min(0)] * ok[..., None, None]
+            sim.reset_history(None, hist_t, ok, finish=False)
             sim.step(actions[:, t, sim.ia, :6])
-            d = torch.where(valid[:, t + 1], (sim.state - pred[:, t + 1]).abs().amax(dim=(1, 2)), torch.zeros(E, dtype=torch.float64, device=dev))
-            worst_t = torch.where(d > worst, torch.full_like(worst_t, t), worst_t)
-            worst = torch.maximum(worst, torch.nan_to_num(d, nan=float("inf")))
-            gmis += int(((sim.gates.bool() != ref["switches"][:, t]) & valid[:, t + 1, None]).sum())
+            v = valid[:, t + 1]
+            with torch.no_grad():   # scale: ContactNRD.details itself on the episodes in two halves (other GEMM shapes)
+                own = torch.cat([model.details(hist_t[sl], ok[sl], actions[sl, t])[0] for sl in (slice(0, half), slice(half, E))])
+            do = torch.nan_to_num((own - pred[:, t + 1]).abs(), nan=float("inf")) * v[:, None, None]
+            self_worst = max(self_worst, float(do.max()))
+            self_rel = max(self_rel, float((do / (1.0 + pred[:, t + 1].abs())).max()))
+            dd = torch.nan_to_num((sim.state - pred[:, t + 1]).abs(), nan=float("inf")) * v[:, None, None]
+            d = dd.amax(dim=(1, 2))
+            worst = torch.maximum(worst, d)
+            worst_rel = torch.maximum(worst_rel, (dd / (1.0 + pred[:, t + 1].abs())).amax(dim=(1, 2)))
+            n_above += (d > 1e-6).long()
+            for g, (body, cols) in groups.items():
+                by_type[g] = max(by_type[g], float(dd[:, body][:, cols].max()))
+            gmis += int(((sim.gates.bool() != ref["switches"][:, t]) & v[:, None]).sum())
         res["teacher_forced"] = dict(steps=int(valid[:, 1:].sum()), max_abs_diff=float(worst.max()),
+                                     max_abs_diff_by_channel_type=by_type,
+                                     max_diff_over_1_plus_abs=float(worst_rel.max()),
                                      p99_episode_max=float(torch.quantile(worst, 0.99)), switch_mismatches=gmis,
-                                     episodes_above_1e6=int((worst > 1e-6).sum()))
+                                     episodes_above_1e6=int((worst > 1e-6).sum()),
+                                     steps_above_1e6=int(n_above.sum()),
+                                     details_two_halves_max_abs_diff=self_worst,
+                                     details_two_halves_max_diff_over_1_plus_abs=self_rel)
         print(name, "teacher_forced", json.dumps(res["teacher_forced"]), flush=True)
         # start from a WorldState (reset: normalised quaternion, model.finish) instead of the recorded model state
+        if "worldstate" not in parts:
+            out["members"][name] = res
+            continue
         s0 = rec[:, 0]
         ws = WorldState(q=s0[:, 0, 0:6], qd=s0[:, 0, 6:12], cube_pos=s0[:, 1, 0:3], cube_quat=s0[:, 1, 3:7],
                         cube_v=s0[:, 1, 7:10], cube_w=s0[:, 1, 10:13], contact=None, arm_table=None, invalid=None)
@@ -286,10 +322,150 @@ def mode_canon(args, dev):
     return out
 
 
+def _quantiles(x, mask):
+    x = x[mask].cpu().numpy()
+    if not len(x):
+        return None
+    return dict(n=int(len(x)), p50=float(np.percentile(x, 50)), p95=float(np.percentile(x, 95)), max=float(x.max()))
+
+
+def mode_disturb(args, dev):
+    """set_cube on real approach-phase windows (nominal + off-centre validation episodes; cube resting, arm above it):
+    (a) the recorded window as it is; (b) set_cube to the cube's own recorded pose (a no-op disturbance: must change
+    nothing but the float32 data jitter); (c) the cube moved to a fresh annulus pose (flat, true yaw U(-180, 180) deg,
+    data resting height) at least --clear m (xy) from the old cube and from the recorded grasp point over the whole window,
+    with the arm continuing its recorded commands (it grasps at the old place). The truth for (c) is a cube at rest:
+    every displacement is NRD error. Reference scale: the cube error of (a) against the record over the same window."""
+    from nedm.so101_policy.kin import SO101Kin
+    from nedm.so101_policy.nrd_sim import CUBE_REST_Z, ANNULUS, cube_rest_envelope
+    system = json.loads((Path(args.data) / "system.json").read_text())
+    arrays = R.npz_members(Path(args.data) / "unified_data.npz")
+    fam, split = np.asarray(arrays["family"]), np.asarray(arrays["splits"])
+    fams = [k for k, f in enumerate(system["families"]) if f["name"] in ("nominal", "off_centre")]
+    rows = np.flatnonzero(np.isin(fam, fams) & (split == 1))
+    if args.per_family:
+        rows = rows[np.unique(np.linspace(0, len(rows) - 1, args.per_family).astype(np.int64))]
+    phase_all = np.asarray(arrays["phase"][rows])
+    approach = system["phases"].index("approach")
+    kin = SO101Kin(dev)
+    H = args.horizon
+    out = dict(env=env_info(dev), episodes=int(len(rows)), horizon_steps=H, clear_m=args.clear, members={})
+    for name, path in ckpts(args).items():
+        model, _ = load_model(path, dev)
+        data = R.load_rows(args.data, rows.tolist(), dev, model.dt)
+        R.step_average_rates(data, set(model.config["integrate"]["kinds"]))
+        R.add_derived(data, model.config.get("derived"))
+        R.add_relative(data, model.config.get("relative"))
+        st, act, s = data["states"], data["actions"], data["stride"]
+        n_grid = ((data["lengths"] - 1) // s).cpu().numpy()
+        t0 = np.full(len(rows), -1)
+        for e in range(len(rows)):
+            g = np.flatnonzero(phase_all[e, ::s][: n_grid[e] + 1] == approach)
+            g = g[(g >= model.k - 1) & (g + H <= n_grid[e])]
+            if len(g):
+                t0[e] = g[len(g) // 2]
+        use = np.flatnonzero(t0 >= 0)
+        E = len(use)
+        ue, tt = torch.as_tensor(use, device=dev), torch.as_tensor(t0[use], device=dev)
+        lag = tt[:, None] + torch.arange(1 - model.k, 1, device=dev)[None]
+        hist = st[ue[:, None], lag * s]                                         # [E, K, D, S] recorded window
+        ok = torch.ones(E, model.k, dtype=torch.bool, device=dev)
+        steps = tt[:, None] + torch.arange(H + 1, device=dev)[None]
+        rec = st[ue[:, None], steps * s]                                        # [E, H+1, D, S]
+        cmds = act[ue[:, None], steps[:, :H] * s, 0, :6]                       # [E, H, 6]
+        rest_speed = hist[:, :, 1, 7:10].norm(dim=-1).amax(1)
+        gp, _ = kin.fk(rec[:, :, 0, 0:6])                                       # recorded grasp point [E, H+1, 3]
+        gen = torch.Generator(device="cpu").manual_seed(args.seed)
+        new_pos = torch.zeros(E, 3, dtype=torch.float64)
+        found = torch.zeros(E, dtype=torch.bool)
+        old = rec[:, 0, 1, 0:2].cpu()
+        gpx = gp[:, :, 0:2].cpu()
+        for _ in range(50):                                                     # rejection sampling on the annulus
+            r = ANNULUS["r_min"] + (ANNULUS["r_max"] - ANNULUS["r_min"]) * torch.rand(E, generator=gen, dtype=torch.float64)
+            ang = torch.deg2rad((2 * torch.rand(E, generator=gen, dtype=torch.float64) - 1) * ANNULUS["angle_max_deg"])
+            cand = torch.stack((ANNULUS["center_xy"][0] + r * torch.cos(ang), ANNULUS["center_xy"][1] + r * torch.sin(ang)), -1)
+            far = ((cand - old).norm(dim=-1) >= args.clear) & ((gpx - cand[:, None]).norm(dim=-1).amin(1) >= args.clear)
+            take = far & ~found
+            new_pos[take, 0:2] = cand[take]
+            found |= take
+        new_pos[:, 2] = CUBE_REST_Z
+        yaw = (2 * torch.rand(E, generator=gen, dtype=torch.float64) - 1) * math.pi        # true yaw, any of the 4 faces
+        new_q = torch.stack((torch.cos(yaw / 2), 0 * yaw, 0 * yaw, torch.sin(yaw / 2)), -1)
+        new_pos, new_q, found = new_pos.to(dev), new_q.to(dev), found.to(dev)
+        res = dict(windows=E, resting_history_max_speed=float(rest_speed.max()), moved_found=int(found.sum()),
+                   moved_in_envelope=int(cube_rest_envelope(new_pos, new_q)[found].sum()))
+        for canon in (False, True):
+            key = "canon_on" if canon else "canon_off"
+            sim = GraspNrdSim({name: model}, num_envs=E, device=dev, canonical=canon)
+            runs = {}
+            for v in ("recorded", "noop", "moved"):
+                sim.reset_history(None, hist, ok, finish=False)
+                h_rec = sim.hist.clone()
+                if v == "noop":
+                    sim.set_cube(None, rec[:, 0, 1, 0:3], rec[:, 0, 1, 3:7])
+                    runs["noop_history_change"] = float((sim.hist - h_rec).abs().max())
+                elif v == "moved":
+                    sim.set_cube(None, new_pos, new_q)
+                pos, quat, jaw, table = [sim.observe().cube_pos], [sim.true_q.clone()], [], []
+                for t in range(H):
+                    ws = sim.step(cmds[:, t])
+                    pos.append(ws.cube_pos)
+                    quat.append(ws.cube_quat)
+                    jaw.append(ws.contact[:, :2].any(-1))
+                    table.append(ws.contact[:, 2])
+                runs[v] = (torch.stack(pos, 1), torch.stack(quat, 1), torch.stack(jaw, 1), torch.stack(table, 1))
+            r = dict(noop_history_change=runs["noop_history_change"])
+            pa, qa = runs["recorded"][:2]
+            pb, qb = runs["noop"][:2]
+            r["noop_vs_recorded_pos_mm_max"] = float((pb - pa).norm(dim=-1).max()) * 1e3
+            r["noop_vs_recorded_pos_mm_max_first_step"] = float((pb[:, 1] - pa[:, 1]).norm(dim=-1).max()) * 1e3
+            r["noop_vs_recorded_angle_deg_max"] = float(torch.rad2deg(rotation_angle(qb, qa)).max())
+            all_ = torch.ones(E, dtype=torch.bool, device=dev)
+            for hs, at in (("0.5s", H // 2), ("1s", H)):
+                if at < 1:
+                    continue
+                r[f"recorded_err_pos_mm_{hs}"] = _quantiles((pa[:, at] - rec[:, at, 1, 0:3]).norm(dim=-1) * 1e3, all_)
+                pm, qm = runs["moved"][:2]
+                r[f"moved_drift_pos_mm_{hs}"] = _quantiles((pm[:, at] - new_pos).norm(dim=-1) * 1e3, found)
+                r[f"moved_drift_angle_deg_{hs}"] = _quantiles(torch.rad2deg(rotation_angle(qm[:, at], new_q)), found)
+            pm, qm, jm, tm = runs["moved"]
+            r["moved_drift_pos_mm_window_max"] = _quantiles((pm - new_pos[:, None]).norm(dim=-1).amax(1) * 1e3, found)
+            r["moved_worlds_with_jaw_switch"] = int((jm.any(1) & found).sum())
+            r["moved_worlds_with_table_switch_off"] = int(((~tm).any(1) & found).sum())
+            r["moved_nonfinite"] = int((~torch.isfinite(pm).all(-1).all(-1) & found).sum())
+            ja = runs["recorded"][2]
+            r["recorded_worlds_with_jaw_switch"] = int(ja.any(1).sum())
+            # worst moved worlds: drift, first jaw switch, clearance of the recorded grasp point (xy and 3D) and the
+            # jaw command over the window (closing on air at the old place?)
+            wmax = torch.where(found, (pm - new_pos[:, None]).norm(dim=-1).amax(1), torch.zeros(E, dtype=torch.float64, device=dev))
+            d3 = (gp - new_pos[:, None]).norm(dim=-1).amin(1)
+            dxy = (gp[:, :, 0:2] - new_pos[:, None, 0:2]).norm(dim=-1).amin(1)
+            first_jaw = torch.where(jm.any(1), jm.float().argmax(1), torch.full_like(wmax, -1, dtype=torch.long))
+            worst = torch.argsort(wmax, descending=True)[:8]
+            r["moved_worst"] = [dict(row=int(rows[use[int(i)]]), t0_step=int(tt[i]), drift_mm=float(wmax[i]) * 1e3,
+                                     first_jaw_switch_step=int(first_jaw[i]), min_xy_clear_m=float(dxy[i]),
+                                     min_3d_clear_m=float(d3[i]), jaw_cmd_min=float(cmds[i, :, 5].min()))
+                                for i in worst.tolist()]
+            jw = jm.any(1) & found
+            r["moved_jaw_switch_worlds_jaw_cmd_closed"] = int((jw & (cmds[:, :, 5].amin(1) < 0.3)).sum())
+            res[key] = r
+            print(name, key, json.dumps(r), flush=True)
+        out["members"][name] = res
+    return out
+
+
+def _oom(e) -> bool:
+    """An out-of-memory error; on luffy (NVML broken) the allocator's OOM path raises an NVML assert instead."""
+    return isinstance(e, torch.OutOfMemoryError) or "NVML" in str(e) or "out of memory" in str(e)
+
+
 def mode_bench(args, dev):
     out = dict(env=env_info(dev), rows=[])
     if dev.type == "cuda":
         out["env"]["free_gb_at_start"] = torch.cuda.mem_get_info(dev)[0] / 1e9
+    from nedm.so101_policy.kin import SO101Kin
+    from nedm.so101_policy.nrd_sim import lowest_point_guard
+    kin = SO101Kin(dev)
     named = ckpts(args)
     model, _ = load_model(next(iter(named.values())), dev)
     rows = task_rows(args.data, 30)
@@ -305,10 +481,15 @@ def mode_bench(args, dev):
         pick = torch.arange(n, device=dev) % len(starts)
         s0, a0 = starts[pick], cmds[pick]
         row = dict(worlds=n)
-        for graph, canon in (((False, True), (True, True), (True, False)) if dev.type == "cuda" else ((False, True), (False, False))):
-            key = ("graph" if graph else "eager") + ("" if canon else "_canon_off")
+        if dev.type == "cuda":
+            row["free_gb_before"] = torch.cuda.mem_get_info(dev)[0] / 1e9
+        variants = (((False, True, False), (True, True, False), (True, False, False), (True, True, True))
+                    if dev.type == "cuda" else ((False, True, False), (False, False, False), (False, True, True)))
+        for graph, canon, guard in variants:
+            key = ("graph" if graph else "eager") + ("" if canon else "_canon_off") + ("_guard" if guard else "")
             try:
-                sim = GraspNrdSim(named, num_envs=n, device=dev, canonical=canon, cuda_graph=graph)
+                sim = GraspNrdSim(named, num_envs=n, device=dev, canonical=canon, cuda_graph=graph,
+                                  arm_table_fn=lowest_point_guard(kin) if guard else None)
                 sim.reset_state(None, s0)
                 if dev.type == "cuda":
                     torch.cuda.reset_peak_memory_stats(dev)
@@ -328,12 +509,16 @@ def mode_bench(args, dev):
                     ts.append((time.perf_counter() - t0) / args.steps)
                 row[f"{key}_ms"] = float(np.median(ts)) * 1e3
                 row[f"{key}_steps_per_s"] = n / float(np.median(ts))
+                row[f"{key}_steps_per_s_best"] = n / float(np.min(ts))          # least contention on a shared GPU
                 if dev.type == "cuda":
                     row[f"{key}_peak_gb"] = torch.cuda.max_memory_allocated(dev) / 1e9
                 row[f"{key}_finite"] = bool(torch.isfinite(sim.state).all())
                 del sim
-            except torch.OutOfMemoryError as e:
-                row[f"{key}_error"] = str(e)[:200]
+            except RuntimeError as e:
+                if not _oom(e):
+                    raise
+                row[f"{key}_error"] = "out of memory: " + str(e)[:120]
+                sim = None
             if dev.type == "cuda":
                 torch.cuda.empty_cache()
         try:   # sparse reference: ContactNRD.details + advance, one member, same worlds
@@ -357,8 +542,11 @@ def mode_bench(args, dev):
                     ts.append((time.perf_counter() - t0) / args.steps)
             row["details_ms"] = float(np.median(ts)) * 1e3
             row["details_steps_per_s"] = n / float(np.median(ts))
-        except torch.OutOfMemoryError as e:
-            row["details_error"] = str(e)[:200]
+            row["details_steps_per_s_best"] = n / float(np.min(ts))
+        except RuntimeError as e:
+            if not _oom(e):
+                raise
+            row["details_error"] = "out of memory: " + str(e)[:120]
         if dev.type == "cuda":
             torch.cuda.empty_cache()
         out["rows"].append(row)
@@ -368,7 +556,7 @@ def mode_bench(args, dev):
 
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("mode", choices=("windows", "parity", "canon", "bench"))
+    p.add_argument("mode", choices=("windows", "parity", "canon", "bench", "disturb"))
     p.add_argument("--out", type=Path, required=True)
     p.add_argument("--data", type=Path, default=DATA)
     p.add_argument("--ckpt", nargs="+", metavar="NAME=PATH", help="default: STUDY_CKPTS (s61, s62)")
@@ -380,12 +568,18 @@ def main():
     p.add_argument("--steps", type=int, default=20)
     p.add_argument("--reps", type=int, default=5)
     p.add_argument("--warmup", type=int, default=5)
+    p.add_argument("--parts", nargs="+", default=["halves", "eager", "graph", "teacher", "worldstate"],
+                   help="parity: which parts to run")
+    p.add_argument("--horizon", type=int, default=50, help="disturb: steps after the disturbance (20 ms)")
+    p.add_argument("--clear", type=float, default=0.08, help="disturb: min xy distance (m) of the moved cube")
+    p.add_argument("--seed", type=int, default=20261011, help="disturb: seed of the new cube poses")
     args = p.parse_args()
     if args.threads:
         torch.set_num_threads(args.threads)
     dev = torch.device(args.device)
     t0 = time.perf_counter()
-    out = dict(windows=mode_windows, parity=mode_parity, canon=mode_canon, bench=mode_bench)[args.mode](args, dev)
+    out = dict(windows=mode_windows, parity=mode_parity, canon=mode_canon, bench=mode_bench,
+               disturb=mode_disturb)[args.mode](args, dev)
     out["args"] = {k: (str(v) if isinstance(v, Path) else v) for k, v in vars(args).items()}
     out["wall_s"] = time.perf_counter() - t0
     args.out.parent.mkdir(parents=True, exist_ok=True)
