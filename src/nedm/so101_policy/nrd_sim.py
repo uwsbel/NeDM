@@ -76,6 +76,7 @@ import torch
 
 from nedm.contact_nrd.model import ContactNRD, load_model, relative_channels
 from nedm.so101_policy import cube_symmetry as cs
+from nedm.so101_policy.kin import THI, TLO
 from nedm.so101_policy.world import CONTACT_PAIRS, JOINTS, WorldState
 
 STUDY_CKPTS = {f"s{s}": Path.home() / "so101_policy" / "ckpt" / f"nrd_final_s{s}.pt" for s in (61, 62)}
@@ -183,6 +184,8 @@ class GraspNrdSim:
             raise ValueError(f"contact_rule {contact_rule!r}")
         self.arm_table_fn = arm_table_fn
         self.limits = {**LIMITS, **(limits or {})}
+        self._tlo = torch.tensor(TLO, dtype=torch.float64, device=self.device)
+        self._thi = torch.tensor(THI, dtype=torch.float64, device=self.device)
         self.use_graph = bool(cuda_graph) and self.device.type == "cuda"
         self._graph = None
         self._layout(m0)
@@ -421,8 +424,12 @@ class GraspNrdSim:
 
     @torch.no_grad()
     def step(self, joint_targets: torch.Tensor) -> WorldState:
-        """joint_targets [B, 6]: absolute joint position targets (rad; jaw = index 5), held for 20 ms -> WorldState."""
-        self.act[:, self.ia, :JOINTS].copy_(joint_targets.to(device=self.device, dtype=torch.float64))
+        """joint_targets [B, 6]: absolute joint position targets (rad; jaw = index 5), held for 20 ms -> WorldState.
+        The applied action is float32(clip(target, kin.TLO, kin.THI)), the collector's applied value (as MuJoCo and
+        MuJoCo Warp apply it and the data store it; review F3)."""
+        u = joint_targets.to(device=self.device, dtype=torch.float64)
+        u = torch.minimum(torch.maximum(u, self._tlo), self._thi)
+        self.act[:, self.ia, :JOINTS].copy_(u.to(torch.float32).to(torch.float64))
         if self.use_graph:
             if self._graph is None:
                 self._capture()

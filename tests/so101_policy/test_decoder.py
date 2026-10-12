@@ -316,6 +316,185 @@ class TestDecoderV2(unittest.TestCase):
         self.assertLess(float((outs[0] - outs[1]).abs().max()), 1e-9)
 
 
+class TestDecoderOptions(unittest.TestCase):
+    """Review F5 (macro-duration seeds per episode), F6 (DecoderV1 has no macros) and the build3 options of DecoderV2:
+    b1 = blend "hann" (overlap-added Hann velocity blends), b2 = CARRY macro (carry_macro=True)."""
+
+    def test_default_seed_fresh_per_episode(self):
+        q = start_q(2, 1)
+        dec = D.DecoderV2(2, kin=KIN, seed=3)
+        dec.reset(None, q)
+        s1 = dec.seed.clone()
+        self.assertEqual(s1.tolist(), [3 * 1000003, 3 * 1000003 + 1])        # first episode: the earlier default
+        u1 = D.hash_uniform(dec.seed, dec.draws)
+        dec.reset(torch.tensor([0]), q[:1])
+        self.assertNotEqual(int(dec.seed[0]), int(s1[0]))
+        self.assertEqual(int(dec.seed[1]), int(s1[1]))                          # world 1 not reset: unchanged
+        self.assertNotEqual(float(D.hash_uniform(dec.seed, dec.draws)[0]), float(u1[0]))
+        dec.reset(None, q, seed=torch.tensor([5, 5]))                           # a given seed is used as it is
+        self.assertEqual(dec.seed.tolist(), [5, 5])
+        dec.reset(None, q, seed=torch.tensor([5, 5]))
+        self.assertEqual(dec.seed.tolist(), [5, 5])
+
+    def test_v1_has_no_macros(self):
+        dec = D.DecoderV1(2, kin=KIN)
+        self.assertIsNone(dec.macro())
+        self.assertIsNone(dec.macro_goal)
+
+    def test_hann_overlap_gives_constant_acceleration(self):
+        """Equal set-point increments every decision: the per-step displacement grows linearly (constant acceleration,
+        no ripple at the decision rate) once two blends overlap; P and R are consistent (R(0) = 1/2, R(1) = 0)."""
+        dec = D.DecoderV2(1, kin=KIN, cfg=D.DecoderV2Config(blend="hann"))
+        dec._hann_zero(torch.ones(1, dtype=torch.bool))
+        du = torch.tensor([[0.02, 0.0, 0.0]], dtype=F)
+        steps = []
+        for _ in range(6):
+            dec._hann_shift(torch.ones(1, dtype=torch.bool), du, torch.zeros(1, dtype=F),
+                            torch.full((1,), 2 * dec.T_d, dtype=F))
+            for _ in range(dec.cfg.decision_steps):
+                dp, _ = dec._hann_step()
+                steps.append(float(dp[0, 0]))
+                dec.hA_tau += D.CONTROL_DT
+                dec.hB_tau += D.CONTROL_DT
+        d2 = torch.tensor(steps, dtype=F).diff()[10:]                            # after the first two decisions
+        self.assertLess(float((d2 - d2.mean()).abs().max()), 1e-12)
+        self.assertAlmostEqual(float(d2.mean()), 0.02 / dec.T_d * D.CONTROL_DT ** 2, places=12)
+        x = torch.tensor([0.0, 1.0, 2.0], dtype=F)
+        self.assertEqual(D.hann_R(x).tolist(), [0.5, 0.0, 0.0])
+        self.assertAlmostEqual(float(D.hann_P(torch.tensor(1.0, dtype=F))), 0.5, places=15)
+
+    def _hann_free(self, n=3, seed=11):
+        q0 = start_q(n, seed, z=(0.07, 0.09))
+        dec = D.DecoderV2(n, kin=KIN, cfg=D.DecoderV2Config(blend="hann"), seed=seed)
+        dec.reset(None, q0)
+        run(dec, q0, [torch.zeros(n, 6, dtype=F)] * 3)
+        g = torch.Generator().manual_seed(seed)
+        acts = [torch.cat(((torch.rand(n, 4, generator=g, dtype=F) * 2 - 1) * 0.15, torch.full((n, 2), -1.0, dtype=F)), -1)
+                for _ in range(4)]
+        run(dec, dec.q_cmd, acts)
+        return dec
+
+    def test_hann_rest_terms_predict_the_stop(self):
+        """rest_terms: a set point v for one decision, then 0: the target rests at pos + alpha v + beta."""
+        n = 3
+        dec = self._hann_free(n)
+        alpha, beta, beta_w = dec.rest_terms()
+        v = torch.tensor([[0.04, -0.02, 0.01], [-0.03, 0.03, 0.0], [0.0, 0.02, -0.01]], dtype=F)
+        pred = dec.pos + alpha * v + beta
+        a = torch.zeros(n, 6, dtype=F)
+        a[:, :3] = v * dec.T_d / dec.cfg.d_max
+        a[:, 4:] = -1.0
+        z = torch.zeros(n, 6, dtype=F)
+        z[:, 4:] = -1.0
+        run(dec, dec.q_cmd, [a] + [z] * 6)
+        self.assertEqual(int(dec.counts["ws_clipped"].sum()), 0)
+        self.assertLess(float((dec.pos - pred).abs().max()), 1e-12)
+
+    def test_hann_brake_lands_on_macro_goal(self):
+        """A GRASP trigger while moving: the Hann brake ends where macro_goal says (the descent is vertical from it)."""
+        n = 3
+        dec = self._hann_free(n, 12)
+        a = torch.zeros(n, 6, dtype=F)
+        a[:, 4] = 1.0
+        info = dec.decide(a, None)
+        self.assertTrue(bool(info["grasp_started"].all()))
+        while bool((dec.mode == D.M["g_brake"]).any()):
+            dec.step(dec.q_cmd)
+        self.assertLess(float((dec.pos[:, :2] - dec.macro_goal[:, :2]).abs().max()), 1e-12)
+        self.assertLess(float((dec.yaw - dec.macro_goal[:, 3]).abs().max()), 1e-12)
+
+    def _carry_setup(self, n=2, seed=13, **cfg):
+        q0 = start_q(n, seed, z=(0.06, 0.07), jaw=0.167)
+        dec = D.DecoderV2(n, kin=KIN, cfg=D.DecoderV2Config(carry_macro=True, **cfg), seed=seed)
+        dec.reset(None, q0, hold=torch.ones(n, dtype=torch.bool))
+        return dec, q0
+
+    def test_carry_macro_line(self):
+        """A hold decision at rest starts one CARRY line: straight, constant height, minimum-jerk, yaw turning along,
+        ends exactly on carry_target; decisions during the line are ignored; the collector's joint-speed rule."""
+        n = 2
+        dec, q0 = self._carry_setup(n)
+        a = torch.zeros(n, 6, dtype=F)
+        a[:, 0], a[:, 1], a[:, 3] = 0.25, -0.2, 0.5
+        end, y1 = dec.carry_target(a)
+        p0, yaw0 = dec.pos.clone(), dec.yaw.clone()
+        info = dec.decide(a, None)
+        self.assertTrue(bool(info["carry_started"].all()))
+        other = a.clone()
+        other[:, 0] = -0.5                                                       # ignored while the line runs
+        cmds, poss = [dec.q_cmd.clone()], []
+        k = 0
+        while bool(dec.carry_on.any()):
+            if k % dec.cfg.decision_steps == 0 and k:
+                self.assertFalse(bool(dec.decide(other, None)["carry_started"].any()))
+            c, _ = dec.step(dec.q_cmd)
+            cmds.append(c), poss.append(dec.pos.clone())
+            k += 1
+        self.assertTrue(bool((dec.mode == D.M["hold"]).all()))
+        self.assertLess(float((dec.pos - end).abs().max()), 1e-12)
+        self.assertLess(float((dec.yaw - y1).abs().max()), 1e-12)
+        P = torch.stack(poss, 1)
+        self.assertLess(float((P[..., 2] - p0[:, None, 2]).abs().max()), 1e-12)          # constant height
+        d = (end - p0)[:, None, :2]
+        rel = P[..., :2] - p0[:, None, :2]
+        cross = rel[..., 0] * d[..., 1] - rel[..., 1] * d[..., 0]
+        self.assertLess(float(cross.abs().max()), 1e-12)                                    # on the straight line
+        C = torch.stack(cmds, 1)[..., :5]
+        self.assertLessEqual(float(C.diff(dim=1).abs().max()), dec.cfg.carry_arm_step + 1e-12)
+        self.assertTrue(bool((C.diff(n=2, dim=1).abs() <= dec.ddq_carry + 1e-12).all()))
+        self.assertGreaterEqual(k, round(dec.cfg.carry_t[0] / D.CONTROL_DT))
+        self.assertTrue(bool(((dec.yaw - yaw0).abs() <= dec.cfg.hold_turn_max + 1e-12).all()))
+        # dead band: a zero action is no move; the same relative action again is a new carry
+        self.assertFalse(bool(dec.decide(torch.zeros(n, 6, dtype=F), None)["carry_started"].any()))
+        self.assertTrue(bool(dec.decide(a * 0.5, None)["carry_started"].all()))
+
+    def test_carry_place_waits_and_abort_brakes(self):
+        n = 2
+        dec, q0 = self._carry_setup(n, 14)
+        a = torch.zeros(n, 6, dtype=F)
+        a[:, 0] = 0.4
+        a[:, 4] = -1.0
+        dec.decide(a, None)
+        for _ in range(10):
+            dec.step(dec.q_cmd)
+        t = a.clone()
+        t[:, 4] = 1.0
+        self.assertFalse(bool(dec.decide(t, None)["place_started"].any()))       # PLACE waits for rest
+        ab = a.clone()
+        ab[0, 5] = 1.0                                                           # world 0 aborts its line
+        info = dec.decide(ab, None)
+        self.assertEqual(info["carry_aborted"].tolist(), [True, False])
+        end0 = dec.lp1[0].clone()
+        while bool(dec.carry_brk[0]):
+            dec.step(dec.q_cmd)
+        self.assertGreater(float((dec.pos[0] - end0).norm()), 0.01)             # stopped short of the line's end
+        self.assertLess(float(dec.vel[0].abs().max()), 1e-12)
+        self.assertTrue(bool(dec.decide(a, None)["carry_started"][0]))         # re-target from rest
+
+    def test_carry_target_keeps_inner_radius(self):
+        """A straight carry that would pass inside the inner radius r_range[0] ends where it would cross it."""
+        dec = D.DecoderV2(1, kin=KIN, cfg=D.DecoderV2Config(carry_macro=True))
+        r, ang = 0.16, 0.9
+        pos = torch.tensor([[0.0388 + r * math.cos(-ang), r * math.sin(-ang), 0.07]], dtype=F)
+        q, ok, _, _ = KIN.ik_topdown(None, pos, torch.tensor([-ang], dtype=F), max_tilt=math.radians(30))
+        dec.reset(None, torch.cat((q, torch.full((1, 1), 0.167, dtype=F)), -1), hold=torch.ones(1, dtype=torch.bool))
+        a = torch.zeros(1, 6, dtype=F)
+        a[0, 1] = 2 * r * math.sin(ang) / dec.cfg.carry_reach                   # to the mirror point at +ang
+        end, _ = dec.carry_target(a)
+        p = dec.pos[:, :2] - dec.pan_axis
+        e = end[:, :2] - dec.pan_axis
+        self.assertAlmostEqual(float(e.norm()), dec.cfg.r_range[0], places=9)
+        s = torch.linspace(0, 1, 101, dtype=F)[:, None]
+        self.assertGreater(float((p + s * (e - p)).norm(dim=-1).min()), dec.cfg.r_range[0] - 1e-9)
+
+    def test_options_off_by_default(self):
+        c = D.DecoderV2Config()
+        self.assertEqual(c.blend, "cosine")
+        self.assertFalse(c.carry_macro)
+        with self.assertRaises(ValueError):
+            D.DecoderV2(1, kin=KIN, cfg=D.DecoderV2Config(blend="spline"))
+
+
 class TestDecoderV1(unittest.TestCase):
     def test_v1_holds_and_rate_limit(self):
         q0 = start_q(4, 9)

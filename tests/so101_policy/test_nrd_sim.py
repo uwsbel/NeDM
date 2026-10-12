@@ -357,6 +357,26 @@ class Flags(unittest.TestCase):
             prev = g
         self.assertEqual(calls[0], (8, 6))
 
+    def test_targets_applied_like_mujoco(self):
+        """review F3: the step applies float32(clip(target, kin.TLO, kin.THI)), as MuJoCo and the data."""
+        from nedm.so101_policy.kin import THI, TLO
+        model = so101_model(12)
+        tg = targets(4, 6, 12)
+        wild = tg.clone()
+        wild[:, :, 5] = -0.3                                                  # below the jaw's applied range
+        wild[:, :, 0] = 2.5                                                   # above the pan's
+        lo, hi = torch.tensor(TLO, dtype=torch.float64), torch.tensor(THI, dtype=torch.float64)
+        applied = torch.minimum(torch.maximum(wild, lo), hi).float().double()
+        out = []
+        for u in (wild, applied):
+            sim = GraspNrdSim({"a": model}, 4, "cpu")
+            sim.reset(None, starts(4, 12))
+            for t in range(6):
+                sim.step(u[:, t])
+            out.append(sim.state.clone())
+            self.assertTrue(torch.equal(sim.act[:, sim.ia, :6], applied[:, -1]))
+        self.assertTrue(torch.equal(out[0], out[1]))                          # (applied: in-range values float32 too)
+
     def test_invalid(self):
         model = so101_model(11)
         sim = GraspNrdSim({"a": model}, 6, "cpu")

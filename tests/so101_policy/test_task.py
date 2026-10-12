@@ -385,3 +385,111 @@ class TestTaskEpisodes(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+OLD_ENDS = ("running", "success", "timeout", "world_invalid", "world_arm_table", "lowest_point", "link_overlap",
+            "jaw_overlap", "base_zone", "grasp_box", "keep_out", "release_high", "unsupported", "hold_cap", "cube_slide",
+            "cube_tilted")
+
+
+class TestNewRules(unittest.TestCase):
+    """Review F1 (arm self-contact rule) and F9 (cube moved with no gripper / jaw point near it)."""
+
+    def test_end_codes_appended(self):
+        self.assertEqual(T.ENDS[: len(OLD_ENDS)], OLD_ENDS)
+        self.assertEqual(T.RULES[-2:], ("arm_self", "moved_untouched"))
+
+    @needs_geom
+    def test_self_depth_matches_mujoco_contacts(self):
+        """Random joint states in the applied range: self_depth > 0 exactly where MuJoCo (mj_collision at the state)
+        reports an arm-self contact on the pairs the rule covers (vertex test of hulls: a few edge-edge misses)."""
+        import mujoco as mj
+        s, kin = _SCENE, SO101Kin()
+        a = _GEOM.arrays
+        names, hn = a["self_names"], a["self_hull_names"]
+        covered = {tuple(sorted((names[i], names[j]))) for i, j in a["self_pairs"]}
+        covered |= {tuple(sorted((hn[h], names[b]))) for h, b in a["self_hull_pairs"]}
+        rng = np.random.default_rng(3)
+        from nedm.so101_policy.kin import THI, TLO
+        q = np.asarray(TLO) + (np.asarray(THI) - np.asarray(TLO)) * rng.random((1500, 6))
+        mjc = np.zeros(len(q), bool)
+        for n in range(len(q)):
+            s.dk.qpos[:] = 0
+            s.dk.qpos[s.qadr] = q[n]
+            mj.mj_kinematics(s.m, s.dk)
+            mj.mj_collision(s.m, s.dk)
+            for k in range(s.dk.ncon):
+                g1, g2 = s.dk.contact.geom1[k], s.dk.contact.geom2[k]
+                if s.kind[s.cls[g1], s.cls[g2]] == 5 and tuple(sorted((s.m.geom(g1).name, s.m.geom(g2).name))) in covered:
+                    mjc[n] = True
+        bpos, brot = kin.body_poses(torch.as_tensor(q))
+        mine = (_GEOM.self_depth(bpos, brot) > 0).numpy()
+        self.assertGreater(int(mjc.sum()), 100)
+        self.assertEqual(int((mine & ~mjc).sum()), 0)
+        self.assertLessEqual(int((mjc & ~mine).sum()), 3)
+
+    @needs_geom
+    def test_arm_self_rule_ends_and_logs(self):
+        kin = SO101Kin()
+        rng = np.random.default_rng(5)
+        from nedm.so101_policy.kin import THI, TLO
+        q = torch.as_tensor(np.asarray(TLO) + (np.asarray(THI) - np.asarray(TLO)) * rng.random((400, 6)))
+        d = _GEOM.self_depth(*kin.body_poses(q))
+        hit, free = int(torch.nonzero(d > 0.002)[0]), int(torch.nonzero(d < -0.02)[0])
+        c = torch.tensor([[0.5, 0.4, T.CUBE_REST_Z]], dtype=torch.float64)            # cube far away
+        quat = torch.tensor([[1.0, 0, 0, 0]], dtype=torch.float64)
+        for qi, want in ((hit, True), (free, False)):
+            st = make_state(q[qi:qi + 1].repeat(2, 1), c.repeat(2, 1), quat.repeat(2, 1))
+            for cfg, ends in ((T.TaskConfig(self_rule=True), True), (T.TaskConfig(self_rule=True, log_only=("arm_self",)), False),
+                              (T.TaskConfig(self_rule=False), False)):
+                task = T.PickPlaceTask(1, "cpu", kin=kin, geom=_GEOM, cfg=cfg, overlap_rules=False)
+                task.reset(torch.tensor([0]), st[0], c[:, :2] + 0.1, torch.zeros(1, dtype=torch.float64))
+                r = task.step(st[1], torch.zeros(1, dtype=torch.long))
+                fired = bool(r[3]["flags"][0, T.RULES.index("arm_self")])
+                self.assertEqual(fired, want and cfg.self_rule)
+                self.assertEqual(int(r[3]["end"][0]) == T.EC["arm_self"], want and ends)
+
+    @needs_geom
+    def test_moved_untouched(self):
+        """The cube on the table moves 3 mm (xy) or sinks 4 mm with the gripper 10 cm away: the rule fires; the same
+        move with the gripper at it, or while held, does not; it re-anchors where the gripper was last near."""
+        kin = SO101Kin()
+        cfg = T.TaskConfig(ghost_rule=True)
+        c0 = torch.tensor([0.22, 0.05, T.CUBE_REST_Z], dtype=torch.float64)
+        quat = torch.tensor([[1.0, 0, 0, 0]], dtype=torch.float64)
+        far_tcp = torch.tensor([[0.22, -0.06, 0.08]], dtype=torch.float64)
+        near_tcp = torch.tensor([[0.22, 0.05 + 0.024, 0.05]], dtype=torch.float64)    # jaw points within 2 cm
+        def q_at(p):
+            q5, ok, _, _ = kin.ik_topdown(None, p, torch.zeros(1, dtype=torch.float64), max_tilt=math.radians(45))
+            return torch.cat((q5, torch.full((1, 1), 0.7, dtype=torch.float64)), -1)
+        for tcp, dpos, want in ((far_tcp, (0.003, 0, 0), True), (far_tcp, (0, 0, -0.004), True),
+                                (far_tcp, (0.0015, 0, -0.0025), False), (near_tcp, (0.003, 0, 0), False)):
+            q = q_at(tcp).repeat(3, 1)
+            c = torch.stack((c0, c0, c0 + torch.tensor(dpos, dtype=torch.float64)))
+            st = make_state(q, c, quat.repeat(3, 1))
+            task = T.PickPlaceTask(1, "cpu", kin=kin, geom=_GEOM, cfg=cfg, overlap_rules=False)
+            task.reset(torch.tensor([0]), st[0], c0[None, :2] + 0.1, torch.zeros(1, dtype=torch.float64))
+            task.step(st[1], torch.zeros(1, dtype=torch.long))
+            r = task.step(st[2], torch.zeros(1, dtype=torch.long))
+            self.assertEqual(bool(r[3]["flags"][0, T.RULES.index("moved_untouched")]), want, (tcp, dpos))
+        # near first (the cube is pushed 5 mm while the gripper is at it), then the gripper leaves: no fire
+        q = torch.cat((q_at(near_tcp), q_at(near_tcp), q_at(far_tcp), q_at(far_tcp)))
+        c = torch.stack((c0, c0 + torch.tensor([0.005, 0, 0], dtype=torch.float64),
+                         c0 + torch.tensor([0.005, 0, 0], dtype=torch.float64), c0 + torch.tensor([0.0055, 0, 0], dtype=torch.float64)))
+        st = make_state(q, c, quat.repeat(4, 1))
+        task = T.PickPlaceTask(1, "cpu", kin=kin, geom=_GEOM, cfg=cfg, overlap_rules=False)
+        task.reset(torch.tensor([0]), st[0], c0[None, :2] + 0.1, torch.zeros(1, dtype=torch.float64))
+        fl = [bool(task.step(s, torch.zeros(1, dtype=torch.long))[3]["flags"][0, T.RULES.index("moved_untouched")])
+              for s in st[1:]]
+        self.assertEqual(fl, [False, False, False])
+
+    @needs_geom
+    def test_geometry_file_without_self_arrays(self):
+        """A TaskGeometry .npz written before the self-contact rule loads and gets the self arrays from MuJoCo."""
+        import tempfile
+        old = {k: v for k, v in _GEOM.arrays.items() if not k.startswith("self_")}
+        with tempfile.TemporaryDirectory() as d:
+            np.savez(f"{d}/g.npz", **old)
+            g2 = T.TaskGeometry.load(f"{d}/g.npz")
+        self.assertTrue(torch.equal(g2.self_pairs, _GEOM.self_pairs))
+        self.assertTrue(torch.equal(g2.self_hull_pairs, _GEOM.self_hull_pairs))

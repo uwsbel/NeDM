@@ -15,11 +15,14 @@ WorldState definitions = the grasp NRD data (records stored float32, then ``data
   frame (``cube_rates="step_average"``, default, = ``data._step_average``). ``cube_rates="instant"``: the
   collector's raw record instead (MuJoCo velocity; spin rotated to the world frame). After ``reset`` / ``set_cube``
   the rates are the instantaneous ones (as given, float32-rounded), as the first record of a data episode.
-- ``contact`` [fixed jaw-cube, moving jaw-cube, cube-table]: the pair's summed normal force (first efc row of each
-  elliptic contact = mj_contactForce normal) above ``contact_threshold_n`` (0.01 N) in any of the 40 physics steps of
-  the command = OR of the data's two 10 ms interval labels = ``data.physical_labels`` of the step. The NRD switch
-  view (this step or the one before, ``data.model_labels``) is ``switch_contact``. After a reset / set_cube: the
-  forces of one ``forward`` at that state.
+- ``contact`` [fixed jaw-cube, moving jaw-cube, cube-table]: physical label of a step = the pair's summed normal force
+  (first efc row of each elliptic contact = mj_contactForce normal) above ``contact_threshold_n`` (0.01 N) in any of
+  the 40 physics steps of the command = OR of the data's two 10 ms interval labels = ``data.physical_labels`` of the
+  step. ``contact_rule="gate"`` (default, review F8: as ``mujoco_env.MujocoWorlds`` and ``GraspNrdSim``) reports the
+  NRD switch meaning instead: the physical label of this step OR of the step before (``data.model_labels``; the first
+  step after a reset has no step before); ``"physical"``: the physical label. Both views are attributes
+  (``physical_contact``, ``switch_contact``). After a reset / set_cube: the forces of one ``forward`` at that state
+  (both views).
 - ``arm_table``: the same force rule for any arm geom (gripper, moving jaw, other links, base hulls) vs the table.
 - ``invalid``: the other collector ends, checked as the collector does where possible: cube_other_link, arm_self,
   cube_base (force rule above); cube_off_table (cube centre x or y outside the table minus 5 cm, or z < -0.01 m, at
@@ -444,12 +447,15 @@ class MjwarpWorlds:
 
     def __init__(self, num_envs: int, device="cuda:0", nconmax: int = 48, njmax: int = 256,
                  cube_rates: str = "step_average", cfg: dict | None = None, physics: dict | None = None,
-                 graph: bool = True, arm_table_fn=None, opt: dict | None = None):
+                 graph: bool = True, arm_table_fn=None, opt: dict | None = None, contact_rule: str = "gate"):
         import mujoco_warp as mjw
         from nedm.contact_nrd.collect import so101_grasp as g
 
         if cube_rates not in ("step_average", "instant"):
             raise ValueError("cube_rates is 'step_average' or 'instant'")
+        if contact_rule not in ("gate", "physical"):
+            raise ValueError(f"contact_rule {contact_rule!r}: 'gate' or 'physical'")
+        self.contact_rule = contact_rule
         check_versions()
         self.arm_table_fn = arm_table_fn
         wp.config.quiet = True
@@ -518,6 +524,7 @@ class MjwarpWorlds:
         self.steps = torch.zeros(B, dtype=torch.long, device=dev)
         self.switch_contact = torch.zeros(B, 3, dtype=torch.bool, device=dev)
         self._last_phys = torch.zeros(B, 3, dtype=torch.bool, device=dev)
+        self._contact = torch.zeros(B, 3, dtype=torch.bool, device=dev)     # WorldState.contact (contact_rule)
         self.applied = torch.zeros(B, JOINTS, dtype=torch.float32, device=dev)
 
     # ---- graph bodies -----------------------------------------------------------------------------------------
@@ -599,6 +606,7 @@ class MjwarpWorlds:
         return sel
 
     def _after_place(self, sel, first: bool):
+        self._contact[sel] = self._flags_t[sel, :3].bool()             # the forces of the placed state (both views)
         code = self._code_t[sel].to(torch.int8)
         if first:
             self.end_reason[sel], self.end_step[sel] = code, torch.where(code > 0, 0, -1)
@@ -693,6 +701,7 @@ class MjwarpWorlds:
         contact = self._flags_t[:, :3].bool()
         self.switch_contact = contact | self._last_phys
         self._last_phys = contact
+        self._contact = (self.switch_contact if self.contact_rule == "gate" else contact).clone()   # no alias
         self.applied = self._ctrl_t.clone()
         self.steps += 1
         code = self._code_t.to(torch.int8)
@@ -710,9 +719,14 @@ class MjwarpWorlds:
             at = self.arm_table_fn(q).to(device=self.device, dtype=torch.bool).reshape(self.B)
         return WorldState(q=q, qd=o[:, 6:12].clone(), cube_pos=o[:, 12:15].clone(),
                           cube_quat=o[:, 15:19].clone(), cube_v=o[:, 19:22].clone(), cube_w=o[:, 22:25].clone(),
-                          contact=f[:, 0:3].clone(), arm_table=at, invalid=f[:, 4].clone())
+                          contact=self._contact.clone(), arm_table=at, invalid=f[:, 4].clone())
 
     observe = state
+
+    @property
+    def physical_contact(self) -> torch.Tensor:
+        """[B, 3] bool: the physical contact label of the last command (``contact_rule="physical"`` view)."""
+        return self._last_phys.clone()
 
     @property
     def arm_table_contact(self) -> torch.Tensor:

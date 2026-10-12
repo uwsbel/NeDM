@@ -12,7 +12,7 @@ import unittest
 
 import torch
 
-from nedm.so101_policy.decoder import M, DecoderV2
+from nedm.so101_policy.decoder import M, DecoderV2, DecoderV2Config
 from nedm.so101_policy.expert import PH, PHASES, ExpertConfig, PickPlaceExpert, cube_yaw_tilt, wrap90
 from nedm.so101_policy.kin import SO101Kin, yaw_of
 from nedm.so101_policy.world import WorldState
@@ -81,12 +81,12 @@ def tasks(n, seed):
     return cube, goal, cyaw, gyaw, start
 
 
-def setup(n, seed, grab=True):
+def setup(n, seed, grab=True, dcfg=None):
     cube, goal, cyaw, gyaw, start = tasks(n, seed)
     q0, ok, _, _ = KIN.ik_topdown(None, start, torch.atan2(start[:, 1], start[:, 0] - 0.0388), max_tilt=math.radians(60))
     q0 = torch.cat((q0, torch.full((n, 1), 0.5, dtype=F)), -1)
     w = ToyWorld(q0, cube, cyaw, KIN, grab)
-    dec = DecoderV2(n, kin=KIN, seed=seed)
+    dec = DecoderV2(n, kin=KIN, seed=seed, cfg=dcfg)
     ex = PickPlaceExpert(dec, TOY)
     st = w.state()
     dec.reset(None, st.q)
@@ -129,6 +129,42 @@ class TestExpert(unittest.TestCase):
         self.assertEqual(int(dec.counts["floor_override"].sum()), 0)
         p, _ = KIN.fk(w.q)
         self.assertTrue(bool((p[:, 2] >= w.pos[:, 2] + 0.015 + 0.03).all()))     # TCP >= 3 cm above the cube top
+
+    def _done_and_placed(self, dcfg, n=8, seed=0, decisions=120):
+        w, dec, ex, goal, gyaw, st = setup(n, seed, dcfg=dcfg)
+        st, seen, modes = run(w, dec, ex, st, decisions)
+        self.assertTrue(bool((ex.phase == PH["done"]).all()), ex.phase_names)
+        self.assertLess(float((w.pos[:, :2] - goal).norm(dim=-1).max()), 1.5e-3)
+        self.assertLess(float(wrap90(w.yaw - gyaw).abs().max()), math.radians(1.5))
+        self.assertEqual(int(ex.recoveries.sum()), 0)
+        return dec, ex
+
+    def test_pick_and_place_hann_blend(self):
+        """Decoder option b1 (blend "hann"): the expert plans with the decoder's rest_terms and still places exactly."""
+        self._done_and_placed(DecoderV2Config(blend="hann"))
+
+    def test_pick_and_place_carry_macro(self):
+        """Decoder option b2 (CARRY macro): carries are macro lines (straight, or two via a polar midpoint near the base)."""
+        dec, ex = self._done_and_placed(DecoderV2Config(carry_macro=True))
+        self.assertGreaterEqual(int(dec.counts["carries"].min()), 1)
+        self.assertEqual(int(dec.counts["carry_aborts"].sum()), 0)
+
+    def test_carry_macro_goal_change_aborts_and_retargets(self):
+        n = 6
+        w, dec, ex, goal, gyaw, st = setup(n, 3, dcfg=DecoderV2Config(carry_macro=True))
+        rel = goal - torch.tensor([0.0388, 0.0], dtype=F)                 # second goal: 0.3 rad toward the centre line
+        ang = torch.atan2(rel[:, 1], rel[:, 0])
+        ang = ang - 0.3 * torch.sign(ang)
+        g2 = torch.tensor([0.0388, 0.0], dtype=F) + rel.norm(dim=-1)[:, None] * torch.stack((ang.cos(), ang.sin()), -1)
+
+        def hook(k, w, dec, ex):
+            moving = dec.carry_on & (ex.phase == PH["carry"]) & (ex.goal_xy - g2).norm(dim=-1).gt(1e-9)
+            if bool(moving.any()):
+                ex.goal_xy = torch.where(moving[:, None], g2, ex.goal_xy)
+        st, _, _ = run(w, dec, ex, st, 160, hook)
+        self.assertTrue(bool((ex.phase == PH["done"]).all()), ex.phase_names)
+        self.assertGreaterEqual(int(dec.counts["carry_aborts"].min()), 1)
+        self.assertLess(float((w.pos[:, :2] - g2).norm(dim=-1).max()), 1.5e-3)
 
     def test_failed_grasp_recovers(self):
         """The cube never sticks: after the GRASP lift the expert sees no cube in the jaws, re-opens with a PLACE (no

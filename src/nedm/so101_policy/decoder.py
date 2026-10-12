@@ -91,6 +91,31 @@ Ablation option ``blend="filter"``: the decision's velocity is the set point of 
 across decisions (a cosine blend returns the acceleration to 0 at every decision boundary, a 10 Hz ripple while the
 target accelerates); the brake ends when the filter has stopped. Measured 2026-10-11 (64 tasks, FSM expert): MuJoCo
 63/64, NRD s61 48/64 against 64/64 and 46/64 with the cosine blend: no clear gain (build2_kin_decoder_expert.md).
+
+Option b1, ``blend="hann"`` (build3_fixes.md): every decision starts one more blend of the target velocity, the change
+of the set point (u_k - u_{k-1}) spread over 2 T_d with a Hann (raised-cosine) acceleration window; the blends of
+consecutive decisions overlap by half and their windows sum to a constant, so equal set-point changes give a constant
+acceleration (no ripple at the decision rate) and the acceleration is continuous. Peak acceleration of a decision's
+change dv is |dv| / T_d (bound: a_max), the set point is bounded like the cosine blend's end velocity; walls use 2 T_d
+(the response lags the set point). The GRASP / PLACE brake is one more Hann blend to 0 of length max(2 T_d,
+2 |u| / a_max, 2 |w| / alpha_max, joint bound); ``macro_goal`` is its exact rest point. ``rest_terms()`` gives the
+linear rest-point model the expert plans with (cosine: pos + T_d v + v0 T_d / 2).
+
+Option b2, ``carry_macro=True`` (build3_fixes.md): in mode hold there is no free motion. A decision at rest gives a
+CARRY target: TCP xy + a[0:2] ``carry_reach`` (norm clipped; relative to the current target), the same height, yaw +
+a[3] ``hold_turn_max`` (within the hold turn cap and the wrist roll range); radius / pan-angle bounds as free motion,
+and a straight line that would pass inside the inner radius ends where it would cross it (``carry_target``). A target
+within ``carry_min_d`` / ``carry_min_yaw`` of the current one is no move. The line copies the collector's
+carry_and_place 'move' (Plan.cart): straight TCP line, minimum-jerk timing, the yaw turning with the same timing,
+duration U(0.5, 0.9) s x 1.3 (up to 6 times) while the peak joint step exceeds ``carry_arm_step`` (0.06 rad per step =
+the collector's 3 rad/s); the command limiter uses ``dq_carry`` / ``ddq_carry`` on the line. Decisions during the line
+are ignored (also PLACE), except a[5] > ``carry_abort_thr``: a cosine brake of the target to rest, after which the next
+decision may carry again (re-targeting only from rest). PLACE starts from rest as before. Counts: ``carries``,
+``carry_aborts``.
+
+Macro-duration seeds (review F5): ``reset`` without ``seed`` gives each world a fresh stream per episode (the first
+episode of a world keeps the earlier default base_seed * 1,000,003 + world index); a trainer may pass its own episode
+seeds, a paired evaluation passes the task seed.
 """
 from __future__ import annotations
 
@@ -115,7 +140,7 @@ MACRO_OF_MODE = ("free", "grasp_descend", "grasp_descend", "grasp_descend", "gra
                  "free", "place_lower", "place_lower", "place_lower", "place_open", "place_retreat")
 ACTION_DIM = 6
 FLAGS = ("guard_scaled", "limited", "lead_clipped", "floor_raised", "floor_override", "range_clipped", "ws_clipped",
-         "yaw_blocked", "yaw_capped", "trigger_ignored", "aborted")
+         "yaw_blocked", "yaw_capped", "trigger_ignored", "aborted", "carries", "carry_aborts")
 
 
 def minjerk(s):
@@ -145,6 +170,20 @@ def blend(v0, vn, tau, td):
     return p, v
 
 
+def hann_P(x):
+    """Integral from 0 to x (in units of the blend length, x >= 0) of the Hann step S(x) = x - sin(2 pi x) / (2 pi)
+    on [0, 1] (S = 1 after): the displacement of a unit Hann velocity increment of length 1 (option b1)."""
+    xc = x.clamp(0.0, 1.0)
+    return xc * xc / 2 + (torch.cos(2 * math.pi * xc) - 1) / (4 * math.pi * math.pi) + (x - 1).clamp_min(0)
+
+
+def hann_R(x):
+    """Integral from x to 1 of (1 - S): the displacement still missing (against a velocity step) of a unit Hann
+    increment at clock x (units of its length; 0 for x >= 1)."""
+    xc = x.clamp(0.0, 1.0)
+    return 0.5 - xc + hann_P(xc)
+
+
 def filter_step(x, xd, u, wn, dt=CONTROL_DT):
     """Critically damped 2nd-order filter x'' = wn^2 (u - x) - 2 wn x', input u held over one step of dt (exact).
     -> (x, x', integral of x over the step)."""
@@ -157,6 +196,7 @@ def filter_step(x, xd, u, wn, dt=CONTROL_DT):
 
 
 _M32 = 0xFFFFFFFF
+EPISODE_MIX = 0x5851F42D      # default macro-duration seed step per reset of a world (DecoderV2.reset, review F5)
 
 
 def _mul32(x, c):
@@ -228,8 +268,23 @@ class DecoderV2Config:
     abort_thr: float = 0.0
     blend: str = "cosine"                 # "cosine" (spec_v2 B1, push-T) | "filter" (ablation: the decision's velocity
     wn: float = 12.5                      #   is the set point of a critically damped 2nd-order filter, natural freq.)
+                                          # | "hann" (option b1: overlap-added Hann velocity blends, 2 decisions long)
     tilt_s: float = 0.6
     ik_iters: int = 3
+    # option b2: CARRY macro in mode hold (module docstring, "CARRY macro"); False = free motion while holding
+    carry_macro: bool = False
+    carry_reach: float = 0.32             # m, |a[0:2]| = 1 -> this horizontal displacement of the TCP target
+    carry_t: tuple = (0.5, 0.9)           # s, collector carry_and_place move_s, then x 1.3 until the peak joint step
+    carry_arm_step: float = 0.06          #   <= this (rad per 20 ms; the collector's Plan.cart, arm_max 3 rad/s)
+    carry_min_d: float = 0.001            # m, a smaller carry displacement (and yaw change below carry_min_yaw) is no
+    carry_min_yaw: float = math.radians(0.5)   # move (dead band; below the expert's 1.5 mm / 1 deg PLACE tolerance)
+    carry_abort_thr: float = 0.5          # a[5] above this during a CARRY line brakes it to rest (cosine brake, as a
+                                          # macro start); the next carry starts from there (re-target from rest)
+    # command limiter on a carry line: steps <= the collector's arm_max step, step changes <= the larger of ddq_max and
+    # the data's p99.9 in the collector's 'move' phase (val_only task families, 20 ms grid: d1 p99.9 0.058 / 0.047 /
+    # 0.057 / 0.018 / 0.059 rad, max 0.060; d2 p99.9 below; ~/so101_policy/docs/build3_fixes.md)
+    dq_carry: tuple = (0.06, 0.06, 0.06, 0.06, 0.06)
+    ddq_carry: tuple = (0.0061, 0.0109, 0.0148, 0.0095, 0.0301)
 
 
 class DecoderV2:
@@ -259,9 +314,12 @@ class DecoderV2:
         self.v0, self.vn, self.w0, self.wn = z(B, 3), z(B, 3), z(B), z(B)   # active cosine blend
         self.tau, self.tb = z(B), torch.full((B,), self.T_d, **f)          # blend clock and length (s)
         self.fv, self.fa, self.fw, self.fwa = z(B, 3), z(B, 3), z(B), z(B)  # blend "filter": velocity, its rate
-        self.filt = c.blend == "filter"
-        # peak acceleration of a blend per unit velocity change (1/s): cosine pi / (2 T_d), filter wn / e
-        self.k_peak = c.wn / math.e if self.filt else math.pi / (2 * self.T_d)
+        if c.blend not in ("cosine", "filter", "hann"):
+            raise ValueError(f"blend {c.blend!r}: 'cosine', 'filter' or 'hann'")
+        self.filt, self.hann = c.blend == "filter", c.blend == "hann"
+        # peak acceleration of a blend per unit velocity change (1/s): cosine pi / (2 T_d), filter wn / e, hann 1 / T_d
+        # (a Hann blend of length 2 T_d peaks at 2 dv / (2 T_d); two overlapping ones peak at the larger dv / T_d)
+        self.k_peak = c.wn / math.e if self.filt else (1 / self.T_d if self.hann else math.pi / (2 * self.T_d))
         self.dv_max, self.dw_max = c.a_max / self.k_peak, c.alpha_max / self.k_peak
         self.lp0, self.lp1, self.lk, self.ln = z(B, 3), z(B, 3), z(B), z(B)  # macro line / hold: ends, clock, length
         self.jaw_from, self.jaw_to, self.jaw_k, self.jaw_n = z(B), z(B), z(B), torch.ones(B, **f)
@@ -274,6 +332,17 @@ class DecoderV2:
         self.tilt0, self.t = z(B, 3), z(B)
         self.seed = torch.arange(B, dtype=torch.long, device=self.dev)
         self.draws = torch.zeros(B, dtype=torch.long, device=self.dev)
+        self.episode = torch.zeros(B, dtype=torch.long, device=self.dev)   # resets per world (default seed stream)
+        # "hann" blend state: velocity of the finished blends, then two running blends A (older) and B (newest):
+        # increment (m/s, rad/s), length T (s) and clock tau (s)
+        self.hv, self.hw = z(B, 3), z(B)
+        self.hA_d, self.hA_w, self.hA_T, self.hA_tau = z(B, 3), z(B), torch.ones(B, **f), torch.ones(B, **f)
+        self.hB_d, self.hB_w, self.hB_T, self.hB_tau = z(B, 3), z(B), torch.ones(B, **f), torch.ones(B, **f)
+        # CARRY macro (option b2): active flag and the line's yaw ends
+        self.carry_on = torch.zeros(B, dtype=torch.bool, device=self.dev)
+        self.carry_brk = torch.zeros(B, dtype=torch.bool, device=self.dev)   # an aborted CARRY brakes to rest
+        self.ly0, self.ly1 = z(B), z(B)
+        self.dq_carry, self.ddq_carry = torch.tensor(c.dq_carry, **f), torch.tensor(c.ddq_carry, **f)
         self.ik_err = z(B, 2)
         self.armed = torch.ones(B, dtype=torch.bool, device=self.dev)   # a trigger can start a macro
         self.counts = {k: torch.zeros(B, dtype=torch.long, device=self.dev) for k in FLAGS}
@@ -299,25 +368,29 @@ class DecoderV2:
         self.draws = self.draws + mask.long()
         return rng[0] + (rng[1] - rng[0]) * u
 
-    def _line_steps(self, t_draw, end, mode, samples=8):
+    def _line_steps(self, t_draw, end, mode, samples=8, yaw_end=None, dq=None, ddq=None):
         """Steps of a minimum-jerk TCP line from the target to end [B, 3]: the drawn duration, raised to keep the peak
         TCP speed <= v_macro and acceleration <= a_macro, and every joint's peak step <= dq_max and peak step change
         <= ddq_max. The joint path q(u) comes from warm-started IK at ``samples`` points of the line; with u(t) minimum
         jerk (|u'| <= 1.875 / T, |u''| <= 5.77 / T^2): T >= 1.875 max|q'| / dq_max and
-        T^2 >= (3.52 max|q''| + 5.77 max|q'|) / ddq_max (T in steps), then x line_margin."""
+        T^2 >= (3.52 max|q''| + 5.77 max|q'|) / ddq_max (T in steps), then x line_margin. yaw_end [B]: the yaw turns
+        with the same timing (CARRY line); dq, ddq [5]: other joint bounds (default dq_max and the mode's bound)."""
         c = self.cfg
         dist = (end - self.pos).norm(dim=-1)
         t = torch.maximum(t_draw, torch.maximum(1.875 * dist / c.v_macro, torch.sqrt(5.7735 * dist / c.a_macro)))
         rot = self._rot(self.yaw)
         qs, q = [self.q_des], self.q_des
         for k in range(1, samples + 1):
+            if yaw_end is not None:
+                rot = self._rot(self.yaw + (yaw_end - self.yaw) * (k / samples))
             q, _, _ = self.kin.ik_track(q, self.pos + (end - self.pos) * (k / samples), rot, 2 * c.ik_iters)
             qs.append(q)
         qs = torch.stack(qs, 1)                                                           # [B, K + 1, 5]
         d1 = qs.diff(dim=1).abs().amax(1) * samples                                       # max |dq/du|
         d2 = qs.diff(n=2, dim=1).abs().amax(1) * samples * samples                        # max |d2q/du2|
-        A = self.ddq_mode[M[mode]]
-        steps = torch.maximum(1.875 * d1 / self.dq_max, torch.sqrt((3.516 * d2 + 5.7735 * d1) / A)).amax(-1)
+        A = self.ddq_mode[M[mode]] if ddq is None else ddq
+        dqm = self.dq_max if dq is None else dq
+        steps = torch.maximum(1.875 * d1 / dqm, torch.sqrt((3.516 * d2 + 5.7735 * d1) / A)).amax(-1)
         t = torch.maximum(t, c.line_margin * steps * CONTROL_DT)
         return torch.round(t / CONTROL_DT).clamp_min(1)
 
@@ -353,10 +426,167 @@ class DecoderV2:
 
     def _allow(self, dist, v_wall, acc):
         """Largest speed toward a wall at distance dist (>= 0) that a decision may end with and still stop before it
-        (cosine blend from v_wall over T_d, then braking at the average deceleration acc [B])."""
-        td = self.T_d
+        (cosine blend from v_wall over T_d, then braking at the average deceleration acc [B]). Blend "hann": v_wall =
+        the current set point, and the blend counts 2 T_d (its response lags the cosine blend by about T_d / 2 on
+        the way up and on the way down)."""
+        td = 2 * self.T_d if self.hann else self.T_d
         disc = td * td / 4 - 2 * (v_wall * td / 2 - dist.clamp_min(0)) / acc
         return acc * (-td / 2 + torch.sqrt(disc.clamp_min(0)))
+
+    # ---- "hann" blend (option b1) ----------------------------------------------------------------------------------
+    def setpoint(self):
+        """(velocity [B, 3], yaw rate [B]) the free-motion target is heading to: the last decision's set point (blend
+        "hann": the sum of all its increments; "cosine": the blend's end velocity; "filter": its set point)."""
+        if self.hann:
+            return self.hv + self.hA_d + self.hB_d, self.hw + self.hA_w + self.hB_w
+        return self.vn.clone(), self.wn.clone()
+
+    def _hann_missing(self):
+        """Displacement (m [B, 3], rad [B]) the running Hann blends still owe against a velocity step to their
+        increments: sum of d T R(tau / T)."""
+        rA = self.hA_T * hann_R(self.hA_tau / self.hA_T)
+        rB = self.hB_T * hann_R(self.hB_tau / self.hB_T)
+        return self.hA_d * rA[:, None] + self.hB_d * rB[:, None], self.hA_w * rA + self.hB_w * rB
+
+    def rest_terms(self):
+        """Free motion: where the target comes to rest if this decision sets the velocity v (and yaw rate w) and the
+        next decision sets 0: pos + alpha v + beta, yaw + alpha w + beta_yaw -> (alpha (s), beta [B, 3], beta_yaw [B]).
+        Cosine: alpha = T_d, beta = v0 T_d / 2 (v0 = the last step's velocity); hann: alpha = T_d, beta = u T_d - the
+        running blends' missing displacement (u = the current set point). Not for blend "filter" (the expert solves
+        it numerically)."""
+        if self.hann:
+            u, w = self.setpoint()
+            mp, mw = self._hann_missing()
+            return self.T_d, u * self.T_d - mp, w * self.T_d - mw
+        return self.T_d, self.vel * self.T_d / 2, self.yrate * self.T_d / 2
+
+    def _hann_zero(self, mask, v=None, w=None):
+        """Hann blend state of the worlds in mask at a constant velocity v [B, 3] / yaw rate w [B] (default rest)."""
+        m3 = mask[:, None]
+        self.hv = torch.where(m3, torch.zeros_like(self.hv) if v is None else v, self.hv)
+        self.hw = torch.where(mask, torch.zeros_like(self.hw) if w is None else w, self.hw)
+        for x in (self.hA_d, self.hB_d):
+            x.copy_(torch.where(m3, 0.0, x))
+        for x in (self.hA_w, self.hB_w):
+            x.copy_(torch.where(mask, 0.0, x))
+        for x in (self.hA_tau, self.hA_T, self.hB_tau, self.hB_T):
+            x.copy_(torch.where(mask, 1.0, x))
+
+    def _hann_done(self):
+        """[B] bool: no Hann blend is running."""
+        return (self.hA_tau >= self.hA_T - 1e-9) & (self.hB_tau >= self.hB_T - 1e-9)
+
+    def _hann_shift(self, mask, d, w, T):
+        """Decision of the worlds in mask: the finished blend A folds into the base velocity, B becomes A, and a new
+        blend B starts with increment d [B, 3] / w [B] and length T [B] (s)."""
+        m3 = mask[:, None]
+        # with decisions every T_d (the API) blend A started 2 T_d ago and has finished; were it not (decide called at
+        # other times), folding it in whole would step the velocity by its missing part
+        self.hv = torch.where(m3, self.hv + self.hA_d, self.hv)
+        self.hw = torch.where(mask, self.hw + self.hA_w, self.hw)
+        self.hA_d, self.hA_w = torch.where(m3, self.hB_d, self.hA_d), torch.where(mask, self.hB_w, self.hA_w)
+        self.hA_T, self.hA_tau = torch.where(mask, self.hB_T, self.hA_T), torch.where(mask, self.hB_tau, self.hA_tau)
+        self.hB_d, self.hB_w = torch.where(m3, d, self.hB_d), torch.where(mask, w, self.hB_w)
+        self.hB_T = torch.where(mask, T, self.hB_T)
+        self.hB_tau = torch.where(mask, torch.zeros_like(self.hB_tau), self.hB_tau)
+
+    def _hann_step(self):
+        """Target displacement (m [B, 3], rad [B]) of the Hann blends over one control step (closed form)."""
+        dt = CONTROL_DT
+        kA = self.hA_T * (hann_P((self.hA_tau + dt) / self.hA_T) - hann_P(self.hA_tau / self.hA_T))
+        kB = self.hB_T * (hann_P((self.hB_tau + dt) / self.hB_T) - hann_P(self.hB_tau / self.hB_T))
+        return (self.hv * dt + self.hA_d * kA[:, None] + self.hB_d * kB[:, None],
+                self.hw * dt + self.hA_w * kA + self.hB_w * kB)
+
+    # ---- CARRY macro (option b2) ---------------------------------------------------------------------------------
+    def carry_target(self, a):
+        """CARRY end of action a [B, 6] from the current target (module docstring): TCP xy + a[0:2] carry_reach (norm
+        clipped), same height; radius and pan-angle bounds as free motion; the straight line shortened where it would
+        pass inside the inner radius; yaw + a[3] hold_turn_max within the hold turn cap and the wrist roll range.
+        -> (end [B, 3], yaw [B])."""
+        c = self.cfg
+        dxy = a[:, 0:2] * c.carry_reach
+        n = dxy.norm(dim=-1, keepdim=True)
+        dxy = dxy * torch.where(n > c.carry_reach, c.carry_reach / n.clamp_min(1e-12), torch.ones_like(n))
+        r_lo, r_hi, a_lo, a_hi = self._bounds()
+        r, ang, _ = self._polar(torch.cat((self.pos[:, :2] + dxy, self.pos[:, 2:]), -1))
+        r = torch.minimum(torch.maximum(r, r_lo), r_hi)
+        ang = torch.minimum(torch.maximum(ang, a_lo), a_hi)
+        p = self.pos[:, :2] - self.pan_axis                                           # line start about the pan axis
+        d = torch.stack((torch.cos(ang), torch.sin(ang)), -1) * r[:, None] - p
+        dd, pd = (d * d).sum(-1), (p * d).sum(-1)
+        disc = pd * pd - dd * ((p * p).sum(-1) - r_lo * r_lo)
+        t1 = (-pd - torch.sqrt(disc.clamp_min(0))) / dd.clamp_min(1e-18)             # first crossing of the r_lo circle
+        cut = (disc > 0) & (t1 >= 0) & (t1 < 1) & (dd > 1e-18)
+        d = d * torch.where(cut, t1, torch.ones_like(t1))[:, None]
+        end = torch.cat((self.pos[:, :2] + d, self.pos[:, 2:]), -1)
+        _, ang_e, _ = self._polar(end)
+        y1 = self.yaw + a[:, 3] * c.hold_turn_max
+        y1 = torch.minimum(torch.maximum(y1, self.yaw_hold0 - c.hold_turn_max), self.yaw_hold0 + c.hold_turn_max)
+        rho = wrap(y1 - ang_e)
+        y1 = y1 - (rho - rho.clamp(-c.roll_max, c.roll_max))
+        return end, y1
+
+    def _carry_steps(self, t_draw, end, yaw_end, samples=16):
+        """Steps of a CARRY line (the collector's Plan.cart timing): the drawn duration, x 1.3 (up to 6 times) while the
+        largest joint step of the minimum-jerk line exceeds ``carry_arm_step``. The joint path comes from warm-started
+        IK at ``samples`` points (the yaw turning along); the largest step of a line of n steps is
+        max over the time fraction s of |dq/du|(u(s)) 30 s^2 (1 - s)^2 / n (chord slopes, the collector's actual
+        largest step rather than the bound 1.875 max|dq/du| / n)."""
+        c = self.cfg
+        qs, q = [self.q_des], self.q_des
+        for k in range(1, samples + 1):
+            rot = self._rot(self.yaw + (yaw_end - self.yaw) * (k / samples))
+            q, _, _ = self.kin.ik_track(q, self.pos + (end - self.pos) * (k / samples), rot, 2 * c.ik_iters)
+            qs.append(q)
+        slope = (torch.stack(qs, 1).diff(dim=1).abs() * samples).amax(-1)            # [B, K] max over joints, per chord
+        sg = torch.linspace(0, 1, 201, **self.f)
+        chord = (minjerk(sg) * samples).long().clamp(0, samples - 1)                  # chord of u(s)
+        peak = (slope[:, chord] * (30 * sg * sg * (1 - sg) ** 2)).amax(-1)             # max |dq/ds| [B]
+        n = torch.round(t_draw / CONTROL_DT).clamp_min(1)
+        for _ in range(6):
+            n = torch.where(peak / n > c.carry_arm_step, torch.round(n * 1.3), n)
+        return n
+
+    def _carry_abort(self, mask):
+        """Stop the CARRY lines of the worlds in mask: a cosine brake of the target velocity of the last step to 0 (the
+        free-motion brake rule: max(T_d, pi |v| / (2 a_max), pi |w| / (2 alpha_max)), rounded up to the step), then
+        rest in mode hold. -> mask."""
+        if not bool(mask.any()):
+            return mask
+        c = self.cfg
+        sp, wr = self.vel.norm(dim=-1), self.yrate.abs()
+        tbk = torch.maximum(torch.maximum(torch.full_like(sp, self.T_d), math.pi * sp / (2 * c.a_max)),
+                            math.pi * wr / (2 * c.alpha_max))
+        tbk = torch.ceil(tbk / CONTROL_DT - 1e-9) * CONTROL_DT
+        m3 = mask[:, None]
+        self.v0, self.vn = torch.where(m3, self.vel, self.v0), torch.where(m3, 0.0, self.vn)
+        self.w0, self.wn = torch.where(mask, self.yrate, self.w0), torch.where(mask, 0.0, self.wn)
+        self.tau, self.tb = torch.where(mask, 0.0, self.tau), torch.where(mask, tbk, self.tb)
+        self._hann_zero(mask)                             # (a Hann world brakes with the cosine rule here)
+        self.carry_on = self.carry_on & ~mask
+        self.carry_brk = self.carry_brk | mask
+        self.counts["carry_aborts"] += mask.long()
+        return mask
+
+    def _carry_start(self, a, mask):
+        """Start CARRY lines in the worlds of mask whose target differs from the current one by more than the dead
+        band. -> started [B] bool."""
+        c = self.cfg
+        end, y1 = self.carry_target(a)
+        start = mask & (((end - self.pos)[:, :2].norm(dim=-1) >= c.carry_min_d)
+                        | ((y1 - self.yaw).abs() >= c.carry_min_yaw))
+        if not bool(start.any()):
+            return start
+        ln = self._carry_steps(self._draw(start, c.carry_t), end, y1)
+        m3 = start[:, None]
+        self.lp0, self.lp1 = torch.where(m3, self.pos, self.lp0), torch.where(m3, end, self.lp1)
+        self.ly0, self.ly1 = torch.where(start, self.yaw, self.ly0), torch.where(start, y1, self.ly1)
+        self.ln = torch.where(start, ln, self.ln)
+        self.lk = torch.where(start, torch.zeros_like(self.lk), self.lk)
+        self.carry_on = self.carry_on | start
+        self.counts["carries"] += start.long()
+        return start
 
     def _ceiling(self):
         """TCP ceiling (m) [B]: z_max, in mode hold also the held-cube ceiling; never below the current target (a
@@ -470,7 +700,10 @@ class DecoderV2:
     def reset(self, idx, q, hold=None, seed=None, z_ceil=None):
         """Worlds idx (index tensor or bool mask) start at rest at the measured joint angles q [n, 6]. hold [n] bool:
         start in mode hold (cube in the jaws; z_ceil [n] = TCP ceiling, default z_max), else free (the jaw opens to
-        jaw_open). seed [n] int64: macro-duration seeds (default base_seed * 1,000,003 + world index)."""
+        jaw_open). seed [n] int64: macro-duration seeds; the same seed gives the same durations (paired evaluations:
+        pass the task seed). Default (review F5): a fresh stream per episode, base_seed * 1,000,003 + world index +
+        EPISODE_MIX * (number of earlier resets of that world), so the first episode of a world keeps the old default;
+        a trainer may also pass its own episode seed (e.g. episode counter * B + slot)."""
         c = self.cfg
         idx = self._ids(idx)
         n = len(idx)
@@ -499,9 +732,16 @@ class DecoderV2:
                            torch.maximum(jaw, goal))
         self.low_off[idx] = self._low_offset(q[:, :5], jc)
         self.seed[idx] = (torch.as_tensor(seed, dtype=torch.long, device=self.dev).clone() if seed is not None
-                          else self.base_seed * 1000003 + idx)
+                          else self.base_seed * 1000003 + idx + EPISODE_MIX * self.episode[idx])
+        self.episode[idx] += 1
         self.draws[idx] = 0
         self.armed[idx] = True
+        sel = torch.zeros(self.B, dtype=torch.bool, device=self.dev)
+        sel[idx] = True
+        self._hann_zero(sel)
+        self.carry_on[idx] = False
+        self.carry_brk[idx] = False
+        self.ly0[idx], self.ly1[idx] = yaw, yaw
         for v in self.counts.values():
             v[idx] = 0
 
@@ -523,8 +763,11 @@ class DecoderV2:
             self.fa = torch.where(abort[:, None], torch.zeros_like(self.fa), self.fa)
             self.fw = torch.where(abort, self.yrate, self.fw)
             self.fwa = torch.where(abort, torch.zeros_like(self.fwa), self.fwa)
-        take = free | hold
-        v0, w0 = self.vel, self.yrate
+        if self.hann:
+            self._hann_zero(abort, self.vel, self.yrate)
+        moving = hold & (self.carry_on | self.carry_brk)  # a CARRY line or its abort brake runs: decision ignored
+        take = free | (hold & ~moving) if not c.carry_macro else free   # free-motion decisions
+        v0, w0 = self.setpoint() if self.hann else (self.vel, self.yrate)
         d = a[:, :3] * c.d_max
         dn = d.norm(dim=-1, keepdim=True)
         d = d * torch.where(dn > c.d_max, c.d_max / dn.clamp_min(1e-12), torch.ones_like(dn))
@@ -557,7 +800,7 @@ class DecoderV2:
         jaw_ready = (self.jaw_k >= self.jaw_n) & ((self.jaw_to - c.jaw_open).abs() < 1e-9)
         ignored = g_trig & ~jaw_ready
         g_trig = g_trig & jaw_ready
-        p_trig = hold & trig
+        p_trig = hold & ~moving & trig
         self.armed = self.armed & ~(g_trig | p_trig)
         go = take & ~g_trig & ~p_trig
         # free-motion decisions
@@ -581,6 +824,17 @@ class DecoderV2:
         if self.filt:                                     # where the filter comes to rest with the set point 0
             stop = self.pos + 2 * self.fv / c.wn + self.fa / (c.wn * c.wn)
             ystop = self.yaw + 2 * self.fw / c.wn + self.fwa / (c.wn * c.wn)
+        if self.hann:   # new blend B per decision: the set point change over 2 T_d; a brake: to 0 over T_bk (2 dv / T)
+            tjh = (2 * qd0 * CONTROL_DT * CONTROL_DT / self.ddq_max).amax(-1)
+            tbh = torch.maximum(torch.maximum(torch.full_like(sp, 2 * self.T_d), 2 * sp / c.a_max),
+                                torch.maximum(2 * wr / c.alpha_max, tjh))
+            tbh = torch.ceil(tbh / CONTROL_DT - 1e-9) * CONTROL_DT
+            tbh = torch.where(brake & rest & self._hann_done(), torch.full_like(tbh, 1e-9), tbh)
+            vgo = torch.where(go[:, None], vn, torch.zeros_like(vn))
+            wgo = torch.where(go, wn, torch.zeros_like(wn))
+            self._hann_shift(take, vgo - v0, wgo - w0, torch.where(brake, tbh, torch.full_like(tbh, 2 * self.T_d)))
+            mp, mw = self._hann_missing()
+            stop, ystop = self.pos - mp, self.yaw - mw    # rest point of the brake: sum of d T R(tau / T)
         # GRASP: descent end and the hold ceiling
         if bool(g_trig.any()):
             q_w = torch.cat((self.q_des, torch.full_like(self.yaw[:, None], self.theta_worst)), -1)
@@ -595,8 +849,14 @@ class DecoderV2:
             zp = self.pos[:, 2] - bottom + self._draw(p_trig, c.place_dz)
             self.z_goal = torch.where(p_trig, zp, self.z_goal)
         self.mode = torch.where(g_trig, M["g_brake"], torch.where(p_trig, M["p_brake"], self.mode))
+        carry_started = torch.zeros_like(p_trig)
+        carry_aborted = torch.zeros_like(p_trig)
+        if c.carry_macro:   # option b2: a hold decision at rest gives the CARRY target; a[5] aborts a running line
+            carry_aborted = self._carry_abort(hold & self.carry_on & (a[:, 5] > c.carry_abort_thr))
+            carry_started = self._carry_start(a, hold & ~moving & ~p_trig)
         info = dict(grasp_started=g_trig, place_started=p_trig, aborted=abort, trigger_ignored=ignored,
-                    yaw_blocked=blocked & take, yaw_capped=yaw_capped & take, ws_capped=ws_capped & go)
+                    yaw_blocked=blocked & take, yaw_capped=yaw_capped & take, ws_capped=ws_capped & go,
+                    carry_started=carry_started, carry_aborted=carry_aborted)
         for k in ("aborted", "trigger_ignored", "yaw_blocked", "yaw_capped"):
             self.counts[k] += info[k].long()
         return info
@@ -608,8 +868,10 @@ class DecoderV2:
         rad, info dict)."""
         c, kin = self.cfg, self.kin
         mode = self.mode
-        blendm = (mode == M["free"]) | (mode == M["hold"]) | (mode == M["g_brake"]) | (mode == M["p_brake"])
-        linem = ((mode == M["g_descend"]) | (mode == M["g_lift"]) | (mode == M["p_lower"]) | (mode == M["p_retreat"]))
+        carry = self.carry_on & (mode == M["hold"])            # a CARRY line (option b2) runs or waits for rest
+        blendm = (mode == M["free"]) | ((mode == M["hold"]) & ~carry) | (mode == M["g_brake"]) | (mode == M["p_brake"])
+        linem = ((mode == M["g_descend"]) | (mode == M["g_lift"]) | (mode == M["p_lower"]) | (mode == M["p_retreat"])
+                 | carry)
         linem = linem & (self.lk < self.ln - 1e-9)           # a finished line waits for rest without IK
         still = ~blendm & ~linem
         if q_meas is not None:
@@ -623,18 +885,29 @@ class DecoderV2:
         n = self.ln.clamp_min(1.0)
         u0, u1 = minjerk(self.lk / n), minjerk((self.lk + 1) / n)
         dline = (self.lp1 - self.lp0) * (u1 - u0)[:, None]
-        if self.filt:
+        if self.filt:                                     # (a CARRY abort brake keeps the cosine rule)
             fv1, fa1, fdisp = filter_step(self.fv, self.fa, self.vn, c.wn)
             fw1, fwa1, fydisp = filter_step(self.fw, self.fwa, self.wn, c.wn)
-            p0, p1, y0, y1 = torch.zeros_like(fdisp), fdisp, torch.zeros_like(fydisp), fydisp
+            cb = self.carry_brk
+            p1 = torch.where(cb[:, None], p1 - p0, fdisp)
+            y1 = torch.where(cb, y1 - y0, fydisp)
+            p0, y0 = torch.zeros_like(p1), torch.zeros_like(y1)
+        if self.hann:                                     # (a CARRY abort brake keeps the cosine rule)
+            hdisp, hydisp = self._hann_step()
+            cb = self.carry_brk
+            p1 = torch.where(cb[:, None], p1 - p0, hdisp)
+            y1 = torch.where(cb, y1 - y0, hydisp)
+            p0, y0 = torch.zeros_like(p1), torch.zeros_like(y1)
         dp = torch.where(blendm[:, None], p1 - p0, torch.where(linem[:, None], dline, torch.zeros_like(dline)))
-        dy = torch.where(blendm, y1 - y0, torch.zeros_like(y1))
+        cline = linem & carry
+        dy = torch.where(blendm, y1 - y0, torch.where(cline, (self.ly1 - self.ly0) * (u1 - u0), torch.zeros_like(y1)))
         pos1, yaw1, ws_clip = self._clip(self.pos + dp, self.yaw + dy, blendm)
         # IK and the speed guard
         rot = self._rot(yaw1)
         q_try, ep, ea = kin.ik_track(self.q_des, pos1, rot, c.ik_iters)
         q_try = torch.where(still[:, None], self.q_des, q_try)
-        m = ((q_try - self.q_des).abs() / self.dq_max).amax(-1)
+        dqb = torch.where(carry[:, None], self.dq_carry, self.dq_max)            # step bound (CARRY: data 'move')
+        m = ((q_try - self.q_des).abs() / dqb).amax(-1)
         s = torch.where(m > 1, 1 / m.clamp_min(1e-12), torch.ones_like(m))
         guard = m > 1
         k1 = torch.where(linem, torch.minimum(self.lk + s, n), self.lk + 1)
@@ -643,7 +916,8 @@ class DecoderV2:
         ratio = torch.where(linem & ((u1 - u0) <= 1e-15), s, ratio)
         pos_new = torch.where(linem[:, None], self.lp0 + (self.lp1 - self.lp0) * u_s[:, None],
                               self.pos + s[:, None] * (pos1 - self.pos))
-        yaw_new = torch.where(blendm, self.yaw + s * (yaw1 - self.yaw), self.yaw)
+        yaw_new = torch.where(blendm, self.yaw + s * (yaw1 - self.yaw),
+                              torch.where(cline, self.ly0 + (self.ly1 - self.ly0) * u_s, self.yaw))
         q_new = self.q_des + ratio[:, None] * (q_try - self.q_des)
         if bool((guard & ~still).any()):    # a scaled step: solve again for the scaled target (push-T guard)
             q_re, ep2, ea2 = kin.ik_track(self.q_des, pos_new, self._rot(yaw_new), c.ik_iters)
@@ -668,13 +942,14 @@ class DecoderV2:
         tv = q_new - self.q_des
         lag = self.q_des - cprev
         A = self.ddq_mode[mode]                                   # [B, 5]: per-mode bound (module docstring)
+        A = torch.where(carry[:, None], self.ddq_carry, A)
         sb = A * (torch.sqrt(0.25 + 2 * lag.abs() / A) - 0.5)
         want = tv + torch.sign(lag) * torch.minimum(lag.abs(), sb)
         inc = torch.minimum(torch.maximum(want, self.dq - A), self.dq + A)
         Ab = 0.9 * A                                     # braking margin for the discrete form of the stop law
         lim_hi = Ab * (torch.sqrt(0.25 + 2 * (kin.thi[:5] - cprev).clamp_min(0) / Ab) - 0.5)   # stop before a limit
         lim_lo = Ab * (torch.sqrt(0.25 + 2 * (cprev - kin.tlo[:5]).clamp_min(0) / Ab) - 0.5)
-        inc = torch.minimum(torch.maximum(inc, -torch.minimum(self.dq_max, lim_lo)), torch.minimum(self.dq_max, lim_hi))
+        inc = torch.minimum(torch.maximum(inc, -torch.minimum(dqb, lim_lo)), torch.minimum(dqb, lim_hi))
         inc = torch.minimum(torch.maximum(inc, self.dq - A), self.dq + A)                # the step-change bound wins
         limited = ((inc - want).abs() > 1e-12).any(-1)
         cnew = cprev + inc
@@ -707,6 +982,10 @@ class DecoderV2:
             self.fa = torch.where(keep, fa1, torch.where(blendm[:, None], torch.zeros_like(fa1), self.fa))
             self.fw = torch.where(keep[:, 0], fw1, torch.where(blendm, torch.zeros_like(fw1), self.fw))
             self.fwa = torch.where(keep[:, 0], fwa1, torch.where(blendm, torch.zeros_like(fwa1), self.fwa))
+        if self.hann:                                     # blend clocks; a clipped target restarts at rest
+            self.hA_tau = torch.where(blendm, self.hA_tau + CONTROL_DT, self.hA_tau)
+            self.hB_tau = torch.where(blendm, self.hB_tau + CONTROL_DT, self.hB_tau)
+            self._hann_zero(blendm & ws_clip)
         self.lk = torch.where(linem, k1, torch.where(still, self.lk + 1, self.lk))
         self.t = self.t + 1
         self.ik_err = torch.where(still[:, None], self.ik_err, torch.stack((ep, ea), -1))
@@ -727,6 +1006,8 @@ class DecoderV2:
         if self.filt:                                     # the filter has (nearly) stopped, or 1 s has passed
             brk = (((self.fv.norm(dim=-1) < 1e-3) & (self.fw.abs() < 1e-3) & (self.fa.norm(dim=-1) < 0.02)
                     & (self.fwa.abs() < 0.05)) | (self.tau >= 1.0))
+        if self.hann:                                     # every Hann blend has finished
+            brk = self._hann_done()
         jaw = self.jaw_k >= self.jaw_n
         rest = (self.dq.abs().amax(-1) < 1e-9) & ((self.q_des - self.q_cmd[:, :5]).abs().amax(-1) < 1e-9)
         rules = (("g_brake", brk, "g_descend"), ("g_descend", seg, "g_settle"), ("g_settle", seg & rest, "g_close"),
@@ -734,6 +1015,12 @@ class DecoderV2:
                  ("p_brake", brk, "p_settle"), ("p_settle", seg, "p_lower"), ("p_lower", seg & rest, "p_open"),
                  ("p_open", jaw, "p_retreat"), ("p_retreat", seg, "free"))
         moves = [((mode == M[a]) & ok, b) for a, ok, b in rules]
+        cdone = self.carry_on & (mode == M["hold"]) & seg & rest      # a CARRY line ends at rest: hold again
+        bdone = self.carry_brk & (mode == M["hold"]) & (self.tau >= self.tb - 1e-9) & rest   # an abort brake too
+        if bool((cdone | bdone).any()):
+            self.carry_on = self.carry_on & ~cdone
+            self.carry_brk = self.carry_brk & ~bdone
+            self._rest_motion(cdone | bdone)
         for mask, b in moves:
             self.mode = torch.where(mask, M[b], self.mode)
         for mask, b in moves:
@@ -780,21 +1067,26 @@ class DecoderV2:
             rise = torch.minimum(self._draw(mask, c.retreat), (c.z_max - self.pos[:, 2]).clamp_min(0))
             line(self.pos + rise[:, None] * up, c.t_retreat)
         if mode in ("hold", "free", "g_descend", "p_settle"):     # free motion (or the macro) starts from rest
-            m3 = mask[:, None]
-            self.v0 = torch.where(m3, 0.0, self.v0)
-            self.vn = torch.where(m3, 0.0, self.vn)
-            self.w0 = torch.where(mask, 0.0, self.w0)
-            self.wn = torch.where(mask, 0.0, self.wn)
-            self.tau = torch.where(mask, self.T_d, self.tau)
-            self.tb = torch.where(mask, self.T_d, self.tb)
-            self.vel = torch.where(m3, 0.0, self.vel)     # a macro line ends at rest (its last discrete step is not
-            self.yrate = torch.where(mask, 0.0, self.yrate)   # exactly 0): the next decision blends from rest
-            for x in (self.fv, self.fa):
-                x.copy_(torch.where(m3, 0.0, x))
-            for x in (self.fw, self.fwa):
-                x.copy_(torch.where(mask, 0.0, x))
+            self._rest_motion(mask)
         if mode == "hold":
             self.yaw_hold0 = torch.where(mask, self.yaw, self.yaw_hold0)
+
+    def _rest_motion(self, mask):
+        """Free-motion state of the worlds in mask at rest (blends, filter, Hann blends, target velocity)."""
+        m3 = mask[:, None]
+        self.v0 = torch.where(m3, 0.0, self.v0)
+        self.vn = torch.where(m3, 0.0, self.vn)
+        self.w0 = torch.where(mask, 0.0, self.w0)
+        self.wn = torch.where(mask, 0.0, self.wn)
+        self.tau = torch.where(mask, self.T_d, self.tau)
+        self.tb = torch.where(mask, self.T_d, self.tb)
+        self.vel = torch.where(m3, 0.0, self.vel)     # a macro line ends at rest (its last discrete step is not
+        self.yrate = torch.where(mask, 0.0, self.yrate)   # exactly 0): the next decision blends from rest
+        for x in (self.fv, self.fa):
+            x.copy_(torch.where(m3, 0.0, x))
+        for x in (self.fw, self.fwa):
+            x.copy_(torch.where(mask, 0.0, x))
+        self._hann_zero(mask)
 
     # ---- views --------------------------------------------------------------------------------------------------
     @property
@@ -817,7 +1109,7 @@ class DecoderV2:
         seg = (self.lk / self.ln.clamp_min(1)).clamp(0, 1)
         out = torch.where(brk, (self.tau / self.tb.clamp_min(1e-9)).clamp(0, 1), seg)
         out = torch.where(jawm, self.jaw_k / self.jaw_n, out)
-        return torch.where((m == M["free"]) | (m == M["hold"]), torch.zeros_like(out), out)
+        return torch.where((m == M["free"]) | ((m == M["hold"]) & ~self.carry_on), torch.zeros_like(out), out)
 
     def macro(self):
         """[B] long: the task's macro phase code (``MACROS`` = task.MACROS) of the current mode (``MACRO_OF_MODE``:
@@ -995,11 +1287,14 @@ class DecoderV1:
         return self.jaw_k >= self.jaw_n
 
     def macro(self):
-        """[B] long: the task's macro phase code (``MACROS`` = task.MACROS) of the current mode (``MACRO_OF_MODE``:
-        g_brake, g_descend, g_settle -> grasp_descend; hold -> free; p_brake, p_settle, p_lower -> place_lower)."""
-        if not hasattr(self, "_macro_lut"):
-            self._macro_lut = torch.tensor([MACROS.index(n) for n in MACRO_OF_MODE], dtype=torch.long, device=self.dev)
-        return self._macro_lut[self.mode]
+        """None: decoder v1 has no macros (review F6). ``task.PickPlaceTask.step(state, macro=None)`` then treats every
+        step as free motion and finds the close start geometrically (the jaw closing through ``close_jaw``)."""
+        return None
+
+    @property
+    def macro_goal(self):
+        """None: no GRASP descent is planned (the task's trigger-box rule then uses the measured TCP)."""
+        return None
 
     def observation(self):
         """Decoder target state for a policy [B, 11]: target position (3), sin and cos of the target yaw, filtered

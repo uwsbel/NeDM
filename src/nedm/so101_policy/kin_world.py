@@ -6,7 +6,8 @@ Same API as ``nrd_sim.GraspNrdSim``: ``reset(idx, start)``, ``step(joint_targets
 - Arm and jaw: each joint follows its target with a discrete servo response fitted to the grasp data on the 20 ms
   grid (``ServoModel``, an ARX model per joint: next step change = coef . [u - q, last step change, u - last u,
   the step change before, 1, sin / cos of the summed pitch angles q1, q1 + q2, q1 + q2 + q3 (gravity)]). Joint
-  targets are clipped to the collector's applied range (``kin.TLO``..``THI``) like the MuJoCo world.
+  targets are clipped to the collector's applied range (``kin.TLO``..``THI``) and rounded to float32, like the
+  MuJoCo world.
 - Cube held: when the jaw closes through the contact angle (``contact_jaw``, the 30 mm cube between the jaws) while
   the cube centre is inside the task's grasp box (``task.TaskConfig`` box at the close start), the cube attaches
   rigidly to the gripper: its centre snaps to ``grip_x`` along the closing axis (the data's firm-grip offset), keeps its
@@ -219,9 +220,10 @@ class KinWorld:
         return self.observe()
 
     @torch.no_grad()
-    def set_cube(self, idx, pos, quat, v=None, w=None) -> None:
+    def set_cube(self, idx, pos, quat, v=None, w=None) -> WorldState:
         """Disturbance: the cube of worlds idx moves to (pos, quat) (released if it was held), at rest (v, w ignored:
-        the kinematic cube rests or falls); the step-average rates restart at 0."""
+        the kinematic cube rests or falls); the step-average rates restart at 0. Returns the WorldState of all worlds
+        (as the other worlds do; review F4)."""
         idx = self._idx(idx)
         f = dict(dtype=torch.float64, device=self.dev)
         quat = torch.as_tensor(quat, **f).reshape(-1, 4)
@@ -231,12 +233,15 @@ class KinWorld:
         self.quat_prev[idx] = quat
         self.cube_v[idx], self.cube_w[idx], self.fall_v[idx] = 0.0, 0.0, 0.0
         self.held[idx] = False
+        return self.observe()
 
     # ---- one step ----------------------------------------------------------------------------------------------
     @torch.no_grad()
     def step(self, joint_targets) -> WorldState:
         c = self.cfg
+        # the applied target: float32(clip(target, TLO, THI)), as MuJoCo applies it (review F3)
         u = torch.minimum(torch.maximum(joint_targets.to(self.q), self.kin.tlo), self.kin.thi)
+        u = u.to(torch.float32).to(self.q)
         q_new = self.servo.step(self.q, self.d1, self.d2, u, self.u_prev)
         jaw_free = q_new[:, 5]
         # capture: the jaw closes through the contact angle with the cube inside the grasp box

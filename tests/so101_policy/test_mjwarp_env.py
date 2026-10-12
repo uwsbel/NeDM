@@ -308,7 +308,7 @@ def test_gpu_matches_cpu_replay_1s():
             fl.append(fm > s.thr)
         cpu_pos.append(d.qpos[6:9].copy())
         cpu_flag.append(np.stack(fl))
-    env = E.MjwarpEnv(len(rows))
+    env = E.MjwarpEnv(len(rows), contact_rule="physical")          # the CPU flags below are the physical labels
     env.reset(None, dict(q=arm[:, :6], qd=arm[:, 6:], cube_pos=cube[:, :3], cube_quat=cube[:, 3:7],
                          cube_v=cube[:, 7:10], cube_w=cube[:, 10:13]))
     a = torch.tensor(act, device=env.device)
@@ -320,6 +320,33 @@ def test_gpu_matches_cpu_replay_1s():
     assert err.max() < 2e-4
     agree = (np.stack(flags, 1) == np.stack(cpu_flag)).mean()
     assert agree > 0.98
+
+
+@gpu
+def test_gpu_contact_rule_views():
+    """review F8: WorldState.contact = the NRD switch view (this step OR the step before; default "gate", as CPU
+    MuJoCo and GraspNrdSim) or the physical label ("physical"); after a reset: the forces of that state."""
+    with pytest.raises(ValueError):
+        E.MjwarpEnv(1, contact_rule="switch")
+    n = 4
+    envs = {r: E.MjwarpEnv(n, contact_rule=r) for r in ("gate", "physical")}
+    s0 = _rest_start(n)
+    sts = {r: e.reset(None, s0) for r, e in envs.items()}
+    assert torch.equal(sts["gate"].contact, sts["physical"].contact) and sts["gate"].contact[:, 2].all()
+    tgt = torch.as_tensor(np.asarray(s0["q"]), dtype=torch.float64, device="cuda").clone()
+    prev = torch.zeros(n, 3, dtype=torch.bool, device="cuda")
+    seen_diff = False
+    for k in range(40):
+        tgt[:, 0] += 0.004
+        tgt[:, 5] = 0.6 - 0.02 * k
+        g, p = envs["gate"].step(tgt), envs["physical"].step(tgt)
+        phys = envs["gate"].physical_contact
+        assert torch.equal(g.contact, phys | prev)
+        assert torch.equal(envs["gate"].switch_contact, g.contact)
+        seen_diff |= bool((g.contact != phys).any())
+        prev = phys
+        assert torch.equal(p.contact, envs["physical"].physical_contact)
+    assert envs["gate"].contact_rule == "gate"
 
 
 @gpu

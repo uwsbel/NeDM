@@ -1,0 +1,8 @@
+{
+ "note": "Tolerance ladder (review_spec_feasibility P1-13, spec_v2): success tolerance 30 mm / 30 deg -> 15 / 15 -> 10 / 10; no 5 mm stage (the shaping saturates at 5 mm / 5 deg). Promotion on the deterministic validation in the TRAINING world (never MuJoCo, spec_v2 B4) at the stage's own tolerance; the last stage runs to the budget. Values of promote / min_iters are UNVERIFIED first guesses.",
+ "stages": [
+  {"name": "tol30", "task": {"tol_xy": 0.030, "tol_yaw": 0.5235987755982988}, "promote": 0.7, "min_iters": 50},
+  {"name": "tol15", "task": {"tol_xy": 0.015, "tol_yaw": 0.2617993877991494}, "promote": 0.7, "min_iters": 50},
+  {"name": "tol10", "task": {"tol_xy": 0.010, "tol_yaw": 0.17453292519943295}}
+ ]
+}

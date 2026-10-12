@@ -1,0 +1,10 @@
+{
+ "note": "env_v1 (2026-10-11): PPO training env of the SO101 + cube pick-and-place policy (vec_env.EnvConfig). Training task rules (TaskConfig defaults: grasp-box termination at the GRASP trigger, 15 mm / 15 deg success, horizon 8 s), decoder v2 defaults, starts = production_plus split 0 task-family first states (25,197), task pool 65,536 refreshed by the trainer, observation with cube v / w (TaskConfig.obs_rates) and no noise on them (review F11: set obs_rate_noise or task.obs_rates false for the ablation). world / num_envs / device / seed / ckpts come from the train_ppo.py command line.",
+ "starts": "~/so101_nrd_fix/data/production_plus",
+ "start_split": 0,
+ "pool_size": 65536,
+ "nrd_cuda_graph": true,
+ "task": {},
+ "decoder": {},
+ "obs_rate_noise": [0.0, 0.0]
+}

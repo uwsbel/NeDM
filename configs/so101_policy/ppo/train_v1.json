@@ -1,0 +1,14 @@
+{
+ "note": "train_v1 (2026-10-11): ppo.train_cfg_default written out. gamma 0.99 per 0.1 s decision (10 s horizon; the env's task charge uses 0.99^(1/5) per 20 ms step), 32 decisions per env per iteration (3.2 s), G1 PPO values (clip 0.2, desired KL 0.01 adaptive, 5 epochs x 8 minibatches, entropy 0.002, lr 3e-4, critic lr 3e-4), actor / critic 512-256-128 ELU, actor output gain 0.01, trigger bias -2 (P 2.3 % per decision at std 1). Action std groups [move 4, trigger 1, lift 1]: init [0.3, 1.0, 0.5], floor [0.15, 0.3, 0.2], cap [0.3, 2.0, 1.0] (review P1-10: move <= 0.3 pre-tanh, floor about 0.15).",
+ "algorithm": {"clip_param": 0.2, "desired_kl": 0.01, "entropy_coef": 0.002, "gamma": 0.99, "lam": 0.95,
+               "learning_rate": 0.0003, "max_grad_norm": 1.0, "num_learning_epochs": 5, "num_mini_batches": 8,
+               "schedule": "adaptive", "use_clipped_value_loss": true, "value_loss_coef": 1.0},
+ "policy": {"actor_hidden_dims": [512, 256, 128], "critic_hidden_dims": [512, 256, 128], "activation": "elu",
+            "actor_out_gain": 0.01, "action_bias": [0.0, 0.0, 0.0, 0.0, -2.0, 0.0], "norm_clip": 10.0},
+ "num_steps_per_env": 32,
+ "critic_lr": 0.0003,
+ "init_std": [0.3, 1.0, 0.5],
+ "std_floor": [0.15, 0.3, 0.2],
+ "std_cap": [0.3, 2.0, 1.0],
+ "std_reset": [0.3, 1.0, 0.5]
+}

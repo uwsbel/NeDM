@@ -14,6 +14,7 @@ import torch
 from nedm.so101_policy import task as T
 from nedm.so101_policy.kin import SO101Kin
 from nedm.so101_policy.kin_world import DEFAULT_COEF, N_FEAT, KinWorld, ServoModel, fit_rollout
+from nedm.so101_policy.world import WorldState
 from tests.so101_policy.test_task import _GEOM, Episode, make_state, needs_geom
 
 
@@ -157,12 +158,32 @@ class TestKinWorld(unittest.TestCase):
             ws = w.step(u)
         tcp1, _ = kin.fk(ws.q)
         self.assertLess(float((ws.cube_pos - tcp1 - rel0).norm()), 0.003)
-        w.set_cube(None, torch.tensor([[0.2, -0.1, T.CUBE_REST_Z]], dtype=torch.float64),
-                   torch.tensor([[1.0, 0, 0, 0]], dtype=torch.float64))
+        ret = w.set_cube(None, torch.tensor([[0.2, -0.1, T.CUBE_REST_Z]], dtype=torch.float64),
+                         torch.tensor([[1.0, 0, 0, 0]], dtype=torch.float64))
+        self.assertIsInstance(ret, WorldState)                                     # review F4
+        self.assertTrue(torch.equal(ret.cube_pos, w.observe().cube_pos))
         self.assertFalse(bool(w.held[0]))
         ws = w.step(u)
         self.assertLess(float(ws.cube_v.norm()), 1e-12)
         self.assertTrue(bool(ws.contact[0, 2]))
+
+    def test_targets_applied_like_mujoco(self):
+        """review F3: targets are clipped to kin.TLO..THI and rounded to float32 before the servo model."""
+        kin = SO101Kin()
+        q, cube, quat, macro = Episode(kin).build()
+        st = make_state(q, cube, quat)[0]
+        u = q[:1].clone()
+        u[0, 0] += 0.3
+        u[0, 5] = -0.4
+        applied = torch.minimum(torch.maximum(u, kin.tlo), kin.thi).float().double()
+        outs = []
+        for x in (u, applied):
+            w = self.world()
+            w.reset(None, st)
+            for _ in range(4):
+                ws = w.step(x)
+            outs.append(ws.q)
+        self.assertTrue(torch.equal(outs[0], outs[1]))
 
     @unittest.skipIf(not torch.cuda.is_available(), "no CUDA")
     def test_cpu_cuda_same(self):

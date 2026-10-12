@@ -327,15 +327,18 @@ def task_geometry(device):
 @torch.no_grad()
 def run_episodes(tasks, world_kind, config, decoder="v2", ckpt=None, device="cpu", workers=0, sigma=SIGMA,
                  noise_seed=0, expert_v1=EXPERT_V1, horizon=None, mj_python=None, eval_rules=True, goal_at_start=False,
-                 hold_s=0.0, pause_s=0.0, expert_cfg=None, task_cfg=None, log=print):
+                 hold_s=0.0, pause_s=0.0, expert_cfg=None, task_cfg=None, log=print, decoder_cfg=None,
+                 decoder_label=None):
     """Closed-loop expert episodes on all tasks of ``tasks`` (load_tasks dict) in one world -> dict of numpy arrays
     (module docstring). Probe options (v2): goal_at_start = the goal is the start cube pose (no carry motion);
     hold_s = no PLACE trigger before hold_s seconds of carry (a static hold in the air when goal_at_start); pause_s =
     zero free motion for the first pause_s of the carry (the collector's still 'hold' between the lift and the move);
     expert_cfg = ExpertConfig overrides (e.g. carry_profile="minjerk"); task_cfg = TaskConfig overrides (e.g.
-    hold_cap_s=99 for the probes)."""
+    hold_cap_s=99 for the probes); decoder_cfg = DecoderV2Config overrides (decoder options, e.g. blend="hann" or
+    carry_macro=True); decoder_label = the decoder name stored in the run (report pairs runs by it; default
+    ``decoder``)."""
     from nedm.so101_policy import task as T
-    from nedm.so101_policy.decoder import M, DecoderV1, DecoderV2
+    from nedm.so101_policy.decoder import M, DecoderV1, DecoderV2, DecoderV2Config
     from dataclasses import replace
 
     from nedm.so101_policy.expert import PH, PHASES, ExpertConfig, PickPlaceExpert
@@ -374,7 +377,7 @@ def run_episodes(tasks, world_kind, config, decoder="v2", ckpt=None, device="cpu
     all_ = torch.arange(B, device=dev)
     v2 = decoder == "v2"
     if v2:
-        dec = DecoderV2(B, dev, kin=kin)
+        dec = DecoderV2(B, dev, kin=kin, cfg=replace(DecoderV2Config(), **(decoder_cfg or {})))
         dec.reset(all_, ws.q, seed=seeds)
         ex = PickPlaceExpert(dec, replace(ExpertConfig(), **{**EXPERT_CFG.get(config, {}), **(expert_cfg or {})}))
         phases = list(PHASES)
@@ -547,7 +550,8 @@ def run_episodes(tasks, world_kind, config, decoder="v2", ckpt=None, device="cpu
                noisy_n=noisy_n.cpu().numpy(), harness_grasp=h_grasp.cpu().numpy(), harness_place=h_place.cpu().numpy(),
                recoveries=ex.recoveries.cpu().numpy(), seeds=np.asarray(tasks["seeds"]),
                phase_names=np.array(phases), world=np.array(world_kind), config=np.array(config),
-               decoder=np.array(decoder), ckpt=np.array(str(ckpt)), sigma=np.float64(sigma),
+               decoder=np.array(decoder_label or decoder), decoder_cfg=np.array(json.dumps(decoder_cfg or {})),
+               ckpt=np.array(str(ckpt)), sigma=np.float64(sigma),
                noise_seed=np.int64(noise_seed), wall_s=np.float64(time.time() - t0), device=np.array(str(dev)))
     if v2:
         out["counts"] = np.stack([v.cpu().numpy() for v in dec.counts.values()], -1)
@@ -572,7 +576,8 @@ def cmd_run(a):
     r = run_episodes(tasks, a.world, a.config, a.decoder, a.ckpt, a.device, a.workers, a.sigma, a.noise_seed,
                      a.expert_v1, a.horizon, a.mj_python, eval_rules=not a.train_rules, goal_at_start=a.goal_at_start,
                      hold_s=a.hold_s, pause_s=a.pause_s, expert_cfg=json.loads(a.expert_cfg),
-                     task_cfg=json.loads(a.task_cfg))
+                     task_cfg=json.loads(a.task_cfg), decoder_cfg=json.loads(a.decoder_cfg),
+                     decoder_label=a.decoder_label)
     np.savez_compressed(a.out, **r)
     print(summary_line(r), "->", a.out, flush=True)
 
@@ -764,7 +769,8 @@ def cmd_report(a):
             success15=float(r["success"].mean()), success15_ci=wilson(int(r["success"].sum()), n),
             success10=float(r["success10"].mean()), lifted=float(r["lifted"].mean()),
             causes={k: int(v) for k, v in zip(*np.unique(c, return_counts=True))},
-            rule_fired_any={RULES[j]: int((ff[:, j] >= 0).sum()) for j in range(len(RULES)) if (ff[:, j] >= 0).any()},
+            rule_fired_any={RULES[j]: int((ff[:, j] >= 0).sum()) for j in range(min(len(RULES), ff.shape[1]))
+                            if (ff[:, j] >= 0).any()},
             grasp_box_logged=int(r["box_log"].sum()),
             end_xy_mm=dict(p50=float(np.nanmedian(r["end_xy"][r["success"]]) * 1e3) if r["success"].any() else None,
                            p95=float(np.nanpercentile(r["end_xy"][r["success"]], 95) * 1e3) if r["success"].any() else None),
@@ -904,6 +910,10 @@ def main():
     p.add_argument("--task-cfg", default="{}", help="probe: TaskConfig overrides (JSON)")
     p.add_argument("--train-rules", action="store_true", help="training rules (grasp box terminates) instead of the "
                    "evaluation rules in every world")
+    p.add_argument("--decoder-cfg", default="{}", help="DecoderV2Config overrides (JSON), e.g. '{\"blend\": \"hann\"}' "
+                   "(option b1) or '{\"carry_macro\": true}' (option b2)")
+    p.add_argument("--decoder-label", help="decoder name stored in the run (the report pairs runs by decoder and "
+                   "config), e.g. v2b1; default --decoder")
     p = sub.add_parser("replay")
     p.add_argument("--tasks", required=True), p.add_argument("--mj", required=True), p.add_argument("--out", required=True)
     p.add_argument("--world", choices=("nrd", "kin", "mujoco"), default="nrd"), p.add_argument("--ckpt")

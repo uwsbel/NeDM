@@ -1,0 +1,9 @@
+{
+ "note": "Grasp-assist ladder (exploration aid, vec_env docstring; UNVERIFIED design, first tried 2026-10-11 in the kinematic world): stage 0 = out-of-box GRASP triggers are ignored (charged 0.05) instead of ending the episode and a started GRASP is never aborted (trigger held through the descent), success tolerance 30 mm / 30 deg; then the tolerance ladder of curriculum_tol_v1 (review P1-13) with the assist OFF, i.e. the study's training rules (grasp-box termination). Promotion on the deterministic validation in the TRAINING world (never MuJoCo, spec_v2 B4); the assisted stage is promoted on ASSISTED validations (val_assist defaults to grasp_assist), max_iters 300 forces the move on. promote / min_iters are first guesses.",
+ "stages": [
+  {"name": "assist_tol30", "grasp_assist": true, "task": {"tol_xy": 0.030, "tol_yaw": 0.5235987755982988}, "promote": 0.5, "min_iters": 30, "max_iters": 300},
+  {"name": "tol30", "task": {"tol_xy": 0.030, "tol_yaw": 0.5235987755982988}, "promote": 0.7, "min_iters": 30},
+  {"name": "tol15", "task": {"tol_xy": 0.015, "tol_yaw": 0.2617993877991494}, "promote": 0.7, "min_iters": 50},
+  {"name": "tol10", "task": {"tol_xy": 0.010, "tol_yaw": 0.17453292519943295}}
+ ]
+}

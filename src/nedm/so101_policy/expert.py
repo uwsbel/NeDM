@@ -26,7 +26,12 @@ when the next decision stops it, v = (w - p - v0 T_d / 2) / T_d (decoder blend "
 point is the waypoint), its norm capped at ``v_cruise`` and at the speed from which ``a_plan`` can still stop before
 the waypoint; the yaw likewise (``w_cruise``, ``alpha_plan``). The plan's accelerations stay below the decoder's
 bounds, so the decoder's own caps rarely bind. ``carry_profile`` "minjerk" (ablation) carries along one minimum-jerk
-segment instead. Triggers: GRASP when the target is within ``pos_tol`` / ``z_tol`` / ``yaw_tol`` of the approach
+segment instead. Decoder blend "hann" (option b1): the same landing rule with the decoder's ``rest_terms`` (its rest
+point is linear in the set point). Decoder CARRY macro (option b2): in the carry the expert gives the carry waypoint as
+the CARRY target (a straight line that would pass within ``carry_r_min`` of the pan axis goes to a polar midpoint
+first), aborts a running line when the goal moved (``carry_retarget``) and triggers PLACE at rest within
+``carry_place_tol`` / ``carry_place_yaw``, or after ``carry_fix_max`` correction lines. Triggers: GRASP when the target
+is within ``pos_tol`` / ``z_tol`` / ``yaw_tol`` of the approach
 waypoint, slower than ``still_v``, and the cube at rest; PLACE when the predicted cube xy (offset in the grasp frame +
 ``release_shift``) is within ``place_tol`` of the goal and the yaw within ``place_yaw_tol``.
 """
@@ -39,6 +44,7 @@ import torch
 
 from nedm.so101_policy.decoder import CUBE_HALF, CUBE_REST_Z, GRASP_PRE_CLOSE, M, DecoderV2
 from nedm.so101_policy.kin import PAN_AXIS_XY, quat_mat, wrap, yaw_of
+from nedm.so101_policy.task import cube_yaw_tilt as _task_yaw_tilt
 
 PHASES = ("approach", "grasp", "carry", "place", "recover", "done")
 PH = {n: k for k, n in enumerate(PHASES)}
@@ -51,15 +57,10 @@ def wrap90(a):
 
 
 def cube_yaw_tilt(quat):
-    """Cube orientation (w x y z) [B, 4] -> (yaw mod 90 deg in [0, pi/2), tilt rad): the axis nearest the world vertical
-    is 'up'; the yaw is that of the next cube axis projected on the table; tilt = angle of 'up' from vertical."""
-    r = quat_mat(quat)
-    up = r[:, 2, :].abs().argmax(-1)                                           # cube axis nearest vertical
-    tilt = torch.acos(r[:, 2, :].abs().amax(-1).clamp(max=1.0))
-    side = torch.remainder(up + 1, 3)
-    col = r.gather(-1, side[:, None, None].expand(-1, 3, 1))[..., 0]          # that axis in the world
-    yaw = torch.remainder(torch.atan2(col[:, 1], col[:, 0]), QUARTER)
-    return yaw, tilt
+    """Cube orientation (w x y z) [B, 4] -> (yaw mod 90 deg in [0, pi/2), tilt rad): ``task.cube_yaw_tilt`` (the yaw of
+    a side axis after the smallest rotation that makes the cube flat: the same for all 24 relabellings of the cube,
+    also when tilted; review F7: the expert's own projection changed by up to 3.5 deg at 20 deg tilt)."""
+    return _task_yaw_tilt(quat)
 
 
 def cube_bottom(pos, quat):
@@ -96,6 +97,13 @@ class ExpertConfig:
     carry_v_peak: float = 0.30     #   collector's move: peak speed, yaw rate and shortest duration), then "plan"
     carry_w_peak: float = 1.5
     carry_t_min: float = 0.5
+    carry_retarget: float = 0.005  # m, decoder CARRY macro: the goal moved this far since the line started -> abort
+    carry_place_tol: float = 0.004  # m and rad: PLACE trigger tolerances with the decoder CARRY macro (one line usually
+    carry_place_yaw: float = math.radians(2.0)   # lands within them; each correction line costs >= 0.5 s of hold time)
+    carry_fix_max: int = 1         # decoder CARRY macro: at most this many correction lines, then PLACE where it is
+    carry_r_min: float = 0.135     # m, decoder CARRY macro (option b2): a straight carry line that would pass closer to
+                                   #   the pan axis goes to a polar midpoint first (gate: carries below 0.135 m touched
+                                   #   the arm itself in MuJoCo, review F1)
 
 
 class PickPlaceExpert:
@@ -118,6 +126,10 @@ class PickPlaceExpert:
         self.c_p0 = torch.zeros(B, 3, **f)
         self.c_y0 = torch.zeros(B, **f)
         self.c_T = torch.zeros(B, **f)
+        self.c_goal = torch.full((B, 2), math.nan, **f)  # decoder CARRY macro: the goal the running carry aims at
+        self.c_n = torch.zeros(B, dtype=torch.long, device=dev)    # ... lines to the waypoint since the carry start
+        self.c_prev = torch.zeros(B, dtype=torch.long, device=dev)  # ... decoder carry count at the last decision
+        self.c_split = torch.zeros(B, dtype=torch.bool, device=dev)  # ... the last carry action was a midpoint hop
         self.pan_axis = torch.tensor(PAN_AXIS_XY, **f)
         cl = decoder.cfg.lift_range
         self.a_lift = 2 * (self.cfg.lift - cl[0]) / (cl[1] - cl[0]) - 1
@@ -139,6 +151,8 @@ class PickPlaceExpert:
         self.phase[idx] = ph
         self.recoveries[idx], self.lost[idx] = 0, 0
         self.has_yaw[idx] = False
+        self.c_n[idx], self.c_prev[idx], self.c_split[idx] = 0, self.dec.counts["carries"][idx], False
+        self.c_goal[idx] = math.nan
 
     # ---- helpers --------------------------------------------------------------------------------------------------
     def _held(self, state, q_cmd=None):
@@ -169,6 +183,10 @@ class PickPlaceExpert:
         v = (wp - d.pos - v0 * td / 2) / td
         if d.filt:                                        # filter blend: the set point whose rest point is wp
             v = self._land(wp - d.pos, d.fv, d.fa)
+        if d.hann:                                        # Hann blends: rest point pos + alpha v + beta (linear)
+            alpha, beta, beta_w = d.rest_terms()
+            v = (wp - d.pos - beta) / alpha
+            v0, w0 = d.setpoint()
         dist = (wp - d.pos).norm(dim=-1)
         u = (wp - d.pos) / dist.clamp_min(1e-9)[:, None]
         cap = torch.minimum(torch.full_like(dist, c.v_cruise),
@@ -179,6 +197,8 @@ class PickPlaceExpert:
         w = (ey - w0 * td / 2) / td
         if d.filt:
             w = self._land(ey[:, None], d.fw[:, None], d.fwa[:, None])[:, 0]
+        if d.hann:
+            w = (ey - beta_w) / alpha
         wcap = torch.minimum(torch.full_like(ey, c.w_cruise),
                              d._allow(ey.abs(), torch.sign(ey) * w0, torch.full_like(ey, c.alpha_plan)).clamp_min(0))
         w = torch.maximum(torch.minimum(w, wcap), -wcap)
@@ -228,6 +248,28 @@ class PickPlaceExpert:
         self.c_k = torch.where(carry, self.c_k + 1, torch.full_like(self.c_k, -1.0))
         return torch.where(on[:, None], a, a_plan)
 
+    def _carry_action(self, wp, wy):
+        """Decoder CARRY macro (option b2) action rows 0:4 toward the carry waypoint wp [B, 3] and gripper yaw wy [B]:
+        the straight line, or, if it would pass within ``carry_r_min`` of the pan axis, the polar midpoint (radius
+        raised so that both halves clear it; half the yaw turn) first. -> (action [B, 4], midpoint hop [B] bool)."""
+        c, d = self.cfg, self.dec
+        p, w = d.pos[:, :2] - self.pan_axis, wp[:, :2] - self.pan_axis
+        dd = w - p
+        t = (-(p * dd).sum(-1) / (dd * dd).sum(-1).clamp_min(1e-18)).clamp(0, 1)
+        split = (p + t[:, None] * dd).norm(dim=-1) < c.carry_r_min
+        ap, aw = torch.atan2(p[:, 1], p[:, 0]), torch.atan2(w[:, 1], w[:, 0])
+        da = wrap(aw - ap)
+        am = ap + da / 2
+        rm = torch.maximum((p.norm(dim=-1) + w.norm(dim=-1)) / 2, c.carry_r_min / torch.cos(da.abs() / 4))
+        rm = rm.clamp(max=d.cfg.r_range[1])
+        mid = self.pan_axis + torch.stack((torch.cos(am), torch.sin(am)), -1) * rm[:, None]
+        tgt = torch.where(split[:, None], mid, wp[:, :2])
+        ytgt = torch.where(split, d.yaw + (wy - d.yaw) / 2, wy)
+        a = torch.zeros(self.B, 4, **self.f)
+        a[:, 0:2] = (tgt - d.pos[:, :2]) / d.cfg.carry_reach
+        a[:, 3] = (ytgt - d.yaw) / d.cfg.hold_turn_max
+        return a.clamp(-1, 1), split
+
     def _yaw_target(self, target, ref):
         """The absolute yaw equal to target mod 2 pi nearest ref."""
         return ref + wrap(target - ref)
@@ -271,6 +313,11 @@ class PickPlaceExpert:
         if bool(back.any()):
             self.grasp_yaw = torch.where(back, self._choose_grasp_yaw(cube[:, :2], cyaw), self.grasp_yaw)
             self.has_yaw = self.has_yaw | back
+        if d.cfg.carry_macro:   # CARRY lines to the waypoint itself (not a polar-midpoint hop) since the carry start
+            started = d.counts["carries"] > self.c_prev
+            self.c_n = torch.where(started & ~self.c_split, self.c_n + 1, self.c_n)
+            self.c_n = torch.where((new == PH["carry"]) & (ph != PH["carry"]), torch.zeros_like(self.c_n), self.c_n)
+            self.c_prev = d.counts["carries"].clone()
         self.phase = ph = new
 
         # approach: waypoint above the cube, then the GRASP trigger
@@ -313,11 +360,23 @@ class PickPlaceExpert:
         a_car = self._plan(wp_c, fy)
         if c.carry_profile == "minjerk":
             a_car = torch.where(carry[:, None], self._minjerk_carry(carry, wp_c, fy, a_car), a_car)
+        abort = torch.zeros_like(carry)
+        if d.cfg.carry_macro:                           # option b2: one CARRY line per decision at rest
+            a_car, split = self._carry_action(wp_c, fy)
+            self.c_split = torch.where(carry, split, self.c_split)
+            # a new goal while a line runs: abort it (brake to rest), then carry again from rest
+            abort = carry & d.carry_on & ((self.goal_xy - self.c_goal).norm(dim=-1) > c.carry_retarget)
+            self.c_n = torch.where(abort, torch.zeros_like(self.c_n), self.c_n)    # the new goal's line: first again
+            self.c_goal = torch.where((carry & ~d.carry_on & ~d.carry_brk)[:, None], self.goal_xy, self.c_goal)
         err_c = (d.pos[:, :2] - wp_c[:, :2]).norm(dim=-1)
-        place = carry & (err_c < c.place_tol) & (turn.abs() < c.place_yaw_tol) & (d.vel.norm(dim=-1) < c.still_v) \
-            & (d.yrate.abs() < 0.05)
+        ptol, pyaw = (c.carry_place_tol, c.carry_place_yaw) if d.cfg.carry_macro else (c.place_tol, c.place_yaw_tol)
+        aim = (err_c < ptol) & (turn.abs() < pyaw)
+        if d.cfg.carry_macro:                           # after carry_fix_max correction lines PLACE where it is
+            aim = aim | ((self.c_n >= 1 + c.carry_fix_max) & ~self.c_split)
+        place = carry & aim & (d.vel.norm(dim=-1) < c.still_v) & (d.yrate.abs() < 0.05) & ~d.carry_on & ~d.carry_brk
         a[:, :4] = torch.where(carry[:, None], a_car, a[:, :4])
         a[:, 4] = torch.where(place, 1.0, a[:, 4])
+        a[:, 5] = torch.where(abort, 1.0, a[:, 5])
         self.phase = torch.where(place, PH["place"], self.phase)
 
         # recover: a PLACE trigger re-opens the jaw and retreats

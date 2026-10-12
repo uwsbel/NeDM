@@ -35,6 +35,8 @@ values and false-fire / detection table in ~/so101_policy/docs/build2_task.md).
 | hold_cap | held in the air (held and lowest corner > ``air_z``) for more than ``hold_cap_s`` in one run |
 | cube_slide | outside a macro, the cube on the table, not between the jaws (outside the held box), horizontal speed > ``slide_v`` for ``slide_steps`` steps, more than ``slide_grace_s`` after it was last held |
 | cube_tilted | the cube on the table, not held, tilt > ``tilt_fail`` for ``tilt_steps`` steps |
+| arm_self | (``self_rule``, review F1) two arm collision geoms overlap by more than -``self_margin``: ``TaskGeometry.self_depth`` (the collector's kinematic self test ``Scene.clearance``: link / gripper / camera-mount / jaw boxes by the exact separating-axis depth, a box against the gripper or jaw hulls by vertices; MuJoCo's body filter) |
+| moved_untouched | (``ghost_rule``, review F9) the cube on the table, no gripper / jaw collision geom within ``touch_d``, and the cube centre moved more than ``ghost_d`` (xy) or ``ghost_dz`` (z), or its yaw more than ``ghost_yaw``, since the last step a point was that near (or it was held or off the table): no touch, no motion |
 | success | (terminal) a firm lift happened (held, lowest corner >= ``lift_z`` for ``lift_steps``), cube not held, on the table, tilt <= 5 deg, speed < 5 mm/s, xy error <= ``tol_xy``, yaw error (mod 90) <= ``tol_yaw``, jaw >= 0.4 rad, TCP >= cube top + 3 cm |
 | timeout | t = horizon (truncation; bootstrap) |
 
@@ -71,6 +73,8 @@ CUBE_HALF = 0.015
 CUBE_REST_Z = 0.014993            # resting cube centre height in the data (m)
 QUARTER = math.pi / 2
 HORIZON = 400
+SELF_RULE_DEFAULT = True          # review F1 / F9 rules (calibration: ~/so101_policy/docs/build3_fixes.md)
+GHOST_RULE_DEFAULT = True
 ANNULUS_R = (0.15, 0.27)          # m about the pan axis (collector sample_cube)
 ANNULUS_DEG = (-75.0, 75.0)
 GOAL_DIST = (0.06, 0.30)          # m from the start cube centre
@@ -87,7 +91,7 @@ COLLECTOR_MACRO = {"descend": "grasp_descend", "close": "grasp_close", "grip": "
                    "lower": "place_lower", "release": "place_open", "retreat": "place_retreat"}
 ENDS = ("running", "success", "timeout", "world_invalid", "world_arm_table", "lowest_point", "link_overlap",
         "jaw_overlap", "base_zone", "grasp_box", "keep_out", "release_high", "unsupported", "hold_cap", "cube_slide",
-        "cube_tilted")
+        "cube_tilted", "arm_self", "moved_untouched")     # last two: review F1, F9 (appended: old codes keep values)
 EC = {n: k for k, n in enumerate(ENDS)}
 RULES = ENDS[3:]
 
@@ -138,6 +142,18 @@ class TaskConfig:
     slide_steps: int = 2
     tilt_fail: float = math.radians(15.0)
     tilt_steps: int = 10
+    self_rule: bool = SELF_RULE_DEFAULT      # arm self-contact (review F1): TaskGeometry.self_depth > -self_margin
+    self_margin: float = 0.0002              # m [cal]: 18 / 19 MuJoCo arm_self ends of the v2 gate (46 / 49 all
+                                             # configs) at their end state, 0 of 10,360 MuJoCo successes, 0 validation
+                                             # records
+    ghost_rule: bool = GHOST_RULE_DEFAULT    # cube moved on the table with no gripper / jaw point near it (review F9)
+    touch_d: float = 0.02                    # m, gripper / jaw collision geoms within this of the cube = near
+                                             # (TaskGeometry.jaw_clearance) [cal]
+    ghost_d: float = 0.002                   # m, cube centre moved in xy since the last near / held / airborne step
+                                             # [cal]
+    ghost_dz: float = 0.003                  # m, or in z (the NRD lifts a resting cube by up to 1.8 mm in the first
+                                             # step after a reset, then puts it back; sunk cubes: 4-7 mm) [cal]
+    ghost_yaw: float = math.radians(5.0)     # rad, or its yaw (mod 90) turned [cal]
     log_only: tuple = ()                     # rule names that only log (MuJoCo evaluation: ("grasp_box",))
     # reward (P1-14)
     w_reach: float = 10.0                    # per m
@@ -272,6 +288,102 @@ class TaskGeometry:
             J["seg5"] = (J["seg_a"] * (1 - w) + J["seg_b"] * w).reshape(-1, 3)
             J["seg5_r"] = J["seg_r"].repeat(5)
         self.base_r, self.base_z = float(arrays["base_r"]), float(arrays["base_z"])
+        if "self_pairs" not in arrays:            # a geometry file written before the self-contact rule (review F1)
+            arrays.update(_self_arrays_cached())
+        self.self_body, self.self_pos = li("self_body"), t("self_pos")
+        self.self_rot, self.self_half = t("self_rot"), t("self_half")
+        self.self_pairs = li("self_pairs")
+        self.self_hull_body, self.self_hull = li("self_hull_body"), t("self_hull")
+        self.self_hull_planes, self.self_hull_pairs = t("self_hull_planes"), li("self_hull_pairs")
+
+    @staticmethod
+    def build_self_arrays(scene=None, samples=20000, reach=0.01, seed=0) -> dict:
+        """Arm self-contact geometry (review F1; the collector's ``Scene.clearance`` self test = MuJoCo contacts of kind
+        'arm self' at a joint state): the collision BOXES of the arm links, the gripper (with the camera mount) and the
+        moving jaw in their body frames, and every box pair of different bodies that MuJoCo's body filter lets
+        collide (same weld body, parent-child weld bodies and the model's excludes are skipped, as in
+        mj_collision); plus the pairs of a box with a non-base convex hull (gripper_collision1, moving-jaw hulls).
+        Only pairs that come within ``reach`` of each other (MuJoCo distance) in ``samples`` random joint states
+        (uniform in the applied target range, numpy seed ``seed``) are kept: the others cannot touch. Not included:
+        the base hulls and the jaw tip spheres / capsule (none came within 5 mm of another arm geom in the 1.57 M gate
+        and data states of ~/so101_policy/docs/build3_fixes.md)."""
+        import mujoco
+        import numpy as np
+
+        from nedm.contact_nrd.collect import so101_grasp as g
+        s = scene or g.Scene(g.load_config())
+        m = s.m
+        kidx = {m.body(n).id: k for k, n in enumerate(BODIES)}
+        sig = {(int(x) >> 16, int(x) & 0xFFFF) for x in m.exclude_signature[: m.nexclude]}
+        dsbl = bool(m.opt.disableflags & mujoco.mjtDisableBit.mjDSBL_FILTERPARENT)
+
+        def filtered(b1, b2):     # mj_collision's body-pair filter
+            w1, w2 = m.body_weldid[b1], m.body_weldid[b2]
+            if w1 == w2:
+                return True
+            p1, p2 = m.body_weldid[m.body_parentid[w1]], m.body_weldid[m.body_parentid[w2]]
+            if not dsbl and w1 != 0 and w2 != 0 and (w1 == p2 or w2 == p1):
+                return True
+            return (b1, b2) in sig or (b2, b1) in sig
+
+        def geom_rot(gid):
+            r = np.zeros(9)
+            mujoco.mju_quat2Mat(r, m.geom_quat[gid])
+            return r.reshape(3, 3)
+
+        arm = [gid for gid in range(m.ngeom) if s.cls[gid] in (g.LINK, g.FIXED, g.MOVING)]
+        boxes = [gid for gid in arm if m.geom_type[gid] == mujoco.mjtGeom.mjGEOM_BOX]
+        hulls = [gid for gid in arm if m.geom_type[gid] == mujoco.mjtGeom.mjGEOM_MESH]
+        def ok(a, b):             # an arm-self pair that mj_collision would test
+            return (s.kind[s.cls[a], s.cls[b]] == 5 and not filtered(m.geom_bodyid[a], m.geom_bodyid[b])
+                    and bool(m.geom_contype[a] & m.geom_conaffinity[b] or m.geom_contype[b] & m.geom_conaffinity[a]))
+        # pairs that can come within reach (sampled with MuJoCo on a copy of the model with that margin)
+        near = set()
+        if samples:
+            from nedm.so101_policy.kin import THI, TLO
+            mm = s.m.__copy__()
+            mm.geom_margin[np.isin(s.cls, (g.LINK, g.FIXED, g.MOVING))] = reach
+            dd = mujoco.MjData(mm)
+            q = np.asarray(TLO) + (np.asarray(THI) - np.asarray(TLO)) * np.random.default_rng(seed).random((samples, 6))
+            for qq in q:
+                dd.qpos[:6] = qq
+                mujoco.mj_kinematics(mm, dd)
+                mujoco.mj_collision(mm, dd)
+                for k in range(dd.ncon):
+                    a, b = int(dd.contact.geom1[k]), int(dd.contact.geom2[k])
+                    near.add((min(a, b), max(a, b)))
+        close = lambda a, b: not samples or (min(a, b), max(a, b)) in near                 # noqa: E731
+        pairs = [(i, j) for i in range(len(boxes)) for j in range(i + 1, len(boxes))
+                 if ok(boxes[i], boxes[j]) and close(boxes[i], boxes[j])]
+        hv, hp, hb, hpairs = [], [], [], []
+        for k, gid in enumerate(hulls):
+            mi = m.geom_dataid[gid]
+            a = m.mesh_graphadr[mi]
+            nv, nf = m.mesh_graph[a], m.mesh_graph[a + 1]
+            ids = m.mesh_graph[a + 2 + nv: a + 2 + 2 * nv]
+            faces = m.mesh_graph[a + 2 + 3 * nv + 3 * nf: a + 2 + 3 * nv + 6 * nf].reshape(nf, 3)
+            R, P = geom_rot(gid), m.geom_pos[gid]
+            mv = m.mesh_vert[m.mesh_vertadr[mi]: m.mesh_vertadr[mi] + m.mesh_vertnum[mi]].astype(float) @ R.T + P
+            v = mv[ids]
+            n = np.cross(mv[faces[:, 1]] - mv[faces[:, 0]], mv[faces[:, 2]] - mv[faces[:, 0]])
+            n /= np.linalg.norm(n, axis=1, keepdims=True).clip(1e-30)
+            d = -(n * mv[faces[:, 0]]).sum(1)
+            flip = (v.mean(0) @ n.T + d) > 0
+            n[flip], d[flip] = -n[flip], -d[flip]
+            hv.append(v), hp.append(np.concatenate((n, d[:, None]), 1)), hb.append(kidx[m.geom_bodyid[gid]])
+            hpairs += [(k, i) for i, b in enumerate(boxes) if ok(gid, b) and close(gid, b)]
+        V, F = max(len(x) for x in hv), max(len(x) for x in hp)
+        pad = lambda x, n: np.concatenate((x, np.repeat(x[:1], n - len(x), 0)))      # noqa: E731
+        return dict(self_body=np.array([kidx[m.geom_bodyid[gid]] for gid in boxes]),
+                    self_pos=np.array([m.geom_pos[gid] for gid in boxes]),
+                    self_rot=np.array([geom_rot(gid) for gid in boxes]),
+                    self_half=np.array([m.geom_size[gid] for gid in boxes]),
+                    self_names=np.array([m.geom(gid).name for gid in boxes]),
+                    self_pairs=np.array(pairs, np.int64).reshape(-1, 2),
+                    self_hull_body=np.array(hb), self_hull=np.stack([pad(x, V) for x in hv]),
+                    self_hull_planes=np.stack([pad(x, F) for x in hp]),
+                    self_hull_names=np.array([m.geom(gid).name for gid in hulls]),
+                    self_hull_pairs=np.array(hpairs, np.int64).reshape(-1, 2))
 
     @staticmethod
     def build_arrays(spacing=0.002, cell=0.002) -> dict:
@@ -372,6 +484,7 @@ class TaskGeometry:
         bv = np.concatenate(bv)                                                     # base body = world
         out.update(base_r=np.float64(np.linalg.norm(bv[:, :2], axis=1).max()), base_z=np.float64(bv[:, 2].max()),
                    spacing=np.float64(spacing), cell=np.float64(cell))
+        out.update(TaskGeometry.build_self_arrays(s))
         return out
 
     @classmethod
@@ -448,11 +561,73 @@ class TaskGeometry:
             col[:, j] = torch.stack(parts, -1).amax(-1)
         return vis, col
 
+    def jaw_clearance(self, bpos, brot, c, rc):
+        """Smallest clearance [B] (m) between the cube and the collision geoms of the gripper (with the fixed jaw) and
+        the moving jaw: minus the deepest penetration of ``jaw_depths``' collision part (boxes: separating-axis gap, a
+        lower bound of the distance; hull vertices and sphere / capsule points: their distance to the cube box)."""
+        half = torch.full((3,), CUBE_HALF, dtype=c.dtype, device=c.device)
+        out = []
+        for J in self.jaw:
+            Rb, pb = brot[:, J["body"]], bpos[:, J["body"]]
+            M = mm3(rc.transpose(-1, -2), Rb)
+            t = mtv3(rc, pb - c)
+            for pts, rad in ((J["hull"], None), (J["seg5"], J["seg5_r"])):
+                if len(pts):
+                    sdf = box_sdf(mv3(M[:, None], pts) + t[:, None], half)
+                    out.append((sdf - (0 if rad is None else rad)).amin(-1))
+            if len(J["box_half"]):
+                out.append(-sat_depth(c[:, None], rc[:, None], half, pb[:, None] + mv3(Rb[:, None], J["box_pos"]),
+                                      mm3(Rb[:, None], J["box_rot"]), J["box_half"]).amax(-1))
+        return torch.stack(out, -1).amin(-1)
+
     def jaw_overlap(self, bpos, brot, c, rc, chunk=4096):
         """The collector's VisualOverlap measure [B] (m): max over the 2 jaw bodies of the visual depth minus the
         body's collision penetration (if > 0), at least 0."""
         vis, col = self.jaw_depths(bpos, brot, c, rc, chunk)
         return (vis - col.clamp_min(0)).amax(-1).clamp_min(0)
+
+    def self_depth(self, bpos, brot, cap=0.005):
+        """Deepest arm self-overlap [B] (m; > 0 = two arm collision geoms overlap, <= 0 = separated): exact
+        separating-axis depth of every box pair (``build_self_arrays``), and for a box against a convex hull the
+        deepest vertex of either inside the other (vertex-face only: an edge-edge crossing reads as separated). Pairs
+        whose bounding spheres are more than ``cap`` apart are not tested (they read minus that gap)."""
+        B = bpos.shape[0]
+        G = brot[:, self.self_body]                                                   # [B, G, 3, 3]
+        cw = bpos[:, self.self_body] + mv3(G, self.self_pos)                         # box centres, world
+        i, j = self.self_pairs[:, 0], self.self_pairs[:, 1]
+        rad = self.self_half.norm(dim=-1)
+        gap = (cw[:, i] - cw[:, j]).norm(dim=-1) - rad[i] - rad[j]                    # [B, P] sphere gap
+        far = lambda x: torch.where(x >= cap, -x, torch.full_like(x, -math.inf))      # noqa: E731
+        best = far(gap).amax(-1) if gap.shape[1] else torch.full((B,), -math.inf, dtype=bpos.dtype, device=bpos.device)
+        w, k = (gap < cap).nonzero(as_tuple=True)
+        if len(w):
+            rw = mm3(G[w[:, None], torch.stack((i[k], j[k]), -1)], self.self_rot[torch.stack((i[k], j[k]), -1)])
+            d = sat_depth(cw[w, i[k]], rw[:, 0], self.self_half[i[k]], cw[w, j[k]], rw[:, 1], self.self_half[j[k]])
+            best = best.scatter_reduce(0, w, d, reduce="amax")
+        if len(self.self_hull_pairs):
+            hk, bk = self.self_hull_pairs[:, 0], self.self_hull_pairs[:, 1]
+            hb = self.self_hull_body[hk]
+            hc = self.self_hull.mean(1)                                                # hull centre, body frame
+            hr = (self.self_hull - hc[:, None]).norm(dim=-1).amax(-1)
+            Rh, Ph = brot[:, hb], bpos[:, hb]                                          # [B, H, 3, 3], [B, H, 3]
+            hcw = Ph + mv3(Rh, hc[hk])
+            gap = (hcw - cw[:, bk]).norm(dim=-1) - hr[hk] - rad[bk]
+            best = torch.maximum(best, far(gap).amax(-1))
+            w, k = (gap < cap).nonzero(as_tuple=True)
+            if len(w):
+                Rk, Pk = Rh[w, k], Ph[w, k]                                            # [n, 3, 3], [n, 3]
+                vw = Pk[:, None] + mv3(Rk[:, None], self.self_hull[hk[k]])             # hull vertices, world [n, V, 3]
+                bb = bk[k]
+                rb = mm3(G[w, bb], self.self_rot[bb])
+                cb, hh = cw[w, bb], self.self_half[bb]
+                dv = (-box_sdf(mtv3(rb[:, None], vw - cb[:, None]), hh[:, None])).amax(-1)   # hull vertex in the box
+                sg = torch.tensor([-1.0, 1.0], dtype=bpos.dtype, device=bpos.device)
+                corner = torch.stack(torch.meshgrid(sg, sg, sg, indexing="ij"), -1).reshape(8, 3)
+                cl = mtv3(Rk[:, None], cb[:, None] + mv3(rb[:, None], corner * hh[:, None]) - Pk[:, None])   # [n, 8, 3]
+                pl = self.self_hull_planes[hk[k]]                                      # [n, F, 4]
+                dc = (-(torch.einsum("nkc,nfc->nkf", cl, pl[..., :3]) + pl[:, None, :, 3]).amax(-1)).amax(-1)
+                best = best.scatter_reduce(0, w, torch.maximum(dv, dc), reduce="amax")
+        return best
 
     def in_base_zone(self, c, bottom):
         """The cube's bounding circle enters the base cylinder [B] bool."""
@@ -460,6 +635,19 @@ class TaskGeometry:
 
 
 _GEOM_CACHE: dict = {}
+_SELF_CACHE: dict = {}
+
+
+def _self_arrays_cached() -> dict:
+    """``TaskGeometry.build_self_arrays`` once per process (needs mujoco and the vendor SO101 model)."""
+    if not _SELF_CACHE:
+        try:
+            _SELF_CACHE.update(TaskGeometry.build_self_arrays())
+        except ImportError as e:
+            raise ImportError("this TaskGeometry file has no self-contact arrays (review F1) and mujoco is not "
+                              "importable to build them: use a geometry file written by TaskGeometry.save after "
+                              "2026-10-11 21:00 (e.g. ~/so101_policy/ckpt/task_geom_v2.npz)") from e
+    return _SELF_CACHE
 
 
 # ---- per-step features (pure functions of the state) ---------------------------------------------------------------
@@ -500,9 +688,16 @@ def features(state: WorldState, kin: SO101Kin, geom: TaskGeometry | None, cfg: T
     if geom is not None:
         out["lowest"] = geom.lowest(bpos, brot)
         out["base_zone"] = geom.in_base_zone(c, bottom)
+        if cfg.self_rule:
+            out["self_depth"] = geom.self_depth(bpos, brot)
+        if cfg.ghost_rule and not overlap:
+            out["touch"] = geom.jaw_clearance(bpos, brot, c, rc)
         if overlap:
             out["link_depth"] = geom.link_depth(bpos, brot, c, rc)
-            out["jaw_overlap"] = geom.jaw_overlap(bpos, brot, c, rc)
+            vis, col = geom.jaw_depths(bpos, brot, c, rc)                       # (= jaw_overlap, jaw_clearance)
+            out["jaw_overlap"] = (vis - col.clamp_min(0)).amax(-1).clamp_min(0)
+            if cfg.ghost_rule:
+                out["touch"] = -col.amax(-1)
     return out
 
 
@@ -575,6 +770,8 @@ class Tracker:
     d_goal: torch.Tensor
     end: torch.Tensor             # ENDS code (0 running)
     box_log: torch.Tensor         # a grasp-box violation was logged (log_only)
+    anchor_xy: torch.Tensor       # cube centre / yaw at the last step the gripper or jaw was near it (or it was held
+    anchor_yaw: torch.Tensor      #   or off the table): the moved_untouched rule (anchor_xy [B, 3]: x, y, z)
     success10: torch.Tensor       # latched at the end: the secondary success level (10 mm / 10 deg) also held
     end_xy: torch.Tensor          # latched at the end: xy error (m) and yaw error (rad) of the cube to the goal
     end_yaw: torch.Tensor
@@ -600,6 +797,7 @@ class PickPlaceTask:
                           unsup_run=z(**li), tilt_run=z(**li), slide_run=z(**li), since_release=z(**li) + 10 ** 6,
                           prev_held=z(dtype=torch.bool, device=self.dev), prev_macro=z(**li), d_reach=z(**f),
                           d_goal=z(**f), end=z(**li), box_log=z(dtype=torch.bool, device=self.dev),
+                          anchor_xy=torch.zeros(self.B, 3, **f), anchor_yaw=z(**f),
                           success10=z(dtype=torch.bool, device=self.dev), end_xy=z(**f) + math.nan,
                           end_yaw=z(**f) + math.nan)
         self.prev_jaw = torch.zeros(self.B, **f)        # jaw angle of the last step (geometric close start)
@@ -623,6 +821,7 @@ class PickPlaceTask:
         tr.end_xy[idx], tr.end_yaw[idx] = math.nan, math.nan
         tr.since_release[idx] = 10 ** 6
         tr.d_reach[idx], tr.d_goal[idx] = dr, dg
+        tr.anchor_xy[idx], tr.anchor_yaw[idx] = F["c"], F["cyaw"]
         self.grasp_yaw[idx], self.turned[idx], self.prev_jaw[idx] = F["cyaw"], 0.0, F["jaw"]
 
     def set_goal(self, idx, goal_xy, goal_yaw):
@@ -684,6 +883,18 @@ class PickPlaceTask:
         fire["cube_slide"] = tr.slide_run >= cfg.slide_steps
         tr.tilt_run = torch.where(F["on_table"] & ~F["held"] & (F["tilt"] > cfg.tilt_fail), tr.tilt_run + 1, 0)
         fire["cube_tilted"] = tr.tilt_run >= cfg.tilt_steps
+        fire["arm_self"] = F["self_depth"] > -cfg.self_margin if cfg.self_rule else zero
+        if cfg.ghost_rule:    # no touch, no motion: the cube on the table moved since a gripper / jaw point was near
+            near = F["touch"] < cfg.touch_d
+            anchor = near | F["held"] | ~F["on_table"]
+            tr.anchor_xy = torch.where(anchor[:, None], F["c"], tr.anchor_xy)
+            tr.anchor_yaw = torch.where(anchor, F["cyaw"], tr.anchor_yaw)
+            dc = F["c"] - tr.anchor_xy
+            moved = ((dc[:, :2].norm(dim=-1) > cfg.ghost_d) | (dc[:, 2].abs() > cfg.ghost_dz)
+                     | (wrap90(F["cyaw"] - tr.anchor_yaw).abs() > cfg.ghost_yaw))
+            fire["moved_untouched"] = F["on_table"] & ~near & moved
+        else:
+            fire["moved_untouched"] = zero
         # firm lift (success precondition)
         tr.lift_run = torch.where(F["held"] & (F["bottom"] >= cfg.lift_z), tr.lift_run + 1, 0)
         new_lift = ~tr.lifted & (tr.lift_run >= cfg.lift_steps) & live
