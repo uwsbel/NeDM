@@ -13,7 +13,8 @@ backend, chosen by name, and the two backends draw the same scene from the same 
 | `newton` | Newton's Warp ray tracer, with no solver created | NVIDIA, AMD Instinct, CPU | Apache-2.0 |
 
 Status: both verified with the Go2 study's NRD model and policy, 1024 worlds. Madrona on an
-RTX 3090. Newton on an RTX 3090 and an AMD Instinct MI210. Not yet used to train anything.
+RTX 3090. Newton on an RTX 3090 and an AMD Instinct MI210. The paper's HMMWV and arm case
+studies are rendered the same way on the RTX 3090. Not yet used to train anything.
 
 ## Install
 
@@ -68,7 +69,7 @@ A model needs two things: geometry and a way to turn its reduced state into pose
 | The model gives you | Scene | Poses | Worked example |
 |---|---|---|---|
 | Joint angles of a robot with a URDF | `Scene.from_urdf(path)` | `renderer.joint_map(state_fields, {...})`, then `render(joint_q=...)`. The forward kinematics is batched torch (`nedm/render/urdf.py`). | `scripts/render/go2_nrd_rollout.py` |
-| Link poses from its own kinematics | `Scene.from_meshes([MeshBody(...)])` | `transform_from_matrix(kin.link_transforms(q))`, then `render(body_q=...)` | `scripts/render/arm_fk_demo.py` |
+| Link poses from its own kinematics | `Scene.from_meshes([MeshBody(...)])` | `transform_from_matrix(kin.link_transforms(q))`, then `render(body_q=...)` | `scripts/render/arm_nrd_rollout.py` (`arm_fk_demo.py` is the same scene with no checkpoint) |
 | A planar pose and a few angles (a vehicle) | `Scene.from_meshes(...)` | `base_transform(xy_yaw, z, roll, pitch)` for the chassis, `compose` for parts fixed to it | `scripts/render/hmmwv_nrd_rollout.py` |
 
 The reduced states here carry no x, y or yaw. `PlanarPose` integrates them from the predicted
@@ -100,6 +101,31 @@ A camera is a transform per world, looking along its own -Z with +Y up.
 Several cameras per world: `BatchRenderer(..., cameras=4)` and pass transforms of shape
 `(worlds, 4, 7)`. All cameras share one resolution and field of view.
 
+### Terrain
+
+What the ground looks like is chosen separately from the model, and the model never sees it.
+
+```python
+from nedm.render import terrain
+
+scene.add_ground(terrain="soil")                                    # "checker" (the default), "plain" or "soil"
+scene.add_ground(terrain=terrain.soil(roughness=0.006, seed=3))     # with that terrain's options
+scene.add_ground(terrain=terrain.heightmap(z, spacing=0.05))        # any static relief you have
+```
+
+A terrain is a plane and, optionally, one static mesh lying on it (`nedm/render/terrain.py`),
+so a new one needs no code in either backend. `soil` is a fixed relief of lumps about 10 cm
+across and 4 mm RMS high, on a 4 cm grid unless told otherwise. It fades to flat toward its
+edges and carries on flat beyond them. The Go2 scripts take `--terrain`.
+
+It is looks only. Nothing is simulated on the terrain and it does not deform. Feet go where
+the reduced state puts them, so keep any relief well below the size of what stands on it.
+
+Status: a prototype, drawn and tested with the Newton backend. The Madrona backend has the
+same code path and a test for it, and neither has been run yet. Its cost on a GPU has not been
+measured. On a laptop CPU with Newton, 64 worlds at 128x128, a soil frame took about 1.7 times
+as long as a checker frame.
+
 ## What it costs
 
 Go2 with its full visual meshes (about 400,000 triangles), 1024 worlds, one camera each, on an
@@ -122,10 +148,17 @@ The HMMWV (Study Case I NRD model and tracking policy, about 270,000 triangles),
 at 128x128 with shadows: Madrona 29 ms per frame (35,400 views per second), Newton 67 ms
 (15,400). Its NRD model takes 19 ms per 10 ms model step.
 
+The arm (Study Case II NRD model and reaching policy, about 4,000 triangles), same settings:
+Madrona 16 ms per frame (64,700 views per second), Newton 49 ms (21,100). Its NRD model takes
+17 ms per 20 ms step. In the model, 2,998 of 3,072 reaches end within the 5 cm tolerance.
+
 On the AMD Instinct MI210 the Newton backend takes 341 ms per frame at 128x128 with shadows
 (3,000 views per second), and the NRD model 175 ms per control step. Measured 2026-10-03.
 
-The meshes have not been decimated, which is the obvious next lever for both.
+The meshes have not been decimated. With Madrona that is unlikely to be the main lever: the arm
+has about 100 times fewer triangles than the Go2 and its frame is only about twice as fast.
+Those are different scenes and cameras, so this is an observation and not a controlled test.
+Rendering less often than every step, or at a smaller size, cuts the cost directly.
 
 ## Checks
 
@@ -136,8 +169,10 @@ PYTHONPATH=src python -m unittest discover -s tests/render -v
 - The renderer tests work their expected depths out by hand (a box at a known height under a
   camera at a known height), and the same tests run against each backend that is installed.
 - The forward kinematics is checked by hand and against Newton's on a branching test robot.
-- Madrona allows one renderer per process, so its two test scenes need two runs. The second
-  is `NEDM_MADRONA_TEST=urdf`.
+- The terrain builders are checked as arrays, and one renderer check looks straight down at a
+  stepped height map from known heights.
+- Madrona allows one renderer per process, so its three test scenes need three runs. The other
+  two are `NEDM_MADRONA_TEST=urdf` and `NEDM_MADRONA_TEST=terrain`.
 
 The two backends are independent implementations, so agreement between them is evidence that
 both are right. On the same Go2 trajectory and cameras, over 7.7 million pixels:
@@ -149,7 +184,8 @@ both are right. On the same Go2 trajectory and cameras, over 7.7 million pixels:
 - farther out, where rays graze the ground, depth agrees to 1.3 mm at the 99th percentile
 
 On the HMMWV rollout, over 3.3 million pixels, there is no pixel that one renderer hits and
-the other misses, and depth within 25 m agrees to 0.04 mm at the 99th percentile.
+the other misses, and depth within 25 m agrees to 0.04 mm at the 99th percentile. On the arm
+rollout, over 15.6 million pixels, depth within 15 m agrees to 0.015 mm at the 99th percentile.
 
 RGB differs because their shading does.
 
@@ -198,13 +234,15 @@ Only MI210 (gfx90a) was run. The build also targets MI300X (gfx942), untested.
 
 ## Limits
 
-- Flat colors only. The ground checker is geometry and meshes are not textured.
+- Flat colors only. The ground checker and the soil relief are geometry, and meshes are not
+  textured.
 - The HMMWV example draws the wheels at fixed mounts on the chassis: no suspension travel, both
   front wheels at the mean steering angle, flat ground only. Bumpy terrain needs per-world
   terrain, and soil ruts are not in the state.
 - The scene is the same in every world, apart from the poses. Per-world terrain is not written.
 - Anything the reduced state does not carry cannot be drawn. For the Go2 on soil that means no
-  ruts or footprints: the ground is a plane at the soil surface.
+  ruts or footprints: the ground is a plane at the soil surface, or the soil terrain, which is a
+  fixed relief that nothing presses into.
 - A policy trained on these images and validated in Chrono would see Chrono::Sensor images
   there. Depth is close to renderer-independent. RGB is not, and the two backends here already
   shade differently from each other.

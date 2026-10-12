@@ -9,7 +9,7 @@ The scene, poses and cameras need only torch and trimesh. The drawing is done by
 ``BatchRenderer(..., backend="newton")`` or ``"madrona"``, imported when a renderer is built.
 """
 
-from nedm.render import cameras
+from nedm.render import cameras, terrain
 from nedm.render.poses import (
     JointMap,
     PlanarPose,
@@ -38,6 +38,7 @@ __all__ = [
     "grid",
     "quat_from_rpy",
     "save_sheet",
+    "terrain",
     "tilt_from_gravity",
     "transform_from_matrix",
 ]

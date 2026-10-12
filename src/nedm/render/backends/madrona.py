@@ -94,11 +94,14 @@ class MadronaBackend:
             data_ids.append(-1)
             sizes.append((PLANE_HALF_SIZE, PLANE_HALF_SIZE, 1.0))
             rgba.append((*ground.color, 1.0))
-            static_xf.append((0.0, 0.0, ground.height, 0.0, 0.0, 0.0, 1.0))
+            static_xf.append((0.0, 0.0, ground.plane_height, 0.0, 0.0, 0.0, 1.0))
             tiles = ground.tile_mesh()          # one object, not one per tile
             if tiles is not None:
                 add_mesh(tiles)
                 static_xf.append((0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0))
+            if ground.relief is not None:
+                add_mesh(ground.relief)
+                static_xf.append((0.0, 0.0, ground.height, 0.0, 0.0, 0.0, 1.0))
         for mesh, xf in scene.statics:
             add_mesh(mesh)
             static_xf.append(xf)

@@ -100,7 +100,7 @@ def cmd_run(a) -> None:
 
     # ---- the renderer: everything specific to this robot is in these few lines -------------
     t0 = time.perf_counter()
-    scene = Scene.from_urdf(a.urdf, floating=True, colors=link_color).add_ground()
+    scene = Scene.from_urdf(a.urdf, floating=True, colors=link_color).add_ground(terrain=a.terrain)
     renderer = BatchRenderer(scene, n, width=a.res, height=a.res, shadows=not a.no_shadows,
                              device="cuda:0" if device.type == "cuda" else "cpu", backend=a.backend)
     build_s = time.perf_counter() - t0
@@ -212,6 +212,8 @@ def main() -> None:
             p.add_argument("--device", default="cuda")
             p.add_argument("--no-shadows", action="store_true")
             p.add_argument("--backend", choices=["newton", "madrona"], default="newton")
+            p.add_argument("--terrain", choices=["checker", "plain", "soil"], default="checker",
+                           help="what the ground looks like. It changes the pictures and nothing else")
     a = parser.parse_args()
     a.fn(a)
 

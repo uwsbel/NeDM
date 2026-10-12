@@ -46,7 +46,8 @@ class MeshBody:
 
 @dataclass
 class Ground:
-    """A plane at ``height``, with a checker of thin tiles over ``extent`` (x0, x1, y0, y1).
+    """A plane at ``height``, with a checker of thin tiles over ``extent`` (x0, x1, y0, y1),
+    or with one static mesh lying on it (``relief``). ``nedm.render.terrain`` builds these.
 
     The tiles are geometry, not a texture. They are what makes motion visible from a camera
     that follows the robot, and they work on renderers and GPUs without texture support.
@@ -58,6 +59,15 @@ class Ground:
     tile_color: Color = (0.47, 0.42, 0.34)
     extent: tuple[float, float, float, float] = (-5.0, 13.0, -9.0, 9.0)
     tile_thickness: float = 0.002
+    relief: MeshBody | None = None          # vertices relative to (0, 0, height)
+    name: str = "checker"
+
+    @property
+    def plane_height(self) -> float:
+        """Where the plane is drawn: at ``height``, or just under the lowest point of the relief."""
+        if self.relief is None:
+            return self.height
+        return self.height + float(self.relief.arrays()[0][:, 2].min()) - 0.002
 
     def tile_centers(self) -> list[tuple[float, float, float]]:
         if self.tile_size is None:
@@ -135,9 +145,15 @@ class Scene:
 
     # ---- shared by every world -------------------------------------------------------
 
-    def add_ground(self, height: float = 0.0, **options) -> "Scene":
-        """A ground plane with a tile checker. See :class:`Ground` for the options."""
-        self.ground = Ground(height=height, **options)
+    def add_ground(self, height: float = 0.0, terrain: "str | Ground" = "checker", **options) -> "Scene":
+        """The ground every world stands on, at ``height``.
+
+        ``terrain`` is a name (``"checker"``, ``"plain"``, ``"soil"``) with that terrain's
+        ``options``, or a :class:`Ground` built with ``nedm.render.terrain``. It is looks only.
+        """
+        from nedm.render import terrain as terrains
+        self.ground = terrains.make(terrain, **options)
+        self.ground.height = float(height)
         return self
 
     def add_static_mesh(self, mesh: MeshBody, transform: Sequence[float] | None = None) -> "Scene":

@@ -65,11 +65,15 @@ class NewtonBackend:
             b.end_world()
         if scene.ground is not None:            # shared by every world
             ground = scene.ground
-            b.add_ground_plane(height=ground.height, color=ground.color)
+            b.add_ground_plane(height=ground.plane_height, color=ground.color)
             half = (ground.tile_size or 0.0) / 2
             for center in ground.tile_centers():
                 b.add_shape_box(-1, xform=wp.transform(wp.vec3(*center), wp.quat_identity()),
                                 hx=half, hy=half, hz=ground.tile_thickness / 2, color=ground.tile_color)
+            if ground.relief is not None:
+                vertices, faces = ground.relief.arrays()
+                b.add_shape_mesh(-1, xform=wp.transform(wp.vec3(0.0, 0.0, ground.height), wp.quat_identity()),
+                                 mesh=newton.Mesh(vertices, faces.reshape(-1)), color=ground.relief.color)
         for mesh, xf in scene.statics:
             vertices, faces = mesh.arrays()
             b.add_shape_mesh(-1, xform=wp.transform(wp.vec3(*xf[:3]), wp.quat(*xf[3:])),

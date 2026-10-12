@@ -34,6 +34,8 @@ def main() -> None:
     parser.add_argument("--device", default=None, help="warp device, default: the GPU if there is one")
     parser.add_argument("--no-shadows", action="store_true")
     parser.add_argument("--backend", choices=["newton", "madrona"], default="newton")
+    parser.add_argument("--terrain", choices=["checker", "plain", "soil"], default="checker",
+                        help="what the ground looks like. It changes the pictures and nothing else")
     parser.add_argument("--palette", choices=["none", "go2"], default="none",
                         help="link colors: none draws every link gray, go2 uses the Go2 example's palette")
     a = parser.parse_args()
@@ -54,7 +56,7 @@ def main() -> None:
         from go2_nrd_rollout import link_color
         colors = link_color
     t0 = time.perf_counter()
-    scene = Scene.from_urdf(a.urdf, floating=True, colors=colors).add_ground()
+    scene = Scene.from_urdf(a.urdf, floating=True, colors=colors).add_ground(terrain=a.terrain)
     renderer = BatchRenderer(scene, n, width=a.res, height=a.res, shadows=not a.no_shadows, device=a.device,
                              backend=a.backend)
     build_s = time.perf_counter() - t0
@@ -84,7 +86,8 @@ def main() -> None:
     depth_video.close()
     np.savez_compressed(out / "sample_frames.npz", pick=rgb_video.pick, rgb=np.stack([k[0] for k in kept]),
                         depth=np.stack([k[1] for k in kept]))
-    info = {"envs": n, "res": a.res, "frames": frames_n, "backend": a.backend, "render_device": str(renderer.device),
+    info = {"envs": n, "res": a.res, "frames": frames_n, "backend": a.backend, "terrain": a.terrain,
+            "render_device": str(renderer.device),
             "scene_build_s": round(build_s, 2),
             "first_frame_s": round(first_s, 2), "render_ms_per_frame": round(1e3 * render_s / (frames_n - 1), 2),
             "views_per_s": round(n * (frames_n - 1) / render_s), "trajectory": str(a.traj)}
