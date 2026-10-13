@@ -58,12 +58,14 @@ def make_tasks(n, start0=DEMO_START0, master=DEMO_MASTER, first=0, log=print):
     return t
 
 
-def load_tasks(path, idx=None):
+def load_tasks(path, idx=None, final_test=False):
+    """A task file (rows idx). Test seeds (900000+) are refused unless final_test (the final test, one evaluation per
+    final policy)."""
     t = dict(np.load(Path(path).expanduser()))
     n = len(t["seeds"])
     if idx is not None:
         t = {k: (v[idx] if np.ndim(v) and len(v) == n else v) for k, v in t.items()}
-    if (np.asarray(t["seeds"]) >= 900000).any():
+    if (np.asarray(t["seeds"]) >= 900000).any() and not final_test:
         raise ValueError("test seeds (900000+) in a demo / development task set")
     return t
 

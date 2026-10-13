@@ -198,7 +198,7 @@ def cmd_eval(a):
     ck = torch.load(Path(a.student).expanduser(), map_location="cpu", weights_only=False)
     cfg = ck["cfg"]
     views = V.Views(a.render_worlds, int(cfg.get("res", V.RES)), tuple(cfg.get("cameras", V.CAMERAS)))
-    tasks = D.load_tasks(a.eval_tasks, np.arange(a.first, a.first + a.eval_n))
+    tasks = D.load_tasks(a.eval_tasks, np.arange(a.first, a.first + a.eval_n), final_test=a.final_test)
     sa = load_student(kind, a.student, views, TT.robot_index(make_layout(teacher)),
                       json.loads(a.act_kw) if a.act_kw else None)
     t0 = time.time()
@@ -281,6 +281,7 @@ def main():
     p.add_argument("--workers", type=int, default=4), p.add_argument("--mj-python")
     p.add_argument("--render-worlds", type=int, default=256), p.add_argument("--horizon", type=int, default=400)
     p.add_argument("--act-kw")
+    p.add_argument("--final-test", action="store_true", help="allow the test seeds 900000+ (final test only)")
     a = ap.parse_args()
     globals()[f"cmd_{a.cmd}"](a)
 
